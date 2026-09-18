@@ -409,7 +409,7 @@ button{cursor:pointer}
 <main class="wrap">
 
   <!-- ============ RÉSUMÉ ============ -->
-  <section class="panel stack" id="v-resume" role="tabpanel" aria-labelledby="">
+  <section class="panel stack" id="v-resume" role="tabpanel">
     <div class="card">
       <div class="hero">
         <div>
@@ -493,7 +493,7 @@ button{cursor:pointer}
               <dt>AM</dt><dd>avant-midi, 6h – 14h</dd>
               <dt>PM</dt><dd>après-midi, 14h – 22h</dd>
               <dt>N</dt><dd>nuit, 22h – 6h</dd>
-              <dt>D</dt><dd>jour, 7h30 – 16h</dd>
+              <dt>D</dt><dd>jour, horaire variable (7h-15h, 7h30-16h ou flottant)</dd>
             </dl>
             <h3>Primes de rappel</h3>
             <dl>
@@ -617,9 +617,9 @@ button{cursor:pointer}
 </main>
 
 <div class="onboard-overlay" id="onboard" hidden>
-  <form class="card onboard-card" id="onboardForm">
+  <form class="card onboard-card" id="onboardForm" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
     <header>
-      <h2>Bienvenue — quelques infos avant de commencer</h2>
+      <h2 id="onboardTitle">Bienvenue — quelques infos avant de commencer</h2>
     </header>
     <p class="lede top">
       Les réglages communs à l'équipe (primes d'équipe, coefficients de rappel, chèques-repas, barèmes ONSS et impôt…)
@@ -643,8 +643,8 @@ button{cursor:pointer}
 var MOIS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var WD=["lun","mar","mer","jeu","ven","sam","dim"];
 var SHIFTS=[{c:"",n:"—"},{c:"AM",n:"AM"},{c:"PM",n:"PM"},{c:"N",n:"N"},{c:"D",n:"D"}];
-var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour 7h-15h"};
-var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour 7h30-16h"};
+var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour"};
+var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour — horaire variable (7h-15h, 7h30-16h ou flottant)"};
 var SHIFT_MIGR={M:"AM",AM:"PM",J:"D"};
 var RAP_ORDRE=["","J","J2","MP"];
 var RAP_TXT={"":"·","J":"J","J2":"J-2","MP":"MP"};
@@ -1309,7 +1309,7 @@ function renderResume(C){
     '<div class="wd"><span>lun</span><span>mar</span><span>mer</span><span>jeu</span><span>ven</span><span>sam</span><span>dim</span></div>'+
     '<div class="grid">'+cells+"</div>"+
     '<div class="legend"><span><i style="background:var(--am)"></i>AM 6h-14h</span><span><i style="background:var(--pm)"></i>PM 14h-22h</span>'+
-    '<span><i style="background:var(--n)"></i>N 22h-6h</span><span><i style="background:var(--d)"></i>D 7h30-16h</span>'+
+    '<span><i style="background:var(--n)"></i>N 22h-6h</span><span><i style="background:var(--d)"></i>D horaire variable</span>'+
     '<span><i style="background:var(--out2)"></i>jour férié</span></div>';
   var cal=document.getElementById("cal");
   Array.prototype.forEach.call(cal.querySelectorAll("button.fer,[data-fer]"),function(b){b.classList.add("fer");});
@@ -1399,7 +1399,7 @@ var PARAM_FIELDS=[
  {k:"primeAM",l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
  {k:"primePM",l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
  {k:"primeN",l:"Prime équipe N — nuit (€/h)",scope:"params"},
- {k:"primeD",l:"Prime équipe D — jour 7h-15h (€/h)",scope:"params"},
+ {k:"primeD",l:"Prime équipe D — jour (€/h)",scope:"params"},
  {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert au remplissage automatique",personal:true,
   onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Il détermine votre rotation matin / après-midi / nuit dans le cycle, et permet de pré-remplir automatiquement votre horaire."},
  {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"],personal:true,
@@ -1722,7 +1722,6 @@ function fetchHoraireDB(){
     .catch(function(){ flash("Horaire d'équipe indisponible (hors ligne ?)"); return null; });
   return horaireFetching;
 }
-function horairePersonKey(cat,id){ return cat+"\u0001"+id; }
 function renderPrefillSelects(db){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
@@ -1861,7 +1860,6 @@ document.getElementById("fileImport").addEventListener("change",function(e){
 
 
 /* ===================== chargement ===================== */
-/* ===================== chargement ===================== */
 function readDoc(path){
   if(st.db) return st.db.doc(path).get().then(function(s){return s.exists?s.data():null;},function(){return lsGet(path);});
   return Promise.resolve(lsGet(path));
@@ -1949,6 +1947,8 @@ function boot(){
     if(!st.state.onboarded){
       renderOnboard();
       document.getElementById("onboard").hidden=false;
+      var firstField=document.querySelector("#onboardFields input,#onboardFields select");
+      if(firstField) firstField.focus();
       onboardDone=startApp;
     } else {
       startApp();

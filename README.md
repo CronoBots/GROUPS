@@ -7,6 +7,12 @@ et la page reconstitue la fiche ligne par ligne jusqu'au net à recevoir.
 Application web installable (PWA) : elle s'installe comme une application,
 garde son icône et **fonctionne hors ligne**.
 
+À la première ouverture, un court formulaire demande vos informations
+personnelles (rémunération, situation familiale, équipe…) avec une
+explication pour chaque champ. Les réglages communs à toute l'équipe
+(primes, barèmes) sont déjà configurés. Tout reste modifiable ensuite dans
+l'onglet « Réglages ».
+
 ## Installer
 
 Une fois le dépôt publié sur GitHub Pages, ouvrez son adresse :
@@ -35,10 +41,11 @@ n'est figé dans le code.
 Dans l'onglet Horaire, un sélecteur permet de retrouver sa ligne dans
 l'horaire réel de l'équipe (par fonction puis par identifiant anonymisé —
 initiales ou matricule, jamais le nom complet) et de pré-remplir
-automatiquement le mois affiché. Les horaires à heures non standard
-(horaire flottant, plages spéciales) ne sont pas reconnus automatiquement
-et restent à compléter à la main ; un message indique combien de jours
-sont concernés. Les jours déjà encodés à la main ne sont jamais écrasés.
+automatiquement le mois affiché. Plus de 96 % des jours sont reconnus
+automatiquement ; les cas particuliers restants (remplacements sans
+information exploitable, prolongations de pause) restent à compléter à la
+main, avec un message qui indique combien de jours sont concernés. Les
+jours déjà encodés à la main ne sont jamais écrasés.
 
 ## Vos données
 
