@@ -317,6 +317,17 @@ button{cursor:pointer}
 .btnlike{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2); cursor:pointer}
 .btnlike:hover{border-color:var(--in); color:var(--in)}
 
+/* ---------- accueil / formulaire de configuration ---------- */
+.onboard-overlay{position:fixed; inset:0; z-index:100; background:rgba(10,16,20,.6); display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; overflow:auto}
+.onboard-card{width:100%; max-width:640px; margin:auto}
+.onboard-card>header{padding:16px}
+.onboard-card>header h2{font-size:17px}
+.obgroup{padding:0 16px 4px}
+.obgroup:first-child{padding-top:2px}
+.obgroup h3{font-size:11px; color:var(--faint); letter-spacing:.05em; text-transform:uppercase; margin:0 0 9px}
+.onboard-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-top:1px solid var(--line2)}
+@media (max-width:480px){.onboard-foot{flex-direction:column-reverse; align-items:stretch}}
+
 /* ---------- toast ---------- */
 .toast{
   position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:60;
@@ -565,6 +576,7 @@ button{cursor:pointer}
     <div class="card">
       <details class="fold" open>
         <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
+        <p class="lede top">Les primes d'équipe, chèques-repas et autres valeurs communes à toute l'équipe sont déjà réglés. Vos informations personnelles (rémunération, situation familiale, équipe…) peuvent être corrigées ici à tout moment.</p>
         <div class="pad grid" id="paramFields"></div>
         <p class="lede" id="paramNote"></p>
       </details>
@@ -591,6 +603,24 @@ button{cursor:pointer}
   </section>
 
 </main>
+
+<div class="onboard-overlay" id="onboard" hidden>
+  <form class="card onboard-card" id="onboardForm">
+    <header>
+      <h2>Bienvenue — quelques infos avant de commencer</h2>
+    </header>
+    <p class="lede top">
+      Les réglages communs à l'équipe (primes d'équipe, coefficients de rappel, chèques-repas, barèmes ONSS et impôt…)
+      sont déjà configurés. Il ne manque que ce qui vous est propre, expliqué ci-dessous. Rien n'est définitif :
+      vous pourrez tout corriger plus tard dans l'onglet <b>Réglages</b>.
+    </p>
+    <div class="pad stack" id="onboardFields"></div>
+    <footer class="onboard-foot">
+      <button type="button" class="btnlike" id="onboardSkip">Configurer plus tard</button>
+      <button type="submit" class="btn primary">Enregistrer et commencer</button>
+    </footer>
+  </form>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -1316,33 +1346,50 @@ var MONTH_FIELDS=[
  {k:"kmVelo",l:"Km vélo",scope:"month",step:"1",hint:"vide = jours vélo × 2 × distance"}
 ];
 var PARAM_FIELDS=[
- {k:"statut",l:"Statut",scope:"params",type:"select",opts:["Employé","Ouvrier"]},
- {k:"etatCivil",l:"État civil",scope:"params",type:"select",opts:["Marié(e)","Célibataire","Cohabitant(e) légal(e)"]},
- {k:"conjoint",l:"Conjoint",scope:"params",type:"select",opts:["Avec revenus","Sans revenus","Sans objet"]},
- {k:"enfants",l:"Enfants à charge",scope:"params",step:"1"},
- {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params"},
+ {k:"statut",l:"Statut",scope:"params",type:"select",opts:["Employé","Ouvrier"],personal:true,
+  onb:"Votre statut au contrat de travail. Il influence certains taux de cotisation et le calcul du précompte."},
+ {k:"etatCivil",l:"État civil",scope:"params",type:"select",opts:["Marié(e)","Célibataire","Cohabitant(e) légal(e)"],personal:true,
+  onb:"Votre état civil tel que déclaré à l'employeur : il conditionne le calcul du précompte professionnel (la retenue d'impôt)."},
+ {k:"conjoint",l:"Conjoint",scope:"params",type:"select",opts:["Avec revenus","Sans revenus","Sans objet"],personal:true,
+  onb:"Si vous êtes marié(e) ou cohabitant(e) légal(e), précisez si votre conjoint a des revenus propres — un conjoint sans revenus peut réduire votre précompte. Sinon, laissez « Sans objet »."},
+ {k:"enfants",l:"Enfants à charge",scope:"params",step:"1",personal:true,
+  onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
+ {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,
+  onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
  {k:"divH",l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
- {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)"},
+ {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)",personal:true,
+  onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps. Laissez 1 si vous êtes à temps plein."},
  {k:"hJour",l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
  {k:"hSemaine",l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
  {k:"primeAM",l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
  {k:"primePM",l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
  {k:"primeN",l:"Prime équipe N — nuit (€/h)",scope:"params"},
  {k:"primeD",l:"Prime équipe D — jour 7h-15h (€/h)",scope:"params"},
- {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert au remplissage automatique"},
- {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"]},
- {k:"decalage",l:"Décalage du cycle (jours)",scope:"params",step:"1",hint:"si le cycle tombe à côté, ajustez de ±1"},
- {k:"indJour",l:"Indemnité déplacement / jour (€)",scope:"params"},
+ {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert au remplissage automatique",personal:true,
+  onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Il détermine votre rotation matin / après-midi / nuit dans le cycle, et permet de pré-remplir automatiquement votre horaire."},
+ {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"],personal:true,
+  onb:"La durée du cycle de roulement de votre équipe, selon votre planning."},
+ {k:"decalage",l:"Décalage du cycle (jours)",scope:"params",step:"1",hint:"si le cycle tombe à côté, ajustez de ±1",personal:true,
+  onb:"Si le cycle proposé automatiquement ne tombe pas exactement sur votre planning réel, ajustez ce décalage (en jours, + ou −) jusqu'à ce qu'il corresponde. Laissez 0 si vous ne savez pas encore — vous pourrez ajuster plus tard en comparant avec votre planning."},
+ {k:"indJour",l:"Indemnité déplacement / jour (€)",scope:"params",personal:true,
+  onb:"Indemnité de déplacement que vous percevez par jour presté, si votre situation y donne droit. Laissez 0 si vous ne savez pas — à vérifier sur une fiche de paie réelle."},
  {k:"indVeloKm",l:"Indemnité vélo (€/km)",scope:"params",step:"0.0001",hint:"0 si vélo de société"},
- {k:"distance",l:"Distance domicile-travail (km)",scope:"params",step:"0.1"},
- {k:"avVelo",l:"Avantage vélo société (€)",scope:"params"},
- {k:"dedVelo",l:"Déduction vélo (€)",scope:"params"},
+ {k:"distance",l:"Distance domicile-travail (km)",scope:"params",step:"0.1",personal:true,
+  onb:"Distance en kilomètres entre votre domicile et votre lieu de travail (trajet simple). Sert à calculer l'indemnité vélo si vous vous déplacez à vélo."},
+ {k:"avVelo",l:"Avantage vélo société (€)",scope:"params",personal:true,
+  onb:"Montant de l'avantage vélo de société que vous percevez, si vous en bénéficiez. Laissez 0 sinon."},
+ {k:"dedVelo",l:"Déduction vélo (€)",scope:"params",personal:true,
+  onb:"Déduction éventuelle liée à un vélo de société, si elle figure sur votre fiche de paie. Laissez 0 si non concerné."},
  {k:"crFaciale",l:"Chèque repas – valeur faciale (€)",scope:"params"},
  {k:"crPerso",l:"Chèque repas – part personnelle (€)",scope:"params"},
- {k:"atnGsm",l:"Avantage nature GSM (€)",scope:"params"},
- {k:"atnTel",l:"Avantage nature téléphone (€)",scope:"params"},
- {k:"atnNet",l:"Avantage nature internet (€)",scope:"params"},
- {k:"assGroupe",l:"Assurance groupe (€)",scope:"params"}
+ {k:"atnGsm",l:"Avantage nature GSM (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour un GSM fourni par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"atnTel",l:"Avantage nature téléphone (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour un abonnement téléphone fourni par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"atnNet",l:"Avantage nature internet (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour une connexion internet fournie par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"assGroupe",l:"Assurance groupe (€)",scope:"params",personal:true,
+  onb:"Votre cotisation personnelle à l'assurance groupe, retenue sur votre salaire, si applicable. Laissez 0 si vous ne savez pas — vous pourrez la corriger plus tard en consultant une fiche de paie réelle."}
 ];
 var RAPPEL_FIELDS=[
  {k:"rapHeures",l:"Heures de déplacement",scope:"params",step:"0.5",hint:"base de la prime : 2 h"},
@@ -1389,6 +1436,58 @@ function renderFields(){
   document.getElementById("paramNote").textContent=
     "Salaire horaire qui en découle : "+nf4.format(R(st.params.remFixe/st.params.divH,4))+" €. C'est lui qui sert aux suppléments de week-end, aux heures supplémentaires et aux primes de rappel.";
 }
+
+/* ===================== accueil / configuration initiale ===================== */
+var ONBOARD_GROUPS=[
+ {t:"Votre situation familiale",fields:["statut","etatCivil","conjoint","enfants"]},
+ {t:"Votre rémunération et votre temps de travail",fields:["remFixe","fraction"]},
+ {t:"Votre équipe et votre cycle de roulement",fields:["binome","cycle","decalage"]},
+ {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
+ {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}
+];
+function onboardFieldHTML(f){
+  var id="ob_"+f.k, val=st.params[f.k], hint=f.onb||f.hint;
+  if(f.type==="select"){
+    var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
+    return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'">'+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  }
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" value="'+(val===null||val===undefined?"":val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+}
+function renderOnboard(){
+  var byK={}; PARAM_FIELDS.forEach(function(f){byK[f.k]=f;});
+  var h="";
+  ONBOARD_GROUPS.forEach(function(g){
+    h+='<div class="obgroup"><h3>'+g.t+"</h3><div class=\"grid\">";
+    g.fields.forEach(function(k){ h+=onboardFieldHTML(byK[k]); });
+    h+="</div></div>";
+  });
+  document.getElementById("onboardFields").innerHTML=h;
+}
+function applyOnboard(){
+  PARAM_FIELDS.forEach(function(f){
+    if(!f.personal) return;
+    var el=document.getElementById("ob_"+f.k); if(!el) return;
+    var v=f.type==="select"?el.value:Number(el.value||0);
+    st.params[f.k]=v;
+    if(f.k==="binome") st.params.binomeIdx=Math.max(1,BINOMES.indexOf(v)+1);
+  });
+  save("config/params",st.params);
+}
+function finishOnboard(apply,cb){
+  if(apply) applyOnboard();
+  st.state=st.state||{}; st.state.onboarded=true;
+  save("config/state",st.state);
+  document.getElementById("onboard").hidden=true;
+  cb();
+}
+document.getElementById("onboardForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  finishOnboard(true,onboardDone);
+});
+document.getElementById("onboardSkip").addEventListener("click",function(){
+  finishOnboard(false,onboardDone);
+});
+var onboardDone=function(){};
 
 /* ===================== onglets ===================== */
 var VIEWS=["resume","horaire","fiche","controle","reglages"];
@@ -1691,7 +1790,8 @@ function mergeDefaults(src,def){
 }
 function loadMonth(y,m){
   st.y=y; st.m=m; st.mkey=key(y,m); st.lastDay=0;
-  save("config/state",{last:st.mkey});
+  st.state=st.state||{}; st.state.last=st.mkey;
+  save("config/state",st.state);
   document.getElementById("mlabel").textContent=MOIS[m]+" "+y;
   readMonth(st.mkey).then(function(d){
     var migre=migreMois(d);
@@ -1722,12 +1822,22 @@ function boot(){
     if(migreP) save("config/params",st.params);
     st.bareme=mergeDefaults(r[1],DEF_B);
     if(!st.bareme.enfTable||!st.bareme.enfTable.length) st.bareme.enfTable=DEF_B.enfTable;
-    var start=(r[2]&&r[2].last)||null;
-    var y,m;
-    if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
-    else { y=now.getFullYear(); m=now.getMonth(); }
-    setView(lsGet("ui/view")||"resume",true);
-    loadMonth(y,m);
+    st.state=r[2]||{};
+    function startApp(){
+      var start=st.state.last||null;
+      var y,m;
+      if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
+      else { y=now.getFullYear(); m=now.getMonth(); }
+      setView(lsGet("ui/view")||"resume",true);
+      loadMonth(y,m);
+    }
+    if(!st.state.onboarded){
+      renderOnboard();
+      document.getElementById("onboard").hidden=false;
+      onboardDone=startApp;
+    } else {
+      startApp();
+    }
   });
 }
 
