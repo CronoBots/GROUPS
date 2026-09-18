@@ -728,6 +728,8 @@ function eur(x){return nf.format(x)+" €";}
 function num(x){return nf0.format(x);}
 function pad2(n){return (n<10?"0":"")+n;}
 function key(y,m){return y+"-"+pad2(m+1);}
+var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
 function easter(y){
   var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),
       g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
@@ -1116,7 +1118,7 @@ function renderRota(){
       '<button type="button" class="icb bike" aria-pressed="'+(!!rec.v)+'" title="Venu à vélo" aria-label="Vélo le '+d+'">'+
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
       '</button>'+
-      '<button type="button" class="rap" data-r="'+(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
+      '<button type="button" class="rap" data-r="'+esc(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
     row.querySelector(".abs").value=rec.a||"";
     var hi=row.querySelector(".hrs");
     hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
@@ -1212,7 +1214,7 @@ function renderChk(C){
     var ok=has&&Math.abs(ec)<0.011;
     if(has){ ok?nOk++:nKo++; }
     h+='<tr class="'+(has?(ok?"ok":"ko"):"")+'"><td>'+r[0]+'</td><td class="n">'+(r[3]?num(calc):eur(calc))+'</td>'+
-       '<td class="n"><input type="number" step="0.01" data-k="'+r[1]+'" value="'+(has?v:"")+'" aria-label="'+r[0]+' sur ma fiche"></td>'+
+       '<td class="n"><input type="number" step="0.01" data-k="'+r[1]+'" value="'+(has?esc(v):"")+'" aria-label="'+r[0]+' sur ma fiche"></td>'+
        '<td class="n ec">'+(has?(r[3]?num(ec):eur(ec)):"—")+'</td>'+
        '<td class="n"><span class="pill '+(has?(ok?"ok":"ko"):"na")+'">'+(has?(ok?"OK":"à vérifier"):"—")+'</span></td></tr>';
   });
@@ -1300,10 +1302,10 @@ function renderResume(C){
   for(var dd=1; dd<=nd; dd++){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
     var tag=rec.s||(rec.a?rec.a.replace(/^1\/2 /,"½").replace(/^(\d)H /,"$1"):"");
-    cells+='<button type="button" data-d="'+dd+'"'+(rec.s?' data-s="'+rec.s+'"':"")+
+    cells+='<button type="button" data-d="'+dd+'"'+(rec.s?' data-s="'+esc(rec.s)+'"':"")+
       (!rec.s&&rec.a?' class="abs"':"")+(fer?" data-fer=1":"")+
-      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+(rec.s?" — poste "+rec.s:(rec.a?" — "+rec.a:" — repos"))+'">'+
-      '<span class="dn">'+dd+'</span><span class="tag">'+(tag||"")+"</span></button>";
+      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+(rec.s?" — poste "+esc(rec.s):(rec.a?" — "+esc(rec.a):" — repos"))+'">'+
+      '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
   }
   document.getElementById("cal").innerHTML=
     '<div class="wd"><span>lun</span><span>mar</span><span>mer</span><span>jeu</span><span>ven</span><span>sam</span><span>dim</span></div>'+
@@ -1352,7 +1354,7 @@ function fieldHTML(f,val){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'" data-k="'+f.k+'" data-scope="'+f.scope+'">'+o+"</select>"+(f.hint?'<span class="hint">'+f.hint+"</span>":"")+"</div>";
   }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" data-k="'+f.k+'" data-scope="'+f.scope+'" value="'+(val===null||val===undefined?"":val)+'">'+(f.hint?'<span class="hint">'+f.hint+"</span>":"")+"</div>";
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" data-k="'+f.k+'" data-scope="'+f.scope+'" value="'+esc(val)+'">'+(f.hint?'<span class="hint">'+f.hint+"</span>":"")+"</div>";
 }
 
 var MONTH_FIELDS=[
@@ -1486,7 +1488,7 @@ function onboardFieldHTML(f){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'">'+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
   }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" value="'+(val===null||val===undefined?"":val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" value="'+esc(val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
 }
 function renderOnboard(){
   var byK={}; PARAM_FIELDS.forEach(function(f){byK[f.k]=f;});
