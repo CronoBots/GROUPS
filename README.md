@@ -30,6 +30,16 @@ Une fois le dépôt publié sur GitHub Pages, ouvrez son adresse :
 Tous les barèmes sont modifiables dans la page (onglet « Barèmes ») : rien
 n'est figé dans le code.
 
+## Pré-remplir depuis l'horaire d'équipe
+
+Dans l'onglet Horaire, un sélecteur permet de retrouver sa ligne dans
+l'horaire réel de l'équipe (par fonction puis par identifiant anonymisé —
+initiales ou matricule, jamais le nom complet) et de pré-remplir
+automatiquement le mois affiché. Les horaires à heures non standard
+(horaire flottant, plages spéciales) ne sont pas reconnus automatiquement
+et restent à compléter à la main ; un message indique combien de jours
+sont concernés. Les jours déjà encodés à la main ne sont jamais écrasés.
+
 ## Vos données
 
 Elles ne quittent jamais l'appareil : tout est enregistré par le navigateur.
@@ -49,6 +59,7 @@ qui sert de sauvegarde et permet de transférer vos mois vers un autre appareil
 | `sw.js` | cache et fonctionnement hors ligne |
 | `icon-*.png` | icônes |
 | `.nojekyll` | désactive le traitement Jekyll de GitHub Pages |
+| `data/horaire-2026.json` | horaire d'équipe 2026 pour le pré-remplissage, anonymisé (identifiants uniquement, aucun nom) |
 
 ## Licence
 

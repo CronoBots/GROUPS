@@ -462,6 +462,12 @@ button{cursor:pointer}
         <button type="button" class="btn" id="copyPrev">Copier le mois précédent</button>
         <button type="button" class="btn" id="clearAll">Vider le mois</button>
       </div>
+      <div class="toolbar">
+        <select id="prefillCat" aria-label="Fonction"></select>
+        <select id="prefillId" aria-label="Identifiant"></select>
+        <button type="button" class="btn" id="prefillBtn">Pré-remplir depuis l'équipe</button>
+        <span class="sub" id="prefillHint"></span>
+      </div>
       <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
       Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
       <div class="rota-head"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
@@ -1532,6 +1538,7 @@ function setView(v,keepScroll){
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
   if(!keepScroll) window.scrollTo(0,0);
+  if(v==="horaire") ensurePrefillUI();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
@@ -1704,6 +1711,85 @@ document.getElementById("copyPrev").addEventListener("click",function(){
     persistMonth(); renderRota(); refresh(); flash("Horaire du mois précédent copié");
   });
 });
+
+/* ===================== horaire d'équipe (pré-remplissage) ===================== */
+var HORAIRE_DB=null, horaireFetching=null;
+function fetchHoraireDB(){
+  if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
+  if(horaireFetching) return horaireFetching;
+  horaireFetching=fetch("./data/horaire-2026.json").then(function(r){return r.json();})
+    .then(function(db){ HORAIRE_DB=db; return db; })
+    .catch(function(){ flash("Horaire d'équipe indisponible (hors ligne ?)"); return null; });
+  return horaireFetching;
+}
+function horairePersonKey(cat,id){ return cat+"\u0001"+id; }
+function renderPrefillSelects(db){
+  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
+  var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  catSel.innerHTML=cats.map(function(c){return '<option value="'+c+'">'+c+"</option>";}).join("");
+  var savedCat=lsGet("ui/prefillCat");
+  if(savedCat && cats.indexOf(savedCat)>=0) catSel.value=savedCat;
+  function fillIds(){
+    var cat=catSel.value;
+    var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
+    idSel.innerHTML=ids.map(function(i){return '<option value="'+i+'">'+i+"</option>";}).join("");
+    var savedId=lsGet("ui/prefillId");
+    if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
+  }
+  fillIds();
+  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); };
+  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); };
+}
+function parseHoraireEntry(code){
+  var out={};
+  code.split("|").forEach(function(p){
+    if(!p) return;
+    if(p.charAt(0)==="?"){ out.unknown=(out.unknown||0)+1; return; }
+    if(["AM","PM","N","D"].indexOf(p)>=0){ out.s=p; return; }
+    out.a=p;
+  });
+  return out;
+}
+function prefillFromHoraire(){
+  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
+  var id=idSel.value; if(!id){ flash("Choisissez d'abord une personne"); return; }
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
+    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, flagged=0;
+    for(var day=1; day<=nd; day++){
+      var rec=st.month.days[day];
+      if(rec && (rec.s || rec.a)){ kept++; continue; }
+      var mmdd=pad2(st.m+1)+pad2(day);
+      var raw=person.d[mmdd]; if(raw===undefined) continue;
+      var parsed=parseHoraireEntry(raw);
+      if(parsed.unknown) flagged++;
+      if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
+        var nrec=st.month.days[day]||(st.month.days[day]={});
+        if(parsed.s){ nrec.s=parsed.s; nrec.h=st.params.hJour; }
+        if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
+        filled++;
+      }
+    }
+    persistMonth(); renderRota(); refresh();
+    var msg=filled+" jour(s) pré-rempli(s) pour "+id;
+    if(flagged) msg+=" — "+flagged+" jour(s) à horaire spécial (à compléter à la main)";
+    if(kept) msg+=" — "+kept+" jour(s) déjà encodé(s) conservé(s)";
+    flash(msg);
+  });
+}
+document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
+var prefillReady=false;
+function ensurePrefillUI(){
+  if(prefillReady) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    prefillReady=true;
+    renderPrefillSelects(db);
+    document.getElementById("prefillHint").textContent="Base "+db.year+" · "+db.people.length+" personnes (identifiants anonymisés)";
+  });
+}
 
 /* ===================== export / import ===================== */
 function collectAll(){
