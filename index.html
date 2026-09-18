@@ -462,7 +462,8 @@ button{cursor:pointer}
         <button type="button" class="btn" id="copyPrev">Copier le mois précédent</button>
         <button type="button" class="btn" id="clearAll">Vider le mois</button>
       </div>
-      <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.</p>
+      <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
+      Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
       <div class="rota-head"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
       <div class="rota" id="rota"></div>
       <div class="rota-foot">
@@ -471,6 +472,7 @@ button{cursor:pointer}
         <span>Week-end <b id="tWe">0</b> h</span>
         <span>Vélo <b id="tVelo">0</b></span>
         <span>Flex time <b id="tFt">0</b></span>
+        <span>Heures sup <b id="tHs">0</b></span>
         <span>Rappels <b id="tRap">0</b></span>
       </div>
     </div>
@@ -511,10 +513,14 @@ button{cursor:pointer}
           <div>
             <h3>Compteurs et non payé</h3>
             <dl>
-              <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là</dd>
+              <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
               <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
               <dt>ABS</dt><dd>absence injustifiée</dd>
               <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
+            </dl>
+            <h3>Heures supplémentaires</h3>
+            <dl>
+              <dt>HS</dt><dd>heures prestées en plus de l'horaire du jour, avec supplément et prime d'équipe majorée d'un cran</dd>
             </dl>
             <h3>Demi-journées</h3>
             <dl>
@@ -668,6 +674,8 @@ var ABS=[
  {c:"6H -FT",h:0,k:"FT",ft:-6},
  {c:"7H -FT",h:0,k:"FT",ft:-7},
  {c:"8H -FT",h:0,k:"FT",ft:-8},
+ {c:"1H HS",h:0,k:"HS",hs:1},{c:"2H HS",h:0,k:"HS",hs:2},{c:"3H HS",h:0,k:"HS",hs:3},{c:"4H HS",h:0,k:"HS",hs:4},
+ {c:"5H HS",h:0,k:"HS",hs:5},{c:"6H HS",h:0,k:"HS",hs:6},{c:"7H HS",h:0,k:"HS",hs:7},{c:"8H HS",h:0,k:"HS",hs:8},
  {c:"FER",h:8,k:"FER"},{c:"1/2 FER",h:4,k:"FER"},
  {c:"SMG",h:8,k:"SMG"},{c:"1/2 SMG",h:4,k:"SMG"},
  {c:"FORM",h:8,k:"FORM"},{c:"1/2 FORM",h:4,k:"FORM"},
@@ -793,7 +801,8 @@ function compute(){
   var indJour=(M.indJourMois!==null&&M.indJourMois!==undefined&&M.indJourMois!=="")?Number(M.indJourMois):p.indJour;
   var txh=R(remFixe/p.divH,4);
   var acc={hTot:0,jours:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
-           rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},abs:{}};
+           rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},abs:{},
+           hsHrs:0,hsAutoBkt:{},hsAutoPoste:{}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
   var noms=SHIFT_NOMS;
   var COEF_J={Semaine:p.rapJourSem,Samedi:p.rapJourSam,Dimanche:p.rapJourDim,"Férié":p.rapJourFer};
@@ -826,6 +835,12 @@ function compute(){
       var A=ABSMAP[rec.a];
       acc.abs[A.k]=(acc.abs[A.k]||0)+A.h;
       if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
+      if(A.hs){
+        var bkt=isFer?"Dimanche":t;
+        acc.hsHrs+=A.hs;
+        acc.hsAutoBkt[bkt]=(acc.hsAutoBkt[bkt]||0)+A.hs;
+        if(rec.s){ var pk=rec.s+"|"+bkt; acc.hsAutoPoste[pk]=(acc.hsAutoPoste[pk]||0)+A.hs; }
+      }
     }
   }
   function ab(k){return acc.abs[k]||0;}
@@ -858,6 +873,7 @@ function compute(){
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
+  if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées (codes HS de l'horaire)",qh:true,info:true});
 
   var brutLines=[];
   function bl(q,l,v,qh){ var o={q:q,l:l,v:v,qh:qh}; brutLines.push(o); return o; }
@@ -876,6 +892,17 @@ function compute(){
        R(hsH*primes[hsP]*HS_EQUIPE[hsJ]),true);
   if(hsH>0)
     bl(hsH,"HS non compensées à "+nf4.format(txh)+" à "+num(hsTx)+" %",R(hsH*txh*hsTx/100),true);
+  Object.keys(acc.hsAutoPoste).forEach(function(pk){
+    var parts=pk.split("|"), posteK=parts[0], bkt=parts[1], pr=primes[posteK], hh=acc.hsAutoPoste[pk];
+    if(!pr) return;
+    bl(hh,"Suppl. Équipe "+noms[posteK]+" à "+nf.format(pr)+" à "+HS_PCT[bkt]+" (heures suppl. de l'horaire)",
+       R(hh*pr*HS_EQUIPE[bkt]),true);
+  });
+  ["Semaine","Samedi","Dimanche"].forEach(function(bkt){
+    var hh=acc.hsAutoBkt[bkt]; if(!hh) return;
+    bl(hh,"HS non compensées ("+bkt.toLowerCase()+", horaire) à "+nf4.format(txh)+" à "+num(HS_TAUX[bkt])+" %",
+       R(hh*txh*HS_TAUX[bkt]/100),true);
+  });
   if(M.hDeplacement) bl(M.hDeplacement,"Heure(s) de déplacement à "+nf4.format(txh),R(M.hDeplacement*txh),true);
   if(acc.rapG) bl(acc.rapG,RAP_LIB.J,acc.rapMt.J);
   if(acc.rapP) bl(acc.rapP,RAP_LIB.J2,acc.rapMt.J2);
@@ -981,6 +1008,7 @@ var WHY=[
  [/^Heure\(s\) (vacances|jour férié|repos|RTT|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
  [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
  [/^Heure\(s\) flex time/,"Compteur uniquement. Les heures prestées pour un collègue (+FT) ne sont pas payées le jour même ; elles le sont le jour où vous les récupérez (−FT)."],
+ [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
  [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
  [/^Supplément weekend .* à 150 %/,"Samedi : chaque heure reçoit 150 % du salaire horaire."],
  [/^Supplément jour férié presté/,"Un jour férié presté en semaine donne 100 % de plus. Contrairement au week-end, ce supplément n'est pas déduit ensuite."],
@@ -1288,6 +1316,7 @@ function renderTotals(C){
   document.getElementById("tVelo").textContent=C.acc.velo;
   var ftS=C.acc.ftPlus-C.acc.ftMoins;
   document.getElementById("tFt").textContent=(ftS>0?"+":"")+num(ftS)+" h";
+  document.getElementById("tHs").textContent=num(C.acc.hsHrs)+" h";
   var rTot=C.acc.rapG+C.acc.rapP+C.acc.rapM;
   document.getElementById("tRap").textContent=rTot
     ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
@@ -1335,7 +1364,7 @@ var MONTH_FIELDS=[
  {k:"autreBrut",l:"Autre rémunération brute (€)",scope:"month"},
  {k:"autreRet",l:"Autre retenue nette (€)",scope:"month"},
  {k:"autreF",l:"Autre indemnité nette (€)",scope:"month",hint:"régularisation de déplacement, etc."},
- {k:"hsHeures",l:"Heures suppl. non compensées (h)",scope:"month",step:"0.25"},
+ {k:"hsHeures",l:"Heures suppl. non compensées (h)",scope:"month",step:"0.25",hint:"régularisation manuelle ; sinon utilisez les codes HS jour par jour dans l'horaire"},
  {k:"hsJour",l:"Heures suppl. — jour",scope:"month",type:"select",opts:["Semaine","Samedi","Dimanche"],hint:"jour férié = comme dimanche"},
  {k:"hsPoste",l:"Heures suppl. — poste",scope:"month",type:"select",opts:["","AM","PM","N","D"],hint:"donne la prime d'équipe majorée d'un cran"},
  {k:"hsTaux",l:"Taux heures suppl. (%)",scope:"month",step:"0.5",hint:"vide = automatique : 150 / 187,5 / 200"},
