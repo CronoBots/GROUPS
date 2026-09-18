@@ -762,6 +762,10 @@ var CYCLE6=["AM","AM","PM","PM","N","N","N","","","AM","AM","PM","PM","PM","N","
             "D","D","D","D","D","",""];
 var CYCLE5=CYCLE6.slice(0,35);
 var BINOMES=["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"];
+function setParam(k,v){
+  st.params[k]=v;
+  if(k==="binome") st.params.binomeIdx=Math.max(1,BINOMES.indexOf(v)+1);
+}
 var ANCRAGE=[3,38,31,24,17,10];            /* position au 1er janvier 2025 */
 var ANCRAGE_BASE=Date.UTC(2025,0,1);
 function cyclePoste(idx,cycle,decal,ts){
@@ -1348,13 +1352,16 @@ function refresh(){
 }
 
 /* ===================== champs ===================== */
-function fieldHTML(f,val){
-  var id="f_"+f.k;
+function fieldHTML(f,val,opt){
+  opt=opt||{};
+  var id=(opt.idPrefix||"f_")+f.k;
+  var hint=opt.hint!==undefined?opt.hint:f.hint;
+  var attrs=opt.bare?"":(' data-k="'+f.k+'" data-scope="'+f.scope+'"');
   if(f.type==="select"){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
-    return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'" data-k="'+f.k+'" data-scope="'+f.scope+'">'+o+"</select>"+(f.hint?'<span class="hint">'+f.hint+"</span>":"")+"</div>";
+    return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
   }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" data-k="'+f.k+'" data-scope="'+f.scope+'" value="'+esc(val)+'">'+(f.hint?'<span class="hint">'+f.hint+"</span>":"")+"</div>";
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'"'+attrs+' value="'+esc(val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
 }
 
 var MONTH_FIELDS=[
@@ -1482,20 +1489,15 @@ var ONBOARD_GROUPS=[
  {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
  {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}
 ];
-function onboardFieldHTML(f){
-  var id="ob_"+f.k, val=st.params[f.k], hint=f.onb||f.hint;
-  if(f.type==="select"){
-    var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
-    return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'">'+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
-  }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'" value="'+esc(val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
-}
 function renderOnboard(){
   var byK={}; PARAM_FIELDS.forEach(function(f){byK[f.k]=f;});
   var h="";
   ONBOARD_GROUPS.forEach(function(g){
     h+='<div class="obgroup"><h3>'+g.t+"</h3><div class=\"grid\">";
-    g.fields.forEach(function(k){ h+=onboardFieldHTML(byK[k]); });
+    g.fields.forEach(function(k){
+      var f=byK[k];
+      h+=fieldHTML(f,st.params[k],{idPrefix:"ob_",hint:f.onb||f.hint,bare:true});
+    });
     h+="</div></div>";
   });
   document.getElementById("onboardFields").innerHTML=h;
@@ -1505,26 +1507,10 @@ function applyOnboard(){
     if(!f.personal) return;
     var el=document.getElementById("ob_"+f.k); if(!el) return;
     var v=f.type==="select"?el.value:Number(el.value||0);
-    st.params[f.k]=v;
-    if(f.k==="binome") st.params.binomeIdx=Math.max(1,BINOMES.indexOf(v)+1);
+    setParam(f.k,v);
   });
   save("config/params",st.params);
 }
-function finishOnboard(apply,cb){
-  if(apply) applyOnboard();
-  st.state=st.state||{}; st.state.onboarded=true;
-  save("config/state",st.state);
-  document.getElementById("onboard").hidden=true;
-  cb();
-}
-document.getElementById("onboardForm").addEventListener("submit",function(e){
-  e.preventDefault();
-  finishOnboard(true,onboardDone);
-});
-document.getElementById("onboardSkip").addEventListener("click",function(){
-  finishOnboard(false,onboardDone);
-});
-var onboardDone=function(){};
 
 /* ===================== onglets ===================== */
 var VIEWS=["resume","horaire","fiche","controle","reglages"];
@@ -1627,8 +1613,7 @@ document.addEventListener("change",function(e){
     var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
     if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
     else if(t.dataset.scope==="params"){
-      st.params[t.dataset.k]=v;
-      if(t.dataset.k==="binome"){ st.params.binomeIdx=Math.max(1,BINOMES.indexOf(v)+1); }
+      setParam(t.dataset.k,v);
       save("config/params",st.params);
     }
     else { st.bareme[t.dataset.k]=v; save("config/bareme",st.bareme); }
@@ -1727,13 +1712,13 @@ function fetchHoraireDB(){
 function renderPrefillSelects(db){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
-  catSel.innerHTML=cats.map(function(c){return '<option value="'+c+'">'+c+"</option>";}).join("");
+  catSel.innerHTML=cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
   var savedCat=lsGet("ui/prefillCat");
   if(savedCat && cats.indexOf(savedCat)>=0) catSel.value=savedCat;
   function fillIds(){
     var cat=catSel.value;
     var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
-    idSel.innerHTML=ids.map(function(i){return '<option value="'+i+'">'+i+"</option>";}).join("");
+    idSel.innerHTML=ids.map(function(i){return '<option value="'+esc(i)+'">'+esc(i)+"</option>";}).join("");
     var savedId=lsGet("ui/prefillId");
     if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
   }
@@ -1781,12 +1766,10 @@ function prefillFromHoraire(){
   });
 }
 document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
-var prefillReady=false;
 function ensurePrefillUI(){
-  if(prefillReady) return;
+  if(HORAIRE_DB) return;
   fetchHoraireDB().then(function(db){
     if(!db) return;
-    prefillReady=true;
     renderPrefillSelects(db);
     document.getElementById("prefillHint").textContent="Base "+db.year+" · "+db.people.length+" personnes (identifiants anonymisés)";
   });
@@ -1905,7 +1888,7 @@ function mergeDefaults(src,def){
 }
 function loadMonth(y,m){
   st.y=y; st.m=m; st.mkey=key(y,m); st.lastDay=0;
-  st.state=st.state||{}; st.state.last=st.mkey;
+  st.state.last=st.mkey;
   save("config/state",st.state);
   document.getElementById("mlabel").textContent=MOIS[m]+" "+y;
   readMonth(st.mkey).then(function(d){
@@ -1951,7 +1934,17 @@ function boot(){
       document.getElementById("onboard").hidden=false;
       var firstField=document.querySelector("#onboardFields input,#onboardFields select");
       if(firstField) firstField.focus();
-      onboardDone=startApp;
+      function finishOnboard(apply){
+        if(apply) applyOnboard();
+        st.state.onboarded=true;
+        save("config/state",st.state);
+        document.getElementById("onboard").hidden=true;
+        startApp();
+      }
+      document.getElementById("onboardForm").addEventListener("submit",function(e){
+        e.preventDefault(); finishOnboard(true);
+      });
+      document.getElementById("onboardSkip").addEventListener("click",function(){ finishOnboard(false); });
     } else {
       startApp();
     }

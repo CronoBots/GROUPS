@@ -1,8 +1,11 @@
 /* Net de fin de mois — service worker */
-var V = "nfdm-v20";
+var V = "nfdm-v21";
 var CORE = ["./", "./index.html", "./manifest.webmanifest",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
-            "./apple-touch-icon.png", "./favicon.png", "./data/horaire-2026.json"];
+            "./apple-touch-icon.png", "./favicon.png"];
+/* data/horaire-2026.json (~290 Ko) est volontairement absent d'ici : il est mis en
+   cache à la demande par le handler fetch ci-dessous, seulement pour qui utilise
+   le pré-remplissage, plutôt que de ralentir l'installation pour tout le monde. */
 
 self.addEventListener("install", function (e) {
   e.waitUntil(
