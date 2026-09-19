@@ -576,6 +576,16 @@ l'air faux. Le client en a signalé deux, et `CORRECTIONS` les porte :
 |---|---|
 | `NPI` | opérateur gluten arrivé en septembre ; `NPE` revient à l'opérateur de Shift 2, qui le porte depuis janvier |
 | `JBA` | `JBY` est le trigramme d'un responsable, pas celui de cet opérateur |
+| `CHD` | le second `CDE`, en équipe 4 ; `CDE` reste à celui de l'équipe 5 |
+| `GBO` | le second `GBT`, en équipe 4 ; `GBT` reste à celui de l'équipe 5 |
+| `PDF` | le second `PDR`, en équipe 1 ; `PDR` reste à celui de l'équipe 3 |
+| `CDE` | maintien confirmé pour celui de l'équipe 5, l'onglet `Personnel` portant un troisième nom sous ce trigramme |
+
+Ces trigrammes se recoupent avec l'usage du classeur : les commentaires de
+l'horaire citent `CHD` 27 fois, `PDF` 36 fois et `JBA` 20 fois. Avant
+correction, ces renvois ne désignaient personne — `posteDuRemplace()` ne
+pouvait pas les résoudre. `JBY`, cité 9 fois, reste sans correspondance :
+c'est un responsable, qui ne figure pas dans l'horaire.
 
 La clé de la table est l'**empreinte du nom normalisé**, pas le nom : elle
 vise une personne précise sans que le dépôt porte son identité. Elle ne
@@ -592,9 +602,16 @@ dit. Au-dessus de 72 % de similitude, c'est la même personne écrite
 autrement et la règle est simplement tombée juste — huit cas dans le
 classeur 2026, tous sans conséquence.
 
-Restent trois collisions à trancher par le client : `CDE`, `GBT` et `PDR`
-désignent chacune deux personnes. `GBT` est un cas à part : l'onglet
-`Personnel` lui-même l'attribue à deux noms différents.
+Restent trois trigrammes que la règle attribue à quelqu'un alors qu'ils
+appartiennent officiellement à un autre : `SBZ` en équipe 2, `FLN` en
+équipe 3 et `FPS` en équipe 4. Contrairement aux collisions ci-dessus, ils ne
+se voient pas dans la liste : l'autre personne ne figure pas dans l'horaire.
+Ils attendent l'arbitrage du client.
+
+Enfin, des trigrammes cités dans les commentaires ne correspondent à personne
+dans l'horaire — `PBL` 160 fois, `MPE` 60, `LDT` 40. Ce sont des gens
+extérieurs aux huit feuilles converties. `posteDuRemplace()` ne peut pas
+résoudre un remplacement qui les nomme.
 
 ### Les autres onglets
 
