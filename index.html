@@ -643,6 +643,7 @@ button{cursor:pointer}
 var MOIS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var WD=["lun","mar","mer","jeu","ven","sam","dim"];
 var SHIFTS=[{c:"",n:"—"},{c:"AM",n:"AM"},{c:"PM",n:"PM"},{c:"N",n:"N"},{c:"D",n:"D"}];
+var SHIFT_CODES=["AM","PM","N","D"];
 var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour"};
 var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour — horaire variable (7h-15h, 7h30-16h ou flottant)"};
 var SHIFT_MIGR={M:"AM",AM:"PM",J:"D"};
@@ -893,7 +894,7 @@ function compute(){
   if(acc.sam) bl(acc.sam,"Supplément weekend à "+nf4.format(txh)+" à 150 %",R(acc.sam*txh*1.5),true);
   if(acc.ferie) bl(acc.ferie,"Supplément jour férié presté à "+nf4.format(txh),R(acc.ferie*txh),true);
   if(acc.sam||acc.dim) bl(-(acc.sam+acc.dim),"Déduction travail weekend à "+nf4.format(txh),R(-(acc.sam+acc.dim)*txh),true);
-  ["AM","PM","N","D"].forEach(function(s){
+  SHIFT_CODES.forEach(function(s){
     var pr=primes[s]; if(!pr) return;
     if(byShift[s].Dimanche) bl(byShift[s].Dimanche,"Suppl. Équipe "+noms[s]+" à "+nf.format(pr)+" à 200 %",R(byShift[s].Dimanche*pr*2),true);
     if(byShift[s].Samedi)   bl(byShift[s].Samedi,"Suppl. Équipe "+noms[s]+" à "+nf.format(pr)+" à 150 %",R(byShift[s].Samedi*pr*1.5),true);
@@ -1726,14 +1727,35 @@ function renderPrefillSelects(db){
   catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); };
   idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); };
 }
+/* Plages horaires de l'horaire d'équipe dont le poste correspondant est
+   confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés
+   comme un poste de jour (cf. SHIFT_HEURES). Clés sous forme normalisée. */
+var HORAIRE_PLAGES={"6h-14h":"AM","7h-15h":"D","8h30-16h30":"D","hflott":"D"};
+function normPlage(tok){
+  return tok.toLowerCase().replace(/[ '.]/g,"").replace(/(^|-)0(\d)/g,"$1$2");
+}
+/* Le convertisseur de l'horaire préfixe d'un "?" tout ce qu'il n'a pas su
+   classer. Certaines de ces mentions nomment pourtant le poste noir sur
+   blanc ("?AM") ou le désignent par une plage horaire connue ("?7h-15h") :
+   on en tire le poste, à défaut d'un code franc, plutôt que de laisser le
+   jour vide. Le jour reste signalé comme à vérifier. */
+function posteDepuisMention(tok){
+  if(SHIFT_CODES.indexOf(tok)>=0) return tok;
+  return HORAIRE_PLAGES[normPlage(tok)]||null;
+}
 function parseHoraireEntry(code){
-  var out={};
+  var out={}, approx=null;
   code.split("|").forEach(function(p){
     if(!p) return;
-    if(p.charAt(0)==="?"){ out.unknown=(out.unknown||0)+1; return; }
-    if(["AM","PM","N","D"].indexOf(p)>=0){ out.s=p; return; }
+    if(p.charAt(0)==="?"){
+      var poste=posteDepuisMention(p.slice(1));
+      if(poste){ if(!approx) approx=poste; return; }
+      out.unknown=(out.unknown||0)+1; return;
+    }
+    if(SHIFT_CODES.indexOf(p)>=0){ out.s=p; return; }
     out.a=p;
   });
+  if(!out.s && approx){ out.s=approx; out.approx=true; }
   return out;
 }
 function prefillFromHoraire(){
@@ -1743,24 +1765,27 @@ function prefillFromHoraire(){
     if(!db) return;
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
-    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, flagged=0;
+    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, verifier=0, manquants=0;
     for(var day=1; day<=nd; day++){
       var rec=st.month.days[day];
       if(rec && (rec.s || rec.a)){ kept++; continue; }
       var mmdd=pad2(st.m+1)+pad2(day);
       var raw=person.d[mmdd]; if(raw===undefined) continue;
       var parsed=parseHoraireEntry(raw);
-      if(parsed.unknown) flagged++;
       if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
         var nrec=st.month.days[day]||(st.month.days[day]={});
         if(parsed.s){ nrec.s=parsed.s; nrec.h=st.params.hJour; }
         if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
         filled++;
+        if(parsed.unknown || parsed.approx) verifier++;
+      } else {
+        manquants++;
       }
     }
     persistMonth(); renderRota(); refresh();
     var msg=filled+" jour(s) pré-rempli(s) pour "+id;
-    if(flagged) msg+=" — "+flagged+" jour(s) à horaire spécial (à compléter à la main)";
+    if(verifier) msg+=" — "+verifier+" à vérifier (horaire particulier)";
+    if(manquants) msg+=" — "+manquants+" jour(s) non reconnu(s), à compléter à la main";
     if(kept) msg+=" — "+kept+" jour(s) déjà encodé(s) conservé(s)";
     flash(msg);
   });

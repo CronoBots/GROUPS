@@ -41,11 +41,15 @@ n'est figé dans le code.
 Dans l'onglet Horaire, un sélecteur permet de retrouver sa ligne dans
 l'horaire réel de l'équipe (par fonction puis par identifiant anonymisé —
 initiales ou matricule, jamais le nom complet) et de pré-remplir
-automatiquement le mois affiché. Plus de 96 % des jours sont reconnus
-automatiquement ; les cas particuliers restants (remplacements sans
-information exploitable, prolongations de pause) restent à compléter à la
-main, avec un message qui indique combien de jours sont concernés. Les
-jours déjà encodés à la main ne sont jamais écrasés.
+automatiquement le mois affiché. Près de 99 % des jours sont reconnus
+automatiquement : les codes francs, mais aussi les mentions qui nomment le
+poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
+connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
+
+Le message de fin distingue deux cas : les jours **à vérifier**, pré-remplis
+mais porteurs d'une mention particulière (remplacement, poste déduit d'une
+plage horaire), et les jours **non reconnus**, laissés vides et à compléter à
+la main. Les jours déjà encodés à la main ne sont jamais écrasés.
 
 ## Vos données
 
