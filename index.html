@@ -468,6 +468,7 @@ button{cursor:pointer}
         <button type="button" class="btn" id="prefillBtn">Pré-remplir depuis l'équipe</button>
         <span class="sub" id="prefillHint"></span>
       </div>
+      <p class="sub" id="prefillCompteurs"></p>
       <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
       Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
       <div class="rota-head"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
@@ -1802,9 +1803,32 @@ function renderPrefillSelects(db){
     var savedId=lsGet("ui/prefillId");
     if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
   }
-  fillIds();
-  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); };
-  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); };
+  /* Les compteurs du pied de classeur ne remplissent aucun champ : les
+     « reliquats au 1er du mois » de l'onglet sont des restes d'arrondi de
+     mois en mois, quand le classeur donne des SOLDES DE CONGÉ annuels. On
+     les affiche donc pour ce qu'ils sont — un repère, et de quoi contrôler
+     ce que l'horaire a produit. */
+  function majCompteurs(){
+    var el=document.getElementById("prefillCompteurs"); if(!el) return;
+    var p=db.people.filter(function(x){return x.id===idSel.value&&x.cat===catSel.value;})[0];
+    if(!p||!p.c){ el.textContent=""; return; }
+    var t=[], s=p.c.solde||{}, r=p.c.restant||{}, f=p.c.flex||{};
+    ["VA","RTT","DTT","RJF"].forEach(function(k){
+      if(s[k]===undefined) return;
+      t.push(k+" "+num(s[k])+" h"+(r[k]!==undefined?" (reste "+num(r[k])+")":""));
+    });
+    var ft=[];
+    if(f["+FT"]!==undefined) ft.push("+"+num(f["+FT"]));
+    if(f["-FT"]!==undefined) ft.push(num(f["-FT"]));
+    var txt=[];
+    if(t.length) txt.push("Soldes au 1er janvier : "+t.join(" · "));
+    if(ft.length) txt.push("flex time sur l'année : "+ft.join(" / ")+" h");
+    if(p.poly&&p.poly.ateliers) txt.push("ateliers : "+p.poly.ateliers.join(", "));
+    el.textContent=txt.join(" — ");
+  }
+  fillIds(); majCompteurs();
+  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); majCompteurs(); };
+  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); majCompteurs(); };
 }
 /* Plages horaires de l'horaire d'équipe dont le poste correspondant est
    confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés

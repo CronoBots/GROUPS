@@ -478,6 +478,58 @@ Un convertisseur refait doit donc conserver : le contenu de la cellule, le
 contenu intégral du commentaire, et tout marqueur visuel porteur de sens
 (couleur de fond, barré, gras) — à vérifier avec le client.
 
+## 10 bis. Ce que le convertisseur lit hors de la grille des jours
+
+Le classeur ne se réduit pas à ses douze blocs de mois. L'onglet `Config` le
+dit lui-même : « les lignes de 11 à 376 sont consacrées à l'horaire, les
+lignes de 377 à 420 aux compteurs ».
+
+### Le pied de feuille (lignes 377 à 440)
+
+Il se lit comme les journées : le **libellé dans la colonne de la personne**,
+la **valeur dans la colonne d'annotation**. Ces valeurs sont saisies, pas
+calculées — 1 099 cellules contre 12 formules sur la feuille des
+contremaîtres. Aucun calcul ne les retrouve depuis l'horaire.
+
+Les titres de section sont écrits à gauche, dans les deux premières colonnes,
+mais **au milieu de leur bloc** et non en tête. D'où des bornes explicites,
+vérifiées en cherchant le titre attendu à l'intérieur du bloc ; s'il manque,
+la structure a bougé et les compteurs sont ignorés plutôt que lus de travers.
+
+| Bloc | Lignes | Contenu |
+|---|---|---|
+| `prevision` | 377-394 | congés prévus : VA, RTT (détail 1h à 7h), DTT, RJF |
+| `solde` | 395-402 | soldes en heures au 1er janvier, soldes 2025 inclus |
+| `restant` | 403-408 | soldes restants compte tenu des prévisions |
+| `flex` | 409-430 | compteurs flex time, détail de 1 h à 8 h puis totaux |
+| `conges` | 431-440 | CP et « à planifier », dont la position varie |
+
+Un libellé qui revient dans un même bloc est un total, et prend le suffixe
+`Total` : VBN a 40 h de RTT en journées entières plus 14 h prises à l'heure,
+soit `RTT: 40` et `RTTTotal: 54`.
+
+### Ce que ces compteurs ne sont pas
+
+Ils ne remplissent **aucun** champ de la fiche. Les trois champs « en attente
+au 1er du mois » de l'onglet Horaire sont des restes d'arrondi qui passent
+d'un mois au suivant, entre zéro et sept heures ; le classeur, lui, donne des
+soldes de congé annuels. Les confondre fausserait le nombre de chèques-repas.
+
+L'application les affiche donc pour ce qu'ils sont, sous les sélecteurs du
+pré-remplissage : un repère, et de quoi contrôler ce que l'horaire a produit.
+Les totaux flex time sont à ce titre précieux — ils recoupent exactement ce
+que l'application calcule depuis les journées.
+
+### Les autres onglets
+
+| Onglet | Ce qui en est tiré |
+|---|---|
+| `Config` | la date de dernière mise à jour du classeur, portée en tête du JSON |
+| `Polyvalence` | le degré et les ateliers de chacun, rattachés à l'identifiant à trois lettres ; matricules, noms et prénoms restent dehors |
+| en-tête des feuilles | la légende des codes : VA, RTT, RHS, RJF |
+| `Personnel` | la correspondance nom → initiales, déjà utilisée |
+| `Récapitulatif (1)` | **rien** : 13 453 de ses cellules sont des formules qui pointent vers les feuilles d'équipe, contre 567 valeurs saisies. Tout y est déjà dans l'horaire ; l'embarquer doublerait le fichier sans rien apporter |
+
 ## 11. Contrôler une conversion
 
 Repères sur l'horaire 2026, à comparer après toute reconversion :
