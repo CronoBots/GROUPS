@@ -511,6 +511,32 @@ mention.
 `SD26` 216, `TP` 210, `D-F` 47, `DS` 43, `D-CPPT` 40, `DS-CE` 27, `CPPT` 7,
 `DF` 2.
 
+## 10 quater. Un poste prévu n'est pas un poste presté
+
+Une cellule porte souvent **deux choses à la fois** : le poste prévu par la
+rotation, et ce qui l'a remplacé. VBN à la fin d'octobre :
+
+| Jour | Cellule | Ce que ça veut dire |
+|---|---|---|
+| 23 au 25/10 | `N ǀ RJF ǀ remplacé par ATR` | trois nuits prévues, prises en récup. de jour férié |
+| 28 et 29/10 | `AM ǀ RJF ǀ remplacé par ATR` | idem en matin |
+| 30/10 | `PM ǀ VA ǀ remplacé par ATR` | après-midi prévu, pris en vacances annuelles |
+
+`parseHoraireEntry()` lisait tout cela correctement — absence reconnue, zéro
+heure prestée — et le calcul de la fiche en tenait compte. C'est le
+**calendrier** qui fautait : il affichait le poste dès qu'il y en avait un,
+et une semaine de vacances passait pour une semaine de travail.
+
+La règle est désormais explicite, et **c'est le nombre d'heures qui
+tranche** : une journée n'est prestée que si elle porte un poste **et** des
+heures. Sinon l'absence fait la journée, le poste prévu passant en mention
+dans l'infobulle.
+
+L'erreur ne coûtait rien en euros mais faussait les totaux de bout en bout.
+Pour VBN 2026 : **184 journées prestées, 90 d'absence, 87 de repos** — là où
+le calendrier annonçait 269 prestées et 12 d'absence, soit 85 congés comptés
+comme du travail, et une moyenne de 5,4 h par journée prestée au lieu de 7,9.
+
 ## 10 bis. Ce que le convertisseur lit hors de la grille des jours
 
 Le classeur ne se réduit pas à ses douze blocs de mois. L'onglet `Config` le

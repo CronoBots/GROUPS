@@ -2821,11 +2821,17 @@ function renderAnnee(){
     if(!person){ hote.innerHTML='<p class="lede" style="padding:0">Personne introuvable dans l\'horaire d\'équipe.</p>'; return; }
     var annee=Number(db.year), jours=anneeDeLaPersonne(db,person,annee);
     var auj=new Date(), ajd=(auj.getFullYear()===annee)?pad2(auj.getMonth()+1)+pad2(auj.getDate()):"";
+    /* Une journée porte parfois un poste ET une absence : le poste est celui
+       qui était PRÉVU, l'absence dit qu'il n'a pas été presté. Un congé posé
+       sur une nuit reste un congé. Ne regarder que le poste faisait passer
+       une semaine de vacances pour une semaine de travail, et gonflait les
+       totaux d'autant. C'est le nombre d'heures qui tranche. */
     var cpt={AM:0,PM:0,N:0,D:0}, abs=0, repos=0, rcm=0, heures=0;
     Object.keys(jours).forEach(function(k){
-      var j=jours[k];
-      if(j.s){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=(j.h===undefined?st.params.hJour:j.h); }
-      else if(j.a) abs++; else repos++;
+      var j=jours[k], hj=(j.h===undefined?st.params.hJour:j.h);
+      if(j.s && hj>0){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=hj; }
+      else if(j.a) abs++;
+      else repos++;
       if(j.rcm) rcm++;
     });
 
@@ -2852,7 +2858,10 @@ function renderAnnee(){
     for(var m=1;m<=12;m++){
       var nd=daysInMonth(annee,m-1);
       var prestes=0;
-      for(var q=1;q<=nd;q++){ var jj=jours[pad2(m)+pad2(q)]; if(jj&&jj.s) prestes++; }
+      for(var q=1;q<=nd;q++){
+        var jj=jours[pad2(m)+pad2(q)];
+        if(jj&&jj.s&&(jj.h===undefined?st.params.hJour:jj.h)>0) prestes++;
+      }
       var courant=(annee===st.y && m-1===st.m)?" courant":"";
       h.push('<section class="mois'+courant+'">');
       h.push('<h3>'+esc(MOIS[m-1])+'<small>'+prestes+' j</small></h3>');
@@ -2863,20 +2872,22 @@ function renderAnnee(){
       for(var v=0;v<decal;v++) h.push('<button type="button" class="vide" tabindex="-1" aria-hidden="true"></button>');
       for(var d=1;d<=nd;d++){
         var mmdd=pad2(m)+pad2(d), j=jours[mmdd]||{}, cls=[], attr="";
+        var hj=(j.h===undefined?st.params.hJour:j.h);
+        var travaille=!!(j.s && hj>0);
         var jour=new Date(annee,m-1,d).getDay();
         if(jour===0||jour===6) cls.push("we");
-        if(j.a && !j.s) cls.push("abs");
+        if(!travaille && j.a) cls.push("abs");
         if(mmdd===ajd) cls.push("auj");
-        if(j.s) attr=' data-p="'+esc(j.s)+'"';
-        if(j.jour) cls.push("jour");
+        if(travaille) attr=' data-p="'+esc(j.s)+'"';
+        if(travaille && j.jour) cls.push("jour");
         /* La couleur dit le poste PAYÉ — une journée D-CPPT ou SD26
            conserve la prime de la pause prévue. L'étiquette, elle, dit ce
            qui a été presté : afficher « N » sur une journée de délégation
            faite en horaire de jour induirait en erreur. */
-        var etiq=j.jour?etiqJour(j.jour):(j.s?j.s:(j.a?etiqAbsence(j.a):""));
+        var etiq=travaille?(j.jour?etiqJour(j.jour):j.s):(j.a?etiqAbsence(j.a):"");
         h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
           +' data-m="'+m+'" data-d="'+d+'" data-k="'+mmdd+'"'
-          +' aria-label="'+d+" "+esc(MOIS[m-1])+" — "+esc(j.s?POSTE_LIB[j.s]:(j.a||"repos"))+'">'
+          +' aria-label="'+d+" "+esc(MOIS[m-1])+" — "+esc(travaille?POSTE_LIB[j.s]:(j.a||"repos"))+'">'
           +'<b>'+d+'</b>'+(etiq?'<i'+(etiq.length>3?' class="long"':'')+'>'
           +esc(etiq.slice(0,4))+'</i>':'')+'</button>');
       }
@@ -2892,12 +2903,13 @@ function renderAnnee(){
       var b=e.target.closest?e.target.closest("button[data-k]"):null;
       if(!b) return;
       var j=jours[b.dataset.k]||{}, m=Number(b.dataset.m), d=Number(b.dataset.d);
+      var hb=(j.h===undefined?st.params.hJour:j.h), tv=!!(j.s && hb>0);
       var l=["<b>"+d+" "+MOIS[m-1]+" "+annee+"</b>"];
-      if(j.jour) l.push("Journée de jour ("+j.jour+") · "+num(j.h===undefined?st.params.hJour:j.h)+" h"
-                        +(j.s?"<br>Prime de "+POSTE_LIB[j.s].toLowerCase()+" conservée":""));
-      else if(j.s) l.push(POSTE_LIB[j.s]+" · "+num(j.h===undefined?st.params.hJour:j.h)+" h");
-      if(j.a) l.push("Absence "+j.a);
-      if(!j.s && !j.a) l.push("Repos");
+      if(tv && j.jour) l.push("Journée de jour ("+j.jour+") · "+num(hb)+" h"
+                        +"<br>Prime de "+POSTE_LIB[j.s].toLowerCase()+" conservée");
+      else if(tv) l.push(POSTE_LIB[j.s]+" · "+num(hb)+" h");
+      if(j.a) l.push((tv?"":"Absence ")+j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s].toLowerCase():""));
+      if(!tv && !j.a) l.push("Repos");
       if(j.rcm) l.push("Remplacement contremaître");
       if(j.rap) l.push("Rappel "+(j.rap==="J"?"J / J-1":"J-2 → J-15"));
       if(j.brut && j.brut[2]) l.push('<span style="opacity:.75">'+esc(j.brut[2]).slice(0,120)+"</span>");
