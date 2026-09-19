@@ -53,9 +53,38 @@ automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
 
+### Semaine, mois, année
+
+Un sélecteur segmenté donne trois échelles de lecture, chacune pour une
+question différente :
+
+| Vue | À quoi elle sert |
+|---|---|
+| **Semaine** | relire sept journées en détail — poste, durée, ce qui est parti aux compteurs, et le commentaire du classeur en toutes lettres |
+| **Mois** | encoder : c'est la surface de saisie, inchangée |
+| **Année** | voir la rotation d'un coup d'œil, et les totaux |
+
+L'en-tête suit l'onglet. Le net à recevoir ne s'affiche plus au-dessus d'un
+calendrier ou d'un état de compteurs, et le sélecteur de mois disparaît là
+où il n'a pas de sens — les réglages, la vue annuelle, et la vue semaine qui
+a sa propre navigation et peut enjamber deux mois.
+
+### État des compteurs
+
+Un onglet à part met **deux sources face à face** : le pied du classeur,
+saisi à la main, et le même compteur recalculé depuis les 365 journées de
+l'horaire. Quand les deux divergent, l'un des deux se trompe — c'est ainsi
+qu'a été trouvée la colonne inversée du 07/11 chez FPA.
+
+On y lit les soldes de congé au 1er janvier avec le prévu et le restant, les
+compteurs de flex time et leur report de l'année précédente, les congés
+parentaux, et les absences de l'année regroupées par famille. La
+récupération d'heures supplémentaires n'y montre que les reprises : son
+compteur vit hors du classeur.
+
 ### Vue année
 
-Un sélecteur « Mois · Année » bascule l'onglet Horaire en calendrier annuel :
+Le calendrier annuel affiche :
 les douze mois de la personne choisie, chaque journée colorée par son poste,
 avec le total d'heures, la répartition par pause et le nombre de
 remplacements. Survoler une case en donne le détail — poste, heures,
