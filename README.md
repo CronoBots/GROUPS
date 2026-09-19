@@ -53,6 +53,24 @@ automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
 
+### Un seul chemin pour remplir l'horaire
+
+« Appliquer le cycle » et « Copier le mois précédent » ont été retirés. Le
+pré-remplissage lit l'horaire réel de la personne, ce que ni l'un ni l'autre
+ne savait faire : le cycle théorique ignore les échanges, les remplacements
+et les journées de délégation ; le mois précédent encore davantage. Trois
+chemins vers le même but, dont deux moins bons, ne rendaient pas service.
+
+La remise à zéro reste — le pré-remplissage n'écrasant jamais ce qui est
+déjà encodé, il faut pouvoir repartir de zéro quand on s'est trompé de
+personne. Elle a rejoint « Mes données », dans les réglages, où sont les
+actions qui détruisent.
+
+Le binôme, le cycle et le décalage ne servent plus au remplissage. Ils ne
+gardent qu'un usage, désormais écrit dans leur aide : la procédure de rappel
+n'accorde pas de prime pour une prestation en pause du matin sur une journée
+prévue en « Day » de la 5ᵉ ou 6ᵉ semaine du cycle.
+
 ### Semaine, mois, année
 
 Un sélecteur segmenté donne trois échelles de lecture, chacune pour une

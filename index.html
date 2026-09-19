@@ -213,6 +213,15 @@ button{cursor:pointer}
 .cal .legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--muted)}
 .cal .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px}
 
+/* Le mode d'emploi de la saisie manuelle n'est plus le sujet principal de
+   l'onglet : tout se charge depuis l'horaire d'équipe. Il se replie. */
+.aide{margin:0 16px 12px; border:1px solid var(--line2); border-radius:var(--r); background:var(--surface2)}
+.aide>summary{padding:9px 13px; font-size:12.5px; font-weight:600; color:var(--ink2); cursor:pointer; list-style:none}
+.aide>summary::-webkit-details-marker{display:none}
+.aide>summary::before{content:"›"; display:inline-block; width:14px; color:var(--faint); transition:transform .15s ease}
+.aide[open]>summary::before{transform:rotate(90deg)}
+.aide .lede{padding:0 13px 12px 27px}
+
 /* ---------- vue semaine ---------- */
 .semaine{padding:0 16px 16px}
 .semaine .nav{display:flex; align-items:center; gap:8px; margin-bottom:12px}
@@ -661,11 +670,6 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         <span class="sub" id="rotasub"></span>
       </header>
       <div class="toolbar">
-        <button type="button" class="btn" id="applyCycle">Appliquer le cycle</button>
-        <button type="button" class="btn" id="copyPrev">Copier le mois précédent</button>
-        <button type="button" class="btn" id="clearAll">Vider le mois</button>
-      </div>
-      <div class="toolbar">
         <select id="prefillCat" aria-label="Fonction"></select>
         <select id="prefillId" aria-label="Identifiant"></select>
         <button type="button" class="btn" id="prefillBtn">Pré-remplir l'année depuis l'équipe</button>
@@ -682,8 +686,8 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
       </div>
       <div class="annee" id="annee" hidden></div>
       <div class="semaine" id="semaine" hidden></div>
-      <p class="lede top" id="ledeMois">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
-      Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
+      <details class="aide" id="ledeMois"><summary>Corriger une journée à la main</summary><p class="lede">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
+      Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p></details>
       <div class="rota-head" id="rotaHead"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
       <div class="rota" id="rota"></div>
       <div class="rota-foot">
@@ -828,10 +832,11 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         <p class="lede">Le barème théorique et le précompte réellement retenu par un secrétariat social diffèrent souvent de quelques euros. « Calage barème » absorbe cet écart en une seule valeur annuelle. Mettez 0 pour le calcul purement théorique ; l'onglet Contrôle recalcule la bonne valeur dès que vous y saisissez le précompte réel d'une fiche.</p>
       </details>
       <details class="fold">
-        <summary>Mes données <span class="sub">sauvegarde, export, import</span></summary>
+        <summary>Mes données <span class="sub">sauvegarde, export, import, remise à zéro</span></summary>
         <div class="foot">
           <span id="storeinfo">&nbsp;</span>
           <span class="sp"></span>
+          <button type="button" class="btnlike" id="btnVider">Vider le mois affiché</button>
           <button type="button" class="btnlike" id="btnExport">Exporter</button>
           <label class="btnlike" for="fileImport">Importer<input type="file" id="fileImport" accept="application/json,.json" hidden></label>
         </div>
@@ -1728,12 +1733,12 @@ var PARAM_FIELDS=[
  {k:"primePM",l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
  {k:"primeN",l:"Prime équipe N — nuit (€/h)",scope:"params"},
  {k:"primeD",l:"Prime équipe D — jour (€/h)",scope:"params"},
- {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert au remplissage automatique",personal:true,
-  onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Il détermine votre rotation matin / après-midi / nuit dans le cycle, et permet de pré-remplir automatiquement votre horaire."},
+ {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert aux primes de rappel, pas au remplissage",personal:true,
+  onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Votre horaire ne s'en sert plus — il est lu dans l'horaire d'équipe. Il reste utile à une seule règle : la procédure de rappel n'accorde pas de prime pour une prestation en pause du matin sur une journée prévue en « Day » de la 5ᵉ ou 6ᵉ semaine du cycle."},
  {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"],personal:true,
-  onb:"La durée du cycle de roulement de votre équipe, selon votre planning."},
+  onb:"La durée du cycle de roulement de votre équipe, selon votre planning. Même usage que le binôme : les primes de rappel, et rien d'autre."},
  {k:"decalage",l:"Décalage du cycle (jours)",scope:"params",step:"1",hint:"si le cycle tombe à côté, ajustez de ±1",personal:true,
-  onb:"Si le cycle proposé automatiquement ne tombe pas exactement sur votre planning réel, ajustez ce décalage (en jours, + ou −) jusqu'à ce qu'il corresponde. Laissez 0 si vous ne savez pas encore — vous pourrez ajuster plus tard en comparant avec votre planning."},
+  onb:"Si le cycle ne tombe pas exactement sur votre planning réel, ajustez ce décalage (en jours, + ou −). Il ne touche qu'aux primes de rappel."},
  {k:"indJour",l:"Indemnité déplacement / jour (€)",scope:"params",personal:true,
   onb:"Indemnité de déplacement que vous percevez par jour presté, si votre situation y donne droit. Laissez 0 si vous ne savez pas — à vérifier sur une fiche de paie réelle."},
  {k:"indVeloKm",l:"Indemnité vélo (€/km)",scope:"params",step:"0.0001",hint:"0 si vélo de société"},
@@ -1993,31 +1998,21 @@ function go(step){
   if(m<0){m=11;y--;} if(m>11){m=0;y++;}
   loadMonth(y,m);
 }
-document.getElementById("applyCycle").addEventListener("click",function(){
-  var nd=daysInMonth(st.y,st.m), n=0;
-  for(var d=1; d<=nd; d++){
-    var rec=st.month.days[d];
-    if(rec && (rec.s || rec.a)) continue;
-    var po=cyclePoste(st.params.binomeIdx,st.params.cycle,st.params.decalage,Date.UTC(st.y,st.m,d));
-    if(po && po!=="-"){
-      rec=rec||{}; rec.s=po; rec.h=st.params.hJour; st.month.days[d]=rec; n++;
-    }
-  }
-  persistMonth(); renderRota(); refresh();
-  flash(n ? (n+" jour"+(n>1?"s":"")+" rempli"+(n>1?"s":"")+" d'après le cycle "+st.params.cycle+" — "+st.params.binome)
-          : "Rien à remplir : tous les jours sont déjà saisis");
-});
-document.getElementById("clearAll").addEventListener("click",function(){
-  st.month.days={}; persistMonth(); renderRota(); refresh(); flash("Horaire vidé");
-});
-document.getElementById("copyPrev").addEventListener("click",function(){
-  var m=st.m-1, y=st.y; if(m<0){m=11;y--;}
-  readMonth(key(y,m)).then(function(prev){
-    if(!prev||!prev.days||!Object.keys(prev.days).length){flash("Aucun horaire le mois précédent"); return;}
-    st.month.days=JSON.parse(JSON.stringify(prev.days));
-    persistMonth(); renderRota(); refresh(); flash("Horaire du mois précédent copié");
-  });
-});
+/* « Appliquer le cycle » et « Copier le mois précédent » ont été retirés : le
+   pré-remplissage lit l'horaire réel de la personne, ce que ni l'un ni
+   l'autre ne savait faire. Le cycle théorique ne dit pas les échanges, les
+   remplacements ni les journées de délégation ; le mois précédent encore
+   moins. Garder trois chemins pour un même but, dont deux moins bons, ne
+   rendait pas service.
+
+   Reste la remise à zéro, qui sert quand on s'est pré-rempli avec la mauvaise
+   personne — le pré-remplissage n'écrasant jamais ce qui est déjà encodé.
+   Elle a rejoint « Mes données », où sont les actions qui détruisent. */
+function viderMois(){
+  st.month.days={}; st.month.rhsMois=0; st.month.rcmJours=null;
+  persistMonth(); renderRota(); renderFields(); refresh();
+  flash("Horaire de "+MOIS[st.m].toLowerCase()+" "+st.y+" vidé");
+}
 
 /* ===================== horaire d'équipe (pré-remplissage) ===================== */
 var HORAIRE_DB=null, horaireFetching=null;
@@ -2051,23 +2046,16 @@ function renderPrefillSelects(db){
     var el=document.getElementById("prefillCompteurs"); if(!el) return;
     var p=db.people.filter(function(x){return x.id===idSel.value&&x.cat===catSel.value;})[0];
     if(!p||!p.c){ el.textContent=""; return; }
-    var t=[], s=p.c.solde||{}, r=p.c.restant||{}, f=p.c.flex||{};
-    ["VA","RTT","DTT","RJF"].forEach(function(k){
-      if(s[k]===undefined) return;
-      t.push(k+" "+num(s[k])+" h"+(r[k]!==undefined?" (reste "+num(r[k])+")":""));
-    });
-    var ft=[];
-    if(f["+FT"]!==undefined) ft.push("+"+num(f["+FT"]));
-    if(f["-FT"]!==undefined) ft.push(num(f["-FT"]));
+    /* Les soldes ont leur onglet : les répéter ici ferait deux endroits à
+       tenir à jour et deux occasions de se contredire. On ne garde que ce
+       qui aide à choisir la bonne personne. */
     var txt=[];
     /* Deux personnes peuvent donner les mêmes initiales. Celle dont la fiche
        est la plus fournie garde l'identifiant nu, l'autre prend un suffixe —
        et rien ne le laisse deviner dans la liste. */
     if(p.id.indexOf("-")>=0) txt.push("⚠ initiales partagées avec une autre personne ("
        +p.id.split("-")[0]+") — vérifiez les journées avant de pré-remplir");
-    if(t.length) txt.push("Soldes au 1er janvier : "+t.join(" · "));
-    if(ft.length) txt.push("flex time sur l'année : "+ft.join(" / ")+" h");
-    if(p.poly&&p.poly.ateliers) txt.push("ateliers : "+p.poly.ateliers.join(", "));
+    if(p.poly&&p.poly.ateliers) txt.push("Ateliers : "+p.poly.ateliers.join(", "));
     el.textContent=txt.join(" — ");
   }
   /* la vue annuelle montre la personne choisie : elle doit suivre le
@@ -2729,6 +2717,14 @@ function renderCompteurs(){
       if(cps.length>1) h.push('<p class="cpt-n">Plusieurs compteurs quand un congé parental se termine et qu\'un autre s\'ouvre en cours d\'année.</p>');
     }
 
+    /* --- polyvalence --- */
+    if(person.poly && person.poly.ateliers && person.poly.ateliers.length){
+      h.push('<h3 class="cpt-t">Polyvalence</h3><div class="cpt-tuiles">');
+      person.poly.ateliers.forEach(function(a){ h.push('<div><b style="font-size:12.5px">'+esc(a)+'</b><span>atelier</span></div>'); });
+      h.push('</div>');
+      if(person.poly.degre) h.push('<p class="cpt-n">Degré de polyvalence : '+esc(person.poly.degre)+'.</p>');
+    }
+
     /* --- absences de l'année --- */
     var cles=Object.keys(calc.abs).sort();
     if(cles.length){
@@ -3051,6 +3047,8 @@ function restaurerVue(){
   var v=lsGet("ui/vueHoraire");
   if(v==="annee"||v==="semaine") vueHoraire(v);
 }
+
+document.getElementById("btnVider").addEventListener("click",viderMois);
 
 /* ===================== export / import ===================== */
 function collectAll(){
