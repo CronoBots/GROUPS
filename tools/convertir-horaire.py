@@ -26,11 +26,18 @@ M = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 
 # Une feuille par groupe, et la catégorie sous laquelle ses gens apparaissent.
+#
+# L'ORDRE COMPTE. Une même personne figure sur plusieurs feuilles : les
+# adjoints contremaître sont recopiés sur les cinq feuilles d'équipe, à
+# l'identique — 365 journées, aucune divergence. C'est la feuille de son
+# propre groupe qui donne sa catégorie, pas celle où il est recopié pour
+# référence ; les feuilles spécialisées passent donc avant les équipes.
 FEUILLES = {
+    "Contremaître": "Contremaîtres de production",
+    "Step": "Opérateurs STEP",
+    "Opérateurs": "Opérateurs en formation",
     "Shift1": "Shift 1", "Shift2": "Shift 2", "Shift3": "Shift 3",
     "Shift4": "Shift 4", "Shift5": "Shift 5",
-    "Opérateurs": "Opérateurs en formation", "Step": "Opérateurs STEP",
-    "Contremaître": "Contremaîtres de production",
 }
 LIGNE_NOMS = 10          # la ligne qui porte les noms
 COL_JOUR = 2             # la colonne qui porte le numéro du jour
@@ -58,6 +65,13 @@ BLOCS = [
     ("flex", 409, 430, "compteur flex time"),
     ("conges", 431, 440, None),
 ]
+
+# Le libellé « Total: » du bloc flex time est le report de l'année
+# précédente. Le client : « les compteurs totaux sont repartis d'où ils
+# étaient en fin d'année 2025, donc des valeurs manuelles avaient été
+# rentrées en début d'année. » Ce n'est donc pas la somme des colonnes +FT
+# et -FT de l'année en cours, et le nommer « Total » induirait en erreur.
+RENOMME = {"Total": "report"}
 
 
 def _colnum(lettres):
@@ -241,6 +255,7 @@ def compteurs(g, colonne):
                 continue
             if val == int(val):
                 val = int(val)
+            cle = RENOMME.get(cle, cle)
             while cle in vals:
                 cle += "Total"
             vals[cle] = val
