@@ -33,6 +33,16 @@
   --good:#136349; --good-soft:#DBEEE5;
   --am:#A96A0F; --pm:#116A69; --n:#3C4185; --d:#64737F;
   --am-soft:#F6E9D2; --pm-soft:#D7ECEB; --n-soft:#E0E1F1; --d-soft:#E5EAED;
+  /* Palette du calendrier annuel. Validée par scripts/validate_palette.js du
+     savoir-faire « dataviz », en mode « toutes paires » — un calendrier est
+     une série de petits multiples, n'importe quels deux postes peuvent se
+     retrouver côte à côte. L'ancienne palette y échouait : après-midi et jour
+     n'étaient séparés que de 9,5 en vision normale, sous le plancher de 15.
+     Ici : pire paire 23,2 en vision normale, 17,4 en protanopie.
+     Le contraste des fonds passe sous 3:1, ce qui impose des libellés
+     visibles — chaque case porte son numéro de jour et l'initiale du poste. */
+  --cal-am:#EC940D; --cal-pm:#51BFBB; --cal-n:#474698; --cal-d:#0F641D;
+  --cal-am-ink:#0E1A20; --cal-pm-ink:#0E1A20; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
   --shadow:0 1px 1px rgba(14,26,32,.05), 0 10px 26px -18px rgba(14,26,32,.45);
   --r:11px;
 }
@@ -46,6 +56,11 @@
     --good:#5DC69D; --good-soft:#113127;
     --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
     --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+    /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
+       pour la bande sombre et validés contre la surface sombre.
+       Pire paire 16,6 en vision normale, 10,7 en protanopie. */
+    --cal-am:#C68128; --cal-pm:#229B97; --cal-n:#5455A8; --cal-d:#24732C;
+    --cal-am-ink:#0C1217; --cal-pm-ink:#0C1217; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
     --shadow:0 1px 1px rgba(0,0,0,.4), 0 12px 30px -20px rgba(0,0,0,.95);
   }
 }
@@ -58,6 +73,11 @@
   --good:#5DC69D; --good-soft:#113127;
   --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
   --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+    /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
+     pour la bande sombre et validés contre la surface sombre.
+     Pire paire 16,6 en vision normale, 10,7 en protanopie. */
+  --cal-am:#C68128; --cal-pm:#229B97; --cal-n:#5455A8; --cal-d:#24732C;
+  --cal-am-ink:#0C1217; --cal-pm-ink:#0C1217; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
   --shadow:0 1px 1px rgba(0,0,0,.4), 0 12px 30px -20px rgba(0,0,0,.95);
 }
 *{box-sizing:border-box}
@@ -192,6 +212,95 @@ button{cursor:pointer}
 .cal button.fer{box-shadow:inset 0 0 0 1.5px var(--out2)}
 .cal .legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--muted)}
 .cal .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px}
+
+/* ---------- calendrier annuel ---------- */
+/* Sélecteur segmenté, à la manière d'iOS : un rail, une pastille qui glisse. */
+.seg{display:inline-flex; background:var(--surface3); border-radius:9px; padding:2px; gap:2px}
+.seg button{
+  appearance:none; border:0; background:none; color:var(--muted);
+  font-size:12.5px; font-weight:600; padding:5px 14px; border-radius:7px;
+  transition:background .18s ease, color .18s ease;
+}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button:hover{color:var(--ink2)}
+
+.annee{padding:0 16px 16px}
+.annee .grille{
+  display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fill, minmax(216px, 1fr));
+}
+.mois{
+  background:var(--surface); border:1px solid var(--line2); border-radius:var(--r);
+  padding:11px 11px 9px;
+}
+.mois.courant{border-color:var(--in2); box-shadow:0 0 0 1px var(--in2)}
+.mois h3{
+  display:flex; align-items:baseline; gap:6px; margin:0 0 7px; padding:0 2px;
+  font-size:12.5px; font-weight:700; letter-spacing:-.01em; color:var(--ink);
+}
+.mois h3 small{margin-left:auto; font-weight:500; font-size:10.5px; color:var(--faint); font-variant-numeric:tabular-nums}
+.mois .sem{display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:3px}
+.mois .sem span{text-align:center; font-size:9px; font-weight:600; color:var(--faint); letter-spacing:.04em}
+.mois .jours{display:grid; grid-template-columns:repeat(7,1fr); gap:2px}
+.mois .jours button{
+  appearance:none; border:0; padding:0; min-width:0;
+  min-height:26px; aspect-ratio:1;   /* min-height : repli pour les vieux moteurs */
+  border-radius:6px; background:var(--surface2); color:var(--faint);
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px;
+  font-variant-numeric:tabular-nums; line-height:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  transition:transform .12s ease;
+}
+.mois .jours button.vide{background:none; visibility:hidden}
+.mois .jours button:not(.vide):hover{transform:scale(1.14); z-index:2; position:relative}
+.mois .jours button b{font-weight:600}
+/* l'initiale du poste : le libellé visible qu'impose le contraste des fonds,
+   et de quoi lire la case sans dépendre de la seule couleur */
+.mois .jours button i{font-style:normal; font-size:7.5px; font-weight:700; letter-spacing:.03em; opacity:.85}
+.mois .jours button[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
+.mois .jours button[data-p="PM"]{background:var(--cal-pm); color:var(--cal-pm-ink)}
+.mois .jours button[data-p="N"] {background:var(--cal-n);  color:var(--cal-n-ink)}
+.mois .jours button[data-p="D"] {background:var(--cal-d);  color:var(--cal-d-ink)}
+/* une absence n'est pas un cinquième poste : c'est un état, pas une identité.
+   Elle prend donc un traitement neutre, jamais une teinte catégorielle. */
+.mois .jours button.abs{background:var(--surface3); color:var(--ink2); box-shadow:inset 0 0 0 1px var(--line)}
+.mois .jours button.auj{outline:2px solid var(--in2); outline-offset:1px}
+.mois .jours button.we b{opacity:.55}
+
+.annee .legende{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; margin:0 0 14px; font-size:11.5px; color:var(--muted)}
+.annee .legende span{display:inline-flex; align-items:center; gap:6px}
+.annee .legende i{display:inline-block; width:13px; height:13px; border-radius:4px; font-style:normal}
+.annee .tuiles{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+.annee .tuiles div{
+  background:var(--surface); border:1px solid var(--line2); border-radius:9px;
+  padding:7px 12px; min-width:84px;
+}
+.annee .tuiles b{display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:17px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.2}
+.annee .tuiles span{font-size:10.5px; color:var(--muted)}
+/* infobulle : un calendrier en HTML est interactif, chaque case se survole */
+#calTip{
+  position:fixed; z-index:60; pointer-events:none; opacity:0;
+  background:var(--ink); color:var(--paper); font-size:11.5px; line-height:1.45;
+  padding:6px 9px; border-radius:7px; max-width:230px;
+  box-shadow:0 6px 20px -8px rgba(0,0,0,.6); transition:opacity .12s ease;
+}
+/* l'infobulle s'inverse avec le thème : un blanc figé ici disparaissait
+   sur le fond clair que prend la bulle en mode sombre */
+#calTip b{color:inherit; font-weight:700}
+@media (max-width:620px){
+  .annee{padding:0 12px 12px}
+  .annee .grille{grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px}
+}
+/* Sur un téléphone, deux colonnes ramènent la case à 23 px : le numéro du
+   jour y tient encore, l'initiale du poste non. Or quatre séries exigent un
+   libellé direct en plus de la légende — la couleur ne peut pas porter
+   l'identité toute seule. Une colonne, donc, et des cases lisibles. */
+@media (max-width:480px){
+  .annee .grille{grid-template-columns:1fr; gap:12px}
+  .mois .jours button{font-size:13px}
+  .mois .jours button i{font-size:9px}
+}
 
 /* ---------- guide ---------- */
 .steps{list-style:none; margin:0; padding:0 16px 16px; display:grid; gap:10px; counter-reset:s}
@@ -478,9 +587,17 @@ button{cursor:pointer}
         <span class="sub" id="prefillHint"></span>
       </div>
       <p class="sub" id="prefillCompteurs"></p>
-      <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
+      <div class="toolbar">
+        <div class="seg" id="vueSeg" role="group" aria-label="Affichage de l'horaire">
+          <button type="button" data-v="mois" aria-pressed="true">Mois</button>
+          <button type="button" data-v="annee" aria-pressed="false">Année</button>
+        </div>
+        <span class="sub" id="anneeSub"></span>
+      </div>
+      <div class="annee" id="annee" hidden></div>
+      <p class="lede top" id="ledeMois">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
       Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
-      <div class="rota-head"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
+      <div class="rota-head" id="rotaHead"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
       <div class="rota" id="rota"></div>
       <div class="rota-foot">
         <span>Prestées <b id="tHeures">0</b> h</span>
@@ -1854,9 +1971,16 @@ function renderPrefillSelects(db){
     if(p.poly&&p.poly.ateliers) txt.push("ateliers : "+p.poly.ateliers.join(", "));
     el.textContent=txt.join(" — ");
   }
-  fillIds(); majCompteurs();
-  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); majCompteurs(); };
-  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); majCompteurs(); };
+  /* la vue annuelle montre la personne choisie : elle doit suivre le
+     sélecteur, sans qu'on ait à recliquer sur l'onglet */
+  function suivre(){
+    majCompteurs();
+    var vue=document.getElementById("annee");
+    if(vue && !vue.hidden) renderAnnee();
+  }
+  fillIds(); suivre();
+  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); suivre(); };
+  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); suivre(); };
 }
 /* Plages horaires de l'horaire d'équipe dont le poste correspondant est
    confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés
@@ -2390,14 +2514,195 @@ function prefillFromHoraire(){
     });
   });
 }
+/* ===================== vue année ===================== */
+/* L'horaire d'équipe porte l'année entière ; la montrer mois par mois oblige à
+   douze allers-retours pour lire une rotation qui se comprend d'un coup d'œil.
+   Cette vue affiche les douze mois de la personne choisie, chaque journée
+   colorée par son poste.
+
+   Le codage est catégoriel : quatre postes, quatre teintes, dans un ordre
+   fixe. Les absences ne prennent PAS une cinquième teinte — ce n'est pas une
+   identité mais un état, et elles reçoivent un traitement neutre. La couleur
+   ne porte jamais seule l'information : chaque case affiche son numéro de
+   jour et l'initiale du poste, une légende accompagne la grille, et
+   l'infobulle donne le détail. */
+var JOURS_COURTS=["L","M","M","J","V","S","D"];
+var POSTE_LIB={AM:"Matin",PM:"Après-midi",N:"Nuit",D:"Jour"};
+/* Dans une case de calendrier, « 4H +FT » tronqué à trois caractères donne
+   « 4H » — ce qui ne veut rien dire. Le nombre d'heures est déjà dans
+   l'infobulle ; seule la nature du code compte ici. */
+function etiqAbsence(code){
+  var t=String(code||"").replace(/^\s*\d+(?:[.,]\d+)?\s*h\s*/i,"").replace(/\s+/g,"");
+  return t.slice(0,3) || String(code||"").slice(0,3);
+}
+
+function anneeDeLaPersonne(db,person,annee){
+  var out={}, m, d;
+  for(m=1;m<=12;m++){
+    var ep=epargnesDuMois(person,m), fit=cycleDuMois(person,annee,m);
+    var nd=daysInMonth(annee,m-1);
+    for(d=1;d<=nd;d++){
+      var mmdd=pad2(m)+pad2(d), raw=person.d[mmdd];
+      if(raw===undefined) continue;
+      var r=parseHoraireEntry(raw,st.params.hJour,ep[d]);
+      if(!r.s || r.jour){
+        var duCycle=posteDeCycle(fit,annee,m,d);
+        if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
+        if(!duCycle && r.jour) duCycle=r.s||"D";
+        if(duCycle && duCycle!==r.s){ r.s=duCycle; r.modifie=true; }
+      }
+      out[mmdd]={s:r.s||"", a:(r.a&&ABSMAP[r.a])?r.a:"", h:r.h,
+                 rcm:remplacementCM(raw,r.s,st.params.hJour),
+                 rap:rappelDuJour(raw,posteDeCycle(fit,annee,m,d)||r.s,annee,mmdd),
+                 brut:raw};
+    }
+  }
+  return out;
+}
+
+var calTip=null;
+function tipOn(el,html){
+  if(!calTip){ calTip=document.createElement("div"); calTip.id="calTip"; document.body.appendChild(calTip); }
+  calTip.innerHTML=html;
+  var r=el.getBoundingClientRect(), t=calTip.getBoundingClientRect();
+  var x=Math.min(Math.max(8,r.left+r.width/2-t.width/2), window.innerWidth-t.width-8);
+  var y=r.top-t.height-8; if(y<8) y=r.bottom+8;
+  calTip.style.left=x+"px"; calTip.style.top=y+"px"; calTip.style.opacity="1";
+}
+function tipOff(){ if(calTip) calTip.style.opacity="0"; }
+
+function renderAnnee(){
+  var hote=document.getElementById("annee"); if(!hote) return;
+  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
+  var id=idSel?idSel.value:"";
+  if(!id){ hote.innerHTML='<p class="lede" style="padding:0">Choisissez une personne ci-dessus pour afficher son année.</p>'; return; }
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    if(!person){ hote.innerHTML='<p class="lede" style="padding:0">Personne introuvable dans l\'horaire d\'équipe.</p>'; return; }
+    var annee=Number(db.year), jours=anneeDeLaPersonne(db,person,annee);
+    var auj=new Date(), ajd=(auj.getFullYear()===annee)?pad2(auj.getMonth()+1)+pad2(auj.getDate()):"";
+    var cpt={AM:0,PM:0,N:0,D:0}, abs=0, repos=0, rcm=0, heures=0;
+    Object.keys(jours).forEach(function(k){
+      var j=jours[k];
+      if(j.s){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=(j.h===undefined?st.params.hJour:j.h); }
+      else if(j.a) abs++; else repos++;
+      if(j.rcm) rcm++;
+    });
+
+    var h=[];
+    h.push('<div class="tuiles">');
+    h.push(tuile(num(R(heures,2)),"heures prestées"));
+    h.push(tuile(cpt.AM+cpt.PM+cpt.N+cpt.D,"jours prestés"));
+    h.push(tuile(abs,"jours d\'absence"));
+    h.push(tuile(repos,"jours de repos"));
+    if(rcm) h.push(tuile(rcm,"remplacements CM"));
+    h.push('</div>');
+
+    h.push('<p class="legende">');
+    SHIFT_CODES.forEach(function(c){
+      h.push('<span><i style="background:var(--cal-'+c.toLowerCase()+')"></i>'
+             +esc(POSTE_LIB[c])+' <b style="color:var(--ink2)">'+cpt[c]+'</b></span>');
+    });
+    h.push('<span><i style="background:var(--surface3); box-shadow:inset 0 0 0 1px var(--line)"></i>Absence</span>');
+    h.push('<span><i style="background:var(--surface2)"></i>Repos</span>');
+    h.push('</p>');
+
+    h.push('<div class="grille">');
+    for(var m=1;m<=12;m++){
+      var nd=daysInMonth(annee,m-1);
+      var prestes=0;
+      for(var q=1;q<=nd;q++){ var jj=jours[pad2(m)+pad2(q)]; if(jj&&jj.s) prestes++; }
+      var courant=(annee===st.y && m-1===st.m)?" courant":"";
+      h.push('<section class="mois'+courant+'">');
+      h.push('<h3>'+esc(MOIS[m-1])+'<small>'+prestes+' j</small></h3>');
+      h.push('<div class="sem">'+JOURS_COURTS.map(function(x){return "<span>"+x+"</span>";}).join("")+'</div>');
+      h.push('<div class="jours">');
+      /* la semaine commence le lundi : 0 pour lundi, 6 pour dimanche */
+      var decal=(new Date(annee,m-1,1).getDay()+6)%7;
+      for(var v=0;v<decal;v++) h.push('<button type="button" class="vide" tabindex="-1" aria-hidden="true"></button>');
+      for(var d=1;d<=nd;d++){
+        var mmdd=pad2(m)+pad2(d), j=jours[mmdd]||{}, cls=[], attr="";
+        var jour=new Date(annee,m-1,d).getDay();
+        if(jour===0||jour===6) cls.push("we");
+        if(j.a && !j.s) cls.push("abs");
+        if(mmdd===ajd) cls.push("auj");
+        if(j.s) attr=' data-p="'+esc(j.s)+'"';
+        var etiq=j.s?j.s:(j.a?etiqAbsence(j.a):"");
+        h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
+          +' data-m="'+m+'" data-d="'+d+'" data-k="'+mmdd+'"'
+          +' aria-label="'+d+" "+esc(MOIS[m-1])+" — "+esc(j.s?POSTE_LIB[j.s]:(j.a||"repos"))+'">'
+          +'<b>'+d+'</b>'+(etiq?'<i>'+esc(etiq.slice(0,3))+'</i>':'')+'</button>');
+      }
+      h.push('</div></section>');
+    }
+    h.push('</div>');
+    hote.innerHTML=h.join("");
+    document.getElementById("anneeSub").textContent=id+" · "+annee;
+
+    function tuile(v,l){ return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>'; }
+
+    hote.onmouseover=function(e){
+      var b=e.target.closest?e.target.closest("button[data-k]"):null;
+      if(!b) return;
+      var j=jours[b.dataset.k]||{}, m=Number(b.dataset.m), d=Number(b.dataset.d);
+      var l=["<b>"+d+" "+MOIS[m-1]+" "+annee+"</b>"];
+      if(j.s) l.push(POSTE_LIB[j.s]+" · "+num(j.h===undefined?st.params.hJour:j.h)+" h");
+      if(j.a) l.push("Absence "+j.a);
+      if(!j.s && !j.a) l.push("Repos");
+      if(j.rcm) l.push("Remplacement contremaître");
+      if(j.rap) l.push("Rappel "+(j.rap==="J"?"J / J-1":"J-2 → J-15"));
+      if(j.brut && j.brut[2]) l.push('<span style="opacity:.75">'+esc(j.brut[2]).slice(0,120)+"</span>");
+      tipOn(b,l.join("<br>"));
+    };
+    hote.onmouseout=function(e){ if(e.target.closest && e.target.closest("button[data-k]")) tipOff(); };
+    hote.onclick=function(e){
+      var b=e.target.closest?e.target.closest("button[data-k]"):null;
+      if(!b) return;
+      tipOff(); vueHoraire("mois");
+      var m=Number(b.dataset.m)-1, d=Number(b.dataset.d);
+      if(m!==st.m || annee!==st.y) loadMonth(annee,m);
+      setTimeout(function(){
+        var row=document.querySelector('.day[data-d="'+d+'"]');
+        if(row){ row.scrollIntoView({block:"center"}); var f=row.querySelector(".shifts button"); if(f) f.focus(); }
+      },260);
+    };
+  });
+}
+
+function vueHoraire(v){
+  var annuel=(v==="annee");
+  document.getElementById("annee").hidden=!annuel;
+  ["ledeMois","rotaHead","rota"].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.hidden=annuel;
+  });
+  var pied=document.querySelector(".rota-foot"); if(pied) pied.hidden=annuel;
+  var seg=document.getElementById("vueSeg");
+  [].forEach.call(seg.querySelectorAll("button"),function(b){
+    b.setAttribute("aria-pressed", b.dataset.v===v ? "true" : "false");
+  });
+  lsSet("ui/vueHoraire",v);
+  if(annuel) renderAnnee(); else { tipOff(); document.getElementById("anneeSub").textContent=""; }
+}
+document.getElementById("vueSeg").addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("button[data-v]"):null;
+  if(b) vueHoraire(b.dataset.v);
+});
 document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
 function ensurePrefillUI(){
-  if(HORAIRE_DB) return;
+  if(HORAIRE_DB){ restaurerVue(); return; }
   fetchHoraireDB().then(function(db){
     if(!db) return;
     renderPrefillSelects(db);
     document.getElementById("prefillHint").textContent="Base "+db.year+" · "+db.people.length+" personnes (identifiants anonymisés)";
+    restaurerVue();
   });
+}
+/* le choix mois/année tient d'une visite à l'autre */
+var vueRestauree=false;
+function restaurerVue(){
+  if(vueRestauree) return; vueRestauree=true;
+  if(lsGet("ui/vueHoraire")==="annee") vueHoraire("annee");
 }
 
 /* ===================== export / import ===================== */
