@@ -14,8 +14,12 @@ de `parseHoraireEntry()` les applique ; le document est la source de vérité.
 La règle qu'il ne faut jamais perdre de vue :
 
 > Dans une cellule, le code franc est le poste **prévu** par la rotation ;
-> le commentaire Excel (préfixé `?` dans le JSON) dit ce qui a été
+> l'annotation à sa droite et le commentaire Excel disent ce qui a été
 > **réellement presté**. Le commentaire prime.
+
+Une journée du JSON est un tableau de trois champs, les vides étant coupés :
+`["18h-06h", "R-CM", "Remplace FLI de 18h à 22h Rappel le 13/04"]` — la
+cellule, son annotation, le commentaire.
 
 Le document liste aussi ce qui reste à faire confirmer par le client — ne pas
 deviner à sa place sur ces points : ils touchent à des montants.
@@ -71,6 +75,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
+| `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
 | `sw.js` | cache et fonctionnement hors ligne |
@@ -98,6 +103,14 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 
 ## Vérifier une modification du pré-remplissage
 
-Rejouer `parseHoraireEntry` sur les 19 882 cellules de
+Rejouer `parseHoraireEntry` sur les 27 462 journées de
 `data/horaire-2026.json` et comparer aux repères de la section 11 de
-`docs/conversion-horaire.md`. Un écart important signale une régression.
+`docs/conversion-horaire.md`. Au 19/09/2026 : 19 965 postes prestés, 490
+absences codées, 7 006 repos et **une seule** cellule non résolue. Un écart
+important signale une régression.
+
+Second contrôle, indépendant : recalculer les compteurs flex time de chacun
+depuis ses journées et les comparer à ceux du pied de classeur, qui sont
+saisis à la main. 76 personnes sur 77 doivent concorder exactement — la
+seule divergence connue est une erreur du classeur, documentée en section
+10 bis.
