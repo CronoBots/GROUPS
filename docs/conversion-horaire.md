@@ -478,6 +478,39 @@ Un convertisseur refait doit donc conserver : le contenu de la cellule, le
 contenu intégral du commentaire, et tout marqueur visuel porteur de sens
 (couleur de fond, barré, gras) — à vérifier avec le client.
 
+## 10 ter. Montrer une journée dont la prime dit autre chose
+
+Une journée de délégation, de formation ou d'arrêt technique se preste en
+**horaire de jour** mais conserve la **prime de la pause qui était prévue**
+(section 6 bis). Deux informations, donc, et elles ne coïncident pas :
+
+| | |
+|---|---|
+| ce qui est **payé** | la pause prévue au cycle — nuit, après-midi, matin |
+| ce qui est **presté** | une journée de jour, sous son code : `D-CPPT`, `SD26`, `D-F`… |
+
+Le calendrier ne montrait que la première. VBN le 30/09, `N ǀ D-CPPT`,
+s'affichait « N » : juste pour la paie, faux pour la réalité. Le client l'a
+vu par hasard.
+
+La cause était en amont : `parseHoraireEntry()` ne retenait du code que le
+fait — un booléen `jour` — et non le code lui-même. Il le conserve désormais
+dans `jourCode`, et la case porte les deux informations par **deux encodages
+distincts** :
+
+- le **fond** donne le poste payé ;
+- une **barre au bas de la case**, dans la teinte du poste de jour, dit que
+  la journée s'est faite en horaire de jour ;
+- l'**étiquette** nomme le code presté — `CPPT` plutôt que `N`.
+
+L'infobulle l'écrit en toutes lettres — « Journée de jour (D-CPPT), prime de
+nuit conservée » — la légende a son entrée, et la vue semaine porte la même
+mention.
+
+**881 journées de 2026 sont dans ce cas**, réparties ainsi : `F` 289,
+`SD26` 216, `TP` 210, `D-F` 47, `DS` 43, `D-CPPT` 40, `DS-CE` 27, `CPPT` 7,
+`DF` 2.
+
 ## 10 bis. Ce que le convertisseur lit hors de la grille des jours
 
 Le classeur ne se réduit pas à ses douze blocs de mois. L'onglet `Config` le
