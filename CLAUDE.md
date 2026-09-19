@@ -24,15 +24,37 @@ deviner à sa place sur ces points : ils touchent à des montants.
 
 Le client envoie régulièrement le récapitulatif Excel. La procédure :
 
-```bash
-# 1. convertir — le classeur reste HORS du dépôt, il contient des noms
-python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm \
-        data/horaire-2026.json 2026
+**Ne jamais écraser l'ancien JSON sans avoir regardé ce qui change.** Le
+client renvoie souvent le même classeur corrigé sur quelques journées ; une
+journée qui bouge déplace des heures, des primes et parfois un chèque-repas.
+Convertir d'abord à côté, comparer, puis installer.
 
-# 2. contrôler les repères (section 11 de docs/conversion-horaire.md)
-# 3. incrémenter V dans sw.js
-# 4. tester dans un navigateur
+```bash
+# 1. convertir À CÔTÉ — le classeur reste HORS du dépôt, il contient des noms
+python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm \
+        /tmp/nouveau.json 2026
+
+# 2. comparer à la version en place, et RENDRE COMPTE de ce qui change
+python3 tools/comparer-horaire.py data/horaire-2026.json /tmp/nouveau.json
+
+# 3. installer
+cp /tmp/nouveau.json data/horaire-2026.json
+
+# 4. contrôler les repères (section 11 de docs/conversion-horaire.md)
+# 5. incrémenter V dans sw.js
+# 6. tester dans un navigateur
 ```
+
+Le comparateur dit tout : date de mise à jour du classeur, arrivées et
+départs, changements de groupe, journées modifiées avec l'avant et l'après,
+compteurs et polyvalence. Il ne manipule que des identifiants à trois
+lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
+dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
+est une correction attendue ou une erreur de saisie.
+
+Le convertisseur signale de son côté les anomalies du classeur : trigrammes
+partagés, corrections devenues orphelines, compteur écrit dans la mauvaise
+colonne. Ces messages vont sur la sortie d'erreur ; ils ne sont pas du bruit.
 
 **Ne jamais committer le `.xlsm`**, ni aucun nom complet. Le convertisseur
 n'en laisse pas sortir : identifiants à trois lettres, et commentaires
