@@ -41,7 +41,14 @@ n'est figé dans le code.
 Dans l'onglet Horaire, un sélecteur permet de retrouver sa ligne dans
 l'horaire réel de l'équipe (par fonction puis par identifiant anonymisé —
 initiales ou matricule, jamais le nom complet) et de pré-remplir
-automatiquement le mois affiché. Près de 99 % des jours sont reconnus
+automatiquement **les douze mois de l'année**, d'un seul clic. Les journées
+déjà encodées à la main ne sont jamais écrasées : le bouton se rejoue sans
+risque après une correction manuelle ou un nouveau classeur.
+
+Le bilan dit ce qui a été fait et ce qui reste à regarder — journées
+remplies, heures reprises au compteur HS, jours de remplacement
+contremaître, rappels proposés, mentions de rappel non tranchées, jours de
+repos et journées conservées. Près de 99 % des jours sont reconnus
 automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
