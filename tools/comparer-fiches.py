@@ -79,7 +79,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function plageMention(","\n}"),g("function seChevauchent(","\n}"),g("var JOUR_PRIME_PAUSE=","];"),
  g("var MENTIONS_NEUTRES=","];"),g("var ATELIERS=","\n"),g("function reprisRHS(","\n}"),
  g("function posteDepuisPlage(","\n}"),g("function dureeReelle(","\n}"),
- g("var ALIAS_HORAIRE=","\n"),g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
+ g("var ALIAS_HORAIRE=","\n"),g("var JOUR_EN_ABSENCE=","\n"),g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),g("var RX_RENVOI=","\n"),
  g("function epargnesDuMois(","\n}")].join("\n"));
 const db=JSON.parse(fs.readFileSync(process.argv[3],"utf8"));

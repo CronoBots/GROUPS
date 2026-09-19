@@ -270,6 +270,19 @@ qui s'est passé : la cellule d'en face porte un **second** remplacement. CDE
 le 31/05, « Remplacée par VBN, MPE : Remplacée par LDY » ; AFA le 02/07,
 « Remplacé par VBN, remplacé par VGG et GPS ». L'absence prime.
 
+### « DS » est une sortie syndicale, pas une journée prestée
+
+Le client tranche : « uniquement les sorties DS, pas les CPPT ». Une sortie
+syndicale est une **absence**, et elle ne conserve pas la prime de la pause
+prévue. Les délégations CPPT et les conseils d'entreprise gardent leur
+traitement : journée prestée en horaire de jour, prime conservée.
+
+La fiche de février le montrait doublement. Le 12/02, `N ǀ DS ǀ à
+l'extérieur`, est la seule journée `DS` de l'année, et février la seule fiche
+à porter une ligne « Heure(s) formation syndicale », de 8 h. Et sa prime de
+nuit ne fait que 8 h sur le mois — celles du 11/02, dont le commentaire dit
+« Conserver prime de nuit ». Il n'en restait aucune pour le 12.
+
 ### Une absence d'une journée entière sur un repos ne vaut rien
 
 Elle remplace un poste ; sans poste ce jour-là, elle ne remplace rien. Les
@@ -286,7 +299,6 @@ compensatoire.
 | Écart | Détail |
 |---|---|
 | heures prestées | 897 h calculées contre 962,53 h sur huit fiches. L'écart va dans les deux sens selon le mois : février +22,50, avril −29,00 |
-| `DS` | la fiche de février porte 8 h de **formation syndicale**, et le 12/02 est la seule journée `DS` de l'année. L'application la traite en journée prestée à prime conservée — à trancher avec le client, qui avait indiqué l'inverse |
 | maladie de mars | 48 h calculées contre 45,72 h sur la fiche |
 | repos compensatoire | janvier 4 h contre 5, février 0 contre 0,50 |
 
