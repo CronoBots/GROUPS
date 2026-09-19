@@ -508,6 +508,13 @@ Un libellé qui revient dans un même bloc est un total, et prend le suffixe
 `Total` : VBN a 40 h de RTT en journées entières plus 14 h prises à l'heure,
 soit `RTT: 40` et `RTTTotal: 54`.
 
+Le « Total » du bloc flex time est renommé **`report`**, parce qu'il n'est
+pas un total. Le client : « les compteurs totaux sont repartis d'où ils
+étaient en fin d'année 2025, donc des valeurs manuelles avaient été rentrées
+en début d'année ». C'est le solde reporté de l'année précédente, saisi à la
+main — VBN commence 2026 à −5 h, et ses +55 / −53 de l'année ne s'y ajoutent
+pas. Le nommer « Total » aurait invité à les additionner.
+
 ### Ce que ces compteurs ne sont pas
 
 Ils ne remplissent **aucun** champ de la fiche. Les trois champs « en attente
@@ -519,6 +526,18 @@ L'application les affiche donc pour ce qu'ils sont, sous les sélecteurs du
 pré-remplissage : un repère, et de quoi contrôler ce que l'horaire a produit.
 Les totaux flex time sont à ce titre précieux — ils recoupent exactement ce
 que l'application calcule depuis les journées.
+
+### Une personne, plusieurs feuilles
+
+Les adjoints contremaître sont recopiés sur les cinq feuilles d'équipe, à
+l'identique : 365 journées, aucune divergence avec la feuille des
+contremaîtres. La feuille où quelqu'un est recopié pour référence ne doit pas
+décider de sa catégorie — c'est celle de son propre groupe qui compte.
+
+L'ordre de `FEUILLES` porte donc cette règle : les feuilles spécialisées
+d'abord (contremaîtres, STEP, opérateurs en formation), les équipes ensuite.
+ATR, FPA, JBI, VGG et YBT figurent maintenant chez les contremaîtres, et non
+plus en Shift 1 — qui gagnait simplement parce qu'il était lu en premier.
 
 ### Les autres onglets
 
