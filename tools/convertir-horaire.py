@@ -19,7 +19,7 @@ Deux règles de confidentialité, non négociables :
   - les commentaires Excel portent le nom de leur auteur en préfixe, retiré
     ici, y compris au milieu d'un fil de discussion.
 """
-import json, re, sys, unicodedata, zipfile
+import datetime, json, re, sys, unicodedata, zipfile
 import xml.etree.ElementTree as ET
 
 M = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -40,6 +40,24 @@ MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET",
 # « Nom, Prénom: », « Nom, Prénom (external): », « RT01386: »
 AUTEUR = re.compile(r"(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+"
                     r"(?:\s*\([^)]*\))?|[Rr][Tt]\d{4,6}|Auteur)\s*:\s*")
+
+# L'onglet « Config » du classeur le dit lui-même : « les lignes de 11 à 376
+# sont consacrées à l'horaire, les lignes de 377 à 420 aux compteurs ». En
+# pratique le bloc court jusqu'à 434, la position du bloc CP variant d'une
+# personne à l'autre.
+#
+# Le pied de feuille se lit comme les journées : le libellé dans la colonne
+# de la personne, la valeur dans la colonne d'annotation. Les titres de
+# section sont écrits à gauche, dans les deux premières colonnes, mais AU
+# MILIEU de leur bloc et non en tête — d'où des bornes explicites, que l'on
+# vérifie en cherchant le titre attendu à l'intérieur.
+BLOCS = [
+    ("prevision", 377, 394, "prévisions"),
+    ("solde", 395, 402, "soldes en heures au"),
+    ("restant", 403, 408, "compte tenu des prévisions"),
+    ("flex", 409, 430, "compteur flex time"),
+    ("conges", 431, 440, None),
+]
 
 
 def _colnum(lettres):
@@ -171,6 +189,124 @@ def _annuaire(cl):
     return out
 
 
+def _norme_cle(libelle):
+    """« 1/2VA » -> « demiVA », « 4h +FT » -> « 4h+FT », « Total: » -> « Total »."""
+    t = libelle.strip().rstrip(":").strip()
+    return t.replace("1/2", "demi").replace(" ", "") or None
+
+
+def verifier_blocs(g, feuille):
+    """Le titre attendu doit se trouver dans son bloc, sinon la structure du
+    classeur a bougé et les compteurs seraient lus de travers."""
+    for nom, r0, r1, titre in BLOCS:
+        if not titre:
+            continue
+        gauche = " ".join(str(g[r][c]) for r in range(r0, r1 + 1) if r in g
+                          for c in sorted(g[r]) if c <= 2).lower()
+        if _sans_accent(titre) not in _sans_accent(gauche):
+            print("  %s : bloc « %s » introuvable en lignes %d-%d — compteurs"
+                  " ignorés" % (feuille, titre, r0, r1), file=sys.stderr)
+            return False
+    return True
+
+
+def compteurs(g, colonne):
+    """Le pied de feuille d'une personne : prévisions de congé, soldes au
+    1er janvier, soldes restants, compteurs flex time, CP.
+
+    Ces valeurs sont SAISIES, pas calculées — 1 099 cellules contre 12
+    formules sur la feuille des contremaîtres. Aucun calcul ne les retrouve
+    depuis l'horaire : il faut les lire.
+
+    Un libellé qui revient dans le même bloc est un total : les journées
+    entières d'abord, le cumul ensuite. VBN : 40 h de RTT en journées
+    entières, plus 14 h prises à l'heure, soit 54 h au total."""
+    out = {}
+    for nom, r0, r1, _ in BLOCS:
+        vals = {}
+        for r in range(r0, r1 + 1):
+            ligne = g.get(r)
+            if not ligne:
+                continue
+            lib = str(ligne.get(colonne, "")).strip()
+            brut = ligne.get(colonne + 1)
+            if not lib or brut is None:
+                continue
+            cle = _norme_cle(lib)
+            if not cle:
+                continue
+            try:
+                val = float(brut)
+            except (TypeError, ValueError):
+                continue
+            if val == int(val):
+                val = int(val)
+            while cle in vals:
+                cle += "Total"
+            vals[cle] = val
+        if vals:
+            out[nom] = vals
+    return out
+
+
+def metadata(cl):
+    """Ce que le classeur dit de lui-même : la date de sa dernière mise à
+    jour (onglet « Config »), la légende des codes d'absence et la liste des
+    ateliers de l'onglet « Polyvalence »."""
+    out = {}
+    if "Config" in cl.feuilles:
+        brut = cl.grille("Config").get(19, {}).get(2)
+        try:
+            jour = datetime.datetime(1899, 12, 30) + datetime.timedelta(days=float(brut))
+            out["maj"] = jour.strftime("%Y-%m-%dT%H:%M")
+        except (TypeError, ValueError):
+            pass
+    for feuille in FEUILLES:
+        if feuille not in cl.feuilles:
+            continue
+        g = cl.grille(feuille)
+        leg = {str(g[r][1]).strip(): str(g[r][2]).strip()
+               for r in range(4, 9) if r in g and 1 in g[r] and 2 in g[r]}
+        if leg:
+            out["legende"] = leg
+            break
+    if "Polyvalence" in cl.feuilles:
+        g = cl.grille("Polyvalence")
+        out["ateliers"] = [str(g[3][c]).strip()
+                           for c in sorted(g.get(3, {})) if c >= 6]
+    return out
+
+
+def polyvalence(cl, annuaire):
+    """L'onglet « Polyvalence » : le degré de chacun et les ateliers qu'il
+    peut tenir. Il porte matricule, nom et prénom en clair — rien de tout
+    cela ne sort d'ici, seul l'identifiant à trois lettres est conservé."""
+    if "Polyvalence" not in cl.feuilles:
+        return {}
+    g = cl.grille("Polyvalence")
+    noms = {c: str(g[3][c]).strip() for c in sorted(g.get(3, {})) if c >= 6}
+    out = {}
+    for r in sorted(g):
+        if r < 5:
+            continue
+        famille, prenom = str(g[r].get(2, "")).strip(), str(g[r].get(3, "")).strip()
+        if not famille or not prenom:
+            continue
+        cand = "%s %s." % (famille.title(), prenom[0].upper())
+        ident = annuaire.get(_sans_accent(cand).lower()) or _initiales(cand)
+        if not ident:
+            continue
+        ateliers = [noms[c] for c in noms if g[r].get(c)]
+        fiche = {}
+        if g[r].get(4):
+            fiche["degre"] = str(g[r][4]).strip()
+        if ateliers:
+            fiche["ateliers"] = ateliers
+        if fiche:
+            out[ident] = fiche
+    return out
+
+
 def _colonnes(cl):
     """Toutes les colonnes-personnes de toutes les feuilles, avec leur nom.
     Une même personne figure sur plusieurs feuilles ; on les fusionne ensuite
@@ -181,6 +317,7 @@ def _colonnes(cl):
             continue
         g = cl.grille(feuille)
         cm = cl.commentaires(feuille)
+        pied = verifier_blocs(g, feuille)
         mois = blocs_de_mois(g)
         for colonne in sorted(g.get(LIGNE_NOMS, {})):
             nom = str(g[LIGNE_NOMS][colonne]).strip()
@@ -202,14 +339,14 @@ def _colonnes(cl):
                         e.pop()
                     jours["%02d%02d" % (m, d)] = e
             if jours:
-                yield categorie, nom, jours
+                yield categorie, nom, jours, compteurs(g, colonne) if pied else {}
 
 
 def convertir(chemin_xlsm, annee):
     cl = Classeur(chemin_xlsm)
     annuaire = _annuaire(cl)
     gens, homonymes = {}, {}
-    for categorie, nom, jours in _colonnes(cl):
+    for categorie, nom, jours, cpt in _colonnes(cl):
         base = annuaire.get(_sans_accent(nom).lower()) or _initiales(nom)
         if not base:
             print("  nom illisible, ligne ignorée :", nom, file=sys.stderr)
@@ -221,13 +358,23 @@ def convertir(chemin_xlsm, annee):
             ident = base if not pris else "%s-%d" % (base, len(pris))
             homonymes[cle] = ident
         p = gens.setdefault(ident, {"id": ident, "cat": categorie, "d": {}})
+        # une personne figure sur plusieurs feuilles ; ses compteurs ne sont
+        # renseignés que sur celle de son groupe
+        for sec, vals in cpt.items():
+            if vals:
+                p.setdefault("c", {}).setdefault(sec, {}).update(vals)
         # une feuille peut porter des journées ou des commentaires que l'autre
         # n'a pas ; on garde l'entrée la plus informative
         for k, e in jours.items():
             if len(e) >= len(p["d"].get(k, [])):
                 p["d"][k] = e
-    return {"year": annee,
-            "people": sorted(gens.values(), key=lambda p: (p["cat"], p["id"]))}
+    for ident, fiche in polyvalence(cl, annuaire).items():
+        if ident in gens:
+            gens[ident]["poly"] = fiche
+    sortie = {"year": annee}
+    sortie.update(metadata(cl))
+    sortie["people"] = sorted(gens.values(), key=lambda p: (p["cat"], p["id"]))
+    return sortie
 
 
 if __name__ == "__main__":
