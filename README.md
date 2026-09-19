@@ -53,6 +53,17 @@ automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
 
+### Qui l'on regarde
+
+L'équipe et la personne se choisissent **dans la barre du haut**, à côté du
+nom de l'application. C'est un contexte global : la personne choisie pilote
+les trois vues de l'horaire et l'onglet Compteurs. La laisser au fond d'un
+onglet obligeait à y revenir pour en changer.
+
+Les deux sélecteurs ne s'affichent que là où ils veulent dire quelque chose —
+Horaire et Compteurs — et sont garnis dès le démarrage, quel que soit
+l'onglet ouvert.
+
 ### Un seul chemin pour remplir l'horaire
 
 « Appliquer le cycle » et « Copier le mois précédent » ont été retirés. Le

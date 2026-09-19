@@ -108,6 +108,17 @@ button{cursor:pointer}
 .brand{margin-right:auto; min-width:0}
 .brand h1{font-size:15px; letter-spacing:-.012em; font-weight:700}
 .brand p{margin:0; font-size:11.5px; color:var(--faint)}
+/* Qui l'on regarde est un contexte global : la personne choisie pilote
+   l'horaire comme les compteurs. Sa place est donc dans l'en-tête, à côté du
+   nom de l'application, et non au fond d'un onglet. */
+.qui{display:flex; align-items:center; gap:6px; min-width:0}
+.qui select{
+  max-width:190px; padding:5px 9px; border:1px solid var(--line); border-radius:8px;
+  background:var(--surface2); color:var(--ink2); font-size:12.5px; font-weight:500;
+  text-overflow:ellipsis;
+}
+.qui select:hover{border-color:var(--in2); color:var(--ink)}
+.qui select:last-child{max-width:96px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; color:var(--ink)}
 .mnav{display:flex; align-items:center; gap:2px}
 .mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
 .mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
@@ -294,6 +305,9 @@ button{cursor:pointer}
 body[data-view="horaire"] .netchip,
 body[data-view="compteurs"] .netchip,
 body[data-view="reglages"] .netchip{display:none}
+/* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
+   elle n'aurait rien à dire */
+body:not([data-view="horaire"]):not([data-view="compteurs"]) .qui{display:none}
 body[data-view="reglages"] .mnav,
 body[data-view="compteurs"] .mnav{visibility:hidden}
 body[data-horaire="annee"][data-view="horaire"] .mnav,
@@ -561,8 +575,11 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   .wrap{padding-bottom:96px}
   .toast{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
   .top-in{padding:8px 16px; gap:10px}
-  .netchip{order:3; width:100%; justify-content:space-between}
+  .netchip{order:4; width:100%; justify-content:space-between}
   body[data-view="resume"] .netchip{display:none}
+  .qui{order:3; width:100%}
+  .qui select{flex:1; max-width:none}
+  .qui select:last-child{flex:0 0 96px}
   .mnav .mlabel{min-width:0; flex:1}
   .mnav{flex:1}
 }
@@ -585,6 +602,10 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
     <div class="brand">
       <h1>BIOWANZE</h1>
       <p id="brandsub">Simulateur de paie</p>
+    </div>
+    <div class="qui">
+      <select id="prefillCat" aria-label="Équipe ou fonction"></select>
+      <select id="prefillId" aria-label="Personne"></select>
     </div>
     <div class="mnav">
       <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
@@ -670,8 +691,6 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         <span class="sub" id="rotasub"></span>
       </header>
       <div class="toolbar">
-        <select id="prefillCat" aria-label="Fonction"></select>
-        <select id="prefillId" aria-label="Identifiant"></select>
         <button type="button" class="btn" id="prefillBtn">Pré-remplir l'année depuis l'équipe</button>
         <span class="sub" id="prefillHint"></span>
       </div>
@@ -3224,6 +3243,9 @@ function boot(){
       if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
       else { y=now.getFullYear(); m=now.getMonth(); }
       setView(lsGet("ui/view")||"resume",true);
+      /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
+         garnis dès le démarrage, quel que soit l'onglet ouvert */
+      ensurePrefillUI();
       loadMonth(y,m);
     }
     if(!st.state.onboarded){
