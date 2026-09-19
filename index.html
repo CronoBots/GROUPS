@@ -1844,6 +1844,11 @@ function renderPrefillSelects(db){
     if(f["+FT"]!==undefined) ft.push("+"+num(f["+FT"]));
     if(f["-FT"]!==undefined) ft.push(num(f["-FT"]));
     var txt=[];
+    /* Deux personnes peuvent donner les mêmes initiales. Celle dont la fiche
+       est la plus fournie garde l'identifiant nu, l'autre prend un suffixe —
+       et rien ne le laisse deviner dans la liste. */
+    if(p.id.indexOf("-")>=0) txt.push("⚠ initiales partagées avec une autre personne ("
+       +p.id.split("-")[0]+") — vérifiez les journées avant de pré-remplir");
     if(t.length) txt.push("Soldes au 1er janvier : "+t.join(" · "));
     if(ft.length) txt.push("flex time sur l'année : "+ft.join(" / ")+" h");
     if(p.poly&&p.poly.ateliers) txt.push("ateliers : "+p.poly.ateliers.join(", "));
