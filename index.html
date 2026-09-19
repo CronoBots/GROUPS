@@ -474,7 +474,7 @@ button{cursor:pointer}
       <div class="toolbar">
         <select id="prefillCat" aria-label="Fonction"></select>
         <select id="prefillId" aria-label="Identifiant"></select>
-        <button type="button" class="btn" id="prefillBtn">Pré-remplir depuis l'équipe</button>
+        <button type="button" class="btn" id="prefillBtn">Pré-remplir l'année depuis l'équipe</button>
         <span class="sub" id="prefillHint"></span>
       </div>
       <p class="sub" id="prefillCompteurs"></p>
@@ -837,12 +837,12 @@ var pending={};
 function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
-function save(path,data){
+function save(path,data,muet){
   if(pending[path]) clearTimeout(pending[path]);
   pending[path]=setTimeout(function(){
     delete pending[path];
     lsSet(path,data);
-    var quiet=(path==="config/state");
+    var quiet=muet||(path==="config/state");
     if(st.db){ st.db.doc(path).set(JSON.parse(JSON.stringify(data))).then(function(){if(!quiet)flash("Enregistré");},
       function(){if(!quiet)flash("Enregistré sur cet appareil seulement");}); }
     else if(!quiet) flash("Enregistré sur cet appareil");
@@ -2285,6 +2285,68 @@ function epargnesDuMois(person,mois){
   }
   return out;
 }
+/* Remplit UN mois. Sorti de prefillFromHoraire() pour que l'année entière
+   puisse le rejouer douze fois, sur des mois qui ne sont pas celui affiché.
+   M est l'objet mois, y l'année, m le mois de 0 à 11. */
+function remplirMois(db,person,y,m,M){
+  var nd=daysInMonth(y,m), bilan={filled:0,kept:0,verifier:0,manquants:0,
+      repos:0,rhs:0,rcm:0,rappels:0,signales:0};
+  var epargnes=epargnesDuMois(person,m+1);
+  var fitCycle=cycleDuMois(person,y,m+1);
+  for(var day=1; day<=nd; day++){
+    var rec=M.days[day];
+    var dejaEncode=!!(rec && (rec.s || rec.a));
+    var mmdd=pad2(m+1)+pad2(day);
+    var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
+    var parsed=parseHoraireEntry(raw,st.params.hJour,epargnes[day]);
+    if(!parsed.s || parsed.jour){
+      var duCycle=posteDeCycle(fitCycle,y,m+1,day);
+      /* journée en horaire de jour : la cellule donne l'horaire presté
+         (« 7h-15h »), le cycle donne la prime à conserver. À défaut de
+         pause prévue au cycle, il n'y a pas de prime : poste de jour. */
+      if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
+      if(!duCycle && parsed.jour) duCycle=parsed.s||"D";
+      if(duCycle && duCycle!==parsed.s){
+        parsed.s=duCycle; parsed.modifie=true;
+        var AR=parsed.a&&ABSMAP[parsed.a];
+        var base=st.params.hJour-(parsed.epargne||0);
+        if(AR && AR.h>0) base-=AR.h;
+        if((raw[1]||"").trim()==="-") base=0;
+        parsed.h=Math.max(0,base);
+      }
+    }
+    if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
+    if(dejaEncode){ bilan.kept++; continue; }
+    var rap=rappelDuJour(raw,posteDeCycle(fitCycle,y,m+1,day)||parsed.s,y,mmdd);
+    /* mention de rappel que la règle n'a pas tranchée : double rappel,
+       renvoi à une autre journée, rappel d'un collègue. Mieux vaut le dire
+       que de la laisser passer sous silence. */
+    if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) bilan.signales++;
+    if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
+      var nrec=M.days[day]||(M.days[day]={});
+      if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
+      if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
+      if(rap){ nrec.r=rap; bilan.rappels++; }
+      bilan.filled++;
+      if(parsed.rhs) bilan.rhs+=parsed.rhs;
+      if(parsed.unknown || parsed.modifie || rap) bilan.verifier++;
+    } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
+      /* une journée de repos est parfaitement lue : il n'y a rien à
+         encoder. La compter comme « non reconnue » envoyait chercher un
+         problème inexistant — neuf fois sur un mois de trente jours. */
+      bilan.repos++;
+    } else {
+      bilan.manquants++;
+    }
+  }
+  if(bilan.rhs) M.rhsMois=R(bilan.rhs,2);
+  M.rcmJours=bilan.rcm||null;
+  return bilan;
+}
+/* L'horaire d'équipe couvre l'année entière : la découper mois par mois
+   obligeait à douze allers-retours pour un résultat déjà connu. Un seul
+   clic remplit les douze. Les journées déjà encodées à la main ne sont
+   jamais écrasées — le bouton se rejoue donc sans risque. */
 function prefillFromHoraire(){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var id=idSel.value; if(!id){ flash("Choisissez d'abord une personne"); return; }
@@ -2292,68 +2354,40 @@ function prefillFromHoraire(){
     if(!db) return;
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
-    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, verifier=0, manquants=0, rhsMois=0, rcmJours=0, rappels=0, rapSignales=0, repos=0;
-    var epargnes=epargnesDuMois(person,st.m+1);
-    var fitCycle=cycleDuMois(person,st.y,st.m+1);
-    for(var day=1; day<=nd; day++){
-      var rec=st.month.days[day];
-      var dejaEncode=!!(rec && (rec.s || rec.a));
-      var mmdd=pad2(st.m+1)+pad2(day);
-      var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) kept++; continue; }
-      var parsed=parseHoraireEntry(raw,st.params.hJour,epargnes[day]);
-      if(!parsed.s || parsed.jour){
-        var duCycle=posteDeCycle(fitCycle,st.y,st.m+1,day);
-        /* journée en horaire de jour : la cellule donne l'horaire presté
-           (« 7h-15h »), le cycle donne la prime à conserver. À défaut de
-           pause prévue au cycle, il n'y a pas de prime : poste de jour. */
-        if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
-        if(!duCycle && parsed.jour) duCycle=parsed.s||"D";
-        if(duCycle && duCycle!==parsed.s){
-          parsed.s=duCycle; parsed.modifie=true;
-          var AR=parsed.a&&ABSMAP[parsed.a];
-          var base=st.params.hJour-(parsed.epargne||0);
-          if(AR && AR.h>0) base-=AR.h;
-          if((raw[1]||"").trim()==="-") base=0;
-          parsed.h=Math.max(0,base);
-        }
-      }
-      if(remplacementCM(raw,parsed.s,st.params.hJour)) rcmJours++;
-      if(dejaEncode){ kept++; continue; }
-      var rap=rappelDuJour(raw,posteDeCycle(fitCycle,st.y,st.m+1,day)||parsed.s,st.y,mmdd);
-      /* mention de rappel que la règle n'a pas tranchée : double rappel,
-         renvoi à une autre journée, rappel d'un collègue. Mieux vaut le dire
-         que de la laisser passer sous silence. */
-      if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) rapSignales++;
-      if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
-        var nrec=st.month.days[day]||(st.month.days[day]={});
-        if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
-        if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
-        if(rap){ nrec.r=rap; rappels++; }
-        filled++;
-        if(parsed.rhs) rhsMois+=parsed.rhs;
-        if(parsed.unknown || parsed.modifie || rap) verifier++;
-      } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
-        /* une journée de repos est parfaitement lue : il n'y a rien à
-           encoder. La compter comme « non reconnue » envoyait chercher un
-           problème inexistant — neuf fois sur un mois de trente jours. */
-        repos++;
-      } else {
-        manquants++;
-      }
+    if(Number(db.year)!==Number(st.y)){
+      flash("L'horaire d'équipe porte sur "+db.year+", pas sur "+st.y);
+      return;
     }
-    if(rhsMois) st.month.rhsMois=R(rhsMois,2);
-    st.month.rcmJours=rcmJours||null;
-    persistMonth(); renderRota(); refresh();
-    var msg=filled+" jour(s) pré-rempli(s) pour "+id;
-    if(rhsMois) msg+=" — "+num(rhsMois)+" h reprises au compteur HS";
-    if(rcmJours) msg+=" — "+rcmJours+" jour(s) de remplacement contremaître";
-    if(rappels) msg+=" — "+rappels+" rappel(s) proposé(s), à vérifier";
-    if(rapSignales) msg+=" — "+rapSignales+" mention(s) de rappel non tranchée(s), à regarder";
-    if(verifier) msg+=" — "+verifier+" à vérifier (horaire particulier)";
-    if(repos) msg+=" — "+repos+" jour(s) de repos";
-    if(manquants) msg+=" — "+manquants+" jour(s) non reconnu(s), à compléter à la main";
-    if(kept) msg+=" — "+kept+" jour(s) déjà encodé(s) conservé(s)";
-    flash(msg);
+    var mois=[]; for(var i=0;i<12;i++) mois.push(i);
+    Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); }))
+    .then(function(docs){
+      var tot={filled:0,kept:0,verifier:0,manquants:0,repos:0,rhs:0,rcm:0,
+               rappels:0,signales:0}, touches=0;
+      docs.forEach(function(doc,i){
+        migreMois(doc);
+        var M=mergeDefaults(doc,DEF_M);
+        if(!M.days) M.days={};
+        if(!M.real) M.real={};
+        var b=remplirMois(db,person,st.y,i,M);
+        Object.keys(tot).forEach(function(k){ tot[k]+=b[k]; });
+        if(b.filled) touches++;
+        if(i===st.m) st.month=M;
+        /* écriture silencieuse : douze « Enregistré » d'affilée seraient
+           du bruit, le bilan ci-dessous suffit */
+        save("months/"+key(st.y,i),M,true);
+      });
+      renderRota(); renderFields(); refresh();
+      var msg=tot.filled+" jour(s) pré-rempli(s) pour "+id+" sur "+touches+" mois de "+st.y;
+      if(tot.rhs) msg+=" — "+num(R(tot.rhs,2))+" h reprises au compteur HS";
+      if(tot.rcm) msg+=" — "+tot.rcm+" jour(s) de remplacement contremaître";
+      if(tot.rappels) msg+=" — "+tot.rappels+" rappel(s) proposé(s), à vérifier";
+      if(tot.signales) msg+=" — "+tot.signales+" mention(s) de rappel non tranchée(s), à regarder";
+      if(tot.verifier) msg+=" — "+tot.verifier+" à vérifier (horaire particulier)";
+      if(tot.repos) msg+=" — "+tot.repos+" jour(s) de repos";
+      if(tot.manquants) msg+=" — "+tot.manquants+" jour(s) non reconnu(s), à compléter à la main";
+      if(tot.kept) msg+=" — "+tot.kept+" jour(s) déjà encodé(s) conservé(s)";
+      flash(msg);
+    });
   });
 }
 document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
@@ -2473,7 +2507,17 @@ function migreMois(d){
   return ch;
 }
 function mergeDefaults(src,def){
-  var o={}; Object.keys(def).forEach(function(k){o[k]=def[k];});
+  var o={};
+  Object.keys(def).forEach(function(k){
+    var v=def[k];
+    /* Une valeur par défaut qui est un objet — days, real, enfTable — doit
+       être COPIÉE et non partagée. Sans cela, deux mois vides écrivent tous
+       les deux dans le même objet : encoder janvier remplissait février. Le
+       défaut restait invisible tant qu'on n'ouvrait qu'un mois à la fois ;
+       le pré-remplissage de l'année l'a mis au jour, les douze mois
+       partageant une seule grille de journées. */
+    o[k]=(v && typeof v==="object")?JSON.parse(JSON.stringify(v)):v;
+  });
   if(src) Object.keys(src).forEach(function(k){ if(src[k]!==undefined) o[k]=src[k]; });
   return o;
 }
