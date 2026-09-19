@@ -602,11 +602,19 @@ dit. Au-dessus de 72 % de similitude, c'est la même personne écrite
 autrement et la règle est simplement tombée juste — huit cas dans le
 classeur 2026, tous sans conséquence.
 
-Restent trois trigrammes que la règle attribue à quelqu'un alors qu'ils
-appartiennent officiellement à un autre : `SBZ` en équipe 2, `FLN` en
-équipe 3 et `FPS` en équipe 4. Contrairement aux collisions ci-dessus, ils ne
-se voient pas dans la liste : l'autre personne ne figure pas dans l'horaire.
-Ils attendent l'arbitrage du client.
+Trois trigrammes restent signalés — `SBZ` en équipe 2, `FLN` en équipe 3 et
+`FPS` en équipe 4 — mais le signalement est faible, et l'onglet `Personnel`
+en est la cause plus que la preuve : il porte 55 noms quand l'horaire en
+compte 77, il en ignore 49, et 27 des siens ne figurent plus dans l'horaire.
+Son titulaire officiel est le plus souvent quelqu'un qui est parti.
+
+Rien ne contredit ces trois trigrammes dans les données : personne ne s'y
+cite soi-même en commentaire, exactement comme les trigrammes dont on est
+sûr. Ils sont donc tenus pour justes, et le convertisseur se contente de les
+signaler.
+
+`JBY` était d'une autre nature : son titulaire officiel travaille toujours
+là, comme responsable, et seul le client pouvait le dire.
 
 Enfin, des trigrammes cités dans les commentaires ne correspondent à personne
 dans l'horaire — `PBL` 160 fois, `MPE` 60, `LDT` 40. Ce sont des gens

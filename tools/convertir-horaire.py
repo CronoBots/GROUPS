@@ -431,12 +431,16 @@ def convertir(chemin_xlsm, annee):
     #    départagé par les données, rien par l'ordre des feuilles.
     # Un trigramme calculé peut tomber sur celui qu'un autre porte
     # officiellement — c'est le cas de JBY, trigramme d'un responsable, que
-    # la règle des initiales attribuait à un opérateur. Personne ne s'en
-    # aperçoit sans le dire : ni l'un ni l'autre n'a l'air faux.
+    # la règle des initiales attribuait à un opérateur.
     #
     # Quand les deux noms se ressemblent, c'est la même personne écrite
-    # autrement dans l'onglet Personnel, et la règle est simplement tombée
-    # juste. Quand ils diffèrent, il faut une correction.
+    # autrement dans l'onglet Personnel, et la règle est tombée juste.
+    #
+    # Quand ils diffèrent, ce n'est pas forcément une erreur : l'onglet
+    # Personnel est en retard sur le classeur — 55 noms quand l'horaire en
+    # porte 77, dont 27 qui n'y figurent plus. Le titulaire officiel est le
+    # plus souvent quelqu'un qui est parti. D'où un simple signalement, à
+    # vérifier, et non une alerte.
     par_officiel = {}
     for cle_off, trig in annuaire.items():
         par_officiel.setdefault(trig, []).append(cle_off)
@@ -445,9 +449,10 @@ def convertir(chemin_xlsm, annee):
             continue
         for cle_off in par_officiel[f["base"]]:
             if difflib.SequenceMatcher(None, cle, cle_off).ratio() < 0.72:
-                print("  %s est le trigramme officiel de quelqu'un d'autre ;"
-                      " la règle des initiales l'a donné à une personne de"
-                      " %s — une correction est sans doute nécessaire"
+                print("  %s : l'onglet Personnel le donne à un autre nom, que"
+                      " l'horaire ne porte pas. Il revient sans doute à cette"
+                      " personne de %s, l'onglet étant en retard — à vérifier"
+                      " si le trigramme est très cité en commentaire"
                       % (f["base"], f["cat"]), file=sys.stderr)
                 break
 
