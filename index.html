@@ -2830,7 +2830,9 @@ function anneeDeLaPersonne(db,person,annee){
       var mmdd=pad2(m)+pad2(d), raw=person.d[mmdd];
       if(raw===undefined) continue;
       var r=parseHoraireEntry(raw,st.params.hJour,ep[d]);
-      if(!r.s || r.jour){
+      /* même règle que le pré-remplissage : « - » dit un repos, et le cycle
+         théorique n'a pas à le contredire */
+      if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
         var duCycle=posteDeCycle(fit,annee,m,d);
         if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
         if(!duCycle && r.jour) duCycle=r.s||"D";
