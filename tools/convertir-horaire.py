@@ -19,7 +19,7 @@ Deux règles de confidentialité, non négociables :
   - les commentaires Excel portent le nom de leur auteur en préfixe, retiré
     ici, y compris au milieu d'un fil de discussion.
 """
-import datetime, json, re, sys, unicodedata, zipfile
+import datetime, difflib, hashlib, json, re, sys, unicodedata, zipfile
 import xml.etree.ElementTree as ET
 
 M = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -72,6 +72,30 @@ BLOCS = [
 # rentrées en début d'année. » Ce n'est donc pas la somme des colonnes +FT
 # et -FT de l'année en cours, et le nommer « Total » induirait en erreur.
 RENOMME = {"Total": "report"}
+
+# Trigrammes corrigés à la demande du client, quand la règle des initiales
+# tombe sur un trigramme déjà pris ou attribué à quelqu'un d'autre.
+#
+# La clé est l'empreinte du nom normalisé, pas le nom : elle vise une
+# personne précise sans que le dépôt porte son identité. Elle ne protège que
+# de la lecture — qui a le classeur a les noms — mais elle suffit à tenir la
+# règle « aucun nom complet dans le dépôt ».
+#
+# Une correction prime sur l'onglet Personnel comme sur la règle des
+# initiales : c'est une décision, pas une déduction. Si son empreinte ne
+# correspond plus à personne, le convertisseur le signale — le nom a changé
+# d'orthographe dans le classeur, et la correction ne s'applique plus.
+CORRECTIONS = {
+    # opérateur gluten arrivé en septembre ; NPE revient à l'opérateur de
+    # Shift 2, qui le porte depuis le début de l'année
+    "548e47d27c": "NPI",
+    # JBY est le trigramme d'un responsable, pas celui de cet opérateur
+    "db4592e0af": "JBA",
+}
+
+
+def _empreinte(cle):
+    return hashlib.sha1(cle.encode("utf-8")).hexdigest()[:10]
 
 
 def _colnum(lettres):
@@ -365,14 +389,17 @@ def convertir(chemin_xlsm, annee):
     #    personne figure sur plusieurs feuilles : la première rencontrée
     #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
     #    tête pour que ce soit celle de son propre groupe.
-    fiches = {}
+    fiches, utilisees, noms = {}, set(), {}
     for categorie, nom, jours, cpt in _colonnes(cl):
         cle = _sans_accent(nom).lower()
-        officiel = annuaire.get(cle)
+        noms[cle] = nom
+        corrige = CORRECTIONS.get(_empreinte(cle))
+        officiel = corrige or annuaire.get(cle)
         base = officiel or _initiales(nom)
         if not base:
             print("  nom illisible, ligne ignorée :", nom, file=sys.stderr)
             continue
+        utilisees.add(_empreinte(cle))
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
                                     "cat": categorie, "d": {}, "c": {}})
         for sec, vals in cpt.items():
@@ -393,6 +420,38 @@ def convertir(chemin_xlsm, annee):
     #    L'ordre est donc : l'identifiant officiel de la feuille Personnel
     #    d'abord, puis la fiche la plus fournie, puis le nom. Tout est
     #    départagé par les données, rien par l'ordre des feuilles.
+    # Un trigramme calculé peut tomber sur celui qu'un autre porte
+    # officiellement — c'est le cas de JBY, trigramme d'un responsable, que
+    # la règle des initiales attribuait à un opérateur. Personne ne s'en
+    # aperçoit sans le dire : ni l'un ni l'autre n'a l'air faux.
+    #
+    # Quand les deux noms se ressemblent, c'est la même personne écrite
+    # autrement dans l'onglet Personnel, et la règle est simplement tombée
+    # juste. Quand ils diffèrent, il faut une correction.
+    par_officiel = {}
+    for cle_off, trig in annuaire.items():
+        par_officiel.setdefault(trig, []).append(cle_off)
+    for cle, f in fiches.items():
+        if f["officiel"] or f["base"] not in par_officiel:
+            continue
+        for cle_off in par_officiel[f["base"]]:
+            if difflib.SequenceMatcher(None, cle, cle_off).ratio() < 0.72:
+                print("  %s est le trigramme officiel de quelqu'un d'autre ;"
+                      " la règle des initiales l'a donné à une personne de"
+                      " %s — une correction est sans doute nécessaire"
+                      % (f["base"], f["cat"]), file=sys.stderr)
+                break
+
+    for trig, cles in par_officiel.items():
+        if len(cles) > 1:
+            print("  l'onglet Personnel attribue %s à %d noms différents"
+                  % (trig, len(cles)), file=sys.stderr)
+
+    for empreinte, trig in CORRECTIONS.items():
+        if empreinte not in utilisees:
+            print("  correction inutilisée : %s -> %s (le nom a changé dans le"
+                  " classeur)" % (empreinte, trig), file=sys.stderr)
+
     par_base = {}
     for cle, f in fiches.items():
         par_base.setdefault(f["base"], []).append((cle, f))

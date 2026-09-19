@@ -566,6 +566,36 @@ l'application signale un identifiant suffixé sous les sélecteurs du
 pré-remplissage — rien d'autre ne permettrait de s'en apercevoir, puisque le
 dépôt ne porte aucun nom.
 
+### Trigrammes corrigés à la main
+
+La règle des initiales peut tomber sur un trigramme que quelqu'un d'autre
+porte déjà officiellement. Rien ne le laisse voir : ni l'un ni l'autre n'a
+l'air faux. Le client en a signalé deux, et `CORRECTIONS` les porte :
+
+| Correction | Pourquoi |
+|---|---|
+| `NPI` | opérateur gluten arrivé en septembre ; `NPE` revient à l'opérateur de Shift 2, qui le porte depuis janvier |
+| `JBA` | `JBY` est le trigramme d'un responsable, pas celui de cet opérateur |
+
+La clé de la table est l'**empreinte du nom normalisé**, pas le nom : elle
+vise une personne précise sans que le dépôt porte son identité. Elle ne
+protège que de la lecture — qui a le classeur a les noms — mais elle suffit à
+tenir la règle « aucun nom complet dans le dépôt ». Une correction prime sur
+l'onglet `Personnel` comme sur la règle des initiales : c'est une décision,
+pas une déduction. Si son empreinte ne correspond plus à personne, le
+convertisseur le signale : le nom a changé d'orthographe dans le classeur.
+
+Le convertisseur cherche désormais ces cas tout seul. Il compare chaque
+trigramme calculé aux trigrammes officiels de l'onglet `Personnel` : quand
+l'un d'eux est déjà attribué à un nom qui ne ressemble pas au sien, il le
+dit. Au-dessus de 72 % de similitude, c'est la même personne écrite
+autrement et la règle est simplement tombée juste — huit cas dans le
+classeur 2026, tous sans conséquence.
+
+Restent trois collisions à trancher par le client : `CDE`, `GBT` et `PDR`
+désignent chacune deux personnes. `GBT` est un cas à part : l'onglet
+`Personnel` lui-même l'attribue à deux noms différents.
+
 ### Les autres onglets
 
 | Onglet | Ce qui en est tiré |
