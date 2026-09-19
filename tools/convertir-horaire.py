@@ -107,6 +107,24 @@ def _empreinte(cle):
     return hashlib.sha1(cle.encode("utf-8")).hexdigest()[:10]
 
 
+# Le compteur s'écrit dans la colonne d'annotation, le poste dans celle de
+# la personne. Les deux inversés, le classeur ne voit plus le compteur : ses
+# totaux comptent la colonne d'annotation, et rien d'autre.
+COMPTEUR = re.compile(r"^\d+(?:[.,]\d+)?\s*h?\s*[-+]\s*FT$"
+                      r"|^\d+(?:[.,]\d+)?\s*h\s*(?:RTT|RHS|DTT|RJF)$", re.I)
+POSTE = re.compile(r"^(?:AM|PM|N|D|-|poly|meun|gluten|ferm|disti|chaudi|terr|step|etoh)",
+                   re.I)
+
+
+def colonnes_inversees(jours):
+    """Une seule dans le classeur 2026 : FPA le 07/11, « 3h -FT » écrit dans
+    la colonne du poste et « poly-arr » dans celle de l'annotation. Son
+    compteur flex time en perd trois heures — 44 h reprises, 41 comptées."""
+    return [k for k, e in sorted(jours.items())
+            if COMPTEUR.match((e[0] or "").strip())
+            and len(e) > 1 and POSTE.match((e[1] or "").strip())]
+
+
 def _colnum(lettres):
     n = 0
     for c in lettres:
@@ -471,6 +489,12 @@ def convertir(chemin_xlsm, annee):
         if len(restants) > 1:
             print("  l'onglet Personnel attribue %s à %d noms différents"
                   % (trig, len(restants)), file=sys.stderr)
+
+    for cle, f in sorted(fiches.items(), key=lambda kv: kv[1]["base"]):
+        for k in colonnes_inversees(f["d"]):
+            print("  %s le %s/%s : le compteur « %s » est écrit dans la colonne"
+                  " du poste — le classeur ne le compte pas"
+                  % (f["base"], k[2:], k[:2], f["d"][k][0]), file=sys.stderr)
 
     for empreinte, trig in CORRECTIONS.items():
         if empreinte not in utilisees:

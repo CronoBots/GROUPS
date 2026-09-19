@@ -522,6 +522,23 @@ en début d'année ». C'est le solde reporté de l'année précédente, saisi �
 main — VBN commence 2026 à −5 h, et ses +55 / −53 de l'année ne s'y ajoutent
 pas. Le nommer « Total » aurait invité à les additionner.
 
+### Les compteurs comme contrôle
+
+Recalculer les compteurs flex time depuis les journées et les comparer à ceux
+du pied de classeur met le convertisseur à l'épreuve : les premiers sont
+déduits de 27 462 cellules, les seconds saisis à la main. **Soixante-seize
+personnes sur soixante-dix-sept concordent exactement**, dans les deux sens.
+
+La seule divergence est une erreur du classeur, pas de la conversion. FPA a
+repris 44 h en flex time, son compteur en compte 41 : le 07/11, « 3h -FT »
+est écrit dans la colonne du poste et « poly-arr » dans celle de
+l'annotation. Les deux inversées, les totaux du classeur — qui comptent la
+colonne d'annotation et rien d'autre — passent à côté. La journée du 12/12
+porte les deux mêmes mentions, dans le bon ordre, et compte normalement.
+
+`colonnes_inversees()` cherche ce cas à chaque conversion. Une seule
+occurrence sur l'année 2026.
+
 ### Ce que ces compteurs ne sont pas
 
 Ils ne remplissent **aucun** champ de la fiche. Les trois champs « en attente
