@@ -290,6 +290,35 @@ compensatoire.
 | maladie de mars | 48 h calculées contre 45,72 h sur la fiche |
 | repos compensatoire | janvier 4 h contre 5, février 0 contre 0,50 |
 
+## Le contrat, sans lequel rien ne vaut
+
+Le net se construit sur la **rémunération fixe du mois**, pas sur les heures :
+la ligne « Montant heures prestées » de la fiche en est la recopie. Tant que
+ce montant reste à la valeur d'exemple de 3 000 €, le salaire horaire vaut
+20,2200 € au lieu de 37,95, et tout ce qui en découle est faux — sans que
+rien ne le signale.
+
+L'onglet Résumé porte donc un avertissement tant que la rémunération fixe
+n'a pas été renseignée.
+
+### Lire ces valeurs sur la fiche
+
+| Réglage | Où le lire | VBN 2026 |
+|---|---|---|
+| Rémunération fixe | déduite : « Montant heures prestées » ÷ fraction | (montant retiré) jusqu'en février, (montant retiré) depuis mars |
+| Fraction payée | un temps partiel la réduit | 0,9 — congé parental à 9/10 |
+| Diviseur horaire | rémunération fixe ÷ salaire horaire | 148,368007 |
+
+Le recoupement est exact au centime : (montant retiré) × 0,9 = (montant retiré), ce que porte
+la fiche de février ; (montant retiré) × 0,9 = (montant retiré), celle d'août. Et le salaire
+horaire tombe à la quatrième décimale — (taux retiré) puis (taux retiré) — ce que la
+ligne « Heure de déplacement à » de la fiche confirme.
+
+**La fraction est le piège** : c'est la rémunération à temps plein qui se
+saisit, et la fraction qui la réduit. Saisir (montant retiré) avec une fraction de 1
+donnerait le bon montant mensuel mais un salaire horaire faux, et toutes les
+primes horaires avec.
+
 ## Valeurs relevées sur les fiches de paie 2026
 
 Servent de valeurs par défaut ; tout reste modifiable dans l'application.
