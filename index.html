@@ -857,6 +857,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
           <span id="storeinfo">&nbsp;</span>
           <span class="sp"></span>
           <button type="button" class="btnlike" id="btnVider">Vider le mois affiché</button>
+          <button type="button" class="btnlike" id="btnViderAn">Vider l'année</button>
           <button type="button" class="btnlike" id="btnExport">Exporter</button>
           <label class="btnlike" for="fileImport">Importer<input type="file" id="fileImport" accept="application/json,.json" hidden></label>
         </div>
@@ -1909,6 +1910,7 @@ document.addEventListener("click",function(e){
 /* ===================== horaire — saisie ===================== */
 function setShift(d,code){
   var rec=st.month.days[d]||(st.month.days[d]={});
+  delete rec.auto;
   rec.s=code;
   if(!code) delete rec.h;
   else if(rec.h===undefined||rec.h===null||rec.h==="") rec.h=st.params.hJour;
@@ -1942,7 +1944,8 @@ document.getElementById("rota").addEventListener("click",function(e){
     var dr=Number(rb.closest(".day").dataset.d);
     var rr=st.month.days[dr]||(st.month.days[dr]={});
     var nx=RAP_ORDRE[(RAP_ORDRE.indexOf(rr.r||"")+1)%RAP_ORDRE.length];
-    rr.r=nx; rb.dataset.r=nx; rb.textContent=RAP_TXT[nx]; rb.title=RAP_TITRE[nx];
+    rr.r=nx; delete rr.auto;
+    rb.dataset.r=nx; rb.textContent=RAP_TXT[nx]; rb.title=RAP_TITRE[nx];
     persistMonth(); refresh(); return;
   }
   var bk=e.target.closest(".bike");
@@ -1973,12 +1976,12 @@ document.addEventListener("change",function(e){
   if(t.classList.contains("abs")){
     var d=Number(t.closest(".day").dataset.d);
     var rec=st.month.days[d]||(st.month.days[d]={});
-    rec.a=t.value; persistMonth(); refresh(); return;
+    rec.a=t.value; delete rec.auto; persistMonth(); refresh(); return;
   }
   if(t.classList.contains("hrs")){
     var d2=Number(t.closest(".day").dataset.d);
     var r2=st.month.days[d2]||(st.month.days[d2]={});
-    r2.h=t.value===""?undefined:Number(t.value); persistMonth(); refresh(); return;
+    r2.h=t.value===""?undefined:Number(t.value); delete r2.auto; persistMonth(); refresh(); return;
   }
   if(t.dataset.scope){
     var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
@@ -2589,11 +2592,18 @@ function remplirMois(db,person,y,m,M){
   var fitCycle=cycleDuMois(person,y,m+1);
   for(var day=1; day<=nd; day++){
     var rec=M.days[day];
-    var dejaEncode=!!(rec && (rec.s || rec.a));
+    /* « déjà encodé » ne veut dire quelque chose que si c'est la MAIN qui a
+       encodé : une journée posée par un pré-remplissage précédent doit se
+       laisser rafraîchir, sinon une correction des règles de lecture ne
+       rattrape jamais les mois déjà remplis. */
+    var dejaEncode=!!(rec && (rec.s || rec.a) && !rec.auto);
     var mmdd=pad2(m+1)+pad2(day);
     var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
     var parsed=parseHoraireEntry(raw,st.params.hJour,epargnes[day]);
-    if(!parsed.s || parsed.jour){
+    /* Une cellule qui dit « - » dit un repos, et le cycle théorique n'a pas
+       à la contredire. VBN les 11, 12 et 13 septembre : trois repos que le
+       cycle transformait en nuits. */
+    if((!parsed.s && (raw[0]||"").trim()!=="-") || parsed.jour){
       var duCycle=posteDeCycle(fitCycle,y,m+1,day);
       /* journée en horaire de jour : la cellule donne l'horaire presté
          (« 7h-15h »), le cycle donne la prime à conserver. À défaut de
@@ -2618,9 +2628,14 @@ function remplirMois(db,person,y,m,M){
     if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) bilan.signales++;
     if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
       var nrec=M.days[day]||(M.days[day]={});
+      /* marquée « venue de l'horaire » : une correction des règles de lecture
+         doit pouvoir la rafraîchir, ce qu'elle ne peut pas faire d'une
+         journée saisie à la main */
+      nrec.auto=1;
       if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
-      if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
-      if(rap){ nrec.r=rap; bilan.rappels++; }
+      else { delete nrec.s; delete nrec.h; }
+      if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a; else delete nrec.a;
+      if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
       if(parsed.rhs) bilan.rhs+=parsed.rhs;
       if(parsed.unknown || parsed.modifie || rap) bilan.verifier++;
@@ -3139,6 +3154,28 @@ function restaurerVue(){
 }
 
 document.getElementById("btnVider").addEventListener("click",viderMois);
+/* Les journées posées par un pré-remplissage portent une marque, et se
+   laissent rafraîchir. Celles d'avant cette marque passent pour de la saisie
+   à la main et résistent : quand une règle de lecture est corrigée, seule une
+   remise à zéro de l'année les rattrape. */
+document.getElementById("btnViderAn").addEventListener("click",function(){
+  var an=st.y, faits=[];
+  for(var i=0;i<12;i++) faits.push(key(an,i));
+  Promise.all(faits.map(function(k){ return readMonth(k); })).then(function(docs){
+    var n=0;
+    docs.forEach(function(doc,i){
+      var M=mergeDefaults(doc,DEF_M);
+      if(!M.days) M.days={};
+      n+=Object.keys(M.days).length;
+      M.days={}; M.rhsMois=0; M.rcmJours=null;
+      if(i===st.m) st.month=M;
+      save("months/"+key(an,i),M,true);
+    });
+    renderRota(); renderFields(); refresh();
+    flash(n+" journée(s) effacée(s) sur les douze mois de "+an
+          +" — relancez le pré-remplissage");
+  });
+});
 
 /* ===================== export / import ===================== */
 function collectAll(){
