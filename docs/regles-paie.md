@@ -242,6 +242,54 @@ Horaire. Rejoué sur les huit premières fiches de 2026 :
 
 Huit mois sur huit, au centime près.
 
+## Ce que les fiches de paie confirment, et corrigent
+
+`tools/comparer-fiches.py` confronte les fiches à ce que l'horaire produit.
+Premier passage sur VBN, huit fiches de 2026. **Vacances, congé parental et
+jour férié concordent à tous les mois, à l'heure près** — la lecture des
+absences est juste dans son principe. Deux erreurs en sont sorties.
+
+### « Abs » du classeur veut dire maladie
+
+Le code était lu comme une absence volontaire et injustifiée. Les fiches
+disent maladie, et le disent exactement :
+
+| | Fiche (SMG maladie) | Journées « Abs » |
+|---|---|---|
+| mai | 48,00 h | 6 journées = 48,00 h |
+| juillet | 8,00 h | 1 journée = 8,00 h |
+| juin | 0,00 h | 2 journées, toutes deux sur un repos |
+
+`ALIAS_HORAIRE` traduit donc « Abs » en `MAL` **à la lecture du classeur
+seulement** : le code `ABS` reste disponible à la main pour une vraie absence
+injustifiée. Rien ne change en euros — la rémunération du mois est fixe —
+mais la bonne ligne apparaît sur la fiche.
+
+Le « remplace X » qui accompagne souvent ces cellules était le plan, pas ce
+qui s'est passé : la cellule d'en face porte un **second** remplacement. CDE
+le 31/05, « Remplacée par VBN, MPE : Remplacée par LDY » ; AFA le 02/07,
+« Remplacé par VBN, remplacé par VGG et GPS ». L'absence prime.
+
+### Une absence d'une journée entière sur un repos ne vaut rien
+
+Elle remplace un poste ; sans poste ce jour-là, elle ne remplace rien. Les
+deux journées de maladie posées au 1er et 2 juin tombent sur des repos, et la
+fiche de juin ne porte aucune heure de maladie.
+
+Un code d'une **fraction** de journée est autre chose : c'est un prélèvement
+sur un compteur, qui vaut même un jour de repos. Le 01/03, « - ǀ 1h RTT ǀ
+pris le 05.03 », et la fiche de mars porte bien son heure de repos
+compensatoire.
+
+### Ce qui reste à comprendre
+
+| Écart | Détail |
+|---|---|
+| heures prestées | 897 h calculées contre 962,53 h sur huit fiches. L'écart va dans les deux sens selon le mois : février +22,50, avril −29,00 |
+| `DS` | la fiche de février porte 8 h de **formation syndicale**, et le 12/02 est la seule journée `DS` de l'année. L'application la traite en journée prestée à prime conservée — à trancher avec le client, qui avait indiqué l'inverse |
+| maladie de mars | 48 h calculées contre 45,72 h sur la fiche |
+| repos compensatoire | janvier 4 h contre 5, février 0 contre 0,50 |
+
 ## Valeurs relevées sur les fiches de paie 2026
 
 Servent de valeurs par défaut ; tout reste modifiable dans l'application.

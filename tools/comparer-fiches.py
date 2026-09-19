@@ -79,7 +79,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function plageMention(","\n}"),g("function seChevauchent(","\n}"),g("var JOUR_PRIME_PAUSE=","];"),
  g("var MENTIONS_NEUTRES=","];"),g("var ATELIERS=","\n"),g("function reprisRHS(","\n}"),
  g("function posteDepuisPlage(","\n}"),g("function dureeReelle(","\n}"),
- g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
+ g("var ALIAS_HORAIRE=","\n"),g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),g("var RX_RENVOI=","\n"),
  g("function epargnesDuMois(","\n}")].join("\n"));
 const db=JSON.parse(fs.readFileSync(process.argv[3],"utf8"));
@@ -96,7 +96,12 @@ for(var m=1;m<=12;m++){
       if(c&&c!==r.s) r.s=c; }
     var hj=(r.h===undefined?8:r.h), A=r.a&&ABSMAP[r.a];
     if(r.s&&hj>0){ h+=hj; j++; }
-    else if(A){ ab[A.k]=(ab[A.k]||0)+(A.h||0); }
+    if(A){
+      /* même règle que la fiche : une absence d'une journée entière posée
+         sur un repos ne vaut aucune heure */
+      var pleine=(A.h>=8-0.01);
+      ab[A.k]=(ab[A.k]||0)+((r.s||!pleine)?(A.h||0):0);
+    }
   }
   out[m]={h:h,j:j,abs:ab};
 }

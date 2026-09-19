@@ -1156,7 +1156,18 @@ function compute(){
     }
     if(rec.a && ABSMAP[rec.a]){
       var A=ABSMAP[rec.a];
-      acc.abs[A.k]=(acc.abs[A.k]||0)+A.h;
+      /* Une absence d'une journée entière REMPLACE un poste : sans poste ce
+         jour-là, elle ne remplace rien et ne vaut aucune heure. Les fiches
+         le confirment — VBN a deux journées de maladie posées sur des repos
+         au 1er et 2 juin, et la fiche de juin ne porte aucune heure de
+         maladie.
+
+         Un code d'une fraction de journée est autre chose : c'est un
+         prélèvement sur un compteur, qui vaut même un jour de repos. Le
+         01/03, « - | 1h RTT | pris le 05.03 », et la fiche de mars porte
+         bien son heure de repos compensatoire. */
+      var pleineJournee=(A.h>=p.hJour-0.01);
+      acc.abs[A.k]=(acc.abs[A.k]||0)+((rec.s||!pleineJournee)?A.h:0);
       if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
       if(A.hs){
         var bkt=isFer?"Dimanche":t;
@@ -2216,6 +2227,22 @@ function dureeReelle(poste,plage,hJour){
 
    « epargne » est le nombre d'heures que l'horaire dit avoir mises au
    compteur pour cette journée-là, depuis une autre date. */
+/* Le classeur écrit « Abs » là où la fiche de paie lit de la MALADIE, pas une
+   absence volontaire. Les fiches le disent à l'heure près : six journées
+   « Abs » en mai font les 48 h de SMG maladie de la fiche, la journée du
+   02/07 fait ses 8 h. Et les deux journées « Abs » de juin tombant sur des
+   repos, la fiche de juin ne porte aucune maladie — ce qui colle.
+
+   Le « remplace X » qui accompagne souvent ces cellules était le plan, pas
+   ce qui s'est passé : la cellule d'en face porte un SECOND remplacement.
+   CDE le 31/05, « Remplacée par VBN, MPE : Remplacée par LDY » ; AFA le
+   02/07, « Remplacé par VBN, remplacé par VGG et GPS ». L'absence prime.
+
+   La traduction ne vaut QUE pour la lecture du classeur : le code ABS reste
+   disponible à la main dans l'horaire, pour une vraie absence injustifiée.
+   Elle ne change aucun montant — la rémunération du mois est fixe — mais
+   elle met la bonne ligne sur la fiche. */
+var ALIAS_HORAIRE={"ABS":"MAL"};
 function parseHoraireEntry(e,hJour,epargne){
   if(typeof e==="string") e=[e];
   if(hJour===undefined) hJour=8;
@@ -2230,7 +2257,7 @@ function parseHoraireEntry(e,hJour,epargne){
     r.plage=plageMention(txt);
     if(r.poste||r.plage) return r;
     var code=codeAbsence(txt);
-    if(code){ r.abs=code; return r; }
+    if(code){ r.abs=ALIAS_HORAIRE[code]||code; return r; }
     var n=normPlage(txt);
     /* on retient le code lui-même, pas seulement le fait : « D-CPPT » et
        « SD26 » ne se racontent pas pareil, et le calendrier doit pouvoir
