@@ -651,6 +651,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         </div>
         <div class="side" id="heroSide"></div>
       </div>
+      <div class="callout" id="alerteDefaut"></div>
       <div class="tiles" id="tiles"></div>
     </div>
 
@@ -1670,6 +1671,21 @@ function renderResume(C){
 }
 
 function renderTotals(C){
+  /* Un net calculé sur la rémunération par défaut est faux d'un facteur
+     deux, sans que rien ne le dise : 20,22 €/h au lieu de 37,41. Le premier
+     chiffre que l'on regarde doit prévenir qu'il ne vaut rien tant que le
+     contrat n'est pas renseigné. */
+  var alerte=document.getElementById("alerteDefaut");
+  if(alerte){
+    var defaut=(Number(st.params.remFixe)===DEF_P.remFixe);
+    alerte.innerHTML = defaut
+      ? "<b>Ce montant ne veut encore rien dire.</b> La rémunération fixe est"
+        +" restée à la valeur d'exemple, ce qui donne un salaire horaire de "
+        +nf4.format(R(DEF_P.remFixe/st.params.divH,4))+" €. Renseignez votre contrat dans "
+        +"<b>Réglages → Mon contrat</b> : la rémunération fixe et la fraction payée "
+        +"se lisent en haut de votre fiche de paie."
+      : "";
+  }
   document.getElementById("tHeures").textContent=num(C.acc.hTot);
   document.getElementById("tJours").textContent=C.acc.jours;
   document.getElementById("tWe").textContent=num(C.acc.sam+C.acc.dim);
