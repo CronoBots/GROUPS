@@ -91,6 +91,15 @@ CORRECTIONS = {
     "548e47d27c": "NPI",
     # JBY est le trigramme d'un responsable, pas celui de cet opérateur
     "db4592e0af": "JBA",
+    # trois trigrammes pour deux personnes : le client tranche, celui de
+    # l'équipe 5 garde CDE et GBT, celui de l'équipe 3 garde PDR
+    "a056b3f782": "CHD",   # l'autre CDE, en équipe 4
+    "531e312a2e": "GBO",   # l'autre GBT, en équipe 4
+    "0ad0bc1dfe": "PDF",   # l'autre PDR, en équipe 1
+    # CDE figure aussi dans l'onglet Personnel sous un troisième nom ; le
+    # client confirme qu'il revient à celui de l'équipe 5. L'inscrire ici
+    # fait de ce maintien une décision, et non le hasard d'un calcul.
+    "e829c2c542": "CDE",
 }
 
 
@@ -443,9 +452,12 @@ def convertir(chemin_xlsm, annee):
                 break
 
     for trig, cles in par_officiel.items():
-        if len(cles) > 1:
+        # une contradiction de l'onglet Personnel que CORRECTIONS a déjà
+        # tranchée n'a plus à être signalée
+        restants = [c for c in cles if _empreinte(c) not in CORRECTIONS]
+        if len(restants) > 1:
             print("  l'onglet Personnel attribue %s à %d noms différents"
-                  % (trig, len(cles)), file=sys.stderr)
+                  % (trig, len(restants)), file=sys.stderr)
 
     for empreinte, trig in CORRECTIONS.items():
         if empreinte not in utilisees:
