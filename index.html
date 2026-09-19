@@ -2156,7 +2156,7 @@ function seChevauchent(p,q){
    poste ce jour-là, il n'y a pas de prime à conserver et la journée vaut un
    poste de jour : « FLI le 16/04, prévu en repos mais fait DS, donc payé
    comme un D sans prime de pause ». */
-var JOUR_PRIME_PAUSE=["sd26","f","ds","d-f","df","d-cppt","cppt","ds-ce","tp"];
+var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce","tp"];
 /* Mentions reconnues, mais sans effet sur le calcul.
    « R » est une réserve — « remplace FLI si nécessaire » — et la personne
    preste son poste normal. « VM » est la visite médicale ; le client : « une
@@ -2259,6 +2259,19 @@ function dureeReelle(poste,plage,hJour){
    Elle ne change aucun montant — la rémunération du mois est fixe — mais
    elle met la bonne ligne sur la fiche. */
 var ALIAS_HORAIRE={"ABS":"MAL"};
+/* Une sortie syndicale (« DS ») n'est pas une journée prestée en horaire de
+   jour : c'est une absence, et elle ne conserve PAS la prime de la pause
+   prévue. Le client : « uniquement les sorties DS, pas les CPPT ».
+
+   La fiche de février le montre : le 12/02, « N | DS | à l'extérieur », est
+   la seule journée DS de l'année et février la seule fiche à porter une
+   ligne « Heure(s) formation syndicale », de 8 h. Et sa prime de nuit ne
+   fait que 8 h sur le mois — celles du 11/02, dont le commentaire dit
+   « Conserver prime de nuit ». Il n'en restait aucune pour le 12.
+
+   Les délégations CPPT et les conseils d'entreprise gardent leur traitement :
+   journée prestée en horaire de jour, prime de la pause conservée. */
+var JOUR_EN_ABSENCE={"ds":"FORM"};
 function parseHoraireEntry(e,hJour,epargne){
   if(typeof e==="string") e=[e];
   if(hJour===undefined) hJour=8;
@@ -2278,6 +2291,7 @@ function parseHoraireEntry(e,hJour,epargne){
     /* on retient le code lui-même, pas seulement le fait : « D-CPPT » et
        « SD26 » ne se racontent pas pareil, et le calendrier doit pouvoir
        dire laquelle des deux journées a été prestée */
+    if(JOUR_EN_ABSENCE[n]){ r.abs=JOUR_EN_ABSENCE[n]; return r; }
     if(JOUR_PRIME_PAUSE.indexOf(n)>=0){ r.jour=txt.trim()||true; return r; }
     if(MENTIONS_NEUTRES.indexOf(n)>=0) return r;
     if(ATELIERS.test(txt)) return r;
