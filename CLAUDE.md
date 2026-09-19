@@ -1,4 +1,4 @@
-# Net de fin de mois
+# BIOWANZE
 
 Simulateur de fiche de paie belge (Groupe S, CP 220) pour les équipes en
 pauses de Biowanze. Application web installable, **entièrement contenue dans

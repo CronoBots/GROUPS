@@ -14,13 +14,13 @@
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{color-scheme:light dark}html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Net de fin de mois</title>
+<title>BIOWANZE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ============================================================
-   Net de fin de mois — simulateur de paie
+   BIOWANZE — simulateur de paie
    Palette : pétrole (ce qui entre) · terre cuite (ce qui sort)
    Type    : Archivo (interface) · IBM Plex Mono (chiffres)
    ============================================================ */
@@ -383,7 +383,7 @@ button{cursor:pointer}
 <header class="top">
   <div class="top-in">
     <div class="brand">
-      <h1>Net de fin de mois</h1>
+      <h1>BIOWANZE</h1>
       <p id="brandsub">Simulateur de paie</p>
     </div>
     <div class="mnav">
@@ -2292,7 +2292,7 @@ function prefillFromHoraire(){
     if(!db) return;
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
-    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, verifier=0, manquants=0, rhsMois=0, rcmJours=0, rappels=0, rapSignales=0;
+    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, verifier=0, manquants=0, rhsMois=0, rcmJours=0, rappels=0, rapSignales=0, repos=0;
     var epargnes=epargnesDuMois(person,st.m+1);
     var fitCycle=cycleDuMois(person,st.y,st.m+1);
     for(var day=1; day<=nd; day++){
@@ -2332,6 +2332,11 @@ function prefillFromHoraire(){
         filled++;
         if(parsed.rhs) rhsMois+=parsed.rhs;
         if(parsed.unknown || parsed.modifie || rap) verifier++;
+      } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
+        /* une journée de repos est parfaitement lue : il n'y a rien à
+           encoder. La compter comme « non reconnue » envoyait chercher un
+           problème inexistant — neuf fois sur un mois de trente jours. */
+        repos++;
       } else {
         manquants++;
       }
@@ -2345,6 +2350,7 @@ function prefillFromHoraire(){
     if(rappels) msg+=" — "+rappels+" rappel(s) proposé(s), à vérifier";
     if(rapSignales) msg+=" — "+rapSignales+" mention(s) de rappel non tranchée(s), à regarder";
     if(verifier) msg+=" — "+verifier+" à vérifier (horaire particulier)";
+    if(repos) msg+=" — "+repos+" jour(s) de repos";
     if(manquants) msg+=" — "+manquants+" jour(s) non reconnu(s), à compléter à la main";
     if(kept) msg+=" — "+kept+" jour(s) déjà encodé(s) conservé(s)";
     flash(msg);
@@ -2388,7 +2394,7 @@ function collectAll(){
 }
 function doExport(){
   collectAll().then(function(all){
-    var txt=JSON.stringify(all,null,1), name="net-fin-de-mois.json";
+    var txt=JSON.stringify(all,null,1), name="biowanze-paie.json";
     if(window.claude&&window.claude.use){
       window.claude.use("downloads").then(function(dl){
         if(!dl){ flash("Téléchargement indisponible ici"); return; }

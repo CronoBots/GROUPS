@@ -1,4 +1,4 @@
-# Net de fin de mois
+# BIOWANZE
 
 Simulateur de fiche de paie belge (secrétariat social Groupe S, CP 220).
 On y saisit l'horaire presté du mois — matin, après-midi, nuit, jour, congés —
