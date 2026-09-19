@@ -1,0 +1,499 @@
+# Convertir l'horaire d'équipe
+
+Comment transformer l'horaire Excel de l'équipe en `data/horaire-2026.json`,
+et comment chaque cellule doit être lue. Tout ce qui suit a été établi avec le
+client, cellule par cellule, sur l'horaire 2026 (19 882 cellules, 77 agents).
+
+Les règles de lecture sont implémentées dans `index.html`
+(`parseHoraireEntry` et les fonctions qui l'entourent). **Ce document est la
+source ; le code doit le suivre, pas l'inverse.**
+
+## 1. Le format du JSON
+
+```json
+{"year":2026,
+ "people":[{"id":"VBN","cat":"Contremaîtres de production",
+            "d":{"0429":["-","4h +FT","presté le 27.04"]}}]}
+```
+
+- `id` — identifiant anonymisé à trois lettres. **Jamais le nom complet.**
+- `cat` — la fonction (`Shift 1`…`Shift 5`, `Contremaîtres de production`,
+  `Opérateurs en formation`, `Opérateurs STEP`)
+- `d` — les journées, clé `MMJJ`, valeur `[cellule, annotation, commentaire]`,
+  les éléments vides de fin étant omis
+
+### Les trois champs
+
+Chaque personne occupe **deux colonnes** dans le classeur, et ses cellules
+peuvent porter un commentaire Excel :
+
+- la **cellule** dit ce qui était prévu : un poste, une plage horaire, `-`
+  pour un repos, ou une mention particulière ;
+- l'**annotation** dit ce qui modifie la journée : un autre poste réellement
+  presté, une absence, un compteur, un remplacement ;
+- le **commentaire** est du texte libre.
+
+C'est la distinction fondamentale :
+
+> **La cellule dit le poste PRÉVU par la rotation.
+> L'annotation dit ce qui a été RÉELLEMENT presté.**
+
+Vérifié contre le cycle de rotation, source indépendante : là où le
+commentaire nomme un poste différent de celui de la cellule, c'est la cellule
+qui suit le cycle de base dans **842 cas sur 877**. Le commentaire est donc
+bien la modification, et il prime.
+
+Formes rencontrées, pour contrôler une conversion :
+
+### Ce que le commentaire apporte
+
+562 commentaires renvoient à une autre date ou donnent les heures exactes
+d'un remplacement :
+
+| Commentaire | Ce qu'il permet |
+|---|---|
+| « presté le 27.04 », « du 14/04 » | rattacher un compteur `+FT` à la journée qu'il compense — sans quoi son excédent passerait à tort en heures supplémentaires |
+| « remplace GPS » | résoudre un `R-CM` en reprenant le poste de la personne remplacée |
+| « Remplace FPS de 12h à 14h » | connaître les heures réelles d'un renfort |
+
+Ces renvois ne suivent aucune règle de proximité : le compteur du 12/04
+concerne le 14/04, ceux des 29 et 30/04 concernent les 27 et 28. Seul le
+commentaire les apparie.
+
+## 2. Les postes
+
+D'après la note « Grille horaire en Pauses — 5 équipes » :
+
+| Code | Horaire | Prime (note fiche de paie, 2020) |
+|---|---|---|
+| `AM` | 6h-14h | 0,67 € |
+| `PM` | 14h-22h | 1,34 € |
+| `N` | 22h-6h | 3,14 € |
+| `D` | 7h30-16h, ½ h de midi non payée | — |
+
+Cycle 5 équipes : 38,4 h/semaine, 192 h par cycle de cinq semaines.
+
+## 3. Résoudre le poste d'une journée
+
+Dans cet ordre, le premier qui répond gagne :
+
+1. **Le commentaire nomme un poste** — `?AM`, `?PM`, `?N`, `?D` → ce poste.
+   Il l'emporte sur le code franc : la journée a été modifiée.
+2. **Le commentaire donne une plage dont l'équivalence est confirmée** —
+   `6h-14h` → AM ; `7h-15h`, `8h30-16h30`, `H. flott.` → D.
+3. **Le code franc de la cellule** — `AM`, `PM`, `N`, `D`.
+4. **Déduire le poste de la plage horaire** (uniquement si rien ci-dessus) :
+   - le poste dont **le début coïncide** avec le début de la plage
+     (`6h-18h` → AM, `22h-10h` → N, `14h-02h` → PM) ;
+   - sinon celui dont **la fin coïncide** (`18h-06h` → N, `10h-22h` → PM) ;
+   - sinon le poste **le plus recouvert** par la plage.
+
+   Ces plages ne sont **pas** des postes de 12 h : ce sont des postes normaux
+   étendus. « Il fait 18h-06h, logiquement en N » — sa nuit prise 4 h en avance.
+
+Normalisation avant comparaison : minuscules, espaces / apostrophes / points
+retirés, zéros initiaux supprimés (`06h-14h` = `6h-14h` = `6h-14h`).
+
+## 4. Résoudre la durée
+
+Base : `hJour` (8 h par défaut).
+
+**Une plage horaire en commentaire donne la durée réellement prestée**, selon
+deux lectures :
+
+- **elle décrit toute la journée** si elle recouvre les heures normales du
+  poste, ou si elle vaut au moins une journée complète.
+  *AFA 12/08, `N|?18h-06h` : 12 h. MHI 11/04, son matin jusque 17h : 11 h.*
+- **elle s'ajoute au poste** si elle en est disjointe **et** plus courte
+  qu'une journée.
+  *JBI 31/01, `N|?19h-22h` : sa nuit plus 3 h de remplacement = 11 h.*
+
+La seconde condition est indispensable : sans elle, un `22h-10h` commenté en
+regard d'un après-midi donnerait une journée de 20 h.
+
+## 5. Au-delà de 8 h : heures supplémentaires ou compteur
+
+**C'est un choix de la personne, pas une règle.**
+
+| Dans la cellule | Lecture |
+|---|---|
+| rien de plus | l'excédent est en **heures supplémentaires** (payées) |
+| `nH +FT` | l'excédent est **épargné au compteur** flex time |
+
+Exemples donnés par le client :
+
+- AFA 01/08, `PM|2H +FT` — il fait son après-midi puis reste jusque minuit
+  (2 h pour remplacer VBN) ; **il a choisi** de les épargner.
+- AFA 01/09, `AM|?06h-18h` — il étend son matin de 4 h, rien n'est marqué :
+  **4 h supplémentaires payées**.
+- AFA 15/09, `?18h-06h|4H +FT` — il prend sa nuit 4 h en avance pour
+  remplacer ATA : **4 h épargnées**.
+
+Mise en œuvre : l'excédent devient un code `nH HS` de l'horaire quand il
+tombe juste sur une heure entière et que la cellule ne porte pas déjà un code
+d'absence ; sinon la durée réelle est conservée telle quelle et la journée
+est signalée.
+
+## 6. Le compteur `-FT` : une récupération
+
+**La personne ne preste pas le poste prévu, ou le preste amputé d'autant.**
+Le poste affiché n'est que le poste prévu.
+
+| Cellule | Heures prestées |
+|---|---|
+| `8H -FT` | **0** — journée de congé |
+| `D\|1H -FT` | **7** — AFA le 05/09 a terminé à 14h au lieu de 15h |
+| `PM\|3H -FT` | 5 |
+
+Du 21 au 24/09, AFA porte `8H -FT` quatre jours de suite : il est en congé,
+remplacé par YPE, et l'Excel écrit « RHS » à droite de la cellule.
+
+## 6 bis bis. « R-CM » : le poste est celui de SON cycle
+
+Quand la cellule dit `R-CM` sans nommer de poste, c'est le **propre poste de
+cycle** de la personne qui a été presté, pas celui de la personne remplacée.
+
+> « Le 05/03 je remplace GPS en PM et non en matin, car c'était notre horaire
+> de cycle normal. GPS a été repris en AM pour une commission
+> d'accompagnement. » — le client
+
+Ne **pas** reprendre le poste de la personne nommée dans le commentaire :
+elle peut elle-même avoir été déplacée. Une version antérieure le faisait et
+attribuait un matin là où la fiche de paie porte un après-midi.
+
+### Ajuster le cycle, et pourquoi mensuellement
+
+Le cycle s'ajuste sur les cellules de la personne elle-même : elles donnent
+le poste prévu, `-` le repos. On cherche le triplet (cycle, binôme, décalage)
+qui colle le mieux, et on s'abstient en dessous de 60 % d'accord.
+
+**L'ajustement doit être mensuel.** Les gens changent de position dans le
+cycle en cours d'année : VBN passe adjoint à contremaître le 15 septembre
+2026, et cesse d'être le binôme de GPS pour devenir le contremaître n° 5. Un
+ajustement annuel plafonne alors à 58 %, là où le mensuel tient entre 80 et
+100 %.
+
+Les écarts qui subsistent au sein d'un mois sont précisément les journées
+intéressantes — remplacements, absences, renforts — c'est-à-dire ce que le
+cycle ne peut pas prévoir.
+
+## 6 quater. Un « - » en annotation : le poste n'a pas été presté
+
+Quand la cellule porte un poste et que l'annotation vaut `-`, **le poste n'a
+pas été presté**. Quelqu'un d'autre l'a pris, et la personne récupère une
+prestation faite ailleurs.
+
+> « Le 20/03 : repos car travaillé une nuit de plus le 18/03 pour
+> remplacer. » — le client
+
+Les commentaires le confirment systématiquement : « remplacé par JBI »,
+« voir le 6/5/2026 », « voir 15.10 », « CIE : cf 18/03 ». La symétrie est
+visible dans le classeur — le 07/03, GPS porte `N` / `-` avec « remplacé par
+VBN », pendant que VBN porte le poste correspondant.
+
+**109 journées** de l'horaire 2026 sont dans ce cas. Le poste reste
+renseigné, c'est celui qui était prévu ; il ne donne ni heure prestée ni
+prime d'équipe.
+
+À établir : ces journées sont-elles payées comme un repos compensatoire ?
+
+## 6 ter. Une absence ampute la journée, elle ne s'y ajoute pas
+
+On ne peut pas prester huit heures et poser huit heures de congé le même
+jour. Les heures prestées valent donc **la journée moins les heures
+d'absence**, jamais les deux additionnées.
+
+| Cellule | Heures prestées | Et aussi |
+|---|---|---|
+| `D\|CP` | **0** | 8 h de congé parental |
+| `PM\|RTT` | **0** | 8 h de RTT |
+| `D\|4H RTT` | **4** | 4 h de RTT |
+| `AM\|1/2 RJF` | **4** | 4 h de jour férié |
+| `?F\|3H RTT` | **5** | 3 h de RTT |
+
+**Le compteur flex time fait exception et ne retire rien.** Le client :
+« les heures de FT+ ne doivent pas être comptées comme prestées, elles ne le
+seront que lorsque je les récupère en FT-, et sont payées ce jour-là comme si
+j'étais venu travailler ». Une journée `PM|4H -FT` ou `D|8H -FT` garde donc
+ses huit heures : elles sont payées depuis le compteur au lieu d'être
+prestées. Symétriquement, un `+FT` n'ajoute aucune heure — ces heures-là sont
+mises de côté, sans prime d'équipe ni heure prestée.
+
+Vérifié sur la fiche d'avril 2026 : sans cette exception, le dimanche 26/04
+(`PM|4H -FT`) ne comptait que quatre heures au lieu des huit de la fiche, et
+le total dimanche tombait à 12 h au lieu de 16 h.
+
+Le poste reste renseigné même à zéro heure : c'est le poste prévu, et il ne
+donne ni prime d'équipe ni heure prestée tant que la durée est nulle.
+
+Cette règle vaut pour **4 601 cellules** de l'horaire 2026, soit 34 466 heures
+qui étaient comptées deux fois. Sans elle, un agent totalisait 1 950 heures
+prestées sur l'année, ce qu'aucun horaire ne permet ; avec elle, 1 503 heures,
+cohérent avec 38,4 h/semaine moins les congés.
+
+## 6 bis. Horaire de jour, prime de pause conservée
+
+Six mentions désignent une journée **prestée en horaire de jour** par
+quelqu'un qui **conserve la prime de la pause qu'il aurait dû faire** :
+
+| Mention | Sens |
+|---|---|
+| `SD26`, `SD 26` | arrêt technique — « SHUT-DOWN 2026 » figure en clair dans la colonne des mois de mars et avril |
+| `F` | formation |
+| `D-F`, `DF` | jour de formation — « recyclage en secourisme de 08h30' à 12h30' », « formation Feu d'éthanol » |
+| `DS` | journée syndicale (formation) |
+| `D-CPPT`, `CPPT` | délégation CPPT, presque toujours un mercredi |
+| `DS-CE` | délégation syndicale, conseil d'entreprise, toujours un mercredi |
+| `TP` | préparation de l'arrêt technique — « Prépa SD 26 power plan » revient dans les commentaires |
+
+> « Jour de formation pour D-F, et juste pour les autres aussi ; conserve la
+> prime de pause normalement effectuée dans le cycle. » — le client
+
+**C'est le cycle qui donne la prime**, et non la cellule — laquelle est le
+plus souvent occupée par la mention elle-même (`D-CPPT`, `DS-CE`, `SD26`).
+On prend le poste de cycle de la personne pour ce jour-là, ajusté
+mensuellement comme décrit en 6 bis bis.
+
+Quand le cycle ne prévoit pas de poste, il n'y a pas de prime à conserver et
+la journée vaut un poste de jour :
+
+> « FLI le 16/04 prévu en repos mais fait DS, donc payé comme un D sans prime
+> de pause. » — le client
+
+**La cellule donne l'horaire presté, le cycle donne la prime.** Une cellule
+`7h-15h` en face d'un `TP` dit que la journée s'est faite en horaire de jour ;
+elle ne dit rien de la prime, qui reste celle de la pause prévue au cycle.
+
+Exemples relus dans le classeur 2026 :
+
+| Cellule / annotation | Cycle | Résultat |
+|---|---|---|
+| `D-CPPT` / `1h rhs` (VBN 28/01) | AM | **AM**, prime du matin conservée |
+| `DS-CE` / `1h rhs` (LCI 17/06) | N | **N**, prime de nuit conservée |
+| `-` / `D-F` (ATR 23/04) | repos | **D**, sans prime |
+
+**Une absence qui couvre la journée entière l'emporte** : `?DS|VA`,
+`?CP|?DS`, `?DS|RJF` restent des absences. On ne transforme pas un congé en
+prestation.
+
+Une absence **partielle**, en revanche, laisse des heures prestées :
+`?F|3H RTT` vaut cinq heures de jour plus trois heures de RTT. Le client :
+« JBI le 29/05 a fait F mais presté 06h-11h, car il a repris 3 h de RTT pour
+partir à 11h au lieu de 14h, pour avoir ses 8 h. »
+
+`DS-CE` (conseil d'entreprise) et `D-CPPT` ne sont **pas** couverts par cette
+règle — le client ne les a pas encore décrits.
+
+## 6 quinquies. Ce que l'horaire ne dira jamais
+
+> « Les reprises d'heures supplémentaires sont affichées dans l'horaire, mais
+> pas les HS qu'on fait et qui se mettent dans un compteur hors fichier
+> Excel. » — le client
+
+Deux conséquences, à ne pas chercher à contourner.
+
+**Les HS déductibles le restent.** Une plage de douze heures donne quatre
+heures d'excédent, et l'application les calcule : sur la fiche de mars 2026
+de VBN, les huit heures supplémentaires issues des nuits `18h-6h` des 21 et
+22 mars tombent exactement.
+
+**Les prolongations ponctuelles sont hors de portée.** Quarante-cinq minutes
+de plus un samedi soir, deux heures dix-sept un dimanche : ces minutes
+n'existent que dans la pointeuse. Aucune cellule, aucune annotation, aucun
+commentaire ne les porte. Elles se saisissent à la main, par le champ
+« Heures suppl. non compensées » de l'onglet Horaire.
+
+### Une piste écartée : le découpage des nuits
+
+On aurait pu croire que la prime d'équipe suit le jour calendaire, une nuit
+de 22h à 6h donnant deux heures au premier jour et six au suivant. **C'est
+faux.** La nuit compte entièrement au jour où elle commence : c'est ainsi que
+la prime de nuit du samedi tombe exactement sur les fiches de mars (16:00) et
+d'avril (8:00) de VBN, là où le découpage donnerait 10:00 en mars.
+
+## 6 bis ter. En repos et en renfort : le poste de la personne remplacée
+
+Quand la personne était **prévue en repos** et vient remplacer quelqu'un, son
+cycle ne dit rien. Le commentaire nomme alors la personne remplacée, et c'est
+son poste du jour qu'on reprend.
+
+> « Pour le 04/10, il faut regarder l'horaire normal de BLR pour savoir quand
+> LHR le remplace, car ce n'est pas précisé à côté dans l'horaire de LHR
+> puisqu'il était normalement en repos. Et en vérifiant BLR, c'est en N. Le
+> 20/12 en AM, car c'est indiqué dans l'horaire de DKS. » — le client
+
+**À ne pas confondre avec `R-CM`**, où c'est le propre cycle qui commande :
+là, la personne avait un poste prévu. L'ordre est donc :
+
+1. le poste écrit dans la cellule ou l'annotation ;
+2. à défaut, le poste de cycle de la personne (section 6 bis bis) ;
+3. à défaut, le poste de la personne nommée dans le commentaire ;
+4. à défaut, pour une journée en horaire de jour, un poste de jour.
+
+## 6 sexies. Mentions reconnues, sans effet sur le calcul
+
+| Mention | Occurrences | Sens |
+|---|---|---|
+| `R` | 237 | réserve — « remplace FLI **si nécessaire** ». La personne preste son poste normal. |
+| `VM` | 40 | visite médicale, chez 37 personnes différentes, jamais le week-end |
+| noms d'atelier | 906 | `meunerie`, `distillation`, `terr. Arr.`, `poly. Arr.`, `Poly. Etoh`, `chaudières`, `gluten`, `Ferm. Liq.`, `STEP`, `polyvalence` |
+
+> « Cela ne change rien à l'horaire ni aux primes, si c'est juste une
+> indication de la zone de remplacement et qu'il n'y a rien d'autre de
+> compromettant dans le commentaire. » — le client
+
+`poly. Arr.`, `Poly. Etoh` et `terr. Arr.` relèvent de la même règle. Le
+poste reste dans la cellule — 827 fois sur 906 — et l'atelier dit seulement
+**où** la personne est allée.
+
+Elles ne changent ni les heures ni la prime, et ne doivent pas non plus faire
+signaler la journée comme douteuse.
+
+Pour `VM`, le client : « une heure supplémentaire est comptée si elle tombe
+en dehors de l'horaire, et le trajet est payé, mais par un système interne
+qui ne passe pas par la fiche de paie ». Rien à calculer ici, donc.
+
+## 7. Les absences et compteurs déjà connus
+
+Un **commentaire qui nomme exactement un code d'absence connu est cette
+absence** (`?CP`, `?RTT`). Trois cellules sur l'horaire 2026.
+
+Codes francs repris tels quels, définis dans `ABS` (`index.html`) :
+`VA`, `RTT` (et `1H`…`7H RTT`), `RJF`, `DTT`, `CP`, `CT`, `CPAR`, `FER`,
+`SMG`, `FORM`, `ABS`, `SANS SOLDE`, `nH +FT`, `nH -FT`, `nH HS`.
+
+## 8. Ce qui reste à établir
+
+À demander au client avant d'aller plus loin.
+
+### Les codes courts — 207 cellules encore vides
+
+Hypothèses déduites de qui les porte et des jours où ils tombent :
+
+| Code | Occ. | Indice | Hypothèse |
+|---|---|---|---|
+| `R-CM` | 326 | 6 personnes, tous postes, week-ends inclus | remplacement contremaître |
+| `R` | 237 | 34 personnes, jamais seul dans la cellule | remplacement |
+| `TP` | 210 | 8 personnes, surtout en poste D | ? |
+| `DS-CE` | 27 | **25 fois sur 27 un mercredi** | délég. – conseil d'entreprise |
+| `D-CPPT` | 47 | **31 fois sur 40 un mercredi** | délégation CPPT |
+| `VM` | 40 | 37 personnes, surtout lundi | visite médicale |
+| `D-F` | 49 | 26 personnes, jamais le week-end | ? |
+
+Pour chacun : journée prestée normale, absence payée, ou absence non payée ?
+Et si c'est une journée prestée, relève-t-elle de la règle « horaire de jour,
+prime de pause conservée » de la section 6 bis ?
+
+`SD26`, `F` et `DS` sont résolus — voir section 6 bis.
+
+### Les autres points ouverts
+
+- **`rhs` chiffrés** (`4h rhs`, `1,5 rhs`… ~60 cellules) — fonctionnent-ils
+  comme `-FT` (heures récupérées, retirées du poste) ?
+- **Chèques-repas sur les jours `8H -FT`** — la note explicative dit que les
+  récupérations y donnent droit ; le calcul ne les attribue qu'aux jours
+  prestés. 396 journées concernées.
+- **Opérateurs STEP** — ne s'ajustent à aucun cycle connu (24 %, contre 80 %
+  ou mieux pour 62 agents sur 77). Quel cycle suivent-ils ?
+- **38,4 h ou 38 h 40 ?** — la grille annonce 38,4 h/semaine, l'app a 38 h 40
+  par défaut. 38 h 24 ≠ 38 h 40.
+
+## 9. Les noms d'ateliers
+
+`meunerie`, `terr. Arr.`, `distillation`, `poly. Arr.`, `poly. Etoh`,
+`chaudières`, `gluten`, `Ferm. Liq.`, `STEP`, `polyvalence` — environ 800
+occurrences, toutes orthographes confondues.
+
+Traités comme le **lieu de travail**, sans effet sur la paie. La journée
+reste signalée comme particulière. *(À confirmer par le client.)*
+
+## 10. Le convertisseur
+
+`tools/convertir-horaire.py` lit le récapitulatif Excel et produit le JSON :
+
+```
+python3 tools/convertir-horaire.py Recapitulatif.xlsm data/horaire-2026.json 2026
+```
+
+Il reste **fidèle** : il recopie la cellule, la colonne d'annotation et le
+commentaire sans les interpréter. Toute la lecture est faite par
+l'application, si bien qu'une règle qui change ne demande pas de reconvertir.
+
+### La structure de l'Excel
+
+Une feuille par groupe (`Shift1` à `Shift5`, `Opérateurs`, `Step`,
+`Contremaître`), plus une feuille `Personnel` qui donne la correspondance
+officielle nom → initiales. **Une même personne figure sur plusieurs
+feuilles** ; les lignes sont fusionnées sur l'identifiant.
+
+Dans chaque feuille : la ligne 10 porte les noms, la colonne 2 le numéro du
+jour, la colonne 1 le nom du mois écrit verticalement — ce qui délimite les
+douze blocs. **Chaque personne occupe deux colonnes** : le poste, puis une
+annotation. Les commentaires Excel sont attachés à l'une ou l'autre.
+
+### L'identifiant anonyme
+
+La feuille `Personnel` fait foi. Elle est incomplète, et la convention maison
+prend le relais : **première lettre du prénom, première et dernière lettre du
+nom de famille**. « Renard V » donne `VBN`, « Gilbert V. » donne `VGG`,
+« Renard JJ » donne `JBI`. Les homonymes reçoivent un suffixe `-1`, `-2`.
+
+Sur l'horaire 2026, cette règle retrouve 72 des 77 identifiants de la
+conversion précédente ; les cinq autres ne diffèrent que par ce suffixe.
+
+### Le format produit
+
+```json
+"0429": ["-", "4h +FT", "presté le 27.04"]
+```
+
+`[cellule, annotation, commentaire]`, les éléments vides de fin étant omis.
+Le commentaire est anonymisé : Excel préfixe chaque commentaire du nom de son
+auteur, retiré ici, y compris au milieu d'un fil de discussion.
+
+### Ce que la conversion précédente avait perdu
+
+L'ancien fichier `data/horaire-2026.json` ne gardait que la cellule et
+l'annotation, cette dernière préfixée d'un `?` quand elle n'était pas reconnue
+comme un code connu. Étaient perdus :
+
+- **Les 11 339 commentaires**, dont 562 renvoient à une autre date
+  (« presté le 27.04 », « du 14/04 », « rappel le 02/02 ») ou donnent les
+  heures exactes d'un remplacement (« Remplace FPS de 12h à 14h »).
+- **Le marqueur « - »**, qui est le repos. Il est écrit dans 8 384 cellules
+  de l'Excel et n'apparaît nulle part dans l'ancien JSON — c'est lui que le
+  client signalait pour VGG les 16 et 17/02.
+- **La valeur brute de la cellule** : « 7h-15h » y était déjà traduit en `D`,
+  ce qui empêchait de distinguer l'horaire écrit du poste déduit.
+- **Les dates citées en commentaire** — aucune n'a survécu.
+- **Le report de repos après une prestation sur un jour de repos.** FLI, prévu
+  en repos le 16/04, preste une journée syndicale ; le 17/04, prévu en AM, il
+  est en repos en compensation, et un commentaire de l'Excel l'explique. Le
+  JSON ne porte que `"AM"` : le pré-remplissage comptera donc à tort une
+  journée prestée. Le mécanisme est décrit dans la note sur les repos
+  (« repos des jours 8 et 9 = repos payés, liés aux prestations de week-end
+  des jours 6 et 7 »).
+
+Un convertisseur refait doit donc conserver : le contenu de la cellule, le
+contenu intégral du commentaire, et tout marqueur visuel porteur de sens
+(couleur de fond, barré, gras) — à vérifier avec le client.
+
+## 11. Contrôler une conversion
+
+Repères sur l'horaire 2026, à comparer après toute reconversion :
+
+| Mesure | Valeur |
+|---|---|
+| personnes | 77 |
+| journées du classeur | 27 462 |
+| dont journées de repos « - » | 7 580 |
+| journées pré-remplies | 19 836 |
+| journées non reconnues | **46** (0,2 % des journées travaillées) |
+| commentaires conservés | 6 588 |
+| renvois de date exploités | 150 |
+| remplacements résolus par commentaire | 19 |
+| heures prestées | 119 226 h |
+| heures supplémentaires déduites | 759 h |
+| durée maximale retenue | 9,75 h |
+
+Un chiffre très différent sur un horaire comparable signale une régression.

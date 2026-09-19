@@ -1,0 +1,281 @@
+# Règles de paie confirmées par le client
+
+Règles de calcul établies avec le client, que ni la note explicative de la
+fiche de paie ni la note sur les repos ne suffisent à déduire. Elles sont
+implémentées dans `compute()` (`index.html`).
+
+Les règles de **lecture de l'horaire d'équipe** sont dans
+`conversion-horaire.md` ; ici, ce qui touche au calcul de la fiche.
+
+## Chèques-repas
+
+```
+chèques = journées prestées d'au moins 4 h
+        + ⌊ RTT cumulées / 8 ⌋
+        + ⌊ flex time cumulé / 8 ⌋
+```
+
+**Une journée prestée d'au moins quatre heures donne toujours un chèque.**
+En dessous de quatre heures, aucun.
+
+**Les heures récupérées en donnent un de plus par tranche de huit heures.**
+Le client : « sur une journée de 8 h je récupère 4 h de RTT, je n'aurai droit
+qu'à un chèque-repas, celui des 4 h prestées ; la fois d'après, quand je
+reprendrai encore 4 h de RTT, j'ai droit à 2 chèques, car il prendra en
+compte les 4 h de RTT où je n'y ai pas eu droit. Nous avons donc droit à un
+chèque-repas par 8 h total de RTT récupéré. »
+
+**Les trois compteurs sont séparés.** Quatre heures de RTT et quatre heures
+de flex time ne font **pas** un chèque. Sur l'horaire 2026, l'écart entre un
+compteur commun et des compteurs séparés atteint 17 chèques à l'année.
+
+| Compteur | Où il vit | Ce que l'horaire en dit |
+|---|---|---|
+| **RTT** | bas du classeur | les reprises, jour par jour |
+| **Flex time** | bas du classeur, lignes `+FT` et `-FT` | les reprises **et** les mises de côté |
+| **Récup. HS** | hors classeur | **seulement** les reprises |
+
+> « RHS, c'est un compteur hors fichier ; si le travailleur les reprend c'est
+> marqué, mais ce n'est pas marqué quand il en fait. » — le client
+
+Une reprise de récup. HS ne retire rien à la journée, comme un `-FT` : AFA le
+28/01, prévu 7h-15h, part à 12h45 — 5 h 45 de présence plus 2 h 15 reprises,
+soit ses 8 h. 173 journées de l'horaire 2026 en portent une.
+
+**Le reliquat se reporte de mois en mois et repart à zéro en début d'année.**
+L'application calculant un mois à la fois, trois champs de l'onglet Horaire
+reçoivent le reliquat de la fiche précédente — RTT, flex time et récup. HS —
+et la fiche affiche les trois reliquats à reporter au mois suivant. En
+janvier, ils valent zéro. Le pré-remplissage renseigne de lui-même les heures
+de récup. HS reprises dans le mois.
+
+Seuls RTT et flex time ouvrent ce droit. Les vacances annuelles, la maladie,
+le congé parental, le repos compensatoire, le CT et la récupération de jour
+férié n'y donnent pas droit, pas plus que les jours de repos — conformément
+à la note sur les repos : « les chèques-repas sont attribués lors des jours
+de prestations ».
+
+Le champ « Nombre de chèques-repas » de l'onglet Horaire reste disponible
+pour forcer une valeur ; laissé vide, le calcul ci-dessus s'applique.
+
+## Primes de rappel
+
+Source : **OP_BWZ_CoD_00020**, « Octroi et calcul des primes de rappel pour le
+personnel en pause », version 1 en vigueur depuis le 18/06/2025. Elle compile
+et remplace les notes du 21/12/2012 et du 19/11/2012. Le classeur
+« prime rappel au 22.12.2020 » en donne le calcul chiffré.
+
+### Calcul
+
+> prime = 2 h de déplacement × (salaire horaire × coefficient du jour
+> + prime de pause × coefficient de pause) × coefficient du moment
+
+| Coefficient du jour | | Coefficient de pause | | Moment |  |
+|---|---|---|---|---|---|
+| semaine (lundi 6h → samedi 6h) | 150 % | semaine | 150 % | J et J-1 | 2 |
+| samedi | 187,5 % | samedi | 200 % | J-2 à J-15 | 1,5 |
+| dimanche | 200 % | dimanche et férié | 300 % | | |
+| jour férié | 250 % | | | | |
+
+Le jour férié prend le coefficient de jour de 250 % mais le coefficient de
+pause du dimanche, 300 % — c'est bien ce que fait le classeur, qui va chercher
+la colonne « Dimanche et JF » pour la prime.
+
+Les vingt-quatre montants du classeur sont reproduits à l'identique par
+l'application (salaire horaire 23,0181, primes 0,90 / 1,80 / 4,00).
+
+La **modification de pause** est à part : 2 h de salaire horaire à 100 %, sans
+prime de pause, quand elle est demandée la veille ou le jour même.
+
+### Où la prime apparaît sur la fiche
+
+Le client : « les primes de rappel sont reprises dans **heures de
+déplacement** ». C'est cohérent avec la procédure, qui définit la prime comme
+« 2 heures de déplacement multipliées par un coefficient » : le coefficient du
+moment porte sur les heures, pas sur le taux. Un rappel J-1 vaut donc 4 h de
+déplacement, un rappel J-2 à J-15 en vaut 3, et une modification de pause 2.
+
+L'application les affiche en heures, sur la même ligne que le champ manuel
+« Heures de déplacement », et rappelle le total. Ce champ manuel ne doit donc
+reprendre que le déplacement **non** couvert par les rappels cochés dans
+l'horaire, sous peine de compter deux fois.
+
+Pour VBN, les quatre rappels de 2026, tous en pause de nuit et en semaine :
+
+| Jour | Demande | Heures | Taux horaire | Montant |
+|---|---|---|---|---|
+| 19/02 | 18/02, J-1 | 4 h | 62,1156 | 248,46 € |
+| 14/04 | 13/04, J-1 | 4 h | 62,9293 | 251,72 € |
+| 11/06 | 10/06, J-1 | 4 h | 62,9293 | 251,72 € |
+| 25/06 | 25/06, J | 4 h | 62,9293 | 251,72 € |
+
+Ces primes sont payées : « vu qu'il s'agit dans les deux cas de primes payées,
+il n'y a pas de récupération d'heures ». Les heures de présence effective sont
+en revanche rémunérées selon les règles des heures supplémentaires, ou versées
+au flex time.
+
+### Octroi
+
+Prime de rappel, à la demande de la ligne hiérarchique :
+
+- **rappel la veille ou le jour même** : commencer au moins 30 minutes avant
+  le début de la pause, ou être rappelé d'un jour de repos (le repos est
+  maintenu) ou d'un jour de congé (le congé est reporté) ;
+- **modification d'horaire entre 2 et 15 jours** — par exemple pour remplacer
+  une absence de longue durée : prestation demandée sur un jour de repos ou
+  sur un jour prévu en congé ;
+- **prestation avant ou après la pause** suite à une absence imprévue ou à une
+  prolongation pour panne : la prime n'est due qu'à partir de **3 h** de
+  prestation ; en deçà, rien.
+
+### Le seuil de trois heures ne vaut que pour l'après-pause
+
+La procédure énonce le seuil au point 6.2, pour une « prestation avant ou
+après la pause ». Le client le précise : « il faut minimum 3 h si tu restes
+après ta pause, mais cette règle ne s'applique pas si tu es rappelé avant ta
+pause, tu y as droit ». C'est cohérent avec le point 6.1.a, qui fixe pour le
+rappel en début de poste un minimum de **trente minutes** avant l'heure de
+début de la pause.
+
+### Détection automatique depuis l'horaire
+
+L'horaire porte 460 mentions de rappel sur l'année, dont 450 avec la date de
+la demande — « Rappel le 13/04 » sur la journée du 14/04 donne le coefficient
+du moment sans rien deviner. `rappelDuJour()` propose un rappel quand :
+
+| Signal | Exemple |
+|---|---|
+| poste prévu au repos | AFA le 31/01, `- ǀ 16h-19h` |
+| repos ou congé cité en toutes lettres | FLI le 23/01, « était prévu en repos » ; LHR le 31/08, « avait posé une VA » |
+| heures gagnées au compteur flex time | YPE le 19/01, `N ǀ 8h +FT` — prestées hors horaire par définition |
+| au moins 30 min avant la pause | AFA le 24/07, `N ǀ 18h-6h`, quatre heures d'avance |
+| au moins 3 h après la pause | AFA le 03/02, `AM ǀ 06h-18h`, quatre heures de plus |
+
+La plage se lit dans l'annotation, dans la cellule, ou à défaut dans le
+commentaire — AFA le 10/09, « AM ǀ VM ǀ remplace VBN **de 2h à 6h** ».
+
+Sur l'année : **405 rappels proposés** (235 en J/J-1, 170 en J-2 → J-15) et
+**55 mentions laissées de côté**, que le pré-remplissage signale au lieu de
+les taire :
+
+- deux rappels dans la même cellule, sans dire lequel s'applique — BBZ le
+  20/03, « rappel 1 le 09.03 rappel 2 le 19.03 » ;
+- un rappel qui se rapporte à une autre journée — GDT le 15/03, « presté le
+  20.03 rappel le 19.03 » ;
+- le rappel d'un collègue — APN le 18/03, « SMA pp de rappel » ;
+- une date postérieure à la prestation — VBN le 19/02, faute de frappe pour
+  le 18/02.
+
+Les propositions sont comptées « à vérifier » : la cellule ne dit pas toujours
+si la demande venait de la ligne hiérarchique, ce qui conditionne le droit.
+
+### La seule exclusion
+
+> « Aucune prime ne sera accordée en cas de demande de la ligne hiérarchique
+> pour une prestation en pause AM dans les jours prévus en "Day" de la 5ᵉ et
+> 6ᵉ semaine du cycle. »
+
+L'application l'applique seule : le poste `D` n'existe que dans les semaines 5
+et 6 du cycle, il suffit donc de lire le cycle de la personne. Un rappel coché
+en pause AM sur une de ces journées ne produit pas de prime, et la fiche
+l'indique en ligne d'information.
+
+## Prime de remplacement de contremaître
+
+Les adjoints contremaître **n'ont pas** de prime mensuelle fixe. Le client :
+« les adjoints ne possèdent pas la prime mensuelle de la demi-heure, ils ne
+l'ont qu'en faisant les remplacements contremaître au cas par cas ». Et sur
+son mode de paiement : « ce ne sont pas des heures à récupérer, elles sont
+payées directement ce mois-là ». Elle apparaît sur la fiche sous **Primes
+diverses**.
+
+### Montant
+
+Forfaitaire par journée de remplacement, et non une fraction du salaire
+horaire — les deux ne suivent pas la même indexation :
+
+| Mois 2026 | Prime / jour | Salaire horaire de la fiche |
+|---|---|---|
+| janvier – février | 26,865 € | (taux retiré) € |
+| mars – août | 27,365 € | (taux retiré) € |
+
+La valeur par défaut de l'application est 27,365 €, modifiable dans l'onglet
+« Barèmes ».
+
+### Quelles journées comptent
+
+La mention `R-CM` dans la cellule ou dans sa colonne d'annotation, **et** un
+remplacement couvrant un poste entier. Le client, à propos du 04/06 :
+« je n'ai pas eu la prime de remplacement, car c'est partiel ».
+
+Deux formes de remplacement partiel, qui ne donnent pas la prime :
+
+| Journée | Cellule | Commentaire | Pourquoi |
+|---|---|---|---|
+| 21/01 | `R-CM ǀ 2h +FT` | remplace GPS | la cellule ne nomme aucun poste et le compteur ne gagne que 2 h |
+| 27/07 | `R-CM ǀ 4h +FT` | remplace GPS de 18h à 22h | 4 h, et la plage tient dans le poste PM |
+| 04/06 | `AM ǀ R-CM` | remplace ATA de 11h30 à 14h | plage entièrement comprise dans son poste AM (6h-14h) |
+
+À l'inverse, comptent bien :
+
+| Journée | Cellule | Commentaire | Pourquoi |
+|---|---|---|---|
+| 19/03 | `R-CM ǀ 8h +FT` | remplacement de YBT | journée entière au compteur |
+| 14/04 | `R-CM` | remplace en 18h-06h | plage débordant largement le poste |
+| 01/07 | `R-CM ǀ 4h -FT` | remplace AFA | une reprise `-FT` ne rend pas la journée partielle : les heures reprises sont payées comme si la personne était présente |
+| 22 et 23/06 | `N ǀ R-CM` | CP a replacé | congé déplacé pour venir travailler, le poste est bien presté en entier |
+
+Un échange de poste (« échange avec ATR ») n'exclut rien par lui-même : la
+journée compte si le poste est presté en entier.
+
+### Vérification
+
+`remplacementCM()` applique la règle ; le pré-remplissage compte les journées
+et remplit le champ « Jours de remplacement contremaître » de l'onglet
+Horaire. Rejoué sur les huit premières fiches de 2026 :
+
+| Mois | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 |
+|---|---|---|---|---|---|---|---|---|
+| Journées | 7 | 2 | 16 | 14 | 4 | 7 | 5 | 7 |
+| Calculé | 188,06 | 53,73 | 437,84 | 383,11 | 109,46 | 191,55 | 136,82 | 191,55 |
+| Fiche | 188,06 | 53,73 | 437,84 | 383,11 | 109,46 | 191,55 | 136,82 | 191,55 |
+
+Huit mois sur huit, au centime près.
+
+## Valeurs relevées sur les fiches de paie 2026
+
+Servent de valeurs par défaut ; tout reste modifiable dans l'application.
+
+| | Valeur | Source |
+|---|---|---|
+| Prime d'équipe matin | 0,90 € | fiches 2026 (la note de 2020 donnait 0,67) |
+| Prime d'équipe après-midi | 1,80 € | fiches 2026 (note : 1,34) |
+| Prime d'équipe nuit | 4,00 € | fiches 2026 (note : 3,14) |
+| Chèque-repas, valeur faciale | 10,00 € | 8,91 patronale + 1,09 personnelle |
+| Heures par semaine | 38:40 | figure sur les quatorze fiches |
+
+Le chèque-repas est passé de 6,90 à 8,91 de part patronale au 1er janvier
+2026 : la fiche de décembre 2025 porte encore l'ancienne valeur.
+
+Le diviseur horaire se retrouve sur la fiche : rémunération fixe divisée par
+le salaire horaire, soit (montant retiré) / (taux retiré) = 148,368 pour VBN — la valeur
+par défaut de l'application.
+
+## À établir
+
+Ces points touchent à des montants et attendent une réponse du client — ne
+pas les deviner :
+
+- `R` (237), `TP` (210), `D-F` (49), `VM` (40),
+  `DS-CE` (27), `D-CPPT` (47) : journée prestée normale, absence payée, ou
+  absence non payée ? Certains relèvent peut-être de la règle « horaire de
+  jour, prime de pause conservée » (`conversion-horaire.md`, section 6 bis).
+- L'horaire pendant l'arrêt technique. Le client : « pendant le SD, l'horaire
+  est un peu spécial pour ceux qui s'occupent de la préparation ; ils doivent
+  toujours prester 8 h mais arrivent et partent quand leur présence est
+  nécessaire ». L'horaire écrit y est donc nominal, et les heures d'arrivée
+  citées en commentaire ne permettent pas d'en déduire la durée.
+- `?SD26|8H +FT` : journée d'arrêt technique tombant sur un repos — les huit
+  heures sont-elles payées **et** épargnées, ou seulement épargnées ?
+- Une journée de 12 h portant aussi une absence partielle vaut-elle 10 h
+  prestées (ce que fait le calcul) ou 12 h ?

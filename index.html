@@ -1,0 +1,2510 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B4A5F" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#172026" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Simulateur de fiche de paie belge : l'horaire du mois entre, le net à recevoir sort.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ma paie">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{color-scheme:light dark}html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Net de fin de mois</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============================================================
+   Net de fin de mois — simulateur de paie
+   Palette : pétrole (ce qui entre) · terre cuite (ce qui sort)
+   Type    : Archivo (interface) · IBM Plex Mono (chiffres)
+   ============================================================ */
+:root{
+  --paper:#E8EDEF; --surface:#FFFFFF; --surface2:#F3F7F8; --surface3:#E9F0F2;
+  --ink:#0E1A20; --ink2:#33464F; --muted:#5A6D76; --faint:#85979F;
+  --line:#D2DCE0; --line2:#E5ECEE;
+  --in:#0B4A5F; --in2:#17758F; --in-soft:#DAEAEF;
+  --out:#8A4622; --out2:#B4602F; --out-soft:#F4E3D9;
+  --good:#136349; --good-soft:#DBEEE5;
+  --am:#A96A0F; --pm:#116A69; --n:#3C4185; --d:#64737F;
+  --am-soft:#F6E9D2; --pm-soft:#D7ECEB; --n-soft:#E0E1F1; --d-soft:#E5EAED;
+  --shadow:0 1px 1px rgba(14,26,32,.05), 0 10px 26px -18px rgba(14,26,32,.45);
+  --r:11px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0C1217; --surface:#172026; --surface2:#121A20; --surface3:#1D2831;
+    --ink:#E3EBEF; --ink2:#BECCD4; --muted:#8B9BA4; --faint:#6A7B85;
+    --line:#28343D; --line2:#202A32;
+    --in:#69B2CB; --in2:#4E9CB8; --in-soft:#14303C;
+    --out:#DE9166; --out2:#C97846; --out-soft:#35210F;
+    --good:#5DC69D; --good-soft:#113127;
+    --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
+    --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+    --shadow:0 1px 1px rgba(0,0,0,.4), 0 12px 30px -20px rgba(0,0,0,.95);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0C1217; --surface:#172026; --surface2:#121A20; --surface3:#1D2831;
+  --ink:#E3EBEF; --ink2:#BECCD4; --muted:#8B9BA4; --faint:#6A7B85;
+  --line:#28343D; --line2:#202A32;
+  --in:#69B2CB; --in2:#4E9CB8; --in-soft:#14303C;
+  --out:#DE9166; --out2:#C97846; --out-soft:#35210F;
+  --good:#5DC69D; --good-soft:#113127;
+  --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
+  --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+  --shadow:0 1px 1px rgba(0,0,0,.4), 0 12px 30px -20px rgba(0,0,0,.95);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px; line-height:1.5; -webkit-text-size-adjust:100%;
+}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0; font-weight:600; text-wrap:balance}
+button,select,input{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--in2); outline-offset:2px; border-radius:5px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- en-tête ---------- */
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:40; background:var(--surface); border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+.brand{margin-right:auto; min-width:0}
+.brand h1{font-size:15px; letter-spacing:-.012em; font-weight:700}
+.brand p{margin:0; font-size:11.5px; color:var(--faint)}
+.mnav{display:flex; align-items:center; gap:2px}
+.mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
+.mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
+.mnav .mlabel{min-width:150px; text-align:center; font-weight:600; font-size:14.5px}
+.netchip{display:flex; align-items:baseline; gap:9px; padding:5px 13px; border-radius:9px; background:var(--in-soft); color:var(--in)}
+.netchip .k{font-size:11px; font-weight:600}
+.netchip .v{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- onglets ---------- */
+.tabs{max-width:1180px; margin:0 auto; padding:0 16px; display:flex; gap:2px}
+.tabs button{
+  position:relative; background:none; border:0; padding:9px 13px 10px; color:var(--muted);
+  font-size:13px; font-weight:500; border-radius:8px 8px 0 0;
+}
+.tabs button svg{display:none}
+.tabs button:hover{color:var(--ink); background:var(--surface2)}
+.tabs button[aria-selected="true"]{color:var(--in); font-weight:600}
+.tabs button[aria-selected="true"]::after{content:""; position:absolute; left:11px; right:11px; bottom:-1px; height:2px; background:var(--in)}
+.tabs .dotwarn{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--out2); margin-left:6px; vertical-align:1px}
+
+/* ---------- pages ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
+.panel[hidden]{display:none!important}
+.stack{display:flex; flex-direction:column; gap:16px}
+.two{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start}
+@media (max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden}
+.card>header{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line2)}
+.card>header h2{font-size:14px; font-weight:600; letter-spacing:-.008em}
+.card>header .sub{font-size:11.5px; color:var(--faint)}
+.card>header .right{margin-left:auto; display:flex; align-items:center; gap:8px}
+.pad{padding:16px}
+.lede{margin:0; padding:0 16px 14px; font-size:12.5px; color:var(--muted); max-width:70ch}
+.lede.top{padding-top:14px; padding-bottom:0}
+
+.btn{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2)}
+.btn:hover{border-color:var(--in); color:var(--in); background:var(--surface2)}
+.btn.primary{background:var(--in); border-color:var(--in); color:#fff}
+.btn.primary:hover{background:var(--in2); border-color:var(--in2); color:#fff}
+.btn.sm{padding:4px 9px; font-size:11.5px; border-radius:7px}
+
+.pill{display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600}
+.pill.ok{background:var(--good-soft); color:var(--good)}
+.pill.ko{background:var(--out-soft); color:var(--out)}
+.pill.na{background:var(--surface3); color:var(--muted)}
+.pill.prev{background:var(--in-soft); color:var(--in)}
+
+/* ---------- résumé : le net ---------- */
+.hero{padding:22px 16px 18px; display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; background:linear-gradient(180deg,var(--in-soft),transparent)}
+.hero .big{font-family:"IBM Plex Mono",monospace; font-size:clamp(34px,7vw,50px); font-weight:600; line-height:1; letter-spacing:-.02em; color:var(--in); font-variant-numeric:tabular-nums}
+.hero .lbl{font-size:12.5px; color:var(--muted); margin-bottom:7px}
+.hero .side{margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; font-size:12px; color:var(--muted)}
+
+/* ---------- cascade ---------- */
+.fall{display:flex; flex-direction:column}
+.fall .row{display:grid; grid-template-columns:minmax(120px,1fr) minmax(90px,200px) 112px; align-items:center; gap:12px; padding:7px 16px; border-bottom:1px solid var(--line2)}
+.fall .row:last-child{border-bottom:0}
+.fall .row.anchor{background:var(--surface2)}
+.fall .row.final{background:var(--in-soft)}
+.fall .lab{font-size:12.5px; color:var(--ink2); min-width:0}
+.fall .lab small{display:block; color:var(--faint); font-size:11px}
+.fall .row.anchor .lab,.fall .row.final .lab{font-weight:600; color:var(--ink)}
+.fall .row.final .lab{color:var(--in)}
+.fall .track{position:relative; height:12px; background:var(--surface3); border-radius:3px; overflow:hidden}
+.fall .seg{position:absolute; top:0; bottom:0; border-radius:2px}
+.fall .seg.in{background:var(--in2)} .fall .seg.out{background:var(--out2)}
+.fall .seg.anchor{background:var(--in)} .fall .seg.plus{background:var(--good)}
+.fall .amt{text-align:right; font-family:"IBM Plex Mono",monospace; font-size:13px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.fall .amt.neg{color:var(--out)}
+.fall .row.final .amt{font-size:16px; font-weight:600; color:var(--in)}
+@media (max-width:560px){
+  .fall .row{grid-template-columns:minmax(0,1fr) 104px; grid-template-areas:"l a" "t t"; row-gap:6px}
+  .fall .lab{grid-area:l} .fall .amt{grid-area:a} .fall .track{grid-area:t}
+}
+
+/* ---------- tuiles ---------- */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:1px; background:var(--line2)}
+.tile{background:var(--surface); padding:13px 16px}
+.tile .v{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; letter-spacing:-.01em; font-variant-numeric:tabular-nums}
+.tile .k{font-size:11.5px; color:var(--muted); margin-top:1px}
+
+/* ---------- mini calendrier ---------- */
+.cal{padding:12px 16px 16px}
+.cal .wd{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:5px}
+.cal .wd span{text-align:center; font-size:10.5px; color:var(--faint)}
+.cal .grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
+.cal button{
+  position:relative; aspect-ratio:1/1; border:1px solid var(--line2); border-radius:7px; background:var(--surface2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:0; min-width:0;
+}
+.cal button:hover{border-color:var(--in)}
+.cal button.empty{visibility:hidden}
+.cal .dn{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted)}
+.cal .tag{font-size:9.5px; font-weight:700; letter-spacing:.02em}
+.cal button[data-s="AM"]{background:var(--am-soft); border-color:transparent} .cal button[data-s="AM"] .tag{color:var(--am)}
+.cal button[data-s="PM"]{background:var(--pm-soft); border-color:transparent} .cal button[data-s="PM"] .tag{color:var(--pm)}
+.cal button[data-s="N"]{background:var(--n-soft); border-color:transparent}  .cal button[data-s="N"] .tag{color:var(--n)}
+.cal button[data-s="D"]{background:var(--d-soft); border-color:transparent}  .cal button[data-s="D"] .tag{color:var(--d)}
+.cal button[data-s] .dn{color:var(--ink2)}
+.cal button.abs .tag{color:var(--muted)}
+.cal button.fer{box-shadow:inset 0 0 0 1.5px var(--out2)}
+.cal .legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--muted)}
+.cal .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px}
+
+/* ---------- guide ---------- */
+.steps{list-style:none; margin:0; padding:0 16px 16px; display:grid; gap:10px; counter-reset:s}
+.steps li{display:grid; grid-template-columns:24px 1fr; gap:11px; align-items:start; font-size:12.5px; color:var(--ink2)}
+.steps li::before{
+  counter-increment:s; content:counter(s); width:24px; height:24px; border-radius:50%;
+  background:var(--in-soft); color:var(--in); display:grid; place-items:center;
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600;
+}
+.steps b{font-weight:600; color:var(--ink)}
+
+/* ---------- horaire ---------- */
+.toolbar{display:flex; gap:7px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line2); background:var(--surface2)}
+.rota-head,.day{display:grid; grid-template-columns:68px 296px 148px 64px 34px 42px; justify-content:space-between; align-items:center; gap:8px; padding:0 16px}
+.rota-head{position:sticky; top:0; z-index:5; padding-top:8px; padding-bottom:8px; background:var(--surface); border-bottom:1px solid var(--line); font-size:10.5px; color:var(--faint); letter-spacing:.04em}
+.rota-head span:nth-child(4),.rota-head span:nth-child(5),.rota-head span:nth-child(6){text-align:center}
+.rota{padding-bottom:4px}
+.day{min-height:42px; border-bottom:1px solid var(--line2)}
+.day.we{background:var(--surface2)}
+.day.fer{background:var(--out-soft)}
+.day.today{box-shadow:inset 3px 0 0 var(--in)}
+.wkhead{display:flex; align-items:center; gap:10px; padding:9px 16px 5px; font-size:10.5px; color:var(--faint)}
+.wkhead .ln{flex:1; height:1px; background:var(--line2)}
+.wkhead button{background:none; border:0; padding:0; color:var(--faint); font-size:10.5px; text-decoration:underline; text-underline-offset:2px}
+.wkhead button:hover{color:var(--in)}
+.dchip{display:flex; align-items:baseline; gap:5px; min-width:0}
+.dnum{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums}
+.dwd{font-size:10.5px; color:var(--faint)}
+.day.fer .dnum{color:var(--out)}
+.shifts{display:flex; gap:3px}
+.shifts button{
+  flex:1; min-width:0; height:30px; border:1px solid var(--line); background:var(--surface);
+  border-radius:7px; font-size:12px; font-weight:600; color:var(--faint);
+}
+.shifts button:hover{border-color:var(--ink2); color:var(--ink2)}
+.shifts button[aria-pressed="true"]{color:#fff; border-color:transparent}
+.shifts button[data-s="AM"][aria-pressed="true"]{background:var(--am)}
+.shifts button[data-s="PM"][aria-pressed="true"]{background:var(--pm)}
+.shifts button[data-s="N"][aria-pressed="true"]{background:var(--n)}
+.shifts button[data-s="D"][aria-pressed="true"]{background:var(--d)}
+.shifts button[data-s=""][aria-pressed="true"]{background:var(--surface3); border-color:var(--line); color:var(--ink2)}
+.day select,.day input[type=number]{width:100%; height:30px; padding:0 7px; border:1px solid var(--line); border-radius:7px; background:var(--surface); font-size:12.5px}
+.day input[type=number]{text-align:right; font-family:"IBM Plex Mono",monospace}
+.day select:disabled,.day input:disabled{color:var(--faint); background:var(--surface2)}
+.icb{height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--faint)}
+.icb[aria-pressed="true"]{background:var(--good-soft); border-color:var(--good); color:var(--good)}
+.rap{height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--faint); font-size:10.5px; font-weight:700}
+.rap[data-r="J"]{background:var(--out2); border-color:transparent; color:#fff}
+.rap[data-r="J2"]{background:var(--out-soft); border-color:var(--out2); color:var(--out)}
+.rap[data-r="MP"]{background:var(--surface3); border-color:var(--ink2); color:var(--ink2)}
+.rota-foot{display:flex; gap:16px; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line); background:var(--surface2); font-size:12px; color:var(--muted)}
+.rota-foot b{font-family:"IBM Plex Mono",monospace; color:var(--ink); font-weight:600}
+@media (max-width:660px){
+  .rota-head{display:none}
+  .day{grid-template-columns:54px 1fr 34px 40px; grid-template-areas:"d s v r" "d a h h"; row-gap:5px; padding:8px 14px; align-items:center}
+  .dchip{grid-area:d; flex-direction:column; align-items:flex-start; gap:0}
+  .shifts{grid-area:s} .icb{grid-area:v} .rap{grid-area:r}
+  .day select{grid-area:a} .day input[type=number]{grid-area:h; max-width:76px; justify-self:end}
+}
+
+/* ---------- codes ---------- */
+.codes{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:0 22px; padding:0 16px 16px}
+.codes dl{display:grid; grid-template-columns:auto 1fr; gap:3px 9px; margin:0; font-size:12px}
+.codes dt{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2); white-space:nowrap}
+.codes dd{margin:0; color:var(--muted)}
+.codes h3{font-size:11px; color:var(--faint); margin:12px 0 5px; letter-spacing:.05em}
+
+/* ---------- fiche ---------- */
+.slip{width:100%; border-collapse:collapse; font-size:13px}
+.slip td{padding:4px 16px; vertical-align:baseline}
+.slip .q{width:70px; text-align:right; color:var(--muted); font-family:"IBM Plex Mono",monospace; font-size:12px; font-variant-numeric:tabular-nums}
+.slip .a{width:118px; text-align:right; white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.slip tr.sec td{padding-top:15px; padding-bottom:4px; font-size:11px; color:var(--faint); font-weight:600; letter-spacing:.05em}
+.slip tr.sub td{border-top:1px solid var(--line); border-bottom:1px solid var(--line); font-weight:600; background:var(--surface2)}
+.slip tr.tot td{font-weight:600; background:var(--in-soft); color:var(--in)}
+.slip tr.zero td{color:var(--faint)}
+.slip tr.info td{color:var(--faint); font-style:italic}
+.slip .neg{color:var(--out)}
+.slip tr.why-able{cursor:pointer}
+.slip tr.why-able:hover td{background:var(--surface2)}
+.slip tr.why-able td:nth-child(2)::after{content:"?"; display:inline-grid; place-items:center; width:15px; height:15px; margin-left:7px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; vertical-align:1px; opacity:.4}
+.slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-able:focus-visible td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{opacity:1}
+.slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{border-color:var(--in); color:var(--in)}
+.slip tr.why-open td{background:var(--surface2)}
+.slip tr.whytext td{padding:0 16px 11px 86px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
+.slip tr.whytext p{margin:0; max-width:62ch}
+@media (max-width:560px){
+  .slip td{padding:4px 12px} .slip .q{width:50px} .slip .a{width:100px; font-size:12.5px}
+  .slip tr.whytext td{padding-left:62px}
+}
+.final{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:15px 16px; border-top:2px solid var(--in); background:var(--in-soft)}
+.final .k{font-weight:600; font-size:13.5px; color:var(--in)}
+.final .v{font-family:"IBM Plex Mono",monospace; font-size:25px; font-weight:600; color:var(--in); font-variant-numeric:tabular-nums}
+
+/* ---------- formulaires ---------- */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(198px,1fr)); gap:11px 15px}
+.f{display:flex; flex-direction:column; gap:3px; min-width:0}
+.f label{font-size:11.5px; color:var(--muted)}
+.f input,.f select{padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); font-size:13px; min-width:0}
+.f input:focus,.f select:focus{background:var(--surface)}
+.f input[type=number]{font-family:"IBM Plex Mono",monospace; text-align:right}
+.f .hint{font-size:10.5px; color:var(--faint)}
+.fold{border-top:1px solid var(--line2)}
+.fold>summary{list-style:none; cursor:pointer; padding:12px 16px; display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:600; color:var(--ink2)}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::after{content:""; margin-left:auto; width:8px; height:8px; border-right:1.6px solid var(--faint); border-bottom:1.6px solid var(--faint); transform:rotate(45deg) translate(-2px,-2px)}
+.fold[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.fold>summary:hover{color:var(--in)}
+.fold>summary .sub{font-weight:400; font-size:11.5px; color:var(--faint)}
+.card>.fold:first-of-type{border-top:0}
+
+/* ---------- contrôle ---------- */
+.chk{width:100%; border-collapse:collapse; font-size:12.5px}
+.chk th{text-align:right; font-size:10.5px; color:var(--faint); font-weight:500; padding:0 16px 7px; border-bottom:1px solid var(--line)}
+.chk th:first-child{text-align:left}
+.chk td{padding:5px 16px; border-bottom:1px solid var(--line2)}
+.chk td.n{text-align:right; white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.chk input{width:100px; padding:4px 7px; text-align:right; border:1px solid var(--line); border-radius:7px; background:var(--surface2); font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+.chk tr.ok td.n.ec{color:var(--good)}
+.chk tr.ko td.n.ec{color:var(--out); font-weight:600}
+@media (max-width:560px){
+  .chk th,.chk td{padding-left:11px; padding-right:11px}
+  .chk input{width:84px}
+  .chk th:nth-child(4),.chk td:nth-child(4){display:none}
+}
+.callout{margin:0 16px 16px; padding:11px 13px; border-radius:9px; background:var(--out-soft); color:var(--out); font-size:12.5px}
+.callout:empty{display:none}
+
+/* ---------- pied ---------- */
+.foot{display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:14px 16px; font-size:11.5px; color:var(--faint)}
+.foot .sp{margin-left:auto}
+.btnlike{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2); cursor:pointer}
+.btnlike:hover{border-color:var(--in); color:var(--in)}
+
+/* ---------- accueil / formulaire de configuration ---------- */
+.onboard-overlay{position:fixed; inset:0; z-index:100; background:rgba(10,16,20,.6); display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; overflow:auto}
+.onboard-card{width:100%; max-width:640px; margin:auto}
+.onboard-card>header{padding:16px}
+.onboard-card>header h2{font-size:17px}
+.obgroup{padding:0 16px 4px}
+.obgroup:first-child{padding-top:2px}
+.obgroup h3{font-size:11px; color:var(--faint); letter-spacing:.05em; text-transform:uppercase; margin:0 0 9px}
+.onboard-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-top:1px solid var(--line2)}
+@media (max-width:480px){.onboard-foot{flex-direction:column-reverse; align-items:stretch}}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:60;
+  bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  padding:8px 15px; border-radius:99px; background:var(--ink); color:var(--paper);
+  font-size:12.5px; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s;
+}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+
+/* ---------- barre d'onglets mobile ---------- */
+@media (max-width:760px){
+  .tabs{
+    position:fixed; left:0; right:0; bottom:0; z-index:50; max-width:none; margin:0;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+    background:var(--surface); border-top:1px solid var(--line); gap:0;
+  }
+  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 2px; border-radius:9px; font-size:10.5px}
+  .tabs button svg{display:block}
+  .tabs button[aria-selected="true"]{background:var(--in-soft)}
+  .tabs button[aria-selected="true"]::after{display:none}
+  .tabs .dotwarn{position:absolute; top:4px; right:calc(50% - 16px); margin:0}
+  .wrap{padding-bottom:96px}
+  .toast{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .top-in{padding:8px 16px; gap:10px}
+  .netchip{order:3; width:100%; justify-content:space-between}
+  body[data-view="resume"] .netchip{display:none}
+  .mnav .mlabel{min-width:0; flex:1}
+  .mnav{flex:1}
+}
+
+/* ---------- impression ---------- */
+@media print{
+  .top,.tabs,.toolbar,.toast,.foot,.noprint{display:none!important}
+  body{background:#fff}
+  .panel[hidden]{display:none!important}
+  .card{border:0; box-shadow:none}
+  .wrap{padding:0}
+}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>Net de fin de mois</h1>
+      <p id="brandsub">Simulateur de paie</p>
+    </div>
+    <div class="mnav">
+      <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
+      <div class="mlabel" id="mlabel">—</div>
+      <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
+    </div>
+    <div class="netchip">
+      <span class="k">Net à recevoir</span>
+      <span class="v" id="netTop">—</span>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-v="resume" aria-selected="true" aria-controls="v-resume">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0-8-8"/><path d="M12 12l4-3"/><path d="M4 12H2"/></svg>
+      Résumé</button>
+    <button type="button" role="tab" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      Horaire</button>
+    <button type="button" role="tab" data-v="fiche" aria-selected="false" aria-controls="v-fiche">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>
+      Fiche</button>
+    <button type="button" role="tab" data-v="controle" aria-selected="false" aria-controls="v-controle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 10 17l-5-5"/></svg>
+      Contrôle<span class="dotwarn" id="ctrlDot" hidden></span></button>
+    <button type="button" role="tab" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
+      Réglages</button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ RÉSUMÉ ============ -->
+  <section class="panel stack" id="v-resume" role="tabpanel">
+    <div class="card">
+      <div class="hero">
+        <div>
+          <div class="lbl" id="heroLbl">Net à recevoir — septembre</div>
+          <div class="big" id="heroNet">—</div>
+        </div>
+        <div class="side" id="heroSide"></div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <div class="card">
+      <header>
+        <h2>D'où vient ce montant</h2>
+        <span class="sub">du brut au net, dans l'ordre de la fiche</span>
+      </header>
+      <div class="fall" id="fall"></div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <header>
+          <h2>Le mois en un coup d'œil</h2>
+          <div class="right"><button type="button" class="btn sm" data-go="horaire">Modifier l'horaire</button></div>
+        </header>
+        <div class="cal" id="cal"></div>
+      </div>
+
+      <div class="card">
+        <header><h2>Vérifier sa fiche en quatre temps</h2></header>
+        <ol class="steps">
+          <li><span><b>Encodez l'horaire.</b> Un bouton par poste, un menu par absence. « Appliquer le cycle » remplit d'avance les jours encore vides.</span></li>
+          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
+          <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
+          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, cliquez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HORAIRE ============ -->
+  <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
+    <div class="card">
+      <header>
+        <h2>Horaire presté</h2>
+        <span class="sub" id="rotasub"></span>
+      </header>
+      <div class="toolbar">
+        <button type="button" class="btn" id="applyCycle">Appliquer le cycle</button>
+        <button type="button" class="btn" id="copyPrev">Copier le mois précédent</button>
+        <button type="button" class="btn" id="clearAll">Vider le mois</button>
+      </div>
+      <div class="toolbar">
+        <select id="prefillCat" aria-label="Fonction"></select>
+        <select id="prefillId" aria-label="Identifiant"></select>
+        <button type="button" class="btn" id="prefillBtn">Pré-remplir depuis l'équipe</button>
+        <span class="sub" id="prefillHint"></span>
+      </div>
+      <p class="lede top">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
+      Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p>
+      <div class="rota-head"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
+      <div class="rota" id="rota"></div>
+      <div class="rota-foot">
+        <span>Prestées <b id="tHeures">0</b> h</span>
+        <span>Jours <b id="tJours">0</b></span>
+        <span>Week-end <b id="tWe">0</b> h</span>
+        <span>Vélo <b id="tVelo">0</b></span>
+        <span>Flex time <b id="tFt">0</b></span>
+        <span>Heures sup <b id="tHs">0</b></span>
+        <span>Rappels <b id="tRap">0</b></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <details class="fold">
+        <summary>Les codes <span class="sub">postes, absences et primes de rappel</span></summary>
+        <div class="codes">
+          <div>
+            <h3>Postes</h3>
+            <dl>
+              <dt>AM</dt><dd>avant-midi, 6h – 14h</dd>
+              <dt>PM</dt><dd>après-midi, 14h – 22h</dd>
+              <dt>N</dt><dd>nuit, 22h – 6h</dd>
+              <dt>D</dt><dd>jour, horaire variable (7h-15h, 7h30-16h ou flottant)</dd>
+            </dl>
+            <h3>Primes de rappel</h3>
+            <dl>
+              <dt>J</dt><dd>rappel le jour même ou la veille</dd>
+              <dt>J-2</dt><dd>rappel annoncé entre J-2 et J-15</dd>
+              <dt>MP</dt><dd>modification de pause</dd>
+            </dl>
+          </div>
+          <div>
+            <h3>Absences payées</h3>
+            <dl>
+              <dt>VA</dt><dd>vacances annuelles</dd>
+              <dt>RTT</dt><dd>réduction du temps de travail</dd>
+              <dt>DTT</dt><dd>repos compensatoire, compensation paie</dd>
+              <dt>RJF</dt><dd>jour férié de remplacement, à choix libre</dd>
+              <dt>FER</dt><dd>jour férié légal</dd>
+              <dt>CP</dt><dd>congé parental</dd>
+              <dt>CT</dt><dd>congé de circonstance</dd>
+              <dt>SMG</dt><dd>maladie, salaire garanti</dd>
+              <dt>FORM</dt><dd>formation, congé syndical</dd>
+            </dl>
+          </div>
+          <div>
+            <h3>Compteurs et non payé</h3>
+            <dl>
+              <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
+              <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
+              <dt>ABS</dt><dd>absence injustifiée</dd>
+              <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
+            </dl>
+            <h3>Heures supplémentaires</h3>
+            <dl>
+              <dt>HS</dt><dd>heures prestées en plus de l'horaire du jour, avec supplément et prime d'équipe majorée d'un cran</dd>
+            </dl>
+            <h3>Demi-journées</h3>
+            <dl>
+              <dt>1/2 …</dt><dd>4 h au lieu de 8 h</dd>
+              <dt>3H …</dt><dd>3 h seulement, pour les codes horaires</dd>
+            </dl>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FICHE ============ -->
+  <section class="panel stack" id="v-fiche" role="tabpanel" hidden>
+    <div class="card">
+      <details class="fold" id="foldMonth">
+        <summary>Montants de ce mois <span class="sub" id="monthSub">primes, avance, pécule, heures supplémentaires</span></summary>
+        <div class="pad grid" id="monthFields"></div>
+        <p class="lede">Le nombre de chèques-repas, les jours d'indemnité de déplacement et les km vélo ne suivent pas toujours le nombre de jours prestés du mois. Laissez-les vides pour une estimation d'après l'horaire, ou recopiez les chiffres exacts de la fiche.</p>
+      </details>
+    </div>
+
+    <div class="card">
+      <header>
+        <h2>Fiche de paie simulée</h2>
+        <span class="sub" id="slipsub"></span>
+        <div class="right noprint">
+          <button type="button" class="btn sm" id="whyAll" aria-pressed="false">Tout expliquer</button>
+          <button type="button" class="btn sm" id="btnPrint">Imprimer</button>
+        </div>
+      </header>
+      <table class="slip"><tbody id="slip"></tbody></table>
+      <div class="final">
+        <span class="k">Net à recevoir</span>
+        <span class="v" id="netBig">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTRÔLE ============ -->
+  <section class="panel stack" id="v-controle" role="tabpanel" hidden>
+    <div class="card">
+      <header>
+        <h2>Contrôle de la vraie fiche</h2>
+        <div class="right"><span id="ctrlStatus"></span></div>
+      </header>
+      <p class="lede top">Recopiez dix montants de la fiche reçue. Une ligne verte veut dire que le calcul et la fiche disent la même chose au centime près ; une ligne rouge indique l'écart à expliquer.</p>
+      <table class="chk">
+        <thead><tr><th>Ligne</th><th>Calculé ici</th><th>Sur ma fiche</th><th>Écart</th><th></th></tr></thead>
+        <tbody id="chk"></tbody>
+      </table>
+      <p class="lede" id="ctrlHint"></p>
+      <div class="callout" id="recal"></div>
+    </div>
+  </section>
+
+  <!-- ============ RÉGLAGES ============ -->
+  <section class="panel stack" id="v-reglages" role="tabpanel" hidden>
+    <div class="card">
+      <details class="fold" open>
+        <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
+        <p class="lede top">Les primes d'équipe, chèques-repas et autres valeurs communes à toute l'équipe sont déjà réglés. Vos informations personnelles (rémunération, situation familiale, équipe…) peuvent être corrigées ici à tout moment.</p>
+        <div class="pad grid" id="paramFields"></div>
+        <p class="lede" id="paramNote"></p>
+      </details>
+      <details class="fold">
+        <summary>Primes de rappel <span class="sub">coefficients de la procédure OP_BWZ_CoD_00020</span></summary>
+        <div class="pad grid" id="rappelFields"></div>
+        <p class="lede">La prime vaut <b>2 h × (salaire horaire × coefficient du jour + prime de pause × coefficient de pause) × coefficient du moment</b>. Le jour et la pause viennent de la ligne de l'horaire ; le bouton de la ligne ne choisit que le moment. Pas de prime si la prestation avant ou après la pause dure moins de 3 h, ni pour une prestation en AM sur les jours « D » des 5ᵉ et 6ᵉ semaines du cycle.</p>
+      </details>
+      <details class="fold">
+        <summary>Barèmes 2026 <span class="sub">ONSS, tranches d'impôt, exonérations</span></summary>
+        <div class="pad grid" id="baremeFields"></div>
+        <p class="lede">Le barème théorique et le précompte réellement retenu par un secrétariat social diffèrent souvent de quelques euros. « Calage barème » absorbe cet écart en une seule valeur annuelle. Mettez 0 pour le calcul purement théorique ; l'onglet Contrôle recalcule la bonne valeur dès que vous y saisissez le précompte réel d'une fiche.</p>
+      </details>
+      <details class="fold">
+        <summary>Mes données <span class="sub">sauvegarde, export, import</span></summary>
+        <div class="foot">
+          <span id="storeinfo">&nbsp;</span>
+          <span class="sp"></span>
+          <button type="button" class="btnlike" id="btnExport">Exporter</button>
+          <label class="btnlike" for="fileImport">Importer<input type="file" id="fileImport" accept="application/json,.json" hidden></label>
+        </div>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<div class="onboard-overlay" id="onboard" hidden>
+  <form class="card onboard-card" id="onboardForm" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
+    <header>
+      <h2 id="onboardTitle">Bienvenue — quelques infos avant de commencer</h2>
+    </header>
+    <p class="lede top">
+      Les réglages communs à l'équipe (primes d'équipe, coefficients de rappel, chèques-repas, barèmes ONSS et impôt…)
+      sont déjà configurés. Il ne manque que ce qui vous est propre, expliqué ci-dessous. Rien n'est définitif :
+      vous pourrez tout corriger plus tard dans l'onglet <b>Réglages</b>.
+    </p>
+    <div class="pad stack" id="onboardFields"></div>
+    <footer class="onboard-foot">
+      <button type="button" class="btnlike" id="onboardSkip">Configurer plus tard</button>
+      <button type="submit" class="btn primary">Enregistrer et commencer</button>
+    </footer>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ===================== constantes ===================== */
+var MOIS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+var WD=["lun","mar","mer","jeu","ven","sam","dim"];
+var SHIFTS=[{c:"",n:"—"},{c:"AM",n:"AM"},{c:"PM",n:"PM"},{c:"N",n:"N"},{c:"D",n:"D"}];
+var SHIFT_CODES=["AM","PM","N","D"];
+var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour"};
+var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour — horaire variable (7h-15h, 7h30-16h ou flottant)"};
+var SHIFT_MIGR={M:"AM",AM:"PM",J:"D"};
+var RAP_ORDRE=["","J","J2","MP"];
+var RAP_TXT={"":"·","J":"J","J2":"J-2","MP":"MP"};
+/* Primes de rappel : procédure OP_BWZ_CoD_00020 du 18/06/2025, qui remplace
+   les notes du 21/12/2012 et du 19/11/2012. Calcul vérifié sur les vingt-quatre
+   montants du classeur « prime rappel » : les deux donnent le même résultat.
+
+   Formule = heures de déplacement x (salaire horaire x coefficient du jour
+   + prime de pause x coefficient de pause) x coefficient du moment. */
+var RAP_TITRE={"":"Pas de prime",
+  "J":"Rappel demandé le jour J ou la veille — coefficient 2. Commencer au moins 30 min avant la pause, ou être rappelé d\u2019un repos ou d\u2019un congé.",
+  "J2":"Modification d\u2019horaire demandée entre J-2 et J-15 — coefficient 1,5. Prestation sur un jour de repos ou de congé.",
+  "MP":"Modification de pause demandée la veille ou le jour même — 2 h de salaire horaire à 100 %"};
+var RAP_LIB={"J":"Heure(s) de déplacement — rappel J / J-1",
+  "J2":"Heure(s) de déplacement — rappel J-2 → J-15",
+  "MP":"Heure(s) de déplacement — modification de pause"};
+var ABS=[
+ {c:"",h:0,k:""},
+ {c:"VA",h:8,k:"VA"},{c:"1/2 VA",h:4,k:"VA"},
+ {c:"RTT",h:8,k:"RTT"},{c:"1H RTT",h:1,k:"RTT"},{c:"2H RTT",h:2,k:"RTT"},{c:"3H RTT",h:3,k:"RTT"},
+ {c:"4H RTT",h:4,k:"RTT"},{c:"5H RTT",h:5,k:"RTT"},{c:"6H RTT",h:6,k:"RTT"},{c:"7H RTT",h:7,k:"RTT"},
+ {c:"RJF",h:8,k:"RJF"},{c:"1/2 RJF",h:4,k:"RJF"},
+ {c:"DTT",h:8,k:"DTT"},{c:"1/2 DTT",h:4,k:"DTT"},
+ {c:"1H DTT",h:1,k:"DTT"},{c:"2H DTT",h:2,k:"DTT"},{c:"3H DTT",h:3,k:"DTT"},
+ {c:"5H DTT",h:5,k:"DTT"},{c:"6H DTT",h:6,k:"DTT"},{c:"7H DTT",h:7,k:"DTT"},
+ {c:"CP",h:8,k:"CPAR"},{c:"1/2 CP",h:4,k:"CPAR"},
+ {c:"CT",h:8,k:"CT"},
+ {c:"CPAR",h:8,k:"CPAR",hidden:true},{c:"1/2 CPAR",h:4,k:"CPAR",hidden:true},
+ {c:"1H +FT",h:0,k:"FT",ft:1},
+ {c:"2H +FT",h:0,k:"FT",ft:2},
+ {c:"3H +FT",h:0,k:"FT",ft:3},
+ {c:"4H +FT",h:0,k:"FT",ft:4},
+ {c:"5H +FT",h:0,k:"FT",ft:5},
+ {c:"6H +FT",h:0,k:"FT",ft:6},
+ {c:"7H +FT",h:0,k:"FT",ft:7},
+ {c:"8H +FT",h:0,k:"FT",ft:8},
+ {c:"1H -FT",h:0,k:"FT",ft:-1},
+ {c:"2H -FT",h:0,k:"FT",ft:-2},
+ {c:"3H -FT",h:0,k:"FT",ft:-3},
+ {c:"4H -FT",h:0,k:"FT",ft:-4},
+ {c:"5H -FT",h:0,k:"FT",ft:-5},
+ {c:"6H -FT",h:0,k:"FT",ft:-6},
+ {c:"7H -FT",h:0,k:"FT",ft:-7},
+ {c:"8H -FT",h:0,k:"FT",ft:-8},
+ {c:"1H HS",h:0,k:"HS",hs:1},{c:"2H HS",h:0,k:"HS",hs:2},{c:"3H HS",h:0,k:"HS",hs:3},{c:"4H HS",h:0,k:"HS",hs:4},
+ {c:"5H HS",h:0,k:"HS",hs:5},{c:"6H HS",h:0,k:"HS",hs:6},{c:"7H HS",h:0,k:"HS",hs:7},{c:"8H HS",h:0,k:"HS",hs:8},
+ {c:"FER",h:8,k:"FER"},{c:"1/2 FER",h:4,k:"FER"},
+ {c:"SMG",h:8,k:"SMG"},{c:"1/2 SMG",h:4,k:"SMG"},
+ {c:"FORM",h:8,k:"FORM"},{c:"1/2 FORM",h:4,k:"FORM"},
+ {c:"ABS",h:8,k:"ABS"},
+ {c:"MAL",h:8,k:"SMG",hidden:true},
+ {c:"SANS SOLDE",h:8,k:"AUTRE"}
+];
+var ABSMAP={}; ABS.forEach(function(a){ABSMAP[a.c]=a;});
+/* Le classeur écrit « 8h -FT » ou « 3h RTT » là où les codes sont en
+   majuscules ; la casse et les espaces ne doivent pas empêcher de les
+   reconnaître. */
+var ABSNORM={};
+ABS.forEach(function(a){ if(a.c) ABSNORM[a.c.toUpperCase().replace(/\s+/g,"")]=a.c; });
+function codeAbsence(t){
+  t=(t||"").trim();
+  if(!t) return null;
+  if(ABSMAP[t]) return t;
+  return ABSNORM[t.toUpperCase().replace(/\s+/g,"")]||null;
+}
+
+var DEF_P={
+  statut:"Employé", etatCivil:"Célibataire", conjoint:"Sans objet", enfants:0,
+  remFixe:3000, divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
+  /* primes d'équipe relevées sur les fiches 2026 (la note de 2020 donnait
+     0,67 / 1,34 / 3,14 ; elles ont été indexées depuis) */
+  primeAM:0.90, primePM:1.80, primeN:4.00, primeD:0,
+  /* prime de remplacement contremaitre, montant forfaitaire par journee
+     releve sur les fiches 2026 : 26,865 en janvier-fevrier, 27,365 depuis
+     l'indexation de mars */
+  primeRemplCM:27.365,
+  binome:"Binôme 1", binomeIdx:1, cycle:"6 semaines", decalage:0,
+  rapHeures:2, rapMomentJ:2, rapMomentJ2:1.5, rapModifH:2,
+  rapJourSem:1.5, rapJourSam:1.875, rapJourDim:2, rapJourFer:2.5,
+  rapPauseSem:1.5, rapPauseSam:2, rapPauseDim:3,
+  indJour:0, indVeloKm:0.37, distance:0, avVelo:0, dedVelo:0,
+  /* chèque-repas : 8,91 de part patronale et 1,09 de part personnelle sur les
+     fiches 2026, soit 10,00 de valeur faciale (6,90 patronale jusqu'en 2025) */
+  crFaciale:10.00, crPerso:1.09,
+  atnGsm:0, atnTel:0, atnNet:0,
+  assGroupe:0
+};
+var DEF_B={
+  onss:0.1307, majOuvrier:1.08, solidarite:0.1307,
+  cssA:1095.09, cssB:1945.38, cssMB:9.30, cssTC:0.076, cssC:2190.18, cssBD:18.60, cssTD:0.011,
+  cssCap2:51.64, cssCap1:60.94,
+  fraisTaux:0.30, fraisPlafond:6070, t1:16710, r1:0.2675, t2:29500, r2:0.4280,
+  t3:51050, r3:0.4815, r4:0.5350,
+  redQuotite:2987.98, redConjoint:2987.98, calage:220.45, exoDomTrav:41.67, tauxDistinct:0.5350,
+  enfTable:[0,624,1656,4404,7620,11100,14592,18120,21996]
+};
+var DEF_M={__v:3, primes:0, bonus:0, avance:0, assurance:null, autreBrut:0, autreRet:0,
+  simplePecule:0, doublePecule:0, complDPV:0, treizieme:0,
+  remFixeMois:null, indJourMois:null, csssMois:null, autreF:0,
+  hsHeures:0, hsTaux:null, hsJour:"Semaine", hsPoste:"", hDeplacement:0, redPP:0,
+  crNb:null, crRepRTT:0, crRepFT:0, crRepRHS:0, rhsMois:0, rcmJours:null, joursInd:null, kmVelo:null, days:{}, real:{}};
+
+/* ===================== utilitaires ===================== */
+function R(x,d){var p=Math.pow(10,d||2), s=x<0?-1:1; return s*Math.round(Math.abs(x)*p+1e-9)/p;}
+var nf=new Intl.NumberFormat("fr-BE",{minimumFractionDigits:2,maximumFractionDigits:2});
+var nf0=new Intl.NumberFormat("fr-BE",{maximumFractionDigits:2});
+var nf4=new Intl.NumberFormat("fr-BE",{minimumFractionDigits:4,maximumFractionDigits:4});
+function eur(x){return nf.format(x)+" €";}
+function num(x){return nf0.format(x);}
+function pad2(n){return (n<10?"0":"")+n;}
+function key(y,m){return y+"-"+pad2(m+1);}
+var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
+function easter(y){
+  var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),
+      g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
+      l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+      mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  return new Date(Date.UTC(y,mo-1,da));
+}
+function feries(y){
+  var E=easter(y), out={};
+  function add(dt){out[dt.getUTCFullYear()+"-"+pad2(dt.getUTCMonth()+1)+"-"+pad2(dt.getUTCDate())]=1;}
+  function plus(n){var d=new Date(E.getTime()); d.setUTCDate(d.getUTCDate()+n); return d;}
+  [[0,1],[4,1],[6,21],[7,15],[10,1],[10,11],[11,25]].forEach(function(p){
+    add(new Date(Date.UTC(y,p[0],p[1])));
+  });
+  add(plus(1)); add(plus(39)); add(plus(50));
+  return out;
+}
+
+/* ---- barème des heures supplémentaires (note explicative Groupe S) ----
+   HS à compenser : semaine 150 %, samedi 187,5 %, dimanche et jour férié 200 %
+   Prime d'équipe : une marche au-dessus du taux des prestations normales
+   (semaine 150 %, samedi 200 %, dimanche et jour férié 300 %)                */
+var HS_TAUX={Semaine:150,Samedi:187.5,Dimanche:200};
+var HS_EQUIPE={Semaine:1.5,Samedi:2,Dimanche:3};
+var HS_PCT={Semaine:"150 %",Samedi:"200 %",Dimanche:"300 %"};
+
+/* ===================== cycle des binômes ===================== */
+var CYCLE6=["AM","AM","PM","PM","N","N","N","","","AM","AM","PM","PM","PM","N","N","","",
+            "AM","AM","AM","PM","PM","N","N","","","","D","D","D","-","-","","",
+            "D","D","D","D","D","",""];
+var CYCLE5=CYCLE6.slice(0,35);
+var BINOMES=["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"];
+function setParam(k,v){
+  st.params[k]=v;
+  if(k==="binome") st.params.binomeIdx=Math.max(1,BINOMES.indexOf(v)+1);
+}
+var ANCRAGE=[3,38,31,24,17,10];            /* position au 1er janvier 2025 */
+var ANCRAGE_BASE=Date.UTC(2025,0,1);
+function cyclePoste(idx,cycle,decal,ts){
+  var cy=(cycle==="5 semaines")?CYCLE5:CYCLE6;
+  var bi=Math.max(0,Math.min(ANCRAGE.length-1,(Number(idx)||1)-1));
+  var n=Math.round((ts-ANCRAGE_BASE)/86400000)+Number(decal||0);
+  var L=cy.length;
+  return cy[((((ANCRAGE[bi]-1+n)%L)+L)%L)]||"";
+}
+
+
+/* ===================== état ===================== */
+var st={db:null, params:null, bareme:null, month:null, mkey:null, y:0, m:0, ready:false, view:"resume", lastDay:0};
+var pending={};
+
+function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+function save(path,data){
+  if(pending[path]) clearTimeout(pending[path]);
+  pending[path]=setTimeout(function(){
+    delete pending[path];
+    lsSet(path,data);
+    var quiet=(path==="config/state");
+    if(st.db){ st.db.doc(path).set(JSON.parse(JSON.stringify(data))).then(function(){if(!quiet)flash("Enregistré");},
+      function(){if(!quiet)flash("Enregistré sur cet appareil seulement");}); }
+    else if(!quiet) flash("Enregistré sur cet appareil");
+  },700);
+}
+var flashT;
+function flash(msg){
+  var el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("on");
+  clearTimeout(flashT); flashT=setTimeout(function(){el.classList.remove("on");},2400);
+}
+
+/* ===================== calcul ===================== */
+function daysInMonth(y,m){return new Date(Date.UTC(y,m+1,0)).getUTCDate();}
+function dayType(y,m,d){var w=new Date(Date.UTC(y,m,d)).getUTCDay(); return w===0?"Dimanche":(w===6?"Samedi":"Semaine");}
+
+function compute(){
+  var p=st.params, b=st.bareme, M=st.month, y=st.y, m=st.m;
+  var nd=daysInMonth(y,m), F=feries(y);
+  var remFixe=(M.remFixeMois!==null&&M.remFixeMois!==undefined&&M.remFixeMois!=="")?Number(M.remFixeMois):p.remFixe;
+  var indJour=(M.indJourMois!==null&&M.indJourMois!==undefined&&M.indJourMois!=="")?Number(M.indJourMois):p.indJour;
+  var txh=R(remFixe/p.divH,4);
+  var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
+           rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapExclu:0,abs:{},
+           hsHrs:0,hsAutoBkt:{},hsAutoPoste:{}};
+  var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
+  var noms=SHIFT_NOMS;
+  var COEF_J={Semaine:p.rapJourSem,Samedi:p.rapJourSam,Dimanche:p.rapJourDim,"Férié":p.rapJourFer};
+  var COEF_P={Semaine:p.rapPauseSem,Samedi:p.rapPauseSam,Dimanche:p.rapPauseDim,"Férié":p.rapPauseDim};
+  var byShift={};
+  SHIFTS.forEach(function(s){ if(s.c) byShift[s.c]={Semaine:0,Samedi:0,Dimanche:0}; });
+  for(var d=1; d<=nd; d++){
+    var rec=M.days[d]||{}; var t=dayType(y,m,d);
+    var isFer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
+    var h=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:Number(rec.h)):0;
+    if(rec.s && h>0){
+      acc.hTot+=h; acc.jours++;
+      /* le chèque-repas suppose au moins quatre heures prestées */
+      if(h>=4) acc.joursCr++;
+      byShift[rec.s][t]+=h;
+      if(t==="Samedi") acc.sam+=h; if(t==="Dimanche") acc.dim+=h;
+      if(isFer&&t==="Semaine") acc.ferie+=h;
+      if(rec.v){acc.velo++;} else {acc.joursInd++;}
+    }
+    /* OP_BWZ_CoD_00020, point D : « aucune prime ne sera accordée en cas de
+       demande de la ligne hiérarchique pour une prestation en pause AM dans
+       les jours prévus en "Day" de la 5ᵉ et 6ᵉ semaine du cycle ». Le poste
+       D n'existe que dans ces deux semaines : il suffit de lire le cycle. */
+    if(rec.r && rec.r!=="MP" && rec.s==="AM"
+       && cyclePoste(p.binomeIdx,p.cycle,p.decalage,Date.UTC(y,m,d))==="D"){
+      acc.rapExclu++;
+      rec=Object.keys(rec).reduce(function(o,k){ if(k!=="r") o[k]=rec[k]; return o; },{});
+    }
+    if(rec.r){
+      var tj=isFer?"Férié":t;
+      var mt;
+      if(rec.r==="MP"){
+        mt=R(Number(p.rapModifH||0)*txh); acc.rapM++;
+        acc.rapHrs.MP+=Number(p.rapModifH||0);
+      }
+      else{
+        var cm=(rec.r==="J")?Number(p.rapMomentJ||0):Number(p.rapMomentJ2||0);
+        mt=R(Number(p.rapHeures||0)*(txh*(COEF_J[tj]||0)+(primes[rec.s]||0)*(COEF_P[tj]||0))*cm);
+        /* « la prime de rappel est constituée de 2 heures de déplacement
+           multipliées par un coefficient » : le coefficient du moment porte
+           sur les heures, et c'est bien en heures de déplacement que la
+           prime est reprise sur la fiche. */
+        acc.rapHrs[rec.r]+=Number(p.rapHeures||0)*cm;
+        if(rec.r==="J") acc.rapG++; else acc.rapP++;
+      }
+      acc.rapMt[rec.r]=R(acc.rapMt[rec.r]+mt);
+    }
+    if(rec.a && ABSMAP[rec.a]){
+      var A=ABSMAP[rec.a];
+      acc.abs[A.k]=(acc.abs[A.k]||0)+A.h;
+      if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
+      if(A.hs){
+        var bkt=isFer?"Dimanche":t;
+        acc.hsHrs+=A.hs;
+        acc.hsAutoBkt[bkt]=(acc.hsAutoBkt[bkt]||0)+A.hs;
+        if(rec.s){ var pk=rec.s+"|"+bkt; acc.hsAutoPoste[pk]=(acc.hsAutoPoste[pk]||0)+A.hs; }
+      }
+    }
+  }
+  function ab(k){return acc.abs[k]||0;}
+  var hsH=Number(M.hsHeures||0);
+  var hsJ=M.hsJour||"Semaine";
+  var hsP=M.hsPoste||"";
+  var hsTx=(M.hsTaux===null||M.hsTaux===undefined||M.hsTaux==="")?HS_TAUX[hsJ]:Number(M.hsTaux);
+  if(hsH>0){
+    if(hsJ==="Samedi") acc.sam=Math.max(0,acc.sam-hsH);
+    else if(hsJ==="Dimanche") acc.dim=Math.max(0,acc.dim-hsH);
+    if(hsP && byShift[hsP]) byShift[hsP][hsJ]=Math.max(0,byShift[hsP][hsJ]-hsH);
+  }
+
+  /* Chèques-repas. Une journée prestée d'au moins quatre heures en donne un.
+     Les heures récupérées en donnent un de plus par tranche de huit heures,
+     RTT et flex time comptés SÉPARÉMENT — quatre heures de chaque ne font pas
+     un chèque. Le reliquat de chaque compteur se reporte d'un mois sur
+     l'autre et repart à zéro en début d'année ; il est saisi en tête de mois
+     et le total à reporter est affiché sur la fiche. */
+  var crTotRTT=Number(M.crRepRTT||0)+ab("RTT");
+  var crTotFT=Number(M.crRepFT||0)+acc.ftMoins;
+  var crTotRHS=Number(M.crRepRHS||0)+Number(M.rhsMois||0);
+  var crRecup=Math.floor(crTotRTT/8)+Math.floor(crTotFT/8)+Math.floor(crTotRHS/8);
+  var crRestRTT=crTotRTT%8, crRestFT=crTotFT%8, crRestRHS=crTotRHS%8;
+  var crNb=(M.crNb!==null&&M.crNb!==undefined&&M.crNb!=="")?Number(M.crNb):(acc.joursCr+crRecup);
+  var crPatr=R(p.crFaciale-p.crPerso);
+
+  var lines=[];
+  lines.push({t:"sec",l:"Rémunérations — heures — avantages divers"});
+  lines.push({q:crNb,l:"Chèques repas (part. patr.) à "+nf.format(crPatr)+" €",v:R(crNb*crPatr),info:true});
+  lines.push({q:acc.hTot,l:"Heure(s) prestée(s)",qh:true});
+  if(ab("VA"))  lines.push({q:ab("VA"),l:"Heure(s) vacances annuelles",qh:true});
+  if(ab("RJF")) lines.push({q:ab("RJF"),l:"Heure(s) jour férié / RJF",qh:true});
+  if(ab("DTT")) lines.push({q:ab("DTT"),l:"Heure(s) repos compensatoire",qh:true});
+  if(ab("RTT")) lines.push({q:ab("RTT"),l:"Heure(s) RTT",qh:true});
+  if(ab("CPAR"))lines.push({q:ab("CPAR"),l:"Heure(s) congé parent. AR 29.10.1997",qh:true});
+  if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) CT",qh:true});
+  if(ab("FER")) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
+  if(ab("SMG")) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
+  if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
+  if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
+  if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
+  if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
+  if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées (codes HS de l'horaire)",qh:true,info:true});
+  if(crRecup) lines.push({q:crRecup,l:"Chèque(s) repas issu(s) des heures récupérées (8 h = 1 chèque)",info:true});
+  if(crRestRTT||crRestFT||crRestRHS) lines.push({q:null,l:"À reporter au mois suivant : "+num(crRestRTT)+" h de RTT, "+num(crRestFT)+" h de flex time, "+num(crRestRHS)+" h de récup. HS",info:true});
+  if(Number(M.rhsMois||0)) lines.push({q:Number(M.rhsMois),l:"Heure(s) reprises au compteur de récup. HS",qh:true,info:true});
+
+  var brutLines=[];
+  function bl(q,l,v,qh){ var o={q:q,l:l,v:v,qh:qh}; brutLines.push(o); return o; }
+  if(acc.dim) bl(acc.dim,"Supplément weekend à "+nf4.format(txh)+" à 200 %",R(acc.dim*txh*2),true);
+  if(acc.sam) bl(acc.sam,"Supplément weekend à "+nf4.format(txh)+" à 150 %",R(acc.sam*txh*1.5),true);
+  if(acc.ferie) bl(acc.ferie,"Supplément jour férié presté à "+nf4.format(txh),R(acc.ferie*txh),true);
+  if(acc.sam||acc.dim) bl(-(acc.sam+acc.dim),"Déduction travail weekend à "+nf4.format(txh),R(-(acc.sam+acc.dim)*txh),true);
+  SHIFT_CODES.forEach(function(s){
+    var pr=primes[s]; if(!pr) return;
+    if(byShift[s].Dimanche) bl(byShift[s].Dimanche,"Suppl. Équipe "+noms[s]+" à "+nf.format(pr)+" à 200 %",R(byShift[s].Dimanche*pr*2),true);
+    if(byShift[s].Samedi)   bl(byShift[s].Samedi,"Suppl. Équipe "+noms[s]+" à "+nf.format(pr)+" à 150 %",R(byShift[s].Samedi*pr*1.5),true);
+    if(byShift[s].Semaine)  bl(byShift[s].Semaine,"Suppl. Équipe "+noms[s]+" à "+nf.format(pr),R(byShift[s].Semaine*pr),true);
+  });
+  if(hsH>0 && hsP && primes[hsP])
+    bl(hsH,"Suppl. Équipe "+noms[hsP]+" à "+nf.format(primes[hsP])+" à "+HS_PCT[hsJ]+" (heures suppl.)",
+       R(hsH*primes[hsP]*HS_EQUIPE[hsJ]),true);
+  if(hsH>0)
+    bl(hsH,"HS non compensées à "+nf4.format(txh)+" à "+num(hsTx)+" %",R(hsH*txh*hsTx/100),true);
+  Object.keys(acc.hsAutoPoste).forEach(function(pk){
+    var parts=pk.split("|"), posteK=parts[0], bkt=parts[1], pr=primes[posteK], hh=acc.hsAutoPoste[pk];
+    if(!pr) return;
+    bl(hh,"Suppl. Équipe "+noms[posteK]+" à "+nf.format(pr)+" à "+HS_PCT[bkt]+" (heures suppl. de l'horaire)",
+       R(hh*pr*HS_EQUIPE[bkt]),true);
+  });
+  ["Semaine","Samedi","Dimanche"].forEach(function(bkt){
+    var hh=acc.hsAutoBkt[bkt]; if(!hh) return;
+    bl(hh,"HS non compensées ("+bkt.toLowerCase()+", horaire) à "+nf4.format(txh)+" à "+num(HS_TAUX[bkt])+" %",
+       R(hh*txh*HS_TAUX[bkt]/100),true);
+  });
+  /* Le client : « les primes de rappel sont reprises dans heures de
+     déplacement ». Elles partagent donc la ligne de la fiche, et le champ
+     manuel ne doit reprendre que le déplacement qui n'est pas déjà couvert
+     par les rappels cochés dans l'horaire. */
+  if(acc.rapG) bl(acc.rapHrs.J,RAP_LIB.J,acc.rapMt.J,true);
+  if(acc.rapP) bl(acc.rapHrs.J2,RAP_LIB.J2,acc.rapMt.J2,true);
+  if(acc.rapM) bl(acc.rapHrs.MP,RAP_LIB.MP,acc.rapMt.MP,true);
+  if(M.hDeplacement) bl(M.hDeplacement,"Heure(s) de déplacement à "+nf4.format(txh),R(M.hDeplacement*txh),true);
+  var rapHTot=R(acc.rapHrs.J+acc.rapHrs.J2+acc.rapHrs.MP+Number(M.hDeplacement||0),2);
+  if(rapHTot && (acc.rapG||acc.rapP||acc.rapM))
+    lines.push({q:rapHTot,l:"dont heures de déplacement au total (ligne « Heures de déplacement » de la fiche)",qh:true,info:true});
+  if(acc.rapExclu) lines.push({q:acc.rapExclu,
+    l:"Rappel(s) en pause AM sur journée prévue en Day — pas de prime (procédure, point D)",info:true});
+  bl(null,"Montant heures prestées",R(remFixe*p.fraction));
+  var rcmJ=Number(M.rcmJours||0);
+  if(rcmJ) bl(rcmJ,"Prime de remplacement contremaître à "+nf4.format(p.primeRemplCM),R(rcmJ*p.primeRemplCM));
+  if(M.primes) bl(null,"Primes diverses",R(M.primes));
+  if(M.simplePecule) bl(null,"Simple pécule de vacances",R(M.simplePecule));
+  if(p.atnGsm) bl(null,"Avantage en nature GSM",R(p.atnGsm));
+  if(p.atnTel) bl(null,"Avantage en nature abonnement téléphone",R(p.atnTel));
+  if(p.atnNet) bl(null,"Avantage en nature abonnement internet",R(p.atnNet));
+  if(p.dedVelo) bl(null,"Déduction vélo",R(-p.dedVelo));
+  if(M.autreBrut) bl(null,"Autre rémunération brute",R(M.autreBrut));
+
+  var brut100=0; brutLines.forEach(function(o){brut100+=o.v;}); brut100=R(brut100);
+  var onss=R(brut100*b.onss*(p.statut==="Ouvrier"?b.majOuvrier:1));
+  var bonus=R(M.bonus||0);
+  var solid=R(bonus*b.solidarite);
+  var dPec=R(M.doublePecule||0), cDPV=R(M.complDPV||0), treize=R(M.treizieme||0);
+  var onssDPec=R(dPec*b.onss), onssTreize=R(treize*b.onss);
+  var onssExc=R(onssDPec+onssTreize);
+  var ppDPec=R(Math.max(0,R(dPec+cDPV-onssDPec))*b.tauxDistinct);
+  var ppTreize=R(Math.max(0,R(treize-onssTreize))*b.tauxDistinct);
+  var ppExc=R(ppDPec+ppTreize);
+  var excBasePP=R(Math.max(0,R(dPec+cDPV-onssDPec))+Math.max(0,R(treize-onssTreize)));
+  var joursInd=(M.joursInd!==null&&M.joursInd!==undefined&&M.joursInd!=="")?Number(M.joursInd):acc.joursInd;
+  var indDepl=R(joursInd*indJour);
+  var kmVelo=(M.kmVelo!==null&&M.kmVelo!==undefined&&M.kmVelo!=="")?Number(M.kmVelo):acc.velo*2*p.distance;
+  var indVelo=R(kmVelo*p.indVeloKm);
+  var impIndDepl=R(Math.max(0,indDepl-b.exoDomTrav));
+  var impFiscal=R(brut100-onss+impIndDepl);
+
+  /* précompte professionnel */
+  var annuel=R(impFiscal*12);
+  var frais=R(Math.min(annuel*b.fraisTaux,b.fraisPlafond));
+  var base=R(annuel-frais);
+  var impot=R(Math.min(base,b.t1)*b.r1
+      + Math.max(0,Math.min(base,b.t2)-b.t1)*b.r2
+      + Math.max(0,Math.min(base,b.t3)-b.t2)*b.r3
+      + Math.max(0,base-b.t3)*b.r4);
+  var redQ=R(b.redQuotite + ((p.etatCivil==="Marié(e)"&&p.conjoint==="Sans revenus")?b.redConjoint:0));
+  var redE=b.enfTable[Math.max(0,Math.min(8,Math.round(p.enfants)))]||0;
+  var ppAn=R(Math.max(0,impot-redQ-redE-b.calage));
+  var redHS=R(M.redPP||0);
+  var pp=R(Math.max(0,ppAn/12-redHS));
+
+  /* cotisation spéciale */
+  var cap=(p.conjoint==="Avec revenus")?b.cssCap2:b.cssCap1;
+  var cs;
+  if(brut100<=b.cssA) cs=0;
+  else if(brut100<=b.cssB) cs=b.cssMB;
+  else if(brut100<=b.cssC) cs=b.cssTC*(brut100-b.cssB);
+  else cs=b.cssBD+b.cssTD*(brut100-b.cssC);
+  var csss=(M.csssMois!==null&&M.csssMois!==undefined&&M.csssMois!=="")?R(Number(M.csssMois)):R(Math.min(cap,cs));
+
+  var assGr=R(M.assurance===null||M.assurance===undefined?p.assGroupe:M.assurance);
+  var crPersoTot=R(crNb*p.crPerso);
+  var avance=R(M.avance||0);
+  var autreRet=R(M.autreRet||0);
+
+  var retenues=[];
+  if(p.atnGsm) retenues.push({l:"Avantage en nature GSM",v:R(p.atnGsm)});
+  if(p.atnTel) retenues.push({l:"Avantage en nature abonnement téléphone",v:R(p.atnTel)});
+  if(p.atnNet) retenues.push({l:"Avantage en nature abonnement internet",v:R(p.atnNet)});
+  retenues.push({l:"Cotis. ONSS rémunération normale",v:onss});
+  if(dPec) retenues.push({l:"Cotis. ONSS double pécule vacances",v:onssDPec});
+  if(treize) retenues.push({l:"Cotis. ONSS allocations exceptionnelles",v:onssTreize});
+  if(bonus) retenues.push({l:"Cotis. solidarité / avantage non récurrent",v:solid});
+  retenues.push({l:"Précompte prof. rémunération normale",v:pp});
+  if(dPec||cDPV) retenues.push({l:"Précompte prof. double péc. vacances",v:ppDPec});
+  if(treize) retenues.push({l:"Précompte prof. allocations exceptionnelles",v:ppTreize});
+  retenues.push({l:"Cotis. spéciale sécurité sociale",v:csss});
+  if(assGr) retenues.push({l:"Assurance groupe cotisation personnelle",v:assGr});
+  retenues.push({q:crNb,l:"Chèques repas (part personnelle) à "+nf.format(p.crPerso)+" €",v:crPersoTot});
+  if(avance) retenues.push({l:"Déduction avance reçue",v:avance});
+  if(autreRet) retenues.push({l:"Autre retenue nette",v:autreRet});
+
+  var autreF=R(M.autreF||0);
+  var totalPlus=R(brut100+bonus+dPec+cDPV+treize+indDepl+indVelo+autreF);
+  var totalMoins=0; retenues.forEach(function(o){totalMoins+=o.v;}); totalMoins=R(totalMoins);
+  var A=R(brut100+bonus+dPec+cDPV+treize), B=R(onss+solid+onssExc), C=R(A-B), D=R(pp+ppExc), E=R(C-D);
+  var Fp=R(indDepl+indVelo+autreF);
+  var G=R(totalMoins-onss-solid-onssExc-pp-ppExc);
+  var net=R(E+Fp-G);
+
+  return {
+    acc:acc, txh:txh, crNb:crNb, crPatr:crPatr,
+    head:lines, brutLines:brutLines, retenues:retenues,
+    brut100:brut100, bonus:bonus, onss:onss, solid:solid,
+    dPec:dPec, cDPV:cDPV, treize:treize, onssExc:onssExc, ppExc:ppExc, excBasePP:excBasePP,
+    indDepl:indDepl, indVelo:indVelo, kmVelo:kmVelo, joursInd:joursInd, crNb:crNb,
+    crRecup:crRecup, crRestRTT:crRestRTT, crRestFT:crRestFT,
+    impIndDepl:impIndDepl, impFiscal:impFiscal, redHS:redHS, autreF:autreF,
+    pp:pp, csss:csss, crPersoTot:crPersoTot, assGr:assGr, avance:avance,
+    totalPlus:totalPlus, totalMoins:totalMoins,
+    A:A,B:B,C:C,D:D,E:E,F:Fp,G:G, net:net,
+    det:{annuel:annuel,frais:frais,base:base,impot:impot,redQ:redQ,redE:redE,ppAn:ppAn,redHS:redHS}
+  };
+}
+
+/* ===================== explications des lignes ===================== */
+var WHY=[
+ [/^Chèques repas \(part\. patr/,"Ligne d'information : la part payée par l'employeur pour chaque chèque-repas. Elle n'entre ni dans le brut ni dans le net, elle justifie seulement la valeur du chèque."],
+ [/^Heure\(s\) prestée\(s\)/,"Le total des heures pointées ce mois. Vous n'êtes pas payé à l'heure : la rémunération fixe couvre le mois entier. Ce compteur sert aux suppléments d'équipe, aux chèques-repas et au contrôle de l'horaire."],
+ [/^Heure\(s\) (vacances|jour férié|repos|RTT|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
+ [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
+ [/^Heure\(s\) flex time/,"Compteur uniquement. Les heures prestées pour un collègue (+FT) ne sont pas payées le jour même ; elles le sont le jour où vous les récupérez (−FT)."],
+ [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
+ [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
+ [/^Supplément weekend .* à 150 %/,"Samedi : chaque heure reçoit 150 % du salaire horaire."],
+ [/^Supplément jour férié presté/,"Un jour férié presté en semaine donne 100 % de plus. Contrairement au week-end, ce supplément n'est pas déduit ensuite."],
+ [/^Déduction travail weekend/,"Les heures du week-end sont déjà comprises dans la rémunération fixe. Cette ligne en retire une fois 100 % pour ne pas les payer deux fois : il reste donc +50 % le samedi et +100 % le dimanche par rapport à une heure de semaine."],
+ [/^Suppl\. Équipe .*heures suppl/,"Sur des heures supplémentaires, la prime d'équipe monte d'un cran : 150 % en semaine, 200 % le samedi, 300 % le dimanche et les jours fériés."],
+ [/^Suppl\. Équipe/,"Prime de pause, payée par heure de présence dans le poste. Elle suit le régime du jour : 100 % en semaine, 150 % le samedi, 200 % le dimanche et les jours fériés."],
+ [/^HS non compensées/,"Heures supplémentaires payées au lieu d'être récupérées : 150 % en semaine, 187,5 % le samedi, 200 % le dimanche et les jours fériés."],
+ [/^Heure\(s\) de déplacement/,"Heures de trajet payées au salaire horaire simple, sans majoration."],
+ [/^Prime\(s\) de rappel/,"2 h × (salaire horaire × coefficient du jour + prime de pause × coefficient de pause) × coefficient du moment. Le coefficient du moment vaut 2 si le rappel arrive la veille ou le jour même, 1,5 s'il est annoncé entre J-2 et J-15."],
+ [/^Prime\(s\) de modification/,"Modification de pause : deux heures de salaire horaire à 100 %, sans majoration de jour ni de pause."],
+ [/^Montant heures prestées/,"La rémunération fixe du mois, multipliée par la fraction payée indiquée dans Réglages. Elle ne dépend pas du nombre d'heures : c'est le socle auquel s'ajoutent tous les suppléments."],
+ [/^Primes diverses/,"Montant saisi à la main dans « Montants de ce mois ». Soumis à l'ONSS et au précompte comme le reste du brut."],
+ [/^Simple pécule/,"Le simple pécule est traité comme de la rémunération ordinaire : ONSS et précompte au barème normal."],
+ [/^Avantage en nature/,"Ajouté au brut pour être taxé, puis retiré à l'identique dans les retenues. L'avantage ne change donc pas le net : il augmente seulement la base imposable."],
+ [/^Déduction vélo/,"Contrepartie du vélo de société : elle diminue la rémunération brute soumise à l'ONSS et au précompte."],
+ [/^Brut base ONSS/,"Total soumis aux cotisations sociales. C'est sur ce montant que sont prélevés les 13,07 % d'ONSS."],
+ [/^Avantage non récurrent/,"Bonus collectif CCT 90 : 13,07 % de cotisation de solidarité, mais aucun précompte professionnel. C'est pourquoi il rapporte beaucoup en net."],
+ [/^Double pécule|^Complément DPV|^Treizième mois/,"Payé à part du mois : d'abord 13,07 % d'ONSS, puis un précompte au taux distinct de 53,50 % sur le solde. Rien à voir avec le barème mensuel."],
+ [/^Imposable fiscal/,"La base du précompte : brut − ONSS + la part imposable de l'indemnité de déplacement. C'est aussi le montant qui apparaîtra sur la fiche fiscale 281.10."],
+ [/^jours indemnité déplac/,"Indemnité nette par jour de présence sans vélo. L'exonération domicile-travail s'applique ici ; seul le surplus est imposable."],
+ [/^km indemnité déplacement vélo/,"Indemnité kilométrique vélo, entièrement exonérée : elle n'entre pas dans l'imposable."],
+ [/^Avantage vélo société/,"Information seulement : la valeur du vélo mis à disposition. Sans effet sur le net."],
+ [/^Imposable ind\. dépl/,"La part de l'indemnité de déplacement qui dépasse l'exonération mensuelle et qui est donc ajoutée à l'imposable."],
+ [/^Total \+$/,"Tout ce qui vous est attribué ce mois, brut et net confondus, avant la moindre retenue."],
+ [/^Cotis\. ONSS rémunération normale/,"Cotisation personnelle du travailleur : 13,07 % du brut."],
+ [/^Cotis\. ONSS (double|allocations)/,"Le pécule et le treizième mois supportent les mêmes 13,07 %, calculés séparément du salaire du mois."],
+ [/^Cotis\. solidarité/,"Le bonus CCT 90 échappe au précompte mais pas à cette cotisation de solidarité de 13,07 %."],
+ [/^Précompte prof\. rémunération normale/,"Impôt retenu à la source. Le mois est annualisé (× 12), on retire 30 % de frais professionnels forfaitaires plafonnés, on applique le barème par tranches, on déduit la quotité exemptée et les enfants à charge, puis on divise par 12."],
+ [/^Précompte prof\. (double|allocations)/,"Taux distinct de 53,50 %, appliqué après l'ONSS. Ce taux ne dépend pas du barème mensuel."],
+ [/^Cotis\. spéciale sécurité sociale/,"Cotisation trimestrielle, plafonnée pour un ménage à deux revenus. Les deux premiers mois du trimestre prélèvent un acompte, le troisième régularise le solde."],
+ [/^Assurance groupe/,"Votre cotisation personnelle à l'assurance groupe, retenue sur le net."],
+ [/^Chèques repas \(part personnelle/,"Votre part dans chaque chèque-repas, retenue sur le net. Le chèque lui-même ne transite pas par la fiche."],
+ [/^Déduction avance/,"L'avance versée en cours de mois. Elle est déduite ici puisqu'elle vous a déjà été payée."],
+ [/^Autre retenue nette/,"Montant saisi à la main dans « Montants de ce mois »."],
+ [/^Total −$/,"Tout ce qui est retenu : cotisations, impôt, part personnelle des chèques et avance."],
+ [/^Brut total \(A\)/,"Le brut du mois, pécule et treizième mois compris."],
+ [/^Retenue sécurité sociale \(B\)/,"L'ensemble des cotisations sociales, y compris celles du pécule et de la solidarité."],
+ [/^Imposable \(C\)/,"A − B : la base sur laquelle l'impôt est calculé."],
+ [/^Précompte professionnel \(D\)/,"L'impôt total retenu : barème mensuel plus, le cas échéant, le taux distinct."],
+ [/^Net \(E\)/,"C − D : le net avant les mouvements qui ne passent pas par l'impôt."],
+ [/^Divers positifs/,"Indemnités nettes qui s'ajoutent après impôt : déplacement, vélo, régularisations."],
+ [/^Divers négatifs/,"Retenues nettes qui s'appliquent après impôt : avantages en nature repris, cotisation spéciale, assurance groupe, chèques-repas et avance."],
+ [/^Rémunération annuelle/,"Le mois imposable multiplié par douze. C'est la fiction de calcul du précompte : le barème suppose que vous gagnerez ce montant douze fois."],
+ [/^Frais professionnels forfaitaires/,"30 % de la rémunération annuelle, plafonnés. Ils sont déduits avant l'application du barème."],
+ [/^Base imposable annuelle/,"Rémunération annuelle moins les frais forfaitaires."],
+ [/^Impôt annuel de base/,"Le barème par tranches appliqué à la base annuelle, avant toute réduction."],
+ [/^Réduction quotité exemptée/,"La part de revenu qui échappe à l'impôt, convertie en réduction annuelle."],
+ [/^Réduction enfants/,"Réduction annuelle liée au nombre d'enfants à charge."],
+ [/^Calage barème/,"L'écart résiduel entre le barème théorique et le calcul du secrétariat social, isolé en une seule valeur annuelle pour que le résultat tombe juste sur vos fiches."],
+ [/^Précompte annuel/,"Impôt annuel après réductions. Divisé par douze, il donne le précompte du mois."],
+ [/^Réduction heures supplémentaires/,"Réduction de précompte sur les premières heures supplémentaires de l'année, à recopier de la fiche."],
+ [/^Base au taux distinct/,"Pécule et treizième mois après ONSS : la base du précompte à 53,50 %."],
+ [/^Précompte au taux distinct/,"53,50 % de la base ci-dessus."]
+];
+function whyFor(l){
+  for(var i=0;i<WHY.length;i++){ if(WHY[i][0].test(l)) return WHY[i][1]; }
+  return null;
+}
+
+/* ===================== rendu — horaire ===================== */
+function isoWeek(dt){
+  var t=new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate()));
+  t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
+  var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return Math.ceil(((t-y0)/86400000+1)/7);
+}
+function renderRota(){
+  var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m), F=feries(y);
+  var host=document.getElementById("rota"); host.innerHTML="";
+  var today=new Date(), isNow=(today.getFullYear()===y&&today.getMonth()===m)?today.getDate():0;
+  var absOpts="";
+  ABS.forEach(function(a){ if(!a.hidden) absOpts+='<option value="'+a.c+'">'+(a.c||"—")+"</option>"; });
+  var weekH=0, weekNode=null;
+  function closeWeek(){ if(weekNode) weekNode.querySelector(".wh").textContent=weekH?num(weekH)+" h":"—"; }
+  for(var d=1; d<=nd; d++){
+    var dt=new Date(Date.UTC(y,m,d)), wd=(dt.getUTCDay()+6)%7;
+    if(d===1||wd===0){
+      closeWeek(); weekH=0;
+      weekNode=document.createElement("div");
+      weekNode.className="wkhead";
+      weekNode.innerHTML='<span>Semaine '+isoWeek(dt)+'</span><span class="ln"></span><span class="wh">—</span>';
+      host.appendChild(weekNode);
+    }
+    var t=dayType(y,m,d), fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
+    var rec=M.days[d]||{};
+    if(rec.s) weekH+=(rec.h===undefined||rec.h===null||rec.h==="")?p.hJour:Number(rec.h);
+    var row=document.createElement("div");
+    row.className="day"+((t!=="Semaine")?" we":"")+(fer?" fer":"")+(d===isNow?" today":"");
+    row.dataset.d=d;
+    var btns="";
+    SHIFTS.forEach(function(s){
+      btns+='<button type="button" data-s="'+s.c+'" title="'+(SHIFT_HEURES[s.c]||"repos")+'" aria-pressed="'+((rec.s||"")===s.c)+'">'+s.n+"</button>";
+    });
+    row.innerHTML=
+      '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span></div>'+
+      '<div class="shifts">'+btns+'</div>'+
+      '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
+      '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
+      '<button type="button" class="icb bike" aria-pressed="'+(!!rec.v)+'" title="Venu à vélo" aria-label="Vélo le '+d+'">'+
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
+      '</button>'+
+      '<button type="button" class="rap" data-r="'+esc(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
+    row.querySelector(".abs").value=rec.a||"";
+    var hi=row.querySelector(".hrs");
+    hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
+    hi.disabled=!rec.s;
+    host.appendChild(row);
+  }
+  closeWeek();
+}
+
+/* ===================== rendu — fiche ===================== */
+var whyAll=false;
+function slipRow(o){
+  var cls=[]; if(o.info) cls.push("info");
+  if(o.v!==undefined && o.v!==null && Math.abs(o.v)<0.005 && !o.keep) cls.push("zero");
+  var w=whyFor(o.l);
+  if(w) cls.push("why-able");
+  var q=(o.q===null||o.q===undefined)?"":num(o.q);
+  var v=(o.v===null||o.v===undefined)?"":eur(o.v);
+  var vcls="a"+((o.v<0)?" neg":"");
+  var tr='<tr class="'+cls.join(" ")+'"'+(w?' tabindex="0" role="button" aria-expanded="false"':'')+'>'+
+    '<td class="q">'+q+'</td><td>'+o.l+'</td><td class="'+vcls+'">'+v+"</td></tr>";
+  if(w&&whyAll) tr+='<tr class="whytext"><td colspan="3"><p>'+w+"</p></td></tr>";
+  return tr;
+}
+function renderSlip(C){
+  var p=st.params, h="";
+  C.head.forEach(function(o){
+    if(o.t==="sec"){h+='<tr class="sec"><td colspan="3">'+o.l+"</td></tr>"; return;}
+    h+=slipRow(o);
+  });
+  C.brutLines.forEach(function(o){h+=slipRow(o);});
+  h+='<tr class="sub"><td class="q"></td><td>Brut base ONSS 100 %</td><td class="a">'+eur(C.brut100)+"</td></tr>";
+  if(C.bonus) h+=slipRow({l:"Avantage non récurrent (bonus CCT 90)",v:C.bonus,keep:true});
+  if(C.dPec) h+=slipRow({l:"Double pécule de vacances",v:C.dPec,keep:true});
+  if(C.cDPV) h+=slipRow({l:"Complément DPV solde 4ᵉ semaine",v:C.cDPV,keep:true});
+  if(C.treize) h+=slipRow({l:"Treizième mois",v:C.treize,keep:true});
+  h+='<tr class="sub"><td class="q"></td><td>Imposable fiscal (PP &amp; fiche fiscale)</td><td class="a">'+eur(C.impFiscal)+"</td></tr>";
+  h+=slipRow({q:C.joursInd,l:"jours indemnité déplac./privé à "+nf.format(p.indJour)+" €",v:C.indDepl});
+  if(C.kmVelo) h+=slipRow({q:C.kmVelo,l:"km indemnité déplacement vélo à "+nf4.format(p.indVeloKm)+" €",v:C.indVelo});
+  if(C.autreF) h+=slipRow({l:"Autre indemnité nette",v:C.autreF,keep:true});
+  if(p.avVelo) h+=slipRow({l:"Avantage vélo société (pour info)",v:R(p.avVelo),info:true});
+  h+=slipRow({l:"Imposable ind. dépl. domicile-travail",v:C.impIndDepl,keep:true});
+  h+='<tr class="tot"><td class="q"></td><td>Total +</td><td class="a">'+eur(C.totalPlus)+"</td></tr>";
+
+  h+='<tr class="sec"><td colspan="3">Retenues sociales, fiscales et autres</td></tr>';
+  C.retenues.forEach(function(o){h+=slipRow({q:o.q,l:o.l,v:o.v,keep:true});});
+  h+='<tr class="tot"><td class="q"></td><td>Total −</td><td class="a">'+eur(C.totalMoins)+"</td></tr>";
+
+  h+='<tr class="sec"><td colspan="3">Récapitulatif</td></tr>';
+  [["Brut total (A)",C.A],["Retenue sécurité sociale (B)",C.B],["Imposable (C) = A − B",C.C],
+   ["Précompte professionnel (D)",C.D],["Net (E) = C − D",C.E],
+   ["Divers positifs / net (F)",C.F],["Divers négatifs / net (G)",C.G]].forEach(function(r){
+    h+=slipRow({l:r[0],v:r[1],keep:true});
+  });
+
+  h+='<tr class="sec"><td colspan="3">Détail du précompte professionnel</td></tr>';
+  [["Rémunération annuelle (× 12)",C.det.annuel],["Frais professionnels forfaitaires",C.det.frais],
+   ["Base imposable annuelle",C.det.base],["Impôt annuel de base",C.det.impot],
+   ["Réduction quotité exemptée",-C.det.redQ],["Réduction enfants à charge",-C.det.redE],
+   ["Calage barème",-st.bareme.calage],["Précompte annuel",C.det.ppAn],
+   ["Réduction heures supplémentaires (/mois)",-C.det.redHS],
+   ["Base au taux distinct (pécule, 13ᵉ mois)",C.excBasePP],
+   ["Précompte au taux distinct",C.ppExc]].forEach(function(r){
+    h+=slipRow({l:r[0],v:r[1],keep:true});
+  });
+
+  document.getElementById("slip").innerHTML=h;
+  document.getElementById("netBig").textContent=eur(C.net);
+  document.getElementById("netTop").textContent=eur(C.net);
+  document.getElementById("slipsub").textContent=MOIS[st.m]+" "+st.y;
+}
+
+/* ===================== rendu — contrôle ===================== */
+var CHK=[
+ ["Heures prestées","hTot",function(C){return C.acc.hTot;},true],
+ ["Brut base ONSS 100 %","brut100",function(C){return C.brut100;}],
+ ["Imposable fiscal (PP)","impFiscal",function(C){return C.impFiscal;}],
+ ["Total +","totalPlus",function(C){return C.totalPlus;}],
+ ["Cotisation ONSS","onss",function(C){return C.onss;}],
+ ["Précompte professionnel","pp",function(C){return C.pp;}],
+ ["Cotis. spéciale sécurité sociale","csss",function(C){return C.csss;}],
+ ["Chèques repas – part personnelle","crPerso",function(C){return C.crPersoTot;}],
+ ["Total −","totalMoins",function(C){return C.totalMoins;}],
+ ["Net à recevoir","net",function(C){return C.net;}]
+];
+var chkState={ok:0,ko:0};
+function renderChk(C){
+  var real=st.month.real||{}, h="", nOk=0, nKo=0;
+  CHK.forEach(function(r){
+    var calc=r[2](C), v=real[r[1]];
+    var has=(v!==undefined&&v!==null&&v!=="");
+    var ec=has?R(Number(v)-calc):null;
+    var ok=has&&Math.abs(ec)<0.011;
+    if(has){ ok?nOk++:nKo++; }
+    h+='<tr class="'+(has?(ok?"ok":"ko"):"")+'"><td>'+r[0]+'</td><td class="n">'+(r[3]?num(calc):eur(calc))+'</td>'+
+       '<td class="n"><input type="number" step="0.01" data-k="'+r[1]+'" value="'+(has?esc(v):"")+'" aria-label="'+r[0]+' sur ma fiche"></td>'+
+       '<td class="n ec">'+(has?(r[3]?num(ec):eur(ec)):"—")+'</td>'+
+       '<td class="n"><span class="pill '+(has?(ok?"ok":"ko"):"na")+'">'+(has?(ok?"OK":"à vérifier"):"—")+'</span></td></tr>';
+  });
+  document.getElementById("chk").innerHTML=h;
+  chkState={ok:nOk,ko:nKo};
+  var s=document.getElementById("ctrlStatus");
+  if(!nOk&&!nKo) s.innerHTML='<span class="pill na">rien de saisi</span>';
+  else if(!nKo) s.innerHTML='<span class="pill ok">'+nOk+" ligne"+(nOk>1?"s":"")+' sur '+CHK.length+' vérifiée'+(nOk>1?"s":"")+'</span>';
+  else s.innerHTML='<span class="pill ko">'+nKo+" écart"+(nKo>1?"s":"")+'</span>';
+  document.getElementById("ctrlDot").hidden=!nKo;
+  var hint=document.getElementById("ctrlHint");
+  if(!nOk&&!nKo) hint.textContent="La fiche de "+MOIS[st.m].toLowerCase()+" n'est pas encore arrivée, ou vous ne l'avez pas encore recopiée.";
+  else if(!nKo) hint.textContent="Tout concorde : le calcul reproduit la fiche de "+MOIS[st.m].toLowerCase()+" au centime.";
+  else hint.textContent="Commencez par la première ligne rouge en partant du haut : un écart sur les heures ou sur le brut explique presque toujours ceux qui suivent.";
+
+  var rp=real.pp;
+  var el=document.getElementById("recal");
+  if(rp!==undefined&&rp!==null&&rp!==""&&Math.abs(Number(rp)-C.pp)>=0.011){
+    var newCal=R(C.det.impot-C.det.redQ-C.det.redE-Number(rp)*12);
+    el.textContent="Le précompte réel ne correspond pas. Pour recaler le barème sur cette fiche, mettez « Calage barème » à "+eur(newCal)+" dans Réglages (actuellement "+eur(st.bareme.calage)+").";
+  } else el.textContent="";
+}
+
+/* ===================== rendu — résumé ===================== */
+function sumLines(C,re){var s=0; C.brutLines.forEach(function(o){if(re.test(o.l)) s+=o.v;}); return R(s);}
+function renderResume(C){
+  var nd=daysInMonth(st.y,st.m), F=feries(st.y), M=st.month;
+  document.getElementById("heroLbl").textContent="Net à recevoir — "+MOIS[st.m].toLowerCase()+" "+st.y;
+  document.getElementById("heroNet").textContent=eur(C.net);
+
+  var etat=chkState.ko?'<span class="pill ko">'+chkState.ko+" écart"+(chkState.ko>1?"s":"")+" avec la fiche</span>"
+         :(chkState.ok>=CHK.length?'<span class="pill ok">conforme à la fiche reçue</span>'
+         :(chkState.ok?'<span class="pill ok">'+chkState.ok+" ligne"+(chkState.ok>1?"s":"")+" vérifiée"+(chkState.ok>1?"s":"")+"</span>"
+         :'<span class="pill prev">projection d’après l’horaire</span>'));
+  var saisis=0; for(var d=1;d<=nd;d++){var r=M.days[d]; if(r&&(r.s||r.a)) saisis++;}
+  document.getElementById("heroSide").innerHTML=
+    etat+
+    "<span>"+saisis+" jour"+(saisis>1?"s":"")+" sur "+nd+" encodé"+(saisis>1?"s":"")+"</span>"+
+    (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"");
+
+  var we=R(sumLines(C,/^Supplément weekend/)+sumLines(C,/^Supplément jour férié presté/)+sumLines(C,/^Déduction travail weekend/));
+  var eq=sumLines(C,/^Suppl\. Équipe/);
+  var rap=R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP);
+  var tiles=[
+    [num(C.acc.hTot)+" h","Heures prestées"],
+    [String(C.acc.jours),"Jours de présence"],
+    [eur(we),"Suppléments week-end"],
+    [eur(eq),"Primes d'équipe"],
+    [rap?eur(rap):String(C.crNb),rap?"Primes de rappel":"Chèques-repas"],
+    [nf4.format(C.txh)+" €","Salaire horaire"]
+  ];
+  document.getElementById("tiles").innerHTML=tiles.map(function(t){
+    return '<div class="tile"><div class="v">'+t[0]+'</div><div class="k">'+t[1]+"</div></div>";
+  }).join("");
+
+  /* cascade du brut au net */
+  var atn=R((st.params.atnGsm||0)+(st.params.atnTel||0)+(st.params.atnNet||0));
+  var divers=R(C.G-C.avance);
+  var rows=[{l:"Brut total",s:"heures, suppléments, primes",v:C.A,k:"anchor"},
+            {l:"Sécurité sociale",s:"cotisation ONSS du travailleur",v:-C.B,k:"out"},
+            {l:"Précompte professionnel",s:"impôt retenu à la source",v:-C.D,k:"out"},
+            {l:"Net imposable",s:"ce qui reste après cotisations et impôt",v:C.E,k:"anchor"}];
+  if(Math.abs(C.F)>=0.005) rows.push({l:"Indemnités nettes",s:"déplacement, vélo",v:C.F,k:"plus"});
+  if(Math.abs(divers)>=0.005) rows.push({l:"Retenues nettes",s:"chèques-repas, assurance groupe, avantages repris, cotisation spéciale",v:-divers,k:"out"});
+  if(C.avance) rows.push({l:"Avance déjà reçue",s:"versée en cours de mois",v:-C.avance,k:"out"});
+  rows.push({l:"Net à recevoir",s:"virement de fin de mois",v:C.net,k:"final"});
+
+  var scale=Math.max(C.A,C.net,1), run=0, h="";
+  rows.forEach(function(r){
+    var lo,hi,cls;
+    if(r.k==="anchor"||r.k==="final"){ lo=0; hi=Math.max(0,r.v); run=r.v; cls=(r.k==="final")?"anchor":"anchor"; }
+    else { lo=Math.min(run,run+r.v); hi=Math.max(run,run+r.v); cls=(r.v<0)?"out":"plus"; run=R(run+r.v); }
+    var left=Math.max(0,lo/scale*100), width=Math.max(1.2,(hi-lo)/scale*100);
+    var pct=(r.k==="out"||r.k==="plus")?(Math.abs(r.v)/scale*100):0;
+    h+='<div class="row '+(r.k==="final"?"final":(r.k==="anchor"?"anchor":""))+'">'+
+       '<div class="lab">'+r.l+'<small>'+r.s+(pct>=0.5?" · "+nf0.format(R(pct,1))+" % du brut":"")+'</small></div>'+
+       '<div class="track"><span class="seg '+cls+'" style="left:'+left.toFixed(2)+'%;width:'+width.toFixed(2)+'%"></span></div>'+
+       '<div class="amt'+(r.v<0?" neg":"")+'">'+(r.v>0&&r.k!=="anchor"&&r.k!=="final"?"+":"")+eur(r.v)+"</div></div>";
+  });
+  document.getElementById("fall").innerHTML=h;
+
+  /* calendrier du mois */
+  var first=(new Date(Date.UTC(st.y,st.m,1)).getUTCDay()+6)%7, cells="";
+  for(var i=0;i<first;i++) cells+='<button type="button" class="empty" tabindex="-1" aria-hidden="true"></button>';
+  for(var dd=1; dd<=nd; dd++){
+    var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
+    var tag=rec.s||(rec.a?rec.a.replace(/^1\/2 /,"½").replace(/^(\d)H /,"$1"):"");
+    cells+='<button type="button" data-d="'+dd+'"'+(rec.s?' data-s="'+esc(rec.s)+'"':"")+
+      (!rec.s&&rec.a?' class="abs"':"")+(fer?" data-fer=1":"")+
+      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+(rec.s?" — poste "+esc(rec.s):(rec.a?" — "+esc(rec.a):" — repos"))+'">'+
+      '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
+  }
+  document.getElementById("cal").innerHTML=
+    '<div class="wd"><span>lun</span><span>mar</span><span>mer</span><span>jeu</span><span>ven</span><span>sam</span><span>dim</span></div>'+
+    '<div class="grid">'+cells+"</div>"+
+    '<div class="legend"><span><i style="background:var(--am)"></i>AM 6h-14h</span><span><i style="background:var(--pm)"></i>PM 14h-22h</span>'+
+    '<span><i style="background:var(--n)"></i>N 22h-6h</span><span><i style="background:var(--d)"></i>D horaire variable</span>'+
+    '<span><i style="background:var(--out2)"></i>jour férié</span></div>';
+  var cal=document.getElementById("cal");
+  Array.prototype.forEach.call(cal.querySelectorAll("button.fer,[data-fer]"),function(b){b.classList.add("fer");});
+}
+
+function renderTotals(C){
+  document.getElementById("tHeures").textContent=num(C.acc.hTot);
+  document.getElementById("tJours").textContent=C.acc.jours;
+  document.getElementById("tWe").textContent=num(C.acc.sam+C.acc.dim);
+  document.getElementById("tVelo").textContent=C.acc.velo;
+  var ftS=C.acc.ftPlus-C.acc.ftMoins;
+  document.getElementById("tFt").textContent=(ftS>0?"+":"")+num(ftS)+" h";
+  document.getElementById("tHs").textContent=num(C.acc.hsHrs)+" h";
+  var rTot=C.acc.rapG+C.acc.rapP+C.acc.rapM;
+  document.getElementById("tRap").textContent=rTot
+    ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
+  document.getElementById("rotasub").textContent=MOIS[st.m]+" "+st.y;
+  document.getElementById("mlabel").textContent=MOIS[st.m]+" "+st.y;
+  document.getElementById("brandsub").textContent="Simulateur de paie · "+st.params.statut.toLowerCase();
+  var ms=[];
+  if(st.month.primes) ms.push("primes "+eur(st.month.primes));
+  if(st.month.bonus) ms.push("bonus CCT 90 "+eur(st.month.bonus));
+  if(st.month.doublePecule) ms.push("double pécule");
+  if(st.month.treizieme) ms.push("treizième mois");
+  if(st.month.hsHeures) ms.push(num(st.month.hsHeures)+" h supplémentaires");
+  if(st.month.avance) ms.push("avance "+eur(st.month.avance));
+  document.getElementById("monthSub").textContent=ms.length?ms.join(" · "):"primes, avance, pécule, heures supplémentaires";
+}
+
+function refresh(){
+  if(!st.ready) return;
+  var C=compute();
+  renderTotals(C); renderSlip(C); renderChk(C); renderResume(C);
+}
+
+/* ===================== champs ===================== */
+function fieldHTML(f,val,opt){
+  opt=opt||{};
+  var id=(opt.idPrefix||"f_")+f.k;
+  var hint=opt.hint!==undefined?opt.hint:f.hint;
+  var attrs=opt.bare?"":(' data-k="'+f.k+'" data-scope="'+f.scope+'"');
+  if(f.type==="select"){
+    var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
+    return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  }
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'"'+attrs+' value="'+esc(val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+}
+
+var MONTH_FIELDS=[
+ {k:"primes",l:"Primes diverses (€)",scope:"month"},
+ {k:"bonus",l:"Avantage non récurrent / CCT 90 (€)",scope:"month",hint:"exonéré de précompte, 13,07 % de solidarité"},
+ {k:"simplePecule",l:"Simple pécule de vacances (€)",scope:"month",hint:"rémunération ordinaire"},
+ {k:"doublePecule",l:"Double pécule de vacances (€)",scope:"month",hint:"ONSS 13,07 % + précompte au taux distinct"},
+ {k:"complDPV",l:"Complément DPV 4ᵉ semaine (€)",scope:"month",hint:"pas d'ONSS, mais taxé au taux distinct"},
+ {k:"treizieme",l:"Treizième mois / prime de fin d'année (€)",scope:"month",hint:"ONSS 13,07 % + précompte au taux distinct"},
+ {k:"remFixeMois",l:"Rémunération fixe de ce mois (€)",scope:"month",hint:"vide = valeur des paramètres"},
+ {k:"indJourMois",l:"Indemnité déplacement / jour (€)",scope:"month",hint:"vide = valeur des paramètres"},
+ {k:"csssMois",l:"Cotisation spéciale séc. soc. (€)",scope:"month",hint:"vide = calculée ; le 3ᵉ mois du trimestre régularise"},
+ {k:"assurance",l:"Assurance groupe (€)",scope:"month",hint:"vide = valeur des paramètres"},
+ {k:"avance",l:"Avance déjà reçue (€)",scope:"month"},
+ {k:"autreBrut",l:"Autre rémunération brute (€)",scope:"month"},
+ {k:"autreRet",l:"Autre retenue nette (€)",scope:"month"},
+ {k:"autreF",l:"Autre indemnité nette (€)",scope:"month",hint:"régularisation de déplacement, etc."},
+ {k:"hsHeures",l:"Heures suppl. non compensées (h)",scope:"month",step:"0.25",hint:"régularisation manuelle ; sinon utilisez les codes HS jour par jour dans l'horaire"},
+ {k:"hsJour",l:"Heures suppl. — jour",scope:"month",type:"select",opts:["Semaine","Samedi","Dimanche"],hint:"jour férié = comme dimanche"},
+ {k:"hsPoste",l:"Heures suppl. — poste",scope:"month",type:"select",opts:["","AM","PM","N","D"],hint:"donne la prime d'équipe majorée d'un cran"},
+ {k:"hsTaux",l:"Taux heures suppl. (%)",scope:"month",step:"0.5",hint:"vide = automatique : 150 / 187,5 / 200"},
+ {k:"hDeplacement",l:"Heures de déplacement (h)",scope:"month",step:"0.25",hint:"déplacement non couvert par les rappels : les primes de rappel sont déjà reprises dans cette ligne de la fiche"},
+ {k:"redPP",l:"Réduction PP heures suppl. (€)",scope:"month",hint:"à recopier de la fiche (130 premières heures suppl.)"},
+ {k:"crNb",l:"Nombre de chèques-repas",scope:"month",step:"1",hint:"vide = calculé : jours prestés d'au moins 4 h, plus 1 par 8 h récupérées"},
+ {k:"crRepRTT",l:"RTT en attente au 1er du mois (h)",scope:"month",step:"0.25",hint:"reliquat de la fiche précédente ; 0 en janvier"},
+ {k:"crRepFT",l:"Flex time en attente au 1er du mois (h)",scope:"month",step:"0.25",hint:"reliquat de la fiche précédente ; 0 en janvier"},
+ {k:"crRepRHS",l:"Récup. HS en attente au 1er du mois (h)",scope:"month",step:"0.25",hint:"reliquat de la fiche précédente ; 0 en janvier"},
+ {k:"rhsMois",l:"Heures reprises au compteur HS (h)",scope:"month",step:"0.25",hint:"rempli par le pré-remplissage depuis l'horaire"},
+ {k:"rcmJours",l:"Jours de remplacement contremaître",scope:"month",step:"1",hint:"rempli par le pré-remplissage ; seuls comptent les remplacements d'un poste entier"},
+ {k:"joursInd",l:"Jours indemnité déplacement",scope:"month",step:"1",hint:"vide = jours prestés sans vélo"},
+ {k:"kmVelo",l:"Km vélo",scope:"month",step:"1",hint:"vide = jours vélo × 2 × distance"}
+];
+var PARAM_FIELDS=[
+ {k:"statut",l:"Statut",scope:"params",type:"select",opts:["Employé","Ouvrier"],personal:true,
+  onb:"Votre statut au contrat de travail. Il influence certains taux de cotisation et le calcul du précompte."},
+ {k:"etatCivil",l:"État civil",scope:"params",type:"select",opts:["Marié(e)","Célibataire","Cohabitant(e) légal(e)"],personal:true,
+  onb:"Votre état civil tel que déclaré à l'employeur : il conditionne le calcul du précompte professionnel (la retenue d'impôt)."},
+ {k:"conjoint",l:"Conjoint",scope:"params",type:"select",opts:["Avec revenus","Sans revenus","Sans objet"],personal:true,
+  onb:"Si vous êtes marié(e) ou cohabitant(e) légal(e), précisez si votre conjoint a des revenus propres — un conjoint sans revenus peut réduire votre précompte. Sinon, laissez « Sans objet »."},
+ {k:"enfants",l:"Enfants à charge",scope:"params",step:"1",personal:true,
+  onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
+ {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,
+  onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
+ {k:"divH",l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
+ {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)",personal:true,
+  onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps. Laissez 1 si vous êtes à temps plein."},
+ {k:"hJour",l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
+ {k:"hSemaine",l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
+ {k:"primeAM",l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
+ {k:"primeRemplCM",l:"Prime de remplacement contremaître (€/jour)",scope:"params",step:"0.001",hint:"montant forfaitaire par journée relevé sur les fiches : 26,865 en janvier-février 2026, 27,365 depuis mars"},
+ {k:"primePM",l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
+ {k:"primeN",l:"Prime équipe N — nuit (€/h)",scope:"params"},
+ {k:"primeD",l:"Prime équipe D — jour (€/h)",scope:"params"},
+ {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert au remplissage automatique",personal:true,
+  onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Il détermine votre rotation matin / après-midi / nuit dans le cycle, et permet de pré-remplir automatiquement votre horaire."},
+ {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"],personal:true,
+  onb:"La durée du cycle de roulement de votre équipe, selon votre planning."},
+ {k:"decalage",l:"Décalage du cycle (jours)",scope:"params",step:"1",hint:"si le cycle tombe à côté, ajustez de ±1",personal:true,
+  onb:"Si le cycle proposé automatiquement ne tombe pas exactement sur votre planning réel, ajustez ce décalage (en jours, + ou −) jusqu'à ce qu'il corresponde. Laissez 0 si vous ne savez pas encore — vous pourrez ajuster plus tard en comparant avec votre planning."},
+ {k:"indJour",l:"Indemnité déplacement / jour (€)",scope:"params",personal:true,
+  onb:"Indemnité de déplacement que vous percevez par jour presté, si votre situation y donne droit. Laissez 0 si vous ne savez pas — à vérifier sur une fiche de paie réelle."},
+ {k:"indVeloKm",l:"Indemnité vélo (€/km)",scope:"params",step:"0.0001",hint:"0 si vélo de société"},
+ {k:"distance",l:"Distance domicile-travail (km)",scope:"params",step:"0.1",personal:true,
+  onb:"Distance en kilomètres entre votre domicile et votre lieu de travail (trajet simple). Sert à calculer l'indemnité vélo si vous vous déplacez à vélo."},
+ {k:"avVelo",l:"Avantage vélo société (€)",scope:"params",personal:true,
+  onb:"Montant de l'avantage vélo de société que vous percevez, si vous en bénéficiez. Laissez 0 sinon."},
+ {k:"dedVelo",l:"Déduction vélo (€)",scope:"params",personal:true,
+  onb:"Déduction éventuelle liée à un vélo de société, si elle figure sur votre fiche de paie. Laissez 0 si non concerné."},
+ {k:"crFaciale",l:"Chèque repas – valeur faciale (€)",scope:"params"},
+ {k:"crPerso",l:"Chèque repas – part personnelle (€)",scope:"params"},
+ {k:"atnGsm",l:"Avantage nature GSM (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour un GSM fourni par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"atnTel",l:"Avantage nature téléphone (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour un abonnement téléphone fourni par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"atnNet",l:"Avantage nature internet (€)",scope:"params",personal:true,
+  onb:"Avantage de toute nature pour une connexion internet fournie par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
+ {k:"assGroupe",l:"Assurance groupe (€)",scope:"params",personal:true,
+  onb:"Votre cotisation personnelle à l'assurance groupe, retenue sur votre salaire, si applicable. Laissez 0 si vous ne savez pas — vous pourrez la corriger plus tard en consultant une fiche de paie réelle."}
+];
+var RAPPEL_FIELDS=[
+ {k:"rapHeures",l:"Heures de déplacement",scope:"params",step:"0.5",hint:"base de la prime : 2 h"},
+ {k:"rapModifH",l:"Modification de pause — heures à 100 %",scope:"params",step:"0.5"},
+ {k:"rapMomentJ",l:"Coefficient moment — rappel J / J-1",scope:"params",step:"0.1"},
+ {k:"rapMomentJ2",l:"Coefficient moment — rappel J-2 → J-15",scope:"params",step:"0.1"},
+ {k:"rapJourSem",l:"Coefficient jour — semaine",scope:"params",step:"0.001"},
+ {k:"rapJourSam",l:"Coefficient jour — samedi",scope:"params",step:"0.001"},
+ {k:"rapJourDim",l:"Coefficient jour — dimanche",scope:"params",step:"0.001"},
+ {k:"rapJourFer",l:"Coefficient jour — jour férié",scope:"params",step:"0.001"},
+ {k:"rapPauseSem",l:"Coefficient pause — semaine",scope:"params",step:"0.1"},
+ {k:"rapPauseSam",l:"Coefficient pause — samedi",scope:"params",step:"0.1"},
+ {k:"rapPauseDim",l:"Coefficient pause — dimanche et férié",scope:"params",step:"0.1"}
+];
+var BAREME_FIELDS=[
+ {k:"onss",l:"Cotisation ONSS travailleur",scope:"bareme",step:"0.0001"},
+ {k:"solidarite",l:"Cotisation de solidarité (bonus)",scope:"bareme",step:"0.0001"},
+ {k:"fraisTaux",l:"Frais forfaitaires – taux",scope:"bareme",step:"0.01"},
+ {k:"fraisPlafond",l:"Frais forfaitaires – plafond (€/an)",scope:"bareme",step:"1"},
+ {k:"t1",l:"Tranche 1 – plafond (€/an)",scope:"bareme",step:"1"},
+ {k:"r1",l:"Tranche 1 – taux",scope:"bareme",step:"0.0001"},
+ {k:"t2",l:"Tranche 2 – plafond (€/an)",scope:"bareme",step:"1"},
+ {k:"r2",l:"Tranche 2 – taux",scope:"bareme",step:"0.0001"},
+ {k:"t3",l:"Tranche 3 – plafond (€/an)",scope:"bareme",step:"1"},
+ {k:"r3",l:"Tranche 3 – taux",scope:"bareme",step:"0.0001"},
+ {k:"r4",l:"Au-delà – taux",scope:"bareme",step:"0.0001"},
+ {k:"redQuotite",l:"Réduction quotité exemptée (€/an)",scope:"bareme"},
+ {k:"redConjoint",l:"Supplément conjoint sans revenus (€/an)",scope:"bareme"},
+ {k:"calage",l:"Calage barème (€/an)",scope:"bareme"},
+ {k:"exoDomTrav",l:"Exonération domicile-travail (€/mois)",scope:"bareme"},
+ {k:"tauxDistinct",l:"Taux distinct — pécule, 13ᵉ mois",scope:"bareme",step:"0.0001"},
+ {k:"cssCap2",l:"CSSS – plafond 2 revenus (€/mois)",scope:"bareme"},
+ {k:"cssCap1",l:"CSSS – plafond 1 revenu (€/mois)",scope:"bareme"}
+];
+function renderFields(){
+  function fill(host,list,src){
+    var h=""; list.forEach(function(f){h+=fieldHTML(f,src[f.k]);});
+    document.getElementById(host).innerHTML=h;
+  }
+  fill("monthFields",MONTH_FIELDS,st.month);
+  fill("paramFields",PARAM_FIELDS,st.params);
+  fill("rappelFields",RAPPEL_FIELDS,st.params);
+  fill("baremeFields",BAREME_FIELDS,st.bareme);
+  document.getElementById("paramNote").textContent=
+    "Salaire horaire qui en découle : "+nf4.format(R(st.params.remFixe/st.params.divH,4))+" €. C'est lui qui sert aux suppléments de week-end, aux heures supplémentaires et aux primes de rappel.";
+}
+
+/* ===================== accueil / configuration initiale ===================== */
+var ONBOARD_GROUPS=[
+ {t:"Votre situation familiale",fields:["statut","etatCivil","conjoint","enfants"]},
+ {t:"Votre rémunération et votre temps de travail",fields:["remFixe","fraction"]},
+ {t:"Votre équipe et votre cycle de roulement",fields:["binome","cycle","decalage"]},
+ {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
+ {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}
+];
+function renderOnboard(){
+  var byK={}; PARAM_FIELDS.forEach(function(f){byK[f.k]=f;});
+  var h="";
+  ONBOARD_GROUPS.forEach(function(g){
+    h+='<div class="obgroup"><h3>'+g.t+"</h3><div class=\"grid\">";
+    g.fields.forEach(function(k){
+      var f=byK[k];
+      h+=fieldHTML(f,st.params[k],{idPrefix:"ob_",hint:f.onb||f.hint,bare:true});
+    });
+    h+="</div></div>";
+  });
+  document.getElementById("onboardFields").innerHTML=h;
+}
+function applyOnboard(){
+  PARAM_FIELDS.forEach(function(f){
+    if(!f.personal) return;
+    var el=document.getElementById("ob_"+f.k); if(!el) return;
+    var v=f.type==="select"?el.value:Number(el.value||0);
+    setParam(f.k,v);
+  });
+  save("config/params",st.params);
+}
+
+/* ===================== onglets ===================== */
+var VIEWS=["resume","horaire","fiche","controle","reglages"];
+function setView(v,keepScroll){
+  if(VIEWS.indexOf(v)<0) v="resume";
+  st.view=v;
+  VIEWS.forEach(function(x){
+    document.getElementById("v-"+x).hidden=(x!==v);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".tabs button"),function(b){
+    b.setAttribute("aria-selected",String(b.dataset.v===v));
+  });
+  document.body.setAttribute("data-view",v);
+  lsSet("ui/view",v);
+  if(!keepScroll) window.scrollTo(0,0);
+  if(v==="horaire") ensurePrefillUI();
+}
+document.querySelector(".tabs").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
+});
+document.addEventListener("click",function(e){
+  var g=e.target.closest("[data-go]"); if(g) setView(g.dataset.go);
+});
+
+/* ===================== horaire — saisie ===================== */
+function setShift(d,code){
+  var rec=st.month.days[d]||(st.month.days[d]={});
+  rec.s=code;
+  if(!code) delete rec.h;
+  else if(rec.h===undefined||rec.h===null||rec.h==="") rec.h=st.params.hJour;
+}
+function syncRow(d){
+  var row=document.querySelector('.day[data-d="'+d+'"]'); if(!row) return;
+  var rec=st.month.days[d]||{};
+  row.querySelectorAll(".shifts button").forEach(function(x){
+    x.setAttribute("aria-pressed",String((rec.s||"")===x.dataset.s));
+  });
+  var hi=row.querySelector(".hrs");
+  hi.disabled=!rec.s;
+  hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?st.params.hJour:rec.h):"";
+}
+document.getElementById("rota").addEventListener("click",function(e){
+  var b=e.target.closest(".shifts button");
+  if(b){
+    var d=Number(b.closest(".day").dataset.d);
+    if(e.shiftKey && st.lastDay && st.lastDay!==d){
+      var a=Math.min(st.lastDay,d), z=Math.max(st.lastDay,d), n=0;
+      for(var i=a;i<=z;i++){ setShift(i,b.dataset.s); syncRow(i); n++; }
+      flash(n+" jours mis en "+(b.dataset.s||"repos"));
+    } else {
+      setShift(d,b.dataset.s); syncRow(d);
+    }
+    st.lastDay=d;
+    persistMonth(); refresh(); return;
+  }
+  var rb=e.target.closest(".rap");
+  if(rb){
+    var dr=Number(rb.closest(".day").dataset.d);
+    var rr=st.month.days[dr]||(st.month.days[dr]={});
+    var nx=RAP_ORDRE[(RAP_ORDRE.indexOf(rr.r||"")+1)%RAP_ORDRE.length];
+    rr.r=nx; rb.dataset.r=nx; rb.textContent=RAP_TXT[nx]; rb.title=RAP_TITRE[nx];
+    persistMonth(); refresh(); return;
+  }
+  var bk=e.target.closest(".bike");
+  if(bk){
+    var dd=Number(bk.closest(".day").dataset.d);
+    var r2=st.month.days[dd]||(st.month.days[dd]={});
+    r2.v=!r2.v; bk.setAttribute("aria-pressed",String(!!r2.v));
+    persistMonth(); refresh(); return;
+  }
+});
+var KEYMAP={a:"AM",p:"PM",n:"N",d:"D","0":"","²":""};
+document.getElementById("rota").addEventListener("keydown",function(e){
+  var btn=e.target.closest(".shifts button"); if(!btn) return;
+  var row=btn.closest(".day"), d=Number(row.dataset.d);
+  var k=e.key.toLowerCase();
+  if(Object.prototype.hasOwnProperty.call(KEYMAP,k)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    e.preventDefault(); setShift(d,KEYMAP[k]); syncRow(d); st.lastDay=d; persistMonth(); refresh(); return;
+  }
+  if(k==="arrowdown"||k==="arrowup"){
+    e.preventDefault();
+    var idx=Array.prototype.indexOf.call(row.querySelectorAll(".shifts button"),btn);
+    var nrow=document.querySelector('.day[data-d="'+(d+(k==="arrowdown"?1:-1))+'"]');
+    if(nrow) nrow.querySelectorAll(".shifts button")[idx].focus();
+  }
+});
+document.addEventListener("change",function(e){
+  var t=e.target;
+  if(t.classList.contains("abs")){
+    var d=Number(t.closest(".day").dataset.d);
+    var rec=st.month.days[d]||(st.month.days[d]={});
+    rec.a=t.value; persistMonth(); refresh(); return;
+  }
+  if(t.classList.contains("hrs")){
+    var d2=Number(t.closest(".day").dataset.d);
+    var r2=st.month.days[d2]||(st.month.days[d2]={});
+    r2.h=t.value===""?undefined:Number(t.value); persistMonth(); refresh(); return;
+  }
+  if(t.dataset.scope){
+    var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
+    if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
+    else if(t.dataset.scope==="params"){
+      setParam(t.dataset.k,v);
+      save("config/params",st.params);
+    }
+    else { st.bareme[t.dataset.k]=v; save("config/bareme",st.bareme); }
+    if(t.dataset.k==="hJour"||t.dataset.k==="statut") renderRota();
+    if(t.dataset.k==="remFixe"||t.dataset.k==="divH") renderFields();
+    refresh(); return;
+  }
+  if(t.dataset.k&&t.closest("#chk")){
+    st.month.real=st.month.real||{};
+    st.month.real[t.dataset.k]=t.value===""?null:Number(t.value);
+    persistMonth(); refresh(); return;
+  }
+});
+function persistMonth(){ save("months/"+st.mkey,st.month); }
+
+/* ===================== fiche — explications ===================== */
+function toggleWhy(tr){
+  var txt=tr.nextElementSibling;
+  if(txt&&txt.classList.contains("whytext")){
+    txt.remove(); tr.classList.remove("why-open"); tr.setAttribute("aria-expanded","false"); return;
+  }
+  var w=whyFor(tr.children[1].textContent.replace(/\s*\?$/,"")); if(!w) return;
+  var row=document.createElement("tr");
+  row.className="whytext";
+  row.innerHTML='<td colspan="3"><p>'+w+"</p></td>";
+  tr.parentNode.insertBefore(row,tr.nextSibling);
+  tr.classList.add("why-open"); tr.setAttribute("aria-expanded","true");
+}
+document.getElementById("slip").addEventListener("click",function(e){
+  var tr=e.target.closest("tr.why-able"); if(tr&&!whyAll) toggleWhy(tr);
+});
+document.getElementById("slip").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ") return;
+  var tr=e.target.closest("tr.why-able"); if(tr&&!whyAll){ e.preventDefault(); toggleWhy(tr); }
+});
+document.getElementById("whyAll").addEventListener("click",function(){
+  whyAll=!whyAll;
+  this.setAttribute("aria-pressed",String(whyAll));
+  this.textContent=whyAll?"Masquer les explications":"Tout expliquer";
+  refresh();
+});
+document.getElementById("btnPrint").addEventListener("click",function(){ window.print(); });
+
+/* ===================== calendrier du résumé ===================== */
+document.getElementById("cal").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-d]"); if(!b) return;
+  setView("horaire");
+  var row=document.querySelector('.day[data-d="'+b.dataset.d+'"]');
+  if(row){ row.scrollIntoView({block:"center"}); row.querySelector(".shifts button[data-s=\"\"]").focus(); }
+});
+
+/* ===================== outils du mois ===================== */
+document.getElementById("prev").addEventListener("click",function(){go(-1);});
+document.getElementById("next").addEventListener("click",function(){go(1);});
+function go(step){
+  var m=st.m+step, y=st.y;
+  if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+  loadMonth(y,m);
+}
+document.getElementById("applyCycle").addEventListener("click",function(){
+  var nd=daysInMonth(st.y,st.m), n=0;
+  for(var d=1; d<=nd; d++){
+    var rec=st.month.days[d];
+    if(rec && (rec.s || rec.a)) continue;
+    var po=cyclePoste(st.params.binomeIdx,st.params.cycle,st.params.decalage,Date.UTC(st.y,st.m,d));
+    if(po && po!=="-"){
+      rec=rec||{}; rec.s=po; rec.h=st.params.hJour; st.month.days[d]=rec; n++;
+    }
+  }
+  persistMonth(); renderRota(); refresh();
+  flash(n ? (n+" jour"+(n>1?"s":"")+" rempli"+(n>1?"s":"")+" d'après le cycle "+st.params.cycle+" — "+st.params.binome)
+          : "Rien à remplir : tous les jours sont déjà saisis");
+});
+document.getElementById("clearAll").addEventListener("click",function(){
+  st.month.days={}; persistMonth(); renderRota(); refresh(); flash("Horaire vidé");
+});
+document.getElementById("copyPrev").addEventListener("click",function(){
+  var m=st.m-1, y=st.y; if(m<0){m=11;y--;}
+  readMonth(key(y,m)).then(function(prev){
+    if(!prev||!prev.days||!Object.keys(prev.days).length){flash("Aucun horaire le mois précédent"); return;}
+    st.month.days=JSON.parse(JSON.stringify(prev.days));
+    persistMonth(); renderRota(); refresh(); flash("Horaire du mois précédent copié");
+  });
+});
+
+/* ===================== horaire d'équipe (pré-remplissage) ===================== */
+var HORAIRE_DB=null, horaireFetching=null;
+function fetchHoraireDB(){
+  if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
+  if(horaireFetching) return horaireFetching;
+  horaireFetching=fetch("./data/horaire-2026.json").then(function(r){return r.json();})
+    .then(function(db){ HORAIRE_DB=db; return db; })
+    .catch(function(){ flash("Horaire d'équipe indisponible (hors ligne ?)"); return null; });
+  return horaireFetching;
+}
+function renderPrefillSelects(db){
+  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
+  var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  catSel.innerHTML=cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
+  var savedCat=lsGet("ui/prefillCat");
+  if(savedCat && cats.indexOf(savedCat)>=0) catSel.value=savedCat;
+  function fillIds(){
+    var cat=catSel.value;
+    var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
+    idSel.innerHTML=ids.map(function(i){return '<option value="'+esc(i)+'">'+esc(i)+"</option>";}).join("");
+    var savedId=lsGet("ui/prefillId");
+    if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
+  }
+  fillIds();
+  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); };
+  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); };
+}
+/* Plages horaires de l'horaire d'équipe dont le poste correspondant est
+   confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés
+   comme un poste de jour (cf. SHIFT_HEURES). Clés sous forme normalisée. */
+var HORAIRE_PLAGES={"6h-14h":"AM","7h-15h":"D","8h30-16h30":"D","hflott":"D"};
+function normPlage(tok){
+  return tok.toLowerCase().replace(/[ '.]/g,"").replace(/(^|-)0(\d)/g,"$1$2");
+}
+function posteDepuisMention(tok){
+  if(SHIFT_CODES.indexOf(tok)>=0) return tok;
+  return HORAIRE_PLAGES[normPlage(tok)]||null;
+}
+/* Plages théoriques des postes, d'après la note « Grille horaire en Pauses —
+   5 équipes » : matin 6h-14h, après-midi 14h-22h, nuit 22h-6h, jour
+   7h30-16h (dont 1/2 h de midi non payée). Exprimées en heures depuis
+   minuit, la nuit débordant sur le lendemain. */
+var SHIFT_PLAGE={AM:[6,14],PM:[14,22],N:[22,30],D:[7.5,16]};
+function plageMention(tok){
+  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?$/i);
+  if(!m) return null;
+  var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+  if(b<=a) b+=24;
+  return (b>a)?[a,b]:null;
+}
+function seChevauchent(p,q){
+  for(var k=-24;k<=24;k+=24){
+    if(Math.min(p[1]+k,q[1])-Math.max(p[0]+k,q[0])>0.01) return true;
+  }
+  return false;
+}
+/* Journées prestées en horaire de jour, la prime de pause étant conservée :
+   arrêt technique (SD26), formation (F et D-F), journée syndicale (DS),
+   délégation CPPT (D-CPPT) et conseil d'entreprise (DS-CE).
+
+   Le client : « jour de formation pour D-F, et juste pour les autres aussi ;
+   conserve la prime de pause normalement effectuée dans le cycle ». C'est
+   donc le CYCLE qui donne la prime, et non la cellule — laquelle est le plus
+   souvent occupée par la mention elle-même. Quand le cycle ne prévoit pas de
+   poste ce jour-là, il n'y a pas de prime à conserver et la journée vaut un
+   poste de jour : « FLI le 16/04, prévu en repos mais fait DS, donc payé
+   comme un D sans prime de pause ». */
+var JOUR_PRIME_PAUSE=["sd26","f","ds","d-f","df","d-cppt","cppt","ds-ce","tp"];
+/* Mentions reconnues, mais sans effet sur le calcul.
+   « R » est une réserve — « remplace FLI si nécessaire » — et la personne
+   preste son poste normal. « VM » est la visite médicale ; le client : « une
+   heure supplémentaire est comptée si elle tombe en dehors de l'horaire, et
+   le trajet est payé, mais par un système interne qui ne passe pas par la
+   fiche de paie ». Rien à calculer ici, donc, et rien à signaler non plus. */
+var MENTIONS_NEUTRES=["r","vm"];
+/* Noms d'atelier : ils disent la ZONE de remplacement, rien d'autre. Le
+   client : « cela ne change rien à l'horaire ni aux primes, si c'est juste
+   une indication de la zone de remplacement et qu'il n'y a rien d'autre de
+   compromettant dans le commentaire ». 906 journées de l'horaire 2026. */
+var ATELIERS=/^(meunerie|distill|disti|terr\.?\s*arr|poly|chaudi|gluten|ferm|step|etoh|consign|meun)/i;
+/* Reprise d'heures supplémentaires : « 2,25h RHS », « 1h rhs », « 0,5 rhs ».
+   Le client : « RHS est un compteur hors fichier ; s'il les reprend c'est
+   marqué, mais ce n'est pas marqué quand il en fait ». Comme le flex time,
+   une reprise ne retire rien à la journée — AFA le 28/01, prévu 7h-15h,
+   part à 12h45 : 5 h 45 de présence plus 2 h 15 reprises, soit ses 8 h.
+   C'est un compteur À PART du flex time, qui a le sien en bas du classeur. */
+function reprisRHS(txt){
+  var m=(txt||"").trim().match(/^([\d]+(?:[.,][\d]+)?)\s*h?\s*rhs$/i);
+  if(!m) return 0;
+  var v=parseFloat(m[1].replace(",","."));
+  return (v>0 && v<=24)?v:0;
+}
+/* Poste d'une plage horaire qui n'en nomme aucun. Le client : « il fait
+   18h-06h, logiquement en N » — sa nuit, prise 4 h en avance. Ces plages ne
+   sont donc pas des postes de 12 h mais des postes normaux étendus, et le
+   poste se reconnaît à l'heure qui coïncide : 06h est la fin de la nuit,
+   06h-18h commence quand commence le matin. À défaut, le poste le plus
+   recouvert. Sert uniquement quand rien d'autre ne donne le poste — un code
+   franc l'emporte toujours (AFA le 01/09, « AM|?06h-18h », reste en AM). */
+function posteDepuisPlage(plage){
+  var s,k;
+  for(s in SHIFT_PLAGE){ if(Math.abs(((plage[0]-SHIFT_PLAGE[s][0])%24+24)%24)<0.01) return s; }
+  for(s in SHIFT_PLAGE){ if(Math.abs(((plage[1]-SHIFT_PLAGE[s][1])%24+24)%24)<0.01) return s; }
+  var best=null, bo=0.01;
+  for(s in SHIFT_PLAGE){
+    for(k=-24;k<=24;k+=24){
+      var o=Math.min(plage[1]+k,SHIFT_PLAGE[s][1])-Math.max(plage[0]+k,SHIFT_PLAGE[s][0]);
+      if(o>bo){ bo=o; best=s; }
+    }
+  }
+  return best;
+}
+/* Durée réellement prestée, à partir de la plage écrite en commentaire et du
+   poste concerné. Deux situations, confirmées par le client sur l'horaire
+   papier :
+   - la plage décrit toute la journée prestée, le poste prévu étant remplacé
+     ou étendu — AFA le 12/08, « 18h-06h » au lieu de sa nuit, 12 h ; MHI le
+     11/04, AM « jusque 17h », 11 h ;
+   - la plage est une prolongation qui s'AJOUTE au poste, presté par ailleurs
+     — JBI le 31/01, sa nuit plus « 19h-22h » en remplacement, 8 + 3 = 11 h.
+   On ne retient l'addition que si la plage est disjointe des heures normales
+   du poste ET plus courte qu'un poste complet : une plage disjointe d'au
+   moins une journée (« 22h-10h » en regard d'un après-midi) est un
+   remplacement, et l'additionner donnerait des journées de 20 h. */
+function dureeReelle(poste,plage,hJour){
+  var d=plage[1]-plage[0], std=SHIFT_PLAGE[poste];
+  if(std && d<hJour && !seChevauchent(plage,std)) d+=hJour;
+  return Math.min(d,24);
+}
+/* Une cellule de l'horaire d'équipe porte deux informations de nature
+   différente : le code franc, qui est le poste PRÉVU par la rotation, et le
+   commentaire (préfixé "?" par le convertisseur), qui dit ce qui a
+   réellement été presté quand la journée s'écarte du prévu.
+   Vérifié sur l'horaire 2026 : là où le commentaire nomme un poste autre que
+   celui de la case, c'est la case qui suit le cycle de base dans 842 cas sur
+   877 — le commentaire est donc bien la modification. Il l'emporte, sur le
+   poste comme sur la durée, et la journée est signalée comme modifiée. */
+/* Une journée de l'horaire d'équipe se lit [cellule, annotation, commentaire],
+   tels que le convertisseur les a recopiés du classeur.
+
+   - la CELLULE dit ce qui était prévu : un poste, une plage horaire, « - »
+     pour un repos, ou une mention particulière ;
+   - l'ANNOTATION dit ce qui modifie la journée : un autre poste réellement
+     presté, une absence, un compteur, un remplacement ;
+   - le COMMENTAIRE est du texte libre ; il porte notamment les renvois de
+     date, traités en amont par prefillFromHoraire.
+
+   Quand l'annotation nomme un poste, c'est lui qui a été presté : elle
+   l'emporte sur la cellule. Vérifié contre le cycle de rotation, source
+   indépendante : là où les deux se contredisent, c'est la cellule qui suit
+   le cycle dans 842 cas sur 877.
+
+   « epargne » est le nombre d'heures que l'horaire dit avoir mises au
+   compteur pour cette journée-là, depuis une autre date. */
+function parseHoraireEntry(e,hJour,epargne){
+  if(typeof e==="string") e=[e];
+  if(hJour===undefined) hJour=8;
+  if(!epargne) epargne=0;
+  var out={}, jourPrime=false, ftPlus=false;
+
+  function lire(txt){
+    var r={};
+    txt=(txt||"").trim();
+    if(!txt||txt==="-") return r;
+    r.poste=posteDepuisMention(txt);
+    r.plage=plageMention(txt);
+    if(r.poste||r.plage) return r;
+    var code=codeAbsence(txt);
+    if(code){ r.abs=code; return r; }
+    var n=normPlage(txt);
+    if(JOUR_PRIME_PAUSE.indexOf(n)>=0){ r.jour=true; return r; }
+    if(MENTIONS_NEUTRES.indexOf(n)>=0) return r;
+    if(ATELIERS.test(txt)) return r;
+    r.rhs=reprisRHS(txt);
+    if(r.rhs) return r;
+    r.inconnu=true;
+    return r;
+  }
+  var A=lire(e[1]), C=lire(e[0]);
+  [A,C].forEach(function(x){
+    if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
+    if(x.jour) jourPrime=true;
+    if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
+    if(x.inconnu) out.unknown=(out.unknown||0)+1;
+  });
+
+  var plage=A.plage||C.plage;
+  if(A.poste){ if(A.poste!==C.poste) out.modifie=true; out.s=A.poste; }
+  else if(C.poste) out.s=C.poste;
+  else if(plage){ out.s=posteDepuisPlage(plage); if(out.s) out.modifie=true; }
+
+  var ABS_=out.a&&ABSMAP[out.a];
+  /* Repos prévu portant SD26, une formation ou une journée syndicale : la
+     journée est prestée en horaire de jour, sans prime de pause puisqu'il n'y
+     avait pas de pause prévue. Une absence couvrant la journée entière
+     l'emporte — on ne transforme pas un congé en prestation — mais une
+     absence partielle laisse des heures prestées. */
+  if(jourPrime && !(ABS_ && ABS_.h>=hJour)){ out.jour=true; out.modifie=true; }
+
+  if(plage && out.s){
+    /* Au-delà de la journée contractuelle, l'excédent est de l'heure
+       supplémentaire — sauf s'il est épargné au compteur, ce que dit soit un
+       +FT sur la cellule même, soit un renvoi de date depuis une autre
+       journée (« presté le 27.04 »). */
+    var d=dureeReelle(out.s,plage,hJour), exc=d-hJour;
+    if(exc>0.01){
+      var reste=exc-epargne;
+      if(!ftPlus && reste>0.01){
+        var n=Math.round(reste);
+        if(Math.abs(reste-n)<0.01 && n>=1 && n<=8 && !out.a && ABSMAP[n+"H HS"]){
+          out.a=n+"H HS";
+        } else out.h=hJour+reste;
+        out.modifie=true;
+      }
+    } else if(Math.abs(d-hJour)>0.01){ out.h=d; out.modifie=true; }
+  }
+  /* Une absence AMPUTE la journée prestée, elle ne s'y ajoute pas : on ne peut
+     pas prester huit heures et poser huit heures de congé le même jour.
+     Le compteur flex time fait exception — le client : « les heures de FT+ ne
+     doivent pas être comptées comme prestées, elles ne le seront que lorsque
+     je les récupère en FT-, et sont payées ce jour-là comme si j'étais venu
+     travailler ». Un -FT ne retire donc rien. */
+  var A2=out.a&&ABSMAP[out.a];
+  if(A2 && A2.h>0 && out.s) out.h=Math.max(0,((out.h===undefined)?hJour:out.h)-A2.h);
+  /* Les heures épargnées ne sont pas prestées. Quand une plage donne la durée
+     réelle, l'excédent part au compteur et la journée reste contractuelle
+     (traité plus haut). Quand le poste ne vient pas de la cellule — la
+     personne était en repos et vient en renfort — c'est la journée entière
+     qui peut partir au compteur : VBN le 19/03, « R-CM | 8h +FT », preste
+     huit heures et les épargne toutes, donc zéro heure prestée. */
+  out.epargne=(A2&&A2.ft>0)?A2.ft:0;
+  out.planifie=!!(C.poste||plage);
+  if(out.epargne>0 && out.s && !out.planifie) out.h=Math.max(0,hJour-out.epargne);
+  /* Un « - » en annotation dit que le poste prévu n'a finalement pas été
+     presté : quelqu'un d'autre l'a pris, et la personne récupère une
+     prestation faite ailleurs. Le client, à propos du 20/03 : « repos car
+     travaillé une nuit de plus le 18/03 pour remplacer ». Les commentaires
+     le confirment — « remplacé par JBI », « voir le 6/5/2026 ». Le poste
+     reste renseigné, c'est celui qui était prévu ; il ne donne ni heure
+     prestée ni prime d'équipe. */
+  if((e[1]||"").trim()==="-" && out.s){ out.h=0; out.modifie=true; }
+  return out;
+}
+/* Remplacement de contremaître donnant droit à une prime forfaitaire par
+   journée, payée le mois même sous « Primes diverses » (elle n'alimente
+   aucun compteur). Les adjoints ne touchent pas de prime mensuelle fixe :
+   ils ne sont payés qu'au cas par cas, sur les journées où ils remplacent.
+
+   Le montant est forfaitaire, pas une fraction du salaire horaire : les
+   fiches 2026 donnent 26,865 en janvier-février et 27,365 à partir de mars,
+   alors que le salaire horaire y passe de (taux retiré) à (taux retiré).
+
+   La journée compte si la mention « R-CM » figure dans la cellule ou dans sa
+   colonne d'annotation, ET si le remplacement couvre un POSTE ENTIER. Le
+   client : « le 04/06 je n'ai pas eu la prime de remplacement, car c'est
+   partiel ». Deux formes de remplacement partiel :
+
+   - la cellule ne nomme aucun poste et l'annotation gagne moins d'une journée
+     au compteur — VBN le 21/01, « R-CM | 2h +FT », deux heures seulement ;
+     le 27/07, « R-CM | 4h +FT | remplace GPS de 18h à 22h ». À ne pas
+     confondre avec le 19/03, « R-CM | 8h +FT » : journée entière, la prime
+     est due ;
+   - le commentaire donne une plage qui tient tout entière dans le poste que
+     la personne prestait de toute façon — le 04/06, « remplace ATA de 11h30
+     à 14h » alors qu'elle était en AM (6h-14h). Une plage qui déborde le
+     poste est au contraire un vrai remplacement : le 14/04, 18h-06h en
+     contremaître.
+
+   Une reprise « -FT » ne rend pas la journée partielle : les heures reprises
+   sont payées comme si la personne était présente.
+
+   Vérifié sur les huit premières fiches de paie de 2026 : 7, 2, 16, 14, 4,
+   7, 5 et 7 journées, soit la ligne « Primes diverses » au centime près. */
+function plageCommentaire(txt){
+  var m=(txt||"").match(/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s+(\d{1,2})\s*h\s*(\d{2})?/i);
+  if(!m) return null;
+  var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+  if(b<=a) b+=24;
+  return [a,b];
+}
+function plageInterne(plage,poste){
+  var std=poste&&SHIFT_PLAGE[poste];
+  if(!plage||!std) return false;
+  for(var k=-24;k<=24;k+=24){
+    if(plage[0]+k>=std[0]-0.01 && plage[1]+k<=std[1]+0.01) return true;
+  }
+  return false;
+}
+function celluleSansPoste(cel){
+  var t=(cel||"").toUpperCase();
+  for(var i=0;i<SHIFT_CODES.length;i++){
+    if(new RegExp("(^|[^A-Z])"+SHIFT_CODES[i]+"([^A-Z]|$)").test(t)) return false;
+  }
+  return !/\d\s*[h:]/i.test(cel||"");
+}
+function gainFT(txt){
+  var m=(txt||"").match(/(\d+(?:[.,]\d+)?)\s*h?\s*\+\s*FT/i);
+  return m?Number(m[1].replace(",",".")):null;
+}
+function remplacementCM(e,poste,hJour){
+  var cel=e[0]||"", an=e[1]||"", com=e[2]||"";
+  if((cel+" "+an).toUpperCase().indexOf("R-CM")<0) return false;
+  if(plageInterne(plageCommentaire(com),poste)) return false;
+  var g=gainFT(cel+" "+an);
+  if(celluleSansPoste(cel) && g!==null && g<hJour-0.01) return false;
+  return true;
+}
+/* Rappel lu dans l'horaire. La cellule porte la date de la demande — « Rappel
+   le 13/04 » sur la journée du 14/04 — ce qui donne le coefficient du moment
+   sans rien deviner : 450 des 460 mentions de l'année la précisent.
+
+   Une date postérieure à la prestation, ou distante de plus de quinze jours,
+   n'est pas interprétée : le « rappel le 19.06 » porté au 19/02 est une faute
+   de frappe du classeur pour le 18/02, confirmée par le client. Mieux vaut ne
+   rien proposer que proposer un coefficient faux.
+
+   Le droit à la prime ne découle pas de la seule mention (OP_BWZ_CoD_00020,
+   point 6) :
+
+   - rappelé d'un jour de repos ou de congé : la prime est due. La cellule le
+     dit soit par le poste prévu, soit en toutes lettres — FLI le 23/01,
+     « était prévu en repos, rappel le 18/01 » ; LHR le 31/08, « avait posé
+     une VA ». Le congé posé est reporté, il n'est pas perdu ;
+   - heures gagnées au compteur flex time ce jour-là : elles n'ont pu être
+     prestées qu'en dehors de l'horaire — YPE le 19/01, « N | 8h +FT » ;
+   - rappelé pour commencer plus tôt : au moins trente minutes avant le début
+     de la pause — AFA le 24/07, « N | 18h-6h », quatre heures d'avance ;
+   - resté après la pause : le client précise que le seuil de trois heures ne
+     vaut que dans ce sens — AFA le 03/02, « AM | 06h-18h », quatre heures de
+     plus après une pause du matin.
+
+   Le résultat est une proposition, marquée « à vérifier » par le
+   pré-remplissage : la cellule ne dit pas toujours si la demande venait bien
+   de la ligne hiérarchique. */
+var RX_RAPPEL=/rappel\s*(?:le)?\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
+function momentRappel(annee,mmdd,txt){
+  var m=txt.match(RX_RAPPEL); if(!m) return null;
+  var jour=Date.UTC(annee,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
+  var dem=Date.UTC(annee,Number(m[2])-1,Number(m[1]));
+  var ec=Math.round((jour-dem)/86400000);
+  if(ec<-300) ec=Math.round((jour-Date.UTC(annee-1,Number(m[2])-1,Number(m[1])))/86400000);
+  if(ec<0) return null;
+  if(ec<=1) return "J";
+  return (ec<=15)?"J2":null;
+}
+/* La plage prestée se lit dans l'annotation, dans la cellule, ou à défaut
+   dans le commentaire — AFA le 10/09, « AM | VM | remplace VBN de 2h à 6h » :
+   quatre heures avant sa pause du matin, que seule la phrase donne. */
+function plageRappel(e){
+  return plageMention(e[1]||"")||plageMention(e[0]||"")||plageCommentaire(e[2]||"");
+}
+function debordePoste(plage,poste){
+  var std=poste&&SHIFT_PLAGE[poste];
+  if(!plage||!std) return null;
+  var best=null,bon=0;
+  for(var k=-24;k<=24;k+=24){
+    var a=plage[0]+k, b=plage[1]+k;
+    var ov=Math.min(b,std[1])-Math.max(a,std[0]);
+    if(best===null||ov>bon){ bon=ov; best=[a,b]; }
+  }
+  return {avant:R(std[0]-best[0],2), apres:R(best[1]-std[1],2)};
+}
+function rappelDuJour(e,postePrevu,annee,mmdd){
+  var txt=(e[0]||"")+" "+(e[1]||"")+" "+(e[2]||"");
+  if(!/rappel/i.test(txt)) return null;
+  var mom=momentRappel(annee,mmdd,txt); if(!mom) return null;
+  if(!postePrevu||postePrevu==="-"||(e[0]||"").trim()==="-") return mom;
+  if(/\brepos\b|cong[ée]|avait pos[ée]/i.test(e[2]||"")) return mom;
+  if(gainFT((e[0]||"")+" "+(e[1]||""))!==null) return mom;
+  var d=debordePoste(plageRappel(e),postePrevu);
+  if(!d) return null;
+  /* trente minutes avant la pause suffisent ; après, il en faut trois heures */
+  if(d.avant>=0.5-0.01) return mom;
+  if(d.apres>=3-0.01) return mom;
+  return null;
+}
+/* Le poste de cycle d'une personne pour un mois donné.
+
+   Quand la cellule dit « R-CM » sans nommer de poste, c'est son PROPRE poste
+   de cycle qui a été presté, pas celui de la personne remplacée. Le client :
+   « je remplace GPS en PM et non en matin, car c'était notre horaire de cycle
+   normal ; GPS a été repris en AM pour une commission ».
+
+   Le cycle s'ajuste sur les cellules de la personne elle-même — elles disent
+   le poste prévu, « - » le repos. L'ajustement est MENSUEL : VBN change de
+   position dans le cycle en septembre 2026, si bien qu'un ajustement annuel
+   plafonne à 58 % là où le mensuel tient entre 80 et 100 %. */
+var CYCLES=["6 semaines","5 semaines"];
+function cycleDuMois(person,annee,mois){
+  var j=[], d, e, c, v;
+  for(d=1; d<=31; d++){
+    e=person.d[pad2(mois)+pad2(d)]; if(!e) continue;
+    c=((typeof e==="string"?e:e[0])||"").trim();
+    v=(SHIFT_CODES.indexOf(c)>=0)?c:(c==="-"?"":null);
+    if(v!==null) j.push([Date.UTC(annee,mois-1,d),v]);
+  }
+  if(j.length<10) return null;
+  var best=null, bs=-1, ci, bi, dec, ok, i, x;
+  for(ci=0; ci<CYCLES.length; ci++) for(bi=1; bi<=6; bi++) for(dec=0; dec<42; dec++){
+    ok=0;
+    for(i=0;i<j.length;i++){ x=cyclePoste(bi,CYCLES[ci],dec,j[i][0]); if((x==="-"?"":x)===j[i][1]) ok++; }
+    if(ok>bs){ bs=ok; best={cycle:CYCLES[ci],bi:bi,dec:dec}; }
+  }
+  if(bs/j.length<0.6) return null;      /* ajustement trop faible pour servir */
+  return best;
+}
+function posteDeCycle(fit,annee,mois,jour){
+  if(!fit) return null;
+  var x=cyclePoste(fit.bi,fit.cycle,fit.dec,Date.UTC(annee,mois-1,jour));
+  return (x && x!=="-")?x:null;
+}
+/* Dernier recours : la personne était en repos et vient remplacer quelqu'un.
+   Son cycle ne dit alors rien, mais le commentaire nomme la personne
+   remplacée — on reprend le poste de celle-ci. Le client, à propos de LHR le
+   04/10 : « il faut regarder l'horaire normal de BLR pour savoir quand LHR
+   le remplace, car ce n'est pas précisé à côté dans l'horaire de LHR
+   puisqu'il était normalement en repos ».
+   À ne pas confondre avec « R-CM », où c'est le propre cycle de la personne
+   qui commande : là, elle avait un poste prévu. */
+function posteDuRemplace(db,e,mmdd,hJour){
+  var com=(e&&e[2])||"";
+  if(!/remplac/i.test(com)) return null;
+  var mots=com.toUpperCase().match(/\b[A-Z]{3}(?:-\d+)?\b/g);
+  if(!mots) return null;
+  for(var i=0;i<mots.length;i++){
+    for(var j=0;j<db.people.length;j++){
+      if(db.people[j].id!==mots[i]) continue;
+      var autre=db.people[j].d[mmdd];
+      if(!autre) continue;
+      var r=parseHoraireEntry(autre,hJour);
+      if(r.s) return r.s;
+    }
+  }
+  return null;
+}
+/* Un compteur +FT accompagné d'un renvoi de date épargne les heures d'une
+   AUTRE journée : « presté le 27.04 », « du 14/04 ». Le renvoi peut précéder
+   comme suivre la journée concernée, aucune règle de proximité ne les
+   apparie — seul le commentaire le dit. */
+var RX_RENVOI=/(\d{1,2})\s*[.\/-]\s*(\d{1,2})/;
+function epargnesDuMois(person,mois){
+  var out={};
+  for(var d=1; d<=31; d++){
+    var e=person.d[pad2(mois)+pad2(d)];
+    if(!e || typeof e==="string" || e.length<3) continue;
+    var annot=e[1]||"", com=e[2]||"";
+    if(!/\+\s*FT/i.test(annot)) continue;
+    var m=com.match(RX_RENVOI); if(!m) continue;
+    if(Number(m[2])!==mois) continue;          /* renvoi vers un autre mois */
+    var h=parseFloat((annot.match(/([\d.,]+)\s*h/i)||[0,0])[1].replace(",","."));
+    if(h>0) out[Number(m[1])]=(out[Number(m[1])]||0)+h;
+  }
+  return out;
+}
+function prefillFromHoraire(){
+  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
+  var id=idSel.value; if(!id){ flash("Choisissez d'abord une personne"); return; }
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
+    var nd=daysInMonth(st.y,st.m), filled=0, kept=0, verifier=0, manquants=0, rhsMois=0, rcmJours=0, rappels=0, rapSignales=0;
+    var epargnes=epargnesDuMois(person,st.m+1);
+    var fitCycle=cycleDuMois(person,st.y,st.m+1);
+    for(var day=1; day<=nd; day++){
+      var rec=st.month.days[day];
+      var dejaEncode=!!(rec && (rec.s || rec.a));
+      var mmdd=pad2(st.m+1)+pad2(day);
+      var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) kept++; continue; }
+      var parsed=parseHoraireEntry(raw,st.params.hJour,epargnes[day]);
+      if(!parsed.s || parsed.jour){
+        var duCycle=posteDeCycle(fitCycle,st.y,st.m+1,day);
+        /* journée en horaire de jour : la cellule donne l'horaire presté
+           (« 7h-15h »), le cycle donne la prime à conserver. À défaut de
+           pause prévue au cycle, il n'y a pas de prime : poste de jour. */
+        if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
+        if(!duCycle && parsed.jour) duCycle=parsed.s||"D";
+        if(duCycle && duCycle!==parsed.s){
+          parsed.s=duCycle; parsed.modifie=true;
+          var AR=parsed.a&&ABSMAP[parsed.a];
+          var base=st.params.hJour-(parsed.epargne||0);
+          if(AR && AR.h>0) base-=AR.h;
+          if((raw[1]||"").trim()==="-") base=0;
+          parsed.h=Math.max(0,base);
+        }
+      }
+      if(remplacementCM(raw,parsed.s,st.params.hJour)) rcmJours++;
+      if(dejaEncode){ kept++; continue; }
+      var rap=rappelDuJour(raw,posteDeCycle(fitCycle,st.y,st.m+1,day)||parsed.s,st.y,mmdd);
+      /* mention de rappel que la règle n'a pas tranchée : double rappel,
+         renvoi à une autre journée, rappel d'un collègue. Mieux vaut le dire
+         que de la laisser passer sous silence. */
+      if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) rapSignales++;
+      if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
+        var nrec=st.month.days[day]||(st.month.days[day]={});
+        if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
+        if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
+        if(rap){ nrec.r=rap; rappels++; }
+        filled++;
+        if(parsed.rhs) rhsMois+=parsed.rhs;
+        if(parsed.unknown || parsed.modifie || rap) verifier++;
+      } else {
+        manquants++;
+      }
+    }
+    if(rhsMois) st.month.rhsMois=R(rhsMois,2);
+    st.month.rcmJours=rcmJours||null;
+    persistMonth(); renderRota(); refresh();
+    var msg=filled+" jour(s) pré-rempli(s) pour "+id;
+    if(rhsMois) msg+=" — "+num(rhsMois)+" h reprises au compteur HS";
+    if(rcmJours) msg+=" — "+rcmJours+" jour(s) de remplacement contremaître";
+    if(rappels) msg+=" — "+rappels+" rappel(s) proposé(s), à vérifier";
+    if(rapSignales) msg+=" — "+rapSignales+" mention(s) de rappel non tranchée(s), à regarder";
+    if(verifier) msg+=" — "+verifier+" à vérifier (horaire particulier)";
+    if(manquants) msg+=" — "+manquants+" jour(s) non reconnu(s), à compléter à la main";
+    if(kept) msg+=" — "+kept+" jour(s) déjà encodé(s) conservé(s)";
+    flash(msg);
+  });
+}
+document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
+function ensurePrefillUI(){
+  if(HORAIRE_DB) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    renderPrefillSelects(db);
+    document.getElementById("prefillHint").textContent="Base "+db.year+" · "+db.people.length+" personnes (identifiants anonymisés)";
+  });
+}
+
+/* ===================== export / import ===================== */
+function collectAll(){
+  if(st.db){
+    return Promise.all([
+      st.db.doc("config/params").get(), st.db.doc("config/bareme").get(),
+      st.db.doc("config/state").get(), st.db.collection("months").get()
+    ]).then(function(r){
+      var out={};
+      if(r[0].exists) out["config/params"]=r[0].data();
+      if(r[1].exists) out["config/bareme"]=r[1].data();
+      if(r[2].exists) out["config/state"]=r[2].data();
+      r[3].docs.forEach(function(d){ out["months/"+d.id]=d.data(); });
+      return out;
+    });
+  }
+  var out={};
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k.indexOf("config/")===0||k.indexOf("months/")===0){
+        try{ out[k]=JSON.parse(localStorage.getItem(k)); }catch(e){}
+      }
+    }
+  }catch(e){}
+  return Promise.resolve(out);
+}
+function doExport(){
+  collectAll().then(function(all){
+    var txt=JSON.stringify(all,null,1), name="net-fin-de-mois.json";
+    if(window.claude&&window.claude.use){
+      window.claude.use("downloads").then(function(dl){
+        if(!dl){ flash("Téléchargement indisponible ici"); return; }
+        dl.save({filename:name,data:txt}).then(function(){flash("Exporté");},function(){flash("Export annulé");});
+      },function(){flash("Téléchargement indisponible ici");});
+    } else {
+      try{
+        var b=new Blob([txt],{type:"application/json"});
+        var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name;
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){URL.revokeObjectURL(a.href); a.remove();},0);
+        flash("Exporté");
+      }catch(e){ flash("Export impossible"); }
+    }
+  });
+}
+function doImport(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    var all;
+    try{ all=JSON.parse(String(fr.result)); }catch(e){ flash("Fichier illisible"); return; }
+    var keys=Object.keys(all||{}).filter(function(k){return /^(config|months)\/[A-Za-z0-9_.:@+-]+$/.test(k);});
+    if(!keys.length){ flash("Rien à importer"); return; }
+    var chain=Promise.resolve();
+    keys.forEach(function(k){
+      lsSet(k,all[k]);
+      if(st.db) chain=chain.then(function(){ return st.db.doc(k).set(JSON.parse(JSON.stringify(all[k]))); });
+    });
+    chain.then(function(){ flash("Importé"); setTimeout(function(){location.reload();},400); },
+               function(){ flash("Import partiel"); setTimeout(function(){location.reload();},400); });
+  };
+  fr.readAsText(file);
+}
+document.getElementById("btnExport").addEventListener("click",doExport);
+document.getElementById("fileImport").addEventListener("change",function(e){
+  if(e.target.files&&e.target.files[0]) doImport(e.target.files[0]);
+  e.target.value="";
+});
+
+
+/* ===================== chargement ===================== */
+function readDoc(path){
+  if(st.db) return st.db.doc(path).get().then(function(s){return s.exists?s.data():null;},function(){return lsGet(path);});
+  return Promise.resolve(lsGet(path));
+}
+function readMonth(k){ return readDoc("months/"+k); }
+
+function migreParams(o){
+  if(o && o.primeM!==undefined && o.primePM===undefined){
+    o.primeD=(o.primeJ!==undefined?o.primeJ:0);
+    o.primePM=o.primeAM; o.primeAM=o.primeM;
+    delete o.primeM; delete o.primeJ;
+    return true;
+  }
+  return false;
+}
+var ABS_MIGR={"CPAR":"CP","1/2 CPAR":"1/2 CP"};
+function migreMois(d){
+  if(!d) return false;
+  var v=Number(d.__v)||1, ch=false;
+  if(v<2){
+    if(d.days) Object.keys(d.days).forEach(function(k){
+      var r=d.days[k];
+      if(r && r.s && SHIFT_MIGR[r.s]) r.s=SHIFT_MIGR[r.s];
+    });
+    ch=true;
+  }
+  if(v<3){
+    if(d.days) Object.keys(d.days).forEach(function(k){
+      var r=d.days[k];
+      if(r && r.a && ABS_MIGR[r.a]) r.a=ABS_MIGR[r.a];
+    });
+    ch=true;
+  }
+  if(ch) d.__v=3;
+  return ch;
+}
+function mergeDefaults(src,def){
+  var o={}; Object.keys(def).forEach(function(k){o[k]=def[k];});
+  if(src) Object.keys(src).forEach(function(k){ if(src[k]!==undefined) o[k]=src[k]; });
+  return o;
+}
+function loadMonth(y,m){
+  st.y=y; st.m=m; st.mkey=key(y,m); st.lastDay=0;
+  st.state.last=st.mkey;
+  save("config/state",st.state);
+  document.getElementById("mlabel").textContent=MOIS[m]+" "+y;
+  readMonth(st.mkey).then(function(d){
+    var migre=migreMois(d);
+    st.month=mergeDefaults(d,DEF_M);
+    if(!st.month.days) st.month.days={};
+    if(!st.month.real) st.month.real={};
+    st.ready=true;
+    renderRota(); renderFields(); refresh();
+    if(migre) persistMonth();
+  });
+}
+
+var booted=false;
+function boot(){
+  if(booted) return; booted=true;
+  document.getElementById("storeinfo").textContent = st.db
+    ? "Enregistré dans votre espace Claude : vos mois vous suivent d'un appareil à l'autre."
+    : "Enregistré dans ce navigateur, sur cet appareil. Exportez de temps en temps pour garder une copie.";
+  var now=new Date();
+  Promise.all([readDoc("config/params"),readDoc("config/bareme"),readDoc("config/state")])
+  .then(function(r){
+    var migreP=migreParams(r[0]);
+    st.params=mergeDefaults(r[0],DEF_P);
+    if(BINOMES.indexOf(st.params.binome)<0){
+      var ix=Math.max(1,Math.min(BINOMES.length,Number(st.params.binomeIdx)||1));
+      st.params.binome=BINOMES[ix-1]; st.params.binomeIdx=ix;
+    }
+    if(migreP) save("config/params",st.params);
+    st.bareme=mergeDefaults(r[1],DEF_B);
+    if(!st.bareme.enfTable||!st.bareme.enfTable.length) st.bareme.enfTable=DEF_B.enfTable;
+    st.state=r[2]||{};
+    function startApp(){
+      var start=st.state.last||null;
+      var y,m;
+      if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
+      else { y=now.getFullYear(); m=now.getMonth(); }
+      setView(lsGet("ui/view")||"resume",true);
+      loadMonth(y,m);
+    }
+    if(!st.state.onboarded){
+      renderOnboard();
+      document.getElementById("onboard").hidden=false;
+      var firstField=document.querySelector("#onboardFields input,#onboardFields select");
+      if(firstField) firstField.focus();
+      function finishOnboard(apply){
+        if(apply) applyOnboard();
+        st.state.onboarded=true;
+        save("config/state",st.state);
+        document.getElementById("onboard").hidden=true;
+        startApp();
+      }
+      document.getElementById("onboardForm").addEventListener("submit",function(e){
+        e.preventDefault(); finishOnboard(true);
+      });
+      document.getElementById("onboardSkip").addEventListener("click",function(){ finishOnboard(false); });
+    } else {
+      startApp();
+    }
+  });
+}
+
+try{
+  if(window.__SEED__ && !localStorage.getItem("config/params")){
+    Object.keys(window.__SEED__).forEach(function(k){ lsSet(k,window.__SEED__[k]); });
+  }
+}catch(e){}
+
+if(window.claude&&window.claude.use){
+  var to=setTimeout(function(){ boot(); }, 9000);
+  window.claude.use("db").then(function(d){ clearTimeout(to); st.db=d||null; boot(); },
+                              function(){ clearTimeout(to); boot(); });
+} else { boot(); }
+
+})();
+</script>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
