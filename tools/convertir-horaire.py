@@ -265,9 +265,15 @@ def compteurs(g, colonne):
     formules sur la feuille des contremaîtres. Aucun calcul ne les retrouve
     depuis l'horaire : il faut les lire.
 
-    Un libellé qui revient dans le même bloc est un total : les journées
-    entières d'abord, le cumul ensuite. VBN : 40 h de RTT en journées
-    entières, plus 14 h prises à l'heure, soit 54 h au total."""
+    Dans le bloc des prévisions, un libellé qui revient est un total : les
+    journées entières d'abord, le cumul ensuite. VBN : 40 h de RTT en
+    journées entières, plus 14 h prises à l'heure, soit 54 h au total.
+
+    Ailleurs, un libellé qui revient est un compteur distinct, et non une
+    somme. Le client a deux lignes CP parce qu'il a terminé le congé
+    parental pris pour sa fille et en a ouvert un second pour son fils en
+    cours d'année : 5 journées puis 21, soit bien les 26 journées marquées
+    CP dans son horaire, coupées par un mois de mars sans aucune."""
     out = {}
     for nom, r0, r1, _ in BLOCS:
         vals = {}
@@ -289,8 +295,10 @@ def compteurs(g, colonne):
             if val == int(val):
                 val = int(val)
             cle = RENOMME.get(cle, cle)
+            n = 2
             while cle in vals:
-                cle += "Total"
+                cle = ("%sTotal" % cle) if nom == "prevision" else ("%s%d" % (_norme_cle(lib), n))
+                n += 1
             vals[cle] = val
         if vals:
             out[nom] = vals

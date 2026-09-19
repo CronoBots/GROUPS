@@ -504,9 +504,16 @@ la structure a bougé et les compteurs sont ignorés plutôt que lus de travers.
 | `flex` | 409-430 | compteurs flex time, détail de 1 h à 8 h puis totaux |
 | `conges` | 431-440 | CP et « à planifier », dont la position varie |
 
-Un libellé qui revient dans un même bloc est un total, et prend le suffixe
-`Total` : VBN a 40 h de RTT en journées entières plus 14 h prises à l'heure,
-soit `RTT: 40` et `RTTTotal: 54`.
+Dans le bloc des prévisions, un libellé qui revient est un total et prend le
+suffixe `Total` : VBN a 40 h de RTT en journées entières plus 14 h prises à
+l'heure, soit `RTT: 40` et `RTTTotal: 54`.
+
+Ailleurs, un libellé qui revient est un **compteur distinct**, numéroté. Le
+client a deux lignes `CP` parce qu'il a terminé le congé parental pris pour
+sa fille et en a ouvert un second pour son fils en cours d'année : `CP: 5` et
+`CP2: 21`, soit les 26 journées marquées `CP` dans son horaire — cinq en
+janvier et février, vingt et une d'avril à décembre, avec un mois de mars
+sans aucune entre les deux.
 
 Le « Total » du bloc flex time est renommé **`report`**, parce qu'il n'est
 pas un total. Le client : « les compteurs totaux sont repartis d'où ils
