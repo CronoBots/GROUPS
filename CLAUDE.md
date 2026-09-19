@@ -79,6 +79,34 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
 | `sw.js` | cache et fonctionnement hors ligne |
+| `logo.png` | le logo Biowanze, source des icônes — ne sert pas à l'application |
+
+## Régénérer les icônes
+
+Les cinq icônes dérivent toutes de `logo.png`. Elles sont mises en cache à
+l'installation de la PWA, d'où la palette indexée : un tiers de poids en
+moins pour un écart moyen de 0,2 sur 255, invisible à l'œil.
+
+```python
+from PIL import Image
+src = Image.open("logo.png").convert("RGB")
+fond = src.getpixel((6, 6))
+
+def icone(nom, taille, marge=0.0):
+    toile = Image.new("RGB", (taille, taille), fond)
+    dedans = int(round(taille * (1 - 2 * marge)))
+    toile.paste(src.resize((dedans, dedans), Image.LANCZOS),
+                ((taille - dedans) // 2, (taille - dedans) // 2))
+    toile.quantize(colors=256, dither=Image.FLOYDSTEINBERG).save(nom, "PNG", optimize=True)
+
+icone("favicon.png", 64);          icone("apple-touch-icon.png", 180)
+icone("icon-192.png", 192);        icone("icon-512.png", 512)
+icone("icon-maskable-512.png", 512, 0.10)
+```
+
+La marge de 10 % de la dernière n'est pas cosmétique : Android rogne l'icône
+*maskable* dans un masque, et seuls les 80 % centraux sont garantis visibles.
+Sans elle, le mot « biowanze » se ferait couper.
 
 ## Conventions
 
