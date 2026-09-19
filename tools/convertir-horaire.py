@@ -360,29 +360,60 @@ def _colonnes(cl):
 def convertir(chemin_xlsm, annee):
     cl = Classeur(chemin_xlsm)
     annuaire = _annuaire(cl)
-    gens, homonymes = {}, {}
+
+    # 1. Une fiche par personne, repérée par son nom normalisé. Une même
+    #    personne figure sur plusieurs feuilles : la première rencontrée
+    #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
+    #    tête pour que ce soit celle de son propre groupe.
+    fiches = {}
     for categorie, nom, jours, cpt in _colonnes(cl):
-        base = annuaire.get(_sans_accent(nom).lower()) or _initiales(nom)
+        cle = _sans_accent(nom).lower()
+        officiel = annuaire.get(cle)
+        base = officiel or _initiales(nom)
         if not base:
             print("  nom illisible, ligne ignorée :", nom, file=sys.stderr)
             continue
-        cle = _sans_accent(nom).lower()
-        ident = homonymes.get(cle)
-        if ident is None:
-            pris = {i for i in gens if i == base or i.startswith(base + "-")}
-            ident = base if not pris else "%s-%d" % (base, len(pris))
-            homonymes[cle] = ident
-        p = gens.setdefault(ident, {"id": ident, "cat": categorie, "d": {}})
-        # une personne figure sur plusieurs feuilles ; ses compteurs ne sont
-        # renseignés que sur celle de son groupe
+        f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
+                                    "cat": categorie, "d": {}, "c": {}})
         for sec, vals in cpt.items():
             if vals:
-                p.setdefault("c", {}).setdefault(sec, {}).update(vals)
-        # une feuille peut porter des journées ou des commentaires que l'autre
-        # n'a pas ; on garde l'entrée la plus informative
+                f["c"].setdefault(sec, {}).update(vals)
+        # une feuille peut porter des journées ou des commentaires que
+        # l'autre n'a pas ; on garde l'entrée la plus informative
         for k, e in jours.items():
-            if len(e) >= len(p["d"].get(k, [])):
-                p["d"][k] = e
+            if len(e) >= len(f["d"].get(k, [])):
+                f["d"][k] = e
+
+    # 2. Deux personnes différentes peuvent donner les mêmes initiales. Le
+    #    suffixe qui les départage ne doit PAS dépendre de l'ordre de
+    #    lecture des feuilles : un simple changement d'ordre échangerait
+    #    leurs identifiants d'une conversion à l'autre, et le pré-remplissage
+    #    d'un mois basculerait en silence sur quelqu'un d'autre.
+    #
+    #    L'ordre est donc : l'identifiant officiel de la feuille Personnel
+    #    d'abord, puis la fiche la plus fournie, puis le nom. Tout est
+    #    départagé par les données, rien par l'ordre des feuilles.
+    par_base = {}
+    for cle, f in fiches.items():
+        par_base.setdefault(f["base"], []).append((cle, f))
+
+    gens = {}
+    for base in sorted(par_base):
+        lot = sorted(par_base[base],
+                     key=lambda kv: (not kv[1]["officiel"], -len(kv[1]["d"]), kv[0]))
+        if len(lot) > 1:
+            print("  initiales partagées par %d personnes : %s -> %s"
+                  % (len(lot), base,
+                     ", ".join((base if i == 0 else "%s-%d" % (base, i))
+                               + " (%d journées)" % len(f["d"])
+                               for i, (_, f) in enumerate(lot))), file=sys.stderr)
+        for i, (_, f) in enumerate(lot):
+            ident = base if i == 0 else "%s-%d" % (base, i)
+            p = {"id": ident, "cat": f["cat"], "d": f["d"]}
+            if f["c"]:
+                p["c"] = f["c"]
+            gens[ident] = p
+
     for ident, fiche in polyvalence(cl, annuaire).items():
         if ident in gens:
             gens[ident]["poly"] = fiche

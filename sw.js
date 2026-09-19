@@ -1,5 +1,5 @@
 /* Net de fin de mois — service worker */
-var V = "nfdm-v43";
+var V = "nfdm-v44";
 var CORE = ["./", "./index.html", "./manifest.webmanifest",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png"];

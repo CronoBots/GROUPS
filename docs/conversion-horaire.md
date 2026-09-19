@@ -539,6 +539,33 @@ d'abord (contremaîtres, STEP, opérateurs en formation), les équipes ensuite.
 ATR, FPA, JBI, VGG et YBT figurent maintenant chez les contremaîtres, et non
 plus en Shift 1 — qui gagnait simplement parce qu'il était lu en premier.
 
+### Deux personnes, les mêmes initiales
+
+La règle des initiales — première lettre du prénom, première et dernière du
+nom — n'est pas injective. Quatre collisions dans le classeur 2026 : `CDE`,
+`GBT`, `NPE` et `PDR` désignent chacune deux personnes bien distinctes, sur
+des feuilles différentes. Elles ont toujours été séparées, la seconde prenant
+un suffixe `-1`.
+
+Ce qui manquait, c'est la **stabilité** du suffixe. Il était attribué dans
+l'ordre de lecture des feuilles : changer cet ordre échangeait les deux
+identifiants d'une conversion à l'autre, et le pré-remplissage d'un mois
+basculait en silence sur quelqu'un d'autre. C'est arrivé en mettant les
+feuilles spécialisées en tête — un opérateur de Shift 2 avec 365 journées
+s'est fait prendre son identifiant par un arrivant qui en comptait 17.
+
+L'ordre est désormais tiré des données, jamais des feuilles :
+
+1. l'identifiant officiel de l'onglet `Personnel` passe avant celui que la
+   règle des initiales a calculé ;
+2. à défaut, la fiche la plus fournie ;
+3. à défaut, le nom normalisé.
+
+Le convertisseur annonce chaque collision sur sa sortie d'erreur, et
+l'application signale un identifiant suffixé sous les sélecteurs du
+pré-remplissage — rien d'autre ne permettrait de s'en apercevoir, puisque le
+dépôt ne porte aucun nom.
+
 ### Les autres onglets
 
 | Onglet | Ce qui en est tiré |
