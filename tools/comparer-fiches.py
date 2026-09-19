@@ -92,7 +92,8 @@ for(var m=1;m<=12;m++){
   for(var d=1;d<=nd;d++){
     var k=pad2(m)+pad2(d), e=p.d[k]; if(!e) continue;
     var r=parseHoraireEntry(e,8,ep[d]);
-    if(!r.s||r.jour){ var c=posteDeCycle(fit,db.year,m,d)||posteDuRemplace(db,e,k,8)||(r.jour?(r.s||"D"):null);
+    if((!r.s&&(e[0]||"").trim()!=="-")||r.jour){
+      var c=posteDeCycle(fit,db.year,m,d)||posteDuRemplace(db,e,k,8)||(r.jour?(r.s||"D"):null);
       if(c&&c!==r.s) r.s=c; }
     var hj=(r.h===undefined?8:r.h), A=r.a&&ABSMAP[r.a];
     if(r.s&&hj>0){ h+=hj; j++; }
