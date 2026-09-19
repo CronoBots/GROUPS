@@ -53,6 +53,24 @@ automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
 
+### Vue année
+
+Un sélecteur « Mois · Année » bascule l'onglet Horaire en calendrier annuel :
+les douze mois de la personne choisie, chaque journée colorée par son poste,
+avec le total d'heures, la répartition par pause et le nombre de
+remplacements. Survoler une case en donne le détail — poste, heures,
+absence, rappel, et le commentaire d'origine du classeur. La cliquer ramène
+au mois, sur cette journée.
+
+Le codage des couleurs suit une méthode, pas un goût. Quatre postes, quatre
+teintes en ordre fixe, validées au calcul : toutes les paires sont séparées
+d'au moins 15 en vision normale et 8 en protanopie, sur la surface claire
+comme sur la sombre. L'ancienne palette y échouait — après-midi et jour
+n'étaient distants que de 9,5. Les absences ne prennent pas une cinquième
+teinte : ce n'est pas une identité mais un état, elles restent neutres. Et la
+couleur ne porte jamais seule l'information : chaque case affiche son numéro
+et l'initiale de son poste, une légende chiffrée accompagne la grille.
+
 Le commentaire d'une cellule prime sur le code de rotation : le code dit le
 poste *prévu*, le commentaire ce qui a été *presté*. Une plage horaire en
 commentaire fixe aussi la durée réelle de la journée.
