@@ -1738,18 +1738,40 @@ function posteDepuisMention(tok){
   if(SHIFT_CODES.indexOf(tok)>=0) return tok;
   return HORAIRE_PLAGES[normPlage(tok)]||null;
 }
-/* Durée réellement prestée, lue dans un commentaire qui donne une plage
-   horaire ("18h-22h" = 4 h). Au-delà de DUREE_MAX, la façon de payer
-   l'excédent n'est pas tranchée (12 h d'un bloc ? 8 h + heures suppl. ?
-   8 h + compteur flex time ?) : on s'abstient et le jour reste signalé. */
-var DUREE_MAX=11;
-function dureeMention(tok){
+/* Plages théoriques des postes, d'après la note « Grille horaire en Pauses —
+   5 équipes » : matin 6h-14h, après-midi 14h-22h, nuit 22h-6h, jour
+   7h30-16h (dont 1/2 h de midi non payée). Exprimées en heures depuis
+   minuit, la nuit débordant sur le lendemain. */
+var SHIFT_PLAGE={AM:[6,14],PM:[14,22],N:[22,30],D:[7.5,16]};
+function plageMention(tok){
   var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?$/i);
   if(!m) return null;
   var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
   if(b<=a) b+=24;
-  var d=b-a;
-  return (d>0 && d<DUREE_MAX)?d:null;
+  return (b>a)?[a,b]:null;
+}
+function seChevauchent(p,q){
+  for(var k=-24;k<=24;k+=24){
+    if(Math.min(p[1]+k,q[1])-Math.max(p[0]+k,q[0])>0.01) return true;
+  }
+  return false;
+}
+/* Durée réellement prestée, à partir de la plage écrite en commentaire et du
+   poste concerné. Deux situations, confirmées par le client sur l'horaire
+   papier :
+   - la plage décrit toute la journée prestée, le poste prévu étant remplacé
+     ou étendu — AFA le 12/08, « 18h-06h » au lieu de sa nuit, 12 h ; MHI le
+     11/04, AM « jusque 17h », 11 h ;
+   - la plage est une prolongation qui s'AJOUTE au poste, presté par ailleurs
+     — JBI le 31/01, sa nuit plus « 19h-22h » en remplacement, 8 + 3 = 11 h.
+   On ne retient l'addition que si la plage est disjointe des heures normales
+   du poste ET plus courte qu'un poste complet : une plage disjointe d'au
+   moins une journée (« 22h-10h » en regard d'un après-midi) est un
+   remplacement, et l'additionner donnerait des journées de 20 h. */
+function dureeReelle(poste,plage,hJour){
+  var d=plage[1]-plage[0], std=SHIFT_PLAGE[poste];
+  if(std && d<hJour && !seChevauchent(plage,std)) d+=hJour;
+  return Math.min(d,24);
 }
 /* Une cellule de l'horaire d'équipe porte deux informations de nature
    différente : le code franc, qui est le poste PRÉVU par la rotation, et le
@@ -1759,8 +1781,9 @@ function dureeMention(tok){
    celui de la case, c'est la case qui suit le cycle de base dans 842 cas sur
    877 — le commentaire est donc bien la modification. Il l'emporte, sur le
    poste comme sur la durée, et la journée est signalée comme modifiée. */
-function parseHoraireEntry(code){
-  var out={}, mPoste=null, mDuree=null, ftPlus=false;
+function parseHoraireEntry(code,hJour){
+  if(hJour===undefined) hJour=8;
+  var out={}, mPoste=null, mPlage=null, ftPlus=false;
   code.split("|").forEach(function(p){
     if(!p) return;
     if(p.charAt(0)!=="?"){
@@ -1768,14 +1791,17 @@ function parseHoraireEntry(code){
       else { out.a=p; if(/\+\s*FT/i.test(p)) ftPlus=true; }
       return;
     }
-    var c=p.slice(1), poste=posteDepuisMention(c), duree=dureeMention(c);
+    var c=p.slice(1), poste=posteDepuisMention(c), plage=plageMention(c);
     if(poste && !mPoste) mPoste=poste;
-    if(duree!==null && (mDuree===null || duree>mDuree)) mDuree=duree;
-    if(!poste && duree===null) out.unknown=(out.unknown||0)+1;
+    if(plage && (!mPlage || plage[1]-plage[0]>mPlage[1]-mPlage[0])) mPlage=plage;
+    if(!poste && !plage) out.unknown=(out.unknown||0)+1;
   });
   if(mPoste){ if(mPoste!==out.s) out.modifie=true; out.s=mPoste; }
   /* un compteur +FT dit déjà que l'excédent est épargné, pas presté */
-  if(mDuree!==null && !ftPlus && out.s){ out.h=mDuree; out.modifie=true; }
+  if(mPlage && !ftPlus && out.s){
+    var d=dureeReelle(out.s,mPlage,hJour);
+    if(Math.abs(d-hJour)>0.01){ out.h=d; out.modifie=true; }
+  }
   return out;
 }
 function prefillFromHoraire(){
@@ -1791,7 +1817,7 @@ function prefillFromHoraire(){
       if(rec && (rec.s || rec.a)){ kept++; continue; }
       var mmdd=pad2(st.m+1)+pad2(day);
       var raw=person.d[mmdd]; if(raw===undefined) continue;
-      var parsed=parseHoraireEntry(raw);
+      var parsed=parseHoraireEntry(raw,st.params.hJour);
       if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
         var nrec=st.month.days[day]||(st.month.days[day]={});
         if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
