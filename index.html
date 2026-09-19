@@ -1734,28 +1734,48 @@ var HORAIRE_PLAGES={"6h-14h":"AM","7h-15h":"D","8h30-16h30":"D","hflott":"D"};
 function normPlage(tok){
   return tok.toLowerCase().replace(/[ '.]/g,"").replace(/(^|-)0(\d)/g,"$1$2");
 }
-/* Le convertisseur de l'horaire préfixe d'un "?" tout ce qu'il n'a pas su
-   classer. Certaines de ces mentions nomment pourtant le poste noir sur
-   blanc ("?AM") ou le désignent par une plage horaire connue ("?7h-15h") :
-   on en tire le poste, à défaut d'un code franc, plutôt que de laisser le
-   jour vide. Le jour reste signalé comme à vérifier. */
 function posteDepuisMention(tok){
   if(SHIFT_CODES.indexOf(tok)>=0) return tok;
   return HORAIRE_PLAGES[normPlage(tok)]||null;
 }
+/* Durée réellement prestée, lue dans un commentaire qui donne une plage
+   horaire ("18h-22h" = 4 h). Au-delà de DUREE_MAX, la façon de payer
+   l'excédent n'est pas tranchée (12 h d'un bloc ? 8 h + heures suppl. ?
+   8 h + compteur flex time ?) : on s'abstient et le jour reste signalé. */
+var DUREE_MAX=11;
+function dureeMention(tok){
+  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?$/i);
+  if(!m) return null;
+  var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+  if(b<=a) b+=24;
+  var d=b-a;
+  return (d>0 && d<DUREE_MAX)?d:null;
+}
+/* Une cellule de l'horaire d'équipe porte deux informations de nature
+   différente : le code franc, qui est le poste PRÉVU par la rotation, et le
+   commentaire (préfixé "?" par le convertisseur), qui dit ce qui a
+   réellement été presté quand la journée s'écarte du prévu.
+   Vérifié sur l'horaire 2026 : là où le commentaire nomme un poste autre que
+   celui de la case, c'est la case qui suit le cycle de base dans 842 cas sur
+   877 — le commentaire est donc bien la modification. Il l'emporte, sur le
+   poste comme sur la durée, et la journée est signalée comme modifiée. */
 function parseHoraireEntry(code){
-  var out={}, approx=null;
+  var out={}, mPoste=null, mDuree=null, ftPlus=false;
   code.split("|").forEach(function(p){
     if(!p) return;
-    if(p.charAt(0)==="?"){
-      var poste=posteDepuisMention(p.slice(1));
-      if(poste){ if(!approx) approx=poste; return; }
-      out.unknown=(out.unknown||0)+1; return;
+    if(p.charAt(0)!=="?"){
+      if(SHIFT_CODES.indexOf(p)>=0) out.s=p;
+      else { out.a=p; if(/\+\s*FT/i.test(p)) ftPlus=true; }
+      return;
     }
-    if(SHIFT_CODES.indexOf(p)>=0){ out.s=p; return; }
-    out.a=p;
+    var c=p.slice(1), poste=posteDepuisMention(c), duree=dureeMention(c);
+    if(poste && !mPoste) mPoste=poste;
+    if(duree!==null && (mDuree===null || duree>mDuree)) mDuree=duree;
+    if(!poste && duree===null) out.unknown=(out.unknown||0)+1;
   });
-  if(!out.s && approx){ out.s=approx; out.approx=true; }
+  if(mPoste){ if(mPoste!==out.s) out.modifie=true; out.s=mPoste; }
+  /* un compteur +FT dit déjà que l'excédent est épargné, pas presté */
+  if(mDuree!==null && !ftPlus && out.s){ out.h=mDuree; out.modifie=true; }
   return out;
 }
 function prefillFromHoraire(){
@@ -1774,10 +1794,10 @@ function prefillFromHoraire(){
       var parsed=parseHoraireEntry(raw);
       if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
         var nrec=st.month.days[day]||(st.month.days[day]={});
-        if(parsed.s){ nrec.s=parsed.s; nrec.h=st.params.hJour; }
+        if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
         if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a;
         filled++;
-        if(parsed.unknown || parsed.approx) verifier++;
+        if(parsed.unknown || parsed.modifie) verifier++;
       } else {
         manquants++;
       }
