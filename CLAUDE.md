@@ -76,10 +76,27 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
+| `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
+| `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
 | `sw.js` | cache et fonctionnement hors ligne |
 | `logo.png` | le logo Biowanze, source des icônes — ne sert pas à l'application |
+
+## Contrôler contre les fiches de paie
+
+Deux chemins indépendants mènent au même mois : la fiche du secrétariat
+social, et les journées lues dans le récapitulatif. Les confronter est le
+contrôle le plus sévère dont on dispose.
+
+```bash
+python3 tools/comparer-fiches.py VBN /chemin/vers/fiches/*.pdf
+```
+
+**Les fiches ne rentrent JAMAIS dans le dépôt** : elles portent le nom, le
+numéro de registre national et l'IBAN. L'outil les lit sur place et n'en
+ressort que des heures. Il écarte de lui-même les fiches d'une autre année —
+décembre se paie en janvier.
 
 ## Régénérer les icônes
 
