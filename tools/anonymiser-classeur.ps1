@@ -13,7 +13,7 @@
     commentaires, colonnes qu'on n'a pas encore comprises : tout passe intact.
 
     CE QUI SORT DU FICHIER :
-      - les noms complets, sous toutes leurs formes, remplacés par le trigramme ;
+      - les noms sous toutes leurs formes, remplacés par le trigramme ;
       - les auteurs de commentaires, préfixés à leur texte ;
       - les macros (vbaProject.bin) : d'où un .xlsx, pas un .xlsm ;
       - les propriétés du document : auteur, dernier enregistreur.
@@ -22,6 +22,9 @@
     CHERCHE les noms qu'il vient de remplacer. S'il en trouve un seul, il
     détruit sa sortie et s'arrête avec le détail. Un anonymiseur qui peut
     laisser passer un nom sans le dire ne vaut rien.
+
+    Tout ce qui s'affiche part aussi dans anonymiser-journal.txt : une fenêtre
+    qui se referme emporterait l'erreur avec elle.
 #>
 [CmdletBinding()]
 param(
@@ -34,14 +37,9 @@ $ErrorActionPreference = 'Stop'
 try { Add-Type -AssemblyName System.IO.Compression } catch { }
 try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { }
 
-# Tout ce qui s'affiche est aussi écrit dans un journal, à côté du script.
-# Sans lui, une fenêtre qui se referme emporte l'erreur avec elle — et on ne
-# saurait jamais pourquoi le fichier n'a pas été produit.
 $journal = Join-Path (Get-Location).ProviderPath 'anonymiser-journal.txt'
 try { Start-Transcript -LiteralPath $journal -Force | Out-Null } catch { $journal = $null }
 
-# Le filet : une erreur terminante est écrite en clair plutôt que de faire
-# disparaître la fenêtre.
 trap {
     Write-Host ''
     Write-Host "ERREUR : $($_.Exception.Message)" -ForegroundColor Red
@@ -57,10 +55,10 @@ trap {
     exit 3
 }
 
-$UTF8   = New-Object System.Text.UTF8Encoding($false)
-$NS_M   = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
-$NS_R   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
-$NS_P   = 'http://schemas.openxmlformats.org/package/2006/relationships'
+$UTF8 = New-Object System.Text.UTF8Encoding($false)
+$NS_M = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+$NS_R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+$NS_P = 'http://schemas.openxmlformats.org/package/2006/relationships'
 
 # Ce qui, dans le ZIP, ne doit pas être recopié.
 $EXCLUS = [regex]::new('(vbaProject\.bin|/vbaProject|\.bin$)', 'IgnoreCase')
@@ -68,6 +66,11 @@ $EXCLUS = [regex]::new('(vbaProject\.bin|/vbaProject|\.bin$)', 'IgnoreCase')
 $TEXTE  = [regex]::new('\.(xml|rels|vml)$', 'IgnoreCase')
 # « Nom, Prénom: », « Nom, Prénom (external): », « RT01386: »
 $AUTEUR = "(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+(?:\s*\([^)]*\))?|[Rr][Tt]\d{4,6}|Auteur)\s*:\s*"
+# Une cellule qui pourrait porter un nom : des lettres, et la ponctuation
+# qu'on met dans un nom. Pas de chiffres.
+$NOM_POSSIBLE = [regex]::new("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
+# Le texte d'une cellule dans le XML, sans avoir à l'analyser.
+$RX_TEXTE = [regex]::new('<(?:t|v)(?:\s[^>]*)?>([^<>&]{3,40})</(?:t|v)>')
 
 
 function Plat([string] $t) {
@@ -83,6 +86,24 @@ function ColNum([string] $lettres) {
     $n = 0
     foreach ($c in $lettres.ToCharArray()) { $n = $n * 26 + ([int][char]$c - 64) }
     return $n
+}
+
+function Initiales([string] $nom) {
+    # L'identifiant anonyme selon la convention maison : première lettre du
+    # prénom, puis première et dernière lettre du nom de famille. « Renard V »
+    # donne VBN, « Nom A. » donne ATR, « P-Y. Nom » donne PLZ.
+    $n = [regex]::Replace((Plat $nom).Replace('.', ' '), '\([^)]*\)', ' ')
+    $parts = @($n -split '[\s,]+' | Where-Object { $_ })
+    if ($parts.Count -lt 2) { return $null }
+    if ($parts[$parts.Count - 1].Length -le 2) {
+        $prenom  = $parts[$parts.Count - 1]
+        $famille = -join $parts[0..($parts.Count - 2)]
+    } else {
+        $prenom  = $parts[0]
+        $famille = -join $parts[1..($parts.Count - 1)]
+    }
+    if (-not $prenom -or $famille.Length -lt 2) { return $null }
+    return ('' + $prenom[0] + $famille[0] + $famille[$famille.Length - 1]).ToUpper()
 }
 
 function LireXml([byte[]] $octets) {
@@ -126,9 +147,9 @@ function Grille([string] $partie) {
 }
 
 function Formes([string] $nom) {
-    # Toutes les façons d'écrire un nom dans le classeur. « Nom, Prénom »
-    # s'y trouve aussi en « Nom Prénom », « Prénom Nom »… On génère les
-    # combinaisons plutôt que de deviner.
+    # Toutes les façons d'écrire un nom complet. « Nom, Prénom » s'y trouve
+    # aussi en « Nom Prénom », « Prénom Nom »… On génère les combinaisons
+    # plutôt que de deviner.
     $bouts = @($nom -split '[,\s]+' | Where-Object { $_ })
     if ($bouts.Count -eq 0) { return @() }
     $inv = @($bouts[($bouts.Count - 1)..0])
@@ -140,13 +161,43 @@ function Formes([string] $nom) {
     return @($out | Where-Object { $_.Length -gt 3 })
 }
 
+function Borner([string] $motif, [string] $texte) {
+    # « \b » exige un caractère de mot d'un côté. « Nom A. » finit par un
+    # point : y coller « \b » rend le motif impossible à satisfaire, et le nom
+    # n'est remplacé qu'à moitié — « ATR A. ».
+    if ($texte.Length -eq 0) { return $motif }
+    $g = $texte[0]
+    $d = $texte[$texte.Length - 1]
+    if ([char]::IsLetterOrDigit($g) -or $g -eq '_') { $motif = '\b' + $motif }
+    if ([char]::IsLetterOrDigit($d) -or $d -eq '_') { $motif = $motif + '\b' }
+    return $motif
+}
+
 function Motif([string] $texte) {
     # Un motif qui retrouve le texte quels que soient les accents, la casse et
     # les espaces — le classeur n'est pas régulier là-dessus.
-    $bouts = @((Plat $texte).Trim() -split '\s+' |
-               Where-Object { $_ } | ForEach-Object { [regex]::Escape($_) })
+    $plat = (Plat $texte).Trim()
+    $bouts = @($plat -split '\s+' | Where-Object { $_ } | ForEach-Object { [regex]::Escape($_) })
     if ($bouts.Count -eq 0) { return $null }
-    return '\b' + ($bouts -join '[\s,]*') + '\b'
+    return (Borner ($bouts -join '[\s,]*') $plat)
+}
+
+function MotifSeul([string] $mot) {
+    # Un nom de famille ou un prénom SEUL dans sa cellule. On exige la
+    # majuscule initiale, et on la protège de l'insensibilité à la casse :
+    # « Petit » et « PETIT » sont des noms, « petit » est un mot français
+    # qu'il ne faut pas remplacer au milieu d'un commentaire.
+    $p = Plat $mot
+    if ($p.Length -lt 3) { return $null }
+    $suite = ''
+    foreach ($c in $p.Substring(1).ToCharArray()) {
+        if ([char]::IsLetter($c)) {
+            $suite += '[' + ([string]$c).ToUpper() + ([string]$c).ToLower() + ']'
+        } else {
+            $suite += [regex]::Escape([string]$c)
+        }
+    }
+    return (Borner ('(?-i:' + [regex]::Escape(([string]$p[0]).ToUpper()) + ')' + $suite) $p)
 }
 
 function Remplacer([byte[]] $octets) {
@@ -156,15 +207,23 @@ function Remplacer([byte[]] $octets) {
     # correspondent plus : on cherche alors dans l'original, quitte à manquer
     # une graphie. Jamais de remplacement posé au mauvais endroit.
     if ($plat.Length -ne $txt.Length) { $plat = $txt }
+    # Une sonde par mot de nom, cherchée UNE fois pour toutes les règles qui
+    # la portent : sans ça, deux mille motifs balaient chaque partie.
+    $presentes = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($sd in $sondes) {
+        if ($plat.IndexOf($sd, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+            [void] $presentes.Add($sd)
+        }
+    }
     $coupes = New-Object 'System.Collections.Generic.List[object]'
     foreach ($r in $regles) {
-        if ($r.Sonde -and $plat.IndexOf($r.Sonde, [StringComparison]::OrdinalIgnoreCase) -lt 0) { continue }
+        if ($r.Sonde -and -not $presentes.Contains($r.Sonde)) { continue }
         foreach ($m in $r.Rx.Matches($plat)) {
             $coupes.Add([pscustomobject] @{ A = $m.Index; B = $m.Index + $m.Length; Par = $r.Par })
         }
     }
     if ($coupes.Count -eq 0) { return [pscustomobject] @{ Octets = $octets; N = 0 } }
-    # les plus longues d'abord à position égale : « Nom Prénom » avant « Nom »
+    # à position égale, la plus longue d'abord
     $coupes = @($coupes | Sort-Object -Property A, @{ Expression = { $_.A - $_.B } })
     $sb = New-Object System.Text.StringBuilder
     $pos = 0
@@ -198,7 +257,6 @@ try {
     }
 } finally { $zin.Dispose() }
 
-# --- les feuilles, puis l'annuaire ---------------------------------------
 foreach ($requis in @('xl/workbook.xml', 'xl/_rels/workbook.xml.rels')) {
     if (-not $entrees.Contains($requis)) {
         throw "Ce fichier n'a pas la forme d'un classeur Excel : $requis est absent. " +
@@ -206,6 +264,7 @@ foreach ($requis in @('xl/workbook.xml', 'xl/_rels/workbook.xml.rels')) {
     }
 }
 
+# --- les feuilles, puis l'annuaire ---------------------------------------
 $wb   = LireXml $entrees['xl/workbook.xml']
 $nswb = New-Object System.Xml.XmlNamespaceManager($wb.NameTable)
 $nswb.AddNamespace('m', $NS_M)
@@ -238,9 +297,11 @@ if ($entrees.Contains('xl/sharedStrings.xml')) {
 }
 
 # La feuille « Personnel » donne la correspondance officielle nom → initiales.
+$gPersonnel = $null
 $annuaire = @{}
 if ($feuilles.ContainsKey('Personnel')) {
-    foreach ($ligne in (Grille $feuilles['Personnel']).Values) {
+    $gPersonnel = Grille $feuilles['Personnel']
+    foreach ($ligne in $gPersonnel.Values) {
         $nom = ''; $ini = ''
         if ($ligne.ContainsKey(1)) { $nom = ([string] $ligne[1]).Trim() }
         if ($ligne.ContainsKey(2)) { $ini = ([string] $ligne[2]).Trim() }
@@ -253,27 +314,130 @@ if ($annuaire.Count -eq 0) {
     throw "Aucun nom trouvé : la feuille « Personnel » a-t-elle bougé ?"
 }
 
-# --- les règles, et ce qu'on surveillera dans la sortie -------------------
-$regles    = New-Object 'System.Collections.Generic.List[object]'
-$surveille = New-Object 'System.Collections.Generic.List[object]'
-foreach ($cle in $annuaire.Keys) {
-    $ini = $annuaire[$cle]
-    foreach ($forme in (Formes $cle)) {
-        $m = Motif $forme
-        if ($m) {
-            $sonde = (($forme -split '\s+')[0]) -replace '[^\p{L}]', ''
-            $regles.Add([pscustomobject] @{
-                Rx = [regex]::new($m, 'IgnoreCase'); Par = $ini; Sonde = $sonde; Long = $m.Length })
-        }
+$noms = @{}
+foreach ($k in $annuaire.Keys) { $noms[$k] = $annuaire[$k] }
+$connus = New-Object 'System.Collections.Generic.HashSet[string]'
+foreach ($v in $annuaire.Values) { [void] $connus.Add($v) }
+
+function Candidat($v) {
+    # Un trigramme n'est pas un nom : sans cette garde, « ATR » devient
+    # l'alias de lui-même, entre dans la liste surveillée, et la relecture
+    # signale comme reste chaque trigramme qu'on vient d'écrire.
+    $t = ("$v").Trim()
+    if ($t.Length -lt 3 -or $t.Length -gt 40) { return $null }
+    if (-not $NOM_POSSIBLE.IsMatch($t)) { return $null }
+    $lettres = 0
+    foreach ($c in $t.ToCharArray()) { if ([char]::IsLetter($c)) { $lettres++ } }
+    if ($lettres -lt 3) { return $null }
+    if ($connus.Contains((Plat $t).ToUpper())) { return $null }
+    return $t
+}
+
+function IniConnues([string] $t) {
+    # Le trigramme que ce texte donne, s'il en donne un de connu. On essaie
+    # les deux ordres : le classeur écrit « Nom A. » ici et
+    # « Nom, Prénom » là.
+    $i = Initiales $t
+    if ($i -and $connus.Contains($i)) { return $i }
+    $bouts = @($t -split '[,\s]+' | Where-Object { $_ })
+    if ($bouts.Count -gt 1) {
+        $inv = @($bouts[($bouts.Count - 1)..0])
+        $i = Initiales ($inv -join ' ')
+        if ($i -and $connus.Contains($i)) { return $i }
     }
-    foreach ($bout in ($cle -split '[,\s]+')) {
-        if ($bout.Length -ge 3) {
-            $surveille.Add([pscustomobject] @{ Bout = $bout; Ini = $ini })
+    return $null
+}
+
+# --- les alias : toutes les façons dont le classeur écrit les gens --------
+# Le classeur en connaît bien plus que la feuille « Personnel » :
+# « Nom A. », « P-Y. Nom », « Nom F.(ass.Us.) ». On les récolte
+# partout — mais on ne les croit que si Initiales() y retrouve un trigramme
+# connu. Un alias qui ne se recoupe pas n'est pas un nom, et « Step » ne
+# devient pas quelqu'un.
+$vus = New-Object 'System.Collections.Generic.HashSet[string]'
+foreach ($nom in @($entrees.Keys)) {
+    if (-not $TEXTE.IsMatch($nom)) { continue }
+    foreach ($m in $RX_TEXTE.Matches($UTF8.GetString($entrees[$nom]))) {
+        $brut = $m.Groups[1].Value
+        if (-not $vus.Add($brut)) { continue }
+        $t = Candidat $brut
+        if (-not $t) { continue }
+        # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour que la
+        # parenthèse — qui dit le rôle, pas la personne — reste au classeur.
+        $t = (([regex]::Replace($t, '\([^)]*\)', ' ')) -replace '\s+', ' ').Trim()
+        if (-not $t) { continue }
+        $cle = (Plat $t).ToLower()
+        if ($noms.ContainsKey($cle)) { continue }
+        $ini = IniConnues $t
+        if ($ini) { $noms[$cle] = $ini }
+    }
+}
+
+# Le nom et le prénom dans DEUX cellules voisines — « NOM » ici,
+# « PRÉNOM » là. Aucun des deux n'est un nom complet, donc aucun n'était
+# remplacé. On les recolle : si les deux réunis donnent le trigramme de la
+# ligne, ce sont bien eux, et chacun vaut seul.
+if ($gPersonnel) {
+    foreach ($ligne in $gPersonnel.Values) {
+        $ini = ''
+        if ($ligne.ContainsKey(2)) { $ini = ([string] $ligne[2]).Trim().ToUpper() }
+        if (-not $ini -or -not $connus.Contains($ini)) { continue }
+        $mots = @()
+        foreach ($v in $ligne.Values) {
+            $c = Candidat $v
+            if ($c) { $mots += $c }
+        }
+        foreach ($a in $mots) {
+            foreach ($b in $mots) {
+                if ($a -ne $b -and (Initiales ($a + ' ' + $b)) -eq $ini) {
+                    foreach ($x in @($a, $b)) {
+                        $k = (Plat $x).ToLower()
+                        if (-not $noms.ContainsKey($k)) { $noms[$k] = $ini }
+                    }
+                }
+            }
         }
     }
 }
-$regles = @($regles | Sort-Object -Property Long -Descending)
-$regles += [pscustomobject] @{ Rx = [regex]::new($AUTEUR); Par = ''; Sonde = ''; Long = 0 }
+
+# --- les règles, et ce qu'on surveillera dans la sortie -------------------
+$pesees    = New-Object 'System.Collections.Generic.List[object]'
+$surveille = New-Object 'System.Collections.Generic.List[object]'
+foreach ($cle in $noms.Keys) {
+    $ini = $noms[$cle]
+    $bouts = @($cle -split '[,\s]+' | Where-Object { $_ })
+    if ($bouts.Count -gt 1) {
+        foreach ($forme in (Formes $cle)) {
+            $m = Motif $forme
+            if ($m) {
+                $sonde = (($forme -split '\s+')[0]) -replace '[^\p{L}]', ''
+                $pesees.Add([pscustomobject] @{
+                    Poids = $forme.Length; Motif = $m; Par = $ini; Sonde = $sonde })
+            }
+        }
+    } else {
+        $m = MotifSeul $cle
+        if ($m) {
+            $pesees.Add([pscustomobject] @{
+                Poids = $cle.Length; Motif = $m; Par = $ini; Sonde = ($cle -replace '[^\p{L}]', '') })
+        }
+    }
+    foreach ($b in $bouts) {
+        if ($b.Length -ge 3) {
+            $surveille.Add([pscustomobject] @{ Bout = $b; Ini = $ini })
+        }
+    }
+}
+
+# Les règles qui attrapent le plus long d'abord : « Nom A. » avant
+# « Nom », sans quoi il resterait « ATR A. ». On pèse ce que la règle
+# ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long motif
+# pour un petit mot, et il passerait devant.
+$regles = @($pesees | Sort-Object -Property Poids -Descending | ForEach-Object {
+    [pscustomobject] @{ Rx = [regex]::new($_.Motif, 'IgnoreCase'); Par = $_.Par; Sonde = $_.Sonde }
+})
+$regles += [pscustomobject] @{ Rx = [regex]::new($AUTEUR); Par = ''; Sonde = '' }
+$sondes = @($regles | ForEach-Object { $_.Sonde } | Where-Object { $_ } | Sort-Object -Unique)
 
 $tol = @()
 if ($Tolerer) {
@@ -281,7 +445,8 @@ if ($Tolerer) {
 }
 
 # --- la recopie ----------------------------------------------------------
-Write-Host ("{0} nom(s) connu(s) · {1} règle(s) · lecture en cours…" -f $annuaire.Count, $regles.Count)
+$depart = "{0} nom(s) connu(s) · {1} règle(s) · {2} sonde(s) · lecture en cours…"
+Write-Host ($depart -f $noms.Count, $regles.Count, $sondes.Count)
 if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Force }
 $total = 0
 $parties = 0
@@ -352,6 +517,6 @@ if ($restes.Count -gt 0) {
 
 $taille = (Get-Item -LiteralPath $dst).Length
 $resume = "{0} nom(s) connu(s) · {1} remplacement(s) dans {2} partie(s) · {3:N1} Mo"
-Write-Host ($resume -f $annuaire.Count, $total, $parties, ($taille / 1MB))
+Write-Host ($resume -f $noms.Count, $total, $parties, ($taille / 1MB))
 Write-Host 'Aucun nom ne subsiste : vérifié sur la sortie.' -ForegroundColor Green
 if ($journal) { try { Stop-Transcript | Out-Null } catch { } }

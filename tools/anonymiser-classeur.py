@@ -60,13 +60,46 @@ def _formes(nom):
     return [f for f in out if len(f) > 3]
 
 
+def _borner(motif, texte):
+    """Encadrer d'une frontière de mot — mais seulement là où elle a un sens.
+
+    « \b » exige un caractère de mot d'un côté. « Nom A. » finit par un
+    point : y coller « \b » rend le motif impossible à satisfaire, et le nom
+    n'était remplacé qu'à moitié — « ATR A. ».
+    """
+    if texte[:1].isalnum() or texte[:1] == "_":
+        motif = r"\b" + motif
+    if texte[-1:].isalnum() or texte[-1:] == "_":
+        motif = motif + r"\b"
+    return motif
+
+
 def _motif(texte):
     """Un motif qui retrouve `texte` quels que soient les accents, la casse
     et les espaces — le classeur n'est pas régulier là-dessus."""
-    bouts = [re.escape(b) for b in re.split(r"\s+", _sans_accent(texte).strip()) if b]
+    plat = _sans_accent(texte).strip()
+    bouts = [re.escape(b) for b in re.split(r"\s+", plat) if b]
     if not bouts:
         return None
-    return r"\b" + r"[\s,]*".join(bouts) + r"\b"
+    return _borner(r"[\s,]*".join(bouts), plat)
+
+
+NOM_POSSIBLE = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
+
+
+def _motif_seul(mot):
+    """Un nom de famille ou un prénom SEUL dans sa cellule.
+
+    On exige la majuscule initiale, et on la protège de l'insensibilité à la
+    casse : « Petit » et « PETIT » sont des noms, « petit » est un mot
+    français qu'il ne faut pas remplacer au milieu d'un commentaire.
+    """
+    p = _sans_accent(mot)
+    if len(p) < 3:
+        return None
+    suite = "".join("[%s%s]" % (c.upper(), c.lower()) if c.isalpha() else re.escape(c)
+                    for c in p[1:])
+    return _borner(r"(?-i:" + re.escape(p[0].upper()) + r")" + suite, p)
 
 
 def _remplacer(donnee, regles):
@@ -99,34 +132,96 @@ def anonymiser(src, dst, tolere=()):
     annuaire = _annuaire(cl)
 
     # Les noms connus, et le trigramme qui les remplace. L'annuaire officiel
-    # d'abord ; à défaut, les initiales, comme partout ailleurs.
-    noms = {}
-    for cle, ini in annuaire.items():
-        noms[cle] = ini
-    for feuille in cl.feuilles:
-        g = cl.grille(feuille)
-        for ligne in g.values():
-            for v in ligne.values():
-                t = str(v).strip()
-                if 4 <= len(t) <= 40 and re.search(r"[A-Za-zÀ-ÿ]{2,}[\s,]+[A-Za-zÀ-ÿ]{2,}", t) \
-                   and not re.search(r"\d", t):
-                    cle = _sans_accent(t).lower()
-                    if cle in annuaire and cle not in noms:
-                        noms[cle] = annuaire[cle]
+    # d'abord.
+    noms = dict(annuaire)
+    connus = set(annuaire.values())
     if not noms:
         sys.exit("Aucun nom trouvé : la feuille « Personnel » a-t-elle bougé ?")
 
-    regles, surveille = [], []
+    def _candidat(v):
+        """Une cellule qui pourrait porter un nom. Un trigramme n'en est pas
+        un : sans cette garde, « ATR » devient l'alias de lui-même, entre dans
+        la liste surveillée, et la relecture signale comme reste chaque
+        trigramme qu'on vient d'écrire."""
+        t = str(v).strip()
+        if not (3 <= len(t) <= 40) or not NOM_POSSIBLE.match(t):
+            return None
+        if sum(c.isalpha() for c in t) < 3 or _sans_accent(t).upper() in connus:
+            return None
+        return t
+
+    def _ini_connues(t):
+        """Le trigramme que ce texte donne, s'il en donne un de connu. On
+        essaie les deux ordres : le classeur écrit « Nom A. » ici et
+        « Nom, Prénom » là."""
+        ini = _initiales(t)
+        if ini in connus:
+            return ini
+        bouts = [b for b in re.split(r"[,\s]+", t) if b]
+        if len(bouts) > 1:
+            ini = _initiales(" ".join(reversed(bouts)))
+            if ini in connus:
+                return ini
+        return None
+
+    # Le classeur écrit les gens de bien plus de façons que la feuille
+    # « Personnel » n'en connaît : « Nom A. », « P-Y. Nom »,
+    # « Nom F.(ass.Us.) ». On les récolte partout — mais on ne les croit
+    # que si _initiales() y retrouve un trigramme connu. Un alias qui ne se
+    # recoupe pas n'est pas un nom, et « Step » ne devient pas quelqu'un.
+    for feuille in cl.feuilles:
+        for ligne in cl.grille(feuille).values():
+            for v in ligne.values():
+                t = _candidat(v)
+                if not t:
+                    continue
+                # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour
+                # que la parenthèse — qui dit le rôle, pas la personne —
+                # reste dans le classeur.
+                t = " ".join(re.sub(r"\([^)]*\)", " ", t).split()) or t
+                cle = _sans_accent(t).lower()
+                if cle not in noms:
+                    ini = _ini_connues(t)
+                    if ini:
+                        noms[cle] = ini
+
+    # Le nom et le prénom dans DEUX cellules voisines — « NOM » ici,
+    # « PRÉNOM » là. Aucun des deux n'est un nom complet, donc aucun n'était
+    # remplacé. On les recolle : si les deux réunis donnent le trigramme de la
+    # ligne, ce sont bien eux, et chacun vaut seul.
+    if "Personnel" in cl.feuilles:
+        for ligne in cl.grille("Personnel").values():
+            ini = str(ligne.get(2, "")).strip().upper()
+            if ini not in connus:
+                continue
+            mots = [t for t in (_candidat(v) for v in ligne.values()) if t]
+            for a in mots:
+                for b in mots:
+                    if a is not b and _initiales(a + " " + b) == ini:
+                        noms.setdefault(_sans_accent(a).lower(), ini)
+                        noms.setdefault(_sans_accent(b).lower(), ini)
+
+    pesees, surveille = [], []
     for cle, ini in noms.items():
-        for forme in _formes(cle):
-            m = _motif(forme)
+        bouts = [b for b in re.split(r"[,\s]+", cle) if b]
+        if len(bouts) > 1:
+            for forme in _formes(cle):
+                m = _motif(forme)
+                if m:
+                    pesees.append((len(forme), m, ini))
+        else:
+            m = _motif_seul(cle)
             if m:
-                regles.append((m, ini))
-        for bout in re.split(r"[,\s]+", cle):
+                pesees.append((len(cle), m, ini))
+        for bout in bouts:
             if len(bout) >= 3:
                 surveille.append((bout, ini))
-    # les règles les plus longues d'abord : « Nom Prénom » avant « Nom »
-    regles.sort(key=lambda r: -len(r[0]))
+    # Les règles qui attrapent le plus long d'abord : « Nom A. » avant
+    # « Nom », sans quoi il resterait « ATR A. ». On pèse ce que la règle
+    # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long
+    # motif pour un petit mot, et il passerait devant.
+    pesees.sort(key=lambda r: -r[0])
+    regles = [(m, ini) for _, m, ini in pesees]
     regles.append((AUTEUR.pattern, ""))
 
     total, parties = 0, 0

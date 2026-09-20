@@ -44,6 +44,17 @@ Sortent du fichier : les noms sous toutes leurs formes, les auteurs de
 commentaires, les macros (`vbaProject.bin` — d'où un `.xlsx`, pas un
 `.xlsm`) et les propriétés du document.
 
+**Il ne se contente pas de la feuille « Personnel ».** Elle est incomplète,
+et le classeur écrit les gens de bien d'autres façons : `Nom A.`,
+`P-Y. Nom`, `Nom F.(ass.Us.)`, ou le nom et le prénom dans deux
+cellules voisines. L'outil récolte donc tous les textes du classeur — mais
+n'en retient un que si `_initiales()` y retrouve un **trigramme connu**. Un
+alias qui ne se recoupe pas n'est pas un nom : c'est ainsi que « Step »,
+écrit sur la ligne de quelqu'un, ne devient pas quelqu'un.
+
+Les mots seuls — `PETIT`, `ADAM` — ne sont remplacés qu'avec leur majuscule
+initiale : « petit » reste un mot français au milieu d'un commentaire.
+
 **La garantie.** La sortie est relue entièrement et l'outil y cherche les
 noms qu'il vient de remplacer. S'il en trouve un seul, il détruit sa sortie
 et s'arrête avec le détail. Un anonymiseur qui peut laisser passer un nom
