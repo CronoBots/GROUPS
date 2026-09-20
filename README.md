@@ -38,17 +38,18 @@ n'est figé dans le code.
 
 ## Pré-remplir depuis l'horaire d'équipe
 
-Dans l'onglet Horaire, un sélecteur permet de retrouver sa ligne dans
-l'horaire réel de l'équipe (par fonction puis par identifiant anonymisé —
-initiales ou matricule, jamais le nom complet) et de pré-remplir
-automatiquement **les douze mois de l'année**, d'un seul clic. Les journées
-déjà encodées à la main ne sont jamais écrasées : le bouton se rejoue sans
-risque après une correction manuelle ou un nouveau classeur.
+Choisir sa ligne dans l'horaire d'équipe (par fonction puis par identifiant
+anonymisé — initiales ou matricule, jamais le nom complet) remplit **les
+douze mois de l'année**. Il n'y a pas de bouton : l'horaire est la source,
+l'appareil n'en est que la copie, et la copie se refait à chaque ouverture
+et à chaque changement de personne. Les journées corrigées à la main ne sont
+jamais écrasées ; celles qui viennent de l'horaire, si — une correction des
+règles de lecture ou un nouveau classeur les rattrape donc toutes seules.
 
-Le bilan dit ce qui a été fait et ce qui reste à regarder — journées
-remplies, heures reprises au compteur HS, jours de remplacement
-contremaître, rappels proposés, mentions de rappel non tranchées, jours de
-repos et journées conservées. Près de 99 % des jours sont reconnus
+Le bilan ne s'affiche que si quelque chose a bougé, et dit alors quoi —
+journées mises à jour, heures reprises au compteur HS, jours de
+remplacement contremaître, rappels proposés, mentions de rappel non
+tranchées, journées non reconnues et corrections manuelles conservées. Près de 99 % des jours sont reconnus
 automatiquement : les codes francs, mais aussi les mentions qui nomment le
 poste sans l'encoder (« AM », « N ») ou le désignent par une plage horaire
 connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
