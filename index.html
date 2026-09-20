@@ -3727,16 +3727,22 @@ function renderEquipe(){
             else if(!cms.length&&adj.length)
               detail=adj.length+" adjoint"+(adj.length>1?"s":"")+" faisant fonction";
           }
-          var manque=(P.n && tenu<P.n);
+          /* L'effectif attendu ne vaut QUE pour les pauses. Le client : « en
+             jours il n'est pas obligatoire d'avoir quelqu'un à chaque poste ».
+             L'usine tourne en continu par ses pauses ; le jour, les gens
+             viennent pour ce qu'il y a à y faire. Annoncer « 2 manquants »
+             sous Jour, c'était accuser une équipe complète. */
+          var attendu=(g.k==="D")?0:P.n;
+          var manque=(attendu && tenu<attendu);
           h.push('<div class="eqpo'+(manque?" manque":"")+'">');
           /* Crier « manquant » quand le poste de sept personnes de la même
              pause est simplement inconnu, c'est alarmer à faux. Tant qu'il
              reste des postes à déterminer, le compte s'affiche en orange
              sans accusation ; une phrase sous la pause dit pourquoi. */
-          h.push('<h4>'+esc(P.t)+'<small>'+tenu+(P.n?" / "+P.n:"")+"</small>"+
+          h.push('<h4>'+esc(P.t)+'<small>'+tenu+(attendu?" / "+attendu:"")+"</small>"+
                  (detail?'<span class="eqdet">'+esc(detail)+"</span>":"")+
-                 ((manque&&!inconnus.length)?'<span class="eqmq">'+(P.n-gens.length)
-                   +" manquant"+((P.n-gens.length)>1?"s":"")+"</span>":"")+"</h4>");
+                 ((manque&&!inconnus.length)?'<span class="eqmq">'+(attendu-gens.length)
+                   +" manquant"+((attendu-gens.length)>1?"s":"")+"</span>":"")+"</h4>");
           h.push('<div class="eql">');
           gens.forEach(function(x){ h.push(chip(x)); });
           h.push("</div></div>");
