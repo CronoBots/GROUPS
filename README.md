@@ -165,6 +165,21 @@ mais porteurs d'une mention particulière, et les jours **non reconnus**,
 laissés vides et à compléter à la main. Les jours déjà encodés à la main ne
 sont jamais écrasés.
 
+### La barre de navigation ne bouge pas
+
+Elle vivait en `position:fixed` **à l'intérieur** de l'en-tête collant. Sous
+iOS, son `bottom:0` ne se résolvait pas sur le même viewport selon que la
+page défilait ou non : sur un onglet court elle remontait de la hauteur de
+la barre d'état — 59 px — et laissait le fond de page sous elle. Une barre
+de navigation qui change de place selon l'onglet n'est plus un repère.
+
+Elle est sortie de l'en-tête, dans un cadre ancré **par le haut** sur la
+hauteur dynamique de l'écran (`100dvh`), où elle se range en bas. Plus de
+`bottom` à interpréter : le haut de l'écran, lui, ne bouge jamais. Sur grand
+écran la barre reprend sa place sous le nom de l'application — c'est le seul
+déménagement du document, piloté par un `matchMedia`, et il ne coûte rien :
+les clics passent par la barre elle-même, qui voyage avec ses écouteurs.
+
 ## Vos données
 
 Elles ne quittent jamais l'appareil : tout est enregistré par le navigateur.
