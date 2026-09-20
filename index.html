@@ -676,6 +676,20 @@ body.sheet-on{overflow:hidden}
 .eqp.moi b{color:var(--in)}
 .eqann .grp{padding:14px 16px 6px}
 .eqann .grp h3{margin:0 0 10px}
+/* Un poste de travail, son effectif, et ceux qui le tiennent. */
+.eqpo{margin:0 0 10px}
+.eqpo h4{display:flex; align-items:center; gap:8px; margin:0 0 5px;
+  font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--faint)}
+.eqpo h4 small{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0; text-transform:none; color:var(--muted)}
+.eqpo.manque h4{color:var(--out)}
+.eqpo.manque h4 small{color:var(--out)}
+.eqmq{margin-left:auto; font-size:10px; font-weight:600; letter-spacing:0;
+  text-transform:none; color:var(--out); background:var(--out-soft);
+  border-radius:99px; padding:1px 8px}
+.eqpo.inconnu h4{color:var(--faint)}
+.eqnote{margin:0 0 4px; font-size:11px; color:var(--faint); font-style:italic}
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -1042,7 +1056,7 @@ body.sheet-on{overflow:hidden}
 
     <div class="card">
       <details class="fold">
-        <summary>Annuaire <span class="sub">la fonction et les ateliers de chacun</span></summary>
+        <summary>Annuaire <span class="sub">la fonction et les postes de chacun</span></summary>
         <div class="eqann" id="eqAnnuaire"></div>
       </details>
     </div>
@@ -2738,7 +2752,7 @@ function renderPrefillSelects(db){
        et rien ne le laisse deviner dans la liste. */
     if(p.id.indexOf("-")>=0) txt.push("⚠ initiales partagées avec une autre personne ("
        +p.id.split("-")[0]+") — vérifiez les journées avant de pré-remplir");
-    if(p.poly&&p.poly.ateliers) txt.push("Ateliers : "+p.poly.ateliers.join(", "));
+    if(p.poly&&p.poly.ateliers) txt.push("Postes : "+p.poly.ateliers.join(", "));
     el.textContent=txt.join(" — ");
   }
   /* la vue annuelle montre la personne choisie : elle doit suivre le
@@ -3454,6 +3468,47 @@ function fonctionLisible(cat){
    Pour les polyvalents, le classeur ne dit pas où ils étaient. On montre
    alors ce sur quoi ils sont formés, dans un gris qui ne se confond pas
    avec le poste du jour — inventer le reste serait pire que se taire. */
+/* Les postes de travail, dans l'ordre où l'usine se parcourt, et l'effectif
+   qu'il faut à chaque pause. Le client : « Il doit toujours y avoir un
+   opérateur à chaque poste. Il y a toujours au moins 1 contremaître,
+   1 fermentation, 1 distillation, 2 chaudière, 2 gluten, 1 meunerie,
+   1 polyvalent arrière. »
+
+   Le classeur écrit « Poly. arr. » et « Terr. arr. » ; les deux sont pris
+   pour le même poste — à confirmer. */
+var POSTES_TRAVAIL=[
+  {k:"cm",   t:"Contremaître",    n:1, cm:true},
+  {k:"meun", t:"Meunerie",        n:1, rx:/^meun/i},
+  {k:"glut", t:"Gluten",          n:2, rx:/^glut/i},
+  {k:"ferm", t:"Fermentation",    n:1, rx:/^ferm/i},
+  {k:"terr", t:"Terrain arrière", n:1, rx:/^(terr|poly)[\s.\-]*arr/i},
+  {k:"dist", t:"Distillation",    n:1, rx:/^disti/i},
+  {k:"chau", t:"Chaudières",      n:2, rx:/^chaudi/i},
+  {k:"step", t:"STEP",            n:0, rx:/^step/i}
+];
+function posteDepuisNom(t){
+  t=String(t||"").trim();
+  for(var i=0;i<POSTES_TRAVAIL.length;i++){
+    var P=POSTES_TRAVAIL[i];
+    if(P.rx && P.rx.test(t)) return P.k;
+  }
+  return null;
+}
+/* Le poste tenu ce jour-là, des sources les plus sûres aux plus faibles :
+   la cellule du jour, puis l'en-tête de colonne du classeur, puis le seul
+   poste sur lequel la personne est formée. À défaut, on ne sait pas — et on
+   le dit, plutôt que de compléter l'effectif avec une supposition. */
+function posteTenu(person,raw){
+  var i, k;
+  if(/contrema/i.test(person.cat||"")) return "cm";
+  for(i=0;i<2;i++){ k=posteDepuisNom(raw&&raw[i]); if(k) return k; }
+  var ent=person.e||[];
+  for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
+  var at=(person.poly&&person.poly.ateliers)||[];
+  if(at.length===1) return posteDepuisNom(at[0]);
+  return null;
+}
+
 var ATELIER_NOMS=[
   [/^meun(erie)?\.?$/i,"Meunerie"],
   [/^glut(en)?\.?$/i,"Gluten"],
@@ -3546,31 +3601,66 @@ function renderEquipe(){
                    +'<small>'+l.length+"</small></summary>"
                  :'<h3><span class="eqpt"></span>'+esc(g.t)
                    +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
-      h.push('<div class="eql">');
-      l.forEach(function(x){
+      function chip(x){
         var det=(g.k==="abs")?esc(x.r.a)
                :(x.prevu?esc(x.r.s)+" prévu":
                 (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
-        var at=(g.k==="off"||g.k==="abs")?null:atelierDuJour(x.p,x.p.d[mmdd]);
-        h.push('<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
+        return '<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
           '<b>'+esc(x.p.id)+"</b>"+
-          '<span>'+esc(fonctionCourte(x.p.cat))+(det?' · <i>'+det+"</i>":"")+"</span>"+
-          (at?'<em class="'+(at.sur?"eqat":"eqpoly")+'" title="'
-              +(at.sur?"Poste tenu ce jour-là"
-                     :esc(at.tout||at.nom)+" — le classeur ne dit pas lequel elle tenait ce jour-là")
-              +'">'+esc(at.nom)+"</em>":"")+
-          "</div>");
-      });
-      h.push("</div>"+(repli?"</details>":"")+"</section>");
+          '<span>'+esc(fonctionCourte(x.p.cat))+(det?' · <i>'+det+"</i>":"")+"</span></div>";
+      }
+      if(g.k==="off"||g.k==="abs"){
+        h.push('<div class="eql">');
+        l.forEach(function(x){ h.push(chip(x)); });
+        h.push("</div>");
+      } else {
+        /* Une pause n'est pas une liste de gens : c'est une usine dont
+           chaque poste doit être tenu. On les montre donc poste par poste,
+           dans l'ordre où l'on parcourt l'usine, avec l'effectif attendu —
+           un poste qui manque saute aux yeux. */
+        var parPoste={}, inconnus=[];
+        l.forEach(function(x){
+          var k=posteTenu(x.p,x.p.d[mmdd]);
+          if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
+        });
+        POSTES_TRAVAIL.forEach(function(P){
+          var gens=parPoste[P.k]||[];
+          if(!gens.length && !P.n) return;
+          var manque=(P.n && gens.length<P.n);
+          h.push('<div class="eqpo'+(manque?" manque":"")+'">');
+          /* Crier « manquant » quand le poste de sept personnes de la même
+             pause est simplement inconnu, c'est alarmer à faux. Tant qu'il
+             reste des postes à déterminer, le compte s'affiche en orange
+             sans accusation ; une phrase sous la pause dit pourquoi. */
+          h.push('<h4>'+esc(P.t)+'<small>'+gens.length+(P.n?" / "+P.n:"")+"</small>"+
+                 ((manque&&!inconnus.length)?'<span class="eqmq">'+(P.n-gens.length)
+                   +" manquant"+((P.n-gens.length)>1?"s":"")+"</span>":"")+"</h4>");
+          h.push('<div class="eql">');
+          gens.forEach(function(x){ h.push(chip(x)); });
+          h.push("</div></div>");
+        });
+        if(inconnus.length){
+          h.push('<div class="eqpo inconnu"><h4>Poste à déterminer<small>'
+            +inconnus.length+"</small></h4><div class=\"eql\">");
+          inconnus.forEach(function(x){ h.push(chip(x)); });
+          h.push("</div></div>");
+          h.push('<p class="eqnote">'+inconnus.length+" personne"
+            +(inconnus.length>1?"s":"")+" dont le classeur ne donne pas le poste — "
+            +"elle"+(inconnus.length>1?"s":"")+" couvre"+(inconnus.length>1?"nt":"")
+            +" peut-être ceux qui s'affichent en dessous de leur effectif.</p>");
+        }
+      }
+      h.push((repli?"</details>":"")+"</section>");
     });
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=
       total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
     var note=document.getElementById("eqNote");
-    if(note) note.innerHTML="Sous chaque nom, <b>le poste tenu ce jour-là</b> — "
-      +"nommé dans la cellule, ou déduit quand la personne n'est formée que sur un atelier. "
-      +"<em>En italique</em> : les ateliers où elle est formée, le classeur ne disant pas "
-      +"lequel elle tenait ce jour-là.";
+    if(note) note.innerHTML="Chaque pause est montrée <b>poste par poste</b>, dans l'ordre de "
+      +"l'usine, avec l'effectif attendu. Un poste sous son effectif est signalé. "
+      +"Le poste vient de la cellule du jour, de l'en-tête de colonne du classeur, ou du seul "
+      +"poste sur lequel la personne est formée — à défaut, elle reste « à déterminer » "
+      +"plutôt que de compléter un effectif par une supposition.";
     renderAnnuaire(db,moi);
   });
 }
@@ -3584,7 +3674,7 @@ function renderAnnuaire(db,moi){
                    .sort(function(a,b){return a.id<b.id?-1:1;});
     h.push('<section class="grp"><h3>'+esc(fonctionLisible(c))+" · "+l.length+"</h3><div class=\"eql\">");
     l.forEach(function(p){
-      var at=(p.poly&&p.poly.ateliers)?p.poly.ateliers.join(", "):"";
+      var at=(p.poly&&p.poly.ateliers)?p.poly.ateliers.map(atelierLisible).join(", "):"";
       /* Ce que le classeur écrit au-dessus du nom, mot pour mot. On ne sait
          pas toujours ce que ça désigne ; le cacher serait pire. */
       var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
