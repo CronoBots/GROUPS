@@ -368,3 +368,22 @@ pas les deviner :
   heures sont-elles payées **et** épargnées, ou seulement épargnées ?
 - Une journée de 12 h portant aussi une absence partielle vaut-elle 10 h
   prestées (ce que fait le calcul) ou 12 h ?
+
+## Contremaîtres et adjoints
+
+Confirmé par le client le 20/09/2026.
+
+**Six contremaîtres** : AFA, ATA, FLI, GPS, YPE et VBN — ce dernier passé
+contremaître le 15/09/2026. **Cinq adjoints** : ATR, FPA, JBI, VGG, YBT.
+
+Le classeur les met dans la même liste sans les distinguer. L'indice
+disponible — les adjoints figurent sur la feuille « Polyvalence », les
+contremaîtres non — aurait classé VBN du mauvais côté : la liste est donc
+nommée en clair dans `CONTREMAITRES`, en tête du script.
+
+> « En pause, l'adjoint est contremaître uniquement s'il n'y a pas de
+> contremaître en pause ce créneau-là. »
+
+Le poste de contremaître est donc tenu par le contremaître quand il est
+présent ; l'adjoint qui l'accompagne est un renfort. Seul, il **fait
+fonction**. Sur 2026, 242 créneaux sont dans ce cas.
