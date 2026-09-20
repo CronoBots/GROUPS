@@ -42,6 +42,11 @@ FEUILLES = {
 LIGNE_NOMS = 10          # la ligne qui porte les noms
 LIGNE_POSTE = 9          # juste au-dessus : le poste tenu (section 9 bis)
 
+# Une feuille dont le NOM porte le poste : la ligne 9 y est vide parce
+# qu'il n'y a rien à préciser — tout le monde y tient le même poste.
+# Établi avec le client le 20/09/2026.
+POSTE_DE_LA_FEUILLE = {"Step": "Station d'épuration"}
+
 
 def _lettre(n):
     """Le nom de colonne d'Excel. « Polyvalent » seul est ambigu : en O
@@ -512,6 +517,8 @@ def _colonnes(cl):
                 if v and v != "0":
                     poste = v
                     break
+            if not poste:
+                poste = POSTE_DE_LA_FEUILLE.get(feuille, "")
             jours = {}
             for m, r0 in mois.items():
                 for d in range(1, 32):
