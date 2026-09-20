@@ -163,10 +163,50 @@ class Classeur:
         return ["".join(t.text or "" for t in si.iter('{%s}t' % M))
                 for si in ET.fromstring(self.z.read("xl/sharedStrings.xml"))]
 
-    def grille(self, feuille):
+    def _fusions(self, racine, out, lignes):
+        """Recopier la valeur d'une cellule fusionnée sur toute son étendue.
+
+        Dans un classeur, seule la case en HAUT À GAUCHE d'une fusion porte la
+        valeur ; les autres sont vides. Le poste « Chaudières » couvre ainsi
+        trois colonnes d'un seul tenant, et deux opérateurs par équipe
+        paraissaient n'avoir rien au-dessus d'eux.
+
+        On ne remplit que les cases vides : une fusion ne peut rien écraser.
+        Et seulement les LIGNES DEMANDÉES. Déplier partout serait un désastre
+        discret : la ligne des noms est fusionnée elle aussi, si bien que
+        chaque personne apparaîtrait sur ses deux colonnes et serait lue deux
+        fois — 27 683 journées au lieu de 27 462, sans que rien ne le dise.
+        """
+        for m in racine.iter('{%s}mergeCell' % M):
+            ref = m.get('ref') or ""
+            if ":" not in ref:
+                continue
+            bouts = []
+            for coin in ref.split(":"):
+                mm = re.match(r'([A-Z]+)(\d+)$', coin.strip())
+                if not mm:
+                    break
+                bouts.append((int(mm.group(2)), _colnum(mm.group(1))))
+            if len(bouts) != 2:
+                continue
+            (l1, c1), (l2, c2) = bouts
+            if not any(l in lignes for l in range(min(l1, l2), max(l1, l2) + 1)):
+                continue
+            val = out.get(l1, {}).get(c1)
+            if val in (None, ""):
+                continue
+            for l in range(min(l1, l2), max(l1, l2) + 1):
+                if l not in lignes:
+                    continue
+                for c in range(min(c1, c2), max(c1, c2) + 1):
+                    if out.setdefault(l, {}).get(c) in (None, ""):
+                        out[l][c] = val
+
+    def grille(self, feuille, fusions=(LIGNE_POSTE,)):
         """{ligne: {colonne: texte}}"""
         out = {}
-        for c in ET.fromstring(self.z.read(self.feuilles[feuille])).iter('{%s}c' % M):
+        racine = ET.fromstring(self.z.read(self.feuilles[feuille]))
+        for c in racine.iter('{%s}c' % M):
             ref, t = c.get('r'), c.get('t')
             inline, v = c.find('{%s}is' % M), c.find('{%s}v' % M)
             if inline is not None:
@@ -182,6 +222,7 @@ class Classeur:
                 continue
             lettres = re.match(r'([A-Z]+)', ref).group(1)
             out.setdefault(int(re.search(r'(\d+)', ref).group(1)), {})[_colnum(lettres)] = val
+        self._fusions(racine, out, set(fusions))
         return out
 
     def commentaires(self, feuille):
