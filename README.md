@@ -129,6 +129,20 @@ code qui le dit, et les repos, repliés — c'est la moitié de l'équipe et la
 question qu'on se pose le moins. Sa propre ligne est surlignée : se
 retrouver dans soixante-dix-sept identifiants demande un repère.
 
+Sous chaque nom, **le poste tenu ce jour-là**. Le classeur le dit rarement —
+928 journées sur 27 462 nomment un atelier, et encore est-ce la *zone de
+remplacement*. Deux sources honnêtes, et pas une de plus :
+
+1. la cellule du jour, quand elle nomme un atelier — c'est un fait daté ;
+2. la feuille « Polyvalence », quand la personne n'est formée que sur **un**
+   atelier : elle ne peut alors tenir que celui-là.
+
+Sur une journée type, cela donne le poste de **36 personnes sur 77**. Pour
+les polyvalents, le classeur ne dit pas où ils étaient : la ligne porte
+alors, en italique et plus pâle, le nombre d'ateliers sur lesquels ils sont
+formés — la liste entière est dans l'infobulle. Les deux ne disent pas la
+même chose, et les confondre ferait croire à une information qu'on n'a pas.
+
 Un **annuaire** complète l'onglet : chacun sous sa fonction, avec les
 ateliers où il est formé.
 

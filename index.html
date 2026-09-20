@@ -664,6 +664,12 @@ body.sheet-on{overflow:hidden}
 .eqp b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; font-weight:600; color:var(--ink)}
 .eqp span{font-size:10.5px; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .eqp i{font-style:normal; color:var(--muted)}
+/* Le poste du jour se lit en clair ; ce sur quoi la personne est seulement
+   formée s'écrit en italique et plus pâle — les deux ne disent pas la même
+   chose, et les confondre ferait croire à une information qu'on n'a pas. */
+.eqp em{font-style:normal; font-size:11px; color:var(--ink2); overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap}
+.eqp em.eqpoly{font-style:italic; color:var(--faint)}
 /* Se retrouver dans une liste de soixante-dix-sept identifiants demande un
    repère : le sien. */
 .eqp.moi{background:var(--in-soft); box-shadow:inset 0 0 0 1px var(--in2)}
@@ -1030,6 +1036,7 @@ body.sheet-on{overflow:hidden}
         <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
         <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
       </div>
+      <p class="lede top" id="eqNote"></p>
       <div class="eqcorps" id="eqCorps"></div>
     </div>
 
@@ -3436,6 +3443,50 @@ function fonctionLisible(cat){
     return i?((m===m.toUpperCase()&&m.length>1)?m:m.toLowerCase()):motLisible(m);
   }).join(" ");
 }
+/* Le poste que quelqu'un tient un jour donné, le classeur le dit rarement :
+   928 journées sur 27 462 nomment un atelier, et encore est-ce la ZONE DE
+   REMPLACEMENT. Deux sources honnêtes, et pas une de plus :
+
+   1. la cellule du jour, quand elle nomme un atelier — c'est un fait daté ;
+   2. la feuille « Polyvalence », quand la personne n'est formée que sur UN
+      atelier : elle ne peut alors tenir que celui-là.
+
+   Pour les polyvalents, le classeur ne dit pas où ils étaient. On montre
+   alors ce sur quoi ils sont formés, dans un gris qui ne se confond pas
+   avec le poste du jour — inventer le reste serait pire que se taire. */
+var ATELIER_NOMS=[
+  [/^meun(erie)?\.?$/i,"Meunerie"],
+  [/^glut(en)?\.?$/i,"Gluten"],
+  [/^ferm\.?\s*liqu?\.?$/i,"Fermentation liquide"],
+  [/^ferm(entation)?\.?$/i,"Fermentation"],
+  [/^disti(ll(ation)?)?\.?$/i,"Distillation"],
+  [/^chaudi(\u00e8res|eres)?\.?$/i,"Chaudi\u00e8res"],
+  [/^step\.?$/i,"STEP"]
+];
+function atelierLisible(t){
+  t=String(t||"").trim().replace(/\s+/g," ");
+  for(var i=0;i<ATELIER_NOMS.length;i++) if(ATELIER_NOMS[i][0].test(t)) return ATELIER_NOMS[i][1];
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+function atelierDuJour(person,raw){
+  var i, t;
+  for(i=0;i<2;i++){
+    t=(raw&&raw[i]||"").trim();
+    if(t && ATELIERS.test(t)) return {nom:atelierLisible(t), sur:true};
+  }
+  var at=(person.poly&&person.poly.ateliers)||[];
+  if(at.length===1) return {nom:atelierLisible(at[0]), sur:true};
+  if(at.length){
+    /* Une liste de cinq ateliers coupée par « … » n'apprend rien et se lit
+       comme un poste tronqué. Au-delà de deux, le nombre suffit ; la liste
+       entière reste dans l'infobulle. */
+    var noms=at.map(atelierLisible);
+    return {nom:(at.length>2)?(at.length+" ateliers"):noms.join(" · "),
+            sur:false, tout:noms.join(", ")};
+  }
+  return null;
+}
+
 var EQ_GROUPES=[
   {k:"AM",  t:"Matin",       s:"6h – 14h"},
   {k:"PM",  t:"Après-midi",  s:"14h – 22h"},
@@ -3491,15 +3542,26 @@ function renderEquipe(){
         var det=(g.k==="abs")?esc(x.r.a)
                :(x.prevu?esc(x.r.s)+" prévu":
                 (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
+        var at=(g.k==="off"||g.k==="abs")?null:atelierDuJour(x.p,x.p.d[mmdd]);
         h.push('<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
           '<b>'+esc(x.p.id)+"</b>"+
-          '<span>'+esc(fonctionCourte(x.p.cat))+(det?' · <i>'+det+"</i>":"")+"</span></div>");
+          '<span>'+esc(fonctionCourte(x.p.cat))+(det?' · <i>'+det+"</i>":"")+"</span>"+
+          (at?'<em class="'+(at.sur?"eqat":"eqpoly")+'" title="'
+              +(at.sur?"Poste tenu ce jour-là"
+                     :esc(at.tout||at.nom)+" — le classeur ne dit pas lequel elle tenait ce jour-là")
+              +'">'+esc(at.nom)+"</em>":"")+
+          "</div>");
       });
       h.push("</div>"+(repli?"</details>":"")+"</section>");
     });
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=
       total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
+    var note=document.getElementById("eqNote");
+    if(note) note.innerHTML="Sous chaque nom, <b>le poste tenu ce jour-là</b> — "
+      +"nommé dans la cellule, ou déduit quand la personne n'est formée que sur un atelier. "
+      +"<em>En italique</em> : les ateliers où elle est formée, le classeur ne disant pas "
+      +"lequel elle tenait ce jour-là.";
     renderAnnuaire(db,moi);
   });
 }
