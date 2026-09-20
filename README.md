@@ -136,6 +136,17 @@ un opérateur à chaque poste ; au moins 1 contremaître, 1 fermentation,
 1 distillation, 2 chaudières, 2 gluten, 1 meunerie, 1 polyvalent arrière ».
 Un poste sous son effectif est signalé.
 
+**Contremaîtres et adjoints partagent la même ligne**, les contremaîtres
+d'abord. Le client : « en pause, l'adjoint est contremaître uniquement s'il
+n'y a pas de contremaître sur ce créneau ». Le poste est donc tenu par le
+contremaître quand il est là — l'adjoint qui l'accompagne est un renfort ;
+celui qui est seul porte la mention « fait fonction ». Sur l'année, 242
+créneaux sont dans ce cas.
+
+Rien dans le classeur ne dit qui est contremaître et qui est adjoint : la
+liste est nommée en tête du script (`CONTREMAITRES`), plutôt que déduite
+d'un indice fragile.
+
 Sous chaque nom, **le poste tenu ce jour-là**. Le classeur le dit rarement —
 928 journées sur 27 462 nomment un atelier, et encore est-ce la *zone de
 remplacement*. Deux sources honnêtes, et pas une de plus :
