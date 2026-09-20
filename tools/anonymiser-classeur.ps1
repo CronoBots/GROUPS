@@ -292,12 +292,14 @@ else { $dst = Join-Path (Get-Location).ProviderPath $Sortie }
 $dst = [IO.Path]::GetFullPath($dst)
 
 $entrees = New-Object System.Collections.Specialized.OrderedDictionary
+$dates   = @{}
 $zin = [IO.Compression.ZipFile]::OpenRead($src)
 try {
     foreach ($e in $zin.Entries) {
         $ms = New-Object IO.MemoryStream
         $st = $e.Open(); $st.CopyTo($ms); $st.Dispose()
         $entrees[$e.FullName] = $ms.ToArray()
+        $dates[$e.FullName] = $e.LastWriteTime
         $ms.Dispose()
     }
 } finally { $zin.Dispose() }
@@ -598,6 +600,9 @@ try {
             if ($res.N) { $parties++ }
         }
         $e  = $zout.CreateEntry($nom, [IO.Compression.CompressionLevel]::Optimal)
+        # La date du classeur source, pour que deux conversions du même
+        # fichier donnent la même sortie.
+        if ($dates.ContainsKey($nom)) { $e.LastWriteTime = $dates[$nom] }
         $st = $e.Open(); $st.Write($donnee, 0, $donnee.Length); $st.Dispose()
     }
 } finally { $zout.Dispose() }

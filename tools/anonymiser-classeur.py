@@ -120,17 +120,34 @@ def _motif_seul(mot):
     return _borner(r"(?-i:" + re.escape(p[0].upper()) + r")" + suite, p)
 
 
-def _remplacer(donnee, regles):
+def _sonde(texte):
+    """Le premier mot du texte, en minuscules : s'il n'est pas dans la partie,
+    la règle ne peut pas s'y appliquer."""
+    m = re.match(r"[^\W\d_]+", _sans_accent(texte), re.U)
+    return m.group(0).lower() if m else ""
+
+
+def _remplacer(donnee, regles, sondes):
     """Applique les règles sur le texte d'une partie XML.
 
     La comparaison se fait sur une copie SANS ACCENTS, et le remplacement sur
     l'original aux mêmes positions : « Prénom » et « Prénom » se valent sans
     qu'on ait à écrire les deux.
+
+    Chaque règle porte une sonde — le premier mot du nom qu'elle cherche. On
+    cherche les sondes UNE fois pour toutes, puis on saute les règles dont la
+    sonde est absente. Sans cela, deux mille motifs balaient chacun les dix-
+    huit méga-octets du classeur, y compris ceux qui cherchent un nom qui n'y
+    est pas.
     """
     txt = donnee.decode("utf-8", "replace")
     plat = _sans_accent(txt)
+    bas = plat.lower()
+    presentes = set(sd for sd in sondes if sd in bas)
     coupes = []
-    for motif, par in regles:
+    for motif, par, sonde in regles:
+        if sonde and sonde not in presentes:
+            continue
         for m in re.finditer(motif, plat, re.I):
             coupes.append((m.start(), m.end(), par))
     if not coupes:
@@ -307,11 +324,11 @@ def anonymiser(src, dst, tolere=()):
             for forme in _formes(cle):
                 m = _motif(forme)
                 if m:
-                    pesees.append((len(forme), m, ini))
+                    pesees.append((len(forme), m, ini, _sonde(forme)))
         else:
             m = _motif_seul(cle)
             if m:
-                pesees.append((len(cle), m, ini))
+                pesees.append((len(cle), m, ini, _sonde(cle)))
         for bout in bouts:
             if len(bout) >= 3:
                 surveille.append((bout, ini))
@@ -320,8 +337,9 @@ def anonymiser(src, dst, tolere=()):
     # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long
     # motif pour un petit mot, et il passerait devant.
     pesees.sort(key=lambda r: -r[0])
-    regles = [(m, ini) for _, m, ini in pesees]
-    regles.append((AUTEUR.pattern, ""))
+    regles = [(m, ini, sd) for _, m, ini, sd in pesees]
+    regles.append((AUTEUR.pattern, "", ""))
+    sondes = sorted(set(sd for _, _, sd in regles if sd))
 
     # On écrit À CÔTÉ. Tant que la garantie n'est pas franchie, le fichier
     # peut porter des noms : il n'a rien à faire à sa destination, où un
@@ -336,13 +354,21 @@ def anonymiser(src, dst, tolere=()):
                 continue
             donnee = zin.read(info.filename)
             if TEXTE.search(info.filename):
-                donnee, n = _remplacer(donnee, regles)
+                donnee, n = _remplacer(donnee, regles, sondes)
                 if info.filename.startswith("docProps/"):
                     donnee = re.sub(rb"<(dc:creator|cp:lastModifiedBy)>[^<]*</\1>",
                                     rb"<\1></\1>", donnee)
                 total += n
                 parties += 1 if n else 0
-            zout.writestr(info.filename, donnee)
+            # On reprend la date du classeur source. Sans elle, le ZIP
+            # s'horodate à l'instant présent : deux conversions du même
+            # fichier donneraient deux sorties différentes, et git verrait
+            # 1,5 Mo de changement là où rien n'a bougé.
+            sortie = zipfile.ZipInfo(info.filename, info.date_time)
+            sortie.compress_type = zipfile.ZIP_DEFLATED
+            sortie.external_attr = info.external_attr
+            sortie.create_system = info.create_system
+            zout.writestr(sortie, donnee)
     zin.close()
 
     # --- la garantie : relire, et chercher ce qu'on vient de remplacer -----
@@ -352,8 +378,9 @@ def anonymiser(src, dst, tolere=()):
         if not TEXTE.search(info.filename):
             continue
         plat = _sans_accent(zv.read(info.filename).decode("utf-8", "replace"))
+        bas = plat.lower()
         for bout, ini in surveille:
-            if bout in tolere:
+            if bout in tolere or bout not in bas:
                 continue
             for m in re.finditer(r"\b" + re.escape(bout) + r"\b", plat, re.I):
                 # un mot courant écrit en minuscules n'est pas un nom
