@@ -41,6 +41,18 @@ FEUILLES = {
 }
 LIGNE_NOMS = 10          # la ligne qui porte les noms
 LIGNE_POSTE = 9          # juste au-dessus : le poste tenu (section 9 bis)
+
+
+def _lettre(n):
+    """Le nom de colonne d'Excel. « Polyvalent » seul est ambigu : en O
+    c'est le polyvalent ARRIÈRE, après V c'est un polyvalent AVANT, et
+    les deux ne tiennent pas les mêmes postes. Sans la colonne, on ne
+    peut pas les distinguer."""
+    s = ""
+    while n:
+        n, r = divmod(n - 1, 26)
+        s = chr(65 + r) + s
+    return s
 COL_JOUR = 2             # la colonne qui porte le numéro du jour
 MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET",
         "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"]
@@ -477,7 +489,7 @@ def _colonnes(cl):
             if jours:
                 yield (categorie, nom, jours,
                        compteurs(g, colonne) if pied else {}, entete,
-                       feuille, poste)
+                       feuille, poste, _lettre(colonne))
 
 
 def convertir(chemin_xlsm, annee):
@@ -489,7 +501,7 @@ def convertir(chemin_xlsm, annee):
     #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
     #    tête pour que ce soit celle de son propre groupe.
     fiches, utilisees, noms = {}, set(), {}
-    for categorie, nom, jours, cpt, entete, feuille, poste in _colonnes(cl):
+    for categorie, nom, jours, cpt, entete, feuille, poste, col in _colonnes(cl):
         cle = _sans_accent(nom).lower()
         noms[cle] = nom
         corrige = CORRECTIONS.get(_empreinte(cle))
@@ -506,7 +518,7 @@ def convertir(chemin_xlsm, annee):
         # Contremaître » sur les cinq équipes et porte un numéro d'équipe sur
         # sa propre feuille. On garde les deux plutôt que d'en élire un.
         if poste:
-            f["postes"][feuille] = poste
+            f["postes"][feuille] = {"p": poste, "c": col}
         for v in entete:
             if v not in f["e"]:
                 f["e"].append(v)
