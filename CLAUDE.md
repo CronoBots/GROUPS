@@ -223,16 +223,29 @@ maintenant `lireJournee()` ; le vérificateur refait le trajet complet
 Le code de retour est 1 s'il reste une faute : l'outil se branche tel quel
 sur un contrôle automatique.
 
-**Au 20/09/2026 : 3 cellules non reconnues sur 27 462, zéro faute ailleurs.**
-Les trois demandent une décision du client et ne doivent pas être devinées.
+**Au 20/09/2026 : 1 cellule non reconnue sur 27 462, zéro faute ailleurs.**
+C'est `CAN 24/07 ["*"]`, une étoile seule, qui demande une décision du
+client. Les deux autres cellules annoncées plus tôt étaient un artefact de
+la découpe, corrigé depuis : d'où les épreuves d'auto-contrôle.
+
+Une dixième règle, plus faible, liste les **mentions non comprises** : la
+case s'affiche juste, mais un morceau de la cellule reste illisible. 251
+journées, regroupées par mention — `RHS` (157), `RTT-` (32), `E. min SD26`
+(12), `R-F`, `HS`, `eval`, `R-VM`. Elles n'empêchent rien d'afficher, mais
+elles pourraient déplacer des heures : à faire trancher, une par une.
 
 ## Vérifier une modification du pré-remplissage
 
-Rejouer `parseHoraireEntry` sur les 27 462 journées de
-`data/horaire-2026.json` et comparer aux repères de la section 11 de
-`docs/conversion-horaire.md`. Au 19/09/2026 : 19 965 postes prestés, 490
-absences codées, 7 006 repos et **une seule** cellule non résolue. Un écart
-important signale une régression.
+`tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
+lui qu'il faut relancer, et non un script à côté. Au 20/09/2026, sur les
+27 462 journées : **14 989 prestées, 4 723 absences, 156 postes prévus non
+prestés, 7 594 repos**. Un écart important signale une régression.
+
+Ces nombres ne se comparent pas aux anciens repères de la section 11 de
+`docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
+sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
+case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
+appliqués.
 
 Second contrôle, indépendant : recalculer les compteurs flex time de chacun
 depuis ses journées et les comparer à ceux du pied de classeur, qui sont
