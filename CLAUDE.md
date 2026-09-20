@@ -308,16 +308,19 @@ client. Les deux autres cellules annoncées plus tôt étaient un artefact de
 la découpe, corrigé depuis : d'où les épreuves d'auto-contrôle.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
-case s'affiche juste, mais un morceau de la cellule reste illisible. 251
-journées, regroupées par mention — `RHS` (157), `RTT-` (32), `E. min SD26`
-(12), `R-F`, `HS`, `eval`, `R-VM`. Elles n'empêchent rien d'afficher, mais
-elles pourraient déplacer des heures : à faire trancher, une par une.
+case s'affiche juste, mais un morceau de la cellule reste illisible. **90
+journées**, regroupées par mention — `RTT-` (32), `E. min SD26` (12), `R-F`,
+`HS`, `eval`, `R-VM`. Elles n'empêchent rien d'afficher, mais elles
+pourraient déplacer des heures : à faire trancher, une par une.
+
+`RHS` en est sorti : le client l'a tranché le 20/09/2026, et ses 157 journées
+sont devenues des absences — voir `docs/regles-paie.md`.
 
 ## Vérifier une modification du pré-remplissage
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
 lui qu'il faut relancer, et non un script à côté. Au 20/09/2026, sur les
-27 462 journées : **14 989 prestées, 4 723 absences, 156 postes prévus non
+27 462 journées : **14 832 prestées, 4 880 absences, 156 postes prévus non
 prestés, 7 594 repos**. Un écart important signale une régression.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de

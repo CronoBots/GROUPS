@@ -350,6 +350,24 @@ Le diviseur horaire se retrouve sur la fiche : rémunération fixe divisée par
 le salaire horaire, soit (montant retiré) / (taux retiré) = 148,368 pour VBN — la valeur
 par défaut de l'application.
 
+## RHS — récupération d'heures supplémentaires
+
+**Confirmé par le client le 20/09/2026.**
+
+Deux écritures, deux sens :
+
+| Écriture | Sens | Effet |
+|---|---|---|
+| `2h RHS`, `1h rhs`, `2,25h RHS` | une **reprise** | comble la journée — AFA le 28/01, prévu 7 h-15 h, part à 12 h 45 : 5 h 45 de présence + 2 h 15 reprises = ses 8 h |
+| `RHS` **seul** | la **journée entière** | absence, exactement comme `RTT` seul |
+
+Le compteur est le même dans les deux cas : une journée entière en consomme
+huit heures, « 2h RHS » en consomme deux. C'est un compteur **hors fichier**,
+distinct du flex time — s'il reprend des heures c'est marqué, mais rien n'est
+marqué quand il en fait.
+
+157 journées de l'horaire 2026 portent `RHS` seul.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
