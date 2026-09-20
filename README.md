@@ -56,9 +56,13 @@ connue (6h-14h le matin, 7h-15h et l'horaire flottant en jour).
 
 ### Qui l'on regarde
 
-L'équipe et la personne se choisissent **dans la barre du haut**, à côté du
-nom de l'application. C'est un contexte global : la personne choisie pilote
-les trois vues de l'horaire et l'onglet Compteurs. La laisser au fond d'un
+L'équipe et la personne se choisissent **une fois**, dans Réglages → « Qui je
+suis ». C'est l'application d'un travailleur : une question réglée n'a pas à
+occuper la place la plus chère de l'écran. L'en-tête n'en garde que la
+réponse — l'identifiant et la fonction — et mène au réglage d'un toucher.
+
+La personne choisie reste un contexte global : elle pilote les trois vues de
+l'horaire et l'onglet Compteurs. La laisser au fond d'un
 onglet obligeait à y revenir pour en changer.
 
 Les deux sélecteurs ne s'affichent que là où ils veulent dire quelque chose —
