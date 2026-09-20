@@ -24,6 +24,36 @@ cellule, son annotation, le commentaire.
 Le document liste aussi ce qui reste à faire confirmer par le client — ne pas
 deviner à sa place sur ces points : ils touchent à des montants.
 
+## Garder le classeur sous la main, anonymisé
+
+```bash
+python3 tools/anonymiser-classeur.py /chemin/Recapitulatif.xlsm \
+        data/classeur-2026.xlsx
+```
+
+**À faire EN PREMIER, avant toute conversion.** Le convertisseur ne garde
+que ce qu'il sait lire ; deux fois de suite une information s'est perdue
+parce qu'elle n'était pas dans les lignes qu'il regardait. L'anonymiseur,
+lui, **n'interprète rien** : il ouvre le classeur comme l'archive ZIP qu'il
+est, remplace les noms partout où ils apparaissent, et referme. Feuilles,
+formules, mises en forme, commentaires, colonnes qu'on n'a pas encore
+comprises — tout passe intact. Ce qui n'est pas compris aujourd'hui reste
+disponible demain, sans avoir à redemander le fichier.
+
+Sortent du fichier : les noms sous toutes leurs formes, les auteurs de
+commentaires, les macros (`vbaProject.bin` — d'où un `.xlsx`, pas un
+`.xlsm`) et les propriétés du document.
+
+**La garantie.** La sortie est relue entièrement et l'outil y cherche les
+noms qu'il vient de remplacer. S'il en trouve un seul, il détruit sa sortie
+et s'arrête avec le détail. Un anonymiseur qui peut laisser passer un nom
+sans le dire ne vaut rien. Si un reste n'est pas un nom — « Paye » est aussi
+un mot français — le relancer avec `--tolerer=paye` **après avoir lu le
+contexte imprimé**.
+
+Le `.xlsx` produit ne porte plus de nom : il peut donc, lui, vivre dans le
+dépôt. C'est la copie de référence.
+
 ## Mettre à jour l'horaire depuis un nouveau classeur
 
 Le client envoie régulièrement le récapitulatif Excel. La procédure :
@@ -96,6 +126,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
+| `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
