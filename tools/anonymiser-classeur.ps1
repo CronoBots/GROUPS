@@ -31,8 +31,31 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.IO.Compression
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+try { Add-Type -AssemblyName System.IO.Compression } catch { }
+try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { }
+
+# Tout ce qui s'affiche est aussi écrit dans un journal, à côté du script.
+# Sans lui, une fenêtre qui se referme emporte l'erreur avec elle — et on ne
+# saurait jamais pourquoi le fichier n'a pas été produit.
+$journal = Join-Path (Get-Location).ProviderPath 'anonymiser-journal.txt'
+try { Start-Transcript -LiteralPath $journal -Force | Out-Null } catch { $journal = $null }
+
+# Le filet : une erreur terminante est écrite en clair plutôt que de faire
+# disparaître la fenêtre.
+trap {
+    Write-Host ''
+    Write-Host "ERREUR : $($_.Exception.Message)" -ForegroundColor Red
+    if ($_.InvocationInfo) {
+        Write-Host ("  ligne {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber,
+                                           $_.InvocationInfo.Line.Trim())
+    }
+    if ($journal) {
+        try { Stop-Transcript | Out-Null } catch { }
+        Write-Host ''
+        Write-Host "Le détail est dans $journal"
+    }
+    exit 3
+}
 
 $UTF8   = New-Object System.Text.UTF8Encoding($false)
 $NS_M   = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -109,7 +132,7 @@ function Formes([string] $nom) {
     $bouts = @($nom -split '[,\s]+' | Where-Object { $_ })
     if ($bouts.Count -eq 0) { return @() }
     $inv = @($bouts[($bouts.Count - 1)..0])
-    $out = New-Object System.Collections.Generic.HashSet[string]
+    $out = New-Object 'System.Collections.Generic.HashSet[string]'
     foreach ($sep in @(', ', ' ', '  ', ',', '')) {
         [void] $out.Add(($bouts -join $sep))
         [void] $out.Add(($inv   -join $sep))
@@ -133,7 +156,7 @@ function Remplacer([byte[]] $octets) {
     # correspondent plus : on cherche alors dans l'original, quitte à manquer
     # une graphie. Jamais de remplacement posé au mauvais endroit.
     if ($plat.Length -ne $txt.Length) { $plat = $txt }
-    $coupes = New-Object System.Collections.Generic.List[object]
+    $coupes = New-Object 'System.Collections.Generic.List[object]'
     foreach ($r in $regles) {
         if ($r.Sonde -and $plat.IndexOf($r.Sonde, [StringComparison]::OrdinalIgnoreCase) -lt 0) { continue }
         foreach ($m in $r.Rx.Matches($plat)) {
@@ -176,6 +199,13 @@ try {
 } finally { $zin.Dispose() }
 
 # --- les feuilles, puis l'annuaire ---------------------------------------
+foreach ($requis in @('xl/workbook.xml', 'xl/_rels/workbook.xml.rels')) {
+    if (-not $entrees.Contains($requis)) {
+        throw "Ce fichier n'a pas la forme d'un classeur Excel : $requis est absent. " +
+              "Est-ce bien le .xlsm, et non un raccourci ou un fichier OneDrive non téléchargé ?"
+    }
+}
+
 $wb   = LireXml $entrees['xl/workbook.xml']
 $nswb = New-Object System.Xml.XmlNamespaceManager($wb.NameTable)
 $nswb.AddNamespace('m', $NS_M)
@@ -195,7 +225,7 @@ foreach ($sh in $wb.SelectNodes('//m:sheets/m:sheet', $nswb)) {
     $feuilles[$sh.GetAttribute('name')] = $cible
 }
 
-$shared = New-Object System.Collections.Generic.List[string]
+$shared = New-Object 'System.Collections.Generic.List[string]'
 if ($entrees.Contains('xl/sharedStrings.xml')) {
     $ss  = LireXml $entrees['xl/sharedStrings.xml']
     $nss = New-Object System.Xml.XmlNamespaceManager($ss.NameTable)
@@ -224,8 +254,8 @@ if ($annuaire.Count -eq 0) {
 }
 
 # --- les règles, et ce qu'on surveillera dans la sortie -------------------
-$regles    = New-Object System.Collections.Generic.List[object]
-$surveille = New-Object System.Collections.Generic.List[object]
+$regles    = New-Object 'System.Collections.Generic.List[object]'
+$surveille = New-Object 'System.Collections.Generic.List[object]'
 foreach ($cle in $annuaire.Keys) {
     $ini = $annuaire[$cle]
     foreach ($forme in (Formes $cle)) {
@@ -280,7 +310,7 @@ try {
 } finally { $zout.Dispose() }
 
 # --- la garantie : relire, et chercher ce qu'on vient de remplacer --------
-$restes = New-Object System.Collections.Generic.List[object]
+$restes = New-Object 'System.Collections.Generic.List[object]'
 $zv = [IO.Compression.ZipFile]::OpenRead($dst)
 try {
     foreach ($e in $zv.Entries) {
@@ -316,6 +346,7 @@ if ($restes.Count -gt 0) {
     Write-Host ''
     Write-Host "Si l'un d'eux n'est pas un nom — « Paye » peut être un mot — relancer avec"
     Write-Host "  -Tolerer mot1,mot2   APRÈS l'avoir lu."
+    if ($journal) { try { Stop-Transcript | Out-Null } catch { } }
     exit 2
 }
 
@@ -323,3 +354,4 @@ $taille = (Get-Item -LiteralPath $dst).Length
 $resume = "{0} nom(s) connu(s) · {1} remplacement(s) dans {2} partie(s) · {3:N1} Mo"
 Write-Host ($resume -f $annuaire.Count, $total, $parties, ($taille / 1MB))
 Write-Host 'Aucun nom ne subsiste : vérifié sur la sortie.' -ForegroundColor Green
+if ($journal) { try { Stop-Transcript | Out-Null } catch { } }
