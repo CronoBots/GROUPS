@@ -478,6 +478,29 @@ Un convertisseur refait doit donc conserver : le contenu de la cellule, le
 contenu intégral du commentaire, et tout marqueur visuel porteur de sens
 (couleur de fond, barré, gras) — à vérifier avec le client.
 
+## 10 quater. Une journée non prestée n'est pas un poste
+
+`["PM","VA"]` : la rotation prévoyait un après-midi, la personne était en
+congé annuel. La cellule porte le poste **prévu**, l'annotation dit qu'il
+n'a pas été presté — et le calcul le sait déjà (zéro heure, section 6 bis
+bis). Les deux calendriers, eux, peignaient la case en après-midi avec
+l'étiquette « PM », et un point gris pour toute nuance. Six journées de
+février 2026 d'affilée chez VBN, et le mois annonçait des postes que
+personne n'avait faits.
+
+**Dès qu'aucune heure n'est prestée, c'est l'absence qui fait la journée**,
+et c'est elle que la case porte : son code — `VA`, `CP`, `FORM` — sur un
+**trait discontinu**, qui ne ressemble à aucun poste. Le poste prévu reste
+dans l'infobulle, où il répond à la seule question qu'il éclaire encore :
+« qu'est-ce que j'aurais dû faire ce jour-là ? »
+
+La vue annuelle appliquait déjà cette règle (`travaille = s && h > 0`) ; le
+mois et le mini-calendrier du résumé s'y sont alignés.
+
+Corollaire : un mouvement de flex time sur une journée de repos —
+`["-","4h -FT"]` — s'affiche `4-FT` et non `-FT`. Les heures sont le seul
+chiffre utile du code ; les couper ne gardait que l'étiquette.
+
 ## 10 ter. Montrer une journée dont la prime dit autre chose
 
 Une journée de délégation, de formation ou d'arrêt technique se preste en
