@@ -3474,6 +3474,15 @@ function atelierDuJour(person,raw){
     t=(raw&&raw[i]||"").trim();
     if(t && ATELIERS.test(t)) return {nom:atelierLisible(t), sur:true};
   }
+  /* L'en-tête de la colonne, au-dessus du nom dans le classeur : « le poste
+     qu'ils tiennent est tout près de leur trigramme ». Le convertisseur le
+     jetait ; il le garde désormais dans « e », tel quel. On n'en retient
+     que ce qui nomme un atelier — le reste attend d'être compris. */
+  var ent=person.e||[];
+  for(i=0;i<ent.length;i++){
+    t=String(ent[i]||"").trim();
+    if(t && ATELIERS.test(t)) return {nom:atelierLisible(t), sur:true};
+  }
   var at=(person.poly&&person.poly.ateliers)||[];
   if(at.length===1) return {nom:atelierLisible(at[0]), sur:true};
   if(at.length){
@@ -3576,8 +3585,13 @@ function renderAnnuaire(db,moi){
     h.push('<section class="grp"><h3>'+esc(fonctionLisible(c))+" · "+l.length+"</h3><div class=\"eql\">");
     l.forEach(function(p){
       var at=(p.poly&&p.poly.ateliers)?p.poly.ateliers.join(", "):"";
+      /* Ce que le classeur écrit au-dessus du nom, mot pour mot. On ne sait
+         pas toujours ce que ça désigne ; le cacher serait pire. */
+      var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
       h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(p.id)+"</b>"+
-        '<span>'+(at?esc(at):"—")+"</span></div>");
+        '<span>'+(at?esc(at):"—")+"</span>"+
+        (ent?'<em class="eqat" title="Tel que le classeur l\'écrit au-dessus du nom">'
+             +esc(ent)+"</em>":"")+"</div>");
     });
     h.push("</div></section>");
   });

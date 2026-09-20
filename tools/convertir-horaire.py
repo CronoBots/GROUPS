@@ -381,6 +381,44 @@ def polyvalence(cl, annuaire):
     return out
 
 
+def restes(g, feuille, mois, premier_jour):
+    """Dit ce que le convertisseur N'A PAS repris.
+
+    Il ne lisait que la ligne des noms, les journées et le pied de feuille ;
+    tout le reste tombait, sans un mot. Le poste de travail de chacun était
+    probablement là. Une perte silencieuse est une perte qu'on ne corrige
+    jamais : à partir d'ici, il compte ce qu'il laisse et le dit.
+
+    Les échantillons imprimés évitent tout ce qui ressemble à un nom.
+    """
+    lues = set(range(1, premier_jour + 1))
+    for r0 in mois.values():
+        for d in range(1, 32):
+            r = r0 + d - 1
+            if str(g.get(r, {}).get(COL_JOUR, "")) == str(d):
+                lues.add(r)
+    for _, debut, fin, _ in BLOCS:
+        lues.update(range(debut, fin + 1))
+    perdues = {}
+    for r in sorted(g):
+        if r in lues:
+            continue
+        vals = [str(v).strip() for c, v in g[r].items()
+                if c >= 3 and str(v).strip() not in ("", "0")]
+        if vals:
+            perdues[r] = vals
+    if not perdues:
+        return
+    n = sum(len(v) for v in perdues.values())
+    print("  %s : %d cellule(s) non reprise(s) sur %d ligne(s)"
+          % (feuille, n, len(perdues)), file=sys.stderr)
+    for r in sorted(perdues)[:6]:
+        sur = [v for v in perdues[r] if "," not in v and len(v) <= 20][:3]
+        print("      ligne %-4d %3d valeur(s)%s"
+              % (r, len(perdues[r]), ("  — " + " | ".join(sur)) if sur else ""),
+              file=sys.stderr)
+
+
 def _colonnes(cl):
     """Toutes les colonnes-personnes de toutes les feuilles, avec leur nom.
     Une même personne figure sur plusieurs feuilles ; on les fusionne ensuite
@@ -393,10 +431,23 @@ def _colonnes(cl):
         cm = cl.commentaires(feuille)
         pied = verifier_blocs(g, feuille)
         mois = blocs_de_mois(g)
+        # Tout ce qui est écrit AU-DESSUS du nom, et entre le nom et la
+        # première journée, appartient à la personne : le client a demandé
+        # que rien du classeur ne se perde, et c'est probablement là que se
+        # trouve le poste de travail. On recopie sans interpréter, comme
+        # partout ailleurs — l'application décidera quoi en faire.
+        premier_jour = min(mois.values()) if mois else LIGNE_NOMS + 1
+        restes(g, feuille, mois, premier_jour)
         for colonne in sorted(g.get(LIGNE_NOMS, {})):
             nom = str(g[LIGNE_NOMS][colonne]).strip()
             if colonne < 3 or nom in ("", "0"):
                 continue
+            entete = []
+            for r in list(range(1, LIGNE_NOMS)) + list(range(LIGNE_NOMS + 1, premier_jour)):
+                for c in (colonne, colonne + 1):
+                    v = str(g.get(r, {}).get(c, "")).strip()
+                    if v and v != "0" and v not in entete:
+                        entete.append(v)
             jours = {}
             for m, r0 in mois.items():
                 for d in range(1, 32):
@@ -413,7 +464,8 @@ def _colonnes(cl):
                         e.pop()
                     jours["%02d%02d" % (m, d)] = e
             if jours:
-                yield categorie, nom, jours, compteurs(g, colonne) if pied else {}
+                yield (categorie, nom, jours,
+                       compteurs(g, colonne) if pied else {}, entete)
 
 
 def convertir(chemin_xlsm, annee):
@@ -425,7 +477,7 @@ def convertir(chemin_xlsm, annee):
     #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
     #    tête pour que ce soit celle de son propre groupe.
     fiches, utilisees, noms = {}, set(), {}
-    for categorie, nom, jours, cpt in _colonnes(cl):
+    for categorie, nom, jours, cpt, entete in _colonnes(cl):
         cle = _sans_accent(nom).lower()
         noms[cle] = nom
         corrige = CORRECTIONS.get(_empreinte(cle))
@@ -436,7 +488,10 @@ def convertir(chemin_xlsm, annee):
             continue
         utilisees.add(_empreinte(cle))
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
-                                    "cat": categorie, "d": {}, "c": {}})
+                                    "cat": categorie, "d": {}, "c": {}, "e": []})
+        for v in entete:
+            if v not in f["e"]:
+                f["e"].append(v)
         for sec, vals in cpt.items():
             if vals:
                 f["c"].setdefault(sec, {}).update(vals)
@@ -520,6 +575,8 @@ def convertir(chemin_xlsm, annee):
             p = {"id": ident, "cat": f["cat"], "d": f["d"]}
             if f["c"]:
                 p["c"] = f["c"]
+            if f.get("e"):
+                p["e"] = f["e"]
             gens[ident] = p
 
     for ident, fiche in polyvalence(cl, annuaire).items():

@@ -67,6 +67,17 @@ python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm --entetes
 Il imprime les lignes 5 à 12 de chaque feuille, colonne par colonne, les
 noms réduits à leurs initiales.
 
+**Le convertisseur dit maintenant ce qu'il ne reprend pas.** Il ne lisait que
+la ligne des noms, les journées et le pied de feuille ; tout le reste tombait
+sans un mot — et le poste de travail de chacun était probablement là. Il
+compte désormais les cellules qu'il laisse et les annonce, ligne par ligne.
+Ces messages se lisent : une perte silencieuse est une perte qu'on ne corrige
+jamais.
+
+Il garde aussi, dans le champ `e` de chaque personne, **tout ce qui est écrit
+au-dessus de son nom** et entre le nom et la première journée — sans
+l'interpréter, comme le reste.
+
 Le convertisseur signale de son côté les anomalies du classeur : trigrammes
 partagés, corrections devenues orphelines, compteur écrit dans la mauvaise
 colonne. Ces messages vont sur la sortie d'erreur ; ils ne sont pas du bruit.
