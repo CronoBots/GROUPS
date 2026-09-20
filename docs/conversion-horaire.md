@@ -460,6 +460,28 @@ peut tenir en plus obéit à des règles distinctes :
 habituel ; c'est la cellule du jour et son commentaire qui disent où la
 personne était réellement — la règle qui gouverne tout ce document.
 
+### Les cellules fusionnées
+
+**Le poste couvre souvent plusieurs colonnes**, et une fusion ne se voit pas
+dans le XML : seule la case en haut à gauche porte la valeur, les autres sont
+vides. Dix personnes — deux par équipe, en `AI` et `AK` — semblaient ainsi
+n'avoir aucun poste. Elles sont aux chaudières.
+
+- `Chaudières` couvre `AG` à `AK` : **trois** opérateurs par équipe.
+- `Adjoints Contremaître` couvre `C` à `M` : les **cinq** adjoints le portent.
+
+Le convertisseur déplie donc les fusions — **mais seulement sur la ligne 9**.
+Déplié partout, le mécanisme est un désastre discret : la ligne des noms est
+fusionnée elle aussi, chaque personne apparaît sur ses deux colonnes, est lue
+deux fois, et la conversion passe à 27 683 journées au lieu de 27 462.
+
+### La feuille « Step » : le nom porte le poste
+
+Sa ligne 9 est vide, et ce n'est pas un oubli : tout le monde y tient le même
+poste, la **station d'épuration**. Le convertisseur le remplit d'après le nom
+de la feuille — c'est la seule endroit où il déduit un poste, et la seule
+feuille concernée.
+
 ### La feuille « Opérateurs »
 
 Elle ne suit pas la même logique. Les gens qui y figurent sont **validés ou en
