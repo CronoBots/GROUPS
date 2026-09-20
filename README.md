@@ -129,13 +129,26 @@ code qui le dit, et les repos, repliés — c'est la moitié de l'équipe et la
 question qu'on se pose le moins. Sa propre ligne est surlignée : se
 retrouver dans soixante-dix-sept identifiants demande un repère.
 
+Chaque pause est montrée **poste par poste**, dans l'ordre où l'on parcourt
+l'usine — meunerie, gluten, fermentation, terrain arrière, distillation,
+chaudières — avec l'effectif attendu. Le client : « il doit toujours y avoir
+un opérateur à chaque poste ; au moins 1 contremaître, 1 fermentation,
+1 distillation, 2 chaudières, 2 gluten, 1 meunerie, 1 polyvalent arrière ».
+Un poste sous son effectif est signalé.
+
 Sous chaque nom, **le poste tenu ce jour-là**. Le classeur le dit rarement —
 928 journées sur 27 462 nomment un atelier, et encore est-ce la *zone de
 remplacement*. Deux sources honnêtes, et pas une de plus :
 
-1. la cellule du jour, quand elle nomme un atelier — c'est un fait daté ;
-2. la feuille « Polyvalence », quand la personne n'est formée que sur **un**
-   atelier : elle ne peut alors tenir que celui-là.
+1. la cellule du jour, quand elle nomme un poste — c'est un fait daté ;
+2. l'en-tête de sa colonne dans le classeur, gardé dans le champ `e` ;
+3. la feuille « Polyvalence », quand la personne n'est formée que sur **un**
+   poste : elle ne peut alors tenir que celui-là.
+
+À défaut, elle reste « à déterminer » : compléter un effectif par une
+supposition ferait croire qu'un poste est tenu alors qu'on n'en sait rien.
+Tant qu'il reste des postes à déterminer dans une pause, les effectifs
+incomplets s'affichent sans accusation — une phrase dit pourquoi.
 
 Sur une journée type, cela donne le poste de **36 personnes sur 77**. Pour
 les polyvalents, le classeur ne dit pas où ils étaient : la ligne porte
