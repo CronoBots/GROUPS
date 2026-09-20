@@ -660,6 +660,20 @@ body.sheet-on{overflow:hidden}
 .f input:focus,.f select:focus{background:var(--surface)}
 .f input[type=number]{font-family:"IBM Plex Mono",monospace; text-align:right}
 .f .hint{font-size:10.5px; color:var(--faint)}
+/* Une valeur commune se lit, elle ne se remplit pas : pas de cadre de
+   saisie, pas de fond clair qui appelle le doigt. Le cadenas dit pourquoi,
+   sans un mot. */
+.f.fige output{
+  display:flex; align-items:center; justify-content:flex-end; gap:7px;
+  padding:7px 9px; border:1px solid transparent; border-radius:8px;
+  background:var(--surface3); color:var(--ink2);
+  font-family:"IBM Plex Mono",monospace; font-size:13px; font-variant-numeric:tabular-nums;
+}
+.f.fige output svg{flex:0 0 auto; color:var(--faint)}
+.f.fige label{color:var(--faint)}
+.note-fige{margin:0; padding:10px 16px; font-size:11.5px; color:var(--faint);
+  background:var(--surface2); border-top:1px solid var(--line2)}
+.note-fige svg{vertical-align:-2px; margin-right:5px; color:var(--faint)}
 .fold{border-top:1px solid var(--line2)}
 .fold>summary{list-style:none; cursor:pointer; padding:12px 16px; display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:600; color:var(--ink2)}
 .fold>summary::-webkit-details-marker{display:none}
@@ -1004,19 +1018,22 @@ body.sheet-on{overflow:hidden}
       </details>
       <details class="fold">
         <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
-        <p class="lede top">Les primes d'équipe, chèques-repas et autres valeurs communes à toute l'équipe sont déjà réglés. Vos informations personnelles (rémunération, situation familiale, équipe…) peuvent être corrigées ici à tout moment.</p>
+        <p class="lede top">Vos informations personnelles — rémunération, situation familiale, cycle, déplacements — se corrigent ici à tout moment.</p>
         <div class="pad" id="paramFields"></div>
+        <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
         <p class="lede" id="paramNote"></p>
       </details>
       <details class="fold">
         <summary>Primes de rappel <span class="sub">coefficients de la procédure OP_BWZ_CoD_00020</span></summary>
         <div class="pad grid" id="rappelFields"></div>
+        <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
         <p class="lede">La prime vaut <b>2 h × (salaire horaire × coefficient du jour + prime de pause × coefficient de pause) × coefficient du moment</b>. Le jour et la pause viennent de la ligne de l'horaire ; le bouton de la ligne ne choisit que le moment. Pas de prime si la prestation avant ou après la pause dure moins de 3 h, ni pour une prestation en AM sur les jours « D » des 5ᵉ et 6ᵉ semaines du cycle.</p>
       </details>
       <details class="fold">
         <summary>Barèmes 2026 <span class="sub">ONSS, tranches d'impôt, exonérations</span></summary>
         <div class="pad grid" id="baremeFields"></div>
-        <p class="lede">Le barème théorique et le précompte réellement retenu par un secrétariat social diffèrent souvent de quelques euros. « Calage barème » absorbe cet écart en une seule valeur annuelle. Mettez 0 pour le calcul purement théorique ; l'onglet Contrôle recalcule la bonne valeur dès que vous y saisissez le précompte réel d'une fiche.</p>
+        <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
+        <p class="lede">Le barème théorique et le précompte réellement retenu par un secrétariat social diffèrent souvent de quelques euros. <b>« Calage barème » est le seul de cette liste qui vous appartienne</b> : il absorbe cet écart en une seule valeur annuelle. Mettez 0 pour le calcul purement théorique ; l'onglet Contrôle recalcule la bonne valeur dès que vous y saisissez le précompte réel d'une fiche.</p>
       </details>
       <details class="fold">
         <summary>Mes données <span class="sub">sauvegarde, export, import, remise à zéro</span></summary>
@@ -2071,6 +2088,19 @@ function fieldHTML(f,val,opt){
   var id=(opt.idPrefix||"f_")+f.k;
   var hint=opt.hint!==undefined?opt.hint:f.hint;
   var attrs=opt.bare?"":(' data-k="'+f.k+'" data-scope="'+f.scope+'"');
+  /* Les primes de pause, les coefficients de la procédure de rappel et les
+     barèmes sont les mêmes pour tout le monde : ils arrivent avec
+     l'application et personne ne les corrige depuis son téléphone. Les
+     laisser modifiables, c'était offrir un moyen de fausser sa fiche sans
+     s'en apercevoir. Ils s'affichent donc comme ce qu'ils sont — une valeur
+     de référence — et non comme une question posée. */
+  if(f.fige && !opt.bare){
+    return '<div class="f fige"><label>'+f.l+'</label>'+
+      '<output>'+esc(valFr(valAffichee(val,f.step)))+
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+
+      '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></output>'+
+      (hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  }
   if(f.type==="select"){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
@@ -2082,6 +2112,8 @@ function fieldHTML(f,val,opt){
    n'affiche que les décimales que le pas du champ rend significatives —
    la valeur enregistrée, elle, garde toute sa précision tant que personne
    n'y touche. */
+/* une virgule, comme partout ailleurs dans l'application */
+function valFr(v){ return String(v).replace(".",","); }
 function valAffichee(v,step){
   if(v===null||v===undefined||v==="") return "";
   var n=Number(v); if(!isFinite(n)) return v;
@@ -2132,16 +2164,16 @@ var PARAM_FIELDS=[
   onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
  {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,
   onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
- {k:"divH",l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
+ {k:"divH",fige:true,l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
  {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)",personal:true,
   onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps. Laissez 1 si vous êtes à temps plein."},
- {k:"hJour",l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
- {k:"hSemaine",l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
- {k:"primeAM",l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
- {k:"primeRemplCM",l:"Prime de remplacement contremaître (€/jour)",scope:"params",step:"0.001",hint:"montant forfaitaire par journée relevé sur les fiches : 26,865 en janvier-février 2026, 27,365 depuis mars"},
- {k:"primePM",l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
- {k:"primeN",l:"Prime équipe N — nuit (€/h)",scope:"params"},
- {k:"primeD",l:"Prime équipe D — jour (€/h)",scope:"params"},
+ {k:"hJour",fige:true,l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
+ {k:"hSemaine",fige:true,l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
+ {k:"primeAM",fige:true,l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
+ {k:"primeRemplCM",fige:true,l:"Prime de remplacement contremaître (€/jour)",scope:"params",step:"0.001",hint:"montant forfaitaire par journée relevé sur les fiches : 26,865 en janvier-février 2026, 27,365 depuis mars"},
+ {k:"primePM",fige:true,l:"Prime équipe PM — après-midi (€/h)",scope:"params"},
+ {k:"primeN",fige:true,l:"Prime équipe N — nuit (€/h)",scope:"params"},
+ {k:"primeD",fige:true,l:"Prime équipe D — jour (€/h)",scope:"params"},
  {k:"binome",l:"Binôme",scope:"params",type:"select",opts:["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"],hint:"sert aux primes de rappel, pas au remplissage",personal:true,
   onb:"Le binôme (groupe d'équipe) auquel vous appartenez. Votre horaire ne s'en sert plus — il est lu dans l'horaire d'équipe. Il reste utile à une seule règle : la procédure de rappel n'accorde pas de prime pour une prestation en pause du matin sur une journée prévue en « Day » de la 5ᵉ ou 6ᵉ semaine du cycle."},
  {k:"cycle",l:"Cycle",scope:"params",type:"select",opts:["6 semaines","5 semaines"],personal:true,
@@ -2150,15 +2182,15 @@ var PARAM_FIELDS=[
   onb:"Si le cycle ne tombe pas exactement sur votre planning réel, ajustez ce décalage (en jours, + ou −). Il ne touche qu'aux primes de rappel."},
  {k:"indJour",l:"Indemnité déplacement / jour (€)",scope:"params",personal:true,
   onb:"Indemnité de déplacement que vous percevez par jour presté, si votre situation y donne droit. Laissez 0 si vous ne savez pas — à vérifier sur une fiche de paie réelle."},
- {k:"indVeloKm",l:"Indemnité vélo (€/km)",scope:"params",step:"0.0001",hint:"0 si vélo de société"},
+ {k:"indVeloKm",fige:true,l:"Indemnité vélo (€/km)",scope:"params",step:"0.0001",hint:"0 si vélo de société"},
  {k:"distance",l:"Distance domicile-travail (km)",scope:"params",step:"0.1",personal:true,
   onb:"Distance en kilomètres entre votre domicile et votre lieu de travail (trajet simple). Sert à calculer l'indemnité vélo si vous vous déplacez à vélo."},
  {k:"avVelo",l:"Avantage vélo société (€)",scope:"params",personal:true,
   onb:"Montant de l'avantage vélo de société que vous percevez, si vous en bénéficiez. Laissez 0 sinon."},
  {k:"dedVelo",l:"Déduction vélo (€)",scope:"params",personal:true,
   onb:"Déduction éventuelle liée à un vélo de société, si elle figure sur votre fiche de paie. Laissez 0 si non concerné."},
- {k:"crFaciale",l:"Chèque repas – valeur faciale (€)",scope:"params"},
- {k:"crPerso",l:"Chèque repas – part personnelle (€)",scope:"params"},
+ {k:"crFaciale",fige:true,l:"Chèque repas – valeur faciale (€)",scope:"params"},
+ {k:"crPerso",fige:true,l:"Chèque repas – part personnelle (€)",scope:"params"},
  {k:"atnGsm",l:"Avantage nature GSM (€)",scope:"params",personal:true,
   onb:"Avantage de toute nature pour un GSM fourni par l'employeur, s'il figure sur votre fiche de paie. Laissez 0 sinon."},
  {k:"atnTel",l:"Avantage nature téléphone (€)",scope:"params",personal:true,
@@ -2169,37 +2201,37 @@ var PARAM_FIELDS=[
   onb:"Votre cotisation personnelle à l'assurance groupe, retenue sur votre salaire, si applicable. Laissez 0 si vous ne savez pas — vous pourrez la corriger plus tard en consultant une fiche de paie réelle."}
 ];
 var RAPPEL_FIELDS=[
- {k:"rapHeures",l:"Heures de déplacement",scope:"params",step:"0.5",hint:"base de la prime : 2 h"},
- {k:"rapModifH",l:"Modification de pause — heures à 100 %",scope:"params",step:"0.5"},
- {k:"rapMomentJ",l:"Coefficient moment — rappel J / J-1",scope:"params",step:"0.1"},
- {k:"rapMomentJ2",l:"Coefficient moment — rappel J-2 → J-15",scope:"params",step:"0.1"},
- {k:"rapJourSem",l:"Coefficient jour — semaine",scope:"params",step:"0.001"},
- {k:"rapJourSam",l:"Coefficient jour — samedi",scope:"params",step:"0.001"},
- {k:"rapJourDim",l:"Coefficient jour — dimanche",scope:"params",step:"0.001"},
- {k:"rapJourFer",l:"Coefficient jour — jour férié",scope:"params",step:"0.001"},
- {k:"rapPauseSem",l:"Coefficient pause — semaine",scope:"params",step:"0.1"},
- {k:"rapPauseSam",l:"Coefficient pause — samedi",scope:"params",step:"0.1"},
- {k:"rapPauseDim",l:"Coefficient pause — dimanche et férié",scope:"params",step:"0.1"}
+ {fige:true,k:"rapHeures",l:"Heures de déplacement",scope:"params",step:"0.5",hint:"base de la prime : 2 h"},
+ {fige:true,k:"rapModifH",l:"Modification de pause — heures à 100 %",scope:"params",step:"0.5"},
+ {fige:true,k:"rapMomentJ",l:"Coefficient moment — rappel J / J-1",scope:"params",step:"0.1"},
+ {fige:true,k:"rapMomentJ2",l:"Coefficient moment — rappel J-2 → J-15",scope:"params",step:"0.1"},
+ {fige:true,k:"rapJourSem",l:"Coefficient jour — semaine",scope:"params",step:"0.001"},
+ {fige:true,k:"rapJourSam",l:"Coefficient jour — samedi",scope:"params",step:"0.001"},
+ {fige:true,k:"rapJourDim",l:"Coefficient jour — dimanche",scope:"params",step:"0.001"},
+ {fige:true,k:"rapJourFer",l:"Coefficient jour — jour férié",scope:"params",step:"0.001"},
+ {fige:true,k:"rapPauseSem",l:"Coefficient pause — semaine",scope:"params",step:"0.1"},
+ {fige:true,k:"rapPauseSam",l:"Coefficient pause — samedi",scope:"params",step:"0.1"},
+ {fige:true,k:"rapPauseDim",l:"Coefficient pause — dimanche et férié",scope:"params",step:"0.1"}
 ];
 var BAREME_FIELDS=[
- {k:"onss",l:"Cotisation ONSS travailleur",scope:"bareme",step:"0.0001"},
- {k:"solidarite",l:"Cotisation de solidarité (bonus)",scope:"bareme",step:"0.0001"},
- {k:"fraisTaux",l:"Frais forfaitaires – taux",scope:"bareme",step:"0.01"},
- {k:"fraisPlafond",l:"Frais forfaitaires – plafond (€/an)",scope:"bareme",step:"1"},
- {k:"t1",l:"Tranche 1 – plafond (€/an)",scope:"bareme",step:"1"},
- {k:"r1",l:"Tranche 1 – taux",scope:"bareme",step:"0.0001"},
- {k:"t2",l:"Tranche 2 – plafond (€/an)",scope:"bareme",step:"1"},
- {k:"r2",l:"Tranche 2 – taux",scope:"bareme",step:"0.0001"},
- {k:"t3",l:"Tranche 3 – plafond (€/an)",scope:"bareme",step:"1"},
- {k:"r3",l:"Tranche 3 – taux",scope:"bareme",step:"0.0001"},
- {k:"r4",l:"Au-delà – taux",scope:"bareme",step:"0.0001"},
- {k:"redQuotite",l:"Réduction quotité exemptée (€/an)",scope:"bareme"},
- {k:"redConjoint",l:"Supplément conjoint sans revenus (€/an)",scope:"bareme"},
+ {fige:true,k:"onss",l:"Cotisation ONSS travailleur",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"solidarite",l:"Cotisation de solidarité (bonus)",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"fraisTaux",l:"Frais forfaitaires – taux",scope:"bareme",step:"0.01"},
+ {fige:true,k:"fraisPlafond",l:"Frais forfaitaires – plafond (€/an)",scope:"bareme",step:"1"},
+ {fige:true,k:"t1",l:"Tranche 1 – plafond (€/an)",scope:"bareme",step:"1"},
+ {fige:true,k:"r1",l:"Tranche 1 – taux",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"t2",l:"Tranche 2 – plafond (€/an)",scope:"bareme",step:"1"},
+ {fige:true,k:"r2",l:"Tranche 2 – taux",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"t3",l:"Tranche 3 – plafond (€/an)",scope:"bareme",step:"1"},
+ {fige:true,k:"r3",l:"Tranche 3 – taux",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"r4",l:"Au-delà – taux",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"redQuotite",l:"Réduction quotité exemptée (€/an)",scope:"bareme"},
+ {fige:true,k:"redConjoint",l:"Supplément conjoint sans revenus (€/an)",scope:"bareme"},
  {k:"calage",l:"Calage barème (€/an)",scope:"bareme"},
- {k:"exoDomTrav",l:"Exonération domicile-travail (€/mois)",scope:"bareme"},
- {k:"tauxDistinct",l:"Taux distinct — pécule, 13ᵉ mois",scope:"bareme",step:"0.0001"},
- {k:"cssCap2",l:"CSSS – plafond 2 revenus (€/mois)",scope:"bareme"},
- {k:"cssCap1",l:"CSSS – plafond 1 revenu (€/mois)",scope:"bareme"}
+ {fige:true,k:"exoDomTrav",l:"Exonération domicile-travail (€/mois)",scope:"bareme"},
+ {fige:true,k:"tauxDistinct",l:"Taux distinct — pécule, 13ᵉ mois",scope:"bareme",step:"0.0001"},
+ {fige:true,k:"cssCap2",l:"CSSS – plafond 2 revenus (€/mois)",scope:"bareme"},
+ {fige:true,k:"cssCap1",l:"CSSS – plafond 1 revenu (€/mois)",scope:"bareme"}
 ];
 /* Une fiche de paie touche à six choses sans rapport entre elles : qui l'on
    est, ce qu'on gagne, les primes d'équipe, le cycle, les déplacements, les
@@ -2423,6 +2455,9 @@ document.addEventListener("change",function(e){
     r2.h=t.value===""?undefined:Number(t.value); delete r2.auto; persistMonth(); refresh(); return;
   }
   if(t.dataset.scope){
+    /* ceinture : aucun champ figé n'est rendu comme un champ, mais un
+       évènement forgé ou un champ oublié ne doit pas pouvoir passer */
+    if(estFigee(t.dataset.k)) return;
     var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
     if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
     else if(t.dataset.scope==="params"){
@@ -3794,6 +3829,32 @@ function migreMois(d){
   if(ch) d.__v=4;
   return ch;
 }
+/* Verrouiller l'écran ne suffit pas : une valeur commune enregistrée sur
+   l'appareil survivait à la mise à jour, et l'application continuait de
+   calculer avec l'ancienne prime. Les valeurs communes ne sont donc plus
+   des données de l'utilisateur — elles sont REPRISES du code à chaque
+   démarrage. Celles qui lui appartiennent, elles, ne bougent pas. */
+var FIGEES=null;
+function estFigee(k){
+  if(!FIGEES){
+    FIGEES={};
+    [PARAM_FIELDS,RAPPEL_FIELDS,BAREME_FIELDS].forEach(function(l){
+      l.forEach(function(f){ if(f.fige) FIGEES[f.k]=1; });
+    });
+  }
+  return !!FIGEES[k];
+}
+function clesFigees(liste){
+  var out=[]; liste.forEach(function(f){ if(f.fige) out.push(f.k); });
+  return out;
+}
+function reprendreFigees(cible,defauts,liste){
+  var change=false;
+  clesFigees(liste).forEach(function(k){
+    if(cible[k]!==defauts[k]){ cible[k]=defauts[k]; change=true; }
+  });
+  return change;
+}
 function mergeDefaults(src,def){
   var o={};
   Object.keys(def).forEach(function(k){
@@ -3841,9 +3902,11 @@ function boot(){
       var ix=Math.max(1,Math.min(BINOMES.length,Number(st.params.binomeIdx)||1));
       st.params.binome=BINOMES[ix-1]; st.params.binomeIdx=ix;
     }
-    if(migreP) save("config/params",st.params);
+    var reprisP=reprendreFigees(st.params,DEF_P,PARAM_FIELDS.concat(RAPPEL_FIELDS));
+    if(migreP||reprisP) save("config/params",st.params);
     st.bareme=mergeDefaults(r[1],DEF_B);
     if(!st.bareme.enfTable||!st.bareme.enfTable.length) st.bareme.enfTable=DEF_B.enfTable;
+    if(reprendreFigees(st.bareme,DEF_B,BAREME_FIELDS)) save("config/bareme",st.bareme);
     st.state=r[2]||{};
     function startApp(){
       var start=st.state.last||null;

@@ -180,6 +180,25 @@ hauteur dynamique de l'écran (`100dvh`), où elle se range en bas. Plus de
 déménagement du document, piloté par un `matchMedia`, et il ne coûte rien :
 les clics passent par la barre elle-même, qui voyage avec ses écouteurs.
 
+### Ce qui se règle, et ce qui ne se règle pas
+
+Les valeurs communes à toute l'équipe — primes de pause, chèque-repas,
+coefficients de la procédure de rappel, barèmes ONSS et impôt — s'affichent
+sous un **cadenas** et ne se modifient pas depuis l'application. Les laisser
+modifiables, c'était offrir un moyen de fausser sa fiche sans s'en
+apercevoir.
+
+Elles arrivent avec l'application et se mettent à jour avec elle : au
+démarrage, chaque valeur verrouillée est **reprise du code**. Une valeur
+qu'un appareil aurait gardée d'une version précédente est donc corrigée
+toute seule — sans quoi la mise à jour ne serait jamais arrivée jusqu'au
+calcul.
+
+Restent à l'utilisateur : sa situation familiale, sa rémunération et sa
+fraction, son cycle, ses déplacements, ses avantages, les montants de chaque
+mois, et le « calage barème » que l'onglet Contrôle recalcule sur sa propre
+fiche.
+
 ## Vos données
 
 Elles ne quittent jamais l'appareil : tout est enregistré par le navigateur.

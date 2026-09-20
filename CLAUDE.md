@@ -125,6 +125,27 @@ La marge de 10 % de la dernière n'est pas cosmétique : Android rogne l'icône
 *maskable* dans un masque, et seuls les 80 % centraux sont garantis visibles.
 Sans elle, le mot « biowanze » se ferait couper.
 
+## Mettre à jour une valeur commune à l'équipe
+
+Primes de pause, chèque-repas, coefficients de la procédure de rappel,
+barèmes ONSS et impôt : ces valeurs sont les mêmes pour tout le monde. Elles
+ne sont **pas modifiables dans l'application** — elles s'y affichent sous un
+cadenas — et elles vivent dans `DEF_P` et `DEF_B`, en tête du script de
+`index.html`.
+
+Pour en changer une : corriger la valeur dans `DEF_P` / `DEF_B`, incrémenter
+`V` dans `sw.js`, pousser. **Rien d'autre à faire côté utilisateur** : au
+démarrage, `reprendreFigees()` reprend du code toutes les clés marquées
+`fige:true` et écrase celle qui dormait sur l'appareil. Sans ce mécanisme, un
+téléphone ayant déjà enregistré l'ancienne prime aurait continué de calculer
+avec, sans que rien ne le dise.
+
+Un champ est figé par `fige:true` dans `PARAM_FIELDS`, `RAPPEL_FIELDS` ou
+`BAREME_FIELDS`. Y ajouter une clé la verrouille et la fait reprendre ; l'en
+retirer la rend à l'utilisateur. Trois exceptions restent à lui :
+`calage` (que l'onglet Contrôle recalcule sur sa propre fiche), tout ce qui
+est marqué `personal:true`, et les montants du mois.
+
 ## Conventions
 
 - **Français** partout : interface, commentaires de code, messages de commit.
