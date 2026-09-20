@@ -2723,7 +2723,10 @@ var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce","tp"];
    heure supplémentaire est comptée si elle tombe en dehors de l'horaire, et
    le trajet est payé, mais par un système interne qui ne passe pas par la
    fiche de paie ». Rien à calculer ici, donc, et rien à signaler non plus. */
-var MENTIONS_NEUTRES=["r","vm"];
+/* « R-CM » ne donne ni poste ni absence : c'est remplacementCM() qui la
+   consomme, pour une prime forfaitaire. La laisser passer pour illisible
+   faisait 341 fausses alertes au vérificateur et masquait les vraies. */
+var MENTIONS_NEUTRES=["r","vm","r-cm"];
 /* Noms d'atelier : ils disent la ZONE de remplacement, rien d'autre. Le
    client : « cela ne change rien à l'horaire ni aux primes, si c'est juste
    une indication de la zone de remplacement et qu'il n'y a rien d'autre de
@@ -2869,7 +2872,10 @@ function parseHoraireEntry(e,hJour,epargne){
     if(ATELIERS.test(txt)) return r;
     r.rhs=reprisRHS(txt);
     if(r.rhs) return r;
-    r.inconnu=true;
+    /* garder le texte, et pas seulement le fait : « RHS », « RTT- » et
+       « 11h-15h30' » ne posent pas la même question, et un vérificateur qui
+       ne rend que des compteurs ne dit pas quoi aller demander. */
+    r.inconnu=true; r.txt=txt;
     return r;
   }
   var A=lire(e[1]), C=lire(e[0]);
@@ -2877,7 +2883,10 @@ function parseHoraireEntry(e,hJour,epargne){
     if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
     if(x.jour) jourPrime=x.jour;
     if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
-    if(x.inconnu) out.unknown=(out.unknown||0)+1;
+    if(x.inconnu){
+      out.unknown=(out.unknown||0)+1;
+      (out.unknownTxt=out.unknownTxt||[]).push(x.txt);
+    }
   });
 
   var plage=A.plage||C.plage;
