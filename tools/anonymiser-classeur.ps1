@@ -71,7 +71,6 @@ $AUTEUR = "(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀ
 $NOM_POSSIBLE = [regex]::new("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
 # Le texte d'une cellule dans le XML, sans avoir à l'analyser.
 $RX_CELLULE = [regex]::new('<c\s+([^>]*?)(/>|>(.*?)</c>)', 'Singleline')
-$RX_TEXTE = [regex]::new('<(?:t|v)(?:\s[^>]*)?>([^<>&]{3,40})</(?:t|v)>')
 
 
 function Plat([string] $t) {
@@ -391,40 +390,36 @@ function IniConnues([string] $t) {
     return $null
 }
 
-# --- les alias : toutes les façons dont le classeur écrit les gens --------
-# Le classeur en connaît bien plus que la feuille « Personnel » :
-# « Nom A. », « P-Y. Nom », « Nom F.(ass.Us.) ». On les récolte
-# partout — mais on ne les croit que si Initiales() y retrouve un trigramme
-# connu. Un alias qui ne se recoupe pas n'est pas un nom, et « Step » ne
-# devient pas quelqu'un.
-$vus = New-Object 'System.Collections.Generic.HashSet[string]'
-foreach ($nom in @($entrees.Keys)) {
-    if (-not $TEXTE.IsMatch($nom)) { continue }
-    foreach ($m in $RX_TEXTE.Matches($UTF8.GetString($entrees[$nom]))) {
-        $brut = $m.Groups[1].Value
-        if (-not $vus.Add($brut)) { continue }
-        $t = Candidat $brut
-        if (-not $t) { continue }
-        # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour que la
-        # parenthèse — qui dit le rôle, pas la personne — reste au classeur.
-        $t = (([regex]::Replace($t, '\([^)]*\)', ' ')) -replace '\s+', ' ').Trim()
-        if (-not $t) { continue }
-        $cle = (Plat $t).ToLower()
-        if ($noms.ContainsKey($cle)) { continue }
-        $ini = IniConnues $t
-        if ($ini) { $noms[$cle] = $ini }
-    }
+
+# Les mots par lesquels on connaît déjà chaque personne. Une nouvelle façon
+# de l'écrire devra en partager un : sans cela, « PM DS-CE » donne P + D + E,
+# retombe sur le trigramme de quelqu'un, et un code de délégation syndicale
+# devient un nom.
+$connues = @{}
+
+function MotsDe([string] $cle) {
+    return @($cle -split '[,\s]+' | Where-Object { $_.Length -ge 3 })
 }
 
-# Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence » les
-# range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre. Aucun des deux
-# n'est un nom complet, donc aucun n'était remplacé.
-#
-# On ne devine pas quelles colonnes : on cherche le couple qui, sur TOUTE la
-# feuille, redonne des trigrammes connus. Trois lettres se rencontrent par
-# hasard — « Polyvalence Nom » donne PDE et faisait du nom de la feuille
-# l'alias de quelqu'un. Un couple qui ne tombe juste qu'une fois est un
-# hasard ; celui qui tombe juste cinquante fois est la structure.
+function Retenir([string] $cle, [string] $ini) {
+    if (-not $connues.ContainsKey($ini)) {
+        $connues[$ini] = New-Object 'System.Collections.Generic.HashSet[string]'
+    }
+    foreach ($b in (MotsDe $cle)) { [void] $connues[$ini].Add($b) }
+}
+
+function Apprendre([string] $cle, [string] $ini) {
+    if (-not $cle -or -not $ini -or $noms.ContainsKey($cle)) { return }
+    $noms[$cle] = $ini
+    Retenir $cle $ini
+}
+
+foreach ($cle in $annuaire.Keys) { Retenir $cle $annuaire[$cle] }
+
+# --- les gens, et toutes les façons dont le classeur les écrit -----------
+# On récolte d'abord les cellules qui pourraient porter un nom. Elles sont
+# peu nombreuses au regard du classeur, et les garder évite de le relire.
+$recolte = @{}
 foreach ($partie in @($feuilles.Values)) {
     if (-not $entrees.Contains($partie)) { continue }
     $grille = CellulesBrutes $entrees[$partie]
@@ -435,10 +430,27 @@ foreach ($partie in @($feuilles.Values)) {
             $t = Candidat $grille[$l][$c]
             if ($t) { $m[$c] = $t }
         }
-        if ($m.Count -gt 1) { $mots[$l] = $m }
+        if ($m.Count -gt 0) { $mots[$l] = $m }
     }
+    $recolte[$partie] = $mots
+}
+
+# Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence » les
+# range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre. Aucun des deux
+# n'est un nom complet, donc aucun n'était remplacé.
+#
+# On ne devine pas quelles colonnes : on cherche le couple qui, sur TOUTE la
+# feuille, redonne des trigrammes connus — et dont les deux colonnes portent
+# des valeurs majoritairement DISTINCTES. « Abs » répété cent fois, suivi
+# d'un nom de famille, redonne des trigrammes connus des dizaines de fois ;
+# une colonne de prénoms, elle, ne se répète pas.
+#
+# Cette passe vient en premier : elle établit les gens, y compris ceux que
+# l'annuaire ignore, et les variantes de la passe suivante s'appuient sur eux.
+foreach ($mots in $recolte.Values) {
     $scores = @{}
     foreach ($m in $mots.Values) {
+        if ($m.Count -lt 2) { continue }
         foreach ($i in $m.Keys) {
             foreach ($j in $m.Keys) {
                 if ($i -eq $j) { continue }
@@ -459,11 +471,6 @@ foreach ($partie in @($feuilles.Values)) {
         foreach ($m in $mots.Values) {
             if ($m.ContainsKey($i) -and $m.ContainsKey($j)) { $paires += , $m }
         }
-        # Dix coïncidences ne suffisent pas. « Abs » répété dans une colonne,
-        # suivi d'un nom de famille, redonne des trigrammes connus des
-        # dizaines de fois — et « Polyvalence » ou « Ferm. » devenaient
-        # l'alias de quelqu'un. Une colonne de noms, elle, ne se répète pas :
-        # c'est à ça qu'on la reconnaît.
         if ($paires.Count -lt 10) { continue }
         $di = New-Object 'System.Collections.Generic.HashSet[string]'
         $dj = New-Object 'System.Collections.Generic.HashSet[string]'
@@ -475,10 +482,34 @@ foreach ($partie in @($feuilles.Values)) {
         foreach ($m in $paires) {
             $ini = Initiales ($m[$i] + ' ' + $m[$j])
             if (-not $ini) { continue }
-            foreach ($x in @($m[$i], $m[$j])) {
-                $cle = (Plat $x).ToLower()
-                if (-not $noms.ContainsKey($cle)) { $noms[$cle] = $ini }
+            Apprendre ((Plat $m[$i]).ToLower()) $ini
+            Apprendre ((Plat $m[$j]).ToLower()) $ini
+        }
+    }
+}
+
+# Les variantes : « Nom A. », « P-Y. Nom », « Nom F.(ass.Us.) ».
+# On ne les croit que si Initiales() y retrouve un trigramme connu ET si
+# elles partagent un mot avec une façon déjà connue d'écrire cette
+# personne-là. Trois lettres se rencontrent par hasard — « PM DS-CE » donne
+# P + D + E et retombe sur quelqu'un ; un nom de famille en commun, non.
+foreach ($mots in $recolte.Values) {
+    foreach ($m in $mots.Values) {
+        foreach ($t in $m.Values) {
+            # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour que
+            # la parenthèse — qui dit le rôle, pas la personne — reste au
+            # classeur.
+            $n = (([regex]::Replace($t, '\([^)]*\)', ' ')) -replace '\s+', ' ').Trim()
+            if (-not $n) { continue }
+            $cle = (Plat $n).ToLower()
+            if ($noms.ContainsKey($cle)) { continue }
+            $ini = IniConnues $n
+            if (-not $ini -or -not $connues.ContainsKey($ini)) { continue }
+            $partage = $false
+            foreach ($b in (MotsDe $cle)) {
+                if ($connues[$ini].Contains($b)) { $partage = $true }
             }
+            if ($partage) { Apprendre $cle $ini }
         }
     }
 }
@@ -530,10 +561,14 @@ if ($Tolerer) {
 # --- la recopie ----------------------------------------------------------
 $depart = "{0} nom(s) connu(s) · {1} règle(s) · {2} sonde(s) · lecture en cours…"
 Write-Host ($depart -f $noms.Count, $regles.Count, $sondes.Count)
-if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Force }
+# On écrit À CÔTÉ. Tant que la garantie n'est pas franchie, le fichier peut
+# porter des noms : il n'a rien à faire à sa destination. Il n'y prend sa
+# place qu'à la fin.
+$encours = $dst + '.en-cours'
+if (Test-Path -LiteralPath $encours) { Remove-Item -LiteralPath $encours -Force }
 $total = 0
 $parties = 0
-$zout = [IO.Compression.ZipFile]::Open($dst, [IO.Compression.ZipArchiveMode]::Create)
+$zout = [IO.Compression.ZipFile]::Open($encours, [IO.Compression.ZipArchiveMode]::Create)
 try {
     foreach ($nom in @($entrees.Keys)) {
         if ($EXCLUS.IsMatch($nom)) {
@@ -559,7 +594,7 @@ try {
 
 # --- la garantie : relire, et chercher ce qu'on vient de remplacer --------
 $restes = New-Object 'System.Collections.Generic.List[object]'
-$zv = [IO.Compression.ZipFile]::OpenRead($dst)
+$zv = [IO.Compression.ZipFile]::OpenRead($encours)
 try {
     foreach ($e in $zv.Entries) {
         if (-not $TEXTE.IsMatch($e.FullName)) { continue }
@@ -585,7 +620,7 @@ try {
 } finally { $zv.Dispose() }
 
 if ($restes.Count -gt 0) {
-    Remove-Item -LiteralPath $dst -Force
+    Remove-Item -LiteralPath $encours -Force
     Write-Host ''
     Write-Host ("{0} reste(s) de nom dans la sortie — fichier détruit :" -f $restes.Count) -ForegroundColor Red
     foreach ($r in ($restes | Select-Object -First 20)) {
@@ -598,6 +633,8 @@ if ($restes.Count -gt 0) {
     exit 2
 }
 
+if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Force }
+Move-Item -LiteralPath $encours -Destination $dst -Force
 $taille = (Get-Item -LiteralPath $dst).Length
 $resume = "{0} nom(s) connu(s) · {1} remplacement(s) dans {2} partie(s) · {3:N1} Mo"
 Write-Host ($resume -f $noms.Count, $total, $parties, ($taille / 1MB))

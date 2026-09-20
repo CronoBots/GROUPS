@@ -84,6 +84,17 @@ def _motif(texte):
     return _borner(r"[\s,]*".join(bouts), plat)
 
 
+PARTICULES = {"de", "van", "von", "der", "den", "le", "la", "du", "des",
+              "di", "dos", "mac", "mc"}
+
+
+def _accessoire(bout):
+    """Ce qui peut entourer un nom sans en être un : une initiale, un point,
+    une particule."""
+    return (len(bout) <= 2 or bout in PARTICULES
+            or re.fullmatch(r"[a-z]\.?(-[a-z])?\.?", bout) is not None)
+
+
 NOM_POSSIBLE = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
 
 
@@ -138,6 +149,30 @@ def anonymiser(src, dst, tolere=()):
     if not noms:
         sys.exit("Aucun nom trouvé : la feuille « Personnel » a-t-elle bougé ?")
 
+    # Les mots par lesquels on connaît déjà chaque personne. Une nouvelle
+    # façon de l'écrire devra en partager un : sans cela, « PM DS-CE » donne
+    # P + D + E, retombe sur le trigramme de quelqu'un, et un code de
+    # délégation syndicale devient un nom.
+    def _mots_de(cle):
+        return set(b for b in re.split(r"[,\s]+", cle) if len(b) >= 3)
+
+    connues = {}
+    par_mot = {}
+
+    def _retenir(cle, ini):
+        connues.setdefault(ini, set()).update(_mots_de(cle))
+        for b in _mots_de(cle):
+            par_mot.setdefault(b, set()).add(ini)
+
+    def _apprendre(cle, ini):
+        if cle in noms:
+            return
+        noms[cle] = ini
+        _retenir(cle, ini)
+
+    for cle, ini in annuaire.items():
+        _retenir(cle, ini)
+
     def _candidat(v):
         """Une cellule qui pourrait porter un nom. Un trigramme n'en est pas
         un : sans cette garde, « ATR » devient l'alias de lui-même, entre dans
@@ -171,41 +206,30 @@ def anonymiser(src, dst, tolere=()):
                     return ini
         return None
 
+    # On récolte d'abord les cellules qui pourraient porter un nom. Elles
+    # sont peu nombreuses au regard du classeur, et les garder évite de relire
+    # douze feuilles deux fois.
+    recolte = {}
     for feuille in cl.feuilles:
         g = cl.grille(feuille)
+        recolte[feuille] = {
+            l: {c: t for c, t in ((c, _candidat(v)) for c, v in ligne.items()) if t}
+            for l, ligne in g.items()}
 
-        # Le classeur écrit les gens de bien plus de façons que la feuille
-        # « Personnel » n'en connaît : « Nom A. », « P-Y. Nom »,
-        # « Nom F.(ass.Us.) ». On les récolte — mais on ne les croit que si
-        # _initiales() y retrouve un trigramme connu. Un alias qui ne se
-        # recoupe pas n'est pas un nom, et « Step » ne devient pas quelqu'un.
-        for ligne in g.values():
-            for v in ligne.values():
-                t = _candidat(v)
-                if not t:
-                    continue
-                # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour
-                # que la parenthèse — qui dit le rôle, pas la personne —
-                # reste dans le classeur.
-                t = " ".join(re.sub(r"\([^)]*\)", " ", t).split()) or t
-                cle = _sans_accent(t).lower()
-                if cle not in noms:
-                    ini = _ini_connues(t)
-                    if ini:
-                        noms[cle] = ini
-
-        # Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence »
-        # les range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre.
-        # Aucun des deux n'est un nom complet, donc aucun n'était remplacé.
-        #
-        # On ne devine pas quelles colonnes : on cherche le couple qui, sur
-        # TOUTE la feuille, redonne des trigrammes connus. Trois lettres se
-        # rencontrent par hasard — « Polyvalence Nom » donne PDE et faisait
-        # du nom de la feuille l'alias de quelqu'un. Un couple qui ne tombe
-        # juste qu'une fois est un hasard ; celui qui tombe juste cinquante
-        # fois est la structure de la feuille.
-        mots = {l: {c: t for c, t in ((c, _candidat(v)) for c, v in ligne.items()) if t}
-                for l, ligne in g.items()}
+    # Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence » les
+    # range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre. Aucun des
+    # deux n'est un nom complet, donc aucun n'était remplacé.
+    #
+    # On ne devine pas quelles colonnes : on cherche le couple qui, sur TOUTE
+    # la feuille, redonne des trigrammes connus — et dont les deux colonnes
+    # portent des valeurs majoritairement DISTINCTES. « Abs » répété cent
+    # fois, suivi d'un nom de famille, redonne des trigrammes connus des
+    # dizaines de fois ; une colonne de prénoms, elle, ne se répète pas.
+    #
+    # Cette passe vient en premier : elle établit les gens, y compris ceux
+    # que l'annuaire ignore, et les variantes de la passe suivante s'appuient
+    # sur eux.
+    for feuille, mots in recolte.items():
         scores = {}
         for m in mots.values():
             for i in m:
@@ -214,11 +238,6 @@ def anonymiser(src, dst, tolere=()):
                         scores[(i, j)] = scores.get((i, j), 0) + 1
         for (i, j), n in scores.items():
             paires = [m for m in mots.values() if i in m and j in m]
-            # Dix coïncidences ne suffisent pas. « Abs » répété dans une
-            # colonne, suivi d'un nom de famille, redonne des trigrammes
-            # connus des dizaines de fois — et « Polyvalence » ou « Ferm. »
-            # devenaient l'alias de quelqu'un. Une colonne de noms, elle, ne
-            # se répète pas : c'est à ça qu'on la reconnaît.
             if n < 10 or len(paires) < 10:
                 continue
             if min(len(set(m[i] for m in paires)),
@@ -230,8 +249,46 @@ def anonymiser(src, dst, tolere=()):
             for m in paires:
                 ini = _initiales(m[i] + " " + m[j])
                 if ini:
-                    noms.setdefault(_sans_accent(m[i]).lower(), ini)
-                    noms.setdefault(_sans_accent(m[j]).lower(), ini)
+                    _apprendre(_sans_accent(m[i]).lower(), ini)
+                    _apprendre(_sans_accent(m[j]).lower(), ini)
+
+    # Les variantes : « Nom A. », « P-Y. Nom », « Nom
+    # F.(ass.Us.) ». On ne les croit que si _initiales() y retrouve un
+    # trigramme connu ET si elles partagent un mot avec une façon déjà connue
+    # d'écrire cette personne-là. Trois lettres se rencontrent par hasard ; un
+    # nom de famille en commun, non.
+    for feuille, mots in recolte.items():
+        for m in mots.values():
+            for t in m.values():
+                # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour
+                # que la parenthèse — qui dit le rôle, pas la personne —
+                # reste dans le classeur.
+                t = " ".join(re.sub(r"\([^)]*\)", " ", t).split()) or t
+                cle = _sans_accent(t).lower()
+                if cle in noms:
+                    continue
+                # Un mot qui ne désigne qu'une personne tranche à lui seul :
+                # « de Nomlong P. » porte « nomlong », et c'est assez.
+                # Ses initiales, elles, donnent autre chose — la particule
+                # « de » les déplace — et la corroboration échouait.
+                #
+                # Encore faut-il que la cellule ait la forme d'un nom : tous
+                # ses morceaux doivent être un mot de nom connu, une
+                # particule, ou une initiale. Sans quoi « Conti de la ligne »
+                # deviendrait le trigramme tout entier, au lieu de garder ce
+                # qui n'est pas le nom.
+                bouts = [b for b in re.split(r"[,\s]+", cle) if b]
+                vises = set()
+                for b in bouts:
+                    vises |= par_mot.get(b, set())
+                if (vises and len(bouts) <= 4
+                        and all(b in par_mot or _accessoire(b) for b in bouts)):
+                    if len(vises) == 1:
+                        _apprendre(cle, next(iter(vises)))
+                        continue
+                ini = _ini_connues(t)
+                if ini and (_mots_de(cle) & connues.get(ini, set())):
+                    _apprendre(cle, ini)
 
     pesees, surveille = [], []
     for cle, ini in noms.items():
@@ -256,9 +313,13 @@ def anonymiser(src, dst, tolere=()):
     regles = [(m, ini) for _, m, ini in pesees]
     regles.append((AUTEUR.pattern, ""))
 
+    # On écrit À CÔTÉ. Tant que la garantie n'est pas franchie, le fichier
+    # peut porter des noms : il n'a rien à faire à sa destination, où un
+    # commit distrait l'emporterait. Il n'y prend sa place qu'à la fin.
+    encours = dst + ".en-cours"
     total, parties = 0, 0
     zin = zipfile.ZipFile(src)
-    with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as zout:
+    with zipfile.ZipFile(encours, "w", zipfile.ZIP_DEFLATED) as zout:
         for info in zin.infolist():
             if EXCLUS.search(info.filename):
                 print("  écarté :", info.filename, file=sys.stderr)
@@ -276,7 +337,7 @@ def anonymiser(src, dst, tolere=()):
 
     # --- la garantie : relire, et chercher ce qu'on vient de remplacer -----
     restes = []
-    zv = zipfile.ZipFile(dst)
+    zv = zipfile.ZipFile(encours)
     for info in zv.infolist():
         if not TEXTE.search(info.filename):
             continue
@@ -293,7 +354,7 @@ def anonymiser(src, dst, tolere=()):
                 restes.append((info.filename, ini, brut, ctx))
     zv.close()
     if restes:
-        os.remove(dst)
+        os.remove(encours)
         print("\n%d reste(s) de nom dans la sortie — fichier détruit :" % len(restes),
               file=sys.stderr)
         for f, ini, brut, ctx in restes[:20]:
@@ -302,6 +363,7 @@ def anonymiser(src, dst, tolere=()):
               " relancer avec --tolerer mot1,mot2 APRÈS l'avoir lu.", file=sys.stderr)
         sys.exit(2)
 
+    os.replace(encours, dst)
     taille = os.path.getsize(dst)
     print("%d nom(s) connu(s) · %d remplacement(s) dans %d partie(s) · %.1f Mo"
           % (len(noms), total, parties, taille / 1048576.0), file=sys.stderr)
