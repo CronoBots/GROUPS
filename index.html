@@ -2125,7 +2125,7 @@ function renderPrefillSelects(db){
     if(!document.getElementById("semaine").hidden) renderSemaine();
     if(st.view==="compteurs") renderCompteurs();
   }
-  fillIds(); suivre();
+  fillIds(); suivre(); rafraichirUneFois();
   catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); suivre(); };
   idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); suivre(); };
 }
@@ -2597,7 +2597,7 @@ function epargnesDuMois(person,mois){
    M est l'objet mois, y l'année, m le mois de 0 à 11. */
 function remplirMois(db,person,y,m,M){
   var nd=daysInMonth(y,m), bilan={filled:0,kept:0,verifier:0,manquants:0,
-      repos:0,rhs:0,rcm:0,rappels:0,signales:0};
+      repos:0,rhs:0,rcm:0,rappels:0,signales:0,vides:0};
   var epargnes=epargnesDuMois(person,m+1);
   var fitCycle=cycleDuMois(person,y,m+1);
   for(var day=1; day<=nd; day++){
@@ -2652,7 +2652,17 @@ function remplirMois(db,person,y,m,M){
     } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
       /* une journée de repos est parfaitement lue : il n'y a rien à
          encoder. La compter comme « non reconnue » envoyait chercher un
-         problème inexistant — neuf fois sur un mois de trente jours. */
+         problème inexistant — neuf fois sur un mois de trente jours.
+
+         Il y a en revanche à EFFACER : si un pré-remplissage précédent
+         avait posé un poste là où l'horaire dit repos, ne rien écrire le
+         laissait en place à jamais. C'est ce qui gardait des nuits les 11,
+         12 et 13 septembre chez VBN. On ne touche qu'aux journées venues
+         de l'horaire — celles saisies à la main sont sorties plus haut. */
+      if(rec && (rec.s||rec.a||rec.r)){
+        delete rec.s; delete rec.h; delete rec.a; delete rec.r;
+        rec.auto=1; bilan.vides++;
+      }
       bilan.repos++;
     } else {
       bilan.manquants++;
@@ -2681,7 +2691,7 @@ function prefillFromHoraire(){
     Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); }))
     .then(function(docs){
       var tot={filled:0,kept:0,verifier:0,manquants:0,repos:0,rhs:0,rcm:0,
-               rappels:0,signales:0}, touches=0;
+               rappels:0,signales:0,vides:0}, touches=0;
       docs.forEach(function(doc,i){
         migreMois(doc);
         var M=mergeDefaults(doc,DEF_M);
@@ -2689,7 +2699,7 @@ function prefillFromHoraire(){
         if(!M.real) M.real={};
         var b=remplirMois(db,person,st.y,i,M);
         Object.keys(tot).forEach(function(k){ tot[k]+=b[k]; });
-        if(b.filled) touches++;
+        if(b.filled||b.vides) touches++;
         if(i===st.m) st.month=M;
         /* écriture silencieuse : douze « Enregistré » d'affilée seraient
            du bruit, le bilan ci-dessous suffit */
@@ -2702,6 +2712,7 @@ function prefillFromHoraire(){
       if(tot.rappels) msg+=" — "+tot.rappels+" rappel(s) proposé(s), à vérifier";
       if(tot.signales) msg+=" — "+tot.signales+" mention(s) de rappel non tranchée(s), à regarder";
       if(tot.verifier) msg+=" — "+tot.verifier+" à vérifier (horaire particulier)";
+      if(tot.vides) msg+=" — "+tot.vides+" jour(s) rendu(s) au repos";
       if(tot.repos) msg+=" — "+tot.repos+" jour(s) de repos";
       if(tot.manquants) msg+=" — "+tot.manquants+" jour(s) non reconnu(s), à compléter à la main";
       if(tot.kept) msg+=" — "+tot.kept+" jour(s) déjà encodé(s) conservé(s)";
@@ -2709,6 +2720,21 @@ function prefillFromHoraire(){
     });
   });
 }
+/* Marquer les journées « venues de l'horaire » ne suffit pas : encore
+   faut-il rejouer la lecture pour qu'elles se corrigent. On le fait une
+   seule fois, sans rien demander — la donnée juste est dans l'horaire, pas
+   dans l'appareil. Les deux appelants sont les deux chargements qui peuvent
+   finir en dernier : la liste des personnes et le mois affiché. */
+var MARQUE_RAFRAICHI="v4";
+function rafraichirUneFois(){
+  if(!st.ready) return;
+  if(lsGet("ui/rafraichi")===MARQUE_RAFRAICHI) return;
+  var idSel=document.getElementById("prefillId");
+  if(!idSel || !idSel.value) return;
+  lsSet("ui/rafraichi",MARQUE_RAFRAICHI);
+  prefillFromHoraire();
+}
+
 /* ===================== état des compteurs ===================== */
 /* Deux sources, et c'est tout l'intérêt de les mettre côte à côte : le pied
    du classeur, saisi à la main, et le même compteur recalculé depuis les
@@ -3290,7 +3316,21 @@ function migreMois(d){
     });
     ch=true;
   }
-  if(ch) d.__v=3;
+  /* Les journées posées par les versions antérieures au marquage « auto »
+     sont indiscernables d'une saisie à la main : le pré-remplissage les
+     conservait, et une correction des règles de lecture ne les rattrapait
+     jamais. Septembre de VBN affichait ainsi des nuits les 11, 12 et 13,
+     là où l'horaire dit repos, et rien ne pouvait le corriger. On les rend
+     rafraîchissables — c'est ce qu'elles sont, toutes venues de l'horaire
+     ou du cycle théorique, aucune main ne les ayant écrites. */
+  if(v<4){
+    if(d.days) Object.keys(d.days).forEach(function(k){
+      var r=d.days[k];
+      if(r && (r.s||r.a)) r.auto=1;
+    });
+    ch=true;
+  }
+  if(ch) d.__v=4;
   return ch;
 }
 function mergeDefaults(src,def){
@@ -3321,6 +3361,7 @@ function loadMonth(y,m){
     st.ready=true;
     renderRota(); renderFields(); refresh();
     if(migre) persistMonth();
+    rafraichirUneFois();
   });
 }
 
