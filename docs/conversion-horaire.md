@@ -507,6 +507,14 @@ L'infobulle l'écrit en toutes lettres — « Journée de jour (D-CPPT), prime d
 nuit conservée » — la légende a son entrée, et la vue semaine porte la même
 mention.
 
+La vue annuelle a été la première servie ; le mois n'en gardait aucune trace
+et continuait d'afficher « N » seul. Le code presté est donc désormais
+**enregistré sur la journée** (champ `j`), et les deux autres endroits où
+l'on lit un mois le montrent avec le même langage : le mini-calendrier du
+Résumé (barre basse, étiquette `CPPT`) et la ligne de saisie de l'onglet
+Horaire (pastille à côté du jour). Corriger la journée à la main efface le
+champ — il ne décrirait plus rien.
+
 **881 journées de 2026 sont dans ce cas**, réparties ainsi : `F` 289,
 `SD26` 216, `TP` 210, `D-F` 47, `DS` 43, `D-CPPT` 40, `DS-CE` 27, `CPPT` 7,
 `DF` 2.
