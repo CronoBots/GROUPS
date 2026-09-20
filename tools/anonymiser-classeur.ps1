@@ -372,16 +372,21 @@ function Candidat($v) {
 }
 
 function IniConnues([string] $t) {
-    # Le trigramme que ce texte donne, s'il en donne un de connu. On essaie
-    # les deux ordres : le classeur écrit « Nom A. » ici et
-    # « Nom, Prénom » là.
+    # Le trigramme que ce texte donne, s'il en donne un de connu.
+    #
+    # L'ordre inversé — « Nom, Prénom » pour GBT — n'est essayé que si
+    # le texte porte une VIRGULE. Sans cette condition, trois lettres se
+    # rencontrent trop facilement : « terr arr » lu à l'envers donne ATR,
+    # « pm ds-ce » donne PDE, et des noms d'ateliers devenaient des gens.
     $i = Initiales $t
     if ($i -and $connus.Contains($i)) { return $i }
-    $bouts = @($t -split '[,\s]+' | Where-Object { $_ })
-    if ($bouts.Count -gt 1) {
-        $inv = @($bouts[($bouts.Count - 1)..0])
-        $i = Initiales ($inv -join ' ')
-        if ($i -and $connus.Contains($i)) { return $i }
+    if ($t.Contains(',')) {
+        $bouts = @($t -split '[,\s]+' | Where-Object { $_ })
+        if ($bouts.Count -gt 1) {
+            $inv = @($bouts[($bouts.Count - 1)..0])
+            $i = Initiales ($inv -join ' ')
+            if ($i -and $connus.Contains($i)) { return $i }
+        }
     }
     return $null
 }

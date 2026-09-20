@@ -151,17 +151,24 @@ def anonymiser(src, dst, tolere=()):
         return t
 
     def _ini_connues(t):
-        """Le trigramme que ce texte donne, s'il en donne un de connu. On
-        essaie les deux ordres : le classeur écrit « Nom A. » ici et
-        « Nom, Prénom » là."""
+        """Le trigramme que ce texte donne, s'il en donne un de connu.
+
+        L'ordre inversé — « Nom, Prénom » pour GBT — n'est essayé que
+        si le texte porte une VIRGULE. Sans cette condition, trois lettres se
+        rencontrent trop facilement : « terr arr » lu à l'envers donne ATR,
+        « pm ds-ce » donne PDE, et des noms d'ateliers devenaient des gens.
+        La virgule est ce qui distingue « Nom, Prénom » de deux mots côte à
+        côte.
+        """
         ini = _initiales(t)
         if ini in connus:
             return ini
-        bouts = [b for b in re.split(r"[,\s]+", t) if b]
-        if len(bouts) > 1:
-            ini = _initiales(" ".join(reversed(bouts)))
-            if ini in connus:
-                return ini
+        if "," in t:
+            bouts = [b for b in re.split(r"[,\s]+", t) if b]
+            if len(bouts) > 1:
+                ini = _initiales(" ".join(reversed(bouts)))
+                if ini in connus:
+                    return ini
         return None
 
     for feuille in cl.feuilles:
