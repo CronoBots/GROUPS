@@ -478,6 +478,43 @@ Un convertisseur refait doit donc conserver : le contenu de la cellule, le
 contenu intégral du commentaire, et tout marqueur visuel porteur de sens
 (couleur de fond, barré, gras) — à vérifier avec le client.
 
+## 10 quinquies. Le commentaire prime aussi sur le cycle
+
+`["R-CM","4h +FT","remplace ATA remplace GPS de 18h à 22h"]` — VBN le 27/07.
+La cellule ne donne aucun poste ; le cycle ajusté du mois disait PM, et le
+commentaire nomme ATA, qui était de **nuit**. Le client : « je ne fais pas PM
+mais 18h-06h ». Il couvrait les quatre dernières heures de GPS, puis la nuit
+d'ATA.
+
+Le cycle est une rotation **théorique** ajustée au mois ; il se trompe
+d'autant plus que la personne passe son temps à remplacer les autres. Le
+commentaire, lui, nomme quelqu'un dont le poste est écrit. **Quand la cellule
+ne donne rien — ni code franc, ni plage, ni journée de jour — le
+remplacement l'emporte sur le cycle.** Dans tous les autres cas le poste ou sa
+prime sont déjà établis et c'est le cycle qui tranche (section 6 bis).
+
+Deux corrections sont venues avec :
+
+- `posteDuRemplace()` ne regardait que la racine `remplac` : il prenait le
+  poste de **celui qui vous remplace** pour le vôtre. « Remplacé par JBI »
+  est l'inverse de « remplace JBI ». Seuls les remplacements **actifs**
+  comptent désormais.
+- Les heures épargnées ne sortent de la journée que si elles en font partie.
+  Quand le commentaire les situe **hors du poste** — « de 18h à 22h » devant
+  une nuit qui commence à 22h — elles s'ajoutent : la personne a fait son
+  poste entier, plus ces heures-là.
+
+Effet mesuré sur les 27 462 journées : **13 changent de poste, 5 changent
+d'heures, +14 h sur l'année**. Les huit mois de prime de remplacement
+contrôlés sur fiches restent justes au centime.
+
+## 10 sexies. Poste et lieu dans la même cellule
+
+`N-terr. Arr.`, `PM - poly. Arr.`, `PM-distil`, `PM-terr arr` : le poste ET
+l'endroit où il se tient. Quatre journées de l'année, qui se lisaient comme
+un simple nom de lieu — et le poste, pourtant écrit noir sur blanc, se
+perdait. La cellule donne maintenant les deux.
+
 ## 10 quater. Une journée non prestée n'est pas un poste
 
 `["PM","VA"]` : la rotation prévoyait un après-midi, la personne était en

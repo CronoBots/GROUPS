@@ -63,7 +63,10 @@ const MORCEAUX=[
   ["function cycleDuMois(","\n}"],
   ["function posteDeCycle(","\n}"],
   ["function posteDuRemplace(","\n}"],
+  ["function plageCommentaire(","\n}"],
+  ["function debordePoste(","\n}"],
   ["function lireJournee(","\n}"],
+  ["function plageHorsPoste(","\n}"],
   ["var RX_RENVOI=","\n"],
   ["function epargnesDuMois(","\n}"],
   ["function etiqJour(","\n}"],
@@ -87,7 +90,9 @@ const EPREUVES=[
   ["journées de jour",           ()=>JOUR_PRIME_PAUSE.indexOf("d-cppt")>=0],
   ["cycle théorique",            ()=>!!cyclePoste(1,"6 semaines",0,Date.UTC(2026,0,1))],
   ["lecture d'une cellule",      ()=>parseHoraireEntry(["AM"],8).s==="AM"],
-  ["annotation « - »",           ()=>parseHoraireEntry(["N","-"],8).h===0]
+  ["annotation « - »",           ()=>parseHoraireEntry(["N","-"],8).h===0],
+  ["plage d'un commentaire",     ()=>{const p=plageCommentaire("de 18h à 22h"); return p&&p[0]===18&&p[1]===22;}],
+  ["plage hors du poste",        ()=>plageHorsPoste([18,22],"N") && !plageHorsPoste([18,22],"PM")]
 ];
 const ratees=EPREUVES.filter(e=>{ try{ return !e[1](); }catch(x){ return true; } });
 if(ratees.length){
