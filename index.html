@@ -231,6 +231,13 @@ button{cursor:pointer}
 .cal button[data-s] .dn{color:var(--ink2)}
 .cal button.abs .tag{color:var(--muted)}
 .cal button.fer{box-shadow:inset 0 0 0 1.5px var(--out2)}
+/* Deux informations dans une case, donc deux encodages : le fond donne le
+   poste PAYÉ, la barre du bas dit que la journée s'est faite en horaire de
+   jour, et l'étiquette nomme ce qui a été presté. Même langage que la vue
+   année (.mois .jours button.jour), pour qu'on ne l'apprenne qu'une fois. */
+.cal button.jour{box-shadow:inset 0 -3px 0 var(--d)}
+.cal button.jour.fer{box-shadow:inset 0 -3px 0 var(--d), inset 0 0 0 1.5px var(--out2)}
+.cal .legend i.ijour{background:var(--surface2); box-shadow:inset 0 -3px 0 var(--d)}
 .cal .legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--muted)}
 .cal .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px}
 
@@ -444,6 +451,11 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 .dchip{display:flex; align-items:baseline; gap:5px; min-width:0}
 .dnum{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums}
 .dwd{font-size:10.5px; color:var(--faint)}
+/* Le code presté, quand il diffère du poste payé : assez visible pour qu'on
+   ne lise pas « N » en croyant avoir fait une nuit, assez discret pour ne
+   pas passer devant le numéro du jour. */
+.djour{font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--d);
+  background:var(--d-soft); border-radius:5px; padding:1px 5px; white-space:nowrap}
 .day.fer .dnum{color:var(--out)}
 .shifts{display:flex; gap:3px}
 .shifts button{
@@ -1472,7 +1484,9 @@ function renderRota(){
       btns+='<button type="button" data-s="'+s.c+'" title="'+(SHIFT_HEURES[s.c]||"repos")+'" aria-pressed="'+((rec.s||"")===s.c)+'">'+s.n+"</button>";
     });
     row.innerHTML=
-      '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span></div>'+
+      '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span>'+
+        (rec.j?'<span class="djour" title="Journée prestée en horaire de jour ('+esc(rec.j)
+               +') — la prime de la pause prévue reste acquise">'+esc(etiqJour(rec.j))+'</span>':"")+'</div>'+
       '<div class="shifts">'+btns+'</div>'+
       '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
       '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
@@ -1662,10 +1676,15 @@ function renderResume(C){
   for(var i=0;i<first;i++) cells+='<button type="button" class="empty" tabindex="-1" aria-hidden="true"></button>';
   for(var dd=1; dd<=nd; dd++){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
-    var tag=rec.s||(rec.a?rec.a.replace(/^1\/2 /,"½").replace(/^(\d)H /,"$1"):"");
+    var tag=(rec.s&&rec.j)?etiqJour(rec.j)
+            :(rec.s||(rec.a?rec.a.replace(/^1\/2 /,"½").replace(/^(\d)H /,"$1"):""));
+    var cls=[]; if(!rec.s&&rec.a) cls.push("abs"); if(rec.s&&rec.j) cls.push("jour");
     cells+='<button type="button" data-d="'+dd+'"'+(rec.s?' data-s="'+esc(rec.s)+'"':"")+
-      (!rec.s&&rec.a?' class="abs"':"")+(fer?" data-fer=1":"")+
-      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+(rec.s?" — poste "+esc(rec.s):(rec.a?" — "+esc(rec.a):" — repos"))+'">'+
+      (cls.length?' class="'+cls.join(" ")+'"':"")+(fer?" data-fer=1":"")+
+      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+
+        (rec.s?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
+                     :" — poste "+esc(rec.s))
+              :(rec.a?" — "+esc(rec.a):" — repos"))+'">'+
       '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
   }
   document.getElementById("cal").innerHTML=
@@ -1673,7 +1692,8 @@ function renderResume(C){
     '<div class="grid">'+cells+"</div>"+
     '<div class="legend"><span><i style="background:var(--am)"></i>AM 6h-14h</span><span><i style="background:var(--pm)"></i>PM 14h-22h</span>'+
     '<span><i style="background:var(--n)"></i>N 22h-6h</span><span><i style="background:var(--d)"></i>D horaire variable</span>'+
-    '<span><i style="background:var(--out2)"></i>jour férié</span></div>';
+    '<span><i style="background:var(--out2)"></i>jour férié</span>'+
+    '<span><i class="ijour"></i>journée de jour, prime conservée</span></div>';
   var cal=document.getElementById("cal");
   Array.prototype.forEach.call(cal.querySelectorAll("button.fer,[data-fer]"),function(b){b.classList.add("fer");});
 }
@@ -1917,7 +1937,7 @@ document.addEventListener("click",function(e){
 /* ===================== horaire — saisie ===================== */
 function setShift(d,code){
   var rec=st.month.days[d]||(st.month.days[d]={});
-  delete rec.auto;
+  delete rec.auto; delete rec.j;
   rec.s=code;
   if(!code) delete rec.h;
   else if(rec.h===undefined||rec.h===null||rec.h==="") rec.h=st.params.hJour;
@@ -2644,6 +2664,11 @@ function remplirMois(db,person,y,m,M){
       if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
       else { delete nrec.s; delete nrec.h; }
       if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a; else delete nrec.a;
+      /* Le poste porte la prime PAYÉE ; il ne dit pas ce qui a été PRESTÉ.
+         VBN le 30/09 : nuit prévue, journée faite en délégation CPPT. Le
+         calendrier annuel montrait déjà les deux, le mois n'en gardait
+         aucune trace — il affichait « N », et rien d'autre. */
+      if(parsed.jourCode) nrec.j=parsed.jourCode; else delete nrec.j;
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
       if([nrec.s,nrec.h,nrec.a,nrec.r].join("|")!==avant) bilan.changes++;
