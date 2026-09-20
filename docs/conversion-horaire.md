@@ -407,6 +407,66 @@ occurrences, toutes orthographes confondues.
 Traités comme le **lieu de travail**, sans effet sur la paie. La journée
 reste signalée comme particulière. *(À confirmer par le client.)*
 
+## 9 bis. Le poste tenu : la ligne 9
+
+**Établi avec le client le 20/09/2026.**
+
+Chaque feuille d'équipe porte en **ligne 9**, au-dessus du nom, le poste que
+la personne tient. C'est là que se trouvait l'information dont le
+convertisseur ne lisait rien : il n'allait chercher que la ligne 10.
+
+Une personne occupe **deux colonnes** — sa cellule et son annotation — d'où
+des couples : `O`+`P` désignent une seule personne.
+
+| Colonnes | Ligne 9 | Sur les cinq feuilles |
+|---|---|---|
+| `C` | Adjoints Contremaître | partout |
+| `G` `I` `K` `M` | *(vide)* | les cinq contremaîtres, repris de leur propre feuille |
+| **`O`** | **Polyvalent** | le polyvalent **arrière** |
+| `Q` | Fermentation | partout |
+| `S` | Distillation | partout |
+| `U` | Renfort arrière | **sauf Shift2, où c'est un renfort avant** |
+| `W` | Renfort avant | Shift2, Shift4 |
+| `Y` | Meunerie | partout |
+| `AA` | Gluten | partout |
+| **`AC` `AE`** | **Polyvalent** | après `V` : les polyvalents **avant** |
+| `AG` | Chaudières | partout |
+| `AM` | Renfort arrière | Shift2 seulement |
+
+**C'est le libellé qui fait foi, pas la colonne.** La position des renforts
+change d'une feuille à l'autre — en Shift2, `U` porte un renfort *avant* et le
+renfort *arrière* est relégué en `AM`. Lire la ligne 9 ; ne jamais déduire le
+poste du numéro de colonne, à la seule exception du couple `O`+`P`, que le
+client donne comme toujours réservé au polyvalent arrière.
+
+`O` est **vide en Shift1 et Shift5** : ces équipes n'ont pas de polyvalent
+arrière. Un poste sans personne n'est pas une anomalie.
+
+### Ce que chacun peut tenir
+
+Le poste de la ligne 9 dit où la personne se trouve *par défaut*. Ce qu'elle
+peut tenir en plus obéit à des règles distinctes :
+
+- **Polyvalent arrière** (`O`+`P`) — tient le poste « Polyvalent arrière », et
+  peut remplacer **en fermentation et en distillation** si nécessaire.
+- **Renfort arrière** — tient les postes pour lesquels il a la polyvalence.
+- **Polyvalent avant** (`AC`, `AE`) — tient les postes pour lesquels il a la
+  polyvalence, mais se trouve **le plus souvent au gluten**. S'il n'y a pas de
+  meunier et qu'il a la polyvalence, il y remplace — *si l'horaire le dit*.
+- **Renfort avant** — même règle : le plus souvent au gluten, et seulement les
+  postes où il a la polyvalence.
+
+**Un remplacement est presque toujours écrit.** La ligne 9 donne le poste
+habituel ; c'est la cellule du jour et son commentaire qui disent où la
+personne était réellement — la règle qui gouverne tout ce document.
+
+### La feuille « Opérateurs »
+
+Elle ne suit pas la même logique. Les gens qui y figurent sont **validés ou en
+cours de formation** sur le poste écrit au-dessus d'eux, avec l'équipe à
+laquelle ils sont rattachés — d'où des libellés comme `chaudières éq. 5` ou
+`Distillation éq. 1`, qui portent le poste ET le numéro d'équipe.
+
 ## 10. Le convertisseur
 
 `tools/convertir-horaire.py` lit le récapitulatif Excel et produit le JSON :

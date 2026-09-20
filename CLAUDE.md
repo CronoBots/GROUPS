@@ -130,9 +130,11 @@ lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
 dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
 est une correction attendue ou une erreur de saisie.
 
-Pour regarder ce qui entoure les noms sans rien convertir — le poste tenu
-par chacun s'y trouve peut-être, et le convertisseur ne lit aujourd'hui que
-la ligne 10 :
+**Le poste tenu est en ligne 9** — établi avec le client, voir la section
+9 bis de `docs/conversion-horaire.md`. Le convertisseur ne la lit pas encore ;
+c'est le premier chantier ouvert.
+
+Pour regarder ce qui entoure les noms sans rien convertir :
 
 ```bash
 python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm --entetes
