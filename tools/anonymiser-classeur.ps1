@@ -70,6 +70,7 @@ $AUTEUR = "(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀ
 # qu'on met dans un nom. Pas de chiffres.
 $NOM_POSSIBLE = [regex]::new("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
 # Le texte d'une cellule dans le XML, sans avoir à l'analyser.
+$RX_CELLULE = [regex]::new('<c\s+([^>]*?)(/>|>(.*?)</c>)', 'Singleline')
 $RX_TEXTE = [regex]::new('<(?:t|v)(?:\s[^>]*)?>([^<>&]{3,40})</(?:t|v)>')
 
 
@@ -140,6 +141,43 @@ function Grille([string] $partie) {
         if (-not $val) { continue }
         $lig = [int] ([regex]::Match($ref, '(\d+)').Groups[1].Value)
         $col = ColNum ([regex]::Match($ref, '([A-Z]+)').Groups[1].Value)
+        if (-not $out.ContainsKey($lig)) { $out[$lig] = @{} }
+        $out[$lig][$col] = $val
+    }
+    return $out
+}
+
+function CellulesBrutes([byte[]] $octets) {
+    # { ligne = { colonne = texte } }, lu au motif plutôt qu'au XML : charger
+    # douze feuilles de plusieurs méga-octets dans un XmlDocument coûte des
+    # minutes, et on ne cherche ici que du texte.
+    $txt = $UTF8.GetString($octets)
+    $out = @{}
+    foreach ($m in $RX_CELLULE.Matches($txt)) {
+        $attrs  = $m.Groups[1].Value
+        $dedans = $m.Groups[3].Value
+        if (-not $dedans) { continue }
+        $ref = [regex]::Match($attrs, 'r="([A-Z]+)(\d+)"')
+        if (-not $ref.Success) { continue }
+        $t = [regex]::Match($attrs, 't="([^"]*)"')
+        $v = [regex]::Match($dedans, '<v>([^<]*)</v>')
+        if ($t.Success -and $t.Groups[1].Value -eq 's') {
+            if (-not $v.Success) { continue }
+            $i = [int] $v.Groups[1].Value
+            if ($i -lt 0 -or $i -ge $shared.Count) { continue }
+            $val = $shared[$i]
+        } elseif ($t.Success -and $t.Groups[1].Value -eq 'inlineStr') {
+            $val = ''
+            foreach ($x in [regex]::Matches($dedans, '<t[^>]*>([^<]*)</t>')) { $val += $x.Groups[1].Value }
+        } elseif ($v.Success) {
+            $val = $v.Groups[1].Value
+        } else {
+            continue
+        }
+        $val = ("$val").Trim()
+        if (-not $val) { continue }
+        $lig = [int] $ref.Groups[2].Value
+        $col = ColNum $ref.Groups[1].Value
         if (-not $out.ContainsKey($lig)) { $out[$lig] = @{} }
         $out[$lig][$col] = $val
     }
@@ -373,28 +411,55 @@ foreach ($nom in @($entrees.Keys)) {
     }
 }
 
-# Le nom et le prénom dans DEUX cellules voisines — « NOM » ici,
-# « PRÉNOM » là. Aucun des deux n'est un nom complet, donc aucun n'était
-# remplacé. On les recolle : si les deux réunis donnent le trigramme de la
-# ligne, ce sont bien eux, et chacun vaut seul.
-if ($gPersonnel) {
-    foreach ($ligne in $gPersonnel.Values) {
-        $ini = ''
-        if ($ligne.ContainsKey(2)) { $ini = ([string] $ligne[2]).Trim().ToUpper() }
-        if (-not $ini -or -not $connus.Contains($ini)) { continue }
-        $mots = @()
-        foreach ($v in $ligne.Values) {
-            $c = Candidat $v
-            if ($c) { $mots += $c }
+# Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence » les
+# range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre. Aucun des deux
+# n'est un nom complet, donc aucun n'était remplacé.
+#
+# On ne devine pas quelles colonnes : on cherche le couple qui, sur TOUTE la
+# feuille, redonne des trigrammes connus. Trois lettres se rencontrent par
+# hasard — « Polyvalence Nom » donne PDE et faisait du nom de la feuille
+# l'alias de quelqu'un. Un couple qui ne tombe juste qu'une fois est un
+# hasard ; celui qui tombe juste cinquante fois est la structure.
+foreach ($partie in @($feuilles.Values)) {
+    if (-not $entrees.Contains($partie)) { continue }
+    $grille = CellulesBrutes $entrees[$partie]
+    $mots = @{}
+    foreach ($l in $grille.Keys) {
+        $m = @{}
+        foreach ($c in $grille[$l].Keys) {
+            $t = Candidat $grille[$l][$c]
+            if ($t) { $m[$c] = $t }
         }
-        foreach ($a in $mots) {
-            foreach ($b in $mots) {
-                if ($a -ne $b -and (Initiales ($a + ' ' + $b)) -eq $ini) {
-                    foreach ($x in @($a, $b)) {
-                        $k = (Plat $x).ToLower()
-                        if (-not $noms.ContainsKey($k)) { $noms[$k] = $ini }
-                    }
+        if ($m.Count -gt 1) { $mots[$l] = $m }
+    }
+    $scores = @{}
+    foreach ($m in $mots.Values) {
+        foreach ($i in $m.Keys) {
+            foreach ($j in $m.Keys) {
+                if ($i -eq $j) { continue }
+                $ini = Initiales ($m[$i] + ' ' + $m[$j])
+                if ($ini -and $connus.Contains($ini)) {
+                    $k = "$i/$j"
+                    if ($scores.ContainsKey($k)) { $scores[$k]++ } else { $scores[$k] = 1 }
                 }
+            }
+        }
+    }
+    foreach ($k in $scores.Keys) {
+        if ($scores[$k] -lt 10) { continue }
+        $ij = $k -split '/'
+        $i = [int] $ij[0]
+        $j = [int] $ij[1]
+        # Le couple est établi : chaque ligne porte alors une personne, même
+        # absente de l'annuaire — ses initiales tiennent lieu d'identifiant,
+        # comme partout ailleurs.
+        foreach ($m in $mots.Values) {
+            if (-not $m.ContainsKey($i) -or -not $m.ContainsKey($j)) { continue }
+            $ini = Initiales ($m[$i] + ' ' + $m[$j])
+            if (-not $ini) { continue }
+            foreach ($x in @($m[$i], $m[$j])) {
+                $cle = (Plat $x).ToLower()
+                if (-not $noms.ContainsKey($cle)) { $noms[$cle] = $ini }
             }
         }
     }
