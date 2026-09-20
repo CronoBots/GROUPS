@@ -164,13 +164,15 @@ def anonymiser(src, dst, tolere=()):
                 return ini
         return None
 
-    # Le classeur écrit les gens de bien plus de façons que la feuille
-    # « Personnel » n'en connaît : « Nom A. », « P-Y. Nom »,
-    # « Nom F.(ass.Us.) ». On les récolte partout — mais on ne les croit
-    # que si _initiales() y retrouve un trigramme connu. Un alias qui ne se
-    # recoupe pas n'est pas un nom, et « Step » ne devient pas quelqu'un.
     for feuille in cl.feuilles:
-        for ligne in cl.grille(feuille).values():
+        g = cl.grille(feuille)
+
+        # Le classeur écrit les gens de bien plus de façons que la feuille
+        # « Personnel » n'en connaît : « Nom A. », « P-Y. Nom »,
+        # « Nom F.(ass.Us.) ». On les récolte — mais on ne les croit que si
+        # _initiales() y retrouve un trigramme connu. Un alias qui ne se
+        # recoupe pas n'est pas un nom, et « Step » ne devient pas quelqu'un.
+        for ligne in g.values():
             for v in ligne.values():
                 t = _candidat(v)
                 if not t:
@@ -185,21 +187,36 @@ def anonymiser(src, dst, tolere=()):
                     if ini:
                         noms[cle] = ini
 
-    # Le nom et le prénom dans DEUX cellules voisines — « NOM » ici,
-    # « PRÉNOM » là. Aucun des deux n'est un nom complet, donc aucun n'était
-    # remplacé. On les recolle : si les deux réunis donnent le trigramme de la
-    # ligne, ce sont bien eux, et chacun vaut seul.
-    if "Personnel" in cl.feuilles:
-        for ligne in cl.grille("Personnel").values():
-            ini = str(ligne.get(2, "")).strip().upper()
-            if ini not in connus:
+        # Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence »
+        # les range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre.
+        # Aucun des deux n'est un nom complet, donc aucun n'était remplacé.
+        #
+        # On ne devine pas quelles colonnes : on cherche le couple qui, sur
+        # TOUTE la feuille, redonne des trigrammes connus. Trois lettres se
+        # rencontrent par hasard — « Polyvalence Nom » donne PDE et faisait
+        # du nom de la feuille l'alias de quelqu'un. Un couple qui ne tombe
+        # juste qu'une fois est un hasard ; celui qui tombe juste cinquante
+        # fois est la structure de la feuille.
+        mots = {l: {c: t for c, t in ((c, _candidat(v)) for c, v in ligne.items()) if t}
+                for l, ligne in g.items()}
+        scores = {}
+        for m in mots.values():
+            for i in m:
+                for j in m:
+                    if i != j and _initiales(m[i] + " " + m[j]) in connus:
+                        scores[(i, j)] = scores.get((i, j), 0) + 1
+        for (i, j), n in scores.items():
+            if n < 10:
                 continue
-            mots = [t for t in (_candidat(v) for v in ligne.values()) if t]
-            for a in mots:
-                for b in mots:
-                    if a is not b and _initiales(a + " " + b) == ini:
-                        noms.setdefault(_sans_accent(a).lower(), ini)
-                        noms.setdefault(_sans_accent(b).lower(), ini)
+            # Le couple est établi : chaque ligne porte alors une personne,
+            # même absente de l'annuaire — ses initiales tiennent lieu
+            # d'identifiant, comme partout ailleurs.
+            for m in mots.values():
+                if i in m and j in m:
+                    ini = _initiales(m[i] + " " + m[j])
+                    if ini:
+                        noms.setdefault(_sans_accent(m[i]).lower(), ini)
+                        noms.setdefault(_sans_accent(m[j]).lower(), ini)
 
     pesees, surveille = [], []
     for cle, ini in noms.items():
