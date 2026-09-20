@@ -2941,6 +2941,15 @@ function parseHoraireEntry(e,hJour,epargne){
     r.poste=posteDepuisMention(txt);
     r.plage=plageMention(txt);
     if(r.poste||r.plage) return r;
+    /* « N-terr. Arr. », « PM - poly. Arr. », « PM-distil » : le poste ET le
+       lieu où il se tient, dans la même cellule. Quatre journées de
+       l'année, mais elles se lisaient comme un simple nom de lieu — et le
+       poste, pourtant écrit noir sur blanc, se perdait. */
+    var duo=/^(AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(txt);
+    if(duo && ATELIERS.test(duo[2].trim())){
+      r.poste=duo[1].toUpperCase(); r.lieu=duo[2].trim();
+      return r;
+    }
     var code=codeAbsence(txt);
     if(code){ r.abs=ALIAS_HORAIRE[code]||code; return r; }
     var n=normPlage(txt);
@@ -2975,6 +2984,7 @@ function parseHoraireEntry(e,hJour,epargne){
   [A,C].forEach(function(x){
     if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
     if(x.jour) jourPrime=x.jour;
+    if(x.lieu && !out.lieu) out.lieu=x.lieu;
     if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
     if(x.inconnu){
       out.unknown=(out.unknown||0)+1;
@@ -3220,8 +3230,18 @@ function posteDeCycle(fit,annee,mois,jour){
    qui commande : là, elle avait un poste prévu. */
 function posteDuRemplace(db,e,mmdd,hJour){
   var com=(e&&e[2])||"";
-  if(!/remplac/i.test(com)) return null;
-  var mots=com.toUpperCase().match(/\b[A-Z]{3}(?:-\d+)?\b/g);
+  /* « remplace JBI » et « remplacé par JBI » disent l'inverse l'un de
+     l'autre, et la recherche ne regardait que la racine du mot : elle
+     prenait le poste de celui qui vous remplace pour le vôtre. On ne garde
+     donc que les remplacements ACTIFS, ceux où c'est bien la personne qui
+     va couvrir quelqu'un d'autre. */
+  var actifs=[], rx=/remplac(e|es|\u00e9|\u00e9e|\u00e9s|\u00e9es)\b\s*(par\b)?([^.;]*)/gi, m;
+  while((m=rx.exec(com))){
+    if(m[1].charAt(0)!=="e" || m[1].length>2 || m[2]) continue;  /* passif */
+    actifs.push(m[3]||"");
+  }
+  if(!actifs.length) return null;
+  var mots=actifs.join(" ").toUpperCase().match(/\b[A-Z]{3}(?:-\d+)?\b/g);
   if(!mots) return null;
   for(var i=0;i<mots.length;i++){
     for(var j=0;j<db.people.length;j++){
@@ -3247,13 +3267,31 @@ function posteDuRemplace(db,e,mmdd,hJour){
 function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour){
   var r=parseHoraireEntry(raw,hJour,epargne);
   if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
-    var duCycle=posteDeCycle(fit,annee,mois,jour);
+    /* LE COMMENTAIRE PRIME — c'est la règle première du projet. Quand il
+       nomme la personne remplacée, le poste de celle-ci est un fait ; le
+       cycle, lui, est une rotation THÉORIQUE ajustée au mois, qui se trompe
+       d'autant plus que la personne passe son temps à remplacer les autres.
+       VBN le 27/07, « remplace ATA remplace GPS de 18h à 22h » : ATA était
+       de nuit, et le cycle disait après-midi. Il faisait bien 18h-06h. */
+    /* Le remplacement ne prime que lorsque la cellule ne donne RIEN : pas
+       de code franc, pas de plage, pas de journée de jour. Dans tous les
+       autres cas le poste ou sa prime sont déjà établis, et c'est le cycle
+       qui tranche — la règle de la section 6 bis. */
+    var duCycle=(!r.s && !r.jour)
+      ? posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour) : null;
+    if(!duCycle) duCycle=posteDeCycle(fit,annee,mois,jour);
     if(!duCycle) duCycle=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
     if(!duCycle && r.jour) duCycle=r.s||"D";
     if(duCycle && duCycle!==r.s){
       r.s=duCycle; r.modifie=true;
       var AR=r.a&&ABSMAP[r.a];
       var base=hJour-(r.epargne||0);
+      /* Les heures épargnées ne sortent de la journée que si elles en font
+         PARTIE. Quand le commentaire les situe hors du poste — « de 18h à
+         22h » devant une nuit qui commence à 22h — elles s'ajoutent : la
+         personne a fait son poste entier, plus ces heures-là. */
+      if(r.epargne>0 && plageHorsPoste(plageCommentaire(raw[2]),duCycle))
+        base=hJour;
       if(AR && AR.h>0) base-=AR.h;
       /* « - » dans la colonne d'annotation : le poste était prévu, il n'a
          pas été presté. */
@@ -3262,6 +3300,18 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour){
     }
   }
   return r;
+}
+/* Vrai quand la plage ne recouvre pas du tout le poste : elle le précède ou
+   le suit, sans chevauchement. */
+function plageHorsPoste(plage,poste){
+  var d=debordePoste(plage,poste);
+  if(!d || !plage) return false;
+  var std=SHIFT_PLAGE[poste]; if(!std) return false;
+  for(var k=-24;k<=24;k+=24){
+    var a=plage[0]+k, b=plage[1]+k;
+    if(Math.min(b,std[1])-Math.max(a,std[0])>0.01) return false;
+  }
+  return true;
 }
 
 /* Un compteur +FT accompagné d'un renvoi de date épargne les heures d'une
@@ -3502,6 +3552,11 @@ function posteTenu(person,raw){
   var i, k;
   if(/contrema/i.test(person.cat||"")) return "cm";
   for(i=0;i<2;i++){ k=posteDepuisNom(raw&&raw[i]); if(k) return k; }
+  /* « N-terr. Arr. » : le lieu est dans la même cellule que le poste */
+  for(i=0;i<2;i++){
+    var duo=/^(?:AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(String(raw&&raw[i]||"").trim());
+    if(duo){ k=posteDepuisNom(duo[1]); if(k) return k; }
+  }
   var ent=person.e||[];
   for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
   var at=(person.poly&&person.poly.ateliers)||[];
