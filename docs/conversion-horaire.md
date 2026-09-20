@@ -388,8 +388,6 @@ prime de pause conservée » de la section 6 bis ?
 
 ### Les autres points ouverts
 
-- **`rhs` chiffrés** (`4h rhs`, `1,5 rhs`… ~60 cellules) — fonctionnent-ils
-  comme `-FT` (heures récupérées, retirées du poste) ?
 - **Chèques-repas sur les jours `8H -FT`** — la note explicative dit que les
   récupérations y donnent droit ; le calcul ne les attribue qu'aux jours
   prestés. 396 journées concernées.

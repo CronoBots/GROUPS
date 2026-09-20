@@ -1007,6 +1007,7 @@ body.sheet-on{overflow:hidden}
             <dl>
               <dt>VA</dt><dd>vacances annuelles</dd>
               <dt>RTT</dt><dd>réduction du temps de travail</dd>
+              <dt>RHS</dt><dd>récupération d'heures supplémentaires — seul, la journée entière ; avec un nombre, une reprise qui comble la journée</dd>
               <dt>DTT</dt><dd>repos compensatoire, compensation paie</dd>
               <dt>RJF</dt><dd>jour férié de remplacement, à choix libre</dd>
               <dt>FER</dt><dd>jour férié légal</dd>
@@ -1234,6 +1235,7 @@ var ABS=[
  {c:"VA",h:8,k:"VA"},{c:"1/2 VA",h:4,k:"VA"},
  {c:"RTT",h:8,k:"RTT"},{c:"1H RTT",h:1,k:"RTT"},{c:"2H RTT",h:2,k:"RTT"},{c:"3H RTT",h:3,k:"RTT"},
  {c:"4H RTT",h:4,k:"RTT"},{c:"5H RTT",h:5,k:"RTT"},{c:"6H RTT",h:6,k:"RTT"},{c:"7H RTT",h:7,k:"RTT"},
+ {c:"RHS",h:8,k:"RHS"},
  {c:"RJF",h:8,k:"RJF"},{c:"1/2 RJF",h:4,k:"RJF"},
  {c:"DTT",h:8,k:"DTT"},{c:"1/2 DTT",h:4,k:"DTT"},
  {c:"1H DTT",h:1,k:"DTT"},{c:"2H DTT",h:2,k:"DTT"},{c:"3H DTT",h:3,k:"DTT"},
@@ -1514,7 +1516,10 @@ function compute(){
      et le total à reporter est affiché sur la fiche. */
   var crTotRTT=Number(M.crRepRTT||0)+ab("RTT");
   var crTotFT=Number(M.crRepFT||0)+acc.ftMoins;
-  var crTotRHS=Number(M.crRepRHS||0)+Number(M.rhsMois||0);
+  /* Une journée entière de RHS consomme huit heures du compteur, comme
+     « 2h RHS » en consomme deux : le client a confirmé que « RHS » seul vaut
+     la journée, exactement comme « RTT » seul. */
+  var crTotRHS=Number(M.crRepRHS||0)+Number(M.rhsMois||0)+ab("RHS");
   var crRecup=Math.floor(crTotRTT/8)+Math.floor(crTotFT/8)+Math.floor(crTotRHS/8);
   var crRestRTT=crTotRTT%8, crRestFT=crTotFT%8, crRestRHS=crTotRHS%8;
   var crNb=(M.crNb!==null&&M.crNb!==undefined&&M.crNb!=="")?Number(M.crNb):(acc.joursCr+crRecup);
@@ -1528,6 +1533,7 @@ function compute(){
   if(ab("RJF")) lines.push({q:ab("RJF"),l:"Heure(s) jour férié / RJF",qh:true});
   if(ab("DTT")) lines.push({q:ab("DTT"),l:"Heure(s) repos compensatoire",qh:true});
   if(ab("RTT")) lines.push({q:ab("RTT"),l:"Heure(s) RTT",qh:true});
+  if(ab("RHS")) lines.push({q:ab("RHS"),l:"Heure(s) récup. heures supplémentaires",qh:true});
   if(ab("CPAR"))lines.push({q:ab("CPAR"),l:"Heure(s) congé parent. AR 29.10.1997",qh:true});
   if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) CT",qh:true});
   if(ab("FER")) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
@@ -1683,7 +1689,7 @@ function compute(){
 var WHY=[
  [/^Chèques repas \(part\. patr/,"Ligne d'information : la part payée par l'employeur pour chaque chèque-repas. Elle n'entre ni dans le brut ni dans le net, elle justifie seulement la valeur du chèque."],
  [/^Heure\(s\) prestée\(s\)/,"Le total des heures pointées ce mois. Vous n'êtes pas payé à l'heure : la rémunération fixe couvre le mois entier. Ce compteur sert aux suppléments d'équipe, aux chèques-repas et au contrôle de l'horaire."],
- [/^Heure\(s\) (vacances|jour férié|repos|RTT|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
+ [/^Heure\(s\) (vacances|jour férié|repos|RTT|récup\. heures|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
  [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
  [/^Heure\(s\) flex time/,"Compteur uniquement. Les heures prestées pour un collègue (+FT) ne sont pas payées le jour même ; elles le sont le jour où vous les récupérez (−FT)."],
  [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
