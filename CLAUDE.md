@@ -62,8 +62,30 @@ sans le dire ne vaut rien. Si un reste n'est pas un nom — « Paye » est aussi
 un mot français — le relancer avec `--tolerer=paye` **après avoir lu le
 contexte imprimé**.
 
+**La garantie a une faille de naissance, et il faut la connaître** : elle ne
+cherche que les noms que l'outil a SU APPRENDRE. Six personnes absentes de
+« Personnel » et des colonnes nom/prénom de « Polyvalence » ont traversé
+l'anonymiseur sans être remplacées ni signalées — il a répondu « aucun nom ne
+subsiste » en toute bonne foi. Il lit depuis la ligne des noms, ce qui ferme
+ce trou-là ; mais le principe demeure.
+
+D'où un **second contrôle, qui n'emprunte rien à l'outil** :
+
+```bash
+python3 tools/verifier-anonymat.py /chemin/Recapitulatif.xlsm \
+        data/classeur-2026.xlsx
+```
+
+Il prend toutes les chaînes du classeur d'origine, retient celles qui ont une
+forme de nom, et dit lesquelles survivent. Il n'utilise ni la liste de noms de
+l'anonymiseur, ni ses règles, ni sa notion de personne — sans quoi il ne le
+vérifierait pas, il le répéterait. Ses survivants se lisent un par un :
+`PRODUCTION`, `CPPT` ou `Adjoints Contremaître` ont la forme d'un nom sans en
+être un.
+
 Le `.xlsx` produit ne porte plus de nom : il peut donc, lui, vivre dans le
-dépôt. C'est la copie de référence.
+dépôt. C'est la copie de référence — **après** ce second contrôle, jamais
+avant.
 
 **Sur un poste sans Python** — un PC d'entreprise, typiquement — le même
 outil existe en PowerShell, qui est présent sur tout Windows :
@@ -150,6 +172,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
+| `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
