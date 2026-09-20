@@ -157,7 +157,7 @@ def anonymiser(src, dst, tolere=()):
         for bout, ini in surveille:
             if bout in tolere:
                 continue
-            for m in re.finditer(r"\b" + re.escape(bout) + r"\b", plat):
+            for m in re.finditer(r"\b" + re.escape(bout) + r"\b", plat, re.I):
                 # un mot courant écrit en minuscules n'est pas un nom
                 brut = plat[m.start():m.end()]
                 if brut[:1].islower():
