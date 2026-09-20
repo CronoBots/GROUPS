@@ -54,6 +54,17 @@ contexte imprimé**.
 Le `.xlsx` produit ne porte plus de nom : il peut donc, lui, vivre dans le
 dépôt. C'est la copie de référence.
 
+**Sur un poste sans Python** — un PC d'entreprise, typiquement — le même
+outil existe en PowerShell, qui est présent sur tout Windows :
+
+```powershell
+.\tools\anonymiser-classeur.ps1 "Recapitulatif.xlsm" data\classeur-2026.xlsx
+```
+
+Même travail, même garantie. Le fichier est encodé en UTF-8 **avec BOM** :
+sans lui, PowerShell 5.1 lirait les accents de travers et les motifs de noms
+seraient faux. Ne pas le retirer.
+
 ## Mettre à jour l'horaire depuis un nouveau classeur
 
 Le client envoie régulièrement le récapitulatif Excel. La procédure :
@@ -127,6 +138,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
+| `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
