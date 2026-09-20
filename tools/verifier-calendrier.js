@@ -34,7 +34,7 @@ const MORCEAUX=[
   ["var POSTE_LIB=","};"],
   ["var ABS=[","\n];"],
   ["var ABSMAP={};","\n"],
-  ["var ABSNORM={};","\n"],
+  ["var ABSNORM={};","});"],
   ["function codeAbsence(","\n}"],
   ["function R(","\n}"],
   ["function pad2(","\n}"],
@@ -70,6 +70,31 @@ const MORCEAUX=[
   ["function etiqAbsence(","\n}"]
 ];
 eval(MORCEAUX.map(m=>part(m[0],m[1])).join("\n"));
+
+/* Découper du code par repères est fragile : une table remplie sur deux
+   lignes dont on ne prend que la première reste VIDE, et tout ce qu'elle
+   devait reconnaître passe pour inconnu. C'est arrivé — trois cellules
+   déclarées illisibles ne l'étaient pas. On ne fait donc pas confiance à la
+   découpe : on la met à l'épreuve sur des cas dont on connaît la réponse,
+   et on refuse de mesurer quoi que ce soit si l'un d'eux tombe à côté. */
+const EPREUVES=[
+  ["table des absences remplie", ()=>Object.keys(ABSMAP).length>20],
+  ["codes d'absence normalisés", ()=>codeAbsence("8h +FT")==="8H +FT"],
+  ["codes d'absence exacts",     ()=>codeAbsence("VA")==="VA"],
+  ["postes reconnus",            ()=>SHIFT_CODES.indexOf("AM")>=0],
+  ["plages horaires",            ()=>posteDepuisPlage(plageMention("6h-14h"))==="AM"],
+  ["ateliers reconnus",          ()=>ATELIERS.test("STEP")],
+  ["journées de jour",           ()=>JOUR_PRIME_PAUSE.indexOf("d-cppt")>=0],
+  ["cycle théorique",            ()=>!!cyclePoste(1,"6 semaines",0,Date.UTC(2026,0,1))],
+  ["lecture d'une cellule",      ()=>parseHoraireEntry(["AM"],8).s==="AM"],
+  ["annotation « - »",           ()=>parseHoraireEntry(["N","-"],8).h===0]
+];
+const ratees=EPREUVES.filter(e=>{ try{ return !e[1](); }catch(x){ return true; } });
+if(ratees.length){
+  console.error("La découpe de index.html est faussée — rien n'a été vérifié :");
+  ratees.forEach(e=>console.error("   ✗ "+e[0]));
+  process.exit(2);
+}
 
 /* --- ce que la case affichera, règle pour règle -------------------------- */
 const H_JOUR=8;
@@ -127,10 +152,12 @@ const REGLES=[
   ["absence sans code",   "la journée n'est pas prestée et aucun code ne le dit"],
   ["étiquette vide",      "la case a un genre mais rien à écrire dedans"],
   ["étiquette trop longue","l'étiquette dépasse quatre signes et sera coupée"],
-  ["vues en désaccord",    "le mois et l'année ne montrent pas la même chose le même jour"]
+  ["vues en désaccord",    "le mois et l'année ne montrent pas la même chose le même jour"],
+  ["mention non comprise", "la case dit quelque chose, mais un morceau de la cellule reste illisible"]
 ];
 const fautes={}; REGLES.forEach(r=>fautes[r[0]]=[]);
 let cellules=0, postes=0, absences=0, repos=0, prevus=0;
+const incomprises={};
 
 for(const p of db.people){
   for(let m=1;m<=12;m++){
@@ -179,6 +206,19 @@ for(const p of db.people){
         fautes["étiquette vide"].push(ou+"  "+src+"  → "+a.genre);
       if(a.etiquette.length>4)
         fautes["étiquette trop longue"].push(ou+"  "+src+"  → «"+a.etiquette+"»");
+      /* La case peut être juste alors qu'un morceau de la cellule n'a pas
+         été compris : une plage horaire inconnue ne donne pas de poste, mais
+         l'annotation sauve l'affichage. Signal faible — à regarder, pas à
+         confondre avec une case muette. */
+      if(r.unknown){
+        (r.unknownTxt||["?"]).forEach(t=>{
+          const cle=String(t).trim();
+          if(!incomprises[cle]) incomprises[cle]={n:0, ex:[]};
+          incomprises[cle].n++;
+          if(incomprises[cle].ex.length<3) incomprises[cle].ex.push(ou+"  "+src);
+        });
+        fautes["mention non comprise"].push(ou+"  "+src);
+      }
       /* 8. le trajet par le mois doit rendre exactement la même case */
       const viaMois=affichageRecord(enregistre(r,H_JOUR),H_JOUR);
       if(viaMois.genre!==a.genre || viaMois.etiquette!==a.etiquette)
@@ -206,8 +246,18 @@ if(total){
   for(const [nom] of REGLES){
     const l=fautes[nom]; if(!l.length) continue;
     console.log("── "+nom+" ("+l.length+")");
-    l.slice(0,40).forEach(x=>console.log("   "+x));
-    if(l.length>40) console.log("   … et "+(l.length-40)+" autres");
+    if(nom==="mention non comprise"){
+      /* Cinq cents lignes ne se lisent pas. Ce qu'il faut savoir tient dans
+         la liste des mentions elles-mêmes : une question par mention, et
+         trois exemples pour la poser. */
+      Object.keys(incomprises).sort((a,b)=>incomprises[b].n-incomprises[a].n).forEach(k=>{
+        console.log("   "+String(incomprises[k].n).padStart(4)+" × «"+k+"»");
+        incomprises[k].ex.forEach(x=>console.log("          "+x));
+      });
+    } else {
+      l.slice(0,40).forEach(x=>console.log("   "+x));
+      if(l.length>40) console.log("   … et "+(l.length-40)+" autres");
+    }
     console.log("");
   }
 }
