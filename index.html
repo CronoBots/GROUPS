@@ -701,10 +701,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         <h2>Horaire presté</h2>
         <span class="sub" id="rotasub"></span>
       </header>
-      <div class="toolbar">
-        <button type="button" class="btn" id="prefillBtn">Pré-remplir l'année depuis l'équipe</button>
-        <span class="sub" id="prefillHint"></span>
-      </div>
+      <p class="sub" id="prefillHint"></p>
       <p class="sub" id="prefillCompteurs"></p>
       <div class="toolbar">
         <div class="seg" id="vueSeg" role="group" aria-label="Affichage de l'horaire">
@@ -2121,11 +2118,12 @@ function renderPrefillSelects(db){
      sélecteur, sans qu'on ait à recliquer sur l'onglet */
   function suivre(){
     majCompteurs();
+    prefillAuto();
     if(!document.getElementById("annee").hidden) renderAnnee();
     if(!document.getElementById("semaine").hidden) renderSemaine();
     if(st.view==="compteurs") renderCompteurs();
   }
-  fillIds(); suivre(); rafraichirUneFois();
+  fillIds(); suivre();
   catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); suivre(); };
   idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); suivre(); };
 }
@@ -2597,7 +2595,7 @@ function epargnesDuMois(person,mois){
    M est l'objet mois, y l'année, m le mois de 0 à 11. */
 function remplirMois(db,person,y,m,M){
   var nd=daysInMonth(y,m), bilan={filled:0,kept:0,verifier:0,manquants:0,
-      repos:0,rhs:0,rcm:0,rappels:0,signales:0,vides:0};
+      repos:0,rhs:0,rcm:0,rappels:0,signales:0,vides:0,changes:0};
   var epargnes=epargnesDuMois(person,m+1);
   var fitCycle=cycleDuMois(person,y,m+1);
   for(var day=1; day<=nd; day++){
@@ -2638,6 +2636,7 @@ function remplirMois(db,person,y,m,M){
     if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) bilan.signales++;
     if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
       var nrec=M.days[day]||(M.days[day]={});
+      var avant=[nrec.s,nrec.h,nrec.a,nrec.r].join("|");
       /* marquée « venue de l'horaire » : une correction des règles de lecture
          doit pouvoir la rafraîchir, ce qu'elle ne peut pas faire d'une
          journée saisie à la main */
@@ -2647,6 +2646,7 @@ function remplirMois(db,person,y,m,M){
       if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a; else delete nrec.a;
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
+      if([nrec.s,nrec.h,nrec.a,nrec.r].join("|")!==avant) bilan.changes++;
       if(parsed.rhs) bilan.rhs+=parsed.rhs;
       if(parsed.unknown || parsed.modifie || rap) bilan.verifier++;
     } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
@@ -2678,12 +2678,14 @@ function remplirMois(db,person,y,m,M){
    jamais écrasées — le bouton se rejoue donc sans risque. */
 function prefillFromHoraire(){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
-  var id=idSel.value; if(!id){ flash("Choisissez d'abord une personne"); return; }
+  var id=idSel.value; if(!id){ prefillEnCours=false; return; }
+  prefillEnCours=true;
   fetchHoraireDB().then(function(db){
-    if(!db) return;
+    if(!db){ prefillEnCours=false; return; }
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
-    if(!person){ flash("Personne introuvable dans l'horaire d'équipe"); return; }
+    if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
     if(Number(db.year)!==Number(st.y)){
+      prefillEnCours=false;
       flash("L'horaire d'équipe porte sur "+db.year+", pas sur "+st.y);
       return;
     }
@@ -2691,7 +2693,7 @@ function prefillFromHoraire(){
     Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); }))
     .then(function(docs){
       var tot={filled:0,kept:0,verifier:0,manquants:0,repos:0,rhs:0,rcm:0,
-               rappels:0,signales:0,vides:0}, touches=0;
+               rappels:0,signales:0,vides:0,changes:0}, touches=0;
       docs.forEach(function(doc,i){
         migreMois(doc);
         var M=mergeDefaults(doc,DEF_M);
@@ -2699,39 +2701,52 @@ function prefillFromHoraire(){
         if(!M.real) M.real={};
         var b=remplirMois(db,person,st.y,i,M);
         Object.keys(tot).forEach(function(k){ tot[k]+=b[k]; });
-        if(b.filled||b.vides) touches++;
+        if(b.changes||b.vides) touches++;
         if(i===st.m) st.month=M;
         /* écriture silencieuse : douze « Enregistré » d'affilée seraient
            du bruit, le bilan ci-dessous suffit */
         save("months/"+key(st.y,i),M,true);
       });
       renderRota(); renderFields(); refresh();
-      var msg=tot.filled+" jour(s) pré-rempli(s) pour "+id+" sur "+touches+" mois de "+st.y;
-      if(tot.rhs) msg+=" — "+num(R(tot.rhs,2))+" h reprises au compteur HS";
-      if(tot.rcm) msg+=" — "+tot.rcm+" jour(s) de remplacement contremaître";
-      if(tot.rappels) msg+=" — "+tot.rappels+" rappel(s) proposé(s), à vérifier";
-      if(tot.signales) msg+=" — "+tot.signales+" mention(s) de rappel non tranchée(s), à regarder";
-      if(tot.verifier) msg+=" — "+tot.verifier+" à vérifier (horaire particulier)";
-      if(tot.vides) msg+=" — "+tot.vides+" jour(s) rendu(s) au repos";
-      if(tot.repos) msg+=" — "+tot.repos+" jour(s) de repos";
-      if(tot.manquants) msg+=" — "+tot.manquants+" jour(s) non reconnu(s), à compléter à la main";
-      if(tot.kept) msg+=" — "+tot.kept+" jour(s) déjà encodé(s) conservé(s)";
-      flash(msg);
-    });
-  });
+      /* Le pré-remplissage se rejoue à chaque ouverture : annoncer les 280
+         journées relues à chaque fois serait du bruit. On ne parle que de
+         ce qui a BOUGÉ, et on se tait quand rien n'a bougé. */
+      var bouge=tot.changes+tot.vides;
+      if(bouge){
+        var msg="Horaire de "+id+" repris depuis l'équipe : "+bouge+" journée(s) sur "
+          +touches+" mois de "+st.y;
+        if(tot.rhs) msg+=" — "+num(R(tot.rhs,2))+" h reprises au compteur HS";
+        if(tot.rcm) msg+=" — "+tot.rcm+" jour(s) de remplacement contremaître";
+        if(tot.rappels) msg+=" — "+tot.rappels+" rappel(s) proposé(s), à vérifier";
+        if(tot.signales) msg+=" — "+tot.signales+" mention(s) de rappel non tranchée(s), à regarder";
+        if(tot.verifier) msg+=" — "+tot.verifier+" à vérifier (horaire particulier)";
+        if(tot.manquants) msg+=" — "+tot.manquants+" jour(s) non reconnu(s), à compléter à la main";
+        if(tot.kept) msg+=" — "+tot.kept+" jour(s) corrigé(s) à la main, conservé(s)";
+        flash(msg);
+      }
+      prefillEnCours=false;
+    }, function(){ prefillEnCours=false; });
+  }, function(){ prefillEnCours=false; });
 }
-/* Marquer les journées « venues de l'horaire » ne suffit pas : encore
-   faut-il rejouer la lecture pour qu'elles se corrigent. On le fait une
-   seule fois, sans rien demander — la donnée juste est dans l'horaire, pas
-   dans l'appareil. Les deux appelants sont les deux chargements qui peuvent
-   finir en dernier : la liste des personnes et le mois affiché. */
-var MARQUE_RAFRAICHI="v4";
-function rafraichirUneFois(){
-  if(!st.ready) return;
-  if(lsGet("ui/rafraichi")===MARQUE_RAFRAICHI) return;
-  var idSel=document.getElementById("prefillId");
-  if(!idSel || !idSel.value) return;
-  lsSet("ui/rafraichi",MARQUE_RAFRAICHI);
+/* Il n'y a plus de bouton : choisir une personne SUFFIT. L'horaire est la
+   source, l'appareil n'en est que la copie — rien ne justifiait de demander
+   un clic pour aller le relire.
+
+   Deux garde-fous, sans quoi cela tournerait en rond : un verrou, parce que
+   le pré-remplissage redessine la page et que redessiner la page regarnit
+   les sélecteurs ; et la personne déjà traitée, parce que les deux
+   chargements du démarrage — la liste des personnes et le mois affiché —
+   appellent tous les deux, l'un finissant après l'autre sans qu'on sache
+   lequel. */
+var prefillEnCours=false, prefillFait="";
+function prefillAuto(){
+  if(!st.ready || prefillEnCours) return;
+  var catSel=document.getElementById("prefillCat"),
+      idSel=document.getElementById("prefillId");
+  if(!catSel || !idSel || !idSel.value) return;
+  var cle=catSel.value+"/"+idSel.value+"/"+st.y;
+  if(cle===prefillFait) return;
+  prefillFait=cle;
   prefillFromHoraire();
 }
 
@@ -3171,7 +3186,6 @@ document.getElementById("vueSeg").addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("button[data-v]"):null;
   if(b) vueHoraire(b.dataset.v);
 });
-document.getElementById("prefillBtn").addEventListener("click",prefillFromHoraire);
 function ensurePrefillUI(){
   if(HORAIRE_DB){ restaurerVue(); return; }
   fetchHoraireDB().then(function(db){
@@ -3361,7 +3375,7 @@ function loadMonth(y,m){
     st.ready=true;
     renderRota(); renderFields(); refresh();
     if(migre) persistMonth();
-    rafraichirUneFois();
+    prefillAuto();
   });
 }
 
