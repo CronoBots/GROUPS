@@ -103,7 +103,17 @@ button{cursor:pointer}
 @media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
 
 /* ---------- en-tête ---------- */
-.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:40; background:var(--surface); border-bottom:1px solid var(--line)}
+/* En PWA, la page occupe l'écran jusque sous la barre d'état (viewport-fit=
+   cover). L'en-tête était collé SOUS la zone sûre — il restait au-dessus de
+   lui une bande transparente où le contenu défilait, illisible derrière
+   l'heure et la batterie. Il faut qu'il la COUVRE : collé à zéro, et la
+   hauteur de la zone sûre prise en marge intérieure, que son propre fond
+   remplit. */
+.top{
+  position:sticky; top:0; z-index:40;
+  background:var(--surface); border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px);
+}
 .top-in{max-width:1180px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap}
 .brand{margin-right:auto; min-width:0}
 .brand h1{font-size:15px; letter-spacing:-.012em; font-weight:700}
