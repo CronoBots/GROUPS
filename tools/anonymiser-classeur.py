@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from importlib import import_module
 _conv = import_module("convertir-horaire")
 Classeur, _annuaire, _sans_accent = _conv.Classeur, _conv._annuaire, _conv._sans_accent
+LIGNE_NOMS = _conv.LIGNE_NOMS
 _initiales, AUTEUR = _conv._initiales, _conv.AUTEUR
 
 # Ce qui, dans le ZIP, ne doit pas être recopié.
@@ -239,6 +240,25 @@ def anonymiser(src, dst, tolere=()):
         recolte[feuille] = {
             l: {c: t for c, t in ((c, _candidat(v)) for c, v in ligne.items()) if t}
             for l, ligne in g.items()}
+
+    # LA LIGNE DES NOMS. C'est la structure même du classeur : la ligne 10 de
+    # chaque feuille d'équipe porte les gens, un par colonne. Le convertisseur
+    # la lit depuis toujours ; l'anonymiseur ne la lisait pas, et six personnes
+    # absentes de « Personnel » comme de « Polyvalence » ont traversé l'outil
+    # sans être ni remplacées ni signalées.
+    #
+    # Ici, pas de corroboration à chercher : ce qui est écrit là EST un nom.
+    # On exige seulement que la ligne ressemble à une ligne de noms — au moins
+    # trois cellules qui donnent des initiales — pour ne pas prendre l'en-tête
+    # d'une feuille de configuration pour un effectif.
+    for feuille, mots in recolte.items():
+        ligne = mots.get(LIGNE_NOMS) or {}
+        trouves = [(t, _initiales(t)) for t in ligne.values()]
+        trouves = [(t, i) for t, i in trouves if i and i.isalpha()]
+        if len(trouves) < 3:
+            continue
+        for t, ini in trouves:
+            _apprendre(_sans_accent(t).lower(), annuaire.get(_sans_accent(t).lower(), ini))
 
     # Le nom et le prénom dans DEUX COLONNES — la feuille « Polyvalence » les
     # range ainsi, « NOM » d'un côté, « PRÉNOM » de l'autre. Aucun des
