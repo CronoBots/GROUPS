@@ -713,9 +713,25 @@ body.sheet-on{overflow:hidden}
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 
 /* ---------- barre d'onglets mobile ---------- */
+/* Elle vivait « fixed » DANS l'en-tête collant, et sous iOS son « bottom:0 »
+   ne se résolvait pas sur le même viewport selon que la page défilait ou
+   non : sur un onglet court elle remontait de la hauteur de la barre
+   d'état, laissant le fond de page sous elle. Une barre de navigation qui
+   change de place selon l'onglet n'est plus un repère.
+
+   Elle est donc sortie de l'en-tête, dans un cadre ancré par le HAUT sur la
+   hauteur dynamique de l'écran, et s'y range en bas. Plus de « bottom » à
+   interpréter : le haut de l'écran, lui, ne bouge jamais. */
+.navwrap{
+  position:fixed; left:0; right:0; top:0; z-index:50;
+  height:100vh; height:100dvh;
+  display:flex; align-items:flex-end; pointer-events:none;
+}
+.navwrap[hidden]{display:none}
+.navwrap>.tabs{pointer-events:auto}
 @media (max-width:760px){
   .tabs{
-    position:fixed; left:0; right:0; bottom:0; z-index:50; max-width:none; margin:0;
+    position:static; width:100%; max-width:none; margin:0;
     padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
     background:var(--surface); border-top:1px solid var(--line); gap:0;
   }
@@ -783,6 +799,7 @@ body.sheet-on{overflow:hidden}
       Réglages</button>
   </nav>
 </header>
+<div class="navwrap" id="navwrap" hidden></div>
 
 <main class="wrap">
 
@@ -2284,6 +2301,28 @@ function fonctionCourte(cat){
 }
 
 /* ===================== onglets ===================== */
+/* Sur téléphone la barre se range dans son cadre ancré ; sur grand écran
+   elle reprend sa place sous le nom de l'application, dans l'en-tête. Le
+   seul déménagement du document, et il ne coûte rien : les clics passent
+   par la barre elle-même, qui voyage avec ses écouteurs. */
+var mqNav=window.matchMedia("(max-width:760px)");
+function placerOnglets(){
+  var nav=document.querySelector(".tabs"),
+      cadre=document.getElementById("navwrap"),
+      tete=document.querySelector(".top");
+  if(!nav||!cadre||!tete) return;
+  if(mqNav.matches){
+    if(nav.parentNode!==cadre) cadre.appendChild(nav);
+    cadre.hidden=false;
+  } else {
+    if(nav.parentNode!==tete) tete.appendChild(nav);
+    cadre.hidden=true;
+  }
+}
+placerOnglets();
+if(mqNav.addEventListener) mqNav.addEventListener("change",placerOnglets);
+else if(mqNav.addListener) mqNav.addListener(placerOnglets);
+
 var VIEWS=["resume","horaire","compteurs","fiche","controle","reglages"];
 function setView(v,keepScroll){
   if(VIEWS.indexOf(v)<0) v="resume";
