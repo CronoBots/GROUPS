@@ -69,6 +69,14 @@ $AUTEUR = "(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀ
 # Une cellule qui pourrait porter un nom : des lettres, et la ponctuation
 # qu'on met dans un nom. Pas de chiffres.
 $NOM_POSSIBLE = [regex]::new("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s.,'()-]*$")
+# Les mots par lesquels un classeur nomme ses colonnes. « NOM » et
+# « PRENOM » côte à côte donnent P + N + M : la ligne d'en-tête se faisait
+# prendre pour quelqu'un, et le classeur archivé perdait le nom de ses
+# propres colonnes.
+$ENTETES = New-Object 'System.Collections.Generic.HashSet[string]'
+foreach ($e in @('nom', 'noms', 'prenom', 'prenoms', 'initiales', 'matricule',
+                 'service', 'groupe', 'atelier', 'equipe', 'personnel', 'total',
+                 'date', 'jour', 'mois', 'fonction', 'poste')) { [void] $ENTETES.Add($e) }
 # Le texte d'une cellule dans le XML, sans avoir à l'analyser.
 $RX_CELLULE = [regex]::new('<c\s+([^>]*?)(/>|>(.*?)</c>)', 'Singleline')
 
@@ -480,6 +488,8 @@ foreach ($mots in $recolte.Values) {
         # absente de l'annuaire — ses initiales tiennent lieu d'identifiant,
         # comme partout ailleurs.
         foreach ($m in $paires) {
+            if ($ENTETES.Contains((Plat $m[$i]).ToLower()) -or
+                $ENTETES.Contains((Plat $m[$j]).ToLower())) { continue }
             $ini = Initiales ($m[$i] + ' ' + $m[$j])
             if (-not $ini) { continue }
             Apprendre ((Plat $m[$i]).ToLower()) $ini

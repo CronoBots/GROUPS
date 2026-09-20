@@ -87,6 +87,13 @@ def _motif(texte):
 PARTICULES = {"de", "van", "von", "der", "den", "le", "la", "du", "des",
               "di", "dos", "mac", "mc"}
 
+# Les mots par lesquels un classeur nomme ses colonnes. « NOM » et « PRENOM »
+# côte à côte donnent P + N + M : la ligne d'en-tête se faisait prendre pour
+# quelqu'un, et le classeur archivé perdait le nom de ses propres colonnes.
+ENTETES = {"nom", "noms", "prenom", "prenoms", "initiales", "matricule",
+           "service", "groupe", "atelier", "equipe", "personnel", "total",
+           "date", "jour", "mois", "fonction", "poste"}
+
 
 def _accessoire(bout):
     """Ce qui peut entourer un nom sans en être un : une initiale, un point,
@@ -247,6 +254,9 @@ def anonymiser(src, dst, tolere=()):
             # même absente de l'annuaire — ses initiales tiennent lieu
             # d'identifiant, comme partout ailleurs.
             for m in paires:
+                if (_sans_accent(m[i]).lower() in ENTETES
+                        or _sans_accent(m[j]).lower() in ENTETES):
+                    continue
                 ini = _initiales(m[i] + " " + m[j])
                 if ini:
                     _apprendre(_sans_accent(m[i]).lower(), ini)
