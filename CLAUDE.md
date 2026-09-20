@@ -56,6 +56,17 @@ lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
 dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
 est une correction attendue ou une erreur de saisie.
 
+Pour regarder ce qui entoure les noms sans rien convertir — le poste tenu
+par chacun s'y trouve peut-être, et le convertisseur ne lit aujourd'hui que
+la ligne 10 :
+
+```bash
+python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm --entetes
+```
+
+Il imprime les lignes 5 à 12 de chaque feuille, colonne par colonne, les
+noms réduits à leurs initiales.
+
 Le convertisseur signale de son côté les anomalies du classeur : trigrammes
 partagés, corrections devenues orphelines, compteur écrit dans la mauvaise
 colonne. Ces messages vont sur la sortie d'erreur ; ils ne sont pas du bruit.

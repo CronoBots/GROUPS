@@ -531,7 +531,44 @@ def convertir(chemin_xlsm, annee):
     return sortie
 
 
+def entetes(cl):
+    """Montre ce qui entoure les noms, colonne par colonne.
+
+    Le convertisseur ne lit que la ligne des noms ; tout ce qui est écrit
+    au-dessus ou en dessous est jeté sans être regardé. Or le poste tenu par
+    chacun — meunerie, gluten, fermentation — est « tout près du trigramme »
+    d'après le client, et le classeur ne sort jamais du poste de travail où
+    il est. Plutôt que de deviner la bonne ligne, on les montre toutes, et
+    on lit.
+
+    Aucun nom complet n'est imprimé : les cellules de la ligne des noms sont
+    remplacées par leurs initiales, comme partout ailleurs.
+    """
+    for feuille in FEUILLES:
+        if feuille not in cl.feuilles:
+            continue
+        g = cl.grille(feuille)
+        cols = [c for c in sorted(g.get(LIGNE_NOMS, {}))
+                if c >= 3 and str(g[LIGNE_NOMS][c]).strip() not in ("", "0")]
+        if not cols:
+            continue
+        print("── feuille « %s » — %d colonnes-personnes" % (feuille, len(cols)))
+        for r in range(max(1, LIGNE_NOMS - 5), LIGNE_NOMS + 3):
+            vals = []
+            for c in cols[:8]:
+                v = str(g.get(r, {}).get(c, "")).strip()
+                if r == LIGNE_NOMS:
+                    v = _initiales(v) or "?"
+                vals.append((v[:14] or "·").ljust(14))
+            marque = " ← noms" if r == LIGNE_NOMS else ""
+            print("   l.%-3d %s%s" % (r, " ".join(vals), marque))
+        print()
+
+
 if __name__ == "__main__":
+    if "--entetes" in sys.argv:
+        entetes(Classeur(sys.argv[1]))
+        sys.exit(0)
     src = sys.argv[1]
     dst = sys.argv[2] if len(sys.argv) > 2 else "-"
     annee = int(sys.argv[3]) if len(sys.argv) > 3 else 2026
