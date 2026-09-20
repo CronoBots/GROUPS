@@ -65,9 +65,7 @@ La personne choisie reste un contexte global : elle pilote les trois vues de
 l'horaire et l'onglet Compteurs. La laisser au fond d'un
 onglet obligeait à y revenir pour en changer.
 
-Les deux sélecteurs ne s'affichent que là où ils veulent dire quelque chose —
-Horaire et Compteurs — et sont garnis dès le démarrage, quel que soit
-l'onglet ouvert.
+Les sélecteurs sont garnis dès le démarrage, quel que soit l'onglet ouvert.
 
 ### Un seul chemin pour remplir l'horaire
 
@@ -95,13 +93,28 @@ question différente :
 | Vue | À quoi elle sert |
 |---|---|
 | **Semaine** | relire sept journées en détail — poste, durée, ce qui est parti aux compteurs, et le commentaire du classeur en toutes lettres |
-| **Mois** | encoder : c'est la surface de saisie, inchangée |
+| **Mois** | le calendrier du mois : poste, code presté, marques de la journée, heures de chaque semaine |
 | **Année** | voir la rotation d'un coup d'œil, et les totaux |
 
 L'en-tête suit l'onglet. Le net à recevoir ne s'affiche plus au-dessus d'un
 calendrier ou d'un état de compteurs, et le sélecteur de mois disparaît là
 où il n'a pas de sens — les réglages, la vue annuelle, et la vue semaine qui
 a sa propre navigation et peut enjamber deux mois.
+
+#### Le mois se regarde, la journée se corrige
+
+L'onglet Horaire montrait trente lignes de saisie empilées — trois écrans et
+demi sur un téléphone. C'était faire de la correction le sujet et de
+l'horaire un sous-produit, alors que le pré-remplissage se fait seul et que
+corriger est l'exception.
+
+Le mois est donc un **calendrier** : sept colonnes de jours, une huitième
+pour les heures de la semaine, et dans chaque case le poste, le code presté
+quand il diffère, et les marques de la journée — vélo, prime de rappel,
+absence partielle. Toucher une journée ouvre une **feuille** qui porte sa
+ligne de correction et, au-dessus, ce que le classeur d'équipe dit de cette
+journée : la cellule, son annotation, le commentaire. C'est la seule source,
+et c'est elle qu'on veut sous les yeux au moment de la contredire.
 
 ### État des compteurs
 
