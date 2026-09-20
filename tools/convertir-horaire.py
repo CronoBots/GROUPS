@@ -40,6 +40,7 @@ FEUILLES = {
     "Shift4": "Shift 4", "Shift5": "Shift 5",
 }
 LIGNE_NOMS = 10          # la ligne qui porte les noms
+LIGNE_POSTE = 9          # juste au-dessus : le poste tenu (section 9 bis)
 COL_JOUR = 2             # la colonne qui porte le numéro du jour
 MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET",
         "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"]
@@ -448,6 +449,16 @@ def _colonnes(cl):
                     v = str(g.get(r, {}).get(c, "")).strip()
                     if v and v != "0" and v not in entete:
                         entete.append(v)
+            # Le poste tenu, juste au-dessus du nom. C'est la source
+            # PRINCIPALE du poste — le client l'a établi le 20/09/2026. Il
+            # peut être écrit sur l'une ou l'autre des deux colonnes de la
+            # personne, la fusion de cellules ne se voyant pas d'ici.
+            poste = ""
+            for c in (colonne, colonne + 1):
+                v = str(g.get(LIGNE_POSTE, {}).get(c, "")).strip()
+                if v and v != "0":
+                    poste = v
+                    break
             jours = {}
             for m, r0 in mois.items():
                 for d in range(1, 32):
@@ -465,7 +476,8 @@ def _colonnes(cl):
                     jours["%02d%02d" % (m, d)] = e
             if jours:
                 yield (categorie, nom, jours,
-                       compteurs(g, colonne) if pied else {}, entete)
+                       compteurs(g, colonne) if pied else {}, entete,
+                       feuille, poste)
 
 
 def convertir(chemin_xlsm, annee):
@@ -477,7 +489,7 @@ def convertir(chemin_xlsm, annee):
     #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
     #    tête pour que ce soit celle de son propre groupe.
     fiches, utilisees, noms = {}, set(), {}
-    for categorie, nom, jours, cpt, entete in _colonnes(cl):
+    for categorie, nom, jours, cpt, entete, feuille, poste in _colonnes(cl):
         cle = _sans_accent(nom).lower()
         noms[cle] = nom
         corrige = CORRECTIONS.get(_empreinte(cle))
@@ -488,7 +500,13 @@ def convertir(chemin_xlsm, annee):
             continue
         utilisees.add(_empreinte(cle))
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
-                                    "cat": categorie, "d": {}, "c": {}, "e": []})
+                                    "cat": categorie, "d": {}, "c": {}, "e": [],
+                                    "postes": {}})
+        # Le poste est propre à la FEUILLE : la même personne est « Adjoints
+        # Contremaître » sur les cinq équipes et porte un numéro d'équipe sur
+        # sa propre feuille. On garde les deux plutôt que d'en élire un.
+        if poste:
+            f["postes"][feuille] = poste
         for v in entete:
             if v not in f["e"]:
                 f["e"].append(v)
@@ -577,6 +595,8 @@ def convertir(chemin_xlsm, annee):
                 p["c"] = f["c"]
             if f.get("e"):
                 p["e"] = f["e"]
+            if f.get("postes"):
+                p["postes"] = f["postes"]
             gens[ident] = p
 
     for ident, fiche in polyvalence(cl, annuaire).items():
