@@ -34,10 +34,16 @@ def _jour(cle):
 def comparer(avant, apres):
     lignes, change = [], False
 
-    for cle in ("year", "maj"):
-        if avant.get(cle) != apres.get(cle):
-            lignes.append("  %-10s %s -> %s" % (cle, avant.get(cle), apres.get(cle)))
-            change = True
+    # Tous les champs d'en-tête, pas seulement ceux qu'on connaît : un champ
+    # ajouté demain doit se voir dès demain.
+    for cle in sorted(set(avant) | set(apres)):
+        if cle == "people" or avant.get(cle) == apres.get(cle):
+            continue
+        a_, b_ = avant.get(cle), apres.get(cle)
+        if isinstance(a_, (dict, list)) or isinstance(b_, (dict, list)):
+            a_, b_ = "%d entrée(s)" % len(a_ or ()), "%d entrée(s)" % len(b_ or ())
+        lignes.append("  %-10s %s -> %s" % (cle, a_, b_))
+        change = True
     if lignes:
         lignes.insert(0, "En-tête :")
         lignes.append("")
@@ -109,6 +115,30 @@ def comparer(avant, apres):
         for i, a, b in bouges:
             lignes.append("  %-6s %s -> %s" % (i, json.dumps(a, ensure_ascii=False),
                                                json.dumps(b, ensure_ascii=False)))
+        lignes.append("")
+
+    # Le filet : tout champ de personne que les sections ci-dessus ne
+    # présentent pas. Sans lui, le champ « e » — ajouté au convertisseur pour
+    # garder ce qui entoure les noms — a pu apparaître chez 67 personnes sans
+    # que le comparateur dise un mot. Un comparateur muet sur ce qu'il ne
+    # connaît pas ne compare rien.
+    PRESENTES = {"id", "cat", "d", "c", "poly"}
+    autres = {}
+    for i in sorted(set(A) & set(B)):
+        for cle in sorted((set(A[i]) | set(B[i])) - PRESENTES):
+            if A[i].get(cle) != B[i].get(cle):
+                autres.setdefault(cle, []).append(i)
+    if autres:
+        change = True
+        lignes.append("Autres champs :")
+        for cle, gens in sorted(autres.items()):
+            apercu = ", ".join(gens[:EXEMPLES])
+            if len(gens) > EXEMPLES:
+                apercu += ", … et %d autre(s)" % (len(gens) - EXEMPLES)
+            lignes.append("  %-8s %d personne(s) : %s" % (cle, len(gens), apercu))
+            i = gens[0]
+            lignes.append("      %-5s %s" % (i, json.dumps(A[i].get(cle), ensure_ascii=False)[:90]))
+            lignes.append("      %-5s %s" % (" " * 5, json.dumps(B[i].get(cle), ensure_ascii=False)[:90]))
         lignes.append("")
 
     if not change:
