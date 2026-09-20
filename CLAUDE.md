@@ -77,6 +77,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
+| `tools/verifier-calendrier.js` | vérifie que le calendrier ne ment jamais sur le classeur |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
@@ -166,6 +167,42 @@ est marqué `personal:true`, et les montants du mois.
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible
    depuis `page.evaluate` : il faut passer par l'interface.
+
+## Vérifier le calendrier de tout le monde
+
+```bash
+node tools/verifier-calendrier.js
+```
+
+Confronte ce que le calendrier **affiche** à ce que le classeur **dit**, pour
+les 77 personnes et les 27 462 journées. Il ne réimplémente rien : il découpe
+dans `index.html` les fonctions de lecture elles-mêmes et les rejoue — ce
+qu'il mesure est donc bien ce que l'application fera.
+
+Neuf règles, et aucune n'a le droit d'être enfreinte :
+
+| Règle | Ce qu'elle interdit |
+|---|---|
+| cellule non reconnue | le classeur écrit quelque chose que la lecture ne sait pas traduire |
+| poste prévu effacé | `["N","-"]` affiché comme un repos ordinaire |
+| poste sans heure | une case peinte en poste sans heure prestée |
+| heure sans poste | des heures prestées sans poste à montrer |
+| repos habillé | un repos affiché en poste ou en absence |
+| absence sans code | une journée non prestée sans rien qui le dise |
+| étiquette vide / trop longue | une case muette, ou un code coupé |
+| **vues en désaccord** | le mois et l'année divergents sur la même journée |
+
+La dernière est la plus importante : le mois lit une journée **enregistrée**
+par le pré-remplissage, l'année **relit le classeur**. Deux chemins pour une
+même journée — et c'est ainsi qu'une divergence est passée. Ils partagent
+maintenant `lireJournee()` ; le vérificateur refait le trajet complet
+(lecture → écriture du mois → relecture) et exige le même résultat.
+
+Le code de retour est 1 s'il reste une faute : l'outil se branche tel quel
+sur un contrôle automatique.
+
+**Au 20/09/2026 : 3 cellules non reconnues sur 27 462, zéro faute ailleurs.**
+Les trois demandent une décision du client et ne doivent pas être devinées.
 
 ## Vérifier une modification du pré-remplissage
 

@@ -536,6 +536,11 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 .mc-j.abs{background:none; border-style:dashed; border-color:var(--line)}
 .mc-j.abs .mc-t{color:var(--muted)}
 .mc-j.abs .mc-n{color:var(--faint)}
+/* barré : ce qui était au programme et n'a pas eu lieu */
+.mc-j.prevu .mc-t,.cal button.prevu .tag,.mois .jours button.prevu i,
+.mc-leg s{text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--faint)}
+.cal button.prevu{background:none; border:1px dashed var(--line)}
+.mois .jours button.prevu{background:var(--surface2); box-shadow:inset 0 0 0 1px var(--line)}
 .cal button.abs{background:none; border:1px dashed var(--line)}
 .mc-leg .lg-abs{background:none; border:1px dashed var(--line); box-shadow:none}
 /* même langage que les deux autres calendriers : le liseré dit la prime
@@ -1718,17 +1723,25 @@ function caseJour(d){
   var today=new Date();
   var auj=(today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d);
   var preste=(heuresJour(rec)>0);
+  /* « N | - » : la rotation prévoyait une nuit, quelqu'un d'autre l'a prise.
+     Zéro heure, aucune prime — mais le classeur en parle, et la case restait
+     vide, impossible à distinguer d'un vrai repos. Cent cinquante-six
+     journées de l'année dans ce cas. Le poste prévu s'affiche donc barré :
+     ce qui était au programme, et qui n'a pas eu lieu. */
+  var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
   var tag=preste?((rec.j?etiqJour(rec.j):rec.s))
-               :(rec.a?etiqAbsence(rec.a):"");
+               :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
-  if(!preste&&rec.a) cls.push("abs");
+  if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
+  if(prevu) cls.push("abs","prevu");
   if(preste&&rec.j) cls.push("jour");
   if(fer) cls.push("fer");
   if(auj) cls.push("auj");
   var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
   var lib=preste?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
                        :(POSTE_LIB[rec.s]||rec.s))
-                :(rec.a?(rec.a+(rec.s?" — poste "+rec.s+" prévu":"")):"repos");
+                :(rec.a&&ABSMAP[rec.a]?(rec.a+(rec.s?" — poste "+rec.s+" prévu":""))
+                 :(prevu?((POSTE_LIB[rec.s]||rec.s)+" prévu, non presté"):"repos"));
   var marques="";
   if(rec.v) marques+='<i class="mc-velo" title="Vélo"></i>';
   if(rec.r) marques+='<i class="mc-rap" title="Prime de rappel"></i>';
@@ -1773,12 +1786,13 @@ function renderRota(){
    qu'avec ce que le mois contient vraiment. */
 function legendeMois(){
   var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
-  var vus={}, abs=false, jour=false, velo=false, rap=false, part=false;
+  var vus={}, abs=false, jour=false, velo=false, rap=false, part=false, prevu=false;
   for(d=1; d<=nd; d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
     if(preste) vus[rec.j?"D":rec.s]=1;
-    else if(rec.a) abs=true;
+    else if(rec.a&&ABSMAP[rec.a]) abs=true;
+    else if(rec.s) prevu=true;
     if(preste&&rec.j) jour=true;
     if(preste&&rec.a) part=true;
     if(rec.v) velo=true;
@@ -1789,6 +1803,7 @@ function legendeMois(){
     if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
   });
   if(abs)  h.push('<span><i class="lg-abs"></i>absence — non presté</span>');
+  if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu, non presté</span>');
   if(jour) h.push('<span><i class="lg-jour"></i>journée de jour, prime conservée</span>');
   if(part) h.push('<span><i class="lg-pt lg-part"></i>heures en moins ou en plus</span>');
   if(velo) h.push('<span><i class="lg-pt lg-velo"></i>vélo</span>');
@@ -2068,9 +2083,13 @@ function renderResume(C){
   for(var dd=1; dd<=nd; dd++){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
     var preste=(heuresJour(rec)>0);
+    var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
     var tag=preste?(rec.j?etiqJour(rec.j):rec.s)
-                  :(rec.a?etiqAbsence(rec.a):"");
-    var cls=[]; if(!preste&&rec.a) cls.push("abs"); if(preste&&rec.j) cls.push("jour");
+                  :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
+    var cls=[];
+    if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
+    if(prevu) cls.push("abs","prevu");
+    if(preste&&rec.j) cls.push("jour");
     var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
     cells+='<button type="button" data-d="'+dd+'"'+pr
       +(preste?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")+
@@ -2078,7 +2097,8 @@ function renderResume(C){
       ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+
         (preste?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
                       :" — poste "+esc(rec.s))
-               :(rec.a?" — "+esc(rec.a)+(rec.s?", poste "+esc(rec.s)+" prévu":""):" — repos"))+'">'+
+               :(rec.a&&ABSMAP[rec.a]?" — "+esc(rec.a)+(rec.s?", poste "+esc(rec.s)+" prévu":"")
+                :(prevu?" — "+esc(rec.s)+" prévu, non presté":" — repos")))+'">'+
       '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
   }
   document.getElementById("cal").innerHTML=
@@ -2833,6 +2853,18 @@ function parseHoraireEntry(e,hJour,epargne){
        dire laquelle des deux journées a été prestée */
     if(JOUR_EN_ABSENCE[n]){ r.abs=JOUR_EN_ABSENCE[n]; return r; }
     if(JOUR_PRIME_PAUSE.indexOf(n)>=0){ r.jour=txt.trim()||true; return r; }
+    /* « DS-CE+F » : un conseil d'entreprise ET une formation le même jour.
+       Chacun pris à part est une journée de jour ; leur somme aussi. Refuser
+       le composé laissait la journée muette au calendrier. On n'accepte que
+       si TOUTES les parties sont connues — un composé dont un morceau
+       échappe reste une cellule à faire trancher. */
+    if(txt.indexOf("+")>0){
+      var parts=txt.split("+"), tous=true, i;
+      for(i=0;i<parts.length;i++){
+        if(JOUR_PRIME_PAUSE.indexOf(normPlage(parts[i]))<0){ tous=false; break; }
+      }
+      if(tous && parts.length>1){ r.jour=txt.trim(); return r; }
+    }
     if(MENTIONS_NEUTRES.indexOf(n)>=0) return r;
     if(ATELIERS.test(txt)) return r;
     r.rhs=reprisRHS(txt);
@@ -3100,6 +3132,36 @@ function posteDuRemplace(db,e,mmdd,hJour){
   }
   return null;
 }
+/* La lecture d'une journée — la cellule, puis le cycle ou le remplacement
+   quand la cellule ne donne pas de poste — était écrite DEUX fois : une
+   pour le pré-remplissage, qui alimente le mois, le résumé et la paie ; une
+   pour la vue annuelle, qui alimente l'année et la semaine. Les deux ont
+   divergé : la première recalculait les heures quand le cycle imposait un
+   autre poste, la seconde non. Une journée dont l'annotation dit « - » —
+   zéro heure — se montrait donc vide au mois et PRESTÉE à l'année.
+
+   Une seule lecture, et deux affichages qui la partagent. C'est la seule
+   façon de garantir que les vues ne peuvent pas se contredire. */
+function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour){
+  var r=parseHoraireEntry(raw,hJour,epargne);
+  if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
+    var duCycle=posteDeCycle(fit,annee,mois,jour);
+    if(!duCycle) duCycle=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
+    if(!duCycle && r.jour) duCycle=r.s||"D";
+    if(duCycle && duCycle!==r.s){
+      r.s=duCycle; r.modifie=true;
+      var AR=r.a&&ABSMAP[r.a];
+      var base=hJour-(r.epargne||0);
+      if(AR && AR.h>0) base-=AR.h;
+      /* « - » dans la colonne d'annotation : le poste était prévu, il n'a
+         pas été presté. */
+      if((raw[1]||"").trim()==="-") base=0;
+      r.h=Math.max(0,base);
+    }
+  }
+  return r;
+}
+
 /* Un compteur +FT accompagné d'un renvoi de date épargne les heures d'une
    AUTRE journée : « presté le 27.04 », « du 14/04 ». Le renvoi peut précéder
    comme suivre la journée concernée, aucune règle de proximité ne les
@@ -3136,26 +3198,7 @@ function remplirMois(db,person,y,m,M){
     var dejaEncode=!!(rec && (rec.s || rec.a) && !rec.auto);
     var mmdd=pad2(m+1)+pad2(day);
     var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
-    var parsed=parseHoraireEntry(raw,st.params.hJour,epargnes[day]);
-    /* Une cellule qui dit « - » dit un repos, et le cycle théorique n'a pas
-       à la contredire. VBN les 11, 12 et 13 septembre : trois repos que le
-       cycle transformait en nuits. */
-    if((!parsed.s && (raw[0]||"").trim()!=="-") || parsed.jour){
-      var duCycle=posteDeCycle(fitCycle,y,m+1,day);
-      /* journée en horaire de jour : la cellule donne l'horaire presté
-         (« 7h-15h »), le cycle donne la prime à conserver. À défaut de
-         pause prévue au cycle, il n'y a pas de prime : poste de jour. */
-      if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
-      if(!duCycle && parsed.jour) duCycle=parsed.s||"D";
-      if(duCycle && duCycle!==parsed.s){
-        parsed.s=duCycle; parsed.modifie=true;
-        var AR=parsed.a&&ABSMAP[parsed.a];
-        var base=st.params.hJour-(parsed.epargne||0);
-        if(AR && AR.h>0) base-=AR.h;
-        if((raw[1]||"").trim()==="-") base=0;
-        parsed.h=Math.max(0,base);
-      }
-    }
+    var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour);
     if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
     if(dejaEncode){ bilan.kept++; continue; }
     var rap=rappelDuJour(raw,posteDeCycle(fitCycle,y,m+1,day)||parsed.s,y,mmdd);
@@ -3467,15 +3510,7 @@ function anneeDeLaPersonne(db,person,annee){
     for(d=1;d<=nd;d++){
       var mmdd=pad2(m)+pad2(d), raw=person.d[mmdd];
       if(raw===undefined) continue;
-      var r=parseHoraireEntry(raw,st.params.hJour,ep[d]);
-      /* même règle que le pré-remplissage : « - » dit un repos, et le cycle
-         théorique n'a pas à le contredire */
-      if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
-        var duCycle=posteDeCycle(fit,annee,m,d);
-        if(!duCycle) duCycle=posteDuRemplace(db,raw,mmdd,st.params.hJour);
-        if(!duCycle && r.jour) duCycle=r.s||"D";
-        if(duCycle && duCycle!==r.s){ r.s=duCycle; r.modifie=true; }
-      }
+      var r=lireJournee(db,raw,annee,m,d,fit,ep[d],st.params.hJour);
       out[mmdd]={s:r.s||"", a:(r.a&&ABSMAP[r.a])?r.a:"", h:r.h, jour:r.jourCode||"",
                  rcm:remplacementCM(raw,r.s,st.params.hJour),
                  rap:rappelDuJour(raw,posteDeCycle(fit,annee,m,d)||r.s,annee,mmdd),
@@ -3574,10 +3609,13 @@ function renderAnnee(){
           cls.push("jour");
           if(j.s!=="D") attr+=' style="--pr:var(--cal-'+j.s.toLowerCase()+')"';
         }
-        var etiq=travaille?(j.jour?etiqJour(j.jour):j.s):(j.a?etiqAbsence(j.a):"");
+        var prevu=(!travaille && j.s && !j.a);
+        if(prevu) cls.push("prevu");
+        var etiq=travaille?(j.jour?etiqJour(j.jour):j.s)
+                :(j.a?etiqAbsence(j.a):(prevu?j.s:""));
         var lib=travaille?(j.jour?("journée de jour ("+j.jour+"), prime "
                  +(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée"):POSTE_LIB[j.s])
-                :(j.a||"repos");
+                :(j.a||(prevu?((POSTE_LIB[j.s]||j.s)+" prévu, non presté"):"repos"));
         h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
           +' data-m="'+m+'" data-d="'+d+'" data-k="'+mmdd+'"'
           +' aria-label="'+d+" "+esc(MOIS[m-1])+" — "+esc(lib)+'">'
