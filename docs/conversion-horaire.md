@@ -498,10 +498,17 @@ fait — un booléen `jour` — et non le code lui-même. Il le conserve désorm
 dans `jourCode`, et la case porte les deux informations par **deux encodages
 distincts** :
 
-- le **fond** donne le poste payé ;
-- une **barre au bas de la case**, dans la teinte du poste de jour, dit que
-  la journée s'est faite en horaire de jour ;
-- l'**étiquette** nomme le code presté — `CPPT` plutôt que `N`.
+- le **fond** et l'**étiquette** donnent la journée **prestée** : couleur du
+  poste de jour, et le code lui-même — `CPPT` plutôt que `N` ;
+- un **liseré au bas de la case**, dans la teinte de la pause prévue au
+  cycle, dit la **prime conservée**.
+
+Le premier essai avait mis ces deux informations dans l'autre sens — fond du
+poste payé, liseré de jour. Le client l'a refusé, et il avait raison : le
+fond est ce qu'on lit d'abord, et ce qu'on lit d'abord doit être ce qu'on a
+fait. Un fond violet sur une journée passée en délégation se lit « j'ai fait
+une nuit », quelle que soit l'étiquette. La prime, elle, se vérifie ; la
+journée, on s'en souvient.
 
 L'infobulle l'écrit en toutes lettres — « Journée de jour (D-CPPT), prime de
 nuit conservée » — la légende a son entrée, et la vue semaine porte la même
