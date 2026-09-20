@@ -336,11 +336,13 @@ button{cursor:pointer}
    sursaute pas d'un onglet à l'autre. */
 body[data-view="horaire"] .netchip,
 body[data-view="compteurs"] .netchip,
+body[data-view="equipe"] .netchip,
 body[data-view="reglages"] .netchip{display:none}
 /* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
    elle n'aurait rien à dire */
 body[data-view="reglages"] .mnav,
-body[data-view="compteurs"] .mnav{visibility:hidden}
+body[data-view="compteurs"] .mnav,
+body[data-view="equipe"] .mnav{visibility:hidden}
 body[data-horaire="annee"][data-view="horaire"] .mnav,
 body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 
@@ -638,6 +640,45 @@ body.sheet-on{overflow:hidden}
 .pp-txt{font-size:13px; color:var(--muted); min-width:0}
 .pp-txt b{color:var(--ink); font-weight:650}
 
+/* ---------- équipe ---------- */
+.eqnav{align-items:center; gap:4px}
+.eqnav button:not(.btn){width:34px; height:34px; display:grid; place-items:center; border-radius:9px;
+  border:1px solid var(--line); background:var(--surface); color:var(--muted); font-size:18px; line-height:1}
+.eqnav button:not(.btn):hover{color:var(--ink); border-color:var(--in2)}
+.eqjour{flex:1; min-width:0; text-align:center; font-weight:600; font-size:14px}
+.eqcorps{padding:4px 0 8px}
+.eqg{padding:13px 16px 4px; border-top:1px solid var(--line2)}
+.eqg:first-child{border-top:0}
+.eqg h3{display:flex; align-items:center; gap:8px; margin:0 0 10px;
+  font-size:12.5px; font-weight:650; color:var(--ink)}
+.eqg h3 small{margin-left:auto; font-size:11px; font-weight:400; color:var(--faint)}
+/* La pastille reprend la couleur du poste : on retrouve d'un coup d'œil, à
+   travers toute l'application, le même code que dans les calendriers. */
+.eqpt{width:10px; height:10px; border-radius:4px; background:var(--surface3); flex:0 0 auto}
+.eqg[data-s="AM"] .eqpt{background:var(--am)} .eqg[data-s="PM"] .eqpt{background:var(--pm)}
+.eqg[data-s="N"] .eqpt{background:var(--n)}   .eqg[data-s="D"] .eqpt{background:var(--d)}
+.eqg[data-abs] .eqpt{background:none; border:1px dashed var(--line)}
+.eql{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:6px 12px}
+.eqp{display:flex; flex-direction:column; gap:1px; padding:6px 9px; border-radius:9px;
+  background:var(--surface2); min-width:0}
+.eqp b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; font-weight:600; color:var(--ink)}
+.eqp span{font-size:10.5px; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.eqp i{font-style:normal; color:var(--muted)}
+/* Se retrouver dans une liste de soixante-dix-sept identifiants demande un
+   repère : le sien. */
+.eqp.moi{background:var(--in-soft); box-shadow:inset 0 0 0 1px var(--in2)}
+.eqp.moi b{color:var(--in)}
+.eqann .grp{padding:14px 16px 6px}
+.eqann .grp h3{margin:0 0 10px}
+.eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
+  font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
+.eqfold>summary::-webkit-details-marker{display:none}
+.eqfold>summary small{margin-left:auto; font-size:11px; font-weight:400; color:var(--faint)}
+.eqfold>summary::after{content:""; width:7px; height:7px; border-right:1.6px solid var(--faint);
+  border-bottom:1.6px solid var(--faint); transform:rotate(45deg) translate(-2px,-2px)}
+.eqfold[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.eqfold:not([open]) .eql{display:none}
+
 /* ---------- réglages : des groupes, pas une file ---------- */
 .grp{padding:14px 16px 4px; border-top:1px solid var(--line2)}
 .grp:first-child{border-top:0}
@@ -825,6 +866,9 @@ body.sheet-on{overflow:hidden}
     <button type="button" role="tab" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Horaire</button>
+    <button type="button" role="tab" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
+      Équipe</button>
     <button type="button" role="tab" data-v="compteurs" aria-selected="false" aria-controls="v-compteurs">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-6M22 19H2"/></svg>
       Compteurs</button>
@@ -973,6 +1017,30 @@ body.sheet-on{overflow:hidden}
   </section>
 
   <!-- ============ COMPTEURS ============ -->
+  <!-- ============ ÉQUIPE ============ -->
+  <section class="panel stack" id="v-equipe" role="tabpanel" hidden>
+    <div class="card">
+      <header>
+        <h2>Qui travaille</h2>
+        <span class="sub" id="eqSub"></span>
+      </header>
+      <div class="toolbar eqnav">
+        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <div class="eqjour" id="eqJour">—</div>
+        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
+        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
+      </div>
+      <div class="eqcorps" id="eqCorps"></div>
+    </div>
+
+    <div class="card">
+      <details class="fold">
+        <summary>Annuaire <span class="sub">la fonction et les ateliers de chacun</span></summary>
+        <div class="eqann" id="eqAnnuaire"></div>
+      </details>
+    </div>
+  </section>
+
   <section class="panel stack" id="v-compteurs" role="tabpanel" hidden>
     <div class="card">
       <header>
@@ -2407,11 +2475,13 @@ function dateFr(iso){
   return Number(m[3])+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
 }
 function fonctionCourte(cat){
-  var t=String(cat||"").replace(/\s+de production$/i,"");
-  t=t.replace(/^Shift\s*/i,"Équipe ");
-  if(/^Contremaîtres$/i.test(t)) t="Contremaître";
-  if(/^Adjoints?$/i.test(t)) t="Adjoint";
-  return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();
+  var t=String(cat||"").replace(/\s+de production$/i,"").replace(/^Shift\s*/i,"Équipe ");
+  t=t.replace(/^Contremaîtres\b/i,"Contremaître")
+     .replace(/^Adjoints\b/i,"Adjoint")
+     .replace(/^Opérateurs\b/i,"Opérateur");
+  return t.split(/\s+/).map(function(m,i){
+    return i?((m===m.toUpperCase()&&m.length>1)?m:m.toLowerCase()):motLisible(m);
+  }).join(" ");
 }
 
 /* ===================== onglets ===================== */
@@ -2437,7 +2507,7 @@ placerOnglets();
 if(mqNav.addEventListener) mqNav.addEventListener("change",placerOnglets);
 else if(mqNav.addListener) mqNav.addListener(placerOnglets);
 
-var VIEWS=["resume","horaire","compteurs","fiche","controle","reglages"];
+var VIEWS=["resume","horaire","equipe","compteurs","fiche","controle","reglages"];
 function setView(v,keepScroll){
   if(VIEWS.indexOf(v)<0) v="resume";
   st.view=v;
@@ -2452,6 +2522,7 @@ function setView(v,keepScroll){
   if(!keepScroll) window.scrollTo(0,0);
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="compteurs") renderCompteurs();
+  if(v==="equipe") renderEquipe();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
@@ -2671,6 +2742,7 @@ function renderPrefillSelects(db){
     if(!document.getElementById("annee").hidden) renderAnnee();
     if(!document.getElementById("semaine").hidden) renderSemaine();
     if(st.view==="compteurs") renderCompteurs();
+    if(st.view==="equipe") renderEquipe();
   }
   fillIds(); suivre();
   catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); suivre(); };
@@ -3336,6 +3408,125 @@ function prefillAuto(){
   prefillFait=cle;
   prefillFromHoraire();
 }
+
+/* ===================== l'équipe ===================== */
+/* Un travailleur en pauses ne se demande pas seulement ce qu'IL fait : il se
+   demande avec qui. L'horaire d'équipe porte la réponse pour les 77
+   personnes et les 365 jours, et elle ne servait à rien — seule sa propre
+   ligne était lue. Un jour, quatre pauses, et qui est absent. */
+var eqDate=null;
+function eqAnnee(db){ return Number(db.year); }
+function eqJourValide(db){
+  var a=eqAnnee(db);
+  if(!eqDate || eqDate.getFullYear()!==a){
+    var n=new Date();
+    eqDate=(n.getFullYear()===a)?new Date(a,n.getMonth(),n.getDate()):new Date(a,st.m,1);
+  }
+  return eqDate;
+}
+/* « Opérateurs STEP » ne doit pas devenir « Opérateurs step » : un sigle
+   reste un sigle. */
+function motLisible(m){
+  return (m.length>1 && m===m.toUpperCase() && /[A-Z]/.test(m)) ? m
+       : m.charAt(0).toUpperCase()+m.slice(1).toLowerCase();
+}
+function fonctionLisible(cat){
+  var t=String(cat||"").replace(/^Shift\s*/i,"Équipe ");
+  return t.split(/\s+/).map(function(m,i){
+    return i?((m===m.toUpperCase()&&m.length>1)?m:m.toLowerCase()):motLisible(m);
+  }).join(" ");
+}
+var EQ_GROUPES=[
+  {k:"AM",  t:"Matin",       s:"6h – 14h"},
+  {k:"PM",  t:"Après-midi",  s:"14h – 22h"},
+  {k:"N",   t:"Nuit",        s:"22h – 6h"},
+  {k:"D",   t:"Jour",        s:"horaire variable"},
+  {k:"abs", t:"Absents",     s:"congé, maladie, formation"},
+  {k:"off", t:"Repos",       s:""}
+];
+function renderEquipe(){
+  var hote=document.getElementById("eqCorps"); if(!hote) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    var dt=eqJourValide(db), annee=dt.getFullYear(), mois=dt.getMonth()+1, jour=dt.getDate();
+    var mmdd=pad2(mois)+pad2(jour);
+    document.getElementById("eqJour").textContent=
+      JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]
+      +" "+jour+" "+MOIS[mois-1].toLowerCase();
+    /* l'onglet peut s'ouvrir avant que la liste des personnes soit garnie :
+       l'identifiant choisi est connu bien avant, il est enregistré */
+    var sel=document.getElementById("prefillId");
+    var moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
+
+    var par={}; EQ_GROUPES.forEach(function(g){ par[g.k]=[]; });
+    db.people.forEach(function(p){
+      var raw=p.d[mmdd];
+      if(raw===undefined){ par.off.push({p:p}); return; }
+      var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois);
+      var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour);
+      var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
+      if(h>0) par[r.s]?par[r.s].push({p:p,r:r}):par.off.push({p:p,r:r});
+      else if(r.a&&ABSMAP[r.a]) par.abs.push({p:p,r:r});
+      else if(r.s) par.off.push({p:p,r:r,prevu:true});
+      else par.off.push({p:p,r:r});
+    });
+
+    var h=[], total=0;
+    EQ_GROUPES.forEach(function(g){
+      var l=par[g.k]; if(!l.length) return;
+      if(g.k!=="off") total+=l.length;
+      l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+                          : (a.p.cat<b.p.cat?-1:1); });
+      /* Le repos, c'est la moitié de l'équipe et la question qu'on se pose
+         le moins : il se replie, et les quatre pauses tiennent l'écran. */
+      var repli=(g.k==="off");
+      h.push('<section class="eqg"'+(g.k.length<=2?' data-s="'+g.k+'"':"")+
+        (g.k==="abs"?' data-abs="1"':"")+'>');
+      h.push(repli?'<details class="eqfold"><summary><span class="eqpt"></span>'+esc(g.t)
+                   +'<small>'+l.length+"</small></summary>"
+                 :'<h3><span class="eqpt"></span>'+esc(g.t)
+                   +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
+      h.push('<div class="eql">');
+      l.forEach(function(x){
+        var det=(g.k==="abs")?esc(x.r.a)
+               :(x.prevu?esc(x.r.s)+" prévu":
+                (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
+        h.push('<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
+          '<b>'+esc(x.p.id)+"</b>"+
+          '<span>'+esc(fonctionCourte(x.p.cat))+(det?' · <i>'+det+"</i>":"")+"</span></div>");
+      });
+      h.push("</div>"+(repli?"</details>":"")+"</section>");
+    });
+    hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
+    document.getElementById("eqSub").textContent=
+      total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
+    renderAnnuaire(db,moi);
+  });
+}
+function renderAnnuaire(db,moi){
+  var hote=document.getElementById("eqAnnuaire"); if(!hote) return;
+  var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  cats.sort();
+  var h=[];
+  cats.forEach(function(c){
+    var l=db.people.filter(function(p){return p.cat===c;})
+                   .sort(function(a,b){return a.id<b.id?-1:1;});
+    h.push('<section class="grp"><h3>'+esc(fonctionLisible(c))+" · "+l.length+"</h3><div class=\"eql\">");
+    l.forEach(function(p){
+      var at=(p.poly&&p.poly.ateliers)?p.poly.ateliers.join(", "):"";
+      h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(p.id)+"</b>"+
+        '<span>'+(at?esc(at):"—")+"</span></div>");
+    });
+    h.push("</div></section>");
+  });
+  hote.innerHTML=h.join("");
+}
+function eqBouge(n){
+  var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; renderEquipe();
+}
+document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
+document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
+document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; renderEquipe(); });
 
 /* ===================== état des compteurs ===================== */
 /* Deux sources, et c'est tout l'intérêt de les mettre côte à côte : le pied

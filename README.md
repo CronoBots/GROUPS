@@ -116,6 +116,22 @@ ligne de correction et, au-dessus, ce que le classeur d'équipe dit de cette
 journée : la cellule, son annotation, le commentaire. C'est la seule source,
 et c'est elle qu'on veut sous les yeux au moment de la contredire.
 
+### L'équipe
+
+Un travailleur en pauses ne se demande pas seulement ce qu'**il** fait : il
+se demande **avec qui**. L'horaire d'équipe portait la réponse pour les 77
+personnes et les 365 jours, et elle ne servait à rien — seule sa propre
+ligne était lue.
+
+L'onglet **Équipe** la donne : un jour, les quatre pauses, et pour chacune
+la liste de ceux qui y sont, avec leur fonction. Puis les absents, avec le
+code qui le dit, et les repos, repliés — c'est la moitié de l'équipe et la
+question qu'on se pose le moins. Sa propre ligne est surlignée : se
+retrouver dans soixante-dix-sept identifiants demande un repère.
+
+Un **annuaire** complète l'onglet : chacun sous sa fonction, avec les
+ateliers où il est formé.
+
 ### État des compteurs
 
 Un onglet à part met **deux sources face à face** : le pied du classeur,
