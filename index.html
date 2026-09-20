@@ -530,7 +530,14 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 .mc-j[data-s="PM"]{background:var(--pm-soft)} .mc-j[data-s="PM"] .mc-t{color:var(--pm)}
 .mc-j[data-s="N"] {background:var(--n-soft)}  .mc-j[data-s="N"]  .mc-t{color:var(--n)}
 .mc-j[data-s="D"] {background:var(--d-soft)}  .mc-j[data-s="D"]  .mc-t{color:var(--d)}
+/* Le poste « D » est gris : une absence en gris pâle lui ressemblait trop.
+   Le trait discontinu, lui, ne ressemble à aucun poste — il dit « rien n'a
+   été presté ce jour-là » sans avoir à comparer deux gris. */
+.mc-j.abs{background:none; border-style:dashed; border-color:var(--line)}
 .mc-j.abs .mc-t{color:var(--muted)}
+.mc-j.abs .mc-n{color:var(--faint)}
+.cal button.abs{background:none; border:1px dashed var(--line)}
+.mc-leg .lg-abs{background:none; border:1px dashed var(--line); box-shadow:none}
 /* même langage que les deux autres calendriers : le liseré dit la prime
    conservée sur une journée prestée en horaire de jour */
 .mc-j.jour{box-shadow:inset 0 -3px 0 var(--pr,var(--d))}
@@ -545,6 +552,20 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   .mc-tete,.mc-sem{grid-template-columns:repeat(7,minmax(0,1fr)) 30px; gap:4px}
   .mc-j{min-height:48px; border-radius:9px}
 }
+
+.mc-leg{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:13px; padding-top:12px;
+  border-top:1px solid var(--line2); font-size:11px; color:var(--muted)}
+.mc-leg span{display:inline-flex; align-items:center; gap:6px}
+.mc-leg i{display:inline-block; width:11px; height:11px; border-radius:4px; background:var(--surface3)}
+.mc-leg i[data-s="AM"]{background:var(--am-soft); box-shadow:inset 0 0 0 1.5px var(--am)}
+.mc-leg i[data-s="PM"]{background:var(--pm-soft); box-shadow:inset 0 0 0 1.5px var(--pm)}
+.mc-leg i[data-s="N"] {background:var(--n-soft);  box-shadow:inset 0 0 0 1.5px var(--n)}
+.mc-leg i[data-s="D"] {background:var(--d-soft);  box-shadow:inset 0 0 0 1.5px var(--d)}
+.mc-leg .lg-abs{background:var(--surface2); box-shadow:inset 0 0 0 1px var(--line)}
+.mc-leg .lg-jour{background:var(--d-soft); box-shadow:inset 0 -3px 0 var(--n)}
+.mc-leg .lg-pt{width:6px; height:6px; border-radius:50%}
+.mc-leg .lg-velo{background:var(--good)} .mc-leg .lg-rap{background:var(--out2)}
+.mc-leg .lg-part{background:var(--muted)}
 
 /* ---------- horaire : la feuille d'une journée ---------- */
 /* Corriger est l'exception : cela mérite une surface dédiée, ouverte sur la
@@ -1680,28 +1701,40 @@ function ligneJour(d){
    a été presté quand il diffère, et les marques de la journée (vélo,
    rappel). Le total de la semaine est la huitième colonne — à droite, où on
    le lit sans le confondre avec un jour. */
+/* Un congé annuel posé sur une journée prévue en nuit gardait la couleur de
+   la nuit et son étiquette « N » : le calendrier annonçait une nuit prestée
+   là où personne n'avait travaillé. Six journées de février de suite, et un
+   simple point gris pour toute nuance. Le poste PRÉVU n'est pas la journée :
+   dès qu'aucune heure n'est prestée, c'est l'absence qui fait la journée, et
+   c'est elle qu'on lit. La vue annuelle le faisait déjà ; les deux autres
+   calendriers s'alignent. */
+function heuresJour(rec){
+  if(!rec||!rec.s) return 0;
+  return (rec.h===undefined||rec.h===null||rec.h==="")?st.params.hJour:Number(rec.h);
+}
 function caseJour(d){
-  var M=st.month, y=st.y, m=st.m, F=feries(y), p=st.params;
+  var M=st.month, y=st.y, m=st.m, F=feries(y);
   var rec=M.days[d]||{}, fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
   var today=new Date();
   var auj=(today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d);
-  var tag=(rec.s&&rec.j)?etiqJour(rec.j)
-        :(rec.s||(rec.a?etiqAbsence(rec.a):""));
+  var preste=(heuresJour(rec)>0);
+  var tag=preste?((rec.j?etiqJour(rec.j):rec.s))
+               :(rec.a?etiqAbsence(rec.a):"");
   var cls=["mc-j"];
-  if(!rec.s&&rec.a) cls.push("abs");
-  if(rec.s&&rec.j) cls.push("jour");
+  if(!preste&&rec.a) cls.push("abs");
+  if(preste&&rec.j) cls.push("jour");
   if(fer) cls.push("fer");
   if(auj) cls.push("auj");
-  var pr=(rec.s&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
-  var lib=rec.s?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
-                      :(POSTE_LIB[rec.s]||rec.s))
-               :(rec.a||"repos");
+  var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
+  var lib=preste?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
+                       :(POSTE_LIB[rec.s]||rec.s))
+                :(rec.a?(rec.a+(rec.s?" — poste "+rec.s+" prévu":"")):"repos");
   var marques="";
   if(rec.v) marques+='<i class="mc-velo" title="Vélo"></i>';
   if(rec.r) marques+='<i class="mc-rap" title="Prime de rappel"></i>';
-  if(rec.s&&rec.a) marques+='<i class="mc-part" title="'+esc(rec.a)+'"></i>';
+  if(preste&&rec.a) marques+='<i class="mc-part" title="'+esc(rec.a)+'"></i>';
   return '<button type="button" class="'+cls.join(" ")+'" data-d="'+d+'"'+pr
-    +(rec.s?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")
+    +(preste?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")
     +' aria-label="'+d+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
     +'<span class="mc-n">'+d+'</span>'
     +(tag?'<span class="mc-t">'+esc(tag)+'</span>':"")
@@ -1731,8 +1764,36 @@ function renderRota(){
     if(cases.length===7) videSemaine();
   }
   if(cases.length) videSemaine();
-  hote.innerHTML=h;
+  hote.innerHTML=h+legendeMois();
   if(jourOuvert) majFeuille();
+}
+
+/* Une légende fixe finit par ne plus être lue ; une légende qui ne nomme
+   que ce qui est à l'écran se relit à chaque mois. Elle n'apparaît donc
+   qu'avec ce que le mois contient vraiment. */
+function legendeMois(){
+  var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
+  var vus={}, abs=false, jour=false, velo=false, rap=false, part=false;
+  for(d=1; d<=nd; d++){
+    rec=M.days[d]||{};
+    var preste=(heuresJour(rec)>0);
+    if(preste) vus[rec.j?"D":rec.s]=1;
+    else if(rec.a) abs=true;
+    if(preste&&rec.j) jour=true;
+    if(preste&&rec.a) part=true;
+    if(rec.v) velo=true;
+    if(rec.r) rap=true;
+  }
+  var h=[];
+  ["AM","PM","N","D"].forEach(function(k){
+    if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
+  });
+  if(abs)  h.push('<span><i class="lg-abs"></i>absence — non presté</span>');
+  if(jour) h.push('<span><i class="lg-jour"></i>journée de jour, prime conservée</span>');
+  if(part) h.push('<span><i class="lg-pt lg-part"></i>heures en moins ou en plus</span>');
+  if(velo) h.push('<span><i class="lg-pt lg-velo"></i>vélo</span>');
+  if(rap)  h.push('<span><i class="lg-pt lg-rap"></i>prime de rappel</span>');
+  return h.length?'<div class="mc-leg">'+h.join("")+"</div>":"";
 }
 
 /* ===================== horaire — la feuille d'une journée ===================== */
@@ -2006,17 +2067,18 @@ function renderResume(C){
   for(var i=0;i<first;i++) cells+='<button type="button" class="empty" tabindex="-1" aria-hidden="true"></button>';
   for(var dd=1; dd<=nd; dd++){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
-    var tag=(rec.s&&rec.j)?etiqJour(rec.j)
-            :(rec.s||(rec.a?rec.a.replace(/^1\/2 /,"½").replace(/^(\d)H /,"$1"):""));
-    var cls=[]; if(!rec.s&&rec.a) cls.push("abs"); if(rec.s&&rec.j) cls.push("jour");
-    var pr=(rec.s&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
+    var preste=(heuresJour(rec)>0);
+    var tag=preste?(rec.j?etiqJour(rec.j):rec.s)
+                  :(rec.a?etiqAbsence(rec.a):"");
+    var cls=[]; if(!preste&&rec.a) cls.push("abs"); if(preste&&rec.j) cls.push("jour");
+    var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
     cells+='<button type="button" data-d="'+dd+'"'+pr
-      +(rec.s?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")+
+      +(preste?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")+
       (cls.length?' class="'+cls.join(" ")+'"':"")+(fer?" data-fer=1":"")+
       ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+
-        (rec.s?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
-                     :" — poste "+esc(rec.s))
-              :(rec.a?" — "+esc(rec.a):" — repos"))+'">'+
+        (preste?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
+                      :" — poste "+esc(rec.s))
+               :(rec.a?" — "+esc(rec.a)+(rec.s?", poste "+esc(rec.s)+" prévu":""):" — repos"))+'">'+
       '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
   }
   document.getElementById("cal").innerHTML=
@@ -3387,7 +3449,14 @@ function etiqJour(code){
 }
 function etiqAbsence(code){
   var t=String(code||"").replace(/^\s*\d+(?:[.,]\d+)?\s*h\s*/i,"").replace(/\s+/g,"");
-  return t.slice(0,3) || String(code||"").slice(0,3);
+  t=t.replace(/^1\/2/,"½");
+  /* « 4H -FT » n'est pas une absence de type « -FT » : c'est QUATRE heures
+     rendues au compteur. Couper les heures effaçait le seul chiffre utile. */
+  var ft=/^\s*(\d+(?:[.,]\d+)?)\s*h\s*([+-])\s*FT\s*$/i.exec(String(code||""));
+  if(ft) return ft[1]+ft[2]+"FT";
+  /* quatre signes, comme pour les codes prestés : « FORM » tronqué en
+     « FOR » n'est plus le code que porte le classeur */
+  return t.slice(0,4) || String(code||"").slice(0,4);
 }
 
 function anneeDeLaPersonne(db,person,annee){
