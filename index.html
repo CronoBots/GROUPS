@@ -115,20 +115,25 @@ button{cursor:pointer}
   padding-top:env(safe-area-inset-top,0px);
 }
 .top-in{max-width:1180px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap}
-.brand{margin-right:auto; min-width:0}
+/* C'est l'application d'UNE personne. Choisir sa ligne dans l'horaire
+   d'équipe est un réglage que l'on fait une fois ; en faire un contrôle
+   permanent dans l'en-tête, c'était réserver à une question réglée la place
+   la plus chère de l'écran. L'en-tête n'en garde que la réponse, et mène au
+   réglage d'un toucher. */
+.brand{margin-right:auto; min-width:0; text-align:left; background:none;
+  border:0; padding:2px 0; border-radius:8px; cursor:pointer; color:inherit}
 .brand h1{font-size:15px; letter-spacing:-.012em; font-weight:700}
 .brand p{margin:0; font-size:11.5px; color:var(--faint)}
-/* Qui l'on regarde est un contexte global : la personne choisie pilote
-   l'horaire comme les compteurs. Sa place est donc dans l'en-tête, à côté du
-   nom de l'application, et non au fond d'un onglet. */
-.qui{display:flex; align-items:center; gap:6px; min-width:0}
+.brand p b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; color:var(--ink2)}
+.brand:hover p b{color:var(--in)}
+.qui{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.qui label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .qui select{
-  max-width:190px; padding:5px 9px; border:1px solid var(--line); border-radius:8px;
-  background:var(--surface2); color:var(--ink2); font-size:12.5px; font-weight:500;
+  width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:10px;
+  background:var(--surface2); color:var(--ink); font-size:14.5px; font-weight:500;
   text-overflow:ellipsis;
 }
-.qui select:hover{border-color:var(--in2); color:var(--ink)}
-.qui select:last-child{max-width:96px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; color:var(--ink)}
+.qui select:hover{border-color:var(--in2)}
 .mnav{display:flex; align-items:center; gap:2px}
 .mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
 .mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
@@ -179,7 +184,14 @@ button{cursor:pointer}
 
 /* ---------- résumé : le net ---------- */
 .hero{padding:22px 16px 18px; display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; background:linear-gradient(180deg,var(--in-soft),transparent)}
-.hero .big{font-family:"IBM Plex Mono",monospace; font-size:clamp(34px,7vw,50px); font-weight:600; line-height:1; letter-spacing:-.02em; color:var(--in); font-variant-numeric:tabular-nums}
+/* Le seul grand nombre de l'écran. Les chiffres à chasse fixe donnent à
+   chacun la largeur d'un zéro : à cette taille, « 3 679,72 » se disloque.
+   Chasse proportionnelle, et la même famille que tout le reste — une
+   seconde police sur le chiffre qu'on regarde en premier se remarque. */
+.hero .big{font-size:clamp(36px,8vw,52px); font-weight:650; line-height:1; letter-spacing:-.025em; color:var(--in)}
+.tiles-note{grid-column:1/-1; margin:0; padding:11px 16px; background:var(--surface);
+  font-size:11.5px; color:var(--muted)}
+.tiles-note b{font-family:"IBM Plex Mono",monospace; color:var(--ink2); font-weight:600}
 .hero .lbl{font-size:12.5px; color:var(--muted); margin-bottom:7px}
 .hero .side{margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; font-size:12px; color:var(--muted)}
 
@@ -327,7 +339,6 @@ body[data-view="compteurs"] .netchip,
 body[data-view="reglages"] .netchip{display:none}
 /* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
    elle n'aurait rien à dire */
-body:not([data-view="horaire"]):not([data-view="compteurs"]) .qui{display:none}
 body[data-view="reglages"] .mnav,
 body[data-view="compteurs"] .mnav{visibility:hidden}
 body[data-horaire="annee"][data-view="horaire"] .mnav,
@@ -492,6 +503,121 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   .day select{grid-area:a} .day input[type=number]{grid-area:h; max-width:76px; justify-self:end}
 }
 
+/* ---------- horaire : le mois ---------- */
+/* Sept colonnes de jours et une huitième, étroite, pour les heures de la
+   semaine — à droite, où on ne la confond pas avec un jour. */
+.moiscal{padding:12px 14px 16px}
+.mc-tete,.mc-sem{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)) 38px; gap:5px}
+.mc-tete{margin-bottom:6px}
+.mc-tete span{text-align:center; font-size:10.5px; color:var(--faint); letter-spacing:.03em}
+.mc-sem{margin-bottom:5px}
+.mc-vide{display:block}
+.mc-hcol{display:flex; align-items:center; justify-content:flex-end; font-family:"IBM Plex Mono",monospace;
+  font-size:11px; font-variant-numeric:tabular-nums; color:var(--faint)}
+.mc-j{
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1px; min-height:54px; padding:6px 2px 7px; border:1px solid var(--line2); border-radius:11px;
+  background:var(--surface2); color:var(--ink2); cursor:pointer;
+}
+.mc-j:hover{border-color:var(--in2)}
+.mc-j:focus-visible{outline:2px solid var(--in); outline-offset:1px}
+.mc-n{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-variant-numeric:tabular-nums; color:var(--muted)}
+.mc-t{font-size:10px; font-weight:700; letter-spacing:.02em}
+.mc-rien{color:var(--faint); font-weight:400}
+.mc-j[data-s]{border-color:transparent}
+.mc-j[data-s] .mc-n{color:var(--ink2)}
+.mc-j[data-s="AM"]{background:var(--am-soft)} .mc-j[data-s="AM"] .mc-t{color:var(--am)}
+.mc-j[data-s="PM"]{background:var(--pm-soft)} .mc-j[data-s="PM"] .mc-t{color:var(--pm)}
+.mc-j[data-s="N"] {background:var(--n-soft)}  .mc-j[data-s="N"]  .mc-t{color:var(--n)}
+.mc-j[data-s="D"] {background:var(--d-soft)}  .mc-j[data-s="D"]  .mc-t{color:var(--d)}
+.mc-j.abs .mc-t{color:var(--muted)}
+/* même langage que les deux autres calendriers : le liseré dit la prime
+   conservée sur une journée prestée en horaire de jour */
+.mc-j.jour{box-shadow:inset 0 -3px 0 var(--pr,var(--d))}
+.mc-j.fer{box-shadow:inset 0 0 0 1.5px var(--out2)}
+.mc-j.jour.fer{box-shadow:inset 0 -3px 0 var(--pr,var(--d)), inset 0 0 0 1.5px var(--out2)}
+.mc-j.auj{outline:2px solid var(--in); outline-offset:-2px}
+.mc-m{position:absolute; left:0; right:0; bottom:3px; display:flex; justify-content:center; gap:3px}
+.mc-m i{width:4px; height:4px; border-radius:50%}
+.mc-velo{background:var(--good)} .mc-rap{background:var(--out2)} .mc-part{background:var(--muted)}
+@media (max-width:420px){
+  .moiscal{padding:10px 10px 14px}
+  .mc-tete,.mc-sem{grid-template-columns:repeat(7,minmax(0,1fr)) 30px; gap:4px}
+  .mc-j{min-height:48px; border-radius:9px}
+}
+
+/* ---------- horaire : la feuille d'une journée ---------- */
+/* Corriger est l'exception : cela mérite une surface dédiée, ouverte sur la
+   journée touchée, avec sous les yeux ce que le classeur d'équipe en dit. */
+.sheet{position:fixed; inset:0; z-index:100; display:flex; align-items:flex-end; justify-content:center}
+.sheet[hidden]{display:none}
+.sheet-fond{position:absolute; inset:0; background:rgba(8,12,17,.62); backdrop-filter:blur(2px)}
+.sheet-boite{
+  position:relative; width:100%; max-width:560px; background:var(--surface);
+  border:1px solid var(--line); border-bottom:0; border-radius:18px 18px 0 0;
+  box-shadow:0 -14px 44px rgba(0,0,0,.34); max-height:88vh; overflow:auto;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+}
+.sheet-tete{display:flex; align-items:center; gap:6px; padding:13px 12px 11px 14px; border-bottom:1px solid var(--line2)}
+.sheet-quoi{flex:1; min-width:0; text-align:center}
+.sheet-quoi h2{margin:0; font-size:15.5px; font-weight:650; letter-spacing:-.01em}
+.sheet-quoi span{display:block; font-size:11px; color:var(--faint)}
+.sheet-nav,.sheet-fermer{
+  width:34px; height:34px; flex:0 0 auto; display:grid; place-items:center; border-radius:9px;
+  border:1px solid var(--line); background:var(--surface2); color:var(--muted); font-size:18px; line-height:1;
+}
+.sheet-nav:hover,.sheet-fermer:hover{color:var(--ink); border-color:var(--in2)}
+.sheet-src{margin:0; padding:10px 16px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
+.sheet-src[hidden]{display:none}
+.sheet-src b{font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
+.sheet-src .com{display:block; margin-top:3px; color:var(--faint); font-style:italic}
+.sheet-boite .day{border-bottom:0; padding:14px 16px}
+/* Dans la feuille, la date est déjà dans le titre et le code presté dans la
+   ligne d'horaire juste au-dessus : la répéter volerait la place des
+   commandes. Chacune prend donc toute la largeur qu'il lui faut, et les
+   deux boutons muets de la grille — vélo, rappel — disent enfin leur nom. */
+.sheet-boite .day{
+  grid-template-columns:1fr 104px; grid-template-areas:"s s" "a h" "v r";
+  row-gap:10px; column-gap:10px;
+}
+.sheet-boite .dchip{display:none}
+.sheet-boite .shifts{grid-area:s} .sheet-boite .icb{grid-area:v} .sheet-boite .rap{grid-area:r}
+.sheet-boite .day select{grid-area:a} .sheet-boite .day input[type=number]{grid-area:h; max-width:none; justify-self:stretch}
+.sheet-boite .shifts button{height:40px; font-size:13.5px}
+.sheet-boite .day select,.sheet-boite .day input[type=number],
+.sheet-boite .icb,.sheet-boite .rap{height:40px}
+.sheet-boite .icb,.sheet-boite .rap{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:500}
+.sheet-boite .icb::after{content:"Vélo"}
+.sheet-boite .rap::before{content:"Rappel"; font-weight:500}
+.sheet-boite .rap{font-family:"IBM Plex Mono",monospace}
+.sheet-boite .rap::before{font-family:var(--sans,inherit)}
+.sheet-boite .aide{margin:0; border-top:1px solid var(--line2)}
+body.sheet-on{overflow:hidden}
+@media (min-width:640px){
+  .sheet{align-items:center}
+  .sheet-boite{border-radius:16px; border-bottom:1px solid var(--line)}
+}
+
+/* ---------- résumé : le prochain poste ---------- */
+.prochain{display:flex; align-items:center; gap:11px; padding:12px 16px;
+  border-top:1px solid var(--line2); border-bottom:1px solid var(--line2)}
+.prochain[hidden]{display:none}
+.pp-pastille{flex:0 0 auto; min-width:44px; text-align:center; padding:5px 9px; border-radius:9px;
+  font-size:12px; font-weight:700; letter-spacing:.02em; background:var(--surface3); color:var(--ink2)}
+.pp-pastille[data-p="AM"]{background:var(--am-soft); color:var(--am)}
+.pp-pastille[data-p="PM"]{background:var(--pm-soft); color:var(--pm)}
+.pp-pastille[data-p="N"] {background:var(--n-soft);  color:var(--n)}
+.pp-pastille[data-p="D"] {background:var(--d-soft);  color:var(--d)}
+.pp-rien{color:var(--faint)}
+.pp-txt{font-size:13px; color:var(--muted); min-width:0}
+.pp-txt b{color:var(--ink); font-weight:650}
+
+/* ---------- réglages : des groupes, pas une file ---------- */
+.grp{padding:14px 16px 4px; border-top:1px solid var(--line2)}
+.grp:first-child{border-top:0}
+.grp h3{margin:0 0 11px; font-size:11px; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--faint)}
+
 /* ---------- codes ---------- */
 .codes{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:0 22px; padding:0 16px 16px}
 .codes dl{display:grid; grid-template-columns:auto 1fr; gap:3px 9px; margin:0; font-size:12px}
@@ -603,9 +729,6 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   .top-in{padding:8px 16px; gap:10px}
   .netchip{order:4; width:100%; justify-content:space-between}
   body[data-view="resume"] .netchip{display:none}
-  .qui{order:3; width:100%}
-  .qui select{flex:1; max-width:none}
-  .qui select:last-child{flex:0 0 96px}
   .mnav .mlabel{min-width:0; flex:1}
   .mnav{flex:1}
 }
@@ -625,14 +748,10 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 
 <header class="top">
   <div class="top-in">
-    <div class="brand">
+    <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
       <h1>BIOWANZE</h1>
       <p id="brandsub">Simulateur de paie</p>
-    </div>
-    <div class="qui">
-      <select id="prefillCat" aria-label="Équipe ou fonction"></select>
-      <select id="prefillId" aria-label="Personne"></select>
-    </div>
+    </button>
     <div class="mnav">
       <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
       <div class="mlabel" id="mlabel">—</div>
@@ -677,6 +796,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         </div>
         <div class="side" id="heroSide"></div>
       </div>
+      <div class="prochain" id="prochain" hidden></div>
       <div class="callout" id="alerteDefaut"></div>
       <div class="tiles" id="tiles"></div>
     </div>
@@ -693,7 +813,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
       <div class="card">
         <header>
           <h2>Le mois en un coup d'œil</h2>
-          <div class="right"><button type="button" class="btn sm" data-go="horaire">Modifier l'horaire</button></div>
+          <div class="right"><button type="button" class="btn sm" data-go="horaire">Ouvrir l'horaire</button></div>
         </header>
         <div class="cal" id="cal"></div>
       </div>
@@ -701,10 +821,10 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
       <div class="card">
         <header><h2>Vérifier sa fiche en quatre temps</h2></header>
         <ol class="steps">
-          <li><span><b>Encodez l'horaire.</b> Un bouton par poste, un menu par absence. « Appliquer le cycle » remplit d'avance les jours encore vides.</span></li>
-          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
+          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Horaire, touchez une journée pour la corriger : elle ne sera plus retouchée.</span></li>
+          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
           <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
-          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, cliquez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
+          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
         </ol>
       </div>
     </div>
@@ -717,8 +837,6 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
         <h2>Horaire presté</h2>
         <span class="sub" id="rotasub"></span>
       </header>
-      <p class="sub" id="prefillHint"></p>
-      <p class="sub" id="prefillCompteurs"></p>
       <div class="toolbar">
         <div class="seg" id="vueSeg" role="group" aria-label="Affichage de l'horaire">
           <button type="button" data-v="semaine" aria-pressed="false">Semaine</button>
@@ -729,10 +847,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
       </div>
       <div class="annee" id="annee" hidden></div>
       <div class="semaine" id="semaine" hidden></div>
-      <details class="aide" id="ledeMois"><summary>Corriger une journée à la main</summary><p class="lede">Cliquez un poste pour le poser. <b>Maj + clic</b> l'étend jusqu'au jour précédent modifié. Au clavier : <b>A P N D</b> posent un poste, <b>0</b> l'efface, les flèches montent et descendent d'un jour.
-      Le champ <b>Heures</b> se corrige librement pour un jour plus court ou plus long que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans « Absence » : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) sert lui à compenser en temps, sans supplément.</p></details>
-      <div class="rota-head" id="rotaHead"><span>Jour</span><span>Poste</span><span>Absence</span><span>Heures</span><span>Vélo</span><span>Rappel</span></div>
-      <div class="rota" id="rota"></div>
+      <div class="moiscal" id="moisCal"></div>
       <div class="rota-foot">
         <span>Prestées <b id="tHeures">0</b> h</span>
         <span>Jours <b id="tJours">0</b></span>
@@ -859,9 +974,21 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   <section class="panel stack" id="v-reglages" role="tabpanel" hidden>
     <div class="card">
       <details class="fold" open>
+        <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
+        <p class="lede top">Choisissez votre fonction puis votre identifiant : votre horaire de l'année se
+          remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
+          désignées que par leurs initiales ou leur matricule.</p>
+        <div class="pad qui">
+          <label>Fonction ou équipe<select id="prefillCat" aria-label="Équipe ou fonction"></select></label>
+          <label>Mon identifiant<select id="prefillId" aria-label="Personne"></select></label>
+        </div>
+        <p class="lede" id="prefillCompteurs"></p>
+        <p class="lede" id="prefillHint"></p>
+      </details>
+      <details class="fold">
         <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
         <p class="lede top">Les primes d'équipe, chèques-repas et autres valeurs communes à toute l'équipe sont déjà réglés. Vos informations personnelles (rémunération, situation familiale, équipe…) peuvent être corrigées ici à tout moment.</p>
-        <div class="pad grid" id="paramFields"></div>
+        <div class="pad" id="paramFields"></div>
         <p class="lede" id="paramNote"></p>
       </details>
       <details class="fold">
@@ -910,6 +1037,20 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<div class="sheet" id="jourSheet" hidden>
+  <div class="sheet-fond" data-fermer="1"></div>
+  <div class="sheet-boite" role="dialog" aria-modal="true" aria-labelledby="sheetTitre">
+    <header class="sheet-tete">
+      <button type="button" class="sheet-nav" id="sheetPrev" aria-label="Jour précédent">&lsaquo;</button>
+      <div class="sheet-quoi"><h2 id="sheetTitre">—</h2><span id="sheetSemaine"></span></div>
+      <button type="button" class="sheet-nav" id="sheetNext" aria-label="Jour suivant">&rsaquo;</button>
+      <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
+    </header>
+    <p class="sheet-src" id="sheetSrc"></p>
+    <div class="rota" id="rota"></div>
+    <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose une absence. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
+  </div>
+</div>
 <script>
 (function(){
 "use strict";
@@ -922,7 +1063,7 @@ var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour"};
 var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour — horaire variable (7h-15h, 7h30-16h ou flottant)"};
 var SHIFT_MIGR={M:"AM",AM:"PM",J:"D"};
 var RAP_ORDRE=["","J","J2","MP"];
-var RAP_TXT={"":"·","J":"J","J2":"J-2","MP":"MP"};
+var RAP_TXT={"":"aucun","J":"J","J2":"J-2","MP":"MP"};
 /* Primes de rappel : procédure OP_BWZ_CoD_00020 du 18/06/2025, qui remplace
    les notes du 21/12/2012 et du 19/11/2012. Calcul vérifié sur les vingt-quatre
    montants du classeur « prime rappel » : les deux donnent le même résultat.
@@ -1460,54 +1601,160 @@ function isoWeek(dt){
   var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
   return Math.ceil(((t-y0)/86400000+1)/7);
 }
-function renderRota(){
-  var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m), F=feries(y);
-  var host=document.getElementById("rota"); host.innerHTML="";
-  var today=new Date(), isNow=(today.getFullYear()===y&&today.getMonth()===m)?today.getDate():0;
+/* Le mois se REGARDE ; on n'y corrige qu'une journée de temps en temps.
+   Trente lignes de saisie empilées — trois écrans et demi — disaient
+   l'inverse : elles faisaient de la correction le sujet, et de l'horaire un
+   sous-produit. Depuis que le pré-remplissage se fait seul, la saisie est
+   l'exception. Le mois est donc un calendrier, et la correction une feuille
+   que l'on ouvre sur la journée touchée. */
+function ligneJour(d){
+  var p=st.params, M=st.month, y=st.y, m=st.m, F=feries(y);
+  var dt=new Date(Date.UTC(y,m,d)), wd=(dt.getUTCDay()+6)%7;
+  var t=dayType(y,m,d), fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
+  var rec=M.days[d]||{};
   var absOpts="";
   ABS.forEach(function(a){ if(!a.hidden) absOpts+='<option value="'+a.c+'">'+(a.c||"—")+"</option>"; });
-  var weekH=0, weekNode=null;
-  function closeWeek(){ if(weekNode) weekNode.querySelector(".wh").textContent=weekH?num(weekH)+" h":"—"; }
-  for(var d=1; d<=nd; d++){
-    var dt=new Date(Date.UTC(y,m,d)), wd=(dt.getUTCDay()+6)%7;
-    if(d===1||wd===0){
-      closeWeek(); weekH=0;
-      weekNode=document.createElement("div");
-      weekNode.className="wkhead";
-      weekNode.innerHTML='<span>Semaine '+isoWeek(dt)+'</span><span class="ln"></span><span class="wh">—</span>';
-      host.appendChild(weekNode);
-    }
-    var t=dayType(y,m,d), fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
-    var rec=M.days[d]||{};
-    if(rec.s) weekH+=(rec.h===undefined||rec.h===null||rec.h==="")?p.hJour:Number(rec.h);
-    var row=document.createElement("div");
-    row.className="day"+((t!=="Semaine")?" we":"")+(fer?" fer":"")+(d===isNow?" today":"");
-    row.dataset.d=d;
-    var btns="";
-    SHIFTS.forEach(function(s){
-      btns+='<button type="button" data-s="'+s.c+'" title="'+(SHIFT_HEURES[s.c]||"repos")+'" aria-pressed="'+((rec.s||"")===s.c)+'">'+s.n+"</button>";
-    });
-    row.innerHTML=
-      '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span>'+
-        (rec.j?'<span class="djour"'+((rec.s&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"")
-               +' title="Journée prestée en horaire de jour ('+esc(rec.j)
-               +')'+(rec.s?" — prime "+esc(rec.s)+" conservée, d'où le bouton allumé":"")+'">'
-               +"D·"+esc(etiqJour(rec.j))+'</span>':"")+'</div>'+
-      '<div class="shifts">'+btns+'</div>'+
-      '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
-      '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
-      '<button type="button" class="icb bike" aria-pressed="'+(!!rec.v)+'" title="Venu à vélo" aria-label="Vélo le '+d+'">'+
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
-      '</button>'+
-      '<button type="button" class="rap" data-r="'+esc(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
-    row.querySelector(".abs").value=rec.a||"";
-    var hi=row.querySelector(".hrs");
-    hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
-    hi.disabled=!rec.s;
-    host.appendChild(row);
-  }
-  closeWeek();
+  var btns="";
+  SHIFTS.forEach(function(sh){
+    btns+='<button type="button" data-s="'+sh.c+'" title="'+(SHIFT_HEURES[sh.c]||"repos")
+         +'" aria-pressed="'+((rec.s||"")===sh.c)+'">'+sh.n+"</button>";
+  });
+  var row=document.createElement("div");
+  row.className="day"+((t!=="Semaine")?" we":"")+(fer?" fer":"");
+  row.dataset.d=d;
+  row.innerHTML=
+    '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span>'+
+      (rec.j?'<span class="djour"'+((rec.s&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"")
+             +' title="Journée prestée en horaire de jour ('+esc(rec.j)
+             +')'+(rec.s?" — prime "+esc(rec.s)+" conservée, d\'où le bouton allumé":"")+'">'
+             +"D·"+esc(etiqJour(rec.j))+'</span>':"")+'</div>'+
+    '<div class="shifts">'+btns+'</div>'+
+    '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
+    '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
+    '<button type="button" class="icb bike" aria-pressed="'+(!!rec.v)+'" title="Venu à vélo" aria-label="Vélo le '+d+'">'+
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
+    '</button>'+
+    '<button type="button" class="rap" data-r="'+esc(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
+  row.querySelector(".abs").value=rec.a||"";
+  var hi=row.querySelector(".hrs");
+  hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
+  hi.disabled=!rec.s;
+  return row;
 }
+
+/* La case porte les trois choses qu'on cherche du regard : le poste, ce qui
+   a été presté quand il diffère, et les marques de la journée (vélo,
+   rappel). Le total de la semaine est la huitième colonne — à droite, où on
+   le lit sans le confondre avec un jour. */
+function caseJour(d){
+  var M=st.month, y=st.y, m=st.m, F=feries(y), p=st.params;
+  var rec=M.days[d]||{}, fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
+  var today=new Date();
+  var auj=(today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d);
+  var tag=(rec.s&&rec.j)?etiqJour(rec.j)
+        :(rec.s||(rec.a?etiqAbsence(rec.a):""));
+  var cls=["mc-j"];
+  if(!rec.s&&rec.a) cls.push("abs");
+  if(rec.s&&rec.j) cls.push("jour");
+  if(fer) cls.push("fer");
+  if(auj) cls.push("auj");
+  var pr=(rec.s&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
+  var lib=rec.s?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
+                      :(POSTE_LIB[rec.s]||rec.s))
+               :(rec.a||"repos");
+  var marques="";
+  if(rec.v) marques+='<i class="mc-velo" title="Vélo"></i>';
+  if(rec.r) marques+='<i class="mc-rap" title="Prime de rappel"></i>';
+  if(rec.s&&rec.a) marques+='<i class="mc-part" title="'+esc(rec.a)+'"></i>';
+  return '<button type="button" class="'+cls.join(" ")+'" data-d="'+d+'"'+pr
+    +(rec.s?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")
+    +' aria-label="'+d+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
+    +'<span class="mc-n">'+d+'</span>'
+    +(tag?'<span class="mc-t">'+esc(tag)+'</span>':"")
+    +(marques?'<span class="mc-m">'+marques+'</span>':"")
+    +'</button>';
+}
+
+function renderRota(){
+  var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m);
+  var hote=document.getElementById("moisCal"); if(!hote) return;
+  var h='<div class="mc-tete">'+
+    ["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")+
+    '<span class="mc-hcol">h</span></div>';
+  var premier=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
+  var cases=[], semH=0, d=1;
+  function videSemaine(){
+    while(cases.length<7) cases.push('<span class="mc-vide"></span>');
+    h+='<div class="mc-sem">'+cases.join("")+
+       '<span class="mc-hcol">'+(semH?num(semH):"—")+'</span></div>';
+    cases=[]; semH=0;
+  }
+  for(var i=0;i<premier;i++) cases.push('<span class="mc-vide"></span>');
+  for(; d<=nd; d++){
+    var rec=M.days[d]||{};
+    if(rec.s) semH+=(rec.h===undefined||rec.h===null||rec.h==="")?p.hJour:Number(rec.h);
+    cases.push(caseJour(d));
+    if(cases.length===7) videSemaine();
+  }
+  if(cases.length) videSemaine();
+  hote.innerHTML=h;
+  if(jourOuvert) majFeuille();
+}
+
+/* ===================== horaire — la feuille d'une journée ===================== */
+var jourOuvert=0;
+function majFeuille(){
+  var d=jourOuvert; if(!d) return;
+  var hote=document.getElementById("rota");
+  hote.innerHTML=""; hote.appendChild(ligneJour(d));
+  var dt=new Date(Date.UTC(st.y,st.m,d));
+  document.getElementById("sheetTitre").textContent=
+    JOURS_LONGS[(dt.getUTCDay()+6)%7]+" "+d+" "+MOIS[st.m].toLowerCase();
+  document.getElementById("sheetSemaine").textContent="Semaine "+isoWeek(dt);
+  /* Ce que le classeur d'équipe dit de cette journée : la cellule, son
+     annotation, le commentaire. C'est la seule source, et c'est elle qu'on
+     veut sous les yeux au moment de contredire ce qu'elle a produit. */
+  var src=document.getElementById("sheetSrc");
+  var raw=st.personD?st.personD[pad2(st.m+1)+pad2(d)]:null;
+  if(raw && (raw[0]||raw[1]||raw[2])){
+    var bouts=[];
+    if(raw[0]) bouts.push('<b>'+esc(raw[0])+'</b>');
+    if(raw[1]) bouts.push(esc(raw[1]));
+    /* le commentaire est une phrase, pas un champ : il va à la ligne, et le
+       séparateur qui le précédait laissait un point suspendu */
+    src.innerHTML="Horaire d'équipe : "+(bouts.length?bouts.join(" · "):"—")
+      +(raw[2]?'<span class="com">'+esc(raw[2])+'</span>':"");
+    src.hidden=false;
+  } else { src.hidden=true; }
+}
+function ouvrirJour(d){
+  jourOuvert=d; st.lastDay=d;
+  var f=document.getElementById("jourSheet");
+  majFeuille();
+  f.hidden=false;
+  document.body.classList.add("sheet-on");
+}
+function fermerJour(){
+  jourOuvert=0;
+  document.getElementById("jourSheet").hidden=true;
+  document.body.classList.remove("sheet-on");
+}
+document.getElementById("moisCal").addEventListener("click",function(e){
+  var b=e.target.closest(".mc-j"); if(b) ouvrirJour(Number(b.dataset.d));
+});
+document.getElementById("jourSheet").addEventListener("click",function(e){
+  if(e.target.closest("[data-fermer]")) fermerJour();
+});
+document.getElementById("sheetPrev").addEventListener("click",function(){
+  if(jourOuvert>1) ouvrirJour(jourOuvert-1);
+});
+document.getElementById("sheetNext").addEventListener("click",function(){
+  if(jourOuvert<daysInMonth(st.y,st.m)) ouvrirJour(jourOuvert+1);
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape" && jourOuvert) fermerJour();
+});
+
 
 /* ===================== rendu — fiche ===================== */
 var whyAll=false;
@@ -1620,10 +1867,45 @@ function renderChk(C){
 }
 
 /* ===================== rendu — résumé ===================== */
+/* La question qu'un travailleur en pauses se pose en ouvrant son téléphone
+   n'est pas « combien », c'est « quand ». Elle mérite la première ligne. */
+function majProchain(){
+  var el=document.getElementById("prochain"); if(!el) return;
+  var now=new Date();
+  if(now.getFullYear()!==st.y || now.getMonth()!==st.m){ el.hidden=true; return; }
+  var nd=daysInMonth(st.y,st.m), M=st.month, F=feries(st.y);
+  for(var d=now.getDate(); d<=nd; d++){
+    var r=M.days[d]; if(!r||!r.s) continue;
+    var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
+    if(!(h>0)) continue;
+    var dt=new Date(Date.UTC(st.y,st.m,d));
+    var cejour=(d===now.getDate());
+    var quand=cejour?""
+             :((d===now.getDate()+1)?" demain"
+             :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d));
+    el.innerHTML='<span class="pp-pastille"'+(r.j?' data-p="D"':' data-p="'+esc(r.s)+'"')+'>'
+      +esc(r.j?etiqJour(r.j):r.s)+'</span>'
+      +'<span class="pp-txt"><b>'+(cejour?"Aujourd'hui":"Prochain poste")+'</b> '
+      +esc(r.j?("journée de jour ("+r.j+")")
+              :(POSTE_LIB[r.s]||r.s).toLowerCase())
+      +esc(quand)+" · "+num(h)+" h"
+      +(F[st.y+"-"+pad2(st.m+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
+    el.hidden=false; return;
+  }
+  el.innerHTML='<span class="pp-pastille pp-rien">—</span><span class="pp-txt">'
+    +"<b>Plus de poste</b> d'ici la fin du mois.</span>";
+  el.hidden=false;
+}
+
 function sumLines(C,re){var s=0; C.brutLines.forEach(function(o){if(re.test(o.l)) s+=o.v;}); return R(s);}
 function renderResume(C){
   var nd=daysInMonth(st.y,st.m), F=feries(st.y), M=st.month;
-  document.getElementById("heroLbl").textContent="Net à recevoir — "+MOIS[st.m].toLowerCase()+" "+st.y;
+  /* Annoncer « net à recevoir » sur un mois à moitié presté, c'est promettre
+     un montant qu'on ne tiendra pas. Le libellé dit donc d'où vient le
+     chiffre : une estimation tant que la fiche n'a rien confirmé. */
+  var confirme=(chkState.ok>=CHK.length && !chkState.ko);
+  document.getElementById("heroLbl").textContent=
+    (confirme?"Net à recevoir — ":"Net estimé — ")+MOIS[st.m].toLowerCase()+" "+st.y;
   document.getElementById("heroNet").textContent=eur(C.net);
 
   var etat=chkState.ko?'<span class="pill ko">'+chkState.ko+" écart"+(chkState.ko>1?"s":"")+" avec la fiche</span>"
@@ -1633,23 +1915,31 @@ function renderResume(C){
   var saisis=0; for(var d=1;d<=nd;d++){var r=M.days[d]; if(r&&(r.s||r.a)) saisis++;}
   document.getElementById("heroSide").innerHTML=
     etat+
-    "<span>"+saisis+" jour"+(saisis>1?"s":"")+" sur "+nd+" encodé"+(saisis>1?"s":"")+"</span>"+
+    "<span>"+saisis+" journée"+(saisis>1?"s":"")+" sur "+nd+"</span>"+
     (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"");
+  majProchain();
 
   var we=R(sumLines(C,/^Supplément weekend/)+sumLines(C,/^Supplément jour férié presté/)+sumLines(C,/^Déduction travail weekend/));
   var eq=sumLines(C,/^Suppl\. Équipe/);
   var rap=R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP);
+  /* Six chiffres, et rien qui ne soit le résultat du mois. Le salaire
+     horaire n'en est pas un : c'est un réglage, avec quatre décimales, qui
+     prenait la place d'un résultat. Il descend en note, là où il sert —
+     à comprendre d'où sortent les suppléments. */
+  var ft=R(C.acc.ftPlus-C.acc.ftMoins);
   var tiles=[
     [num(C.acc.hTot)+" h","Heures prestées"],
     [String(C.acc.jours),"Jours de présence"],
-    [eur(we),"Suppléments week-end"],
     [eur(eq),"Primes d'équipe"],
-    [rap?eur(rap):String(C.crNb),rap?"Primes de rappel":"Chèques-repas"],
-    [nf4.format(C.txh)+" €","Salaire horaire"]
+    [eur(we),"Suppléments week-end"],
+    [String(C.crNb),"Chèques-repas"],
+    rap?[eur(rap),"Primes de rappel"]
+       :[(ft>0?"+":"")+num(ft)+" h","Flex time du mois"]
   ];
   document.getElementById("tiles").innerHTML=tiles.map(function(t){
     return '<div class="tile"><div class="v">'+t[0]+'</div><div class="k">'+t[1]+"</div></div>";
-  }).join("");
+  }).join("")+
+  '<p class="tiles-note">Salaire horaire <b>'+nf4.format(C.txh)+' €</b> — la base des suppléments de week-end, des heures supplémentaires et des primes de rappel.</p>';
 
   /* cascade du brut au net */
   var atn=R((st.params.atnGsm||0)+(st.params.atnTel||0)+(st.params.atnNet||0));
@@ -1734,7 +2024,7 @@ function renderTotals(C){
     ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
   document.getElementById("rotasub").textContent=MOIS[st.m]+" "+st.y;
   document.getElementById("mlabel").textContent=MOIS[st.m]+" "+st.y;
-  document.getElementById("brandsub").textContent="Simulateur de paie · "+st.params.statut.toLowerCase();
+  majBrandsub();
   var ms=[];
   if(st.month.primes) ms.push("primes "+eur(st.month.primes));
   if(st.month.bonus) ms.push("bonus CCT 90 "+eur(st.month.bonus));
@@ -1748,6 +2038,13 @@ function renderTotals(C){
 function refresh(){
   if(!st.ready) return;
   var C=compute();
+  /* Le calendrier du mois est un rendu comme un autre : tant qu'il était une
+     grille de saisie, syncRow() suffisait à remettre une ligne d'aplomb.
+     Une case, elle, porte la couleur, l'étiquette et le total de sa semaine
+     — trois choses qu'une correction déplace. Elle se redessine donc avec
+     le reste, sans quoi la journée qu'on vient de changer reste comme elle
+     était. */
+  renderRota();
   renderTotals(C); renderSlip(C); renderChk(C); renderResume(C);
 }
 
@@ -1761,7 +2058,20 @@ function fieldHTML(f,val,opt){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
   }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'"'+attrs+' value="'+esc(val)+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" step="'+(f.step||"0.01")+'"'+attrs+' value="'+esc(valAffichee(val,f.step))+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+}
+/* « 38.666666666666664 » est un artefact de division binaire, pas une
+   donnée : à l'écran il fait passer un réglage juste pour un bug. On
+   n'affiche que les décimales que le pas du champ rend significatives —
+   la valeur enregistrée, elle, garde toute sa précision tant que personne
+   n'y touche. */
+function valAffichee(v,step){
+  if(v===null||v===undefined||v==="") return "";
+  var n=Number(v); if(!isFinite(n)) return v;
+  var dec=String(step||"0.01").split(".")[1];
+  var k=Math.max(2,dec?dec.length:2);
+  var arrondi=Number(n.toFixed(k));
+  return (String(n).length>String(arrondi).length)?arrondi:n;
 }
 
 var MONTH_FIELDS=[
@@ -1874,13 +2184,42 @@ var BAREME_FIELDS=[
  {k:"cssCap2",l:"CSSS – plafond 2 revenus (€/mois)",scope:"bareme"},
  {k:"cssCap1",l:"CSSS – plafond 1 revenu (€/mois)",scope:"bareme"}
 ];
+/* Une fiche de paie touche à six choses sans rapport entre elles : qui l'on
+   est, ce qu'on gagne, les primes d'équipe, le cycle, les déplacements, les
+   avantages. Les vingt-cinq champs en file indienne obligeaient à tout lire
+   pour en corriger un. Groupés et titrés, on va droit au bon. */
+var PARAM_GROUPES=[
+ {t:"Ma situation",         f:["statut","etatCivil","conjoint","enfants"]},
+ {t:"Ma rémunération",      f:["remFixe","fraction","hJour","hSemaine","divH"]},
+ {t:"Mes primes d'équipe",  f:["primeAM","primePM","primeN","primeD","primeRemplCM"]},
+ {t:"Mon cycle",            f:["binome","cycle","decalage"]},
+ {t:"Mes déplacements",     f:["indJour","distance","indVeloKm","avVelo","dedVelo"]},
+ {t:"Chèques-repas et avantages", f:["crFaciale","crPerso","atnGsm","atnTel","atnNet","assGroupe"]}
+];
+function remplirGroupes(hote,groupes,liste,src){
+  var byK={}; liste.forEach(function(f){byK[f.k]=f;});
+  var vus={}, h="";
+  groupes.forEach(function(g){
+    h+='<section class="grp"><h3>'+esc(g.t)+'</h3><div class="grid">';
+    g.f.forEach(function(k){ var f=byK[k]; if(!f) return; vus[k]=1; h+=fieldHTML(f,src[k]); });
+    h+="</div></section>";
+  });
+  /* un champ ajouté plus tard et oublié d'un groupe doit rester joignable */
+  var reste=liste.filter(function(f){ return !vus[f.k]; });
+  if(reste.length){
+    h+='<section class="grp"><h3>Divers</h3><div class="grid">';
+    reste.forEach(function(f){ h+=fieldHTML(f,src[f.k]); });
+    h+="</div></section>";
+  }
+  document.getElementById(hote).innerHTML=h;
+}
 function renderFields(){
   function fill(host,list,src){
     var h=""; list.forEach(function(f){h+=fieldHTML(f,src[f.k]);});
     document.getElementById(host).innerHTML=h;
   }
   fill("monthFields",MONTH_FIELDS,st.month);
-  fill("paramFields",PARAM_FIELDS,st.params);
+  remplirGroupes("paramFields",PARAM_GROUPES,PARAM_FIELDS,st.params);
   fill("rappelFields",RAPPEL_FIELDS,st.params);
   fill("baremeFields",BAREME_FIELDS,st.bareme);
   document.getElementById("paramNote").textContent=
@@ -1918,6 +2257,32 @@ function applyOnboard(){
   save("config/params",st.params);
 }
 
+/* L'en-tête répond à « de qui parle cet écran » — identifiant et fonction —
+   et non à « qu'est-ce que cette application », que l'on sait en l'ouvrant. */
+function majBrandsub(){
+  var el=document.getElementById("brandsub"); if(!el) return;
+  var idSel=document.getElementById("prefillId"),
+      catSel=document.getElementById("prefillCat");
+  var id=idSel?idSel.value:"", cat=catSel?catSel.value:"";
+  el.innerHTML = id
+    ? "<b>"+esc(id)+"</b> · "+esc(fonctionCourte(cat))
+    : "Choisissez qui vous êtes dans Réglages";
+}
+/* « Contremaîtres de production » ne tient pas dans un en-tête de téléphone,
+   et le pluriel ne désigne personne : on s'adresse à un seul travailleur. */
+/* « 2026-09-18T14:56 » est une date de machine. */
+function dateFr(iso){
+  var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
+  return Number(m[3])+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
+}
+function fonctionCourte(cat){
+  var t=String(cat||"").replace(/\s+de production$/i,"");
+  t=t.replace(/^Shift\s*/i,"Équipe ");
+  if(/^Contremaîtres$/i.test(t)) t="Contremaître";
+  if(/^Adjoints?$/i.test(t)) t="Adjoint";
+  return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();
+}
+
 /* ===================== onglets ===================== */
 var VIEWS=["resume","horaire","compteurs","fiche","controle","reglages"];
 function setView(v,keepScroll){
@@ -1932,7 +2297,7 @@ function setView(v,keepScroll){
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
   if(!keepScroll) window.scrollTo(0,0);
-  if(v==="horaire") ensurePrefillUI();
+  if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="compteurs") renderCompteurs();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
@@ -2145,7 +2510,7 @@ function renderPrefillSelects(db){
   /* la vue annuelle montre la personne choisie : elle doit suivre le
      sélecteur, sans qu'on ait à recliquer sur l'onglet */
   function suivre(){
-    majCompteurs();
+    majCompteurs(); majBrandsub();
     prefillAuto();
     if(!document.getElementById("annee").hidden) renderAnnee();
     if(!document.getElementById("semaine").hidden) renderSemaine();
@@ -2717,6 +3082,7 @@ function prefillFromHoraire(){
     if(!db){ prefillEnCours=false; return; }
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
+    st.personD=person.d;
     if(Number(db.year)!==Number(st.y)){
       prefillEnCours=false;
       flash("L'horaire d'équipe porte sur "+db.year+", pas sur "+st.y);
@@ -3208,9 +3574,8 @@ function vueHoraire(v){
   var mensuel=(v==="mois");
   document.getElementById("annee").hidden=(v!=="annee");
   document.getElementById("semaine").hidden=(v!=="semaine");
-  ["ledeMois","rotaHead","rota"].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.hidden=!mensuel;
-  });
+  var mc=document.getElementById("moisCal"); if(mc) mc.hidden=!mensuel;
+  if(!mensuel && jourOuvert) fermerJour();
   var pied=document.querySelector(".rota-foot"); if(pied) pied.hidden=!mensuel;
   var seg=document.getElementById("vueSeg");
   [].forEach.call(seg.querySelectorAll("button"),function(b){
@@ -3232,7 +3597,9 @@ function ensurePrefillUI(){
   fetchHoraireDB().then(function(db){
     if(!db) return;
     renderPrefillSelects(db);
-    document.getElementById("prefillHint").textContent="Base "+db.year+" · "+db.people.length+" personnes (identifiants anonymisés)";
+    var hint=document.getElementById("prefillHint");
+    if(hint) hint.textContent="Horaire d'équipe "+db.year+" · "+db.people.length
+      +" personnes, identifiants anonymisés"+(db.maj?", classeur du "+dateFr(db.maj):"")+".";
     restaurerVue();
   });
 }
