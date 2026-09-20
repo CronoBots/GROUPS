@@ -206,17 +206,25 @@ def anonymiser(src, dst, tolere=()):
                     if i != j and _initiales(m[i] + " " + m[j]) in connus:
                         scores[(i, j)] = scores.get((i, j), 0) + 1
         for (i, j), n in scores.items():
-            if n < 10:
+            paires = [m for m in mots.values() if i in m and j in m]
+            # Dix coïncidences ne suffisent pas. « Abs » répété dans une
+            # colonne, suivi d'un nom de famille, redonne des trigrammes
+            # connus des dizaines de fois — et « Polyvalence » ou « Ferm. »
+            # devenaient l'alias de quelqu'un. Une colonne de noms, elle, ne
+            # se répète pas : c'est à ça qu'on la reconnaît.
+            if n < 10 or len(paires) < 10:
+                continue
+            if min(len(set(m[i] for m in paires)),
+                   len(set(m[j] for m in paires))) * 2 < len(paires):
                 continue
             # Le couple est établi : chaque ligne porte alors une personne,
             # même absente de l'annuaire — ses initiales tiennent lieu
             # d'identifiant, comme partout ailleurs.
-            for m in mots.values():
-                if i in m and j in m:
-                    ini = _initiales(m[i] + " " + m[j])
-                    if ini:
-                        noms.setdefault(_sans_accent(m[i]).lower(), ini)
-                        noms.setdefault(_sans_accent(m[j]).lower(), ini)
+            for m in paires:
+                ini = _initiales(m[i] + " " + m[j])
+                if ini:
+                    noms.setdefault(_sans_accent(m[i]).lower(), ini)
+                    noms.setdefault(_sans_accent(m[j]).lower(), ini)
 
     pesees, surveille = [], []
     for cle, ini in noms.items():
@@ -275,14 +283,14 @@ def anonymiser(src, dst, tolere=()):
                 if brut[:1].islower():
                     continue
                 ctx = plat[max(0, m.start() - 30):m.end() + 30].replace("\n", " ")
-                restes.append((info.filename, ini, ctx))
+                restes.append((info.filename, ini, brut, ctx))
     zv.close()
     if restes:
         os.remove(dst)
         print("\n%d reste(s) de nom dans la sortie — fichier détruit :" % len(restes),
               file=sys.stderr)
-        for f, ini, ctx in restes[:20]:
-            print("   %-28s (%s)  …%s…" % (f, ini, ctx), file=sys.stderr)
+        for f, ini, brut, ctx in restes[:20]:
+            print("   %-22s %-14s (%s)  …%s…" % (f, brut, ini, ctx), file=sys.stderr)
         print("\nSi l'un d'eux n'est pas un nom — « Paye » peut être un mot —"
               " relancer avec --tolerer mot1,mot2 APRÈS l'avoir lu.", file=sys.stderr)
         sys.exit(2)

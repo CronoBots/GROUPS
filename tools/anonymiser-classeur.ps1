@@ -450,11 +450,24 @@ foreach ($partie in @($feuilles.Values)) {
         $ij = $k -split '/'
         $i = [int] $ij[0]
         $j = [int] $ij[1]
+        $paires = @()
+        foreach ($m in $mots.Values) {
+            if ($m.ContainsKey($i) -and $m.ContainsKey($j)) { $paires += , $m }
+        }
+        # Dix coïncidences ne suffisent pas. « Abs » répété dans une colonne,
+        # suivi d'un nom de famille, redonne des trigrammes connus des
+        # dizaines de fois — et « Polyvalence » ou « Ferm. » devenaient
+        # l'alias de quelqu'un. Une colonne de noms, elle, ne se répète pas :
+        # c'est à ça qu'on la reconnaît.
+        if ($paires.Count -lt 10) { continue }
+        $di = New-Object 'System.Collections.Generic.HashSet[string]'
+        $dj = New-Object 'System.Collections.Generic.HashSet[string]'
+        foreach ($m in $paires) { [void] $di.Add($m[$i]); [void] $dj.Add($m[$j]) }
+        if ([Math]::Min($di.Count, $dj.Count) * 2 -lt $paires.Count) { continue }
         # Le couple est établi : chaque ligne porte alors une personne, même
         # absente de l'annuaire — ses initiales tiennent lieu d'identifiant,
         # comme partout ailleurs.
-        foreach ($m in $mots.Values) {
-            if (-not $m.ContainsKey($i) -or -not $m.ContainsKey($j)) { continue }
+        foreach ($m in $paires) {
             $ini = Initiales ($m[$i] + ' ' + $m[$j])
             if (-not $ini) { continue }
             foreach ($x in @($m[$i], $m[$j])) {
@@ -559,7 +572,7 @@ try {
                 $a = [Math]::Max(0, $m.Index - 30)
                 $b = [Math]::Min($plat.Length, $m.Index + $m.Length + 30)
                 $restes.Add([pscustomobject] @{
-                    Fichier = $e.FullName; Ini = $w.Ini
+                    Fichier = $e.FullName; Ini = $w.Ini; Mot = $brut
                     Ctx = ($plat.Substring($a, $b - $a) -replace '\s+', ' ') })
             }
         }
@@ -571,7 +584,7 @@ if ($restes.Count -gt 0) {
     Write-Host ''
     Write-Host ("{0} reste(s) de nom dans la sortie — fichier détruit :" -f $restes.Count) -ForegroundColor Red
     foreach ($r in ($restes | Select-Object -First 20)) {
-        Write-Host ("   {0,-28} ({1})  …{2}…" -f $r.Fichier, $r.Ini, $r.Ctx)
+        Write-Host ("   {0,-22} {1,-14} ({2})  …{3}…" -f $r.Fichier, $r.Mot, $r.Ini, $r.Ctx)
     }
     Write-Host ''
     Write-Host "Si l'un d'eux n'est pas un nom — « Paye » peut être un mot — relancer avec"
