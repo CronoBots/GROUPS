@@ -1503,6 +1503,39 @@ Le module est **en tête de l'onglet Équipe**, avant la vue du jour. Il y
 personnes le séparaient du haut de la page. Ce qui appelle une décision
 passe avant ce qui informe.
 
+### Les couleurs disent l'atelier, le texte dit la pause
+
+Le client, le 21/09/2026 : « Gluten meunerie en jaune, fermentation /
+distillation / polyvalent arrière en verts, chaudière en rouge, step en
+bleu. » C'est l'usine telle qu'il la voit ; la pastille la reprend.
+
+| Atelier | Jeton | Clair | Sombre |
+|---|---|---|---|
+| Gluten, Meunerie | `--at-jaune` | `#8A6417` sur `#F7EDD1` | `#D8AE4E` sur `#33280C` |
+| Fermentation | `--at-ferm` | `#1F6B3C` sur `#D9EDE0` | `#5FB682` sur `#122A1C` |
+| Distillation | `--at-dist` | `#156B5C` sur `#C7E7EA` | `#4EB4A2` sur `#0A2930` |
+| Terrain arrière | `--at-terr` | `#4F6B1F` sur `#E4EDD2` | `#9DBC5B` sur `#232C10` |
+| Chaudières | `--at-chau` | `#A3352B` sur `#F6DEDB` | `#E08278` sur `#331816` |
+| STEP | `--at-step` | `#1F5A94` sur `#D8E6F4` | `#75A9E2` sur `#12233A` |
+
+**Trois verts et non un seul.** Les trois postes se retrouvent côte à côte
+sur la même ligne — le 27/09 en porte deux — et une couleur qui ne distingue
+pas ne sert à rien. Vert franc pour la fermentation, vert-bleu pour la
+distillation, vert-olive pour le terrain arrière.
+
+Contrôlé : tout texte est à **4,6 au moins** sur son fond en mode clair, 5,9
+en mode sombre. Les trois verts s'écartent de ΔE 18,8 au minimum sur le
+texte. Le fond de la distillation a dû être bleui (`#D4EBE6` → `#C7E7EA`) :
+à 4,3 de ΔE il se confondait avec celui de la fermentation.
+
+La paire la plus serrée reste **jaune / terrain arrière** — ΔE 7,2 sur le
+fond. C'est la tension de la consigne elle-même : le jaune et le vert-olive
+sont voisins. Écarter l'olive du jaune le pousse dans la fermentation, où il
+serait bien pire. Les textes, eux, s'écartent de ΔE 32,4.
+
+Le contremaître n'est pas un atelier : sa pastille reste neutre. La STEP
+n'attend aucun effectif (`n:0`), sa couleur ne sert donc pas encore.
+
 ### Ce que le module ne dit pas
 
 - **Rien avant aujourd'hui.** Un manque passé ne se comble plus.

@@ -33,6 +33,17 @@
   --good:#136349; --good-soft:#DBEEE5;
   --am:#A96A0F; --pm:#116A69; --n:#3C4185; --d:#64737F;
   --am-soft:#F6E9D2; --pm-soft:#D7ECEB; --n-soft:#E0E1F1; --d-soft:#E5EAED;
+  /* Les ateliers, tels que le client les voit dans l'usine : le gluten et la
+     meunerie en jaune, l'éthanol — fermentation, distillation, terrain
+     arrière — en verts, les chaudières en rouge, la STEP en bleu. Trois
+     verts et non un seul : les trois postes se retrouvent côte à côte sur
+     la même ligne, et une couleur qui ne distingue pas ne sert à rien. */
+  --at-jaune:#8A6417; --at-jaune-soft:#F7EDD1;
+  --at-ferm:#1F6B3C;  --at-ferm-soft:#D9EDE0;
+  --at-dist:#156B5C;  --at-dist-soft:#C7E7EA;
+  --at-terr:#4F6B1F;  --at-terr-soft:#E4EDD2;
+  --at-chau:#A3352B;  --at-chau-soft:#F6DEDB;
+  --at-step:#1F5A94;  --at-step-soft:#D8E6F4;
   /* Palette du calendrier annuel. Validée par scripts/validate_palette.js du
      savoir-faire « dataviz », en mode « toutes paires » — un calendrier est
      une série de petits multiples, n'importe quels deux postes peuvent se
@@ -56,6 +67,12 @@
     --good:#5DC69D; --good-soft:#113127;
     --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
     --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+    --at-jaune:#D8AE4E; --at-jaune-soft:#33280C;
+    --at-ferm:#5FB682;  --at-ferm-soft:#122A1C;
+    --at-dist:#4EB4A2;  --at-dist-soft:#0A2930;
+    --at-terr:#9DBC5B;  --at-terr-soft:#232C10;
+    --at-chau:#E08278;  --at-chau-soft:#331816;
+    --at-step:#75A9E2;  --at-step-soft:#12233A;
     /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
        pour la bande sombre et validés contre la surface sombre.
        Pire paire 16,6 en vision normale, 10,7 en protanopie. */
@@ -73,6 +90,12 @@
   --good:#5DC69D; --good-soft:#113127;
   --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
   --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
+  --at-jaune:#D8AE4E; --at-jaune-soft:#33280C;
+  --at-ferm:#5FB682;  --at-ferm-soft:#122A1C;
+  --at-dist:#4EB4A2;  --at-dist-soft:#0A2930;
+  --at-terr:#9DBC5B;  --at-terr-soft:#232C10;
+  --at-chau:#E08278;  --at-chau-soft:#331816;
+  --at-step:#75A9E2;  --at-step-soft:#12233A;
     /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
      pour la bande sombre et validés contre la surface sombre.
      Pire paire 16,6 en vision normale, 10,7 en protanopie. */
@@ -712,9 +735,16 @@ body.sheet-on{overflow:hidden}
 .mqt i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-weight:700; opacity:.85}
 .mqt u{text-decoration:none; font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; letter-spacing:.03em; opacity:.7}
-.mqt[data-s="AM"]{background:var(--am-soft); color:var(--am)}
-.mqt[data-s="PM"]{background:var(--pm-soft); color:var(--pm)}
-.mqt[data-s="N"]{background:var(--n-soft); color:var(--n)}
+/* La couleur dit l'ATELIER, le texte dit la pause. Le client, le 21/09/2026 :
+   gluten et meunerie en jaune, fermentation / distillation / terrain arrière
+   en verts, chaudières en rouge, STEP en bleu. */
+.mqt[data-k="glut"],
+.mqt[data-k="meun"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.mqt[data-k="ferm"]{background:var(--at-ferm-soft); color:var(--at-ferm)}
+.mqt[data-k="dist"]{background:var(--at-dist-soft); color:var(--at-dist)}
+.mqt[data-k="terr"]{background:var(--at-terr-soft); color:var(--at-terr)}
+.mqt[data-k="chau"]{background:var(--at-chau-soft); color:var(--at-chau)}
+.mqt[data-k="step"]{background:var(--at-step-soft); color:var(--at-step)}
 .mqinc{font-size:10px; font-weight:400; color:var(--faint); font-style:italic}
 .mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
 .mqrien b{color:var(--in)}
@@ -4484,7 +4514,8 @@ function mqJoursAVenir(db,horizon){
       var vue=postesDePause(db,l,g.k,mmdd);
       inconnus+=vue.inconnus.length;
       vue.postes.forEach(function(o){
-        if(o.manque) manques.push({pause:g.k, t:o.P.t, tenu:o.tenu, attendu:o.attendu});
+        if(o.manque) manques.push({pause:g.k, k:o.P.k, t:o.P.t,
+                                   tenu:o.tenu, attendu:o.attendu});
       });
     });
     if(personne){ vus++; if(manques.length)
@@ -4514,7 +4545,7 @@ function renderManques(force){
         /* La couleur dit déjà la pause, mais deux « Fermentation 0/1 » côte à
            côte le même jour ne se distinguaient que par elle — et une couleur
            seule ne se lit pas. Le code de pause est donc écrit. */
-        h.push('<span class="mqt" data-s="'+esc(o.pause)+'">'
+        h.push('<span class="mqt" data-k="'+esc(o.k)+'" data-s="'+esc(o.pause)+'">'
               +'<u>'+esc(o.pause)+"</u>"+esc(o.t)
               +'<i>'+o.tenu+"/"+o.attendu+"</i></span>");
       });
