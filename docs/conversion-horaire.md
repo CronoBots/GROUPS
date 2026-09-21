@@ -1530,6 +1530,30 @@ effectif.
 Rien du calcul ne change : `postesDePause()` rend les mêmes lignes, seul leur
 habillage est neuf.
 
+### Le tableau : les pauses en lignes, les postes en colonnes
+
+Le client, le 22/09/2026, capture d'un autre programme à l'appui : « est-ce
+possible de voir les pauses comme ceci au lieu des équipes pour la vue équipe
+de mon site ? » Son programme range les cinq **équipes** en lignes et les
+postes en colonnes ; ici ce sont les quatre **pauses**, puisque la question
+du jour n'est pas qui sait faire quoi, mais qui tient l'usine maintenant.
+
+C'est la présentation par défaut. Les cartes de la section précédente
+restent, sous la bascule **Tableau / Cartes**, et le choix se retient : il
+avait demandé les cartes une heure plus tôt, et rien n'oblige à trancher
+entre les deux.
+
+**Les colonnes se calculent sur la journée.** Un poste que personne ne tient
+et qui n'attend personne ne prend pas de place : la STEP n'apparaît que le
+matin, « À déterminer » seulement s'il en reste. L'ordre suit
+`POSTES_TRAVAIL` — celui de l'usine — et non celui de sa capture, qui place
+le polyvalent arrière après la distillation.
+
+Sept à dix colonnes ne tiennent pas dans 390 px : le tableau défile
+horizontalement, et la **colonne des pauses reste collée à gauche** pour
+qu'on sache toujours quelle ligne on lit. La ligne d'en-têtes, elle, ne colle
+pas : elle se collait en haut de la page et recouvrait « Matin ».
+
 ### La cellule prime, y compris sur la fonction de la personne
 
 Le client, le 21/09/2026 : « tu mets un absent au gluten le 25/09 en AM alors

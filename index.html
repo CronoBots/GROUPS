@@ -779,6 +779,47 @@ body.sheet-on{overflow:hidden}
 .eqt tr[data-k="terr"] th{border-left-color:var(--at-terr)}
 .eqt tr[data-k="chau"] th{border-left-color:var(--at-chau)}
 .eqt tr[data-k="step"] th{border-left-color:var(--at-step)}
+/* Le tableau : les pauses en lignes, les postes en colonnes. Sept colonnes
+   ne tiennent pas dans 390 px — il défile donc horizontalement, et la
+   colonne de la pause reste collée à gauche pour qu'on sache toujours
+   quelle ligne on lit. */
+.eqgrille{overflow-x:auto; -webkit-overflow-scrolling:touch}
+.eqg2{border-collapse:separate; border-spacing:0; min-width:100%}
+.eqg2 th, .eqg2 td{vertical-align:top; text-align:left; padding:8px 10px}
+/* Pas de collage VERTICAL : la ligne d'en-têtes se collait en haut de la
+   page et recouvrait « Matin ». Seule la colonne des pauses reste collée,
+   à gauche, pour qu'on sache quelle ligne on lit en faisant défiler. */
+.eqg2 thead th{background:var(--surface);
+  font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--faint); white-space:nowrap; border-bottom:1px solid var(--line);
+  border-top:3px solid transparent}
+.eqg2 thead th[data-k="glut"], .eqg2 thead th[data-k="meun"]{border-top-color:var(--at-jaune); color:var(--at-jaune)}
+.eqg2 thead th[data-k="ferm"]{border-top-color:var(--at-ferm); color:var(--at-ferm)}
+.eqg2 thead th[data-k="dist"]{border-top-color:var(--at-dist); color:var(--at-dist)}
+.eqg2 thead th[data-k="terr"]{border-top-color:var(--at-terr); color:var(--at-terr)}
+.eqg2 thead th[data-k="chau"]{border-top-color:var(--at-chau); color:var(--at-chau)}
+.eqg2 thead th[data-k="step"]{border-top-color:var(--at-step); color:var(--at-step)}
+.eqg2 tbody tr+tr th, .eqg2 tbody tr+tr td{border-top:1px solid var(--line2)}
+.eqg2 th.eqpause{position:sticky; left:0; z-index:3; width:92px; min-width:92px;
+  background:var(--surface); border-right:1px solid var(--line)}
+.eqg2 thead th.eqpause{z-index:4}
+@media (max-width:560px){
+  .eqg2 th, .eqg2 td{padding:7px 8px}
+  .eqg2 th.eqpause{width:82px; min-width:82px}
+}
+.eqg2 th.eqpause b{display:block; font-size:12.5px; font-weight:650; color:var(--ink)}
+.eqg2 th.eqpause em{display:block; font-style:normal; font-size:10px; color:var(--faint)}
+.eqg2 th.eqpause .eqpt{margin-bottom:3px}
+.eqg2 tbody tr[data-s="AM"] .eqpt{background:var(--am)}
+.eqg2 tbody tr[data-s="PM"] .eqpt{background:var(--pm)}
+.eqg2 tbody tr[data-s="N"] .eqpt{background:var(--n)}
+.eqg2 tbody tr[data-s="D"] .eqpt{background:var(--d)}
+.eqg2 td>i{display:block; font-style:normal; font-family:"IBM Plex Mono",monospace;
+  font-size:10px; font-weight:600; color:var(--muted); margin-bottom:3px}
+.eqg2 td.manque{background:var(--out-soft)}
+.eqg2 td.manque>i{color:var(--out); font-weight:700}
+.eqg2 td.vide{background:var(--surface2)}
+.eqg2 td .eqn{margin:0 0 3px; display:flex}
 .eqn{display:inline-flex; flex-direction:column; vertical-align:top;
   margin:0 12px 2px 0; line-height:1.3}
 .eqn b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:650;
@@ -1165,6 +1206,13 @@ body.sheet-on{overflow:hidden}
         <div class="eqjour" id="eqJour">—</div>
         <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
         <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
+      </div>
+      <div class="mqbar">
+        <span class="lede">Présentation</span>
+        <div class="seg" id="eqVue" role="group" aria-label="Présentation">
+          <button type="button" data-v="grille" aria-pressed="true">Tableau</button>
+          <button type="button" data-v="cartes" aria-pressed="false">Cartes</button>
+        </div>
       </div>
       <p class="lede top" id="eqNote"></p>
     </div>
@@ -4515,7 +4563,71 @@ function renderEquipe(){
             :'<span class="eqvide">—</span>')+"</td></tr>";
     }
 
+    /* LE TABLEAU : les pauses en lignes, les postes en colonnes, dans le sens
+       de la production. Le client, le 22/09/2026, capture d'un autre
+       programme à l'appui : « est-ce possible de voir les pauses comme ceci
+       au lieu des équipes pour la vue équipe de mon site ? » — son programme
+       range les cinq ÉQUIPES en lignes ; ici ce sont les quatre PAUSES,
+       puisque la question du jour est qui tient l'usine maintenant.
+
+       Les colonnes se calculent sur la journée : un poste que personne ne
+       tient et qui n'attend personne ne prend pas de place. La STEP
+       n'apparaît donc que le matin, et « À déterminer » que s'il en reste. */
+    if(eqVue==="grille"){
+      var pauses=EQ_GROUPES.filter(function(g){
+        return RESTE.indexOf(g.k)<0 && (par[g.k]||[]).length; });
+      var vues={};
+      pauses.forEach(function(g){
+        var l=par[g.k].slice();
+        l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+                            : (a.p.cat<b.p.cat?-1:1); });
+        total+=l.length;
+        vues[g.k]=postesDePause(db,l,g.k,mmdd);
+      });
+      function caseDe(gk,ck){
+        var v=vues[gk]; if(!v) return null;
+        if(ck==="form") return {gens:v.formation, tenu:v.formation.length, attendu:0};
+        if(ck==="inc")  return {gens:v.inconnus,  tenu:v.inconnus.length,  attendu:0};
+        return v.postes.filter(function(o){ return o.P.k===ck; })[0]||null;
+      }
+      var cols=[];
+      POSTES_TRAVAIL.forEach(function(P){
+        var sert=pauses.some(function(g){
+          var o=caseDe(g.k,P.k); return o && (o.gens.length || o.attendu); });
+        if(sert) cols.push({k:P.k, t:P.t, P:P});
+      });
+      [["form","Formation"],["inc","À déterminer"]].forEach(function(x){
+        if(pauses.some(function(g){ var o=caseDe(g.k,x[0]); return o && o.gens.length; }))
+          cols.push({k:x[0], t:x[1]});
+      });
+
+      var t=['<div class="card eqcard"><div class="eqgrille"><table class="eqg2">'];
+      t.push('<thead><tr><th class="eqpause"></th>');
+      cols.forEach(function(c){
+        t.push('<th data-k="'+esc(c.k)+'">'+esc(c.t)+"</th>"); });
+      t.push("</tr></thead><tbody>");
+      pauses.forEach(function(g){
+        var v=vues[g.k];
+        t.push('<tr data-s="'+esc(g.k)+'"><th class="eqpause" scope="row">'
+          +'<span class="eqpt"></span><b>'+esc(g.t)+"</b>"
+          +(g.s?"<em>"+esc(g.s)+"</em>":"")
+          +"<em>"+(par[g.k]||[]).length+" pers.</em></th>");
+        cols.forEach(function(c){
+          var o=caseDe(g.k,c.k);
+          if(!o || (!o.gens.length && !o.attendu)){ t.push('<td class="vide"></td>'); return; }
+          var alerte=(o.manque && !v.inconnus.length);
+          t.push('<td data-k="'+esc(c.k)+'"'+(alerte?' class="manque"':"")+'>'
+            +'<i>'+o.tenu+(o.attendu?" / "+o.attendu:"")+"</i>"
+            +o.gens.map(function(x){ return chip(x,g,o.P||null); }).join("")
+            +(o.gens.length?"":'<span class="eqvide">—</span>')+"</td>");
+        });
+        t.push("</tr>");
+      });
+      t.push("</tbody></table></div></div>");
+      h.push(t.join(""));
+    }
     EQ_GROUPES.forEach(function(g){
+      if(eqVue==="grille") return;
       if(RESTE.indexOf(g.k)>=0) return;
       var l=par[g.k]||[];
       total+=l.length;
@@ -4551,7 +4663,6 @@ function renderEquipe(){
     RESTE.forEach(function(k){
       var g=EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
       var l=par[k]||[]; if(!l.length) return;
-      if(k!=="off") total+=l.length;
       l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
       resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
@@ -4613,6 +4724,7 @@ function renderAnnuaire(db,moi){
    Il ne recalcule rien : equipeDuJour() et postesDePause() sont celles de
    l'onglet Équipe. Une alerte qui compterait autrement que la vue du jour
    serait pire que pas d'alerte du tout. */
+var eqVue=lsGet("ui/eqVue")||"grille";
 var mqHorizon=Number(lsGet("ui/mqHorizon")||14);
 /* « octo » n'est pas une abréviation ; celles-ci sont celles de l'usage. */
 var MOIS_BREF=["janv.","févr.","mars","avr.","mai","juin",
@@ -4692,6 +4804,18 @@ function renderManques(force){
     };
   });
 }
+(function(){
+  var seg=document.getElementById("eqVue"); if(!seg) return;
+  seg.addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest("button[data-v]"):null; if(!b) return;
+    eqVue=b.dataset.v; lsSet("ui/eqVue",eqVue);
+    Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
+      x.setAttribute("aria-pressed", x===b?"true":"false"); });
+    renderEquipe();
+  });
+  Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
+    x.setAttribute("aria-pressed", x.dataset.v===eqVue?"true":"false"); });
+})();
 (function(){
   var seg=document.getElementById("mqHorizon"); if(!seg) return;
   seg.addEventListener("click",function(e){
