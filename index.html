@@ -3718,18 +3718,40 @@ function tientTerrainArriere(person){
 /* Le poste qu'une personne tient d'habitude, sans regarder sa journée : sa
    fonction si c'est un cadre, son rôle de ligne 9 sinon. Sert à savoir où
    était quelqu'un qui « remplace PAM » — le poste de PAM. */
+/* Le poste que la ligne 9 donne, la fusion des cellules corrigée.
+
+   Dans les cinq feuilles d'équipe, la cellule « Chaudières » est FUSIONNÉE
+   sur trois colonnes — AG, AI et AK — pour un effectif de deux. Le client :
+   « pour les 5 équipes les cellules du poste sont fusionnées, il s'agit du
+   poste Chaudières ». Tout le monde en dessous hérite donc du libellé, y
+   compris le polyvalent avant rangé dans l'une de ces colonnes.
+
+   C'est la polyvalence qui tranche. Le client, le 21/09/2026 : « GBT qui
+   n'a que chaudière, c'est normal qu'il soit aux chaudières ; par contre
+   l'autre opérateur ne possédant pas les chaudières est celui qui est
+   polyvalent avant, donc gluten ou meunerie selon sa polyvalence, mais par
+   défaut au gluten ».
+
+   La feuille des opérateurs en formation est hors de cette règle : le
+   libellé au-dessus d'eux y nomme le poste sur lequel ils se forment, et
+   n'est pas une cellule fusionnée d'équipe. */
+function posteLigne9(person){
+  var ps=person.postes||{}, f, k=null;
+  for(f in ps){
+    if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
+    k=posteDepuisNom(ps[f].p);
+    if(k) break;
+  }
+  if(k==="chau" && !aLAtelier(person,/^chaudi/i) && !/en\s+formation/i.test(person.cat||""))
+    return (!aLAtelier(person,/^glut/i) && aLAtelier(person,/^meun/i)) ? "meun" : "glut";
+  return k;
+}
 function posteHabituel(person){
   if(estCadre(person)) return estContremaitre(person)?"cm":"adj";
   var role=roleDeFeuille(person);
   if(role==="pa"||role==="ra") return "terr";
   if(role==="pv"||role==="rv") return "glut";
-  var ps=person.postes||{}, f, k;
-  for(f in ps){
-    if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
-    k=posteDepuisNom(ps[f].p);
-    if(k) return k;
-  }
-  return null;
+  return posteLigne9(person);
 }
 /* « remplace PAM » : le commentaire dit qui l'on remplace, donc où l'on est.
    Le client : « pourquoi QBY est à déterminer alors qu'il a le poste
@@ -3784,6 +3806,10 @@ function posteTenu(person,raw,hJour,poste){
      le poste gluten ». Trois d'entre eux ne l'ont pas et restent sans poste
      par défaut, ce qui est préférable à les y mettre à tort. */
   if((role==="pv"||role==="rv") && aLAtelier(person,/^glut/i)) return "glut";
+  /* La ligne 9 AVANT le champ « e » : elle nomme le poste, là où « e » n'est
+     qu'un vidage de tout ce qui entoure le nom. C'est aussi là que la
+     cellule fusionnée des chaudières est corrigée — voir posteLigne9(). */
+  k=posteLigne9(person); if(k) return k;
   var ent=person.e||[];
   for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
   var at=(person.poly&&person.poly.ateliers)||[];
