@@ -497,6 +497,73 @@ prime de pause conservée » de la section 6 bis ?
 
 `SD26`, `F` et `DS` sont résolus — voir section 6 bis.
 
+### Audit des 6 643 commentaires — 21/09/2026
+
+Le client : « vérifie tous les commentaires et qu'ils sont respectés. »
+Recensement de ce que les commentaires **disent**, confronté à ce que le code
+en **fait**.
+
+| Ce que le commentaire dit | Journées | Lu ? |
+|---|---|---|
+| `remplace XXX` | 3 632 | **oui** |
+| `remplacé par XXX` | 1 738 | non — volontairement |
+| `échange avec XXX` | 990 | non — la cellule porte déjà la pause échangée |
+| plage `de Xh à Yh` | 466 | **oui** |
+| `rappel` | 462 | **oui** |
+| départ / arrivée | 476 | non — mais 459 ont un compteur qui l'explique |
+| **`conserve la prime de X`** | **336** | **NON — voir ci-dessous** |
+| renvoi de date | 217 | **oui** |
+| effectif / renfort / « ne compte pas » | 47 | non |
+| heures sup. écrites dans le commentaire | 20 | non |
+| rien de reconnaissable | 1 201 | — |
+
+#### Ce qui est sans conséquence
+
+`remplacé par XXX` est exclu **à dessein** : le lire comme un remplacement
+actif inverserait le sens. La personne qui remplace porte l'information de son
+côté, et c'est elle qu'on lit.
+
+`échange avec XXX` n'apprend rien de plus : la cellule porte déjà la pause
+échangée — `GPS 28/01 ["+CPPT","18h-06h","Echange avec ATA"]` dit 18h-06h.
+
+Départ et arrivée sont presque toujours doublés d'un compteur qui les chiffre.
+**17 journées** font exception, et elles se lisent une par une.
+
+#### Ce qui touche à la paie : « conserve la prime de X »
+
+**336 journées** portent « conserve sa prime de N », « maintien prime de
+nuit », « conserve sa prime de pause ». L'application n'a aucune règle qui les
+lise : elle applique la prime du poste qu'elle a retenu.
+
+Dans **270 de ces journées, le poste retenu ne correspond pas à la prime
+nommée** :
+
+```
+AFA 04/09  ["N","7h-15h","… conserver prime de nuit …"]    → l'app retient D
+AFA 26/02  ["PM","","… conserver prime de nuit"]            → l'app retient PM
+ATA 06/05  ["-","AM","remplace AFA; conserver prime de nuit"] → l'app retient AM
+ATR 16/09  ["D","chaudières","Conserve sa prime de AM …"]   → l'app retient D
+```
+
+L'écart se chiffre : une journée de huit heures vaut 0 € en prime de jour,
+14,40 € en après-midi, **32,00 € en nuit**. La répartition des 336 : 219 fois
+la nuit, 39 l'après-midi, 38 « nuit » écrit en toutes lettres, 37 « pause »,
+2 le matin, 1 le dimanche.
+
+**Rien n'a été changé** : cela touche des montants, sur 270 journées et
+beaucoup de personnes. Il faut que le client tranche — et notamment ce que
+« conserve sa prime de pause », sans nommer laquelle, doit valoir.
+
+#### Ce qui reste plus petit
+
+Vingt journées portent des heures supplémentaires **dans le commentaire seul**
+— `["11h-15h30'","4h +FT","+0,5 hs"]`, `["14h-02h","1h +FT","+3h hs"]`. Le
+compteur de l'annotation est lu, ces heures-là non.
+
+Et le classeur écrit parfois la règle d'effectif en toutes lettres :
+`VGG 04/08 ["7h-15h","chaudières","Ne compte pas comme un effectif chaudières
+…"]`.
+
 ### Les autres points ouverts
 
 - **Le précompte du double pécule de vacances** — la fiche de mai 2026 porte
