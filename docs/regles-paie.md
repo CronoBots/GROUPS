@@ -418,7 +418,7 @@ Attention au découpage : `D-F` et `D-CPPT` commencent aussi par ce qui
 ressemble à un poste. Le texte entier est donc éprouvé d'abord ; on ne
 découpe qu'à défaut.
 
-## R-F — remplacement formation
+## R-F et R-VM — remplacer ceux qui sont partis
 
 **Confirmé par le client le 20/09/2026.**
 
@@ -426,8 +426,11 @@ découpe qu'à défaut.
 travail. » La personne preste donc sa pause, et remplace ceux qui sont partis
 en formation.
 
-Aucun effet sur le calcul : `R-F` rejoint `R`, `R-CM` et `VM` parmi les
-mentions reconnues mais neutres.
+`R-VM` est le même geste pour la **visite médicale**, pendant ses heures de
+travail : elle remplace ceux qui y sont partis, elle n'y va pas.
+
+Aucun effet sur le calcul : `R-F` et `R-VM` rejoignent `R`, `R-CM` et `VM`
+parmi les mentions reconnues mais neutres.
 
 ## À établir
 
