@@ -1498,6 +1498,11 @@ chose. Le 25/09 : le module annonce `AM Gluten 1/2`, la vue affiche
 PM et en N, que le module distingue par le code de pause écrit sur la
 pastille — la couleur seule ne se lit pas.
 
+Le module est **en tête de l'onglet Équipe**, avant la vue du jour. Il y
+était d'abord en dessous, et le client ne l'a pas trouvé : soixante-dix-sept
+personnes le séparaient du haut de la page. Ce qui appelle une décision
+passe avant ce qui informe.
+
 ### Ce que le module ne dit pas
 
 - **Rien avant aujourd'hui.** Un manque passé ne se comble plus.
