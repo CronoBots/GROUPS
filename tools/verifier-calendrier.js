@@ -106,9 +106,11 @@ const MORCEAUX=[
   ["function enFormation(","\n}"],
   ["function compteAuPoste(","\n}"],
   ["function effectif(","\n}"],
+  ["function attenduAuPoste(","\n}"],
   ["function peutTenir(","\n}"],
   ["var EST_RENFORT=","\n"],
   ["function reequilibrer(","\n}"],
+  ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
   ["var EQ_GROUPES=","\n];"],
   ["function finAbsence(","\n}"],
@@ -220,17 +222,19 @@ if(process.argv.indexOf("--manques")>=0){
   const i0=process.argv.indexOf("--manques");
   const depart=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:"0101";
   let jours=0, avecManque=0, avecInconnu=0, creuxTotal=0;
-  const parPoste={}, parPause={}, lignes=[];
+  const parPoste={}, parPause={}, lignes=[], deductions=[];
   for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
     const mmdd=pad2(m)+pad2(d); if(mmdd<depart) continue;
     const par=equipeDuJour(db,ANNEE,m,d);
-    let duJour=[], inconnusJour=0;
+    let duJour=[], inconnusJour=0; const x_mmdd=mmdd.slice(2)+"/"+mmdd.slice(0,2);
     EQ_GROUPES.forEach(g=>{
       if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
       const l=par[g.k]; if(!l||!l.length) return;
       const vue=postesDePause(db,l,g.k,mmdd);
       inconnusJour+=vue.inconnus.length;
       vue.postes.forEach(o=>{
+        o.gens.forEach(y=>{ if(y.deduit) deductions.push(
+          x_mmdd+"  "+g.k+"  "+y.p.id+" → "+o.P.t); });
         if(!o.manque) return;
         duJour.push({pause:g.k,poste:o.P.t,tenu:o.tenu,attendu:o.attendu,
                      creux:o.creux,inconnus:vue.inconnus.length});
@@ -255,6 +259,9 @@ if(process.argv.indexOf("--manques")>=0){
   console.log("\npar pause :");
   Object.keys(parPause).sort((a,b)=>parPause[b]-parPause[a])
     .forEach(k=>console.log("  "+String(parPause[k]).padStart(5)+"  "+k));
+  console.log("\ndéductions de polyvalence (un indéterminé, un seul poste possible) : "
+              +deductions.length);
+  deductions.slice(0,12).forEach(x=>console.log("   "+x));
   console.log("\nles vingt premières journées :");
   lignes.slice(0,20).forEach(x=>{
     console.log("  "+x.mmdd.slice(2)+"/"+x.mmdd.slice(0,2)

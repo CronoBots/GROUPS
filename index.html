@@ -3885,7 +3885,7 @@ var POSTES_TRAVAIL=[
   {k:"terr", t:"Terrain arrière", n:1, rx:/^(terr|poly)[\s.\-]*(arr|etoh)/i},
   {k:"dist", t:"Distillation",    n:1, rx:/^disti/i},
   {k:"chau", t:"Chaudières",      n:2, rx:/^chaudi/i},
-  {k:"step", t:"STEP",            n:0, rx:/^step/i}
+  {k:"step", t:"STEP",            n:0, parPause:{AM:1}, rx:/^step/i}
 ];
 /* Les codes de journée qui disent « formation » : « F » et « D-F ». Le
    client : « les gens en formation, il faut les mettre à part dans un
@@ -4063,8 +4063,21 @@ function effectif(liste,P){
 /* Ce qu'une personne PEUT tenir, d'après sa seule polyvalence. Les règles du
    client : le terrain arrière demande fermentation ET distillation, les
    autres postes demandent leur atelier. */
+/* L'effectif attendu dépend de la PAUSE. Le client, le 21/09/2026 :
+   « uniquement pour la pause du matin, il faut au minimum 1 opérateur
+   station d'épuration ». La STEP n'attend personne aux autres pauses, et le
+   jour aucun poste n'est obligatoire — « en jours il n'est pas obligatoire
+   d'avoir quelqu'un à chaque poste ». */
+function attenduAuPoste(P,gk){
+  if(!P || gk==="D") return 0;
+  if(P.parPause && P.parPause[gk]!==undefined) return P.parPause[gk];
+  return P.n||0;
+}
 function peutTenir(person,P){
-  if(!P || !P.n) return false;
+  /* « Sait-elle tenir ce poste » ne dépend pas de l'effectif qu'on y
+     attend : la STEP n'en attend qu'au matin, et CAN sait la tenir
+     à toute heure. */
+  if(!P) return false;
   if(P.k==="terr") return tientTerrainArriere(person);
   return !!(P.rx && aLAtelier(person,P.rx));
 }
@@ -4098,7 +4111,8 @@ function peutTenir(person,P){
    manque et que cette personne-là, marquée « R », peut le tenir. C'est ce
    que le « R » annonce. */
 var EST_RENFORT=/^r$/i;
-function reequilibrer(parPoste,mmdd,inconnus){
+function reequilibrer(parPoste,mmdd,inconnus,gk){
+  function att(X){ return attenduAuPoste(X,gk); }
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
   /* Combien de postes EN MANQUE cette personne saurait-elle tenir ? Un seul,
@@ -4108,8 +4122,8 @@ function reequilibrer(parPoste,mmdd,inconnus){
     var k, T, n=0;
     for(k=0;k<POSTES_TRAVAIL.length;k++){
       T=POSTES_TRAVAIL[k];
-      if(!T.n || T.cm) continue;
-      if(effectif(parPoste[T.k],T)>=T.n) continue;
+      if(!att(T) || T.cm) continue;
+      if(effectif(parPoste[T.k],T)>=att(T)) continue;
       if(peutTenir(x.p,T) && compteAuPoste(x,T)) n++;
       if(n>1) return false;
     }
@@ -4117,8 +4131,8 @@ function reequilibrer(parPoste,mmdd,inconnus){
   }
   for(i=0;i<POSTES_TRAVAIL.length;i++){
     P=POSTES_TRAVAIL[i];
-    if(!P.n || P.cm) continue;
-    for(garde=0; garde<8 && effectif(parPoste[P.k],P)<P.n; garde++){
+    if(!att(P) || P.cm) continue;
+    for(garde=0; garde<8 && effectif(parPoste[P.k],P)<att(P); garde++){
       pris=null;
       /* d'abord ceux qui sont là POUR ça, et que rien n'a su placer */
       cand=(inconnus||[]).filter(function(x){
@@ -4151,9 +4165,9 @@ function reequilibrer(parPoste,mmdd,inconnus){
       }
       for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
         Q=POSTES_TRAVAIL[j];
-        if(Q.k===P.k || Q.cm || !Q.n) continue;
+        if(Q.k===P.k || Q.cm || !att(Q)) continue;
         liste=parPoste[Q.k]||[];
-        if(effectif(liste,Q)<=Q.n) continue;
+        if(effectif(liste,Q)<=att(Q)) continue;
         cand=liste.filter(function(x){
           return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
         }).sort(parId);
@@ -4171,16 +4185,16 @@ function reequilibrer(parPoste,mmdd,inconnus){
       if(!pris){
         for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
           Q=POSTES_TRAVAIL[j];
-          if(Q.k===P.k || Q.cm || !Q.n) continue;
+          if(Q.k===P.k || Q.cm || !att(Q)) continue;
           var relais=(parPoste[Q.k]||[]).filter(function(x){
             return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
           }).sort(parId);
           if(!relais.length) continue;
           for(var m=0;m<POSTES_TRAVAIL.length && !pris;m++){
             var S=POSTES_TRAVAIL[m];
-            if(S.k===P.k || S.k===Q.k || S.cm || !S.n) continue;
+            if(S.k===P.k || S.k===Q.k || S.cm || !att(S)) continue;
             var source=parPoste[S.k]||[];
-            if(effectif(source,S)<=S.n) continue;
+            if(effectif(source,S)<=att(S)) continue;
             var renfort=source.filter(function(x){
               return !x.fixe && peutTenir(x.p,Q) && compteAuPoste(x,Q);
             }).sort(parId);
@@ -4203,6 +4217,20 @@ function reequilibrer(parPoste,mmdd,inconnus){
       (parPoste[P.k]=parPoste[P.k]||[]).push(pris);
     }
   }
+}
+/* La station d'épuration. Le client, le 21/09/2026 : « PDE et CAN sont à la
+   Station d'épuration s'ils ne remplacent pas ailleurs. CAN n'a que la STEP,
+   mais PDE revient de temps en temps en fermentation ou distillation. »
+
+   C'est la CATÉGORIE qui le dit — « Opérateurs STEP » — et non la
+   polyvalence : PDE en a trois, si bien qu'aucune ne le désignait et qu'il
+   restait « à déterminer » 359 journées sur 365.
+
+   Ce poste-ci vient en DERNIER, après la cellule et après le remplacement :
+   « s'ils ne remplacent pas ailleurs » est la condition même de la règle.
+   PDE le 18/02 écrit « terr. Arr. » dans sa cellule, et c'est là qu'il est. */
+function posteParDefaut(person){
+  return /step/i.test((person&&person.cat)||"") ? "step" : null;
 }
 function posteTenu(person,raw,hJour,poste){
   var i, k;
@@ -4380,19 +4408,20 @@ function postesDePause(db,liste,gk,mmdd){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
     var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
+    if(!k) k=posteParDefaut(x.p);
     x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
     x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
   /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
-  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus);
+  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk);
   POSTES_TRAVAIL.forEach(function(P){
     var gens=parPoste[P.k]||[];
     /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
        n'attend personne — le client : « il ne faut pas afficher les postes
        qui n'ont pas de personnel » — et sept intitulés à zéro noyaient les
        trois qui portaient du monde. */
-    if(!gens.length && (gk==="D" || !P.n)) return;
+    if(!gens.length && !attenduAuPoste(P,gk)) return;
     var tenu=effectif(gens,P), detail="";
     if(P.k==="terr"){
       /* Le poste revient au polyvalent arrière ; le renfort arrière le tient
@@ -4428,7 +4457,7 @@ function postesDePause(db,liste,gk,mmdd){
       else if(!cms.length&&adj.length)
         detail=adj.length+" adjoint"+(adj.length>1?"s":"")+" faisant fonction";
     }
-    var attendu=(gk==="D")?0:P.n;
+    var attendu=attenduAuPoste(P,gk);
     sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,
                  manque:!!(attendu && tenu<attendu), creux:Math.max(0,attendu-gens.length)});
   });
@@ -4918,12 +4947,27 @@ function renderAnnee(){
        sur une nuit reste un congé. Ne regarder que le poste faisait passer
        une semaine de vacances pour une semaine de travail, et gonflait les
        totaux d'autant. C'est le nombre d'heures qui tranche. */
-    var cpt={AM:0,PM:0,N:0,D:0}, abs=0, repos=0, rcm=0, heures=0;
+    /* « Absence » ne veut rien dire tant qu'on n'a pas dit laquelle. Le
+       client, le 21/09/2026 : « tu indiques 94 jours d'absence, ça me paraît
+       beaucoup, que considères-tu absence ? » — et il avait raison : sur ses
+       94, 26 étaient des congés payés, 18 des vacances, 10 des récupérations
+       de jour férié, et 18 seulement de la maladie.
+
+       C'est la distinction qu'il avait déjà donnée pour l'onglet Équipe :
+       « il faut différencier absent et en congé ; les absents ne sont que
+       les personnes malades. » Elle vaut ici aussi.
+
+       Et une journée de repos qui ne porte qu'un mouvement de compteur —
+       ["-","4h +FT","presté le 27.04"] — est un REPOS. Le classeur y écrit
+       « - » ; les heures ont été faites un autre jour. Onze journées de VBN
+       passaient pour des absences à ce titre. */
+    var cpt={AM:0,PM:0,N:0,D:0}, mal=0, conge=0, repos=0, rcm=0, heures=0;
     Object.keys(jours).forEach(function(k){
-      var j=jours[k], hj=(j.h===undefined?st.params.hJour:j.h);
+      var j=jours[k], hj=(j.h===undefined?st.params.hJour:j.h), A=j.a&&ABSMAP[j.a];
       if(j.s && hj>0){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=hj; }
-      else if(j.a) abs++;
-      else repos++;
+      else if(A && A.k==="SMG") mal++;
+      else if(A && A.h>0) conge++;
+      else repos++;      /* un compteur seul ne fait pas une absence */
       if(j.rcm) rcm++;
     });
 
@@ -4931,7 +4975,8 @@ function renderAnnee(){
     h.push('<div class="tuiles">');
     h.push(tuile(num(R(heures,2)),"heures prestées"));
     h.push(tuile(cpt.AM+cpt.PM+cpt.N+cpt.D,"jours prestés"));
-    h.push(tuile(abs,"jours d\'absence"));
+    h.push(tuile(conge,"jours de cong\u00e9"));
+    if(mal) h.push(tuile(mal,"jours de maladie"));
     h.push(tuile(repos,"jours de repos"));
     if(rcm) h.push(tuile(rcm,"remplacements CM"));
     h.push('</div>');
