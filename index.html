@@ -3614,6 +3614,20 @@ function posteDepuisNom(t){
    la cellule du jour, puis l'en-tête de colonne du classeur, puis le seul
    poste sur lequel la personne est formée. À défaut, on ne sait pas — et on
    le dit, plutôt que de compléter l'effectif avec une supposition. */
+/* Le rôle que le classeur donne en ligne 9, au-dessus du nom. « Polyvalent »
+   seul est ambigu : en colonne O c'est le polyvalent ARRIÈRE, après V un
+   polyvalent avant — et les deux ne tiennent pas les mêmes postes. */
+function roleDeFeuille(person){
+  var ps=person.postes||{}, f, lib, col;
+  for(f in ps){
+    if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
+    lib=String(ps[f].p||"").trim(); col=String(ps[f].c||"");
+    if(/^polyvalent$/i.test(lib)) return (col==="O"||col==="P")?"pa":"pv";
+    if(/^renfort\s+arri/i.test(lib)) return "ra";
+    if(/^renfort\s+avant/i.test(lib)) return "rv";
+  }
+  return null;
+}
 function posteTenu(person,raw){
   var i, k;
   if(estCadre(person)) return "cm";
@@ -3623,6 +3637,12 @@ function posteTenu(person,raw){
     var duo=/^(?:AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(String(raw&&raw[i]||"").trim());
     if(duo){ k=posteDepuisNom(duo[1]); if(k) return k; }
   }
+  /* Le client : « Terrain arrière doit comprendre les opérateurs Polyvalent
+     arrière ; s'ils ne sont pas là, les Renforts arrière ». La ligne 9 du
+     classeur le dit, et elle le dit proprement — bien mieux que le champ
+     « e », qui n'est qu'un vidage de tout ce qui entoure le nom. */
+  var role=roleDeFeuille(person);
+  if(role==="pa"||role==="ra") return "terr";
   var ent=person.e||[];
   for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
   var at=(person.poly&&person.poly.ateliers)||[];
@@ -3755,6 +3775,19 @@ function renderEquipe(){
           var gens=parPoste[P.k]||[];
           if(!gens.length && !P.n) return;
           var tenu=gens.length, detail="";
+          if(P.k==="terr"){
+            /* Le poste revient au polyvalent arrière ; le renfort arrière le
+               tient quand celui-ci n'est pas là. */
+            var pa=gens.filter(function(x){return roleDeFeuille(x.p)==="pa";});
+            var ra=gens.filter(function(x){return roleDeFeuille(x.p)!=="pa";});
+            if(!pa.length) ra.forEach(function(x){ x.fait=true; });
+            gens=pa.concat(ra);
+            tenu=pa.length||ra.length;
+            if(pa.length&&ra.length) detail=pa.length+" polyvalent"+(pa.length>1?"s":"")
+                                          +" · "+ra.length+" renfort"+(ra.length>1?"s":"");
+            else if(!pa.length&&ra.length)
+              detail=ra.length+" renfort"+(ra.length>1?"s":"")+" arrière";
+          }
           if(P.k==="cm"){
             /* Les contremaîtres d'abord, les adjoints ensuite ; et le poste
                n'est tenu que par les premiers — sauf s'il n'y en a aucun,

@@ -454,6 +454,17 @@ peut tenir en plus obéit à des règles distinctes :
 - **Renfort avant** — même règle : le plus souvent au gluten, et seulement les
   postes où il a la polyvalence.
 
+**Ce que l'application en fait, depuis le 21/09/2026.** Le client : « Terrain
+arrière doit comprendre les opérateurs Polyvalent arrière ; s'ils ne sont pas
+là, les Renforts arrière ». L'onglet Équipe lit donc la ligne 9 pour ce poste :
+le polyvalent arrière le tient, et le renfort arrière prend le relais en son
+absence — marqué « fait fonction », comme l'adjoint qui remplace un
+contremaître.
+
+Les polyvalents et renforts **avant** ne sont pas encore rattachés à un
+poste : le client les dit « le plus souvent au gluten », mais sous condition,
+et une tendance ne se code pas comme une règle.
+
 **Un remplacement est presque toujours écrit.** La ligne 9 donne le poste
 habituel ; c'est la cellule du jour et son commentaire qui disent où la
 personne était réellement — la règle qui gouverne tout ce document.
