@@ -341,6 +341,16 @@ pourraient déplacer des heures : à faire trancher, une par une.
 `RHS`, `RTT-` et `E. min` en sont sortis : le client les a tranchés le
 20/09/2026 — voir `docs/regles-paie.md`.
 
+Une **onzième règle**, plus faible elle aussi, dit ce que le motif des
+ateliers **avale sans en faire un poste**. C'est le pire angle mort : non pas
+ce que l'outil déclare ne pas savoir lire, mais ce qu'il **croit avoir lu**.
+`ATELIERS` commence par `^(…|poly|…)`, si bien que « Poly. Etoh » y
+correspondait par son premier mot — reconnu, donc absent des mentions non
+comprises, et traduit en aucun poste. **46 journées** ont passé ainsi,
+invisibles aux dix autres règles, jusqu'à ce que le client le signale.
+
+Il en reste **5** : `consign.` (3), `Polyvalence` et `polyvalence` (1 chacune).
+
 ## Vérifier une modification du pré-remplissage
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est

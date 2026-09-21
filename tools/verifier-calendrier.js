@@ -66,6 +66,8 @@ const MORCEAUX=[
   ["var JOUR_PRIME_PAUSE=","];"],
   ["var MENTIONS_NEUTRES=","];"],
   ["var ATELIERS=","\n"],
+  ["var POSTES_TRAVAIL=[","\n];"],
+  ["function posteDepuisNom(","\n}"],
   ["function reprisRHS(","\n}"],
   ["function posteDepuisPlage(","\n}"],
   ["function dureeReelle(","\n}"],
@@ -107,6 +109,7 @@ const EPREUVES=[
   ["postes reconnus",            ()=>SHIFT_CODES.indexOf("AM")>=0],
   ["plages horaires",            ()=>posteDepuisPlage(plageMention("6h-14h"))==="AM"],
   ["ateliers reconnus",          ()=>ATELIERS.test("STEP")],
+  ["postes de travail",          ()=>posteDepuisNom("gluten")==="glut" && posteDepuisNom("Poly. Etoh")==="terr"],
   ["journées de jour",           ()=>JOUR_PRIME_PAUSE.indexOf("d-cppt")>=0],
   ["cycle théorique",            ()=>!!cyclePoste(1,"6 semaines",0,Date.UTC(2026,0,1))],
   ["lecture d'une cellule",      ()=>parseHoraireEntry(["AM"],8).s==="AM"],
@@ -239,11 +242,12 @@ const REGLES=[
   ["étiquette vide",      "la case a un genre mais rien à écrire dedans"],
   ["étiquette trop longue","l'étiquette dépasse quatre signes et sera coupée"],
   ["vues en désaccord",    "le mois et l'année ne montrent pas la même chose le même jour"],
-  ["mention non comprise", "la case dit quelque chose, mais un morceau de la cellule reste illisible"]
+  ["mention non comprise", "la case dit quelque chose, mais un morceau de la cellule reste illisible"],
+  ["mention avalée",       "le motif des ateliers la reconnaît, mais elle ne devient AUCUN poste — l'outil croit l'avoir comprise"]
 ];
 const fautes={}; REGLES.forEach(r=>fautes[r[0]]=[]);
 let cellules=0, postes=0, absences=0, repos=0, prevus=0;
-const incomprises={};
+const incomprises={}, avalees={};
 
 for(const p of db.people){
   for(let m=1;m<=12;m++){
@@ -306,6 +310,19 @@ for(const p of db.people){
         });
         fautes["mention non comprise"].push(ou+"  "+src);
       }
+      /* 7 bis. Le pire angle mort : non pas ce que l'outil déclare ne pas
+            savoir lire, mais ce qu'il CROIT avoir lu. ATELIERS reconnaît une
+            mention, parseHoraireEntry la tient donc pour comprise — et
+            aucun poste n'en sort. « Poly. Etoh » est passé ainsi pendant
+            46 journées, invisible aux dix autres règles. */
+      [0,1].forEach(c=>{
+        const txt=String(raw[c]||"").trim();
+        if(!txt || !ATELIERS.test(txt) || posteDepuisNom(txt)) return;
+        if(!avalees[txt]) avalees[txt]={n:0, ex:[]};
+        avalees[txt].n++;
+        if(avalees[txt].ex.length<3) avalees[txt].ex.push(ou+"  "+src);
+        fautes["mention avalée"].push(ou+"  "+src);
+      });
       /* 8. le trajet par le mois doit rendre exactement la même case */
       const viaMois=affichageRecord(enregistre(r,H_JOUR),H_JOUR);
       if(viaMois.genre!==a.genre || viaMois.etiquette!==a.etiquette)
@@ -333,7 +350,12 @@ if(total){
   for(const [nom] of REGLES){
     const l=fautes[nom]; if(!l.length) continue;
     console.log("── "+nom+" ("+l.length+")");
-    if(nom==="mention non comprise"){
+    if(nom==="mention avalée"){
+      Object.keys(avalees).sort((a,b)=>avalees[b].n-avalees[a].n).forEach(k=>{
+        console.log("   "+String(avalees[k].n).padStart(4)+" × «"+k+"»");
+        avalees[k].ex.slice(0,2).forEach(x=>console.log("          "+x));
+      });
+    } else if(nom==="mention non comprise"){
       /* Cinq cents lignes ne se lisent pas. Ce qu'il faut savoir tient dans
          la liste des mentions elles-mêmes : une question par mention, et
          trois exemples pour la poser. */
