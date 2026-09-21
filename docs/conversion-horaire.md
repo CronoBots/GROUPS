@@ -550,6 +550,39 @@ tort.
 habituel ; c'est la cellule du jour et son commentaire qui disent où la
 personne était réellement — la règle qui gouverne tout ce document.
 
+### La cellule fusionnée des chaudières, et qui n'y appartient pas
+
+**Confirmé par le client le 21/09/2026.** Dans les cinq feuilles d'équipe,
+« Chaudières » est écrit une fois pour **trois colonnes** — AG, AI et AK —
+alors que le poste attend deux personnes. Tout le monde en dessous hérite du
+libellé, y compris le polyvalent avant rangé dans l'une de ces colonnes.
+
+Le client : « GBT qui n'a que chaudière, c'est normal qu'il soit aux
+chaudières ; par contre l'autre opérateur ne possédant pas les chaudières est
+celui qui est polyvalent avant, donc gluten ou meunerie selon sa polyvalence,
+mais **par défaut au gluten** ».
+
+C'est donc la **polyvalence** qui tranche, pas la ligne 9 :
+
+| Équipe | Sous « Chaudières » | Sans la polyvalence chaudières |
+|---|---|---|
+| Shift 1 | DWS, KDN, PDF | **PDF** → gluten |
+| Shift 2 | ADS, GJR, QDE | aucun |
+| Shift 3 | ADK, JBA, LAX | **JBA** → gluten |
+| Shift 4 | GBO, JBS, MHI | **GBO** → gluten |
+| Shift 5 | LDY, RCO, SPS | aucun |
+
+GBT fait le chemin inverse : sa ligne 9 dit « Polyvalent », mais sa
+polyvalence ne porte que les chaudières — il y va, et le client le confirme.
+
+**Reste ouvert** : dans les Shifts 2 et 5, les trois personnes possèdent les
+chaudières. La polyvalence ne peut alors rien départager, et l'effectif y
+paraît encore à trois pour deux. À faire trancher.
+
+La feuille des opérateurs en formation est hors de cette règle : le libellé
+au-dessus d'eux nomme le poste sur lequel ils se forment, et n'est pas une
+cellule fusionnée d'équipe.
+
 ### Les cellules fusionnées
 
 **Le poste couvre souvent plusieurs colonnes**, et une fusion ne se voit pas
