@@ -568,6 +568,16 @@ non récurrent » et se trouve du côté des rémunérations, pas des retenues. 
 deux figurent sur la fiche d'août 2026, et c'est précisément là qu'on peut
 les prendre l'une pour l'autre.
 
+## « CSS » est un congé sans solde
+
+**Le classeur le définit lui-même** : la légende posée à côté des noms écrit
+`CSS` puis « Congé sans solde ». L'application connaissait le congé — son
+code `SANS SOLDE`, journée entière — mais pas l'abréviation, si bien que
+`["N","CSS",…]` comptait **huit heures prestées** pour une journée non payée.
+
+`CSS` est donc un alias caché de `SANS SOLDE`, comme `CPAR` l'est de `CP`.
+Deux journées de 2026 en dépendent, SMA les 01 et 09/10.
+
 ## Jusqu'à quand court une absence
 
 **Demandé par le client le 21/09/2026** : « pour les absents, il faut indiquer

@@ -355,8 +355,10 @@ Il en reste **5** : `consign.` (3), `Polyvalence` et `polyvalence` (1 chacune).
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
 lui qu'il faut relancer, et non un script à côté. Au 21/09/2026, sur les
-27 462 journées : **14 741 prestées, 4 953 absences, 156 postes prévus non
-prestés, 7 612 repos**. Un écart important signale une régression.
+27 462 journées : **14 656 prestées, 5 075 absences, 156 postes prévus non
+prestés, 7 575 repos** (classeur du 21/09/2026 à 17 h 35). Un écart important
+signale une régression — mais un nouveau classeur en déplace légitimement :
+deux absences longues y sont apparues, APN et QDE.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 `docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
