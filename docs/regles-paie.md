@@ -732,3 +732,65 @@ nommée en clair dans `CONTREMAITRES`, en tête du script.
 Le poste de contremaître est donc tenu par le contremaître quand il est
 présent ; l'adjoint qui l'accompagne est un renfort. Seul, il **fait
 fonction**. Sur 2026, 242 créneaux sont dans ce cas.
+
+## La prime conservée, écrite en toutes lettres dans le commentaire
+
+Confirmé par le client le 21/09/2026 : « il faut vraiment prendre en compte
+100 % des commentaires et en faire une règle stricte ».
+
+**336 journées de 2026** portent, dans le commentaire Excel, une phrase qui
+nomme la prime à payer : « conserver prime de nuit », « maintien prime N »,
+« Conserve sa prime de pause », « maintien prime PM ». Elles se répartissent
+en `N` (219), `PM` (39), « nuit » écrit en toutes lettres (38), « pause »
+(37), `AM` (2) et « dimanche nuit » (1).
+
+L'application les ignorait toutes. Sur **275 d'entre elles**, le poste qu'elle
+retenait — donc la prime qu'elle payait — n'était pas celui que le
+commentaire nomme. Une nuit de 8 h se paie 32 € de prime, une après-midi
+14,40 €, une journée rien : l'écart va jusqu'à 32 € sur une seule journée.
+
+### Ce que la règle fait
+
+> Quand le commentaire nomme une prime, cette prime l'emporte sur le poste
+> que la lecture a retenu. Le commentaire parle de la PAIE ; la cellule et
+> son annotation disent le TRAVAIL.
+
+`primeGardee()` traduit le mot qui suit « prime » : `N` et `nuit` → `N`,
+`PM` et `après-midi` → `PM`, `AM` et `matin` → `AM`. « Prime de pause », sans
+nommer laquelle, désigne la pause **prévue** : celle que la cellule porte
+avant que l'annotation ne la remplace — ATA le 18/03, `["AM","SD 26",
+"Conserve sa prime de pause"]`, c'est AM. Le premier mot ne suffit pas
+toujours : « conserver prime de dimanche nuit » se lit sur le second.
+
+La règle s'applique **à la fin de `lireJournee()`**, après la correction de
+cycle : celle-ci recalcule tout depuis zéro et effacerait la prime posée plus
+tôt. C'est la même place, et pour la même raison, que les heures renvoyées
+par « pris le ».
+
+### Deux postes, parce qu'ils répondent à deux questions
+
+La prime ne déplace personne de pause. `r.s` porte le poste dont la prime est
+**payée** ; `r.sp`, quand ils diffèrent, porte celui qui a été **presté**.
+
+- La fiche de paie lit `r.s` — c'est elle qui compte les primes.
+- L'onglet Équipe groupe par `r.sp || r.s` : AFA le 04/09 a fait 7h-15h en
+  gardant sa prime de nuit ; il figure en journée, pas dans la pause de nuit,
+  sans quoi l'effectif de la nuit serait faux et le rééquilibrage avec lui.
+- La case du calendrier peint le poste presté et souligne, d'un liseré à la
+  couleur de la prime, celle qui est conservée. La bulle l'écrit : « Nuit ·
+  8 h — Prime d'après-midi conservée ».
+
+C'est exactement ce que l'application faisait déjà des journées `SD26` et
+`D-F`, travaillées en horaire de jour et payées à la prime de leur pause. Le
+commentaire fait ici le même travail, en toutes lettres ; il n'y avait qu'à
+l'écouter.
+
+### Mesure
+
+336 journées lues, **100 %** traduites en une prime. 275 changent de prime :
+103 `PM→N`, 102 `AM→N`, 26 `D→N`, 25 `AM→PM`, 13 `D→PM`, 3 `N→PM`, 2 `D→AM`,
+1 `PM→AM`. Les 61 autres confirment ce que l'application appliquait déjà.
+
+Les neuf règles dures de `verifier-calendrier.js` restent à zéro et les quatre
+compteurs de journées sont inchangés — la règle déplace la prime, jamais les
+heures. Les compteurs flex time restent à 76/77.

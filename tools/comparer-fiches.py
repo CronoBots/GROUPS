@@ -93,6 +93,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
  g("function plageCommentaire(","\n}"),g("function debordePoste(","\n}"),
+ g("var RX_PRIME_GARDEE=","\n"),g("function primeGardee(","\n}"),g("function motPrime(","\n}"),
  g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
  g("var RX_RENVOI=","\n"),
  g("function renvoisDuMois(","\n}"),
@@ -105,7 +106,9 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
 [["lecture d'une cellule",function(){return parseHoraireEntry(["AM"],8).s==="AM";}],
  ["annotation « - »",function(){return parseHoraireEntry(["N","-"],8).h===0;}],
  ["renvoi « pris le »",function(){return !parseHoraireEntry(["-","2h -FT","pris le 19.09"],8).a;}],
- ["table des absences",function(){return Object.keys(ABSMAP).length>20;}]
+ ["table des absences",function(){return Object.keys(ABSMAP).length>20;}],
+ ["prime conservée",function(){
+    return lireJournee({people:[]},["PM","AM","conserver prime de nuit"],2026,3,2,null,0,8,null).s==="N";}]
 ].forEach(function(e){
   var ok; try{ ok=e[1](); }catch(x){ ok=false; }
   if(!ok){ console.error("découpe de index.html faussée : "+e[0]); process.exit(2); }

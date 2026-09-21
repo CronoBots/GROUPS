@@ -338,6 +338,12 @@ journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
+**Une journée a deux postes depuis le 21/09/2026** : `r.s` porte la prime
+PAYÉE, `r.sp` le poste PRESTÉ quand ils diffèrent — 275 journées où le
+commentaire nomme une prime à conserver, plus les journées `SD26` et `D-F`.
+Pour afficher, `postePeint(rec)` et `gardePrime(rec)` ; jamais `rec.s` seul.
+Voir `docs/regles-paie.md`, « La prime conservée ».
+
 `RHS`, `RTT-` et `E. min` en sont sortis : le client les a tranchés le
 20/09/2026 — voir `docs/regles-paie.md`.
 
