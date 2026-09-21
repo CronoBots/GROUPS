@@ -1630,6 +1630,46 @@ sur un poste en surnombre et avant la cascade.
 
 Effet : les manques à venir passent de 15 journées à 14.
 
+### La station d'épuration
+
+Le client, le 21/09/2026 : « PDE et CAN sont à la Station d'épuration s'ils
+ne remplacent pas ailleurs. CAN n'a que la STEP, mais PDE revient de temps en
+temps en fermentation ou distillation. »
+
+C'est la **catégorie** qui le dit — « Opérateurs STEP » — et non la
+polyvalence : CAN n'a que la STEP, donc la règle du poste unique le plaçait
+déjà ; PDE en a trois, si bien qu'aucune ne le désignait et qu'il restait
+« à déterminer » **359 journées sur 365**.
+
+`posteParDefaut()` vient en **dernier**, après la cellule et après le
+remplacement : « s'ils ne remplacent pas ailleurs » est la condition même de
+la règle. PDE le 18/02 écrit « terr. Arr. » dans sa cellule, et c'est là
+qu'il est.
+
+Cela défait la déduction de la section précédente, qui l'envoyait en
+fermentation les 26 et 27/09 : il n'était pas indéterminé, il était à la
+station. **Une déduction comblait un trou de ma connaissance, pas un trou de
+l'horaire** — c'est le risque de ce genre de règle, et il faut le garder en
+tête. Elle sert encore 14 fois dans l'année, toutes pour QBY, renfort arrière
+que le classeur ne place nulle part.
+
+### Un opérateur station le matin
+
+Le client, le 21/09/2026 : « autre règle, uniquement pour la pause du matin
+il faut au minimum 1 opérateur station d'épuration ».
+
+L'effectif attendu dépend donc de la PAUSE, et non plus du seul poste :
+`attenduAuPoste(P,gk)` lit `P.parPause[gk]` avant `P.n`. La STEP porte
+`n:0, parPause:{AM:1}` — attendue le matin, nulle part ailleurs. Le jour
+reste à zéro partout, comme avant.
+
+`peutTenir()` ne regarde plus l'effectif attendu : savoir tenir un poste ne
+dépend pas du nombre qu'on y attend, et CAN sait tenir la station à toute
+heure.
+
+**Six matins de l'année n'ont aucun opérateur station.** Quatre personnes
+peuvent la tenir : CAN et PDE, plus PDF et CWN qui l'ont en polyvalence.
+
 ### Ce qui n'en est pas un : QBY le 23/10
 
 Son en-tête porte « Renfort arrière » et le terrain arrière manque — mais sa

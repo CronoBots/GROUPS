@@ -794,3 +794,38 @@ l'écouter.
 Les neuf règles dures de `verifier-calendrier.js` restent à zéro et les quatre
 compteurs de journées sont inchangés — la règle déplace la prime, jamais les
 heures. Les compteurs flex time restent à 76/77.
+
+## « Absence » ne veut rien dire tant qu'on n'a pas dit laquelle
+
+Le client, le 21/09/2026 : « pour mon horaire, tu indiques 94 jours
+d'absence, ça me paraît beaucoup, que considères-tu absence ? »
+
+Il avait raison. La tuile de l'année additionnait **toute journée non prestée
+portant un code**. Sur ses 94 :
+
+| | |
+|---|---|
+| congés payés (CP) | 26 |
+| vacances annuelles (VA) | 18 |
+| **maladie (MAL)** | **18** |
+| récupération jour férié (RJF) | 10 |
+| RTT | 5 |
+| DTT | 5 |
+| formation | 1 |
+| mouvements de compteur seuls (`4h +FT`…) | 11 |
+
+C'est la distinction qu'il avait déjà donnée pour l'onglet Équipe — « il faut
+différencier absent et en congé ; les absents ne sont que les personnes
+malades » — et elle vaut pour sa propre fiche. Trois tuiles désormais :
+**jours de congé**, **jours de maladie** (cachée quand il n'y en a pas), et
+**jours de repos**.
+
+Et une journée de repos qui ne porte qu'un mouvement de compteur —
+`["-","4h +FT","presté le 27.04"]` — est un **repos**. Le classeur y écrit
+« - » ; les heures ont été faites un autre jour, et elles sont comptées là.
+Onze journées de VBN passaient pour des absences à ce titre.
+
+VBN 2026 : **174 jours prestés, 65 de congé, 18 de maladie, 104 de repos.**
+
+Rien de tout cela ne touche le calcul de la fiche : ces tuiles comptent des
+journées, elles n'en paient aucune.
