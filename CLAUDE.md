@@ -178,7 +178,7 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
-| `tools/verifier-calendrier.js` | vérifie que le calendrier ne ment jamais sur le classeur |
+| `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
@@ -391,6 +391,26 @@ Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
 case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
 appliqués.
+
+### Les manques d'effectif à venir
+
+```bash
+node tools/verifier-calendrier.js --manques [MMJJ]
+```
+
+Mesure ce que le module « Postes en manque » de l'onglet Équipe annoncera,
+de la date donnée à la fin de l'horaire. Il ne le simule pas : il découpe
+`equipeDuJour()` et `postesDePause()` dans `index.html` et les rejoue. Une
+alerte qui compterait autrement que la vue du jour serait pire que pas
+d'alerte.
+
+**Au 21/09/2026 : 28 journées sur 102, 45 places creuses.** Terrain arrière
+(13), chaudières (12) et fermentation (9) en tête ; réparti également entre
+les trois pauses. Si ce nombre s'effondre ou explose après une modification
+du rééquilibrage ou des polyvalences, c'est une régression.
+
+Le module de l'application ne regarde **jamais en arrière** — un manque passé
+ne se comble plus.
 
 Second contrôle, indépendant, et il se lance lui aussi :
 
