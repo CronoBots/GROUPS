@@ -473,8 +473,18 @@ normal, que tu touches toujours fin du mois, tandis que le solde du mois est
 toujours payé début du mois suivant. »
 
 La fiche la porte en retenue, sous « **Déduction avance reçue** ». Pour VBN,
-**(montant retiré) € tous les mois** sans exception — sauf février 2026, **3 900,00**,
-soit deux avances sur un même mois.
+**(montant retiré) € tous les mois** sans exception — sauf février 2026, **3 900,00**.
+
+Ce doublement est un **incident, pas une règle**. Le client : « en février
+c'était une erreur, elle avait été payée deux fois ; j'ai dû rendre une
+partie avec mon salaire du mois d'après. » La reprise se lit sur la fiche
+complémentaire du 09/03/2026, qui porte un **brut négatif de (montant retiré) €**
+sous « Recup à payer » — une reprise, non une retenue ordinaire, d'où le
+brut négatif.
+
+Un simulateur n'a pas à reproduire cela : c'est une correction de paie, pas
+un mécanisme. Mais il fallait l'écrire, sinon ce mois restera longtemps un
+mystère pour qui compare les fiches à l'horaire.
 
 Elle se saisit dans le champ **« Avance déjà reçue (€) »** de l'onglet
 Horaire, mois par mois. Sans elle, le « net à recevoir » de la fiche simulée
