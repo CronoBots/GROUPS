@@ -3836,10 +3836,14 @@ function posteHabituel(person){
    haut, rend sa PAUSE. Deux questions, deux noms — la version d'essai les
    appelait pareil, et la seconde déclaration écrasait la première. */
 function atelierDuRemplace(raw,parId,qui){
-  var com=String((raw&&raw[2])||""), rx=/\bremplac\w*\s+([A-Z]{3})\b/g, m, cible, k, i, P;
+  /* La casse était ignorée du motif, pas du classeur : « Remplace GPS »
+     avec une majuscule lui échappait. 568 mentions sur 2 031 — près de
+     trois sur dix — étaient perdues pour cette seule raison. */
+  var com=String((raw&&raw[2])||""), rx=/\bremplac\w*\s+([A-Za-z]{3})\b/gi, m, cible, k, i, P;
   while((m=rx.exec(com))){
-    if(m[1]==="PAR") continue;            /* passif : « remplacé PAR XXX » */
-    cible=parId[m[1]];
+    var trig=m[1].toUpperCase();
+    if(trig==="PAR") continue;            /* passif : « remplacé PAR XXX » */
+    cible=parId[trig];
     if(!cible || cible===qui) continue;
     k=posteHabituel(cible);
     if(!k || k==="cm" || k==="adj") continue;
@@ -3919,7 +3923,22 @@ function peutTenir(person,P){
 
    L'adjoint vient en dernier : tant qu'un poste en surnombre peut fournir
    quelqu'un, c'est de là que vient le renfort. */
-function reequilibrer(parPoste,mmdd){
+/* « R » seul dans la colonne d'annotation. Le client, le 21/09/2026 :
+   « des fois il y a juste un R dans la cellule de droite — QBY les 23 et
+   24/09. Cela veut dire qu'il remplace à un poste qui est censé être vide,
+   et dans cet exemple c'est en distillation pour remplacer PAM, mais ce
+   n'est pas marqué dans les commentaires du 23/24 alors que ça l'est dans
+   ceux du 21/22. »
+
+   Le classeur porte pourtant l'information, mais de l'AUTRE côté : PAM les
+   23 et 24 porte ["N","PM","Remplace IME en PM Equipe complète en N"] — il
+   quitte la nuit, donc sa distillation de nuit est vide, et QBY la comble.
+
+   On ne va pas la chercher là-bas : on constate simplement qu'un poste
+   manque et que cette personne-là, marquée « R », peut le tenir. C'est ce
+   que le « R » annonce. */
+var EST_RENFORT=/^r$/i;
+function reequilibrer(parPoste,mmdd,inconnus){
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
   for(i=0;i<POSTES_TRAVAIL.length;i++){
@@ -3927,6 +3946,14 @@ function reequilibrer(parPoste,mmdd){
     if(!P.n || P.cm) continue;
     for(garde=0; garde<8 && effectif(parPoste[P.k],P)<P.n; garde++){
       pris=null;
+      /* d'abord ceux qui sont là POUR ça, et que rien n'a su placer */
+      cand=(inconnus||[]).filter(function(x){
+        return x.renfort && peutTenir(x.p,P) && compteAuPoste(x,P);
+      }).sort(parId);
+      if(cand.length){
+        pris=cand[0];
+        inconnus.splice(inconnus.indexOf(pris),1);
+      }
       for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
         Q=POSTES_TRAVAIL[j];
         if(Q.k===P.k || Q.cm || !Q.n) continue;
@@ -4179,12 +4206,13 @@ function renderEquipe(){
           var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&x.r.s);
           if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
           x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
+          x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
           if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
         });
         /* Pas en journée : le client, plus tôt — « en jours il n'est pas
            obligatoire d'avoir quelqu'un à chaque poste ». Combler un manque
            qui n'en est pas un déplacerait des gens sans raison. */
-        if(g.k!=="D") reequilibrer(parPoste,mmdd);
+        if(g.k!=="D") reequilibrer(parPoste,mmdd,inconnus);
         POSTES_TRAVAIL.forEach(function(P){
           var gens=parPoste[P.k]||[];
           /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il

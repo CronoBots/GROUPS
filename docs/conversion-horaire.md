@@ -860,6 +860,47 @@ l'honnêteté — l'application déclarait tenus des postes que seul un opérate
 non validé occupait. Le rééquilibrage compte de la même façon : il ne prend
 ni ne pose un opérateur en formation là où il ne compterait pas.
 
+### « R » seul : combler un poste qui serait vide
+
+**Le client, le 21/09/2026** : « des fois il y a juste un R dans la cellule de
+droite — QBY les 23 et 24/09. Cela veut dire qu'il remplace à un poste qui est
+censé être vide, et dans cet exemple c'est en distillation pour remplacer PAM,
+mais ce n'est pas marqué dans les commentaires du 23/24 alors que ça l'est
+dans ceux du 21/22. »
+
+Le classeur porte pourtant l'information, mais de l'**autre côté** : PAM les
+23 et 24 porte `["N","PM","Remplace IME en PM Equipe complète en N"]` — il
+quitte la nuit pour l'après-midi, donc sa distillation de nuit est vide.
+
+On ne va pas la chercher là-bas. On constate qu'un poste manque et que cette
+personne-là, marquée `R`, peut le tenir : c'est ce que le `R` annonce.
+
+**236 journées** portent un `R` seul. Dans **213**, le commentaire nomme le
+remplacé et la lecture s'en sert depuis toujours ; les **23** autres sont
+muettes, et c'est à elles que sert cette règle.
+
+Le 24/09 en nuit, la pause devient complète :
+
+```
+MEUNERIE 1/1 SMK · GLUTEN 2/2 GSK·RDT · FERMENTATION 1/1 CHD
+TERRAIN ARRIÈRE 1/1 FPS · DISTILLATION 1/1 QBY · CHAUDIÈRES 2/2 GBT·MHI
+```
+
+### 568 remplacements perdus pour une majuscule
+
+En mesurant ce qui précède, un défaut est apparu dans `atelierDuRemplace()` :
+son motif cherchait `\bremplac` **sans ignorer la casse**. Tout
+« **R**emplace GPS » — et le classeur en écrit beaucoup — lui échappait.
+
+| | Mentions exploitables |
+|---|---|
+| motif sensible à la casse | 1 463 |
+| casse ignorée | **2 031** |
+
+**568 de plus, près de trois sur dix.** La fonction avait été écrite le matin
+même, et aucune des onze règles ne pouvait le voir : elle ne ment pas, elle
+lit seulement moins que ce qu'elle croit.
+
 ### Rééquilibrer une pause : combler un manque avec un surnombre
 
 **Le client, le 21/09/2026** : « dans une même pause, quand il manque
