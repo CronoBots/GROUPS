@@ -3119,6 +3119,19 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      travailler ». Un -FT ne retire donc rien. */
   var A2=out.a&&ABSMAP[out.a];
   if(A2 && A2.h>0 && out.s) out.h=Math.max(0,((out.h===undefined)?hJour:out.h)-A2.h);
+  /* Le compteur COMPLÈTE une journée écourtée. Le client : « 6h-12h avec
+     2h -FT », et sa fiche de février porte 16 h de prime du matin pour deux
+     matins — donc huit heures ce jour-là, pas six. Les heures reprises au
+     flex time « sont payées ce jour-là comme si j'étais venu travailler ».
+
+     Cela ne concerne que les cellules dont la PLAGE est plus courte que la
+     journée contractuelle : quatre de l'année, et les quatre tombent
+     exactement sur huit heures une fois le compteur ajouté. Là où la plage
+     fait déjà huit heures — « 7h-15h | 8h -FT », 13 journées — le -FT dit
+     que la journée n'a pas été prestée, et elle vaut déjà ses huit heures
+     payées : il n'y a rien à ajouter. */
+  if(A2 && A2.ft<0 && out.s && out.h!==undefined && out.h<hJour)
+    out.h=Math.min(hJour,out.h-A2.ft);
   /* Les heures épargnées ne sont pas prestées. Quand une plage donne la durée
      réelle, l'excédent part au compteur et la journée reste contractuelle
      (traité plus haut). Quand le poste ne vient pas de la cellule — la

@@ -399,6 +399,34 @@ n'y est plus du tout — ni en heures, ni en jours, ni en prime.
 La prime de RAPPEL, elle, reste due : elle ne dépend pas des heures de la
 journée et l'application la calcule à part.
 
+## Le compteur complète une journée écourtée
+
+**Confirmé par la fiche, le 21/09/2026.** `VBN 24/02 ["6h-12h","2h -FT"]` :
+six heures de présence, deux reprises au flex time. La fiche de février porte
+**16 h de prime du matin pour deux matins** — donc huit heures ce jour-là, pas
+six. Les heures reprises « sont payées ce jour-là comme si j'étais venu
+travailler ».
+
+Quatre journées de l'année seulement, et les quatre tombent exactement sur
+huit heures une fois le compteur ajouté :
+
+```
+VBN 24/02  ["6h-12h","2h -FT"]   6 + 2 = 8
+NRD 15/08  ["2h-6h","4h -FT"]    4 + 4 = 8
+DKS 06/09  ["6h-12h","2h -FT"]   6 + 2 = 8
+GBT 12/09  ["22h-2h","4h -FT"]   4 + 4 = 8
+```
+
+La règle ne vaut que pour une **plage plus courte** que la journée
+contractuelle. Là où la plage fait déjà huit heures — `7h-15h | 8h -FT`,
+13 journées — le `-FT` dit que la journée n'a pas été prestée, et elle vaut
+déjà ses huit heures payées : il n'y a rien à ajouter. Les 350 journées dont
+la cellule ne porte aucune plage sont dans le même cas.
+
+**Ceci rend caduque la table de la section 6 de `docs/conversion-horaire.md`**,
+qui annonce encore `PM|3H -FT` → 5 heures prestées. C'est vrai des heures
+PRÉSENTES, faux des heures PAYÉES, et c'est la paie qui nous occupe.
+
 ## Ce que les fiches de 2026 ont appris
 
 **Lu sur les fiches de VBN, décembre 2025 à août 2026 (21/09/2026).**
