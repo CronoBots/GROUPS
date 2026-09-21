@@ -364,6 +364,25 @@ règle RHS ci-dessous : 4 h de présence + 4 h reprises = ses 8 h.
 L'application comptait déjà ces 8 h et le plaçait déjà à son poste ; la règle
 est écrite ici parce qu'elle était une déduction, et qu'elle ne l'est plus.
 
+## Ce que les fiches de 2026 ont appris
+
+**Lu sur les fiches de VBN, décembre 2025 à août 2026 (21/09/2026).**
+
+**La semaine est de 38 h 40**, pas de 38,4 h. La fiche écrit
+`Nombre heures / semaine temps plein / 38:40`. La grille notait une durée en
+heures et minutes avec une virgule, ce qui se lisait comme 38 h 24. La valeur
+par défaut de l'application était la bonne.
+
+**La prime CCT 90 s'appelle « Avantage non récurrent »** et arrive sur une
+fiche à part, « Rémunérations - Heures - Avantages divers », datée du même
+mois que la fiche ordinaire. En 2026 : **(montant retiré) €** sur la période de
+février. Elle ne porte ni heure prestée ni prime d'équipe — `comparer-fiches.py`
+l'écarte donc à raison, mais il ne faut pas la confondre avec une fiche
+manquante.
+
+Une seconde fiche de ce type, en février également, porte une
+« Recup à payer » négative. Même remarque : aucune heure.
+
 ## Jusqu'à quand court une absence
 
 **Demandé par le client le 21/09/2026** : « pour les absents, il faut indiquer
