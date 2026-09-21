@@ -499,8 +499,11 @@ prime de pause conservée » de la section 6 bis ?
   prestés. 396 journées concernées.
 - **Opérateurs STEP** — ne s'ajustent à aucun cycle connu (24 %, contre 80 %
   ou mieux pour 62 agents sur 77). Quel cycle suivent-ils ?
-- **38,4 h ou 38 h 40 ?** — la grille annonce 38,4 h/semaine, l'app a 38 h 40
-  par défaut. 38 h 24 ≠ 38 h 40.
+- ~~**38,4 h ou 38 h 40 ?**~~ — **tranché par la fiche, le 21/09/2026** : elle
+  écrit `Nombre heures / semaine temps plein / 38:40`. Ce n'est donc pas
+  38,4 h (qui vaudrait 38 h 24) mais bien **38 h 40**, la valeur de
+  l'application. La grille écrivait une durée en heures et minutes avec une
+  virgule.
 *(La question des primes des journées de plus de 8 h est tranchée — voir la
 section 6 octies.)*
 
