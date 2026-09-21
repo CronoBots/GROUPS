@@ -3803,7 +3803,11 @@ function renderEquipe(){
         });
         POSTES_TRAVAIL.forEach(function(P){
           var gens=parPoste[P.k]||[];
-          if(!gens.length && !P.n) return;
+          /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
+             n'attend personne — le client : « il ne faut pas afficher les
+             postes qui n'ont pas de personnel » — et sept intitulés à zéro
+             noyaient les trois qui portaient du monde. */
+          if(!gens.length && (g.k==="D" || !P.n)) return;
           var tenu=gens.length, detail="";
           if(P.k==="terr"){
             /* Le poste revient au polyvalent arrière ; le renfort arrière le
