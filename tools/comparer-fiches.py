@@ -62,6 +62,15 @@ def lire_fiche(chemin):
         if lib.lower().startswith("prest"):
             continue
         f["abs"][lib] = f["abs"].get(lib, 0) + _hm(q)
+    # Les primes d'équipe, avec leurs heures : « 13:00 Suppl.Equipe Matin à
+    # 0,90 ». Les variantes à 150 % et à 200 % sont les dimanches et jours
+    # fériés — ce sont les MÊMES heures, payées plus cher, et elles comptent
+    # donc dans le même total d'heures de prime.
+    f["prime"] = {}
+    for q, lib in re.findall(r"(\d{1,3}:\d{2})\s*Suppl\.?\s*Equipe\s*"
+                             r"(Matin|Apr[èe]s-Midi|Nuit)", t, re.I):
+        k = {"matin": "AM", "nuit": "N"}.get(lib.lower(), "PM")
+        f["prime"][k] = f["prime"].get(k, 0) + _hm(q)
     return f if f["h"] is not None else None
 
 
@@ -82,7 +91,10 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("var ALIAS_HORAIRE=","\n"),g("var JOUR_EN_ABSENCE=","\n"),
  g("var RX_PRIS_AILLEURS=","\n"),
  g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
- g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),g("var RX_RENVOI=","\n"),
+ g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
+ g("function plageCommentaire(","\n}"),g("function debordePoste(","\n}"),
+ g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
+ g("var RX_RENVOI=","\n"),
  g("function renvoisDuMois(","\n}"),
  g("function epargnesDuMois(","\n}")].join("\n"));
 /* La découpe est recopiée ici, et elle s'est déjà désynchronisée de
@@ -105,23 +117,18 @@ const out={};
 for(var m=1;m<=12;m++){
   var ep=epargnesDuMois(p,m), rv=renvoisDuMois(p,m,8),
       fit=cycleDuMois(p,db.year,m), nd=new Date(db.year,m,0).getDate();
-  var h=0,j=0,ab={};
+  var h=0,j=0,ab={},par={};
   for(var d=1;d<=nd;d++){
     var k=pad2(m)+pad2(d), e=p.d[k]; if(!e) continue;
-    var r=parseHoraireEntry(e,8,ep[d],rv[d]);
-    if((!r.s&&(e[0]||"").trim()!=="-")||r.jour){
-      var c=posteDeCycle(fit,db.year,m,d)||posteDuRemplace(db,e,k,8)||(r.jour?(r.s||"D"):null);
-      if(c&&c!==r.s) r.s=c; }
-    /* les heures qu'une autre journée renvoie ici s'en retirent, comme
-       dans lireJournee() — et APRÈS la correction de cycle, qui recalcule
-       les heures depuis zéro. */
+    /* lireJournee() ELLE-MÊME, et non une copie : la correction de cycle,
+       les plages du commentaire et les heures renvoyées s'y enchaînent dans
+       un ordre qui compte. Cet outil en gardait une version simplifiée, et
+       il annonçait 24 h de prime du matin en avril là où l'application en
+       montre 13 — c'est l'outil qui se trompait, pas elle. */
+    var r=lireJournee(db,e,db.year,m,d,fit,ep[d],8,rv[d]);
     var hj=(r.h===undefined?8:r.h);
-    if(r.ax && r.s) for(var q=0;q<r.ax.length;q++){
-      var AX=ABSMAP[r.ax[q]];
-      if(AX&&AX.h>0) hj=Math.max(0,hj-AX.h);
-    }
     var A=r.a&&ABSMAP[r.a];
-    if(r.s&&hj>0){ h+=hj; j++; }
+    if(r.s&&hj>0){ h+=hj; j++; par[r.s]=(par[r.s]||0)+hj; }
     if(r.ax) for(var q2=0;q2<r.ax.length;q2++){
       var AY=ABSMAP[r.ax[q2]];
       if(AY) ab[AY.k]=(ab[AY.k]||0)+((r.s||AY.h<8-0.01)?(AY.h||0):0);
@@ -133,7 +140,7 @@ for(var m=1;m<=12;m++){
       ab[A.k]=(ab[A.k]||0)+((r.s||!pleine)?(A.h||0):0);
     }
   }
-  out[m]={h:h,j:j,abs:ab};
+  out[m]={h:h,j:j,abs:ab,par:par};
 }
 console.log(JSON.stringify(out));
 """
@@ -189,6 +196,29 @@ def main():
               % (MOIS[m], f["j"], f["h"], c["j"], c["h"], c["j"] - f["j"], c["h"] - f["h"]))
     print("  %-7s %5d %7.2f   %5d %7.2f    %+5d %+8.2f"
           % ("TOTAL", fj, fh, tj, th, tj - fj, th - fh))
+
+    # Les primes d'équipe : une heure prestée dans une pause donne une heure
+    # de prime de cette pause. C'est le contrôle le plus direct de la lecture
+    # du POSTE — les heures peuvent tomber juste avec le mauvais poste, les
+    # primes d'équipe non.
+    #
+    # Les variantes « à 150 % » et « à 200 % » de la fiche sont les dimanches
+    # et jours fériés : les mêmes heures payées plus cher, donc comptées dans
+    # le même total d'heures.
+    if any(f.get("prime") for f in fiches.values()):
+        print("\n  primes d'équipe, en heures")
+        print("           matin           après-midi       nuit")
+        print("           fiche  appli    fiche  appli    fiche  appli")
+        for m in sorted(fiches):
+            pf = fiches[m].get("prime") or {}
+            c = calc.get(str(m)) or calc.get(m) or {}
+            pa = c.get("par") or {}
+            ligne = "  %-7s" % MOIS[m]
+            for k in ("AM", "PM", "N"):
+                a_, b_ = pf.get(k, 0), pa.get(k, 0)
+                ligne += "  %6.2f %6.2f%s" % (a_, b_, " " if abs(a_ - b_) < 0.01 else "*")
+            print(ligne)
+        print("           * = écart")
 
     print("\n  absences, par famille")
     for lib, codes in FAMILLES.items():
