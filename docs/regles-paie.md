@@ -331,6 +331,17 @@ saisit, et la fraction qui la réduit. Saisir (montant retiré) avec une fractio
 donnerait le bon montant mensuel mais un salaire horaire faux, et toutes les
 primes horaires avec.
 
+Le piège s'est refermé le 21/09/2026, sur quelqu'un qui avait ce paragraphe
+sous la main et ne l'a pas lu : des réglages préparés pour VBN portaient
+`fraction: 1`, au motif que ses jours de congé parental étaient écrits un par
+un dans l'horaire. Les deux ne s'excluent pas — **l'horaire dit QUAND le
+dixième est pris, la fraction dit COMBIEN**. La fiche portait les deux
+montants à deux lignes d'écart.
+
+Contrôle en une soustraction : « Rém. périodique fixe » et « Montant heures
+prestées » sont deux lignes différentes de la fiche. Si elles diffèrent, la
+fraction n'est pas 1.
+
 ## Valeurs relevées sur les fiches de paie 2026
 
 Servent de valeurs par défaut ; tout reste modifiable dans l'application.
@@ -341,7 +352,7 @@ Servent de valeurs par défaut ; tout reste modifiable dans l'application.
 | Prime d'équipe après-midi | 1,80 € | fiches 2026 (note : 1,34) |
 | Prime d'équipe nuit | 4,00 € | fiches 2026 (note : 3,14) |
 | Chèque-repas, valeur faciale | 10,00 € | 8,91 patronale + 1,09 personnelle |
-| Heures par semaine | 38:40 | figure sur les quatorze fiches |
+| Heures par semaine | 38:40 | figure sur toutes les fiches — la grille écrivait « 38,4 h », qui se lit 38 h 24 et n'est pas la même chose |
 
 Le chèque-repas est passé de 6,90 à 8,91 de part patronale au 1er janvier
 2026 : la fiche de décembre 2025 porte encore l'ancienne valeur.
@@ -427,14 +438,7 @@ la cellule ne porte aucune plage sont dans le même cas.
 qui annonce encore `PM|3H -FT` → 5 heures prestées. C'est vrai des heures
 PRÉSENTES, faux des heures PAYÉES, et c'est la paie qui nous occupe.
 
-## Ce que les fiches de 2026 ont appris
-
-**Lu sur les fiches de VBN, décembre 2025 à août 2026 (21/09/2026).**
-
-**La semaine est de 38 h 40**, pas de 38,4 h. La fiche écrit
-`Nombre heures / semaine temps plein / 38:40`. La grille notait une durée en
-heures et minutes avec une virgule, ce qui se lisait comme 38 h 24. La valeur
-par défaut de l'application était la bonne.
+## La prime CCT 90 — avance et solde
 
 **La prime CCT 90 s'appelle « Avantage non récurrent »** et arrive sur une
 fiche à part, « Rémunérations - Heures - Avantages divers ». Elle ne porte ni
@@ -461,10 +465,17 @@ Confirmé par le client le 21/09/2026. Pour VBN :
 | solde 2025 | période 02/2026, payée le 16/03 | **(montant retiré)** |
 
 La fiche n'indique **jamais** l'année que le montant couvre : seul le mois de
-versement permet de la retrouver.
+versement permet de la retrouver — et c'est ce qui rend l'erreur facile.
 
-Une seconde fiche de février porte une « Recup à payer » négative. Aucune
-heure non plus.
+Une seconde fiche complémentaire de février porte une « Recup à payer »
+négative ; elle n'a rien à voir avec le CCT 90 et s'explique plus bas.
+
+### Une fiche porte le mois PRÉCÉDENT
+
+Le client, le 21/09/2026 : « c'est celle qui est payée en septembre, donc
+celle du mois d'août ». Le nom du fichier porte la date de **virement**, la
+fiche porte la **période**. `comparer-fiches.py` lit la période, et a donc
+raison contre le nom du fichier — mais il faut y penser en cherchant un mois.
 
 ## L'avance mensuelle sur le salaire
 
