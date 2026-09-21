@@ -350,6 +350,20 @@ Le diviseur horaire se retrouve sur la fiche : rémunération fixe divisée par
 le salaire horaire, soit (montant retiré) / (taux retiré) = 148,368 pour VBN — la valeur
 par défaut de l'application.
 
+## Une cellule « VM » avec un horaire presté
+
+**Confirmé par le client le 21/09/2026.** À propos de QBY le 10/09,
+`["VM", "4h rhs", "remplace PAM"]` : « le 10/09 il a fait son horaire normal
+mais avec VM, par contre il a repris 4 h rhs (parti à 10 h) ».
+
+`VM` ne fait donc pas de la journée une absence : la personne preste son
+poste — ici la distillation, en remplacement de PAM — et la visite médicale
+se place dedans. La reprise de 4 h comble le départ anticipé, comme le dit la
+règle RHS ci-dessous : 4 h de présence + 4 h reprises = ses 8 h.
+
+L'application comptait déjà ces 8 h et le plaçait déjà à son poste ; la règle
+est écrite ici parce qu'elle était une déduction, et qu'elle ne l'est plus.
+
 ## RHS — récupération d'heures supplémentaires
 
 **Confirmé par le client le 20/09/2026.**
