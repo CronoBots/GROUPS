@@ -3864,6 +3864,38 @@ function posteEcrit(raw){
   }
   return null;
 }
+/* Un opérateur en formation FIGURE au poste, mais n'y COMPTE pas. Le
+   client, le 21/09/2026 : « un opérateur en formation ne peut pas compter
+   comme effectif minimum au poste qui lui est attribué, car il n'est pas
+   valide à ce poste ; il peut y figurer mais doit être EN PLUS des
+   opérateurs présents. Par contre, s'il manque des gens, il se peut qu'on le
+   rappelle pour retourner remplacer dans un poste qu'il peut — mais tout
+   cela sera marqué en commentaire. »
+
+   La ligne 9 leur donne le poste sur lequel ils SE FORMENT, avec leur équipe :
+   « chaudières éq. 5 » pour quelqu'un dont la polyvalence ne porte que
+   meunerie et gluten. Les y compter, c'est déclarer le poste tenu par
+   quelqu'un qui n'y est pas encore validé.
+
+   L'exception est double, et elle se lit : il faut la polyvalence du poste
+   ET un commentaire qui dise le remplacement. Huit personnes sont dans ce
+   cas, et elles prestent près de 250 journées par an. */
+function enFormation(person){ return /formation/i.test(person&&person.cat||""); }
+function compteAuPoste(x,P){
+  if(!enFormation(x.p)) return true;
+  /* C'est la QUALIFICATION qui décide, pas le commentaire. Le client dit
+     « il n'est pas valide À CE POSTE » : là où sa polyvalence le porte, il
+     est valide et il compte ; là où elle ne le porte pas — le poste sur
+     lequel il se forme — il est en plus. Le rappel dont parle le client se
+     lit dans le commentaire, mais c'est la trace de la décision, pas sa
+     condition : exiger les deux ferait disparaître des effectifs réels. */
+  return peutTenir(x.p,P);
+}
+function effectif(liste,P){
+  var n=0, i;
+  for(i=0;i<(liste||[]).length;i++) if(compteAuPoste(liste[i],P)) n++;
+  return n;
+}
 /* Ce qu'une personne PEUT tenir, d'après sa seule polyvalence. Les règles du
    client : le terrain arrière demande fermentation ET distillation, les
    autres postes demandent leur atelier. */
@@ -3887,20 +3919,22 @@ function peutTenir(person,P){
 
    L'adjoint vient en dernier : tant qu'un poste en surnombre peut fournir
    quelqu'un, c'est de là que vient le renfort. */
-function reequilibrer(parPoste){
+function reequilibrer(parPoste,mmdd){
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
   for(i=0;i<POSTES_TRAVAIL.length;i++){
     P=POSTES_TRAVAIL[i];
     if(!P.n || P.cm) continue;
-    for(garde=0; garde<8 && (parPoste[P.k]||[]).length<P.n; garde++){
+    for(garde=0; garde<8 && effectif(parPoste[P.k],P)<P.n; garde++){
       pris=null;
       for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
         Q=POSTES_TRAVAIL[j];
         if(Q.k===P.k || Q.cm || !Q.n) continue;
         liste=parPoste[Q.k]||[];
-        if(liste.length<=Q.n) continue;
-        cand=liste.filter(function(x){ return !x.fixe && peutTenir(x.p,P); }).sort(parId);
+        if(effectif(liste,Q)<=Q.n) continue;
+        cand=liste.filter(function(x){
+          return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
+        }).sort(parId);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
       /* En CASCADE, quand aucun poste en surnombre ne sait tenir P. Le
@@ -3917,16 +3951,16 @@ function reequilibrer(parPoste){
           Q=POSTES_TRAVAIL[j];
           if(Q.k===P.k || Q.cm || !Q.n) continue;
           var relais=(parPoste[Q.k]||[]).filter(function(x){
-            return !x.fixe && peutTenir(x.p,P);
+            return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
           }).sort(parId);
           if(!relais.length) continue;
           for(var m=0;m<POSTES_TRAVAIL.length && !pris;m++){
             var S=POSTES_TRAVAIL[m];
             if(S.k===P.k || S.k===Q.k || S.cm || !S.n) continue;
             var source=parPoste[S.k]||[];
-            if(source.length<=S.n) continue;
+            if(effectif(source,S)<=S.n) continue;
             var renfort=source.filter(function(x){
-              return !x.fixe && peutTenir(x.p,Q);
+              return !x.fixe && peutTenir(x.p,Q) && compteAuPoste(x,Q);
             }).sort(parId);
             if(!renfort.length) continue;
             source.splice(source.indexOf(renfort[0]),1);
@@ -4113,6 +4147,9 @@ function renderEquipe(){
                    +'<small>'+l.length+"</small></summary>"
                  :'<h3><span class="eqpt"></span>'+esc(g.t)
                    +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
+      /* Le poste en cours d'affichage : chip() en a besoin pour dire si un
+         opérateur en formation y compte ou s'il y est en plus. */
+      var posteCourant=null;
       function chip(x){
         var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
                   " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
@@ -4122,6 +4159,8 @@ function renderEquipe(){
           '<b>'+esc(idLisible(x.p.id))+"</b>"+
           '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
           +(x.comble?" — comble le poste":"")
+          +((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
+             ?" — en formation, en plus":"")
           +(det?' · <i>'+det+"</i>":"")+"</span></div>";
       }
       if(g.k==="off"||g.k==="abs"||g.k==="cong"){
@@ -4145,7 +4184,7 @@ function renderEquipe(){
         /* Pas en journée : le client, plus tôt — « en jours il n'est pas
            obligatoire d'avoir quelqu'un à chaque poste ». Combler un manque
            qui n'en est pas un déplacerait des gens sans raison. */
-        if(g.k!=="D") reequilibrer(parPoste);
+        if(g.k!=="D") reequilibrer(parPoste,mmdd);
         POSTES_TRAVAIL.forEach(function(P){
           var gens=parPoste[P.k]||[];
           /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
@@ -4153,7 +4192,8 @@ function renderEquipe(){
              postes qui n'ont pas de personnel » — et sept intitulés à zéro
              noyaient les trois qui portaient du monde. */
           if(!gens.length && (g.k==="D" || !P.n)) return;
-          var tenu=gens.length, detail="";
+          posteCourant=P;
+          var tenu=effectif(gens,P), detail="";
           if(P.k==="terr"){
             /* Le poste revient au polyvalent arrière ; le renfort arrière le
                tient quand celui-ci n'est pas là. Une personne que SA CELLULE
@@ -4211,12 +4251,14 @@ function renderEquipe(){
         if(formation.length){
           h.push('<div class="eqpo"><h4>Formation<small>'+formation.length
             +"</small></h4><div class=\"eql\">");
+          posteCourant=null;
           formation.forEach(function(x){ h.push(chip(x)); });
           h.push("</div></div>");
         }
         if(inconnus.length){
           h.push('<div class="eqpo inconnu"><h4>Poste à déterminer<small>'
             +inconnus.length+"</small></h4><div class=\"eql\">");
+          posteCourant=null;
           inconnus.forEach(function(x){ h.push(chip(x)); });
           h.push("</div></div>");
           h.push('<p class="eqnote">'+inconnus.length+" personne"

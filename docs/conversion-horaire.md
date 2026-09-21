@@ -813,6 +813,53 @@ rien à faire : QBY garde la distillation, GPO reste au gluten.
 C'est la règle première du projet, rappelée en tête de `CLAUDE.md`, et elle se
 perd à chaque fois qu'on cherche la réponse ailleurs que dans la cellule.
 
+### Un opérateur en formation figure au poste, mais n'y compte pas
+
+**Le client, le 21/09/2026** : « un opérateur en formation ne peut pas compter
+comme effectif minimum au poste qui lui est attribué, car il n'est pas valide
+à ce poste ; il peut y figurer mais doit être **en plus** des opérateurs
+présents. Par contre, s'il manque des gens, il se peut qu'on le rappelle pour
+retourner remplacer dans un poste qu'il peut — mais tout cela sera marqué en
+commentaire. »
+
+C'est la **qualification** qui décide, pas le commentaire : là où sa
+polyvalence le porte il est valide et il compte ; là où elle ne le porte pas —
+le poste sur lequel il se forme — il est en plus. Le rappel se lit dans le
+commentaire, mais c'est la trace de la décision, pas sa condition.
+
+La ligne 9 leur donne le poste sur lequel ils **se forment**, avec leur
+équipe : `chaudières éq. 5` pour quelqu'un dont la polyvalence ne porte que
+meunerie et gluten. Les y compter, c'est déclarer le poste tenu par quelqu'un
+qui n'y est pas encore validé.
+
+**Huit personnes**, qui prestent de 120 à 255 journées par an :
+
+| | Se forme sur | Polyvalence validée |
+|---|---|---|
+| CDT | Distillation | *(aucune)* |
+| MGY | chaudières éq. 1 | *(aucune)* |
+| NPI | Gluten | *(aucune)* |
+| GST | chaudières éq. 3 | Fermentation |
+| LCI | Distillation éq. 5 | Fermentation |
+| LHR | chaudières éq. 5 | Meunerie, Gluten |
+| SKS | Meunerie | Fermentation, Distillation, Chaudières |
+| SVE | Distillation éq. 1 | Meunerie, Gluten |
+
+Exemple, le 21/09 au matin :
+
+```
+DISTILLATION  1 / 1   CDT · PDR
+```
+
+Deux personnes affichées, une seule comptée. La tuile de CDT porte
+« en formation, en plus ».
+
+**Ce que cela change** : sur soixante jours, les postes en manque passent de
+71 à **131**, les surnombres de 255 à 127. C'est beaucoup, et c'est le prix de
+l'honnêteté — l'application déclarait tenus des postes que seul un opérateur
+non validé occupait. Le rééquilibrage compte de la même façon : il ne prend
+ni ne pose un opérateur en formation là où il ne compterait pas.
+
 ### Rééquilibrer une pause : combler un manque avec un surnombre
 
 **Le client, le 21/09/2026** : « dans une même pause, quand il manque
