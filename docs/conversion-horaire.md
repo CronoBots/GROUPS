@@ -465,6 +465,25 @@ prime de pause conservée » de la section 6 bis ?
   ou mieux pour 62 agents sur 77). Quel cycle suivent-ils ?
 - **38,4 h ou 38 h 40 ?** — la grille annonce 38,4 h/semaine, l'app a 38 h 40
   par défaut. 38 h 24 ≠ 38 h 40.
+- **Les primes de pause des journées de plus de 8 h** — *le client doit
+  revenir avec les informations (21/09/2026)*. L'application lit ces plages
+  comme **un poste normal étendu**, pas comme un poste de 12 h : elle en
+  déduit un seul poste, verse **une seule prime**, et envoie les heures
+  excédentaires aux heures supplémentaires ou au flex time selon l'annotation.
+
+  ```
+  AFA 10/06  ["14h-02h","1h +FT","+3h hs"]   -> poste PM, 8 h, UNE prime PM
+  AFA 15/09  ["18h-06h","4h +FT"]            -> poste N,  8 h, UNE prime N
+  GST 16/02  ["22h-10h","4h +FT"]            -> poste N,  8 h, UNE prime N
+  ```
+
+  Or `14h-02h` couvre l'après-midi **et** le début de nuit, `18h-06h` la fin
+  d'après-midi **et** toute la nuit. Faut-il une prime par pause traversée,
+  au prorata des heures ? **91 journées** sont concernées : 38 en `18h-06h`,
+  30 en `06h-18h`, 18 en `10h-22h`, 5 en `14h-02h`.
+
+  À ne pas confondre avec le découpage des nuits (section 6 quinquies), qui
+  est tranché : une nuit compte entièrement au jour où elle commence.
 
 ## 9. Les noms d'ateliers
 
