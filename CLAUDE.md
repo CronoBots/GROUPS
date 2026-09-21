@@ -280,6 +280,12 @@ les 77 personnes et les 27 462 journées. Il ne réimplémente rien : il découp
 dans `index.html` les fonctions de lecture elles-mêmes et les rejoue — ce
 qu'il mesure est donc bien ce que l'application fera.
 
+Il découpe par `indexOf`, donc **il s'arrête si un nom est déclaré deux fois**
+dans `index.html` : la seconde déclaration écrase la première à l'exécution,
+alors que la découpe rejouerait la première — et l'outil annoncerait neuf
+règles vertes sur du code que le navigateur n'exécute plus. C'est arrivé avec
+`posteDuRemplace`.
+
 Neuf règles, et aucune n'a le droit d'être enfreinte :
 
 | Règle | Ce qu'elle interdit |

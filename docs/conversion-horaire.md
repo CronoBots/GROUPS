@@ -502,6 +502,43 @@ poste, la **station d'épuration**. Le convertisseur le remplit d'après le nom
 de la feuille — c'est la seule endroit où il déduit un poste, et la seule
 feuille concernée.
 
+### « remplace XXX » : le poste de la personne remplacée
+
+La ligne 9 donne le poste **habituel**. Elle ne dit rien du jour où quelqu'un
+part tenir celui d'un autre — et c'est alors le commentaire qui le dit, comme
+toujours dans ce classeur.
+
+Le client, le 21/09/2026 : « pourquoi est-ce que QBY est à déterminer alors
+qu'il a le poste distillation et qu'il n'y a personne en distillation ce
+jour-là ? » La réponse était écrite dans la cellule : `["PM", "R",
+"remplace PAM"]`, et PAM est l'opérateur distillation de l'équipe 4. QBY est
+renfort arrière (ligne 9, colonne U) et polyvalent gluten + distillation ; il
+n'entrait donc ni au terrain arrière — il lui manque la fermentation — ni au
+repli « un seul atelier », puisqu'il en a deux.
+
+`atelierDuRemplace()` lit ce commentaire, **en dernier recours seulement** :
+quand ni la cellule, ni l'annotation, ni la ligne 9 n'ont donné de poste. Et
+sous les mêmes conditions de polyvalence que les règles du client : on ne
+tient que ce qu'on possède — le terrain arrière demande fermentation ET
+distillation, le gluten demande le gluten.
+
+Le classeur écrit **2 884** mentions « remplace XXX », dont **1 461** désignent
+un trigramme connu. Deux d'entre elles servent de vérité de terrain : QBY les
+08 et 09/06 porte « remplace PAM **en distillation** » — le classeur nomme
+lui-même le poste que la règle déduit, et les deux concordent.
+
+Ce repli ne s'applique qu'aux groupes de pause travaillée : une personne
+absente ou en congé ne peut pas en recevoir un poste.
+
+**Deux fonctions, deux questions.** `posteDuRemplace()` rend la **pause** de
+la personne remplacée (section 10 quinquies) ; `atelierDuRemplace()` rend son
+**atelier**. La première version les appelait toutes les deux
+`posteDuRemplace`, et la seconde déclaration écrasait la première en silence :
+la règle « le commentaire prime sur le cycle » était morte, et
+`verifier-calendrier.js` annonçait pourtant ses neuf règles vertes — il
+découpe `index.html` avec `indexOf`, donc il rejouait la PREMIÈRE des deux.
+Il refuse désormais de travailler sur un nom déclaré deux fois.
+
 ### La feuille « Opérateurs »
 
 Elle ne suit pas la même logique. Les gens qui y figurent sont **validés ou en

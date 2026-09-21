@@ -25,6 +25,19 @@ const html=fs.readFileSync(path.join(RACINE,"index.html"),"utf8");
 function part(debut,fin){
   const i=html.indexOf(debut);
   if(i<0) throw new Error("introuvable dans index.html : "+debut);
+  /* La découpe prenait la PREMIÈRE occurrence sans rien dire. Une seconde
+     fonction du même nom, ajoutée plus bas dans index.html, écrase la
+     première au chargement — mais le vérificateur continuait de rejouer la
+     première et annonçait neuf règles vertes. C'est arrivé : un
+     posteDuRemplace() rendant un atelier a doublé celui qui rend une pause,
+     et l'outil censé s'en apercevoir était précisément aveugle à ce cas.
+     Une découpe ambiguë ne vérifie plus ce qu'exécute l'application : on
+     s'arrête. */
+  const bis=html.indexOf(debut,i+debut.length);
+  if(bis>=0) throw new Error(
+    "deux fois dans index.html : "+debut+"\n  "+
+    "la seconde déclaration écrase la première à l'exécution, et la découpe "+
+    "rejouerait la première — donner un autre nom à l'une des deux.");
   const j=html.indexOf(fin,i+debut.length);
   if(j<0) throw new Error("fin introuvable pour : "+debut);
   return html.slice(i,j+fin.length);

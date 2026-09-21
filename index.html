@@ -3647,6 +3647,49 @@ function aLAtelier(person,rx){
 function tientTerrainArriere(person){
   return aLAtelier(person,/^ferm/i) && aLAtelier(person,/^disti/i);
 }
+/* Le poste qu'une personne tient d'habitude, sans regarder sa journée : sa
+   fonction si c'est un cadre, son rôle de ligne 9 sinon. Sert à savoir où
+   était quelqu'un qui « remplace PAM » — le poste de PAM. */
+function posteHabituel(person){
+  if(estCadre(person)) return estContremaitre(person)?"cm":"adj";
+  var role=roleDeFeuille(person);
+  if(role==="pa"||role==="ra") return "terr";
+  if(role==="pv"||role==="rv") return "glut";
+  var ps=person.postes||{}, f, k;
+  for(f in ps){
+    if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
+    k=posteDepuisNom(ps[f].p);
+    if(k) return k;
+  }
+  return null;
+}
+/* « remplace PAM » : le commentaire dit qui l'on remplace, donc où l'on est.
+   Le client : « pourquoi QBY est à déterminer alors qu'il a le poste
+   distillation et qu'il n'y a personne en distillation ce jour-là ? » — la
+   réponse était écrite dans la cellule, et l'application ne la lisait pas.
+
+   Dernier recours seulement : on ne s'en sert que si rien d'autre n'a donné
+   le poste. Et il faut la polyvalence — le client l'a posé pour le terrain
+   arrière comme pour le gluten : on ne tient que ce qu'on possède.
+   Elle rend l'ATELIER de la personne remplacée ; posteDuRemplace(), plus
+   haut, rend sa PAUSE. Deux questions, deux noms — la version d'essai les
+   appelait pareil, et la seconde déclaration écrasait la première. */
+function atelierDuRemplace(raw,parId,qui){
+  var com=String((raw&&raw[2])||""), rx=/\bremplac\w*\s+([A-Z]{3})\b/g, m, cible, k, i, P;
+  while((m=rx.exec(com))){
+    if(m[1]==="PAR") continue;            /* passif : « remplacé PAR XXX » */
+    cible=parId[m[1]];
+    if(!cible || cible===qui) continue;
+    k=posteHabituel(cible);
+    if(!k || k==="cm" || k==="adj") continue;
+    if(k==="terr"){ if(tientTerrainArriere(qui)) return k; continue; }
+    for(i=0;i<POSTES_TRAVAIL.length;i++){
+      P=POSTES_TRAVAIL[i];
+      if(P.k===k && P.rx && aLAtelier(qui,P.rx)) return k;
+    }
+  }
+  return null;
+}
 function posteTenu(person,raw,hJour,poste){
   var i, k;
   if(estCadre(person)){
@@ -3795,10 +3838,12 @@ function renderEquipe(){
            chaque poste doit être tenu. On les montre donc poste par poste,
            dans l'ordre où l'on parcourt l'usine, avec l'effectif attendu —
            un poste qui manque saute aux yeux. */
-        var parPoste={}, inconnus=[], formation=[];
+        var parPoste={}, inconnus=[], formation=[], parId={};
+        db.people.forEach(function(q){ parId[q.id]=q; });
         l.forEach(function(x){
           if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
           var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&x.r.s);
+          if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
           if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
         });
         POSTES_TRAVAIL.forEach(function(P){
