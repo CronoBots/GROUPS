@@ -3216,7 +3216,10 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
    Vérifié sur les huit premières fiches de paie de 2026 : 7, 2, 16, 14, 4,
    7, 5 et 7 journées, soit la ligne « Primes diverses » au centime près. */
 function plageCommentaire(txt){
-  var m=(txt||"").match(/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s+(\d{1,2})\s*h\s*(\d{2})?/i);
+  /* L'espace après « à » n'était pas optionnel, et le classeur l'omet :
+     « de 14h à18h00' ». 38 journées y perdaient leur plage — et la plage
+     décide si les heures épargnées sont DANS le poste ou à côté. */
+  var m=(txt||"").match(/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/i);
   if(!m) return null;
   var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
   if(b<=a) b+=24;
@@ -3839,7 +3842,14 @@ function atelierDuRemplace(raw,parId,qui){
   /* La casse était ignorée du motif, pas du classeur : « Remplace GPS »
      avec une majuscule lui échappait. 568 mentions sur 2 031 — près de
      trois sur dix — étaient perdues pour cette seule raison. */
-  var com=String((raw&&raw[2])||""), rx=/\bremplac\w*\s+([A-Za-z]{3})\b/gi, m, cible, k, i, P;
+  /* « rempl SBZ », « rempl en fermentation LCI » : le classeur abrège et
+     intercale. Le motif s'élargit à « remp… » et tolère jusqu'à deux mots
+     de liaison — le garde-fou reste le trigramme, qui doit désigner
+     quelqu'un de l'horaire. La casse était déjà une perte de 568 mentions ;
+     l'abréviation en coûtait 27 de plus. */
+  var com=String((raw&&raw[2])||""),
+      rx=/\bremp\w*\.?\s+(?:(?:en|au|aux|le|la|les|de|du|des|a|\u00e0)\s+[\w\u00e0-\u00ff'-]+\s+){0,2}([A-Za-z]{3})\b/gi,
+      m, cible, k, i, P;
   while((m=rx.exec(com))){
     var trig=m[1].toUpperCase();
     if(trig==="PAR") continue;            /* passif : « remplacé PAR XXX » */
