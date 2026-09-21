@@ -437,11 +437,26 @@ heures et minutes avec une virgule, ce qui se lisait comme 38 h 24. La valeur
 par défaut de l'application était la bonne.
 
 **La prime CCT 90 s'appelle « Avantage non récurrent »** et arrive sur une
-fiche à part, « Rémunérations - Heures - Avantages divers », datée du même
-mois que la fiche ordinaire. En 2026 : **(montant retiré) €** sur la période de
-février. Elle ne porte ni heure prestée ni prime d'équipe — `comparer-fiches.py`
-l'écarte donc à raison, mais il ne faut pas la confondre avec une fiche
-manquante.
+fiche à part, « Rémunérations - Heures - Avantages divers ». Elle ne porte ni
+heure prestée ni prime d'équipe — `comparer-fiches.py` l'écarte donc à raison,
+mais il ne faut pas la confondre avec une fiche manquante.
+
+Le calcul est confirmé au centime par la fiche de VBN portant la période de
+février 2026, et c'est celui que l'application applique déjà :
+
+```
+Avantage non récurrent        (montant retiré)
+Cotisation de solidarité        (montant retiré)     = (montant retiré) × 13,07 %
+Précompte professionnel           0,00     le bonus en est exempt
+Net                           (montant retiré)
+```
+
+**Elle est versée en deux fois, et il ne faut pas les confondre.** Le client,
+le 21/09/2026 : « l'avance sur la CCT 90 a été versée avec la paie de
+septembre ». La fiche de février est donc un **solde**, pas la prime de
+l'année en cours — ce que la fiche elle-même n'indique nulle part. À
+confirmer sur la fiche de septembre, qui arrive début octobre : c'est elle
+qui portera l'avance 2026.
 
 Une seconde fiche de ce type, en février également, porte une
 « Recup à payer » négative. Même remarque : aucune heure.
