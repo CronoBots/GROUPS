@@ -3671,7 +3671,11 @@ var EQ_GROUPES=[
   {k:"PM",  t:"Après-midi",  s:"14h – 22h"},
   {k:"N",   t:"Nuit",        s:"22h – 6h"},
   {k:"D",   t:"Jour",        s:"horaire variable"},
-  {k:"abs", t:"Absents",     s:"congé, maladie, formation"},
+  /* Le client : « il faut différencier absent et en congé ; les absents ne
+     sont que les personnes malades ». Être en vacances et être malade ne se
+     regardent pas de la même façon quand on cherche qui peut venir. */
+  {k:"abs",  t:"Absents",     s:"maladie"},
+  {k:"cong", t:"Congé",       s:"vacances, récupération, formation"},
   {k:"off", t:"Repos",       s:""}
 ];
 function renderEquipe(){
@@ -3696,7 +3700,8 @@ function renderEquipe(){
       var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour);
       var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
       if(h>0) par[r.s]?par[r.s].push({p:p,r:r}):par.off.push({p:p,r:r});
-      else if(r.a&&ABSMAP[r.a]) par.abs.push({p:p,r:r});
+      else if(r.a&&ABSMAP[r.a])
+        (ABSMAP[r.a].k==="SMG"?par.abs:par.cong).push({p:p,r:r});
       else if(r.s) par.off.push({p:p,r:r,prevu:true});
       else par.off.push({p:p,r:r});
     });
@@ -3711,13 +3716,13 @@ function renderEquipe(){
          le moins : il se replie, et les quatre pauses tiennent l'écran. */
       var repli=(g.k==="off");
       h.push('<section class="eqg"'+(g.k.length<=2?' data-s="'+g.k+'"':"")+
-        (g.k==="abs"?' data-abs="1"':"")+'>');
+        (g.k==="abs"||g.k==="cong"?' data-abs="1"':"")+'>');
       h.push(repli?'<details class="eqfold"><summary><span class="eqpt"></span>'+esc(g.t)
                    +'<small>'+l.length+"</small></summary>"
                  :'<h3><span class="eqpt"></span>'+esc(g.t)
                    +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
       function chip(x){
-        var det=(g.k==="abs")?esc(x.r.a)
+        var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)
                :(x.prevu?esc(x.r.s)+" prévu":
                 (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
         return '<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
@@ -3725,7 +3730,7 @@ function renderEquipe(){
           '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
           +(det?' · <i>'+det+"</i>":"")+"</span></div>";
       }
-      if(g.k==="off"||g.k==="abs"){
+      if(g.k==="off"||g.k==="abs"||g.k==="cong"){
         h.push('<div class="eql">');
         l.forEach(function(x){ h.push(chip(x)); });
         h.push("</div>");
