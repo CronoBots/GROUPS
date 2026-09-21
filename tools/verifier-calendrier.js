@@ -261,6 +261,32 @@ if(process.argv.indexOf("--manques")>=0){
       +(x.inc?"  ("+x.inc+" à déterminer)":"")+"  "
       +x.l.map(o=>o.pause+" "+o.poste+" "+o.tenu+"/"+o.attendu).join(" · "));
   });
+  /* --detail : pour chaque manque, ce que le classeur écrit sur les gens de
+     la pause dont l'application ne sait pas le poste. C'est là que se
+     cachent les manques qui n'en sont pas — ATR le 25/09 en était un, et
+     sa cellule disait « Gluten » en toutes lettres. */
+  if(process.argv.indexOf("--detail")>=0){
+    console.log("\n── ce que le classeur écrit sur les postes indéterminés\n");
+    lignes.forEach(x=>{
+      const [m,d]=[Number(x.mmdd.slice(0,2)),Number(x.mmdd.slice(2))];
+      const par=equipeDuJour(db,ANNEE,m,d);
+      EQ_GROUPES.forEach(g=>{
+        if(["off","abs","cong","D"].indexOf(g.k)>=0) return;
+        const l=par[g.k]; if(!l||!l.length) return;
+        const vue=postesDePause(db,l,g.k,x.mmdd);
+        const mq=vue.postes.filter(o=>o.manque);
+        if(!mq.length) return;
+        console.log("  "+x.mmdd.slice(2)+"/"+x.mmdd.slice(0,2)+"  "+g.k+"  manque : "
+          +mq.map(o=>o.P.t+" "+o.tenu+"/"+o.attendu).join(", "));
+        if(!vue.inconnus.length){ console.log("      (personne d'indéterminé)"); return; }
+        vue.inconnus.forEach(y=>{
+          console.log("      "+y.p.id.padEnd(6)+JSON.stringify(y.p.d[x.mmdd])
+            +"   poly:"+JSON.stringify((y.p.poly&&y.p.poly.ateliers)||[])
+            +(y.p.e&&y.p.e.length?"  e:"+JSON.stringify(y.p.e):""));
+        });
+      });
+    });
+  }
   process.exit(0);
 }
 
