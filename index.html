@@ -3716,7 +3716,14 @@ var POSTES_TRAVAIL=[
   {k:"meun", t:"Meunerie",        n:1, rx:/^meun/i},
   {k:"glut", t:"Gluten",          n:2, rx:/^glut/i},
   {k:"ferm", t:"Fermentation",    n:1, rx:/^ferm/i},
-  {k:"terr", t:"Terrain arrière", n:1, rx:/^(terr|poly)[\s.\-]*arr/i},
+  /* « Poly. Etoh » est un terrain arrière : l'éthanol, c'est la fermentation
+     et la distillation, exactement ce que ce poste couvre. Le client l'a
+     confirmé le 21/09/2026. 46 journées de l'année le portent, et elles
+     passaient inaperçues — ATELIERS commence par « poly », si bien que
+     « poly. Etoh » était avalé comme un atelier connu sans jamais devenir un
+     poste. Il ne figurait même pas parmi les mentions non comprises :
+     l'application croyait l'avoir comprise. */
+  {k:"terr", t:"Terrain arrière", n:1, rx:/^(terr|poly)[\s.\-]*(arr|etoh)/i},
   {k:"dist", t:"Distillation",    n:1, rx:/^disti/i},
   {k:"chau", t:"Chaudières",      n:2, rx:/^chaudi/i},
   {k:"step", t:"STEP",            n:0, rx:/^step/i}
@@ -3940,7 +3947,8 @@ var ATELIER_NOMS=[
   [/^ferm(entation)?\.?$/i,"Fermentation"],
   [/^disti(ll(ation)?)?\.?$/i,"Distillation"],
   [/^chaudi(\u00e8res|eres)?\.?$/i,"Chaudi\u00e8res"],
-  [/^step\.?$/i,"STEP"]
+  [/^step\.?$/i,"STEP"],
+  [/^poly\.?\s*etoh\.?$/i,"Terrain arrière"]
 ];
 function atelierLisible(t){
   t=String(t||"").trim().replace(/\s+/g," ");

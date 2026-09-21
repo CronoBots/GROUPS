@@ -788,6 +788,31 @@ la règle « le commentaire prime sur le cycle » était morte, et
 découpe `index.html` avec `indexOf`, donc il rejouait la PREMIÈRE des deux.
 Il refuse désormais de travailler sur un nom déclaré deux fois.
 
+### « Poly. Etoh » est un terrain arrière
+
+**Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et
+la distillation — exactement ce que le terrain arrière couvre.
+
+**46 journées** de l'année le portent : 23 en `Poly. Etoh`, 14 en
+`poly. Etoh`, 9 avec un point final. Et elles passaient toutes inaperçues,
+pour une raison qu'il faut retenir : le motif `ATELIERS` commence par
+`^(…|poly|…)`, si bien que « poly. Etoh » était avalé comme un **atelier
+connu** sans jamais devenir un poste. Il ne figurait donc pas non plus parmi
+les mentions non comprises — l'application croyait l'avoir comprise.
+
+C'est le pire genre d'angle mort : non pas une chose que l'outil déclare ne
+pas savoir lire, mais une chose qu'il croit avoir lue.
+
+Le 22/09, PAM porte `["PM", "poly. Etoh", "remplace FPS remplacé par QBY"]`.
+Sa cellule l'envoie donc au terrain arrière — et le rééquilibrage n'a plus
+rien à faire : QBY garde la distillation, GPO reste au gluten.
+
+> **Le client, le 21/09/2026** : « il faut toujours lire les commentaires, ce
+> n'est pas la première fois que je te le dis. »
+
+C'est la règle première du projet, rappelée en tête de `CLAUDE.md`, et elle se
+perd à chaque fois qu'on cherche la réponse ailleurs que dans la cellule.
+
 ### Rééquilibrer une pause : combler un manque avec un surnombre
 
 **Le client, le 21/09/2026** : « dans une même pause, quand il manque
