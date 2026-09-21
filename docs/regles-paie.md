@@ -418,6 +418,17 @@ Attention au découpage : `D-F` et `D-CPPT` commencent aussi par ce qui
 ressemble à un poste. Le texte entier est donc éprouvé d'abord ; on ne
 découpe qu'à défaut.
 
+## R-F — remplacement formation
+
+**Confirmé par le client le 20/09/2026.**
+
+« Ce sont des remplacements d'autres opérateurs pendant sa pause normale de
+travail. » La personne preste donc sa pause, et remplace ceux qui sont partis
+en formation.
+
+Aucun effet sur le calcul : `R-F` rejoint `R`, `R-CM` et `VM` parmi les
+mentions reconnues mais neutres.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
