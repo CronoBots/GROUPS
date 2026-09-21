@@ -200,6 +200,17 @@ numéro de registre national et l'IBAN. L'outil les lit sur place et n'en
 ressort que des heures. Il écarte de lui-même les fiches d'une autre année —
 décembre se paie en janvier.
 
+**Il garde sa PROPRE copie de la découpe de `index.html`**, et elle s'est
+déjà désynchronisée en silence : une constante ajoutée dans `index.html`, et
+l'outil s'arrêtait sur une `ReferenceError` au milieu d'une comparaison. Il
+met donc désormais sa découpe à l'épreuve avant de s'en servir, comme
+`verifier-calendrier.js`. **Toute modification de `parseHoraireEntry()` ou de
+ce qui l'entoure demande de relancer cet outil**, ne serait-ce qu'à vide :
+
+```bash
+python3 tools/comparer-fiches.py VBN
+```
+
 ## Régénérer les icônes
 
 Les cinq icônes dérivent toutes de `logo.png`. Elles sont mises en cache à

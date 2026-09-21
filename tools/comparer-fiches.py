@@ -79,24 +79,53 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function plageMention(","\n}"),g("function seChevauchent(","\n}"),g("var JOUR_PRIME_PAUSE=","];"),
  g("var MENTIONS_NEUTRES=","];"),g("var ATELIERS=","\n"),g("function reprisRHS(","\n}"),
  g("function posteDepuisPlage(","\n}"),g("function dureeReelle(","\n}"),
- g("var ALIAS_HORAIRE=","\n"),g("var JOUR_EN_ABSENCE=","\n"),g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
+ g("var ALIAS_HORAIRE=","\n"),g("var JOUR_EN_ABSENCE=","\n"),
+ g("var RX_PRIS_AILLEURS=","\n"),
+ g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),g("var RX_RENVOI=","\n"),
+ g("function renvoisDuMois(","\n}"),
  g("function epargnesDuMois(","\n}")].join("\n"));
+/* La découpe est recopiée ici, et elle s'est déjà désynchronisée de
+   index.html en silence : une constante ajoutée là-bas, et ce script
+   s'arrêtait sur une ReferenceError au milieu d'une comparaison. On met
+   donc la découpe à l'épreuve AVANT de s'en servir, comme le fait
+   verifier-calendrier.js. */
+[["lecture d'une cellule",function(){return parseHoraireEntry(["AM"],8).s==="AM";}],
+ ["annotation « - »",function(){return parseHoraireEntry(["N","-"],8).h===0;}],
+ ["renvoi « pris le »",function(){return !parseHoraireEntry(["-","2h -FT","pris le 19.09"],8).a;}],
+ ["table des absences",function(){return Object.keys(ABSMAP).length>20;}]
+].forEach(function(e){
+  var ok; try{ ok=e[1](); }catch(x){ ok=false; }
+  if(!ok){ console.error("découpe de index.html faussée : "+e[0]); process.exit(2); }
+});
 const db=JSON.parse(fs.readFileSync(process.argv[3],"utf8"));
 const p=db.people.filter(function(x){return x.id===process.argv[4];})[0];
 if(!p){ console.log("{}"); process.exit(0); }
 const out={};
 for(var m=1;m<=12;m++){
-  var ep=epargnesDuMois(p,m), fit=cycleDuMois(p,db.year,m), nd=new Date(db.year,m,0).getDate();
+  var ep=epargnesDuMois(p,m), rv=renvoisDuMois(p,m,8),
+      fit=cycleDuMois(p,db.year,m), nd=new Date(db.year,m,0).getDate();
   var h=0,j=0,ab={};
   for(var d=1;d<=nd;d++){
     var k=pad2(m)+pad2(d), e=p.d[k]; if(!e) continue;
-    var r=parseHoraireEntry(e,8,ep[d]);
+    var r=parseHoraireEntry(e,8,ep[d],rv[d]);
     if((!r.s&&(e[0]||"").trim()!=="-")||r.jour){
       var c=posteDeCycle(fit,db.year,m,d)||posteDuRemplace(db,e,k,8)||(r.jour?(r.s||"D"):null);
       if(c&&c!==r.s) r.s=c; }
-    var hj=(r.h===undefined?8:r.h), A=r.a&&ABSMAP[r.a];
+    /* les heures qu'une autre journée renvoie ici s'en retirent, comme
+       dans lireJournee() — et APRÈS la correction de cycle, qui recalcule
+       les heures depuis zéro. */
+    var hj=(r.h===undefined?8:r.h);
+    if(r.ax && r.s) for(var q=0;q<r.ax.length;q++){
+      var AX=ABSMAP[r.ax[q]];
+      if(AX&&AX.h>0) hj=Math.max(0,hj-AX.h);
+    }
+    var A=r.a&&ABSMAP[r.a];
     if(r.s&&hj>0){ h+=hj; j++; }
+    if(r.ax) for(var q2=0;q2<r.ax.length;q2++){
+      var AY=ABSMAP[r.ax[q2]];
+      if(AY) ab[AY.k]=(ab[AY.k]||0)+((r.s||AY.h<8-0.01)?(AY.h||0):0);
+    }
     if(A){
       /* même règle que la fiche : une absence d'une journée entière posée
          sur un repos ne vaut aucune heure */
