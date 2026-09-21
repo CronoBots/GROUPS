@@ -788,6 +788,39 @@ la règle « le commentaire prime sur le cycle » était morte, et
 découpe `index.html` avec `indexOf`, donc il rejouait la PREMIÈRE des deux.
 Il refuse désormais de travailler sur un nom déclaré deux fois.
 
+### Rééquilibrer une pause : combler un manque avec un surnombre
+
+**Le client, le 21/09/2026** : « dans une même pause, quand il manque
+quelqu'un sur un poste et que sur un autre poste ils sont plus que le nombre
+demandé, celui qui a la polyvalence est d'office placé là où il manque
+quelqu'un — exemple, pour le terrain arrière c'est PAM qui y sera et QBY qui
+tiendra la distillation. Dans le cas où l'adjoint ne remplace pas le
+contremaître et qu'il est disponible, c'est l'adjoint qui peut prendre le
+poste où il manque quelqu'un, car il a toutes les polyvalences. »
+
+`reequilibrer()` le fait, sous quatre réserves :
+
+1. **La cellule prime, toujours.** On ne déplace que ce que l'application a
+   DÉDUIT — ligne 9, polyvalence, commentaire. Une personne que sa propre
+   cellule envoie à un poste y reste, quel qu'en soit l'effet sur les
+   effectifs : le classeur dit ce qui a été fait.
+2. **La polyvalence commande.** Le terrain arrière demande fermentation ET
+   distillation, les autres postes demandent leur atelier.
+3. **L'adjoint vient en dernier.** Tant qu'un poste en surnombre peut fournir
+   quelqu'un, c'est de là que vient le renfort ; l'adjoint n'est sollicité
+   qu'à défaut — et seulement s'il ne remplace pas déjà le contremaître, ce
+   que `remplacementCM()` a déjà tranché en amont.
+4. **Pas en journée.** Le client, plus tôt : « en jours il n'est pas
+   obligatoire d'avoir quelqu'un à chaque poste ». Combler un manque qui n'en
+   est pas un déplacerait des gens sans raison.
+
+La tuile d'une personne ainsi placée porte « **comble le poste** » : c'est une
+déduction de l'application, pas une ligne du classeur, et cela doit se voir.
+
+**Mesuré sur quatorze jours** : les postes en manque passent de **33 à 13**,
+pour 20 déplacements. Les 13 restants n'ont personne qui possède la
+polyvalence requise — le plus souvent le terrain arrière, qui en demande deux.
+
 ### La feuille « Opérateurs »
 
 Elle ne suit pas la même logique. Les gens qui y figurent sont **validés ou en
