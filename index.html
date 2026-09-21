@@ -3742,7 +3742,14 @@ function posteLigne9(person){
     k=posteDepuisNom(ps[f].p);
     if(k) break;
   }
-  if(k==="chau" && !aLAtelier(person,/^chaudi/i) && !/en\s+formation/i.test(person.cat||""))
+  /* « ne possédant pas les chaudières » suppose qu'on SACHE ce qu'il
+     possède. Polyvalence inconnue n'est pas polyvalence vide : quatre
+     personnes renommées par CORRECTIONS — PDF, JBA, CHD, GBO — ont perdu
+     la leur au passage, le convertisseur la classant sous leur ancien
+     trigramme. Les déplacer sur cette absence-là, c'est déplacer sur un
+     trou. Sans polyvalence connue, la ligne 9 garde le dernier mot. */
+  if(k==="chau" && (person.poly&&person.poly.ateliers&&person.poly.ateliers.length)
+     && !aLAtelier(person,/^chaudi/i) && !/en\s+formation/i.test(person.cat||""))
     return (!aLAtelier(person,/^glut/i) && aLAtelier(person,/^meun/i)) ? "meun" : "glut";
   return k;
 }
