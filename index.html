@@ -4131,6 +4131,22 @@ function reequilibrer(parPoste,mmdd,inconnus){
 }
 function posteTenu(person,raw,hJour,poste){
   var i, k;
+  /* LA CELLULE D'ABORD, y compris pour un cadre. Elle écrit le poste tenu ce
+     jour-là ; la fonction de la personne ne dit que l'habitude. Le client, le
+     21/09/2026 : « tu mets un absent au gluten le 25/09 en AM alors que
+     l'opérateur gluten de la pause est bel et bien remplacé par ATR ». ATR
+     est adjoint, sa cellule dit ["AM","Gluten","Remplace SLT"] — et
+     estCadre() court-circuitait avant qu'on la lise, si bien qu'il comptait
+     « adjoint » et que le gluten paraissait en manque.
+
+     184 journées de cadres nomment ainsi un poste, et aucune n'était lue.
+     C'est la règle de tête du projet : le code franc est le poste PRÉVU,
+     l'annotation dit ce qui a été PRESTÉ, et elle prime.
+
+     Aucune de ces 184 journées n'est aussi un remplacement de contremaître :
+     l'ordre ci-dessous n'arbitre donc rien qui existe, il ne fait que rendre
+     à la cellule ce qui lui revient. */
+  k=posteEcrit(raw); if(k) return k;
   if(estCadre(person)){
     if(estContremaitre(person)) return "cm";
     /* L'adjoint ne compte au poste de contremaître que s'il le remplace
@@ -4138,7 +4154,6 @@ function posteTenu(person,raw,hJour,poste){
        qui écarte les remplacements partiels. */
     return remplacementCM(raw||[], poste||null, hJour||8) ? "cm" : "adj";
   }
-  k=posteEcrit(raw); if(k) return k;
   /* Le client : « Terrain arrière doit comprendre les opérateurs Polyvalent
      arrière ; s'ils ne sont pas là, les Renforts arrière ». La ligne 9 du
      classeur le dit, et elle le dit proprement — bien mieux que le champ

@@ -1503,6 +1503,45 @@ Le module est **en tête de l'onglet Équipe**, avant la vue du jour. Il y
 personnes le séparaient du haut de la page. Ce qui appelle une décision
 passe avant ce qui informe.
 
+### La cellule prime, y compris sur la fonction de la personne
+
+Le client, le 21/09/2026 : « tu mets un absent au gluten le 25/09 en AM alors
+que l'opérateur gluten de la pause est bel et bien remplacé par ATR dans
+l'horaire de SLT et ATR et les commentaires. »
+
+Il avait raison, et la faute était de tête :
+
+```js
+function posteTenu(person,raw,hJour,poste){
+  if(estCadre(person)){ ... return "adj"; }   /* ← court-circuit */
+  k=posteEcrit(raw); if(k) return k;          /* ← jamais atteint */
+```
+
+ATR est adjoint. Sa cellule du 25/09 dit `["AM","Gluten","Remplace SLT"]` —
+elle nomme le poste, en toutes lettres — mais `estCadre()` renvoyait « adjoint »
+avant qu'on la lise. Le gluten paraissait donc à 1/2, et le module annonçait
+un manque là où le classeur disait le contraire sur **deux lignes** : celle de
+SLT (« Remplacé par ATR ») et celle d'ATR (« Remplace SLT »).
+
+**184 journées de cadres nomment ainsi un poste, et aucune n'était lue** :
+57 terrain arrière, 31 meunerie, 31 chaudières, 19 distillation, 16 gluten,
+15 fermentation, 1 STEP — 170 d'adjoints, 14 de contremaîtres.
+
+`posteEcrit(raw)` passe donc **avant** le test de fonction. Les 14 journées de
+contremaître sont toutes explicites (`["AM","meunerie","remplace DKS"]`) : ce
+jour-là il tient la meunerie, et le poste de contremaître est vraiment vide —
+c'est une information, pas une fausse alerte. Aucune de ces 184 journées
+n'est en même temps un remplacement de contremaître, donc ce nouvel ordre
+n'arbitre rien qui existe : il rend à la cellule ce qui lui revient.
+
+**Effet mesuré : les manques à venir tombent de 28 journées à 15.** Près de la
+moitié des alertes étaient cette bévue.
+
+La leçon tient en une ligne, et c'est celle qui ouvre `CLAUDE.md` : *la
+cellule dit ce qui a été presté, et elle prime*. Une fonction — cadre,
+adjoint, opérateur — ne dit que l'habitude. Toute lecture qui teste la
+personne avant de lire sa cellule refera cette faute.
+
 ### Les couleurs disent l'atelier, le texte dit la pause
 
 Le client, le 21/09/2026 : « Gluten meunerie en jaune, fermentation /

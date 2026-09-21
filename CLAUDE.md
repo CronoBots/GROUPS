@@ -404,10 +404,21 @@ de la date donnée à la fin de l'horaire. Il ne le simule pas : il découpe
 alerte qui compterait autrement que la vue du jour serait pire que pas
 d'alerte.
 
-**Au 21/09/2026 : 28 journées sur 102, 45 places creuses.** Terrain arrière
-(13), chaudières (12) et fermentation (9) en tête ; réparti également entre
-les trois pauses. Si ce nombre s'effondre ou explose après une modification
-du rééquilibrage ou des polyvalences, c'est une régression.
+**Au 21/09/2026 : 15 journées sur 102, 27 places creuses** — fermentation (8),
+terrain arrière (7), chaudières (4). Si ce nombre s'effondre ou explose
+après une modification du rééquilibrage ou des polyvalences, c'est une
+régression.
+
+L'outil met une minute et demie : tout son code passe par `eval()`, que V8
+n'optimise pas. **Ce n'est pas la vitesse de l'application** — le navigateur
+fait les mêmes 102 journées en 2 secondes.
+
+**Ne jamais tester la fonction d'une personne avant d'avoir lu sa cellule.**
+`posteTenu()` le faisait : `estCadre()` renvoyait « adjoint » avant que
+`posteEcrit()` ne lise `["AM","Gluten","Remplace SLT"]`. 184 journées de
+cadres nommaient ainsi un poste sans être lues, et le module criait au manque
+sur la moitié de ses alertes. Voir `docs/conversion-horaire.md`, « La cellule
+prime, y compris sur la fonction de la personne ».
 
 Le module de l'application ne regarde **jamais en arrière** — un manque passé
 ne se comble plus.
