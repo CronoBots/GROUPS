@@ -139,11 +139,16 @@ est signalée.
 **La personne ne preste pas le poste prévu, ou le preste amputé d'autant.**
 Le poste affiché n'est que le poste prévu.
 
-| Cellule | Heures prestées |
+| Cellule | Heures **présentes** |
 |---|---|
 | `8H -FT` | **0** — journée de congé |
 | `D\|1H -FT` | **7** — AFA le 05/09 a terminé à 14h au lieu de 15h |
 | `PM\|3H -FT` | 5 |
+
+**Ce sont les heures PRÉSENTES, pas les heures PAYÉES.** Les heures reprises
+au compteur sont payées comme si la personne était venue — voir
+« Le compteur complète une journée écourtée » dans `docs/regles-paie.md`.
+Une journée portant un `-FT` vaut donc ses huit heures sur la fiche.
 
 Du 21 au 24/09, AFA porte `8H -FT` quatre jours de suite : il est en congé,
 remplacé par YPE, et l'Excel écrit « RHS » à droite de la cellule.
