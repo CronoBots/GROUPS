@@ -1444,3 +1444,29 @@ Repères sur l'horaire 2026, à comparer après toute reconversion :
 | durée maximale retenue | 9,75 h |
 
 Un chiffre très différent sur un horaire comparable signale une régression.
+
+## 6 nonies — « conserver prime de nuit » : le commentaire nomme la prime
+
+336 journées de 2026 portent dans le commentaire une phrase qui dit quelle
+prime payer. `primeGardee()` la lit et elle l'emporte sur le poste retenu par
+la lecture — c'est la seule mention du commentaire qui parle de la PAIE et
+non du travail. Les règles de calcul sont dans `docs/regles-paie.md`, section
+« La prime conservée, écrite en toutes lettres dans le commentaire ».
+
+Ce qu'il faut retenir ici, parce que cela change la façon de lire une
+journée : **une journée a désormais deux postes**.
+
+| champ | ce qu'il dit | qui le lit |
+|---|---|---|
+| `r.s` | le poste dont la prime est **payée** | la fiche de paie |
+| `r.sp` | le poste **presté**, quand il diffère | l'onglet Équipe, la case du calendrier |
+
+`r.sp` n'existe que si les deux diffèrent. Partout ailleurs `postePeint(rec)`
+donne celui qu'il faut montrer et `gardePrime(rec)` dit s'il y a une prime
+conservée à signaler. **Ne jamais peindre une case avec `rec.s`** : AFA le
+04/09 a fait 7h-15h en gardant sa prime de nuit ; la case doit dire « D », le
+liseré dire « nuit », et l'effectif de la nuit ne doit pas le compter.
+
+C'est la généralisation de ce que l'application faisait déjà des journées
+`SD26` et `D-F` — travaillées en horaire de jour, payées à la prime de leur
+pause. Le mécanisme existait ; il ne manquait que de lire le commentaire.

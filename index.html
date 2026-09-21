@@ -1800,10 +1800,11 @@ function ligneJour(d){
   row.dataset.d=d;
   row.innerHTML=
     '<div class="dchip"><span class="dnum">'+pad2(d)+'</span><span class="dwd">'+WD[wd]+(fer?" fér.":"")+'</span>'+
-      (rec.j?'<span class="djour"'+((rec.s&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"")
-             +' title="Journée prestée en horaire de jour ('+esc(rec.j)
-             +')'+(rec.s?" — prime "+esc(rec.s)+" conservée, d\'où le bouton allumé":"")+'">'
-             +"D·"+esc(etiqJour(rec.j))+'</span>':"")+'</div>'+
+      ((rec.j||rec.sp)?'<span class="djour"'+(gardePrime(rec)?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"")
+             +' title="'+(rec.j?"Journée prestée en horaire de jour ("+esc(rec.j)+")"
+                              :"Prestée en "+esc(POSTE_LIB[rec.sp]||rec.sp))
+             +(gardePrime(rec)?" — prime "+esc(rec.s)+" conservée, d\'où le bouton allumé":"")+'">'
+             +(rec.j?"D\u00b7"+esc(etiqJour(rec.j)):esc(rec.sp))+'</span>':"")+'</div>'+
     '<div class="shifts">'+btns+'</div>'+
     '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
     '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
@@ -1845,17 +1846,18 @@ function caseJour(d){
      journées de l'année dans ce cas. Le poste prévu s'affiche donc barré :
      ce qui était au programme, et qui n'a pas eu lieu. */
   var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
-  var tag=preste?((rec.j?etiqJour(rec.j):rec.s))
+  var tag=preste?((rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
   if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
   if(prevu) cls.push("abs","prevu");
-  if(preste&&rec.j) cls.push("jour");
+  if(preste&&(rec.j||rec.sp)) cls.push("jour");
   if(fer) cls.push("fer");
   if(auj) cls.push("auj");
-  var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
+  var pr=(preste&&gardePrime(rec))?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
   var lib=preste?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
-                       :(POSTE_LIB[rec.s]||rec.s))
+                 :(rec.sp?((POSTE_LIB[rec.sp]||rec.sp)+", prime "+rec.s+" conservée")
+                         :(POSTE_LIB[rec.s]||rec.s)))
                 :(rec.a&&ABSMAP[rec.a]?(rec.a+(rec.s?" — poste "+rec.s+" prévu":""))
                  :(prevu?((POSTE_LIB[rec.s]||rec.s)+" prévu, non presté"):"repos"));
   var marques="";
@@ -1863,7 +1865,7 @@ function caseJour(d){
   if(rec.r) marques+='<i class="mc-rap" title="Prime de rappel"></i>';
   if(preste&&rec.a) marques+='<i class="mc-part" title="'+esc(rec.a)+'"></i>';
   return '<button type="button" class="'+cls.join(" ")+'" data-d="'+d+'"'+pr
-    +(preste?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")
+    +(preste?' data-s="'+esc(postePeint(rec))+'"':"")
     +' aria-label="'+d+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
     +'<span class="mc-n">'+d+'</span>'
     +(tag?'<span class="mc-t">'+esc(tag)+'</span>':"")
@@ -2109,11 +2111,12 @@ function majProchain(){
     var quand=cejour?""
              :((d===now.getDate()+1)?" demain"
              :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d));
-    el.innerHTML='<span class="pp-pastille"'+(r.j?' data-p="D"':' data-p="'+esc(r.s)+'"')+'>'
-      +esc(r.j?etiqJour(r.j):r.s)+'</span>'
+    el.innerHTML='<span class="pp-pastille" data-p="'+esc(postePeint(r))+'">'
+      +esc(r.j?etiqJour(r.j):postePeint(r))+'</span>'
       +'<span class="pp-txt"><b>'+(cejour?"Aujourd'hui":"Prochain poste")+'</b> '
       +esc(r.j?("journée de jour ("+r.j+")")
-              :(POSTE_LIB[r.s]||r.s).toLowerCase())
+              :(POSTE_LIB[postePeint(r)]||postePeint(r)).toLowerCase())
+      +(gardePrime(r)?", prime "+esc(r.s)+" conservée":"")
       +esc(quand)+" · "+num(h)+" h"
       +(F[st.y+"-"+pad2(st.m+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
     el.hidden=false; return;
@@ -2200,19 +2203,20 @@ function renderResume(C){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
     var preste=(heuresJour(rec)>0);
     var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
-    var tag=preste?(rec.j?etiqJour(rec.j):rec.s)
+    var tag=preste?(rec.j?etiqJour(rec.j):postePeint(rec))
                   :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
     var cls=[];
     if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
     if(prevu) cls.push("abs","prevu");
-    if(preste&&rec.j) cls.push("jour");
-    var pr=(preste&&rec.j&&rec.s!=="D")?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
+    if(preste&&(rec.j||rec.sp)) cls.push("jour");
+    var pr=(preste&&gardePrime(rec))?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
     cells+='<button type="button" data-d="'+dd+'"'+pr
-      +(preste?' data-s="'+esc(rec.j?"D":rec.s)+'"':"")+
+      +(preste?' data-s="'+esc(postePeint(rec))+'"':"")+
       (cls.length?' class="'+cls.join(" ")+'"':"")+(fer?" data-fer=1":"")+
       ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+
         (preste?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
-                      :" — poste "+esc(rec.s))
+                      :" — poste "+esc(postePeint(rec))
+                        +(gardePrime(rec)?", prime "+esc(rec.s)+" conservée":""))
                :(rec.a&&ABSMAP[rec.a]?" — "+esc(rec.a)+(rec.s?", poste "+esc(rec.s)+" prévu":"")
                 :(prevu?" — "+esc(rec.s)+" prévu, non presté":" — repos")))+'">'+
       '<span class="dn">'+dd+'</span><span class="tag">'+esc(tag)+"</span></button>";
@@ -3400,6 +3404,35 @@ function posteDuRemplace(db,e,mmdd,hJour){
 
    Une seule lecture, et deux affichages qui la partagent. C'est la seule
    façon de garantir que les vues ne peuvent pas se contredire. */
+/* « Conserve sa prime de nuit », « maintien prime N », « conserve sa prime
+   de pause » : 336 journées de 2026, et le client le 21/09/2026 : « il faut
+   vraiment prendre en compte 100 % des commentaires et en faire une règle
+   stricte ».
+
+   L'application a déjà le modèle qu'il faut : out.s porte le poste dont la
+   prime est PAYÉE, l'étiquette dit ce qui a été fait. C'est le mécanisme des
+   journées « SD26 » et « D-F » — travaillées en horaire de jour, payées à la
+   prime de leur pause. Le commentaire fait ici le même travail, en toutes
+   lettres.
+
+   « Prime de pause », sans nommer laquelle, désigne la pause PRÉVUE : celle
+   que la cellule porte avant que l'annotation ne la remplace. ATA le 18/03,
+   ["AM","SD 26","Conserve sa prime de pause"] — c'est AM. */
+var RX_PRIME_GARDEE=/\b(?:conserv\w*|maintien\w*|maintenir|garde)\s+(?:sa\s+|la\s+|le\s+|de\s+)?prime\w*\s*(?:de\s+|du\s+|d')?\s*([A-Za-z\u00c0-\u00ff]{1,12})(?:\s+(?:de\s+|du\s+)?([A-Za-z\u00c0-\u00ff]{1,12}))?/i;
+function primeGardee(raw){
+  var m=RX_PRIME_GARDEE.exec(String((raw&&raw[2])||"")); if(!m) return null;
+  /* « conserver prime de dimanche nuit » : le premier mot ne nomme pas
+     toujours la pause, d'où le second. */
+  return motPrime(m[1],raw)||motPrime(m[2],raw)||null;
+}
+function motPrime(mot,raw){
+  var t=String(mot||"").toUpperCase();
+  if(t==="N"||t==="NUIT") return "N";
+  if(t==="PM"||t.indexOf("APR")===0) return "PM";
+  if(t==="AM"||t==="MATIN") return "AM";
+  if(t==="PAUSE"||t==="EQUIPE"||t==="\u00c9QUIPE") return posteDepuisMention((raw&&raw[0])||"")||null;
+  return null;
+}
 function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
   var r=parseHoraireEntry(raw,hJour,epargne,renvois);
   if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
@@ -3435,6 +3468,10 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       r.h=Math.max(0,base);
     }
   }
+  /* Le commentaire nomme la prime à conserver : il l'emporte sur le poste
+     que la lecture a retenu, car il parle de la PAIE et non du travail. */
+  var pg=primeGardee(raw);
+  if(pg && r.s && r.s!==pg){ r.sp=r.s; r.s=pg; r.modifie=true; }
   /* En DERNIER, parce que la correction de cycle ci-dessus recalcule les
      heures depuis zéro et effacerait la soustraction si on la faisait plus
      tôt. Ces heures-là viennent d'une AUTRE journée, qui les lui renvoie. */
@@ -3541,6 +3578,7 @@ function remplirMois(db,person,y,m,M){
          calendrier annuel montrait déjà les deux, le mois n'en gardait
          aucune trace — il affichait « N », et rien d'autre. */
       if(parsed.jourCode) nrec.j=parsed.jourCode; else delete nrec.j;
+      if(parsed.sp) nrec.sp=parsed.sp; else delete nrec.sp;
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
       if([nrec.s,nrec.h,nrec.a,nrec.r].join("|")!==avant) bilan.changes++;
@@ -4158,7 +4196,8 @@ function renderEquipe(){
           rv=renvoisDuMois(p,mois,st.params.hJour);
       var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
       var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
-      if(h>0) par[r.s]?par[r.s].push({p:p,r:r}):par.off.push({p:p,r:r});
+      var pv=r.sp||r.s;   /* la prime conservée ne déplace personne de pause */
+      if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
       else if(r.a&&ABSMAP[r.a]){
         var fam=ABSMAP[r.a].k;
         if(fam==="SMG") par.abs.push({p:p,r:r,
@@ -4213,7 +4252,7 @@ function renderEquipe(){
         db.people.forEach(function(q){ parId[q.id]=q; });
         l.forEach(function(x){
           if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
-          var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&x.r.s);
+          var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
           if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
           x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
           x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
@@ -4521,6 +4560,11 @@ var POSTE_LIB={AM:"Matin",PM:"Après-midi",N:"Nuit",D:"Jour"};
 /* Les codes de journée de jour sont plus longs que trois lettres. Le « D- »
    initial ne dit rien de plus — la barre au bas de la case dit déjà que la
    journée s'est faite en horaire de jour. */
+/* Le poste qu'on PEINT est celui qui a été presté ; rec.s porte la prime
+   payée. Les deux diffèrent sur une journée de jour (SD26, D-F) et sur les
+   275 journées où le commentaire nomme la prime à conserver. */
+function postePeint(rec){ return (rec&&rec.sp)||(rec&&rec.j?"D":((rec&&rec.s)||"")); }
+function gardePrime(rec){ return !!(rec&&(rec.j||rec.sp)&&rec.s&&rec.s!==postePeint(rec)); }
 function etiqJour(code){
   return String(code||"").replace(/^\s*D\s*-\s*/i,"").replace(/[-\s]/g,"").slice(0,4);
 }
@@ -4546,7 +4590,7 @@ function anneeDeLaPersonne(db,person,annee){
       var mmdd=pad2(m)+pad2(d), raw=person.d[mmdd];
       if(raw===undefined) continue;
       var r=lireJournee(db,raw,annee,m,d,fit,ep[d],st.params.hJour,rv[d]);
-      out[mmdd]={s:r.s||"", a:(r.a&&ABSMAP[r.a])?r.a:"", h:r.h, jour:r.jourCode||"",
+      out[mmdd]={s:r.s||"", sp:r.sp||"", a:(r.a&&ABSMAP[r.a])?r.a:"", h:r.h, jour:r.jourCode||"",
                  rcm:remplacementCM(raw,r.s,st.params.hJour),
                  rap:rappelDuJour(raw,posteDeCycle(fit,annee,m,d)||r.s,annee,mmdd),
                  brut:raw};
@@ -4639,16 +4683,18 @@ function renderAnnee(){
            erreur. Le liseré du bas dit la prime CONSERVÉE, dans la couleur
            de la pause que le cycle prévoyait. Deux informations, deux
            encodages, et le fond revient à la plus lue des deux. */
-        if(travaille) attr=' data-p="'+esc(j.jour?"D":j.s)+'"';
-        if(travaille && j.jour){
+        var preste=j.sp||(j.jour?"D":j.s);
+        if(travaille) attr=' data-p="'+esc(preste)+'"';
+        if(travaille && (j.jour||j.sp)){
           cls.push("jour");
-          if(j.s!=="D") attr+=' style="--pr:var(--cal-'+j.s.toLowerCase()+')"';
+          if(j.s!==preste) attr+=' style="--pr:var(--cal-'+j.s.toLowerCase()+')"';
         }
         var prevu=(!travaille && j.s && !j.a);
         if(prevu) cls.push("prevu");
-        var etiq=travaille?(j.jour?etiqJour(j.jour):j.s)
+        var etiq=travaille?(j.jour?etiqJour(j.jour):preste)
                 :(j.a?etiqAbsence(j.a):(prevu?j.s:""));
-        var lib=travaille?(j.jour?("journée de jour ("+j.jour+"), prime "
+        var lib=travaille?((j.jour||j.sp)?((j.jour?"journée de jour ("+j.jour+")"
+                 :POSTE_LIB[preste])+", prime "
                  +(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée"):POSTE_LIB[j.s])
                 :(j.a||(prevu?((POSTE_LIB[j.s]||j.s)+" prévu, non presté"):"repos"));
         h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
@@ -4671,7 +4717,8 @@ function renderAnnee(){
       var j=jours[b.dataset.k]||{}, m=Number(b.dataset.m), d=Number(b.dataset.d);
       var hb=(j.h===undefined?st.params.hJour:j.h), tv=!!(j.s && hb>0);
       var l=["<b>"+d+" "+MOIS[m-1]+" "+annee+"</b>"];
-      if(tv && j.jour) l.push("Journée de jour ("+j.jour+") · "+num(hb)+" h"
+      if(tv && (j.jour||j.sp)) l.push((j.jour?"Journée de jour ("+j.jour+")"
+                        :POSTE_LIB[j.sp])+" · "+num(hb)+" h"
                         +"<br>Prime de "+POSTE_LIB[j.s].toLowerCase()+" conservée");
       else if(tv) l.push(POSTE_LIB[j.s]+" · "+num(hb)+" h");
       if(j.a) l.push((tv?"":"Absence ")+j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s].toLowerCase():""));
@@ -4746,11 +4793,12 @@ function renderSemaine(){
          prévu passe en mention. Sans quoi la carte annonce « Nuit 0 h ». */
       if(j&&j.s&&hj>0){
         heures+=hj; prestes++;
-        c.push('<div class="pastille'+(j.jour?" jour":"")+'" data-p="'+esc(j.jour?"D":j.s)+'"'
-               +((j.jour&&j.s!=="D")?' style="--pr:var(--'+j.s.toLowerCase()+')"':"")+'>'
-               +esc(j.jour?"Jour — "+j.jour:POSTE_LIB[j.s])
+        var pst=j.sp||(j.jour?"D":j.s);
+        c.push('<div class="pastille'+((j.jour||j.sp)?" jour":"")+'" data-p="'+esc(pst)+'"'
+               +(((j.jour||j.sp)&&j.s!==pst)?' style="--pr:var(--'+j.s.toLowerCase()+')"':"")+'>'
+               +esc(j.jour?"Jour — "+j.jour:POSTE_LIB[pst])
                +'<small>'+num(hj)+' h</small></div>');
-        if(j.jour) m.push("<i>prime de "+esc(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée</i>");
+        if(j.jour||j.sp) m.push("<i>prime de "+esc(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée</i>");
         if(j.a) m.push("<i>"+esc(j.a)+"</i>");
       } else if(j&&j.a){
         c.push('<div class="pastille neutre">'+esc(j.a)+'</div>');
