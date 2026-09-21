@@ -37,7 +37,23 @@ from importlib import import_module
 _conv = import_module("convertir-horaire")
 Classeur, _annuaire, _sans_accent = _conv.Classeur, _conv._annuaire, _conv._sans_accent
 LIGNE_NOMS = _conv.LIGNE_NOMS
-_initiales, AUTEUR = _conv._initiales, _conv.AUTEUR
+AUTEUR = _conv.AUTEUR
+
+
+def _initiales(t):
+    """Les initiales, corrigées EXACTEMENT comme le convertisseur les corrige.
+
+    Sans cela, les deux outils écrivaient des identifiants différents pour la
+    même personne, et la copie de référence devenait ambiguë là où le JSON ne
+    l'était pas : le classeur anonymisé porte deux lignes « GBT » dans
+    l'onglet Polyvalence — Gluten et Chaudières — parce que l'anonymiseur
+    ignorait que le client avait tranché, et donné GBO à l'un des deux.
+
+    Une copie de référence qui confond deux personnes ne vaut plus comme
+    référence : c'est précisément ce qu'on est allé y chercher qu'elle perd.
+    """
+    corrige = _conv.CORRECTIONS.get(_conv._empreinte(_sans_accent(t).lower()))
+    return corrige or _conv._initiales(t)
 
 # Ce qui, dans le ZIP, ne doit pas être recopié.
 EXCLUS = re.compile(r"(vbaProject\.bin|/vbaProject|\.bin$)", re.I)

@@ -426,7 +426,17 @@ def polyvalence(cl, annuaire):
         if not famille or not prenom:
             continue
         cand = "%s %s." % (famille.title(), prenom[0].upper())
-        ident = annuaire.get(_sans_accent(cand).lower()) or _initiales(cand)
+        # Le même chemin que pour l'horaire : une correction du client
+        # d'abord, l'onglet Personnel ensuite, la règle des initiales en
+        # dernier. Sans la correction, la polyvalence d'une personne
+        # renommée restait classée sous l'ANCIEN trigramme — celui d'un
+        # autre, ou de personne. Le classeur porte deux lignes « GBT »,
+        # Gluten et Chaudières ; la seconde écrasait la première, et la
+        # ligne « JBY » ne trouvait plus personne depuis que JBY est
+        # revenu au responsable qui le porte.
+        cle = _sans_accent(cand).lower()
+        ident = (CORRECTIONS.get(_empreinte(cle)) or annuaire.get(cle)
+                 or _initiales(cand))
         if not ident:
             continue
         ateliers = [noms[c] for c in noms if g[r].get(c)]
@@ -435,8 +445,19 @@ def polyvalence(cl, annuaire):
             fiche["degre"] = str(g[r][4]).strip()
         if ateliers:
             fiche["ateliers"] = ateliers
-        if fiche:
-            out[ident] = fiche
+        if not fiche:
+            continue
+        # Deux lignes pour un même identifiant : l'une écrasait l'autre en
+        # silence, et la personne évincée se retrouvait SANS polyvalence —
+        # ce qui se lit ensuite comme « ne tient aucun poste », alors qu'on
+        # ne sait simplement pas. On le dit, et on garde la première.
+        if ident in out and out[ident] != fiche:
+            print("  polyvalence : deux lignes pour %s — %s puis %s ; la"
+                  " seconde est ignorée. Départager les deux personnes dans"
+                  " CORRECTIONS." % (ident, out[ident].get("ateliers"),
+                                     fiche.get("ateliers")), file=sys.stderr)
+            continue
+        out[ident] = fiche
     return out
 
 

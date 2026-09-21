@@ -575,9 +575,63 @@ C'est donc la **polyvalence** qui tranche, pas la ligne 9 :
 GBT fait le chemin inverse : sa ligne 9 dit « Polyvalent », mais sa
 polyvalence ne porte que les chaudières — il y va, et le client le confirme.
 
+**La règle ne s'applique que si la polyvalence est CONNUE.** Polyvalence
+inconnue n'est pas polyvalence vide, et la confondre déplaçait des gens sur
+un trou — voir juste dessous.
+
 **Reste ouvert** : dans les Shifts 2 et 5, les trois personnes possèdent les
 chaudières. La polyvalence ne peut alors rien départager, et l'effectif y
 paraît encore à trois pour deux. À faire trancher.
+
+### La polyvalence perdue des quatre renommés
+
+Le client, le 21/09/2026 : « JBA est en réalité JBY mais ne garde pas son
+trigramme car JBY est celui d'un ingénieur ; PDF c'est le PDR qui n'a pas la
+polyvalence distillation ; GBO c'est en réalité GBT — à mettre aux chaudières
+s'il possède la polyvalence unique Chaudières, l'autre GBT est celui qui
+possède la polyvalence Gluten. »
+
+`CORRECTIONS` renomme quatre personnes dont le trigramme calculé tombait sur
+celui d'un autre : **PDF** (l'autre PDR), **JBA** (JBY est au responsable),
+**CHD** (l'autre CDE), **GBO** (l'autre GBT). C'est une décision du client,
+prise plus tôt, et elle est juste.
+
+Mais `polyvalence()` ne consultait pas `CORRECTIONS` :
+
+```python
+ident = annuaire.get(_sans_accent(cand).lower()) or _initiales(cand)
+```
+
+La polyvalence des quatre restait donc classée sous l'**ancien** trigramme —
+celui d'un autre, ou de personne. Et `out[ident] = fiche` écrasait sans rien
+dire. Ce que porte réellement l'onglet Polyvalence :
+
+| Ligne | Trigramme | Ateliers | Ce qui se passait |
+|---|---|---|---|
+| 7 | GBT | Gluten | **écrasée** par la ligne 53 |
+| 53 | GBT | Chaudières | gardée, sur le GBT de l'équipe 5 |
+| 62 | JBY | Chaudières | **perdue** — plus personne ne porte JBY |
+| 8 | PDR | Distillation | va au PDR qui l'a ; PDF n'a aucune ligne |
+| 31 | CDE | Fermentation | va au CDE de l'équipe 5 ; CHD n'a aucune ligne |
+
+D'où quatre opérateurs d'équipe à `poly: null` — PDF, JBA, CHD, GBO — alors
+qu'au moins deux ont une polyvalence écrite noir sur blanc : **JBA tient les
+chaudières** et **GBO le gluten**, ce que le client confirme.
+
+Le convertisseur applique désormais `CORRECTIONS` comme il le fait pour
+l'horaire, et **signale** deux lignes pour un même identifiant au lieu d'en
+écraser une.
+
+**L'anonymiseur avait la même lacune**, et elle est plus grave : il écrivait
+`GBT` pour les deux, si bien que `data/classeur-2026.xlsx` — la copie de
+référence — confond les deux personnes là où le JSON les distingue. Une copie
+de référence qui confond deux personnes perd précisément ce qu'on vient y
+chercher. Il applique `CORRECTIONS` à son tour.
+
+**Ces deux corrections ne réparent pas le JSON en place** : il faut
+reconvertir depuis le `.xlsm`, que le dépôt ne porte pas — et ne doit pas
+porter. En attendant, PDF, JBA, CHD et GBO restent sans polyvalence, et la
+ligne 9 garde le dernier mot pour eux.
 
 La feuille des opérateurs en formation est hors de cette règle : le libellé
 au-dessus d'eux nomme le poste sur lequel ils se forment, et n'est pas une
