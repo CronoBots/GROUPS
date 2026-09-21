@@ -3838,6 +3838,69 @@ function atelierDuRemplace(raw,parId,qui){
   }
   return null;
 }
+/* Ce que la CELLULE écrit noir sur blanc — le poste franc, ou le lieu collé
+   au poste comme « N-terr. Arr. ». C'est la source la plus sûre, et la seule
+   que le rééquilibrage d'une pause n'a pas le droit de défaire : la cellule
+   dit ce qui a été fait, et elle prime. */
+function posteEcrit(raw){
+  var i, k, duo;
+  for(i=0;i<2;i++){ k=posteDepuisNom(raw&&raw[i]); if(k) return k; }
+  for(i=0;i<2;i++){
+    duo=/^(?:AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(String(raw&&raw[i]||"").trim());
+    if(duo){ k=posteDepuisNom(duo[1]); if(k) return k; }
+  }
+  return null;
+}
+/* Ce qu'une personne PEUT tenir, d'après sa seule polyvalence. Les règles du
+   client : le terrain arrière demande fermentation ET distillation, les
+   autres postes demandent leur atelier. */
+function peutTenir(person,P){
+  if(!P || !P.n) return false;
+  if(P.k==="terr") return tientTerrainArriere(person);
+  return !!(P.rx && aLAtelier(person,P.rx));
+}
+/* Rééquilibrer UNE pause. Le client, le 21/09/2026 : « quand il manque
+   quelqu'un sur un poste et que sur un autre poste ils sont plus que le
+   nombre demandé, celui qui a la polyvalence est d'office placé là où il
+   manque quelqu'un — exemple, pour le terrain arrière c'est PAM qui y sera
+   et QBY qui tiendra la distillation. Dans le cas où l'adjoint ne remplace
+   pas le contremaître et qu'il est disponible, c'est l'adjoint qui peut
+   prendre le poste où il manque quelqu'un, car il a toutes les
+   polyvalences. »
+
+   On ne déplace que ce que l'application a DÉDUIT. Une personne que sa
+   propre cellule envoie à un poste y reste : le classeur dit ce qui a été
+   fait, et aucun rééquilibrage n'a le droit de le contredire.
+
+   L'adjoint vient en dernier : tant qu'un poste en surnombre peut fournir
+   quelqu'un, c'est de là que vient le renfort. */
+function reequilibrer(parPoste){
+  var i, j, P, Q, liste, cand, pris, garde;
+  function parId(a,b){ return a.p.id<b.p.id?-1:1; }
+  for(i=0;i<POSTES_TRAVAIL.length;i++){
+    P=POSTES_TRAVAIL[i];
+    if(!P.n || P.cm) continue;
+    for(garde=0; garde<8 && (parPoste[P.k]||[]).length<P.n; garde++){
+      pris=null;
+      for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
+        Q=POSTES_TRAVAIL[j];
+        if(Q.k===P.k || Q.cm || !Q.n) continue;
+        liste=parPoste[Q.k]||[];
+        if(liste.length<=Q.n) continue;
+        cand=liste.filter(function(x){ return !x.fixe && peutTenir(x.p,P); }).sort(parId);
+        if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
+      }
+      if(!pris){
+        liste=parPoste.adj||[];
+        cand=liste.filter(function(x){ return !x.fixe; }).sort(parId);
+        if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
+      }
+      if(!pris) break;
+      pris.comble=P.k;
+      (parPoste[P.k]=parPoste[P.k]||[]).push(pris);
+    }
+  }
+}
 function posteTenu(person,raw,hJour,poste){
   var i, k;
   if(estCadre(person)){
@@ -3847,12 +3910,7 @@ function posteTenu(person,raw,hJour,poste){
        qui écarte les remplacements partiels. */
     return remplacementCM(raw||[], poste||null, hJour||8) ? "cm" : "adj";
   }
-  for(i=0;i<2;i++){ k=posteDepuisNom(raw&&raw[i]); if(k) return k; }
-  /* « N-terr. Arr. » : le lieu est dans la même cellule que le poste */
-  for(i=0;i<2;i++){
-    var duo=/^(?:AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(String(raw&&raw[i]||"").trim());
-    if(duo){ k=posteDepuisNom(duo[1]); if(k) return k; }
-  }
+  k=posteEcrit(raw); if(k) return k;
   /* Le client : « Terrain arrière doit comprendre les opérateurs Polyvalent
      arrière ; s'ils ne sont pas là, les Renforts arrière ». La ligne 9 du
      classeur le dit, et elle le dit proprement — bien mieux que le champ
@@ -4015,6 +4073,7 @@ function renderEquipe(){
         return '<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
           '<b>'+esc(idLisible(x.p.id))+"</b>"+
           '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
+          +(x.comble?" — comble le poste":"")
           +(det?' · <i>'+det+"</i>":"")+"</span></div>";
       }
       if(g.k==="off"||g.k==="abs"||g.k==="cong"){
@@ -4032,8 +4091,13 @@ function renderEquipe(){
           if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
           var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&x.r.s);
           if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
+          x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
           if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
         });
+        /* Pas en journée : le client, plus tôt — « en jours il n'est pas
+           obligatoire d'avoir quelqu'un à chaque poste ». Combler un manque
+           qui n'en est pas un déplacerait des gens sans raison. */
+        if(g.k!=="D") reequilibrer(parPoste);
         POSTES_TRAVAIL.forEach(function(P){
           var gens=parPoste[P.k]||[];
           /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
