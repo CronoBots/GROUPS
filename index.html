@@ -2506,7 +2506,7 @@ function majBrandsub(){
       catSel=document.getElementById("prefillCat");
   var id=idSel?idSel.value:"", cat=catSel?catSel.value:"";
   el.innerHTML = id
-    ? "<b>"+esc(id)+"</b> · "+esc(fonctionCourte(cat))
+    ? "<b>"+esc(idLisible(id))+"</b> · "+esc(fonctionCourte(cat))
     : "Choisissez qui vous êtes dans Réglages";
 }
 /* « Contremaîtres de production » ne tient pas dans un en-tête de téléphone,
@@ -2516,6 +2516,12 @@ function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
   return Number(m[3])+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
 }
+/* Le suffixe des trigrammes partagés ne se montre JAMAIS. Le client, le
+   21/09/2026 : « tu peux garder en mémoire pour toi GBT-1 pour t'y
+   retrouver, mais il ne faut jamais afficher GBT-1 mais GBT sur l'app ».
+   Deux personnes portent réellement les mêmes initiales ; le suffixe est
+   une commodité de l'application, pas leur nom. */
+function idLisible(id){ return String(id||"").split("-")[0]; }
 function fonctionCourte(cat){
   var t=String(cat||"").replace(/\s+de production$/i,"").replace(/^Shift\s*/i,"Équipe ");
   t=t.replace(/^Contremaîtres\b/i,"Contremaître")
@@ -2756,7 +2762,18 @@ function renderPrefillSelects(db){
   function fillIds(){
     var cat=catSel.value;
     var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
-    idSel.innerHTML=ids.map(function(i){return '<option value="'+esc(i)+'">'+esc(i)+"</option>";}).join("");
+    /* On montre le trigramme nu. Deux personnes du MÊME groupe qui le
+       partageraient donneraient deux entrées identiques, impossibles à
+       départager : celles-là gardent leur suffixe. Les deux GBT sont dans
+       deux équipes différentes, et le cas ne se présente pas aujourd'hui —
+       mais une liste où l'on ne peut pas se choisir serait pire que le
+       suffixe. */
+    var vus={};
+    ids.forEach(function(i){ var b=idLisible(i); vus[b]=(vus[b]||0)+1; });
+    idSel.innerHTML=ids.map(function(i){
+      var lu=(vus[idLisible(i)]>1)?i:idLisible(i);
+      return '<option value="'+esc(i)+'">'+esc(lu)+"</option>";
+    }).join("");
     var savedId=lsGet("ui/prefillId");
     if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
   }
@@ -2776,8 +2793,8 @@ function renderPrefillSelects(db){
     /* Deux personnes peuvent donner les mêmes initiales. Celle dont la fiche
        est la plus fournie garde l'identifiant nu, l'autre prend un suffixe —
        et rien ne le laisse deviner dans la liste. */
-    if(p.id.indexOf("-")>=0) txt.push("⚠ initiales partagées avec une autre personne ("
-       +p.id.split("-")[0]+") — vérifiez les journées avant de pré-remplir");
+    if(p.id.indexOf("-")>=0) txt.push("⚠ un autre "+idLisible(p.id)
+       +" existe dans une autre équipe — vérifiez les journées avant de pré-remplir");
     if(p.poly&&p.poly.ateliers) txt.push("Postes : "+p.poly.ateliers.join(", "));
     el.textContent=txt.join(" — ");
   }
@@ -3878,6 +3895,36 @@ var EQ_GROUPES=[
   {k:"cong", t:"Congé",       s:"vacances, récupération, formation"},
   {k:"off", t:"Repos",       s:""}
 ];
+/* Jusqu'à quand cette absence court-elle ? Le client, le 21/09/2026 :
+   « pour les absents, il faut indiquer en bas de la page équipe la date
+   jusqu'à laquelle ils sont indiqués ABS dans les jours qui suivent
+   l'absence actuelle ».
+
+   Le classeur écrit l'absence sur CHAQUE case, jours de repos compris —
+   YBT porte « Abs » du 1er janvier au 11 octobre sans une interruption. Un
+   parcours jour après jour suffit donc, sans tolérance de trou : un trou
+   est une reprise, pas une absence qui continue.
+
+   Les tables d'un mois — cycle, épargnes, renvois — se recalculent une
+   fois par mois traversé, et non à chaque journée : une absence de trois
+   cents jours les redemanderait trois cents fois. */
+function finAbsence(db,p,annee,mois,jour,hJour,famille){
+  var d=new Date(Date.UTC(annee,mois-1,jour)), dernier=null, cache={}, i, c;
+  for(i=0;i<400;i++){
+    d.setUTCDate(d.getUTCDate()+1);
+    var y=d.getUTCFullYear(), m=d.getUTCMonth()+1, j=d.getUTCDate();
+    var raw=p.d[pad2(m)+pad2(j)];
+    if(raw===undefined) break;
+    c=cache[y+"-"+m];
+    if(!c) c=cache[y+"-"+m]={fit:cycleDuMois(p,y,m), ep:epargnesDuMois(p,m),
+                             rv:renvoisDuMois(p,m,hJour)};
+    var r=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJour,c.rv[j]);
+    var A=r.a&&ABSMAP[r.a];
+    if(!A || A.k!==famille) break;
+    dernier=[y,m,j];
+  }
+  return dernier;
+}
 function renderEquipe(){
   var hote=document.getElementById("eqCorps"); if(!hote) return;
   fetchHoraireDB().then(function(db){
@@ -3901,8 +3948,12 @@ function renderEquipe(){
       var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
       var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
       if(h>0) par[r.s]?par[r.s].push({p:p,r:r}):par.off.push({p:p,r:r});
-      else if(r.a&&ABSMAP[r.a])
-        (ABSMAP[r.a].k==="SMG"?par.abs:par.cong).push({p:p,r:r});
+      else if(r.a&&ABSMAP[r.a]){
+        var fam=ABSMAP[r.a].k;
+        if(fam==="SMG") par.abs.push({p:p,r:r,
+          fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,fam)});
+        else par.cong.push({p:p,r:r});
+      }
       else if(r.s) par.off.push({p:p,r:r,prevu:true});
       else par.off.push({p:p,r:r});
     });
@@ -3923,11 +3974,12 @@ function renderEquipe(){
                  :'<h3><span class="eqpt"></span>'+esc(g.t)
                    +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
       function chip(x){
-        var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)
+        var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
+                  " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
                :(x.prevu?esc(x.r.s)+" prévu":
                 (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
         return '<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
-          '<b>'+esc(x.p.id)+"</b>"+
+          '<b>'+esc(idLisible(x.p.id))+"</b>"+
           '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
           +(det?' · <i>'+det+"</i>":"")+"</span></div>";
       }
@@ -4060,7 +4112,7 @@ function renderAnnuaire(db,moi){
       /* Ce que le classeur écrit au-dessus du nom, mot pour mot. On ne sait
          pas toujours ce que ça désigne ; le cacher serait pire. */
       var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
-      h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(p.id)+"</b>"+
+      h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(idLisible(p.id))+"</b>"+
         '<span>'+esc(estCadre(p)?fonctionPersonne(p)+(at?" · "+at:""):(at||"—"))+"</span>"+
         (ent?'<em class="eqat" title="Tel que le classeur l\'écrit au-dessus du nom">'
              +esc(ent)+"</em>":"")+"</div>");

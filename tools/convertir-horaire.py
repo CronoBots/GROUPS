@@ -113,6 +113,13 @@ CORRECTIONS = {
     # l'équipe 5 garde CDE, celui de l'équipe 3 garde PDR
     "a056b3f782": "CHD",   # l'autre CDE, en équipe 4
     "0ad0bc1dfe": "PDF",   # l'autre PDR, en équipe 1
+    # La même personne, écrite au long dans l'onglet Polyvalence et en
+    # court dans l'horaire : ni son trigramme ni son nom ne concordent
+    # d'une feuille à l'autre. Le client : « il faut prendre leur
+    # polyvalence sur leur vrai trigramme SAUF pour celui qui a un nom
+    # compliqué et qui devient PDF ». C'est ce « sauf » — sans cette
+    # ligne, sa polyvalence (chaudières et STEP) ne lui revient pas.
+    "6699f9fcb4": "PDF",
     # GBT n'est plus corrigé. Le client, le 21/09/2026 : « il faut annuler
     # ma demande de renommage de GBO, il doit y avoir 2 GBT (un aux
     # chaudières et l'autre au Gluten/Meunerie) ». Ce sont deux personnes
@@ -123,6 +130,26 @@ CORRECTIONS = {
     # fait de ce maintien une décision, et non le hasard d'un calcul.
     "e829c2c542": "CDE",
 }
+
+
+# Les corrections qu'a employées l'onglet Polyvalence : sans elles, une
+# correction qui n'y sert qu'à cet onglet se signalerait comme « inutilisée ».
+_corrections_polyvalence = set()
+
+
+def _cle_nom(t):
+    """Pour reconnaître un même nom d'un onglet à l'autre.
+
+    L'horaire écrit « Nom G », l'onglet Polyvalence reconstruit
+    « Nom G. » depuis ses colonnes nom et prénom : un point d'écart, et
+    les deux personnes qui partagent le trigramme GBT ne se départageaient
+    plus. On compare donc les lettres, et rien d'autre.
+
+    Cette clé ne sert QU'À COMPARER. La clé des fiches, elle, ne bouge pas :
+    les empreintes de CORRECTIONS sont calculées dessus, et les changer les
+    invaliderait toutes.
+    """
+    return re.sub(r"[^a-z0-9]+", "", _sans_accent(t).lower())
 
 
 def _empreinte(cle):
@@ -440,7 +467,13 @@ def polyvalence(cl, annuaire):
         # personne renommée reste inscrite ici sous son ancien trigramme :
         # c'est là, et nulle part ailleurs, qu'il faut aller la chercher.
         cle = _sans_accent(cand).lower()
-        reel = annuaire.get(cle) or _initiales(cand)
+        # Une correction du client tranche tout : elle désigne la personne
+        # elle-même, et court-circuite le trigramme comme le nom. C'est le
+        # « sauf pour » de la règle — il faut bien un endroit où le dire.
+        forcee = CORRECTIONS.get(_empreinte(cle))
+        if forcee:
+            _corrections_polyvalence.add(_empreinte(cle))
+        reel = forcee or annuaire.get(cle) or _initiales(cand)
         if not reel:
             continue
         ateliers = [noms[c] for c in noms if g[r].get(c)]
@@ -454,7 +487,7 @@ def polyvalence(cl, annuaire):
         # On rend les lignes TELLES QUELLES, sans en écraser aucune : le
         # classeur en porte deux pour GBT — Gluten et Chaudières — et ce
         # sont deux personnes. C'est au rattachement de les départager.
-        out.setdefault(reel, []).append((cle, fiche))
+        out.setdefault(reel, []).append((_cle_nom(cand), fiche))
     return out
 
 
@@ -581,6 +614,7 @@ def convertir(chemin_xlsm, annee):
         # sous celui-là que l'onglet Polyvalence inscrit la personne.
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
                                     "reel": annuaire.get(cle) or _initiales(nom),
+                                    "nomcle": _cle_nom(nom),
                                     "cat": categorie, "d": {}, "c": {}, "e": [],
                                     "postes": {}})
         # Le poste est propre à la FEUILLE : la même personne est « Adjoints
@@ -650,19 +684,9 @@ def convertir(chemin_xlsm, annee):
                   " du poste — le classeur ne le compte pas"
                   % (f["base"], k[2:], k[:2], f["d"][k][0]), file=sys.stderr)
 
-    for empreinte, trig in CORRECTIONS.items():
-        if empreinte not in utilisees:
-            print("  correction inutilisée : %s -> %s (le nom a changé dans le"
-                  " classeur)" % (empreinte, trig), file=sys.stderr)
-
     par_base = {}
     for cle, f in fiches.items():
         par_base.setdefault(f["base"], []).append((cle, f))
-    _cles = {id(f): cle for cle, f in fiches.items()}
-
-    def _cle_de(f):
-        return _cles.get(id(f))
-
     gens, reels, cles_ident = {}, {}, {}
     for base in sorted(par_base):
         lot = sorted(par_base[base],
@@ -683,7 +707,7 @@ def convertir(chemin_xlsm, annee):
             if f.get("postes"):
                 p["postes"] = f["postes"]
             gens[ident] = p
-            cles_ident[ident] = _cle_de(f)
+            cles_ident[ident] = f.get("nomcle")
             reels.setdefault(f.get("reel"), []).append(ident)
 
     # La polyvalence se rattache par le trigramme RÉEL — le client : « dans
@@ -697,7 +721,9 @@ def convertir(chemin_xlsm, annee):
     # départage par le NOM, qui est écrit des deux côtés ; à défaut, on ne
     # devine pas, on le dit.
     for reel, lignes in polyvalence(cl, annuaire).items():
-        cibles = reels.get(reel) or []
+        # Une correction désigne directement l'identifiant d'arrivée ; le
+        # trigramme réel, lui, passe par la table des correspondances.
+        cibles = reels.get(reel) or ([reel] if reel in gens else [])
         if not cibles:
             print("  polyvalence : la ligne %s ne correspond à personne dans"
                   " l'horaire" % reel, file=sys.stderr)
@@ -719,6 +745,14 @@ def convertir(chemin_xlsm, annee):
                   % (len(restantes), reel, len(libres), ", ".join(libres),
                      " ; ".join(str(f.get("ateliers")) for f in restantes)),
                   file=sys.stderr)
+    # APRÈS la polyvalence : une correction peut ne servir qu'à cet onglet —
+    # c'est le cas du nom écrit au long là-bas et en court dans l'horaire.
+    # La signaler avant, c'était la déclarer inutilisée à tort.
+    for empreinte, trig in CORRECTIONS.items():
+        if empreinte not in utilisees and empreinte not in _corrections_polyvalence:
+            print("  correction inutilisée : %s -> %s (le nom a changé dans le"
+                  " classeur)" % (empreinte, trig), file=sys.stderr)
+
     sortie = {"year": annee}
     sortie.update(metadata(cl))
     sortie["people"] = sorted(gens.values(), key=lambda p: (p["cat"], p["id"]))

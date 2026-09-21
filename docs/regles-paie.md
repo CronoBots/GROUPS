@@ -364,6 +364,21 @@ règle RHS ci-dessous : 4 h de présence + 4 h reprises = ses 8 h.
 L'application comptait déjà ces 8 h et le plaçait déjà à son poste ; la règle
 est écrite ici parce qu'elle était une déduction, et qu'elle ne l'est plus.
 
+## Jusqu'à quand court une absence
+
+**Demandé par le client le 21/09/2026** : « pour les absents, il faut indiquer
+en bas de la page équipe la date jusqu'à laquelle ils sont indiqués ABS dans
+les jours qui suivent l'absence actuelle. »
+
+La tuile d'un absent porte donc « MAL · jusqu'au 11 octobre ». Le classeur
+écrit l'absence sur **chaque** case, jours de repos compris — YBT porte
+« Abs » du 1er janvier au 11 octobre sans une interruption — si bien qu'un
+parcours jour après jour suffit, sans tolérance de trou : un trou est une
+reprise, pas une absence qui continue.
+
+La règle ne vaut que pour les **absents** au sens du client, c'est-à-dire les
+malades. Les congés ont leur propre groupe et leurs dates sont connues.
+
 ## RHS — récupération d'heures supplémentaires
 
 **Confirmé par le client le 20/09/2026.**

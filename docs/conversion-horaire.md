@@ -579,7 +579,7 @@ polyvalence ne porte que les chaudières — il y va, et le client le confirme.
 inconnue n'est pas polyvalence vide, et la confondre déplaçait des gens sur
 un trou — voir juste dessous.
 
-**Reste ouvert** : dans les Shifts 2 et 5, les trois personnes possèdent les
+**Reste ouvert** : dans les Shifts 2, 4 et 5, les trois personnes possèdent les
 chaudières. La polyvalence ne peut alors rien départager, et l'effectif y
 paraît encore à trois pour deux. À faire trancher.
 
@@ -613,6 +613,39 @@ Le convertisseur rattache désormais par le trigramme réel, garde **toutes**
 les lignes d'un même trigramme, les départage par le nom, et **dit** ce qu'il
 n'a pas pu départager plutôt que d'en écraser une.
 
+**Le nom ne se compare pas tel quel.** L'horaire écrit `Nom G`, l'onglet
+Polyvalence reconstruit `Nom G.` depuis ses colonnes nom et prénom : un
+point d'écart, et les deux GBT ne se départageaient plus. `_cle_nom()` ne
+garde que les lettres. Elle ne sert **qu'à comparer** — la clé des fiches ne
+bouge pas, puisque les empreintes de `CORRECTIONS` sont calculées dessus.
+
+**Le « sauf pour » de la règle.** Une personne est écrite au long dans
+l'onglet Polyvalence — surnom de famille complet — et en court dans
+l'horaire : ni son trigramme (`PDE` d'un côté, `PDR` de l'autre) ni son nom
+ne concordent. Le client : « il faut prendre leur polyvalence sur leur vrai
+trigramme **sauf** pour celui qui a un nom compliqué et qui devient PDF ».
+Une entrée de `CORRECTIONS` sur le nom long l'envoie directement à `PDF` —
+c'est ce « sauf », et il faut bien un endroit où le dire. Sans elle, sa
+polyvalence (chaudières et STEP) partait à quelqu'un d'autre.
+
+### Ce que la correction a rendu, le 21/09/2026
+
+Le classeur reconverti ne change **aucune journée** : l'écart tient tout
+entier dans la polyvalence de cinq personnes, et dans un identifiant.
+
+| | Avant | Après |
+|---|---|---|
+| `GBO` | — | devient **`GBT-1`** |
+| `GBT` (équipe 5) | Chaudières | **Gluten** |
+| `GBT-1` (équipe 4) | *(rien)* | **Chaudières** |
+| `JBA` | *(rien)* | **Chaudières** |
+| `CHD` | *(rien)* | **Fermentation** |
+| `PDF` | *(rien)* | **Chaudières, STEP** |
+| `PDE` | Chaudières, STEP | **Fermentation, Distillation, STEP** |
+
+`PDE` portait la polyvalence de `PDF` : une septième erreur, silencieuse
+elle aussi.
+
 ### Deux GBT, et non un renommage
 
 **Le client, le 21/09/2026** : « il faut annuler ma demande de renommage de
@@ -631,10 +664,14 @@ personnes là où le JSON les distingue. Une copie de référence qui confond de
 personnes perd précisément ce qu'on vient y chercher. Il applique
 `CORRECTIONS` à son tour.
 
-**Rien de tout cela ne répare le JSON en place** : il faut reconvertir depuis
-le `.xlsm`, que le dépôt ne porte pas — et ne doit pas porter. En attendant,
-PDF, JBA, CHD et GBO restent sans polyvalence, la ligne 9 garde le dernier mot
-pour eux, et l'effectif des chaudières du Shift 4 paraît encore à trois.
+**Le suffixe ne se montre jamais.** Le client : « tu peux garder en mémoire
+pour toi `GBT-1` pour t'y retrouver, mais il ne faut jamais afficher `GBT-1`
+mais `GBT` sur l'app ». Deux personnes portent réellement les mêmes
+initiales ; le suffixe est une commodité de l'application, pas leur nom.
+`idLisible()` le retire partout où un identifiant s'affiche. Seule exception,
+et elle est de sécurité : si deux personnes du **même groupe** le
+partageaient, la liste de choix donnerait deux entrées identiques — celles-là
+garderaient leur suffixe. Les deux GBT sont dans deux équipes différentes.
 
 La feuille des opérateurs en formation est hors de cette règle : le libellé
 au-dessus d'eux nomme le poste sur lequel ils se forment, et n'est pas une
