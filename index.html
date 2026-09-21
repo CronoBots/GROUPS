@@ -748,6 +748,46 @@ body.sheet-on{overflow:hidden}
 .mqinc{font-size:10px; font-weight:400; color:var(--faint); font-style:italic}
 .mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
 .mqrien b{color:var(--in)}
+/* Une carte par pause, et la pause en tableau dans le sens de la production.
+   Trois colonnes : le poste, son effectif, et qui le tient. Le liseré de
+   gauche porte la couleur de l'atelier ; la pastille du titre, celle de la
+   pause. Deux informations, deux endroits. */
+.eqcorps{display:flex; flex-direction:column; gap:12px}
+.eqcard>header{padding:14px 16px 10px}
+.eqcard>header h2{display:flex; align-items:center; gap:8px}
+.eqcard[data-s="AM"] .eqpt{background:var(--am)}
+.eqcard[data-s="PM"] .eqpt{background:var(--pm)}
+.eqcard[data-s="N"] .eqpt{background:var(--n)}
+.eqcard[data-s="D"] .eqpt{background:var(--d)}
+.eqcard[data-s="reste"] .eqpt{background:var(--faint)}
+.eqt{width:100%; border-collapse:collapse; table-layout:fixed}
+.eqt tr+tr th, .eqt tr+tr td{border-top:1px solid var(--line2)}
+.eqt th, .eqt td{padding:7px 4px; vertical-align:top; text-align:left}
+/* « CONTREMAÎTRE » est un seul mot de douze signes : il ne se coupe pas, et
+   à 96 px il passait par-dessus son effectif. La colonne est taillée sur lui. */
+.eqt th[scope="row"]{width:110px; padding-left:16px; font-size:10.5px; font-weight:700;
+  letter-spacing:.02em; text-transform:uppercase; color:var(--faint);
+  border-left:3px solid transparent; overflow-wrap:anywhere}
+.eqt td.eqc{width:42px; font-family:"IBM Plex Mono",monospace; font-size:11px;
+  font-weight:600; color:var(--muted); text-align:right; white-space:nowrap}
+.eqt td.eqw{padding-right:16px; padding-left:10px}
+.eqt tr.manque th[scope="row"]{color:var(--out)}
+.eqt tr.manque td.eqc{color:var(--out); font-weight:700}
+.eqt tr[data-k="glut"] th, .eqt tr[data-k="meun"] th{border-left-color:var(--at-jaune)}
+.eqt tr[data-k="ferm"] th{border-left-color:var(--at-ferm)}
+.eqt tr[data-k="dist"] th{border-left-color:var(--at-dist)}
+.eqt tr[data-k="terr"] th{border-left-color:var(--at-terr)}
+.eqt tr[data-k="chau"] th{border-left-color:var(--at-chau)}
+.eqt tr[data-k="step"] th{border-left-color:var(--at-step)}
+.eqn{display:inline-flex; flex-direction:column; vertical-align:top;
+  margin:0 12px 2px 0; line-height:1.3}
+.eqn b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:650;
+  letter-spacing:.02em; color:var(--ink)}
+.eqn.moi b{color:var(--in)}
+.eqn i, .eqn em{font-style:normal; font-size:10px; color:var(--faint)}
+.eqn em{font-family:"IBM Plex Mono",monospace}
+.eqvide{color:var(--faint)}
+.eqreste th[scope="row"]{width:74px}
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -1127,8 +1167,8 @@ body.sheet-on{overflow:hidden}
         <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
       </div>
       <p class="lede top" id="eqNote"></p>
-      <div class="eqcorps" id="eqCorps"></div>
     </div>
+    <div class="eqcorps" id="eqCorps"></div>
 
     <div class="card">
       <details class="fold">
@@ -4410,92 +4450,95 @@ function renderEquipe(){
 
     var par=equipeDuJour(db,annee,mois,jour);
 
+    /* UNE CARTE PAR PAUSE, et la pause en TABLEAU, dans le sens de la
+       production. Le client, le 21/09/2026 : « il faut un cadre pour le
+       matin, un pour le pm, un pour la nuit, un pour le jour, et un pour le
+       reste. Est-ce possible de modifier la présentation des équipes et de
+       la faire sous forme de tableau dans le sens de la production ? »
+
+       POSTES_TRAVAIL est déjà dans cet ordre — meunerie, gluten,
+       fermentation, terrain arrière, distillation, chaudières, STEP — c'est
+       celui où l'on parcourt l'usine. Une ligne par poste, et l'effectif en
+       face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
+    var RESTE=["abs","cong","off"];
+    function chip(x,g,posteCourant){
+      var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
+                " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
+             :(x.prevu?esc(x.r.s)+" prévu":
+              (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
+      var note=(x.fait?"fait fonction":"")||(x.comble?"comble le poste":"")
+              ||(x.deduit?"déduit de sa polyvalence":"")
+              ||((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
+                 ?"en formation, en plus":"");
+      return '<span class="eqn'+(x.p.id===moi?" moi":"")+'"'
+        +' title="'+esc(fonctionPersonne(x.p))+(det?" · "+esc(det):"")+'">'
+        +'<b>'+esc(idLisible(x.p.id))+"</b>"
+        +(note?'<i>'+esc(note)+"</i>":"")
+        +(det?'<em>'+esc(det)+"</em>":"")+"</span>";
+    }
+    function ligne(titre,cle,compte,gens,g,P,alerte){
+      return '<tr'+(alerte?' class="manque"':"")+(cle?' data-k="'+esc(cle)+'"':"")+'>'
+        +'<th scope="row">'+esc(titre)+"</th>"
+        +'<td class="eqc">'+esc(compte)+"</td>"
+        +'<td class="eqw">'+(gens.length
+            ?gens.map(function(x){ return chip(x,g,P); }).join("")
+            :'<span class="eqvide">—</span>')+"</td></tr>";
+    }
+
     EQ_GROUPES.forEach(function(g){
-      var l=par[g.k]; if(!l.length) return;
-      if(g.k!=="off") total+=l.length;
+      if(RESTE.indexOf(g.k)>=0) return;
+      var l=par[g.k]||[];
+      total+=l.length;
+      if(!l.length) return;
       l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
-      /* Le repos, c'est la moitié de l'équipe et la question qu'on se pose
-         le moins : il se replie, et les quatre pauses tiennent l'écran. */
-      var repli=(g.k==="off");
-      h.push('<section class="eqg"'+(g.k.length<=2?' data-s="'+g.k+'"':"")+
-        (g.k==="abs"||g.k==="cong"?' data-abs="1"':"")+'>');
-      h.push(repli?'<details class="eqfold"><summary><span class="eqpt"></span>'+esc(g.t)
-                   +'<small>'+l.length+"</small></summary>"
-                 :'<h3><span class="eqpt"></span>'+esc(g.t)
-                   +'<small>'+(g.s?esc(g.s)+" · ":"")+l.length+"</small></h3>");
-      /* Le poste en cours d'affichage : chip() en a besoin pour dire si un
-         opérateur en formation y compte ou s'il y est en plus. */
-      var posteCourant=null;
-      function chip(x){
-        var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
-                  " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
-               :(x.prevu?esc(x.r.s)+" prévu":
-                (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
-        return '<div class="eqp'+(x.p.id===moi?" moi":"")+'">'+
-          '<b>'+esc(idLisible(x.p.id))+"</b>"+
-          '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
-          +(x.comble?" — comble le poste":"")
-          +(x.deduit?" — déduit de sa polyvalence":"")
-          +((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
-             ?" — en formation, en plus":"")
-          +(det?' · <i>'+det+"</i>":"")+"</span></div>";
-      }
-      if(g.k==="off"||g.k==="abs"||g.k==="cong"){
-        h.push('<div class="eql">');
-        l.forEach(function(x){ h.push(chip(x)); });
-        h.push("</div>");
-      } else {
-        /* Une pause n'est pas une liste de gens : c'est une usine dont
-           chaque poste doit être tenu. On les montre donc poste par poste,
-           dans l'ordre où l'on parcourt l'usine, avec l'effectif attendu —
-           un poste qui manque saute aux yeux. */
-        var vue=postesDePause(db,l,g.k,mmdd),
-            formation=vue.formation, inconnus=vue.inconnus;
-        vue.postes.forEach(function(o){
-          var P=o.P, gens=o.gens;
-          posteCourant=P;
-          h.push('<div class="eqpo'+(o.manque?" manque":"")+'">');
-          /* Crier « manquant » quand le poste de sept personnes de la même
-             pause est simplement inconnu, c'est alarmer à faux. Tant qu'il
-             reste des postes à déterminer, le compte s'affiche en orange
-             sans accusation ; une phrase sous la pause dit pourquoi. */
-          h.push('<h4>'+esc(P.t)+'<small>'+o.tenu+(o.attendu?" / "+o.attendu:"")+"</small>"+
-                 (o.detail?'<span class="eqdet">'+esc(o.detail)+"</span>":"")+
-                 ((o.manque&&!inconnus.length&&o.creux)?'<span class="eqmq">'+o.creux
-                   +" manquant"+(o.creux>1?"s":"")+"</span>":"")+"</h4>");
-          h.push('<div class="eql">');
-          gens.forEach(function(x){ h.push(chip(x)); });
-          h.push("</div></div>");
-        });
-        if(formation.length){
-          h.push('<div class="eqpo"><h4>Formation<small>'+formation.length
-            +"</small></h4><div class=\"eql\">");
-          posteCourant=null;
-          formation.forEach(function(x){ h.push(chip(x)); });
-          h.push("</div></div>");
-        }
-        if(inconnus.length){
-          h.push('<div class="eqpo inconnu"><h4>Poste à déterminer<small>'
-            +inconnus.length+"</small></h4><div class=\"eql\">");
-          posteCourant=null;
-          inconnus.forEach(function(x){ h.push(chip(x)); });
-          h.push("</div></div>");
-          h.push('<p class="eqnote">'+inconnus.length+" personne"
+      var vue=postesDePause(db,l,g.k,mmdd),
+          formation=vue.formation, inconnus=vue.inconnus, corps=[];
+      vue.postes.forEach(function(o){
+        corps.push(ligne(o.P.t, o.P.k,
+          o.tenu+(o.attendu?" / "+o.attendu:""), o.gens, g, o.P,
+          o.manque && !inconnus.length));
+      });
+      if(formation.length)
+        corps.push(ligne("Formation","",String(formation.length),formation,g,null,false));
+      if(inconnus.length)
+        corps.push(ligne("À déterminer","",String(inconnus.length),inconnus,g,null,false));
+      h.push('<div class="card eqcard" data-s="'+esc(g.k)+'">'
+        +'<header><h2><span class="eqpt"></span>'+esc(g.t)+"</h2>"
+        +'<span class="sub">'+(g.s?esc(g.s)+" · ":"")+l.length
+        +" personne"+(l.length>1?"s":"")+"</span></header>"
+        +'<table class="eqt"><tbody>'+corps.join("")+"</tbody></table>"
+        +(inconnus.length?'<p class="eqnote">'+inconnus.length+" personne"
             +(inconnus.length>1?"s":"")+" dont le classeur ne donne pas le poste — "
             +"elle"+(inconnus.length>1?"s":"")+" couvre"+(inconnus.length>1?"nt":"")
-            +" peut-être ceux qui s'affichent en dessous de leur effectif.</p>");
-        }
-      }
-      h.push((repli?"</details>":"")+"</section>");
+            +" peut-être un poste affiché sous son effectif.</p>":"")
+        +"</div>");
     });
+
+    /* Et une carte pour le reste : malades, congés, repos. On ne les range
+       pas par poste — ils n'en tiennent aucun ce jour-là. */
+    var resteCorps=[];
+    RESTE.forEach(function(k){
+      var g=EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
+      var l=par[k]||[]; if(!l.length) return;
+      if(k!=="off") total+=l.length;
+      l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+                          : (a.p.cat<b.p.cat?-1:1); });
+      resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
+    });
+    if(resteCorps.length)
+      h.push('<div class="card eqcard" data-s="reste">'
+        +'<header><h2><span class="eqpt"></span>Le reste</h2>'
+        +'<span class="sub">malades, congés, repos</span></header>'
+        +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>");
+
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=
       total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
     var note=document.getElementById("eqNote");
-    if(note) note.innerHTML="Chaque pause est montrée <b>poste par poste</b>, dans l'ordre de "
-      +"l'usine, avec l'effectif attendu. Un poste sous son effectif est signalé. "
+    if(note) note.innerHTML="Une carte par pause, et la pause <b>poste par poste</b> dans "
+      +"l'ordre de l'usine, avec l'effectif attendu. Un poste sous son effectif est signalé. "
       +"Le poste vient de la cellule du jour, de l'en-tête de colonne du classeur, ou du seul "
       +"poste sur lequel la personne est formée — à défaut, elle reste « à déterminer » "
       +"plutôt que de compléter un effectif par une supposition.";

@@ -1503,6 +1503,33 @@ Le module est **en tête de l'onglet Équipe**, avant la vue du jour. Il y
 personnes le séparaient du haut de la page. Ce qui appelle une décision
 passe avant ce qui informe.
 
+## 9 quinquies — une carte par pause, la pause en tableau
+
+Le client, le 21/09/2026 : « il faut un cadre pour le matin, un pour le pm,
+un pour la nuit, un pour le jour, et un pour le reste. Est-ce possible de
+modifier la présentation des équipes et de la faire sous forme de tableau
+dans le sens de la production ? »
+
+Cinq cartes : **Matin, Après-midi, Nuit, Jour**, et **Le reste** — malades,
+congés, repos, qui ne tiennent aucun poste ce jour-là et n'ont donc pas de
+ligne par poste.
+
+Chaque pause est un tableau de trois colonnes : **le poste, son effectif, qui
+le tient.** Les lignes suivent `POSTES_TRAVAIL`, qui est déjà l'ordre où l'on
+parcourt l'usine — meunerie, gluten, fermentation, terrain arrière,
+distillation, chaudières, STEP, précédés du contremaître et de l'adjoint.
+Suivent, s'il y en a, la formation et les postes à déterminer.
+
+Deux couleurs, deux informations : la **pastille du titre** dit la pause, le
+**liseré de gauche** dit l'atelier, dans la palette de la section précédente.
+
+La colonne des postes fait 110 px et non 96 : « CONTREMAÎTRE » est un seul
+mot de douze signes, il ne se coupe pas, et il passait par-dessus son
+effectif.
+
+Rien du calcul ne change : `postesDePause()` rend les mêmes lignes, seul leur
+habillage est neuf.
+
 ### La cellule prime, y compris sur la fonction de la personne
 
 Le client, le 21/09/2026 : « tu mets un absent au gluten le 25/09 en AM alors
