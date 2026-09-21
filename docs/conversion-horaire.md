@@ -354,29 +354,51 @@ QDE 12/06  ["7h-15h", "4h RTT"]                  ← le compteur réel
 journée visée porte déjà son propre compteur ; trois l'écrivent même en
 toutes lettres dans leur commentaire — `["PM","4h -FT","+4h RTT"]`.
 
-### Ce que l'application fait
+### La règle
 
-Quand la cellule est un **repos** et que le commentaire renvoie ailleurs,
-l'annotation n'y crée plus d'absence : la journée redevient un repos ordinaire.
-**20 journées**, et **aucune heure prestée ne bouge** — la case valait zéro
-heure de toute façon. La correction enlève une étiquette qui ment, rien de plus.
+**Le client, le 21/09/2026, les a toutes tranchées une par une** — « CKS oui
+ça complète le 25/07, VGG aussi, GJR aussi le 08/04, CWN aura fait 10-20 car
+aura repris 2 h RTT en plus fin de journée, PAM aussi c'est pour le 12/09 **en
+plus de ses -FT**, HKB pareil. Les commentaires sont justes s'il reporte sur
+une autre journée. »
 
-### Les six journées qui attendent le client
+> L'annotation appartient au jour que le commentaire nomme, **en plus** du
+> compteur que ce jour porte déjà. Le jour où elle est écrite n'en garde rien.
 
-Là, la cellule porte un **vrai poste** et l'annotation ampute des heures
-réellement prestées. Y toucher changerait une fiche de paie : on ne devine pas.
+`renvoisDuMois()` est la jumelle de `epargnesDuMois()`, dans l'autre sens :
+celle-ci part du jour qui écrit « pris le 12.06 » et rend ce que reçoit le
+12 juin. Elle balaie l'année entière — VBN renvoie du 23/07 au 01/08, d'un
+mois à l'autre.
 
-| | Écrit | Compté | Journée visée |
-|---|---|---|---|
-| VGG 02/11 | `["AM","4h RTT","pris le 03.11"]` | 4 h | `03/11 ["AM","1/2VA"]` |
-| GJR 07/04 | `["AM","3h RTT","pris le 08.04"]` | 5 h | `08/04 ["PM","1/2VA"]` |
-| CWN 25/06 | `["AM","2h RTT","pris le 26.06"]` | 6 h | `26/06 ["10h-22h","4h +FT"]` |
-| CKS 26/07 | `["PM","5h RTT","pris le 25.07"]` | 3 h | `25/07 ["PM","3h -FT"]` |
-| PAM 13/09 | `["PM","2h RTT","pris le 12.09"]` | 6 h | `12/09 ["Ferm. Liq.","3h -FT"]` |
-| HKB 08/05 | `["PM","1h -FT","pris le 09.05"]` | 8 h | `09/05 ["PM","1h RTT"]` |
+La journée visée peut donc porter deux compteurs : le sien et celui qu'on lui
+renvoie. C'est le champ `ax` du mois, à côté de `a`.
 
-Si le RTT a bien été pris le jour visé, la journée écrite était **complète** —
-et l'application en retire aujourd'hui jusqu'à cinq heures.
+| | Écrit | Avant | Après | Journée visée | Avant | Après |
+|---|---|---|---|---|---|---|
+| CKS 26/07 | `["PM","5h RTT","pris le 25.07"]` | 3 h | **8 h** | `25/07 ["PM","3h -FT"]` | 8 h | **3 h** |
+| VGG 02/11 | `["AM","4h RTT","pris le 03.11"]` | 4 h | **8 h** | `03/11 ["AM","1/2VA"]` | 4 h | **0 h** |
+| GJR 07/04 | `["AM","3h RTT","pris le 08.04"]` | 5 h | **8 h** | `08/04 ["PM","1/2VA"]` | 4 h | **1 h** |
+| CWN 25/06 | `["AM","2h RTT","pris le 26.06"]` | 6 h | **8 h** | `26/06 ["10h-22h","4h +FT"]` | 8 h | **6 h** |
+| PAM 13/09 | `["PM","2h RTT","pris le 12.09"]` | 6 h | **8 h** | `12/09 ["Ferm. Liq.","3h -FT"]` | 8 h | **6 h** |
+| HKB 08/05 | `["PM","1h -FT","pris le 09.05"]` | 8 h | 8 h | `09/05 ["PM","1h RTT"]` | 7 h | **6 h** |
+
+CWN le 26/06 tombe exactement sur ce que dit le client : 10 h-22 h moins
+2 h RTT reprises en fin de journée, soit 10 h-20 h — **six heures** après les
+quatre épargnées au flex time.
+
+### Ce qui prouve que le report ne perd rien
+
+Trois journées visées portent le renvoi **écrit dans leur propre commentaire** :
+`["PM","4h -FT","+4h RTT"]` chez ATR le 28/06, `["N","1/2VA","+4h RTT"]` chez
+JBI le 24/06, `["AM","7h RTT","+1h -FT"]` chez QBY le 24/10. La somme y tombe
+juste — zéro, zéro et une heure. Le classeur écrit donc lui-même l'addition que
+la règle fait.
+
+Et le contrôle des compteurs, `node tools/verifier-calendrier.js --compteurs`,
+donne **76 personnes sur 77** avant comme après, avec la même unique divergence
+connue : FPA, 44 h contre 41, l'inversion de colonnes du 07/11. Le pied de
+classeur additionne les compteurs là où ils sont ÉCRITS — un report déplace
+donc l'heure de jour, jamais de total.
 
 ## 6 sexies. Mentions reconnues, sans effet sur le calcul
 

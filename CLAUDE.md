@@ -334,9 +334,8 @@ pourraient déplacer des heures : à faire trancher, une par une.
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
 lui qu'il faut relancer, et non un script à côté. Au 20/09/2026, sur les
-27 462 journées : **14 804 prestées, 4 890 absences, 156 postes prévus non
-prestés, 7 612 repos** (au 21/09/2026 ; les 19 journées passées d'absence à
-repos sont les renvois « pris le JJ.MM » de la section 6 septies). Un écart important signale une régression.
+27 462 journées : **14 802 prestées, 4 892 absences, 156 postes prévus non
+prestés, 7 612 repos** (au 21/09/2026). Un écart important signale une régression.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 `docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
@@ -344,8 +343,15 @@ sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
 case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
 appliqués.
 
-Second contrôle, indépendant : recalculer les compteurs flex time de chacun
-depuis ses journées et les comparer à ceux du pied de classeur, qui sont
-saisis à la main. 76 personnes sur 77 doivent concorder exactement — la
-seule divergence connue est une erreur du classeur, documentée en section
-10 bis.
+Second contrôle, indépendant, et il se lance lui aussi :
+
+```bash
+node tools/verifier-calendrier.js --compteurs
+```
+
+Il recalcule les compteurs flex time de chacun depuis ses journées et les
+compare à ceux du pied de classeur, saisis à la main. Les neuf règles
+regardent ce que la case AFFICHE ; celui-ci additionne ce qu'elle COMPTE.
+**76 personnes sur 77 doivent concorder exactement** — la seule divergence
+connue est une erreur du classeur (FPA, 44 h contre 41), documentée en
+section 10 bis.

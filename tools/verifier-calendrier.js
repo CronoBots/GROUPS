@@ -82,10 +82,16 @@ const MORCEAUX=[
   ["function lireJournee(","\n}"],
   ["function plageHorsPoste(","\n}"],
   ["var RX_RENVOI=","\n"],
+  ["function renvoisDuMois(","\n}"],
   ["function epargnesDuMois(","\n}"],
   ["function etiqJour(","\n}"],
-  ["function etiqAbsence(","\n}"]
+  ["function etiqAbsence(","\n}"],
+  ["function familleAbsence(","\n}"],
+  ["function compteursCalcules(","\n}"]
 ];
+/* compteursCalcules() interroge st.params : l'application le remplit, l'outil
+   n'en a qu'un besoin, la journée contractuelle. */
+const st={params:{hJour:8}};
 eval(MORCEAUX.map(m=>part(m[0],m[1])).join("\n"));
 
 /* Découper du code par repères est fragile : une table remplie sur deux
@@ -107,6 +113,7 @@ const EPREUVES=[
   ["annotation « - »",           ()=>parseHoraireEntry(["N","-"],8).h===0],
   ["annotation renvoyée ailleurs",()=>!parseHoraireEntry(["-","2h -FT","pris le 19.09"],8).a
                                      && parseHoraireEntry(["-","2h -FT"],8).a==="2H -FT"],
+  ["heures reçues d'un renvoi",  ()=>lireJournee({people:[]},["PM"],2026,9,12,null,0,8,["2H RTT"]).h===6],
   ["plage d'un commentaire",     ()=>{const p=plageCommentaire("de 18h à 22h"); return p&&p[0]===18&&p[1]===22;}],
   ["plage hors du poste",        ()=>plageHorsPoste([18,22],"N") && !plageHorsPoste([18,22],"PM")]
 ];
@@ -168,6 +175,31 @@ const fichier=(coupe<0?ARGS:ARGS.slice(0,coupe))
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
 const ANNEE=Number(db.year);
 
+/* --- les compteurs, recalculés puis confrontés au pied de classeur -------
+   node tools/verifier-calendrier.js --compteurs
+   Deuxième contrôle, indépendant du premier : les neuf règles regardent ce
+   que la case AFFICHE, celui-ci additionne ce qu'elle COMPTE. Le pied de
+   feuille est saisi à la main par le client, et il additionne les compteurs
+   LÀ OÙ ILS SONT ÉCRITS — un renvoi « pris le 12.06 » déplace donc l'heure
+   de jour, jamais de total. Une divergence qui apparaît après une
+   modification de la lecture est une régression, pas une trouvaille. */
+if(process.argv.indexOf("--compteurs")>=0){
+  let bons=0; const ecarts=[];
+  for(const p of db.people){
+    const f=(p.c&&p.c.flex)||null; if(!f) continue;
+    const calc=compteursCalcules(p,ANNEE);
+    const attPlus=Number(f["+FT"]||0), attMoins=Number(f["-FT"]||0);
+    const ecart=Math.abs(calc.ftPlus-attPlus)+Math.abs(-calc.ftMoins-attMoins);
+    if(ecart<0.01) bons++;
+    else ecarts.push("   "+p.id+"  +FT "+calc.ftPlus+" vs "+attPlus+
+                     "   -FT "+(-calc.ftMoins)+" vs "+attMoins);
+  }
+  console.log("compteurs flex time — "+bons+" personnes concordent, "+
+              ecarts.length+" divergent");
+  ecarts.forEach(l=>console.log(l));
+  process.exit(ecarts.length>1?1:0);
+}
+
 /* --- interroger la lecture sur une journée précise -----------------------
    node tools/verifier-calendrier.js --journee FPA 0919 0921
    Répond ce que l'APPLICATION fait de la cellule — pas ce qu'on croit
@@ -184,8 +216,9 @@ if(process.argv.indexOf("--journee")>=0){
     const m=Number(mmdd.slice(0,2)), d=Number(mmdd.slice(2));
     const raw=p.d[mmdd];
     if(raw===undefined){ console.log(mmdd+"  (rien)"); continue; }
-    const fit=cycleDuMois(p,ANNEE,m), ep=epargnesDuMois(p,m);
-    const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR);
+    const fit=cycleDuMois(p,ANNEE,m), ep=epargnesDuMois(p,m),
+          rv=renvoisDuMois(p,m,H_JOUR);
+    const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR,rv[d]);
     const a=affichage(r);
     console.log(qui+" "+d+"/"+pad2(m)+"  "+JSON.stringify(raw));
     console.log("     lu       : poste="+(r.s||"—")+"  heures="+
@@ -214,12 +247,13 @@ const incomprises={};
 
 for(const p of db.people){
   for(let m=1;m<=12;m++){
-    const fit=cycleDuMois(p,ANNEE,m), ep=epargnesDuMois(p,m), nd=daysInMonth(ANNEE,m-1);
+    const fit=cycleDuMois(p,ANNEE,m), ep=epargnesDuMois(p,m),
+          rv=renvoisDuMois(p,m,H_JOUR), nd=daysInMonth(ANNEE,m-1);
     for(let d=1;d<=nd;d++){
       const mmdd=pad2(m)+pad2(d), raw=p.d[mmdd];
       if(raw===undefined) continue;
       cellules++;
-      const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR);
+      const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR,rv[d]);
       const a=affichage(r);
       const cel=(raw[0]||"").trim(), annot=(raw[1]||"").trim();
       const vide=(!cel||cel==="-");
