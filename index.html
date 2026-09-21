@@ -3596,6 +3596,12 @@ var POSTES_TRAVAIL=[
   {k:"chau", t:"Chaudières",      n:2, rx:/^chaudi/i},
   {k:"step", t:"STEP",            n:0, rx:/^step/i}
 ];
+/* Les codes de journée qui disent « formation » : « F » et « D-F ». Le
+   client : « les gens en formation, il faut les mettre à part dans un
+   intitulé Formation, sous les différents postes de chaque pause ». Ils sont
+   présents, mais pas à leur poste — les compter dedans ferait croire le
+   poste tenu alors qu'il ne l'est pas. */
+var EST_FORMATION=/^d?\s*-?\s*f$/i;
 function posteDepuisNom(t){
   t=String(t||"").trim();
   for(var i=0;i<POSTES_TRAVAIL.length;i++){
@@ -3739,8 +3745,9 @@ function renderEquipe(){
            chaque poste doit être tenu. On les montre donc poste par poste,
            dans l'ordre où l'on parcourt l'usine, avec l'effectif attendu —
            un poste qui manque saute aux yeux. */
-        var parPoste={}, inconnus=[];
+        var parPoste={}, inconnus=[], formation=[];
         l.forEach(function(x){
+          if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
           var k=posteTenu(x.p,x.p.d[mmdd]);
           if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
         });
@@ -3783,6 +3790,12 @@ function renderEquipe(){
           gens.forEach(function(x){ h.push(chip(x)); });
           h.push("</div></div>");
         });
+        if(formation.length){
+          h.push('<div class="eqpo"><h4>Formation<small>'+formation.length
+            +"</small></h4><div class=\"eql\">");
+          formation.forEach(function(x){ h.push(chip(x)); });
+          h.push("</div></div>");
+        }
         if(inconnus.length){
           h.push('<div class="eqpo inconnu"><h4>Poste à déterminer<small>'
             +inconnus.length+"</small></h4><div class=\"eql\">");
