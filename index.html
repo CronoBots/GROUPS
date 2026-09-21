@@ -4061,6 +4061,20 @@ var EST_RENFORT=/^r$/i;
 function reequilibrer(parPoste,mmdd,inconnus){
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
+  /* Combien de postes EN MANQUE cette personne saurait-elle tenir ? Un seul,
+     et le placer n'est pas une supposition : c'est la seule lecture possible.
+     Deux, et c'est un choix que le classeur ne nous a pas donné à faire. */
+  function unSeulManque(x){
+    var k, T, n=0;
+    for(k=0;k<POSTES_TRAVAIL.length;k++){
+      T=POSTES_TRAVAIL[k];
+      if(!T.n || T.cm) continue;
+      if(effectif(parPoste[T.k],T)>=T.n) continue;
+      if(peutTenir(x.p,T) && compteAuPoste(x,T)) n++;
+      if(n>1) return false;
+    }
+    return n===1;
+  }
   for(i=0;i<POSTES_TRAVAIL.length;i++){
     P=POSTES_TRAVAIL[i];
     if(!P.n || P.cm) continue;
@@ -4073,6 +4087,27 @@ function reequilibrer(parPoste,mmdd,inconnus){
       if(cand.length){
         pris=cand[0];
         inconnus.splice(inconnus.indexOf(pris),1);
+      }
+      /* Puis un indéterminé ORDINAIRE : le classeur ne dit pas où il est,
+         mais il travaille, et le prendre ne dégarnit aucun poste. Le client,
+         le 21/09/2026 : « celui qui a la polyvalence est d'office placé là
+         où il manque quelqu'un. » PDE les 26 et 27/09 : cellule ["AM"],
+         polyvalent fermentation / distillation / STEP, et la fermentation à
+         0/1 à côté de lui.
+
+         Une seule condition, mais elle est stricte : il ne doit y avoir
+         qu'UN SEUL poste en manque qu'il sache tenir. Sinon on choisirait à
+         la place du classeur, et « à déterminer » vaut mieux qu'une
+         supposition — c'est la règle que le client a validée. */
+      if(!pris){
+        cand=(inconnus||[]).filter(function(x){
+          return peutTenir(x.p,P) && compteAuPoste(x,P) && unSeulManque(x);
+        }).sort(parId);
+        if(cand.length){
+          pris=cand[0];
+          pris.deduit=true;
+          inconnus.splice(inconnus.indexOf(pris),1);
+        }
       }
       for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
         Q=POSTES_TRAVAIL[j];
@@ -4402,6 +4437,7 @@ function renderEquipe(){
           '<b>'+esc(idLisible(x.p.id))+"</b>"+
           '<span>'+esc(fonctionPersonne(x.p))+(x.fait?" — fait fonction":"")
           +(x.comble?" — comble le poste":"")
+          +(x.deduit?" — déduit de sa polyvalence":"")
           +((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
              ?" — en formation, en plus":"")
           +(det?' · <i>'+det+"</i>":"")+"</span></div>";

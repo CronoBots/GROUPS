@@ -1583,3 +1583,44 @@ n'attend aucun effectif (`n:0`), sa couleur ne sert donc pas encore.
 - Quand un poste reste **« à déterminer »** le même jour, le module l'écrit
   sous la ligne : la personne dont le classeur ne donne pas le poste est
   peut-être exactement celle qui manque.
+
+## 9 quater — un indéterminé qu'un seul poste en manque attend
+
+`reequilibrer()` ne prenait, parmi les gens dont le classeur ne dit pas le
+poste, que ceux marqués `R` — explicitement là pour combler. PDE les 26 et
+27/09 ne l'est pas : sa cellule est `["AM"]`, sa polyvalence
+`Fermentation / Distillation / STEP`, et la fermentation était à 0/1 à côté
+de lui.
+
+Il est donc placé, sous **une condition stricte** : il ne doit y avoir qu'UN
+SEUL poste en manque qu'il sache tenir. Deux, et le choix appartiendrait au
+classeur, pas à nous — « à déterminer » vaut mieux qu'une supposition, c'est
+la règle que le client a validée. La vignette le dit : « déduit de sa
+polyvalence », pour qu'une déduction ne passe jamais pour un fait.
+
+Le prendre ne dégarnit aucun poste, il passe donc **avant** le prélèvement
+sur un poste en surnombre et avant la cascade.
+
+Effet : les manques à venir passent de 15 journées à 14.
+
+### Ce qui n'en est pas un : QBY le 23/10
+
+Son en-tête porte « Renfort arrière » et le terrain arrière manque — mais sa
+polyvalence est `Gluten / Distillation`. La règle du client : « le terrain
+arrière ne peut être tenu que par quelqu'un qui possède le poste fermentation
+ET le poste distillation ». QBY ne l'a pas. Le manque est réel.
+
+### À trancher : l'annotation « F » sur un projet
+
+**313 journées** portent `F` en annotation, et `EST_FORMATION` les sort de
+leur poste — à raison : « Formation STEP », « Formation Bioéthanol », « ATEX
+sur site », « recyclage CESI ».
+
+Mais **28 d'entre elles** portent le commentaire « projet falling film en
+distillation ». Ce n'est pas une formation, c'est un projet, et le
+commentaire dit où : en distillation. Le 05/10 en après-midi, six personnes
+sont dans ce cas, et la pause paraît vide de quatre postes.
+
+Question au client : sur ces journées-là, la personne tient-elle le poste que
+le commentaire nomme, ou est-elle hors effectif comme pour une formation ?
+Cela touche l'effectif affiché, pas la paie.
