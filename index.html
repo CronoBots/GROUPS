@@ -3628,6 +3628,18 @@ function roleDeFeuille(person){
   }
   return null;
 }
+/* Le client : « le terrain arrière ne peut être tenu que par quelqu'un qui
+   possède le poste fermentation ET le poste distillation ». Le terrain
+   arrière couvre les deux ; sans l'un d'eux, on ne peut pas le tenir —
+   quand bien même la ligne 9 vous y place. */
+function tientTerrainArriere(person){
+  var at=(person.poly&&person.poly.ateliers)||[], f=false, d=false, i;
+  for(i=0;i<at.length;i++){
+    if(/^ferm/i.test(at[i])) f=true;
+    if(/^disti/i.test(at[i])) d=true;
+  }
+  return f&&d;
+}
 function posteTenu(person,raw){
   var i, k;
   if(estCadre(person)) return "cm";
@@ -3642,7 +3654,7 @@ function posteTenu(person,raw){
      classeur le dit, et elle le dit proprement — bien mieux que le champ
      « e », qui n'est qu'un vidage de tout ce qui entoure le nom. */
   var role=roleDeFeuille(person);
-  if(role==="pa"||role==="ra") return "terr";
+  if((role==="pa"||role==="ra") && tientTerrainArriere(person)) return "terr";
   var ent=person.e||[];
   for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
   var at=(person.poly&&person.poly.ateliers)||[];
@@ -3777,15 +3789,21 @@ function renderEquipe(){
           var tenu=gens.length, detail="";
           if(P.k==="terr"){
             /* Le poste revient au polyvalent arrière ; le renfort arrière le
-               tient quand celui-ci n'est pas là. */
-            var pa=gens.filter(function(x){return roleDeFeuille(x.p)==="pa";});
-            var ra=gens.filter(function(x){return roleDeFeuille(x.p)!=="pa";});
-            if(!pa.length) ra.forEach(function(x){ x.fait=true; });
-            gens=pa.concat(ra);
-            tenu=pa.length||ra.length;
-            if(pa.length&&ra.length) detail=pa.length+" polyvalent"+(pa.length>1?"s":"")
-                                          +" · "+ra.length+" renfort"+(ra.length>1?"s":"");
-            else if(!pa.length&&ra.length)
+               tient quand celui-ci n'est pas là. Une personne que SA CELLULE
+               du jour envoie au terrain arrière y est aussi de plein droit —
+               la cellule dit ce qui a été fait, et elle prime. */
+            var pa=[], ra=[], autres=[];
+            gens.forEach(function(x){
+              var rl=roleDeFeuille(x.p);
+              if(rl==="pa") pa.push(x); else if(rl==="ra") ra.push(x); else autres.push(x);
+            });
+            var titu=pa.concat(autres);
+            if(!titu.length) ra.forEach(function(x){ x.fait=true; });
+            gens=titu.concat(ra);
+            tenu=titu.length||ra.length;
+            if(titu.length&&ra.length)
+              detail=ra.length+" renfort"+(ra.length>1?"s":"")+" en plus";
+            else if(!titu.length&&ra.length)
               detail=ra.length+" renfort"+(ra.length>1?"s":"")+" arrière";
           }
           if(P.k==="cm"){

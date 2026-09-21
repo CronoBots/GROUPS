@@ -461,6 +461,15 @@ le polyvalent arrière le tient, et le renfort arrière prend le relais en son
 absence — marqué « fait fonction », comme l'adjoint qui remplace un
 contremaître.
 
+**Et il faut les deux postes.** Le client : « le terrain arrière ne peut être
+tenu que par quelqu'un qui possède le poste fermentation ET le poste
+distillation ». Il couvre les deux ; sans l'un d'eux, on ne peut pas le
+tenir — quand bien même la ligne 9 vous y place. Deux renforts arrière sont
+dans ce cas, `BBZ` et `QBY`, qui n'ont pas la fermentation.
+
+Une personne que **sa cellule du jour** envoie au terrain arrière y est de
+plein droit : la cellule dit ce qui a été fait, et elle prime sur la ligne 9.
+
 Les polyvalents et renforts **avant** ne sont pas encore rattachés à un
 poste : le client les dit « le plus souvent au gluten », mais sous condition,
 et une tendance ne se code pas comme une règle.
