@@ -333,9 +333,9 @@ pourraient déplacer des heures : à faire trancher, une par une.
 ## Vérifier une modification du pré-remplissage
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
-lui qu'il faut relancer, et non un script à côté. Au 20/09/2026, sur les
+lui qu'il faut relancer, et non un script à côté. Au 21/09/2026, sur les
 27 462 journées : **14 802 prestées, 4 892 absences, 156 postes prévus non
-prestés, 7 612 repos** (au 21/09/2026). Un écart important signale une régression.
+prestés, 7 612 repos**. Un écart important signale une régression.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 `docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
