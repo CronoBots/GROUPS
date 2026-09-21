@@ -2956,6 +2956,12 @@ function parseHoraireEntry(e,hJour,epargne){
     var r={};
     txt=(txt||"").trim();
     if(!txt||txt==="-") return r;
+    /* « E. min SD26 », « E. Min SD26 » : effectif minimum. Le client : « il
+       fallait plus de personnes à ce poste cette période-là ». C'est
+       l'EXPLICATION d'une présence, pas un décompte — on la retire et on lit
+       ce qui reste, qui est la journée elle-même. */
+    txt=txt.replace(/^e\.?\s*min\.?\s+/i,"").trim();
+    if(!txt) return r;
     r.poste=posteDepuisMention(txt);
     r.plage=plageMention(txt);
     if(r.poste||r.plage) return r;

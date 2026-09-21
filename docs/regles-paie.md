@@ -385,6 +385,19 @@ lui veut dire tout autre chose.
 
 39 journées de l'horaire 2026, **toutes en janvier**.
 
+## E. min — effectif minimum
+
+**Confirmé par le client le 20/09/2026.**
+
+`E. min SD26`, `E. Min SD26` : « effectif minimum — il fallait plus de
+personnes à ce poste cette période-là ».
+
+C'est l'**explication d'une présence**, pas un décompte. La mention est
+retirée et ce qui reste — ici `SD26` — est lu comme la journée elle-même.
+Aucune heure, aucune prime ne s'y attache.
+
+12 journées de l'horaire 2026.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
