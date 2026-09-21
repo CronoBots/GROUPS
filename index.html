@@ -3903,6 +3903,40 @@ function reequilibrer(parPoste){
         cand=liste.filter(function(x){ return !x.fixe && peutTenir(x.p,P); }).sort(parId);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
+      /* En CASCADE, quand aucun poste en surnombre ne sait tenir P. Le
+         client, le 21/09/2026 : « tu indiques personne en terrain arrière
+         alors que SPS peut remplacer AAI en distillation et que AAI peut
+         faire la polyvalence arrière ».
+
+         Deux sauts : quelqu'un quitte un poste TENU pour combler P, et un
+         troisième, venu d'un surnombre, prend sa place. Le poste de départ
+         garde son effectif, le surnombre se dégonfle, le manque se comble —
+         les trois deviennent justes d'un coup. */
+      if(!pris){
+        for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
+          Q=POSTES_TRAVAIL[j];
+          if(Q.k===P.k || Q.cm || !Q.n) continue;
+          var relais=(parPoste[Q.k]||[]).filter(function(x){
+            return !x.fixe && peutTenir(x.p,P);
+          }).sort(parId);
+          if(!relais.length) continue;
+          for(var m=0;m<POSTES_TRAVAIL.length && !pris;m++){
+            var S=POSTES_TRAVAIL[m];
+            if(S.k===P.k || S.k===Q.k || S.cm || !S.n) continue;
+            var source=parPoste[S.k]||[];
+            if(source.length<=S.n) continue;
+            var renfort=source.filter(function(x){
+              return !x.fixe && peutTenir(x.p,Q);
+            }).sort(parId);
+            if(!renfort.length) continue;
+            source.splice(source.indexOf(renfort[0]),1);
+            renfort[0].comble=Q.k;
+            parPoste[Q.k].splice(parPoste[Q.k].indexOf(relais[0]),1);
+            parPoste[Q.k].push(renfort[0]);
+            pris=relais[0];
+          }
+        }
+      }
       if(!pris){
         liste=parPoste.adj||[];
         cand=liste.filter(function(x){ return !x.fixe; }).sort(parId);

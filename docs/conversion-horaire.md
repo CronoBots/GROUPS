@@ -843,8 +843,43 @@ La tuile d'une personne ainsi placée porte « **comble le poste** » : c'est un
 déduction de l'application, pas une ligne du classeur, et cela doit se voir.
 
 **Mesuré sur quatorze jours** : les postes en manque passent de **33 à 13**,
-pour 20 déplacements. Les 13 restants n'ont personne qui possède la
-polyvalence requise — le plus souvent le terrain arrière, qui en demande deux.
+pour 20 déplacements.
+
+### En cascade, quand personne du surnombre ne sait tenir le poste
+
+**Le client, le 21/09/2026** : « tu indiques personne en terrain arrière alors
+que SPS peut remplacer AAI en distillation et que AAI peut faire la
+polyvalence arrière. »
+
+Un seul saut ne suffit pas toujours. Ici le terrain arrière demande
+fermentation ET distillation ; personne en surnombre ne les a toutes deux,
+mais AAI les a — sauf qu'il tient déjà la distillation. La solution est à
+**deux temps** : SPS quitte les chaudières, en surnombre, pour prendre la
+distillation ; AAI passe au terrain arrière.
+
+Les trois postes deviennent justes d'un coup : le poste de départ garde son
+effectif, le surnombre se dégonfle, le manque se comble.
+
+Exemple trouvé dans l'horaire — **lundi 31 août, nuit** :
+
+```
+MEUNERIE         1/1  DKS
+GLUTEN           2/2  IME · LHR ← vient du surnombre
+FERMENTATION     1/1  ALZ ← était au gluten, passe combler
+TERRAIN ARRIÈRE  1/1  GKT
+DISTILLATION     1/1  PDR
+CHAUDIÈRES       2/2  FLN · JBA
+```
+
+Sans la cascade, la fermentation affichait `0 / 1`.
+
+**Mesuré sur soixante jours** : les manques passent de **75 à 71**, les
+surnombres de 259 à 255, pour 7 déplacements de plus. Le gain est modeste
+parce que la plupart des manques se comblent déjà en un saut — mais chacun
+des quatre était un poste affiché vide alors que l'équipe pouvait le tenir.
+
+On s'arrête à deux sauts : au-delà, l'application inventerait une
+réorganisation que personne n'a décidée.
 
 ### La feuille « Opérateurs »
 
