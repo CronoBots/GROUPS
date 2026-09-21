@@ -477,6 +477,58 @@ celle du mois d'août ». Le nom du fichier porte la date de **virement**, la
 fiche porte la **période**. `comparer-fiches.py` lit la période, et a donc
 raison contre le nom du fichier — mais il faut y penser en cherchant un mois.
 
+## Le pécule de vacances et le treizième mois
+
+**Le client, le 21/09/2026** : « avec la paie du mois de mai tu verras
+également les congés payés, et avec la paie du mois de juin la paie du
+treizième mois. » Vérifié sur ses fiches — et ce sont bien les **périodes**
+de mai et de juin, payées début juin et début juillet.
+
+| Période | Ligne de la fiche | Montant |
+|---|---|---|
+| 05/2026 | Simple Pécule | (montant retiré) |
+| 05/2026 | Double pécule de vacances | (montant retiré) |
+| 06/2026 | Treizième mois | (montant retiré) |
+
+Le treizième mois vaut exactement le « Montant heures prestées » du mois,
+c'est-à-dire la rémunération fixe multipliée par la fraction payée. Les deux
+sont taxés au **taux distinct**, pas au barème ordinaire : la fiche les met
+sous « Précompte prof. allocations except. » et « Précompte prof. double péc.
+vacances », à côté du « Précompte prof. rémun. normale ».
+
+### Le treizième mois : la formule est confirmée au centime
+
+L'application calcule déjà ONSS 13,07 % puis précompte 53,50 % sur le reste,
+et la fiche de juin le confirme sans un centime d'écart :
+
+```
+Treizième mois                      (montant retiré)
+ONSS 13,07 %                          (montant retiré)
+base au taux distinct               (montant retiré)
+Précompte 53,50 %                   (montant retiré)   ← la fiche porte (montant retiré)
+```
+
+### Le double pécule : la formule NE tombe PAS
+
+La fiche de mai porte un précompte de **(montant retiré)** sur le double pécule.
+L'application en donne un autre, quelle que soit la façon dont on y range le
+simple pécule :
+
+| Ce qu'on met dans « complément DPV » | Précompte calculé | Écart |
+|---|---|---|
+| 0 | (montant retiré) | −223,96 |
+| (montant retiré) (le simple pécule) | (montant retiré) | +244,74 |
+
+La fiche est donc **entre les deux**, et aucune combinaison simple des deux
+montants ne la reproduit. Quelque chose manque à la règle — une assiette
+réduite pour la cotisation, ou un taux qui n'est pas 53,50 % sur toute la
+base. **À établir avec le client**, sur la fiche de mai qui porte tous les
+chiffres.
+
+En attendant, le simple pécule et le double pécule se saisissent tels quels
+dans l'onglet Horaire, et le précompte affiché sera approximatif sur ce
+seul mois.
+
 ## L'avance mensuelle sur le salaire
 
 **Confirmé par le client le 21/09/2026** : « c'est l'avance de mon salaire
