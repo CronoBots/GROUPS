@@ -364,6 +364,41 @@ règle RHS ci-dessous : 4 h de présence + 4 h reprises = ses 8 h.
 L'application comptait déjà ces 8 h et le plaçait déjà à son poste ; la règle
 est écrite ici parce qu'elle était une déduction, et qu'elle ne l'est plus.
 
+## Une journée épargnée au flex time ne se paie pas
+
+**Confirmé par le client et par la fiche, le 21/09/2026.** À propos de son
+19/02 : « c'est une grosse prime de rappel avec 12 h FT+ à la demande du
+travailleur — j'aurais pu choisir HS mais j'ai préféré FT. »
+
+> **Heures payées = durée réellement prestée − tout ce qui part au compteur.**
+
+Ce qui part au compteur, c'est le `+FT` de la journée elle-même **plus** ce
+que d'autres journées lui renvoient. VBN écrit 8 h le 19/02 et 4 h le 20/02
+(« cf 19/02 ») : douze heures prestées, douze épargnées, **zéro payée**.
+
+Et l'on retranche d'abord ce qui dépasse la journée contractuelle : AFA le
+15/09 preste 12 h et n'en épargne que 4, donc ses 8 h lui restent dues.
+
+| | Durée | Épargné | Payé |
+|---|---|---|---|
+| `AFA 15/09 ["18h-06h","4h +FT"]` | 12 h | 4 | **8 h** |
+| `VBN 19/02 ["18h-06h","8h +FT"]` + 4 h renvoyées | 12 h | 12 | **0 h** |
+| `YPE 19/01 ["N","8h +FT"]` | 8 h | 8 | **0 h** |
+| `VBN 19/03 ["R-CM","8h +FT"]` | 8 h | 8 | **0 h** |
+
+La règle ne regardait auparavant que les journées dont la cellule **ne
+nommait pas** le poste. La même annotation donnait donc deux résultats
+opposés selon un détail d'écriture — 0 h pour `["R-CM","8h +FT"]`, 8 h pour
+`["N","8h +FT"]` — sur **56 journées et 26 personnes**.
+
+**La preuve.** La fiche de février de VBN porte 9 jours, 71,50 h et 8 h de
+prime de nuit. L'application en comptait 10, 78 h et 16 h de nuit ; elle
+compte maintenant 9 jours et 8 h de nuit, au centième. La journée du 19/02
+n'y est plus du tout — ni en heures, ni en jours, ni en prime.
+
+La prime de RAPPEL, elle, reste due : elle ne dépend pas des heures de la
+journée et l'application la calcule à part.
+
 ## Ce que les fiches de 2026 ont appris
 
 **Lu sur les fiches de VBN, décembre 2025 à août 2026 (21/09/2026).**

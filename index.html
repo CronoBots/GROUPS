@@ -3134,7 +3134,28 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
   if(renvois && renvois.length) out.ax=renvois.slice();
   out.epargne=(A2&&A2.ft>0)?A2.ft:0;
   out.planifie=!!(C.poste||plage);
-  if(out.epargne>0 && out.s && !out.planifie) out.h=Math.max(0,hJour-out.epargne);
+  /* Heures payées = durée réellement prestée MOINS tout ce qui part au
+     compteur. Le client, le 21/09/2026, à propos de son 19/02 : « c'est une
+     grosse prime de rappel avec 12 h FT+ à la demande du travailleur —
+     j'aurais pu choisir HS mais j'ai préféré FT ». Douze heures prestées,
+     douze épargnées : la fiche de février ne porte ce jour-là ni heure, ni
+     jour, ni prime de nuit.
+
+     Ce qui part au compteur, c'est le « +FT » de la journée ELLE-MÊME plus
+     ce que d'autres journées lui renvoient — VBN écrit 8 h le 19/02 et 4 h
+     le 20/02, « cf 19/02 ». Et l'on retranche d'abord ce qui dépasse la
+     journée contractuelle : AFA le 15/09 preste 12 h et n'en épargne que 4,
+     donc ses 8 h restent dues.
+
+     La règle ne regardait auparavant QUE les journées dont la cellule ne
+     nommait pas le poste. La même annotation donnait donc deux résultats
+     opposés selon un détail d'écriture — 0 h pour ["R-CM","8h +FT"], 8 h
+     pour ["N","8h +FT"] — sur 56 journées et 26 personnes. */
+  if(out.epargne>0 && out.s){
+    var duree=(plage?dureeReelle(out.s,plage,hJour):hJour);
+    var resteEp=Math.max(0,(out.epargne+epargne)-Math.max(0,duree-hJour));
+    out.h=Math.max(0,hJour-resteEp);
+  }
   /* Un « - » en annotation dit que le poste prévu n'a finalement pas été
      presté : quelqu'un d'autre l'a pris, et la personne récupère une
      prestation faite ailleurs. Le client, à propos du 20/03 : « repos car
