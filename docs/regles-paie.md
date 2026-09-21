@@ -490,6 +490,15 @@ de mai et de juin, payées début juin et début juillet.
 | 05/2026 | Double pécule de vacances | (montant retiré) |
 | 06/2026 | Treizième mois | (montant retiré) |
 
+**Ces mois-là valent pour les EMPLOYÉS.** Le client, le 21/09/2026 : « en tout
+cas chez les employés ; les ouvriers, ce sont d'autres dates. » Lesquelles
+reste à établir — aucune fiche d'ouvrier n'a encore été vue.
+
+Le champ « Statut » de l'application ne sait rien de ces dates : il ne change
+que la base ONSS, majorée de 8 % pour un ouvrier. Un ouvrier qui se servirait
+de l'application y saisirait donc son pécule au mauvais mois sans que rien ne
+l'avertisse. Le dire ici, à défaut de pouvoir encore le corriger.
+
 Le treizième mois vaut exactement le « Montant heures prestées » du mois,
 c'est-à-dire la rémunération fixe multipliée par la fraction payée. Les deux
 sont taxés au **taux distinct**, pas au barème ordinaire : la fiche les met
