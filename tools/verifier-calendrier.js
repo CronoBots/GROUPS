@@ -243,11 +243,58 @@ const REGLES=[
   ["étiquette trop longue","l'étiquette dépasse quatre signes et sera coupée"],
   ["vues en désaccord",    "le mois et l'année ne montrent pas la même chose le même jour"],
   ["mention non comprise", "la case dit quelque chose, mais un morceau de la cellule reste illisible"],
-  ["mention avalée",       "le motif des ateliers la reconnaît, mais elle ne devient AUCUN poste — l'outil croit l'avoir comprise"]
+  ["mention avalée",       "le motif des ateliers la reconnaît, mais elle ne devient AUCUN poste — l'outil croit l'avoir comprise"],
+  ["motif trop étroit",    "un motif plus large trouverait davantage dans le même commentaire — l'outil lit moins qu'il ne croit"]
 ];
 const fautes={}; REGLES.forEach(r=>fautes[r[0]]=[]);
 let cellules=0, postes=0, absences=0, repos=0, prevus=0;
-const incomprises={}, avalees={};
+const incomprises={}, avalees={}, etroits={};
+
+/* --- douzième règle : ce qu'un motif plus large trouverait ---------------
+   Deux défauts du 21/09/2026 venaient d'un motif trop étroit, et aucune
+   règle ne pouvait les voir : « Poly. Etoh » avalé par ATELIERS, et 568
+   « Remplace XXX » perdus faute d'ignorer la casse. Un motif qui lit moins
+   qu'il ne croit ne ment pas — il se tait.
+
+   On prend donc les motifs de l'application EUX-MÊMES, découpés dans
+   index.html, et on les confronte à une version délibérément plus large.
+   L'écart n'est pas une faute : c'est une question. */
+const _ids=new Set(db.people.map(p=>p.id));
+function _rx(depuis,jusqu){
+  const t=part(depuis,jusqu);
+  return eval(t.slice(t.indexOf("/"), t.lastIndexOf("/")+3).replace(/,$/,""));
+}
+const MOTIFS=[
+  {nom:"remplacement nommé",
+   /* le motif de atelierDuRemplace(), tel qu'il est écrit */
+   strict:_rx("rx=/\\bremp","/gi,"),
+   /* délibérément plus large que l'application : trois mots de liaison au
+      lieu de deux, et l'espace après « remp… » rendu optionnel. */
+   large:/\bremp\w*\.?\s*(?:(?:en|au|aux|le|la|les|de|du|des|a|\u00e0)?\s*[\wàâéèêîôû'-]+\s+){0,3}?([A-Za-z]{3})\b/gi,
+   garde:t=>_ids.has(String(t).toUpperCase()) && String(t).toUpperCase()!=="PAR"},
+  {nom:"plage horaire du commentaire",
+   /* plageCommentaire() ELLE-MÊME, et non une copie de son motif : la
+      première version de cette règle recopiait le motif ici, et elle a
+      continué d'annoncer 38 manques après que index.html eut été corrigé.
+      Une règle qui dénonce les copies ne peut pas en être une. */
+   strictFn:com=>{ const p=plageCommentaire(com); return p?new Set([String(Math.floor(p[0]))]):new Set(); },
+   /* un commentaire porte souvent PLUSIEURS plages et la fonction n'en rend
+      qu'une — c'est une autre question que celle d'un motif trop étroit. On
+      ne compare donc que la première trouvée de chaque côté. */
+   premierSeul:true,
+   large:/(\d{1,2})\s*h\s*(?:\d{2})?\s*(?:\u00e0|a|-|\u2013|jusqu\W{0,3}(?:e|au)?)\s*(\d{1,2})\s*h/gi,
+   garde:()=>true}
+];
+function _trouve(rx,com,garde){
+  const out=new Set(); let m; rx.lastIndex=0;
+  /* « 9 » et « 09 » sont la même heure : on normalise, sans quoi la règle
+     se dénoncerait elle-même à chaque plage écrite avec un zéro devant. */
+  while((m=rx.exec(com))){
+    const v=m[1]; if(!garde(v)) continue;
+    out.add(/^\d+$/.test(v)?String(Number(v)):String(v).toUpperCase());
+  }
+  return out;
+}
 
 for(const p of db.people){
   for(let m=1;m<=12;m++){
@@ -323,6 +370,20 @@ for(const p of db.people){
         if(avalees[txt].ex.length<3) avalees[txt].ex.push(ou+"  "+src);
         fautes["mention avalée"].push(ou+"  "+src);
       });
+      /* 7 ter. un motif plus large trouverait-il davantage ? */
+      const com=String(raw[2]||"");
+      if(com) MOTIFS.forEach(M=>{
+        const s1=M.strictFn?M.strictFn(com):_trouve(M.strict,com,M.garde);
+        let s2=_trouve(M.large,com,M.garde);
+        if(M.premierSeul) s2=new Set([...s2].slice(0,1));
+        const plus=[...s2].filter(x=>!s1.has(x));
+        if(!plus.length) return;
+        const cle=M.nom;
+        if(!etroits[cle]) etroits[cle]={n:0, ex:[]};
+        etroits[cle].n++;
+        if(etroits[cle].ex.length<3) etroits[cle].ex.push(ou+"  "+src+"   → "+plus.join(", "));
+        fautes["motif trop étroit"].push(ou+"  "+src);
+      });
       /* 8. le trajet par le mois doit rendre exactement la même case */
       const viaMois=affichageRecord(enregistre(r,H_JOUR),H_JOUR);
       if(viaMois.genre!==a.genre || viaMois.etiquette!==a.etiquette)
@@ -350,7 +411,12 @@ if(total){
   for(const [nom] of REGLES){
     const l=fautes[nom]; if(!l.length) continue;
     console.log("── "+nom+" ("+l.length+")");
-    if(nom==="mention avalée"){
+    if(nom==="motif trop étroit"){
+      Object.keys(etroits).sort((a,b)=>etroits[b].n-etroits[a].n).forEach(k=>{
+        console.log("   "+String(etroits[k].n).padStart(4)+" × «"+k+"»");
+        etroits[k].ex.forEach(x=>console.log("          "+x));
+      });
+    } else if(nom==="mention avalée"){
       Object.keys(avalees).sort((a,b)=>avalees[b].n-avalees[a].n).forEach(k=>{
         console.log("   "+String(avalees[k].n).padStart(4)+" × «"+k+"»");
         avalees[k].ex.slice(0,2).forEach(x=>console.log("          "+x));

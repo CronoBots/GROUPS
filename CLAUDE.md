@@ -351,6 +351,26 @@ invisibles aux dix autres règles, jusqu'à ce que le client le signale.
 
 Il en reste **5** : `consign.` (3), `Polyvalence` et `polyvalence` (1 chacune).
 
+Une **douzième règle**, la plus utile des trois faibles, confronte les motifs
+de l'application à une version délibérément **plus large** d'eux-mêmes, et dit
+ce que la seconde trouverait de plus. Deux défauts du 21/09/2026 venaient d'un
+motif trop étroit, et rien ne pouvait les voir : un motif qui lit moins qu'il
+ne croit ne ment pas — il se tait.
+
+Elle a trouvé, le jour même de sa naissance : `plageCommentaire()` exigeait un
+espace après « à », donc `de 14h à18h00'` lui échappait — **38 journées**, et
+la plage décide si les heures épargnées sont DANS le poste ou à côté. Et
+`atelierDuRemplace()` ignorait « rempl SBZ » abrégé.
+
+Elle découpe les motifs dans `index.html` plutôt que de les recopier : sa
+première version les recopiait, et elle a continué d'annoncer 38 manques après
+que `index.html` eut été corrigé. **Une règle qui dénonce les copies ne peut
+pas en être une.**
+
+Il reste **46 écarts**, et ce sont des questions, pas des fautes : `10h-11h`
+écrit avec un tiret, `00h à 6h` sans « de », des passifs mal orthographiés
+comme « Remplacé pa VBN ».
+
 ## Vérifier une modification du pré-remplissage
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
