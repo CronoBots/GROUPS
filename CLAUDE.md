@@ -275,6 +275,12 @@ est marqué `personal:true`, et les montants du mois.
    `node --check`.
 2. **Incrémenter `V` dans `sw.js`** (`nfdm-vNN`). Sans ça, les installations
    existantes gardent l'ancienne page indéfiniment.
+
+   Depuis `nfdm-v119`, la PAGE se prend **au réseau d'abord** : une version
+   poussée arrive au premier rechargement, et non au deuxième comme avant.
+   L'horaire JSON reste au cache d'abord, rafraîchi en arrière-plan ; icônes
+   et polices, au cache. Hors ligne, tout retombe sur le cache — vérifié à
+   chaque fois avec Playwright en mode `setOffline(true)`.
 3. Tester dans un navigateur, pas seulement en unitaire. Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible
