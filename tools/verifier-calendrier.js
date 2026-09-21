@@ -92,7 +92,35 @@ const MORCEAUX=[
   ["function etiqJour(","\n}"],
   ["function etiqAbsence(","\n}"],
   ["function familleAbsence(","\n}"],
-  ["function compteursCalcules(","\n}"]
+  ["function compteursCalcules(","\n}"],
+  /* l'effectif des postes — le tableau des manques rejoue le calcul de
+     l'onglet Équipe, il ne le refait pas */
+  ["var CONTREMAITRES=","\n"],
+  ["function estCadre(","\n}"],
+  ["function estContremaitre(","\n}"],
+  ["var EST_FORMATION=","\n"],
+  ["function roleDeFeuille(","\n}"],
+  ["function posteLigne9(","\n}"],
+  ["function atelierDuRemplace(","\n}"],
+  ["function posteEcrit(","\n}"],
+  ["function enFormation(","\n}"],
+  ["function compteAuPoste(","\n}"],
+  ["function effectif(","\n}"],
+  ["function peutTenir(","\n}"],
+  ["var EST_RENFORT=","\n"],
+  ["function reequilibrer(","\n}"],
+  ["function posteTenu(","\n}"],
+  ["var EQ_GROUPES=","\n];"],
+  ["function finAbsence(","\n}"],
+  ["function equipeDuJour(","\n}"],
+  ["function remplacementCM(","\n}"],
+  ["function aLAtelier(","\n}"],
+  ["function tientTerrainArriere(","\n}"],
+  ["function posteHabituel(","\n}"],
+  ["function plageInterne(","\n}"],
+  ["function gainFT(","\n}"],
+  ["function celluleSansPoste(","\n}"],
+  ["function postesDePause(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
    n'en a qu'un besoin, la journée contractuelle. */
@@ -173,13 +201,68 @@ function affichageRecord(rec,hJour){
 }
 
 /* --- lecture du classeur ------------------------------------------------- */
-/* --journee et ses arguments ne sont pas un nom de fichier */
+/* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=ARGS.indexOf("--journee");
-const fichier=(coupe<0?ARGS:ARGS.slice(0,coupe))
+const coupe=["--journee","--manques"].map(o=>ARGS.indexOf(o))
+  .filter(i=>i>=0).sort((a,b)=>a-b)[0];
+const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
 const ANNEE=Number(db.year);
+
+/* ── les manques à venir ────────────────────────────────────────────────
+   Le module de l'application ne regarde que devant lui. Ici on mesure tout
+   ce qu'il montrerait, du jour dit à la fin de l'horaire, pour savoir s'il
+   alerte juste ou s'il crie tous les jours.
+
+   node tools/verifier-calendrier.js --manques [MMJJ]                      */
+if(process.argv.indexOf("--manques")>=0){
+  const i0=process.argv.indexOf("--manques");
+  const depart=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:"0101";
+  let jours=0, avecManque=0, avecInconnu=0, creuxTotal=0;
+  const parPoste={}, parPause={}, lignes=[];
+  for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
+    const mmdd=pad2(m)+pad2(d); if(mmdd<depart) continue;
+    const par=equipeDuJour(db,ANNEE,m,d);
+    let duJour=[], inconnusJour=0;
+    EQ_GROUPES.forEach(g=>{
+      if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
+      const l=par[g.k]; if(!l||!l.length) return;
+      const vue=postesDePause(db,l,g.k,mmdd);
+      inconnusJour+=vue.inconnus.length;
+      vue.postes.forEach(o=>{
+        if(!o.manque) return;
+        duJour.push({pause:g.k,poste:o.P.t,tenu:o.tenu,attendu:o.attendu,
+                     creux:o.creux,inconnus:vue.inconnus.length});
+        parPoste[o.P.t]=(parPoste[o.P.t]||0)+1;
+        parPause[g.k]=(parPause[g.k]||0)+1;
+        creuxTotal+=o.creux;
+      });
+    });
+    jours++;
+    if(duJour.length){ avecManque++; if(inconnusJour) avecInconnu++;
+      lignes.push({mmdd:mmdd,l:duJour,inc:inconnusJour}); }
+  }
+  console.log("\nManques d'effectif — du "+depart.slice(2)+"/"+depart.slice(0,2)
+              +" au 31/12, "+jours+" journées\n");
+  console.log("  "+String(avecManque).padStart(5)+"  journées avec au moins un poste sous son effectif"
+              +"  ("+Math.round(avecManque*100/jours)+" %)");
+  console.log("  "+String(avecInconnu).padStart(5)+"  dont un poste reste « à déterminer » le même jour");
+  console.log("  "+String(creuxTotal).padStart(5)+"  places creuses au total\n");
+  console.log("par poste :");
+  Object.keys(parPoste).sort((a,b)=>parPoste[b]-parPoste[a])
+    .forEach(k=>console.log("  "+String(parPoste[k]).padStart(5)+"  "+k));
+  console.log("\npar pause :");
+  Object.keys(parPause).sort((a,b)=>parPause[b]-parPause[a])
+    .forEach(k=>console.log("  "+String(parPause[k]).padStart(5)+"  "+k));
+  console.log("\nles vingt premières journées :");
+  lignes.slice(0,20).forEach(x=>{
+    console.log("  "+x.mmdd.slice(2)+"/"+x.mmdd.slice(0,2)
+      +(x.inc?"  ("+x.inc+" à déterminer)":"")+"  "
+      +x.l.map(o=>o.pause+" "+o.poste+" "+o.tenu+"/"+o.attendu).join(" · "));
+  });
+  process.exit(0);
+}
 
 /* --- les compteurs, recalculés puis confrontés au pied de classeur -------
    node tools/verifier-calendrier.js --compteurs

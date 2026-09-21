@@ -1470,3 +1470,39 @@ liseré dire « nuit », et l'effectif de la nuit ne doit pas le compter.
 C'est la généralisation de ce que l'application faisait déjà des journées
 `SD26` et `D-F` — travaillées en horaire de jour, payées à la prime de leur
 pause. Le mécanisme existait ; il ne manquait que de lire le commentaire.
+
+## 9 ter — les manques d'effectif, et pourquoi ils se calculent en un seul endroit
+
+Le client, le 21/09/2026 : « un module qui indique quand il manque quelqu'un
+à un poste. Ce module ne doit pas revenir en arrière, uniquement à partir de
+la date du jour. »
+
+Deux fonctions portent désormais tout le calcul d'effectif, et **les deux
+vues les partagent** :
+
+| Fonction | Ce qu'elle rend |
+|---|---|
+| `equipeDuJour(db,annee,mois,jour)` | qui travaille, rangé par pause |
+| `postesDePause(db,liste,gk,mmdd)` | la pause poste par poste : `{P, gens, tenu, attendu, detail, manque, creux}` |
+
+Elles étaient écrites au milieu du rendu de l'onglet Équipe. Le module des
+manques ne pouvait donc ni les appeler, ni les vérifier — il aurait fallu les
+recopier, et **une alerte qui compte autrement que la vue du jour est pire
+que pas d'alerte du tout** : elle envoie chercher quelqu'un là où il ne manque
+personne, ou se tait là où il manque quelqu'un.
+
+Le contrôle croisé se fait dans le navigateur : cliquer une journée du module
+emmène l'onglet Équipe sur cette journée, et les deux doivent dire la même
+chose. Le 25/09 : le module annonce `AM Gluten 1/2`, la vue affiche
+« AM GLUTEN 1 / 2 — 1 manquant ». Le 28/09, deux fermentations manquantes, en
+PM et en N, que le module distingue par le code de pause écrit sur la
+pastille — la couleur seule ne se lit pas.
+
+### Ce que le module ne dit pas
+
+- **Rien avant aujourd'hui.** Un manque passé ne se comble plus.
+- **Rien en journée** : le client, « en jours il n'est pas obligatoire d'avoir
+  quelqu'un à chaque poste ».
+- Quand un poste reste **« à déterminer »** le même jour, le module l'écrit
+  sous la ligne : la personne dont le classeur ne donne pas le poste est
+  peut-être exactement celle qui manque.

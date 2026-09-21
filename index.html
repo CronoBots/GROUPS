@@ -693,6 +693,31 @@ body.sheet-on{overflow:hidden}
 .eqdet{margin-left:auto; font-size:10px; font-weight:400; letter-spacing:0;
   text-transform:none; color:var(--faint)}
 .eqpo.manque .eqdet{margin-left:0}
+/* Les manques à venir. Une ligne par journée, et sur la ligne une pastille
+   par poste en manque, dans la couleur de sa pause — on lit la semaine d'un
+   coup d'œil sans dérouler quoi que ce soit. */
+.mqbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:12px 16px 0}
+.mqbar .lede{margin:0; flex:1 1 auto}
+.mqcorps{padding:10px 16px 14px}
+.mqj{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  width:100%; text-align:left; background:none; border:0; cursor:pointer;
+  padding:8px 8px; margin:0 -8px; border-radius:10px; color:inherit; font:inherit}
+.mqj:hover{background:var(--surface3)}
+.mqj>b{flex:0 0 auto; min-width:82px; font-size:12px; font-weight:650; color:var(--ink)}
+.mqj>b em{font-style:normal; font-weight:400; color:var(--faint)}
+.mqtags{display:flex; gap:5px; flex-wrap:wrap; flex:1 1 auto}
+.mqt{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:600;
+  border-radius:99px; padding:2px 9px; background:var(--surface3); color:var(--muted)}
+.mqt i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-weight:700; opacity:.85}
+.mqt u{text-decoration:none; font-family:"IBM Plex Mono",monospace; font-size:9.5px;
+  font-weight:700; letter-spacing:.03em; opacity:.7}
+.mqt[data-s="AM"]{background:var(--am-soft); color:var(--am)}
+.mqt[data-s="PM"]{background:var(--pm-soft); color:var(--pm)}
+.mqt[data-s="N"]{background:var(--n-soft); color:var(--n)}
+.mqinc{font-size:10px; font-weight:400; color:var(--faint); font-style:italic}
+.mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
+.mqrien b{color:var(--in)}
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -1056,6 +1081,23 @@ body.sheet-on{overflow:hidden}
       </div>
       <p class="lede top" id="eqNote"></p>
       <div class="eqcorps" id="eqCorps"></div>
+    </div>
+
+    <div class="card" id="mqCard">
+      <header>
+        <h2>Postes en manque</h2>
+        <span class="sub" id="mqSub"></span>
+      </header>
+      <div class="mqbar">
+        <span class="lede">À partir d'aujourd'hui</span>
+        <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
+          <button type="button" data-h="7" aria-pressed="false">7 j</button>
+          <button type="button" data-h="14" aria-pressed="true">14 j</button>
+          <button type="button" data-h="30" aria-pressed="false">30 j</button>
+          <button type="button" data-h="0" aria-pressed="false">Tout</button>
+        </div>
+      </div>
+      <div class="mqcorps" id="mqCorps"></div>
     </div>
 
     <div class="card">
@@ -4174,6 +4216,104 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
   }
   return dernier;
 }
+/* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
+   parce que le tableau des manques à venir en a besoin lui aussi : deux
+   vues d'une même journée qui se contrediraient seraient pires qu'une. */
+function equipeDuJour(db,annee,mois,jour){
+  var mmdd=pad2(mois)+pad2(jour);
+  var par={}; EQ_GROUPES.forEach(function(g){ par[g.k]=[]; });
+  db.people.forEach(function(p){
+    var raw=p.d[mmdd];
+    if(raw===undefined){ par.off.push({p:p}); return; }
+    var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois),
+        rv=renvoisDuMois(p,mois,st.params.hJour);
+    var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
+    var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
+    var pv=r.sp||r.s;   /* la prime conservée ne déplace personne de pause */
+    if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
+    else if(r.a&&ABSMAP[r.a]){
+      var fam=ABSMAP[r.a].k;
+      if(fam==="SMG") par.abs.push({p:p,r:r,
+        fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,fam)});
+      else par.cong.push({p:p,r:r});
+    }
+    else if(r.s) par.off.push({p:p,r:r,prevu:true});
+    else par.off.push({p:p,r:r});
+  });
+  return par;
+}
+
+/* Une pause rangée poste par poste : qui tient quoi, combien il en faut,
+   et ce qui reste indéterminé. Le rendu de l'onglet Équipe et le tableau
+   des manques à venir lisent tous deux CETTE fonction — c'est la seule
+   façon qu'ils ne divergent jamais.
+
+   L'effectif attendu ne vaut QUE pour les pauses. Le client : « en jours il
+   n'est pas obligatoire d'avoir quelqu'un à chaque poste ». L'usine tourne
+   en continu par ses pauses ; le jour, les gens viennent pour ce qu'il y a
+   à y faire. Annoncer « 2 manquants » sous Jour, c'était accuser une
+   équipe complète. */
+function postesDePause(db,liste,gk,mmdd){
+  var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
+  db.people.forEach(function(q){ parId[q.id]=q; });
+  liste.forEach(function(x){
+    if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
+    var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
+    if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
+    x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
+    x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
+    if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
+  });
+  /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
+  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus);
+  POSTES_TRAVAIL.forEach(function(P){
+    var gens=parPoste[P.k]||[];
+    /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
+       n'attend personne — le client : « il ne faut pas afficher les postes
+       qui n'ont pas de personnel » — et sept intitulés à zéro noyaient les
+       trois qui portaient du monde. */
+    if(!gens.length && (gk==="D" || !P.n)) return;
+    var tenu=effectif(gens,P), detail="";
+    if(P.k==="terr"){
+      /* Le poste revient au polyvalent arrière ; le renfort arrière le tient
+         quand celui-ci n'est pas là. Une personne que SA CELLULE du jour
+         envoie au terrain arrière y est aussi de plein droit — la cellule dit
+         ce qui a été fait, et elle prime. */
+      var pa=[], ra=[], autres=[];
+      gens.forEach(function(x){
+        var rl=roleDeFeuille(x.p);
+        if(rl==="pa") pa.push(x); else if(rl==="ra") ra.push(x); else autres.push(x);
+      });
+      var titu=pa.concat(autres);
+      if(!titu.length) ra.forEach(function(x){ x.fait=true; });
+      gens=titu.concat(ra);
+      tenu=titu.length||ra.length;
+      if(titu.length&&ra.length)
+        detail=ra.length+" renfort"+(ra.length>1?"s":"")+" en plus";
+      else if(!titu.length&&ra.length)
+        detail=ra.length+" renfort"+(ra.length>1?"s":"")+" arrière";
+    }
+    if(P.k==="cm"){
+      /* Les contremaîtres d'abord, les adjoints ensuite ; et le poste n'est
+         tenu que par les premiers — sauf s'il n'y en a aucun, auquel cas
+         l'adjoint fait fonction. */
+      var cms=gens.filter(function(x){return estContremaitre(x.p);});
+      var adj=gens.filter(function(x){return !estContremaitre(x.p);});
+      if(!cms.length) adj.forEach(function(x){ x.fait=true; });
+      gens=cms.concat(adj);
+      tenu=cms.length||adj.length;
+      if(cms.length&&adj.length)
+        detail=cms.length+" contremaître"+(cms.length>1?"s":"")+" · "
+              +adj.length+" adjoint"+(adj.length>1?"s":"");
+      else if(!cms.length&&adj.length)
+        detail=adj.length+" adjoint"+(adj.length>1?"s":"")+" faisant fonction";
+    }
+    var attendu=(gk==="D")?0:P.n;
+    sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,
+                 manque:!!(attendu && tenu<attendu), creux:Math.max(0,attendu-gens.length)});
+  });
+  return {postes:sortie, formation:formation, inconnus:inconnus};
+}
 function renderEquipe(){
   var hote=document.getElementById("eqCorps"); if(!hote) return;
   fetchHoraireDB().then(function(db){
@@ -4188,25 +4328,7 @@ function renderEquipe(){
     var sel=document.getElementById("prefillId");
     var moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
 
-    var par={}; EQ_GROUPES.forEach(function(g){ par[g.k]=[]; });
-    db.people.forEach(function(p){
-      var raw=p.d[mmdd];
-      if(raw===undefined){ par.off.push({p:p}); return; }
-      var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois),
-          rv=renvoisDuMois(p,mois,st.params.hJour);
-      var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
-      var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
-      var pv=r.sp||r.s;   /* la prime conservée ne déplace personne de pause */
-      if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
-      else if(r.a&&ABSMAP[r.a]){
-        var fam=ABSMAP[r.a].k;
-        if(fam==="SMG") par.abs.push({p:p,r:r,
-          fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,fam)});
-        else par.cong.push({p:p,r:r});
-      }
-      else if(r.s) par.off.push({p:p,r:r,prevu:true});
-      else par.off.push({p:p,r:r});
-    });
+    var par=equipeDuJour(db,annee,mois,jour);
 
     var h=[], total=0;
     EQ_GROUPES.forEach(function(g){
@@ -4248,79 +4370,20 @@ function renderEquipe(){
            chaque poste doit être tenu. On les montre donc poste par poste,
            dans l'ordre où l'on parcourt l'usine, avec l'effectif attendu —
            un poste qui manque saute aux yeux. */
-        var parPoste={}, inconnus=[], formation=[], parId={};
-        db.people.forEach(function(q){ parId[q.id]=q; });
-        l.forEach(function(x){
-          if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
-          var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
-          if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
-          x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
-          x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
-          if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
-        });
-        /* Pas en journée : le client, plus tôt — « en jours il n'est pas
-           obligatoire d'avoir quelqu'un à chaque poste ». Combler un manque
-           qui n'en est pas un déplacerait des gens sans raison. */
-        if(g.k!=="D") reequilibrer(parPoste,mmdd,inconnus);
-        POSTES_TRAVAIL.forEach(function(P){
-          var gens=parPoste[P.k]||[];
-          /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
-             n'attend personne — le client : « il ne faut pas afficher les
-             postes qui n'ont pas de personnel » — et sept intitulés à zéro
-             noyaient les trois qui portaient du monde. */
-          if(!gens.length && (g.k==="D" || !P.n)) return;
+        var vue=postesDePause(db,l,g.k,mmdd),
+            formation=vue.formation, inconnus=vue.inconnus;
+        vue.postes.forEach(function(o){
+          var P=o.P, gens=o.gens;
           posteCourant=P;
-          var tenu=effectif(gens,P), detail="";
-          if(P.k==="terr"){
-            /* Le poste revient au polyvalent arrière ; le renfort arrière le
-               tient quand celui-ci n'est pas là. Une personne que SA CELLULE
-               du jour envoie au terrain arrière y est aussi de plein droit —
-               la cellule dit ce qui a été fait, et elle prime. */
-            var pa=[], ra=[], autres=[];
-            gens.forEach(function(x){
-              var rl=roleDeFeuille(x.p);
-              if(rl==="pa") pa.push(x); else if(rl==="ra") ra.push(x); else autres.push(x);
-            });
-            var titu=pa.concat(autres);
-            if(!titu.length) ra.forEach(function(x){ x.fait=true; });
-            gens=titu.concat(ra);
-            tenu=titu.length||ra.length;
-            if(titu.length&&ra.length)
-              detail=ra.length+" renfort"+(ra.length>1?"s":"")+" en plus";
-            else if(!titu.length&&ra.length)
-              detail=ra.length+" renfort"+(ra.length>1?"s":"")+" arrière";
-          }
-          if(P.k==="cm"){
-            /* Les contremaîtres d'abord, les adjoints ensuite ; et le poste
-               n'est tenu que par les premiers — sauf s'il n'y en a aucun,
-               auquel cas l'adjoint fait fonction. */
-            var cms=gens.filter(function(x){return estContremaitre(x.p);});
-            var adj=gens.filter(function(x){return !estContremaitre(x.p);});
-            if(!cms.length) adj.forEach(function(x){ x.fait=true; });
-            gens=cms.concat(adj);
-            tenu=cms.length||adj.length;
-            if(cms.length&&adj.length)
-              detail=cms.length+" contremaître"+(cms.length>1?"s":"")+" · "
-                    +adj.length+" adjoint"+(adj.length>1?"s":"");
-            else if(!cms.length&&adj.length)
-              detail=adj.length+" adjoint"+(adj.length>1?"s":"")+" faisant fonction";
-          }
-          /* L'effectif attendu ne vaut QUE pour les pauses. Le client : « en
-             jours il n'est pas obligatoire d'avoir quelqu'un à chaque poste ».
-             L'usine tourne en continu par ses pauses ; le jour, les gens
-             viennent pour ce qu'il y a à y faire. Annoncer « 2 manquants »
-             sous Jour, c'était accuser une équipe complète. */
-          var attendu=(g.k==="D")?0:P.n;
-          var manque=(attendu && tenu<attendu);
-          h.push('<div class="eqpo'+(manque?" manque":"")+'">');
+          h.push('<div class="eqpo'+(o.manque?" manque":"")+'">');
           /* Crier « manquant » quand le poste de sept personnes de la même
              pause est simplement inconnu, c'est alarmer à faux. Tant qu'il
              reste des postes à déterminer, le compte s'affiche en orange
              sans accusation ; une phrase sous la pause dit pourquoi. */
-          h.push('<h4>'+esc(P.t)+'<small>'+tenu+(attendu?" / "+attendu:"")+"</small>"+
-                 (detail?'<span class="eqdet">'+esc(detail)+"</span>":"")+
-                 ((manque&&!inconnus.length)?'<span class="eqmq">'+(attendu-gens.length)
-                   +" manquant"+((attendu-gens.length)>1?"s":"")+"</span>":"")+"</h4>");
+          h.push('<h4>'+esc(P.t)+'<small>'+o.tenu+(o.attendu?" / "+o.attendu:"")+"</small>"+
+                 (o.detail?'<span class="eqdet">'+esc(o.detail)+"</span>":"")+
+                 ((o.manque&&!inconnus.length&&o.creux)?'<span class="eqmq">'+o.creux
+                   +" manquant"+(o.creux>1?"s":"")+"</span>":"")+"</h4>");
           h.push('<div class="eql">');
           gens.forEach(function(x){ h.push(chip(x)); });
           h.push("</div></div>");
@@ -4357,6 +4420,7 @@ function renderEquipe(){
       +"plutôt que de compléter un effectif par une supposition.";
     renderAnnuaire(db,moi);
   });
+  renderManques();
 }
 function renderAnnuaire(db,moi){
   var hote=document.getElementById("eqAnnuaire"); if(!hote) return;
@@ -4386,6 +4450,109 @@ function renderAnnuaire(db,moi){
   });
   hote.innerHTML=h.join("");
 }
+/* ===================== les manques à venir ===================== */
+/* Le client, le 21/09/2026 : « un module qui indique quand il manque
+   quelqu'un à un poste, et qui ne revient pas en arrière ». Il part donc
+   TOUJOURS de la date du jour, quelle que soit la journée que l'onglet
+   Équipe affiche à côté — regarder un manque passé ne sert à rien, on ne
+   peut plus rappeler personne.
+
+   Il ne recalcule rien : equipeDuJour() et postesDePause() sont celles de
+   l'onglet Équipe. Une alerte qui compterait autrement que la vue du jour
+   serait pire que pas d'alerte du tout. */
+var mqHorizon=Number(lsGet("ui/mqHorizon")||14);
+/* « octo » n'est pas une abréviation ; celles-ci sont celles de l'usage. */
+var MOIS_BREF=["janv.","févr.","mars","avr.","mai","juin",
+               "juil.","août","sept.","oct.","nov.","déc."];
+function mqJoursAVenir(db,horizon){
+  var au=new Date(), sortie=[], vus=0;
+  /* l'horaire ne couvre qu'une année : au-delà, il n'y a rien à annoncer */
+  var annee=Number(db.year);
+  var d=new Date(au.getFullYear(),au.getMonth(),au.getDate());
+  if(d.getFullYear()<annee) d=new Date(annee,0,1);
+  for(var garde=0; garde<400; garde++){
+    if(d.getFullYear()!==annee) break;
+    if(horizon && vus>=horizon) break;
+    var m=d.getMonth()+1, j=d.getDate(), mmdd=pad2(m)+pad2(j);
+    var par=equipeDuJour(db,annee,m,j), manques=[], inconnus=0, personne=false;
+    EQ_GROUPES.forEach(function(g){
+      /* Le jour, aucun effectif n'est attendu — le client : « en jours il
+         n'est pas obligatoire d'avoir quelqu'un à chaque poste ». */
+      if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
+      var l=par[g.k]; if(!l||!l.length) return;
+      personne=true;
+      var vue=postesDePause(db,l,g.k,mmdd);
+      inconnus+=vue.inconnus.length;
+      vue.postes.forEach(function(o){
+        if(o.manque) manques.push({pause:g.k, t:o.P.t, tenu:o.tenu, attendu:o.attendu});
+      });
+    });
+    if(personne){ vus++; if(manques.length)
+      sortie.push({mois:m, jour:j, mmdd:mmdd, l:manques, inc:inconnus}); }
+    d.setDate(d.getDate()+1);
+  }
+  return {jours:sortie, examines:vus};
+}
+/* Recalculer cent journées à chaque flèche de l'onglet Équipe serait du
+   gaspillage : le tableau ne dépend QUE de la date du jour et de l'horizon. */
+var mqFait="";
+function renderManques(force){
+  var hote=document.getElementById("mqCorps"); if(!hote) return;
+  var au=new Date(), cle=au.toDateString()+"/"+mqHorizon;
+  if(!force && cle===mqFait) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    mqFait=cle;
+    var r=mqJoursAVenir(db,mqHorizon), h=[];
+    r.jours.forEach(function(x){
+      var dt=new Date(Date.UTC(Number(db.year),x.mois-1,x.jour));
+      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'">'
+        +'<b>'+JOURS_LONGS[(dt.getUTCDay()+6)%7].slice(0,3).toLowerCase()+" "
+        +x.jour+' <em>'+esc(MOIS_BREF[x.mois-1])+"</em></b>"
+        +'<span class="mqtags">');
+      x.l.forEach(function(o){
+        /* La couleur dit déjà la pause, mais deux « Fermentation 0/1 » côte à
+           côte le même jour ne se distinguaient que par elle — et une couleur
+           seule ne se lit pas. Le code de pause est donc écrit. */
+        h.push('<span class="mqt" data-s="'+esc(o.pause)+'">'
+              +'<u>'+esc(o.pause)+"</u>"+esc(o.t)
+              +'<i>'+o.tenu+"/"+o.attendu+"</i></span>");
+      });
+      /* Un poste « à déterminer » le même jour peut être exactement celui
+         qui manque : le dire, plutôt que de laisser croire à un trou. */
+      h.push("</span>"+(x.inc?'<span class="mqinc">'+x.inc
+        +" poste"+(x.inc>1?"s":"")+" à déterminer ce jour-là</span>":"")+"</button>");
+    });
+    hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun poste en manque</b> '
+      +"sur l'horizon regardé.</p>";
+    var n=r.jours.length;
+    document.getElementById("mqSub").textContent=
+      (n?n+" journée"+(n>1?"s":"")+" à surveiller":"rien à signaler")
+      +" · "+r.examines+" journée"+(r.examines>1?"s":"")+" regardée"+(r.examines>1?"s":"");
+    hote.onclick=function(e){
+      var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
+      eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j));
+      renderEquipe();
+      var c=document.getElementById("eqCorps");
+      if(c&&c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"start"});
+    };
+  });
+}
+(function(){
+  var seg=document.getElementById("mqHorizon"); if(!seg) return;
+  seg.addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest("button[data-h]"):null; if(!b) return;
+    mqHorizon=Number(b.dataset.h);
+    lsSet("ui/mqHorizon",String(mqHorizon)); mqFait="";
+    Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
+      x.setAttribute("aria-pressed", x===b?"true":"false");
+    });
+    renderManques();
+  });
+  Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
+    x.setAttribute("aria-pressed", Number(x.dataset.h)===mqHorizon?"true":"false");
+  });
+})();
 function eqBouge(n){
   var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; renderEquipe();
 }
