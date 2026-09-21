@@ -1483,8 +1483,9 @@ function compute(){
       }
       acc.rapMt[rec.r]=R(acc.rapMt[rec.r]+mt);
     }
-    if(rec.a && ABSMAP[rec.a]){
-      var A=ABSMAP[rec.a];
+    var codesJour=(rec.a?[rec.a]:[]).concat(rec.ax||[]);
+    for(var cj=0;cj<codesJour.length;cj++){
+      var A=ABSMAP[codesJour[cj]]; if(!A) continue;
       /* Une absence d'une journée entière REMPLACE un poste : sans poste ce
          jour-là, elle ne remplace rien et ne vaut aucune heure. Les fiches
          le confirment — VBN a deux journées de maladie posées sur des repos
@@ -1492,9 +1493,11 @@ function compute(){
          maladie.
 
          Un code d'une fraction de journée est autre chose : c'est un
-         prélèvement sur un compteur, qui vaut même un jour de repos. Le
-         01/03, « - | 1h RTT | pris le 05.03 », et la fiche de mars porte
-         bien son heure de repos compensatoire. */
+         prélèvement sur un compteur, qui vaut même un jour de repos. VBN
+         écrit « - | 1h RTT | pris le 05.03 » le 01/03, et la fiche de mars
+         porte bien son heure de repos compensatoire — elle est désormais
+         comptée le 05, où le commentaire la renvoie, et non le 01 où elle
+         est écrite. Même mois, même fiche ; c'est le jour qui change. */
       var pleineJournee=(A.h>=p.hJour-0.01);
       acc.abs[A.k]=(acc.abs[A.k]||0)+((rec.s||!pleineJournee)?A.h:0);
       if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
@@ -2958,8 +2961,8 @@ var ALIAS_HORAIRE={"ABS":"MAL"};
 var JOUR_EN_ABSENCE={"ds":"FORM"};
 /* « pris le 19.09 », « pris les 3 et 4.07 » — le commentaire dit que les
    heures de l'annotation ont été prises un autre jour. 26 journées. */
-var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+\d{1,2}\s*[.\/-]\s*\d{1,2}/i;
-function parseHoraireEntry(e,hJour,epargne){
+var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
+function parseHoraireEntry(e,hJour,epargne,renvois){
   if(typeof e==="string") e=[e];
   if(hJour===undefined) hJour=8;
   if(!epargne) epargne=0;
@@ -3046,8 +3049,7 @@ function parseHoraireEntry(e,hJour,epargne){
      où la cellule porte un vrai poste amputent, elles, des heures
      réellement prestées : elles attendent l'arbitrage du client, parce
      qu'y toucher changerait une fiche de paie. */
-  var celRepos=!(e[0]||"").trim() || (e[0]||"").trim()==="-";
-  if(celRepos && RX_PRIS_AILLEURS.test(e[2]||"")) A.abs=null;
+  if(RX_PRIS_AILLEURS.test(e[2]||"")) A.abs=null;
   [A,C].forEach(function(x){
     if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
     if(x.jour) jourPrime=x.jour;
@@ -3106,6 +3108,13 @@ function parseHoraireEntry(e,hJour,epargne){
      personne était en repos et vient en renfort — c'est la journée entière
      qui peut partir au compteur : VBN le 19/03, « R-CM | 8h +FT », preste
      huit heures et les épargne toutes, donc zéro heure prestée. */
+  /* Les heures qu'une AUTRE journée renvoie ici par « pris le JJ.MM ».
+     Elles s'ajoutent au compteur propre de la journée — le client, le
+     21/09/2026, à propos de PAM : « c'est pour le 12/09 EN PLUS de ses
+     -FT ». Le classeur l'écrit parfois lui-même dans le commentaire de la
+     journée visée : ["PM","4h -FT","+4h RTT"], et la somme tombe alors
+     juste à zéro heure prestée. */
+  if(renvois && renvois.length) out.ax=renvois.slice();
   out.epargne=(A2&&A2.ft>0)?A2.ft:0;
   out.planifie=!!(C.poste||plage);
   if(out.epargne>0 && out.s && !out.planifie) out.h=Math.max(0,hJour-out.epargne);
@@ -3331,8 +3340,8 @@ function posteDuRemplace(db,e,mmdd,hJour){
 
    Une seule lecture, et deux affichages qui la partagent. C'est la seule
    façon de garantir que les vues ne peuvent pas se contredire. */
-function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour){
-  var r=parseHoraireEntry(raw,hJour,epargne);
+function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
+  var r=parseHoraireEntry(raw,hJour,epargne,renvois);
   if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
     /* LE COMMENTAIRE PRIME — c'est la règle première du projet. Quand il
        nomme la personne remplacée, le poste de celle-ci est un fait ; le
@@ -3366,6 +3375,15 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour){
       r.h=Math.max(0,base);
     }
   }
+  /* En DERNIER, parce que la correction de cycle ci-dessus recalcule les
+     heures depuis zéro et effacerait la soustraction si on la faisait plus
+     tôt. Ces heures-là viennent d'une AUTRE journée, qui les lui renvoie. */
+  if(r.ax && r.ax.length && r.s){
+    for(var ri=0;ri<r.ax.length;ri++){
+      var AR2=ABSMAP[r.ax[ri]];
+      if(AR2 && AR2.h>0) r.h=Math.max(0,((r.h===undefined)?hJour:r.h)-AR2.h);
+    }
+  }
   return r;
 }
 /* Vrai quand la plage ne recouvre pas du tout le poste : elle le précède ou
@@ -3386,6 +3404,25 @@ function plageHorsPoste(plage,poste){
    comme suivre la journée concernée, aucune règle de proximité ne les
    apparie — seul le commentaire le dit. */
 var RX_RENVOI=/(\d{1,2})\s*[.\/-]\s*(\d{1,2})/;
+/* Où retombent les heures que les commentaires renvoient à un autre jour.
+   Jumelle d'epargnesDuMois(), mais dans l'autre sens : celle-ci part de la
+   journée qui ÉCRIT « pris le 12.06 » et rend ce que reçoit le 12 juin.
+   Elle balaie l'année entière — VBN renvoie du 23/07 au 01/08, d'un mois à
+   l'autre, et un balayage mensuel aurait perdu ces heures en route. */
+function renvoisDuMois(person,mois,hJour){
+  var out={}, mmdd, e, m, code;
+  for(mmdd in person.d){
+    if(!Object.prototype.hasOwnProperty.call(person.d,mmdd)) continue;
+    e=person.d[mmdd];
+    if(!e || typeof e==="string" || e.length<3) continue;
+    m=RX_PRIS_AILLEURS.exec(e[2]||""); if(!m) continue;
+    if(Number(m[2])!==mois) continue;
+    code=parseHoraireEntry(["",e[1]||""],hJour).a;
+    if(!code || !ABSMAP[code]) continue;
+    (out[Number(m[1])]=out[Number(m[1])]||[]).push(code);
+  }
+  return out;
+}
 function epargnesDuMois(person,mois){
   var out={};
   for(var d=1; d<=31; d++){
@@ -3407,6 +3444,7 @@ function remplirMois(db,person,y,m,M){
   var nd=daysInMonth(y,m), bilan={filled:0,kept:0,verifier:0,manquants:0,
       repos:0,rhs:0,rcm:0,rappels:0,signales:0,vides:0,changes:0};
   var epargnes=epargnesDuMois(person,m+1);
+  var renvois=renvoisDuMois(person,m+1,st.params.hJour);
   var fitCycle=cycleDuMois(person,y,m+1);
   for(var day=1; day<=nd; day++){
     var rec=M.days[day];
@@ -3417,7 +3455,7 @@ function remplirMois(db,person,y,m,M){
     var dejaEncode=!!(rec && (rec.s || rec.a) && !rec.auto);
     var mmdd=pad2(m+1)+pad2(day);
     var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
-    var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour);
+    var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour,renvois[day]);
     if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
     if(dejaEncode){ bilan.kept++; continue; }
     var rap=rappelDuJour(raw,posteDeCycle(fitCycle,y,m+1,day)||parsed.s,y,mmdd);
@@ -3425,7 +3463,7 @@ function remplirMois(db,person,y,m,M){
        renvoi à une autre journée, rappel d'un collègue. Mieux vaut le dire
        que de la laisser passer sous silence. */
     if(!rap && /rappel/i.test((raw[0]||"")+" "+(raw[1]||"")+" "+(raw[2]||""))) bilan.signales++;
-    if(parsed.s || (parsed.a && ABSMAP[parsed.a])){
+    if(parsed.s || (parsed.a && ABSMAP[parsed.a]) || (parsed.ax && parsed.ax.length)){
       var nrec=M.days[day]||(M.days[day]={});
       var avant=[nrec.s,nrec.h,nrec.a,nrec.r].join("|");
       /* marquée « venue de l'horaire » : une correction des règles de lecture
@@ -3435,6 +3473,9 @@ function remplirMois(db,person,y,m,M){
       if(parsed.s){ nrec.s=parsed.s; nrec.h=(parsed.h===undefined)?st.params.hJour:parsed.h; }
       else { delete nrec.s; delete nrec.h; }
       if(parsed.a && ABSMAP[parsed.a]) nrec.a=parsed.a; else delete nrec.a;
+      /* une journée peut porter son compteur ET celui qu'une autre lui
+         renvoie : « 3h -FT » le 12/09, plus les « 2h RTT » écrites le 13. */
+      if(parsed.ax && parsed.ax.length) nrec.ax=parsed.ax; else delete nrec.ax;
       /* Le poste porte la prime PAYÉE ; il ne dit pas ce qui a été PRESTÉ.
          VBN le 30/09 : nuit prévue, journée faite en délégation CPPT. Le
          calendrier annuel montrait déjà les deux, le mois n'en gardait
@@ -3822,8 +3863,9 @@ function renderEquipe(){
     db.people.forEach(function(p){
       var raw=p.d[mmdd];
       if(raw===undefined){ par.off.push({p:p}); return; }
-      var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois);
-      var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour);
+      var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois),
+          rv=renvoisDuMois(p,mois,st.params.hJour);
+      var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
       var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
       if(h>0) par[r.s]?par[r.s].push({p:p,r:r}):par.off.push({p:p,r:r});
       else if(r.a&&ABSMAP[r.a])
@@ -4022,16 +4064,24 @@ function familleAbsence(code){
 function compteursCalcules(person,annee){
   var out={ftPlus:0,ftMoins:0,rhs:0,abs:{}}, m, d;
   for(m=1;m<=12;m++){
-    var ep=epargnesDuMois(person,m), nd=daysInMonth(annee,m-1);
+    var ep=epargnesDuMois(person,m), rv=renvoisDuMois(person,m,st.params.hJour),
+        nd=daysInMonth(annee,m-1);
     for(d=1;d<=nd;d++){
       var raw=person.d[pad2(m)+pad2(d)]; if(raw===undefined) continue;
-      var r=parseHoraireEntry(raw,st.params.hJour,ep[d]);
-      var A=r.a&&ABSMAP[r.a];
-      if(A&&A.ft>0) out.ftPlus+=A.ft; else if(A&&A.ft<0) out.ftMoins-=A.ft;
+      var r=parseHoraireEntry(raw,st.params.hJour,ep[d],rv[d]);
       if(r.rhs) out.rhs+=r.rhs;
-      /* « 1H RTT », « 3H RTT »… sont le même congé pris à l'heure : ce sont
-         des fractions d'un seul compteur, pas des absences différentes. */
-      if(A&&A.h>0){ var fam=familleAbsence(r.a); out.abs[fam]=(out.abs[fam]||0)+A.h; }
+      /* le compteur propre de la journée, et ceux qu'une autre journée lui
+         renvoie : le pied de classeur les compte tous, où qu'ils soient
+         écrits — les déplacer ne doit donc rien ajouter ni rien perdre. */
+      var codes=(r.a?[r.a]:[]).concat(r.ax||[]);
+      for(var ci=0;ci<codes.length;ci++){
+        var A=ABSMAP[codes[ci]]; if(!A) continue;
+        if(A.ft>0) out.ftPlus+=A.ft; else if(A.ft<0) out.ftMoins-=A.ft;
+        /* « 1H RTT », « 3H RTT »… sont le même congé pris à l'heure : ce
+           sont des fractions d'un seul compteur, pas des absences
+           différentes. */
+        if(A.h>0){ var fam=familleAbsence(codes[ci]); out.abs[fam]=(out.abs[fam]||0)+A.h; }
+      }
     }
   }
   return out;
@@ -4178,12 +4228,13 @@ function etiqAbsence(code){
 function anneeDeLaPersonne(db,person,annee){
   var out={}, m, d;
   for(m=1;m<=12;m++){
-    var ep=epargnesDuMois(person,m), fit=cycleDuMois(person,annee,m);
+    var ep=epargnesDuMois(person,m), fit=cycleDuMois(person,annee,m),
+        rv=renvoisDuMois(person,m,st.params.hJour);
     var nd=daysInMonth(annee,m-1);
     for(d=1;d<=nd;d++){
       var mmdd=pad2(m)+pad2(d), raw=person.d[mmdd];
       if(raw===undefined) continue;
-      var r=lireJournee(db,raw,annee,m,d,fit,ep[d],st.params.hJour);
+      var r=lireJournee(db,raw,annee,m,d,fit,ep[d],st.params.hJour,rv[d]);
       out[mmdd]={s:r.s||"", a:(r.a&&ABSMAP[r.a])?r.a:"", h:r.h, jour:r.jourCode||"",
                  rcm:remplacementCM(raw,r.s,st.params.hJour),
                  rap:rappelDuJour(raw,posteDeCycle(fit,annee,m,d)||r.s,annee,mmdd),
