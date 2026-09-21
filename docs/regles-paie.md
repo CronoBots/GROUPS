@@ -451,15 +451,40 @@ Précompte professionnel           0,00     le bonus en est exempt
 Net                           (montant retiré)
 ```
 
-**Elle est versée en deux fois, et il ne faut pas les confondre.** Le client,
-le 21/09/2026 : « l'avance sur la CCT 90 a été versée avec la paie de
-septembre ». La fiche de février est donc un **solde**, pas la prime de
-l'année en cours — ce que la fiche elle-même n'indique nulle part. À
-confirmer sur la fiche de septembre, qui arrive début octobre : c'est elle
-qui portera l'avance 2026.
+**Elle est versée en deux fois : une avance en septembre, le solde en mars.**
+Confirmé par le client le 21/09/2026. Pour VBN :
 
-Une seconde fiche de ce type, en février également, porte une
-« Recup à payer » négative. Même remarque : aucune heure.
+| | Fiche | Montant |
+|---|---|---|
+| avance 2026 | période 08/2026, payée le 02/09 | **(montant retiré)** |
+| solde 2026 | mars 2027 | à venir |
+| solde 2025 | période 02/2026, payée le 16/03 | **(montant retiré)** |
+
+La fiche n'indique **jamais** l'année que le montant couvre : seul le mois de
+versement permet de la retrouver.
+
+Une seconde fiche de février porte une « Recup à payer » négative. Aucune
+heure non plus.
+
+## L'avance mensuelle sur le salaire
+
+**Confirmé par le client le 21/09/2026** : « c'est l'avance de mon salaire
+normal, que tu touches toujours fin du mois, tandis que le solde du mois est
+toujours payé début du mois suivant. »
+
+La fiche la porte en retenue, sous « **Déduction avance reçue** ». Pour VBN,
+**(montant retiré) € tous les mois** sans exception — sauf février 2026, **3 900,00**,
+soit deux avances sur un même mois.
+
+Elle se saisit dans le champ **« Avance déjà reçue (€) »** de l'onglet
+Horaire, mois par mois. Sans elle, le « net à recevoir » de la fiche simulée
+est trop élevé de 1 950 € : le brut et les retenues sont justes, c'est le
+solde à virer qui ne l'est pas.
+
+**À ne pas confondre avec l'avance CCT 90**, qui porte le libellé « Avantage
+non récurrent » et se trouve du côté des rémunérations, pas des retenues. Les
+deux figurent sur la fiche d'août 2026, et c'est précisément là qu'on peut
+les prendre l'une pour l'autre.
 
 ## Jusqu'à quand court une absence
 
