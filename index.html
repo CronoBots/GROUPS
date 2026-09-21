@@ -1278,7 +1278,16 @@ function codeAbsence(t){
   t=(t||"").trim();
   if(!t) return null;
   if(ABSMAP[t]) return t;
-  return ABSNORM[t.toUpperCase().replace(/\s+/g,"")]||null;
+  var n=t.toUpperCase().replace(/\s+/g,"");
+  /* « RTT- », « RTT - », « 2h RTT- », « 3 RTT- ». Le client : la forme nue
+     est un RTT complet, la forme chiffrée des heures de RTT reprises pendant
+     la pause. Le tiret ne change donc rien au décompte — et le « h » manque
+     parfois. On ne l'enlève qu'accolé à RTT : « 8h -FT » en a un aussi, et
+     lui veut dire tout autre chose. */
+  var m=n.match(/^(\d+)H?RTT-$/);
+  if(m) n=m[1]+"HRTT";
+  else if(n==="RTT-") n="RTT";
+  return ABSNORM[n]||null;
 }
 
 var DEF_P={
