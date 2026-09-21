@@ -368,6 +368,23 @@ marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
 
+## RTT- — le tiret ne change rien
+
+**Confirmé par le client le 20/09/2026.**
+
+| Écriture | Sens |
+|---|---|
+| `RTT-` seul (ou `RTT -`) | un **RTT complet** — la journée entière, comme `RTT` |
+| `2h RTT-`, `3 RTT-`, `7h RTT-` | des **heures de RTT reprises pendant la pause**, comme `2h RTT` |
+
+Le tiret ne modifie donc aucun décompte : `RTT-` se lit exactement comme
+`RTT`. Le « h » manque parfois (`3 RTT-`), et la lecture le supplée.
+
+Le tiret n'est enlevé **qu'accolé à RTT** : `8h -FT` en porte un aussi, et
+lui veut dire tout autre chose.
+
+39 journées de l'horaire 2026, **toutes en janvier**.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
