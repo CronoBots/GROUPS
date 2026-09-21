@@ -308,13 +308,13 @@ client. Les deux autres cellules annoncées plus tôt étaient un artefact de
 la découpe, corrigé depuis : d'où les épreuves d'auto-contrôle.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
-case s'affiche juste, mais un morceau de la cellule reste illisible. **51
-journées**, regroupées par mention — `E. min SD26` (12), `R-F`, `HS`, `eval`,
+case s'affiche juste, mais un morceau de la cellule reste illisible. **39
+journées**, regroupées par mention — `N SD26` (5), `R-F` (4), `HS`, `eval`,
 `R-VM`, et d'autres. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
-`RHS` et `RTT-` en sont sortis : le client les a tranchés le 20/09/2026, et
-leurs 196 journées sont devenues des absences — voir `docs/regles-paie.md`.
+`RHS`, `RTT-` et `E. min` en sont sortis : le client les a tranchés le
+20/09/2026 — voir `docs/regles-paie.md`.
 
 ## Vérifier une modification du pré-remplissage
 
