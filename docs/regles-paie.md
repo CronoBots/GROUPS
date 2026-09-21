@@ -451,6 +451,26 @@ pas les deviner :
 - Une journée de 12 h portant aussi une absence partielle vaut-elle 10 h
   prestées (ce que fait le calcul) ou 12 h ?
 
+## Adjoint n'est pas contremaître, sauf quand il le remplace
+
+**Confirmé par le client le 21/09/2026.**
+
+« Les adjoints doivent être classés dans "Adjoint" et non contremaître dans
+l'onglet Équipe s'ils ne remplacent pas comme contremaître. »
+
+L'onglet Équipe les rangeait tous sous « Contremaître », si bien qu'un poste
+paraissait tenu — voire doublé — par des gens qui n'y étaient pas. Un adjoint
+présent n'est pas un contremaître de plus.
+
+Le poste « Adjoint » n'annonce **aucun effectif attendu** : ce n'est pas un
+poste à tenir, c'est une fonction. Un adjoint ne rejoint « Contremaître » que
+le jour où `remplacementCM()` le reconnaît — « R-CM » dans la cellule ou son
+annotation, et pas un remplacement partiel.
+
+Conséquence voulue : une pause sans contremaître et avec deux adjoints
+affiche maintenant « Contremaître 0 / 1 » et « Adjoint 2 ». C'est la vérité,
+et elle se voit.
+
 ## Contremaîtres et adjoints
 
 Confirmé par le client le 20/09/2026.

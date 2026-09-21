@@ -3588,6 +3588,12 @@ function fonctionPersonne(p){
 
 var POSTES_TRAVAIL=[
   {k:"cm",   t:"Contremaître",    n:1, cm:true},
+  /* Le client : « les adjoints doivent être classés dans Adjoint et non
+     contremaître s'ils ne remplacent pas comme contremaître ». Un adjoint
+     présent n'est pas un contremaître de plus — le poste paraissait doublé
+     alors qu'il ne l'était pas. Aucun effectif attendu : ce n'est pas un
+     poste à tenir, c'est une fonction. */
+  {k:"adj",  t:"Adjoint",         n:0},
   {k:"meun", t:"Meunerie",        n:1, rx:/^meun/i},
   {k:"glut", t:"Gluten",          n:2, rx:/^glut/i},
   {k:"ferm", t:"Fermentation",    n:1, rx:/^ferm/i},
@@ -3641,9 +3647,15 @@ function aLAtelier(person,rx){
 function tientTerrainArriere(person){
   return aLAtelier(person,/^ferm/i) && aLAtelier(person,/^disti/i);
 }
-function posteTenu(person,raw){
+function posteTenu(person,raw,hJour,poste){
   var i, k;
-  if(estCadre(person)) return "cm";
+  if(estCadre(person)){
+    if(estContremaitre(person)) return "cm";
+    /* L'adjoint ne compte au poste de contremaître que s'il le remplace
+       vraiment ce jour-là — c'est « R-CM » qui le dit, et remplacementCM()
+       qui écarte les remplacements partiels. */
+    return remplacementCM(raw||[], poste||null, hJour||8) ? "cm" : "adj";
+  }
   for(i=0;i<2;i++){ k=posteDepuisNom(raw&&raw[i]); if(k) return k; }
   /* « N-terr. Arr. » : le lieu est dans la même cellule que le poste */
   for(i=0;i<2;i++){
@@ -3786,7 +3798,7 @@ function renderEquipe(){
         var parPoste={}, inconnus=[], formation=[];
         l.forEach(function(x){
           if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
-          var k=posteTenu(x.p,x.p.d[mmdd]);
+          var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&x.r.s);
           if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
         });
         POSTES_TRAVAIL.forEach(function(P){
