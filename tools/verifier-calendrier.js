@@ -71,6 +71,7 @@ const MORCEAUX=[
   ["function dureeReelle(","\n}"],
   ["var ALIAS_HORAIRE=","\n"],
   ["var JOUR_EN_ABSENCE=","\n"],
+  ["var RX_PRIS_AILLEURS=","\n"],
   ["function parseHoraireEntry(","\n}"],
   ["var CYCLES=[","];"],
   ["function cycleDuMois(","\n}"],
@@ -104,6 +105,8 @@ const EPREUVES=[
   ["cycle théorique",            ()=>!!cyclePoste(1,"6 semaines",0,Date.UTC(2026,0,1))],
   ["lecture d'une cellule",      ()=>parseHoraireEntry(["AM"],8).s==="AM"],
   ["annotation « - »",           ()=>parseHoraireEntry(["N","-"],8).h===0],
+  ["annotation renvoyée ailleurs",()=>!parseHoraireEntry(["-","2h -FT","pris le 19.09"],8).a
+                                     && parseHoraireEntry(["-","2h -FT"],8).a==="2H -FT"],
   ["plage d'un commentaire",     ()=>{const p=plageCommentaire("de 18h à 22h"); return p&&p[0]===18&&p[1]===22;}],
   ["plage hors du poste",        ()=>plageHorsPoste([18,22],"N") && !plageHorsPoste([18,22],"PM")]
 ];
@@ -157,9 +160,41 @@ function affichageRecord(rec,hJour){
 }
 
 /* --- lecture du classeur ------------------------------------------------- */
-const fichier=process.argv[2]||path.join(RACINE,"data","horaire-2026.json");
+/* --journee et ses arguments ne sont pas un nom de fichier */
+const ARGS=process.argv.slice(2);
+const coupe=ARGS.indexOf("--journee");
+const fichier=(coupe<0?ARGS:ARGS.slice(0,coupe))
+  .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
 const ANNEE=Number(db.year);
+
+/* --- interroger la lecture sur une journée précise -----------------------
+   node tools/verifier-calendrier.js --journee FPA 0919 0921
+   Répond ce que l'APPLICATION fait de la cellule — pas ce qu'on croit
+   qu'elle en fait. Sans ce mode on écrivait un script à côté, qui
+   réimplémentait la lecture et pouvait donc se tromper d'accord avec
+   lui-même. */
+if(process.argv.indexOf("--journee")>=0){
+  const args=process.argv.slice(process.argv.indexOf("--journee")+1);
+  const qui=args[0], jours=args.slice(1);
+  const p=db.people.filter(x=>x.id===qui)[0];
+  if(!p){ console.error("inconnu : "+qui); process.exit(2); }
+  const liste=jours.length?jours:Object.keys(p.d).sort();
+  for(const mmdd of liste){
+    const m=Number(mmdd.slice(0,2)), d=Number(mmdd.slice(2));
+    const raw=p.d[mmdd];
+    if(raw===undefined){ console.log(mmdd+"  (rien)"); continue; }
+    const fit=cycleDuMois(p,ANNEE,m), ep=epargnesDuMois(p,m);
+    const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR);
+    const a=affichage(r);
+    console.log(qui+" "+d+"/"+pad2(m)+"  "+JSON.stringify(raw));
+    console.log("     lu       : poste="+(r.s||"—")+"  heures="+
+      (r.h===undefined?"(défaut "+H_JOUR+")":r.h)+"  absence="+(r.a||"—")+
+      "  épargne="+(r.epargne||0)+(r.modifie?"  [poste corrigé]":""));
+    console.log("     affiché  : "+a.genre+"  « "+a.etiquette+" »  "+a.heures+" h");
+  }
+  process.exit(0);
+}
 
 const REGLES=[
   ["cellule non reconnue","le classeur écrit un poste ou une plage que la lecture ne sait pas traduire"],

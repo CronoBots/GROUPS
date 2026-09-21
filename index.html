@@ -2517,6 +2517,11 @@ function fonctionCourte(cat){
   var t=String(cat||"").replace(/\s+de production$/i,"").replace(/^Shift\s*/i,"Équipe ");
   t=t.replace(/^Contremaîtres\b/i,"Contremaître")
      .replace(/^Adjoints\b/i,"Adjoint")
+     /* « Opérateur en formation » déborde du cadre d'une tuile de téléphone.
+        Le client, le 21/09/2026 : « au lieu d'écrire "Opérateur en
+        formation" on peut écrire "Op. en formation" ». « Opérateurs STEP »
+        tient, lui, et garde son mot entier. */
+     .replace(/^Opérateurs\s+en\s+formation\b/i,"Op. en formation")
      .replace(/^Opérateurs\b/i,"Opérateur");
   return t.split(/\s+/).map(function(m,i){
     return i?((m===m.toUpperCase()&&m.length>1)?m:m.toLowerCase()):motLisible(m);
@@ -2951,6 +2956,9 @@ var ALIAS_HORAIRE={"ABS":"MAL"};
    Les délégations CPPT et les conseils d'entreprise gardent leur traitement :
    journée prestée en horaire de jour, prime de la pause conservée. */
 var JOUR_EN_ABSENCE={"ds":"FORM"};
+/* « pris le 19.09 », « pris les 3 et 4.07 » — le commentaire dit que les
+   heures de l'annotation ont été prises un autre jour. 26 journées. */
+var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+\d{1,2}\s*[.\/-]\s*\d{1,2}/i;
 function parseHoraireEntry(e,hJour,epargne){
   if(typeof e==="string") e=[e];
   if(hJour===undefined) hJour=8;
@@ -3021,6 +3029,25 @@ function parseHoraireEntry(e,hJour,epargne){
     return r;
   }
   var A=lire(e[1]), C=lire(e[0]);
+  /* « pris le 19.09 » : le commentaire renvoie l'annotation à UN AUTRE JOUR.
+     Le client, le 21/09/2026 : « FPA est indiqué "2h -FT" alors que le
+     commentaire dit bien que c'est pour un autre jour. Il faut faire
+     attention à tous les commentaires ! »
+
+     Le classeur écrit ces heures deux fois : sur le jour où le quota était
+     prévu — une case de repos, avec « pris le JJ.MM » — et sur le jour où
+     il a réellement été consommé, qui porte alors son propre compteur.
+     QDE : 13/06 ["-","4h -FT","pris le 12.06"] et 12/06 ["7h-15h","4h RTT"].
+     Les appliquer des deux côtés compte les heures deux fois.
+
+     On n'écarte l'annotation que si la cellule est un REPOS : là, la
+     journée vaut zéro heure de toute façon, et la correction ne déplace
+     aucun montant — elle enlève une étiquette qui ment. Les six journées
+     où la cellule porte un vrai poste amputent, elles, des heures
+     réellement prestées : elles attendent l'arbitrage du client, parce
+     qu'y toucher changerait une fiche de paie. */
+  var celRepos=!(e[0]||"").trim() || (e[0]||"").trim()==="-";
+  if(celRepos && RX_PRIS_AILLEURS.test(e[2]||"")) A.abs=null;
   [A,C].forEach(function(x){
     if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
     if(x.jour) jourPrime=x.jour;

@@ -330,6 +330,54 @@ là, la personne avait un poste prévu. L'ordre est donc :
 3. à défaut, le poste de la personne nommée dans le commentaire ;
 4. à défaut, pour une journée en horaire de jour, un poste de jour.
 
+## 6 septies. « pris le JJ.MM » : l'annotation appartient à un autre jour
+
+**Confirmé par le client le 21/09/2026.** À propos de FPA le 21/09 : « FPA
+est indiqué "2h -FT" alors qu'il s'agit d'un commentaire qui dit bien que
+c'est pour un autre jour. Il faut faire attention à tous les commentaires ! »
+
+```
+FPA 21/09  ["-", "2h -FT", "pris le 19.09 arrivée à 0h00'"]
+FPA 19/09  ["N", "R-CM",   "remplace FLI de 0h à06h00'"]
+```
+
+Le classeur écrit ces heures **deux fois** : sur le jour où le quota était
+prévu — une case de repos portant « pris le JJ.MM » — et sur le jour où il a
+réellement été consommé. Les appliquer des deux côtés les compte double :
+
+```
+QDE 13/06  ["-", "4h -FT", "pris le 12.06"]      ← le renvoi
+QDE 12/06  ["7h-15h", "4h RTT"]                  ← le compteur réel
+```
+
+**26 journées** portent « pris le JJ.MM ». Dans **12** d'entre elles, la
+journée visée porte déjà son propre compteur ; trois l'écrivent même en
+toutes lettres dans leur commentaire — `["PM","4h -FT","+4h RTT"]`.
+
+### Ce que l'application fait
+
+Quand la cellule est un **repos** et que le commentaire renvoie ailleurs,
+l'annotation n'y crée plus d'absence : la journée redevient un repos ordinaire.
+**20 journées**, et **aucune heure prestée ne bouge** — la case valait zéro
+heure de toute façon. La correction enlève une étiquette qui ment, rien de plus.
+
+### Les six journées qui attendent le client
+
+Là, la cellule porte un **vrai poste** et l'annotation ampute des heures
+réellement prestées. Y toucher changerait une fiche de paie : on ne devine pas.
+
+| | Écrit | Compté | Journée visée |
+|---|---|---|---|
+| VGG 02/11 | `["AM","4h RTT","pris le 03.11"]` | 4 h | `03/11 ["AM","1/2VA"]` |
+| GJR 07/04 | `["AM","3h RTT","pris le 08.04"]` | 5 h | `08/04 ["PM","1/2VA"]` |
+| CWN 25/06 | `["AM","2h RTT","pris le 26.06"]` | 6 h | `26/06 ["10h-22h","4h +FT"]` |
+| CKS 26/07 | `["PM","5h RTT","pris le 25.07"]` | 3 h | `25/07 ["PM","3h -FT"]` |
+| PAM 13/09 | `["PM","2h RTT","pris le 12.09"]` | 6 h | `12/09 ["Ferm. Liq.","3h -FT"]` |
+| HKB 08/05 | `["PM","1h -FT","pris le 09.05"]` | 8 h | `09/05 ["PM","1h RTT"]` |
+
+Si le RTT a bien été pris le jour visé, la journée écrite était **complète** —
+et l'application en retire aujourd'hui jusqu'à cinq heures.
+
 ## 6 sexies. Mentions reconnues, sans effet sur le calcul
 
 | Mention | Occurrences | Sens |

@@ -308,6 +308,14 @@ maintenant `lireJournee()` ; le vérificateur refait le trajet complet
 Le code de retour est 1 s'il reste une faute : l'outil se branche tel quel
 sur un contrôle automatique.
 
+Pour demander à l'outil ce que l'application fait d'une journée précise —
+plutôt que d'écrire un script à côté, qui réimplémenterait la lecture et
+pourrait donc se tromper d'accord avec lui-même :
+
+```bash
+node tools/verifier-calendrier.js --journee FPA 0919 0921
+```
+
 **Au 20/09/2026 : 1 cellule non reconnue sur 27 462, zéro faute ailleurs.**
 C'est `CAN 24/07 ["*"]`, une étoile seule, qui demande une décision du
 client. Les deux autres cellules annoncées plus tôt étaient un artefact de
@@ -326,8 +334,9 @@ pourraient déplacer des heures : à faire trancher, une par une.
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
 lui qu'il faut relancer, et non un script à côté. Au 20/09/2026, sur les
-27 462 journées : **14 804 prestées, 4 909 absences, 156 postes prévus non
-prestés, 7 593 repos**. Un écart important signale une régression.
+27 462 journées : **14 804 prestées, 4 890 absences, 156 postes prévus non
+prestés, 7 612 repos** (au 21/09/2026 ; les 19 journées passées d'absence à
+repos sont les renvois « pris le JJ.MM » de la section 6 septies). Un écart important signale une régression.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 `docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
