@@ -398,6 +398,26 @@ Aucune heure, aucune prime ne s'y attache.
 
 12 journées de l'horaire 2026.
 
+## « N SD26 » — le poste et la journée dans la même cellule
+
+**Confirmé par le client le 20/09/2026.**
+
+`N SD26` se lit « **nuit SD26** ». Le client : « ça dit juste que l'opérateur
+change d'horaire pour le SD26, donc ici il passe en nuit ».
+
+L'annotation porte donc deux choses à la fois : le poste réellement tenu, et
+la journée particulière. `PLZ` les 27, 28 et 29 mars était prévu en
+après-midi et a fait la nuit — il restait en après-midi, avec la mauvaise
+prime.
+
+**Et le poste indiqué est bien tenu.** `SBZ 25/03 ["N","E. min SD26"]`,
+`FPA 03/04 ["N","E. Min SD26"]` : ces personnes tiennent la pause écrite,
+elles ne passent pas en horaire de jour.
+
+Attention au découpage : `D-F` et `D-CPPT` commencent aussi par ce qui
+ressemble à un poste. Le texte entier est donc éprouvé d'abord ; on ne
+découpe qu'à défaut.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne

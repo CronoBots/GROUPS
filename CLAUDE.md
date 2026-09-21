@@ -308,9 +308,9 @@ client. Les deux autres cellules annoncées plus tôt étaient un artefact de
 la découpe, corrigé depuis : d'où les épreuves d'auto-contrôle.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
-case s'affiche juste, mais un morceau de la cellule reste illisible. **39
-journées**, regroupées par mention — `N SD26` (5), `R-F` (4), `HS`, `eval`,
-`R-VM`, et d'autres. Elles n'empêchent rien d'afficher, mais elles
+case s'affiche juste, mais un morceau de la cellule reste illisible. **33
+journées**, regroupées par mention — `R-F` (4), `HS`, `eval`, `R-VM`, et
+d'autres, toutes en petit nombre. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
 `RHS`, `RTT-` et `E. min` en sont sortis : le client les a tranchés le
