@@ -470,9 +470,11 @@ dans ce cas, `BBZ` et `QBY`, qui n'ont pas la fermentation.
 Une personne que **sa cellule du jour** envoie au terrain arrière y est de
 plein droit : la cellule dit ce qui a été fait, et elle prime sur la ligne 9.
 
-Les polyvalents et renforts **avant** ne sont pas encore rattachés à un
-poste : le client les dit « le plus souvent au gluten », mais sous condition,
-et une tendance ne se code pas comme une règle.
+**Les polyvalents et renforts avant vont au gluten**, sous la même forme de
+condition. Le client : « cela peut être une règle si l'opérateur possède bien
+le poste gluten ». Dix des treize l'ont ; `YRS`, `SMK` et `GBT` ne l'ont pas
+et restent sans poste par défaut — ce qui vaut mieux que de les y placer à
+tort.
 
 **Un remplacement est presque toujours écrit.** La ligne 9 donne le poste
 habituel ; c'est la cellule du jour et son commentaire qui disent où la
