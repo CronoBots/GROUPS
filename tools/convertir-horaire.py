@@ -110,10 +110,14 @@ CORRECTIONS = {
     # JBY est le trigramme d'un responsable, pas celui de cet opérateur
     "db4592e0af": "JBA",
     # trois trigrammes pour deux personnes : le client tranche, celui de
-    # l'équipe 5 garde CDE et GBT, celui de l'équipe 3 garde PDR
+    # l'équipe 5 garde CDE, celui de l'équipe 3 garde PDR
     "a056b3f782": "CHD",   # l'autre CDE, en équipe 4
-    "531e312a2e": "GBO",   # l'autre GBT, en équipe 4
     "0ad0bc1dfe": "PDF",   # l'autre PDR, en équipe 1
+    # GBT n'est plus corrigé. Le client, le 21/09/2026 : « il faut annuler
+    # ma demande de renommage de GBO, il doit y avoir 2 GBT (un aux
+    # chaudières et l'autre au Gluten/Meunerie) ». Ce sont deux personnes
+    # qui portent réellement les mêmes initiales, et le suffixe des
+    # trigrammes partagés — GBT et GBT-1 — est fait pour ce cas-là.
     # CDE figure aussi dans l'onglet Personnel sous un troisième nom ; le
     # client confirme qu'il revient à celui de l'équipe 5. L'inscrire ici
     # fait de ce maintien une décision, et non le hasard d'un calcul.
@@ -413,7 +417,11 @@ def metadata(cl):
 def polyvalence(cl, annuaire):
     """L'onglet « Polyvalence » : le degré de chacun et les ateliers qu'il
     peut tenir. Il porte matricule, nom et prénom en clair — rien de tout
-    cela ne sort d'ici, seul l'identifiant à trois lettres est conservé."""
+    cela ne sort d'ici, seul l'identifiant à trois lettres est conservé.
+    Elle rend, par trigramme RÉEL, la liste des lignes qui le portent — sans
+    en écraser aucune. Deux lignes pour un même trigramme sont deux personnes,
+    pas une erreur.
+    """
     if "Polyvalence" not in cl.feuilles:
         return {}
     g = cl.grille("Polyvalence")
@@ -426,18 +434,14 @@ def polyvalence(cl, annuaire):
         if not famille or not prenom:
             continue
         cand = "%s %s." % (famille.title(), prenom[0].upper())
-        # Le même chemin que pour l'horaire : une correction du client
-        # d'abord, l'onglet Personnel ensuite, la règle des initiales en
-        # dernier. Sans la correction, la polyvalence d'une personne
-        # renommée restait classée sous l'ANCIEN trigramme — celui d'un
-        # autre, ou de personne. Le classeur porte deux lignes « GBT »,
-        # Gluten et Chaudières ; la seconde écrasait la première, et la
-        # ligne « JBY » ne trouvait plus personne depuis que JBY est
-        # revenu au responsable qui le porte.
+        # Le trigramme RÉEL — celui que le classeur écrit — et non celui que
+        # CORRECTIONS attribuera ensuite. Le client : « dans le fichier Excel
+        # il faut prendre leur polyvalence sur leur vrai trigramme ». Une
+        # personne renommée reste inscrite ici sous son ancien trigramme :
+        # c'est là, et nulle part ailleurs, qu'il faut aller la chercher.
         cle = _sans_accent(cand).lower()
-        ident = (CORRECTIONS.get(_empreinte(cle)) or annuaire.get(cle)
-                 or _initiales(cand))
-        if not ident:
+        reel = annuaire.get(cle) or _initiales(cand)
+        if not reel:
             continue
         ateliers = [noms[c] for c in noms if g[r].get(c)]
         fiche = {}
@@ -447,17 +451,10 @@ def polyvalence(cl, annuaire):
             fiche["ateliers"] = ateliers
         if not fiche:
             continue
-        # Deux lignes pour un même identifiant : l'une écrasait l'autre en
-        # silence, et la personne évincée se retrouvait SANS polyvalence —
-        # ce qui se lit ensuite comme « ne tient aucun poste », alors qu'on
-        # ne sait simplement pas. On le dit, et on garde la première.
-        if ident in out and out[ident] != fiche:
-            print("  polyvalence : deux lignes pour %s — %s puis %s ; la"
-                  " seconde est ignorée. Départager les deux personnes dans"
-                  " CORRECTIONS." % (ident, out[ident].get("ateliers"),
-                                     fiche.get("ateliers")), file=sys.stderr)
-            continue
-        out[ident] = fiche
+        # On rend les lignes TELLES QUELLES, sans en écraser aucune : le
+        # classeur en porte deux pour GBT — Gluten et Chaudières — et ce
+        # sont deux personnes. C'est au rattachement de les départager.
+        out.setdefault(reel, []).append((cle, fiche))
     return out
 
 
@@ -580,7 +577,10 @@ def convertir(chemin_xlsm, annee):
             print("  nom illisible, ligne ignorée :", nom, file=sys.stderr)
             continue
         utilisees.add(_empreinte(cle))
+        # Le trigramme que le CLASSEUR écrit, avant toute correction : c'est
+        # sous celui-là que l'onglet Polyvalence inscrit la personne.
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
+                                    "reel": annuaire.get(cle) or _initiales(nom),
                                     "cat": categorie, "d": {}, "c": {}, "e": [],
                                     "postes": {}})
         # Le poste est propre à la FEUILLE : la même personne est « Adjoints
@@ -658,8 +658,12 @@ def convertir(chemin_xlsm, annee):
     par_base = {}
     for cle, f in fiches.items():
         par_base.setdefault(f["base"], []).append((cle, f))
+    _cles = {id(f): cle for cle, f in fiches.items()}
 
-    gens = {}
+    def _cle_de(f):
+        return _cles.get(id(f))
+
+    gens, reels, cles_ident = {}, {}, {}
     for base in sorted(par_base):
         lot = sorted(par_base[base],
                      key=lambda kv: (not kv[1]["officiel"], -len(kv[1]["d"]), kv[0]))
@@ -679,10 +683,42 @@ def convertir(chemin_xlsm, annee):
             if f.get("postes"):
                 p["postes"] = f["postes"]
             gens[ident] = p
+            cles_ident[ident] = _cle_de(f)
+            reels.setdefault(f.get("reel"), []).append(ident)
 
-    for ident, fiche in polyvalence(cl, annuaire).items():
-        if ident in gens:
-            gens[ident]["poly"] = fiche
+    # La polyvalence se rattache par le trigramme RÉEL — le client : « dans
+    # le fichier Excel il faut prendre leur polyvalence sur leur vrai
+    # trigramme ». Une personne que CORRECTIONS a renommée y figure sous
+    # l'ancien, et c'est là qu'il faut aller la chercher : la ligne « JBY »
+    # est celle de l'opérateur devenu JBA.
+    #
+    # Deux lignes peuvent porter le même trigramme réel — le classeur en a
+    # deux pour GBT, Gluten et Chaudières, et ce sont deux personnes. On les
+    # départage par le NOM, qui est écrit des deux côtés ; à défaut, on ne
+    # devine pas, on le dit.
+    for reel, lignes in polyvalence(cl, annuaire).items():
+        cibles = reels.get(reel) or []
+        if not cibles:
+            print("  polyvalence : la ligne %s ne correspond à personne dans"
+                  " l'horaire" % reel, file=sys.stderr)
+            continue
+        restantes, libres = [], list(cibles)
+        for cle_lig, fiche in lignes:
+            vise = [i for i in libres if cles_ident.get(i) == cle_lig]
+            if len(vise) == 1:
+                gens[vise[0]]["poly"] = fiche
+                libres.remove(vise[0])
+            else:
+                restantes.append(fiche)
+        if len(restantes) == 1 and len(libres) == 1:
+            gens[libres[0]]["poly"] = restantes[0]
+        elif restantes:
+            print("  polyvalence : %d ligne(s) « %s » pour %d personne(s)"
+                  " (%s) que le nom ne départage pas — %s. Les trancher dans"
+                  " CORRECTIONS."
+                  % (len(restantes), reel, len(libres), ", ".join(libres),
+                     " ; ".join(str(f.get("ateliers")) for f in restantes)),
+                  file=sys.stderr)
     sortie = {"year": annee}
     sortie.update(metadata(cl))
     sortie["people"] = sorted(gens.values(), key=lambda p: (p["cat"], p["id"]))
