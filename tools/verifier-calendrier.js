@@ -98,6 +98,9 @@ const MORCEAUX=[
      refaire. Une première version le réimplémentait, et elle a aussitôt
      divergé sur BBZ — « poste habituel » n'y suivait pas la même chaîne. */
   ["var POLY_QUOTA=",";"],
+  ["function _posteDeLigne9(","\n}"],
+  ["function posteAttitre(","\n"],
+  ["function posteDeFormation(","\n"],
   ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
   ["function calculerPolyvalence(","\n}"],
@@ -370,7 +373,12 @@ if(process.argv.indexOf("--polyvalence")>=0){
   gens.sort((a,b)=>a.id<b.id?-1:(a.id>b.id?1:0)).forEach(p=>{
     const l=polyvalenceDe(db,p)||[];
     if(!l.length && !tout) return;
-    const bouts=l.map(o=>{ total++; if(o.ok) atteints++; if(!o.n) vierges++;
+    const bouts=l.map(o=>{
+      /* Le poste de FORMATION n'est ni le sien ni une polyvalence : il ne
+         compte dans aucun des deux totaux, sans quoi l'outil annonçait
+         31 « sans remplacement » là où le navigateur en montrait 23. */
+      if(o.forme) return o.t+" (en formation)";
+      total++; if(o.ok) atteints++; if(!o.n) vierges++;
       return o.t+" "+o.n+"/"+o.q+(o.ok?" \u2713":""); });
     console.log("  "+p.id+"  "+(estCadre(p)?"adjoint  ":"opérateur")+"  "
       +(bouts.join("  ")||"\u2014"));
@@ -385,8 +393,7 @@ if(process.argv.indexOf("--polyvalence")>=0){
   const hors=[];
   gens.forEach(p=>{
     const par=t.parId[p.id]||{};
-    let sien; try{ sien=posteTenu(p,[],H_JOUR,null)||posteParDefaut(p); }
-    catch(e){ sien=null; }
+    const sien=posteAttitre(p)||posteDeFormation(p);
     POSTES_TRAVAIL.forEach(P=>{
       if(P.cm||P.k==="adj"||P.k===sien) return;
       if(!par[P.k]||aLaPolyvalence(p,P)) return;

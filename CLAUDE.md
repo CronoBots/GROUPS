@@ -657,6 +657,27 @@ L'outil les liste tout de même, sous « journées tenues SANS la polyvalence
 du poste » : elles ne comptent pas, mais les taire serait perdre une
 information que personne d'autre ne porte.
 
+**Un opérateur EN FORMATION n'a pas de poste à lui.** Le client, le
+22/09/2026 : « les opérateurs en formation ne peuvent pas posséder comme
+poste par défaut le poste où ils sont en formation ; ils ne doivent pas y
+faire de recyclage vu qu'ils n'y sont pas validés (exemple SKS en
+meunerie) ». La ligne 9 leur en donne bien un — SKS la meunerie, LHR et GST
+les chaudières — mais c'est celui où ils APPRENNENT. Aucun des huit ne l'a
+dans sa polyvalence, ce qui le confirme : on n'est pas validé là où l'on se
+forme.
+
+Ce poste ne devient donc ni « son poste » ni une ligne de recyclage : les
+112 journées de SKS en meunerie ne comptent pas. Sa case porte un **F** —
+muette à côté de tant de journées, elle poserait plus de questions qu'elle
+n'en résout.
+
+`posteAttitre()` et `posteDeFormation()` partagent la même chaîne à dessein :
+c'est le MÊME calcul, seule la personne décide lequel des deux il devient.
+Une première version calculait le poste une fois dans `polyvalenceDe()` et
+une fois dans le rendu — la seconde copie ignorait la règle, et la pastille
+pleine restait sur la meunerie de SKS. **Deux copies, et c'est toujours la
+seconde qui reste en arrière.**
+
 **Attention au piège documenté plus haut** : polyvalence INCONNUE n'est pas
 polyvalence VIDE. Les trois personnes sans liste déclarée sont des opérateurs
 en formation, qui n'en ont effectivement aucune ; les quatre que `CORRECTIONS`
