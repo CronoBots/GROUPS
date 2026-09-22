@@ -1226,12 +1226,25 @@ body.sheet-on{overflow:hidden}
    d'état, laissant le fond de page sous elle. Une barre de navigation qui
    change de place selon l'onglet n'est plus un repère.
 
-   Elle est donc sortie de l'en-tête, dans un cadre ancré par le HAUT sur la
-   hauteur dynamique de l'écran, et s'y range en bas. Plus de « bottom » à
-   interpréter : le haut de l'écran, lui, ne bouge jamais. */
+   Elle est donc sortie de l'en-tête, dans un cadre à elle — c'était la
+   bonne moitié du remède, et il faut la garder.
+
+   L'autre moitié, elle, était fausse : le cadre était ancré par le haut et
+   tirait sa hauteur de « 100dvh ». Or sous iOS cette unité se trompe quand
+   la barre d'URL est RÉDUITE — Safari continue d'annoncer la hauteur de la
+   barre pleine, le cadre devient plus court que l'écran, et la barre
+   d'onglets remonte d'autant. Le client, le 22/09/2026, capture à l'appui :
+   « la barre de menu n'est pas fixe au bas de l'écran », deux lignes du
+   tableau visibles en dessous.
+
+   On ne calcule donc plus de hauteur DU TOUT : le cadre est ancré par ses
+   QUATRE côtés, et sa hauteur devient celle du bloc de positionnement fixe,
+   sans unité à interpréter. Le premier remède avait eu tort de bannir
+   « bottom » : ce n'est pas lui qui se résolvait mal, c'est l'en-tête
+   collant qui l'enfermait. Sorti de là, il vaut mieux que n'importe quel
+   vh. */
 .navwrap{
-  position:fixed; left:0; right:0; top:0; z-index:50;
-  height:100vh; height:100dvh;
+  position:fixed; left:0; right:0; top:0; bottom:0; z-index:50;
   display:flex; align-items:flex-end; pointer-events:none;
 }
 .navwrap[hidden]{display:none}
