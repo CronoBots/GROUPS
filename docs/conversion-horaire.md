@@ -1567,6 +1567,27 @@ pauses — tient en **304 px** de haut. Les trigrammes sont du texte à chasse
 fixe, séparés d'un point médian pâle ; une ligne sur deux se teinte, parce
 qu'une ligne large se relit mal sans repère.
 
+**L'adjoint retrouve sa ligne.** Le client, le 22/09/2026 : « rajouter la
+ligne adjoint ». En colonnes — la vue par pause — il reste chez le
+contremaître, comme il l'avait demandé la veille : une colonne de plus coûte
+de la largeur, une ligne de plus ne coûte rien.
+
+**L'effectif minimal ne s'écrit que là où il manque quelqu'un** — « dans la
+cellule où il manque réellement quelqu'un ». Ailleurs le compte se lit en
+comptant les trigrammes, il n'avait rien à dire de plus. La case en manque
+l'écrit en orange, `0 / 1` ou `1 / 2`.
+
+**Trois marques, et une légende qui les dit** :
+
+| Marque | Ce qu'elle veut dire |
+|---|---|
+| trigramme **jaune** | opérateur en formation |
+| case **orange** avec un compte | poste sous son effectif |
+| **–** | poste sans effectif attendu à cette pause |
+
+Le tiret vaut pour la STEP en après-midi et en nuit, et pour l'adjoint quand
+il n'y en a pas : une case grise et muette laissait croire à un oubli.
+
 Un espace **insécable** de chaque côté du point empêchait la coupure : trois
 trigrammes débordaient de leur colonne sur un téléphone au lieu de passer à la
 ligne. Espaces ordinaires, donc — c'est le genre de détail qu'une capture

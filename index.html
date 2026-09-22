@@ -796,21 +796,19 @@ body.sheet-on{overflow:hidden}
 .eqp2 thead th[data-s="AM"]{border-top-color:var(--am)}
 .eqp2 thead th[data-s="PM"]{border-top-color:var(--pm)}
 .eqp2 thead th[data-s="N"] {border-top-color:var(--n)}
-.eqp2 th.eqposte{width:150px; text-align:left; white-space:nowrap;
-  padding-left:16px; border-left:3px solid transparent}
+.eqp2 th.eqposte{width:142px; text-align:left; white-space:nowrap;
+  padding-left:16px; padding-right:10px; border-left:3px solid transparent}
 /* PAS de display:flex sur un <th> : il sort alors de la mise en page du
    tableau et sa ligne ne s'aligne plus sur les autres cellules. Le nom
    coule normalement, l'effectif flotte à droite. */
 .eqp2 tbody th.eqposte b{font-size:11px; font-weight:700;
   letter-spacing:.03em; text-transform:uppercase; color:var(--faint)}
-/* L'effectif est posé au bord droit de la cellule, et la place lui est
-   RÉSERVÉE : le nom ne se coupant jamais, un simple flottant le laissait
-   passer par-dessus dès que la colonne se resserrait. */
-.eqp2 th.eqposte{position:relative; padding-right:30px}
-.eqp2 th.eqposte small{position:absolute; right:10px; top:50%;
-  transform:translateY(-50%); font-family:"IBM Plex Mono",monospace;
-  font-size:10px; font-weight:600; color:var(--muted)}
-.eqp2 thead th.eqposte small{top:auto; bottom:9px; transform:none}
+/* L'effectif ne s'écrit plus à côté du nom : il n'apparaît que dans la case
+   où il manque vraiment quelqu'un, et là il se lit « 1 / 2 ». */
+.eqp2 td>i{display:block; margin-top:1px; font-style:normal;
+  font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:700;
+  letter-spacing:.02em; color:var(--out)}
+.eqp2 td.manque>i:only-child{margin-top:0}
 .eqp2 thead th.eqposte{font-size:11px; font-weight:700; letter-spacing:.03em;
   text-transform:uppercase; color:var(--faint)}
 .eqp2 thead th.eqposte small{text-transform:none; letter-spacing:0; opacity:.8}
@@ -840,10 +838,22 @@ body.sheet-on{overflow:hidden}
 .eqp2 td .eqn.moi b{color:var(--in); text-decoration:underline;
   text-underline-offset:3px}
 .eqp2 .eqvide{color:var(--faint); font-size:11px}
+/* Un opérateur en formation compte rarement à l'effectif du poste où il
+   figure : son trigramme s'écrit en jaune pour qu'on ne s'y trompe pas. */
+.eqp2 td .eqn.form b, .eqg2 td .eqn.form b{color:var(--at-jaune)}
+.eqp2 td.vide{color:var(--faint); font-size:12px}
+.eqleg{display:flex; flex-wrap:wrap; gap:6px 16px; margin:0;
+  padding:9px 16px 12px; border-top:1px solid var(--line2);
+  font-size:11px; color:var(--faint)}
+.eqleg span{display:inline-flex; align-items:center; gap:6px}
+.eqleg i{font-style:normal}
+.lg-form{width:9px; height:9px; border-radius:3px; background:var(--at-jaune)}
+.lg-mq{width:9px; height:9px; border-radius:3px; background:var(--out)}
+.lg-tiret{font-family:"IBM Plex Mono",monospace; color:var(--faint)}
 @media (max-width:560px){
   /* « CONTREMAÎTRE » est le plus long, et il ne se coupe pas : la colonne et
-     le corps sont taillés sur lui, place de l'effectif comprise. */
-  .eqp2 th.eqposte{width:128px; padding-left:11px; padding-right:26px}
+     le corps sont taillés sur lui. */
+  .eqp2 th.eqposte{width:118px; padding-left:11px; padding-right:8px}
   .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
@@ -4674,7 +4684,8 @@ function renderEquipe(){
               ||(x.deduit?"déduit de sa polyvalence":"")
               ||((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
                  ?"en formation, en plus":"");
-      return '<span class="eqn'+(x.p.id===moi?" moi":"")+'"'
+      return '<span class="eqn'+(x.p.id===moi?" moi":"")
+        +(enFormation(x.p)?" form":"")+'"'
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
@@ -4801,19 +4812,17 @@ function renderEquipe(){
                             : (a.p.cat<b.p.cat?-1:1); });
         vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd)};
       });
+      /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
+         adjoint ». En colonnes — la vue par pause — il reste chez le
+         contremaître, comme il l'avait demandé la veille : une colonne de
+         plus coûte de la largeur, une ligne de plus ne coûte rien. */
       function poste(gk,ck){
         var v=vp[gk]&&vp[gk].vue; if(!v) return null;
-        var o=v.postes.filter(function(x){ return x.P.k===ck; })[0]||null;
-        if(ck!=="cm") return o;
-        var a=v.postes.filter(function(x){ return x.P.k==="adj"; })[0];
-        if(!a || !a.gens.length) return o;
-        if(!o) return {P:a.P, gens:a.gens, tenu:0, attendu:0, manque:false};
-        return {P:o.P, gens:o.gens.concat(a.gens), tenu:o.tenu,
-                attendu:o.attendu, manque:o.manque};
+        return v.postes.filter(function(x){ return x.P.k===ck; })[0]||null;
       }
       if(aQui){
         var tp=['<div class="card eqcard"><div class="eqgrille"><table class="eqp2">'];
-        tp.push('<thead><tr><th class="eqposte"><small>eff. min.</small>Poste</th>');
+        tp.push('<thead><tr><th class="eqposte">Poste</th>');
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           /* Deux lignes, pas trois : l'horaire et l'effectif tiennent sur la
@@ -4824,7 +4833,6 @@ function renderEquipe(){
         tp.push("</tr></thead><tbody>");
         var zPrec=null;
         POSTES_TRAVAIL.forEach(function(P){
-          if(P.k==="adj") return;              /* fondu dans le contremaître */
           var att=0, sert=false;
           PAUSES.forEach(function(g){
             if(!vp[g.k]) return;
@@ -4834,23 +4842,34 @@ function renderEquipe(){
           if(!att && !sert) return;
           var debut=(P.z!==zPrec); zPrec=P.z;
           tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
-            +'<th class="eqposte" scope="row">'
-            +(att?'<small>'+att+"</small>":"")+"<b>"+esc(P.t)+"</b></th>");
+            +'<th class="eqposte" scope="row"><b>'+esc(P.t)+"</b></th>");
           PAUSES.forEach(function(g){
             if(!vp[g.k]) return;
             var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
+            /* Le client : « on peut également mettre "-" pour la STEP PM et
+               N ». Une case grise et muette laissait croire à un oubli ; le
+               tiret dit que ce poste n'attend personne à cette pause-là. */
             if(!o || (!o.gens.length && !attenduAuPoste(P,g.k))){
-              tp.push('<td class="vide"></td>'); return; }
-            if(o.manque && !v.inconnus.length) cl.push("manque");
+              tp.push('<td class="vide">\u2013</td>'); return; }
+            /* Le client : « n'afficher l'effectif minimum que dans la cellule
+               où il manque réellement quelqu'un ». Ailleurs, le compte se lit
+               en comptant les trigrammes — il n'a rien à dire de plus. */
+            var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k);
+            if(mq) cl.push("manque");
             tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
               +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
-              +(o.gens.length?'':'<span class="eqvide">'
-                 +(attenduAuPoste(P,g.k)?"0 / "+attenduAuPoste(P,g.k):"—")+"</span>")
+              +(mq?'<i>'+o.tenu+" / "+aP+"</i>":"")
+              +(o.gens.length||mq?"":'<span class="eqvide">\u2014</span>')
               +"</td>");
           });
           tp.push("</tr>");
         });
-        tp.push("</tbody></table></div></div>");
+        tp.push("</tbody></table></div>"
+          +'<p class="eqleg">'
+          +'<span><i class="lg-form"></i>opérateur en formation</span>'
+          +'<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>'
+          +'<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>'
+          +"</p></div>");
         h.push(tp.join(""));
       }
 
