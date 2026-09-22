@@ -408,6 +408,20 @@ journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
+**Les trigrammes s'empilent, un par ligne.** Le client le demandait le
+21/09/2026, une passe d'optimisation les avait remis en ligne pour gagner de
+la largeur, et il l'a redemandé le 22 : « les trigrammes doivent être l'un
+en dessous de l'autre (donc la ligne plus haute) ». Le souci de largeur se
+règle autrement — une pause n'a plus besoin que de la largeur d'UN nom, et
+les pixels reviennent à l'intitulé de poste, qui retrouve ses 122 px et son
+corps lisible.
+
+Un piège au passage, et il tenait à UN pixel : la colonne d'une pause offre
+62 px de contenu à 390 px de large, et « Après-midi » en demande 63 — le mot
+se coupait en deux. Le remplissage de l'en-tête en prenait seize à lui seul ;
+on lui en rend huit, plutôt que de réduire le corps de ce qu'on lit en
+premier. À 360 px il faut en plus un demi-point de moins.
+
 **L'opérateur « à déterminer » est dans le tableau, pas à côté.** Le client,
 le 22/09/2026 : « l'opérateur à déterminer doit être affiché sous la ligne
 STEP dans sa pause ». Il se lisait dans la carte « Hors poste », loin du
