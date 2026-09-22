@@ -951,16 +951,21 @@ body.sheet-on{overflow:hidden}
    courtes restaient collées en haut d'une ligne haute. */
 .orgt th, .orgt td{padding:6px 5px; text-align:center; vertical-align:middle;
   border-left:1px solid var(--line2)}
+/* L'ENCRE S'INVERSE : les intitulés en clair, les trigrammes en gris. Le
+   client, le 22/09/2026 : « je préfère les colonnes principales en blanc et
+   les trigrammes en gris (inversion avec titre) ». Ce sont les intitulés
+   qu'on cherche d'abord — de quelle équipe, de quel poste lit-on la case —
+   et le contenu se lit ensuite, une fois la case trouvée. */
 .orgt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
   border-bottom:1px solid var(--line); border-top:3px solid var(--line);
-  font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
-  color:var(--faint); white-space:nowrap}
+  font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--ink); white-space:nowrap}
 /* La colonne des postes reste visible quand la grille défile : sans elle on
    ne sait plus de quel poste on lit la colonne. */
 .orgt th.orgp{position:sticky; left:0; z-index:2; width:76px; text-align:center;
   background:var(--surface); border-left:3px solid var(--line);
   font-size:10.5px; font-weight:700; letter-spacing:.02em;
-  text-transform:uppercase; color:var(--muted); white-space:nowrap}
+  text-transform:uppercase; color:var(--ink); white-space:nowrap}
 .orgt thead th.orgp{z-index:3}
 .orgl1{display:none}
 @media (min-width:761px){
@@ -978,7 +983,7 @@ body.sheet-on{overflow:hidden}
 /* Un trigramme par ligne — le client le demande depuis le 21/09/2026, et une
    colonne d'équipe n'a besoin que de la largeur d'UN nom. */
 .orgn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
-  font-weight:600; letter-spacing:.03em; color:var(--ink); line-height:1.5}
+  font-weight:600; letter-spacing:.03em; color:var(--ink2); line-height:1.5}
 .orgn.moi{color:var(--in); text-decoration:underline; text-underline-offset:3px}
 /* EN JAUNE, ET EN DERNIER. Le client, le 22/09/2026 : « les opérateurs en
    formation doivent être sous les opérateurs qui tiennent le poste et il faut
@@ -1019,8 +1024,11 @@ body.sheet-on{overflow:hidden}
   .orgt th, .orgt td{padding:8px 7px}
   /* 128 px, et non 104 : « TERRAIN ARRIÈRE » est le plus long des six
      intitulés et se faisait couper d'un cheveu. Mesuré, pas estimé. */
-  .orgt th.orgp{width:128px; font-size:11.5px}
-  .orgt thead th{font-size:11px}
+  /* 136 px et non 128 : à 12,5 px « TERRAIN ARRIÈRE » débordait d'UN pixel.
+     Le même piège qu'à 104 px, et il se rouvre à chaque fois qu'on grossit
+     cet intitulé — mesurer, ne pas estimer. */
+  .orgt th.orgp{width:136px; font-size:12.5px}
+  .orgt thead th{font-size:12.5px}
   .orgn{font-size:13px}
 }
 .pvt tbody tr.moi th.pvqui{color:var(--in)}
@@ -5473,7 +5481,24 @@ function equipeDuJour(db,annee,mois,jour){
     var r=lireJournee(db,raw,annee,mois,jour,mc.fit,mc.ep[jour],
                       st.params.hJour,mc.rv[jour]);
     var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
-    var pv=r.sp||r.s;   /* la prime conservée ne déplace personne de pause */
+    /* CE QU'ON A PRESTÉ, JAMAIS CE QU'ON A TOUCHÉ. Le client, le
+       22/09/2026 : « FLN est en formation en D et non en PM ; il est
+       remplacé en PM, si tu regardes dans les commentaires ». Sa cellule dit
+       ["PM","F","Formation Excel IFAPME remplacé par ALZ GKT"] : PM est la
+       prime conservée, F dit que la journée s'est faite en horaire de jour,
+       et deux collègues tiennent son poste d'après-midi. Le montrer en PM le
+       comptait deux fois.
+
+       Deux champs disent la même chose selon la source : r.sp quand le
+       COMMENTAIRE nomme une prime à conserver, r.jourCode quand la MENTION
+       elle-même est l'une des huit de JOUR_PRIME_PAUSE — SD26, F, D-F, DS,
+       CPPT, DS-CE, TP. Le calendrier lisait déjà les deux, par postePeint() ;
+       la vue du jour n'en lisait qu'un.
+
+       Sauf les journées de projet, où le « F » ne sort pas du poste :
+       surSonPosteMalgreF() les connaît, et c'est la même garde que celle de
+       postesDePause() deux fonctions plus bas. */
+    var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
     if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
     else if(r.a&&ABSMAP[r.a]){
       var fam=ABSMAP[r.a].k;
@@ -6179,7 +6204,12 @@ function renderOrganisation(){
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
        large, et l'intitulé long y sortait de la case. */
-    eqs.forEach(function(e){ t.push('<th>Éq. '+esc(e)+"</th>"); });
+    /* LES DEUX INTITULÉS, comme la colonne des postes : « Équipe 3 » au-delà
+       de 760 px, « Éq. 3 » sur un téléphone où la colonne fait 57 px. Le
+       client, le 22/09/2026 : « sur PC, les noms d'équipe peuvent être écrits
+       plus grand et en texte complet ». */
+    eqs.forEach(function(e){ t.push('<th><span class="orgl1">Équipe '+esc(e)
+      +'</span><span class="orgl2">Éq. '+esc(e)+"</span></th>"); });
     t.push("</tr></thead><tbody>");
     var zPrec=null;
     LIGNES.forEach(function(lib){
@@ -6276,7 +6306,9 @@ function renderOrganisation(){
     /* Ceux que le tableau porte déjà n'y figurent plus : les montrer deux
        fois aurait fait croire à deux personnes. Ne restent que ceux dont le
        classeur ne nomme pas l'équipe. */
-    h.push(carte("Opérateurs en formation, sans équipe au classeur",
+    /* Le client, le 22/09/2026 : « SKS et NPI n'ont pas encore d'équipe ».
+       Ce n'est donc pas une lacune du classeur, c'est leur situation. */
+    h.push(carte("Opérateurs en formation, pas encore d\u2019équipe",
       "leur poste est celui où ils APPRENNENT — ils n\u2019y sont pas validés",
       sansEquipe, "poste à déterminer"));
     h.push(carte("Station d\u2019épuration", "attendue au matin",

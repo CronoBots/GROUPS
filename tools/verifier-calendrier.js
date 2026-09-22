@@ -431,6 +431,12 @@ if(process.argv.indexOf("--journee")>=0){
     console.log("     lu       : poste="+(r.s||"—")+"  heures="+
       (r.h===undefined?"(défaut "+H_JOUR+")":r.h)+"  absence="+(r.a||"—")+
       "  épargne="+(r.epargne||0)+(r.modifie?"  [poste corrigé]":""));
+    /* r.s est la prime PAYÉE, r.sp le poste PRESTÉ quand ils diffèrent, et
+       c'est r.sp qui décide dans quelle pause la vue du jour range la
+       personne. Sans ces deux champs à l'écran on ne peut pas voir pourquoi
+       quelqu'un apparaît dans une pause plutôt qu'une autre. */
+    console.log("     journée  : prime="+(r.s||"—")+"  presté="+(r.sp||"(idem)")
+      +"  code de jour="+(r.jourCode||"—"));
     console.log("     affiché  : "+a.genre+"  « "+a.etiquette+" »  "+a.heures+" h");
   }
   process.exit(0);
