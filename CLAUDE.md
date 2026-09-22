@@ -257,6 +257,18 @@ seule — « Contremaître » — ne disait rien du jour ; `posteDuJourDe()` rej
 « Contremaître · nuit », « STEP · matin », « Jour », « Congé » ou « Repos ».
 Il ne recompte rien : c'est la vue de l'équipe qui répond.
 
+**Elle prend toute la largeur, sur sa propre ligne.** Le client, le
+22/09/2026 : « pourquoi ne pas utiliser toute la largeur de la barre du
+haut ? il faut écrire aussi la date du jour près de la pause prévue
+aujourd'hui ». Serrée sous le nom de l'application, la moitié droite de sa
+ligne restait vide sous le sélecteur de mois. Sur sa propre bande elle porte
+le trigramme, **la date du jour** et le poste — la date étant ce à quoi
+« nuit » se rapporte : sans elle, la pause annoncée ne dit pas de quel jour
+elle est.
+
+Elle coûte 36 px de barre collante sur téléphone (55 → 91). C'est le prix de
+la rangée, et il est assumé.
+
 **Trois pièges de mise en page, tous mesurés et non devinés :**
 
 - `min-width:150px` sur le libellé du mois. « Septembre 2026 » coûte 111 px,

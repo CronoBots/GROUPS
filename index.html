@@ -155,18 +155,31 @@ button{cursor:pointer}
   min-width:0; text-align:left; background:none; border:0; padding:2px 0;
   border-radius:8px; cursor:pointer; color:inherit}
 .blogo{flex:0 0 auto; width:34px; height:34px; border-radius:9px; display:block}
-.btxt{display:flex; flex-direction:column; gap:2px; min-width:0}
 .brand h1{font-size:14px; letter-spacing:.01em; font-weight:700; line-height:1.1}
-.brand p{display:flex; align-items:center; gap:6px; margin:0; min-width:0;
-  font-size:11px; color:var(--faint); line-height:1.2}
+/* LA BANDE D'IDENTITÉ prend toute la largeur. Le client, le 22/09/2026 :
+   « pourquoi ne pas utiliser toute la largeur de la barre du haut ? il faut
+   écrire aussi la date du jour près de la pause prévue aujourd'hui ».
+
+   Elle était serrée sous le nom de l'application, la moitié droite de sa
+   ligne restant vide sous le sélecteur de mois. Sur sa propre ligne elle a
+   la place de porter la date, qui est ce à quoi « nuit » se rapporte : sans
+   elle, on ne sait pas de quel jour on parle. */
+.ident{order:3; width:100%; display:flex; align-items:baseline; gap:8px;
+  min-width:0; margin:0; padding:5px 9px; border:0; border-radius:9px;
+  background:var(--surface2); text-align:left; cursor:pointer;
+  font:inherit; color:var(--faint); line-height:1.25}
+.ident:hover{background:var(--surface3)}
+.ident:empty{display:none}
 /* Le trigramme est une plaque, pas un mot : c'est l'identité de la personne,
    et elle se lit d'un coup d'œil sans se confondre avec ce qui suit. */
-.brand p b{flex:0 0 auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
-  font-size:10.5px; font-weight:700; letter-spacing:.04em; color:var(--in);
-  background:var(--in-soft); border-radius:5px; padding:1px 6px}
-.brand p em{font-style:normal; min-width:0; overflow:hidden;
-  text-overflow:ellipsis; white-space:nowrap; color:var(--ink2)}
-.brand:hover p b{background:var(--in); color:var(--surface)}
+.ident b{flex:0 0 auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--in);
+  background:var(--in-soft); border-radius:5px; padding:1px 7px}
+.ident .idate{flex:0 0 auto; font-size:11.5px; font-weight:600; color:var(--ink2)}
+.ident em{font-style:normal; min-width:0; margin-left:auto; text-align:right;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:11.5px; color:var(--ink2)}
+.ident:hover b{background:var(--in); color:var(--surface)}
 .qui{display:grid; grid-template-columns:1fr 1fr; gap:12px}
 .qui label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .qui select{
@@ -1370,10 +1383,7 @@ body.sheet-on{overflow:hidden}
   <div class="top-in">
     <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
       <img class="blogo" src="icon-192.png" alt="" width="34" height="34" decoding="async">
-      <span class="btxt">
-        <h1>BIOWANZE</h1>
-        <p id="brandsub"></p>
-      </span>
+      <h1>BIOWANZE</h1>
     </button>
     <div class="mnav">
       <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
@@ -1384,6 +1394,8 @@ body.sheet-on{overflow:hidden}
       <span class="k">Net à recevoir</span>
       <span class="v" id="netTop">—</span>
     </div>
+    <button type="button" class="ident" id="brandsub" data-go="reglages"
+            aria-label="Mes réglages"></button>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-v="resume" aria-selected="true" aria-controls="v-resume">
@@ -3097,22 +3109,37 @@ function posteDuJourDe(db,id){
   }
   return null;
 }
+/* « mardi 22 septembre » — la date de CE jour, celle à laquelle « nuit » se
+   rapporte. Sans elle, la pause annoncée ne dit pas de quel jour elle est. */
+function dateDuJourLisible(){
+  var d=new Date();
+  return JOURS_LONGS[(d.getDay()+6)%7].toLowerCase()+" "+d.getDate()
+    +" "+MOIS[d.getMonth()].toLowerCase();
+}
 function majBrandsub(){
   var el=document.getElementById("brandsub"); if(!el) return;
   var idSel=document.getElementById("prefillId"),
       catSel=document.getElementById("prefillCat");
   var id=idSel?idSel.value:"", cat=catSel?catSel.value:"";
-  if(!id){ el.innerHTML="<em>Choisissez qui vous êtes dans Réglages</em>"; return; }
-  el.innerHTML="<b>"+esc(idLisible(id))+"</b><em>"+esc(fonctionCourte(cat))+"</em>";
+  if(!id){
+    el.innerHTML='<span class="idate">Choisissez qui vous êtes dans Réglages</span>';
+    return;
+  }
+  function ecrire(droite){
+    el.innerHTML="<b>"+esc(idLisible(id))+"</b>"
+      +'<span class="idate">'+esc(dateDuJourLisible())+"</span>"
+      +"<em>"+esc(droite)+"</em>";
+  }
+  ecrire(fonctionCourte(cat));
   /* Le poste du jour demande l'horaire d'équipe : on l'écrit dès qu'il
-     arrive, sans faire attendre le reste de l'en-tête. */
+     arrive, sans faire attendre le reste de la barre. */
   fetchHoraireDB().then(function(db){
     if(!db) return;
     var sel=document.getElementById("prefillId");
     if(((sel&&sel.value)||"")!==id) return;   /* la personne a changé entre-temps */
     var poste=null;
     try{ poste=posteDuJourDe(db,id); }catch(e){ poste=null; }
-    if(poste) el.innerHTML="<b>"+esc(idLisible(id))+"</b><em>"+esc(poste)+"</em>";
+    if(poste) ecrire(poste);
   }, function(){});
 }
 /* « Contremaîtres de production » ne tient pas dans un en-tête de téléphone,
