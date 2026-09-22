@@ -268,6 +268,14 @@ est marqué `personal:true`, et les montants du mois.
 - Les données de l'utilisateur ne quittent jamais l'appareil.
 - **Aucun nom complet** dans le dépôt : l'horaire n'identifie les gens que par
   initiales ou matricule.
+- **Aucun montant de salaire non plus.** Le dépôt est PUBLIC : `docs/` se lit
+  sans authentification, par le site comme par `raw.githubusercontent.com`.
+  La rémunération fixe, le pécule, le treizième mois, l'avance, une prime
+  nominative — rien de tout cela ne s'écrit ici. Les règles se décrivent
+  avec des lettres (`T × 13,07 %`) ou des ordres de grandeur ; les montants
+  restent sur l'appareil de leur propriétaire. Les valeurs communes à
+  l'équipe — primes d'équipe, chèque-repas, barèmes — ne sont pas
+  concernées : elles n'appartiennent à personne en particulier.
 
 ## Après avoir modifié `index.html`
 

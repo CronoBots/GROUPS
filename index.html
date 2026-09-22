@@ -1619,7 +1619,7 @@ function codeAbsence(t){
 
 var DEF_P={
   statut:"Employé", etatCivil:"Célibataire", conjoint:"Sans objet", enfants:0,
-  remFixe:3000, divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
+  remFixe:3000, primeRemise:0, divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
   /* primes d'équipe relevées sur les fiches 2026 (la note de 2020 donnait
      0,67 / 1,34 / 3,14 ; elles ont été indexées depuis) */
   primeAM:0.90, primePM:1.80, primeN:4.00, primeD:0,
@@ -1649,7 +1649,7 @@ var DEF_B={
 };
 var DEF_M={__v:3, primes:0, bonus:0, avance:0, assurance:null, autreBrut:0, autreRet:0,
   simplePecule:0, doublePecule:0, complDPV:0, treizieme:0,
-  remFixeMois:null, indJourMois:null, csssMois:null, autreF:0,
+  remFixeMois:null, primeRemiseMois:null, indJourMois:null, csssMois:null, autreF:0,
   hsHeures:0, hsTaux:null, hsJour:"Semaine", hsPoste:"", hDeplacement:0, redPP:0,
   crNb:null, crRepRTT:0, crRepFT:0, crRepRHS:0, rhsMois:0, rcmJours:null, joursInd:null, kmVelo:null, days:{}, real:{}};
 
@@ -1936,6 +1936,16 @@ function compute(){
   if(p.atnTel) bl(null,"Avantage en nature abonnement téléphone",R(p.atnTel));
   if(p.atnNet) bl(null,"Avantage en nature abonnement internet",R(p.atnNet));
   if(p.dedVelo) bl(null,"Déduction vélo",R(-p.dedVelo));
+  /* La remise de pause : les trente minutes faites avant sa propre pause,
+     pour relever celui qu'on remplace. Le client, le 22/09/2026 : « ce n'est
+     plus au cas par cas comme quand j'étais adjoint, maintenant cette prime
+     sera payée que je fasse 10 relevés ou 20 ». Elle est donc FIXE et
+     mensuelle, et vit dans les paramètres plutôt que d'être retapée chaque
+     mois — avec un champ du mois pour les mois où elle ne s'appliquait pas
+     encore. C'est une rémunération ordinaire : ONSS et précompte pleins. */
+  var pRem=(M.primeRemiseMois!==null&&M.primeRemiseMois!==undefined&&M.primeRemiseMois!=="")
+           ?Number(M.primeRemiseMois):Number(p.primeRemise||0);
+  if(pRem) bl(null,"Prime de remise de pause",R(pRem));
   if(M.autreBrut) bl(null,"Autre rémunération brute",R(M.autreBrut));
 
   var brut100=0; brutLines.forEach(function(o){brut100+=o.v;}); brut100=R(brut100);
@@ -2654,6 +2664,7 @@ var MONTH_FIELDS=[
  {k:"complDPV",l:"Complément DPV 4ᵉ semaine (€)",scope:"month",hint:"pas d'ONSS, mais taxé au taux distinct"},
  {k:"treizieme",l:"Treizième mois / prime de fin d'année (€)",scope:"month",hint:"ONSS 13,07 % + précompte au taux distinct"},
  {k:"remFixeMois",l:"Rémunération fixe de ce mois (€)",scope:"month",hint:"vide = valeur des paramètres"},
+ {k:"primeRemiseMois",l:"Prime de remise de pause de ce mois (€)",scope:"month",hint:"vide = valeur des paramètres ; 0 pour un mois où elle ne s'appliquait pas"},
  {k:"indJourMois",l:"Indemnité déplacement / jour (€)",scope:"month",hint:"vide = valeur des paramètres"},
  {k:"csssMois",l:"Cotisation spéciale séc. soc. (€)",scope:"month",hint:"vide = calculée ; le 3ᵉ mois du trimestre régularise"},
  {k:"assurance",l:"Assurance groupe (€)",scope:"month",hint:"vide = valeur des paramètres"},
@@ -2687,6 +2698,8 @@ var PARAM_FIELDS=[
   onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
  {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,
   onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
+ {k:"primeRemise",l:"Prime de remise de pause (€/mois)",scope:"params",personal:true,
+  onb:"Montant brut mensuel fixe pour les trente minutes de remise de pause faites avant votre propre pause. Laissez 0 si vous ne la percevez pas."},
  {k:"divH",fige:true,l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
  {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)",personal:true,
   onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps. Laissez 1 si vous êtes à temps plein."},
@@ -2762,7 +2775,7 @@ var BAREME_FIELDS=[
    pour en corriger un. Groupés et titrés, on va droit au bon. */
 var PARAM_GROUPES=[
  {t:"Ma situation",         f:["statut","etatCivil","conjoint","enfants"]},
- {t:"Ma rémunération",      f:["remFixe","fraction","hJour","hSemaine","divH"]},
+ {t:"Ma rémunération",      f:["remFixe","primeRemise","fraction","hJour","hSemaine","divH"]},
  {t:"Mes primes d'équipe",  f:["primeAM","primePM","primeN","primeD","primeRemplCM"]},
  {t:"Mon cycle",            f:["binome","cycle","decalage"]},
  {t:"Mes déplacements",     f:["indJour","distance","indVeloKm","avVelo","dedVelo"]},
@@ -2801,7 +2814,7 @@ function renderFields(){
 /* ===================== accueil / configuration initiale ===================== */
 var ONBOARD_GROUPS=[
  {t:"Votre situation familiale",fields:["statut","etatCivil","conjoint","enfants"]},
- {t:"Votre rémunération et votre temps de travail",fields:["remFixe","fraction"]},
+ {t:"Votre rémunération et votre temps de travail",fields:["remFixe","primeRemise","fraction"]},
  {t:"Votre équipe et votre cycle de roulement",fields:["binome","cycle","decalage"]},
  {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
  {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}
@@ -3517,7 +3530,8 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
 
    Le montant est forfaitaire, pas une fraction du salaire horaire : les
    fiches 2026 donnent 26,865 en janvier-février et 27,365 à partir de mars,
-   alors que le salaire horaire y passe de (taux retiré) à (taux retiré).
+   et l'indexation du salaire horaire entre ces deux mois ne suit pas le même
+   rapport.
 
    La journée compte si la mention « R-CM » figure dans la cellule ou dans sa
    colonne d'annotation, ET si le remplacement couvre un POSTE ENTIER. Le
