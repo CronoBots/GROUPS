@@ -1882,6 +1882,37 @@ polyvalence est `Gluten / Distillation`. La règle du client : « le terrain
 arrière ne peut être tenu que par quelqu'un qui possède le poste fermentation
 ET le poste distillation ». QBY ne l'a pas. Le manque est réel.
 
+### « F » : formation hors poste, sauf le projet falling film
+
+Deux consignes du client, à un mois d'écart, qui semblaient se contredire et
+ne se contredisent pas — elles portent sur deux choses différentes.
+
+1. « Les gens en formation, il faut les mettre à part dans un intitulé
+   Formation, sous les différents postes de chaque pause. » Ils sont
+   présents, mais pas à leur poste.
+2. Le 22/09/2026, à propos du projet falling film : « ces jours-là ils
+   tiendront leurs postes normaux et la formation sera donnée pendant (sur
+   poste) ou après / avant leur journée de travail » — puis, pour lever tout
+   doute : « non, c'est uniquement pour falling film cette règle ».
+
+Le classeur les départage. Sur les **313 journées annotées `F`** :
+
+- **291 nomment une vraie formation** — Aptaskill, CESI, recyclage
+  secourisme, GESIP, ATEX, chariot élévateur, anglais, sensibilisation au
+  bruit. Elles sortent du poste, comme il l'a demandé.
+- **22 nomment un PROJET**, « projet falling film en distillation ». Sur
+  celles-là, la personne tient son poste.
+
+`PROJETS_SUR_POSTE` ne contient donc qu'un motif, `/falling\s*film/i`, et
+`surSonPosteMalgreF()` le cherche dans le commentaire. **La liste est étroite
+et nommée à dessein** : élargir la règle au jugé — « ceci ressemble à un
+projet », « cela ressemble à une formation » — viderait ou remplirait des
+postes sans que personne l'ait dit.
+
+**Effet mesuré : onze des douze manques des quatre journées du projet
+disparaissent.** Le douzième est réel : le 9 octobre au matin, VGG et ALZ
+sont à une autre formation, et le poste de contremaître est vraiment vide.
+
 ### « F » : du travail payé, mais compté hors du poste
 
 Le client, le 22/09/2026 : « cette formation sera dans leurs heures de

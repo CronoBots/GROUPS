@@ -410,8 +410,8 @@ de la date donnée à la fin de l'horaire. Il ne le simule pas : il découpe
 alerte qui compterait autrement que la vue du jour serait pire que pas
 d'alerte.
 
-**Au 21/09/2026 : 14 journées sur 102, 25 places creuses** — terrain arrière
-(7), fermentation (6), chaudières (4). Si ce nombre s'effondre ou explose
+**Au 22/09/2026 : 12 journées sur 102, 14 places creuses** — fermentation
+(6), terrain arrière (3), chaudières (2). Si ce nombre s'effondre ou explose
 après une modification du rééquilibrage ou des polyvalences, c'est une
 régression.
 

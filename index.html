@@ -4129,6 +4129,26 @@ var POSTES_TRAVAIL=[
    présents, mais pas à leur poste — les compter dedans ferait croire le
    poste tenu alors qu'il ne l'est pas. */
 var EST_FORMATION=/^d?\s*-?\s*f$/i;
+/* ... SAUF quand « F » ne couvre pas une formation. Le client, le
+   22/09/2026, à propos du projet falling film : « ces jours-là ils tiendront
+   leurs postes normaux et la formation sera donnée pendant (sur poste) ou
+   après / avant leur journée de travail ».
+
+   Ses deux consignes ne se contredisent pas : elles portent sur deux choses
+   différentes. Sur les 313 journées annotées « F », 291 nomment une vraie
+   formation — Aptaskill, CESI, recyclage secourisme, chariot élévateur,
+   anglais, sensibilisation au bruit — et celles-là sortent du poste comme il
+   l'a demandé. Les 22 autres nomment un PROJET, pas une formation, et sur
+   celles-là il tient son poste.
+
+   La liste est étroite et nommée à dessein : élargir la règle au jugé
+   viderait ou remplirait des postes sans que personne l'ait dit. */
+var PROJETS_SUR_POSTE=[/falling\s*film/i];
+function surSonPosteMalgreF(raw){
+  var c=String((raw&&raw[2])||""), i;
+  for(i=0;i<PROJETS_SUR_POSTE.length;i++) if(PROJETS_SUR_POSTE[i].test(c)) return true;
+  return false;
+}
 function posteDepuisNom(t){
   t=String(t||"").trim();
   for(var i=0;i<POSTES_TRAVAIL.length;i++){
@@ -4641,7 +4661,8 @@ function postesDePause(db,liste,gk,mmdd){
   var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
   db.people.forEach(function(q){ parId[q.id]=q; });
   liste.forEach(function(x){
-    if(x.r && EST_FORMATION.test(x.r.jourCode||"")){ formation.push(x); return; }
+    if(x.r && EST_FORMATION.test(x.r.jourCode||"")
+       && !surSonPosteMalgreF(x.p.d[mmdd])){ formation.push(x); return; }
     var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     if(!k) k=posteParDefaut(x.p);
