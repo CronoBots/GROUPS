@@ -545,6 +545,22 @@ un jour férié**. C'est l'épreuve à relancer si la règle bouge.
 Le bloc ne s'affiche **que si le réglage est renseigné** : celui qui est
 payé en une fois ne voit rien de plus qu'avant.
 
+## Les intérimaires : une liste qu'aucun fichier ne porte
+
+Onze personnes, données par le client le 22/09/2026. **Le classeur ne les
+distingue nulle part** — vérifié : ce qui est écrit au-dessus de leur nom
+est exactement ce que portent les autres. La liste est donc tenue à la main
+et **elle vieillira** ; elle vit dans `docs/regles-paie.md`, section « Les
+intérimaires », avec leur situation au classeur.
+
+**Rien n'est codé, et c'est voulu.** Le client : « rien pour l'instant, mais
+garder l'info ». Une liste codée sans emploi égarerait celui qui la relit.
+
+Elle servira quand une fiche de paie d'OUVRIER arrivera : « il ne faudra pas
+calculer les intérimaires de la même manière (pareil pour les primes et
+jours de paye) ». Trois règles, aucune encore connue — elles touchent à des
+montants, donc **ne rien deviner**.
+
 ## Mettre à jour une valeur commune à l'équipe
 
 Primes de pause, chèque-repas, coefficients de la procédure de rappel,

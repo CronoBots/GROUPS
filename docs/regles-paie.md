@@ -565,6 +565,30 @@ Un simulateur n'a pas à reproduire cela : c'est une correction de paie, pas
 un mécanisme. Mais il fallait l'écrire, sinon ce mois restera longtemps un
 mystère pour qui compare les fiches à l'horaire.
 
+### Les deux dates, et pourquoi ce ne sont pas des jours « ouvrables »
+
+**Confirmé par le client le 22/09/2026** : « la règle pour les employés,
+c'est l'avance 4 jours ouvrables avant la fin du mois, et le solde 4 jours
+ouvrables après la fin du mois ».
+
+Le mot employé était « ouvrable », et c'est bien celui de la loi du
+12 avril 1965 sur la protection de la rémunération, d'où sort ce délai de
+quatre jours. Mais au sens légal **le samedi est un jour ouvrable**, et
+cette lecture plaçait quatre dates de 2026 sur un samedi : le 4 avril, le
+25 avril, le 4 juillet et le 26 décembre. Le client, aussitôt :
+**« jamais payé le wk »**.
+
+C'est le fait qui tranche, pas le vocabulaire. On compte donc du **lundi au
+vendredi, jours fériés exclus**, à partir du dernier jour du mois sans le
+compter lui-même. Contrôlé sur les douze mois de 2026 : aucune date ne tombe
+un week-end ni un jour férié.
+
+L'application en tire les deux montants du mois — l'avance, et le solde qui
+est le net total moins l'avance — dans un bloc sous le Résumé, à partir du
+réglage **« Avance mensuelle (€) »**.
+
+### Où la saisir
+
 Elle se saisit dans le champ **« Avance déjà reçue (€) »** de l'onglet
 Horaire, mois par mois. Sans elle, le « net à recevoir » de la fiche simulée
 est trop élevé d'autant : le brut et les retenues sont justes, c'est le
@@ -682,10 +706,67 @@ travail : elle remplace ceux qui y sont partis, elle n'y va pas.
 Aucun effet sur le calcul : `R-F` et `R-VM` rejoignent `R`, `R-CM` et `VM`
 parmi les mentions reconnues mais neutres.
 
+## Les intérimaires
+
+**Liste donnée par le client le 22/09/2026**, onze personnes :
+
+> LAA · JBA · JBS · TCE · CHD · MGY · LHS · CJD · DKS · SMK · MMS
+
+**Le classeur ne le dit nulle part.** Vérifié : ce qui est écrit au-dessus
+de leur nom — « Fermentation », « Renfort arrière », « Polyvalent » — est
+exactement ce que portent des gens qui ne sont pas intérimaires. Il n'y a
+donc rien à lire dans le fichier : cette liste est tenue À LA MAIN, et
+**elle vieillira** à chaque embauche ou départ. La redemander au client
+quand elle compte.
+
+**L'application n'en fait rien aujourd'hui, et c'est voulu.** Le client :
+« rien pour l'instant, mais garder l'info ». Une liste codée sans emploi
+égarerait celui qui la relit ; elle vit donc ici, et non dans `index.html`.
+
+**Ce à quoi elle servira** — le client, le 22/09/2026 : « quand je te
+donnerai une fiche de paye d'un ouvrier, il ne faudra pas calculer les
+intérimaires de la même manière (pareil pour les primes et jours de paye) ».
+Trois choses, donc, et aucune n'est encore connue : le calcul de la fiche,
+les primes, et les jours de paie. **Ne rien deviner sur ces points** : ils
+touchent à des montants.
+
+Au passage, leur situation dans le classeur, telle qu'elle est au
+22/09/2026 :
+
+| | équipe | poste au classeur | polyvalence validée |
+|---|---|---|---|
+| LAA | Shift 2 | Fermentation | Fermentation |
+| JBA | Shift 3 | Chaudières | Chaudières |
+| JBS | Shift 4 | Chaudières | Chaudières |
+| TCE | Shift 1 | Meunerie | Meunerie |
+| CHD | Shift 5 | Fermentation | Fermentation |
+| MGY | en formation | chaudières éq. 1 | aucune — en formation |
+| LHS | Shift 5 | Renfort arrière | Fermentation |
+| CJD | Shift 1 | Polyvalent | Gluten |
+| DKS | Shift 3 | Meunerie | Meunerie |
+| SMK | Shift 4 | Renfort avant | Meunerie |
+| MMS | Shift 3 | Polyvalent | Gluten |
+
+**Deux lignes semblent fausses et ne le sont pas.** LHS est inscrit
+« Renfort arrière » avec la seule Fermentation, SMK « Renfort avant » avec
+la seule Meunerie — un renfort suppose pourtant plus d'un poste. Le client,
+le 22/09/2026 : « oui, ce n'est pas logique, mais c'est comme ça que le RH
+les a attribués dans le classeur ». **Ne pas « corriger » ces lignes** : le
+classeur dit vrai sur ce qu'il décrit, c'est l'attribution qui est ainsi.
+
+**MGY est le quatrième opérateur en formation**, avec SKS, LHR et GST. Le
+classeur le place bien aux chaudières de l'équipe 1 — l'application l'y
+montre, avec un **F** — mais il n'y a aucune polyvalence validée, et c'est
+la règle : on n'est pas validé là où l'on se forme.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
 pas les deviner :
+
+- **Les intérimaires** : fiche d'un ouvrier, primes et jours de paie ne se
+  calculent pas comme pour les autres. Rien n'est connu de ces trois règles
+  — voir la section « Les intérimaires » ci-dessus.
 
 - `R` (237), `TP` (210), `D-F` (49), `VM` (40),
   `DS-CE` (27), `D-CPPT` (47) : journée prestée normale, absence payée, ou
