@@ -341,10 +341,14 @@ pourrait donc se tromper d'accord avec lui-même :
 node tools/verifier-calendrier.js --journee FPA 0919 0921
 ```
 
-**Au 20/09/2026 : 1 cellule non reconnue sur 27 462, zéro faute ailleurs.**
-C'est `CAN 24/07 ["*"]`, une étoile seule, qui demande une décision du
-client. Les deux autres cellules annoncées plus tôt étaient un artefact de
-la découpe, corrigé depuis : d'où les épreuves d'auto-contrôle.
+**Au 22/09/2026 : les neuf règles sont à ZÉRO sur les 27 462 journées.**
+La dernière cellule non reconnue était `CAN 24/07 ["*"]` — une faute de
+frappe pour un tiret, tranchée par le client le 22/09/2026 et rangée dans
+`ALIAS_HORAIRE`. Le classeur est désormais lu sans une exception.
+
+Une cellule se juge sur ce que l'APPLICATION y lit, pas sur ce que le
+classeur y écrit : la règle applique `ALIAS_HORAIRE` avant de conclure, et
+suivra donc toute addition future sans qu'on y pense.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
 case s'affiche juste, mais un morceau de la cellule reste illisible. **25
