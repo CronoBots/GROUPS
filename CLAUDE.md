@@ -617,9 +617,33 @@ des cases qui ne disent pas QUEL poste ces gens tiennent, alors que c'est la
 question qu'on pose à ce tableau.
 
 > Qui porte un POSTE au classeur est **titulaire** de sa ligne ; qui porte
-> autre chose — polyvalent, renfort — se place sur **chaque ligne qu'il est
-> validé à tenir**. Sa polyvalence dit où il peut aller, et c'est la seule
-> source qui le dise.
+> autre chose — polyvalent, renfort — se place sur **chaque ligne DE SON CÔTÉ
+> qu'il est validé à tenir**. Sa polyvalence dit où il peut aller ; la colonne
+> où le classeur l'écrit dit de quel côté il est attendu. Il faut les deux.
+
+**Un côté n'est pas une étiquette, c'est une place.** Le client, le
+22/09/2026 : « les polyvalents avant/arrière sont complètement mélangés avec
+les autres fonctions ». La polyvalence seule ne suffisait pas : les quatre
+polyvalents à cinq ateliers se retrouvaient sur les six lignes à la fois, de
+la meunerie aux chaudières, et la composition d'une équipe ne se lisait plus.
+
+Le classeur le dit, lui, par l'**ORDRE de ses colonnes**, qui est celui du
+procédé : le polyvalent arrière en O, juste avant la fermentation (Q) et la
+distillation (S) ; les renforts en U et W ; puis la meunerie (Y), le gluten
+(AA) et les DEUX polyvalents avant (AC, AE) ; les chaudières en fin de
+rangée. `roleDeFeuille()` lit déjà cette colonne — c'est elle qui distingue
+« polyvalent » arrière de « polyvalent » avant, le mot étant le même des deux
+côtés. `_orgLignesDe()` l'interroge désormais avant de placer qui que ce soit.
+
+**Les chaudières sont la seule ligne que cet ordre ne range d'aucun côté** :
+elles suivent les polyvalents avant sans appartenir à leur bloc. Elles sont
+mises à l'ARRIÈRE, parce que DWS — le seul polyvalent arrière au profil
+étroit — possède exactement fermentation, distillation et chaudières, et rien
+du bloc avant. **À faire confirmer par le client** : c'est une déduction, pas
+une règle qu'il a énoncée.
+
+Qui ne porte ni polyvalent ni renfort garde toutes ses lignes : le côté ne se
+devine pas, et une personne sans rôle déclaré n'en a pas.
 
 **Tous de la même encre, et sans légende.** Un second rang en gris a vécu
 dix minutes : le client, le 22/09/2026, « il ne faut pas indiquer les validé
