@@ -62,7 +62,31 @@ sans le dire ne vaut rien. Si un reste n'est pas un nom — « Paye » est aussi
 un mot français — le relancer avec `--tolerer=paye` **après avoir lu le
 contexte imprimé**.
 
-**La garantie a une faille de naissance, et il faut la connaître** : elle ne
+**Elle ne voyait pas les signatures de commentaires, et neuf personnes sont
+passées.** Découvert le 22/09/2026 : `data/classeur-2026.xlsx`, dans le dépôt
+PUBLIC, portait **20 912 occurrences** de neuf noms complets — les auteurs des
+commentaires Excel — et `data/horaire-2026.json` en portait 36 de plus. Le
+contrôle indépendant, mis à l'épreuve sur ce fichier, répondait « aucune
+chaîne de forme nominale ne survit ».
+
+Trois trous, tous dans les formes : `Nom, Prénom:` — le deux-points faisait
+échouer l'ancrage `$` ; `NOM, PRÉNOM` — aucune forme ne couvrait deux
+majuscules à virgule ; `Nom, APN` — une seule moitié remplacée nomme
+encore la personne. Et surtout, **Excel coupe volontiers un nom en deux runs
+XML** (`I` puis `stasse, Prénom`) : un motif appliqué balise par balise ne
+peut pas recoller ce que la structure a séparé.
+
+Les deux outils lisent donc maintenant la **structure** des commentaires, sur
+le texte RECOLLÉ — chacun avec ses propres motifs, sans rien s'emprunter.
+Une tête de commentaire est COURTE et d'un seul tenant : sans ces deux
+bornes, la règle avale le corps des commentaires portant un `MPE :` au
+milieu.
+
+**Le jumeau PowerShell n'est PAS corrigé** : il porte le même trou. Ne pas
+s'en servir pour une copie destinée au dépôt tant qu'il ne fait pas cette
+passe.
+
+**La garantie a une seconde faille, de naissance, et il faut la connaître** : elle ne
 cherche que les noms que l'outil a SU APPRENDRE. Six personnes absentes de
 « Personnel » et des colonnes nom/prénom de « Polyvalence » ont traversé
 l'anonymiseur sans être remplacées ni signalées — il a répondu « aucun nom ne

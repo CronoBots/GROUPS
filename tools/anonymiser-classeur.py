@@ -31,6 +31,7 @@ détruit sa sortie et s'arrête avec le détail. Un anonymiseur qui peut
 laisser passer un nom sans le dire ne vaut rien.
 """
 import os, re, shutil, sys, unicodedata, zipfile
+import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from importlib import import_module
@@ -59,6 +60,70 @@ def _initiales(t):
 EXCLUS = re.compile(r"(vbaProject\.bin|/vbaProject|\.bin$)", re.I)
 # Les parties où chercher du texte. Tout le reste est recopié tel quel.
 TEXTE = re.compile(r"\.(xml|rels|vml)$", re.I)
+COMMENTAIRES = re.compile(r"comments\d*\.xml$", re.I)
+
+# --- la signature d'un commentaire ------------------------------------------
+# Neuf noms sont passés par là. AUTEUR, qui travaille sur les octets du XML,
+# exige une virgule et ne voit donc ni « Nom Prénom : » ni
+# « Prénom: » ; et il ne voit RIEN du tout quand Excel coupe le nom en deux
+# runs — « I » puis « stasse, Prénom ». Un motif appliqué balise par
+# balise ne peut pas recoller ce que la structure a séparé.
+#
+# D'où cette passe-ci, qui lit la STRUCTURE : elle recolle le texte de chaque
+# commentaire, et retire ce qui précède le premier « : » quand cela a une
+# forme de nom.
+#
+# Ces formes sont écrites ICI et non empruntées à verifier-anonymat.py : le
+# contrôle ne vérifierait plus, il répéterait.
+_M_SS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+_NOMS = [
+    re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{2,},?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),   # Nom Prénom
+    re.compile(r"^[A-ZÀ-Þ]{4,},\s*[A-ZÀ-Þ]{2,}$"),                        # NOM, PRÉNOM
+    re.compile(r"^[A-ZÀ-Þ]{2,},\s*[A-ZÀ-Þ]{4,}$"),
+    re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{3,},\s*[A-ZÀ-Þ]{2,4}$"),             # Nom, APN
+    re.compile(r"^[A-ZÀ-Þ]{2,4},\s*[A-ZÀ-Þ][a-zà-ÿ'-]{3,}$"),             # JBY, Prénom
+]
+_ORNEMENT = re.compile(r"\s*\([^)]*\)\s*|\s*/\s*[Rr][Tt]\d{4,6}\s*|\s*-\s*[A-ZÀ-Þ]{2,4}\s*$")
+
+
+def _est_nom(t):
+    t = _ORNEMENT.sub("", t).strip()
+    return bool(t) and any(f.match(t) for f in _NOMS)
+
+
+def _sans_signature(donnee):
+    """Retirer la signature en tête de chaque commentaire, et les auteurs.
+
+    Une signature est COURTE et d'un seul tenant : sans ces deux bornes, la
+    règle avalerait le corps des commentaires qui portent un « MPE : » en
+    plein milieu.
+    """
+    ET.register_namespace("", _M_SS)
+    try:
+        r = ET.fromstring(donnee)
+    except ET.ParseError:
+        return donnee, 0
+    n = 0
+    a = r.find("{%s}authors" % _M_SS)
+    if a is not None:
+        for x in a:
+            if (x.text or "").strip() and (x.text or "").strip() != "Auteur":
+                x.text = "Auteur"
+                n += 1
+    for cm in r.iter("{%s}comment" % _M_SS):
+        noeuds = list(cm.iter("{%s}t" % _M_SS))
+        joint = "".join(x.text or "" for x in noeuds)
+        i = joint.find(":")
+        if not (0 < i <= 40) or "\n" in joint[:i] or not _est_nom(joint[:i]):
+            continue
+        propre = joint[i + 1:].lstrip()
+        for k, x in enumerate(noeuds):
+            x.text = propre if k == 0 else ""
+            x.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+        n += 1
+    if not n:
+        return donnee, 0
+    return ET.tostring(r, encoding="UTF-8", xml_declaration=True), n
 
 
 def _formes(nom):
@@ -391,6 +456,9 @@ def anonymiser(src, dst, tolere=()):
             donnee = zin.read(info.filename)
             if TEXTE.search(info.filename):
                 donnee, n = _remplacer(donnee, regles, sondes)
+                if COMMENTAIRES.search(info.filename):
+                    donnee, m = _sans_signature(donnee)
+                    n += m
                 if info.filename.startswith("docProps/"):
                     donnee = re.sub(rb"<(dc:creator|cp:lastModifiedBy)>[^<]*</\1>",
                                     rb"<\1></\1>", donnee)
