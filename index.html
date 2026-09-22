@@ -838,10 +838,9 @@ body.sheet-on{overflow:hidden}
 /* Les manques à venir. Une ligne par journée, et sur la ligne une pastille
    par poste en manque, dans la couleur de sa pause — on lit la semaine d'un
    coup d'œil sans dérouler quoi que ce soit. */
-.mqbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  padding:12px 16px 0}
-.mqbar .lede{margin:0; flex:1 1 auto}
-.mqcorps{padding:10px 16px 14px}
+.mqbar{display:flex; align-items:center; gap:10px; padding:0 16px}
+.mqbar .seg{flex:1 1 auto}
+.mqcorps{padding:8px 16px 12px}
 .mqj{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   width:100%; text-align:left; background:none; border:0; cursor:pointer;
   padding:8px 8px; margin:0 -8px; border-radius:10px; color:inherit; font:inherit}
@@ -862,7 +861,11 @@ body.sheet-on{overflow:hidden}
 .mqt[data-z="rouge"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
 .mqt[data-z="bleu"] {background:var(--at-bleu-soft);  color:var(--at-bleu)}
 .mqt[data-z="gris"] {background:var(--at-gris-soft);  color:var(--at-gris)}
-.mqinc{font-size:10px; font-weight:400; color:var(--faint); font-style:italic}
+/* « +1 ? » : le nombre de postes encore indéterminés ce jour-là. Discrète,
+   parce qu'elle NUANCE les manques plutôt qu'elle n'en annonce un de plus :
+   l'un de ces postes indéterminés est peut-être celui qui manque. */
+.mqinc{background:var(--surface3); color:var(--faint); font-weight:600}
+.mqinc u{text-decoration:none; opacity:.8}
 .mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
 .mqrien b{color:var(--in)}
 /* Une carte par pause, et la pause en tableau dans le sens de la production.
@@ -999,8 +1002,15 @@ body.sheet-on{overflow:hidden}
 /* ── Densité. Sur téléphone, « Postes en manque » faisait 644 px — plus que
    l'horaire du jour — et le texte d'explication 128. Les deux se replient
    désormais, et ce qui reste ouvert est resserré. */
-#mqCard>details>summary{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
-  padding:14px 16px 10px; cursor:pointer; list-style:none}
+/* L'en-tête coûtait 189 px avant la première journée — presque autant que
+   quatre jours de contenu — pour un titre de 28 px, un sous-titre, une
+   légende et une rangée de boutons. Le client, le 22/09/2026 : « moyen de
+   faire beaucoup mieux ». Titre et compte tiennent sur une ligne, l'horizon
+   sur la suivante, et le tout en fait 76. */
+#mqCard>details>summary{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+  padding:11px 16px 8px; cursor:pointer; list-style:none}
+#mqCard>details>summary h2{font-size:15px}
+#mqCard>details>summary .sub{font-size:11.5px}
 #mqCard>details>summary::-webkit-details-marker{display:none}
 #mqCard>details>summary h2{margin:0}
 #mqCard>details>summary:after{content:""; margin-left:auto; width:7px; height:7px;
@@ -1018,7 +1028,6 @@ body.sheet-on{overflow:hidden}
 .eqnav .seg button{white-space:nowrap; flex:0 0 auto}
 .mqj{padding:5px 8px; margin:0 -8px; gap:8px}
 .mqj>b{min-width:74px; font-size:11.5px}
-.mqinc{margin-left:auto}
 .eqzones{border-top:0; padding-top:0}
 /* La phrase d'explication courait sur 450 px au milieu d'une carte qui en
    fait 1150 : elle prend toute la largeur disponible. */
@@ -1047,7 +1056,6 @@ body.sheet-on{overflow:hidden}
     column-gap:8px; row-gap:5px}
   .mqj>b{min-width:0; white-space:nowrap}
   .mqtags{grid-column:2}
-  .mqinc{grid-column:2; margin-left:0}
   /* « TERRAIN ARRIÈRE » est le plus long, et il ne se coupe pas : la colonne
      et le corps sont taillés sur lui. Elle avait maigri à 100 px pour que
      trois trigrammes tiennent côte à côte dans une pause ; ils s'empilent
@@ -1567,7 +1575,9 @@ body.sheet-on{overflow:hidden}
         <span class="sub" id="mqSub"></span>
       </summary>
       <div class="mqbar">
-        <span class="lede">À partir d'aujourd'hui</span>
+        <!-- « À partir d'aujourd'hui » a disparu : le module ne regarde
+             JAMAIS en arrière, c'est sa règle de naissance. L'écrire au-dessus
+             de lui, c'était occuper une ligne pour décrire ce qu'il est. -->
         <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
           <button type="button" data-h="7" aria-pressed="false">7 j</button>
           <button type="button" data-h="14" aria-pressed="true">14 j</button>
@@ -5900,15 +5910,24 @@ function renderManques(force){
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
          qui manque : le dire, plutôt que de laisser croire à un trou. */
-      h.push("</span>"+(x.inc?'<span class="mqinc">'+x.inc
-        +" poste"+(x.inc>1?"s":"")+" à déterminer ce jour-là</span>":"")+"</button>");
+      /* Cette mention occupait sa propre ligne, en italique, sur quatre
+         journées de neuf — vingt pixels chacune pour répéter la même phrase.
+         Elle devient une pastille de la rangée, à côté des postes qu'elle
+         nuance : c'est là qu'on la lit, et elle ne coûte plus une ligne. */
+      h.push((x.inc?'<span class="mqt mqinc" title="'+x.inc+" poste"
+        +(x.inc>1?"s":"")+' encore à déterminer ce jour-là">+'+x.inc
+        +"<u>?</u></span>":"")+"</span></button>");
     });
     hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun poste en manque</b> '
       +"sur l'horizon regardé.</p>";
     var n=r.jours.length;
+    /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
+       renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
+       même phrase ne disait rien de plus la seconde. */
     document.getElementById("mqSub").textContent=
-      (n?n+" journée"+(n>1?"s":"")+" à surveiller":"rien à signaler")
-      +" · "+r.examines+" journée"+(r.examines>1?"s":"")+" regardée"+(r.examines>1?"s":"");
+      n ? n+" journée"+(n>1?"s":"")+" \u00b7 "+r.examines+" regardée"
+          +(r.examines>1?"s":"")
+        : "rien à signaler sur "+r.examines+" journée"+(r.examines>1?"s":"");
     hote.onclick=function(e){
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j));
