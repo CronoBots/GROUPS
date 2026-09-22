@@ -1591,6 +1591,39 @@ il n'y en a pas : une case grise et muette laissait croire à un oubli.
 Une **seconde légende** nomme les zones que porte le liseré de gauche :
 encadrement, meunerie-gluten, l'éthanol, chaudières, station d'épuration.
 
+### Densité : la page a fondu de moitié sur téléphone
+
+Mesuré avant de toucher à quoi que ce soit, plutôt que deviné — et le
+coupable n'était pas l'horaire : **« Postes en manque » faisait 644 px sur un
+téléphone**, plus que le tableau du jour (425), et le texte d'explication 128.
+
+| | PC | Téléphone |
+|---|---|---|
+| avant | 1 575 px | 2 401 px |
+| après | 1 500 px | **1 668 px** |
+
+Ce qui a payé :
+
+- **« Postes en manque » se replie**, et il s'ouvre **fermé sous 760 px** —
+  ouvert, il poussait l'horaire du jour à 600 px sous le pli. Dès que
+  l'utilisateur le replie ou le déplie lui-même, c'est son choix qui vaut,
+  sur les deux tailles.
+- **L'explication se replie** sous « Comment lire ce tableau », et la bascule
+  Par poste / Par pause rejoint la barre du jour : deux bandes en moins.
+- **Les absents tiennent sur une ligne** — « YBT MAL · jusqu'au 11 oct. » —
+  au lieu de deux : 554 px devenus 186.
+- Sous 560 px, l'**horaire de la pause disparaît** de l'en-tête : « Après-midi
+  / 14h – 22h · 11 pers. » y tenait sur trois lignes, et l'horaire est le
+  moins utile des trois.
+
+Deux défauts de mise en page trouvés en mesurant :
+
+- `.eqnav button:not(.btn){width:34px}` taillait les flèches du jour **et**
+  attrapait les boutons de la bascule, réduits à 34 px : leurs libellés se
+  chevauchaient et sortaient de la carte. Enfants directs seulement.
+- La bascule se laissait comprimer sous sa largeur de contenu par le titre du
+  jour, qui est en `flex:1`. Il lui fallait `flex:0 0 auto`.
+
 ### Une seule carte pour qui ne tient aucun poste
 
 « Hors pause » et « Le reste » disaient la même chose — personne ici ne tient
