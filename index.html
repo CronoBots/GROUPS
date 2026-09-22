@@ -836,8 +836,22 @@ body.sheet-on{overflow:hidden}
   font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:700;
   letter-spacing:.02em; color:var(--out)}
 .eqp2 td.manque>i:only-child{margin-top:0}
+/* Le client, le 22/09/2026 : « centrer le mot POSTE, et avoir les bordures
+   du coin grises pour lier ».
+
+   Le coin haut-gauche était le seul à n'avoir aucun liseré : les trois
+   pauses portaient le leur en haut, les huit postes le leur à gauche, et
+   la case du titre restait ouverte entre les deux. Un gris discret referme
+   l'angle et relie les deux bandes.
+
+   Le mot lui-même se centre : les trois intitulés de pause le sont, il
+   n'avait pas de raison de rester à gauche tout seul. Les NOMS DE POSTE,
+   eux, restent alignés à gauche — ce sont des libellés de ligne, ils se
+   lisent en colonne. */
 .eqp2 thead th.eqposte{font-size:11px; font-weight:700; letter-spacing:.03em;
-  text-transform:uppercase; color:var(--faint)}
+  text-transform:uppercase; color:var(--faint); text-align:center;
+  padding-left:8px; padding-right:8px;
+  border-top:3px solid var(--line); border-left-color:var(--line)}
 .eqp2 thead th.eqposte small{text-transform:none; letter-spacing:0; opacity:.8}
 .eqp2 tbody tr[data-z="jaune"] th.eqposte{border-left-color:var(--at-jaune)}
 .eqp2 tbody tr[data-z="vert"]  th.eqposte{border-left-color:var(--at-vert)}
@@ -4310,6 +4324,12 @@ function fonctionPersonne(p){
   return fonctionCourte(p.cat);
 }
 
+/* Les zones de l'usine, telles que le client les a nommées le 21/09/2026.
+   Elles vivaient en dur dans la légende ; celle-ci ne montrant plus que les
+   zones présentes à l'écran, il faut pouvoir les nommer une par une. */
+var ZONE_NOMS={gris:"encadrement", jaune:"meunerie, gluten",
+  vert:"fermentation, terrain arrière, distillation",
+  rouge:"chaudières", bleu:"station d'épuration"};
 var POSTES_TRAVAIL=[
   {k:"cm",   t:"Contremaître",    n:1, cm:true, z:"gris"},
   /* Le client : « les adjoints doivent être classés dans Adjoint et non
@@ -5134,7 +5154,12 @@ function renderEquipe(){
             +vp[g.k].n+" pers.</em></th>");
         });
         tp.push("</tr></thead><tbody>");
-        var zPrec=null;
+        /* Une légende qui explique un signe ABSENT de l'écran est du bruit :
+           le client, le 22/09/2026, « ne laisser que les légendes utiles ».
+           On note donc ce qui a réellement été dessiné, et on n'explique que
+           cela. Les zones se rangent dans l'ordre où le tableau les montre —
+           celui de la production. */
+        var zPrec=null, aForm=false, aManque=false, aVide=false, zVues=[];
         POSTES_TRAVAIL.forEach(function(P){
           var att=0, sert=false;
           PAUSES.forEach(function(g){
@@ -5144,6 +5169,7 @@ function renderEquipe(){
           });
           if(!att && !sert) return;
           var debut=(P.z!==zPrec); zPrec=P.z;
+          if(P.z && zVues.indexOf(P.z)<0) zVues.push(P.z);
           tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
             +'<th class="eqposte" scope="row"><b>'+esc(P.t)+"</b></th>");
           PAUSES.forEach(function(g){
@@ -5153,12 +5179,14 @@ function renderEquipe(){
                N ». Une case grise et muette laissait croire à un oubli ; le
                tiret dit que ce poste n'attend personne à cette pause-là. */
             if(!o || (!o.gens.length && !attenduAuPoste(P,g.k))){
-              tp.push('<td class="vide">\u2013</td>'); return; }
+              aVide=true; tp.push('<td class="vide">\u2013</td>'); return; }
             /* Le client : « n'afficher l'effectif minimum que dans la cellule
                où il manque réellement quelqu'un ». Ailleurs, le compte se lit
                en comptant les trigrammes — il n'a rien à dire de plus. */
             var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k);
-            if(mq) cl.push("manque");
+            if(mq){ cl.push("manque"); aManque=true; }
+            for(var fi=0;fi<o.gens.length;fi++)
+              if(enFormation(o.gens[fi].p)){ aForm=true; break; }
             tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
               +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
               +(mq?'<i>'+o.tenu+" / "+aP+"</i>":"")
@@ -5167,21 +5195,20 @@ function renderEquipe(){
           });
           tp.push("</tr>");
         });
+        var lg=[];
+        if(aForm)   lg.push('<span><i class="lg-form"></i>opérateur en formation</span>');
+        if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
+        if(aVide)   lg.push('<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>');
+        /* Les zones de l'usine, que le liseré de gauche porte. Le client les
+           a données le 21/09/2026 ; autant les nommer — mais seulement
+           celles qui sont à l'écran ce jour-là. */
+        var zl=zVues.map(function(z){
+          return '<span><i class="lg-z" data-z="'+esc(z)+'"></i>'
+                 +esc(ZONE_NOMS[z]||z)+"</span>"; });
         tp.push("</tbody></table></div>"
-          +'<p class="eqleg">'
-          +'<span><i class="lg-form"></i>opérateur en formation</span>'
-          +'<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>'
-          +'<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>'
-          +"</p>"
-          /* Les zones de l'usine, que le liseré de gauche porte. Le client
-             les a données le 21/09/2026 ; autant les nommer. */
-          +'<p class="eqleg eqzones">'
-          +'<span><i class="lg-z" data-z="gris"></i>encadrement</span>'
-          +'<span><i class="lg-z" data-z="jaune"></i>meunerie, gluten</span>'
-          +'<span><i class="lg-z" data-z="vert"></i>fermentation, terrain arrière, distillation</span>'
-          +'<span><i class="lg-z" data-z="rouge"></i>chaudières</span>'
-          +'<span><i class="lg-z" data-z="bleu"></i>station d\'épuration</span>'
-          +"</p></div>");
+          +(lg.length?'<p class="eqleg">'+lg.join("")+"</p>":"")
+          +(zl.length?'<p class="eqleg eqzones">'+zl.join("")+"</p>":"")
+          +"</div>");
         h.push(tp.join(""));
       }
 

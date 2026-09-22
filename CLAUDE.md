@@ -408,6 +408,18 @@ journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
+**Les légendes ne montrent que ce qui est à l'écran.** Le client, le
+22/09/2026 : « ne laisser que les légendes utiles ». Une légende qui explique
+un signe absent est du bruit — la plupart des jours il n'y a ni opérateur en
+formation ni poste sous son effectif, et les deux entrées s'affichaient
+quand même. Le rendu note ce qu'il a réellement dessiné (`aForm`, `aManque`,
+`aVide`, `zVues`) et n'explique que cela ; les zones se rangent dans l'ordre
+où le tableau les montre, celui de la production.
+
+Vérifié en avançant jour par jour : sans formation ni manque, une seule
+ligne ; trois opérateurs en formation, l'entrée revient ; un poste sous son
+effectif, la sienne aussi.
+
 **Une journée a deux postes depuis le 21/09/2026** : `r.s` porte la prime
 PAYÉE, `r.sp` le poste PRESTÉ quand ils diffèrent — 275 journées où le
 commentaire nomme une prime à conserver, plus les journées `SD26` et `D-F`.
