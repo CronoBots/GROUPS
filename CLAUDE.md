@@ -693,6 +693,18 @@ justement cela qu'un contremaître cherche. « Terrain arrière » ne figure dan
 aucune liste de polyvalence du classeur : il se déduit de Fermentation ET
 Distillation, comme `tientTerrainArriere()` le fait partout ailleurs.
 
+**Les noms de poste s'écrivent en entier, verticalement.** Le client, le
+22/09/2026 : « pas très compréhensible — le texte au-dessus des postes ».
+`Meun.`, `Glut.`, `T. arr.` demandaient de deviner, et sept colonnes dans
+290 px n'en laissaient pas la place autrement. Écrits du bas vers le haut,
+ils tiennent sans rien abréger : **118 px d'en-tête à toutes les largeurs,
+aucun nom coupé, même à 320 px où la colonne ne fait que 33 px.** La longueur
+du mot ne coûte plus de largeur — c'est la forme qu'ont les tableaux de
+polyvalence d'atelier, et pour cette raison exacte.
+
+**La légende est AU-DESSUS de la grille** : sous trente-huit lignes, elle
+n'était jamais à l'écran en même temps que ce qu'elle explique.
+
 **La liste est alphabétique, sans intercalaire d'équipe** : on cherche
 quelqu'un par son trigramme, pas par son équipe.
 
