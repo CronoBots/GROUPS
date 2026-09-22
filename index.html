@@ -931,6 +931,13 @@ body.sheet-on{overflow:hidden}
   .pvt td.pvsien{font-size:11px}
   .pvt tbody tr td.pvform{font-size:12px}
 }
+/* LES CARTES DE CET ONGLET SE TOUCHAIENT. Le client, le 22/09/2026 : « les
+   différents cadres sont trop collés ». Elles vivent toutes dans #orgCorps,
+   et « .stack » ne pose son écart qu'entre ses enfants DIRECTS — le
+   conteneur en était un, les cartes non. Il reprend donc le même écart, et
+   le même que partout ailleurs dans l'application : une valeur de plus, ici,
+   aurait fait un onglet qui ne respire pas comme les autres. */
+.orgcorps{display:flex; flex-direction:column; gap:16px}
 /* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
    Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
    à gauche, trigrammes empilés — parce que c'est le même objet regardé
@@ -969,14 +976,6 @@ body.sheet-on{overflow:hidden}
 .orgn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
   font-weight:600; letter-spacing:.03em; color:var(--ink); line-height:1.5}
 .orgn.moi{color:var(--in); text-decoration:underline; text-underline-offset:3px}
-/* Celui qui PEUT tenir le poste, sous celui qui le tient. En retrait, et non
-   d'une autre couleur : une couleur de plus dans un tableau qui en porte
-   déjà cinq — une par zone d'usine — se serait lue comme une zone. */
-.orgt td .orgn.orgr{font-size:10.5px; font-weight:500; color:var(--faint)}
-.orgt td .orgn.orgr:first-child{margin-top:0}
-.orgt td .orgn+.orgn.orgr{margin-top:3px}
-.lg-orgt{width:9px; height:9px; border-radius:3px; background:var(--ink)}
-.lg-orgr{width:9px; height:9px; border-radius:3px; background:var(--faint)}
 .orgvide{color:var(--faint)}
 /* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
    six lignes de deux trigrammes, et s'étirait à 1146 px sur un écran de
@@ -6172,18 +6171,18 @@ function renderOrganisation(){
         var o=grille[lib+"|"+e];
         if(!o || (!o.t.length && !o.r.length)){
           t.push('<td><span class="orgvide">\u2013</span></td>'); return; }
-        /* Le titulaire d'abord, en pleine encre ; ceux qui PEUVENT le tenir
-           ensuite, en retrait. L'ordre dit la différence sans un mot. */
-        t.push("<td>"+o.t.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
-          +o.r.sort().map(function(id){
-              return _orgJeton(id,moi).replace('class="orgn','class="orgn orgr'); }).join("")
-          +"</td>");
+        /* TOUS DE LA MÊME ENCRE. Le client, le 22/09/2026 : « il ne faut pas
+           indiquer les validé pour tenir ». Un second rang en gris disait
+           « celui-ci compte moins » — or il appartient à la ligne autant que
+           le titulaire, c'est tout l'objet de la règle de placement. Seul
+           l'ORDRE demeure : celui que le classeur nomme au poste vient en
+           tête, et il n'y a plus rien à expliquer en légende. */
+        t.push("<td>"+o.t.sort().concat(o.r.sort()).map(function(id){
+          return _orgJeton(id,moi); }).join("")+"</td>");
       });
       t.push("</tr>");
     });
     t.push("</tbody></table></div>"
-      +'<p class="eqleg"><span><i class="lg-orgt"></i>titulaire du poste</span>'
-      +'<span><i class="lg-orgr"></i>validé pour le tenir</span></p>'
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
         +orphelins.length+" personne(s) sans poste ni polyvalence rattachable : "
         +orphelins.map(function(x){ return esc(idLisible(x.id))+" (éq. "+esc(x.eq)+")"; }).join(", ")

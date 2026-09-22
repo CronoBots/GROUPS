@@ -621,6 +621,13 @@ question qu'on pose à ce tableau.
 > validé à tenir**. Sa polyvalence dit où il peut aller, et c'est la seule
 > source qui le dise.
 
+**Tous de la même encre, et sans légende.** Un second rang en gris a vécu
+dix minutes : le client, le 22/09/2026, « il ne faut pas indiquer les validé
+pour tenir ». Il disait « celui-ci compte moins » — or il appartient à la
+ligne autant que le titulaire, c'est tout l'objet de la règle ci-dessus.
+Seul l'ORDRE demeure : celui que le classeur nomme au poste vient en tête,
+et il n'y a plus rien à expliquer en bas de tableau.
+
 **« Les postes les liant » est le mot juste du client pour le TERRAIN
 ARRIÈRE** : le poste qui relie la fermentation et la distillation. Il ne
 figure dans aucune liste de polyvalence du classeur — il se DÉDUIT des deux
@@ -643,6 +650,11 @@ deux mesurés :
   du script aurait demandé un écouteur de redimensionnement ; écrire les
   deux coûte quelques octets. **76 px sur téléphone, 128 sur bureau** — 128
   et non 104, « TERRAIN ARRIÈRE » se faisant couper d'un cheveu ;
+- **les cartes se touchaient** : « les différents cadres sont trop collés ».
+  Elles vivent toutes dans `#orgCorps`, et `.stack` ne pose son écart
+  qu'entre ses enfants DIRECTS — le conteneur en était un, les cartes non.
+  Il reprend le même écart, et le même que partout ailleurs : une valeur de
+  plus ici aurait fait un onglet qui ne respire pas comme les autres ;
 - **les binômes coûtaient 222 px pour six lignes** de deux trigrammes, et
   leur tableau s'étirait à 1146 px sur un écran de bureau pour un contenu
   qui en demande quarante. Six **tuiles** remplacent le tableau : **115 px
