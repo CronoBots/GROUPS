@@ -1996,3 +1996,29 @@ notation avec deux sévérités différentes**. C'est ce que la douzième règle
 `tools/verifier-calendrier.js` cherche, et elle avait déjà signalé la même
 apostrophe du côté des commentaires — `de 14h à18h00'`, 38 journées.
 
+## Une plage d'heures peut porter un « + », ou se noyer dans un texte
+
+Deux journées, deux motifs, et les deux coûtaient de l'argent.
+
+**SKS le 26/06**, `["6h-14h +","1/2DTT","départ à 10h remplace SBZ de 18h à
+22h rappel le 29/06"]`. Le `+` final — il annonce le rappel du soir — suffisait
+à faire refuser la cellule : le poste retombait sur le cycle, qui donnait
+**PM**, alors que le classeur écrit noir sur blanc une matinée. Une prime de
+pause pour une autre. `plageMention()` tolère désormais ce `+` final.
+
+**GPS le 02/07**, `["7h-15h","RHS+02h-06h","Rappel le 02/07"]` : quatre heures
+de nuit rappelées en plus de sa journée. `plageRappel()` cherchait la plage
+avec `plageMention()`, qui est **ancrée** — `RHS+02h-06h` ne lui disait rien.
+Elle retombait donc sur la cellule, `7h-15h`, et calculait le rappel sur la
+journée normale, qui ne déborde de rien : les quatre heures disparaissaient.
+
+Il n'était pas question de relâcher `plageMention()` : c'est elle qui juge si
+une CELLULE est une journée prestée, et un motif non ancré y lirait un poste
+dans n'importe quel texte. Chercher les heures **d'un rappel** est une autre
+question, qui se pose sur un texte et non sur un code — d'où `plageNoyee()`,
+le même motif à ceci près qu'il n'est pas ancré et qu'il exige les deux
+« h », sans quoi une date y passerait. L'annotation garde sa priorité sur la
+cellule : `plageMention(annot) → plageNoyee(annot) → plageMention(cellule) →
+plageNoyee(cellule) → commentaire`.
+
+Une seule journée de l'année emprunte cette nouvelle branche.

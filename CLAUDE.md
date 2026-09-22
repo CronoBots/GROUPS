@@ -359,7 +359,7 @@ classeur y écrit : la règle applique `ALIAS_HORAIRE` avant de conclure, et
 suivra donc toute addition future sans qu'on y pense.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
-case s'affiche juste, mais un morceau de la cellule reste illisible. **20
+case s'affiche juste, mais un morceau de la cellule reste illisible. **19
 journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.

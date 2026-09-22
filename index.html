@@ -3192,7 +3192,7 @@ var SHIFT_PLAGE={AM:[6,14],PM:[14,22],N:[22,30],D:[7.5,16]};
    heure, alors qu'il a presté 4 h 30 : 4 h de flex time et une demi-heure
    supplémentaire, ce que « +0,5 hs » confirme exactement. */
 function plageMention(tok){
-  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?$/i);
+  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?\s*\+?$/i);
   if(!m) return null;
   var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
   if(b<=a) b+=24;
@@ -3676,8 +3676,29 @@ function momentRappel(annee,mmdd,txt){
 /* La plage prestée se lit dans l'annotation, dans la cellule, ou à défaut
    dans le commentaire — AFA le 10/09, « AM | VM | remplace VBN de 2h à 6h » :
    quatre heures avant sa pause du matin, que seule la phrase donne. */
+/* La plage du rappel peut être NOYÉE dans une annotation plus large :
+   GPS le 02/07, ["7h-15h","RHS+02h-06h","Rappel le 02/07"] — quatre heures
+   de nuit rappelées en plus de sa journée. plageMention() est ancrée, à
+   dessein : c'est elle qui juge si une CELLULE est une journée prestée, et
+   la relâcher ferait lire un poste dans n'importe quel texte. Chercher les
+   heures D'UN RAPPEL est une autre question, et elle se pose sur un texte,
+   pas sur un code : d’où ce motif-ci, le même à ceci près qu’il n’est pas
+   ancré et qu’il exige les deux « h » — sans quoi une date y passerait.
+
+   Sans lui, plageRappel() retombait sur la cellule et calculait le rappel
+   sur la journée normale — 7h-15h, qui ne déborde de rien. */
+var RX_PLAGE_NOYEE=/(\d{1,2})\s*h\s*(\d{2})?\s*[\u0027\u2019]?\s*[-\u2013]\s*(\d{1,2})\s*h\s*(\d{2})?\s*[\u0027\u2019]?/i;
+function plageNoyee(txt){
+  var m=(txt||"").match(RX_PLAGE_NOYEE);
+  if(!m) return null;
+  var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+  if(b<=a) b+=24;
+  return (b>a)?[a,b]:null;
+}
 function plageRappel(e){
-  return plageMention(e[1]||"")||plageMention(e[0]||"")||plageCommentaire(e[2]||"");
+  return plageMention(e[1]||"")||plageNoyee(e[1]||"")
+      || plageMention(e[0]||"")||plageNoyee(e[0]||"")
+      || plageCommentaire(e[2]||"");
 }
 function debordePoste(plage,poste){
   var std=poste&&SHIFT_PLAGE[poste];
