@@ -788,6 +788,12 @@ body.sheet-on{overflow:hidden}
 
    Les cellules sont étroites et nombreuses : le compte s'écrit en chiffres
    pleins, le quota en petit derrière une barre. « 17/5 » tient en 22 px. */
+/* Le bloc de tête de l'onglet Recyclage : hors du cadre, il ne peut pas
+   emprunter la mise en forme de « .card>header ». Deux lignes serrées —
+   le titre, et la période juste dessous. */
+.pvtete{display:flex; flex-direction:column; gap:2px; padding:0 2px}
+.pvtete h2{font-size:15px; font-weight:600; letter-spacing:-.008em}
+.pvtete .sub{margin:0; font-size:11.5px; color:var(--faint)}
 .pvt{border-collapse:separate; border-spacing:0; width:100%; table-layout:fixed}
 .pvt th, .pvt td{padding:5px 2px; text-align:center; line-height:1.4;
   border-left:1px solid var(--line2); border-top:1px solid var(--line2)}
@@ -805,8 +811,12 @@ body.sheet-on{overflow:hidden}
   background:var(--surface); border-left:0;
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
   color:var(--ink)}
+/* Un filet gris au-dessus de « Qui », de la même épaisseur que les filets
+   d'atelier des autres colonnes. Le client, le 22/09/2026 : « il faut un
+   bord gris au-dessus de "Qui" pour avoir comme les autres colonnes ».
+   Sans lui la ligne d'en-tête commençait par un creux de trois pixels. */
 .pvt thead th.pvqui{z-index:3; font-family:inherit; font-size:9.5px;
-  font-weight:700; color:var(--faint)}
+  font-weight:700; color:var(--faint); border-top:3px solid var(--line)}
 .pvt tbody tr:nth-child(even) th.pvqui,
 .pvt tbody tr:nth-child(even) td{background:var(--surface2)}
 .pvt td{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
@@ -854,14 +864,11 @@ body.sheet-on{overflow:hidden}
 .lg-pvform{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--at-jaune)}
 .pvt tbody tr td.pvnul u{opacity:.6}
-.lg-pvnul{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
-  font-weight:700; color:var(--ink2)}
 .pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt tbody tr td.pvok u{opacity:.7}
 .pvt tbody tr.moi th.pvqui{color:var(--in)}
 .pvt tbody tr.moi th.pvqui, .pvt tbody tr.moi td{background:var(--in-soft)}
 .lg-pvsien{font-style:normal; color:var(--ink2); font-size:9px}
-.lg-pvok{width:9px; height:9px; border-radius:3px; background:var(--at-vert)}
 /* Se retrouver dans une liste de soixante-dix-sept identifiants demande un
    repère : le sien. */
 .eqp.moi{background:var(--in-soft); box-shadow:inset 0 0 0 1px var(--in2)}
@@ -1412,7 +1419,7 @@ body.sheet-on{overflow:hidden}
       Équipe</button>
     <button type="button" role="tab" data-v="polyvalence" aria-selected="false" aria-controls="v-polyvalence">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M9 9v11M15 9v11"/></svg>
-      Polyvalence</button>
+      Recyclage</button>
     <button type="button" role="tab" data-v="compteurs" aria-selected="false" aria-controls="v-compteurs">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-6M22 19H2"/></svg>
       Compteurs</button>
@@ -1612,12 +1619,18 @@ body.sheet-on{overflow:hidden}
   </section>
 
   <!-- ============ POLYVALENCE ============ -->
+  <!-- Le titre et la période vivent HORS du cadre. Le client, le
+       22/09/2026 : « il faut le titre "Recyclage des polyvalences" au
+       dessus du cadre avec juste en dessous la ligne avec les dates (donc
+       les sortir du tableau) ». Ils annoncent la grille, ils n'en font pas
+       partie — et une fois dehors, la grille commence par sa propre ligne
+       d'en-tête au lieu d'un bandeau qui lui ressemblait. -->
   <section class="panel stack" id="v-polyvalence" role="tabpanel" hidden>
+    <div class="pvtete">
+      <h2>Recyclage des polyvalences</h2>
+      <p class="sub" id="pvSub"></p>
+    </div>
     <div class="card">
-      <header>
-        <h2>Polyvalence</h2>
-        <span class="sub" id="pvSub"></span>
-      </header>
       <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
       <p class="eqleg" id="pvLeg"></p>
     </div>
@@ -5733,16 +5746,19 @@ function renderPolyvalence(){
       "du "+(jj===1?"1er":jj)+" "+MOIS[mm-1].toLowerCase()
       +" au "+Number(t.fin.slice(2))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase()
       +" "+db.year;
-    /* Quatre entrées de deux mots. Le client, le 22/09/2026 : « simplifie
-       les légendes pour qu'elles soient professionnelles ». La période était
-       déjà dans le sous-titre et le quota dans chaque case : les répéter en
-       bas de page faisait cinq lignes pour dire ce qui tient en une. */
+    /* TROIS entrées, et pas une de plus. Le client, le 22/09/2026 : « le
+       point doit être "Poste actuel", le petit point "Poste non acquis", F
+       "En formation" ; les autres légendes ne sont pas nécessaires dans ce
+       tableau ».
+
+       Ne restent donc que les trois SIGNES — ceux qu'on ne peut pas
+       deviner. Le vert d'un quota atteint et le « 0/X » se lisent tout
+       seuls : le chiffre y est écrit, et une légende qui répète ce que la
+       case dit déjà est du bruit. */
     document.getElementById("pvLeg").innerHTML=
-      '<span><i class="lg-pvsien">\u25cf</i>son poste</span>'
-      +'<span><i class="lg-pvok"></i>quota atteint</span>'
-      +'<span><i class="lg-pvnul">0/X</i>acquise, non pratiquée</span>'
-      +'<span><i class="lg-tiret">\u00b7</i>non acquise</span>'
-      +'<span><i class="lg-pvform">F</i>en formation</span>';
+      '<span><i class="lg-pvsien">\u25cf</i>Poste actuel</span>'
+      +'<span><i class="lg-tiret">\u00b7</i>Poste non acquis</span>'
+      +'<span><i class="lg-pvform">F</i>En formation</span>';
   }, function(){});
 }
 function renderAnnuaire(db,moi){
