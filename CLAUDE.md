@@ -243,6 +243,26 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
 
+## Le pré-remplissage ne parle que s'il faut agir
+
+Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
+chaque fois : sa bulle s'affichait donc au démarrage, par-dessus le tableau
+de l'équipe, deux secondes et demie durant. Le client, le 22/09/2026 :
+« il faut également supprimer la bulle d'info qui apparaît en cas de
+chargement ».
+
+Elle ne parle plus **que si l'utilisateur a quelque chose à faire de ses
+mains** — une journée que la lecture n'a pas su traduire. Le reste (journées
+reprises, heures au compteur HS, rappels proposés, journées à vérifier) est
+un compte rendu et non une demande : il part au journal de la console, où il
+reste consultable sans rien recouvrir.
+
+Au 22/09/2026 ce cas ne se présente jamais, les neuf règles du vérificateur
+étant à zéro. C'est un filet, pas un bavardage.
+
+Les autres bulles répondent toutes à une action de l'utilisateur —
+enregistrer, vider, exporter, importer — et restent.
+
 ## Régénérer les icônes
 
 Les cinq icônes dérivent toutes de `logo.png`. Elles sont mises en cache à

@@ -4168,9 +4168,21 @@ function prefillFromHoraire(){
         save("months/"+key(st.y,i),M,true);
       });
       renderRota(); renderFields(); refresh();
-      /* Le pré-remplissage se rejoue à chaque ouverture : annoncer les 280
-         journées relues à chaque fois serait du bruit. On ne parle que de
-         ce qui a BOUGÉ, et on se tait quand rien n'a bougé. */
+      /* Le pré-remplissage se rejoue à chaque ouverture, et il fait bouger
+         quelque chose presque à chaque fois : la bulle s'affichait donc au
+         démarrage, par-dessus le tableau de l'équipe, pendant deux secondes
+         et demie. Le client, le 22/09/2026 : « il faut également supprimer
+         la bulle d'info qui apparaît en cas de chargement ».
+
+         Elle ne parle plus QUE si l'utilisateur a quelque chose à faire de
+         ses mains — une journée que la lecture n'a pas su traduire. Le reste
+         (journées reprises, heures au compteur HS, rappels proposés) est un
+         compte rendu, pas une demande : il part au journal de la console,
+         où il reste consultable sans rien recouvrir.
+
+         Au 22/09/2026 ce cas ne se présente jamais : les neuf règles du
+         vérificateur sont à zéro, donc aucune journée n'est non reconnue.
+         C'est un filet, pas un bavardage. */
       var bouge=tot.changes+tot.vides;
       if(bouge){
         var msg="Horaire de "+id+" repris depuis l'équipe : "+bouge+" journée(s) sur "
@@ -4182,7 +4194,8 @@ function prefillFromHoraire(){
         if(tot.verifier) msg+=" — "+tot.verifier+" à vérifier (horaire particulier)";
         if(tot.manquants) msg+=" — "+tot.manquants+" jour(s) non reconnu(s), à compléter à la main";
         if(tot.kept) msg+=" — "+tot.kept+" jour(s) corrigé(s) à la main, conservé(s)";
-        flash(msg);
+        if(tot.manquants) flash(msg);
+        else if(window.console&&console.info) console.info(msg);
       }
       prefillEnCours=false;
     }, function(){ prefillEnCours=false; });
