@@ -715,6 +715,14 @@ body.sheet-on{overflow:hidden}
 .pvt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
   border-top:0; border-bottom:1px solid var(--line);
   font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--faint)}
+/* Le nom du poste tourne d'un quart de tour et se lit du bas vers le haut.
+   « writing-mode » seul le ferait lire de haut en bas, le menton à droite ;
+   la rotation de 180° le remet dans le sens où l'œil l'attend. Le <span>
+   n'est pas décoratif : c'est LUI qui tourne, la cellule devant rester une
+   cellule de tableau. */
+.pvt thead th[data-z] span{display:inline-block; writing-mode:vertical-rl;
+  transform:rotate(180deg); white-space:nowrap; padding:6px 0 2px;
+  text-transform:uppercase; letter-spacing:.04em}
 .pvt thead th[data-z]{border-top:3px solid transparent}
 .pvt thead th[data-z="jaune"]{border-top-color:var(--at-jaune)}
 .pvt thead th[data-z="vert"] {border-top-color:var(--at-vert)}
@@ -766,6 +774,9 @@ body.sheet-on{overflow:hidden}
   font-size:10px; font-weight:700}
 .lg-pvform{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--at-jaune)}
+/* La légende passe AU-DESSUS de la grille : sous trente-huit lignes, elle
+   n'était jamais à l'écran en même temps que ce qu'elle explique. */
+.pvleg{border-top:0; border-bottom:1px solid var(--line2); padding-top:0}
 .pvt tbody tr td.pvnul u{opacity:.6}
 .lg-pvnul{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--ink2)}
@@ -1561,8 +1572,8 @@ body.sheet-on{overflow:hidden}
         <h2>Polyvalence</h2>
         <span class="sub" id="pvSub"></span>
       </header>
+      <p class="eqleg pvleg" id="pvLeg"></p>
       <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
-      <p class="eqleg" id="pvLeg"></p>
     </div>
   </section>
 
@@ -5560,8 +5571,14 @@ function polyvalenceDe(db,p){
 
    Le point plein marque SON poste : il ne compte pas, et le dire évite de
    prendre une case vide pour une lacune. */
-var PV_COURT={meun:"Meun.", glut:"Glut.", ferm:"Ferm.", terr:"T. arr.",
-              dist:"Dist.", chau:"Chaud.", step:"STEP"};
+/* Les noms de poste s'écrivent EN ENTIER, verticalement. Le client, le
+   22/09/2026 : « pas très compréhensible — le texte au-dessus des postes ».
+   « Meun. », « Glut. », « T. arr. » demandaient de deviner ; sept colonnes
+   dans 290 px n'en laissaient pas la place autrement.
+
+   Écrits du bas vers le haut, ils tiennent sans rien abréger — c'est la
+   forme qu'ont les tableaux de polyvalence d'atelier, et pour cette raison
+   exacte. */
 function renderPolyvalence(){
   var hote=document.getElementById("pvTable"); if(!hote) return;
   fetchHoraireDB().then(function(db){
@@ -5574,7 +5591,7 @@ function renderPolyvalence(){
     var t=calculerPolyvalence(db);
     var h=['<thead><tr><th class="pvqui">Qui</th>'];
     POSTES.forEach(function(P){
-      h.push('<th data-z="'+esc(P.z||"")+'">'+esc(PV_COURT[P.k]||P.t)+"</th>"); });
+      h.push('<th data-z="'+esc(P.z||"")+'"><span>'+esc(P.t)+"</span></th>"); });
     h.push("</tr></thead><tbody>");
     /* Le client, le 22/09/2026 : « il n'est pas nécessaire de classer les
        polyvalences par équipe ni par poste mais plutôt par ordre
