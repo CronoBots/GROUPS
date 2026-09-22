@@ -3378,6 +3378,17 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
       r.poste=duo[1].toUpperCase(); r.lieu=duo[2].trim();
       return r;
     }
+    /* « AM R-CM », « N-R-CM », « AM - RCM », « PM/R-CM » : le poste ET le
+       remplacement du contremaître dans la même cellule. Le poste est celui
+       de gauche ; le « R-CM » reste lisible dans la cellule brute, que
+       remplacementCM() relit telle quelle pour la prime.
+
+       Sans cela la cellule n'était pas comprise, le poste retombait sur le
+       cycle — VBN le 03/04 passait de nuit en matin — et la journée entrait
+       dans les mentions non comprises. Cinq journées de l'année. */
+    if(duo && /^R\s*-?\s*CM$/i.test(duo[2].trim())){
+      r.poste=duo[1].toUpperCase(); return r;
+    }
     /* « N SD26 » : le poste ET la journée particulière dans la même cellule.
        Le client : « ça dit juste que l'opérateur change d'horaire pour le
        SD26, donc ici il passe en nuit ». Sans cela, PLZ restait en après-midi
@@ -3609,7 +3620,10 @@ function gainFT(txt){
 }
 function remplacementCM(e,poste,hJour){
   var cel=e[0]||"", an=e[1]||"", com=e[2]||"";
-  if((cel+" "+an).toUpperCase().indexOf("R-CM")<0) return false;
+  /* « RCM » sans tiret : une seule journée de l'année l'écrit ainsi — JBI le
+     17/08 — et la prime s'y perdait, faute d'un trait d'union. 346 autres
+     l'écrivent correctement ; celle-là n'avait pas à être punie. */
+  if(!/R\s*-?\s*CM/i.test(cel+" "+an)) return false;
   if(plageInterne(plageCommentaire(com),poste)) return false;
   var g=gainFT(cel+" "+an);
   if(celluleSansPoste(cel) && g!==null && g<hJour-0.01) return false;
