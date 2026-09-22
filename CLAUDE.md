@@ -661,7 +661,21 @@ sur la moitié de ses alertes. Voir `docs/conversion-horaire.md`, « La cellule
 prime, y compris sur la fonction de la personne ».
 
 Le module de l'application ne regarde **jamais en arrière** — un manque passé
-ne se comble plus.
+ne se comble plus. C'est sa règle de naissance, et elle n'a plus besoin d'être
+écrite au-dessus de lui : « À partir d'aujourd'hui » occupait une ligne pour
+décrire ce qu'il est.
+
+**Son en-tête coûtait 189 px avant la première journée**, presque autant que
+quatre jours de contenu : un titre de 28 px, un sous-titre, une légende et une
+rangée de boutons. Le client, le 22/09/2026 : « moyen de faire beaucoup
+mieux ». Titre et compte tiennent maintenant sur une ligne — « journées » deux
+fois dans la même phrase ne disait rien de plus la seconde — et le tout fait
+**83 px**. La carte passe de 586 à 414.
+
+**« 1 poste à déterminer ce jour-là »** occupait sa propre ligne en italique
+sur quatre journées de neuf. C'est une pastille `+1 ?` de la rangée, à côté
+des postes qu'elle nuance : l'un de ces postes indéterminés est peut-être
+celui qui manque, et c'est là qu'on le lit.
 
 ### La polyvalence : combien de journées complètes à chaque poste
 
