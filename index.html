@@ -132,10 +132,30 @@ button{cursor:pointer}
    l'heure et la batterie. Il faut qu'il la COUVRE : collé à zéro, et la
    hauteur de la zone sûre prise en marge intérieure, que son propre fond
    remplit. */
+/* ELLE S'EFFACE QUAND ON DESCEND. Le client, le 22/09/2026, sur la façon
+   d'optimiser encore la barre du haut. Cinquante-deux pixels rendus au
+   contenu dès qu'on descend dans l'Équipe, la Polyvalence ou l'Horaire —
+   une ligne de tableau entière — et elle revient au premier geste vers le
+   haut, donc rien n'est perdu.
+
+   La barre d'ONGLETS, elle, ne bouge pas : elle vit dans son propre cadre
+   ancré par ses quatre côtés, sans rapport avec cet en-tête.
+
+   La transition tombe d'elle-même sous « prefers-reduced-motion », qui
+   coupe toutes les animations de la feuille : le repli devient instantané
+   plutôt que d'être imposé en mouvement. */
 .top{
   position:sticky; top:0; z-index:40;
   background:var(--surface); border-bottom:1px solid var(--line);
   padding-top:env(safe-area-inset-top,0px);
+  transition:transform .2s ease;
+}
+/* SEULEMENT SUR TÉLÉPHONE. Au-delà de 760 px la barre d'ONGLETS remonte
+   dans cet en-tête : la replier ferait disparaître la navigation, pour
+   gagner de la hauteur là où il n'en manque pas. Le repli est un remède à
+   l'étroitesse d'un écran de téléphone, et il reste chez lui. */
+@media (max-width:760px){
+  .top.repliee{transform:translateY(-100%)}
 }
 .top-in{max-width:1180px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap}
 /* C'est l'application d'UNE personne. Choisir sa ligne dans l'horaire
@@ -154,7 +174,12 @@ button{cursor:pointer}
 .brand{display:flex; align-items:center; gap:10px; margin-right:auto;
   min-width:0; text-align:left; background:none; border:0; padding:2px 0;
   border-radius:8px; cursor:pointer; color:inherit}
-.blogo{flex:0 0 auto; width:38px; height:38px; border-radius:10px; display:block}
+/* 32 px, et non 38 : c'est le LOGO qui fixait la hauteur de la barre, pas
+   le texte — 38 px contre 31 pour le bloc de droite. Mesuré à l'essai : 34
+   donnent 54 px de barre, 32 en donnent 52, et en dessous il n'y a plus rien
+   à gagner, le texte reprenant la main à 51. Six pixels rendus au contenu
+   sur tous les onglets, en permanence. */
+.blogo{flex:0 0 auto; width:32px; height:32px; border-radius:9px; display:block}
 /* DEUX BLOCS, ET NON DEUX LIGNES. Le client, le 22/09/2026 : « la date au
    dessus à droite et le poste en dessous avec la pause ; le trigramme doit
    être près de BIOWANZE ».
@@ -1336,7 +1361,7 @@ body.sheet-on{overflow:hidden}
 <header class="top">
   <div class="top-in">
     <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
-      <img class="blogo" src="icon-192.png" alt="" width="38" height="38" decoding="async">
+      <img class="blogo" src="icon-192.png" alt="" width="32" height="32" decoding="async">
       <span class="bmark"><h1>BIOWANZE</h1><b class="btri" id="brandtri"></b></span>
       <span class="ident" id="brandsub"></span>
     </button>
@@ -3188,6 +3213,38 @@ placerOnglets();
 if(mqNav.addEventListener) mqNav.addEventListener("change",placerOnglets);
 else if(mqNav.addListener) mqNav.addListener(placerOnglets);
 
+/* ── La barre du haut s'efface quand on descend ───────────────────────────
+   Elle se replie dès qu'on descend PASSÉ sa propre hauteur, et se redéplie
+   au premier geste vers le haut. Trois précautions :
+
+   - le seuil de six pixels : sans lui, le tremblement d'un doigt posé sur
+     l'écran la fait battre ;
+   - tant qu'on est dans ses propres pixels (y <= sa hauteur), elle reste —
+     se replier là n'aurait rien découvert et l'aurait fait sauter ;
+   - un défilement NÉGATIF la redéplie toujours, même sous le seuil : c'est
+     le geste par lequel on la cherche.
+
+   Le troisième argument de addEventListener est un objet : les navigateurs
+   qui ne le comprennent pas le lisent comme « capture », ce qui, pour un
+   « scroll » écouté sur window, ne change rien. */
+function deplierBarre(){
+  var t=document.querySelector("header.top");
+  if(t) t.classList.remove("repliee");
+}
+(function(){
+  var t=document.querySelector("header.top"); if(!t) return;
+  var dernier=0;
+  function jauger(){
+    var y=window.pageYOffset||document.documentElement.scrollTop||0;
+    if(y<0) y=0;
+    var d=y-dernier, h=t.offsetHeight||52;
+    if(y<=h){ t.classList.remove("repliee"); dernier=y; return; }
+    if(d<0){ t.classList.remove("repliee"); dernier=y; return; }
+    if(d<6) return;                       /* un doigt posé ne la replie pas */
+    t.classList.add("repliee"); dernier=y;
+  }
+  window.addEventListener("scroll",jauger,{passive:true});
+})();
 var VIEWS=["resume","horaire","equipe","polyvalence","compteurs","fiche","controle","reglages"];
 function setView(v,keepScroll){
   if(VIEWS.indexOf(v)<0) v="resume";
@@ -3202,6 +3259,7 @@ function setView(v,keepScroll){
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
   if(!keepScroll) window.scrollTo(0,0);
+  deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="compteurs") renderCompteurs();
   if(v==="equipe") renderEquipe();
