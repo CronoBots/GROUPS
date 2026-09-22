@@ -905,10 +905,36 @@ body.sheet-on{overflow:hidden}
   .eqt td.eqc{width:30px; padding-right:6px}
   .eqt td.eqw{padding-left:6px; padding-right:12px}
   .eqreste .eqn{white-space:normal; margin-right:10px}
-  .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
+  .eqp2 tbody th.eqposte b{font-size:9px; letter-spacing:0}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
   .eqp2 td .eqn b{font-size:10.5px; letter-spacing:.02em}
+  /* Trente-quatre pour cent de la largeur pour un intitulé, et les
+     trigrammes s'entassaient dans 78 px : trois d'entre eux passaient à la
+     ligne. L'intitulé perd un demi-point de corps et son interlettrage —
+     « TERRAIN ARRIÈRE », le plus long, tient toujours sans se couper — et
+     les trois pauses gagnent sept pixels chacune. */
+  .eqp2 th.eqposte{width:100px; padding-left:9px; padding-right:4px}
+  /* Le point médian séparait les trigrammes par un pseudo-élément placé
+     AVANT le suivant : quand la ligne se coupait là, elle COMMENÇAIT par le
+     point. Il devient une marge, et chaque trigramme un bloc en ligne : la
+     coupure tombe entre deux noms, et « text-align:center » recentre chaque
+     ligne. Pas de display:flex sur la cellule — un <td> en flex sort de la
+     mise en page du tableau, exactement comme le <th> l'an dernier. */
+  .eqp2 td .eqn{display:inline-block}
+  .eqp2 td .eqn+.eqn:before{content:none}
+  .eqp2 td .eqn+.eqn{margin-left:7px}
+}
+/* Les téléphones étroits — 360 px et moins de large. La colonne des postes
+   ne peut pas maigrir davantage sans couper « TERRAIN ARRIÈRE » ; c'est donc
+   le trigramme qui perd un demi-point et son voisinage deux pixels. Trois
+   noms tiennent alors encore sur une ligne, et une ligne de tableau reste à
+   34 px au lieu de 55. En dessous de 340 px, ils se replient : l'écran n'est
+   plus assez large, et mieux vaut deux lignes propres qu'un texte illisible. */
+@media (max-width:375px){
+  .eqp2 td .eqn b{font-size:10px; letter-spacing:.01em}
+  .eqp2 td .eqn+.eqn{margin-left:5px}
+  .eqp2 td{padding-left:2px; padding-right:2px}
 }
 .eqg2{border-collapse:separate; border-spacing:0; min-width:100%}
 /* Chaque poste a son trait, pas seulement chaque zone : la séparation de
@@ -5039,7 +5065,8 @@ function renderEquipe(){
           /* Deux lignes, pas trois : l'horaire et l'effectif tiennent sur la
              même, séparés d'un point médian. */
           tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b><em>"
-            +(g.s?esc(g.s)+" \u00b7 ":"")+vp[g.k].n+" pers.</em></th>");
+            +(g.s?'<span class="eqheure">'+esc(g.s)+" \u00b7 </span>":"")
+            +vp[g.k].n+" pers.</em></th>");
         });
         tp.push("</tr></thead><tbody>");
         var zPrec=null;
