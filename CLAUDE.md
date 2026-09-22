@@ -269,23 +269,29 @@ elle est.
 Elle coûte 36 px de barre collante sur téléphone (55 → 91). C'est le prix de
 la rangée, et il est assumé.
 
-**Trois pièges de mise en page, tous mesurés et non devinés :**
+**Le sélecteur de mois n'y est plus.** Le client, le 22/09/2026 : « la
+sélection du mois de l'année ne doit pas être dans la barre du haut mais
+seulement là où elle est nécessaire dans les onglets ». Il était masqué
+onglet par onglet — quatre règles CSS pour le cacher là où il n'a rien à
+dire — et occupait quand même la place la plus chère de l'écran sur les
+autres.
 
-- `min-width:150px` sur le libellé du mois. « Septembre 2026 » coûte 111 px,
-  la barre en offre 358, et il en manquait cinq : le bloc du mois passait à
-  la ligne et la barre collante montait de 54 à 96 px. Les deux formes du
-  mois sont dans le document, le CSS choisit — une bascule en JavaScript
-  demanderait d'écouter le redimensionnement et se tromperait au premier
-  pivotement d'écran.
-- **`flex:1 1 0`, et non `auto`.** Un élément flexible se replie selon sa
-  taille de BASE, pas selon sa taille minimale : avec `auto`, la marque
-  réclamait ses 190 px avant d'accepter de rétrécir. Base nulle, elle ne
-  réclame rien et son poste du jour s'abrège à l'ellipse.
-- Sous 340 px, c'est le mot « BIOWANZE » qui cède, pas l'identité : le logo
-  le porte déjà.
+Il se **range** désormais dans l'onglet qui l'emploie : Résumé, Horaire,
+Fiche et Contrôle ont un `.mnavhote`, les autres n'en ont pas et il
+disparaît. **Un seul exemplaire déménage**, comme la barre d'onglets : quatre
+copies auraient demandé quatre jeux d'écouteurs, et rien n'aurait garanti
+qu'elles affichent le même mois.
 
-**54 px de barre de 320 à 1280 px**, mois sur une ligne partout. Vérifié hors
-ligne : logo, trigramme et poste du jour se rendent tous les trois.
+Deux mécanismes sont morts avec ce déménagement et ont été retirés plutôt
+que laissés en place : le mois abrégé (`sept. 2026`, un compromis pour cinq
+pixels manquants dans l'en-tête) et le masquage de « BIOWANZE » sous 340 px.
+**Un mécanisme qui ne sert plus égare celui qui le relit.**
+
+**`flex:1 1 0`, et non `auto`** — cela reste vrai pour la marque. Un élément
+flexible se replie selon sa taille de BASE, pas selon sa taille minimale :
+avec `auto`, elle réclamait ses 190 px avant d'accepter de rétrécir.
+
+Vérifié hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
 ## La barre d'onglets n'est pas ancrée par une unité de hauteur
 
