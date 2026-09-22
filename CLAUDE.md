@@ -257,17 +257,33 @@ seule — « Contremaître » — ne disait rien du jour ; `posteDuJourDe()` rej
 « Contremaître · nuit », « STEP · matin », « Jour », « Congé » ou « Repos ».
 Il ne recompte rien : c'est la vue de l'équipe qui répond.
 
-**Elle tient sur la seconde ligne du bloc de marque** : trigramme, **date du
-jour** et poste. La date étant ce à quoi « nuit » se rapporte — sans elle, la
-pause annoncée ne dit pas de quel jour elle est.
+**Les deux lignes sont pleines**, et c'est tout l'objet de la disposition
+actuelle. Le client, le 22/09/2026 : « moyen de faire beaucoup mieux » — la
+première ligne ne portait que « BIOWANZE », 77 px sur 358, et les quatre
+cinquièmes restants étaient du vide pendant que la seconde en portait trois
+morceaux serrés.
+
+Le nom tient donc un bout de la première ligne, le **trigramme** tient
+l'autre : c'est le partage d'une barre d'application, la marque à gauche et
+la personne à droite. La **date du jour** et le **poste** descendent
+ensemble à la seconde, d'un seul tenant, séparés d'un point médian — ils
+répondent à la même question. La date d'abord, étant ce à quoi « nuit » se
+rapporte : sans elle, la pause annoncée ne dit pas de quel jour elle est.
+
+Le point médian appartient au poste (`.ident em::before`) et non à la date :
+le temps que l'horaire arrive, la ligne n'affiche pas un séparateur
+orphelin.
+
+Mesuré à 320, 360, 390, 430, 768 et 1280 px : **58 px de barre**, **première
+ligne remplie à 100 %** de bord à bord sur mobile, et **rien de tronqué,
+320 px compris** — le nom, la date et le trigramme ne se devinent pas à
+moitié ; seul le poste s'abrégerait, et il n'en a pas besoin. Au-delà de
+768 px le bloc se réduit à sa largeur de contenu, le chèque du net restant à
+droite.
 
 Elle a eu sa propre bande pleine largeur pendant une heure, faute de place à
 côté du sélecteur de mois, et la barre collante était passée de 55 à 91 px.
-Le sélecteur parti, les 314 px restant à droite du logo suffisent aux trois
-morceaux : trigramme (44), date (105) et poste (92) avec leurs écarts font
-257. **58 px de barre de 320 à 1280 px**, et rien n'est tronqué à partir de
-360 — à 320 c'est le poste qui s'abrège, jamais la date ni le trigramme, qui
-ne se devinent pas à moitié.
+Le sélecteur parti, les 314 px restant à droite du logo ont suffi.
 
 **Le sélecteur de mois n'y est plus.** Le client, le 22/09/2026 : « la
 sélection du mois de l'année ne doit pas être dans la barre du haut mais
