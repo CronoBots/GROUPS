@@ -643,8 +643,54 @@ fermentation, donc pas de terrain arrière, et « renfort arrière » ne l'envoi
 pas au gluten. Le classeur ne dit pas où il va ; **à faire trancher par le
 client** plutôt qu'à deviner.
 
-Contrôlé : **55 trigrammes pour 56 personnes d'équipe**, chacun écrit une
-fois et une seule, plus QBY nommé sous le tableau.
+**QBY est en distillation**, et c'est le client qui le dit — le 22/09/2026,
+en réponse au nom qui restait sous le tableau. Le classeur l'écrit « Renfort
+arrière » et ne lui donne que gluten et distillation : pas de fermentation,
+donc pas de terrain arrière, et rien ne le plaçait. `POSTE_TRANCHE` porte
+cette décision, en DERNIER recours de `posteParDefaut()` — après la cellule
+et après tout ce que le classeur dit, de sorte qu'elle ne peut rien écraser.
+Une table nommée, et non une règle inventée autour de son cas.
+
+Elle déborde volontairement de cette vue, et il faut le savoir : les manques
+d'effectif passent de **15 journées / 17 places à 12 / 13** (fermentation de
+9 à 5), et « son poste » du Recyclage devient la distillation, si bien que
+ses journées là-bas ne comptent plus en recyclage. C'est ce qu'on attend
+d'un poste enfin connu.
+
+**La fermentation de l'équipe 4 reste vide, et c'est juste.** Le client, le
+22/09/2026 : « PAM possède la polyvalence fermentation, donc logiquement il
+peut tenir ce poste s'il y a un manquement ». C'est une COUVERTURE, pas une
+affectation : le tableau dit qui tient un poste, le Recyclage dit qui peut
+le tenir — PAM y a bien la fermentation — et le module des manques s'en sert
+le jour où le trou se présente. L'écrire deux fois dans la composition
+casserait la règle d'une place unique.
+
+**Les opérateurs en formation sont DANS le tableau, en dernier et en jaune.**
+Le client, le 22/09/2026 : « les opérateurs en formation doivent être sous
+les opérateurs qui tiennent le poste et il faut qu'ils soient en jaune ».
+Même jaune (`--at-jaune`) et même place que dans le tableau du jour du
+Résumé : on ne réapprend pas à lire d'un onglet à l'autre.
+
+**Leur équipe n'est pas dans leur catégorie** — ils n'ont pas de « Shift n » —
+mais collée à leur poste : `chaudières éq. 3`. Cinq des huit la portent
+ainsi ; pour CDT, NPI et SKS le classeur ne la dit nulle part, et ceux-là
+restent seuls dans leur carte, qui s'appelle désormais ce qu'elle contient.
+Les cinq autres ont quitté la carte : les montrer deux fois aurait fait
+croire à deux personnes.
+
+**Pas de `\b` devant « éq »**, et le motif n'a rien trouvé pendant une
+version : en JavaScript sans `/u`, « é » n'est pas un caractère de mot, et
+l'espace qui le précède non plus — la limite n'existe donc jamais.
+
+**Le contenu est centré dans les deux sens.** Le client, le 22/09/2026 :
+« pour les équipes, il faut centrer le contenu verticalement et
+horizontalement ». Les lignes portent de un à quatre noms ; les cases courtes
+restaient collées en haut d'une ligne haute. Mesuré : **2 px d'écart au pire**
+entre le blanc du haut et celui du bas, à 390 comme à 1280 px.
+
+Contrôlé : **61 trigrammes**, chacun écrit une fois et une seule — les 56
+personnes d'équipe et les 5 opérateurs en formation que le classeur rattache
+à une équipe. Personne sous le tableau.
 
 ### Les cadres de l'onglet Équipe
 
