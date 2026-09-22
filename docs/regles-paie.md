@@ -925,3 +925,46 @@ question.
 Ne pas confondre avec les codes d'absence `FORM` de la table `ABS`, qui
 eux ne sont pas prestés : `F` en annotation est du travail, `FORM` en
 absence n'en est pas.
+
+## Une hausse ne réécrit pas le passé
+
+La rémunération fixe et la prime de remise de pause vivent dans les
+paramètres, donc dans UNE valeur — et la changer recalculait toute l'année.
+Le client, le 22/09/2026 : « attention que ce sera à partir du mois prochain,
+pas avant », puis, précisant, « à partir de la fiche reçue début octobre pour
+la paye de septembre ».
+
+C'est donc **septembre** le premier mois concerné : la fiche reçue début
+octobre porte la période de septembre. Il aurait fallu recopier l'ancienne
+valeur sur huit mois à la main.
+
+`figerPasse()` s'en charge. Quand `remFixe` ou `primeRemise` change dans les
+réglages, **l'ancienne valeur est écrite sur chaque mois déjà ÉCOULÉ** qui
+n'en portait pas encore — dans `remFixeMois` et `primeRemiseMois`, les champs
+du mois qui existaient déjà pour cela.
+
+Trois précautions :
+
+- **Un mois déjà écoulé** veut dire strictement avant le mois en cours. Le
+  mois en cours prend la nouvelle valeur, ce qui est juste : une paie se
+  règle en fin de mois.
+- **Un mois qui porte déjà une valeur propre n'est pas touché** : c'est
+  l'utilisateur qui l'y a mise, elle prime.
+- **Un mois jamais ouvert n'est pas créé.** Lui écrire une valeur
+  fabriquerait un enregistrement pour un mois que personne n'a touché.
+
+La règle d'usage tient en une phrase : **changer le réglage le mois où il
+prend effet**, et ne rien faire d'autre.
+
+### La prime de remise de pause
+
+Les trente minutes faites avant sa propre pause, pour relever celui qu'on
+remplace. Le client, le 22/09/2026 : « ce n'est plus au cas par cas comme
+quand j'étais adjoint, maintenant cette prime sera payée que je fasse 10
+relevés ou 20 ». Elle est donc **fixe et mensuelle**, et vit dans les
+paramètres — champ `primeRemise`, marqué `personal:true`.
+
+C'est une rémunération ordinaire : elle entre dans le brut, ONSS et précompte
+pleins. Elle n'est **pas** proratisée par la fraction, contrairement à la
+rémunération fixe : c'est le montant tel qu'il figure sur la fiche qui se
+saisit. À confirmer sur la première fiche qui la porte.
