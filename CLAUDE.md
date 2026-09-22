@@ -605,6 +605,52 @@ garde, sous chaque nom, **ce que le classeur écrit mot pour mot à côté** —
 on ne sait pas toujours ce que cela désigne, et le supprimer serait perdre
 ce qu'on n'a pas encore compris.
 
+**UNE SEULE RÈGLE DE PLACEMENT, et elle vaut pour tout le monde.** Le
+client, le 22/09/2026 : « les polyvalents ne doivent pas être mélangés et
+appartenir aux bonnes lignes (Gluten, Meunerie, Terrain arrière,
+Fermentation, Distillation…) ; les renforts pareil, se situer avec les
+postes les liant ».
+
+Les trois polyvalents d'une équipe étaient entassés dans une case
+« Polyvalent », les renforts dans « Renfort avant » ou « Renfort arrière » —
+des cases qui ne disent pas QUEL poste ces gens tiennent, alors que c'est la
+question qu'on pose à ce tableau.
+
+> Qui porte un POSTE au classeur est **titulaire** de sa ligne ; qui porte
+> autre chose — polyvalent, renfort — se place sur **chaque ligne qu'il est
+> validé à tenir**. Sa polyvalence dit où il peut aller, et c'est la seule
+> source qui le dise.
+
+**« Les postes les liant » est le mot juste du client pour le TERRAIN
+ARRIÈRE** : le poste qui relie la fermentation et la distillation. Il ne
+figure dans aucune liste de polyvalence du classeur — il se DÉDUIT des deux
+autres, exactement comme `tientTerrainArriere()` le fait partout ailleurs.
+Aucun titulaire ne le porte au classeur : sa ligne ne se remplit que de
+renforts, et c'est juste — c'est le renfort arrière qui le tient.
+
+Contrôlé : **personne ne reste hors ligne**. Si cela changeait, le rendu le
+dit sous le tableau plutôt que de laisser quelqu'un disparaître.
+
+### Les cadres de l'onglet Équipe
+
+« Il faut mieux optimiser les cadres de l'onglet Équipe. » Deux gâchis, tous
+deux mesurés :
+
+- **la colonne des postes prenait 104 px sur 356 à 390 px** — 29 % de la
+  largeur pour un intitulé. Elle porte les DEUX libellés, et la feuille
+  choisit : le court (`PV_COURT`, celui du Recyclage) sur téléphone,
+  l'entier au-delà de 760 px où la place ne manque pas. Les faire dépendre
+  du script aurait demandé un écouteur de redimensionnement ; écrire les
+  deux coûte quelques octets. **76 px sur téléphone, 128 sur bureau** — 128
+  et non 104, « TERRAIN ARRIÈRE » se faisant couper d'un cheveu ;
+- **les binômes coûtaient 222 px pour six lignes** de deux trigrammes, et
+  leur tableau s'étirait à 1146 px sur un écran de bureau pour un contenu
+  qui en demande quarante. Six **tuiles** remplacent le tableau : **115 px
+  sur téléphone, 61 sur bureau**.
+
+Le panneau passe de **1 296 à 1 189 px** à 390 px, et de 1 278 à **1 082** à
+1 280 px.
+
 **`white-space:nowrap` sur les onglets sous 375 px**, et c'est le mot qui
 compte : « Mon horaire » et « Mon salaire » sont les deux intitulés en DEUX
 mots, et à 320 px ils passaient à la ligne — la barre montait de 59 à 74 px,
