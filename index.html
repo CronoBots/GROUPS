@@ -695,7 +695,28 @@ body.sheet-on{overflow:hidden}
    chose, et les confondre ferait croire à une information qu'on n'a pas. */
 .eqp em{font-style:normal; font-size:11px; color:var(--ink2); overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap}
-.eqp em.eqpoly{font-style:italic; color:var(--faint)}
+/* La polyvalence : un jeton par poste SECONDAIRE, son compte et son quota.
+   Le jeton porte la couleur de l'atelier, comme les pastilles de « Postes
+   en manque » — même langage, même endroit dans l'œil. La coche dit que le
+   quota est atteint ; elle ne se contente PAS de la couleur, qui ne se lit
+   pas seule.
+
+   « .eqp em » coupe à l'ellipse sur une seule ligne : il faut le défaire
+   ici, sinon les jetons se réduisent à « Disti… » et le compte disparaît. */
+.eqp em.eqpoly{display:flex; flex-wrap:wrap; gap:3px; margin-top:3px;
+  white-space:normal; overflow:visible; font-style:normal}
+.eqp em.eqpoly i{display:inline-flex; align-items:center; gap:4px;
+  font-style:normal; font-size:9.5px; font-weight:600; line-height:1.6;
+  border-radius:99px; padding:0 7px;
+  background:var(--surface3); color:var(--muted)}
+.eqp em.eqpoly i u{text-decoration:none; font-family:"IBM Plex Mono",monospace;
+  font-size:9px; font-weight:700; opacity:.85}
+.eqp em.eqpoly i[data-z="jaune"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.eqp em.eqpoly i[data-z="vert"] {background:var(--at-vert-soft);  color:var(--at-vert)}
+.eqp em.eqpoly i[data-z="rouge"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
+.eqp em.eqpoly i[data-z="bleu"] {background:var(--at-bleu-soft);  color:var(--at-bleu)}
+.eqp em.eqpoly i[data-ok="1"] u:after{content:" \2713"}
+.eqp em.eqpoly i:not([data-ok]){opacity:.75}
 /* Se retrouver dans une liste de soixante-dix-sept identifiants demande un
    repère : le sien. */
 .eqp.moi{background:var(--in-soft); box-shadow:inset 0 0 0 1px var(--in2)}
@@ -1422,8 +1443,8 @@ body.sheet-on{overflow:hidden}
     <div class="eqcorps" id="eqCorps"></div>
 
     <div class="card">
-      <details class="fold">
-        <summary>Annuaire <span class="sub">la fonction et les postes de chacun</span></summary>
+      <details class="fold" id="eqAnnFold">
+        <summary>Annuaire <span class="sub">la fonction, les postes et la polyvalence de chacun</span></summary>
         <div class="eqann" id="eqAnnuaire"></div>
       </details>
     </div>
@@ -4796,6 +4817,21 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
   }
   return dernier;
 }
+/* equipeDuJour() recalculait ces trois fonctions POUR CHAQUE PERSONNE ET
+   CHAQUE JOUR, et renvoisDuMois() balaie l'année entière à chaque appel :
+   une saison coûtait 265 jours x 77 personnes x 365 journées de balayage.
+   Elles ne dépendent que de la personne, du mois et de l'heure de journée.
+
+   La clé porte hJour : un changement de réglage doit refaire le calcul.
+   finAbsence() tient déjà son propre cache local ; celui-ci est partagé. */
+var _moisCache={};
+function moisDe(p,annee,mois,hJour){
+  var k=p.id+"/"+annee+"/"+mois+"/"+hJour, c=_moisCache[k];
+  if(!c) c=_moisCache[k]={fit:cycleDuMois(p,annee,mois),
+                          ep:epargnesDuMois(p,mois),
+                          rv:renvoisDuMois(p,mois,hJour)};
+  return c;
+}
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
    parce que le tableau des manques à venir en a besoin lui aussi : deux
    vues d'une même journée qui se contrediraient seraient pires qu'une. */
@@ -4805,9 +4841,9 @@ function equipeDuJour(db,annee,mois,jour){
   db.people.forEach(function(p){
     var raw=p.d[mmdd];
     if(raw===undefined){ par.off.push({p:p}); return; }
-    var fit=cycleDuMois(p,annee,mois), ep=epargnesDuMois(p,mois),
-        rv=renvoisDuMois(p,mois,st.params.hJour);
-    var r=lireJournee(db,raw,annee,mois,jour,fit,ep[jour],st.params.hJour,rv[jour]);
+    var mc=moisDe(p,annee,mois,st.params.hJour);
+    var r=lireJournee(db,raw,annee,mois,jour,mc.fit,mc.ep[jour],
+                      st.params.hJour,mc.rv[jour]);
     var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
     var pv=r.sp||r.s;   /* la prime conservée ne déplace personne de pause */
     if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
@@ -5197,8 +5233,96 @@ function renderEquipe(){
   });
   renderManques();
 }
+/* ── La polyvalence : combien de journées COMPLÈTES à chaque autre poste ──
+   Le client, le 22/09/2026 : « pour les opérateurs, cela peut être bien
+   aussi d'indiquer combien de jours (complet 8h) ils ont fait sur chaque
+   poste de production ; les autres ont un quota de polyvalence de 10 jours
+   par poste, les adjoints 5 jours par poste ». Et : « pas utile pour les
+   contremaîtres qui ne remplacent pas en poste ».
+
+   Quatre choix, tranchés avec lui le 22/09/2026 :
+     — on s'arrête AUJOURD'HUI. Le classeur court jusqu'au 31/12 ; compter
+       l'année entière créditerait des journées qui n'ont pas eu lieu, et
+       ATR atteignait ainsi le quota aux chaudières sans y avoir mis les
+       pieds.
+     — le poste HABITUEL ne compte pas : un quota de dix journées ne veut
+       rien dire sur le poste qu'on tient tous les jours, et NPE y affichait
+       211/10.
+     — seules les pauses AM, PM et N : le « Jour » ne tient pas un poste de
+       production, et postesDePause() n'y attend d'ailleurs personne.
+     — huit heures pleines ou rien : une demi-journée n'apprend pas un poste
+       à moitié.
+
+   Ne recompte rien à côté : equipeDuJour() et postesDePause() sont celles
+   de la vue du jour. */
+var POLY_QUOTA={adjoint:5, operateur:10};
+var _poly=null, _polyCle="";
+function calculerPolyvalence(db){
+  var au=new Date(), annee=Number(db.year);
+  var fin=(au.getFullYear()===annee)
+    ? pad2(au.getMonth()+1)+pad2(au.getDate()) : "1231";
+  var cle=annee+"/"+fin+"/"+st.params.hJour;
+  if(_poly && _polyCle===cle) return _poly;
+  var parId={}, m, j, mmdd;
+  for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
+    mmdd=pad2(m)+pad2(j); if(mmdd>fin) continue;
+    var par=equipeDuJour(db,annee,m,j);
+    EQ_GROUPES.forEach(function(g){
+      if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N") return;
+      var l=par[g.k]; if(!l||!l.length) return;
+      postesDePause(db,l,g.k,mmdd).postes.forEach(function(o){
+        if(o.P.cm||o.P.k==="adj") return;
+        o.gens.forEach(function(y){
+          var r=y.r; if(!r||!r.s) return;
+          var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
+          if(Math.abs(h-st.params.hJour)>0.01) return;
+          if(!parId[y.p.id]) parId[y.p.id]={};
+          parId[y.p.id][o.P.k]=(parId[y.p.id][o.P.k]||0)+1;
+        });
+      });
+    });
+  }
+  _polyCle=cle; _poly={parId:parId, fin:fin};
+  return _poly;
+}
+/* Les postes SECONDAIRES d'une personne, du plus tenu au moins tenu. */
+function polyvalenceDe(db,p){
+  if(estContremaitre(p)) return null;
+  /* SON poste, celui qui ne compte pas. Trois pièges s'y trouvent :
+
+     posteHabituel() existe déjà et répond à cette question — mais MOINS
+     BIEN que posteTenu() : il rend « terrain arrière » dès que le rôle de
+     feuille le dit, sans la garde tientTerrainArriere() que posteTenu()
+     porte. BBZ y gagnait « Terrain arrière » alors qu'il n'y a pas fait une
+     journée et qu'il en a fait 133 en distillation. On prend donc
+     posteTenu() avec une cellule vide, qui est la chaîne complète.
+
+     En écrire une troisième, nommée posteHabituel() elle aussi, aurait
+     écrasé l'ancienne en silence : le vérificateur l'a refusé, et c'est
+     exactement la faute qu'il guette.
+
+     posteParDefaut() en dernier, comme postesDePause() les enchaîne : sans
+     lui PDE n'a « pas de poste habituel », et ses 134 journées à la station
+     d'épuration passent pour de la polyvalence alors que c'est son poste. */
+  var t=calculerPolyvalence(db), par=t.parId[p.id]||{}, sien;
+  try{ sien=posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
+  catch(e){ sien=posteParDefaut(p); }
+  var q=estCadre(p)?POLY_QUOTA.adjoint:POLY_QUOTA.operateur, out=[];
+  POSTES_TRAVAIL.forEach(function(P){
+    if(P.cm||P.k==="adj"||P.k===sien) return;
+    if(!par[P.k]) return;
+    out.push({t:P.t, z:P.z, n:par[P.k], q:q, ok:par[P.k]>=q});
+  });
+  out.sort(function(a,b){ return b.n-a.n; });
+  return out;
+}
 function renderAnnuaire(db,moi){
   var hote=document.getElementById("eqAnnuaire"); if(!hote) return;
+  var fold=document.getElementById("eqAnnFold"), ouvert=!!(fold&&fold.open);
+  if(fold&&!fold._brancheAnn){
+    fold._brancheAnn=true;
+    fold.addEventListener("toggle",function(){ if(fold.open) renderAnnuaire(db,moi); });
+  }
   var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
   cats.sort();
   var h=[];
@@ -5216,11 +5340,18 @@ function renderAnnuaire(db,moi){
       /* Ce que le classeur écrit au-dessus du nom, mot pour mot. On ne sait
          pas toujours ce que ça désigne ; le cacher serait pire. */
       var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
+      /* La polyvalence ne se calcule QUE si le repli est ouvert : elle
+         relit toute l'année, et l'annuaire se rend à chaque changement de
+         jour. Le repli rouvert relance le rendu, qui la trouve alors. */
+      var pv=ouvert?polyvalenceDe(db,p):null, pvh="";
+      if(pv&&pv.length) pvh='<em class="eqpoly">'+pv.map(function(o){
+        return '<i data-z="'+esc(o.z||"")+'"'+(o.ok?' data-ok="1"':"")+'>'
+          +esc(o.t)+" <u>"+o.n+"/"+o.q+"</u></i>"; }).join("")+"</em>";
       h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(idLisible(p.id))+"</b>"+
         '<span>'+esc(statutPersonne(p))+" · "
           +esc(estCadre(p)?fonctionPersonne(p)+(at?" · "+at:""):(at||"—"))+"</span>"+
         (ent?'<em class="eqat" title="Tel que le classeur l\'écrit au-dessus du nom">'
-             +esc(ent)+"</em>":"")+"</div>");
+             +esc(ent)+"</em>":"")+pvh+"</div>");
     });
     h.push("</div></section>");
   });
