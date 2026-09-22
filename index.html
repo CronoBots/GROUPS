@@ -665,9 +665,12 @@ body.sheet-on{overflow:hidden}
 
 /* ---------- équipe ---------- */
 .eqnav{align-items:center; gap:4px}
-.eqnav button:not(.btn){width:34px; height:34px; display:grid; place-items:center; border-radius:9px;
+/* ENFANTS DIRECTS seulement : cette règle taille les flèches du jour, et
+   elle attrapait aussi les boutons de la bascule, réduits à 34 px de large —
+   leurs libellés se chevauchaient et sortaient de la carte. */
+.eqnav>button:not(.btn){width:34px; height:34px; display:grid; place-items:center; border-radius:9px;
   border:1px solid var(--line); background:var(--surface); color:var(--muted); font-size:18px; line-height:1}
-.eqnav button:not(.btn):hover{color:var(--ink); border-color:var(--in2)}
+.eqnav>button:not(.btn):hover{color:var(--ink); border-color:var(--in2)}
 .eqjour{flex:1; min-width:0; text-align:center; font-weight:600; font-size:14px}
 .eqcorps{padding:4px 0 8px}
 .eqg{padding:13px 16px 4px; border-top:1px solid var(--line2)}
@@ -853,6 +856,29 @@ body.sheet-on{overflow:hidden}
 .lg-form{width:9px; height:9px; border-radius:3px; background:var(--at-jaune)}
 .lg-mq{width:9px; height:9px; border-radius:3px; background:var(--out)}
 .lg-tiret{font-family:"IBM Plex Mono",monospace; color:var(--faint)}
+/* ── Densité. Sur téléphone, « Postes en manque » faisait 644 px — plus que
+   l'horaire du jour — et le texte d'explication 128. Les deux se replient
+   désormais, et ce qui reste ouvert est resserré. */
+#mqCard>details>summary{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  padding:14px 16px 10px; cursor:pointer; list-style:none}
+#mqCard>details>summary::-webkit-details-marker{display:none}
+#mqCard>details>summary h2{margin:0}
+#mqCard>details>summary:after{content:""; margin-left:auto; width:7px; height:7px;
+  border-right:1.6px solid var(--faint); border-bottom:1.6px solid var(--faint);
+  transform:rotate(45deg) translate(-2px,-2px); transition:transform .15s}
+#mqCard>details[open]>summary:after{transform:rotate(225deg) translate(-2px,-2px)}
+#mqCard>details:not([open])>summary{padding-bottom:14px}
+.eqaide{padding:0 16px 12px}
+.eqaide>summary{font-size:12px; color:var(--faint); cursor:pointer; padding:4px 0}
+.eqaide .lede{padding:6px 0 0}
+/* Sans flex:0 0 auto, la bascule se laissait comprimer sous sa largeur de
+   contenu par le titre du jour, qui est en flex:1 — les deux libellés se
+   chevauchaient et sortaient de la carte. */
+.eqnav .seg{margin-left:auto; flex:0 0 auto}
+.eqnav .seg button{white-space:nowrap; flex:0 0 auto}
+.mqj{padding:5px 8px; margin:0 -8px; gap:8px}
+.mqj>b{min-width:74px; font-size:11.5px}
+.mqinc{margin-left:auto}
 .eqzones{border-top:0; padding-top:0}
 /* La phrase d'explication courait sur 450 px au milieu d'une carte qui en
    fait 1150 : elle prend toute la largeur disponible. */
@@ -866,7 +892,19 @@ body.sheet-on{overflow:hidden}
 @media (max-width:560px){
   /* « CONTREMAÎTRE » est le plus long, et il ne se coupe pas : la colonne et
      le corps sont taillés sur lui. */
-  .eqp2 th.eqposte{width:118px; padding-left:11px; padding-right:8px}
+  .eqp2 th.eqposte{width:122px; padding-left:11px; padding-right:8px}
+  .eqp2 thead th .eqheure{display:none}
+  .eqleg{gap:4px 12px; padding:8px 14px 10px; font-size:10.5px}
+  /* La bascule passe sous la barre du jour : côte à côte, elle en sortait. */
+  .eqnav{flex-wrap:wrap}
+  .eqnav .seg{margin-left:0; width:100%; margin-top:8px}
+  .eqnav .seg button{flex:1 1 0}
+  /* Et les absents se coupent, plutôt que de pousser la table hors de sa
+     carte : « YBT MAL · jusqu'au 11 oct. » fait déjà la moitié d'un écran. */
+  .eqt th[scope="row"]{width:78px; padding-left:12px; font-size:9.5px}
+  .eqt td.eqc{width:30px; padding-right:6px}
+  .eqt td.eqw{padding-left:6px; padding-right:12px}
+  .eqreste .eqn{white-space:normal; margin-right:10px}
   .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
@@ -946,7 +984,12 @@ body.sheet-on{overflow:hidden}
 .eqn i, .eqn em{font-style:normal; font-size:10px; color:var(--faint)}
 .eqn em{font-family:"IBM Plex Mono",monospace}
 .eqvide{color:var(--faint)}
-.eqreste th[scope="row"]{width:74px}
+.eqreste th[scope="row"]{width:86px}
+/* Huit absents à deux lignes chacun faisaient 554 px sur téléphone : le code
+   et la date de retour tiennent sur la même ligne que le trigramme. */
+.eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
+.eqreste .eqn em{display:inline; margin-left:5px}
+.eqreste .eqn i{display:inline; margin-left:5px}
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -1298,10 +1341,11 @@ body.sheet-on{overflow:hidden}
   <!-- ============ ÉQUIPE ============ -->
   <section class="panel stack" id="v-equipe" role="tabpanel" hidden>
     <div class="card" id="mqCard">
-      <header>
+      <details id="mqFold" open>
+      <summary>
         <h2>Postes en manque</h2>
         <span class="sub" id="mqSub"></span>
-      </header>
+      </summary>
       <div class="mqbar">
         <span class="lede">À partir d'aujourd'hui</span>
         <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
@@ -1312,6 +1356,7 @@ body.sheet-on{overflow:hidden}
         </div>
       </div>
       <div class="mqcorps" id="mqCorps"></div>
+      </details>
     </div>
 
     <div class="card">
@@ -1324,15 +1369,13 @@ body.sheet-on{overflow:hidden}
         <div class="eqjour" id="eqJour">—</div>
         <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
         <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
-      </div>
-      <div class="mqbar">
-        <span class="lede">Présentation</span>
         <div class="seg" id="eqVue" role="group" aria-label="Présentation">
           <button type="button" data-v="poste" aria-pressed="true">Par poste</button>
           <button type="button" data-v="grille" aria-pressed="false">Par pause</button>
         </div>
       </div>
-      <p class="lede top wide" id="eqNote"></p>
+      <details class="aide eqaide"><summary>Comment lire ce tableau</summary>
+        <p class="lede" id="eqNote"></p></details>
     </div>
     <div class="eqcorps" id="eqCorps"></div>
 
@@ -4690,7 +4733,7 @@ function renderEquipe(){
        n'est pas une information perdue, c'est une information rangée. */
     function chip(x,g,posteCourant,nu){
       var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
-                " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
+                " \u00b7 jusqu'au "+x.fin[2]+" "+MOIS_BREF[x.fin[1]-1]:"")
              :(x.prevu?esc(x.r.s)+" prévu":
               (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
       var note=(x.fait?"fait fonction":"")||(x.comble?"comble le poste":"")
@@ -5075,6 +5118,16 @@ function renderManques(force){
     };
   });
 }
+/* Sur un téléphone, « Postes en manque » ouvert pousse l'horaire du jour à
+   600 px sous le pli : il s'y ouvre donc fermé, et grand ouvert sur un
+   écran large. Dès que l'utilisateur le replie ou le déplie lui-même, c'est
+   son choix qui vaut, sur les deux. */
+(function(){
+  var d=document.getElementById("mqFold"); if(!d) return;
+  var v=lsGet("ui/mqFold");
+  d.open=(v===null) ? (window.innerWidth>=760) : !!v;
+  d.addEventListener("toggle",function(){ lsSet("ui/mqFold",d.open); });
+})();
 (function(){
   var seg=document.getElementById("eqVue"); if(!seg) return;
   seg.addEventListener("click",function(e){
