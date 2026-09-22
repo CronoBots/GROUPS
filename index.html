@@ -192,7 +192,6 @@ button{cursor:pointer}
 .mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
 .mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
 .mnav .mlabel{min-width:150px; text-align:center; font-weight:600; font-size:14.5px}
-.mcourt{display:none}
 .netchip{display:flex; align-items:baseline; gap:9px; padding:5px 13px; border-radius:9px; background:var(--in-soft); color:var(--in)}
 .netchip .k{font-size:11px; font-weight:600}
 .netchip .v{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums}
@@ -396,16 +395,19 @@ body[data-view="polyvalence"] .netchip,
 body[data-view="reglages"] .netchip{display:none}
 /* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
    elle n'aurait rien à dire */
-body[data-view="reglages"] .mnav,
-body[data-view="compteurs"] .mnav,
-/* La polyvalence court du 1er février au 1er février : un sélecteur de mois
-   au-dessus d'elle ferait croire qu'il la fait bouger. Le client, le
-   22/09/2026 : « pourquoi voir le salaire dans l'onglet polyvalence ? ce
-   n'est pas logique » — la remarque vaut pour les deux. */
-body[data-view="polyvalence"] .mnav,
-body[data-view="equipe"] .mnav{visibility:hidden}
+/* Les quatre règles qui masquaient le sélecteur onglet par onglet ont
+   disparu avec lui : il n'est plus présent que là où un hôte l'accueille.
+   Restent les deux vues de l'horaire qui n'ont pas de mois à choisir. */
 body[data-horaire="annee"][data-view="horaire"] .mnav,
 body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
+/* Dans un onglet, il n'est plus un morceau d'en-tête mais une barre à lui,
+   posée au-dessus de la première carte. */
+.mnavhote:empty{display:none}
+.mnavhote .mnav{justify-content:center; gap:6px;
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:4px 6px}
+.mnavhote .mlabel{min-width:0; flex:1 1 auto}
+
 
 /* ---------- calendrier annuel ---------- */
 /* Sélecteur segmenté, à la manière d'iOS : un rail, une pastille qui glisse. */
@@ -1328,14 +1330,7 @@ body.sheet-on{overflow:hidden}
   .top-in{padding:8px 16px; gap:10px}
   .netchip{order:4; width:100%; justify-content:space-between}
   body[data-view="resume"] .netchip{display:none}
-  /* « Septembre 2026 » ne se coupe PAS en deux. Sans cette ligne, l'en-tête
-     préférait plier le mois plutôt que de raccourcir « Contremaître · nuit »,
-     et la barre passait de 54 à 60 px — 96 px à 320, où tout se dépliait.
-     Le mois est court et fixe ; c'est au poste du jour, qui a son ellipse,
-     de céder la place. */
   .mnav .mlabel{min-width:0; flex:1; white-space:nowrap}
-  .mlong{display:none}
-  .mcourt{display:inline}
   .mnav{flex:0 1 auto}
   /* base ZÉRO, et non « auto ». Un élément flexible se replie selon sa
      taille de BASE, pas selon sa taille minimale : avec « auto » la marque
@@ -1358,13 +1353,7 @@ body.sheet-on{overflow:hidden}
 @media (max-width:375px){
   .tabs button{font-size:9.5px; padding-left:1px; padding-right:1px; gap:2px}
 }
-/* Les écrans de 320 px. Il y manquait encore trente-quatre pixels, et la
-   barre s'y dépliait sur trois rangs — 96 px de hauteur collante. Le mot
-   « BIOWANZE » en coûte soixante-dix-sept à lui seul, et le logo le porte
-   déjà : c'est lui qui cède, pas l'identité de la personne. */
-@media (max-width:340px){
-  .brand h1{display:none}
-}
+
 
 /* ---------- impression ---------- */
 @media print{
@@ -1385,17 +1374,21 @@ body.sheet-on{overflow:hidden}
       <img class="blogo" src="icon-192.png" alt="" width="34" height="34" decoding="async">
       <h1>BIOWANZE</h1>
     </button>
-    <div class="mnav">
-      <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
-      <div class="mlabel" id="mlabel">—</div>
-      <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
-    </div>
     <div class="netchip">
       <span class="k">Net à recevoir</span>
       <span class="v" id="netTop">—</span>
     </div>
     <button type="button" class="ident" id="brandsub" data-go="reglages"
             aria-label="Mes réglages"></button>
+  </div>
+  <!-- Le sélecteur de mois vit ICI, hors de tout onglet, et va se ranger
+       dans celui qui l'emploie — comme la barre d'onglets va se ranger dans
+       son cadre. Un seul exemplaire, donc un seul jeu d'écouteurs, et aucune
+       chance que deux copies divergent. -->
+  <div class="mnav" id="mnav">
+    <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
+    <div class="mlabel" id="mlabel">—</div>
+    <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-v="resume" aria-selected="true" aria-controls="v-resume">
@@ -1430,6 +1423,7 @@ body.sheet-on{overflow:hidden}
 
   <!-- ============ RÉSUMÉ ============ -->
   <section class="panel stack" id="v-resume" role="tabpanel">
+    <div class="mnavhote"></div>
     <div class="card">
       <div class="hero">
         <div>
@@ -1474,6 +1468,7 @@ body.sheet-on{overflow:hidden}
 
   <!-- ============ HORAIRE ============ -->
   <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
+    <div class="mnavhote"></div>
     <div class="card">
       <header>
         <h2>Horaire presté</h2>
@@ -1632,6 +1627,7 @@ body.sheet-on{overflow:hidden}
 
   <!-- ============ FICHE ============ -->
   <section class="panel stack" id="v-fiche" role="tabpanel" hidden>
+    <div class="mnavhote"></div>
     <div class="card">
       <details class="fold" id="foldMonth">
         <summary>Montants de ce mois <span class="sub" id="monthSub">primes, avance, pécule, heures supplémentaires</span></summary>
@@ -1659,6 +1655,7 @@ body.sheet-on{overflow:hidden}
 
   <!-- ============ CONTRÔLE ============ -->
   <section class="panel stack" id="v-controle" role="tabpanel" hidden>
+    <div class="mnavhote"></div>
     <div class="card">
       <header>
         <h2>Contrôle de la vraie fiche</h2>
@@ -3145,19 +3142,14 @@ function majBrandsub(){
 /* « Contremaîtres de production » ne tient pas dans un en-tête de téléphone,
    et le pluriel ne désigne personne : on s'adresse à un seul travailleur. */
 /* « 2026-09-18T14:56 » est une date de machine. */
-/* Le mois s'écrit en entier sur large et abrégé sur téléphone. Les DEUX
-   formes sont dans le document et c'est le CSS qui choisit : une bascule en
-   JavaScript demanderait d'écouter le redimensionnement, et se tromperait
-   au premier pivotement d'écran.
-
-   Ce n'est pas cosmétique. « Septembre 2026 » fait 111 px et la barre en
-   offre 358 : avec les 174 px de l'identité et les 68 px des deux flèches,
-   il en manquait cinq, et le bloc du mois passait à la ligne — la barre
-   collante montait de 54 à 96 px. « sept. 2026 » en rend quarante. */
+/* Le mois s'écrit en entier. Il a porté quelque temps deux formes, l'une
+   abrégée pour tenir dans l'en-tête où il manquait cinq pixels ; le
+   sélecteur ayant quitté l'en-tête pour les onglets, la contrainte est
+   tombée et la seconde forme avec elle. Un mécanisme qui ne sert plus
+   égare celui qui le relit. */
 function majMoisLabel(m,y){
   var el=document.getElementById("mlabel"); if(!el) return;
-  el.innerHTML='<span class="mlong">'+esc(MOIS[m])+'</span>'
-    +'<span class="mcourt">'+esc(MOIS_BREF[m])+"</span> "+esc(String(y));
+  el.textContent=MOIS[m]+" "+y;
 }
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
@@ -3185,6 +3177,25 @@ function fonctionCourte(cat){
 }
 
 /* ===================== onglets ===================== */
+/* Le sélecteur de mois ne vit plus dans l'en-tête. Le client, le
+   22/09/2026 : « la sélection du mois de l'année ne doit pas être dans la
+   barre du haut mais seulement là où elle est nécessaire dans les onglets ».
+
+   Il était masqué onglet par onglet — quatre règles CSS pour le cacher là où
+   il n'a rien à dire, et il occupait quand même la place la plus chère de
+   l'écran sur les quatre autres. Il se RANGE désormais dans l'onglet qui
+   l'emploie : Résumé, Horaire, Fiche et Contrôle ont un hôte, les autres
+   n'en ont pas et il disparaît.
+
+   Un seul exemplaire déménage, comme la barre d'onglets : quatre copies
+   auraient demandé quatre jeux d'écouteurs, et rien n'aurait garanti
+   qu'elles affichent le même mois. */
+function placerMnav(v){
+  var nav=document.getElementById("mnav"); if(!nav) return;
+  var hote=document.querySelector("#v-"+v+" .mnavhote");
+  if(hote){ if(nav.parentNode!==hote) hote.appendChild(nav); nav.hidden=false; }
+  else nav.hidden=true;
+}
 /* Sur téléphone la barre se range dans son cadre ancré ; sur grand écran
    elle reprend sa place sous le nom de l'application, dans l'en-tête. Le
    seul déménagement du document, et il ne coûte rien : les clics passent
@@ -3217,6 +3228,7 @@ function setView(v,keepScroll){
   Array.prototype.forEach.call(document.querySelectorAll(".tabs button"),function(b){
     b.setAttribute("aria-selected",String(b.dataset.v===v));
   });
+  placerMnav(v);
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
   if(!keepScroll) window.scrollTo(0,0);
