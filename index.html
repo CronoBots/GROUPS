@@ -143,12 +143,30 @@ button{cursor:pointer}
    permanent dans l'en-tête, c'était réserver à une question réglée la place
    la plus chère de l'écran. L'en-tête n'en garde que la réponse, et mène au
    réglage d'un toucher. */
-.brand{margin-right:auto; min-width:0; text-align:left; background:none;
-  border:0; padding:2px 0; border-radius:8px; cursor:pointer; color:inherit}
-.brand h1{font-size:15px; letter-spacing:-.012em; font-weight:700}
-.brand p{margin:0; font-size:11.5px; color:var(--faint)}
-.brand p b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; color:var(--ink2)}
-.brand:hover p b{color:var(--in)}
+/* Une barre d'identité, pas un titre. Le client, le 22/09/2026 : « la barre
+   du haut doit être une vraie barre personnelle, avec le logo, le trigramme
+   et le poste actuel ; il faut que ce soit 100 % professionnel ».
+
+   Trois choses, dans l'ordre où on les cherche : à qui appartient cet écran
+   (le logo), qui le regarde (le trigramme), et ce qu'il fait AUJOURD'HUI. La
+   fonction seule — « Contremaître » — ne disait rien du jour ; le poste du
+   jour, lui, change et mérite la place la plus chère de l'écran. */
+.brand{display:flex; align-items:center; gap:10px; margin-right:auto;
+  min-width:0; text-align:left; background:none; border:0; padding:2px 0;
+  border-radius:8px; cursor:pointer; color:inherit}
+.blogo{flex:0 0 auto; width:34px; height:34px; border-radius:9px; display:block}
+.btxt{display:flex; flex-direction:column; gap:2px; min-width:0}
+.brand h1{font-size:14px; letter-spacing:.01em; font-weight:700; line-height:1.1}
+.brand p{display:flex; align-items:center; gap:6px; margin:0; min-width:0;
+  font-size:11px; color:var(--faint); line-height:1.2}
+/* Le trigramme est une plaque, pas un mot : c'est l'identité de la personne,
+   et elle se lit d'un coup d'œil sans se confondre avec ce qui suit. */
+.brand p b{flex:0 0 auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:10.5px; font-weight:700; letter-spacing:.04em; color:var(--in);
+  background:var(--in-soft); border-radius:5px; padding:1px 6px}
+.brand p em{font-style:normal; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; color:var(--ink2)}
+.brand:hover p b{background:var(--in); color:var(--surface)}
 .qui{display:grid; grid-template-columns:1fr 1fr; gap:12px}
 .qui label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .qui select{
@@ -161,6 +179,7 @@ button{cursor:pointer}
 .mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
 .mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
 .mnav .mlabel{min-width:150px; text-align:center; font-weight:600; font-size:14.5px}
+.mcourt{display:none}
 .netchip{display:flex; align-items:baseline; gap:9px; padding:5px 13px; border-radius:9px; background:var(--in-soft); color:var(--in)}
 .netchip .k{font-size:11px; font-weight:600}
 .netchip .v{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums}
@@ -1296,8 +1315,21 @@ body.sheet-on{overflow:hidden}
   .top-in{padding:8px 16px; gap:10px}
   .netchip{order:4; width:100%; justify-content:space-between}
   body[data-view="resume"] .netchip{display:none}
-  .mnav .mlabel{min-width:0; flex:1}
-  .mnav{flex:1}
+  /* « Septembre 2026 » ne se coupe PAS en deux. Sans cette ligne, l'en-tête
+     préférait plier le mois plutôt que de raccourcir « Contremaître · nuit »,
+     et la barre passait de 54 à 60 px — 96 px à 320, où tout se dépliait.
+     Le mois est court et fixe ; c'est au poste du jour, qui a son ellipse,
+     de céder la place. */
+  .mnav .mlabel{min-width:0; flex:1; white-space:nowrap}
+  .mlong{display:none}
+  .mcourt{display:inline}
+  .mnav{flex:0 1 auto}
+  /* base ZÉRO, et non « auto ». Un élément flexible se replie selon sa
+     taille de BASE, pas selon sa taille minimale : avec « auto » la marque
+     réclamait ses 190 px avant d'accepter de rétrécir, et poussait le bloc
+     du mois à la ligne suivante. Base nulle, elle ne réclame rien, prend ce
+     qui reste, et son poste du jour s'abrège à l'ellipse. */
+  .brand{flex:1 1 0}
 }
 /* Huit onglets depuis que la polyvalence a le sien, et « Polyvalence » est
    le plus long : la barre débordait de 44 px à 320 et de 4 px à 360 — les
@@ -1312,6 +1344,13 @@ body.sheet-on{overflow:hidden}
    tout. */
 @media (max-width:375px){
   .tabs button{font-size:9.5px; padding-left:1px; padding-right:1px; gap:2px}
+}
+/* Les écrans de 320 px. Il y manquait encore trente-quatre pixels, et la
+   barre s'y dépliait sur trois rangs — 96 px de hauteur collante. Le mot
+   « BIOWANZE » en coûte soixante-dix-sept à lui seul, et le logo le porte
+   déjà : c'est lui qui cède, pas l'identité de la personne. */
+@media (max-width:340px){
+  .brand h1{display:none}
 }
 
 /* ---------- impression ---------- */
@@ -1330,8 +1369,11 @@ body.sheet-on{overflow:hidden}
 <header class="top">
   <div class="top-in">
     <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
-      <h1>BIOWANZE</h1>
-      <p id="brandsub">Simulateur de paie</p>
+      <img class="blogo" src="icon-192.png" alt="" width="34" height="34" decoding="async">
+      <span class="btxt">
+        <h1>BIOWANZE</h1>
+        <p id="brandsub"></p>
+      </span>
     </button>
     <div class="mnav">
       <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
@@ -2769,7 +2811,7 @@ function renderTotals(C){
   document.getElementById("tRap").textContent=rTot
     ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
   document.getElementById("rotasub").textContent=MOIS[st.m]+" "+st.y;
-  document.getElementById("mlabel").textContent=MOIS[st.m]+" "+st.y;
+  majMoisLabel(st.m,st.y);
   majBrandsub();
   var ms=[];
   if(st.month.primes) ms.push("primes "+eur(st.month.primes));
@@ -3022,19 +3064,74 @@ function applyOnboard(){
 }
 
 /* L'en-tête répond à « de qui parle cet écran » — identifiant et fonction —
-   et non à « qu'est-ce que cette application », que l'on sait en l'ouvrant. */
+   et non à « qu'est-ce que cette application », que l'on sait en l'ouvrant.
+
+   Et, depuis le 22/09/2026, à « que fait-il AUJOURD'HUI ». La fonction ne
+   change jamais ; le poste du jour, si — et c'est lui qu'on vient chercher
+   en ouvrant l'application le matin. */
+function posteDuJourDe(db,id){
+  var au=new Date(), annee=Number(db.year);
+  if(au.getFullYear()!==annee) return null;
+  var m=au.getMonth()+1, j=au.getDate(), mmdd=pad2(m)+pad2(j);
+  var par=equipeDuJour(db,annee,m,j), i, k, q, r;
+  for(i=0;i<EQ_GROUPES.length;i++){
+    var g=EQ_GROUPES[i], l=par[g.k]||[];
+    for(k=0;k<l.length;k++){
+      if(l[k].p.id!==id) continue;
+      if(g.k==="AM"||g.k==="PM"||g.k==="N"){
+        var vue=postesDePause(db,l,g.k,mmdd);
+        for(q=0;q<vue.postes.length;q++){
+          var gens=vue.postes[q].gens;
+          for(r=0;r<gens.length;r++) if(gens[r].p.id===id)
+            return vue.postes[q].P.t+" \u00b7 "+g.t.toLowerCase();
+        }
+        /* présent à cette pause, poste encore indéterminé : le dire plutôt
+           que de laisser croire qu'il n'est pas là */
+        return g.t;
+      }
+      if(g.k==="D")    return "Jour";
+      if(g.k==="abs")  return "Absent";
+      if(g.k==="cong") return "Cong\u00e9";
+      return "Repos";
+    }
+  }
+  return null;
+}
 function majBrandsub(){
   var el=document.getElementById("brandsub"); if(!el) return;
   var idSel=document.getElementById("prefillId"),
       catSel=document.getElementById("prefillCat");
   var id=idSel?idSel.value:"", cat=catSel?catSel.value:"";
-  el.innerHTML = id
-    ? "<b>"+esc(idLisible(id))+"</b> · "+esc(fonctionCourte(cat))
-    : "Choisissez qui vous êtes dans Réglages";
+  if(!id){ el.innerHTML="<em>Choisissez qui vous êtes dans Réglages</em>"; return; }
+  el.innerHTML="<b>"+esc(idLisible(id))+"</b><em>"+esc(fonctionCourte(cat))+"</em>";
+  /* Le poste du jour demande l'horaire d'équipe : on l'écrit dès qu'il
+     arrive, sans faire attendre le reste de l'en-tête. */
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    var sel=document.getElementById("prefillId");
+    if(((sel&&sel.value)||"")!==id) return;   /* la personne a changé entre-temps */
+    var poste=null;
+    try{ poste=posteDuJourDe(db,id); }catch(e){ poste=null; }
+    if(poste) el.innerHTML="<b>"+esc(idLisible(id))+"</b><em>"+esc(poste)+"</em>";
+  }, function(){});
 }
 /* « Contremaîtres de production » ne tient pas dans un en-tête de téléphone,
    et le pluriel ne désigne personne : on s'adresse à un seul travailleur. */
 /* « 2026-09-18T14:56 » est une date de machine. */
+/* Le mois s'écrit en entier sur large et abrégé sur téléphone. Les DEUX
+   formes sont dans le document et c'est le CSS qui choisit : une bascule en
+   JavaScript demanderait d'écouter le redimensionnement, et se tromperait
+   au premier pivotement d'écran.
+
+   Ce n'est pas cosmétique. « Septembre 2026 » fait 111 px et la barre en
+   offre 358 : avec les 174 px de l'identité et les 68 px des deux flèches,
+   il en manquait cinq, et le bloc du mois passait à la ligne — la barre
+   collante montait de 54 à 96 px. « sept. 2026 » en rend quarante. */
+function majMoisLabel(m,y){
+  var el=document.getElementById("mlabel"); if(!el) return;
+  el.innerHTML='<span class="mlong">'+esc(MOIS[m])+'</span>'
+    +'<span class="mcourt">'+esc(MOIS_BREF[m])+"</span> "+esc(String(y));
+}
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
   return Number(m[3])+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
@@ -6493,7 +6590,7 @@ function loadMonth(y,m){
   st.y=y; st.m=m; st.mkey=key(y,m); st.lastDay=0;
   st.state.last=st.mkey;
   save("config/state",st.state);
-  document.getElementById("mlabel").textContent=MOIS[m]+" "+y;
+  majMoisLabel(m,y);
   readMonth(st.mkey).then(function(d){
     var migre=migreMois(d);
     st.month=mergeDefaults(d,DEF_M);
