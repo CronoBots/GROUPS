@@ -97,6 +97,9 @@ const MORCEAUX=[
      l'onglet Équipe, il ne le refait pas */
   ["var CONTREMAITRES=","\n"],
   ["function estCadre(","\n}"],
+  ["var EMPLOYES_HORS_CADRE=","\n"],
+  ["function idLisible(","\n"],
+  ["function statutPersonne(","\n}"],
   ["function estContremaitre(","\n}"],
   ["var EST_FORMATION=","\n"],
   ["function roleDeFeuille(","\n}"],

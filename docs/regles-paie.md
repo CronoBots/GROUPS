@@ -829,3 +829,46 @@ VBN 2026 : **174 jours prestés, 65 de congé, 18 de maladie, 104 de repos.**
 
 Rien de tout cela ne touche le calcul de la fiche : ces tuiles comptent des
 journées, elles n'en paient aucune.
+
+## Employé ou ouvrier : 8 % d'ONSS
+
+Le client, le 22/09/2026 : « tous les contremaîtres et adjoints sont employés,
+il y a juste SBZ / GKT / FLN / FPS / PLZ qui le sont aussi en dehors des
+contremaîtres-adjoints. Le reste des opérateurs sont ouvriers et quelques-uns
+intérimaires. »
+
+**Ce n'est pas une étiquette.** L'ONSS d'un ouvrier se calcule sur **108 %**
+du brut, celle d'un employé sur 100 % — c'est le `majOuvrier` de `DEF_B`, et
+l'application savait déjà le faire. Mais le champ `statut` restait sur
+« Employé » par défaut : **tout opérateur qui s'en servait payait 8 % d'ONSS
+en moins que la réalité**, sans que rien ne le dise. Sur un brut de 3 000 €,
+cela fait 31 € par mois d'écart sur le net affiché.
+
+Le statut suit donc la personne. `statutPersonne()` le déduit :
+
+- catégorie « Contremaîtres de production » — contremaîtres ET adjoints → **employé** ;
+- `EMPLOYES_HORS_CADRE = ["SBZ","GKT","FLN","FPS","PLZ"]` → **employé** ;
+- tous les autres → **ouvrier**.
+
+**16 employés, 61 ouvriers** sur les 77 du classeur.
+
+Choisir son identité dans le pré-remplissage pose le statut — choisir, c'est
+le dire. Le champ reste modifiable à la main : il est marqué `personal:true`,
+et l'application ne le reprend pas au démarrage.
+
+Les **intérimaires** ne sont pas distingués : leur ONSS se calcule comme
+celle d'un ouvrier, et le classeur ne dit pas qui ils sont.
+
+### Deux points à faire confirmer
+
+1. **`SBS` n'existe pas dans le classeur.** J'ai lu `SBZ` : c'est le seul à
+   une lettre près, et surtout il partage avec FLN et FPS le rôle
+   « polyvalent arrière » de la ligne 9 — les trois seuls de l'usine. Les
+   autres voisins d'orthographe (SPS, SKS, JBS, ASS) n'ont pas ce rôle. À
+   confirmer : cela change l'ONSS d'une personne.
+2. **Les dates du pécule et du treizième mois chez les ouvriers.** Le client,
+   plus tôt : « en tout cas chez les employés, les ouvriers ce sont d'autres
+   dates ». Chez les employés, pécule en mai et treizième mois en juin. Chez
+   les ouvriers, le pécule vient de la caisse de vacances et non de
+   l'employeur — il ne figure donc pas sur la fiche de la même façon. Reste
+   à établir.
