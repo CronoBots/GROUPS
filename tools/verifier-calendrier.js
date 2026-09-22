@@ -130,6 +130,7 @@ const MORCEAUX=[
   ["function peutTenir(","\n}"],
   ["var EST_RENFORT=","\n"],
   ["function reequilibrer(","\n}"],
+  ["var POSTE_TRANCHE=","\n"],
   ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
   ["var EQ_GROUPES=","\n];"],

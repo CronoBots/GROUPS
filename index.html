@@ -945,7 +945,11 @@ body.sheet-on{overflow:hidden}
    compose. Deux mises en page différentes pour la même chose auraient
    demandé de réapprendre à lire. */
 .orgt{border-collapse:separate; border-spacing:0; width:100%; table-layout:fixed}
-.orgt th, .orgt td{padding:6px 5px; text-align:center; vertical-align:top;
+/* CENTRÉ DANS LES DEUX SENS. Le client, le 22/09/2026 : « pour les équipes,
+   il faut centrer le contenu verticalement et horizontalement ». Les lignes
+   n'ont pas toutes le même nombre de noms — de un à quatre — et les cases
+   courtes restaient collées en haut d'une ligne haute. */
+.orgt th, .orgt td{padding:6px 5px; text-align:center; vertical-align:middle;
   border-left:1px solid var(--line2)}
 .orgt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
   border-bottom:1px solid var(--line); border-top:3px solid var(--line);
@@ -953,7 +957,7 @@ body.sheet-on{overflow:hidden}
   color:var(--faint); white-space:nowrap}
 /* La colonne des postes reste visible quand la grille défile : sans elle on
    ne sait plus de quel poste on lit la colonne. */
-.orgt th.orgp{position:sticky; left:0; z-index:2; width:76px; text-align:left;
+.orgt th.orgp{position:sticky; left:0; z-index:2; width:76px; text-align:center;
   background:var(--surface); border-left:3px solid var(--line);
   font-size:10.5px; font-weight:700; letter-spacing:.02em;
   text-transform:uppercase; color:var(--muted); white-space:nowrap}
@@ -976,6 +980,12 @@ body.sheet-on{overflow:hidden}
 .orgn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
   font-weight:600; letter-spacing:.03em; color:var(--ink); line-height:1.5}
 .orgn.moi{color:var(--in); text-decoration:underline; text-underline-offset:3px}
+/* EN JAUNE, ET EN DERNIER. Le client, le 22/09/2026 : « les opérateurs en
+   formation doivent être sous les opérateurs qui tiennent le poste et il faut
+   qu'ils soient en jaune ». C'est le même jaune et la même place que dans le
+   tableau du jour du Résumé — on ne réapprend pas à lire d'un onglet à
+   l'autre. Il est présent au poste, il n'y est pas encore validé. */
+.orgn.orgf{color:var(--at-jaune)}
 .orgvide{color:var(--faint)}
 /* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
    six lignes de deux trigrammes, et s'étirait à 1146 px sur un écran de
@@ -5288,8 +5298,20 @@ function reequilibrer(parPoste,mmdd,inconnus,gk){
    Ce poste-ci vient en DERNIER, après la cellule et après le remplacement :
    « s'ils ne remplacent pas ailleurs » est la condition même de la règle.
    PDE le 18/02 écrit « terr. Arr. » dans sa cellule, et c'est là qu'il est. */
+/* CE QUE LE CLIENT A TRANCHÉ NOMMÉMENT, quand le classeur se tait. Le
+   22/09/2026 : « QBY est en distillation ». Le classeur l'écrit « Renfort
+   arrière » et ne lui donne que gluten et distillation en polyvalence — pas
+   de fermentation, donc pas de terrain arrière : rien ne le plaçait, et il
+   restait le seul nom sous le tableau des équipes.
+
+   C'est un DERNIER recours, lu après la cellule et après tout ce que le
+   classeur dit : il ne peut donc rien écraser. Une table nommée, et non une
+   règle inventée autour de son cas — le classeur ne porte pas cette
+   information, c'est le contremaître qui la porte. */
+var POSTE_TRANCHE={QBY:"dist"};
 function posteParDefaut(person){
-  return /step/i.test((person&&person.cat)||"") ? "step" : null;
+  if(/step/i.test((person&&person.cat)||"")) return "step";
+  return POSTE_TRANCHE[(person&&person.id)||""]||null;
 }
 function posteTenu(person,raw,hJour,poste){
   var i, k;
@@ -6067,8 +6089,9 @@ function _orgZone(lib){
   }
   return "";
 }
-function _orgJeton(id,moi){
-  return '<span class="orgn'+(id===moi?" moi":"")+'">'+esc(idLisible(id))+"</span>";
+function _orgJeton(id,moi,sup){
+  return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'">'
+    +esc(idLisible(id))+"</span>";
 }
 function renderOrganisation(){
   var hote=document.getElementById("orgCorps"); if(!hote) return;
@@ -6116,13 +6139,29 @@ function renderOrganisation(){
       LIGNES.push(court); LIG_Z[court]=P.z||""; LIG_LONG[court]=P.t;
       LIG_K[court]=P.k;
     });
-    var grille={}, eqs=[], orphelins=[];
-    db.people.forEach(function(p){
+    /* L'ÉQUIPE D'UN OPÉRATEUR EN FORMATION N'EST PAS DANS SA CATÉGORIE : il
+       n'a pas de « Shift n », elle est collée à son poste — « chaudières
+       éq. 3 ». Cinq des huit la portent ainsi ; pour les trois autres le
+       classeur ne la dit nulle part, et ceux-là restent dans leur carte. */
+    function _orgEquipe(p){
       var c=String(p.cat||"");
-      if(!/^shift\s*\d/i.test(c)) return;
-      var eq=c.replace(/\D+/g,""), po=_orgPoste(p);
+      if(/^shift\s*\d/i.test(c)) return c.replace(/\D+/g,"");
+      /* PAS DE \b DEVANT « éq » : en JavaScript sans /u, « é » n'est pas un
+         caractère de mot, et l'espace qui le précède non plus — la limite
+         n'existe donc jamais et le motif ne trouvait rien. */
+      var m=/éq\.?\s*(\d)/i.exec(_orgPoste(p));
+      return m?m[1]:"";
+    }
+    var grille={}, eqs=[], orphelins=[], sansEquipe=[];
+    db.people.forEach(function(p){
+      var forme=enFormation(p);
+      if(!forme && !/^shift\s*\d/i.test(String(p.cat||""))) return;
+      var eq=_orgEquipe(p), po=_orgPoste(p);
+      if(!eq){ if(forme) sansEquipe.push(p); return; }
       if(eqs.indexOf(eq)<0) eqs.push(eq);
-      /* LA MÊME CHAÎNE QUE LE RÉSUMÉ, sans la date. */
+      /* LA MÊME CHAÎNE QUE LE RÉSUMÉ, sans la date. Pour celui qui apprend,
+         c'est posteDeFormation() qui répond — le poste où il se forme, et
+         non un poste à lui : il n'y est pas validé. */
       var k=posteAttitre(p)||posteDeFormation(p), court=null;
       for(var q=0;q<LIGNES.length;q++)
         if(LIG_K[LIGNES[q]]===k) court=LIGNES[q];
@@ -6130,11 +6169,12 @@ function renderOrganisation(){
       /* Titulaire : celui que le classeur NOMME à ce poste. Les autres — le
          polyvalent que sa chaîne y envoie — viennent après lui. */
       var titre=(LIG_LONG[court]||"").toLowerCase()===String(po||"").trim().toLowerCase();
-      var g=grille[court+"|"+eq]=grille[court+"|"+eq]||{t:[],r:[]};
-      g[titre?"t":"r"].push(p.id);
+      var g=grille[court+"|"+eq]=grille[court+"|"+eq]||{t:[],r:[],f:[]};
+      if(forme) g.f.push(p.id); else g[titre?"t":"r"].push(p.id);
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
+    var aForme=false;
     var t=['<div class="card"><div class="eqgrille"><table class="orgt">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
@@ -6155,7 +6195,7 @@ function renderOrganisation(){
         +esc(lib)+"</span></th>");
       eqs.forEach(function(e){
         var o=grille[lib+"|"+e];
-        if(!o || (!o.t.length && !o.r.length)){
+        if(!o || (!o.t.length && !o.r.length && !o.f.length)){
           t.push('<td><span class="orgvide">\u2013</span></td>'); return; }
         /* TOUS DE LA MÊME ENCRE. Le client, le 22/09/2026 : « il ne faut pas
            indiquer les validé pour tenir ». Un second rang en gris disait
@@ -6163,12 +6203,22 @@ function renderOrganisation(){
            le titulaire, c'est tout l'objet de la règle de placement. Seul
            l'ORDRE demeure : celui que le classeur nomme au poste vient en
            tête, et il n'y a plus rien à expliquer en légende. */
+        /* Celui qui APPREND s'écrit en dernier, et en jaune. */
+        if(o.f.length) aForme=true;
         t.push("<td>"+o.t.sort().concat(o.r.sort()).map(function(id){
-          return _orgJeton(id,moi); }).join("")+"</td>");
+          return _orgJeton(id,moi); }).join("")
+          +o.f.sort().map(function(id){
+            return _orgJeton(id,moi," orgf"); }).join("")+"</td>");
       });
       t.push("</tr>");
     });
+    /* La légende ne dit que ce qui est DESSINÉ : sans opérateur en formation
+       dans le tableau, elle n'a rien à expliquer et ne s'écrit pas. */
     t.push("</tbody></table></div>"
+      +(aForme?'<p class="lede" style="padding:0 16px 10px">'
+        +'<span class="orgn orgf" style="display:inline">ABC</span> '
+        +"opérateur en formation au poste : il y est présent, pas encore validé."
+        +"</p>":"")
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
         +orphelins.length+" personne(s) que le classeur ne rattache à aucun poste : "
         +orphelins.map(function(x){ return esc(idLisible(x.id))+" (éq. "+esc(x.eq)+")"; }).join(", ")
@@ -6223,9 +6273,12 @@ function renderOrganisation(){
       o.push("</div></div>");
       return o.join("");
     }
-    h.push(carte("Opérateurs en formation",
+    /* Ceux que le tableau porte déjà n'y figurent plus : les montrer deux
+       fois aurait fait croire à deux personnes. Ne restent que ceux dont le
+       classeur ne nomme pas l'équipe. */
+    h.push(carte("Opérateurs en formation, sans équipe au classeur",
       "leur poste est celui où ils APPRENNENT — ils n\u2019y sont pas validés",
-      db.people.filter(function(p){ return enFormation(p); }), "poste à déterminer"));
+      sansEquipe, "poste à déterminer"));
     h.push(carte("Station d\u2019épuration", "attendue au matin",
       db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
       "station d\u2019épuration"));
