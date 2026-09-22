@@ -567,7 +567,7 @@ Et le classeur écrit parfois la règle d'effectif en toutes lettres :
 ### Les autres points ouverts
 
 - **Le précompte du double pécule de vacances** — la fiche de mai 2026 porte
-  (montant retiré) ; l'application donne (montant retiré) ou (montant retiré) selon la façon dont on
+  un montant que l'application ne retrouve pas, selon la façon dont on
   y range le simple pécule. Aucune combinaison simple ne tombe juste. Voir
   « Le pécule de vacances et le treizième mois » dans `docs/regles-paie.md`.
   *(Le treizième mois, lui, tombe au centime.)*

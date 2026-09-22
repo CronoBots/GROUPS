@@ -194,10 +194,14 @@ diverses**.
 Forfaitaire par journée de remplacement, et non une fraction du salaire
 horaire — les deux ne suivent pas la même indexation :
 
-| Mois 2026 | Prime / jour | Salaire horaire de la fiche |
-|---|---|---|
-| janvier – février | 26,865 € | (taux retiré) € |
-| mars – août | 27,365 € | (taux retiré) € |
+| Mois 2026 | Prime / jour |
+|---|---|
+| janvier – février | 26,865 € |
+| mars – août | 27,365 € |
+
+La prime a donc été indexée entre février et mars, mais **pas dans la même
+proportion que le salaire horaire** : c'est bien un forfait, et non un
+pourcentage.
 
 La valeur par défaut de l'application est 27,365 €, modifiable dans l'onglet
 « Barèmes ».
@@ -315,21 +319,25 @@ n'a pas été renseignée.
 
 ### Lire ces valeurs sur la fiche
 
-| Réglage | Où le lire | VBN 2026 |
-|---|---|---|
-| Rémunération fixe | déduite : « Montant heures prestées » ÷ fraction | (montant retiré) jusqu'en février, (montant retiré) depuis mars |
-| Fraction payée | un temps partiel la réduit | 0,9 — congé parental à 9/10 |
-| Diviseur horaire | rémunération fixe ÷ salaire horaire | 148,368007 |
+| Réglage | Où le lire |
+|---|---|
+| Rémunération fixe | déduite : « Montant heures prestées » ÷ fraction |
+| Fraction payée | un temps partiel la réduit — 0,9 pour un congé parental 9/10 |
+| Diviseur horaire | rémunération fixe ÷ salaire horaire |
 
-Le recoupement est exact au centime : (montant retiré) × 0,9 = (montant retiré), ce que porte
-la fiche de février ; (montant retiré) × 0,9 = (montant retiré), celle d'août. Et le salaire
-horaire tombe à la quatrième décimale — (taux retiré) puis (taux retiré) — ce que la
-ligne « Heure de déplacement à » de la fiche confirme.
+Le recoupement doit être exact **au centime**, et le salaire horaire juste
+**à la quatrième décimale** — c'est la ligne « Heure de déplacement à » de la
+fiche qui le confirme.
 
 **La fraction est le piège** : c'est la rémunération à temps plein qui se
-saisit, et la fraction qui la réduit. Saisir (montant retiré) avec une fraction de 1
-donnerait le bon montant mensuel mais un salaire horaire faux, et toutes les
-primes horaires avec.
+saisit, et la fraction qui la réduit. Saisir le montant déjà réduit avec une
+fraction de 1 donnerait le bon montant mensuel mais un salaire horaire faux,
+et toutes les primes horaires avec.
+
+**Aucun montant de salaire ne s'écrit dans ce document.** Le dépôt est
+public : `docs/` se lit sans authentification, aussi bien par le site que
+par `raw.githubusercontent.com`. Les règles se décrivent ; les montants
+restent sur l'appareil de chacun.
 
 Le piège s'est refermé le 21/09/2026, sur quelqu'un qui avait ce paragraphe
 sous la main et ne l'a pas lu : des réglages préparés pour VBN portaient
@@ -358,8 +366,8 @@ Le chèque-repas est passé de 6,90 à 8,91 de part patronale au 1er janvier
 2026 : la fiche de décembre 2025 porte encore l'ancienne valeur.
 
 Le diviseur horaire se retrouve sur la fiche : rémunération fixe divisée par
-le salaire horaire, soit (montant retiré) / (taux retiré) = 148,368 pour VBN — la valeur
-par défaut de l'application.
+le salaire horaire. La valeur par défaut de l'application, 148,368007,
+correspond à 38:40 par semaine.
 
 ## Une cellule « VM » avec un horaire presté
 
@@ -449,20 +457,20 @@ Le calcul est confirmé au centime par la fiche de VBN portant la période de
 février 2026, et c'est celui que l'application applique déjà :
 
 ```
-Avantage non récurrent        (montant retiré)
-Cotisation de solidarité        (montant retiré)     = (montant retiré) × 13,07 %
-Précompte professionnel           0,00     le bonus en est exempt
-Net                           (montant retiré)
+Avantage non récurrent                B
+Cotisation de solidarité     B × 13,07 %
+Précompte professionnel              0,00     le bonus en est exempt
+Net                          B × 86,93 %
 ```
 
 **Elle est versée en deux fois : une avance en septembre, le solde en mars.**
 Confirmé par le client le 21/09/2026. Pour VBN :
 
-| | Fiche | Montant |
-|---|---|---|
-| avance 2026 | période 08/2026, payée le 02/09 | **(montant retiré)** |
-| solde 2026 | mars 2027 | à venir |
-| solde 2025 | période 02/2026, payée le 16/03 | **(montant retiré)** |
+| | Fiche |
+|---|---|
+| avance 2026 | période 08/2026, payée le 02/09 |
+| solde 2026 | mars 2027, à venir |
+| solde 2025 | période 02/2026, payée le 16/03 |
 
 La fiche n'indique **jamais** l'année que le montant couvre : seul le mois de
 versement permet de la retrouver — et c'est ce qui rend l'erreur facile.
@@ -484,11 +492,11 @@ raison contre le nom du fichier — mais il faut y penser en cherchant un mois.
 treizième mois. » Vérifié sur ses fiches — et ce sont bien les **périodes**
 de mai et de juin, payées début juin et début juillet.
 
-| Période | Ligne de la fiche | Montant |
-|---|---|---|
-| 05/2026 | Simple Pécule | (montant retiré) |
-| 05/2026 | Double pécule de vacances | (montant retiré) |
-| 06/2026 | Treizième mois | (montant retiré) |
+| Période | Ligne de la fiche |
+|---|---|
+| 05/2026 | Simple Pécule |
+| 05/2026 | Double pécule de vacances |
+| 06/2026 | Treizième mois |
 
 **Ces mois-là valent pour les EMPLOYÉS.** Le client, le 21/09/2026 : « en tout
 cas chez les employés ; les ouvriers, ce sont d'autres dates. » Lesquelles
@@ -511,22 +519,21 @@ L'application calcule déjà ONSS 13,07 % puis précompte 53,50 % sur le reste,
 et la fiche de juin le confirme sans un centime d'écart :
 
 ```
-Treizième mois                      (montant retiré)
-ONSS 13,07 %                          (montant retiré)
-base au taux distinct               (montant retiré)
-Précompte 53,50 %                   (montant retiré)   ← la fiche porte (montant retiré)
+Treizième mois                            T   ( = rémunération fixe × fraction )
+ONSS 13,07 %                     T × 0,1307
+base au taux distinct            T × 0,8693
+Précompte 53,50 %       T × 0,8693 × 0,5350   ← au centime près sur la fiche de juin
 ```
 
 ### Le double pécule : la formule NE tombe PAS
 
-La fiche de mai porte un précompte de **(montant retiré)** sur le double pécule.
-L'application en donne un autre, quelle que soit la façon dont on y range le
-simple pécule :
+La fiche de mai porte, sur le double pécule, un précompte que l'application
+ne retrouve pas — quelle que soit la façon dont on y range le simple pécule :
 
-| Ce qu'on met dans « complément DPV » | Précompte calculé | Écart |
-|---|---|---|
-| 0 | (montant retiré) | −223,96 |
-| (montant retiré) (le simple pécule) | (montant retiré) | +244,74 |
+| Ce qu'on met dans « complément DPV » | Écart au précompte de la fiche |
+|---|---|
+| 0 | environ 224 € de trop peu |
+| le simple pécule | environ 245 € de trop |
 
 La fiche est donc **entre les deux**, et aucune combinaison simple des deux
 montants ne la reproduit. Quelque chose manque à la règle — une assiette
@@ -544,15 +551,15 @@ seul mois.
 normal, que tu touches toujours fin du mois, tandis que le solde du mois est
 toujours payé début du mois suivant. »
 
-La fiche la porte en retenue, sous « **Déduction avance reçue** ». Pour VBN,
-**(montant retiré) € tous les mois** sans exception — sauf février 2026, **3 900,00**.
+La fiche la porte en retenue, sous « **Déduction avance reçue** ». C'est un
+montant FIXE, le même tous les mois sans exception — sauf février 2026, où
+il est double.
 
 Ce doublement est un **incident, pas une règle**. Le client : « en février
 c'était une erreur, elle avait été payée deux fois ; j'ai dû rendre une
 partie avec mon salaire du mois d'après. » La reprise se lit sur la fiche
-complémentaire du 09/03/2026, qui porte un **brut négatif de (montant retiré) €**
-sous « Recup à payer » — une reprise, non une retenue ordinaire, d'où le
-brut négatif.
+complémentaire du 09/03/2026, qui porte un **brut négatif** sous « Recup à
+payer » — une reprise, non une retenue ordinaire, d'où le brut négatif.
 
 Un simulateur n'a pas à reproduire cela : c'est une correction de paie, pas
 un mécanisme. Mais il fallait l'écrire, sinon ce mois restera longtemps un
@@ -560,7 +567,7 @@ mystère pour qui compare les fiches à l'horaire.
 
 Elle se saisit dans le champ **« Avance déjà reçue (€) »** de l'onglet
 Horaire, mois par mois. Sans elle, le « net à recevoir » de la fiche simulée
-est trop élevé de 1 950 € : le brut et les retenues sont justes, c'est le
+est trop élevé d'autant : le brut et les retenues sont justes, c'est le
 solde à virer qui ne l'est pas.
 
 **À ne pas confondre avec l'avance CCT 90**, qui porte le libellé « Avantage
