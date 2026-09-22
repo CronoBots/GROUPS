@@ -5459,12 +5459,22 @@ function polyvalenceDe(db,p){
   POSTES_TRAVAIL.forEach(function(P){
     if(P.cm||P.k==="adj"||P.k===sien) return;
     var n=par[P.k]||0, a=aLaPolyvalence(p,P);
-    /* Le client, le 22/09/2026 : « il doit être écrit 0/X dans la colonne où
-       ils ont la polyvalence mais qu'ils n'ont pas encore fait de
-       remplacement ». Une case vide ne disait pas si la personne ne pouvait
-       pas tenir le poste ou si elle le pouvait sans l'avoir encore fait —
-       et c'est justement CELA qu'un contremaître cherche. */
-    if(!n && !a) return;
+    /* LA POLYVALENCE D'ABORD, les journées ensuite. Le client, le
+       22/09/2026 : « les polyvalences ne doivent compter que s'ils ont cette
+       polyvalence dans leurs connaissances ; AAI et ALZ ont été à la STEP
+       pour voir à quoi cela ressemblait sans faire de polyvalence ».
+
+       Une journée à un poste qu'on ne possède pas n'apprend pas ce poste :
+       on y est passé, on ne l'a pas tenu. Le compteur ne bouge donc que
+       pour les postes inscrits aux connaissances de la personne — et le
+       poste non possédé disparaît de sa ligne, journées comprises.
+
+       Le second membre de cette règle : « il doit être écrit 0/X dans la
+       colonne où ils ont la polyvalence mais qu'ils n'ont pas encore fait de
+       remplacement ». Une case vide ne disait pas si la personne ne POUVAIT
+       pas tenir le poste ou si elle le POUVAIT sans l'avoir encore fait, et
+       c'est justement cela qu'un contremaître cherche. */
+    if(!a) return;
     out.push({t:P.t, k:P.k, z:P.z, n:n, q:q, ok:n>=q, acquis:a});
   });
   out.sort(function(a,b){ return b.n-a.n; });

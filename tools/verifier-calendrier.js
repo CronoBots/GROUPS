@@ -378,6 +378,24 @@ if(process.argv.indexOf("--polyvalence")>=0){
   console.log("\n  "+atteints+" couple(s) personne-poste au quota sur "+total
     +",\n  dont "+vierges+" où la polyvalence est acquise sans qu'un seul "
     +"remplacement ait été fait");
+  /* Ce que la règle stricte ÉCARTE : des journées bel et bien tenues, à un
+     poste que la personne ne possède pas. Elles ne comptent pas — « AAI et
+     ALZ ont été à la STEP pour voir à quoi cela ressemblait » — mais les
+     taire serait perdre une information que personne d'autre ne porte. */
+  const hors=[];
+  gens.forEach(p=>{
+    const par=t.parId[p.id]||{};
+    let sien; try{ sien=posteTenu(p,[],H_JOUR,null)||posteParDefaut(p); }
+    catch(e){ sien=null; }
+    POSTES_TRAVAIL.forEach(P=>{
+      if(P.cm||P.k==="adj"||P.k===sien) return;
+      if(!par[P.k]||aLaPolyvalence(p,P)) return;
+      hors.push("   "+p.id+"  "+P.t+" "+par[P.k]+" journée(s)");
+    });
+  });
+  console.log("\n  Journées tenues SANS la polyvalence du poste, donc non "
+    +"comptées ("+hors.length+") :");
+  hors.forEach(l=>console.log(l));
   process.exit(0);
 }
 
