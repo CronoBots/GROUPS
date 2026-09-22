@@ -6093,9 +6093,10 @@ function renderOrganisation(){
        tableau.
 
        La règle : qui porte un POSTE au classeur est titulaire de sa ligne ;
-       qui porte autre chose — polyvalent, renfort — se place sur CHAQUE ligne
-       qu'il est validé à tenir. Sa polyvalence dit où il peut aller, et
-       c'est la seule source qui le dise.
+       qui porte autre chose — polyvalent, renfort — se place sur chaque ligne
+       DE SON CÔTÉ qu'il est validé à tenir. Sa polyvalence dit où il peut
+       aller ; la colonne où le classeur l'écrit dit de quel côté il est
+       attendu. Il faut les deux — voir COTE_AV / COTE_AR plus bas.
 
        « Les postes les liant » est le mot juste du client pour le TERRAIN
        ARRIÈRE : le poste qui relie la fermentation et la distillation. Il ne
@@ -6117,14 +6118,40 @@ function renderOrganisation(){
       var court=PV_COURT[P.k]||P.t;
       LIGNES.push(court); LIG_Z[court]=P.z||""; LIG_LONG[court]=P.t;
     });
+    /* UN CÔTÉ N'EST PAS UNE ÉTIQUETTE, C'EST UNE PLACE. Le client, le
+       22/09/2026 : « les polyvalents avant/arrière sont complètement mélangés
+       avec les autres fonctions ». La polyvalence seule disait où quelqu'un
+       PEUT aller ; elle ne dit pas de quel côté de l'usine il est attendu, et
+       les quatre polyvalents à cinq ateliers se retrouvaient sur les six
+       lignes à la fois — de la meunerie aux chaudières.
+
+       Le classeur le dit, lui, par l'ORDRE de ses colonnes, qui est celui du
+       procédé : le polyvalent arrière en O, juste avant la fermentation (Q) et
+       la distillation (S) ; les renforts en U et W ; puis la meunerie (Y), le
+       gluten (AA) et les DEUX polyvalents avant (AC, AE) ; les chaudières en
+       fin de rangée. roleDeFeuille() lit déjà cette colonne — c'est elle qui
+       distingue « polyvalent » arrière de « polyvalent » avant, le mot étant
+       le même des deux côtés.
+
+       Les chaudières sont la seule ligne que cet ordre ne range d'aucun côté.
+       Elles vont à l'ARRIÈRE : DWS, le seul polyvalent arrière au profil
+       étroit, possède exactement fermentation, distillation et chaudières, et
+       rien du bloc avant. À faire confirmer.
+
+       Qui ne porte NI polyvalent NI renfort garde toutes ses lignes : le côté
+       ne se devine pas, et une personne sans rôle déclaré n'en a pas. */
+    var COTE_AV={meun:1, glut:1}, COTE_AR={ferm:1, terr:1, dist:1, chau:1};
     function _orgLignesDe(p){
-      /* Les lignes qu'une personne SANS poste attitré est validée à tenir. */
-      var out=[];
+      /* Les lignes qu'une personne SANS poste attitré est validée à tenir,
+         de son côté d'usine. */
+      var r=roleDeFeuille(p), out=[];
+      var cote=(r==="pv"||r==="rv")?COTE_AV:((r==="pa"||r==="ra")?COTE_AR:null);
       LIGNES.forEach(function(court){
         var lib=LIG_LONG[court], P=null;
         for(var i=0;i<POSTES_TRAVAIL.length;i++)
           if(POSTES_TRAVAIL[i].t===lib) P=POSTES_TRAVAIL[i];
         if(!P) return;
+        if(cote && !cote[P.k]) return;
         if(P.k==="terr"){ if(tientTerrainArriere(p)) out.push(court); return; }
         if(P.rx && aLAtelier(p,P.rx)) out.push(court);
       });
