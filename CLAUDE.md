@@ -592,11 +592,18 @@ Il ne recompte rien à côté : il **découpe** `calculerPolyvalence()` et
 et elle a divergé le jour même sur BBZ — « son poste » n'y suivait pas la
 même chaîne.
 
-Quatre choix, tranchés avec le client le 22/09/2026 et écrits dans le code
+Cinq choix, tranchés avec le client le 22/09/2026 et écrits dans le code
 plutôt que cachés :
 
+- **la période court du 1er février au 1er février**, et non sur l'année
+  civile : « la polyvalence se déroule sur la période du 1er février au
+  1er février de l'année d'après ». Compter depuis le 1er janvier ajoutait
+  un mois appartenant à la période précédente — quatre couples au quota de
+  moins une fois janvier écarté. L'horaire ne couvrant qu'une année, une
+  période à cheval n'est mesurable que pour sa part présente dans le
+  fichier ;
 - on s'arrête **AUJOURD'HUI**. Le classeur court jusqu'au 31/12 ; compter
-  l'année entière créditerait des journées qui n'ont pas eu lieu, et ATR
+  la fin de l'année créditerait des journées qui n'ont pas eu lieu, et ATR
   atteignait ainsi le quota aux chaudières sans y avoir mis les pieds ;
 - **le poste habituel ne compte pas** : un quota de dix journées ne veut rien
   dire sur le poste qu'on tient tous les jours, et NPE y affichait 211/10 ;
@@ -614,8 +621,21 @@ distillation. `posteParDefaut()` vient en dernier, faute de quoi PDE n'a pas
 de poste habituel et ses 134 journées à la station passent pour de la
 polyvalence.
 
-**Au 22/09/2026 : 37 couples personne-poste au quota sur 82** — mesuré
-identique par l'outil et par le navigateur.
+**« 0/X » se lit dans la colonne d'un poste dont la polyvalence est acquise
+sans qu'un seul remplacement ait été fait.** Le client : « il doit être écrit
+0/X dans la colonne où ils ont la polyvalence mais qu'ils n'ont pas encore
+fait de remplacement ». Une case vide ne disait pas si la personne ne pouvait
+pas tenir le poste ou si elle le pouvait sans l'avoir encore fait — et c'est
+justement cela qu'un contremaître cherche. « Terrain arrière » ne figure dans
+aucune liste de polyvalence du classeur : il se déduit de Fermentation ET
+Distillation, comme `tientTerrainArriere()` le fait partout ailleurs.
+
+**La liste est alphabétique, sans intercalaire d'équipe** : on cherche
+quelqu'un par son trigramme, pas par son équipe.
+
+**Au 22/09/2026 : 33 couples personne-poste au quota sur 104, dont 23 où la
+polyvalence est acquise sans un seul remplacement** — mesuré identique par
+l'outil et par le navigateur.
 
 Second contrôle, indépendant, et il se lance lui aussi :
 

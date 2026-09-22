@@ -98,6 +98,7 @@ const MORCEAUX=[
      refaire. Une première version le réimplémentait, et elle a aussitôt
      divergé sur BBZ — « poste habituel » n'y suivait pas la même chaîne. */
   ["var POLY_QUOTA=",";"],
+  ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
   ["function calculerPolyvalence(","\n}"],
   ["function polyvalenceDe(","\n}"],
@@ -362,19 +363,21 @@ if(process.argv.indexOf("--polyvalence")>=0){
   const tout=process.argv.indexOf("--tout")>=0;
   const t=calculerPolyvalence(db);
   console.log("\nPolyvalence — journées COMPLÈTES (8 h) tenues à chaque poste"
-    +"\nAUTRE que le sien, du 01/01 au "+t.fin.slice(2)+"/"+t.fin.slice(0,2)
-    +"/"+ANNEE+"\n");
-  let atteints=0, total=0;
-  gens.forEach(p=>{
+    +"\nAUTRE que le sien, du "+t.debut.slice(2)+"/"+t.debut.slice(0,2)
+    +" au "+t.fin.slice(2)+"/"+t.fin.slice(0,2)+"/"+ANNEE
+    +"\n(la période de polyvalence court du 1er février au 1er février)\n");
+  let atteints=0, total=0, vierges=0;
+  gens.sort((a,b)=>a.id<b.id?-1:(a.id>b.id?1:0)).forEach(p=>{
     const l=polyvalenceDe(db,p)||[];
     if(!l.length && !tout) return;
-    const bouts=l.map(o=>{ total++; if(o.ok) atteints++;
+    const bouts=l.map(o=>{ total++; if(o.ok) atteints++; if(!o.n) vierges++;
       return o.t+" "+o.n+"/"+o.q+(o.ok?" \u2713":""); });
     console.log("  "+p.id+"  "+(estCadre(p)?"adjoint  ":"opérateur")+"  "
       +(bouts.join("  ")||"\u2014"));
   });
   console.log("\n  "+atteints+" couple(s) personne-poste au quota sur "+total
-    +" où au moins une journée complète a été tenue à un AUTRE poste");
+    +",\n  dont "+vierges+" où la polyvalence est acquise sans qu'un seul "
+    +"remplacement ait été fait");
   process.exit(0);
 }
 
