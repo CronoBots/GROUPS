@@ -257,17 +257,17 @@ seule — « Contremaître » — ne disait rien du jour ; `posteDuJourDe()` rej
 « Contremaître · nuit », « STEP · matin », « Jour », « Congé » ou « Repos ».
 Il ne recompte rien : c'est la vue de l'équipe qui répond.
 
-**Elle prend toute la largeur, sur sa propre ligne.** Le client, le
-22/09/2026 : « pourquoi ne pas utiliser toute la largeur de la barre du
-haut ? il faut écrire aussi la date du jour près de la pause prévue
-aujourd'hui ». Serrée sous le nom de l'application, la moitié droite de sa
-ligne restait vide sous le sélecteur de mois. Sur sa propre bande elle porte
-le trigramme, **la date du jour** et le poste — la date étant ce à quoi
-« nuit » se rapporte : sans elle, la pause annoncée ne dit pas de quel jour
-elle est.
+**Elle tient sur la seconde ligne du bloc de marque** : trigramme, **date du
+jour** et poste. La date étant ce à quoi « nuit » se rapporte — sans elle, la
+pause annoncée ne dit pas de quel jour elle est.
 
-Elle coûte 36 px de barre collante sur téléphone (55 → 91). C'est le prix de
-la rangée, et il est assumé.
+Elle a eu sa propre bande pleine largeur pendant une heure, faute de place à
+côté du sélecteur de mois, et la barre collante était passée de 55 à 91 px.
+Le sélecteur parti, les 314 px restant à droite du logo suffisent aux trois
+morceaux : trigramme (44), date (105) et poste (92) avec leurs écarts font
+257. **58 px de barre de 320 à 1280 px**, et rien n'est tronqué à partir de
+360 — à 320 c'est le poste qui s'abrège, jamais la date ni le trigramme, qui
+ne se devinent pas à moitié.
 
 **Le sélecteur de mois n'y est plus.** Le client, le 22/09/2026 : « la
 sélection du mois de l'année ne doit pas être dans la barre du haut mais

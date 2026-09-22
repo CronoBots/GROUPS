@@ -154,32 +154,35 @@ button{cursor:pointer}
 .brand{display:flex; align-items:center; gap:10px; margin-right:auto;
   min-width:0; text-align:left; background:none; border:0; padding:2px 0;
   border-radius:8px; cursor:pointer; color:inherit}
-.blogo{flex:0 0 auto; width:34px; height:34px; border-radius:9px; display:block}
+.blogo{flex:0 0 auto; width:38px; height:38px; border-radius:10px; display:block}
+.btxt{display:flex; flex-direction:column; gap:3px; min-width:0; flex:1 1 0}
 .brand h1{font-size:14px; letter-spacing:.01em; font-weight:700; line-height:1.1}
-/* LA BANDE D'IDENTITÉ prend toute la largeur. Le client, le 22/09/2026 :
-   « pourquoi ne pas utiliser toute la largeur de la barre du haut ? il faut
-   écrire aussi la date du jour près de la pause prévue aujourd'hui ».
+/* L'IDENTITÉ TIENT SUR LA SECONDE LIGNE DU BLOC DE MARQUE. Le client, le
+   22/09/2026 : « maintenant que la sélection du mois n'est plus dans la
+   barre du haut tu peux mieux répartir pour ne pas l'élargir ».
 
-   Elle était serrée sous le nom de l'application, la moitié droite de sa
-   ligne restant vide sous le sélecteur de mois. Sur sa propre ligne elle a
-   la place de porter la date, qui est ce à quoi « nuit » se rapporte : sans
-   elle, on ne sait pas de quel jour on parle. */
-.ident{order:3; width:100%; display:flex; align-items:baseline; gap:8px;
-  min-width:0; margin:0; padding:5px 9px; border:0; border-radius:9px;
-  background:var(--surface2); text-align:left; cursor:pointer;
-  font:inherit; color:var(--faint); line-height:1.25}
-.ident:hover{background:var(--surface3)}
-.ident:empty{display:none}
+   Elle avait eu sa propre bande pleine largeur, faute de place à côté du
+   sélecteur de mois — et la barre collante était passée de 55 à 91 px. Le
+   sélecteur parti, les 314 px qui restent à droite du logo suffisent aux
+   trois morceaux : le trigramme (44), la date (105) et le poste (92) avec
+   leurs écarts font 257. La barre redescend à sa hauteur d'origine sans
+   rien perdre. */
+.ident{display:flex; align-items:baseline; gap:8px; min-width:0;
+  line-height:1.25; color:var(--faint)}
 /* Le trigramme est une plaque, pas un mot : c'est l'identité de la personne,
    et elle se lit d'un coup d'œil sans se confondre avec ce qui suit. */
 .ident b{flex:0 0 auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--in);
   background:var(--in-soft); border-radius:5px; padding:1px 7px}
 .ident .idate{flex:0 0 auto; font-size:11.5px; font-weight:600; color:var(--ink2)}
+/* Le poste se cale à droite : c'est le morceau qui change le plus souvent,
+   et l'œil qui revient le cherche toujours au même endroit. C'est aussi lui
+   qui s'abrège quand l'écran manque — la date et le trigramme, eux, ne se
+   devinent pas à moitié. */
 .ident em{font-style:normal; min-width:0; margin-left:auto; text-align:right;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   font-size:11.5px; color:var(--ink2)}
-.ident:hover b{background:var(--in); color:var(--surface)}
+.brand:hover .ident b{background:var(--in); color:var(--surface)}
 .qui{display:grid; grid-template-columns:1fr 1fr; gap:12px}
 .qui label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .qui select{
@@ -1371,15 +1374,16 @@ body.sheet-on{overflow:hidden}
 <header class="top">
   <div class="top-in">
     <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
-      <img class="blogo" src="icon-192.png" alt="" width="34" height="34" decoding="async">
-      <h1>BIOWANZE</h1>
+      <img class="blogo" src="icon-192.png" alt="" width="38" height="38" decoding="async">
+      <span class="btxt">
+        <h1>BIOWANZE</h1>
+        <span class="ident" id="brandsub"></span>
+      </span>
     </button>
     <div class="netchip">
       <span class="k">Net à recevoir</span>
       <span class="v" id="netTop">—</span>
     </div>
-    <button type="button" class="ident" id="brandsub" data-go="reglages"
-            aria-label="Mes réglages"></button>
   </div>
   <!-- Le sélecteur de mois vit ICI, hors de tout onglet, et va se ranger
        dans celui qui l'emploie — comme la barre d'onglets va se ranger dans
