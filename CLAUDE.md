@@ -690,7 +690,17 @@ entre le blanc du haut et celui du bas, à 390 comme à 1280 px.
 
 **SKS et NPI n'ont pas encore d'équipe**, et ce n'est pas une lacune du
 classeur : c'est leur situation, dite par le client le 22/09/2026. La carte
-porte donc ce titre-là. CDT, lui, EN A une — reste à savoir laquelle.
+porte donc ce titre-là. **CDT est de l'équipe 2**, en formation distillation,
+et c'est lui qui le dit également — sa ligne écrit « Distillation » tout
+court là où LCI porte « Distillation éq. 5 ». `EQUIPE_TRANCHEE` porte cette
+décision, comme `POSTE_TRANCHE` porte celle de QBY.
+
+**Sa rotation colle à 90 % à celle de l'équipe 2 — et on ne s'en sert
+pas.** Il faut savoir pourquoi : GST suit celle de l'équipe 4 à 74 % alors
+que le classeur le donne à l'équipe 3, et SKS celle de l'équipe 5 à 97 %
+alors qu'il n'a pas d'équipe du tout. **Suivre une rotation n'est pas
+appartenir à une équipe** ; la déduire aurait donné deux réponses fausses
+sur trois.
 
 **L'ENCRE S'INVERSE : les intitulés en clair, les trigrammes en gris.** Le
 client, le 22/09/2026 : « je préfère les colonnes principales en blanc et les
@@ -710,9 +720,8 @@ la colonne des postes — pas d'écouteur de redimensionnement.
 débordait d'UN pixel. C'est le même piège qu'à 104 px, et il se rouvre à
 chaque fois qu'on grossit cet intitulé — mesurer, ne pas estimer.
 
-Contrôlé : **61 trigrammes**, chacun écrit une fois et une seule — les 56
-personnes d'équipe et les 5 opérateurs en formation que le classeur rattache
-à une équipe. Personne sous le tableau, aucun débordement à 390, 1280 clair
+Contrôlé : **62 trigrammes**, chacun écrit une fois et une seule — les 56
+personnes d'équipe et les 6 opérateurs en formation rattachés à une équipe. Personne sous le tableau, aucun débordement à 390, 1280 clair
 et 1280 sombre.
 
 ### Les cadres de l'onglet Équipe
