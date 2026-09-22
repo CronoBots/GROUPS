@@ -358,6 +358,30 @@ avec `auto`, elle réclamait ses 190 px avant d'accepter de rétrécir.
 
 Vérifié hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
+## La barre d'onglets porte la couleur du logo
+
+Le client, le 22/09/2026 : « barre de navigation de la même couleur que le
+background du logo ». C'est **`#1A2539`**, le bleu nuit de la tuile — relevé
+dans `logo.png` par lecture du fichier, pas approché à l'œil, et le même que
+celui dont `icone()` tire les cinq icônes.
+
+Elle se pose dans les **deux thèmes**, et c'est le point : une couleur de
+marque n'appartient ni au clair ni au sombre. D'où deux jetons déclarés une
+seule fois, hors des deux blocs de thème — `--marque` et `--marque-vif` — et
+des couleurs d'écriture à elle, en blanc transparent. Sans cela, en thème
+clair, `--ink` est presque noir et `--in` un bleu foncé : les deux
+disparaîtraient sur ce fond.
+
+Mesuré dans les deux thèmes : fond `rgb(26, 37, 57)` — exactement celui de
+la tuile — **contraste 7,46:1** pour un onglet au repos et **6,46:1** pour
+l'onglet actif, contre un seuil de 4,5.
+
+Les trois règles qui peignent les boutons ont la MÊME spécificité que celles
+du haut de la feuille, qui peignent la barre du bureau ; **elles gagnent
+parce qu'elles sont écrites après**. Ne pas les déplacer plus haut — c'est
+le même piège que la zébrure de la polyvalence et que la barre d'onglets
+sous 375 px.
+
 ## La barre d'onglets n'est pas ancrée par une unité de hauteur
 
 Elle vit dans un cadre à elle, `.navwrap`, hors de l'en-tête collant — c'est

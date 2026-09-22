@@ -28,6 +28,11 @@
   --paper:#E8EDEF; --surface:#FFFFFF; --surface2:#F3F7F8; --surface3:#E9F0F2;
   --ink:#0E1A20; --ink2:#33464F; --muted:#5A6D76; --faint:#85979F;
   --line:#D2DCE0; --line2:#E5ECEE;
+  /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
+     qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
+     ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
+     ici une seule fois. */
+  --marque:#1A2539; --marque-vif:#69B2CB;
   --in:#0B4A5F; --in2:#17758F; --in-soft:#DAEAEF;
   --out:#8A4622; --out2:#B4602F; --out-soft:#F4E3D9;
   --good:#136349; --good-soft:#DBEEE5;
@@ -1305,14 +1310,30 @@ body.sheet-on{overflow:hidden}
 .navwrap[hidden]{display:none}
 .navwrap>.tabs{pointer-events:auto}
 @media (max-width:760px){
+  /* LA BARRE DE NAVIGATION PORTE LA COULEUR DU LOGO. Le client, le
+     22/09/2026 : « barre de navigation de la même couleur que le background
+     du logo ». C'est #1A2539, le bleu nuit de la tuile — relevé dans le
+     fichier, pas approché à l'œil, et le même que celui dont dérivent les
+     cinq icônes.
+
+     Elle se pose dans les DEUX thèmes : c'est une couleur de marque, elle
+     n'appartient pas au clair ni au sombre. D'où des couleurs d'écriture à
+     elle, en blanc transparent, et non les jetons du thème — en clair,
+     « --ink » est presque noir et « --in » un bleu foncé : les deux
+     disparaîtraient sur ce fond. */
   .tabs{
     position:static; width:100%; max-width:none; margin:0;
     padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
-    background:var(--surface); border-top:1px solid var(--line); gap:0;
+    background:var(--marque); border-top:1px solid rgba(255,255,255,.10); gap:0;
   }
-  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 2px; border-radius:9px; font-size:10.5px}
+  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:5px 2px; border-radius:9px; font-size:10.5px; color:rgba(255,255,255,.66)}
   .tabs button svg{display:block}
-  .tabs button[aria-selected="true"]{background:var(--in-soft)}
+  /* Ces trois règles ont la MÊME spécificité que celles du haut de la
+     feuille, qui peignent la barre du bureau ; elles gagnent parce qu'elles
+     sont écrites APRÈS. Ne pas les déplacer plus haut. */
+  .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
+  .tabs button[aria-selected="true"]{color:var(--marque-vif); background:rgba(255,255,255,.10)}
   .tabs button[aria-selected="true"]::after{display:none}
   .tabs .dotwarn{position:absolute; top:4px; right:calc(50% - 16px); margin:0}
   .wrap{padding-bottom:96px}
