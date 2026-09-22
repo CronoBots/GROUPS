@@ -968,3 +968,36 @@ C'est une rémunération ordinaire : elle entre dans le brut, ONSS et précompte
 pleins. Elle n'est **pas** proratisée par la fraction, contrairement à la
 rémunération fixe : c'est le montant tel qu'il figure sur la fiche qui se
 saisit. À confirmer sur la première fiche qui la porte.
+
+## Le rappel se compte depuis le jour PRESTÉ
+
+Le classeur porte parfois le compteur sur une journée, et le travail sur une
+autre : la ligne est un repos avec `4h +FT`, et le commentaire dit
+« presté le 13.03 ». Le client, le 22/09/2026 : **« oui c'est bien ça le
+jour presté »**.
+
+La date du rappel se compare donc à **ce jour-là**, et non à la ligne qui
+porte le compteur. Sept journées de l'année le disent ; six changeaient de
+coefficient :
+
+| | Depuis la ligne | Depuis le jour presté |
+|---|---|---|
+| quatre journées | **aucun rappel** | coefficient 2 ou 1,5 |
+| deux journées | coefficient 1,5 | **coefficient 2** |
+| une journée | coefficient 2 | coefficient 2 (inchangé) |
+
+Mesurées depuis le jour presté, les sept tombent **dans** le barème ; depuis
+la ligne, six en sortaient — une demande postérieure à la journée est
+refusée, et elle l'était à tort.
+
+`RX_PRESTE_AILLEURS` reste **séparée** de `RX_PRIS_AILLEURS`, qui dit
+pourtant presque la même chose. « Pris le » désigne des heures **consommées**
+ailleurs, dont l'annotation est écartée pour ne pas les compter deux fois ;
+« presté le » désigne des heures **gagnées** ailleurs, que le compteur de la
+ligne enregistre bel et bien. Les confondre déplacerait 52 journées de flex
+time — le nombre de journées qui écrivent « presté le » sans que l'ancien
+motif les voie.
+
+Le classeur écrit aussi la date en tête du commentaire, suivie de deux
+points. Ce motif-là est délibérément étroit — ancré au début et exigeant le
+« : » — sans quoi n'importe quelle date y passerait.
