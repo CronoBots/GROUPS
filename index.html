@@ -761,13 +761,15 @@ body.sheet-on{overflow:hidden}
 .eqt{width:100%; border-collapse:collapse; table-layout:fixed}
 .eqt tr+tr th, .eqt tr+tr td{border-top:1px solid var(--line2)}
 .eqt th, .eqt td{padding:7px 4px; vertical-align:top; text-align:left}
-/* « CONTREMAÎTRE » est un seul mot de douze signes : il ne se coupe pas, et
-   à 96 px il passait par-dessus son effectif. La colonne est taillée sur lui. */
-.eqt th[scope="row"]{width:110px; padding-left:16px; font-size:10.5px; font-weight:700;
+/* La colonne du poste ne coupe JAMAIS son nom — le client, le 22/09/2026 :
+   « élargir la colonne du poste pour ne pas avoir de retour à la ligne » —
+   et l'effectif se cale tout a droite de sa cellule. */
+.eqt th[scope="row"]{width:150px; padding-left:16px; font-size:10.5px; font-weight:700;
   letter-spacing:.02em; text-transform:uppercase; color:var(--faint);
-  border-left:3px solid transparent; overflow-wrap:anywhere}
-.eqt td.eqc{width:42px; font-family:"IBM Plex Mono",monospace; font-size:11px;
-  font-weight:600; color:var(--muted); text-align:right; white-space:nowrap}
+  border-left:3px solid transparent; white-space:nowrap}
+.eqt td.eqc{width:52px; font-family:"IBM Plex Mono",monospace; font-size:11px;
+  font-weight:600; color:var(--muted); text-align:right; white-space:nowrap;
+  padding-right:14px}
 .eqt td.eqw{padding-right:16px; padding-left:10px}
 .eqt tr.manque th[scope="row"]{color:var(--out)}
 .eqt tr.manque td.eqc{color:var(--out); font-weight:700}
@@ -781,11 +783,71 @@ body.sheet-on{overflow:hidden}
    colonne de la pause reste collée à gauche pour qu'on sache toujours
    quelle ligne on lit. */
 .eqgrille{overflow-x:auto; -webkit-overflow-scrolling:touch}
+/* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
+   Le nom du poste ne se coupe jamais — le client l'a demandé — et son
+   effectif minimal se cale tout a droite de sa cellule. */
+.eqp2{border-collapse:separate; border-spacing:0; width:100%; table-layout:fixed}
+.eqp2 th, .eqp2 td{vertical-align:middle; text-align:center; padding:7px 8px;
+  border-left:1px solid var(--line2)}
+.eqp2 thead th{border-bottom:1px solid var(--line); padding-bottom:9px}
+.eqp2 thead th b{display:block; font-size:12px; font-weight:650; color:var(--ink)}
+.eqp2 thead th em{display:block; font-style:normal; font-size:9.5px; color:var(--faint)}
+.eqp2 thead th[data-s]{border-top:3px solid transparent}
+.eqp2 thead th[data-s="AM"]{border-top-color:var(--am)}
+.eqp2 thead th[data-s="PM"]{border-top-color:var(--pm)}
+.eqp2 thead th[data-s="N"] {border-top-color:var(--n)}
+.eqp2 th.eqposte{width:150px; text-align:left; white-space:nowrap;
+  padding-left:16px; border-left:3px solid transparent}
+/* PAS de display:flex sur un <th> : il sort alors de la mise en page du
+   tableau et sa ligne ne s'aligne plus sur les autres cellules. Le nom
+   coule normalement, l'effectif flotte à droite. */
+.eqp2 tbody th.eqposte b{font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--faint)}
+/* L'effectif est posé au bord droit de la cellule, et la place lui est
+   RÉSERVÉE : le nom ne se coupant jamais, un simple flottant le laissait
+   passer par-dessus dès que la colonne se resserrait. */
+.eqp2 th.eqposte{position:relative; padding-right:30px}
+.eqp2 th.eqposte small{position:absolute; right:10px; top:50%;
+  transform:translateY(-50%); font-family:"IBM Plex Mono",monospace;
+  font-size:10px; font-weight:600; color:var(--muted)}
+.eqp2 thead th.eqposte small{top:auto; bottom:9px; transform:none}
+.eqp2 thead th.eqposte{font-size:11px; font-weight:700; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--faint)}
+.eqp2 thead th.eqposte small{text-transform:none; letter-spacing:0; opacity:.8}
+.eqp2 tbody tr[data-z="jaune"] th.eqposte{border-left-color:var(--at-jaune)}
+.eqp2 tbody tr[data-z="vert"]  th.eqposte{border-left-color:var(--at-vert)}
+.eqp2 tbody tr[data-z="rouge"] th.eqposte{border-left-color:var(--at-rouge)}
+.eqp2 tbody tr[data-z="bleu"]  th.eqposte{border-left-color:var(--at-bleu)}
+.eqp2 tbody tr[data-z="gris"]  th.eqposte{border-left-color:var(--at-gris)}
+.eqp2 tbody tr+tr th, .eqp2 tbody tr+tr td{border-top:1px solid var(--line2)}
+.eqp2 tbody tr.zone1 th, .eqp2 tbody tr.zone1 td{border-top:2px solid var(--line)}
+.eqp2 td.manque{background:var(--out-soft)}
+.eqp2 td.manque .eqvide{color:var(--out); font-weight:700}
+.eqp2 td.vide{background:var(--surface2)}
+.eqp2 td .eqn{display:inline-block; margin:2px 3px}
+.eqp2 td .eqn b{display:inline-block; min-width:44px; padding:3px 9px; border-radius:6px;
+  background:#FFFFFF; color:#11181D; border:1px solid rgba(17,24,29,.14);
+  font-size:11.5px; letter-spacing:.04em}
+.eqp2 td .eqn.moi b{box-shadow:0 0 0 1.5px var(--in)}
+.eqp2 .eqvide{color:var(--faint); font-size:11px}
+@media (max-width:560px){
+  /* « CONTREMAÎTRE » est le plus long, et il ne se coupe pas : la colonne et
+     le corps sont taillés sur lui, place de l'effectif comprise. */
+  .eqp2 th.eqposte{width:128px; padding-left:11px; padding-right:26px}
+  .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
+  .eqp2 th.eqposte small{right:8px; font-size:9.5px}
+  .eqp2 th, .eqp2 td{padding:6px 4px}
+  .eqp2 td .eqn{margin:2px 1px}
+  .eqp2 td .eqn b{min-width:38px; padding:3px 6px; font-size:10.5px}
+}
 .eqg2{border-collapse:separate; border-spacing:0; min-width:100%}
 /* Chaque poste a son trait, pas seulement chaque zone : la séparation de
    zone est simplement plus épaisse. Et le contenu d'une case se centre —
    ce sont des badges alignés sous un intitulé, pas un paragraphe. */
-.eqg2 th, .eqg2 td{vertical-align:middle; text-align:center; padding:9px 10px;
+/* Resserrée : la vue par pause laissait de grandes plages vides sur un
+   écran large, huit postes en colonnes étirant chaque ligne. Elle reste le
+   second regard — celui qui compare les pauses entre elles. */
+.eqg2 th, .eqg2 td{vertical-align:middle; text-align:center; padding:6px 8px;
   border-left:1px solid var(--line2)}
 .eqg2 thead th{vertical-align:bottom}
 .eqg2 th.eqpause{text-align:left; vertical-align:top}
@@ -815,7 +877,7 @@ body.sheet-on{overflow:hidden}
   .eqg2 th, .eqg2 td{padding:7px 8px}
   .eqg2 th.eqpause{width:82px; min-width:82px}
 }
-.eqg2 th.eqpause b{display:block; font-size:12.5px; font-weight:650; color:var(--ink)}
+.eqg2 th.eqpause b{display:block; font-size:12px; font-weight:650; color:var(--ink)}
 .eqg2 th.eqpause em{display:block; font-style:normal; font-size:10px; color:var(--faint)}
 /* La pause se marque d'un trait à gauche, pas d'une pastille : un span
    inline ignore sa largeur, et le point ne se voyait pas. Un trait de
@@ -838,7 +900,7 @@ body.sheet-on{overflow:hidden}
    et écriture noire dans les deux thèmes — le client, le 22/09/2026 : « les
    badges avec les prénoms doivent être blanc écriture noir ». La couleur de
    la zone reste à l'en-tête, elle n'a pas à être répétée sur chaque jeton. */
-.eqg2 td .eqn{display:block; margin:0 auto 4px}
+.eqg2 td .eqn{display:block; margin:0 auto 3px}
 .eqg2 td .eqn:last-child{margin-bottom:0}
 .eqg2 td .eqn b{display:inline-block; min-width:44px; padding:3px 9px; border-radius:6px;
   background:#FFFFFF; color:#11181D; border:1px solid rgba(17,24,29,.14);
@@ -1234,8 +1296,8 @@ body.sheet-on{overflow:hidden}
       <div class="mqbar">
         <span class="lede">Présentation</span>
         <div class="seg" id="eqVue" role="group" aria-label="Présentation">
-          <button type="button" data-v="grille" aria-pressed="true">Tableau</button>
-          <button type="button" data-v="cartes" aria-pressed="false">Cartes</button>
+          <button type="button" data-v="poste" aria-pressed="true">Par poste</button>
+          <button type="button" data-v="grille" aria-pressed="false">Par pause</button>
         </div>
       </div>
       <p class="lede top" id="eqNote"></p>
@@ -4707,41 +4769,106 @@ function renderEquipe(){
       t.push("</tbody></table></div></div>");
       h.push(t.join(""));
     }
-    EQ_GROUPES.forEach(function(g){
-      if(eqVue==="grille") return;
-      if(RESTE.indexOf(g.k)>=0) return;
-      var l=par[g.k]||[];
-      total+=l.length;
-      if(!l.length) return;
-      l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
-                          : (a.p.cat<b.p.cat?-1:1); });
-      var vue=postesDePause(db,l,g.k,mmdd),
-          formation=vue.formation, inconnus=vue.inconnus, corps=[];
-      var adj=vue.postes.filter(function(o){ return o.P.k==="adj"; })[0];
-      vue.postes.forEach(function(o){
-        if(o.P.k==="adj") return;   /* l'adjoint rejoint le contremaître */
-        if(o.P.k==="cm" && adj && adj.gens.length)
-          o={P:o.P, gens:o.gens.concat(adj.gens), tenu:o.tenu,
-             attendu:o.attendu, detail:o.detail, manque:o.manque, creux:o.creux};
-        corps.push(ligne(o.P.t, o.P.k,
-          o.tenu+(o.attendu?" / "+o.attendu:""), o.gens, g, o.P,
-          o.manque && !inconnus.length, o.P.z));
+    /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
+       Le client, le 22/09/2026 : « peux-tu élargir la colonne du poste pour
+       ne pas avoir de retour à la ligne, et le nombre d'effectif doit être
+       aligné tout à droite de la cellule ; par contre est-ce possible de
+       séparer en 3 la carte matin afin d'y intégrer la pause d'après-midi au
+       milieu et nuit tout à droite ? »
+
+       C'est le tableau retourné, et c'est le bon sens : huit postes en lignes
+       tiennent l'écran là où huit postes en colonnes le débordent. Le jour,
+       la formation et les postes indéterminés suivent dans une carte à part —
+       ils ne se lisent pas poste par poste. */
+    if(eqVue!=="grille"){
+      var PAUSES=EQ_GROUPES.filter(function(g){
+        return ["AM","PM","N"].indexOf(g.k)>=0; });
+      var vp={}, aQui=false;
+      PAUSES.forEach(function(g){
+        var l=(par[g.k]||[]).slice();
+        if(!l.length) return;
+        aQui=true; total+=l.length;
+        l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+                            : (a.p.cat<b.p.cat?-1:1); });
+        vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd)};
       });
-      if(formation.length)
-        corps.push(ligne("Formation","",String(formation.length),formation,g,null,false));
-      if(inconnus.length)
-        corps.push(ligne("À déterminer","",String(inconnus.length),inconnus,g,null,false));
-      h.push('<div class="card eqcard" data-s="'+esc(g.k)+'">'
-        +'<header><h2><span class="eqpt"></span>'+esc(g.t)+"</h2>"
-        +'<span class="sub">'+(g.s?esc(g.s)+" · ":"")+l.length
-        +" personne"+(l.length>1?"s":"")+"</span></header>"
-        +'<table class="eqt"><tbody>'+corps.join("")+"</tbody></table>"
-        +(inconnus.length?'<p class="eqnote">'+inconnus.length+" personne"
-            +(inconnus.length>1?"s":"")+" dont le classeur ne donne pas le poste — "
-            +"elle"+(inconnus.length>1?"s":"")+" couvre"+(inconnus.length>1?"nt":"")
-            +" peut-être un poste affiché sous son effectif.</p>":"")
-        +"</div>");
-    });
+      function poste(gk,ck){
+        var v=vp[gk]&&vp[gk].vue; if(!v) return null;
+        var o=v.postes.filter(function(x){ return x.P.k===ck; })[0]||null;
+        if(ck!=="cm") return o;
+        var a=v.postes.filter(function(x){ return x.P.k==="adj"; })[0];
+        if(!a || !a.gens.length) return o;
+        if(!o) return {P:a.P, gens:a.gens, tenu:0, attendu:0, manque:false};
+        return {P:o.P, gens:o.gens.concat(a.gens), tenu:o.tenu,
+                attendu:o.attendu, manque:o.manque};
+      }
+      if(aQui){
+        var tp=['<div class="card eqcard"><div class="eqgrille"><table class="eqp2">'];
+        tp.push('<thead><tr><th class="eqposte"><small>eff. min.</small>Poste</th>');
+        PAUSES.forEach(function(g){
+          if(!vp[g.k]) return;
+          tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
+            +(g.s?"<em>"+esc(g.s)+"</em>":"")
+            +"<em>"+vp[g.k].n+" pers.</em></th>");
+        });
+        tp.push("</tr></thead><tbody>");
+        var zPrec=null;
+        POSTES_TRAVAIL.forEach(function(P){
+          if(P.k==="adj") return;              /* fondu dans le contremaître */
+          var att=0, sert=false;
+          PAUSES.forEach(function(g){
+            if(!vp[g.k]) return;
+            att=Math.max(att, attenduAuPoste(P,g.k));
+            var o=poste(g.k,P.k); if(o && o.gens.length) sert=true;
+          });
+          if(!att && !sert) return;
+          var debut=(P.z!==zPrec); zPrec=P.z;
+          tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
+            +'<th class="eqposte" scope="row">'
+            +(att?'<small>'+att+"</small>":"")+"<b>"+esc(P.t)+"</b></th>");
+          PAUSES.forEach(function(g){
+            if(!vp[g.k]) return;
+            var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
+            if(!o || (!o.gens.length && !attenduAuPoste(P,g.k))){
+              tp.push('<td class="vide"></td>'); return; }
+            if(o.manque && !v.inconnus.length) cl.push("manque");
+            tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
+              +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
+              +(o.gens.length?'':'<span class="eqvide">'
+                 +(attenduAuPoste(P,g.k)?"0 / "+attenduAuPoste(P,g.k):"—")+"</span>")
+              +"</td>");
+          });
+          tp.push("</tr>");
+        });
+        tp.push("</tbody></table></div></div>");
+        h.push(tp.join(""));
+      }
+
+      /* Le jour, la formation, les postes indéterminés : une carte à part.
+         Aucun ne se range par poste, et les mêler aux trois pauses aurait
+         ajouté des colonnes vides à chaque ligne. */
+      var extra=[], jourL=(par.D||[]).slice();
+      if(jourL.length){
+        total+=jourL.length;
+        jourL.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
+        extra.push(ligne("Jour","",String(jourL.length),jourL,
+          EQ_GROUPES.filter(function(g){return g.k==="D";})[0],null,false,"gris"));
+      }
+      PAUSES.forEach(function(g){
+        if(!vp[g.k]) return;
+        var v=vp[g.k].vue;
+        if(v.formation.length)
+          extra.push(ligne(g.t+" · formation","",String(v.formation.length),
+            v.formation,g,null,false,"blanc"));
+        if(v.inconnus.length)
+          extra.push(ligne(g.t+" · à déterminer","",String(v.inconnus.length),
+            v.inconnus,g,null,false,"blanc"));
+      });
+      if(extra.length)
+        h.push('<div class="card eqcard"><header><h2>Hors pause</h2>'
+          +'<span class="sub">jour, formation, poste à déterminer</span></header>'
+          +'<table class="eqt"><tbody>'+extra.join("")+"</tbody></table></div>");
+    }
 
     /* Et une carte pour le reste : malades, congés, repos. On ne les range
        pas par poste — ils n'en tiennent aucun ce jour-là. */
@@ -4811,7 +4938,7 @@ function renderAnnuaire(db,moi){
    Il ne recalcule rien : equipeDuJour() et postesDePause() sont celles de
    l'onglet Équipe. Une alerte qui compterait autrement que la vue du jour
    serait pire que pas d'alerte du tout. */
-var eqVue=lsGet("ui/eqVue")||"grille";
+var eqVue=lsGet("ui/eqVue")||"poste";
 var mqHorizon=Number(lsGet("ui/mqHorizon")||14);
 /* « octo » n'est pas une abréviation ; celles-ci sont celles de l'usage. */
 var MOIS_BREF=["janv.","févr.","mars","avr.","mai","juin",

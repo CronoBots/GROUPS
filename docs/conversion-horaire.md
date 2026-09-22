@@ -1530,6 +1530,35 @@ effectif.
 Rien du calcul ne change : `postesDePause()` rend les mêmes lignes, seul leur
 habillage est neuf.
 
+### La vue par POSTE, devenue la principale
+
+Le client, le 22/09/2026 : « je n'aime pas du tout la vue tableau, peux-tu
+l'optimiser ? Pour la vue carte, peux-tu élargir la colonne du poste pour ne
+pas avoir de retour à la ligne, et le nombre d'effectif doit être aligné tout
+à droite de la cellule ; par contre est-ce possible de séparer en 3 la carte
+matin afin d'y intégrer la pause d'après-midi au milieu et nuit tout à
+droite ? »
+
+Ce qu'il décrit est **le tableau retourné** : les postes en lignes, Matin,
+Après-midi et Nuit en trois colonnes. Et c'est le bon sens — huit postes en
+lignes tiennent l'écran là où huit postes en colonnes le débordent. C'est
+devenu la vue par défaut ; la bascule s'appelle **Par poste / Par pause**.
+
+- La colonne du poste ne coupe **jamais** son nom. Sur téléphone, colonne et
+  corps sont taillés sur « CONTREMAÎTRE », le plus long.
+- L'effectif minimal est **posé au bord droit**, et la place lui est
+  réservée : le nom ne se coupant pas, un simple flottant le laissait passer
+  par-dessus dès que la colonne se resserrait.
+- **Jamais `display:flex` sur un `<th>`** : il sort alors de la mise en page
+  du tableau et sa ligne cesse de s'aligner sur les cellules voisines. La
+  colonne des postes était décalée d'une demi-ligne, et rien ne le disait.
+- Le jour, la formation et les postes indéterminés vont dans une carte
+  **« Hors pause »** : aucun ne se range par poste, et les mêler aux trois
+  pauses aurait ajouté des colonnes vides à chaque ligne.
+
+La vue par pause reste, resserrée : c'est le second regard, celui qui compare
+les pauses entre elles.
+
 ### Le tableau : les pauses en lignes, les postes en colonnes
 
 Le client, le 22/09/2026, capture d'un autre programme à l'appui : « est-ce
