@@ -744,6 +744,28 @@ body.sheet-on{overflow:hidden}
 }
 
 /* ---------- résumé : le prochain poste ---------- */
+/* LES DEUX VERSEMENTS. Deux colonnes égales : ce sont deux virements de
+   même nature, pas un montant et son accessoire. Le montant en chiffres
+   tabulaires, comme partout où l'on compare des euros ; la date en dessous,
+   parce que c'est elle qu'on vient chercher une fois le montant connu. */
+.versements{display:grid; grid-template-columns:1fr 1fr; gap:1px;
+  background:var(--line2); border-top:1px solid var(--line2)}
+.versements[hidden]{display:none}
+.vs{display:flex; flex-direction:column; gap:2px; padding:11px 16px;
+  background:var(--surface)}
+.vs b{font-size:11px; font-weight:600; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--faint)}
+.vs .vsm{font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--ink)}
+.vs em{font-style:normal; font-size:11.5px; color:var(--ink2)}
+/* Le solde est ce qui reste à venir : c'est lui qu'on regarde. */
+.vs.vs2 .vsm{color:var(--in)}
+.vsnote{grid-column:1/-1; margin:0; padding:9px 16px; background:var(--out-soft);
+  color:var(--out); font-size:11.5px}
+@media (max-width:420px){
+  .vs{padding:10px 12px}
+  .vs .vsm{font-size:15.5px}
+}
 .prochain{display:flex; align-items:center; gap:11px; padding:12px 16px;
   border-top:1px solid var(--line2); border-bottom:1px solid var(--line2)}
 .prochain[hidden]{display:none}
@@ -1492,6 +1514,7 @@ body.sheet-on{overflow:hidden}
         </div>
         <div class="side" id="heroSide"></div>
       </div>
+      <div class="versements" id="versements" hidden></div>
       <div class="prochain" id="prochain" hidden></div>
       <div class="callout" id="alerteDefaut"></div>
       <div class="tiles" id="tiles"></div>
@@ -1913,7 +1936,8 @@ function codeAbsence(t){
 
 var DEF_P={
   statut:"Employé", etatCivil:"Célibataire", conjoint:"Sans objet", enfants:0,
-  remFixe:3000, primeRemise:0, divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
+  remFixe:3000, primeRemise:0, avanceMens:0,
+  divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
   /* primes d'équipe relevées sur les fiches 2026 (la note de 2020 donnait
      0,67 / 1,34 / 3,14 ; elles ont été indexées depuis) */
   primeAM:0.90, primePM:1.80, primeN:4.00, primeD:0,
@@ -2046,6 +2070,44 @@ function flash(msg){
 
 /* ===================== calcul ===================== */
 function daysInMonth(y,m){return new Date(Date.UTC(y,m+1,0)).getUTCDate();}
+
+/* ── LES DEUX VERSEMENTS DU MOIS ──────────────────────────────────────────
+   Le client, le 22/09/2026 : « la règle pour les employés, c'est l'avance
+   4 jours ouvrables avant la fin du mois, et le solde 4 jours ouvrables
+   après la fin du mois ».
+
+   JOUR OUVRABLE au sens belge : tous les jours SAUF le dimanche et les jours
+   fériés légaux — le SAMEDI en est un. C'est la définition de la loi du
+   12 avril 1965 sur la protection de la rémunération, celle-là même dont
+   sort le délai de quatre jours ouvrables. « Jour ouvré », lundi à vendredi,
+   est autre chose et donnerait d'autres dates : en septembre 2026, le 24 et
+   le 6 au lieu du 25 et du 5.
+
+   On compte À PARTIR du dernier jour du mois SANS le compter lui-même : on
+   avance d'un jour avant de regarder s'il est ouvrable. Les fériés viennent
+   de feries(), ceux-là mêmes que le calendrier du mois peint — et ils sont
+   relus quand le comptage change d'année, ce qui arrive tous les décembres. */
+function _ouvrable(d,F){
+  return d.getUTCDay()!==0
+    && !F[d.getUTCFullYear()+"-"+pad2(d.getUTCMonth()+1)+"-"+pad2(d.getUTCDate())];
+}
+function ouvrablesDepuis(dep,n,pas){
+  var d=new Date(dep.getTime()), an=null, F={}, vus=0, garde=0;
+  while(vus<n && garde++<400){
+    d.setUTCDate(d.getUTCDate()+pas);
+    if(d.getUTCFullYear()!==an){ an=d.getUTCFullYear(); F=feries(an); }
+    if(_ouvrable(d,F)) vus++;
+  }
+  return d;
+}
+function versementsDuMois(y,m){
+  var fin=new Date(Date.UTC(y,m,daysInMonth(y,m)));
+  return {avance:ouvrablesDepuis(fin,4,-1), solde:ouvrablesDepuis(fin,4,1)};
+}
+function dateLongue(d){
+  return JOURS_LONGS[(d.getUTCDay()+6)%7].toLowerCase()+" "+d.getUTCDate()
+    +" "+MOIS[d.getUTCMonth()].toLowerCase();
+}
 function dayType(y,m,d){var w=new Date(Date.UTC(y,m,d)).getUTCDay(); return w===0?"Dimanche":(w===6?"Samedi":"Semaine");}
 
 function compute(){
@@ -2722,6 +2784,26 @@ function renderChk(C){
 /* ===================== rendu — résumé ===================== */
 /* La question qu'un travailleur en pauses se pose en ouvrant son téléphone
    n'est pas « combien », c'est « quand ». Elle mérite la première ligne. */
+/* Deux virements, deux dates. Le montant de l'avance est un RÉGLAGE — il ne
+   change pas d'un mois à l'autre — tandis que « Avance déjà reçue » dit ce
+   qui a été effectivement versé ce mois-ci et se déduit du net. On repart
+   donc du total du mois, net + avance déjà déduite : le compte tombe juste
+   que la case du mois soit remplie ou non. */
+function majVersements(C){
+  var el=document.getElementById("versements"); if(!el) return;
+  var av=R(st.params.avanceMens||0);
+  if(!(av>0)){ el.hidden=true; return; }
+  var total=R(C.net+C.avance), solde=R(total-av), d=versementsDuMois(st.y,st.m);
+  function bloc(cl,titre,montant,quand){
+    return '<div class="vs '+cl+'"><b>'+titre+"</b>"
+      +'<span class="vsm">'+eur(montant)+"</span>"
+      +"<em>"+esc(dateLongue(quand))+"</em></div>";
+  }
+  el.innerHTML=bloc("vs1","Avance",av,d.avance)+bloc("vs2","Solde",solde,d.solde)
+    +(solde<0?'<p class="vsnote">L\u2019avance dépasse le net du mois : '
+      +"le solde serait négatif. Vérifiez le montant dans Réglages.</p>":"");
+  el.hidden=false;
+}
 function majProchain(){
   var el=document.getElementById("prochain"); if(!el) return;
   var now=new Date();
@@ -2771,6 +2853,7 @@ function renderResume(C){
     etat+
     "<span>"+saisis+" journée"+(saisis>1?"s":"")+" sur "+nd+"</span>"+
     (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"");
+  majVersements(C);
   majProchain();
 
   var we=R(sumLines(C,/^Supplément weekend/)+sumLines(C,/^Supplément jour férié presté/)+sumLines(C,/^Déduction travail weekend/));
@@ -2994,6 +3077,9 @@ var PARAM_FIELDS=[
   onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
  {k:"primeRemise",l:"Prime de remise de pause (€/mois)",scope:"params",personal:true,
   onb:"Montant brut mensuel fixe pour les trente minutes de remise de pause faites avant votre propre pause. Laissez 0 si vous ne la percevez pas."},
+ {k:"avanceMens",l:"Avance mensuelle (€)",scope:"params",personal:true,
+  hint:"employés : avance 4 jours ouvrables avant la fin du mois, solde 4 jours ouvrables après",
+  onb:"Le montant NET de l'avance que vous recevez chaque mois, si votre salaire est versé en deux fois. Le Résumé affiche alors les deux virements et leurs dates. Laissez 0 si vous êtes payé en une seule fois."},
  {k:"divH",fige:true,l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
  {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = congé parental 9/10 (vous prestez 9/10)",personal:true,
   onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps. Laissez 1 si vous êtes à temps plein."},
@@ -3108,7 +3194,7 @@ function renderFields(){
 /* ===================== accueil / configuration initiale ===================== */
 var ONBOARD_GROUPS=[
  {t:"Votre situation familiale",fields:["statut","etatCivil","conjoint","enfants"]},
- {t:"Votre rémunération et votre temps de travail",fields:["remFixe","primeRemise","fraction"]},
+ {t:"Votre rémunération et votre temps de travail",fields:["remFixe","primeRemise","avanceMens","fraction"]},
  {t:"Votre équipe et votre cycle de roulement",fields:["binome","cycle","decalage"]},
  {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
  {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}

@@ -505,6 +505,38 @@ La marge de 10 % de la dernière n'est pas cosmétique : Android rogne l'icône
 *maskable* dans un masque, et seuls les 80 % centraux sont garantis visibles.
 Sans elle, le mot « biowanze » se ferait couper.
 
+## Les deux versements du mois
+
+Le client, le 22/09/2026 : « pour les employés, il faut ajouter un paramètre
+où il peut indiquer le montant de son avance mensuelle, afin de pouvoir voir
+les 2 montants qu'il recevra au cours du mois ; la règle pour les employés
+c'est l'avance 4 jours ouvrables avant la fin du mois, et le solde 4 jours
+ouvrables après la fin du mois ».
+
+**`avanceMens` est un RÉGLAGE, `M.avance` est un fait du mois**, et il ne
+faut pas les confondre. Le premier est le montant de l'avance, le même tous
+les mois, marqué `personal:true` — il ne quitte jamais l'appareil. Le second,
+« Avance déjà reçue », dit ce qui a effectivement été versé ce mois-ci et se
+DÉDUIT du net. Le bloc repart donc du TOTAL — `net + avance déjà déduite` —
+et le compte tombe juste que la case du mois soit remplie ou non. Vérifié
+dans les deux cas : 2 615,64 sans, 1 215,64 avec, et les deux versements
+affichés restent les mêmes.
+
+**JOUR OUVRABLE au sens belge** : tous les jours SAUF le dimanche et les
+jours fériés légaux — **le samedi en est un**. C'est la définition de la loi
+du 12 avril 1965 sur la protection de la rémunération, celle-là même dont
+sort le délai de quatre jours ouvrables. « Jour ouvré », lundi à vendredi,
+est autre chose : les deux lectures divergent **9 mois sur 12** en 2026. En
+septembre, l'ouvrable donne le 25 et le 5, l'ouvré le 24 et le 6.
+
+On compte À PARTIR du dernier jour du mois **sans le compter lui-même** : on
+avance d'un jour avant de regarder s'il est ouvrable. Les fériés viennent de
+`feries()`, ceux-là mêmes que le calendrier du mois peint, et ils sont relus
+quand le comptage change d'année — ce qui arrive tous les décembres.
+
+Le bloc ne s'affiche **que si le réglage est renseigné** : celui qui est
+payé en une fois ne voit rien de plus qu'avant.
+
 ## Mettre à jour une valeur commune à l'équipe
 
 Primes de pause, chèque-repas, coefficients de la procédure de rappel,
