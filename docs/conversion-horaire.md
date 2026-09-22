@@ -1559,6 +1559,19 @@ devenu la vue par défaut ; la bascule s'appelle **Par poste / Par pause**.
 La vue par pause reste, resserrée : c'est le second regard, celui qui compare
 les pauses entre elles.
 
+**Les trigrammes ne sont pas des badges.** Le client, le 22/09/2026 : « ne pas
+mettre les trigrammes sous forme de badge et trouver comment encore optimiser
+cela ». C'est là qu'était l'optimisation : sans la pastille et ses marges, une
+ligne passe de 42 à 26 pixels, et le tableau entier — huit postes, trois
+pauses — tient en **304 px** de haut. Les trigrammes sont du texte à chasse
+fixe, séparés d'un point médian pâle ; une ligne sur deux se teinte, parce
+qu'une ligne large se relit mal sans repère.
+
+Un espace **insécable** de chaque côté du point empêchait la coupure : trois
+trigrammes débordaient de leur colonne sur un téléphone au lieu de passer à la
+ligne. Espaces ordinaires, donc — c'est le genre de détail qu'une capture
+montre et qu'aucune règle ne dénonce.
+
 ### Le tableau : les pauses en lignes, les postes en colonnes
 
 Le client, le 22/09/2026, capture d'un autre programme à l'appui : « est-ce
