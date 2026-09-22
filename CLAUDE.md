@@ -295,6 +295,45 @@ il n'y en a pas à donner.
 Vérifié sur six états — Matin, Après-midi, Nuit, Congé, Repos, Absent — et
 hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
+**Elle s'efface quand on descend.** Le client, le 22/09/2026, cherchant
+comment l'optimiser encore. Elle se replie dès qu'on descend PASSÉ sa propre
+hauteur, et revient entière au premier geste vers le haut : **53 px rendus
+au contenu** sur l'Équipe, la Polyvalence et l'Horaire — une ligne de tableau
+entière — sans rien perdre, puisqu'elle est là dès qu'on la cherche.
+
+Trois précautions, et chacune répare un défaut qu'on aurait eu :
+
+- **un seuil de six pixels** — sans lui, le tremblement d'un doigt posé sur
+  l'écran la fait battre ;
+- **tant qu'on est dans ses propres pixels** (`y <= sa hauteur`) elle reste —
+  se replier là n'aurait rien découvert et l'aurait fait sauter ;
+- **un défilement négatif la redéplie toujours**, même sous le seuil : c'est
+  le geste par lequel on la cherche.
+
+**SEULEMENT SOUS 760 px**, et c'est essentiel : au-delà, la barre d'ONGLETS
+remonte dans cet en-tête. La replier ferait disparaître la navigation, pour
+gagner de la hauteur là où il n'en manque pas. Le garde-fou est dans la
+FEUILLE (`@media (max-width:760px){ .top.repliee{…} }`) et non dans le
+script : une fenêtre redimensionnée à travers le seuil se comporte
+correctement sans écouteur de plus.
+
+Sur téléphone, la barre d'onglets ne bouge pas : elle vit dans son propre
+cadre ancré par ses quatre côtés, sans rapport avec cet en-tête.
+
+Le repli tombe de lui-même sous `prefers-reduced-motion`, qui coupe toutes
+les transitions de la feuille — il devient instantané plutôt que d'être
+imposé en mouvement.
+
+Mesuré à 320, 390, 430 et 1280 px, sur cinq positions de défilement et un
+changement d'onglet : replié à 600 px de descente, redéplié à 120 px de
+remontée, toujours visible en haut de page, et **immobile à 1280 px**.
+
+**Le logo fait 32 px, et non 38.** C'est LUI qui fixait la hauteur de la
+barre, pas le texte : 38 px contre 31 pour le bloc de droite. Mesuré à
+l'essai — 34 donnent 54 px de barre, 32 en donnent 52, et en dessous il n'y
+a plus rien à gagner, le texte reprenant la main à 51. **La barre passe de
+58 à 52 px** (53 avec son filet), sur tous les onglets, en permanence.
+
 **Le sélecteur de mois n'y est plus.** Le client, le 22/09/2026 : « la
 sélection du mois de l'année ne doit pas être dans la barre du haut mais
 seulement là où elle est nécessaire dans les onglets ». Il était masqué
