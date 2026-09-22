@@ -1645,6 +1645,14 @@ avec le nom du poste. »
 Une case en manque garde son fond orange et écrit son compte, `0 / 1` : c'est
 la seule qui ait encore besoin d'un chiffre.
 
+Deuxième passe, le même jour : **les badges l'un sous l'autre**, en colonne —
+une colonne de jetons se dénombre d'un regard, une ligne de jetons se relit.
+**Blancs, écriture noire, dans les deux thèmes** : la couleur de la zone vit
+à l'en-tête, elle n'a pas à être répétée sur chaque jeton. Les trigrammes
+sont centrés verticalement dans leur case, et l'effectif s'écrit en toutes
+lettres sous le nom du poste, **`Eff. min. : 2`** — sans capitales, l'en-tête
+étant en majuscules il a fallu l'en dispenser.
+
 ### L'adjoint qui ne remplace pas va chez le contremaître
 
 Le client, le 22/09/2026 : « si l'adjoint ne remplace pas on peut le mettre
