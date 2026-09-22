@@ -3804,6 +3804,12 @@ function prefillFromHoraire(){
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
     st.personD=person.d;
+    /* Le statut suit la personne : le choisir, c'est le dire. Sans quoi un
+       ouvrier gardait « Employé » et son ONSS était fausse de 8 %. */
+    var stt=statutPersonne(person);
+    if(stt && st.params.statut!==stt){
+      st.params.statut=stt; save("params",st.params,true);
+    }
     if(Number(db.year)!==Number(st.y)){
       prefillEnCours=false;
       flash("L'horaire d'équipe porte sur "+db.year+", pas sur "+st.y);
@@ -3930,6 +3936,26 @@ function fonctionLisible(cat){
    celui qui est seul fait fonction. */
 var CONTREMAITRES=["AFA","ATA","FLI","GPS","YPE","VBN"];
 function estCadre(p){ return /contrema/i.test(p.cat||""); }
+/* EMPLOYÉ OU OUVRIER — et ce n'est pas qu'une étiquette : l'ONSS d'un
+   ouvrier se calcule sur 108 % du brut, celle d'un employé sur 100 %. Sur un
+   salaire de 3 000 €, l'écart est de 31 € par mois. L'application avait le
+   calcul (majOuvrier) mais laissait le champ sur « Employé » par défaut :
+   tout opérateur qui s'en servait payait 8 % d'ONSS en moins que la réalité,
+   sans que rien ne le dise.
+
+   Le client, le 22/09/2026 : « tous les contremaîtres et adjoints sont
+   employés, il y a juste SBZ / GKT / FLN / FPS / PLZ qui le sont aussi en
+   dehors des contremaîtres-adjoints. Le reste des opérateurs sont ouvriers
+   et quelques-uns intérimaires. »
+
+   Les intérimaires ne sont pas distingués ici : leur ONSS se calcule comme
+   celle d'un ouvrier, et le classeur ne dit pas qui ils sont. */
+var EMPLOYES_HORS_CADRE=["SBZ","GKT","FLN","FPS","PLZ"];
+function statutPersonne(p){
+  if(!p) return "";
+  if(estCadre(p)) return "Employé";
+  return EMPLOYES_HORS_CADRE.indexOf(idLisible(p.id))>=0 ? "Employé" : "Ouvrier";
+}
 function estContremaitre(p){ return estCadre(p) && CONTREMAITRES.indexOf(p.id)>=0; }
 function fonctionPersonne(p){
   if(estCadre(p)) return estContremaitre(p)?"Contremaître":"Adjoint";
@@ -4765,7 +4791,8 @@ function renderAnnuaire(db,moi){
          pas toujours ce que ça désigne ; le cacher serait pire. */
       var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
       h.push('<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(idLisible(p.id))+"</b>"+
-        '<span>'+esc(estCadre(p)?fonctionPersonne(p)+(at?" · "+at:""):(at||"—"))+"</span>"+
+        '<span>'+esc(statutPersonne(p))+" · "
+          +esc(estCadre(p)?fonctionPersonne(p)+(at?" · "+at:""):(at||"—"))+"</span>"+
         (ent?'<em class="eqat" title="Tel que le classeur l\'écrit au-dessus du nom">'
              +esc(ent)+"</em>":"")+"</div>");
     });
