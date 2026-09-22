@@ -3319,12 +3319,17 @@ function dureeReelle(poste,plage,hJour){
    disponible à la main dans l'horaire, pour une vraie absence injustifiée.
    Elle ne change aucun montant — la rémunération du mois est fixe — mais
    elle met la bonne ligne sur la fiche. */
-/* « * » seul, le 24/07 chez CAN : la seule cellule des 27 462 que la lecture
+var ALIAS_HORAIRE={"ABS":"MAL"};
+/* Les fautes de frappe du classeur, corrigées AVANT toute lecture — donc
+   sans passer par le chemin des absences, où « * » finissait par tomber en
+   repos pour de mauvaises raisons et restait marqué « non compris ».
+
+   « * » seul, le 24/07 chez CAN : la seule cellule des 27 462 que la lecture
    ne savait pas traduire. Le client, le 22/09/2026 : « faute de frappe,
    c'est un tiret ». Une astérisque est voisine du tiret sur un pavé
    numérique ; elle ne figurait qu'une fois dans tout le classeur, et aucune
    légende ne l'expliquait. */
-var ALIAS_HORAIRE={"ABS":"MAL", "*":"-"};
+var COQUILLES={"*":"-"};
 /* Une sortie syndicale (« DS ») n'est pas une journée prestée en horaire de
    jour : c'est une absence, et elle ne conserve PAS la prime de la pause
    prévue. Le client : « uniquement les sorties DS, pas les CPPT ».
@@ -3350,6 +3355,7 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
   function lire(txt){
     var r={};
     txt=(txt||"").trim();
+    if(COQUILLES[txt]!==undefined) txt=COQUILLES[txt];
     if(!txt||txt==="-") return r;
     /* « E. min SD26 », « E. Min SD26 » : effectif minimum. Le client : « il
        fallait plus de personnes à ce poste cette période-là ». C'est

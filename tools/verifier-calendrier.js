@@ -72,6 +72,7 @@ const MORCEAUX=[
   ["function posteDepuisPlage(","\n}"],
   ["function dureeReelle(","\n}"],
   ["var ALIAS_HORAIRE=","\n"],
+  ["var COQUILLES=","\n"],
   ["var JOUR_EN_ABSENCE=","\n"],
   ["var RX_PRIS_AILLEURS=","\n"],
   ["function parseHoraireEntry(","\n}"],
@@ -436,7 +437,7 @@ for(const p of db.people){
          et la règle l'accusait encore d'être illisible. ALIAS_HORAIRE est
          découpé dans index.html, donc la règle suit toute addition future
          sans qu'on y pense. */
-      const celA=(ALIAS_HORAIRE&&ALIAS_HORAIRE[cel])||cel;
+      const celA=(COQUILLES&&COQUILLES[cel]!==undefined)?COQUILLES[cel]:cel;
       const vide=(!celA||celA==="-");
       const ou=p.id+" "+d+"/"+pad2(m);
       const src=JSON.stringify(raw);
