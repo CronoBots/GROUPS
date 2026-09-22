@@ -1882,6 +1882,38 @@ polyvalence est `Gluten / Distillation`. La règle du client : « le terrain
 arrière ne peut être tenu que par quelqu'un qui possède le poste fermentation
 ET le poste distillation ». QBY ne l'a pas. Le manque est réel.
 
+### « F » : du travail payé, mais compté hors du poste
+
+Le client, le 22/09/2026 : « cette formation sera dans leurs heures de
+travail, ou si pas le cas ils remettront une feuille pour ft+ ou hs ». La
+paie est donc réglée — voir `docs/regles-paie.md` — et elle était déjà juste.
+
+Reste l'effectif, qui est une autre question. `EST_FORMATION` sort ces gens
+du poste : ils figurent dans la colonne « Formation » et ne comptent pas.
+Sur les quatre journées du projet falling film, cela se voit :
+
+| Journée | Pause | Présents | En formation | Manques annoncés |
+|---|---|---|---|---|
+| 05/10 | AM | 12 | 3 | gluten, terrain arrière, distillation |
+| 05/10 | PM | 11 | **4** | contremaître, terrain arrière, distillation, chaudières |
+| 09/10 | PM | 10 | **5** | contremaître, terrain arrière, distillation, chaudières |
+| 15/10 | PM | 12 | **5** | meunerie, fermentation, terrain arrière |
+| 26/10 | N | 12 | 2 | fermentation |
+
+**Les manques de ces journées viennent tous de là.** La question n'est donc
+pas cosmétique : ou bien la pause est réellement dégarnie et le module a
+raison de le crier, ou bien ces gens tiennent leur poste tout en travaillant
+sur le projet — le commentaire dit « en distillation », leur propre
+atelier — et le module crie à faux quatre fois.
+
+Deux cellules du classeur penchent pour la seconde lecture, car elles
+nomment un poste MALGRÉ le `F` : `FPA 05/10 ["PM","chaud. + F",…]` et
+`VBN 15/10 ["AM","R + F","remplace ATA + projet falling film"]`. L'une et
+l'autre sont d'ailleurs déjà lues comme tenant leur poste, `posteEcrit()`
+passant avant.
+
+À trancher par le client. Cela touche l'effectif affiché, pas la paie.
+
 ### À trancher : l'annotation « F » sur un projet
 
 **313 journées** portent `F` en annotation, et `EST_FORMATION` les sort de
