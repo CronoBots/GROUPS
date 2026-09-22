@@ -418,6 +418,78 @@ def anonymiser(src, dst, tolere=()):
                 if ini and (_mots_de(cle) & connues.get(ini, set())):
                     _apprendre(cle, ini)
 
+    # LES AUTEURS DE COMMENTAIRES SONT DES NOMS, au même titre que la ligne
+    # des noms — et pas seulement quelque chose à effacer. Découvert le
+    # 22/09/2026 sur un nouveau classeur : quelqu'un signait des centaines de
+    # commentaires. Son NOM DE FAMILLE était connu par la feuille
+    # « Polyvalence » et remplacé partout ; son PRÉNOM ne l'était par rien.
+    #
+    # Les signatures de tête ont bien été retirées, la liste des auteurs
+    # vidée — mais trois commentaires portaient DEUX signatures, la seconde au
+    # milieu du texte, et « _sans_signature » ne retire que la tête. Ces
+    # secondes signatures ne disparaissaient que si le nom y était RECONNU.
+    # Celle-là ne l'était pas : ni remplacée, ni même SURVEILLÉE, elle a
+    # traversé la garantie, qui a répondu « aucun nom ne subsiste » en toute
+    # bonne foi. C'est la faille de naissance que CLAUDE.md décrit — l'outil
+    # ne cherche que ce qu'il a su apprendre.
+    #
+    # Ici, comme pour la ligne des noms, PAS DE CORROBORATION À CHERCHER : ce
+    # qu'Excel écrit dans <author> EST le nom d'une personne. On exige
+    # seulement deux morceaux — « Nom, Prénom » en donne toujours deux — pour
+    # écarter le « Auteur » que cet outil écrit lui-même et les trigrammes
+    # qu'un classeur y dépose parfois.
+    zc = zipfile.ZipFile(src)
+    auteurs = set()
+    for info in zc.infolist():
+        if COMMENTAIRES.search(info.filename):
+            texte = zc.read(info.filename).decode("utf-8", "replace")
+            for m in re.finditer(r"<author>([^<]*)</author>", texte):
+                brut = (m.group(1).replace("&amp;", "&").replace("&lt;", "<")
+                        .replace("&gt;", ">").replace("&quot;", '"')
+                        .replace("&apos;", "'"))
+                t = _candidat(brut)
+                if t:
+                    auteurs.add(t)
+    zc.close()
+
+    # Un nom qu'on n'a pas su attribuer ne doit pas pour autant sortir en
+    # silence : ses mots vont sous surveillance, la garantie détruit la
+    # sortie et le dit. Mieux vaut un outil qui s'arrête qu'un outil qui
+    # laisse passer.
+    orphelins = []
+    mintes = set()
+    for t in sorted(auteurs):
+        # « Nom, Prénom (external) » : la parenthèse dit le rôle, pas
+        # la personne — on ne retient que le nom.
+        t = " ".join(re.sub(r"\([^)]*\)", " ", t).split()) or t
+        cle = _sans_accent(t).lower()
+        bouts = [b for b in re.split(r"[,\s]+", cle) if b]
+        if not (2 <= len(bouts) <= 4) or any(b in ENTETES for b in bouts):
+            continue
+        vises = set()
+        for b in bouts:
+            vises |= par_mot.get(b, set())
+        ini = next(iter(vises)) if len(vises) == 1 else None
+        if ini is None:
+            ini = _ini_connues(t)
+        if ini is None:
+            # Personne de connu — deux homonymes, ou quelqu'un qui n'est dans
+            # aucune feuille. Ses initiales tiennent lieu d'identifiant,
+            # comme pour les gens de la ligne des noms que l'annuaire ignore.
+            # On refuse seulement de lui donner un code DÉJÀ pris : ce serait
+            # troquer une fuite contre une fausse attribution.
+            cand = _initiales(t)
+            if cand and cand.isalpha() and cand not in connus and cand not in mintes:
+                ini = cand
+                mintes.add(cand)
+            else:
+                orphelins.extend((b, "?") for b in bouts if len(b) >= 3)
+                continue
+        _apprendre(cle, ini)
+        for b in bouts:
+            if len(b) >= 3 and b not in PARTICULES and b not in ENTETES:
+                _apprendre(b, ini)
+
     pesees, surveille = [], []
     for cle, ini in noms.items():
         bouts = [b for b in re.split(r"[,\s]+", cle) if b]
@@ -433,6 +505,7 @@ def anonymiser(src, dst, tolere=()):
         for bout in bouts:
             if len(bout) >= 3:
                 surveille.append((bout, ini))
+    surveille.extend(orphelins)
     # Les règles qui attrapent le plus long d'abord : « Nom A. » avant
     # « Nom », sans quoi il resterait « ATR A. ». On pèse ce que la règle
     # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long
@@ -455,10 +528,23 @@ def anonymiser(src, dst, tolere=()):
                 continue
             donnee = zin.read(info.filename)
             if TEXTE.search(info.filename):
-                donnee, n = _remplacer(donnee, regles, sondes)
+                # LA SIGNATURE D'ABORD, LE REMPLACEMENT ENSUITE. L'ordre
+                # inverse a vécu une demi-heure le 22/09/2026 : depuis que
+                # les auteurs sont APPRIS, leur nom est remplacé par son
+                # trigramme, et « Nom, Prénom (external): » devenait
+                # « ICE (external): » — que « _est_nom » ne reconnaît plus.
+                # 2311 têtes de commentaire restaient en place.
+                #
+                # Y ajouter un motif « trigramme seul » aurait été pire : il
+                # aurait avalé le corps des commentaires qui COMMENCENT par
+                # un code, « MPE : Maintien prime PM » en tête. Les motifs de
+                # signature sont écrits pour des noms ; on les laisse donc
+                # voir des noms.
+                n = 0
                 if COMMENTAIRES.search(info.filename):
-                    donnee, m = _sans_signature(donnee)
-                    n += m
+                    donnee, n = _sans_signature(donnee)
+                donnee, m = _remplacer(donnee, regles, sondes)
+                n += m
                 if info.filename.startswith("docProps/"):
                     donnee = re.sub(rb"<(dc:creator|cp:lastModifiedBy)>[^<]*</\1>",
                                     rb"<\1></\1>", donnee)

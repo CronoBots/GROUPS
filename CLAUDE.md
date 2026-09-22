@@ -62,6 +62,39 @@ sans le dire ne vaut rien. Si un reste n'est pas un nom — « Paye » est aussi
 un mot français — le relancer avec `--tolerer=paye` **après avoir lu le
 contexte imprimé**.
 
+**Elle ne voyait pas les AUTEURS comme une source de noms, et un prénom est
+passé.** Découvert le 22/09/2026 sur un nouveau classeur, par le second
+contrôle — pas par la garantie. Quelqu'un signait des centaines de
+commentaires ; son nom de famille était connu par la feuille
+« Polyvalence » et remplacé partout, **son prénom ne l'était par rien**. Les
+signatures de tête ont bien été retirées, mais trois commentaires portaient
+DEUX signatures, la seconde au milieu du texte : celles-là ne disparaissent
+que si le nom y est RECONNU. L'une d'elles laissait le prénom suivi du
+trigramme d'un collègue — une moitié remplacée nomme encore la personne.
+
+L'anonymiseur **apprend donc des `<author>`**, comme il apprend de la ligne
+des noms : ce qu'Excel écrit là EST le nom d'une personne, il n'y a pas de
+corroboration à chercher. Deux morceaux sont exigés — « Nom, Prénom » en
+donne toujours deux — pour écarter le « Auteur » que l'outil écrit lui-même
+et les trigrammes qu'un classeur y dépose. Chaque MOT est appris à part en
+plus de la forme complète, sans quoi un prénom employé seul au fil d'une
+phrase échappe encore.
+
+Quand le nom ne s'attribue à personne — deux homonymes, et c'était le cas —
+ses initiales tiennent lieu d'identifiant, comme pour les gens de la ligne
+des noms que l'annuaire ignore. Et si même cela est impossible, **ses mots
+partent sous surveillance** : la garantie détruit la sortie et le dit. Mieux
+vaut un outil qui s'arrête qu'un outil qui laisse passer.
+
+**LA SIGNATURE SE RETIRE AVANT LE REMPLACEMENT**, et l'ordre inverse a vécu
+une demi-heure. Les auteurs étant désormais appris, leur nom est remplacé
+par son trigramme et « Nom, Prénom (external): » devenait
+« ICE (external): », que `_est_nom()` ne reconnaît plus : **2311 têtes de
+commentaire restaient en place**. Y ajouter un motif « trigramme seul »
+aurait été pire — il aurait avalé le corps des commentaires qui COMMENCENT
+par un code, « MPE : Maintien prime PM » en tête. Les motifs de signature
+sont écrits pour des noms ; on les laisse voir des noms.
+
 **Elle ne voyait pas les signatures de commentaires, et neuf personnes sont
 passées.** Découvert le 22/09/2026 : `data/classeur-2026.xlsx`, dans le dépôt
 PUBLIC, portait **20 912 occurrences** de neuf noms complets — les auteurs des
@@ -185,6 +218,25 @@ colonne. Ces messages vont sur la sortie d'erreur ; ils ne sont pas du bruit.
 **Ne jamais committer le `.xlsm`**, ni aucun nom complet. Le convertisseur
 n'en laisse pas sortir : identifiants à trois lettres, et commentaires
 débarrassés du nom de leur auteur.
+
+**Il a eu le même trou que l'anonymiseur, et le 22/09/2026 il a failli
+écrire trois noms complets dans `data/horaire-2026.json`** — fichier d'un
+dépôt PUBLIC. Son motif `AUTEUR` exige une virgule : « Nom Prénom : »
+lui échappait, « Nom, Prénom/rt01386: » aussi (le suffixe rompt
+l'ancrage), et « Prénom: » — un prénom seul — n'a aucune forme
+reconnaissable. C'est la COMPARAISON avec la version en place qui l'a
+montré, l'ancien JSON portant « (nom retiré) » là où le nouveau écrivait le
+prénom.
+
+Il ne devine donc plus la forme d'un nom : `_motif_auteurs()` prend **ceux
+qu'Excel déclare dans `<authors>`** pour le fichier de commentaires qu'il
+est en train de lire, et les retire où qu'ils soient — nom complet ou mot
+isolé. Rien à inférer, rien à rater. La majuscule initiale est exigée :
+« Marie » est un nom, « marie » un verbe français.
+
+Ses motifs restent les SIENS, et ne sont pas empruntés à l'anonymiseur :
+les deux outils doivent pouvoir se contredire, sans quoi le second ne
+vérifie plus, il répète.
 
 Si le nombre de personnes ou de journées s'écarte nettement des repères, la
 structure du classeur a bougé — vérifier la ligne des noms (10), la colonne
@@ -693,11 +745,12 @@ comme « Remplacé pa VBN ».
 ## Vérifier une modification du pré-remplissage
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
-lui qu'il faut relancer, et non un script à côté. Au 21/09/2026, sur les
-27 462 journées : **14 657 prestées, 5 074 absences, 156 postes prévus non
-prestés, 7 575 repos** (classeur du 21/09/2026 à 17 h 35). Un écart important
+lui qu'il faut relancer, et non un script à côté. Au 22/09/2026, sur les
+27 462 journées : **14 648 prestées, 5 082 absences, 157 postes prévus non
+prestés, 7 575 repos** (classeur du 22/09/2026 à 15 h 46). Un écart important
 signale une régression — mais un nouveau classeur en déplace légitimement :
-deux absences longues y sont apparues, APN et QDE.
+celui-ci fait passer CHD de Shift 4 à Shift 5, ce qui rebat 88 de ses
+journées.
 
 Ces nombres ne se comparent pas aux anciens repères de la section 11 de
 `docs/conversion-horaire.md`, qui comptaient autre chose : ils mesuraient la
@@ -785,8 +838,9 @@ de la date donnée à la fin de l'horaire. Il ne le simule pas : il découpe
 alerte qui compterait autrement que la vue du jour serait pire que pas
 d'alerte.
 
-**Au 22/09/2026 : 12 journées sur 102, 14 places creuses** — fermentation
-(6), terrain arrière (3), chaudières (2). Si ce nombre s'effondre ou explose
+**Au 22/09/2026, classeur de 15 h 46 : 15 journées sur 101, 17 places
+creuses** — fermentation (9), terrain arrière (3), chaudières (2), gluten
+(1). Si ce nombre s'effondre ou explose
 après une modification du rééquilibrage ou des polyvalences, c'est une
 régression.
 
@@ -937,9 +991,9 @@ fallu demander pour trouver la bonne.
 **La liste est alphabétique, sans intercalaire d'équipe** : on cherche
 quelqu'un par son trigramme, pas par son équipe.
 
-**Au 22/09/2026 : 33 couples personne-poste au quota sur 101, dont 23 où la
-polyvalence est acquise sans un seul remplacement** — mesuré identique par
-l'outil et par le navigateur.
+**Au 22/09/2026, classeur de 15 h 46 : 33 couples personne-poste au quota
+sur 101, dont 22 où la polyvalence est acquise sans un seul remplacement** —
+mesuré identique par l'outil et par le navigateur.
 
 Second contrôle, indépendant, et il se lance lui aussi :
 
@@ -951,5 +1005,6 @@ Il recalcule les compteurs flex time de chacun depuis ses journées et les
 compare à ceux du pied de classeur, saisis à la main. Les neuf règles
 regardent ce que la case AFFICHE ; celui-ci additionne ce qu'elle COMPTE.
 **76 personnes sur 77 doivent concorder exactement** — la seule divergence
-connue est une erreur du classeur (FPA, 44 h contre 41), documentée en
+connue est une erreur du classeur (FPA, 39 h contre 36 au 22/09/2026 ;
+44 contre 41 la veille — l'écart de 3 h, lui, ne bouge pas), documentée en
 section 10 bis.

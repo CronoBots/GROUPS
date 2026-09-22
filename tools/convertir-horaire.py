@@ -66,6 +66,45 @@ MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET",
 AUTEUR = re.compile(r"(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+"
                     r"(?:\s*\([^)]*\))?|[Rr][Tt]\d{4,6}|Auteur)\s*:\s*")
 
+# LES NOMS QUE LE CLASSEUR DÉCLARE LUI-MÊME. AUTEUR exige une virgule, et
+# trois formes lui ont échappé sur le classeur du 22/09/2026 :
+# « Nom Prénom : » sans virgule, « Nom, Prénom/rt01386: » dont le
+# suffixe rompt l'ancrage, et « Prénom: » — un prénom seul, qui n'a aucune
+# forme reconnaissable. Elles seraient parties dans data/horaire-2026.json,
+# qui vit dans un dépôt PUBLIC.
+#
+# On ne devine donc plus la forme d'un nom : on prend ceux qu'Excel écrit
+# dans <authors>, qui sont les gens ayant posé ces commentaires-là. Rien à
+# inférer, rien à rater.
+#
+# La majuscule initiale est exigée et protégée de l'insensibilité à la casse,
+# comme l'anonymiseur le fait de son côté : « Marie » est un nom, « marie »
+# est un verbe français.
+_AUTEUR_MOTS_IGNORES = {"auteur", "external", "ext", "interne", "externe"}
+
+
+def _motif_auteurs(racine):
+    """Le motif qui retrouve les noms déclarés comme auteurs des commentaires
+    de CE fichier — nom complet ou mot isolé, où qu'il apparaisse."""
+    mots = set()
+    bloc = racine.find("{%s}authors" % M)
+    for x in (list(bloc) if bloc is not None else []):
+        t = re.sub(r"\([^)]*\)", " ", (x.text or ""))
+        for b in re.split(r"[,\s/]+", t):
+            b = b.strip(".").strip()
+            if (len(b) >= 3 and not b.isdigit()
+                    and b.lower() not in _AUTEUR_MOTS_IGNORES):
+                mots.add(b)
+    if not mots:
+        return None
+    def _alt(m):
+        return (re.escape(m[0].upper())
+                + "".join("[%s%s]" % (c.upper(), c.lower()) if c.isalpha()
+                          else re.escape(c) for c in m[1:]))
+    # Le plus long d'abord : « Jean-Pierre » avant « Jean ».
+    alt = "|".join(_alt(m) for m in sorted(mots, key=len, reverse=True))
+    return re.compile(r"\b(?:" + alt + r")\b")
+
 # L'onglet « Config » du classeur le dit lui-même : « les lignes de 11 à 376
 # sont consacrées à l'horaire, les lignes de 377 à 420 aux compteurs ». En
 # pratique le bloc court jusqu'à 434, la position du bloc CP variant d'une
@@ -275,9 +314,21 @@ class Classeur:
             chemin = ("xl/" + cible.replace("../", "")).replace("xl/xl/", "xl/")
             if chemin not in self.z.namelist():
                 continue
-            for cm in ET.fromstring(self.z.read(chemin)).iter('{%s}comment' % M):
+            racine = ET.fromstring(self.z.read(chemin))
+            auteurs = _motif_auteurs(racine)
+            for cm in racine.iter('{%s}comment' % M):
                 txt = " ".join("".join(t.text or "" for t in cm.iter('{%s}t' % M)).split())
+                # Les noms déclarés d'abord : ce qui reste — « , » esseulée,
+                # « /rt01386: », « : » en tête — est balayé par AUTEUR et par
+                # le strip qui suit.
+                if auteurs:
+                    txt = auteurs.sub(" ", txt)
+                    # Le nom parti, son ornement reste : « (external): ».
+                    # Il ne nomme personne, mais il ouvre le commentaire par
+                    # un reste de signature que rien ne lit.
+                    txt = re.sub(r"\(\s*[^)]*\)\s*:\s*", " ", txt)
                 txt = AUTEUR.sub(" ", txt).strip(" .;:")
+                txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
                 txt = " ".join(txt.split())
                 if not txt:
                     continue
