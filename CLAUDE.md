@@ -243,6 +243,30 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
 
+## La barre d'onglets n'est pas ancrée par une unité de hauteur
+
+Elle vit dans un cadre à elle, `.navwrap`, hors de l'en-tête collant — c'est
+la bonne moitié d'un remède de septembre 2026, et il faut la garder.
+
+L'autre moitié était fausse : le cadre tirait sa hauteur de `100dvh`. Sous
+iOS cette unité se trompe quand la barre d'URL est **réduite** — Safari
+continue d'annoncer la hauteur de la barre pleine, le cadre devient plus
+court que l'écran, et la barre d'onglets remonte d'autant. Le client l'a
+photographié le 22/09/2026 : deux lignes du tableau visibles SOUS la barre.
+
+Le cadre est donc ancré par ses **quatre côtés**, sans aucune unité à
+interpréter. Le premier remède avait eu tort de bannir `bottom` : ce n'est
+pas lui qui se résolvait mal, c'est l'en-tête collant qui l'enfermait.
+
+Mesuré à 320, 360, 430 et 760 px, sur quatre onglets et quatre positions de
+défilement : **écart de 0 px au bas de l'écran**, y compris sur un onglet
+plus court que l'écran — le cas que l'ancien commentaire décrivait comme
+cassé. Au-delà de 760 px la barre remonte dans l'en-tête, inchangée.
+
+**Chromium ne reproduit pas le défaut d'iOS** : la mesure prouve que la
+dépendance à `dvh` a disparu, pas que le téléphone est guéri. Seul l'appareil
+du client peut le dire.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
