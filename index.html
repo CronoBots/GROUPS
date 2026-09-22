@@ -931,6 +931,60 @@ body.sheet-on{overflow:hidden}
   .pvt td.pvsien{font-size:11px}
   .pvt tbody tr td.pvform{font-size:12px}
 }
+/* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
+   Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
+   à gauche, trigrammes empilés — parce que c'est le même objet regardé
+   autrement : l'un dit qui tient l'usine aujourd'hui, l'autre qui la
+   compose. Deux mises en page différentes pour la même chose auraient
+   demandé de réapprendre à lire. */
+.orgt{border-collapse:separate; border-spacing:0; width:100%; table-layout:fixed}
+.orgt th, .orgt td{padding:6px 5px; text-align:center; vertical-align:top;
+  border-left:1px solid var(--line2)}
+.orgt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
+  border-bottom:1px solid var(--line); border-top:3px solid var(--line);
+  font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--faint); white-space:nowrap}
+/* La colonne des postes reste visible quand la grille défile : sans elle on
+   ne sait plus de quel poste on lit la colonne. */
+.orgt th.orgp{position:sticky; left:0; z-index:2; width:104px; text-align:left;
+  background:var(--surface); border-left:3px solid var(--line);
+  font-size:10.5px; font-weight:700; letter-spacing:.02em;
+  text-transform:uppercase; color:var(--muted); white-space:nowrap}
+.orgt thead th.orgp{z-index:3}
+.orgt tbody tr[data-z="jaune"] th.orgp{border-left-color:var(--at-jaune)}
+.orgt tbody tr[data-z="vert"]  th.orgp{border-left-color:var(--at-vert)}
+.orgt tbody tr[data-z="rouge"] th.orgp{border-left-color:var(--at-rouge)}
+.orgt tbody tr[data-z="bleu"]  th.orgp{border-left-color:var(--at-bleu)}
+.orgt tbody tr+tr th, .orgt tbody tr+tr td{border-top:1px solid var(--line2)}
+.orgt tbody tr.zone1 th, .orgt tbody tr.zone1 td{border-top:2px solid var(--line)}
+.orgt tbody tr:nth-child(even) td,
+.orgt tbody tr:nth-child(even) th.orgp{background:var(--surface2)}
+/* Un trigramme par ligne — le client le demande depuis le 21/09/2026, et une
+   colonne d'équipe n'a besoin que de la largeur d'UN nom. */
+.orgn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+  font-weight:600; letter-spacing:.03em; color:var(--ink); line-height:1.5}
+.orgn.moi{color:var(--in); text-decoration:underline; text-underline-offset:3px}
+.orgvide{color:var(--faint)}
+/* Les binômes : trois colonnes égales, le numéro n'étant pas un poste. */
+.orgbin th.orgp{width:64px; text-transform:none; font-size:12px;
+  font-family:"IBM Plex Mono",monospace; border-left-color:var(--line)}
+/* La formation et la station : deux listes, pas des grilles — il n'y a rien
+   à croiser, seulement des gens et leur poste. */
+.orgliste{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:1px; background:var(--line2)}
+.orgl{display:flex; align-items:baseline; gap:9px; padding:9px 14px;
+  background:var(--surface)}
+.orgl em{font-style:normal; font-size:11.5px; color:var(--ink2); min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* Le bloc « prochain poste » est seul dans sa carte depuis que le net est
+   parti dans Mon salaire : ses filets d'origine le soulignaient deux fois. */
+.cardjour>.prochain{border-top:0; border-bottom:0}
+@media (min-width:761px){
+  .orgt th, .orgt td{padding:8px 7px}
+  .orgt th.orgp{width:132px; font-size:11.5px}
+  .orgt thead th{font-size:11px}
+  .orgn{font-size:13px}
+}
 .pvt tbody tr.moi th.pvqui{color:var(--in)}
 .pvt tbody tr.moi th.pvqui, .pvt tbody tr.moi td{background:var(--in-soft)}
 .lg-pvsien{font-style:normal; color:var(--ink2); font-size:9px}
@@ -1434,7 +1488,14 @@ body.sheet-on{overflow:hidden}
    tentative posée trois cents lignes plus haut n'avait rien changé du
    tout. */
 @media (max-width:375px){
-  .tabs button{font-size:9.5px; padding-left:1px; padding-right:1px; gap:2px}
+  /* « nowrap » est le mot qui compte depuis la refonte en six onglets.
+     « Mon horaire » et « Mon salaire » sont les deux intitulés en DEUX mots,
+     et à 320 px ils passaient à la ligne : la barre montait de 59 à 74 px,
+     quinze pixels pris au tableau sans que personne les ait demandés. Sur
+     une seule ligne, à 9,5 px et sans marge latérale, les six tiennent —
+     mesuré, rien n'est tronqué à 320 px. */
+  .tabs button{font-size:9.5px; padding-left:0; padding-right:0; gap:2px;
+    white-space:nowrap}
 }
 
 
@@ -1478,22 +1539,16 @@ body.sheet-on{overflow:hidden}
       Résumé</button>
     <button type="button" role="tab" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-      Horaire</button>
+      Mon horaire</button>
     <button type="button" role="tab" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
       Équipe</button>
     <button type="button" role="tab" data-v="polyvalence" aria-selected="false" aria-controls="v-polyvalence">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M9 9v11M15 9v11"/></svg>
       Recyclage</button>
-    <button type="button" role="tab" data-v="compteurs" aria-selected="false" aria-controls="v-compteurs">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-6M22 19H2"/></svg>
-      Compteurs</button>
-    <button type="button" role="tab" data-v="fiche" aria-selected="false" aria-controls="v-fiche">
+    <button type="button" role="tab" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>
-      Fiche</button>
-    <button type="button" role="tab" data-v="controle" aria-selected="false" aria-controls="v-controle">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 10 17l-5-5"/></svg>
-      Contrôle<span class="dotwarn" id="ctrlDot" hidden></span></button>
+      Mon salaire<span class="dotwarn" id="ctrlDot" hidden></span></button>
     <button type="button" role="tab" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
       Réglages</button>
@@ -1505,51 +1560,58 @@ body.sheet-on{overflow:hidden}
 
   <!-- ============ RÉSUMÉ ============ -->
   <section class="panel stack" id="v-resume" role="tabpanel">
-    <div class="mnavhote"></div>
-    <div class="card">
-      <div class="hero">
-        <div>
-          <div class="lbl" id="heroLbl">Net à recevoir — septembre</div>
-          <div class="big" id="heroNet">—</div>
-        </div>
-        <div class="side" id="heroSide"></div>
-      </div>
-      <div class="versements" id="versements" hidden></div>
+    <!-- LA VUE DU JOUR. Le client, le 22/09/2026 : « ce qui est affiché
+         actuellement dans Équipe doit être affiché dans Résumé afin d'avoir
+         une vue directe sur la journée ». Le Résumé ne porte donc plus le
+         net du mois — il est parti dans « Mon salaire » avec tout ce qui
+         touche à la paie — mais ce qu'on vient chercher en ouvrant
+         l'application le matin : mon poste, les manques à venir, et qui
+         tient l'usine aujourd'hui.
+
+         Le sélecteur de mois n'y est plus non plus : cet écran parle
+         d'aujourd'hui, pas d'un mois. -->
+    <div class="card cardjour">
       <div class="prochain" id="prochain" hidden></div>
-      <div class="callout" id="alerteDefaut"></div>
-      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <div class="card" id="mqCard">
+      <details id="mqFold" open>
+      <summary>
+        <h2>Postes en manque</h2>
+        <span class="sub" id="mqSub"></span>
+      </summary>
+      <div class="mqbar">
+        <!-- « À partir d'aujourd'hui » a disparu : le module ne regarde
+             JAMAIS en arrière, c'est sa règle de naissance. L'écrire au-dessus
+             de lui, c'était occuper une ligne pour décrire ce qu'il est. -->
+        <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
+          <button type="button" data-h="7" aria-pressed="false">7 j</button>
+          <button type="button" data-h="14" aria-pressed="true">14 j</button>
+          <button type="button" data-h="30" aria-pressed="false">30 j</button>
+          <button type="button" data-h="0" aria-pressed="false">Tout</button>
+        </div>
+      </div>
+      <div class="mqcorps" id="mqCorps"></div>
+      </details>
     </div>
 
     <div class="card">
       <header>
-        <h2>D'où vient ce montant</h2>
-        <span class="sub">du brut au net, dans l'ordre de la fiche</span>
+        <h2>Qui travaille</h2>
+        <span class="sub" id="eqSub"></span>
       </header>
-      <div class="fall" id="fall"></div>
-    </div>
-
-    <div class="two">
-      <div class="card">
-        <header>
-          <h2>Le mois en un coup d'œil</h2>
-          <div class="right"><button type="button" class="btn sm" data-go="horaire">Ouvrir l'horaire</button></div>
-        </header>
-        <div class="cal" id="cal"></div>
+      <div class="toolbar eqnav">
+        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <div class="eqjour" id="eqJour">—</div>
+        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
+        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
       </div>
-
-      <div class="card">
-        <header><h2>Vérifier sa fiche en quatre temps</h2></header>
-        <ol class="steps">
-          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Horaire, touchez une journée pour la corriger : elle ne sera plus retouchée.</span></li>
-          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
-          <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
-          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
-        </ol>
-      </div>
+      <details class="aide eqaide"><summary>Comment lire ce tableau</summary>
+        <p class="lede" id="eqNote"></p></details>
     </div>
+    <div class="eqcorps" id="eqCorps"></div>
   </section>
 
-  <!-- ============ HORAIRE ============ -->
   <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
     <div class="mnavhote"></div>
     <div class="card">
@@ -1634,48 +1696,42 @@ body.sheet-on{overflow:hidden}
         </div>
       </details>
     </div>
+
+    <!-- Les compteurs suivent l'horaire : c'est le même sujet vu de
+         plus loin. Le client, le 22/09/2026 : « Horaire doit s'appeler
+         Mon horaire et reprendre le contenu de l'onglet Compteurs ». -->
+
+    <div class="card">
+      <header>
+        <h2>État des compteurs</h2>
+        <span class="sub" id="cptSub"></span>
+      </header>
+      <div class="pad" id="cptCorps"></div>
+    </div>
   </section>
 
   <!-- ============ COMPTEURS ============ -->
   <!-- ============ ÉQUIPE ============ -->
   <section class="panel stack" id="v-equipe" role="tabpanel" hidden>
-    <div class="card" id="mqCard">
-      <details id="mqFold" open>
-      <summary>
-        <h2>Postes en manque</h2>
-        <span class="sub" id="mqSub"></span>
-      </summary>
-      <div class="mqbar">
-        <!-- « À partir d'aujourd'hui » a disparu : le module ne regarde
-             JAMAIS en arrière, c'est sa règle de naissance. L'écrire au-dessus
-             de lui, c'était occuper une ligne pour décrire ce qu'il est. -->
-        <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
-          <button type="button" data-h="7" aria-pressed="false">7 j</button>
-          <button type="button" data-h="14" aria-pressed="true">14 j</button>
-          <button type="button" data-h="30" aria-pressed="false">30 j</button>
-          <button type="button" data-h="0" aria-pressed="false">Tout</button>
-        </div>
-      </div>
-      <div class="mqcorps" id="mqCorps"></div>
-      </details>
-    </div>
+    <!-- L'ORGANISATION, et non la journée. Le client, le 22/09/2026 :
+         « l'onglet Équipe doit reconstruire les équipes (équipes 1 à 5
+         complètes par poste) et les binômes (adjoint, contremaître), plus
+         les opérateurs en formation et la station d'épuration ».
 
-    <div class="card">
-      <header>
-        <h2>Qui travaille</h2>
-        <span class="sub" id="eqSub"></span>
-      </header>
-      <div class="toolbar eqnav">
-        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour" id="eqJour">—</div>
-        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
-        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
-      </div>
-      <details class="aide eqaide"><summary>Comment lire ce tableau</summary>
-        <p class="lede" id="eqNote"></p></details>
+         Rien ici ne dépend de la date : c'est qui compose quoi. La journée
+         se lit dans le Résumé. -->
+    <div class="pvtete">
+      <h2>Les équipes</h2>
+      <p class="sub" id="orgSub"></p>
     </div>
-    <div class="eqcorps" id="eqCorps"></div>
+    <div class="orgcorps" id="orgCorps"></div>
 
+    <!-- L'ANNUAIRE RESTE ICI, et non dans le Résumé : le client a tranché le
+         22/09/2026. Les quatre cartes au-dessus disent la COMPOSITION —
+         qui est où — tandis que l'annuaire garde, sous chaque nom, ce que le
+         classeur écrit mot pour mot à côté de lui. On ne sait pas toujours
+         ce que cela désigne ; le supprimer serait perdre ce qu'on n'a pas
+         encore compris. -->
     <div class="card">
       <details class="fold" id="eqAnnFold">
         <summary>Annuaire <span class="sub">la fonction et les postes de chacun</span></summary>
@@ -1684,7 +1740,8 @@ body.sheet-on{overflow:hidden}
     </div>
   </section>
 
-  <!-- ============ POLYVALENCE ============ -->
+  <!-- ============ HORAIRE ============ -->
+    <!-- ============ POLYVALENCE ============ -->
   <!-- Le titre et la période vivent HORS du cadre. Le client, le
        22/09/2026 : « il faut le titre "Recyclage des polyvalences" au
        dessus du cadre avec juste en dessous la ligne avec les dates (donc
@@ -1702,19 +1759,55 @@ body.sheet-on{overflow:hidden}
     </div>
   </section>
 
-  <section class="panel stack" id="v-compteurs" role="tabpanel" hidden>
+  <section class="panel stack" id="v-salaire" role="tabpanel" hidden>
+    <!-- TOUT CE QUI TOUCHE À LA PAIE, en un seul endroit. Le client, le
+         22/09/2026. Trois écrans d'hier s'y retrouvent, dans l'ordre où on
+         les emploie : ce qu'on va toucher, d'où cela vient, et la
+         confrontation à la vraie fiche. -->
+    <div class="mnavhote"></div>
+
+    <div class="card">
+      <div class="hero">
+        <div>
+          <div class="lbl" id="heroLbl">Net à recevoir — septembre</div>
+          <div class="big" id="heroNet">—</div>
+        </div>
+        <div class="side" id="heroSide"></div>
+      </div>
+      <div class="versements" id="versements" hidden></div>
+      <div class="callout" id="alerteDefaut"></div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
     <div class="card">
       <header>
-        <h2>État des compteurs</h2>
-        <span class="sub" id="cptSub"></span>
+        <h2>D'où vient ce montant</h2>
+        <span class="sub">du brut au net, dans l'ordre de la fiche</span>
       </header>
-      <div class="pad" id="cptCorps"></div>
+      <div class="fall" id="fall"></div>
     </div>
-  </section>
 
-  <!-- ============ FICHE ============ -->
-  <section class="panel stack" id="v-fiche" role="tabpanel" hidden>
-    <div class="mnavhote"></div>
+    <div class="two">
+      <div class="card">
+        <header>
+          <h2>Le mois en un coup d'œil</h2>
+          <div class="right"><button type="button" class="btn sm" data-go="horaire">Ouvrir l'horaire</button></div>
+        </header>
+        <div class="cal" id="cal"></div>
+      </div>
+
+      <div class="card">
+        <header><h2>Vérifier sa fiche en quatre temps</h2></header>
+        <ol class="steps">
+          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Horaire, touchez une journée pour la corriger : elle ne sera plus retouchée.</span></li>
+          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
+          <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
+          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
+        </ol>
+      </div>
+    </div>
+
+
     <div class="card">
       <details class="fold" id="foldMonth">
         <summary>Montants de ce mois <span class="sub" id="monthSub">primes, avance, pécule, heures supplémentaires</span></summary>
@@ -1738,11 +1831,8 @@ body.sheet-on{overflow:hidden}
         <span class="v" id="netBig">—</span>
       </div>
     </div>
-  </section>
 
-  <!-- ============ CONTRÔLE ============ -->
-  <section class="panel stack" id="v-controle" role="tabpanel" hidden>
-    <div class="mnavhote"></div>
+
     <div class="card">
       <header>
         <h2>Contrôle de la vraie fiche</h2>
@@ -1758,7 +1848,9 @@ body.sheet-on{overflow:hidden}
     </div>
   </section>
 
-  <!-- ============ RÉGLAGES ============ -->
+  <!-- ============ FICHE ============ -->
+    <!-- ============ CONTRÔLE ============ -->
+    <!-- ============ RÉGLAGES ============ -->
   <section class="panel stack" id="v-reglages" role="tabpanel" hidden>
     <div class="card">
       <details class="fold" open>
@@ -3348,8 +3440,10 @@ function fonctionCourte(cat){
    Il était masqué onglet par onglet — quatre règles CSS pour le cacher là où
    il n'a rien à dire, et il occupait quand même la place la plus chère de
    l'écran sur les quatre autres. Il se RANGE désormais dans l'onglet qui
-   l'emploie : Résumé, Horaire, Fiche et Contrôle ont un hôte, les autres
-   n'en ont pas et il disparaît.
+   l'emploie : depuis la refonte en six onglets, ce sont « Mon horaire » et
+   « Mon salaire » qui en ont un — les seuls écrans qui parlent d'un MOIS.
+   Le Résumé, lui, parle d'aujourd'hui, et l'Équipe de personne en
+   particulier : ni l'un ni l'autre n'a d'hôte, et le sélecteur disparaît.
 
    Un seul exemplaire déménage, comme la barre d'onglets : quatre copies
    auraient demandé quatre jeux d'écouteurs, et rien n'aurait garanti
@@ -3414,8 +3508,22 @@ function deplierBarre(){
   }
   window.addEventListener("scroll",jauger,{passive:true});
 })();
-var VIEWS=["resume","horaire","equipe","polyvalence","compteurs","fiche","controle","reglages"];
+/* SIX ONGLETS, et non huit. Le client, le 22/09/2026 : « tout ce qui est lié
+   à la paye doit être dans un onglet Mon salaire ; Horaire doit s'appeler
+   Mon horaire et reprendre le contenu de l'onglet Compteurs ».
+
+   Les clés INTERNES ne bougent pas plus que nécessaire — « polyvalence »
+   reste « polyvalence » alors que l'onglet s'appelle Recyclage — parce que
+   « ui/view » retient la dernière vue ouverte : renommer une clé renverrait
+   au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
+   n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
+   et MIGRENT vers leur nouvel hôte, plus bas. */
+var VIEWS=["resume","horaire","equipe","polyvalence","salaire","reglages"];
+/* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
+   avait laissé « Fiche » ouvert retomberait sur le Résumé sans raison. */
+var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire"};
 function setView(v,keepScroll){
+  if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="resume";
   st.view=v;
   VIEWS.forEach(function(x){
@@ -3430,8 +3538,9 @@ function setView(v,keepScroll){
   if(!keepScroll) window.scrollTo(0,0);
   deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
-  if(v==="compteurs") renderCompteurs();
-  if(v==="equipe") renderEquipe();
+  if(v==="horaire") renderCompteurs();
+  if(v==="resume") renderEquipe();
+  if(v==="equipe") renderOrganisation();
   if(v==="polyvalence") renderPolyvalence();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
@@ -5650,7 +5759,6 @@ function renderEquipe(){
       +"Le poste vient de la cellule du jour, de l'en-tête de colonne du classeur, ou du seul "
       +"poste sur lequel la personne est formée — à défaut, elle reste « à déterminer » "
       +"plutôt que de compléter un effectif par une supposition.";
-    renderAnnuaire(db,moi);
   });
   renderManques();
 }
@@ -5894,6 +6002,157 @@ function renderPolyvalence(){
       '<span><i class="lg-pvsien">\u25cf</i>Poste actuel</span>'
       +'<span><i class="lg-tiret">\u00b7</i>Poste non acquis</span>'
       +'<span><i class="lg-pvform">F</i>En formation</span>';
+  }, function(){});
+}
+/* ── L'ONGLET ÉQUIPE : QUI COMPOSE QUOI ───────────────────────────────────
+   Le client, le 22/09/2026 : « l'onglet Équipe doit reconstruire les équipes
+   (équipes 1 à 5 complètes par poste) et les binômes (adjoint,
+   contremaître), plus les opérateurs en formation et la station
+   d'épuration ».
+
+   Rien ici ne dépend de la date, et c'est tout l'intérêt : la journée se lit
+   dans le Résumé, la composition se lit ici. Aucune de ces quatre cartes ne
+   rejoue le cycle ni les remplacements — elles LISENT ce que le classeur
+   écrit à côté de chaque nom, et rien de plus.
+
+   Le classeur range ces quatre choses de quatre façons différentes, et il
+   faut les prendre comme elles viennent :
+   - une personne d'équipe porte « Shift3 → Chaudières » ;
+   - un cadre porte « Contremaître → 4 », où 4 est son BINÔME et non un
+     poste ; l'adjoint du binôme porte en plus « Shift1 → Adjoints
+     Contremaître » — et ce « Shift1 » est l'en-tête de la colonne où il a
+     été lu, pas son équipe : ne pas le prendre pour telle ;
+   - un opérateur en formation porte son poste d'apprentissage, parfois avec
+     son équipe collée dedans (« chaudières éq. 3 ») ;
+   - la station d'épuration a sa propre catégorie. */
+function _orgPoste(p){
+  var po=p.postes||{}, k;
+  for(k in po) if(po.hasOwnProperty(k) && /^shift/i.test(k)) return po[k].p||"";
+  for(k in po) if(po.hasOwnProperty(k)) return po[k].p||"";
+  return "";
+}
+function _orgZone(lib){
+  var t=String(lib||"");
+  for(var i=0;i<POSTES_TRAVAIL.length;i++){
+    var P=POSTES_TRAVAIL[i];
+    if(P.rx && P.rx.test(t)) return P.z||"";
+  }
+  return "";
+}
+function _orgJeton(id,moi){
+  return '<span class="orgn'+(id===moi?" moi":"")+'">'+esc(idLisible(id))+"</span>";
+}
+function renderOrganisation(){
+  var hote=document.getElementById("orgCorps"); if(!hote) return;
+  fetchHoraireDB().then(function(db){
+    if(!db){ hote.innerHTML='<p class="lede" style="padding:16px">Horaire d\u2019équipe indisponible.</p>';
+             return; }
+    var sel=document.getElementById("prefillId");
+    var moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
+    var h=[];
+
+    /* --- 1. les cinq équipes, poste par poste ------------------------- */
+    /* L'ordre des lignes est celui de la production, comme partout
+       ailleurs : meunerie, gluten, éthanol, chaudières. Les postes que le
+       classeur écrit et que POSTES_TRAVAIL ne connaît pas — « Polyvalent »,
+       les renforts — suivent, plutôt que de disparaître. */
+    var ORDRE=["Meunerie","Gluten","Fermentation","Distillation","Chaudières",
+               "Renfort avant","Renfort arrière","Polyvalent"];
+    var grille={}, vus=[], eqs=[];
+    db.people.forEach(function(p){
+      var c=String(p.cat||"");
+      if(!/^shift\s*\d/i.test(c)) return;
+      var eq=c.replace(/\D+/g,""), po=_orgPoste(p)||"\u2014";
+      if(eqs.indexOf(eq)<0) eqs.push(eq);
+      if(vus.indexOf(po)<0) vus.push(po);
+      (grille[po]=grille[po]||{}); (grille[po][eq]=grille[po][eq]||[]).push(p.id);
+    });
+    eqs.sort(function(a,b){ return Number(a)-Number(b); });
+    var lignes=[];
+    ORDRE.forEach(function(po){ if(grille[po]) lignes.push(po); });
+    vus.forEach(function(po){ if(lignes.indexOf(po)<0) lignes.push(po); });
+
+    var t=['<div class="card"><div class="eqgrille"><table class="orgt">'];
+    t.push('<thead><tr><th class="orgp">Poste</th>');
+    /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
+       large, et l'intitulé long y sortait de la case. Le numéro est ce
+       qu'on lit ; le mot, on le sait. */
+    eqs.forEach(function(e){ t.push('<th>Éq. '+esc(e)+"</th>"); });
+    t.push("</tr></thead><tbody>");
+    var zPrec=null;
+    lignes.forEach(function(po){
+      var z=_orgZone(po), debut=(z!==zPrec); zPrec=z;
+      t.push('<tr data-z="'+esc(z)+'"'+(debut?' class="zone1"':"")+">"
+        +'<th class="orgp" scope="row">'+esc(po)+"</th>");
+      eqs.forEach(function(e){
+        var l=((grille[po]||{})[e]||[]).slice().sort();
+        t.push("<td>"+(l.length
+          ? l.map(function(id){ return _orgJeton(id,moi); }).join("")
+          : '<span class="orgvide">\u2013</span>')+"</td>");
+      });
+      t.push("</tr>");
+    });
+    t.push("</tbody></table></div></div>");
+    h.push(t.join(""));
+
+    /* --- 2. les binômes ------------------------------------------------ */
+    /* Le NUMÉRO est le binôme, pas un poste. Celui qui porte en plus
+       « Adjoints Contremaître » est l'adjoint ; l'autre est le contremaître.
+       Un binôme peut n'avoir qu'un contremaître : c'est le cas du 2, et la
+       case le dit plutôt que de rester blanche. */
+    var bin={};
+    db.people.forEach(function(p){
+      if(!estCadre(p)) return;
+      var po=p.postes||{}, num=null, adj=false, k;
+      for(k in po){ if(!po.hasOwnProperty(k)) continue;
+        if(/contrema/i.test(k)) num=String(po[k].p||"").replace(/\D+/g,"");
+        if(/adjoint/i.test(String(po[k].p||""))) adj=true; }
+      if(!num) return;
+      (bin[num]=bin[num]||{cm:[],adj:[]})[adj?"adj":"cm"].push(p.id);
+    });
+    var nums=Object.keys(bin).sort(function(a,b){ return Number(a)-Number(b); });
+    if(nums.length){
+      var b=['<div class="card"><header><h2>Les binômes</h2>'
+        +'<span class="sub">un contremaître, un adjoint</span></header>'
+        +'<div class="eqgrille"><table class="orgt orgbin"><thead><tr>'
+        +'<th class="orgp">Binôme</th><th>Contremaître</th><th>Adjoint</th>'
+        +"</tr></thead><tbody>"];
+      nums.forEach(function(n){
+        function c(l){ return l.length
+          ? l.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
+          : '<span class="orgvide">\u2014</span>'; }
+        b.push('<tr><th class="orgp" scope="row">'+esc(n)+"</th>"
+          +"<td>"+c(bin[n].cm)+"</td><td>"+c(bin[n].adj)+"</td></tr>");
+      });
+      b.push("</tbody></table></div></div>");
+      h.push(b.join(""));
+    }
+
+    /* --- 3 et 4. la formation, puis la station ------------------------- */
+    function carte(titre,sous,gens,legende){
+      if(!gens.length) return "";
+      var o=['<div class="card"><header><h2>'+titre+"</h2>"
+        +'<span class="sub">'+sous+"</span></header><div class=\"orgliste\">"];
+      gens.sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
+        o.push('<div class="orgl">'+_orgJeton(p.id,moi)
+          +"<em>"+esc(_orgPoste(p)||legende)+"</em></div>");
+      });
+      o.push("</div></div>");
+      return o.join("");
+    }
+    h.push(carte("Opérateurs en formation",
+      "leur poste est celui où ils APPRENNENT — ils n\u2019y sont pas validés",
+      db.people.filter(function(p){ return enFormation(p); }), "poste à déterminer"));
+    h.push(carte("Station d\u2019épuration", "attendue au matin",
+      db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
+      "station d\u2019épuration"));
+
+    hote.innerHTML=h.join("");
+    renderAnnuaire(db,moi);
+    var n=db.people.length;
+    var sub=document.getElementById("orgSub");
+    if(sub) sub.textContent=n+" personnes \u00b7 "+eqs.length+" équipes \u00b7 "
+      +nums.length+" binômes";
   }, function(){});
 }
 function renderAnnuaire(db,moi){

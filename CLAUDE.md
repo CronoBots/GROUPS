@@ -545,6 +545,78 @@ un jour férié**. C'est l'épreuve à relancer si la règle bouge.
 Le bloc ne s'affiche **que si le réglage est renseigné** : celui qui est
 payé en une fois ne voit rien de plus qu'avant.
 
+## Six onglets, et ce que chacun porte
+
+Le client, le 22/09/2026 : « l'onglet Équipe doit reconstruire les équipes
+(équipes 1 à 5 complètes par poste) et les binômes (adjoint, contremaître),
+plus les opérateurs en formation et la station d'épuration ; ce qui est
+affiché actuellement dans Équipe doit être affiché dans Résumé afin d'avoir
+une vue directe sur la journée ; tout ce qui est lié à la paye doit être
+dans un onglet "Mon salaire" ; Horaire doit s'appeler "Mon horaire" et
+reprendre le contenu de l'onglet Compteurs ».
+
+| Onglet | Ce qu'il porte |
+|---|---|
+| **Résumé** | AUJOURD'HUI : prochain poste, postes en manque, qui travaille |
+| **Mon horaire** | mon calendrier, et les compteurs à sa suite |
+| **Équipe** | la COMPOSITION : équipes 1-5 par poste, binômes, formation, STEP, annuaire |
+| **Recyclage** | inchangé |
+| **Mon salaire** | le net, les deux versements, la cascade, la fiche, le contrôle |
+| **Réglages** | inchangé |
+
+**La ligne de partage est le TEMPS, pas le sujet.** Le Résumé dit
+aujourd'hui, l'Équipe ne dépend d'aucune date, Mon horaire et Mon salaire
+parlent d'un MOIS — et ce sont les deux seuls à porter le sélecteur de mois.
+`placerMnav()` n'a donc plus que deux hôtes.
+
+**`VUES_MIGREES` existe pour que personne ne se réveille au Résumé.**
+`ui/view` retient la dernière vue ouverte ; les clés `compteurs`, `fiche` et
+`controle` ayant disparu, un appareil qui les avait enregistrées serait
+retombé au Résumé sans raison. La table les redirige vers leur nouvel hôte.
+Vérifié : `fiche` et `controle` mènent à `salaire`, `compteurs` à `horaire`,
+et une clé inconnue au Résumé.
+
+**Les clés internes ne bougent que si elles le doivent** : l'onglet s'appelle
+Recyclage mais la vue reste `polyvalence`, pour la même raison. `salaire` est
+neuf, donc il n'avait rien à casser.
+
+### La vue d'organisation lit, elle ne calcule pas
+
+`renderOrganisation()` ne rejoue ni le cycle ni les remplacements — elle lit
+ce que le classeur écrit à côté de chaque nom. Le classeur range ces quatre
+choses de quatre façons différentes, et il faut les prendre comme elles
+viennent :
+
+- une personne d'équipe porte `Shift3 → Chaudières` ;
+- un cadre porte `Contremaître → 4`, où **4 est son BINÔME et non un poste** ;
+  l'adjoint du binôme porte en plus `Shift1 → Adjoints Contremaître` — et ce
+  `Shift1` est **l'en-tête de la colonne où il a été lu, pas son équipe**.
+  Ne pas le prendre pour telle ;
+- un opérateur en formation porte son poste d'apprentissage, parfois avec son
+  équipe collée dedans (`chaudières éq. 3`) ;
+- la station d'épuration a sa propre catégorie.
+
+**Six binômes, et le 2 n'a pas d'adjoint** — la case le dit par un tiret
+cadratin plutôt que de rester blanche.
+
+**L'annuaire reste dans Équipe**, où le client l'a laissé quand la question
+lui a été posée. Les quatre cartes au-dessus disent la composition ; lui
+garde, sous chaque nom, **ce que le classeur écrit mot pour mot à côté** —
+on ne sait pas toujours ce que cela désigne, et le supprimer serait perdre
+ce qu'on n'a pas encore compris.
+
+**`white-space:nowrap` sur les onglets sous 375 px**, et c'est le mot qui
+compte : « Mon horaire » et « Mon salaire » sont les deux intitulés en DEUX
+mots, et à 320 px ils passaient à la ligne — la barre montait de 59 à 74 px,
+quinze pixels pris au tableau sans que personne les ait demandés. Sur une
+seule ligne, à 9,5 px et sans marge latérale, les six tiennent : mesuré,
+rien n'est tronqué à 320 px.
+
+Vérifié aux trois largeurs et hors ligne : chaque onglet porte du contenu,
+pas un cadre vide — prochain poste, manques, tableau du jour, calendrier,
+compteurs, 14 lignes d'organisation, 77 d'annuaire, 38 de recyclage, le net,
+la cascade et les tuiles.
+
 ## Les intérimaires : une liste qu'aucun fichier ne porte
 
 Onze personnes, données par le client le 22/09/2026. **Le classeur ne les
