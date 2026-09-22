@@ -981,6 +981,31 @@ par-dessus ce qui n'était pas encore lu. La période, elle, se lit AVANT,
 sans quoi aucun nombre du tableau ne veut dire quelque chose. Elle tient
 désormais sur la ligne du titre.
 
+**La vue de bureau a de la place : qu'elle s'en serve.** Le client, le
+22/09/2026 : « optimise la vue PC, les chiffres sont peu visibles (les 10
+et 5), titre plus grand, et la date et le poste à droite comme sur mobile ».
+
+Les réglages de la grille sont ceux d'une colonne de 38 px sur un
+téléphone ; à 1280 px ils laissaient la grille minuscule au milieu du vide,
+et le quota — en petit, derrière la barre, à demi effacé — ne disait plus
+sur combien on compte. Au-delà de 760 px : titre à **20 px**, chiffres à
+**13**, quota à **11 px et 80 % d'opacité** au lieu de 9 px et 55 %.
+
+**La date et le poste se calent à droite**, comme sur téléphone. La marque
+se réduisait à sa largeur de contenu — `margin-right:auto` la pousse à
+gauche et elle ne réclame rien de plus — si bien que le bloc du jour restait
+collé au trigramme avec mille pixels de vide à sa droite. `flex:1 1 auto`
+lui rend la place libre, et le `margin-left:auto` de la colonne du jour fait
+le reste : 16 px du bord, ou 14 px du chèque du net sur les onglets qui le
+portent.
+
+**La requête se pose APRÈS les règles qu'elle doit battre**, et non dans le
+haut de la feuille où elle avait d'abord été écrite : une requête média
+n'ajoute AUCUNE spécificité, donc à égalité c'est la dernière écrite qui
+gagne. Elle n'avait rien changé du tout. C'est la TROISIÈME fois que ce
+piège se referme sur ce fichier — la zébrure de cette grille, la barre
+d'onglets sous 375 px, et celle-ci.
+
 **Les intitulés de poste restent abrégés et horizontaux**, et la légende
 reste SOUS la grille. Une version verticale en toutes lettres et une légende
 remontée ont vécu une demi-heure : « j'aimais bien les postes écrits comme
