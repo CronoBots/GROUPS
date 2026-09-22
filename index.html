@@ -2076,33 +2076,39 @@ function daysInMonth(y,m){return new Date(Date.UTC(y,m+1,0)).getUTCDate();}
    4 jours ouvrables avant la fin du mois, et le solde 4 jours ouvrables
    après la fin du mois ».
 
-   JOUR OUVRABLE au sens belge : tous les jours SAUF le dimanche et les jours
-   fériés légaux — le SAMEDI en est un. C'est la définition de la loi du
-   12 avril 1965 sur la protection de la rémunération, celle-là même dont
-   sort le délai de quatre jours ouvrables. « Jour ouvré », lundi à vendredi,
-   est autre chose et donnerait d'autres dates : en septembre 2026, le 24 et
-   le 6 au lieu du 25 et du 5.
+   JOUR OUVRÉ, et non « ouvrable ». Le mot du client était le second, et la
+   loi du 12 avril 1965 sur la protection de la rémunération — celle dont
+   sort le délai de quatre jours — compte en jours OUVRABLES, samedi compris.
+   Cette lecture-là plaçait quatre dates de 2026 sur un samedi : le 4 avril,
+   le 25 avril, le 4 juillet et le 26 décembre. Le client, aussitôt :
+   « jamais payé le wk ». C'est le fait qui tranche, pas le vocabulaire — on
+   compte donc du LUNDI AU VENDREDI, jours fériés exclus.
+
+   Le nom de la fonction dit « ouvré » et non « ouvrable » : les deux mots
+   ne désignent pas le même ensemble, et un nom qui ment sur un jour de paie
+   se paie un jour.
 
    On compte À PARTIR du dernier jour du mois SANS le compter lui-même : on
-   avance d'un jour avant de regarder s'il est ouvrable. Les fériés viennent
-   de feries(), ceux-là mêmes que le calendrier du mois peint — et ils sont
+   avance d'un jour avant de regarder s'il est ouvré. Les fériés viennent de
+   feries(), ceux-là mêmes que le calendrier du mois peint — et ils sont
    relus quand le comptage change d'année, ce qui arrive tous les décembres. */
-function _ouvrable(d,F){
-  return d.getUTCDay()!==0
-    && !F[d.getUTCFullYear()+"-"+pad2(d.getUTCMonth()+1)+"-"+pad2(d.getUTCDate())];
+function _ouvre(d,F){
+  var j=d.getUTCDay();
+  if(j===0||j===6) return false;
+  return !F[d.getUTCFullYear()+"-"+pad2(d.getUTCMonth()+1)+"-"+pad2(d.getUTCDate())];
 }
-function ouvrablesDepuis(dep,n,pas){
+function ouvresDepuis(dep,n,pas){
   var d=new Date(dep.getTime()), an=null, F={}, vus=0, garde=0;
   while(vus<n && garde++<400){
     d.setUTCDate(d.getUTCDate()+pas);
     if(d.getUTCFullYear()!==an){ an=d.getUTCFullYear(); F=feries(an); }
-    if(_ouvrable(d,F)) vus++;
+    if(_ouvre(d,F)) vus++;
   }
   return d;
 }
 function versementsDuMois(y,m){
   var fin=new Date(Date.UTC(y,m,daysInMonth(y,m)));
-  return {avance:ouvrablesDepuis(fin,4,-1), solde:ouvrablesDepuis(fin,4,1)};
+  return {avance:ouvresDepuis(fin,4,-1), solde:ouvresDepuis(fin,4,1)};
 }
 function dateLongue(d){
   return JOURS_LONGS[(d.getUTCDay()+6)%7].toLowerCase()+" "+d.getUTCDate()
