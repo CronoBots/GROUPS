@@ -522,17 +522,25 @@ et le compte tombe juste que la case du mois soit remplie ou non. Vérifié
 dans les deux cas : 2 615,64 sans, 1 215,64 avec, et les deux versements
 affichés restent les mêmes.
 
-**JOUR OUVRABLE au sens belge** : tous les jours SAUF le dimanche et les
-jours fériés légaux — **le samedi en est un**. C'est la définition de la loi
-du 12 avril 1965 sur la protection de la rémunération, celle-là même dont
-sort le délai de quatre jours ouvrables. « Jour ouvré », lundi à vendredi,
-est autre chose : les deux lectures divergent **9 mois sur 12** en 2026. En
-septembre, l'ouvrable donne le 25 et le 5, l'ouvré le 24 et le 6.
+**JOUR OUVRÉ, et non « ouvrable ».** Le mot du client était le second, et
+il fallait pourtant le premier. La loi du 12 avril 1965 sur la protection de
+la rémunération — celle dont sort le délai de quatre jours — compte en jours
+OUVRABLES, **samedi compris** ; cette lecture plaçait quatre dates de 2026
+sur un samedi : le 4 avril, le 25 avril, le 4 juillet et le 26 décembre. Le
+client, aussitôt : **« jamais payé le wk »**. C'est le fait qui tranche, pas
+le vocabulaire — on compte du **lundi au vendredi, jours fériés exclus**.
+
+La fonction s'appelle donc `_ouvre()` et non `_ouvrable()` : les deux mots
+ne désignent pas le même ensemble, et un nom qui ment sur un jour de paie se
+paie un jour.
 
 On compte À PARTIR du dernier jour du mois **sans le compter lui-même** : on
-avance d'un jour avant de regarder s'il est ouvrable. Les fériés viennent de
+avance d'un jour avant de regarder s'il est ouvré. Les fériés viennent de
 `feries()`, ceux-là mêmes que le calendrier du mois peint, et ils sont relus
 quand le comptage change d'année — ce qui arrive tous les décembres.
+
+Contrôlé sur les douze mois de 2026 : **zéro date en week-end, zéro date sur
+un jour férié**. C'est l'épreuve à relancer si la règle bouge.
 
 Le bloc ne s'affiche **que si le réglage est renseigné** : celui qui est
 payé en une fois ne voit rien de plus qu'avant.
