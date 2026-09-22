@@ -862,6 +862,12 @@ body.sheet-on{overflow:hidden}
 .eqp2 tbody tr:nth-child(even) td:not(.manque):not(.vide),
 .eqp2 tbody tr:nth-child(even) th{background:var(--surface2)}
 .eqp2 tbody tr.zone1 th, .eqp2 tbody tr.zone1 td{border-top:2px solid var(--line)}
+/* « À déterminer » n'est pas un poste : son intitulé ne se met donc pas en
+   majuscules comme les autres, et son liseré reste vide. Il se lit comme ce
+   qu'il est — une question posée au bas du tableau. */
+.eqp2 tbody tr.eqinc th.eqposte b{text-transform:none; font-weight:600;
+  font-style:italic; color:var(--muted)}
+.eqp2 tbody tr.eqinc td{color:var(--muted)}
 .eqp2 td.manque{background:var(--out-soft)}
 .eqp2 td.manque .eqvide{color:var(--out); font-weight:700}
 .eqp2 td.vide{background:var(--surface2)}
@@ -5195,6 +5201,31 @@ function renderEquipe(){
           });
           tp.push("</tr>");
         });
+        /* L'opérateur dont le poste reste indéterminé se lisait dans la
+           carte « Hors poste », loin du tableau — donc loin de la question
+           qu'il pose. Le client, le 22/09/2026 : « l'opérateur à déterminer
+           doit être affiché sous la ligne STEP dans sa pause ».
+
+           Il descend donc ici, dernière ligne, sans couleur d'atelier :
+           n'ayant pas de poste, il n'a pas de zone. Le tiret cadratin dit
+           « personne » — le tiret court, lui, est réservé aux postes qui
+           n'attendent personne à cette pause, et les deux ne veulent pas
+           dire la même chose. */
+        var incTot=0;
+        PAUSES.forEach(function(g){
+          if(vp[g.k]) incTot+=vp[g.k].vue.inconnus.length; });
+        if(incTot){
+          tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row">'
+            +"<b>\u00c0 déterminer</b></th>");
+          PAUSES.forEach(function(g){
+            if(!vp[g.k]) return;
+            var li=vp[g.k].vue.inconnus;
+            tp.push("<td>"+(li.length
+              ? li.map(function(x){ return chip(x,g,null,true); }).join("")
+              : '<span class="eqvide">\u2014</span>')+"</td>");
+          });
+          tp.push("</tr>");
+        }
         var lg=[];
         if(aForm)   lg.push('<span><i class="lg-form"></i>opérateur en formation</span>');
         if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
@@ -5232,9 +5263,8 @@ function renderEquipe(){
         if(v.formation.length)
           extra.push(ligne("Formation \u00b7 "+g.t.toLowerCase(),"",
             String(v.formation.length), v.formation,g,null,false,"jaune"));
-        if(v.inconnus.length)
-          extra.push(ligne("\u00c0 déterminer \u00b7 "+g.t.toLowerCase(),"",
-            String(v.inconnus.length), v.inconnus,g,null,false,"blanc"));
+        /* « À déterminer » a quitté cette carte pour le tableau lui-même,
+           sous la ligne STEP : l'y laisser aussi l'aurait montré deux fois. */
       });
       eqReste=extra;
     }

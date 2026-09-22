@@ -408,6 +408,18 @@ journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
+**L'opérateur « à déterminer » est dans le tableau, pas à côté.** Le client,
+le 22/09/2026 : « l'opérateur à déterminer doit être affiché sous la ligne
+STEP dans sa pause ». Il se lisait dans la carte « Hors poste », loin du
+tableau — donc loin de la question qu'il pose. Il en occupe désormais la
+dernière ligne, sans couleur d'atelier : n'ayant pas de poste, il n'a pas de
+zone. Il a quitté la carte du même coup ; l'y laisser l'aurait montré deux
+fois.
+
+Le tiret cadratin « — » dit « personne » ; le tiret court « – » dit « ce
+poste n'attend personne à cette pause ». Les deux ne veulent pas dire la
+même chose, et la ligne « à déterminer » emploie le premier.
+
 **Les légendes ne montrent que ce qui est à l'écran.** Le client, le
 22/09/2026 : « ne laisser que les légendes utiles ». Une légende qui explique
 un signe absent est du bruit — la plupart des jours il n'y a ni opérateur en
