@@ -243,6 +243,38 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
 
+## La barre du haut est une barre d'identité
+
+Le client, le 22/09/2026 : « la barre du haut doit être une vraie barre
+personnelle, avec le logo, le trigramme et le poste actuel ; il faut que ce
+soit 100 % professionnel ».
+
+Trois choses, dans l'ordre où on les cherche : **à qui appartient cet écran**
+(le logo, déjà mis en cache par le service worker), **qui le regarde** (le
+trigramme, sur une plaque), et **ce qu'il fait aujourd'hui**. La fonction
+seule — « Contremaître » — ne disait rien du jour ; `posteDuJourDe()` rejoue
+`equipeDuJour()` et `postesDePause()` pour la date du jour et rend
+« Contremaître · nuit », « STEP · matin », « Jour », « Congé » ou « Repos ».
+Il ne recompte rien : c'est la vue de l'équipe qui répond.
+
+**Trois pièges de mise en page, tous mesurés et non devinés :**
+
+- `min-width:150px` sur le libellé du mois. « Septembre 2026 » coûte 111 px,
+  la barre en offre 358, et il en manquait cinq : le bloc du mois passait à
+  la ligne et la barre collante montait de 54 à 96 px. Les deux formes du
+  mois sont dans le document, le CSS choisit — une bascule en JavaScript
+  demanderait d'écouter le redimensionnement et se tromperait au premier
+  pivotement d'écran.
+- **`flex:1 1 0`, et non `auto`.** Un élément flexible se replie selon sa
+  taille de BASE, pas selon sa taille minimale : avec `auto`, la marque
+  réclamait ses 190 px avant d'accepter de rétrécir. Base nulle, elle ne
+  réclame rien et son poste du jour s'abrège à l'ellipse.
+- Sous 340 px, c'est le mot « BIOWANZE » qui cède, pas l'identité : le logo
+  le porte déjà.
+
+**54 px de barre de 320 à 1280 px**, mois sur une ligne partout. Vérifié hors
+ligne : logo, trigramme et poste du jour se rendent tous les trois.
+
 ## La barre d'onglets n'est pas ancrée par une unité de hauteur
 
 Elle vit dans un cadre à elle, `.navwrap`, hors de l'en-tête collant — c'est
