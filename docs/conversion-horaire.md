@@ -1588,6 +1588,20 @@ l'écrit en orange, `0 / 1` ou `1 / 2`.
 Le tiret vaut pour la STEP en après-midi et en nuit, et pour l'adjoint quand
 il n'y en a pas : une case grise et muette laissait croire à un oubli.
 
+Une **seconde légende** nomme les zones que porte le liseré de gauche :
+encadrement, meunerie-gluten, l'éthanol, chaudières, station d'épuration.
+
+### Une seule carte pour qui ne tient aucun poste
+
+« Hors pause » et « Le reste » disaient la même chose — personne ici ne tient
+un poste aujourd'hui. Elles n'en font plus qu'une, **« Hors poste »** : jour,
+formation, postes à déterminer, malades, congés, repos.
+
+Sa table ne sert plus qu'à cela, et ses intitulés sont longs — « Formation ·
+matin », « À déterminer · nuit ». Ils se **coupent** donc, là où un nom de
+poste ne le devait pas : sans quoi « FORMATION · MATIN » passait par-dessus
+son compteur.
+
 Un espace **insécable** de chaque côté du point empêchait la coupure : trois
 trigrammes débordaient de leur colonne sur un téléphone au lieu de passer à la
 ligne. Espaces ordinaires, donc — c'est le genre de détail qu'une capture

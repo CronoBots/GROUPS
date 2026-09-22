@@ -761,12 +761,13 @@ body.sheet-on{overflow:hidden}
 .eqt{width:100%; border-collapse:collapse; table-layout:fixed}
 .eqt tr+tr th, .eqt tr+tr td{border-top:1px solid var(--line2)}
 .eqt th, .eqt td{padding:7px 4px; vertical-align:top; text-align:left}
-/* La colonne du poste ne coupe JAMAIS son nom — le client, le 22/09/2026 :
-   « élargir la colonne du poste pour ne pas avoir de retour à la ligne » —
-   et l'effectif se cale tout a droite de sa cellule. */
+/* Cette table ne sert plus qu'à la carte « Hors poste », dont les intitulés
+   sont longs — « Formation · matin », « À déterminer · nuit ». Ils se
+   coupent donc, là où un nom de poste ne le devait pas : sans quoi
+   « FORMATION · MATIN » passait par-dessus son compteur. */
 .eqt th[scope="row"]{width:150px; padding-left:16px; font-size:10.5px; font-weight:700;
   letter-spacing:.02em; text-transform:uppercase; color:var(--faint);
-  border-left:3px solid transparent; white-space:nowrap}
+  border-left:3px solid transparent; line-height:1.35}
 .eqt td.eqc{width:52px; font-family:"IBM Plex Mono",monospace; font-size:11px;
   font-weight:600; color:var(--muted); text-align:right; white-space:nowrap;
   padding-right:14px}
@@ -796,8 +797,10 @@ body.sheet-on{overflow:hidden}
 .eqp2 thead th[data-s="AM"]{border-top-color:var(--am)}
 .eqp2 thead th[data-s="PM"]{border-top-color:var(--pm)}
 .eqp2 thead th[data-s="N"] {border-top-color:var(--n)}
-.eqp2 th.eqposte{width:142px; text-align:left; white-space:nowrap;
-  padding-left:16px; padding-right:10px; border-left:3px solid transparent}
+/* L'effectif ayant quitté cette colonne, elle n'a plus à être large que de
+   son plus long intitulé — « TERRAIN ARRIÈRE » — et le reste va aux pauses. */
+.eqp2 th.eqposte{width:132px; text-align:left; white-space:nowrap;
+  padding-left:14px; padding-right:8px; border-left:3px solid transparent}
 /* PAS de display:flex sur un <th> : il sort alors de la mise en page du
    tableau et sa ligne ne s'aligne plus sur les autres cellules. Le nom
    coule normalement, l'effectif flotte à droite. */
@@ -850,6 +853,16 @@ body.sheet-on{overflow:hidden}
 .lg-form{width:9px; height:9px; border-radius:3px; background:var(--at-jaune)}
 .lg-mq{width:9px; height:9px; border-radius:3px; background:var(--out)}
 .lg-tiret{font-family:"IBM Plex Mono",monospace; color:var(--faint)}
+.eqzones{border-top:0; padding-top:0}
+/* La phrase d'explication courait sur 450 px au milieu d'une carte qui en
+   fait 1150 : elle prend toute la largeur disponible. */
+.lede.wide{max-width:none}
+.lg-z{width:16px; height:3px; border-radius:2px; background:var(--line)}
+.lg-z[data-z="gris"]{background:var(--at-gris)}
+.lg-z[data-z="jaune"]{background:var(--at-jaune)}
+.lg-z[data-z="vert"]{background:var(--at-vert)}
+.lg-z[data-z="rouge"]{background:var(--at-rouge)}
+.lg-z[data-z="bleu"]{background:var(--at-bleu)}
 @media (max-width:560px){
   /* « CONTREMAÎTRE » est le plus long, et il ne se coupe pas : la colonne et
      le corps sont taillés sur lui. */
@@ -1319,7 +1332,7 @@ body.sheet-on{overflow:hidden}
           <button type="button" data-v="grille" aria-pressed="false">Par pause</button>
         </div>
       </div>
-      <p class="lede top" id="eqNote"></p>
+      <p class="lede top wide" id="eqNote"></p>
     </div>
     <div class="eqcorps" id="eqCorps"></div>
 
@@ -4669,7 +4682,7 @@ function renderEquipe(){
        fermentation, terrain arrière, distillation, chaudières, STEP — c'est
        celui où l'on parcourt l'usine. Une ligne par poste, et l'effectif en
        face : un poste sous le sien se voit sans le chercher. */
-    var h=[], total=0;
+    var h=[], total=0, eqReste=[];
     var RESTE=["abs","cong","off"];
     /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
@@ -4869,6 +4882,15 @@ function renderEquipe(){
           +'<span><i class="lg-form"></i>opérateur en formation</span>'
           +'<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>'
           +'<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>'
+          +"</p>"
+          /* Les zones de l'usine, que le liseré de gauche porte. Le client
+             les a données le 21/09/2026 ; autant les nommer. */
+          +'<p class="eqleg eqzones">'
+          +'<span><i class="lg-z" data-z="gris"></i>encadrement</span>'
+          +'<span><i class="lg-z" data-z="jaune"></i>meunerie, gluten</span>'
+          +'<span><i class="lg-z" data-z="vert"></i>fermentation, terrain arrière, distillation</span>'
+          +'<span><i class="lg-z" data-z="rouge"></i>chaudières</span>'
+          +'<span><i class="lg-z" data-z="bleu"></i>station d\'épuration</span>'
           +"</p></div>");
         h.push(tp.join(""));
       }
@@ -4876,6 +4898,10 @@ function renderEquipe(){
       /* Le jour, la formation, les postes indéterminés : une carte à part.
          Aucun ne se range par poste, et les mêler aux trois pauses aurait
          ajouté des colonnes vides à chaque ligne. */
+      /* UNE carte pour tout ce qui n'est à aucun poste — le jour, la
+         formation, les indéterminés, les malades, les congés, le repos.
+         C'étaient deux cartes, « Hors pause » et « Le reste », qui disaient
+         la même chose : personne ici ne tient un poste aujourd'hui. */
       var extra=[], jourL=(par.D||[]).slice();
       if(jourL.length){
         total+=jourL.length;
@@ -4887,21 +4913,18 @@ function renderEquipe(){
         if(!vp[g.k]) return;
         var v=vp[g.k].vue;
         if(v.formation.length)
-          extra.push(ligne(g.t+" · formation","",String(v.formation.length),
-            v.formation,g,null,false,"blanc"));
+          extra.push(ligne("Formation \u00b7 "+g.t.toLowerCase(),"",
+            String(v.formation.length), v.formation,g,null,false,"jaune"));
         if(v.inconnus.length)
-          extra.push(ligne(g.t+" · à déterminer","",String(v.inconnus.length),
-            v.inconnus,g,null,false,"blanc"));
+          extra.push(ligne("\u00c0 déterminer \u00b7 "+g.t.toLowerCase(),"",
+            String(v.inconnus.length), v.inconnus,g,null,false,"blanc"));
       });
-      if(extra.length)
-        h.push('<div class="card eqcard"><header><h2>Hors pause</h2>'
-          +'<span class="sub">jour, formation, poste à déterminer</span></header>'
-          +'<table class="eqt"><tbody>'+extra.join("")+"</tbody></table></div>");
+      eqReste=extra;
     }
 
-    /* Et une carte pour le reste : malades, congés, repos. On ne les range
-       pas par poste — ils n'en tiennent aucun ce jour-là. */
-    var resteCorps=[];
+    /* Et le reste : malades, congés, repos. On ne les range pas par poste —
+       ils n'en tiennent aucun ce jour-là. */
+    var resteCorps=eqReste;
     RESTE.forEach(function(k){
       var g=EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
       var l=par[k]||[]; if(!l.length) return;
@@ -4911,8 +4934,8 @@ function renderEquipe(){
     });
     if(resteCorps.length)
       h.push('<div class="card eqcard" data-s="reste">'
-        +'<header><h2><span class="eqpt"></span>Le reste</h2>'
-        +'<span class="sub">malades, congés, repos</span></header>'
+        +'<header><h2><span class="eqpt"></span>Hors poste</h2>'
+        +'<span class="sub">personne ici ne tient un poste aujourd\'hui</span></header>'
         +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>");
 
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
