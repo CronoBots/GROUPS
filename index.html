@@ -946,11 +946,16 @@ body.sheet-on{overflow:hidden}
   color:var(--faint); white-space:nowrap}
 /* La colonne des postes reste visible quand la grille défile : sans elle on
    ne sait plus de quel poste on lit la colonne. */
-.orgt th.orgp{position:sticky; left:0; z-index:2; width:104px; text-align:left;
+.orgt th.orgp{position:sticky; left:0; z-index:2; width:76px; text-align:left;
   background:var(--surface); border-left:3px solid var(--line);
   font-size:10.5px; font-weight:700; letter-spacing:.02em;
   text-transform:uppercase; color:var(--muted); white-space:nowrap}
 .orgt thead th.orgp{z-index:3}
+.orgl1{display:none}
+@media (min-width:761px){
+  .orgl1{display:inline}
+  .orgl2{display:none}
+}
 .orgt tbody tr[data-z="jaune"] th.orgp{border-left-color:var(--at-jaune)}
 .orgt tbody tr[data-z="vert"]  th.orgp{border-left-color:var(--at-vert)}
 .orgt tbody tr[data-z="rouge"] th.orgp{border-left-color:var(--at-rouge)}
@@ -964,10 +969,32 @@ body.sheet-on{overflow:hidden}
 .orgn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
   font-weight:600; letter-spacing:.03em; color:var(--ink); line-height:1.5}
 .orgn.moi{color:var(--in); text-decoration:underline; text-underline-offset:3px}
+/* Celui qui PEUT tenir le poste, sous celui qui le tient. En retrait, et non
+   d'une autre couleur : une couleur de plus dans un tableau qui en porte
+   déjà cinq — une par zone d'usine — se serait lue comme une zone. */
+.orgt td .orgn.orgr{font-size:10.5px; font-weight:500; color:var(--faint)}
+.orgt td .orgn.orgr:first-child{margin-top:0}
+.orgt td .orgn+.orgn.orgr{margin-top:3px}
+.lg-orgt{width:9px; height:9px; border-radius:3px; background:var(--ink)}
+.lg-orgr{width:9px; height:9px; border-radius:3px; background:var(--faint)}
 .orgvide{color:var(--faint)}
-/* Les binômes : trois colonnes égales, le numéro n'étant pas un poste. */
-.orgbin th.orgp{width:64px; text-transform:none; font-size:12px;
-  font-family:"IBM Plex Mono",monospace; border-left-color:var(--line)}
+/* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
+   six lignes de deux trigrammes, et s'étirait à 1146 px sur un écran de
+   bureau. Une tuile tient ce qu'elle porte, et la grille en range autant que
+   la largeur en permet — trois sur un téléphone, six sur un bureau. */
+.orgbin{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+  gap:1px; background:var(--line2)}
+.orgb{display:flex; align-items:baseline; gap:9px; padding:9px 12px;
+  background:var(--surface)}
+.orgb>b{flex:0 0 auto; min-width:20px; font-family:"IBM Plex Mono",monospace;
+  font-size:15px; font-weight:600; color:var(--faint)}
+.orgb>div{min-width:0}
+.orgb .orgn{line-height:1.45}
+/* L'adjoint sous le contremaître, en retrait : c'est la même hiérarchie que
+   dans le tableau des équipes, où le titulaire précède ceux qui peuvent le
+   remplacer. */
+.orgb .orgn+.orgn{font-size:11px; font-weight:500; color:var(--ink2)}
+.orgb .orgvide{font-size:10.5px; font-style:italic}
 /* La formation et la station : deux listes, pas des grilles — il n'y a rien
    à croiser, seulement des gens et leur poste. */
 .orgliste{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
@@ -981,7 +1008,9 @@ body.sheet-on{overflow:hidden}
 .cardjour>.prochain{border-top:0; border-bottom:0}
 @media (min-width:761px){
   .orgt th, .orgt td{padding:8px 7px}
-  .orgt th.orgp{width:132px; font-size:11.5px}
+  /* 128 px, et non 104 : « TERRAIN ARRIÈRE » est le plus long des six
+     intitulés et se faisait couper d'un cheveu. Mesuré, pas estimé. */
+  .orgt th.orgp{width:128px; font-size:11.5px}
   .orgt thead th{font-size:11px}
   .orgn{font-size:13px}
 }
@@ -6052,47 +6081,114 @@ function renderOrganisation(){
     var h=[];
 
     /* --- 1. les cinq équipes, poste par poste ------------------------- */
-    /* L'ordre des lignes est celui de la production, comme partout
-       ailleurs : meunerie, gluten, éthanol, chaudières. Les postes que le
-       classeur écrit et que POSTES_TRAVAIL ne connaît pas — « Polyvalent »,
-       les renforts — suivent, plutôt que de disparaître. */
-    var ORDRE=["Meunerie","Gluten","Fermentation","Distillation","Chaudières",
-               "Renfort avant","Renfort arrière","Polyvalent"];
-    var grille={}, vus=[], eqs=[];
+    /* UNE SEULE RÈGLE DE PLACEMENT, et elle vaut pour tout le monde. Le
+       client, le 22/09/2026 : « les polyvalents ne doivent pas être mélangés
+       et appartenir aux bonnes lignes (Gluten, Meunerie, Terrain arrière,
+       Fermentation, Distillation…) ; les renforts pareil, se situer avec les
+       postes les liant ».
+
+       Les trois polyvalents d'une équipe étaient entassés dans une seule
+       case « Polyvalent », et les renforts dans une case « Renfort avant » ou
+       « Renfort arrière » — des cases qui ne disent pas QUEL poste ces gens
+       tiennent. Or c'est exactement la question qu'on vient poser à ce
+       tableau.
+
+       La règle : qui porte un POSTE au classeur est titulaire de sa ligne ;
+       qui porte autre chose — polyvalent, renfort — se place sur CHAQUE ligne
+       qu'il est validé à tenir. Sa polyvalence dit où il peut aller, et
+       c'est la seule source qui le dise.
+
+       « Les postes les liant » est le mot juste du client pour le TERRAIN
+       ARRIÈRE : le poste qui relie la fermentation et la distillation. Il ne
+       figure dans aucune liste de polyvalence du classeur — il se DÉDUIT des
+       deux autres, exactement comme tientTerrainArriere() le fait partout
+       ailleurs dans l'application.
+
+       Aucun titulaire ne porte « Terrain arrière » au classeur : sa ligne ne
+       se remplit que de renforts, et c'est juste — c'est le renfort arrière
+       qui le tient. */
+    /* L'intitulé COURT, celui que le Recyclage emploie déjà. « Terrain
+       arrière » imposait 104 px à la première colonne — 29 % de la largeur à
+       390 px — pour un mot que « T. arr. » dit aussi bien. Les cinq colonnes
+       d'équipe se partagent ce qu'il rend. Le nom entier reste dans
+       l'infobulle : on ne le devine pas la première fois. */
+    var LIGNES=[], LIG_Z={}, LIG_LONG={};
+    POSTES_TRAVAIL.forEach(function(P){
+      if(P.cm || P.k==="adj" || P.k==="step") return;
+      var court=PV_COURT[P.k]||P.t;
+      LIGNES.push(court); LIG_Z[court]=P.z||""; LIG_LONG[court]=P.t;
+    });
+    function _orgLignesDe(p){
+      /* Les lignes qu'une personne SANS poste attitré est validée à tenir. */
+      var out=[];
+      LIGNES.forEach(function(court){
+        var lib=LIG_LONG[court], P=null;
+        for(var i=0;i<POSTES_TRAVAIL.length;i++)
+          if(POSTES_TRAVAIL[i].t===lib) P=POSTES_TRAVAIL[i];
+        if(!P) return;
+        if(P.k==="terr"){ if(tientTerrainArriere(p)) out.push(court); return; }
+        if(P.rx && aLAtelier(p,P.rx)) out.push(court);
+      });
+      return out;
+    }
+    var grille={}, eqs=[], orphelins=[];
     db.people.forEach(function(p){
       var c=String(p.cat||"");
       if(!/^shift\s*\d/i.test(c)) return;
-      var eq=c.replace(/\D+/g,""), po=_orgPoste(p)||"\u2014";
+      var eq=c.replace(/\D+/g,""), po=_orgPoste(p);
       if(eqs.indexOf(eq)<0) eqs.push(eq);
-      if(vus.indexOf(po)<0) vus.push(po);
-      (grille[po]=grille[po]||{}); (grille[po][eq]=grille[po][eq]||[]).push(p.id);
+      function pose(lib,titre){
+        var k=lib+"|"+eq;
+        (grille[k]=grille[k]||{t:[],r:[]})[titre?"t":"r"].push(p.id);
+      }
+      var court=null;
+      for(var q=0;q<LIGNES.length;q++) if(LIG_LONG[LIGNES[q]]===po) court=LIGNES[q];
+      if(court){ pose(court,true); return; }
+      var l=_orgLignesDe(p);
+      if(!l.length){ orphelins.push({id:p.id, eq:eq, po:po}); return; }
+      l.forEach(function(lib){ pose(lib,false); });
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
-    var lignes=[];
-    ORDRE.forEach(function(po){ if(grille[po]) lignes.push(po); });
-    vus.forEach(function(po){ if(lignes.indexOf(po)<0) lignes.push(po); });
 
     var t=['<div class="card"><div class="eqgrille"><table class="orgt">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
-       large, et l'intitulé long y sortait de la case. Le numéro est ce
-       qu'on lit ; le mot, on le sait. */
+       large, et l'intitulé long y sortait de la case. */
     eqs.forEach(function(e){ t.push('<th>Éq. '+esc(e)+"</th>"); });
     t.push("</tr></thead><tbody>");
     var zPrec=null;
-    lignes.forEach(function(po){
-      var z=_orgZone(po), debut=(z!==zPrec); zPrec=z;
+    LIGNES.forEach(function(lib){
+      var z=LIG_Z[lib]||"", debut=(z!==zPrec); zPrec=z;
       t.push('<tr data-z="'+esc(z)+'"'+(debut?' class="zone1"':"")+">"
-        +'<th class="orgp" scope="row">'+esc(po)+"</th>");
+        /* Les DEUX intitulés sont écrits, et la feuille choisit : le court
+           sur un téléphone, où 104 px de première colonne prenaient 29 % de
+           la largeur, l'entier sur un bureau, où la place ne manque pas.
+           Écrire les deux coûte quelques octets ; les faire dépendre du
+           script aurait demandé un écouteur de redimensionnement. */
+        +'<th class="orgp" scope="row"><span class="orgl1">'
+        +esc(LIG_LONG[lib]||lib)+'</span><span class="orgl2">'
+        +esc(lib)+"</span></th>");
       eqs.forEach(function(e){
-        var l=((grille[po]||{})[e]||[]).slice().sort();
-        t.push("<td>"+(l.length
-          ? l.map(function(id){ return _orgJeton(id,moi); }).join("")
-          : '<span class="orgvide">\u2013</span>')+"</td>");
+        var o=grille[lib+"|"+e];
+        if(!o || (!o.t.length && !o.r.length)){
+          t.push('<td><span class="orgvide">\u2013</span></td>'); return; }
+        /* Le titulaire d'abord, en pleine encre ; ceux qui PEUVENT le tenir
+           ensuite, en retrait. L'ordre dit la différence sans un mot. */
+        t.push("<td>"+o.t.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
+          +o.r.sort().map(function(id){
+              return _orgJeton(id,moi).replace('class="orgn','class="orgn orgr'); }).join("")
+          +"</td>");
       });
       t.push("</tr>");
     });
-    t.push("</tbody></table></div></div>");
+    t.push("</tbody></table></div>"
+      +'<p class="eqleg"><span><i class="lg-orgt"></i>titulaire du poste</span>'
+      +'<span><i class="lg-orgr"></i>validé pour le tenir</span></p>'
+      +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
+        +orphelins.length+" personne(s) sans poste ni polyvalence rattachable : "
+        +orphelins.map(function(x){ return esc(idLisible(x.id))+" (éq. "+esc(x.eq)+")"; }).join(", ")
+        +"</p>":"")
+      +"</div>");
     h.push(t.join(""));
 
     /* --- 2. les binômes ------------------------------------------------ */
@@ -6112,19 +6208,21 @@ function renderOrganisation(){
     });
     var nums=Object.keys(bin).sort(function(a,b){ return Number(a)-Number(b); });
     if(nums.length){
+      /* SIX TUILES, et non un tableau pleine largeur. Le tableau coûtait
+         222 px pour six lignes de deux trigrammes, et ses trois colonnes
+         s'étiraient à 1146 px sur un écran de bureau pour un contenu qui en
+         demande quarante. Une tuile par binôme tient ce qu'elle porte. */
       var b=['<div class="card"><header><h2>Les binômes</h2>'
         +'<span class="sub">un contremaître, un adjoint</span></header>'
-        +'<div class="eqgrille"><table class="orgt orgbin"><thead><tr>'
-        +'<th class="orgp">Binôme</th><th>Contremaître</th><th>Adjoint</th>'
-        +"</tr></thead><tbody>"];
+        +'<div class="orgbin">'];
       nums.forEach(function(n){
-        function c(l){ return l.length
+        function c(l,vide){ return l.length
           ? l.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
-          : '<span class="orgvide">\u2014</span>'; }
-        b.push('<tr><th class="orgp" scope="row">'+esc(n)+"</th>"
-          +"<td>"+c(bin[n].cm)+"</td><td>"+c(bin[n].adj)+"</td></tr>");
+          : '<span class="orgvide">'+vide+"</span>"; }
+        b.push('<div class="orgb"><b>'+esc(n)+"</b><div>"
+          +c(bin[n].cm,"\u2014")+c(bin[n].adj,"pas d\u2019adjoint")+"</div></div>");
       });
-      b.push("</tbody></table></div></div>");
+      b.push("</div></div>");
       h.push(b.join(""));
     }
 
