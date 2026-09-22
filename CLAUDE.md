@@ -621,6 +621,24 @@ distillation. `posteParDefaut()` vient en dernier, faute de quoi PDE n'a pas
 de poste habituel et ses 134 journées à la station passent pour de la
 polyvalence.
 
+**Une journée ne compte QUE si la personne possède la polyvalence du
+poste.** Le client, le 22/09/2026 : « les polyvalences ne doivent compter que
+s'ils ont cette polyvalence dans leurs connaissances ; AAI et ALZ ont été à
+la STEP pour voir à quoi cela ressemblait sans faire de polyvalence ». Une
+journée à un poste qu'on ne possède pas n'apprend pas ce poste : on y est
+passé, on ne l'a pas tenu. Le poste non possédé disparaît donc de la ligne,
+journées comprises — quatre journées à la STEP chez trois personnes.
+
+L'outil les liste tout de même, sous « journées tenues SANS la polyvalence
+du poste » : elles ne comptent pas, mais les taire serait perdre une
+information que personne d'autre ne porte.
+
+**Attention au piège documenté plus haut** : polyvalence INCONNUE n'est pas
+polyvalence VIDE. Les trois personnes sans liste déclarée sont des opérateurs
+en formation, qui n'en ont effectivement aucune ; les quatre que `CORRECTIONS`
+avait dépouillées ont retrouvé la leur. Si cela changeait, la règle stricte
+effacerait des polyvalences réelles sans rien dire.
+
 **« 0/X » se lit dans la colonne d'un poste dont la polyvalence est acquise
 sans qu'un seul remplacement ait été fait.** Le client : « il doit être écrit
 0/X dans la colonne où ils ont la polyvalence mais qu'ils n'ont pas encore
@@ -633,7 +651,7 @@ Distillation, comme `tientTerrainArriere()` le fait partout ailleurs.
 **La liste est alphabétique, sans intercalaire d'équipe** : on cherche
 quelqu'un par son trigramme, pas par son équipe.
 
-**Au 22/09/2026 : 33 couples personne-poste au quota sur 104, dont 23 où la
+**Au 22/09/2026 : 33 couples personne-poste au quota sur 101, dont 23 où la
 polyvalence est acquise sans un seul remplacement** — mesuré identique par
 l'outil et par le navigateur.
 
