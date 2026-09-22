@@ -3011,8 +3011,21 @@ document.addEventListener("change",function(e){
     var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
     if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
     else if(t.dataset.scope==="params"){
+      /* Une hausse ne réécrit pas le passé. Le client, le 22/09/2026 :
+         « attention que les (montant retiré) ce sera à partir du mois prochain, pas
+         avant ; pareil la prime de pause ». Changer le réglage rétroactivait
+         tout, et il aurait fallu recopier l'ancienne valeur sur neuf mois à
+         la main.
+
+         L'ANCIENNE valeur est donc figée sur chaque mois déjà ÉCOULÉ qui
+         n'en portait pas encore. Il suffit de changer le réglage le mois où
+         il prend effet — et le mois en cours suit la nouvelle valeur, ce qui
+         est juste : une paie se règle en fin de mois. */
+      var avant=st.params[t.dataset.k];
       setParam(t.dataset.k,v);
       save("config/params",st.params);
+      if(t.dataset.k==="remFixe")     figerPasse("remFixeMois",avant);
+      if(t.dataset.k==="primeRemise") figerPasse("primeRemiseMois",avant);
     }
     else { st.bareme[t.dataset.k]=v; save("config/bareme",st.bareme); }
     if(t.dataset.k==="hJour"||t.dataset.k==="statut") renderRota();
@@ -3946,6 +3959,35 @@ function remplirMois(db,person,y,m,M){
    obligeait à douze allers-retours pour un résultat déjà connu. Un seul
    clic remplit les douze. Les journées déjà encodées à la main ne sont
    jamais écrasées — le bouton se rejoue donc sans risque. */
+/* Fige une valeur de paramètre sur les mois déjà écoulés de l'année
+   affichée, sans toucher à ceux qui portent déjà une valeur propre : c'est
+   l'utilisateur qui l'y a mise, elle prime. */
+function figerPasse(cleMois,ancienne){
+  if(ancienne===null||ancienne===undefined||ancienne==="") return;
+  var au=new Date(), an=Number(st.y);
+  var dernier=(an<au.getFullYear())?12:((an>au.getFullYear())?0:au.getMonth());
+  if(dernier<=0) return;
+  var idx=[], i; for(i=0;i<dernier;i++) idx.push(i);
+  Promise.all(idx.map(function(i){ return readMonth(key(st.y,i)); }))
+  .then(function(docs){
+    var n=0;
+    docs.forEach(function(doc,i){
+      /* Un mois jamais ouvert n'a rien à figer : lui écrire une valeur
+         créerait un enregistrement pour un mois que personne n'a touché. */
+      if(!doc) return;
+      migreMois(doc);
+      var M=mergeDefaults(doc,DEF_M);
+      if(M[cleMois]!==null&&M[cleMois]!==undefined&&M[cleMois]!=="") return;
+      M[cleMois]=Number(ancienne); n++;
+      save("months/"+key(st.y,i),M,true);
+      if(i===st.m){ st.month=M; }
+    });
+    if(n){
+      renderFields(); refresh();
+      flash(n+" mois déjà écoulé"+(n>1?"s gardent":" garde")+" l'ancienne valeur");
+    }
+  });
+}
 function prefillFromHoraire(){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var id=idSel.value; if(!id){ prefillEnCours=false; return; }
