@@ -782,7 +782,14 @@ body.sheet-on{overflow:hidden}
    quelle ligne on lit. */
 .eqgrille{overflow-x:auto; -webkit-overflow-scrolling:touch}
 .eqg2{border-collapse:separate; border-spacing:0; min-width:100%}
-.eqg2 th, .eqg2 td{vertical-align:top; text-align:left; padding:9px 11px}
+/* Chaque poste a son trait, pas seulement chaque zone : la séparation de
+   zone est simplement plus épaisse. Et le contenu d'une case se centre —
+   ce sont des badges alignés sous un intitulé, pas un paragraphe. */
+.eqg2 th, .eqg2 td{vertical-align:top; text-align:center; padding:9px 10px;
+  border-left:1px solid var(--line2)}
+.eqg2 th.eqpause{text-align:left}
+.eqg2 thead th small{display:block; margin-top:2px; font-family:"IBM Plex Mono",monospace;
+  font-size:10px; font-weight:600; letter-spacing:0; opacity:.75}
 /* Pas de collage VERTICAL : la ligne d'en-têtes se collait en haut de la
    page et recouvrait « Matin ». Seule la colonne des pauses reste collée,
    à gauche, pour qu'on sache quelle ligne on lit en faisant défiler. */
@@ -820,17 +827,23 @@ body.sheet-on{overflow:hidden}
 .eqg2 tbody tr[data-s="D"]  th.eqpause{border-left-color:var(--d)}
 /* L'effectif se lit en coin, discret : c'est un contrôle, pas le contenu.
    Il ne passe au premier plan que lorsqu'il manque quelqu'un. */
-.eqg2 td>i{float:right; margin:0 0 2px 8px; font-style:normal;
-  font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600;
-  letter-spacing:.02em; color:var(--faint)}
 .eqg2 td.manque{background:var(--out-soft)}
-.eqg2 td.manque>i{color:var(--out); font-weight:700}
+.eqg2 td.manque .eqvide{color:var(--out); font-weight:700}
 .eqg2 td.vide{background:var(--surface2)}
 .eqg2 tbody tr:nth-child(even) td:not(.manque):not(.vide){background:var(--surface2)}
 .eqg2 tbody tr:nth-child(even) th.eqpause{background:var(--surface2)}
-.eqg2 td .eqn{margin:0 0 3px; display:flex}
-.eqg2 td .eqn b{font-size:12px}
-.eqg2 td .eqn i, .eqg2 td .eqn em{font-size:9.5px; line-height:1.25}
+/* Le trigramme en badge : un jeton qu'on repère d'un coup d'œil dans une
+   colonne, là où un mot nu se confondait avec son voisin. */
+.eqg2 td .eqn{display:inline-block; margin:0 0 4px}
+.eqg2 td .eqn+.eqn{margin-left:4px}
+.eqg2 td .eqn b{display:block; padding:3px 8px; border-radius:6px;
+  background:var(--surface3); font-size:11.5px; letter-spacing:.04em}
+.eqg2 td[data-z="jaune"] .eqn b{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.eqg2 td[data-z="vert"]  .eqn b{background:var(--at-vert-soft);  color:var(--at-vert)}
+.eqg2 td[data-z="rouge"] .eqn b{background:var(--at-rouge-soft); color:var(--at-rouge)}
+.eqg2 td[data-z="bleu"]  .eqn b{background:var(--at-bleu-soft);  color:var(--at-bleu)}
+.eqg2 td[data-z="gris"]  .eqn b{background:var(--at-gris-soft);  color:var(--at-gris)}
+.eqg2 td .eqn.moi b{box-shadow:inset 0 0 0 1.5px var(--in)}
 .eqn{display:inline-flex; flex-direction:column; vertical-align:top;
   margin:0 12px 2px 0; line-height:1.3}
 .eqn b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:650;
@@ -4550,7 +4563,11 @@ function renderEquipe(){
        face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
     var RESTE=["abs","cong","off"];
-    function chip(x,g,posteCourant){
+    /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
+       22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
+       pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
+       n'est pas une information perdue, c'est une information rangée. */
+    function chip(x,g,posteCourant,nu){
       var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
                 " · jusqu'au "+x.fin[2]+" "+MOIS[x.fin[1]-1].toLowerCase():"")
              :(x.prevu?esc(x.r.s)+" prévu":
@@ -4560,10 +4577,11 @@ function renderEquipe(){
               ||((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
                  ?"en formation, en plus":"");
       return '<span class="eqn'+(x.p.id===moi?" moi":"")+'"'
-        +' title="'+esc(fonctionPersonne(x.p))+(det?" · "+esc(det):"")+'">'
+        +' title="'+esc(fonctionPersonne(x.p))
+        +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
-        +(note?'<i>'+esc(note)+"</i>":"")
-        +(det?'<em>'+esc(det)+"</em>":"")+"</span>";
+        +(nu?"":(note?'<i>'+esc(note)+"</i>":"")+(det?'<em>'+esc(det)+"</em>":""))
+        +"</span>";
     }
     function ligne(titre,cle,compte,gens,g,P,alerte,zone){
       return '<tr'+(alerte?' class="manque"':"")+(zone?' data-z="'+esc(zone)+'"':"")+'>'
@@ -4630,8 +4648,15 @@ function renderEquipe(){
       var t=['<div class="card eqcard"><div class="eqgrille"><table class="eqg2">'];
       t.push('<thead><tr><th class="eqpause"></th>');
       cols.forEach(function(c){
+        /* Le client : « le nombre de personnes nécessaire à chaque poste doit
+           être écrit en petit dans la colonne avec le nom du poste ». Il ne
+           dépend pas de la pause sauf pour la STEP, attendue au seul matin —
+           d'où le maximum, qui vaut 1 pour elle et P.n pour tous les autres. */
+        var att=0;
+        if(c.P) pauses.forEach(function(g){
+          att=Math.max(att, attenduAuPoste(c.P,g.k)); });
         t.push('<th data-z="'+esc(c.z)+'"'+(c.debut?' class="zone1"':"")+">"
-          +esc(c.t)+"</th>"); });
+          +esc(c.t)+(att?"<small>"+att+"</small>":"")+"</th>"); });
       t.push("</tr></thead><tbody>");
       pauses.forEach(function(g){
         var v=vues[g.k];
@@ -4646,9 +4671,9 @@ function renderEquipe(){
             cl.push("vide"); t.push('<td class="'+cl.join(" ")+'"></td>'); return; }
           if(o.manque && !v.inconnus.length) cl.push("manque");
           t.push('<td data-z="'+esc(c.z)+'"'+(cl.length?' class="'+cl.join(" ")+'"':"")+'>'
-            +(o.attendu||o.tenu?'<i>'+o.tenu+(o.attendu?"/"+o.attendu:"")+"</i>":"")
-            +o.gens.map(function(x){ return chip(x,g,o.P||null); }).join("")
-            +(o.gens.length?"":'<span class="eqvide">—</span>')+"</td>");
+            +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
+            +(o.gens.length?'':'<span class="eqvide">'+(o.attendu?"0 / "+o.attendu:"—")+"</span>")
+            +"</td>");
         });
         t.push("</tr>");
       });

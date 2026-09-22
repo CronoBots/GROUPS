@@ -1617,6 +1617,34 @@ tableau et les pastilles du module des manques.
 Une **barre verticale** sépare les zones dans le tableau : on y lit l'usine
 par blocs, comme on la parcourt.
 
+### Le tableau au propre : badges, séparations, effectif en tête
+
+Le client, le 22/09/2026 : « il faut laisser les séparations entre chaque
+poste, ne pas mettre les petits commentaires sous le trigramme pour les gens
+qui travaillent. Il faut également centrer horizontalement le contenu de
+chaque poste et mettre les trigrammes sous forme de badge. Le nombre de
+personnes nécessaire à chaque poste doit être écrit en petit dans la colonne
+avec le nom du poste. »
+
+- **Un trait entre chaque poste**, et non plus seulement entre zones : la
+  séparation de zone est simplement plus épaisse.
+- **Le trigramme en badge**, teinté de la couleur de sa zone — un jeton qu'on
+  repère d'un coup d'œil dans une colonne, là où un mot nu se confondait avec
+  son voisin.
+- **Contenu centré** : ce sont des badges alignés sous un intitulé, pas un
+  paragraphe.
+- **Aucune mention sous le trigramme** — « fait fonction », « en formation,
+  en plus », « déduit de sa polyvalence » passent dans l'infobulle. Ce n'est
+  pas une information perdue, c'est une information rangée. Elles restent
+  écrites en clair dans la vue **Cartes**, et sous les absents du « reste »,
+  où elles disent une date de retour.
+- **L'effectif attendu monte dans l'en-tête**, sous le nom du poste. Il ne
+  dépend pas de la pause sauf pour la STEP, attendue au seul matin : l'en-tête
+  porte donc le maximum, qui vaut 1 pour elle et `P.n` pour tous les autres.
+
+Une case en manque garde son fond orange et écrit son compte, `0 / 1` : c'est
+la seule qui ait encore besoin d'un chiffre.
+
 ### L'adjoint qui ne remplace pas va chez le contremaître
 
 Le client, le 22/09/2026 : « si l'adjoint ne remplace pas on peut le mettre
