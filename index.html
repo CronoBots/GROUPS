@@ -3185,8 +3185,14 @@ function posteDepuisMention(tok){
    7h30-16h (dont 1/2 h de midi non payée). Exprimées en heures depuis
    minuit, la nuit débordant sur le lendemain. */
 var SHIFT_PLAGE={AM:[6,14],PM:[14,22],N:[22,30],D:[7.5,16]};
+/* L'apostrophe est la marque des minutes dans le classeur : « 15h30' » se
+   lit quinze heures trente. normPlage() la retirait déjà ; plageMention(),
+   non — et c'est ELLE qui décide si la cellule est une journée prestée.
+   AFA le 10/02 ["11h-15h30'","4h +FT"] s'affichait donc en absence à zéro
+   heure, alors qu'il a presté 4 h 30 : 4 h de flex time et une demi-heure
+   supplémentaire, ce que « +0,5 hs » confirme exactement. */
 function plageMention(tok){
-  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?$/i);
+  var m=tok.trim().match(/^(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?\s*[-\u2013]\s*(\d{1,2})\s*h?\s*(\d{2})?\s*[\u0027\u2019]?$/i);
   if(!m) return null;
   var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
   if(b<=a) b+=24;
