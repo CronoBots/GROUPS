@@ -1,102 +1,71 @@
-# Purge à terminer : deux versions du classeur portent des noms
+# Purge de l'historique — faite le 22/09/2026, à terminer côté GitHub
 
-**À faire dès qu'une session dispose de la permission `git push`.**
-Tant que ce n'est pas fait, le dépôt contient six noms complets — ce que
-`CLAUDE.md` interdit.
+## Ce qui a été purgé
 
-## Ce qui est sale, exactement
+**Six noms complets.** Deux versions de `data/classeur-2026.xlsx` étaient
+passées avant que l'anonymiseur ne sache lire la ligne des noms. Six
+personnes, absentes de la feuille « Personnel » comme des colonnes
+nom/prénom de « Polyvalence », n'y avaient pas été remplacées.
 
-Deux versions de `data/classeur-2026.xlsx` sont passées avant que
-l'anonymiseur ne sache lire la ligne des noms. Six personnes, absentes de la
-feuille « Personnel » comme des colonnes nom/prénom de « Polyvalence », n'y
-ont pas été remplacées.
+| Empreinte du blob | État |
+|---|---|
+| `fee9c67387738271d045d5845dcdfe6ae71eab5a` | ⚠️ retiré de l'historique |
+| `78e254a277df47a2f4f00720bb26c38bcb05fd79` | ⚠️ retiré de l'historique |
+| `dc31569…`, `19cead6…`, `4f409d0…` | ✅ propres, conservés |
 
-| Empreinte du fichier | Commit | État |
-|---|---|---|
-| `fee9c67387738271d045d5845dcdfe6ae71eab5a` | `02582dd` | ⚠️ six noms |
-| `78e254a277df47a2f4f00720bb26c38bcb05fd79` | `8b10d09` | ⚠️ six noms |
-| `dc3156915ffc37a22e7afc1881b00fb322426246` | `2b3df63` et après | ✅ propre |
+**Les montants de salaire.** `docs/regles-paie.md` a porté, du 20 au 22
+septembre 2026, la rémunération fixe de VBN mois par mois, son salaire
+horaire à quatre décimales, son treizième mois, son double pécule, l'avance
+mensuelle et le montant repris après l'incident de février. Vingt-cinq
+chaînes remplacées par « (montant retiré) » dans tous les commits.
 
-La troisième est celle d'aujourd'hui. Elle a passé `tools/verifier-anonymat.py`,
-qui n'emprunte rien à l'anonymiseur : 4 149 chaînes examinées, neuf
-survivantes, toutes du vocabulaire d'atelier.
-
-## La marche à suivre
-
-**Sauver la bonne version d'abord.** `git filter-branch` ne sait pas viser une
-version : il retire le fichier de *tous* les commits, y compris le propre. Or
-le classeur source (`.xlsm`) ne sera pas là pour le régénérer — il ne vit que
-le temps d'une session.
+## Comment
 
 ```bash
-cp data/classeur-2026.xlsx /tmp/propre.xlsx          # 1. mettre à l'abri
-
-FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter \
-    'git rm --cached --ignore-unmatch data/classeur-2026.xlsx' -- b5eaa44..HEAD
-
-git log --oneline -- data/classeur-2026.xlsx          # 2. doit être VIDE
-git push --force origin main                          # 3. pousser
-
-cp /tmp/propre.xlsx data/classeur-2026.xlsx           # 4. remettre le propre
-git add data/classeur-2026.xlsx
-git commit -m "Réinstaller le classeur anonymisé, vérifié"
-git push origin main
+pip install git-filter-repo
+git bundle create /tmp/avant-purge.bundle --all          # filet de sécurité
+git filter-repo --strip-blobs-with-ids /tmp/blobs-sales.txt \
+                --replace-text /tmp/montants.txt --force
+git remote add origin https://github.com/CronoBots/GROUPS
+git push --force origin travail:main
+git push --force origin travail:claude/zen-bell-pfx7el
 ```
 
-Contrôler ensuite que les deux mauvais objets ne sont plus atteignables :
+## Ce qui a été vérifié
 
-```bash
-for b in fee9c67387738271d045d5845dcdfe6ae71eab5a \
-         78e254a277df47a2f4f00720bb26c38bcb05fd79; do
-    git rev-list --objects HEAD | grep -q "$b" && echo "ENCORE LÀ : $b" || echo "parti : $b"
-done
-```
+- **L'arbre de HEAD est inchangé**, empreinte pour empreinte
+  (`d2d472a739330486171fbd86f2bcf7aa6a96bc1e` avant comme après) : la purge
+  n'a touché à aucun fichier courant.
+- Les deux blobs sales ne sont plus atteignables — `git cat-file -e` échoue.
+- Aucun des vingt-cinq montants ne subsiste dans aucun commit
+  (`git log --all -S`).
+- `raw.githubusercontent.com` sur `main` ne les sert plus.
+- Le site répond, la version servie est la bonne.
 
-**Si `git-filter-repo` est disponible** (`pip install git-filter-repo`), il
-vise les deux empreintes et garde la bonne version — l'étape 4 devient
-inutile :
+## Ce qui reste, et ce n'est pas un détail
 
-```bash
-printf '%s\n%s\n' fee9c67387738271d045d5845dcdfe6ae71eab5a \
-                  78e254a277df47a2f4f00720bb26c38bcb05fd79 > /tmp/sales.txt
-git filter-repo --strip-blobs-with-ids /tmp/sales.txt --force
-```
+**GitHub sert encore les anciens commits par leur empreinte.** Vérifié le
+22/09/2026 : trois anciennes empreintes répondent `HTTP 200` et le document
+qu'elles servent porte encore les montants.
 
-## Deux choses à savoir
+Et ces empreintes ne sont pas secrètes : l'API d'évènements publics de
+GitHub publie les SHA de chaque poussée sur un dépôt public, et ces
+évènements sont archivés par des tiers.
 
-**Les commits changent d'empreinte.** Qui a un clone devra le refaire. Et le
-commit `settings.json` créé depuis la page GitHub perdra sa signature : il
-s'affichera « Unverified ». C'est inévitable — purger un fichier reconstruit
-tous les commits qui le suivent. Ne pas le réécrire avec `--reset-author` : ce
-commit appartient à son auteur, pas à Claude.
+Deux remèdes, et un seul est complet :
 
-**Une réécriture rend les objets inaccessibles, pas inexistants.** GitHub les
-conserve un temps ; qui connaît l'empreinte d'un commit peut encore l'ouvrir.
-Pour qu'ils disparaissent vraiment de leurs serveurs, il faut le demander au
-support GitHub une fois la réécriture poussée.
+1. **Demander au support GitHub** de passer le ramasse-miettes sur le dépôt
+   et de purger les vues en cache, en citant les anciennes empreintes.
+   C'est la voie normale ; elle demande quelques jours.
+2. **Supprimer le dépôt et le recréer** à partir de l'historique réécrit.
+   Immédiat et sans reste, mais fait disparaître les issues, les étoiles et
+   les forks s'il y en a.
 
-## Supprimer ce document
+Tant que l'un des deux n'est pas fait, **la purge n'est qu'à moitié faite**.
 
-Quand la purge est faite et vérifiée, ce fichier n'a plus de raison d'être.
+## La leçon, qui vaut plus que la purge
 
----
-_Generated by [Claude Code](https://claude.ai/code)_
-
-## Des montants de salaire sont aussi dans l'historique (22/09/2026)
-
-Même problème que les six noms, même cause, même remède.
-
-`docs/regles-paie.md` a porté, du 20 au 22 septembre 2026, la rémunération
-fixe de VBN mois par mois, son salaire horaire à quatre décimales, son
-treizième mois, son double pécule, l'avance mensuelle et le montant repris
-après l'incident de février. Le dépôt est public : ces lignes étaient
-lisibles sans authentification, par le site **et** par
-`raw.githubusercontent.com`.
-
-Elles sont retirées des fichiers courants. **Elles restent dans
-l'historique** — mêmes commandes que pour les noms, ci-dessus, et la même
-conséquence : réécrire l'historique invalide les copies locales.
-
-La règle qui aurait dû l'empêcher est maintenant dans `CLAUDE.md`, sous
-« Conventions » : aucun montant de salaire dans le dépôt, les règles se
-décrivent avec des lettres.
+Rien de tout cela n'aurait eu lieu si la règle avait été écrite avant.
+Elle l'est maintenant, dans `CLAUDE.md` sous « Conventions » : aucun nom
+complet, **et aucun montant de salaire**. Le dépôt est public — `docs/` se
+lit sans authentification, par le site comme par `raw.githubusercontent.com`.
