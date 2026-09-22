@@ -564,6 +564,21 @@ Et le classeur écrit parfois la règle d'effectif en toutes lettres :
 `VGG 04/08 ["7h-15h","chaudières","Ne compte pas comme un effectif chaudières
 …"]`.
 
+### `*` : une faute de frappe, et la dernière cellule illisible
+
+`CAN 24/07 ["*"]` était la seule des 27 462 journées que la lecture ne savait
+pas traduire. Le client, le 22/09/2026 : « faute de frappe, c'est un tiret ».
+
+Tout concordait : une seule astérisque dans tout le classeur, aucune légende
+qui l'explique, aucun commentaire sur la cellule, aucune annotation à sa
+droite — et l'astérisque voisine du tiret sur un pavé numérique. La mise en
+forme, elle, ne disait rien : le style de cette cellule sert indifféremment à
+`-`, `AM`, `N` et `PM`.
+
+Elle rejoint donc `ALIAS_HORAIRE`, à côté de `ABS → MAL`.
+
+**Les neuf règles dures sont maintenant à zéro.** C'est la première fois.
+
 ### Les autres points ouverts
 
 - **Le précompte du double pécule de vacances** — la fiche de mai 2026 porte

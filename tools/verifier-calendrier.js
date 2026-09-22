@@ -431,7 +431,13 @@ for(const p of db.people){
       const r=lireJournee(db,raw,ANNEE,m,d,fit,ep[d],H_JOUR,rv[d]);
       const a=affichage(r);
       const cel=(raw[0]||"").trim(), annot=(raw[1]||"").trim();
-      const vide=(!cel||cel==="-");
+      /* Une cellule se juge sur ce que l'APPLICATION y lit, pas sur ce que le
+         classeur y écrit : « * » est un alias de « - » depuis le 22/09/2026,
+         et la règle l'accusait encore d'être illisible. ALIAS_HORAIRE est
+         découpé dans index.html, donc la règle suit toute addition future
+         sans qu'on y pense. */
+      const celA=(ALIAS_HORAIRE&&ALIAS_HORAIRE[cel])||cel;
+      const vide=(!celA||celA==="-");
       const ou=p.id+" "+d+"/"+pad2(m);
       const src=JSON.stringify(raw);
 
