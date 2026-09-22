@@ -741,6 +741,13 @@ body.sheet-on{overflow:hidden}
    C'est la case que le contremaître cherche — celle où quelqu'un PEUT
    aller. Elle se distingue donc du néant sans crier comme un manque. */
 .pvt td.pvnul{color:var(--ink2); background:var(--surface3)}
+/* Le poste où l'on se FORME : ni le sien, ni une polyvalence. Le jaune est
+   celui des trigrammes en formation de l'onglet Équipe — même sens, même
+   couleur. */
+.pvt td.pvform{color:var(--at-jaune); background:var(--at-jaune-soft);
+  font-size:10px; font-weight:700}
+.lg-pvform{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
+  font-weight:700; color:var(--at-jaune)}
 .pvt td.pvnul u{opacity:.6}
 .lg-pvnul{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--ink2)}
@@ -5439,6 +5446,29 @@ function calculerPolyvalence(db){
   _polyCle=cle; _poly={parId:parId, debut:debut, fin:fin};
   return _poly;
 }
+/* SON poste — celui qui ne compte pas dans sa polyvalence, et le seul à
+   porter la pastille pleine.
+
+   Un opérateur EN FORMATION n'en a pas. Le client, le 22/09/2026 : « les
+   opérateurs en formation ne peuvent pas posséder comme poste par défaut le
+   poste où ils sont en formation ; ils ne doivent pas y faire de recyclage
+   vu qu'ils n'y sont pas validés (exemple SKS en meunerie) ». La ligne 9 du
+   classeur leur en donne bien un — SKS la meunerie, LHR et GST les
+   chaudières — mais c'est celui où ils APPRENNENT. Aucun des huit ne l'a
+   dans sa polyvalence, ce qui le confirme : on n'est pas validé là où l'on
+   se forme.
+
+   Les deux fonctions partagent la même chaîne à dessein : « son poste » et
+   « son poste de formation » sont le MÊME calcul, seule la personne décide
+   lequel des deux il devient. Une première version calculait le poste une
+   fois dans polyvalenceDe() et une fois dans le rendu — la seconde copie
+   ignorait la règle, et la pastille pleine restait sur la meunerie de SKS. */
+function _posteDeLigne9(p){
+  try{ return posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
+  catch(e){ return posteParDefaut(p); }
+}
+function posteAttitre(p){ return enFormation(p)?null:_posteDeLigne9(p); }
+function posteDeFormation(p){ return enFormation(p)?_posteDeLigne9(p):null; }
 /* Possède-t-elle CE poste ? « Terrain arrière » ne figure dans aucune liste
    de polyvalence du classeur : il se déduit de Fermentation ET Distillation,
    comme tientTerrainArriere() le fait déjà partout ailleurs. */
@@ -5465,12 +5495,18 @@ function polyvalenceDe(db,p){
      posteParDefaut() en dernier, comme postesDePause() les enchaîne : sans
      lui PDE n'a « pas de poste habituel », et ses 134 journées à la station
      d'épuration passent pour de la polyvalence alors que c'est son poste. */
-  var t=calculerPolyvalence(db), par=t.parId[p.id]||{}, sien;
-  try{ sien=posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
-  catch(e){ sien=posteParDefaut(p); }
+  var t=calculerPolyvalence(db), par=t.parId[p.id]||{};
+  /* Le poste de formation ne devient ni « son poste » ni une ligne de
+     recyclage. Sa case porte un F : muette, à côté de cent douze journées,
+     elle poserait plus de questions qu'elle n'en résout. */
+  var sien=posteAttitre(p), posteForm=posteDeFormation(p);
   var q=estCadre(p)?POLY_QUOTA.adjoint:POLY_QUOTA.operateur, out=[];
   POSTES_TRAVAIL.forEach(function(P){
     if(P.cm||P.k==="adj"||P.k===sien) return;
+    if(posteForm && P.k===posteForm){
+      out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true});
+      return;
+    }
     var n=par[P.k]||0, a=aLaPolyvalence(p,P);
     /* LA POLYVALENCE D'ABORD, les journées ensuite. Le client, le
        22/09/2026 : « les polyvalences ne doivent compter que s'ils ont cette
@@ -5534,10 +5570,8 @@ function renderPolyvalence(){
       .forEach(function(p){
         var v=polyvalenceDe(db,p)||[]; if(!v.length) return;
         gens++;
-        var par={}, sien;
+        var par={}, sien=posteAttitre(p);
         v.forEach(function(o){ par[o.t]=o; });
-        try{ sien=posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
-        catch(e){ sien=null; }
         h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
           +'<th class="pvqui" scope="row">'+esc(idLisible(p.id))+"</th>");
         POSTES.forEach(function(P){
@@ -5546,6 +5580,8 @@ function renderPolyvalence(){
           var o=par[P.t];
           if(!o){ h.push('<td class="pvzero" title="Pas la polyvalence de ce '
             +'poste">\u00b7</td>'); return; }
+          if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
+            +'poste, pas encore validé">F</td>'); return; }
           total++; if(o.ok) atteints++; if(!o.n) vierges++;
           h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
             +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
@@ -5571,7 +5607,8 @@ function renderPolyvalence(){
       '<span><i class="lg-pvsien">\u25cf</i>son poste</span>'
       +'<span><i class="lg-pvok"></i>quota atteint</span>'
       +'<span><i class="lg-pvnul">0/X</i>acquise, non pratiquée</span>'
-      +'<span><i class="lg-tiret">\u00b7</i>non acquise</span>';
+      +'<span><i class="lg-tiret">\u00b7</i>non acquise</span>'
+      +'<span><i class="lg-pvform">F</i>en formation</span>';
   }, function(){});
 }
 function renderAnnuaire(db,moi){
