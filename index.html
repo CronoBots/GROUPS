@@ -737,22 +737,40 @@ body.sheet-on{overflow:hidden}
    un point comme une absence de résultat. */
 .pvt td.pvzero{color:var(--line); font-size:13px}
 .pvt td.pvsien{color:var(--ink2); font-size:9px}
+/* ⚠ LES TROIS RÈGLES SUIVANTES PORTENT « tbody tr » SANS EN AVOIR BESOIN,
+   et ce n'est pas du bavardage : la zébrure une ligne sur deux s'écrit
+   « .pvt tbody tr:nth-child(even) td », ce qui pèse deux classes et TROIS
+   éléments. Un simple « .pvt td.pvok » n'en pèse que deux et un : il perdait
+   donc sur toutes les lignes paires, et dix-huit des trente-trois cases au
+   quota s'affichaient sans leur fond vert. Le client l'a vu avant moi :
+   « pourquoi certains ont dépassé le quota mais ne sont pas avec background
+   vert ». Les deux autres états souffraient du même mal en silence : 23
+   cases « 0/X » et 8 cases de formation perdaient aussi leur fond une ligne
+   sur deux.
+
+   À poids égal, c'est l'ordre d'écriture qui tranche — et elles sont écrites
+   après. Ne pas les alléger.
+
+   Le tableau de l'Équipe avait résolu le même problème par l'autre bout :
+   sa zébrure s'écrit « td:not(.manque):not(.vide) », et exclut donc les
+   états au lieu de leur céder. Les deux tiennent ; celle-ci n'oblige pas à
+   rouvrir la zébrure chaque fois qu'un état s'ajoute. */
 /* « 0/10 » : la polyvalence est acquise, le remplacement reste à faire.
    C'est la case que le contremaître cherche — celle où quelqu'un PEUT
    aller. Elle se distingue donc du néant sans crier comme un manque. */
-.pvt td.pvnul{color:var(--ink2); background:var(--surface3)}
+.pvt tbody tr td.pvnul{color:var(--ink2); background:var(--surface3)}
 /* Le poste où l'on se FORME : ni le sien, ni une polyvalence. Le jaune est
    celui des trigrammes en formation de l'onglet Équipe — même sens, même
    couleur. */
-.pvt td.pvform{color:var(--at-jaune); background:var(--at-jaune-soft);
+.pvt tbody tr td.pvform{color:var(--at-jaune); background:var(--at-jaune-soft);
   font-size:10px; font-weight:700}
 .lg-pvform{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--at-jaune)}
-.pvt td.pvnul u{opacity:.6}
+.pvt tbody tr td.pvnul u{opacity:.6}
 .lg-pvnul{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--ink2)}
-.pvt td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
-.pvt td.pvok u{opacity:.7}
+.pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
+.pvt tbody tr td.pvok u{opacity:.7}
 .pvt tbody tr.moi th.pvqui{color:var(--in)}
 .pvt tbody tr.moi th.pvqui, .pvt tbody tr.moi td{background:var(--in-soft)}
 .lg-pvsien{font-style:normal; color:var(--ink2); font-size:9px}
