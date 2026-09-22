@@ -156,33 +156,44 @@ button{cursor:pointer}
   border-radius:8px; cursor:pointer; color:inherit}
 .blogo{flex:0 0 auto; width:38px; height:38px; border-radius:10px; display:block}
 .btxt{display:flex; flex-direction:column; gap:3px; min-width:0; flex:1 1 0}
-.brand h1{font-size:14px; letter-spacing:.01em; font-weight:700; line-height:1.1}
-/* L'IDENTITÉ TIENT SUR LA SECONDE LIGNE DU BLOC DE MARQUE. Le client, le
-   22/09/2026 : « maintenant que la sélection du mois n'est plus dans la
-   barre du haut tu peux mieux répartir pour ne pas l'élargir ».
+/* LES DEUX LIGNES SONT PLEINES, et c'est tout l'objet de cette disposition.
+   Le client, le 22/09/2026 : « moyen de faire beaucoup mieux » — la
+   première ligne ne portait que « BIOWANZE », 77 px sur 358, et les quatre
+   cinquièmes restants étaient du vide pendant que la seconde débordait de
+   trois morceaux.
 
-   Elle avait eu sa propre bande pleine largeur, faute de place à côté du
-   sélecteur de mois — et la barre collante était passée de 55 à 91 px. Le
-   sélecteur parti, les 314 px qui restent à droite du logo suffisent aux
-   trois morceaux : le trigramme (44), la date (105) et le poste (92) avec
-   leurs écarts font 257. La barre redescend à sa hauteur d'origine sans
-   rien perdre. */
-.ident{display:flex; align-items:baseline; gap:8px; min-width:0;
-  line-height:1.25; color:var(--faint)}
+   La marque tient maintenant un bout de la ligne, le trigramme tient
+   l'autre : c'est le partage d'une barre d'application, le nom à gauche et
+   la personne à droite. La date et le poste du jour descendent ensemble à
+   la ligne suivante, d'un seul tenant, séparés d'un point médian — ils
+   répondent à la même question. */
+.bline{display:flex; align-items:center; gap:8px; min-width:0}
+.brand h1{font-size:14px; letter-spacing:.01em; font-weight:700; line-height:1.1;
+  flex:0 0 auto}
 /* Le trigramme est une plaque, pas un mot : c'est l'identité de la personne,
    et elle se lit d'un coup d'œil sans se confondre avec ce qui suit. */
-.ident b{flex:0 0 auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
+.btri{flex:0 0 auto; margin-left:auto; font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--in);
   background:var(--in-soft); border-radius:5px; padding:1px 7px}
+/* Vide tant que personne n'est choisi : une plaque sans nom laisserait
+   croire à un trigramme illisible plutôt qu'à un réglage à faire. */
+.btri:empty{display:none}
+/* LA SECONDE LIGNE DIT LE JOUR : la date, puis ce qu'on y fait. La date
+   d'abord parce que « nuit » ne veut rien dire sans elle — la pause
+   annoncée ne dirait pas de quel jour elle est. */
+.ident{display:flex; align-items:baseline; min-width:0;
+  line-height:1.25; color:var(--faint)}
 .ident .idate{flex:0 0 auto; font-size:11.5px; font-weight:600; color:var(--ink2)}
-/* Le poste se cale à droite : c'est le morceau qui change le plus souvent,
-   et l'œil qui revient le cherche toujours au même endroit. C'est aussi lui
-   qui s'abrège quand l'écran manque — la date et le trigramme, eux, ne se
-   devinent pas à moitié. */
-.ident em{font-style:normal; min-width:0; margin-left:auto; text-align:right;
+/* Le poste du jour suit la date d'un seul tenant. C'est lui qui s'abrège
+   quand l'écran manque — la date et le trigramme, eux, ne se devinent pas à
+   moitié. */
+.ident em{font-style:normal; min-width:0;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   font-size:11.5px; color:var(--ink2)}
-.brand:hover .ident b{background:var(--in); color:var(--surface)}
+/* Le point médian appartient au poste, et non à la date : sans poste — le
+   temps que l'horaire arrive — il n'y a pas de séparateur orphelin. */
+.ident em::before{content:"·"; margin:0 6px; color:var(--faint)}
+.brand:hover .btri{background:var(--in); color:var(--surface)}
 .qui{display:grid; grid-template-columns:1fr 1fr; gap:12px}
 .qui label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .qui select{
@@ -1384,7 +1395,7 @@ body.sheet-on{overflow:hidden}
     <button type="button" class="brand" data-go="reglages" aria-label="Mes réglages">
       <img class="blogo" src="icon-192.png" alt="" width="38" height="38" decoding="async">
       <span class="btxt">
-        <h1>BIOWANZE</h1>
+        <span class="bline"><h1>BIOWANZE</h1><b class="btri" id="brandtri"></b></span>
         <span class="ident" id="brandsub"></span>
       </span>
     </button>
@@ -3128,17 +3139,21 @@ function dateDuJourLisible(){
     +" "+MOIS[d.getMonth()].toLowerCase();
 }
 function majBrandsub(){
-  var el=document.getElementById("brandsub"); if(!el) return;
+  var el=document.getElementById("brandsub"),
+      tri=document.getElementById("brandtri");
+  if(!el) return;
   var idSel=document.getElementById("prefillId"),
       catSel=document.getElementById("prefillCat");
   var id=idSel?idSel.value:"", cat=catSel?catSel.value:"";
+  /* Le trigramme vit sur la ligne de la marque, pas ici : il ne change pas
+     dans la journée, alors que ce qui suit change avec elle. */
+  if(tri) tri.textContent=id?idLisible(id):"";
   if(!id){
     el.innerHTML='<span class="idate">Choisissez qui vous êtes dans Réglages</span>';
     return;
   }
   function ecrire(droite){
-    el.innerHTML="<b>"+esc(idLisible(id))+"</b>"
-      +'<span class="idate">'+esc(dateDuJourLisible())+"</span>"
+    el.innerHTML='<span class="idate">'+esc(dateDuJourLisible())+"</span>"
       +"<em>"+esc(droite)+"</em>";
   }
   ecrire(fonctionCourte(cat));
