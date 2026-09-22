@@ -257,33 +257,43 @@ seule — « Contremaître » — ne disait rien du jour ; `posteDuJourDe()` rej
 « Contremaître · nuit », « STEP · matin », « Jour », « Congé » ou « Repos ».
 Il ne recompte rien : c'est la vue de l'équipe qui répond.
 
-**Les deux lignes sont pleines**, et c'est tout l'objet de la disposition
-actuelle. Le client, le 22/09/2026 : « moyen de faire beaucoup mieux » — la
-première ligne ne portait que « BIOWANZE », 77 px sur 358, et les quatre
-cinquièmes restants étaient du vide pendant que la seconde en portait trois
-morceaux serrés.
+**Deux BLOCS, et non deux lignes.** Le client, le 22/09/2026 : « la date au
+dessus à droite et le poste en dessous avec la pause ; le trigramme doit
+être près de BIOWANZE ».
 
-Le nom tient donc un bout de la première ligne, le **trigramme** tient
-l'autre : c'est le partage d'une barre d'application, la marque à gauche et
-la personne à droite. La **date du jour** et le **poste** descendent
-ensemble à la seconde, d'un seul tenant, séparés d'un point médian — ils
-répondent à la même question. La date d'abord, étant ce à quoi « nuit » se
-rapporte : sans elle, la pause annoncée ne dit pas de quel jour elle est.
+À gauche, ce qui ne change **jamais** : le logo, le nom, le trigramme — d'un
+seul tenant, parce que c'est une seule chose, à qui appartient cet écran. À
+droite, ce qui change **chaque jour** : la date, et sous elle le poste avec
+sa pause, les deux lignes alignées sur le même bord. On lit la colonne de
+droite pour savoir sa journée, jamais celle de gauche.
 
-Le point médian appartient au poste (`.ident em::before`) et non à la date :
-le temps que l'horaire arrive, la ligne n'affiche pas un séparateur
-orphelin.
+```
+[logo] BIOWANZE [VBN]                    Mardi 22 septembre
+                                        Contremaître · Nuit
+```
 
-Mesuré à 320, 360, 390, 430, 768 et 1280 px : **58 px de barre**, **première
-ligne remplie à 100 %** de bord à bord sur mobile, et **rien de tronqué,
-320 px compris** — le nom, la date et le trigramme ne se devinent pas à
-moitié ; seul le poste s'abrégerait, et il n'en a pas besoin. Au-delà de
-768 px le bloc se réduit à sa largeur de contenu, le chèque du net restant à
-droite.
+Deux dispositions l'ont précédée dans la même journée, et chacune corrigeait
+la précédente : le nom seul sur une ligne presque vide, puis le nom à gauche
+et le trigramme à l'autre bout avec date et poste dessous. La première
+gaspillait quatre cinquièmes de sa première ligne ; la seconde séparait le
+trigramme du nom, alors qu'ils disent la même chose.
 
-Elle a eu sa propre bande pleine largeur pendant une heure, faute de place à
-côté du sélecteur de mois, et la barre collante était passée de 55 à 91 px.
-Le sélecteur parti, les 314 px restant à droite du logo ont suffi.
+**Le jour et la pause portent une majuscule** — « Mardi 22 septembre »,
+« Contremaître · **N**uit ». Le client : « le jour doit avoir une majuscule
+et la pause aussi ». Ce sont les deux mots qu'on cherche du regard ; le
+mois, lui, accompagne le quantième et reste en bas de casse. Concrètement :
+`dateDuJourLisible()` ne rabaisse plus `JOURS_LONGS`, et `posteDuJourDe()`
+ne rabaisse plus `g.t`.
+
+Mesuré à 320, 360, 390, 430, 768 et 1280 px : **58 px de barre**, et **rien
+de tronqué, 320 px compris** — où les deux blocs se frôlent à 12 px. Au-delà
+de 760 px la marque se réduit à sa largeur de contenu et les deux blocs se
+retrouvaient à 10 px l'un de l'autre alors que la barre a mille pixels de
+vide plus loin : `@media (min-width:761px)` leur rend 20 px. Sur téléphone
+il n'y en a pas à donner.
+
+Vérifié sur six états — Matin, Après-midi, Nuit, Congé, Repos, Absent — et
+hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
 **Le sélecteur de mois n'y est plus.** Le client, le 22/09/2026 : « la
 sélection du mois de l'année ne doit pas être dans la barre du haut mais
