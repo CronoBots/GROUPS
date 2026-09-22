@@ -705,10 +705,10 @@ sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
 case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
 appliqués.
 
-### La polyvalence a son onglet
+### L'onglet « Recyclage »
 
 Le client, le 22/09/2026 : « les polyvalences doivent être affichées dans un
-onglet à part ». Elles vivaient sous chaque personne de l'annuaire, en
+onglet à part », puis « l'onglet polyvalence doit s'appeler Recyclage ». Elles vivaient sous chaque personne de l'annuaire, en
 jetons ; à l'étroit dans une carte de 148 px, on ne pouvait ni comparer deux
 personnes ni chercher qui peut tenir un poste.
 
@@ -722,13 +722,42 @@ La colonne des trigrammes et la ligne d'en-tête restent collées au bord
 quand la grille défile ; sans elles on ne sait plus de qui ni de quoi on lit
 la case.
 
-**Huit onglets, et « Polyvalence » est le plus long** : la barre débordait de
-44 px à 320 et de 4 px à 360. Un demi-point de moins et deux pixels de moins
-de chaque côté sous 375 px, et les huit rentrent — mesuré, pas estimé : la
-somme des intitulés fait 326 px à 10,5 et 295 à 9,5. La règle se pose APRÈS
-celle qui définit la barre mobile : à spécificité égale c'est la dernière qui
-gagne, et une première tentative posée trois cents lignes plus haut n'avait
-rien changé du tout.
+**Le titre et la période vivent HORS du cadre.** Le client, le 22/09/2026 :
+« il faut le titre "Recyclage des polyvalences" au dessus du cadre avec
+juste en dessous la ligne avec les dates (donc les sortir du tableau) ». Ils
+annoncent la grille, ils n'en font pas partie — et une fois dehors, la
+grille commence par sa propre ligne d'en-tête au lieu d'un bandeau qui lui
+ressemblait. Le bloc s'appelle `.pvtete` : hors du cadre, il ne peut pas
+emprunter la mise en forme de `.card>header`.
+
+**Un filet gris au-dessus de « Qui »**, de la même épaisseur que les filets
+d'atelier des autres colonnes — « pour avoir comme les autres colonnes ».
+Sans lui la ligne d'en-tête commençait par un creux de trois pixels.
+
+**TROIS entrées de légende, et pas une de plus** : « le point doit être
+"Poste actuel", le petit point "Poste non acquis", F "En formation" ; les
+autres légendes ne sont pas nécessaires dans ce tableau ». Ne restent que
+les trois SIGNES, ceux qu'on ne peut pas deviner. Le vert d'un quota atteint
+et le « 0/X » se lisent tout seuls — le chiffre y est écrit — et une légende
+qui répète ce que la case dit déjà est du bruit. `.lg-pvok` et `.lg-pvnul`
+sont partis avec elles.
+
+**L'identifiant interne reste `polyvalence`** — la vue, la clé `ui/view`,
+`calculerPolyvalence()`, `POLY_QUOTA`. Seul l'INTITULÉ change : ce que la
+grille montre, c'est bien le recyclage DES polyvalences, et renommer la clé
+aurait renvoyé au Résumé tous les appareils qui avaient l'onglet ouvert.
+
+**Huit onglets** : « Polyvalence » était le plus long et la barre débordait
+de 44 px à 320 et de 4 px à 360 ; d'où un demi-point de moins et deux pixels
+de moins de chaque côté sous 375 px. **« Recyclage » a réglé le problème
+qu'elle traitait** — mesuré : plus rien n'est tronqué à 10,5 px, même à
+320 px. La règle est gardée pour ce qu'elle rapporte encore, **3 px de
+hauteur de barre** (46 contre 49), et non plus pour faire rentrer les
+intitulés. Le relire ici avant de rallonger un onglet.
+
+Elle se pose APRÈS celle qui définit la barre mobile : à spécificité égale
+c'est la dernière qui gagne, et une première tentative posée trois cents
+lignes plus haut n'avait rien changé du tout.
 
 ### Le mémo des trois fonctions du mois
 
