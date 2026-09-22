@@ -506,6 +506,31 @@ sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
 case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
 appliqués.
 
+### La polyvalence a son onglet
+
+Le client, le 22/09/2026 : « les polyvalences doivent être affichées dans un
+onglet à part ». Elles vivaient sous chaque personne de l'annuaire, en
+jetons ; à l'étroit dans une carte de 148 px, on ne pouvait ni comparer deux
+personnes ni chercher qui peut tenir un poste.
+
+Un onglet donne la largeur d'une **grille** : les gens en lignes, les postes
+en colonnes. On y lit dans les deux sens. Le point plein marque SON poste —
+il ne compte pas, et le dire évite de prendre une case vide pour une lacune.
+Le point maigre dit « jamais tenu une journée complète » : un zéro se lirait
+comme un résultat, un point comme une absence de résultat.
+
+La colonne des trigrammes et la ligne d'en-tête restent collées au bord
+quand la grille défile ; sans elles on ne sait plus de qui ni de quoi on lit
+la case.
+
+**Huit onglets, et « Polyvalence » est le plus long** : la barre débordait de
+44 px à 320 et de 4 px à 360. Un demi-point de moins et deux pixels de moins
+de chaque côté sous 375 px, et les huit rentrent — mesuré, pas estimé : la
+somme des intitulés fait 326 px à 10,5 et 295 à 9,5. La règle se pose APRÈS
+celle qui définit la barre mobile : à spécificité égale c'est la dernière qui
+gagne, et une première tentative posée trois cents lignes plus haut n'avait
+rien changé du tout.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
