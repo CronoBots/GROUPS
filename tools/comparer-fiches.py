@@ -88,7 +88,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function plageMention(","\n}"),g("function seChevauchent(","\n}"),g("var JOUR_PRIME_PAUSE=","];"),
  g("var MENTIONS_NEUTRES=","];"),g("var ATELIERS=","\n"),g("function reprisRHS(","\n}"),
  g("function posteDepuisPlage(","\n}"),g("function dureeReelle(","\n}"),
- g("var ALIAS_HORAIRE=","\n"),g("var JOUR_EN_ABSENCE=","\n"),
+ g("var ALIAS_HORAIRE=","\n"),g("var COQUILLES=","\n"),g("var JOUR_EN_ABSENCE=","\n"),
  g("var RX_PRIS_AILLEURS=","\n"),
  g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
@@ -154,7 +154,16 @@ console.log(JSON.stringify(out));
         r = subprocess.run(["node", chemin, os.path.join(RACINE, "index.html"),
                             os.path.join(RACINE, "data", "horaire-%d.json" % annee), ident],
                            capture_output=True, text=True)
-        return json.loads(r.stdout or "{}")
+        # Le script node S'ARRÊTE quand sa découpe de index.html est faussée,
+        # et c'est tout l'intérêt de ses épreuves. Encore faut-il ne pas
+        # avaler son cri : « or "{}" » rendait un dictionnaire vide, et
+        # l'outil annonçait sereinement zéro mois lu. Une panne silencieuse
+        # est pire que pas de contrôle du tout.
+        if r.returncode != 0 or not (r.stdout or "").strip():
+            raise RuntimeError(
+                "la lecture de l'horaire a échoué (code %d).\n%s"
+                % (r.returncode, (r.stderr or "").strip() or "aucun message"))
+        return json.loads(r.stdout)
     finally:
         os.remove(chemin)
 
