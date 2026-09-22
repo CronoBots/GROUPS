@@ -859,14 +859,41 @@ et l'application ne le reprend pas au démarrage.
 Les **intérimaires** ne sont pas distingués : leur ONSS se calcule comme
 celle d'un ouvrier, et le classeur ne dit pas qui ils sont.
 
-### Deux points à faire confirmer
+**`SBZ` est confirmé** par le client le 22/09/2026 — il avait écrit `SBS`,
+qui n'existe pas dans le classeur. Le rapprochement tenait à deux fils : une
+lettre d'écart, et le rôle « polyvalent arrière » de la ligne 9 qu'il partage
+avec FLN et FPS, les trois seuls de l'usine.
 
-1. **`SBS` n'existe pas dans le classeur.** J'ai lu `SBZ` : c'est le seul à
-   une lettre près, et surtout il partage avec FLN et FPS le rôle
-   « polyvalent arrière » de la ligne 9 — les trois seuls de l'usine. Les
-   autres voisins d'orthographe (SPS, SKS, JBS, ASS) n'ont pas ce rôle. À
-   confirmer : cela change l'ONSS d'une personne.
-2. **Les dates du pécule et du treizième mois chez les ouvriers.** Le client,
+### Ce qu'une fiche d'ouvrier permettra de vérifier
+
+Le client, le 22/09/2026 : « je vais essayer d'avoir des fiches de paie
+ouvrier. » Toutes les règles de ce document ont été établies sur des fiches
+d'**employé** — les siennes. Une fiche d'ouvrier mettra à l'épreuve, pour la
+première fois :
+
+- **l'ONSS sur 108 %** — jamais confrontée à une vraie fiche, seulement au
+  barème ;
+- **le pécule de vacances**, qui chez l'ouvrier vient de la caisse de
+  vacances et non de l'employeur : il ne figure donc pas sur la fiche comme
+  chez l'employé ;
+- **le treizième mois** et ses dates, encore inconnues pour les ouvriers ;
+- les libellés eux-mêmes : `comparer-fiches.py` lit « Heure(s) prestée(s) »,
+  « Jour(s) presté(s) » et « Suppl.Equipe ». Ils viennent du même secrétariat
+  social, ils devraient tenir — mais cela se vérifiera plutôt que se
+  supposera.
+
+L'outil fonctionne déjà tel quel sur n'importe quel trigramme :
+
+```bash
+python3 tools/comparer-fiches.py DKS /chemin/vers/fiches/*.pdf
+```
+
+**Les fiches ne rentrent JAMAIS dans le dépôt**, celles des autres moins
+encore que les siennes.
+
+### Reste ouvert
+
+1. **Les dates du pécule et du treizième mois chez les ouvriers.** Le client,
    plus tôt : « en tout cas chez les employés, les ouvriers ce sont d'autres
    dates ». Chez les employés, pécule en mai et treizième mois en juin. Chez
    les ouvriers, le pécule vient de la caisse de vacances et non de
