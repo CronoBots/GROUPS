@@ -5159,6 +5159,22 @@ function postesDePause(db,liste,gk,mmdd){
       else if(!cms.length&&adj.length)
         detail=adj.length+" adjoint"+(adj.length>1?"s":"")+" faisant fonction";
     }
+    /* L'OPÉRATEUR EN FORMATION S'ÉCRIT EN DERNIER. Le client, le
+       22/09/2026 : « dans Équipe, l'opérateur en formation doit toujours
+       être écrit en dernier de la cellule ». Il est présent, mais il n'y
+       est pas encore validé : le lire après ceux qui tiennent le poste
+       évite de compter sur lui d'un coup d'œil.
+
+       Partition STABLE, et c'est tout l'enjeu : l'ordre établi plus haut —
+       titulaires avant renforts, contremaîtres avant adjoints — ne doit pas
+       se défaire. Un tri par comparaison le mélangerait ; deux seaux
+       recollés le gardent intact.
+
+       L'ordre seul change : « tenu », « attendu » et les drapeaux posés
+       plus haut restent ce qu'ils étaient. */
+    var tient=[], apprend=[];
+    gens.forEach(function(x){ (enFormation(x.p)?apprend:tient).push(x); });
+    gens=tient.concat(apprend);
     var attendu=attenduAuPoste(P,gk);
     sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,
                  manque:!!(attendu && tenu<attendu), creux:Math.max(0,attendu-gens.length)});
