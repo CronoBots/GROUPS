@@ -800,6 +800,13 @@ en formation, qui n'en ont effectivement aucune ; les quatre que `CORRECTIONS`
 avait dépouillées ont retrouvé la leur. Si cela changeait, la règle stricte
 effacerait des polyvalences réelles sans rien dire.
 
+**« 0/X » ne porte AUCUN fond.** Le client, le 22/09/2026 : « quand c'est
+0/X il ne faut pas changer le background ». Elle en avait un, gris, pour se
+distinguer du néant — mais un fond est une alerte, et il n'y a rien
+d'anormal à pouvoir tenir un poste sans l'avoir encore fait. Le chiffre le
+dit. Les deux fonds qui restent signalent chacun un écart : le vert un quota
+atteint, le jaune une formation.
+
 **« 0/X » se lit dans la colonne d'un poste dont la polyvalence est acquise
 sans qu'un seul remplacement ait été fait.** Le client : « il doit être écrit
 0/X dans la colonne où ils ont la polyvalence mais qu'ils n'ont pas encore
