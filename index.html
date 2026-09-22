@@ -6080,99 +6080,58 @@ function renderOrganisation(){
     var h=[];
 
     /* --- 1. les cinq équipes, poste par poste ------------------------- */
-    /* UNE SEULE RÈGLE DE PLACEMENT, et elle vaut pour tout le monde. Le
-       client, le 22/09/2026 : « les polyvalents ne doivent pas être mélangés
-       et appartenir aux bonnes lignes (Gluten, Meunerie, Terrain arrière,
-       Fermentation, Distillation…) ; les renforts pareil, se situer avec les
-       postes les liant ».
+    /* UNE PLACE, UNE SEULE, ET C'EST CELLE DU RÉSUMÉ. Le client, le
+       22/09/2026 : « les opérateurs ne peuvent avoir qu'une seule place dans
+       le tableau ; il faut regarder comment ils sont placés dans l'onglet
+       Résumé ». Deux versions ont tenté de répartir les gens d'après leur
+       polyvalence — d'abord sur toutes leurs lignes, puis sur celles de leur
+       côté d'usine — et les deux écrivaient le même trigramme jusqu'à six
+       fois. Une composition d'équipe ne se lit pas comme ça.
 
-       Les trois polyvalents d'une équipe étaient entassés dans une seule
-       case « Polyvalent », et les renforts dans une case « Renfort avant » ou
-       « Renfort arrière » — des cases qui ne disent pas QUEL poste ces gens
-       tiennent. Or c'est exactement la question qu'on vient poser à ce
-       tableau.
+       Le Résumé, lui, n'a jamais eu ce défaut : postesDePause() donne à
+       chacun UN poste et un seul, par posteTenu() puis posteParDefaut(). La
+       composition emploie donc exactement la même chaîne, sans la date :
+       posteAttitre(), qui est posteTenu(p,[],hJour,null) || posteParDefaut(p)
+       — la même que « son poste » du Recyclage.
 
-       La règle : qui porte un POSTE au classeur est titulaire de sa ligne ;
-       qui porte autre chose — polyvalent, renfort — se place sur chaque ligne
-       DE SON CÔTÉ qu'il est validé à tenir. Sa polyvalence dit où il peut
-       aller ; la colonne où le classeur l'écrit dit de quel côté il est
-       attendu. Il faut les deux — voir COTE_AV / COTE_AR plus bas.
+       Elle range d'elle-même ce que les deux versions précédentes tentaient
+       de deviner : le polyvalent ARRIÈRE va au terrain arrière (le client :
+       « terrain arrière doit comprendre les opérateurs polyvalent arrière ;
+       s'ils ne sont pas là, les renforts arrière »), le polyvalent AVANT au
+       gluten s'il le possède. Ni COTE_AV ni COTE_AR : la règle existait
+       déjà, elle était écrite dans posteTenu() depuis le début.
 
-       « Les postes les liant » est le mot juste du client pour le TERRAIN
-       ARRIÈRE : le poste qui relie la fermentation et la distillation. Il ne
-       figure dans aucune liste de polyvalence du classeur — il se DÉDUIT des
-       deux autres, exactement comme tientTerrainArriere() le fait partout
-       ailleurs dans l'application.
-
-       Aucun titulaire ne porte « Terrain arrière » au classeur : sa ligne ne
-       se remplit que de renforts, et c'est juste — c'est le renfort arrière
-       qui le tient. */
+       Reste l'ORDRE dans la case : celui que le classeur NOMME au poste vient
+       en tête, les autres suivent. C'est la seule chose que la ligne des
+       fonctions apporte encore ici. */
     /* L'intitulé COURT, celui que le Recyclage emploie déjà. « Terrain
        arrière » imposait 104 px à la première colonne — 29 % de la largeur à
        390 px — pour un mot que « T. arr. » dit aussi bien. Les cinq colonnes
        d'équipe se partagent ce qu'il rend. Le nom entier reste dans
        l'infobulle : on ne le devine pas la première fois. */
-    var LIGNES=[], LIG_Z={}, LIG_LONG={};
+    var LIGNES=[], LIG_Z={}, LIG_LONG={}, LIG_K={};
     POSTES_TRAVAIL.forEach(function(P){
       if(P.cm || P.k==="adj" || P.k==="step") return;
       var court=PV_COURT[P.k]||P.t;
       LIGNES.push(court); LIG_Z[court]=P.z||""; LIG_LONG[court]=P.t;
+      LIG_K[court]=P.k;
     });
-    /* UN CÔTÉ N'EST PAS UNE ÉTIQUETTE, C'EST UNE PLACE. Le client, le
-       22/09/2026 : « les polyvalents avant/arrière sont complètement mélangés
-       avec les autres fonctions ». La polyvalence seule disait où quelqu'un
-       PEUT aller ; elle ne dit pas de quel côté de l'usine il est attendu, et
-       les quatre polyvalents à cinq ateliers se retrouvaient sur les six
-       lignes à la fois — de la meunerie aux chaudières.
-
-       Le classeur le dit, lui, par l'ORDRE de ses colonnes, qui est celui du
-       procédé : le polyvalent arrière en O, juste avant la fermentation (Q) et
-       la distillation (S) ; les renforts en U et W ; puis la meunerie (Y), le
-       gluten (AA) et les DEUX polyvalents avant (AC, AE) ; les chaudières en
-       fin de rangée. roleDeFeuille() lit déjà cette colonne — c'est elle qui
-       distingue « polyvalent » arrière de « polyvalent » avant, le mot étant
-       le même des deux côtés.
-
-       Les chaudières sont la seule ligne que cet ordre ne range d'aucun côté.
-       Elles vont à l'ARRIÈRE : DWS, le seul polyvalent arrière au profil
-       étroit, possède exactement fermentation, distillation et chaudières, et
-       rien du bloc avant. À faire confirmer.
-
-       Qui ne porte NI polyvalent NI renfort garde toutes ses lignes : le côté
-       ne se devine pas, et une personne sans rôle déclaré n'en a pas. */
-    var COTE_AV={meun:1, glut:1}, COTE_AR={ferm:1, terr:1, dist:1, chau:1};
-    function _orgLignesDe(p){
-      /* Les lignes qu'une personne SANS poste attitré est validée à tenir,
-         de son côté d'usine. */
-      var r=roleDeFeuille(p), out=[];
-      var cote=(r==="pv"||r==="rv")?COTE_AV:((r==="pa"||r==="ra")?COTE_AR:null);
-      LIGNES.forEach(function(court){
-        var lib=LIG_LONG[court], P=null;
-        for(var i=0;i<POSTES_TRAVAIL.length;i++)
-          if(POSTES_TRAVAIL[i].t===lib) P=POSTES_TRAVAIL[i];
-        if(!P) return;
-        if(cote && !cote[P.k]) return;
-        if(P.k==="terr"){ if(tientTerrainArriere(p)) out.push(court); return; }
-        if(P.rx && aLAtelier(p,P.rx)) out.push(court);
-      });
-      return out;
-    }
     var grille={}, eqs=[], orphelins=[];
     db.people.forEach(function(p){
       var c=String(p.cat||"");
       if(!/^shift\s*\d/i.test(c)) return;
       var eq=c.replace(/\D+/g,""), po=_orgPoste(p);
       if(eqs.indexOf(eq)<0) eqs.push(eq);
-      function pose(lib,titre){
-        var k=lib+"|"+eq;
-        (grille[k]=grille[k]||{t:[],r:[]})[titre?"t":"r"].push(p.id);
-      }
-      var court=null;
-      for(var q=0;q<LIGNES.length;q++) if(LIG_LONG[LIGNES[q]]===po) court=LIGNES[q];
-      if(court){ pose(court,true); return; }
-      var l=_orgLignesDe(p);
-      if(!l.length){ orphelins.push({id:p.id, eq:eq, po:po}); return; }
-      l.forEach(function(lib){ pose(lib,false); });
+      /* LA MÊME CHAÎNE QUE LE RÉSUMÉ, sans la date. */
+      var k=posteAttitre(p)||posteDeFormation(p), court=null;
+      for(var q=0;q<LIGNES.length;q++)
+        if(LIG_K[LIGNES[q]]===k) court=LIGNES[q];
+      if(!court){ orphelins.push({id:p.id, eq:eq, po:po}); return; }
+      /* Titulaire : celui que le classeur NOMME à ce poste. Les autres — le
+         polyvalent que sa chaîne y envoie — viennent après lui. */
+      var titre=(LIG_LONG[court]||"").toLowerCase()===String(po||"").trim().toLowerCase();
+      var g=grille[court+"|"+eq]=grille[court+"|"+eq]||{t:[],r:[]};
+      g[titre?"t":"r"].push(p.id);
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
@@ -6211,7 +6170,7 @@ function renderOrganisation(){
     });
     t.push("</tbody></table></div>"
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
-        +orphelins.length+" personne(s) sans poste ni polyvalence rattachable : "
+        +orphelins.length+" personne(s) que le classeur ne rattache à aucun poste : "
         +orphelins.map(function(x){ return esc(idLisible(x.id))+" (éq. "+esc(x.eq)+")"; }).join(", ")
         +"</p>":"")
       +"</div>");

@@ -605,62 +605,46 @@ garde, sous chaque nom, **ce que le classeur écrit mot pour mot à côté** —
 on ne sait pas toujours ce que cela désigne, et le supprimer serait perdre
 ce qu'on n'a pas encore compris.
 
-**UNE SEULE RÈGLE DE PLACEMENT, et elle vaut pour tout le monde.** Le
-client, le 22/09/2026 : « les polyvalents ne doivent pas être mélangés et
-appartenir aux bonnes lignes (Gluten, Meunerie, Terrain arrière,
-Fermentation, Distillation…) ; les renforts pareil, se situer avec les
-postes les liant ».
+**UNE PLACE, UNE SEULE, ET C'EST CELLE DU RÉSUMÉ.** Le client, le
+22/09/2026 : « les opérateurs ne peuvent avoir qu'une seule place dans le
+tableau ; il faut regarder comment ils sont placés dans l'onglet Résumé ».
 
-Les trois polyvalents d'une équipe étaient entassés dans une case
-« Polyvalent », les renforts dans « Renfort avant » ou « Renfort arrière » —
-des cases qui ne disent pas QUEL poste ces gens tiennent, alors que c'est la
-question qu'on pose à ce tableau.
+Deux versions ont tenté de répartir les gens d'après leur POLYVALENCE —
+d'abord sur toutes leurs lignes, puis sur celles de leur côté d'usine — et
+les deux écrivaient le même trigramme jusqu'à six fois. Une composition
+d'équipe ne se lit pas comme ça : on demande à ce tableau qui tient quoi, pas
+qui pourrait tenir quoi. C'est le Recyclage qui répond à la seconde question,
+et il a un onglet pour lui.
 
-> Qui porte un POSTE au classeur est **titulaire** de sa ligne ; qui porte
-> autre chose — polyvalent, renfort — se place sur **chaque ligne DE SON CÔTÉ
-> qu'il est validé à tenir**. Sa polyvalence dit où il peut aller ; la colonne
-> où le classeur l'écrit dit de quel côté il est attendu. Il faut les deux.
+> Chaque personne occupe **exactement une** case, celle que `posteAttitre()`
+> lui donne — c'est-à-dire `posteTenu(p,[],hJour,null) || posteParDefaut(p)`,
+> la chaîne du Résumé sans la date, et la même que « son poste » du Recyclage.
 
-**Un côté n'est pas une étiquette, c'est une place.** Le client, le
-22/09/2026 : « les polyvalents avant/arrière sont complètement mélangés avec
-les autres fonctions ». La polyvalence seule ne suffisait pas : les quatre
-polyvalents à cinq ateliers se retrouvaient sur les six lignes à la fois, de
-la meunerie aux chaudières, et la composition d'une équipe ne se lisait plus.
+Le Résumé n'a jamais eu ce défaut : `postesDePause()` donne à chacun un poste
+et un seul. **La bonne règle était déjà écrite ; elle n'était pas appelée
+ici.** Elle range d'elle-même ce que les deux versions tentaient de deviner :
+le polyvalent ARRIÈRE va au terrain arrière — « terrain arrière doit
+comprendre les opérateurs polyvalent arrière ; s'ils ne sont pas là, les
+renforts arrière » —, le polyvalent AVANT au gluten s'il le possède.
 
-Le classeur le dit, lui, par l'**ORDRE de ses colonnes**, qui est celui du
-procédé : le polyvalent arrière en O, juste avant la fermentation (Q) et la
-distillation (S) ; les renforts en U et W ; puis la meunerie (Y), le gluten
-(AA) et les DEUX polyvalents avant (AC, AE) ; les chaudières en fin de
-rangée. `roleDeFeuille()` lit déjà cette colonne — c'est elle qui distingue
-« polyvalent » arrière de « polyvalent » avant, le mot étant le même des deux
-côtés. `_orgLignesDe()` l'interroge désormais avant de placer qui que ce soit.
+Reste l'ORDRE dans la case : celui que le classeur NOMME au poste vient en
+tête, le polyvalent que la chaîne y envoie vient après. C'est tout ce que la
+ligne des fonctions apporte encore ici.
 
-**Les chaudières sont la seule ligne que cet ordre ne range d'aucun côté** :
-elles suivent les polyvalents avant sans appartenir à leur bloc. Elles sont
-mises à l'ARRIÈRE, parce que DWS — le seul polyvalent arrière au profil
-étroit — possède exactement fermentation, distillation et chaudières, et rien
-du bloc avant. **À faire confirmer par le client** : c'est une déduction, pas
-une règle qu'il a énoncée.
+**Ce que la vue montre alors, et qui est vrai** : la meunerie n'a qu'un ou
+deux noms par équipe, le gluten en a trois, la fermentation de l'équipe 4 est
+VIDE — le classeur n'y nomme personne, sa colonne Q est vide, et c'est le
+polyvalent arrière qui la couvre depuis le terrain arrière.
 
-Qui ne porte ni polyvalent ni renfort garde toutes ses lignes : le côté ne se
-devine pas, et une personne sans rôle déclaré n'en a pas.
+**Une personne que la chaîne ne place pas est NOMMÉE sous le tableau**, elle
+ne disparaît pas. Au 22/09/2026 il y en a une : QBY, « Renfort arrière » de
+l'équipe 4, dont les polyvalences sont gluten et distillation — pas de
+fermentation, donc pas de terrain arrière, et « renfort arrière » ne l'envoie
+pas au gluten. Le classeur ne dit pas où il va ; **à faire trancher par le
+client** plutôt qu'à deviner.
 
-**Tous de la même encre, et sans légende.** Un second rang en gris a vécu
-dix minutes : le client, le 22/09/2026, « il ne faut pas indiquer les validé
-pour tenir ». Il disait « celui-ci compte moins » — or il appartient à la
-ligne autant que le titulaire, c'est tout l'objet de la règle ci-dessus.
-Seul l'ORDRE demeure : celui que le classeur nomme au poste vient en tête,
-et il n'y a plus rien à expliquer en bas de tableau.
-
-**« Les postes les liant » est le mot juste du client pour le TERRAIN
-ARRIÈRE** : le poste qui relie la fermentation et la distillation. Il ne
-figure dans aucune liste de polyvalence du classeur — il se DÉDUIT des deux
-autres, exactement comme `tientTerrainArriere()` le fait partout ailleurs.
-Aucun titulaire ne le porte au classeur : sa ligne ne se remplit que de
-renforts, et c'est juste — c'est le renfort arrière qui le tient.
-
-Contrôlé : **personne ne reste hors ligne**. Si cela changeait, le rendu le
-dit sous le tableau plutôt que de laisser quelqu'un disparaître.
+Contrôlé : **55 trigrammes pour 56 personnes d'équipe**, chacun écrit une
+fois et une seule, plus QBY nommé sous le tableau.
 
 ### Les cadres de l'onglet Équipe
 
