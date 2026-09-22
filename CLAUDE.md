@@ -211,6 +211,14 @@ ce qui l'entoure demande de relancer cet outil**, ne serait-ce qu'à vide :
 python3 tools/comparer-fiches.py VBN
 ```
 
+**Et il faut que son cri s'entende.** Le script node s'arrête bien quand sa
+découpe est faussée — c'est tout l'intérêt de ses épreuves — mais son
+enveloppe Python faisait `json.loads(r.stdout or "{}")` : elle rendait un
+dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
+était silencieuse pendant deux commits, qui ont annoncé « fiches d'accord »
+sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
+message de node. **Une panne silencieuse est pire que pas de contrôle.**
+
 ## Régénérer les icônes
 
 Les cinq icônes dérivent toutes de `logo.png`. Elles sont mises en cache à
