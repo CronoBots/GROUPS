@@ -688,9 +688,32 @@ horizontalement ». Les lignes portent de un à quatre noms ; les cases courtes
 restaient collées en haut d'une ligne haute. Mesuré : **2 px d'écart au pire**
 entre le blanc du haut et celui du bas, à 390 comme à 1280 px.
 
+**SKS et NPI n'ont pas encore d'équipe**, et ce n'est pas une lacune du
+classeur : c'est leur situation, dite par le client le 22/09/2026. La carte
+porte donc ce titre-là. CDT, lui, EN A une — reste à savoir laquelle.
+
+**L'ENCRE S'INVERSE : les intitulés en clair, les trigrammes en gris.** Le
+client, le 22/09/2026 : « je préfère les colonnes principales en blanc et les
+trigrammes en gris (inversion avec titre) ». Ce sont les intitulés qu'on
+cherche d'abord — de quelle équipe, de quel poste lit-on cette case — et le
+contenu se lit ensuite, une fois la case trouvée. Mesuré dans les deux
+thèmes : intitulés à **13,7:1** (sombre) et **17,7:1** (clair), trigrammes à
+**10,1** et **9,9**, jaune de formation à **7,9** et **5,4**.
+
+**Sur bureau, le nom d'équipe s'écrit en entier.** « Sur PC, les noms
+d'équipe peuvent être écrits plus grand et en texte complet » : « Équipe 3 »
+au-delà de 760 px, « Éq. 3 » sur un téléphone où la colonne fait 57 px. Les
+deux sont écrits et la feuille choisit, par les mêmes `.orgl1` / `.orgl2` que
+la colonne des postes — pas d'écouteur de redimensionnement.
+
+**136 px et non 128** pour cette colonne : à 12,5 px « TERRAIN ARRIÈRE »
+débordait d'UN pixel. C'est le même piège qu'à 104 px, et il se rouvre à
+chaque fois qu'on grossit cet intitulé — mesurer, ne pas estimer.
+
 Contrôlé : **61 trigrammes**, chacun écrit une fois et une seule — les 56
 personnes d'équipe et les 5 opérateurs en formation que le classeur rattache
-à une équipe. Personne sous le tableau.
+à une équipe. Personne sous le tableau, aucun débordement à 390, 1280 clair
+et 1280 sombre.
 
 ### Les cadres de l'onglet Équipe
 
@@ -1051,6 +1074,36 @@ intitulés. Le relire ici avant de rallonger un onglet.
 Elle se pose APRÈS celle qui définit la barre mobile : à spécificité égale
 c'est la dernière qui gagne, et une première tentative posée trois cents
 lignes plus haut n'avait rien changé du tout.
+
+### Ce qu'on a presté, jamais ce qu'on a touché
+
+Le client, le 22/09/2026 : « FLN est en formation en D et non en PM ; il est
+remplacé en PM, si tu regardes dans les commentaires ». Sa cellule du 23/09
+dit `["PM","F","Formation Excel IFAPME remplacé par ALZ GKT"]` — PM est la
+prime conservée, `F` dit que la journée s'est faite en horaire de jour, et
+deux collègues tiennent son poste d'après-midi. Le montrer en PM le comptait
+deux fois.
+
+**Deux champs disent la même chose selon la source** : `r.sp` quand le
+COMMENTAIRE nomme une prime à conserver, `r.jourCode` quand la MENTION
+elle-même est l'une des huit de `JOUR_PRIME_PAUSE` — `SD26`, `F`, `D-F`,
+`DS`, `CPPT`, `DS-CE`, `TP`. Le calendrier lisait déjà les deux, par
+`postePeint()` ; `equipeDuJour()` n'en lisait qu'un, et rangeait ces
+journées-là dans la pause PAYÉE.
+
+`var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);` — la garde
+est la même que celle de `postesDePause()` deux fonctions plus bas : sur les
+22 journées de projet, le `F` ne sort pas du poste.
+
+Les manques passent de **12 journées / 13 places à 14 / 16**, et c'est le
+sens de la correction : quelqu'un parti en formation n'est plus à son poste,
+et le trou qu'il laisse était invisible. Les neuf règles restent à zéro, les
+compteurs à 76/77.
+
+**`--journee` imprime désormais la prime, le poste presté et le code de
+jour.** Sans ces trois champs à l'écran, rien ne disait POURQUOI quelqu'un
+apparaît dans une pause plutôt qu'une autre — il a fallu les ajouter pour
+voir le défaut.
 
 ### Le mémo des trois fonctions du mois
 
