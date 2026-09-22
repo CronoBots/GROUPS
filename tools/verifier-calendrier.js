@@ -102,6 +102,8 @@ const MORCEAUX=[
   ["function statutPersonne(","\n}"],
   ["function estContremaitre(","\n}"],
   ["var EST_FORMATION=","\n"],
+  ["var PROJETS_SUR_POSTE=","\n"],
+  ["function surSonPosteMalgreF(","\n}"],
   ["function roleDeFeuille(","\n}"],
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
