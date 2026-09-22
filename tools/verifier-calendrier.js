@@ -94,6 +94,16 @@ const MORCEAUX=[
   ["function etiqAbsence(","\n}"],
   ["function familleAbsence(","\n}"],
   ["function compteursCalcules(","\n}"],
+  /* la polyvalence : on DÉCOUPE le calcul de l'application au lieu de le
+     refaire. Une première version le réimplémentait, et elle a aussitôt
+     divergé sur BBZ — « poste habituel » n'y suivait pas la même chaîne. */
+  ["var POLY_QUOTA=",";"],
+  ["var _poly=null",";"],
+  ["function calculerPolyvalence(","\n}"],
+  ["function polyvalenceDe(","\n}"],
+  /* le mémo que equipeDuJour() emploie : sans lui la découpe le laisserait
+     hors du champ et equipeDuJour() lèverait une ReferenceError */
+  ["var _moisCache=","\n}"],
   /* l'effectif des postes — le tableau des manques rejoue le calcul de
      l'onglet Équipe, il ne le refait pas */
   ["var CONTREMAITRES=","\n"],
@@ -348,53 +358,23 @@ if(process.argv.indexOf("--compteurs")>=0){
      — « Contremaître » et « Adjoint » ne sont pas des postes de production
        et sortent du décompte.                                              */
 if(process.argv.indexOf("--polyvalence")>=0){
-  const i0=process.argv.indexOf("--polyvalence");
-  /* Par défaut on s'arrête AUJOURD'HUI. Le classeur court jusqu'au 31/12 :
-     compter l'année entière, c'est créditer des journées qui n'ont pas
-     encore eu lieu. « --polyvalence 1231 » les rend si on les veut. */
-  const auj=new Date();
-  const finDef=(auj.getFullYear()===ANNEE)
-    ? pad2(auj.getMonth()+1)+pad2(auj.getDate()) : "1231";
-  const fin=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:finDef;
-  const jours={}, vus={};
-  for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
-    const mmdd=pad2(m)+pad2(d); if(mmdd>fin) continue;
-    const par=equipeDuJour(db,ANNEE,m,d);
-    EQ_GROUPES.forEach(g=>{
-      if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N") return;
-      const l=par[g.k]; if(!l||!l.length) return;
-      postesDePause(db,l,g.k,mmdd).postes.forEach(o=>{
-        if(o.P.cm||o.P.k==="adj") return;
-        o.gens.forEach(y=>{
-          const r=y.r; if(!r||!r.s) return;
-          const h=(r.h===undefined||r.h===null||r.h==="")?H_JOUR:Number(r.h);
-          vus[y.p.id]=(vus[y.p.id]||0)+1;
-          if(Math.abs(h-H_JOUR)>0.01) return;
-          (jours[y.p.id]=jours[y.p.id]||{})[o.P.t]=((jours[y.p.id]||{})[o.P.t]||0)+1;
-        });
-      });
-    });
-  }
-  const QUOTA={adjoint:5, operateur:10};
   const gens=db.people.filter(p=>!estContremaitre(p));
   const tout=process.argv.indexOf("--tout")>=0;
+  const t=calculerPolyvalence(db);
   console.log("\nPolyvalence — journées COMPLÈTES (8 h) tenues à chaque poste"
-    +"\ndu 01/01 au "+fin.slice(2)+"/"+fin.slice(0,2)+"/"+ANNEE+"\n");
+    +"\nAUTRE que le sien, du 01/01 au "+t.fin.slice(2)+"/"+t.fin.slice(0,2)
+    +"/"+ANNEE+"\n");
   let atteints=0, total=0;
   gens.forEach(p=>{
-    const q=estCadre(p)?QUOTA.adjoint:QUOTA.operateur;
-    const par=jours[p.id]||{};
-    const cles=Object.keys(par).sort((a,b)=>par[b]-par[a]);
-    if(!cles.length && !tout) return;
-    const bouts=cles.map(k=>{
-      total++; const ok=par[k]>=q; if(ok) atteints++;
-      return k+" "+par[k]+"/"+q+(ok?" \u2713":"");
-    });
-    console.log("  "+p.id+"  "+(estCadre(p)?"adjoint   ":"opérateur ")
-      +(bouts.join("  ")||"aucun poste de production"));
+    const l=polyvalenceDe(db,p)||[];
+    if(!l.length && !tout) return;
+    const bouts=l.map(o=>{ total++; if(o.ok) atteints++;
+      return o.t+" "+o.n+"/"+o.q+(o.ok?" \u2713":""); });
+    console.log("  "+p.id+"  "+(estCadre(p)?"adjoint  ":"opérateur")+"  "
+      +(bouts.join("  ")||"\u2014"));
   });
   console.log("\n  "+atteints+" couple(s) personne-poste au quota sur "+total
-    +" où au moins une journée complète a été tenue");
+    +" où au moins une journée complète a été tenue à un AUTRE poste");
   process.exit(0);
 }
 

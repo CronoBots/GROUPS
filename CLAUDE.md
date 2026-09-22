@@ -448,6 +448,20 @@ sortie brute de `parseHoraireEntry`, alors que ceux-ci mesurent ce que la
 case AFFICHE, une fois le cycle, le remplacement et l'annotation « - »
 appliqués.
 
+### Le mémo des trois fonctions du mois
+
+`equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
+`renvoisDuMois()` **pour chaque personne et chaque jour**, et la dernière
+balaie l'année entière à chaque appel. Une saison coûtait donc 265 jours ×
+77 personnes × 365 journées de balayage.
+
+Elles ne dépendent que de la personne, du mois et de l'heure de journée :
+`moisDe()` les retient. **`--manques` est passé de 90 s à 8,7 s**, au
+résultat identique — et c'est ce qui rend la polyvalence calculable dans le
+navigateur, 1,6 s à l'ouverture du repli.
+
+La clé porte `hJour` : un changement de réglage refait le calcul.
+
 ### Les manques d'effectif à venir
 
 ```bash
@@ -490,24 +504,35 @@ d'indiquer combien de jours (complet 8h) ils ont fait sur chaque poste de
 production ; les autres ont un quota de polyvalence de 10 jours par poste,
 les adjoints 5 jours par poste ».
 
-Il ne recompte rien à côté : il rejoue `equipeDuJour()` et `postesDePause()`,
-les deux fonctions dont l'onglet Équipe se sert pour dire qui tient quoi.
+Il ne recompte rien à côté : il **découpe** `calculerPolyvalence()` et
+`polyvalenceDe()` dans `index.html`. Sa première version les réimplémentait,
+et elle a divergé le jour même sur BBZ — « son poste » n'y suivait pas la
+même chaîne.
 
-Trois choix, écrits dans le code plutôt que cachés :
+Quatre choix, tranchés avec le client le 22/09/2026 et écrits dans le code
+plutôt que cachés :
 
-- seules les pauses **AM, PM et N** comptent — le « Jour » ne tient pas un
-  poste de production, et `postesDePause()` n'y attend d'ailleurs personne ;
-- une journée ne compte que si elle vaut **huit heures pleines** ;
-- « Contremaître » et « Adjoint » ne sont pas des postes de production.
+- on s'arrête **AUJOURD'HUI**. Le classeur court jusqu'au 31/12 ; compter
+  l'année entière créditerait des journées qui n'ont pas eu lieu, et ATR
+  atteignait ainsi le quota aux chaudières sans y avoir mis les pieds ;
+- **le poste habituel ne compte pas** : un quota de dix journées ne veut rien
+  dire sur le poste qu'on tient tous les jours, et NPE y affichait 211/10 ;
+- seules les pauses **AM, PM et N** — le « Jour » ne tient pas un poste de
+  production, et `postesDePause()` n'y attend d'ailleurs personne ;
+- **huit heures pleines ou rien** : une demi-journée n'apprend pas un poste à
+  moitié.
 
-**Il s'arrête AUJOURD'HUI par défaut**, et c'est important : le classeur court
-jusqu'au 31/12, si bien qu'une mesure sur l'année entière crédite des
-journées qui n'ont pas eu lieu. L'écart n'est pas théorique — au 22/09/2026,
-ATR atteint le quota aux chaudières sur l'année mais n'y a encore fait
-aucune journée. `--polyvalence 1231` les rend si on les veut.
+**« Son poste » se prend avec `posteTenu(p,[],hJour,null)`, pas avec
+`posteHabituel()`.** Les deux fonctions répondent à la même question et la
+seconde répond moins bien : elle rend « terrain arrière » dès que le rôle de
+feuille le dit, sans la garde `tientTerrainArriere()`. BBZ y gagnait terrain
+arrière alors qu'il n'y a pas fait une journée et qu'il en a fait 133 en
+distillation. `posteParDefaut()` vient en dernier, faute de quoi PDE n'a pas
+de poste habituel et ses 134 journées à la station passent pour de la
+polyvalence.
 
-**Au 22/09/2026 : 101 couples personne-poste au quota sur 146** où au moins
-une journée complète a été tenue.
+**Au 22/09/2026 : 37 couples personne-poste au quota sur 82** — mesuré
+identique par l'outil et par le navigateur.
 
 Second contrôle, indépendant, et il se lance lui aussi :
 
