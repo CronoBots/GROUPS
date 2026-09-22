@@ -737,6 +737,13 @@ body.sheet-on{overflow:hidden}
    un point comme une absence de résultat. */
 .pvt td.pvzero{color:var(--line); font-size:13px}
 .pvt td.pvsien{color:var(--ink2); font-size:9px}
+/* « 0/10 » : la polyvalence est acquise, le remplacement reste à faire.
+   C'est la case que le contremaître cherche — celle où quelqu'un PEUT
+   aller. Elle se distingue donc du néant sans crier comme un manque. */
+.pvt td.pvnul{color:var(--ink2); background:var(--surface3)}
+.pvt td.pvnul u{opacity:.6}
+.lg-pvnul{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
+  font-weight:700; color:var(--ink2)}
 .pvt td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt td.pvok u{opacity:.7}
 .pvt tbody tr.moi th.pvqui{color:var(--in)}
@@ -5383,11 +5390,23 @@ function calculerPolyvalence(db){
   var au=new Date(), annee=Number(db.year);
   var fin=(au.getFullYear()===annee)
     ? pad2(au.getMonth()+1)+pad2(au.getDate()) : "1231";
-  var cle=annee+"/"+fin+"/"+st.params.hJour;
+  /* Le client, le 22/09/2026 : « la polyvalence se déroule sur la période du
+     1er février au 1er février de l'année d'après ». Ce n'est donc pas une
+     année civile, et compter depuis le 1er janvier ajoutait un mois qui
+     appartient à la période PRÉCÉDENTE.
+
+     L'horaire ne couvre qu'une année : quand la date du jour est encore en
+     janvier, la période courante a commencé le 1er février de l'année
+     d'avant, dont le classeur n'a rien — et tout ce que le fichier contient
+     jusqu'à aujourd'hui lui appartient bel et bien. On part alors du
+     1er janvier, faute de mieux, et il manque onze mois qu'aucun fichier
+     ne porte. */
+  var debut=(fin>="0201")?"0201":"0101";
+  var cle=annee+"/"+debut+"/"+fin+"/"+st.params.hJour;
   if(_poly && _polyCle===cle) return _poly;
   var parId={}, m, j, mmdd;
   for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
-    mmdd=pad2(m)+pad2(j); if(mmdd>fin) continue;
+    mmdd=pad2(m)+pad2(j); if(mmdd<debut || mmdd>fin) continue;
     var par=equipeDuJour(db,annee,m,j);
     EQ_GROUPES.forEach(function(g){
       if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N") return;
@@ -5404,8 +5423,15 @@ function calculerPolyvalence(db){
       });
     });
   }
-  _polyCle=cle; _poly={parId:parId, fin:fin};
+  _polyCle=cle; _poly={parId:parId, debut:debut, fin:fin};
   return _poly;
+}
+/* Possède-t-elle CE poste ? « Terrain arrière » ne figure dans aucune liste
+   de polyvalence du classeur : il se déduit de Fermentation ET Distillation,
+   comme tientTerrainArriere() le fait déjà partout ailleurs. */
+function aLaPolyvalence(p,P){
+  if(P.k==="terr") return tientTerrainArriere(p);
+  return P.rx ? aLAtelier(p,P.rx) : false;
 }
 /* Les postes SECONDAIRES d'une personne, du plus tenu au moins tenu. */
 function polyvalenceDe(db,p){
@@ -5432,8 +5458,14 @@ function polyvalenceDe(db,p){
   var q=estCadre(p)?POLY_QUOTA.adjoint:POLY_QUOTA.operateur, out=[];
   POSTES_TRAVAIL.forEach(function(P){
     if(P.cm||P.k==="adj"||P.k===sien) return;
-    if(!par[P.k]) return;
-    out.push({t:P.t, z:P.z, n:par[P.k], q:q, ok:par[P.k]>=q});
+    var n=par[P.k]||0, a=aLaPolyvalence(p,P);
+    /* Le client, le 22/09/2026 : « il doit être écrit 0/X dans la colonne où
+       ils ont la polyvalence mais qu'ils n'ont pas encore fait de
+       remplacement ». Une case vide ne disait pas si la personne ne pouvait
+       pas tenir le poste ou si elle le pouvait sans l'avoir encore fait —
+       et c'est justement CELA qu'un contremaître cherche. */
+    if(!n && !a) return;
+    out.push({t:P.t, k:P.k, z:P.z, n:n, q:q, ok:n>=q, acquis:a});
   });
   out.sort(function(a,b){ return b.n-a.n; });
   return out;
@@ -5467,20 +5499,20 @@ function renderPolyvalence(){
     POSTES.forEach(function(P){
       h.push('<th data-z="'+esc(P.z||"")+'">'+esc(PV_COURT[P.k]||P.t)+"</th>"); });
     h.push("</tr></thead><tbody>");
-    var cats=[], atteints=0, total=0, gens=0;
-    db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
-    cats.sort();
-    cats.forEach(function(c){
-      var l=db.people.filter(function(p){ return p.cat===c && !estContremaitre(p); })
-                     .sort(function(a,b){ return a.id<b.id?-1:1; });
-      var utiles=l.filter(function(p){ var v=polyvalenceDe(db,p); return v&&v.length; });
-      if(!utiles.length) return;
-      h.push('<tr class="pvgrp"><th colspan="'+(POSTES.length+1)+'" scope="colgroup">'
-             +esc(fonctionLisible(c))+"</th></tr>");
-      utiles.forEach(function(p){
+    /* Le client, le 22/09/2026 : « il n'est pas nécessaire de classer les
+       polyvalences par équipe ni par poste mais plutôt par ordre
+       alphabétique ». Une seule liste, donc, sans intercalaire : on cherche
+       quelqu'un par son trigramme, pas par son équipe. */
+    var atteints=0, total=0, gens=0, vierges=0;
+    db.people.filter(function(p){ return !estContremaitre(p); })
+      .sort(function(a,b){
+        var A=idLisible(a.id), B=idLisible(b.id);
+        return A<B?-1:(A>B?1:0); })
+      .forEach(function(p){
+        var v=polyvalenceDe(db,p)||[]; if(!v.length) return;
         gens++;
         var par={}, sien;
-        (polyvalenceDe(db,p)||[]).forEach(function(o){ par[o.t]=o; });
+        v.forEach(function(o){ par[o.t]=o; });
         try{ sien=posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
         catch(e){ sien=null; }
         h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
@@ -5489,27 +5521,32 @@ function renderPolyvalence(){
           if(P.k===sien){
             h.push('<td class="pvsien" title="Son poste">\u25cf</td>'); return; }
           var o=par[P.t];
-          if(!o){ h.push('<td class="pvzero">\u00b7</td>'); return; }
-          total++; if(o.ok) atteints++;
-          h.push('<td class="pvn'+(o.ok?" pvok":"")+'" data-z="'+esc(P.z||"")+'"'
-            +' title="'+esc(P.t)+" : "+o.n+" journée(s) complète(s) sur "+o.q
-            +' attendue(s)">'+o.n+"<u>/"+o.q+"</u></td>");
+          if(!o){ h.push('<td class="pvzero" title="Pas la polyvalence de ce '
+            +'poste">\u00b7</td>'); return; }
+          total++; if(o.ok) atteints++; if(!o.n) vierges++;
+          h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
+            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
+            +(o.n?o.n+" journée(s) complète(s) sur "+o.q+" attendue(s)"
+                 :"polyvalence acquise, aucun remplacement fait")
+            +'">'+o.n+"<u>/"+o.q+"</u></td>");
         });
         h.push("</tr>");
       });
-    });
     h.push("</tbody>");
     hote.innerHTML=h.join("");
+    var jj=Number(t.debut.slice(2)), mm=Number(t.debut.slice(0,2));
     document.getElementById("pvSub").textContent=
       gens+" personne"+(gens>1?"s":"")+" \u00b7 "+atteints+" poste"+(atteints>1?"s":"")
-      +" au quota sur "+total+" entamé"+(total>1?"s":"")
-      +" \u00b7 du 1er janvier au "+Number(t.fin.slice(2))+" "
-      +MOIS[Number(t.fin.slice(0,2))-1].toLowerCase();
+      +" au quota sur "+total+" \u00b7 "+vierges+" sans remplacement"
+      +" \u00b7 du "+(jj===1?"1er":jj)+" "+MOIS[mm-1].toLowerCase()
+      +" au "+Number(t.fin.slice(2))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase();
     document.getElementById("pvLeg").innerHTML=
       '<span><i class="lg-pvsien">\u25cf</i>son poste, qui ne compte pas</span>'
       +'<span><i class="lg-pvok"></i>quota atteint</span>'
-      +'<span><i class="lg-tiret">\u00b7</i>jamais tenu une journée complète</span>'
-      +'<span>10 journées par poste pour un opérateur, 5 pour un adjoint</span>';
+      +'<span><i class="lg-pvnul">0/</i>polyvalence acquise, aucun remplacement fait</span>'
+      +'<span><i class="lg-tiret">\u00b7</i>pas la polyvalence de ce poste</span>'
+      +'<span>période du 1er février au 1er février \u00b7 10 journées par poste '
+      +"pour un opérateur, 5 pour un adjoint</span>";
   }, function(){});
 }
 function renderAnnuaire(db,moi){
