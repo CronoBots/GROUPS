@@ -899,3 +899,22 @@ encore que les siennes.
    les ouvriers, le pécule vient de la caisse de vacances et non de
    l'employeur — il ne figure donc pas sur la fiche de la même façon. Reste
    à établir.
+
+## Une formation se fait dans les heures de travail
+
+Le client, le 22/09/2026 : « cette formation sera dans leurs heures de
+travail, ou si pas le cas ils remettront une feuille pour ft+ ou hs ».
+
+Une journée annotée `F` est donc une **journée de travail ordinaire** :
+heures normales de la pause, prime de pause, aucun code d'absence. Un
+dépassement ne se devine pas — il fait l'objet d'une feuille séparée, et il
+reparaît dans la cellule sous forme de `+FT` ou de `HS`.
+
+**C'est déjà ce que l'application fait**, vérifié sur les journées du projet
+falling film : `FPS 05/10 ["AM","F",…]` → poste AM, 8 h, aucune absence. Rien
+à corriger côté paie ; la règle est notée pour qu'on ne la remette pas en
+question.
+
+Ne pas confondre avec les codes d'absence `FORM` de la table `ABS`, qui
+eux ne sont pas prestés : `F` en annotation est du travail, `FORM` en
+absence n'en est pas.
