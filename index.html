@@ -360,11 +360,17 @@ button{cursor:pointer}
 body[data-view="horaire"] .netchip,
 body[data-view="compteurs"] .netchip,
 body[data-view="equipe"] .netchip,
+body[data-view="polyvalence"] .netchip,
 body[data-view="reglages"] .netchip{display:none}
 /* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
    elle n'aurait rien à dire */
 body[data-view="reglages"] .mnav,
 body[data-view="compteurs"] .mnav,
+/* La polyvalence court du 1er février au 1er février : un sélecteur de mois
+   au-dessus d'elle ferait croire qu'il la fait bouger. Le client, le
+   22/09/2026 : « pourquoi voir le salaire dans l'onglet polyvalence ? ce
+   n'est pas logique » — la remarque vaut pour les deux. */
+body[data-view="polyvalence"] .mnav,
 body[data-view="equipe"] .mnav{visibility:hidden}
 body[data-horaire="annee"][data-view="horaire"] .mnav,
 body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
@@ -5557,13 +5563,15 @@ function renderPolyvalence(){
       +" au quota sur "+total+" \u00b7 "+vierges+" sans remplacement"
       +" \u00b7 du "+(jj===1?"1er":jj)+" "+MOIS[mm-1].toLowerCase()
       +" au "+Number(t.fin.slice(2))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase();
+    /* Quatre entrées de deux mots. Le client, le 22/09/2026 : « simplifie
+       les légendes pour qu'elles soient professionnelles ». La période était
+       déjà dans le sous-titre et le quota dans chaque case : les répéter en
+       bas de page faisait cinq lignes pour dire ce qui tient en une. */
     document.getElementById("pvLeg").innerHTML=
-      '<span><i class="lg-pvsien">\u25cf</i>son poste, qui ne compte pas</span>'
+      '<span><i class="lg-pvsien">\u25cf</i>son poste</span>'
       +'<span><i class="lg-pvok"></i>quota atteint</span>'
-      +'<span><i class="lg-pvnul">0/</i>polyvalence acquise, aucun remplacement fait</span>'
-      +'<span><i class="lg-tiret">\u00b7</i>pas la polyvalence de ce poste</span>'
-      +'<span>période du 1er février au 1er février \u00b7 10 journées par poste '
-      +"pour un opérateur, 5 pour un adjoint</span>";
+      +'<span><i class="lg-pvnul">0/X</i>acquise, non pratiquée</span>'
+      +'<span><i class="lg-tiret">\u00b7</i>non acquise</span>';
   }, function(){});
 }
 function renderAnnuaire(db,moi){
