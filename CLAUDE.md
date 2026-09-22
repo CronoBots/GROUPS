@@ -359,7 +359,7 @@ classeur y écrit : la règle applique `ALIAS_HORAIRE` avant de conclure, et
 suivra donc toute addition future sans qu'on y pense.
 
 Une dixième règle, plus faible, liste les **mentions non comprises** : la
-case s'affiche juste, mais un morceau de la cellule reste illisible. **25
+case s'affiche juste, mais un morceau de la cellule reste illisible. **20
 journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
@@ -399,6 +399,12 @@ première version les recopiait, et elle a continué d'annoncer 38 manques aprè
 que `index.html` eut été corrigé. **Une règle qui dénonce les copies ne peut
 pas en être une.**
 
+Elle a trouvé une seconde fois, le 22/09/2026 : `plageMention()` refusait
+l'apostrophe des minutes — `11h-15h30'` — alors que `normPlage()` la
+retirait depuis toujours. Deux motifs, deux sévérités sur la même
+notation ; AFA le 10/02 s'affichait en absence à zéro heure alors qu'il
+était au travail.
+
 Il reste **46 écarts**, et ce sont des questions, pas des fautes : `10h-11h`
 écrit avec un tiret, `00h à 6h` sans « de », des passifs mal orthographiés
 comme « Remplacé pa VBN ».
@@ -407,7 +413,7 @@ comme « Remplacé pa VBN ».
 
 `tools/verifier-calendrier.js` fait ce contrôle et le rend chiffré — c'est
 lui qu'il faut relancer, et non un script à côté. Au 21/09/2026, sur les
-27 462 journées : **14 656 prestées, 5 075 absences, 156 postes prévus non
+27 462 journées : **14 657 prestées, 5 074 absences, 156 postes prévus non
 prestés, 7 575 repos** (classeur du 21/09/2026 à 17 h 35). Un écart important
 signale une régression — mais un nouveau classeur en déplace légitimement :
 deux absences longues y sont apparues, APN et QDE.

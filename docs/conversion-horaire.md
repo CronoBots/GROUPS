@@ -1974,3 +1974,25 @@ sont dans ce cas, et la pause paraît vide de quatre postes.
 Question au client : sur ces journées-là, la personne tient-elle le poste que
 le commentaire nomme, ou est-elle hors effectif comme pour une formation ?
 Cela touche l'effectif affiché, pas la paie.
+
+## L'apostrophe est la marque des minutes
+
+Le classeur écrit les minutes avec une apostrophe : `15h30'` se lit quinze
+heures trente, `de 12h15' à 13h45'` une heure et demie de sensibilisation.
+
+`normPlage()` la retirait depuis toujours ; `plageMention()`, non — et c'est
+elle qui décide si une cellule est une **journée prestée**. AFA le 10/02,
+`["11h-15h30'","4h +FT","+0,5 hs"]`, s'affichait donc en absence à **zéro
+heure** alors qu'il était au travail : 4 h de flex time, et une présence de
+11 h à 15 h 30 qui vaut 4 h payées une fois la demi-heure de midi retirée —
+ce que « 4h +FT » recoupe exactement.
+
+Deux journées de l'année, dont une seule changeait d'apparence : LDY le
+21/05 portait `8h30'-16h30'`, que `HORAIRE_PLAGES` reconnaissait déjà par
+`normPlage()`.
+
+La leçon n'est pas l'apostrophe : c'est que **deux motifs lisaient la même
+notation avec deux sévérités différentes**. C'est ce que la douzième règle de
+`tools/verifier-calendrier.js` cherche, et elle avait déjà signalé la même
+apostrophe du côté des commentaires — `de 14h à18h00'`, 38 journées.
+
