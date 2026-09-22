@@ -890,9 +890,31 @@ body.sheet-on{overflow:hidden}
 .lg-z[data-z="rouge"]{background:var(--at-rouge)}
 .lg-z[data-z="bleu"]{background:var(--at-bleu)}
 @media (max-width:560px){
-  /* « CONTREMAÎTRE » est le plus long, et il ne se coupe pas : la colonne et
-     le corps sont taillés sur lui. */
-  .eqp2 th.eqposte{width:122px; padding-left:11px; padding-right:8px}
+  /* La date avait sa largeur minimale, mais les pastilles restaient un bloc
+     flex:1 1 auto : dès qu'elles ne tenaient plus à côté d'elle, le bloc
+     ENTIER passait à la ligne et repartait de la marge gauche. Le 26 avait
+     donc sa pastille sur la ligne de sa date, le 27 sous la sienne, et on
+     ne savait plus d'un coup d'œil à quel jour appartenait quoi.
+
+     Deux colonnes : la date à gauche, tout le reste à droite. Les pastilles
+     se replient DANS leur colonne, la phrase « à déterminer » se range sous
+     elles au lieu d'aller flotter à droite, et les journées s'alignent les
+     unes sous les autres.
+
+     Au mobile SEULEMENT : sur large, tout tient déjà sur une ligne et la
+     phrase « à déterminer » se lit très bien en bout de course. */
+  .mqj{display:grid; grid-template-columns:76px 1fr; align-items:baseline;
+    column-gap:8px; row-gap:5px}
+  .mqj>b{min-width:0; white-space:nowrap}
+  .mqtags{grid-column:2}
+  .mqinc{grid-column:2; margin-left:0}
+  /* « TERRAIN ARRIÈRE » est le plus long, et il ne se coupe pas : la colonne
+     et le corps sont taillés sur lui. À 122 px elle prenait trente-quatre
+     pour cent de la largeur du tableau, et les trigrammes s'entassaient dans
+     les 78 px restants — trois d'entre eux passaient à la ligne. L'intitulé
+     perd un demi-point de corps et son interlettrage, et chacune des trois
+     pauses gagne sept pixels. */
+  .eqp2 th.eqposte{width:100px; padding-left:9px; padding-right:4px}
   .eqp2 thead th .eqheure{display:none}
   .eqleg{gap:4px 12px; padding:8px 14px 10px; font-size:10.5px}
   /* La bascule passe sous la barre du jour : côte à côte, elle en sortait. */
@@ -909,12 +931,6 @@ body.sheet-on{overflow:hidden}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
   .eqp2 td .eqn b{font-size:10.5px; letter-spacing:.02em}
-  /* Trente-quatre pour cent de la largeur pour un intitulé, et les
-     trigrammes s'entassaient dans 78 px : trois d'entre eux passaient à la
-     ligne. L'intitulé perd un demi-point de corps et son interlettrage —
-     « TERRAIN ARRIÈRE », le plus long, tient toujours sans se couper — et
-     les trois pauses gagnent sept pixels chacune. */
-  .eqp2 th.eqposte{width:100px; padding-left:9px; padding-right:4px}
   /* Le point médian séparait les trigrammes par un pseudo-élément placé
      AVANT le suivant : quand la ligne se coupait là, elle COMMENÇAIT par le
      point. Il devient une marge, et chaque trigramme un bloc en ligne : la
