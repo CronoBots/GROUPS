@@ -498,6 +498,29 @@ journées**, regroupées par mention — `HS`, `eval`, `CPPT-F`, et d'autres,
 aucune au-delà de deux journées. Elles n'empêchent rien d'afficher, mais elles
 pourraient déplacer des heures : à faire trancher, une par une.
 
+### L'onglet Équipe n'a plus qu'une vue
+
+Le client, le 22/09/2026 : « supprime la vue par pause de l'onglet équipe ».
+Elles étaient deux, sous une bascule « Par poste / Par pause » : les postes
+en lignes et les trois pauses en colonnes d'un côté, les quatre pauses en
+lignes et les huit postes en colonnes de l'autre.
+
+**C'est la vue par POSTE qui reste** — huit postes en lignes tiennent
+l'écran là où huit postes en colonnes le débordent, et c'est elle qui a reçu
+toutes les corrections du 22/09 : les trigrammes empilés, « à déterminer »
+sous la ligne STEP, les légendes réduites à ce qui est dessiné. La vue par
+pause ne les avait suivies sur aucun point — ses trigrammes se lisaient
+encore en ligne, séparés d'un point médian.
+
+Sont partis avec elle : la bascule `#eqVue`, la variable `eqVue` et son
+écouteur, la clé `ui/eqVue`, les 39 règles `.eqg2` et les 88 lignes de rendu.
+`postesDePause()` **reste** — c'est elle que la vue restante, le module des
+manques, la polyvalence et le poste du jour de la barre du haut rejouent
+tous.
+
+Un appareil qui avait choisi « Par pause » ouvre désormais la vue par poste
+sans rien dire : la clé oubliée n'est plus lue. Vérifié.
+
 **Les trigrammes s'empilent, un par ligne.** Le client le demandait le
 21/09/2026, une passe d'optimisation les avait remis en ligne pour gagner de
 la largeur, et il l'a redemandé le 22 : « les trigrammes doivent être l'un
