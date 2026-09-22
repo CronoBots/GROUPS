@@ -39,11 +39,11 @@
      verts et non un seul : les trois postes se retrouvent côte à côte sur
      la même ligne, et une couleur qui ne distingue pas ne sert à rien. */
   --at-jaune:#8A6417; --at-jaune-soft:#F7EDD1;
-  --at-ferm:#1F6B3C;  --at-ferm-soft:#D9EDE0;
-  --at-dist:#156B5C;  --at-dist-soft:#C7E7EA;
-  --at-terr:#4F6B1F;  --at-terr-soft:#E4EDD2;
-  --at-chau:#A3352B;  --at-chau-soft:#F6DEDB;
-  --at-step:#1F5A94;  --at-step-soft:#D8E6F4;
+  --at-vert:#1F6B3C;  --at-vert-soft:#D9EDE0;
+  --at-rouge:#A3352B; --at-rouge-soft:#F6DEDB;
+  --at-bleu:#1F5A94;  --at-bleu-soft:#D8E6F4;
+  --at-gris:#5B6B75;  --at-gris-soft:#E6ECEF;
+  --at-blanc:#6C7A83; --at-blanc-soft:#FFFFFF;
   /* Palette du calendrier annuel. Validée par scripts/validate_palette.js du
      savoir-faire « dataviz », en mode « toutes paires » — un calendrier est
      une série de petits multiples, n'importe quels deux postes peuvent se
@@ -68,11 +68,11 @@
     --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
     --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
     --at-jaune:#D8AE4E; --at-jaune-soft:#33280C;
-    --at-ferm:#5FB682;  --at-ferm-soft:#122A1C;
-    --at-dist:#4EB4A2;  --at-dist-soft:#0A2930;
-    --at-terr:#9DBC5B;  --at-terr-soft:#232C10;
-    --at-chau:#E08278;  --at-chau-soft:#331816;
-    --at-step:#75A9E2;  --at-step-soft:#12233A;
+    --at-vert:#5FB682;  --at-vert-soft:#122A1C;
+    --at-rouge:#E08278; --at-rouge-soft:#331816;
+    --at-bleu:#75A9E2;  --at-bleu-soft:#12233A;
+    --at-gris:#93A3AC;  --at-gris-soft:#1E272E;
+    --at-blanc:#AEBBC2; --at-blanc-soft:#161D23;
     /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
        pour la bande sombre et validés contre la surface sombre.
        Pire paire 16,6 en vision normale, 10,7 en protanopie. */
@@ -91,11 +91,11 @@
   --am:#DB9F4C; --pm:#48AEAD; --n:#8B90DA; --d:#90A0AB;
   --am-soft:#31260E; --pm-soft:#0D2C2C; --n-soft:#1C1E38; --d-soft:#202931;
   --at-jaune:#D8AE4E; --at-jaune-soft:#33280C;
-  --at-ferm:#5FB682;  --at-ferm-soft:#122A1C;
-  --at-dist:#4EB4A2;  --at-dist-soft:#0A2930;
-  --at-terr:#9DBC5B;  --at-terr-soft:#232C10;
-  --at-chau:#E08278;  --at-chau-soft:#331816;
-  --at-step:#75A9E2;  --at-step-soft:#12233A;
+  --at-vert:#5FB682;  --at-vert-soft:#122A1C;
+  --at-rouge:#E08278; --at-rouge-soft:#331816;
+  --at-bleu:#75A9E2;  --at-bleu-soft:#12233A;
+  --at-gris:#93A3AC;  --at-gris-soft:#1E272E;
+  --at-blanc:#AEBBC2; --at-blanc-soft:#161D23;
     /* pas un simple reflet du mode clair : ces quatre pas ont été choisis
      pour la bande sombre et validés contre la surface sombre.
      Pire paire 16,6 en vision normale, 10,7 en protanopie. */
@@ -738,13 +738,11 @@ body.sheet-on{overflow:hidden}
 /* La couleur dit l'ATELIER, le texte dit la pause. Le client, le 21/09/2026 :
    gluten et meunerie en jaune, fermentation / distillation / terrain arrière
    en verts, chaudières en rouge, STEP en bleu. */
-.mqt[data-k="glut"],
-.mqt[data-k="meun"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
-.mqt[data-k="ferm"]{background:var(--at-ferm-soft); color:var(--at-ferm)}
-.mqt[data-k="dist"]{background:var(--at-dist-soft); color:var(--at-dist)}
-.mqt[data-k="terr"]{background:var(--at-terr-soft); color:var(--at-terr)}
-.mqt[data-k="chau"]{background:var(--at-chau-soft); color:var(--at-chau)}
-.mqt[data-k="step"]{background:var(--at-step-soft); color:var(--at-step)}
+.mqt[data-z="jaune"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.mqt[data-z="vert"] {background:var(--at-vert-soft);  color:var(--at-vert)}
+.mqt[data-z="rouge"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
+.mqt[data-z="bleu"] {background:var(--at-bleu-soft);  color:var(--at-bleu)}
+.mqt[data-z="gris"] {background:var(--at-gris-soft);  color:var(--at-gris)}
 .mqinc{font-size:10px; font-weight:400; color:var(--faint); font-style:italic}
 .mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
 .mqrien b{color:var(--in)}
@@ -773,19 +771,18 @@ body.sheet-on{overflow:hidden}
 .eqt td.eqw{padding-right:16px; padding-left:10px}
 .eqt tr.manque th[scope="row"]{color:var(--out)}
 .eqt tr.manque td.eqc{color:var(--out); font-weight:700}
-.eqt tr[data-k="glut"] th, .eqt tr[data-k="meun"] th{border-left-color:var(--at-jaune)}
-.eqt tr[data-k="ferm"] th{border-left-color:var(--at-ferm)}
-.eqt tr[data-k="dist"] th{border-left-color:var(--at-dist)}
-.eqt tr[data-k="terr"] th{border-left-color:var(--at-terr)}
-.eqt tr[data-k="chau"] th{border-left-color:var(--at-chau)}
-.eqt tr[data-k="step"] th{border-left-color:var(--at-step)}
+.eqt tr[data-z="jaune"] th{border-left-color:var(--at-jaune)}
+.eqt tr[data-z="vert"]  th{border-left-color:var(--at-vert)}
+.eqt tr[data-z="rouge"] th{border-left-color:var(--at-rouge)}
+.eqt tr[data-z="bleu"]  th{border-left-color:var(--at-bleu)}
+.eqt tr[data-z="gris"]  th{border-left-color:var(--at-gris)}
 /* Le tableau : les pauses en lignes, les postes en colonnes. Sept colonnes
    ne tiennent pas dans 390 px — il défile donc horizontalement, et la
    colonne de la pause reste collée à gauche pour qu'on sache toujours
    quelle ligne on lit. */
 .eqgrille{overflow-x:auto; -webkit-overflow-scrolling:touch}
 .eqg2{border-collapse:separate; border-spacing:0; min-width:100%}
-.eqg2 th, .eqg2 td{vertical-align:top; text-align:left; padding:8px 10px}
+.eqg2 th, .eqg2 td{vertical-align:top; text-align:left; padding:9px 11px}
 /* Pas de collage VERTICAL : la ligne d'en-têtes se collait en haut de la
    page et recouvrait « Matin ». Seule la colonne des pauses reste collée,
    à gauche, pour qu'on sache quelle ligne on lit en faisant défiler. */
@@ -793,12 +790,15 @@ body.sheet-on{overflow:hidden}
   font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
   color:var(--faint); white-space:nowrap; border-bottom:1px solid var(--line);
   border-top:3px solid transparent}
-.eqg2 thead th[data-k="glut"], .eqg2 thead th[data-k="meun"]{border-top-color:var(--at-jaune); color:var(--at-jaune)}
-.eqg2 thead th[data-k="ferm"]{border-top-color:var(--at-ferm); color:var(--at-ferm)}
-.eqg2 thead th[data-k="dist"]{border-top-color:var(--at-dist); color:var(--at-dist)}
-.eqg2 thead th[data-k="terr"]{border-top-color:var(--at-terr); color:var(--at-terr)}
-.eqg2 thead th[data-k="chau"]{border-top-color:var(--at-chau); color:var(--at-chau)}
-.eqg2 thead th[data-k="step"]{border-top-color:var(--at-step); color:var(--at-step)}
+.eqg2 thead th[data-z="jaune"]{border-top-color:var(--at-jaune); color:var(--at-jaune)}
+.eqg2 thead th[data-z="vert"] {border-top-color:var(--at-vert);  color:var(--at-vert)}
+.eqg2 thead th[data-z="rouge"]{border-top-color:var(--at-rouge); color:var(--at-rouge)}
+.eqg2 thead th[data-z="bleu"] {border-top-color:var(--at-bleu);  color:var(--at-bleu)}
+.eqg2 thead th[data-z="gris"] {border-top-color:var(--at-gris);  color:var(--at-gris)}
+.eqg2 thead th[data-z="blanc"]{border-top-color:var(--line); color:var(--at-blanc)}
+/* Une barre verticale sépare les ZONES de l'usine — encadrement, meunerie et
+   gluten, l'éthanol, les chaudières, la station — comme on les parcourt. */
+.eqg2 th.zone1, .eqg2 td.zone1{border-left:2px solid var(--line)}
 .eqg2 tbody tr+tr th, .eqg2 tbody tr+tr td{border-top:1px solid var(--line2)}
 .eqg2 th.eqpause{position:sticky; left:0; z-index:3; width:92px; min-width:92px;
   background:var(--surface); border-right:1px solid var(--line)}
@@ -809,17 +809,28 @@ body.sheet-on{overflow:hidden}
 }
 .eqg2 th.eqpause b{display:block; font-size:12.5px; font-weight:650; color:var(--ink)}
 .eqg2 th.eqpause em{display:block; font-style:normal; font-size:10px; color:var(--faint)}
-.eqg2 th.eqpause .eqpt{margin-bottom:3px}
-.eqg2 tbody tr[data-s="AM"] .eqpt{background:var(--am)}
-.eqg2 tbody tr[data-s="PM"] .eqpt{background:var(--pm)}
-.eqg2 tbody tr[data-s="N"] .eqpt{background:var(--n)}
-.eqg2 tbody tr[data-s="D"] .eqpt{background:var(--d)}
-.eqg2 td>i{display:block; font-style:normal; font-family:"IBM Plex Mono",monospace;
-  font-size:10px; font-weight:600; color:var(--muted); margin-bottom:3px}
+/* La pause se marque d'un trait à gauche, pas d'une pastille : un span
+   inline ignore sa largeur, et le point ne se voyait pas. Un trait de
+   couleur pleine hauteur tient mieux la ligne, de toute façon. */
+.eqg2 th.eqpause .eqpt{display:none}
+.eqg2 tbody th.eqpause{border-left:3px solid var(--line)}
+.eqg2 tbody tr[data-s="AM"] th.eqpause{border-left-color:var(--am)}
+.eqg2 tbody tr[data-s="PM"] th.eqpause{border-left-color:var(--pm)}
+.eqg2 tbody tr[data-s="N"]  th.eqpause{border-left-color:var(--n)}
+.eqg2 tbody tr[data-s="D"]  th.eqpause{border-left-color:var(--d)}
+/* L'effectif se lit en coin, discret : c'est un contrôle, pas le contenu.
+   Il ne passe au premier plan que lorsqu'il manque quelqu'un. */
+.eqg2 td>i{float:right; margin:0 0 2px 8px; font-style:normal;
+  font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600;
+  letter-spacing:.02em; color:var(--faint)}
 .eqg2 td.manque{background:var(--out-soft)}
 .eqg2 td.manque>i{color:var(--out); font-weight:700}
 .eqg2 td.vide{background:var(--surface2)}
+.eqg2 tbody tr:nth-child(even) td:not(.manque):not(.vide){background:var(--surface2)}
+.eqg2 tbody tr:nth-child(even) th.eqpause{background:var(--surface2)}
 .eqg2 td .eqn{margin:0 0 3px; display:flex}
+.eqg2 td .eqn b{font-size:12px}
+.eqg2 td .eqn i, .eqg2 td .eqn em{font-size:9.5px; line-height:1.25}
 .eqn{display:inline-flex; flex-direction:column; vertical-align:top;
   margin:0 12px 2px 0; line-height:1.3}
 .eqn b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:650;
@@ -3913,16 +3924,16 @@ function fonctionPersonne(p){
 }
 
 var POSTES_TRAVAIL=[
-  {k:"cm",   t:"Contremaître",    n:1, cm:true},
+  {k:"cm",   t:"Contremaître",    n:1, cm:true, z:"gris"},
   /* Le client : « les adjoints doivent être classés dans Adjoint et non
      contremaître s'ils ne remplacent pas comme contremaître ». Un adjoint
      présent n'est pas un contremaître de plus — le poste paraissait doublé
      alors qu'il ne l'était pas. Aucun effectif attendu : ce n'est pas un
      poste à tenir, c'est une fonction. */
-  {k:"adj",  t:"Adjoint",         n:0},
-  {k:"meun", t:"Meunerie",        n:1, rx:/^meun/i},
-  {k:"glut", t:"Gluten",          n:2, rx:/^glut/i},
-  {k:"ferm", t:"Fermentation",    n:1, rx:/^ferm/i},
+  {k:"adj",  t:"Adjoint",         n:0, z:"gris"},
+  {k:"meun", t:"Meunerie",        n:1, z:"jaune", rx:/^meun/i},
+  {k:"glut", t:"Gluten",          n:2, z:"jaune", rx:/^glut/i},
+  {k:"ferm", t:"Fermentation",    n:1, z:"vert", rx:/^ferm/i},
   /* « Poly. Etoh » est un terrain arrière : l'éthanol, c'est la fermentation
      et la distillation, exactement ce que ce poste couvre. Le client l'a
      confirmé le 21/09/2026. 46 journées de l'année le portent, et elles
@@ -3930,10 +3941,10 @@ var POSTES_TRAVAIL=[
      « poly. Etoh » était avalé comme un atelier connu sans jamais devenir un
      poste. Il ne figurait même pas parmi les mentions non comprises :
      l'application croyait l'avoir comprise. */
-  {k:"terr", t:"Terrain arrière", n:1, rx:/^(terr|poly)[\s.\-]*(arr|etoh)/i},
-  {k:"dist", t:"Distillation",    n:1, rx:/^disti/i},
-  {k:"chau", t:"Chaudières",      n:2, rx:/^chaudi/i},
-  {k:"step", t:"STEP",            n:0, parPause:{AM:1}, rx:/^step/i}
+  {k:"terr", t:"Terrain arrière", n:1, z:"vert", rx:/^(terr|poly)[\s.\-]*(arr|etoh)/i},
+  {k:"dist", t:"Distillation",    n:1, z:"vert", rx:/^disti/i},
+  {k:"chau", t:"Chaudières",      n:2, z:"rouge", rx:/^chaudi/i},
+  {k:"step", t:"STEP",            n:0, z:"bleu", parPause:{AM:1}, rx:/^step/i}
 ];
 /* Les codes de journée qui disent « formation » : « F » et « D-F ». Le
    client : « les gens en formation, il faut les mettre à part dans un
@@ -4554,8 +4565,8 @@ function renderEquipe(){
         +(note?'<i>'+esc(note)+"</i>":"")
         +(det?'<em>'+esc(det)+"</em>":"")+"</span>";
     }
-    function ligne(titre,cle,compte,gens,g,P,alerte){
-      return '<tr'+(alerte?' class="manque"':"")+(cle?' data-k="'+esc(cle)+'"':"")+'>'
+    function ligne(titre,cle,compte,gens,g,P,alerte,zone){
+      return '<tr'+(alerte?' class="manque"':"")+(zone?' data-z="'+esc(zone)+'"':"")+'>'
         +'<th scope="row">'+esc(titre)+"</th>"
         +'<td class="eqc">'+esc(compte)+"</td>"
         +'<td class="eqw">'+(gens.length
@@ -4584,27 +4595,43 @@ function renderEquipe(){
         total+=l.length;
         vues[g.k]=postesDePause(db,l,g.k,mmdd);
       });
+      /* L'adjoint qui ne remplace pas le contremaître va dans SA colonne.
+         Le client, le 22/09/2026 : « si l'adjoint ne remplace pas on peut le
+         mettre dans la même colonne que le contremaître ». L'effectif reste
+         celui du contremaître — un adjoint présent n'est pas un contremaître
+         de plus, et c'est déjà ce que dit postesDePause(). */
       function caseDe(gk,ck){
         var v=vues[gk]; if(!v) return null;
         if(ck==="form") return {gens:v.formation, tenu:v.formation.length, attendu:0};
         if(ck==="inc")  return {gens:v.inconnus,  tenu:v.inconnus.length,  attendu:0};
-        return v.postes.filter(function(o){ return o.P.k===ck; })[0]||null;
+        var o=v.postes.filter(function(x){ return x.P.k===ck; })[0]||null;
+        if(ck!=="cm") return o;
+        var a=v.postes.filter(function(x){ return x.P.k==="adj"; })[0];
+        if(!a || !a.gens.length) return o;
+        if(!o) return {P:a.P, gens:a.gens, tenu:0, attendu:0, manque:false};
+        return {P:o.P, gens:o.gens.concat(a.gens), tenu:o.tenu,
+                attendu:o.attendu, manque:o.manque};
       }
       var cols=[];
       POSTES_TRAVAIL.forEach(function(P){
+        if(P.k==="adj") return;            /* fondu dans la colonne du contremaître */
         var sert=pauses.some(function(g){
           var o=caseDe(g.k,P.k); return o && (o.gens.length || o.attendu); });
-        if(sert) cols.push({k:P.k, t:P.t, P:P});
+        if(sert) cols.push({k:P.k, t:P.t, z:P.z||"", P:P});
       });
-      [["form","Formation"],["inc","À déterminer"]].forEach(function(x){
+      [["form","Formation","blanc"],["inc","À déterminer","blanc"]].forEach(function(x){
         if(pauses.some(function(g){ var o=caseDe(g.k,x[0]); return o && o.gens.length; }))
-          cols.push({k:x[0], t:x[1]});
+          cols.push({k:x[0], t:x[1], z:x[2]});
       });
+      /* la première colonne de chaque zone porte la barre de séparation */
+      var zPrec=null;
+      cols.forEach(function(c){ c.debut=(c.z!==zPrec); zPrec=c.z; });
 
       var t=['<div class="card eqcard"><div class="eqgrille"><table class="eqg2">'];
       t.push('<thead><tr><th class="eqpause"></th>');
       cols.forEach(function(c){
-        t.push('<th data-k="'+esc(c.k)+'">'+esc(c.t)+"</th>"); });
+        t.push('<th data-z="'+esc(c.z)+'"'+(c.debut?' class="zone1"':"")+">"
+          +esc(c.t)+"</th>"); });
       t.push("</tr></thead><tbody>");
       pauses.forEach(function(g){
         var v=vues[g.k];
@@ -4613,11 +4640,13 @@ function renderEquipe(){
           +(g.s?"<em>"+esc(g.s)+"</em>":"")
           +"<em>"+(par[g.k]||[]).length+" pers.</em></th>");
         cols.forEach(function(c){
-          var o=caseDe(g.k,c.k);
-          if(!o || (!o.gens.length && !o.attendu)){ t.push('<td class="vide"></td>'); return; }
-          var alerte=(o.manque && !v.inconnus.length);
-          t.push('<td data-k="'+esc(c.k)+'"'+(alerte?' class="manque"':"")+'>'
-            +'<i>'+o.tenu+(o.attendu?" / "+o.attendu:"")+"</i>"
+          var o=caseDe(g.k,c.k), cl=[];
+          if(c.debut) cl.push("zone1");
+          if(!o || (!o.gens.length && !o.attendu)){
+            cl.push("vide"); t.push('<td class="'+cl.join(" ")+'"></td>'); return; }
+          if(o.manque && !v.inconnus.length) cl.push("manque");
+          t.push('<td data-z="'+esc(c.z)+'"'+(cl.length?' class="'+cl.join(" ")+'"':"")+'>'
+            +(o.attendu||o.tenu?'<i>'+o.tenu+(o.attendu?"/"+o.attendu:"")+"</i>":"")
             +o.gens.map(function(x){ return chip(x,g,o.P||null); }).join("")
             +(o.gens.length?"":'<span class="eqvide">—</span>')+"</td>");
         });
@@ -4636,10 +4665,15 @@ function renderEquipe(){
                           : (a.p.cat<b.p.cat?-1:1); });
       var vue=postesDePause(db,l,g.k,mmdd),
           formation=vue.formation, inconnus=vue.inconnus, corps=[];
+      var adj=vue.postes.filter(function(o){ return o.P.k==="adj"; })[0];
       vue.postes.forEach(function(o){
+        if(o.P.k==="adj") return;   /* l'adjoint rejoint le contremaître */
+        if(o.P.k==="cm" && adj && adj.gens.length)
+          o={P:o.P, gens:o.gens.concat(adj.gens), tenu:o.tenu,
+             attendu:o.attendu, detail:o.detail, manque:o.manque, creux:o.creux};
         corps.push(ligne(o.P.t, o.P.k,
           o.tenu+(o.attendu?" / "+o.attendu:""), o.gens, g, o.P,
-          o.manque && !inconnus.length));
+          o.manque && !inconnus.length, o.P.z));
       });
       if(formation.length)
         corps.push(ligne("Formation","",String(formation.length),formation,g,null,false));
@@ -4749,7 +4783,7 @@ function mqJoursAVenir(db,horizon){
       var vue=postesDePause(db,l,g.k,mmdd);
       inconnus+=vue.inconnus.length;
       vue.postes.forEach(function(o){
-        if(o.manque) manques.push({pause:g.k, k:o.P.k, t:o.P.t,
+        if(o.manque) manques.push({pause:g.k, k:o.P.k, z:o.P.z||"", t:o.P.t,
                                    tenu:o.tenu, attendu:o.attendu});
       });
     });
@@ -4780,7 +4814,7 @@ function renderManques(force){
         /* La couleur dit déjà la pause, mais deux « Fermentation 0/1 » côte à
            côte le même jour ne se distinguaient que par elle — et une couleur
            seule ne se lit pas. Le code de pause est donc écrit. */
-        h.push('<span class="mqt" data-k="'+esc(o.k)+'" data-s="'+esc(o.pause)+'">'
+        h.push('<span class="mqt" data-z="'+esc(o.z)+'" data-s="'+esc(o.pause)+'">'
               +'<u>'+esc(o.pause)+"</u>"+esc(o.t)
               +'<i>'+o.tenu+"/"+o.attendu+"</i></span>");
       });
