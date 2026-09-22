@@ -490,6 +490,19 @@ Le tiret cadratin « — » dit « personne » ; le tiret court « – » dit «
 poste n'attend personne à cette pause ». Les deux ne veulent pas dire la
 même chose, et la ligne « à déterminer » emploie le premier.
 
+**L'opérateur en formation s'écrit en DERNIER de la case.** Le client, le
+22/09/2026 : il est présent, mais il n'y est pas encore validé — le lire
+après ceux qui tiennent le poste évite de compter sur lui d'un coup d'œil.
+La partition se fait dans `postesDePause()`, donc les deux vues et le
+vérificateur la partagent.
+
+Elle est **stable**, et c'est tout l'enjeu : l'ordre établi plus haut —
+titulaires avant renforts, contremaîtres avant adjoints — ne doit pas se
+défaire. Un tri par comparaison le mélangerait ; deux seaux recollés le
+gardent intact. L'ordre seul change : `tenu`, `attendu` et les drapeaux
+restent ce qu'ils étaient — vérifié, les manques sont toujours à 12 journées
+et 14 places.
+
 **Les légendes ne montrent que ce qui est à l'écran.** Le client, le
 22/09/2026 : « ne laisser que les légendes utiles ». Une légende qui explique
 un signe absent est du bruit — la plupart des jours il n'y a ni opérateur en
