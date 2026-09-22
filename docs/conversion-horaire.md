@@ -2022,3 +2022,21 @@ cellule : `plageMention(annot) → plageNoyee(annot) → plageMention(cellule) �
 plageNoyee(cellule) → commentaire`.
 
 Une seule journée de l'année emprunte cette nouvelle branche.
+
+## DTT est un congé d'ancienneté
+
+Le client, le 22/09/2026, à propos de SKS le 26/06 : « AM mais a repris
+1/2 DTT donc départ à 10h comme inscrit dans le commentaire (DTT = congé
+d'ancienneté) ».
+
+La légende de l'application annonçait « repos compensatoire, compensation
+paie ». C'est faux : un repos compensatoire compense des heures
+supplémentaires, un congé d'ancienneté s'acquiert avec les années. Les
+heures, elles, étaient justes — `1/2 DTT` vaut bien 4 h.
+
+**Reste à confirmer** : la ligne de fiche s'intitule encore « Heure(s) repos
+compensatoire », et `tools/comparer-fiches.py` range « repos compensatoire »
+sous `RTT` **et** `DTT` à la fois. Ces deux endroits-là recopient ce
+qu'ÉCRIT le secrétariat social, ce qui n'est pas la même question que ce que
+le code SIGNIFIE : ils ne bougeront qu'une fois lue une vraie fiche portant
+des heures DTT.
