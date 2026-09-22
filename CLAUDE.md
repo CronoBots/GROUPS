@@ -479,6 +479,36 @@ prime, y compris sur la fonction de la personne ».
 Le module de l'application ne regarde **jamais en arrière** — un manque passé
 ne se comble plus.
 
+### La polyvalence : combien de journées complètes à chaque poste
+
+```bash
+node tools/verifier-calendrier.js --polyvalence [MMJJ] [--tout]
+```
+
+Le client, le 22/09/2026 : « pour les opérateurs, cela peut être bien aussi
+d'indiquer combien de jours (complet 8h) ils ont fait sur chaque poste de
+production ; les autres ont un quota de polyvalence de 10 jours par poste,
+les adjoints 5 jours par poste ».
+
+Il ne recompte rien à côté : il rejoue `equipeDuJour()` et `postesDePause()`,
+les deux fonctions dont l'onglet Équipe se sert pour dire qui tient quoi.
+
+Trois choix, écrits dans le code plutôt que cachés :
+
+- seules les pauses **AM, PM et N** comptent — le « Jour » ne tient pas un
+  poste de production, et `postesDePause()` n'y attend d'ailleurs personne ;
+- une journée ne compte que si elle vaut **huit heures pleines** ;
+- « Contremaître » et « Adjoint » ne sont pas des postes de production.
+
+**Il s'arrête AUJOURD'HUI par défaut**, et c'est important : le classeur court
+jusqu'au 31/12, si bien qu'une mesure sur l'année entière crédite des
+journées qui n'ont pas eu lieu. L'écart n'est pas théorique — au 22/09/2026,
+ATR atteint le quota aux chaudières sur l'année mais n'y a encore fait
+aucune journée. `--polyvalence 1231` les rend si on les veut.
+
+**Au 22/09/2026 : 101 couples personne-poste au quota sur 146** où au moins
+une journée complète a été tenue.
+
 Second contrôle, indépendant, et il se lance lui aussi :
 
 ```bash

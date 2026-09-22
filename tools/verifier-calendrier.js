@@ -211,7 +211,7 @@ function affichageRecord(rec,hJour){
 /* --- lecture du classeur ------------------------------------------------- */
 /* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=["--journee","--manques"].map(o=>ARGS.indexOf(o))
+const coupe=["--journee","--manques","--polyvalence"].map(o=>ARGS.indexOf(o))
   .filter(i=>i>=0).sort((a,b)=>a-b)[0];
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
@@ -326,6 +326,76 @@ if(process.argv.indexOf("--compteurs")>=0){
               ecarts.length+" divergent");
   ecarts.forEach(l=>console.log(l));
   process.exit(ecarts.length>1?1:0);
+}
+
+/* --- la polyvalence : combien de journées COMPLÈTES à chaque poste -------
+   node tools/verifier-calendrier.js --polyvalence [--tout]
+
+   Le client, le 22/09/2026 : « pour les opérateurs, cela peut être bien
+   aussi d'indiquer combien de jours (complet 8h) ils ont fait sur chaque
+   poste de production ; les autres ont un quota de polyvalence de 10 jours
+   par poste, les adjoints 5 jours par poste ».
+
+   Ne recompte RIEN à côté : rejoue equipeDuJour() et postesDePause(), les
+   deux fonctions que l'onglet Équipe emploie pour dire qui tient quoi. Un
+   décompte qui compterait autrement que la vue du jour ne vaudrait rien.
+
+   Trois choix, qui se discutent et sont donc écrits ici plutôt que cachés :
+     — seules les pauses AM, PM et N comptent. Le « Jour » ne tient pas un
+       poste de production : postesDePause() n'y attend d'ailleurs personne.
+     — une journée ne compte que si elle vaut HUIT heures pleines. Une
+       demi-journée n'apprend pas un poste à moitié.
+     — « Contremaître » et « Adjoint » ne sont pas des postes de production
+       et sortent du décompte.                                              */
+if(process.argv.indexOf("--polyvalence")>=0){
+  const i0=process.argv.indexOf("--polyvalence");
+  /* Par défaut on s'arrête AUJOURD'HUI. Le classeur court jusqu'au 31/12 :
+     compter l'année entière, c'est créditer des journées qui n'ont pas
+     encore eu lieu. « --polyvalence 1231 » les rend si on les veut. */
+  const auj=new Date();
+  const finDef=(auj.getFullYear()===ANNEE)
+    ? pad2(auj.getMonth()+1)+pad2(auj.getDate()) : "1231";
+  const fin=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:finDef;
+  const jours={}, vus={};
+  for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
+    const mmdd=pad2(m)+pad2(d); if(mmdd>fin) continue;
+    const par=equipeDuJour(db,ANNEE,m,d);
+    EQ_GROUPES.forEach(g=>{
+      if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N") return;
+      const l=par[g.k]; if(!l||!l.length) return;
+      postesDePause(db,l,g.k,mmdd).postes.forEach(o=>{
+        if(o.P.cm||o.P.k==="adj") return;
+        o.gens.forEach(y=>{
+          const r=y.r; if(!r||!r.s) return;
+          const h=(r.h===undefined||r.h===null||r.h==="")?H_JOUR:Number(r.h);
+          vus[y.p.id]=(vus[y.p.id]||0)+1;
+          if(Math.abs(h-H_JOUR)>0.01) return;
+          (jours[y.p.id]=jours[y.p.id]||{})[o.P.t]=((jours[y.p.id]||{})[o.P.t]||0)+1;
+        });
+      });
+    });
+  }
+  const QUOTA={adjoint:5, operateur:10};
+  const gens=db.people.filter(p=>!estContremaitre(p));
+  const tout=process.argv.indexOf("--tout")>=0;
+  console.log("\nPolyvalence — journées COMPLÈTES (8 h) tenues à chaque poste"
+    +"\ndu 01/01 au "+fin.slice(2)+"/"+fin.slice(0,2)+"/"+ANNEE+"\n");
+  let atteints=0, total=0;
+  gens.forEach(p=>{
+    const q=estCadre(p)?QUOTA.adjoint:QUOTA.operateur;
+    const par=jours[p.id]||{};
+    const cles=Object.keys(par).sort((a,b)=>par[b]-par[a]);
+    if(!cles.length && !tout) return;
+    const bouts=cles.map(k=>{
+      total++; const ok=par[k]>=q; if(ok) atteints++;
+      return k+" "+par[k]+"/"+q+(ok?" \u2713":"");
+    });
+    console.log("  "+p.id+"  "+(estCadre(p)?"adjoint   ":"opérateur ")
+      +(bouts.join("  ")||"aucun poste de production"));
+  });
+  console.log("\n  "+atteints+" couple(s) personne-poste au quota sur "+total
+    +" où au moins une journée complète a été tenue");
+  process.exit(0);
 }
 
 /* --- interroger la lecture sur une journée précise -----------------------
