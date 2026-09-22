@@ -1593,6 +1593,41 @@ cellule dit ce qui a été presté, et elle prime*. Une fonction — cadre,
 adjoint, opérateur — ne dit que l'habitude. Toute lecture qui teste la
 personne avant de lire sa cellule refera cette faute.
 
+### Les couleurs disent la ZONE, et non le poste
+
+Corrigé par le client le 22/09/2026 : « les contremaîtres et adjoints peuvent
+être avec couleur grise, terrain arrière et distillation doivent avoir la même
+couleur que fermentation, formation pour avoir la couleur blanche. »
+
+Les trois verts de la veille tombent donc : **fermentation, terrain arrière et
+distillation sont l'éthanol, et n'en font qu'un.** La couleur vit maintenant
+sur le POSTE lui-même, champ `z` de `POSTES_TRAVAIL`, et non plus dans une
+règle CSS par clé de poste — c'est ce qui les faisait diverger entre le
+tableau et les pastilles du module des manques.
+
+| Zone | Postes | Jeton |
+|---|---|---|
+| gris | contremaître, adjoint | `--at-gris` |
+| jaune | meunerie, gluten | `--at-jaune` |
+| vert | fermentation, terrain arrière, distillation | `--at-vert` |
+| rouge | chaudières | `--at-rouge` |
+| bleu | STEP | `--at-bleu` |
+| blanc | formation, à déterminer | `--at-blanc` |
+
+Une **barre verticale** sépare les zones dans le tableau : on y lit l'usine
+par blocs, comme on la parcourt.
+
+### L'adjoint qui ne remplace pas va chez le contremaître
+
+Le client, le 22/09/2026 : « si l'adjoint ne remplace pas on peut le mettre
+dans la même colonne que le contremaître. » Une colonne de moins, et elle
+était presque toujours vide.
+
+**L'effectif ne bouge pas** : il reste celui du contremaître. Un adjoint
+présent n'est pas un contremaître de plus — c'est déjà ce que dit
+`postesDePause()`, et l'adjoint qui remplace vraiment est rangé en `cm` par
+`remplacementCM()` bien avant d'arriver ici.
+
 ### Les couleurs disent l'atelier, le texte dit la pause
 
 Le client, le 21/09/2026 : « Gluten meunerie en jaune, fermentation /
