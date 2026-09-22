@@ -63,9 +63,38 @@ Deux remèdes, et un seul est complet :
 
 Tant que l'un des deux n'est pas fait, **la purge n'est qu'à moitié faite**.
 
+## Une seconde fuite, le 22/09/2026 : des noms, cette fois
+
+Découverte en allant lire le classeur brut pour vérifier une journée — pas
+par un contrôle, ce qui est le vrai enseignement.
+
+| Fichier | Ce qu'il portait |
+|---|---|
+| `data/classeur-2026.xlsx` | **20 912 occurrences**, neuf personnes — les auteurs des commentaires Excel |
+| `data/horaire-2026.json` | **36 occurrences** dans 22 champs — signatures non coupées, et quatre prénoms écrits au milieu d'une phrase |
+
+Les deux fichiers avaient des restes **différents** : le JSON est converti
+depuis le classeur source, pas depuis la copie anonymisée. Chacun a donc été
+nettoyé chez lui.
+
+Nettoyés dans l'arbre courant par le commit `265d521`. Les deux outils ont
+été corrigés ensuite — l'anonymiseur lit maintenant la structure des
+commentaires, et le contrôle indépendant sait enfin voir une signature.
+
+**Le même reste demeure, et il est maintenant double** : GitHub sert encore
+les anciens commits par leur empreinte, et ces empreintes-là portent des
+noms de personnes en plus des montants. Les deux remèdes ci-dessous valent
+pour les deux fuites, et le second est toujours le seul complet.
+
 ## La leçon, qui vaut plus que la purge
 
-Rien de tout cela n'aurait eu lieu si la règle avait été écrite avant.
+Rien de tout cela n'aurait eu lieu si la règle avait été écrite avant — et
+pour les noms, la règle ÉTAIT écrite depuis le début. Elle ne suffisait pas :
+il y avait un outil pour l'appliquer et un second pour la vérifier, et les
+deux ont répondu « c'est propre » sur un fichier qui portait neuf noms.
+**Un contrôle qu'on n'a jamais mis à l'épreuve sur un cas connu n'est pas un
+contrôle.** Les deux le sont désormais, dans les deux sens : sur le fichier
+qui fuyait, et sur le fichier nettoyé.
 Elle l'est maintenant, dans `CLAUDE.md` sous « Conventions » : aucun nom
 complet, **et aucun montant de salaire**. Le dépôt est public — `docs/` se
 lit sans authentification, par le site comme par `raw.githubusercontent.com`.
