@@ -3663,9 +3663,35 @@ function remplacementCM(e,poste,hJour){
    pré-remplissage : la cellule ne dit pas toujours si la demande venait bien
    de la ligne hiérarchique. */
 var RX_RAPPEL=/rappel\s*(?:le)?\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
-function momentRappel(annee,mmdd,txt){
+/* « presé le 13.03 », « 29.04 : presté 18h-22h00' » : le travail a eu lieu un
+   AUTRE jour que la ligne qui porte le compteur. Le client, le 22/09/2026 :
+   « oui c'est bien ça le jour presté ».
+
+   La date du rappel se compare donc à CE jour-là, et non à la ligne. Sept
+   journées de l'année le disent ; six changeaient de coefficient, et quatre
+   n'en avaient aucun — une demande postérieure à la ligne est refusée, et
+   elle l'était à tort. Mesurées depuis le jour presté, les sept tombent
+   dans le barème ; depuis la ligne, six en sortaient.
+
+   RX_PRIS_AILLEURS dit presque la même chose et reste séparée à dessein :
+   « pris le » désigne des heures CONSOMMÉES ailleurs, dont l'annotation est
+   écartée pour ne pas les compter deux fois ; « presté le » désigne des
+   heures GAGNÉES ailleurs, que le compteur de la ligne enregistre bel et
+   bien. Les confondre déplacerait 52 journées de flex time. */
+var RX_PRESTE_AILLEURS=/\bprest[\u00e9e]\w*\s+(?:les?\s+)?(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
+/* Le classeur écrit aussi la date en tête du commentaire, suivie de deux
+   points — PLZ le 28/04. Motif délibérément étroit : ancré au début et
+   exigeant le « : », sans quoi n'importe quelle date y passerait. */
+var RX_JOUR_EN_TETE=/^\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})\s*:/;
+function jourPreste(annee,mmdd,comm){
+  var m=(comm||"").match(RX_PRESTE_AILLEURS)||(comm||"").match(RX_JOUR_EN_TETE);
+  if(!m) return null;
+  return Date.UTC(annee,Number(m[2])-1,Number(m[1]));
+}
+function momentRappel(annee,mmdd,txt,comm){
   var m=txt.match(RX_RAPPEL); if(!m) return null;
-  var jour=Date.UTC(annee,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
+  var jour=jourPreste(annee,mmdd,comm);
+  if(jour===null) jour=Date.UTC(annee,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
   var dem=Date.UTC(annee,Number(m[2])-1,Number(m[1]));
   var ec=Math.round((jour-dem)/86400000);
   if(ec<-300) ec=Math.round((jour-Date.UTC(annee-1,Number(m[2])-1,Number(m[1])))/86400000);
@@ -3714,7 +3740,7 @@ function debordePoste(plage,poste){
 function rappelDuJour(e,postePrevu,annee,mmdd){
   var txt=(e[0]||"")+" "+(e[1]||"")+" "+(e[2]||"");
   if(!/rappel/i.test(txt)) return null;
-  var mom=momentRappel(annee,mmdd,txt); if(!mom) return null;
+  var mom=momentRappel(annee,mmdd,txt,e[2]||""); if(!mom) return null;
   if(!postePrevu||postePrevu==="-"||(e[0]||"").trim()==="-") return mom;
   if(/\brepos\b|cong[ée]|avait pos[ée]/i.test(e[2]||"")) return mom;
   if(gainFT((e[0]||"")+" "+(e[1]||""))!==null) return mom;
