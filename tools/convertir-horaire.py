@@ -322,6 +322,31 @@ class Classeur:
                 # « /rt01386: », « : » en tête — est balayé par AUTEUR et par
                 # le strip qui suit.
                 if auteurs:
+                    # UNE TÊTE QUI NOMME UN AUTEUR CONNU EST UNE SIGNATURE,
+                    # ET ELLE PART EN ENTIER.
+                    #
+                    # Retirer les MOTS déclarés ne suffit pas : le 23/09/2026,
+                    # un auteur avait signé son propre nom avec une faute de
+                    # frappe — un « e » final manquant au prénom. Le nom de
+                    # famille, lui, correspondait. Le motif a donc emporté la
+                    # moitié qu'il reconnaissait et laissé l'autre, et une
+                    # MOITIÉ DE NOM NOMME ENCORE LA PERSONNE. Le prénom
+                    # tronqué est arrivé jusqu'au JSON d'un dépôt PUBLIC ;
+                    # c'est tools/verifier-depot.py qui l'a arrêté, pas ce
+                    # fichier.
+                    #
+                    # On ne peut pas deviner les fautes de frappe. On peut
+                    # lire la STRUCTURE : ce qui précède le premier
+                    # deux-points, quand c'est court ET que cela nomme un
+                    # auteur déclaré, est une signature quoi qu'il y soit
+                    # écrit. Le reste du commentaire n'est pas touché.
+                    #
+                    # La borne de longueur n'est pas décorative : sans elle,
+                    # un commentaire citant un auteur au fil du texte verrait
+                    # tout son début avalé jusqu'au premier deux-points.
+                    tete = re.match(r"^([^:]{0,48}):", txt)
+                    if tete and auteurs.search(tete.group(1)):
+                        txt = txt[tete.end():]
                     txt = auteurs.sub(" ", txt)
                     # Le nom parti, son ornement reste : « (external): ».
                     # Il ne nomme personne, mais il ouvre le commentaire par
@@ -336,6 +361,40 @@ class Classeur:
                 lettres = re.match(r'([A-Z]+)', ref).group(1)
                 out[(int(re.search(r'(\d+)', ref).group(1)), _colnum(lettres))] = txt
         return out
+
+
+def _les_deux(cellule, annotation):
+    """Les DEUX commentaires d'une journée, et non l'un OU l'autre.
+
+    Chaque personne occupe deux colonnes — la cellule et son annotation — et
+    CHACUNE peut porter son propre commentaire Excel. Le convertisseur
+    écrivait `cm.get(cellule) or cm.get(annotation)` : dès que la première
+    en avait un, la seconde était jetée sans un mot.
+
+    Mesuré sur le classeur du 23/09/2026 : **684 journées portent deux
+    commentaires différents**, et 496 d'entre elles n'en gardaient qu'un.
+    Ce qui se perdait n'était pas du décor — « remplace GPS de 14h à 16h »,
+    « départ à 19h00' », « conserver prime de nuit », et les « rappel le
+    22.04 » d'AFA que le client a dû signaler lui-même parce que rien ne
+    les montrait.
+
+    On les joint par un saut de ligne, comme Excel joint déjà les lignes
+    d'un même commentaire. Quand l'un contient déjà l'autre — le classeur
+    recopie souvent la cellule sur l'annotation — on ne garde que le plus
+    complet : répéter une phrase la ferait lire deux fois par les motifs de
+    remplacement.
+    """
+    a = (cellule or "").strip()
+    b = (annotation or "").strip()
+    if not a:
+        return b
+    if not b:
+        return a
+    if a in b:
+        return b
+    if b in a:
+        return a
+    return a + "\n" + b
 
 
 def blocs_de_mois(grille):
@@ -629,7 +688,8 @@ def _colonnes(cl):
                         continue
                     cell = g.get(r, {}).get(colonne, "")
                     annot = g.get(r, {}).get(colonne + 1, "")
-                    com = cm.get((r, colonne), "") or cm.get((r, colonne + 1), "")
+                    com = _les_deux(cm.get((r, colonne), ""),
+                                    cm.get((r, colonne + 1), ""))
                     if not (cell or annot or com):
                         continue
                     e = [cell, annot, com]
