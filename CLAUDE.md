@@ -412,6 +412,61 @@ avec `auto`, elle réclamait ses 190 px avant d'accepter de rétrécir.
 
 Vérifié hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
+## Le thème entier est de la famille de la marque
+
+Le client, le 23/09/2026 : « modifie tout le thème du site pour qu'il soit en
+accord avec les deux nouvelles barres de navigation ; je veux des couleurs
+qui fassent professionnel et que ce soit un résultat incroyable ».
+
+**Le défaut tenait en un chiffre.** Les gris de l'application étaient un
+gris-pétrole — teinte 238 à 244 en OKLCH — alors que la tuile du logo est un
+bleu-nuit à **262**. Les barres flottaient donc sur une page d'une autre
+famille, et c'est cela qu'on voyait.
+
+Toute la rampe neutre est **rebâtie à la teinte de la marque**, chroma
+décroissant à mesure que la clarté monte : une page claire franchement
+teintée de violet se remarquerait. Les pas sont **calculés en OKLCH**, pas
+choisis à l'œil — `scratchpad/oklch.js` et `rampe.js` font la conversion
+sRGB ↔ OKLab dans les deux sens.
+
+**L'ordre des plans ne change pas** : la page reste le plus sombre, la carte
+vient au-dessus, et la barre du haut se place juste au-dessus d'elle. Seule
+la FAMILLE change.
+
+**L'accent est le cyan du logo**, pris plus profond pour tenir sur du blanc :
+même teinte (222), pas la même clarté. Il ne vient plus d'ailleurs.
+
+**Les teintes de l'usine ne bougent pas** — elles disent les pauses et les
+ateliers, pas la marque — mais tous leurs pas sont recalculés sur une même
+clarté et un même chroma. Le contraste de chacun sur son fond doux tient
+entre 4,6 et 5,6:1, là où l'ancienne série allait de 3,9 à 7,2.
+
+### Zéro texte sous le seuil, et il y en avait 456
+
+Un audit qui parcourt les six onglets, calcule le fond RÉEL de chaque texte
+(en remontant les parents jusqu'à une couleur opaque) et le compare au seuil
+WCAG de sa taille : **456 textes en dessous en thème sombre, 460 en clair**,
+avant. Personne ne l'avait mesuré.
+
+La cause était une seule : `--faint` portait des centaines de libellés —
+unités, sous-titres, mentions — à **3,0:1**. Elle passe à 5,5:1 sur la carte
+et 4,7 sur la page ; `--muted` descend d'autant pour que la hiérarchie reste
+lisible. Le dernier récalcitrant, « virement de fin de mois » sur le fond
+d'accent, a été réglé en assombrissant `--in-soft`.
+
+**Résultat : 0 sur 0**, dans les deux thèmes, à 390 et 1280 px, sur les six
+onglets.
+
+**`--sur-in` est né de cet audit** : l'encre qui se pose SUR l'accent ne peut
+pas être « blanc » dans les deux thèmes, puisqu'en sombre l'accent est le
+cyan clair du logo — du blanc dessus se lit à 1,9:1. Le bouton principal
+l'écrivait en dur.
+
+**Les deux palettes du calendrier sont inchangées et revalidées** contre les
+nouvelles surfaces par `scripts/validate_palette.js` du savoir-faire
+« dataviz », en mode « toutes paires » : tout passe, pire paire 23,2 en
+vision normale en clair, 16,6 en sombre.
+
 ## Les deux barres portent la couleur du logo
 
 Le client, le 22/09/2026 : « barre de navigation de la même couleur que le
