@@ -299,9 +299,6 @@ button{cursor:pointer}
 .mnav button{width:32px; height:32px; display:grid; place-items:center; background:none; border:1px solid transparent; border-radius:8px; color:var(--muted); font-size:17px; line-height:1}
 .mnav button:hover{background:var(--surface2); color:var(--ink); border-color:var(--line)}
 .mnav .mlabel{min-width:150px; text-align:center; font-weight:600; font-size:14.5px}
-.netchip{display:flex; align-items:baseline; gap:9px; padding:5px 13px; border-radius:9px; background:var(--in-soft); color:var(--in)}
-.netchip .k{font-size:11px; font-weight:600}
-.netchip .v{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums}
 
 /* ---------- onglets ---------- */
 .tabs{max-width:1180px; margin:0 auto; padding:0 16px; display:flex; gap:2px}
@@ -317,6 +314,13 @@ button{cursor:pointer}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
+/* Le bandeau des heures perdues : il n'apparaît que si l'horaire d'équipe
+   n'a pas pu être lu, et alors il RESTE. Même jaune que l'atelier, celui
+   qu'on lit déjà comme « attention, ce n'est pas tout à fait normal ». */
+.horaireko{margin:0 0 14px; padding:11px 14px; border-radius:11px;
+  border:1px solid var(--at-jaune); background:var(--at-jaune-soft);
+  color:var(--at-jaune); font-size:12.5px; line-height:1.45; max-width:70ch}
+.horaireko b{font-weight:700}
 .panel[hidden]{display:none!important}
 .stack{display:flex; flex-direction:column; gap:16px}
 .two{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start}
@@ -453,18 +457,21 @@ button{cursor:pointer}
 .cpt-tuiles span{font-size:10.5px; color:var(--muted)}
 
 /* ---------- en-tête contextuel ---------- */
-/* Chaque onglet répond à une question, et l'en-tête doit répondre à la même.
-   Le net à recevoir n'a rien à faire au-dessus d'un calendrier ou d'un état
-   de compteurs, et le sélecteur de mois rien à faire au-dessus des réglages
-   ni d'une vue annuelle. On masque sans retirer, pour que l'en-tête ne
-   sursaute pas d'un onglet à l'autre. */
-body[data-view="horaire"] .netchip,
-body[data-view="compteurs"] .netchip,
-body[data-view="equipe"] .netchip,
-body[data-view="polyvalence"] .netchip,
-body[data-view="reglages"] .netchip{display:none}
-/* la personne regardée ne concerne que l'horaire et ses compteurs ; ailleurs
-   elle n'aurait rien à dire */
+/* LE NET À RECEVOIR A QUITTÉ LA BARRE DU HAUT. Le client, le 23/09/2026 :
+   « le cadre avec le net à recevoir apparaît encore dans la barre de
+   navigation du haut, cela ne doit pas arriver. »
+
+   La barre du haut est une barre d'IDENTITÉ — à qui appartient cet écran,
+   qui le regarde, ce qu'il fait aujourd'hui. Un montant n'y a pas sa place,
+   et surtout pas celui-là : c'est le chiffre le plus personnel de
+   l'application, affiché en permanence, par-dessus l'épaule de n'importe
+   qui. Il se lit dans « Mon salaire », qui est fait pour lui — deux fois
+   même, en tête du panneau et au pied de la fiche.
+
+   Sont partis avec lui : ses trois règles de mise en forme, les cinq qui le
+   masquaient onglet par onglet, celle qui le repliait sous 760 px, celle qui
+   l'habillait de blanc sur le bleu, et l'écriture de #netTop dans
+   renderSlip(). Un style qui ne sert plus égare celui qui le relit. */
 /* Les quatre règles qui masquaient le sélecteur onglet par onglet ont
    disparu avec lui : il n'est plus présent que là où un hôte l'accueille.
    Restent les deux vues de l'horaire qui n'ont pas de mois à choisir. */
@@ -1525,8 +1532,6 @@ body.sheet-on{overflow:hidden}
   .wrap{padding-bottom:96px}
   .toast{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
   .top-in{padding:8px 16px; gap:10px}
-  .netchip{order:4; width:100%; justify-content:space-between}
-  body[data-view="resume"] .netchip{display:none}
   .mnav .mlabel{min-width:0; flex:1; white-space:nowrap}
   .mnav{flex:0 1 auto}
   /* base ZÉRO, et non « auto ». Un élément flexible se replie selon sa
@@ -1585,7 +1590,6 @@ body.sheet-on{overflow:hidden}
 .top .ident{color:rgba(255,255,255,.55)}
 .top .ident .idate{color:#fff}
 .top .ident em{color:rgba(255,255,255,.74)}
-.top .netchip{background:rgba(255,255,255,.10); color:#fff}
 /* Au-delà de 760 px la barre d'onglets remonte DANS cet en-tête : elle y
    prend les mêmes encres que dans son cadre du bas, sans quoi elle
    disparaîtrait sur le bleu. Sous 760 px elle n'est pas ici, et ces règles
@@ -1621,10 +1625,6 @@ body[data-horaire="annee"] #rotasub{display:none}
       <span class="bmark"><h1>BIOWANZE</h1><b class="btri" id="brandtri"></b></span>
       <span class="ident" id="brandsub"></span>
     </button>
-    <div class="netchip">
-      <span class="k">Net à recevoir</span>
-      <span class="v" id="netTop">—</span>
-    </div>
   </div>
   <!-- Le sélecteur de mois vit ICI, hors de tout onglet, et va se ranger
        dans celui qui l'emploie — comme la barre d'onglets va se ranger dans
@@ -1659,6 +1659,14 @@ body[data-horaire="annee"] #rotasub{display:none}
 <div class="navwrap" id="navwrap" hidden></div>
 
 <main class="wrap">
+<!-- SANS HORAIRE, DES ZÉROS PARFAITEMENT CRÉDIBLES : heures, primes,
+     chèques-repas, composition d'équipe. Le dire en haut de la page, et
+     l'y laisser, vaut mieux qu'une bulle de deux secondes. -->
+<div class="horaireko" id="horaireKo" role="alert" hidden>
+  <b>Horaire d'équipe indisponible.</b> Les heures, les primes et la
+  composition des équipes restent vides tant qu'il n'est pas lu. Vérifiez la
+  connexion, puis rechargez la page.
+</div>
 
   <!-- ============ RÉSUMÉ ============ -->
   <section class="panel stack" id="v-resume" role="tabpanel">
@@ -2946,7 +2954,6 @@ function renderSlip(C){
 
   document.getElementById("slip").innerHTML=h;
   document.getElementById("netBig").textContent=eur(C.net);
-  document.getElementById("netTop").textContent=eur(C.net);
   document.getElementById("slipsub").textContent=MOIS[st.m]+" "+st.y;
 }
 
@@ -3843,13 +3850,64 @@ function viderMois(){
 
 /* ===================== horaire d'équipe (pré-remplissage) ===================== */
 var HORAIRE_DB=null, horaireFetching=null;
+var HORAIRE_URL="./data/horaire-2026.json";
+/* L'HORAIRE NE SE LIT PAS : ON PURGE ET ON RECOMMENCE, UNE FOIS.
+
+   Le 23/09/2026, « Mon salaire » s'est vidé chez le client — 0 journée sur
+   30, zéro heure, zéro prime, un net réduit à la rémunération fixe. Le
+   calcul n'avait rien : c'est ce fichier que l'appareil n'arrivait plus à
+   lire, et TOUT en dépend — le sélecteur de personne reste vide, donc le
+   pré-remplissage ne part jamais, donc le mois reste blanc. Le service
+   worker avait mis en cache une réponse d'erreur À LA PLACE de l'horaire et
+   la resservait ensuite à chaque ouverture : le défaut ne se réparait ni au
+   retour du réseau ni au rechargement.
+
+   La garde est posée dans sw.js — une réponse qui se lit et qui n'est pas
+   bonne ne remplace plus rien. Mais un appareil déjà empoisonné ne guérit
+   pas d'une garde écrite après coup : il faut qu'il se soigne LUI-MÊME. Un
+   horaire illisible fait donc vider l'entrée du cache et refaire le trajet
+   par le réseau, une seule fois, avec un paramètre qui interdit de
+   ressortir la même réponse.
+
+   Et si les deux échouent, cela se DIT — un bandeau qui reste, pas un
+   message fugace : sans horaire, la moitié de l'application affiche des
+   zéros parfaitement crédibles. */
+function lireHoraire(url,frais){
+  /* Le premier essai se sert normalement — le cache d'abord, c'est tout
+     l'intérêt de ne pas attendre 690 Ko. Seule la REPRISE exige du frais. */
+  return fetch(url,frais?{cache:"no-store"}:undefined).then(function(r){
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return r.json();
+  });
+}
+function purgerHoraire(){
+  if(!window.caches || !caches.keys) return Promise.resolve();
+  return caches.keys().then(function(ks){
+    return Promise.all(ks.map(function(k){
+      return caches.open(k).then(function(c){ return c.delete(HORAIRE_URL); });
+    }));
+  }).catch(function(){});
+}
 function fetchHoraireDB(){
   if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
   if(horaireFetching) return horaireFetching;
-  horaireFetching=fetch("./data/horaire-2026.json").then(function(r){return r.json();})
-    .then(function(db){ HORAIRE_DB=db; return db; })
-    .catch(function(){ flash("Horaire d'équipe indisponible (hors ligne ?)"); return null; });
+  horaireFetching=lireHoraire(HORAIRE_URL).catch(function(){
+    return purgerHoraire().then(function(){
+      return lireHoraire(HORAIRE_URL+"?reprise="+Date.now(),true);
+    });
+  }).then(function(db){
+    if(!db || !db.people || !db.people.length) throw new Error("horaire vide");
+    HORAIRE_DB=db; alerteHoraire(false); return db;
+  }).catch(function(){ alerteHoraire(true); return null; });
   return horaireFetching;
+}
+/* Sans horaire, les compteurs affichent des zéros qui ont l'air justes. Le
+   dire une bonne fois, et en haut de la page, vaut mieux qu'une bulle de
+   deux secondes que personne n'a vue passer. */
+function alerteHoraire(perdu){
+  var el=document.getElementById("horaireKo");
+  if(!el) return;
+  el.hidden=!perdu;
 }
 function renderPrefillSelects(db){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
