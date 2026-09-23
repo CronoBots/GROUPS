@@ -179,8 +179,8 @@ _corrections_polyvalence = set()
 def _cle_nom(t):
     """Pour reconnaître un même nom d'un onglet à l'autre.
 
-    L'horaire écrit « Nom G », l'onglet Polyvalence reconstruit
-    « Nom G. » depuis ses colonnes nom et prénom : un point d'écart, et
+    L'horaire écrit « Nom P », l'onglet Polyvalence reconstruit
+    « Nom P. » depuis ses colonnes nom et prénom : un point d'écart, et
     les deux personnes qui partagent le trigramme GBT ne se départageaient
     plus. On compare donc les lettres, et rien d'autre.
 
@@ -364,8 +364,8 @@ def _sans_accent(t):
 def _initiales(nom):
     """Identifiant anonyme d'après le nom, selon la convention maison :
     première lettre du prénom, puis première et dernière lettre du nom de
-    famille. « Renard V » donne VBN, « Gilbert V. » donne VGG, « Renard JJ »
-    donne JBI. Le prénom est la partie d'une ou deux lettres."""
+    famille. « Renard P » donne PRD, « Gilbert P. » donne PGT, « Renard PJ »
+    donne PRD. Le prénom est la partie d'une ou deux lettres."""
     n = _sans_accent(str(nom)).replace(".", " ")
     n = re.sub(r"\([^)]*\)", " ", n)
     parts = [p for p in re.split(r"[\s,]+", n) if p]

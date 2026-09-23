@@ -66,7 +66,7 @@ COMMENTAIRES = re.compile(r"comments\d*\.xml$", re.I)
 # Neuf noms sont passés par là. AUTEUR, qui travaille sur les octets du XML,
 # exige une virgule et ne voit donc ni « Nom Prénom : » ni
 # « Prénom: » ; et il ne voit RIEN du tout quand Excel coupe le nom en deux
-# runs — « I » puis « stasse, Prénom ». Un motif appliqué balise par
+# runs — « I » puis « om, Prénom ». Un motif appliqué balise par
 # balise ne peut pas recoller ce que la structure a séparé.
 #
 # D'où cette passe-ci, qui lit la STRUCTURE : elle recolle le texte de chaque
@@ -145,7 +145,7 @@ def _formes(nom):
 def _borner(motif, texte):
     """Encadrer d'une frontière de mot — mais seulement là où elle a un sens.
 
-    « \b » exige un caractère de mot d'un côté. « Nom A. » finit par un
+    « \b » exige un caractère de mot d'un côté. « Nom P. » finit par un
     point : y coller « \b » rend le motif impossible à satisfaire, et le nom
     n'était remplacé qu'à moitié — « ATR A. ».
     """
@@ -213,7 +213,7 @@ def _remplacer(donnee, regles, sondes):
     """Applique les règles sur le texte d'une partie XML.
 
     La comparaison se fait sur une copie SANS ACCENTS, et le remplacement sur
-    l'original aux mêmes positions : « Prénom » et « Prénom » se valent sans
+    l'original aux mêmes positions : « Prénom » et « Prenom » se valent sans
     qu'on ait à écrire les deux.
 
     Chaque règle porte une sonde — le premier mot du nom qu'elle cherche. On
@@ -294,7 +294,7 @@ def anonymiser(src, dst, tolere=()):
     def _ini_connues(t):
         """Le trigramme que ce texte donne, s'il en donne un de connu.
 
-        L'ordre inversé — « Nom, Prénom » pour GBT — n'est essayé que
+        L'ordre inversé — « Renard, Paul » pour PRD — n'est essayé que
         si le texte porte une VIRGULE. Sans cette condition, trois lettres se
         rencontrent trop facilement : « terr arr » lu à l'envers donne ATR,
         « pm ds-ce » donne PDE, et des noms d'ateliers devenaient des gens.
@@ -380,15 +380,15 @@ def anonymiser(src, dst, tolere=()):
                     _apprendre(_sans_accent(m[i]).lower(), ini)
                     _apprendre(_sans_accent(m[j]).lower(), ini)
 
-    # Les variantes : « Nom A. », « P-Y. Nom », « Nom
-    # F.(ass.Us.) ». On ne les croit que si _initiales() y retrouve un
+    # Les variantes : « Nom P. », « J-M. Nom », « Nom
+    # P.(ass.Us.) ». On ne les croit que si _initiales() y retrouve un
     # trigramme connu ET si elles partagent un mot avec une façon déjà connue
     # d'écrire cette personne-là. Trois lettres se rencontrent par hasard ; un
     # nom de famille en commun, non.
     for feuille, mots in recolte.items():
         for m in mots.values():
             for t in m.values():
-                # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour
+                # « Nom P.(ass.Us.) » : on n'enregistre que le nom, pour
                 # que la parenthèse — qui dit le rôle, pas la personne —
                 # reste dans le classeur.
                 t = " ".join(re.sub(r"\([^)]*\)", " ", t).split()) or t
@@ -506,8 +506,8 @@ def anonymiser(src, dst, tolere=()):
             if len(bout) >= 3:
                 surveille.append((bout, ini))
     surveille.extend(orphelins)
-    # Les règles qui attrapent le plus long d'abord : « Nom A. » avant
-    # « Nom », sans quoi il resterait « ATR A. ». On pèse ce que la règle
+    # Les règles qui attrapent le plus long d'abord : « Renard P. » avant
+    # « Renard », sans quoi il resterait « PRD P. ». On pèse ce que la règle
     # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long
     # motif pour un petit mot, et il passerait devant.
     pesees.sort(key=lambda r: -r[0])
@@ -532,7 +532,7 @@ def anonymiser(src, dst, tolere=()):
                 # inverse a vécu une demi-heure le 22/09/2026 : depuis que
                 # les auteurs sont APPRIS, leur nom est remplacé par son
                 # trigramme, et « Nom, Prénom (external): » devenait
-                # « ICE (external): » — que « _est_nom » ne reconnaît plus.
+                # « PNO (external): » — que « _est_nom » ne reconnaît plus.
                 # 2311 têtes de commentaire restaient en place.
                 #
                 # Y ajouter un motif « trigramme seul » aurait été pire : il

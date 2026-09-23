@@ -45,8 +45,8 @@ commentaires, les macros (`vbaProject.bin` — d'où un `.xlsx`, pas un
 `.xlsm`) et les propriétés du document.
 
 **Il ne se contente pas de la feuille « Personnel ».** Elle est incomplète,
-et le classeur écrit les gens de bien d'autres façons : `Nom A.`,
-`P-Y. Nom`, `Nom F.(ass.Us.)`, ou le nom et le prénom dans deux
+et le classeur écrit les gens de bien d'autres façons : `Nom P.`,
+`J-M. Nom`, `Nom P.(ass.Us.)`, ou le nom et le prénom dans deux
 cellules voisines. L'outil récolte donc tous les textes du classeur — mais
 n'en retient un que si `_initiales()` y retrouve un **trigramme connu**. Un
 alias qui ne se recoupe pas n'est pas un nom : c'est ainsi que « Step »,
@@ -89,7 +89,7 @@ vaut un outil qui s'arrête qu'un outil qui laisse passer.
 **LA SIGNATURE SE RETIRE AVANT LE REMPLACEMENT**, et l'ordre inverse a vécu
 une demi-heure. Les auteurs étant désormais appris, leur nom est remplacé
 par son trigramme et « Nom, Prénom (external): » devenait
-« ICE (external): », que `_est_nom()` ne reconnaît plus : **2311 têtes de
+« PNO (external): », que `_est_nom()` ne reconnaît plus : **2311 têtes de
 commentaire restaient en place**. Y ajouter un motif « trigramme seul »
 aurait été pire — il aurait avalé le corps des commentaires qui COMMENCENT
 par un code, « MPE : Maintien prime PM » en tête. Les motifs de signature
@@ -106,7 +106,7 @@ Trois trous, tous dans les formes : `Nom, Prénom:` — le deux-points faisait
 échouer l'ancrage `$` ; `NOM, PRÉNOM` — aucune forme ne couvrait deux
 majuscules à virgule ; `Nom, APN` — une seule moitié remplacée nomme
 encore la personne. Et surtout, **Excel coupe volontiers un nom en deux runs
-XML** (`I` puis `stasse, Prénom`) : un motif appliqué balise par balise ne
+XML** (`I` puis `om, Prénom`) : un motif appliqué balise par balise ne
 peut pas recoller ce que la structure a séparé.
 
 Les deux outils lisent donc maintenant la **structure** des commentaires, sur
@@ -806,7 +806,22 @@ est marqué `personal:true`, et les montants du mois.
 - Aucun barème n'est figé : tout est modifiable dans l'onglet « Barèmes ».
 - Les données de l'utilisateur ne quittent jamais l'appareil.
 - **Aucun nom complet** dans le dépôt : l'horaire n'identifie les gens que par
-  initiales ou matricule.
+  initiales ou matricule. **Y compris dans un commentaire, y compris comme
+  EXEMPLE.** Neuf noms réels ont vécu des jours dans ce dépôt public, cités
+  pour illustrer les motifs de l'anonymiseur — dans `CLAUDE.md` et dans
+  quatre outils — pendant que ces mêmes outils étaient écrits pour les
+  retirer du classeur. Rien n'était fonctionnel, aucune liste codée : que
+  des commentaires, et c'était tout aussi public. Les exemples s'écrivent
+  désormais avec des marqueurs — « Nom, Prénom », « NOM, PRÉNOM »,
+  « Renard P » donne PRD — qui illustrent la FORME sans nommer personne.
+  Le contrôle tient en une commande, et elle vaut avant chaque poussée :
+
+  ```bash
+  grep -rniE "nom1|nom2|…" --exclude-dir=.git --exclude-dir=data .
+  ```
+
+  Le classeur et le JSON passent par l'anonymiseur et son second contrôle ;
+  **le reste du dépôt n'avait, lui, aucun garde-fou**.
 - **Aucun montant de salaire non plus.** Le dépôt est PUBLIC : `docs/` se lit
   sans authentification, par le site comme par `raw.githubusercontent.com`.
   La rémunération fixe, le pécule, le treizième mois, l'avance, une prime

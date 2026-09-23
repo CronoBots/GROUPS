@@ -747,8 +747,8 @@ Le convertisseur rattache désormais par le trigramme réel, garde **toutes**
 les lignes d'un même trigramme, les départage par le nom, et **dit** ce qu'il
 n'a pas pu départager plutôt que d'en écraser une.
 
-**Le nom ne se compare pas tel quel.** L'horaire écrit `Nom G`, l'onglet
-Polyvalence reconstruit `Nom G.` depuis ses colonnes nom et prénom : un
+**Le nom ne se compare pas tel quel.** L'horaire écrit `Nom P`, l'onglet
+Polyvalence reconstruit `Nom P.` depuis ses colonnes nom et prénom : un
 point d'écart, et les deux GBT ne se départageaient plus. `_cle_nom()` ne
 garde que les lettres. Elle ne sert **qu'à comparer** — la clé des fiches ne
 bouge pas, puisque les empreintes de `CORRECTIONS` sont calculées dessus.
@@ -1086,8 +1086,8 @@ annotation. Les commentaires Excel sont attachés à l'une ou l'autre.
 
 La feuille `Personnel` fait foi. Elle est incomplète, et la convention maison
 prend le relais : **première lettre du prénom, première et dernière lettre du
-nom de famille**. « Renard V » donne `VBN`, « Gilbert V. » donne `VGG`,
-« Renard JJ » donne `JBI`. Les homonymes reçoivent un suffixe `-1`, `-2`.
+nom de famille**. « Renard P » donne `PRD`, « Gilbert P. » donne `PGT`,
+« Renard PJ » donne `PRD`. Les homonymes reçoivent un suffixe `-1`, `-2`.
 
 Sur l'horaire 2026, cette règle retrouve 72 des 77 identifiants de la
 conversion précédente ; les cinq autres ne diffèrent que par ce suffixe.

@@ -18,7 +18,7 @@ contredire.
 D'où celui-ci, qui n'emprunte RIEN à l'anonymiseur : ni sa liste de noms, ni
 ses règles, ni sa notion de personne. Il prend TOUTES les chaînes du classeur
 d'origine, retient celles qui ont une forme de nom — « Nom C. »,
-« A. Nom », « Nom Prénom », « NOM » — et regarde lesquelles
+« P. Nom », « Nom Prénom », « NOM » — et regarde lesquelles
 survivent intactes dans la sortie.
 
 Les survivants ne sont pas tous des fautes : « PRODUCTION », « CPPT » ou
@@ -38,9 +38,9 @@ _M = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 # Les formes sous lesquelles un nom de personne s'écrit dans un classeur.
 FORMES = [
     re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{2,}\s+[A-ZÀ-Þ]\.?$"),                  # Nom C.
-    re.compile(r"^[A-ZÀ-Þ]\.?\s*[A-ZÀ-Þ]?\.?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),   # A. Nom
+    re.compile(r"^[A-ZÀ-Þ]\.?\s*[A-ZÀ-Þ]?\.?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),   # P. Nom
     re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{2,},?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),     # Nom Prénom
-    re.compile(r"^[A-ZÀ-Þ]{4,}$"),                                          # NOM
+    re.compile(r"^[A-ZÀ-Þ]{4,}$"),                                          # un NOM entier en majuscules
     # Deux MAJUSCULES séparées par une virgule — « NOM, PRÉNOM ». Un
     # morceau d'au moins quatre lettres est exigé, sans quoi « DKS, JBI »
     # y passerait : deux trigrammes ne sont pas un nom.
@@ -74,7 +74,7 @@ def _signatures(chemin):
     """Ce qui précède le premier « : » de chaque commentaire du classeur.
 
     Lit le TEXTE RECOLLÉ du commentaire : Excel coupe volontiers un nom en
-    deux runs XML — « I » puis « stasse, Prénom (external): » — et un
+    deux runs XML — « I » puis « om, Prénom (external): » — et un
     motif appliqué balise par balise ne voit alors ni l'un ni l'autre.
     """
     z = zipfile.ZipFile(chemin)
@@ -141,7 +141,7 @@ def verifier(source, sortie):
     # --- les signatures de commentaires, contrôle à part ------------------
     # C'est par elles que neuf noms sont passés, et AUCUNE forme ci-dessus ne
     # les voyait : « Nom, Prénom: » a un deux-points, « Prénom: » est un
-    # mot seul, et « I » + « stasse, Prénom » est coupé en deux balises.
+    # mot seul, et « I » + « om, Prénom » est coupé en deux balises.
     signatures = _signatures(sortie)
     sales = {t: c for t, c in signatures.items() if not _ANONYMES.match(t)}
     # Celles qui ont une FORME DE NOM sont des fautes ; les autres sont du
