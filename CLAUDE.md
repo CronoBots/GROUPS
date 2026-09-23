@@ -412,6 +412,81 @@ avec `auto`, elle réclamait ses 190 px avant d'accepter de rétrécir.
 
 Vérifié hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
+### Le net à recevoir n'y est plus
+
+Le client, le 23/09/2026 : « le cadre avec le net à recevoir apparaît encore
+dans la barre de navigation du haut, cela ne doit pas arriver ».
+
+Cette barre dit trois choses — à qui appartient cet écran, qui le regarde, ce
+qu'il fait aujourd'hui. **Un montant n'en est pas une**, et surtout pas
+celui-là : c'est le chiffre le plus personnel de l'application, qui restait
+affiché en permanence, sur tous les onglets, par-dessus l'épaule de
+n'importe qui. Il se lit dans « Mon salaire », qui est fait pour lui — deux
+fois même, en tête du panneau et au pied de la fiche simulée.
+
+Il avait déjà à moitié perdu sa place : **cinq règles le masquaient onglet
+par onglet** et une sixième le repliait sous 760 px, si bien qu'il ne se
+voyait plus que sur deux vues. Un élément qu'on passe son temps à cacher n'a
+pas sa place où on l'a mis. Sont partis avec lui ses trois règles de mise en
+forme, celle qui l'habillait de blanc sur le bleu, et l'écriture de `#netTop`
+dans `renderSlip()` — **laisser cette ligne aurait suffi à casser tout le
+calcul**, `getElementById` rendant `null`.
+
+## Un horaire qu'on ne peut plus lire vide tout, en silence
+
+Le client, le 23/09/2026 : « Mon salaire n'est plus correctement calculé et
+tout est vide dans l'onglet » — 0 journée sur 30, zéro heure, zéro prime,
+zéro chèque-repas, et un net réduit à la seule rémunération fixe.
+
+**Le calcul n'avait rien.** C'est `data/horaire-2026.json` que son appareil
+n'arrivait plus à lire, et tout en dépend : sans lui le sélecteur de personne
+reste vide, donc `prefillAuto()` sort sans rien faire, donc le mois reste
+blanc — et la cascade continue de se dérouler sur la rémunération fixe, avec
+des zéros parfaitement crédibles.
+
+**Le service worker mettait en cache n'importe quelle réponse.** Une page
+d'erreur, un 404, un portail Wi-Fi qui répond une page de connexion : `c.put`
+la déposait à la place du fichier, et le cache d'abord la resservait ensuite
+à chaque ouverture. **Le défaut se réparait tout seul une fois posé** — ni le
+retour du réseau, ni un rechargement, ni une nouvelle version de la page n'y
+changeaient quoi que ce soit ; seul un changement de `V`, qui efface les
+anciens caches, le levait par accident.
+
+Reproduit avec Playwright en empoisonnant l'entrée à la main : sur un profil
+neuf, l'écran du client, au pixel près.
+
+Deux remèdes, et il en faut deux :
+
+- **`cacheSiBon()` dans `sw.js`** : une réponse qui se LIT et qui n'est pas
+  bonne ne remplace plus jamais ce qui est en cache, et un rafraîchissement
+  d'horaire qui échoue RETIRE l'entrée au lieu d'en garder une dont on ne
+  sait plus rien. Les réponses **opaques** passent toujours — les polices sont
+  demandées sans CORS, on ne peut ni lire leur code ni les juger, et les
+  refuser priverait la page de ses polices hors ligne ;
+- **`fetchHoraireDB()` se soigne lui-même** : un appareil déjà empoisonné ne
+  guérit pas d'une garde écrite après coup. Un horaire illisible — la
+  coupure réseau, le code HTTP, le JSON invalide, ou un fichier sans personne
+  dedans — fait vider
+  l'entrée de tous les caches et refaire le trajet UNE fois, avec un
+  paramètre d'URL et `cache:"no-store"` pour interdire qu'on ressorte la
+  même réponse. Le premier essai, lui, se sert normalement : le cache
+  d'abord, c'est tout l'intérêt de ne pas attendre 690 Ko.
+
+**Et si les deux échouent, cela se DIT.** Un bandeau qui reste en haut de la
+page, pas une bulle de deux secondes : sans horaire, la moitié de
+l'application affiche des zéros qu'on peut croire. `flash()` ne convenait
+pas — le message passait avant même qu'on ait regardé l'écran.
+
+Vérifié aux quatre états : marche normale, cache empoisonné qui guérit, hors
+ligne avec un bon cache, horaire injoignable où le bandeau parle. Contraste
+du bandeau 5,4:1 en clair et 6,3:1 en sombre, et l'audit complet des six
+onglets reste à **0 texte sous le seuil** dans les deux thèmes.
+
+**Le piège de l'épreuve** : `page.route()` n'intercepte pas les requêtes
+émises par le SERVICE WORKER. Un premier essai croyait couper l'horaire et
+le laissait passer, bandeau éteint et 11 personnes dans le sélecteur. Il faut
+`serviceWorkers:"block"` sur le contexte pour éprouver ce cas-là.
+
 ## Le thème entier est de la famille de la marque
 
 Le client, le 23/09/2026 : « modifie tout le thème du site pour qu'il soit en

@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v193";
+var V = "nfdm-v194";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png"];
@@ -39,10 +39,34 @@ self.addEventListener("activate", function (e) {
      relecture réseau en arrière-plan qui met le cache à jour pour la fois
      suivante.
    - LE RESTE — icônes, polices : le cache d'abord. Elles ne changent pas. */
+/* ON NE MET EN CACHE QUE CE QUI EST BON, et cette garde manquait.
+
+   Le 23/09/2026, l'onglet « Mon salaire » du client s'est vidé : 0 journée
+   sur 30, zéro heure, zéro prime, et un net qui ne venait plus que de la
+   rémunération fixe. Le calcul n'avait rien : c'est l'HORAIRE D'ÉQUIPE que
+   son appareil n'arrivait plus à lire. Une réponse d'erreur — un 404, une
+   coupure, un portail Wi-Fi qui répond une page de connexion — avait été
+   mise en cache À LA PLACE du fichier, et le cache d'abord la resservait
+   ensuite à chaque ouverture. Le défaut se RÉPARE TOUT SEUL une fois posé :
+   ni le retour du réseau ni un rechargement n'y changeaient quoi que ce
+   soit.
+
+   Une réponse qui n'est pas « 200 de notre origine » ne remplace donc plus
+   jamais ce qui est en cache. Reproduit et corrigé avec Playwright, en
+   empoisonnant l'entrée à la main. */
+function cacheSiBon(req, res) {
+  if (!res || res.type === "error") return;
+  /* Une réponse OPAQUE — les polices, demandées sans CORS — ne se lit pas :
+     ni son code ni son corps. On ne peut donc pas la juger, et la refuser
+     priverait la page de ses polices hors ligne. Elle passe, comme avant.
+     Tout ce qui se LIT, lui, doit être bon : c'est là qu'était le trou. */
+  if (res.type !== "opaque" && !res.ok) return;
+  var copy = res.clone();
+  caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
+}
 function reseauPuisCache(req) {
   return fetch(req).then(function (res) {
-    var copy = res.clone();
-    caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
+    cacheSiBon(req, res);
     return res;
   }).catch(function () {
     return caches.match(req).then(function (hit) {
@@ -72,14 +96,17 @@ self.addEventListener("fetch", function (e) {
         /* l'horaire se rafraîchit derrière, sans faire attendre personne */
         if (/\.json$/.test(url.pathname)) {
           fetch(req).then(function (res) {
-            caches.open(V).then(function (c) { try { c.put(req, res); } catch (err) {} });
+            /* et si la réponse est mauvaise, on RETIRE ce qui dort en cache
+               plutôt que de garder une entrée dont on ne sait plus rien :
+               la fois suivante repartira du réseau. */
+            if (res && res.ok) cacheSiBon(req, res);
+            else caches.open(V).then(function (c) { c.delete(req); });
           }).catch(function () {});
         }
         return hit;
       }
       return fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
+        cacheSiBon(req, res);
         return res;
       }).catch(function () {
         return req.mode === "navigate" ? caches.match("./index.html") : Response.error();
