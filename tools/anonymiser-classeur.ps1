@@ -84,7 +84,7 @@ $RX_CELLULE = [regex]::new('<c\s+([^>]*?)(/>|>(.*?)</c>)', 'Singleline')
 function Plat([string] $t) {
     # Une copie sans accents, de MÊME LONGUEUR que l'original : c'est ce qui
     # permet de comparer sur l'une et de remplacer sur l'autre aux mêmes
-    # positions. « Prénom » et « Prénom » se valent sans qu'on écrive les deux.
+    # positions. « Prénom » et « Prenom » se valent sans qu'on écrive les deux.
     if (-not $t) { return '' }
     try { return ($t.Normalize([Text.NormalizationForm]::FormD) -replace '\p{Mn}', '') }
     catch { return $t }
@@ -98,8 +98,8 @@ function ColNum([string] $lettres) {
 
 function Initiales([string] $nom) {
     # L'identifiant anonyme selon la convention maison : première lettre du
-    # prénom, puis première et dernière lettre du nom de famille. « Renard V »
-    # donne VBN, « Nom A. » donne ATR, « P-Y. Nom » donne PLZ.
+    # prénom, puis première et dernière lettre du nom de famille. « Renard P »
+    # donne PRD, « Renard P. » donne PRD, « J-M. Renard » donne JRD.
     $n = [regex]::Replace((Plat $nom).Replace('.', ' '), '\([^)]*\)', ' ')
     $parts = @($n -split '[\s,]+' | Where-Object { $_ })
     if ($parts.Count -lt 2) { return $null }
@@ -207,7 +207,7 @@ function Formes([string] $nom) {
 }
 
 function Borner([string] $motif, [string] $texte) {
-    # « \b » exige un caractère de mot d'un côté. « Nom A. » finit par un
+    # « \b » exige un caractère de mot d'un côté. « Nom P. » finit par un
     # point : y coller « \b » rend le motif impossible à satisfaire, et le nom
     # n'est remplacé qu'à moitié — « ATR A. ».
     if ($texte.Length -eq 0) { return $motif }
@@ -383,7 +383,7 @@ function Candidat($v) {
 function IniConnues([string] $t) {
     # Le trigramme que ce texte donne, s'il en donne un de connu.
     #
-    # L'ordre inversé — « Nom, Prénom » pour GBT — n'est essayé que si
+    # L'ordre inversé — « Renard, Paul » pour PRD — n'est essayé que si
     # le texte porte une VIRGULE. Sans cette condition, trois lettres se
     # rencontrent trop facilement : « terr arr » lu à l'envers donne ATR,
     # « pm ds-ce » donne PDE, et des noms d'ateliers devenaient des gens.
@@ -500,7 +500,7 @@ foreach ($mots in $recolte.Values) {
     }
 }
 
-# Les variantes : « Nom A. », « P-Y. Nom », « Nom F.(ass.Us.) ».
+# Les variantes : « Nom P. », « J-M. Nom », « Nom P.(ass.Us.) ».
 # On ne les croit que si Initiales() y retrouve un trigramme connu ET si
 # elles partagent un mot avec une façon déjà connue d'écrire cette
 # personne-là. Trois lettres se rencontrent par hasard — « PM DS-CE » donne
@@ -508,7 +508,7 @@ foreach ($mots in $recolte.Values) {
 foreach ($mots in $recolte.Values) {
     foreach ($m in $mots.Values) {
         foreach ($t in $m.Values) {
-            # « Nom F.(ass.Us.) » : on n'enregistre que le nom, pour que
+            # « Nom P.(ass.Us.) » : on n'enregistre que le nom, pour que
             # la parenthèse — qui dit le rôle, pas la personne — reste au
             # classeur.
             $n = (([regex]::Replace($t, '\([^)]*\)', ' ')) -replace '\s+', ' ').Trim()
@@ -555,8 +555,8 @@ foreach ($cle in $noms.Keys) {
     }
 }
 
-# Les règles qui attrapent le plus long d'abord : « Nom A. » avant
-# « Nom », sans quoi il resterait « ATR A. ». On pèse ce que la règle
+# Les règles qui attrapent le plus long d'abord : « Renard P. » avant
+# « Renard », sans quoi il resterait « PRD P. ». On pèse ce que la règle
 # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long motif
 # pour un petit mot, et il passerait devant.
 $regles = @($pesees | Sort-Object -Property Poids -Descending | ForEach-Object {

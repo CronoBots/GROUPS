@@ -18,7 +18,7 @@ contredire.
 D'où celui-ci, qui n'emprunte RIEN à l'anonymiseur : ni sa liste de noms, ni
 ses règles, ni sa notion de personne. Il prend TOUTES les chaînes du classeur
 d'origine, retient celles qui ont une forme de nom — « Nom C. »,
-« A. Nom », « Nom Prénom », « NOM » — et regarde lesquelles
+« P. Nom », « Nom Prénom », « NOM » — et regarde lesquelles
 survivent intactes dans la sortie.
 
 Les survivants ne sont pas tous des fautes : « PRODUCTION », « CPPT » ou
@@ -38,9 +38,9 @@ _M = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 # Les formes sous lesquelles un nom de personne s'écrit dans un classeur.
 FORMES = [
     re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{2,}\s+[A-ZÀ-Þ]\.?$"),                  # Nom C.
-    re.compile(r"^[A-ZÀ-Þ]\.?\s*[A-ZÀ-Þ]?\.?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),   # A. Nom
+    re.compile(r"^[A-ZÀ-Þ]\.?\s*[A-ZÀ-Þ]?\.?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),   # P. Nom
     re.compile(r"^[A-ZÀ-Þ][a-zà-ÿ'-]{2,},?\s+[A-ZÀ-Þ][a-zà-ÿ'-]{2,}$"),     # Nom Prénom
-    re.compile(r"^[A-ZÀ-Þ]{4,}$"),                                          # NOM
+    re.compile(r"^[A-ZÀ-Þ]{4,}$"),                                          # un NOM entier en majuscules
     # Deux MAJUSCULES séparées par une virgule — « NOM, PRÉNOM ». Un
     # morceau d'au moins quatre lettres est exigé, sans quoi « DKS, JBI »
     # y passerait : deux trigrammes ne sont pas un nom.
