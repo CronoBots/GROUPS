@@ -472,9 +472,27 @@ vision normale en clair, 16,6 en sombre.
 Le client, le 22/09/2026 : « barre de navigation de la même couleur que le
 background du logo », puis le 23/09 : « j'aimerais aussi que le background
 des barres du haut ET DU BAS soit de la même couleur que le background du
-logo Biowanze ». C'est **`#1A2539`**, le bleu nuit de la tuile — relevé
-dans `logo.png` par lecture du fichier, pas approché à l'œil, et le même que
-celui dont `icone()` tire les cinq icônes.
+logo Biowanze ». C'est **`#111727`** depuis le 23/09/2026 — le fond du NOUVEAU logo, et non
+plus la tuile de `logo.png`.
+
+**Le client l'a dit à l'envers de ce que j'avais compris, et il a fallu le
+mesurer pour s'en rendre compte.** « J'aimerais que la couleur du background
+de ce screen soit le background des barres de navigation » : sa page donne la
+couleur, la barre la reçoit — et non l'inverse. J'avais lu la phrase dans
+l'autre sens et je lui ai expliqué que ses couleurs étaient fausses. Elles ne
+l'étaient pas.
+
+**Les deux fonds sont relevés au PIXEL sur ses captures**, par histogramme :
+sa barre de navigation est `#111727` à 38 % des pixels du bandeau, et le fond
+de son contenu `#F6F6F6` à 52 % des marges. On ne devine pas une couleur de
+marque, on la mesure — c'est déjà comme cela que `#1A2539` avait été relevé
+dans `logo.png`.
+
+**Tout le reste suit** : la rampe neutre se réancre sur la teinte du nouveau
+bleu (268 au lieu de 262), le thème clair prend `#F6F6F6` pour page, et le
+sombre se restéage pour que la barre reste lisible entre la page et les
+cartes. Zéro texte sous le seuil WCAG, dans les deux thèmes, après comme
+avant.
 
 **Les règles de l'en-tête portent toutes `.top` devant** : elles battent par
 la SPÉCIFICITÉ celles qui le peignaient, et non par leur position. C'est ce
