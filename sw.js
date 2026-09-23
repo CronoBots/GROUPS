@@ -1,6 +1,6 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v190";
-var CORE = ["./", "./index.html", "./manifest.webmanifest",
+var V = "nfdm-v191";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png"];
 /* data/horaire-2026.json (~290 Ko) est volontairement absent d'ici : il est mis en
