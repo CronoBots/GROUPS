@@ -251,6 +251,8 @@ des jours (2) et les blocs de mois avant d'aller plus loin.
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
 | `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |
+| `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
+| `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
@@ -814,14 +816,52 @@ est marqué `personal:true`, et les montants du mois.
   des commentaires, et c'était tout aussi public. Les exemples s'écrivent
   désormais avec des marqueurs — « Nom, Prénom », « NOM, PRÉNOM »,
   « Renard P » donne PRD — qui illustrent la FORME sans nommer personne.
-  Le contrôle tient en une commande, et elle vaut avant chaque poussée :
-
-  ```bash
-  grep -rniE "nom1|nom2|…" --exclude-dir=.git --exclude-dir=data .
-  ```
-
   Le classeur et le JSON passent par l'anonymiseur et son second contrôle ;
-  **le reste du dépôt n'avait, lui, aucun garde-fou**.
+  **le reste du dépôt n'avait, lui, aucun garde-fou** — une règle écrite
+  ici, et rien pour la faire respecter. Voir ci-dessous : il en a un.
+
+## Le dépôt se contrôle lui-même
+
+```bash
+python3 tools/verifier-depot.py                # l'arbre de travail
+python3 tools/verifier-depot.py --historique   # + tous les commits
+```
+
+**Une règle ne garde rien, et celle du dessus n'a rien gardé.** Cet outil lit
+tous les fichiers suivis par git, y cherche les chaînes ayant une forme de
+nom, et écarte celles qu'un humain a déjà regardées — `tools/formes-admises.txt`.
+Tout ce qui reste est imprimé, et le code de retour vaut 1.
+
+**Il ne SAIT pas qu'une chaîne est un nom**, et personne ne le peut. Il sait
+dire « voici une forme de nom que personne n'a encore regardée », et il
+s'arrête là. C'est la doctrine de la garantie de l'anonymiseur : mieux vaut
+un outil qui s'arrête qu'un outil qui laisse passer.
+
+**Ses motifs sont les SIENS** et ne sont pas empruntés à
+`verifier-anonymat.py` : les deux doivent pouvoir se contredire.
+
+**Il a trouvé deux noms dès sa première exécution** — deux que la correction
+à la main venait de manquer, dans `verifier-anonymat.py` et dans
+l'anonymiseur. C'est exactement ce pour quoi il existe.
+
+**Et il en a manqué un, lui aussi, à sa première version** : elle ne
+cherchait `Nom Prénom` qu'avec une virgule ou un deux-points, si bien qu'un
+nom planté dans le README y est passé sans un mot. Le motif « deux mots
+capitalisés à la suite » a été ajouté ; il ramasse du français ordinaire, et
+ce bruit se range une fois pour toutes dans la liste.
+
+**Ajouter une ligne à `tools/formes-admises.txt` est un acte** : c'est le
+seul endroit par lequel un vrai nom pourrait entrer sans que rien ne crie.
+On n'y met une forme qu'après l'avoir lue DANS SON CONTEXTE, avec sa raison.
+
+**Le crochet git le lance à chaque commit**, et refuse au lieu de rappeler :
+
+```bash
+git config core.hooksPath .githooks     # une fois par machine
+```
+
+Éprouvé dans les deux sens le 23/09/2026 : un nom glissé dans le README fait
+échouer le commit, et le dépôt propre passe à zéro.
 - **Aucun montant de salaire non plus.** Le dépôt est PUBLIC : `docs/` se lit
   sans authentification, par le site comme par `raw.githubusercontent.com`.
   La rémunération fixe, le pécule, le treizième mois, l'avance, une prime

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Refuse un commit qui ferait entrer un nom de personne dans le dépôt.
+#
+# Le 22/09/2026, treize noms réels ont vécu plusieurs jours dans ce dépôt
+# PUBLIC, cités en exemple dans CLAUDE.md et dans les outils d'anonymisation.
+# Une règle écrite dans CLAUDE.md n'avait rien gardé du tout — d'où ce
+# crochet, qui refuse au lieu de rappeler.
+#
+# Pour l'activer, une fois par machine :
+#     git config core.hooksPath .githooks
+#
+# Pour passer outre sciemment — jamais par confort :
+#     git commit --no-verify
+
+if ! python3 tools/verifier-depot.py; then
+    echo
+    echo "COMMIT REFUSÉ : une chaîne a la forme d'un nom et personne ne l'a regardée."
+    echo "Voir tools/verifier-depot.py et tools/formes-admises.txt."
+    exit 1
+fi
+exit 0
