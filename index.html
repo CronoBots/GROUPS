@@ -1256,9 +1256,6 @@ body.sheet-on{overflow:hidden}
   transform:rotate(45deg) translate(-2px,-2px); transition:transform .15s}
 #mqCard>details[open]>summary:after{transform:rotate(225deg) translate(-2px,-2px)}
 #mqCard>details:not([open])>summary{padding-bottom:14px}
-.eqaide{padding:0 16px 12px}
-.eqaide>summary{font-size:12px; color:var(--faint); cursor:pointer; padding:4px 0}
-.eqaide .lede{padding:6px 0 0}
 /* Sans flex:0 0 auto, la bascule se laissait comprimer sous sa largeur de
    contenu par le titre du jour, qui est en flex:1 — les deux libellés se
    chevauchaient et sortaient de la carte. */
@@ -1705,16 +1702,25 @@ body[data-horaire="annee"] #rotasub{display:none}
         <h2>Qui travaille</h2>
         <span class="sub" id="eqSub"></span>
       </header>
+      <!-- LE JOUR ET SON TABLEAU DANS LE MÊME CADRE. Le client, le
+           23/09/2026 : « supprimer la zone "comment lire ce tableau" et lier
+           le cadre avec la sélection de jour au cadre qui reprend les trois
+           pauses ». C'étaient deux cadres pour une seule chose : on choisit
+           une journée POUR lire ce tableau-là, la barre de navigation et son
+           contenu ne se séparent pas.
+
+           D'où deux hôtes et non un : le tableau des pauses se rend ICI,
+           dans le cadre, et « Hors poste » garde le sien juste en dessous —
+           il parle d'autre chose, et un cadre dans un cadre ne se lit pas. -->
       <div class="toolbar eqnav">
         <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
         <div class="eqjour" id="eqJour">—</div>
         <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
         <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
       </div>
-      <details class="aide eqaide"><summary>Comment lire ce tableau</summary>
-        <p class="lede" id="eqNote"></p></details>
+      <div id="eqCorps"></div>
     </div>
-    <div class="eqcorps" id="eqCorps"></div>
+    <div class="eqcorps" id="eqReste"></div>
   </section>
 
   <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
@@ -5761,7 +5767,9 @@ function renderEquipe(){
       return v.postes.filter(function(x){ return x.P.k===ck; })[0]||null;
     }
     if(aQui){
-      var tp=['<div class="card eqcard"><div class="eqgrille"><table class="eqp2">'];
+      /* Plus de « card » ici : le tableau EST le contenu du cadre du jour,
+         posé sous la barre de navigation qui le pilote. */
+      var tp=['<div class="eqgrille"><table class="eqp2">'];
       tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
@@ -5888,25 +5896,17 @@ function renderEquipe(){
                           : (a.p.cat<b.p.cat?-1:1); });
       resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
     });
-    if(resteCorps.length)
-      h.push('<div class="card eqcard" data-s="reste">'
+    var reste=document.getElementById("eqReste");
+    if(reste) reste.innerHTML = resteCorps.length
+      ? '<div class="card eqcard" data-s="reste">'
         +'<header><h2><span class="eqpt"></span>Hors poste</h2>'
         +'<span class="sub">personne ici ne tient un poste aujourd\'hui</span></header>'
-        +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>");
+        +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>"
+      : "";
 
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=
       total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
-    var note=document.getElementById("eqNote");
-    /* Cette phrase décrit ce qu'on VOIT. Elle a annoncé « une carte par
-       pause » pendant deux mises en page qui n'en avaient plus, et un
-       « effectif attendu » que le tableau n'écrit plus qu'en cas de manque.
-       Une légende qui ment est pire que pas de légende. */
-    if(note) note.innerHTML=
-       "Une ligne par <b>poste</b>, dans l'ordre de l'usine, et les trois pauses en colonnes. "
-      +"Le poste vient de la cellule du jour, de l'en-tête de colonne du classeur, ou du seul "
-      +"poste sur lequel la personne est formée — à défaut, elle reste « à déterminer » "
-      +"plutôt que de compléter un effectif par une supposition.";
   });
   renderManques();
 }
