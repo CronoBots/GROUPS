@@ -1250,6 +1250,30 @@ Elle se pose APRÈS celle qui définit la barre mobile : à spécificité égale
 c'est la dernière qui gagne, et une première tentative posée trois cents
 lignes plus haut n'avait rien changé du tout.
 
+### Le jour et son tableau ne font qu'un cadre
+
+Le client, le 23/09/2026 : « supprimer la zone "comment lire ce tableau" et
+lier le cadre avec la sélection de jour au cadre qui reprend les trois
+pauses ».
+
+C'étaient **deux cadres pour une seule chose** : on choisit une journée POUR
+lire ce tableau-là. La barre de navigation et son contenu ne se séparent pas
+— entre les deux il y avait une bordure, une ombre et seize pixels de vide.
+
+**Deux hôtes et non un**, et c'est le point : `#eqCorps` rend le tableau des
+pauses DANS le cadre du jour, et `#eqReste` rend « Hors poste » juste en
+dessous, dans le sien. Un cadre dans un cadre ne se lit pas, et « Hors
+poste » parle d'autre chose — de ceux qui ne tiennent aucun poste.
+
+Le tableau a donc perdu son `.card` : il EST le contenu du cadre, posé sous
+la barre qui le pilote. Mesuré : **0 px** entre le bas de la barre et le haut
+du tableau, à 390 comme à 1280 px.
+
+**Le repli « Comment lire ce tableau » est parti avec sa phrase.** Elle
+décrivait ce qu'on voit — une ligne par poste, trois pauses en colonnes — et
+le tableau le montre mieux qu'elle ne le disait. Les trois règles `.eqaide`
+sont parties aussi : un style qui ne sert plus égare celui qui le relit.
+
 ### Ce qu'on a presté, jamais ce qu'on a touché
 
 Le client, le 22/09/2026 : « FLN est en formation en D et non en PM ; il est
