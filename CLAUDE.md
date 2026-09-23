@@ -494,6 +494,24 @@ sombre.
 **Le logo passe à 36 px** — « le logo peut être légèrement plus grand ». Il
 redevient ce qui fixe la hauteur de la barre : **57 px au lieu de 52**.
 
+**Et c'est le logo VECTORIEL, en négatif**, que le client a poussé lui-même
+le 23/09/2026 pour qu'il s'affiche dans la barre. Texte blanc, marque en
+dégradé, fond transparent : il se pose sur le bleu nuit sans tuile ni coin
+arrondi, comme il est dessiné pour l'être — là où `icon-192.png` apportait
+son propre fond.
+
+**36 px de HAUT et la largeur suit** : le dessin fait 1810 × 1388, il se
+déformerait dans un carré. Il rend 47 × 36, et rien n'est tronqué même à
+320 px, où la marque et le bloc du jour se frôlent à 10 px.
+
+**`logo.svg` entre dans `CORE` du service worker.** Sans cela la barre
+serait nue hors ligne — vérifié avec `setOffline(true)` : il se rend depuis
+le cache. « BIOWANZE » reste écrit à côté : le mot du lockup fait cinq
+pixels de haut à cette taille, il décore, il ne se lit pas.
+
+Les icônes de la PWA restent en PNG — le manifeste n'accepte pas autre
+chose pour l'installation.
+
 Elle se pose dans les **deux thèmes**, et c'est le point : une couleur de
 marque n'appartient ni au clair ni au sombre. D'où deux jetons déclarés une
 seule fois, hors des deux blocs de thème — `--marque` et `--marque-vif` — et
