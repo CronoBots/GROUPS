@@ -242,6 +242,75 @@ Si le nombre de personnes ou de journées s'écarte nettement des repères, la
 structure du classeur a bougé — vérifier la ligne des noms (10), la colonne
 des jours (2) et les blocs de mois avant d'aller plus loin.
 
+## Le convertisseur ne gardait qu'un commentaire sur deux
+
+Le client, le 23/09/2026 : « de nouveau tu poses des questions sans vérifier
+toutes les cellules ni tous les commentaires ». Il avait raison, et la cause
+n'était pas dans ma lecture : elle était dans le fichier.
+
+**Chaque personne occupe DEUX colonnes** — la cellule et son annotation — et
+**chacune peut porter son propre commentaire Excel**. Le convertisseur
+écrivait `cm.get(cellule) or cm.get(annotation)` : dès que la première en
+avait un, la seconde était jetée sans un mot. Une ligne.
+
+Mesuré sur le classeur du 23/09/2026 : **684 journées portent deux
+commentaires différents, et 496 n'en gardaient qu'un.** Ce qui disparaissait
+n'était pas du décor :
+
+> « remplace GPS **de 14h à 16h** » · « Remplace KDN Rappel le 10/03 **+3
+> HS** » · « Remplace QDE **RAPPEL le 30/07** » · « départ à 19h00' » ·
+> « arrivée à 23h00' » · « **conserver prime de nuit** »
+
+Des heures, des rappels et une prime. Le client a dû signaler lui-même les
+« rappel le 22.04 » d'AFA parce que rien ne les montrait — et j'ai commencé
+par lui répondre que le classeur ne les portait pas.
+
+`_les_deux()` joint les deux par un saut de ligne, comme Excel joint déjà
+les lignes d'un même commentaire, et ne garde que le plus complet quand l'un
+contient l'autre : le classeur recopie souvent la cellule sur l'annotation,
+et répéter une phrase la ferait lire deux fois par les motifs de
+remplacement.
+
+**373 journées chez 61 personnes** ont retrouvé leur commentaire. Rien
+d'autre n'a bougé — ni arrivée, ni départ, ni compteur, ni polyvalence :
+le comparateur ne montre que cette section. Les journées de rappel passent
+de **462 à 487**, et **9 231 signes** de commentaire reviennent.
+
+### Un prénom mal orthographié par son propre auteur
+
+Et ces commentaires récupérés ont aussitôt amené un nom dans le JSON d'un
+dépôt PUBLIC. `tools/verifier-depot.py` l'a arrêté avant le commit — c'est
+exactement ce pour quoi il existe, et ce n'est pas le convertisseur qui l'a
+vu.
+
+La tête du commentaire est écrite **avec une faute de frappe de son auteur**
+— un « e » final manquant au prénom. `_motif_auteurs()` retire les noms que le
+classeur DÉCLARE dans `<authors>` : le nom de famille correspondait, le
+prénom tronqué non. Le motif a donc emporté la moitié qu'il reconnaissait et
+laissé l'autre. **Une moitié de nom nomme encore la personne** — c'est la
+règle déjà écrite pour l'anonymiseur, et elle s'est vérifiée ici.
+
+On ne peut pas deviner les fautes de frappe. On peut lire la STRUCTURE :
+**ce qui précède le premier deux-points, quand c'est court ET que cela nomme
+un auteur déclaré, est une signature quoi qu'il y soit écrit.** La tête part
+alors en entier.
+
+La borne de longueur n'est pas décorative : sans elle, un commentaire citant
+un auteur au fil du texte verrait tout son début avalé jusqu'au premier
+deux-points. Et une tête qui ne nomme personne — « MPE : Maintien prime
+PM » — n'est pas touchée : c'est le piège que `CLAUDE.md` décrivait déjà
+pour l'anonymiseur.
+
+Deux têtes retirées sur tout le classeur, et rien d'autre : le prénom, et un
+identifiant de connexion. **L'anonymiseur, lui, n'avait pas ce trou** — zéro
+occurrence dans `data/classeur-2026.xlsx`, parce qu'il retire la signature
+AVANT le remplacement.
+
+Contrôles après installation : neuf règles à **zéro**, 14 653 journées
+prestées, compteurs **76/77**, découpe de `comparer-fiches` à l'épreuve, six
+onglets rendus. Les motifs trop étroits passent de 46 à **49** — il y a
+simplement plus de texte à lire, et la douzième règle fait son travail.
+
 ## Structure
 
 | Fichier | Rôle |
