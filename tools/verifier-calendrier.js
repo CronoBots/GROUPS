@@ -90,6 +90,7 @@ const MORCEAUX=[
   ["var RX_RENVOI=","\n"],
   ["function renvoisDuMois(","\n}"],
   ["function epargnesDuMois(","\n}"],
+  ["function marqueDoute(","\n}"],
   ["function etiqJour(","\n}"],
   ["function etiqAbsence(","\n}"],
   ["function familleAbsence(","\n}"],
@@ -191,7 +192,7 @@ function affichage(r){
   const prevu=(!preste && r.s && !absence);
   return {
     preste:preste, heures:h,
-    etiquette: preste ? (r.jourCode?etiqJour(r.jourCode):r.s)
+    etiquette: preste ? marqueDoute(r,r.jourCode?etiqJour(r.jourCode):r.s)
              : (absence ? etiqAbsence(r.a) : (prevu ? r.s : "")),
     genre: preste ? "poste" : (absence ? "absence" : (prevu ? "prévu" : "repos"))
   };
@@ -208,6 +209,9 @@ function enregistre(r,hJour){
     if(r.s){ rec.s=r.s; rec.h=(r.h===undefined)?hJour:r.h; }
     if(r.a && ABSMAP[r.a]) rec.a=r.a;
     if(r.jourCode) rec.j=r.jourCode;
+    /* le doute d'un « N? » suit la journée jusqu'au mois, comme dans
+       index.html : sans lui, l'année écrivait « N ? » et le mois « N ». */
+    if(r.doute) rec.q=1;
   }
   return rec;
 }
@@ -217,7 +221,7 @@ function affichageRecord(rec,hJour){
   const absence=!!(rec.a && ABSMAP[rec.a]);
   const prevu=(!preste && rec.s && !absence);
   return {
-    etiquette: preste ? (rec.j?etiqJour(rec.j):rec.s)
+    etiquette: preste ? marqueDoute(rec,rec.j?etiqJour(rec.j):rec.s)
              : (absence ? etiqAbsence(rec.a) : (prevu ? rec.s : "")),
     genre: preste ? "poste" : (absence ? "absence" : (prevu ? "prévu" : "repos"))
   };
