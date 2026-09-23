@@ -56,29 +56,49 @@ TEXTE = re.compile(r"\.(md|py|ps1|js|html|json|txt|css|webmanifest|yml|yaml)$", 
 _MIN = r"[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ'’-]{2,15}"     # Nom
 _MAJ = r"[A-ZÀ-ÖØ-Þ]{4,15}"                        # NOM
 _TRI = r"[A-ZÀ-ÖØ-Þ]{2,4}"                         # ABC
+_INI = r"[A-ZÀ-ÖØ-Þ]"                              # P
+# Un nom s'écrit d'un seul tenant : l'espace ne traverse pas une fin de
+# ligne. Sans cette borne, le dernier mot d'une ligne et le premier de la
+# suivante formaient un nom, et le bruit noyait le signal.
+_ESP = r"[ \t]"
 # Les espaces ne traversent pas une fin de ligne : un nom s'écrit d'un seul
 # tenant. Sans cette borne, le dernier mot d'une ligne et le premier de la
 # suivante formaient un nom — « Gluten \n Fermentation » — et le bruit
 # noyait le signal.
 FORMES = [
-    re.compile(r"\b(%s),[ \\t]*(%s)\b" % (_MIN, _MIN)),          # Nom, Prénom
-    re.compile(r"\b(%s),[ \\t]*(%s)\b" % (_MAJ, _MAJ)),          # NOM, PRÉNOM
-    re.compile(r"\b(%s),[ \\t]*(%s)\b" % (_MIN, _TRI)),          # Nom, APN
-    re.compile(r"\b(%s),[ \\t]*(%s)\b" % (_TRI, _MIN)),          # JBY, Prénom
-    re.compile(r"\b(%s)[ \\t]+(%s)\b" % (_MIN, _MAJ)),           # Nom PRÉNOM
-    re.compile(r"\b(%s)[ \\t]+(%s)\b" % (_MAJ, _MIN)),           # NOM Prénom
-    re.compile(r"\b(%s)[ \\t]+([A-ZÀ-ÖØ-Þ]\.)" % _MIN),          # Nom P.
-    re.compile(r"\b([A-ZÀ-ÖØ-Þ]\.)[ \\t]*(%s)\b" % _MIN),        # P. Nom
-    re.compile(r"\b(%s)[ \\t]+(%s)[ \\t]*:" % (_MIN, _MIN)),         # Nom Prénom :
+    re.compile(r"\b(%s),%s*(%s)\b" % (_MIN, _ESP, _MIN)),      # Nom, Prénom
+    re.compile(r"\b(%s),%s*(%s)\b" % (_MAJ, _ESP, _MAJ)),      # NOM, PRÉNOM
+    re.compile(r"\b(%s),%s*(%s)\b" % (_MIN, _ESP, _TRI)),      # Nom, APN
+    re.compile(r"\b(%s),%s*(%s)\b" % (_TRI, _ESP, _MIN)),      # JBY, Prénom
+    re.compile(r"\b(%s)%s+(%s)\b" % (_MIN, _ESP, _MAJ)),       # Nom PRÉNOM
+    re.compile(r"\b(%s)%s+(%s)\b" % (_MAJ, _ESP, _MIN)),       # NOM Prénom
+    re.compile(r"\b(%s)%s+(%s\.)" % (_MIN, _ESP, _INI)),       # Nom P.
+    re.compile(r"\b(%s\.)%s*(%s)\b" % (_INI, _ESP, _MIN)),    # P. Nom
     # DEUX MOTS CAPITALISÉS À LA SUITE, sans virgule ni deux-points — « Nom
     # Prénom » tout court. C'est la forme la plus banale d'un nom, et la
-    # première version de ce fichier ne la cherchait pas : un nom planté
-    # dans le README y a passé sans un mot. Elle ramasse aussi du français
-    # ordinaire — un début de phrase suivi d'un nom propre — et c'est le
-    # prix à payer : ce bruit se range UNE fois dans formes-admises.txt,
-    # après quoi seules les nouveautés parlent.
-    re.compile(r"\b(%s)[ \\t]+(%s)\b" % (_MIN, _MIN)),           # Nom Prénom
+    # première version de ce fichier ne la cherchait pas : un nom planté dans
+    # le README y est passé sans un mot. Elle ramasse aussi du français
+    # ordinaire — un début de phrase suivi d'un nom propre — et c'est le prix
+    # à payer : ce bruit se range UNE fois dans formes-admises.txt, après
+    # quoi seules les nouveautés parlent.
+    re.compile(r"\b(%s)%s+(%s)\b" % (_MIN, _ESP, _MIN)),       # Nom Prénom
+    # UN PRÉNOM SEUL SUIVI D'UN TRIGRAMME, puis un deux-points : c'est la
+    # signature d'un commentaire Excel, et deux prénoms sont passés par là —
+    # « Prénom JBY », « Prénom -CIE : ». Un prénom seul ne se distingue pas
+    # d'un mot français ; accolé à un trigramme et à un deux-points, il se
+    # distingue très bien. Le convertisseur, lui, ne retire que les auteurs
+    # QUE LE CLASSEUR DÉCLARE : celui qui signe au fil du texte lui échappe.
+    re.compile(r"\b(%s)%s*-?%s*(%s)%s*:" % (_MIN, _ESP, _ESP, _TRI, _ESP)),
 ]
+
+# UN MOT CAPITALISÉ SUIVI D'UN TRIGRAMME — « Prénom JBY ». C'est l'autre
+# forme par laquelle un prénom est passé, et elle est partout dans les
+# commentaires du classeur : « Remplace JKS » y figure six cents fois. Ce qui
+# distingue les deux n'est pas la forme mais le MOT DE TÊTE — « Remplace »
+# est du français, « Prénom » est quelqu'un. La forme se range donc sous ce
+# mot seul, « Remplace + trigramme », et la liste des admises en compte une
+# quarantaine plutôt que six cents.
+AVANT_TRIGRAMME = re.compile(r"\b(%s)%s+(%s)\b" % (_MIN, _ESP, _TRI))
 
 
 def _admises():
@@ -113,6 +133,8 @@ def _cherche(texte):
     for motif in FORMES:
         for m in motif.finditer(texte):
             trouve.add(" ".join(m.group(0).split()))
+    for m in AVANT_TRIGRAMME.finditer(texte):
+        trouve.add(m.group(1) + " + trigramme")
     return trouve
 
 
