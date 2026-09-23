@@ -4223,6 +4223,41 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
       r.poste=duo[1].toUpperCase(); r.jour=duo[2].trim();
       return r;
     }
+    /* « HS » SEUL : LA JOURNÉE ENTIÈRE EN HEURES SUPPLÉMENTAIRES. Le
+       client, le 23/09/2026, sur AFA les 23 et 24 avril : « il avait
+       d'abord déplacé ses 2 jours de D (23 et 24) au 16 et 17, car à la
+       base il ne travaillait pas le 16 et 17 ; par contre il a quand même
+       été rappelé le 22 et 23 pour travailler en HS le 23 et 24 » — puis
+       « il a bien fait 2x8h en D de rappel ».
+
+       Quatre journées prestées sur des repos, donc, et les deux dernières
+       s'affichaient en REPOS À ZÉRO HEURE : seize heures supplémentaires
+       perdues. Le classeur n'écrit « HS » seul que sur ces deux cellules de
+       toute l'année — il n'y a rien à généraliser au-delà de ce qu'elles
+       disent : la journée entière, en horaire de jour.
+
+       On réemploie ce qui existe : `8H HS` du barème des absences ne retire
+       rien à la journée (h:0) et crédite huit heures supplémentaires
+       (hs:8), et le code de jour peint la journée en D comme le fait déjà
+       un repos portant SD26. */
+    if(normPlage(txt)==="hs"){ r.jour="HS"; r.abs="8H HS"; return r; }
+    /* « SD26/ Abs » : LA JOURNÉE A ÉTÉ PRESTÉE PUIS ÉCOURTÉE. Le « / »
+       sépare ce qui a été fait de la façon dont cela s'est terminé.
+
+       Une seule cellule de toute l'année : VGG le 11/03,
+       ["-","SD26/ Abs","Départ à 12h"]. Elle s'affichait en repos à zéro
+       heure. Le client, le 23/09/2026 : « pendant le SD26 les gens venaient
+       selon les besoins nécessaires à la production, mais il a certainement
+       fait 6/14 et est parti à 12h ».
+
+       IL N'Y A DONC AUCUNE RÈGLE À TIRER DE « SD26 » : il n'implique pas de
+       pause, et la durée ne se déduit pas de la cellule. Les deux heures
+       manquantes ne se calculent pas non plus depuis le commentaire — 393
+       commentaires de l'année parlent d'un départ, et tous les autres
+       portent une plage ou un poste dans leur cellule, qui donne l'heure de
+       début. Celle-ci n'en a pas : le 6 h vient du client, et il est écrit
+       ici avec sa raison plutôt que deviné. */
+    if(normPlage(txt)==="sd26/abs"){ r.jour="SD26"; r.poste="D"; r.plage=[6,12]; return r; }
     var code=codeAbsence(txt);
     if(code){ r.abs=ALIAS_HORAIRE[code]||code; return r; }
     var n=normPlage(txt);

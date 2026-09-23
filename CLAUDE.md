@@ -1463,6 +1463,59 @@ les deux vues doivent montrer la même étiquette.
 Journées prestées : **14 648 → 14 650**, exactement les deux nuits de LHR.
 Neuf règles à zéro, compteurs 76/77, mentions non comprises **19 → 17**.
 
+### Deux cellules qui valaient seize heures et une demi-journée
+
+Deux autres « repos à zéro heure » qui n'en étaient pas, tranchés par le
+client le 23/09/2026 en même temps que le « N ? ».
+
+**`HS` seul — la journée entière en heures supplémentaires.** AFA les 23 et
+24 avril. Le client : « il avait d'abord déplacé ses 2 jours de D (23 et 24)
+au 16 et 17, car à la base il ne travaillait pas le 16 et 17 ; par contre il
+a quand même été rappelé le 22 et 23 pour travailler en HS le 23 et 24 »,
+puis « il a bien fait 2x8h en D de rappel ».
+
+Quatre journées prestées sur des repos, donc — et les deux dernières
+s'affichaient en repos à zéro heure : **seize heures supplémentaires
+perdues**. Le classeur n'écrit `HS` seul que sur ces deux cellules de toute
+l'année ; il n'y a rien à généraliser au-delà de ce qu'elles disent. On
+réemploie ce qui existe : `8H HS` du barème ne retire rien à la journée
+(`h:0`) et crédite huit heures supplémentaires (`hs:8`), et le code de jour
+peint la journée en D comme le fait déjà un repos portant `SD26`.
+
+**Le rappel, lui, n'est écrit nulle part sur ses cellules** — leurs
+commentaires disent « D déplacé au 16.04 » et rien d'autre. Les « rappel le
+16.04 » du classeur sont sur les colonnes d'AUTRES personnes, aux mêmes
+dates. La prime de rappel ne peut donc pas se déduire : à faire écrire au
+classeur, ou à poser à la main sur ces deux journées.
+
+**`SD26/ Abs` — la journée prestée, puis écourtée.** VGG le 11 mars,
+`["-","SD26/ Abs","Départ à 12h"]`, seule cellule de ce genre dans l'année.
+Le client : « pendant le SD26 les gens venaient selon les besoins
+nécessaires à la production, mais il a certainement fait 6/14 et est parti à
+12h ».
+
+**Il n'y a donc AUCUNE règle à tirer de `SD26`** : il n'implique pas de
+pause, et la durée ne se déduit pas de la cellule. Les deux heures
+manquantes ne se calculent pas depuis le commentaire non plus — **393
+commentaires de l'année parlent d'un départ**, et tous les autres portent une
+plage ou un poste dans leur cellule, qui donne l'heure de début. Celle-ci
+n'en a pas : le 6 h vient du client, et il est écrit dans le code avec sa
+raison plutôt que deviné.
+
+La journée prend la prime de **jour**, et non celle du matin, pour rester
+d'accord avec les 23 autres journées « repos + SD26 » : une journée prestée
+sur un repos se fait en horaire de jour, sans prime de pause puisqu'il n'y
+avait pas de pause prévue.
+
+**`var n` est déclaré plus bas dans `lire()`, et les deux branches sont
+mortes en silence.** Écrites au-dessus de `var n=normPlage(txt)`, elles
+lisaient un `undefined` hissé : aucune erreur, aucun effet, et le
+vérificateur annonçait les mêmes chiffres qu'avant. Elles appellent
+`normPlage(txt)` directement.
+
+Journées prestées **14 648 → 14 653**, repos **7 575 → 7 570**, mentions non
+comprises **19 → 14**. Neuf règles à zéro, compteurs 76/77.
+
 ### Une absence qui finit aujourd'hui le dit
 
 Le client, le 23/09/2026 : « pourquoi pas de durée pour la maladie de
