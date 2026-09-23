@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0B4A5F" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#172026" media="(prefers-color-scheme: dark)">
+<!-- La barre d'état du téléphone prend la couleur de la barre du haut, qui
+     est celle du logo : sans cela un liseré d'une autre teinte la surmonte. -->
+<meta name="theme-color" content="#1A2539">
 <meta name="description" content="Simulateur de fiche de paie belge : l'horaire du mois entre, le net à recevoir sort.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -184,7 +185,9 @@ button{cursor:pointer}
    donnent 54 px de barre, 32 en donnent 52, et en dessous il n'y a plus rien
    à gagner, le texte reprenant la main à 51. Six pixels rendus au contenu
    sur tous les onglets, en permanence. */
-.blogo{flex:0 0 auto; width:32px; height:32px; border-radius:9px; display:block}
+/* 36 px depuis le 23/09/2026 — « le logo peut être légèrement plus grand ».
+   Il redevient ce qui fixe la hauteur de la barre : 56 px au lieu de 52. */
+.blogo{flex:0 0 auto; width:36px; height:36px; border-radius:10px; display:block}
 /* DEUX BLOCS, ET NON DEUX LIGNES. Le client, le 22/09/2026 : « la date au
    dessus à droite et le poste en dessous avec la pause ; le trigramme doit
    être près de BIOWANZE ».
@@ -371,45 +374,8 @@ button{cursor:pointer}
 .aide .lede{padding:0 13px 12px 27px}
 
 /* ---------- vue semaine ---------- */
-.semaine{padding:0 16px 16px}
-.semaine .nav{display:flex; align-items:center; gap:8px; margin-bottom:12px}
-.semaine .nav button{
-  appearance:none; width:30px; height:30px; border:1px solid var(--line);
-  background:var(--surface); border-radius:8px; color:var(--ink2); font-size:16px; line-height:1;
-}
-.semaine .nav button:hover{border-color:var(--in2); color:var(--in)}
-.semaine .nav .lbl{font-size:13px; font-weight:600; color:var(--ink)}
-.semaine .nav .tot{margin-left:auto; font-size:11.5px; color:var(--muted)}
-.semaine .nav .tot b{font-family:"IBM Plex Mono",ui-monospace,monospace; color:var(--ink); font-weight:600}
-.sem7{display:grid; gap:8px; grid-template-columns:repeat(7,1fr)}
-.sem7 article{
-  background:var(--surface); border:1px solid var(--line2); border-radius:var(--r);
-  padding:9px; display:flex; flex-direction:column; gap:6px; min-width:0;
-}
-.sem7 article.auj{border-color:var(--in2); box-shadow:0 0 0 1px var(--in2)}
-.sem7 .jh{display:flex; align-items:baseline; gap:5px}
-.sem7 .jh .jn{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:17px; font-weight:600; color:var(--ink); line-height:1}
-.sem7 .jh .js{font-size:10.5px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em}
-.sem7 .pastille{
-  border-radius:7px; padding:5px 7px; font-size:11px; font-weight:700; letter-spacing:.01em;
-  display:flex; align-items:baseline; justify-content:space-between; gap:5px;
-}
-.sem7 .pastille small{font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace; opacity:.85}
-.sem7 .pastille[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
-.sem7 .pastille[data-p="PM"]{background:var(--cal-pm); color:var(--cal-pm-ink)}
-.sem7 .pastille[data-p="N"] {background:var(--cal-n);  color:var(--cal-n-ink)}
-.sem7 .pastille[data-p="D"] {background:var(--cal-d);  color:var(--cal-d-ink)}
 /* Même langage que les deux calendriers : la pastille dit la journée
    prestée, le liseré du bas la prime conservée. */
-.sem7 .pastille.jour{box-shadow:inset 0 -4px 0 var(--pr,transparent)}
-.sem7 .pastille.neutre{background:var(--surface3); color:var(--ink2); box-shadow:inset 0 0 0 1px var(--line)}
-.sem7 .pastille.rien{background:var(--surface2); color:var(--faint); font-weight:600}
-.sem7 .mark{font-size:10px; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px}
-.sem7 .mark i{font-style:normal; background:var(--surface3); border-radius:5px; padding:2px 5px}
-.sem7 .com{font-size:10.5px; line-height:1.4; color:var(--muted); word-break:break-word}
-@media (max-width:900px){ .sem7{grid-template-columns:repeat(4,1fr)} }
-@media (max-width:620px){ .semaine{padding:0 12px 12px} .sem7{grid-template-columns:repeat(2,1fr)} }
-@media (max-width:420px){ .sem7{grid-template-columns:1fr} }
 
 /* ---------- état des compteurs ---------- */
 .cpt-t{margin:22px 0 9px; font-size:12.5px; font-weight:700; letter-spacing:-.008em; color:var(--ink)}
@@ -1546,6 +1512,48 @@ body.sheet-on{overflow:hidden}
 
 
 /* ---------- impression ---------- */
+/* ═══ LA BARRE DU HAUT PORTE LA COULEUR DU LOGO, COMME CELLE DU BAS ═══
+   Le client, le 23/09/2026 : « j'aimerais aussi que le background des barres
+   du haut et du bas soit de la même couleur que le background du logo
+   Biowanze ». C'est #1A2539, le bleu nuit de la tuile, déjà relevé pour la
+   barre d'onglets et déjà porté par « --marque ».
+
+   Elle se pose dans les DEUX THÈMES, et c'est le point : une couleur de
+   marque n'appartient ni au clair ni au sombre. D'où des couleurs d'écriture
+   à elle, en blanc transparent, et non les jetons du thème — en clair,
+   « --ink » est presque noir et « --in » un bleu foncé : les deux
+   disparaîtraient sur ce fond.
+
+   Ces règles portent toutes « .top » devant : elles battent donc par la
+   SPÉCIFICITÉ celles qui peignaient l'en-tête, et non par leur position.
+   C'est ce qui les rend sûres — le piège de la requête média, qui n'ajoute
+   aucune spécificité, s'est déjà refermé trois fois sur ce fichier. */
+.top{background:var(--marque); border-bottom-color:rgba(255,255,255,.10)}
+.top .brand h1{color:#fff}
+/* La plaque du trigramme s'inverse : blanche sur le bleu, elle reste ce
+   qu'elle était — la chose qu'on lit en premier à gauche. */
+.top .btri{color:var(--marque); background:rgba(255,255,255,.92)}
+.top .brand:hover .btri{background:var(--marque-vif); color:var(--marque)}
+.top .ident{color:rgba(255,255,255,.55)}
+.top .ident .idate{color:#fff}
+.top .ident em{color:rgba(255,255,255,.74)}
+.top .netchip{background:rgba(255,255,255,.10); color:#fff}
+/* Au-delà de 760 px la barre d'onglets remonte DANS cet en-tête : elle y
+   prend les mêmes encres que dans son cadre du bas, sans quoi elle
+   disparaîtrait sur le bleu. Sous 760 px elle n'est pas ici, et ces règles
+   ne l'atteignent pas. */
+.top .tabs button{color:rgba(255,255,255,.66)}
+.top .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
+.top .tabs button[aria-selected="true"]{color:var(--marque-vif)}
+.top .tabs button[aria-selected="true"]::after{background:var(--marque-vif)}
+/* Le bouton de retour ne s'affiche que dans le détail d'une journée : dans
+   l'année, il n'y a rien à quitter. */
+body[data-horaire="annee"] #horNav{display:none}
+/* « Septembre 2026 » décrit le mois qu'on corrige, pas l'année qu'on lit :
+   sous le titre « Mon horaire · VBN · 2026 », il désignait autre chose que
+   ce qui était à l'écran. */
+body[data-horaire="annee"] #rotasub{display:none}
+
 @media print{
   .top,.tabs,.toolbar,.toast,.foot,.noprint{display:none!important}
   body{background:#fff}
@@ -1659,22 +1667,29 @@ body.sheet-on{overflow:hidden}
   </section>
 
   <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
-    <div class="mnavhote"></div>
+    <!-- UNE SEULE VUE, ET SON TITRE AU-DESSUS DU CADRE. Le client, le
+         23/09/2026 : « je ne veux plus les autres boutons ; il faut donc
+         supprimer la sélection de mois qui était au-dessus du cadre et y
+         ajouter un titre "Mon horaire" comme pour Équipe ».
+
+         Le MOIS n'a pas disparu pour autant : il n'est plus une vue qu'on
+         choisit, c'est le détail d'une journée. On l'ouvre en cliquant une
+         case de l'année — c'est là qu'on corrige — et le bouton « Retour à
+         l'année » ramène. Sans lui, la seule sortie aurait été de changer
+         d'onglet. -->
+    <div class="pvtete">
+      <h2>Mon horaire</h2>
+      <p class="sub" id="anneeSub"></p>
+    </div>
     <div class="card">
       <header>
         <h2>Horaire presté</h2>
         <span class="sub" id="rotasub"></span>
       </header>
-      <div class="toolbar">
-        <div class="seg" id="vueSeg" role="group" aria-label="Affichage de l'horaire">
-          <button type="button" data-v="semaine" aria-pressed="false">Semaine</button>
-          <button type="button" data-v="mois" aria-pressed="true">Mois</button>
-          <button type="button" data-v="annee" aria-pressed="false">Année</button>
-        </div>
-        <span class="sub" id="anneeSub"></span>
+      <div class="toolbar" id="horNav">
+        <button type="button" class="btn sm" id="btnRetourAnnee">&lsaquo; Retour à l'année</button>
       </div>
       <div class="annee" id="annee" hidden></div>
-      <div class="semaine" id="semaine" hidden></div>
       <div class="moiscal" id="moisCal"></div>
       <div class="rota-foot">
         <span>Prestées <b id="tHeures">0</b> h</span>
@@ -3830,7 +3845,6 @@ function renderPrefillSelects(db){
     majCompteurs(); majBrandsub();
     prefillAuto();
     if(!document.getElementById("annee").hidden) renderAnnee();
-    if(!document.getElementById("semaine").hidden) renderSemaine();
     if(st.view==="compteurs") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
   }
@@ -6883,129 +6897,45 @@ function renderAnnee(){
     hote.onclick=function(e){
       var b=e.target.closest?e.target.closest("button[data-k]"):null;
       if(!b) return;
+      /* LE CLIC OUVRE LA JOURNÉE, il ne se contente pas d'ouvrir le mois.
+         Il visait « .day[data-d] », une disposition en liste qui n'existe
+         plus : le sélecteur ne trouvait rien depuis longtemps, et le mois
+         s'ouvrait sur son premier jour. Cela comptait peu tant qu'un bouton
+         « Mois » existait ; c'est maintenant le SEUL chemin vers la
+         correction d'une journée. */
       tipOff(); vueHoraire("mois");
       var m=Number(b.dataset.m)-1, d=Number(b.dataset.d);
       if(m!==st.m || annee!==st.y) loadMonth(annee,m);
       setTimeout(function(){
-        var row=document.querySelector('.day[data-d="'+d+'"]');
-        if(row){ row.scrollIntoView({block:"center"}); var f=row.querySelector(".shifts button"); if(f) f.focus(); }
+        var c=document.querySelector('.mc-j[data-d="'+d+'"]');
+        if(c) c.scrollIntoView({block:"center"});
+        ouvrirJour(d);
       },260);
     };
   });
 }
 
-/* ===================== vue semaine ===================== */
-/* Une semaine tient sur sept cartes : le poste, sa durée, ce qui a été porté
-   aux compteurs, et le commentaire du classeur en toutes lettres. C'est le
-   niveau où l'on relit ce qui s'est passé — le mois sert à encoder, l'année
-   à voir la rotation.
-
-   La semaine court du lundi au dimanche et peut enjamber deux mois : elle se
-   lit donc dans l'horaire de la personne, sans passer par le mois affiché. */
+/* Les noms de jour servent à la barre du haut, qui écrit « Mardi 22
+   septembre » : ils survivent à la vue semaine qui les a introduits. */
 var JOURS_LONGS=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
-var lundiCourant=null;
-function lundiDe(dt){
-  var d=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate());
-  d.setDate(d.getDate()-((d.getDay()+6)%7));
-  return d;
-}
-function renderSemaine(){
-  var hote=document.getElementById("semaine"); if(!hote) return;
-  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
-  var id=idSel?idSel.value:"";
-  if(!id){ hote.innerHTML='<p class="lede" style="padding:0">Choisissez une personne ci-dessus pour afficher sa semaine.</p>'; return; }
-  fetchHoraireDB().then(function(db){
-    if(!db) return;
-    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
-    if(!person){ hote.innerHTML='<p class="lede" style="padding:0">Personne introuvable.</p>'; return; }
-    var annee=Number(db.year);
-    if(!lundiCourant){
-      var dep=new Date();
-      if(dep.getFullYear()!==annee) dep=new Date(annee,st.m,1);
-      lundiCourant=lundiDe(dep);
-    }
-    var jours=anneeDeLaPersonne(db,person,annee);
-    var auj=new Date(), ajd=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
-    var h=[], heures=0, prestes=0, fin=new Date(lundiCourant); fin.setDate(fin.getDate()+6);
-    var cartes=[];
-    for(var i=0;i<7;i++){
-      var dt=new Date(lundiCourant); dt.setDate(dt.getDate()+i);
-      var horsAnnee=(dt.getFullYear()!==annee);
-      var mmdd=pad2(dt.getMonth()+1)+pad2(dt.getDate());
-      var j=horsAnnee?null:(jours[mmdd]||null);
-      var cls=(dt.getFullYear()+"-"+pad2(dt.getMonth()+1)+"-"+pad2(dt.getDate())===ajd)?" auj":"";
-      var c=['<article class="'+cls.trim()+'">'];
-      c.push('<div class="jh"><span class="jn">'+dt.getDate()+'</span>'
-             +'<span class="js">'+esc(JOURS_LONGS[i].slice(0,3))+" "+esc(MOIS[dt.getMonth()].slice(0,4))+'</span></div>');
-      var hj=j&&j.s?(j.h===undefined?st.params.hJour:j.h):0;
-      var m=[];
-      /* Un poste prévu mais non presté — absence, congé — n'est pas une
-         journée de travail : c'est l'absence qui fait la journée, et le poste
-         prévu passe en mention. Sans quoi la carte annonce « Nuit 0 h ». */
-      if(j&&j.s&&hj>0){
-        heures+=hj; prestes++;
-        var pst=j.sp||(j.jour?"D":j.s);
-        c.push('<div class="pastille'+((j.jour||j.sp)?" jour":"")+'" data-p="'+esc(pst)+'"'
-               +(((j.jour||j.sp)&&j.s!==pst)?' style="--pr:var(--'+j.s.toLowerCase()+')"':"")+'>'
-               +esc(j.jour?"Jour — "+j.jour:POSTE_LIB[pst])
-               +'<small>'+num(hj)+' h</small></div>');
-        if(j.jour||j.sp) m.push("<i>prime de "+esc(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée</i>");
-        if(j.a) m.push("<i>"+esc(j.a)+"</i>");
-      } else if(j&&j.a){
-        c.push('<div class="pastille neutre">'+esc(j.a)+'</div>');
-        if(j.s) m.push("<i>prévu en "+esc(POSTE_LIB[j.s]||j.s)+"</i>");
-      } else if(j&&j.s){
-        c.push('<div class="pastille neutre">Non presté</div>');
-        m.push("<i>prévu en "+esc(POSTE_LIB[j.s]||j.s)+"</i>");
-      } else {
-        c.push('<div class="pastille rien">'+(horsAnnee?"hors année":"Repos")+'</div>');
-      }
-      if(j&&j.rcm) m.push("<i>Rempl. CM</i>");
-      if(j&&j.rap) m.push("<i>Rappel "+(j.rap==="J"?"J/J-1":"J-2→15")+"</i>");
-      if(j&&j.brut&&j.brut[1]) m.push("<i>"+esc(j.brut[1])+"</i>");
-      if(m.length) c.push('<div class="mark">'+m.join("")+'</div>');
-      if(j&&j.brut&&j.brut[2]) c.push('<p class="com">'+esc(j.brut[2])+'</p>');
-      c.push('</article>');
-      cartes.push(c.join(""));
-    }
-    var memeMois=(lundiCourant.getMonth()===fin.getMonth());
-    var lbl=lundiCourant.getDate()+(memeMois?"":" "+MOIS[lundiCourant.getMonth()])
-            +" – "+fin.getDate()+" "+MOIS[fin.getMonth()]+" "+fin.getFullYear();
-    h.push('<div class="nav">');
-    h.push('<button type="button" id="semPrev" aria-label="Semaine précédente">&lsaquo;</button>');
-    h.push('<button type="button" id="semNext" aria-label="Semaine suivante">&rsaquo;</button>');
-    h.push('<span class="lbl">'+esc(lbl)+'</span>');
-    h.push('<span class="tot"><b>'+prestes+'</b> jour(s) presté(s) · <b>'+num(R(heures,2))+'</b> h</span>');
-    h.push('</div><div class="sem7">'+cartes.join("")+'</div>');
-    hote.innerHTML=h.join("");
-    document.getElementById("anneeSub").textContent=id+" · "+esc(lbl);
-    document.getElementById("semPrev").onclick=function(){ lundiCourant.setDate(lundiCourant.getDate()-7); renderSemaine(); };
-    document.getElementById("semNext").onclick=function(){ lundiCourant.setDate(lundiCourant.getDate()+7); renderSemaine(); };
-  });
-}
 
+/* DEUX ÉTATS, ET NON TROIS VUES AU CHOIX. L'année est ce qu'on ouvre ; le
+   mois est le détail d'une journée, où l'on corrige. La bascule ne
+   s'enregistre plus : on revient toujours sur l'année, et le mois se
+   retrouve en cliquant la journée qu'on veut reprendre. */
 function vueHoraire(v){
-  if(["semaine","mois","annee"].indexOf(v)<0) v="mois";
   var mensuel=(v==="mois");
-  document.getElementById("annee").hidden=(v!=="annee");
-  document.getElementById("semaine").hidden=(v!=="semaine");
+  document.getElementById("annee").hidden=mensuel;
   var mc=document.getElementById("moisCal"); if(mc) mc.hidden=!mensuel;
   if(!mensuel && jourOuvert) fermerJour();
   var pied=document.querySelector(".rota-foot"); if(pied) pied.hidden=!mensuel;
-  var seg=document.getElementById("vueSeg");
-  [].forEach.call(seg.querySelectorAll("button"),function(b){
-    b.setAttribute("aria-pressed", b.dataset.v===v ? "true" : "false");
-  });
-  document.body.setAttribute("data-horaire",v);
-  lsSet("ui/vueHoraire",v);
+  document.body.setAttribute("data-horaire", mensuel?"mois":"annee");
   tipOff();
-  if(v==="annee") renderAnnee();
-  else if(v==="semaine") renderSemaine();
+  if(!mensuel) renderAnnee();
   else document.getElementById("anneeSub").textContent="";
 }
-document.getElementById("vueSeg").addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest("button[data-v]"):null;
-  if(b) vueHoraire(b.dataset.v);
+document.getElementById("btnRetourAnnee").addEventListener("click",function(){
+  vueHoraire("annee");
 });
 function ensurePrefillUI(){
   if(HORAIRE_DB){ restaurerVue(); return; }
@@ -7027,8 +6957,7 @@ function ensurePrefillUI(){
 var vueRestauree=false;
 function restaurerVue(){
   if(vueRestauree) return; vueRestauree=true;
-  var v=lsGet("ui/vueHoraire");
-  vueHoraire(v==="mois"||v==="semaine" ? v : "annee");
+  vueHoraire("annee");
 }
 
 document.getElementById("btnVider").addEventListener("click",viderMois);

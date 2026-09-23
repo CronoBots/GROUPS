@@ -412,12 +412,32 @@ avec `auto`, elle réclamait ses 190 px avant d'accepter de rétrécir.
 
 Vérifié hors ligne : logo, trigramme, date et poste du jour se rendent tous.
 
-## La barre d'onglets porte la couleur du logo
+## Les deux barres portent la couleur du logo
 
 Le client, le 22/09/2026 : « barre de navigation de la même couleur que le
-background du logo ». C'est **`#1A2539`**, le bleu nuit de la tuile — relevé
+background du logo », puis le 23/09 : « j'aimerais aussi que le background
+des barres du haut ET DU BAS soit de la même couleur que le background du
+logo Biowanze ». C'est **`#1A2539`**, le bleu nuit de la tuile — relevé
 dans `logo.png` par lecture du fichier, pas approché à l'œil, et le même que
 celui dont `icone()` tire les cinq icônes.
+
+**Les règles de l'en-tête portent toutes `.top` devant** : elles battent par
+la SPÉCIFICITÉ celles qui le peignaient, et non par leur position. C'est ce
+qui les rend sûres — le piège de la requête média, qui n'ajoute aucune
+spécificité, s'est déjà refermé trois fois sur ce fichier.
+
+Au-delà de 760 px la barre d'onglets remonte DANS cet en-tête : elle y prend
+les mêmes encres que dans son cadre du bas, sans quoi elle disparaîtrait sur
+le bleu. Sous 760 px elle n'est pas là, et ces règles ne l'atteignent pas.
+
+**`<meta name="theme-color">` suit**, et n'a plus qu'une valeur : la barre
+d'état du téléphone prend la couleur de la barre du haut, sans quoi un
+liseré d'une autre teinte la surmonte. Les deux déclarations par thème n'ont
+plus lieu d'être — une couleur de marque n'appartient ni au clair ni au
+sombre.
+
+**Le logo passe à 36 px** — « le logo peut être légèrement plus grand ». Il
+redevient ce qui fixe la hauteur de la barre : **57 px au lieu de 52**.
 
 Elle se pose dans les **deux thèmes**, et c'est le point : une couleur de
 marque n'appartient ni au clair ni au sombre. D'où deux jetons déclarés une
@@ -1169,16 +1189,36 @@ jour.** Sans ces trois champs à l'écran, rien ne disait POURQUOI quelqu'un
 apparaît dans une pause plutôt qu'une autre — il a fallu les ajouter pour
 voir le défaut.
 
-### L'onglet « Mon horaire » ouvre sur l'année, à la date du jour
+### L'onglet « Mon horaire » n'a plus qu'une vue
 
 Le client, le 23/09/2026 : « dans l'onglet Horaire il ne faut avoir que la
-vue année par défaut, et toujours scroller jusqu'à la date du jour ».
+vue année par défaut, et toujours scroller jusqu'à la date du jour », puis
+« je ne veux plus les autres boutons ; il faut donc supprimer la sélection
+de mois qui était au-dessus du cadre et y ajouter un titre "Mon horaire"
+comme pour Équipe ».
 
-Le mois ne montre que trente journées ; l'année les montre toutes, et c'est
-elle qu'on ouvre pour se situer. **Les trois boutons restent** — le choix
-continue de tenir d'une visite à l'autre, seul le point de DÉPART change :
-`restaurerVue()` ne reprend « mois » ou « semaine » que si l'appareil les a
-enregistrés, et ouvre l'année sinon.
+**La vue SEMAINE est morte** — 90 lignes de rendu, 35 règles de feuille,
+`lundiDe()` et `lundiCourant`. `JOURS_LONGS` reste : la barre du haut écrit
+« Mardi 22 septembre » avec, et elle ne lui appartenait pas.
+
+**Le MOIS n'est plus une vue, c'est le détail d'une journée.** On l'ouvre en
+cliquant une case de l'année — c'est là qu'on corrige — et un bouton
+« ‹ Retour à l'année » ramène. Sans lui, la seule sortie aurait été de
+changer d'onglet : **supprimer un aller sans laisser de retour aurait rendu
+la correction d'une journée inaccessible.** `vueHoraire()` n'a donc plus
+que deux états, et la bascule ne s'enregistre plus : on revient toujours sur
+l'année.
+
+**Le clic sur une journée visait un sélecteur mort.** `.day[data-d]` est une
+disposition en liste qui n'existe plus ; le mois s'ouvrait sur son premier
+jour. Cela comptait peu tant qu'un bouton « Mois » existait — c'est
+maintenant le SEUL chemin. Il vise `.mc-j[data-d]` et ouvre la feuille du
+jour, ce pour quoi on a cliqué.
+
+Le titre vit **hors du cadre**, comme celui d'Équipe : `.pvtete`, « Mon
+horaire » et « VBN · 2026 » dessous. Et « Septembre 2026 » disparaît de
+l'en-tête du cadre tant qu'on lit l'année : il décrit le mois qu'on corrige,
+pas l'année qu'on regarde.
 
 **`centrerSurAujourdhui()` est appelée de DEUX endroits, et il en faut
 deux** : à la fin de `renderAnnee()`, pour le changement de personne, et
