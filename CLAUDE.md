@@ -1169,6 +1169,44 @@ jour.** Sans ces trois champs à l'écran, rien ne disait POURQUOI quelqu'un
 apparaît dans une pause plutôt qu'une autre — il a fallu les ajouter pour
 voir le défaut.
 
+### L'onglet « Mon horaire » ouvre sur l'année, à la date du jour
+
+Le client, le 23/09/2026 : « dans l'onglet Horaire il ne faut avoir que la
+vue année par défaut, et toujours scroller jusqu'à la date du jour ».
+
+Le mois ne montre que trente journées ; l'année les montre toutes, et c'est
+elle qu'on ouvre pour se situer. **Les trois boutons restent** — le choix
+continue de tenir d'une visite à l'autre, seul le point de DÉPART change :
+`restaurerVue()` ne reprend « mois » ou « semaine » que si l'appareil les a
+enregistrés, et ouvre l'année sinon.
+
+**`centrerSurAujourdhui()` est appelée de DEUX endroits, et il en faut
+deux** : à la fin de `renderAnnee()`, pour le changement de personne, et
+dans `setView()` à l'ouverture de l'onglet — car la vue est déjà dessinée
+quand on y revient, et `setView()` remet la page en haut APRÈS coup. Le
+premier essai n'appelait que le premier des deux, et la page restait sur
+janvier.
+
+Sans animation : un glissement se battrait avec le repli de la barre du
+haut, qui écoute le défilement. Et rien ne bouge si le panneau est caché.
+
+Mesuré : la case du jour est **au milieu de l'écran** à 390 comme à 1280 px
+(2 661 px et 571 px de défilement), et « Mois » choisi à la main revient
+bien après un rechargement.
+
+### Une absence qui finit aujourd'hui le dit
+
+Le client, le 23/09/2026 : « pourquoi pas de durée pour la maladie de
+GJR ? » — parce que le 23/09 était le DERNIER jour de sa série, et que le
+rendu se taisait au lieu de le dire. `finAbsence()` rend la dernière journée
+de la série ; quand il n'y en a pas au-delà d'aujourd'hui, elle rend `null`,
+et la pastille n'écrivait rien.
+
+« MAL » tout seul ne disait pas si l'absence s'arrête là ou si on ne sait
+pas jusqu'à quand. Elle écrit maintenant **« MAL · dernier jour »**, ce qui
+est une information et non un vide — GJR est « Abs » du 15 au 23/09, en
+repos du 24 au 27, et reprend le 28.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et

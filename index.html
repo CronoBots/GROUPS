@@ -3588,6 +3588,7 @@ function setView(v,keepScroll){
   if(v==="resume") renderEquipe();
   if(v==="equipe") renderOrganisation();
   if(v==="polyvalence") renderPolyvalence();
+  if(v==="horaire") centrerSurAujourdhui();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
@@ -5632,8 +5633,15 @@ function renderEquipe(){
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
        n'est pas une information perdue, c'est une information rangée. */
     function chip(x,g,posteCourant,nu){
+      /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
+         ne sait pas jusqu'à quand. Le client, le 23/09/2026 : « pourquoi pas
+         de durée pour la maladie de GJR ? » — parce que le jour même était
+         le DERNIER, et que le rendu se taisait au lieu de le dire.
+         finAbsence() rend la dernière journée de la série ; quand il n'y en
+         a pas au-delà d'aujourd'hui, c'est une information, pas un vide. */
       var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
-                " \u00b7 jusqu'au "+x.fin[2]+" "+MOIS_BREF[x.fin[1]-1]:"")
+                " \u00b7 jusqu'au "+x.fin[2]+" "+MOIS_BREF[x.fin[1]-1]
+                :" \u00b7 dernier jour")
              :(x.prevu?esc(x.r.s)+" prévu":
               (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
       var note=(x.fait?"fait fonction":"")||(x.comble?"comble le poste":"")
@@ -6715,6 +6723,27 @@ function tipOn(el,html){
 }
 function tipOff(){ if(calTip) calTip.style.opacity="0"; }
 
+/* TOUJOURS JUSQU'À LA DATE DU JOUR. Le client, le 23/09/2026. Douze mois
+   défilent sous l'écran, et on ouvre cette vue pour savoir où l'on en est —
+   pas pour relire janvier. La case du jour porte déjà la classe « auj » ; il
+   suffit de l'amener au milieu.
+
+   DEUX ENDROITS L'APPELLENT, et il en faut deux : le rendu de l'année, pour
+   le changement de personne, et l'ouverture de l'onglet — car setView()
+   remet la page en haut APRÈS coup, et la vue est déjà dessinée quand on
+   revient sur l'onglet.
+
+   Sans animation : le glissement se battrait avec le repli de la barre du
+   haut, qui écoute le défilement. Et seulement si le panneau est à l'écran :
+   un rendu déclenché par le sélecteur de personne depuis un autre onglet n'a
+   pas à faire sauter la page. */
+function centrerSurAujourdhui(){
+  var pan=document.getElementById("v-horaire");
+  var an=document.getElementById("annee");
+  if(!pan || pan.hidden || !an || an.hidden) return;
+  var c=an.querySelector(".auj");
+  if(c && c.scrollIntoView) c.scrollIntoView({block:"center", inline:"center"});
+}
 function renderAnnee(){
   var hote=document.getElementById("annee"); if(!hote) return;
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
@@ -6829,6 +6858,7 @@ function renderAnnee(){
     h.push('</div>');
     hote.innerHTML=h.join("");
     document.getElementById("anneeSub").textContent=id+" · "+annee;
+    centrerSurAujourdhui();
 
     function tuile(v,l){ return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>'; }
 
@@ -6988,12 +7018,17 @@ function ensurePrefillUI(){
     restaurerVue();
   });
 }
-/* le choix mois/année tient d'une visite à l'autre */
+/* L'ANNÉE EST LA VUE PAR DÉFAUT. Le client, le 23/09/2026 : « dans l'onglet
+   Horaire il ne faut avoir que la vue année par défaut, et toujours scroller
+   jusqu'à la date du jour ». Le mois ne montre que trente journées ; l'année
+   les montre toutes, et c'est elle qu'on ouvre pour se situer. Les trois
+   boutons restent : le choix continue de tenir d'une visite à l'autre, seul
+   le point de départ change. */
 var vueRestauree=false;
 function restaurerVue(){
   if(vueRestauree) return; vueRestauree=true;
   var v=lsGet("ui/vueHoraire");
-  if(v==="annee"||v==="semaine") vueHoraire(v);
+  vueHoraire(v==="mois"||v==="semaine" ? v : "annee");
 }
 
 document.getElementById("btnVider").addEventListener("click",viderMois);
