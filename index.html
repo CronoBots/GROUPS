@@ -2757,7 +2757,7 @@ function caseJour(d){
      journées de l'année dans ce cas. Le poste prévu s'affiche donc barré :
      ce qui était au programme, et qui n'a pas eu lieu. */
   var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
-  var tag=preste?((rec.j?etiqJour(rec.j):postePeint(rec)))
+  var tag=preste?marqueDoute(rec,(rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
   if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
@@ -3042,7 +3042,7 @@ function majProchain(){
              :((d===now.getDate()+1)?" demain"
              :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d));
     el.innerHTML='<span class="pp-pastille" data-p="'+esc(postePeint(r))+'">'
-      +esc(r.j?etiqJour(r.j):postePeint(r))+'</span>'
+      +esc(marqueDoute(r,r.j?etiqJour(r.j):postePeint(r)))+'</span>'
       +'<span class="pp-txt"><b>'+(cejour?"Aujourd'hui":"Prochain poste")+'</b> '
       +esc(r.j?("journée de jour ("+r.j+")")
               :(POSTE_LIB[postePeint(r)]||postePeint(r)).toLowerCase())
@@ -3134,7 +3134,7 @@ function renderResume(C){
     var rec=M.days[dd]||{}, fer=!!F[st.y+"-"+pad2(st.m+1)+"-"+pad2(dd)];
     var preste=(heuresJour(rec)>0);
     var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
-    var tag=preste?(rec.j?etiqJour(rec.j):postePeint(rec))
+    var tag=preste?marqueDoute(rec,rec.j?etiqJour(rec.j):postePeint(rec))
                   :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
     var cls=[];
     if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
@@ -4167,9 +4167,31 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
        ce qui reste, qui est la journée elle-même. */
     txt=txt.replace(/^e\.?\s*min\.?\s+/i,"").trim();
     if(!txt) return r;
+    /* « N? » : LE POSTE EST PRÉVU, PAS ENCORE CONFIRMÉ. Le client, le
+       23/09/2026, à propos de LHR les 2 et 3 octobre : « c'est N avec ?
+       car ce n'est pas encore confirmé si nécessaire ou si l'opérateur a
+       accepté ». Sa cellule dit ["-","N?","Echange avec JKS SPT présent?"] :
+       la rotation le met en repos, et on lui demande peut-être deux nuits.
+
+       Sans cette lecture le « ? » rendait la mention illisible, le poste
+       retombait sur le repos, et DEUX NUITS disparaissaient avec leurs
+       primes — le pire des deux résultats possibles, puisque le classeur
+       dit au moins qu'il s'agit d'une nuit.
+
+       On retient donc le poste ET le doute. L'étiquette devient « N ? »,
+       qui tient dans les quatre signes, et la journée part au compteur des
+       journées à vérifier. Le point d'interrogation du COMMENTAIRE — « SPT
+       présent? » — ne compte pas : seule l'annotation porte le poste. */
+    var doute=/^(.*[^\s?])\s*\?+$/.exec(txt);
+    if(doute){ txt=doute[1].trim(); if(!txt) return r; }
     r.poste=posteDepuisMention(txt);
     r.plage=plageMention(txt);
-    if(r.poste||r.plage) return r;
+    /* LE DOUTE NE VAUT QUE S'IL PORTE SUR LE POSTE. « Poly. Arr.? » et
+       « gluten? » mettent le point d'interrogation sur l'ATELIER — le poste,
+       lui, est écrit noir sur blanc dans la cellule franche et ne fait aucun
+       doute. Une première version marquait ces deux journées « N ? » et
+       « AM ? », ce qui faisait douter de la mauvaise chose. */
+    if(r.poste||r.plage){ if(doute) r.doute=true; return r; }
     /* « N-terr. Arr. », « PM - poly. Arr. », « PM-distil » : le poste ET le
        lieu où il se tient, dans la même cellule. Quatre journées de
        l'année, mais elles se lisaient comme un simple nom de lieu — et le
@@ -4255,6 +4277,7 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
     if(x.jour) jourPrime=x.jour;
     if(x.lieu && !out.lieu) out.lieu=x.lieu;
     if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
+    if(x.doute) out.doute=true;
     if(x.inconnu){
       out.unknown=(out.unknown||0)+1;
       (out.unknownTxt=out.unknownTxt||[]).push(x.txt);
@@ -4803,6 +4826,10 @@ function remplirMois(db,person,y,m,M){
          aucune trace — il affichait « N », et rien d'autre. */
       if(parsed.jourCode) nrec.j=parsed.jourCode; else delete nrec.j;
       if(parsed.sp) nrec.sp=parsed.sp; else delete nrec.sp;
+      /* le doute suit la journée jusqu'au mois : l'année relit le classeur,
+         le mois relit ce qui a été écrit ici, et les deux doivent montrer
+         la même étiquette — c'est la règle « vues en désaccord ». */
+      if(parsed.doute) nrec.q=1; else delete nrec.q;
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
       if([nrec.s,nrec.h,nrec.a,nrec.r].join("|")!==avant) bilan.changes++;
@@ -6801,6 +6828,13 @@ var POSTE_LIB={AM:"Matin",PM:"Après-midi",N:"Nuit",D:"Jour"};
    275 journées où le commentaire nomme la prime à conserver. */
 function postePeint(rec){ return (rec&&rec.sp)||(rec&&rec.j?"D":((rec&&rec.s)||"")); }
 function gardePrime(rec){ return !!(rec&&(rec.j||rec.sp)&&rec.s&&rec.s!==postePeint(rec)); }
+/* « N ? » — le poste prévu que rien ne confirme encore. Les deux formes de
+   journée se lisent ici : celle que parseHoraireEntry rend (`doute`) et
+   celle qu'un mois enregistre (`q`). Un seul endroit, sans quoi l'année et
+   le mois se contrediraient. */
+function marqueDoute(rec,txt){
+  return (rec && (rec.q || rec.doute) && txt) ? txt+" ?" : txt;
+}
 function etiqJour(code){
   return String(code||"").replace(/^\s*D\s*-\s*/i,"").replace(/[-\s]/g,"").slice(0,4);
 }
@@ -6964,7 +6998,7 @@ function renderAnnee(){
         }
         var prevu=(!travaille && j.s && !j.a);
         if(prevu) cls.push("prevu");
-        var etiq=travaille?(j.jour?etiqJour(j.jour):preste)
+        var etiq=travaille?marqueDoute(j,j.jour?etiqJour(j.jour):preste)
                 :(j.a?etiqAbsence(j.a):(prevu?j.s:""));
         var lib=travaille?((j.jour||j.sp)?((j.jour?"journée de jour ("+j.jour+")"
                  :POSTE_LIB[preste])+", prime "

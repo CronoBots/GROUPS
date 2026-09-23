@@ -1424,6 +1424,45 @@ Mesuré : la case du jour est **au milieu de l'écran** à 390 comme à 1280 px
 (2 661 px et 571 px de défilement), et « Mois » choisi à la main revient
 bien après un rechargement.
 
+### « N ? » — le poste prévu que rien ne confirme
+
+Le client, le 23/09/2026, sur LHR les 2 et 3 octobre : « c'est N avec ? car
+ce n'est pas encore confirmé si nécessaire ou si l'opérateur a accepté ».
+
+Sa cellule dit `["-","N?","Echange avec JKS SPT présent?"]` : la rotation le
+met en repos, et on lui demande peut-être deux nuits en échange avec un
+collègue. Le « ? » rendait la mention illisible, le poste retombait sur le
+repos, et **deux nuits disparaissaient avec leurs primes** — le pire des deux
+résultats possibles, puisque le classeur dit au moins qu'il s'agit d'une
+nuit.
+
+L'étiquette devient **« N ? »**, qui tient dans les quatre signes, et la
+journée part au compteur des journées à vérifier.
+
+**LE DOUTE NE VAUT QUE S'IL PORTE SUR LE POSTE**, et une première version
+s'est trompée de cible. Quatre cellules de l'année finissent par un point
+d'interrogation, et deux le mettent sur l'ATELIER : `["N","Poly. Arr.?"]` et
+`["AM","gluten?"]` — là le poste est écrit noir sur blanc dans la cellule
+franche et ne fait aucun doute. Elles s'affichaient « N ? » et « AM ? »,
+c'est-à-dire qu'elles faisaient douter de la mauvaise chose. Le `?` n'est
+retenu que si le texte qui reste EST un poste ou une plage.
+
+Le point d'interrogation du COMMENTAIRE — « SPT présent? » — ne compte pas :
+seule l'annotation porte le poste.
+
+**Le vérificateur garde sa PROPRE copie de l'écriture du mois** (`enregistre()`),
+et elle s'est désynchronisée immédiatement : l'année écrivait « N ? », le
+mois « N », et la règle « vues en désaccord » est montée à 4. C'est le piège
+déjà rencontré — **deux copies, et c'est toujours la seconde qui reste en
+arrière**. Les deux portent maintenant le drapeau.
+
+`marqueDoute()` lit les DEUX formes de journée — `doute` pour celle que
+`parseHoraireEntry()` rend, `q` pour celle qu'un mois enregistre — parce que
+les deux vues doivent montrer la même étiquette.
+
+Journées prestées : **14 648 → 14 650**, exactement les deux nuits de LHR.
+Neuf règles à zéro, compteurs 76/77, mentions non comprises **19 → 17**.
+
 ### Une absence qui finit aujourd'hui le dit
 
 Le client, le 23/09/2026 : « pourquoi pas de durée pour la maladie de
