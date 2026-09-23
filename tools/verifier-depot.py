@@ -35,16 +35,23 @@ Edge », « Nom, Prénom » — on l'ajoute à `tools/formes-admises.txt`, avec 
 raison. Ajouter une ligne à ce fichier est un acte : c'est là qu'un vrai nom
 se glisserait s'il se glissait quelque part.
 """
+import io
 import os
 import re
 import subprocess
 import sys
+import zipfile
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADMISES = os.path.join(RACINE, "tools", "formes-admises.txt")
 
 # Les fichiers où chercher : ceux que git suit, et qui portent du texte.
 TEXTE = re.compile(r"\.(md|py|ps1|js|html|json|txt|css|webmanifest|yml|yaml)$", re.I)
+# ET LE CLASSEUR, qui est le fichier du dépôt le plus susceptible de porter
+# un nom — c'est de lui qu'ils viennent tous. Un .xlsx est une archive ZIP :
+# son texte est COMPRESSÉ, donc invisible à qui lit les octets du fichier.
+# La première version de cet outil ne le regardait pas du tout.
+CLASSEUR = re.compile(r"\.xlsx$", re.I)
 
 # --- les formes d'un nom de personne ----------------------------------------
 # Un nom, ici, c'est DEUX morceaux dont au moins un porte des minuscules :
@@ -123,8 +130,23 @@ def _fichiers():
     r = subprocess.run(["git", "-C", RACINE, "ls-files"],
                        capture_output=True, text=True)
     for nom in r.stdout.splitlines():
-        if TEXTE.search(nom) and nom not in IGNORES:
+        if (TEXTE.search(nom) or CLASSEUR.search(nom)) and nom not in IGNORES:
             yield nom
+
+
+def _lire(octets, chemin):
+    """Le texte d'un fichier suivi — en dépliant l'archive d'un classeur."""
+    if CLASSEUR.search(chemin):
+        morceaux = []
+        try:
+            z = zipfile.ZipFile(io.BytesIO(octets))
+            for info in z.infolist():
+                if re.search(r"\.(xml|rels|vml)$", info.filename, re.I):
+                    morceaux.append(z.read(info).decode("utf-8", "ignore"))
+        except (zipfile.BadZipFile, OSError):
+            return ""
+        return "\n".join(morceaux)
+    return octets.decode("utf-8", "ignore")
 
 
 def _cherche(texte):
@@ -146,7 +168,7 @@ def _blobs():
         if " " not in ligne:
             continue
         sha, chemin = ligne.split(" ", 1)
-        if TEXTE.search(chemin) and chemin not in IGNORES:
+        if (TEXTE.search(chemin) or CLASSEUR.search(chemin)) and chemin not in IGNORES:
             yield sha, chemin
 
 
@@ -158,8 +180,8 @@ def main():
     for nom in _fichiers():
         chemin = os.path.join(RACINE, nom)
         try:
-            with open(chemin, encoding="utf-8", errors="ignore") as f:
-                texte = f.read()
+            with open(chemin, "rb") as f:
+                texte = _lire(f.read(), nom)
         except OSError:
             continue
         for forme in _cherche(texte) - admises:
@@ -169,7 +191,7 @@ def main():
         for sha, chemin in _blobs():
             data = subprocess.run(["git", "-C", RACINE, "cat-file", "blob", sha],
                                   capture_output=True).stdout
-            texte = data.decode("utf-8", "ignore")
+            texte = _lire(data, chemin)
             for forme in _cherche(texte) - admises:
                 restes.setdefault(forme, set()).add(chemin + " @" + sha[:8])
 
