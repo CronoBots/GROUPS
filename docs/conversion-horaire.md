@@ -447,6 +447,7 @@ classeur l'écrit lui-même — `12/04 ["-","4h +FT","du 14/04"]`,
 |---|---|---|
 | `R` | 237 | réserve — « remplace FLI **si nécessaire** ». La personne preste son poste normal. |
 | `VM` | 40 | visite médicale, chez 37 personnes différentes, jamais le week-end |
+| `eval` | 2 | évaluation. Le client, le 25/09/2026 : « eval, il reste à son poste ». FLI les 14 et 15/01, un collègue le couvre pendant l'entretien. |
 | noms d'atelier | 906 | `meunerie`, `distillation`, `terr. Arr.`, `poly. Arr.`, `Poly. Etoh`, `chaudières`, `gluten`, `Ferm. Liq.`, `STEP`, `polyvalence` |
 
 > « Cela ne change rien à l'horaire ni aux primes, si c'est juste une
