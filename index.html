@@ -2362,7 +2362,7 @@ function compute(){
   var remFixe=(M.remFixeMois!==null&&M.remFixeMois!==undefined&&M.remFixeMois!=="")?Number(M.remFixeMois):p.remFixe;
   var indJour=(M.indJourMois!==null&&M.indJourMois!==undefined&&M.indJourMois!=="")?Number(M.indJourMois):p.indJour;
   var txh=R(remFixe/p.divH,4);
-  var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
+  var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,hsCompte:0,
            rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapExclu:0,abs:{},
            hsHrs:0,hsAutoBkt:{},hsAutoPoste:{}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
@@ -2433,8 +2433,23 @@ function compute(){
       if(A.hs){
         var bkt=isFer?"Dimanche":t;
         acc.hsHrs+=A.hs;
-        acc.hsAutoBkt[bkt]=(acc.hsAutoBkt[bkt]||0)+A.hs;
-        if(rec.s){ var pk=rec.s+"|"+bkt; acc.hsAutoPoste[pk]=(acc.hsAutoPoste[pk]||0)+A.hs; }
+        /* LES HEURES VONT AU COMPTEUR, LA PRIME DE PAUSE SE PAIE. Le client,
+           le 25/09/2026 : « il reçoit les 4 h HS dans un compteur et il les
+           reprend quand il veut ou se les fait payer en fin d'année, quand
+           on doit mettre les compteurs HS à zéro », puis « les 4 h de rappel
+           (02-06) sont payées en nuit ».
+
+           Deux choses distinctes, donc, et la fiche les séparait déjà :
+           hsAutoBkt paie les HEURES, hsAutoPoste paie la PRIME D'ÉQUIPE.
+           Une heure récupérée rend l'heure, pas la prime de la pause où
+           elle a été prestée. */
+        if(rec.hsc) acc.hsCompte+=A.hs;
+        else acc.hsAutoBkt[bkt]=(acc.hsAutoBkt[bkt]||0)+A.hs;
+        /* Le poste des heures supplémentaires n'est pas toujours celui de la
+           journée : un rappel de 02h à 06h est de la nuit, même posé sur une
+           journée de congé dont la cellule dit « 7h-15h ». */
+        var hsP2=rec.hsp||rec.s;
+        if(hsP2){ var pk=hsP2+"|"+bkt; acc.hsAutoPoste[pk]=(acc.hsAutoPoste[pk]||0)+A.hs; }
       }
     }
   }
@@ -2490,6 +2505,7 @@ function compute(){
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
   if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées (codes HS de l'horaire)",qh:true,info:true});
+  if(acc.hsCompte) lines.push({q:acc.hsCompte,l:"Heure(s) supplémentaires versées au compteur (non payées ce mois-ci)",qh:true,info:true});
   if(crRecup) lines.push({q:crRecup,l:"Chèque(s) repas issu(s) des heures récupérées (8 h = 1 chèque)",info:true});
   if(crRestRTT||crRestFT||crRestRHS) lines.push({q:null,l:"À reporter au mois suivant : "+num(crRestRTT)+" h de RTT, "+num(crRestFT)+" h de flex time, "+num(crRestRHS)+" h de récup. HS",info:true});
   if(Number(M.rhsMois||0)) lines.push({q:Number(M.rhsMois),l:"Heure(s) reprises au compteur de récup. HS",qh:true,info:true});
@@ -4325,6 +4341,8 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
         if(nHS>=1 && nHS<=8 && ABSMAP[nHS+"H HS"]){
           r.abs=ALIAS_HORAIRE[cAb]||cAb;
           r.axHS=nHS+"H HS";
+          r.hsPoste=posteDepuisPlage(pRap)||null;
+          r.hsCompte=true;
           return r;
         }
       }
@@ -4384,6 +4402,8 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
     if(x.lieu && !out.lieu) out.lieu=x.lieu;
     if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
     if(x.axHS) axHS=x.axHS;
+    if(x.hsPoste) out.hsp=x.hsPoste;
+    if(x.hsCompte) out.hsc=1;
     if(x.doute) out.doute=true;
     if(x.inconnu){
       out.unknown=(out.unknown||0)+1;
@@ -4929,6 +4949,10 @@ function remplirMois(db,person,y,m,M){
       /* une journée peut porter son compteur ET celui qu'une autre lui
          renvoie : « 3h -FT » le 12/09, plus les « 2h RTT » écrites le 13. */
       if(parsed.ax && parsed.ax.length) nrec.ax=parsed.ax; else delete nrec.ax;
+      /* le poste des heures supplémentaires, et le fait qu'elles aillent au
+         compteur plutôt que sur la fiche du mois */
+      if(parsed.hsp) nrec.hsp=parsed.hsp; else delete nrec.hsp;
+      if(parsed.hsc) nrec.hsc=1; else delete nrec.hsc;
       /* Le poste porte la prime PAYÉE ; il ne dit pas ce qui a été PRESTÉ.
          VBN le 30/09 : nuit prévue, journée faite en délégation CPPT. Le
          calendrier annuel montrait déjà les deux, le mois n'en gardait

@@ -926,12 +926,53 @@ Fiche de juillet 2026 de GPS :
 | 4 h HS non compensées à 150 % | elles sont payées |
 | 4 h de déplacement — rappel J / J-1 | le rappel du jour même |
 
-**À TRANCHER : la prime de nuit de ces quatre heures.** Les heures
-supplémentaires se rangent dans le seau du poste du jour — « D », dont la
-prime d'équipe est nulle — et non dans celui de la nuit où elles ont été
-prestées. La fiche ne porte donc aucune ligne « Suppl. Équipe » pour elles.
-Le client n'a pas dit si une prime de nuit leur est due ; c'est un montant,
-et la lecture prudente ne la réclame pas.
+### Les heures vont au compteur, la prime de pause se paie
+
+**Confirmé par le client le 25/09/2026**, en réponse à la question de la
+prime de nuit : « il reçoit les 4 h HS dans un compteur et il les reprend
+quand il veut ou se les fait payer en fin d'année, quand on doit mettre les
+compteurs HS à zéro », puis « **les 4 h de rappel (02-06) sont payées en
+nuit** ».
+
+Deux choses distinctes, et la fiche les séparait déjà sans qu'on s'en serve :
+
+| Accumulateur | Ce qu'il paie |
+|---|---|
+| `hsAutoBkt` | les **heures** — ligne « HS non compensées » |
+| `hsAutoPoste` | la **prime d'équipe** de la pause où elles ont été prestées |
+
+**Une heure récupérée rend l'heure, pas la prime de la pause.** Les heures
+versées au compteur ne passent donc plus par `hsAutoBkt` ; la prime, elle,
+reste due.
+
+**Et le poste des heures supplémentaires n'est pas celui de la journée.** Un
+rappel de 02 h à 06 h est de la nuit, même posé sur une journée de congé
+dont la cellule franche dit « 7h-15h ». Sans `rec.hsp`, la prime se cherchait
+dans le seau « D », dont la prime d'équipe est nulle — donc aucune ligne du
+tout. Deux champs portent cela jusqu'au mois : `hsp` le poste, `hsc` le
+versement au compteur.
+
+Fiche de juillet 2026 de GPS, vérifiée au navigateur :
+
+| Ligne | |
+|---|---|
+| 24 h récup. heures supplémentaires | ses trois journées RHS des 1, 2 et 3 |
+| 4 h supplémentaires prestées (codes HS de l'horaire) | les 02h-06h |
+| **4 h supplémentaires versées au compteur (non payées ce mois-ci)** | la règle du client |
+| **4 h Suppl. Équipe Nuit à 150 % (heures suppl. de l'horaire)** | la prime, elle, est payée |
+| 4 h de déplacement — rappel J / J-1 | le rappel du jour même |
+
+La ligne « HS non compensées » a disparu de ce mois : les heures ne sont plus
+payées deux fois, une fois maintenant et une fois à la reprise.
+
+**À ÉTABLIR : la règle vaut-elle pour toutes les heures supplémentaires ?**
+Mesuré sur l'horaire 2026 — **205 journées portent 775 heures** encore
+traitées en « HS non compensées », donc payées le mois même. La plupart sont
+déduites d'une plage plus longue que la journée contractuelle ; s'y ajoutent
+les deux journées de huit heures d'AFA en avril. Si le compteur est la règle
+générale, ces 775 heures ne devraient pas non plus être payées ce mois-là.
+Le client ne l'a dit que de la journée de GPS ; **cela touche des montants
+sur 205 journées, donc rien n'est généralisé sans lui.**
 
 ## À établir
 

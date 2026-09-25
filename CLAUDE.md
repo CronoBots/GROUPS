@@ -1860,10 +1860,35 @@ comprises **14 → 13**. Neuf règles à zéro, compteurs 76/77. Vérifié au
 navigateur sur la fiche de juillet de GPS : 24 h de récup. HS, 4 h
 supplémentaires, 4 h payées à 150 %, et la prime de rappel J.
 
-**À TRANCHER : la prime de nuit de ces quatre heures.** Elles se rangent
-dans le seau du poste du JOUR — « D », prime nulle — et non dans celui de la
-nuit où elles ont été prestées. Le client ne l'a pas dit ; c'est un montant,
-donc la lecture prudente ne le réclame pas.
+**LES HEURES VONT AU COMPTEUR, LA PRIME DE PAUSE SE PAIE.** Le client, en
+réponse à la question de la prime de nuit : « il reçoit les 4 h HS dans un
+compteur et il les reprend quand il veut ou se les fait payer en fin
+d'année, quand on doit mettre les compteurs HS à zéro », puis « les 4 h de
+rappel (02-06) sont payées en nuit ».
+
+La fiche séparait déjà les deux sans qu'on s'en serve : `hsAutoBkt` paie les
+HEURES, `hsAutoPoste` paie la PRIME D'ÉQUIPE. **Une heure récupérée rend
+l'heure, pas la prime de la pause où elle a été prestée.** Les heures
+versées au compteur ne passent donc plus par le premier.
+
+**Et le poste des heures supplémentaires n'est pas celui de la journée** : un
+rappel de 02 h à 06 h est de la nuit, même posé sur un congé dont la cellule
+dit « 7h-15h ». Sans cela la prime se cherchait dans le seau « D », dont la
+prime est nulle — donc aucune ligne. `rec.hsp` porte le poste, `rec.hsc` le
+versement au compteur, tous deux jusqu'au mois et dans les DEUX copies de
+`enregistre()`.
+
+Vérifié au navigateur sur juillet : la ligne « HS non compensées » a disparu,
+« 4 h versées au compteur » apparaît, et « Suppl. Équipe Nuit à 150 % (heures
+suppl. de l'horaire) » paie la prime.
+
+**À ÉTABLIR : la règle vaut-elle pour TOUTES les heures supplémentaires ?**
+Mesuré : **205 journées portent 775 heures** encore payées le mois même,
+déduites pour la plupart d'une plage plus longue que la journée
+contractuelle. Si le compteur est la règle générale, elles non plus ne
+devraient pas être payées alors. Le client ne l'a dit que de la journée de
+GPS ; cela touche des montants sur 205 journées, donc **rien n'est
+généralisé sans lui**.
 
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
