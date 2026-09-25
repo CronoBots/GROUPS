@@ -508,9 +508,45 @@ pas avant.
 **81 commentaires non repris à 16**, et les seize restants sont douze lignes
 de jours fériés non pris, qui ne sont pas des contrats.
 
-**`CT 20%` reste à trancher** — trois personnes le portent, sans dates.
-Crédit-temps, sans doute, mais le mot n'est écrit nulle part et cela touche
-un montant : la fraction n'est pas posée tant que le client ne l'a pas dit.
+**`CT` est un crédit-temps**, confirmé par le client le 25/09/2026. Trois
+personnes le portent — `CT 20%`, donc 0,80 — et **sans aucune date**.
+
+### Sans date, la période est écrite dans l'horaire
+
+Le client, le 25/09/2026 : « si pas de date il faut prendre en compte celle
+écrite dans l'horaire, mais ne pas deviner ».
+
+**Et elle y est.** Les trois `CT 20%` portent **55, 53 et 51 journées codées
+`CT`** dans leurs colonnes, étalées sur l'année. La période n'était pas
+absente : elle était écrite ailleurs. `_borner()` prend donc la première et
+la dernière de ces journées.
+
+C'est le contraire d'une supposition : **on ne comble pas un trou, on va lire
+la réponse là où le classeur l'a mise.** Et sans journée de ce code, rien
+n'est posé — la fiche reste sans date et le réglage reprend la main.
+
+**Le code doit être NOMMÉ dans la fiche.** « 12 mois à 90% » ne dit ni CP ni
+TP : on ne saurait pas quelles journées regarder. Ces deux fiches-là restent
+telles quelles — et elles doublent de toute façon un contrat daté chez les
+deux personnes qui les portent.
+
+**Cinq contrats sont ainsi bornés** : les trois crédits-temps, un `TP 10%
+jusqu'au` dont la phrase s'arrête net, et un `CP 90% 10mois` sans dates.
+
+### Et une date sans année est de l'année du fichier
+
+« 90% 01/01 au 14/03 », « 80% 01/06 au 31/12 » : le jour et le mois, pas
+l'année. Un classeur de 2026 qui écrit cela parle de 2026 — ce n'est pas une
+supposition, c'est l'année du fichier.
+
+**Le classeur se corrobore d'ailleurs lui-même** : cette fin du 14/03 est
+exactement celle du contrat daté « TP 10% du 15.03.2024 au **14.03.2026** »
+de la même personne, et le « 01/06 » celui de son « TP 20% à partir du
+01/06 ». Les deux notations disent la même chose, comme pour le pourcentage.
+
+Vérifié au navigateur sur un `CT 20%` : **2 400 €** sur une rémunération
+d'exemple de 3 000, en août comme en septembre — sa période couvre l'année
+entière.
 
 ## Structure
 
