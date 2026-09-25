@@ -917,6 +917,20 @@ body.sheet-on{overflow:hidden}
   font-size:10px; font-weight:700}
 .lg-pvform{font-family:"IBM Plex Mono",monospace; font-size:9.5px;
   font-weight:700; color:var(--at-jaune)}
+/* UNE POLYVALENCE QUI SE TERMINE : un soulignement, pas un fond. Les deux
+   fonds de cette grille disent un ÉTAT — vert, le quota est atteint ;
+   jaune, la personne s'y forme. Une fin est un ÉVÉNEMENT À VENIR, et la
+   case garde son chiffre : elle compte encore. Le trait sous la case le
+   dit sans rien effacer.
+
+   Le rouge est celui des ateliers, déjà validé dans les deux thèmes par
+   scripts/validate_palette.js — inventer une couleur ici l'aurait laissée
+   hors de ce contrôle. */
+.pvt tbody tr td.pvfin{box-shadow:inset 0 -2px 0 var(--at-rouge)}
+.lg-pvfin{color:var(--at-rouge); font-size:10px}
+.pvfinav{margin-top:8px; font-size:11.5px; color:var(--muted);
+  line-height:1.45}
+.pvfinav:empty{display:none}
 .pvt tbody tr td.pvnul u{opacity:.6}
 .pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt tbody tr td.pvok u{opacity:.7}
@@ -1882,6 +1896,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
     <div class="card">
       <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
+      <div id="pvFin" class="pvfinav"></div>
       <p class="eqleg" id="pvLeg"></p>
     </div>
   </section>
@@ -6586,6 +6601,34 @@ function polyvalenceDe(db,p){
    les largeurs, mais ce n'était pas ce qu'il demandait. */
 var PV_COURT={meun:"Meun.", glut:"Glut.", ferm:"Ferm.", terr:"T. arr.",
               dist:"Dist.", chau:"Chaud.", step:"STEP"};
+/* LA FEUILLE « POLYVALENCE » DATE CHAQUE ACQUISITION, et la grille ne le
+   disait pas. Soixante-dix dates lues en commentaire sur la croix du
+   classeur : « 31-01-2023 », « 01/03/2026 », mais aussi « supprimée àpd
+   01/02/19 » et « fin au 30/09/2026 ».
+
+   Une date seule est une ACQUISITION ; la même précédée de « fin » ou de
+   « supprimée » est une PERTE. Le convertisseur les sépare ; ici on les
+   affiche, et surtout on ne les confond pas — « acquise en 2019 » sur une
+   polyvalence retirée depuis serait pire que rien.
+
+   Une polyvalence PERDUE garde sa date alors que sa case est vide : c'est
+   la seule trace qu'elle a existé, et elle explique un « · » qu'on prendrait
+   sinon pour une lacune. */
+function dateDeLaPolyvalence(p,poste){
+  var d=p && p.poly && p.poly.dates;
+  return (d && d[poste]) || null;
+}
+function jourLisible(iso){
+  if(!iso) return "";
+  var b=String(iso).split("-");
+  return b.length===3 ? b[2]+"/"+b[1]+"/"+b[0] : iso;
+}
+function ditLaDate(f){
+  if(!f) return "";
+  if(f.fin) return " \u00b7 se termine le "+jourLisible(f.fin);
+  if(f.d) return " \u00b7 acquise le "+jourLisible(f.d);
+  return "";
+}
 function renderPolyvalence(){
   var hote=document.getElementById("pvTable"); if(!hote) return;
   fetchHoraireDB().then(function(db){
@@ -6605,7 +6648,7 @@ function renderPolyvalence(){
        polyvalences par équipe ni par poste mais plutôt par ordre
        alphabétique ». Une seule liste, donc, sans intercalaire : on cherche
        quelqu'un par son trigramme, pas par son équipe. */
-    var atteints=0, total=0, gens=0, vierges=0;
+    var atteints=0, total=0, gens=0, vierges=0, finissent=[];
     db.people.filter(function(p){ return !estContremaitre(p); })
       .sort(function(a,b){
         var A=idLisible(a.id), B=idLisible(b.id);
@@ -6619,18 +6662,29 @@ function renderPolyvalence(){
           +'<th class="pvqui" scope="row">'+esc(idLisible(p.id))+"</th>");
         POSTES.forEach(function(P){
           if(P.k===sien){
-            h.push('<td class="pvsien" title="Son poste">\u25cf</td>'); return; }
-          var o=par[P.t];
-          if(!o){ h.push('<td class="pvzero" title="Pas la polyvalence de ce '
-            +'poste">\u00b7</td>'); return; }
+            h.push('<td class="pvsien" title="Son poste'
+              +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">\u25cf</td>');
+            return; }
+          var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
+          if(!o){
+            /* Une case vide qui porte une date de FIN n'est pas une
+               lacune : la polyvalence a existé et elle a été retirée. */
+            h.push('<td class="pvzero" title="'
+              +(dt&&dt.fin ? "Polyvalence retirée le "+jourLisible(dt.fin)
+                           : "Pas la polyvalence de ce poste")
+              +'">\u00b7</td>'); return; }
           if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
             +'poste, pas encore validé">F</td>'); return; }
           total++; if(o.ok) atteints++; if(!o.n) vierges++;
           h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
+            +(dt&&dt.fin?" pvfin":"")
             +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
             +(o.n?o.n+" journée(s) complète(s) sur "+o.q+" attendue(s)"
                  :"polyvalence acquise, aucun remplacement fait")
+            +esc(ditLaDate(dt))
             +'">'+o.n+"<u>/"+o.q+"</u></td>");
+          if(dt&&dt.fin) finissent.push(idLisible(p.id)+" \u00b7 "
+            +PV_COURT[P.k]+" le "+jourLisible(dt.fin));
         });
         h.push("</tr>");
       });
@@ -6659,7 +6713,18 @@ function renderPolyvalence(){
     document.getElementById("pvLeg").innerHTML=
       '<span><i class="lg-pvsien">\u25cf</i>Poste actuel</span>'
       +'<span><i class="lg-tiret">\u00b7</i>Poste non acquis</span>'
-      +'<span><i class="lg-pvform">F</i>En formation</span>';
+      +'<span><i class="lg-pvform">F</i>En formation</span>'
+      /* La légende ne montre que ce qui est dessiné — règle du 22/09. Une
+         polyvalence qui se termine est rare : l'entrée n'apparaît que les
+         jours où la grille en porte une. */
+      +(finissent.length
+        ? '<span><i class="lg-pvfin">\u25d4</i>Se termine</span>' : "");
+    /* ET ELLE SE LIT EN TOUTES LETTRES SOUS LA GRILLE. Une case soulignée
+       dit qu'il se passe quelque chose ; elle ne dit pas QUAND, et c'est la
+       date qui compte quand il reste cinq jours. */
+    var av=document.getElementById("pvFin");
+    if(av) av.innerHTML=finissent.length
+      ? "Se termine : "+finissent.map(esc).join(" \u00b7 ") : "";
   }, function(){});
 }
 /* ── L'ONGLET ÉQUIPE : QUI COMPOSE QUOI ───────────────────────────────────

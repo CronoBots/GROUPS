@@ -548,6 +548,54 @@ Vérifié au navigateur sur un `CT 20%` : **2 400 €** sur une rémunération
 d'exemple de 3 000, en août comme en septembre — sa période couvre l'année
 entière.
 
+### La feuille « Polyvalence » date chaque acquisition
+
+Soixante-quatorze commentaires, posés **sur la croix** de chaque case, disent
+depuis quand la polyvalence est acquise — et l'onglet Recyclage ne le disait
+nulle part.
+
+> « 31-01-2023 » · « 01/03/2026 » · « 19-10-17 » · « MDE: supprimée àpd
+> 01/02/19 » · « fin polyvalence gluten le 31/08/18 » · « fin au 30/09/2026 »
+> · « 16-07-2019 revalidé en 2023 »
+
+**DEUX SENS, ET UN MOT LES SÉPARE.** Une date seule est une ACQUISITION ; la
+même précédée de « fin » ou de « supprimée » est une PERTE. Se tromper
+afficherait « acquise en 2019 » sur une polyvalence retirée depuis — pire que
+de ne rien dire.
+
+**La croix ne suffit pas à trancher.** Les trois polyvalences supprimées n'en
+portent plus, mais « fin au 30/09/2026 » en garde une : elle n'est pas encore
+terminée. **C'est le mot qui décide, pas la croix.**
+
+**Une polyvalence PERDUE garde sa date alors que sa case est vide.** Les
+dates vivent donc à part des ateliers : les ranger dans `ateliers` rendrait
+la polyvalence à la personne, les taire perdrait la seule trace qu'elle a
+existé. La case affiche toujours `·`, et son infobulle dit désormais
+**« Polyvalence retirée le 01/02/2019 »** au lieu de « pas la polyvalence de
+ce poste » — ce qui explique un point qu'on prenait pour une lacune.
+
+**70 dates lues**, dont **6 fins**. Les quatre commentaires restants sont sur
+des lignes que l'horaire ne rattache à personne, celles que le convertisseur
+signale depuis toujours.
+
+**Ce qui se voit** : l'infobulle de chaque case porte sa date, **48 dans la
+grille**. Une polyvalence qui se termine reçoit un **soulignement rouge** —
+pas un fond : les deux fonds de cette grille disent un ÉTAT (vert, le quota
+est atteint ; jaune, la personne s'y forme), alors qu'une fin est un
+ÉVÉNEMENT À VENIR et que la case **garde son chiffre**, puisqu'elle compte
+encore. Le rouge est celui des ateliers, déjà validé dans les deux thèmes —
+inventer une couleur l'aurait laissée hors de ce contrôle.
+
+**Et elle s'écrit en toutes lettres sous la grille** : « Se termine : PAM ·
+Meun. le 30/09/2026 · PAM · Glut. le 30/09/2026 ». Un trait dit qu'il se
+passe quelque chose ; il ne dit pas QUAND, et c'est la date qui compte quand
+il reste cinq jours. La ligne et l'entrée de légende n'apparaissent **que
+les jours où la grille en porte une**, comme le veut la règle du 22/09.
+
+Vérifié au navigateur à 390 et 1280 px : 48 infobulles datées, 2 cases
+soulignées, la ligne nommant les deux polyvalences qui se terminent, aucune
+erreur.
+
 ## Structure
 
 | Fichier | Rôle |
