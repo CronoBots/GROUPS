@@ -2045,10 +2045,60 @@ la période de chaque fiche est bien le mois civil, et VBN n'a **aucune**
 journée `HS` dans l'horaire — l'écart n'a donc rien à voir avec les heures
 supplémentaires. Ce sont les **heures et jours PRESTÉS** qui manquent.
 
-**Ce n'est pas expliqué**, et cela mérite sa propre passe. Ne pas conclure
-d'un mois isolé : janvier s'explique arithmétiquement par les heures de
-vacances (114 + 16 + 1 = 131), mais février dément aussitôt — la fiche y est
-plus BASSE que l'application.
+#### L'HORAIRE A DES TROUS : 643 JOURNÉES QUI N'EXISTENT PAS
+
+Cherché à la demande du client, et c'est **mai qui l'a donné** : la fiche y
+compte 14 jours et 112 h, l'application 12 et 96 — deux journées, seize
+heures, exactement l'écart du mois. Ces deux journées sont **les 23 et 24
+mai, et elles n'existent pas dans `data/horaire-2026.json`**.
+
+**Le classeur lui-même les laisse VIDES** — pas « - », rien du tout. Le
+convertisseur n'a donc rien à écrire, et l'application n'a même pas un repos
+à afficher : la journée n'est pas là.
+
+Mesuré sur tout le fichier : **643 journées manquent, chez 13 personnes sur
+77**, réparties sur les douze mois (109 en janvier, 74 en mai, 13 en
+septembre). VBN en a quatre — deux en avril, deux en mai.
+
+| mois | écart fiche − appli | journées absentes chez VBN |
+|---|---|---|
+| janvier | +17,00 h | 0 |
+| février | −0,50 h | 0 |
+| mars | +18,28 h | 0 |
+| **avril** | **+40,00 h** | **2** |
+| **mai** | **+16,00 h** | **2** |
+| juin | +5,00 h | 0 |
+| juillet | −0,25 h | 0 |
+| août | +24,00 h | 0 |
+
+**Mai s'explique en entier, avril pour 16 h sur 40.** Le reste ne s'explique
+pas par les trous.
+
+#### Ce qui est ÉCARTÉ, avec ses chiffres
+
+Trois pistes ont été mesurées et ne tiennent pas :
+
+- **les heures supplémentaires** : VBN n'a **aucune** journée `HS` dans
+  l'horaire ;
+- **les journées de plus de huit heures** (`18h-06h` lu 8 h au lieu de 12) :
+  **26 h sur l'année**, et dans les mauvais mois ;
+- **le flex time épargné** (55 h) et les **postes prévus non prestés**
+  (56 h) : février et juillet en portent beaucoup pour un écart quasi nul,
+  mai n'en porte aucun pour un écart de 16 h.
+
+#### Ce que la fiche compte, et qui n'est pas ce que l'application compte
+
+Les lignes d'heures de chaque fiche **somment à un multiple exact de huit** :
+176, 200, 208, 216, 192, 168, 144 selon le mois. La fiche **partage un total
+mensuel fixe** entre prestées, vacances, maladie, congé parental et repos
+compensatoire.
+
+L'application, elle, n'a aucune notion de ce total : elle **additionne ce
+qu'elle lit**, et une journée absente du fichier ne pèse rien.
+
+**Deux questions pour le client**, et elles se répondent d'une phrase
+chacune : que veulent dire les cellules laissées vides de son classeur, et
+que compte exactement la ligne « Heure(s) prestée(s) » de sa fiche ?
 
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
