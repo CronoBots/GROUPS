@@ -977,11 +977,29 @@ c'est du HS car il n'y a aucune cellule qui mette `+4h FT` ». **Le classeur
 ÉCRIT l'épargne au flex time ; son silence désigne l'autre compteur**, celui
 qu'il ne porte pas.
 
-**Aucune heure supplémentaire de l'horaire n'est donc payée le mois même.**
-Le paiement au taux majoré — 150 % en semaine, 187,5 % le samedi, 200 % le
-dimanche — a été retiré : il portait **775 heures sur 205 journées**,
-déduites pour la plupart d'une plage plus longue que la journée
-contractuelle (une nuit de 12 h donne 4 h).
+**ELLES SONT PAYÉES À LA REPRISE, PAS AU MOIS OÙ ELLES SONT PRESTÉES**, et
+c'est la formulation qu'il a fallu corriger. Le client : « les HS sont payées
+quand les opérateurs reprennent leurs heures sup (indiqué dans l'horaire ou
+en commentaire), donc ta phrase n'est pas correcte ». J'avais écrit que
+l'application ne les payait plus — c'était faux, et le circuit se lit en
+deux temps :
+
+| Quand | Ce que le classeur écrit | Ce que la fiche fait |
+|---|---|---|
+| l'heure est **prestée** | rien — le compteur HS n'est pas dans le fichier | elle va au compteur |
+| l'heure est **reprise** | `RHS`, `2h RHS`, ou un commentaire | **la journée est payée** |
+
+Une journée entière de reprise vaut zéro heure prestée et le socle
+forfaitaire ne bouge pas : la personne est payée sans venir. Une reprise
+partielle — « 1,5 rhs, arrivée à 08h30' » — ne retire rien à la journée, qui
+vaut ses huit heures. **L'argent n'est pas perdu, il est décalé.**
+
+Ce qui a été retiré, c'est donc le paiement **au mois de la prestation**, au
+taux majoré — 150 % en semaine, 187,5 % le samedi, 200 % le dimanche. Il
+portait **775 heures sur 205 journées**, déduites pour la plupart d'une plage
+plus longue que la journée contractuelle (une nuit de 12 h donne 4 h), et il
+faisait payer ces heures **deux fois** : une fois à la prestation, une fois à
+la reprise.
 
 **La prime d'équipe, elle, reste due**, et c'est la moitié qu'il ne faut pas
 emporter avec l'autre : une heure récupérée rend l'heure, pas la prime de la
