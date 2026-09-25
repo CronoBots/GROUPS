@@ -69,11 +69,14 @@ def _convertisseur():
 # Le motif est étroit À DESSEIN : deux lettres et quatre à six chiffres, d'un
 # seul tenant. Mesuré sur l'export entier : UN seul jeton de cette forme, six
 # occurrences. Un motif plus large avalerait des codes d'horaire.
-LOGIN = re.compile(r"\b[A-Za-z]{2}\d{4,6}\b")
-
-
-def _sans_login(t):
-    return LOGIN.sub("(identifiant retiré)", t)
+# La règle vit dans le convertisseur, et cet outil l'emprunte : DEUX COPIES
+# D'UN MÊME MOTIF DIVERGENT, et c'est toujours la seconde qui reste en
+# arrière — le projet en a la démonstration. La doctrine qui veut que deux
+# outils ne s'empruntent pas leurs motifs vaut pour les NOMS, où la
+# contradiction est le contrôle ; un login n'est pas un nom, et il n'y a rien
+# à vérifier par recoupement : soit la forme est là, soit elle n'y est pas.
+def _sans_login(t, cv):
+    return cv.LOGIN.sub("(identifiant retiré)", t)
 
 
 def _adresse(ligne, colonne):
@@ -98,13 +101,13 @@ def exporter(chemin, cv):
         cellules = {}
         for ligne in g:
             for col, val in g[ligne].items():
-                cellules[_adresse(ligne, col)] = _sans_login(val)
+                cellules[_adresse(ligne, col)] = _sans_login(val, cv)
         try:
             cm = cl.commentaires(nom)
         except Exception as e:                      # pragma: no cover
             sys.stderr.write("  %s : commentaires illisibles (%s)\n" % (nom, e))
             cm = {}
-        commentaires = dict((_adresse(l, c), _sans_login(t))
+        commentaires = dict((_adresse(l, c), _sans_login(t, cv))
                             for (l, c), t in cm.items())
         feuilles[nom] = {
             "cellules": cellules,
