@@ -588,9 +588,20 @@ DEBUT_SEUL = re.compile(r"(?:du|dès|à partir du|apd|àpd)\s*" + _JOUR, re.I)
 DUREE = re.compile(r"pour\s+(\d{1,2})\s*mois", re.I)
 
 
-def _date(j, m, a):
-    """« 28.02.26 » et « 28/02/2026 » donnent la même chose. Sans année, None :
-    une période sans année ne se compare à rien."""
+def _date(j, m, a, defaut=None):
+    """« 28.02.26 » et « 28/02/2026 » donnent la même chose.
+
+    SANS ANNÉE, C'EST CELLE DE L'HORAIRE. Le client, le 25/09/2026 : « si pas
+    de date il faut prendre en compte celle écrite dans l'horaire, mais ne pas
+    deviner ». Un classeur de 2026 qui écrit « 90% 01/01 au 14/03 » parle de
+    2026 — ce n'est pas une supposition, c'est l'année du fichier. Et le
+    classeur se corrobore : cette fin du 14/03 est exactement celle du contrat
+    daté « TP 10% du 15.03.2024 au 14.03.2026 » de la même personne.
+
+    Sans année ET sans défaut, None : une période qui ne se rattache à rien ne
+    se compare à rien."""
+    if not a:
+        a = defaut
     if not (j and m and a):
         return None
     j, m, a = int(j), int(m), int(a)
@@ -611,24 +622,24 @@ def _plus_mois(iso, n):
     return "%04d-%02d-%02d" % (a, m, min(j, 28))
 
 
-def _periode(bout):
+def _periode(bout, annee=None):
     """La première période écrite dans ce bout de texte, et sa durée."""
     d = fin = None
     p = PERIODE.search(bout)
     if p:
-        d = _date(p.group(1), p.group(2), p.group(3))
-        fin = _date(p.group(4), p.group(5), p.group(6))
+        d = _date(p.group(1), p.group(2), p.group(3), annee)
+        fin = _date(p.group(4), p.group(5), p.group(6), annee)
     else:
         p = DEBUT_SEUL.search(bout)
         if p:
-            d = _date(p.group(1), p.group(2), p.group(3))
+            d = _date(p.group(1), p.group(2), p.group(3), annee)
     n = DUREE.search(bout)
     if n and d and not fin:
         fin = _plus_mois(d, n.group(1))
     return d, fin
 
 
-def contrats(cl, feuille, colonne):
+def contrats(cl, feuille, colonne, annee=None):
     """Les périodes de contrat réduit d'une personne, lues en pied de feuille.
 
     UN COMMENTAIRE PEUT EN PORTER DEUX — « CP 10% du 02.04.24 au 01.10.2026
@@ -650,7 +661,7 @@ def contrats(cl, feuille, colonne):
             # reste du pied de feuille — jours fériés non pris, notes de
             # planification — vit dans l'export intégral, pas ici.
             if re.search(r"\b(CP|TP|CT)\b", txt, re.I):
-                d, fin = _periode(txt)
+                d, fin = _periode(txt, annee)
                 out.append({"txt": txt, "l": ligne, "d": d, "fin": fin})
             continue
         for i, m in enumerate(bouts):
@@ -665,9 +676,49 @@ def contrats(cl, feuille, colonne):
                 fiche["pct"], fiche["f"] = pct, round(1 - pct / 100.0, 4)
             elif pct >= 70:
                 fiche["pct"], fiche["f"] = 100 - pct, round(pct / 100.0, 4)
-            fiche["d"], fiche["fin"] = _periode(bout)
+            fiche["d"], fiche["fin"] = _periode(bout, annee)
             out.append(fiche)
     return out
+
+
+def _borner(fiches, jours, annee):
+    """Un contrat sans date se borne aux JOURNÉES que l'horaire écrit.
+
+    Le client, le 25/09/2026 : « si pas de date il faut prendre en compte
+    celle écrite dans l'horaire, mais ne pas deviner ». Trois personnes
+    portent « CT 20% » et rien d'autre — et leurs colonnes portent 55, 53 et
+    51 journées codées `CT`, étalées sur l'année. La période est donc écrite,
+    simplement ailleurs : de la première de ces journées à la dernière.
+
+    C'est le contraire d'une supposition : on ne comble pas un trou, on va
+    lire la réponse là où le classeur l'a mise. Et sans journée de ce code,
+    rien n'est posé — une fiche sans date reste sans date, et la fraction du
+    réglage reprend la main.
+
+    Le code doit être NOMMÉ dans la fiche : « 12 mois à 90% » ne dit ni CP ni
+    TP, donc on ne saurait pas quelles journées regarder. Ces fiches-là
+    restent telles quelles ; elles doublent d'ailleurs un contrat daté chez
+    les deux personnes qui les portent.
+    """
+    if not jours:
+        return fiches
+    trouve = {}
+    for fiche in fiches:
+        code = fiche.get("t")
+        if not code or fiche.get("d") or not fiche.get("f"):
+            continue
+        if code not in trouve:
+            motif = re.compile(r"\b" + code + r"\b", re.I)
+            dates = sorted(k for k, v in jours.items()
+                           if motif.search(" ".join(str(x) for x in v)))
+            trouve[code] = dates
+        dates = trouve[code]
+        if not dates:
+            continue
+        fiche["d"] = "%04d-%s-%s" % (annee, dates[0][:2], dates[0][2:])
+        fiche["fin"] = "%04d-%s-%s" % (annee, dates[-1][:2], dates[-1][2:])
+        fiche["src"] = "horaire"
+    return fiches
 
 
 def _norme_cle(libelle):
@@ -855,7 +906,7 @@ def restes(g, feuille, mois, premier_jour):
               file=sys.stderr)
 
 
-def _colonnes(cl):
+def _colonnes(cl, annee=None):
     """Toutes les colonnes-personnes de toutes les feuilles, avec leur nom.
     Une même personne figure sur plusieurs feuilles ; on les fusionne ensuite
     sur son identifiant."""
@@ -951,7 +1002,7 @@ def _colonnes(cl):
                 yield (categorie, nom, jours,
                        compteurs(g, colonne) if pied else {}, entete,
                        feuille, poste, _lettre(colonne),
-                       contrats(cl, feuille, colonne) if pied else [])
+                       contrats(cl, feuille, colonne, annee) if pied else [])
 
 
 def convertir(chemin_xlsm, annee):
@@ -969,7 +1020,7 @@ def convertir(chemin_xlsm, annee):
     #    tête pour que ce soit celle de son propre groupe.
     fiches, utilisees, noms = {}, set(), {}
     for (categorie, nom, jours, cpt, entete, feuille, poste, col,
-         ctr) in _colonnes(cl):
+         ctr) in _colonnes(cl, annee):
         cle = _sans_accent(nom).lower()
         noms[cle] = nom
         corrige = CORRECTIONS.get(_empreinte(cle))
@@ -1081,8 +1132,8 @@ def convertir(chemin_xlsm, annee):
             if f.get("postes"):
                 p["postes"] = f["postes"]
             if f.get("ct"):
-                p["ct"] = sorted(f["ct"], key=lambda x: (x.get("d") or "",
-                                                         x["l"]))
+                p["ct"] = sorted(_borner(f["ct"], f["d"], annee),
+                                 key=lambda x: (x.get("d") or "", x["l"]))
             gens[ident] = p
             cles_ident[ident] = f.get("nomcle")
             reels.setdefault(f.get("reel"), []).append(ident)
