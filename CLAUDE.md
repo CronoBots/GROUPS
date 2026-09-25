@@ -626,6 +626,31 @@ est atteint ; jaune, la personne s'y forme), alors qu'une fin est un
 encore. Le rouge est celui des ateliers, déjà validé dans les deux thèmes —
 inventer une couleur l'aurait laissée hors de ce contrôle.
 
+### La table des codes est dans les règles de paie
+
+`docs/regles-paie.md`, section « **Les codes, leur sens et ce qu'ils
+paient** » : chaque code, sa signification, sa ligne de fiche, s'il est payé,
+et d'où on le sait. **À relire avant de toucher à `ABS[]` ou à la légende de
+l'onglet « Mon horaire »** — les deux doivent dire la même chose, et elles se
+sont contredites TROIS fois, toujours de la même façon : un libellé qui
+décrit autre chose que ce que le code fait.
+
+- `ABS` rangé dans « non payé » avec « absence injustifiée », alors que le
+  chemin du classeur le traduit en `SMG` et le paie ;
+- `CT` donné pour un « congé de circonstance » quand c'est un crédit-temps ;
+- `CT` et `CP` rangés parmi les heures « payées comme des heures prestées »,
+  alors que la fraction les a déjà retirées de la rémunération fixe.
+
+D'où un bloc de légende à eux, « **Temps de travail réduit** », où `CP`, `CT`
+et `TP` se lisent ensemble avec la phrase qui vaut pour les trois : le jour
+ne se paie pas, la réduction est déjà dans la rémunération fixe, et
+l'allocation de l'ONEM — pour le congé parental et le crédit-temps
+seulement — se verse hors fiche.
+
+**`ABS` dit deux choses selon qui l'écrit** : le classeur, c'est une maladie
+payée ; posé à la main dans le mois, c'est une absence non rémunérée. La
+légende le dit maintenant.
+
 ### Une polyvalence qui se termine cesse de compter le lendemain
 
 Le client, le 25/09/2026, interrogé sur les deux polyvalences que le classeur

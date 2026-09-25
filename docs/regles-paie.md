@@ -350,7 +350,61 @@ Contrôle en une soustraction : « Rém. périodique fixe » et « Montant heure
 prestées » sont deux lignes différentes de la fiche. Si elles diffèrent, la
 fraction n'est pas 1.
 
-### Trois dispositifs, une seule arithmétique — et une allocation hors fiche
+### Les codes, leur sens et ce qu'ils paient
+
+La table de référence. Elle se relit **avant** de toucher à `ABS[]` dans
+`index.html` ou à la légende de l'onglet « Mon horaire » — les deux doivent
+dire la même chose, et elles se sont déjà contredites.
+
+**Aucune ligne d'heures ne porte de montant.** Relevé sur les onze fiches
+mensuelles : « Heure(s) prestée(s) », « Heure(s) SMG maladie », « Heure(s)
+congé parent. » sont des QUANTITÉS. Ce qui paie, c'est « Rém. périodique
+fixe » et « Montant heures prestées ». La colonne « Payé » ci-dessous dit
+donc si la rémunération fixe **couvre** la journée, et non si une ligne
+porte des euros.
+
+| Code | Ce que c'est | Ligne de fiche | Payé | D'où on le sait |
+|---|---|---|---|---|
+| `VA` | vacances annuelles | Heure(s) vacances annuelles | oui | fiches |
+| `RTT` | réduction du temps de travail | Heure(s) RTT | oui | fiches |
+| `RHS` | récupération d'heures supplémentaires | Heure(s) récup. heures supplémentaires | oui | client, 20/09 |
+| `DTT` | congé d'ancienneté | Heure(s) repos compensatoire | oui | fiches |
+| `RJF` | jour férié de remplacement, à choix libre | Heure(s) jour férié / RJF | oui | classeur |
+| `FER` | jour férié légal | Heure(s) jour férié | oui | fiches |
+| `SMG` | maladie, salaire garanti | Heure(s) SMG maladie | oui | fiches |
+| `FORM` | formation, congé syndical | Heure(s) formation syndicale | oui | fiches |
+| `CP` | congé parental 9/10 ou 4/5 | Heure(s) congé parent. AR 29.10.1997 | **non** — la fraction l'a déjà retiré | client, 25/09 |
+| `CT` | crédit-temps 1/5 ou 1/2 | Heure(s) crédit-temps | **non** — idem | client, 25/09 |
+| `TP` | temps partiel | Heure(s) temps partiel | **non** — idem | client, 25/09 |
+| `SANS SOLDE`, `CSS` | congé sans solde | aucune | **non** | classeur |
+| `ABS` | **deux choses** — voir ci-dessous | selon l'origine | selon l'origine | classeur + code |
+| `+FT`, `−FT` | flex time épargné / repris | compteur | différé | client, 20/09 |
+| `HS` | heures supplémentaires | compteur + sursalaire | voir « Le rappel » | client, 25/09 |
+| `1/2 …`, `3H …` | la même chose sur 4 h, 3 h… | la même | la même | classeur |
+
+**`ABS` est le seul code qui dise deux choses**, et il faut le savoir :
+
+- **écrit par le CLASSEUR**, c'est une maladie. `ALIAS_HORAIRE` le traduit en
+  `MAL`, donc en `SMG` — salaire garanti, payé. C'est le vocabulaire de la
+  maison, confirmé par le client le 25/09/2026 : « chez nous "Absence" veut
+  dire maladie » ;
+- **posé À LA MAIN** dans le mois, c'est une absence non rémunérée, et la
+  fiche écrit « Heure(s) abs. volontaire / injustifiée ».
+
+La légende a déjà menti sur ce code : elle le rangeait dans « Compteurs et
+NON PAYÉ » avec la définition « absence injustifiée », alors que le chemin du
+classeur le paie. **Le code avait raison, la légende avait tort, et dans le
+sens qui coûte cher.**
+
+**Deux autres ont menti, et les trois fautes ont la même forme** : un libellé
+qui décrit autre chose que ce que le code fait. `CT` était donné pour un
+« congé de circonstance » ; `CT` et `CP` étaient rangés parmi les heures
+« assimilées à du travail, payées comme des heures prestées », alors que la
+fraction les a déjà retirées de la rémunération fixe. **Une légende n'est pas
+de la décoration : c'est la seule chose que l'utilisateur lit pour savoir ce
+qu'il regarde.**
+
+## Trois dispositifs, une seule arithmétique — et une allocation hors fiche
 
 Le client, le 25/09/2026, a décrit les trois réductions du temps de travail
 que connaît le droit belge. Elles mènent toutes au même 4/5 ou au même 9/10,
