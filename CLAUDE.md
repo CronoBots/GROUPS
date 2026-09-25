@@ -1037,6 +1037,42 @@ Résumé le place déjà en fermentation ce jour-là : les deux vues sont
 d'accord, comme le veut « une place, une seule, et c'est celle du Résumé ».
 Manques inchangés à 14 journées, neuf règles à zéro, compteurs 76/77.
 
+**ET LA CHAÎNE DU JOUR NE LA VOYAIT PAS.** Le client, le 25/09/2026 :
+« chez moi il manque toujours LCI demain par exemple ». Sa capture montrait
+la fermentation à **0/1** le 26/09 et LCI rangé en distillation — parce que
+la correction n'était posée que dans `posteAttitre()`, que seule la
+COMPOSITION emploie. Le tableau du JOUR passe par `posteTenu()`, où
+`posteLigne9()` rendait « dist » bien avant qu'on arrive à sa polyvalence.
+**Une correction qui ne vaut que pour une vue est pire qu'aucune** : les
+deux se contredisent, et c'est celle du jour qu'on regarde le matin.
+
+Elle se pose donc dans `posteTenu()`, **après la cellule et avant tout le
+reste** : la cellule écrit ce qui a été presté CE jour-là, la tranche ne dit
+que le poste habituel de la période. C'est la règle de tête du projet.
+
+**Et elle lit LE JOUR CALCULÉ, pas l'horloge.** La première version
+appelait toujours `new Date()` : tant qu'on était avant le 29/09, elle
+plaçait LCI à la fermentation sur TOUTE l'année — novembre compris — et le
+module des manques annonçait un effectif qui n'existerait pas.
+`postesDePause()` a le jour et l'année sous la main et les passe ; la
+composition, qui n'a pas de date, se lit sur aujourd'hui, ce qui est
+exactement ce qu'elle montre.
+
+Vérifié jour par jour : fermentation du 25 au 29/09, distillation les 30/09
+et 1er/10, repos le 2/10.
+
+**Le poste de FORMATION se lit alors directement sur la ligne 9.** Pendant
+une tranche, la chaîne complète rend le poste TENU — c'est tout son objet —
+et `posteDeFormation()` y aurait pris la fermentation, posant le « F » du
+Recyclage sur le poste qu'il tient.
+
+**Les manques passent de 14 à 12 journées** : LCI comble les trous de
+fermentation des 26 et 27/09. Et il faut savoir ce que cela déplace ailleurs
+— **le recyclage fermentation de SKS tombe de 10/10 à 2/10**. Ce n'est pas
+une régression : ces compteurs comptent les journées où la chaîne PLACE
+quelqu'un à un poste, et le rééquilibrage n'envoie plus SKS combler une
+fermentation déjà tenue.
+
 **La découpe du vérificateur a cassé au passage** : `posteAttitre()` et
 `posteDeFormation()` tenaient chacune sur UNE ligne et se découpaient
 jusqu'au premier saut de ligne. Passées à trois lignes, la découpe rendait

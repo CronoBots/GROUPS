@@ -5513,7 +5513,7 @@ function posteParDefaut(person){
   if(/step/i.test((person&&person.cat)||"")) return "step";
   return POSTE_TRANCHE[(person&&person.id)||""]||null;
 }
-function posteTenu(person,raw,hJour,poste){
+function posteTenu(person,raw,hJour,poste,jour){
   var i, k;
   /* LA CELLULE D'ABORD, y compris pour un cadre. Elle écrit le poste tenu ce
      jour-là ; la fonction de la personne ne dit que l'habitude. Le client, le
@@ -5531,6 +5531,23 @@ function posteTenu(person,raw,hJour,poste){
      l'ordre ci-dessous n'arbitre donc rien qui existe, il ne fait que rendre
      à la cellule ce qui lui revient. */
   k=posteEcrit(raw); if(k) return k;
+  /* LA TRANCHE DE PÉRIODE VIENT APRÈS LA CELLULE ET AVANT TOUT LE RESTE.
+
+     Le client, le 25/09/2026 : « chez moi il manque toujours LCI demain par
+     exemple ». Sa capture montrait la fermentation à 0/1 le 26/09 et LCI
+     rangé en distillation — parce que la correction n'était posée que dans
+     `posteAttitre()`, que seule la COMPOSITION de l'onglet Équipe emploie.
+     Le tableau du JOUR, lui, passe par ici, et `posteLigne9()` y rendait
+     « dist » bien avant qu'on arrive à sa polyvalence.
+
+     Une correction qui ne vaut que pour une vue est pire qu'aucune : les
+     deux se contredisent, et c'est celle du jour qu'on regarde le matin.
+
+     Elle se pose APRÈS la cellule et pas avant : la cellule écrit ce qui a
+     été presté CE jour-là, la tranche ne dit que le poste habituel de la
+     période. C'est la règle de tête du projet — « la cellule prime, y
+     compris sur la fonction de la personne ». */
+  k=_posteDePeriode(person,jour); if(k) return k;
   if(estCadre(person)){
     if(estContremaitre(person)) return "cm";
     /* L'adjoint ne compte au poste de contremaître que s'il le remplace
@@ -5720,7 +5737,8 @@ function postesDePause(db,liste,gk,mmdd){
   liste.forEach(function(x){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")
        && !surSonPosteMalgreF(x.p.d[mmdd])){ formation.push(x); return; }
-    var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s));
+    var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
+                    Number(db.year)*10000+Number(mmdd));
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     if(!k) k=posteParDefaut(x.p);
     x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
@@ -6139,11 +6157,20 @@ function calculerPolyvalence(db){
    date : il montre la composition telle qu'elle est au moment où on la
    regarde, ce qui reste vrai de bout en bout. */
 var POSTE_PERIODE={ LCI:[{jusqu:"20260929", k:"ferm"}] };
-function _posteDePeriode(p){
+function _posteDePeriode(p,jour){
   var l=POSTE_PERIODE[(p&&p.id)||""]; if(!l) return null;
-  var n=new Date();
-  var auj=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();
-  for(var i=0;i<l.length;i++) if(auj<=Number(l[i].jusqu)) return l[i].k;
+  /* LE JOUR CALCULÉ, ET NON AUJOURD'HUI, quand on le connaît. La première
+     version lisait toujours l'horloge : tant qu'on était avant le 29/09,
+     elle plaçait LCI à la fermentation sur TOUTE l'année — novembre
+     compris — et le module des manques annonçait donc un effectif qui
+     n'existerait pas. Le tableau du jour et la liste des manques passent
+     une date ; la composition de l'onglet Équipe n'en a pas, et se lit
+     alors sur aujourd'hui, ce qui est exactement ce qu'elle montre. */
+  if(!jour){
+    var n=new Date();
+    jour=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();
+  }
+  for(var i=0;i<l.length;i++) if(jour<=Number(l[i].jusqu)) return l[i].k;
   return null;
 }
 function _posteDeLigne9(p){
@@ -6171,7 +6198,16 @@ function posteAttitre(p){
   var tranche=_posteDePeriode(p); if(tranche) return tranche;
   return enFormation(p)?null:_posteDeLigne9(p);
 }
-function posteDeFormation(p){ return enFormation(p)?_posteDeLigne9(p):null; }
+function posteDeFormation(p){
+  if(!enFormation(p)) return null;
+  /* Pendant une tranche de période, la chaîne complète rend le poste TENU —
+     c'est tout l'objet de la tranche. Le poste de FORMATION, lui, reste
+     celui que la ligne 9 nomme, et on le lit donc directement : sans cela
+     le « F » du Recyclage se poserait sur la fermentation, c'est-à-dire sur
+     le poste qu'il tient. */
+  if(_posteDePeriode(p)) return posteLigne9(p);
+  return _posteDeLigne9(p);
+}
 /* Possède-t-elle CE poste ? « Terrain arrière » ne figure dans aucune liste
    de polyvalence du classeur : il se déduit de Fermentation ET Distillation,
    comme tientTerrainArriere() le fait déjà partout ailleurs. */
