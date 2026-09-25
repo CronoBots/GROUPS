@@ -818,6 +818,39 @@ def metadata(cl):
     return out
 
 
+# LA FEUILLE « POLYVALENCE » DATE CHAQUE ACQUISITION, en commentaire sur la
+# croix. Soixante-quatorze dates que personne ne lisait, alors que l'onglet
+# Recyclage montre les polyvalences sans jamais dire DEPUIS QUAND on les a.
+#
+#     « 31-01-2023 » · « 01/03/2026 » · « 19-10-17 »
+#     « MDE: supprimée àpd 01/02/19 » · « fin polyvalence gluten le 31/08/18 »
+#     « fin au 30/09/2026 » · « 16-07-2019 revalidé en 2023 »
+#
+# DEUX SENS, ET UN MOT LES SÉPARE. Une date seule est une acquisition ; la
+# même date précédée de « fin » ou de « supprimée » est une PERTE. Se
+# tromper afficherait « acquise en 2019 » sur une polyvalence retirée depuis.
+#
+# Une perte se lit aussi à la croix : les trois polyvalences supprimées n'en
+# portent plus. Mais « fin au 30/09/2026 » en garde une — elle n'est pas
+# encore terminée. Le mot décide, pas la croix.
+#
+# On garde TOUJOURS le texte : « revalidé en 2023 », « CLE prod passée le
+# 25/04 » disent quelque chose que deux champs de date ne portent pas.
+DATE_POLY = re.compile(r"\b(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})\b")
+FIN_POLY = re.compile(r"\b(fin|supprim)", re.I)
+
+
+def _date_polyvalence(txt):
+    """{« d » : acquise le, « fin » : perdue le, « txt » : ce qui est écrit}."""
+    fiche = {"txt": txt}
+    m = DATE_POLY.search(txt)
+    if m:
+        quand = _date(m.group(1), m.group(2), m.group(3))
+        if quand:
+            fiche["fin" if FIN_POLY.search(txt) else "d"] = quand
+    return fiche
+
+
 def polyvalence(cl, annuaire):
     """L'onglet « Polyvalence » : le degré de chacun et les ateliers qu'il
     peut tenir. Il porte matricule, nom et prénom en clair — rien de tout
@@ -829,6 +862,7 @@ def polyvalence(cl, annuaire):
     if "Polyvalence" not in cl.feuilles:
         return {}
     g = cl.grille("Polyvalence")
+    cm = cl.commentaires("Polyvalence")
     noms = {c: str(g[3][c]).strip() for c in sorted(g.get(3, {})) if c >= 6}
     out = {}
     for r in sorted(g):
@@ -859,6 +893,17 @@ def polyvalence(cl, annuaire):
             fiche["degre"] = str(g[r][4]).strip()
         if ateliers:
             fiche["ateliers"] = ateliers
+        # Les dates vivent à PART des ateliers, et il le faut : une
+        # polyvalence retirée n'a plus de croix mais garde son commentaire.
+        # La ranger dans « ateliers » la rendrait à la personne ; la taire
+        # perdrait la seule trace qu'elle a existé.
+        dates = {}
+        for c in noms:
+            t = cm.get((r, c))
+            if t:
+                dates[noms[c]] = _date_polyvalence(t)
+        if dates:
+            fiche["dates"] = dates
         if not fiche:
             continue
         # On rend les lignes TELLES QUELLES, sans en écraser aucune : le
