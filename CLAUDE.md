@@ -1359,7 +1359,7 @@ node tools/verifier-calendrier.js
 ```
 
 Confronte ce que le calendrier **affiche** à ce que le classeur **dit**, pour
-les 77 personnes et les 27 462 journées. Il ne réimplémente rien : il découpe
+les 77 personnes et les 27 574 journées. Il ne réimplémente rien : il découpe
 dans `index.html` les fonctions de lecture elles-mêmes et les rejoue — ce
 qu'il mesure est donc bien ce que l'application fera.
 
@@ -2122,9 +2122,49 @@ compensatoire.
 L'application, elle, n'a aucune notion de ce total : elle **additionne ce
 qu'elle lit**, et une journée absente du fichier ne pèse rien.
 
-**Deux questions pour le client**, et elles se répondent d'une phrase
-chacune : que veulent dire les cellules laissées vides de son classeur, et
-que compte exactement la ligne « Heure(s) prestée(s) » de sa fiche ?
+**Une question reste pour le client**, et elle se répond d'une phrase : que
+compte exactement la ligne « Heure(s) prestée(s) » de sa fiche — les heures
+réellement faites, ou le solde du mois contractuel une fois les absences
+retirées ? La première question, celle des cellules vides, est répondue et
+close ci-dessus.
+
+### Le classeur du 25/09/2026 à 15 h 23
+
+Un nouveau récapitulatif, reçu le soir même. Procédure complète :
+anonymiseur, second contrôle, conversion à côté, comparaison, installation,
+contrôle croisé du dépôt, puis les trois vérificateurs.
+
+**Ce n'est pas une correction, c'est une AVANCE** : le classeur a été rempli
+sur octobre. **201 journées changent chez 34 personnes**, 27 482 → **27 574**,
+journées prestées 14 435 → **14 490**.
+
+**NPI ne s'arrêtait pas au 30/09 : sa colonne n'était pas encore remplie.**
+La question posée la veille se répond d'elle-même — **92 journées** lui sont
+écrites jusqu'au 31 décembre, et son compteur RTT apparaît. Il n'y avait rien
+à trancher : il fallait attendre le classeur suivant. C'est la démonstration
+de la règle du projet — **ne pas deviner à la place du classeur**.
+
+**Les manques d'effectif tombent de 11 à 8 journées** d'ici la fin de
+l'année, ce qu'on attend d'un mois qu'on vient de remplir : les
+remplacements d'octobre sont maintenant écrits.
+
+Ce qui bouge par ailleurs, et qui se lit dans la sortie du comparateur :
+**13 compteurs** corrigés, une maladie de quatre jours posée en fin
+septembre, un « Test de performance » retiré de onze cellules où il n'était
+qu'un commentaire d'organisation.
+
+**Les quatre prénoms sont revenus, et c'était prévu.** Le convertisseur ne
+sait pas les reconnaître — ils n'existent nulle part ailleurs dans le
+classeur — et une reconversion les réécrit donc à chaque fois. Ils sont
+retirés à la main AVANT installation, depuis la sortie de l'anonymiseur,
+jamais devinés. **À refaire après chaque conversion**, tant que le classeur
+les porte.
+
+`CEPS` est apparu dans les survivants du second contrôle : c'est un centre de
+formation — « Formation ARI - CEPS Seraing » — et non quelqu'un.
+
+Neuf règles à zéro, compteurs 76/77, découpe de `comparer-fiches` à
+l'épreuve, garde-fou du dépôt et contrôle croisé à zéro.
 
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
