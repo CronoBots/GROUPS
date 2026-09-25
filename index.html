@@ -5512,6 +5512,22 @@ function effectif(liste,P){
 
    Elle ne fait que MONTER l'effectif : un commentaire ne peut pas vider un
    poste, et le jour (gk « D ») n'attend toujours personne. */
+/* UNE JOURNÉE OÙ LE CLASSEUR EXIGE UN RENFORT SANS DIRE À QUELLE PAUSE.
+   Le 13/07 porte « Nettoyage Bang and Clean. Présence de 3 opérateurs
+   obligatoire » et s'arrête là : le motif ci-dessous, qui lit les pauses
+   dans le texte, ne peut rien en faire. Le client, le 25/09/2026 : « 13/07
+   c'est en AM surtout qu'il faut être 3 ».
+
+   Elle vient COMPLÉTER ce que le classeur écrit, non le corriger — d'où une
+   fusion par le maximum et non un écrasement. C'est ce qui la distingue de
+   POSTE_PERIODE, qui vient en premier justement pour effacer ce que le
+   classeur écrit.
+
+   L'après-midi n'y est pas, et c'est voulu : le client a dit « surtout en
+   AM ». Trois cellules de cette journée sont en PM, mais rien ne dit qu'il
+   en fallait trois — et inventer une exigence fait apparaître un manque qui
+   n'a jamais existé. */
+var RENFORT_TRANCHE={ "0713":{ chau:{AM:3} } };
 var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
 var RENFORT_POSTE="chau";
 var renfortCache={};
@@ -5519,7 +5535,12 @@ function renfortDuJour(db,mmdd){
   if(!db||!db.people||!mmdd) return null;
   var cle=db.year+"|"+mmdd;
   if(renfortCache[cle]!==undefined) return renfortCache[cle];
-  var out=null, i, j;
+  var out=null, i, j, k, g2;
+  var tr=RENFORT_TRANCHE[mmdd];
+  if(tr) for(k in tr){ if(!tr.hasOwnProperty(k)) continue;
+    out=out||{}; out[k]=out[k]||{};
+    for(g2 in tr[k]){ if(!tr[k].hasOwnProperty(g2)) continue;
+      if(!(out[k][g2]>=tr[k][g2])) out[k][g2]=tr[k][g2]; } }
   for(i=0;i<db.people.length;i++){
     var raw=db.people[i].d[mmdd]; if(!raw) continue;
     var m=RENFORT_MOTIF.exec(String(raw[1]||"")+" "+String(raw[2]||""));
