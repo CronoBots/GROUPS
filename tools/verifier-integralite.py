@@ -65,8 +65,12 @@ def main():
     with open(HORAIRE, encoding="utf-8") as f:
         hor = json.load(f)
 
-    sac = _reduit(" ".join(" ".join(v[1:])
-                           for p in hor["people"] for v in p["d"].values()))
+    # Le sac de ce que l'horaire porte : les commentaires des journées, ET
+    # les contrats réduits lus en pied de feuille depuis le 25/09. Oublier
+    # les seconds ferait compter comme perdu ce qu'on vient de récupérer.
+    sac = _reduit(" ".join(
+        [" ".join(v[1:]) for p in hor["people"] for v in p["d"].values()]
+        + [c.get("txt", "") for p in hor["people"] for c in p.get("ct", [])]))
     jours, pied, poly = [], [], []
     total = 0
     for nom in brut["feuilles"]:
