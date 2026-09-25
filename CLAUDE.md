@@ -981,6 +981,69 @@ Contrôlé : **62 trigrammes**, chacun écrit une fois et une seule — les 56
 personnes d'équipe et les 6 opérateurs en formation rattachés à une équipe. Personne sous le tableau, aucun débordement à 390, 1280 clair
 et 1280 sombre.
 
+### Un poste qui change à une date
+
+Le client, le 25/09/2026 : « pour LCI, il est bien en fermentation dans
+l'équipe 5 jusqu'au 29/09 inclus ». La table le montrait en distillation.
+
+**Les deux ne se contredisent pas.** La ligne 9 du classeur écrit
+« Distillation éq. 5 » sur sa ligne, mais sa POLYVALENCE déclarée est la
+fermentation — c'est-à-dire le poste qu'il TIENT, la distillation étant
+celui où il se FORME. Le classeur nomme le second ; le client dit que le
+premier vaut jusqu'au 29/09. Vérifié : **aucune de ses 365 cellules ne nomme
+un atelier avant le 15/10**, et le classeur ne dit nulle part ce qui change
+ce jour-là. La date ne peut venir que de lui.
+
+`POSTE_PERIODE` porte cette décision. **La ligne 9 en est ÉCRASÉE, et c'est
+l'inverse de `POSTE_TRANCHE`** : celle-ci vient en DERNIER recours, après
+tout ce que le classeur dit, pour ne rien pouvoir effacer ; celle-là vient
+en PREMIER, parce qu'elle corrige justement ce que le classeur écrit. Deux
+tables, deux places, et le nom doit les distinguer.
+
+**La borne porte l'ANNÉE et pas seulement le jour.** Un appareil ouvert en
+2027 comparerait « 0929 » à son propre septembre et rejouerait une
+correction qui ne vaut que pour 2026. Passé la date, la ligne 9 reprend la
+main d'elle-même — il n'y a rien à retirer d'ici le jour venu.
+
+**Le poste de la période est TENU, pas appris**, et la première version
+s'est trompée de moitié. Posée dans `_posteDeLigne9()`, la correction
+passait aussi par `posteDeFormation()` : LCI devenait un opérateur en
+formation à la fermentation — jaune dans la composition, pastille « F » dans
+le Recyclage. Exactement l'inverse de ce que dit le classeur. Elle se pose
+donc dans `posteAttitre()`, et là seulement.
+
+**Et les deux coexistent, ce qui n'était jamais arrivé.** `posteAttitre()`
+et `posteDeFormation()` étaient exclusives à dessein — « le MÊME calcul,
+seule la personne décide lequel des deux il devient ». LCI est le premier à
+tenir un poste ET à se former à un autre. Les couper toutes deux l'a fait
+**disparaître de la grille de Recyclage** : sa seule polyvalence étant
+devenue son poste, il ne lui restait rien à montrer, et le « F » de la
+distillation partait avec. Le rendu les lisait déjà séparément — `sien`
+s'exclut, `posteForm` porte le F — et sa ligne dit maintenant les deux
+vérités : **● à la fermentation, F à la distillation**.
+
+**LE JAUNE SUIT LE POSTE, PAS LA CATÉGORIE.** Il veut dire « présent, mais
+pas encore validé ICI », et c'est le poste montré qui le décide. LCI est
+bien un opérateur en formation, mais à la fermentation il est validé.
+`renderOrganisation()` lit donc `posteAttitre()` plutôt que `enFormation()`
+pour choisir le seau.
+
+Mesuré aux quatre dates, horloge déplacée : le 25/09 et le 29/09 il est à la
+fermentation et en gris ; le 30/09 il repasse en distillation et en jaune ;
+le 25/09/**2027** aussi — la correction ne fuit pas sur l'année suivante.
+
+**62 trigrammes**, chacun une fois, 5 en jaune, personne sous le tableau. Le
+Résumé le place déjà en fermentation ce jour-là : les deux vues sont
+d'accord, comme le veut « une place, une seule, et c'est celle du Résumé ».
+Manques inchangés à 14 journées, neuf règles à zéro, compteurs 76/77.
+
+**La découpe du vérificateur a cassé au passage** : `posteAttitre()` et
+`posteDeFormation()` tenaient chacune sur UNE ligne et se découpaient
+jusqu'au premier saut de ligne. Passées à trois lignes, la découpe rendait
+une fonction coupée en deux — `SyntaxError` au chargement. Elles se ferment
+sur `\n}` comme les autres, et `POSTE_PERIODE` est entrée dans la liste de
+découpe, comme `POSTE_TRANCHE` avant elle.
+
 ### Les cadres de l'onglet Équipe
 
 « Il faut mieux optimiser les cadres de l'onglet Équipe. » Deux gâchis, tous
