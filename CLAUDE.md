@@ -2080,6 +2080,16 @@ Le classeur ne dit nulle part quand quelqu'un arrive. Ce qu'il dit, c'est où
 sa colonne commence à porter quelque chose : **la borne est ce qu'il écrit,
 pas une date devinée.**
 
+**Et le client l'a confirmé** : « ceux qui n'avaient rien avant sont
+certainement des nouveaux qui sont arrivés en cours d'année ». Les cinq
+personnes dont la colonne commence en retard le disent d'elles-mêmes — leur
+première journée écrite tombe **chaque fois un LUNDI, suivi de cinq « D »
+d'affilée** : la semaine d'accueil, en horaire de jour, avant d'entrer dans
+une rotation. Cinq sur cinq, du 5 janvier au 14 septembre. C'est la preuve
+que la borne haute du remplissage est la bonne : avant ce lundi, la personne
+n'était pas là, et lui peindre des repos l'aurait fait vivre dans les manques
+d'effectif de mois où elle n'existait pas.
+
 **+20 journées**, 27 462 → 27 482, repos 7 571 → 7 591, journées prestées
 **inchangées à 14 435**. Neuf règles à zéro, compteurs 76/77, manques
 inchangés à 11.
