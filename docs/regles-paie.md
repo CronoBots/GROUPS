@@ -782,6 +782,39 @@ pas les deviner :
 - Une journée de 12 h portant aussi une absence partielle vaut-elle 10 h
   prestées (ce que fait le calcul) ou 12 h ?
 
+- **La maladie au-delà du premier mois.** Le client, le 25/09/2026 :
+  « apparemment la règle des maladies c'est la société qui paye pendant
+  1 mois avant que la personne tombe sur la mutuelle ». Le mot
+  « apparemment » est le sien : la règle n'est pas confirmée.
+
+  **Ce que le calcul fait aujourd'hui** : les heures `SMG` sont payées
+  comme des heures prestées, **sans limite de durée** — « heures d'absence
+  assimilées à du travail », ligne « Heure(s) SMG maladie ».
+
+  **Ce que cela vaut en pratique** : sept séries de l'horaire 2026 dépassent
+  trente jours, chez six personnes, dont une de **284 jours** et une de
+  **258**. Au-delà du premier mois, la fiche simulée de ces personnes
+  paierait des journées que la mutuelle prend en charge.
+
+  **Mais rien ne le prouve sur une fiche en main.** Les quatre séries de
+  maladie de VBN en 2026 font 8, 8, 1 et 1 journées : aucune n'atteint le
+  mois, et les fiches CONFIRMENT la lecture actuelle à l'heure près pour ces
+  durées-là (mai : 48,00 h sur la fiche = 6 journées, à l'heure près). Le
+  contrôle contre les fiches ne peut donc rien dire de la règle du mois.
+
+  Quatre choses manquent pour la coder, et chacune change le résultat :
+
+  1. **un mois = 30 jours CALENDRIER** depuis le premier jour d'incapacité,
+     ou le mois civil ? (le droit belge du salaire garanti compte en jours
+     calendrier, mais c'est le fait de la maison qui tranche, pas le texte) ;
+  2. **passé ce délai, la fiche porte-t-elle zéro heure de maladie** — la
+     mutuelle payant à côté, hors fiche — ou une ligne d'un autre genre ?
+  3. **une reprise remet-elle le compteur à zéro ?** Une rechute rapprochée
+     compte souvent dans la même période, et sept séries de l'horaire sont
+     entrecoupées ;
+  4. **cela vaut-il pour les employés seulement** (CP 220) ou aussi pour les
+     ouvriers et les intérimaires, dont les règles sont déjà inconnues ?
+
 ## Adjoint n'est pas contremaître, sauf quand il le remplace
 
 **Confirmé par le client le 21/09/2026.**
