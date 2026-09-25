@@ -2009,6 +2009,47 @@ Le drapeau `rec.hsc` a disparu avec l'exception qu'il portait — ce n'est
 plus un cas particulier, c'est la règle. `rec.hsp` reste : le poste des
 heures supplémentaires n'est toujours pas celui de la journée.
 
+**ET LA FICHE EN PORTE DEUX, QUE J'AVAIS TOUTES DEUX RETIRÉES.** Le client :
+« vérifie avec toutes mes feuilles de paye si ta logique est bonne ». Elle
+ne l'était pas. Trois de ses fiches portent des heures supplémentaires,
+toujours sous la même paire :
+
+```
+ 1:30  Heures sup à compenser à <taux> à 150 %     +
+-1:30  déduc HS à comp à <taux>                    −
+```
+
+Le sursalaire est payé au taux majoré LE MOIS DE LA PRESTATION, et l'heure
+de base est déduite puisqu'elle sera reprise plus tard. Net : la moitié du
+taux horaire. La fiche affiche le solde d'année du compteur juste à côté. **L'heure part au compteur, le sursalaire ne l'attend pas** —
+j'avais lu « les heures vont au compteur » comme « rien n'est payé », et
+c'était faux d'une moitié.
+
+Les deux lignes s'écrivent séparément plutôt que nettes : l'onglet Contrôle
+se lit ligne à ligne contre la fiche, et une ligne à 50 % n'y existe pas.
+
+**La leçon de méthode** : les fiches sont le contrôle le plus sévère dont on
+dispose, et je n'avais pas pensé à les ouvrir pour une règle de paie. Le
+client a dû le demander.
+
+### Ce que les fiches disent d'autre, et qui n'est pas expliqué
+
+La même comparaison montre un écart ANCIEN, identique avant et après tout ce
+qui a été fait le 25/09 — vérifié en rejouant l'outil sur un commit
+antérieur : **l'application compte 843 h là où huit fiches en portent
+962,53**, soit **−119,53 h et −8 journées** sur l'année.
+
+Ce qu'on sait déjà : les familles d'absence concordent presque toutes
+(vacances, congé parental, jour férié, formation syndicale : identiques),
+la période de chaque fiche est bien le mois civil, et VBN n'a **aucune**
+journée `HS` dans l'horaire — l'écart n'a donc rien à voir avec les heures
+supplémentaires. Ce sont les **heures et jours PRESTÉS** qui manquent.
+
+**Ce n'est pas expliqué**, et cela mérite sa propre passe. Ne pas conclure
+d'un mois isolé : janvier s'explique arithmétiquement par les heures de
+vacances (114 + 16 + 1 = 131), mais février dément aussitôt — la fiche y est
+plus BASSE que l'application.
+
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
 Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire

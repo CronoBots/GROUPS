@@ -977,6 +977,37 @@ c'est du HS car il n'y a aucune cellule qui mette `+4h FT` ». **Le classeur
 ÉCRIT l'épargne au flex time ; son silence désigne l'autre compteur**, celui
 qu'il ne porte pas.
 
+### La fiche porte DEUX lignes, et j'en avais retiré deux de trop
+
+**Le client, le 25/09/2026 : « vérifie avec toutes mes feuilles de paye si
+ta logique est bonne ».** Elle ne l'était pas, et ce sont ses fiches qui le
+disent — trois d'entre elles portent des heures supplémentaires, toujours
+sous la même PAIRE de lignes :
+
+```
+ 1:30  Heures sup à compenser à <taux> à 150 %     +
+-1:30  déduc HS à comp à <taux>                    −
+```
+
+Le sursalaire est payé au taux majoré **le mois de la prestation**, et
+l'heure de base est **déduite** puisqu'elle sera reprise plus tard. Net : la
+moitié du taux horaire. Décembre porte la même paire pour 4:30, et la fiche
+affiche le solde d'année du compteur juste à côté.
+
+**J'avais retiré les deux lignes** en croyant que « les heures vont au
+compteur » voulait dire « rien n'est payé ce mois-ci ». C'était faux d'une
+moitié : **l'HEURE part au compteur, le SURSALAIRE ne l'attend pas.**
+
+Les deux lignes s'écrivent séparément plutôt que nettes : l'onglet Contrôle
+se lit ligne à ligne contre la fiche du secrétariat social, et une ligne à
+50 % n'y existe pas. Vérifié au navigateur sur juillet — `4 Heures sup à
+compenser à 150 %` et `−4 déduc HS à comp`, net exactement la moitié du taux
+horaire sur quatre heures.
+
+**Et le champ manuel reste distinct** : « HS non compensées » désigne des
+heures payées EN ENTIER au lieu d'être récupérées. Ce n'est pas le même cas,
+et la fiche ne les nomme pas pareil.
+
 **ELLES SONT PAYÉES À LA REPRISE, PAS AU MOIS OÙ ELLES SONT PRESTÉES**, et
 c'est la formulation qu'il a fallu corriger. Le client : « les HS sont payées
 quand les opérateurs reprennent leurs heures sup (indiqué dans l'horaire ou
