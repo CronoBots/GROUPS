@@ -2235,8 +2235,33 @@ La journée passe à **`AM Chaudières 2/3`** : sur l'année, 384 → **385**
 places creuses et 189 → **190** journées. Rien ne bouge d'ici la fin de
 l'année, le 13/07 étant passé.
 
-**Le 16/09 reste en attente** : « par pause » désigne sans doute les trois,
-mais on ne code pas un « sans doute » qui fait apparaître des manques.
+**Le 16/09 : « par pause » veut dire AM et PM.** Le client, le 25/09/2026 :
+« c'était 3 en AM et en PM ». La nuit n'y est donc pas — et le classeur dit
+la même chose de lui-même, toutes les journées renforcées de l'année étant
+en AM et PM, la seule exception nommant explicitement « en AM, PM et N ».
+La journée passe à `AM Chaudières 2/3 · PM Chaudières 2/3`.
+
+**Et une exigence que le classeur porte encore peut ne plus valoir.** Le
+client, le même jour : « c'est fini aujourd'hui ». Le classeur reçu le
+25/09 avait déjà retiré le commentaire de **13 cellules sur deux
+journées** — 5 des 6 du 25/09, 8 des 9 du 29/09 — mais il en a laissé UNE de
+chaque, et chaque fois celle du **renfort lui-même**, venu en 7h-15h avec sa
+prime de pause. Un reste de nettoyage, pas une exigence.
+
+`RENFORT_CLOS` lève la journée du **29/09**, la seule qui soit APRÈS
+aujourd'hui. Le 25/09 garde la sienne — « fini aujourd'hui » se lisant
+« aujourd'hui compris » — et cela ne change aucun chiffre, les trois
+opérateurs y étant.
+
+**C'est la seule table du projet qui RETIRE quelque chose**, d'où son nom à
+elle. La confondre avec `RENFORT_TRANCHE`, qui ne sait qu'ajouter, ferait
+disparaître un renfort réel le jour où l'on s'y tromperait.
+
+Mesuré : les journées avec un manque passent de 190 à **189** sur l'année,
+les places creuses restent à **385** — le 16/09 en ajoute deux, le 29/09 en
+retire autant une fois le rééquilibrage refait. **D'ici la fin de l'année,
+retour à 8 journées**, et le 29/09 a bien disparu des pastilles « Postes en
+manque » — vérifié au navigateur à 390 et 1280 px.
 
 `renfortDuJour()` est mémoïsée par journée : elle balaie les 77 colonnes, et
 `postesDePause()` l'appelle trois fois par jour. Elle entre dans la découpe

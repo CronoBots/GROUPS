@@ -135,6 +135,7 @@ const MORCEAUX=[
   ["function compteAuPoste(","\n}"],
   ["function effectif(","\n}"],
   ["var RENFORT_TRANCHE=","\n"],
+  ["var RENFORT_CLOS=","\n"],
   ["var RENFORT_MOTIF=","\n"],
   ["var RENFORT_POSTE=","\n"],
   ["var renfortCache=","\n"],
