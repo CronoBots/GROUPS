@@ -2166,6 +2166,61 @@ formation — « Formation ARI - CEPS Seraing » — et non quelqu'un.
 Neuf règles à zéro, compteurs 76/77, découpe de `comparer-fiches` à
 l'épreuve, garde-fou du dépôt et contrôle croisé à zéro.
 
+### Un commentaire peut relever l'effectif d'une journée
+
+Le client, le 25/09/2026 : « quand il est écrit "Test de performance
+Vyncke", c'est pour que ces dates-là il fallait 3 opérateurs chaudière en AM
+et PM ».
+
+**Je l'avais rangé parmi les commentaires d'organisation**, c'est-à-dire
+nulle part — je venais d'annoncer qu'il avait « quitté onze cellules », comme
+si sa disparition n'ôtait rien. C'est la règle de tête du projet appliquée à
+l'effectif : **le commentaire dit ce qui a réellement été demandé, et il
+prime**. Un poste tenu à deux ce jour-là n'est pas complet, et le module des
+manques l'annonçait vert.
+
+**LA PHRASE EST LUE, PAS LA DATE.** Une table de journées — comme
+`POSTE_TRANCHE` ou `EQUIPE_TRANCHEE` — aurait vieilli au premier classeur
+suivant. Ici le classeur ÉCRIT l'exigence ; il n'y a rien à décider à sa
+place, seulement à lire. Le motif l'a prouvé sur-le-champ : il a trouvé
+**le 09/03, que le client n'a pas cité** — « Nettoyage Bang and Clean.
+Présence de 3 opérateurs obligatoire en AM et PM ». Même exigence, autre
+raison. Une table des journées « Vyncke » l'aurait manqué.
+
+Mesuré sur les 27 574 journées : **15 journées**, toutes de cette forme,
+toutes à 3, et **aucune autre cellule attrapée**.
+
+**Les pauses viennent du TEXTE** : « en AM et PM » sur quatorze journées,
+« en AM, PM et N » sur celle du 29/09. Les deviner aurait ajouté une nuit
+que personne n'avait demandée.
+
+**Le poste, lui, n'est pas écrit — et le classeur le corrobore quand
+même.** Sur les 17 personnes qui portent la phrase, **14 sont des
+chaudières de la ligne 9**, et les trois autres ont « chaudières » écrit
+dans leur annotation ce jour-là : c'est le renfort envoyé au poste. Ce n'est
+donc pas la parole du client contre le silence du fichier — les deux disent
+la même chose.
+
+La règle ne fait que **monter** l'effectif : un commentaire ne peut pas
+vider un poste, et le jour n'attend toujours personne.
+
+**Ce que cela déplace, mesuré** : sur l'année, les places creuses passent de
+**377 à 384** et les journées de 188 à 189 — cinq journées de janvier où les
+chaudières tenaient à deux ou un pour trois demandés (22, 23, 26, 27 et
+28/01). Le 09/03 et les 22 au 25/09 ne bougent pas : ils étaient bien trois.
+Fermentation **+1**, par le rééquilibrage — une place qui manque ailleurs en
+déplace une autre, c'est le mécanisme déjà documenté.
+
+**Et une seule journée à venir est concernée : le 29/09 au matin**, qui
+passe de « complet » à **`2/3`**. Vérifié au navigateur, à 390 et 1280 px :
+le module « Postes en manque » l'affiche, entre le terrain arrière du 27 et
+le gluten du 30. Les manques d'ici la fin de l'année passent de 8 à 9.
+
+`renfortDuJour()` est mémoïsée par journée : elle balaie les 77 colonnes, et
+`postesDePause()` l'appelle trois fois par jour. Elle entre dans la découpe
+du vérificateur avec ses trois constantes — sans quoi l'outil aurait rejoué
+un `attenduAuPoste()` qui ne sait plus lire son troisième argument.
+
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
 Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire

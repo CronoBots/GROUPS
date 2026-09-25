@@ -5483,10 +5483,65 @@ function effectif(liste,P){
    station d'épuration ». La STEP n'attend personne aux autres pauses, et le
    jour aucun poste n'est obligatoire — « en jours il n'est pas obligatoire
    d'avoir quelqu'un à chaque poste ». */
-function attenduAuPoste(P,gk){
+/* UN COMMENTAIRE PEUT RELEVER L'EFFECTIF D'UNE JOURNÉE, et rien ne le
+   lisait. Le client, le 25/09/2026 : « quand il est écrit "Test de
+   performance Vyncke", c'est pour que ces dates-là il fallait 3 opérateurs
+   chaudière en AM et PM ». Je l'avais rangé parmi les commentaires
+   d'organisation, c'est-à-dire nulle part.
+
+   C'est la règle de tête du projet appliquée à l'effectif : le commentaire
+   dit ce qui a réellement été demandé, et il prime. Un poste tenu à deux ce
+   jour-là n'est pas complet, et le module des manques l'annonçait vert.
+
+   LA PHRASE EST LUE, PAS LA DATE. Une table de journées aurait vieilli au
+   premier classeur suivant ; le motif suit. Il a d'ailleurs trouvé le
+   09/03, que le client n'a pas cité : « Nettoyage Bang and Clean. Présence
+   de 3 opérateurs obligatoire en AM et PM » — même exigence, autre raison.
+   Mesuré sur les 27 574 journées : 15 journées, toutes de cette forme,
+   toutes à 3, et AUCUNE autre cellule attrapée.
+
+   LES PAUSES VIENNENT DU TEXTE : « en AM et PM » sur quatorze journées,
+   « en AM, PM et N » sur celle du 29/09. Les deviner aurait ajouté une
+   nuit qui n'était pas demandée.
+
+   LE POSTE, LUI, N'EST PAS ÉCRIT — et le classeur le corrobore tout de
+   même : sur les 17 personnes qui portent la phrase, 14 sont des chaudières
+   de la ligne 9, et les trois autres ont « chaudières » écrit dans leur
+   annotation ce jour-là. C'est le renfort envoyé au poste, pas une autre
+   lecture possible.
+
+   Elle ne fait que MONTER l'effectif : un commentaire ne peut pas vider un
+   poste, et le jour (gk « D ») n'attend toujours personne. */
+var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
+var RENFORT_POSTE="chau";
+var renfortCache={};
+function renfortDuJour(db,mmdd){
+  if(!db||!db.people||!mmdd) return null;
+  var cle=db.year+"|"+mmdd;
+  if(renfortCache[cle]!==undefined) return renfortCache[cle];
+  var out=null, i, j;
+  for(i=0;i<db.people.length;i++){
+    var raw=db.people[i].d[mmdd]; if(!raw) continue;
+    var m=RENFORT_MOTIF.exec(String(raw[1]||"")+" "+String(raw[2]||""));
+    if(!m) continue;
+    var n=Number(m[1]); if(!(n>=1&&n<=9)) continue;
+    var pauses=m[2].toUpperCase().split(/[^A-Z]+/);
+    for(j=0;j<pauses.length;j++){
+      var g=pauses[j];
+      if(g!=="AM"&&g!=="PM"&&g!=="N") continue;
+      out=out||{};
+      out[RENFORT_POSTE]=out[RENFORT_POSTE]||{};
+      if(!(out[RENFORT_POSTE][g]>=n)) out[RENFORT_POSTE][g]=n;
+    }
+  }
+  renfortCache[cle]=out;
+  return out;
+}
+function attenduAuPoste(P,gk,ren){
   if(!P || gk==="D") return 0;
-  if(P.parPause && P.parPause[gk]!==undefined) return P.parPause[gk];
-  return P.n||0;
+  var n=(P.parPause && P.parPause[gk]!==undefined) ? P.parPause[gk] : (P.n||0);
+  if(ren && ren[P.k] && ren[P.k][gk]>n) n=ren[P.k][gk];
+  return n;
 }
 function peutTenir(person,P){
   /* « Sait-elle tenir ce poste » ne dépend pas de l'effectif qu'on y
@@ -5526,8 +5581,8 @@ function peutTenir(person,P){
    manque et que cette personne-là, marquée « R », peut le tenir. C'est ce
    que le « R » annonce. */
 var EST_RENFORT=/^r$/i;
-function reequilibrer(parPoste,mmdd,inconnus,gk){
-  function att(X){ return attenduAuPoste(X,gk); }
+function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
+  function att(X){ return attenduAuPoste(X,gk,ren); }
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
   /* Combien de postes EN MANQUE cette personne saurait-elle tenir ? Un seul,
@@ -5879,6 +5934,7 @@ function equipeDuJour(db,annee,mois,jour){
    équipe complète. */
 function postesDePause(db,liste,gk,mmdd){
   var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
+  var ren=renfortDuJour(db,mmdd);
   db.people.forEach(function(q){ parId[q.id]=q; });
   liste.forEach(function(x){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")
@@ -5892,14 +5948,14 @@ function postesDePause(db,liste,gk,mmdd){
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
   /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
-  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk);
+  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk,ren);
   POSTES_TRAVAIL.forEach(function(P){
     var gens=parPoste[P.k]||[];
     /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
        n'attend personne — le client : « il ne faut pas afficher les postes
        qui n'ont pas de personnel » — et sept intitulés à zéro noyaient les
        trois qui portaient du monde. */
-    if(!gens.length && !attenduAuPoste(P,gk)) return;
+    if(!gens.length && !attenduAuPoste(P,gk,ren)) return;
     var tenu=effectif(gens,P), detail="";
     if(P.k==="terr"){
       /* Le poste revient au polyvalent arrière ; le renfort arrière le tient
@@ -5951,7 +6007,7 @@ function postesDePause(db,liste,gk,mmdd){
     var tient=[], apprend=[];
     gens.forEach(function(x){ (enFormation(x.p)?apprend:tient).push(x); });
     gens=tient.concat(apprend);
-    var attendu=attenduAuPoste(P,gk);
+    var attendu=attenduAuPoste(P,gk,ren);
     sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,
                  manque:!!(attendu && tenu<attendu), creux:Math.max(0,attendu-gens.length)});
   });
@@ -6034,6 +6090,9 @@ function renderEquipe(){
     var PAUSES=EQ_GROUPES.filter(function(g){
       return ["AM","PM","N"].indexOf(g.k)>=0; });
     var vp={}, aQui=false;
+    /* Le même relèvement d'effectif que postesDePause() lit : sans lui, la
+       case afficherait « 2/2 » là où la journée en demandait trois. */
+    var renJ=renfortDuJour(db,mmdd);
     PAUSES.forEach(function(g){
       var l=(par[g.k]||[]).slice();
       if(!l.length) return;
@@ -6074,7 +6133,7 @@ function renderEquipe(){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
-          att=Math.max(att, attenduAuPoste(P,g.k));
+          att=Math.max(att, attenduAuPoste(P,g.k,renJ));
           var o=poste(g.k,P.k); if(o && o.gens.length) sert=true;
         });
         if(!att && !sert) return;
@@ -6088,12 +6147,12 @@ function renderEquipe(){
           /* Le client : « on peut également mettre "-" pour la STEP PM et
              N ». Une case grise et muette laissait croire à un oubli ; le
              tiret dit que ce poste n'attend personne à cette pause-là. */
-          if(!o || (!o.gens.length && !attenduAuPoste(P,g.k))){
+          if(!o || (!o.gens.length && !attenduAuPoste(P,g.k,renJ))){
             aVide=true; tp.push('<td class="vide">\u2013</td>'); return; }
           /* Le client : « n'afficher l'effectif minimum que dans la cellule
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
-          var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k);
+          var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
           if(mq){ cl.push("manque"); aManque=true; }
           for(var fi=0;fi<o.gens.length;fi++)
             if(enFormation(o.gens[fi].p)){ aForm=true; break; }
