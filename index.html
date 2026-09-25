@@ -1808,6 +1808,7 @@ body[data-horaire="annee"] #rotasub{display:none}
               <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
               <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
               <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
+              <dt>TP</dt><dd>temps partiel — le jour non travaillé d'un 9/10 ou d'un 4/5 ; la rémunération est déjà réduite, rien ne se pose ce jour-là</dd>
             </dl>
             <h3>Heures supplémentaires</h3>
             <dl>
@@ -2128,7 +2129,28 @@ var ABS=[
     sans solde ». Sans cet alias, SMA les 01 et 09/10 comptait huit heures
     prestées pour deux journées non payées. Même procédé que CPAR, alias
     caché de CP. */
- {c:"CSS",h:8,k:"AUTRE",hidden:true}
+ {c:"CSS",h:8,k:"AUTRE",hidden:true},
+ /* « TP » : LA JOURNÉE NON TRAVAILLÉE D'UN TEMPS PARTIEL. Le client, le
+    25/09/2026 : « TP c'est temps partiel, CP (congé parental 4/5 ou 9/10)
+    et TP c'est pareil mais sans la compensation de l'ONEM », puis « pour le
+    TP je ne pense pas, c'est une réduction de temps de travail avec la loi
+    belge pour le 9/10 ou 4/5 ».
+
+    Ce n'est donc PAS une absence que l'on pose : c'est un jour qui ne fait
+    pas partie du contrat, comme un samedi l'est pour tout le monde. La
+    rémunération est déjà réduite à la source — d'où un code qui retire les
+    huit heures de la journée et n'écrit AUCUNE ligne de fiche. Le « k » lui
+    est propre plutôt qu'emprunté à AUTRE : un congé sans solde et un temps
+    partiel ne sont pas la même chose, et le jour où une fiche montrera une
+    ligne pour l'un, il ne faudra pas la poser sur l'autre.
+
+    Il était rangé dans JOUR_PRIME_PAUSE, donc lu comme une journée PRESTÉE
+    en horaire de jour : 209 journées chez 8 personnes comptaient huit
+    heures et une prime de jour pour des gens qui sont chez eux, et le
+    module des manques les croyait à leur poste. La cellule franche de ces
+    journées porte ce que la rotation avait PRÉVU — D, 6h-14h, 7h-15h, N —
+    et non ce qui a été presté. */
+ {c:"TP",h:8,k:"TP"}
 ];
 var ABSMAP={}; ABS.forEach(function(a){ABSMAP[a.c]=a;});
 /* Le classeur écrit « 8h -FT » ou « 3h RTT » là où les codes sont en
@@ -4013,7 +4035,7 @@ function seChevauchent(p,q){
    poste ce jour-là, il n'y a pas de prime à conserver et la journée vaut un
    poste de jour : « FLI le 16/04, prévu en repos mais fait DS, donc payé
    comme un D sans prime de pause ». */
-var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce","tp"];
+var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce"];
 /* Mentions reconnues, mais sans effet sur le calcul.
    « R-F » est un « remplacement formation » ; le client : « ce sont des
    remplacements d'autres opérateurs pendant sa pause normale de travail ».
@@ -5719,7 +5741,7 @@ function equipeDuJour(db,annee,mois,jour){
 
        Deux champs disent la même chose selon la source : r.sp quand le
        COMMENTAIRE nomme une prime à conserver, r.jourCode quand la MENTION
-       elle-même est l'une des huit de JOUR_PRIME_PAUSE — SD26, F, D-F, DS,
+       elle-même est l'une des sept de JOUR_PRIME_PAUSE — SD26, F, D-F, DS,
        CPPT, DS-CE, TP. Le calendrier lisait déjà les deux, par postePeint() ;
        la vue du jour n'en lisait qu'un.
 

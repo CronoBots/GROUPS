@@ -759,6 +759,78 @@ classeur le place bien aux chaudières de l'équipe 1 — l'application l'y
 montre, avec un **F** — mais il n'y a aucune polyvalence validée, et c'est
 la règle : on n'est pas validé là où l'on se forme.
 
+## `TP` : le jour non travaillé d'un temps partiel
+
+**Confirmé par le client le 25/09/2026.** D'abord : « TP c'est temps
+partiel, CP (congé parental 4/5 ou 9/10) et TP c'est pareil mais sans la
+compensation de l'ONEM je pense ». Puis, interrogé sur le paiement de la
+journée : « pour le TP je ne pense pas, c'est une réduction de temps de
+travail avec la loi belge pour le 9/10 ou 4/5 ».
+
+**Ce n'est donc pas une absence que l'on pose.** C'est un jour qui ne fait
+pas partie du contrat — comme un samedi l'est pour tout le monde. La
+rémunération est déjà réduite à la source, et l'application le savait déjà :
+le réglage **« Fraction payée »** demande exactement cela, « 1 = temps
+plein, 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps ». Le
+jour non travaillé n'a donc **aucune ligne de fiche** à porter : la
+réduction est dans le salaire de base, pas dans une retenue.
+
+C'est ce qui sépare `TP` de `CP`. Les deux marquent le même jour d'absence,
+mais `CP` ouvre l'allocation de l'ONEM et porte sa ligne — « congé parental
+AR 29.10.1997 » — tandis que `TP` ne porte rien.
+
+### La mesure qui a confirmé le « c'est pareil »
+
+Les deux codes se posent de la même façon : par blocs de un à trois jours,
+et non un jour fixe par semaine. Leurs totaux annuels sont ceux d'un temps
+partiel — 26 journées valent un jour par quinzaine (9/10), 51 un jour par
+semaine (4/5).
+
+| | Journées | Séries | Tailles |
+|---|---|---|---|
+| VBN `CP` | 26 | 12 | 3×6, 2×2, 1×4 |
+| GSK `CP` | 51 | 26 | 3×9, 2×7, 1×10 |
+| LCI `TP` | 25 | 10 | 3×5, 2×5 |
+| FLN `TP` | 40 | 14 | 3×8, 2×1, 1×3 |
+
+`TP` : **209 journées chez 8 personnes** — FLN 40, LAX 34, ATA 26, DWS 26,
+SPT 26, SMA 26, LCI 25, GDT 6. `CP` : 423 journées chez 17 personnes.
+
+### Le calcul faisait exactement l'inverse
+
+`TP` était rangé dans `JOUR_PRIME_PAUSE`, donc lu comme une journée
+**prestée** en horaire de jour. Même forme de cellule, lecture opposée :
+
+| Cellule | Avant | Après |
+|---|---|---|
+| `["7h-15h","CP"]` | absence — 0 h | inchangé |
+| `["6h-14h","TP"]` | poste — **8 h + prime de jour** | absence — **0 h** |
+
+La cellule franche de ces journées porte ce que la rotation avait **prévu**
+— `D` (73), `6h-14h` (57), `7h-15h` (47), `N` (18), `PM` (9), `AM` (5) — et
+non ce qui a été presté. Les 209 journées comptaient donc huit heures et une
+prime pour des gens qui sont chez eux, et le module des manques les croyait
+à leur poste.
+
+Le code entre au barème des absences avec **son propre `k`** plutôt qu'en
+empruntant celui de `SANS SOLDE` : un congé sans solde et un temps partiel
+ne sont pas la même chose, et le jour où une fiche montrera une ligne pour
+l'un, il ne faudra pas la poser sur l'autre.
+
+### Ce que la correction déplace
+
+Journées prestées **14 645 → 14 436**, absences affichées **+209** — soit
+exactement les 209 journées, sans un écart. Neuf règles à zéro, compteurs
+**76/77**, manques d'effectif **inchangés à 11 journées / 11 places** : le
+rééquilibrage couvre déjà ces absences. Les couples de polyvalence passent
+de 101 à **99** — deux couples dont toutes les journées étaient des `TP` —
+et les 33 au quota ne bougent pas.
+
+**La `fraction` reste à saisir à la main.** On pourrait la déduire du nombre
+de journées `TP` de la personne, mais c'est un réglage personnel qui ne
+quitte pas l'appareil, et une déduction se tromperait sur une année
+incomplète.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
@@ -772,48 +844,6 @@ pas les deviner :
   prestée normale, absence payée, ou absence non payée ? Certains relèvent
   peut-être de la règle « horaire de jour, prime de pause conservée »
   (`conversion-horaire.md`, section 6 bis).
-
-- **`TP` : la journée de temps partiel est-elle payée ?** Le client, le
-  25/09/2026 : « TP c'est temps partiel, CP (congé parental 4/5 ou 9/10) et
-  TP c'est pareil mais sans la compensation de l'ONEM je pense ».
-
-  **Le « c'est pareil » règle la LECTURE, et la mesure le confirme.** Les
-  deux codes se posent de la même façon — par blocs de un à trois jours,
-  et non un jour fixe par semaine — et leurs totaux sont ceux d'un temps
-  partiel : 26 journées sur l'année valent un jour par quinzaine (9/10),
-  51 valent un jour par semaine (4/5).
-
-  | | Journées | Séries | Tailles |
-  |---|---|---|---|
-  | VBN `CP` | 26 | 12 | 3×6, 2×2, 1×4 |
-  | GSK `CP` | 51 | 26 | 3×9, 2×7, 1×10 |
-  | LCI `TP` | 25 | 10 | 3×5, 2×5 |
-  | FLN `TP` | 40 | 14 | 3×8, 2×1, 1×3 |
-
-  `TP` : **209 journées chez 8 personnes** — FLN 40, LAX 34, ATA 26, DWS 26,
-  SPT 26, SMA 26, LCI 25, GDT 6. `CP` : 423 journées chez 17 personnes.
-
-  **Ce que le calcul fait aujourd'hui est l'inverse**, et c'est un défaut :
-  `TP` est rangé dans `JOUR_PRIME_PAUSE`, donc lu comme une journée
-  PRESTÉE en horaire de jour. Même forme de cellule, lecture opposée :
-
-  | Cellule | Lu comme |
-  |---|---|
-  | `["7h-15h","CP"]` | absence « CP » — **0 h** |
-  | `["6h-14h","TP"]` | poste « TP » — **8 h prestées**, prime de jour |
-
-  La cellule franche de ces journées porte ce que la rotation avait PRÉVU
-  — `D` (73), `6h-14h` (57), `7h-15h` (47), `N` (18), `PM` (9), `AM` (5) —
-  et non ce qui a été presté. Les 209 journées comptent donc huit heures et
-  une prime de jour pour des gens qui sont chez eux, et le module des
-  manques d'effectif les croit à leur poste.
-
-  **Ce qui manque pour le coder** : le code `CP` vaut `{h:8, k:"CPAR"}` et
-  porte la ligne « congé parental AR 29.10.1997 ». `TP` étant « pareil mais
-  sans la compensation de l'ONEM », sa journée est-elle **payée par
-  l'employeur** — auquel cas quelle ligne de fiche — ou **non rémunérée**,
-  comme `SANS SOLDE` ? Une journée non prestée mal payée se voit tout de
-  suite sur la fiche ; celle-ci se répète 209 fois.
 
 - **GPS le 02/07 : la journée de RHS avec un rappel de nuit.** Le client, le
   25/09/2026 : « pour GPS le 02/07 il était bien en RHS mais il a été
