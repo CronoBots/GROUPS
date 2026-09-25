@@ -36,6 +36,7 @@ raison. Ajouter une ligne à ce fichier est un acte : c'est là qu'un vrai nom
 se glisserait s'il se glissait quelque part.
 """
 import io
+import json
 import os
 import re
 import subprocess
@@ -172,6 +173,59 @@ def _blobs():
             yield sha, chemin
 
 
+HORAIRE = os.path.join(RACINE, "data", "horaire-2026.json")
+CLASSEUR_ANON = os.path.join(RACINE, "data", "classeur-2026.xlsx")
+
+
+def _croise():
+    """LES DEUX SORTIES VIENNENT DU MÊME CLASSEUR : ce que l'une a retiré et
+    que l'autre a gardé est suspect.
+
+    Le 25/09/2026, `data/horaire-2026.json` — dépôt PUBLIC — portait QUATRE
+    prénoms et noms de famille de collègues, écrits au fil de commentaires :
+    « changement d'équipe de <nom> », « remplace <prénom> qui remplaçait
+    <prénom> », « Remplacé par CDE (<prénom>) ». Les motifs de cet outil ne
+    les ont pas vus, et ils ne le pouvaient pas : UN PRÉNOM SEUL N'A AUCUNE
+    FORME RECONNAISSABLE — c'est la faille que `CLAUDE.md` décrit depuis le
+    22/09, et elle s'est refermée sur nous.
+
+    Le convertisseur ne pouvait pas mieux faire : ces prénoms n'existent
+    nulle part ailleurs dans le classeur, ni dans la ligne des noms, ni dans
+    la feuille « Personnel », qui réduit le prénom à une initiale. Il n'avait aucun
+    moyen de savoir que c'étaient des gens.
+
+    L'ANONYMISEUR, LUI, LES AVAIT TOUS LES QUATRE. On ne lui emprunte pas ses
+    motifs — les deux outils doivent pouvoir se contredire — on compare ses
+    RÉSULTATS : tout mot capitalisé qui vit dans les commentaires du JSON
+    mais ne se retrouve nulle part dans le classeur anonymisé est un mot que
+    l'un des deux outils a retiré et que l'autre a laissé passer.
+
+    Mesuré le 25/09/2026 : 121 mots capitalisés distincts dans les
+    commentaires du JSON, 3 signalés — et les trois étaient des prénoms.
+    Aucun bruit.
+    """
+    if not (os.path.exists(HORAIRE) and os.path.exists(CLASSEUR_ANON)):
+        return {}
+    try:
+        db = json.load(io.open(HORAIRE, encoding="utf-8"))
+        z = zipfile.ZipFile(CLASSEUR_ANON)
+        blob = "".join(z.read(f).decode("utf-8", "ignore") for f in z.namelist()
+                       if f.endswith((".xml", ".rels")))
+    except Exception as e:
+        print("  contrôle croisé impossible : %s" % e, file=sys.stderr)
+        return {}
+    mots = {}
+    for p in db.get("people", []):
+        for jour, v in (p.get("d") or {}).items():
+            if not v or len(v) < 3:
+                continue
+            for m in re.findall(r"\b[A-ZÀ-Ý][a-zà-ÿ]{2,}\b", v[2] or ""):
+                if m not in blob:
+                    mots.setdefault(m, set()).add(
+                        "data/horaire-2026.json (%s %s)" % (p.get("id"), jour))
+    return mots
+
+
 def main():
     hist = "--historique" in sys.argv
     admises = _admises()
@@ -186,6 +240,11 @@ def main():
             continue
         for forme in _cherche(texte) - admises:
             restes.setdefault(forme, set()).add(nom)
+
+    # Le contrôle croisé, qui ne repose sur aucun motif.
+    for forme, ou in _croise().items():
+        if forme not in admises:
+            restes.setdefault(forme, set()).update(ou)
 
     if hist:
         for sha, chemin in _blobs():
