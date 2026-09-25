@@ -5160,6 +5160,25 @@ var PROJETS_SUR_POSTE=[/falling\s*film/i];
 function surSonPosteMalgreF(raw){
   var c=String((raw&&raw[2])||""), i;
   for(i=0;i<PROJETS_SUR_POSTE.length;i++) if(PROJETS_SUR_POSTE[i].test(c)) return true;
+  /* UNE PLAGE QUI NOMME UNE PAUSE DIT QU'ON EST À SON POSTE.
+
+     Le client, le 25/09/2026 : « GPS le 30/09 fait 10-22 mais vient plus
+     tôt pour participer au CPPT ». Sa cellule dit ["10h-22h","D-CPPT"] :
+     le code de jour le sortait de sa pause, la case « Contremaître » de
+     l'après-midi passait à 0/1, et lui se lisait dans « Hors poste » sous
+     l'étiquette CPPT. Il était pourtant bien à son poste de 10 h à 22 h —
+     la réunion explique seulement pourquoi il est venu plus tôt.
+
+     Le code de jour dit que la journée s'est faite EN HORAIRE DE JOUR ; une
+     plage qui nomme une PAUSE dit le contraire, et elle le dit avec des
+     heures. On ne garde donc la sortie de poste que si la plage n'existe
+     pas ou qu'elle désigne le jour — « 7h-15h | SD26 » reste une journée de
+     jour, et 121 journées de l'année sont dans ce cas.
+
+     95 journées changent de place, dont 80 en « 6h-14h » : quelqu'un qui
+     travaille de 6 h à 14 h est au MATIN, quoi que dise l'annotation. */
+  var pl=plageMention(String((raw&&raw[0])||"").trim());
+  if(pl){ var k=posteDepuisPlage(pl); if(k && k!=="D") return true; }
   return false;
 }
 function posteDepuisNom(t){

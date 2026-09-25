@@ -1684,6 +1684,44 @@ vérificateur annonçait les mêmes chiffres qu'avant. Elles appellent
 Journées prestées **14 648 → 14 653**, repos **7 575 → 7 570**, mentions non
 comprises **19 → 14**. Neuf règles à zéro, compteurs 76/77.
 
+### Une plage qui nomme une pause dit qu'on est à son poste
+
+Le client, le 25/09/2026 : « GPS le 30/09 fait 10-22 mais vient plus tôt
+pour participer au CPPT ».
+
+Sa cellule dit `["10h-22h","D-CPPT"]`. Le code de jour le sortait de sa
+pause : la case **Contremaître de l'après-midi passait à 0/1**, et lui se
+lisait dans « Hors poste » sous l'étiquette CPPT. Il était pourtant bien à
+son poste de 10 h à 22 h — la réunion explique seulement pourquoi il est
+venu plus tôt.
+
+Le code de jour dit que la journée s'est faite EN HORAIRE DE JOUR. **Une
+plage qui nomme une PAUSE dit le contraire, et elle le dit avec des
+heures.** `surSonPosteMalgreF()` ne laisse donc plus sortir du poste quand
+la cellule porte une plage dont `posteDepuisPlage()` ne rend pas le jour.
+
+**216 journées portent une plage ET un code de jour ; 121 restent où elles
+étaient** — « 7h-15h | SD26 » est bien une journée de jour, et la règle ne
+la touche pas. **95 changent de place, dont 80 en « 6h-14h »** : quelqu'un
+qui travaille de 6 h à 14 h est au MATIN, quoi que dise l'annotation.
+
+Les manques passent de **12 à 11 journées**, et GPS reprend sa place de
+contremaître le 30/09 — avec JKS et SBZ, que la même règle ramène dans
+leurs pauses.
+
+### Ces semaines-ci sont exceptionnelles
+
+Le client, le 25/09/2026 : « ces semaines-ci c'est exceptionnel mais il y a
+une transition des postes de certains opérateurs ; tout devrait rentrer
+dans l'ordre dans les semaines qui viennent mais il se peut qu'il y ait des
+trous ces semaines-ci ».
+
+**À lire avant de courir après les manques d'effectif de septembre et
+d'octobre.** Les trous qui restent ne sont pas tous des défauts de lecture :
+une partie est la réalité du terrain pendant la transition. C'est aussi ce
+qui explique `POSTE_PERIODE` — un poste qui change à une date n'est pas une
+bizarrerie du classeur, c'est cette transition-là.
+
 ### Une absence qui finit aujourd'hui le dit
 
 Le client, le 23/09/2026 : « pourquoi pas de durée pour la maladie de
