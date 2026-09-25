@@ -4287,6 +4287,48 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
        début. Celle-ci n'en a pas : le 6 h vient du client, et il est écrit
        ici avec sa raison plutôt que deviné. */
     if(normPlage(txt)==="sd26/abs"){ r.jour="SD26"; r.poste="D"; r.plage=[6,12]; return r; }
+    /* « RHS+02h-06h » : LA JOURNÉE EN CONGÉ, ET UN RAPPEL DEDANS. GPS le
+       02/07, seule cellule de l'année à mêler un code d'absence et une
+       plage. Le client, le 25/09/2026 : « il était bien en RHS mais il a
+       été rappelé le jour même pour venir faire 02-06 », puis « il a fait
+       4 HS de 02-06h en étant rappelé le jour même ; je sais que c'est du
+       HS car il n'y a aucune cellule dans sa liste qui mette +4h FT, et de
+       06 à 14h il était bien en RHS (reprise d'heure sup donc congé) ».
+
+       Deux faits dans une cellule, donc, et le champ `abs` n'accepte qu'un
+       code. Le congé prend ce champ — c'est lui qui vide la journée, et
+       c'est le même libellé de fiche que ses 1er et 3 juillet, qui portent
+       « RHS » tout court. Les heures supplémentaires passent par `ax`, que
+       l'accumulateur concatène déjà à `a` : ses deux autres lecteurs ne
+       regardent que les codes dont `h>0`, donc un « 4H HS » n'y retire ni
+       n'y ajoute rien.
+
+       LA PLAGE DU RAPPEL NE SE MET PAS DANS `r.plage`, et une première
+       version l'a fait : ce champ dit la plage réellement prestée COMME
+       POSTE DU JOUR, et `dureeReelle("D",[2,6],8)` rend **12** — la
+       machinerie étend le poste pour couvrir 2h à 6h et lit une journée de
+       douze heures, dont elle retire ensuite les huit de RHS. Résultat :
+       « 4 h prestées en D », c'est-à-dire ni le congé ni les heures
+       supplémentaires. La plage ne sert donc qu'à COMPTER les heures du
+       rappel ; la journée, elle, garde la plage de sa cellule franche et se
+       vide entièrement contre le RHS.
+
+       Les heures supplémentaires se rangent alors dans le seau du poste du
+       jour — « D », dont la prime d'équipe est nulle. Le client n'a pas dit
+       si ces quatre heures de nuit ouvrent la prime de nuit : c'est un
+       montant, et la lecture prudente ne la réclame pas. À trancher. */
+    var duoAbs=/^([^+]+)\+(.+)$/.exec(txt);
+    if(duoAbs){
+      var cAb=codeAbsence(duoAbs[1].trim()), pRap=plageMention(duoAbs[2].trim());
+      if(cAb && ABSMAP[cAb] && ABSMAP[cAb].h>0 && pRap){
+        var nHS=Math.round(pRap[1]-pRap[0]);
+        if(nHS>=1 && nHS<=8 && ABSMAP[nHS+"H HS"]){
+          r.abs=ALIAS_HORAIRE[cAb]||cAb;
+          r.axHS=nHS+"H HS";
+          return r;
+        }
+      }
+    }
     var code=codeAbsence(txt);
     if(code){ r.abs=ALIAS_HORAIRE[code]||code; return r; }
     var n=normPlage(txt);
@@ -4317,7 +4359,7 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
     r.inconnu=true; r.txt=txt;
     return r;
   }
-  var A=lire(e[1]), C=lire(e[0]);
+  var A=lire(e[1]), C=lire(e[0]), axHS=null;
   /* « pris le 19.09 » : le commentaire renvoie l'annotation à UN AUTRE JOUR.
      Le client, le 21/09/2026 : « FPA est indiqué "2h -FT" alors que le
      commentaire dit bien que c'est pour un autre jour. Il faut faire
@@ -4341,6 +4383,7 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
     if(x.jour) jourPrime=x.jour;
     if(x.lieu && !out.lieu) out.lieu=x.lieu;
     if(x.rhs) out.rhs=(out.rhs||0)+x.rhs;
+    if(x.axHS) axHS=x.axHS;
     if(x.doute) out.doute=true;
     if(x.inconnu){
       out.unknown=(out.unknown||0)+1;
@@ -4415,6 +4458,8 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      journée visée : ["PM","4h -FT","+4h RTT"], et la somme tombe alors
      juste à zéro heure prestée. */
   if(renvois && renvois.length) out.ax=renvois.slice();
+  /* les heures supplémentaires d'un rappel logé dans une cellule de congé */
+  if(axHS) out.ax=(out.ax||[]).concat([axHS]);
   out.epargne=(A2&&A2.ft>0)?A2.ft:0;
   out.planifie=!!(C.poste||plage);
   /* Heures payées = durée réellement prestée MOINS tout ce qui part au

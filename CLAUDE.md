@@ -1821,6 +1821,50 @@ des heures assimilées à du travail : ce motif annonce « payées comme des
 heures prestées », ce qui serait faux ici. Vérifié sur ATA : 24 heures en
 septembre, et aucune colonne en euros.
 
+### Un congé et un rappel dans la même cellule
+
+GPS le 02/07, `["7h-15h","RHS+02h-06h","Rappel le 02/07"]` — la seule
+cellule de l'année à mêler un code d'absence et une plage. Le client, le
+25/09/2026 : « il a fait 4 HS de 02-06h en étant rappelé le jour même ; **je
+sais que c'est du HS car il n'y a aucune cellule dans sa liste qui mette
+`+4h FT`**, et de 06 à 14h il était bien en RHS ». Le raisonnement est celui
+du classeur : l'épargne au compteur s'écrit, elle.
+
+Le calcul en faisait un poste `D` de **8 h prestées sans aucun RHS** — les
+deux moitiés fausses.
+
+**`abs` n'accepte qu'un code, et c'est le congé qui le prend** : c'est lui
+qui vide la journée, et c'est le libellé de fiche de ses 1er et 3 juillet.
+Les heures supplémentaires passent par **`ax`**, que l'accumulateur
+concatène déjà à `a`. Ses deux autres lecteurs ne regardent que les codes
+dont `h>0`, donc un `4H HS` n'y touche à rien. Un champ parallèle aurait
+demandé cinq points de synchronisation ; **une source de plus pour un
+mécanisme existant vaut mieux qu'un mécanisme de plus à tenir en phase.**
+
+**LA PLAGE DU RAPPEL NE SE MET PAS DANS `r.plage`**, et la première version
+l'a fait sans rien casser de visible. Ce champ dit la plage prestée COMME
+POSTE DU JOUR, et `dureeReelle("D",[2,6],8)` rend **12** : le poste est
+étendu pour couvrir 2 h à 6 h, la journée devient douze heures, les huit de
+RHS en sont retirées, et l'on affiche « 4 h prestées en D » — ni le congé,
+ni les heures supplémentaires. La plage ne sert qu'à COMPTER les heures du
+rappel.
+
+**Et la copie du vérificateur ne portait pas `ax`.** `index.html` l'écrit
+depuis toujours (`nrec.ax=parsed.ax`), `enregistre()` du vérificateur non :
+le mois rejoué perdait les codes supplémentaires. C'est encore le même
+piège — deux copies, et c'est la seconde qui reste en arrière. `--journee`
+les imprime désormais sous « codes en plus ».
+
+Journées prestées **14 436 → 14 435**, absences **+1**, mentions non
+comprises **14 → 13**. Neuf règles à zéro, compteurs 76/77. Vérifié au
+navigateur sur la fiche de juillet de GPS : 24 h de récup. HS, 4 h
+supplémentaires, 4 h payées à 150 %, et la prime de rappel J.
+
+**À TRANCHER : la prime de nuit de ces quatre heures.** Elles se rangent
+dans le seau du poste du JOUR — « D », prime nulle — et non dans celui de la
+nuit où elles ont été prestées. Le client ne l'a pas dit ; c'est un montant,
+donc la lecture prudente ne le réclame pas.
+
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
 Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire
