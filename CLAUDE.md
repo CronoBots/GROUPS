@@ -2216,6 +2216,28 @@ passe de « complet » à **`2/3`**. Vérifié au navigateur, à 390 et 1280 px 
 le module « Postes en manque » l'affiche, entre le terrain arrière du 27 et
 le gluten du 30. Les manques d'ici la fin de l'année passent de 8 à 9.
 
+**Et le motif était trop étroit, comme la douzième règle le prédit.** Deux
+journées portent la même exigence écrite autrement et lui échappaient :
+le **13/07**, « Présence de 3 opérateurs obligatoire », sans dire la pause,
+et le **16/09**, « 3 opérateurs en poste par pause » — ATR y est noté
+« Renfort chaudières… en D comme 3ᵉ homme ». Un motif qui lit moins qu'il ne
+croit ne ment pas : il se tait.
+
+`RENFORT_TRANCHE` porte la décision du client pour le 13/07 — « c'est en AM
+surtout qu'il faut être 3 ». Elle **COMPLÈTE** le classeur au lieu de le
+corriger, d'où une fusion par le maximum : c'est ce qui la distingue de
+`POSTE_PERIODE`, qui vient en premier justement pour effacer ce que le
+classeur écrit. L'après-midi n'y figure pas alors que trois cellules du
+13/07 sont en PM — le client a dit « surtout en AM », et inventer une
+exigence ferait apparaître un manque qui n'a jamais existé.
+
+La journée passe à **`AM Chaudières 2/3`** : sur l'année, 384 → **385**
+places creuses et 189 → **190** journées. Rien ne bouge d'ici la fin de
+l'année, le 13/07 étant passé.
+
+**Le 16/09 reste en attente** : « par pause » désigne sans doute les trois,
+mais on ne code pas un « sans doute » qui fait apparaître des manques.
+
 `renfortDuJour()` est mémoïsée par journée : elle balaie les 77 colonnes, et
 `postesDePause()` l'appelle trois fois par jour. Elle entre dans la découpe
 du vérificateur avec ses trois constantes — sans quoi l'outil aurait rejoué
