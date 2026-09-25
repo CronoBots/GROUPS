@@ -769,11 +769,18 @@ travail avec la loi belge pour le 9/10 ou 4/5 ».
 
 **Ce n'est donc pas une absence que l'on pose.** C'est un jour qui ne fait
 pas partie du contrat — comme un samedi l'est pour tout le monde. La
-rémunération est déjà réduite à la source, et l'application le savait déjà :
-le réglage **« Fraction payée »** demande exactement cela, « 1 = temps
-plein, 0,90 pour un congé parental 9/10ᵉ, 0,80 pour un 4/5ᵉ temps ». Le
-jour non travaillé n'a donc **aucune ligne de fiche** à porter : la
-réduction est dans le salaire de base, pas dans une retenue.
+rémunération est déjà réduite à la source, et le jour non travaillé n'a donc
+**aucune ligne de fiche** à porter : la réduction est dans le salaire de
+base, pas dans une retenue.
+
+Le réglage qui la porte est **« Fraction payée »**, qui multiplie la
+rémunération fixe forfaitairement. Son aide ne nommait que le congé
+parental — « 0,90 = congé parental 9/10 » — et le client l'a relevé :
+« une fraction payée pour les TP ? ce n'est pas plutôt les CP ? ». Le champ
+est générique, un 4/5ᵉ temps partiel faisant la même arithmétique qu'un
+4/5ᵉ parental, mais **un texte qui ne nomme qu'un cas laisse l'autre croire
+qu'il n'est pas concerné** : l'aide et l'écran d'accueil nomment désormais
+les deux.
 
 C'est ce qui sépare `TP` de `CP`. Les deux marquent le même jour d'absence,
 mais `CP` ouvre l'allocation de l'ONEM et porte sa ligne — « congé parental
@@ -818,6 +825,15 @@ ne sont pas la même chose, et le jour où une fiche montrera une ligne pour
 l'un, il ne faudra pas la poser sur l'autre.
 
 ### Ce que la correction déplace
+
+**Aucune prime**, et c'est contre-intuitif : `primeD` vaut **0**, donc les
+209 journées lues en horaire de jour n'en portaient aucune. Le socle, lui,
+est forfaitaire (`remFixe × fraction`) et ne dépend pas des heures.
+
+Ce qui bougeait vraiment, c'est le **chèque-repas** : `if(h>=4)
+acc.joursCr++` en donne un par journée prestée d'au moins quatre heures.
+**209 chèques étaient donc accordés pour des jours non travaillés** — FLN
+40, LAX 34, ATA 26, DWS 26, SPT 26, SMA 26, LCI 25, GDT 6.
 
 Journées prestées **14 645 → 14 436**, absences affichées **+209** — soit
 exactement les 209 journées, sans un écart. Neuf règles à zéro, compteurs

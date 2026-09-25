@@ -172,11 +172,30 @@ MOIS = ["", "janv", "févr", "mars", "avr", "mai", "juin",
         "juil", "août", "sept", "oct", "nov", "déc"]
 
 
+# l'année sur laquelle l'épreuve à vide se fait : celle de l'horaire du dépôt
+ANNEE_EPREUVE = 2026
+
+
 def main():
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         print(__doc__.strip(), file=sys.stderr)
         return 2
     ident = sys.argv[1]
+    if len(sys.argv) == 2:
+        # SANS FICHE, ON MET QUAND MÊME LA DÉCOUPE À L'ÉPREUVE. CLAUDE.md
+        # prescrit de relancer cet outil « ne serait-ce qu'à vide » après
+        # toute modification de parseHoraireEntry() — et cette forme-là
+        # sortait en 2 AVANT d'appeler horaire(), donc sans rien éprouver.
+        # Un contrôle qui ne contrôle rien est pire que pas de contrôle :
+        # c'est la règle déjà écrite pour l'enveloppe silencieuse de node.
+        d = horaire(ident, ANNEE_EPREUVE)
+        if not d:
+            print("La découpe de index.html ne rend rien.", file=sys.stderr)
+            return 1
+        print("Découpe de index.html à l'épreuve : %d mois lus pour %s en %d."
+              % (len(d), ident, ANNEE_EPREUVE))
+        print("Aucune fiche donnée — rien à confronter.")
+        return 0
     chemins = []
     for a in sys.argv[2:]:
         chemins.extend(glob.glob(a))

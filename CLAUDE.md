@@ -358,6 +358,21 @@ ce qui l'entoure demande de relancer cet outil**, ne serait-ce qu'à vide :
 python3 tools/comparer-fiches.py VBN
 ```
 
+**ET L'ÉPREUVE À VIDE N'ÉPROUVAIT RIEN.** Découvert le 25/09/2026, en
+vérifiant la logique à la demande du client. `main()` sortait en **2** sur
+`len(sys.argv) < 3` — c'est-à-dire AVANT d'appeler `horaire()`, qui est la
+seule chose qui met la découpe à l'épreuve. La commande que cette page
+prescrit depuis toujours, `python3 tools/comparer-fiches.py VBN`, imprimait
+son mode d'emploi et s'en allait. **Une consigne écrite ici était fausse**,
+et j'ai annoncé « découpe à l'épreuve » dans un message de commit sur la foi
+de cette sortie-là.
+
+La forme à un seul argument appelle désormais `horaire()` et rend compte :
+`0` et le nombre de mois lus si la découpe tient, `1` si elle ne rend rien,
+et l'erreur de node si elle casse. Éprouvé dans les deux sens le
+25/09/2026 — un `JOUR_PRIME_PAUSE` saboté fait sortir l'outil en 1, le
+fichier sain en 0 avec ses douze mois.
+
 **Et il faut que son cri s'entende.** Le script node s'arrête bien quand sa
 découpe est faussée — c'est tout l'intérêt de ses épreuves — mais son
 enveloppe Python faisait `json.loads(r.stdout or "{}")` : elle rendait un
@@ -1743,12 +1758,29 @@ c'est une réduction de temps de travail avec la loi belge pour le 9/10 ou
 4/5 ».
 
 **Ce n'est pas une absence que l'on pose** : c'est un jour qui ne fait pas
-partie du contrat, comme un samedi l'est pour tout le monde. Et
-l'application le savait déjà — le réglage **« Fraction payée »** demande
-exactement cela, « 1 = temps plein, 0,90 pour un congé parental 9/10ᵉ, 0,80
-pour un 4/5ᵉ ». La réduction est dans le salaire de base ; le jour n'a donc
-**aucune ligne de fiche** à porter. C'est tout ce qui le sépare de `CP`, qui
-ouvre l'allocation de l'ONEM et porte la sienne.
+partie du contrat, comme un samedi l'est pour tout le monde. La réduction
+est dans le salaire de base ; le jour n'a donc **aucune ligne de fiche** à
+porter. C'est tout ce qui le sépare de `CP`, qui ouvre l'allocation de
+l'ONEM et porte la sienne.
+
+**J'avais invoqué le réglage « Fraction payée » comme preuve, et le client
+l'a relevé** — « une fraction payée pour les TP ? ce n'est pas plutôt les
+CP ? ». Son aide disait « 0,90 = congé parental 9/10 » : elle nommait le
+`CP` et rien d'autre. Le champ lui-même est pourtant générique — il
+multiplie la rémunération fixe, forfaitairement (`remFixe*p.fraction`), et
+un 4/5ᵉ temps partiel fait la même arithmétique qu'un 4/5ᵉ parental. Mais
+un texte qui ne nomme qu'un cas laisse l'autre croire qu'il n'est pas
+concerné : **l'aide et l'écran d'accueil nomment désormais les deux**, sans
+quoi les 8 personnes à `TP` garderaient une fraction de 1 et un socle trop
+élevé.
+
+**Ce que la correction déplace se mesure, et ce ne sont pas des primes.**
+`primeD` vaut **0** — la prime « jour » est nulle, donc les 209 journées
+n'en portaient aucune. Le socle, lui, est forfaitaire et ne dépend pas des
+heures. Ce qui bougeait vraiment, c'est le **chèque-repas** :
+`if(h>=4) acc.joursCr++` en donne un par journée prestée d'au moins quatre
+heures, donc **209 chèques étaient accordés pour des jours non travaillés**
+— FLN 40, LAX 34, ATA 26, DWS 26, SPT 26, SMA 26, LCI 25, GDT 6.
 
 `TP` était pourtant dans `JOUR_PRIME_PAUSE`, donc lu comme une journée
 **prestée** en horaire de jour. Même forme de cellule, lecture opposée :
