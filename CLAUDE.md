@@ -1705,9 +1705,34 @@ la cellule porte une plage dont `posteDepuisPlage()` ne rend pas le jour.
 la touche pas. **95 changent de place, dont 80 en « 6h-14h »** : quelqu'un
 qui travaille de 6 h à 14 h est au MATIN, quoi que dise l'annotation.
 
-Les manques passent de **12 à 11 journées**, et GPS reprend sa place de
-contremaître le 30/09 — avec JKS et SBZ, que la même règle ramène dans
-leurs pauses.
+GPS reprend sa place de contremaître le 30/09, et **JKS avec lui** :
+`["09h-21h","CPPT"]`, même forme, et son commentaire le confirme — « Réunion
+DS de 9h à 10h, CPPT à partir de 10h, remplacé par IME de 21 à 22h ».
+
+**SBZ, non, et je l'avais dit trop vite.** Sa cellule du 30/09 est `["PM"]`,
+sans plage ni code de jour : la règle ne le touche pas. Il était déjà dans
+une pause et a simplement glissé du gluten au terrain arrière, parce que JKS
+a repris la place de gluten. C'est le rééquilibrage, pas cette règle.
+
+**Les manques passent de 12 à 11, et pas par le 30/09.** Cette journée perd
+bien son `PM Contremaître 0/1`, mais elle garde son `N Gluten 1/2` : elle
+compte toujours. Le −1 vient du **16 décembre**, par un chemin qu'il faut
+avoir vu une fois :
+
+- **QBY** y porte `["10h-22h","DS-CE"]`, polyvalences gluten et
+  distillation. Avant, `DS-CE` le sortait de sa pause et il partait en
+  « Jour » ; maintenant sa plage le garde en après-midi et **il tient sa
+  distillation lui-même** ;
+- **PAM** y porte `["PM"]`, avec la fermentation dans ses polyvalences.
+  Son collègue parti en « Jour », le rééquilibrage l'envoyait boucher la
+  distillation — et la **fermentation restait à `0/1`**. Celle-ci étant
+  désormais tenue par son titulaire, PAM **couvre la fermentation**.
+
+C'est exactement le mécanisme de couverture établi le 22/09 : le tableau dit
+qui TIENT un poste, et PAM a la fermentation pour le jour où le trou se
+présente. **Une place qui se libère en déplace une autre trois mois plus
+loin** — c'est pourquoi on relit `--manques` en entier après chaque
+correction de placement, et pas seulement la journée qu'on croyait toucher.
 
 ### Ces semaines-ci sont exceptionnelles
 
