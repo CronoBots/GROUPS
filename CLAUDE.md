@@ -1977,13 +1977,24 @@ Vérifié au navigateur sur juillet : la ligne « HS non compensées » a dispar
 « 4 h versées au compteur » apparaît, et « Suppl. Équipe Nuit à 150 % (heures
 suppl. de l'horaire) » paie la prime.
 
-**À ÉTABLIR : la règle vaut-elle pour TOUTES les heures supplémentaires ?**
-Mesuré : **205 journées portent 775 heures** encore payées le mois même,
-déduites pour la plupart d'une plage plus longue que la journée
-contractuelle. Si le compteur est la règle générale, elles non plus ne
-devraient pas être payées alors. Le client ne l'a dit que de la journée de
-GPS ; cela touche des montants sur 205 journées, donc **rien n'est
-généralisé sans lui**.
+**ET LA RÈGLE VAUT POUR TOUTES LES HEURES SUPPLÉMENTAIRES.** Le client,
+interrogé sur les 205 autres journées : « cela dépend de si il remplit une
+feuille pour avoir des FT+ ou des HS. **Quoi qu'il arrive les 2 vont dans un
+compteur**, mais le compteur HS n'apparaît pas dans le classeur. »
+
+C'est son raisonnement sur GPS, généralisé : **le classeur ÉCRIT l'épargne
+au flex time ; son silence désigne l'autre compteur**, celui qu'il ne porte
+pas. Le paiement au taux majoré est donc parti — il portait **775 heures sur
+205 journées**. La prime d'équipe reste due, et c'est la moitié qu'il ne
+faut pas emporter avec l'autre.
+
+Le champ manuel « Heures suppl. non compensées » reste payé : c'est
+désormais le SEUL endroit où l'on déclare des heures réellement payées, et
+c'est une saisie volontaire, pas une déduction de l'horaire.
+
+Le drapeau `rec.hsc` a disparu avec l'exception qu'il portait — ce n'est
+plus un cas particulier, c'est la règle. `rec.hsp` reste : le poste des
+heures supplémentaires n'est toujours pas celui de la journée.
 
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
