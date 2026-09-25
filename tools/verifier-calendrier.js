@@ -219,6 +219,13 @@ function enregistre(r,hJour){
     /* le doute d'un « N? » suit la journée jusqu'au mois, comme dans
        index.html : sans lui, l'année écrivait « N ? » et le mois « N ». */
     if(r.doute) rec.q=1;
+    /* Les codes d'absence SUPPLÉMENTAIRES de la journée. index.html les
+       écrit depuis toujours (nrec.ax) et cette copie-ci ne le faisait pas :
+       le mois rejoué ici perdait les heures qu'une autre journée lui
+       renvoie, et depuis le 25/09/2026 les heures supplémentaires d'un
+       rappel logé dans une cellule de congé. Deux copies, et c'est la
+       seconde qui reste en arrière. */
+    if(r.ax && r.ax.length) rec.ax=r.ax.slice();
   }
   return rec;
 }
@@ -441,7 +448,9 @@ if(process.argv.indexOf("--journee")>=0){
     console.log(qui+" "+d+"/"+pad2(m)+"  "+JSON.stringify(raw));
     console.log("     lu       : poste="+(r.s||"—")+"  heures="+
       (r.h===undefined?"(défaut "+H_JOUR+")":r.h)+"  absence="+(r.a||"—")+
-      "  épargne="+(r.epargne||0)+(r.modifie?"  [poste corrigé]":""));
+      "  épargne="+(r.epargne||0)+
+      ((r.ax&&r.ax.length)?"  codes en plus="+r.ax.join(", "):"")+
+      (r.modifie?"  [poste corrigé]":""));
     /* r.s est la prime PAYÉE, r.sp le poste PRESTÉ quand ils diffèrent, et
        c'est r.sp qui décide dans quelle pause la vue du jour range la
        personne. Sans ces deux champs à l'écran on ne peut pas voir pourquoi

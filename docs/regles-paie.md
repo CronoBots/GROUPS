@@ -870,6 +870,69 @@ de journées `TP` de la personne, mais c'est un réglage personnel qui ne
 quitte pas l'appareil, et une déduction se tromperait sur une année
 incomplète.
 
+## Un congé et un rappel dans la même cellule
+
+**Confirmé par le client le 25/09/2026.** GPS le 02/07,
+`["7h-15h","RHS+02h-06h","Rappel le 02/07"]` — **la seule cellule de
+l'année** à mêler un code d'absence et une plage.
+
+D'abord : « il était bien en RHS mais il a été rappelé le jour même pour
+venir faire 02-06 ». Puis, sur la nature de ces heures : « il a fait 4 HS de
+02-06h en étant rappelé le jour même ; **je sais que c'est du HS car il n'y
+a aucune cellule dans sa liste qui mette `+4h FT`**, et de 06 à 14h il était
+bien en RHS (reprise d'heure sup donc congé) ».
+
+Le raisonnement est celui du classeur lui-même : l'épargne au compteur
+s'écrit, elle ; son absence dit que les heures ont été payées.
+
+**Ce que le calcul faisait avant** : poste `D`, **8 h prestées**, et aucun
+RHS. Les deux moitiés étaient fausses.
+
+### Deux faits, un seul champ
+
+Le champ `abs` d'une journée n'accepte qu'un code. **Le congé le prend** —
+c'est lui qui vide la journée, et c'est le même libellé de fiche que ses
+1er et 3 juillet, qui portent `RHS` tout court. Les heures supplémentaires
+passent par **`ax`**, que l'accumulateur concatène déjà à `a` :
+`codesJour=(rec.a?[rec.a]:[]).concat(rec.ax||[])`. Ses deux autres lecteurs
+ne regardent que les codes dont `h>0`, donc un `4H HS` n'y retire ni n'y
+ajoute rien.
+
+Un champ parallèle aurait demandé cinq points de synchronisation — le
+parseur, l'accumulateur, les deux `enregistre()` et les deux autres
+lecteurs. **Une source de plus pour un mécanisme existant vaut mieux qu'un
+mécanisme de plus à tenir en phase.**
+
+### La plage du rappel ne se met PAS dans `r.plage`
+
+Une première version l'a fait, et le résultat était faux sans rien casser.
+`r.plage` dit la plage réellement prestée **comme poste du jour**, et
+`dureeReelle("D",[2,6],8)` rend **12** : la machinerie étend le poste pour
+couvrir 2 h à 6 h et lit une journée de douze heures, dont elle retire
+ensuite les huit de RHS. Résultat affiché : « 4 h prestées en D » —
+c'est-à-dire ni le congé, ni les heures supplémentaires.
+
+La plage ne sert donc qu'à **compter** les heures du rappel. La journée
+garde la plage de sa cellule franche et se vide entièrement contre le RHS.
+
+### Ce que la fiche porte, vérifié au navigateur
+
+Fiche de juillet 2026 de GPS :
+
+| Ligne | |
+|---|---|
+| 24 h récup. heures supplémentaires | ses trois journées RHS des 1, 2 et 3 |
+| 4 h supplémentaires prestées (codes HS de l'horaire) | les 02h-06h |
+| 4 h HS non compensées à 150 % | elles sont payées |
+| 4 h de déplacement — rappel J / J-1 | le rappel du jour même |
+
+**À TRANCHER : la prime de nuit de ces quatre heures.** Les heures
+supplémentaires se rangent dans le seau du poste du jour — « D », dont la
+prime d'équipe est nulle — et non dans celui de la nuit où elles ont été
+prestées. La fiche ne porte donc aucune ligne « Suppl. Équipe » pour elles.
+Le client n'a pas dit si une prime de nuit leur est due ; c'est un montant,
+et la lecture prudente ne la réclame pas.
+
 ## À établir
 
 Ces points touchent à des montants et attendent une réponse du client — ne
@@ -884,26 +947,6 @@ pas les deviner :
   peut-être de la règle « horaire de jour, prime de pause conservée »
   (`conversion-horaire.md`, section 6 bis).
 
-- **GPS le 02/07 : la journée de RHS avec un rappel de nuit.** Le client, le
-  25/09/2026 : « pour GPS le 02/07 il était bien en RHS mais il a été
-  rappelé le jour même pour venir faire 02-06 ».
-
-  Sa cellule, **la seule de l'année à mêler un code d'absence et une
-  plage** : `["7h-15h","RHS+02h-06h","Rappel le 02/07"]`. La cellule franche
-  dit la rotation, l'annotation dit la journée réelle — un RHS, plus quatre
-  heures de nuit rappelées.
-
-  **Ce que le calcul fait aujourd'hui** : poste `D`, **8 h prestées**, et
-  **aucun RHS**. Les deux moitiés sont fausses. La plage du rappel, elle,
-  est déjà lue par `plageNoyee()`, donc la prime de déplacement joue.
-
-  **Ce qui manque pour le coder** : les quatre heures de 02h à 06h sont-elles
-  des **heures supplémentaires** venant s'ajouter à une journée de RHS qui
-  garde ses huit heures, ou **diminuent-elles le RHS pris** — quatre heures
-  au compteur au lieu de huit ? Les deux lectures donnent la même journée à
-  l'écran et deux fiches différentes. Le champ `abs` d'une journée n'accepte
-  qu'un code : `RHS` et `4H HS` ne peuvent pas y tenir ensemble, et c'est la
-  réponse qui dit lequel des deux chemins employer.
 - L'horaire pendant l'arrêt technique. Le client : « pendant le SD, l'horaire
   est un peu spécial pour ceux qui s'occupent de la préparation ; ils doivent
   toujours prester 8 h mais arrivent et partent quand leur présence est
