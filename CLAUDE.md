@@ -311,18 +311,85 @@ prestées, compteurs **76/77**, découpe de `comparer-fiches` à l'épreuve, six
 onglets rendus. Les motifs trop étroits passent de 46 à **49** — il y a
 simplement plus de texte à lire, et la douzième règle fait son travail.
 
+## Tout le classeur, et pas seulement ce qu'on sait lire
+
+Le client, le 25/09/2026 : « toutes les cellules, commentaires, pages,
+lignes, colonnes doivent être récupérés avec le fichier ; après le
+convertisseur tout doit être dans la base de données, sauf les vrais noms et
+prénoms des travailleurs ».
+
+```bash
+python3 tools/exporter-classeur.py data/classeur-2026.xlsx \
+        data/classeur-2026-brut.json
+```
+
+**Le convertisseur ne garde que ce qu'il sait lire**, et c'est son rôle : il
+produit l'horaire dont l'application se sert. Mais deux fois une information
+s'est perdue parce qu'elle n'était pas dans les lignes qu'il regardait, et
+une perte silencieuse est une perte qu'on ne corrige jamais. Il annonçait
+déjà ce qu'il laissait ; **annoncer n'est pas garder**.
+
+Cet outil ne lit rien : il **RECOPIE**. Douze feuilles, **75 660 cellules**
+à leur adresse, **11 564 commentaires**, **521 étendues fusionnées** — contre
+27 574 journées et 6 702 commentaires dans l'horaire. C'est à peu près le
+DOUBLE de ce que le convertisseur retenait.
+
+**IL PART DU CLASSEUR DÉJÀ ANONYMISÉ, ET C'EST TOUT L'ARGUMENT.** Anonymiser
+à nouveau ici demanderait d'écrire une troisième fois des motifs de noms,
+donc d'ouvrir un troisième trou — et ce fichier en a déjà décrit deux.
+`data/classeur-2026.xlsx` est passé par l'anonymiseur ET par son second
+contrôle indépendant : il ne porte plus de nom, et c'est prouvé. **On
+recopie une source propre plutôt que de nettoyer une source sale.**
+
+**Sans recopie des fusions** : on veut le fichier tel qu'il est écrit. Seule
+la case en haut à gauche d'une fusion porte la valeur ; les étendues sont
+exportées à part, de sorte que rien ne se perd et que rien ne s'invente.
+
+**Il réemploie la lecture du convertisseur** plutôt que d'en écrire une
+autre : deux lecteurs de xlsx dans le même dépôt finiraient par diverger, et
+c'est toujours le second qui reste en arrière.
+
+**Un identifiant de connexion survivait, et il est parti.** `RT01386`, au
+fil de six commentaires — la même phrase recopiée d'une feuille à l'autre.
+Ce n'est pas un nom, donc l'anonymiseur le laisse passer, et il a raison :
+il remplace des noms. Le convertisseur, lui, l'emportait par accident, parce
+qu'il ouvrait une tête de commentaire. **Ici rien ne l'emporte par accident,
+puisque rien n'est interprété** — d'où une règle nommée. Dans un dépôt
+PUBLIC, un login d'entreprise se recoupe avec les annuaires de la maison
+aussi sûrement qu'un nom. Le motif est étroit à dessein — deux lettres et
+quatre à six chiffres — et mesuré : **un seul jeton de cette forme dans tout
+l'export**, six occurrences, zéro après.
+
+**Le garde-fou du dépôt a été éprouvé DANS LES DEUX SENS sur ce fichier**, et
+la première épreuve a échoué pour une raison qu'il faut connaître : un nom
+factice planté dans le JSON n'a rien déclenché, **parce que le fichier
+n'était pas encore suivi par git**. `verifier-depot.py` lit les fichiers
+SUIVIS ; un fichier neuf lui est invisible tant qu'il n'est pas ajouté. Une
+fois `git add -N` fait, le nom factice le fait échouer, et le vrai fichier
+passe à zéro.
+
+**L'application ne le charge pas.** Elle continue de lire
+`data/horaire-2026.json`, qui ne porte que ce dont elle se sert — 700 Ko
+contre 1,3 Mo. Celui-ci est une réserve : on y va chercher ce qu'on découvre
+avoir besoin, sans redemander le classeur.
+
+**À régénérer après chaque nouveau classeur**, juste après l'anonymiseur et
+son second contrôle.
+
 ## Structure
 
 | Fichier | Rôle |
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
+| `data/classeur-2026-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
 | `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |
 | `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
+| `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
