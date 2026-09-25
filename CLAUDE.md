@@ -1734,6 +1734,52 @@ présente. **Une place qui se libère en déplace une autre trois mois plus
 loin** — c'est pourquoi on relit `--manques` en entier après chaque
 correction de placement, et pas seulement la journée qu'on croyait toucher.
 
+### `TP` comptait 209 journées prestées pour des gens qui sont chez eux
+
+Le client, le 25/09/2026 : « TP c'est temps partiel, CP (congé parental 4/5
+ou 9/10) et TP c'est pareil mais sans la compensation de l'ONEM », puis,
+interrogé sur le paiement de la journée : « pour le TP je ne pense pas,
+c'est une réduction de temps de travail avec la loi belge pour le 9/10 ou
+4/5 ».
+
+**Ce n'est pas une absence que l'on pose** : c'est un jour qui ne fait pas
+partie du contrat, comme un samedi l'est pour tout le monde. Et
+l'application le savait déjà — le réglage **« Fraction payée »** demande
+exactement cela, « 1 = temps plein, 0,90 pour un congé parental 9/10ᵉ, 0,80
+pour un 4/5ᵉ ». La réduction est dans le salaire de base ; le jour n'a donc
+**aucune ligne de fiche** à porter. C'est tout ce qui le sépare de `CP`, qui
+ouvre l'allocation de l'ONEM et porte la sienne.
+
+`TP` était pourtant dans `JOUR_PRIME_PAUSE`, donc lu comme une journée
+**prestée** en horaire de jour. Même forme de cellule, lecture opposée :
+`["7h-15h","CP"]` donnait une absence à zéro heure, `["6h-14h","TP"]` un
+poste à huit heures avec la prime de jour. **La cellule franche de ces
+journées porte ce que la rotation avait PRÉVU**, pas ce qui a été presté —
+`D` 73 fois, `6h-14h` 57, `7h-15h` 47, `N` 18. Le module des manques les
+croyait à leur poste.
+
+**Le « c'est pareil » s'est mesuré avant d'être cru.** Les deux codes se
+posent par blocs de un à trois jours — et non un jour fixe par semaine — et
+leurs totaux sont ceux d'un temps partiel : 26 journées valent un jour par
+quinzaine (9/10), 51 un jour par semaine (4/5). `TP` : 209 journées chez 8
+personnes. `CP` : 423 chez 17.
+
+**Le code entre au barème avec SON PROPRE `k`**, et non celui de
+`SANS SOLDE` — qui ne porte pas de ligne non plus. Un congé sans solde et un
+temps partiel ne sont pas la même chose, et le jour où une fiche montrera
+une ligne pour l'un, il ne faudra pas la poser sur l'autre.
+
+Journées prestées **14 645 → 14 436**, absences **+209** — exactement les
+209 journées, sans un écart. Neuf règles à zéro, compteurs **76/77**,
+manques **inchangés à 11 / 11** : le rééquilibrage couvrait déjà ces
+absences. Couples de polyvalence **101 → 99**, les 33 au quota inchangés.
+Vérifié au navigateur sur ATA : ses 26 journées se rendent en absence, pas
+en poste.
+
+**La `fraction` reste saisie à la main** : on pourrait la déduire du nombre
+de journées `TP`, mais c'est un réglage personnel qui ne quitte pas
+l'appareil, et la déduction se tromperait sur une année incomplète.
+
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
 Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire
