@@ -768,10 +768,73 @@ pas les deviner :
   calculent pas comme pour les autres. Rien n'est connu de ces trois règles
   — voir la section « Les intérimaires » ci-dessus.
 
-- `R` (237), `TP` (210), `D-F` (49), `VM` (40),
-  `DS-CE` (27), `D-CPPT` (47) : journée prestée normale, absence payée, ou
-  absence non payée ? Certains relèvent peut-être de la règle « horaire de
-  jour, prime de pause conservée » (`conversion-horaire.md`, section 6 bis).
+- `R` (237), `D-F` (49), `VM` (40), `DS-CE` (27), `D-CPPT` (47) : journée
+  prestée normale, absence payée, ou absence non payée ? Certains relèvent
+  peut-être de la règle « horaire de jour, prime de pause conservée »
+  (`conversion-horaire.md`, section 6 bis).
+
+- **`TP` : la journée de temps partiel est-elle payée ?** Le client, le
+  25/09/2026 : « TP c'est temps partiel, CP (congé parental 4/5 ou 9/10) et
+  TP c'est pareil mais sans la compensation de l'ONEM je pense ».
+
+  **Le « c'est pareil » règle la LECTURE, et la mesure le confirme.** Les
+  deux codes se posent de la même façon — par blocs de un à trois jours,
+  et non un jour fixe par semaine — et leurs totaux sont ceux d'un temps
+  partiel : 26 journées sur l'année valent un jour par quinzaine (9/10),
+  51 valent un jour par semaine (4/5).
+
+  | | Journées | Séries | Tailles |
+  |---|---|---|---|
+  | VBN `CP` | 26 | 12 | 3×6, 2×2, 1×4 |
+  | GSK `CP` | 51 | 26 | 3×9, 2×7, 1×10 |
+  | LCI `TP` | 25 | 10 | 3×5, 2×5 |
+  | FLN `TP` | 40 | 14 | 3×8, 2×1, 1×3 |
+
+  `TP` : **209 journées chez 8 personnes** — FLN 40, LAX 34, ATA 26, DWS 26,
+  SPT 26, SMA 26, LCI 25, GDT 6. `CP` : 423 journées chez 17 personnes.
+
+  **Ce que le calcul fait aujourd'hui est l'inverse**, et c'est un défaut :
+  `TP` est rangé dans `JOUR_PRIME_PAUSE`, donc lu comme une journée
+  PRESTÉE en horaire de jour. Même forme de cellule, lecture opposée :
+
+  | Cellule | Lu comme |
+  |---|---|
+  | `["7h-15h","CP"]` | absence « CP » — **0 h** |
+  | `["6h-14h","TP"]` | poste « TP » — **8 h prestées**, prime de jour |
+
+  La cellule franche de ces journées porte ce que la rotation avait PRÉVU
+  — `D` (73), `6h-14h` (57), `7h-15h` (47), `N` (18), `PM` (9), `AM` (5) —
+  et non ce qui a été presté. Les 209 journées comptent donc huit heures et
+  une prime de jour pour des gens qui sont chez eux, et le module des
+  manques d'effectif les croit à leur poste.
+
+  **Ce qui manque pour le coder** : le code `CP` vaut `{h:8, k:"CPAR"}` et
+  porte la ligne « congé parental AR 29.10.1997 ». `TP` étant « pareil mais
+  sans la compensation de l'ONEM », sa journée est-elle **payée par
+  l'employeur** — auquel cas quelle ligne de fiche — ou **non rémunérée**,
+  comme `SANS SOLDE` ? Une journée non prestée mal payée se voit tout de
+  suite sur la fiche ; celle-ci se répète 209 fois.
+
+- **GPS le 02/07 : la journée de RHS avec un rappel de nuit.** Le client, le
+  25/09/2026 : « pour GPS le 02/07 il était bien en RHS mais il a été
+  rappelé le jour même pour venir faire 02-06 ».
+
+  Sa cellule, **la seule de l'année à mêler un code d'absence et une
+  plage** : `["7h-15h","RHS+02h-06h","Rappel le 02/07"]`. La cellule franche
+  dit la rotation, l'annotation dit la journée réelle — un RHS, plus quatre
+  heures de nuit rappelées.
+
+  **Ce que le calcul fait aujourd'hui** : poste `D`, **8 h prestées**, et
+  **aucun RHS**. Les deux moitiés sont fausses. La plage du rappel, elle,
+  est déjà lue par `plageNoyee()`, donc la prime de déplacement joue.
+
+  **Ce qui manque pour le coder** : les quatre heures de 02h à 06h sont-elles
+  des **heures supplémentaires** venant s'ajouter à une journée de RHS qui
+  garde ses huit heures, ou **diminuent-elles le RHS pris** — quatre heures
+  au compteur au lieu de huit ? Les deux lectures donnent la même journée à
+  l'écran et deux fiches différentes. Le champ `abs` d'une journée n'accepte
+  qu'un code : `RHS` et `4H HS` ne peuvent pas y tenir ensemble, et c'est la
+  réponse qui dit lequel des deux chemins employer.
 - L'horaire pendant l'arrêt technique. Le client : « pendant le SD, l'horaire
   est un peu spécial pour ceux qui s'occupent de la préparation ; ils doivent
   toujours prester 8 h mais arrivent et partent quand leur présence est
