@@ -511,6 +511,46 @@ de jours fériés non pris, qui ne sont pas des contrats.
 **`CT` est un crédit-temps**, confirmé par le client le 25/09/2026. Trois
 personnes le portent — `CT 20%`, donc 0,80 — et **sans aucune date**.
 
+### Trois dispositifs, une seule arithmétique — et une allocation hors fiche
+
+Le client, le 25/09/2026, a décrit les trois réductions du temps de travail
+du droit belge. Elles mènent au même 4/5 ou au même 9/10 et **font la même
+arithmétique sur la fiche** : la rémunération fixe × la fraction, et la
+journée non prestée n'ajoute rien. Relevé sur les onze fiches mensuelles :
+« Heure(s) congé parent. » y est une QUANTITÉ, sans colonne en euros.
+
+**Ce qui les sépare ne se voit PAS sur la fiche, et c'est le piège.** Le
+crédit-temps et le congé parental ouvrent une allocation de l'ONEM — versée
+par l'ONEM, absente de la fiche, donc **impossible à simuler ici**. Le temps
+partiel n'ouvre rien. Quelqu'un en `CP` ou en `CT` reçoit plus que ce que
+l'écran affiche, et rien ne le disait : les trois infobulles et le réglage
+« Fraction payée » le nomment désormais.
+
+**`CT` n'est PAS un congé de circonstance** — la légende des codes l'écrivait
+ainsi. Le classeur le prouve seul : les **159 journées `CT`** sont chez
+**trois personnes**, exactement les trois qui portent « CT 20% » en pied de
+feuille, à **55, 53 et 51 journées** — une par semaine. Un congé de
+circonstance se compte en jours par événement, jamais en cinquante. La ligne
+s'appelle « Heure(s) crédit-temps » et a quitté, avec le congé parental, le
+seau des heures « assimilées à du travail » : ces heures ne sont pas payées,
+et l'infobulle disait le contraire.
+
+**Le crédit-temps se prend en 1/5 ou en 1/2 ; le 9/10 n'en est pas un
+régime.** `_dire_regimes()` le dit sur la sortie d'erreur, **sans rien
+refuser** : un pourcentage hors régime est souvent une faute de frappe, mais
+il peut être un régime qu'on ne connaît pas encore. Aujourd'hui elle ne dit
+rien — les 33 contrats codés tombent tous juste.
+
+**Cinquante pour cent entre dans la bande refusée, et c'est démontrable** :
+un mi-temps s'écrira « 50% », et à cinquante l'ambiguïté n'existe pas — la
+réduction et la part prestée donnent le même 0,50. **Cent avec un code reste
+refusé** : suspension complète ou temps plein retrouvé, l'écart est tout le
+socle du mois.
+
+**La semaine de la maison fait 38:40**, pas les 38:00 des exemples du droit :
+30 h 56 pour un 4/5, 34 h 48 pour un 9/10. Ne pas recopier les nombres d'un
+exemple générique.
+
 ### Sans date, la période est écrite dans l'horaire
 
 Le client, le 25/09/2026 : « si pas de date il faut prendre en compte celle

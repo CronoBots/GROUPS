@@ -350,7 +350,92 @@ Contrôle en une soustraction : « Rém. périodique fixe » et « Montant heure
 prestées » sont deux lignes différentes de la fiche. Si elles diffèrent, la
 fraction n'est pas 1.
 
-### La commission paritaire, relevée et non supposée
+### Trois dispositifs, une seule arithmétique — et une allocation hors fiche
+
+Le client, le 25/09/2026, a décrit les trois réductions du temps de travail
+que connaît le droit belge. Elles mènent toutes au même 4/5 ou au même 9/10,
+et l'application les traitait comme un seul objet : une « fraction payée ».
+
+| | Travail | Allocation de l'ONEM | Motif | Temporaire |
+|---|---|---|---|---|
+| temps partiel `TP` | 80 % ou 90 % | non | aucun à justifier | pas nécessairement |
+| crédit-temps `CT` | 80 % (1/5) ou 50 % (1/2) | possible, sous conditions | selon le motif | oui |
+| congé parental `CP` | 80 % (1/5) ou 90 % (1/10) | possible, sous conditions | un enfant | oui |
+
+**Sur la fiche, les trois font la même arithmétique** : la rémunération fixe
+est multipliée par la fraction, et la journée non prestée n'ajoute rien. La
+fiche du secrétariat social le montre noir sur blanc — « Heure(s) congé
+parent. AR 29.10.1997 » y est une QUANTITÉ, sans montant en regard, comme
+« Heure(s) prestée(s) » et « Heure(s) SMG maladie ». Relevé sur les onze
+fiches mensuelles : aucune de ces lignes ne porte de colonne en euros.
+
+**Ce qui les sépare ne se voit donc PAS sur la fiche, et c'est le piège.**
+Le crédit-temps et le congé parental ouvrent une allocation de l'ONEM ; elle
+est versée par l'ONEM, pas par l'employeur, et ne figure nulle part sur la
+fiche de paie. **L'application ne la simule pas, et ne le peut pas** — elle
+recopie une fiche. Quelqu'un en `CP` ou en `CT` reçoit donc plus que ce que
+cet écran affiche, et rien ne le disait. Les infobulles des trois lignes le
+nomment désormais, et le réglage « Fraction payée » aussi.
+
+**Le temps partiel, lui, n'ouvre rien** : c'est exactement ce que le client
+disait le 25/09 — « CP et TP c'est pareil mais sans la compensation de
+l'ONEM ».
+
+### `CT` n'est pas un congé de circonstance
+
+La légende des codes écrivait « congé de circonstance ». C'était faux, et le
+classeur le prouve tout seul : les **159 journées codées `CT`** sont chez
+**trois personnes**, exactement les trois qui portent un contrat « CT 20% »
+en pied de feuille, à raison de **55, 53 et 51 journées** — une par semaine
+sur l'année. Un congé de circonstance se compte en jours par événement,
+jamais en cinquante. C'est un **crédit-temps 1/5**, confirmé par le client le
+25/09/2026.
+
+La journée se lit donc comme celle d'un temps partiel : la réduction est déjà
+dans la rémunération fixe par la fraction 0,80, et la ligne de fiche est une
+quantité sans montant. Elle s'appelle « Heure(s) crédit-temps » et non plus
+« Heure(s) CT », et elle a quitté le seau des heures « assimilées à du
+travail » — ces heures-là ne sont pas payées, et l'infobulle disait le
+contraire. Le congé parental en est sorti pour la même raison.
+
+### Les régimes que chaque dispositif connaît
+
+Le crédit-temps se prend en 1/5 ou en 1/2 ; **le 9/10 n'en est pas un
+régime**. Le congé parental, lui, se prend en 1/5 ou en 1/10. Le temps
+partiel est ce que le contrat dit, et rien ne lui est opposé.
+
+`_dire_regimes()` le dit sur la sortie d'erreur quand un pourcentage ne va
+pas avec son code — **sans rien refuser ni corriger** : un pourcentage hors
+régime est le plus souvent une faute de frappe du pied de feuille, mais il
+peut aussi être un régime qu'on ne connaît pas, et la seconde hypothèse
+interdit de trancher à la place de qui écrit. Au 25/09/2026 elle ne dit
+rien : les 33 contrats codés tombent tous sur un régime légal — 21 `CP 10%`,
+2 `CP 20%`, 7 `TP` et 3 `CT 20%`.
+
+### Cinquante pour cent est la seule exception à la bande refusée
+
+Le convertisseur garde sans fraction tout pourcentage entre 31 et 69, faute
+de savoir s'il dit la réduction ou la part prestée. **Un mi-temps s'écrira
+« 50% » un jour** — c'est le second régime du crédit-temps — et il serait
+tombé en plein dans cette bande. Or à cinquante l'ambiguïté n'existe pas :
+cinquante pour cent de réduction et cinquante pour cent prestés sont le même
+nombre, 0,50. On ne devine rien en l'acceptant ; on constate que les deux
+lectures coïncident.
+
+**Cent avec un code reste refusé**, et pour la raison inverse : « CP 100% »
+peut dire un temps plein retrouvé (1,00) comme une suspension complète
+(0,00), et l'écart est tout le socle du mois. Un « 100% » sans code reste ce
+qu'il est — personne n'a nommé de dispositif, donc rien n'est suspendu.
+
+### La semaine de la maison fait 38:40, et non 38:00
+
+Les exemples du droit se comptent sur 38 h — 4/5 = 30 h 24, 9/10 = 34 h 12.
+**Ce ne sont pas les heures d'ici.** La fiche porte « Nombre heures / semaine
+temps plein / 38:40 », ce qui donne **30 h 56** pour un 4/5 et **34 h 48**
+pour un 9/10. Ne pas recopier les nombres d'un exemple générique : c'est la
+fiche qui donne la semaine.
+
+## La commission paritaire, relevée et non supposée
 
 **`220.00`**, écrit en toutes lettres sur la fiche : « Commission paritaire
 220.00 ». C'est la commission des EMPLOYÉS de l'industrie alimentaire.

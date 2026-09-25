@@ -1810,7 +1810,7 @@ body[data-horaire="annee"] #rotasub{display:none}
               <dt>RJF</dt><dd>jour férié de remplacement, à choix libre</dd>
               <dt>FER</dt><dd>jour férié légal</dd>
               <dt>CP</dt><dd>congé parental</dd>
-              <dt>CT</dt><dd>congé de circonstance</dd>
+              <dt>CT</dt><dd>crédit-temps — le jour non presté d'une réduction 1/5 ou 1/2</dd>
               <dt>SMG</dt><dd>maladie, salaire garanti</dd>
               <dt>ABS</dt><dd>maladie — le classeur l'écrit ainsi, et la lecture le range en SMG</dd>
               <dt>FORM</dt><dd>formation, congé syndical</dd>
@@ -2113,6 +2113,21 @@ var ABS=[
  {c:"1H DTT",h:1,k:"DTT"},{c:"2H DTT",h:2,k:"DTT"},{c:"3H DTT",h:3,k:"DTT"},
  {c:"5H DTT",h:5,k:"DTT"},{c:"6H DTT",h:6,k:"DTT"},{c:"7H DTT",h:7,k:"DTT"},
  {c:"CP",h:8,k:"CPAR"},{c:"1/2 CP",h:4,k:"CPAR"},
+ /* « CT » EST UN CRÉDIT-TEMPS, et non un congé de circonstance — la
+    légende des codes a écrit le second pendant des mois. Le client l'a
+    tranché le 25/09/2026, et le classeur le prouve tout seul : les 159
+    journées codées CT sont chez TROIS personnes, exactement les trois qui
+    portent un contrat « CT 20% » en pied de feuille, à raison de 55, 53 et
+    51 journées — une par semaine sur l'année. Un congé de circonstance se
+    compte en jours par événement, jamais en cinquante.
+
+    La journée se lit donc comme celle d'un temps partiel : la réduction est
+    déjà dans la rémunération fixe, par la fraction 0,80 que le pied de
+    feuille écrit. La ligne de fiche est une QUANTITÉ sans montant, comme
+    « Heure(s) congé parent. » l'est sur les fiches du secrétariat social.
+
+    Ce qui le sépare du congé parental n'est pas le calcul — c'est le motif,
+    et l'allocation de l'ONEM qui se verse hors fiche dans les deux cas. */
  {c:"CT",h:8,k:"CT"},
  {c:"CPAR",h:8,k:"CPAR",hidden:true},{c:"1/2 CPAR",h:4,k:"CPAR",hidden:true},
  {c:"1H +FT",h:0,k:"FT",ft:1},
@@ -2521,7 +2536,7 @@ function compute(){
      valeur et ne paie donc rien. La taire aurait fait disparaître les
      heures du mois sans dire où elles sont passées. */
   if(ab("TP")) lines.push({q:ab("TP"),l:"Heure(s) temps partiel",qh:true});
-  if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) CT",qh:true});
+  if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) crédit-temps",qh:true});
   if(ab("FER")) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
   if(ab("SMG")) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
   if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
@@ -2720,9 +2735,11 @@ function compute(){
 var WHY=[
  [/^Chèques repas \(part\. patr/,"Ligne d'information : la part payée par l'employeur pour chaque chèque-repas. Elle n'entre ni dans le brut ni dans le net, elle justifie seulement la valeur du chèque."],
  [/^Heure\(s\) prestée\(s\)/,"Le total des heures pointées ce mois. Vous n'êtes pas payé à l'heure : la rémunération fixe couvre le mois entier. Ce compteur sert aux suppléments d'équipe, aux chèques-repas et au contrôle de l'horaire."],
- [/^Heure\(s\) (vacances|jour férié|repos|RTT|récup\. heures|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
+ [/^Heure\(s\) (vacances|jour férié|repos|RTT|récup\. heures|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
  [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
- [/^Heure\(s\) temps partiel/,"Le jour non travaillé d'un temps partiel (9/10 ou 4/5). Ces heures ne sont ni prestées ni payées : la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages. La ligne les montre pour que le compte du mois se lise en entier."],
+ [/^Heure\(s\) temps partiel/,"Le jour non travaillé d'un temps partiel (9/10 ou 4/5). Ces heures ne sont ni prestées ni payées : la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages. La ligne les montre pour que le compte du mois se lise en entier. Un temps partiel classique n'ouvre aucune allocation : c'est ce qui le sépare du congé parental et du crédit-temps."],
+ [/^Heure\(s\) congé parent/,"Le jour non presté d'un congé parental (9/10 ou 4/5). Ces heures ne sont pas payées par l'employeur — la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages — et la fiche les compte en quantité, sans montant. L'allocation de l'ONEM se verse À CÔTÉ, sous conditions : elle ne figure pas sur la fiche, donc pas ici non plus."],
+ [/^Heure\(s\) crédit-temps/,"Le jour non presté d'un crédit-temps (1/5, soit un 4/5, ou 1/2). Même mécanique que le congé parental : la réduction est déjà dans la rémunération fixe, et l'allocation de l'ONEM, sous conditions, se verse hors fiche. Ce qui les sépare n'est pas le calcul, c'est le motif — le crédit-temps ne demande pas d'enfant, le congé parental si."],
  [/^Heure\(s\) flex time/,"Compteur uniquement. Les heures prestées pour un collègue (+FT) ne sont pas payées le jour même ; elles le sont le jour où vous les récupérez (−FT)."],
  [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
  [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
@@ -3409,8 +3426,8 @@ var PARAM_FIELDS=[
   hint:"employés : avance 4 jours ouvrables avant la fin du mois, solde 4 jours ouvrables après",
   onb:"Le montant NET de l'avance que vous recevez chaque mois, si votre salaire est versé en deux fois. Le Résumé affiche alors les deux virements et leurs dates. Laissez 0 si vous êtes payé en une seule fois."},
  {k:"divH",fige:true,l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
- {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = 9/10 — congé parental CP ou temps partiel TP. Lue dans le classeur quand il la porte : ce réglage n'est le dernier recours que s'il n'y est pas.",personal:true,
-  onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un 9/10ᵉ, 0,80 pour un 4/5ᵉ — que ce soit un congé parental (CP) ou un temps partiel (TP). Laissez 1 si vous êtes à temps plein."},
+ {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = 9/10 — congé parental (CP), crédit-temps (CT) ou temps partiel (TP). Lue dans le classeur quand il la porte : ce réglage n'est le dernier recours que s'il n'y est pas.",personal:true,
+  onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un 9/10ᵉ, 0,80 pour un 4/5ᵉ — congé parental (CP), crédit-temps (CT) ou temps partiel (TP) : l'arithmétique est la même pour les trois. Le congé parental et le crédit-temps ouvrent en plus une allocation de l'ONEM, qui se verse hors fiche de paie et n'est donc pas simulée. Laissez 1 si vous êtes à temps plein."},
  {k:"hJour",fige:true,l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
  {k:"hSemaine",fige:true,l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
  {k:"primeAM",fige:true,l:"Prime équipe AM — avant-midi (€/h)",scope:"params"},
