@@ -1984,8 +1984,21 @@ compteur**, mais le compteur HS n'apparaît pas dans le classeur. »
 
 C'est son raisonnement sur GPS, généralisé : **le classeur ÉCRIT l'épargne
 au flex time ; son silence désigne l'autre compteur**, celui qu'il ne porte
-pas. Le paiement au taux majoré est donc parti — il portait **775 heures sur
-205 journées**. La prime d'équipe reste due, et c'est la moitié qu'il ne
+pas.
+
+**ELLES SONT PAYÉES À LA REPRISE, ET J'AVAIS ÉCRIT LE CONTRAIRE.** Le
+client : « les HS sont payées quand les opérateurs reprennent leurs heures
+sup (indiqué dans l'horaire ou en commentaire), donc ta phrase n'est pas
+correcte ». J'avais annoncé que l'application ne les payait plus. Le circuit
+se lit en deux temps : **prestée**, l'heure va au compteur et le classeur
+n'écrit rien ; **reprise**, le classeur l'écrit — `RHS`, `2h RHS`, un
+commentaire — et la journée est payée. Une reprise d'un jour vaut zéro heure
+prestée sans que le socle bouge ; une reprise partielle ne retire rien à la
+journée. **L'argent n'est pas perdu, il est décalé.**
+
+Ce qui est parti, c'est le paiement AU MOIS DE LA PRESTATION, au taux
+majoré — **775 heures sur 205 journées** — qui faisait payer ces heures
+**deux fois**. La prime d'équipe reste due, et c'est la moitié qu'il ne
 faut pas emporter avec l'autre.
 
 Le champ manuel « Heures suppl. non compensées » reste payé : c'est
