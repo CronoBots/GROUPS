@@ -350,6 +350,29 @@ Contrôle en une soustraction : « Rém. périodique fixe » et « Montant heure
 prestées » sont deux lignes différentes de la fiche. Si elles diffèrent, la
 fraction n'est pas 1.
 
+### La commission paritaire, relevée et non supposée
+
+**`220.00`**, écrit en toutes lettres sur la fiche : « Commission paritaire
+220.00 ». C'est la commission des EMPLOYÉS de l'industrie alimentaire.
+
+Elle figurait depuis toujours en tête de `CLAUDE.md` et du `README`, sans
+que rien ne dise d'où elle venait — une valeur héritée vaut ce que vaut sa
+source. Relevée le 25/09/2026 sur les fiches : **les onze fiches mensuelles
+la portent, toutes la même**. Les trois autres documents du lot — le pécule
+et deux décomptes — ne portent pas cette ligne, ce qui est normal : ce ne
+sont pas des fiches de paie mensuelles.
+
+**Ce qu'elle commande** : le barème, les primes d'équipe, le chèque-repas,
+le treizième mois, la CCT 90 — tout ce que ce document décrit est celui de
+cette commission-là. Une règle relevée sur une fiche ne vaut que pour elle.
+
+**Et c'est la ligne à regarder LE JOUR OÙ UNE FICHE D'OUVRIER ARRIVERA.**
+Le client l'a annoncée : « il ne faudra pas calculer les intérimaires de la
+même manière (pareil pour les primes et jours de paye) ». Dans l'industrie
+alimentaire, les ouvriers relèvent d'une autre commission que les employés ;
+**laquelle, c'est la fiche qui le dira**, et non une supposition. Rien n'est
+codé d'ici là — voir « Les intérimaires ».
+
 ## Valeurs relevées sur les fiches de paie 2026
 
 Servent de valeurs par défaut ; tout reste modifiable dans l'application.
