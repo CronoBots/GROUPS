@@ -1241,10 +1241,23 @@ journées chez quatre personnes, vérifiées par `comparer-horaire.py` : rien
 d'autre n'a bougé, et les neuf règles, les 14 435 journées prestées et les
 compteurs 76/77 sont identiques après.
 
-**Attention au faux ami** : le trigramme qui remplace un nom n'est pas
-toujours celui qu'on croit. Ici, deux personnes différentes donnent les
-mêmes initiales — le nom de famille corrigé et un collègue sans rapport.
-C'est l'anonymiseur qui tranche, pas `_initiales()` rejoué à la main.
+**LE CLASSEUR ÉCRIT LA MÊME PERSONNE DE DEUX FAÇONS**, et c'est ce qui a
+permis au nom de passer. La ligne des noms porte une orthographe, les
+commentaires en portent une autre — `_initiales()` rend le même trigramme
+pour les deux, mais le mot lui-même ne se recoupe pas, si bien que
+`_motif_registre()` ne pouvait pas le reconnaître.
+
+**J'ai d'abord conclu à une collision** — deux personnes donnant les mêmes
+initiales — et je l'avais écrit ici. C'était faux, et le client l'a relevé :
+« MMS c'est <nom>, au cas où ». **Le classeur le prouve tout seul** : les
+deux journées où ce trigramme est « remplacé par DBE et RDT » sont
+exactement les deux journées où DBE et RDT portent le commentaire qui
+nomme la personne. Les deux colonnes se répondent.
+
+**La leçon est de méthode** : `_initiales()` rejoué à la main sur la ligne
+des noms ne dit PAS qui est qui quand le classeur orthographie un nom de
+deux façons. Ce qui tranche, c'est ce que les journées se disent entre
+elles — ici, un remplacement nommé aux mêmes dates des deux côtés.
 
 ### Le convertisseur apprend aussi de la ligne des noms
 
