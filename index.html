@@ -2476,6 +2476,12 @@ function compute(){
   if(ab("RTT")) lines.push({q:ab("RTT"),l:"Heure(s) RTT",qh:true});
   if(ab("RHS")) lines.push({q:ab("RHS"),l:"Heure(s) récup. heures supplémentaires",qh:true});
   if(ab("CPAR"))lines.push({q:ab("CPAR"),l:"Heure(s) congé parent. AR 29.10.1997",qh:true});
+  /* Le jumeau du congé parental, et le client le dit ainsi : « CP et TP
+     c'est pareil mais sans la compensation de l'ONEM ». La ligne est une
+     QUANTITÉ et rien d'autre — comme toutes celles-ci, elle ne porte pas de
+     valeur et ne paie donc rien. La taire aurait fait disparaître les
+     heures du mois sans dire où elles sont passées. */
+  if(ab("TP")) lines.push({q:ab("TP"),l:"Heure(s) temps partiel",qh:true});
   if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) CT",qh:true});
   if(ab("FER")) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
   if(ab("SMG")) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
@@ -2642,6 +2648,7 @@ var WHY=[
  [/^Heure\(s\) prestée\(s\)/,"Le total des heures pointées ce mois. Vous n'êtes pas payé à l'heure : la rémunération fixe couvre le mois entier. Ce compteur sert aux suppléments d'équipe, aux chèques-repas et au contrôle de l'horaire."],
  [/^Heure\(s\) (vacances|jour férié|repos|RTT|récup\. heures|congé|CT|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
  [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
+ [/^Heure\(s\) temps partiel/,"Le jour non travaillé d'un temps partiel (9/10 ou 4/5). Ces heures ne sont ni prestées ni payées : la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages. La ligne les montre pour que le compte du mois se lise en entier."],
  [/^Heure\(s\) flex time/,"Compteur uniquement. Les heures prestées pour un collègue (+FT) ne sont pas payées le jour même ; elles le sont le jour où vous les récupérez (−FT)."],
  [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
  [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
