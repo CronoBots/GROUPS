@@ -2364,7 +2364,7 @@ function compute(){
   var txh=R(remFixe/p.divH,4);
   var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
            rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapExclu:0,abs:{},
-           hsHrs:0,hsAutoPoste:{}};
+           hsHrs:0,hsAComp:{},hsAutoPoste:{}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
   var noms=SHIFT_NOMS;
   var COEF_J={Semaine:p.rapJourSem,Samedi:p.rapJourSam,Dimanche:p.rapJourDim,"Férié":p.rapJourFer};
@@ -2433,6 +2433,7 @@ function compute(){
       if(A.hs){
         var bkt=isFer?"Dimanche":t;
         acc.hsHrs+=A.hs;
+        acc.hsAComp[bkt]=(acc.hsAComp[bkt]||0)+A.hs;
         /* LES HEURES VONT AU COMPTEUR, LA PRIME DE PAUSE SE PAIE, ET C'EST
            VRAI DE TOUTES LES HEURES SUPPLÉMENTAIRES. Le client, le
            25/09/2026 : « il reçoit les 4 h HS dans un compteur et il les
@@ -2512,7 +2513,7 @@ function compute(){
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
-  if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées — versées au compteur HS, non payées ce mois-ci",qh:true,info:true});
+  if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées — l'heure part au compteur HS, le sursalaire est payé",qh:true,info:true});
   if(crRecup) lines.push({q:crRecup,l:"Chèque(s) repas issu(s) des heures récupérées (8 h = 1 chèque)",info:true});
   if(crRestRTT||crRestFT||crRestRHS) lines.push({q:null,l:"À reporter au mois suivant : "+num(crRestRTT)+" h de RTT, "+num(crRestFT)+" h de flex time, "+num(crRestRHS)+" h de récup. HS",info:true});
   if(Number(M.rhsMois||0)) lines.push({q:Number(M.rhsMois),l:"Heure(s) reprises au compteur de récup. HS",qh:true,info:true});
@@ -2540,11 +2541,33 @@ function compute(){
     bl(hh,"Suppl. Équipe "+noms[posteK]+" à "+nf.format(pr)+" à "+HS_PCT[bkt]+" (heures suppl. de l'horaire)",
        R(hh*pr*HS_EQUIPE[bkt]),true);
   });
-  /* Il y avait ici le paiement des heures supplémentaires de l'horaire, au
-     taux majoré. Il est parti le 25/09/2026 : elles vont TOUTES au compteur.
-     La ligne « HS non compensées » du champ manuel reste, elle — c'est le
-     seul endroit où l'on déclare des heures réellement payées au lieu d'être
-     récupérées. */
+  /* HEURES SUP À COMPENSER : LE SURSALAIRE SE PAIE, L'HEURE PART AU COMPTEUR.
+     C'est la fiche de paie elle-même qui le dit, et il a fallu la lire pour
+     s'en apercevoir. Le client, le 25/09/2026 : « vérifie avec toutes mes
+     feuilles de paye si ta logique est bonne ». Janvier porte exactement :
+
+         1:30  Heures sup à compenser à <taux> à 150 %     +
+        -1:30  déduc HS à comp à <taux>                    −
+
+     Le sursalaire est payé au taux majoré, et l'heure de base est DÉDUITE
+     puisqu'elle sera reprise plus tard. Net : la moitié du taux horaire.
+     Décembre porte la même paire pour 4:30, et la fiche affiche le solde
+     d'année du compteur juste à côté.
+
+     J'avais retiré les DEUX lignes en croyant que « les heures vont au
+     compteur » voulait dire « rien n'est payé ce mois-ci ». C'était faux
+     d'une moitié : l'HEURE part au compteur, le SURSALAIRE ne l'attend pas.
+
+     Les deux lignes sont écrites séparément plutôt que nettes, parce que
+     l'onglet Contrôle se lit ligne à ligne contre la fiche du secrétariat
+     social : une ligne à 50 % n'y existe pas et ne se retrouverait nulle
+     part. */
+  ["Semaine","Samedi","Dimanche"].forEach(function(bkt){
+    var hh=acc.hsAComp[bkt]; if(!hh) return;
+    bl(hh,"Heures sup à compenser à "+nf4.format(txh)+" à "+num(HS_TAUX[bkt])+" %",
+       R(hh*txh*HS_TAUX[bkt]/100),true);
+    bl(-hh,"déduc HS à comp à "+nf4.format(txh),R(-hh*txh),true);
+  });
   /* Le client : « les primes de rappel sont reprises dans heures de
      déplacement ». Elles partagent donc la ligne de la fiche, et le champ
      manuel ne doit reprendre que le déplacement qui n'est pas déjà couvert
@@ -2680,6 +2703,8 @@ var WHY=[
  [/^Déduction travail weekend/,"Les heures du week-end sont déjà comprises dans la rémunération fixe. Cette ligne en retire une fois 100 % pour ne pas les payer deux fois : il reste donc +50 % le samedi et +100 % le dimanche par rapport à une heure de semaine."],
  [/^Suppl\. Équipe .*heures suppl/,"Sur des heures supplémentaires, la prime d'équipe monte d'un cran : 150 % en semaine, 200 % le samedi, 300 % le dimanche et les jours fériés."],
  [/^Suppl\. Équipe/,"Prime de pause, payée par heure de présence dans le poste. Elle suit le régime du jour : 100 % en semaine, 150 % le samedi, 200 % le dimanche et les jours fériés."],
+ [/^Heures sup à compenser/,"Heures supplémentaires qui seront RÉCUPÉRÉES : le sursalaire est payé ce mois-ci au taux majoré, et l'heure de base est déduite juste en dessous puisqu'elle sera reprise plus tard. Net : la moitié du taux horaire."],
+ [/^déduc HS à comp/,"La contrepartie de la ligne au-dessus : l'heure supplémentaire n'est pas payée maintenant, elle part au compteur de récup. HS et se paie le jour où elle est reprise."],
  [/^HS non compensées/,"Heures supplémentaires payées au lieu d'être récupérées : 150 % en semaine, 187,5 % le samedi, 200 % le dimanche et les jours fériés."],
  [/^Heure\(s\) de déplacement/,"Heures de trajet payées au salaire horaire simple, sans majoration."],
  [/^Prime\(s\) de rappel/,"2 h × (salaire horaire × coefficient du jour + prime de pause × coefficient de pause) × coefficient du moment. Le coefficient du moment vaut 2 si le rappel arrive la veille ou le jour même, 1,5 s'il est annoncé entre J-2 et J-15."],
