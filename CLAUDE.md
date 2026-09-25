@@ -1734,6 +1734,43 @@ présente. **Une place qui se libère en déplace une autre trois mois plus
 loin** — c'est pourquoi on relit `--manques` en entier après chaque
 correction de placement, et pas seulement la journée qu'on croyait toucher.
 
+### Le vocabulaire de la maison : « absence » veut dire MALADIE
+
+Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire
+maladie ; quand c'est une prise de congé on dit "Congé" ».
+
+C'est la même distinction qu'il avait donnée le 21/09 pour l'onglet Équipe —
+« il faut différencier absent et en congé ; les absents ne sont que les
+personnes malades » — mais elle ne valait que pour les CARTES du Résumé. Le
+reste de l'application appelait encore « absence » tout ce qui n'est pas
+presté.
+
+**Et un endroit ne se contentait pas d'un mot de travers : il disait le
+contraire du code.** La légende rangeait `ABS` dans la colonne « Compteurs
+et NON PAYÉ », avec la définition « absence injustifiée ». Or
+`ALIAS_HORAIRE={"ABS":"MAL"}` le traduit en `MAL`, qui est `{c:"MAL",
+k:"SMG"}` — **maladie, salaire garanti**. Le code avait raison depuis le
+début ; c'est la légende qui mentait, et dans le sens qui coûte cher. `ABS`
+est passé dans la liste des journées PAYÉES, à côté de `SMG`.
+
+Sept autres emplois du mot sont repris dans son vocabulaire :
+
+| Où | Avant | Après |
+|---|---|---|
+| légende de l'année | Absence | **Congé ou maladie** |
+| légende du mois | absence — non presté | **congé ou maladie — non presté** |
+| compteurs | Absences de l'année | **Congés et maladie de l'année** |
+| liste des codes | Absences payées | **Congés et maladie payés** |
+| son sous-titre | postes, absences et primes | **postes, congés, maladie et primes** |
+| aide de la ligne | le menu pose une absence | **pose un congé ou une maladie** |
+| infobulle de l'année | « Absence » + le code | **le code seul** — il se suffit |
+
+**Deux libellés restent « absence », et c'est voulu** : « heures d'absence
+assimilées à du travail » et « absence non rémunérée » sont les intitulés de
+la FICHE DE PAIE du secrétariat social. Ils recopient un document, pas le
+parler de l'usine — les renommer ferait perdre la correspondance ligne à
+ligne avec la fiche, qui est tout l'objet de l'onglet Contrôle.
+
 ### Ces semaines-ci sont exceptionnelles
 
 Le client, le 25/09/2026 : « ces semaines-ci c'est exceptionnel mais il y a

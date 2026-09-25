@@ -1769,7 +1769,7 @@ body[data-horaire="annee"] #rotasub{display:none}
 
     <div class="card">
       <details class="fold">
-        <summary>Les codes <span class="sub">postes, absences et primes de rappel</span></summary>
+        <summary>Les codes <span class="sub">postes, congés, maladie et primes de rappel</span></summary>
         <div class="codes">
           <div>
             <h3>Postes</h3>
@@ -1787,7 +1787,7 @@ body[data-horaire="annee"] #rotasub{display:none}
             </dl>
           </div>
           <div>
-            <h3>Absences payées</h3>
+            <h3>Congés et maladie payés</h3>
             <dl>
               <dt>VA</dt><dd>vacances annuelles</dd>
               <dt>RTT</dt><dd>réduction du temps de travail</dd>
@@ -1798,6 +1798,7 @@ body[data-horaire="annee"] #rotasub{display:none}
               <dt>CP</dt><dd>congé parental</dd>
               <dt>CT</dt><dd>congé de circonstance</dd>
               <dt>SMG</dt><dd>maladie, salaire garanti</dd>
+              <dt>ABS</dt><dd>maladie — le classeur l'écrit ainsi, et la lecture le range en SMG</dd>
               <dt>FORM</dt><dd>formation, congé syndical</dd>
             </dl>
           </div>
@@ -1806,7 +1807,6 @@ body[data-horaire="annee"] #rotasub{display:none}
             <dl>
               <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
               <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
-              <dt>ABS</dt><dd>absence injustifiée</dd>
               <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
             </dl>
             <h3>Heures supplémentaires</h3>
@@ -2057,7 +2057,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </header>
     <p class="sheet-src" id="sheetSrc"></p>
     <div class="rota" id="rota"></div>
-    <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose une absence. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
+    <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose un congé ou une maladie. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
   </div>
 </div>
 <script>
@@ -2717,7 +2717,7 @@ function ligneJour(d){
              +(gardePrime(rec)?" — prime "+esc(rec.s)+" conservée, d\'où le bouton allumé":"")+'">'
              +(rec.j?"D\u00b7"+esc(etiqJour(rec.j)):esc(rec.sp))+'</span>':"")+'</div>'+
     '<div class="shifts">'+btns+'</div>'+
-    '<select class="abs" aria-label="Absence du '+d+'">'+absOpts+'</select>'+
+    '<select class="abs" aria-label="Congé ou maladie du '+d+'">'+absOpts+'</select>'+
     '<input class="hrs num" type="number" step="0.5" min="0" max="24" aria-label="Heures du '+d+'">'+
     '<button type="button" class="icb bike" aria-pressed="'+(!!rec.v)+'" title="Venu à vélo" aria-label="Vélo le '+d+'">'+
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
@@ -2831,7 +2831,7 @@ function legendeMois(){
   ["AM","PM","N","D"].forEach(function(k){
     if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
   });
-  if(abs)  h.push('<span><i class="lg-abs"></i>absence — non presté</span>');
+  if(abs)  h.push('<span><i class="lg-abs"></i>congé ou maladie — non presté</span>');
   if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu, non presté</span>');
   if(jour) h.push('<span><i class="lg-jour"></i>journée de jour, prime conservée</span>');
   if(part) h.push('<span><i class="lg-pt lg-part"></i>heures en moins ou en plus</span>');
@@ -6937,7 +6937,7 @@ function renderCompteurs(){
     /* --- absences de l'année --- */
     var cles=Object.keys(calc.abs).sort();
     if(cles.length){
-      h.push('<h3 class="cpt-t">Absences de l\'année</h3><div class="cpt-tuiles">');
+      h.push('<h3 class="cpt-t">Congés et maladie de l\'année</h3><div class="cpt-tuiles">');
       cles.forEach(function(k){ h.push(ctuile(num(R(calc.abs[k],2))+" h",libCompteur(db,k)===k?k:libCompteur(db,k))); });
       h.push('</div>');
     }
@@ -7110,7 +7110,7 @@ function renderAnnee(){
              +esc(POSTE_LIB[c])+' <b style="color:var(--ink2)">'+cpt[c]+'</b></span>');
     });
     h.push('<span><i style="background:var(--cal-d); box-shadow:inset 0 -3.5px 0 var(--cal-n)"></i>Jour — le liseré dit la prime conservée</span>');
-    h.push('<span><i style="background:var(--surface3); box-shadow:inset 0 0 0 1px var(--line)"></i>Absence</span>');
+    h.push('<span><i style="background:var(--surface3); box-shadow:inset 0 0 0 1px var(--line)"></i>Congé ou maladie</span>');
     h.push('<span><i style="background:var(--surface2)"></i>Repos</span>');
     h.push('</p>');
 
@@ -7182,7 +7182,7 @@ function renderAnnee(){
                         :POSTE_LIB[j.sp])+" · "+num(hb)+" h"
                         +"<br>Prime de "+POSTE_LIB[j.s].toLowerCase()+" conservée");
       else if(tv) l.push(POSTE_LIB[j.s]+" · "+num(hb)+" h");
-      if(j.a) l.push((tv?"":"Absence ")+j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s].toLowerCase():""));
+      if(j.a) l.push(j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s].toLowerCase():""));
       if(!tv && !j.a) l.push("Repos");
       if(j.rcm) l.push("Remplacement contremaître");
       if(j.rap) l.push("Rappel "+(j.rap==="J"?"J / J-1":"J-2 → J-15"));
