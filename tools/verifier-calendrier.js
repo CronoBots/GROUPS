@@ -99,9 +99,16 @@ const MORCEAUX=[
      refaire. Une première version le réimplémentait, et elle a aussitôt
      divergé sur BBZ — « poste habituel » n'y suivait pas la même chaîne. */
   ["var POLY_QUOTA=",";"],
+  ["var POSTE_PERIODE=","\n"],
+  ["function _posteDePeriode(","\n}"],
   ["function _posteDeLigne9(","\n}"],
-  ["function posteAttitre(","\n"],
-  ["function posteDeFormation(","\n"],
+  /* posteAttitre() et posteDeFormation() tenaient chacune sur UNE ligne et
+     se découpaient jusqu'au premier saut de ligne. La tranche de période
+     les a mises à trois lignes, et la découpe rendait une fonction coupée
+     en deux : SyntaxError au chargement. Elles se ferment sur « \n} »
+     comme les autres. */
+  ["function posteAttitre(","\n}"],
+  ["function posteDeFormation(","\n}"],
   ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
   ["function calculerPolyvalence(","\n}"],

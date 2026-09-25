@@ -6111,11 +6111,66 @@ function calculerPolyvalence(db){
    lequel des deux il devient. Une première version calculait le poste une
    fois dans polyvalenceDe() et une fois dans le rendu — la seconde copie
    ignorait la règle, et la pastille pleine restait sur la meunerie de SKS. */
+/* UN POSTE QUI CHANGE À UNE DATE, et c'est le seul de l'horaire.
+
+   Le client, le 25/09/2026 : « pour LCI, il est bien en fermentation dans
+   l'équipe 5 jusqu'au 29/09 inclus ». La table le montrait en distillation,
+   parce que c'est ce que la ligne 9 du classeur écrit sur sa ligne —
+   « Distillation éq. 5 ».
+
+   Les deux ne se contredisent pas : sa POLYVALENCE déclarée est la
+   fermentation, c'est-à-dire le poste qu'il TIENT, et la distillation est
+   celui où il se FORME. Le classeur nomme le second, le client dit que le
+   premier vaut jusqu'au 29/09. Aucune de ses 365 cellules ne nomme un
+   atelier avant le 15/10 : la date ne peut venir que de lui.
+
+   ELLE ÉCRASE LA LIGNE 9, ET C'EST L'INVERSE DE `POSTE_TRANCHE`. Celle-ci
+   vient en DERNIER recours, après tout ce que le classeur dit, pour ne
+   rien pouvoir effacer ; celle-là vient en PREMIER, parce qu'elle corrige
+   justement ce que le classeur écrit. Deux tables, deux places, et le nom
+   doit les distinguer.
+
+   La borne porte l'ANNÉE et pas seulement le jour : un appareil ouvert en
+   2027 comparerait « 0929 » à son propre septembre et rejouerait une
+   correction qui ne vaut que pour 2026. Passé la date, la ligne 9 reprend
+   la main d'elle-même — il n'y a rien à retirer d'ici le jour venu.
+
+   Elle se lit sur AUJOURD'HUI, et l'onglet Équipe n'a pas de sélecteur de
+   date : il montre la composition telle qu'elle est au moment où on la
+   regarde, ce qui reste vrai de bout en bout. */
+var POSTE_PERIODE={ LCI:[{jusqu:"20260929", k:"ferm"}] };
+function _posteDePeriode(p){
+  var l=POSTE_PERIODE[(p&&p.id)||""]; if(!l) return null;
+  var n=new Date();
+  var auj=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();
+  for(var i=0;i<l.length;i++) if(auj<=Number(l[i].jusqu)) return l[i].k;
+  return null;
+}
 function _posteDeLigne9(p){
   try{ return posteTenu(p,[],st.params.hJour,null)||posteParDefaut(p); }
   catch(e){ return posteParDefaut(p); }
 }
-function posteAttitre(p){ return enFormation(p)?null:_posteDeLigne9(p); }
+/* LE POSTE DE LA PÉRIODE EST TENU, PAS APPRIS, et la première version s'est
+   trompée de moitié. Posée dans `_posteDeLigne9()`, la correction passait
+   par `posteDeFormation()` — LCI devenait donc un opérateur EN FORMATION à
+   la fermentation : jaune dans la composition, et pastille « F » dans le
+   Recyclage. C'est exactement l'inverse de ce que dit le classeur, qui
+   déclare la fermentation dans sa POLYVALENCE : on n'est pas validé là où
+   l'on se forme, et il l'est. Elle se pose donc du côté du poste TENU, et
+   là seulement.
+
+   ET LES DEUX COEXISTENT, ce qui n'était jamais arrivé. Elles étaient
+   exclusives à dessein — « le MÊME calcul, seule la personne décide lequel
+   des deux il devient ». LCI est le premier à tenir un poste ET à se
+   former à un autre : fermentation d'un côté, distillation de l'autre. Les
+   couper toutes deux l'a fait DISPARAÎTRE de la grille de Recyclage — sa
+   seule polyvalence étant devenue son poste, il ne lui restait rien à
+   montrer, et le « F » de la distillation partait avec. Le rendu les lisait
+   déjà séparément : `sien` s'exclut, `posteForm` porte le F. */
+function posteAttitre(p){
+  var tranche=_posteDePeriode(p); if(tranche) return tranche;
+  return enFormation(p)?null:_posteDeLigne9(p);
+}
 function posteDeFormation(p){ return enFormation(p)?_posteDeLigne9(p):null; }
 /* Possède-t-elle CE poste ? « Terrain arrière » ne figure dans aucune liste
    de polyvalence du classeur : il se déduit de Fermentation ET Distillation,
@@ -6392,7 +6447,8 @@ function renderOrganisation(){
       /* LA MÊME CHAÎNE QUE LE RÉSUMÉ, sans la date. Pour celui qui apprend,
          c'est posteDeFormation() qui répond — le poste où il se forme, et
          non un poste à lui : il n'y est pas validé. */
-      var k=posteAttitre(p)||posteDeFormation(p), court=null;
+      var attitre=posteAttitre(p);
+      var k=attitre||posteDeFormation(p), court=null;
       for(var q=0;q<LIGNES.length;q++)
         if(LIG_K[LIGNES[q]]===k) court=LIGNES[q];
       if(!court){ orphelins.push({id:p.id, eq:eq, po:po}); return; }
@@ -6400,7 +6456,14 @@ function renderOrganisation(){
          polyvalent que sa chaîne y envoie — viennent après lui. */
       var titre=(LIG_LONG[court]||"").toLowerCase()===String(po||"").trim().toLowerCase();
       var g=grille[court+"|"+eq]=grille[court+"|"+eq]||{t:[],r:[],f:[]};
-      if(forme) g.f.push(p.id); else g[titre?"t":"r"].push(p.id);
+      /* LE JAUNE SUIT LE POSTE, PAS LA CATÉGORIE. Il veut dire « présent,
+         mais pas encore validé ICI » — et c'est le poste montré qui le
+         décide, non l'intitulé de la personne. LCI est bien un opérateur en
+         formation, mais à la FERMENTATION il est validé : elle figure dans
+         sa polyvalence, et la tranche de période l'y place comme titulaire.
+         L'écrire en jaune aurait dit de ne pas compter sur lui à un poste
+         qu'il tient. */
+      if(!attitre) g.f.push(p.id); else g[titre?"t":"r"].push(p.id);
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
