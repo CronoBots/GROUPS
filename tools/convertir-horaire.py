@@ -549,6 +549,127 @@ def _annuaire(cl):
     return out
 
 
+# LE CLASSEUR ÉCRIT LES CONTRATS RÉDUITS EN PIED DE FEUILLE, et personne ne
+# les lisait. Le client, le 25/09/2026 : « il faut que toutes les données du
+# fichier soient récupérées pour alimenter l'app et les règles ».
+#
+# Quatre-vingt-deux commentaires, lignes 396 à 434, écrivent le congé
+# parental et le temps partiel de chacun avec leurs dates :
+#
+#     « CP 10% du 01.11.2022 au 28.02.2026 »
+#     « TP contractuel 20% du 01.07.2025 au 30.06.2027 »
+#     « CP 20% à partir du 01/11/2026 pour 5 mois »
+#     « 12 mois à 90% »
+#
+# C'est la « fraction payée » que l'application fait saisir À LA MAIN.
+#
+# LE SENS DU POURCENTAGE NE SE DEVINE PAS — LE CLASSEUR LE DIT DEUX FOIS.
+# Une même personne porte « TP 10% du 15.03.2024 au 14.03.2026 … TP 20% à
+# partir du 01/06 » et, trois lignes plus haut, « 90% 01/01 au 14/03  80% du
+# 01/06 au 31/12 ». Une autre porte « CP 10% du 01/12/25 au 30/09/26 » et
+# « CP 90 % du 01/12/2025 au 30/09/2026 » — mêmes dates, deux notations. Dix
+# pour cent de RÉDUCTION valent donc quatre-vingt-dix pour cent PRESTÉS, et
+# ce sont les colonnes du classeur qui se répondent, pas une supposition.
+#
+# D'où la borne : un pourcentage d'au plus 30 est une réduction, un
+# pourcentage d'au moins 70 est la part prestée. Le classeur n'écrit rien
+# entre les deux — mesuré : 10 et 20 d'un côté, 80, 90 et 100 de l'autre. Ce
+# qui tomberait entre serait gardé SANS fraction plutôt que deviné.
+CONTRAT = re.compile(r"(?:(CP|TP|CT)\b[^%\d]{0,24})?(\d{1,3})\s*%", re.I)
+_JOUR = r"(\d{1,2})[./](\d{1,2})(?:[./\s](\d{2,4}))?"
+# « du 01.11.2022 au 28.02.2026 », mais aussi « 01/03/26 au 30/06/2029 » : le
+# « du » manque une fois sur deux. On l'accepte donc absent — à CONDITION
+# qu'un « au » relie les deux dates, sans quoi la ligne des jours fériés non
+# pris, « -01/01 -06/04 -01/05 », donnerait une période de janvier à avril.
+PERIODE = re.compile(
+    r"(?:(?:du|dès|à partir du|apd|àpd)\s*)?" + _JOUR
+    + r"\s*(?:au|jusqu'au|jusque)\s*" + _JOUR, re.I)
+DEBUT_SEUL = re.compile(r"(?:du|dès|à partir du|apd|àpd)\s*" + _JOUR, re.I)
+DUREE = re.compile(r"pour\s+(\d{1,2})\s*mois", re.I)
+
+
+def _date(j, m, a):
+    """« 28.02.26 » et « 28/02/2026 » donnent la même chose. Sans année, None :
+    une période sans année ne se compare à rien."""
+    if not (j and m and a):
+        return None
+    j, m, a = int(j), int(m), int(a)
+    if a < 100:
+        a += 2000
+    if not (1 <= m <= 12 and 1 <= j <= 31 and 2000 <= a <= 2100):
+        return None
+    return "%04d-%02d-%02d" % (a, m, j)
+
+
+def _plus_mois(iso, n):
+    if not iso:
+        return None
+    a, m, j = (int(x) for x in iso.split("-"))
+    m += int(n)
+    a += (m - 1) // 12
+    m = (m - 1) % 12 + 1
+    return "%04d-%02d-%02d" % (a, m, min(j, 28))
+
+
+def _periode(bout):
+    """La première période écrite dans ce bout de texte, et sa durée."""
+    d = fin = None
+    p = PERIODE.search(bout)
+    if p:
+        d = _date(p.group(1), p.group(2), p.group(3))
+        fin = _date(p.group(4), p.group(5), p.group(6))
+    else:
+        p = DEBUT_SEUL.search(bout)
+        if p:
+            d = _date(p.group(1), p.group(2), p.group(3))
+    n = DUREE.search(bout)
+    if n and d and not fin:
+        fin = _plus_mois(d, n.group(1))
+    return d, fin
+
+
+def contrats(cl, feuille, colonne):
+    """Les périodes de contrat réduit d'une personne, lues en pied de feuille.
+
+    UN COMMENTAIRE PEUT EN PORTER DEUX — « CP 10% du 02.04.24 au 01.10.2026
+    CP 10% du 02.10.26 au 01.02.2030 » — et n'en lire qu'une ferait croire
+    que le contrat s'arrête. On découpe donc le texte à chaque pourcentage,
+    et chaque morceau porte sa propre période.
+
+    On garde TOUJOURS le texte d'origine à côté de ce qui a été compris : ce
+    qui n'est pas compris aujourd'hui reste lisible demain, et une fraction
+    absente vaut mieux qu'une fraction inventée.
+    """
+    out = []
+    for (ligne, col), txt in cl.commentaires(feuille).items():
+        if ligne < 396 or col not in (colonne, colonne + 1):
+            continue
+        bouts = [m for m in CONTRAT.finditer(txt)]
+        if not bouts:
+            # Sans pourcentage, seul un code explicite fait un contrat ; le
+            # reste du pied de feuille — jours fériés non pris, notes de
+            # planification — vit dans l'export intégral, pas ici.
+            if re.search(r"\b(CP|TP|CT)\b", txt, re.I):
+                d, fin = _periode(txt)
+                out.append({"txt": txt, "l": ligne, "d": d, "fin": fin})
+            continue
+        for i, m in enumerate(bouts):
+            arret = bouts[i + 1].start() if i + 1 < len(bouts) else len(txt)
+            bout = txt[m.start():arret]
+            fiche = {"txt": txt if len(bouts) == 1 else bout.strip(),
+                     "l": ligne}
+            pct = int(m.group(2))
+            if m.group(1):
+                fiche["t"] = m.group(1).upper()
+            if pct <= 30:
+                fiche["pct"], fiche["f"] = pct, round(1 - pct / 100.0, 4)
+            elif pct >= 70:
+                fiche["pct"], fiche["f"] = 100 - pct, round(pct / 100.0, 4)
+            fiche["d"], fiche["fin"] = _periode(bout)
+            out.append(fiche)
+    return out
+
+
 def _norme_cle(libelle):
     """« 1/2VA » -> « demiVA », « 4h +FT » -> « 4h+FT », « Total: » -> « Total »."""
     t = libelle.strip().rstrip(":").strip()
@@ -829,7 +950,8 @@ def _colonnes(cl):
             if jours:
                 yield (categorie, nom, jours,
                        compteurs(g, colonne) if pied else {}, entete,
-                       feuille, poste, _lettre(colonne))
+                       feuille, poste, _lettre(colonne),
+                       contrats(cl, feuille, colonne) if pied else [])
 
 
 def convertir(chemin_xlsm, annee):
@@ -846,7 +968,8 @@ def convertir(chemin_xlsm, annee):
     #    donne sa catégorie, et FEUILLES met les feuilles spécialisées en
     #    tête pour que ce soit celle de son propre groupe.
     fiches, utilisees, noms = {}, set(), {}
-    for categorie, nom, jours, cpt, entete, feuille, poste, col in _colonnes(cl):
+    for (categorie, nom, jours, cpt, entete, feuille, poste, col,
+         ctr) in _colonnes(cl):
         cle = _sans_accent(nom).lower()
         noms[cle] = nom
         corrige = CORRECTIONS.get(_empreinte(cle))
@@ -862,7 +985,7 @@ def convertir(chemin_xlsm, annee):
                                     "reel": annuaire.get(cle) or _initiales(nom),
                                     "nomcle": _cle_nom(nom),
                                     "cat": categorie, "d": {}, "c": {}, "e": [],
-                                    "postes": {}})
+                                    "postes": {}, "ct": []})
         # Le poste est propre à la FEUILLE : la même personne est « Adjoints
         # Contremaître » sur les cinq équipes et porte un numéro d'équipe sur
         # sa propre feuille. On garde les deux plutôt que d'en élire un.
@@ -874,6 +997,11 @@ def convertir(chemin_xlsm, annee):
         for sec, vals in cpt.items():
             if vals:
                 f["c"].setdefault(sec, {}).update(vals)
+        # La même personne figure sur plusieurs feuilles, qui recopient le
+        # même commentaire de contrat ; on ne le garde qu'une fois.
+        for c in ctr:
+            if not any(x["txt"] == c["txt"] for x in f["ct"]):
+                f["ct"].append(c)
         # une feuille peut porter des journées ou des commentaires que
         # l'autre n'a pas ; on garde l'entrée la plus informative
         for k, e in jours.items():
@@ -952,6 +1080,9 @@ def convertir(chemin_xlsm, annee):
                 p["e"] = f["e"]
             if f.get("postes"):
                 p["postes"] = f["postes"]
+            if f.get("ct"):
+                p["ct"] = sorted(f["ct"], key=lambda x: (x.get("d") or "",
+                                                         x["l"]))
             gens[ident] = p
             cles_ident[ident] = f.get("nomcle")
             reels.setdefault(f.get("reel"), []).append(ident)

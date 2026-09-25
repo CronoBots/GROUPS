@@ -450,6 +450,68 @@ cette forme dans les deux fichiers.
   posé en croyant remplacer un NOM. Le résultat tombe juste par accident ;
   le mécanisme, non.
 
+### La fraction payée se lit dans le classeur
+
+Le client, le 25/09/2026 : « il faut que toutes les données du fichier soient
+récupérées pour alimenter l'app et les règles ».
+
+Le pied de chaque feuille porte, **en commentaire**, le congé parental et le
+temps partiel de chacun avec ses dates. **46 périodes chez 28 personnes**,
+que personne ne lisait — et c'est la « fraction payée » que l'application
+faisait saisir à la main.
+
+> « CP 10% du 01.11.2022 au 28.02.2026 » · « TP contractuel 20% du
+> 01.07.2025 au 30.06.2027 » · « CP 20% à partir du 01/11/2026 pour 5 mois »
+> · « 12 mois à 90% »
+
+**LE SENS DU POURCENTAGE NE SE DEVINE PAS — LE CLASSEUR LE DIT DEUX FOIS.**
+Une personne porte « TP 10% du 15.03.2024 au 14.03.2026 … TP 20% à partir du
+01/06 » et, trois lignes plus haut, « **90%** 01/01 au 14/03  **80%** 01/06 au
+31/12 ». Une autre porte « CP 10% du 01/12/25 au 30/09/26 » et « **CP 90 %**
+du 01/12/2025 au 30/09/2026 » — mêmes dates, deux notations. Dix pour cent de
+RÉDUCTION valent quatre-vingt-dix pour cent PRESTÉS, et **ce sont les colonnes
+du classeur qui se répondent**, pas une supposition.
+
+D'où la borne : **au plus 30 = une réduction, au moins 70 = la part prestée**.
+Le classeur n'écrit rien entre les deux — mesuré : 10 et 20 d'un côté, 80, 90
+et 100 de l'autre. Ce qui tomberait entre serait gardé **sans** fraction
+plutôt que deviné.
+
+**Un commentaire peut porter DEUX périodes** — « CP 10% du 02.04.24 au
+01.10.2026 CP 10% du 02.10.26 au 01.02.2030 » — et n'en lire qu'une ferait
+croire que le contrat s'arrête. Le texte est donc découpé à chaque
+pourcentage, et chaque morceau porte sa période. Trois commentaires en
+portaient deux, un en portait quatre.
+
+**Et le « du » manque une fois sur deux** : « CP 10% 01/03/26 au 30/06/2029 ».
+Il est donc facultatif — **à condition qu'un « au » relie les deux dates**,
+sans quoi la ligne des jours fériés non pris, « -01/01 -06/04 -01/05 »,
+donnerait une période de janvier à avril.
+
+**La fraction vaut pour un MOIS, pas pour l'année**, une même personne passant
+de 90 % à 80 % en cours d'année. `fractionDuMois()` regarde **le 15** : un
+mois appartient à la période qui couvre son milieu. Deux périodes qui se
+recouvrent — le classeur écrit parfois la même sous deux notations — sont
+départagées par la plus récemment commencée : c'est la dernière décision
+écrite.
+
+**Le réglage reste, en dernier recours**, pour qui n'est pas dans l'horaire.
+Le classeur prime — c'est la règle de tête du projet, et **c'est déjà ainsi
+que le statut ouvrier ou employé suit la personne** depuis le 22/09.
+
+Vérifié au navigateur, dans les deux sens, sur quelqu'un dont le congé
+parental commence le 01/09/2026 : **septembre 2 700 €, août 3 000 €** sur une
+rémunération d'exemple de 3 000 — la fraction s'applique dans la période et
+pas avant.
+
+`tools/verifier-integralite.py` en tient compte : le pied de feuille passe de
+**81 commentaires non repris à 16**, et les seize restants sont douze lignes
+de jours fériés non pris, qui ne sont pas des contrats.
+
+**`CT 20%` reste à trancher** — trois personnes le portent, sans dates.
+Crédit-temps, sans doute, mais le mot n'est écrit nulle part et cela touche
+un montant : la fraction n'est pas posée tant que le client ne l'a pas dit.
+
 ## Structure
 
 | Fichier | Rôle |

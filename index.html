@@ -2581,7 +2581,20 @@ function compute(){
     lines.push({q:rapHTot,l:"dont heures de déplacement au total (ligne « Heures de déplacement » de la fiche)",qh:true,info:true});
   if(acc.rapExclu) lines.push({q:acc.rapExclu,
     l:"Rappel(s) en pause AM sur journée prévue en Day — pas de prime (procédure, point D)",info:true});
-  bl(null,"Montant heures prestées",R(remFixe*p.fraction));
+  /* LE CLASSEUR ÉCRIT LA FRACTION, et l'application la faisait saisir à la
+     main. Le pied de chaque feuille porte, en commentaire, le congé parental
+     et le temps partiel de chacun avec leurs dates — « CP 10% du 01.11.2022
+     au 28.02.2026 », « TP contractuel 20% du 01.07.2025 au 30.06.2027 ».
+     46 périodes chez 28 personnes, que personne ne lisait.
+
+     Elle vaut POUR UN MOIS et non pour l'année : une même personne passe de
+     90 % à 80 % en cours d'année. Le réglage reste, en dernier recours et
+     pour qui n'est pas dans l'horaire ; le classeur, lui, prime — c'est la
+     règle de tête du projet, et c'est déjà ainsi que le STATUT ouvrier ou
+     employé suit la personne. */
+  var frac=fractionDuMois(st.personCt,st.y,st.m);
+  if(frac===null || frac===undefined) frac=p.fraction;
+  bl(null,"Montant heures prestées",R(remFixe*frac));
   var rcmJ=Number(M.rcmJours||0);
   if(rcmJ) bl(rcmJ,"Prime de remplacement contremaître à "+nf4.format(p.primeRemplCM),R(rcmJ*p.primeRemplCM));
   if(M.primes) bl(null,"Primes diverses",R(M.primes));
@@ -3381,7 +3394,7 @@ var PARAM_FIELDS=[
   hint:"employés : avance 4 jours ouvrables avant la fin du mois, solde 4 jours ouvrables après",
   onb:"Le montant NET de l'avance que vous recevez chaque mois, si votre salaire est versé en deux fois. Le Résumé affiche alors les deux virements et leurs dates. Laissez 0 si vous êtes payé en une seule fois."},
  {k:"divH",fige:true,l:"Diviseur horaire mensuel",scope:"params",step:"0.000001",hint:"38:40/sem → 148,368007"},
- {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = 9/10 (vous prestez 9/10) — congé parental CP ou temps partiel TP",personal:true,
+ {k:"fraction",l:"Fraction payée",scope:"params",step:"0.01",hint:"0,90 = 9/10 — congé parental CP ou temps partiel TP. Lue dans le classeur quand il la porte : ce réglage n'est le dernier recours que s'il n'y est pas.",personal:true,
   onb:"Votre fraction de temps de travail : 1 = temps plein. Par exemple 0,90 pour un 9/10ᵉ, 0,80 pour un 4/5ᵉ — que ce soit un congé parental (CP) ou un temps partiel (TP). Laissez 1 si vous êtes à temps plein."},
  {k:"hJour",fige:true,l:"Heures d'une journée prestée",scope:"params",step:"0.5"},
  {k:"hSemaine",fige:true,l:"Heures / semaine (contrat)",scope:"params",step:"0.000001",hint:"sert au décompte des chèques-repas"},
@@ -5059,6 +5072,35 @@ function figerPasse(cleMois,ancienne){
     }
   });
 }
+/* La fraction payée d'un MOIS, lue dans les contrats du classeur.
+
+   On regarde le 15 : un mois appartient à la période qui couvre son milieu.
+   Prendre le 1er ferait basculer tout un mois sur un contrat commencé le 2,
+   et prendre le dernier jour ferait l'inverse.
+
+   Deux périodes peuvent se recouvrir — le classeur écrit parfois la même
+   sous deux notations, « CP 10% » et « CP 90% », ou prolonge un contrat sans
+   clore le précédent. La plus RÉCEMMENT commencée gagne : c'est la dernière
+   décision écrite.
+
+   Sans date, une période ne se compare à rien et ne compte pas : le
+   convertisseur garde son texte, et c'est au client de trancher. */
+function fractionDuMois(ct,y,m){
+  if(!ct || !ct.length) return null;
+  function num(iso){
+    if(!iso) return null;
+    var b=String(iso).split("-");
+    return Number(b[0])*10000+Number(b[1])*100+Number(b[2]);
+  }
+  var jour=y*10000+(m+1)*100+15, vu=null, deb=-1;
+  for(var i=0;i<ct.length;i++){
+    var c=ct[i];
+    if(typeof c.f!=="number" || !c.d) continue;
+    var d=num(c.d), f=c.fin?num(c.fin):99999999;
+    if(jour>=d && jour<=f && d>deb){ deb=d; vu=c.f; }
+  }
+  return vu;
+}
 function prefillFromHoraire(){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var id=idSel.value; if(!id){ prefillEnCours=false; return; }
@@ -5068,6 +5110,7 @@ function prefillFromHoraire(){
     var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
     if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
     st.personD=person.d;
+    st.personCt=person.ct||null;
     /* Le statut suit la personne : le choisir, c'est le dire. Sans quoi un
        ouvrier gardait « Employé » et son ONSS était fausse de 8 %. */
     var stt=statutPersonne(person);
