@@ -231,6 +231,12 @@ class Classeur:
         for s in wb.find('{%s}sheets' % M):
             cible = rels[s.get('{%s}id' % R)].lstrip('/')
             self.feuilles[s.get('name')] = cible if cible.startswith('xl/') else 'xl/' + cible
+        # Le registre des noms relit toutes les feuilles avant la conversion :
+        # sans ce cache, chaque feuille serait analysée deux fois.
+        self._grilles = {}
+        # Les noms des personnes, appris de la ligne des noms. Posé par
+        # convertir() AVANT la première lecture de commentaire.
+        self.registre = None
 
     def _shared(self):
         if "xl/sharedStrings.xml" not in self.z.namelist():
@@ -280,6 +286,8 @@ class Classeur:
     def grille(self, feuille, fusions=(LIGNE_POSTE,)):
         """{ligne: {colonne: texte}}"""
         out = {}
+        if feuille in self._grilles:
+            return self._grilles[feuille]
         racine = ET.fromstring(self.z.read(self.feuilles[feuille]))
         for c in racine.iter('{%s}c' % M):
             ref, t = c.get('r'), c.get('t')
@@ -298,6 +306,7 @@ class Classeur:
             lettres = re.match(r'([A-Z]+)', ref).group(1)
             out.setdefault(int(re.search(r'(\d+)', ref).group(1)), {})[_colnum(lettres)] = val
         self._fusions(racine, out, set(fusions))
+        self._grilles[feuille] = out
         return out
 
     def commentaires(self, feuille):
@@ -352,6 +361,15 @@ class Classeur:
                     # Il ne nomme personne, mais il ouvre le commentaire par
                     # un reste de signature que rien ne lit.
                     txt = re.sub(r"\(\s*[^)]*\)\s*:\s*", " ", txt)
+                # LE REGISTRE DES TRIGRAMMES PASSE APRÈS LES AUTEURS. Un collègue
+                # nommé au fil d'un commentaire — « changement d'équipe de
+                # <nom> » — n'est déclaré auteur de rien : seule la ligne des
+                # noms le connaît. Son nom part remplacé par son trigramme,
+                # et non effacé : « changement d'équipe de MMS » se lit
+                # encore, « changement d'équipe de » ne dit plus rien.
+                if self.registre and self.registre[0]:
+                    motif, tri = self.registre
+                    txt = motif.sub(lambda m: tri.get(m.group(0), m.group(0)), txt)
                 txt = AUTEUR.sub(" ", txt).strip(" .;:")
                 txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
                 txt = " ".join(txt.split())
@@ -439,6 +457,54 @@ def _initiales(nom):
     if not prenom or len(famille) < 2:
         return None
     return (prenom[0] + famille[0] + famille[-1]).upper()
+
+
+def _motif_registre(cl, annuaire):
+    """Les noms des PERSONNES, appris de la ligne des noms, avec le trigramme
+    de chacune. Rend (motif, {mot: trigramme}).
+
+    Le 25/09/2026, `data/horaire-2026.json` — dépôt PUBLIC — portait le nom
+    de famille d'un collègue, écrit au fil de QUATRE commentaires : « changement
+    d'équipe de <nom> ». `_motif_auteurs()` ne l'a pas vu, et pour une bonne
+    raison : ce collègue n'est déclaré AUTEUR nulle part. L'anonymiseur, lui,
+    l'avait retiré — il apprend depuis la ligne des noms.
+
+    Or le convertisseur LIT cette même ligne : c'est d'elle qu'il tire les
+    trigrammes. Il avait donc le nom en main et ne s'en servait que pour
+    nommer la personne, jamais pour la retirer du texte des autres. C'est
+    cette information-là, déjà présente, que l'on emploie ici — et non les
+    motifs de l'anonymiseur, que les deux outils doivent pouvoir se
+    contredire.
+
+    LA MAJUSCULE INITIALE EST EXIGÉE, comme pour l'anonymiseur : un nom de
+    famille peut être un mot français, et « petit » au milieu d'une phrase
+    n'est pas quelqu'un. Les mots de moins de trois lettres sont écartés :
+    la ligne des noms écrit « Nom P », et un « P » isolé ne nomme personne.
+    """
+    mots = {}
+    for feuille in cl.feuilles:
+        try:
+            g = cl.grille(feuille)
+        except Exception:
+            continue
+        for colonne, val in (g.get(LIGNE_NOMS) or {}).items():
+            nom = str(val).strip()
+            if colonne < 3 or nom in ("", "0"):
+                continue
+            cle = _sans_accent(nom).lower()
+            tri = (CORRECTIONS.get(_empreinte(cle)) or annuaire.get(cle)
+                   or _initiales(nom))
+            if not tri:
+                continue
+            for mot in re.split(r"[\s,./()]+", nom):
+                mot = mot.strip(".").strip()
+                if len(mot) >= 3 and mot[:1].isupper() and mot.replace("-", "").isalpha():
+                    mots.setdefault(mot, tri.upper())
+    if not mots:
+        return None, {}
+    # Le plus long d'abord, pour qu'un nom composé ne soit pas coupé.
+    alt = "|".join(re.escape(m) for m in sorted(mots, key=len, reverse=True))
+    return re.compile(r"\b(?:" + alt + r")\b"), mots
 
 
 def _annuaire(cl):
@@ -705,6 +771,11 @@ def _colonnes(cl):
 def convertir(chemin_xlsm, annee):
     cl = Classeur(chemin_xlsm)
     annuaire = _annuaire(cl)
+    # AVANT toute lecture de commentaire : le nettoyage s'en sert.
+    cl.registre = _motif_registre(cl, annuaire)
+    if cl.registre[0]:
+        print("  registre des noms : %d mot(s) appris de la ligne des noms"
+              % len(cl.registre[1]), file=sys.stderr)
 
     # 1. Une fiche par personne, repérée par son nom normalisé. Une même
     #    personne figure sur plusieurs feuilles : la première rencontrée

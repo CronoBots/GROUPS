@@ -1189,6 +1189,88 @@ est marqué `personal:true`, et les montants du mois.
   **le reste du dépôt n'avait, lui, aucun garde-fou** — une règle écrite
   ici, et rien pour la faire respecter. Voir ci-dessous : il en a un.
 
+## Quatre prénoms sont passés, et aucun motif ne pouvait les voir
+
+Découvert le 25/09/2026, par hasard, en lisant la sortie d'une mesure sans
+rapport : `data/horaire-2026.json` — dépôt **PUBLIC** — portait le nom de
+famille d'un collègue et trois prénoms, écrits au fil de huit commentaires.
+
+> « changement d'équipe de <nom> » · « remplace <prénom> qui remplaçait
+> <prénom> » · « Remplacé par CDE (<prénom>) »
+
+**`verifier-depot.py` répondait « aucune forme de nom ».** Et il ne pouvait
+pas mieux faire : **un prénom seul n'a aucune forme reconnaissable**. C'est
+la faille que ce fichier décrit depuis le 22/09 — elle s'est refermée sur
+nous.
+
+**Le convertisseur ne pouvait pas mieux faire non plus.** Ces quatre-là
+n'existent nulle part ailleurs dans le classeur : ni dans la ligne des noms,
+ni dans la feuille « Personnel », qui réduit le prénom à une initiale.
+`_motif_auteurs()` ne voit que les auteurs DÉCLARÉS, et aucun des quatre
+n'en est un. Il n'avait aucun moyen de savoir que c'étaient des gens.
+
+**L'anonymiseur, lui, les avait tous les quatre** — zéro occurrence dans
+`data/classeur-2026.xlsx`.
+
+### Le contrôle croisé : comparer les RÉSULTATS, pas les motifs
+
+Les deux fichiers de `data/` sortent du MÊME classeur. Ce que l'un a retiré
+et que l'autre a gardé est donc suspect, et cela se vérifie sans connaître
+la forme d'un nom :
+
+> Tout mot capitalisé vivant dans les commentaires de `horaire-2026.json`
+> mais introuvable dans `classeur-2026.xlsx` est un mot que l'un des deux
+> outils a retiré et que l'autre a laissé passer.
+
+On n'emprunte pas les motifs de l'anonymiseur — les deux outils doivent
+pouvoir se contredire, c'est la doctrine de `verifier-anonymat.py`. On
+compare ses **résultats**.
+
+Mesuré : **121 mots capitalisés distincts** dans les commentaires du JSON,
+**3 signalés** — et les trois étaient des prénoms. **Aucun bruit.** Le
+quatrième nom avait déjà été corrigé à la main.
+
+Éprouvé dans les deux sens : dépôt propre à **0**, et un prénom replanté
+dans le JSON fait sortir l'outil en 1 en le nommant avec sa journée.
+
+### Ce qui a été corrigé, et avec quoi
+
+Les quatre remplacements viennent de l'anonymiseur lui-même, relevés dans sa
+sortie commentaire par commentaire — **on ne devine pas un trigramme**. Huit
+journées chez quatre personnes, vérifiées par `comparer-horaire.py` : rien
+d'autre n'a bougé, et les neuf règles, les 14 435 journées prestées et les
+compteurs 76/77 sont identiques après.
+
+**Attention au faux ami** : le trigramme qui remplace un nom n'est pas
+toujours celui qu'on croit. Ici, deux personnes différentes donnent les
+mêmes initiales — le nom de famille corrigé et un collègue sans rapport.
+C'est l'anonymiseur qui tranche, pas `_initiales()` rejoué à la main.
+
+### Le convertisseur apprend aussi de la ligne des noms
+
+`_motif_registre()` construit, depuis la ligne des noms que le convertisseur
+lit DÉJÀ pour en tirer les trigrammes, un motif qui remplace chaque nom par
+le sien dans les commentaires. Il avait l'information en main et ne s'en
+servait que pour nommer la personne, jamais pour la retirer du texte des
+autres.
+
+**Il ne trouve rien aujourd'hui** — les quatre noms de ce jour-là lui
+échappaient par construction — et c'est un garde-fou, pas un correctif : le
+jour où un commentaire nommera quelqu'un de la ligne des noms, il partira
+tout seul. La majuscule initiale est exigée et les mots de moins de trois
+lettres écartés, comme pour l'anonymiseur.
+
+`grille()` est mémoïsée du même coup : le registre relit toutes les feuilles
+avant la conversion, et sans ce cache chacune serait analysée deux fois.
+
+### Ce qui reste : l'HISTORIQUE
+
+Les quatre noms ont été poussés. Ils vivent donc dans les commits déjà
+publiés, et le contrôle croisé ne regarde que l'arbre de travail.
+`python3 tools/verifier-depot.py --historique` signale par ailleurs dix
+formes anciennes. **Réécrire l'histoire d'un dépôt public est une décision
+du client** — la procédure est dans `docs/purge-historique.md`.
+
 ## Le dépôt se contrôle lui-même
 
 ```bash
