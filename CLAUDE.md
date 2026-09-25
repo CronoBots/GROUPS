@@ -651,6 +651,23 @@ seulement — se verse hors fiche.
 payée ; posé à la main dans le mois, c'est une absence non rémunérée. La
 légende le dit maintenant.
 
+**`SMG` N'EST PAS UN MOT DE LA MAISON.** Le client ne le connaissait pas et a
+demandé ce que c'était — parce que je l'avais posé à côté de ses phrases
+comme s'il en venait. Il vient de **la fiche de paie** : « Heure(s) SMG
+maladie », *salaire mensuel garanti*. L'application a repris l'intitulé du
+secrétariat social pour que l'onglet Contrôle se lise ligne à ligne contre la
+fiche. La légende l'écrit désormais en toutes lettres, avec sa provenance.
+
+**Et « Abs » avec « remplace X » n'est PAS une contradiction.** 562 des 1 848
+journées `Abs` portent un commentaire qui parle d'un remplacement — de quoi
+croire la lecture fausse, et j'ai ouvert ce doute. Le client, le 25/09/2026 :
+**« toujours 1 »**, c'est-à-dire toujours une absence. Le classeur le prouve
+seul : **45 de ces commentaires disent LES DEUX** — « remplace GPS remplacé
+par JBI? et YPE ». On ne remplace pas quelqu'un et on n'est pas remplacé le
+même jour au même poste. C'est la règle de tête du projet : le code franc est
+la journée PRÉVUE, l'annotation dit ce qui s'est passé. **Il n'y avait rien à
+corriger** — et c'est écrit pour que le doute ne se rouvre pas.
+
 ### Une polyvalence qui se termine cesse de compter le lendemain
 
 Le client, le 25/09/2026, interrogé sur les deux polyvalences que le classeur
