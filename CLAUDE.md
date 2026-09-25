@@ -1771,6 +1771,36 @@ la FICHE DE PAIE du secrétariat social. Ils recopient un document, pas le
 parler de l'usine — les renommer ferait perdre la correspondance ligne à
 ligne avec la fiche, qui est tout l'objet de l'onglet Contrôle.
 
+### Le relais de la fermentation se fait tout seul, et le doublon est voulu
+
+Le client, le 25/09/2026 : « CHD arrive dans l'équipe 5 ce lundi et
+remplacement LCI à partir de là ».
+
+**Rien n'a été codé pour cela**, et il ne fallait rien coder : deux
+mécanismes indépendants s'accordent déjà.
+
+Le CLASSEUR porte l'arrivée de CHD — il ne rejoint pas l'entreprise, il
+change d'équipe, de la 4 vers la 5. Sa rotation ne coïncide avec celle de
+l'équipe 5 que **1 à 5 journées par mois de janvier à septembre, puis 26 en
+octobre** ; il est en repos les 25, 26 et 27, et **le lundi 28 il tombe
+exactement sur elle**. Sa ligne 9 dit déjà « Shift5 → Fermentation ».
+
+`POSTE_PERIODE` fait sortir LCI de la fermentation le 30/09. Le relais se
+lit donc de lui-même :
+
+| Jour | Fermentation éq. 5 |
+|---|---|
+| 25 au 27/09 | LCI seul, au matin |
+| **lundi 28/09** | **CHD et LCI ensemble**, en après-midi |
+| mardi 29/09 | CHD en après-midi, LCI en nuit |
+| mercredi 30/09 | CHD seul — LCI passe en distillation |
+
+**Le doublon du 28 et du 29 n'est pas un défaut, c'est le tuilage** : deux
+journées où le partant et l'arrivant tiennent le poste ensemble. Ne pas le
+« corriger » en croyant qu'une place unique a été violée — la règle d'une
+place par personne porte sur la COMPOSITION, pas sur le nombre de personnes
+à un poste un jour donné.
+
 ### Ces semaines-ci sont exceptionnelles
 
 Le client, le 25/09/2026 : « ces semaines-ci c'est exceptionnel mais il y a
