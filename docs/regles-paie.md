@@ -824,6 +824,29 @@ empruntant celui de `SANS SOLDE` : un congé sans solde et un temps partiel
 ne sont pas la même chose, et le jour où une fiche montrera une ligne pour
 l'un, il ne faudra pas la poser sur l'autre.
 
+### La fiche montre les heures, elle ne les paie pas
+
+**Aucun code d'absence ne paie quoi que ce soit**, et c'est ce que l'audit
+du 25/09/2026 a établi : les lignes d'absence portent une **quantité** (`q`,
+`qh:true`) et pas de valeur — seules les `bl(...)` entrent dans le brut. La
+rémunération vient du socle forfaitaire `remFixe × fraction` et des
+suppléments.
+
+`k:"TP"` ne décidait donc que d'une chose : **montrer ou taire** les heures.
+La première version les taisait. Le client, interrogé : « fait cela » — la
+ligne **« Heure(s) temps partiel »** s'affiche désormais à côté de celle du
+congé parental, dont elle est le jumeau.
+
+**Elle a son infobulle à elle, et surtout pas celle des heures assimilées à
+du travail** : ce motif-là — `^Heure\(s\) (vacances|jour férié|repos|RTT|…)`
+— annonce « payées comme des heures prestées », ce qui serait faux ici. Le
+texte du temps partiel dit l'inverse : ni prestées ni payées, la réduction
+étant déjà dans la rémunération fixe.
+
+Vérifié au navigateur sur ATA : sa fiche de septembre porte **24 heures de
+temps partiel** — ses trois journées du mois — et **aucune colonne en
+euros**, contrairement à la ligne de rappel qui la suit.
+
 ### Ce que la correction déplace
 
 **Aucune prime**, et c'est contre-intuitif : `primeD` vaut **0**, donc les

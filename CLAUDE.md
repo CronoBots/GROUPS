@@ -1812,6 +1812,15 @@ en poste.
 de journées `TP`, mais c'est un réglage personnel qui ne quitte pas
 l'appareil, et la déduction se tromperait sur une année incomplète.
 
+**Et la fiche MONTRE ces heures.** Puisque aucun code d'absence ne paie,
+`k:"TP"` ne décidait que de les afficher ou de les taire — la première
+version les taisait, et le client a tranché : « fait cela ». La ligne
+**« Heure(s) temps partiel »** se pose à côté de celle du congé parental,
+dont elle est le jumeau, avec **son infobulle à elle**. Surtout pas celle
+des heures assimilées à du travail : ce motif annonce « payées comme des
+heures prestées », ce qui serait faux ici. Vérifié sur ATA : 24 heures en
+septembre, et aucune colonne en euros.
+
 ### Le vocabulaire de la maison : « absence » veut dire MALADIE
 
 Le client, le 25/09/2026 : « attention que chez nous "Absence" veut dire
