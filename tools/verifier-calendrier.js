@@ -152,6 +152,7 @@ const MORCEAUX=[
   ["function equipeDuJour(","\n}"],
   ["function remplacementCM(","\n}"],
   ["function aLAtelier(","\n}"],
+  ["function polyFinie(","\n}"],
   ["function tientTerrainArriere(","\n}"],
   ["function posteHabituel(","\n}"],
   ["function plageInterne(","\n}"],
