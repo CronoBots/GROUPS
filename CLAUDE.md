@@ -2045,34 +2045,50 @@ la période de chaque fiche est bien le mois civil, et VBN n'a **aucune**
 journée `HS` dans l'horaire — l'écart n'a donc rien à voir avec les heures
 supplémentaires. Ce sont les **heures et jours PRESTÉS** qui manquent.
 
-#### L'HORAIRE A DES TROUS : 643 JOURNÉES QUI N'EXISTENT PAS
+#### L'horaire avait des trous, mais ce n'est PAS l'explication
 
-Cherché à la demande du client, et c'est **mai qui l'a donné** : la fiche y
-compte 14 jours et 112 h, l'application 12 et 96 — deux journées, seize
-heures, exactement l'écart du mois. Ces deux journées sont **les 23 et 24
-mai, et elles n'existent pas dans `data/horaire-2026.json`**.
+En cherchant l'écart, mai a paru le donner : la fiche y compte 14 jours et
+112 h, l'application 12 et 96 — deux journées, seize heures, exactement
+l'écart. Et ces deux journées, les 23 et 24 mai, n'existaient pas dans
+`data/horaire-2026.json`.
 
-**Le classeur lui-même les laisse VIDES** — pas « - », rien du tout. Le
-convertisseur n'a donc rien à écrire, et l'application n'a même pas un repos
-à afficher : la journée n'est pas là.
+**J'ai annoncé « mai s'explique en entier ». C'était faux**, et le client
+l'a dit aussitôt : « si vide c'est une journée sans travail (repos), et je
+confirme que je ne travaillais pas ces jours-là dans mon calendrier ». Une
+journée qu'il n'a pas travaillée ne peut pas être les seize heures qui
+manquent. **Deux nombres qui tombent juste ne sont pas une cause** — c'était
+une coïncidence, et je l'ai prise pour une preuve.
 
-Mesuré sur tout le fichier : **643 journées manquent, chez 13 personnes sur
-77**, réparties sur les douze mois (109 en janvier, 74 en mai, 13 en
-septembre). VBN en a quatre — deux en avril, deux en mai.
+L'écart de **−119,53 h reste donc entier et inexpliqué**.
 
-| mois | écart fiche − appli | journées absentes chez VBN |
-|---|---|---|
-| janvier | +17,00 h | 0 |
-| février | −0,50 h | 0 |
-| mars | +18,28 h | 0 |
-| **avril** | **+40,00 h** | **2** |
-| **mai** | **+16,00 h** | **2** |
-| juin | +5,00 h | 0 |
-| juillet | −0,25 h | 0 |
-| août | +24,00 h | 0 |
+#### Le trou était réel, lui, et il est corrigé
 
-**Mai s'explique en entier, avril pour 16 h sur 40.** Le reste ne s'explique
-pas par les trous.
+Le classeur laisse ces cellules VIDES — pas « - », rien du tout. Le
+convertisseur sautait la ligne : **643 journées absentes du fichier chez 13
+personnes**, pas « en repos » mais ABSENTES. Le calendrier n'avait pas de
+case à peindre et `equipeDuJour()` recevait un `undefined`.
+
+Une cellule vide devient donc un repos — **mais seulement entre la première
+et la dernière journée écrite de la personne**. Sans cette borne, la règle
+donnait 348 journées de repos à quelqu'un qui n'en a que 17 d'écrites sur
+l'année, 193 et 69 à deux autres : **ceux-là ne sont pas en repos, ils ne
+sont pas encore arrivés ou ils sont partis**, et les peindre les aurait fait
+vivre dans la composition et dans les manques d'effectif de mois où ils
+n'étaient pas là.
+
+Le classeur ne dit nulle part quand quelqu'un arrive. Ce qu'il dit, c'est où
+sa colonne commence à porter quelque chose : **la borne est ce qu'il écrit,
+pas une date devinée.**
+
+**+20 journées**, 27 462 → 27 482, repos 7 571 → 7 591, journées prestées
+**inchangées à 14 435**. Neuf règles à zéro, compteurs 76/77, manques
+inchangés à 11.
+
+**Et la comparaison aux fiches est identique au centième après la
+correction** — −119,53 h comme avant. C'est la preuve que ces journées
+n'étaient pas l'explication : un repos vaut zéro heure, qu'il existe dans le
+fichier ou non. La correction rend au calendrier des cases qui lui
+manquaient ; elle ne rend aucune heure.
 
 #### Ce qui est ÉCARTÉ, avec ses chiffres
 
