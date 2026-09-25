@@ -746,7 +746,7 @@ def _colonnes(cl):
                     break
             if not poste:
                 poste = POSTE_DE_LA_FEUILLE.get(feuille, "")
-            jours = {}
+            jours, vides = {}, []
             for m, r0 in mois.items():
                 for d in range(1, 32):
                     r = r0 + d - 1
@@ -757,11 +757,46 @@ def _colonnes(cl):
                     com = _les_deux(cm.get((r, colonne), ""),
                                     cm.get((r, colonne + 1), ""))
                     if not (cell or annot or com):
+                        # UNE CELLULE VIDE EST UN REPOS, ET NON UNE JOURNÉE
+                        # QUI N'EXISTE PAS. Le client, le 25/09/2026 : « si
+                        # vide c'est une journée sans travail (repos), et je
+                        # confirme que je ne travaillais pas ces jours-là
+                        # dans mon calendrier ».
+                        #
+                        # Sauter la ligne laissait 643 journées absentes du
+                        # fichier chez 13 personnes — pas « en repos » :
+                        # ABSENTES. Le calendrier n'avait pas de case à
+                        # peindre, equipeDuJour() recevait un `undefined`,
+                        # et rien ne disait que le jour existait.
+                        #
+                        # La ligne du JOUR existe bien — c'est la colonne
+                        # des jours qui l'a fait entrer ici — donc ce qui
+                        # manque est la cellule, pas la journée.
+                        vides.append("%02d%02d" % (m, d))
                         continue
                     e = [cell, annot, com]
                     while e and not e[-1]:
                         e.pop()
                     jours["%02d%02d" % (m, d)] = e
+            # UNE CELLULE VIDE DEVIENT UN REPOS — SEULEMENT ENTRE LA
+            # PREMIÈRE ET LA DERNIÈRE JOURNÉE ÉCRITE.
+            #
+            # Avant de borner, la règle donnait 643 journées à 13 personnes
+            # — dont 348 à quelqu'un qui n'a que 17 journées écrites de
+            # toute l'année, 193 et 69 à deux autres. Ceux-là ne sont pas en
+            # repos : ils ne sont pas encore arrivés, ou ils sont partis.
+            # Les peindre en repos les aurait fait vivre dans la composition
+            # et dans les manques d'effectif des mois où ils n'étaient pas
+            # là.
+            #
+            # Le classeur ne dit nulle part quand quelqu'un arrive. Ce qu'il
+            # dit, c'est où sa colonne commence à porter quelque chose : la
+            # borne est donc CE QU'IL ÉCRIT, et non une date devinée.
+            if jours:
+                bas, haut = min(jours), max(jours)
+                for k in vides:
+                    if bas < k < haut:
+                        jours[k] = ["-"]
             if jours:
                 yield (categorie, nom, jours,
                        compteurs(g, colonne) if pied else {}, entete,
