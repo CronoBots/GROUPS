@@ -626,6 +626,50 @@ est atteint ; jaune, la personne s'y forme), alors qu'une fin est un
 encore. Le rouge est celui des ateliers, déjà validé dans les deux thèmes —
 inventer une couleur l'aurait laissée hors de ce contrôle.
 
+### Une polyvalence qui se termine cesse de compter le lendemain
+
+Le client, le 25/09/2026, interrogé sur les deux polyvalences que le classeur
+donne comme finissant le 30/09 : « **oui il perd sa polyvalence** ».
+
+La date était LUE mais pas APPLIQUÉE : elle s'affichait, et la case
+continuait de compter. Le 1er octobre, l'application aurait donc cru que
+cette personne savait encore tenir la meunerie et le gluten — **et le
+rééquilibrage l'y aurait envoyée boucher un trou qu'elle ne sait plus
+tenir**. Le poste se serait affiché COMPLET alors qu'il manque quelqu'un. Un
+manque annoncé à tort est pire qu'un manque qu'on n'annonce pas.
+
+`polyFinie()` s'intercale donc dans `aLAtelier()`, qui est le seul point de
+passage de « sait-elle tenir ce poste » — la grille du Recyclage, la
+composition, le tableau du jour et le rééquilibrage y passent tous.
+
+**La date est INCLUSE** : le 30/09 la polyvalence compte encore, le 1er
+octobre elle ne compte plus. Vérifié au navigateur, horloge déplacée aux
+trois dates.
+
+**LE JOUR CALCULÉ, ET NON L'HORLOGE** — même règle et même piège que
+`POSTE_PERIODE`. Sans lui, une polyvalence terminée hier vaudrait encore pour
+tout novembre dans la liste des manques. `postesDePause()` calcule le jour
+une fois et le passe à la chaîne des postes ET au rééquilibrage ; la
+composition et la grille n'ont pas de date et se lisent sur aujourd'hui, ce
+qui est exactement ce qu'elles montrent.
+
+**Ce que cela déplace : rien, et c'est mesuré.** Manques inchangés — 189
+journées et 385 places sur l'année, 8 et 8 d'ici la fin de l'année —,
+couples de polyvalence 33 au quota sur 99, neuf règles à zéro, compteurs
+76/77. Ces deux polyvalences-là ne servaient à combler aucun trou d'octobre
+à décembre.
+
+**D'où une épreuve, parce qu'un chiffre inchangé ne prouve rien.** En
+terminant le gluten au 01/01 pour les 31 personnes qui l'ont, les manques de
+gluten passent de 50 à **279** et les places creuses de 385 à 611. Le
+mécanisme mord ; il n'avait simplement rien à mordre ici.
+
+**La case vide sait déjà le dire** : son infobulle passe de « se termine le
+30/09/2026 » à « **Polyvalence retirée le 30/09/2026** », le soulignement
+rouge disparaît et la ligne « Se termine » sous la grille se vide. Rien n'a
+été écrit pour cela — c'est la règle du 25/09 sur les polyvalences perdues
+qui reprend la main d'elle-même.
+
 **Et elle s'écrit en toutes lettres sous la grille** : « Se termine : PAM ·
 Meun. le 30/09/2026 · PAM · Glut. le 30/09/2026 ». Un trait dit qu'il se
 passe quelque chose ; il ne dit pas QUAND, et c'est la date qui compte quand

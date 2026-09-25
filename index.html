@@ -5420,13 +5420,41 @@ function roleDeFeuille(person){
    fermentation ET le poste distillation » — le terrain arrière couvre les
    deux. Et pour le gluten : « cela peut être une règle si l'opérateur possède
    bien le poste gluten ». Sans la polyvalence, la ligne 9 ne suffit pas. */
-function aLAtelier(person,rx){
+function aLAtelier(person,rx,jour){
   var at=(person.poly&&person.poly.ateliers)||[], i;
-  for(i=0;i<at.length;i++) if(rx.test(at[i])) return true;
+  for(i=0;i<at.length;i++)
+    if(rx.test(at[i]) && !polyFinie(person,at[i],jour)) return true;
   return false;
 }
-function tientTerrainArriere(person){
-  return aLAtelier(person,/^ferm/i) && aLAtelier(person,/^disti/i);
+/* UNE POLYVALENCE QUI SE TERMINE CESSE DE COMPTER LE LENDEMAIN, et c'est le
+   classeur qui écrit la date : « fin au 30/09/2026 », posé en commentaire
+   sur la croix de la feuille « Polyvalence ». Le client, le 25/09/2026, sur
+   celui qui en perd deux ce jour-là : « oui il perd sa polyvalence ».
+
+   La croix, elle, reste tant que la polyvalence court — c'est pourquoi on ne
+   peut pas se fier à elle seule. Sans cette lecture, la case resterait
+   cochée après la date, et le rééquilibrage enverrait quelqu'un boucher un
+   trou qu'il ne sait plus tenir : le poste s'afficherait COMPLET alors qu'il
+   manque une personne. Un manque qu'on annonce à tort est pire qu'un manque
+   qu'on n'annonce pas.
+
+   LE JOUR CALCULÉ, ET NON L'HORLOGE, quand on le connaît — même règle et
+   même piège que _posteDePeriode() : le tableau du jour et la liste des
+   manques passent une date, et sans elle une polyvalence terminée hier
+   vaudrait encore pour tout le mois de novembre. La composition de l'onglet
+   Équipe et la grille du Recyclage n'ont pas de date : elles se lisent sur
+   aujourd'hui, ce qui est exactement ce qu'elles montrent. */
+function polyFinie(person,nom,jour){
+  var d=person&&person.poly&&person.poly.dates, f=d&&d[nom];
+  if(!f||!f.fin) return false;
+  if(!jour){
+    var n=new Date();
+    jour=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();
+  }
+  return jour>Number(String(f.fin).replace(/-/g,""));
+}
+function tientTerrainArriere(person,jour){
+  return aLAtelier(person,/^ferm/i,jour) && aLAtelier(person,/^disti/i,jour);
 }
 /* Le poste qu'une personne tient d'habitude, sans regarder sa journée : sa
    fonction si c'est un cadre, son rôle de ligne 9 sinon. Sert à savoir où
@@ -5448,7 +5476,7 @@ function tientTerrainArriere(person){
    La feuille des opérateurs en formation est hors de cette règle : le
    libellé au-dessus d'eux y nomme le poste sur lequel ils se forment, et
    n'est pas une cellule fusionnée d'équipe. */
-function posteLigne9(person){
+function posteLigne9(person,jour){
   var ps=person.postes||{}, f, k=null;
   for(f in ps){
     if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
@@ -5462,16 +5490,16 @@ function posteLigne9(person){
      trigramme. Les déplacer sur cette absence-là, c'est déplacer sur un
      trou. Sans polyvalence connue, la ligne 9 garde le dernier mot. */
   if(k==="chau" && (person.poly&&person.poly.ateliers&&person.poly.ateliers.length)
-     && !aLAtelier(person,/^chaudi/i) && !/en\s+formation/i.test(person.cat||""))
-    return (!aLAtelier(person,/^glut/i) && aLAtelier(person,/^meun/i)) ? "meun" : "glut";
+     && !aLAtelier(person,/^chaudi/i,jour) && !/en\s+formation/i.test(person.cat||""))
+    return (!aLAtelier(person,/^glut/i,jour) && aLAtelier(person,/^meun/i,jour)) ? "meun" : "glut";
   return k;
 }
-function posteHabituel(person){
+function posteHabituel(person,jour){
   if(estCadre(person)) return estContremaitre(person)?"cm":"adj";
   var role=roleDeFeuille(person);
   if(role==="pa"||role==="ra") return "terr";
   if(role==="pv"||role==="rv") return "glut";
-  return posteLigne9(person);
+  return posteLigne9(person,jour);
 }
 /* « remplace PAM » : le commentaire dit qui l'on remplace, donc où l'on est.
    Le client : « pourquoi QBY est à déterminer alors qu'il a le poste
@@ -5541,7 +5569,7 @@ function posteEcrit(raw){
    ET un commentaire qui dise le remplacement. Huit personnes sont dans ce
    cas, et elles prestent près de 250 journées par an. */
 function enFormation(person){ return /formation/i.test(person&&person.cat||""); }
-function compteAuPoste(x,P){
+function compteAuPoste(x,P,jour){
   if(!enFormation(x.p)) return true;
   /* C'est la QUALIFICATION qui décide, pas le commentaire. Le client dit
      « il n'est pas valide À CE POSTE » : là où sa polyvalence le porte, il
@@ -5549,11 +5577,11 @@ function compteAuPoste(x,P){
      lequel il se forme — il est en plus. Le rappel dont parle le client se
      lit dans le commentaire, mais c'est la trace de la décision, pas sa
      condition : exiger les deux ferait disparaître des effectifs réels. */
-  return peutTenir(x.p,P);
+  return peutTenir(x.p,P,jour);
 }
-function effectif(liste,P){
+function effectif(liste,P,jour){
   var n=0, i;
-  for(i=0;i<(liste||[]).length;i++) if(compteAuPoste(liste[i],P)) n++;
+  for(i=0;i<(liste||[]).length;i++) if(compteAuPoste(liste[i],P,jour)) n++;
   return n;
 }
 /* Ce qu'une personne PEUT tenir, d'après sa seule polyvalence. Les règles du
@@ -5669,13 +5697,13 @@ function attenduAuPoste(P,gk,ren){
   if(ren && ren[P.k] && ren[P.k][gk]>n) n=ren[P.k][gk];
   return n;
 }
-function peutTenir(person,P){
+function peutTenir(person,P,jour){
   /* « Sait-elle tenir ce poste » ne dépend pas de l'effectif qu'on y
      attend : la STEP n'en attend qu'au matin, et CAN sait la tenir
      à toute heure. */
   if(!P) return false;
-  if(P.k==="terr") return tientTerrainArriere(person);
-  return !!(P.rx && aLAtelier(person,P.rx));
+  if(P.k==="terr") return tientTerrainArriere(person,jour);
+  return !!(P.rx && aLAtelier(person,P.rx,jour));
 }
 /* Rééquilibrer UNE pause. Le client, le 21/09/2026 : « quand il manque
    quelqu'un sur un poste et que sur un autre poste ils sont plus que le
@@ -5707,7 +5735,7 @@ function peutTenir(person,P){
    manque et que cette personne-là, marquée « R », peut le tenir. C'est ce
    que le « R » annonce. */
 var EST_RENFORT=/^r$/i;
-function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
+function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
   function att(X){ return attenduAuPoste(X,gk,ren); }
   var i, j, P, Q, liste, cand, pris, garde;
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
@@ -5719,8 +5747,8 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
     for(k=0;k<POSTES_TRAVAIL.length;k++){
       T=POSTES_TRAVAIL[k];
       if(!att(T) || T.cm) continue;
-      if(effectif(parPoste[T.k],T)>=att(T)) continue;
-      if(peutTenir(x.p,T) && compteAuPoste(x,T)) n++;
+      if(effectif(parPoste[T.k],T,jour)>=att(T)) continue;
+      if(peutTenir(x.p,T,jour) && compteAuPoste(x,T,jour)) n++;
       if(n>1) return false;
     }
     return n===1;
@@ -5728,11 +5756,11 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
   for(i=0;i<POSTES_TRAVAIL.length;i++){
     P=POSTES_TRAVAIL[i];
     if(!att(P) || P.cm) continue;
-    for(garde=0; garde<8 && effectif(parPoste[P.k],P)<att(P); garde++){
+    for(garde=0; garde<8 && effectif(parPoste[P.k],P,jour)<att(P); garde++){
       pris=null;
       /* d'abord ceux qui sont là POUR ça, et que rien n'a su placer */
       cand=(inconnus||[]).filter(function(x){
-        return x.renfort && peutTenir(x.p,P) && compteAuPoste(x,P);
+        return x.renfort && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
       }).sort(parId);
       if(cand.length){
         pris=cand[0];
@@ -5751,7 +5779,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
          supposition — c'est la règle que le client a validée. */
       if(!pris){
         cand=(inconnus||[]).filter(function(x){
-          return peutTenir(x.p,P) && compteAuPoste(x,P) && unSeulManque(x);
+          return peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour) && unSeulManque(x);
         }).sort(parId);
         if(cand.length){
           pris=cand[0];
@@ -5763,9 +5791,9 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
         Q=POSTES_TRAVAIL[j];
         if(Q.k===P.k || Q.cm || !att(Q)) continue;
         liste=parPoste[Q.k]||[];
-        if(effectif(liste,Q)<=att(Q)) continue;
+        if(effectif(liste,Q,jour)<=att(Q)) continue;
         cand=liste.filter(function(x){
-          return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
+          return !x.fixe && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
         }).sort(parId);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
@@ -5783,16 +5811,16 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren){
           Q=POSTES_TRAVAIL[j];
           if(Q.k===P.k || Q.cm || !att(Q)) continue;
           var relais=(parPoste[Q.k]||[]).filter(function(x){
-            return !x.fixe && peutTenir(x.p,P) && compteAuPoste(x,P);
+            return !x.fixe && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
           }).sort(parId);
           if(!relais.length) continue;
           for(var m=0;m<POSTES_TRAVAIL.length && !pris;m++){
             var S=POSTES_TRAVAIL[m];
             if(S.k===P.k || S.k===Q.k || S.cm || !att(S)) continue;
             var source=parPoste[S.k]||[];
-            if(effectif(source,S)<=att(S)) continue;
+            if(effectif(source,S,jour)<=att(S)) continue;
             var renfort=source.filter(function(x){
-              return !x.fixe && peutTenir(x.p,Q) && compteAuPoste(x,Q);
+              return !x.fixe && peutTenir(x.p,Q,jour) && compteAuPoste(x,Q,jour);
             }).sort(parId);
             if(!renfort.length) continue;
             source.splice(source.indexOf(renfort[0]),1);
@@ -5887,16 +5915,16 @@ function posteTenu(person,raw,hJour,poste,jour){
      classeur le dit, et elle le dit proprement — bien mieux que le champ
      « e », qui n'est qu'un vidage de tout ce qui entoure le nom. */
   var role=roleDeFeuille(person);
-  if((role==="pa"||role==="ra") && tientTerrainArriere(person)) return "terr";
+  if((role==="pa"||role==="ra") && tientTerrainArriere(person,jour)) return "terr";
   /* Les polyvalents et renforts AVANT sont le plus souvent au gluten. Le
      client en fait une règle, sous condition : « si l'opérateur possède bien
      le poste gluten ». Trois d'entre eux ne l'ont pas et restent sans poste
      par défaut, ce qui est préférable à les y mettre à tort. */
-  if((role==="pv"||role==="rv") && aLAtelier(person,/^glut/i)) return "glut";
+  if((role==="pv"||role==="rv") && aLAtelier(person,/^glut/i,jour)) return "glut";
   /* La ligne 9 AVANT le champ « e » : elle nomme le poste, là où « e » n'est
      qu'un vidage de tout ce qui entoure le nom. C'est aussi là que la
      cellule fusionnée des chaudières est corrigée — voir posteLigne9(). */
-  k=posteLigne9(person); if(k) return k;
+  k=posteLigne9(person,jour); if(k) return k;
   var ent=person.e||[];
   for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
   var at=(person.poly&&person.poly.ateliers)||[];
@@ -6061,12 +6089,16 @@ function equipeDuJour(db,annee,mois,jour){
 function postesDePause(db,liste,gk,mmdd){
   var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
   var ren=renfortDuJour(db,mmdd);
+  /* LE JOUR CALCULÉ, une fois pour toute la pause : la chaîne des postes et
+     le rééquilibrage le lisent tous deux, l'un pour POSTE_PERIODE, l'autre
+     pour les polyvalences qui se terminent. */
+  var jourCalc=Number(db.year)*10000+Number(mmdd);
   db.people.forEach(function(q){ parId[q.id]=q; });
   liste.forEach(function(x){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")
        && !surSonPosteMalgreF(x.p.d[mmdd])){ formation.push(x); return; }
     var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
-                    Number(db.year)*10000+Number(mmdd));
+                    jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     if(!k) k=posteParDefaut(x.p);
     x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
@@ -6074,7 +6106,7 @@ function postesDePause(db,liste,gk,mmdd){
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
   /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
-  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk,ren);
+  if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk,ren,jourCalc);
   POSTES_TRAVAIL.forEach(function(P){
     var gens=parPoste[P.k]||[];
     /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
@@ -6082,7 +6114,7 @@ function postesDePause(db,liste,gk,mmdd){
        qui n'ont pas de personnel » — et sept intitulés à zéro noyaient les
        trois qui portaient du monde. */
     if(!gens.length && !attenduAuPoste(P,gk,ren)) return;
-    var tenu=effectif(gens,P), detail="";
+    var tenu=effectif(gens,P,jourCalc), detail="";
     if(P.k==="terr"){
       /* Le poste revient au polyvalent arrière ; le renfort arrière le tient
          quand celui-ci n'est pas là. Une personne que SA CELLULE du jour
@@ -6542,9 +6574,9 @@ function posteDeFormation(p){
 /* Possède-t-elle CE poste ? « Terrain arrière » ne figure dans aucune liste
    de polyvalence du classeur : il se déduit de Fermentation ET Distillation,
    comme tientTerrainArriere() le fait déjà partout ailleurs. */
-function aLaPolyvalence(p,P){
-  if(P.k==="terr") return tientTerrainArriere(p);
-  return P.rx ? aLAtelier(p,P.rx) : false;
+function aLaPolyvalence(p,P,jour){
+  if(P.k==="terr") return tientTerrainArriere(p,jour);
+  return P.rx ? aLAtelier(p,P.rx,jour) : false;
 }
 /* Les postes SECONDAIRES d'une personne, du plus tenu au moins tenu. */
 function polyvalenceDe(db,p){
