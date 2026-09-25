@@ -372,6 +372,14 @@ class Classeur:
                     txt = motif.sub(lambda m: tri.get(m.group(0), m.group(0)), txt)
                 txt = AUTEUR.sub(" ", txt).strip(" .;:")
                 txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
+                # APRÈS LES SIGNATURES, ET NON AVANT. Un login est le suffixe
+                # ordinaire d'une signature — « Nom, Prénom/rt01386: » — et le
+                # remplacer d'abord le rend méconnaissable à AUTEUR, qui
+                # laisse alors la tête en place : 324 commentaires ont porté
+                # « (identifiant retiré): » pendant une version. C'est le
+                # piège que CLAUDE.md décrit pour l'anonymiseur, mot pour mot.
+                # Ce qui survit ICI est un login au FIL du texte, et lui seul.
+                txt = LOGIN.sub("(identifiant retiré)", txt)
                 txt = " ".join(txt.split())
                 if not txt:
                     continue
@@ -379,6 +387,27 @@ class Classeur:
                 lettres = re.match(r'([A-Z]+)', ref).group(1)
                 out[(int(re.search(r'(\d+)', ref).group(1)), _colnum(lettres))] = txt
         return out
+
+
+# UN IDENTIFIANT DE CONNEXION N'EST PAS UN NOM, ET IL DÉSIGNE QUAND MÊME
+# QUELQU'UN. « RT01386 » vivait dans data/horaire-2026.json — dépôt PUBLIC —
+# depuis que les commentaires d'annotation sont lus : il n'y ouvrait pas de
+# signature, donc rien ne l'emportait. Le convertisseur en retirait un, le
+# 23/09, mais seulement parce qu'il était en TÊTE ; au fil du texte, il
+# restait.
+#
+# C'est l'export intégral qui l'a montré : le même login survivait dans six
+# commentaires du classeur, et la confrontation des deux fichiers l'a mis
+# côte à côte avec sa version d'horaire. Ni l'anonymiseur ni son second
+# contrôle ne pouvaient le voir — ils cherchent des NOMS, et ce n'en est pas
+# un.
+#
+# Dans un dépôt public, un login d'entreprise se recoupe avec les annuaires
+# de la maison aussi sûrement qu'un nom. Il part donc, remplacé et non
+# effacé. Le motif est étroit à dessein — deux lettres, quatre à six
+# chiffres, d'un seul tenant — et mesuré : UN seul jeton de cette forme dans
+# tout le classeur, six occurrences.
+LOGIN = re.compile(r"\b[A-Za-z]{2}\d{4,6}\b")
 
 
 def _les_deux(cellule, annotation):

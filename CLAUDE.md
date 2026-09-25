@@ -376,6 +376,80 @@ avoir besoin, sans redemander le classeur.
 **À régénérer après chaque nouveau classeur**, juste après l'anonymiseur et
 son second contrôle.
 
+### Revérifier tout depuis le fichier complet
+
+Le client, le 25/09/2026 : « il faut qu'à partir du fichier complet, tu
+revérifies tout ».
+
+```bash
+python3 tools/verifier-integralite.py
+```
+
+Il confronte les **11 564 commentaires** du classeur entier à ce que
+l'horaire porte. **La grille des jours doit être à ZÉRO** — c'est la seule
+exigence dure, et le code de retour la porte.
+
+**LA COMPARAISON NAÏVE MENT, et elle a menti trois fois.** Les deux fichiers
+ne passent pas par le même chemin : l'horaire sort du `.xlsm` par le
+convertisseur, le brut sort du `.xlsx` par l'anonymiseur puis l'exporteur.
+D'où trois écarts d'écriture, et **1 584 fausses pertes** avant qu'on les
+comprenne :
+
+| Ce qui diffère | Faux positifs |
+|---|---|
+| un ESPACE — l'un colle deux fragments que l'autre sépare | **1 099** |
+| la TÊTE DE SIGNATURE — le brut garde `ABC:`, le convertisseur la retire | **473** |
+| le jeton `(identifiant retiré)`, posé à deux moments différents | **12** |
+
+On compare donc sur un texte réduit — minuscules, sans ponctuation, sans
+tête de trigramme, sans mention de retrait. **Ce qui survit à cela manque
+vraiment**, et il n'en restait que 167.
+
+**Et le premier vrai reste était une fuite, dans le dépôt PUBLIC.**
+`RT01386` — un identifiant de connexion — vivait dans
+`data/horaire-2026.json`. Ni l'anonymiseur ni son second contrôle ne
+pouvaient le voir : ils cherchent des NOMS, et ce n'en est pas un. Le
+convertisseur en avait retiré un le 23/09, mais seulement parce qu'il
+ouvrait une SIGNATURE ; au fil du texte, il restait. **C'est la
+confrontation des deux fichiers qui l'a montré**, en mettant les deux
+versions du même commentaire côte à côte.
+
+`LOGIN` vit donc dans le convertisseur, et l'exporteur l'emprunte : deux
+copies d'un même motif divergent, et c'est toujours la seconde qui reste en
+arrière. La doctrine qui veut que deux outils ne s'empruntent pas leurs
+motifs vaut pour les NOMS, où la contradiction EST le contrôle ; un login
+n'est pas un nom, et il n'y a rien à vérifier par recoupement.
+
+**ET L'ORDRE S'EST REFERMÉ SUR MOI, MOT POUR MOT.** Posée avant
+`AUTEUR.sub()`, la règle transformait le suffixe ordinaire d'une signature —
+« Nom, Prénom/rt01386: » — en « (identifiant retiré): », que le motif de
+signature ne reconnaît plus : **324 commentaires ont porté ce reste** pendant
+une version. C'est exactement ce que ce fichier décrit pour l'anonymiseur
+depuis le 22/09 — *la signature se retire AVANT le remplacement*. Elle se
+pose donc en dernier, quand les signatures sont déjà parties.
+
+Après correction : **9 journées changent**, dont 8 sont les quatre prénoms à
+re-remplacer comme toujours, et **une seule** est le login. Zéro jeton de
+cette forme dans les deux fichiers.
+
+**Ce que l'horaire ne porte pas encore, et qui attend une décision :**
+
+- **81 commentaires du pied de feuille** (lignes 396 à 434) qui écrivent les
+  **CP et TP contractuels avec leurs dates** — « CP 10% du 01.11.2022 au
+  28.02.2026 », « 12 mois à 90% », « TP contractuel 10% du 16.05.2025 au
+  15.06.2027 ». **C'est la « fraction payée » que l'application demande de
+  saisir à la main**, et le classeur la porte, datée, pour chacun ;
+- **74 commentaires de la feuille « Polyvalence »** : les dates
+  d'acquisition et de suppression de chaque polyvalence — « supprimée àpd
+  01/02/19 », « fin au 30/09/2026 » ;
+- **6 copies d'un même commentaire de la grille**, qui ne sont pas une perte
+  mais une CORRUPTION de la copie de référence : l'anonymiseur y a remplacé
+  « Poly Arr » par « PAR ». Le classeur emploie bien `PAR` comme abrégé de
+  *polyvalent arrière* — la feuille « Récapitulatif (1) » l'écrit en tête de
+  colonne, à côté de `Ferm.`, `Disti.` et `Meun.` — mais l'anonymiseur l'a
+  posé en croyant remplacer un NOM. Le résultat tombe juste par accident ;
+  le mécanisme, non.
+
 ## Structure
 
 | Fichier | Rôle |
@@ -390,6 +464,7 @@ son second contrôle.
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
+| `tools/verifier-integralite.py` | confronte l'horaire au classeur entier : ce qui ne lui arrive pas |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
