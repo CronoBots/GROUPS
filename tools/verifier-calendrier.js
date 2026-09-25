@@ -226,9 +226,8 @@ function enregistre(r,hJour){
        rappel logé dans une cellule de congé. Deux copies, et c'est la
        seconde qui reste en arrière. */
     if(r.ax && r.ax.length) rec.ax=r.ax.slice();
-    /* le poste des heures supplémentaires et leur versement au compteur */
+    /* le poste des heures supplémentaires, quand il n'est pas celui du jour */
     if(r.hsp) rec.hsp=r.hsp;
-    if(r.hsc) rec.hsc=1;
   }
   return rec;
 }

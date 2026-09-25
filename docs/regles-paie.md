@@ -965,14 +965,37 @@ Fiche de juillet 2026 de GPS, vérifiée au navigateur :
 La ligne « HS non compensées » a disparu de ce mois : les heures ne sont plus
 payées deux fois, une fois maintenant et une fois à la reprise.
 
-**À ÉTABLIR : la règle vaut-elle pour toutes les heures supplémentaires ?**
-Mesuré sur l'horaire 2026 — **205 journées portent 775 heures** encore
-traitées en « HS non compensées », donc payées le mois même. La plupart sont
-déduites d'une plage plus longue que la journée contractuelle ; s'y ajoutent
-les deux journées de huit heures d'AFA en avril. Si le compteur est la règle
-générale, ces 775 heures ne devraient pas non plus être payées ce mois-là.
-Le client ne l'a dit que de la journée de GPS ; **cela touche des montants
-sur 205 journées, donc rien n'est généralisé sans lui.**
+### La règle vaut pour TOUTES les heures supplémentaires
+
+**Confirmé par le client le 25/09/2026**, interrogé sur les 205 autres
+journées : « cela dépend de si il remplit une feuille pour avoir des FT+ ou
+des HS. **Quoi qu'il arrive les 2 vont dans un compteur**, mais le compteur
+HS n'apparaît pas dans le classeur. »
+
+C'est exactement le raisonnement qu'il avait tenu sur GPS — « je sais que
+c'est du HS car il n'y a aucune cellule qui mette `+4h FT` ». **Le classeur
+ÉCRIT l'épargne au flex time ; son silence désigne l'autre compteur**, celui
+qu'il ne porte pas.
+
+**Aucune heure supplémentaire de l'horaire n'est donc payée le mois même.**
+Le paiement au taux majoré — 150 % en semaine, 187,5 % le samedi, 200 % le
+dimanche — a été retiré : il portait **775 heures sur 205 journées**,
+déduites pour la plupart d'une plage plus longue que la journée
+contractuelle (une nuit de 12 h donne 4 h).
+
+**La prime d'équipe, elle, reste due**, et c'est la moitié qu'il ne faut pas
+emporter avec l'autre : une heure récupérée rend l'heure, pas la prime de la
+pause où elle a été prestée. `hsAutoPoste` continue donc d'être alimenté.
+
+**Le champ manuel « Heures suppl. non compensées » reste payé**, et c'est
+désormais le SEUL endroit où l'on déclare des heures réellement payées au
+lieu d'être récupérées. C'est une saisie volontaire, pas une déduction de
+l'horaire.
+
+Vérifié au navigateur sur deux mois de GPS : juillet perd sa ligne payée et
+garde sa prime de nuit, septembre perd ses deux lignes payées et garde ses
+deux primes d'équipe. Les heures se lisent sous « versées au compteur HS,
+non payées ce mois-ci ».
 
 ## À établir
 
