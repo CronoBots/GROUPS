@@ -5527,7 +5527,30 @@ function effectif(liste,P){
    AM ». Trois cellules de cette journée sont en PM, mais rien ne dit qu'il
    en fallait trois — et inventer une exigence fait apparaître un manque qui
    n'a jamais existé. */
-var RENFORT_TRANCHE={ "0713":{ chau:{AM:3} } };
+var RENFORT_TRANCHE={ "0713":{ chau:{AM:3} }, "0916":{ chau:{AM:3,PM:3} } };
+/* Le 16/09 écrit « 3 opérateurs en poste PAR PAUSE », sans les nommer, et
+   ATR y porte « Renfort chaudières pour Bang and Clean… en D comme 3ᵉ
+   homme ». « Par pause » pouvait désigner les trois ; le client, le
+   25/09/2026 : « c'était 3 en AM et en PM ». La nuit n'y est donc pas —
+   et le classeur dit la même chose de lui-même, toutes les autres journées
+   renforcées de l'année étant en AM et PM, la seule exception nommant
+   explicitement « en AM, PM et N ».
+
+   UNE EXIGENCE TOUJOURS ÉCRITE AU CLASSEUR PEUT NE PLUS VALOIR. Le
+   client, le 25/09/2026 : « c'est fini aujourd'hui ». Le classeur du jour
+   même a retiré le commentaire de 13 cellules sur deux journées — 5 des 6
+   du 25/09, 8 des 9 du 29/09 — mais il en a laissé UNE de chaque, et
+   chaque fois celle du RENFORT lui-même, venu en 7h-15h avec sa prime de
+   pause. Un reste de nettoyage, pas une exigence.
+
+   Seul le 29/09 est levé : il est APRÈS aujourd'hui. Le 25/09 garde la
+   sienne, « fini aujourd'hui » se lisant « aujourd'hui compris » — et cela
+   ne change aucun chiffre, les trois opérateurs y étant.
+
+   C'est la seule table qui RETIRE quelque chose, d'où son nom à elle : la
+   confondre avec celle du dessus ferait disparaître un renfort réel le jour
+   où l'on s'y tromperait. */
+var RENFORT_CLOS={ "0929":true };
 var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
 var RENFORT_POSTE="chau";
 var renfortCache={};
@@ -5535,6 +5558,7 @@ function renfortDuJour(db,mmdd){
   if(!db||!db.people||!mmdd) return null;
   var cle=db.year+"|"+mmdd;
   if(renfortCache[cle]!==undefined) return renfortCache[cle];
+  if(RENFORT_CLOS[mmdd]){ renfortCache[cle]=null; return null; }
   var out=null, i, j, k, g2;
   var tr=RENFORT_TRANCHE[mmdd];
   if(tr) for(k in tr){ if(!tr.hasOwnProperty(k)) continue;
