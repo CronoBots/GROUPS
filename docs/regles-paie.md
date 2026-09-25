@@ -371,7 +371,7 @@ porte des euros.
 | `DTT` | congé d'ancienneté | Heure(s) repos compensatoire | oui | fiches |
 | `RJF` | jour férié de remplacement, à choix libre | Heure(s) jour férié / RJF | oui | classeur |
 | `FER` | jour férié légal | Heure(s) jour férié | oui | fiches |
-| `SMG` | maladie, salaire garanti | Heure(s) SMG maladie | oui | fiches |
+| `SMG` | **salaire mensuel garanti** — la maladie payée par l'employeur | Heure(s) SMG maladie | oui | fiches |
 | `FORM` | formation, congé syndical | Heure(s) formation syndicale | oui | fiches |
 | `CP` | congé parental 9/10 ou 4/5 | Heure(s) congé parent. AR 29.10.1997 | **non** — la fraction l'a déjà retiré | client, 25/09 |
 | `CT` | crédit-temps 1/5 ou 1/2 | Heure(s) crédit-temps | **non** — idem | client, 25/09 |
@@ -382,14 +382,48 @@ porte des euros.
 | `HS` | heures supplémentaires | compteur + sursalaire | voir « Le rappel » | client, 25/09 |
 | `1/2 …`, `3H …` | la même chose sur 4 h, 3 h… | la même | la même | classeur |
 
+**`SMG` n'est pas un mot de la maison** — le client ne le connaissait pas et
+a demandé ce que c'était. Il vient de **la fiche de paie**, qui écrit
+« Heure(s) SMG maladie » : *salaire mensuel garanti*, la rémunération que
+l'employeur continue de verser pendant la maladie. L'application a repris
+l'intitulé du secrétariat social pour que l'onglet Contrôle se lise ligne à
+ligne contre la fiche — et il ne faut pas le présenter comme venant du
+client.
+
 **`ABS` est le seul code qui dise deux choses**, et il faut le savoir :
 
-- **écrit par le CLASSEUR**, c'est une maladie. `ALIAS_HORAIRE` le traduit en
-  `MAL`, donc en `SMG` — salaire garanti, payé. C'est le vocabulaire de la
+- **écrit par le CLASSEUR**, c'est une maladie, **toujours**. `ALIAS_HORAIRE`
+  le traduit en `MAL`, donc en `SMG` — payé. C'est le vocabulaire de la
   maison, confirmé par le client le 25/09/2026 : « chez nous "Absence" veut
   dire maladie » ;
 - **posé À LA MAIN** dans le mois, c'est une absence non rémunérée, et la
   fiche écrit « Heure(s) abs. volontaire / injustifiée ».
+
+### « Abs » avec « remplace X » n'est pas une contradiction
+
+Sur les **1 848 journées `Abs`** de l'année, **562 portent un commentaire qui
+parle d'un remplacement** — « remplace GPS », « remplace ATA ». De quoi
+croire que la personne était au travail et que la lecture se trompe en
+affichant une absence à zéro heure. La question a été posée au client le
+25/09/2026 ; sa réponse tient en deux mots : **toujours une absence**.
+
+**Et le classeur le prouve tout seul.** Quarante-cinq de ces commentaires
+disent LES DEUX à la fois :
+
+> `["PM","Abs","remplace GPS remplacé par JBI? et YPE"]`
+> `["N","Abs","Remplace LDT remplace FLI; remplacé par LDY"]`
+
+On ne peut pas remplacer quelqu'un et être remplacé le même jour au même
+poste. La seule lecture qui tienne est celle de la **règle de tête du
+projet** : le code franc est la journée **PRÉVUE** — il devait remplacer GPS
+— et l'annotation dit ce qui s'est réellement passé : il était absent, et
+d'autres ont couvert. Le commentaire garde la trace des deux moments.
+
+**Il n'y avait donc rien à corriger**, et c'est écrit ici pour que le doute
+ne se rouvre pas : ces 562 journées s'affichent en absence à zéro heure
+parce qu'elles en sont.
+
+
 
 La légende a déjà menti sur ce code : elle le rangeait dans « Compteurs et
 NON PAYÉ » avec la définition « absence injustifiée », alors que le chemin du
