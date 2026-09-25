@@ -575,7 +575,28 @@ def _annuaire(cl):
 # pourcentage d'au moins 70 est la part prestée. Le classeur n'écrit rien
 # entre les deux — mesuré : 10 et 20 d'un côté, 80, 90 et 100 de l'autre. Ce
 # qui tomberait entre serait gardé SANS fraction plutôt que deviné.
+#
+# CINQUANTE EST LA SEULE EXCEPTION, ET ELLE SE DÉMONTRE. Le client a décrit
+# les trois dispositifs belges le 25/09/2026 : le crédit-temps se prend « 1/5
+# → travail à 4/5 » ou « 1/2 → travail à mi-temps ». Un mi-temps s'écrira
+# donc « 50% » un jour, en plein milieu de la bande refusée — mais à
+# cinquante l'ambiguïté N'EXISTE PAS : cinquante pour cent de réduction et
+# cinquante pour cent prestés sont le même nombre, 0,50. On ne devine rien en
+# l'acceptant ; on constate que les deux lectures coïncident.
+#
+# CENT AVEC UN CODE EST AMBIGU, ET LUI RESTE REFUSÉ. « CP 100% » peut dire un
+# temps plein retrouvé (1,00) comme une suspension complète (0,00) — les deux
+# existent en droit belge, et l'écart est tout le socle du mois. Un « 100% »
+# SANS code reste ce qu'il est : personne n'a nommé de dispositif, donc rien
+# n'est suspendu.
 CONTRAT = re.compile(r"(?:(CP|TP|CT)\b[^%\d]{0,24})?(\d{1,3})\s*%", re.I)
+# Les régimes que chaque dispositif connaît, en pourcentage de RÉDUCTION.
+# Le congé parental se prend en 1/5 ou en 1/10 ; le crédit-temps en 1/5 ou en
+# 1/2, « le 9/10 n'est pas le régime général du crédit-temps 1/5 ». Le temps
+# partiel, lui, est ce que le contrat dit — aucune borne à lui opposer, donc
+# aucune ligne ici. Ce n'est pas un filtre : rien n'est refusé sur cette
+# foi-là, c'est seulement dit sur la sortie d'erreur.
+REGIMES = {"CP": (10, 20), "CT": (20, 50)}
 _JOUR = r"(\d{1,2})[./](\d{1,2})(?:[./\s](\d{2,4}))?"
 # « du 01.11.2022 au 28.02.2026 », mais aussi « 01/03/26 au 30/06/2029 » : le
 # « du » manque une fois sur deux. On l'accepte donc absent — à CONDITION
@@ -670,9 +691,14 @@ def contrats(cl, feuille, colonne, annee=None):
             fiche = {"txt": txt if len(bouts) == 1 else bout.strip(),
                      "l": ligne}
             pct = int(m.group(2))
-            if m.group(1):
-                fiche["t"] = m.group(1).upper()
-            if pct <= 30:
+            code = (m.group(1) or "").upper()
+            if code:
+                fiche["t"] = code
+            if code and pct == 100:
+                # Suspension complète ou temps plein retrouvé : tout ou rien
+                # sur le socle, et le classeur ne dit pas lequel.
+                fiche["amb"] = True
+            elif pct <= 30 or pct == 50:
                 fiche["pct"], fiche["f"] = pct, round(1 - pct / 100.0, 4)
             elif pct >= 70:
                 fiche["pct"], fiche["f"] = 100 - pct, round(pct / 100.0, 4)
@@ -1226,11 +1252,49 @@ def convertir(chemin_xlsm, annee):
             print("  correction inutilisée : %s -> %s (le nom a changé dans le"
                   " classeur)" % (empreinte, trig), file=sys.stderr)
 
+    _dire_regimes(gens)
+
     sortie = {"year": annee}
     sortie.update(metadata(cl))
     sortie["people"] = sorted(gens.values(), key=lambda p: (p["cat"], p["id"]))
     return sortie
 
+
+def _dire_regimes(gens):
+    """Dit les contrats dont le pourcentage ne va pas avec leur dispositif.
+
+    Le client a décrit les trois dispositifs belges le 25/09/2026, et ils
+    n'ont pas les mêmes régimes : le congé parental se prend en 1/5 ou en
+    1/10, le crédit-temps en 1/5 ou en 1/2 — « le 9/10 n'est pas le régime
+    général du crédit-temps 1/5 ». Le temps partiel, lui, est ce que le
+    contrat dit, et rien ne lui est opposé ici.
+
+    CE N'EST PAS UN FILTRE. Rien n'est refusé ni corrigé sur cette foi-là :
+    la fraction reste celle que le classeur écrit, et c'est la sortie
+    d'erreur qui parle. Un pourcentage hors régime est le plus souvent une
+    faute de frappe du pied de feuille, mais il peut aussi être un régime
+    qu'on ne connaît pas encore — et la deuxième hypothèse interdit de
+    trancher à la place de qui écrit.
+
+    Au 25/09/2026 elle ne dit rien : les 33 contrats codés du classeur
+    tombent tous sur un régime légal — 21 « CP 10% », 2 « CP 20% », 7 « TP »
+    et 3 « CT 20% ». C'est un garde-fou, pas un correctif.
+    """
+    for ident in sorted(gens):
+        for c in gens[ident].get("ct") or []:
+            if c.get("amb"):
+                print("  contrat %s : « %s » — 100%% avec un code : suspension"
+                      " complète (0,00) ou temps plein retrouvé (1,00) ? aucune"
+                      " fraction posée" % (ident, c["txt"][:52]),
+                      file=sys.stderr)
+                continue
+            connus = REGIMES.get(c.get("t"))
+            if connus and c.get("pct") is not None and c["pct"] not in connus:
+                print("  contrat %s : « %s » — %d%% n'est pas un régime de %s"
+                      " (%s) ; la fraction est gardée telle quelle"
+                      % (ident, c["txt"][:52], c["pct"], c["t"],
+                         " ou ".join("%d%%" % x for x in connus)),
+                      file=sys.stderr)
 
 def entetes(cl):
     """Montre ce qui entoure les noms, colonne par colonne.
