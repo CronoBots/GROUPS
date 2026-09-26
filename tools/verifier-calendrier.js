@@ -143,7 +143,7 @@ const MORCEAUX=[
   ["var RENFORT_CLOS=","\n"],
   ["var RENFORT_MOTIF=","\n"],
   ["var RENFORT_POSTE=","\n"],
-  ["var ARRET_PERIODES=","\n"],
+  ["var SANS_EFFECTIF=","\n"],
   ["var renfortCache=","\n"],
   ["function renfortDuJour(","\n}"],
   ["function attenduAuPoste(","\n}"],
