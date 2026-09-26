@@ -148,7 +148,8 @@ const MORCEAUX=[
   ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
   ["var EQ_GROUPES=","\n];"],
-  ["function finAbsence(","\n}"],
+  /* son mémo, déclaré juste au-dessus d'elle : la découpe prend les deux */
+  ["var _finCache=","\n}"],
   ["function equipeDuJour(","\n}"],
   ["function remplacementCM(","\n}"],
   ["function aLAtelier(","\n}"],
