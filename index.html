@@ -6554,7 +6554,7 @@ function renderEquipe(){
        celui où l'on parcourt l'usine. Une ligne par poste, et l'effectif en
        face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
-    var RESTE=["abs","cong","off"];
+    var RESTE=["abs","cong"];
     /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
@@ -6580,9 +6580,10 @@ function renderEquipe(){
          congés gardent leur code, qui dit lequel. */
       var det=(g.k==="abs")?(x.fin?"Absent jusqu'au "+x.fin[2]+"\u00a0"+MOIS[x.fin[1]-1]
                 :"Absent jusqu'à aujourd'hui")
-             :(g.k==="cong")?esc(x.r.a)+(x.fin?
-                " \u00b7 reprise le "+repriseApres(x.fin)
-                :" \u00b7 reprise demain")
+             :(g.k==="cong")?(x.prevu?esc(x.r.s)+" prévu"
+                :(x.repos?(x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):"Repos"):esc(x.r.a))
+                 +(x.sansDate?"":x.fin?" \u00b7 reprise le "+repriseApres(x.fin)
+                   :" \u00b7 reprise demain"))
              :(x.prevu?esc(x.r.s)+" prévu":
               (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
       var note=(x.fait?"fait fonction":"")||(x.comble?"comble le poste":"")
@@ -6762,9 +6763,35 @@ function renderEquipe(){
     /* Et le reste : malades, congés, repos. On ne les range pas par poste —
        ils n'en tiennent aucun ce jour-là. */
     var resteCorps=extra;
+    /* CONGÉ ET REPOS NE FONT QU'UNE LIGNE. Le client, le 26/09/2026 :
+       « repos et congés doivent être mélangés car les repos aussi ont une
+       reprise ». Ce qu'on cherche ici, c'est QUAND chacun revient ; qu'il
+       soit en congé ou en repos ne change pas la question. Les repos
+       reçoivent donc leur date de reprise, par la même série que les congés
+       (finAbsence, « CONGE »), et la ligne entière se trie par reprise. Deux
+       cas restent sans date : le poste prévu non presté (« AM prévu »), qui
+       n'est ni un congé ni un repos, et la personne dont la colonne ne porte
+       rien ce jour-là — pas encore arrivée ou déjà partie. Le calcul se fait
+       ICI et pas dans equipeDuJour(), que le module des manques rejoue sur
+       des mois entiers : une trentaine de séries par jour y coûterait pour
+       rien. */
+    var congRepos=(par.cong||[]).concat((par.off||[]).map(function(x){
+      var o={p:x.p,r:x.r,prevu:x.prevu};
+      if(!x.prevu){
+        o.repos=true;
+        if(x.p.d[mmdd]===undefined) o.sansDate=true;
+        else o.fin=finAbsence(db,x.p,annee,mois,jour,st.params.hJour,"CONGE");
+      }
+      return o;
+    }));
+    function repriseNum(x){
+      if(x.prevu||x.sansDate) return 99999999;
+      return x.fin?x.fin[0]*10000+x.fin[1]*100+x.fin[2]:0;
+    }
     RESTE.forEach(function(k){
-      var g=EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
-      var l=par[k]||[]; if(!l.length) return;
+      var g=(k==="cong")?{k:"cong",t:"Congé et repos"}
+            :EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
+      var l=(k==="cong")?congRepos:(par[k]||[]); if(!l.length) return;
       /* Les malades, du retour le plus proche au plus lointain. Le client,
          le 26/09/2026 : « les absents maladie doivent être triés par dates
          de retour (le plus court au plus long) ». Une fin null veut dire que
@@ -6773,6 +6800,7 @@ function renderEquipe(){
       function finNum(x){ return x.fin?x.fin[0]*10000+x.fin[1]*100+x.fin[2]:0; }
       l.sort(function(a,b){
         if(k==="abs" && finNum(a)!==finNum(b)) return finNum(a)-finNum(b);
+        if(k==="cong" && repriseNum(a)!==repriseNum(b)) return repriseNum(a)-repriseNum(b);
         return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
       resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));

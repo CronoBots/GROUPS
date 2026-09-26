@@ -3610,6 +3610,21 @@ bouge pas : « Absent jusqu'au » son dernier jour de maladie. Vérifié au
 VA entrecoupés de repos, reprise le 13 mai — contrôlé jour par jour) ;
 sorties du vérificateur identiques à l'octet.
 
+**Congé et repos ne font plus qu'une ligne, triée par reprise.** Le client,
+le 26/09/2026 : « repos et congés doivent être mélangés car les repos aussi
+ont une reprise ». Dans « Hors poste », on cherche QUAND chacun revient ;
+congé ou repos ne change pas la question. Chaque repos reçoit sa date de
+reprise par la même série « CONGE », et la ligne « Congé et repos » se trie
+du retour le plus proche au plus lointain : « NRD RJF · reprise demain »,
+« AFA Repos · reprise le 28 sept. » … « ATA Repos · reprise le 10 oct. ».
+Restent sans date, en fin de ligne : le poste prévu non presté (« AM
+prévu ») et la personne dont la colonne est vide ce jour-là — pas encore
+arrivée. **Le calcul se fait au rendu, pas dans `equipeDuJour()`** : le
+module des manques la rejoue sur des mois, et une trentaine de séries par
+jour y coûterait pour rien. `par.off` est inchangé, de sorte que la barre
+du haut dit toujours « Repos ». Vérifié au 26/09 et au 20/04, à 320, 390
+et 1280 px, hors ligne compris ; neuf règles et `--manques` identiques.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
