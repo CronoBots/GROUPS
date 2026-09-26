@@ -3767,6 +3767,41 @@ ligne de la journée s'appelle « D ». Rien ne déborde à 320, 390 et
 1280 px, hors ligne compris. Les quatre sorties du vérificateur sont
 identiques à l'octet : ses sorties parlent en codes depuis toujours.
 
+### La journée est une colonne, et un flex time complet n'est pas une présence
+
+Le client, le 26/09/2026 : « une colonne D entre AM et PM ; par contre
+cette nuit, comment ça se fait deux personnes comme CM ? ».
+
+**La colonne D** remplace la ligne « D » posée une heure plus tôt. L'ordre
+suit les heures d'arrivée : AM, D, PM puis N ; chacun y est rangé à son poste,
+par le même `postesDePause()` que les trois pauses. Aucun effectif n'y est
+attendu (`attenduAuPoste()` rend zéro pour D) : une case vide y est un
+tiret, jamais un manque. Cinq colonnes tiennent à 320 px sans déborder. À
+390 px, chaque pause fait 74 px et le tableau 352 px.
+
+**Deux contremaîtres de nuit le 26/09 : YPE et FPA.** YPE porte
+`["N","8h -FT","Remplacé par VGG"]` : une journée entière de flex time
+repris. FPA porte `["R-CM","3h -FT","Remplace YPE …"]`. `equipeDuJour()`
+rangeait à sa pause quiconque avait des heures. Or les 8 h de YPE sont
+PAYÉES depuis le compteur (section 6 de `docs/conversion-horaire.md`),
+sans qu'il soit présent. PDR, `["N","8h -FT","rempl par ALZ"]`, était
+compté deux fois de la même façon en distillation. C'est la règle déjà
+posée pour le chèque-repas et pour la date de reprise : **seules les heures
+PRÉSENTES comptent**. Une reprise d'une journée entière passe donc dans
+« Congé et repos », avec sa date de reprise. Une reprise partielle
+(« 3h -FT ») laisse la personne à son poste.
+
+Mesuré : neuf règles, compteurs et `--manques 0926` **identiques à
+l'octet** (rien ne change d'ici la fin de l'année). Sur l'année entière,
+les places creuses passent de **245 à 264** et les journées en manque de
+159 à 172, dont **+10 chez les contremaîtres** : autant de journées passées
+où l'absent comptait comme présent. Dans les journées de contremaître en
+flex time complet, le remplaçant est presque toujours nommé. Quand un trou
+apparaît, le remplaçant n'est pas dans l'horaire (« remplacé par PBL »,
+absent des 77) ou n'est pas nommé du tout. Recyclage : 23 → **22** couples
+au quota (CDE chaudières 10 → 9), et une dizaine de cases bougent d'une
+journée.
+
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée
 n'a pas de pause, et trois colonnes vides l'auraient fait lire comme un

@@ -1156,6 +1156,7 @@ body.sheet-on{overflow:hidden}
 .eqp2 thead th[data-s="AM"]{border-top-color:var(--am)}
 .eqp2 thead th[data-s="PM"]{border-top-color:var(--pm)}
 .eqp2 thead th[data-s="N"] {border-top-color:var(--n)}
+.eqp2 thead th[data-s="D"] {border-top-color:var(--d)}
 /* L'effectif ayant quitté cette colonne, elle n'a plus à être large que de
    son plus long intitulé — « TERRAIN ARRIÈRE » — et le reste va aux pauses. */
 .eqp2 th.eqposte{width:132px; text-align:left; white-space:nowrap;
@@ -1228,16 +1229,6 @@ body.sheet-on{overflow:hidden}
    figure : son trigramme s'écrit en jaune pour qu'on ne s'y trompe pas. */
 .eqp2 td .eqn.form b{color:var(--at-jaune)}
 .eqp2 td.vide{color:var(--faint); font-size:12px}
-/* La journée court sur toute la largeur : elle n'a pas de pause. Les
-   trigrammes s'y lisent côte à côte, avec ce qui les amène (F, CPPT, DS). */
-.eqp2 tbody tr.eqjourl th.eqposte{border-left-color:var(--d)}
-.eqp2 tbody tr.eqjourl th.eqposte em{display:block; font-style:normal;
-  font-size:9.5px; font-weight:400; color:var(--faint); text-transform:none;
-  letter-spacing:0}
-.eqp2 tbody tr.eqjourl td{text-align:left; background:transparent}
-.eqp2 tbody tr.eqjourl td .eqn{display:inline-block; margin:1px 14px 1px 0;
-  white-space:nowrap}
-.eqp2 tbody tr.eqjourl td .eqn em{margin-left:4px}
 /* Plus serré, sans rien retirer. Le client, le 26/09/2026 : « penses-tu
    pouvoir optimiser l'affichage de ce tableau ? ». Les trigrammes restent
    l'un sous l'autre (sa demande du 22/09), mais chacun prenait une ligne
@@ -6477,6 +6468,22 @@ function equipeDuJour(db,annee,mois,jour){
        surSonPosteMalgreF() les connaît, et c'est la même garde que celle de
        postesDePause() deux fonctions plus bas. */
     var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
+    /* PAYÉ N'EST PAS PRÉSENT. Le client, le 26/09/2026, devant deux
+       contremaîtres de nuit : YPE porte ["N","8h -FT","Remplacé par VGG"],
+       une journée entière de flex time repris. Ses heures sont payées
+       depuis le compteur (docs/conversion-horaire.md, section 6), mais il
+       n'est pas venu, et FPA le remplace. Même règle que pour le
+       chèque-repas et la date de reprise : seules les heures PRÉSENTES
+       comptent. Une reprise partielle (« 3h -FT ») laisse la personne à
+       son poste. */
+    var hPres=h;
+    ((r.a?[r.a]:[]).concat(r.ax||[])).forEach(function(c){
+      var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
+    if(h>0 && hPres<=0.01){
+      par.cong.push({p:p,r:r,
+        fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,"CONGE")});
+      return;
+    }
     if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
     else if(r.a&&ABSMAP[r.a]){
       var fam=ABSMAP[r.a].k;
@@ -6617,9 +6624,6 @@ function renderEquipe(){
        face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
     var RESTE=["abs","cong"];
-    var jourL=(par.D||[]).slice();
-    total+=jourL.length;
-    jourL.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
     /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
@@ -6686,8 +6690,14 @@ function renderEquipe(){
        ils ne se lisent pas poste par poste. */
     var EQ_COURT={cm:"CM", adj:"Adj.", meun:"Meun.", glut:"Glut.", ferm:"Ferm.",
                   terr:"T. arr.", dist:"Dist.", chau:"Chaud.", step:"STEP"};
-    var PAUSES=EQ_GROUPES.filter(function(g){
-      return ["AM","PM","N"].indexOf(g.k)>=0; });
+    /* La journée est une colonne, entre AM et PM. Le client, le
+       26/09/2026 : « une colonne D entre AM et PM ». C'est l'ordre des
+       heures : on entre à 6 h, à 7 h ou 8 h, à 14 h, à 22 h. Chacun y est
+       rangé à son poste, comme aux trois pauses. Aucun effectif n'y est
+       attendu (attenduAuPoste rend zéro) : une case vide y est un tiret,
+       jamais un manque. */
+    var PAUSES=["AM","D","PM","N"].map(function(k){
+      return EQ_GROUPES.filter(function(g){ return g.k===k; })[0]; });
     var vp={}, aQui=false;
     /* Le même relèvement d'effectif que postesDePause() lit : sans lui, la
        case afficherait « 2/2 » là où la journée en demandait trois. */
@@ -6792,14 +6802,8 @@ function renderEquipe(){
         });
         tp.push("</tr>");
       }
-      /* LA FORMATION ET LA JOURNÉE ENTRENT DANS LE TABLEAU. Le client, le
-         26/09/2026 : « comment intégrer les personnes en D dans
-         l'horaire ? ». Elles vivaient seules dans une carte « Hors poste »,
-         sous les absents de la veille — alors qu'elles sont À L'USINE ce
-         jour-là. La formation garde ses trois colonnes, puisqu'elle a une
-         pause ; la journée n'en a pas, et sa ligne court sur toute la
-         largeur, avec ce qui l'y amène (F, CPPT, DS) sous le trigramme. */
-      var nCol=PAUSES.filter(function(g){ return !!vp[g.k]; }).length;
+      /* La formation hors poste a sa ligne, pause par pause (la journée,
+         elle, est devenue une colonne : voir PAUSES). */
       var aFormL=PAUSES.some(function(g){ return vp[g.k] && vp[g.k].vue.formation.length; });
       if(aFormL){
         tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row"><b>Formation</b></th>');
@@ -6811,13 +6815,6 @@ function renderEquipe(){
             : '<span class="eqvide">—</span>')+"</td>");
         });
         tp.push("</tr>");
-      }
-      if(jourL.length){
-        var gD=EQ_GROUPES.filter(function(g){ return g.k==="D"; })[0];
-        tp.push('<tr class="zone1 eqjourl"><th class="eqposte" scope="row"><b>D</b>'
-          +"</th>"
-          +'<td colspan="'+nCol+'">'
-          +jourL.map(function(x){ return chip(x,gD,null); }).join("")+"</td></tr>");
       }
       var lg=[];
       if(aForm)   lg.push('<span><i class="lg-form"></i>en formation</span>');
@@ -6839,13 +6836,6 @@ function renderEquipe(){
        formation, les indéterminés, les malades, les congés, le repos.
        C'étaient deux cartes, « Hors pause » et « Le reste », qui disaient
        la même chose : personne ici ne tient un poste aujourd'hui. */
-    /* Le jour et la formation sont passés dans le tableau (plus haut). Un
-       jour sans aucune pause — cela n'arrive pas dans le classeur de 2026 —
-       ne doit pas pour autant les faire disparaître. */
-    if(!aQui && jourL.length)
-      h.push('<p class="lede" style="padding:12px 16px"><b>D</b> '
-        +jourL.map(function(x){ return chip(x,EQ_GROUPES.filter(function(g){
-          return g.k==="D"; })[0],null); }).join("")+"</p>");
     /* CONGÉ ET REPOS NE FONT QU'UNE LIGNE. Le client, le 26/09/2026 :
        « repos et congés doivent être mélangés car les repos aussi ont une
        reprise ». Ce qu'on cherche ici, c'est QUAND chacun revient ; qu'il
