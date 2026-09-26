@@ -7338,15 +7338,29 @@ function renderCompteurs(){
     h.push('</div>');
     h.push('<p class="cpt-n">Ce compteur vit <b>hors du classeur</b> : les heures reprises y sont notées, celles qui l\'alimentent ne le sont pas. Le solde ne peut donc pas être affiché ici.</p>');
 
-    /* --- congé parental --- */
-    var cg=c.conges||{}, cps=[];
-    Object.keys(cg).forEach(function(k){ if(/^CP\d*$/.test(k)) cps.push([k,cg[k]]); });
-    if(cps.length){
-      h.push('<h3 class="cpt-t">Congé parental</h3><div class="cpt-tuiles">');
-      cps.forEach(function(x,i){ h.push(ctuile(x[1]+" j","compteur "+(i+1))); });
-      if(cg["àplanifier"]!==undefined) h.push(ctuile(cg["àplanifier"]+" j","à planifier"));
+    /* --- temps de travail réduit ---
+       Le bloc ne montrait que le congé parental : les huit personnes en
+       temps partiel et les trois en crédit-temps avaient leurs compteurs
+       dans le classeur et rien à l'écran. Et « à planifier » ne se lisait
+       que sous une écriture, alors que le classeur écrit tantôt « à
+       planifier », tantôt « solde à planifier » — onze personnes sur seize
+       ne le voyaient pas. Mesuré par l'audit du 26/09/2026. Les trois
+       dispositifs se lisent ensemble, comme dans la légende de l'année. */
+    var cg=c.conges||{}, lots=[], vus={};
+    var NOM_REDUIT={CP:"congé parental",TP:"temps partiel",CT:"crédit-temps"};
+    Object.keys(cg).sort().forEach(function(k){
+      var m=/^(CP|TP|CT)(\d*)$/.exec(k); if(!m) return;
+      vus[m[1]]=(vus[m[1]]||0)+1; lots.push([m[1],cg[k],vus[m[1]]]);
+    });
+    var aPlanifier=(cg["àplanifier"]!==undefined)?cg["àplanifier"]:cg["soldeàplanifier"];
+    if(lots.length){
+      h.push('<h3 class="cpt-t">Temps de travail réduit</h3><div class="cpt-tuiles">');
+      lots.forEach(function(x){
+        h.push(ctuile(x[1]+" j",NOM_REDUIT[x[0]]+(vus[x[0]]>1?" · compteur "+x[2]:"")));
+      });
+      if(aPlanifier!==undefined) h.push(ctuile(aPlanifier+" j","à planifier"));
       h.push('</div>');
-      if(cps.length>1) h.push('<p class="cpt-n">Plusieurs compteurs quand un congé parental se termine et qu\'un autre s\'ouvre en cours d\'année.</p>');
+      if(lots.length>1) h.push('<p class="cpt-n">Plusieurs compteurs quand une période se termine et qu\'une autre s\'ouvre en cours d\'année.</p>');
     }
 
     /* --- polyvalence --- */

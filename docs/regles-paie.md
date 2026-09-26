@@ -908,12 +908,27 @@ parmi les mentions reconnues mais neutres.
 
 > LAA · JBA · JBS · TCE · CHD · MGY · LHS · CJD · DKS · SMK · MMS
 
-**Le classeur ne le dit nulle part.** Vérifié : ce qui est écrit au-dessus
-de leur nom — « Fermentation », « Renfort arrière », « Polyvalent » — est
-exactement ce que portent des gens qui ne sont pas intérimaires. Il n'y a
-donc rien à lire dans le fichier : cette liste est tenue À LA MAIN, et
-**elle vieillira** à chaque embauche ou départ. La redemander au client
-quand elle compte.
+**Le classeur le dit, pour dix des onze — et ce paragraphe affirmait le
+contraire jusqu'au 26/09/2026.** Ce qui est écrit au-dessus de leur nom ne le
+dit pas, c'est vrai ; mais la colonne A de la feuille « Polyvalence », qui
+porte d'ordinaire le matricule, porte pour eux « interim ». L'audit l'a
+trouvé, et le convertisseur le garde depuis dans `poly.statut` — sans jamais
+le matricule.
+
+| | Classeur (`poly.statut`) | Liste du client |
+|---|---|---|
+| concordent | LAA · JBA · JBS · TCE · CHD · LHS · CJD · DKS · SMK · MMS | les mêmes |
+| seulement au classeur | **NPE** | — |
+| seulement chez le client | — | **MGY**, qui n'a pas de ligne dans « Polyvalence » |
+
+**À faire trancher : NPE est-il intérimaire ?** Et MGY ne peut se lire que
+dans cette liste-ci, faute de ligne : elle reste donc nécessaire, et elle
+vieillira à chaque embauche ou départ.
+
+La même colonne porte deux autres statuts : « Adj CM » (JBI, YBT, VBN, VGG,
+FPA, ATR) et « Assistant usine » (SBZ, PLZ, FLN, FPS). Le second n'est
+expliqué nulle part — à demander au client avant d'en tirer quoi que ce
+soit.
 
 **L'application n'en fait rien aujourd'hui, et c'est voulu.** Le client :
 « rien pour l'instant, mais garder l'info ». Une liste codée sans emploi

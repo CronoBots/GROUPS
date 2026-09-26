@@ -963,15 +963,31 @@ def metadata(cl):
             out["maj"] = jour.strftime("%Y-%m-%dT%H:%M")
         except (TypeError, ValueError):
             pass
+    # LA LÉGENDE ENTIÈRE, et non ses quatre premières paires. Elle ne lisait
+    # que les colonnes A et B de la première feuille : VA, RTT, RHS, RJF. Le
+    # reste — « xxx » congé accordé sous restriction, R · Abs · DS · CP · CSS ·
+    # R-CM — est écrit au-dessus des colonnes-personnes, lignes 1 à 8, et
+    # partait dans le champ « e » de vingt-neuf personnes, affiché sous leur
+    # nom dans l'annuaire comme s'il les concernait. Mesuré par l'audit du
+    # 26/09/2026.
+    #
+    # Une paire est un code court suivi de son libellé dans la cellule
+    # voisine ; la date de mise à jour, suivie d'un nombre, n'en est pas une.
+    # La première écriture d'un code l'emporte : les feuilles se recopient.
+    leg = {}
     for feuille in FEUILLES:
         if feuille not in cl.feuilles:
             continue
-        g = cl.grille(feuille)
-        leg = {str(g[r][1]).strip(): str(g[r][2]).strip()
-               for r in range(4, 9) if r in g and 1 in g[r] and 2 in g[r]}
-        if leg:
-            out["legende"] = leg
-            break
+        g = cl.grille(feuille, fusions=())
+        for r in range(1, LIGNE_POSTE):
+            for c in sorted(g.get(r, {})):
+                code = str(g[r][c]).strip().rstrip(",.")
+                lib = str(g[r].get(c + 1, "")).strip()
+                if (code and lib and len(code) <= 6 and " " not in code
+                        and not re.match(r"^[\d.,]+$", lib) and len(lib) > len(code)):
+                    leg.setdefault(code, lib)
+    if leg:
+        out["legende"] = leg
     if "Polyvalence" in cl.feuilles:
         g = cl.grille("Polyvalence")
         out["ateliers"] = [str(g[3][c]).strip()
@@ -1050,6 +1066,15 @@ def polyvalence(cl, annuaire):
             continue
         ateliers = [noms[c] for c in noms if g[r].get(c)]
         fiche = {}
+        # LA COLONNE A PORTE UN MATRICULE OU UN STATUT — « interim », « Adj
+        # CM », « Assistant usine ». Le statut est gardé : docs/regles-paie.md
+        # tenait à la main la liste des intérimaires en écrivant que « le
+        # classeur ne le dit nulle part », et il le disait, pour dix des
+        # onze. Le MATRICULE, lui, ne sort jamais d'ici : il n'est qu'une
+        # suite de chiffres, et c'est à cela qu'on le reconnaît.
+        statut = str(g[r].get(1, "")).strip()
+        if statut and not re.match(r"^[\d.\s]+$", statut):
+            fiche["statut"] = statut
         if g[r].get(4):
             fiche["degre"] = str(g[r][4]).strip()
         if ateliers:
@@ -1112,6 +1137,38 @@ def restes(g, feuille, mois, premier_jour):
               file=sys.stderr)
 
 
+def _sans_nom(g, feuille, mois):
+    """ANNONCER les colonnes qui portent des journées sans nom en ligne 10.
+
+    Le convertisseur ne lit que les colonnes dont la ligne des noms est
+    remplie, et restes() ne regarde que les LIGNES : deux colonnes entières
+    tombaient sans un mot — Shift4 Q, la fermentation de l'équipe 4, avec des
+    congés jusqu'en décembre, et Shift1 AG, une rotation de chaudières.
+    L'audit du 26/09/2026 les a trouvées : ce sont des copies de travail de
+    DWS et de CHD, et les lire compterait deux fois ces personnes. On ne les
+    rattache donc à personne — c'est au client de dire ce qu'elles sont —,
+    mais on les DIT : une perte silencieuse est une perte qu'on ne corrige
+    jamais.
+    """
+    nommees = set(c for c, v in (g.get(LIGNE_NOMS) or {}).items()
+                  if str(v).strip() not in ("", "0"))
+    lignes = [r0 + d - 1 for r0 in mois.values() for d in range(1, 32)
+              if str(g.get(r0 + d - 1, {}).get(COL_JOUR, "")) == str(d)]
+    vues = set()
+    for c in sorted(set(k for r in lignes for k in g.get(r, {}))):
+        if c < 3 or c in nommees or c - 1 in nommees or c - 1 in vues:
+            continue
+        ecrites = sum(1 for r in lignes if str(g.get(r, {}).get(c, "")).strip())
+        if not ecrites:
+            continue
+        vues.add(c)
+        poste = str(g.get(LIGNE_POSTE, {}).get(c, "")).strip() or "?"
+        annot = sum(1 for r in lignes if str(g.get(r, {}).get(c + 1, "")).strip())
+        print("  %s colonne %s (%s) : %d journée(s) et %d annotation(s) SANS NOM en"
+              " ligne %d — non reprises, à faire trancher"
+              % (feuille, _lettre(c), poste, ecrites, annot, LIGNE_NOMS), file=sys.stderr)
+
+
 def _colonnes(cl, annee=None):
     """Toutes les colonnes-personnes de toutes les feuilles, avec leur nom.
     Une même personne figure sur plusieurs feuilles ; on les fusionne ensuite
@@ -1131,12 +1188,18 @@ def _colonnes(cl, annee=None):
         # partout ailleurs — l'application décidera quoi en faire.
         premier_jour = min(mois.values()) if mois else LIGNE_NOMS + 1
         restes(g, feuille, mois, premier_jour)
+        _sans_nom(g, feuille, mois)
         for colonne in sorted(g.get(LIGNE_NOMS, {})):
             nom = str(g[LIGNE_NOMS][colonne]).strip()
             if colonne < 3 or nom in ("", "0"):
                 continue
+            # Les lignes 1 à 8 portent la LÉGENDE et la date de mise à jour,
+            # et rien d'autre (mesuré le 26/09/2026 sur les 102 colonnes) :
+            # elles vont dans « legende » et « maj », pas dans « e ». La
+            # ligne 9 — le poste, ou le binôme d'un cadre — et ce qui suit le
+            # nom restent à la personne.
             entete = []
-            for r in list(range(1, LIGNE_NOMS)) + list(range(LIGNE_NOMS + 1, premier_jour)):
+            for r in list(range(LIGNE_POSTE, LIGNE_NOMS)) + list(range(LIGNE_NOMS + 1, premier_jour)):
                 for c in (colonne, colonne + 1):
                     v = str(g.get(r, {}).get(c, "")).strip()
                     if v and v != "0" and v not in entete:
