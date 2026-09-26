@@ -6004,24 +6004,45 @@ var EQ_GROUPES=[
    parcours jour après jour suffit donc, sans tolérance de trou : un trou
    est une reprise, pas une absence qui continue.
 
-   Les tables d'un mois — cycle, épargnes, renvois — se recalculent une
-   fois par mois traversé, et non à chaque journée : une absence de trois
-   cents jours les redemanderait trois cents fois. */
+   LES TABLES D'UN MOIS VIENNENT DE moisDe(), et non d'un cache à elle.
+   Elle en tenait un, local à l'appel : chaque appel recalculait donc
+   cycleDuMois() pour tous les mois traversés. Or le recyclage rejoue
+   toutes les journées depuis février, et chaque malade de chaque journée
+   refaisait ce trajet — 84 % du temps de l'onglet, 13,6 s figées sur un
+   processeur de téléphone, mesuré le 26/09/2026.
+
+   ET LA RÉPONSE D'UNE JOURNÉE SERT À TOUTES CELLES DE LA SÉRIE. Parties
+   du 1er, du 2 ou du 3 d'une même absence, les recherches aboutissent au
+   même dernier jour : chaque journée parcourue retient donc la réponse, et
+   la suivante s'arrête dès qu'elle en trouve une. Une absence de trois
+   cents jours se lisait trois cents fois ; elle se lit une fois.
+
+   Même durée de vie et même clé que _moisCache — personne, heure de
+   journée — et pour la même raison. */
+var _finCache={};
 function finAbsence(db,p,annee,mois,jour,hJour,famille){
-  var d=new Date(Date.UTC(annee,mois-1,jour)), dernier=null, cache={}, i, c;
+  var d=new Date(Date.UTC(annee,mois-1,jour)), dernier=null, vus=[], i, c;
+  var base=p.id+"/"+hJour+"/"+famille+"/";
   for(i=0;i<400;i++){
     d.setUTCDate(d.getUTCDate()+1);
     var y=d.getUTCFullYear(), m=d.getUTCMonth()+1, j=d.getUTCDate();
+    var k=base+y+"-"+m+"-"+j;
+    /* Déjà lue : ce qu'elle a trouvé au-delà d'elle, ou elle-même si la
+       série s'arrête le lendemain. */
+    if(k in _finCache){ dernier=_finCache[k]||[y,m,j]; break; }
     var raw=p.d[pad2(m)+pad2(j)];
     if(raw===undefined) break;
-    c=cache[y+"-"+m];
-    if(!c) c=cache[y+"-"+m]={fit:cycleDuMois(p,y,m), ep:epargnesDuMois(p,m),
-                             rv:renvoisDuMois(p,m,hJour)};
+    c=moisDe(p,y,m,hJour);
     var r=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJour,c.rv[j]);
     var A=r.a&&ABSMAP[r.a];
     if(!A || A.k!==famille) break;
     dernier=[y,m,j];
+    vus.push(k);
   }
+  /* Chaque journée parcourue a pour fin celle de toute la série — sauf la
+     dernière, au-delà de laquelle il n'y a rien, d'où null. */
+  for(i=0;i<vus.length;i++)
+    _finCache[vus[i]]=(i===vus.length-1 && dernier && vus[i]===base+dernier.join("-"))?null:dernier;
   return dernier;
 }
 /* equipeDuJour() recalculait ces trois fonctions POUR CHAQUE PERSONNE ET
@@ -6030,7 +6051,8 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
    Elles ne dépendent que de la personne, du mois et de l'heure de journée.
 
    La clé porte hJour : un changement de réglage doit refaire le calcul.
-   finAbsence() tient déjà son propre cache local ; celui-ci est partagé. */
+   finAbsence() le partage, et tient en plus le sien : la fin de chaque
+   série d'absence. */
 var _moisCache={};
 function moisDe(p,annee,mois,hJour){
   var k=p.id+"/"+annee+"/"+mois+"/"+hJour, c=_moisCache[k];

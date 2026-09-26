@@ -2789,6 +2789,28 @@ navigateur, 1,6 s à l'ouverture du repli.
 
 La clé porte `hJour` : un changement de réglage refait le calcul.
 
+**`finAbsence()` gardait son propre cache, et il ne survivait pas à
+l'appel.** Mesuré le 26/09/2026, profileur à l'appui : l'onglet Recyclage
+figeait l'écran **13,6 s sur un processeur de téléphone** (2,9 s sur PC), et
+84 % de ce temps était là. Chaque malade de chaque journée depuis février
+refaisait `cycleDuMois()` pour tous les mois de sa série — et une série de
+trois cents jours se relisait depuis chacun de ses jours.
+
+Elle prend donc ses tables dans `moisDe()`, et retient dans `_finCache` la
+fin trouvée pour **chaque** journée parcourue : partie du 2 ou du 3 d'une
+même absence, la recherche aboutit au même dernier jour, et s'arrête dès
+qu'elle en rencontre un déjà connu.
+
+**Recyclage 13,6 s → 1,4 s** au téléphone simulé (0,31 s sur PC), Résumé
+785 → 167 ms. Rien d'autre ne bouge, et c'est prouvé : les 1 847 journées de
+maladie de l'année rendent la même fin qu'avant, **dans l'ordre, à rebours et
+dans le désordre** — le cache ne doit pas dépendre de l'ordre des appels —,
+et les quatre sorties du vérificateur (règles, `--manques`, `--polyvalence`,
+`--compteurs`) sont identiques à l'octet.
+
+`_finCache` entre dans la découpe du vérificateur, déclaré juste au-dessus
+de la fonction : sans lui, `finAbsence()` y lèverait une `ReferenceError`.
+
 ### Les manques d'effectif à venir
 
 ```bash
