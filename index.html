@@ -48,7 +48,7 @@
      descend d'autant pour que la hiérarchie reste lisible. */
   --ink:#151E2F; --ink2:#444D5F; --muted:#475060; --faint:#616977;
   --line:#DCDCE2; --line2:#EBEBEF;
-  --trait:#C9CCD4; --trait-fort:#9DA2AE;
+  --trait:#C9CCD4; --trait-fort:#9DA2AE; --zebre:#FAFAFB;
   /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
      qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
@@ -104,7 +104,7 @@
     --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
     --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
     --line:#3B4252; --line2:#2C3241;
-  --trait:#465063; --trait-fort:#6B7488;
+  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130;
     --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
     --sur-in:#070B15;
     --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -135,7 +135,7 @@
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
-  --trait:#465063; --trait-fort:#6B7488;
+  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130;
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -1249,7 +1249,15 @@ body.sheet-on{overflow:hidden}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
    client, le 26/09/2026). */
 #eqCorps .eqp2 td.vide{background:transparent}
-#eqCorps .eqp2 tbody tr:nth-child(even) td.vide{background:var(--surface2)}
+/* Un zébra moins appuyé : en sombre, la bande est à mi-chemin entre la
+   carte et l'ancien --surface2 (le client, le 26/09/2026 : « le zébra plus
+   foncé doit l'être un peu moins »). */
+#eqCorps .eqp2 tbody tr:nth-child(even) td:not(.manque),
+#eqCorps .eqp2 tbody tr:nth-child(even) th{background:var(--zebre)}
+/* Les trigrammes en graisse normale ; seule la personne choisie reste en
+   gras (le client, le 26/09/2026). */
+#eqCorps .eqp2 td .eqn b{font-weight:400}
+#eqCorps .eqp2 td .eqn.moi b{font-weight:800}
 /* Toutes les lignes ont la hauteur d'une case à DEUX trigrammes ; seule
    une case qui en porte davantage fait grandir la sienne. Le client, le
    26/09/2026 : « comme celle où il y avait 2 trigrammes pour toutes les
@@ -6780,8 +6788,10 @@ function renderEquipe(){
        tiennent l'écran là où huit postes en colonnes le débordent. Le jour,
        la formation et les postes indéterminés suivent dans une carte à part —
        ils ne se lisent pas poste par poste. */
-    var EQ_COURT={cm:"CM", adj:"Adj.", meun:"Meun.", glut:"Glut.", ferm:"Ferm.",
-                  terr:"T. arr.", dist:"Dist.", chau:"Chaud.", step:"STEP"};
+    /* Sur téléphone, les trois premières lettres en capitales (le client,
+       le 26/09/2026). CM et STEP restent ce qu'ils sont déjà. */
+    var EQ_COURT={cm:"CM", adj:"ADJ", meun:"MEU", glut:"GLU", ferm:"FER",
+                  terr:"TER", dist:"DIS", chau:"CHA", step:"STEP"};
     /* La journée est une colonne, entre AM et PM. Le client, le
        26/09/2026 : « une colonne D entre AM et PM ». C'est l'ordre des
        heures : on entre à 6 h, à 7 h ou 8 h, à 14 h, à 22 h. Chacun y est
