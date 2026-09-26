@@ -64,7 +64,7 @@ $NS_P = 'http://schemas.openxmlformats.org/package/2006/relationships'
 $EXCLUS = [regex]::new('(vbaProject\.bin|/vbaProject|\.bin$)', 'IgnoreCase')
 # Les parties où chercher du texte. Tout le reste est recopié tel quel.
 $TEXTE  = [regex]::new('\.(xml|rels|vml)$', 'IgnoreCase')
-# « Nom, Prénom: », « Nom, Prénom (external): », « RT01386: »
+# « Nom, Prénom: », « Nom, Prénom (external): », « RT0xxxx: »
 $AUTEUR = "(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+(?:\s*\([^)]*\))?|[Rr][Tt]\d{4,6}|Auteur)\s*:\s*"
 # Une cellule qui pourrait porter un nom : des lettres, et la ponctuation
 # qu'on met dans un nom. Pas de chiffres.

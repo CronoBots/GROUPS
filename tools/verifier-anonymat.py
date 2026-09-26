@@ -27,6 +27,7 @@ pourquoi l'outil les IMPRIME au lieu de trancher : ils se lisent un par un.
 
 Code de retour 1 s'il reste quelque chose à examiner, 0 sinon.
 """
+import os
 import re
 import sys
 import unicodedata
@@ -67,7 +68,54 @@ def _nu(t):
 # fuite est passée. On ne les devine plus : on les lit dans la structure du
 # fichier et on les rend une par une. Ce qui est déjà anonyme est connu et
 # court ; tout le reste est un nom jusqu'à preuve du contraire.
-_ANONYMES = re.compile(r"^(?:Auteur|[A-ZÀ-Þ]{2,4}|[Rr][Tt]\d{4,6})$")
+# Un identifiant de connexion n'en fait PLUS partie. Il y figurait, et c'est
+# ainsi que 60 logins d'entreprise ont vécu dans data/classeur-2026.xlsx —
+# dépôt PUBLIC — sans que ce contrôle dise un mot : il les rangeait parmi
+# les signatures anonymes. Un login désigne quelqu'un aussi sûrement qu'un
+# nom ; il se lit plus bas, à part.
+_ANONYMES = re.compile(r"^(?:Auteur|[A-ZÀ-Þ]{2,4})$")
+
+# Les identifiants de connexion, cherchés dans le TEXTE et jamais dans les
+# octets du XML : ceux-ci portent des couleurs « FF000000 » et des
+# fragments d'identifiants internes qui prendraient cette forme par
+# centaines. Motif écrit ICI, et non emprunté aux outils qu'on vérifie.
+_LOGIN = re.compile(r"(?<![A-Za-z0-9])[A-Za-z]{2}[0-9]{4,6}(?![0-9])")
+
+
+def _logins(chemin):
+    """Les identifiants de connexion restés dans le texte du classeur."""
+    z = zipfile.ZipFile(chemin)
+    out = {}
+    for n in z.namelist():
+        if not n.endswith(".xml"):
+            continue
+        t = z.read(n).decode("utf-8", "replace")
+        # Le texte recollé de CHAQUE commentaire ou chaîne, séparément : un
+        # login peut être coupé en deux balises, mais recoller tout le
+        # fichier d'un tenant le collerait à la fin du commentaire d'avant,
+        # et la frontière du motif ne le verrait plus — 42 trouvés sur 60.
+        for bloc in re.split(r"</comment>|</si>|</is>", t):
+            txt = "".join(re.findall(r"<t[^>]*>([^<]*)</t>", bloc))
+            for m in _LOGIN.finditer(txt):
+                out[m.group(0)] = out.get(m.group(0), 0) + 1
+    return out
+
+
+# LES SURVIVANTS DÉJÀ LUS. Sans eux l'outil sortait TOUJOURS en 1 — CPPT,
+# STEP ou PRODUCTION ont la forme d'un nom sans en être un — et un contrôle
+# qui échoue toujours ne sert à rien dans une chaîne automatique : on finit
+# par ne plus lire son code de retour. Comme tools/formes-admises.txt pour
+# verifier-depot.py, cette liste est un ACTE : on n'y met une chaîne
+# qu'après l'avoir lue dans son contexte, avec sa raison.
+ADMIS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "survivants-admis.txt")
+
+
+def _admis():
+    try:
+        with open(ADMIS, encoding="utf-8") as f:
+            return set(l.split("#")[0].strip() for l in f if l.split("#")[0].strip())
+    except OSError:
+        return set()
 
 
 def _signatures(chemin):
@@ -151,15 +199,30 @@ def verifier(source, sortie):
     noms = {t: c for t, c in sales.items() if any(f.match(_nu(t)) for f in FORMES)}
     autres = {t: c for t, c in sales.items() if t not in noms}
 
-    print("%d chaînes distinctes dans la source · %d de forme nominale survivent"
-          % (len(src), len(survivants)), file=sys.stderr)
-    print("%d signature(s) de commentaire distincte(s) dans la sortie · %d non anonyme(s)"
-          % (len(signatures), len(sales)), file=sys.stderr)
+    admis = _admis()
+    lus = [(t, m) for t, m in survivants if t in admis]
+    survivants = [(t, m) for t, m in survivants if t not in admis]
+    lues = {t: c for t, c in autres.items() if t in admis}
+    autres = {t: c for t, c in autres.items() if t not in admis}
+    sales = dict(noms, **autres)
+    logins = _logins(sortie)
 
-    if not survivants and not sales:
-        print("Aucune chaîne de forme nominale ne survit, aucune signature non anonyme.",
-              file=sys.stderr)
+    print("%d chaînes distinctes dans la source · %d de forme nominale survivent"
+          " (+ %d déjà lue(s))" % (len(src), len(survivants), len(lus)), file=sys.stderr)
+    print("%d signature(s) de commentaire distincte(s) dans la sortie · %d non anonyme(s)"
+          " (+ %d déjà lue(s))" % (len(signatures), len(sales), len(lues)), file=sys.stderr)
+    print("%d identifiant(s) de connexion dans le texte" % sum(logins.values()),
+          file=sys.stderr)
+
+    if not survivants and not sales and not logins:
+        print("Aucune chaîne de forme nominale ne survit, aucune signature non anonyme,"
+              " aucun identifiant de connexion.", file=sys.stderr)
         return 0
+    if logins:
+        print("\nIDENTIFIANTS DE CONNEXION — ils désignent quelqu'un aussi sûrement"
+              "\nqu'un nom, et doivent disparaître :", file=sys.stderr)
+        for t, c in sorted(logins.items(), key=lambda kv: -kv[1]):
+            print("   %6d ×  %s" % (c, t), file=sys.stderr)
     if survivants:
         print("\nÀ examiner une par une — toutes ne sont pas des noms :", file=sys.stderr)
         for t, mot in survivants:

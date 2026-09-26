@@ -23,7 +23,9 @@ CE QUI SORT DU FICHIER :
   - les macros (vbaProject.bin) : elles peuvent contenir des noms, on ne
     sait pas les relire, et une macro n'a rien à faire dans un dépôt. La
     sortie est donc un .xlsx, pas un .xlsm ;
-  - les propriétés du document : auteur, dernier enregistreur.
+  - les propriétés du document : auteur, dernier enregistreur, étiquette de
+    sensibilité de l'employeur (docProps/custom.xml), chemin réseau ;
+  - les identifiants de connexion écrits dans les commentaires.
 
 GARANTIE. Après écriture, le fichier produit est relu entièrement et l'outil
 CHERCHE les noms qu'il vient de remplacer. S'il en trouve un seul, il
@@ -38,6 +40,7 @@ from importlib import import_module
 _conv = import_module("convertir-horaire")
 Classeur, _annuaire, _sans_accent = _conv.Classeur, _conv._annuaire, _conv._sans_accent
 LIGNE_NOMS = _conv.LIGNE_NOMS
+FEUILLES = _conv.FEUILLES
 AUTEUR = _conv.AUTEUR
 
 
@@ -57,7 +60,7 @@ def _initiales(t):
     return corrige or _conv._initiales(t)
 
 # Ce qui, dans le ZIP, ne doit pas être recopié.
-EXCLUS = re.compile(r"(vbaProject\.bin|/vbaProject|\.bin$)", re.I)
+EXCLUS = re.compile(r"(vbaProject\.bin|/vbaProject|\.bin$|^docProps/custom\.xml$)", re.I)
 # Les parties où chercher du texte. Tout le reste est recopié tel quel.
 TEXTE = re.compile(r"\.(xml|rels|vml)$", re.I)
 COMMENTAIRES = re.compile(r"comments\d*\.xml$", re.I)
@@ -91,6 +94,52 @@ def _est_nom(t):
     return bool(t) and any(f.match(t) for f in _NOMS)
 
 
+_XML_SPACE = "{http://www.w3.org/XML/1998/namespace}space"
+
+
+def _editer_morceaux(noeuds, coupes):
+    """Appliquer des coupes au texte RECOLLÉ d'un commentaire, morceau par
+    morceau, sans déplacer un seul caractère d'un morceau à l'autre.
+
+    `coupes` : des (début, fin, remplacement) en positions du texte recollé,
+    sans chevauchement. Le remplacement s'écrit dans le morceau où la coupe
+    commence.
+
+    CHAQUE MORCEAU GARDE SA MISE EN FORME, ET C'EST TOUT L'OBJET. La
+    version précédente recollait tout le commentaire dans le PREMIER morceau
+    et vidait les autres — or le premier est la signature, en gras et souvent
+    BARRÉE. Mesuré le 26/09/2026 : le texte ajouté ensuite par un autre
+    auteur, non barré, héritait du barré — 621 commentaires mêlant barré et
+    non barré dans la source, 41 dans la copie. Le barré dit qu'une consigne
+    a été annulée ; le déplacer, c'est réécrire le classeur. Les sauts de
+    ligne suivaient le même chemin : 11 550 commentaires sur plusieurs
+    lignes dans la source, 3 860 dans la copie.
+    """
+    textes = [x.text or "" for x in noeuds]
+    debuts, o = [], 0
+    for s in textes:
+        debuts.append(o)
+        o += len(s)
+    garde = [list(s) for s in textes]
+    touches = set()
+    for a, b, rep in sorted(coupes):
+        for k, s in enumerate(textes):
+            d, f = debuts[k], debuts[k] + len(s)
+            for g in range(max(a, d), min(b, f)):
+                garde[k][g - d] = ""
+                touches.add(k)
+        if rep:
+            # la coupe n'est jamais vide : `a` tombe dans un morceau
+            k = next(k for k, s in enumerate(textes)
+                     if debuts[k] <= a < debuts[k] + len(s))
+            garde[k][a - debuts[k]] = rep + garde[k][a - debuts[k]]
+            touches.add(k)
+    for k in touches:
+        noeuds[k].text = "".join(garde[k])
+        noeuds[k].set(_XML_SPACE, "preserve")
+    return bool(touches)
+
+
 def _sans_signature(donnee):
     """Retirer la signature en tête de chaque commentaire, et les auteurs.
 
@@ -116,11 +165,56 @@ def _sans_signature(donnee):
         i = joint.find(":")
         if not (0 < i <= 40) or "\n" in joint[:i] or not _est_nom(joint[:i]):
             continue
-        propre = joint[i + 1:].lstrip()
-        for k, x in enumerate(noeuds):
-            x.text = propre if k == 0 else ""
-            x.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
-        n += 1
+        fin = i + 1
+        while fin < len(joint) and joint[fin] in " \t\r\n":
+            fin += 1
+        if _editer_morceaux(noeuds, [(0, fin, "")]):
+            n += 1
+    if not n:
+        return donnee, 0
+    return ET.tostring(r, encoding="UTF-8", xml_declaration=True), n
+
+
+# UN IDENTIFIANT DE CONNEXION N'EST PAS UN NOM, ET IL DÉSIGNE QUAND MÊME
+# QUELQU'UN. Mesuré le 26/09/2026 par l'audit : data/classeur-2026.xlsx —
+# fichier d'un dépôt PUBLIC — portait 60 occurrences de trois logins
+# d'entreprise (de la forme « RT0xxxx »), alors que l'horaire
+# et le brut n'en portaient plus. AUTEUR les connaît, mais il travaille sur
+# les OCTETS du XML et exige un blanc devant : un login en tête d'un morceau
+# suit un « > », et AUTEUR ne le voit jamais. Le motif ne voit pas les
+# balises ; ce qui lit la structure, si.
+#
+# D'où cette passe, sur le texte RECOLLÉ de chaque commentaire, APRÈS les
+# signatures et les noms — l'ordre que le convertisseur a appris à ses
+# dépens : un login est le suffixe ordinaire d'une signature, le remplacer
+# d'abord la rend méconnaissable.
+#
+# Suivi d'un deux-points, il EST une signature — la seconde d'un
+# commentaire, « RT0xxxx: remplace PBL » — et part en entier : il ne signe
+# rien qu'on ait besoin de lire. Au fil du texte, il est REMPLACÉ, pas
+# effacé : la phrase se lit encore, et dit qu'on a retiré quelque chose.
+#
+# LE MOTIF NE S'APPLIQUE JAMAIS AUX OCTETS DU XML : il y attraperait les
+# couleurs « FF000000 » des styles et les fragments des identifiants
+# « ns2:uid » — une centaine par fichier, mesuré.
+LOGIN = re.compile(r"\b[A-Za-z]{2}\d{4,6}\b(\s*:[ \t]*)?")
+
+
+def _sans_login(donnee):
+    """Retirer les identifiants de connexion du texte des commentaires."""
+    ET.register_namespace("", _M_SS)
+    try:
+        r = ET.fromstring(donnee)
+    except ET.ParseError:
+        return donnee, 0
+    n = 0
+    for cm in r.iter("{%s}comment" % _M_SS):
+        noeuds = list(cm.iter("{%s}t" % _M_SS))
+        joint = "".join(x.text or "" for x in noeuds)
+        coupes = [(m.start(), m.end(), "" if m.group(1) else "(identifiant retiré)")
+                  for m in LOGIN.finditer(joint)]
+        if coupes and _editer_morceaux(noeuds, coupes):
+            n += len(coupes)
     if not n:
         return donnee, 0
     return ET.tostring(r, encoding="UTF-8", xml_declaration=True), n
@@ -244,6 +338,41 @@ def _remplacer(donnee, regles, sondes):
     return "".join(out).encode("utf-8"), n
 
 
+# --- le paquet : une copie qui s'ouvre, et qui ne dit rien de la maison -----
+# Retirer les macros laissait un paquet qui les annonçait encore : le
+# classeur se déclarait « à macros » et treize relations pointaient vers des
+# parties absentes (les macros, les réglages d'imprimante). Excel refuse
+# volontiers un tel fichier, et la copie de référence ne servait qu'à être
+# relue par nos outils.
+#
+# Et le classeur portait, recopiés tels quels, l'étiquette de sensibilité de
+# l'employeur avec l'identifiant de son annuaire (docProps/custom.xml) et le
+# chemin réseau d'où il a été enregistré (x15ac:absPath). Rien de cela n'est
+# un nom ; rien de cela n'a à vivre dans un dépôt public.
+_MACROS = b"application/vnd.ms-excel.sheet.macroEnabled.main+xml"
+_CLASSEUR = b"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"
+
+
+def _paquet(nom, donnee, retires):
+    if nom == "[Content_Types].xml":
+        donnee = donnee.replace(_MACROS, _CLASSEUR)
+        for r in retires:
+            donnee = re.sub(rb'<Override PartName="/' + re.escape(r.encode()) + rb'"[^>]*/>',
+                            b"", donnee)
+    elif nom.endswith(".rels"):
+        bases = set(os.path.basename(r).encode() for r in retires)
+
+        def _garder(m):
+            cible = re.search(rb'Target="([^"]*)"', m.group(0))
+            return b"" if cible and os.path.basename(cible.group(1)) in bases else m.group(0)
+        donnee = re.sub(rb"<Relationship\b[^>]*/>", _garder, donnee)
+    elif nom == "xl/workbook.xml":
+        donnee = re.sub(rb"<mc:AlternateContent\b(?:(?!</mc:AlternateContent>).)*?absPath"
+                        rb"(?:(?!</mc:AlternateContent>).)*</mc:AlternateContent>",
+                        b"", donnee, flags=re.S)
+    return donnee
+
+
 def anonymiser(src, dst, tolere=()):
     cl = Classeur(src)
     annuaire = _annuaire(cl)
@@ -329,15 +458,28 @@ def anonymiser(src, dst, tolere=()):
     # sans être ni remplacées ni signalées.
     #
     # Ici, pas de corroboration à chercher : ce qui est écrit là EST un nom.
-    # On exige seulement que la ligne ressemble à une ligne de noms — au moins
-    # trois cellules qui donnent des initiales — pour ne pas prendre l'en-tête
-    # d'une feuille de configuration pour un effectif.
+    #
+    # MAIS SEULEMENT DANS LES FEUILLES DE PERSONNES — celles que le
+    # convertisseur lit comme telles, `FEUILLES`. La règle précédente
+    # parcourait TOUTES les feuilles et se contentait de trois cellules
+    # donnant des initiales. La feuille cachée « Récapitulatif (1) » porte
+    # en ligne 10 l'en-tête « P. arr » trois fois : trois cellules, donc une
+    # ligne de noms, et « P. arr » devint une personne, PAR. Mesuré le
+    # 26/09/2026 : 480 cellules du classeur de référence — « poly. Arr. »,
+    # « terr. Arr. » — et 8 commentaires y portaient « PAR ». L'horaire n'en
+    # souffrait pas, le convertisseur lisant le .xlsm ; la copie de
+    # référence, oui.
+    #
+    # Et le seuil de trois fermait la porte à la feuille Step, qui ne compte
+    # que deux personnes : elles n'étaient remplacées que parce qu'on les
+    # connaissait par ailleurs. Dans une feuille de personnes, la ligne 10
+    # porte des gens par construction ; il n'y a rien à compter.
     for feuille, mots in recolte.items():
+        if feuille not in FEUILLES:
+            continue
         ligne = mots.get(LIGNE_NOMS) or {}
         trouves = [(t, _initiales(t)) for t in ligne.values()]
         trouves = [(t, i) for t, i in trouves if i and i.isalpha()]
-        if len(trouves) < 3:
-            continue
         for t, ini in trouves:
             _apprendre(_sans_accent(t).lower(), annuaire.get(_sans_accent(t).lower(), ini))
 
@@ -512,15 +654,24 @@ def anonymiser(src, dst, tolere=()):
     # motif pour un petit mot, et il passerait devant.
     pesees.sort(key=lambda r: -r[0])
     regles = [(m, ini, sd) for _, m, ini, sd in pesees]
-    regles.append((AUTEUR.pattern, "", ""))
+    # LE BLANC QUI PRÉCÈDE UNE SIGNATURE RESTE. AUTEUR commence par
+    # « (?:^|\s) » et, remplacé par une chaîne vide, emportait le saut de
+    # ligne qui séparait deux notes : « remplace ATA\nNom, Prénom:
+    # remplace GPS » devenait « remplace ATAremplace GPS ». Mesuré le
+    # 26/09/2026 : environ 350 commentaires collés ainsi, et le trigramme
+    # n'était plus un mot — « \bATA\b » ne le retrouvait plus. Le blanc
+    # devient un regard en arrière : il borne la signature sans en faire
+    # partie.
+    regles.append((AUTEUR.pattern.replace(r"(?:^|\s)", r"(?:^|(?<=\s))", 1), "", ""))
     sondes = sorted(set(sd for _, _, sd in regles if sd))
 
     # On écrit À CÔTÉ. Tant que la garantie n'est pas franchie, le fichier
     # peut porter des noms : il n'a rien à faire à sa destination, où un
     # commit distrait l'emporterait. Il n'y prend sa place qu'à la fin.
     encours = dst + ".en-cours"
-    total, parties = 0, 0
+    total, parties, logins = 0, 0, 0
     zin = zipfile.ZipFile(src)
+    retires = [i.filename for i in zin.infolist() if EXCLUS.search(i.filename)]
     with zipfile.ZipFile(encours, "w", zipfile.ZIP_DEFLATED) as zout:
         for info in zin.infolist():
             if EXCLUS.search(info.filename):
@@ -545,9 +696,14 @@ def anonymiser(src, dst, tolere=()):
                     donnee, n = _sans_signature(donnee)
                 donnee, m = _remplacer(donnee, regles, sondes)
                 n += m
+                if COMMENTAIRES.search(info.filename):
+                    donnee, m = _sans_login(donnee)
+                    n += m
+                    logins += m
                 if info.filename.startswith("docProps/"):
                     donnee = re.sub(rb"<(dc:creator|cp:lastModifiedBy)>[^<]*</\1>",
                                     rb"<\1></\1>", donnee)
+                donnee = _paquet(info.filename, donnee, retires)
                 total += n
                 parties += 1 if n else 0
             # On reprend la date du classeur source. Sans elle, le ZIP
@@ -594,6 +750,8 @@ def anonymiser(src, dst, tolere=()):
     taille = os.path.getsize(dst)
     print("%d nom(s) connu(s) · %d remplacement(s) dans %d partie(s) · %.1f Mo"
           % (len(noms), total, parties, taille / 1048576.0), file=sys.stderr)
+    print("%d identifiant(s) de connexion retiré(s) des commentaires" % logins,
+          file=sys.stderr)
     print("Aucun nom ne subsiste : vérifié sur la sortie.", file=sys.stderr)
 
 

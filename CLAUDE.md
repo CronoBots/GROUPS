@@ -222,7 +222,7 @@ débarrassés du nom de leur auteur.
 **Il a eu le même trou que l'anonymiseur, et le 22/09/2026 il a failli
 écrire trois noms complets dans `data/horaire-2026.json`** — fichier d'un
 dépôt PUBLIC. Son motif `AUTEUR` exige une virgule : « Nom Prénom : »
-lui échappait, « Nom, Prénom/rt01386: » aussi (le suffixe rompt
+lui échappait, « Nom, Prénom/rt0xxxx: » aussi (le suffixe rompt
 l'ancrage), et « Prénom: » — un prénom seul — n'a aucune forme
 reconnaissable. C'est la COMPARAISON avec la version en place qui l'a
 montré, l'ancien JSON portant « (nom retiré) » là où le nouveau écrivait le
@@ -349,7 +349,7 @@ exportées à part, de sorte que rien ne se perd et que rien ne s'invente.
 autre : deux lecteurs de xlsx dans le même dépôt finiraient par diverger, et
 c'est toujours le second qui reste en arrière.
 
-**Un identifiant de connexion survivait, et il est parti.** `RT01386`, au
+**Un identifiant de connexion survivait, et il est parti.** `RT0xxxx`, au
 fil de six commentaires — la même phrase recopiée d'une feuille à l'autre.
 Ce n'est pas un nom, donc l'anonymiseur le laisse passer, et il a raison :
 il remplace des noms. Le convertisseur, lui, l'emportait par accident, parce
@@ -406,7 +406,7 @@ tête de trigramme, sans mention de retrait. **Ce qui survit à cela manque
 vraiment**, et il n'en restait que 167.
 
 **Et le premier vrai reste était une fuite, dans le dépôt PUBLIC.**
-`RT01386` — un identifiant de connexion — vivait dans
+`RT0xxxx` — un identifiant de connexion — vivait dans
 `data/horaire-2026.json`. Ni l'anonymiseur ni son second contrôle ne
 pouvaient le voir : ils cherchent des NOMS, et ce n'en est pas un. Le
 convertisseur en avait retiré un le 23/09, mais seulement parce qu'il
@@ -422,7 +422,7 @@ n'est pas un nom, et il n'y a rien à vérifier par recoupement.
 
 **ET L'ORDRE S'EST REFERMÉ SUR MOI, MOT POUR MOT.** Posée avant
 `AUTEUR.sub()`, la règle transformait le suffixe ordinaire d'une signature —
-« Nom, Prénom/rt01386: » — en « (identifiant retiré): », que le motif de
+« Nom, Prénom/rt0xxxx: » — en « (identifiant retiré): », que le motif de
 signature ne reconnaît plus : **324 commentaires ont porté ce reste** pendant
 une version. C'est exactement ce que ce fichier décrit pour l'anonymiseur
 depuis le 22/09 — *la signature se retire AVANT le remplacement*. Elle se
@@ -444,11 +444,11 @@ cette forme dans les deux fichiers.
   01/02/19 », « fin au 30/09/2026 » ;
 - **6 copies d'un même commentaire de la grille**, qui ne sont pas une perte
   mais une CORRUPTION de la copie de référence : l'anonymiseur y a remplacé
-  « Poly Arr » par « PAR ». Le classeur emploie bien `PAR` comme abrégé de
-  *polyvalent arrière* — la feuille « Récapitulatif (1) » l'écrit en tête de
-  colonne, à côté de `Ferm.`, `Disti.` et `Meun.` — mais l'anonymiseur l'a
-  posé en croyant remplacer un NOM. Le résultat tombe juste par accident ;
-  le mécanisme, non.
+  « Poly Arr » par « PAR ». **Corrigé le 26/09/2026, et c'était bien pire** :
+  480 CELLULES et 8 commentaires, pas 6. Et la phrase qui était écrite ici —
+  « le classeur emploie bien `PAR` comme abrégé » — était FAUSSE : la source
+  écrit « P. arr » et « P.arr », jamais « PAR ». Voir « L'audit du
+  26/09/2026 ».
 
 ### La fraction payée se lit dans le classeur
 
@@ -722,6 +722,81 @@ Vérifié au navigateur à 390 et 1280 px : 48 infobulles datées, 2 cases
 soulignées, la ligne nommant les deux polyvalences qui se terminent, aucune
 erreur.
 
+## L'audit du 26/09/2026
+
+Le client, le 26/09/2026, en envoyant un nouveau récapitulatif : « fais un
+check complet multiagent sur la manière de récupérer toutes les infos de ce
+fichier et de le rendre anonyme ». Cinq auditeurs indépendants —
+anonymat, extraction, usage par l'application, méthode, contrôles — chacun
+suivi d'un sceptique chargé de réfuter ses constats en les remesurant.
+
+**Le nouveau classeur est le même que celui du 25/09 à 15 h 23**, texte pour
+texte : la conversion ne change que les huit journées aux quatre prénoms.
+
+### L'anonymiseur corrompait la copie de référence, de trois façons
+
+Aucun nom n'y survivait — la chasse indépendante l'a confirmé sur 168 mots
+tirés de la source. Mais la copie **n'était pas fidèle**, et elle **n'était
+pas propre** :
+
+| Défaut | Mesuré | Cause |
+|---|---|---|
+| « Arr » devenu « PAR » | **480 cellules**, 8 commentaires | la ligne 10 de la feuille cachée « Récapitulatif (1) » porte « P. arr » trois fois : trois cellules suffisaient à en faire une ligne de noms |
+| le barré déplacé | 621 commentaires mêlant barré et non barré dans la source, **41** dans la copie | le retrait de la signature recollait tout le texte dans le PREMIER morceau — la signature, souvent barrée — et vidait les autres |
+| des mots collés | **environ 350** commentaires, « ATAremplace » | AUTEUR emportait le saut de ligne qui précède une seconde signature |
+| identifiants de connexion | **60** dans le fichier public | AUTEUR travaille sur les octets du XML et exige un blanc devant ; un login en tête d'un morceau suit un « > » |
+| étiquette « Confidential » de l'employeur, identifiant de son annuaire, chemin réseau | docProps/custom.xml, x15ac:absPath | recopiés tels quels |
+| un paquet qui annonce des macros | 13 relations vers des parties absentes | le retrait du `vbaProject.bin` ne nettoyait rien autour |
+
+Tout est corrigé dans `tools/anonymiser-classeur.py`, et **chaque correction
+est mesurée contre la source** :
+
+- **hors des zones nominatives, plus UNE cellule ne diffère de la source** —
+  les 301 écarts sont tous en ligne 10 des feuilles de personnes, dans
+  « Personnel » et dans les colonnes nom et prénom de « Polyvalence » ;
+  l'ancienne copie en corrompait 480 de plus ;
+- **10 457 commentaires dont le texte est intact ont leur barré identique,
+  caractère par caractère** ; les 1 107 autres ont perdu un nom ou un login,
+  et trois seulement ont perdu un saut de ligne — celui d'une signature
+  posée seule sur sa ligne, qui part avec elle ;
+- **0 identifiant de connexion** (191 retirés, dont les 60 qui passaient),
+  **6 collages** — ceux que la source porte elle-même ;
+- le paquet s'ouvre : **0 relation pendante**, le type « classeur » et non
+  « classeur à macros ».
+
+**La ligne des noms ne se lit plus que dans les feuilles de personnes**
+(`FEUILLES` du convertisseur), et **sans seuil** : la feuille Step n'a que
+deux personnes, et le seuil de trois la laissait de côté.
+
+**Le retrait se fait morceau par morceau** : `_editer_morceaux()` applique
+les coupes au texte recollé sans déplacer un caractère d'un morceau à
+l'autre. C'est ce qui garde le barré à sa place — et **le barré porte une
+information** : voir plus bas.
+
+**Les deux contrôles ne voyaient pas les identifiants de connexion**, et
+c'est pour cela qu'ils ont vécu dans un dépôt public :
+
+- `verifier-anonymat.py` les rangeait explicitement parmi les signatures
+  ANONYMES. Il les cherche désormais dans le texte, avec son propre motif ;
+- `verifier-depot.py` répondait « aucune forme de nom ». Il a une règle à
+  eux, qui écarte les couleurs et les identifiants de commit — deux lettres
+  de A à F — et ne lit, dans un classeur, que le texte des cellules et des
+  commentaires.
+
+**Et ce fichier-ci en écrivait un en toutes lettres**, pour illustrer un
+motif — comme les neuf noms cités en exemple avant lui. Il s'écrit désormais
+`RT0xxxx`, dans `CLAUDE.md` et dans quatre outils.
+
+**`verifier-anonymat.py` sortait TOUJOURS en 1** — « CPPT », « STEP » ou « PRODUCTION »
+ont la forme d'un nom — et un contrôle qui échoue toujours ne se lit plus.
+`tools/survivants-admis.txt` porte les chaînes déjà lues, avec leur raison ;
+l'outil sort en 0 quand il ne reste qu'elles. **Y ajouter une ligne est un
+acte**, comme pour `tools/formes-admises.txt`.
+
+**L'historique public porte encore les 60 identifiants** — trois versions de
+`data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
+une décision du client, comme pour les noms (`docs/purge-historique.md`).
+
 ## Structure
 
 | Fichier | Rôle |
@@ -734,6 +809,7 @@ erreur.
 | `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |
 | `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
+| `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
 | `tools/verifier-integralite.py` | confronte l'horaire au classeur entier : ce qui ne lui arrive pas |

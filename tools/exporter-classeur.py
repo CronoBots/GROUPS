@@ -55,7 +55,7 @@ def _convertisseur():
 
 
 # UN IDENTIFIANT DE CONNEXION N'EST PAS UN NOM, ET IL DÉSIGNE QUAND MÊME
-# QUELQU'UN. Le classeur en porte un, « RT01386 », écrit au fil de six
+# QUELQU'UN. Le classeur en porte un, « RT0xxxx », écrit au fil de six
 # commentaires — la même phrase recopiée d'une feuille à l'autre. L'anonymiseur
 # le laisse passer, et il a raison : il remplace des NOMS, et ce n'en est pas
 # un. Le convertisseur, lui, l'emportait par accident, parce qu'il ouvrait une

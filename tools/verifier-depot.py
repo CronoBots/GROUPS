@@ -150,9 +150,33 @@ def _lire(octets, chemin):
     return octets.decode("utf-8", "ignore")
 
 
-def _cherche(texte):
+# LES IDENTIFIANTS DE CONNEXION. Soixante vivaient dans data/classeur-2026.xlsx
+# et cet outil répondait « aucune forme de nom » — ce n'en est pas une. Ils
+# désignent pourtant quelqu'un, et CLAUDE.md lui-même en écrivait un en
+# toutes lettres pour illustrer un motif. Découvert le 26/09/2026 par l'audit.
+#
+# Deux lettres et quatre à six chiffres, MAIS PAS DEUX LETTRES DE A À F : un
+# dépôt est plein de couleurs (« #DD9877 », « FF000000 ») et d'identifiants
+# de commit (« dc31569 ») qui ont exactement cette forme. Les logins de la
+# maison commencent par « rt », qui n'est pas hexadécimal. Dans un classeur,
+# on ne cherche que dans le TEXTE des cellules et des commentaires, jamais
+# dans les octets du XML.
+LOGIN = re.compile(r"(?<![A-Za-z0-9#])(?![A-Fa-f]{2}[0-9])[A-Za-z]{2}[0-9]{4,6}(?![0-9A-Za-z])")
+
+
+def _texte_de_classeur(texte):
+    """Le texte des cellules et des commentaires d'un classeur déplié, élément
+    par élément — un login coupé en deux balises se recolle, deux
+    commentaires voisins ne se collent pas."""
+    return "\n".join("".join(re.findall(r"<t[^>]*>([^<]*)</t>", bloc))
+                     for bloc in re.split(r"</comment>|</si>|</is>", texte))
+
+
+def _cherche(texte, classeur=False):
     """Les chaînes de forme nominale, normalisées sur leurs espaces."""
     trouve = set()
+    for m in LOGIN.finditer(_texte_de_classeur(texte) if classeur else texte):
+        trouve.add("identifiant de connexion " + m.group(0))
     for motif in FORMES:
         for m in motif.finditer(texte):
             trouve.add(" ".join(m.group(0).split()))
@@ -238,7 +262,7 @@ def main():
                 texte = _lire(f.read(), nom)
         except OSError:
             continue
-        for forme in _cherche(texte) - admises:
+        for forme in _cherche(texte, bool(CLASSEUR.search(nom))) - admises:
             restes.setdefault(forme, set()).add(nom)
 
     # Le contrôle croisé, qui ne repose sur aucun motif.
@@ -251,7 +275,7 @@ def main():
             data = subprocess.run(["git", "-C", RACINE, "cat-file", "blob", sha],
                                   capture_output=True).stdout
             texte = _lire(data, chemin)
-            for forme in _cherche(texte) - admises:
+            for forme in _cherche(texte, bool(CLASSEUR.search(chemin))) - admises:
                 restes.setdefault(forme, set()).add(chemin + " @" + sha[:8])
 
     if not restes:

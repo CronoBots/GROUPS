@@ -62,13 +62,13 @@ COL_JOUR = 2             # la colonne qui porte le numéro du jour
 MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET",
         "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"]
 
-# « Nom, Prénom: », « Nom, Prénom (external): », « RT01386: »
+# « Nom, Prénom: », « Nom, Prénom (external): », « RT0xxxx: »
 AUTEUR = re.compile(r"(?:^|\s)(?:[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+,\s*[A-ZÉÈÀ][\wÉÈÀéèàêç'-]+"
                     r"(?:\s*\([^)]*\))?|[Rr][Tt]\d{4,6}|Auteur)\s*:\s*")
 
 # LES NOMS QUE LE CLASSEUR DÉCLARE LUI-MÊME. AUTEUR exige une virgule, et
 # trois formes lui ont échappé sur le classeur du 22/09/2026 :
-# « Nom Prénom : » sans virgule, « Nom, Prénom/rt01386: » dont le
+# « Nom Prénom : » sans virgule, « Nom, Prénom/rt0xxxx: » dont le
 # suffixe rompt l'ancrage, et « Prénom: » — un prénom seul, qui n'a aucune
 # forme reconnaissable. Elles seraient parties dans data/horaire-2026.json,
 # qui vit dans un dépôt PUBLIC.
@@ -328,7 +328,7 @@ class Classeur:
             for cm in racine.iter('{%s}comment' % M):
                 txt = " ".join("".join(t.text or "" for t in cm.iter('{%s}t' % M)).split())
                 # Les noms déclarés d'abord : ce qui reste — « , » esseulée,
-                # « /rt01386: », « : » en tête — est balayé par AUTEUR et par
+                # « /rt0xxxx: », « : » en tête — est balayé par AUTEUR et par
                 # le strip qui suit.
                 if auteurs:
                     # UNE TÊTE QUI NOMME UN AUTEUR CONNU EST UNE SIGNATURE,
@@ -373,7 +373,7 @@ class Classeur:
                 txt = AUTEUR.sub(" ", txt).strip(" .;:")
                 txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
                 # APRÈS LES SIGNATURES, ET NON AVANT. Un login est le suffixe
-                # ordinaire d'une signature — « Nom, Prénom/rt01386: » — et le
+                # ordinaire d'une signature — « Nom, Prénom/rt0xxxx: » — et le
                 # remplacer d'abord le rend méconnaissable à AUTEUR, qui
                 # laisse alors la tête en place : 324 commentaires ont porté
                 # « (identifiant retiré): » pendant une version. C'est le
@@ -390,7 +390,7 @@ class Classeur:
 
 
 # UN IDENTIFIANT DE CONNEXION N'EST PAS UN NOM, ET IL DÉSIGNE QUAND MÊME
-# QUELQU'UN. « RT01386 » vivait dans data/horaire-2026.json — dépôt PUBLIC —
+# QUELQU'UN. « RT0xxxx » vivait dans data/horaire-2026.json — dépôt PUBLIC —
 # depuis que les commentaires d'annotation sont lus : il n'y ouvrait pas de
 # signature, donc rien ne l'emportait. Le convertisseur en retirait un, le
 # 23/09, mais seulement parce qu'il était en TÊTE ; au fil du texte, il
