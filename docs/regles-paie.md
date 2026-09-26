@@ -1584,7 +1584,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 17/06 | `DS-CE · 1h rhs` | 7 h + 1 h de compensation | **tranché le 26/09/2026** : une reprise partielle sort de la prime d'équipe — voir « RHS » |
 | 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | **tranché le 26/09/2026** : une demi-journée de conseil d'entreprise, payée sans prime (`1/2 CE`) ; `AM · DS-CE` reste 8 h avec prime du matin, comme le 18/02 — voir « Le conseil d'entreprise d'un après-midi » |
 | 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
-| 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | un rappel sur un repos n'est pas un poste ordinaire |
+| 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | toutes les heures en HS à compenser (+8/−8, +12/−12), prime de nuit sur toutes, 6 h 32 et 12 h 05 de déplacement ; **question posée le 26/09/2026**, 119 journées de cette forme dans l'année |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
 | 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
 | 22/03 | `N` | prime de nuit sans heure normale | non expliqué |

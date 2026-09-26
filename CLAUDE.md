@@ -1295,10 +1295,21 @@ n'est deviné à leur sujet :
   porte une « Classification entreprise » qui commence par la même lettre ;
 - **les fiches d'ouvrier de LCI** (26/09/2026) — les grèves sont tranchées
   (`GREVE_JOURS`), le `+FT` sur un poste prévu aussi (voir
-  `docs/conversion-horaire.md`, section 5 : +240 h chez 52 personnes) ;
-  restent les heures reprises qui sortent de la prime,
-  le rappel sur un repos, et la paie à l'heure elle-même — voir
-  `docs/regles-paie.md`, « La fiche d'ouvrier » ;
+  `docs/conversion-horaire.md`, section 5 : +240 h chez 52 personnes), la
+  reprise partielle et le « PM · DS-CE » aussi. Restent, en attente d'une
+  réponse :
+  - **la nuit avec « DS-CE » ou « D-CPPT »** — 8 h de prime de nuit, ou
+    4 h + 4 h sans prime comme l'après-midi ? Le client se renseigne ; sa
+    fiche de septembre le dira, VBN le 30/09 `["N","D-CPPT"]` étant sa
+    seule journée de ce genre du mois. Aujourd'hui : 8 h, prime conservée ;
+  - **le rappel sur un repos sans « +FT »** — la fiche de LCI (11 et
+    13/04) le paie en heures sup à compenser (sursalaire + déduction),
+    prime de pause sur toutes les heures, aucune heure normale ;
+    l'application compte des heures prestées. **119 journées chez 45
+    personnes**. Question posée le 26/09/2026 : A (comme la fiche), B
+    (ouvriers seulement), C (autre) ;
+  - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
+    d'ouvrier » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
