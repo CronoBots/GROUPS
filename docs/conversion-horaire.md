@@ -158,6 +158,30 @@ tombe juste sur une heure entière et que la cellule ne porte pas déjà un code
 d'absence ; sinon la durée réelle est conservée telle quelle et la journée
 est signalée.
 
+### Sur un poste prévu, le +FT s'ajoute à la journée
+
+Le client, le 26/09/2026, devant la fiche d'un ouvrier (LCI) : « LCI le
+14/08 a fait son horaire en PM + 4h en FT+ après ou avant » ; « AFA le 01/08
+a fait PM puis est resté en FT 2h pour remplacer VBN » ; « FLI le 23/01,
+horaire normal AM mais avait pris congé, puis a été rappelé pour refaire
+AM ».
+
+**L'application appliquait le contraire** : sans plage écrite, elle
+retranchait l'épargne du poste — LCI 4 h le 14/08, AFA 6 h le 01/08 —, alors
+que la fiche de LCI porte huit heures normales et huit heures de prime.
+
+| Dans la cellule | Lecture |
+|---|---|
+| poste prévu + `nH +FT`, n < 8, sans plage | la journée est payée **8 h**, les n heures s'y ajoutent et vont au compteur |
+| poste prévu + `8h +FT` | le **poste entier** part au compteur, 0 h payée — un rappel sur un congé ou un repos (27 des 43 journées le disent) |
+| une plage écrite | inchangé : l'excédent de la plage part au compteur |
+| renfort sans poste prévu (`R-CM`, `-`) | inchangé : ce qui est fait part au compteur |
+
+Mesuré : **240 heures prestées rendues à 52 personnes** sur l'année, compteurs
+flex time identiques — l'épargne ne bouge pas, seules les heures payées
+changent —, neuf règles à zéro. LCI concorde avec ses fiches sur 206
+journées sur 214.
+
 ## 6. Le compteur `-FT` : une récupération
 
 **La personne ne preste pas le poste prévu, ou le preste amputé d'autant.**

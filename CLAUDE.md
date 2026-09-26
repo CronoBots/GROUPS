@@ -1266,8 +1266,9 @@ n'est deviné à leur sujet :
 - **les lettres G et H** du degré de polyvalence — la fiche d'ouvrier
   porte une « Classification entreprise » qui commence par la même lettre ;
 - **les fiches d'ouvrier de LCI** (26/09/2026) — les grèves sont tranchées
-  (`GREVE_JOURS`, voir `docs/regles-paie.md`) ; restent le `+FT` sur un
-  poste prévu, les heures reprises qui sortent de la prime,
+  (`GREVE_JOURS`), le `+FT` sur un poste prévu aussi (voir
+  `docs/conversion-horaire.md`, section 5 : +240 h chez 52 personnes) ;
+  restent les heures reprises qui sortent de la prime,
   le rappel sur un repos, et la paie à l'heure elle-même — voir
   `docs/regles-paie.md`, « La fiche d'ouvrier » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté

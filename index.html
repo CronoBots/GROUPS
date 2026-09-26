@@ -4604,8 +4604,23 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      nommait pas le poste. La même annotation donnait donc deux résultats
      opposés selon un détail d'écriture — 0 h pour ["R-CM","8h +FT"], 8 h
      pour ["N","8h +FT"] — sur 56 journées et 26 personnes. */
+  /* SUR UN POSTE PRÉVU, UN « +FT » PLUS COURT QUE LA JOURNÉE S'AJOUTE À
+     ELLE. Le client, le 26/09/2026, devant la fiche d'un ouvrier : « LCI le
+     14/08 a fait son horaire en PM + 4h en FT+ après ou avant », « AFA le
+     01/08 a fait PM puis est resté en FT 2h pour remplacer VBN ». La fiche
+     de LCI porte ce jour-là huit heures normales et huit heures de prime ;
+     l'application en comptait quatre, en retranchant l'épargne du poste.
+
+     Sans plage écrite, la journée durait donc 8 h PLUS les heures
+     épargnées. Le « 8h +FT », lui, garde sa lecture : c'est le poste entier
+     qui part au compteur — FLI le 23/01, « horaire normal AM mais avait pris
+     congé, puis a été rappelé pour refaire AM » —, et 27 des 43 journées de
+     cette forme parlent d'un rappel, d'un repos ou d'un congé. Un renfort
+     sur un repos (« R-CM | 8h +FT ») n'a pas de poste prévu et n'est pas
+     touché. */
   if(out.epargne>0 && out.s){
     var duree=(plage?dureeReelle(out.s,plage,hJour):hJour);
+    if(!plage && C.poste && out.epargne<hJour-0.01) duree=hJour+out.epargne;
     var resteEp=Math.max(0,(out.epargne+epargne)-Math.max(0,duree-hJour));
     out.h=Math.max(0,hJour-resteEp);
   }
