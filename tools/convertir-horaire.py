@@ -1250,11 +1250,15 @@ def _sans_nom(g, feuille, mois):
     remplie, et restes() ne regarde que les LIGNES : deux colonnes entières
     tombaient sans un mot — Shift4 Q, la fermentation de l'équipe 4, avec des
     congés jusqu'en décembre, et Shift1 AG, une rotation de chaudières.
-    L'audit du 26/09/2026 les a trouvées : ce sont des copies de travail de
-    DWS et de CHD, et les lire compterait deux fois ces personnes. On ne les
-    rattache donc à personne — c'est au client de dire ce qu'elles sont —,
-    mais on les DIT : une perte silencieuse est une perte qu'on ne corrige
-    jamais.
+    L'audit du 26/09/2026 les a trouvées, et je les ai d'abord prises pour
+    des copies de travail de DWS et de CHD — leurs cellules franches
+    coïncident. C'était faux. Le client, le 26/09/2026 : ce sont des PLACES
+    SANS TITULAIRE — le troisième chaudiériste de l'équipe 1, qu'aucun
+    transfert n'a encore pourvu, et l'opérateur fermentation de l'équipe 4,
+    que le passage de CHD en équipe 5 a laissé vide. La colonne porte la
+    rotation du poste, pas une personne : on ne la rattache donc à personne,
+    mais on la DIT — une perte silencieuse est une perte qu'on ne corrige
+    jamais, et une place qui se remplit se verra ici en premier.
     """
     nommees = set(c for c, v in (g.get(LIGNE_NOMS) or {}).items()
                   if str(v).strip() not in ("", "0"))

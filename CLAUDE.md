@@ -1035,9 +1035,16 @@ l'horaire ne rattache à personne.
   classeur, si bien que onze personnes sur seize ne le voyaient pas.
   Vérifié au navigateur sur LCI, SBZ, VBN et ATA.
 - **Les colonnes sans nom sont annoncées** : Shift1 AG et Shift4 Q portent
-  une année de journées sans rien en ligne 10. Ce sont des copies de travail
-  de DWS et de CHD : les lire compterait ces personnes deux fois. Le
-  convertisseur les DIT sur sa sortie d'erreur, sans les rattacher.
+  une année de journées sans rien en ligne 10. **J'ai écrit que c'étaient des
+  copies de travail de DWS et de CHD, et c'était faux** — leurs cellules
+  franches coïncident, rien de plus. Le client, le 26/09/2026 : « Shift 1 AG,
+  c'est le troisième chaudiériste de l'équipe 1, mais avec les transferts
+  d'équipe actuels il n'y a plus personne pour le moment ; Shift 4 Q, c'est
+  l'opérateur fermentation de l'équipe 4, modifié aussi récemment ». Ce sont
+  des **places sans titulaire** : la colonne porte la rotation du poste, pas
+  une personne. Le convertisseur les DIT sur sa sortie d'erreur sans les
+  rattacher à personne, et c'est juste — une place qui se remplit s'y verra
+  en premier, un nom apparaissant en ligne 10.
 
 Rien d'autre ne bouge : champ `e` chez 29 personnes, `poly` chez 21, la
 légende — et aucune journée. Les quatre sorties de `verifier-calendrier.js`
@@ -1217,7 +1224,6 @@ L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les deux colonnes sans nom** : copies à effacer, ou à garder ?
 - **les compteurs CP, TP, CT** : comptent-ils les journées posées ou le droit
   de l'année ? LCI, GSK et RCO ont une journée de plus dans l'horaire ;
 - **les lettres G et H** du degré de polyvalence ;
@@ -1831,8 +1837,9 @@ deux noms par équipe, le gluten en a trois, la fermentation de l'équipe 4 est
 VIDE — le classeur n'y nomme personne, et c'est le polyvalent arrière qui la
 couvre depuis le terrain arrière. (Sa colonne Q n'est pas vide pour autant :
 c'est sa LIGNE DES NOMS qui l'est. Elle porte une rotation et des congés
-jusqu'en décembre — une copie de travail de CHD, que le convertisseur annonce
-depuis le 26/09/2026 sans la lire.)
+jusqu'en décembre — la rotation de la PLACE, restée sans titulaire depuis le
+passage de CHD en équipe 5, que le convertisseur annonce sans la lire. Je
+l'avais d'abord prise pour une copie de travail de CHD : c'était faux.)
 
 **Une personne que la chaîne ne place pas est NOMMÉE sous le tableau**, elle
 ne disparaît pas. Au 22/09/2026 il y en a une : QBY, « Renfort arrière » de
