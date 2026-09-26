@@ -385,7 +385,7 @@ porte des euros.
 | `CP` | congé parental 9/10 ou 4/5 | Heure(s) congé parent. AR 29.10.1997 | **non** — la fraction l'a déjà retiré | client, 25/09 |
 | `CT` | crédit-temps 1/5 ou 1/2 | Heure(s) crédit-temps | **non** — idem | client, 25/09 |
 | `TP` | temps partiel | Heure(s) temps partiel | **non** — idem | client, 25/09 |
-| `SANS SOLDE`, `CSS` | congé sans solde | aucune | **non** | classeur |
+| `SANS SOLDE`, `CSS`, `1/2 CSS` | congé sans solde (la demi-journée : « +4h CSS » en commentaire, le 26/09/2026) | aucune | **non** | classeur, client |
 | `GREVE` (« GREV ») | grève reconnue — un « Abs » du 10/02, du 12/05 ou du 16/06 | « Heure(s) grève reconnue » | **non** | fiches de LCI + client, 26/09/2026 |
 | `ABS` | **deux choses** — voir ci-dessous | selon l'origine | selon l'origine | classeur + code |
 | `+FT`, `−FT` | flex time épargné / repris | compteur | différé | client, 20/09 |

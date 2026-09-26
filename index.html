@@ -2198,6 +2198,10 @@ var ABS=[
     prestées pour deux journées non payées. Même procédé que CPAR, alias
     caché de CP. */
  {c:"CSS",h:8,k:"AUTRE",hidden:true},
+ /* La demi-journée sans solde. SMA le 10/09, ["PM","1/2DTT","remplacé par
+    SPS +4h CSS"] : le client, le 26/09/2026, « congé sans solde (non
+    payé) ». Même famille, même absence de paiement, quatre heures. */
+ {c:"4H CSS",h:4,k:"AUTRE",hidden:true},{c:"1/2 CSS",h:4,k:"AUTRE",hidden:true},
  /* « TP » : LA JOURNÉE NON TRAVAILLÉE D'UN TEMPS PARTIEL. Le client, le
     25/09/2026 : « TP c'est temps partiel, CP (congé parental 4/5 ou 9/10)
     et TP c'est pareil mais sans la compensation de l'ONEM », puis « pour le
@@ -5248,10 +5252,10 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
      déjà écourtée le dit elle-même, et on ne retranche pas deux fois — ADK
      le 18/02, ["7h-15h","8h-12h","+4RHS"], reste à 4 h. Le flex time repris
      ne retire rien aux heures payées (il vient du compteur) : il rejoint
-     les codes du jour, et c'est la présence qui baisse. « +4h CSS » n'a
-     pas de code de quatre heures : une seule journée, laissée telle
-     quelle. */
-  var rxCx=/\+\s*(\d+(?:[.,]\d+)?|1\/2)\s*h?\s*(rhs|rtt-?|dtt|va|-\s*ft)\b/gi, mCx, cxH=0, cxVu=false;
+     les codes du jour, et c'est la présence qui baisse. « +4h CSS » est une
+     demi-journée sans solde (le client, le 26/09/2026) : code « 1/2 CSS »,
+     non payé. */
+  var rxCx=/\+\s*(\d+(?:[.,]\d+)?|1\/2)\s*h?\s*(rhs|rtt-?|dtt|va|css|-\s*ft)\b/gi, mCx, cxH=0, cxVu=false;
   var comCx=String(raw[2]||"");
   while(r.s && (mCx=rxCx.exec(comCx))){
     var qCx=mCx[1], cdCx=mCx[2].toUpperCase().replace(/\s+/g,"").replace(/^RTT-$/,"RTT");
@@ -5259,7 +5263,7 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     if(!(nCx>0 && nCx<=hJour)) continue;
     if(cdCx==="RHS"){ r.rhsJ=(r.rhsJ||0)+nCx; cxH+=nCx; cxVu=true; continue; }
     var codeCx=(cdCx==="-FT")?codeAbsence(nCx+"H -FT")
-              :((nCx===hJour/2 && (cdCx==="VA"||cdCx==="DTT"))?"1/2 "+cdCx
+              :((nCx===hJour/2 && (cdCx==="VA"||cdCx==="DTT"||cdCx==="CSS"))?"1/2 "+cdCx
                 :codeAbsence(nCx+"H "+cdCx));
     if(!codeCx || !ABSMAP[codeCx]) continue;
     /* déjà lu par un autre chemin (KDN le 28/02, « + 4h VA ») : pas deux fois */
