@@ -1218,6 +1218,28 @@ fermentation 13 → 11 ; **23 couples au quota, inchangé**.
 La nuit du 23/03, dernier jour de la première fenêtre, reste en manque sur
 six postes : c'est la règle du client, la fenêtre se tient.
 
+### Les fiches d'un ouvrier, et les grèves écrites « Abs »
+
+Le client, le 26/09/2026, a transmis les fiches de LCI, ouvrier. Tout ce
+qu'elles ont appris est dans `docs/regles-paie.md`, « La fiche d'ouvrier ».
+`comparer-fiches.py` lit leur format et leur **détail jour par jour** :
+214 journées confrontées, 202 identiques d'emblée.
+
+**Trois « Abs » étaient des grèves** — « Grève reconnue » sur la fiche, et
+l'usine le montrait seule : 15, 14 et 11 « Abs » ces jours-là contre 4 les
+lendemains. Le client : « c'est bien grève, l'employeur ne paye rien ».
+`GREVE_JOURS` fait de tout « Abs » du 10/02, du 12/05 et du 16/06 un code
+`GREVE` (étiquette « GREV »), avec sa ligne de fiche et son entrée de
+légende. Neuf règles, manques, Recyclage et compteurs **identiques à
+l'octet** — maladie et grève sont toutes deux des absences —, 205 journées
+sur 214 identiques aux fiches, et la maladie concorde désormais les quatre
+mois où elle apparaît. Vérifié au navigateur sur LCI.
+
+**Ce que cela ne fait pas** : retirer la journée du salaire. La rémunération
+de l'application est FIXE ; une journée non payée — grève, sans solde,
+absence injustifiée — y apparaît en heures sans rien ôter. Limite
+antérieure, écrite dans `docs/regles-paie.md`.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
@@ -1243,8 +1265,9 @@ n'est deviné à leur sujet :
 
 - **les lettres G et H** du degré de polyvalence — la fiche d'ouvrier
   porte une « Classification entreprise » qui commence par la même lettre ;
-- **les fiches d'ouvrier de LCI** (26/09/2026) : les grèves écrites `Abs`,
-  le `+FT` sur un poste prévu, les heures reprises qui sortent de la prime,
+- **les fiches d'ouvrier de LCI** (26/09/2026) — les grèves sont tranchées
+  (`GREVE_JOURS`, voir `docs/regles-paie.md`) ; restent le `+FT` sur un
+  poste prévu, les heures reprises qui sortent de la prime,
   le rappel sur un repos, et la paie à l'heure elle-même — voir
   `docs/regles-paie.md`, « La fiche d'ouvrier » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
