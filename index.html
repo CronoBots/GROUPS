@@ -1361,21 +1361,16 @@ body.sheet-on{overflow:hidden}
 .eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
 .eqreste .eqn em{display:inline; margin-left:5px}
 .eqreste .eqn i{display:inline; margin-left:5px}
-/* Les absents et les congés regroupés par date : la date dans une colonne
-   étroite, les trigrammes à côté. Une date seule tient sur une ligne. */
-.eqdg{display:flex; align-items:baseline; gap:8px; margin:0 0 4px}
+/* Les absents et les congés, chacun dans son cadre, regroupés par date :
+   la date dans une colonne étroite, les trigrammes à côté. */
+.eqgrp{padding:10px 16px 12px}
+.eqdg{display:flex; align-items:baseline; gap:10px; margin:0 0 4px}
 .eqdg:last-child{margin-bottom:0}
-.eqdd{flex:0 0 78px; font-size:11px; font-weight:600; color:var(--muted);
+.eqdd{flex:0 0 82px; font-size:11px; font-weight:600; color:var(--muted);
   white-space:nowrap}
 .eqdn{flex:1 1 auto; min-width:0; line-height:1.3}
-.eqgroupe .eqn{margin-right:10px}
-.eqgroupe th small{display:block; margin-top:2px; font-size:9.5px; font-weight:500;
-  text-transform:none; letter-spacing:0; color:var(--faint)}
-/* Sous 380 px, la date passe au-dessus de ses trigrammes : à côté, elle
-   leur laissait 20 px et ils s'empilaient un par ligne. */
-@media (max-width:380px){
-  .eqdg{display:block; margin-bottom:6px}
-  .eqdd{margin-bottom:1px}
+.eqgrp .eqn{margin-right:10px}
+.eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
 }
 }
 /* Sur téléphone, la ligne peut passer à la ligne plutôt que de sortir de la
@@ -6806,6 +6801,7 @@ function renderEquipe(){
       if(x.prevu||x.sansDate) return 99999999;
       return x.fin?x.fin[0]*10000+x.fin[1]*100+x.fin[2]:0;
     }
+    var cadres=[];
     RESTE.forEach(function(k){
       var g=(k==="cong")?{k:"cong",t:"Congé et repos"}
             :EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
@@ -6838,7 +6834,11 @@ function renderEquipe(){
       l.forEach(function(x){
         var c=cle(x);
         if(!parCle[c]){ parCle[c]={c:c,x0:x,gens:[]}; grp.push(parCle[c]); }
-        x.detVu=(k==="abs")?"":(x.prevu?esc(x.r.s)+" prévu":x.repos?"":esc(x.r.a));
+        /* Rien sous le trigramme : le cadre dit déjà « congé et repos » ou
+           « absents », et le client, le 26/09/2026 : « pas utile de marquer
+           le type de repos vu que tout est mélangé ». L'infobulle garde le
+           code et la phrase entière. */
+        x.detVu="";
         parCle[c].gens.push(x);
       });
       /* La date tient dans une colonne étroite, les trigrammes à côté : une
@@ -6859,10 +6859,16 @@ function renderEquipe(){
           +'<div class="eqdn">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")
           +"</div></div>";
       }).join("");
-      resteCorps.push('<tr class="eqgroupe"><th scope="row">'+esc(g.t)
-        +'<small>'+(k==="abs"?"jusqu'au":"reprise le")+"</small></th>"
-        +'<td class="eqc">'+l.length+"</td>"
-        +'<td class="eqw">'+h2+"</td></tr>");
+      /* DEUX CADRES, et non deux lignes d'un tableau. Le client, le
+         26/09/2026 : « je veux également séparer les 2 cadres ». Sorties du
+         tableau « Hors poste », les dates gagnent la largeur que prenaient
+         l'intitulé et le compte — à 320 px elles tiennent à côté de leurs
+         trigrammes. */
+      cadres.push('<div class="card eqcard" data-s="'+k+'">'
+        +'<header><h2><span class="eqpt"></span>'+esc(k==="abs"?"Absents":"Congé et repos")
+        +' <span class="eqnb">'+l.length+'</span></h2>'
+        +'<span class="sub">'+(k==="abs"?"maladie · jusqu'au":"date de reprise")+"</span></header>"
+        +'<div class="eqgrp eqreste">'+h2+"</div></div>");
     });
     var reste=document.getElementById("eqReste");
     if(reste) reste.innerHTML = resteCorps.length
@@ -6871,6 +6877,7 @@ function renderEquipe(){
         +'<span class="sub">personne ici ne tient un poste aujourd\'hui</span></header>'
         +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>"
       : "";
+    if(reste) reste.innerHTML+=cadres.join("");
 
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=

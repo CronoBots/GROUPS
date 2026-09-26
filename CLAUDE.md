@@ -3642,6 +3642,19 @@ tentative, sortir l'intitulé de la ligne au-dessus des dates, a échoué** :
 la table garde ses largeurs de colonnes. 930 px à 320 px, rien ne déborde à
 320, 390 et 1280 px, hors ligne compris.
 
+**Deux cadres à eux, et plus aucun code.** Le client, le même jour : « peut-être
+pas utile de marquer le type de repos vu que tout est mélangé et que le
+cadre a déjà le nom de congé et repos ; pareil pour les absents ; je veux
+également séparer les deux cadres ». « Absents » (maladie · jusqu'au) et
+« Congé et repos » (date de reprise) sont deux cartes, avec leur compte dans
+le titre ; « Hors poste » ne garde que ce qui reste — la ligne Jour. Sous
+chaque date, les trigrammes seuls : le code (RJF, VA, « AM prévu ») ne vit
+plus que dans l'infobulle. Sorties du tableau, les dates gagnent la largeur
+de l'intitulé et du compte : **à 320 px elles tiennent à côté de leurs
+trigrammes**, et la règle qui les mettait dessus sous 380 px est partie.
+390 px : Absents 236 px, Congé et repos 345 px ; rien ne déborde à 320, 390
+et 1280 px, hors ligne compris.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
