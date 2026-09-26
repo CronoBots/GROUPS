@@ -6342,6 +6342,14 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
    règle inventée autour de son cas — le classeur ne porte pas cette
    information, c'est le contremaître qui la porte. */
 var POSTE_TRANCHE={QBY:"dist"};
+/* Le poste d'un jour, quand le classeur se trompe d'atelier. Le 27/09 en
+   PM, VGG porte ["PM","distillation","remplace GDT"] alors que BBZ, renfort
+   arrière dont la distillation est la seule polyvalence, la tient déjà :
+   deux en distillation et le terrain arrière à 0/1. Le client, le
+   26/09/2026, entre les trois lectures : « A », BBZ en distillation et VGG
+   au terrain arrière, qu'il sait tenir. C'est la seule table qui passe
+   AVANT la cellule, et elle ne vaut que pour la journée nommée. */
+var POSTE_DU_JOUR={VGG:{"20260927":"terr"}};
 function posteParDefaut(person){
   if(/step/i.test((person&&person.cat)||"")) return "step";
   return POSTE_TRANCHE[(person&&person.id)||""]||null;
@@ -6363,6 +6371,8 @@ function posteTenu(person,raw,hJour,poste,jour){
      Aucune de ces 184 journées n'est aussi un remplacement de contremaître :
      l'ordre ci-dessous n'arbitre donc rien qui existe, il ne fait que rendre
      à la cellule ce qui lui revient. */
+  k=jour&&POSTE_DU_JOUR[(person&&person.id)||""];
+  if(k&&k[String(jour)]) return k[String(jour)];
   k=posteEcrit(raw); if(k) return k;
   /* LA TRANCHE DE PÉRIODE VIENT APRÈS LA CELLULE ET AVANT TOUT LE RESTE.
 

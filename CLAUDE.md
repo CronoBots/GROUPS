@@ -3991,6 +3991,34 @@ s'écrit en toutes lettres, et avec elle ses styles et ceux de `.mqbar`.
 Les quatre sorties du vérificateur sont identiques à l'octet ; rien ne
 déborde à 320, 390 et 1280 px, hors ligne compris.
 
+### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
+
+Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
+que BBZ est là ? ». Le 27/09 en PM, GDT, titulaire de la distillation, est
+en DTT ; VGG porte `["PM","distillation","remplace GDT"]` ; BBZ, renfort
+arrière dont la seule polyvalence est la distillation, porte `["PM"]`.
+Deux en distillation, le terrain arrière à 0/1. Le commentaire de GDT,
+« remplacé par FPA », est faux de son côté : FPA est de nuit ce jour-là.
+Trois lectures proposées, le client a répondu « A » : BBZ en distillation,
+VGG au terrain arrière, qu'il sait tenir (fermentation et distillation).
+
+`POSTE_DU_JOUR` porte cette décision, **pour la journée nommée seulement**.
+C'est la seule table qui passe AVANT la cellule dans `posteTenu()` : elle
+corrige justement ce que la cellule écrit. Elle entre dans la découpe du
+vérificateur.
+
+**Pas de règle générale, et c'est mesuré.** Une sonde a cherché sur l'année
+la même forme : quelqu'un d'écrit sur un poste en surnombre qui a la
+polyvalence d'un poste vide à la même pause. **11 journées**, et plusieurs
+sont justes telles quelles : GPO les 19 et 20/08 en « Ferm. Liq. », PAM le
+21/05 en « terr. Arr. + fermentation », VGG le 07/08 dont le commentaire
+dit « atelier gluten 08h-14h ». La règle se tromperait : chaque cas se
+tranche avec le client.
+
+Mesuré : neuf règles, compteurs et Recyclage identiques à l'octet ; le
+27/09 PM quitte la liste des manques (8 → 7 d'ici la fin de l'année, 269
+→ 268 places sur l'année). Vérifié au navigateur, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
