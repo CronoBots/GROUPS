@@ -6342,7 +6342,13 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
     c=moisDe(p,y,m,hJour);
     var r=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJour,c.rv[j]);
     var A=r.a&&ABSMAP[r.a];
-    if(!A || A.k!==famille) break;
+    /* « CONGE » enchaîne tous les congés d'une journée entière : JBI est en
+       VA le 20/04 et en RJF le 21/04 — il reprend le 22, et « VA · dernier
+       jour » le 20 aurait dit le contraire. La maladie, elle, reste sa
+       propre famille. */
+    if(!A) break;
+    if(famille==="CONGE"){ if(A.k==="SMG" || A.h<hJour-0.01) break; }
+    else if(A.k!==famille) break;
     dernier=[y,m,j];
     vus.push(k);
   }
@@ -6404,7 +6410,13 @@ function equipeDuJour(db,annee,mois,jour){
       var fam=ABSMAP[r.a].k;
       if(fam==="SMG") par.abs.push({p:p,r:r,
         fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,fam)});
-      else par.cong.push({p:p,r:r});
+      /* Le congé aussi a une fin. Il n'en recevait pas, et la pastille
+         écrivait « dernier jour » sur toute journée de congé — le premier
+         jour de trois semaines de vacances compris. Le client, le
+         26/09/2026 : « pourquoi ceux en congé sont indiqués dernier
+         jour ? ». Ce jour-là c'était vrai pour les trois, par hasard. */
+      else par.cong.push({p:p,r:r,
+        fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,"CONGE")});
     }
     else if(r.s) par.off.push({p:p,r:r,prevu:true});
     else par.off.push({p:p,r:r});

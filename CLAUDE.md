@@ -3582,6 +3582,19 @@ l'interdit, et perdait à spécificité égale — le piège de la requête méd
 une quatrième fois. Elle est posée après ; le jour et le mois sont liés par
 une espace insécable pour ne pas se séparer.
 
+**Les congés n'avaient pas de fin, et disaient tous « dernier jour ».** Le
+client, le 26/09/2026 : « pourquoi ceux en congé sont indiqués dernier
+jour ? ». Ce jour-là c'était vrai pour les trois — un seul jour chacun —,
+mais par hasard : `equipeDuJour()` ne calculait la fin que pour la maladie,
+et la pastille d'un congé écrivait « dernier jour » sur n'importe quelle
+journée, le premier jour de trois semaines compris. `finAbsence()` reçoit
+désormais la famille `"CONGE"`, qui **enchaîne tous les congés d'une
+journée entière** : JBI en VA le 20/04 puis en RJF le 21/04 reprend le 22, et
+s'arrêter au changement de code aurait redit « dernier jour » le 20. La
+maladie reste sa propre famille. Vérifié horloge au 20/04 : LCI « VA ·
+jusqu'au 22 avr. », JBI « jusqu'au 21 avr. », CKS seul en « dernier jour » ;
+les quatre sorties du vérificateur identiques à l'octet.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
