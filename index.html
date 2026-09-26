@@ -5692,11 +5692,27 @@ var RENFORT_TRANCHE={ "0713":{ chau:{AM:3} }, "0916":{ chau:{AM:3,PM:3} } };
 var RENFORT_CLOS={ "0929":true };
 var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
 var RENFORT_POSTE="chau";
+/* PENDANT UN ARRÊT, AUCUN EFFECTIF N'EST ATTENDU. Le client, le
+   26/09/2026 : « l'effectif ne devait pas être respecté car il n'y avait
+   souvent que 2-3 personnes en pause de nuit ». Le classeur surligne les
+   deux fenêtres « SHUT-DOWN » en jaune dans la colonne des jours de chaque
+   feuille — du 16 au 23/03 et du 10 au 18/04 — et ce sont ces dates-là,
+   relevées dans le classeur, que la table porte. Bornes incluses, avec
+   l'année, comme POSTE_PERIODE.
+
+   Elle passe par renfortDuJour(), qui est déjà LE point où la journée
+   ajuste ce qu'on attend d'elle : attenduAuPoste() la lit partout, pour le
+   tableau du jour, le rééquilibrage et la liste des manques. */
+var ARRET_PERIODES=[["20260316","20260323"],["20260410","20260418"]];
 var renfortCache={};
 function renfortDuJour(db,mmdd){
   if(!db||!db.people||!mmdd) return null;
   var cle=db.year+"|"+mmdd;
   if(renfortCache[cle]!==undefined) return renfortCache[cle];
+  var jr=String(db.year)+mmdd, ia;
+  for(ia=0;ia<ARRET_PERIODES.length;ia++)
+    if(jr>=ARRET_PERIODES[ia][0] && jr<=ARRET_PERIODES[ia][1]){
+      renfortCache[cle]={_arret:true}; return renfortCache[cle]; }
   if(RENFORT_CLOS[mmdd]){ renfortCache[cle]=null; return null; }
   var out=null, i, j, k, g2;
   var tr=RENFORT_TRANCHE[mmdd];
@@ -5722,7 +5738,7 @@ function renfortDuJour(db,mmdd){
   return out;
 }
 function attenduAuPoste(P,gk,ren){
-  if(!P || gk==="D") return 0;
+  if(!P || gk==="D" || (ren && ren._arret)) return 0;
   var n=(P.parPause && P.parPause[gk]!==undefined) ? P.parPause[gk] : (P.n||0);
   if(ren && ren[P.k] && ren[P.k][gk]>n) n=ren[P.k][gk];
   return n;
