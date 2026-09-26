@@ -441,6 +441,24 @@ def anonymiser(src, dst, tolere=()):
                     return ini
         return None
 
+    def _ini_de_ligne(famille, prenom):
+        """LE TRIGRAMME QUE LE CONVERTISSEUR DONNE À CETTE LIGNE, s'il en
+        décide un autre que les initiales : une CORRECTION du client, ou
+        l'onglet « Personnel ». La même clé que polyvalence() du
+        convertisseur — « Nom P. ».
+
+        Sans elle, le 26/09/2026, le prénom de CHD devenait « CDE » dans la
+        copie de référence : ce sont ses initiales réelles, mais le client a
+        tranché que « l'autre CDE, en équipe 4 » s'appelle CHD. Le classeur
+        le confirme de lui-même — les 25 et 26/02, la colonne de CHD porte
+        « Remplace GST » quand CDE est en repos. Une fausse attribution n'est
+        pas une fuite, mais la copie de référence se met alors à contredire
+        l'horaire, et verifier-integralite.py le dit.
+        """
+        cand = "%s %s." % (famille.title(), prenom[:1].upper())
+        cle = _sans_accent(cand).lower()
+        return (_conv.CORRECTIONS.get(_conv._empreinte(cle)) or annuaire.get(cle))
+
     # On récolte d'abord les cellules qui pourraient porter un nom. Elles
     # sont peu nombreuses au regard du classeur, et les garder évite de relire
     # douze feuilles deux fois.
@@ -518,9 +536,22 @@ def anonymiser(src, dst, tolere=()):
                         or _sans_accent(m[j]).lower() in ENTETES):
                     continue
                 ini = _initiales(m[i] + " " + m[j])
-                if ini:
-                    _apprendre(_sans_accent(m[i]).lower(), ini)
-                    _apprendre(_sans_accent(m[j]).lower(), ini)
+                if not ini:
+                    continue
+                # LE PRÉNOM SEUL suit la décision du client, et lui seul. Le
+                # couple se lit dans les deux ordres — « Prénom Nom » donne
+                # les initiales, mais la clé est « Nom P. ». Le NOM DE
+                # FAMILLE garde les initiales : il est souvent partagé, et
+                # le faire suivre a changé 460 signatures d'un auteur en
+                # celles d'un homonyme de la ligne 62 — une fausse
+                # attribution en masse, mesurée le 26/09/2026.
+                ini_i, ini_j = ini, ini
+                if _ini_de_ligne(m[i], m[j]):
+                    ini_j = _ini_de_ligne(m[i], m[j])
+                elif _ini_de_ligne(m[j], m[i]):
+                    ini_i = _ini_de_ligne(m[j], m[i])
+                _apprendre(_sans_accent(m[i]).lower(), ini_i)
+                _apprendre(_sans_accent(m[j]).lower(), ini_j)
 
     # Les variantes : « Nom P. », « J-M. Nom », « Nom
     # P.(ass.Us.) ». On ne les croit que si _initiales() y retrouve un
