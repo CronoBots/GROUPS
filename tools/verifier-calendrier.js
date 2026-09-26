@@ -85,6 +85,7 @@ const MORCEAUX=[
   ["var RX_PRIME_GARDEE=","\n"],
   ["function primeGardee(","\n}"],
   ["function motPrime(","\n}"],
+  ["var GREVE_JOURS=","\n"],
   ["function lireJournee(","\n}"],
   ["function plageHorsPoste(","\n}"],
   ["var RX_RENVOI=","\n"],

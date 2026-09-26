@@ -377,6 +377,7 @@ porte des euros.
 | `CT` | crédit-temps 1/5 ou 1/2 | Heure(s) crédit-temps | **non** — idem | client, 25/09 |
 | `TP` | temps partiel | Heure(s) temps partiel | **non** — idem | client, 25/09 |
 | `SANS SOLDE`, `CSS` | congé sans solde | aucune | **non** | classeur |
+| `GREVE` (« GREV ») | grève reconnue — un « Abs » du 10/02, du 12/05 ou du 16/06 | « Heure(s) grève reconnue » | **non** | fiches de LCI + client, 26/09/2026 |
 | `ABS` | **deux choses** — voir ci-dessous | selon l'origine | selon l'origine | classeur + code |
 | `+FT`, `−FT` | flex time épargné / repris | compteur | différé | client, 20/09 |
 | `HS` | heures supplémentaires | compteur + sursalaire | voir « Le rappel » | client, 25/09 |
@@ -1532,7 +1533,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 
 | Journées | Horaire | Fiche | Ce que cela dit |
 |---|---|---|---|
-| 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains : des journées de grève écrites « Abs », que l'application paie en maladie |
+| 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains. **Tranché le 26/09/2026** : « c'est bien grève, l'employeur ne paye rien » — `GREVE_JOURS` |
 | 14/08 | `PM · 4h +FT` | 8 h payées | sur un poste PRÉVU sans heure écrite, le +FT s'AJOUTE aux 8 h ; l'application les en retranche |
 | 17/06, 25/08, 20/02 | `1h rhs`, `DS-CE` | 7 h + 1 h, 4 h + 4 h, 7 h 30 + 30 min | les heures reprises ou syndicales sortent de la prime d'équipe |
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | un rappel sur un repos n'est pas un poste ordinaire |
@@ -1540,8 +1541,14 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
 | 22/03 | `N` | prime de nuit sans heure normale | non expliqué |
 
-Aucune de ces journées n'est corrigée : chacune touche à un montant, et la
-règle se demande au client (voir `CLAUDE.md`, « Ce qui attend le client »).
+Chacune touche à un montant : la règle se demande au client, une à la fois
+(voir `CLAUDE.md`, « Ce qui attend le client »). Les grèves sont tranchées ;
+après elles, **205 journées sur 214** concordent.
+
+**Une limite qu'il faut connaître** : l'application calcule une rémunération
+FIXE, celle d'un employé. Une journée non payée — grève, congé sans solde,
+absence injustifiée — y apparaît en heures, mais **rien n'est retiré du
+salaire**. C'était déjà vrai avant la grève ; ce n'est pas corrigé ici.
 
 ### Ce qu'une fiche d'ouvrier permettra de vérifier
 

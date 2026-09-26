@@ -1830,6 +1830,7 @@ body[data-horaire="annee"] #rotasub{display:none}
               <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
               <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
               <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
+              <dt>GREV</dt><dd>grève reconnue : l'employeur ne paie rien. Le classeur écrit « Abs » ; les jours de grève sont connus (10/02, 12/05, 16/06)</dd>
             </dl>
             <h3>Heures supplémentaires</h3>
             <dl>
@@ -2187,7 +2188,10 @@ var ABS=[
     module des manques les croyait à leur poste. La cellule franche de ces
     journées porte ce que la rotation avait PRÉVU — D, 6h-14h, 7h-15h, N —
     et non ce qui a été presté. */
- {c:"TP",h:8,k:"TP"}
+ {c:"TP",h:8,k:"TP"},
+ /* « GRÈVE RECONNUE », le libellé du secrétariat social sur la fiche d'un
+    ouvrier. L'employeur ne paie rien : voir GREVE_JOURS. */
+ {c:"GREVE",h:8,k:"GREVE"}
 ];
 var ABSMAP={}; ABS.forEach(function(a){ABSMAP[a.c]=a;});
 /* Le classeur écrit « 8h -FT » ou « 3h RTT » là où les codes sont en
@@ -2548,6 +2552,7 @@ function compute(){
   if(ab("SMG")) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
   if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
+  if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
   if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées — l'heure part au compteur HS, le sursalaire est payé",qh:true,info:true});
@@ -2744,6 +2749,7 @@ var WHY=[
  [/^Heure\(s\) prestée\(s\)/,"Le total des heures pointées ce mois. Vous n'êtes pas payé à l'heure : la rémunération fixe couvre le mois entier. Ce compteur sert aux suppléments d'équipe, aux chèques-repas et au contrôle de l'horaire."],
  [/^Heure\(s\) (vacances|jour férié|repos|RTT|récup\. heures|SMG|formation)/,"Heures d'absence assimilées à du travail : elles sont payées comme des heures prestées mais n'ouvrent pas de prime d'équipe ni de supplément de week-end."],
  [/^Heure\(s\) abs/,"Absence non rémunérée : ces heures sont comptées mais ne donnent droit à aucun paiement."],
+ [/^Heure\(s\) grève/,"Grève reconnue : l'employeur ne paie rien pour ces heures."],
  [/^Heure\(s\) temps partiel/,"Le jour non travaillé d'un temps partiel (9/10 ou 4/5). Ces heures ne sont ni prestées ni payées : la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages. La ligne les montre pour que le compte du mois se lise en entier. Un temps partiel classique n'ouvre aucune allocation : c'est ce qui le sépare du congé parental et du crédit-temps."],
  [/^Heure\(s\) congé parent/,"Le jour non presté d'un congé parental (9/10 ou 4/5). Ces heures ne sont pas payées par l'employeur — la réduction est déjà dans la rémunération fixe, par la fraction payée des Réglages — et la fiche les compte en quantité, sans montant. L'allocation de l'ONEM se verse À CÔTÉ, sous conditions : elle ne figure pas sur la fiche, donc pas ici non plus."],
  [/^Heure\(s\) crédit-temps/,"Le jour non presté d'un crédit-temps (1/5, soit un 4/5, ou 1/2). Même mécanique que le congé parental : la réduction est déjà dans la rémunération fixe, et l'allocation de l'ONEM, sous conditions, se verse hors fiche. Ce qui les sépare n'est pas le calcul, c'est le motif — le crédit-temps ne demande pas d'enfant, le congé parental si."],
@@ -4259,6 +4265,17 @@ function dureeReelle(poste,plage,hJour){
    Elle ne change aucun montant — la rémunération du mois est fixe — mais
    elle met la bonne ligne sur la fiche. */
 var ALIAS_HORAIRE={"ABS":"MAL"};
+/* LES JOURS DE GRÈVE, que le classeur écrit « Abs » comme une maladie. Les
+   fiches d'un ouvrier (LCI) les portent « Grève reconnue » le 10/02, le
+   12/05 et le 16/06, là où l'horaire écrit « Abs » — et l'usine le montre
+   seule : ces trois jours-là, 15, 14 et 11 « Abs » contre 4 les lendemains.
+   Le client, le 26/09/2026 : « c'est bien grève, l'employeur ne paye rien ».
+
+   Tout « Abs » de ces dates devient donc une grève, et non une maladie
+   payée. Les quelques vrais malades de ces jours-là ne se distinguent pas
+   dans le classeur ; c'est la décision du client. La date porte l'ANNÉE,
+   comme POSTE_PERIODE. */
+var GREVE_JOURS={"20260210":1,"20260512":1,"20260616":1};
 /* Les fautes de frappe du classeur, corrigées AVANT toute lecture — donc
    sans passer par le chemin des absences, où « * » finissait par tomber en
    repos pour de mauvaises raisons et restait marqué « non compris ».
@@ -4945,6 +4962,8 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       if(AR2 && AR2.h>0) r.h=Math.max(0,((r.h===undefined)?hJour:r.h)-AR2.h);
     }
   }
+  /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
+  if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
   return r;
 }
 /* Vrai quand la plage ne recouvre pas du tout le poste : elle le précède ou

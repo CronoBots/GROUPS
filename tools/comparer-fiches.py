@@ -153,7 +153,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
  g("function plageCommentaire(","\n}"),g("function debordePoste(","\n}"),
  g("var RX_PRIME_GARDEE=","\n"),g("function primeGardee(","\n}"),g("function motPrime(","\n}"),
- g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
+ g("var GREVE_JOURS=","\n"),g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
  g("var RX_RENVOI=","\n"),
  g("function renvoisDuMois(","\n}"),
  g("function epargnesDuMois(","\n}")].join("\n"));
@@ -336,7 +336,7 @@ def main():
 # qui lui répond. « repos » couvre le jour de repos payé ET le dimanche : la
 # fiche d'ouvrier paie ses repos, l'horaire les écrit « - ».
 EQUIV = {"VA": "VA", "SMG": "MAL", "TP": "TP", "CPAR": "CP", "RTT": "RTT-np",
-         "RHS": "COMPENSATION PAYEE"}
+         "RHS": "COMPENSATION PAYEE", "GREVE": "GREVE"}
 
 
 def comparer_jours(fiches, jours):
