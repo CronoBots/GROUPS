@@ -1334,7 +1334,6 @@ body.sheet-on{overflow:hidden}
   .eqt th[scope="row"]{width:78px; padding-left:12px; font-size:9.5px}
   .eqt td.eqc{width:30px; padding-right:6px}
   .eqt td.eqw{padding-left:6px; padding-right:12px}
-  .eqreste .eqn{white-space:normal; margin-right:10px}
   .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
@@ -1362,6 +1361,13 @@ body.sheet-on{overflow:hidden}
 .eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
 .eqreste .eqn em{display:inline; margin-left:5px}
 .eqreste .eqn i{display:inline; margin-left:5px}
+/* Sur téléphone, la ligne peut passer à la ligne plutôt que de sortir de la
+   carte : « Absent jusqu'au 27 Septembre » ne tient pas à côté du trigramme
+   à 320 px. Elle vient après la règle qui l'interdit — dans le bloc à 560 px plus
+   haut, elle perdait à spécificité égale et le texte était coupé. */
+@media (max-width:560px){
+  .eqreste .eqn{white-space:normal; margin-right:10px}
+}
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -6538,7 +6544,14 @@ function renderEquipe(){
          le DERNIER, et que le rendu se taisait au lieu de le dire.
          finAbsence() rend la dernière journée de la série ; quand il n'y en
          a pas au-delà d'aujourd'hui, c'est une information, pas un vide. */
-      var det=(g.k==="abs"||g.k==="cong")?esc(x.r.a)+(x.fin?
+      /* « Absent jusqu'au 27 Septembre », et non « MAL · jusqu'au 27
+         sept. ». Le client, le 26/09/2026 : « au lieu de MAL, il faut
+         indiquer Absent jusqu'au 27 Septembre ». Chez nous, absent veut dire
+         malade : le code n'ajoute rien, le mois entier se lit mieux. Les
+         congés gardent leur code, qui dit lequel. */
+      var det=(g.k==="abs")?(x.fin?"Absent jusqu'au "+x.fin[2]+"\u00a0"+MOIS[x.fin[1]-1]
+                :"Absent jusqu'à aujourd'hui")
+             :(g.k==="cong")?esc(x.r.a)+(x.fin?
                 " \u00b7 jusqu'au "+x.fin[2]+" "+MOIS_BREF[x.fin[1]-1]
                 :" \u00b7 dernier jour")
              :(x.prevu?esc(x.r.s)+" prévu":

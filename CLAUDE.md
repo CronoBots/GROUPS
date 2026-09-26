@@ -3571,6 +3571,17 @@ Une série qui finit aujourd'hui (« dernier jour ») vient en tête ; à date
 égale, l'ordre habituel. Congés et repos gardent le leur. Vérifié à 390 et
 1280 px, hors ligne compris : 27/09, 27/09, 30/09, 11/10 … 27/12.
 
+**Et la pastille dit « Absent jusqu'au 27 Septembre »**, et non plus « MAL ·
+jusqu'au 27 sept. ». Le client, le 26/09/2026 : « au lieu de MAL, il faut
+indiquer Absent jusqu'au 27 Septembre ». Chez nous absent veut dire malade :
+le code n'ajoutait rien. Le dernier jour s'écrit « Absent jusqu'à
+aujourd'hui ». Les congés gardent leur code (« RJF · dernier jour »), qui
+dit lequel. **À 320 px la phrase sortait de la carte** : la règle qui la
+laisse passer à la ligne sur téléphone était écrite AVANT celle qui
+l'interdit, et perdait à spécificité égale — le piège de la requête média,
+une quatrième fois. Elle est posée après ; le jour et le mois sont liés par
+une espace insécable pour ne pas se séparer.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
