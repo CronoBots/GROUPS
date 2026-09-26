@@ -152,6 +152,7 @@ const MORCEAUX=[
   ["var EST_RENFORT=","\n"],
   ["function reequilibrer(","\n}"],
   ["var POSTE_TRANCHE=","\n"],
+  ["var POSTE_DU_JOUR=","\n"],
   ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
   ["var EQ_GROUPES=","\n];"],
