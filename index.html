@@ -1361,6 +1361,23 @@ body.sheet-on{overflow:hidden}
 .eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
 .eqreste .eqn em{display:inline; margin-left:5px}
 .eqreste .eqn i{display:inline; margin-left:5px}
+/* Les absents et les congés regroupés par date : la date dans une colonne
+   étroite, les trigrammes à côté. Une date seule tient sur une ligne. */
+.eqdg{display:flex; align-items:baseline; gap:8px; margin:0 0 4px}
+.eqdg:last-child{margin-bottom:0}
+.eqdd{flex:0 0 78px; font-size:11px; font-weight:600; color:var(--muted);
+  white-space:nowrap}
+.eqdn{flex:1 1 auto; min-width:0; line-height:1.3}
+.eqgroupe .eqn{margin-right:10px}
+.eqgroupe th small{display:block; margin-top:2px; font-size:9.5px; font-weight:500;
+  text-transform:none; letter-spacing:0; color:var(--faint)}
+/* Sous 380 px, la date passe au-dessus de ses trigrammes : à côté, elle
+   leur laissait 20 px et ils s'empilaient un par ligne. */
+@media (max-width:380px){
+  .eqdg{display:block; margin-bottom:6px}
+  .eqdd{margin-bottom:1px}
+}
+}
 /* Sur téléphone, la ligne peut passer à la ligne plutôt que de sortir de la
    carte : « Absent jusqu'au 27 Septembre » ne tient pas à côté du trigramme
    à 320 px. Elle vient après la règle qui l'interdit — dans le bloc à 560 px plus
@@ -6595,7 +6612,8 @@ function renderEquipe(){
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
-        +(nu?"":(note?'<i>'+esc(note)+"</i>":"")+(det?'<em>'+esc(det)+"</em>":""))
+        +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
+            +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
     }
     function ligne(titre,cle,compte,gens,g,P,alerte,zone){
@@ -6803,7 +6821,48 @@ function renderEquipe(){
         if(k==="cong" && repriseNum(a)!==repriseNum(b)) return repriseNum(a)-repriseNum(b);
         return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
-      resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
+      if(k!=="abs" && k!=="cong"){
+        resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
+        return;
+      }
+      /* REGROUPÉS PAR DATE. Le client, le 26/09/2026, devant sa capture —
+         dix-neuf lignes « Repos · reprise le 28 sept. » d'affilée : « penses-tu
+         qu'il faut regrouper les noms par date de reprise ? », puis
+         « optimise au mieux ce cadre-là avec absences et personnes en
+         congé ». La date devient un TITRE, écrit une fois, et les
+         trigrammes se rangent côte à côte dessous : 34 lignes en font onze.
+         Le trigramme ne porte plus que ce que le titre ne dit pas — le code
+         d'un congé (RJF, VA, RHS) ; rien pour un repos ni pour une maladie,
+         la ligne le dit déjà. L'infobulle garde la phrase entière. */
+      var cle=(k==="abs")?finNum:repriseNum, grp=[], parCle={};
+      l.forEach(function(x){
+        var c=cle(x);
+        if(!parCle[c]){ parCle[c]={c:c,x0:x,gens:[]}; grp.push(parCle[c]); }
+        x.detVu=(k==="abs")?"":(x.prevu?esc(x.r.s)+" prévu":x.repos?"":esc(x.r.a));
+        parCle[c].gens.push(x);
+      });
+      /* La date tient dans une colonne étroite, les trigrammes à côté : une
+         date qui n'a qu'une personne ne coûte plus qu'une ligne. « Jusqu'au »
+         et « reprise » ne s'écrivent qu'une fois, sous l'intitulé. */
+      function court(y,m,j){
+        var d=new Date(Date.UTC(y,m-1,j));
+        return JOURS_LONGS[(d.getUTCDay()+6)%7].slice(0,3)+". "+d.getUTCDate()
+               +"\u00a0"+MOIS_BREF[d.getUTCMonth()];
+      }
+      var h2=grp.map(function(G){
+        var x=G.x0, titre;
+        if(k==="abs") titre=x.fin?court(x.fin[0],x.fin[1],x.fin[2]):"Aujourd'hui";
+        else if(G.c===99999999) titre="Sans date";
+        else if(!x.fin) titre="Demain";
+        else titre=court(x.fin[0],x.fin[1],x.fin[2]+1);
+        return '<div class="eqdg"><div class="eqdd">'+esc(titre)+'</div>'
+          +'<div class="eqdn">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")
+          +"</div></div>";
+      }).join("");
+      resteCorps.push('<tr class="eqgroupe"><th scope="row">'+esc(g.t)
+        +'<small>'+(k==="abs"?"jusqu'au":"reprise le")+"</small></th>"
+        +'<td class="eqc">'+l.length+"</td>"
+        +'<td class="eqw">'+h2+"</td></tr>");
     });
     var reste=document.getElementById("eqReste");
     if(reste) reste.innerHTML = resteCorps.length

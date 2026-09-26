@@ -3625,6 +3625,23 @@ jour y coûterait pour rien. `par.off` est inchangé, de sorte que la barre
 du haut dit toujours « Repos ». Vérifié au 26/09 et au 20/04, à 320, 390
 et 1280 px, hors ligne compris ; neuf règles et `--manques` identiques.
 
+**Puis regroupés par date.** Le client, le 26/09/2026, devant sa capture —
+dix-neuf lignes « Repos · reprise le 28 sept. » d'affilée : « penses-tu qu'il
+faut regrouper les noms par date ? », puis « optimise au mieux ce cadre-là
+avec absences et personnes en congé ». Les deux lignes, Absents et Congé et
+repos, se lisent désormais par DATE : une colonne étroite porte « Dim.
+27 sept. », « Demain », « Lun. 28 sept. », et les trigrammes se rangent à
+côté. « jusqu'au » et « reprise le » ne s'écrivent qu'une fois, sous
+l'intitulé de la ligne. Le trigramme ne garde que ce que la date ne dit
+pas : le code d'un congé (RJF, VA, RHS, « AM prévu ») — rien pour un repos
+ni pour une maladie ; l'infobulle garde la phrase entière. **Le cadre passe
+de 906 à 594 px de haut à 390 px** (34 lignes de congés et repos en font
+onze). Sous 380 px la date passe au-dessus de ses trigrammes : à côté, elle
+leur laissait 20 px et ils s'empilaient un par ligne — **une première
+tentative, sortir l'intitulé de la ligne au-dessus des dates, a échoué** :
+la table garde ses largeurs de colonnes. 930 px à 320 px, rien ne déborde à
+320, 390 et 1280 px, hors ligne compris.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
