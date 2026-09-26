@@ -1258,6 +1258,16 @@ prestées valent au plus 8 − n.
 identiques à l'octet ; FPS gluten 9 → 8 au Recyclage ; `comparer-fiches` LCI
 207 journées sur 214. Vérifié au navigateur sur juin, hors ligne compris.
 
+### « PM · DS-CE » : quatre heures sans prime, « AM · DS-CE » : huit avec
+
+Le client, le 26/09/2026. **La règle proposée d'abord — la même pour toute
+cellule « poste + DS-CE » — aurait été fausse** : la fiche de LCI paie le
+18/02 `AM · DS-CE` en journée pleine, le 25/08 `PM · DS-CE` en 4 h + 4 h. La
+question posée avec les deux fiches côte à côte a donné la réponse. Détail
+dans `docs/regles-paie.md`, « Le conseil d'entreprise d'un après-midi ».
+Cinq journées, tout identique à l'octet sauf elles ; LCI 208 journées sur
+214. La nuit (une journée) attend une réponse.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de

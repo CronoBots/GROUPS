@@ -842,6 +842,27 @@ marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
 
+### Le conseil d'entreprise d'un après-midi
+
+Tranché par le client le 26/09/2026. La même cellule, deux fiches :
+
+| Date | Cellule | Fiche de LCI |
+|---|---|---|
+| 25/08 | `["PM","DS-CE","remplacé par AAI"]` | 4 h de prime d'après-midi + 4 h de « Compensation payée » |
+| 18/02 | `["AM","DS-CE","remplacé par SMA et CKS"]` | 8 h de prime du matin, journée normale |
+
+Proposé au client comme « règle A partout », cela aurait cassé le 18/02 ;
+d'où la question, et sa réponse : « si AM et DS-CE alors oui c'est 8 h
+prime du matin ». La règle ne vaut donc que pour la cellule franche **PM** :
+4 h prestées avec la prime, et 4 h du code `1/2 CE` — ligne « Heure(s)
+conseil d'entreprise, sans prime d'équipe ». **La nuit n'est pas tranchée** :
+une seule journée de l'année (ATR le 21/01, `["N","DS-CE"]`), laissée telle
+quelle.
+
+Cinq journées de l'année : FLI 18/02 et 16/09, ATR 21/10, LCI 25/08 et
+18/11. Neuf règles, manques, Recyclage et compteurs identiques à l'octet ;
+août de LCI concorde avec sa fiche (164 h, 52 h d'après-midi).
+
 ### Une reprise partielle sort de la prime d'équipe
 
 Tranché par le client le 26/09/2026, devant la fiche d'un ouvrier : LCI le
@@ -1561,7 +1582,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains. **Tranché le 26/09/2026** : « c'est bien grève, l'employeur ne paye rien » — `GREVE_JOURS` |
 | 14/08 | `PM · 4h +FT` | 8 h payées | sur un poste PRÉVU sans heure écrite, le +FT s'AJOUTE aux 8 h ; l'application les en retranche |
 | 17/06 | `DS-CE · 1h rhs` | 7 h + 1 h de compensation | **tranché le 26/09/2026** : une reprise partielle sort de la prime d'équipe — voir « RHS » |
-| 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | le client : « ils font souvent la journée 7-15 ou 6-14 au lieu du PM » — la fiche dit autre chose, à confronter |
+| 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | **tranché le 26/09/2026** : une demi-journée de conseil d'entreprise, payée sans prime (`1/2 CE`) ; `AM · DS-CE` reste 8 h avec prime du matin, comme le 18/02 — voir « Le conseil d'entreprise d'un après-midi » |
 | 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | un rappel sur un repos n'est pas un poste ordinaire |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
@@ -1570,7 +1591,8 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 
 Chacune touche à un montant : la règle se demande au client, une à la fois
 (voir `CLAUDE.md`, « Ce qui attend le client »). Les grèves sont tranchées ;
-après elles, **205 journées sur 214** concordent — 206 avec le +FT, **207** avec la reprise partielle.
+après elles, **205 journées sur 214** concordent — 206 avec le +FT, 207 avec la reprise partielle, **208** avec
+le conseil d'entreprise.
 
 **Une limite qu'il faut connaître** : l'application calcule une rémunération
 FIXE, celle d'un employé. Une journée non payée — grève, congé sans solde,

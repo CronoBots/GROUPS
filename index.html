@@ -2191,7 +2191,10 @@ var ABS=[
  {c:"TP",h:8,k:"TP"},
  /* « GRÈVE RECONNUE », le libellé du secrétariat social sur la fiche d'un
     ouvrier. L'employeur ne paie rien : voir GREVE_JOURS. */
- {c:"GREVE",h:8,k:"GREVE"}
+ {c:"GREVE",h:8,k:"GREVE"},
+ /* la demi-journée de conseil d'entreprise d'un « PM · DS-CE » — voir
+    CE_PM dans lireJournee(). La fiche l'écrit « Compensation payée ». */
+ {c:"1/2 CE",h:4,k:"CE",hidden:true}
 ];
 var ABSMAP={}; ABS.forEach(function(a){ABSMAP[a.c]=a;});
 /* Le classeur écrit « 8h -FT » ou « 3h RTT » là où les codes sont en
@@ -2554,6 +2557,7 @@ function compute(){
   if(ab("SMG")) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
   if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
+  if(ab("CE")) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
   if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
@@ -5003,6 +5007,20 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var hRhs=(r.h===undefined)?hJour:r.h;
     r.h=Math.max(0,Math.min(hRhs,hJour-r.rhs));
     r.rhsJ=r.rhs;
+  }
+  /* « PM · DS-CE » : une demi-journée de conseil d'entreprise, payée sans
+     prime. Le client, le 26/09/2026, devant la fiche d'un ouvrier : LCI le
+     25/08, ["PM","DS-CE"], porte 4 h de prime d'après-midi et 4 h de
+     « Compensation payée ». Et « si AM et DS-CE alors oui c'est 8 h prime
+     du matin » — LCI le 18/02, ["AM","DS-CE"], a sa journée entière avec
+     prime sur sa fiche. La règle ne vaut donc que pour la cellule franche
+     « PM » ; la nuit n'a pas été tranchée (une seule journée, ATR le
+     21/01) et reste telle quelle. */
+  if(r.s==="PM" && (raw[0]||"").trim().toUpperCase()==="PM"
+     && /^DS\s*-?\s*CE$/i.test((raw[1]||"").trim())
+     && (r.h===undefined || r.h>=hJour-0.01)){
+    r.h=hJour-4;
+    r.ax=(r.ax||[]).concat(["1/2 CE"]);
   }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
