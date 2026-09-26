@@ -1433,6 +1433,22 @@ n'est deviné à leur sujet :
     seule journée de ce genre du mois. Aujourd'hui : 8 h, prime conservée ;
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
+  - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
+    veille `AM · VM` — l'heure de visite médicale hors horaire ? (−13,29 €) ;
+  - **le départ anticipé sans code** — LCI le 05/04, « D2PART 0 18H
+    REMPLAC2 PAR alz » (tapé en verrouillage majuscule : « départ à 18h,
+    remplacé par ALZ », confirmé par « arrivée à 18h00' » chez ALZ) : la
+    fiche paie 4 h PM + 4 h de compensation sans prime. Six journées de
+    cette forme dans l'année. A (toujours ainsi), B (au cas par cas), C ;
+  - **« Polyvalence » sur un repos** (LCI 23/09, SVE 21/09), sans aucun
+    commentaire : A (venus, heures sup), B (venus, payé normalement), C
+    (simple note) ;
+  - **le tableau des salaires de VBN** fiche contre application, comme celui
+    de LCI : le client renverra ses fiches (absentes de ce conteneur) ;
+  - restes connus du rapprochement de LCI, sans question posée : le 13/04
+    (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
+    6 h 25 = 170,44 €, application 183,37 €), un précompte de 6 à 11 € plus
+    bas chaque mois à brut égal ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
