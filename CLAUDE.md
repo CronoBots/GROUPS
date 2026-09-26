@@ -1072,15 +1072,23 @@ Mesuré sur le classeur du 26/09/2026 :
 - deux formes innocentes admises dans `tools/formes-admises.txt`, nées du
   retrait d'un morceau rayé entre deux mots.
 
+**Une ligne ENTIÈREMENT barrée, elle, vaut comme si elle ne l'était pas.**
+Le client, le 26/09/2026 : « c'est une erreur de manipulation du RH, ne pas
+prendre en compte les lignes entièrement barrées ». Deux lignes le sont : le
+02/03 (ligne 71) et le 14/05 (ligne 144), sur les cinq Shift et
+« Contremaître », de 25 à 39 cellules chacune, avec de vraies prestations
+dessous. Le barré d'une CELLULE n'a jamais été lu — seul celui des
+commentaires l'est —, et **aucun des 52 commentaires de ces deux lignes ne
+porte de morceau barré** : la règle précédente ne leur a rien retiré. Rien à
+changer dans le code ni dans `data/`, et la distinction est à garder : le
+barré d'un commentaire est une décision, celui d'une ligne un accident.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les journées barrées** : deux journées entières (le 02/03 et le 14/05,
-  l'Ascension), sur les huit feuilles, avec de vraies prestations dessous.
-  Les commentaires barrés sont tranchés (voir plus haut) ; les cellules, non ;
 - **le jaune** : trois « Abs » de GSK mi-janvier, un compteur, l'en-tête de
   GPS ; et **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au
   12/06 — exactement ses 112 journées de formation en meunerie ;
