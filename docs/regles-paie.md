@@ -842,6 +842,39 @@ marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
 
+### Un déplacement demandé garde la prime la plus élevée
+
+Le client, le 26/09/2026 : « si c'est un déplacement qui est demandé par la
+ligne hiérarchique pour remplacer quelqu'un, la prime de pause la plus
+élevée doit toujours être conservée ».
+
+Établi sur le relevé de pointage d'août de VBN, confronté jour par jour :
+
+| Date | Cellule | Cycle | Relevé |
+|---|---|---|---|
+| 19 et 20/08 | `["AM","ferm. Liqu.","remplace APN"]` | PM | horaire PM, **prime PM**, pointé 5 h 45 → 14 h |
+| 30/08 | `["AM","ferm. Liq","remplace APN"]` | PM | horaire AM, **prime AM** — VGG écrit « échange avec VBN » |
+
+**Un échange entre collègues n'est pas une demande de la hiérarchie** : la
+pause faite se paie. Le client : « le 30, c'est un arrangement entre
+collègues ; il faut regarder dans les commentaires » — le commentaire de
+l'AUTRE, ici.
+
+La cellule franche a été réécrite à la pause faite ; la pause prévue se lit
+dans le **cycle recalé sur la colonne** (`cycleDuMois`), le même qui comble
+déjà les jours sans poste écrit. **Le classeur corrobore** : sur les 33
+journées de la forme « remplacement, pas d'échange, cycle mieux payé que la
+pause faite », 13 portent déjà « maintien prime » ou « conserver prime » en
+toutes lettres. Rang des primes : nuit, après-midi, matin.
+
+La règle vit à la fin de `lireJournee()`, après `primeGardee()` qui garde
+la main quand le commentaire nomme la prime. Elle ne touche ni une journée
+avec un code (congé, maladie, heures en plus), ni une journée où la cellule
+porte une plage. **16 journées** changent de prime ; le poste presté (`sp`)
+reste la pause faite, si bien que placement, manques, Recyclage et compteurs
+sont identiques à l'octet. Août de VBN concorde avec son relevé : 40 h de
+matin, 32 h d'après-midi, 56 h de nuit.
+
 ### Le conseil d'entreprise d'un après-midi
 
 Tranché par le client le 26/09/2026. La même cellule, deux fiches :
