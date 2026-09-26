@@ -938,6 +938,60 @@ accepter l'un et l'autre.
 dates de polyvalence que l'horaire porte. Il en reste **2** — deux lignes que
 l'horaire ne rattache à personne.
 
+### Ce que l'application reçoit de plus
+
+- **La légende entière** : onze codes au lieu de quatre. Elle ne lisait que
+  les colonnes A et B de la première feuille ; les sept autres — `xxx`, `R`,
+  `Abs` · `DS` · `CP` · `CSS` · `R-CM` — sont écrits au-dessus des
+  colonnes-personnes et **partaient dans le champ `e` de 29 personnes**,
+  affiché sous leur nom dans l'annuaire comme s'il les concernait. Les
+  lignes 1 à 8 ne portent que la légende et la date de mise à jour —
+  mesuré sur les 102 colonnes —, et `e` ne les lit plus. Les libellés des
+  compteurs suivent la légende, comme ils le faisaient déjà pour les quatre
+  premiers codes : « CP » s'y lit « Congé Parental ».
+- **Le statut de « Polyvalence »** (`poly.statut`) : « interim », « Adj CM »,
+  « Assistant usine ». Jamais le matricule. Rien n'en est tiré.
+- **Le bloc « Temps de travail réduit » de l'onglet Compteurs** : il ne
+  montrait que le congé parental — les huit personnes en temps partiel et les
+  trois en crédit-temps avaient leurs compteurs dans le classeur et rien à
+  l'écran — et ne lisait « à planifier » que sous une des deux écritures du
+  classeur, si bien que onze personnes sur seize ne le voyaient pas.
+  Vérifié au navigateur sur LCI, SBZ, VBN et ATA.
+- **Les colonnes sans nom sont annoncées** : Shift1 AG et Shift4 Q portent
+  une année de journées sans rien en ligne 10. Ce sont des copies de travail
+  de DWS et de CHD : les lire compterait ces personnes deux fois. Le
+  convertisseur les DIT sur sa sortie d'erreur, sans les rattacher.
+
+Rien d'autre ne bouge : champ `e` chez 29 personnes, `poly` chez 21, la
+légende — et aucune journée. Les quatre sorties de `verifier-calendrier.js`
+sont identiques, l'intégralité reste à zéro.
+
+### Ce qui attend le client
+
+L'audit a trouvé des informations que le classeur porte et que l'application
+ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
+n'est deviné à leur sujet :
+
+- **le barré** : deux journées entières (le 02/03 et le 14/05, l'Ascension),
+  sur les huit feuilles, avec de vraies prestations dessous — et des
+  centaines de commentaires en tout ou en partie barrés, dont « ~~remplace
+  X~~ remplace Y ». Le barré veut probablement dire « annulé » ; le
+  convertisseur lit aujourd'hui le texte barré comme s'il valait, et il peut
+  y trouver un rappel ou une prime conservée ;
+- **le jaune** : trois « Abs » de GSK mi-janvier, un compteur, l'en-tête de
+  GPS ; et **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au
+  12/06 — exactement ses 112 journées de formation en meunerie ;
+- **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
+  l'effectif attendu ?
+- **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
+- **les deux colonnes sans nom** : copies à effacer, ou à garder ?
+- **les compteurs CP, TP, CT** : comptent-ils les journées posées ou le droit
+  de l'année ? LCI, GSK et RCO ont une journée de plus dans l'horaire ;
+- **les lettres G et H** du degré de polyvalence ;
+- **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
+  du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
+  figurent sur les fiches de paie, ils relient le trigramme à la personne.
+
 **L'historique public porte encore les 60 identifiants** — trois versions de
 `data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
 une décision du client, comme pour les noms (`docs/purge-historique.md`).
@@ -1541,8 +1595,11 @@ ligne des fonctions apporte encore ici.
 
 **Ce que la vue montre alors, et qui est vrai** : la meunerie n'a qu'un ou
 deux noms par équipe, le gluten en a trois, la fermentation de l'équipe 4 est
-VIDE — le classeur n'y nomme personne, sa colonne Q est vide, et c'est le
-polyvalent arrière qui la couvre depuis le terrain arrière.
+VIDE — le classeur n'y nomme personne, et c'est le polyvalent arrière qui la
+couvre depuis le terrain arrière. (Sa colonne Q n'est pas vide pour autant :
+c'est sa LIGNE DES NOMS qui l'est. Elle porte une rotation et des congés
+jusqu'en décembre — une copie de travail de CHD, que le convertisseur annonce
+depuis le 26/09/2026 sans la lire.)
 
 **Une personne que la chaîne ne place pas est NOMMÉE sous le tableau**, elle
 ne disparaît pas. Au 22/09/2026 il y en a une : QBY, « Renfort arrière » de
@@ -1770,11 +1827,13 @@ la cascade et les tuiles.
 
 ## Les intérimaires : une liste qu'aucun fichier ne porte
 
-Onze personnes, données par le client le 22/09/2026. **Le classeur ne les
-distingue nulle part** — vérifié : ce qui est écrit au-dessus de leur nom
-est exactement ce que portent les autres. La liste est donc tenue à la main
-et **elle vieillira** ; elle vit dans `docs/regles-paie.md`, section « Les
-intérimaires », avec leur situation au classeur.
+Onze personnes, données par le client le 22/09/2026. **J'ai écrit ici que
+le classeur ne les distingue nulle part, et c'était faux** : la colonne A de
+« Polyvalence » porte « interim » pour dix d'entre eux — l'audit du
+26/09/2026 l'a trouvé, et le convertisseur le garde dans `poly.statut`. Le
+classeur ajoute NPE, que la liste n'a pas ; la liste a MGY, qui n'a pas de
+ligne dans la feuille. Le détail et la question sont dans
+`docs/regles-paie.md`, section « Les intérimaires ».
 
 **Rien n'est codé, et c'est voulu.** Le client : « rien pour l'instant, mais
 garder l'info ». Une liste codée sans emploi égarerait celui qui la relit.
