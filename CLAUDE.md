@@ -3834,6 +3834,25 @@ Le cadre passe de 448 à 413 px à 390 px. Neuf règles, manques, compteurs
 et Recyclage identiques à l'octet ; rien ne déborde à 320, 390 et
 1280 px, hors ligne compris.
 
+**Puis les quatre pistes, toutes** (le client : « go tout ») :
+
+1. **la barre du jour s'affine** : boutons de 30 px au lieu de 34, marges de
+   7 px au lieu de 12, « Aujourd'hui » en petit. Elle passe de 59 à 45 px ;
+2. **plus de « 10 pers. » sous les pauses** : le total est sous « À
+   l'usine », et un effectif se compte en trigrammes. L'horaire de la pause
+   reste au bureau. L'en-tête passe de 45 à 31 px ;
+3. **la colonne D n'apparaît que les jours où quelqu'un est en journée**.
+   C'était déjà le cas depuis qu'elle existe (une pause vide n'a pas de
+   colonne), et c'est vérifié : les samedis et dimanches 3-4 et 10-11/10,
+   le tableau revient à AM, PM, N ;
+4. **la couleur range l'ordre de lecture** : les intitulés de poste passent
+   de `--faint` à `--muted`, les tirets à 45 % d'opacité. Un tiret dit
+   « rien à voir ici » et ne doit pas peser autant qu'un trigramme.
+
+Le cadre passe de 413 à **385 px** à 390 px de large. Neuf règles, manques,
+compteurs et Recyclage identiques à l'octet ; rien ne déborde à 320, 390 et
+1280 px, en clair et en sombre, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
