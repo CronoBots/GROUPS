@@ -3901,6 +3901,16 @@ carte et l'ancien `--surface2` (`#1C2130`). En clair il garde la valeur
 d'avant, déjà très légère. Neuf règles, manques, compteurs et Recyclage
 identiques ; rien ne déborde, hors ligne compris.
 
+**Et quatre derniers réglages** (le client, le même soir) : plus de
+couleur au-dessus des pauses ; le trait sous l'en-tête est le même que
+celui sous ADJ ; les tirets reviennent dans les cases vides de la colonne
+D, que le client avait d'abord voulues blanches ; « Aujourd'hui » a la
+hauteur des flèches (30 px). Le trait sous l'en-tête paraissait plus
+épais **parce qu'il était double** : la première ligne ouvre une zone et
+portait son propre trait de 2 px, qui s'ajoutait aux 2 px de l'en-tête.
+Elle n'en porte plus. Neuf règles, manques, compteurs et Recyclage
+identiques ; rien ne déborde, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
