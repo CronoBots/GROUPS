@@ -4,6 +4,79 @@ Simulateur de fiche de paie belge (Groupe S, CP 220) pour les équipes en
 pauses de Biowanze. Application web installable, **entièrement contenue dans
 `index.html`** — pas de build, pas de dépendances, pas de framework.
 
+## Méthode de travail — à appliquer TOUJOURS
+
+Le client, le 26/09/2026 : « enregistre tout ce que tu viens de faire pour ne
+jamais oublier et toujours utiliser la meilleure méthodologie ». Ce qui suit
+résume les règles que ce fichier démontre, cas par cas, plus bas. En cas de
+doute, c'est la section détaillée qui fait foi.
+
+**Git.** Le client, le 26/09/2026 : « il faut toujours pousser sur main ».
+Chaque commit part sur la branche de travail ET sur `main`
+(`git push origin <branche>:main`). Aucune pull request, sauf demande.
+
+**Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
+main :
+
+```bash
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blanc
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
+```
+
+Le `.xlsm` reste HORS du dépôt. On LIT le rapport de comparaison, on dit au
+client ce qui a bougé, on teste au navigateur, on committe. Si une porte se
+ferme, on comprend pourquoi avant de toucher à quoi que ce soit : la
+contourner, c'est rouvrir le trou qu'elle ferme.
+
+**Avant chaque commit**, selon ce qui a été touché :
+
+| Touché | À relancer, et le résultat exigé |
+|---|---|
+| tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
+| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; test Playwright, hors ligne compris |
+| lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
+| outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
+| `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
+
+**Mesurer avant, mesurer après, et prouver que rien d'autre n'a bougé.** Un
+chiffre inchangé ne prouve rien tant qu'on n'a pas montré que le mécanisme
+mord : on sabote une copie et on vérifie que le contrôle crie (voir les
+épreuves de `verifier-integralite.py`, de l'exporteur, des polyvalences qui
+se terminent). Un contrôle qui ne peut pas échouer ne contrôle rien, et un
+contrôle qui échoue toujours ne se lit plus : **le code de retour ne porte
+que ce qui est une faute**.
+
+**Ne jamais deviner à la place du classeur ni du client.** Quand deux
+lectures sont possibles, c'est le classeur qui tranche — les colonnes se
+répondent (CHD « Remplace GST » le jour où le commentaire d'un autre le
+nomme) — et, s'il se tait, c'est une question au client, écrite dans ce
+fichier. **Une correction faite à la main peut être fausse** : l'une des
+quatre du 25/09 l'était.
+
+**Deux copies d'une même règle divergent, et c'est la seconde qui reste en
+arrière** — sauf pour les motifs de NOMS, où deux outils qui ne s'empruntent
+rien sont justement le contrôle.
+
+**Rien d'identifiant dans le dépôt public** : ni nom, ni prénom, ni
+identifiant de connexion, ni montant de salaire — y compris dans un
+commentaire ou comme exemple (`Nom, Prénom`, `RT0xxxx`). Dans le terminal on
+peut voir des noms ; on ne les recopie jamais dans un fichier, un commit ou
+un message au client.
+
+**Un audit large se fait en parallèle, et chaque constat est remesuré par un
+sceptique** avant d'être cru : l'audit du 26/09/2026 a ainsi trouvé qu'un
+constat « barré = annulé » avait été mesuré sur une copie corrompue, et
+qu'un correctif proposé aurait attribué 460 signatures au mauvais homonyme.
+
+**Écrire ici ce qui a été appris**, dans la section qui en parle, avec la
+date, la mesure et l'erreur commise s'il y en a eu une. Une affirmation de
+ce fichier démentie par la mesure se CORRIGE sur place, en disant qu'elle
+était fausse.
+
+**Les questions ouvertes au client** sont dans « L'audit du 26/09/2026 »,
+sous-section « Ce qui attend le client ». Quand il répond, on applique, on
+mesure, et on retire la question de la liste.
+
 ## Avant de toucher à l'horaire d'équipe
 
 **Lis `docs/conversion-horaire.md`** — et `docs/regles-paie.md` avant de
