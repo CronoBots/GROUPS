@@ -1271,6 +1271,12 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody tr+tr th, #eqCorps .eqp2 tbody tr+tr td{border-top:1px solid var(--trait)}
 #eqCorps .eqp2 tbody tr.zone1 th, #eqCorps .eqp2 tbody tr.zone1 td{border-top:2px solid var(--trait-fort)}
 #eqCorps .eqp2 thead th{border-bottom:2px solid var(--trait-fort)}
+/* Sous les pauses, le même trait que sous ADJ. La première ligne ouvre une
+   zone et portait son propre trait de 2 px, qui s'ajoutait à celui de
+   l'en-tête : 4 px sous AM, PM, N contre 2 sous ADJ. */
+#eqCorps .eqp2 tbody tr:first-child th, #eqCorps .eqp2 tbody tr:first-child td{border-top:0}
+/* Plus de couleur au-dessus des pauses (le client, le 26/09/2026). */
+#eqCorps .eqp2 thead th[data-s]{border-top:0}
 /* La couleur range l'ordre de lecture (« go tout », 26/09/2026) : les
    intitulés de poste un cran plus clairs, les tirets un cran plus
    discrets. Un tiret dit « rien à voir ici » ; il ne doit pas peser autant
@@ -1287,7 +1293,9 @@ body.sheet-on{overflow:hidden}
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav{padding:7px 12px}
 #v-resume .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
-#v-resume .eqnav #eqAuj{padding:4px 9px; font-size:11.5px}
+/* « Aujourd'hui » à la hauteur des flèches (le client, le 26/09/2026). */
+#v-resume .eqnav #eqAuj{height:30px; padding:0 9px; font-size:11.5px;
+  display:inline-flex; align-items:center}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
@@ -6865,7 +6873,10 @@ function renderEquipe(){
              tiret dit que ce poste n'attend personne à cette pause-là. */
           /* La colonne D n'attend jamais personne : un tiret sur chaque ligne
              y faisait une colonne de traits. Elle reste blanche. */
-          if(g.k==="D" && (!o || !o.gens.length)){ tp.push('<td class="vide vided"></td>'); return; }
+          /* La colonne D n'attend jamais personne : sa case vide porte le
+             même tiret que les autres (le client, le 26/09/2026, qui l'avait
+             d'abord voulue blanche puis a demandé le tiret). */
+          if(g.k==="D" && (!o || !o.gens.length)){ tp.push('<td class="vide">\u2013</td>'); return; }
           if(!o || (!o.gens.length && !attenduAuPoste(P,g.k,renJ))){
             tp.push('<td class="vide">\u2013</td>'); return; }
           /* Le client : « n'afficher l'effectif minimum que dans la cellule
