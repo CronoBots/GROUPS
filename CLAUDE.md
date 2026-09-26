@@ -14,6 +14,10 @@ doute, c'est la section détaillée qui fait foi.
 **Git.** Le client, le 26/09/2026 : « il faut toujours pousser sur main ».
 Chaque commit part sur la branche de travail ET sur `main`
 (`git push origin <branche>:main`). Aucune pull request, sauf demande.
+**Dans un conteneur neuf, `git config core.hooksPath .githooks` d'abord** :
+le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
+le crochet n'était pas installé — lire le code de retour ne suffit pas si
+la commande est enchaînée avec `;` au lieu de `&&`.
 
 **Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
 main :
