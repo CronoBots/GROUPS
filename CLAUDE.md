@@ -1294,6 +1294,28 @@ jour : horaire prévu (1A40 matin, 2A40 après-midi, 3A40 nuit), prime payée
 (P11/P12/P13, P3x le samedi, P5x le dimanche), pointage IN/OUT. Il porte le
 nom et le matricule : **il ne rentre pas dans le dépôt**, comme les fiches.
 
+### Un rappel sur un repos se paie en heures sup
+
+Le client, le 26/09/2026 : « la règle est la même pour tout le monde ». La
+fiche de LCI le 11/04, `["-","N","rappel le 07.04"]` : aucune heure
+normale, 8 h d'heures sup à compenser à 187,5 % et leur déduction, prime de
+nuit majorée, repos payé. C'est sa règle du 25/09 — pas de « +FT » écrit,
+donc le compteur d'heures sup.
+
+`lireJournee()` pose `r.rs` et un code `nH HS` (9 à 12 h ajoutés au
+barème) ; la journée garde poste et heures, si bien que placement, manques,
+Recyclage et compteurs sont **identiques à l'octet** — seule la paie
+change, dans `compute()`. **122 journées chez 46 personnes** ; écartées à
+raison : six « +FT », et SPS le 17/04 dont la plage fait 9 h 30.
+
+**Je l'ai d'abord mal demandé** : « j'attends ton ok pour appliquer la
+lecture de la fiche » — le client n'a pas compris quoi ni pourquoi. La
+question qui a marché montrait UNE journée, ce que l'application fait, ce
+que la fiche porte, et « oui / non ». Toujours cette forme.
+
+LCI le 13/04, `["N","22h-10h","Rappel…"]`, reste un écart : sa cellule
+franche dit N, pas repos, alors que la fiche le paie en 12 h d'heures sup.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
@@ -1328,12 +1350,6 @@ n'est deviné à leur sujet :
     4 h + 4 h sans prime comme l'après-midi ? Le client se renseigne ; sa
     fiche de septembre le dira, VBN le 30/09 `["N","D-CPPT"]` étant sa
     seule journée de ce genre du mois. Aujourd'hui : 8 h, prime conservée ;
-  - **le rappel sur un repos sans « +FT »** — la fiche de LCI (11 et
-    13/04) le paie en heures sup à compenser (sursalaire + déduction),
-    prime de pause sur toutes les heures, aucune heure normale ;
-    l'application compte des heures prestées. **119 journées chez 45
-    personnes**. Question posée le 26/09/2026 : A (comme la fiche), B
-    (ouvriers seulement), C (autre) ;
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté

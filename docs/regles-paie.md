@@ -1617,15 +1617,15 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 17/06 | `DS-CE · 1h rhs` | 7 h + 1 h de compensation | **tranché le 26/09/2026** : une reprise partielle sort de la prime d'équipe — voir « RHS » |
 | 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | **tranché le 26/09/2026** : une demi-journée de conseil d'entreprise, payée sans prime (`1/2 CE`) ; `AM · DS-CE` reste 8 h avec prime du matin, comme le 18/02 — voir « Le conseil d'entreprise d'un après-midi » |
 | 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
-| 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | toutes les heures en HS à compenser (+8/−8, +12/−12), prime de nuit sur toutes, 6 h 32 et 12 h 05 de déplacement ; **question posée le 26/09/2026**, 119 journées de cette forme dans l'année |
+| 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | **tranché le 26/09/2026, pour tout le monde** : un rappel sur un repos sans « +FT » se paie en heures sup à compenser, prime de pause majorée, aucune heure normale (`r.rs`) ; 122 journées. Le 11/04 concorde, taux de 187,5 % compris ; le 13/04 (cellule `N`, pas `-`) reste un écart |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
 | 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
 | 22/03 | `N` | prime de nuit sans heure normale | non expliqué |
 
 Chacune touche à un montant : la règle se demande au client, une à la fois
 (voir `CLAUDE.md`, « Ce qui attend le client »). Les grèves sont tranchées ;
-après elles, **205 journées sur 214** concordent — 206 avec le +FT, 207 avec la reprise partielle, **208** avec
-le conseil d'entreprise.
+après elles, **205 journées sur 214** concordent — 206 avec le +FT, 207 avec la reprise partielle, 208 avec
+le conseil d'entreprise, **209** avec le rappel sur un repos.
 
 **Une limite qu'il faut connaître** : l'application calcule une rémunération
 FIXE, celle d'un employé. Une journée non payée — grève, congé sans solde,
