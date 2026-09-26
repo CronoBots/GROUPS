@@ -131,6 +131,8 @@ const MORCEAUX=[
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
   ["function posteEcrit(","\n}"],
+  ["var FORMATION_DEBUT=","\n"],
+  ["function formationCommencee(","\n}"],
   ["function enFormation(","\n}"],
   ["function compteAuPoste(","\n}"],
   ["function effectif(","\n}"],
