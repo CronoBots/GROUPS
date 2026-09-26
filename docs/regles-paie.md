@@ -1490,6 +1490,59 @@ qui n'existe pas dans le classeur. Le rapprochement tenait à deux fils : une
 lettre d'écart, et le rôle « polyvalent arrière » de la ligne 9 qu'il partage
 avec FLN et FPS, les trois seuls de l'usine.
 
+### La fiche d'ouvrier, vue pour la première fois le 26/09/2026
+
+Le client a transmis huit fiches mensuelles d'un ouvrier, LCI (janvier à
+août 2026), une prime non récurrente versée à part et son compte individuel
+2025. Elles ne sont PAS dans le dépôt ; `comparer-fiches.py` les lit sur
+place.
+
+**Ce qui est confirmé, au centime, sur les huit mois** :
+
+- **l'ONSS sur 108 %** : « Brut base ONSS majoré » vaut exactement 1,08 fois
+  la base à 100 %, et la cotisation 13,07 % de la base majorée — le
+  `majOuvrier` de `DEF_B` était juste sans avoir jamais été éprouvé ;
+- **les primes d'équipe** sont les mêmes que chez les employés — 0,90,
+  1,80 et 4,00 de l'heure — et **les chèques-repas** aussi, 8,91 et 1,09 ;
+- **aucun pécule ni treizième mois** de janvier à août : le pécule de
+  l'ouvrier vient de la caisse de vacances, comme ce document le prévoyait.
+
+**Ce qui diffère de l'employé, et que l'application ne sait pas calculer** :
+
+- **commission paritaire 118.06**, et non 220 ;
+- **paie à l'HEURE** : « Prestation normale » × le taux horaire. Le samedi se
+  paie à 150 %, le dimanche et le férié à 200 % ; l'heure de base de ces
+  jours-là est reprise (« déduction prest norm ») et rendue en semaine sous
+  forme de « Jour de repos payé ». Les primes d'équipe suivent les mêmes
+  majorations ;
+- **« Compensation payée »** : les heures récupérées (`RHS`, une reprise
+  partielle, une demi-journée syndicale) se paient à l'heure, **sans prime
+  d'équipe** ;
+- **« Heure de déplacement »** : un rappel paie le trajet, en heures ;
+- **un détail JOUR PAR JOUR** en seconde page — la pause payée, les heures,
+  l'absence de chaque date. C'est le contrôle le plus fin qui soit, et
+  `comparer-fiches.py` le confronte désormais à l'horaire journée par
+  journée ;
+- la fiche porte une **« Classification entreprise »** dont la lettre est
+  celle de la colonne « Degré de polyvalence » de la feuille du même nom.
+
+**La confrontation, journée par journée** : 214 journées, **202 identiques**
+— pause payée et heures. Les heures du mois concordent en janvier, mars,
+mai, juillet et août. Les douze écarts, et ce qu'ils disent :
+
+| Journées | Horaire | Fiche | Ce que cela dit |
+|---|---|---|---|
+| 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains : des journées de grève écrites « Abs », que l'application paie en maladie |
+| 14/08 | `PM · 4h +FT` | 8 h payées | sur un poste PRÉVU sans heure écrite, le +FT s'AJOUTE aux 8 h ; l'application les en retranche |
+| 17/06, 25/08, 20/02 | `1h rhs`, `DS-CE` | 7 h + 1 h, 4 h + 4 h, 7 h 30 + 30 min | les heures reprises ou syndicales sortent de la prime d'équipe |
+| 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | un rappel sur un repos n'est pas un poste ordinaire |
+| 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
+| 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
+| 22/03 | `N` | prime de nuit sans heure normale | non expliqué |
+
+Aucune de ces journées n'est corrigée : chacune touche à un montant, et la
+règle se demande au client (voir `CLAUDE.md`, « Ce qui attend le client »).
+
 ### Ce qu'une fiche d'ouvrier permettra de vérifier
 
 Le client, le 22/09/2026 : « je vais essayer d'avoir des fiches de paie

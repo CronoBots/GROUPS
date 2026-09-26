@@ -1241,7 +1241,12 @@ L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les lettres G et H** du degré de polyvalence ;
+- **les lettres G et H** du degré de polyvalence — la fiche d'ouvrier
+  porte une « Classification entreprise » qui commence par la même lettre ;
+- **les fiches d'ouvrier de LCI** (26/09/2026) : les grèves écrites `Abs`,
+  le `+FT` sur un poste prévu, les heures reprises qui sortent de la prime,
+  le rappel sur un repos, et la paie à l'heure elle-même — voir
+  `docs/regles-paie.md`, « La fiche d'ouvrier » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.

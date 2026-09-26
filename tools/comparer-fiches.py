@@ -71,7 +71,66 @@ def lire_fiche(chemin):
                              r"(Matin|Apr[èe]s-Midi|Nuit)", t, re.I):
         k = {"matin": "AM", "nuit": "N"}.get(lib.lower(), "PM")
         f["prime"][k] = f["prime"].get(k, 0) + _hm(q)
+    # LA FICHE D'OUVRIER, relevée le 26/09/2026 sur celles de LCI : elle
+    # n'écrit pas « Heure(s) prestée(s) » mais « Prestation normale », à 100,
+    # 150 (samedi) et 200 % (dimanche et férié) — les mêmes heures payées plus
+    # cher, qu'on additionne donc. Ses absences ont leurs propres libellés.
+    if f["h"] is None and re.search(r"Type personnel Ouvrier", t):
+        f["type"] = "Ouvrier"
+        deja = set(f["abs"])
+        f["h"] = sum(_hm(q) for q in re.findall(
+            r"(\d{1,3}:\d{2})\s*Prestation normale à", t))
+        for q, lib in re.findall(r"(\d{1,3}:\d{2})\s*(Congé Légal|Heures SHG Maladie|"
+                                 r"Réduction Temps Travail) à", t):
+            fam = {"Congé Légal": "vacances", "Heures SHG Maladie": "SMG maladie",
+                   "Réduction Temps Travail": "repos compensatoire"}[lib]
+            # la même absence s'écrit aussi en « Heure(s) vacances » plus
+            # haut : ne pas la compter deux fois. La maladie, elle, tient sur
+            # trois lignes (100, 150 et 200 %) qui s'additionnent.
+            if fam not in deja:
+                f["abs"][fam] = f["abs"].get(fam, 0) + _hm(q)
+    f["jours"] = lire_jours(brut)
     return f if f["h"] is not None else None
+
+
+# Le DÉTAIL DES PRESTATIONS, jour par jour — la fiche d'ouvrier le porte en
+# seconde page. C'est le contrôle le plus fin qui soit : chaque date y dit
+# la pause payée, les heures, l'absence. Les codes relevés sur huit fiches de
+# 2026, tels que le secrétariat social les écrit (« VANCANCES » compris).
+CODES_JOUR = {
+    "PRIME EQUIPE MATIN": "AM", "PRIME EQUIPE APRES MIDI": "PM",
+    "PRIME EQUIPE NUIT": "N",
+    "VANCANCES LEGALES": "VA", "SHG MALADIE": "MAL",
+    "ABSENCE TEMPS PARTIEL": "TP", "RED TEMPS TRAV NON PAYE": "RTT-np",
+    "GREVE RECONNUE": "GREVE", "JOUR DE REPOS PAYE": "repos",
+    "REPOS DIMANCHE": "repos",
+}
+
+
+def lire_jours(brut):
+    """{MMJJ: [(heures, code)]} depuis le détail des prestations, ou {}."""
+    if "Détail des prestations" not in brut:
+        return {}
+    d = " ".join(brut[brut.index("Détail des prestations"):].split())
+    d = d.split("##########")[0]
+    morceaux = re.split(r"\b(?:Lu|Ma|Me|Je|Ve|Sa|Di) (\d{2})\.(\d{2})\.\d{4}", d)
+    out = {}
+    for i in range(1, len(morceaux) - 2, 3):
+        jour = morceaux[i + 1] + morceaux[i]
+        out[jour] = [(_hm(q), c.strip()) for q, c in re.findall(
+            r"(\d{1,2}:\d{2}) ([A-Z][A-Z .'/+-]+?)(?= \d{1,2}:\d{2}|$)", morceaux[i + 2])]
+    return out
+
+
+def resume_jour(items):
+    """Ce que la fiche dit d'une journée : (pause payée ou code, heures)."""
+    h = sum(q for q, c in items if c == "HEURES NORMALES")
+    codes = [CODES_JOUR.get(c) for q, c in items]
+    pause = next((c for c in codes if c in ("AM", "PM", "N")), None)
+    if h:
+        return (pause or "D", h)
+    autre = next((c for c in codes if c and c not in ("AM", "PM", "N")), None)
+    return (autre or ",".join(c for q, c in items) or "?", 0)
 
 
 def horaire(ident, annee):
@@ -116,7 +175,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
 const db=JSON.parse(fs.readFileSync(process.argv[3],"utf8"));
 const p=db.people.filter(function(x){return x.id===process.argv[4];})[0];
 if(!p){ console.log("{}"); process.exit(0); }
-const out={};
+const out={}, jours={};
 for(var m=1;m<=12;m++){
   var ep=epargnesDuMois(p,m), rv=renvoisDuMois(p,m,8),
       fit=cycleDuMois(p,db.year,m), nd=new Date(db.year,m,0).getDate();
@@ -132,6 +191,8 @@ for(var m=1;m<=12;m++){
     var hj=(r.h===undefined?8:r.h);
     var A=r.a&&ABSMAP[r.a];
     if(r.s&&hj>0){ h+=hj; j++; par[r.s]=(par[r.s]||0)+hj; }
+    jours[k]={s:(r.s&&hj>0)?r.s:null,h:(r.s?hj:0),a:r.a||null,
+              k:(A?A.k:null),raw:e};
     if(r.ax) for(var q2=0;q2<r.ax.length;q2++){
       var AY=ABSMAP[r.ax[q2]];
       if(AY) ab[AY.k]=(ab[AY.k]||0)+((r.s||AY.h<8-0.01)?(AY.h||0):0);
@@ -145,6 +206,7 @@ for(var m=1;m<=12;m++){
   }
   out[m]={h:h,j:j,abs:ab,par:par};
 }
+out.jours=jours;
 console.log(JSON.stringify(out));
 """
     chemin = os.path.join(ICI, ".horaire-mois.js")
@@ -193,7 +255,7 @@ def main():
             print("La découpe de index.html ne rend rien.", file=sys.stderr)
             return 1
         print("Découpe de index.html à l'épreuve : %d mois lus pour %s en %d."
-              % (len(d), ident, ANNEE_EPREUVE))
+              % (len([k for k in d if k.isdigit()]), ident, ANNEE_EPREUVE))
         print("Aucune fiche donnée — rien à confronter.")
         return 0
     chemins = []
@@ -266,7 +328,46 @@ def main():
         print("    %-22s %2d mois — %s" % (lib, len(lignes),
               "tous identiques" if not faux else
               "écart en " + ", ".join("%s (%.2f contre %.2f)" % (MOIS[m], vf, vc) for m, vf, vc in faux)))
+    comparer_jours(fiches, calc.get("jours") or {})
     return 0
+
+
+# Ce que l'application range sous une clé d'absence, et le code de la fiche
+# qui lui répond. « repos » couvre le jour de repos payé ET le dimanche : la
+# fiche d'ouvrier paie ses repos, l'horaire les écrit « - ».
+EQUIV = {"VA": "VA", "SMG": "MAL", "TP": "TP", "CPAR": "CP", "RTT": "RTT-np",
+         "RHS": "COMPENSATION PAYEE"}
+
+
+def comparer_jours(fiches, jours):
+    lignes = []
+    n = ok = 0
+    for m in sorted(fiches):
+        for jour, items in sorted((fiches[m].get("jours") or {}).items()):
+            n += 1
+            fc, fh = resume_jour(items)
+            a = jours.get(jour) or {}
+            if a.get("s"):
+                ac, ah = a["s"], a["h"]
+            elif a.get("k"):
+                ac, ah = EQUIV.get(a["k"], a["k"]), 0
+            else:
+                ac, ah = "repos", 0
+            # une absence posée sur un jour de repos ne vaut rien, ni sur la
+            # fiche ni dans l'application : la fiche l'écrit « repos »
+            if fc == "repos" and not ah and not a.get("s") and a.get("k"):
+                ac = "repos"
+            if fc == ac and abs(fh - ah) < 0.01:
+                ok += 1
+                continue
+            lignes.append("  %s/%s  fiche %-6s %5.2f   appli %-6s %5.2f   %s"
+                          % (jour[2:], jour[:2], fc, fh, ac, ah,
+                             json.dumps(a.get("raw"), ensure_ascii=False)))
+    if not n:
+        return
+    print("\n  jour par jour : %d journées, %d identiques, %d écarts" % (n, ok, n - ok))
+    for l in lignes:
+        print(l)
 
 
 if __name__ == "__main__":
