@@ -385,9 +385,12 @@ revérifies tout ».
 python3 tools/verifier-integralite.py
 ```
 
-Il confronte les **11 564 commentaires** du classeur entier à ce que
-l'horaire porte. **La grille des jours doit être à ZÉRO** — c'est la seule
-exigence dure, et le code de retour la porte.
+Il confronte le classeur entier à ce que l'horaire porte. **La grille des
+jours doit être à ZÉRO** — c'est la seule exigence dure, et le code de
+retour la porte. **Depuis le 26/09/2026 elle se compare cellule par
+cellule** : voir « L'audit du 26/09/2026 ». Ce qui suit décrit la première
+version, par sous-chaîne, et reste vrai de la normalisation des
+commentaires.
 
 **LA COMPARAISON NAÏVE MENT, et elle a menti trois fois.** Les deux fichiers
 ne passent pas par le même chemin : l'horaire sort du `.xlsm` par le
@@ -833,6 +836,77 @@ JBA, PDF), deux commentaires concordent désormais avec l'horaire, et
 
 Rien d'autre ne bouge : les quatre sorties de `verifier-calendrier.js` sont
 identiques à l'octet, et `comparer-fiches` passe son épreuve.
+
+### L'export recopie maintenant TOUT le classeur
+
+`tools/exporter-classeur.py` ne gardait que le texte des cellules, celui des
+commentaires et les fusions. L'audit a mesuré ce qui tombait, et c'était
+beaucoup : **le type** des valeurs (la date de mise à jour sortait en
+« 46290.64 »), **13 637 formules**, **toute la mise en forme** — dont le
+**barré** —, 262 lignes et 62 colonnes masquées, deux feuilles cachées, les
+validations, 302 règles de mise en forme conditionnelle, 13 noms définis et
+25 boutons avec leur macro.
+
+Tout y est désormais — le format est décrit en tête de l'outil. Deux choix
+à connaître :
+
+- **les commentaires se lisent dans le XML, tels qu'ils sont écrits.** L'outil
+  passait par la lecture du convertisseur, qui les NETTOIE : têtes retirées,
+  sauts de ligne écrasés. « Cet outil ne lit rien, il recopie », disait ce
+  fichier — c'était faux pour les commentaires. Leurs morceaux barrés,
+  soulignés ou en italique sont dans `riches` ;
+- **seule la mise en forme qui peut porter un sens** est gardée : fond,
+  couleur et style de l'écriture, format des nombres. Pas les bordures ni
+  l'alignement, qui doubleraient le fichier.
+
+**Un aller-retour le prouve à chaque export** : l'outil recompte dans le XML,
+par des motifs et non par l'arbre qu'il vient de parcourir, les formules,
+les cellules peintes et barrées, les commentaires et ceux qui ont un morceau
+barré. Un écart, et rien n'est écrit. Éprouvé : cinq sabotages — une
+formule, un commentaire, un morceau barré, une suite de cellules barrées,
+une cellule peinte en moins — sont tous détectés.
+
+**L'export est reproductible** : la date inscrite est celle du classeur, et
+non l'heure de l'export. Deux exports du même fichier sont identiques à
+l'octet.
+
+**4,0 Mo au lieu de 1,3** — 571 Ko compressés, ce que git stocke. Les formules
+de « Récapitulatif (1) » en font 1,5. L'application ne le charge pas.
+
+### L'intégralité se vérifie cellule par cellule
+
+`tools/verifier-integralite.py` versait les commentaires dans un SAC et
+cherchait chacun n'importe où dedans. Il ne regardait pas les valeurs des
+cellules, un commentaire posé sur le mauvais jour passait, et un commentaire
+court — « rappel », « remplace » — se retrouvait toujours quelque part. **Il
+voyait 6 écarts là où 256 cellules et annotations étaient corrompues.**
+
+Il compare désormais **chaque journée de chaque colonne-personne** du brut à
+l'horaire — cellule, annotation, commentaire —, après avoir retrouvé la
+personne par **l'accord de leurs journées** et non par le trigramme, que
+`CORRECTIONS` et les suffixes font diverger. Une colonne que personne ne
+reconnaît échoue ; **deux copies d'une même personne qui divergent entre
+feuilles échouent** (les adjoints sont recopiés sur cinq feuilles) ; un
+identifiant de connexion dans l'un des deux fichiers échoue.
+
+Mesuré sur le classeur du 25/09 : **102 colonnes reconnues sur 102, 27 554
+journées identiques**, 20 cellules vides devenues repos — la règle du
+convertisseur —, **0 écart**. Éprouvé par six sabotages, tous détectés : un
+commentaire décalé d'un jour, un commentaire court supprimé, une cellule
+changée, une journée supprimée, une des cinq copies d'un adjoint corrompue,
+un login planté.
+
+**Les deux jointures d'une journée sont acceptées, et rien d'autre** : le
+convertisseur joint le commentaire de la cellule et celui de l'annotation,
+et ne garde que le plus complet quand l'un contient l'autre — casse
+comprise. « Rappel 19/1 » n'est pas contenu dans « RAPPEL 19/1 », et il
+garde les deux. Le contrôle, qui compare sur un texte en minuscules, doit
+accepter l'un et l'autre.
+
+**Le pied de feuille et « Polyvalence » ne font pas échouer**, et le second
+était faux : il comptait 74 commentaires « non repris » en oubliant les 70
+dates de polyvalence que l'horaire porte. Il en reste **2** — deux lignes que
+l'horaire ne rattache à personne.
 
 **L'historique public porte encore les 60 identifiants** — trois versions de
 `data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
