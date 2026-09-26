@@ -1289,6 +1289,12 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody th.eqposte b{font-size:12px; font-weight:650; color:var(--ink);
   text-transform:none; letter-spacing:0}
 #eqCorps .eqp2 td.vide{color:var(--trait-fort)}
+/* Le coin au-dessus des postes : ni trait épais en haut ni liseré à
+   gauche, il n'appartient à aucune zone. */
+#eqCorps .eqp2 thead th.eqposte{border-top:0; border-left-color:transparent}
+/* La ligne Formation s'écrit comme un poste, avec un liseré de l'encre
+   principale (blanc en sombre). */
+#eqCorps .eqp2 tbody tr.eqform th.eqposte{border-left-color:var(--ink)}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav{padding:7px 12px}
@@ -6848,7 +6854,7 @@ function renderEquipe(){
          On note donc ce qui a réellement été dessiné, et on n'explique que
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
-      var zPrec=null, aManque=false;
+      var zPrec=null;
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -6883,7 +6889,7 @@ function renderEquipe(){
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
-          if(mq){ cl.push("manque"); aManque=true; }
+          if(mq) cl.push("manque");
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
             +(mq?'<i>'+o.tenu+" / "+aP+"</i>":"")
@@ -6921,7 +6927,7 @@ function renderEquipe(){
          elle, est devenue une colonne : voir PAUSES). */
       var aFormL=PAUSES.some(function(g){ return vp[g.k] && vp[g.k].vue.formation.length; });
       if(aFormL){
-        tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row"><b>Formation</b></th>');
+        tp.push('<tr class="zone1 eqform"><th class="eqposte" scope="row"><b><span class="orgl1">Formation</span><span class="orgl2">FORM</span></b></th>');
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
@@ -6931,14 +6937,9 @@ function renderEquipe(){
         });
         tp.push("</tr>");
       }
-      var lg=[];
-      if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
-      /* Plus de légende des zones : le liseré regroupe des lignes qui
-         portent déjà leur nom, et la nommer coûtait deux lignes sous le
-         tableau pour rien apprendre. */
-      tp.push("</tbody></table></div>"
-        +(lg.length?'<p class="eqleg">'+lg.join("")+"</p>":"")
-        +"</div>");
+      /* Aucune légende sous ce tableau, pas même celle du manque : le
+         compte écrit dans la case (« 1/2 ») se lit seul. */
+      tp.push("</tbody></table></div></div>");
       h.push(tp.join(""));
     }
 
