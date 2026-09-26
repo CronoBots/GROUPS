@@ -1217,7 +1217,6 @@ L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
 - **les deux colonnes sans nom** : copies à effacer, ou à garder ?
 - **les compteurs CP, TP, CT** : comptent-ils les journées posées ou le droit
   de l'année ? LCI, GSK et RCO ont une journée de plus dans l'horaire ;
@@ -2061,13 +2060,13 @@ la cascade et les tuiles.
 
 ## Les intérimaires : une liste qu'aucun fichier ne porte
 
-Onze personnes, données par le client le 22/09/2026. **J'ai écrit ici que
-le classeur ne les distingue nulle part, et c'était faux** : la colonne A de
-« Polyvalence » porte « interim » pour dix d'entre eux — l'audit du
-26/09/2026 l'a trouvé, et le convertisseur le garde dans `poly.statut`. Le
-classeur ajoute NPE, que la liste n'a pas ; la liste a MGY, qui n'a pas de
-ligne dans la feuille. Le détail et la question sont dans
-`docs/regles-paie.md`, section « Les intérimaires ».
+Dix personnes au 26/09/2026. **J'ai écrit ici que le classeur ne les
+distingue nulle part, et c'était faux** : la colonne A de « Polyvalence »
+porte « interim » pour eux — l'audit du 26/09/2026 l'a trouvé, et le
+convertisseur le garde dans `poly.statut`. La liste du client (22/09)
+ajoutait MGY, le classeur ajoute NPE ; le client, le 26/09/2026 : **les deux
+sont employés depuis août**. `poly.statut` retarde donc sur une embauche.
+Le détail est dans `docs/regles-paie.md`, section « Les intérimaires ».
 
 **Rien n'est codé, et c'est voulu.** Le client : « rien pour l'instant, mais
 garder l'info ». Une liste codée sans emploi égarerait celui qui la relit.
