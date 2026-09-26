@@ -3911,6 +3911,21 @@ portait son propre trait de 2 px, qui s'ajoutait aux 2 px de l'en-tête.
 Elle n'en porte plus. Neuf règles, manques, compteurs et Recyclage
 identiques ; rien ne déborde, hors ligne compris.
 
+**Plus aucune légende, et la formation s'écrit comme un poste** (le
+client, le même soir) : « il ne faut jamais de légende, même pour les
+postes en sous-effectif ». Le compte écrit dans la case (« 1/2 ») se lit
+seul, et la construction de la légende est retirée avec son drapeau
+`aManque`. La ligne formation quitte le style italique et grisé de
+« À déterminer » (`eqinc`) pour sa propre classe, `eqform`. Elle
+s'écrit « Formation » au bureau et « FORM » sur téléphone, en 12 px et
+en graisse 650, comme les postes. Son liseré gauche prend l'encre
+principale : blanc en sombre, presque noir en clair, où du blanc ne se
+verrait pas sur la carte. Le coin vide au-dessus des postes perd son
+trait de 3 px en haut et son liseré gauche. Vérifié le 27/09 (un manque,
+aucune légende) et le 28/09 (ligne FORM) ; neuf règles, manques,
+compteurs et Recyclage identiques à l'octet ; rien ne déborde à 320, 390
+et 1280 px, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
