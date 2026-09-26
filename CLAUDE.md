@@ -3595,6 +3595,21 @@ maladie reste sa propre famille. Vérifié horloge au 20/04 : LCI « VA ·
 jusqu'au 22 avr. », JBI « jusqu'au 21 avr. », CKS seul en « dernier jour » ;
 les quatre sorties du vérificateur identiques à l'octet.
 
+**Puis jusqu'à la reprise du travail, repos compris.** Le client, le même
+jour, devant LDY — RJF le 30/09, RHS le 01/10, trois repos, RJF, RJF, VA,
+quatre repos, premier poste le 12/10 : « jusqu'à la reprise du travail ».
+La série « CONGE » court donc sur tout congé d'une journée entière ET tout
+repos, et s'arrête à la première journée prestée, à une maladie ou à un
+poste prévu non presté. Une journée entière de flex time repris (« 8h
+-FT ») compte comme un congé : ses heures sont payées mais personne ne
+vient — LHR le 26/09 reprend le 28, pas le 27. La pastille dit donc la
+REPRISE : « RJF · reprise le 12 oct. », « · reprise demain ». « Jusqu'au
+dimanche » se serait moins bien lu que « reprise le lundi ». La maladie ne
+bouge pas : « Absent jusqu'au » son dernier jour de maladie. Vérifié au
+30/09 (LDY reprise le 12 oct., 15 congés datés) et au 20/04 (FLN, TP puis
+VA entrecoupés de repos, reprise le 13 mai — contrôlé jour par jour) ;
+sorties du vérificateur identiques à l'octet.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
