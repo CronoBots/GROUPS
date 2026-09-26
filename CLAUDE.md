@@ -3870,6 +3870,28 @@ options : « tout », c'est-à-dire telle quelle. Neuf règles, manques,
 compteurs et Recyclage identiques à l'octet ; rien ne déborde, hors ligne
 compris.
 
+**Puis corrigé dans le même soir**, sur quatre points :
+
+- **hauteur de deux trigrammes pour toutes les lignes**, et seule une case
+  plus pleine fait grandir la sienne. Le client : « comme celle où il y
+  avait 2 trigrammes pour toutes les lignes, sauf celles de plus de 2 ».
+  Une hauteur de ligne de tableau est un minimum : `height:44px` sur
+  chaque ligne suffit, et le calcul `maxLig` / `--eqh` est retiré. Le 26/09,
+  toutes les lignes font 44 px et les chaudières 60. Le cadre passe de 619
+  à 491 px ;
+- **le liseré de zone sur le bord des postes était parti, par ma faute** :
+  la règle des traits visibles, `#eqCorps .eqp2 th, td{border-left-color}`,
+  battait par sa spécificité les couleurs `tr[data-z] th.eqposte`. Elle
+  ne vise plus que les cases et l'en-tête ;
+- **le zébra vaut pour toutes les cases**, colonne D et tirets compris.
+  Les tirets avaient leur propre fond, et l'opacité à 45 % pâlissait aussi
+  ce fond : ils s'éclaircissent désormais par leur couleur (`--trait-fort`) ;
+- **les postes s'écrivent comme AM, PM, N** (12 px, graisse 650, encre
+  principale, sans capitales), au centre de leur colonne.
+
+Neuf règles, manques, compteurs et Recyclage identiques à l'octet ; rien
+ne déborde, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
