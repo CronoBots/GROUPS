@@ -3664,11 +3664,25 @@ en haut, les trigrammes dessous —, en grille de cases d'au moins 96 px :
 trois côte à côte à 390 px, deux à 320. La largeur suit le nombre de
 personnes : une ou deux, une case ; trois ou quatre, deux cases ; au-delà,
 la ligne entière. `grid-auto-flow: dense` comble les trous avec les petites
-tuiles — **ce qui peut placer une date avant une plus proche** (le 29/09
-avant le 28/09, que ses 19 personnes envoient sur sa propre ligne) :
-l'ordre est celui des dates, sauf pour boucher un trou. Absents 7 lignes →
-3, Congé et repos 11 → 5 à 390 px ; vérifié en clair et en sombre, à 320,
-390 et 1280 px, hors ligne compris.
+tuiles — ce qui plaçait une date avant une plus proche (le 29/09 avant le
+28/09). **Le client l'a vu aussitôt** : « ce n'est plus vraiment par ordre
+chronologique ». La grille est devenue une RANGÉE QUI S'ENROULE : chaque
+tuile prend la largeur de ses trigrammes, dans l'ordre strict des dates, et
+s'élargit pour finir sa ligne — ni trou, ni date déplacée. Les « une,
+deux ou toute la ligne » selon le nombre de personnes sont partis avec la
+grille : c'est le contenu qui décide. Vérifié en clair et en sombre, à
+320, 390 et 1280 px, hors ligne compris.
+
+**Le premier cadre du Résumé dit le poste SUIVANT, jamais celui du jour.**
+Le client, le même jour : « est-ce utile de remettre la pause du jour vu
+qu'elle est dans la barre du haut ? ». Non : les jours travaillés, ce
+cadre écrivait « Aujourd'hui · nuit » sous une barre qui disait déjà
+« Contremaître · Nuit ». `majProchain()` part donc de DEMAIN. Et il
+s'arrêtait au dernier jour du mois affiché — le 30/09, « plus de poste d'ici
+la fin du mois » quand le prochain est le 5 octobre : il lit désormais la
+suite dans `HORAIRE_DB`, par `moisDe()` et `lireJournee()`, la lecture du
+calendrier. Vérifié horloge au 26, 28 et 30/09 : « lundi 28 », « demain »,
+« lundi 5 octobre », hors ligne compris.
 
 ### Le mémo des trois fonctions du mois
 

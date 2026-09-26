@@ -1365,18 +1365,17 @@ body.sheet-on{overflow:hidden}
    la date dans une colonne étroite, les trigrammes à côté. */
 /* Une tuile par date, et non une ligne. Le client, le 26/09/2026 : « il y a
    moyen de mieux organiser ça pour que cela fasse moins vide et mieux
-   réparti ». En lignes, une date à une personne laissait les trois quarts
-   de la largeur vides ; en tuiles, trois dates tiennent côte à côte sur un
-   téléphone, et la grille se remplit dans l'ordre des dates, les trous
-   comblés par les petites tuiles (dense). */
-.eqgrp{padding:10px 12px 12px; display:grid; gap:6px;
-  grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); grid-auto-flow:row dense}
-.eqdg{background:var(--surface2); border:1px solid var(--line); border-radius:8px;
-  padding:6px 8px 7px; min-width:0}
-.eqdg-m{grid-column:span 2}
-.eqdg-l{grid-column:1/-1}
+   réparti », puis, devant une grille qui comblait ses trous en déplaçant
+   les petites tuiles : « ce n'est plus vraiment par ordre chronologique ».
+   D'où une rangée qui s'enroule : chaque tuile prend la largeur de ses
+   trigrammes, dans l'ordre des dates, et s'élargit pour finir sa ligne —
+   ni trou, ni date déplacée. Une tuile de dix-neuf personnes remplit sa
+   propre ligne, parce que c'est ce que ses trigrammes demandent. */
+.eqgrp{padding:10px 12px 12px; display:flex; flex-wrap:wrap; gap:6px}
+.eqdg{flex:1 1 auto; min-width:96px; background:var(--surface2);
+  border:1px solid var(--line); border-radius:8px; padding:6px 8px 7px}
 .eqdd{font-size:10.5px; font-weight:600; color:var(--muted); white-space:nowrap;
-  overflow:hidden; text-overflow:ellipsis; margin-bottom:2px}
+  margin-bottom:2px}
 .eqdn{line-height:1.35}
 .eqgrp .eqn{margin:0 8px 0 0}
 .eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
@@ -3232,28 +3231,57 @@ function majProchain(){
   var el=document.getElementById("prochain"); if(!el) return;
   var now=new Date();
   if(now.getFullYear()!==st.y || now.getMonth()!==st.m){ el.hidden=true; return; }
-  var nd=daysInMonth(st.y,st.m), M=st.month, F=feries(st.y);
-  for(var d=now.getDate(); d<=nd; d++){
-    var r=M.days[d]; if(!r||!r.s) continue;
-    var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
-    if(!(h>0)) continue;
-    var dt=new Date(Date.UTC(st.y,st.m,d));
-    var cejour=(d===now.getDate());
-    var quand=cejour?""
-             :((d===now.getDate()+1)?" demain"
-             :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d));
+  /* Le poste suivant, jamais celui du jour. Le client, le 26/09/2026 :
+     « est-ce utile de remettre la pause du jour vu qu'elle est dans la barre
+     du haut ? ». Non : la barre dit déjà aujourd'hui (« Contremaître ·
+     Nuit »), et ce cadre l'écrivait une seconde fois dès qu'on travaillait
+     ce jour-là. Il dit donc ce que la barre ne dit pas — QUAND on retravaille
+     ensuite —, en partant de demain. */
+  function montre(r,y,m0,d,h){
+    var dt=new Date(Date.UTC(y,m0,d)), F=feries(y);
+    var dem=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    var quand=(dem.getFullYear()===y&&dem.getMonth()===m0&&dem.getDate()===d)?" demain"
+             :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d
+               +(m0!==now.getMonth()?" "+MOIS[m0].toLowerCase():""));
     el.innerHTML='<span class="pp-pastille" data-p="'+esc(postePeint(r))+'">'
       +esc(marqueDoute(r,r.j?etiqJour(r.j):postePeint(r)))+'</span>'
-      +'<span class="pp-txt"><b>'+(cejour?"Aujourd'hui":"Prochain poste")+'</b> '
+      +'<span class="pp-txt"><b>Prochain poste</b> '
       +esc(r.j?("journée de jour ("+r.j+")")
               :(POSTE_LIB[postePeint(r)]||postePeint(r)).toLowerCase())
       +(gardePrime(r)?", prime "+esc(r.s)+" conservée":"")
       +esc(quand)+" · "+num(h)+" h"
-      +(F[st.y+"-"+pad2(st.m+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
-    el.hidden=false; return;
+      +(F[y+"-"+pad2(m0+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
+    el.hidden=false;
+  }
+  var nd=daysInMonth(st.y,st.m), M=st.month, hJ=st.params.hJour;
+  for(var d=now.getDate()+1; d<=nd; d++){
+    var r=M.days[d]; if(!r||!r.s) continue;
+    var h=(r.h===undefined||r.h===null||r.h==="")?hJ:Number(r.h);
+    if(!(h>0)) continue;
+    montre(r,st.y,st.m,d,h); return;
+  }
+  /* Le mois s'arrête, l'horaire non. Le 30/09, « plus de poste d'ici la fin
+     du mois » ne répondait à rien : on lit la suite dans le classeur, par la
+     même lecture que le calendrier. */
+  var db=HORAIRE_DB, id=(document.getElementById("prefillId")||{}).value||lsGet("ui/prefillId");
+  var p=db&&db.people&&db.people.filter(function(x){ return x.id===id; })[0];
+  if(p && Number(db.year)===st.y){
+    var t=new Date(Date.UTC(st.y,st.m,nd));
+    for(var i=0;i<62;i++){
+      t.setUTCDate(t.getUTCDate()+1);
+      var y=t.getUTCFullYear(), m=t.getUTCMonth()+1, j=t.getUTCDate();
+      if(y!==st.y) break;
+      var raw=p.d[pad2(m)+pad2(j)]; if(raw===undefined) continue;
+      var c=moisDe(p,y,m,hJ), rr=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJ,c.rv[j]);
+      if(!rr.s) continue;
+      var hh=(rr.h===undefined||rr.h===null||rr.h==="")?hJ:Number(rr.h);
+      if(!(hh>0)) continue;
+      if(rr.jourCode && !rr.j) rr.j=rr.jourCode;
+      montre(rr,y,m-1,j,hh); return;
+    }
   }
   el.innerHTML='<span class="pp-pastille pp-rien">—</span><span class="pp-txt">'
-    +"<b>Plus de poste</b> d'ici la fin du mois.</span>";
+    +"<b>Plus de poste</b> prévu dans l'horaire.</span>";
   el.hidden=false;
 }
 
@@ -6864,12 +6892,7 @@ function renderEquipe(){
         else if(G.c===99999999) titre="Sans date";
         else if(!x.fin) titre="Demain";
         else titre=court(x.fin[0],x.fin[1],x.fin[2]+1);
-        /* Une tuile par date. Sa largeur suit le nombre de personnes : une
-           ou deux tiennent dans une case, trois à quatre en prennent deux,
-           au-delà la ligne entière — sinon dix-neuf trigrammes s'empilent
-           dans une case étroite pendant que les autres restent vides. */
-        var n=G.gens.length, large=n>4?" eqdg-l":(n>2?" eqdg-m":"");
-        return '<div class="eqdg'+large+'"><div class="eqdd">'+esc(titre)+'</div>'
+        return '<div class="eqdg"><div class="eqdd">'+esc(titre)+'</div>'
           +'<div class="eqdn">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")
           +"</div></div>";
       }).join("");
