@@ -6342,13 +6342,23 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
     c=moisDe(p,y,m,hJour);
     var r=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJour,c.rv[j]);
     var A=r.a&&ABSMAP[r.a];
-    /* « CONGE » enchaîne tous les congés d'une journée entière : JBI est en
-       VA le 20/04 et en RJF le 21/04 — il reprend le 22, et « VA · dernier
-       jour » le 20 aurait dit le contraire. La maladie, elle, reste sa
-       propre famille. */
-    if(!A) break;
-    if(famille==="CONGE"){ if(A.k==="SMG" || A.h<hJour-0.01) break; }
-    else if(A.k!==famille) break;
+    /* « CONGE » court JUSQU'À LA REPRISE DU TRAVAIL. Le client, le
+       26/09/2026 : « les congés qui s'enchaînent doivent être groupés pour
+       l'affichage de la durée », puis, sur LDY — RJF, RHS, trois repos,
+       RJF, RJF, VA, quatre repos, reprise le 12/10 — « jusqu'à la reprise
+       du travail ». Tout congé d'une journée entière et tout repos
+       prolongent donc la série, quel que soit le code (JBI : VA le 20/04,
+       RJF le 21) ; elle s'arrête à la première journée prestée, à une
+       maladie ou à un poste prévu non presté. La maladie, elle, reste sa
+       propre famille et ne compte que ses jours. */
+    if(famille==="CONGE"){
+      /* « 8h -FT » garde ses heures payées (A.h vaut 0) mais la personne
+         ne vient pas : une journée entière de flex time repris est un jour
+         de congé ici — LHR le 27/09, qui reprend le 28. */
+      if(A){ if(A.k==="SMG" || (A.h<hJour-0.01 && !(A.ft<0 && -A.ft>=hJour-0.01))) break; }
+      else if(r.s) break;
+    }
+    else if(!A || A.k!==famille) break;
     dernier=[y,m,j];
     vus.push(k);
   }
@@ -6556,6 +6566,13 @@ function renderEquipe(){
          le DERNIER, et que le rendu se taisait au lieu de le dire.
          finAbsence() rend la dernière journée de la série ; quand il n'y en
          a pas au-delà d'aujourd'hui, c'est une information, pas un vide. */
+      /* Le congé dit le jour où l'on RETRAVAILLE : sa série court repos
+         compris (finAbsence, « CONGE »), et « jusqu'au dimanche » se lirait
+         moins bien que « reprise le lundi ». */
+      function repriseApres(f){
+        var d=new Date(Date.UTC(f[0],f[1]-1,f[2]+1));
+        return d.getUTCDate()+" "+MOIS_BREF[d.getUTCMonth()];
+      }
       /* « Absent jusqu'au 27 Septembre », et non « MAL · jusqu'au 27
          sept. ». Le client, le 26/09/2026 : « au lieu de MAL, il faut
          indiquer Absent jusqu'au 27 Septembre ». Chez nous, absent veut dire
@@ -6564,8 +6581,8 @@ function renderEquipe(){
       var det=(g.k==="abs")?(x.fin?"Absent jusqu'au "+x.fin[2]+"\u00a0"+MOIS[x.fin[1]-1]
                 :"Absent jusqu'à aujourd'hui")
              :(g.k==="cong")?esc(x.r.a)+(x.fin?
-                " \u00b7 jusqu'au "+x.fin[2]+" "+MOIS_BREF[x.fin[1]-1]
-                :" \u00b7 dernier jour")
+                " \u00b7 reprise le "+repriseApres(x.fin)
+                :" \u00b7 reprise demain")
              :(x.prevu?esc(x.r.s)+" prévu":
               (x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):""));
       var note=(x.fait?"fait fonction":"")||(x.comble?"comble le poste":"")
