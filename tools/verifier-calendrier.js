@@ -247,6 +247,8 @@ function enregistre(r,hJour){
     if(r.rhsJ) rec.rh=r.rhsJ;
     /* rappel sur un repos payé en heures sup (compute() le lit) */
     if(r.rs) rec.rs=1;
+    /* heures sup écrites en commentaire */
+    if(r.hc){ rec.hc=r.hc; if(r.hcp) rec.hcp=r.hcp; }
   }
   return rec;
 }
