@@ -245,6 +245,8 @@ function enregistre(r,hJour){
     if(r.hsp) rec.hsp=r.hsp;
     /* les heures reprises au compteur HS dans une journée prestée */
     if(r.rhsJ) rec.rh=r.rhsJ;
+    /* rappel sur un repos payé en heures sup (compute() le lit) */
+    if(r.rs) rec.rs=1;
   }
   return rec;
 }

@@ -189,6 +189,9 @@ for(var m=1;m<=12;m++){
        montre 13 — c'est l'outil qui se trompait, pas elle. */
     var r=lireJournee(db,e,db.year,m,d,fit,ep[d],8,rv[d]);
     var hj=(r.h===undefined?8:r.h);
+    /* rappel sur un repos : aucune heure normale, comme la fiche — mais la
+       prime de pause reste payée, sur les heures sup */
+    if(r.rs){ par[r.hsp||r.s]=(par[r.hsp||r.s]||0)+hj; j++; hj=0; }
     var A=r.a&&ABSMAP[r.a];
     if(r.s&&hj>0){ h+=hj; j++; par[r.s]=(par[r.s]||0)+hj; }
     jours[k]={s:(r.s&&hj>0)?r.s:null,h:(r.s?hj:0),a:r.a||null,

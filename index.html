@@ -2156,6 +2156,7 @@ var ABS=[
  {c:"8H -FT",h:0,k:"FT",ft:-8},
  {c:"1H HS",h:0,k:"HS",hs:1},{c:"2H HS",h:0,k:"HS",hs:2},{c:"3H HS",h:0,k:"HS",hs:3},{c:"4H HS",h:0,k:"HS",hs:4},
  {c:"5H HS",h:0,k:"HS",hs:5},{c:"6H HS",h:0,k:"HS",hs:6},{c:"7H HS",h:0,k:"HS",hs:7},{c:"8H HS",h:0,k:"HS",hs:8},
+ {c:"9H HS",h:0,k:"HS",hs:9,hidden:true},{c:"10H HS",h:0,k:"HS",hs:10,hidden:true},{c:"11H HS",h:0,k:"HS",hs:11,hidden:true},{c:"12H HS",h:0,k:"HS",hs:12,hidden:true},
  {c:"FER",h:8,k:"FER"},{c:"1/2 FER",h:4,k:"FER"},
  {c:"SMG",h:8,k:"SMG"},{c:"1/2 SMG",h:4,k:"SMG"},
  {c:"FORM",h:8,k:"FORM"},{c:"1/2 FORM",h:4,k:"FORM"},
@@ -2420,12 +2421,17 @@ function compute(){
     var isFer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
     var h=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:Number(rec.h)):0;
     if(rec.s && h>0){
-      acc.hTot+=h; acc.jours++;
+      acc.jours++;
       /* le chèque-repas suppose au moins quatre heures prestées */
       if(h>=4) acc.joursCr++;
-      byShift[rec.s][t]+=h;
-      if(t==="Samedi") acc.sam+=h; if(t==="Dimanche") acc.dim+=h;
-      if(isFer&&t==="Semaine") acc.ferie+=h;
+      /* un rappel sur un repos ne donne AUCUNE heure normale : ses heures
+         passent par les heures sup à compenser (voir lireJournee, r.rs) */
+      if(!rec.rs){
+        acc.hTot+=h;
+        byShift[rec.s][t]+=h;
+        if(t==="Samedi") acc.sam+=h; if(t==="Dimanche") acc.dim+=h;
+        if(isFer&&t==="Semaine") acc.ferie+=h;
+      }
       if(rec.v){acc.velo++;} else {acc.joursInd++;}
     }
     /* OP_BWZ_CoD_00020, point D : « aucune prime ne sera accordée en cas de
@@ -5055,6 +5061,26 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     r.h=hJour-4;
     r.ax=(r.ax||[]).concat(["1/2 CE"]);
   }
+  /* UN RAPPEL SUR UN REPOS SE PAIE EN HEURES SUP À COMPENSER. La fiche de
+     LCI le 11/04, ["-","N","rappel le 07.04"] : aucune heure normale, 8 h
+     d'heures sup à compenser (sursalaire payé, heure au compteur), 8 h de
+     prime de nuit majorée, et le repos reste payé. Le client, le
+     26/09/2026 : « la règle est la même pour tout le monde ». C'est sa
+     règle du 25/09 : le classeur ÉCRIT l'épargne au flex time, son silence
+     désigne le compteur d'heures sup — d'où l'exigence d'aucun « +FT ».
+
+     La journée garde son poste et ses heures, parce que la personne était
+     bien au poste : placement, manques et calendrier n'en voient rien.
+     Seule la PAIE change — compute() lit r.rs et verse ces heures au
+     mécanisme des heures sup (ax « nH HS », poste hsp) au lieu des heures
+     prestées. */
+  if((raw[0]||"").trim()==="-" && r.s && !r.a && !(r.ax && r.ax.length)
+     && !(r.epargne>0) && /rappel/i.test(raw[2]||"")){
+    var hRs=(r.h===undefined)?hJour:r.h;
+    if(hRs>=1 && hRs<=12 && Math.abs(hRs-Math.round(hRs))<0.01){
+      r.ax=[Math.round(hRs)+"H HS"]; r.hsp=r.hsp||r.s; r.rs=true;
+    }
+  }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
   return r;
@@ -5153,6 +5179,7 @@ function remplirMois(db,person,y,m,M){
          compteur plutôt que sur la fiche du mois */
       if(parsed.hsp) nrec.hsp=parsed.hsp; else delete nrec.hsp;
       if(parsed.rhsJ) nrec.rh=parsed.rhsJ; else delete nrec.rh;
+      if(parsed.rs) nrec.rs=1; else delete nrec.rs;
       /* Le poste porte la prime PAYÉE ; il ne dit pas ce qui a été PRESTÉ.
          VBN le 30/09 : nuit prévue, journée faite en délégation CPPT. Le
          calendrier annuel montrait déjà les deux, le mois n'en gardait
