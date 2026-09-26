@@ -5575,9 +5575,32 @@ function posteEcrit(raw){
    L'exception est double, et elle se lit : il faut la polyvalence du poste
    ET un commentaire qui dise le remplacement. Huit personnes sont dans ce
    cas, et elles prestent près de 250 journées par an. */
-function enFormation(person){ return /formation/i.test(person&&person.cat||""); }
+/* UNE FORMATION COMMENCE À UNE DATE. Le client, le 26/09/2026 : « il a
+   commencé en meunerie le 21/09 ». La feuille range SKS parmi les
+   opérateurs en formation, avec « Meunerie » en ligne 9, pour TOUTE
+   l'année — alors que ses commentaires ne nomment la meunerie qu'à partir
+   du 21/09, et que sa polyvalence le déclare validé en fermentation,
+   distillation et chaudières. Avant cette date il n'apprenait rien : il
+   tenait les postes qu'il possède, et le placer en meunerie « en plus »
+   le retirait des effectifs de tout un printemps.
+
+   La date vient du client, pas du classeur — d'où une table nommée, comme
+   POSTE_PERIODE. Elle porte l'ANNÉE, pour la même raison. Sans jour connu
+   on lit aujourd'hui, ce que montrent la composition et le Recyclage. */
+var FORMATION_DEBUT={ SKS:"20260921" };
+function formationCommencee(p,jour){
+  var d=FORMATION_DEBUT[(p&&p.id)||""]; if(!d) return true;
+  if(!jour){
+    var n=new Date();
+    jour=n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();
+  }
+  return jour>=Number(d);
+}
+function enFormation(person,jour){
+  return /formation/i.test(person&&person.cat||"") && formationCommencee(person,jour);
+}
 function compteAuPoste(x,P,jour){
-  if(!enFormation(x.p)) return true;
+  if(!enFormation(x.p,jour)) return true;
   /* C'est la QUALIFICATION qui décide, pas le commentaire. Le client dit
      « il n'est pas valide À CE POSTE » : là où sa polyvalence le porte, il
      est valide et il compte ; là où elle ne le porte pas — le poste sur
@@ -5931,9 +5954,13 @@ function posteTenu(person,raw,hJour,poste,jour){
   /* La ligne 9 AVANT le champ « e » : elle nomme le poste, là où « e » n'est
      qu'un vidage de tout ce qui entoure le nom. C'est aussi là que la
      cellule fusionnée des chaudières est corrigée — voir posteLigne9(). */
-  k=posteLigne9(person,jour); if(k) return k;
-  var ent=person.e||[];
-  for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
+  /* Avant le début de sa formation, la ligne 9 et « e » nomment un poste
+     qu'il n'occupe pas encore — voir FORMATION_DEBUT. */
+  if(formationCommencee(person,jour)){
+    k=posteLigne9(person,jour); if(k) return k;
+    var ent=person.e||[];
+    for(i=0;i<ent.length;i++){ k=posteDepuisNom(ent[i]); if(k) return k; }
+  }
   var at=(person.poly&&person.poly.ateliers)||[];
   if(at.length===1) return posteDepuisNom(at[0]);
   return null;
@@ -6192,7 +6219,7 @@ function postesDePause(db,liste,gk,mmdd){
        L'ordre seul change : « tenu », « attendu » et les drapeaux posés
        plus haut restent ce qu'ils étaient. */
     var tient=[], apprend=[];
-    gens.forEach(function(x){ (enFormation(x.p)?apprend:tient).push(x); });
+    gens.forEach(function(x){ (enFormation(x.p,jourCalc)?apprend:tient).push(x); });
     gens=tient.concat(apprend);
     var attendu=attenduAuPoste(P,gk,ren);
     sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,

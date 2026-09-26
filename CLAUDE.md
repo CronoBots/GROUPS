@@ -1110,12 +1110,33 @@ Opérateurs ». **Une mise en forme survit à celui pour qui elle a été posée
 une colonne réattribuée garde les couleurs de son ancien occupant. SKS reste
 en formation en meunerie, comme la ligne 9 et « Polyvalence » le disent.
 
+### Une formation commence à une date
+
+Le client, le 26/09/2026, dans la foulée : « il a commencé en meunerie le
+21/09 ». La feuille range SKS parmi les opérateurs en formation, « Meunerie »
+en ligne 9, pour toute l'année ; ses commentaires ne nomment la meunerie
+qu'à partir du 21/09, et sa polyvalence le déclare validé en fermentation,
+distillation et chaudières. `FORMATION_DEBUT` porte la date : avant elle,
+`enFormation()` rend faux et `posteTenu()` ne lit ni la ligne 9 ni `e`.
+
+Mesuré : neuf règles, compteurs et `--manques 0926` **identiques à
+l'octet** ; manques de l'année **386 → 362** places, 189 → 177 journées ;
+SKS **« à déterminer » 31 journées** et déduit de sa polyvalence 67 fois ;
+son recyclage passe de « Chaudières 10/10 » à Terrain arrière 32, Distillation
+20, Chaudières 13, Fermentation 11 — **34** couples au quota au lieu de 32.
+Vérifié au navigateur, hors ligne compris.
+
+**Question ouverte** : quel était son poste avant le 21/09 ? Tant qu'on ne
+le sait pas, aucun n'est « le sien » et tout compte en recyclage.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
+- **le poste de SKS avant le 21/09** (et son équipe) : renfort sans poste
+  fixe, ou un poste qui ne doit pas compter en recyclage ?
 - **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
   l'effectif attendu ?
 - **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
