@@ -3934,23 +3934,26 @@ ils sont consignateurs ; GSK l'a fait le temps de sa reprise après une
 longue absence ; les opérateurs en formation commencent tous par des D
 avant de passer en pause au poste. Aucun de ces D ne s'écrit.
 
-- **« 7-15 » ou « H. flot. »** sous le trigramme, en petit, quand la
-  cellule ou l'annotation porte 7h-15h ou « H. flott. » (`horaireEcritD()`,
-  lu dans le classeur du jour). Toute autre plage : rien.
-- **Un D écrit 6h-14h passe en AM** (`equipeDuJour()`), et **seulement
-  sans code de jour ni autre plage**. La première version déplaçait aussi
-  20 journées `["6h-14h","F"]`, `D-F`, `DS-CE` et `D-CPPT` : formations et
-  réunions où la plage n'est que le poste prévu (GDT le 14/10,
-  « formation anglais sur site 8h-11h »). Le journal des déplacements l'a
-  montré avant le commit ; restent SKS les 5, 6 et 7/10, `["6h-14h","D"]`.
-  Les autres écritures 6-14 étaient déjà au matin, par `posteDepuisPlage()`.
+- **« 7-15 », « H. flot. » ou « 6-14 »** à côté du trigramme, en petit,
+  quand la cellule ou l'annotation porte 7h-15h, « H. flott. » ou 6h-14h
+  (`horaireEcritD()`, lu dans le classeur du jour). Toute autre plage :
+  rien. Le 6-14 ne s'écrit jamais avec un code de jour : dans
+  `["6h-14h","F"]`, `D-F`, `DS-CE` ou `D-CPPT`, la plage n'est que le poste
+  prévu (GDT le 14/10, « formation anglais sur site 8h-11h »).
+- **Un D écrit 6h-14h reste dans la colonne D.** Une première version le
+  passait en AM, dans `equipeDuJour()`. Elle déplaçait d'abord aussi vingt
+  journées de formation ou de réunion, ce que le journal des déplacements
+  a montré avant le commit. Restreinte à SKS les 5, 6 et 7/10
+  (`["6h-14h","D"]`), elle a été poussée en v269 : SKS comblait la
+  fermentation du 05/10. Le client, aussitôt : « je préfère laisser les
+  gens prévus en D (6-14) dans la colonne D mais préciser à côté leurs
+  horaires ». La règle est retirée en v271, et SKS porte « 6-14 ».
 
-La lecture de la journée ne bouge pas : paie, calendrier, compteurs et
-Recyclage sont identiques à l'octet. Seul le placement bouge : le 05/10,
-SKS comble la fermentation du matin (0/1). Manques d'ici la fin de
-l'année 8 → 7, sur l'année 269 → 268 places. Vérifié au navigateur le
-28/09 (AFA et JBI « 7-15 », YRS rien), le 05/10 (SKS en AM) et le 02/12
-(FPA « H. flot. »), à 320, 390 et 1280 px, hors ligne compris.
+Rien ne bouge dans la lecture ni dans le placement : les quatre sorties du
+vérificateur sont identiques à l'octet à celles d'avant v269. Vérifié au
+navigateur le 28/09 (AFA et JBI « 7-15 », YRS rien), le 05/10 (SKS
+« 6-14 ») et le 02/12 (FPA « H. flot. »), à 320, 390 et 1280 px, hors
+ligne compris.
 
 **« Postes en sous-effectif », sans choix d'horizon, et un prochain poste
 qui dit où.** Le client, le 26/09/2026 : « il ne doit pas y avoir de
