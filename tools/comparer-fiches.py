@@ -338,7 +338,7 @@ def main():
 # qui lui répond. « repos » couvre le jour de repos payé ET le dimanche : la
 # fiche d'ouvrier paie ses repos, l'horaire les écrit « - ».
 EQUIV = {"VA": "VA", "SMG": "MAL", "TP": "TP", "CPAR": "CP", "RTT": "RTT-np",
-         "RHS": "COMPENSATION PAYEE", "GREVE": "GREVE"}
+         "RHS": "COMPENSATION PAYEE", "CE": "COMPENSATION PAYEE", "GREVE": "GREVE"}
 
 
 def comparer_jours(fiches, jours):
