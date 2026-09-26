@@ -1107,8 +1107,8 @@ en meunerie — une coïncidence qui ressemblait à une preuve. Le client, le
 26/09/2026 : « cela ne correspond à rien, sûrement une ancienne zone d'un
 autre opérateur, car SKS a pris sa place dans l'horaire de la page
 Opérateurs ». **Une mise en forme survit à celui pour qui elle a été posée** :
-une colonne réattribuée garde les couleurs de son ancien occupant. SKS reste
-en formation en meunerie, comme la ligne 9 et « Polyvalence » le disent.
+une colonne réattribuée garde les couleurs de son ancien occupant. SKS est
+en formation en meunerie — depuis le 21/09 seulement, voir plus bas.
 
 ### Une formation commence à une date
 
@@ -1126,8 +1126,33 @@ son recyclage passe de « Chaudières 10/10 » à Terrain arrière 32, Distillat
 20, Chaudières 13, Fermentation 11 — **34** couples au quota au lieu de 32.
 Vérifié au navigateur, hors ligne compris.
 
-**Question ouverte** : quel était son poste avant le 21/09 ? Tant qu'on ne
-le sait pas, aucun n'est « le sien » et tout compte en recyclage.
+**Son poste d'avant : polyvalent arrière de l'équipe 5.** Le client, le
+26/09/2026 : « il était polyvalent arrière dans l'équipe 5 avant cela ; il a
+été sorti de l'horaire d'équipe pour sa formation meunerie ». Il entre donc
+dans `POSTE_PERIODE` — terrain arrière jusqu'au 20/09 —, la seconde tranche
+de la table après LCI.
+
+**Et le Recyclage lisait « son poste » sur aujourd'hui**, ce qui ne tient plus
+dès qu'on change de poste à une date : en formation aujourd'hui, SKS n'a pas
+de poste à lui, et ses journées au terrain arrière d'avant le 21/09
+comptaient comme du recyclage — **103/10**, un quota atteint dix fois sur le
+poste qu'il tenait tous les jours. `posteAttitreLe(p, jour)` rend le poste
+attitré CE jour-là, et `calculerPolyvalence()` n'y compte pas une journée à ce
+poste. **Rejoué sans cette règle, seul SKS change** : elle ne touche
+personne d'autre, puisque personne d'autre ne change de poste avant
+aujourd'hui.
+
+Mesuré, depuis l'état d'avant le 21/09 : neuf règles, compteurs et
+`--manques 0926` **identiques à l'octet** ; manques de l'année **386 → 358**
+places, 189 → 177 journées, **plus aucun « à déterminer »** ; SKS
+« Chaudières 10/10 ✓, Distillation 4, Fermentation 2, Terrain arrière 0,
+Meunerie F » ; **31** couples au quota au lieu de 32 — ceux qui tenaient le
+terrain arrière à sa place y comptent moins (PLZ 16 → 9, CDE 8 → 3, SMA
+30 → 28). Vérifié au navigateur, hors ligne compris.
+
+Le découpage du vérificateur prend désormais `POSTE_PERIODE` jusqu'à
+`] };` : la table tient sur plusieurs lignes, et la découpe au premier saut
+de ligne rendait une `SyntaxError`.
 
 ### Ce qui attend le client
 
@@ -1135,8 +1160,6 @@ L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **le poste de SKS avant le 21/09** (et son équipe) : renfort sans poste
-  fixe, ou un poste qui ne doit pas compter en recyclage ?
 - **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
   l'effectif attendu ?
 - **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;

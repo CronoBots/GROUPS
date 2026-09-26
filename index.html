@@ -6522,6 +6522,7 @@ function calculerPolyvalence(db){
           var r=y.r; if(!r||!r.s) return;
           var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
           if(Math.abs(h-st.params.hJour)>0.01) return;
+          if(o.P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           if(!parId[y.p.id]) parId[y.p.id]={};
           parId[y.p.id][o.P.k]=(parId[y.p.id][o.P.k]||0)+1;
         });
@@ -6575,7 +6576,11 @@ function calculerPolyvalence(db){
    Elle se lit sur AUJOURD'HUI, et l'onglet Équipe n'a pas de sélecteur de
    date : il montre la composition telle qu'elle est au moment où on la
    regarde, ce qui reste vrai de bout en bout. */
-var POSTE_PERIODE={ LCI:[{jusqu:"20260929", k:"ferm"}] };
+var POSTE_PERIODE={ LCI:[{jusqu:"20260929", k:"ferm"}],
+  /* Le client, le 26/09/2026 : « il était polyvalent arrière dans l'équipe 5
+     avant cela ; il a été sorti de l'horaire d'équipe pour sa formation
+     meunerie ». La veille de FORMATION_DEBUT, donc. */
+  SKS:[{jusqu:"20260920", k:"terr"}] };
 function _posteDePeriode(p,jour){
   var l=POSTE_PERIODE[(p&&p.id)||""]; if(!l) return null;
   /* LE JOUR CALCULÉ, ET NON AUJOURD'HUI, quand on le connaît. La première
@@ -6613,6 +6618,19 @@ function _posteDeLigne9(p){
    seule polyvalence étant devenue son poste, il ne lui restait rien à
    montrer, et le « F » de la distillation partait avec. Le rendu les lisait
    déjà séparément : `sien` s'exclut, `posteForm` porte le F. */
+/* SON poste CE JOUR-LÀ. Le Recyclage lit « son poste » sur aujourd'hui,
+   et pour presque tout le monde c'est le même toute l'année. Pas pour qui
+   a changé de poste à une date : SKS tenait le terrain arrière jusqu'au
+   20/09, et ses journées là-bas y comptaient comme du recyclage parce
+   qu'aujourd'hui il est en formation, sans poste à lui. Une journée à
+   SON poste du moment n'est pas une polyvalence, quel que soit celui
+   qu'il a aujourd'hui. */
+function posteAttitreLe(p,jour){
+  var t=_posteDePeriode(p,jour); if(t) return t;
+  if(enFormation(p,jour)) return null;
+  try{ return posteTenu(p,[],st.params.hJour,null,jour)||posteParDefaut(p); }
+  catch(e){ return posteParDefaut(p); }
+}
 function posteAttitre(p){
   var tranche=_posteDePeriode(p); if(tranche) return tranche;
   return enFormation(p)?null:_posteDeLigne9(p);
