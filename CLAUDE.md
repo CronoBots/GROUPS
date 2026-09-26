@@ -3952,6 +3952,24 @@ l'année 8 → 7, sur l'année 269 → 268 places. Vérifié au navigateur le
 28/09 (AFA et JBI « 7-15 », YRS rien), le 05/10 (SKS en AM) et le 02/12
 (FPA « H. flot. »), à 320, 390 et 1280 px, hors ligne compris.
 
+**« Postes en sous-effectif », sans choix d'horizon, et un prochain poste
+qui dit où.** Le client, le 26/09/2026 : « il ne doit pas y avoir de
+sélection de temps sur les postes en manque ; il faut l'appeler "Postes en
+sous-effectif" et ne pas marquer le nombre de journées regardées ; dans le
+cadre Mon prochain poste il faut écrire la date, la pause, le poste
+occupé ». Les boutons 7 j / 14 j / 30 j / Tout sont partis avec leur
+écouteur et la clé `ui/mqHorizon` : le module regarde d'aujourd'hui à la
+fin de l'horaire, et son sous-titre ne dit plus que « 7 journées » ou
+« rien à signaler ». Le cadre écrit « Lundi 28 septembre · D ·
+Contremaître », avec « (demain) » quand c'en est un et les heures
+seulement si la journée n'est pas complète. Le poste vient de
+`posteLeJour()`, la chaîne du tableau du jour (`equipeDuJour()` puis
+`postesDePause()`, colonne D comprise) : le cadre et le tableau disent
+donc la même chose. La pastille colorée est partie, puisque la pause
+s'écrit en toutes lettres, et avec elle ses styles et ceux de `.mqbar`.
+Les quatre sorties du vérificateur sont identiques à l'octet ; rien ne
+déborde à 320, 390 et 1280 px, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait

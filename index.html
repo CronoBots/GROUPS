@@ -795,13 +795,6 @@ body.sheet-on{overflow:hidden}
 .prochain{display:flex; align-items:center; gap:11px; padding:12px 16px;
   border-top:1px solid var(--line2); border-bottom:1px solid var(--line2)}
 .prochain[hidden]{display:none}
-.pp-pastille{flex:0 0 auto; min-width:44px; text-align:center; padding:5px 9px; border-radius:9px;
-  font-size:12px; font-weight:700; letter-spacing:.02em; background:var(--surface3); color:var(--ink2)}
-.pp-pastille[data-p="AM"]{background:var(--am-soft); color:var(--am)}
-.pp-pastille[data-p="PM"]{background:var(--pm-soft); color:var(--pm)}
-.pp-pastille[data-p="N"] {background:var(--n-soft);  color:var(--n)}
-.pp-pastille[data-p="D"] {background:var(--d-soft);  color:var(--d)}
-.pp-rien{color:var(--faint)}
 .pp-txt{font-size:13px; color:var(--muted); min-width:0}
 .pp-txt b{color:var(--ink); font-weight:650}
 
@@ -1100,8 +1093,6 @@ body.sheet-on{overflow:hidden}
 /* Les manques à venir. Une ligne par journée, et sur la ligne une pastille
    par poste en manque, dans la couleur de sa pause — on lit la semaine d'un
    coup d'œil sans dérouler quoi que ce soit. */
-.mqbar{display:flex; align-items:center; gap:10px; padding:0 16px}
-.mqbar .seg{flex:1 1 auto}
 .mqcorps{padding:8px 16px 12px}
 .mqj{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   width:100%; text-align:left; background:none; border:0; cursor:pointer;
@@ -1789,20 +1780,12 @@ body[data-horaire="annee"] #rotasub{display:none}
     <div class="card" id="mqCard">
       <details id="mqFold" open>
       <summary>
-        <h2>Postes en manque</h2>
+        <h2>Postes en sous-effectif</h2>
         <span class="sub" id="mqSub"></span>
       </summary>
-      <div class="mqbar">
-        <!-- « À partir d'aujourd'hui » a disparu : le module ne regarde
-             JAMAIS en arrière, c'est sa règle de naissance. L'écrire au-dessus
-             de lui, c'était occuper une ligne pour décrire ce qu'il est. -->
-        <div class="seg" id="mqHorizon" role="group" aria-label="Horizon">
-          <button type="button" data-h="7" aria-pressed="false">7 j</button>
-          <button type="button" data-h="14" aria-pressed="true">14 j</button>
-          <button type="button" data-h="30" aria-pressed="false">30 j</button>
-          <button type="button" data-h="0" aria-pressed="false">Tout</button>
-        </div>
-      </div>
+      <!-- Plus de choix d'horizon : le client, le 26/09/2026, « il ne doit
+           pas y avoir de sélection de temps ». Le module regarde
+           d'aujourd'hui à la fin de l'horaire, jamais en arrière. -->
       <div class="mqcorps" id="mqCorps"></div>
       </details>
     </div>
@@ -3312,16 +3295,21 @@ function majProchain(){
     var quand=(dem.getFullYear()===y&&dem.getMonth()===m0&&dem.getDate()===d)?" demain"
              :(" "+JOURS_LONGS[(dt.getUTCDay()+6)%7].toLowerCase()+" "+d
                +(m0!==now.getMonth()?" "+MOIS[m0].toLowerCase():""));
-    el.innerHTML='<span class="pp-pastille" data-p="'+esc(postePeint(r))+'">'
-      +esc(marqueDoute(r,r.j?etiqJour(r.j):postePeint(r)))+'</span>'
-      /* Le titre de section dit déjà « Mon prochain poste » : le cadre
-         commence donc par QUAND, le mot qu'on y cherche. */
-      /* La pastille dit déjà la pause (AM, PM, N, D) : le texte ne la
-         répète pas. */
-      +'<span class="pp-txt"><b>'+esc(quand.charAt(1).toUpperCase()+quand.slice(2))+'</b>'
-      +(r.j?" · en D":"")
+    /* LA DATE, LA PAUSE, LE POSTE OCCUPÉ. Le client, le 26/09/2026 :
+       « dans le cadre mon prochain poste il faut écrire la date, la pause,
+       le poste occupé ». La date s'écrit en entier, « demain » en plus
+       quand c'en est un ; la pause en code (AM, PM, N, D) ; le poste est
+       celui que le tableau du jour lui donne ce jour-là (posteLeJour). Les
+       heures ne s'écrivent que si la journée n'est pas complète. */
+    var date=JOURS_LONGS[(dt.getUTCDay()+6)%7]+" "+d+" "+MOIS[m0].toLowerCase();
+    var pause=marqueDoute(r,r.j?"D":postePeint(r));
+    var pl=db&&p?posteLeJour(db,p.id,y,m0+1,d):null;
+    var poste=(pl&&pl.poste)||(r.j?etiqJour(r.j):"");
+    el.innerHTML='<span class="pp-txt"><b>'+esc(date)+'</b>'
+      +(quand===" demain"?" (demain)":"")
+      +" · "+esc(pause)+(poste?" · "+esc(poste):"")
       +(gardePrime(r)?" · prime "+esc(r.s)+" conservée":"")
-      +" · "+num(h)+" h"
+      +(Math.abs(h-hJ)>0.01?" · "+num(h)+" h":"")
       +(F[y+"-"+pad2(m0+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
     el.hidden=false;
   }
@@ -3354,7 +3342,7 @@ function majProchain(){
   /* L'horaire n'est pas encore chargé : on ne dit rien plutôt que « plus
      de poste », qui serait faux. */
   if(!p){ el.hidden=true; return; }
-  el.innerHTML='<span class="pp-pastille pp-rien">—</span><span class="pp-txt">'
+  el.innerHTML='<span class="pp-txt">'
     +"<b>Plus de poste</b> prévu dans l'horaire.</span>";
   el.hidden=false;
 }
@@ -3754,6 +3742,28 @@ function applyOnboard(){
    Et, depuis le 22/09/2026, à « que fait-il AUJOURD'HUI ». La fonction ne
    change jamais ; le poste du jour, si — et c'est lui qu'on vient chercher
    en ouvrant l'application le matin. */
+/* Le poste occupé un jour donné, par la chaîne même du tableau du jour :
+   equipeDuJour() puis postesDePause(), colonne D comprise. Rend la pause
+   et le poste, ou null si la personne ne travaille pas ce jour-là. */
+function posteLeJour(db,id,annee,m,j){
+  var mmdd=pad2(m)+pad2(j), par=equipeDuJour(db,annee,m,j), i, k, q, r;
+  for(i=0;i<EQ_GROUPES.length;i++){
+    var g=EQ_GROUPES[i];
+    if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N"&&g.k!=="D") continue;
+    var l=par[g.k]||[];
+    for(k=0;k<l.length;k++){
+      if(l[k].p.id!==id) continue;
+      var vue=postesDePause(db,l,g.k,mmdd);
+      for(q=0;q<vue.postes.length;q++){
+        var gens=vue.postes[q].gens;
+        for(r=0;r<gens.length;r++) if(gens[r].p.id===id)
+          return {pause:g.t, poste:vue.postes[q].P.t};
+      }
+      return {pause:g.t, poste:""};
+    }
+  }
+  return null;
+}
 function posteDuJourDe(db,id){
   var au=new Date(), annee=Number(db.year);
   if(au.getFullYear()!==annee) return null;
@@ -7781,7 +7791,7 @@ function renderAnnuaire(db,moi){
    Il ne recalcule rien : equipeDuJour() et postesDePause() sont celles de
    l'onglet Équipe. Une alerte qui compterait autrement que la vue du jour
    serait pire que pas d'alerte du tout. */
-var mqHorizon=Number(lsGet("ui/mqHorizon")||14);
+var mqHorizon=0;
 /* « octo » n'est pas une abréviation ; celles-ci sont celles de l'usage. */
 var MOIS_BREF=["janv.","févr.","mars","avr.","mai","juin",
                "juil.","août","sept.","oct.","nov.","déc."];
@@ -7850,16 +7860,16 @@ function renderManques(force){
         +(x.inc>1?"s":"")+' encore à déterminer ce jour-là">+'+x.inc
         +"<u>?</u></span>":"")+"</span></button>");
     });
-    hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun poste en manque</b> '
-      +"sur l'horizon regardé.</p>";
+    hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun poste en sous-effectif</b> '
+      +"d'ici la fin de l'horaire.</p>";
     var n=r.jours.length;
     /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
        renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
        même phrase ne disait rien de plus la seconde. */
+    /* Le nombre de journées regardées n'est plus écrit (le client, le
+       26/09/2026) : seules comptent celles qui manquent de monde. */
     document.getElementById("mqSub").textContent=
-      n ? n+" journée"+(n>1?"s":"")+" \u00b7 "+r.examines+" regardée"
-          +(r.examines>1?"s":"")
-        : "rien à signaler sur "+r.examines+" journée"+(r.examines>1?"s":"");
+      n ? n+" journée"+(n>1?"s":"") : "rien à signaler";
     hote.onclick=function(e){
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j));
@@ -7878,21 +7888,6 @@ function renderManques(force){
   var v=lsGet("ui/mqFold");
   d.open=(v===null) ? (window.innerWidth>=760) : !!v;
   d.addEventListener("toggle",function(){ lsSet("ui/mqFold",d.open); });
-})();
-(function(){
-  var seg=document.getElementById("mqHorizon"); if(!seg) return;
-  seg.addEventListener("click",function(e){
-    var b=e.target.closest?e.target.closest("button[data-h]"):null; if(!b) return;
-    mqHorizon=Number(b.dataset.h);
-    lsSet("ui/mqHorizon",String(mqHorizon)); mqFait="";
-    Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
-      x.setAttribute("aria-pressed", x===b?"true":"false");
-    });
-    renderManques();
-  });
-  Array.prototype.forEach.call(seg.querySelectorAll("button"),function(x){
-    x.setAttribute("aria-pressed", Number(x.dataset.h)===mqHorizon?"true":"false");
-  });
 })();
 function eqBouge(n){
   var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; renderEquipe();
