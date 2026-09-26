@@ -3655,6 +3655,21 @@ trigrammes**, et la règle qui les mettait dessus sous 380 px est partie.
 390 px : Absents 236 px, Congé et repos 345 px ; rien ne déborde à 320, 390
 et 1280 px, hors ligne compris.
 
+**Puis en tuiles.** Le client, le 26/09/2026, capture à l'appui — prise sur
+la version d'AVANT les deux cadres, que son téléphone n'avait pas encore
+reçue : « il y a moyen de mieux organiser ça pour que cela fasse moins vide
+et mieux réparti ». En lignes, une date à une personne laissait les trois
+quarts de la largeur vides. Chaque date est désormais une TUILE — la date
+en haut, les trigrammes dessous —, en grille de cases d'au moins 96 px :
+trois côte à côte à 390 px, deux à 320. La largeur suit le nombre de
+personnes : une ou deux, une case ; trois ou quatre, deux cases ; au-delà,
+la ligne entière. `grid-auto-flow: dense` comble les trous avec les petites
+tuiles — **ce qui peut placer une date avant une plus proche** (le 29/09
+avant le 28/09, que ses 19 personnes envoient sur sa propre ligne) :
+l'ordre est celui des dates, sauf pour boucher un trou. Absents 7 lignes →
+3, Congé et repos 11 → 5 à 390 px ; vérifié en clair et en sombre, à 320,
+390 et 1280 px, hors ligne compris.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et

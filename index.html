@@ -1363,13 +1363,22 @@ body.sheet-on{overflow:hidden}
 .eqreste .eqn i{display:inline; margin-left:5px}
 /* Les absents et les congés, chacun dans son cadre, regroupés par date :
    la date dans une colonne étroite, les trigrammes à côté. */
-.eqgrp{padding:10px 16px 12px}
-.eqdg{display:flex; align-items:baseline; gap:10px; margin:0 0 4px}
-.eqdg:last-child{margin-bottom:0}
-.eqdd{flex:0 0 82px; font-size:11px; font-weight:600; color:var(--muted);
-  white-space:nowrap}
-.eqdn{flex:1 1 auto; min-width:0; line-height:1.3}
-.eqgrp .eqn{margin-right:10px}
+/* Une tuile par date, et non une ligne. Le client, le 26/09/2026 : « il y a
+   moyen de mieux organiser ça pour que cela fasse moins vide et mieux
+   réparti ». En lignes, une date à une personne laissait les trois quarts
+   de la largeur vides ; en tuiles, trois dates tiennent côte à côte sur un
+   téléphone, et la grille se remplit dans l'ordre des dates, les trous
+   comblés par les petites tuiles (dense). */
+.eqgrp{padding:10px 12px 12px; display:grid; gap:6px;
+  grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); grid-auto-flow:row dense}
+.eqdg{background:var(--surface2); border:1px solid var(--line); border-radius:8px;
+  padding:6px 8px 7px; min-width:0}
+.eqdg-m{grid-column:span 2}
+.eqdg-l{grid-column:1/-1}
+.eqdd{font-size:10.5px; font-weight:600; color:var(--muted); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; margin-bottom:2px}
+.eqdn{line-height:1.35}
+.eqgrp .eqn{margin:0 8px 0 0}
 .eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
 }
 }
@@ -6855,7 +6864,12 @@ function renderEquipe(){
         else if(G.c===99999999) titre="Sans date";
         else if(!x.fin) titre="Demain";
         else titre=court(x.fin[0],x.fin[1],x.fin[2]+1);
-        return '<div class="eqdg"><div class="eqdd">'+esc(titre)+'</div>'
+        /* Une tuile par date. Sa largeur suit le nombre de personnes : une
+           ou deux tiennent dans une case, trois à quatre en prennent deux,
+           au-delà la ligne entière — sinon dix-neuf trigrammes s'empilent
+           dans une case étroite pendant que les autres restent vides. */
+        var n=G.gens.length, large=n>4?" eqdg-l":(n>2?" eqdg-m":"");
+        return '<div class="eqdg'+large+'"><div class="eqdd">'+esc(titre)+'</div>'
           +'<div class="eqdn">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")
           +"</div></div>";
       }).join("");
