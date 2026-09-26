@@ -1101,14 +1101,21 @@ journée reste une maladie. La règle du barré du 26/09 avait déjà retiré
 « remplace CGI » des trois journées ; avant elle, l'horaire faisait croire
 que GSK remplaçait quelqu'un un jour où il était malade.
 
+**Le gris des colonnes de SKS ne veut rien dire non plus.** Grisées sur
+« Opérateurs » du 02/01 au 12/06, elles tombaient pile sur ses 112 journées
+en meunerie — une coïncidence qui ressemblait à une preuve. Le client, le
+26/09/2026 : « cela ne correspond à rien, sûrement une ancienne zone d'un
+autre opérateur, car SKS a pris sa place dans l'horaire de la page
+Opérateurs ». **Une mise en forme survit à celui pour qui elle a été posée** :
+une colonne réattribuée garde les couleurs de son ancien occupant. SKS reste
+en formation en meunerie, comme la ligne 9 et « Polyvalence » le disent.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au 12/06 —
-  exactement ses 112 journées de formation en meunerie ;
 - **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
   l'effectif attendu ?
 - **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
