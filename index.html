@@ -1244,6 +1244,17 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
   color:var(--at-jaune)}
 #eqCorps .eqp2 td.vided{background:transparent}
+/* La couleur range l'ordre de lecture (« go tout », 26/09/2026) : les
+   intitulés de poste un cran plus clairs, les tirets un cran plus
+   discrets. Un tiret dit « rien à voir ici » ; il ne doit pas peser autant
+   qu'un trigramme. */
+#eqCorps .eqp2 tbody th.eqposte b{color:var(--muted)}
+#eqCorps .eqp2 td.vide{color:var(--faint); opacity:.45}
+/* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
+   et « Aujourd'hui » en petit. */
+#v-resume .toolbar.eqnav{padding:7px 12px}
+#v-resume .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
+#v-resume .eqnav #eqAuj{padding:4px 9px; font-size:11.5px}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
@@ -6781,11 +6792,12 @@ function renderEquipe(){
       tp.push('<thead><tr><th class="eqposte"></th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
-        /* Deux lignes, pas trois : l'horaire et l'effectif tiennent sur la
-           même, séparés d'un point médian. */
-        tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b><em>"
-          +(g.s?'<span class="eqheure">'+esc(g.s)+" \u00b7 </span>":"")
-          +vp[g.k].n+" pers.</em></th>");
+        /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
+           (« go tout ») : le total est déjà sous « À l'usine », et un
+           effectif se lit en comptant les trigrammes. Reste l'horaire, au
+           bureau seulement : sur téléphone, .eqheure est masqué. */
+        tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
+          +(g.s?'<em class="eqheure">'+esc(g.s)+"</em>":"")+"</th>");
       });
       tp.push("</tr></thead><tbody>");
       /* Une légende qui explique un signe ABSENT de l'écran est du bruit :
