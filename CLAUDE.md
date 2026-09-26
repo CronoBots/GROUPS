@@ -1218,14 +1218,29 @@ fermentation 13 → 11 ; **23 couples au quota, inchangé**.
 La nuit du 23/03, dernier jour de la première fenêtre, reste en manque sur
 six postes : c'est la règle du client, la fenêtre se tient.
 
+### Les compteurs CP, TP, CT comptent les journées posées
+
+Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
+journées DÉJÀ POSÉES, et « à planifier » (ou « solde à planifier ») ce qui
+reste du droit de l'année — LCI 25 posées dans l'horaire pour un compteur
+de 25 et 1 à planifier, GSK 51 et 51 et 1.
+
+**RCO en a une de plus dans l'horaire** : 27 journées `CP` pour un compteur
+de 26 et rien à planifier. Le client, le 26/09/2026, entre le 01/01 et le
+11/11 — les deux fériés de la série : **le CP du 01/01 ne compte pas** (jour
+férié, ou compté sur 2025). Le 11/11, lui, compte.
+
+**Rien n'est codé** : l'application affiche les compteurs du classeur tels
+quels et ne les recalcule pas. Si un jour elle les recompte depuis les
+journées, cette journée-là est l'exemple à reproduire — et un férié ne
+suffit PAS à l'écarter, puisque le 11/11 reste dans le compte.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les compteurs CP, TP, CT** : comptent-ils les journées posées ou le droit
-  de l'année ? LCI, GSK et RCO ont une journée de plus dans l'horaire ;
 - **les lettres G et H** du degré de polyvalence ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
