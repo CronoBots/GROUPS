@@ -112,7 +112,21 @@ def lire_jours(brut):
     if "Détail des prestations" not in brut:
         return {}
     d = " ".join(brut[brut.index("Détail des prestations"):].split())
-    d = d.split("##########")[0]
+    # Le détail court sur plusieurs pages, et l'outil n'en lisait que la
+    # PREMIÈRE : la fin du mois tombait sans un mot, et une journée coupée
+    # par le saut de page perdait sa suite (LCI le 22/03 : la prime en bas
+    # de page, « 8:00 HEURES NORMALES » en haut de la suivante). Chaque page
+    # « (suite) » est recollée à partir de sa première prestation, ce qui
+    # laisse l'en-tête — nom, adresse — derrière.
+    pages = d.split("##########")
+    d = pages[0]
+    for pg in pages[1:]:
+        if "Détail des prestations (suite)" not in pg:
+            continue
+        m = re.search(r"\d{1,2}:\d{2} [A-Z]|\b(?:Lu|Ma|Me|Je|Ve|Sa|Di) \d{2}\.\d{2}\.\d{4}",
+                      pg[pg.index("(suite)"):])
+        if m:
+            d += " " + pg[pg.index("(suite)") + m.start():]
     morceaux = re.split(r"\b(?:Lu|Ma|Me|Je|Ve|Sa|Di) (\d{2})\.(\d{2})\.\d{4}", d)
     out = {}
     for i in range(1, len(morceaux) - 2, 3):

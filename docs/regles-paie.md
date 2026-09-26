@@ -1620,12 +1620,20 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | **tranché le 26/09/2026, pour tout le monde** : un rappel sur un repos sans « +FT » se paie en heures sup à compenser, prime de pause majorée, aucune heure normale (`r.rs`) ; 122 journées. Le 11/04 concorde, taux de 187,5 % compris ; le 13/04 (cellule `N`, pas `-`) reste un écart |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
 | 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
-| 22/03 | `N` | prime de nuit sans heure normale | non expliqué |
+| 22/03 | `N` | prime de nuit sans heure normale | **faux écart** : la suite du jour était sur la page suivante, que l'outil ne lisait pas |
 
 Chacune touche à un montant : la règle se demande au client, une à la fois
 (voir `CLAUDE.md`, « Ce qui attend le client »). Les grèves sont tranchées ;
 après elles, **205 journées sur 214** concordent — 206 avec le +FT, 207 avec la reprise partielle, 208 avec
-le conseil d'entreprise, **209** avec le rappel sur un repos.
+le conseil d'entreprise, 209 avec le rappel sur un repos.
+
+**L'outil ne lisait que la PREMIÈRE PAGE du détail**, corrigé le
+26/09/2026 : la fin de chaque mois tombait sans un mot, et une journée
+coupée par le saut de page perdait sa suite — LCI le 22/03, dimanche
+travaillé et payé à 200 %, passait pour « prime sans heure normale » et je
+l'avais posé comme un écart inexpliqué. Après correction : **243 journées
+confrontées, 239 identiques** ; restent le 20/02, le 05/04 (départ
+anticipé sans code, question posée), le 13/04 et le 15/04.
 
 **Une limite qu'il faut connaître** : l'application calcule une rémunération
 FIXE, celle d'un employé. Une journée non payée — grève, congé sans solde,
