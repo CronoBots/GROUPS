@@ -1244,6 +1244,7 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn{line-height:14px}
 #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
 #eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
+#eqCorps .eqp2 td .eqn .eqhd{display:block; font-size:9.5px; font-weight:500; line-height:11px; color:var(--muted)}
 #eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
   color:var(--at-jaune)}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
@@ -6573,6 +6574,25 @@ function equipeDuJour(db,annee,mois,jour){
        surSonPosteMalgreF() les connaît, et c'est la même garde que celle de
        postesDePause() deux fonctions plus bas. */
     var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
+    /* UN « D » ÉCRIT 6h-14h SE FAIT AU MATIN. Le client, le 26/09/2026 :
+       « il y a des gens qui font D (6-14), il faut les mettre dans la
+       colonne 6-14 ». SKS les 5 au 7/10, ["6h-14h","D"] : l'annotation D
+       dit une journée de jour, la cellule en donne les heures, et ce sont
+       celles du matin. Seulement si aucune autre plage n'est écrite :
+       ["6h-14h","7h-15h"] dit que la journée s'est faite en 7-15. Et
+       jamais avec un code de jour : ["6h-14h","F"] est une formation, la
+       plage n'y est que le poste prévu (GDT le 14/10, « formation anglais
+       sur site 8h-11h ») — vingt journées de formation ou de réunion
+       seraient parties au matin. */
+    if(pv==="D" && !r.jourCode && !r.sp){
+      var pl614=false, plAutre=false;
+      [raw[0],raw[1]].forEach(function(t){
+        t=String(t||"").replace(/\s+/g,"");
+        if(/^0?6h?-14h?$/i.test(t)) pl614=true;
+        else if(/\d+h.*-|flott/i.test(t)) plAutre=true;
+      });
+      if(pl614 && !plAutre) pv="AM";
+    }
     /* PAYÉ N'EST PAS PRÉSENT. Le client, le 26/09/2026, devant deux
        contremaîtres de nuit : YPE porte ["N","8h -FT","Remplacé par VGG"],
        une journée entière de flex time repris. Ses heures sont payées
@@ -6734,6 +6754,18 @@ function renderEquipe(){
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
        n'est pas une information perdue, c'est une information rangée. */
+    /* La colonne D précise l'horaire quand le classeur l'écrit : « 7-15 »
+       ou « H. flot. ». Le client, le 26/09/2026 : « les autres en D
+       préciser 7-15 ou H. flot. », et « D seul laisser rien » — le D de
+       YRS et BLR (7h30-16h, consignateurs), celui d'une reprise ou d'un
+       début de formation ne s'écrivent pas. */
+    function horaireEcritD(p){
+      var raw=p.d&&p.d[mmdd]||[], t=[raw[0],raw[1]].map(function(v){
+        return String(v||"").replace(/\s+/g,""); });
+      var lib=t.some(function(v){ return /flott/i.test(v); })?"H. flot."
+             :t.some(function(v){ return /^0?7h?-15h?$/i.test(v); })?"7-15":"";
+      return lib?'<small class="eqhd">'+lib+"</small>":"";
+    }
     function chip(x,g,posteCourant,nu){
       /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
          ne sait pas jusqu'à quand. Le client, le 23/09/2026 : « pourquoi pas
@@ -6778,6 +6810,7 @@ function renderEquipe(){
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
         +(nu&&formIci&&posteCourant?'<small class="eqf">(F)</small>':"")
+        +(nu&&g.k==="D"?horaireEcritD(x.p):"")
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";

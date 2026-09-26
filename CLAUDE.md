@@ -3926,6 +3926,32 @@ aucune légende) et le 28/09 (ligne FORM) ; neuf règles, manques,
 compteurs et Recyclage identiques à l'octet ; rien ne déborde à 320, 390
 et 1280 px, hors ligne compris.
 
+**La colonne D dit l'horaire quand le classeur l'écrit.** Le client, le
+26/09/2026 : « il y a des gens qui font D (6-14), il faut les mettre dans
+la colonne 6-14 ; les autres en D, préciser 7-15 ou H. flot. », puis « D
+seul laisser rien ». Le D seul de YRS et BLR est un 7h30-16h, les jours où
+ils sont consignateurs ; GSK l'a fait le temps de sa reprise après une
+longue absence ; les opérateurs en formation commencent tous par des D
+avant de passer en pause au poste. Aucun de ces D ne s'écrit.
+
+- **« 7-15 » ou « H. flot. »** sous le trigramme, en petit, quand la
+  cellule ou l'annotation porte 7h-15h ou « H. flott. » (`horaireEcritD()`,
+  lu dans le classeur du jour). Toute autre plage : rien.
+- **Un D écrit 6h-14h passe en AM** (`equipeDuJour()`), et **seulement
+  sans code de jour ni autre plage**. La première version déplaçait aussi
+  20 journées `["6h-14h","F"]`, `D-F`, `DS-CE` et `D-CPPT` : formations et
+  réunions où la plage n'est que le poste prévu (GDT le 14/10,
+  « formation anglais sur site 8h-11h »). Le journal des déplacements l'a
+  montré avant le commit ; restent SKS les 5, 6 et 7/10, `["6h-14h","D"]`.
+  Les autres écritures 6-14 étaient déjà au matin, par `posteDepuisPlage()`.
+
+La lecture de la journée ne bouge pas : paie, calendrier, compteurs et
+Recyclage sont identiques à l'octet. Seul le placement bouge : le 05/10,
+SKS comble la fermentation du matin (0/1). Manques d'ici la fin de
+l'année 8 → 7, sur l'année 269 → 268 places. Vérifié au navigateur le
+28/09 (AFA et JBI « 7-15 », YRS rien), le 05/10 (SKS en AM) et le 02/12
+(FPA « H. flot. »), à 320, 390 et 1280 px, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
