@@ -842,6 +842,19 @@ marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
 
+### Le jour férié presté
+
+Le client, le 26/09/2026 : même règle pour les ouvriers et les employés. Une
+heure prestée un jour férié se paie à **200 %** — en semaine, un supplément
+de 200 % du salaire horaire qui n'est pas déduit ensuite ; un samedi férié,
+comme un dimanche. La prime d'équipe de ces heures est majorée à 200 %.
+L'ouvrier reçoit en plus un « jour de repos payé » de compensation ; chez
+l'employé il est dans la rémunération fixe.
+
+Mesuré sur LCI : mai (16 h fériées, −424,99 € + −39,20 € de prime), 21/07
+(−212,50 € + −14,40 €) et 15/08, un samedi (−106,24 € + −7,20 €) — après
+la règle, les trois mois concordent au centime sur le brut.
+
 ### Un déplacement demandé garde la prime la plus élevée
 
 Le client, le 26/09/2026 : « si c'est un déplacement qui est demandé par la

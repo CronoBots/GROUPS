@@ -1360,6 +1360,25 @@ commentaire du 14/01 porte et que l'application ne lit pas.
 `verifier-calendrier.js` rejoue la lecture d'UNE personne à la fois, jamais
 un changement de personne dans le même navigateur.
 
+### Un férié presté se paie à 200 %, prime d'équipe comprise
+
+Le rapprochement au centime des fiches de LCI (26/09/2026) : mai, le 21/07
+et le 15/08 manquaient exactement « heures fériées × taux horaire », et la
+prime d'équipe doublée. Le client : « c'est la même règle pour les employés
+aussi ». Le supplément d'un férié en semaine passe de 100 à **200 %**, non
+déduit ; un férié un **samedi** se paie comme un dimanche ; la prime d'une
+heure fériée va au seau du dimanche. Mai, juillet et août de LCI concordent
+alors **au centime** sur le brut ; le net des huit mois passe de −910 € (au
+premier tableau) à −41 €.
+
+**Comment on est arrivé au centime** : chaque paramètre de la fiche repris
+dans l'application — le TAUX HORAIRE (26,1568 puis 26,5622, via une
+rémunération de référence taux × 148,368 et l'écart de base en « autre
+rémunération brute »), la réduction de précompte sur heures sup, le
+volontariat fiscal sorti du précompte, la fraction 0,90 —, puis l'écart
+rangé par rubrique, puis la rubrique ramenée à la journée. **Chaque écart
+restant a une journée et une ligne de fiche**.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
