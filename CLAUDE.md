@@ -3739,6 +3739,34 @@ tableau passe de 470 à 386 px et le cadre de 585 à 482 px. Les règles
 portent `#eqCorps` en tête : elles battent les règles de téléphone par la
 spécificité, quel que soit leur ordre dans la feuille.
 
+### Les pauses se disent AM, PM, N et D
+
+Le client, le 26/09/2026 : « il faut parler en AM PM N D au lieu du nom de
+la pause complet ». C'est ce qu'écrit le classeur, et ce qu'on dit à
+l'usine. Les deux tables de libellés passent aux codes : `EQ_GROUPES` (le
+tableau du jour, la barre du haut) et `POSTE_LIB` (le calendrier, sa
+légende, les infobulles, le prochain poste). Les `toLowerCase()` qui les
+suivaient sont retirés : ils auraient écrit « am ». La barre du haut dit
+donc désormais « Fermentation · AM » ou « D », et plus « Contremaître ·
+Nuit » comme le montrent les exemples plus haut dans ce fichier. **Restent
+en toutes lettres, et c'est voulu : les lignes de fiche de paie**
+(`SHIFT_NOMS`, « Suppl. Équipe Nuit »). Elles recopient le secrétariat
+social, et l'onglet Contrôle se lit ligne à ligne contre la fiche.
+
+Le prochain poste ne répète plus la pause dans son texte : la pastille la
+porte. On lit « [AM] Demain · 8 h ».
+
+**Noms de poste courts sur téléphone** (le client a choisi l'option B) :
+« CM », « Adj. », « Meun. », « Glut. », « Ferm. », « T. arr. », « Dist. »,
+« Chaud. » et « STEP », avec les noms
+complets au-delà de 760 px. Le mécanisme est celui de l'onglet Équipe,
+`.orgl1` / `.orgl2`. La colonne passe de 122 à 62 px, et chaque pause de
+78 à 98 px. Cette largeur sert à la lisibilité : les trigrammes passent de
+10,5 à 12 px, pour un tableau de 396 px (386 avant, 470 ce matin). La
+ligne de la journée s'appelle « D ». Rien ne déborde à 320, 390 et
+1280 px, hors ligne compris. Les quatre sorties du vérificateur sont
+identiques à l'octet : ses sorties parlent en codes depuis toujours.
+
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée
 n'a pas de pause, et trois colonnes vides l'auraient fait lire comme un
