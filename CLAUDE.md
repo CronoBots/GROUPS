@@ -1379,6 +1379,24 @@ volontariat fiscal sorti du précompte, la fraction 0,90 —, puis l'écart
 rangé par rubrique, puis la rubrique ramenée à la journée. **Chaque écart
 restant a une journée et une ligne de fiche**.
 
+### Deux lectures de commentaire que la fiche a confirmées
+
+Toujours le 26/09/2026, sur le rapprochement au centime de LCI :
+
+- **les heures sup écrites en commentaire** — « +0,5 hs », « +3h hs » :
+  trente journées de l'année, que l'application ne lisait pas. La fiche du
+  14/01 les paie en heures sup à compenser, prime de la pause de la plage
+  citée (`r.hc`, `r.hcp`) ;
+- **deux rappels à deux dates** dans le même commentaire — « Rappel le
+  07/04 + rappel le 13/04 » : deux primes, 12 h 05 d'heures de déplacement
+  sur la fiche (`secondRappel()`, `rec.r2`). Une date recopiée ne compte
+  qu'une fois.
+
+Résultat sur LCI : **brut au centime** en janvier, mai, juin, juillet et
+août ; février +0,90 € (le 20/02), mars −0,36 €, avril −5,40 € ; **net à
+moins de 8 € chaque mois**, le reste étant un précompte de 6 à 11 € plus
+bas que la fiche. Neuf règles, manques, Recyclage et compteurs identiques.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
