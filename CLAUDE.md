@@ -3892,6 +3892,15 @@ compris.
 Neuf règles, manques, compteurs et Recyclage identiques à l'octet ; rien
 ne déborde, hors ligne compris.
 
+**Et trois retouches encore** (le client, le même soir) : sur téléphone,
+les postes s'écrivent en trois capitales — « CM », « ADJ », « MEU »,
+« GLU », « FER », « TER », « DIS », « CHA », « STEP » — ; les trigrammes
+passent en graisse normale, seule la personne choisie restant en gras ; et
+le zébra s'adoucit. Le jeton `--zebre` vaut, en sombre, le milieu entre la
+carte et l'ancien `--surface2` (`#1C2130`). En clair il garde la valeur
+d'avant, déjà très légère. Neuf règles, manques, compteurs et Recyclage
+identiques ; rien ne déborde, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
