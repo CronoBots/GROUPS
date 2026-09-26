@@ -5234,9 +5234,22 @@ function remplirMois(db,person,y,m,M){
          laissait en place à jamais. C'est ce qui gardait des nuits les 11,
          12 et 13 septembre chez VBN. On ne touche qu'aux journées venues
          de l'horaire — celles saisies à la main sont sorties plus haut. */
-      if(rec && (rec.s||rec.a||rec.r)){
-        delete rec.s; delete rec.h; delete rec.a; delete rec.r;
-        rec.auto=1; bilan.vides++;
+      /* TOUT ce que le pré-remplissage écrit, et pas seulement le poste.
+         L'effacement ne retirait que s, h, a et r : les heures sup (ax,
+         hsp, rs), la reprise (rh), le code de jour (j), le poste presté
+         (sp) et le doute (q) restaient. Découvert le 26/09/2026 en
+         rapprochant la fiche de LCI de janvier : l'application pré-remplit
+         d'abord la première personne de la liste — AFA, rappelé sur un
+         repos le 31/01 pour 3 h —, puis LCI, dont le 31/01 est un repos ;
+         LCI héritait des trois heures sup d'AFA, sursalaire et prime
+         compris. Changer de personne, ou recevoir un classeur qui change
+         une journée en repos, suffisait. */
+      var CHAMPS_AUTO=["s","h","a","r","ax","hsp","rs","rh","j","sp","q"], vu=false, ci;
+      if(rec){
+        for(ci=0; ci<CHAMPS_AUTO.length; ci++){
+          if(rec[CHAMPS_AUTO[ci]]!==undefined){ delete rec[CHAMPS_AUTO[ci]]; vu=true; }
+        }
+        if(vu){ rec.auto=1; bilan.vides++; }
       }
       bilan.repos++;
     } else {

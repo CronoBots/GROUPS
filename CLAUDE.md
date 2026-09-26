@@ -1343,6 +1343,23 @@ repos (LCI 23/09, SVE 21/09), sans aucun commentaire : question posée au
 client le 26/09/2026 — venus travailler (A, heures sup ; B, payé
 normalement) ou simple note (C).
 
+### Changer de personne laissait des heures sup d'une autre
+
+Trouvé le 26/09/2026 en rapprochant au centime la fiche de janvier de LCI :
+l'application lui comptait 3 h d'heures sup que ni son horaire ni sa fiche
+ne portent. Le pré-remplissage remplit d'abord la première personne de la
+liste — AFA, rappelé sur un repos le 31/01 —, puis celle qu'on choisit ;
+sur un repos, `remplirMois()` n'effaçait que `s`, `h`, `a` et `r`, et
+laissait `ax`, `hsp`, `rs`, `rh`, `j`, `sp`, `q`. LCI héritait des heures
+sup d'AFA, sursalaire et prime compris. Tous les champs écrits par le
+pré-remplissage sont désormais effacés. Janvier de LCI passe de +71,57 € à
+**−7,89 €** de brut — exactement la demi-heure sup « +0,5 hs » que son
+commentaire du 14/01 porte et que l'application ne lit pas.
+
+**Le rapprochement au centime trouve ce qu'aucun vérificateur ne voit** :
+`verifier-calendrier.js` rejoue la lecture d'UNE personne à la fois, jamais
+un changement de personne dans le même navigateur.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
