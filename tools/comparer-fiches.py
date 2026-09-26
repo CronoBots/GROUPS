@@ -197,6 +197,8 @@ for(var m=1;m<=12;m++){
       var AY=ABSMAP[r.ax[q2]];
       if(AY) ab[AY.k]=(ab[AY.k]||0)+((r.s||AY.h<8-0.01)?(AY.h||0):0);
     }
+    /* la reprise partielle d'une journée prestée, comme compute() */
+    if(r.s && r.rhsJ) ab.RHS=(ab.RHS||0)+r.rhsJ;
     if(A){
       /* même règle que la fiche : une absence d'une journée entière posée
          sur un repos ne vaut aucune heure */

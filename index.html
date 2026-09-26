@@ -2453,6 +2453,8 @@ function compute(){
       }
       acc.rapMt[rec.r]=R(acc.rapMt[rec.r]+mt);
     }
+    /* reprise partielle d'une journée prestée : payée, sans prime d'équipe */
+    if(rec.s && Number(rec.rh||0)>0) acc.abs.RHS=(acc.abs.RHS||0)+Number(rec.rh);
     var codesJour=(rec.a?[rec.a]:[]).concat(rec.ax||[]);
     for(var cj=0;cj<codesJour.length;cj++){
       var A=ABSMAP[codesJour[cj]]; if(!A) continue;
@@ -4178,9 +4180,12 @@ var ATELIERS=/^(meunerie|distill|disti|terr\.?\s*arr|poly|chaudi|gluten|ferm|ste
 /* Reprise d'heures supplémentaires : « 2,25h RHS », « 1h rhs », « 0,5 rhs ».
    Le client : « RHS est un compteur hors fichier ; s'il les reprend c'est
    marqué, mais ce n'est pas marqué quand il en fait ». Comme le flex time,
-   une reprise ne retire rien à la journée — AFA le 28/01, prévu 7h-15h,
-   part à 12h45 : 5 h 45 de présence plus 2 h 15 reprises, soit ses 8 h.
-   C'est un compteur À PART du flex time, qui a le sien en bas du classeur. */
+   une reprise ne retire rien au TOTAL payé de la journée — AFA le 28/01,
+   prévu 7h-15h, part à 12h45 : 5 h 45 de présence plus 2 h 15 reprises,
+   soit ses 8 h. Mais depuis le 26/09/2026 les heures reprises ne sont plus
+   comptées prestées : elles se paient sans prime d'équipe — voir la fin de
+   lireJournee(). C'est un compteur À PART du flex time, qui a le sien en
+   bas du classeur. */
 function reprisRHS(txt){
   var m=(txt||"").trim().match(/^([\d]+(?:[.,][\d]+)?)\s*h?\s*rhs$/i);
   if(!m) return 0;
@@ -4977,6 +4982,28 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       if(AR2 && AR2.h>0) r.h=Math.max(0,((r.h===undefined)?hJour:r.h)-AR2.h);
     }
   }
+  /* UNE REPRISE PARTIELLE SORT DE LA PRIME D'ÉQUIPE. Le client, le
+     26/09/2026, devant la fiche d'un ouvrier : LCI le 17/06, ["DS-CE","1h
+     rhs"], porte 7 h de nuit et 1 h de « Compensation payée ». La journée
+     vaut toujours ses huit heures payées — c'est la règle d'AFA le 28/01 —
+     mais les heures reprises ne sont pas prestées : elles se paient sans la
+     prime de la pause. Elles passent donc des heures prestées au compteur
+     de récup. HS de la fiche (rec.rh), et ne s'ajoutent plus au total
+     « reprises au compteur » du mois, qui ne garde que les reprises posées
+     sur une journée sans poste.
+
+     Ici et non dans parseHoraireEntry() : LCI n'a pas de poste dans sa
+     cellule — « DS-CE » est un code de jour —, c'est le cycle, plus haut,
+     qui lui donne la nuit. Posée avant, la règle ne voyait pas de poste. */
+  /* Une plage déjà plus courte que la journée dit la présence elle-même :
+     DWS le 25/03, ["8h-12h","4h rhs"], est venu quatre heures et en a repris
+     quatre. Les heures prestées valent donc AU PLUS la journée moins la
+     reprise, et on ne retranche pas deux fois. */
+  if(r.rhs>0 && r.s){
+    var hRhs=(r.h===undefined)?hJour:r.h;
+    r.h=Math.max(0,Math.min(hRhs,hJour-r.rhs));
+    r.rhsJ=r.rhs;
+  }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
   return r;
@@ -5074,6 +5101,7 @@ function remplirMois(db,person,y,m,M){
       /* le poste des heures supplémentaires, et le fait qu'elles aillent au
          compteur plutôt que sur la fiche du mois */
       if(parsed.hsp) nrec.hsp=parsed.hsp; else delete nrec.hsp;
+      if(parsed.rhsJ) nrec.rh=parsed.rhsJ; else delete nrec.rh;
       /* Le poste porte la prime PAYÉE ; il ne dit pas ce qui a été PRESTÉ.
          VBN le 30/09 : nuit prévue, journée faite en délégation CPPT. Le
          calendrier annuel montrait déjà les deux, le mois n'en gardait
@@ -5087,7 +5115,7 @@ function remplirMois(db,person,y,m,M){
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       bilan.filled++;
       if([nrec.s,nrec.h,nrec.a,nrec.r].join("|")!==avant) bilan.changes++;
-      if(parsed.rhs) bilan.rhs+=parsed.rhs;
+      if(parsed.rhs && !parsed.rhsJ) bilan.rhs+=parsed.rhs;
       if(parsed.unknown || parsed.modifie || rap) bilan.verifier++;
     } else if(!(raw[0]||"").trim() || (raw[0]||"").trim()==="-"){
       /* une journée de repos est parfaitement lue : il n'y a rien à
