@@ -38,9 +38,12 @@ compteur commun et des compteurs séparés atteint 17 chèques à l'année.
 > « RHS, c'est un compteur hors fichier ; si le travailleur les reprend c'est
 > marqué, mais ce n'est pas marqué quand il en fait. » — le client
 
-Une reprise de récup. HS ne retire rien à la journée, comme un `-FT` : AFA le
-28/01, prévu 7h-15h, part à 12h45 — 5 h 45 de présence plus 2 h 15 reprises,
-soit ses 8 h. 173 journées de l'horaire 2026 en portent une.
+Une reprise de récup. HS ne retire rien au total payé de la journée, comme un
+`-FT` : AFA le 28/01, prévu 7h-15h, part à 12h45 — 5 h 45 de présence plus
+2 h 15 reprises, soit ses 8 h. **Mais les heures reprises ne sont pas
+prestées** : elles se paient sans prime d'équipe (voir « RHS » plus bas,
+tranché le 26/09/2026). 178 journées prestées de l'horaire 2026 en portent
+une.
 
 **Le reliquat se reporte de mois en mois et repart à zéro en début d'année.**
 L'application calculant un mois à la fois, trois champs de l'onglet Horaire
@@ -829,7 +832,7 @@ Deux écritures, deux sens :
 
 | Écriture | Sens | Effet |
 |---|---|---|
-| `2h RHS`, `1h rhs`, `2,25h RHS` | une **reprise** | comble la journée — AFA le 28/01, prévu 7 h-15 h, part à 12 h 45 : 5 h 45 de présence + 2 h 15 reprises = ses 8 h |
+| `2h RHS`, `1h rhs`, `2,25h RHS` | une **reprise** | comble la journée — AFA le 28/01, prévu 7 h-15 h, part à 12 h 45 : 5 h 45 de présence + 2 h 15 reprises = ses 8 h. Les 2 h 15 se paient **sans prime d'équipe** |
 | `RHS` **seul** | la **journée entière** | absence, exactement comme `RTT` seul |
 
 Le compteur est le même dans les deux cas : une journée entière en consomme
@@ -838,6 +841,28 @@ distinct du flex time — s'il reprend des heures c'est marqué, mais rien n'est
 marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
+
+### Une reprise partielle sort de la prime d'équipe
+
+Tranché par le client le 26/09/2026, devant la fiche d'un ouvrier : LCI le
+17/06, `["DS-CE","1h rhs"]`, porte **7 h de nuit et 1 h de « Compensation
+payée »**. La journée vaut toujours huit heures payées, mais l'heure reprise
+n'est pas prestée : elle se paie sans la prime de la pause.
+
+L'application le fait désormais à la fin de `lireJournee()` — après la
+correction de cycle, car la cellule de LCI ne nomme pas de poste. Les
+heures prestées valent **au plus 8 − n** : une plage déjà courte dit la
+présence elle-même (DWS le 25/03, `["8h-12h","4h rhs"]` : 4 h prestées,
+4 h reprises), et l'on ne retranche pas deux fois. Les `n` heures vont à la
+ligne « Heure(s) récup. heures supplémentaires » (`rec.rh`) et quittent le
+total « reprises au compteur » du mois, qui ne garde que les reprises posées
+sur une journée sans poste.
+
+Mesuré : **178 journées chez 53 personnes, 377,5 heures** passent de la
+prime d'équipe à la récup. HS. Neuf règles, manques et compteurs identiques
+à l'octet ; une case de polyvalence bouge — FPS gluten 9 → 8, son 05/06
+`["gluten","1h rhs"]` n'étant plus une journée de 8 h pleines. Juin de LCI
+concorde désormais avec sa fiche : 103 h, 31 h de nuit.
 
 ## RTT- — le tiret ne change rien
 
@@ -1535,7 +1560,9 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 |---|---|---|---|
 | 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains. **Tranché le 26/09/2026** : « c'est bien grève, l'employeur ne paye rien » — `GREVE_JOURS` |
 | 14/08 | `PM · 4h +FT` | 8 h payées | sur un poste PRÉVU sans heure écrite, le +FT s'AJOUTE aux 8 h ; l'application les en retranche |
-| 17/06, 25/08, 20/02 | `1h rhs`, `DS-CE` | 7 h + 1 h, 4 h + 4 h, 7 h 30 + 30 min | les heures reprises ou syndicales sortent de la prime d'équipe |
+| 17/06 | `DS-CE · 1h rhs` | 7 h + 1 h de compensation | **tranché le 26/09/2026** : une reprise partielle sort de la prime d'équipe — voir « RHS » |
+| 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | le client : « ils font souvent la journée 7-15 ou 6-14 au lieu du PM » — la fiche dit autre chose, à confronter |
+| 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | un rappel sur un repos n'est pas un poste ordinaire |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
 | 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
@@ -1543,7 +1570,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 
 Chacune touche à un montant : la règle se demande au client, une à la fois
 (voir `CLAUDE.md`, « Ce qui attend le client »). Les grèves sont tranchées ;
-après elles, **205 journées sur 214** concordent.
+après elles, **205 journées sur 214** concordent — 206 avec le +FT, **207** avec la reprise partielle.
 
 **Une limite qu'il faut connaître** : l'application calcule une rémunération
 FIXE, celle d'un employé. Une journée non payée — grève, congé sans solde,

@@ -243,6 +243,8 @@ function enregistre(r,hJour){
     if(r.ax && r.ax.length) rec.ax=r.ax.slice();
     /* le poste des heures supplémentaires, quand il n'est pas celui du jour */
     if(r.hsp) rec.hsp=r.hsp;
+    /* les heures reprises au compteur HS dans une journée prestée */
+    if(r.rhsJ) rec.rh=r.rhsJ;
   }
   return rec;
 }

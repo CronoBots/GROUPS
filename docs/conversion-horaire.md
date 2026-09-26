@@ -322,7 +322,7 @@ Exemples relus dans le classeur 2026 :
 | Cellule / annotation | Cycle | Résultat |
 |---|---|---|
 | `D-CPPT` / `1h rhs` (VBN 28/01) | AM | **AM**, prime du matin conservée |
-| `DS-CE` / `1h rhs` (LCI 17/06) | N | **N**, prime de nuit conservée |
+| `DS-CE` / `1h rhs` (LCI 17/06) | N | **N**, prime de nuit conservée sur 7 h ; l'heure reprise se paie sans prime (`docs/regles-paie.md`, « RHS ») |
 | `-` / `D-F` (ATR 23/04) | repos | **D**, sans prime |
 
 **Une absence qui couvre la journée entière l'emporte** : `?DS|VA`,

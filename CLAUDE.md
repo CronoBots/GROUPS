@@ -1240,6 +1240,24 @@ de l'application est FIXE ; une journée non payée — grève, sans solde,
 absence injustifiée — y apparaît en heures sans rien ôter. Limite
 antérieure, écrite dans `docs/regles-paie.md`.
 
+### Une reprise partielle sort de la prime d'équipe
+
+Le client, le 26/09/2026, devant la fiche de LCI du 17/06 —
+`["DS-CE","1h rhs"]`, 7 h de nuit et 1 h de « Compensation payée » : les
+heures reprises se paient sans prime. Règle et mesures dans
+`docs/regles-paie.md`, « RHS ».
+
+**Posée d'abord dans `parseHoraireEntry()`, elle n'a rien changé** : la
+cellule de LCI ne nomme pas de poste, c'est le cycle qui le donne, dans
+`lireJournee()`. Elle vit donc à la fin de celle-ci. **Et la première
+version retranchait deux fois** : DWS le 25/03, `["8h-12h","4h rhs"]`,
+tombait à zéro heure alors que sa plage dit déjà sa présence. Les heures
+prestées valent au plus 8 − n.
+
+178 journées chez 53 personnes, 377,5 h ; neuf règles, manques et compteurs
+identiques à l'octet ; FPS gluten 9 → 8 au Recyclage ; `comparer-fiches` LCI
+207 journées sur 214. Vérifié au navigateur sur juin, hors ligne compris.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
