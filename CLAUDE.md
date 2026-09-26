@@ -3852,8 +3852,12 @@ les absences du jour**. Une plage déjà écourtée n'est donc pas retranchée
 deux fois : ADK `["7h-15h","8h-12h","+4RHS"]` reste à 4 h, et CKS
 `["7h-15h","1/2VA","+2h RTT Départ à 9h"]` tombe à 2 h, ce que dit son
 départ. Le flex time repris ne retire rien aux heures payées : c'est la
-présence qui baisse. « +4h CSS » n'a pas de code de quatre heures (une
-journée, SMA le 10/09) et reste telle quelle.
+présence qui baisse. « +4h CSS » est une demi-journée de congé sans
+solde, non payée (le client, le 26/09/2026). Elle a désormais ses codes
+cachés, `4H CSS` et `1/2 CSS`, de la famille de `SANS SOLDE` : SMA le
+10/09 est une absence complète, ½ DTT + ½ CSS. Une journée de plus en
+absence ; neuf règles, compteurs, manques et Recyclage identiques à
+l'octet.
 
 Mesuré : **20 journées passent de prestées à absences** (14 494 → 14 474),
 les autres ont moins d'heures ; neuf règles à zéro ; compteurs et
