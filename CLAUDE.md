@@ -57,6 +57,16 @@ nomme) — et, s'il se tait, c'est une question au client, écrite dans ce
 fichier. **Une correction faite à la main peut être fausse** : l'une des
 quatre du 25/09 l'était.
 
+**Les commentaires d'abord, avant toute question.** Le client, le
+26/09/2026 : « surtout les commentaires, ce sont les plus importants et ça
+résout presque toutes tes questions ». Il venait de le prouver : les 19-20
+et le 30/08 de VBN, même cellule, deux primes — la réponse était « échange
+avec VBN », écrit dans la colonne d'un COLLÈGUE. Avant de poser une
+question : (1) le commentaire de la journée, (2) ceux de TOUS les autres
+le même jour qui nomment la personne (« remplace X », « échange avec X »,
+« remplacé par X »), (3) le brut `data/classeur-2026-brut.json`, barré
+compris. Ne demander que si les trois se taisent — et le dire.
+
 **Deux copies d'une même règle divergent, et c'est la seconde qui reste en
 arrière** — sauf pour les motifs de NOMS, où deux outils qui ne s'empruntent
 rien sont justement le contrôle.
