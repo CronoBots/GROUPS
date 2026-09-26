@@ -904,26 +904,33 @@ parmi les mentions reconnues mais neutres.
 
 ## Les intérimaires
 
-**Liste donnée par le client le 22/09/2026**, onze personnes :
+**Dix personnes, au 26/09/2026** :
 
-> LAA · JBA · JBS · TCE · CHD · MGY · LHS · CJD · DKS · SMK · MMS
+> LAA · JBA · JBS · TCE · CHD · LHS · CJD · DKS · SMK · MMS
 
-**Le classeur le dit, pour dix des onze — et ce paragraphe affirmait le
-contraire jusqu'au 26/09/2026.** Ce qui est écrit au-dessus de leur nom ne le
-dit pas, c'est vrai ; mais la colonne A de la feuille « Polyvalence », qui
-porte d'ordinaire le matricule, porte pour eux « interim ». L'audit l'a
-trouvé, et le convertisseur le garde depuis dans `poly.statut` — sans jamais
-le matricule.
+La liste donnée par le client le 22/09/2026 en comptait onze, avec **MGY** ;
+le classeur en marque onze aussi, avec **NPE**. Le client, le 26/09/2026 :
+« NPE est employé depuis le mois passé, et MGY aussi ». **Les deux sont
+donc embauchés depuis août 2026**, et les deux sources avaient chacune UNE
+erreur de retard — la liste pour MGY, le classeur pour NPE.
 
-| | Classeur (`poly.statut`) | Liste du client |
+**Le classeur le dit pour les dix — et ce paragraphe affirmait le contraire
+jusqu'au 26/09/2026.** Ce qui est écrit au-dessus de leur nom ne le dit pas,
+c'est vrai ; mais la colonne A de la feuille « Polyvalence », qui porte
+d'ordinaire le matricule, porte pour eux « interim ». L'audit l'a trouvé, et
+le convertisseur le garde depuis dans `poly.statut` — sans jamais le
+matricule.
+
+| | Classeur (`poly.statut`) | Réalité au 26/09/2026 |
 |---|---|---|
-| concordent | LAA · JBA · JBS · TCE · CHD · LHS · CJD · DKS · SMK · MMS | les mêmes |
-| seulement au classeur | **NPE** | — |
-| seulement chez le client | — | **MGY**, qui n'a pas de ligne dans « Polyvalence » |
+| intérimaires | LAA · JBA · JBS · TCE · CHD · LHS · CJD · DKS · SMK · MMS | les mêmes |
+| **NPE** | « interim » | **employé depuis août 2026** — le classeur n'est pas à jour |
+| **MGY** | pas de ligne dans « Polyvalence » | **employé depuis août 2026** |
 
-**À faire trancher : NPE est-il intérimaire ?** Et MGY ne peut se lire que
-dans cette liste-ci, faute de ligne : elle reste donc nécessaire, et elle
-vieillira à chaque embauche ou départ.
+**`poly.statut` peut donc retarder sur une embauche.** Le jour où cette
+colonne servira à un calcul, NPE en sera l'exemple : il faudra soit que le
+classeur soit corrigé, soit une table nommée qui porte la date d'embauche
+dite par le client — pas une lecture aveugle de la colonne.
 
 La même colonne porte deux autres statuts : « Adj CM » (JBI, YBT, VBN, VGG,
 FPA, ATR) et « Assistant usine » (SBZ, PLZ, FLN, FPS). Le second n'est
@@ -942,7 +949,7 @@ les primes, et les jours de paie. **Ne rien deviner sur ces points** : ils
 touchent à des montants.
 
 Au passage, leur situation dans le classeur, telle qu'elle est au
-22/09/2026 :
+22/09/2026 (MGY retiré le 26/09 : il est employé) :
 
 | | équipe | poste au classeur | polyvalence validée |
 |---|---|---|---|
@@ -951,7 +958,6 @@ Au passage, leur situation dans le classeur, telle qu'elle est au
 | JBS | Shift 4 | Chaudières | Chaudières |
 | TCE | Shift 1 | Meunerie | Meunerie |
 | CHD | Shift 5 | Fermentation | Fermentation |
-| MGY | en formation | chaudières éq. 1 | aucune — en formation |
 | LHS | Shift 5 | Renfort arrière | Fermentation |
 | CJD | Shift 1 | Polyvalent | Gluten |
 | DKS | Shift 3 | Meunerie | Meunerie |
