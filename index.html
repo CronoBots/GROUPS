@@ -48,6 +48,7 @@
      descend d'autant pour que la hiérarchie reste lisible. */
   --ink:#151E2F; --ink2:#444D5F; --muted:#475060; --faint:#616977;
   --line:#DCDCE2; --line2:#EBEBEF;
+  --trait:#C9CCD4; --trait-fort:#9DA2AE;
   /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
      qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
@@ -103,6 +104,7 @@
     --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
     --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
     --line:#3B4252; --line2:#2C3241;
+  --trait:#465063; --trait-fort:#6B7488;
     --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
     --sur-in:#070B15;
     --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -133,6 +135,7 @@
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
+  --trait:#465063; --trait-fort:#6B7488;
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -1244,6 +1247,14 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
   color:var(--at-jaune)}
 #eqCorps .eqp2 td.vided{background:transparent}
+#eqCorps .eqp2 tbody tr{height:var(--eqh,auto)}
+/* Des traits qui se voient (le client, le 26/09/2026 : « les lignes ne sont
+   plus assez visibles »). Deux jetons à eux, dans les deux thèmes : un
+   trait entre deux postes, un trait plus marqué entre deux zones. */
+#eqCorps .eqp2 th, #eqCorps .eqp2 td{border-left-color:var(--trait)}
+#eqCorps .eqp2 tbody tr+tr th, #eqCorps .eqp2 tbody tr+tr td{border-top:1px solid var(--trait)}
+#eqCorps .eqp2 tbody tr.zone1 th, #eqCorps .eqp2 tbody tr.zone1 td{border-top:2px solid var(--trait-fort)}
+#eqCorps .eqp2 thead th{border-bottom:2px solid var(--trait-fort)}
 /* La couleur range l'ordre de lecture (« go tout », 26/09/2026) : les
    intitulés de poste un cran plus clairs, les tirets un cran plus
    discrets. Un tiret dit « rien à voir ici » ; il ne doit pas peser autant
@@ -6805,7 +6816,7 @@ function renderEquipe(){
          On note donc ce qui a réellement été dessiné, et on n'explique que
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
-      var zPrec=null, aManque=false;
+      var zPrec=null, aManque=false, maxLig=1;
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -6837,6 +6848,7 @@ function renderEquipe(){
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
+          maxLig=Math.max(maxLig, o.gens.length+(mq?1:0));
           if(mq){ cl.push("manque"); aManque=true; }
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
@@ -6865,6 +6877,7 @@ function renderEquipe(){
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.inconnus;
+          maxLig=Math.max(maxLig, li.length);
           tp.push("<td>"+(li.length
             ? li.map(function(x){ return chip(x,g,null,true); }).join("")
             : '<span class="eqvide">\u2014</span>')+"</td>");
@@ -6879,6 +6892,7 @@ function renderEquipe(){
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
+          maxLig=Math.max(maxLig, li.length);
           tp.push("<td>"+(li.length
             ? li.map(function(x){ return chip(x,g,null,true); }).join("")
             : '<span class="eqvide">—</span>')+"</td>");
@@ -6890,6 +6904,12 @@ function renderEquipe(){
       /* Plus de légende des zones : le liseré regroupe des lignes qui
          portent déjà leur nom, et la nommer coûtait deux lignes sous le
          tableau pour rien apprendre. */
+      /* TOUTES LES LIGNES À LA MÊME HAUTEUR. Le client, le 26/09/2026 : « il
+         faut des hauteurs fixes de même taille pour chaque ligne ». Un
+         tableau n'égalise pas ses lignes de lui-même : la hauteur est celle
+         de la case la plus pleine du jour (16 px par trigramme empilé, plus
+         les marges), posée sur chaque ligne. */
+      tp[0]='<div class="eqgrille"><table class="eqp2" style="--eqh:'+(12+16*maxLig)+'px">';
       tp.push("</tbody></table></div>"
         +(lg.length?'<p class="eqleg">'+lg.join("")+"</p>":"")
         +"</div>");

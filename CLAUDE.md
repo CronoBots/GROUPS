@@ -3853,6 +3853,23 @@ Le cadre passe de 413 à **385 px** à 390 px de large. Neuf règles, manques,
 compteurs et Recyclage identiques à l'octet ; rien ne déborde à 320, 390 et
 1280 px, en clair et en sombre, hors ligne compris.
 
+**Des traits visibles, et des lignes de même hauteur.** Le client, le même
+soir, capture à l'appui : « les lignes ne sont plus assez visibles ; il
+faut également des hauteurs fixes de même taille pour chaque ligne ».
+Deux jetons de thème, `--trait` (entre deux postes) et `--trait-fort`
+(entre deux zones et sous l'en-tête), déclarés dans les trois blocs,
+clair, sombre automatique et sombre forcé. Ils remplacent `--line2`, qui
+se confondait avec le fond des cartes. Pour la hauteur, un tableau
+n'égalise pas ses lignes de lui-même : le rendu compte la case la plus
+pleine du jour (`maxLig`, avec le compte d'un manque et les lignes « à
+déterminer » et « Formation ») et pose `--eqh = 12 + 16 × maxLig` px sur
+chaque ligne. Le 26/09, trois trigrammes aux chaudières donnent 60 px
+partout. **Ce choix coûte de la hauteur** : le cadre passe de 385 à 619 px
+à 390 px de large. Le client, à qui le coût a été montré avec trois autres
+options : « tout », c'est-à-dire telle quelle. Neuf règles, manques,
+compteurs et Recyclage identiques à l'octet ; rien ne déborde, hors ligne
+compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
