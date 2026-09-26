@@ -99,7 +99,8 @@ const MORCEAUX=[
      refaire. Une première version le réimplémentait, et elle a aussitôt
      divergé sur BBZ — « poste habituel » n'y suivait pas la même chaîne. */
   ["var POLY_QUOTA=",";"],
-  ["var POSTE_PERIODE=","\n"],
+  /* la table tient sur plusieurs lignes depuis la seconde tranche (SKS) */
+  ["var POSTE_PERIODE=","] };"],
   ["function _posteDePeriode(","\n}"],
   ["function _posteDeLigne9(","\n}"],
   /* posteAttitre() et posteDeFormation() tenaient chacune sur UNE ligne et
@@ -107,6 +108,7 @@ const MORCEAUX=[
      les a mises à trois lignes, et la découpe rendait une fonction coupée
      en deux : SyntaxError au chargement. Elles se ferment sur « \n} »
      comme les autres. */
+  ["function posteAttitreLe(","\n}"],
   ["function posteAttitre(","\n}"],
   ["function posteDeFormation(","\n}"],
   ["function aLaPolyvalence(","\n}"],
