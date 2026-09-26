@@ -842,6 +842,36 @@ marqué quand il en fait.
 
 157 journées de l'horaire 2026 portent `RHS` seul.
 
+### Refaire un rapprochement au centime
+
+Méthode établie le 26/09/2026 sur les huit fiches de LCI, à reprendre pour
+toute fiche. Les fiches et leurs montants ne quittent jamais le poste de
+travail ; seules les RÈGLES trouvées entrent dans le dépôt.
+
+1. Extraire de chaque fiche : brut, retenue ONSS, précompte, net, et les
+   rubriques que l'application recalcule — primes d'équipe, suppléments du
+   week-end (prestations à 150 et 200 % et leur déduction), heures sup à
+   compenser, heures de déplacement. Écarter les fiches de prime seule
+   (avantage non récurrent sans prestation).
+2. Donner à l'application ce qui est propre à la personne, lu sur la même
+   fiche : la BASE du mois (brut ONSS 100 % moins les rubriques ci-dessus),
+   le taux horaire — par une rémunération de référence taux × 148,368 et
+   l'écart de base en « autre rémunération brute », le diviseur étant figé —,
+   l'avantage non récurrent, la cotisation spéciale, l'assurance groupe,
+   l'avance, le volontariat fiscal (retenue nette, à sortir du précompte
+   pour comparer), la réduction de précompte sur heures sup. Vérifier la
+   fraction et la situation familiale auprès du client.
+3. Comparer le brut, puis ranger l'écart par rubrique, puis ramener chaque
+   rubrique à la journée : un écart qui vaut exactement h × taux ou
+   h × prime désigne ses heures.
+4. Lire les commentaires de la journée ET ceux des collègues avant toute
+   question.
+
+Pièges rencontrés : un séparateur de milliers qui fait lire « −1 062,49 »
+comme « 062,49 » ; « J-15 233,04 » lu comme −15 233 ; le taux horaire qui
+change en cours d'année ; les heures d'une autre personne héritées au
+changement de personne (corrigé dans l'application).
+
 ### Le jour férié presté
 
 Le client, le 26/09/2026 : même règle pour les ouvriers et les employés. Une
