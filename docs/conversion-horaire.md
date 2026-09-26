@@ -78,8 +78,11 @@ barré, ce qui laissait une initiale orpheline. `_TexteBarre` porte donc le
 barré caractère par caractère à travers toutes les coupes, et chaque
 morceau barré devient un blanc à la toute fin.
 
-Seul le COMMENTAIRE est concerné. Les journées entières barrées dans la
-grille (02/03 et 14/05) restent une question au client.
+Seul le COMMENTAIRE est concerné. Les deux journées entièrement barrées
+dans la grille — 02/03 et 14/05 — sont « une erreur de manipulation du
+RH » (le client, le 26/09/2026) : elles se lisent comme si rien n'était
+barré. Le barré d'une cellule n'est pas lu, et aucun commentaire de ces
+deux lignes n'a de morceau barré.
 
 ## 2. Les postes
 
