@@ -1489,11 +1489,6 @@ n'est deviné à leur sujet :
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
-- **l'absence écrite en deux moitiés** (26/09/2026) : SMA le 27/02,
-  `["AM","1/2VA","+4h rhs remplacé par SPS"]`. L'application la montre
-  présente 4 h en AM, avec la prime et le chèque-repas. A : le « +4h rhs »
-  du commentaire complète la journée, qui est une absence entière (4 h VA
-  + 4 h RHS, pas de chèque). B : autre chose. 59 journées ;
 - **« remplace Y » sans rien chez Y** (26/09/2026) : le 16/01, FPA porte
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
@@ -3843,6 +3838,28 @@ Trois familles d'erreurs, triées à la main :
   soit deux contremaîtres en PM. **16 journées.** Deux relèvent d'une
   évaluation (partielle). Pour les autres, le classeur ne dit pas si Y
   était absent ou déplacé : c'est une question au client.
+
+**Les deux moitiés sont lues depuis le 26/09/2026.** Le client : « 2 A »,
+c'est-à-dire que le complément du commentaire complète la journée. Le
+point des 16 journées « remplace Y » sera vérifié avec lui le lendemain.
+`lireJournee()` lit, à sa fin, chaque « +N h rhs / RTT / DTT / VA / -FT »
+du commentaire. Les heures de rhs vont au compteur de récup. HS de la
+fiche (`rhsJ` → `rec.rh`), comme une reprise écrite dans la cellule. Les
+autres codes rejoignent `r.ax`, sans doublon : KDN le 28/02 avait déjà
+son « 4h VA » lu par un autre chemin, et la première version l'écrivait
+deux fois. Les heures prestées valent **au plus la journée moins toutes
+les absences du jour**. Une plage déjà écourtée n'est donc pas retranchée
+deux fois : ADK `["7h-15h","8h-12h","+4RHS"]` reste à 4 h, et CKS
+`["7h-15h","1/2VA","+2h RTT Départ à 9h"]` tombe à 2 h, ce que dit son
+départ. Le flex time repris ne retire rien aux heures payées : c'est la
+présence qui baisse. « +4h CSS » n'a pas de code de quatre heures (une
+journée, SMA le 10/09) et reste telle quelle.
+
+Mesuré : **20 journées passent de prestées à absences** (14 494 → 14 474),
+les autres ont moins d'heures ; neuf règles à zéro ; compteurs et
+`--manques 0926` identiques à l'octet ; année 264 → **269** places creuses ;
+22 couples au quota, inchangé. Au navigateur, le 27/02 de SMA s'affiche
+« ½VA » dans son calendrier, et plus « AM ».
 
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée

@@ -5235,6 +5235,45 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       if(r.hcp==="D") r.hcp=null;
     }
   }
+  /* L'ABSENCE ÉCRITE EN DEUX MOITIÉS. SMA le 27/02, ["AM","1/2VA","+4h rhs
+     remplacé par SPS"] : la cellule dit la première moitié, le commentaire
+     la seconde. La lecture ne prenait que la cellule, et SMA paraissait
+     présente 4 h, avec prime et chèque-repas. Le client, le 26/09/2026 :
+     le complément du commentaire COMPLÈTE la journée (réponse A).
+     59 journées de l'année portent un « +Nh rhs », « +Nh RTT », « + 1/2 DTT »,
+     « +Nh -FT » ou « + 4h VA » en commentaire.
+
+     Même règle que la reprise écrite dans la cellule : les heures prestées
+     valent AU PLUS la journée moins toutes les absences du jour. Une plage
+     déjà écourtée le dit elle-même, et on ne retranche pas deux fois — ADK
+     le 18/02, ["7h-15h","8h-12h","+4RHS"], reste à 4 h. Le flex time repris
+     ne retire rien aux heures payées (il vient du compteur) : il rejoint
+     les codes du jour, et c'est la présence qui baisse. « +4h CSS » n'a
+     pas de code de quatre heures : une seule journée, laissée telle
+     quelle. */
+  var rxCx=/\+\s*(\d+(?:[.,]\d+)?|1\/2)\s*h?\s*(rhs|rtt-?|dtt|va|-\s*ft)\b/gi, mCx, cxH=0, cxVu=false;
+  var comCx=String(raw[2]||"");
+  while(r.s && (mCx=rxCx.exec(comCx))){
+    var qCx=mCx[1], cdCx=mCx[2].toUpperCase().replace(/\s+/g,"").replace(/^RTT-$/,"RTT");
+    var nCx=(qCx==="1/2")?hJour/2:parseFloat(qCx.replace(",","."));
+    if(!(nCx>0 && nCx<=hJour)) continue;
+    if(cdCx==="RHS"){ r.rhsJ=(r.rhsJ||0)+nCx; cxH+=nCx; cxVu=true; continue; }
+    var codeCx=(cdCx==="-FT")?codeAbsence(nCx+"H -FT")
+              :((nCx===hJour/2 && (cdCx==="VA"||cdCx==="DTT"))?"1/2 "+cdCx
+                :codeAbsence(nCx+"H "+cdCx));
+    if(!codeCx || !ABSMAP[codeCx]) continue;
+    /* déjà lu par un autre chemin (KDN le 28/02, « + 4h VA ») : pas deux fois */
+    if(r.ax && r.ax.indexOf(codeCx)>=0){ cxVu=true; cxH+=ABSMAP[codeCx].h||0; continue; }
+    r.ax=(r.ax||[]).concat([codeCx]); cxVu=true;
+    cxH+=ABSMAP[codeCx].h||0;
+  }
+  if(cxVu && cxH>0){
+    var absJ=(r.rhsJ||0);
+    ((r.a?[r.a]:[]).concat(r.ax||[])).forEach(function(c){
+      var X=ABSMAP[c]; if(X && X.h>0) absJ+=X.h; });
+    var hCx=(r.h===undefined)?hJour:r.h;
+    r.h=Math.max(0,Math.min(hCx,hJour-absJ));
+  }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
   return r;
