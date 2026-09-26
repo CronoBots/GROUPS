@@ -4977,6 +4977,39 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
      que la lecture a retenu, car il parle de la PAIE et non du travail. */
   var pg=primeGardee(raw);
   if(pg && r.s && r.s!==pg){ r.sp=r.s; r.s=pg; r.modifie=true; }
+  /* UN DÉPLACEMENT DEMANDÉ PAR LA HIÉRARCHIE GARDE LA PRIME LA PLUS ÉLEVÉE.
+     Le client, le 26/09/2026 : « si c'est un déplacement qui est demandé
+     par la ligne hiérarchique pour remplacer quelqu'un, la prime de pause
+     la plus élevée doit toujours être conservée ». VBN les 19 et 20/08,
+     ["AM","ferm. Liqu.","remplace APN"], cycle en PM : son relevé porte la
+     prime d'après-midi. Le 30/08, même cellule, prime du matin — mais
+     VGG y écrit « échange avec VBN » : un arrangement entre collègues
+     n'est pas une demande de la hiérarchie, la pause faite se paie.
+
+     La pause prévue est celle du cycle recalé sur la colonne (fit), la
+     cellule franche ayant été réécrite à la pause faite. Le classeur
+     corrobore : 13 des 33 journées de cette forme portent déjà « maintien
+     prime » en toutes lettres — et c'est alors primeGardee() qui décide.
+     Le rang des primes est celui de la maison : nuit, après-midi, matin. */
+  if(!pg && r.s && SHIFT_CODES.indexOf(r.s)>=0 && r.s!=="D" && !r.a
+     && (raw[0]||"").trim()===r.s && (r.h===undefined || r.h>0)){
+    var prevu=posteDeCycle(fit,annee,mois,jour), RANG_PRIME={AM:1,PM:2,N:3};
+    var comR=raw.join(" ");
+    if(prevu && RANG_PRIME[prevu]>RANG_PRIME[r.s]
+       && /\bremplac(e|es|ement)\b(?!\s*par)/i.test(raw[2]||"")
+       && !/[eé]change/i.test(comR)){
+      var cleJ=pad2(mois)+pad2(jour), qui=null, ech=false, qi, qd;
+      for(qi=0; qi<db.people.length; qi++){ if(db.people[qi].d[cleJ]===raw){ qui=db.people[qi].id; break; } }
+      if(qui){
+        var rxE=new RegExp("[eé]change[^,.\\n]*\\b"+qui+"\\b","i");
+        for(qi=0; qi<db.people.length && !ech; qi++){
+          qd=db.people[qi].d[cleJ];
+          if(qd && qd!==raw && rxE.test(qd.join(" "))) ech=true;
+        }
+        if(!ech){ r.sp=r.s; r.s=prevu; r.modifie=true; r.primeHaute=true; }
+      }
+    }
+  }
   /* En DERNIER, parce que la correction de cycle ci-dessus recalcule les
      heures depuis zéro et effacerait la soustraction si on la faisait plus
      tôt. Ces heures-là viennent d'une AUTRE journée, qui les lui renvoie. */

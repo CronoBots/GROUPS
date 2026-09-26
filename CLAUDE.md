@@ -1268,6 +1268,22 @@ dans `docs/regles-paie.md`, « Le conseil d'entreprise d'un après-midi ».
 Cinq journées, tout identique à l'octet sauf elles ; LCI 208 journées sur
 214. La nuit (une journée) attend une réponse.
 
+### Un déplacement demandé garde la prime la plus élevée
+
+Le client, le 26/09/2026, devant son relevé de pointage d'août : les 19 et
+20/08 il a remplacé en AM sur une journée prévue PM, et garde la prime PM ;
+le 30/08, même cellule, c'était un « échange » écrit dans la colonne du
+COLLÈGUE, et il est payé AM. Règle : la prime la plus élevée entre la pause
+faite et la pause prévue (cycle recalé), sauf échange. Détail et mesures
+dans `docs/regles-paie.md`. **16 journées**, tout le reste identique à
+l'octet ; 13 des 33 journées de cette forme disaient déjà « maintien
+prime » — le classeur confirme la règle de lui-même.
+
+**Un relevé de pointage** (« Sommaire mensuel ») vaut une fiche jour par
+jour : horaire prévu (1A40 matin, 2A40 après-midi, 3A40 nuit), prime payée
+(P11/P12/P13, P3x le samedi, P5x le dimanche), pointage IN/OUT. Il porte le
+nom et le matricule : **il ne rentre pas dans le dépôt**, comme les fiches.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
