@@ -1039,18 +1039,48 @@ Rien d'autre ne bouge : champ `e` chez 29 personnes, `poly` chez 21, la
 légende — et aucune journée. Les quatre sorties de `verifier-calendrier.js`
 sont identiques, l'intégralité reste à zéro.
 
+### Un commentaire barré ne compte plus
+
+Le client, le 26/09/2026 : « un commentaire barré est un commentaire qui
+n'est plus à prendre en compte ». Règle et raisons dans
+`docs/conversion-horaire.md`, « Ce qui est barré ne compte plus ».
+
+**La première version s'est trompée d'ordre**, encore : retirer le barré
+AVANT le nettoyage a fait échouer l'intégralité sur deux journées — un
+trigramme collé à la signature qui suivait le morceau rayé, et une
+initiale orpheline, Excel ayant coupé une signature en un morceau barré et
+un morceau qui ne l'est pas. `_TexteBarre` porte le barré caractère par
+caractère à travers le nettoyage, et le retire à la fin. **Rejouée avec
+tous les drapeaux à faux, la nouvelle chaîne reproduit l'ancien horaire à
+l'octet** : c'est la preuve que la refonte ne change que le barré.
+
+`verifier-integralite.py` retire le barré du brut de son côté, par les
+`riches` de l'export — sa propre lecture, pas celle du convertisseur.
+
+Mesuré sur le classeur du 26/09/2026 :
+
+- **496 journées chez 59 personnes** perdent tout ou partie d'un
+  commentaire ; aucune cellule, aucune annotation ne bouge ;
+- **sept touchent à l'argent** : un rappel retiré (DBE 06/02), quatre
+  « maintien prime » retirés (YBT 14/01, BLR 04/10, CGI 01 et 02/04) ;
+- **FLN** : son temps partiel finit au **30/09/2026** — la fin de 2027
+  était rayée — et la fraction retombe sur le réglage à partir d'octobre ;
+- polyvalence **33 → 32** couples au quota (JBI meunerie 5/5 → 4/5 : son
+  « remplace SKS en AM » du 14/01 est rayé), manques de l'année **385 →
+  386** places ; `--manques 0926` et `--compteurs` identiques ; neuf règles
+  à zéro ; motifs trop étroits 50 → 48 ;
+- deux formes innocentes admises dans `tools/formes-admises.txt`, nées du
+  retrait d'un morceau rayé entre deux mots.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **le barré** : deux journées entières (le 02/03 et le 14/05, l'Ascension),
-  sur les huit feuilles, avec de vraies prestations dessous — et des
-  centaines de commentaires en tout ou en partie barrés, dont « ~~remplace
-  X~~ remplace Y ». Le barré veut probablement dire « annulé » ; le
-  convertisseur lit aujourd'hui le texte barré comme s'il valait, et il peut
-  y trouver un rappel ou une prime conservée ;
+- **les journées barrées** : deux journées entières (le 02/03 et le 14/05,
+  l'Ascension), sur les huit feuilles, avec de vraies prestations dessous.
+  Les commentaires barrés sont tranchés (voir plus haut) ; les cellules, non ;
 - **le jaune** : trois « Abs » de GSK mi-janvier, un compteur, l'en-tête de
   GPS ; et **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au
   12/06 — exactement ses 112 journées de formation en meunerie ;

@@ -220,6 +220,109 @@ def _colnum(lettres):
     return n
 
 
+class _TexteBarre:
+    """Le texte d'un commentaire Excel, avec, pour CHAQUE caractère, s'il est
+    barré.
+
+    Le client, le 26/09/2026 : « un commentaire barré est un commentaire qui
+    n'est plus à prendre en compte ». Le convertisseur recollait tous les
+    morceaux sans regarder leur mise en forme, et lisait donc comme valable
+    ce que le classeur avait rayé : « remplace AFA. Remplacé ~~par VGG de
+    16h à 22h.~~ Remplacé par JBI » nommait VGG, DBE le 06/02 recevait une
+    prime de rappel sur « ~~remplace GSK / rappel le 02/02~~ », et le temps
+    partiel de FLN courait jusqu'en 2027 sur « au ~~30.06.2027~~ 30/09/26 ».
+    Mesuré par l'audit du 26/09 : 496 journées portent un commentaire barré.
+
+    LE BARRÉ SE RETIRE À LA FIN, une fois les noms nettoyés. La première
+    version le retirait d'entrée, et le contrôle d'intégralité a trouvé deux
+    dégâts, tous deux dus à cet ordre :
+
+      - Excel coupe une signature en deux morceaux — un « I » non barré, puis
+        le reste du nom, barré. Le barré parti, la signature n'était plus
+        reconnaissable et le « I » restait en tête du commentaire ;
+      - « pour le remplacement de YBT, ~~en HS ou FT.~~ CIE : cf 20/03 » :
+        le morceau rayé parti, « YBT, CIE : » prenait la forme exacte d'une
+        signature « Nom, Prénom : », et AUTEUR emportait YBT avec elle.
+
+    C'est la leçon de l'anonymiseur, une fois de plus : la signature se
+    retire AVANT le reste. On nettoie donc le texte ENTIER, comme avant, en
+    portant le drapeau de chaque caractère à travers chaque remplacement, et
+    l'on ne retire le barré qu'à la fin. Le texte barré n'est pas perdu :
+    tools/exporter-classeur.py le garde, avec son drapeau, dans le brut.
+    """
+
+    def __init__(self, cm):
+        morceaux = cm.findall('{%s}text/{%s}r' % (M, M))
+        self.s, self.b = "", []
+        if not morceaux:
+            self.s = "".join(t.text or "" for t in cm.iter('{%s}t' % M))
+            self.b = [False] * len(self.s)
+            return
+        for r in morceaux:
+            t = "".join(x.text or "" for x in r.iter('{%s}t' % M))
+            rp = r.find('{%s}rPr' % M)
+            e = rp.find('{%s}strike' % M) if rp is not None else None
+            barre = e is not None and e.get("val", "1") not in ("0", "false")
+            self.s += t
+            self.b += [barre] * len(t)
+
+    def barre(self):
+        return any(self.b)
+
+    def remplacer(self, coupes):
+        """Appliquer des (début, fin, texte) sans chevauchement. Le texte mis
+        à la place d'un morceau entièrement barré reste barré — un nom rayé
+        remplacé par son trigramme est toujours rayé ; un blanc ne l'est
+        jamais."""
+        s, b, pos = [], [], 0
+        for a, z, rep in sorted(coupes):
+            if a < pos:
+                continue
+            s.append(self.s[pos:a]); b += self.b[pos:a]
+            raye = z > a and all(self.b[a:z]) and rep.strip() != ""
+            s.append(rep); b += [raye] * len(rep)
+            pos = z
+        s.append(self.s[pos:]); b += self.b[pos:]
+        self.s, self.b = "".join(s), b
+
+    def sub(self, motif, rep):
+        motif = re.compile(motif) if isinstance(motif, str) else motif
+        self.remplacer([(m.start(), m.end(), rep(m) if callable(rep) else rep)
+                        for m in motif.finditer(self.s)])
+
+    def couper_tete(self, n):
+        self.s, self.b = self.s[n:], self.b[n:]
+
+    def resserrer(self):
+        """« " ".join(txt.split()) », drapeaux compris."""
+        self.sub(r"\s+", " ")
+        while self.s[:1] == " ":
+            self.couper_tete(1)
+        while self.s[-1:] == " ":
+            self.s, self.b = self.s[:-1], self.b[:-1]
+
+    def elaguer(self, chars):
+        """« txt.strip(chars) », drapeaux compris."""
+        while self.s[:1] and self.s[0] in chars:
+            self.couper_tete(1)
+        while self.s[-1:] and self.s[-1] in chars:
+            self.s, self.b = self.s[:-1], self.b[:-1]
+
+    def sans_barre(self):
+        """Le texte, chaque suite de caractères barrés réduite à un blanc —
+        sans quoi « YBT; » et « Remplacé » de part et d'autre d'un morceau
+        rayé se colleraient en un mot que personne n'a écrit."""
+        out, avant = [], False
+        for c, raye in zip(self.s, self.b):
+            if raye:
+                if not avant:
+                    out.append(" ")
+            else:
+                out.append(c)
+            avant = raye
+        return "".join(out)
+
+
 class Classeur:
     def __init__(self, chemin):
         self.z = zipfile.ZipFile(chemin)
@@ -326,7 +429,8 @@ class Classeur:
             racine = ET.fromstring(self.z.read(chemin))
             auteurs = _motif_auteurs(racine)
             for cm in racine.iter('{%s}comment' % M):
-                txt = " ".join("".join(t.text or "" for t in cm.iter('{%s}t' % M)).split())
+                t = _TexteBarre(cm)
+                t.resserrer()
                 # Les noms déclarés d'abord : ce qui reste — « , » esseulée,
                 # « /rt0xxxx: », « : » en tête — est balayé par AUTEUR et par
                 # le strip qui suit.
@@ -353,23 +457,25 @@ class Classeur:
                     # La borne de longueur n'est pas décorative : sans elle,
                     # un commentaire citant un auteur au fil du texte verrait
                     # tout son début avalé jusqu'au premier deux-points.
-                    tete = re.match(r"^([^:]{0,48}):", txt)
+                    tete = re.match(r"^([^:]{0,48}):", t.s)
                     if tete and auteurs.search(tete.group(1)):
-                        txt = txt[tete.end():]
-                    txt = auteurs.sub(" ", txt)
+                        t.couper_tete(tete.end())
+                    t.sub(auteurs, " ")
                     # Le nom parti, son ornement reste : « (external): ».
                     # Il ne nomme personne, mais il ouvre le commentaire par
                     # un reste de signature que rien ne lit.
-                    txt = re.sub(r"\(\s*[^)]*\)\s*:\s*", " ", txt)
+                    t.sub(r"\(\s*[^)]*\)\s*:\s*", " ")
                 # LE REGISTRE DES TRIGRAMMES PASSE APRÈS LES AUTEURS. Un collègue
                 # nommé au fil d'un commentaire — « changement d'équipe de
                 # <nom> » — n'est déclaré auteur de rien : seule la ligne des
                 # noms le connaît. Son nom part remplacé par son trigramme,
                 # et non effacé : « changement d'équipe de MMS » se lit
                 # encore, « changement d'équipe de » ne dit plus rien.
-                txt = _sans_registre(txt, self.registre)
-                txt = AUTEUR.sub(" ", txt).strip(" .;:")
-                txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
+                t.remplacer(_coupes_registre(t.s, self.registre))
+                t.sub(AUTEUR, " ")
+                t.elaguer(" .;:")
+                t.resserrer()
+                t.sub(r"^[\s,;:/]+", "")
                 # APRÈS LES SIGNATURES, ET NON AVANT. Un login est le suffixe
                 # ordinaire d'une signature — « Nom, Prénom/rt0xxxx: » — et le
                 # remplacer d'abord le rend méconnaissable à AUTEUR, qui
@@ -377,8 +483,15 @@ class Classeur:
                 # « (identifiant retiré): » pendant une version. C'est le
                 # piège que CLAUDE.md décrit pour l'anonymiseur, mot pour mot.
                 # Ce qui survit ICI est un login au FIL du texte, et lui seul.
-                txt = LOGIN.sub("(identifiant retiré)", txt)
-                txt = " ".join(txt.split())
+                t.sub(LOGIN, "(identifiant retiré)")
+                t.resserrer()
+                txt = t.s
+                if t.barre():
+                    # le barré ne se retire qu'ici, les signatures parties ;
+                    # ce qu'il laisse en tête ou en queue se balaie comme le
+                    # reste
+                    txt = " ".join(t.sans_barre().split()).strip(" .;:")
+                    txt = re.sub(r"^[\s,;:/]+", "", txt)
                 if not txt:
                     continue
                 ref = cm.get('ref')
@@ -654,21 +767,14 @@ def _motif_mots(mots):
     return re.compile(r"\b(?:" + alt + r")\b")
 
 
-def _sans_registre(txt, registre):
-    """Remplacer par leur trigramme les noms appris du classeur."""
+def _coupes_registre(txt, registre):
+    """Les noms appris du classeur, à remplacer par leur trigramme :
+    [(début, fin, trigramme)]."""
     if not registre or not registre[0]:
-        return txt
+        return []
     motif, tri = registre
-    plie = _plier(txt)
-    out, pos = [], 0
-    for m in motif.finditer(plie):
-        if not txt[m.start()].isupper():
-            continue
-        out.append(txt[pos:m.start()])
-        out.append(tri[m.group(0)])
-        pos = m.end()
-    out.append(txt[pos:])
-    return "".join(out)
+    return [(m.start(), m.end(), tri[m.group(0)])
+            for m in motif.finditer(_plier(txt)) if txt[m.start()].isupper()]
 
 
 def _annuaire(cl):

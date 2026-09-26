@@ -99,6 +99,21 @@ def _les_deux(a, b):
     return frozenset(out)
 
 
+def _non_barre(fiche, adresse):
+    """Le commentaire d'une adresse du brut, SANS SES MORCEAUX BARRÉS.
+
+    Le client, le 26/09/2026 : « un commentaire barré est un commentaire qui
+    n'est plus à prendre en compte ». Le convertisseur les retire ; le brut
+    les garde, avec leur drapeau, dans `riches`. On compare donc ce que
+    l'horaire doit porter — le texte non barré —, et non tout ce qui est
+    écrit.
+    """
+    runs = fiche.get("riches", {}).get(adresse)
+    if not runs:
+        return fiche["commentaires"].get(adresse, "")
+    return "".join(" " if len(r) > 1 and "s" in r[1] else r[0] for r in runs)
+
+
 def _ligne(adresse):
     return int(re.search(r"(\d+)$", adresse).group(1))
 
@@ -121,7 +136,7 @@ def colonnes_du_brut(brut):
             continue
         f = brut["feuilles"][feuille]
         g = _grille(f["cellules"])
-        cm = _grille(f["commentaires"])
+        cm = _grille(dict((a, _non_barre(f, a)) for a in f["commentaires"]))
         mois = cv.blocs_de_mois(g)
         for col in sorted(g.get(cv.LIGNE_NOMS, {})):
             nom = str(g[cv.LIGNE_NOMS][col]).strip()
@@ -238,7 +253,8 @@ def main():
            for x in ((p.get("poly") or {}).get("dates") or {}).values()]))
     pied, poly = [], []
     for nom in brut["feuilles"]:
-        for adr, txt in brut["feuilles"][nom]["commentaires"].items():
+        for adr in brut["feuilles"][nom]["commentaires"]:
+            txt = _non_barre(brut["feuilles"][nom], adr)
             reduit = _reduit(txt)
             if not reduit or reduit in sac:
                 continue

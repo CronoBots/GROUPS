@@ -60,6 +60,27 @@ Ces renvois ne suivent aucune règle de proximité : le compteur du 12/04
 concerne le 14/04, ceux des 29 et 30/04 concernent les 27 et 28. Seul le
 commentaire les apparie.
 
+### Ce qui est barré ne compte plus
+
+Le client, le 26/09/2026 : « un commentaire barré est un commentaire qui
+n'est plus à prendre en compte ».
+
+Excel barre au CARACTÈRE près : un commentaire peut être barré en entier,
+ou en partie — « ~~remplace X~~ remplace Y ». Le convertisseur lisait
+jusque-là le texte barré comme s'il valait, et y trouvait des rappels et
+des primes conservées annulés depuis.
+
+**Le barré se retire EN DERNIER, une fois le commentaire nettoyé.** Le
+retirer d'abord a cassé deux journées à l'essai : la signature suivante
+se collait à un trigramme (« YBT, CIE : » lu comme une tête de signature,
+YBT perdu), et Excel coupe une signature en deux morceaux dont un seul est
+barré, ce qui laissait une initiale orpheline. `_TexteBarre` porte donc le
+barré caractère par caractère à travers toutes les coupes, et chaque
+morceau barré devient un blanc à la toute fin.
+
+Seul le COMMENTAIRE est concerné. Les journées entières barrées dans la
+grille (02/03 et 14/05) restent une question au client.
+
 ## 2. Les postes
 
 D'après la note « Grille horaire en Pauses — 5 équipes » :
