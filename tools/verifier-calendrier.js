@@ -267,12 +267,69 @@ function affichageRecord(rec,hJour){
 /* --- lecture du classeur ------------------------------------------------- */
 /* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=["--journee","--manques","--polyvalence"].map(o=>ARGS.indexOf(o))
+const coupe=["--journee","--manques","--polyvalence","--doublons"].map(o=>ARGS.indexOf(o))
   .filter(i=>i>=0).sort((a,b)=>a-b)[0];
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
 const ANNEE=Number(db.year);
+
+/* ── les doublons : un remplacé qui reste à sa pause ─────────────────────
+   Le client, le 26/09/2026, devant deux contremaîtres de nuit : « vérifie
+   tout l'horaire, comment cela se fait ces erreurs ? ». YPE était compté à
+   sa pause alors que son commentaire disait « Remplacé par VGG » et que FPA
+   tenait sa place. Ce mode cherche la même forme sur toute l'année : une
+   personne PRÉSENTE (AM, D, PM ou N) dont le commentaire dit « remplacé
+   par X », X étant présent à la MÊME pause. Un remplacement partiel —
+   des heures, une arrivée, un départ — est normal et mis à part.
+
+   node tools/verifier-calendrier.js --doublons                           */
+if(process.argv.indexOf("--doublons")>=0){
+  const PASSIF=/rempla[cç][ée]e?s?\s+(?:par|pa|p\.?)\s+([A-Z]{3})/gi;
+  const ACTIF=/rempla[cç](?:e|ait|ant)?\s+([A-Z]{3})\b/gi;
+  const PARTIEL=/\bde\s*\d{1,2}\s*h|\d{1,2}\s*h\s*(?:à|a|-)\s*\d|arriv|d[ée]part|d2part|jusqu|\bà partir|\bapr[eè]s\b|\bavant\b|\bpartiel/i;
+  const passifs=[], actifs=[], parCellule={};
+  const tous=function(rx,t){ const o=[]; let q; rx.lastIndex=0;
+    while((q=rx.exec(t))) o.push(q[1].toUpperCase()); return o; };
+  for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
+    const mmdd=pad2(m)+pad2(d), jj=mmdd.slice(2)+"/"+mmdd.slice(0,2);
+    const par=equipeDuJour(db,ANNEE,m,d);
+    ["AM","D","PM","N"].forEach(gk=>{
+      const l=par[gk]||[], ici={};
+      l.forEach(x=>{ ici[x.p.id]=x; });
+      l.forEach(x=>{
+        const raw=x.p.d[mmdd]||[], com=String(raw[2]||"");
+        if(PARTIEL.test(com)) return;
+        /* (1) présent, et « remplacé par » quelqu'un, sans heures */
+        const pas=tous(PASSIF,com);
+        if(pas.length){
+          passifs.push(jj+"  "+gk.padEnd(2)+"  "+x.p.id+"  "+JSON.stringify(raw));
+          const cle=String(raw[1]||"(sans annotation)").replace(/\d+([.,]\d+)?/g,"n");
+          parCellule[cle]=(parCellule[cle]||0)+1;
+        }
+        /* (2) « remplace X », X présent à la même pause */
+        tous(ACTIF,com.replace(PASSIF,"")).forEach(n=>{
+          if(n===x.p.id || !ici[n]) return;
+          actifs.push(jj+"  "+gk.padEnd(2)+"  "+x.p.id+" remplace "+n
+            +" — les deux présents   "+JSON.stringify(raw)+"  /  "+n+" "
+            +JSON.stringify(ici[n].p.d[mmdd]||[]));
+        });
+      });
+    });
+  }
+  console.log("\nRemplacés comptés à leur pause\n");
+  console.log("  "+String(passifs.length).padStart(5)+"  présents alors que leur commentaire dit « remplacé par », sans heures");
+  console.log("  "+String(actifs.length).padStart(5)+"  présents à côté de celui qui écrit « remplace » leur trigramme, sans heures\n");
+  console.log("(1) par annotation :");
+  Object.keys(parCellule).sort((a,b)=>parCellule[b]-parCellule[a])
+    .forEach(k=>console.log("  "+String(parCellule[k]).padStart(5)+"  "+k));
+  console.log("\n(1) les journées :"); passifs.forEach(x=>console.log("  "+x));
+  console.log("\n(2) les journées :"); actifs.forEach(x=>console.log("  "+x));
+  /* Informatif : la plupart de ces journées sont justes (déplacé au
+     terrain arrière, parti en formation, remplacé à son poste PRÉVU). Un
+     contrôle qui échoue toujours ne se lit plus. */
+  process.exit(0);
+}
 
 /* ── les manques à venir ────────────────────────────────────────────────
    Le module de l'application ne regarde que devant lui. Ici on mesure tout

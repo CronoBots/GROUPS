@@ -1489,6 +1489,15 @@ n'est deviné à leur sujet :
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
+- **l'absence écrite en deux moitiés** (26/09/2026) : SMA le 27/02,
+  `["AM","1/2VA","+4h rhs remplacé par SPS"]`. L'application la montre
+  présente 4 h en AM, avec la prime et le chèque-repas. A : le « +4h rhs »
+  du commentaire complète la journée, qui est une absence entière (4 h VA
+  + 4 h RHS, pas de chèque). B : autre chose. 59 journées ;
+- **« remplace Y » sans rien chez Y** (26/09/2026) : le 16/01, FPA porte
+  « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
+  montre tous les deux contremaîtres en PM. A : FLI était absent ce
+  jour-là. B : FLI était ailleurs à l'usine. C : au cas par cas. 16 journées ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -3801,6 +3810,39 @@ apparaît, le remplaçant n'est pas dans l'horaire (« remplacé par PBL »,
 absent des 77) ou n'est pas nommé du tout. Recyclage : 23 → **22** couples
 au quota (CDE chaudières 10 → 9), et une dizaine de cases bougent d'une
 journée.
+
+### Tout l'horaire relu : d'où viennent ces erreurs
+
+Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
+ces erreurs ? ». `node tools/verifier-calendrier.js --doublons` relit
+l'année et liste deux formes. (1) Une personne PRÉSENTE à une pause dont
+le commentaire dit « remplacé par » sans heures. (2) Une personne présente
+à côté d'un collègue qui écrit « remplace » son trigramme, sans heures.
+Le mode est informatif (code 0) : **606 journées** remontent, et la plupart
+sont justes. « Remplacé par » parle du poste PRÉVU : quelqu'un envoyé au
+terrain arrière, en formation ou en SD26 est remplacé à son poste
+habituel, et il est bien à l'usine, ailleurs.
+
+**Première version, trop étroite** : elle n'exigeait que le remplaçant nommé
+soit à la même pause, et elle ne voyait pas YPE, dont le commentaire nomme
+VGG (qui ouvre la nuit en PM) alors que c'est FPA qui tient sa place.
+Rejouée sur la version d'avant la correction, elle ne trouvait rien : un
+contrôle qui ne peut pas échouer ne contrôle rien.
+
+Trois familles d'erreurs, triées à la main :
+
+- **la journée entière de flex time repris** (YPE, PDR) : corrigée, voir
+  la section précédente ;
+- **une absence écrite en deux moitiés, la seconde dans le commentaire** :
+  `["AM","1/2VA","+4h rhs remplacé par SPS"]`. La lecture ne prend que la
+  cellule : la personne paraît présente 4 h, avec prime et chèque-repas.
+  **59 journées sur l'année**, dont 50 en « +Nh rhs ». Aucune fiche de LCI
+  ni de VBN n'en porte : c'est une question au client ;
+- **« remplace Y » chez un collègue, alors que la cellule de Y ne porte que
+  son code** : `FPA ["PM","R-CM","remplace FLI"]` et `FLI ["PM"]` le 16/01,
+  soit deux contremaîtres en PM. **16 journées.** Deux relèvent d'une
+  évaluation (partielle). Pour les autres, le classeur ne dit pas si Y
+  était absent ou déplacé : c'est une question au client.
 
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée
