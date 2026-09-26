@@ -6723,7 +6723,15 @@ function renderEquipe(){
     RESTE.forEach(function(k){
       var g=EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
       var l=par[k]||[]; if(!l.length) return;
-      l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+      /* Les malades, du retour le plus proche au plus lointain. Le client,
+         le 26/09/2026 : « les absents maladie doivent être triés par dates
+         de retour (le plus court au plus long) ». Une fin null veut dire que
+         la série s'arrête aujourd'hui : c'est le retour le plus proche. À
+         fin égale, l'ordre habituel — catégorie, puis trigramme. */
+      function finNum(x){ return x.fin?x.fin[0]*10000+x.fin[1]*100+x.fin[2]:0; }
+      l.sort(function(a,b){
+        if(k==="abs" && finNum(a)!==finNum(b)) return finNum(a)-finNum(b);
+        return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
       resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
     });
