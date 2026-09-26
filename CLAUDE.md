@@ -1326,8 +1326,15 @@ fermentation liquide) ; une était FAUSSE — JKS le 17/06, `DS + PM ·
 4h +FT`, « réunion mensuelle Direction - délégation syndicale », comptait
 4 h au lieu de 8 : le « PM » n'était pas lu, et la règle du +FT sur un
 poste prévu ne s'appliquait pas (`COQUILLES`). Les manques, le Recyclage, les
-compteurs et les fiches sont identiques à l'octet. Restent deux vraies questions :
-VGG 25/02 `PM · SD26 -F` (aucun commentaire) et TCE 20/02 `N · F-PM`.
+compteurs et les fiches sont identiques à l'octet.
+
+Les deux dernières se sont lues sans question non plus, parce que leurs
+deux lectures possibles PAIENT PAREIL : TCE 20/02 `N · F-PM` (formation
+l'après-midi, « remplacé par ATR remplacé par DKS ») est le F de la règle
+de FLN ; VGG 25/02 `PM · SD26 -F` réunit deux codes de journée de jour.
+**Zéro mention non comprise** dans le classeur ; seul le Recyclage bouge
+d'une case (HKB meunerie 23 → 24, le rééquilibrage comblant la nuit du
+20/02 que TCE a quittée).
 
 ### Les compteurs CP, TP, CT comptent les journées posées
 
