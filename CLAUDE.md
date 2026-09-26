@@ -157,7 +157,37 @@ seraient faux. Ne pas le retirer.
 
 ## Mettre à jour l'horaire depuis un nouveau classeur
 
-Le client envoie régulièrement le récapitulatif Excel. La procédure :
+Le client envoie régulièrement le récapitulatif Excel. **Depuis le 26/09/2026,
+une seule commande** :
+
+```bash
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blanc
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
+```
+
+Elle enchaîne tout ce qui suit dans un dossier temporaire, derrière **sept
+portes** — anonymiseur, second contrôle, **fidélité de la copie à la
+source**, convertisseur, export et son aller-retour, intégralité cellule par
+cellule, neuf règles dures du calendrier. La première qui se ferme arrête
+tout, et rien n'est installé. Elle imprime ensuite le rapport du
+comparateur. Avec `--installer`, les trois fichiers de `data/` sont
+remplacés ENSEMBLE, `V` est incrémenté, et le garde-fou du dépôt passe sur
+le résultat — s'il échoue, les fichiers d'avant reviennent depuis leur
+copie. Si rien n'a changé, rien n'est touché, pas même `V`.
+
+**La porte de fidélité est celle qui manquait** : hors des zones
+nominatives, la copie anonymisée ne doit différer de la source sur aucune
+cellule. Elle se ferme sur l'ancienne copie de référence — 480 cellules —
+et s'ouvre sur la nouvelle.
+
+**Éprouvée sur le classeur du 26/09/2026** : les sept portes s'ouvrent, et
+les trois fichiers produits sont **identiques à l'octet** à ceux de `data/`.
+La procédure est donc reproductible de bout en bout, ce qui est la meilleure
+preuve qu'elle ne régresse pas.
+
+**Restent à la main** : lire le rapport et dire au client ce qui a bougé,
+tester dans un navigateur, committer. Le détail des étapes, pour
+comprendre ce que l'outil fait ou le refaire pas à pas :
 
 **Ne jamais écraser l'ancien JSON sans avoir regardé ce qui change.** Le
 client renvoie souvent le même classeur corrigé sur quelques journées ; une
@@ -925,6 +955,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
+| `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière sept portes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
 | `tools/verifier-integralite.py` | confronte l'horaire au classeur entier : ce qui ne lui arrive pas |
@@ -1993,8 +2024,12 @@ même journée — et c'est ainsi qu'une divergence est passée. Ils partagent
 maintenant `lireJournee()` ; le vérificateur refait le trajet complet
 (lecture → écriture du mois → relecture) et exige le même résultat.
 
-Le code de retour est 1 s'il reste une faute : l'outil se branche tel quel
-sur un contrôle automatique.
+Le code de retour est 1 s'il reste une faute **dans les neuf règles
+dures** : l'outil se branche tel quel sur un contrôle automatique. Il
+additionnait jusqu'au 26/09/2026 les règles faibles — des questions à
+trancher, jamais à zéro — et sortait donc en 1 sur des données saines ; un
+contrôle qui échoue toujours ne se lit plus. `--strict` rend l'ancien
+comportement.
 
 Pour demander à l'outil ce que l'application fait d'une journée précise —
 plutôt que d'écrire un script à côté, qui réimplémenterait la lecture et

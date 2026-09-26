@@ -682,5 +682,16 @@ if(total){
     console.log("");
   }
 }
-console.log(total?("\n"+total+" faute(s) à corriger."):"\nAucune faute.");
-process.exit(total?1:0);
+/* LE CODE DE RETOUR NE PORTE QUE LES NEUF RÈGLES DURES. Il additionnait les
+   règles faibles — mentions non comprises, avalées, motifs trop étroits —
+   qui sont des QUESTIONS à trancher, pas des fautes, et qui ne sont jamais
+   à zéro : l'outil sortait en 1 sur des données saines, et un contrôle qui
+   échoue toujours ne sert plus de porte — on finit par ne plus lire son
+   code de retour. Mesuré par l'audit du 26/09/2026 : « 66 faute(s) », les
+   neuf règles dures à zéro. --strict rend l'ancien comportement. */
+const FAIBLES=new Set(["mention non comprise","mention avalée","motif trop étroit"]);
+const dures=REGLES.reduce((s,[nom])=>s+(FAIBLES.has(nom)?0:fautes[nom].length),0);
+const questions=total-dures;
+console.log(dures?("\n"+dures+" faute(s) à corriger."):"\nAucune faute dans les neuf règles dures.");
+if(questions) console.log(questions+" question(s) à trancher dans les règles faibles.");
+process.exit((dures || (process.argv.indexOf("--strict")>=0 && questions))?1:0);
