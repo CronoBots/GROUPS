@@ -1176,14 +1176,37 @@ GDT, GPO, JBI, PAM, SMA, VGG). La grille a six colonnes au navigateur :
 Meun., Glut., Ferm., Dist., Chaud., STEP. Le polyvalent arrière dont c'est le
 poste perd son point plein — il n'y a plus de colonne pour le porter.
 
+### Pendant un arrêt, aucun effectif n'est attendu
+
+Le client, le 26/09/2026, sur les fenêtres « SHUT-DOWN » : « l'effectif ne
+devait pas être respecté car il n'y avait souvent que 2-3 personnes en pause
+de nuit ». Le classeur les surligne en jaune dans la colonne des jours de
+chaque feuille : **du 16 au 23/03 et du 10 au 18/04**. `ARRET_PERIODES`
+porte ces dates, relevées dans le classeur ; `renfortDuJour()` — déjà le
+point où une journée ajuste ce qu'on attend d'elle — rend `{_arret:true}`,
+et `attenduAuPoste()` rend alors zéro partout.
+
+Mesuré : neuf règles, compteurs et `--manques 0926` identiques à l'octet ;
+manques de l'année **358 → 341** places, 177 → 169 journées. **Le Recyclage
+bouge aussi, et il faut savoir pourquoi** : sans effectif attendu, le
+rééquilibrage ne déplace plus personne pendant l'arrêt, et les journées où
+il PLAÇAIT quelqu'un à un poste qu'il ne tient pas ne comptent plus — seules
+restent celles que la cellule écrit. **22** couples au quota au lieu de 23 :
+GST perd le sien en fermentation (13 → 9).
+
+**La période SD26 est plus large** : son code court du 09/03 au 19/04, et
+les nuits du 24/03 au 09/04 — entre les deux fenêtres — sont presque vides
+elles aussi. Mesurée à l'essai sur toute la période : **358 → 224** places,
+21 au quota. Question posée au client, non appliquée.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
-  l'effectif attendu ?
+- **l'arrêt couvre-t-il toute la période SD26** (09/03 → 19/04), nuits du
+  24/03 au 09/04 comprises, ou seulement les deux fenêtres surlignées ?
 - **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
 - **les deux colonnes sans nom** : copies à effacer, ou à garder ?
 - **les compteurs CP, TP, CT** : comptent-ils les journées posées ou le droit
