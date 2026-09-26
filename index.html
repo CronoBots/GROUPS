@@ -3742,6 +3742,9 @@ function applyOnboard(){
    Et, depuis le 22/09/2026, à « que fait-il AUJOURD'HUI ». La fonction ne
    change jamais ; le poste du jour, si — et c'est lui qu'on vient chercher
    en ouvrant l'application le matin. */
+/* Les consignateurs : en D, ils font 7h30-16h et consignent (le client,
+   le 26/09/2026). Le tableau du jour écrit (C) à côté d'eux. */
+var CONSIGNATEURS=["YRS","BLR"];
 /* Le poste occupé un jour donné, par la chaîne même du tableau du jour :
    equipeDuJour() puis postesDePause(), colonne D comprise. Rend la pause
    et le poste, ou null si la personne ne travaille pas ce jour-là. */
@@ -6751,18 +6754,42 @@ function renderEquipe(){
        YRS et BLR (7h30-16h, consignateurs), celui d'une reprise ou d'un
        début de formation ne s'écrivent pas. Puis : « je préfère laisser
        les gens prévus en D (6-14) dans la colonne D mais préciser à côté
-       leurs horaires » — SKS les 5 au 7/10, ["6h-14h","D"]. Le 6-14 ne
-       s'écrit pas avec un code de jour : dans ["6h-14h","F"], la plage
-       n'est que le poste prévu, et la formation se fait à d'autres
-       heures. */
+       leurs horaires » — SKS les 5 au 7/10, ["6h-14h","D"]. Puis, le
+       même jour : « il doit toujours être marqué l'horaire de quelqu'un
+       en D ; cet horaire doit être entre parenthèses ; si BLR ou YRS est
+       en D, il faut mettre (C) pour Consignation ». */
     function horaireEcritD(x){
-      var raw=x.p.d&&x.p.d[mmdd]||[], t=[raw[0],raw[1]].map(function(v){
-        return String(v||"").replace(/\s+/g,""); });
-      var lib=t.some(function(v){ return /flott/i.test(v); })?"H. flot."
-             :t.some(function(v){ return /^0?7h?-15h?$/i.test(v); })?"7-15"
-             :(!(x.r&&(x.r.jourCode||x.r.sp))
-               && t.some(function(v){ return /^0?6h?-14h?$/i.test(v); }))?"6-14":"";
-      return lib?'<small class="eqhd">'+lib+"</small>":"";
+      var raw=x.p.d&&x.p.d[mmdd]||[], lib="";
+      var codeJour=!!(x.r&&(x.r.jourCode||x.r.sp));
+      function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
+        return mn?e+"h"+pad2(mn):String(e); }
+      function lirePlage(t){
+        var m=normPlage(String(t||"")).match(/^(\d{1,2})h?(\d{2})?-(\d{1,2})h?(\d{2})?$/);
+        if(!m) return null;
+        var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+        if(b<=a) b+=24;
+        return [a,b];
+      }
+      /* Consignation : YRS et BLR, en D, font 7h30-16h et consignent. */
+      if(CONSIGNATEURS.indexOf(x.p.id)>=0) lib="C";
+      if(!lib && [raw[0],raw[1]].some(function(v){ return /flott/i.test(String(v||"")); }))
+        lib="H. flot.";
+      if(!lib) [raw[1],raw[0]].some(function(v){
+        var pl=lirePlage(v); if(!pl) return false;
+        /* Avec un code de jour (F, D-F, DS-CE…), une plage de pause n'est
+           que le poste prévu : seule une plage de journée dit l'horaire. */
+        if(codeJour && posteDepuisPlage(pl)!=="D") return false;
+        lib=hh(pl[0])+"-"+hh(pl[1]); return true;
+      });
+      /* Sinon le commentaire, quand il écrit la plage avec un tiret :
+         « Formation STEP 08h30'-16h30' ». « de 10h à 14h » dit un
+         remplacement partiel, pas l'horaire de la journée. */
+      if(!lib){
+        var m=String(raw[2]||"").match(/(\d{1,2})\s*h\s*(\d{2})?'?\s*-\s*(\d{1,2})\s*h\s*(\d{2})?/i);
+        if(m){ var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
+          lib=hh(a)+"-"+hh(b); }
+      }
+      return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
     function chip(x,g,posteCourant,nu){
       /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
