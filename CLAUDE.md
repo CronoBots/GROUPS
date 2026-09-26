@@ -1493,6 +1493,11 @@ n'est deviné à leur sujet :
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
   jour-là. B : FLI était ailleurs à l'usine. C : au cas par cas. 16 journées ;
+- **le D seul sans heure écrite** (26/09/2026) : quel horaire écrire entre
+  parenthèses dans la colonne D ? 103 journées d'ici la fin de l'année,
+  chez 19 personnes. A : (7h30-16), l'horaire de jour de la grille.
+  B : un horaire propre à chaque fonction (contremaître, opérateur,
+  formation). C : (D), sans heures ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -3948,6 +3953,19 @@ avant de passer en pause au poste. Aucun de ces D ne s'écrit.
   fermentation du 05/10. Le client, aussitôt : « je préfère laisser les
   gens prévus en D (6-14) dans la colonne D mais préciser à côté leurs
   horaires ». La règle est retirée en v271, et SKS porte « 6-14 ».
+
+**Puis entre parenthèses, et toujours** (le client, le même jour : « il
+doit toujours être marqué l'horaire de quelqu'un en D ; cet horaire doit
+être en () ; si BLR ou YRS est en D, il faut mettre (C) à côté de lui
+pour Consignation »). L'ordre : (C) pour `CONSIGNATEURS` ; (H. flot.) ;
+la plage écrite dans l'annotation ou la cellule, quelle qu'elle soit
+(« (7-15) », « (6-14) », « (8-12) ») ; sinon celle que le commentaire
+écrit avec un tiret (DWS le 28/09, « (8h30-16h30) »). « De 10h à 14h »
+dans un commentaire dit un remplacement partiel et ne compte pas. Avec un
+code de jour, seule une plage de journée compte. **Reste le D seul sans
+aucune heure écrite** : 103 journées d'ici la fin de l'année chez 19
+personnes (YBT 15, NPI 14, FPS 9, MGY 9, FLI 8…). La question est posée
+au client, et rien n'y est écrit en attendant.
 
 Rien ne bouge dans la lecture ni dans le placement : les quatre sorties du
 vérificateur sont identiques à l'octet à celles d'avant v269. Vérifié au
