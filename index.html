@@ -1249,6 +1249,15 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn{line-height:14px}
 #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
 #eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
+/* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
+   trois pauses. */
+@media (max-width:760px){
+  #eqCorps .eqp2 th.eqposte{width:62px; padding-left:9px; padding-right:4px}
+  /* La largeur rendue aux pauses se dépense en lisibilité : les trigrammes
+     passent de 10,5 à 12 px. */
+  #eqCorps .eqp2 tbody td .eqn b{font-size:12px}
+  #eqCorps .eqp2 tbody td .eqn{line-height:15px}
+}
 .eqleg{display:flex; flex-wrap:wrap; gap:6px 16px; margin:0;
   padding:9px 16px 12px; border-top:1px solid var(--line2);
   font-size:11px; color:var(--faint)}
@@ -2122,7 +2131,7 @@ var WD=["lun","mar","mer","jeu","ven","sam","dim"];
 var SHIFTS=[{c:"",n:"—"},{c:"AM",n:"AM"},{c:"PM",n:"PM"},{c:"N",n:"N"},{c:"D",n:"D"}];
 var SHIFT_CODES=["AM","PM","N","D"];
 var SHIFT_NOMS={AM:"Matin",PM:"Après-Midi",N:"Nuit",D:"Jour"};
-var SHIFT_HEURES={AM:"Matin 6h-14h",PM:"Après-midi 14h-22h",N:"Nuit 22h-6h",D:"Jour — horaire variable (7h-15h, 7h30-16h ou flottant)"};
+var SHIFT_HEURES={AM:"AM 6h-14h",PM:"PM 14h-22h",N:"N 22h-6h",D:"D — horaire variable (7h-15h, 7h30-16h ou flottant)"};
 var SHIFT_MIGR={M:"AM",AM:"PM",J:"D"};
 var RAP_ORDRE=["","J","J2","MP"];
 var RAP_TXT={"":"aucun","J":"J","J2":"J-2","MP":"MP"};
@@ -3249,10 +3258,11 @@ function majProchain(){
       +esc(marqueDoute(r,r.j?etiqJour(r.j):postePeint(r)))+'</span>'
       /* Le titre de section dit déjà « Mon prochain poste » : le cadre
          commence donc par QUAND, le mot qu'on y cherche. */
-      +'<span class="pp-txt"><b>'+esc(quand.charAt(1).toUpperCase()+quand.slice(2))+'</b> · '
-      +esc(r.j?("journée de jour ("+r.j+")")
-              :(POSTE_LIB[postePeint(r)]||postePeint(r)).toLowerCase())
-      +(gardePrime(r)?", prime "+esc(r.s)+" conservée":"")
+      /* La pastille dit déjà la pause (AM, PM, N, D) : le texte ne la
+         répète pas. */
+      +'<span class="pp-txt"><b>'+esc(quand.charAt(1).toUpperCase()+quand.slice(2))+'</b>'
+      +(r.j?" · en D":"")
+      +(gardePrime(r)?" · prime "+esc(r.s)+" conservée":"")
       +" · "+num(h)+" h"
       +(F[y+"-"+pad2(m0+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
     el.hidden=false;
@@ -3706,7 +3716,7 @@ function posteDuJourDe(db,id){
            que de laisser croire qu'il n'est pas là */
         return g.t;
       }
-      if(g.k==="D")    return "Jour";
+      if(g.k==="D")    return "D";
       if(g.k==="abs")  return "Absent";
       if(g.k==="cong") return "Cong\u00e9";
       return "Repos";
@@ -6339,10 +6349,13 @@ function atelierDuJour(person,raw){
 }
 
 var EQ_GROUPES=[
-  {k:"AM",  t:"Matin",       s:"6h – 14h"},
-  {k:"PM",  t:"Après-midi",  s:"14h – 22h"},
-  {k:"N",   t:"Nuit",        s:"22h – 6h"},
-  {k:"D",   t:"Jour",        s:"horaire variable"},
+  /* Les pauses se disent AM, PM, N et D. Le client, le 26/09/2026 : « il
+     faut parler en AM PM N D au lieu du nom de la pause complet ». C'est
+     ce qu'écrit le classeur, et ce qu'on dit à l'usine. */
+  {k:"AM",  t:"AM",  s:"6h – 14h"},
+  {k:"PM",  t:"PM",  s:"14h – 22h"},
+  {k:"N",   t:"N",   s:"22h – 6h"},
+  {k:"D",   t:"D",   s:"horaire variable"},
   /* Le client : « il faut différencier absent et en congé ; les absents ne
      sont que les personnes malades ». Être en vacances et être malade ne se
      regardent pas de la même façon quand on cherche qui peut venir. */
@@ -6671,6 +6684,8 @@ function renderEquipe(){
        tiennent l'écran là où huit postes en colonnes le débordent. Le jour,
        la formation et les postes indéterminés suivent dans une carte à part —
        ils ne se lisent pas poste par poste. */
+    var EQ_COURT={cm:"CM", adj:"Adj.", meun:"Meun.", glut:"Glut.", ferm:"Ferm.",
+                  terr:"T. arr.", dist:"Dist.", chau:"Chaud.", step:"STEP"};
     var PAUSES=EQ_GROUPES.filter(function(g){
       return ["AM","PM","N"].indexOf(g.k)>=0; });
     var vp={}, aQui=false;
@@ -6723,7 +6738,12 @@ function renderEquipe(){
         if(!att && !sert) return;
         var debut=(P.z!==zPrec); zPrec=P.z;
         tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
-          +'<th class="eqposte" scope="row"><b>'+esc(P.t)+"</b></th>");
+          /* Les deux intitulés, et la feuille choisit : le court sur un
+             téléphone, l'entier au-delà de 760 px — comme l'onglet Équipe.
+             Le client, le 26/09/2026, a choisi cette option pour rendre
+             aux trois pauses la largeur que prenait l'intitulé. */
+          +'<th class="eqposte" scope="row"><b><span class="orgl1">'+esc(P.t)
+          +'</span><span class="orgl2">'+esc(EQ_COURT[P.k]||P.t)+"</span></b></th>");
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
@@ -6794,7 +6814,7 @@ function renderEquipe(){
       }
       if(jourL.length){
         var gD=EQ_GROUPES.filter(function(g){ return g.k==="D"; })[0];
-        tp.push('<tr class="zone1 eqjourl"><th class="eqposte" scope="row"><b>En journée</b>'
+        tp.push('<tr class="zone1 eqjourl"><th class="eqposte" scope="row"><b>D</b>'
           +"</th>"
           +'<td colspan="'+nCol+'">'
           +jourL.map(function(x){ return chip(x,gD,null); }).join("")+"</td></tr>");
@@ -6823,7 +6843,7 @@ function renderEquipe(){
        jour sans aucune pause — cela n'arrive pas dans le classeur de 2026 —
        ne doit pas pour autant les faire disparaître. */
     if(!aQui && jourL.length)
-      h.push('<p class="lede" style="padding:12px 16px"><b>En journée</b> '
+      h.push('<p class="lede" style="padding:12px 16px"><b>D</b> '
         +jourL.map(function(x){ return chip(x,EQ_GROUPES.filter(function(g){
           return g.k==="D"; })[0],null); }).join("")+"</p>");
     /* CONGÉ ET REPOS NE FONT QU'UNE LIGNE. Le client, le 26/09/2026 :
@@ -7918,7 +7938,8 @@ function renderCompteurs(){
    jour et l'initiale du poste, une légende accompagne la grille, et
    l'infobulle donne le détail. */
 var JOURS_COURTS=["L","M","M","J","V","S","D"];
-var POSTE_LIB={AM:"Matin",PM:"Après-midi",N:"Nuit",D:"Jour"};
+/* AM, PM, N, D : le parler de l'usine (le client, le 26/09/2026). */
+var POSTE_LIB={AM:"AM",PM:"PM",N:"N",D:"D"};
 /* Dans une case de calendrier, « 4H +FT » tronqué à trois caractères donne
    « 4H » — ce qui ne veut rien dire. Le nombre d'heures est déjà dans
    l'infobulle ; seule la nature du code compte ici. */
@@ -8104,7 +8125,7 @@ function renderAnnee(){
                 :(j.a?etiqAbsence(j.a):(prevu?j.s:""));
         var lib=travaille?((j.jour||j.sp)?((j.jour?"journée de jour ("+j.jour+")"
                  :POSTE_LIB[preste])+", prime "
-                 +(POSTE_LIB[j.s]||j.s).toLowerCase()+" conservée"):POSTE_LIB[j.s])
+                 +(POSTE_LIB[j.s]||j.s)+" conservée"):POSTE_LIB[j.s])
                 :(j.a||(prevu?((POSTE_LIB[j.s]||j.s)+" prévu, non presté"):"repos"));
         h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
           +' data-m="'+m+'" data-d="'+d+'" data-k="'+mmdd+'"'
@@ -8129,9 +8150,9 @@ function renderAnnee(){
       var l=["<b>"+d+" "+MOIS[m-1]+" "+annee+"</b>"];
       if(tv && (j.jour||j.sp)) l.push((j.jour?"Journée de jour ("+j.jour+")"
                         :POSTE_LIB[j.sp])+" · "+num(hb)+" h"
-                        +"<br>Prime de "+POSTE_LIB[j.s].toLowerCase()+" conservée");
+                        +"<br>Prime "+POSTE_LIB[j.s]+" conservée");
       else if(tv) l.push(POSTE_LIB[j.s]+" · "+num(hb)+" h");
-      if(j.a) l.push(j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s].toLowerCase():""));
+      if(j.a) l.push(j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s]:""));
       if(!tv && !j.a) l.push("Repos");
       if(j.rcm) l.push("Remplacement contremaître");
       if(j.rap) l.push("Rappel "+(j.rap==="J"?"J / J-1":"J-2 → J-15"));
