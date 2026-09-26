@@ -1138,28 +1138,6 @@ body.sheet-on{overflow:hidden}
 .eqcard[data-s="PM"] .eqpt{background:var(--pm)}
 .eqcard[data-s="N"] .eqpt{background:var(--n)}
 .eqcard[data-s="D"] .eqpt{background:var(--d)}
-.eqcard[data-s="reste"] .eqpt{background:var(--faint)}
-.eqt{width:100%; border-collapse:collapse; table-layout:fixed}
-.eqt tr+tr th, .eqt tr+tr td{border-top:1px solid var(--line2)}
-.eqt th, .eqt td{padding:7px 4px; vertical-align:top; text-align:left}
-/* Cette table ne sert plus qu'à la carte « Hors poste », dont les intitulés
-   sont longs — « Formation · matin », « À déterminer · nuit ». Ils se
-   coupent donc, là où un nom de poste ne le devait pas : sans quoi
-   « FORMATION · MATIN » passait par-dessus son compteur. */
-.eqt th[scope="row"]{width:150px; padding-left:16px; font-size:10.5px; font-weight:700;
-  letter-spacing:.02em; text-transform:uppercase; color:var(--faint);
-  border-left:3px solid transparent; line-height:1.35}
-.eqt td.eqc{width:52px; font-family:"IBM Plex Mono",monospace; font-size:11px;
-  font-weight:600; color:var(--muted); text-align:right; white-space:nowrap;
-  padding-right:14px}
-.eqt td.eqw{padding-right:16px; padding-left:10px}
-.eqt tr.manque th[scope="row"]{color:var(--out)}
-.eqt tr.manque td.eqc{color:var(--out); font-weight:700}
-.eqt tr[data-z="jaune"] th{border-left-color:var(--at-jaune)}
-.eqt tr[data-z="vert"]  th{border-left-color:var(--at-vert)}
-.eqt tr[data-z="rouge"] th{border-left-color:var(--at-rouge)}
-.eqt tr[data-z="bleu"]  th{border-left-color:var(--at-bleu)}
-.eqt tr[data-z="gris"]  th{border-left-color:var(--at-gris)}
 /* Le tableau : les pauses en lignes, les postes en colonnes. Sept colonnes
    ne tiennent pas dans 390 px — il défile donc horizontalement, et la
    colonne de la pause reste collée à gauche pour qu'on sache toujours
@@ -1250,6 +1228,16 @@ body.sheet-on{overflow:hidden}
    figure : son trigramme s'écrit en jaune pour qu'on ne s'y trompe pas. */
 .eqp2 td .eqn.form b{color:var(--at-jaune)}
 .eqp2 td.vide{color:var(--faint); font-size:12px}
+/* La journée court sur toute la largeur : elle n'a pas de pause. Les
+   trigrammes s'y lisent côte à côte, avec ce qui les amène (F, CPPT, DS). */
+.eqp2 tbody tr.eqjourl th.eqposte{border-left-color:var(--d)}
+.eqp2 tbody tr.eqjourl th.eqposte em{display:block; font-style:normal;
+  font-size:9.5px; font-weight:400; color:var(--faint); text-transform:none;
+  letter-spacing:0}
+.eqp2 tbody tr.eqjourl td{text-align:left; background:transparent}
+.eqp2 tbody tr.eqjourl td .eqn{display:inline-block; margin:1px 14px 1px 0;
+  white-space:nowrap}
+.eqp2 tbody tr.eqjourl td .eqn em{margin-left:4px}
 .eqleg{display:flex; flex-wrap:wrap; gap:6px 16px; margin:0;
   padding:9px 16px 12px; border-top:1px solid var(--line2);
   font-size:11px; color:var(--faint)}
@@ -1329,11 +1317,6 @@ body.sheet-on{overflow:hidden}
   .eqnav{flex-wrap:wrap}
   .eqnav .seg{margin-left:0; width:100%; margin-top:8px}
   .eqnav .seg button{flex:1 1 0}
-  /* Et les absents se coupent, plutôt que de pousser la table hors de sa
-     carte : « YBT MAL · jusqu'au 11 oct. » fait déjà la moitié d'un écran. */
-  .eqt th[scope="row"]{width:78px; padding-left:12px; font-size:9.5px}
-  .eqt td.eqc{width:30px; padding-right:6px}
-  .eqt td.eqw{padding-left:6px; padding-right:12px}
   .eqp2 tbody th.eqposte b{font-size:9.5px; letter-spacing:.01em}
   .eqp2 th.eqposte small{right:8px; font-size:9.5px}
   .eqp2 th, .eqp2 td{padding:6px 4px}
@@ -1355,7 +1338,6 @@ body.sheet-on{overflow:hidden}
 .eqn i, .eqn em{font-style:normal; font-size:10px; color:var(--faint)}
 .eqn em{font-family:"IBM Plex Mono",monospace}
 .eqvide{color:var(--faint)}
-.eqreste th[scope="row"]{width:86px}
 /* Huit absents à deux lignes chacun faisaient 554 px sur téléphone : le code
    et la date de retour tiennent sur la même ligne que le trigramme. */
 .eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
@@ -1720,10 +1702,23 @@ body[data-horaire="annee"] #rotasub{display:none}
 
          Le sélecteur de mois n'y est plus non plus : cet écran parle
          d'aujourd'hui, pas d'un mois. -->
+    <!-- Trois sections, trois questions. Le client, le 26/09/2026 :
+         « réorganise le premier onglet avec des titres et logique
+         d'affichage ». On ouvre l'application pour savoir, dans cet ordre :
+         quand je retravaille, ce qui va manquer, et qui est à l'usine le
+         jour qu'on regarde. Le titre de la troisième porte ce jour-là, parce
+         que tout ce qui la suit — en poste, absents, congés — en dépend. -->
+    <div class="pvtete">
+      <h2>Mon prochain poste</h2>
+    </div>
     <div class="card cardjour">
       <div class="prochain" id="prochain" hidden></div>
     </div>
 
+    <div class="pvtete">
+      <h2>À venir</h2>
+      <p class="sub">les postes qui manqueront de monde</p>
+    </div>
     <div class="card" id="mqCard">
       <details id="mqFold" open>
       <summary>
@@ -1745,6 +1740,10 @@ body[data-horaire="annee"] #rotasub{display:none}
       </details>
     </div>
 
+    <div class="pvtete">
+      <h2 id="usineTitre">Aujourd'hui à l'usine</h2>
+      <p class="sub">en poste, absents, en congé ou en repos</p>
+    </div>
     <div class="card">
       <header>
         <h2>Qui travaille</h2>
@@ -3245,11 +3244,13 @@ function majProchain(){
                +(m0!==now.getMonth()?" "+MOIS[m0].toLowerCase():""));
     el.innerHTML='<span class="pp-pastille" data-p="'+esc(postePeint(r))+'">'
       +esc(marqueDoute(r,r.j?etiqJour(r.j):postePeint(r)))+'</span>'
-      +'<span class="pp-txt"><b>Prochain poste</b> '
+      /* Le titre de section dit déjà « Mon prochain poste » : le cadre
+         commence donc par QUAND, le mot qu'on y cherche. */
+      +'<span class="pp-txt"><b>'+esc(quand.charAt(1).toUpperCase()+quand.slice(2))+'</b> · '
       +esc(r.j?("journée de jour ("+r.j+")")
               :(POSTE_LIB[postePeint(r)]||postePeint(r)).toLowerCase())
       +(gardePrime(r)?", prime "+esc(r.s)+" conservée":"")
-      +esc(quand)+" · "+num(h)+" h"
+      +" · "+num(h)+" h"
       +(F[y+"-"+pad2(m0+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
     el.hidden=false;
   }
@@ -6604,6 +6605,9 @@ function renderEquipe(){
        face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
     var RESTE=["abs","cong"];
+    var jourL=(par.D||[]).slice();
+    total+=jourL.length;
+    jourL.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
     /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
@@ -6770,6 +6774,33 @@ function renderEquipe(){
         });
         tp.push("</tr>");
       }
+      /* LA FORMATION ET LA JOURNÉE ENTRENT DANS LE TABLEAU. Le client, le
+         26/09/2026 : « comment intégrer les personnes en D dans
+         l'horaire ? ». Elles vivaient seules dans une carte « Hors poste »,
+         sous les absents de la veille — alors qu'elles sont À L'USINE ce
+         jour-là. La formation garde ses trois colonnes, puisqu'elle a une
+         pause ; la journée n'en a pas, et sa ligne court sur toute la
+         largeur, avec ce qui l'y amène (F, CPPT, DS) sous le trigramme. */
+      var nCol=PAUSES.filter(function(g){ return !!vp[g.k]; }).length;
+      var aFormL=PAUSES.some(function(g){ return vp[g.k] && vp[g.k].vue.formation.length; });
+      if(aFormL){
+        tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row"><b>Formation</b></th>');
+        PAUSES.forEach(function(g){
+          if(!vp[g.k]) return;
+          var li=vp[g.k].vue.formation;
+          tp.push("<td>"+(li.length
+            ? li.map(function(x){ return chip(x,g,null,true); }).join("")
+            : '<span class="eqvide">—</span>')+"</td>");
+        });
+        tp.push("</tr>");
+      }
+      if(jourL.length){
+        var gD=EQ_GROUPES.filter(function(g){ return g.k==="D"; })[0];
+        tp.push('<tr class="zone1 eqjourl"><th class="eqposte" scope="row"><b>En journée</b>'
+          +(gD&&gD.s?"<em>"+esc(gD.s)+"</em>":"")+"</th>"
+          +'<td colspan="'+nCol+'">'
+          +jourL.map(function(x){ return chip(x,gD,null); }).join("")+"</td></tr>");
+      }
       var lg=[];
       if(aForm)   lg.push('<span><i class="lg-form"></i>opérateur en formation</span>');
       if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
@@ -6794,25 +6825,13 @@ function renderEquipe(){
        formation, les indéterminés, les malades, les congés, le repos.
        C'étaient deux cartes, « Hors pause » et « Le reste », qui disaient
        la même chose : personne ici ne tient un poste aujourd'hui. */
-    var extra=[], jourL=(par.D||[]).slice();
-    if(jourL.length){
-      total+=jourL.length;
-      jourL.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
-      extra.push(ligne("Jour","",String(jourL.length),jourL,
-        EQ_GROUPES.filter(function(g){return g.k==="D";})[0],null,false,"gris"));
-    }
-    PAUSES.forEach(function(g){
-      if(!vp[g.k]) return;
-      var v=vp[g.k].vue;
-      if(v.formation.length)
-        extra.push(ligne("Formation \u00b7 "+g.t.toLowerCase(),"",
-          String(v.formation.length), v.formation,g,null,false,"jaune"));
-      /* « À déterminer » a quitté cette carte pour le tableau lui-même,
-         sous la ligne STEP : l'y laisser aussi l'aurait montré deux fois. */
-    });
-    /* Et le reste : malades, congés, repos. On ne les range pas par poste —
-       ils n'en tiennent aucun ce jour-là. */
-    var resteCorps=extra;
+    /* Le jour et la formation sont passés dans le tableau (plus haut). Un
+       jour sans aucune pause — cela n'arrive pas dans le classeur de 2026 —
+       ne doit pas pour autant les faire disparaître. */
+    if(!aQui && jourL.length)
+      h.push('<p class="lede" style="padding:12px 16px"><b>En journée</b> '
+        +jourL.map(function(x){ return chip(x,EQ_GROUPES.filter(function(g){
+          return g.k==="D"; })[0],null); }).join("")+"</p>");
     /* CONGÉ ET REPOS NE FONT QU'UNE LIGNE. Le client, le 26/09/2026 :
        « repos et congés doivent être mélangés car les repos aussi ont une
        reprise ». Ce qu'on cherche ici, c'est QUAND chacun revient ; qu'il
@@ -6854,10 +6873,6 @@ function renderEquipe(){
         if(k==="cong" && repriseNum(a)!==repriseNum(b)) return repriseNum(a)-repriseNum(b);
         return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
-      if(k!=="abs" && k!=="cong"){
-        resteCorps.push(ligne(g.t,"",String(l.length),l,g,null,false));
-        return;
-      }
       /* REGROUPÉS PAR DATE. Le client, le 26/09/2026, devant sa capture —
          dix-neuf lignes « Repos · reprise le 28 sept. » d'affilée : « penses-tu
          qu'il faut regrouper les noms par date de reprise ? », puis
@@ -6908,13 +6923,12 @@ function renderEquipe(){
         +'<div class="eqgrp eqreste">'+h2+"</div></div>");
     });
     var reste=document.getElementById("eqReste");
-    if(reste) reste.innerHTML = resteCorps.length
-      ? '<div class="card eqcard" data-s="reste">'
-        +'<header><h2><span class="eqpt"></span>Hors poste</h2>'
-        +'<span class="sub">personne ici ne tient un poste aujourd\'hui</span></header>'
-        +'<table class="eqt eqreste"><tbody>'+resteCorps.join("")+"</tbody></table></div>"
-      : "";
-    if(reste) reste.innerHTML+=cadres.join("");
+    if(reste) reste.innerHTML=cadres.join("");
+    /* Le titre de section suit le jour choisi : tout ce qui le suit en
+       dépend, et « aujourd'hui » écrit au-dessus d'un autre jour mentirait. */
+    var tU=document.getElementById("usineTitre"), au=new Date();
+    if(tU) tU.textContent=(au.getFullYear()===annee&&au.getMonth()+1===mois&&au.getDate()===jour)
+      ?"Aujourd'hui à l'usine":"L'usine le "+document.getElementById("eqJour").textContent.toLowerCase();
 
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=
