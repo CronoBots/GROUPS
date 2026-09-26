@@ -1246,12 +1246,20 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
 #eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
   color:var(--at-jaune)}
-#eqCorps .eqp2 td.vided{background:transparent}
-#eqCorps .eqp2 tbody tr{height:var(--eqh,auto)}
+/* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
+   client, le 26/09/2026). */
+#eqCorps .eqp2 td.vide{background:transparent}
+#eqCorps .eqp2 tbody tr:nth-child(even) td.vide{background:var(--surface2)}
+/* Toutes les lignes ont la hauteur d'une case à DEUX trigrammes ; seule
+   une case qui en porte davantage fait grandir la sienne. Le client, le
+   26/09/2026 : « comme celle où il y avait 2 trigrammes pour toutes les
+   lignes, sauf celles de plus de 2 ». Une hauteur de ligne de tableau est
+   un minimum : le contenu la dépasse de lui-même. */
+#eqCorps .eqp2 tbody tr{height:44px}
 /* Des traits qui se voient (le client, le 26/09/2026 : « les lignes ne sont
    plus assez visibles »). Deux jetons à eux, dans les deux thèmes : un
    trait entre deux postes, un trait plus marqué entre deux zones. */
-#eqCorps .eqp2 th, #eqCorps .eqp2 td{border-left-color:var(--trait)}
+#eqCorps .eqp2 td, #eqCorps .eqp2 thead th{border-left-color:var(--trait)}
 #eqCorps .eqp2 tbody tr+tr th, #eqCorps .eqp2 tbody tr+tr td{border-top:1px solid var(--trait)}
 #eqCorps .eqp2 tbody tr.zone1 th, #eqCorps .eqp2 tbody tr.zone1 td{border-top:2px solid var(--trait-fort)}
 #eqCorps .eqp2 thead th{border-bottom:2px solid var(--trait-fort)}
@@ -1259,8 +1267,14 @@ body.sheet-on{overflow:hidden}
    intitulés de poste un cran plus clairs, les tirets un cran plus
    discrets. Un tiret dit « rien à voir ici » ; il ne doit pas peser autant
    qu'un trigramme. */
-#eqCorps .eqp2 tbody th.eqposte b{color:var(--muted)}
-#eqCorps .eqp2 td.vide{color:var(--faint); opacity:.45}
+/* Les postes s'écrivent comme les pauses de l'en-tête — même corps, même
+   graisse, même encre, sans capitales — et au centre de leur colonne. Le
+   client, le 26/09/2026 : « les postes doivent être de la taille et du
+   style de la ligne des pauses, et le texte centré ». */
+#eqCorps .eqp2 th.eqposte{text-align:center}
+#eqCorps .eqp2 tbody th.eqposte b{font-size:12px; font-weight:650; color:var(--ink);
+  text-transform:none; letter-spacing:0}
+#eqCorps .eqp2 td.vide{color:var(--trait-fort)}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav{padding:7px 12px}
@@ -1269,7 +1283,7 @@ body.sheet-on{overflow:hidden}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
-  #eqCorps .eqp2 th.eqposte{width:62px; padding-left:9px; padding-right:4px}
+  #eqCorps .eqp2 th.eqposte{width:62px; padding-left:4px; padding-right:4px}
   /* La largeur rendue aux pauses se dépense en lisibilité : les trigrammes
      passent de 10,5 à 12 px. */
   #eqCorps .eqp2 tbody td .eqn b{font-size:12px}
@@ -6816,7 +6830,7 @@ function renderEquipe(){
          On note donc ce qui a réellement été dessiné, et on n'explique que
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
-      var zPrec=null, aManque=false, maxLig=1;
+      var zPrec=null, aManque=false;
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -6848,7 +6862,6 @@ function renderEquipe(){
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
-          maxLig=Math.max(maxLig, o.gens.length+(mq?1:0));
           if(mq){ cl.push("manque"); aManque=true; }
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
@@ -6877,7 +6890,6 @@ function renderEquipe(){
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.inconnus;
-          maxLig=Math.max(maxLig, li.length);
           tp.push("<td>"+(li.length
             ? li.map(function(x){ return chip(x,g,null,true); }).join("")
             : '<span class="eqvide">\u2014</span>')+"</td>");
@@ -6892,7 +6904,6 @@ function renderEquipe(){
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
-          maxLig=Math.max(maxLig, li.length);
           tp.push("<td>"+(li.length
             ? li.map(function(x){ return chip(x,g,null,true); }).join("")
             : '<span class="eqvide">—</span>')+"</td>");
@@ -6904,12 +6915,6 @@ function renderEquipe(){
       /* Plus de légende des zones : le liseré regroupe des lignes qui
          portent déjà leur nom, et la nommer coûtait deux lignes sous le
          tableau pour rien apprendre. */
-      /* TOUTES LES LIGNES À LA MÊME HAUTEUR. Le client, le 26/09/2026 : « il
-         faut des hauteurs fixes de même taille pour chaque ligne ». Un
-         tableau n'égalise pas ses lignes de lui-même : la hauteur est celle
-         de la case la plus pleine du jour (16 px par trigramme empilé, plus
-         les marges), posée sur chaque ligne. */
-      tp[0]='<div class="eqgrille"><table class="eqp2" style="--eqh:'+(12+16*maxLig)+'px">';
       tp.push("</tbody></table></div>"
         +(lg.length?'<p class="eqleg">'+lg.join("")+"</p>":"")
         +"</div>");
