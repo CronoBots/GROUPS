@@ -114,6 +114,7 @@ const MORCEAUX=[
   ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
   ["function calculerPolyvalence(","\n}"],
+  ["var PV_SANS_RECYCLAGE=","\n"],
   ["function polyvalenceDe(","\n}"],
   /* le mémo que equipeDuJour() emploie : sans lui la découpe le laisserait
      hors du champ et equipeDuJour() lèverait une ReferenceError */
@@ -428,7 +429,7 @@ if(process.argv.indexOf("--polyvalence")>=0){
     const par=t.parId[p.id]||{};
     const sien=posteAttitre(p)||posteDeFormation(p);
     POSTES_TRAVAIL.forEach(P=>{
-      if(P.cm||P.k==="adj"||P.k===sien) return;
+      if(P.cm||P.k==="adj"||PV_SANS_RECYCLAGE[P.k]||P.k===sien) return;
       if(!par[P.k]||aLaPolyvalence(p,P)) return;
       hors.push("   "+p.id+"  "+P.t+" "+par[P.k]+" journée(s)");
     });

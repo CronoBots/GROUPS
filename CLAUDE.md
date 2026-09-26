@@ -1154,6 +1154,28 @@ Le découpage du vérificateur prend désormais `POSTE_PERIODE` jusqu'à
 `] };` : la table tient sur plusieurs lignes, et la découpe au premier saut
 de ligne rendait une `SyntaxError`.
 
+### Le terrain arrière ne se recycle pas
+
+Le client, le 26/09/2026, en voyant « Terrain arrière 0/10 » sur la ligne de
+SKS : « terrain arrière ne doit pas compter de recyclage », puis, la question
+posée entre SKS seul et tout le monde : « ce poste ne compte pas pour un
+recyclage, c'est fermentation/distillation ».
+
+Ce n'est pas un atelier, c'est la réunion de deux — aucune liste de
+polyvalence ne le porte, `tientTerrainArriere()` le déduit. `PV_SANS_RECYCLAGE`
+le sort de `polyvalenceDe()` et de la grille, et une journée passée au terrain
+arrière **ne compte nulle part** : la reverser à la fermentation ET à la
+distillation était l'autre lecture possible, et le client ne l'a pas
+demandée. Si c'était son intention, c'est `calculerPolyvalence()` qu'il
+faudrait toucher.
+
+Mesuré : **seule la colonne part** — aucune autre case ne bouge, neuf
+règles, compteurs et manques identiques à l'octet. Couples au quota
+**31 → 23** sur **99 → 86** : les huit quotas de terrain arrière (ATR, FPA,
+GDT, GPO, JBI, PAM, SMA, VGG). La grille a six colonnes au navigateur :
+Meun., Glut., Ferm., Dist., Chaud., STEP. Le polyvalent arrière dont c'est le
+poste perd son point plein — il n'y a plus de colonne pour le porter.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
