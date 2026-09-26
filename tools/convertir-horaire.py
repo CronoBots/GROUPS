@@ -367,9 +367,7 @@ class Classeur:
                 # noms le connaît. Son nom part remplacé par son trigramme,
                 # et non effacé : « changement d'équipe de MMS » se lit
                 # encore, « changement d'équipe de » ne dit plus rien.
-                if self.registre and self.registre[0]:
-                    motif, tri = self.registre
-                    txt = motif.sub(lambda m: tri.get(m.group(0), m.group(0)), txt)
+                txt = _sans_registre(txt, self.registre)
                 txt = AUTEUR.sub(" ", txt).strip(" .;:")
                 txt = re.sub(r"^[\s,;:/]+", "", " ".join(txt.split()))
                 # APRÈS LES SIGNATURES, ET NON AVANT. Un login est le suffixe
@@ -511,6 +509,13 @@ def _motif_registre(cl, annuaire):
     la ligne des noms écrit « Nom P », et un « P » isolé ne nomme personne.
     """
     mots = {}
+
+    def _retenir(nom, tri):
+        for mot in re.split(r"[\s,./()]+", nom):
+            mot = mot.strip(".").strip()
+            if len(mot) >= 3 and mot[:1].isupper() and mot.replace("-", "").isalpha():
+                mots.setdefault(_plier(mot), tri.upper())
+
     for feuille in cl.feuilles:
         try:
             g = cl.grille(feuille)
@@ -523,17 +528,147 @@ def _motif_registre(cl, annuaire):
             cle = _sans_accent(nom).lower()
             tri = (CORRECTIONS.get(_empreinte(cle)) or annuaire.get(cle)
                    or _initiales(nom))
-            if not tri:
+            if tri:
+                _retenir(nom, tri)
+
+    # LA FEUILLE « POLYVALENCE » PORTE LE PRÉNOM EN TOUTES LETTRES, et c'est
+    # par elle que quatre prénoms auraient dû partir. CLAUDE.md affirmait le
+    # 25/09/2026 qu'ils « n'existent nulle part ailleurs dans le classeur » ;
+    # l'audit du 26/09 l'a démenti : chacun est dans la colonne Prénom, sur
+    # UNE ligne, et le trigramme de cette ligne est exactement celui qu'on
+    # posait à la main sur les huit journées. L'information était là ; on
+    # retirait à la main, à chaque conversion, ce que le fichier disait.
+    #
+    # Le nom de famille (colonne B) et le prénom (colonne C) sont appris avec
+    # le trigramme de la ligne — celui que polyvalence() lui donne. Un prénom
+    # n'est retenu que s'il est UNIQUE dans sa colonne : partagé par deux
+    # personnes, on ne saurait lequel des deux trigrammes écrire, et en
+    # choisir un serait troquer une fuite contre une fausse attribution.
+    # Ceux-là restent sous la garantie finale, qui arrête la conversion.
+    if "Polyvalence" in cl.feuilles:
+        g = cl.grille("Polyvalence")
+        lignes = []
+        for r in sorted(g):
+            if r < 5:
                 continue
-            for mot in re.split(r"[\s,./()]+", nom):
-                mot = mot.strip(".").strip()
-                if len(mot) >= 3 and mot[:1].isupper() and mot.replace("-", "").isalpha():
-                    mots.setdefault(mot, tri.upper())
+            famille, prenom = str(g[r].get(2, "")).strip(), str(g[r].get(3, "")).strip()
+            if not famille or not prenom:
+                continue
+            cand = "%s %s." % (famille.title(), prenom[0].upper())
+            cle = _sans_accent(cand).lower()
+            tri = CORRECTIONS.get(_empreinte(cle)) or annuaire.get(cle) or _initiales(cand)
+            if tri:
+                lignes.append((famille, prenom, tri))
+        compte = {}
+        for _, prenom, _ in lignes:
+            compte[_plier(prenom)] = compte.get(_plier(prenom), 0) + 1
+        for famille, prenom, tri in lignes:
+            _retenir(famille.title(), tri)
+            if compte[_plier(prenom)] == 1:
+                _retenir(prenom[:1].upper() + prenom[1:], tri)
     if not mots:
         return None, {}
+    return _motif_mots(mots), mots
+
+
+# Les mots de nom que la garantie cherche dans la sortie : posé par convertir().
+_SURVEILLES = set()
+
+
+def _mots_de_noms(cl):
+    """TOUS les mots qui nomment quelqu'un dans le classeur, qu'on ait su ou
+    non les attribuer : la ligne des noms, et le nom et le prénom de la
+    feuille « Polyvalence » — y compris les prénoms partagés, que le
+    registre n'ose pas remplacer."""
+    out = set()
+    lignes = []
+    # Les feuilles de PERSONNES seulement : la ligne 10 de « Récapitulatif
+    # (1) » porte des en-têtes — « P. arr », « Ferm. », « Gluten » — et
+    # l'anonymiseur a appris le 26/09/2026 ce qu'il en coûte de les prendre
+    # pour des gens.
+    for feuille in cl.feuilles:
+        if feuille not in FEUILLES:
+            continue
+        g = cl.grille(feuille)
+        lignes += [v for c, v in (g.get(LIGNE_NOMS) or {}).items() if c >= 3]
+    if "Polyvalence" in cl.feuilles:
+        g = cl.grille("Polyvalence")
+        for r in g:
+            if r >= 5:
+                lignes += [g[r].get(2, ""), g[r].get(3, "")]
+    for nom in lignes:
+        # « Nom P.(ass.Us.) » : la parenthèse dit le rôle, pas la personne.
+        for mot in re.split(r"[\s,./()]+", re.sub(r"\([^)]*\)", " ", str(nom))):
+            mot = mot.strip(".").strip()
+            if len(mot) >= 3 and mot.replace("-", "").isalpha() and not mot.isupper():
+                out.add(_plier(mot))
+            elif len(mot) >= 4 and mot.replace("-", "").isalpha():
+                out.add(_plier(mot))
+    return out
+
+
+def garantie(texte, surveilles, tolere=()):
+    """LA SORTIE EST RELUE, ET UN SEUL NOM L'ARRÊTE.
+
+    C'est la doctrine de l'anonymiseur, et le convertisseur ne l'avait pas :
+    il remplaçait ce qu'il savait reconnaître et écrivait le reste. Quatre
+    prénoms sont ainsi arrivés dans le JSON d'un dépôt PUBLIC, et il a
+    fallu les retirer à la main à chaque conversion. On cherche ici, dans
+    TOUT le JSON produit — journées, champ « e », contrats, dates de
+    polyvalence —, chaque mot de nom du classeur, écrit avec sa majuscule.
+
+    Rend la liste des restes : (mot, contexte).
+    """
+    plie = _plier(texte)
+    restes = []
+    for mot in sorted(surveilles):
+        if mot in tolere or mot not in plie:
+            continue
+        for m in re.finditer(r"\b" + re.escape(mot) + r"\b", plie):
+            if texte[m.start()].isupper():
+                restes.append((mot, texte[max(0, m.start() - 30):m.end() + 30]))
+    return restes
+
+
+def _plier(t):
+    """Le mot sans accents et en minuscules, caractère pour caractère."""
+    return "".join((_sans_accent(c) or c)[:1].lower()[:1] for c in t)
+
+
+def _motif_mots(mots):
+    """Un motif qui retrouve chacun des mots SANS TENIR COMPTE DES ACCENTS NI
+    DE LA CASSE, sauf la majuscule initiale, qu'il exige.
+
+    L'un des quatre prénoms du 25/09 n'était pas écrit pareil dans la feuille
+    « Polyvalence » et dans le commentaire — un accent ou une capitale de
+    différence. Une comparaison exacte le laissait passer, et la
+    reconversion l'aurait réécrit sans que personne ne le voie.
+
+    Il s'applique au texte PLIÉ caractère pour caractère (`_plier` garde la
+    longueur), ce qui laisse remplacer aux mêmes positions dans l'original.
+    La majuscule se lit sur l'original : « marie » est un verbe, « Marie »
+    une personne.
+    """
     # Le plus long d'abord, pour qu'un nom composé ne soit pas coupé.
     alt = "|".join(re.escape(m) for m in sorted(mots, key=len, reverse=True))
-    return re.compile(r"\b(?:" + alt + r")\b"), mots
+    return re.compile(r"\b(?:" + alt + r")\b")
+
+
+def _sans_registre(txt, registre):
+    """Remplacer par leur trigramme les noms appris du classeur."""
+    if not registre or not registre[0]:
+        return txt
+    motif, tri = registre
+    plie = _plier(txt)
+    out, pos = [], 0
+    for m in motif.finditer(plie):
+        if not txt[m.start()].isupper():
+            continue
+        out.append(txt[pos:m.start()])
+        out.append(tri[m.group(0)])
+        pos = m.end()
+    out.append(txt[pos:])
+    return "".join(out)
 
 
 def _annuaire(cl):
@@ -1083,7 +1218,9 @@ def convertir(chemin_xlsm, annee):
     cl.registre = _motif_registre(cl, annuaire)
     if cl.registre[0]:
         print("  registre des noms : %d mot(s) appris de la ligne des noms"
-              % len(cl.registre[1]), file=sys.stderr)
+              " et de la feuille Polyvalence" % len(cl.registre[1]), file=sys.stderr)
+    global _SURVEILLES
+    _SURVEILLES = _mots_de_noms(cl)
 
     # 1. Une fiche par personne, repérée par son nom normalisé. Une même
     #    personne figure sur plusieurs feuilles : la première rencontrée
@@ -1334,15 +1471,30 @@ if __name__ == "__main__":
     if "--entetes" in sys.argv:
         entetes(Classeur(sys.argv[1]))
         sys.exit(0)
-    src = sys.argv[1]
-    dst = sys.argv[2] if len(sys.argv) > 2 else "-"
-    annee = int(sys.argv[3]) if len(sys.argv) > 3 else 2026
+    pos = [a for a in sys.argv[1:] if not a.startswith("--")]
+    src = pos[0]
+    dst = pos[1] if len(pos) > 1 else "-"
+    annee = int(pos[2]) if len(pos) > 2 else 2026
     data = convertir(src, annee)
     n = sum(len(p["d"]) for p in data["people"])
     k = sum(1 for p in data["people"] for e in p["d"].values() if len(e) > 2)
     print("%d personnes, %d journées, %d commentaires" % (len(data["people"]), n, k),
           file=sys.stderr)
     out = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    tol = ()
+    for a in sys.argv[1:]:
+        if a.startswith("--tolerer="):
+            tol = tuple(_plier(x.strip()) for x in a.split("=", 1)[1].split(","))
+    restes = garantie(out, _SURVEILLES, tol)
+    if restes:
+        print("\n%d reste(s) de nom dans la sortie — rien n'est écrit :" % len(restes),
+              file=sys.stderr)
+        for mot, ctx in restes[:30]:
+            print("   …%s…" % ctx.replace("\n", " "), file=sys.stderr)
+        print("\nSi l'un d'eux n'est pas un nom, relancer avec --tolerer=mot1,mot2"
+              " APRÈS avoir lu le contexte.", file=sys.stderr)
+        sys.exit(2)
+    print("Aucun nom du classeur ne subsiste : vérifié sur la sortie.", file=sys.stderr)
     if dst == "-":
         print(out)
     else:

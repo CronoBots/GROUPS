@@ -793,6 +793,47 @@ ont la forme d'un nom — et un contrôle qui échoue toujours ne se lit plus.
 l'outil sort en 0 quand il ne reste qu'elles. **Y ajouter une ligne est un
 acte**, comme pour `tools/formes-admises.txt`.
 
+### Le convertisseur apprend les prénoms, et se relit
+
+Les quatre prénoms qu'on retirait à la main à chaque conversion **sont dans
+la colonne Prénom de « Polyvalence »**, chacun sur une ligne dont le
+trigramme est celui qu'on posait. `_motif_registre()` apprend donc aussi le
+nom et le prénom de cette feuille, avec le trigramme de leur ligne — celui
+que `polyvalence()` calcule, `CORRECTIONS` et « Personnel » compris.
+
+- **un prénom n'est appris que s'il est UNIQUE dans la colonne** : partagé,
+  on ne saurait quel trigramme écrire ;
+- **accents et casse ne comptent pas, sauf la majuscule initiale** : l'un des
+  quatre n'est pas écrit pareil dans la feuille et dans le commentaire, et
+  une comparaison exacte le laissait passer ;
+- **une garantie relit TOUT le JSON produit** — journées, champ `e`,
+  contrats, dates de polyvalence — et y cherche chaque mot de nom des
+  feuilles de personnes et de « Polyvalence », qu'on ait su l'attribuer ou
+  non. Un seul reste, et rien n'est écrit (code 2, `--tolerer=` après avoir
+  lu le contexte). C'est la doctrine de l'anonymiseur ; le convertisseur ne
+  l'avait pas.
+
+**L'étape manuelle disparaît, et elle se trompait une fois sur quatre.** La
+conversion du nouveau classeur donne l'horaire installé à DEUX journées
+près : GST les 25 et 26/02, « Remplacé par CDE (<prénom>) ». La main avait
+écrit CDE ; le calcul écrit **CHD**. Le classeur tranche seul : ces deux
+jours-là, **la colonne de CHD porte « Remplace GST », et CDE est en
+repos**. CHD est « l'autre CDE, en équipe 4 » de `CORRECTIONS` — le
+classeur l'appelle encore par ses initiales, le client l'a renommé. Le
+prénom est le sien.
+
+**L'anonymiseur faisait la même erreur**, pour la même raison : il
+calculait les initiales du couple nom-prénom sans consulter `CORRECTIONS`.
+`_ini_de_ligne()` le fait désormais — **pour le prénom seul**. Le nom de
+famille garde ses initiales : il est souvent partagé, et le faire suivre a
+changé, à l'essai, **460 signatures d'un auteur** en celles d'un homonyme de
+la même feuille. Trois prénoms suivent ainsi une décision du client (CHD,
+JBA, PDF), deux commentaires concordent désormais avec l'horaire, et
+`verifier-integralite.py` repasse à zéro.
+
+Rien d'autre ne bouge : les quatre sorties de `verifier-calendrier.js` sont
+identiques à l'octet, et `comparer-fiches` passe son épreuve.
+
 **L'historique public porte encore les 60 identifiants** — trois versions de
 `data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
 une décision du client, comme pour les noms (`docs/purge-historique.md`).
@@ -1693,11 +1734,11 @@ pas mieux faire : **un prénom seul n'a aucune forme reconnaissable**. C'est
 la faille que ce fichier décrit depuis le 22/09 — elle s'est refermée sur
 nous.
 
-**Le convertisseur ne pouvait pas mieux faire non plus.** Ces quatre-là
-n'existent nulle part ailleurs dans le classeur : ni dans la ligne des noms,
-ni dans la feuille « Personnel », qui réduit le prénom à une initiale.
-`_motif_auteurs()` ne voit que les auteurs DÉCLARÉS, et aucun des quatre
-n'en est un. Il n'avait aucun moyen de savoir que c'étaient des gens.
+**J'ai écrit ici que le convertisseur ne pouvait pas mieux faire, et c'était
+faux.** Ces quatre-là ne sont ni dans la ligne des noms, ni dans « Personnel »
+— mais ils sont dans la colonne Prénom de la feuille « Polyvalence », chacun
+sur une ligne. L'audit du 26/09/2026 l'a montré, et le convertisseur les
+apprend désormais de là : voir « L'audit du 26/09/2026 ».
 
 **L'anonymiseur, lui, les avait tous les quatre** — zéro occurrence dans
 `data/classeur-2026.xlsx`.
@@ -2643,12 +2684,11 @@ Ce qui bouge par ailleurs, et qui se lit dans la sortie du comparateur :
 septembre, un « Test de performance » retiré de onze cellules où il n'était
 qu'un commentaire d'organisation.
 
-**Les quatre prénoms sont revenus, et c'était prévu.** Le convertisseur ne
-sait pas les reconnaître — ils n'existent nulle part ailleurs dans le
-classeur — et une reconversion les réécrit donc à chaque fois. Ils sont
-retirés à la main AVANT installation, depuis la sortie de l'anonymiseur,
-jamais devinés. **À refaire après chaque conversion**, tant que le classeur
-les porte.
+**Les quatre prénoms sont revenus, et c'était prévu.** Ils étaient retirés à
+la main à chaque conversion. **Ce n'est plus le cas depuis le 26/09/2026** :
+le convertisseur les apprend de la feuille « Polyvalence », et une garantie
+arrête la conversion si un nom du classeur subsiste. Voir « L'audit du
+26/09/2026 » — l'une des quatre corrections faites à la main était fausse.
 
 `CEPS` est apparu dans les survivants du second contrôle : c'est un centre de
 formation — « Formation ARI - CEPS Seraing » — et non quelqu'un.
