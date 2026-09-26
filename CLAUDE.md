@@ -1083,15 +1083,32 @@ porte de morceau barré** : la règle précédente ne leur a rien retiré. Rien 
 changer dans le code ni dans `data/`, et la distinction est à garder : le
 barré d'un commentaire est une décision, celui d'une ligne un accident.
 
+### Le jaune d'une journée est un pense-bête
+
+Le client, le 26/09/2026, sur les trois « Abs » de GSK surlignées les 16, 19
+et 20/01 : « ce sont des jours où il remplaçait, mais le commentaire a été
+barré ; à mon avis c'était mis en jaune pour ne pas oublier de trouver un
+remplaçant à celui qu'il était censé remplacer ».
+
+**Le classeur le confirme de lui-même** : les trois commentaires sont
+« ~~remplace CGI~~ », entièrement barrés, et ces trois jours-là la colonne de
+CGI porte « remplacé par LDY » puis « remplacé par ATR » — le remplaçant a
+été trouvé. Les quatre autres « Abs » de la série (14, 15, 17, 18/01) ne
+sont pas jaunes : ce jour-là GSK ne remplaçait personne.
+
+**Rien à lire ni à coder** : le jaune ne porte ni heure ni montant, et la
+journée reste une maladie. La règle du barré du 26/09 avait déjà retiré
+« remplace CGI » des trois journées ; avant elle, l'horaire faisait croire
+que GSK remplaçait quelqu'un un jour où il était malade.
+
 ### Ce qui attend le client
 
 L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **le jaune** : trois « Abs » de GSK mi-janvier, un compteur, l'en-tête de
-  GPS ; et **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au
-  12/06 — exactement ses 112 journées de formation en meunerie ;
+- **le gris** des colonnes de SKS sur « Opérateurs » du 02/01 au 12/06 —
+  exactement ses 112 journées de formation en meunerie ;
 - **les fenêtres SHUT-DOWN** (16-23/03, 10-18/04) : changent-elles
   l'effectif attendu ?
 - **NPE est-il intérimaire ?** — le classeur le dit, la liste du client non ;
