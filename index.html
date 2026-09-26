@@ -2422,8 +2422,16 @@ function compute(){
     var h=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:Number(rec.h)):0;
     if(rec.s && h>0){
       acc.jours++;
+      /* PRÉSENT, ET NON PAYÉ. Une reprise de flex time garde ses heures
+         (payées depuis le compteur, voir docs/conversion-horaire.md, section
+         6) mais la personne n'est pas venue : le chèque-repas et l'indemnité
+         de déplacement se comptent sur les heures PRÉSENTES. Fiche de mars
+         de LCI, 26/09/2026 : le 01/03 « 8h -FT, remplacé par GDT » n'y donne
+         ni chèque ni indemnité — 18 jours pour 19 à l'application. */
+      var hPres=h;
+      ((rec.a?[rec.a]:[]).concat(rec.ax||[])).forEach(function(c){ var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
       /* le chèque-repas suppose au moins quatre heures prestées */
-      if(h>=4) acc.joursCr++;
+      if(hPres>=4) acc.joursCr++;
       /* un rappel sur un repos ne donne AUCUNE heure normale : ses heures
          passent par les heures sup à compenser (voir lireJournee, r.rs) */
       /* UN FÉRIÉ PRESTÉ SE PAIE À 200 %, PRIME D'ÉQUIPE COMPRISE. Établi le
@@ -2441,7 +2449,7 @@ function compute(){
         if(tFer==="Samedi") acc.sam+=h; if(tFer==="Dimanche") acc.dim+=h;
         if(isFer&&t==="Semaine") acc.ferie+=h;
       }
-      if(rec.v){acc.velo++;} else {acc.joursInd++;}
+      if(hPres>0){ if(rec.v){acc.velo++;} else {acc.joursInd++;} }
     }
     /* OP_BWZ_CoD_00020, point D : « aucune prime ne sera accordée en cas de
        demande de la ligne hiérarchique pour une prestation en pause AM dans
@@ -2764,7 +2772,7 @@ function compute(){
     head:lines, brutLines:brutLines, retenues:retenues,
     brut100:brut100, bonus:bonus, onss:onss, solid:solid,
     dPec:dPec, cDPV:cDPV, treize:treize, onssExc:onssExc, ppExc:ppExc, excBasePP:excBasePP,
-    indDepl:indDepl, indVelo:indVelo, kmVelo:kmVelo, joursInd:joursInd, crNb:crNb,
+    indDepl:indDepl, indJour:indJour, indVelo:indVelo, kmVelo:kmVelo, joursInd:joursInd, crNb:crNb,
     crRecup:crRecup, crRestRTT:crRestRTT, crRestFT:crRestFT,
     impIndDepl:impIndDepl, impFiscal:impFiscal, redHS:redHS, autreF:autreF,
     pp:pp, csss:csss, crPersoTot:crPersoTot, assGr:assGr, avance:avance,
@@ -3089,7 +3097,7 @@ function renderSlip(C){
   if(C.cDPV) h+=slipRow({l:"Complément DPV solde 4ᵉ semaine",v:C.cDPV,keep:true});
   if(C.treize) h+=slipRow({l:"Treizième mois",v:C.treize,keep:true});
   h+='<tr class="sub"><td class="q"></td><td>Imposable fiscal (PP &amp; fiche fiscale)</td><td class="a">'+eur(C.impFiscal)+"</td></tr>";
-  h+=slipRow({q:C.joursInd,l:"jours indemnité déplac./privé à "+nf.format(p.indJour)+" €",v:C.indDepl});
+  h+=slipRow({q:C.joursInd,l:"jours indemnité déplac./privé à "+nf.format(C.indJour)+" €",v:C.indDepl});
   if(C.kmVelo) h+=slipRow({q:C.kmVelo,l:"km indemnité déplacement vélo à "+nf4.format(p.indVeloKm)+" €",v:C.indVelo});
   if(C.autreF) h+=slipRow({l:"Autre indemnité nette",v:C.autreF,keep:true});
   if(p.avVelo) h+=slipRow({l:"Avantage vélo société (pour info)",v:R(p.avVelo),info:true});

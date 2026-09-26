@@ -16,7 +16,13 @@ chèques = journées prestées d'au moins 4 h
 ```
 
 **Une journée prestée d'au moins quatre heures donne toujours un chèque.**
-En dessous de quatre heures, aucun.
+En dessous de quatre heures, aucun. **Prestée veut dire PRÉSENTE** : une
+reprise de flex time garde ses heures payées, mais ne compte pas ici — ni
+pour le chèque, ni pour l'indemnité de déplacement. Fiche de mars de LCI
+(26/09/2026) : « 8h -FT, remplacé par GDT » le 01/03, aucun chèque, aucune
+indemnité. La même fiche ne donne pas non plus le chèque de récupération
+de ces 8 h de flex time, alors que celles de mai (RTT) et de juillet (RHS)
+le donnent : question posée au client, la formule ci-dessus reste appliquée.
 
 **Les heures récupérées en donnent un de plus par tranche de huit heures.**
 Le client : « sur une journée de 8 h je récupère 4 h de RTT, je n'aurai droit
@@ -866,6 +872,13 @@ travail ; seules les RÈGLES trouvées entrent dans le dépôt.
    h × prime désigne ses heures.
 4. Lire les commentaires de la journée ET ceux des collègues avant toute
    question.
+5. Pour le NET : recopier le taux d'indemnité de déplacement de CHAQUE fiche
+   (il change en cours d'année) dans le champ du mois, et trouver le calage
+   du précompte sur une fiche — `(barème théorique − précompte réel) × 12`,
+   précompte réel = précompte retenu + réduction heures sup, base =
+   « Imposable fiscal » de la fiche. Sur LCI, la même valeur reproduit les
+   huit fiches au centime : si elle varie, c'est la BASE qui diffère, pas
+   le barème.
 
 Pièges rencontrés : un séparateur de milliers qui fait lire « −1 062,49 »
 comme « 062,49 » ; « J-15 233,04 » lu comme −15 233 ; le taux horaire qui
