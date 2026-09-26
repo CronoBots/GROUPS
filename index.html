@@ -6653,6 +6653,14 @@ function aLaPolyvalence(p,P,jour){
   return P.rx ? aLAtelier(p,P.rx,jour) : false;
 }
 /* Les postes SECONDAIRES d'une personne, du plus tenu au moins tenu. */
+/* LE TERRAIN ARRIÈRE NE SE RECYCLE PAS. Le client, le 26/09/2026 : « ce
+   poste ne compte pas pour un recyclage, c'est fermentation/distillation ».
+   Il n'est pas un atelier mais la réunion de deux — aucune liste de
+   polyvalence du classeur ne le porte, tientTerrainArriere() le déduit — et
+   ce sont ces deux-là qui se recyclent. Sa colonne sort de la grille, et
+   une journée passée au terrain arrière ne compte nulle part : on ne la
+   reverse ni à l'un ni à l'autre, le client ne l'a pas demandé. */
+var PV_SANS_RECYCLAGE={ terr:true };
 function polyvalenceDe(db,p){
   if(estContremaitre(p)) return null;
   /* SON poste, celui qui ne compte pas. Trois pièges s'y trouvent :
@@ -6678,7 +6686,7 @@ function polyvalenceDe(db,p){
   var sien=posteAttitre(p), posteForm=posteDeFormation(p);
   var q=estCadre(p)?POLY_QUOTA.adjoint:POLY_QUOTA.operateur, out=[];
   POSTES_TRAVAIL.forEach(function(P){
-    if(P.cm||P.k==="adj"||P.k===sien) return;
+    if(P.cm||P.k==="adj"||PV_SANS_RECYCLAGE[P.k]||P.k===sien) return;
     if(posteForm && P.k===posteForm){
       out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true});
       return;
@@ -6760,7 +6768,8 @@ function renderPolyvalence(){
       return; }
     var sel=document.getElementById("prefillId");
     var moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
-    var POSTES=POSTES_TRAVAIL.filter(function(P){ return !P.cm && P.k!=="adj"; });
+    var POSTES=POSTES_TRAVAIL.filter(function(P){
+      return !P.cm && P.k!=="adj" && !PV_SANS_RECYCLAGE[P.k]; });
     var t=calculerPolyvalence(db);
     var h=['<thead><tr><th class="pvqui">Qui</th>'];
     POSTES.forEach(function(P){
