@@ -1238,6 +1238,17 @@ body.sheet-on{overflow:hidden}
 .eqp2 tbody tr.eqjourl td .eqn{display:inline-block; margin:1px 14px 1px 0;
   white-space:nowrap}
 .eqp2 tbody tr.eqjourl td .eqn em{margin-left:4px}
+/* Plus serré, sans rien retirer. Le client, le 26/09/2026 : « penses-tu
+   pouvoir optimiser l'affichage de ce tableau ? ». Les trigrammes restent
+   l'un sous l'autre (sa demande du 22/09), mais chacun prenait une ligne
+   de 18 px pour un corps de 10,5 : l'interligne passe à 14, et les cases
+   perdent deux pixels de marge. L'identifiant en tête bat toutes les
+   règles de téléphone écrites plus haut ou plus bas, sans dépendre de
+   leur ordre. */
+#eqCorps .eqp2 tbody td, #eqCorps .eqp2 tbody th{padding-top:4px; padding-bottom:4px; line-height:1.25}
+#eqCorps .eqp2 tbody td .eqn{line-height:14px}
+#eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
+#eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
 .eqleg{display:flex; flex-wrap:wrap; gap:6px 16px; margin:0;
   padding:9px 16px 12px; border-top:1px solid var(--line2);
   font-size:11px; color:var(--faint)}
@@ -3222,7 +3233,6 @@ function majVersements(C){
 function majProchain(){
   var el=document.getElementById("prochain"); if(!el) return;
   var now=new Date();
-  if(now.getFullYear()!==st.y || now.getMonth()!==st.m){ el.hidden=true; return; }
   /* Le poste suivant, jamais celui du jour. Le client, le 26/09/2026 :
      « est-ce utile de remettre la pause du jour vu qu'elle est dans la barre
      du haut ? ». Non : la barre dit déjà aujourd'hui (« Contremaître ·
@@ -3247,33 +3257,35 @@ function majProchain(){
       +(F[y+"-"+pad2(m0+1)+"-"+pad2(d)]?" · jour férié":"")+"</span>";
     el.hidden=false;
   }
-  var nd=daysInMonth(st.y,st.m), M=st.month, hJ=st.params.hJour;
-  for(var d=now.getDate()+1; d<=nd; d++){
-    var r=M.days[d]; if(!r||!r.s) continue;
-    var h=(r.h===undefined||r.h===null||r.h==="")?hJ:Number(r.h);
-    if(!(h>0)) continue;
-    montre(r,st.y,st.m,d,h); return;
-  }
-  /* Le mois s'arrête, l'horaire non. Le 30/09, « plus de poste d'ici la fin
-     du mois » ne répondait à rien : on lit la suite dans le classeur, par la
-     même lecture que le calendrier. */
+  /* Le cadre part d'AUJOURD'HUI, pas du mois affiché. Le client, le
+     26/09/2026 : « Mon prochain poste n'est plus affiché » — il avait
+     feuilleté un autre mois dans Mon salaire, et le cadre se vidait tant
+     que le mois choisi n'était pas le mois en cours. Les journées du mois
+     affiché se lisent dans le mois enregistré (qui garde les corrections
+     faites à la main), les autres dans le classeur, par la même lecture
+     que le calendrier. */
+  var hJ=st.params.hJour, M=st.month;
   var db=HORAIRE_DB, id=(document.getElementById("prefillId")||{}).value||lsGet("ui/prefillId");
   var p=db&&db.people&&db.people.filter(function(x){ return x.id===id; })[0];
-  if(p && Number(db.year)===st.y){
-    var t=new Date(Date.UTC(st.y,st.m,nd));
-    for(var i=0;i<62;i++){
-      t.setUTCDate(t.getUTCDate()+1);
-      var y=t.getUTCFullYear(), m=t.getUTCMonth()+1, j=t.getUTCDate();
-      if(y!==st.y) break;
+  var t=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));
+  for(var i=0;i<62;i++){
+    t.setUTCDate(t.getUTCDate()+1);
+    var y=t.getUTCFullYear(), m=t.getUTCMonth()+1, j=t.getUTCDate(), r=null;
+    if(y===st.y && m-1===st.m) r=M.days[j]||null;
+    else if(p && Number(db.year)===y){
       var raw=p.d[pad2(m)+pad2(j)]; if(raw===undefined) continue;
-      var c=moisDe(p,y,m,hJ), rr=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJ,c.rv[j]);
-      if(!rr.s) continue;
-      var hh=(rr.h===undefined||rr.h===null||rr.h==="")?hJ:Number(rr.h);
-      if(!(hh>0)) continue;
-      if(rr.jourCode && !rr.j) rr.j=rr.jourCode;
-      montre(rr,y,m-1,j,hh); return;
+      var c=moisDe(p,y,m,hJ);
+      r=lireJournee(db,raw,y,m,j,c.fit,c.ep[j],hJ,c.rv[j]);
+      if(r && r.jourCode && !r.j) r.j=r.jourCode;
     }
+    if(!r||!r.s) continue;
+    var h=(r.h===undefined||r.h===null||r.h==="")?hJ:Number(r.h);
+    if(!(h>0)) continue;
+    montre(r,y,m-1,j,h); return;
   }
+  /* L'horaire n'est pas encore chargé : on ne dit rien plutôt que « plus
+     de poste », qui serait faux. */
+  if(!p){ el.hidden=true; return; }
   el.innerHTML='<span class="pp-pastille pp-rien">—</span><span class="pp-txt">'
     +"<b>Plus de poste</b> prévu dans l'horaire.</span>";
   el.hidden=false;
@@ -6788,9 +6800,9 @@ function renderEquipe(){
           +jourL.map(function(x){ return chip(x,gD,null); }).join("")+"</td></tr>");
       }
       var lg=[];
-      if(aForm)   lg.push('<span><i class="lg-form"></i>opérateur en formation</span>');
+      if(aForm)   lg.push('<span><i class="lg-form"></i>en formation</span>');
       if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
-      if(aVide)   lg.push('<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>');
+      if(aVide)   lg.push('<span><i class="lg-tiret">\u2013</i>aucun effectif attendu</span>');
       /* Plus de légende des zones : le liseré regroupe des lignes qui
          portent déjà leur nom, et la nommer coûtait deux lignes sous le
          tableau pour rien apprendre. */

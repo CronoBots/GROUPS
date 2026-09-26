@@ -3713,6 +3713,32 @@ apprendre. `ZONE_NOMS` et les styles `.lg-z` sont retirés avec elle. Rien
 ne déborde à 320, 390 et 1280 px, hors ligne compris. Les quatre sorties du
 vérificateur sont identiques à l'octet.
 
+**« Mon prochain poste n'est plus affiché. »** Le client, le même jour. Le
+défaut date de la première version du cadre, pas de la réorganisation :
+`majProchain()` se cachait dès que le mois affiché n'était pas celui du
+jour. Or le mois se choisit dans Mon horaire et Mon salaire, et on revient
+au Résumé en gardant ce choix. Il suffisait d'avoir regardé octobre dans
+Mon salaire pour trouver un cadre vide sous son titre. Reproduit
+au navigateur : mois suivant, retour au Résumé, cadre caché. Le cadre part
+désormais d'AUJOURD'HUI. Il lit le mois enregistré quand le jour en fait
+partie (on garde ainsi les corrections faites à la main), sinon le
+classeur, avec la même lecture que le calendrier. Tant que l'horaire n'est
+pas chargé, il ne dit rien plutôt que « plus de poste ». **Un premier test a
+cru montrer une erreur chez LCI** : il changeait de catégorie en boucle, et
+les pré-remplissages en cours écrasaient la personne choisie. Refait
+avec une seule sélection : « Demain · matin », ce que dit sa cellule du
+27/09.
+
+**Le tableau perd 18 % de sa hauteur sans rien perdre.** Même demande :
+« penses-tu pouvoir optimiser l'affichage de ce tableau ? ». Les trigrammes
+restent l'un sous l'autre, comme le client l'a demandé le 22/09. Mais
+chacun prenait une ligne de 18 px pour un corps de 10,5 px : l'interligne
+passe à 14 px, et les cases perdent deux pixels de marge. La légende tient
+sur une ligne (« en formation », « aucun effectif attendu »). À 390 px, le
+tableau passe de 470 à 386 px et le cadre de 585 à 482 px. Les règles
+portent `#eqCorps` en tête : elles battent les règles de téléphone par la
+spécificité, quel que soit leur ordre dans la feuille.
+
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée
 n'a pas de pause, et trois colonnes vides l'auraient fait lire comme un
