@@ -3561,6 +3561,16 @@ pas jusqu'à quand. Elle écrit maintenant **« MAL · dernier jour »**, ce qui
 est une information et non un vide — GJR est « Abs » du 15 au 23/09, en
 repos du 24 au 27, et reprend le 28.
 
+**Les malades se lisent du retour le plus proche au plus lointain.** Le
+client, le 26/09/2026 : « les absents maladie doivent être triés par dates
+de retour (le plus court au plus long) ». Le tri se fait au RENDU de la
+carte « Hors poste », qui retriait chaque groupe par catégorie et
+trigramme — un tri posé dans `equipeDuJour()` s'y faisait défaire, et la
+première version l'a montré au navigateur : huit malades dans le désordre.
+Une série qui finit aujourd'hui (« dernier jour ») vient en tête ; à date
+égale, l'ordre habituel. Congés et repos gardent le leur. Vérifié à 390 et
+1280 px, hors ligne compris : 27/09, 27/09, 30/09, 11/10 … 27/12.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
