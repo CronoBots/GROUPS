@@ -1397,6 +1397,39 @@ août ; février +0,90 € (le 20/02), mars −0,36 €, avril −5,40 € ; **n
 moins de 8 € chaque mois**, le reste étant un précompte de 6 à 11 € plus
 bas que la fiche. Neuf règles, manques, Recyclage et compteurs identiques.
 
+### Les quelques euros de net : le calage, l'indemnité, une journée de flex time
+
+Le client, le 26/09/2026 : « d'où viennent les quelques euros de
+différence ? ». Trois causes, et **quatre mois sur huit tombent alors au
+centime sur le NET** (janvier, mai, juillet, août).
+
+- **Le précompte suit le barème de l'application À UNE CONSTANTE PRÈS**, la
+  même sur les huit fiches : une seule valeur de « Calage barème » les
+  reproduit toutes au centime, sans arrondi par tranche de 15 €. L'écart de
+  6 à 11 € n'était que le calage par défaut, qui vient d'une autre fiche.
+  **Rien à coder** : c'est le réglage personnel prévu pour cela, et l'onglet
+  Contrôle le recalcule depuis le précompte d'une fiche. Ce qui variait
+  d'un mois à l'autre venait de la base : l'indemnité imposable.
+- **L'indemnité de déplacement change de taux** d'un mois à l'autre sur les
+  fiches, avec une régularisation une fois. C'est le champ du mois
+  « Indemnité déplacement / jour ». **La fiche simulée écrivait le taux des
+  Réglages** à côté du montant calculé au taux du mois : elle écrit
+  désormais celui du mois.
+- **Une reprise de flex time d'une journée entière comptait comme une
+  journée de présence** : le 01/03, « 8h -FT, remplacé par GDT », donnait
+  un chèque-repas et une indemnité de déplacement. La fiche n'en porte
+  aucun — 18 jours pour 19. Les heures restent payées depuis le compteur
+  (section 6 de `docs/conversion-horaire.md`), mais **le chèque et
+  l'indemnité se comptent sur les heures PRÉSENTES**. 212 journées chez
+  52 personnes ; neuf règles, manques, Recyclage et compteurs identiques à
+  l'octet.
+
+Restent : février +0,40 € (le 20/02), mars −1,25 € (un chèque de
+récupération de flex time, question ci-dessous), avril −5,68 € (trois
+chèques et les journées connues), juin +2,26 € — la régularisation
+d'indemnité, que la simulation a saisie en « autre indemnité nette », non
+imposable, alors que la fiche l'impose.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
@@ -1447,8 +1480,15 @@ n'est deviné à leur sujet :
     de LCI : le client renverra ses fiches (absentes de ce conteneur) ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
-    6 h 25 = 170,44 €, application 183,37 €), un précompte de 6 à 11 € plus
-    bas chaque mois à brut égal ;
+    6 h 25 = 170,44 €, application 183,37 €) ;
+  - **le chèque de récupération du flex time** : les RTT (mai) et les RHS
+    (juillet) en donnent un par 8 h sur la fiche de LCI, les 8 h de flex
+    time du 01/03 aucun. A (le flex time n'en donne jamais), B (cas
+    isolé) ;
+  - **trois chèques d'avril** : la fiche en porte 9 pour 12 journées
+    indemnisées. Les deux journées payées entièrement en heures sup (11 et
+    13/04) en expliquent sans doute deux ; la troisième est l'une des
+    demi-journées du 05, du 08 ou du 15/04 ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
