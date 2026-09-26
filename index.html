@@ -4181,12 +4181,27 @@ var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce"];
    pause. Les deux seules cellules de l'année à la porter. Rien à calculer,
    donc, et rien à signaler non plus : elle n'était pas fausse, elle était
    seulement illisible. */
-var MENTIONS_NEUTRES=["r","vm","r-cm","r-f","r-vm","eval"];
+/* Sept combinaisons de codes connus, lues le 26/09/2026 à la lumière de
+   leur COMMENTAIRE — la règle de méthode du client : « surtout les
+   commentaires, ils résolvent presque toutes tes questions ». Chaque fois,
+   la journée se lisait déjà juste par sa cellule franche, sa plage ou son
+   cycle ; seule l'étiquette manquait :
+   « CPPT-F » (LHR, ADK le 27/05) — « présent au CPPT + preste sa pause N »,
+   une formation d'une heure dans la journée ; « SD26+R » (AFA 13/03) —
+   « remplace JBI de 09h à 11h », sa plage dit la journée ; « R-CM/VM »
+   (ATR 16/03) — remplace ceux qui sont en visite médicale ; « chaud+f »,
+   « r+f » (FPA 05/10, VBN 15/10) — le projet falling film, dont le F ne
+   sort pas du poste ; « +cppt » (GPS 28/01) — sa plage 18h-06h dit la
+   nuit. */
+var MENTIONS_NEUTRES=["r","vm","r-cm","r-f","r-vm","eval",
+  "cppt-f","sd26+r","r-cm/vm","chaud+f","r+f","+cppt"];
 /* Noms d'atelier : ils disent la ZONE de remplacement, rien d'autre. Le
    client : « cela ne change rien à l'horaire ni aux primes, si c'est juste
    une indication de la zone de remplacement et qu'il n'y a rien d'autre de
    compromettant dans le commentaire ». 906 journées de l'horaire 2026. */
-var ATELIERS=/^(meunerie|distill|disti|terr\.?\s*arr|poly|chaudi|gluten|ferm|step|etoh|consign|meun)/i;
+/* « liq - ferm » (GKT 10/02) : la fermentation liquide, écrite à l'envers
+   de « ferm. Liqu. ». */
+var ATELIERS=/^(meunerie|distill|disti|terr\.?\s*arr|poly|chaudi|gluten|ferm|step|etoh|consign|meun|liq)/i;
 /* Reprise d'heures supplémentaires : « 2,25h RHS », « 1h rhs », « 0,5 rhs ».
    Le client : « RHS est un compteur hors fichier ; s'il les reprend c'est
    marqué, mais ce n'est pas marqué quand il en fait ». Comme le flex time,
@@ -4300,7 +4315,12 @@ var GREVE_JOURS={"20260210":1,"20260512":1,"20260616":1};
    c'est un tiret ». Une astérisque est voisine du tiret sur un pavé
    numérique ; elle ne figurait qu'une fois dans tout le classeur, et aucune
    légende ne l'expliquait. */
-var COQUILLES={"*":"-"};
+/* « DS + PM » (JKS 17/06, avec « 4h +FT » et « réunion mensuelle
+   Direction - délégation syndicale ») : sa pause d'après-midi, et la
+   réunion en plus, au flex time. Lu « PM », le +FT s'ajoute aux huit
+   heures comme le veut la règle de LCI le 14/08 ; illisible, il les
+   amputait de moitié. */
+var COQUILLES={"*":"-","DS + PM":"PM"};
 /* Une sortie syndicale (« DS ») n'est pas une journée prestée en horaire de
    jour : c'est une absence, et elle ne conserve PAS la prime de la pause
    prévue. Le client : « uniquement les sorties DS, pas les CPPT ».
@@ -5478,7 +5498,7 @@ var POSTES_TRAVAIL=[
   {k:"adj",  t:"Adjoint",         n:0, z:"gris"},
   {k:"meun", t:"Meunerie",        n:1, z:"jaune", rx:/^meun/i},
   {k:"glut", t:"Gluten",          n:2, z:"jaune", rx:/^glut/i},
-  {k:"ferm", t:"Fermentation",    n:1, z:"vert", rx:/^ferm/i},
+  {k:"ferm", t:"Fermentation",    n:1, z:"vert", rx:/^(ferm|liq)/i},
   /* « Poly. Etoh » est un terrain arrière : l'éthanol, c'est la fermentation
      et la distillation, exactement ce que ce poste couvre. Le client l'a
      confirmé le 21/09/2026. 46 journées de l'année le portent, et elles
@@ -6134,6 +6154,7 @@ var ATELIER_NOMS=[
   [/^meun(erie)?\.?$/i,"Meunerie"],
   [/^glut(en)?\.?$/i,"Gluten"],
   [/^ferm\.?\s*liqu?\.?$/i,"Fermentation liquide"],
+  [/^liq\.?\s*-?\s*ferm\.?$/i,"Fermentation liquide"],
   [/^ferm(entation)?\.?$/i,"Fermentation"],
   [/^disti(ll(ation)?)?\.?$/i,"Distillation"],
   [/^chaudi(\u00e8res|eres)?\.?$/i,"Chaudi\u00e8res"],

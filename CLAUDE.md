@@ -1316,6 +1316,19 @@ que la fiche porte, et « oui / non ». Toujours cette forme.
 LCI le 13/04, `["N","22h-10h","Rappel…"]`, reste un écart : sa cellule
 franche dit N, pas repos, alors que la fiche le paie en 12 h d'heures sup.
 
+### Les mentions non comprises, lues par leur commentaire
+
+Le 26/09/2026, en appliquant la règle « commentaires d'abord » : sur onze
+mentions non comprises, **neuf** se sont résolues sans question. Sept se
+lisaient déjà juste (`MENTIONS_NEUTRES` : `CPPT-F`, `SD26+R`, `R-CM/VM`,
+`chaud. + F`, `R + F`, `+CPPT`) ou étaient un atelier (`liq - ferm`,
+fermentation liquide) ; une était FAUSSE — JKS le 17/06, `DS + PM ·
+4h +FT`, « réunion mensuelle Direction - délégation syndicale », comptait
+4 h au lieu de 8 : le « PM » n'était pas lu, et la règle du +FT sur un
+poste prévu ne s'appliquait pas (`COQUILLES`). Les manques, le Recyclage, les
+compteurs et les fiches sont identiques à l'octet. Restent deux vraies questions :
+VGG 25/02 `PM · SD26 -F` (aucun commentaire) et TCE 20/02 `N · F-PM`.
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
