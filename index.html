@@ -1222,8 +1222,9 @@ body.sheet-on{overflow:hidden}
 .eqp2 td .eqn{display:block; margin:0}
 .eqp2 td .eqn b{font-family:"IBM Plex Mono",monospace; font-size:11.5px;
   font-weight:600; letter-spacing:.03em; color:var(--ink)}
-.eqp2 td .eqn.moi b{color:var(--in); text-decoration:underline;
-  text-underline-offset:3px}
+/* La personne choisie se lit en GRAS, sans soulignement. Le client, le
+   26/09/2026 : « ne doit pas être souligné mais peut être en gras ». */
+.eqp2 td .eqn.moi b{color:var(--in); font-weight:800}
 .eqp2 .eqvide{color:var(--faint); font-size:11px}
 /* Un opérateur en formation compte rarement à l'effectif du poste où il
    figure : son trigramme s'écrit en jaune pour qu'on ne s'y trompe pas. */
@@ -1240,6 +1241,9 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn{line-height:14px}
 #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
 #eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
+#eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
+  color:var(--at-jaune)}
+#eqCorps .eqp2 td.vided{background:transparent}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
@@ -6667,6 +6671,7 @@ function renderEquipe(){
        face : un poste sous le sien se voit sans le chercher. */
     var h=[], total=0;
     var RESTE=["abs","cong"];
+    var jourCalc=annee*10000+Number(mmdd);
     /* « nu » : le trigramme seul, sans les mentions sous lui. Le client, le
        22/09/2026 : « ne pas mettre les petits commentaires sous le trigramme
        pour les gens qui travaillent ». Elles restent dans l'infobulle — ce
@@ -6702,11 +6707,19 @@ function renderEquipe(){
               ||(x.deduit?"déduit de sa polyvalence":"")
               ||((posteCourant&&enFormation(x.p)&&!compteAuPoste(x,posteCourant))
                  ?"en formation, en plus":"");
+      /* « En formation » se dit du POSTE, pas de la personne : LCI, opérateur
+         en formation à la distillation, est validé à la fermentation qu'il
+         tient jusqu'au 29/09. Dans le tableau, le poste montré décide, par
+         la règle même de l'effectif (compteAuPoste). Le client, le
+         26/09/2026 : pas de légende, « (F) » à côté du trigramme. */
+      var formIci=posteCourant ? (enFormation(x.p,jourCalc) && !compteAuPoste(x,posteCourant,jourCalc))
+                               : enFormation(x.p,jourCalc);
       return '<span class="eqn'+(x.p.id===moi?" moi":"")
-        +(enFormation(x.p)?" form":"")+'"'
+        +(formIci?" form":"")+'"'
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
+        +(nu&&formIci&&posteCourant?'<small class="eqf">(F)</small>':"")
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
@@ -6780,7 +6793,7 @@ function renderEquipe(){
          On note donc ce qui a réellement été dessiné, et on n'explique que
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
-      var zPrec=null, aForm=false, aManque=false, aVide=false;
+      var zPrec=null, aManque=false;
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -6803,15 +6816,16 @@ function renderEquipe(){
           /* Le client : « on peut également mettre "-" pour la STEP PM et
              N ». Une case grise et muette laissait croire à un oubli ; le
              tiret dit que ce poste n'attend personne à cette pause-là. */
+          /* La colonne D n'attend jamais personne : un tiret sur chaque ligne
+             y faisait une colonne de traits. Elle reste blanche. */
+          if(g.k==="D" && (!o || !o.gens.length)){ tp.push('<td class="vide vided"></td>'); return; }
           if(!o || (!o.gens.length && !attenduAuPoste(P,g.k,renJ))){
-            aVide=true; tp.push('<td class="vide">\u2013</td>'); return; }
+            tp.push('<td class="vide">\u2013</td>'); return; }
           /* Le client : « n'afficher l'effectif minimum que dans la cellule
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
           if(mq){ cl.push("manque"); aManque=true; }
-          for(var fi=0;fi<o.gens.length;fi++)
-            if(enFormation(o.gens[fi].p)){ aForm=true; break; }
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
             +(mq?'<i>'+o.tenu+" / "+aP+"</i>":"")
@@ -6860,9 +6874,7 @@ function renderEquipe(){
         tp.push("</tr>");
       }
       var lg=[];
-      if(aForm)   lg.push('<span><i class="lg-form"></i>en formation</span>');
       if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
-      if(aVide)   lg.push('<span><i class="lg-tiret">\u2013</i>aucun effectif attendu</span>');
       /* Plus de légende des zones : le liseré regroupe des lignes qui
          portent déjà leur nom, et la nommer coûtait deux lignes sous le
          tableau pour rien apprendre. */

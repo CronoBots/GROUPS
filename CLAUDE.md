@@ -3806,6 +3806,34 @@ absent des 77) ou n'est pas nommé du tout. Recyclage : 23 → **22** couples
 au quota (CDE chaudières 10 → 9), et une dizaine de cases bougent d'une
 journée.
 
+### Le tableau du jour : gras, « (F) », une colonne blanche
+
+Le client, le 26/09/2026, capture à l'appui : « le poste de la personne
+sélectionnée ne doit pas être souligné mais peut être en gras ; supprimer
+la légende des gens en formation mais indiquer (F) à côté du trigramme ».
+
+- **La personne choisie** se lit en gras (800), dans la couleur d'accent,
+  sans soulignement.
+- **« (F) » remplace le jaune expliqué par une légende**, et il suit le
+  POSTE, pas la catégorie. La capture montrait LCI en jaune à la
+  fermentation, qu'il tient validé jusqu'au 29/09. Le tableau testait
+  `enFormation()`, qui ne regarde que la catégorie. Il teste désormais
+  `compteAuPoste()`, la règle même de l'effectif, avec le jour affiché.
+  C'est ce que la composition fait depuis le 25/09 (« le jaune suit le
+  poste ») : les deux vues disent maintenant la même chose. Le 26/09, SKS
+  (meunerie), SVE (distillation) et MGY (chaudières) portent « (F) », et
+  LCI non.
+- **La colonne D reste blanche** là où personne n'est en journée : un
+  tiret sur chaque ligne en faisait une colonne de traits, pour un poste
+  qui n'attend jamais personne.
+- **La légende du tiret part aussi** : il ne reste de tirets qu'à l'adjoint
+  et à la STEP hors matin, qui se lisent seuls. La légende du manque
+  reste, les jours où un manque est dessiné.
+
+Le cadre passe de 448 à 413 px à 390 px. Neuf règles, manques, compteurs
+et Recyclage identiques à l'octet ; rien ne déborde à 320, 390 et
+1280 px, hors ligne compris.
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
