@@ -2426,10 +2426,19 @@ function compute(){
       if(h>=4) acc.joursCr++;
       /* un rappel sur un repos ne donne AUCUNE heure normale : ses heures
          passent par les heures sup à compenser (voir lireJournee, r.rs) */
+      /* UN FÉRIÉ PRESTÉ SE PAIE À 200 %, PRIME D'ÉQUIPE COMPRISE. Établi le
+         26/09/2026 sur les fiches de LCI, au centime : mai (16 h fériées),
+         le 21/07 et le 15/08 manquaient exactement h × taux, et la prime
+         doublée. Le client : « c'est la même règle pour les employés
+         aussi ». En semaine, le supplément passe de 100 à 200 % et n'est
+         toujours pas déduit ; un férié qui tombe un SAMEDI se paie comme un
+         dimanche — le 15/08 de LCI : 200 % et non 150 %. La prime d'équipe
+         d'une heure fériée va au seau du dimanche, majoré à 200 %. */
+      var tFer=isFer?(t==="Samedi"?"Dimanche":t):t;
       if(!rec.rs){
         acc.hTot+=h;
-        byShift[rec.s][t]+=h;
-        if(t==="Samedi") acc.sam+=h; if(t==="Dimanche") acc.dim+=h;
+        byShift[rec.s][isFer?"Dimanche":t]+=h;
+        if(tFer==="Samedi") acc.sam+=h; if(tFer==="Dimanche") acc.dim+=h;
         if(isFer&&t==="Semaine") acc.ferie+=h;
       }
       if(rec.v){acc.velo++;} else {acc.joursInd++;}
@@ -2576,7 +2585,7 @@ function compute(){
   function bl(q,l,v,qh){ var o={q:q,l:l,v:v,qh:qh}; brutLines.push(o); return o; }
   if(acc.dim) bl(acc.dim,"Supplément weekend à "+nf4.format(txh)+" à 200 %",R(acc.dim*txh*2),true);
   if(acc.sam) bl(acc.sam,"Supplément weekend à "+nf4.format(txh)+" à 150 %",R(acc.sam*txh*1.5),true);
-  if(acc.ferie) bl(acc.ferie,"Supplément jour férié presté à "+nf4.format(txh),R(acc.ferie*txh),true);
+  if(acc.ferie) bl(acc.ferie,"Supplément jour férié presté à "+nf4.format(txh)+" à 200 %",R(acc.ferie*txh*2),true);
   if(acc.sam||acc.dim) bl(-(acc.sam+acc.dim),"Déduction travail weekend à "+nf4.format(txh),R(-(acc.sam+acc.dim)*txh),true);
   SHIFT_CODES.forEach(function(s){
     var pr=primes[s]; if(!pr) return;
@@ -2769,7 +2778,7 @@ var WHY=[
  [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
  [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
  [/^Supplément weekend .* à 150 %/,"Samedi : chaque heure reçoit 150 % du salaire horaire."],
- [/^Supplément jour férié presté/,"Un jour férié presté en semaine donne 100 % de plus. Contrairement au week-end, ce supplément n'est pas déduit ensuite."],
+ [/^Supplément jour férié presté/,"Un jour férié presté en semaine donne 200 % de plus, et sa prime d'équipe est majorée comme un dimanche. Contrairement au week-end, ce supplément n'est pas déduit ensuite. Un férié qui tombe un samedi se paie comme un dimanche."],
  [/^Déduction travail weekend/,"Les heures du week-end sont déjà comprises dans la rémunération fixe. Cette ligne en retire une fois 100 % pour ne pas les payer deux fois : il reste donc +50 % le samedi et +100 % le dimanche par rapport à une heure de semaine."],
  [/^Suppl\. Équipe .*heures suppl/,"Sur des heures supplémentaires, la prime d'équipe monte d'un cran : 150 % en semaine, 200 % le samedi, 300 % le dimanche et les jours fériés."],
  [/^Suppl\. Équipe/,"Prime de pause, payée par heure de présence dans le poste. Elle suit le régime du jour : 100 % en semaine, 150 % le samedi, 200 % le dimanche et les jours fériés."],
