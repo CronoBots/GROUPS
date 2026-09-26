@@ -1336,6 +1336,13 @@ de FLN ; VGG 25/02 `PM · SD26 -F` réunit deux codes de journée de jour.
 d'une case (HKB meunerie 23 → 24, le rééquilibrage comblant la nuit du
 20/02 que TCE a quittée).
 
+« consign. » (BLR 22 au 24/07) quitte `ATELIERS` pour `MENTIONS_NEUTRES` :
+les consignations de YRS, renfort avant en congé, faites en 7h-15h — une
+tâche, pas un atelier. Rien d'autre ne bouge. Reste « Polyvalence » sur un
+repos (LCI 23/09, SVE 21/09), sans aucun commentaire : question posée au
+client le 26/09/2026 — venus travailler (A, heures sup ; B, payé
+normalement) ou simple note (C).
+
 ### Les compteurs CP, TP, CT comptent les journées posées
 
 Mesuré le 26/09/2026 : le compteur du pied de feuille est le nombre de
