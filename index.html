@@ -1272,16 +1272,9 @@ body.sheet-on{overflow:hidden}
 .eqnav .seg button{white-space:nowrap; flex:0 0 auto}
 .mqj{padding:5px 8px; margin:0 -8px; gap:8px}
 .mqj>b{min-width:74px; font-size:11.5px}
-.eqzones{border-top:0; padding-top:0}
 /* La phrase d'explication courait sur 450 px au milieu d'une carte qui en
    fait 1150 : elle prend toute la largeur disponible. */
 .lede.wide{max-width:none}
-.lg-z{width:16px; height:3px; border-radius:2px; background:var(--line)}
-.lg-z[data-z="gris"]{background:var(--at-gris)}
-.lg-z[data-z="jaune"]{background:var(--at-jaune)}
-.lg-z[data-z="vert"]{background:var(--at-vert)}
-.lg-z[data-z="rouge"]{background:var(--at-rouge)}
-.lg-z[data-z="bleu"]{background:var(--at-bleu)}
 @media (max-width:560px){
   /* La date avait sa largeur minimale, mais les pastilles restaient un bloc
      flex:1 1 auto : dès qu'elles ne tenaient plus à côté d'elle, le bloc
@@ -1741,14 +1734,14 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
 
     <div class="pvtete">
-      <h2 id="usineTitre">Aujourd'hui à l'usine</h2>
-      <p class="sub">en poste, absents, en congé ou en repos</p>
+      <h2>À l'usine</h2>
+      <p class="sub" id="eqSub"></p>
     </div>
     <div class="card">
-      <header>
-        <h2>Qui travaille</h2>
-        <span class="sub" id="eqSub"></span>
-      </header>
+      <!-- Plus d'en-tête « Qui travaille » : le titre de section le dit, et
+           la barre du jour, juste dessous, porte la date. Le client, le
+           26/09/2026 : « comment mieux présenter ceci ? » — trois étages de
+           titres avant la première ligne du tableau. -->
       <!-- LE JOUR ET SON TABLEAU DANS LE MÊME CADRE. Le client, le
            23/09/2026 : « supprimer la zone "comment lire ce tableau" et lier
            le cadre avec la sélection de jour au cadre qui reprend les trois
@@ -5627,12 +5620,6 @@ function fonctionPersonne(p){
   return fonctionCourte(p.cat);
 }
 
-/* Les zones de l'usine, telles que le client les a nommées le 21/09/2026.
-   Elles vivaient en dur dans la légende ; celle-ci ne montrant plus que les
-   zones présentes à l'écran, il faut pouvoir les nommer une par une. */
-var ZONE_NOMS={gris:"encadrement", jaune:"meunerie, gluten",
-  vert:"fermentation, terrain arrière, distillation",
-  rouge:"chaudières", bleu:"station d'épuration"};
 var POSTES_TRAVAIL=[
   {k:"cm",   t:"Contremaître",    n:1, cm:true, z:"gris"},
   /* Le client : « les adjoints doivent être classés dans Adjoint et non
@@ -6698,7 +6685,7 @@ function renderEquipe(){
       /* Plus de « card » ici : le tableau EST le contenu du cadre du jour,
          posé sous la barre de navigation qui le pilote. */
       var tp=['<div class="eqgrille"><table class="eqp2">'];
-      tp.push('<thead><tr><th class="eqposte">Poste</th>');
+      tp.push('<thead><tr><th class="eqposte"></th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Deux lignes, pas trois : l'horaire et l'effectif tiennent sur la
@@ -6713,7 +6700,7 @@ function renderEquipe(){
          On note donc ce qui a réellement été dessiné, et on n'explique que
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
-      var zPrec=null, aForm=false, aManque=false, aVide=false, zVues=[];
+      var zPrec=null, aForm=false, aManque=false, aVide=false;
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -6723,7 +6710,6 @@ function renderEquipe(){
         });
         if(!att && !sert) return;
         var debut=(P.z!==zPrec); zPrec=P.z;
-        if(P.z && zVues.indexOf(P.z)<0) zVues.push(P.z);
         tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
           +'<th class="eqposte" scope="row"><b>'+esc(P.t)+"</b></th>");
         PAUSES.forEach(function(g){
@@ -6797,7 +6783,7 @@ function renderEquipe(){
       if(jourL.length){
         var gD=EQ_GROUPES.filter(function(g){ return g.k==="D"; })[0];
         tp.push('<tr class="zone1 eqjourl"><th class="eqposte" scope="row"><b>En journée</b>'
-          +(gD&&gD.s?"<em>"+esc(gD.s)+"</em>":"")+"</th>"
+          +"</th>"
           +'<td colspan="'+nCol+'">'
           +jourL.map(function(x){ return chip(x,gD,null); }).join("")+"</td></tr>");
       }
@@ -6805,15 +6791,11 @@ function renderEquipe(){
       if(aForm)   lg.push('<span><i class="lg-form"></i>opérateur en formation</span>');
       if(aManque) lg.push('<span><i class="lg-mq"></i>poste sous son effectif, avec le compte</span>');
       if(aVide)   lg.push('<span><i class="lg-tiret">\u2013</i>poste sans effectif attendu à cette pause</span>');
-      /* Les zones de l'usine, que le liseré de gauche porte. Le client les
-         a données le 21/09/2026 ; autant les nommer — mais seulement
-         celles qui sont à l'écran ce jour-là. */
-      var zl=zVues.map(function(z){
-        return '<span><i class="lg-z" data-z="'+esc(z)+'"></i>'
-               +esc(ZONE_NOMS[z]||z)+"</span>"; });
+      /* Plus de légende des zones : le liseré regroupe des lignes qui
+         portent déjà leur nom, et la nommer coûtait deux lignes sous le
+         tableau pour rien apprendre. */
       tp.push("</tbody></table></div>"
         +(lg.length?'<p class="eqleg">'+lg.join("")+"</p>":"")
-        +(zl.length?'<p class="eqleg eqzones">'+zl.join("")+"</p>":"")
         +"</div>");
       h.push(tp.join(""));
     }
@@ -6924,11 +6906,6 @@ function renderEquipe(){
     });
     var reste=document.getElementById("eqReste");
     if(reste) reste.innerHTML=cadres.join("");
-    /* Le titre de section suit le jour choisi : tout ce qui le suit en
-       dépend, et « aujourd'hui » écrit au-dessus d'un autre jour mentirait. */
-    var tU=document.getElementById("usineTitre"), au=new Date();
-    if(tU) tU.textContent=(au.getFullYear()===annee&&au.getMonth()+1===mois&&au.getDate()===jour)
-      ?"Aujourd'hui à l'usine":"L'usine le "+document.getElementById("eqJour").textContent.toLowerCase();
 
     hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     document.getElementById("eqSub").textContent=

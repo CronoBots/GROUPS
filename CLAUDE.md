@@ -3695,10 +3695,23 @@ l'application :
 1. **Mon prochain poste** : le cadre commence par le jour
    (« Demain · jour · 8 h »), puisque le titre dit déjà ce que c'est ;
 2. **À venir** : les postes en manque ;
-3. **Aujourd'hui à l'usine** : qui travaille, les absents, congé et repos.
-   Le titre suit le jour choisi (« L'usine le lundi 28 septembre ») : tout
-   ce qui est en dessous en dépend, et écrire « aujourd'hui » au-dessus d'un
-   autre jour serait faux.
+3. **À l'usine** : qui travaille, les absents, congé et repos. Sous le
+   titre, le compte (« 35 personnes en poste · 77 au total »).
+
+**Puis un étage de titres en moins.** Le client, le même jour, capture à
+l'appui : « comment mieux présenter ceci ? ». Trois titres se suivaient
+avant la première ligne du tableau : celui de la section, « Qui
+travaille », puis la date du jour. Le cadre n'a plus d'en-tête : la barre
+du jour sert de titre. Et le titre de la section ne répète plus la date.
+Une première version écrivait « Aujourd'hui à l'usine » ou « L'usine le
+lundi 28 septembre », juste au-dessus d'une barre qui disait la même
+chose. Sont aussi partis : le mot « Poste » au-dessus de la colonne des
+postes (elle se lit seule), « horaire variable » sous « En journée », et
+la légende des zones. Le liseré de couleur regroupe des lignes qui portent
+déjà leur nom : sa légende prenait deux lignes sous le tableau sans rien
+apprendre. `ZONE_NOMS` et les styles `.lg-z` sont retirés avec elle. Rien
+ne déborde à 320, 390 et 1280 px, hors ligne compris. Les quatre sorties du
+vérificateur sont identiques à l'octet.
 
 **Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
 une dernière ligne « En journée » qui occupe toute la largeur : la journée
