@@ -3684,6 +3684,35 @@ suite dans `HORAIRE_DB`, par `moisDe()` et `lireJournee()`, la lecture du
 calendrier. Vérifié horloge au 26, 28 et 30/09 : « lundi 28 », « demain »,
 « lundi 5 octobre », hors ligne compris.
 
+### Le Résumé en trois sections, et la journée dans le tableau
+
+Le client, le 26/09/2026 : « réorganise le premier onglet avec des titres
+et logique d'affichage ; et comment intégrer les personnes en D dans
+l'horaire ? ». Trois titres hors cadre (`.pvtete`, comme Équipe et Mon
+horaire), dans l'ordre des questions qu'on se pose en ouvrant
+l'application :
+
+1. **Mon prochain poste** : le cadre commence par le jour
+   (« Demain · jour · 8 h »), puisque le titre dit déjà ce que c'est ;
+2. **À venir** : les postes en manque ;
+3. **Aujourd'hui à l'usine** : qui travaille, les absents, congé et repos.
+   Le titre suit le jour choisi (« L'usine le lundi 28 septembre ») : tout
+   ce qui est en dessous en dépend, et écrire « aujourd'hui » au-dessus d'un
+   autre jour serait faux.
+
+**Les personnes en journée entrent dans le tableau « Qui travaille »**, sur
+une dernière ligne « En journée » qui occupe toute la largeur : la journée
+n'a pas de pause, et trois colonnes vides l'auraient fait lire comme un
+manque. Sous chaque trigramme, ce qui l'amène en journée (F, CPPT, DS). Le
+tableau porte désormais aussi la formation hors poste, une ligne par pause.
+Ces personnes vivaient seules dans une carte « Hors poste », sous les
+malades, alors qu'elles sont à l'usine ce jour-là : **la carte a disparu**,
+avec `ligne()` et les styles `.eqt`, qui ne servaient plus qu'à elle.
+
+Le 28/09 : 11 personnes en journée, sur deux lignes à 390 px. Rien ne
+déborde à 320, 390 et 1280 px, en clair et en sombre, hors ligne compris.
+Les quatre sorties du vérificateur sont identiques à l'octet.
+
 ### Le mémo des trois fonctions du mois
 
 `equipeDuJour()` recalculait `cycleDuMois()`, `epargnesDuMois()` et
