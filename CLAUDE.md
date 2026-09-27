@@ -4038,6 +4038,20 @@ reste sans trait, comme demandé la veille. 44 px à 320 et 390 px, 45 au
 bureau où l'horaire de la pause s'écrit sous son code. Les quatre sorties
 du vérificateur sont identiques à l'octet, hors ligne compris.
 
+**Les postes s'écrivent comme dans le tableau des équipes, et le coin dit
+« Poste ».** Le client, le 27/09/2026. Mêmes abrégés que l'onglet Équipe
+(`PV_COURT` : MEUN., GLUT., FERM., T. ARR., DIST., CHAUD., STEP), plus CM,
+ADJ., FORM. et « À DÉT. », en capitales, 10,5 px sur téléphone ; les noms
+entiers en 12,5 px au bureau. La colonne passe à 76 px et 136 px, avec les
+marges intérieures du tableau des équipes (7 px au bureau) : avec
+l'ancienne marge gauche de 14 px, « TERRAIN ARRIÈRE » était coupé à
+1280 px, et la mesure l'a montré avant le commit. Les trois pauses
+rendent chacune 3 à 4 px à 320 px, et l'horaire de la colonne D passe
+sous le trigramme, coupé au tiret s'il le faut (« (8h30-16h30) »
+débordait de 16 px). Les trois abrégés d'avant (MEU, GLU…) sont partis.
+Les quatre sorties du vérificateur sont identiques à l'octet ; rien ne
+déborde à 320, 390 et 1280 px, hors ligne compris.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors

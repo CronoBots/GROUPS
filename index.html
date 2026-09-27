@@ -1235,7 +1235,10 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn{line-height:14px}
 #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
 #eqCorps .eqp2 thead th{padding-top:5px; padding-bottom:5px}
-#eqCorps .eqp2 td .eqn .eqhd{margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); white-space:nowrap}
+/* L'horaire se met à côté du trigramme s'il y a la place, dessous sinon,
+   et se coupe au tiret s'il ne tient pas sur une ligne (« (8h30-16h30) »
+   dans une colonne D de 320 px). */
+#eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px}
 #eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
   color:var(--at-jaune)}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
@@ -1296,6 +1299,12 @@ body.sheet-on{overflow:hidden}
 /* Le coin au-dessus des postes : ni trait épais en haut ni liseré à
    gauche, il n'appartient à aucune zone. */
 #eqCorps .eqp2 thead th.eqposte{border-top:0; border-left-color:transparent}
+/* Les intitulés de poste et le coin « Poste » s'écrivent comme dans le
+   tableau des équipes (.orgt th.orgp) : capitales, 10,5 px au téléphone,
+   12,5 px au bureau, encre principale ; la colonne fait 76 et 136 px. */
+#eqCorps .eqp2 th.eqposte, #eqCorps .eqp2 tbody th.eqposte b{font-size:12.5px; font-weight:700;
+  letter-spacing:.02em; text-transform:uppercase; color:var(--ink); font-style:normal}
+#eqCorps .eqp2 th.eqposte{width:136px; padding-left:7px; padding-right:7px}
 /* La ligne Formation s'écrit comme un poste, avec un liseré de l'encre
    principale (blanc en sombre). */
 #eqCorps .eqp2 tbody tr.eqform th.eqposte{border-left-color:var(--ink)}
@@ -1309,7 +1318,8 @@ body.sheet-on{overflow:hidden}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
-  #eqCorps .eqp2 th.eqposte{width:62px; padding-left:4px; padding-right:4px}
+  #eqCorps .eqp2 th.eqposte{width:76px; padding-left:4px; padding-right:4px}
+  #eqCorps .eqp2 th.eqposte, #eqCorps .eqp2 tbody th.eqposte b{font-size:10.5px}
   /* La largeur rendue aux pauses se dépense en lisibilité : les trigrammes
      passent de 10,5 à 12 px. */
   #eqCorps .eqp2 tbody td .eqn b{font-size:12px}
@@ -6893,10 +6903,12 @@ function renderEquipe(){
        tiennent l'écran là où huit postes en colonnes le débordent. Le jour,
        la formation et les postes indéterminés suivent dans une carte à part —
        ils ne se lisent pas poste par poste. */
-    /* Sur téléphone, les trois premières lettres en capitales (le client,
-       le 26/09/2026). CM et STEP restent ce qu'ils sont déjà. */
-    var EQ_COURT={cm:"CM", adj:"ADJ", meun:"MEU", glut:"GLU", ferm:"FER",
-                  terr:"TER", dist:"DIS", chau:"CHA", step:"STEP"};
+    /* Les postes s'écrivent comme dans le tableau des équipes (le client,
+       le 27/09/2026) : les abrégés du Recyclage (PV_COURT) sur téléphone,
+       le nom entier au bureau, en capitales. CM et Adj. n'y figurent pas,
+       le tableau des équipes n'ayant pas ces lignes. */
+    var EQ_COURT={cm:"CM", adj:"Adj."};
+    for(var kCourt in PV_COURT) EQ_COURT[kCourt]=PV_COURT[kCourt];
     /* La journée est une colonne, entre AM et PM. Le client, le
        26/09/2026 : « une colonne D entre AM et PM ». C'est l'ordre des
        heures : on entre à 6 h, à 7 h ou 8 h, à 14 h, à 22 h. Chacun y est
@@ -6943,7 +6955,7 @@ function renderEquipe(){
         PAUSES.forEach(function(g){ if(vp[g.k]){ rang++; if(g.k===k) mc=rang; } });
       })();
       var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
-      tp.push('<thead><tr><th class="eqposte"></th>');
+      tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
@@ -7018,7 +7030,7 @@ function renderEquipe(){
         if(vp[g.k]) incTot+=vp[g.k].vue.inconnus.length; });
       if(incTot){
         tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row">'
-          +"<b>\u00c0 déterminer</b></th>");
+          +'<b><span class="orgl1">\u00c0 déterminer</span><span class="orgl2">\u00c0 dét.</span></b></th>');
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.inconnus;
@@ -7032,7 +7044,7 @@ function renderEquipe(){
          elle, est devenue une colonne : voir PAUSES). */
       var aFormL=PAUSES.some(function(g){ return vp[g.k] && vp[g.k].vue.formation.length; });
       if(aFormL){
-        tp.push('<tr class="zone1 eqform"><th class="eqposte" scope="row"><b><span class="orgl1">Formation</span><span class="orgl2">FORM</span></b></th>');
+        tp.push('<tr class="zone1 eqform"><th class="eqposte" scope="row"><b><span class="orgl1">Formation</span><span class="orgl2">Form.</span></b></th>');
         PAUSES.forEach(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
