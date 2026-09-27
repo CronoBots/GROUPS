@@ -387,7 +387,6 @@ porte des euros.
 | `TP` | temps partiel | Heure(s) temps partiel | **non** — idem | client, 25/09 |
 | `SANS SOLDE`, `CSS`, `1/2 CSS` | congé sans solde (la demi-journée : « +4h CSS » en commentaire, le 26/09/2026) | aucune | **non** | classeur, client |
 | `GREVE` (« GREV ») | grève reconnue — un « Abs » du 10/02, du 12/05 ou du 16/06 | « Heure(s) grève reconnue » | **non** | fiches de LCI + client, 26/09/2026 |
-| `MSC` (« Abs s/c ») | maladie sans certificat — « Abs s/c » dans l'annotation, ou « sans certificat » en commentaire | « Heure(s) maladie sans certificat (non payées) » | **non** | relevé de pointage d'août (code 15) + client, 27/09/2026 |
 | `ABS` | **deux choses** — voir ci-dessous | selon l'origine | selon l'origine | classeur + code |
 | `+FT`, `−FT` | flex time épargné / repris | compteur | différé | client, 20/09 |
 | `HS` | heures supplémentaires | compteur + sursalaire | voir « Le rappel » | client, 25/09 |

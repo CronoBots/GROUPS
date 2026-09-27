@@ -50,6 +50,18 @@ se terminent). Un contrôle qui ne peut pas échouer ne contrôle rien, et un
 contrôle qui échoue toujours ne se lit plus : **le code de retour ne porte
 que ce qui est une faute**.
 
+**Le classeur est la SEULE source de l'application.** Le client, le
+27/09/2026 : « les indications dans le classeur ne seront jamais faites
+autrement, ce n'est pas moi qui les gère », puis « il faut se débrouiller
+avec le classeur ; les fiches de paye et relevés sont juste là pour
+vérifier que le programme est bien fait ». Une règle se tire donc du
+classeur tel qu'il est écrit, fautes de frappe comprises — jamais d'une
+écriture qu'on voudrait lui voir adopter, ni d'une table recopiée des
+relevés. Ce que le classeur ne dit pas, et que seule une fiche montre,
+est un **écart connu**, écrit ici, et non corrigé. Une première réponse du
+27/09 l'a oublié : un code lu sur « Abs s/c », que personne n'écrira, a
+vécu un commit avant d'être retiré.
+
 **Ne jamais deviner à la place du classeur ni du client.** Quand deux
 lectures sont possibles, c'est le classeur qui tranche — les colonnes se
 répondent (CHD « Remplace GST » le jour où le commentaire d'un autre le
@@ -1694,23 +1706,29 @@ YRS 18 → 19, comme son relevé. Le 01/03 de LCI, 8 h de flex time sans
 chèque sur sa fiche, reste une exception. Neuf règles, manques, compteurs
 et Recyclage identiques à l'octet (la règle est de paie seulement).
 
-**La maladie sans certificat n'est pas payée.** Le relevé de SPS le 21/08
-porte le code 15, « Maladie (sans certificat) », là où les autres malades
-portent le 4, « SMG maladie ». Le client, le 27/09/2026 : « B — non
-payée ». Le classeur écrit « Abs » dans les deux cas : l'application ne
-peut pas la deviner, **elle la lit quand le classeur l'écrit** — « Abs
-s/c » (ou « Abs sc ») dans l'annotation, ou « sans certificat » dans le
-commentaire. Code `MSC`, ligne de fiche à part sans montant, et toujours
-une MALADIE pour le Résumé (cadre Absents, date de retour) et les
-compteurs. Éprouvé sur une copie dans les deux écritures ; sur le vrai
-classeur rien ne bouge tant que la cellule de SPS n'est pas réécrite.
-
 **Piège de mesure** : le sélecteur de personne affiche « GBT » pour deux
 colonnes (GBT-1 en Shift 4, GBT en Shift 5). Choisir par le libellé a
 d'abord mesuré la mauvaise personne (15 au lieu de 21) : on choisit par
 l'identifiant, la valeur de l'option.
 
-Rien d'autre n'est codé : les cinq journées sont des manques du classeur. Les scripts (OCR, analyse,
+**Les cinq journées, une par une** (le client, le 27/09/2026, « point par
+point ») :
+
+- **CDE le 13/08, « rappek ke 12/08 »** : c'est le classeur qui l'écrit,
+  avec une faute de frappe — la seule du mot sur l'année. La lecture la
+  tolère (`RX_RAPPEL` et les trois tests du mot : « rappe[lk] ») ; le
+  rappel est lu, 4 h de déplacement comme les autres rappels du mois.
+  Vérificateur identique à l'octet ;
+- **SPS le 21/08, maladie sans certificat** (code 15 du relevé, non payée
+  selon le client) : le classeur écrit « Abs » comme pour une maladie
+  payée. **Écart connu.** Un code lu sur « Abs s/c » a été ajouté puis
+  retiré le même jour : personne ne l'écrira ;
+- **SMA le 24/08**, venu 1 h puis malade ; **SMA le 17/08**, rappel et 4 h
+  sup ; **CDE le 14/08**, 0,5 h sup : le classeur et les commentaires des
+  collègues n'en disent rien. **Écarts connus** ;
+- **SMA le 28/08**, « Abs » sur un repos : l'application n'en paie aucune
+  heure — 32 h de maladie en août (24 au 27), le relevé dit repos le 28.
+  Rien à corriger. Les scripts (OCR, analyse,
 extraction de l'application) vivent dans le scratchpad de la session.
 
 ## La barre du haut est une barre d'identité
