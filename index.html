@@ -2295,6 +2295,15 @@ var ABS=[
  /* « GRÈVE RECONNUE », le libellé du secrétariat social sur la fiche d'un
     ouvrier. L'employeur ne paie rien : voir GREVE_JOURS. */
  {c:"GREVE",h:8,k:"GREVE"},
+ /* MALADIE SANS CERTIFICAT, non payée. Le relevé de pointage d'août la
+    distingue (code 15, « Maladie (sans certificat) ») d'une maladie
+    ordinaire (code 4, « SMG maladie ») ; le client, le 27/09/2026 : « non
+    payée ». Le classeur écrit « Abs » dans les deux cas : il doit l'écrire
+    « Abs s/c », ou « sans certificat » en commentaire, pour que
+    l'application la distingue — voir lireJournee(). Elle reste une
+    MALADIE pour le Résumé et les compteurs (cadre Absents, date de retour). */
+ {c:"MSC",h:8,k:"MSC"},
+ {c:"ABS S/C",h:8,k:"MSC",hidden:true},{c:"ABS SC",h:8,k:"MSC",hidden:true},
  /* la demi-journée de conseil d'entreprise d'un « PM · DS-CE » — voir
     CE_PM dans lireJournee(). La fiche l'écrit « Compensation payée ». */
  {c:"1/2 CE",h:4,k:"CE",hidden:true}
@@ -2702,6 +2711,7 @@ function compute(){
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
   if(ab("CE")) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
   if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
+  if(ab("MSC")) lines.push({q:ab("MSC"),l:"Heure(s) maladie sans certificat (non payées)",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
   if(acc.hsHrs) lines.push({q:acc.hsHrs,l:"Heure(s) supplémentaires prestées — l'heure part au compteur HS, le sursalaire est payé",qh:true,info:true});
@@ -4497,7 +4507,7 @@ function dureeReelle(poste,plage,hJour){
    disponible à la main dans l'horaire, pour une vraie absence injustifiée.
    Elle ne change aucun montant — la rémunération du mois est fixe — mais
    elle met la bonne ligne sur la fiche. */
-var ALIAS_HORAIRE={"ABS":"MAL"};
+var ALIAS_HORAIRE={"ABS":"MAL","ABS S/C":"MSC","ABS SC":"MSC"};
 /* LES JOURS DE GRÈVE, que le classeur écrit « Abs » comme une maladie. Les
    fiches d'un ouvrier (LCI) les portent « Grève reconnue » le 10/02, le
    12/05 et le 16/06, là où l'horaire écrit « Abs » — et l'usine le montre
@@ -5387,6 +5397,8 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
   }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
+  /* « Abs » que le commentaire dit sans certificat : non payée — voir MSC */
+  if(r.a==="MAL" && /sans\s+certif/i.test(raw&&raw[2]||"")) r.a="MSC";
   return r;
 }
 /* Vrai quand la plage ne recouvre pas du tout le poste : elle le précède ou
@@ -6590,10 +6602,10 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille){
       /* « 8h -FT » garde ses heures payées (A.h vaut 0) mais la personne
          ne vient pas : une journée entière de flex time repris est un jour
          de congé ici — LHR le 27/09, qui reprend le 28. */
-      if(A){ if(A.k==="SMG" || (A.h<hJour-0.01 && !(A.ft<0 && -A.ft>=hJour-0.01))) break; }
+      if(A){ if(A.k==="SMG" || A.k==="MSC" || (A.h<hJour-0.01 && !(A.ft<0 && -A.ft>=hJour-0.01))) break; }
       else if(r.s) break;
     }
-    else if(!A || A.k!==famille) break;
+    else if(!A || (A.k==="MSC"?"SMG":A.k)!==famille) break;
     dernier=[y,m,j];
     vus.push(k);
   }
@@ -6668,7 +6680,7 @@ function equipeDuJour(db,annee,mois,jour){
     }
     if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
     else if(r.a&&ABSMAP[r.a]){
-      var fam=ABSMAP[r.a].k;
+      var fam=ABSMAP[r.a].k; if(fam==="MSC") fam="SMG";
       if(fam==="SMG") par.abs.push({p:p,r:r,
         fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,fam)});
       /* Le congé aussi a une fin. Il n'en recevait pas, et la pastille
@@ -8284,7 +8296,7 @@ function renderAnnee(){
     Object.keys(jours).forEach(function(k){
       var j=jours[k], hj=(j.h===undefined?st.params.hJour:j.h), A=j.a&&ABSMAP[j.a];
       if(j.s && hj>0){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=hj; }
-      else if(A && A.k==="SMG") mal++;
+      else if(A && (A.k==="SMG"||A.k==="MSC")) mal++;
       else if(A && A.h>0) conge++;
       else repos++;      /* un compteur seul ne fait pas une absence */
       if(j.rcm) rcm++;
