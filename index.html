@@ -48,7 +48,7 @@
      descend d'autant pour que la hiérarchie reste lisible. */
   --ink:#151E2F; --ink2:#444D5F; --muted:#475060; --faint:#616977;
   --line:#DCDCE2; --line2:#EBEBEF;
-  --trait:#C9CCD4; --trait-fort:#9DA2AE; --zebre:#FAFAFB;
+  --trait:#C9CCD4; --trait-fort:#9DA2AE; --zebre:#FAFAFB; --maint:rgba(0,122,160,.08);
   /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
      qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
@@ -104,7 +104,7 @@
     --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
     --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
     --line:#3B4252; --line2:#2C3241;
-  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130;
+  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130; --maint:rgba(110,210,240,.10);
     --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
     --sur-in:#070B15;
     --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -135,7 +135,7 @@
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
-  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130;
+  --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130; --maint:rgba(110,210,240,.10);
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -1281,6 +1281,15 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody th.eqposte b{font-size:12px; font-weight:650; color:var(--ink);
   text-transform:none; letter-spacing:0}
 #eqCorps .eqp2 td.vide{color:var(--trait-fort)}
+/* La pause du moment : un voile léger posé PAR-DESSUS le fond de la case
+   (zébra, manque), qui garde ainsi sa couleur. */
+#eqCorps .eqp2[data-mc="2"] tr>:nth-child(2),
+#eqCorps .eqp2[data-mc="3"] tr>:nth-child(3),
+#eqCorps .eqp2[data-mc="4"] tr>:nth-child(4),
+#eqCorps .eqp2[data-mc="5"] tr>:nth-child(5){box-shadow:inset 0 0 0 999px var(--maint)}
+/* La colonne des postes se sépare des pauses par le même trait que celui
+   sous la ligne des pauses. */
+#eqCorps .eqp2 th.eqposte{border-right:2px solid var(--trait-fort)}
 /* Le coin au-dessus des postes : ni trait épais en haut ni liseré à
    gauche, il n'appartient à aucune zone. */
 #eqCorps .eqp2 thead th.eqposte{border-top:0; border-left-color:transparent}
@@ -1321,10 +1330,8 @@ body.sheet-on{overflow:hidden}
    sur la suivante, et le tout en fait 76. */
 #mqCard>details>summary{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
   padding:11px 16px 8px; cursor:pointer; list-style:none}
-#mqCard>details>summary h2{font-size:15px}
 #mqCard>details>summary .sub{font-size:11.5px}
 #mqCard>details>summary::-webkit-details-marker{display:none}
-#mqCard>details>summary h2{margin:0}
 #mqCard>details>summary:after{content:""; margin-left:auto; width:7px; height:7px;
   border-right:1.6px solid var(--faint); border-bottom:1.6px solid var(--faint);
   transform:rotate(45deg) translate(-2px,-2px); transition:transform .15s}
@@ -1774,13 +1781,14 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
 
     <div class="pvtete">
-      <h2>À venir</h2>
-      <p class="sub">les postes qui manqueront de monde</p>
+      <h2>Postes en sous-effectif</h2>
     </div>
     <div class="card" id="mqCard">
       <details id="mqFold" open>
+      <!-- Le titre vit au-dessus du cadre (le client, le 26/09/2026 : « pas
+           nécessaire de le remettre juste en dessous ») : le repli ne
+           porte plus que le compte. -->
       <summary>
-        <h2>Postes en sous-effectif</h2>
         <span class="sub" id="mqSub"></span>
       </summary>
       <!-- Plus de choix d'horizon : le client, le 26/09/2026, « il ne doit
@@ -1791,7 +1799,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
 
     <div class="pvtete">
-      <h2>À l'usine</h2>
+      <h2>Équipes du jour</h2>
       <p class="sub" id="eqSub"></p>
     </div>
     <div class="card">
@@ -6905,7 +6913,21 @@ function renderEquipe(){
     if(aQui){
       /* Plus de « card » ici : le tableau EST le contenu du cadre du jour,
          posé sous la barre de navigation qui le pilote. */
-      var tp=['<div class="eqgrille"><table class="eqp2">'];
+      /* LA PAUSE DU MOMENT, légèrement surlignée (le client, le
+         27/09/2026). Seulement sur la journée qu'elle concerne : après
+         minuit, la nuit en cours est celle de la veille. La colonne se
+         désigne par son rang, que chaque ligne respecte (l'intitulé, puis
+         une case par pause montrée). */
+      var mc=0;
+      (function(){
+        var n=new Date(), hh=n.getHours()+n.getMinutes()/60, k, d=new Date(n);
+        if(hh<6){ k="N"; d.setDate(d.getDate()-1); }
+        else k=hh<14?"AM":hh<22?"PM":"N";
+        if(d.getFullYear()!==annee || d.getMonth()+1!==mois || d.getDate()!==jour || !vp[k]) return;
+        var rang=1;
+        PAUSES.forEach(function(g){ if(vp[g.k]){ rang++; if(g.k===k) mc=rang; } });
+      })();
+      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte"></th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
