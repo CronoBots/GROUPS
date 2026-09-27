@@ -5678,13 +5678,25 @@ function prefillAuto(){
    demande avec qui. L'horaire d'équipe porte la réponse pour les 77
    personnes et les 365 jours, et elle ne servait à rien — seule sa propre
    ligne était lue. Un jour, quatre pauses, et qui est absent. */
-var eqDate=null;
+var eqDate=null, eqAuto=true;
+/* Le JOUR DE L'USINE commence à 6 h, pas à minuit. Le client, le
+   27/09/2026 : « il faut afficher l'équipe du jour jusqu'à 6 heures du
+   matin et passer au jour suivant seulement à 06h ». Entre minuit et 6 h,
+   la nuit en cours est celle de la veille : c'est elle qu'on regarde. */
+function jourUsine(){
+  var n=new Date(), d=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  if(n.getHours()<6) d.setDate(d.getDate()-1);
+  return d;
+}
 function eqAnnee(db){ return Number(db.year); }
 function eqJourValide(db){
   var a=eqAnnee(db);
-  if(!eqDate || eqDate.getFullYear()!==a){
-    var n=new Date();
-    eqDate=(n.getFullYear()===a)?new Date(a,n.getMonth(),n.getDate()):new Date(a,st.m,1);
+  /* Tant qu'on n'a pas choisi un jour à la main, le tableau suit le jour
+     de l'usine : une application restée ouverte passe d'elle-même au jour
+     suivant à 6 h, au prochain rendu. */
+  if(eqAuto || !eqDate || eqDate.getFullYear()!==a){
+    var u=jourUsine();
+    eqDate=(u.getFullYear()===a)?u:new Date(a,st.m,1);
   }
   return eqDate;
 }
@@ -7919,7 +7931,7 @@ function renderManques(force){
       n ? n+" journée"+(n>1?"s":"") : "rien à signaler";
     hote.onclick=function(e){
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
-      eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j));
+      eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       renderEquipe();
       var c=document.getElementById("eqCorps");
       if(c&&c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"start"});
@@ -7937,11 +7949,11 @@ function renderManques(force){
   d.addEventListener("toggle",function(){ lsSet("ui/mqFold",d.open); });
 })();
 function eqBouge(n){
-  var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; renderEquipe();
+  var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false; renderEquipe();
 }
 document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
 document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
-document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; renderEquipe(); });
+document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
 
 /* ===================== état des compteurs ===================== */
 /* Deux sources, et c'est tout l'intérêt de les mettre côte à côte : le pied
