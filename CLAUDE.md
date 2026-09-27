@@ -1504,11 +1504,6 @@ n'est deviné à leur sujet :
   tous. Le client : **attendre la fiche d'un autre employé** avant de
   distinguer les statuts. Un seul vrai férié travaillé chez l'employé —
   je l'avais d'abord annoncé comme quatre ;
-- **un repos du cycle travaillé SANS le mot « rappel »** (27/09/2026) : JBI
-  le 08/08 et du 14 au 16/08, `["PM","meunerie","Remplace LDT"]` — son
-  relevé dit FREE et paie des heures sup (U32, U52) ; l'application compte
-  une journée PM. Le cycle seul ne suffit pas (il se trompe ailleurs). A :
-  toujours des heures sup ; B : au cas par cas ;
 - **une cellule vide et un commentaire qui doute** : VGG le 09/08,
   `["","","Remplace YBT qui remplaçait BLR ?"]` — relevé repos, sans
   pointage ; l'application compte un AM. A : un « ? » en fin de
@@ -1862,6 +1857,14 @@ journées, 23 couples au quota inchangés.
 pause écrite sur un repos du cycle, sans rappel » donne 170 journées,
 dont VGG le 08/05 — repos au cycle, matin au relevé. Rien n'est tiré de
 cette forme ; le mot « rappel » est ce qui la rend fiable.
+
+**Le client l'a tranché le 27/09/2026 : B, rien sans le mot « rappel ».**
+Et il a donné la raison de l'erreur du cycle : « les jours de D peuvent
+être déplacés et ne sont pas toujours prestés les jours où ils l'étaient ;
+VGG ne vient pas faire ses horaires flottants les 04 et 05 mai, donc il
+décale un de ses D le vendredi et vient remplacer en matin car cela
+l'arrange mieux ». Un D déplacé fait d'un repos au cycle un jour
+travaillé normal. JBI les 08/08 et 14 au 16/08 restent un écart connu.
 
 Écarts connus, que le classeur n'écrit pas : RHS d'un départ anticipé
 (VGG 15/05, 23/07 « départ à 20h », 03/04), flex time épargné non écrit
