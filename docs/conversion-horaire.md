@@ -68,6 +68,13 @@ dates de rappel** : « 8h +FT, rappel le 18/01 » retirait huit heures au
 renvois non plus (« CP déplacés aux 26 & 27/03 », « encodé le 13/08 »,
 « TP déplacé au 21/04 »). Il en reste **55**, tous annoncés.
 
+**« SD26 · n h +FT » se lit sur le cycle** (27/09/2026) : repos au cycle,
+les n heures sont toute la présence, au compteur ; poste au cycle, elles
+s'ajoutent à la journée. Et **une plage en annotation qui couvre toute une
+pause plus haute que celle de la cellule** en fait la pause prestée
+(`["PM","18h-6h"]` = nuit et 4 h sup). Détail dans `CLAUDE.md`, « Les
+relevés de cinq employés ».
+
 **Une plage épargnée se retire de la PLAGE, pas de la journée.** La
 présence est la durée de la plage écrite, relue sur le poste du jour ; les
 heures `+FT` s'en retirent, et ce qui reste, plafonné à la journée, est
