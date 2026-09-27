@@ -1497,6 +1497,13 @@ n'est deviné à leur sujet :
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
+- **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
+  « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
+  fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
+  200 % sur ses cinq fériés travaillés. L'application applique 200 % à
+  tous. Le client : **attendre la fiche d'un autre employé** avant de
+  distinguer les statuts. Un seul vrai férié travaillé chez l'employé —
+  je l'avais d'abord annoncé comme quatre ;
 - **« remplace Y » sans rien chez Y** (26/09/2026) : le 16/01, FPA porte
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
@@ -1730,6 +1737,45 @@ point ») :
   heure — 32 h de maladie en août (24 au 27), le relevé dit repos le 28.
   Rien à corriger. Les scripts (OCR, analyse,
 extraction de l'application) vivent dans le scratchpad de la session.
+
+### Une date de rappel n'est pas un renvoi de flex time
+
+Trouvé le 27/09/2026 en reprenant, un par un, les écarts des fiches de
+VBN : le 11/06, un repos, `["02h-06h","4h +FT","… rappel le 10.06"]`, comptait
+4 h prestées, avec prime de nuit, chèque et indemnité. La fiche n'en porte
+aucun. Ce n'était pas une question au client : la section 6 ter de
+`docs/conversion-horaire.md` le disait déjà — un `+FT` part au compteur,
+sans prime ni heure prestée.
+
+**Deux défauts, et le second était large.**
+
+- **L'épargne se retirait de la journée contractuelle, pas de la plage.**
+  Une plage de 4 h épargnée en entier laissait 8 − 4 = 4 h prestées. La
+  présence est désormais la durée de la plage, relue sur le poste du jour
+  (y compris quand le cycle corrige le poste, `r.plageEp`), et l'épargne
+  s'en retire : VBN le 11/06, BBZ le 14/02, `0 h`.
+- **Toute date d'un commentaire `+FT` passait pour un renvoi.** Et **121
+  des 183 étaient des dates de rappel**, le jour de l'appel. FLI le 23/01,
+  « 8h +FT, rappel le 18/01 », retirait 8 h au 18/01 ; 36 journées se
+  renvoyaient leurs propres heures (« rappel le 27.01 » écrit le 27/01) et
+  les épargnaient deux fois : ATA le 27/01, `06h-18h · 4h +FT`, comptait
+  4 h au lieu de 8. Sept autres n'étaient pas des renvois non plus
+  (« CP déplacés aux 26 & 27/03 », « encodé le 13/08 », « TP déplacé au
+  21/04 »). `RX_RENVOI` exige désormais « presté le », « du », « cf » ou la
+  date en tête : **55 renvois**, exactement les 62 d'avant hors rappels,
+  moins les sept faux.
+
+Une demi-heure sup écrite (« +0,5 hs ») qui est le reste d'une plage
+épargnée — AFA le 10/02, `11h-15h30' · 4h +FT` — ne reste pas en heure
+prestée : elle se paie déjà comme heure sup.
+
+Mesuré : **49 journées** changent, chacune pour l'une de ces raisons ;
+journées prestées 14 473 → 14 465 ; neuf règles à zéro ; **compteurs
+(76/77) et `--manques 0926` identiques à l'octet** — les compteurs du pied
+de feuille ne dépendent pas des renvois ; sur l'année passée, 269 → 272
+places creuses ; Recyclage : cinq cases d'une journée, 23 couples au quota
+inchangés. VBN en juin : nuit 79 h au lieu de 83 (fiche 72 ; les 7 h
+restantes sont le rappel du 25/06, déjà sur la liste).
 
 ## La barre du haut est une barre d'identité
 

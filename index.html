@@ -4865,9 +4865,14 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
   if(out.epargne>0 && out.s){
     var duree=(plage?dureeReelle(out.s,plage,hJour):hJour);
     if(!plage && C.poste && out.epargne<hJour-0.01) duree=hJour+out.epargne;
-    var resteEp=Math.max(0,(out.epargne+epargne)-Math.max(0,duree-hJour));
-    out.h=Math.max(0,hJour-resteEp);
+    /* La présence est la durée de la plage, et l'épargne s'en retire : une
+       plage plus courte que la journée, épargnée en entier, ne laisse AUCUNE
+       heure prestée — VBN le 11/06, un repos, ["02h-06h","4h +FT"]. La
+       formule d'avant retirait l'épargne de la journée contractuelle et lui
+       comptait 4 h. */
+    out.h=Math.max(0,Math.min(hJour,duree-(out.epargne+epargne)));
   }
+  if(out.epargne>0 && plage) out.plageEp=plage;
   /* Un « - » en annotation dit que le poste prévu n'a finalement pas été
      presté : quelqu'un d'autre l'a pris, et la personne récupère une
      prestation faite ailleurs. Le client, à propos du 20/03 : « repos car
@@ -5222,6 +5227,11 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
          personne a fait son poste entier, plus ces heures-là. */
       if(r.epargne>0 && plageHorsPoste(plageCommentaire(raw[2]),duCycle))
         base=hJour;
+      /* La cellule écrit la plage : c'est elle qui dit la présence, relue
+         sur le poste du cycle. ATA le 27/01, ["06h-18h","4h +FT"] : un
+         matin entier plus quatre heures épargnées, et non quatre heures. */
+      if(r.epargne>0 && r.plageEp)
+        base=Math.min(hJour,dureeReelle(duCycle,r.plageEp,hJour)-r.epargne);
       if(AR && AR.h>0) base-=AR.h;
       /* « - » dans la colonne d'annotation : le poste était prévu, il n'a
          pas été presté. */
@@ -5348,6 +5358,11 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       var plHc=plageCommentaire(raw[2]);
       r.hc=hc; r.hcp=(plHc && posteDepuisPlage(plHc)) || r.hsp || r.s || null;
       if(r.hcp==="D") r.hcp=null;
+      /* Une plage plus courte que la journée, épargnée sauf ce reste : le
+         reste EST l'heure sup — AFA le 10/02, ["11h-15h30'","4h +FT","+0,5
+         hs"], 4 h 30 dont 4 au compteur. La laisser aussi en heure prestée
+         la paierait deux fois. */
+      if(r.plageEp && r.h>0 && r.h<hJour-0.01) r.h=Math.max(0,r.h-hc);
     }
   }
   /* L'ABSENCE ÉCRITE EN DEUX MOITIÉS. SMA le 27/02, ["AM","1/2VA","+4h rhs
@@ -5409,8 +5424,17 @@ function plageHorsPoste(plage,poste){
 /* Un compteur +FT accompagné d'un renvoi de date épargne les heures d'une
    AUTRE journée : « presté le 27.04 », « du 14/04 ». Le renvoi peut précéder
    comme suivre la journée concernée, aucune règle de proximité ne les
-   apparie — seul le commentaire le dit. */
-var RX_RENVOI=/(\d{1,2})\s*[.\/-]\s*(\d{1,2})/;
+   apparie — seul le commentaire le dit.
+
+   LA DATE DOIT ÊTRE ANNONCÉE COMME UN RENVOI : « presté le », « du »,
+   « cf », ou en tête du commentaire. Le motif prenait jusqu'au 27/09/2026
+   la première date venue, et 121 des 183 renvois lus étaient des DATES DE
+   RAPPEL — le jour où l'on a été appelé, pas celui où l'on a presté. FLI
+   le 23/01, « 8h +FT, rappel le 18/01 », retirait huit heures au 18/01 ;
+   ATA le 27/01, « rappel le 27.01 », épargnait deux fois les mêmes quatre
+   heures. Sept autres n'en étaient pas non plus : « CP déplacés aux 26 &
+   27/03 », « encodé le 13/08 », « Sera en repos le jeudi 30/04 ». */
+var RX_RENVOI=/(?:^|prest[\u00e9e]e?s?(?:\s+[A-Za-z]{1,3})?\s+le|\bdu|\bcf\.?)\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
 /* Où retombent les heures que les commentaires renvoient à un autre jour.
    Jumelle d'epargnesDuMois(), mais dans l'autre sens : celle-ci part de la
    journée qui ÉCRIT « pris le 12.06 » et rend ce que reçoit le 12 juin.
