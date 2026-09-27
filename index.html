@@ -2666,7 +2666,15 @@ function compute(){
      « 2h RHS » en consomme deux : le client a confirmé que « RHS » seul vaut
      la journée, exactement comme « RTT » seul. */
   var crTotRHS=Number(M.crRepRHS||0)+Number(M.rhsMois||0)+ab("RHS");
-  var crRecup=Math.floor(crTotRTT/8)+Math.floor(crTotFT/8)+Math.floor(crTotRHS/8);
+  /* LE DTT AUSSI. Le client, le 27/09/2026, devant les relevés de pointage
+     d'août : les journées entières de récupération donnent un chèque chez
+     tout le monde — 9 « 8h -FT », 5 RTT et 1 DTT sur 15, 0 sur 62 pour les
+     congés (VA, RJF, CP, TP) et la maladie. Le flex time, les RTT et les
+     RHS en recevaient déjà un par 8 h ; le DTT de YRS le 06/08 était le
+     seul chèque du mois que l'application ne donnait pas. Compté à part,
+     comme les autres, sans report d'un mois à l'autre. */
+  var crTotDTT=ab("DTT");
+  var crRecup=Math.floor(crTotRTT/8)+Math.floor(crTotFT/8)+Math.floor(crTotRHS/8)+Math.floor(crTotDTT/8);
   var crRestRTT=crTotRTT%8, crRestFT=crTotFT%8, crRestRHS=crTotRHS%8;
   var crNb=(M.crNb!==null&&M.crNb!==undefined&&M.crNb!=="")?Number(M.crNb):(acc.joursCr+crRecup);
   var crPatr=R(p.crFaciale-p.crPerso);

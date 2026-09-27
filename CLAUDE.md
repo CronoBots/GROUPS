@@ -1481,12 +1481,6 @@ n'est deviné à leur sujet :
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
-  - **le chèque de récupération du flex time** : les RTT (mai) et les RHS
-    (juillet) en donnent un par 8 h sur la fiche de LCI, les 8 h de flex
-    time du 01/03 aucun. A (le flex time n'en donne jamais), B (cas
-    isolé). **Les relevés d'août penchent pour B** : 11 journées « 8h -FT »
-    chez SPS, RCO et AAI y portent le chèque (9063), comme 5 RTT et 1 DTT
-    d'une journée entière — l'application n'en donne aucun ;
   - **trois chèques d'avril** : la fiche en porte 9 pour 12 journées
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
@@ -1686,13 +1680,26 @@ n'écrit pas**, et que le relevé paie :
   le classeur écrit « Abs » et l'application une maladie entière ;
 - SMA le 28/08 : « Abs » sur un repos, le relevé dit repos.
 
-**Le chèque-repas ne concorde pas** : le relevé en donne un aux journées
-entières de reprise — 11 « 8h -FT », 5 RTT, 1 DTT — et l'application
-aucun (voir « Ce qui attend le client »). Les autres personnes tombent
-juste : SKS, GBT, LCI, LDY, SLT et CDE au chèque près.
+**Le chèque-repas : j'ai d'abord écrit qu'il ne concordait pas, et
+c'était faux.** Le comparateur ne regardait que les journées de présence,
+et ignorait la ligne « Chèque(s) repas issu(s) des heures récupérées »
+(`crRecup`, un chèque par 8 h de RTT, de flex time ou de RHS). Mesuré au
+navigateur, mois d'août, personne par personne : **dix sur douze au
+chèque près**. Le relevé confirme la règle chez tout le monde — journées
+entières de récupération 15 sur 15 avec chèque (9 « 8h -FT », 5 RTT,
+1 DTT), congés et maladie 0 sur 62 (VA, RJF, CP, TP, maladie). Le client,
+le 27/09/2026 : « A — oui, récup = chèque ». **Seul le DTT manquait**
+(YRS le 06/08) : il entre dans `crRecup`, compté à part, sans report —
+YRS 18 → 19, comme son relevé. Le 01/03 de LCI, 8 h de flex time sans
+chèque sur sa fiche, reste une exception. Neuf règles, manques, compteurs
+et Recyclage identiques à l'octet (la règle est de paie seulement).
 
-Rien n'est codé : les cinq journées sont des manques du classeur, et le
-chèque contredit la fiche de LCI du 01/03. Les scripts (OCR, analyse,
+**Piège de mesure** : le sélecteur de personne affiche « GBT » pour deux
+colonnes (GBT-1 en Shift 4, GBT en Shift 5). Choisir par le libellé a
+d'abord mesuré la mauvaise personne (15 au lieu de 21) : on choisit par
+l'identifiant, la valeur de l'option.
+
+Rien d'autre n'est codé : les cinq journées sont des manques du classeur. Les scripts (OCR, analyse,
 extraction de l'application) vivent dans le scratchpad de la session.
 
 ## La barre du haut est une barre d'identité
