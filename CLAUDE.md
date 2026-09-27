@@ -1694,6 +1694,17 @@ YRS 18 → 19, comme son relevé. Le 01/03 de LCI, 8 h de flex time sans
 chèque sur sa fiche, reste une exception. Neuf règles, manques, compteurs
 et Recyclage identiques à l'octet (la règle est de paie seulement).
 
+**La maladie sans certificat n'est pas payée.** Le relevé de SPS le 21/08
+porte le code 15, « Maladie (sans certificat) », là où les autres malades
+portent le 4, « SMG maladie ». Le client, le 27/09/2026 : « B — non
+payée ». Le classeur écrit « Abs » dans les deux cas : l'application ne
+peut pas la deviner, **elle la lit quand le classeur l'écrit** — « Abs
+s/c » (ou « Abs sc ») dans l'annotation, ou « sans certificat » dans le
+commentaire. Code `MSC`, ligne de fiche à part sans montant, et toujours
+une MALADIE pour le Résumé (cadre Absents, date de retour) et les
+compteurs. Éprouvé sur une copie dans les deux écritures ; sur le vrai
+classeur rien ne bouge tant que la cellule de SPS n'est pas réécrite.
+
 **Piège de mesure** : le sélecteur de personne affiche « GBT » pour deux
 colonnes (GBT-1 en Shift 4, GBT en Shift 5). Choisir par le libellé a
 d'abord mesuré la mauvaise personne (15 au lieu de 21) : on choisit par
