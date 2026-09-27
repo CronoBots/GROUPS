@@ -1663,6 +1663,35 @@ pages du même trigramme vont dans le même fichier (SKS, 2 pages).
 nom, un relevé de pointage porte les heures d'arrivée d'une personne
 identifiée par son trigramme. Dépendances : `pip install pymupdf pillow`.
 
+**Un scan poussiéreux trompait l'outil EN SILENCE**, et c'est la deuxième
+série qui l'a montré (le 27/09/2026 : 23 pages, cinq employés, janvier à
+août). Trois pages échouaient — les poussières grises des lignes « * »
+comptaient pour des mots —, et c'était le moindre mal : sur la page 8, une
+bande de poussière AU-DESSUS du titre passait pour le titre, qui gardait le
+nom ; sur la page 12, des bandes de poussière décalaient le décompte, et la
+zone « Matricule » visait une ligne de compteurs. **Le contrôle de fidélité
+passait dans les deux cas** : il vérifie que rien n'a bougé hors des zones,
+pas que les zones sont les bonnes.
+
+D'où deux gardes. Un bloc de moins de 20 pixels d'encre est une poussière
+(une étoile en pèse 35, un mot des centaines), et une bande qui n'a que des
+poussières n'est pas une ligne. Et **chaque ligne se reconnaît à la largeur
+de ses intitulés** — la police est à chasse fixe, « Matricule: » fait dix
+signes, « Nom: » quatre, le titre commence par « Sommaire » et
+« mensuelle » ; une position comptée ne suffit plus. Éprouvé : effacer
+« Matricule: », sa valeur, « Section: », « Nom: » ou « mensuelle » fait
+échouer la page ; les 14 pages de la série d'août passent toujours, et le
+scan saboté d'août échoue toujours.
+
+Le mois se donne désormais page par page, `TRI:AAAAMM`, un fichier par
+personne et par mois.
+
+**Une chasse aux noms par OCR** complète la garantie qui manquait : chaque
+page produite est lue par Tesseract, et on y cherche, à cinq lettres près,
+les mots des noms lus sur la source — gardés en mémoire, jamais écrits.
+Elle mord : 23 pages sur 23 dans la source, **0 sur 23** dans la sortie. Le
+script vit dans le scratchpad ; l'aperçu se regarde quand même.
+
 ### Les relevés d'août confrontés à l'horaire, jour par jour
 
 Le client, le 27/09/2026 : « oui c'est le but ». Treize relevés, 403
