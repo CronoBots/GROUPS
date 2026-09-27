@@ -60,6 +60,22 @@ Ces renvois ne suivent aucune règle de proximité : le compteur du 12/04
 concerne le 14/04, ceux des 29 et 30/04 concernent les 27 et 28. Seul le
 commentaire les apparie.
 
+**Une date n'est un renvoi que si le commentaire l'annonce comme tel** —
+« presté le », « du », « cf », ou la date en tête. Jusqu'au 27/09/2026 la
+première date venue suffisait, et **121 des 183 renvois lus étaient des
+dates de rappel** : « 8h +FT, rappel le 18/01 » retirait huit heures au
+18/01, le jour de l'appel téléphonique. Sept autres n'étaient pas des
+renvois non plus (« CP déplacés aux 26 & 27/03 », « encodé le 13/08 »,
+« TP déplacé au 21/04 »). Il en reste **55**, tous annoncés.
+
+**Une plage épargnée se retire de la PLAGE, pas de la journée.** La
+présence est la durée de la plage écrite, relue sur le poste du jour ; les
+heures `+FT` s'en retirent, et ce qui reste, plafonné à la journée, est
+presté. VBN le 11/06, un repos, `["02h-06h","4h +FT"]` : zéro heure
+prestée — sa fiche ne porte ni prime de nuit, ni chèque, ni indemnité ce
+jour-là. ATA le 27/01, `["06h-18h","4h +FT"]` : un matin entier plus
+quatre heures épargnées.
+
 ### Ce qui est barré ne compte plus
 
 Le client, le 26/09/2026 : « un commentaire barré est un commentaire qui
