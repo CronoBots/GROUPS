@@ -3991,6 +3991,30 @@ s'écrit en toutes lettres, et avec elle ses styles et ceux de `.mqbar`.
 Les quatre sorties du vérificateur sont identiques à l'octet ; rien ne
 déborde à 320, 390 et 1280 px, hors ligne compris.
 
+**La pause du moment surlignée, un trait après les postes, et deux titres
+renommés.** Le client, le 27/09/2026 : « met en surbrillance légère la
+pause du moment ; fais une bordure semblable à celle sous la ligne de pause
+à droite de la colonne du poste ; écris "Équipes du jour" au lieu de "À
+l'usine", et "Postes en sous-effectif" à la place de "À venir", sans le
+remettre juste en dessous ».
+
+- La colonne de la pause en cours (AM de 6 h à 14 h, PM de 14 h à 22 h, N
+  de 22 h à 6 h) reçoit un voile `--maint`, posé en `box-shadow` intérieur
+  PAR-DESSUS le fond de la case : le zébra et le rouge d'un manque restent
+  visibles dessous. Seulement sur la journée qu'elle concerne : après
+  minuit, la nuit en cours est celle de la veille, et le tableau d'aujourd'hui
+  ne surligne rien. La colonne se désigne par son rang (`data-mc` sur le
+  tableau), et quatre règles `nth-child` suffisent.
+- `th.eqposte` porte à droite le même trait de 2 px `--trait-fort` que
+  celui sous l'en-tête.
+- Le titre du module est au-dessus du cadre ; le repli ne garde que le
+  compte (« 7 journées »), et ses deux règles `summary h2` sont parties.
+
+Un point de sauvegarde était demandé : le tag `checkpoint-v273` est refusé
+à l'envoi par le serveur (403), le commit 8b1edcd, déjà sur `main`, en
+tient lieu. Les quatre sorties du vérificateur sont identiques à l'octet ;
+vérifié à 7 h, 15 h, 23 h et 2 h, à 320, 390 et 1280 px, hors ligne compris.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
