@@ -4762,7 +4762,29 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
 
   var plage=A.plage||C.plage;
   if(A.poste){ if(A.poste!==C.poste) out.modifie=true; out.s=A.poste; }
-  else if(C.poste) out.s=C.poste;
+  else if(C.poste){
+    out.s=C.poste;
+    /* UNE PLAGE EN ANNOTATION DIT LA PAUSE FAITE. AFA le 10/08,
+       ["PM","18h-6h","remplace YPE rappel le 08/08"] : la plage couvre
+       toute la nuit, et son relevé de pointage (27/09/2026) paie 8 h de
+       nuit (P13) et 4 h sup de nuit (U33) ; les 12 et 13/08, écrits
+       ["N","18h-6h"], le disaient déjà. La cellule franche garde la pause
+       prévue ; quand la plage en couvre ENTIÈREMENT une plus haute, c'est
+       celle-là qui est prestée et payée — la règle de la prime la plus
+       élevée, qui ne baisse jamais une prime : ATA le 21/03,
+       ["PM","06h-18h","Conserve sa prime de pause"], reste en PM. 25
+       journées de l'année, dont 19 de PM en nuit. */
+    if(A.plage && !C.plage){
+      var RANG_PL={AM:1,PM:2,N:3}, std, kk, haut=null;
+      for(var sp in RANG_PL){
+        std=SHIFT_PLAGE[sp];
+        for(kk=-24;kk<=24;kk+=24)
+          if(A.plage[0]+kk<=std[0]+0.01 && A.plage[1]+kk>=std[1]-0.01
+             && RANG_PL[sp]>RANG_PL[C.poste] && (!haut || RANG_PL[sp]>RANG_PL[haut])) haut=sp;
+      }
+      if(haut && RANG_PL[C.poste]){ out.s=haut; out.modifie=true; }
+    }
+  }
   else if(plage){ out.s=posteDepuisPlage(plage); if(out.s) out.modifie=true; }
 
   var ABS_=out.a&&ABSMAP[out.a];
@@ -5334,13 +5356,37 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
      Seule la PAIE change — compute() lit r.rs et verse ces heures au
      mécanisme des heures sup (ax « nH HS », poste hsp) au lieu des heures
      prestées. */
-  if((raw[0]||"").trim()==="-" && r.s && !r.a && !(r.ax && r.ax.length)
+  /* LE REPOS SE LIT AUSSI DANS LE CYCLE. Les adjoints écrivent la pause
+     faite dans la cellule franche même un jour de repos : VGG le 10/05,
+     ["PM","R-CM","… rappel le 04.05"], JBI le 22/08, VBN le 25/06
+     ["23-06h","R-CM","Remplace ATA Rappel le 25/06"]. Les relevés de
+     pointage de 2026 (27/09/2026) les disent FREE et les paient en heures
+     sup (codes U), et la fiche de juin de VBN porte le déplacement de ce
+     rappel sans prime de nuit. Le cycle recalé les donne en repos, les cinq
+     fois où un relevé ou une fiche permet de le vérifier. 17 journées de
+     l'année. Un échange n'est pas un rappel : ATA le 27/08, « échange avec
+     GPS », est payé normalement. Sans le mot « rappel », rien ne change : le
+     cycle s'y trompe (VGG le 08/05, repos au cycle, matin au relevé). */
+  var reposCycle=(raw[0]||"").trim()==="-"
+    || (fit && !posteDeCycle(fit,annee,mois,jour) && !/[ée]change|inversion/i.test(raw[2]||""));
+  if(reposCycle && r.s && !r.a && !(r.ax && r.ax.length)
      && !(r.epargne>0) && /rappe[lk]/i.test(raw[2]||"")){
     var hRs=(r.h===undefined)?hJour:r.h;
     if(hRs>=1 && hRs<=12 && Math.abs(hRs-Math.round(hRs))<0.01){
       r.ax=[Math.round(hRs)+"H HS"]; r.hsp=r.hsp||r.s; r.rs=true;
     }
   }
+  /* « SD26 · n h +FT » : UN REPOS OU UN POSTE, ET LE CYCLE LE DIT. Sur un
+     repos, les n heures sont toute la présence et partent au compteur :
+     AFA le 07/01, ["SD26","6h +FT"], relevé REP, 6 h de flex time et rien
+     de presté. Sur un poste prévu, elles s'ajoutent à la journée : VGG le
+     09/04, ["SD 26","3h +FT"], relevé PM, pointé de 6 h 45 à 18 h — 8 h et
+     3 h au compteur. C'est la règle du +FT sur un poste prévu (LCI le
+     14/08) et celle du renfort sur un repos ; SD26 n'est pas un poste, et
+     seul le cycle dit lequel des deux était prévu. L'application comptait
+     8 − n dans les deux cas. 15 journées, 5 vérifiées sur les relevés. */
+  if(/^SD ?26$/.test(r.jourCode||"") && r.epargne>0 && r.epargne<hJour-0.01 && !r.plageEp && fit)
+    r.h=posteDeCycle(fit,annee,mois,jour)?hJour:0;
   /* LES HEURES SUP ÉCRITES EN COMMENTAIRE. « +0,5 hs », « +3h hs »,
      « + 0,75 HS » : trente journées de l'année les portent, presque toutes
      à côté d'un « +FT » qui dit une autre part des mêmes heures. La fiche de

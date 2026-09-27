@@ -1504,6 +1504,22 @@ n'est deviné à leur sujet :
   tous. Le client : **attendre la fiche d'un autre employé** avant de
   distinguer les statuts. Un seul vrai férié travaillé chez l'employé —
   je l'avais d'abord annoncé comme quatre ;
+- **un repos du cycle travaillé SANS le mot « rappel »** (27/09/2026) : JBI
+  le 08/08 et du 14 au 16/08, `["PM","meunerie","Remplace LDT"]` — son
+  relevé dit FREE et paie des heures sup (U32, U52) ; l'application compte
+  une journée PM. Le cycle seul ne suffit pas (il se trompe ailleurs). A :
+  toujours des heures sup ; B : au cas par cas ;
+- **une cellule vide et un commentaire qui doute** : VGG le 09/08,
+  `["","","Remplace YBT qui remplaçait BLR ?"]` — relevé repos, sans
+  pointage ; l'application compte un AM. A : un « ? » en fin de
+  commentaire sur une cellule vide = pas travaillé ; B : au cas par cas ;
+- **le rappel sur un repos d'un EMPLOYÉ** : VBN le 25/06, la fiche ne
+  porte aucune heure sup mais 13 h 16 d'« Heure de déplacement » au taux
+  plein ; l'application paie 7 h sup. Les relevés (JBI, codes U) disent
+  heures sup. À trancher avec une autre fiche d'employé ;
+- **le départ anticipé** (question ci-dessus) : deux relevés de VGG le
+  confirment en RHS — 23/07 « départ à 20h », 2 h de « Compensation
+  payée » ; 15/05, départ à 12 h, 2 h aussi ;
 - **« remplace Y » sans rien chez Y** (26/09/2026) : le 16/01, FPA porte
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
@@ -1805,6 +1821,55 @@ de feuille ne dépendent pas des renvois ; sur l'année passée, 269 → 272
 places creuses ; Recyclage : cinq cases d'une journée, 23 couples au quota
 inchangés. VBN en juin : nuit 79 h au lieu de 83 (fiche 72 ; les 7 h
 restantes sont le rappel du 25/06, déjà sur la liste).
+
+### Les relevés de cinq employés, de janvier à août
+
+Le client, le 27/09/2026 : 23 pages, 16 relevés (ATA, JBI, YPE, VGG, AFA),
+**481 journées lues sur 488**. Deux passes d'OCR (300 ppp, et 400 ppp
+nettoyé : seuil puis filtre médian) se complètent ; les jours se datent
+par la date lue, et une ligne illisible prend la date manquante entre ses
+voisines **seulement si l'écart tombe juste** — sinon le jour est déclaré
+illisible, jamais décalé. Les absences se lisent par leur LIBELLÉ
+(« MALADIE », « Vacances », « Congé Anc. »…), pas par leur numéro, que
+l'OCR lit « S » ou « 5S ». Codes appris : `U` et `S` + jour (3 semaine,
+4 samedi, 5 dimanche ou férié) + pause = heures sup ; `P8x` férié ;
+« 56 Congé Anc., RTT » est le DTT du classeur, comme le 47 VCP.
+
+**425 journées concordent sur 481.** Trois règles en sont sorties, toutes
+tirées du classeur et de son cycle — les relevés n'ont fait que vérifier :
+
+- **un rappel sur un repos DU CYCLE se paie en heures sup**, même quand la
+  cellule franche écrit la pause — les adjoints l'y écrivent (VGG le
+  10/05, JBI le 22/08, VBN le 25/06). 17 journées ; le cycle concorde
+  avec le relevé ou la fiche les cinq fois où c'est vérifiable. **VBN en
+  juin : nuit 72 h, comme la fiche** (79 avant) ;
+- **« SD26 · n h +FT »** : repos au cycle, les n heures sont toute la
+  présence et partent au compteur (AFA le 07/01, 0 h prestée) ; poste au
+  cycle, elles s'ajoutent à la journée (VGG le 09/04, 8 h + 3). 15
+  journées, 5 vérifiées ;
+- **une plage en annotation qui couvre ENTIÈREMENT une pause plus haute
+  que celle de la cellule** en fait la pause prestée : AFA le 10/08,
+  `["PM","18h-6h"]`, relevé 8 h de nuit et 4 h sup de nuit. 25 journées ;
+  la prime ne baisse jamais (ATA le 21/03, « Conserve sa prime », reste
+  PM). Le manque du 30/09 en N au gluten disparaît : IME,
+  `["AM","21-06h"]`, y est.
+
+Neuf règles à zéro, compteurs 76/77 identiques ; 5 journées « SD26 » sur
+repos passent en non prestées ; Recyclage : trois cases d'une ou deux
+journées, 23 couples au quota inchangés.
+
+**Le cycle n'est pas une source sûre SEUL**, et c'est mesuré : « une
+pause écrite sur un repos du cycle, sans rappel » donne 170 journées,
+dont VGG le 08/05 — repos au cycle, matin au relevé. Rien n'est tiré de
+cette forme ; le mot « rappel » est ce qui la rend fiable.
+
+Écarts connus, que le classeur n'écrit pas : RHS d'un départ anticipé
+(VGG 15/05, 23/07 « départ à 20h », 03/04), flex time épargné non écrit
+(AFA 30/07, JBI 18/08, VGG 01/07), maladie sans certificat écrite en
+poste (VGG 07/08), une pause prévue différente (AFA 12 au 15/01 en SD26,
+ATA 05, 06 et 17/08 écrits D ou 7h-15h et pointés 6 h-14 h, VGG 30/04),
+RJF renvoyé par « cf 21/08 » (JBI 13/08), « Abs » sur un repos (YPE 17
+et 18/08), un jour férié écrit « 8h -FT » (YPE 14/05, Ascension).
 
 ## La barre du haut est une barre d'identité
 
