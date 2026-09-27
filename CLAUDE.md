@@ -1619,6 +1619,31 @@ pas chercher le nom ailleurs sur la page. On regarde l'aperçu PNG qu'il
 écrit, **toujours**, avant de s'en servir. Le trigramme se donne à la main :
 le matricule n'est pas dans les données de l'horaire.
 
+**Un scan peut porter une série** — le client, le 27/09/2026 : treize
+pages, douze personnes, août 2026. On donne un trigramme par page, dans
+l'ordre, et l'outil écrit un fichier par personne :
+
+```bash
+python3 tools/anonymiser-sommaire.py SCAN.pdf YRS,PLZ,SKS,SKS,… DOSSIER --mois=202608
+```
+
+Tout ou rien : chaque page est repeinte et vérifiée avant qu'un seul
+fichier s'écrive, et un nombre de trigrammes différent du nombre de pages
+arrête tout. La première version ne traitait que la page 1 et recopiait
+les autres **telles quelles**, noms compris : sur une série, douze pages
+sur treize seraient sorties nominatives, avec pour seul garde-fou un
+avertissement imprimé.
+
+**Le trigramme se calcule, puis se vérifie.** L'initiale du prénom, la
+première et la dernière lettre du nom : c'est la règle de l'anonymiseur,
+et onze des douze tombent sur un trigramme connu. Mais `CORRECTIONS`
+renomme quatre personnes (NPI, JBA, CHD, PDF), et le douzième relevé donnait
+CDE, que CHD portait aussi à l'origine. **Le relevé a tranché seul** : ses
+pauses du 3 au 16/08 concordent jour pour jour avec l'horaire de CDE, le
+13/08 compris (6h-18h dans l'horaire, pointé de 5 h 39 à 18 h 16), et pas
+avec celui de CHD. Une page de relevé peut déborder sur la suivante : deux
+pages du même trigramme vont dans le même fichier (SKS, 2 pages).
+
 **Ni le scan ni sa version anonymisée n'entrent dans le dépôt** : même sans
 nom, un relevé de pointage porte les heures d'arrivée d'une personne
 identifiée par son trigramme. Dépendances : `pip install pymupdf pillow`.

@@ -2,6 +2,14 @@
 """Anonymise un « Sommaire mensuelle » scanné : le relevé de pointage.
 
     python3 tools/anonymiser-sommaire.py SCAN.pdf TRIGRAMME SORTIE.pdf
+    python3 tools/anonymiser-sommaire.py SCAN.pdf TRI1,TRI2,... DOSSIER [--mois=AAAAMM]
+
+Un scan peut porter plusieurs relevés, une personne par page : on donne
+alors UN TRIGRAMME PAR PAGE, dans l'ordre, et l'outil écrit un fichier par
+personne dans DOSSIER (sommaire-TRI-AAAAMM.pdf) ; deux pages d'un même
+trigramme vont dans le même fichier. Si le nombre de trigrammes n'est pas
+celui des pages, il s'arrête. Chaque page est traitée avant qu'un seul
+fichier s'écrive : une page de forme inconnue, et rien n'est écrit.
 
 Le relevé arrive SCANNÉ : aucune couche de texte, une image de fond et des
 masques noir et blanc (le copieur fait du « MRC »). On ne peut donc pas y
@@ -34,8 +42,13 @@ autre forme se regarde avant qu'on invente où est le nom.
 LA GARANTIE N'EST PAS COMPLÈTE, et il faut le savoir : sans lecture de
 caractères, l'outil ne peut pas CHERCHER le nom ailleurs sur la page. Il
 écrit un aperçu PNG à côté de la sortie, et on le regarde avant de s'en
-servir — toujours. Les pages au-delà de la première sont recopiées et
-signalées.
+servir — toujours, une page après l'autre.
+
+LE TRIGRAMME SE DONNE À LA MAIN, et il se VÉRIFIE : l'initiale du prénom
+puis la première et la dernière lettre du nom, comme l'anonymiseur — mais
+`CORRECTIONS` renomme certaines personnes (deux pouvaient porter CDE). On
+confronte alors les pauses du relevé à l'horaire des candidats : elles
+doivent concorder jour pour jour.
 
 La sortie est une image pure, remise dans un PDF neuf : aucune couche du
 scan d'origine ne survit en dessous de ce qui a été repeint.
@@ -125,43 +138,30 @@ def zones(img):
     return z
 
 
-def main():
-    if len(sys.argv) != 4:
-        sys.exit(__doc__)
-    src, tri, out = sys.argv[1], sys.argv[2].upper(), sys.argv[3]
-    if not (len(tri) == 3 and tri.isalpha()):
-        sys.exit("Le trigramme doit faire trois lettres : " + tri)
-    doc = pymupdf.open(src)
-    pages = []
-    for n, page in enumerate(doc):
-        pix = page.get_pixmap(dpi=DPI, colorspace=pymupdf.csRGB)
-        pages.append(Image.frombytes("RGB", (pix.width, pix.height), pix.samples))
-    gris = pages[0].convert("L")
-    try:
-        zs = zones(gris)
-    except ValueError as e:
-        sys.exit("STRUCTURE NON RECONNUE, rien n'est écrit : %s" % e)
-
-    avant = pages[0].copy()
-    d = ImageDraw.Draw(pages[0])
+def repeindre(img, tri, n):
+    """Repeint une page ; rend les zones. Lève ValueError si la forme manque."""
+    zs = zones(img.convert("L"))
+    avant = img.copy()
+    d = ImageDraw.Draw(img)
     for quoi, (x0, y0, x1, y1), texte in zs:
         d.rectangle((x0, y0, x1, y1), fill="white")
         police = ImageFont.truetype(POLICE, int((y1 - y0) * 0.85))
         d.text((x0 + 4, y0 + 1), texte or tri, fill="black", font=police)
-        print("  %-10s repeint  x %4d-%4d  y %4d-%4d" % (quoi, x0, x1, y0, y1))
-
     # Fidélité : hors des zones, pas un pixel ne diffère.
-    diff = ImageChops.difference(avant, pages[0]).convert("L")
+    diff = ImageChops.difference(avant, img).convert("L")
     masque = Image.new("L", diff.size, 255)
     dm = ImageDraw.Draw(masque)
     for _q, box, _t in zs:
         dm.rectangle(box, fill=0)
     reste = ImageChops.multiply(diff, masque).getbbox()
     if reste:
-        sys.exit("FIDÉLITÉ : l'image diffère hors des zones, en %s" % (reste,))
+        raise ValueError("FIDÉLITÉ : la page diffère hors des zones, en %s" % (reste,))
+    return zs
 
+
+def ecrire(images, out):
     neuf = pymupdf.open()
-    for img in pages:
+    for img in images:
         p = neuf.new_page(width=img.width * 72 / DPI, height=img.height * 72 / DPI)
         tmp = out + ".tmp.png"
         img.save(tmp)
@@ -169,18 +169,58 @@ def main():
         os.remove(tmp)
     neuf.set_metadata({})
     neuf.save(out, garbage=4, deflate=True, no_new_id=True)
-    apercu = os.path.splitext(out)[0] + "-apercu.png"
-    pages[0].save(apercu)
-
     meta = {k: v for k, v in pymupdf.open(out).metadata.items()
             if v and k not in ("format", "encryption")}
     if meta:
-        sys.exit("MÉTADONNÉES restantes : %s" % meta)
-    print("écrit : %s (%d page(s)), métadonnées vides" % (out, len(pages)))
-    print("À REGARDER avant usage : %s" % apercu)
-    if len(pages) > 1:
-        print("ATTENTION : pages 2 à %d recopiées sans traitement — à regarder"
-              % len(pages))
+        os.remove(out)
+        sys.exit("MÉTADONNÉES restantes, %s détruit : %s" % (out, meta))
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--mois=")]
+    mois = [a[7:] for a in sys.argv[1:] if a.startswith("--mois=")]
+    if len(args) != 3:
+        sys.exit(__doc__)
+    src, liste, out = args
+    tris = [t.strip().upper() for t in liste.split(",")]
+    for t in tris:
+        if not (len(t) == 3 and t.isalpha()):
+            sys.exit("Un trigramme doit faire trois lettres : " + t)
+    doc = pymupdf.open(src)
+    if len(tris) != len(doc):
+        sys.exit("%d page(s) dans le scan, %d trigramme(s) donné(s) : il en faut "
+                 "un par page, dans l'ordre" % (len(doc), len(tris)))
+    pages = []
+    for page in doc:
+        pix = page.get_pixmap(dpi=DPI, colorspace=pymupdf.csRGB)
+        pages.append(Image.frombytes("RGB", (pix.width, pix.height), pix.samples))
+
+    # Tout ou rien : chaque page est traitée avant qu'un seul fichier s'écrive.
+    for n, (img, tri) in enumerate(zip(pages, tris), 1):
+        try:
+            zs = repeindre(img, tri, n)
+        except ValueError as e:
+            sys.exit("PAGE %d (%s) : STRUCTURE NON RECONNUE, rien n'est écrit : %s"
+                     % (n, tri, e))
+        print("  page %2d  %s  %s" % (n, tri, "  ".join(q for q, _b, _t in zs)))
+
+    if len(pages) == 1 and out.lower().endswith(".pdf"):
+        sorties = {out: [0]}
+        apercus = {0: os.path.splitext(out)[0] + "-apercu.png"}
+    else:
+        os.makedirs(out, exist_ok=True)
+        suf = ("-" + mois[0]) if mois else ""
+        sorties, apercus = {}, {}
+        for n, tri in enumerate(tris):
+            f = os.path.join(out, "sommaire-%s%s.pdf" % (tri, suf))
+            sorties.setdefault(f, []).append(n)
+            apercus[n] = os.path.join(out, "apercu-p%02d-%s.png" % (n + 1, tri))
+    for f, ns in sorties.items():
+        ecrire([pages[n] for n in ns], f)
+        print("écrit : %s (%d page(s)), métadonnées vides" % (f, len(ns)))
+    for n, a in apercus.items():
+        pages[n].save(a)
+    print("À REGARDER avant usage : les %d aperçus PNG" % len(apercus))
 
 
 if __name__ == "__main__":
