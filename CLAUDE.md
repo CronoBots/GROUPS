@@ -4080,6 +4080,33 @@ Mesuré : neuf règles, compteurs et Recyclage identiques à l'octet ; le
 27/09 PM quitte la liste des manques (8 → 7 d'ici la fin de l'année, 269
 → 268 places sur l'année). Vérifié au navigateur, hors ligne compris.
 
+### AAI à la distillation, SMA au terrain arrière : `POSTE_HABITUEL`
+
+Le client, le 27/09/2026 : « dans l'équipe 5, par défaut c'est toujours AAI
+qui tient le poste distillation et SMA le terrain ». Sur l'année, les jours
+où ils sont dans la même pause, la chaîne disait **l'inverse 80 fois**.
+AAI est renfort arrière, avec fermentation et distillation : la règle du
+terrain arrière le prenait. SMA porte « Distillation » en ligne 9.
+
+`POSTE_HABITUEL` passe après la cellule et la tranche de période (ce qui
+est écrit pour un jour prime) et avant le rôle et la ligne 9, qu'elle
+corrige. Il reste quatre journées « inversées », et elles sont justes :
+AAI y porte « poly. Etoh » (22 et 23/07, 23/10, 04/11). La table entre
+dans la découpe du vérificateur.
+
+Mesuré : neuf règles, compteurs et `--manques 0926` identiques à l'octet.
+Sur l'année, 268 → 269 places creuses (le 14/01 AM, le trou passe de la
+fermentation au terrain arrière). Recyclage : la distillation devient le
+poste d'AAI et sort de sa ligne ; SKS distillation 4 → 12 ✓, SMA
+distillation 2, SPS 30 → 31, CDE et LDY bougent d'une ou deux journées.
+**23 couples au quota, inchangé.** La composition de l'onglet Équipe suit :
+AAI en distillation, SMA au terrain arrière.
+
+Même commit : le coin « Poste » du tableau du jour retrouve sa bordure
+haute (2 px, le trait des pauses) et gauche (3 px, la largeur des liserés
+de zone). Le client, le 27/09/2026 : « remettre les bordures gauche et
+haute ».
+
 ### Tout l'horaire relu : d'où viennent ces erreurs
 
 Le client, le 26/09/2026 : « vérifie tout l'horaire, comment cela se fait
