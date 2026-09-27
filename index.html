@@ -1296,9 +1296,11 @@ body.sheet-on{overflow:hidden}
 /* La colonne des postes se sépare des pauses par le même trait que celui
    sous la ligne des pauses. */
 #eqCorps .eqp2 th.eqposte{border-right:2px solid var(--trait-fort)}
-/* Le coin au-dessus des postes : ni trait épais en haut ni liseré à
-   gauche, il n'appartient à aucune zone. */
-#eqCorps .eqp2 thead th.eqposte{border-top:0; border-left-color:transparent}
+/* Le coin « Poste » ferme le tableau en haut et à gauche. Le client, le
+   27/09/2026 : « remettre les bordures gauche et haute ». En haut, le trait
+   des pauses ; à gauche, la même encre, à la largeur des liserés de zone
+   qu'il surmonte. */
+#eqCorps .eqp2 thead th.eqposte{border-top:2px solid var(--trait-fort); border-left:3px solid var(--trait-fort)}
 /* Les intitulés de poste et le coin « Poste » s'écrivent comme dans le
    tableau des équipes (.orgt th.orgp) : capitales, 10,5 px au téléphone,
    12,5 px au bureau, encre principale ; la colonne fait 76 et 136 px. */
@@ -6383,6 +6385,15 @@ var POSTE_TRANCHE={QBY:"dist"};
    au terrain arrière, qu'il sait tenir. C'est la seule table qui passe
    AVANT la cellule, et elle ne vaut que pour la journée nommée. */
 var POSTE_DU_JOUR={VGG:{"20260927":"terr"}};
+/* LE POSTE HABITUEL QUE LE CLIENT DONNE, quand le classeur en écrit un autre.
+   Le client, le 27/09/2026 : « dans l'équipe 5, par défaut c'est toujours
+   AAI qui tient le poste distillation et SMA le terrain ». La chaîne disait
+   l'inverse 80 fois sur l'année : AAI, renfort arrière avec fermentation et
+   distillation, passait par la règle du terrain arrière ; SMA a
+   « Distillation » en ligne 9. Elle vient APRÈS la cellule et la tranche de
+   période (ce qui est écrit pour un jour prime) et AVANT le rôle et la
+   ligne 9, qu'elle corrige. */
+var POSTE_HABITUEL={AAI:"dist", SMA:"terr"};
 function posteParDefaut(person){
   if(/step/i.test((person&&person.cat)||"")) return "step";
   return POSTE_TRANCHE[(person&&person.id)||""]||null;
@@ -6424,6 +6435,7 @@ function posteTenu(person,raw,hJour,poste,jour){
      période. C'est la règle de tête du projet — « la cellule prime, y
      compris sur la fonction de la personne ». */
   k=_posteDePeriode(person,jour); if(k) return k;
+  k=POSTE_HABITUEL[(person&&person.id)||""]; if(k) return k;
   if(estCadre(person)){
     if(estContremaitre(person)) return "cm";
     /* L'adjoint ne compte au poste de contremaître que s'il le remplace
