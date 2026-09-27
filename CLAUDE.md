@@ -1526,6 +1526,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
+| `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
@@ -1580,6 +1581,47 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 était silencieuse pendant deux commits, qui ont annoncé « fiches d'accord »
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
+
+### Les relevés de pointage d'autres personnes, anonymisés
+
+Le client, le 27/09/2026, en envoyant son relevé d'août scanné : « je vais
+t'envoyer les fiches comme celle-ci d'autres opérateurs ; regarde comment
+ma fiche est construite afin de l'anonymiser en gardant le trigramme, pour
+faire à chaque fois la même chose ».
+
+```bash
+python3 tools/anonymiser-sommaire.py SCAN.pdf TRIGRAMME sommaire-TRI-AAAAMM.pdf
+```
+
+**Un scan n'a pas de texte** : le copieur écrit une image de fond et des
+masques noir et blanc. On ne remplace donc pas un mot, on repeint des
+zones. Quatre choses nomment la personne : le titre « Sommaire mensuelle -
+<nom> », « Matricule: » (le numéro de contrat des fiches de paie),
+« Section: », « Nom: ». Le titre et le nom reçoivent le trigramme, le
+matricule et la section « (retiré) ». **Les métadonnées et le nom du
+fichier portent l'identifiant de connexion de celui qui a scanné** :
+elles sont vidées, et la sortie prend le nom qu'on lui donne.
+
+**Les zones se trouvent par la structure** : la suite des lignes « * »,
+un seul signe tout à gauche, sert de repère ; la ligne sous elle est
+« Nom: », les trois au-dessus sont Matricule puis Section et « Sommaire de ».
+Le haut du tableau avait été choisi d'abord, et il a échoué : son trait est
+trop fin, le scan le rompt. Si la structure n'est pas retrouvée, l'outil
+s'arrête sans rien écrire. Éprouvé : un scan dont on efface les « * »
+échoue, un trigramme de deux lettres et un chiffre aussi.
+
+**Fidélité** : hors des zones, l'image produite ne diffère de la source sur
+aucun pixel, et l'outil le vérifie. La sortie est une image pure dans un
+PDF neuf : rien du scan d'origine ne survit sous ce qui a été repeint.
+
+**Sa garantie n'est pas complète** : sans lecture de caractères, il ne peut
+pas chercher le nom ailleurs sur la page. On regarde l'aperçu PNG qu'il
+écrit, **toujours**, avant de s'en servir. Le trigramme se donne à la main :
+le matricule n'est pas dans les données de l'horaire.
+
+**Ni le scan ni sa version anonymisée n'entrent dans le dépôt** : même sans
+nom, un relevé de pointage porte les heures d'arrivée d'une personne
+identifiée par son trigramme. Dépendances : `pip install pymupdf pillow`.
 
 ## La barre du haut est une barre d'identité
 
