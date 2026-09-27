@@ -4003,7 +4003,8 @@ remettre juste en dessous ».
   PAR-DESSUS le fond de la case : le zébra et le rouge d'un manque restent
   visibles dessous. Seulement sur la journée qu'elle concerne : après
   minuit, la nuit en cours est celle de la veille, et le tableau d'aujourd'hui
-  ne surligne rien. La colonne se désigne par son rang (`data-mc` sur le
+  ne surligne rien (voir juste dessous : le tableau lui-même montre
+  désormais la veille jusqu'à 6 h). La colonne se désigne par son rang (`data-mc` sur le
   tableau), et quatre règles `nth-child` suffisent.
 - `th.eqposte` porte à droite le même trait de 2 px `--trait-fort` que
   celui sous l'en-tête.
@@ -4014,6 +4015,19 @@ Un point de sauvegarde était demandé : le tag `checkpoint-v273` est refusé
 à l'envoi par le serveur (403), le commit 8b1edcd, déjà sur `main`, en
 tient lieu. Les quatre sorties du vérificateur sont identiques à l'octet ;
 vérifié à 7 h, 15 h, 23 h et 2 h, à 320, 390 et 1280 px, hors ligne compris.
+
+**Le jour de l'usine commence à 6 h.** Le client, le 27/09/2026 : « il faut
+afficher l'équipe du jour jusqu'à 6 heures du matin et passer au jour
+suivant seulement à 06h ». `jourUsine()` rend la veille entre minuit et
+6 h, et `eqJourValide()` s'en sert. Tant qu'on n'a pas choisi un jour à la
+main (flèches ou clic sur un manque), `eqAuto` le fait recalculer à chaque
+rendu : une application restée ouverte passe au jour suivant à 6 h, au
+prochain affichage. « Aujourd'hui » rend la main au jour de l'usine. La
+surbrillance de la nuit, qui prenait déjà la veille après minuit, tombe
+désormais sur le tableau affiché. Vérifié à 23 h 30, 2 h et 5 h 59
+(dimanche 27, N surlignée) puis à 6 h 01 (lundi 28, AM), à 320, 390 et
+1280 px, hors ligne compris ; les quatre sorties du vérificateur sont
+identiques à l'octet.
 
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
