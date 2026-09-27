@@ -4029,6 +4029,15 @@ désormais sur le tableau affiché. Vérifié à 23 h 30, 2 h et 5 h 59
 1280 px, hors ligne compris ; les quatre sorties du vérificateur sont
 identiques à l'octet.
 
+**La ligne des pauses a la hauteur des postes, et un trait au-dessus.** Le
+client, le 27/09/2026 : « hauteur de la ligne des pauses comme les lignes
+de poste, et ajouter la même bordure qu'en dessous de la ligne des pauses
+au-dessus des pauses ». `thead tr{height:44px}` et un trait de 2 px
+`--trait-fort` en haut des cases de pause ; le coin au-dessus des postes
+reste sans trait, comme demandé la veille. 44 px à 320 et 390 px, 45 au
+bureau où l'horaire de la pause s'écrit sous son code. Les quatre sorties
+du vérificateur sont identiques à l'octet, hors ligne compris.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
