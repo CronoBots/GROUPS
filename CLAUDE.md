@@ -1484,7 +1484,9 @@ n'est deviné à leur sujet :
   - **le chèque de récupération du flex time** : les RTT (mai) et les RHS
     (juillet) en donnent un par 8 h sur la fiche de LCI, les 8 h de flex
     time du 01/03 aucun. A (le flex time n'en donne jamais), B (cas
-    isolé) ;
+    isolé). **Les relevés d'août penchent pour B** : 11 journées « 8h -FT »
+    chez SPS, RCO et AAI y portent le chèque (9063), comme 5 RTT et 1 DTT
+    d'une journée entière — l'application n'en donne aucun ;
   - **trois chèques d'avril** : la fiche en porte 9 pour 12 journées
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
@@ -1647,6 +1649,51 @@ pages du même trigramme vont dans le même fichier (SKS, 2 pages).
 **Ni le scan ni sa version anonymisée n'entrent dans le dépôt** : même sans
 nom, un relevé de pointage porte les heures d'arrivée d'une personne
 identifiée par son trigramme. Dépendances : `pip install pymupdf pillow`.
+
+### Les relevés d'août confrontés à l'horaire, jour par jour
+
+Le client, le 27/09/2026 : « oui c'est le but ». Treize relevés, 403
+journées d'août. **Pas de couche de texte** : Tesseract (`apt-get install
+tesseract-ocr`) lit le tableau, **après avoir coupé l'en-tête** au bas de
+la ligne « Nom: » que `zones()` de l'anonymiseur repère — aucun nom ne
+passe dans le texte extrait. L'OCR confond lettres et chiffres (« P1i2 »,
+« zo3 », « g84 ») et lit mal les chiffres des dates : les jours se
+numérotent par leur RANG (chaque jour a sa ligne), jamais par la date lue.
+**Et la ligne « faits à: 24.09.2026 » a une date** : comptée comme un
+jour, elle décalait tout d'une ligne et fabriquait des écarts.
+
+Les codes du relevé, lus sur les pages : `P10`/`P11`/`P12`/`P13` prime D,
+AM, PM, N ; `P3x` le samedi, `P5x` le dimanche, `P8x` un férié ; `Y90`
+week-end libre, `Z03` repos ; `F0` flex time épargné ; `U32`/`U33` heures
+sup en PM, en N ; `J84` heures de déplacement d'un rappel ; `A57` le TP ;
+9063 en « Sold.j. », le chèque-repas (MCH, *maaltijdcheque*). Absences :
+4 et 13 maladie (13 à partir du 2ᵉ mois), 15 maladie sans certificat,
+2 salaire journalier garanti, 23 congé parental, 47 VCP (le DTT du
+classeur), 48 jour férié au choix (le RJF), 54 compensation payée (RHS),
+58 RTT, 75 vacances.
+
+**Les pauses et les primes concordent** sur toutes les journées lues,
+une fois retirés les artefacts d'OCR — la prime la plus élevée des 19 et
+20/08 (VBN) comprise. Les rappels, le flex time épargné et les heures sup
+aussi : LDY le 12, GBT, PLZ et SKS le 27, SKS le 24. **Ce que le classeur
+n'écrit pas**, et que le relevé paie :
+
+- SMA le 17/08 : rappel et 4 h sup avant sa nuit (pointé dès 17 h 36) —
+  la cellule dit `["N"]` ;
+- CDE le 13/08 : rappel écrit « rappek ke 12/08 », faute de frappe ;
+- CDE le 14/08 : 0,5 h sup en nuit (sortie à 23 h 06) ;
+- SMA le 24/08 : venu 1 h (21 h 14 – 23 h), puis 7 h de salaire garanti ;
+  le classeur écrit « Abs » et l'application une maladie entière ;
+- SMA le 28/08 : « Abs » sur un repos, le relevé dit repos.
+
+**Le chèque-repas ne concorde pas** : le relevé en donne un aux journées
+entières de reprise — 11 « 8h -FT », 5 RTT, 1 DTT — et l'application
+aucun (voir « Ce qui attend le client »). Les autres personnes tombent
+juste : SKS, GBT, LCI, LDY, SLT et CDE au chèque près.
+
+Rien n'est codé : les cinq journées sont des manques du classeur, et le
+chèque contredit la fiche de LCI du 01/03. Les scripts (OCR, analyse,
+extraction de l'application) vivent dans le scratchpad de la session.
 
 ## La barre du haut est une barre d'identité
 
