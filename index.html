@@ -4551,8 +4551,19 @@ var JOUR_EN_ABSENCE={"ds":"FORM"};
 /* « pris le 19.09 », « pris les 3 et 4.07 » — le commentaire dit que les
    heures de l'annotation ont été prises un autre jour. 26 journées. */
 var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
+/* « DS » EN CELLULE FRANCHE, ET LA PAUSE DANS LE COMMENTAIRE. JKS le 21/10
+   (classeur du 28/09/2026) : ["DS","4h +FT","… présent à la DS prestera la
+   pause N"]. C'est la même journée que son 17/06, ["DS + PM","4h +FT"] (voir
+   COQUILLES) : la réunion en plus, épargnée au compteur, et la pause
+   prestée entière. Là le classeur écrivait la pause dans la cellule, ici
+   dans le commentaire — c'est lui qui la dit, on la lit où elle est. Sans
+   cela, la cellule franche ne portant aucun poste, le cycle donnait la nuit
+   et l'épargne s'en retranchait : 4 h au lieu de 8. */
 function parseHoraireEntry(e,hJour,epargne,renvois){
   if(typeof e==="string") e=[e];
+  var prestera=/prest\w*\s+la\s+pause\s+(AM|PM|N)\b/i.exec((e&&e[2])||"");
+  if(prestera && /^ds$/i.test(String(e[0]||"").trim()))
+    e=[prestera[1].toUpperCase()].concat(e.slice(1));
   if(hJour===undefined) hJour=8;
   if(!epargne) epargne=0;
   var out={}, jourPrime=false, ftPlus=false;
