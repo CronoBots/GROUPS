@@ -6693,6 +6693,60 @@ function moisDe(p,annee,mois,hJour){
                           rv:renvoisDuMois(p,mois,hJour)};
   return c;
 }
+/* L'ÉQUIPE QUI TOURNE À CHAQUE PAUSE. Le client, le 28/09/2026 : « dans
+   la cellule de la pause, indiquer l'équipe avec laquelle la pause est
+   prévue de tourner ce jour-là (il y a toujours bien une équipe qui a son
+   horaire de cycle cette pause-là) ; pareil pour les D, juste l'équipe,
+   pas le binôme ».
+
+   Les cinq équipes suivent le cycle de cinq semaines, décalées d'une
+   semaine l'une de l'autre : chaque jour, une équipe au matin, une à
+   l'après-midi, une à la nuit, et en semaine parfois une en D. Le
+   décalage de chacune se lit dans le classeur, comme cycleDuMois() le lit
+   pour une personne, mais sur les cellules franches de TOUTE l'équipe
+   (catégorie « Shift n ») : une personne déplacée ou en échange pèse une
+   voix parmi dix. Mesuré sur l'année 2026 : décalage identique les douze
+   mois pour les cinq équipes, de 71 à 99 % des cellules d'accord, et
+   jamais deux équipes à la même pause un même jour. Sous 60 % d'accord,
+   l'équipe n'est pas dite plutôt que devinée. */
+var _eqCycleCache={};
+function equipesDuCycle(db,annee,mois){
+  var k=annee+"/"+mois;
+  if(_eqCycleCache[k]) return _eqCycleCache[k];
+  var parEq={}, out={};
+  db.people.forEach(function(p){
+    var m=/^shift\s*(\d)/i.exec(String(p.cat||""));
+    if(m) (parEq[m[1]]=parEq[m[1]]||[]).push(p);
+  });
+  Object.keys(parEq).forEach(function(eq){
+    var j=[], d, e, c;
+    parEq[eq].forEach(function(p){
+      for(d=1; d<=31; d++){
+        e=p.d[pad2(mois)+pad2(d)]; if(!e) continue;
+        c=((typeof e==="string"?e:e[0])||"").trim();
+        if(SHIFT_CODES.indexOf(c)>=0) j.push([Date.UTC(annee,mois-1,d),c]);
+        else if(c==="-") j.push([Date.UTC(annee,mois-1,d),""]);
+      }
+    });
+    if(j.length<10) return;
+    var best=-1, bs=-1, dec, i, x;
+    for(dec=0; dec<CYCLE5.length; dec++){
+      var ok=0;
+      for(i=0;i<j.length;i++){ x=cyclePoste(1,"5 semaines",dec,j[i][0]); if((x==="-"?"":x)===j[i][1]) ok++; }
+      if(ok>bs){ bs=ok; best=dec; }
+    }
+    if(bs/j.length>=0.6) out[eq]=best;
+  });
+  return (_eqCycleCache[k]=out);
+}
+function equipeALaPause(db,annee,mois,jour){
+  var dec=equipesDuCycle(db,annee,mois), out={}, ts=Date.UTC(annee,mois-1,jour);
+  Object.keys(dec).forEach(function(eq){
+    var x=cyclePoste(1,"5 semaines",dec[eq],ts);
+    if(SHIFT_CODES.indexOf(x)>=0) out[x]=out[x]?out[x]+"/"+eq:eq;
+  });
+  return out;
+}
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
    parce que le tableau des manques à venir en a besoin lui aussi : deux
    vues d'une même journée qui se contrediraient seraient pires qu'une. */
@@ -7048,16 +7102,19 @@ function renderEquipe(){
         var rang=1;
         PAUSES.forEach(function(g){ if(vp[g.k]){ rang++; if(g.k===k) mc=rang; } });
       })();
+      var eqCycle=equipeALaPause(db,annee,mois,jour);
       var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
            (« go tout ») : le total est déjà sous « À l'usine », et un
-           effectif se lit en comptant les trigrammes. Reste l'horaire, au
-           bureau seulement : sur téléphone, .eqheure est masqué. */
+           effectif se lit en comptant les trigrammes. L'horaire de la
+           pause a cédé sa place à l'ÉQUIPE qui y tourne selon son cycle
+           (le client, le 28/09/2026), sur téléphone comme au bureau. */
+        var eqP=eqCycle[g.k];
         tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
-          +(g.s?'<em class="eqheure">'+esc(g.s)+"</em>":"")+"</th>");
+          +(eqP?'<em class="eqeq"><span class="orgl1">Équipe '+esc(eqP)+'</span><span class="orgl2">Éq. '+esc(eqP)+"</span></em>":"")+"</th>");
       });
       tp.push("</tr></thead><tbody>");
       /* Une légende qui explique un signe ABSENT de l'écran est du bruit :
