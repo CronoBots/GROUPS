@@ -4049,6 +4049,9 @@ en sombre ; vérificateur identique à l'octet.
 **Et la date quand même.** Le client, le même jour : « quand même indiquer
 la date ? ». « Mercredi » seul obligeait à compter les jours : le mot reste
 en gras, et « 30 sept. » s'écrit en petit dessous. 965 px à 390 px.
+Puis, « moyen d'uniformiser » : la même forme pour TOUTES les rangées,
+« Mardi / 6 oct. » au lieu de « MAR. 6 OCT. » au-delà de six jours —
+l'intertitre de semaine dit déjà si c'est proche. 1 026 px à 390 px.
 
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le

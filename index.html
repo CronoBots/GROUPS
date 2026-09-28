@@ -7341,9 +7341,11 @@ function renderEquipe(){
         function proche(mot){ return '<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"+esc(dCourt)+"</small></span>"; }
         if(ecart===0) html=proche("Aujourd\u2019hui");
         else if(ecart===1) html=proche("Demain");
-        else if(ecart>1 && ecart<7) html=proche(jl);
-        else html='<span class="mqd"><em>'+esc(jl.slice(0,3))+".</em><b>"+d.getUTCDate()
-          +"</b><em>"+esc(MOIS_BREF[d.getUTCMonth()])+"</em></span>";
+        /* UNE SEULE FORME, loin ou proche. Le client, le 28/09/2026, devant
+           « Mercredi / 30 sept. » à côté de « MAR. 6 OCT. » : « moyen
+           d'uniformiser ». Le jour en gras, la date en petit dessous, partout ;
+           l'intertitre de semaine dit déjà si c'est proche. */
+        else html=proche(jl);
         return {sem:sem, html:html, titre:complet};
       }
       var SEMAINES=["Cette semaine","Semaine prochaine","Plus tard"], semPrec=-1;
