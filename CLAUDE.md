@@ -4658,6 +4658,10 @@ case de téléphone (64 px pour 62, mesuré). À 390 px la ligne MEUN. passe
 de 57 à 46 px et le tableau à 507 px ; à 320 px, « BLR Cons. » passe
 encore à la ligne. Neuf règles identiques à l'octet.
 
+**Puis « 8-16 ».** Le client, le même jour : « écrire 8-16, ça ira
+mieux ». « Cons. » est remplacé partout par « 8-16 », qui tient sur une
+ligne jusqu'à 320 px, comme « 7-15 ».
+
 ### La meunerie du matin : deux en semaine, consignation comprise
 
 Le client, le 28/09/2026 : « le poste consignation en meunerie est un
