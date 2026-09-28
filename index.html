@@ -1120,6 +1120,11 @@ body.sheet-on{overflow:hidden}
 .mqinc{background:var(--surface3); color:var(--faint); font-weight:600}
 .mqinc u{text-decoration:none; opacity:.8}
 .mqrien{margin:2px 0 0; font-size:12.5px; color:var(--muted)}
+.mqtags{flex-direction:column; align-items:flex-start}
+.mql{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11px; color:var(--muted)}
+.mqeq{font-weight:650; color:var(--ink); white-space:nowrap}
+.mqp b{font-weight:650; color:var(--ink)}
+.mqp small{font-size:10px; color:var(--muted)}
 .mqrien b{color:var(--in)}
 /* Une carte par pause, et la pause en tableau dans le sens de la production.
    Trois colonnes : le poste, son effectif, et qui le tient. Le liseré de
@@ -8045,6 +8050,7 @@ function mqJoursAVenir(db,horizon){
     if(horizon && vus>=horizon) break;
     var m=d.getMonth()+1, j=d.getDate(), mmdd=pad2(m)+pad2(j);
     var par=equipeDuJour(db,annee,m,j), manques=[], inconnus=0, personne=false;
+    var eqc=equipeALaPause(db,annee,m,j), jourCalc=annee*10000+Number(mmdd);
     EQ_GROUPES.forEach(function(g){
       /* Le jour, aucun effectif n'est attendu — le client : « en jours il
          n'est pas obligatoire d'avoir quelqu'un à chaque poste ». */
@@ -8055,7 +8061,8 @@ function mqJoursAVenir(db,horizon){
       inconnus+=vue.inconnus.length;
       vue.postes.forEach(function(o){
         if(o.manque) manques.push({pause:g.k, k:o.P.k, z:o.P.z||"", t:o.P.t,
-                                   tenu:o.tenu, attendu:o.attendu});
+                                   tenu:o.tenu, attendu:o.attendu, eq:eqc[g.k]||"",
+                                   pistes:pistesDeRemplacement(vue,o.P,g.k,par.D,jourCalc)});
       });
     });
     if(personne){ vus++; if(manques.length)
@@ -8063,6 +8070,55 @@ function mqJoursAVenir(db,horizon){
     d.setDate(d.getDate()+1);
   }
   return {jours:sortie, examines:vus};
+}
+/* QUI POURRAIT BOUCHER LE TROU, parmi ceux qui sont là. Le client, le
+   28/09/2026 : « pour les postes en sous-effectif, il faut indiquer
+   l'équipe dans laquelle il manque quelqu'un et s'il y a des possibilités
+   de remplacement avec les gens présents ce jour-là selon leur
+   polyvalence (attention de bien garder l'effectif minimum à chaque
+   poste et pause) ».
+
+   Ce ne sont que des PISTES, jamais un placement : le rééquilibrage a déjà
+   déplacé tout ce que le classeur lui laisse déplacer, et ce qui reste en
+   manque est justement ce qu'il n'a pas le droit de trancher (une cellule
+   qui écrit son poste, un « à déterminer » qui saurait tenir deux trous).
+   Trois sources, dans cet ordre :
+     — la MÊME pause, à un poste qui garde son minimum une fois la personne
+       partie (un poste qui n'attend personne, comme l'adjoint, en fait
+       partie) ;
+     — les « à déterminer » de la pause ;
+     — les gens en D, au matin et à l'après-midi seulement (une journée ne
+       recouvre pas une nuit), et sans code de journée (formation, CPPT,
+       DS : ceux-là sont pris ailleurs).
+   Il faut la polyvalence du poste, et compter à ce poste — un opérateur en
+   formation n'y compte pas. Pour le contremaître, seul un cadre peut
+   remplacer. */
+function pistesDeRemplacement(vue,P,gk,listeD,jour){
+  var out=[], vus={};
+  function sait(x){
+    if(P.cm) return estCadre(x.p);
+    return peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
+  }
+  function ajoute(x,de){ if(vus[x.p.id]) return; vus[x.p.id]=1; out.push({p:x.p,de:de}); }
+  vue.postes.forEach(function(o){
+    if(o.P.k===P.k) return;
+    var aucunCm=o.gens.every(function(y){ return !estContremaitre(y.p); });
+    var aucunTitu=o.gens.every(function(y){ return roleDeFeuille(y.p)==="ra"; });
+    o.gens.forEach(function(x){
+      if(!sait(x)) return;
+      var compte=compteAuPoste(x,o.P,jour);
+      if(o.P.k==="cm") compte=estContremaitre(x.p)||aucunCm;
+      if(o.P.k==="terr") compte=compte&&(roleDeFeuille(x.p)!=="ra"||aucunTitu);
+      if(compte && o.tenu-1<o.attendu) return;   /* le minimum d'abord */
+      ajoute(x,o.P.k);
+    });
+  });
+  (vue.inconnus||[]).forEach(function(x){ if(sait(x)) ajoute(x,"?"); });
+  if(gk==="AM"||gk==="PM") (listeD||[]).forEach(function(x){
+    if(x.r && x.r.jourCode) return;
+    if(sait(x)) ajoute(x,"D");
+  });
+  return out;
 }
 /* Recalculer cent journées à chaque flèche de l'onglet Équipe serait du
    gaspillage : le tableau ne dépend QUE de la date du jour et de l'horizon. */
@@ -8085,9 +8141,18 @@ function renderManques(force){
         /* La couleur dit déjà la pause, mais deux « Fermentation 0/1 » côte à
            côte le même jour ne se distinguaient que par elle — et une couleur
            seule ne se lit pas. Le code de pause est donc écrit. */
-        h.push('<span class="mqt" data-z="'+esc(o.z)+'" data-s="'+esc(o.pause)+'">'
+        /* L'équipe qui tourne à cette pause ce jour-là, et qui pourrait
+           boucher le trou (le client, le 28/09/2026). */
+        var DE={D:"en D","?":"à dét.",cm:"CM",adj:"Adj."};
+        var pis=o.pistes.map(function(q){
+          return '<b>'+esc(idLisible(q.p.id))+"</b> <small>("+esc(DE[q.de]||PV_COURT[q.de]||q.de)+")</small>";
+        });
+        h.push('<span class="mql"><span class="mqt" data-z="'+esc(o.z)+'" data-s="'+esc(o.pause)+'">'
               +'<u>'+esc(o.pause)+"</u>"+esc(o.t)
-              +'<i>'+o.tenu+"/"+o.attendu+"</i></span>");
+              +'<i>'+o.tenu+"/"+o.attendu+"</i></span>"
+              +(o.eq?'<span class="mqeq">Éq. '+esc(o.eq)+"</span>":"")
+              +'<span class="mqp">'+(pis.length?"→ "+pis.join(", ")
+                :"personne de libre")+"</span></span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
          qui manque : le dire, plutôt que de laisser croire à un trou. */
