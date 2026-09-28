@@ -7052,6 +7052,11 @@ function renderEquipe(){
        en D ; cet horaire doit être entre parenthèses ; si BLR ou YRS est
        en D, il faut mettre (C) pour Consignation ». */
     function horaireEcritD(x){
+      /* « Cons. » et non plus « 7h30-16 ». Le client, le 28/09/2026 :
+         « 7h30-16 » passait à la ligne dans toutes les cases de téléphone,
+         et la consignation dit déjà ses heures. BLR ou YRS rangé à la
+         meunerie du matin est en consignation, quoi qu'écrive la cellule. */
+      if(x.consign) return '<small class="eqhd">Cons.</small>';
       var raw=x.p.d&&x.p.d[mmdd]||[], lib="";
       var codeJour=!!(x.r&&(x.r.jourCode||x.r.sp));
       function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
@@ -7085,7 +7090,7 @@ function renderEquipe(){
          du « (C) » : le client, le 28/09/2026, « supprimer le (C) », et
          « il faut indiquer l'horaire de tous ceux qui apparaissent dans la
          colonne D ». Une plage écrite dans le classeur passe avant. */
-      if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="7h30-16";
+      if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="Cons.";
       /* « D » sans rien d'autre : 7-15, AVANT l'horaire habituel. Le
          client, le 28/09/2026 : « les gens où il est seulement marqué D
          doivent avoir 7-15 sous eux », puis, l'horaire habituel ayant
