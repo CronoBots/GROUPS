@@ -6982,7 +6982,7 @@ function renderEquipe(){
       }
       return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
-    function chip(x,g,posteCourant,nu){
+    function chip(x,g,posteCourant,nu,sansHoraire){
       /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
          ne sait pas jusqu'à quand. Le client, le 23/09/2026 : « pourquoi pas
          de durée pour la maladie de GJR ? » — parce que le jour même était
@@ -7026,7 +7026,9 @@ function renderEquipe(){
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
         +(nu&&formIci&&posteCourant?'<small class="eqf">(F)</small>':"")
-        +(nu&&g.k==="D"?horaireEcritD(x):"")
+        /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
+           tous les autres présents en D ont le leur. */
+        +(nu&&g.k==="D"&&!sansHoraire?horaireEcritD(x):"")
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
@@ -7200,7 +7202,7 @@ function renderEquipe(){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
           tp.push("<td>"+(li.length
-            ? li.map(function(x){ return chip(x,g,null,true); }).join("")
+            ? li.map(function(x){ return chip(x,g,null,true,true); }).join("")
             : '<span class="eqvide">—</span>')+"</td>");
         });
         tp.push("</tr>");
