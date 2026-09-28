@@ -4053,6 +4053,14 @@ Puis, « moyen d'uniformiser » : la même forme pour TOUTES les rangées,
 « Mardi / 6 oct. » au lieu de « MAR. 6 OCT. » au-delà de six jours —
 l'intertitre de semaine dit déjà si c'est proche. 1 026 px à 390 px.
 
+**Et les sous-effectifs aussi** (« ça aussi même style ? ») : mêmes
+intertitres de semaine, même date en deux lignes. La mise en forme vit
+dans UNE fonction, `dateEnMots()`, que les trois cadres appellent — deux
+copies d'une même règle divergent. Sous 380 px, « Terrain arrière »
+devient « T. arrière » dans les sous-effectifs, qui sinon se coupait.
+Vérifié à 320 (hors ligne), 390 et 1280 px, en clair et en sombre ;
+vérificateur identique à l'octet.
+
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
 suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la

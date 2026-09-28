@@ -1098,7 +1098,9 @@ body.sheet-on{overflow:hidden}
   width:100%; text-align:left; background:none; border:0; border-top:1px solid var(--trait);
   cursor:pointer; padding:12px 8px; margin:0 -8px; width:calc(100% + 16px);
   border-radius:0; color:inherit; font:inherit}
-#mqCorps .mqj:first-child{border-top:0}
+#mqCorps .mqj:first-child, #mqCorps .eqsem+.mqj{border-top:0}
+#mqCorps .mqj{grid-template-columns:84px 1fr; column-gap:10px}
+#mqCorps .eqsem{margin:0 -16px}
 #mqCorps .mqj:hover{background:var(--surface3)}
 /* La date, un bloc : jour de semaine, quantième, mois. */
 .mqd{display:flex; flex-direction:column; align-items:center; line-height:1.1; padding-top:1px}
@@ -1143,8 +1145,9 @@ body.sheet-on{overflow:hidden}
 .mqct{display:none}
 @media (max-width:380px){
   .mqlg{display:none} .mqct{display:inline}
-  #mqCorps .mqj{grid-template-columns:38px 1fr; column-gap:10px}
-  .mqh{gap:6px} .mql{padding-left:8px}
+  #mqCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
+  .mqh{gap:5px} .mql{padding-left:7px}
+  .mqpz{min-width:22px; padding:2px 3px} .mqpo{font-size:12.5px}
 }
 .mqrien b{color:var(--in)}
 /* Une carte par pause, et la pause en tableau dans le sens de la production.
@@ -1427,14 +1430,11 @@ body.sheet-on{overflow:hidden}
 .eqvide{color:var(--faint)}
 .eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
 .eqrows{padding:0 16px 4px}
-/* La date sur UNE ligne, et non en bloc comme aux sous-effectifs : ces
-   cartes portent vingt dates d'un seul trigramme, et le bloc de trois
-   lignes les montait à 1 300 px. Même filet, mêmes étiquettes, même
-   écriture de la date. */
+/* La date en deux lignes, le jour puis la date : dateEnMots(), commune aux
+   trois cadres du Résumé. */
 .eqrow{display:grid; grid-template-columns:92px 1fr; column-gap:10px; align-items:center;
   padding:6px 0; border-top:1px solid var(--trait)}
-.eqrow .mqd{flex-direction:row; align-items:baseline; gap:4px; padding:0; white-space:nowrap}
-.eqrow .mqd b{font-size:14px}
+
 .eqrow:first-child, .eqsem+.eqrow{border-top:0}
 /* L'intertitre de semaine : petit, en capitales, sur un fond à peine
    marqué, pour couper la liste sans la charger. */
@@ -1442,9 +1442,9 @@ body.sheet-on{overflow:hidden}
   letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
   background:var(--surface2); border-top:1px solid var(--trait); border-bottom:1px solid var(--trait)}
 .eqsem:first-child{border-top:0}
-.eqrow .eqproche{flex-direction:column; align-items:flex-start; gap:0; line-height:1.15}
-.eqrow .eqproche b{font-size:13px; font-weight:650; color:var(--ink)}
-.eqrow .eqproche small{font-size:10.5px; color:var(--muted)}
+.mqd.eqproche{flex-direction:column; align-items:flex-start; gap:0; line-height:1.15; padding:0}
+.mqd.eqproche b{font-size:13px; font-weight:650; color:var(--ink)}
+.mqd.eqproche small{font-size:10.5px; color:var(--muted)}
 .eqrch{display:flex; flex-wrap:wrap; gap:5px; min-width:0}
 .eqrows .eqn{display:inline-flex; align-items:baseline; margin:0; padding:2px 7px;
   border-radius:6px; background:var(--surface3); border:1px solid var(--trait); white-space:nowrap}
@@ -7327,28 +7327,9 @@ function renderEquipe(){
          toujours. C : un intertitre « Cette semaine », « Semaine
          prochaine », « Plus tard », la semaine allant du lundi au
          dimanche, celle du jour de l'usine. */
-      var t0=Date.UTC(aA,aM-1,aJ), lun0=t0-((new Date(t0).getUTCDay()+6)%7)*86400000;
-      function quand(y,m,j){
-        if(!y) return {sem:2, html:'<span class="mqd"><em>sans date</em></span>', titre:""};
-        var d=new Date(Date.UTC(y,m-1,j)), ts=d.getTime(), ecart=Math.round((ts-t0)/86400000);
-        var jl=JOURS_LONGS[(d.getUTCDay()+6)%7];
-        var complet=jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase();
-        var sem=Math.floor((ts-lun0)/(7*86400000)); sem=sem<0?0:Math.min(sem,2);
-        /* LE MOT, ET LA DATE QUAND MÊME. Le client, le 28/09/2026 : « quand
-           même indiquer la date ? » — « Mercredi » seul obligeait à compter
-           les jours. Le mot reste en gras, la date s'écrit en petit dessous. */
-        var html, dCourt=d.getUTCDate()+"\u00a0"+MOIS_BREF[d.getUTCMonth()];
-        function proche(mot){ return '<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"+esc(dCourt)+"</small></span>"; }
-        if(ecart===0) html=proche("Aujourd\u2019hui");
-        else if(ecart===1) html=proche("Demain");
-        /* UNE SEULE FORME, loin ou proche. Le client, le 28/09/2026, devant
-           « Mercredi / 30 sept. » à côté de « MAR. 6 OCT. » : « moyen
-           d'uniformiser ». Le jour en gras, la date en petit dessous, partout ;
-           l'intertitre de semaine dit déjà si c'est proche. */
-        else html=proche(jl);
-        return {sem:sem, html:html, titre:complet};
-      }
-      var SEMAINES=["Cette semaine","Semaine prochaine","Plus tard"], semPrec=-1;
+      var t0=Date.UTC(aA,aM-1,aJ);
+      function quand(y,m,j){ return dateEnMots(y,m,j,t0); }
+      var semPrec=-1;
       var h2=grp.map(function(G){
         var x=G.x0, q;
         if(k==="abs") q=x.fin?quand(x.fin[0],x.fin[1],x.fin[2]):quand(aA,aM,aJ);
@@ -7356,7 +7337,7 @@ function renderEquipe(){
         else if(!x.fin) q=quand(aA,aM,aJ+1);
         else q=quand(x.fin[0],x.fin[1],x.fin[2]+1);
         var tete="";
-        if(q.sem!==semPrec){ tete='<div class="eqsem">'+SEMAINES[q.sem]+"</div>"; semPrec=q.sem; }
+        if(q.sem!==semPrec){ tete='<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"; semPrec=q.sem; }
         return tete+'<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
           +'<span class="eqrch">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
       }).join("");
@@ -8069,6 +8050,27 @@ function renderAnnuaire(db,moi){
   });
   hote.innerHTML=h.join("");
 }
+/* LA DATE D'UNE RANGÉE, la même pour les sous-effectifs, les absents et
+   le congé et repos. Le client, le 28/09/2026 : « A et C », puis « quand
+   même indiquer la date ? », puis « moyen d'uniformiser », puis, pour les
+   sous-effectifs, « ça aussi même style ? ». Le jour en gras
+   (« Aujourd'hui », « Demain », puis son nom), la date en petit dessous, et
+   un rang de semaine — 0 cette semaine, 1 la prochaine, 2 plus tard, du
+   lundi au dimanche autour de t0 — pour les intertitres. Une seule
+   fonction : deux copies d'une même règle divergent, et c'est la seconde
+   qui reste en arrière. */
+var SEMAINES_RANG=["Cette semaine","Semaine prochaine","Plus tard"];
+function dateEnMots(y,m,j,t0){
+  if(!y) return {sem:2, html:'<span class="mqd eqproche"><b>Sans date</b></span>', titre:""};
+  var d=new Date(Date.UTC(y,m-1,j)), ts=d.getTime(), ecart=Math.round((ts-t0)/86400000);
+  var lun0=t0-((new Date(t0).getUTCDay()+6)%7)*86400000;
+  var jl=JOURS_LONGS[(d.getUTCDay()+6)%7];
+  var sem=Math.floor((ts-lun0)/(7*86400000)); sem=sem<0?0:Math.min(sem,2);
+  var mot=ecart===0?"Aujourd\u2019hui":ecart===1?"Demain":jl;
+  return {sem:sem, titre:jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase(),
+    html:'<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"
+      +esc(d.getUTCDate()+"\u00a0"+MOIS_BREF[d.getUTCMonth()])+"</small></span>"};
+}
 /* ===================== les manques à venir ===================== */
 /* Le client, le 21/09/2026 : « un module qui indique quand il manque
    quelqu'un à un poste, et qui ne revient pas en arrière ». Il part donc
@@ -8190,12 +8192,12 @@ function renderManques(force){
        journées séparées d'un filet. Le liseré gauche de chaque manque garde
        la couleur de l'atelier. */
     var DE={D:"en D","?":"à dét.",cm:"CM",adj:"Adj."};
+    var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate()), semPrec=-1;
     r.jours.forEach(function(x){
-      var dt=new Date(Date.UTC(Number(db.year),x.mois-1,x.jour));
-      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'">'
-        +'<span class="mqd"><em>'+esc(JOURS_LONGS[(dt.getUTCDay()+6)%7].slice(0,3))+".</em>"
-        +"<b>"+x.jour+"</b><em>"+esc(MOIS_BREF[x.mois-1])+"</em></span>"
-        +'<span class="mqls">');
+      var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
+      if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
+        +q.html+'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
           return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"
@@ -8203,7 +8205,8 @@ function renderManques(force){
         });
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
-          +'<span class="mqpo">'+esc(o.t)+"</span>"
+          +'<span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
+            +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
           +'<span class="mqn">'+o.tenu+"/"+o.attendu+"</span>"
           +(o.eq?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
           +'<span class="mqr">'+(pis.length
