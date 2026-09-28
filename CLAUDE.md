@@ -3703,6 +3703,21 @@ vérificateur identiques à l'octet avant et après ce correctif.
 MGY le 26/09, `1,25 rhs`, se lit bien : 1 h 15 de reprise, 6,75 h
 prestées.
 
+### Le classeur du 28/09/2026 à 13 h 39
+
+Deux heures et demie après le précédent. Sept portes ouvertes, installé :
+**20 journées chez 9 personnes, 2 compteurs**, prestées 14 451 → 14 448.
+AFA malade du 28 au 30/09 ; SPT malade du 30/09 au 06/10 (ses échanges
+avec JKS et sa DS du 05/10 deviennent des « Abs ») ; VBN rappelé sur un
+repos le 02/10 pour remplacer FLI — le contremaître du matin n'est plus en
+sous-effectif ; SVE en formation distillation en 7h-15h du 28/09 au 01/10,
+prime de nuit conservée les 28 et 29 (lu : prime N, presté D) ; ATR au
+terrain arrière pour SMA le 28/09 ; DBE parti à 13 h le 16/10, relayé par
+RDT (1 h +FT). **Nouveau sous-effectif : le 02/10, terrain arrière de nuit
+0/1** — SPT malade, ASS en DTT, GKT en RTT, JKS passé en PM par échange ;
+piste proposée : SKS, depuis la meunerie. Neuf règles à zéro, compteurs
+76/77, intégralité à zéro.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
