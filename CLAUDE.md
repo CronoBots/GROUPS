@@ -4360,6 +4360,24 @@ débordait de 16 px). Les trois abrégés d'avant (MEU, GLU…) sont partis.
 Les quatre sorties du vérificateur sont identiques à l'octet ; rien ne
 déborde à 320, 390 et 1280 px, hors ligne compris.
 
+**Sous chaque pause, l'équipe qui y tourne.** Le client, le 28/09/2026 :
+« indiquer dans la cellule de la pause (à la place de l'horaire) l'équipe
+avec laquelle la pause est prévue de tourner ce jour-là ; pareil pour les
+D, juste l'équipe, pas le binôme ». `equipesDuCycle()` lit, mois par mois,
+le décalage de chaque équipe dans le cycle de cinq semaines, sur les
+cellules franches de TOUS ses membres (catégorie « Shift n ») — une voix
+par cellule, si bien qu'un échange ou une personne déplacée ne fait pas
+basculer l'équipe. `equipeALaPause()` en tire « AM Éq. 2 · D Éq. 4 · PM
+Éq. 5 · N Éq. 1 » (« Équipe n » au bureau). **Mesuré sur 2026** : le même
+décalage les douze mois pour les cinq équipes (équipe 3 à 0, 1 à 7, 5 à
+14, 4 à 21, 2 à 28 jours), de 71 à 99 % des cellules d'accord, et **jamais
+deux équipes à la même pause un même jour**. Sous 60 % d'accord, rien
+n'est écrit plutôt que deviné. L'horaire de la pause (6h-14h…), qui ne se
+voyait qu'au bureau, a cédé sa place. Vérifié le 28/09, le 03/10 (samedi,
+pas de D) et le 07/10, à 320 (hors ligne), 390 et 1280 px, chaque fois
+égal au calcul fait à part en Python ; les quatre sorties du vérificateur
+sont identiques à l'octet.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
