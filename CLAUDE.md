@@ -4075,6 +4075,16 @@ arrière » en entier même à 320 px. Piste écartée : supprimer la barre de
 repli « 7 journées ». Vérifié en clair et en sombre, à 320 (hors ligne),
 390 et 1280 px ; vérificateur identique à l'octet.
 
+**Puis la barre de repli part, et les trois cadres s'alignent.** Le
+client, le même jour : « retire-la et regarde si rien ne peut être mieux
+placé ou aligné ». Le compte (« 7 journées ») passe sous le titre, comme
+celui de « Équipes du jour » ; `#mqFold`, son écouteur et la clé
+`ui/mqFold` sont retirés. Les cadres rognent leurs coins (`overflow:hidden`)
+pour que l'intertitre de semaine, désormais tout en haut, n'en dépasse pas.
+La colonne de date fait la même largeur dans les trois (84 px, 72 sous
+380 px) : mesuré, les dates commencent au même pixel et le contenu aussi
+(33 et 127 px à 390 px, 33 et 111 à 320). Le cadre passe de 640 à 603 px.
+
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
 suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la

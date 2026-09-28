@@ -1100,6 +1100,10 @@ body.sheet-on{overflow:hidden}
   border-radius:0; color:inherit; font:inherit}
 #mqCorps .mqj:first-child, #mqCorps .eqsem+.mqj{border-top:0}
 #mqCorps .mqj{grid-template-columns:84px 1fr; column-gap:10px}
+/* Sans barre de repli, l'intertitre de semaine touche le haut du cadre :
+   le cadre rogne ses coins, sans quoi le fond de l'intertitre en dépasse. */
+#mqCard, .eqcard{overflow:hidden}
+#mqCorps{padding-top:0}
 #mqCorps .eqsem{margin:0 -16px}
 #mqCorps .mqj:hover{background:var(--surface3)}
 /* La date, un bloc : jour de semaine, quantième, mois. */
@@ -1377,15 +1381,6 @@ body.sheet-on{overflow:hidden}
    légende et une rangée de boutons. Le client, le 22/09/2026 : « moyen de
    faire beaucoup mieux ». Titre et compte tiennent sur une ligne, l'horizon
    sur la suivante, et le tout en fait 76. */
-#mqCard>details>summary{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
-  padding:11px 16px 8px; cursor:pointer; list-style:none}
-#mqCard>details>summary .sub{font-size:11.5px}
-#mqCard>details>summary::-webkit-details-marker{display:none}
-#mqCard>details>summary:after{content:""; margin-left:auto; width:7px; height:7px;
-  border-right:1.6px solid var(--faint); border-bottom:1.6px solid var(--faint);
-  transform:rotate(45deg) translate(-2px,-2px); transition:transform .15s}
-#mqCard>details[open]>summary:after{transform:rotate(225deg) translate(-2px,-2px)}
-#mqCard>details:not([open])>summary{padding-bottom:14px}
 /* Sans flex:0 0 auto, la bascule se laissait comprimer sous sa largeur de
    contenu par le titre du jour, qui est en flex:1 — les deux libellés se
    chevauchaient et sortaient de la carte. */
@@ -1437,7 +1432,7 @@ body.sheet-on{overflow:hidden}
 .eqrows{padding:0 16px 4px}
 /* La date en deux lignes, le jour puis la date : dateEnMots(), commune aux
    trois cadres du Résumé. */
-.eqrow{display:grid; grid-template-columns:92px 1fr; column-gap:10px; align-items:center;
+.eqrow{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:center;
   padding:6px 0; border-top:1px solid var(--trait)}
 
 .eqrow:first-child, .eqsem+.eqrow{border-top:0}
@@ -1456,7 +1451,7 @@ body.sheet-on{overflow:hidden}
 .eqrows .eqn b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--ink)}
 .eqrows .eqn.moi{border-color:var(--in)}
 .eqrows .eqn.moi b{color:var(--in)}
-@media (max-width:380px){ .eqrow{grid-template-columns:86px 1fr; column-gap:8px} }
+@media (max-width:380px){ .eqrow{grid-template-columns:72px 1fr; column-gap:6px} }
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -1802,22 +1797,16 @@ body[data-horaire="annee"] #rotasub{display:none}
       <div class="prochain" id="prochain" hidden></div>
     </div>
 
+    <!-- Plus de barre de repli (le client, le 28/09/2026 : « retire-la ») :
+         le compte vit sous le titre, comme celui de « Équipes du jour ».
+         Le module regarde d'aujourd'hui à la fin de l'horaire, jamais en
+         arrière, sans choix d'horizon (le client, le 26/09/2026). -->
     <div class="pvtete">
       <h2>Postes en sous-effectif</h2>
+      <p class="sub" id="mqSub"></p>
     </div>
     <div class="card" id="mqCard">
-      <details id="mqFold" open>
-      <!-- Le titre vit au-dessus du cadre (le client, le 26/09/2026 : « pas
-           nécessaire de le remettre juste en dessous ») : le repli ne
-           porte plus que le compte. -->
-      <summary>
-        <span class="sub" id="mqSub"></span>
-      </summary>
-      <!-- Plus de choix d'horizon : le client, le 26/09/2026, « il ne doit
-           pas y avoir de sélection de temps ». Le module regarde
-           d'aujourd'hui à la fin de l'horaire, jamais en arrière. -->
       <div class="mqcorps" id="mqCorps"></div>
-      </details>
     </div>
 
     <div class="pvtete">
@@ -8254,16 +8243,6 @@ function renderManques(force){
     };
   });
 }
-/* Sur un téléphone, « Postes en manque » ouvert pousse l'horaire du jour à
-   600 px sous le pli : il s'y ouvre donc fermé, et grand ouvert sur un
-   écran large. Dès que l'utilisateur le replie ou le déplie lui-même, c'est
-   son choix qui vaut, sur les deux. */
-(function(){
-  var d=document.getElementById("mqFold"); if(!d) return;
-  var v=lsGet("ui/mqFold");
-  d.open=(v===null) ? (window.innerWidth>=760) : !!v;
-  d.addEventListener("toggle",function(){ lsSet("ui/mqFold",d.open); });
-})();
 function eqBouge(n){
   var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false; renderEquipe();
 }
