@@ -3797,10 +3797,10 @@ function posteLeJour(db,id,annee,m,j){
     var l=par[g.k]||[];
     for(k=0;k<l.length;k++){
       if(l[k].p.id!==id) continue;
-      var vue=postesDePause(db,l,g.k,mmdd);
+      var vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
       for(q=0;q<vue.postes.length;q++){
         var gens=vue.postes[q].gens;
-        for(r=0;r<gens.length;r++) if(gens[r].p.id===id)
+        for(r=0;r<gens.length;r++) if(gens[r].p.id===id && !gens[r].depuisD)
           return {pause:g.t, poste:vue.postes[q].P.t};
       }
       return {pause:g.t, poste:""};
@@ -3818,10 +3818,10 @@ function posteDuJourDe(db,id){
     for(k=0;k<l.length;k++){
       if(l[k].p.id!==id) continue;
       if(g.k==="AM"||g.k==="PM"||g.k==="N"){
-        var vue=postesDePause(db,l,g.k,mmdd);
+        var vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
         for(q=0;q<vue.postes.length;q++){
           var gens=vue.postes[q].gens;
-          for(r=0;r<gens.length;r++) if(gens[r].p.id===id)
+          for(r=0;r<gens.length;r++) if(gens[r].p.id===id && !gens[r].depuisD)
             return vue.postes[q].P.t+" \u00b7 "+g.t;
         }
         /* présent à cette pause, poste encore indéterminé : le dire plutôt
@@ -6290,8 +6290,19 @@ function renfortDuJour(db,mmdd){
   for(ia=0;ia<SANS_EFFECTIF.length;ia++)
     if(jr>=SANS_EFFECTIF[ia][0] && jr<=SANS_EFFECTIF[ia][1]){
       renfortCache[cle]={_libre:true}; return renfortCache[cle]; }
-  if(RENFORT_CLOS[mmdd]){ renfortCache[cle]=null; return null; }
   var out=null, i, j, k, g2;
+  /* LA MEUNERIE DU MATIN ATTEND DEUX PERSONNES EN SEMAINE. Le client, le
+     28/09/2026 : « le poste consignation en meunerie est un poste qui doit
+     compter dans l'effectif meunerie du matin ; ils doivent être toujours au
+     moins 2 dans cette case du lundi au vendredi ». Hors jours fériés : les
+     consignateurs font la journée, qui ne se preste pas un férié (choix
+     écrit dans CLAUDE.md, question posée au client). Qui compte : voir
+     meunDepuisD(). */
+  var dj=new Date(Date.UTC(Number(db.year),Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2))));
+  if(dj.getUTCDay()>=1 && dj.getUTCDay()<=5
+     && !feries(Number(db.year))[db.year+"-"+mmdd.slice(0,2)+"-"+mmdd.slice(2)])
+    out={meun:{AM:2}};
+  if(RENFORT_CLOS[mmdd]){ renfortCache[cle]=out; return out; }
   var tr=RENFORT_TRANCHE[mmdd];
   if(tr) for(k in tr){ if(!tr.hasOwnProperty(k)) continue;
     out=out||{}; out[k]=out[k]||{};
@@ -6851,7 +6862,31 @@ function equipeDuJour(db,annee,mois,jour){
    en continu par ses pauses ; le jour, les gens viennent pour ce qu'il y a
    à y faire. Annoncer « 2 manquants » sous Jour, c'était accuser une
    équipe complète. */
-function postesDePause(db,liste,gk,mmdd){
+/* CEUX QUI, EN D, COMPTENT À LA MEUNERIE DU MATIN. Le client, le
+   28/09/2026 : BLR et YRS en D sont en consignation meunerie et comptent
+   dans l'effectif du matin — « mais il faut vérifier car si d'autres
+   personnes sont en D meunerie (et valides, donc pas ceux en formation)
+   c'est bon ». On range la colonne D par la même chaîne que le tableau
+   (postesDePause), et on garde : BLR et YRS où qu'ils tombent, et quiconque
+   y est placé à la meunerie en y comptant (compteAuPoste). Pas une journée
+   à code : en formation, en CPPT ou en CE, on n'est pas à la meunerie. Des
+   COPIES, marquées depuisD : les mêmes objets servent à la colonne D. */
+function meunDepuisD(db,listeD,mmdd){
+  if(!listeD||!listeD.length) return [];
+  var jour=Number(db.year)*10000+Number(mmdd), P=null, out=[], i;
+  for(i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k==="meun") P=POSTES_TRAVAIL[i];
+  var vueD=postesDePause(db,listeD.map(function(x){ return {p:x.p,r:x.r}; }),"D",mmdd);
+  vueD.postes.forEach(function(o){
+    o.gens.forEach(function(x){
+      if(x.r && x.r.jourCode) return;
+      var cons=CONSIGNATEURS.indexOf(x.p.id)>=0;
+      if(!cons && !(o.P.k==="meun" && compteAuPoste(x,P,jour))) return;
+      out.push({p:x.p, r:x.r, depuisD:true, consign:cons});
+    });
+  });
+  return out;
+}
+function postesDePause(db,liste,gk,mmdd,listeD){
   var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
   var ren=renfortDuJour(db,mmdd);
   /* LE JOUR CALCULÉ, une fois pour toute la pause : la chaîne des postes et
@@ -6870,6 +6905,12 @@ function postesDePause(db,liste,gk,mmdd){
     x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
+  /* La meunerie du matin reçoit ceux qui, en D, y comptent (meunDepuisD) :
+     les jours où elle attend deux personnes, c'est-à-dire en semaine. Ils
+     sont fixés : le rééquilibrage ne les déplace pas. */
+  if(gk==="AM" && listeD && ren && ren.meun && ren.meun.AM>=2)
+    meunDepuisD(db,listeD,mmdd).forEach(function(x){
+      x.fixe=true; (parPoste.meun=parPoste.meun||[]).push(x); });
   /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
   if(gk!=="D") reequilibrer(parPoste,mmdd,inconnus,gk,ren,jourCalc);
   POSTES_TRAVAIL.forEach(function(P){
@@ -7156,27 +7197,38 @@ function renderEquipe(){
       aQui=true; total+=l.length;
       l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
-      vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd)};
+      vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null)};
     });
     /* BLR ET YRS EN D VONT DANS LA COLONNE AM, À LA MEUNERIE. Le client,
-       le 28/09/2026 : « règle unique : si BLR ou YRS est en D il faut les
-       mettre dans la colonne AM mais avec leurs horaires 7h30-16 en
-       dessous ; ils sont en consignation meunerie ». Affichage seulement :
-       la consignation est une tâche, pas la tenue du poste (le client, le
-       26/09/2026, pour « consign. ») — l'étiquette se range APRÈS ceux qui
-       tiennent la meunerie, et l'effectif « n/m » de la case ne bouge pas.
-       La ligne Formation garde les siens : on n'y déplace personne. */
-    if(vp.D && vp.AM){
-      var meunAM=vp.AM.vue.postes.filter(function(o){ return o.P.k==="meun"; })[0];
-      if(meunAM) vp.D.vue.postes.forEach(function(o){
+       le 28/09/2026 : « si BLR ou YRS est en D il faut les mettre dans la
+       colonne AM mais avec leurs horaires 7h30-16 en dessous ; ils sont en
+       consignation meunerie », puis « le poste consignation en meunerie
+       doit compter dans l'effectif meunerie du matin ». postesDePause() les
+       a déjà comptés à AM · Meunerie (meunDepuisD) — en semaine. Ici on
+       règle l'AFFICHAGE : dans la case AM, seuls BLR et YRS parmi ceux qui
+       viennent du D ; les autres personnes en D à la meunerie restent dans la
+       colonne D, mais comptent. BLR et YRS quittent la colonne D, qui
+       disparaît si elle ne portait qu'eux. Le week-end, rien ne change. */
+    if(vp.AM){
+      var dejaAM={};
+      vp.AM.vue.postes.forEach(function(o){
         o.gens=o.gens.filter(function(x){
-          if(CONSIGNATEURS.indexOf(x.p.id)<0) return true;
-          x.consign=true; meunAM.gens.push(x); vp.D.n--; vp.AM.n++; return false;
+          if(!x.depuisD) return true;
+          if(!x.consign) return false;
+          dejaAM[x.p.id]=true; return true;
         });
       });
-      var resteD=vp.D.vue.postes.some(function(o){ return o.gens.length; })
-        || vp.D.vue.formation.length || vp.D.vue.inconnus.length;
-      if(!resteD) delete vp.D;
+      if(vp.D){
+        vp.D.vue.postes.forEach(function(o){
+          o.gens=o.gens.filter(function(x){
+            if(!dejaAM[x.p.id]) return true;
+            vp.D.n--; vp.AM.n++; return false;
+          });
+        });
+        var resteD=vp.D.vue.postes.some(function(o){ return o.gens.length; })
+          || vp.D.vue.formation.length || vp.D.vue.inconnus.length;
+        if(!resteD) delete vp.D;
+      }
     }
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
@@ -7489,9 +7541,14 @@ function calculerPolyvalence(db){
     EQ_GROUPES.forEach(function(g){
       if(g.k!=="AM"&&g.k!=="PM"&&g.k!=="N") return;
       var l=par[g.k]; if(!l||!l.length) return;
-      postesDePause(db,l,g.k,mmdd).postes.forEach(function(o){
+      /* La colonne D passe au matin pour la meunerie (meunDepuisD) : sans
+         elle, le rééquilibrage enverrait quelqu'un combler une deuxième
+         place que la consignation tient déjà. Mais une journée en D n'est
+         pas un recyclage : les copies venues du D ne comptent pas ici. */
+      postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null).postes.forEach(function(o){
         if(o.P.cm||o.P.k==="adj") return;
         o.gens.forEach(function(y){
+          if(y.depuisD) return;
           var r=y.r; if(!r||!r.s) return;
           var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
           if(Math.abs(h-st.params.hJour)>0.01) return;
@@ -8183,7 +8240,7 @@ function mqJoursAVenir(db,horizon){
       if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
       var l=par[g.k]; if(!l||!l.length) return;
       personne=true;
-      var vue=postesDePause(db,l,g.k,mmdd);
+      var vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
       inconnus+=vue.inconnus.length;
       vue.postes.forEach(function(o){
         if(o.manque) manques.push({pause:g.k, k:o.P.k, z:o.P.z||"", t:o.P.t,

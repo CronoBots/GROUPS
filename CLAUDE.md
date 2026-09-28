@@ -1535,6 +1535,9 @@ n'est deviné à leur sujet :
   n'est pas fait** : les 2 h ne sont écrites nulle part, donc ni FT+ ni HS
   ne sont comptés. A : 2 h de HS d'office sur une journée falling film
   sans « +FT » ; B : rien tant que le classeur ne l'écrit pas ;
+- **la meunerie du matin un jour férié en semaine** (28/09/2026) : les deux
+  places n'y sont pas exigées aujourd'hui. A : un férié se traite comme un
+  week-end, une seule place ; B : deux places aussi les fériés ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -4620,6 +4623,40 @@ tiret, consignation (7h30-16), **« seulement D » → 7-15**, et l'horaire
 habituel pour ce qui reste (QBY en DS-CE le 21/10 : son 10-18 de CE).
 D'ici la fin de l'année : 277 × (7-15), 21 × (H. flot.), 9 plages écrites,
 10 journées à code sans horaire.
+
+### La meunerie du matin : deux en semaine, consignation comprise
+
+Le client, le 28/09/2026 : « le poste consignation en meunerie est un
+poste qui doit compter dans l'effectif meunerie du matin ; ils doivent être
+toujours au moins 2 dans cette case du lundi au vendredi ». Question posée
+avant de coder (A : les consignateurs en D comptent dans les deux ; B :
+deux en pause plus la consignation). Réponse : « A, mais il faut vérifier :
+si d'autres personnes sont en D meunerie (et validées, donc pas ceux en
+formation), c'est bon ».
+
+- `renfortDuJour()` pose `meun:{AM:2}` du lundi au vendredi, **jours fériés
+  exclus**. Ce choix est le mien : le client n'a rien dit des fériés, et la
+  question lui est posée. Les autres renforts fusionnent par le maximum.
+  `RENFORT_CLOS` ne lève que ceux du classeur ;
+- `meunDepuisD()` fait compter pour la meunerie du matin, parmi les gens en
+  D, BLR et YRS (`CONSIGNATEURS`) et quiconque la chaîne met en meunerie
+  avec `compteAuPoste()`. Sont exclus les gens en formation et ceux qui
+  portent un code de jour (CPPT, DS…). Ces copies portent
+  `depuisD` : la polyvalence, le prochain poste et le poste de la barre du
+  haut les ignorent ;
+- au tableau du jour, un consignateur s'écrit dans la case AM de la
+  meunerie avec son (7h30-16), et plus en colonne D. Un validé en D
+  meunerie reste en D, mais il compte.
+
+Mesuré : neuf règles, compteurs et `--manques 0928` identiques à l'octet.
+Sur l'année, 272 → 277 places creuses : quatre matins de meunerie à 1/2
+(03/07, 17/07, 11/08, 14/08, les deux consignateurs en congé, malades ou en
+repos) ; le 06/01 passe de 0/1 à 1/2 ; le 13/08, le rééquilibrage envoie un
+chaudiériste en meunerie (chaudières 1/2). Recyclage : meunerie +1 chez
+JKS, LDY et PLZ, qui tiennent la seconde place ; CDE distillation −1, SKS
+distillation +1 et chaudières −1 ; couples au quota inchangés. Au navigateur, le 28/09 :
+« MEUN. JKS · YRS (7h30-16) », SKS (formation meunerie) reste en D
+(7-15) et ne compte pas. Vérifié à 320 (hors ligne), 390 et 1280 px.
 
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 

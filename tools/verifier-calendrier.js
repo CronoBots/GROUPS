@@ -168,6 +168,10 @@ const MORCEAUX=[
   ["function plageInterne(","\n}"],
   ["function gainFT(","\n}"],
   ["function celluleSansPoste(","\n}"],
+  ["var CONSIGNATEURS=","\n"],
+  ["function easter(","\n}"],
+  ["function feries(","\n}"],
+  ["function meunDepuisD(","\n}"],
   ["function postesDePause(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
@@ -351,7 +355,7 @@ if(process.argv.indexOf("--manques")>=0){
     EQ_GROUPES.forEach(g=>{
       if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
       const l=par[g.k]; if(!l||!l.length) return;
-      const vue=postesDePause(db,l,g.k,mmdd);
+      const vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
       inconnusJour+=vue.inconnus.length;
       vue.postes.forEach(o=>{
         o.gens.forEach(y=>{ if(y.deduit) deductions.push(
@@ -401,7 +405,7 @@ if(process.argv.indexOf("--manques")>=0){
       EQ_GROUPES.forEach(g=>{
         if(["off","abs","cong","D"].indexOf(g.k)>=0) return;
         const l=par[g.k]; if(!l||!l.length) return;
-        const vue=postesDePause(db,l,g.k,x.mmdd);
+        const vue=postesDePause(db,l,g.k,x.mmdd,g.k==="AM"?par.D:null);
         const mq=vue.postes.filter(o=>o.manque);
         if(!mq.length) return;
         console.log("  "+x.mmdd.slice(2)+"/"+x.mmdd.slice(0,2)+"  "+g.k+"  manque : "
