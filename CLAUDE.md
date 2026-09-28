@@ -4046,6 +4046,10 @@ replier la suite (B) et mettre sa propre équipe en tête (D). 923 px à
 390 px ; rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et
 en sombre ; vérificateur identique à l'octet.
 
+**Et la date quand même.** Le client, le même jour : « quand même indiquer
+la date ? ». « Mercredi » seul obligeait à compter les jours : le mot reste
+en gras, et « 30 sept. » s'écrit en petit dessous. 965 px à 390 px.
+
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
 suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la

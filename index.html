@@ -1442,7 +1442,9 @@ body.sheet-on{overflow:hidden}
   letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
   background:var(--surface2); border-top:1px solid var(--trait); border-bottom:1px solid var(--trait)}
 .eqsem:first-child{border-top:0}
+.eqrow .eqproche{flex-direction:column; align-items:flex-start; gap:0; line-height:1.15}
 .eqrow .eqproche b{font-size:13px; font-weight:650; color:var(--ink)}
+.eqrow .eqproche small{font-size:10.5px; color:var(--muted)}
 .eqrch{display:flex; flex-wrap:wrap; gap:5px; min-width:0}
 .eqrows .eqn{display:inline-flex; align-items:baseline; margin:0; padding:2px 7px;
   border-radius:6px; background:var(--surface3); border:1px solid var(--trait); white-space:nowrap}
@@ -7332,10 +7334,14 @@ function renderEquipe(){
         var jl=JOURS_LONGS[(d.getUTCDay()+6)%7];
         var complet=jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase();
         var sem=Math.floor((ts-lun0)/(7*86400000)); sem=sem<0?0:Math.min(sem,2);
-        var html;
-        if(ecart===0) html='<span class="mqd eqproche"><b>Aujourd\u2019hui</b></span>';
-        else if(ecart===1) html='<span class="mqd eqproche"><b>Demain</b></span>';
-        else if(ecart>1 && ecart<7) html='<span class="mqd eqproche"><b>'+esc(jl)+"</b></span>";
+        /* LE MOT, ET LA DATE QUAND MÊME. Le client, le 28/09/2026 : « quand
+           même indiquer la date ? » — « Mercredi » seul obligeait à compter
+           les jours. Le mot reste en gras, la date s'écrit en petit dessous. */
+        var html, dCourt=d.getUTCDate()+"\u00a0"+MOIS_BREF[d.getUTCMonth()];
+        function proche(mot){ return '<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"+esc(dCourt)+"</small></span>"; }
+        if(ecart===0) html=proche("Aujourd\u2019hui");
+        else if(ecart===1) html=proche("Demain");
+        else if(ecart>1 && ecart<7) html=proche(jl);
         else html='<span class="mqd"><em>'+esc(jl.slice(0,3))+".</em><b>"+d.getUTCDate()
           +"</b><em>"+esc(MOIS_BREF[d.getUTCMonth()])+"</em></span>";
         return {sem:sem, html:html, titre:complet};
