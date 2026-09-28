@@ -4275,6 +4275,16 @@ aucune heure écrite** : 103 journées d'ici la fin de l'année chez 19
 personnes (YBT 15, NPI 14, FPS 9, MGY 9, FLI 8…). La question est posée
 au client, et rien n'y est écrit en attendant.
 
+**Pas d'horaire sur la ligne FORMATION, un horaire pour tous les autres.**
+Le client, le 28/09/2026. La ligne FORMATION n'écrit plus de parenthèses
+(`chip(…, sansHoraire)`) ; mesuré du 28/09 au 31/12, 48 présences sur
+cette ligne, aucune avec horaire. « Tous les autres présents en D » doivent
+avoir le leur : il en reste **140 sans horaire** sur 426 présences en D
+d'ici la fin de l'année — les « D » seuls (FPS le 28/09, `["D"]`) et les
+journées de réunion sans plage (`["AM","D-CPPT"]`). Quel horaire leur
+écrire est la question du « D seul » ci-dessous, reposée au client le
+même jour ; rien n'est deviné en attendant.
+
 Rien ne bouge dans la lecture ni dans le placement : les quatre sorties du
 vérificateur sont identiques à l'octet à celles d'avant v269. Vérifié au
 navigateur le 28/09 (AFA et JBI « 7-15 », YRS rien), le 05/10 (SKS
