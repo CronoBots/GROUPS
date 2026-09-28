@@ -4063,6 +4063,18 @@ vérificateur identique à l'octet. Puis le mois en entier sous le jour
 (« 30 septembre ») : « il y a la place » — et c'est mesuré, il tient dans
 la colonne de date des trois cadres jusqu'à 320 px.
 
+**Trois retouches aux sous-effectifs** (le client, le 28/09/2026, « go »
+sur trois pistes proposées) : l'étiquette « Remplaçants possibles » part,
+une flèche « → » précède les noms — le 05/10 tient de nouveau sur une
+ligne ; « Aucun remplaçant » devient une étiquette rouge pâle, de la forme
+des étiquettes de noms, parce que c'est l'information la plus urgente ;
+l'équipe passe sous la date, en gras, quand tous les manques du jour sont
+de la même équipe (toutes les journées au 28/09) — sinon chaque fiche
+garde la sienne. Libérée de l'équipe, la ligne du poste écrit « Terrain
+arrière » en entier même à 320 px. Piste écartée : supprimer la barre de
+repli « 7 journées ». Vérifié en clair et en sombre, à 320 (hors ligne),
+390 et 1280 px ; vérificateur identique à l'octet.
+
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
 suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la

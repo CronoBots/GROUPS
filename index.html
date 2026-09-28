@@ -1128,12 +1128,17 @@ body.sheet-on{overflow:hidden}
 .mqeq{margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:600; color:var(--muted);
   white-space:nowrap}
 .mqr{display:flex; align-items:center; flex-wrap:wrap; gap:5px}
-.mqlab{font-size:10.5px; color:var(--muted); margin-right:2px}
 .mqc{display:inline-flex; align-items:baseline; gap:4px; padding:2px 7px; border-radius:6px;
   background:var(--surface3); border:1px solid var(--trait)}
 .mqc b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--ink)}
 .mqc small{font-size:10px; color:var(--muted)}
-.mqaucun{font-size:11px; font-style:italic; color:var(--muted)}
+/* « Aucun remplaçant » est l'information la plus urgente : un trou que
+   personne ne peut boucher. Une étiquette rouge pâle, de la forme des
+   étiquettes de noms qu'elle remplace. */
+.mqaucun{display:inline-flex; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600;
+  background:var(--at-rouge-soft); color:var(--at-rouge); border:1px solid transparent}
+.mqfl{font-size:13px; color:var(--muted); margin-right:1px}
+.mqd .mqeqd{font-style:normal; font-size:10.5px; font-weight:650; color:var(--ink); margin-top:3px}
 /* « 1 poste encore à déterminer » : il NUANCE les manques du jour plutôt
    qu'il n'en annonce un de plus — l'un de ces postes est peut-être celui qui
    manque. */
@@ -8197,8 +8202,17 @@ function renderManques(force){
     r.jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
       if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+      /* L'ÉQUIPE SOUS LA DATE quand tous les manques du jour sont de la
+         même équipe — c'est le cas de toutes les journées au 28/09/2026 ;
+         sinon chaque fiche garde la sienne (le client, le 28/09/2026, « go »
+         sur trois pistes : sans étiquette « Remplaçants possibles », « Aucun
+         remplaçant » qui se voit, l'équipe sous la date). */
+      var eqs=x.l.map(function(o){ return o.eq; });
+      var eqJour=(eqs[0] && eqs.every(function(e){ return e===eqs[0]; }))?eqs[0]:"";
+      var dateHtml=q.html;
+      if(eqJour) dateHtml=dateHtml.replace(/<\/span>$/,'<i class="mqeqd">Équipe '+esc(eqJour)+"</i></span>");
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +q.html+'<span class="mqls">');
+        +dateHtml+'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
           return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"
@@ -8206,13 +8220,13 @@ function renderManques(force){
         });
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
-          +'<span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
-            +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
+          +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
+            +esc(o.k==="terr"?"T. arrière":o.t)+"</span>")+"</span>"
           +'<span class="mqn">'+o.tenu+"/"+o.attendu+"</span>"
-          +(o.eq?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
+          +(o.eq && !eqJour?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
           +'<span class="mqr">'+(pis.length
-              ?'<span class="mqlab"><span class="mqlg">Remplaçants possibles</span><span class="mqct">Possibles</span></span>'+pis.join("")
-              :'<span class="mqaucun">Aucun remplaçant disponible</span>')+"</span>"
+              ?'<span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")
+              :'<span class="mqaucun">Aucun remplaçant</span>')+"</span>"
           +"</span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
