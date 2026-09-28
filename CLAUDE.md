@@ -1519,9 +1519,9 @@ n'est deviné à leur sujet :
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
   jour-là. B : FLI était ailleurs à l'usine. C : au cas par cas. 16 journées ;
-- **le D seul sans heure écrite** (26/09/2026, reposée le 28/09 : le
-  client veut un horaire pour TOUS ceux de la colonne D) : quel horaire
-  écrire entre parenthèses ? 138 présences d'ici la fin de l'année. A : (7h30-16), l'horaire de jour de la grille.
+- ~~le D seul sans heure écrite~~ : tranché le 28/09/2026, 7-15 (voir
+  « Seulement D : 7-15 »). Restent sans horaire les journées à code
+  (D-CPPT, DS-CE, F) : 10 présences d'ici la fin de l'année. A : (7h30-16), l'horaire de jour de la grille.
   B : un horaire propre à chaque fonction (contremaître, opérateur,
   formation). C : (D), sans heures ;
 - **les deux heures du projet falling film** (28/09/2026). Le client : « le
@@ -4600,6 +4600,17 @@ sous-effectifs ne bougent pas, et l'étiquette n'est jamais jaune. La
 colonne D disparaît si elle ne portait qu'eux. Vérifié les 28/09 (YRS),
 05/10 (BLR), 16/10 et 08/10 — ce jour-là YRS est déjà en AM, il remplace
 BLR ; vérificateur identique à l'octet.
+
+**« Seulement D » : 7-15.** Le client, le même jour : « les gens où il
+est seulement marqué D doivent avoir 7-15 sous eux ». Après les plages
+écrites, la consignation et l'horaire habituel, un « D » seul — en cellule
+franche (`["D"]`, `["D","meunerie"]`) ou en annotation (`["PM","D"]`,
+`["-","D"]`) — affiche (7-15). Une prime conservée n'y change rien (ALZ le
+05/10, « maintien prime N ») ; une journée à code, si : D-CPPT, DS-CE et
+les formations F ne sont pas « seulement D ». D'ici la fin de l'année,
+**317 présences en D, 10 sans horaire**, toutes de cette sorte (LHR,
+LCI, JKS en CPPT ou CE, SVE et AAI en formation). La liste des 21
+personnes demandée plus haut n'a plus d'objet.
 
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 

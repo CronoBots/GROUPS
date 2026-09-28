@@ -7045,6 +7045,15 @@ function renderEquipe(){
       /* Sinon l'horaire qu'elle fait d'habitude en D, lu sur ses autres
          journées (horaireHabituelD). */
       if(!lib) lib=horaireHabituelD(x.p)||"";
+      /* Et « D » tout seul, sans rien d'écrit nulle part : 7-15. Le client,
+         le 28/09/2026 : « les gens où il est seulement marqué D doivent
+         avoir 7-15 sous eux ». */
+      /* « D » seul, c'est aussi « PM · D » et « - · D » (le poste prévu
+         remplacé par D dans l'annotation), et « D · meunerie » (un atelier,
+         pas une heure). Pas une journée à code — D-CPPT, DS-CE, F : elle
+         n'est pas « seulement D ». */
+      var r0=String(raw[0]||"").trim(), r1=String(raw[1]||"").trim();
+      if(!lib && !(x.r&&x.r.jourCode) && (/^d$/i.test(r1) || /^d$/i.test(r0))) lib="7-15";
       return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
     function chip(x,g,posteCourant,nu,sansHoraire){
