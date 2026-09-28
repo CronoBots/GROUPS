@@ -4399,6 +4399,26 @@ pas de D) et le 07/10, à 320 (hors ligne), 390 et 1280 px, chaque fois
 égal au calcul fait à part en Python ; les quatre sorties du vérificateur
 sont identiques à l'octet.
 
+**Chaque sous-effectif dit son équipe, et qui pourrait le combler.** Le
+client, le 28/09/2026 : « indiquer l'équipe dans laquelle il manque
+quelqu'un et s'il y a des possibilités de remplacement avec les gens
+présents ce jour-là selon leur polyvalence (attention de bien garder
+l'effectif minimum à chaque poste et pause) ». Une ligne par manque :
+« N Terrain arrière 0/1 · Éq. 1 → ATR (Chaud.) ». L'équipe vient de
+`equipeALaPause()`. Les pistes viennent de `pistesDeRemplacement()`, qui
+ne DÉPLACE personne — le rééquilibrage a déjà fait ce que le classeur lui
+permet — et propose, dans l'ordre : quelqu'un de la même pause dont le
+poste garde son minimum sans lui (un poste qui n'attend personne, comme
+l'adjoint, compris) ; un « à déterminer » ; une personne en D sans code de
+journée, au matin et à l'après-midi seulement. Il faut la polyvalence du
+poste et y compter (un opérateur en formation n'y compte pas) ; pour le
+contremaître, seul un cadre. Sinon « personne de libre ». Au 28/09 : six
+journées, trois avec une piste — le 12/11, ATR aux chaudières (trois pour
+deux attendus) est proposé au terrain arrière, ce que la question posée le
+même jour suggérait. Les quatre sorties du vérificateur sont identiques à
+l'octet (il ne découpe pas ce module) ; rien ne déborde à 320 (hors
+ligne), 390 et 1280 px.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
