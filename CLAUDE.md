@@ -4059,7 +4059,9 @@ dans UNE fonction, `dateEnMots()`, que les trois cadres appellent — deux
 copies d'une même règle divergent. Sous 380 px, « Terrain arrière »
 devient « T. arrière » dans les sous-effectifs, qui sinon se coupait.
 Vérifié à 320 (hors ligne), 390 et 1280 px, en clair et en sombre ;
-vérificateur identique à l'octet.
+vérificateur identique à l'octet. Puis le mois en entier sous le jour
+(« 30 septembre ») : « il y a la place » — et c'est mesuré, il tient dans
+la colonne de date des trois cadres jusqu'à 320 px.
 
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
