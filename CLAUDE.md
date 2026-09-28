@@ -1535,9 +1535,6 @@ n'est deviné à leur sujet :
   n'est pas fait** : les 2 h ne sont écrites nulle part, donc ni FT+ ni HS
   ne sont comptés. A : 2 h de HS d'office sur une journée falling film
   sans « +FT » ; B : rien tant que le classeur ne l'écrit pas ;
-- **la meunerie du matin un jour férié en semaine** (28/09/2026) : les deux
-  places n'y sont pas exigées aujourd'hui. A : un férié se traite comme un
-  week-end, une seule place ; B : deux places aussi les fériés ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -4635,8 +4632,8 @@ si d'autres personnes sont en D meunerie (et validées, donc pas ceux en
 formation), c'est bon ».
 
 - `renfortDuJour()` pose `meun:{AM:2}` du lundi au vendredi, **jours fériés
-  exclus**. Ce choix est le mien : le client n'a rien dit des fériés, et la
-  question lui est posée. Les autres renforts fusionnent par le maximum.
+  exclus**. Ce choix était le mien, et le client l'a confirmé le
+  28/09/2026 : « A », un férié se traite comme un week-end. Les autres renforts fusionnent par le maximum.
   `RENFORT_CLOS` ne lève que ceux du classeur ;
 - `meunDepuisD()` fait compter pour la meunerie du matin, parmi les gens en
   D, BLR et YRS (`CONSIGNATEURS`) et quiconque la chaîne met en meunerie
