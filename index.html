@@ -1817,18 +1817,6 @@ body[data-horaire="annee"] #rotasub{display:none}
       <div class="prochain" id="prochain" hidden></div>
     </div>
 
-    <!-- Plus de barre de repli (le client, le 28/09/2026 : « retire-la ») :
-         le compte vit sous le titre, comme celui de « Équipes du jour ».
-         Le module regarde d'aujourd'hui à la fin de l'horaire, jamais en
-         arrière, sans choix d'horizon (le client, le 26/09/2026). -->
-    <div class="pvtete">
-      <h2>Postes en sous-effectif</h2>
-      <p class="sub" id="mqSub"></p>
-    </div>
-    <div class="card" id="mqCard">
-      <div class="mqcorps" id="mqCorps"></div>
-    </div>
-
     <div class="pvtete">
       <h2>Équipes du jour</h2>
       <p class="sub" id="eqSub"></p>
@@ -1857,6 +1845,23 @@ body[data-horaire="annee"] #rotasub{display:none}
       <div id="eqCorps"></div>
     </div>
     <div class="eqcorps" id="eqReste"></div>
+
+    <!-- SOUS LES ÉQUIPES DU JOUR. Le client, le 28/09/2026 : « on peut
+         mettre les postes en sous-effectif sous les équipes du jour ». On
+         lit d'abord aujourd'hui (tableau, absents, congés), puis ce qui va
+         manquer ; un clic sur une journée remonte au tableau.
+
+         Plus de barre de repli (le client, le 28/09/2026 : « retire-la ») :
+         le compte vit sous le titre, comme celui de « Équipes du jour ».
+         Le module regarde d'aujourd'hui à la fin de l'horaire, jamais en
+         arrière, sans choix d'horizon (le client, le 26/09/2026). -->
+    <div class="pvtete">
+      <h2>Postes en sous-effectif</h2>
+      <p class="sub" id="mqSub"></p>
+    </div>
+    <div class="card" id="mqCard">
+      <div class="mqcorps" id="mqCorps"></div>
+    </div>
   </section>
 
   <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
@@ -8399,8 +8404,14 @@ function renderManques(force){
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       renderEquipe();
-      var c=document.getElementById("eqCorps");
-      if(c&&c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"start"});
+      /* Le module vit SOUS le tableau depuis le 28/09/2026 : le clic
+         REMONTE, et la barre du haut se redéplie en remontant. On vise donc
+         la barre du jour, décalée de la hauteur de l'en-tête — sans quoi
+         elle passait dessous, et le haut du tableau avec. */
+      var c=document.getElementById("eqJour"), top=document.querySelector(".top");
+      if(c){ c=c.parentNode;
+        var y=c.getBoundingClientRect().top+(window.pageYOffset||0)-(top?top.offsetHeight:0)-8;
+        try{ window.scrollTo({top:Math.max(0,y),behavior:"smooth"}); }catch(e){ window.scrollTo(0,Math.max(0,y)); } }
     };
   });
 }

@@ -4095,6 +4095,19 @@ suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la
 feuille est équilibrée, ce qu'un petit compteur d'accolades vérifie en
 une ligne — à relancer après toute découpe de CSS.
 
+**Puis sous « Équipes du jour ».** Le client, le 28/09/2026 : « on peut
+mettre les postes en sous-effectif sous les équipes du jour ». L'onglet se
+lit désormais : Mon prochain poste, Équipes du jour (le tableau, les absents, les congés
+et les repos), Postes en sous-effectif. Le bloc est placé APRÈS les deux cadres
+Absents et Congé et repos, et non entre eux et le tableau : ils font partie
+de la même section, qu'il ne faut pas couper. **Le clic sur une journée
+remonte désormais**, et la barre du haut se redéplie en remontant : viser
+`#eqCorps` avec `scrollIntoView` la laissait passer PAR-DESSUS la barre du
+jour (−34 px mesurés). Le clic vise donc la barre du jour, décalée de la
+hauteur de l'en-tête. Mesuré : elle arrive à 76 px du haut sous une barre
+de 57 px (390 px), à 117 sous 98 (1280 px). Vérifié à 320 (hors ligne),
+390 et 1280 px ; neuf règles à zéro.
+
 **Les deux cadres disent AUJOURD'HUI, quel que soit le jour affiché.** Le
 client, le 28/09/2026 : « il ne faut pas que les listes absent/congé soient
 adaptées par rapport à la date sélectionnée mais par rapport à la date du
