@@ -4662,6 +4662,13 @@ encore à la ligne. Neuf règles identiques à l'octet.
 mieux ». « Cons. » est remplacé partout par « 8-16 », qui tient sur une
 ligne jusqu'à 320 px, comme « 7-15 ».
 
+**Et en jaune.** Le client, le même jour : « le badge doit être jaune… de
+ceux en formation ». L'étiquette de BLR et YRS en consignation à la
+meunerie du matin prend l'encre jaune de la formation. C'est une couleur
+seulement : ils comptent toujours dans l'effectif de la meunerie, et
+la règle du 28/09 qui disait « l'étiquette n'est jamais jaune » ne vaut
+plus.
+
 ### La meunerie du matin : deux en semaine, consignation comprise
 
 Le client, le 28/09/2026 : « le poste consignation en meunerie est un
