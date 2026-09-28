@@ -7173,12 +7173,24 @@ function renderEquipe(){
        ICI et pas dans equipeDuJour(), que le module des manques rejoue sur
        des mois entiers : une trentaine de séries par jour y coûterait pour
        rien. */
-    var congRepos=(par.cong||[]).concat((par.off||[]).map(function(x){
+    /* LES DEUX CADRES DISENT AUJOURD'HUI, QUEL QUE SOIT LE JOUR AFFICHÉ.
+       Le client, le 28/09/2026, après avoir cliqué sur le sous-effectif du
+       16/10 et trouvé YBT « en congé, reprise le 22 oct. » alors qu'il est
+       malade jusqu'au 11/10 : « il ne faut pas que les listes absent/congé
+       soient adaptées par rapport à la date sélectionnée mais par rapport à
+       la date du jour ». Le tableau suit le jour choisi ; qui est malade et
+       qui revient quand se lit sur le jour de l'usine (jourUsine(), 6 h). */
+    var du=jourUsine(), auj=(du.getFullYear()===annee);
+    var aA=annee, aM=auj?du.getMonth()+1:mois, aJ=auj?du.getDate():jour;
+    var aMmdd=pad2(aM)+pad2(aJ);
+    var autreJour=(aM!==mois || aJ!==jour);
+    var parA=autreJour?equipeDuJour(db,aA,aM,aJ):par;
+    var congRepos=(parA.cong||[]).concat((parA.off||[]).map(function(x){
       var o={p:x.p,r:x.r,prevu:x.prevu};
       if(!x.prevu){
         o.repos=true;
-        if(x.p.d[mmdd]===undefined) o.sansDate=true;
-        else o.fin=finAbsence(db,x.p,annee,mois,jour,st.params.hJour,"CONGE");
+        if(x.p.d[aMmdd]===undefined) o.sansDate=true;
+        else o.fin=finAbsence(db,x.p,aA,aM,aJ,st.params.hJour,"CONGE");
       }
       return o;
     }));
@@ -7190,7 +7202,7 @@ function renderEquipe(){
     RESTE.forEach(function(k){
       var g=(k==="cong")?{k:"cong",t:"Congé et repos"}
             :EQ_GROUPES.filter(function(x){ return x.k===k; })[0];
-      var l=(k==="cong")?congRepos:(par[k]||[]); if(!l.length) return;
+      var l=(k==="cong")?congRepos:(parA[k]||[]); if(!l.length) return;
       /* Les malades, du retour le plus proche au plus lointain. Le client,
          le 26/09/2026 : « les absents maladie doivent être triés par dates
          de retour (le plus court au plus long) ». Une fin null veut dire que
@@ -7248,7 +7260,7 @@ function renderEquipe(){
       cadres.push('<div class="card eqcard" data-s="'+k+'">'
         +'<header><h2><span class="eqpt"></span>'+esc(k==="abs"?"Absents":"Congé et repos")
         +' <span class="eqnb">'+l.length+'</span></h2>'
-        +'<span class="sub">'+(k==="abs"?"maladie · jusqu'au":"date de reprise")+"</span></header>"
+        +'<span class="sub">'+(autreJour?"aujourd'hui · ":"")+(k==="abs"?"maladie · jusqu'au":"date de reprise")+"</span></header>"
         +'<div class="eqgrp eqreste">'+h2+"</div></div>");
     });
     var reste=document.getElementById("eqReste");

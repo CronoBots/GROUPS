@@ -3975,6 +3975,21 @@ deux ou toute la ligne » selon le nombre de personnes sont partis avec la
 grille : c'est le contenu qui décide. Vérifié en clair et en sombre, à
 320, 390 et 1280 px, hors ligne compris.
 
+**Les deux cadres disent AUJOURD'HUI, quel que soit le jour affiché.** Le
+client, le 28/09/2026 : « il ne faut pas que les listes absent/congé soient
+adaptées par rapport à la date sélectionnée mais par rapport à la date du
+jour ». Il avait cliqué sur le sous-effectif du 16/10 et lu YBT « en congé,
+reprise le 22 oct. », alors qu'il est malade jusqu'au 11/10 : c'était juste
+pour le 16/10, mais on ouvre ces cadres pour savoir qui manque MAINTENANT.
+Le tableau suit le jour choisi ; les deux cadres se calculent sur
+`jourUsine()` (le jour de l'usine, qui change à 6 h), par un second
+`equipeDuJour()` seulement quand le jour affiché est un autre. Leur
+sous-titre commence alors par « aujourd'hui · ». **J'ai d'abord cru que
+l'application se trompait sur YBT** : la barre du haut, toujours datée du
+jour, laissait croire que la capture montrait le 28/09. Vérifié en avançant
+au 16/10 à 320 (hors ligne), 390 et 1280 px : les cadres ne bougent pas ;
+les quatre sorties du vérificateur sont identiques à l'octet.
+
 **Le premier cadre du Résumé dit le poste SUIVANT, jamais celui du jour.**
 Le client, le même jour : « est-ce utile de remettre la pause du jour vu
 qu'elle est dans la barre du haut ? ». Non : les jours travaillés, ce
