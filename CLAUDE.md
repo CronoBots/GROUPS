@@ -4547,6 +4547,21 @@ le remplir. Par sûreté, il se redessine désormais dès que l'horaire arrive
 Si le cadre reste vide chez le client après la v291, c'est une autre
 cause, à chercher sur son appareil.
 
+**Les trigrammes du tableau du jour en étiquettes.** Le client, le
+28/09/2026 : « il faut les mêmes badges de trigrammes sur ce tableau que
+sur le tableau du dessus et du dessous ». Chaque trigramme prend
+l'étiquette des sous-effectifs et des absents (fond `--surface3`, filet
+`--trait`, mono gras 11,5 px), toujours l'un sous l'autre. La personne
+choisie a le bord et l'encre de l'accent : elle n'est plus « la seule en
+gras » (règle du 26/09), toutes les étiquettes l'étant. « (F) », « (C) »
+et l'horaire de la colonne D restent dans l'étiquette, **en ligne** — une
+règle générale `.eqn{flex-direction:column}` les faisait passer dessous,
+et le tableau montait à 676 px ; 620 px ainsi à 390 px. Sous 380 px,
+l'étiquette se resserre (3 px de marge, 11 px) pour que « SKS (F) » tienne
+dans une colonne de 50 px. Vérifié en clair et en sombre, à 320 (hors
+ligne), 390 et 1280 px : aucune étiquette ne sort de sa case ;
+vérificateur identique à l'octet.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
