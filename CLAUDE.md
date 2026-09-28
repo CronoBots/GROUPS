@@ -3679,6 +3679,30 @@ formation — « Formation ARI - CEPS Seraing » — et non quelqu'un.
 Neuf règles à zéro, compteurs 76/77, découpe de `comparer-fiches` à
 l'épreuve, garde-fou du dépôt et contrôle croisé à zéro.
 
+### Le classeur du 28/09/2026 à 11 h 11
+
+`mettre-a-jour.py` : les sept portes ouvertes, installé. **32 journées
+chez 22 personnes, 13 compteurs** ; 27 574 journées, prestées 14 490 →
+**14 451**. Rien de structurel : les journées du 25 au 29/09 complétées
+après coup (départs anticipés en RTT, reprises RHS, trois « Abs ·
+Justificatif à fournir » le 28/09 — AFA, FPS, SMA —, ajustements de flex
+time), FLI malade le 02/10, DWS en RTT les 21 et 22/10 remplacé par GDT,
+les congés d'octobre de MGY. Un sous-effectif de plus d'ici la fin de
+l'année : **le 02/10, contremaître du matin 0/1** (FLI malade), avec JBI
+en D comme piste.
+
+**JKS le 21/10** : `["DS","4h +FT","… présent à la DS prestera la pause
+N"]`. La pause n'est plus dans la cellule (l'ancien classeur écrivait
+`["N","DS"]`), elle est dans le commentaire ; lue par le cycle, l'épargne
+s'en retranchait — 4 h de nuit au lieu de 8. `parseHoraireEntry()` lit
+« prestera la pause X » quand la cellule franche est « DS » seul : c'est
+exactement son 17/06, `DS + PM · 4h +FT` (`COQUILLES`), 8 h et 4 h au
+compteur. Une seule journée de l'année ; les quatre sorties du
+vérificateur identiques à l'octet avant et après ce correctif.
+
+MGY le 26/09, `1,25 rhs`, se lit bien : 1 h 15 de reprise, 6,75 h
+prestées.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
