@@ -4649,6 +4649,15 @@ trigrammes l'un sous l'autre restent aussi. Mesuré le 25/09 : 566 → 518 px
 ligne), 390 et 1280 px, en clair et en sombre. Neuf règles et
 `--manques 0928` identiques à l'octet.
 
+**« Cons. » au lieu de « 7h30-16 ».** Le client, le 28/09/2026, pour les
+étiquettes qui passaient encore à la ligne : « écrire Cons. ». BLR et YRS
+rangés à la meunerie du matin portent « Cons. », quoi qu'écrive leur
+cellule ; en D le week-end, « Cons. » remplace aussi « 7h30-16 » quand
+aucune plage n'est écrite. « 7h30-16 » ne tenait sur une ligne dans aucune
+case de téléphone (64 px pour 62, mesuré). À 390 px la ligne MEUN. passe
+de 57 à 46 px et le tableau à 507 px ; à 320 px, « BLR Cons. » passe
+encore à la ligne. Neuf règles identiques à l'octet.
+
 ### La meunerie du matin : deux en semaine, consignation comprise
 
 Le client, le 28/09/2026 : « le poste consignation en meunerie est un
