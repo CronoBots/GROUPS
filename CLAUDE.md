@@ -1524,6 +1524,17 @@ n'est deviné à leur sujet :
   chez 19 personnes. A : (7h30-16), l'horaire de jour de la grille.
   B : un horaire propre à chaque fonction (contremaître, opérateur,
   formation). C : (D), sans heures ;
+- **les deux heures du projet falling film** (28/09/2026). Le client : « le
+  5 et le 16 octobre, les opérateurs en formation (falling film) tiennent
+  bien leurs pauses à leurs postes et suivent la formation avant ou après
+  (2 h de FT+ ou de HS selon la demande ; si FT+, ce sera marqué dans
+  l'horaire, sinon HS) ». Le placement le faisait déjà
+  (`PROJETS_SUR_POSTE`, depuis le 22/09) : vérifié au navigateur les 05,
+  09, 15 et 26/10, les seuls jours « projet falling film » du classeur ;
+  le 16/10 est une formation ATEX, où les gens sont remplacés. **Ce qui
+  n'est pas fait** : les 2 h ne sont écrites nulle part, donc ni FT+ ni HS
+  ne sont comptés. A : 2 h de HS d'office sur une journée falling film
+  sans « +FT » ; B : rien tant que le classeur ne l'écrit pas ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
