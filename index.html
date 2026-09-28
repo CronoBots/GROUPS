@@ -1425,38 +1425,24 @@ body.sheet-on{overflow:hidden}
 .eqn i, .eqn em{font-style:normal; font-size:10px; color:var(--faint)}
 .eqn em{font-family:"IBM Plex Mono",monospace}
 .eqvide{color:var(--faint)}
-/* Huit absents à deux lignes chacun faisaient 554 px sur téléphone : le code
-   et la date de retour tiennent sur la même ligne que le trigramme. */
-.eqreste .eqn{display:inline-block; margin:0 14px 2px 0; white-space:nowrap}
-.eqreste .eqn em{display:inline; margin-left:5px}
-.eqreste .eqn i{display:inline; margin-left:5px}
-/* Les absents et les congés, chacun dans son cadre, regroupés par date :
-   la date dans une colonne étroite, les trigrammes à côté. */
-/* Une tuile par date, et non une ligne. Le client, le 26/09/2026 : « il y a
-   moyen de mieux organiser ça pour que cela fasse moins vide et mieux
-   réparti », puis, devant une grille qui comblait ses trous en déplaçant
-   les petites tuiles : « ce n'est plus vraiment par ordre chronologique ».
-   D'où une rangée qui s'enroule : chaque tuile prend la largeur de ses
-   trigrammes, dans l'ordre des dates, et s'élargit pour finir sa ligne —
-   ni trou, ni date déplacée. Une tuile de dix-neuf personnes remplit sa
-   propre ligne, parce que c'est ce que ses trigrammes demandent. */
-.eqgrp{padding:10px 12px 12px; display:flex; flex-wrap:wrap; gap:6px}
-.eqdg{flex:1 1 auto; min-width:96px; background:var(--surface2);
-  border:1px solid var(--line); border-radius:8px; padding:6px 8px 7px}
-.eqdd{font-size:10.5px; font-weight:600; color:var(--muted); white-space:nowrap;
-  margin-bottom:2px}
-.eqdn{line-height:1.35}
-.eqgrp .eqn{margin:0 8px 0 0}
 .eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
-}
-}
-/* Sur téléphone, la ligne peut passer à la ligne plutôt que de sortir de la
-   carte : « Absent jusqu'au 27 Septembre » ne tient pas à côté du trigramme
-   à 320 px. Elle vient après la règle qui l'interdit — dans le bloc à 560 px plus
-   haut, elle perdait à spécificité égale et le texte était coupé. */
-@media (max-width:560px){
-  .eqreste .eqn{white-space:normal; margin-right:10px}
-}
+.eqrows{padding:0 16px 4px}
+/* La date sur UNE ligne, et non en bloc comme aux sous-effectifs : ces
+   cartes portent vingt dates d'un seul trigramme, et le bloc de trois
+   lignes les montait à 1 300 px. Même filet, mêmes étiquettes, même
+   écriture de la date. */
+.eqrow{display:grid; grid-template-columns:92px 1fr; column-gap:10px; align-items:center;
+  padding:6px 0; border-top:1px solid var(--trait)}
+.eqrow .mqd{flex-direction:row; align-items:baseline; gap:4px; padding:0; white-space:nowrap}
+.eqrow .mqd b{font-size:14px}
+.eqrow:first-child{border-top:0}
+.eqrch{display:flex; flex-wrap:wrap; gap:5px; min-width:0}
+.eqrows .eqn{display:inline-flex; align-items:baseline; margin:0; padding:2px 7px;
+  border-radius:6px; background:var(--surface3); border:1px solid var(--trait); white-space:nowrap}
+.eqrows .eqn b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--ink)}
+.eqrows .eqn.moi{border-color:var(--in)}
+.eqrows .eqn.moi b{color:var(--in)}
+@media (max-width:380px){ .eqrow{grid-template-columns:86px 1fr; column-gap:8px} }
 .eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
   font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
 .eqfold>summary::-webkit-details-marker{display:none}
@@ -7318,23 +7304,27 @@ function renderEquipe(){
         x.detVu="";
         parCle[c].gens.push(x);
       });
-      /* La date tient dans une colonne étroite, les trigrammes à côté : une
-         date qui n'a qu'une personne ne coûte plus qu'une ligne. « Jusqu'au »
-         et « reprise » ne s'écrivent qu'une fois, sous l'intitulé. */
-      function court(y,m,j){
+      /* DANS LE STYLE DES SOUS-EFFECTIFS. Le client, le 28/09/2026 :
+         « présenter dans le même style les absents et personnes en
+         congé ». Une rangée par date, séparée d'un filet : à gauche le même
+         bloc de date (« LUN. / 12 / OCT. »), à droite les trigrammes en
+         étiquettes. Absents : le dernier jour de maladie (« jusqu'au »,
+         écrit sous le titre) ; congé et repos : le jour de la reprise.
+         Remplace les tuiles du 26/09. */
+      function bloc(y,m,j){
+        if(!y) return '<span class="mqd"><em>sans</em><b>—</b><em>date</em></span>';
         var d=new Date(Date.UTC(y,m-1,j));
-        return JOURS_LONGS[(d.getUTCDay()+6)%7].slice(0,3)+". "+d.getUTCDate()
-               +"\u00a0"+MOIS_BREF[d.getUTCMonth()];
+        return '<span class="mqd"><em>'+esc(JOURS_LONGS[(d.getUTCDay()+6)%7].slice(0,3))+".</em>"
+          +"<b>"+d.getUTCDate()+"</b><em>"+esc(MOIS_BREF[d.getUTCMonth()])+"</em></span>";
       }
       var h2=grp.map(function(G){
-        var x=G.x0, titre;
-        if(k==="abs") titre=x.fin?court(x.fin[0],x.fin[1],x.fin[2]):"Aujourd'hui";
-        else if(G.c===99999999) titre="Sans date";
-        else if(!x.fin) titre="Demain";
-        else titre=court(x.fin[0],x.fin[1],x.fin[2]+1);
-        return '<div class="eqdg"><div class="eqdd">'+esc(titre)+'</div>'
-          +'<div class="eqdn">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")
-          +"</div></div>";
+        var x=G.x0, dd;
+        if(k==="abs") dd=x.fin?bloc(x.fin[0],x.fin[1],x.fin[2]):bloc(aA,aM,aJ);
+        else if(G.c===99999999) dd=bloc(0);
+        else if(!x.fin) dd=bloc(aA,aM,aJ+1);
+        else dd=bloc(x.fin[0],x.fin[1],x.fin[2]+1);
+        return '<div class="eqrow">'+dd+'<span class="eqrch">'
+          +G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
       }).join("");
       /* DEUX CADRES, et non deux lignes d'un tableau. Le client, le
          26/09/2026 : « je veux également séparer les 2 cadres ». Sorties du
@@ -7345,7 +7335,7 @@ function renderEquipe(){
         +'<header><h2><span class="eqpt"></span>'+esc(k==="abs"?"Absents":"Congé et repos")
         +' <span class="eqnb">'+l.length+'</span></h2>'
         +'<span class="sub">'+(autreJour?"aujourd'hui · ":"")+(k==="abs"?"maladie · jusqu'au":"date de reprise")+"</span></header>"
-        +'<div class="eqgrp eqreste">'+h2+"</div></div>");
+        +'<div class="eqrows">'+h2+"</div></div>");
     });
     var reste=document.getElementById("eqReste");
     if(reste) reste.innerHTML=cadres.join("");

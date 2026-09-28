@@ -4025,6 +4025,22 @@ deux ou toute la ligne » selon le nombre de personnes sont partis avec la
 grille : c'est le contenu qui décide. Vérifié en clair et en sombre, à
 320, 390 et 1280 px, hors ligne compris.
 
+**Puis dans le style des sous-effectifs.** Le client, le 28/09/2026 :
+« présenter dans le même style les absents et personnes en congé ». Les
+tuiles cèdent la place à des rangées séparées d'un filet : la date à
+gauche, écrite comme aux sous-effectifs (« MAR. 29 SEPT. »), les
+trigrammes en étiquettes à droite ; la personne choisie a le bord et le
+trigramme à l'accent. **La date tient sur une ligne, et non en bloc** : le
+bloc de trois lignes des sous-effectifs, essayé d'abord, montait les deux
+cartes à 1 300 px pour vingt dates d'un trigramme — 789 px ainsi à 390 px.
+Rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et en sombre.
+
+**Trois accolades orphelines dans la feuille**, dont deux d'avant ce
+changement : un « } » seul au niveau de la feuille avale la règle qui le
+suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la
+feuille est équilibrée, ce qu'un petit compteur d'accolades vérifie en
+une ligne — à relancer après toute découpe de CSS.
+
 **Les deux cadres disent AUJOURD'HUI, quel que soit le jour affiché.** Le
 client, le 28/09/2026 : « il ne faut pas que les listes absent/congé soient
 adaptées par rapport à la date sélectionnée mais par rapport à la date du
