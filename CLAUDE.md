@@ -4035,6 +4035,17 @@ bloc de trois lignes des sous-effectifs, essayé d'abord, montait les deux
 cartes à 1 300 px pour vingt dates d'un trigramme — 789 px ainsi à 390 px.
 Rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et en sombre.
 
+**Les dates proches en mots, et une coupure par semaine.** Le client, le
+28/09/2026, parmi quatre pistes proposées : « A et C ». Dans les deux
+cartes, « Aujourd'hui », « Demain », puis le jour seul (« Mercredi »)
+jusqu'à six jours ; au-delà, la date comme avant, et l'infobulle de la
+rangée garde toujours la date complète. Des intertitres « Cette semaine »,
+« Semaine prochaine », « Plus tard » coupent la liste, la semaine allant du
+lundi au dimanche autour du jour de l'usine. Les deux pistes écartées :
+replier la suite (B) et mettre sa propre équipe en tête (D). 923 px à
+390 px ; rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et
+en sombre ; vérificateur identique à l'octet.
+
 **Trois accolades orphelines dans la feuille**, dont deux d'avant ce
 changement : un « } » seul au niveau de la feuille avale la règle qui le
 suit (ici `.eqfold>summary`, que plus rien n'emploie). Retirées ; la

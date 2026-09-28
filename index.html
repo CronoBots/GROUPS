@@ -1435,7 +1435,14 @@ body.sheet-on{overflow:hidden}
   padding:6px 0; border-top:1px solid var(--trait)}
 .eqrow .mqd{flex-direction:row; align-items:baseline; gap:4px; padding:0; white-space:nowrap}
 .eqrow .mqd b{font-size:14px}
-.eqrow:first-child{border-top:0}
+.eqrow:first-child, .eqsem+.eqrow{border-top:0}
+/* L'intertitre de semaine : petit, en capitales, sur un fond à peine
+   marqué, pour couper la liste sans la charger. */
+.eqsem{margin:0 -16px; padding:5px 16px; font-size:10.5px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
+  background:var(--surface2); border-top:1px solid var(--trait); border-bottom:1px solid var(--trait)}
+.eqsem:first-child{border-top:0}
+.eqrow .eqproche b{font-size:13px; font-weight:650; color:var(--ink)}
 .eqrch{display:flex; flex-wrap:wrap; gap:5px; min-width:0}
 .eqrows .eqn{display:inline-flex; align-items:baseline; margin:0; padding:2px 7px;
   border-radius:6px; background:var(--surface3); border:1px solid var(--trait); white-space:nowrap}
@@ -7311,20 +7318,39 @@ function renderEquipe(){
          étiquettes. Absents : le dernier jour de maladie (« jusqu'au »,
          écrit sous le titre) ; congé et repos : le jour de la reprise.
          Remplace les tuiles du 26/09. */
-      function bloc(y,m,j){
-        if(!y) return '<span class="mqd"><em>sans</em><b>—</b><em>date</em></span>';
-        var d=new Date(Date.UTC(y,m-1,j));
-        return '<span class="mqd"><em>'+esc(JOURS_LONGS[(d.getUTCDay()+6)%7].slice(0,3))+".</em>"
-          +"<b>"+d.getUTCDate()+"</b><em>"+esc(MOIS_BREF[d.getUTCMonth()])+"</em></span>";
+      /* LES DATES PROCHES EN MOTS, ET UNE COUPURE PAR SEMAINE. Le client,
+         le 28/09/2026, parmi quatre pistes : « A et C ». A : « Aujourd'hui »,
+         « Demain », puis le jour seul jusqu'à six jours — la date complète
+         ne reste que pour ce qui est plus loin, et l'infobulle la garde
+         toujours. C : un intertitre « Cette semaine », « Semaine
+         prochaine », « Plus tard », la semaine allant du lundi au
+         dimanche, celle du jour de l'usine. */
+      var t0=Date.UTC(aA,aM-1,aJ), lun0=t0-((new Date(t0).getUTCDay()+6)%7)*86400000;
+      function quand(y,m,j){
+        if(!y) return {sem:2, html:'<span class="mqd"><em>sans date</em></span>', titre:""};
+        var d=new Date(Date.UTC(y,m-1,j)), ts=d.getTime(), ecart=Math.round((ts-t0)/86400000);
+        var jl=JOURS_LONGS[(d.getUTCDay()+6)%7];
+        var complet=jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase();
+        var sem=Math.floor((ts-lun0)/(7*86400000)); sem=sem<0?0:Math.min(sem,2);
+        var html;
+        if(ecart===0) html='<span class="mqd eqproche"><b>Aujourd\u2019hui</b></span>';
+        else if(ecart===1) html='<span class="mqd eqproche"><b>Demain</b></span>';
+        else if(ecart>1 && ecart<7) html='<span class="mqd eqproche"><b>'+esc(jl)+"</b></span>";
+        else html='<span class="mqd"><em>'+esc(jl.slice(0,3))+".</em><b>"+d.getUTCDate()
+          +"</b><em>"+esc(MOIS_BREF[d.getUTCMonth()])+"</em></span>";
+        return {sem:sem, html:html, titre:complet};
       }
+      var SEMAINES=["Cette semaine","Semaine prochaine","Plus tard"], semPrec=-1;
       var h2=grp.map(function(G){
-        var x=G.x0, dd;
-        if(k==="abs") dd=x.fin?bloc(x.fin[0],x.fin[1],x.fin[2]):bloc(aA,aM,aJ);
-        else if(G.c===99999999) dd=bloc(0);
-        else if(!x.fin) dd=bloc(aA,aM,aJ+1);
-        else dd=bloc(x.fin[0],x.fin[1],x.fin[2]+1);
-        return '<div class="eqrow">'+dd+'<span class="eqrch">'
-          +G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
+        var x=G.x0, q;
+        if(k==="abs") q=x.fin?quand(x.fin[0],x.fin[1],x.fin[2]):quand(aA,aM,aJ);
+        else if(G.c===99999999) q=quand(0);
+        else if(!x.fin) q=quand(aA,aM,aJ+1);
+        else q=quand(x.fin[0],x.fin[1],x.fin[2]+1);
+        var tete="";
+        if(q.sem!==semPrec){ tete='<div class="eqsem">'+SEMAINES[q.sem]+"</div>"; semPrec=q.sem; }
+        return tete+'<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
+          +'<span class="eqrch">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
       }).join("");
       /* DEUX CADRES, et non deux lignes d'un tableau. Le client, le
          26/09/2026 : « je veux également séparer les 2 cadres ». Sorties du
