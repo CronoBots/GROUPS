@@ -7083,7 +7083,8 @@ function renderEquipe(){
          tient jusqu'au 29/09. Dans le tableau, le poste montré décide, par
          la règle même de l'effectif (compteAuPoste). Le client, le
          26/09/2026 : pas de légende, « (F) » à côté du trigramme. */
-      var formIci=posteCourant ? (enFormation(x.p,jourCalc) && !compteAuPoste(x,posteCourant,jourCalc))
+      var formIci=x.consign ? false
+                 : posteCourant ? (enFormation(x.p,jourCalc) && !compteAuPoste(x,posteCourant,jourCalc))
                                : enFormation(x.p,jourCalc);
       return '<span class="eqn'+(x.p.id===moi?" moi":"")
         +(formIci?" form":"")+'"'
@@ -7094,7 +7095,7 @@ function renderEquipe(){
            28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
-        +(nu&&g.k==="D"&&!sansHoraire?horaireEcritD(x):"")
+        +(nu&&(g.k==="D"||x.consign)&&!sansHoraire?horaireEcritD(x):"")
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
@@ -7145,6 +7146,26 @@ function renderEquipe(){
                           : (a.p.cat<b.p.cat?-1:1); });
       vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd)};
     });
+    /* BLR ET YRS EN D VONT DANS LA COLONNE AM, À LA MEUNERIE. Le client,
+       le 28/09/2026 : « règle unique : si BLR ou YRS est en D il faut les
+       mettre dans la colonne AM mais avec leurs horaires 7h30-16 en
+       dessous ; ils sont en consignation meunerie ». Affichage seulement :
+       la consignation est une tâche, pas la tenue du poste (le client, le
+       26/09/2026, pour « consign. ») — l'étiquette se range APRÈS ceux qui
+       tiennent la meunerie, et l'effectif « n/m » de la case ne bouge pas.
+       La ligne Formation garde les siens : on n'y déplace personne. */
+    if(vp.D && vp.AM){
+      var meunAM=vp.AM.vue.postes.filter(function(o){ return o.P.k==="meun"; })[0];
+      if(meunAM) vp.D.vue.postes.forEach(function(o){
+        o.gens=o.gens.filter(function(x){
+          if(CONSIGNATEURS.indexOf(x.p.id)<0) return true;
+          x.consign=true; meunAM.gens.push(x); vp.D.n--; vp.AM.n++; return false;
+        });
+      });
+      var resteD=vp.D.vue.postes.some(function(o){ return o.gens.length; })
+        || vp.D.vue.formation.length || vp.D.vue.inconnus.length;
+      if(!resteD) delete vp.D;
+    }
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes

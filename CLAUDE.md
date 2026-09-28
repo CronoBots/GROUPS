@@ -4588,6 +4588,19 @@ SKS, FPS, MGY, GPO, JBS, FLN, CDE, GKT, PAM, LHR, LCI, SPT, TCE, ALZ, RCO,
 JKS, JBA, SVE, AAI) — ni en cellule, ni en commentaire, vérifié. Leur
 horaire est demandé au client ; rien n'est deviné.
 
+**BLR et YRS en D vont dans la colonne AM, à la meunerie.** Le client, le
+28/09/2026 : « règle unique : si BLR ou YRS est en D il faut les mettre
+dans la colonne AM mais avec leurs horaires 7h30-16 en dessous ; ils sont
+en consignation meunerie ». Le tableau du jour déplace leur étiquette de
+la colonne D vers la case AM · Meunerie, APRÈS ceux qui tiennent le
+poste, avec « (7h30-16) » (ou la plage écrite ce jour-là). **Affichage
+seulement** : la consignation est une tâche, pas la tenue du poste (le
+client, le 26/09, pour « consign. ») — l'effectif de la case et les
+sous-effectifs ne bougent pas, et l'étiquette n'est jamais jaune. La
+colonne D disparaît si elle ne portait qu'eux. Vérifié les 28/09 (YRS),
+05/10 (BLR), 16/10 et 08/10 — ce jour-là YRS est déjà en AM, il remplace
+BLR ; vérificateur identique à l'octet.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
