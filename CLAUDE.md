@@ -4662,12 +4662,15 @@ encore à la ligne. Neuf règles identiques à l'octet.
 mieux ». « Cons. » est remplacé partout par « 8-16 », qui tient sur une
 ligne jusqu'à 320 px, comme « 7-15 ».
 
-**Et en jaune.** Le client, le même jour : « le badge doit être jaune… de
-ceux en formation ». L'étiquette de BLR et YRS en consignation à la
-meunerie du matin prend l'encre jaune de la formation. C'est une couleur
-seulement : ils comptent toujours dans l'effectif de la meunerie, et
-la règle du 28/09 qui disait « l'étiquette n'est jamais jaune » ne vaut
-plus.
+**Le badge de formation bordé de jaune.** Le client, le même jour :
+« le badge doit être jaune comme le badge perso ». **Je l'ai d'abord
+compris de travers** : j'ai mis BLR et YRS en jaune (v310). Le client :
+« non, eux deux ne devaient pas changer ; je voulais que les badges des
+personnes en formation soient jaunes comme le badge perso ». Le badge de
+la personne choisie a le bord ET le trigramme à l'accent ; celui d'un
+opérateur en formation n'avait que le trigramme en jaune. Il prend
+désormais aussi le bord jaune. BLR et YRS retrouvent leur badge
+ordinaire.
 
 ### La meunerie du matin : deux en semaine, consignation comprise
 
