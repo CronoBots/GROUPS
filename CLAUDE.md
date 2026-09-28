@@ -4625,6 +4625,30 @@ habituel pour ce qui reste (QBY en DS-CE le 21/10 : son 10-18 de CE).
 D'ici la fin de l'année : 277 × (7-15), 21 × (H. flot.), 9 plages écrites,
 10 journées à code sans horaire.
 
+**Le tableau du jour resserré.** Le client, le 28/09/2026, capture à
+l'appui : « comment optimiserais-tu ceci ? », puis « go » sur quatre
+pistes :
+
+- des étiquettes moins hautes : 1 px de marge au lieu de 2, 2 px entre
+  deux trigrammes empilés, 3 px de marge de case ;
+- l'horaire de la colonne D sans parenthèses, à côté du trigramme
+  (« GPS 7-15 »). Il passait à la ligne dans toutes les étiquettes ;
+  seul « 7h30-16 » de la consignation y passe encore ;
+- la colonne des postes à 64 px au lieu de 76 sur téléphone, et 2 px de
+  marge de case sous 380 px : « GPS 7-15 » tient ainsi dans une pause de
+  56 px à 320 px ;
+- un seul tiret, le court « – », dans toutes les cases vides : les lignes
+  FORM. et « À dét. » écrivaient un tiret cadratin « — ». La distinction
+  entre les deux tirets (« personne » ou « personne n'est attendu »)
+  n'avait plus de légende pour la dire.
+
+Le liseré gauche du coin « POSTE » reste : le client l'a redemandé le
+27/09. La hauteur minimale d'une ligne (deux trigrammes) et les
+trigrammes l'un sous l'autre restent aussi. Mesuré le 25/09 : 566 → 518 px
+à 390 px, 576 → 517 px à 320 px. Rien ne sort d'une case à 320 (hors
+ligne), 390 et 1280 px, en clair et en sombre. Neuf règles et
+`--manques 0928` identiques à l'octet.
+
 ### La meunerie du matin : deux en semaine, consignation comprise
 
 Le client, le 28/09/2026 : « le poste consignation en meunerie est un
