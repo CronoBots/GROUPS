@@ -1277,8 +1277,6 @@ body.sheet-on{overflow:hidden}
    et se coupe au tiret s'il ne tient pas sur une ligne (« (8h30-16h30) »
    dans une colonne D de 320 px). */
 #eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px}
-#eqCorps .eqp2 td .eqn .eqf{margin-left:3px; font-size:9.5px; font-weight:600;
-  color:var(--at-jaune)}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
    client, le 26/09/2026). */
 #eqCorps .eqp2 td.vide{background:transparent}
@@ -1384,11 +1382,10 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn.moi{border-color:var(--in)}
 #eqCorps .eqp2 tbody td .eqn.moi b{color:var(--in); font-weight:700}
 #eqCorps .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
-#eqCorps .eqp2 tbody td .eqn .eqhd, #eqCorps .eqp2 tbody td .eqn .eqf{margin-left:0}
+#eqCorps .eqp2 tbody td .eqn .eqhd{margin-left:0}
 @media (max-width:380px){
   #eqCorps .eqp2 tbody td .eqn{padding:2px 3px; column-gap:2px}
   #eqCorps .eqp2 tbody td .eqn b{font-size:11px; letter-spacing:0}
-  #eqCorps .eqp2 tbody td .eqn .eqf{font-size:8.5px}
 }
 .eqleg{display:flex; flex-wrap:wrap; gap:6px 16px; margin:0;
   padding:9px 16px 12px; border-top:1px solid var(--line2);
@@ -1477,14 +1474,6 @@ body.sheet-on{overflow:hidden}
 .eqrows .eqn.moi{border-color:var(--in)}
 .eqrows .eqn.moi b{color:var(--in)}
 @media (max-width:380px){ .eqrow{grid-template-columns:72px 1fr; column-gap:6px} }
-.eqfold>summary{display:flex; align-items:center; gap:8px; margin:0 0 10px; cursor:pointer;
-  font-size:12.5px; font-weight:650; color:var(--ink); list-style:none}
-.eqfold>summary::-webkit-details-marker{display:none}
-.eqfold>summary small{margin-left:auto; font-size:11px; font-weight:400; color:var(--faint)}
-.eqfold>summary::after{content:""; width:7px; height:7px; border-right:1.6px solid var(--faint);
-  border-bottom:1.6px solid var(--faint); transform:rotate(45deg) translate(-2px,-2px)}
-.eqfold[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
-.eqfold:not([open]) .eql{display:none}
 
 /* ---------- réglages : des groupes, pas une file ---------- */
 .grp{padding:14px 16px 4px; border-top:1px solid var(--line2)}
@@ -7000,9 +6989,7 @@ function renderEquipe(){
         if(b<=a) b+=24;
         return [a,b];
       }
-      /* Consignation : YRS et BLR, en D, font 7h30-16h et consignent. */
-      if(CONSIGNATEURS.indexOf(x.p.id)>=0) lib="C";
-      if(!lib && [raw[0],raw[1]].some(function(v){ return /flott/i.test(String(v||"")); }))
+      if([raw[0],raw[1]].some(function(v){ return /flott/i.test(String(v||"")); }))
         lib="H. flot.";
       if(!lib) [raw[1],raw[0]].some(function(v){
         var pl=lirePlage(v); if(!pl) return false;
@@ -7019,6 +7006,12 @@ function renderEquipe(){
         if(m){ var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60;
           lib=hh(a)+"-"+hh(b); }
       }
+      /* Consignation : YRS et BLR, en D sans heure écrite, font 7h30-16h
+         (le client, le 26/09/2026). L'horaire s'écrit désormais à la place
+         du « (C) » : le client, le 28/09/2026, « supprimer le (C) », et
+         « il faut indiquer l'horaire de tous ceux qui apparaissent dans la
+         colonne D ». Une plage écrite dans le classeur passe avant. */
+      if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="7h30-16";
       return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
     function chip(x,g,posteCourant,nu,sansHoraire){
@@ -7064,7 +7057,8 @@ function renderEquipe(){
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
-        +(nu&&formIci&&posteCourant?'<small class="eqf">(F)</small>':"")
+        /* Plus de « (F) » : l'étiquette jaune le dit déjà (le client, le
+           28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
         +(nu&&g.k==="D"&&!sansHoraire?horaireEcritD(x):"")

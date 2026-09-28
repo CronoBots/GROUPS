@@ -1519,9 +1519,9 @@ n'est deviné à leur sujet :
   « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
   montre tous les deux contremaîtres en PM. A : FLI était absent ce
   jour-là. B : FLI était ailleurs à l'usine. C : au cas par cas. 16 journées ;
-- **le D seul sans heure écrite** (26/09/2026) : quel horaire écrire entre
-  parenthèses dans la colonne D ? 103 journées d'ici la fin de l'année,
-  chez 19 personnes. A : (7h30-16), l'horaire de jour de la grille.
+- **le D seul sans heure écrite** (26/09/2026, reposée le 28/09 : le
+  client veut un horaire pour TOUS ceux de la colonne D) : quel horaire
+  écrire entre parenthèses ? 138 présences d'ici la fin de l'année. A : (7h30-16), l'horaire de jour de la grille.
   B : un horaire propre à chaque fonction (contremaître, opérateur,
   formation). C : (D), sans heures ;
 - **les deux heures du projet falling film** (28/09/2026). Le client : « le
@@ -4561,6 +4561,20 @@ l'étiquette se resserre (3 px de marge, 11 px) pour que « SKS (F) » tienne
 dans une colonne de 50 px. Vérifié en clair et en sombre, à 320 (hors
 ligne), 390 et 1280 px : aucune étiquette ne sort de sa case ;
 vérificateur identique à l'octet.
+
+**Plus de « (F) » ni de « (C) », un horaire pour la consignation.** Le
+client, le 28/09/2026 : « supprimer le F vu que le badge jaune dit déjà que
+c'est en formation, pareil pour le (C) ; mais il faut indiquer l'horaire
+de tous ceux qui apparaissent dans la colonne D ». Le « (F) » part ; le
+« (C) » de YRS et BLR devient « (7h30-16) », l'horaire que le client a
+donné pour leur D de consignation le 26/09 — une plage écrite dans le
+classeur passe avant. **Restent 138 présences en D sans aucune heure
+écrite** d'ici la fin de l'année (NPI 15, YBT 15, SKS 13…) : le classeur ne
+définit nulle part l'horaire d'un « D » seul (cherché dans la légende et
+dans tout le brut), c'est donc la question du « D seul », toujours posée.
+Les règles mortes `.eqf` et `.eqfold` sont retirées. Vérificateur
+identique à l'octet ; rien ne sort d'une case à 320 (hors ligne), 390 et
+1280 px.
 
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
