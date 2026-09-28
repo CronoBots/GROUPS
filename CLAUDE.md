@@ -4458,6 +4458,29 @@ même jour suggérait. Les quatre sorties du vérificateur sont identiques à
 l'octet (il ne découpe pas ce module) ; rien ne déborde à 320 (hors
 ligne), 390 et 1280 px.
 
+**Puis refait en fiches.** Le client, le 28/09/2026, capture à l'appui :
+« il y a certainement moyen d'optimiser bien mieux ce tableau-là et de
+faire ça 100 % professionnel ». Pastilles, équipe et flèche se suivaient à
+la file et passaient à la ligne n'importe où (le 16/10 sur une ligne, le
+12/11 sur deux). Chaque journée est désormais une rangée : à gauche un bloc
+de date (« VEN. / 2 / OCT. »), à droite une fiche par manque, liseré à la
+couleur de l'atelier ; ligne 1, la pause en pastille à sa couleur, le
+poste, l'effectif en rouge, l'équipe calée à droite ; ligne 2,
+« Remplaçants possibles » suivi d'étiquettes trigramme + provenance, ou
+« Aucun remplaçant disponible ». Les journées sont séparées d'un filet
+(`--trait`). Sous 380 px, « Équipe 2 » devient « Éq. 2 » et l'étiquette
+« Possibles » : à 320 px « Terrain arrière » se coupait. Au bureau, la
+fiche s'arrête à 560 px pour que l'équipe reste près du poste. Vérifié en
+clair et en sombre à 320 (hors ligne), 390 et 1280 px : rien ne déborde,
+rien n'est tronqué ; vérificateur identique à l'octet.
+
+**Et le cadre « Mon prochain poste » vide** de la même capture : non
+reproduit — même un horaire servi avec quatre secondes de retard finit par
+le remplir. Par sûreté, il se redessine désormais dès que l'horaire arrive
+(`fetchHoraireDB()`), puisqu'il se cache tant qu'il n'a personne à lire.
+Si le cadre reste vide chez le client après la v291, c'est une autre
+cause, à chercher sur son appareil.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
