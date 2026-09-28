@@ -6936,6 +6936,36 @@ function postesDePause(db,liste,gk,mmdd){
   });
   return {postes:sortie, formation:formation, inconnus:inconnus};
 }
+/* L'HORAIRE HABITUEL D'UNE PERSONNE EN D, lu sur ses propres journées. Le
+   client, le 28/09/2026, à la question de l'horaire d'un « D » seul :
+   « horaire selon celui qu'ils font en D ». Le classeur ne le dit pas le
+   jour même, mais la personne l'écrit souvent ailleurs : FLI met « 7h-15h »
+   à côté de neuf de ses « D », AFA et GPS écrivent 7h-15h en cellule
+   franche. On retient la plage de JOURNÉE (pas une plage de pause) qu'elle
+   écrit sur un jour de D — annotation d'un « D », ou cellule franche seule
+   — si elle revient au moins deux fois et fait au moins 60 % de ce qu'elle
+   écrit ; sinon rien, plutôt que deviner. Une fois par personne. */
+var _habDCache={};
+function horaireHabituelD(p){
+  if(p.id in _habDCache) return _habDCache[p.id];
+  var n={}, tot=0, k, e, e0, e1, pl, cle, best=null, bn=0;
+  for(k in p.d){
+    e=p.d[k]; if(!e||!e.length) continue;
+    e0=String(e[0]||"").trim(); e1=String(e[1]||"").trim(); pl=null;
+    if(e0==="D") pl=plageMention(e1);
+    else if(!e1) pl=plageMention(e0);
+    if(!pl || posteDepuisPlage(pl)!=="D") continue;
+    cle=pl[0]+"-"+pl[1]; n[cle]=(n[cle]||0)+1; tot++;
+  }
+  for(cle in n) if(n[cle]>bn){ bn=n[cle]; best=cle; }
+  var out=null;
+  if(best && bn>=2 && bn/tot>=0.6){
+    var ab=best.split("-").map(Number);
+    var hh=function(x){ x=((x%24)+24)%24; var h=Math.floor(x+1e-6), m=Math.round((x-h)*60); return m?h+"h"+pad2(m):String(h); };
+    out=hh(ab[0])+"-"+hh(ab[1]);
+  }
+  return (_habDCache[p.id]=out);
+}
 function renderEquipe(){
   var hote=document.getElementById("eqCorps"); if(!hote) return;
   fetchHoraireDB().then(function(db){
@@ -7012,6 +7042,9 @@ function renderEquipe(){
          « il faut indiquer l'horaire de tous ceux qui apparaissent dans la
          colonne D ». Une plage écrite dans le classeur passe avant. */
       if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="7h30-16";
+      /* Sinon l'horaire qu'elle fait d'habitude en D, lu sur ses autres
+         journées (horaireHabituelD). */
+      if(!lib) lib=horaireHabituelD(x.p)||"";
       return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
     function chip(x,g,posteCourant,nu,sansHoraire){
