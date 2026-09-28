@@ -4612,6 +4612,15 @@ les formations F ne sont pas « seulement D ». D'ici la fin de l'année,
 LCI, JKS en CPPT ou CE, SVE et AAI en formation). La liste des 21
 personnes demandée plus haut n'a plus d'objet.
 
+**Et avant l'horaire habituel.** Le client, le même jour : « ceux qui sont
+en D sans rien d'autre sont en 7-15 ». L'horaire habituel passait avant,
+et une journée « seulement D » pouvait afficher autre chose que 7-15.
+L'ordre est désormais : plage écrite ce jour-là, H. flot., commentaire à
+tiret, consignation (7h30-16), **« seulement D » → 7-15**, et l'horaire
+habituel pour ce qui reste (QBY en DS-CE le 21/10 : son 10-18 de CE).
+D'ici la fin de l'année : 277 × (7-15), 21 × (H. flot.), 9 plages écrites,
+10 journées à code sans horaire.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors

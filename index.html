@@ -7042,18 +7042,21 @@ function renderEquipe(){
          « il faut indiquer l'horaire de tous ceux qui apparaissent dans la
          colonne D ». Une plage écrite dans le classeur passe avant. */
       if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="7h30-16";
-      /* Sinon l'horaire qu'elle fait d'habitude en D, lu sur ses autres
-         journées (horaireHabituelD). */
-      if(!lib) lib=horaireHabituelD(x.p)||"";
-      /* Et « D » tout seul, sans rien d'écrit nulle part : 7-15. Le client,
-         le 28/09/2026 : « les gens où il est seulement marqué D doivent
-         avoir 7-15 sous eux ». */
-      /* « D » seul, c'est aussi « PM · D » et « - · D » (le poste prévu
-         remplacé par D dans l'annotation), et « D · meunerie » (un atelier,
-         pas une heure). Pas une journée à code — D-CPPT, DS-CE, F : elle
-         n'est pas « seulement D ». */
+      /* « D » sans rien d'autre : 7-15, AVANT l'horaire habituel. Le
+         client, le 28/09/2026 : « les gens où il est seulement marqué D
+         doivent avoir 7-15 sous eux », puis, l'horaire habituel ayant
+         écrit (10-18) sous QBY : « ceux qui sont en D sans rien d'autre sont
+         en 7-15 ». « Seulement D », c'est aussi « PM · D » et « - · D » (le
+         poste prévu remplacé par D dans l'annotation), et « D · meunerie »
+         (un atelier, pas une heure). Pas une journée à code — D-CPPT,
+         DS-CE, F — qui n'est pas « seulement D » ; une prime conservée n'y
+         change rien. */
       var r0=String(raw[0]||"").trim(), r1=String(raw[1]||"").trim();
       if(!lib && !(x.r&&x.r.jourCode) && (/^d$/i.test(r1) || /^d$/i.test(r0))) lib="7-15";
+      /* Sinon l'horaire qu'elle fait d'habitude en D, lu sur ses autres
+         journées (horaireHabituelD) : il ne sert plus qu'aux journées qui ne
+         sont pas « seulement D ». */
+      if(!lib) lib=horaireHabituelD(x.p)||"";
       return lib?'<small class="eqhd">('+esc(lib)+")</small>":"";
     }
     function chip(x,g,posteCourant,nu,sansHoraire){
