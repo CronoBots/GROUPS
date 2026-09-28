@@ -4576,6 +4576,18 @@ Les règles mortes `.eqf` et `.eqfold` sont retirées. Vérificateur
 identique à l'octet ; rien ne sort d'une case à 320 (hors ligne), 390 et
 1280 px.
 
+**« Horaire selon celui qu'ils font en D ».** La réponse du client, le
+même jour. `horaireHabituelD()` lit, sur les journées de la personne elle-
+même, la plage de JOURNÉE qu'elle écrit en D (annotation d'un « D », ou
+cellule franche seule) : retenue si elle revient au moins deux fois et
+fait au moins 60 % de ce qu'elle écrit. Elle vaut aussi les jours à code
+(CPPT, DS-CE) : « tous ceux qui apparaissent dans la colonne D ». D'ici la
+fin de l'année, les présences en D sans horaire passent de 138 à **112**,
+chez **21 personnes qui n'écrivent jamais leurs heures en D** (NPI, YBT,
+SKS, FPS, MGY, GPO, JBS, FLN, CDE, GKT, PAM, LHR, LCI, SPT, TCE, ALZ, RCO,
+JKS, JBA, SVE, AAI) — ni en cellule, ni en commentaire, vérifié. Leur
+horaire est demandé au client ; rien n'est deviné.
+
 ### Un atelier écrit peut être le mauvais : `POSTE_DU_JOUR`
 
 Le client, le 26/09/2026 : « pourquoi VGG est en distillation demain alors
