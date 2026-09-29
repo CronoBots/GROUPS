@@ -8779,7 +8779,8 @@ var CA_AIDE={
        +"les gens en D, puis les rappels parmi ceux qui sont en repos — jamais plus de "
        +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
        +"Doublage de 12 h : l'après-midi, le matin reste jusqu'à 18 h et la nuit arrive à 18 h ; "
-       +"la nuit, l'après-midi reste jusqu'à 2 h et le matin du lendemain arrive à 2 h.",
+       +"la nuit, l'après-midi reste jusqu'à 2 h et le matin du lendemain arrive à 2 h ; "
+       +"le matin, l'après-midi arrive à 10 h et, plus rarement, la nuit de la veille reste jusqu'à 10 h.",
   recherche:"Qui tient déjà le poste, puis qui pourrait y venir : la même pause (chacun gardant "
        +"le minimum de son poste), les gens en D, le doublage de 12 h (après-midi et nuit), puis les rappels."
 };
@@ -8884,7 +8885,14 @@ function caChaines(vue,P,jour,max){
            arrive fait 4 h sur la journée du jour : il n'y est pas prévu,
            ou seulement au matin (8 + 4 = 12 h, et 12 h de repos après
            14 h) ; un après-midi finit à 22 h, 4 h avant, écarté ;
-         · le matin : non décrit par le client, non codé ;
+         · le matin : l'après-midi arrive à 10 h (10 h-22 h), la nuit de la
+           VEILLE reste jusqu'à 10 h (22 h-10 h). Le client, le 29/09/2026 :
+           « ceux de l'après-midi peuvent arriver à 10 h, mais c'est rare de
+           demander à quelqu'un de rester 4 h après sa nuit » — l'arrivée
+           se montre donc en premier. Celui qui arrive à 10 h ne doit pas
+           sortir d'une nuit (4 h de repos) ; celui qui reste ne peut
+           être, ce jour-là, qu'en repos ou de nuit (12 h de repos après
+           10 h) ;
      — les RAPPELS, parmi ceux qui sont en repos (ni congé, ni maladie, ni
        poste prévu non presté) et gardent 8 h de repos de part et d'autre.
    « large » à faux ne garde que la même pause : c'est la règle du congé. */
@@ -8910,6 +8918,21 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
     t.dh="18 h"; t.dr="AM"; t.da="N";
     (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
     (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
+  }
+  if(g==="AM"){
+    t.dh="10 h"; t.dr="N veille"; t.da="PM"; t.arriveDabord=true;
+    (par.PM||[]).forEach(function(x){
+      if(!caPlein(x) || !ok(x)) return;
+      if(veille[x.p.id]==="N"){ t.ecartes++; return; }
+      t.arrive.push({p:x.p});
+    });
+    var hier=veille._par;
+    if(hier) (hier.N||[]).forEach(function(x){
+      if(!caPlein(x) || !ok(x)) return;
+      var auj=pausesDe(0)[x.p.id];
+      if(auj && auj!=="N"){ t.ecartes++; return; }
+      t.reste.push({p:x.p});
+    });
   }
   if(g==="N"){
     t.dh="2 h"; t.dr="PM"; t.da="AM demain";
@@ -9015,12 +9038,14 @@ function caGroupes(t,large){
     +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
   /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
   var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à "+t.dh:"personne pour rester jusqu'à "+t.dh)+"</span>";
-  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">'+t.dr+" reste \u2192 "+t.dh+'</span>'
+  var gR=[], gA=[];
+  if(t.reste.length) gR.push('<span class="mqr"><span class="cagr">'+t.dr+" reste \u2192 "+t.dh+'</span>'
     +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
     +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+(t.arrive.length?"":manque)+"</span>");
-  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">'+t.da+" arrive "+t.dh+'</span>'
+  if(t.arrive.length) gA.push('<span class="mqr"><span class="cagr">'+t.da+" arrive "+t.dh+'</span>'
     +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
     +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+(t.reste.length?"":manque)+"</span>");
+  g.push.apply(g, t.arriveDabord ? gA.concat(gR) : gR.concat(gA));
   /* LES RAPPELS REGROUPÉS par ce qui précède : les reposés d'abord, puis
      par pause de la veille. Le trigramme seul dans l'étiquette — le
      client, le 29/09/2026, « optimise tout ». Huit au plus en tout. */
