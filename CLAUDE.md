@@ -3866,6 +3866,25 @@ l'année 269 → 268 places ; neuf règles, Recyclage et compteurs identiques
 - 12/11 N terrain arrière (équipe 1) : GDT en VA remplacé par BBZ, qui
   n'a que la distillation.
 
+### Le classeur du 29/09/2026 à 13 h 09
+
+Sept portes ouvertes, installé : **17 journées chez 11 personnes**, aucun
+compteur. **Le classeur comble trois des cinq sous-effectifs restants** :
+le 05/10 AM, ATR `["AM","fermentation"]` ; le 16/10 N, LHR « Remplace
+CDE » en meunerie (le commentaire « en fermentation » de LCI est retiré,
+comme le client l'avait annoncé, et SMA passe en fermentation pour CHD,
+AAI au terrain arrière) ; le 12/11 N, ATR au terrain arrière pour DWS.
+GPS le 24/11 perd son « D-CPPT » (« remplacé au CPPT par TFI » reste) ;
+MMS remplace SPT jusqu'à 14 h 30 le 13/10 (VM de reprise). Restent les
+chaudières de nuit des 21 et 22/10 : **2 journées** d'ici la fin de
+l'année.
+
+**« Poly.Ethol »** (ATR le 12/11) : troisième écriture du terrain arrière,
+après « poly. Etoh » et « poly.Etha » ; la règle « mention avalée » l'a
+signalée, le motif l'accepte. Neuf règles à zéro, Recyclage et compteurs
+identiques à l'octet, intégralité à zéro ; vérifié au navigateur à 320
+(hors ligne), 390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
