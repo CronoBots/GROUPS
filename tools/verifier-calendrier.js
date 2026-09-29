@@ -687,6 +687,9 @@ for(const p of db.people){
       [0,1].forEach(c=>{
         const txt=String(raw[c]||"").trim();
         if(!txt || !ATELIERS.test(txt) || posteDepuisNom(txt)) return;
+        /* une mention neutre est lue AVANT les ateliers (parseHoraireEntry) :
+           elle est comprise pour ce qu'elle est, une note */
+        if(MENTIONS_NEUTRES.indexOf(normPlage(txt))>=0) return;
         if(!avalees[txt]) avalees[txt]={n:0, ex:[]};
         avalees[txt].n++;
         if(avalees[txt].ex.length<3) avalees[txt].ex.push(ou+"  "+src);
