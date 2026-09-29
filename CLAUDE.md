@@ -2524,6 +2524,20 @@ se regroupent en « Rappel · reposés » et « Rappel · veille N »
 arrive 2 h » (« AM reste → 18 h » / « N arrive 18 h ») : l'étiquette ne
 porte plus que le trigramme. Rien ne déborde à 320 et 390 px.
 
+**Un cadre pointillé par type de solution.** Le client, le 29/09/2026,
+capture à l'appui : « il faut regrouper tous les types de solutions dans
+le même genre de cadre pointillé et toujours mettre les premiers résultats
+sous le type, mais ça peut être à droite des créneaux horaires pour les
+12 h ; il faut dire Rappel - Repos ». `caCadre()` pose l'intitulé en haut
+et les trigrammes dessous : « Au poste », « Changements », « Même
+pause », « En D », « Change de pause », « Rappel - Repos », « Rappel -
+Veille N ». Le doublage
+garde ses horaires à gauche des noms. Les sous-effectifs perdent leur
+ligne « → » d'avant : leurs présents sont désormais la « Même pause » et
+le « En D » de `caCandidats()`, repos de 8 h compris — mesuré, aucune
+des deux journées restantes (21 et 22/10) n'avait de piste dans cette
+ligne.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des

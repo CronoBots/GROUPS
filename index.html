@@ -1270,6 +1270,9 @@ body.sheet-on{overflow:hidden}
 .capaire{display:flex; flex-direction:column; gap:5px; padding:5px 7px;
   border:1px dashed var(--trait-fort); border-radius:8px}
 .capaire .cagr{font-size:9.5px}
+.capaire .cahr{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:700; color:var(--muted);
+  min-width:40px}
+.capaire .cachaine{border-style:solid; border-color:var(--trait)}
 .cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
@@ -8671,11 +8674,10 @@ function renderManques(force){
         });
         var tc=caCandidats(x.par,o.vue,o.pause,o.P,an*10000+Number(x.mmdd),function(dec){
           return pausesLe(new Date(an,x.mois-1,x.jour+dec)); },null,true,x.autres||(x.autres=caAutres(db,x.par,x.mmdd,null)));
-        var plus=[];
-        if(!pis.length && tc.chaines.length) plus.push('<span class="mqr"><span class="cagr">Même pause</span>'
-          +tc.chaines.map(caChaineHtml).join("")+"</span>");
-        tc.chaines=[]; tc.enD=[];
-        plus=plus.concat(caGroupes(tc,true));
+        /* Mêmes cadres que les modules : la ligne des présents d'avant
+           (même pause, à déterminer, en D) est la « Même pause » et le
+           « En D » de caCandidats(), repos compris. */
+        var plus=caGroupes(tc,true); pis=[];
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
           +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
@@ -9061,42 +9063,47 @@ function caChaineHtml(gr){
     +gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("<i>ou</i>")
     +"<i>\u2192 "+esc(cible)+"</i></span>";
 }
+/* UN CADRE PAR TYPE DE SOLUTION. Le client, le 29/09/2026, capture à
+   l'appui : « il faut regrouper tous les types de solutions dans le même
+   genre de cadre pointillé et toujours mettre les premiers résultats sous
+   le type, mais ça peut être à droite des créneaux horaires pour les
+   12 h ; il faut dire Rappel - Repos ». L'intitulé en haut du cadre, les
+   trigrammes dessous ; seul le doublage garde ses horaires à gauche. */
+function caCadre(titre,dedans){
+  return '<span class="capaire"><span class="cagr">'+titre+'</span><span class="mqr">'+dedans+"</span></span>";
+}
 function caGroupes(t,large){
   var g=[];
-  if(t.chaines.length) g.push('<span class="mqr"><span class="cagr">Même pause</span>'
-    +t.chaines.map(caChaineHtml).join("")+"</span>");
+  if(t.chaines.length) g.push(caCadre("Même pause",t.chaines.map(caChaineHtml).join("")));
   if(!large) return g;
-  if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
-    +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
-  if(t.change.length) g.push('<span class="mqr"><span class="cagr">Change de pause</span>'
-    +t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
-    +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")+"</span>");
+  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,""); }).join("")));
+  if(t.change.length) g.push(caCadre("Change de pause",
+    t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
+    +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")));
   /* LE DOUBLAGE VA TOUJOURS PAR PAIRE. Le client, le 29/09/2026 : « si on
      fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
      chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
-     moitié seule n'est donc pas une solution : elle ne se montre pas. Les
-     deux rangées vivent dans un même cadre, qui se lit comme une paire. */
+     moitié seule n'est donc pas une solution : elle ne se montre pas. */
   if(caDouble(t)){
-    var rR='<span class="mqr"><span class="cagr">'+t.hr+'</span>'
-      +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
-      +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+"</span>";
-    var rA='<span class="mqr"><span class="cagr">'+t.ha+'</span>'
-      +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
-      +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+"</span>";
+    function rang(h,l){
+      return '<span class="mqr"><span class="cahr">'+h+'</span>'
+        +l.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
+        +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
+    }
+    var rR=rang(t.hr,t.reste), rA=rang(t.ha,t.arrive);
     g.push('<span class="capaire"><span class="cagr">Doublage 12 h · un de chaque</span>'
       +(t.arriveDabord?rA+rR:rR+rA)+"</span>");
   }
-  /* LES RAPPELS REGROUPÉS par ce qui précède : les reposés d'abord, puis
-     par pause de la veille. Le trigramme seul dans l'étiquette — le
-     client, le 29/09/2026, « optimise tout ». Huit au plus en tout. */
+  /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
+     de la veille. Huit au plus en tout. */
   if(t.rappels.length){
     var parV={}, ordre=[], reste=8;
     t.rappels.forEach(function(o){ var k=o.veille||""; if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
     ordre.forEach(function(k){
       if(reste<=0) return;
       var l=parV[k].slice(0,reste); reste-=l.length;
-      g.push('<span class="mqr"><span class="cagr">Rappel · '+(k?"veille "+esc(k):"reposés")+"</span>"
-        +l.map(function(o){ return caChip(o.p.id,""); }).join("")+"</span>");
+      g.push(caCadre("Rappel - "+(k?"Veille "+esc(k):"Repos"),
+        l.map(function(o){ return caChip(o.p.id,""); }).join("")));
     });
     if(t.rappels.length>8) g.push('<span class="mqinc">+'+(t.rappels.length-8)+" autres rappels possibles</span>");
   }
@@ -9178,8 +9185,7 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
     +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
-    +(au.length?'<span class="mqr"><span class="cagr">Au poste</span>'
-      +au.map(function(x){ return caChip(x.p.id,""); }).join("")+"</span>":"")
+    +(au.length?caCadre("Au poste",au.map(function(x){ return caChip(x.p.id,""); }).join("")):"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
     +"</span>";
   return {v:dispo?"ok":"non", html:h};
@@ -9230,9 +9236,8 @@ function caCalculer(){
       +(r.hors?"":esc(r.pause+(r.poste?" · "+caPoste(r.poste):"")+(r.eq?" · Éq. "+r.eq:"")))
       +"</span>");
     if(!r.hors){
-      if(r.moves.length) h.push('<span class="mql"><span class="mqr"><span class="cagr">Changements</span>'
-        +r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join("")
-        +"</span></span>");
+      if(r.moves.length) h.push('<span class="mql">'+caCadre("Changements",
+        r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join(""))+"</span>");
       r.trous.forEach(function(t){
         var g=caGroupes(t,caMode!=="conge");
         if(!g.length) g.push('<span class="mqr"><span class="mqaucun">'
