@@ -2298,6 +2298,47 @@ cassé. Au-delà de 760 px la barre remonte dans l'en-tête, inchangée.
 dépendance à `dvh` a disparu, pas que le téléphone est guéri. Seul l'appareil
 du client peut le dire.
 
+## Sur téléphone, une vitrine
+
+Le client, le 29/09/2026 : « je veux que même sur mobile cela soit une
+expérience unique, une vitrine de mon savoir-faire ». Avant d'ajouter quoi
+que ce soit, les six onglets ont été photographiés à 390 px dans les deux
+thèmes. **Quatre défauts sont apparus, et ils passaient avant la finition** :
+
+- **les textes d'introduction portaient la classe `top`**, celle de la
+  barre du haut. Ils étaient donc COLLANTS (`position:sticky`, z-index 40)
+  et peints en bleu nuit : en thème clair, « Choisissez votre fonction… »
+  s'écrivait en gris sur du bleu nuit, presque illisible. Personne ne
+  l'avait vu parce qu'en sombre la page est déjà bleu nuit. La classe
+  s'appelle désormais `haut`. **Un nom de classe générique en rejoint un
+  autre sans le dire** ;
+- **les onglets passaient à la ligne à 390 px** : `nowrap` ne valait que
+  sous 375 px, et l'onglet choisi, en gras, poussait « Mon horaire » sur
+  deux lignes. La barre fait maintenant la même hauteur (62 px) quel que
+  soit l'onglet ;
+- **les tuiles de « Mon horaire »** prenaient la largeur de leur libellé :
+  deux rangées qui ne tombaient jamais d'aplomb, la première collée au
+  filet de l'en-tête. C'est désormais une grille de colonnes égales ;
+- **les intitulés des Réglages** passaient à la ligne (« Primes de /
+  rappel ») pour faire place à leur sous-titre. Celui-ci passe dessous.
+
+Ce qui est ajouté, et qui s'éteint sous `prefers-reduced-motion` :
+
+- **l'entrée d'un onglet** : la vue monte de 6 px en s'éclairant, en
+  0,22 s ;
+- **le geste qui répond** : onglets et boutons s'enfoncent sous le doigt,
+  et l'icône de l'onglet choisi se soulève d'un cran ;
+- **feuilleter les journées du doigt** : un glissement horizontal sur le
+  tableau des équipes du jour change de jour, comme les flèches, et le
+  tableau arrive du côté où l'on va. Il faut un geste franc (60 px, 1,8
+  fois plus large que haut, moins de 0,7 s) pour ne jamais voler un
+  défilement vertical. Si le tableau défile lui-même de côté, le geste lui
+  revient. Éprouvé : un glissement court ou en biais ne change rien.
+
+Rien ne bouge dans la lecture : les quatre sorties du vérificateur sont
+identiques à l'octet, et `comparer-fiches` passe son épreuve. Vérifié à
+320 (hors ligne), 390 et 1280 px, en clair et en sombre.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
