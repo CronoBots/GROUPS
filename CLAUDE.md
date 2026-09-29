@@ -3799,6 +3799,27 @@ l'octet** (7 journées, `--manques 0929`). Neuf règles à zéro, compteurs
 76/77, intégralité à zéro ; vérifié au navigateur à 320 (hors ligne),
 390 et 1280 px.
 
+### Le classeur du 29/09/2026 à 7 h 46
+
+Sept portes ouvertes, installé : **17 journées chez 11 personnes, 1
+compteur** (les RJF de KDN, 8 posés le 02/10). Prestées 14 447 → 14 445.
+SMA malade du 28 au 30/09 (le « Justificatif à fournir » du 28 est parti),
+PLZ la remplace au terrain arrière le 29 ; échange de pause CHD et LAA les
+30/09 et 01/10 ; AAI rappelé en nuit le 30/09 au terrain arrière, BBZ
+rappelé sur un repos à la même nuit ; KDN en RJF le 02/10, DWS aux
+chaudières à sa place et GDT au terrain arrière ; JBI le 28/09 complète
+sa matinée (« +2h rhs », lu par la règle des deux moitiés ; le départ à
+14 h n'est pas pris pour un départ sans code, la journée portant déjà un
+RTT) ; SPT, VM de reprise le 13/10.
+
+**« poly.Etha »** (AAI le 30/09) est une nouvelle écriture de « poly.
+Etoh », le terrain arrière : la règle « mention avalée » l'a signalée, et
+le motif des postes l'accepte désormais. Sous-effectifs d'ici la fin de
+l'année **inchangés à 6 journées**, compteurs identiques, neuf règles à
+zéro, intégralité à zéro ; Recyclage : PLZ fermentation 13 → 12 (il est
+au terrain arrière le 29/09). Vérifié au navigateur à 320 (hors ligne),
+390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
