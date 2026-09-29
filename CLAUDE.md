@@ -3722,6 +3722,22 @@ RDT (1 h +FT). **Nouveau sous-effectif : le 02/10, terrain arrière de nuit
 piste proposée : SKS, depuis la meunerie. Neuf règles à zéro, compteurs
 76/77, intégralité à zéro.
 
+### Le classeur du 28/09/2026 à 16 h 44
+
+Sept portes ouvertes, installé : **17 journées chez 8 personnes**, aucun
+compteur. LHR les 02 et 03/10 perd son « N ? » : `["-","N","MPE :
+Remplace SPT RAPPEL 28/09 accord LH"]`, la nuit est confirmée et se lit
+en rappel sur un repos (8 h sup). ASS et DBE rappelés sur un repos le
+05/10 pour une intervention au gluten (N, 8 h sup chacun). FPS malade du
+28 au 30/09. SPT : « Remplacé par LHR » les 02 et 03/10, et le 04/10
+devient une nuit prévue non prestée (« Abs »). BLR : ses deux congés
+posés les 10 et 11/10 sont renvoyés aux 14 et 15/10 (« CF »). ATR en
+12h-20h le 29/09 (remise en service du F2), AFA avec un commentaire de
+CIP le 06/10. **Sous-effectifs d'ici la fin de l'année : inchangés à
+l'octet** (7 journées, `--manques 0929`). Neuf règles à zéro, compteurs
+76/77, intégralité à zéro ; vérifié au navigateur à 320 (hors ligne),
+390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
