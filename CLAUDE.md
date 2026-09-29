@@ -2589,6 +2589,14 @@ nuit, il virait au mauve.
 avec l'horaire ») : même sans coupure, « VGG H. flot. » demandait 65 px
 dans une case de 56 à 390 px et passait sur deux lignes. « VGG H.fl. »
 fait 54 px, une ligne, comme « ATR 7-15 », de 320 à 1280 px.
+Et une journée de réunion sans aucune heure écrite dit laquelle : « DS-CE »
+ou « CPPT » à côté du trigramme (le client, le 29/09/2026, pour LCI le
+21/10, `["DS-CE","1/2VA"]` : « possible d'ajouter DS-CE et CPPT ? »). Cela
+ne vient qu'en dernier, après toute plage écrite et l'horaire habituel :
+QBY garde son 10-18. Pour que « LCI DS-CE » tienne sur une ligne à 390 px
+(63 px pour 64), les étiquettes se resserrent d'un pixel de chaque côté et
+d'un pixel entre le trigramme et l'horaire, et l'horaire perd 0,02 em
+d'espacement. À 320 px, « DS-CE » et « 10-18 » passent encore à la ligne.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
