@@ -2339,6 +2339,61 @@ Rien ne bouge dans la lecture : les quatre sorties du vérificateur sont
 identiques à l'octet, et `comparer-fiches` passe son épreuve. Vérifié à
 320 (hors ligne), 390 et 1280 px, en clair et en sombre.
 
+### L'écran d'intro
+
+Le client, le 29/09/2026 : « un écran d'intro avec le logo au chargement de
+la page ». `#intro` est dans le HTML, juste après `<body>` et avant tout
+script : il se peint dès la première image, sur `--marque`, avec
+`logo.svg` (déjà dans `CORE`, donc aussi hors ligne) et un trait de
+lumière. `finIntro()` l'efface quand l'horaire est lu, jamais avant 0,9 s
+ni après 3 s, puis le retire du document. **Le nom n'est pas écrit sous
+le logo** : le dessin porte déjà « biowanze », et la première version le
+disait deux fois. Sous `prefers-reduced-motion`, il reste un écran fixe.
+
+## Congé et absence : la journée rejouée sans quelqu'un
+
+Le client, le 29/09/2026 : un module de **demande de congé** qui dit si
+l'opérateur peut prendre congé ce jour-là et propose les changements,
+« faits par les opérateurs d'une même pause et selon leurs polyvalences » ;
+un module d'**absence** qui trouve les remplacements ou changements pour un
+jour ou une période. Ils vivent dans le Résumé, sous les sous-effectifs,
+dans un même cadre à deux onglets (Qui, Du, Au, Vérifier).
+
+**Une seule simulation pour les deux, et elle ne recalcule rien** :
+`caSimuler()` rejoue la journée par `equipeDuJour()` puis
+`postesDePause()`, une fois telle quelle et une fois SANS la personne. Ce
+que le rééquilibrage déplace alors d'un poste à l'autre de la même pause,
+ce sont les **changements** ; un poste qui passe sous son effectif est un
+**trou**, et `pistesDeRemplacement()` — celle des sous-effectifs — dit qui
+peut le boucher, minimum des autres postes gardé. Une personne en D ne
+pèse que sur la meunerie du matin (la consignation) : c'est la seule
+pause rejouée pour elle.
+
+- **Congé** : seule la même pause compte. « Possible », « Possible avec
+  changement » (les déplacements ou les pistes nommés), « Pas possible »
+  (« Personne dans la même pause »), « Déjà en repos / en congé /
+  malade ».
+- **Absence** : la même pause, puis les gens **en D** (au matin et à
+  l'après-midi, sans code de journée), puis les **rappels** : qui est en
+  repos ce jour-là (ni congé, ni maladie, ni poste prévu non presté) et
+  sait tenir le poste. Un rappel dont le repos avant ou après tombe **sous
+  onze heures** (veille N pour un AM, etc., par `SHIFT_PLAGE`) est marqué
+  « repos court » et rangé en dernier. Huit rappels au plus, le reste
+  compté.
+
+Rien n'est écrit dans l'horaire : ce sont des propositions. Un clic sur une
+journée ouvre son tableau, comme les sous-effectifs. 62 journées au plus
+par demande.
+
+Éprouvé le 29/09/2026 : VBN en congé le 02/10 est « Pas possible » (seul
+contremaître du matin, aucun cadre dans la pause), le 01/10 « avec
+changement » (VGG, adjoint, prend le poste) ; TCE les 02-04/10, SVE vient
+de la distillation à la meunerie ; GPS absent le 07/10, AFA et ATR en D,
+YPE en rappel, VGG en « repos court · veille N ». Les quatre sorties du
+vérificateur sont identiques à l'octet (le module ne touche aucune
+lecture) ; rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et
+en sombre.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
