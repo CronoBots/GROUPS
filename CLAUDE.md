@@ -2448,16 +2448,23 @@ même pause (`caChaines()`), les gens en D, le doublage et les rappels,
 avec le même repos de 8 h. `caGroupes()` les écrit, toujours dans cet
 ordre. Le congé ne garde que la même pause, comme avant.
 
-- **Le doublage ne vaut que pour l'après-midi** : le matin reste jusqu'à
-  18 h (« Reste → 18 h », 6 h-18 h), la nuit arrive à 18 h (« Arrive
-  18 h », 18 h-6 h) — ce que le client a décrit, et ce que la règle des
-  12 h par journée de 6 h à 6 h permet sans rien passer d'une journée à
-  l'autre. Doubler un matin ou une nuit franchirait 6 h : **non codé**,
-  le client ne l'a pas décrit. Il faut les deux moitiés pour couvrir la
-  pause ; une moitié seule se montre, avec la phrase qui dit ce qui
-  manque, et ne rend pas le jour « Remplaçable ». Seuls ceux qui font
-  leur journée entière, sans code de journée, peuvent doubler. Le repos
-  tient toujours (12 h dans les deux cas).
+- **Le doublage, l'après-midi** : le matin reste jusqu'à 18 h (« Reste
+  → 18 h », 6 h-18 h), la nuit arrive à 18 h (« Arrive 18 h »,
+  18 h-6 h). Le repos tient toujours (12 h dans les deux cas).
+- **Le doublage, la nuit** : le client, le 29/09/2026, « cela arrive de
+  rester après sa nuit 14-02, ou même rarement de commencer son matin à
+  02 h (faire 02-14) ». L'après-midi reste jusqu'à 2 h (14 h-2 h), le
+  matin du LENDEMAIN arrive à 2 h (2 h-14 h). Celui qui reste ne peut pas
+  être du matin ni en D le lendemain (4 h de repos) ; celui qui arrive
+  fait 4 h sur la journée du jour, donc n'y est pas prévu, ou seulement au
+  matin (8 + 4 = 12 h, 12 h de repos après 14 h). Les deux écartés
+  comptent parmi « moins de 8 h de repos ». Le lendemain d'un 31/12
+  n'est pas dans l'horaire : pas d'arrivée proposée.
+- **Le matin ne se double pas** : le client n'a décrit que ces deux
+  formes. Il faut les deux moitiés pour couvrir la pause ; une moitié
+  seule se montre, avec la phrase qui dit ce qui manque, et ne rend pas
+  le jour « Remplaçable ». Seuls ceux qui font leur journée entière, sans
+  code de journée, peuvent doubler.
 - **La recherche** (troisième onglet du cadre, rebaptisé « Congé, absence
   et recherche ») demande une pause, un poste et un jour ou une période ;
   pause et poste sont retenus dans `ui/caRech`. **Une date unique** : le
@@ -2472,7 +2479,9 @@ ordre. Le congé ne garde que la même pause, comme avant.
   pause, à déterminer, en D) ; s'y ajoutent la chaîne quand aucun présent
   ne suffit seul, le doublage et les rappels. Les 21 et 22/10 (N
   chaudières) affichent désormais six et cinq rappels, et quatre écartés
-  pour le repos.
+  pour le repos. Depuis le doublage de nuit, ils proposent aussi trois et
+  quatre après-midi qui restent jusqu'à 2 h, et cinq et quatre matins du
+  lendemain qui arrivent à 2 h.
 
 Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
 Les quatre sorties du vérificateur sont identiques à l'octet (il ne
