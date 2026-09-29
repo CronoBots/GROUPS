@@ -1294,6 +1294,12 @@ body.sheet-on{overflow:hidden}
 .capaire .cahr{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:700; color:var(--muted);
   min-width:40px}
 .capaire .cachaine{border-style:solid; border-color:var(--trait)}
+/* « En poste » n'est pas une solution mais l'état du poste : un cadre
+   plein, et une place vide par étiquette « ? » bordée de rouge (le client,
+   le 29/09/2026). */
+.capaire.plein{border-style:solid; border-color:var(--trait)}
+.mqc.manque{border-color:var(--at-rouge)}
+.mqc.manque b{color:var(--at-rouge)}
 .cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
@@ -9081,8 +9087,8 @@ function caChaineHtml(gr){
    le type, mais ça peut être à droite des créneaux horaires pour les
    12 h ; il faut dire Rappel - Repos ». L'intitulé en haut du cadre, les
    trigrammes dessous ; seul le doublage garde ses horaires à gauche. */
-function caCadre(titre,dedans){
-  return '<span class="capaire"><span class="cagr">'+titre+'</span><span class="mqr">'+dedans+"</span></span>";
+function caCadre(titre,dedans,cl){
+  return '<span class="capaire'+(cl?" "+cl:"")+'"><span class="cagr">'+titre+'</span><span class="mqr">'+dedans+"</span></span>";
 }
 function caGroupes(t,large){
   var g=[];
@@ -9103,7 +9109,7 @@ function caGroupes(t,large){
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
     }
     var rR=rang(t.hr,t.reste), rA=rang(t.ha,t.arrive);
-    g.push('<span class="capaire"><span class="cagr">Doublage 12 h · un de chaque</span>'
+    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'
       +(t.arriveDabord?rA+rR:rR+rA)+"</span>");
   }
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
@@ -9197,7 +9203,8 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
     +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
-    +(au.length?caCadre("Au poste",au.map(function(x){ return caChip(x.p.id,""); }).join("")):"")
+    +((au.length||tenu<attendu)?caCadre("En poste",au.map(function(x){ return caChip(x.p.id,""); }).join("")
+      +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
     +"</span>";
   return {v:dispo?"ok":"non", html:h};
