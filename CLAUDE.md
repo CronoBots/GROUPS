@@ -2558,6 +2558,17 @@ se regroupent en « Rappel · reposés » et « Rappel · veille N »
 arrive 2 h » (« AM reste → 18 h » / « N arrive 18 h ») : l'étiquette ne
 porte plus que le trigramme. Rien ne déborde à 320 et 390 px.
 
+**Poste d'abord, et rien tant qu'on n'a pas choisi.** Le client, le
+29/09/2026 : « poste doit être devant le filtre trigramme, et à
+l'ouverture aucune date ; rien ne doit s'afficher tant que l'on ne change
+pas un filtre ». La recherche n'a pas de menu « Qui » : le filtre
+visé est la pause, et Poste passe devant (`order:-1`, colonnes
+réordonnées), suivi de Pause puis de la date. `caDates()` laisse la date
+vide en recherche, l'ouverture de l'onglet ne calcule plus rien, et une
+date vide n'affiche rien (pas même « Choisissez une date »). Congé et
+Absence gardent leur date par défaut. Vérifié à 320 (hors ligne), 390 et
+1280 px.
+
 **Un cadre pointillé par type de solution.** Le client, le 29/09/2026,
 capture à l'appui : « il faut regrouper tous les types de solutions dans
 le même genre de cadre pointillé et toujours mettre les premiers résultats
