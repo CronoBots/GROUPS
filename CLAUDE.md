@@ -3820,6 +3820,17 @@ zéro, intégralité à zéro ; Recyclage : PLZ fermentation 13 → 12 (il est
 au terrain arrière le 29/09). Vérifié au navigateur à 320 (hors ligne),
 390 et 1280 px.
 
+**J'ai posé au client une question dont la réponse était déjà à l'écran.**
+La nuit du 30/09, AAI porte « Remplace SKS Remplacé par BBZ » et
+l'application le montrait au terrain arrière, BBZ en distillation ; j'ai
+demandé si ce n'était pas l'inverse. Le client : « BBZ ne peut pas faire
+le terrain, il a été rappelé pour faire une nuit de plus. AAI, prévu en
+distillation, passe sur le terrain (polyvalence ok) et BBZ vient en
+distillation ». C'est la règle déjà écrite : **« remplacé par » parle du
+poste PRÉVU**, pas d'une absence. Avant de douter d'un placement, vérifier
+les polyvalences (BBZ n'a pas la fermentation, donc pas le terrain
+arrière) : elles tranchent seules.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
