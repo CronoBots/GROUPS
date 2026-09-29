@@ -1227,8 +1227,15 @@ body.sheet-on{overflow:hidden}
 .caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform.jour .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
+/* Recherche : pas d'aide, les trois champs sur une ligne, un seul titre. */
+#caCard.rech .caaide{display:none}
+.caform.rech{grid-template-columns:minmax(56px,.6fr) 1.3fr 1.2fr; gap:8px}
+.caform.rech .cadu{grid-column:auto !important}
+.caform.rech select,.caform.rech input{padding:9px 8px; font-size:13.5px}
+#caCorps .mqj.carech{grid-template-columns:1fr; border-top:0}
+.mqn.ok{color:var(--at-vert)}
 /* La recherche ne demande pas QUI, mais une pause et un poste. */
-.caform.rech .caqui, .caform.rech .caduree, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
+.caform.rech .caqui, .caform.rech .caduree, .caform.rech .btn, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
 .caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
@@ -1239,8 +1246,7 @@ body.sheet-on{overflow:hidden}
   .caform .caqui{grid-column:auto} .caform .btn{grid-column:auto; padding:9px 22px}
   .caduree{grid-column:1 / -1}
   .caform.jour .cadu{grid-column:2 / 4}
-  .caform.rech{grid-template-columns:.7fr 1.3fr 1fr 1fr auto}
-  .caform.rech.jour .cadu{grid-column:3 / 5}
+  .caform.rech{grid-template-columns:120px 220px 200px}
 }
 #caCorps{padding-top:0}
 #caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
@@ -9009,15 +9015,26 @@ function caGroupes(t,large){
     +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
   /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
   var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à "+t.dh:"personne pour rester jusqu'à "+t.dh)+"</span>";
-  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">Reste \u2192 '+t.dh+'</span>'
-    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,t.dr); }).join("")
+  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">'+t.dr+" reste \u2192 "+t.dh+'</span>'
+    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
     +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+(t.arrive.length?"":manque)+"</span>");
-  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">Arrive '+t.dh+'</span>'
-    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,t.da); }).join("")
+  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">'+t.da+" arrive "+t.dh+'</span>'
+    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
     +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+(t.reste.length?"":manque)+"</span>");
-  if(t.rappels.length) g.push('<span class="mqr"><span class="cagr">Rappel</span>'
-    +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.veille?"veille "+o.veille:"repos"); }).join("")
-    +(t.rappels.length>8?'<span class="mqinc">+'+(t.rappels.length-8)+"</span>":"")+"</span>");
+  /* LES RAPPELS REGROUPÉS par ce qui précède : les reposés d'abord, puis
+     par pause de la veille. Le trigramme seul dans l'étiquette — le
+     client, le 29/09/2026, « optimise tout ». Huit au plus en tout. */
+  if(t.rappels.length){
+    var parV={}, ordre=[], reste=8;
+    t.rappels.forEach(function(o){ var k=o.veille||""; if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
+    ordre.forEach(function(k){
+      if(reste<=0) return;
+      var l=parV[k].slice(0,reste); reste-=l.length;
+      g.push('<span class="mqr"><span class="cagr">Rappel · '+(k?"veille "+esc(k):"reposés")+"</span>"
+        +l.map(function(o){ return caChip(o.p.id,""); }).join("")+"</span>");
+    });
+    if(t.rappels.length>8) g.push('<span class="mqinc">+'+(t.rappels.length-8)+" autres rappels possibles</span>");
+  }
   if(t.ecartes) g.push('<span class="mqinc">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
     +" : moins de 8 h de repos</span>");
   return g;
@@ -9049,6 +9066,7 @@ function caForme(){
      de durée disparaît, et celui des deux autres modules reste retenu. */
   var rech=caMode==="recherche", jour=rech||caDuree==="jour";
   f.className="caform"+(jour?" jour":"")+(rech?" rech":"");
+  var carte=document.getElementById("caCard"); if(carte) carte.classList.toggle("rech",rech);
   var l=document.getElementById("caTDu"); if(l) l.textContent=jour?"Le":"Du";
 }
 function caIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
@@ -9087,13 +9105,14 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
   var t=caCandidats(par,vue,g,P,jour,pausesDe,null,true);
   var g2=caGroupes(t,true);
   var dispo=t.chaines.length||t.enD.length||t.rappels.length||caDouble(t);
-  var h='<span class="catete"><span class="caverd" data-v="'+(tenu<attendu?"non":"ok")+'">'
-    +(tenu<attendu?"Sous-effectif":"Au complet")+"</span>"
-    +esc(g+" · "+caPoste(P)+(eqc[g]?" · Éq. "+eqc[g]:""))+"</span>";
+  /* UN SEUL TITRE (le client, le 29/09/2026, « optimise tout ») : la pause,
+     le poste, l'effectif — rouge s'il manque quelqu'un, vert sinon — et
+     l'équipe. La date est déjà dans le champ au-dessus. */
   var au=o?o.gens.filter(function(x){ return !x.depuisD; }):[];
-  h+='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
+  var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
-    +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn">'+tenu+"/"+attendu+"</span></span>"
+    +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
+    +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
     +(au.length?'<span class="mqr"><span class="cagr">Au poste</span>'
       +au.map(function(x){ return caChip(x.p.id,""); }).join("")+"</span>":"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
@@ -9127,13 +9146,12 @@ function caCalculer(){
   jours.forEach(function(dt){
     var m=dt.getMonth()+1, j=dt.getDate();
     if(rech){
-      var qr=dateEnMots(an,m,j,t0);
-      if(qr.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[qr.sem]+"</div>"); semPrec=qr.sem; }
+      /* une seule date : ni intertitre de semaine, ni bloc de date */
       var rr=caRechercher(db,an,m,j,rg,rk,function(dec){
         return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
       n[rr.v]++;
-      h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qr.titre)+'">'
-        +qr.html+'<span class="mqls">'+rr.html+"</span></button>");
+      h.push('<button type="button" class="mqj carech" data-m="'+m+'" data-j="'+j+'" title="Voir le tableau de ce jour">'
+        +'<span class="mqls">'+rr.html+"</span></button>");
       return;
     }
     var r=caSimuler(db,id,an,m,j,caMode,function(dec){
@@ -9176,7 +9194,8 @@ function caCalculer(){
   if(n.hors) bil.push('<span class="caverd" data-v="hors">'+n.hors+" hors poste</span>");
   hote.innerHTML=(jours.length>1?'<div class="cabilan">'+bil.join("")+"</div>":"")
     +(h.join("")||'<p class="mqrien">Aucune journée de '+an+" dans cette période.</p>");
-  document.getElementById("caSub").textContent=(rech?rg+" · "+caPoste(caPosteDe(rk)):idLisible(id))+" · "+jours.length+" journée"+(jours.length>1?"s":"");
+  document.getElementById("caSub").textContent=rech?"trouver quelqu'un pour un poste"
+    :idLisible(id)+" · "+jours.length+" journée"+(jours.length>1?"s":"");
 }
 (function(){
   var seg=document.querySelector(".caseg"); if(!seg) return;
@@ -9189,10 +9208,16 @@ function caCalculer(){
     document.getElementById("caSub").textContent=m==="recherche"?"trouver quelqu'un pour un poste":"simuler une journée sans quelqu'un";
     caForme();
     caDates();
+    if(m==="recherche") caCalculer();
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
   document.getElementById("caAide").textContent=CA_AIDE[caMode];
   document.getElementById("caGo").addEventListener("click",caCalculer);
+  /* La recherche se refait d'elle-même à chaque changement de champ : une
+     journée se calcule à l'instant, le bouton n'apportait rien. */
+  ["caPause","caPoste","caDu"].forEach(function(k){
+    document.getElementById(k).addEventListener("change",function(){ if(caMode==="recherche") caCalculer(); });
+  });
   /* Un jour ou une période : un seul champ, ou deux. */
   var form=document.getElementById("caForm");
   function duree(d){
