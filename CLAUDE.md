@@ -2561,6 +2561,15 @@ le « En D » de `caCandidats()`, repos de 8 h compris — mesuré, aucune
 des deux journées restantes (21 et 22/10) n'avait de piste dans cette
 ligne.
 
+**« En poste », cadre plein, et une étiquette « ? » par place vide ;
+« Prolongation 12 h ».** Le client, le 29/09/2026 : « Au poste » devient
+« En poste », sans pointillé — ce n'est pas une solution, c'est l'état du
+poste —, et chaque place manquante s'y lit en « ? » bordé de rouge (le
+21/10 en N aux chaudières : GJR puis « ? »). Le cadre s'affiche dès qu'il
+manque quelqu'un, même si personne n'est au poste. Le doublage s'intitule
+« Prolongation 12 h », sans « un de chaque » : les deux lignes d'horaires
+disent déjà la paire. Rien ne déborde à 320 et 390 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des
