@@ -8667,7 +8667,7 @@ function renderManques(force){
             +esc(DE[q.de]||PV_COURT[q.de]||q.de)+"</small></span>";
         });
         var tc=caCandidats(x.par,o.vue,o.pause,o.P,an*10000+Number(x.mmdd),function(dec){
-          return pausesLe(new Date(an,x.mois-1,x.jour+dec)); },null,true);
+          return pausesLe(new Date(an,x.mois-1,x.jour+dec)); },null,true,x.autres||(x.autres=caAutres(db,x.par,x.mmdd,null)));
         var plus=[];
         if(!pis.length && tc.chaines.length) plus.push('<span class="mqr"><span class="cagr">Même pause</span>'
           +tc.chaines.map(caChaineHtml).join("")+"</span>");
@@ -8776,7 +8776,7 @@ var CA_AIDE={
   conge:"Le congé est possible si la pause garde son effectif sans la personne. "
        +"Sinon, les changements proposés viennent de la même pause, selon les polyvalences.",
   absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
-       +"les gens en D, puis les rappels parmi ceux qui sont en repos — jamais plus de "
+       +"les gens en D, un changement de pause là où un poste a du monde en trop, puis les rappels parmi ceux qui sont en repos — jamais plus de "
        +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
        +"Doublage de 12 h : l'après-midi, le matin reste jusqu'à 18 h et la nuit arrive à 18 h ; "
        +"la nuit, l'après-midi reste jusqu'à 2 h et le matin du lendemain arrive à 2 h ; "
@@ -8818,14 +8818,25 @@ function caRepos(avant,apres){
    chaînes les plus courtes viennent d'abord : un seul changement vaut
    mieux que trois. Les mêmes règles que pistesDeRemplacement(), dont le
    premier maillon est exactement la liste. */
+/* Le poste de x garde-t-il son minimum si x s'en va ? */
+function caLibre(o,x,jour){
+  var compte=compteAuPoste(x,o.P,jour);
+  if(o.P.k==="cm") compte=estContremaitre(x.p)||o.gens.every(function(y){ return !estContremaitre(y.p); });
+  if(o.P.k==="terr") compte=compte&&(roleDeFeuille(x.p)!=="ra"||o.gens.every(function(y){ return roleDeFeuille(y.p)==="ra"; }));
+  return !(compte && o.tenu-1<o.attendu);
+}
+/* Les autres pauses du même jour, rejouées une fois chacune, sans la
+   personne absente : là où l'on cherche un effectif en trop. */
+function caAutres(db,par,mmdd,sauf){
+  var memo={};
+  return function(g2){
+    if(!memo[g2]) memo[g2]=postesDePause(db,caCopie(par[g2],sauf),g2,mmdd,g2==="AM"?caCopie(par.D,sauf):null);
+    return memo[g2];
+  };
+}
 function caChaines(vue,P,jour,max){
   function sait(x,Q){ return Q.cm ? estCadre(x.p) : (peutTenir(x.p,Q,jour) && compteAuPoste(x,Q,jour)); }
-  function libre(o,x){
-    var compte=compteAuPoste(x,o.P,jour);
-    if(o.P.k==="cm") compte=estContremaitre(x.p)||o.gens.every(function(y){ return !estContremaitre(y.p); });
-    if(o.P.k==="terr") compte=compte&&(roleDeFeuille(x.p)!=="ra"||o.gens.every(function(y){ return roleDeFeuille(y.p)==="ra"; }));
-    return !(compte && o.tenu-1<o.attendu);
-  }
+  function libre(o,x){ return caLibre(o,x,jour); }
   var sols=[], vus={}, file=[{cible:P, chaine:[], pris:{}, postes:{}}];
   file[0].postes[P.k]=1;
   while(file.length && sols.length<6){
@@ -8901,8 +8912,8 @@ function caPlein(x){
   var h=x.r?x.r.h:null;
   return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
 }
-function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
-  var t={chaines:caChaines(vue,P,jour,3), enD:[], reste:[], arrive:[], rappels:[], ecartes:0};
+function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
+  var t={chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   if(!large) return t;
   var veille=pausesDe(-1), lendemain=pausesDe(1);
   function reposOk(pid){
@@ -8913,6 +8924,24 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return;
     if(reposOk(x.p.id)) t.enD.push({p:x.p}); else t.ecartes++;
+  });
+  /* CHANGER DE PAUSE. Le client, le 29/09/2026 : « il arrive aussi de
+     regarder les pauses avant/après s'il y a des effectifs en trop ; par
+     exemple s'ils sont deux à un poste qui n'en demande qu'un en PM et
+     qu'il manque quelqu'un en nuit, on peut lui demander s'il veut bien
+     changer de pause et faire la nuit ». Une autre pause du même jour,
+     un poste qui garde son minimum sans lui (caLibre), la polyvalence du
+     poste vide, sa journée entière, et 8 h de repos avec la veille et le
+     lendemain comptées sur la pause NOUVELLE. Il quitte sa pause : ce
+     n'est pas un doublage, la journée reste de 8 h. */
+  if(autres) ["AM","PM","N"].forEach(function(g2){
+    if(g2===g) return;
+    autres(g2).postes.forEach(function(o){
+      o.gens.forEach(function(x){
+        if(x.depuisD || !caPlein(x) || !ok(x) || !caLibre(o,x,jour)) return;
+        if(reposOk(x.p.id)) t.change.push({p:x.p, de:g2, P:o.P}); else t.ecartes++;
+      });
+    });
   });
   if(g==="PM"){
     t.dh="18 h"; t.dr="AM"; t.da="N";
@@ -8960,6 +8989,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
 }
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
 function caDouble(t){ return t.reste.length>0 && t.arrive.length>0; }
+function caTrouve(t){ return t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
   var par=equipeDuJour(db,annee,m,j), pause=null;
@@ -8967,7 +8997,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
     (par[g]||[]).forEach(function(x){ if(x.p.id===id) pause=g; }); });
   function dans(l){ return (l||[]).some(function(x){ return x.p.id===id; }); }
   if(!pause) return {hors:dans(par.abs)?"malade":dans(par.cong)?"en congé":"en repos"};
-  var eqc=equipeALaPause(db,annee,m,j);
+  var eqc=equipeALaPause(db,annee,m,j), autres=caAutres(db,par,mmdd,id);
   var res={pause:pause, eq:eqc[pause]||"", poste:null, moves:[], trous:[], avant:0};
   ["AM","PM","N"].forEach(function(g){
     /* Une personne en D ne pèse que sur la meunerie du matin, par la
@@ -8992,7 +9022,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
     vB.postes.forEach(function(o){
       var a=tA[o.P.k];
       if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
-      var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode==="absence");
+      var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode==="absence",autres);
       t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
       res.trous.push(t);
     });
@@ -9006,7 +9036,7 @@ function caVerdict(r,mode){
     return r.moves.length?{v:"chg",t:"Possible avec changement"}:{v:"ok",t:"Possible"};
   }
   var tous=r.trous.every(function(t){
-    return t.chaines.length || (mode==="absence" && (t.enD.length||t.rappels.length||caDouble(t))); });
+    return t.chaines.length || (mode==="absence" && caTrouve(t)); });
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
@@ -9036,6 +9066,9 @@ function caGroupes(t,large){
   if(!large) return g;
   if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
     +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
+  if(t.change.length) g.push('<span class="mqr"><span class="cagr">Change de pause</span>'
+    +t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
+    +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")+"</span>");
   /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
   var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à "+t.dh:"personne pour rester jusqu'à "+t.dh)+"</span>";
   var gR=[], gA=[];
@@ -9127,9 +9160,9 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
   var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null);
   var o=null; vue.postes.forEach(function(x){ if(x.P.k===k) o=x; });
   var P=o?o.P:caPosteDe(k), tenu=o?o.tenu:0, attendu=o?o.attendu:0;
-  var t=caCandidats(par,vue,g,P,jour,pausesDe,null,true);
+  var t=caCandidats(par,vue,g,P,jour,pausesDe,null,true,caAutres(db,par,mmdd,null));
   var g2=caGroupes(t,true);
-  var dispo=t.chaines.length||t.enD.length||t.rappels.length||caDouble(t);
+  var dispo=caTrouve(t);
   /* UN SEUL TITRE (le client, le 29/09/2026, « optimise tout ») : la pause,
      le poste, l'effectif — rouge s'il manque quelqu'un, vert sinon — et
      l'équipe. La date est déjà dans le champ au-dessus. */
