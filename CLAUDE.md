@@ -2569,6 +2569,11 @@ poste —, et chaque place manquante s'y lit en « ? » bordé de rouge (le
 manque quelqu'un, même si personne n'est au poste. Le doublage s'intitule
 « Prolongation 12 h », sans « un de chaque » : les deux lignes d'horaires
 disent déjà la paire. Rien ne déborde à 320 et 390 px.
+Puis, le même jour : le « ? » a la taille d'une étiquette de trigramme
+(trois signes de large, 36,8 px mesurés comme GJR), et « Qui » se
+resserre — « ce n'est que 3 lettres » : trois huitièmes de la ligne sur
+téléphone (89 px à 320, 115 à 390), 110 px au bureau ; Du et Au restent
+égaux en période.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
