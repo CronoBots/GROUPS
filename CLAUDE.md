@@ -2467,10 +2467,15 @@ ordre. Le congé ne garde que la même pause, comme avant.
   ensuite. Celui qui arrive ne doit pas sortir d'une nuit (4 h de repos) ;
   celui qui reste n'est, ce jour-là, qu'en repos ou de nuit. Éprouvé le
   06/10 AM gluten : cinq PM à 10 h, les six nuits du 05/10 pour rester.
-- Il faut les deux moitiés pour couvrir la pause ; une moitié seule se
-  montre, avec la phrase qui dit ce qui manque, et ne rend pas le jour
-  « Remplaçable ». Seuls ceux qui font leur journée entière, sans code de
-  journée, peuvent doubler.
+- **Toujours par paire, et l'horaire écrit.** Le client, le 29/09/2026 :
+  « pour ceux qui restent après leur PM il faut indiquer 14-02, et pareil
+  pour les autres cas ; si on fait rester un 06-18, il faut un 18-06 pour
+  que cela fonctionne ». Les deux rangées vivent dans un même cadre,
+  « Doublage 12 h · un de chaque », et s'intitulent par l'horaire demandé :
+  06-18 et 18-06, 14-02 et 02-14, 10-22 et 22-10. **Une moitié seule ne se
+  montre plus** — la première version l'affichait avec « personne pour
+  arriver à 18 h » : ce n'était pas une solution. Seuls ceux qui font leur
+  journée entière, sans code de journée, peuvent doubler.
 - **La recherche** (troisième onglet du cadre, rebaptisé « Congé, absence
   et recherche ») demande une pause, un poste et un jour ou une période ;
   pause et poste sont retenus dans `ui/caRech`. **Une date unique** : le
