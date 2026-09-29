@@ -3831,6 +3831,32 @@ poste PRÉVU**, pas d'une absence. Avant de douter d'un placement, vérifier
 les polyvalences (BBZ n'a pas la fermentation, donc pas le terrain
 arrière) : elles tranchent seules.
 
+### Les sous-effectifs restants, relus commentaire par commentaire
+
+Le 29/09/2026, après le terrain arrière du 02/10, les six sous-effectifs
+restants ont été relus avec tous les commentaires du jour.
+
+**Un seul avait sa réponse dans le fichier** : le 24/11, GPS porte
+`["N","D-CPPT","remplacé au CPPT par TFI"]` — un autre va à la réunion,
+il reste contremaître de nuit. `surSonPosteMalgreF()` lit désormais
+« remplacé au CPPT (CE, DS) par X », sauf si la personne est AUSSI
+remplacée à son poste : GPS le 25/03, « remplacé au CPPT par NDO remlacé
+par VBN », reste hors poste. Deux journées de l'année portent la forme,
+une seule change. Sous-effectifs d'ici la fin de l'année **6 → 5**, sur
+l'année 269 → 268 places ; neuf règles, Recyclage et compteurs identiques
+à l'octet.
+
+**Les cinq autres, le classeur ne dit pas qui comble** :
+
+- 05/10 AM fermentation (équipe 4) : la place de fermentation de l'équipe
+  4 est sans titulaire (colonne Shift 4 Q), QBY en RTT, PAM à la
+  distillation ; GSK écrit « équipe au complet » ;
+- 16/10 N meunerie (équipe 5) : CDE « Abs », sans remplaçant écrit ;
+- 21 et 22/10 N chaudières (équipe 2) : ADS en RJF, sans remplaçant
+  écrit, alors que le gluten a quatre personnes pour deux ;
+- 12/11 N terrain arrière (équipe 1) : GDT en VA remplacé par BBZ, qui
+  n'a que la distillation.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
