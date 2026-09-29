@@ -2590,6 +2590,18 @@ avec l'horaire ») : même sans coupure, « VGG H. flot. » demandait 65 px
 dans une case de 56 à 390 px et passait sur deux lignes. « VGG H.fl. »
 fait 54 px, une ligne, comme « ATR 7-15 », de 320 à 1280 px.
 
+**Une ligne « DS » sous la formation.** Le client, le 29/09/2026, après
+avoir fait retirer le « DS-CE » écrit à côté du trigramme : « une ligne
+sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce jour-là ».
+Ceux que leur code de jour (DS, DS-CE, CPPT, D-CPPT) range dans la
+colonne D quittent la case de leur poste pour cette ligne, avec leur
+horaire s'il est connu (QBY 10-18). Qui tient son poste malgré le code —
+une plage de pause écrite, GPS `["10h-22h","D-CPPT"]` — reste à son
+poste, et la colonne D n'attendant personne, aucun effectif ne bouge.
+Au navigateur : le 21/10, ATR, LCI et QBY ; le 30/09, ADK, LHR et VBN ;
+le 24/11, cinq personnes. La ligne ADJ disparaît le 21/10, ATR y étant
+seul. Rien ne déborde à 320, 390 et 1280 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des

@@ -7569,6 +7569,23 @@ function renderEquipe(){
         if(!resteD) delete vp.D;
       }
     }
+    /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
+       ligne sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce
+       jour-là ». Ceux que leur journée de réunion (DS, DS-CE, CPPT,
+       D-CPPT) met en D quittent la case de leur poste dans la colonne D
+       pour cette ligne ; qui tient son poste malgré le code (une plage de
+       pause écrite, GPS 10h-22h D-CPPT) reste à son poste. La colonne D
+       n'attend personne : l'effectif n'en bouge pas. */
+    if(vp.D){
+      var dsD=[];
+      function estDS(x){ return !!(x.r && x.r.jourCode && /DS|CPPT/i.test(String(x.r.jourCode))); }
+      vp.D.vue.postes.forEach(function(o){
+        o.gens=o.gens.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
+      });
+      vp.D.vue.inconnus=vp.D.vue.inconnus.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
+      dsD.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
+      vp.D.ds=dsD;
+    }
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes
@@ -7700,6 +7717,17 @@ function renderEquipe(){
              client, le 28/09/2026, « uniformiser »). */
           tp.push(li.length
             ? "<td>"+li.map(function(x){ return chip(x,g,null,true,true); }).join("")+"</td>"
+            : '<td class="vide">\u2013</td>');
+        });
+        tp.push("</tr>");
+      }
+      if(vp.D && vp.D.ds && vp.D.ds.length){
+        tp.push('<tr class="zone1 eqform eqds"><th class="eqposte" scope="row"><b>DS</b></th>');
+        PAUSES.forEach(function(g){
+          if(!vp[g.k]) return;
+          var li=g.k==="D"?vp.D.ds:[];
+          tp.push(li.length
+            ? "<td>"+li.map(function(x){ return chip(x,g,null,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
         });
         tp.push("</tr>");
