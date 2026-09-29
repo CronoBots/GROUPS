@@ -1213,9 +1213,33 @@ body.sheet-on{overflow:hidden}
 .caform select,.caform input{width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:10px;
   background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; min-width:0; color-scheme:light dark}
 .caform .btn{grid-column:1 / -1; padding:10px; font-size:14px; font-weight:650; border-radius:10px}
+/* UN JOUR OU UNE PÉRIODE. Le client, le 29/09/2026, capture de son iPhone :
+   « il faut pouvoir sélectionner une date ou une période ». Les deux champs
+   côte à côte ne disaient pas qu'on pouvait laisser le second égal au
+   premier, et sous iOS le champ de date garde une largeur à lui : « Au »
+   sortait du cadre. Un choix explicite, un seul champ pour un jour, deux
+   et des durées rapides pour une période. */
+.caduree{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:3px;
+  background:var(--surface2); border:1px solid var(--line); border-radius:10px}
+.caduree button{padding:7px 6px; border:0; border-radius:8px; background:none; font-size:12.5px;
+  font-weight:600; color:var(--muted)}
+.caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.caform.jour .cadu{grid-column:1 / -1}
+.caform.jour .caau, .caform.jour .caraccourcis{display:none}
+.caraccourcis{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px}
+.caraccourcis button{padding:5px 10px; border:1px solid var(--line); border-radius:999px;
+  background:var(--surface2); color:var(--ink2); font-size:12px; font-weight:600}
+.caraccourcis button:active{transform:scale(.95)}
+/* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
+   apparence native : il faut la retirer, et lui rendre une hauteur. */
+.caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
+  max-width:100%; min-height:42px; text-align:left}
+.caform input[type=date]::-webkit-date-and-time-value{text-align:left}
 @media (min-width:761px){
   .caform{grid-template-columns:1.2fr 1fr 1fr auto; align-items:end}
   .caform .caqui{grid-column:auto} .caform .btn{grid-column:auto; padding:9px 22px}
+  .caduree{grid-column:1 / -1}
+  .caform.jour .cadu{grid-column:2 / 4}
 }
 #caCorps{padding-top:0}
 #caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
@@ -1987,10 +2011,20 @@ body[data-horaire="annee"] #rotasub{display:none}
         <button type="button" role="tab" data-ca="absence" aria-selected="false">Absence</button>
       </div>
       <p class="caaide" id="caAide"></p>
-      <div class="caform">
+      <div class="caform jour" id="caForm">
         <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
-        <label>Du<input type="date" id="caDu"></label>
-        <label>Au<input type="date" id="caAu"></label>
+        <div class="caduree" role="radiogroup" aria-label="Durée">
+          <button type="button" role="radio" data-du="jour" aria-checked="true">Un jour</button>
+          <button type="button" role="radio" data-du="periode" aria-checked="false">Une période</button>
+        </div>
+        <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
+        <label class="caau">Au<input type="date" id="caAu"></label>
+        <div class="caraccourcis" aria-label="Durées rapides">
+          <button type="button" data-plus="2">3 jours</button>
+          <button type="button" data-plus="6">1 sem.</button>
+          <button type="button" data-plus="13">2 sem.</button>
+          <button type="button" data-plus="27">4 sem.</button>
+        </div>
         <button type="button" class="btn primary" id="caGo">Vérifier</button>
       </div>
       <div class="mqcorps" id="caCorps"></div>
@@ -8698,7 +8732,7 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
    Rien n'est écrit dans l'horaire : ce sont des propositions, que le
    contremaître fait ou ne fait pas. Deux vues qui compteraient autrement
    que le tableau du jour seraient pires qu'aucune — d'où le réemploi. */
-var caMode="conge";
+var caMode="conge", caDuree=lsGet("ui/caDuree")==="periode"?"periode":"jour";
 var CA_AIDE={
   conge:"Le congé est possible si la pause garde son effectif sans la personne. "
        +"Sinon, les changements proposés viennent de la même pause, selon les polyvalences.",
@@ -8822,7 +8856,7 @@ function caCalculer(){
   var db=caDB, hote=document.getElementById("caCorps"); if(!db||!hote) return;
   var id=document.getElementById("caQui").value; if(!id) return;
   lsSet("ui/caQui",id);
-  var du=caLire("caDu"), au=caLire("caAu")||du, an=Number(db.year);
+  var du=caLire("caDu"), au=caDuree==="jour"?du:(caLire("caAu")||du), an=Number(db.year);
   if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
   var jours=[], d=new Date(du);
@@ -8901,6 +8935,28 @@ function caCalculer(){
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
   document.getElementById("caAide").textContent=CA_AIDE[caMode];
   document.getElementById("caGo").addEventListener("click",caCalculer);
+  /* Un jour ou une période : un seul champ, ou deux et les durées rapides. */
+  var form=document.getElementById("caForm");
+  function duree(d){
+    caDuree=d; lsSet("ui/caDuree",d);
+    form.className="caform"+(d==="jour"?" jour":"");
+    Array.prototype.forEach.call(form.querySelectorAll(".caduree button"),function(b){
+      b.setAttribute("aria-checked",String(b.dataset.du===d)); });
+    document.getElementById("caTDu").textContent=d==="jour"?"Le":"Du";
+    var du=document.getElementById("caDu"), au=document.getElementById("caAu");
+    if(d==="periode" && (!au.value||au.value<du.value)) au.value=du.value;
+  }
+  form.querySelector(".caduree").addEventListener("click",function(e){
+    var b=e.target.closest("button[data-du]"); if(b) duree(b.dataset.du); });
+  form.querySelector(".caraccourcis").addEventListener("click",function(e){
+    var b=e.target.closest("button[data-plus]"); if(!b) return;
+    var d=caLire("caDu"); if(!d) return;
+    d.setDate(d.getDate()+Number(b.dataset.plus));
+    var au=document.getElementById("caAu");
+    var v=caIso(d); if(au.max && v>au.max) v=au.max;
+    au.value=v;
+  });
+  duree(caDuree);
   /* « Au » suit « Du » tant qu'on ne l'a pas mis plus loin */
   document.getElementById("caDu").addEventListener("change",function(){
     var au=document.getElementById("caAu"); if(!au.value||au.value<this.value) au.value=this.value; });

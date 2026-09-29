@@ -2385,6 +2385,18 @@ Rien n'est écrit dans l'horaire : ce sont des propositions. Un clic sur une
 journée ouvre son tableau, comme les sous-effectifs. 62 journées au plus
 par demande.
 
+**Un jour ou une période, au choix.** Le client, le 29/09/2026, capture de
+son iPhone : « il faut pouvoir sélectionner une date ou une période ». Les
+deux champs « Du » et « Au » côte à côte ne disaient pas qu'un seul jour se
+demandait en les laissant égaux, et **sous iOS le champ de date ignore
+`width:100%`** tant qu'il garde son apparence native : « Au » sortait du
+cadre. Un choix « Un jour / Une période » (retenu dans `ui/caDuree`) : un
+seul champ « Le » pour un jour, « Du » et « Au » et quatre durées rapides
+(3 jours, 1, 2, 4 semaines) pour une période. Le champ de date perd son
+apparence native (`appearance:none`) et reprend une hauteur de 42 px.
+Chromium ne reproduit pas le défaut d'iOS : seul l'appareil du client dit
+qu'il est guéri.
+
 Éprouvé le 29/09/2026 : VBN en congé le 02/10 est « Pas possible » (seul
 contremaître du matin, aucun cadre dans la pause), le 01/10 « avec
 changement » (VGG, adjoint, prend le poste) ; TCE les 02-04/10, SVE vient
