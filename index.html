@@ -6947,7 +6947,21 @@ function postesDePause(db,liste,gk,mmdd,listeD){
   liste.forEach(function(x){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")
        && !surSonPosteMalgreF(x.p.d[mmdd])){ formation.push(x); return; }
-    var k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
+    /* UN OPÉRATEUR EN FORMATION RAPPELÉ POUR REMPLACER VA À LA PLACE DE
+       CELUI QU'IL REMPLACE. Le client, le 21/09/2026 : « s'il manque des
+       gens, il se peut qu'on le rappelle pour retourner remplacer dans un
+       poste qu'il peut — mais tout cela sera marqué en commentaire ». Et le
+       29/09, devant le terrain arrière vide de la nuit du 02/10 : « la
+       réponse est pourtant dans le fichier ». SKS y porte ["-","N","Remplace
+       SBZ …"] : SBZ tient le terrain arrière, SKS a la fermentation et la
+       distillation. La ligne 9 (sa formation) le laissait en meunerie, en
+       plus. Le commentaire passe donc AVANT elle, pour lui seulement, et à
+       condition qu'il ait la polyvalence du poste (atelierDuRemplace). Une
+       cellule qui écrit l'atelier garde le dernier mot. */
+    var k=null;
+    if(enFormation(x.p,jourCalc) && !posteEcrit(x.p.d[mmdd]))
+      k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
+    if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     if(!k) k=posteParDefaut(x.p);
