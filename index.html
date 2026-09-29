@@ -8629,6 +8629,7 @@ function renderManques(force){
       if(dt.getFullYear()===an){
         var pp=equipeDuJour(db,an,dt.getMonth()+1,dt.getDate());
         ["AM","PM","N","D"].forEach(function(g){ (pp[g]||[]).forEach(function(y){ out[y.p.id]=g; }); });
+        Object.defineProperty(out,"_par",{value:pp});
       }
       return (memoP[k]=out);
     }
@@ -8763,9 +8764,10 @@ var CA_AIDE={
   absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
        +"les gens en D, puis les rappels parmi ceux qui sont en repos — jamais plus de "
        +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
-       +"L'après-midi peut aussi se couvrir en doublage : le matin reste jusqu'à 18 h, la nuit arrive à 18 h.",
+       +"Doublage de 12 h : l'après-midi, le matin reste jusqu'à 18 h et la nuit arrive à 18 h ; "
+       +"la nuit, l'après-midi reste jusqu'à 2 h et le matin du lendemain arrive à 2 h.",
   recherche:"Qui tient déjà le poste, puis qui pourrait y venir : la même pause (chacun gardant "
-       +"le minimum de son poste), les gens en D, le doublage de 12 h l'après-midi, puis les rappels."
+       +"le minimum de son poste), les gens en D, le doublage de 12 h (après-midi et nuit), puis les rappels."
 };
 function caCopie(l,sauf){
   var out=[];
@@ -8854,15 +8856,21 @@ function caChaines(vue,P,jour,max){
    Quatre sources, dans l'ordre où on les essaie :
      — la MÊME pause, en chaîne (caChaines) ;
      — les gens en D, au matin et à l'après-midi, sans code de journée ;
-     — le DOUBLAGE DE 12 H, pour l'après-midi seulement : le matin reste
-       jusqu'à 18 h, la nuit arrive à 18 h. Le client, le 29/09/2026, a
-       répondu « A » à la question de le proposer. Il faut les DEUX moitiés
-       pour couvrir la pause ; une moitié seule se montre, mais ne suffit
-       pas. Seulement pour l'après-midi : la règle des 12 h par journée de
-       6 h à 6 h le permet (6 h-18 h, 18 h-6 h), alors qu'un matin ou une
-       nuit ne se double qu'en passant la frontière de 6 h — le client ne
-       l'a pas décrit, on ne le devine pas. Le repos tient toujours : 12 h
-       avant un matin le lendemain, 12 h après une nuit la veille ;
+     — le DOUBLAGE DE 12 H. Le client, le 29/09/2026, a répondu « A » à la
+       question de le proposer. Il faut les DEUX moitiés pour couvrir la
+       pause ; une moitié seule se montre, mais ne suffit pas.
+         · l'après-midi : le matin reste jusqu'à 18 h (6 h-18 h), la nuit
+           arrive à 18 h (18 h-6 h). Le repos tient toujours : 12 h avant
+           un matin le lendemain, 12 h après une nuit la veille ;
+         · la nuit : l'après-midi reste jusqu'à 2 h (14 h-2 h), le matin
+           du LENDEMAIN arrive à 2 h (2 h-14 h) — le client, le
+           29/09/2026 : « cela arrive de rester 14-02, ou même rarement de
+           commencer son matin à 02 h ». Celui qui reste ne doit pas être
+           du matin (ni en D) le lendemain : 4 h de repos. Celui qui
+           arrive fait 4 h sur la journée du jour : il n'y est pas prévu,
+           ou seulement au matin (8 + 4 = 12 h, et 12 h de repos après
+           14 h) ; un après-midi finit à 22 h, 4 h avant, écarté ;
+         · le matin : non décrit par le client, non codé ;
      — les RAPPELS, parmi ceux qui sont en repos (ni congé, ni maladie, ni
        poste prévu non presté) et gardent 8 h de repos de part et d'autre.
    « large » à faux ne garde que la même pause : c'est la règle du congé. */
@@ -8885,8 +8893,24 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
     if(reposOk(x.p.id)) t.enD.push({p:x.p}); else t.ecartes++;
   });
   if(g==="PM"){
+    t.dh="18 h"; t.dr="AM"; t.da="N";
     (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
     (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
+  }
+  if(g==="N"){
+    t.dh="2 h"; t.dr="PM"; t.da="AM demain";
+    (par.PM||[]).forEach(function(x){
+      if(!caPlein(x) || !ok(x)) return;
+      if(lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D"){ t.ecartes++; return; }
+      t.reste.push({p:x.p});
+    });
+    var demain=lendemain._par;
+    if(demain) (demain.AM||[]).forEach(function(x){
+      if(!caPlein(x) || !ok(x)) return;
+      var auj=pausesDe(0)[x.p.id];
+      if(auj && auj!=="AM"){ t.ecartes++; return; }
+      t.arrive.push({p:x.p});
+    });
   }
   (par.off||[]).forEach(function(x){
     if(!x.r || x.prevu || x.r.a || !ok(x)) return;
@@ -8976,12 +9000,12 @@ function caGroupes(t,large){
   if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
     +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
   /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
-  var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à 18 h":"personne pour rester jusqu'à 18 h")+"</span>";
-  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">Reste \u2192 18 h</span>'
-    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,"AM"); }).join("")
+  var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à "+t.dh:"personne pour rester jusqu'à "+t.dh)+"</span>";
+  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">Reste \u2192 '+t.dh+'</span>'
+    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,t.dr); }).join("")
     +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+(t.arrive.length?"":manque)+"</span>");
-  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">Arrive 18 h</span>'
-    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,"N"); }).join("")
+  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">Arrive '+t.dh+'</span>'
+    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,t.da); }).join("")
     +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+(t.reste.length?"":manque)+"</span>");
   if(t.rappels.length) g.push('<span class="mqr"><span class="cagr">Rappel</span>'
     +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.veille?"veille "+o.veille:"repos"); }).join("")
@@ -9086,6 +9110,7 @@ function caCalculer(){
     if(dt.getFullYear()===an){
       var par=equipeDuJour(db,an,dt.getMonth()+1,dt.getDate());
       ["AM","PM","N","D"].forEach(function(g){ (par[g]||[]).forEach(function(x){ out[x.p.id]=g; }); });
+      Object.defineProperty(out,"_par",{value:par});
     }
     return (memo[k]=out);
   }
