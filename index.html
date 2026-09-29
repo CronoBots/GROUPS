@@ -1538,6 +1538,8 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn.form{border-color:var(--at-jaune)}
 #eqCorps .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 #eqCorps .eqp2 tbody td .eqn .eqhd{margin-left:0}
+#eqCorps .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
+#eqCorps .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
 @media (max-width:380px){
   #eqCorps .eqp2 tbody td .eqn{padding:1px 3px; column-gap:3px}
   /* Deux pixels de marge de case au lieu de quatre : « GPS 7-15 » tient
@@ -7646,7 +7648,10 @@ function renderEquipe(){
           if(mq) cl.push("manque");
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
-            +(mq?'<i>'+o.tenu+" / "+aP+"</i>":"")
+            /* Une étiquette « ? » bordée de rouge par place vide, au lieu
+               du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
+               dans la recherche. */
+            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque" title="Place vide ('+o.tenu+" / "+aP+')"><b>?</b></span>'):"")
             +(o.gens.length||mq?"":'<span class="eqvide">\u2014</span>')
             +"</td>");
         });
@@ -7696,7 +7701,7 @@ function renderEquipe(){
         tp.push("</tr>");
       }
       /* Aucune légende sous ce tableau, pas même celle du manque : le
-         compte écrit dans la case (« 1/2 ») se lit seul. */
+         « ? » écrits dans la case se lisent seuls. */
       tp.push("</tbody></table></div></div>");
       h.push(tp.join(""));
     }
