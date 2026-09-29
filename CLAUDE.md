@@ -2460,11 +2460,17 @@ ordre. Le congé ne garde que la même pause, comme avant.
   matin (8 + 4 = 12 h, 12 h de repos après 14 h). Les deux écartés
   comptent parmi « moins de 8 h de repos ». Le lendemain d'un 31/12
   n'est pas dans l'horaire : pas d'arrivée proposée.
-- **Le matin ne se double pas** : le client n'a décrit que ces deux
-  formes. Il faut les deux moitiés pour couvrir la pause ; une moitié
-  seule se montre, avec la phrase qui dit ce qui manque, et ne rend pas
-  le jour « Remplaçable ». Seuls ceux qui font leur journée entière, sans
-  code de journée, peuvent doubler.
+- **Le doublage, le matin** : le client, le 29/09/2026, « ceux de
+  l'après-midi peuvent arriver à 10 h, mais c'est rare de demander à
+  quelqu'un de rester 4 h après sa nuit ». « PM arrive 10 h » (10 h-22 h)
+  se montre donc EN PREMIER, « N veille reste → 10 h » (22 h-10 h)
+  ensuite. Celui qui arrive ne doit pas sortir d'une nuit (4 h de repos) ;
+  celui qui reste n'est, ce jour-là, qu'en repos ou de nuit. Éprouvé le
+  06/10 AM gluten : cinq PM à 10 h, les six nuits du 05/10 pour rester.
+- Il faut les deux moitiés pour couvrir la pause ; une moitié seule se
+  montre, avec la phrase qui dit ce qui manque, et ne rend pas le jour
+  « Remplaçable ». Seuls ceux qui font leur journée entière, sans code de
+  journée, peuvent doubler.
 - **La recherche** (troisième onglet du cadre, rebaptisé « Congé, absence
   et recherche ») demande une pause, un poste et un jour ou une période ;
   pause et poste sont retenus dans `ui/caRech`. **Une date unique** : le
