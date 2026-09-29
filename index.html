@@ -6203,6 +6203,15 @@ function posteEcrit(raw){
     duo=/^(?:AM|PM|N|D)\s*[-\/ ]\s*(.+)$/i.exec(String(raw&&raw[i]||"").trim());
     if(duo){ k=posteDepuisNom(duo[1]); if(k) return k; }
   }
+  /* LE COMMENTAIRE QUI COMMENCE PAR L'ATELIER. LCI le 16/10, ["N","R","en
+     fermentation"] : le client, le 29/09/2026, « il faut suivre ce qui est
+     écrit dans l'horaire », même quand la présence n'y est pas utile. Trois
+     journées de l'année commencent ainsi (JKS le 03/02 « en meunerie
+     remplace TCE »). Pas quand le commentaire doute — ALZ le 23/10, « en
+     fermentation pour remplacer FPS? » sous une annotation « AM? ». */
+  var cE=String((raw&&raw[2])||"");
+  var mE=/^\s*(?:en|au|à la)\s+([A-Za-zà-ÿ.\-]+)/i.exec(cE);
+  if(mE && cE.indexOf("?")<0){ k=posteDepuisNom(mE[1]); if(k) return k; }
   return null;
 }
 /* Un opérateur en formation FIGURE au poste, mais n'y COMPTE pas. Le
