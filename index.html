@@ -5489,6 +5489,23 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       if(r.plageEp && r.h>0 && r.h<hJour-0.01) r.h=Math.max(0,r.h-hc);
     }
   }
+  /* LES DEUX HEURES DU PROJET FALLING FILM. Le client, le 28/09/2026 : les
+     opérateurs en formation « tiennent bien leurs pauses à leurs postes et
+     suivent la formation avant ou après (2 h de FT+ ou de HS selon la
+     demande ; si FT+, ce sera marqué dans l'horaire, sinon HS) », puis le
+     29/09 : « ceux qui font le matin auront la formation après 14h et ceux
+     qui font PM avant 14h ». Deux heures sup donc, à la prime de l'autre
+     pause : 14 h-16 h (après-midi) après un matin, 12 h-14 h (matin) avant
+     un après-midi. Seulement pour qui TIENT sa pause ce jour-là : pas un
+     « remplacé par », pas une plage de jour (7h-15h), pas « D-F », et rien
+     si un flex time est écrit — le choix s'est alors fait en FT+. */
+  if(!r.hc && /projet\s+falling\s*film/i.test(raw[2]||"")
+     && !/remplac\S*\s+par\b/i.test(raw[2]||"")
+     && !/^\d/.test((raw[0]||"").trim()) && !/^D\s*-\s*F$/i.test((raw[1]||"").trim())
+     && !(r.epargne>0) && !/\bft\b/i.test(raw.join(" ")) && !r.a){
+    var pFf=r.sp||r.s;
+    if(pFf==="AM"||pFf==="PM"){ r.hc=2; r.hcp=(pFf==="AM")?"PM":"AM"; r.fallingFilm=true; }
+  }
   /* L'ABSENCE ÉCRITE EN DEUX MOITIÉS. SMA le 27/02, ["AM","1/2VA","+4h rhs
      remplacé par SPS"] : la cellule dit la première moitié, le commentaire
      la seconde. La lecture ne prenait que la cellule, et SMA paraissait
