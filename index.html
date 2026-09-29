@@ -1430,7 +1430,7 @@ body.sheet-on{overflow:hidden}
 /* L'horaire se met à côté du trigramme s'il y a la place, dessous sinon,
    et se coupe au tiret s'il ne tient pas sur une ligne (« (8h30-16h30) »
    dans une colonne D de 320 px). */
-#eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px; white-space:nowrap}
+#eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px; white-space:nowrap; letter-spacing:-.02em}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
    client, le 26/09/2026). */
 #eqCorps .eqp2 td.vide{background:transparent}
@@ -1528,7 +1528,7 @@ body.sheet-on{overflow:hidden}
    formation garde son encre jaune et son « (F) », l'horaire de la colonne D
    reste dans l'étiquette, en petit, et passe dessous s'il ne tient pas. */
 #eqCorps .eqp2 tbody td .eqn{display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:baseline;
-  column-gap:4px; width:max-content; max-width:100%; margin:0 auto; padding:1px 5px;
+  column-gap:3px; width:max-content; max-width:100%; margin:0 auto; padding:1px 4px;
   border-radius:6px; background:var(--surface3); border:1px solid var(--trait); line-height:14px}
 #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:2px}
 #eqCorps .eqp2 tbody td .eqn b{font-family:"IBM Plex Mono",monospace; font-size:11.5px;
@@ -7434,6 +7434,14 @@ function renderEquipe(){
          journées (horaireHabituelD) : il ne sert plus qu'aux journées qui ne
          sont pas « seulement D ». */
       if(!lib) lib=horaireHabituelD(x.p)||"";
+      /* Sans heure nulle part, une journée de réunion dit au moins
+         laquelle : « DS-CE » ou « CPPT » (le client, le 29/09/2026, pour
+         LCI le 21/10, ["DS-CE","1/2VA"]). */
+      if(!lib && x.r && x.r.jourCode){
+        var jc=String(x.r.jourCode);
+        if(/CPPT/i.test(jc)) lib="CPPT";
+        else if(/CE/i.test(jc)) lib="DS-CE";
+      }
       /* Sans parenthèses depuis le 28/09/2026 : dans l'étiquette, un
          chiffre à côté d'un trigramme ne peut être qu'un horaire, et les
          deux signes le faisaient passer à la ligne. */
