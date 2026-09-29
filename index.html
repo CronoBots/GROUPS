@@ -1199,7 +1199,7 @@ body.sheet-on{overflow:hidden}
 
 /* ---------- congé et absence ---------- */
 #caCard{overflow:hidden}
-.caseg{display:grid; grid-template-columns:1fr 1fr; gap:4px; margin:12px 16px 0; padding:3px;
+.caseg{display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin:12px 16px 0; padding:3px;
   background:var(--surface2); border:1px solid var(--line); border-radius:10px}
 .caseg button{padding:8px 6px; border:0; border-radius:8px; background:none; font-size:13px;
   font-weight:600; color:var(--muted); transition:background-color .18s ease, color .18s ease}
@@ -1227,6 +1227,8 @@ body.sheet-on{overflow:hidden}
 .caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform.jour .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
+/* La recherche ne demande pas QUI, mais une pause et un poste. */
+.caform.rech .caqui, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
 .caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
@@ -1237,6 +1239,8 @@ body.sheet-on{overflow:hidden}
   .caform .caqui{grid-column:auto} .caform .btn{grid-column:auto; padding:9px 22px}
   .caduree{grid-column:1 / -1}
   .caform.jour .cadu{grid-column:2 / 4}
+  .caform.rech{grid-template-columns:.7fr 1.3fr 1fr 1fr auto}
+  .caform.rech.jour .cadu{grid-column:3 / 5}
 }
 #caCorps{padding-top:0}
 #caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
@@ -2000,17 +2004,20 @@ body[data-horaire="annee"] #rotasub{display:none}
          jour (equipeDuJour, postesDePause) : ils ne peuvent pas dire
          autre chose que lui. -->
     <div class="pvtete">
-      <h2>Congé et absence</h2>
+      <h2>Congé, absence et recherche</h2>
       <p class="sub" id="caSub">simuler une journée sans quelqu'un</p>
     </div>
     <div class="card" id="caCard">
       <div class="caseg" role="tablist" aria-label="Type de demande">
-        <button type="button" role="tab" data-ca="conge" aria-selected="true">Demande de congé</button>
+        <button type="button" role="tab" data-ca="conge" aria-selected="true">Congé</button>
         <button type="button" role="tab" data-ca="absence" aria-selected="false">Absence</button>
+        <button type="button" role="tab" data-ca="recherche" aria-selected="false">Recherche</button>
       </div>
       <p class="caaide" id="caAide"></p>
       <div class="caform jour" id="caForm">
         <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
+        <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
+        <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
         <div class="caduree" role="radiogroup" aria-label="Durée">
           <button type="button" role="radio" data-du="jour" aria-checked="true">Un jour</button>
           <button type="button" role="radio" data-du="periode" aria-checked="false">Une période</button>
@@ -8521,11 +8528,12 @@ function mqJoursAVenir(db,horizon){
       vue.postes.forEach(function(o){
         if(o.manque) manques.push({pause:g.k, k:o.P.k, z:o.P.z||"", t:o.P.t,
                                    tenu:o.tenu, attendu:o.attendu, eq:eqc[g.k]||"",
-                                   pistes:pistesDeRemplacement(vue,o.P,g.k,par.D,jourCalc)});
+                                   pistes:pistesDeRemplacement(vue,o.P,g.k,par.D,jourCalc),
+                                   P:o.P, vue:vue});
       });
     });
     if(personne){ vus++; if(manques.length)
-      sortie.push({mois:m, jour:j, mmdd:mmdd, l:manques, inc:inconnus}); }
+      sortie.push({mois:m, jour:j, mmdd:mmdd, l:manques, inc:inconnus, par:par}); }
     d.setDate(d.getDate()+1);
   }
   return {jours:sortie, examines:vus};
@@ -8607,6 +8615,23 @@ function renderManques(force){
        la couleur de l'atelier. */
     var DE={D:"en D","?":"à dét.",cm:"CM",adj:"Adj."};
     var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate()), semPrec=-1;
+    /* LES REMPLACEMENTS DE LA RECHERCHE. Le client, le 29/09/2026 : « ce
+       module de recherche peut également être adapté pour le module
+       sous-effectif en proposant des remplacements ». La première ligne
+       reste celle des présents (même pause, à déterminer, en D) ; s'y
+       ajoutent, par caCandidats(), le changement en chaîne quand aucun
+       présent ne suffit seul, le doublage de 12 h l'après-midi et les
+       rappels parmi ceux qui sont en repos. */
+    var an=Number(db.year), memoP={};
+    function pausesLe(dt){
+      var k=dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate(); if(memoP[k]) return memoP[k];
+      var out={};
+      if(dt.getFullYear()===an){
+        var pp=equipeDuJour(db,an,dt.getMonth()+1,dt.getDate());
+        ["AM","PM","N","D"].forEach(function(g){ (pp[g]||[]).forEach(function(y){ out[y.p.id]=g; }); });
+      }
+      return (memoP[k]=out);
+    }
     r.jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
       if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
@@ -8626,15 +8651,22 @@ function renderManques(force){
           return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"
             +esc(DE[q.de]||PV_COURT[q.de]||q.de)+"</small></span>";
         });
+        var tc=caCandidats(x.par,o.vue,o.pause,o.P,an*10000+Number(x.mmdd),function(dec){
+          return pausesLe(new Date(an,x.mois-1,x.jour+dec)); },null,true);
+        var plus=[];
+        if(!pis.length && tc.chaines.length) plus.push('<span class="mqr"><span class="cagr">Même pause</span>'
+          +tc.chaines.map(caChaineHtml).join("")+"</span>");
+        tc.chaines=[]; tc.enD=[];
+        plus=plus.concat(caGroupes(tc,true));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
           +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span>")+"</span>"
           +'<span class="mqn">'+o.tenu+"/"+o.attendu+"</span>"
           +(o.eq && !eqJour?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
-          +'<span class="mqr">'+(pis.length
-              ?'<span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")
-              :'<span class="mqaucun">Aucun remplaçant</span>')+"</span>"
+          +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
+          +plus.join("")
+          +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
           +"</span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
@@ -8717,9 +8749,9 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
      — les postes qui passent sous leur effectif : ce sont les trous ;
      — pour chaque trou, pistesDeRemplacement(), celle des sous-effectifs.
    Le congé ne retient que la MÊME pause (la règle du client). L'absence y
-   ajoute les gens en D (au matin et à l'après-midi) et les RAPPELS : qui est
-   en repos ce jour-là et sait tenir le poste, avec un avertissement quand
-   le repos qui précède ou qui suit tombe sous onze heures.
+   ajoute les gens en D (au matin et à l'après-midi), le doublage de 12 h
+   l'après-midi et les RAPPELS : qui est en repos ce jour-là et sait tenir
+   le poste, avec 8 h de repos de part et d'autre (caCandidats()).
 
    Rien n'est écrit dans l'horaire : ce sont des propositions, que le
    contremaître fait ou ne fait pas. Deux vues qui compteraient autrement
@@ -8730,7 +8762,10 @@ var CA_AIDE={
        +"Sinon, les changements proposés viennent de la même pause, selon les polyvalences.",
   absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
        +"les gens en D, puis les rappels parmi ceux qui sont en repos — jamais plus de "
-       +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées."
+       +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
+       +"L'après-midi peut aussi se couvrir en doublage : le matin reste jusqu'à 18 h, la nuit arrive à 18 h.",
+  recherche:"Qui tient déjà le poste, puis qui pourrait y venir : la même pause (chacun gardant "
+       +"le minimum de son poste), les gens en D, le doublage de 12 h l'après-midi, puis les rappels."
 };
 function caCopie(l,sauf){
   var out=[];
@@ -8814,6 +8849,56 @@ function caChaines(vue,P,jour,max){
   });
   return groupes.slice(0,4);
 }
+/* QUI PEUT PRENDRE UN POSTE, ce jour-là et à cette pause : le tronc commun
+   des trois modules (congé, absence, recherche) et des sous-effectifs.
+   Quatre sources, dans l'ordre où on les essaie :
+     — la MÊME pause, en chaîne (caChaines) ;
+     — les gens en D, au matin et à l'après-midi, sans code de journée ;
+     — le DOUBLAGE DE 12 H, pour l'après-midi seulement : le matin reste
+       jusqu'à 18 h, la nuit arrive à 18 h. Le client, le 29/09/2026, a
+       répondu « A » à la question de le proposer. Il faut les DEUX moitiés
+       pour couvrir la pause ; une moitié seule se montre, mais ne suffit
+       pas. Seulement pour l'après-midi : la règle des 12 h par journée de
+       6 h à 6 h le permet (6 h-18 h, 18 h-6 h), alors qu'un matin ou une
+       nuit ne se double qu'en passant la frontière de 6 h — le client ne
+       l'a pas décrit, on ne le devine pas. Le repos tient toujours : 12 h
+       avant un matin le lendemain, 12 h après une nuit la veille ;
+     — les RAPPELS, parmi ceux qui sont en repos (ni congé, ni maladie, ni
+       poste prévu non presté) et gardent 8 h de repos de part et d'autre.
+   « large » à faux ne garde que la même pause : c'est la règle du congé. */
+function caSait(x,P,jour){ return P.cm ? estCadre(x.p) : (peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour)); }
+function caPlein(x){
+  var h=x.r?x.r.h:null;
+  return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
+}
+function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large){
+  var t={chaines:caChaines(vue,P,jour,3), enD:[], reste:[], arrive:[], rappels:[], ecartes:0};
+  if(!large) return t;
+  var veille=pausesDe(-1), lendemain=pausesDe(1);
+  function reposOk(pid){
+    var av=veille[pid], ap=lendemain[pid];
+    return !(av && caRepos(av,g)<CA_REPOS_MIN) && !(ap && caRepos(g,ap)<CA_REPOS_MIN);
+  }
+  function ok(x){ return x.p.id!==sauf && caSait(x,P,jour); }
+  if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
+    if((x.r && x.r.jourCode) || !ok(x)) return;
+    if(reposOk(x.p.id)) t.enD.push({p:x.p}); else t.ecartes++;
+  });
+  if(g==="PM"){
+    (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
+    (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
+  }
+  (par.off||[]).forEach(function(x){
+    if(!x.r || x.prevu || x.r.a || !ok(x)) return;
+    if(!reposOk(x.p.id)){ t.ecartes++; return; }
+    t.rappels.push({p:x.p, veille:veille[x.p.id]||""});
+  });
+  t.rappels.sort(function(a,b){ return (a.veille?1:0)-(b.veille?1:0)
+    || (a.p.id<b.p.id?-1:a.p.id>b.p.id?1:0); });
+  return t;
+}
+/* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
+function caDouble(t){ return t.reste.length>0 && t.arrive.length>0; }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
   var par=equipeDuJour(db,annee,m,j), pause=null;
@@ -8846,30 +8931,8 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
     vB.postes.forEach(function(o){
       var a=tA[o.P.k];
       if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
-      var toutes=pistesDeRemplacement(vB,o.P,g,(g==="AM"||g==="PM")?caCopie(par.D,id):null,jour);
-      var veille=pausesDe(-1), lendemain=pausesDe(1);
-      /* le repos de la veille et du lendemain, pour qui change de pause */
-      function reposOk(pid,gg){
-        var av=veille[pid], ap=lendemain[pid];
-        return !(av && caRepos(av,gg)<CA_REPOS_MIN) && !(ap && caRepos(gg,ap)<CA_REPOS_MIN);
-      }
-      var t={pause:g, P:o.P, tenu:o.tenu, attendu:o.attendu,
-             chaines:caChaines(vB,o.P,jour,3),
-             enD:toutes.filter(function(q){ return q.de==="D" && reposOk(q.p.id,g); }),
-             rappels:[], ecartes:0};
-      if(mode==="absence"){
-        (par.off||[]).forEach(function(x){
-          if(!x.r || x.prevu || x.r.a || x.p.id===id) return;
-          var sait=o.P.cm ? estCadre(x.p) : (peutTenir(x.p,o.P,jour) && compteAuPoste(x,o.P,jour));
-          if(!sait) return;
-          if(!reposOk(x.p.id,g)){ t.ecartes++; return; }
-          /* le repos avant la pause, pour dire qui vient le plus reposé */
-          var av=veille[x.p.id];
-          t.rappels.push({p:x.p, veille:av||""});
-        });
-        t.rappels.sort(function(a,b){ return (a.veille?1:0)-(b.veille?1:0)
-          || (a.p.id<b.p.id?-1:a.p.id>b.p.id?1:0); });
-      }
+      var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode==="absence");
+      t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
       res.trous.push(t);
     });
   });
@@ -8882,7 +8945,7 @@ function caVerdict(r,mode){
     return r.moves.length?{v:"chg",t:"Possible avec changement"}:{v:"ok",t:"Possible"};
   }
   var tous=r.trous.every(function(t){
-    return t.chaines.length || (mode==="absence" && (t.enD.length||t.rappels.length)); });
+    return t.chaines.length || (mode==="absence" && (t.enD.length||t.rappels.length||caDouble(t))); });
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
@@ -8891,6 +8954,42 @@ function caChip(id,sous){
     +(sous?"<small>"+esc(sous)+"</small>":"")+"</span>";
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
+/* Les groupes de candidats d'un poste, dans l'ordre de caCandidats(). */
+function caChaineHtml(gr){
+  function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
+  if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
+  /* une chaîne se lit dans l'ordre où on la fait : qui prend le trou, puis
+     qui prend sa place */
+  var h=gr.tete.map(function(z){ return caChip(z.p.id,lieu(z)+" \u2192 "+caPoste(z.a)); }).join("<i>puis</i>");
+  var cible=caPoste(gr.fin[0].a);
+  if(gr.fin.length===1) return '<span class="cachaine">'+h+"<i>puis</i>"
+    +caChip(gr.fin[0].p.id,lieu(gr.fin[0])+" \u2192 "+cible)+"</span>";
+  return '<span class="cachaine">'+h+"<i>puis</i>"
+    +gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("<i>ou</i>")
+    +"<i>\u2192 "+esc(cible)+"</i></span>";
+}
+function caGroupes(t,large){
+  var g=[];
+  if(t.chaines.length) g.push('<span class="mqr"><span class="cagr">Même pause</span>'
+    +t.chaines.map(caChaineHtml).join("")+"</span>");
+  if(!large) return g;
+  if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
+    +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
+  /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
+  var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à 18 h":"personne pour rester jusqu'à 18 h")+"</span>";
+  if(t.reste.length) g.push('<span class="mqr"><span class="cagr">Reste \u2192 18 h</span>'
+    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,"AM"); }).join("")
+    +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+(t.arrive.length?"":manque)+"</span>");
+  if(t.arrive.length) g.push('<span class="mqr"><span class="cagr">Arrive 18 h</span>'
+    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,"N"); }).join("")
+    +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+(t.reste.length?"":manque)+"</span>");
+  if(t.rappels.length) g.push('<span class="mqr"><span class="cagr">Rappel</span>'
+    +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.veille?"veille "+o.veille:"repos"); }).join("")
+    +(t.rappels.length>8?'<span class="mqinc">+'+(t.rappels.length-8)+"</span>":"")+"</span>");
+  if(t.ecartes) g.push('<span class="mqinc">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
+    +" : moins de 8 h de repos</span>");
+  return g;
+}
 var caDB=null;
 function caInit(db){
   caDB=db;
@@ -8904,13 +9003,23 @@ function caInit(db){
   }).join("");
   var moi=lsGet("ui/caQui")||lsGet("ui/prefillId");
   if(moi) sel.value=moi;
+  document.getElementById("caPoste").innerHTML=POSTES_TRAVAIL.filter(function(P){ return P.k!=="adj"; })
+    .map(function(P){ return '<option value="'+P.k+'">'+esc(P.t)+"</option>"; }).join("");
+  var rc=String(lsGet("ui/caRech")||"").split("/");
+  if(/^(AM|PM|N)$/.test(rc[0])) document.getElementById("caPause").value=rc[0];
+  if(rc[1] && caPosteDe(rc[1])) document.getElementById("caPoste").value=rc[1];
   caDates();
+}
+function caForme(){
+  var f=document.getElementById("caForm"); if(!f) return;
+  f.className="caform"+(caDuree==="jour"?" jour":"")+(caMode==="recherche"?" rech":"");
 }
 function caIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
 function caDates(){
   if(!caDB) return;
   var an=Number(caDB.year), d=jourUsine();
   if(caMode==="conge") d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+  caForme();
   if(d.getFullYear()!==an) d=new Date(an,d.getFullYear()<an?0:11,d.getFullYear()<an?1:31);
   ["caDu","caAu"].forEach(function(k){
     var el=document.getElementById(k);
@@ -8921,10 +9030,45 @@ function caLire(k){
   var v=(document.getElementById(k).value||"").split("-").map(Number);
   return v.length===3&&v[0]?new Date(v[0],v[1]-1,v[2]):null;
 }
+/* LA RECHERCHE PAR PAUSE ET PAR POSTE. Le client, le 29/09/2026 : « un
+   troisième module de recherche par pause sur un tel poste — exemple : le
+   21 octobre je recherche un opérateur chaudière en pause de N ». Rien
+   n'est retiré de la journée : on rejoue la pause telle quelle, on dit qui
+   tient déjà le poste, puis qui pourrait y venir, par caCandidats() — la
+   même pause en chaîne (chacun gardant le minimum de son poste), les gens
+   en D, le doublage de 12 h pour l'après-midi et les rappels. */
+function caPosteDe(k){
+  for(var i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k===k) return POSTES_TRAVAIL[i];
+  return null;
+}
+function caRechercher(db,an,m,j,g,k,pausesDe){
+  var mmdd=pad2(m)+pad2(j), jour=an*10000+Number(mmdd);
+  var par=equipeDuJour(db,an,m,j), eqc=equipeALaPause(db,an,m,j);
+  var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null);
+  var o=null; vue.postes.forEach(function(x){ if(x.P.k===k) o=x; });
+  var P=o?o.P:caPosteDe(k), tenu=o?o.tenu:0, attendu=o?o.attendu:0;
+  var t=caCandidats(par,vue,g,P,jour,pausesDe,null,true);
+  var g2=caGroupes(t,true);
+  var dispo=t.chaines.length||t.enD.length||t.rappels.length||caDouble(t);
+  var h='<span class="catete"><span class="caverd" data-v="'+(tenu<attendu?"non":"ok")+'">'
+    +(tenu<attendu?"Sous-effectif":"Au complet")+"</span>"
+    +esc(g+" · "+caPoste(P)+(eqc[g]?" · Éq. "+eqc[g]:""))+"</span>";
+  var au=o?o.gens.filter(function(x){ return !x.depuisD; }):[];
+  h+='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
+    +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
+    +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn">'+tenu+"/"+attendu+"</span></span>"
+    +(au.length?'<span class="mqr"><span class="cagr">Au poste</span>'
+      +au.map(function(x){ return caChip(x.p.id,""); }).join("")+"</span>":"")
+    +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
+    +"</span>";
+  return {v:dispo?"ok":"non", html:h};
+}
 function caCalculer(){
   var db=caDB, hote=document.getElementById("caCorps"); if(!db||!hote) return;
-  var id=document.getElementById("caQui").value; if(!id) return;
-  lsSet("ui/caQui",id);
+  var rech=caMode==="recherche", id=document.getElementById("caQui").value;
+  var rg=document.getElementById("caPause").value, rk=document.getElementById("caPoste").value;
+  if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
+  else { if(!id) return; lsSet("ui/caQui",id); }
   var du=caLire("caDu"), au=caDuree==="jour"?du:(caLire("caAu")||du), an=Number(db.year);
   if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
@@ -8944,6 +9088,16 @@ function caCalculer(){
   var h=[], semPrec=-1, n={ok:0,chg:0,non:0,hors:0};
   jours.forEach(function(dt){
     var m=dt.getMonth()+1, j=dt.getDate();
+    if(rech){
+      var qr=dateEnMots(an,m,j,t0);
+      if(qr.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[qr.sem]+"</div>"); semPrec=qr.sem; }
+      var rr=caRechercher(db,an,m,j,rg,rk,function(dec){
+        return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
+      n[rr.v]++;
+      h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qr.titre)+'">'
+        +qr.html+'<span class="mqls">'+rr.html+"</span></button>");
+      return;
+    }
     var r=caSimuler(db,id,an,m,j,caMode,function(dec){
       return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
     var v=caVerdict(r,caMode); n[v.v]++;
@@ -8959,30 +9113,7 @@ function caCalculer(){
         +r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join("")
         +"</span></span>");
       r.trous.forEach(function(t){
-        var g=[];
-        if(t.chaines.length) g.push('<span class="mqr"><span class="cagr">Même pause</span>'
-          +t.chaines.map(function(gr){
-            function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
-            if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
-            /* une chaîne se lit dans l'ordre où on la fait : qui prend le
-               trou, puis qui prend sa place */
-            var h=gr.tete.map(function(z){ return caChip(z.p.id,lieu(z)+" \u2192 "+caPoste(z.a)); }).join("<i>puis</i>");
-            var cible=caPoste(gr.fin[0].a);
-            if(gr.fin.length===1) return '<span class="cachaine">'+h+"<i>puis</i>"
-              +caChip(gr.fin[0].p.id,lieu(gr.fin[0])+" \u2192 "+cible)+"</span>";
-            return '<span class="cachaine">'+h+"<i>puis</i>"
-              +gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("<i>ou</i>")
-              +"<i>\u2192 "+esc(cible)+"</i></span>";
-          }).join("")+"</span>");
-        if(caMode==="absence"){
-          if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
-            +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
-          if(t.rappels.length) g.push('<span class="mqr"><span class="cagr">Rappel</span>'
-            +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.veille?"veille "+o.veille:"repos"); }).join("")
-            +(t.rappels.length>8?'<span class="mqinc">+'+(t.rappels.length-8)+"</span>":"")+"</span>");
-          if(t.ecartes) g.push('<span class="mqinc">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
-            +" : moins de 8 h de repos</span>");
-        }
+        var g=caGroupes(t,caMode!=="conge");
         if(!g.length) g.push('<span class="mqr"><span class="mqaucun">'
           +(caMode==="conge"?"Personne dans la même pause":"Aucun remplaçant")+"</span></span>");
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
@@ -8996,13 +9127,18 @@ function caCalculer(){
     h.push("</span></button>");
   });
   var bil=[];
+  if(rech){
+    if(n.ok) bil.push('<span class="caverd" data-v="ok">'+n.ok+" avec quelqu'un</span>");
+    if(n.non) bil.push('<span class="caverd" data-v="non">'+n.non+" sans personne</span>");
+    n={};
+  }
   if(n.ok) bil.push('<span class="caverd" data-v="ok">'+n.ok+(caMode==="conge"?" possible"+(n.ok>1?"s":""):" sans rien à faire")+"</span>");
   if(n.chg) bil.push('<span class="caverd" data-v="chg">'+n.chg+(caMode==="conge"?" avec changement":" à arranger")+"</span>");
   if(n.non) bil.push('<span class="caverd" data-v="non">'+n.non+(caMode==="conge"?" pas possible":" sans remplaçant")+"</span>");
   if(n.hors) bil.push('<span class="caverd" data-v="hors">'+n.hors+" hors poste</span>");
   hote.innerHTML=(jours.length>1?'<div class="cabilan">'+bil.join("")+"</div>":"")
     +(h.join("")||'<p class="mqrien">Aucune journée de '+an+" dans cette période.</p>");
-  document.getElementById("caSub").textContent=idLisible(id)+" · "+jours.length+" journée"+(jours.length>1?"s":"");
+  document.getElementById("caSub").textContent=(rech?rg+" · "+caPoste(caPosteDe(rk)):idLisible(id))+" · "+jours.length+" journée"+(jours.length>1?"s":"");
 }
 (function(){
   var seg=document.querySelector(".caseg"); if(!seg) return;
@@ -9012,17 +9148,18 @@ function caCalculer(){
       b.setAttribute("aria-selected",String(b.dataset.ca===m)); });
     document.getElementById("caAide").textContent=CA_AIDE[m];
     document.getElementById("caCorps").innerHTML="";
-    document.getElementById("caSub").textContent="simuler une journée sans quelqu'un";
+    document.getElementById("caSub").textContent=m==="recherche"?"trouver quelqu'un pour un poste":"simuler une journée sans quelqu'un";
+    caForme();
     caDates();
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
   document.getElementById("caAide").textContent=CA_AIDE[caMode];
   document.getElementById("caGo").addEventListener("click",caCalculer);
-  /* Un jour ou une période : un seul champ, ou deux et les durées rapides. */
+  /* Un jour ou une période : un seul champ, ou deux. */
   var form=document.getElementById("caForm");
   function duree(d){
     caDuree=d; lsSet("ui/caDuree",d);
-    form.className="caform"+(d==="jour"?" jour":"");
+    caForme();
     Array.prototype.forEach.call(form.querySelectorAll(".caduree button"),function(b){
       b.setAttribute("aria-checked",String(b.dataset.du===d)); });
     document.getElementById("caTDu").textContent=d==="jour"?"Le":"Du";

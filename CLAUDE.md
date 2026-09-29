@@ -1527,10 +1527,8 @@ n'est deviné à leur sujet :
   formation). C : (D), sans heures ;
 - ~~les deux heures du projet falling film~~ : tranché le 29/09/2026, voir
   « Les réponses du 29/09/2026 » ;
-- **le doublage de 12 h pour couvrir une absence** (29/09/2026) : la règle
-  des 12 h par journée permet qu'un AM reste jusqu'à 18 h et qu'une N
-  arrive à 18 h pour couvrir un PM vide. Le module d'absence ne le propose
-  pas encore : question posée au client ;
+- ~~le doublage de 12 h pour couvrir une absence~~ : tranché le
+  29/09/2026 (A), voir « Recherche par pause et par poste » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -2434,6 +2432,48 @@ de la distillation à la meunerie ; GPS absent le 07/10, AFA et ATR en D,
 YPE en rappel, VGG en « repos court · veille N ». Les quatre sorties du
 vérificateur sont identiques à l'octet (le module ne touche aucune
 lecture) ; rien ne déborde à 320 (hors ligne), 390 et 1280 px, en clair et
+en sombre.
+
+### Le doublage de 12 h, et la recherche par pause et par poste
+
+Le client, le 29/09/2026, à la question du doublage : « **A** » — le
+proposer. Puis : « il faut aussi un troisième module de recherche par pause
+sur un tel poste — exemple : le 21 octobre je recherche un opérateur
+chaudière en pause de N ; ce module peut également être adapté pour le
+module sous-effectif en proposant des remplacements ».
+
+**Un tronc commun, `caCandidats()`**, sert aux trois modules et aux
+sous-effectifs. Il rend, pour un poste d'une pause : les chaînes de la
+même pause (`caChaines()`), les gens en D, le doublage et les rappels,
+avec le même repos de 8 h. `caGroupes()` les écrit, toujours dans cet
+ordre. Le congé ne garde que la même pause, comme avant.
+
+- **Le doublage ne vaut que pour l'après-midi** : le matin reste jusqu'à
+  18 h (« Reste → 18 h », 6 h-18 h), la nuit arrive à 18 h (« Arrive
+  18 h », 18 h-6 h) — ce que le client a décrit, et ce que la règle des
+  12 h par journée de 6 h à 6 h permet sans rien passer d'une journée à
+  l'autre. Doubler un matin ou une nuit franchirait 6 h : **non codé**,
+  le client ne l'a pas décrit. Il faut les deux moitiés pour couvrir la
+  pause ; une moitié seule se montre, avec la phrase qui dit ce qui
+  manque, et ne rend pas le jour « Remplaçable ». Seuls ceux qui font
+  leur journée entière, sans code de journée, peuvent doubler. Le repos
+  tient toujours (12 h dans les deux cas).
+- **La recherche** (troisième onglet du cadre, rebaptisé « Congé, absence
+  et recherche ») demande une pause, un poste et un jour ou une période ;
+  pause et poste sont retenus dans `ui/caRech`. Rien n'est retiré de la
+  journée : elle dit l'effectif (« Au complet » ou « Sous-effectif »),
+  qui tient déjà le poste, puis les candidats. Éprouvé sur l'exemple du
+  client : le 21/10, N chaudières, 1/2, GJR au poste, six rappels (GPO et
+  JBS en repos, quatre après une nuit la veille).
+- **Les sous-effectifs** gardent leur première ligne (les présents : même
+  pause, à déterminer, en D) ; s'y ajoutent la chaîne quand aucun présent
+  ne suffit seul, le doublage et les rappels. Les 21 et 22/10 (N
+  chaudières) affichent désormais six et cinq rappels, et quatre écartés
+  pour le repos.
+
+Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
+Les quatre sorties du vérificateur sont identiques à l'octet (il ne
+découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
 en sombre.
 
 ## Le pré-remplissage ne parle que s'il faut agir
