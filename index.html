@@ -175,6 +175,18 @@ h1,h2,h3{margin:0; font-weight:600; text-wrap:balance}
 button,select,input{font:inherit; color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--in2); outline-offset:2px; border-radius:5px}
+/* L'ENTRÉE D'UN ONGLET. La vue qui arrive monte de six pixels en
+   s'éclairant, un cinquième de seconde : assez pour dire « on a changé de
+   page », trop peu pour faire attendre. La règle qui suit l'éteint pour qui
+   a demandé moins de mouvement. */
+@keyframes vueEntre{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+.panel.entre{animation:vueEntre .22s cubic-bezier(.2,.7,.3,1)}
+@keyframes jourGauche{from{opacity:.2; transform:translateX(18px)} to{opacity:1; transform:none}}
+@keyframes jourDroite{from{opacity:.2; transform:translateX(-18px)} to{opacity:1; transform:none}}
+#eqCorps.glisse-g{animation:jourGauche .2s ease-out}
+#eqCorps.glisse-d{animation:jourDroite .2s ease-out}
+.btn,.eqnav button{transition:transform .12s ease, background-color .15s ease, border-color .15s ease}
+.btn:active,.eqnav button:active{transform:scale(.95)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
 
 /* ---------- en-tête ---------- */
@@ -336,7 +348,12 @@ button{cursor:pointer}
 .card>header .right{margin-left:auto; display:flex; align-items:center; gap:8px}
 .pad{padding:16px}
 .lede{margin:0; padding:0 16px 14px; font-size:12.5px; color:var(--muted); max-width:70ch}
-.lede.top{padding-top:14px; padding-bottom:0}
+/* « haut » et non « top » : ce second nom était celui de la barre du
+   haut, qui est collante et peinte à la couleur de la marque. Les quatre
+   textes d'introduction en héritaient : ils restaient collés au bord de
+   l'écran au défilement et, en thème clair, s'écrivaient en gris sur le
+   bleu nuit, presque illisibles. */
+.lede.haut{padding-top:14px; padding-bottom:0}
 
 .btn{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2)}
 .btn:hover{border-color:var(--in); color:var(--in); background:var(--surface2)}
@@ -551,14 +568,18 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 .annee .legende{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; margin:0 0 14px; font-size:11.5px; color:var(--muted)}
 .annee .legende span{display:inline-flex; align-items:center; gap:6px}
 .annee .legende i{display:inline-block; width:13px; height:13px; border-radius:4px; font-style:normal}
-.annee .tuiles{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+/* Une grille de colonnes égales, et non une rangée qui s'enroule : les
+   tuiles prenaient la largeur de leur libellé, et deux lignes de trois ne
+   tombaient jamais d'aplomb. Le haut reprend l'écart du cadre — la
+   première rangée touchait le filet de l'en-tête. */
+.annee .tuiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px; margin:0 0 14px; padding-top:14px}
 .annee .tuiles div{
   background:var(--surface); border:1px solid var(--line2); border-radius:9px;
   padding:7px 12px; min-width:84px;
 }
 .annee .tuiles b{display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:17px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.2}
-.annee .tuiles span{font-size:10.5px; color:var(--muted)}
+.annee .tuiles span{display:block; font-size:10.5px; line-height:1.3; color:var(--muted)}
 /* infobulle : un calendrier en HTML est interactif, chaque case se survole */
 #calTip{
   position:fixed; z-index:60; pointer-events:none; opacity:0;
@@ -1653,6 +1674,22 @@ body.sheet-on{overflow:hidden}
   .tabs button[aria-selected="true"]{color:var(--marque-vif); background:rgba(255,255,255,.10)}
   .tabs button[aria-selected="true"]::after{display:none}
   .tabs .dotwarn{position:absolute; top:4px; right:calc(50% - 16px); margin:0}
+  /* UNE LIGNE, À TOUTES LES LARGEURS DE TÉLÉPHONE. « nowrap » ne valait que
+     sous 375 px ; à 390, l'onglet choisi — en gras, donc plus large —
+     passait « Mon horaire » sur deux lignes et la barre grandissait de
+     quinze pixels à chaque fois qu'on l'ouvrait. */
+  .tabs button{white-space:nowrap; transition:color .18s ease, background-color .18s ease, transform .12s ease}
+  /* Le geste répond sous le doigt : l'onglet s'enfonce et l'icône du choisi
+     se soulève d'un cran. Un retour qu'on sent sans le lire. */
+  .tabs button:active{transform:scale(.93)}
+  .tabs button svg{transition:transform .22s cubic-bezier(.3,1.4,.5,1)}
+  .tabs button[aria-selected="true"] svg{transform:translateY(-1px) scale(1.08)}
+  /* Les intitulés des réglages : le sous-titre sous le titre, et non à
+     côté. À côté, il repoussait « Primes de rappel » et « Mes données » sur
+     deux lignes pour une phrase qui en prenait deux aussi. */
+  .fold>summary{flex-wrap:wrap; row-gap:2px}
+  .fold>summary .sub{flex-basis:100%; order:2}
+  .fold>summary::after{order:1}
   .wrap{padding-bottom:96px}
   .toast{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
   .top-in{padding:8px 16px; gap:10px}
@@ -2107,7 +2144,7 @@ body[data-horaire="annee"] #rotasub{display:none}
         <h2>Contrôle de la vraie fiche</h2>
         <div class="right"><span id="ctrlStatus"></span></div>
       </header>
-      <p class="lede top">Recopiez dix montants de la fiche reçue. Une ligne verte veut dire que le calcul et la fiche disent la même chose au centime près ; une ligne rouge indique l'écart à expliquer.</p>
+      <p class="lede haut">Recopiez dix montants de la fiche reçue. Une ligne verte veut dire que le calcul et la fiche disent la même chose au centime près ; une ligne rouge indique l'écart à expliquer.</p>
       <table class="chk">
         <thead><tr><th>Ligne</th><th>Calculé ici</th><th>Sur ma fiche</th><th>Écart</th><th></th></tr></thead>
         <tbody id="chk"></tbody>
@@ -2124,7 +2161,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     <div class="card">
       <details class="fold" open>
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
-        <p class="lede top">Choisissez votre fonction puis votre identifiant : votre horaire de l'année se
+        <p class="lede haut">Choisissez votre fonction puis votre identifiant : votre horaire de l'année se
           remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
           désignées que par leurs initiales ou leur matricule.</p>
         <div class="pad qui">
@@ -2136,7 +2173,7 @@ body[data-horaire="annee"] #rotasub{display:none}
       </details>
       <details class="fold">
         <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
-        <p class="lede top">Vos informations personnelles — rémunération, situation familiale, cycle, déplacements — se corrigent ici à tout moment.</p>
+        <p class="lede haut">Vos informations personnelles — rémunération, situation familiale, cycle, déplacements — se corrigent ici à tout moment.</p>
         <div class="pad" id="paramFields"></div>
         <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
         <p class="lede" id="paramNote"></p>
@@ -2174,7 +2211,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     <header>
       <h2 id="onboardTitle">Bienvenue — quelques infos avant de commencer</h2>
     </header>
-    <p class="lede top">
+    <p class="lede haut">
       Les réglages communs à l'équipe (primes d'équipe, coefficients de rappel, chèques-repas, barèmes ONSS et impôt…)
       sont déjà configurés. Il ne manque que ce qui vous est propre, expliqué ci-dessous. Rien n'est définitif :
       vous pourrez tout corriger plus tard dans l'onglet <b>Réglages</b>.
@@ -4018,9 +4055,12 @@ var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire"};
 function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="resume";
+  var change=(st.view!==v);
   st.view=v;
   VIEWS.forEach(function(x){
-    document.getElementById("v-"+x).hidden=(x!==v);
+    var el=document.getElementById("v-"+x);
+    el.hidden=(x!==v);
+    if(x===v && change){ el.classList.remove("entre"); void el.offsetWidth; el.classList.add("entre"); }
   });
   Array.prototype.forEach.call(document.querySelectorAll(".tabs button"),function(b){
     b.setAttribute("aria-selected",String(b.dataset.v===v));
@@ -8507,7 +8547,32 @@ function renderManques(force){
 }
 function eqBouge(n){
   var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false; renderEquipe();
+  /* Le tableau arrive du côté où l'on va : demain par la droite, hier par
+     la gauche. C'est ce qui fait sentir qu'on feuillette des journées. */
+  var c=document.getElementById("eqCorps");
+  c.classList.remove("glisse-g","glisse-d"); void c.offsetWidth;
+  c.classList.add(n>0?"glisse-g":"glisse-d");
 }
+/* FEUILLETER DU DOIGT. Sur téléphone, un glissement horizontal sur le
+   tableau change de jour, comme les flèches. Seulement s'il est franc —
+   soixante pixels, nettement plus large que haut — pour ne jamais voler
+   un défilement vertical ; et jamais si le tableau défile lui-même de
+   côté, auquel cas le geste lui appartient. */
+(function(){
+  var c=document.getElementById("eqCorps"), x0=null, y0=0, t0=0;
+  c.addEventListener("touchstart",function(e){
+    if(e.touches.length!==1){ x0=null; return; }
+    x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
+  },{passive:true});
+  c.addEventListener("touchend",function(e){
+    if(x0===null) return;
+    var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0; x0=null;
+    if(Date.now()-t0>700 || Math.abs(dx)<60 || Math.abs(dx)<1.8*Math.abs(dy)) return;
+    var sc=e.target.closest && e.target.closest(".eqgrille");
+    if(sc && sc.scrollWidth>sc.clientWidth+2) return;
+    eqBouge(dx<0?1:-1);
+  },{passive:true});
+})();
 document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
 document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
 document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
