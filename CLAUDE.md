@@ -18,6 +18,9 @@ branche, aucune pull request sauf demande. Les deux anciennes branches
 `claude/…` sont identiques à `main` ou déjà contenues dedans ; le serveur
 refuse de les supprimer depuis une session (comme les étiquettes), elles
 se suppriment à la main sur GitHub.
+**Langue.** Le client, le 29/09/2026 : « réponds-moi toujours en
+français ». Toutes les réponses au client sont en français, comme
+l'interface, les commentaires de code et les messages de commit.
 **Dans un conteneur neuf, `git config core.hooksPath .githooks` d'abord** :
 le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
 le crochet n'était pas installé — lire le code de retour ne suffit pas si
