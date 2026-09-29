@@ -2352,6 +2352,17 @@ ni après 3 s, puis le retire du document. **Le nom n'est pas écrit sous
 le logo** : le dessin porte déjà « biowanze », et la première version le
 disait deux fois. Sous `prefers-reduced-motion`, il reste un écran fixe.
 
+**Et son fond sous toute l'application, en sombre.** Le client, le
+29/09/2026 : « j'aime beaucoup le background de l'écran de chargement, je
+voudrais le même à mon application ». Le même dégradé radial (#1b2640 au
+centre, #111727 aux bords) vit dans un jeton `--fond`, posé sur un calque
+fixe `body::before` — Safari sur iOS ignore `background-attachment:fixed`.
+Thème sombre seulement : le clair garde sa page #F6F6F6, relevée sur les
+captures du client, et `--fond` y vaut `none`. Les cartes (#212737) restent
+au-dessus du fond le plus clair, et le texte posé sur la page tient : le
+gris le plus pâle, `--faint`, lit à 4,8:1 sur #1b2640. Vérifié à 390 et
+1280 px, en haut de page et défilé.
+
 ## Congé et absence : la journée rejouée sans quelqu'un
 
 Le client, le 29/09/2026 : un module de **demande de congé** qui dit si
