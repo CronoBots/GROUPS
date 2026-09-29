@@ -2579,6 +2579,11 @@ cède la place aux mêmes étiquettes « ? » bordées de rouge, une par place
 vide (le client, le 29/09/2026) ; le compte reste dans l'infobulle. Le
 fond rouge pâle de la case demeure. Mesuré à 390 px : « ? » et GJR font
 33,5 px tous deux ; rien ne déborde à 320 et 390 px.
+Le fond de la case passe de l'orangé de `--out-soft` à un rouge de la
+teinte du badge (le client, le 29/09/2026) : un jeton `--manque-fond`,
+`#F8D4CF` en clair et `#512E30` en sombre, déclaré dans les trois blocs de
+thème. Un `color-mix` avec la carte a été essayé d'abord : sur le bleu
+nuit, il virait au mauve.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
