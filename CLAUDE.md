@@ -2425,6 +2425,11 @@ apparence native (`appearance:none`) et reprend une hauteur de 42 px.
 Chromium ne reproduit pas le défaut d'iOS : seul l'appareil du client dit
 qu'il est guéri.
 
+**Plus de texte d'aide sous les onglets.** Le client, le 29/09/2026 :
+« pas besoin des explications sous les boutons congés et absence ».
+`CA_AIDE`, `#caAide` et ses styles sont retirés ; la recherche n'en avait
+déjà plus.
+
 **Les champs à la même hauteur.** Le client, le 29/09/2026, capture de
 son iPhone : « les 3 filtres doivent avoir la même hauteur » — le menu
 déroulant gardait sa hauteur native d'iOS, plus basse que le champ de

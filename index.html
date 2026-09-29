@@ -1205,7 +1205,6 @@ body.sheet-on{overflow:hidden}
   font-weight:600; color:var(--muted); transition:background-color .18s ease, color .18s ease}
 .caseg button[aria-selected="true"]{background:var(--surface); color:var(--ink);
   box-shadow:0 1px 3px rgba(0,0,0,.18)}
-.caaide{margin:10px 16px 0; font-size:12px; color:var(--muted); line-height:1.45}
 .caform{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px 14px;
   border-bottom:1px solid var(--trait)}
 .caform label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
@@ -1228,7 +1227,6 @@ body.sheet-on{overflow:hidden}
 .caform.jour .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
 /* Recherche : pas d'aide, les trois champs sur une ligne, un seul titre. */
-#caCard.rech .caaide{display:none}
 .caform.rech{grid-template-columns:minmax(56px,.6fr) 1.3fr 1.2fr; gap:8px}
 .caform.rech .cadu{grid-column:auto !important}
 .caform.rech select,.caform.rech input{padding:9px 8px; font-size:13.5px}
@@ -2034,7 +2032,6 @@ body[data-horaire="annee"] #rotasub{display:none}
         <button type="button" role="tab" data-ca="absence" aria-selected="false">Absence</button>
         <button type="button" role="tab" data-ca="recherche" aria-selected="false">Recherche</button>
       </div>
-      <p class="caaide" id="caAide"></p>
       <div class="caform jour" id="caForm">
         <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
         <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
@@ -8786,17 +8783,9 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
    contremaître fait ou ne fait pas. Deux vues qui compteraient autrement
    que le tableau du jour seraient pires qu'aucune — d'où le réemploi. */
 var caMode="conge", caDuree=lsGet("ui/caDuree")==="periode"?"periode":"jour";
-var CA_AIDE={
-  conge:"Le congé est possible si la pause garde son effectif sans la personne. "
-       +"Sinon, les changements proposés viennent de la même pause, selon les polyvalences.",
-  absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
-       +"les gens en D, un changement de pause là où un poste a du monde en trop, puis les rappels parmi ceux qui sont en repos — jamais plus de "
-       +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
-       +"Doublage de 12 h, toujours par paire : 06-18 et 18-06 pour l'après-midi, "
-       +"14-02 et 02-14 pour la nuit, 10-22 et (plus rare) 22-10 pour le matin.",
-  recherche:"Qui tient déjà le poste, puis qui pourrait y venir : la même pause (chacun gardant "
-       +"le minimum de son poste), les gens en D, le doublage de 12 h (après-midi et nuit), puis les rappels."
-};
+/* Plus de texte d'aide sous les onglets : le client, le 29/09/2026, « pas
+   besoin des explications sous les boutons congés et absence » (la
+   recherche n'en avait déjà plus). Les cadres de résultat se lisent seuls. */
 function caCopie(l,sauf){
   var out=[];
   (l||[]).forEach(function(x){ if(x.p.id!==sauf) out.push({p:x.p,r:x.r}); });
@@ -9282,7 +9271,6 @@ function caCalculer(){
     caMode=m;
     Array.prototype.forEach.call(seg.querySelectorAll("button"),function(b){
       b.setAttribute("aria-selected",String(b.dataset.ca===m)); });
-    document.getElementById("caAide").textContent=CA_AIDE[m];
     document.getElementById("caCorps").innerHTML="";
     document.getElementById("caSub").textContent=m==="recherche"?"trouver quelqu'un pour un poste":"simuler une journée sans quelqu'un";
     caForme();
@@ -9290,7 +9278,6 @@ function caCalculer(){
     if(m==="recherche") caCalculer();
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
-  document.getElementById("caAide").textContent=CA_AIDE[caMode];
   document.getElementById("caGo").addEventListener("click",caCalculer);
   /* La recherche se refait d'elle-même à chaque changement de champ : une
      journée se calcule à l'instant, le bouton n'apportait rien. */
