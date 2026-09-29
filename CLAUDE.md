@@ -1525,23 +1525,8 @@ n'est deviné à leur sujet :
   (D-CPPT, DS-CE, F) : 10 présences d'ici la fin de l'année. A : (7h30-16), l'horaire de jour de la grille.
   B : un horaire propre à chaque fonction (contremaître, opérateur,
   formation). C : (D), sans heures ;
-- **les deux heures du projet falling film** (28/09/2026). Le client : « le
-  5 et le 16 octobre, les opérateurs en formation (falling film) tiennent
-  bien leurs pauses à leurs postes et suivent la formation avant ou après
-  (2 h de FT+ ou de HS selon la demande ; si FT+, ce sera marqué dans
-  l'horaire, sinon HS) ». Le placement le faisait déjà
-  (`PROJETS_SUR_POSTE`, depuis le 22/09) : vérifié au navigateur les 05,
-  09, 15 et 26/10, les seuls jours « projet falling film » du classeur ;
-  le 16/10 est une formation ATEX, où les gens sont remplacés. **Ce qui
-  n'est pas fait** : les 2 h ne sont écrites nulle part, donc ni FT+ ni HS
-  ne sont comptés. Le client, le 29/09/2026 : « après la formation, les
-  opérateurs feront une feuille de demande d'heures ; ils auront le choix
-  entre HS ou FT+ ; si FT+, il sera marqué dans l'horaire en commentaire,
-  dans la cellule ou une cellule proche qui parle de ce jour-là » : les heures sont donc des HS
-  sauf « +FT » écrit. **Reste à savoir QUI** : 8 des 33 journées sont
-  « remplacé par » ou en 7h-15h (formation pendant la journée, sans heures
-  en plus ?), et la pause dont les 2 h prennent la prime. Question reposée
-  le 29/09/2026 ;
+- ~~les deux heures du projet falling film~~ : tranché le 29/09/2026, voir
+  « Les réponses du 29/09/2026 » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -1595,6 +1580,23 @@ Recyclage : les journées où un stagiaire remplaçait comptent à son poste
 validé (GST fermentation 11 → 16, LHR gluten 3 → 7, SVE gluten 1 → 2,
 HKB et LHR meunerie +1) et JKS fermentation 10 → 9, qui ne comble plus la
 place ; **22** couples au quota au lieu de 23.
+
+**Les deux heures du projet falling film sont des HS, à la prime de
+l'autre pause.** Le client : les opérateurs choisiront HS ou FT+ sur une
+feuille de demande, et « si FT+ il sera marqué dans l'horaire en
+commentaire » ; puis « ceux qui font le matin auront la formation après
+14h et ceux qui font PM avant 14h ». `lireJournee()` pose donc 2 h sup
+(`r.hc`, le mécanisme des « +0,5 hs » écrits) sur une journée « projet
+falling film » : prime d'après-midi après un matin (14 h-16 h), prime du
+matin avant un après-midi (12 h-14 h). Seulement pour qui TIENT sa pause :
+pas un « remplacé par » (5 journées), pas une plage de jour ni « D-F » ni
+un repos (6), et rien si un flex time est écrit. **21 journées sur 33**,
+les 05, 09, 15 et 26/10. La première version laissait passer les
+« remplacé par » : `\w` ne reconnaît pas le « é » en JavaScript sans
+`/u`, le piège déjà écrit pour « éq ». Neuf règles, sous-effectifs,
+Recyclage et compteurs identiques à l'octet (la règle est de paie
+seulement) ; la fiche d'octobre de VBN porte ses 2 h du 15/10 à la prime
+d'après-midi, hors ligne compris.
 
 **« remplace Y » sans rien chez Y : Y était ailleurs à l'usine.** Le
 client : « B : FLI ailleurs ». Rien à coder : l'application montre déjà
