@@ -6592,6 +6592,14 @@ function peutTenir(person,P,jour){
      attend : la STEP n'en attend qu'au matin, et CAN sait la tenir
      à toute heure. */
   if(!P) return false;
+  /* Un contremaître ne remplace JAMAIS ailleurs qu'au poste de
+     contremaître ; un adjoint, si. Le client, le 29/09/2026. Posée ici,
+     la règle vaut pour le rééquilibrage comme pour les propositions
+     (sous-effectifs, congé, absence, recherche). Mesuré : le placement
+     et le Recyclage n'en bougent pas d'un octet — le rééquilibrage ne
+     déplaçait déjà aucun contremaître ; ce sont les propositions qui en
+     nommaient (VBN aux chaudières en doublage le 21/10). */
+  if(P.k!=="cm" && estContremaitre(person)) return false;
   if(P.k==="terr") return tientTerrainArriere(person,jour);
   return !!(P.rx && aLAtelier(person,P.rx,jour));
 }

@@ -2483,6 +2483,15 @@ ordre. Le congé ne garde que la même pause, comme avant.
   quatre après-midi qui restent jusqu'à 2 h, et cinq et quatre matins du
   lendemain qui arrivent à 2 h.
 
+**Un contremaître ne remplace jamais ailleurs qu'au poste de
+contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
+dans `peutTenir()`, le point de passage du rééquilibrage et des
+propositions. Mesuré : `--manques` sur l'année entière, `--polyvalence`
+et `--polyvalence --tout` **identiques à l'octet** — le rééquilibrage ne
+déplaçait déjà aucun contremaître. Elle mord sur les propositions : le
+21/10 en N aux chaudières, VBN ne figure plus parmi ceux qui restent
+jusqu'à 2 h ; les adjoints (JBI, VGG, ATR) restent proposés partout.
+
 Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
 Les quatre sorties du vérificateur sont identiques à l'octet (il ne
 découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
