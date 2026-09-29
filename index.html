@@ -1215,8 +1215,7 @@ body.sheet-on{overflow:hidden}
   font-weight:600; color:var(--muted); transition:background-color .18s ease, color .18s ease}
 .caseg button[aria-selected="true"]{background:var(--surface); color:var(--ink);
   box-shadow:0 1px 3px rgba(0,0,0,.18)}
-.caform{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px 14px;
-  border-bottom:1px solid var(--trait)}
+.caform{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px 14px}
 .caform label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .caform .caqui{grid-column:1}
 /* « QUI » PLUS ÉTROIT. Le client, le 29/09/2026 : « ce n'est que 3
@@ -1261,7 +1260,7 @@ body.sheet-on{overflow:hidden}
 #caCorps .mqj.carech{grid-template-columns:1fr; border-top:0}
 .mqn.ok{color:var(--at-vert)}
 /* La recherche ne demande pas QUI, mais une pause et un poste. */
-.caform.rech .caqui, .caform.rech .caduree, .caform.rech .btn, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
+.caform.rech .caqui, .caform.rech .caduree, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
 /* La date au milieu du champ, comme le texte des menus. Le client, le
@@ -1287,9 +1286,12 @@ body.sheet-on{overflow:hidden}
   .caduree .calong{display:inline}
   .caduree button::first-letter{text-transform:none}
   .caform.jour .cadu,.caform.jour:not(.rech) .cadu{grid-column:3 / 5}
-  .caform.rech{grid-template-columns:220px 120px 200px}
+  .caform.rech{grid-template-columns:220px 120px 200px max-content}
 }
-#caCorps{padding-top:0}
+/* Le filet sous le formulaire n'apparaît qu'avec un résultat (le client,
+   le 29/09/2026) : il appartient au résultat, pas au bouton. */
+#caCorps{padding-top:0; border-top:1px solid var(--trait)}
+#caCorps:empty{display:none}
 #caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
   background:none; border:0; border-top:1px solid var(--trait); cursor:pointer; padding:12px 8px;
   margin:0 -8px; width:calc(100% + 16px); border-radius:0; color:inherit; font:inherit; text-align:left}
@@ -9229,9 +9231,7 @@ function caDates(){
   if(d.getFullYear()!==an) d=new Date(an,d.getFullYear()<an?0:11,d.getFullYear()<an?1:31);
   ["caDu","caAu"].forEach(function(k){
     var el=document.getElementById(k);
-    /* La recherche s'ouvre sans date (le client, le 29/09/2026) : rien ne
-       se montre tant qu'on n'a pas choisi. */
-    el.min=an+"-01-01"; el.max=an+"-12-31"; el.value=caMode==="recherche"?"":caIso(d);
+    el.min=an+"-01-01"; el.max=an+"-12-31"; el.value=caIso(d);
   });
 }
 function caLire(k){
@@ -9279,7 +9279,7 @@ function caCalculer(){
   if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
   else { if(!id) return; lsSet("ui/caQui",id); }
   var du=caLire("caDu"), au=(rech||caDuree==="jour")?du:(caLire("caAu")||du), an=Number(db.year);
-  if(!du){ hote.innerHTML=rech?"":'<p class="mqrien">Choisissez une date.</p>'; return; }
+  if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
   var jours=[], d=new Date(du);
   while(d<=au && jours.length<62){ if(d.getFullYear()===an) jours.push(new Date(d)); d.setDate(d.getDate()+1); }
@@ -9362,12 +9362,8 @@ function caCalculer(){
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
   document.getElementById("caGo").addEventListener("click",caCalculer);
-  /* La recherche se refait d'elle-même à chaque changement de champ : une
-     journée se calcule à l'instant, le bouton n'apportait rien. Rien ne
-     s'affiche à l'ouverture de l'onglet, ni tant que la date est vide. */
-  ["caPause","caPoste","caDu"].forEach(function(k){
-    document.getElementById(k).addEventListener("change",function(){ if(caMode==="recherche") caCalculer(); });
-  });
+  /* La recherche se lance au bouton « Vérifier », comme les deux autres
+     (le client, le 29/09/2026) : rien ne s'affiche avant. */
   /* Un jour ou une période : un seul champ, ou deux. */
   var form=document.getElementById("caForm");
   function duree(d){
