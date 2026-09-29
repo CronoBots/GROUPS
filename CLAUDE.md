@@ -2460,7 +2460,10 @@ ordre. Le congé ne garde que la même pause, comme avant.
   tient toujours (12 h dans les deux cas).
 - **La recherche** (troisième onglet du cadre, rebaptisé « Congé, absence
   et recherche ») demande une pause, un poste et un jour ou une période ;
-  pause et poste sont retenus dans `ui/caRech`. Rien n'est retiré de la
+  pause et poste sont retenus dans `ui/caRech`. **Une date unique** : le
+  client, le 29/09/2026, « la recherche doit être pour une date unique
+  (pas de période) » — le choix « Un jour / Une période » disparaît sur
+  cet onglet, et celui des deux autres reste retenu. Rien n'est retiré de la
   journée : elle dit l'effectif (« Au complet » ou « Sous-effectif »),
   qui tient déjà le poste, puis les candidats. Éprouvé sur l'exemple du
   client : le 21/10, N chaudières, 1/2, GJR au poste, six rappels (GPO et

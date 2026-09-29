@@ -1228,7 +1228,7 @@ body.sheet-on{overflow:hidden}
 .caform.jour .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
 /* La recherche ne demande pas QUI, mais une pause et un poste. */
-.caform.rech .caqui, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
+.caform.rech .caqui, .caform.rech .caduree, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
 .caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
@@ -9012,7 +9012,12 @@ function caInit(db){
 }
 function caForme(){
   var f=document.getElementById("caForm"); if(!f) return;
-  f.className="caform"+(caDuree==="jour"?" jour":"")+(caMode==="recherche"?" rech":"");
+  /* La recherche se fait sur UNE date (le client, le 29/09/2026 : « la
+     recherche doit être pour une date unique, pas de période ») : le choix
+     de durée disparaît, et celui des deux autres modules reste retenu. */
+  var rech=caMode==="recherche", jour=rech||caDuree==="jour";
+  f.className="caform"+(jour?" jour":"")+(rech?" rech":"");
+  var l=document.getElementById("caTDu"); if(l) l.textContent=jour?"Le":"Du";
 }
 function caIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
 function caDates(){
@@ -9069,7 +9074,7 @@ function caCalculer(){
   var rg=document.getElementById("caPause").value, rk=document.getElementById("caPoste").value;
   if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
   else { if(!id) return; lsSet("ui/caQui",id); }
-  var du=caLire("caDu"), au=caDuree==="jour"?du:(caLire("caAu")||du), an=Number(db.year);
+  var du=caLire("caDu"), au=(rech||caDuree==="jour")?du:(caLire("caAu")||du), an=Number(db.year);
   if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
   var jours=[], d=new Date(du);
@@ -9162,7 +9167,6 @@ function caCalculer(){
     caForme();
     Array.prototype.forEach.call(form.querySelectorAll(".caduree button"),function(b){
       b.setAttribute("aria-checked",String(b.dataset.du===d)); });
-    document.getElementById("caTDu").textContent=d==="jour"?"Le":"Du";
     var du=document.getElementById("caDu"), au=document.getElementById("caAu");
     if(d==="periode" && (!au.value||au.value<du.value)) au.value=du.value;
   }
