@@ -1527,6 +1527,10 @@ n'est deviné à leur sujet :
   formation). C : (D), sans heures ;
 - ~~les deux heures du projet falling film~~ : tranché le 29/09/2026, voir
   « Les réponses du 29/09/2026 » ;
+- **le doublage de 12 h pour couvrir une absence** (29/09/2026) : la règle
+  des 12 h par journée permet qu'un AM reste jusqu'à 18 h et qu'une N
+  arrive à 18 h pour couvrir un PM vide. Le module d'absence ne le propose
+  pas encore : question posée au client ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -2376,14 +2380,38 @@ pause rejouée pour elle.
 - **Absence** : la même pause, puis les gens **en D** (au matin et à
   l'après-midi, sans code de journée), puis les **rappels** : qui est en
   repos ce jour-là (ni congé, ni maladie, ni poste prévu non presté) et
-  sait tenir le poste. Un rappel dont le repos avant ou après tombe **sous
-  onze heures** (veille N pour un AM, etc., par `SHIFT_PLAGE`) est marqué
-  « repos court » et rangé en dernier. Huit rappels au plus, le reste
-  compté.
+  sait tenir le poste. Huit rappels au plus, le reste compté. **J'avais
+  écrit « repos court sous onze heures », en simple avertissement, et
+  c'était faux** : voir « Les règles de la maison » juste dessous.
 
 Rien n'est écrit dans l'horaire : ce sont des propositions. Un clic sur une
 journée ouvre son tableau, comme les sous-effectifs. 62 journées au plus
 par demande.
+
+**Les règles de la maison, et le changement en chaîne.** Le client, le
+29/09/2026 : « oui on peut mettre en place le changement en chaîne (dans
+une même pause). Une journée à Biowanze va de 06 h à 06 h le lendemain
+(donc AM, PM, N sont sur le même jour). On ne peut jamais faire plus de
+12 h sur la même journée, et il faut un minimum de 8 h de repos entre deux
+pauses de journées différentes ».
+
+- **Repos : 8 h, et c'est une règle, pas un avertissement.** `CA_REPOS_MIN`
+  compte de la fin de la pause de la veille au début de celle du jour : N
+  puis AM, 0 h, écarté ; PM puis AM ou N puis PM, 8 h, permis. Un rappel ou
+  une personne en D qui ne les aurait pas est écarté, et la fiche le dit
+  (« 2 écartés : moins de 8 h de repos »). La première version avertissait
+  sous onze heures — le droit commun, pas la maison.
+- **12 h par journée** : un rappel ne se cherche que parmi ceux qui ne
+  travaillent pas ce jour-là, puisque deux pauses font 16 h.
+- **La chaîne**, `caChaines()` : si celui qui sait tenir le poste vide
+  laisserait le sien sous l'effectif, un autre de la même pause vient le
+  relever, trois maillons au plus, chacun selon sa polyvalence et en
+  comptant au poste. **Seules les chaînes les plus courtes se montrent**
+  (deux maillons seulement si aucun changement seul ne suffit), et celles
+  qui ne diffèrent que par leur dernier maillon se regroupent :
+  « VGG Chaud. → CM puis SKS ou PLZ ou SPS → Chaud. ». Mesuré sur octobre,
+  toutes personnes : 158 chaînes avant ce tri, 26 après — AAI le 16/10,
+  « SMA Ferm. → T. arr. puis LCI Dist. → Ferm. ».
 
 **Un jour ou une période, au choix.** Le client, le 29/09/2026, capture de
 son iPhone : « il faut pouvoir sélectionner une date ou une période ». Les

@@ -1258,8 +1258,9 @@ body.sheet-on{overflow:hidden}
 .catete{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted)}
 .cagr{font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted);
   margin-right:2px}
-.mqc.alerte{border-color:var(--at-rouge)}
-.mqc.alerte small{color:var(--at-rouge)}
+.cachaine{display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px; padding:2px 4px;
+  border:1px dashed var(--trait-fort); border-radius:8px}
+.cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
 /* Une carte par pause, et la pause en tableau dans le sens de la production.
@@ -8737,18 +8738,90 @@ var CA_AIDE={
   conge:"Le congé est possible si la pause garde son effectif sans la personne. "
        +"Sinon, les changements proposés viennent de la même pause, selon les polyvalences.",
   absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
-       +"les gens en D, puis les rappels possibles parmi ceux qui sont en repos."
+       +"les gens en D, puis les rappels parmi ceux qui sont en repos — jamais plus de "
+       +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées."
 };
 function caCopie(l,sauf){
   var out=[];
   (l||[]).forEach(function(x){ if(x.p.id!==sauf) out.push({p:x.p,r:x.r}); });
   return out;
 }
-/* Le repos entre deux pauses, en heures : fin de la première la veille,
-   début de la seconde le jour même (SHIFT_PLAGE, la nuit finissant à 30 h). */
+/* LES RÈGLES DU TEMPS DE TRAVAIL. Le client, le 29/09/2026 : « une
+   journée à Biowanze va de 06 h à 06 h le lendemain (donc AM, PM et N sont
+   sur le même jour) ; on ne peut jamais faire plus de 12 h sur la même
+   journée, et il faut un minimum de 8 h de repos entre deux pauses de
+   journées différentes ». Le repos se compte de la fin de la pause de la
+   veille au début de celle du jour (SHIFT_PLAGE, la nuit finissant à
+   30 h) : N puis AM le lendemain, 0 h, interdit ; PM puis AM, 8 h,
+   permis ; N puis PM, 8 h, permis. La première version exigeait onze
+   heures et ne faisait qu'avertir : c'était le droit commun, pas la
+   règle de la maison, et une règle ne s'avertit pas, elle s'applique.
+   Les 12 h par journée écartent d'office tout rappel de quelqu'un qui
+   travaille déjà ce jour-là : deux pauses font 16 h. */
+var CA_REPOS_MIN=8;
 function caRepos(avant,apres){
   if(!SHIFT_PLAGE[avant]||!SHIFT_PLAGE[apres]) return 99;
   return 24+SHIFT_PLAGE[apres][0]-SHIFT_PLAGE[avant][1];
+}
+/* Le changement en chaîne, dans la même pause. Le client, le 29/09/2026 :
+   « oui on peut mettre en place le changement en chaîne (dans une même
+   pause) ». Quand celui qui sait tenir le poste vide laisserait lui-même
+   son poste sous l'effectif, un troisième peut venir le relever, et ainsi
+   de suite : SVE passe de la distillation à la meunerie, BBZ des
+   chaudières à la distillation. Recherche en largeur, trois maillons au
+   plus, chacun selon sa polyvalence et en comptant au poste (un opérateur
+   en formation n'y compte pas) ; la chaîne s'arrête sur un poste qui garde
+   son minimum sans celui qui part, ou sur un « à déterminer ». Les
+   chaînes les plus courtes viennent d'abord : un seul changement vaut
+   mieux que trois. Les mêmes règles que pistesDeRemplacement(), dont le
+   premier maillon est exactement la liste. */
+function caChaines(vue,P,jour,max){
+  function sait(x,Q){ return Q.cm ? estCadre(x.p) : (peutTenir(x.p,Q,jour) && compteAuPoste(x,Q,jour)); }
+  function libre(o,x){
+    var compte=compteAuPoste(x,o.P,jour);
+    if(o.P.k==="cm") compte=estContremaitre(x.p)||o.gens.every(function(y){ return !estContremaitre(y.p); });
+    if(o.P.k==="terr") compte=compte&&(roleDeFeuille(x.p)!=="ra"||o.gens.every(function(y){ return roleDeFeuille(y.p)==="ra"; }));
+    return !(compte && o.tenu-1<o.attendu);
+  }
+  var sols=[], vus={}, file=[{cible:P, chaine:[], pris:{}, postes:{}}];
+  file[0].postes[P.k]=1;
+  while(file.length && sols.length<6){
+    var e=file.shift();
+    (vue.inconnus||[]).forEach(function(x){
+      if(e.pris[x.p.id] || !sait(x,e.cible)) return;
+      var c=e.chaine.concat([{p:x.p, de:null, a:e.cible}]), k=c.map(function(z){return z.p.id;}).join(">");
+      if(!vus[k]){ vus[k]=1; sols.push(c); }
+    });
+    vue.postes.forEach(function(o){
+      if(e.postes[o.P.k]) return;
+      o.gens.forEach(function(x){
+        if(x.depuisD || e.pris[x.p.id] || !sait(x,e.cible)) return;
+        var c=e.chaine.concat([{p:x.p, de:o.P, a:e.cible}]);
+        if(libre(o,x)){
+          var k=c.map(function(z){return z.p.id;}).join(">");
+          if(!vus[k]){ vus[k]=1; sols.push(c); }
+        } else if(c.length<max){
+          var pr={}, po={}, q;
+          for(q in e.pris) pr[q]=1; pr[x.p.id]=1;
+          for(q in e.postes) po[q]=1; po[o.P.k]=1;
+          file.push({cible:o.P, chaine:c, pris:pr, postes:po});
+        }
+      });
+    });
+  }
+  /* LE PLUS SIMPLE SEULEMENT : une chaîne de deux ne se montre que si
+     aucun changement seul ne suffit. Puis les chaînes qui ne diffèrent que
+     par leur dernier maillon se regroupent — « VGG Chaud. → CM, puis SKS,
+     PLZ ou SPS → Chaud. » au lieu de trois lignes qui répètent VGG. */
+  if(!sols.length) return [];
+  var court=Math.min.apply(null,sols.map(function(c){ return c.length; }));
+  var groupes=[], parCle={};
+  sols.filter(function(c){ return c.length===court; }).forEach(function(c){
+    var tete=c.slice(0,-1), k=tete.map(function(z){ return z.p.id; }).join(">");
+    if(!parCle[k]){ parCle[k]={tete:tete, fin:[]}; groupes.push(parCle[k]); }
+    parCle[k].fin.push(c[c.length-1]);
+  });
+  return groupes.slice(0,4);
 }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
@@ -8783,22 +8856,27 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
       var a=tA[o.P.k];
       if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
       var toutes=pistesDeRemplacement(vB,o.P,g,(g==="AM"||g==="PM")?caCopie(par.D,id):null,jour);
+      var veille=pausesDe(-1), lendemain=pausesDe(1);
+      /* le repos de la veille et du lendemain, pour qui change de pause */
+      function reposOk(pid,gg){
+        var av=veille[pid], ap=lendemain[pid];
+        return !(av && caRepos(av,gg)<CA_REPOS_MIN) && !(ap && caRepos(gg,ap)<CA_REPOS_MIN);
+      }
       var t={pause:g, P:o.P, tenu:o.tenu, attendu:o.attendu,
-             meme:toutes.filter(function(q){ return q.de!=="D"; }),
-             enD:toutes.filter(function(q){ return q.de==="D"; }), rappels:[]};
+             chaines:caChaines(vB,o.P,jour,3),
+             enD:toutes.filter(function(q){ return q.de==="D" && reposOk(q.p.id,g); }),
+             rappels:[], ecartes:0};
       if(mode==="absence"){
-        var veille=pausesDe(-1), lendemain=pausesDe(1);
         (par.off||[]).forEach(function(x){
           if(!x.r || x.prevu || x.r.a || x.p.id===id) return;
           var sait=o.P.cm ? estCadre(x.p) : (peutTenir(x.p,o.P,jour) && compteAuPoste(x,o.P,jour));
           if(!sait) return;
-          var av=veille[x.p.id], ap=lendemain[x.p.id], alerte="";
-          if(av && caRepos(av,g)<11) alerte="veille "+av;
-          else if(ap && caRepos(g,ap)<11) alerte="lendemain "+ap;
-          t.rappels.push({p:x.p, alerte:alerte});
+          if(!reposOk(x.p.id,g)){ t.ecartes++; return; }
+          /* le repos avant la pause, pour dire qui vient le plus reposé */
+          var av=veille[x.p.id];
+          t.rappels.push({p:x.p, veille:av||""});
         });
-        /* ceux qui peuvent venir sans entorse au repos d'abord */
-        t.rappels.sort(function(a,b){ return (a.alerte?1:0)-(b.alerte?1:0)
+        t.rappels.sort(function(a,b){ return (a.veille?1:0)-(b.veille?1:0)
           || (a.p.id<b.p.id?-1:a.p.id>b.p.id?1:0); });
       }
       res.trous.push(t);
@@ -8813,12 +8891,12 @@ function caVerdict(r,mode){
     return r.moves.length?{v:"chg",t:"Possible avec changement"}:{v:"ok",t:"Possible"};
   }
   var tous=r.trous.every(function(t){
-    return t.meme.length || (mode==="absence" && (t.enD.length||t.rappels.length)); });
+    return t.chaines.length || (mode==="absence" && (t.enD.length||t.rappels.length)); });
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
-function caChip(id,sous,alerte){
-  return '<span class="mqc'+(alerte?" alerte":"")+'"><b>'+esc(idLisible(id))+"</b>"
+function caChip(id,sous){
+  return '<span class="mqc"><b>'+esc(idLisible(id))+"</b>"
     +(sous?"<small>"+esc(sous)+"</small>":"")+"</span>";
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
@@ -8872,7 +8950,7 @@ function caCalculer(){
     return (memo[k]=out);
   }
   var t0=Date.UTC(jourUsine().getFullYear(),jourUsine().getMonth(),jourUsine().getDate());
-  var h=[], semPrec=-1, n={ok:0,chg:0,non:0,hors:0}, DE={D:"en D","?":"à dét.",cm:"CM",adj:"Adj."};
+  var h=[], semPrec=-1, n={ok:0,chg:0,non:0,hors:0};
   jours.forEach(function(dt){
     var m=dt.getMonth()+1, j=dt.getDate();
     var r=caSimuler(db,id,an,m,j,caMode,function(dec){
@@ -8891,14 +8969,28 @@ function caCalculer(){
         +"</span></span>");
       r.trous.forEach(function(t){
         var g=[];
-        if(t.meme.length) g.push('<span class="mqr"><span class="cagr">Même pause</span>'
-          +t.meme.map(function(o){ return caChip(o.p.id,DE[o.de]||PV_COURT[o.de]||o.de); }).join("")+"</span>");
+        if(t.chaines.length) g.push('<span class="mqr"><span class="cagr">Même pause</span>'
+          +t.chaines.map(function(gr){
+            function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
+            if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
+            /* une chaîne se lit dans l'ordre où on la fait : qui prend le
+               trou, puis qui prend sa place */
+            var h=gr.tete.map(function(z){ return caChip(z.p.id,lieu(z)+" \u2192 "+caPoste(z.a)); }).join("<i>puis</i>");
+            var cible=caPoste(gr.fin[0].a);
+            if(gr.fin.length===1) return '<span class="cachaine">'+h+"<i>puis</i>"
+              +caChip(gr.fin[0].p.id,lieu(gr.fin[0])+" \u2192 "+cible)+"</span>";
+            return '<span class="cachaine">'+h+"<i>puis</i>"
+              +gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("<i>ou</i>")
+              +"<i>\u2192 "+esc(cible)+"</i></span>";
+          }).join("")+"</span>");
         if(caMode==="absence"){
           if(t.enD.length) g.push('<span class="mqr"><span class="cagr">En D</span>'
             +t.enD.map(function(o){ return caChip(o.p.id,"D"); }).join("")+"</span>");
           if(t.rappels.length) g.push('<span class="mqr"><span class="cagr">Rappel</span>'
-            +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.alerte?"repos court · "+o.alerte:"repos",!!o.alerte); }).join("")
+            +t.rappels.slice(0,8).map(function(o){ return caChip(o.p.id,o.veille?"veille "+o.veille:"repos"); }).join("")
             +(t.rappels.length>8?'<span class="mqinc">+'+(t.rappels.length-8)+"</span>":"")+"</span>");
+          if(t.ecartes) g.push('<span class="mqinc">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
+            +" : moins de 8 h de repos</span>");
         }
         if(!g.length) g.push('<span class="mqr"><span class="mqaucun">'
           +(caMode==="conge"?"Personne dans la même pause":"Aucun remplaçant")+"</span></span>");
