@@ -3851,7 +3851,16 @@ l'année 269 → 268 places ; neuf règles, Recyclage et compteurs identiques
 - 05/10 AM fermentation (équipe 4) : la place de fermentation de l'équipe
   4 est sans titulaire (colonne Shift 4 Q), QBY en RTT, PAM à la
   distillation ; GSK écrit « équipe au complet » ;
-- 16/10 N meunerie (équipe 5) : CDE « Abs », sans remplaçant écrit ;
+- 16/10 N meunerie (équipe 5) : CDE « Abs », sans remplaçant écrit.
+  **Et un commentaire n'y était pas suivi** : LCI `["N","R","en
+  fermentation"]` restait en distillation. Le client, le 29/09/2026 : la
+  présence ne lui était pas utile là-bas, « cependant il faut suivre ce qui
+  est écrit dans l'horaire » (il fera retirer le commentaire).
+  `posteEcrit()` lit désormais un commentaire qui COMMENCE par l'atelier
+  (« en fermentation », « en meunerie remplace TCE »), sauf s'il doute
+  (ALZ le 23/10, « …pour remplacer FPS? »). Trois journées de l'année, une
+  seule change de place ; neuf règles, sous-effectifs, Recyclage et
+  compteurs identiques à l'octet ;
 - 21 et 22/10 N chaudières (équipe 2) : ADS en RJF, sans remplaçant
   écrit, alors que le gluten a quatre personnes pour deux ;
 - 12/11 N terrain arrière (équipe 1) : GDT en VA remplacé par BBZ, qui
