@@ -6012,6 +6012,15 @@ var PROJETS_SUR_POSTE=[/falling\s*film/i];
 function surSonPosteMalgreF(raw){
   var c=String((raw&&raw[2])||""), i;
   for(i=0;i<PROJETS_SUR_POSTE.length;i++) if(PROJETS_SUR_POSTE[i].test(c)) return true;
+  /* « REMPLACÉ AU CPPT PAR X » : un autre va à la réunion, il reste à son
+     poste. GPS le 24/11, ["N","D-CPPT","remplacé au CPPT par TFI"] : sans
+     cette lecture, le contremaître de nuit passait à 0/1. Le 29/09/2026,
+     le client venait de le rappeler — « la réponse est pourtant dans le
+     fichier ». Pas quand il est AUSSI remplacé à son poste : GPS le 25/03,
+     « remplacé au CPPT par NDO remlacé par VBN », n'y est pas. */
+  var mRc=/remplac\S*\s+au\s+(?:cppt|ce|ds)\b[^,.;\n]*?\bpar\s+[A-Za-z]{3}\b/i.exec(c);
+  if(mRc && !/\brem\S*\s+par\b/i.test(c.slice(0,mRc.index)+" "+c.slice(mRc.index+mRc[0].length)))
+    return true;
   /* UNE PLAGE QUI NOMME UNE PAUSE DIT QU'ON EST À SON POSTE.
 
      Le client, le 25/09/2026 : « GPS le 30/09 fait 10-22 mais vient plus
