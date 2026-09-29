@@ -5262,7 +5262,15 @@ function motPrime(mot,raw){
 }
 function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
   var r=parseHoraireEntry(raw,hJour,epargne,renvois);
-  if((!r.s && (raw[0]||"").trim()!=="-") || r.jour){
+  /* UNE CELLULE VIDE DONT LE COMMENTAIRE DOUTE N'EST PAS UNE JOURNÉE
+     PRESTÉE. VGG le 09/08, ["","","Remplace YBT qui remplaçait BLR ?"] :
+     sans le « ? », le remplacement nommé en faisait un AM. Le classeur
+     tranche seul — BLR porte « Remplacé par VGG ? remplacé par TCE », TCE
+     « remplace BLR » —, et le relevé de VGG dit repos. Seule cellule de
+     l'année de cette forme (mesuré le 29/09/2026). */
+  var douteVide=!(raw[0]||"").trim() && !(raw[1]||"").trim()
+    && /\?\s*$/.test(raw[2]||"");
+  if(!douteVide && ((!r.s && (raw[0]||"").trim()!=="-") || r.jour)){
     /* LE COMMENTAIRE PRIME — c'est la règle première du projet. Quand il
        nomme la personne remplacée, le poste de celle-ci est un fait ; le
        cycle, lui, est une rotation THÉORIQUE ajustée au mois, qui se trompe

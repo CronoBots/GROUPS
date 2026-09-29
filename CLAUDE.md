@@ -1511,10 +1511,15 @@ n'est deviné à leur sujet :
   tous. Le client : **attendre la fiche d'un autre employé** avant de
   distinguer les statuts. Un seul vrai férié travaillé chez l'employé —
   je l'avais d'abord annoncé comme quatre ;
-- **une cellule vide et un commentaire qui doute** : VGG le 09/08,
-  `["","","Remplace YBT qui remplaçait BLR ?"]` — relevé repos, sans
-  pointage ; l'application compte un AM. A : un « ? » en fin de
-  commentaire sur une cellule vide = pas travaillé ; B : au cas par cas ;
+- ~~une cellule vide et un commentaire qui doute~~ : tranché par le
+  classeur le 29/09/2026, sans question. VGG le 09/08,
+  `["","","Remplace YBT qui remplaçait BLR ?"]` : BLR porte « Remplacé par
+  VGG ? remplacé par TCE », TCE « remplace BLR ; rappel le 6/8 ». C'est TCE
+  qui est venu, et le relevé de VGG dit repos. `lireJournee()` ne lit plus
+  de poste sur une cellule ET une annotation vides dont le commentaire
+  finit par « ? » — seule journée de l'année de cette forme. Prestées
+  14 448 → 14 447, repos +1 ; sous-effectifs, Recyclage et compteurs
+  identiques à l'octet ;
 - **le rappel sur un repos d'un EMPLOYÉ** : VBN le 25/06, la fiche ne
   porte aucune heure sup mais 13 h 16 d'« Heure de déplacement » au taux
   plein ; l'application paie 7 h sup. Les relevés (JBI, codes U) disent
