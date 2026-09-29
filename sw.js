@@ -2,7 +2,13 @@
 var V = "nfdm-v350";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
-            "./apple-touch-icon.png", "./favicon.png"];
+            "./apple-touch-icon.png", "./favicon.png",
+            /* polices auto-hébergées : le sous-ensemble latin, celui qui sert
+               au texte français, est mis en cache dès l'installation pour que
+               l'app soit complète hors ligne au premier lancement. Le latin-ext
+               (accents rares) est pris à la demande par le handler ci-dessous. */
+            "./fonts/archivo-latin.woff2", "./fonts/ibmplexmono-400-latin.woff2",
+            "./fonts/ibmplexmono-500-latin.woff2", "./fonts/ibmplexmono-600-latin.woff2"];
 /* data/horaire-2026.json (~290 Ko) est volontairement absent d'ici : il est mis en
    cache à la demande par le handler fetch ci-dessous, seulement pour qui utilise
    le pré-remplissage, plutôt que de ralentir l'installation pour tout le monde. */
@@ -81,8 +87,10 @@ self.addEventListener("fetch", function (e) {
   if (req.method !== "GET") return;
   var url = new URL(req.url);
   var sameOrigin = url.origin === self.location.origin;
-  var isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
-  if (!sameOrigin && !isFont) return;
+  /* Les polices sont désormais servies depuis notre propre origine : plus de
+     branche « fonts.googleapis/gstatic » à gérer, et plus de réponse opaque
+     à laisser passer sans pouvoir la vérifier. Tout passe par la garde 200. */
+  if (!sameOrigin) return;
 
   if (req.mode === "navigate" || /\/(index\.html)?$/.test(url.pathname)
       || /\.(html|webmanifest)$/.test(url.pathname)) {
