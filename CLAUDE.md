@@ -2584,6 +2584,11 @@ teinte du badge (le client, le 29/09/2026) : un jeton `--manque-fond`,
 `#F8D4CF` en clair et `#512E30` en sombre, déclaré dans les trois blocs de
 thème. Un `color-mix` avec la carte a été essayé d'abord : sur le bleu
 nuit, il virait au mauve.
+« H. flot. » devient « H.fl. » dans le tableau du jour (le client, le
+29/09/2026 : « le badge h flot. doit être de la même taille que les autres
+avec l'horaire ») : même sans coupure, « VGG H. flot. » demandait 65 px
+dans une case de 56 à 390 px et passait sur deux lignes. « VGG H.fl. »
+fait 54 px, une ligne, comme « ATR 7-15 », de 320 à 1280 px.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit

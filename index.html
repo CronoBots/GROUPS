@@ -1430,7 +1430,7 @@ body.sheet-on{overflow:hidden}
 /* L'horaire se met à côté du trigramme s'il y a la place, dessous sinon,
    et se coupe au tiret s'il ne tient pas sur une ligne (« (8h30-16h30) »
    dans une colonne D de 320 px). */
-#eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px}
+#eqCorps .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px; white-space:nowrap}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
    client, le 26/09/2026). */
 #eqCorps .eqp2 td.vide{background:transparent}
@@ -7395,7 +7395,9 @@ function renderEquipe(){
         return [a,b];
       }
       if([raw[0],raw[1]].some(function(v){ return /flott/i.test(String(v||"")); }))
-        lib="H. flot.";
+        /* « H.fl. » et non « H. flot. » : l'étiquette tient alors sur une
+           ligne, comme « ATR 7-15 » (le client, le 29/09/2026). */
+        lib="H.fl.";
       if(!lib) [raw[1],raw[0]].some(function(v){
         var pl=lirePlage(v); if(!pl) return false;
         /* Avec un code de jour (F, D-F, DS-CE…), une plage de pause n'est
