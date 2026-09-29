@@ -4423,9 +4423,13 @@ var JOUR_PRIME_PAUSE=["sd26","f","d-f","df","d-cppt","cppt","ds-ce"];
    nuit. « consign. » (BLR 22 au 24/07) : les consignations de YRS, renfort
    avant alors en congé — BLR « remplace YRS » en 7h-15h, JKS « remplace
    BLR » à la meunerie. Une tâche de jour, pas un poste de production : elle
-   quitte ATELIERS, où elle se faisait passer pour un atelier. */
+   quitte ATELIERS, où elle se faisait passer pour un atelier.
+   « Polyvalence » sur un repos (LCI 23/09, SVE 21/09) : le client, le
+   29/09/2026, « à partir de ce jour-là ils ont changé de poste pour
+   commencer leur formation à un autre poste ». Une note, pas une venue :
+   la journée reste un repos. */
 var MENTIONS_NEUTRES=["r","vm","r-cm","r-f","r-vm","eval",
-  "cppt-f","sd26+r","r-cm/vm","chaud+f","r+f","+cppt","consign"];
+  "cppt-f","sd26+r","r-cm/vm","chaud+f","r+f","+cppt","consign","polyvalence"];
 /* Noms d'atelier : ils disent la ZONE de remplacement, rien d'autre. Le
    client : « cela ne change rien à l'horaire ni aux primes, si c'est juste
    une indication de la zone de remplacement et qu'il n'y a rien d'autre de
@@ -5375,6 +5379,33 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var hRhs=(r.h===undefined)?hJour:r.h;
     r.h=Math.max(0,Math.min(hRhs,hJour-r.rhs));
     r.rhsJ=r.rhs;
+  }
+  /* UN DÉPART ANTICIPÉ SANS CODE EST UNE REPRISE (RHS). Le client, le
+     29/09/2026 : « A : toujours en RHS ». LCI le 05/04, « D2PART 0 18H
+     REMPLAC2 PAR alz » (verrouillage majuscule : départ à 18h) : sa fiche
+     paie 4 h d'après-midi et 4 h de « Compensation payée ». VGG le 23/07,
+     « départ à 20h » : son relevé porte 2 h de compensation. Les heures du
+     départ à la fin du poste passent en RHS, sans prime ; la fin d'un D est
+     15 h (« seulement D : 7-15 »), 16 h pour les consignateurs — YRS le
+     08/01 l'écrit lui-même, « départ à 15h30 - RHS ». Seulement sur une
+     journée pleine, sans aucun autre code : un départ déjà compté en RTT,
+     en flex time ou en RHS chiffré l'est par son code. Et pas quand le
+     commentaire remplace quelqu'un avant le départ : c'est alors l'autre
+     qui part. */
+  var mDep=/d[ée2]\s*part\w*\s*(?:[àa0]\s*)?(\d{1,2})\s*[hH:]\s*(\d{0,2})/i.exec(raw[2]||"");
+  if(mDep && r.s && SHIFT_CODES.indexOf(r.s)>=0 && !r.a && !(r.ax && r.ax.length)
+     && !(r.epargne>0) && !(r.rhs>0) && !r.jourCode
+     && SHIFT_CODES.indexOf((raw[0]||"").trim().toUpperCase())>=0
+     && (r.h===undefined || r.h>=hJour-0.01)
+     && !/\bremplace\s+[A-Z]{3}\b/.test((raw[2]||"").slice(0,mDep.index))
+     && !/\d\s*h?\s*(rtt|dtt|va|css|[+-]\s*ft)\b/i.test(raw.join(" "))){
+    var plD=SHIFT_PLAGE[r.s], quiD=null, qD;
+    for(qD=0; qD<db.people.length; qD++){ if(db.people[qD].d[pad2(mois)+pad2(jour)]===raw){ quiD=db.people[qD].id; break; } }
+    if(r.s==="D") plD=[7, CONSIGNATEURS.indexOf(quiD)>=0?16:15];
+    var hDep=parseInt(mDep[1],10)+(mDep[2]?parseInt(mDep[2],10)/60:0);
+    if(hDep<plD[0]) hDep+=24;
+    var nDep=plD[1]-hDep;
+    if(nDep>0 && nDep<hJour){ r.h=hJour-nDep; r.rhsJ=nDep; r.depart=true; }
   }
   /* « PM · DS-CE » : une demi-journée de conseil d'entreprise, payée sans
      prime. Le client, le 26/09/2026, devant la fiche d'un ouvrier : LCI le

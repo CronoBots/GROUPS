@@ -1487,14 +1487,8 @@ n'est deviné à leur sujet :
     d'ouvrier » ;
   - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
     veille `AM · VM` — l'heure de visite médicale hors horaire ? (−13,29 €) ;
-  - **le départ anticipé sans code** — LCI le 05/04, « D2PART 0 18H
-    REMPLAC2 PAR alz » (tapé en verrouillage majuscule : « départ à 18h,
-    remplacé par ALZ », confirmé par « arrivée à 18h00' » chez ALZ) : la
-    fiche paie 4 h PM + 4 h de compensation sans prime. Six journées de
-    cette forme dans l'année. A (toujours ainsi), B (au cas par cas), C ;
-  - **« Polyvalence » sur un repos** (LCI 23/09, SVE 21/09), sans aucun
-    commentaire : A (venus, heures sup), B (venus, payé normalement), C
-    (simple note) ;
+  - ~~le départ anticipé sans code~~ et ~~« Polyvalence » sur un repos~~ :
+    tranchés le 29/09/2026, voir « Les réponses du 29/09/2026 » ;
   - **le tableau des salaires de VBN** fiche contre application, comme celui
     de LCI : le client renverra ses fiches (absentes de ce conteneur) ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
@@ -1524,13 +1518,8 @@ n'est deviné à leur sujet :
   porte aucune heure sup mais 13 h 16 d'« Heure de déplacement » au taux
   plein ; l'application paie 7 h sup. Les relevés (JBI, codes U) disent
   heures sup. À trancher avec une autre fiche d'employé ;
-- **le départ anticipé** (question ci-dessus) : deux relevés de VGG le
-  confirment en RHS — 23/07 « départ à 20h », 2 h de « Compensation
-  payée » ; 15/05, départ à 12 h, 2 h aussi ;
-- **« remplace Y » sans rien chez Y** (26/09/2026) : le 16/01, FPA porte
-  « remplace FLI » en R-CM, et FLI ne porte que « PM ». L'application les
-  montre tous les deux contremaîtres en PM. A : FLI était absent ce
-  jour-là. B : FLI était ailleurs à l'usine. C : au cas par cas. 16 journées ;
+- ~~« remplace Y » sans rien chez Y~~ : tranché le 29/09/2026 (B), voir
+  « Les réponses du 29/09/2026 » ;
 - ~~le D seul sans heure écrite~~ : tranché le 28/09/2026, 7-15 (voir
   « Seulement D : 7-15 »). Restent sans horaire les journées à code
   (D-CPPT, DS-CE, F) : 10 présences d'ici la fin de l'année. A : (7h30-16), l'horaire de jour de la grille.
@@ -1545,11 +1534,49 @@ n'est deviné à leur sujet :
   09, 15 et 26/10, les seuls jours « projet falling film » du classeur ;
   le 16/10 est une formation ATEX, où les gens sont remplacés. **Ce qui
   n'est pas fait** : les 2 h ne sont écrites nulle part, donc ni FT+ ni HS
-  ne sont comptés. A : 2 h de HS d'office sur une journée falling film
-  sans « +FT » ; B : rien tant que le classeur ne l'écrit pas ;
+  ne sont comptés. Le client, le 29/09/2026 : « après la formation, les
+  opérateurs feront une feuille de demande d'heures ; ils auront le choix
+  entre HS ou FT+ ; si FT+, il sera marqué dans l'horaire en commentaire,
+  dans la cellule ou une cellule proche qui parle de ce jour-là » : les heures sont donc des HS
+  sauf « +FT » écrit. **Reste à savoir QUI** : 8 des 33 journées sont
+  « remplacé par » ou en 7h-15h (formation pendant la journée, sans heures
+  en plus ?), et la pause dont les 2 h prennent la prime. Question reposée
+  le 29/09/2026 ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
+
+### Les réponses du 29/09/2026
+
+**Un départ anticipé sans code est une reprise (RHS).** Le client : « A :
+toujours en RHS ». `lireJournee()` lit « départ à Xh » — fautes de frappe
+comprises, « D2PART 0 18H » — et verse les heures du départ à la fin du
+poste au compteur de récup. HS (`rhsJ` → `rec.rh`), sans prime ; les
+heures prestées baissent d'autant. La fin d'un D est 15 h (« seulement D :
+7-15 »), **16 h pour les consignateurs** : YRS l'écrit lui-même le 08/01,
+« départ à 15h30 - RHS ». Seulement sur une journée pleine dont la cellule
+franche est un poste, sans aucun autre code (RTT, DTT, VA, CSS, ±FT, RHS
+chiffré) ni code de jour, et pas quand le commentaire remplace quelqu'un
+AVANT le départ — c'est alors l'autre qui part. **Cinq journées** : LCI
+05/04 (4 h, comme sa fiche), VGG 23/07 (2 h, comme son relevé), BLR 28/08
+(2 h), YRS 09/01 (1 h 15) et 08/01 (0 h 30). Neuf règles, `--manques 0929`
+et `--compteurs` identiques à l'octet ; Recyclage : VGG chaudières 3 → 2
+(le 23/07 n'est plus une journée pleine). VGG le 15/05 reste un écart
+connu : sa cellule `["AM","R-CM","Remplace AFA"]` ne dit pas le départ.
+
+**« Polyvalence » sur un repos est une note.** Le client : « le mot
+polyvalence veut juste dire qu'à partir de ce jour-là ils ont changé de
+poste pour commencer leur formation à un autre poste ». Les deux journées
+(LCI 23/09, SVE 21/09) se lisaient déjà en repos ; la mention entre dans
+`MENTIONS_NEUTRES`, et la règle « mention avalée » du vérificateur ne
+compte plus une mention neutre (2 → 0, règles faibles 50 → 48). **La date
+n'est pas posée dans `FORMATION_DEBUT`** : le poste d'avant de SVE n'est
+écrit nulle part, et LCI tient la fermentation jusqu'au 29/09 par décision
+du client (`POSTE_PERIODE`).
+
+**« remplace Y » sans rien chez Y : Y était ailleurs à l'usine.** Le
+client : « B : FLI ailleurs ». Rien à coder : l'application montre déjà
+les deux présents (16 journées), ce qui est juste.
 
 **L'historique public porte encore les 60 identifiants** — trois versions de
 `data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
@@ -1890,7 +1917,8 @@ l'arrange mieux ». Un D déplacé fait d'un repos au cycle un jour
 travaillé normal. JBI les 08/08 et 14 au 16/08 restent un écart connu.
 
 Écarts connus, que le classeur n'écrit pas : RHS d'un départ anticipé
-(VGG 15/05, 23/07 « départ à 20h », 03/04), flex time épargné non écrit
+(VGG 15/05 et 03/04 ; le 23/07, « départ à 20h », est lu depuis le
+29/09/2026), flex time épargné non écrit
 (AFA 30/07, JBI 18/08, VGG 01/07), maladie sans certificat écrite en
 poste (VGG 07/08), une pause prévue différente (AFA 12 au 15/01 en SD26,
 ATA 05, 06 et 17/08 écrits D ou 7h-15h et pointés 6 h-14 h, VGG 30/04),
