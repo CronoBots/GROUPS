@@ -1574,6 +1574,28 @@ n'est pas posée dans `FORMATION_DEBUT`** : le poste d'avant de SVE n'est
 écrit nulle part, et LCI tient la fermentation jusqu'au 29/09 par décision
 du client (`POSTE_PERIODE`).
 
+**Un opérateur en formation rappelé pour remplacer prend la place du
+remplacé.** Le client, devant le terrain arrière vide de la nuit du 02/10 :
+« la réponse est pourtant dans le fichier ». Elle l'était : SKS porte
+`["-","N","Remplace SBZ …"]`, et SBZ tient le terrain arrière. SKS, en
+formation meunerie depuis le 21/09, y est validé (fermentation et
+distillation) ; mais la ligne 9 le rangeait en meunerie, en plus, avant
+que quoi que ce soit lise son commentaire. **J'avais proposé SKS comme
+« piste » le 28/09 au lieu de lire sa cellule** : la règle « les
+commentaires d'abord » vaut aussi pour le placement. `postesDePause()`
+lit donc `atelierDuRemplace()` AVANT `posteTenu()` pour un opérateur en
+formation — la règle du client du 21/09, « on le rappelle pour remplacer
+dans un poste qu'il peut, et ce sera marqué en commentaire » —, à
+condition qu'il ait la polyvalence et que la cellule n'écrive pas
+l'atelier. Le même soir LHR, « Remplace SPT », passe des chaudières (en
+plus) au gluten. Neuf règles et compteurs identiques à l'octet ;
+sous-effectifs d'ici la fin de l'année **7 → 6** (le 02/10 disparaît) ;
+sur l'année, 277 → **269** places creuses, 174 → 171 journées ;
+Recyclage : les journées où un stagiaire remplaçait comptent à son poste
+validé (GST fermentation 11 → 16, LHR gluten 3 → 7, SVE gluten 1 → 2,
+HKB et LHR meunerie +1) et JKS fermentation 10 → 9, qui ne comble plus la
+place ; **22** couples au quota au lieu de 23.
+
 **« remplace Y » sans rien chez Y : Y était ailleurs à l'usine.** Le
 client : « B : FLI ailleurs ». Rien à coder : l'application montre déjà
 les deux présents (16 journées), ce qui est juste.
@@ -3755,7 +3777,8 @@ prime de nuit conservée les 28 et 29 (lu : prime N, presté D) ; ATR au
 terrain arrière pour SMA le 28/09 ; DBE parti à 13 h le 16/10, relayé par
 RDT (1 h +FT). **Nouveau sous-effectif : le 02/10, terrain arrière de nuit
 0/1** — SPT malade, ASS en DTT, GKT en RTT, JKS passé en PM par échange ;
-piste proposée : SKS, depuis la meunerie. Neuf règles à zéro, compteurs
+piste proposée : SKS, depuis la meunerie. **C'était faux** : sa cellule
+disait déjà « Remplace SBZ », voir « Les réponses du 29/09/2026 ». Neuf règles à zéro, compteurs
 76/77, intégralité à zéro.
 
 ### Le classeur du 28/09/2026 à 16 h 44
