@@ -2425,6 +2425,13 @@ apparence native (`appearance:none`) et reprend une hauteur de 42 px.
 Chromium ne reproduit pas le défaut d'iOS : seul l'appareil du client dit
 qu'il est guéri.
 
+**Les champs à la même hauteur.** Le client, le 29/09/2026, capture de
+son iPhone : « les 3 filtres doivent avoir la même hauteur » — le menu
+déroulant gardait sa hauteur native d'iOS, plus basse que le champ de
+date. Menus et champs perdent tous leur apparence native et prennent
+44 px ; le chevron du menu est redessiné. Mesuré à 320, 390 et 1280 px :
+44 px partout, les trois de la recherche sur la même ligne.
+
 Éprouvé le 29/09/2026 : VBN en congé le 02/10 est « Pas possible » (seul
 contremaître du matin, aucun cadre dans la pause), le 01/10 « avec
 changement » (VGG, adjoint, prend le poste) ; TCE les 02-04/10, SVE vient
