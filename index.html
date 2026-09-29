@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- La barre d'état du téléphone prend la couleur de la barre du haut, qui
      est celle du logo : sans cela un liseré d'une autre teinte la surmonte. -->
 <meta name="theme-color" content="#111727">
@@ -184,7 +184,7 @@ body::before{content:""; position:fixed; inset:0; z-index:-1; background:var(--f
 h1,h2,h3{margin:0; font-weight:600; text-wrap:balance}
 button,select,input{font:inherit; color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:2px solid var(--in2); outline-offset:2px; border-radius:5px}
+:focus-visible{outline:2px solid var(--in2); outline-offset:2px}
 /* L'ENTRÉE D'UN ONGLET. La vue qui arrive monte de six pixels en
    s'éclairant, un cinquième de seconde : assez pour dire « on a changé de
    page », trop peu pour faire attendre. La règle qui suit l'éteint pour qui
@@ -197,6 +197,16 @@ button{cursor:pointer}
 #eqCorps.glisse-d{animation:jourDroite .2s ease-out}
 .btn,.eqnav button{transition:transform .12s ease, background-color .15s ease, border-color .15s ease}
 .btn:active,.eqnav button:active{transform:scale(.95)}
+/* Un bouton désactivé se lit comme tel et n'accepte plus le tape : la double
+   tape sur « Vérifier » ou « Imprimer » ne relance donc rien pendant le rendu. */
+.btn:disabled,.btn[disabled],.btnlike:disabled{opacity:.5; cursor:default; transform:none; pointer-events:none}
+/* Réservé aux lecteurs d'écran : un texte que l'œil ne voit pas mais que la
+   voix lit — le point d'alerte de « Mon salaire », le lien d'évitement. */
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+/* Le lien d'évitement : caché hors écran, il descend se montrer au premier
+   Tab, et mène droit au contenu sans retraverser l'en-tête et ses six onglets. */
+.skip{position:absolute; left:8px; top:-64px; z-index:60; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-weight:600; transition:top .15s ease}
+.skip:focus{top:8px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
 
 /* ---------- en-tête ---------- */
@@ -1813,8 +1823,8 @@ body.sheet-on{overflow:hidden}
     padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
     background:var(--marque); border-top:1px solid rgba(255,255,255,.10); gap:0;
   }
-  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    padding:5px 2px; border-radius:9px; font-size:10.5px; color:rgba(255,255,255,.66)}
+  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    min-height:44px; padding:5px 2px; border-radius:9px; font-size:10.5px; color:rgba(255,255,255,.66)}
   .tabs button svg{display:block}
   /* Ces trois règles ont la MÊME spécificité que celles du haut de la
      feuille, qui peignent la barre du bureau ; elles gagnent parce qu'elles
@@ -1926,6 +1936,7 @@ body[data-horaire="annee"] #rotasub{display:none}
 </style>
 </head>
 <body>
+<a href="#contenu" class="skip">Aller au contenu</a>
 <!-- L'ÉCRAN D'INTRO. Le client, le 29/09/2026 : « un écran d'intro avec le
      logo au chargement de la page ». Il est dans le HTML, avant tout script :
      il se peint dès la première image, sur la couleur des deux barres, et
@@ -1957,29 +1968,29 @@ body[data-horaire="annee"] #rotasub{display:none}
     <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" data-v="resume" aria-selected="true" aria-controls="v-resume">
+    <button type="button" role="tab" id="tab-resume" data-v="resume" aria-selected="true" aria-controls="v-resume">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0-8-8"/><path d="M12 12l4-3"/><path d="M4 12H2"/></svg>
       Résumé</button>
-    <button type="button" role="tab" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
+    <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Mon horaire</button>
-    <button type="button" role="tab" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
+    <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
       Équipe</button>
-    <button type="button" role="tab" data-v="polyvalence" aria-selected="false" aria-controls="v-polyvalence">
+    <button type="button" role="tab" id="tab-polyvalence" data-v="polyvalence" aria-selected="false" aria-controls="v-polyvalence">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M9 9v11M15 9v11"/></svg>
       Recyclage</button>
-    <button type="button" role="tab" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
+    <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>
-      Mon salaire<span class="dotwarn" id="ctrlDot" hidden></span></button>
-    <button type="button" role="tab" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
+      Mon salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
+    <button type="button" role="tab" id="tab-reglages" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
       Réglages</button>
   </nav>
 </header>
 <div class="navwrap" id="navwrap" hidden></div>
 
-<main class="wrap">
+<main class="wrap" id="contenu" tabindex="-1">
 <!-- SANS HORAIRE, DES ZÉROS PARFAITEMENT CRÉDIBLES : heures, primes,
      chèques-repas, composition d'équipe. Le dire en haut de la page, et
      l'y laisser, vaut mieux qu'une bulle de deux secondes. -->
@@ -1990,7 +2001,7 @@ body[data-horaire="annee"] #rotasub{display:none}
 </div>
 
   <!-- ============ RÉSUMÉ ============ -->
-  <section class="panel stack" id="v-resume" role="tabpanel">
+  <section class="panel stack" id="v-resume" role="tabpanel" aria-labelledby="tab-resume" tabindex="-1">
     <!-- LA VUE DU JOUR. Le client, le 22/09/2026 : « ce qui est affiché
          actuellement dans Équipe doit être affiché dans Résumé afin d'avoir
          une vue directe sur la journée ». Le Résumé ne porte donc plus le
@@ -2094,7 +2105,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
   </section>
 
-  <section class="panel stack" id="v-horaire" role="tabpanel" hidden>
+  <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1" hidden>
     <!-- UNE SEULE VUE, ET SON TITRE AU-DESSUS DU CADRE. Le client, le
          23/09/2026 : « je ne veux plus les autres boutons ; il faut donc
          supprimer la sélection de mois qui était au-dessus du cadre et y
@@ -2210,7 +2221,7 @@ body[data-horaire="annee"] #rotasub{display:none}
 
   <!-- ============ COMPTEURS ============ -->
   <!-- ============ ÉQUIPE ============ -->
-  <section class="panel stack" id="v-equipe" role="tabpanel" hidden>
+  <section class="panel stack" id="v-equipe" role="tabpanel" aria-labelledby="tab-equipe" tabindex="-1" hidden>
     <!-- L'ORGANISATION, et non la journée. Le client, le 22/09/2026 :
          « l'onglet Équipe doit reconstruire les équipes (équipes 1 à 5
          complètes par poste) et les binômes (adjoint, contremaître), plus
@@ -2246,7 +2257,7 @@ body[data-horaire="annee"] #rotasub{display:none}
        les sortir du tableau) ». Ils annoncent la grille, ils n'en font pas
        partie — et une fois dehors, la grille commence par sa propre ligne
        d'en-tête au lieu d'un bandeau qui lui ressemblait. -->
-  <section class="panel stack" id="v-polyvalence" role="tabpanel" hidden>
+  <section class="panel stack" id="v-polyvalence" role="tabpanel" aria-labelledby="tab-polyvalence" tabindex="-1" hidden>
     <div class="pvtete">
       <h2>Recyclage des polyvalences</h2>
       <p class="sub" id="pvSub"></p>
@@ -2258,7 +2269,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
   </section>
 
-  <section class="panel stack" id="v-salaire" role="tabpanel" hidden>
+  <section class="panel stack" id="v-salaire" role="tabpanel" aria-labelledby="tab-salaire" tabindex="-1" hidden>
     <!-- TOUT CE QUI TOUCHE À LA PAIE, en un seul endroit. Le client, le
          22/09/2026. Trois écrans d'hier s'y retrouvent, dans l'ordre où on
          les emploie : ce qu'on va toucher, d'où cela vient, et la
@@ -2267,7 +2278,7 @@ body[data-horaire="annee"] #rotasub{display:none}
 
     <div class="card">
       <div class="hero">
-        <div>
+        <div aria-live="polite">
           <div class="lbl" id="heroLbl">Net à recevoir — septembre</div>
           <div class="big" id="heroNet">—</div>
         </div>
@@ -2350,7 +2361,7 @@ body[data-horaire="annee"] #rotasub{display:none}
   <!-- ============ FICHE ============ -->
     <!-- ============ CONTRÔLE ============ -->
     <!-- ============ RÉGLAGES ============ -->
-  <section class="panel stack" id="v-reglages" role="tabpanel" hidden>
+  <section class="panel stack" id="v-reglages" role="tabpanel" aria-labelledby="tab-reglages" tabindex="-1" hidden>
     <div class="card">
       <details class="fold" open>
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
@@ -2603,7 +2614,7 @@ var DEF_B={
   redQuotite:2987.98, redConjoint:2987.98, calage:220.45, exoDomTrav:41.67, tauxDistinct:0.5350,
   enfTable:[0,624,1656,4404,7620,11100,14592,18120,21996]
 };
-var DEF_M={__v:3, primes:0, bonus:0, avance:0, assurance:null, autreBrut:0, autreRet:0,
+var DEF_M={__v:4, primes:0, bonus:0, avance:0, assurance:null, autreBrut:0, autreRet:0,
   simplePecule:0, doublePecule:0, complDPV:0, treizieme:0,
   remFixeMois:null, primeRemiseMois:null, indJourMois:null, csssMois:null, autreF:0,
   hsHeures:0, hsTaux:null, hsJour:"Semaine", hsPoste:"", hDeplacement:0, redPP:0,
