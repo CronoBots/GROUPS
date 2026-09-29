@@ -2568,6 +2568,14 @@ vide en recherche, l'ouverture de l'onglet ne calcule plus rien, et une
 date vide n'affiche rien (pas même « Choisissez une date »). Congé et
 Absence gardent leur date par défaut. Vérifié à 320 (hors ligne), 390 et
 1280 px.
+Puis, le même jour, en partie défait : « réafficher une date dans le
+filtre et remettre Vérifier comme avant ; pas de ligne de séparation sous
+le bouton tant qu'il n'y a pas de résultat ». La date du jour revient,
+le bouton aussi, et rien ne se calcule avant son clic — ni à l'ouverture
+de l'onglet, ni à un changement de champ. Poste reste en premier. Le
+filet quitte le bas du formulaire pour le haut de `#caCorps`, qui se
+cache vide (`:empty`) : il n'apparaît qu'avec un résultat, dans les trois
+onglets.
 
 **Un cadre pointillé par type de solution.** Le client, le 29/09/2026,
 capture à l'appui : « il faut regrouper tous les types de solutions dans
