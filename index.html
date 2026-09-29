@@ -1253,7 +1253,9 @@ body.sheet-on{overflow:hidden}
 .caform.jour:not(.rech) .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
 /* Recherche : pas d'aide, les trois champs sur une ligne, un seul titre. */
-.caform.rech{grid-template-columns:minmax(56px,.6fr) 1.3fr 1.2fr; gap:8px}
+/* Poste d'abord, puis la pause (le client, le 29/09/2026). */
+.caform.rech{grid-template-columns:1.3fr minmax(56px,.6fr) 1.2fr; gap:8px}
+.caform.rech .caposte{order:-1}
 .caform.rech .cadu{grid-column:auto !important}
 .caform.rech select,.caform.rech input{padding:9px 8px; font-size:13.5px}
 #caCorps .mqj.carech{grid-template-columns:1fr; border-top:0}
@@ -1285,7 +1287,7 @@ body.sheet-on{overflow:hidden}
   .caduree .calong{display:inline}
   .caduree button::first-letter{text-transform:none}
   .caform.jour .cadu,.caform.jour:not(.rech) .cadu{grid-column:3 / 5}
-  .caform.rech{grid-template-columns:120px 220px 200px}
+  .caform.rech{grid-template-columns:220px 120px 200px}
 }
 #caCorps{padding-top:0}
 #caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
@@ -9227,7 +9229,9 @@ function caDates(){
   if(d.getFullYear()!==an) d=new Date(an,d.getFullYear()<an?0:11,d.getFullYear()<an?1:31);
   ["caDu","caAu"].forEach(function(k){
     var el=document.getElementById(k);
-    el.min=an+"-01-01"; el.max=an+"-12-31"; el.value=caIso(d);
+    /* La recherche s'ouvre sans date (le client, le 29/09/2026) : rien ne
+       se montre tant qu'on n'a pas choisi. */
+    el.min=an+"-01-01"; el.max=an+"-12-31"; el.value=caMode==="recherche"?"":caIso(d);
   });
 }
 function caLire(k){
@@ -9275,7 +9279,7 @@ function caCalculer(){
   if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
   else { if(!id) return; lsSet("ui/caQui",id); }
   var du=caLire("caDu"), au=(rech||caDuree==="jour")?du:(caLire("caAu")||du), an=Number(db.year);
-  if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
+  if(!du){ hote.innerHTML=rech?"":'<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
   var jours=[], d=new Date(du);
   while(d<=au && jours.length<62){ if(d.getFullYear()===an) jours.push(new Date(d)); d.setDate(d.getDate()+1); }
@@ -9355,12 +9359,12 @@ function caCalculer(){
     document.getElementById("caSub").textContent=m==="recherche"?"trouver quelqu'un pour un poste":"simuler une journée sans quelqu'un";
     caForme();
     caDates();
-    if(m==="recherche") caCalculer();
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
   document.getElementById("caGo").addEventListener("click",caCalculer);
   /* La recherche se refait d'elle-même à chaque changement de champ : une
-     journée se calcule à l'instant, le bouton n'apportait rien. */
+     journée se calcule à l'instant, le bouton n'apportait rien. Rien ne
+     s'affiche à l'ouverture de l'onglet, ni tant que la date est vide. */
   ["caPause","caPoste","caDu"].forEach(function(k){
     document.getElementById(k).addEventListener("change",function(){ if(caMode==="recherche") caCalculer(); });
   });
