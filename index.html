@@ -7475,7 +7475,11 @@ function renderEquipe(){
          tient jusqu'au 29/09. Dans le tableau, le poste montré décide, par
          la règle même de l'effectif (compteAuPoste). Le client, le
          26/09/2026 : pas de légende, « (F) » à côté du trigramme. */
-      var formIci=x.consign ? false
+      /* Sur les lignes FORM. et DS (sansHoraire), un badge ordinaire : la
+         ligne dit déjà pourquoi la personne n'est pas à un poste, et le
+         jaune n'a de sens qu'en face d'un poste (le client, le
+         29/09/2026). */
+      var formIci=(x.consign||sansHoraire) ? false
                  : posteCourant ? (enFormation(x.p,jourCalc) && !compteAuPoste(x,posteCourant,jourCalc))
                                : enFormation(x.p,jourCalc);
       return '<span class="eqn'+(x.p.id===moi?" moi":"")
@@ -7727,7 +7731,7 @@ function renderEquipe(){
           if(!vp[g.k]) return;
           var li=g.k==="D"?vp.D.ds:[];
           tp.push(li.length
-            ? "<td>"+li.map(function(x){ return chip(x,g,null,true); }).join("")+"</td>"
+            ? "<td>"+li.map(function(x){ return chip(x,g,null,true,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
         });
         tp.push("</tr>");

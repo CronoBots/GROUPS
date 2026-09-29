@@ -2601,6 +2601,15 @@ poste, et la colonne D n'attendant personne, aucun effectif ne bouge.
 Au navigateur : le 21/10, ATR, LCI et QBY ; le 30/09, ADK, LHR et VBN ;
 le 24/11, cinq personnes. La ligne ADJ disparaît le 21/10, ATR y étant
 seul. Rien ne déborde à 320, 390 et 1280 px.
+Puis, le même jour : **pas d'horaire sur la ligne DS**, comme sur FORM.,
+et **pas de jaune sur ces deux lignes** — le client : « quand ceux en
+formation sont sur un poste qu'ils ont déjà la polyvalence (ou dans la
+ligne DS ou FORM.) ils doivent avoir un badge normal ». Le premier cas
+était déjà juste : le jaune suit `compteAuPoste()`, donc la polyvalence
+(SKS, validé en fermentation, distillation et chaudières, n'est jaune
+qu'en meunerie). Au 21/10, les jaunes restants — SKS meunerie, NPI gluten,
+SVE et CDT distillation, MGY chaudières — sont tous sur le poste qu'ils
+apprennent, sans la polyvalence.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
