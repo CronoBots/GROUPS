@@ -2430,6 +2430,17 @@ qu'il est guéri.
 `CA_AIDE`, `#caAide` et ses styles sont retirés ; la recherche n'en avait
 déjà plus.
 
+**Le choix du jour ou de la période à droite de la personne.** Le
+client, le 29/09/2026, captures de son iPhone : « un jour une période
+doit être à droite du choix de trigramme », et la date « centrée comme
+les autres filtres ». Le choix prend la seconde moitié de la ligne de
+« Qui », à la hauteur du menu (44 px) ; au bureau, une colonne de plus.
+Sur téléphone il s'écrit « Jour » et « Période » : « Une période » ne
+tenait pas dans 58 px à 320 px. La valeur de la date se posait en haut
+du champ sous iOS, sans apparence native : une ligne de 42 px la
+recentre, à la hauteur du texte des menus. Rien ne déborde à 320, 390 et
+1280 px ; seul l'iPhone du client dit si iOS suit.
+
 **Les champs à la même hauteur.** Le client, le 29/09/2026, capture de
 son iPhone : « les 3 filtres doivent avoir la même hauteur » — le menu
 déroulant gardait sa hauteur native d'iOS, plus basse que le champ de
