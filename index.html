@@ -1208,7 +1208,7 @@ body.sheet-on{overflow:hidden}
 .caform{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px 14px;
   border-bottom:1px solid var(--trait)}
 .caform label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
-.caform .caqui{grid-column:1 / -1}
+.caform .caqui{grid-column:1}
 .caform select,.caform input{width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:10px;
   background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; min-width:0; color-scheme:light dark}
 .caform .btn{grid-column:1 / -1; padding:10px; font-size:14px; font-weight:650; border-radius:10px}
@@ -1219,10 +1219,18 @@ body.sheet-on{overflow:hidden}
    sortait du cadre. Un choix explicite, un seul champ pour un jour, deux
    pour une période (sans durées rapides : le client, le 29/09/2026, « il
    ne faut pas les boutons 3 jours, 1 semaine »). */
-.caduree{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:3px;
+/* À DROITE DU CHOIX DE LA PERSONNE. Le client, le 29/09/2026 : « un jour
+   une période doit être à droite du choix de trigramme ». Même hauteur que
+   le menu, calé sur son bas. */
+.caduree{grid-column:2; align-self:end; height:44px; box-sizing:border-box; display:grid;
+  grid-template-columns:1fr 1fr; gap:3px; padding:3px;
   background:var(--surface2); border:1px solid var(--line); border-radius:10px}
-.caduree button{padding:7px 6px; border:0; border-radius:8px; background:none; font-size:12.5px;
-  font-weight:600; color:var(--muted)}
+.caduree button{padding:0 4px; border:0; border-radius:8px; background:none; font-size:12.5px;
+  font-weight:600; color:var(--muted); white-space:nowrap; min-width:0}
+/* Sur téléphone, « Jour » et « Période » : « Une période » ne tient pas
+   dans la moitié de ligne (58 px à 320 px). */
+.caduree .calong{display:none}
+.caduree button::first-letter{text-transform:uppercase}
 .caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform.jour .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
@@ -1236,9 +1244,13 @@ body.sheet-on{overflow:hidden}
 .caform.rech .caqui, .caform.rech .caduree, .caform.rech .btn, .caform:not(.rech) .capause, .caform:not(.rech) .caposte{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
+/* La date au milieu du champ, comme le texte des menus. Le client, le
+   29/09/2026, capture de son iPhone : sans apparence native, iOS pose la
+   valeur en haut du champ. Une ligne de la hauteur du champ la recentre. */
 .caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
-  max-width:100%; min-height:42px; text-align:left}
-.caform input[type=date]::-webkit-date-and-time-value{text-align:left}
+  max-width:100%; min-height:42px; text-align:left; padding-top:0; padding-bottom:0; line-height:42px}
+.caform input[type=date]::-webkit-date-and-time-value{text-align:left; margin:0; line-height:42px}
+.caform input[type=date]::-webkit-datetime-edit{padding:0; line-height:42px}
 /* LES TROIS CHAMPS À LA MÊME HAUTEUR. Le client, le 29/09/2026, capture de
    son iPhone : « les 3 filtres doivent avoir la même hauteur ». Sous iOS,
    le menu déroulant garde sa hauteur native et le champ de date la sienne :
@@ -1249,10 +1261,12 @@ body.sheet-on{overflow:hidden}
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.5l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat; background-position:right 10px center; background-size:12px}
 @media (min-width:761px){
-  .caform{grid-template-columns:1.2fr 1fr 1fr auto; align-items:end}
+  .caform{grid-template-columns:1.2fr 1.1fr 1fr 1fr auto; align-items:end}
   .caform .caqui{grid-column:auto} .caform .btn{grid-column:auto; padding:9px 22px}
-  .caduree{grid-column:1 / -1}
-  .caform.jour .cadu{grid-column:2 / 4}
+  .caduree{grid-column:auto}
+  .caduree .calong{display:inline}
+  .caduree button::first-letter{text-transform:none}
+  .caform.jour .cadu{grid-column:3 / 5}
   .caform.rech{grid-template-columns:120px 220px 200px}
 }
 #caCorps{padding-top:0}
@@ -2037,8 +2051,8 @@ body[data-horaire="annee"] #rotasub{display:none}
         <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
         <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
         <div class="caduree" role="radiogroup" aria-label="Durée">
-          <button type="button" role="radio" data-du="jour" aria-checked="true">Un jour</button>
-          <button type="button" role="radio" data-du="periode" aria-checked="false">Une période</button>
+          <button type="button" role="radio" data-du="jour" aria-checked="true"><span class="calong">Un </span>jour</button>
+          <button type="button" role="radio" data-du="periode" aria-checked="false"><span class="calong">Une </span>période</button>
         </div>
         <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
         <label class="caau">Au<input type="date" id="caAu"></label>
