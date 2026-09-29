@@ -1218,18 +1218,15 @@ body.sheet-on{overflow:hidden}
    côte à côte ne disaient pas qu'on pouvait laisser le second égal au
    premier, et sous iOS le champ de date garde une largeur à lui : « Au »
    sortait du cadre. Un choix explicite, un seul champ pour un jour, deux
-   et des durées rapides pour une période. */
+   pour une période (sans durées rapides : le client, le 29/09/2026, « il
+   ne faut pas les boutons 3 jours, 1 semaine »). */
 .caduree{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:3px;
   background:var(--surface2); border:1px solid var(--line); border-radius:10px}
 .caduree button{padding:7px 6px; border:0; border-radius:8px; background:none; font-size:12.5px;
   font-weight:600; color:var(--muted)}
 .caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform.jour .cadu{grid-column:1 / -1}
-.caform.jour .caau, .caform.jour .caraccourcis{display:none}
-.caraccourcis{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px}
-.caraccourcis button{padding:5px 10px; border:1px solid var(--line); border-radius:999px;
-  background:var(--surface2); color:var(--ink2); font-size:12px; font-weight:600}
-.caraccourcis button:active{transform:scale(.95)}
+.caform.jour .caau{display:none}
 /* Le champ de date d'iOS ignore « width:100% » tant qu'il garde son
    apparence native : il faut la retirer, et lui rendre une hauteur. */
 .caform input[type=date]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box;
@@ -2020,12 +2017,6 @@ body[data-horaire="annee"] #rotasub{display:none}
         </div>
         <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
         <label class="caau">Au<input type="date" id="caAu"></label>
-        <div class="caraccourcis" aria-label="Durées rapides">
-          <button type="button" data-plus="2">3 jours</button>
-          <button type="button" data-plus="6">1 sem.</button>
-          <button type="button" data-plus="13">2 sem.</button>
-          <button type="button" data-plus="27">4 sem.</button>
-        </div>
         <button type="button" class="btn primary" id="caGo">Vérifier</button>
       </div>
       <div class="mqcorps" id="caCorps"></div>
@@ -9040,14 +9031,6 @@ function caCalculer(){
   }
   form.querySelector(".caduree").addEventListener("click",function(e){
     var b=e.target.closest("button[data-du]"); if(b) duree(b.dataset.du); });
-  form.querySelector(".caraccourcis").addEventListener("click",function(e){
-    var b=e.target.closest("button[data-plus]"); if(!b) return;
-    var d=caLire("caDu"); if(!d) return;
-    d.setDate(d.getDate()+Number(b.dataset.plus));
-    var au=document.getElementById("caAu");
-    var v=caIso(d); if(au.max && v>au.max) v=au.max;
-    au.value=v;
-  });
   duree(caDuree);
   /* « Au » suit « Du » tant qu'on ne l'a pas mis plus loin */
   document.getElementById("caDu").addEventListener("change",function(){

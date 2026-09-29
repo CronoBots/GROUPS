@@ -2419,8 +2419,10 @@ deux champs « Du » et « Au » côte à côte ne disaient pas qu'un seul jour 
 demandait en les laissant égaux, et **sous iOS le champ de date ignore
 `width:100%`** tant qu'il garde son apparence native : « Au » sortait du
 cadre. Un choix « Un jour / Une période » (retenu dans `ui/caDuree`) : un
-seul champ « Le » pour un jour, « Du » et « Au » et quatre durées rapides
-(3 jours, 1, 2, 4 semaines) pour une période. Le champ de date perd son
+seul champ « Le » pour un jour, « Du » et « Au » pour une période. Quatre
+durées rapides (3 jours, 1, 2, 4 semaines) ont vécu une version ; le
+client, le 29/09/2026 : « il ne faut pas les boutons 3 jours 1 semaine
+etc » — retirées avec leur écouteur et leurs styles. Le champ de date perd son
 apparence native (`appearance:none`) et reprend une hauteur de 42 px.
 Chromium ne reproduit pas le défaut d'iOS : seul l'appareil du client dit
 qu'il est guéri.
