@@ -1267,6 +1267,9 @@ body.sheet-on{overflow:hidden}
   margin-right:2px}
 .cachaine{display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px; padding:2px 4px;
   border:1px dashed var(--trait-fort); border-radius:8px}
+.capaire{display:flex; flex-direction:column; gap:5px; padding:5px 7px;
+  border:1px dashed var(--trait-fort); border-radius:8px}
+.capaire .cagr{font-size:9.5px}
 .cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
@@ -8778,9 +8781,8 @@ var CA_AIDE={
   absence:"Pour chaque poste qui manquerait : les changements dans la même pause, "
        +"les gens en D, un changement de pause là où un poste a du monde en trop, puis les rappels parmi ceux qui sont en repos — jamais plus de "
        +"12 h sur une journée (6 h à 6 h), toujours 8 h de repos entre deux journées. "
-       +"Doublage de 12 h : l'après-midi, le matin reste jusqu'à 18 h et la nuit arrive à 18 h ; "
-       +"la nuit, l'après-midi reste jusqu'à 2 h et le matin du lendemain arrive à 2 h ; "
-       +"le matin, l'après-midi arrive à 10 h et, plus rarement, la nuit de la veille reste jusqu'à 10 h.",
+       +"Doublage de 12 h, toujours par paire : 06-18 et 18-06 pour l'après-midi, "
+       +"14-02 et 02-14 pour la nuit, 10-22 et (plus rare) 22-10 pour le matin.",
   recherche:"Qui tient déjà le poste, puis qui pourrait y venir : la même pause (chacun gardant "
        +"le minimum de son poste), les gens en D, le doublage de 12 h (après-midi et nuit), puis les rappels."
 };
@@ -8944,12 +8946,12 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     });
   });
   if(g==="PM"){
-    t.dh="18 h"; t.dr="AM"; t.da="N";
+    t.dh="18 h"; t.dr="AM"; t.da="N"; t.hr="06-18"; t.ha="18-06";
     (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
     (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
   }
   if(g==="AM"){
-    t.dh="10 h"; t.dr="N veille"; t.da="PM"; t.arriveDabord=true;
+    t.dh="10 h"; t.dr="N veille"; t.da="PM"; t.hr="22-10"; t.ha="10-22"; t.arriveDabord=true;
     (par.PM||[]).forEach(function(x){
       if(!caPlein(x) || !ok(x)) return;
       if(veille[x.p.id]==="N"){ t.ecartes++; return; }
@@ -8964,7 +8966,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     });
   }
   if(g==="N"){
-    t.dh="2 h"; t.dr="PM"; t.da="AM demain";
+    t.dh="2 h"; t.dr="PM"; t.da="AM demain"; t.hr="14-02"; t.ha="02-14";
     (par.PM||[]).forEach(function(x){
       if(!caPlein(x) || !ok(x)) return;
       if(lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D"){ t.ecartes++; return; }
@@ -9069,16 +9071,21 @@ function caGroupes(t,large){
   if(t.change.length) g.push('<span class="mqr"><span class="cagr">Change de pause</span>'
     +t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
     +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")+"</span>");
-  /* Deux rangées : qui reste après son matin, qui arrive avant sa nuit. */
-  var manque=caDouble(t)?"":'<span class="mqinc">'+(t.reste.length?"personne pour arriver à "+t.dh:"personne pour rester jusqu'à "+t.dh)+"</span>";
-  var gR=[], gA=[];
-  if(t.reste.length) gR.push('<span class="mqr"><span class="cagr">'+t.dr+" reste \u2192 "+t.dh+'</span>'
-    +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
-    +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+(t.arrive.length?"":manque)+"</span>");
-  if(t.arrive.length) gA.push('<span class="mqr"><span class="cagr">'+t.da+" arrive "+t.dh+'</span>'
-    +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
-    +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+(t.reste.length?"":manque)+"</span>");
-  g.push.apply(g, t.arriveDabord ? gA.concat(gR) : gR.concat(gA));
+  /* LE DOUBLAGE VA TOUJOURS PAR PAIRE. Le client, le 29/09/2026 : « si on
+     fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
+     chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
+     moitié seule n'est donc pas une solution : elle ne se montre pas. Les
+     deux rangées vivent dans un même cadre, qui se lit comme une paire. */
+  if(caDouble(t)){
+    var rR='<span class="mqr"><span class="cagr">'+t.hr+'</span>'
+      +t.reste.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
+      +(t.reste.length>6?'<span class="mqinc">+'+(t.reste.length-6)+"</span>":"")+"</span>";
+    var rA='<span class="mqr"><span class="cagr">'+t.ha+'</span>'
+      +t.arrive.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
+      +(t.arrive.length>6?'<span class="mqinc">+'+(t.arrive.length-6)+"</span>":"")+"</span>";
+    g.push('<span class="capaire"><span class="cagr">Doublage 12 h · un de chaque</span>'
+      +(t.arriveDabord?rA+rR:rR+rA)+"</span>");
+  }
   /* LES RAPPELS REGROUPÉS par ce qui précède : les reposés d'abord, puis
      par pause de la veille. Le trigramme seul dans l'étiquette — le
      client, le 29/09/2026, « optimise tout ». Huit au plus en tout. */
