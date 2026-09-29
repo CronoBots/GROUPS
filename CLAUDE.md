@@ -2483,6 +2483,18 @@ ordre. Le congé ne garde que la même pause, comme avant.
   quatre après-midi qui restent jusqu'à 2 h, et cinq et quatre matins du
   lendemain qui arrivent à 2 h.
 
+**Le cadre de recherche optimisé** (le client, le 29/09/2026, « optimise
+tout » sur cinq pistes) : plus de texte d'aide sur cet onglet ; pause,
+poste et date sur une seule ligne ; plus de bouton « Vérifier », le
+résultat se refait à chaque changement de champ ; un seul titre
+(« N Chaudières 1/2 · Éq. 2 », l'effectif rouge s'il manque quelqu'un,
+vert sinon), sans intertitre de semaine ni bloc de date, la date étant
+dans le champ. Dans les trois modules et les sous-effectifs, les rappels
+se regroupent en « Rappel · reposés » et « Rappel · veille N »
+(« veille PM »…), et le doublage en « PM reste → 2 h » / « AM demain
+arrive 2 h » (« AM reste → 18 h » / « N arrive 18 h ») : l'étiquette ne
+porte plus que le trigramme. Rien ne déborde à 320 et 390 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des
