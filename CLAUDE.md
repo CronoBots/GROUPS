@@ -2574,6 +2574,11 @@ Puis, le même jour : le « ? » a la taille d'une étiquette de trigramme
 resserre — « ce n'est que 3 lettres » : trois huitièmes de la ligne sur
 téléphone (89 px à 320, 115 à 390), 110 px au bureau ; Du et Au restent
 égaux en période.
+Et dans le tableau du jour, le compte « 1 / 2 » d'une case en manque
+cède la place aux mêmes étiquettes « ? » bordées de rouge, une par place
+vide (le client, le 29/09/2026) ; le compte reste dans l'infobulle. Le
+fond rouge pâle de la case demeure. Mesuré à 390 px : « ? » et GJR font
+33,5 px tous deux ; rien ne déborde à 320 et 390 px.
 
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
