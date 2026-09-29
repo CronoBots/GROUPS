@@ -2489,6 +2489,24 @@ ordre. Le congé ne garde que la même pause, comme avant.
   quatre après-midi qui restent jusqu'à 2 h, et cinq et quatre matins du
   lendemain qui arrivent à 2 h.
 
+**Changer de pause, là où un poste a du monde en trop.** Le client, le
+29/09/2026 : « il arrive aussi de regarder les pauses avant/après s'il y a
+des effectifs en trop ; par exemple s'ils sont deux à un poste qui n'en
+demande qu'un en PM et qu'il manque quelqu'un en nuit, on peut lui
+demander s'il veut bien changer de pause et faire la nuit ».
+`caCandidats()` rejoue les autres pauses du même jour (`caAutres()`, une
+fois chacune, sans la personne absente) et propose, sous « Change de
+pause », ceux dont le poste garde son minimum sans eux (`caLibre()`, la
+règle des chaînes, désormais partagée), qui ont la polyvalence du poste
+vide, font leur journée entière et gardent 8 h de repos avec la veille
+et le lendemain, comptées sur la pause NOUVELLE. Ce n'est pas un
+doublage : la personne quitte sa pause. Modules absence, recherche et
+sous-effectifs ; pas le Congé, qui reste dans la même pause. Éprouvé : le
+22/10 en N aux chaudières, PLZ (gluten du matin, en surplus) et ATR
+(adjoint en plus du contremaître l'après-midi) ; le 21/10, personne,
+aucun poste n'ayant de surplus compatible. Vérificateur identique à
+l'octet.
+
 **Le cadre de recherche optimisé** (le client, le 29/09/2026, « optimise
 tout » sur cinq pistes) : plus de texte d'aide sur cet onglet ; pause,
 poste et date sur une seule ligne ; plus de bouton « Vérifier », le
