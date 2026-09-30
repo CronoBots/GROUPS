@@ -944,9 +944,14 @@ Proposé au client comme « règle A partout », cela aurait cassé le 18/02 ;
 d'où la question, et sa réponse : « si AM et DS-CE alors oui c'est 8 h
 prime du matin ». La règle ne vaut donc que pour la cellule franche **PM** :
 4 h prestées avec la prime, et 4 h du code `1/2 CE` — ligne « Heure(s)
-conseil d'entreprise, sans prime d'équipe ». **La nuit n'est pas tranchée** :
-une seule journée de l'année (ATR le 21/01, `["N","DS-CE"]`), laissée telle
-quelle.
+conseil d'entreprise, sans prime d'équipe ». **La nuit est tranchée le
+30/09/2026** : « les heures prestées gardent la prime de nuit ». Une nuit
+avec « DS-CE » ou « D-CPPT » se paie donc comme le matin, prime de nuit
+sur toutes les heures prestées ; seules une reprise (RHS) ou une absence
+écrite (RTT…) en sortent. C'est ce que l'application faisait déjà : ATR le
+21/01, `["N","DS-CE"]`, 6 h de nuit et 2 h de RTT ; VBN le 30/09,
+`["D-CPPT","1h RTT","+1h RHS …"]`, 6 h de nuit. Rien n'a changé dans le
+code.
 
 Cinq journées de l'année : FLI 18/02 et 16/09, ATR 21/10, LCI 25/08 et
 18/11. Neuf règles, manques, Recyclage et compteurs identiques à l'octet ;
