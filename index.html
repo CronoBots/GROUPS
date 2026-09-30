@@ -9236,6 +9236,27 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
     (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
   }
+  /* LE MATIN, D'ABORD 06-18 ET 18-06 AVEC CEUX DU POSTE. Le client, le
+     30/09/2026 : « pour un AM, s'il faut une prolongation 12 h, c'est
+     toujours mieux 06-18 18-06 en proposant les effectifs de PM et N de ce
+     poste ». L'après-midi du poste arrive à 6 h et reste jusqu'à 18 h, la
+     nuit du poste arrive à 18 h : le matin est couvert, l'après-midi par
+     les deux moitiés, la nuit par son titulaire. Personne d'autre ne
+     bouge. Celui de l'après-midi ne doit pas sortir d'une nuit (0 h de
+     repos) ; celui de la nuit, arrivé à 18 h, garde 12 h après une nuit. */
+  if(g==="AM" && autres){
+    t.m6=[]; t.s6=[];
+    [["PM",t.m6],["N",t.s6]].forEach(function(c){
+      autres(c[0]).postes.forEach(function(o){
+        if(o.P.k!==P.k) return;
+        o.gens.forEach(function(x){
+          if(x.depuisD || x.p.id===sauf || !caPlein(x)) return;
+          if(c[0]==="PM" && veille[x.p.id]==="N"){ t.ecartes++; return; }
+          c[1].push({p:x.p});
+        });
+      });
+    });
+  }
   if(g==="AM"){
     t.dh="10 h"; t.dr="N veille"; t.da="PM"; t.hr="22-10"; t.ha="10-22"; t.arriveDabord=true;
     (par.PM||[]).forEach(function(x){
@@ -9276,7 +9297,8 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
   return t;
 }
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
-function caDouble(t){ return t.reste.length>0 && t.arrive.length>0; }
+function caDouble6(t){ return !!(t.m6 && t.m6.length && t.s6.length); }
+function caDouble(t){ return (t.reste.length>0 && t.arrive.length>0) || caDouble6(t); }
 function caTrouve(t){ return t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
@@ -9374,9 +9396,12 @@ function caGroupes(t,large){
         +l.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
     }
-    var rR=rang(t.hr,t.reste), rA=rang(t.ha,t.arrive);
-    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'
-      +(t.arriveDabord?rA+rR:rR+rA)+"</span>");
+    var paire=(t.reste.length && t.arrive.length)
+      ? (t.arriveDabord?rang(t.ha,t.arrive)+rang(t.hr,t.reste):rang(t.hr,t.reste)+rang(t.ha,t.arrive)) : "";
+    /* « Toujours mieux » : la paire 06-18 / 18-06 remplace le 10-22 /
+       22-10, qui ne se montre plus qu'à défaut. */
+    if(caDouble6(t)) paire=rang("06-18",t.m6)+rang("18-06",t.s6);
+    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'+paire+"</span>");
   }
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
      de la veille. Huit au plus en tout. */
