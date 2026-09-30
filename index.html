@@ -1784,6 +1784,26 @@ body.sheet-on{overflow:hidden}
 .onboard-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-top:1px solid var(--line2)}
 @media (max-width:480px){.onboard-foot{flex-direction:column-reverse; align-items:stretch}}
 
+/* ---------- retour en haut ---------- */
+/* Le client, le 30/09/2026 : « un bouton pour remonter en haut de page, en
+   bas à droite, avec une opacité quand il n'est pas pointé ». Il n'apparaît
+   qu'une fois la page descendue (au haut de page il n'aurait rien à faire),
+   se pose au-dessus de la barre d'onglets sur téléphone, et reprend toute
+   son opacité sous le pointeur, au clavier ou sous le doigt. */
+.enhaut{
+  position:fixed; right:16px; z-index:55; bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.14);
+  display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer;
+  background:var(--marque); color:#fff; box-shadow:var(--shadow);
+  opacity:0; visibility:hidden; transform:translateY(8px);
+  transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+}
+.enhaut.on{opacity:.55; visibility:visible; transform:none; transition:opacity .2s ease, transform .2s ease}
+.enhaut.on:hover,.enhaut.on:focus-visible,.enhaut.on:active{opacity:1}
+.enhaut:active{transform:scale(.93)}
+.enhaut svg{display:block}
+@media (max-width:760px){ .enhaut{right:12px; bottom:calc(76px + env(safe-area-inset-bottom,0px))} }
+
 /* ---------- toast ---------- */
 .toast{
   position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:60;
@@ -2458,6 +2478,9 @@ body[data-horaire="annee"] #rotasub{display:none}
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button type="button" class="enhaut" id="enHaut" aria-label="Revenir en haut de la page" title="Haut de page">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <div class="sheet" id="jourSheet" hidden>
   <div class="sheet-fond" data-fermer="1"></div>
@@ -4314,6 +4337,22 @@ function deplierBarre(){
     t.classList.add("repliee"); dernier=y;
   }
   window.addEventListener("scroll",jauger,{passive:true});
+})();
+/* LE BOUTON DE RETOUR EN HAUT : visible passé 300 px de descente. */
+(function(){
+  var b=document.getElementById("enHaut"); if(!b) return;
+  function voir(){
+    var y=window.pageYOffset||document.documentElement.scrollTop||0;
+    b.classList.toggle("on",y>300);
+  }
+  window.addEventListener("scroll",voir,{passive:true});
+  b.addEventListener("click",function(){
+    deplierBarre();
+    var doux=!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    try{ window.scrollTo({top:0,behavior:doux?"smooth":"auto"}); }catch(e){ window.scrollTo(0,0); }
+    b.blur();
+  });
+  voir();
 })();
 /* SIX ONGLETS, et non huit. Le client, le 22/09/2026 : « tout ce qui est lié
    à la paye doit être dans un onglet Mon salaire ; Horaire doit s'appeler
