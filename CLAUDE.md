@@ -1295,7 +1295,8 @@ cellule « poste + DS-CE » — aurait été fausse** : la fiche de LCI paie le
 question posée avec les deux fiches côte à côte a donné la réponse. Détail
 dans `docs/regles-paie.md`, « Le conseil d'entreprise d'un après-midi ».
 Cinq journées, tout identique à l'octet sauf elles ; LCI 208 journées sur
-214. La nuit (une journée) attend une réponse.
+214. La nuit est tranchée le 30/09/2026 : les heures prestées gardent la
+prime de nuit, ce que l'application faisait déjà.
 
 ### Un déplacement demandé garde la prime la plus élevée
 
@@ -1479,10 +1480,9 @@ n'est deviné à leur sujet :
   `docs/conversion-horaire.md`, section 5 : +240 h chez 52 personnes), la
   reprise partielle et le « PM · DS-CE » aussi. Restent, en attente d'une
   réponse :
-  - **la nuit avec « DS-CE » ou « D-CPPT »** — 8 h de prime de nuit, ou
-    4 h + 4 h sans prime comme l'après-midi ? Le client se renseigne ; sa
-    fiche de septembre le dira, VBN le 30/09 `["N","D-CPPT"]` étant sa
-    seule journée de ce genre du mois. Aujourd'hui : 8 h, prime conservée ;
+  - ~~la nuit avec « DS-CE » ou « D-CPPT »~~ : tranchée le 30/09/2026,
+    « les heures prestées gardent la prime de nuit » — ce que l'application
+    faisait déjà, rien n'a changé dans le code ;
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
   - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
@@ -4474,8 +4474,9 @@ et 09/10. **VBN le 30/09** : `["D-CPPT","1h RTT","+1h RHS Arrivée à
 09h Départ à 15h"]` — la nuit avec « D-CPPT » attendue pour trancher la
 question de la prime est devenue une journée de 9 h à 15 h ; lue 6 h
 (1 h RTT, 1 h de reprise par la règle des deux moitiés), prime de nuit
-conservée comme aujourd'hui pour toute journée « N · D-CPPT ». La
-question reste donc ouverte, et la fiche de septembre la tranchera.
+conservée comme pour toute journée « N · D-CPPT ». Le client l'a
+tranché le même jour : « les heures prestées gardent la prime de nuit »
+— la lecture était déjà la bonne.
 Sous-effectifs d'ici la fin de l'année et compteurs **identiques à
 l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
 navigateur à 320 (hors ligne), 390 et 1280 px.
