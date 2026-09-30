@@ -9191,15 +9191,18 @@ function caPlein(x){
   return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
 }
 function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
-  if(!large) return {chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   var veille=pausesDe(-1), lendemain=pausesDe(1);
   function reposOk(pid){
     var av=veille[pid], ap=lendemain[pid];
     return !(av && caRepos(av,g)<CA_REPOS_MIN) && !(ap && caRepos(g,ap)<CA_REPOS_MIN);
   }
+  /* Le relais depuis le D vaut aussi pour le Congé : ceux qui sont en D
+     sont à l'usine ce jour-là, au matin et à l'après-midi (le client, le
+     30/09/2026, même capture de PDE le 02/10 sur l'onglet Congé). */
   var dRelais=(g==="AM"||g==="PM") ? (par.D||[]).filter(function(x){
     return !(x.r && x.r.jourCode) && x.p.id!==sauf && reposOk(x.p.id); }) : null;
   var t={chaines:caChaines(vue,P,jour,3,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
+  if(!large) return t;
   function ok(x){ return x.p.id!==sauf && caSait(x,P,jour); }
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return;
