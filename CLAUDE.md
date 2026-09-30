@@ -2654,6 +2654,17 @@ qu'en meunerie). Au 21/10, les jaunes restants — SKS meunerie, NPI gluten,
 SVE et CDT distillation, MGY chaudières — sont tous sur le poste qu'ils
 apprennent, sans la polyvalence.
 
+**Le matin : 06-18 et 18-06 avec ceux du poste.** Le client, le
+30/09/2026 : « pour un AM, s'il faut une prolongation 12 h, c'est toujours
+mieux 06-18 18-06 en proposant les effectifs de PM et N de ce poste ».
+L'après-midi du poste vide arrive à 6 h et reste jusqu'à 18 h, la nuit du
+même poste arrive à 18 h : personne d'autre ne bouge. Celui de
+l'après-midi qui sort d'une nuit est écarté (0 h de repos). Quand cette
+paire existe, le 10-22 / 22-10 ne se montre plus ; il reste en repli.
+Éprouvé sur VBN absent : le 01/10, GPS 06-18 et ATR 18-06 ; le 02/10, YPE
+et GPS. Vérificateur identique ; rien ne déborde à 320 (hors ligne), 390
+et 1280 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des
