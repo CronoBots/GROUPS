@@ -2376,6 +2376,17 @@ au-dessus du fond le plus clair, et le texte posé sur la page tient : le
 gris le plus pâle, `--faint`, lit à 4,8:1 sur #1b2640. Vérifié à 390 et
 1280 px, en haut de page et défilé.
 
+**Et le logo en filigrane.** Le client, le 30/09/2026 : « le logo doit
+rester en fond fixe dans mon app en filigrane une fois l'écran de
+chargement disparu ». `body::after`, calque fixe au-dessus du dégradé :
+`logo.svg` centré, `min(56vw,300px)` de large, opacité `--filigrane`
+(0,06). Thème sombre seulement : en clair le texte blanc du dessin
+disparaît et il ne restait qu'un morceau de la marque, `--filigrane` y vaut
+0. Les cartes passent par-dessus. Même commit : sans personne choisie, la
+barre du haut écrit « Choisissez qui vous êtes / dans Réglages » sur deux
+lignes — sur une seule, elle chevauchait BIOWANZE à 320 px. Vérifié à 320
+(hors ligne), 390 et 1280 px.
+
 ## Congé et absence : la journée rejouée sans quelqu'un
 
 Le client, le 29/09/2026 : un module de **demande de congé** qui dit si
