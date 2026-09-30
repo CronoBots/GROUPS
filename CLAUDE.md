@@ -2688,6 +2688,18 @@ paire existe, le 10-22 / 22-10 ne se montre plus ; il reste en repli.
 et GPS. Vérificateur identique ; rien ne déborde à 320 (hors ligne), 390
 et 1280 px.
 
+**Le relais d'une chaîne peut venir du D.** Le client, le 30/09/2026, sur
+PDE malade le 02/10 (STEP du matin à 0/1) : « PDF est repris pour aller à
+la STEP (polyvalence) et JBI, qui est en D, pour aller aux chaudières ;
+c'est ce qui a été fait ». `caChaines()` accepte, comme dernier maillon,
+une personne en D (matin et après-midi, sans code de journée, 8 h de
+repos) qui sait tenir le poste que le maillon précédent a quitté. Seul,
+il ne tiendrait pas le poste vide : le cadre « En D » le dit déjà quand il
+le peut. Au navigateur : « PDF Chaud. → STEP puis JBI D ou MHI D →
+Chaud. ». Absence, recherche et sous-effectifs ; pas le Congé.
+Vérificateur identique ; rien ne déborde à 320 (hors ligne), 390 et
+1280 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des
