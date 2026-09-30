@@ -2341,6 +2341,19 @@ Rien ne bouge dans la lecture : les quatre sorties du vérificateur sont
 identiques à l'octet, et `comparer-fiches` passe son épreuve. Vérifié à
 320 (hors ligne), 390 et 1280 px, en clair et en sombre.
 
+### Le bouton de retour en haut
+
+Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
+en bas à droite, avec une opacité quand il n'est pas pointé ». `#enHaut`,
+rond de 44 px sur `--marque`, flèche blanche : il n'apparaît qu'après
+300 px de descente (en haut de page il n'a rien à faire), à 55 % d'opacité,
+et passe à 100 % au survol, au clavier ou sous le doigt. Sur téléphone il
+se pose au-dessus de la barre d'onglets (76 px du bas, safe area en plus),
+au bureau à 20 px du coin. Le clic remonte en douceur, sauf sous
+`prefers-reduced-motion`, et redéplie la barre du haut. Mesuré à 320 (hors
+ligne), 390 et 1280 px : caché en haut, visible à 0,55 descendu, 1 au
+survol, retour à 0 px après le clic.
+
 ### L'écran d'intro
 
 Le client, le 29/09/2026 : « un écran d'intro avec le logo au chargement de
