@@ -2699,6 +2699,21 @@ Puis, le même jour : « que rappel ». Seul un commentaire qui écrit le mot
 compte ; une présence sur un repos sans lui (« Remplace BLR ») n'est plus
 un rappel. Restent **3 à venir** : LHR les 02 et 03/10, YRS le 04/10.
 
+### Le Résumé réordonné, sans « Mon prochain poste »
+
+Le client, le 30/09/2026 : « le cadre congé/absence/recherche doit être
+tout en haut ; on peut supprimer le cadre prochain poste ; poste en
+sous-effectif et rappel non nécessaire doivent être juste en dessous du
+cadre équipe du jour ». L'onglet se lit désormais : Congé, absence et
+recherche ; Équipes du jour (le tableau) ; Postes en sous-effectif ;
+Rappels non nécessaires ; puis les cadres Absents et Congé et repos, qui
+restent sous le tableau dont ils dépendent. « Mon prochain poste » part
+en entier : son HTML, `majProchain()` et ses deux appels, `posteLeJour()`
+qui ne servait qu'à lui, et les styles `.prochain`, `.pp-txt`,
+`.cardjour`. La barre du haut dit déjà le poste du jour. Vérificateur à
+zéro ; rien ne déborde à 320 (hors ligne), 390 et 1280 px.
+
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
@@ -4283,6 +4298,18 @@ l'année.
 **« Poly.Ethol »** (ATR le 12/11) : troisième écriture du terrain arrière,
 après « poly. Etoh » et « poly.Etha » ; la règle « mention avalée » l'a
 signalée, le motif l'accepte. Neuf règles à zéro, Recyclage et compteurs
+identiques à l'octet, intégralité à zéro ; vérifié au navigateur à 320
+(hors ligne), 390 et 1280 px.
+
+### Le classeur du 29/09/2026 à 13 h 28
+
+Reçu le 30/09. Sept portes ouvertes, installé : **8 journées chez 4
+personnes, 2 compteurs**. JBI le 29/09 (« 3,5 rhs ») et QBY le 29/09
+(« 2h rhs », départ à 12 h) : reprises en fin de journée ; NPE le 18/10
+part à 10 h (« 4h -FT »), QBY le relaie de 10 h à 14 h (« 10h-22h ·
+4h +FT », lu 8 h en PM et 4 h au compteur) ; NPI en 6h-14h les 09 et
+10/11, ses D des 12 et 13/11 marqués « - ». Compteurs flex time de NPE
+et QBY suivis. Neuf règles à zéro, `--manques 0930` et `--compteurs`
 identiques à l'octet, intégralité à zéro ; vérifié au navigateur à 320
 (hors ligne), 390 et 1280 px.
 
