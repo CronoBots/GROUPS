@@ -184,6 +184,19 @@ body{
    garde sa page #F6F6F6, relevée sur ses captures. Un calque fixe et non
    « background-attachment:fixed », que Safari sur iOS ignore : le dégradé
    reste en place pendant qu'on fait défiler les cartes par-dessus. */
+/* Mon salaire sans personne : seul le message reste. */
+.salvide{display:none}
+.salvide p{margin:0; padding:16px}
+body[data-sanspers] #v-salaire>.salvide{display:block}
+body[data-sanspers] #v-salaire>:not(.salvide){display:none!important}
+/* EN PWA SOUS iOS, UN ONGLET COURT FAISAIT REMONTER LA BARRE D'ONGLETS. Le
+   client, le 30/09/2026, captures à l'appui : une bande noire sous la barre
+   sur « Mon horaire » presque vide. Avec la barre d'état translucide, iOS
+   calcule le bloc des éléments fixes sans la hauteur de la barre d'état
+   tant que la page ne la dépasse pas. Une page toujours au moins aussi
+   haute que l'écran plus cette zone rend au cadre fixe tout l'écran. */
+html{min-height:calc(100% + env(safe-area-inset-top,0px))}
+body{min-height:calc(100vh + env(safe-area-inset-top,0px))}
 body::before{content:""; position:fixed; inset:0; z-index:-1; background:var(--fond); pointer-events:none}
 /* Safari sur iOS zoome de lui-même quand on met le curseur dans un champ de
    moins de 16 px, et ignore « user-scalable=no » depuis iOS 10. Seule la
@@ -2322,6 +2335,11 @@ body[data-horaire="annee"] #rotasub{display:none}
          confrontation à la vraie fiche. -->
     <div class="mnavhote"></div>
 
+    <div class="card salvide" id="salVide">
+      <p><b>Aucun opérateur choisi.</b> Choisissez qui vous êtes dans
+      <b>Réglages</b> : le salaire du mois se calcule sur votre horaire.</p>
+    </div>
+
     <div class="card">
       <div class="hero">
         <div aria-live="polite">
@@ -4103,6 +4121,12 @@ function dateDuJourLisible(){
     +" "+MOIS[d.getMonth()].toLowerCase();
 }
 function majBrandsub(){
+  /* Sans personne choisie, Mon salaire ne montre aucun montant : le net
+     d'une rémunération d'exemple, sur zéro journée, se lirait comme un vrai
+     chiffre. Le client, le 30/09/2026. */
+  var _id=document.getElementById("prefillId");
+  if(_id && _id.value) document.body.removeAttribute("data-sanspers");
+  else document.body.setAttribute("data-sanspers","");
   var el=document.getElementById("brandsub"),
       tri=document.getElementById("brandtri");
   if(!el) return;

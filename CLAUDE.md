@@ -2757,6 +2757,26 @@ rechargement ; choix effacé, 0 sur 30, hors ligne compris ; aucune
 erreur. La rémunération fixe d'exemple (`remFixe` de `DEF_P`) n'est pas
 touchée : elle n'appartient à personne.
 
+**Et Mon salaire ne montre aucun montant.** Le client, le 30/09/2026,
+capture à l'appui : sans personne, l'onglet affichait un « Net estimé »
+calculé sur la rémunération d'exemple et zéro journée. `majBrandsub()`,
+appelée à chaque rendu, pose `data-sanspers` sur `body` ; la feuille cache
+alors tout l'onglet, sélecteur de mois compris, et ne laisse que la carte
+`#salVide`, qui renvoie aux Réglages. Vérifié à 320 (hors ligne), 390 et
+1280 px, avec et sans VBN.
+
+## La barre d'onglets et un onglet court, en PWA sous iOS
+
+Le client, le 30/09/2026, captures de son iPhone : sur « Mon horaire »
+presque vide, la barre d'onglets flottait au-dessus d'une bande noire. Avec
+la barre d'état translucide (`black-translucent`, `viewport-fit=cover`),
+iOS calcule le bloc des éléments fixes sans la hauteur de la barre d'état
+tant que la page ne dépasse pas l'écran. `html` et `body` ont donc une
+hauteur minimale égale à l'écran plus `env(safe-area-inset-top)` : une page
+courte défile de cette zone, et le cadre fixe `.navwrap` retrouve tout
+l'écran. Toujours pas de `dvh`. **Chromium ne reproduit pas le défaut** :
+seul l'iPhone du client dit s'il est guéri.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
