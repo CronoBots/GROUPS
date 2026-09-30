@@ -1296,7 +1296,8 @@ question posée avec les deux fiches côte à côte a donné la réponse. Détai
 dans `docs/regles-paie.md`, « Le conseil d'entreprise d'un après-midi ».
 Cinq journées, tout identique à l'octet sauf elles ; LCI 208 journées sur
 214. La nuit est tranchée le 30/09/2026 : les heures prestées gardent la
-prime de nuit, ce que l'application faisait déjà.
+prime que le commentaire écrit (celle de la pause prévue sinon), ce que
+l'application faisait déjà.
 
 ### Un déplacement demandé garde la prime la plus élevée
 
@@ -1481,8 +1482,10 @@ n'est deviné à leur sujet :
   reprise partielle et le « PM · DS-CE » aussi. Restent, en attente d'une
   réponse :
   - ~~la nuit avec « DS-CE » ou « D-CPPT »~~ : tranchée le 30/09/2026,
-    « les heures prestées gardent la prime de nuit » — ce que l'application
-    faisait déjà, rien n'a changé dans le code ;
+    « pas obligatoirement la prime de nuit, mais la prime qui est bien
+    indiquée dans le commentaire » — ce que l'application faisait déjà
+    par la prime conservée (AFA 25/02, JKS 25/03, QBY 15/04), rien n'a
+    changé dans le code ;
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
   - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
@@ -4475,8 +4478,9 @@ et 09/10. **VBN le 30/09** : `["D-CPPT","1h RTT","+1h RHS Arrivée à
 question de la prime est devenue une journée de 9 h à 15 h ; lue 6 h
 (1 h RTT, 1 h de reprise par la règle des deux moitiés), prime de nuit
 conservée comme pour toute journée « N · D-CPPT ». Le client l'a
-tranché le même jour : « les heures prestées gardent la prime de nuit »
-— la lecture était déjà la bonne.
+tranché le même jour : les heures prestées gardent la prime que le
+commentaire écrit, celle de la pause prévue sinon — la lecture était
+déjà la bonne.
 Sous-effectifs d'ici la fin de l'année et compteurs **identiques à
 l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
 navigateur à 320 (hors ligne), 390 et 1280 px.
