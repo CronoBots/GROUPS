@@ -2170,6 +2170,18 @@ ateliers, pas la marque — mais tous leurs pas sont recalculés sur une même
 clarté et un même chroma. Le contraste de chacun sur son fond doux tient
 entre 4,6 et 5,6:1, là où l'ancienne série allait de 3,9 à 7,2.
 
+### Un seul thème, le sombre
+
+Le client, le 30/09/2026 : « l'app ne doit avoir que le thème sombre ».
+`<html data-theme="dark">` le pose quel que soit le réglage du téléphone,
+`color-scheme:dark` partout, et le manifeste prend `#111727` pour fond et
+couleur de thème. Le bloc `@media (prefers-color-scheme: dark)` était la
+copie exacte de `:root[data-theme="dark"]` (55 jetons sur 55) : il est
+retiré. Le `:root` clair reste comme base que le bloc sombre surcharge.
+**Ce qui est écrit dans ce fichier sur le thème clair ne vaut plus** que
+comme histoire. Vérifié avec un téléphone réglé en clair, à 320 (hors
+ligne), 390 et 1280 px : tout est sombre, filigrane compris.
+
 ### Zéro texte sous le seuil, et il y en avait 456
 
 Un audit qui parcourt les six onglets, calcule le fond RÉEL de chaque texte
