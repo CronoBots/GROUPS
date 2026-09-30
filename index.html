@@ -119,7 +119,7 @@
      tout l'objet. « blanc » veut dire SANS atelier : son fond est la surface
      même. */
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
-  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:.06;
+  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:.04;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130; --maint:rgba(110,210,240,.10);
@@ -1953,6 +1953,66 @@ body.sheet-on{overflow:hidden}
 .top .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
 .top .tabs button[aria-selected="true"]{color:var(--marque-vif)}
 .top .tabs button[aria-selected="true"]::after{background:var(--marque-vif)}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISSAGE DU CHROME — 30/09/2026
+   Le client : « Regarde le background et adapte tout le thème du
+   site à celui-ci ; réorganise les onglets, icônes et cadres pour
+   rendre le site une application 100 % pro et intuitive. »
+
+   Le fond bleu nuit et les deux barres #111727 — la couleur du
+   logo — étaient déjà en place : ce bloc ne touche à AUCUNE couleur
+   mesurée, ni à la navigation, ni aux textes. Il n'ajoute que le
+   liant qui manquait entre le chrome et son fond : une lumière
+   haute sur les barres et les cartes, les icônes d'onglets rendues
+   au bureau, et les surfaces que le navigateur peint lui-même —
+   molette, sélection — ramenées à la marque plutôt qu'au défaut.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* La barre du haut se décolle du fond d'un cran, sans changer de
+   teinte : un cheveu clair coiffe son bord, une ombre douce la pose
+   au-dessus des cartes qui défilent dessous. Le #111727 reste le
+   fond — c'est la profondeur, pas la couleur, qui s'ajoute. */
+.top{box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 10px 30px -24px rgba(0,0,0,.9)}
+
+/* LES ICÔNES D'ONGLETS REVIENNENT AU BUREAU. Le client, le
+   30/09/2026 : « des icônes aussi sur desktop ». Au-delà de 760 px
+   la barre vit dans l'en-tête, en ligne : l'icône précède le
+   libellé du même trait que sur téléphone, et l'onglet choisi la
+   soulève d'un cheveu en cyan. Sous 760 px la barre basse garde sa
+   disposition en colonne, écrite plus bas et plus spécifique. */
+@media (min-width:761px){
+  .tabs{gap:4px}
+  .tabs button{display:inline-flex; align-items:center; gap:8px; padding:10px 14px 11px;
+    transition:color .18s ease, background-color .18s ease}
+  .tabs button svg{display:block; width:17px; height:17px; flex:0 0 auto;
+    transition:transform .2s cubic-bezier(.3,1.2,.5,1)}
+  .tabs button[aria-selected="true"] svg{transform:scale(1.07)}
+  .top .tabs button[aria-selected="true"]::after{left:14px; right:14px; height:2px; border-radius:2px}
+}
+
+/* Les cartes prennent la même lumière haute que les barres : un
+   cheveu clair sur le bord supérieur, rien de plus. La teinte, la
+   bordure et l'ombre mesurées ne bougent pas. */
+:root[data-theme="dark"] .card{box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05)}
+
+/* Sur téléphone, la barre basse se pose elle aussi au-dessus du
+   tableau qui passe dessous, d'une ombre montante — à plat, elle
+   s'y confondait par le bas. */
+@media (max-width:760px){
+  .navwrap>.tabs{box-shadow:0 -12px 32px -22px rgba(0,0,0,.95)}
+}
+
+/* La molette, la sélection et le curseur portent la marque, et non
+   le gris par défaut du navigateur : le signe le moins cher qu'une
+   page a été dessinée, et celui qu'on oublie le plus souvent. */
+:root[data-theme="dark"]{scrollbar-color:var(--trait) transparent; scrollbar-width:thin}
+:root[data-theme="dark"] ::selection{background:rgba(105,178,203,.30); color:#fff}
+:root[data-theme="dark"] ::-webkit-scrollbar{width:11px; height:11px}
+:root[data-theme="dark"] ::-webkit-scrollbar-track{background:transparent}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
+  border:3px solid transparent; background-clip:content-box}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
 /* Le bouton de retour ne s'affiche que dans le détail d'une journée : dans
    l'année, il n'y a rien à quitter. */
 body[data-horaire="annee"] #horNav{display:none}
