@@ -2728,6 +2728,29 @@ case ; sur téléphone elles restent l'une sous l'autre (sa demande du
 Vérificateur à zéro ; vérifié à 320 (hors ligne), 390 et 1280 px.
 
 
+## Personne n'est choisi par défaut
+
+Le client, le 30/09/2026 : « par défaut, aucun trigramme d'opérateur ni
+réglage ne doit être sélectionné, pour ne pas voir le salaire de la
+personne en défaut ». Un `<select>` prend sa première option : sur un
+appareil neuf, la première fonction et le premier trigramme de la liste
+(AFA) étaient choisis d'office, et Mon salaire montrait ses heures, ses
+primes et ses rappels. C'est aussi ce qui avait fait hériter LCI des
+heures sup d'AFA le 26/09. Les deux listes des Réglages commencent donc
+par « — Choisir — » ; seul un choix fait par l'utilisateur
+(`ui/prefillCat`, `ui/prefillId`) revient au lancement. Sans personne,
+la barre du haut dit « Choisissez qui vous êtes dans Réglages » et le
+mois reste vide.
+
+**Les appareils déjà servis gardaient les journées de l'autre** dans
+leurs douze mois. `viderAuto()` les retire une fois, quand aucune
+personne n'est choisie : seulement les journées posées par le
+pré-remplissage (`rec.auto`), jamais une saisie à la main. Éprouvé :
+profil neuf, 0 journée sur 30 ; AFA choisi, 25 sur 30, gardé au
+rechargement ; choix effacé, 0 sur 30, hors ligne compris ; aucune
+erreur. La rémunération fixe d'exemple (`remFixe` de `DEF_P`) n'est pas
+touchée : elle n'appartient à personne.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à

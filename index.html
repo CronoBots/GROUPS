@@ -4563,11 +4563,21 @@ function alerteHoraire(perdu){
 function renderPrefillSelects(db){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
-  catSel.innerHTML=cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
+  /* PERSONNE PAR DÉFAUT. Le client, le 30/09/2026 : « par défaut, aucun
+     trigramme d'opérateur ni réglage ne doit être sélectionné, pour ne pas
+     voir le salaire de la personne en défaut ». Un <select> prend sa
+     première option : sur un appareil neuf, la première fonction et le
+     premier trigramme de la liste étaient choisis d'office, et Mon salaire
+     montrait les heures et les primes d'un collègue. Les deux listes
+     commencent donc par un choix vide ; seul ce que l'utilisateur a choisi
+     lui-même (ui/prefillCat, ui/prefillId) revient. */
+  var VIDE='<option value="">— Choisir —</option>';
+  catSel.innerHTML=VIDE+cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
   var savedCat=lsGet("ui/prefillCat");
-  if(savedCat && cats.indexOf(savedCat)>=0) catSel.value=savedCat;
+  catSel.value=(savedCat && cats.indexOf(savedCat)>=0)?savedCat:"";
   function fillIds(){
     var cat=catSel.value;
+    if(!cat){ idSel.innerHTML=VIDE; idSel.value=""; return; }
     var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
     /* On montre le trigramme nu. Deux personnes du MÊME groupe qui le
        partageraient donneraient deux entrées identiques, impossibles à
@@ -4577,12 +4587,12 @@ function renderPrefillSelects(db){
        suffixe. */
     var vus={};
     ids.forEach(function(i){ var b=idLisible(i); vus[b]=(vus[b]||0)+1; });
-    idSel.innerHTML=ids.map(function(i){
+    idSel.innerHTML=VIDE+ids.map(function(i){
       var lu=(vus[idLisible(i)]>1)?i:idLisible(i);
       return '<option value="'+esc(i)+'">'+esc(lu)+"</option>";
     }).join("");
     var savedId=lsGet("ui/prefillId");
-    if(savedId && ids.indexOf(savedId)>=0) idSel.value=savedId;
+    idSel.value=(savedId && ids.indexOf(savedId)>=0)?savedId:"";
   }
   /* Les compteurs du pied de classeur ne remplissent aucun champ : les
      « reliquats au 1er du mois » de l'onglet sont des restes d'arrondi de
@@ -6130,11 +6140,38 @@ function prefillFromHoraire(){
    appellent tous les deux, l'un finissant après l'autre sans qu'on sache
    lequel. */
 var prefillEnCours=false, prefillFait="";
+/* Sans personne choisie, rien de l'horaire d'un autre. Le client, le
+   30/09/2026 : aucun trigramme par défaut, « pour ne pas voir le salaire
+   de la personne en défaut ». Les appareils qui s'étaient laissé choisir
+   la première personne de la liste gardaient ses journées dans leurs douze
+   mois : on retire, une fois, celles que le pré-remplissage a posées
+   (rec.auto) — jamais une journée saisie à la main. */
+var autoVide="";
+function viderAuto(){
+  if(prefillEnCours || autoVide===String(st.y)) return;
+  autoVide=String(st.y); prefillFait="";
+  var mois=[]; for(var i=0;i<12;i++) mois.push(i);
+  Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); })).then(function(docs){
+    var touche=false;
+    docs.forEach(function(doc,i){
+      if(!doc || !doc.days) return;
+      var n=0;
+      Object.keys(doc.days).forEach(function(d){ if(doc.days[d] && doc.days[d].auto){ delete doc.days[d]; n++; } });
+      if(!n) return;
+      touche=true;
+      save("months/"+key(st.y,i),doc,true);
+      if(i===st.m && st.month && st.month.days)
+        Object.keys(st.month.days).forEach(function(d){ if(st.month.days[d] && st.month.days[d].auto) delete st.month.days[d]; });
+    });
+    if(touche){ renderRota(); renderFields(); refresh(); }
+  });
+}
 function prefillAuto(){
   if(!st.ready || prefillEnCours) return;
   var catSel=document.getElementById("prefillCat"),
       idSel=document.getElementById("prefillId");
-  if(!catSel || !idSel || !idSel.value) return;
+  if(!catSel || !idSel) return;
+  if(!idSel.value){ viderAuto(); return; }
   var cle=catSel.value+"/"+idSel.value+"/"+st.y;
   if(cle===prefillFait) return;
   prefillFait=cle;
