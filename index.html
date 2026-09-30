@@ -9195,7 +9195,7 @@ function caPlein(x){
   return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
 }
 function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
-  if(!large) return {chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
+  if(!large) return {g:g, chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   var veille=pausesDe(-1), lendemain=pausesDe(1);
   function reposOk(pid){
     var av=veille[pid], ap=lendemain[pid];
@@ -9203,7 +9203,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
   }
   var dRelais=(g==="AM"||g==="PM") ? (par.D||[]).filter(function(x){
     return !(x.r && x.r.jourCode) && x.p.id!==sauf && reposOk(x.p.id); }) : null;
-  var t={chaines:caChaines(vue,P,jour,3,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
+  var t={g:g, chaines:caChaines(vue,P,jour,3,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   function ok(x){ return x.p.id!==sauf && caSait(x,P,jour); }
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return;
@@ -9352,7 +9352,13 @@ function caChip(id,sous){
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
 /* Les groupes de candidats d'un poste, dans l'ordre de caCandidats(). */
-function caChaineHtml(gr){
+/* L'HORAIRE PROPOSÉ À QUI VIENT DU D. Le client, le 30/09/2026 : « tu peux
+   proposer de modifier l'horaire des personnes en D ». Qui quitte sa
+   journée pour un poste prend l'horaire de la pause : 6-14 au matin,
+   14-22 l'après-midi. Le repos de 8 h est déjà compté sur la pause. */
+var CA_HOR_D={AM:"6-14", PM:"14-22"};
+function caChaineHtml(gr,g){
+  var hD=CA_HOR_D[g]||"";
   function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
   if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
   /* UNE ÉTAPE PAR LIGNE. Le client, le 30/09/2026 : « moyen de mieux
@@ -9372,7 +9378,7 @@ function caChaineHtml(gr){
   gr.fin.forEach(function(z){ lieux[lieu(z)]=1; });
   var unLieu=Object.keys(lieux).length===1;
   h+=etape(++n,unLieu?lieu(gr.fin[0]):"",cible,gr.fin.map(function(z){
-    return caChip(z.p.id,unLieu?"":lieu(z)); }).join("<i>ou</i>"));
+    return caChip(z.p.id,(z.de&&z.de.k==="D")?hD:(unLieu?"":lieu(z))); }).join("<i>ou</i>"));
   return '<span class="cachaine">'+h+"</span>";
 }
 /* UN CADRE PAR TYPE DE SOLUTION. Le client, le 29/09/2026, capture à
@@ -9386,9 +9392,9 @@ function caCadre(titre,dedans,cl){
 }
 function caGroupes(t,large){
   var g=[];
-  if(t.chaines.length) g.push(caCadre("Même pause",t.chaines.map(caChaineHtml).join("")));
+  if(t.chaines.length) g.push(caCadre("Même pause",t.chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
-  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,""); }).join("")));
+  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
   if(t.change.length) g.push(caCadre("Change de pause",
     t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
     +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")));
