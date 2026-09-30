@@ -9101,7 +9101,7 @@ function caAutres(db,par,mmdd,sauf){
     return memo[g2];
   };
 }
-function caChaines(vue,P,jour,max){
+function caChaines(vue,P,jour,max,depuisD){
   function sait(x,Q){ return Q.cm ? estCadre(x.p) : (peutTenir(x.p,Q,jour) && compteAuPoste(x,Q,jour)); }
   function libre(o,x){ return caLibre(o,x,jour); }
   var sols=[], vus={}, file=[{cible:P, chaine:[], pris:{}, postes:{}}];
@@ -9111,6 +9111,17 @@ function caChaines(vue,P,jour,max){
     (vue.inconnus||[]).forEach(function(x){
       if(e.pris[x.p.id] || !sait(x,e.cible)) return;
       var c=e.chaine.concat([{p:x.p, de:null, a:e.cible}]), k=c.map(function(z){return z.p.id;}).join(">");
+      if(!vus[k]){ vus[k]=1; sols.push(c); }
+    });
+    /* LE DERNIER MAILLON PEUT VENIR DU D. Le client, le 30/09/2026, sur
+       PDE malade le 02/10 à la STEP : « PDF est repris pour aller à la
+       STEP (polyvalence) et JBI, qui est en D, pour aller aux
+       chaudières ». Celui qui est en D relève celui qui a quitté son
+       poste ; seul, il ne tiendrait pas le poste vide (le cadre « En D »
+       le dit déjà quand il le peut). */
+    if(depuisD && e.chaine.length) depuisD.forEach(function(x){
+      if(e.pris[x.p.id] || !sait(x,e.cible)) return;
+      var c=e.chaine.concat([{p:x.p, de:{k:"D",t:"D"}, a:e.cible}]), k=c.map(function(z){return z.p.id;}).join(">");
       if(!vus[k]){ vus[k]=1; sols.push(c); }
     });
     vue.postes.forEach(function(o){
@@ -9180,13 +9191,15 @@ function caPlein(x){
   return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
 }
 function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
-  var t={chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
-  if(!large) return t;
+  if(!large) return {chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   var veille=pausesDe(-1), lendemain=pausesDe(1);
   function reposOk(pid){
     var av=veille[pid], ap=lendemain[pid];
     return !(av && caRepos(av,g)<CA_REPOS_MIN) && !(ap && caRepos(g,ap)<CA_REPOS_MIN);
   }
+  var dRelais=(g==="AM"||g==="PM") ? (par.D||[]).filter(function(x){
+    return !(x.r && x.r.jourCode) && x.p.id!==sauf && reposOk(x.p.id); }) : null;
+  var t={chaines:caChaines(vue,P,jour,3,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   function ok(x){ return x.p.id!==sauf && caSait(x,P,jour); }
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return;
