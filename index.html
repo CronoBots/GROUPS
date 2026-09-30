@@ -10285,9 +10285,31 @@ if(window.claude&&window.claude.use){
 </script>
 
 <script>
+/* LA MISE À JOUR SANS FERMER L'APPLICATION. Le client, le 30/09/2026 :
+   « l'app PWA ne se met pas à jour ? ». Installée sur l'écran d'accueil,
+   l'application n'est presque jamais RECHARGÉE : le téléphone la garde en
+   mémoire et la ressort telle quelle. Le navigateur ne cherche alors un
+   nouveau sw.js qu'à une navigation — donc jamais — et, s'il en trouve
+   un, la page déjà affichée reste l'ancienne.
+   - on redemande sw.js à chaque retour au premier plan, et toutes les
+     trente minutes si l'application reste ouverte ;
+   - quand le nouveau service worker prend la main (skipWaiting + claim),
+     la page se recharge UNE fois. Pas au tout premier lancement, où il
+     n'y avait pas de service worker à remplacer. */
 if("serviceWorker" in navigator){
+  var swAvait=!!navigator.serviceWorker.controller, swRecharge=false;
+  navigator.serviceWorker.addEventListener("controllerchange",function(){
+    if(!swAvait || swRecharge) return;
+    swRecharge=true; location.reload();
+  });
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
+    navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(function(reg){
+      function verifier(){ try{ reg.update(); }catch(e){} }
+      document.addEventListener("visibilitychange",function(){
+        if(document.visibilityState==="visible") verifier();
+      });
+      setInterval(verifier,30*60*1000);
+    }).catch(function(){});
   });
 }
 </script>
