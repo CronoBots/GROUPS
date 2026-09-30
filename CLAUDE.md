@@ -2696,12 +2696,10 @@ une personne en D (matin et après-midi, sans code de journée, 8 h de
 repos) qui sait tenir le poste que le maillon précédent a quitté. Seul,
 il ne tiendrait pas le poste vide : le cadre « En D » le dit déjà quand il
 le peut. Au navigateur : « PDF Chaud. → STEP puis JBI D ou MHI D →
-Chaud. ». Absence, recherche et sous-effectifs, **et le Congé** depuis
-le même jour : le client a renvoyé la capture de l'onglet Congé, qui
-disait encore « Pas possible · Personne dans la même pause » pour PDE le
-02/10. Ceux qui sont en D sont à l'usine ce jour-là ; le Congé les prend
-comme relais, jamais comme remplaçant direct, et dit désormais
-« Possible avec changement ».
+Chaud. ». Absence, recherche et sous-effectifs ; **pas le Congé**. Le
+relais a été étendu au Congé le 30/09/2026 puis retiré dans l'heure, le
+client : « annule, c'est ok » — pour PDE le 02/10, le Congé qui dit « Pas
+possible · Personne dans la même pause » est juste.
 Vérificateur identique ; rien ne déborde à 320 (hors ligne), 390 et
 1280 px.
 
