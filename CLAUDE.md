@@ -2713,6 +2713,15 @@ solutions ne fait que 150 px à 320 px, et une grille à trois colonnes y a
 d'abord fait déborder les étiquettes. Rien ne déborde à 320 (hors ligne),
 390 et 1280 px.
 
+**Et l'horaire proposé à qui vient du D.** Le client, le 30/09/2026 :
+« si tu as compris, tu peux proposer de modifier l'horaire des personnes
+en D ». Qui quitte sa journée pour tenir un poste prend l'horaire de la
+pause : l'étiquette porte « 6-14 » au matin, « 14-22 » l'après-midi
+(`CA_HOR_D`), dans le cadre « En D » comme au dernier maillon d'une
+chaîne (« JBI 6-14 · D → Chaud. »). Le repos de 8 h était déjà compté sur
+la pause. Vérifié sur PDE et VBN absents le 02/10, à 320 (hors ligne),
+390 et 1280 px ; vérificateur identique.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des
