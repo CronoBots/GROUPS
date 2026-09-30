@@ -945,13 +945,17 @@ d'où la question, et sa réponse : « si AM et DS-CE alors oui c'est 8 h
 prime du matin ». La règle ne vaut donc que pour la cellule franche **PM** :
 4 h prestées avec la prime, et 4 h du code `1/2 CE` — ligne « Heure(s)
 conseil d'entreprise, sans prime d'équipe ». **La nuit est tranchée le
-30/09/2026** : « les heures prestées gardent la prime de nuit ». Une nuit
-avec « DS-CE » ou « D-CPPT » se paie donc comme le matin, prime de nuit
-sur toutes les heures prestées ; seules une reprise (RHS) ou une absence
-écrite (RTT…) en sortent. C'est ce que l'application faisait déjà : ATR le
-21/01, `["N","DS-CE"]`, 6 h de nuit et 2 h de RTT ; VBN le 30/09,
-`["D-CPPT","1h RTT","+1h RHS …"]`, 6 h de nuit. Rien n'a changé dans le
-code.
+30/09/2026**, en deux temps : « les heures prestées gardent la prime de
+nuit », puis « pas obligatoirement la prime de nuit, mais la prime qui est
+bien indiquée dans le commentaire ». Une journée « DS-CE » ou « D-CPPT »
+paie donc ses heures prestées à la prime que le commentaire écrit ; sans
+prime écrite, à celle de la pause prévue par le cycle. Seules une reprise
+(RHS) ou une absence écrite (RTT…) en sortent. C'est ce que l'application
+faisait déjà, par la prime conservée : AFA le 25/02 (« conserver prime de
+nuit ») et JKS le 25/03 (« maintien prime N »), `PM · D-CPPT`, 8 h de
+nuit ; QBY le 15/04 (« conserver prime de PM »), 8 h d'après-midi ; sans
+prime écrite, ATR le 21/01 (6 h de nuit, 2 h de RTT) et VBN le 30/09
+(6 h de nuit). Rien n'a changé dans le code.
 
 Cinq journées de l'année : FLI 18/02 et 16/09, ATR 21/10, LCI 25/08 et
 18/11. Neuf règles, manques, Recyclage et compteurs identiques à l'octet ;
