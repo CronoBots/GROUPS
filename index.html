@@ -1224,6 +1224,16 @@ body.sheet-on{overflow:hidden}
   font-weight:600; color:var(--muted); transition:background-color .18s ease, color .18s ease}
 .caseg button[aria-selected="true"]{background:var(--surface); color:var(--ink);
   box-shadow:0 1px 3px rgba(0,0,0,.18)}
+/* Le segment d'Équipe (« Les équipes » / « Recyclage »), calqué sur celui du
+   Résumé mais à deux voies. Il coiffe l'onglet, hors carte : le gap du
+   « stack » l'espace de la sous-vue, il ne porte donc pas de marge propre. */
+.eqseg{display:grid; grid-template-columns:1fr 1fr; gap:4px; margin:0; padding:3px;
+  background:var(--surface2); border:1px solid var(--line); border-radius:10px}
+.eqseg button{padding:8px 6px; border:0; border-radius:8px; background:none; font-size:13px;
+  font-weight:600; color:var(--muted); transition:background-color .18s ease, color .18s ease}
+.eqseg button:hover{color:var(--ink)}
+.eqseg button[aria-selected="true"]{background:var(--surface); color:var(--ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px 14px}
 .caform label{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); min-width:0}
 .caform .caqui{grid-column:1}
@@ -2071,22 +2081,28 @@ body[data-horaire="annee"] #rotasub{display:none}
     <div class="mlabel" id="mlabel">—</div>
     <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
   </div>
+  <!-- CINQ ONGLETS, et non six. Le client, le 30/09/2026 : « fusionner
+       Équipe et Recyclage, revoir le jeu d'icônes, grouper les onglets ».
+       « Recyclage » (la matrice des polyvalences) rejoint « Équipe » en
+       sous-vue — les deux disaient la structure de l'usine, pas la journée —
+       et « Mon salaire » remonte juste après « Mon horaire », puisque
+       l'horaire ALIMENTE la paie : on lit les deux « Mon… » d'affilée.
+       Les icônes sont redessinées d'un même trait : Résumé porte une vue
+       d'ensemble (tuiles), Mon salaire un billet frappé d'un €, là où la
+       jauge et la feuille ne nommaient pas leur onglet. -->
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-resume" data-v="resume" aria-selected="true" aria-controls="v-resume">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0-8-8"/><path d="M12 12l4-3"/><path d="M4 12H2"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="4.5" rx="1.5"/><rect x="13.5" y="10.5" width="7.5" height="10.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
       Résumé</button>
     <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Mon horaire</button>
+    <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M14.6 9.6a3 3 0 1 0 0 4.8"/><path d="M8.3 11.2h4.3M8.3 12.9h4.3"/></svg>
+      Mon salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
     <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
       Équipe</button>
-    <button type="button" role="tab" id="tab-polyvalence" data-v="polyvalence" aria-selected="false" aria-controls="v-polyvalence">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M9 9v11M15 9v11"/></svg>
-      Recyclage</button>
-    <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>
-      Mon salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
     <button type="button" role="tab" id="tab-reglages" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
       Réglages</button>
@@ -2340,6 +2356,16 @@ body[data-horaire="annee"] #rotasub{display:none}
 
          Rien ici ne dépend de la date : c'est qui compose quoi. La journée
          se lit dans le Résumé. -->
+    <!-- SOUS-NAVIGATION — ÉQUIPE absorbe Recyclage. Le client, le 30/09/2026.
+         Deux vues de la MÊME structure d'usine : la composition (« Les
+         équipes ») et la matrice des polyvalences (« Recyclage »). Un segment
+         les échange sur place ; l'onglet n'en fait plus deux, et la barre de
+         menu passe de six repères à cinq. -->
+    <nav class="eqseg" role="tablist" aria-label="Vue de l'équipe">
+      <button type="button" role="tab" id="eqsub-tab-equipes" data-sv="equipes" aria-selected="true" aria-controls="eqsub-equipes">Les équipes</button>
+      <button type="button" role="tab" id="eqsub-tab-poly" data-sv="poly" aria-selected="false" aria-controls="eqsub-poly" tabindex="-1">Recyclage</button>
+    </nav>
+    <div class="stack" id="eqsub-equipes" role="tabpanel" aria-labelledby="eqsub-tab-equipes">
     <div class="pvtete">
       <h2>Les équipes</h2>
       <p class="sub" id="orgSub"></p>
@@ -2358,26 +2384,24 @@ body[data-horaire="annee"] #rotasub{display:none}
         <div class="eqann" id="eqAnnuaire"></div>
       </details>
     </div>
-  </section>
+    </div><!-- /#eqsub-equipes -->
 
-  <!-- ============ HORAIRE ============ -->
-    <!-- ============ POLYVALENCE ============ -->
-  <!-- Le titre et la période vivent HORS du cadre. Le client, le
-       22/09/2026 : « il faut le titre "Recyclage des polyvalences" au
-       dessus du cadre avec juste en dessous la ligne avec les dates (donc
-       les sortir du tableau) ». Ils annoncent la grille, ils n'en font pas
-       partie — et une fois dehors, la grille commence par sa propre ligne
-       d'en-tête au lieu d'un bandeau qui lui ressemblait. -->
-  <section class="panel stack" id="v-polyvalence" role="tabpanel" aria-labelledby="tab-polyvalence" tabindex="-1" hidden>
-    <div class="pvtete">
-      <h2>Recyclage des polyvalences</h2>
-      <p class="sub" id="pvSub"></p>
-    </div>
-    <div class="card">
-      <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
-      <div id="pvFin" class="pvfinav"></div>
-      <p class="eqleg" id="pvLeg"></p>
-    </div>
+    <!-- Le recyclage des polyvalences, désormais sous-vue d'Équipe. Le titre
+         et la période vivent HORS du cadre — client, 22/09/2026 : « il faut le
+         titre "Recyclage des polyvalences" au dessus du cadre avec juste en
+         dessous la ligne avec les dates ». Ils annoncent la grille, ils n'en
+         font pas partie. -->
+    <div class="stack" id="eqsub-poly" role="tabpanel" aria-labelledby="eqsub-tab-poly" hidden>
+      <div class="pvtete">
+        <h2>Recyclage des polyvalences</h2>
+        <p class="sub" id="pvSub"></p>
+      </div>
+      <div class="card">
+        <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
+        <div id="pvFin" class="pvfinav"></div>
+        <p class="eqleg" id="pvLeg"></p>
+      </div>
+    </div><!-- /#eqsub-poly -->
   </section>
 
   <section class="panel stack" id="v-salaire" role="tabpanel" aria-labelledby="tab-salaire" tabindex="-1" hidden>
@@ -4347,10 +4371,11 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["resume","horaire","equipe","polyvalence","salaire","reglages"];
+var VIEWS=["resume","horaire","salaire","equipe","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
-   avait laissé « Fiche » ouvert retomberait sur le Résumé sans raison. */
-var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire"};
+   avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
+   30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
+var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", polyvalence:"equipe"};
 function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="resume";
@@ -4377,8 +4402,7 @@ function setView(v,keepScroll){
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="horaire") renderCompteurs();
   if(v==="resume") renderEquipe();
-  if(v==="equipe") renderOrganisation();
-  if(v==="polyvalence") renderPolyvalence();
+  if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="horaire") centrerSurAujourdhui();
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
@@ -4398,6 +4422,39 @@ document.querySelector(".tabs").addEventListener("keydown",function(e){
   setView(tabs[j].dataset.v,true);
   tabs[j].focus();
 });
+/* LA SOUS-NAVIGATION D'ÉQUIPE : « Les équipes » ou « Recyclage », deux vues
+   de la même structure d'usine. Elle mémorise le dernier choix comme la barre
+   du haut retient le dernier onglet, et ne touche qu'à la visibilité — les
+   deux sous-vues sont déjà remplies quand on arrive sur l'onglet. */
+function appliquerEqSub(){
+  var sv=st.eqsub||lsGet("ui/eqsub")||"equipes";
+  st.eqsub=sv;
+  var eq=document.getElementById("eqsub-equipes"),
+      po=document.getElementById("eqsub-poly");
+  if(!eq||!po) return;
+  eq.hidden=(sv!=="equipes");
+  po.hidden=(sv!=="poly");
+  Array.prototype.forEach.call(document.querySelectorAll("#v-equipe .eqseg button[data-sv]"),function(b){
+    var on=b.dataset.sv===sv;
+    b.setAttribute("aria-selected",String(on));
+    b.tabIndex=on?0:-1;
+  });
+}
+(function(){
+  var seg=document.querySelector("#v-equipe .eqseg"); if(!seg) return;
+  seg.addEventListener("click",function(e){
+    var b=e.target.closest("button[data-sv]"); if(!b) return;
+    st.eqsub=b.dataset.sv; lsSet("ui/eqsub",st.eqsub); appliquerEqSub();
+  });
+  seg.addEventListener("keydown",function(e){
+    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight") return;
+    var bs=Array.prototype.slice.call(seg.querySelectorAll("button[data-sv]"));
+    var i=bs.indexOf(document.activeElement); if(i<0) return;
+    e.preventDefault();
+    var j=(i+(e.key==="ArrowRight"?1:bs.length-1))%bs.length;
+    st.eqsub=bs[j].dataset.sv; lsSet("ui/eqsub",st.eqsub); appliquerEqSub(); bs[j].focus();
+  });
+})();
 document.addEventListener("click",function(e){
   var g=e.target.closest("[data-go]"); if(g) setView(g.dataset.go);
 });
