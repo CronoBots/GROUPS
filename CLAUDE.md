@@ -2703,6 +2703,16 @@ possible · Personne dans la même pause » est juste.
 Vérificateur identique ; rien ne déborde à 320 (hors ligne), 390 et
 1280 px.
 
+**La chaîne se lit en étapes numérotées.** Le client, le 30/09/2026 :
+« moyen de mieux présenter la chaîne ? ». Tout tenait sur une ligne qui
+passait à la ligne n'importe où. Chaque étape est désormais une ligne :
+un numéro rond, les trigrammes (« JBI ou MHI » pour les alternatives du
+dernier maillon), puis le déplacement en gris (« Chaud. → STEP »), qui
+passe sous les trigrammes quand la place manque — la colonne des
+solutions ne fait que 150 px à 320 px, et une grille à trois colonnes y a
+d'abord fait déborder les étiquettes. Rien ne déborde à 320 (hors ligne),
+390 et 1280 px.
+
 **Un contremaître ne remplace jamais ailleurs qu'au poste de
 contremaître ; un adjoint, si.** Le client, le 29/09/2026. La règle vit
 dans `peutTenir()`, le point de passage du rééquilibrage et des

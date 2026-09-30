@@ -1317,8 +1317,12 @@ body.sheet-on{overflow:hidden}
 .catete{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted)}
 .cagr{font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted);
   margin-right:2px}
-.cachaine{display:inline-flex; align-items:center; flex-wrap:wrap; gap:4px; padding:2px 4px;
-  border:1px dashed var(--trait-fort); border-radius:8px}
+.cachaine{display:grid; width:100%; box-sizing:border-box; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:5px 8px;
+  padding:5px 8px; border:1px dashed var(--trait-fort); border-radius:8px; min-width:0}
+.cachn{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+  border-radius:50%; background:var(--surface3); color:var(--muted); font-size:10.5px; font-weight:700}
+.cachm{font-size:11.5px; color:var(--muted); white-space:nowrap; margin-left:2px}
+.cachp{display:flex; flex-wrap:wrap; align-items:center; gap:4px}
 .capaire{display:flex; flex-direction:column; gap:5px; padding:5px 7px;
   border:1px dashed var(--trait-fort); border-radius:8px}
 .capaire .cagr{font-size:9.5px}
@@ -9351,15 +9355,25 @@ function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
 function caChaineHtml(gr){
   function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
   if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
-  /* une chaîne se lit dans l'ordre où on la fait : qui prend le trou, puis
-     qui prend sa place */
-  var h=gr.tete.map(function(z){ return caChip(z.p.id,lieu(z)+" \u2192 "+caPoste(z.a)); }).join("<i>puis</i>");
-  var cible=caPoste(gr.fin[0].a);
-  if(gr.fin.length===1) return '<span class="cachaine">'+h+"<i>puis</i>"
-    +caChip(gr.fin[0].p.id,lieu(gr.fin[0])+" \u2192 "+cible)+"</span>";
-  return '<span class="cachaine">'+h+"<i>puis</i>"
-    +gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("<i>ou</i>")
-    +"<i>\u2192 "+esc(cible)+"</i></span>";
+  /* UNE ÉTAPE PAR LIGNE. Le client, le 30/09/2026 : « moyen de mieux
+     présenter la chaîne ? ». Tout se suivait sur une ligne qui passait à
+     la ligne n'importe où (« PDF Chaud. → STEP puis JBI D ou MHI D →
+     Chaud. »). Chaque étape a désormais son numéro, puis ses
+     trigrammes, puis le déplacement ; les alternatives du dernier maillon
+     se lisent « JBI ou MHI ». Le déplacement passe sous les trigrammes
+     quand la place manque (la colonne ne fait que 150 px à 320 px). */
+  function etape(n,de,a,gens){
+    return '<span class="cachn">'+n+'</span><span class="cachp">'+gens
+      +'<span class="cachm">'+(de?esc(de)+" ":"")+"\u2192 "+esc(a)+"</span></span>";
+  }
+  var h="", n=0;
+  gr.tete.forEach(function(z){ h+=etape(++n,lieu(z),caPoste(z.a),caChip(z.p.id,"")); });
+  var cible=caPoste(gr.fin[0].a), lieux={};
+  gr.fin.forEach(function(z){ lieux[lieu(z)]=1; });
+  var unLieu=Object.keys(lieux).length===1;
+  h+=etape(++n,unLieu?lieu(gr.fin[0]):"",cible,gr.fin.map(function(z){
+    return caChip(z.p.id,unLieu?"":lieu(z)); }).join("<i>ou</i>"));
+  return '<span class="cachaine">'+h+"</span>";
 }
 /* UN CADRE PAR TYPE DE SOLUTION. Le client, le 29/09/2026, capture à
    l'appui : « il faut regrouper tous les types de solutions dans le même
