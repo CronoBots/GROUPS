@@ -2655,6 +2655,34 @@ Les quatre sorties du vérificateur sont identiques à l'octet (il ne
 découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
 en sombre.
 
+### Les rappels que l'effectif ne demandait pas
+
+Le client, le 30/09/2026 : « un cadre dans le premier onglet reprenant les
+erreurs du fichier Excel : un rappel d'un travailleur pour une journée, un
+poste où il n'y avait pas besoin, car l'effectif permettait d'avoir une
+équipe complète ». Cadre « Rappels non nécessaires », sous les
+sous-effectifs, même forme qu'eux (date en mots, coupure par semaine, clic
+qui ouvre le tableau du jour).
+
+`rappelsInutiles()` prend chaque rappel du jour de l'usine à la fin de
+l'horaire — journée lue en rappel sur un repos (`r.rs`), ou cellule
+franche « - » avec une pause tenue, sauf un échange — et rejoue la journée
+sans la personne par `caSimuler()`, la simulation du module d'absence :
+aucun poste sous son effectif, même après les changements que le
+rééquilibrage ferait dans la pause, et le rappel est signalé (« Complet
+sans lui », ou « … si HKB Glut. → Meun. »). Le commentaire est dans
+l'infobulle. Écartés : un commentaire qui nomme un renfort ou une
+intervention (la tâche justifie le rappel, pas l'effectif) et les journées
+`SANS_EFFECTIF`.
+
+Mesuré le 30/09/2026 : 178 rappels sur l'année, dont 102 sans trou sans
+eux — beaucoup de renforts du SD26 et des journées sans effectif, d'où les
+deux exclusions ; **6 à venir** (LHR les 02 et 03/10, YRS les 04 et 11/10,
+ADS le 14/10, GKT le 27/10), les deux « intervention gluten » du 05/10
+écartées. Ce sont des signalements, pas des corrections : le classeur
+n'est pas modifié, et un rappel peut avoir une raison qu'il n'écrit pas.
+Vérificateur à zéro ; rien ne déborde à 320 (hors ligne), 390 et 1280 px.
+
 ## Le pré-remplissage ne parle que s'il faut agir
 
 Il se rejoue à chaque ouverture, et il fait bouger quelque chose presque à
