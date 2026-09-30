@@ -4461,6 +4461,25 @@ et QBY suivis. Neuf règles à zéro, `--manques 0930` et `--compteurs`
 identiques à l'octet, intégralité à zéro ; vérifié au navigateur à 320
 (hors ligne), 390 et 1280 px.
 
+### Le classeur du 30/09/2026 à 14 h 17
+
+Sept portes ouvertes, installé : **14 journées chez 9 personnes, 4
+compteurs** (RTT de CJD, GDT, PDF et VBN). Prestées 14 445 → 14 441.
+VGG malade les 30/09 et 01/10 ; PDR (CT le 30/09) est désormais remplacé
+par QBY au lieu de VGG ; CJD part à 4 h la nuit du 29/09 (« 2h RTT,
+équipe complète ») et PDF passe cette nuit-là en RTT ; ATR en 10h-18h le
+29/09 ; GDT en VA le 08/12 remplacé par DWS au terrain arrière, et son
+29/10 passe de VA à RTT ; LHR : ses VA des 22 et 23/10 avancés aux 08
+et 09/10. **VBN le 30/09** : `["D-CPPT","1h RTT","+1h RHS Arrivée à
+09h Départ à 15h"]` — la nuit avec « D-CPPT » attendue pour trancher la
+question de la prime est devenue une journée de 9 h à 15 h ; lue 6 h
+(1 h RTT, 1 h de reprise par la règle des deux moitiés), prime de nuit
+conservée comme aujourd'hui pour toute journée « N · D-CPPT ». La
+question reste donc ouverte, et la fiche de septembre la tranchera.
+Sous-effectifs d'ici la fin de l'année et compteurs **identiques à
+l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
+navigateur à 320 (hors ligne), 390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
