@@ -8756,10 +8756,10 @@ function mqJoursAVenir(db,horizon){
    travailleur pour une journée, un poste où il n'y avait pas besoin, car
    l'effectif permettait d'avoir une équipe complète ».
 
-   Un rappel, c'est une présence sur un repos : la journée lue en rappel
-   (r.rs, le mot « rappel » sur un repos, du classeur ou du cycle), ou une
-   cellule franche « - » où la personne tient pourtant une pause — sauf un
-   échange, qui n'est pas un rappel. On rejoue alors la journée SANS elle,
+   Un rappel, c'est une présence sur un repos dont le commentaire écrit
+   « rappel » : la journée lue en rappel (r.rs, repos du classeur ou du
+   cycle), ou une cellule franche « - » où la personne tient une pause —
+   sauf un échange. On rejoue alors la journée SANS elle,
    par caSimuler(), la simulation du module d'absence : si aucun poste ne
    passe sous son effectif, même après les changements dans la pause que
    le rééquilibrage ferait, le rappel n'était pas nécessaire.
@@ -8781,6 +8781,10 @@ function rappelsInutiles(db){
       (par[g]||[]).forEach(function(x){
         var raw=x.p.d[mmdd]||[], com=raw[2]||"";
         var repos=(raw[0]||"").trim()==="-";
+        /* Seul le mot « rappel » fait un rappel (le client, le 30/09/2026 :
+           « que rappel ») : une présence sur un repos sans lui n'en est pas
+           un — un remplacement arrangé, un échange. */
+        if(!/rappe[lk]/i.test(com)) return;
         if(!(x.r && x.r.rs) && !(repos && !/[ée]change|inversion/i.test(com))) return;
         if(RX_RAPPEL_TACHE.test(com)) return;
         var s=caSimuler(db,x.p.id,annee,m,j,"absence",function(){ return {}; });
