@@ -2663,6 +2663,12 @@ déplaçait déjà aucun contremaître. Elle mord sur les propositions : le
 21/10 en N aux chaudières, VBN ne figure plus parmi ceux qui restent
 jusqu'à 2 h ; les adjoints (JBI, VGG, ATR) restent proposés partout.
 
+**« Changement de poste », au pluriel pour une chaîne.** Le client, le
+30/09/2026 : le cadre « Changements » des modules Congé et Absence
+s'intitule « Changement de poste » quand un seul déplacement suffit,
+« Changements de poste » quand il en faut plusieurs. Mesuré sur octobre,
+40 personnes : 6 cadres au singulier (ALZ en congé), 4 au pluriel (BLR).
+
 Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
 Les quatre sorties du vérificateur sont identiques à l'octet (il ne
 découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
