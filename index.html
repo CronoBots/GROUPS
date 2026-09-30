@@ -66,7 +66,7 @@
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
      ici une seule fois. */
   --marque:#111727; --marque-vif:#69B2CB;
-  --fond:none;
+  --fond:none; --filigrane:0;
   /* L'ACCENT EST LE CYAN DU LOGO, pris plus profond pour tenir sur du blanc :
      même teinte (222), pas la même clarté. Il ne vient plus d'ailleurs. */
   --in:#005770; --in2:#177792; --in-soft:#D3EDF6;
@@ -115,7 +115,7 @@
        tout l'objet. « blanc » veut dire SANS atelier : son fond est la surface
        même. */
     --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
-  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);
+  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:.06;
     --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
     --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130; --maint:rgba(110,210,240,.10);
@@ -147,7 +147,7 @@
      tout l'objet. « blanc » veut dire SANS atelier : son fond est la surface
      même. */
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
-  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);
+  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:.06;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --zebre:#1C2130; --maint:rgba(110,210,240,.10);
@@ -198,6 +198,13 @@ body[data-sanspers] #v-salaire>:not(.salvide){display:none!important}
 html{min-height:calc(100% + env(safe-area-inset-top,0px))}
 body{min-height:calc(100vh + env(safe-area-inset-top,0px))}
 body::before{content:""; position:fixed; inset:0; z-index:-1; background:var(--fond); pointer-events:none}
+/* LE LOGO EN FILIGRANE, fixe sous toute l'application. Le client, le
+   30/09/2026 : « le logo doit rester en fond fixe dans mon app en filigrane
+   une fois l'écran de chargement disparu ». Même dessin et même place que
+   l'écran d'intro (logo.svg, déjà dans CORE : il tient hors ligne), très
+   pâle, sur un calque fixe comme le dégradé : les cartes passent dessus. */
+body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:url(logo.svg) no-repeat 50% 50%/min(56vw,300px) auto; opacity:var(--filigrane,.06)}
 /* Safari sur iOS zoome de lui-même quand on met le curseur dans un champ de
    moins de 16 px, et ignore « user-scalable=no » depuis iOS 10. Seule la
    taille de police l'en empêche — on ne la force donc que là, pour ne pas
@@ -4137,7 +4144,7 @@ function majBrandsub(){
      dans la journée, alors que ce qui suit change avec elle. */
   if(tri) tri.textContent=id?idLisible(id):"";
   if(!id){
-    el.innerHTML='<span class="idate">Choisissez qui vous êtes dans Réglages</span>';
+    el.innerHTML='<span class="idate">Choisissez qui vous êtes</span><em>dans Réglages</em>';
     return;
   }
   function ecrire(droite){
