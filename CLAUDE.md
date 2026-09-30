@@ -3351,6 +3351,23 @@ git config core.hooksPath .githooks     # une fois par machine
    L'horaire JSON reste au cache d'abord, rafraîchi en arrière-plan ; icônes
    et polices, au cache. Hors ligne, tout retombe sur le cache — vérifié à
    chaque fois avec Playwright en mode `setOffline(true)`.
+
+   **Et l'application installée se met à jour sans être fermée**, depuis
+   `nfdm-v356`. Le client, le 30/09/2026 : « l'app PWA ne se met pas à
+   jour ? ». Le site en ligne était bien à jour ; deux choses bloquaient
+   le téléphone. GitHub Pages sert tout en `max-age=600`, et le « réseau
+   d'abord » rendait donc jusqu'à dix minutes la page du cache HTTP : la
+   page et le rafraîchissement de l'horaire se demandent désormais en
+   `cache:"no-cache"` (revalidation, 304 si rien n'a changé). Surtout, une
+   PWA sur l'écran d'accueil n'est presque jamais RECHARGÉE : le téléphone
+   la ressort de sa mémoire, le navigateur ne cherche pas de nouveau
+   `sw.js`, et la page affichée reste l'ancienne. La page redemande donc
+   `sw.js` (`reg.update()`, `updateViaCache:"none"`) à chaque retour au
+   premier plan et toutes les trente minutes, et se recharge UNE fois
+   quand le nouveau service worker prend la main (`controllerchange`) —
+   jamais au tout premier lancement. Éprouvé : application ouverte, `V`
+   changé sur le serveur, retour au premier plan simulé → la page se
+   recharge seule sur le nouveau cache, puis tient hors ligne.
 3. Tester dans un navigateur, pas seulement en unitaire. Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible

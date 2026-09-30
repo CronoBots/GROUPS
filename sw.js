@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v355";
+var V = "nfdm-v356";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png",
@@ -70,8 +70,13 @@ function cacheSiBon(req, res) {
   var copy = res.clone();
   caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
 }
+/* LA PAGE REVALIDÉE, jamais prise dans le cache HTTP. Le client, le
+   30/09/2026 : « l'app PWA ne se met pas à jour ? ». GitHub Pages sert
+   tout avec « max-age=600 » : le « réseau d'abord » pouvait rendre, dix
+   minutes durant, la page que le navigateur gardait déjà. « no-cache »
+   oblige à redemander au serveur (réponse 304 si rien n'a changé). */
 function reseauPuisCache(req) {
-  return fetch(req).then(function (res) {
+  return fetch(req, { cache: "no-cache" }).then(function (res) {
     cacheSiBon(req, res);
     return res;
   }).catch(function () {
@@ -103,7 +108,7 @@ self.addEventListener("fetch", function (e) {
       if (hit) {
         /* l'horaire se rafraîchit derrière, sans faire attendre personne */
         if (/\.json$/.test(url.pathname)) {
-          fetch(req).then(function (res) {
+          fetch(req, { cache: "no-cache" }).then(function (res) {
             /* et si la réponse est mauvaise, on RETIRE ce qui dort en cache
                plutôt que de garder une entrée dont on ne sait plus rien :
                la fois suivante repartira du réseau. */
