@@ -2682,6 +2682,9 @@ ADS le 14/10, GKT le 27/10), les deux « intervention gluten » du 05/10
 écartées. Ce sont des signalements, pas des corrections : le classeur
 n'est pas modifié, et un rappel peut avoir une raison qu'il n'écrit pas.
 Vérificateur à zéro ; rien ne déborde à 320 (hors ligne), 390 et 1280 px.
+Puis, le même jour : « que rappel ». Seul un commentaire qui écrit le mot
+compte ; une présence sur un repos sans lui (« Remplace BLR ») n'est plus
+un rappel. Restent **3 à venir** : LHR les 02 et 03/10, YRS le 04/10.
 
 ## Le pré-remplissage ne parle que s'il faut agir
 
