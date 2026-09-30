@@ -1573,6 +1573,15 @@ body.sheet-on{overflow:hidden}
 #eqCorps .eqp2 tbody td .eqn .eqhd{margin-left:0}
 #eqCorps .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 #eqCorps .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
+/* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
+   trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
+   place ; sur téléphone ils restent l'un sous l'autre (sa demande du
+   22/09). Posée après les règles qu'elle bat : une requête média n'ajoute
+   aucune spécificité. */
+@media (min-width:761px){
+  #eqCorps .eqp2 tbody td .eqn{display:inline-flex; vertical-align:middle; margin:1px 2px}
+  #eqCorps .eqp2 tbody td .eqn+.eqn{margin-top:1px}
+}
 @media (max-width:380px){
   #eqCorps .eqp2 tbody td .eqn{padding:1px 3px; column-gap:3px}
   /* Deux pixels de marge de case au lieu de quatre : « GPS 7-15 » tient
@@ -8893,6 +8902,13 @@ function renderManques(force){
            (même pause, à déterminer, en D) est la « Même pause » et le
            « En D » de caCandidats(), repos compris. */
         var plus=caGroupes(tc,true); pis=[];
+        /* QUI EST EN POSTE, comme la recherche (le client, le 30/09/2026 :
+           « il faut également marquer qui est en poste, même manière que
+           le module de recherche ») : cadre plein, un « ? » par place vide. */
+        var oP=null; (o.vue&&o.vue.postes||[]).forEach(function(y){ if(y.P.k===o.k) oP=y; });
+        var enP=oP?oP.gens.filter(function(y){ return !y.depuisD; }):[];
+        plus.unshift(caCadre("En poste",enP.map(function(y){ return caChip(y.p.id,""); }).join("")
+          +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
           +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'

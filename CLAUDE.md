@@ -2713,6 +2713,20 @@ qui ne servait qu'à lui, et les styles `.prochain`, `.pp-txt`,
 `.cardjour`. La barre du haut dit déjà le poste du jour. Vérificateur à
 zéro ; rien ne déborde à 320 (hors ligne), 390 et 1280 px.
 
+**Les sous-effectifs disent qui est en poste.** Le client, le 30/09/2026 :
+« il faut également marquer qui est en poste (même manière que le module
+de recherche) ». Chaque manque ouvre sur le cadre plein « En poste » de la
+recherche, les présents puis un « ? » par place vide (le 21/10 en N aux
+chaudières : GJR puis « ? »), avant les solutions.
+
+**Sur PC, les trigrammes du tableau du jour côte à côte.** Le client, le
+30/09/2026 : « sur PC les badges de trigramme doivent être l'un à côté de
+l'autre ». Au-delà de 760 px les étiquettes passent en ligne dans leur
+case ; sur téléphone elles restent l'une sous l'autre (sa demande du
+22/09). Mesuré le 30/09 : 14 paires côte à côte à 1280 px, 14 empilées à
+390 px, aucune case qui déborde ; le tableau passe à 485 px au bureau.
+Vérificateur à zéro ; vérifié à 320 (hors ligne), 390 et 1280 px.
+
 
 ## Le pré-remplissage ne parle que s'il faut agir
 
