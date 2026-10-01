@@ -4766,7 +4766,7 @@ function renderPrefillSelects(db){
     majCompteurs(); majBrandsub();
     prefillAuto();
     if(!document.getElementById("annee").hidden) renderAnnee();
-    if(st.view==="compteurs") renderCompteurs();
+    if(st.view==="horaire") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
   }
   syncCat(); suivre();
@@ -9845,7 +9845,7 @@ function renderCompteurs(){
   var id=idSel.value;
   fetchHoraireDB().then(function(db){
     if(!db) return;
-    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    var person=db.people.filter(function(p){return p.id===id;})[0];
     if(!person||!person.c){
       hote.innerHTML='<p class="lede" style="padding:0">Aucun compteur pour '+esc(id)+' dans le classeur.</p>';
       return;
@@ -10056,7 +10056,7 @@ function renderAnnee(){
   if(!id){ hote.innerHTML='<p class="lede" style="padding:0">Choisissez une personne ci-dessus pour afficher son année.</p>'; return; }
   fetchHoraireDB().then(function(db){
     if(!db) return;
-    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    var person=db.people.filter(function(p){return p.id===id;})[0];
     if(!person){ hote.innerHTML='<p class="lede" style="padding:0">Personne introuvable dans l\'horaire d\'équipe.</p>'; return; }
     var annee=Number(db.year), jours=anneeDeLaPersonne(db,person,annee);
     var auj=new Date(), ajd=(auj.getFullYear()===annee)?pad2(auj.getMonth()+1)+pad2(auj.getDate()):"";
