@@ -4071,6 +4071,33 @@ var PARAM_FIELDS=[
  {k:"assGroupe",l:"Assurance groupe (€)",scope:"params",personal:true,
   onb:"Votre cotisation personnelle à l'assurance groupe, retenue sur votre salaire, si applicable. Laissez 0 si vous ne savez pas — vous pourrez la corriger plus tard en consultant une fiche de paie réelle."}
 ];
+/* ===== PARAMÈTRES PERSONNELS, PAR TRIGRAMME ================================
+   Le client, le 01/10/2026 : « toutes les valeurs réglées par l'opérateur sont
+   par défaut au chargement ; elles ne s'enregistrent qu'au cas par cas, par
+   trigramme ; et elles restent personnelles sur l'appareil ».
+
+   Les 19 champs « personal » ne vivent donc plus dans le stock GLOBAL
+   config/params (qui ne garde que le partagé : barèmes, primes, coefficients),
+   mais dans config/perso = { <trigramme> : { clé : valeur } }, en localStorage —
+   rien ne quitte l'appareil, personne d'autre n'y accède. Au chargement, tout
+   revient aux défauts ; choisir un trigramme déjà renseigné réapplique SES
+   valeurs, le saisir les enregistre sous lui. */
+var PERSO_KEYS=PARAM_FIELDS.filter(function(f){return f.personal;}).map(function(f){return f.k;});
+function trigCourant(){ var s=document.getElementById("prefillId"); return (s&&s.value)||lsGet("ui/prefillId")||""; }
+function chargerPerso(trig){
+  var o=(trig && st.perso && st.perso[trig])||null;
+  PERSO_KEYS.forEach(function(k){
+    st.params[k]=(o && o[k]!==undefined)?o[k]:DEF_P[k];
+  });
+  st.params.binomeIdx=Math.max(1,BINOMES.indexOf(st.params.binome)+1);
+}
+function enregistrerPerso(){
+  var trig=trigCourant(); if(!trig) return;
+  if(!st.perso) st.perso={};
+  var o=st.perso[trig]||(st.perso[trig]={});
+  PERSO_KEYS.forEach(function(k){ o[k]=st.params[k]; });
+  save("config/perso",st.perso);
+}
 var RAPPEL_FIELDS=[
  {fige:true,k:"rapHeures",l:"Heures de déplacement",scope:"params",step:"0.5",hint:"base de la prime : 2 h"},
  {fige:true,k:"rapModifH",l:"Modification de pause — heures à 100 %",scope:"params",step:"0.5"},
@@ -4583,7 +4610,10 @@ document.addEventListener("change",function(e){
          est juste : une paie se règle en fin de mois. */
       var avant=st.params[t.dataset.k];
       setParam(t.dataset.k,v);
-      save("config/params",st.params);
+      /* Un champ personnel s'enregistre sous le trigramme choisi, et seulement
+         là ; le partagé (non personnel) resterait dans le stock global. */
+      if(PERSO_KEYS.indexOf(t.dataset.k)>=0) enregistrerPerso();
+      else save("config/params",st.params);
       if(t.dataset.k==="remFixe")     figerPasse("remFixeMois",avant);
       if(t.dataset.k==="primeRemise") figerPasse("primeRemiseMois",avant);
     }
@@ -4767,6 +4797,9 @@ function renderPrefillSelects(db){
   /* la vue annuelle montre la personne choisie : elle doit suivre le
      sélecteur, sans qu'on ait à recliquer sur l'onglet */
   function suivre(){
+    /* Le contrat suit la personne : on réapplique ses valeurs personnelles
+       (ou les défauts si elle n'a rien saisi) avant tout le reste. */
+    chargerPerso(idSel.value); renderFields();
     majCompteurs(); majBrandsub();
     prefillAuto();
     if(!document.getElementById("annee").hidden) renderAnnee();
@@ -10486,6 +10519,11 @@ function boot(){
     }
     var reprisP=reprendreFigees(st.params,DEF_P,PARAM_FIELDS.concat(RAPPEL_FIELDS));
     if(migreP||reprisP) save("config/params",st.params);
+    /* Les valeurs personnelles démarrent aux défauts et ne reviennent que par
+       trigramme (chargerPerso, au choix de la personne). config/perso tient
+       leur copie par trigramme, en local. */
+    st.perso=lsGet("config/perso")||{};
+    PERSO_KEYS.forEach(function(k){ st.params[k]=DEF_P[k]; });
     st.bareme=mergeDefaults(r[1],DEF_B);
     if(!st.bareme.enfTable||!st.bareme.enfTable.length) st.bareme.enfTable=DEF_B.enfTable;
     if(reprendreFigees(st.bareme,DEF_B,BAREME_FIELDS)) save("config/bareme",st.bareme);
@@ -10502,29 +10540,11 @@ function boot(){
       loadMonth(y,m);
       fetchHoraireDB().then(finIntro,finIntro);
     }
-    if(!st.state.onboarded){
-      renderOnboard();
-      document.getElementById("onboard").hidden=false;
-      var boiteOnbo=document.getElementById("onboardForm");
-      var firstField=document.querySelector("#onboardFields input,#onboardFields select");
-      if(firstField) firstField.focus(); else focusPremier(boiteOnbo);
-      inerteFond(true);
-      boiteOnbo.addEventListener("keydown",piegeTab(boiteOnbo));
-      function finishOnboard(apply){
-        if(apply) applyOnboard();
-        st.state.onboarded=true;
-        save("config/state",st.state);
-        document.getElementById("onboard").hidden=true;
-        inerteFond(false);
-        startApp();
-      }
-      document.getElementById("onboardForm").addEventListener("submit",function(e){
-        e.preventDefault(); finishOnboard(true);
-      });
-      document.getElementById("onboardSkip").addEventListener("click",function(){ finishOnboard(false); });
-    } else {
-      startApp();
-    }
+    /* PLUS DE FORMULAIRE D'ACCUEIL. Le client, le 01/10/2026 : « tout par
+       défaut au lancement ; on choisit son trigramme et on remplit son contrat
+       dans Réglages, par trigramme ». On démarre donc directement — les valeurs
+       personnelles sont déjà aux défauts, et se renseignent par trigramme. */
+    startApp();
   });
 }
 
