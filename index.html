@@ -1878,14 +1878,16 @@ body.sheet-on{overflow:hidden}
 .gate-link:hover{color:var(--in)}
 .gate-err{font-size:12.5px; color:var(--out); font-weight:600; min-height:1em}
 .gp{border:1px solid var(--line); border-radius:11px; background:var(--surface2); padding:13px 14px; display:flex; flex-direction:column; gap:10px}
-.gp-tri{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.gp-tri{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-bottom:11px; margin-bottom:11px; border-bottom:1px solid var(--line2)}
 .gp-badge{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:15px; letter-spacing:.05em; color:var(--sur-in); background:var(--in); padding:3px 9px; border-radius:7px}
-.gp-fn{font-size:13px; font-weight:600; color:var(--ink)}
-.gp-rows{display:flex; flex-direction:column; gap:7px}
-.gp-row{display:flex; gap:10px; font-size:12.5px; align-items:baseline}
-.gp-k{flex:0 0 82px; color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; font-weight:600}
-.gp-v{color:var(--ink2); min-width:0}
-.gp-chips{display:flex; flex-wrap:wrap; gap:5px}
+.gp-fn{font-size:13.5px; font-weight:600; color:var(--ink)}
+/* Grille clé/valeur : la colonne des libellés s'ajuste au plus long (pas de
+   retour à la ligne), les valeurs restent alignées. */
+.gp-rows{display:grid; grid-template-columns:auto 1fr; gap:9px 16px; align-items:baseline}
+.gp-k{color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; font-weight:600; white-space:nowrap}
+.gp-v{color:var(--ink2); font-size:12.5px; min-width:0}
+.gp-dash{color:var(--faint)}
+.gp-chips{display:flex; flex-wrap:wrap; gap:6px}
 .gp-chip{font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; border:1px solid transparent; background:var(--at-gris-soft); color:var(--at-gris)}
 .gp-chip[data-z="jaune"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
 .gp-chip[data-z="vert"]{background:var(--at-vert-soft); color:var(--at-vert)}
@@ -10619,24 +10621,23 @@ setTimeout(finIntro,3000);
    erreur. Le code RH ne protège rien de sensible (application statique, tout
    est côté client) : il ne fait que déverrouiller des options d'édition.
    ════════════════════════════════════════════════════════════════════════ */
-var RH_CODE="BWZ-RH";   /* ← code PROVISOIRE : remplacer par le vrai code BWZ RH */
+var RH_CODE="RH2027";   /* ← code BWZ RH (modifiable : changez cette valeur) */
 function _deviceId(){
   var d=lsGet("account/device");
   if(!d){ d="dev-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36); lsSet("account/device",d); }
   return d;
 }
-function posteActuelTitre(p){
-  if(typeof estContremaitre==="function" && estContremaitre(p)) return "Contremaître";
-  if(typeof estCadre==="function" && estCadre(p)) return "Adjoint";
-  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;
-  if(k && typeof POSTES_TRAVAIL!=="undefined"){
-    var P=POSTES_TRAVAIL.filter(function(x){return x.k===k;})[0];
-    if(P) return P.t;
-  }
-  return (typeof fonctionCourte==="function"?fonctionCourte(p.cat):p.cat)||"—";
+/* Statut d'emploi : « interim » est porté par la donnée (poly.statut) ; sinon un
+   cadre (contremaître/adjoint) est Employé et un opérateur de production Ouvrier. */
+function statutPersonne(p){
+  var s=(p&&p.poly&&p.poly.statut)||"";
+  if(/interim/i.test(s)) return "Intérimaire";
+  if(typeof estCadre==="function" && estCadre(p)) return "Employé";
+  return "Ouvrier";
 }
 function equipeLisibleDe(p){
   var e=p&&p.e;
+  if(Array.isArray(e)) e=e.filter(Boolean).join(", ");
   if(e===0||e===""||e===null||e===undefined) return "—";
   if(typeof e==="number"||/^\d+$/.test(String(e))) return "Équipe "+e;
   return String(e);
@@ -10644,19 +10645,25 @@ function equipeLisibleDe(p){
 function gateProfilHTML(p){
   if(!p) return '<p class="gp-empty">Choisissez votre identifiant ci-dessus.</p>';
   var fn=(typeof fonctionPersonne==="function")?fonctionPersonne(p):(p.cat||"");
-  var poste=posteActuelTitre(p), equipe=equipeLisibleDe(p);
-  var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
-  var chips=polys.length
-    ? '<div class="gp-chips">'+polys.map(function(x){
-        return '<span class="gp-chip'+(x.forme?" forme":"")+'" data-z="'+esc(x.z||"gris")+'">'+esc(x.t)+(x.forme?" · en formation":"")+'</span>';
-      }).join("")+'</div>'
-    : '<span class="gp-empty">—</span>';
+  var cadre=(typeof estCadre==="function") && estCadre(p);
+  var contremaitre=(typeof estContremaitre==="function") && estContremaitre(p);
+  var rows=[['Statut', esc(statutPersonne(p))]];
+  /* Équipe de production : uniquement pour les opérateurs (ni contremaître ni adjoint). */
+  if(!cadre) rows.push(['Équipe', esc(equipeLisibleDe(p))]);
+  /* Polyvalences : tout le monde SAUF les contremaîtres (les adjoints les gardent). */
+  if(!contremaitre){
+    var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
+    var chips=polys.length
+      ? '<div class="gp-chips">'+polys.map(function(x){
+          return '<span class="gp-chip'+(x.forme?" forme":"")+'" data-z="'+esc(x.z||"gris")+'">'+esc(x.t)+(x.forme?" · en formation":"")+'</span>';
+        }).join("")+'</div>'
+      : '<span class="gp-dash">—</span>';
+    rows.push(['Polyvalences', chips]);
+  }
   return ''
     +'<div class="gp-tri"><span class="gp-badge">'+esc(idLisible(p.id))+'</span><span class="gp-fn">'+esc(fn)+'</span></div>'
     +'<div class="gp-rows">'
-    +'<div class="gp-row"><span class="gp-k">Poste actuel</span><span class="gp-v">'+esc(poste)+'</span></div>'
-    +'<div class="gp-row"><span class="gp-k">Équipe</span><span class="gp-v">'+esc(equipe)+'</span></div>'
-    +'<div class="gp-row"><span class="gp-k">Polyvalences</span><span class="gp-v">'+chips+'</span></div>'
+    +rows.map(function(r){ return '<span class="gp-k">'+r[0]+'</span><span class="gp-v">'+r[1]+'</span>'; }).join("")
     +'</div>';
 }
 var _gateOnOk=null, _gateDB=null;
@@ -10702,12 +10709,15 @@ function gateVueCreer(){
     },function(){});
     return;
   }
-  var db=_gateDB, cats=[];
-  db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  var db=_gateDB;
+  /* Un SEUL choix : l'identifiant. Tous les trigrammes dans une liste triée ;
+     le suffixe n'apparaît que pour départager d'éventuels doublons lisibles. */
+  var gens=db.people.slice().sort(function(a,b){ return idLisible(a.id).localeCompare(idLisible(b.id)); });
+  var vus={}; gens.forEach(function(p){ var b=idLisible(p.id); vus[b]=(vus[b]||0)+1; });
+  var opts=gens.map(function(p){ var lu=(vus[idLisible(p.id)]>1)?p.id:idLisible(p.id); return '<option value="'+esc(p.id)+'">'+esc(lu)+'</option>'; }).join("");
   gateSetBody(''
-    +'<div class="gate-f"><label for="gateCat">Votre fonction ou équipe</label>'
-    +'<select id="gateCat">'+cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join("")+'</select></div>'
-    +'<div class="gate-f"><label for="gateId">Votre identifiant (trigramme)</label><select id="gateId"></select></div>'
+    +'<div class="gate-f"><label for="gateId">Votre identifiant (trigramme)</label>'
+    +'<select id="gateId">'+opts+'</select></div>'
     +'<div class="gp" id="gateProfil"></div>'
     +'<div class="gate-f"><label for="gateConf">Recopiez votre trigramme pour confirmer</label>'
     +'<input id="gateConf" class="gate-confirm" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="•••"></div>'
@@ -10717,25 +10727,16 @@ function gateVueCreer(){
     +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Confirmer et lier à cet appareil</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
-  var catSel=document.getElementById("gateCat"), idSel=document.getElementById("gateId"),
+  var idSel=document.getElementById("gateId"),
       conf=document.getElementById("gateConf"), btn=document.getElementById("gateConfirm"),
       err=document.getElementById("gateErr");
-  function fillIds(){
-    var cat=catSel.value;
-    var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
-    var vus={}; ids.forEach(function(i){ var b=idLisible(i); vus[b]=(vus[b]||0)+1; });
-    idSel.innerHTML=ids.map(function(i){ var lu=(vus[idLisible(i)]>1)?i:idLisible(i); return '<option value="'+esc(i)+'">'+esc(lu)+'</option>'; }).join("");
-  }
-  function personne(){ return db.people.filter(function(x){return x.id===idSel.value&&x.cat===catSel.value;})[0]; }
+  function personne(){ return db.people.filter(function(x){return x.id===idSel.value;})[0]; }
   function cible(){ return idLisible(idSel.value||"").toUpperCase(); }
   function valide(){ var ok=cible()!==""&&conf.value.trim().toUpperCase()===cible(); btn.disabled=!ok; return ok; }
   function majProfil(){ document.getElementById("gateProfil").innerHTML=gateProfilHTML(personne()); valide(); }
-  var savedCat=lsGet("ui/prefillCat"); if(savedCat&&cats.indexOf(savedCat)>=0) catSel.value=savedCat;
-  fillIds();
   var savedId=lsGet("ui/prefillId");
   if(savedId){ for(var o=0;o<idSel.options.length;o++){ if(idSel.options[o].value===savedId){ idSel.value=savedId; break; } } }
   majProfil();
-  catSel.onchange=function(){ fillIds(); conf.value=""; err.textContent=""; majProfil(); };
   idSel.onchange=function(){ conf.value=""; err.textContent=""; majProfil(); };
   conf.oninput=function(){ var s=conf.selectionStart; conf.value=conf.value.toUpperCase(); try{conf.setSelectionRange(s,s);}catch(e){} err.textContent=""; valide(); };
   conf.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); if(valide()) btn.click(); } };
@@ -10745,7 +10746,7 @@ function gateVueCreer(){
     gateFinaliser({ role:"employe", tri:p.id, cat:p.cat });
   };
   document.getElementById("gateBack").onclick=gateVueAccueil;
-  setTimeout(function(){ try{ catSel.focus(); }catch(e){} },30);
+  setTimeout(function(){ try{ idSel.focus(); }catch(e){} },30);
 }
 function gateVueRH(){
   gateSetTitre("Connexion BWZ RH","Accès réservé — options d'administration");
