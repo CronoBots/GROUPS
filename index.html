@@ -10779,8 +10779,15 @@ function gateFinaliser(partial){
 function appliquerCompte(acc){
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
-  if(acc&&acc.tri){ lsSet("ui/prefillId",acc.tri); if(acc.cat) lsSet("ui/prefillCat",acc.cat); }
+  if(acc&&acc.tri){
+    lsSet("ui/prefillId",acc.tri); if(acc.cat) lsSet("ui/prefillCat",acc.cat);
+    /* Feedback immédiat du trigramme dans l'en-tête, sans attendre le garnissage
+       des sélecteurs (évite un en-tête vide juste après la création du compte). */
+    var tri=document.getElementById("brandtri"); if(tri) tri.textContent=idLisible(acc.tri);
+  }
   majCompteUI();
+  /* La ligne du jour (date + poste) se recalcule une fois les sélecteurs garnis. */
+  if(typeof majBrandsub==="function") setTimeout(majBrandsub,150);
 }
 function majCompteUI(){
   var el=document.getElementById("compteInfos"); if(!el) return;
