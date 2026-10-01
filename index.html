@@ -1852,18 +1852,36 @@ body.sheet-on{overflow:hidden}
 /* ---------- Porte de connexion (compte : trigramme ↔ appareil) + BWZ RH ---------- */
 .gate{position:fixed; inset:0; z-index:350; display:flex; color:var(--ink)}
 .gate[hidden]{display:none}
-.gate-bg{position:absolute; inset:0; background:var(--marque); z-index:0}
+/* Fond de l'accueil : dégradé radial navy (profondeur + halo derrière le logo). */
+.gate-bg{position:absolute; inset:0; z-index:0;
+  background:radial-gradient(130% 95% at 50% 28%, #1e2b4a 0%, #131a2d 55%, #0b0f1c 100%)}
 /* Accueil : plein écran sur le fond, logo centré, actions en bas (sans cadre). */
 .gate-home{position:absolute; inset:0; z-index:1; display:none; flex-direction:column; align-items:center;
-  padding:40px 20px calc(30px + env(safe-area-inset-bottom,0px)); overflow:auto}
+  padding:40px 22px calc(34px + env(safe-area-inset-bottom,0px)); overflow:auto}
 .gate.is-home .gate-home{display:flex}
 .gate.is-home .gate-scroll{display:none}
 .gate-home-mark{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px}
-.gate-home-mark img{width:clamp(118px,33vw,156px); height:auto; display:block}
-.gate-home-actions{flex:0 0 auto; width:100%; max-width:400px; display:flex; flex-direction:column; gap:12px}
-.gate-home-actions .gate-btn{padding:14px 16px; font-size:15px; border-radius:12px}
-.gate-link-light{color:rgba(255,255,255,.72)}
-.gate-link-light:hover{color:#fff}
+.gate-home-mark img{width:clamp(120px,34vw,162px); height:auto; display:block; filter:drop-shadow(0 10px 40px rgba(105,178,203,.25))}
+.gate-home-actions{flex:0 0 auto; width:100%; max-width:380px; display:flex; flex-direction:column; gap:12px}
+/* ── Liquid Glass : boutons translucides givrés, uniquement sur l'accueil ── */
+.gate-home-actions .gate-btn{
+  padding:15px 18px; font-size:15px; font-weight:600; border-radius:15px; color:#fff;
+  background:rgba(255,255,255,.07);
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 34px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -10px 22px -14px rgba(0,0,0,.3);
+  transition:transform .14s ease, background .2s ease, border-color .2s ease}
+.gate-home-actions .gate-btn:hover{background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.3); color:#fff}
+.gate-home-actions .gate-btn:active{transform:scale(.98)}
+.gate-home-actions .gate-btn.primary{
+  color:#fff;
+  background:linear-gradient(180deg, rgba(126,202,226,.34), rgba(74,149,174,.16));
+  border-color:rgba(130,205,230,.5); text-shadow:0 1px 2px rgba(0,0,0,.35);
+  box-shadow:0 16px 38px -12px rgba(40,120,150,.6), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -10px 24px -14px rgba(0,0,0,.25)}
+.gate-home-actions .gate-btn.primary:hover{background:linear-gradient(180deg, rgba(140,216,240,.44), rgba(86,165,192,.22)); border-color:rgba(150,222,246,.7)}
+.gate-home-actions .gate-btn.gate-ghost{font-size:13.5px; font-weight:500; padding:12px 16px; background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.12); color:rgba(255,255,255,.82)}
+.gate-home-actions .gate-btn.gate-ghost:hover{background:rgba(255,255,255,.1); color:#fff}
+@media (prefers-reduced-motion:reduce){.gate-home-actions .gate-btn{transition:none}}
 .gate-scroll{position:relative; z-index:1; width:100%; overflow:auto; display:flex; padding:28px 16px}
 .gate-box{width:100%; max-width:460px; margin:auto; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
 .gate-head{display:flex; align-items:center; gap:13px; padding:17px 20px; border-bottom:1px solid var(--line2)}
@@ -1879,6 +1897,12 @@ body.sheet-on{overflow:hidden}
 .gate-f .gate-hint{font-size:11px; color:var(--faint)}
 .gate-f input.gate-confirm{font-family:"IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.22em; text-align:center; font-weight:600; font-size:18px}
 .gate-f input.gate-confirm:focus::placeholder{color:transparent}
+/* Recopie du trigramme : 3 cases façon code (une lettre par case). */
+.gate-code{display:flex; gap:11px; justify-content:center}
+.gate-code-box{width:clamp(52px,17vw,60px); height:62px; padding:0; text-align:center;
+  font-family:"IBM Plex Mono",monospace; font-size:25px; font-weight:600; text-transform:uppercase;
+  color:var(--ink); background:var(--surface2); border:1px solid var(--line); border-radius:13px; caret-color:var(--in)}
+.gate-code-box:focus{outline:none; border-color:var(--in); background:var(--surface); box-shadow:0 0 0 3px rgba(105,178,203,.22)}
 .gate-actions{display:flex; flex-direction:column; gap:9px; margin-top:2px}
 .gate-btn{appearance:none; width:100%; padding:11px 14px; border-radius:10px; font-size:14px; font-weight:600; border:1px solid var(--line); background:var(--surface2); color:var(--ink); cursor:pointer; transition:transform .12s ease, background .15s, border-color .15s, color .15s}
 .gate-btn:hover{border-color:var(--in); color:var(--in)}
@@ -2691,7 +2715,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
     <div class="gate-home-actions">
       <button type="button" class="gate-btn primary" id="gateGoCreer">Connexion</button>
-      <button type="button" class="gate-link gate-link-light" id="gateGoRH">Connexion BWZ RH</button>
+      <button type="button" class="gate-btn gate-ghost" id="gateGoRH">Connexion BWZ RH</button>
     </div>
   </div>
   <!-- Création de compte / connexion RH : dans une carte -->
@@ -10660,15 +10684,34 @@ function equipeShift(p){
   var m2=String(e||"").match(/éq\.?\s*(\d+)/i);
   return m2 ? "Équipe "+m2[1] : "—";
 }
-/* Poste actuellement attitré (ex. « Gluten ») — titre lisible depuis POSTES_TRAVAIL. */
-function posteAttitreTitre(p){
-  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;
-  if(!k && typeof posteDeFormation==="function") k=posteDeFormation(p);
+/* Titre lisible d'un poste depuis sa clé. */
+function titrePoste(k){
   if(k && typeof POSTES_TRAVAIL!=="undefined"){
     var P=POSTES_TRAVAIL.filter(function(x){return x.k===k;})[0];
     if(P) return P.t;
   }
-  return "—";
+  return "";
+}
+/* Poste actuellement attitré (ex. « Gluten ») ; repli sur le poste de formation. */
+function posteAttitreTitre(p){
+  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;
+  if(!k && typeof posteDeFormation==="function") k=posteDeFormation(p);
+  return titrePoste(k)||"—";
+}
+/* Polyvalences affichées = postes VALIDÉS. Le poste attitré en fait partie s'il
+   est validé (posteAttitre non nul = pas en formation à ce poste) : on le place
+   en tête. Suivent les autres polyvalences acquises ; le poste de formation, lui,
+   reste marqué « (en formation) » et n'est pas compté comme validé. */
+function competencesDe(p){
+  var out=[], vus={};
+  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;   // null si en formation
+  /* On n'ajoute QUE les postes de production (pas « Adjoint »/« Contremaître »,
+     qui sont des fonctions et non des compétences de polyvalence). */
+  var t0=(k==="adj"||k==="cm")?"":titrePoste(k);
+  if(t0){ out.push(t0); vus[t0]=1; }
+  var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
+  polys.forEach(function(x){ if(vus[x.t]) return; vus[x.t]=1; out.push(x.t+(x.forme?" (en formation)":"")); });
+  return out;
 }
 function gateProfilHTML(p){
   if(!p) return '<p class="gp-empty">Choisissez votre trigramme ci-dessus pour vérifier vos infos.</p>';
@@ -10682,9 +10725,8 @@ function gateProfilHTML(p){
   var rows=[['Statut', esc(statutPersonne(p))]];
   if(!cadre) rows.push(['Poste', esc(posteAttitreTitre(p))]);
   if(!contremaitre){
-    var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
-    var liste=polys.map(function(x){ return esc(x.t)+(x.forme?" (en formation)":""); }).join(" · ");
-    rows.push(['Polyvalences', liste||'—']);
+    var comp=competencesDe(p);
+    rows.push(['Polyvalences', comp.length?comp.map(function(t){return esc(t);}).join(" · "):'—']);
   }
   return ''
     +'<div class="gp-id"><span class="gp-tri">'+esc(idLisible(p.id))+'</span>'
@@ -10742,26 +10784,50 @@ function gateVueCreer(){
     +'<div class="gate-f"><label for="gateId">Votre trigramme</label>'
     +'<select id="gateId">'+opts+'</select></div>'
     +'<div class="gp" id="gateProfil"></div>'
-    +'<div class="gate-f"><label for="gateConf">Confirmez votre trigramme</label>'
-    +'<input id="gateConf" class="gate-confirm" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="•••"></div>'
+    +'<div class="gate-f"><label for="gateCode0">Confirmez votre trigramme</label>'
+    +'<div class="gate-code" id="gateCode" role="group" aria-label="Recopiez votre trigramme">'
+    +'<input id="gateCode0" class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="1re lettre">'
+    +'<input class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="2e lettre">'
+    +'<input class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="3e lettre">'
+    +'</div></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Confirmer et lier à cet appareil</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
-  var idSel=document.getElementById("gateId"),
-      conf=document.getElementById("gateConf"), btn=document.getElementById("gateConfirm"),
-      err=document.getElementById("gateErr");
+  var idSel=document.getElementById("gateId"), btn=document.getElementById("gateConfirm"),
+      err=document.getElementById("gateErr"),
+      boxes=[].slice.call(document.querySelectorAll("#gateCode .gate-code-box"));
   function personne(){ return db.people.filter(function(x){return x.id===idSel.value;})[0]; }
   function cible(){ return idLisible(idSel.value||"").toUpperCase(); }
-  function valide(){ var ok=cible()!==""&&conf.value.trim().toUpperCase()===cible(); btn.disabled=!ok; return ok; }
+  function saisie(){ return boxes.map(function(b){return (b.value||"").toUpperCase();}).join(""); }
+  function valide(){ var ok=cible()!==""&&saisie()===cible(); btn.disabled=!ok; return ok; }
+  function resetBoxes(){ boxes.forEach(function(b){ b.value=""; }); }
   function majProfil(){ document.getElementById("gateProfil").innerHTML=gateProfilHTML(personne()); valide(); }
   var savedId=lsGet("ui/prefillId");
   if(savedId){ for(var o=0;o<idSel.options.length;o++){ if(idSel.options[o].value===savedId){ idSel.value=savedId; break; } } }
   majProfil();
-  idSel.onchange=function(){ conf.value=""; err.textContent=""; majProfil(); };
-  conf.oninput=function(){ var s=conf.selectionStart; conf.value=conf.value.toUpperCase(); try{conf.setSelectionRange(s,s);}catch(e){} err.textContent=""; valide(); };
-  conf.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); if(valide()) btn.click(); } };
+  idSel.onchange=function(){ resetBoxes(); err.textContent=""; majProfil(); };
+  boxes.forEach(function(box,i){
+    box.oninput=function(){
+      box.value=(box.value||"").replace(/[^a-zA-Z]/g,"").toUpperCase().slice(0,1);
+      if(box.value && i<boxes.length-1) boxes[i+1].focus();
+      err.textContent=""; valide();
+    };
+    box.onkeydown=function(e){
+      if(e.key==="Backspace" && !box.value && i>0){ boxes[i-1].focus(); }
+      else if(e.key==="ArrowLeft" && i>0){ e.preventDefault(); boxes[i-1].focus(); }
+      else if(e.key==="ArrowRight" && i<boxes.length-1){ e.preventDefault(); boxes[i+1].focus(); }
+      else if(e.key==="Enter"){ e.preventDefault(); if(valide()) btn.click(); }
+    };
+    box.onpaste=function(e){
+      e.preventDefault();
+      var t=(((e.clipboardData||window.clipboardData).getData("text"))||"").replace(/[^a-zA-Z]/g,"").toUpperCase();
+      for(var j=0;j<boxes.length;j++) boxes[j].value=t.charAt(j)||"";
+      (boxes[Math.min(t.length,boxes.length-1)]||boxes[0]).focus();
+      err.textContent=""; valide();
+    };
+  });
   btn.onclick=function(){
     if(!valide()){ err.textContent="Le trigramme recopié ne correspond pas."; return; }
     var p=personne(); if(!p){ err.textContent="Identifiant introuvable."; return; }
