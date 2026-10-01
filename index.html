@@ -1849,6 +1849,57 @@ body.sheet-on{overflow:hidden}
 .enhaut svg{display:block}
 @media (max-width:760px){ .enhaut{right:12px; bottom:calc(76px + env(safe-area-inset-bottom,0px))} }
 
+/* ---------- Porte de connexion (compte : trigramme ↔ appareil) + BWZ RH ---------- */
+.gate{position:fixed; inset:0; z-index:350; display:flex; color:var(--ink)}
+.gate[hidden]{display:none}
+.gate-bg{position:absolute; inset:0; background:var(--marque); z-index:0}
+.gate-scroll{position:relative; z-index:1; width:100%; overflow:auto; display:flex; padding:28px 16px}
+.gate-box{width:100%; max-width:460px; margin:auto; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
+.gate-head{display:flex; align-items:center; gap:13px; padding:17px 20px; border-bottom:1px solid var(--line2)}
+.gate-head img{width:46px; height:auto; display:block}
+.gate-head h1{font-size:16px; font-weight:700; letter-spacing:-.01em; line-height:1.15}
+.gate-head .gate-sub{font-size:11.5px; color:var(--muted); margin-top:3px}
+.gate-body{padding:18px 20px; display:flex; flex-direction:column; gap:14px}
+.gate-lede{font-size:13px; line-height:1.55; color:var(--ink2)}
+.gate-f{display:flex; flex-direction:column; gap:5px}
+.gate-f label{font-size:11.5px; font-weight:600; color:var(--muted)}
+.gate-f select,.gate-f input{padding:9px 11px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink); font-size:14px; min-width:0}
+.gate-f select:focus,.gate-f input:focus{background:var(--surface); border-color:var(--in)}
+.gate-f .gate-hint{font-size:11px; color:var(--faint)}
+.gate-f input.gate-confirm{font-family:"IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.22em; text-align:center; font-weight:600; font-size:18px}
+.gate-actions{display:flex; flex-direction:column; gap:9px; margin-top:2px}
+.gate-btn{appearance:none; width:100%; padding:11px 14px; border-radius:10px; font-size:14px; font-weight:600; border:1px solid var(--line); background:var(--surface2); color:var(--ink); cursor:pointer; transition:transform .12s ease, background .15s, border-color .15s, color .15s}
+.gate-btn:hover{border-color:var(--in); color:var(--in)}
+.gate-btn:active{transform:scale(.98)}
+.gate-btn.primary{background:var(--in); border-color:var(--in); color:var(--sur-in)}
+.gate-btn.primary:hover{background:var(--in2); border-color:var(--in2); color:var(--sur-in)}
+.gate-btn:disabled{opacity:.45; pointer-events:none}
+.gate-link{background:none; border:0; color:var(--muted); font-size:12.5px; cursor:pointer; padding:7px; text-decoration:underline; text-underline-offset:2px}
+.gate-link:hover{color:var(--in)}
+.gate-err{font-size:12.5px; color:var(--out); font-weight:600; min-height:1em}
+.gp{border:1px solid var(--line); border-radius:11px; background:var(--surface2); padding:13px 14px; display:flex; flex-direction:column; gap:10px}
+.gp-tri{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.gp-badge{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:15px; letter-spacing:.05em; color:var(--sur-in); background:var(--in); padding:3px 9px; border-radius:7px}
+.gp-fn{font-size:13px; font-weight:600; color:var(--ink)}
+.gp-rows{display:flex; flex-direction:column; gap:7px}
+.gp-row{display:flex; gap:10px; font-size:12.5px; align-items:baseline}
+.gp-k{flex:0 0 82px; color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; font-weight:600}
+.gp-v{color:var(--ink2); min-width:0}
+.gp-chips{display:flex; flex-wrap:wrap; gap:5px}
+.gp-chip{font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; border:1px solid transparent; background:var(--at-gris-soft); color:var(--at-gris)}
+.gp-chip[data-z="jaune"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.gp-chip[data-z="vert"]{background:var(--at-vert-soft); color:var(--at-vert)}
+.gp-chip[data-z="rouge"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
+.gp-chip[data-z="bleu"]{background:var(--at-bleu-soft); color:var(--at-bleu)}
+.gp-chip.forme{opacity:.8; font-style:italic}
+.gp-empty{font-size:12px; color:var(--faint)}
+.gate-rh-tag{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--in); background:var(--in-soft); padding:3px 9px; border-radius:999px}
+.rh-only{display:none}
+:root[data-rh="1"] .rh-only{display:revert}
+.compte-info{display:flex; flex-direction:column; gap:3px; font-size:12.5px; color:var(--ink2)}
+.compte-info b{color:var(--ink); font-weight:600}
+@media (prefers-reduced-motion:reduce){.gate-btn{transition:none}}
+
 /* ---------- toast ---------- */
 .toast{
   position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:60;
@@ -2543,6 +2594,23 @@ body[data-horaire="annee"] #rotasub{display:none}
   <section class="panel stack" id="v-reglages" role="tabpanel" aria-labelledby="tab-reglages" tabindex="-1" hidden>
     <div class="card">
       <details class="fold" open>
+        <summary>Mon compte <span class="sub">trigramme lié à cet appareil</span></summary>
+        <div class="pad stack">
+          <div class="compte-info" id="compteInfos"></div>
+          <div class="foot">
+            <span class="sp"></span>
+            <button type="button" class="btnlike" id="btnDeconnexion">Se déconnecter / changer de compte</button>
+          </div>
+        </div>
+      </details>
+      <details class="fold rh-only">
+        <summary>Espace BWZ RH <span class="sub">options d'administration</span></summary>
+        <p class="lede haut">Vous êtes connecté en tant que <b>BWZ RH</b>. Les options pour modifier directement l'application (postes, équipes, polyvalences, comptes liés, barèmes communs) arriveront ici.</p>
+        <div class="pad stack" id="rhOptions">
+          <p class="lede">À venir — module d'administration BWZ RH.</p>
+        </div>
+      </details>
+      <details class="fold">
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
         <p class="lede haut">Choisissez votre identifiant : votre horaire de l'année se
           remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
@@ -2605,6 +2673,22 @@ body[data-horaire="annee"] #rotasub{display:none}
       <button type="submit" class="btn primary">Enregistrer et commencer</button>
     </footer>
   </form>
+</div>
+
+<div class="gate" id="gate" hidden>
+  <div class="gate-bg" aria-hidden="true"></div>
+  <div class="gate-scroll">
+    <section class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+      <header class="gate-head">
+        <img src="logo.svg" alt="" width="46" height="35" decoding="async">
+        <div>
+          <h1 id="gateTitle">Connexion</h1>
+          <div class="gate-sub" id="gateSub">BIOWANZE — accès à l'application</div>
+        </div>
+      </header>
+      <div class="gate-body" id="gateBody"></div>
+    </section>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -10282,16 +10366,23 @@ function vueHoraire(v){
 document.getElementById("btnRetourAnnee").addEventListener("click",function(){
   vueHoraire("annee");
 });
+/* Les sélecteurs « Qui je suis » ne se garnissent qu'UNE fois (le drapeau
+   remplace l'ancien court-circuit « if(HORAIRE_DB) return »). Depuis que la
+   porte de connexion précharge l'horaire, HORAIRE_DB peut déjà être prêt au
+   premier appel : sans ce garnissage, les sélecteurs restaient vides et
+   l'en-tête affichait « Choisissez qui vous êtes » alors qu'un compte était lié. */
+var prefillRendu=false;
+function appliquerPrefill(db){
+  if(!db || prefillRendu) return;
+  prefillRendu=true;
+  renderPrefillSelects(db);
+  var hint=document.getElementById("prefillHint");
+  if(hint) hint.textContent="Horaire d'équipe "+db.year+" · "+db.people.length
+    +" personnes, identifiants anonymisés"+(db.maj?", classeur du "+dateFr(db.maj):"")+".";
+}
 function ensurePrefillUI(){
-  if(HORAIRE_DB){ restaurerVue(); return; }
-  fetchHoraireDB().then(function(db){
-    if(!db) return;
-    renderPrefillSelects(db);
-    var hint=document.getElementById("prefillHint");
-    if(hint) hint.textContent="Horaire d'équipe "+db.year+" · "+db.people.length
-      +" personnes, identifiants anonymisés"+(db.maj?", classeur du "+dateFr(db.maj):"")+".";
-    restaurerVue();
-  });
+  if(HORAIRE_DB){ appliquerPrefill(HORAIRE_DB); restaurerVue(); return; }
+  fetchHoraireDB().then(function(db){ if(!db) return; appliquerPrefill(db); restaurerVue(); });
 }
 /* L'ANNÉE EST LA VUE PAR DÉFAUT. Le client, le 23/09/2026 : « dans l'onglet
    Horaire il ne faut avoir que la vue année par défaut, et toujours scroller
@@ -10520,6 +10611,193 @@ function finIntro(){
   },Math.max(0,900-(Date.now()-_introT0)));
 }
 setTimeout(finIntro,3000);
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COMPTES — un trigramme lié à CET appareil + connexion « BWZ RH ».
+   Pas de serveur en production (GitHub Pages) : le lien vit dans le
+   localStorage de l'appareil. Recopier son trigramme évite de se lier par
+   erreur. Le code RH ne protège rien de sensible (application statique, tout
+   est côté client) : il ne fait que déverrouiller des options d'édition.
+   ════════════════════════════════════════════════════════════════════════ */
+var RH_CODE="BWZ-RH";   /* ← code PROVISOIRE : remplacer par le vrai code BWZ RH */
+function _deviceId(){
+  var d=lsGet("account/device");
+  if(!d){ d="dev-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36); lsSet("account/device",d); }
+  return d;
+}
+function posteActuelTitre(p){
+  if(typeof estContremaitre==="function" && estContremaitre(p)) return "Contremaître";
+  if(typeof estCadre==="function" && estCadre(p)) return "Adjoint";
+  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;
+  if(k && typeof POSTES_TRAVAIL!=="undefined"){
+    var P=POSTES_TRAVAIL.filter(function(x){return x.k===k;})[0];
+    if(P) return P.t;
+  }
+  return (typeof fonctionCourte==="function"?fonctionCourte(p.cat):p.cat)||"—";
+}
+function equipeLisibleDe(p){
+  var e=p&&p.e;
+  if(e===0||e===""||e===null||e===undefined) return "—";
+  if(typeof e==="number"||/^\d+$/.test(String(e))) return "Équipe "+e;
+  return String(e);
+}
+function gateProfilHTML(p){
+  if(!p) return '<p class="gp-empty">Choisissez votre identifiant ci-dessus.</p>';
+  var fn=(typeof fonctionPersonne==="function")?fonctionPersonne(p):(p.cat||"");
+  var poste=posteActuelTitre(p), equipe=equipeLisibleDe(p);
+  var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
+  var chips=polys.length
+    ? '<div class="gp-chips">'+polys.map(function(x){
+        return '<span class="gp-chip'+(x.forme?" forme":"")+'" data-z="'+esc(x.z||"gris")+'">'+esc(x.t)+(x.forme?" · en formation":"")+'</span>';
+      }).join("")+'</div>'
+    : '<span class="gp-empty">—</span>';
+  return ''
+    +'<div class="gp-tri"><span class="gp-badge">'+esc(idLisible(p.id))+'</span><span class="gp-fn">'+esc(fn)+'</span></div>'
+    +'<div class="gp-rows">'
+    +'<div class="gp-row"><span class="gp-k">Poste actuel</span><span class="gp-v">'+esc(poste)+'</span></div>'
+    +'<div class="gp-row"><span class="gp-k">Équipe</span><span class="gp-v">'+esc(equipe)+'</span></div>'
+    +'<div class="gp-row"><span class="gp-k">Polyvalences</span><span class="gp-v">'+chips+'</span></div>'
+    +'</div>';
+}
+var _gateOnOk=null, _gateDB=null;
+function gateSetBody(h){ document.getElementById("gateBody").innerHTML=h; }
+function gateSetTitre(t,s){ document.getElementById("gateTitle").textContent=t; var e=document.getElementById("gateSub"); if(e&&s!=null) e.textContent=s; }
+function ouvrirGate(onOk){
+  _gateOnOk=onOk||null;
+  var g=document.getElementById("gate");
+  g.hidden=false;
+  if(typeof inerteFond==="function") try{ inerteFond(true); }catch(e){}
+  gateVueAccueil();
+  fetchHoraireDB().then(function(db){ _gateDB=db; },function(){ _gateDB=null; });
+}
+function fermerGate(){
+  document.getElementById("gate").hidden=true;
+  if(typeof inerteFond==="function") try{ inerteFond(false); }catch(e){}
+}
+function gateVueAccueil(){
+  gateSetTitre("Bienvenue","BIOWANZE — créez votre compte pour commencer");
+  gateSetBody(''
+    +'<p class="gate-lede">Pour utiliser l\'application, liez votre <b>trigramme</b> à cet appareil : '
+    +'vous retrouverez votre horaire, vos compteurs et l\'estimation de vos fiches de paie.</p>'
+    +'<div class="gate-actions">'
+    +'<button type="button" class="gate-btn primary" id="gateGoCreer">Créer mon compte</button>'
+    +'<button type="button" class="gate-link" id="gateGoRH">Connexion BWZ RH</button>'
+    +'</div>');
+  document.getElementById("gateGoCreer").onclick=gateVueCreer;
+  document.getElementById("gateGoRH").onclick=gateVueRH;
+  setTimeout(function(){ try{ document.getElementById("gateGoCreer").focus(); }catch(e){} },30);
+}
+function gateVueCreer(){
+  gateSetTitre("Créer mon compte","Choisissez votre identifiant, vérifiez vos infos, confirmez");
+  if(!_gateDB||!_gateDB.people){
+    gateSetBody('<p class="gate-lede" id="gateLoad">Chargement de l\'horaire…</p>'
+      +'<div class="gate-actions"><button type="button" class="gate-link" id="gateBack">← Retour</button></div>');
+    document.getElementById("gateBack").onclick=gateVueAccueil;
+    fetchHoraireDB().then(function(db){
+      _gateDB=db;
+      if(db&&db.people){ gateVueCreer(); return; }
+      var l=document.getElementById("gateLoad");
+      if(l){ l.innerHTML='Horaire indisponible. Vérifiez la connexion puis <button type="button" class="gate-link" id="gateRetry" style="display:inline;padding:0">réessayez</button>.';
+        var r=document.getElementById("gateRetry"); if(r) r.onclick=function(){ HORAIRE_DB=null; horaireFetching=null; gateVueCreer(); }; }
+    },function(){});
+    return;
+  }
+  var db=_gateDB, cats=[];
+  db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  gateSetBody(''
+    +'<div class="gate-f"><label for="gateCat">Votre fonction ou équipe</label>'
+    +'<select id="gateCat">'+cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join("")+'</select></div>'
+    +'<div class="gate-f"><label for="gateId">Votre identifiant (trigramme)</label><select id="gateId"></select></div>'
+    +'<div class="gp" id="gateProfil"></div>'
+    +'<div class="gate-f"><label for="gateConf">Recopiez votre trigramme pour confirmer</label>'
+    +'<input id="gateConf" class="gate-confirm" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="•••"></div>'
+    +'<span class="gate-hint">Cette recopie évite de lier un trigramme par mégarde.</span>'
+    +'<div class="gate-err" id="gateErr"></div>'
+    +'<div class="gate-actions">'
+    +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Confirmer et lier à cet appareil</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
+    +'</div>');
+  var catSel=document.getElementById("gateCat"), idSel=document.getElementById("gateId"),
+      conf=document.getElementById("gateConf"), btn=document.getElementById("gateConfirm"),
+      err=document.getElementById("gateErr");
+  function fillIds(){
+    var cat=catSel.value;
+    var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
+    var vus={}; ids.forEach(function(i){ var b=idLisible(i); vus[b]=(vus[b]||0)+1; });
+    idSel.innerHTML=ids.map(function(i){ var lu=(vus[idLisible(i)]>1)?i:idLisible(i); return '<option value="'+esc(i)+'">'+esc(lu)+'</option>'; }).join("");
+  }
+  function personne(){ return db.people.filter(function(x){return x.id===idSel.value&&x.cat===catSel.value;})[0]; }
+  function cible(){ return idLisible(idSel.value||"").toUpperCase(); }
+  function valide(){ var ok=cible()!==""&&conf.value.trim().toUpperCase()===cible(); btn.disabled=!ok; return ok; }
+  function majProfil(){ document.getElementById("gateProfil").innerHTML=gateProfilHTML(personne()); valide(); }
+  var savedCat=lsGet("ui/prefillCat"); if(savedCat&&cats.indexOf(savedCat)>=0) catSel.value=savedCat;
+  fillIds();
+  var savedId=lsGet("ui/prefillId");
+  if(savedId){ for(var o=0;o<idSel.options.length;o++){ if(idSel.options[o].value===savedId){ idSel.value=savedId; break; } } }
+  majProfil();
+  catSel.onchange=function(){ fillIds(); conf.value=""; err.textContent=""; majProfil(); };
+  idSel.onchange=function(){ conf.value=""; err.textContent=""; majProfil(); };
+  conf.oninput=function(){ var s=conf.selectionStart; conf.value=conf.value.toUpperCase(); try{conf.setSelectionRange(s,s);}catch(e){} err.textContent=""; valide(); };
+  conf.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); if(valide()) btn.click(); } };
+  btn.onclick=function(){
+    if(!valide()){ err.textContent="Le trigramme recopié ne correspond pas."; return; }
+    var p=personne(); if(!p){ err.textContent="Identifiant introuvable."; return; }
+    gateFinaliser({ role:"employe", tri:p.id, cat:p.cat });
+  };
+  document.getElementById("gateBack").onclick=gateVueAccueil;
+  setTimeout(function(){ try{ catSel.focus(); }catch(e){} },30);
+}
+function gateVueRH(){
+  gateSetTitre("Connexion BWZ RH","Accès réservé — options d'administration");
+  gateSetBody(''
+    +'<p class="gate-lede">Entrez le code <b>BWZ RH</b> pour déverrouiller les options d\'administration.</p>'
+    +'<div class="gate-f"><label for="gateRHCode">Code RH</label>'
+    +'<input id="gateRHCode" type="password" autocomplete="off" spellcheck="false" placeholder="Code BWZ RH"></div>'
+    +'<div class="gate-err" id="gateRHErr"></div>'
+    +'<div class="gate-actions">'
+    +'<button type="button" class="gate-btn primary" id="gateRHGo">Se connecter</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
+    +'</div>');
+  var code=document.getElementById("gateRHCode"), err=document.getElementById("gateRHErr");
+  function tenter(){
+    if(String(code.value||"").trim().toUpperCase()===String(RH_CODE).toUpperCase()){ gateFinaliser({ role:"rh" }); }
+    else { err.textContent="Code incorrect."; try{ code.select(); }catch(e){} }
+  }
+  document.getElementById("gateRHGo").onclick=tenter;
+  code.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); tenter(); } };
+  document.getElementById("gateBack").onclick=gateVueAccueil;
+  setTimeout(function(){ try{ code.focus(); }catch(e){} },30);
+}
+function gateFinaliser(partial){
+  var acc={ role:partial.role, tri:partial.tri||"", cat:partial.cat||"", device:_deviceId(), at:new Date().toISOString() };
+  lsSet("account/current",acc);
+  appliquerCompte(acc);
+  fermerGate();
+  if(typeof flash==="function") flash(acc.role==="rh"?"Connecté en BWZ RH":"Compte créé — bienvenue !");
+  if(_gateOnOk){ var f=_gateOnOk; _gateOnOk=null; f(); }
+}
+function appliquerCompte(acc){
+  st.account=acc;
+  document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
+  if(acc&&acc.tri){ lsSet("ui/prefillId",acc.tri); if(acc.cat) lsSet("ui/prefillCat",acc.cat); }
+  majCompteUI();
+}
+function majCompteUI(){
+  var el=document.getElementById("compteInfos"); if(!el) return;
+  var acc=st.account||lsGet("account/current");
+  var b=document.getElementById("btnDeconnexion"); if(b&&!b._wired){ b._wired=true; b.onclick=deconnecterCompte; }
+  if(!acc){ el.textContent=""; return; }
+  var L=[];
+  if(acc.role==="rh"){ L.push('<span class="gate-rh-tag">BWZ RH</span>'); if(acc.tri) L.push('Identifiant : <b>'+esc(idLisible(acc.tri))+'</b>'); }
+  else { L.push('Trigramme lié : <b>'+esc(idLisible(acc.tri||"—"))+'</b>'); if(acc.cat) L.push('Fonction : <b>'+esc(acc.cat)+'</b>'); }
+  if(acc.at){ try{ L.push('Lié le '+new Date(acc.at).toLocaleDateString("fr-BE")); }catch(e){} }
+  el.innerHTML=L.map(function(x){return '<span>'+x+'</span>';}).join("");
+}
+function deconnecterCompte(){
+  if(!confirm("Se déconnecter de ce compte sur cet appareil ?\nVos mois et réglages restent enregistrés ; vous pourrez relier un trigramme ensuite.")) return;
+  try{ localStorage.removeItem("account/current"); }catch(e){}
+  location.reload();
+}
 function boot(){
   if(booted) return; booted=true;
   document.getElementById("storeinfo").textContent = st.db
@@ -10557,11 +10835,21 @@ function boot(){
       loadMonth(y,m);
       fetchHoraireDB().then(finIntro,finIntro);
     }
-    /* PLUS DE FORMULAIRE D'ACCUEIL. Le client, le 01/10/2026 : « tout par
-       défaut au lancement ; on choisit son trigramme et on remplit son contrat
-       dans Réglages, par trigramme ». On démarre donc directement — les valeurs
-       personnelles sont déjà aux défauts, et se renseignent par trigramme. */
-    startApp();
+    /* Compte obligatoire : un trigramme doit être lié à l'appareil (ou une
+       connexion BWZ RH) avant d'accéder à l'application. Remplace l'ancien
+       onboarding sautable ; les infos de paie se règlent ensuite dans Réglages. */
+    var _acc=lsGet("account/current");
+    if(_acc && _acc.role){
+      appliquerCompte(_acc);
+      if(!st.state.onboarded){ st.state.onboarded=true; save("config/state",st.state); }
+      startApp();
+    } else {
+      finIntro();
+      ouvrirGate(function(){
+        if(!st.state.onboarded){ st.state.onboarded=true; save("config/state",st.state); }
+        startApp();
+      });
+    }
   });
 }
 
