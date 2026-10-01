@@ -9372,7 +9372,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
       autres(c[0]).postes.forEach(function(o){
         if(o.P.k!==P.k) return;
         o.gens.forEach(function(x){
-          if(x.depuisD || x.p.id===sauf || !caPlein(x)) return;
+          if(x.depuisD || x.p.id===sauf || !caPlein(x) || !ok(x)) return;
           if(c[0]==="PM" && veille[x.p.id]==="N"){ t.ecartes++; return; }
           c[1].push({p:x.p});
         });
@@ -9394,41 +9394,30 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
       t.reste.push({p:x.p});
     });
   }
-  if(g==="N"){
-    t.dh="2 h"; t.dr="PM"; t.da="AM demain"; t.hr="14-02"; t.ha="02-14";
-    (par.PM||[]).forEach(function(x){
-      if(!caPlein(x) || !ok(x)) return;
-      if(lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D"){ t.ecartes++; return; }
-      t.reste.push({p:x.p});
-    });
-    var demain=lendemain._par;
-    if(demain) (demain.AM||[]).forEach(function(x){
-      if(!caPlein(x) || !ok(x)) return;
-      var auj=pausesDe(0)[x.p.id];
-      if(auj && auj!=="AM"){ t.ecartes++; return; }
-      t.arrive.push({p:x.p});
-    });
-    /* D'ABORD UN 18-06 QUI COUVRE TOUTE LA NUIT. Le client, le 30/09/2026 :
-       « quand il manque quelqu'un, c'est toujours mieux 06-18 / 18-06 que
-       14-02 / 02-14 ». Pour une nuit (22 h-6 h), la coupure à 2 h est inévitable
-       si l'on ÉTIRE les pauses voisines ; on propose donc d'abord, quand le
-       poste est en surnombre l'après-midi, qu'un de ses PM DÉCALE sa journée en
-       18-06 et tienne la nuit d'un seul tenant (coupures à 18 h et 6 h). Il
-       abandonne 14-18, d'où le surnombre exigé (caLibre). Commençant à 18 h,
-       son repos amont tient toujours ; finissant à 6 h, il ne peut enchaîner ni
-       un matin ni un jour le lendemain. Le 14-02 / 02-14 le suit, en repli. */
-    if(autres){
-      t.solo18=[];
-      autres("PM").postes.forEach(function(o){
+  if(g==="N" && autres){
+    /* UNE NUIT MANQUANTE SE COUVRE PAR 06-18 / 18-06, JAMAIS PAR 14-02 / 02-14.
+       Le client, le 01/10/2026 : « pas de repli sur un 12 heures, toujours la
+       combinaison 6-18 / 18-6 ; celui qui fait 18-6 est le PM, celui qui fait
+       6-18 est le matin ». Le matin du poste prolonge jusqu'à 18 h (06-18 — il
+       couvre donc aussi 14-18) ; un PM décale sa journée en 18-06 et tient la
+       nuit. Les deux ensemble recouvrent les 24 h du poste : aucun trou
+       l'après-midi, donc pas de surnombre à exiger, et pas de coupure à 2 h.
+       Une moitié seule ne se montre pas (caDouble6, plus bas). Un opérateur EN
+       FORMATION ne peut tenir le poste seul sur sa plage : ok(x) l'écarte — là
+       où il se forme, sa polyvalence ne porte pas (compteAuPoste). Le PM finit
+       à 6 h : ni matin ni jour le lendemain, sinon écarté. Le matin, lui,
+       commence à 6 h comme d'habitude : son repos tient toujours. */
+    t.m6=[]; t.s6=[];
+    [["AM",t.m6,false],["PM",t.s6,true]].forEach(function(c){
+      autres(c[0]).postes.forEach(function(o){
         if(o.P.k!==P.k) return;
         o.gens.forEach(function(x){
-          if(x.depuisD || x.p.id===sauf || !caPlein(x)) return;
-          if(!caLibre(o,x,jour)) return;
-          if(lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D"){ t.ecartes++; return; }
-          t.solo18.push({p:x.p});
+          if(x.depuisD || x.p.id===sauf || !caPlein(x) || !ok(x)) return;
+          if(c[2] && (lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D")){ t.ecartes++; return; }
+          c[1].push({p:x.p});
         });
       });
-    }
+    });
   }
   (par.off||[]).forEach(function(x){
     if(!x.r || x.prevu || x.r.a || !ok(x)) return;
@@ -9442,7 +9431,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
 function caDouble6(t){ return !!(t.m6 && t.m6.length && t.s6.length); }
 function caDouble(t){ return (t.reste.length>0 && t.arrive.length>0) || caDouble6(t); }
-function caTrouve(t){ return t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t)||!!(t.solo18&&t.solo18.length); }
+function caTrouve(t){ return t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
   var par=equipeDuJour(db,annee,m,j), pause=null;
@@ -9549,22 +9538,20 @@ function caGroupes(t,large){
      fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
      chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
      moitié seule n'est donc pas une solution : elle ne se montre pas. */
-  if(caDouble(t) || (t.solo18 && t.solo18.length)){
+  if(caDouble(t)){
     function rang(h,l){
       return '<span class="mqr"><span class="cahr">'+h+'</span>'
         +l.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
     }
-    /* UN 18-06 SEUL COUVRE LA NUIT, et passe EN TÊTE. Le client, le 30/09/2026 :
-       « toujours mieux 06-18 / 18-06 ». Une seule personne — un PM décalé —
-       tient 18 h-6 h ; le 14-02 / 02-14 la suit, en repli. */
-    var solo=(t.solo18 && t.solo18.length)?rang("18-06",t.solo18):"";
     var paire=(t.reste.length && t.arrive.length)
       ? (t.arriveDabord?rang(t.ha,t.arrive)+rang(t.hr,t.reste):rang(t.hr,t.reste)+rang(t.ha,t.arrive)) : "";
-    /* « Toujours mieux » : la paire 06-18 / 18-06 remplace le 10-22 /
-       22-10, qui ne se montre plus qu'à défaut. */
+    /* « Toujours mieux » : la paire 06-18 / 18-06 remplace le 10-22 / 22-10,
+       qui ne se montre plus qu'à défaut. Même mécanisme pour une nuit
+       manquante : m6 = le matin (06-18), s6 = le PM (18-06), sans aucun repli
+       14-02 / 02-14. */
     if(caDouble6(t)) paire=rang("06-18",t.m6)+rang("18-06",t.s6);
-    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'+solo+paire+"</span>");
+    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'+paire+"</span>");
   }
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
      de la veille. Huit au plus en tout. */
