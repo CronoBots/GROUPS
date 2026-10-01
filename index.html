@@ -8905,13 +8905,17 @@ function mqJoursAVenir(db,horizon){
    le cadre part du jour de l'usine et ne regarde pas en arrière. */
 var RX_RAPPEL_TACHE=/renfort|intervention/i;
 function rappelsInutiles(db){
-  var annee=Number(db.year), d0=jourUsine(), sortie=[];
+  var annee=Number(db.year), d0=jourUsine();
+  var t0u=Date.UTC(d0.getFullYear(),d0.getMonth(),d0.getDate());
+  var lun0num=Math.round((t0u-(((new Date(t0u).getUTCDay()+6)%7))*86400000)/86400000);
   var d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate());
   if(d.getFullYear()<annee) d=new Date(annee,0,1);
+  var plat=[];
   for(var garde=0; garde<400 && d.getFullYear()===annee; garde++, d.setDate(d.getDate()+1)){
     var m=d.getMonth()+1, j=d.getDate(), mmdd=pad2(m)+pad2(j);
+    var jnum=Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
     var ren=renfortDuJour(db,mmdd); if(ren && ren._libre) continue;
-    var par=equipeDuJour(db,annee,m,j), l=[];
+    var par=equipeDuJour(db,annee,m,j);
     ["AM","PM","N"].forEach(function(g){
       (par[g]||[]).forEach(function(x){
         var raw=x.p.d[mmdd]||[], com=raw[2]||"";
@@ -8924,12 +8928,45 @@ function rappelsInutiles(db){
         if(RX_RAPPEL_TACHE.test(com)) return;
         var s=caSimuler(db,x.p.id,annee,m,j,"absence",function(){ return {}; });
         if(s.hors || s.trous.length || !s.poste) return;
-        l.push({id:x.p.id, pause:g, P:s.poste, moves:s.moves, com:com});
+        plat.push({jnum:jnum, sem:Math.floor((jnum-lun0num)/7), m:m, j:j,
+          id:x.p.id, pause:g, P:s.poste, moves:s.moves, com:com});
       });
     });
-    if(l.length) sortie.push({mois:m, jour:j, l:l});
   }
-  return sortie;
+  /* FUSION DES JOURS CONSÉCUTIFS d'un même rappel. Le client, le 01/10/2026 :
+     « optimiser ce tableau » — le même rappel (même personne, poste, motif)
+     revenait identique sur plusieurs jours, répété en entier. Une seule entrée
+     porte désormais la PLAGE de dates, le motif ne s'écrit qu'une fois. On ne
+     fusionne qu'à l'intérieur d'une même semaine (le cadre en liste une par
+     bande) et tant que le verdict — les déplacements à faire — ne change pas. */
+  function moveKey(mv){ return (mv||[]).map(function(v){ return v.id+">"+v.de.k+">"+v.a.k; }).join("|"); }
+  var groupes=[], dernier={};
+  plat.forEach(function(r){
+    var k=r.sem+""+r.id+""+r.pause+""+r.P.k+""+r.com+""+moveKey(r.moves);
+    var prev=dernier[k];
+    if(prev && prev.jnumFin===r.jnum-1){
+      prev.jFin=r.j; prev.mFin=r.m; prev.jnumFin=r.jnum;
+    } else {
+      var grp={sem:r.sem, id:r.id, pause:r.pause, P:r.P, moves:r.moves, com:r.com,
+               mDeb:r.m, jDeb:r.j, mFin:r.m, jFin:r.j, jnumFin:r.jnum};
+      groupes.push(grp); dernier[k]=grp;
+    }
+  });
+  return groupes;
+}
+/* La date d'un groupe : un seul jour reprend l'affichage ordinaire ; une plage
+   garde le mot relatif du début (« Demain ») et écrit les deux bouts en dessous
+   (« 2–3 octobre », ou « 30 sept.–2 oct. » à cheval sur deux mois). */
+function rnDateHtml(y,o,t0){
+  var dDeb=dateEnMots(y,o.mDeb,o.jDeb,t0);
+  if(o.jDeb===o.jFin && o.mDeb===o.mFin) return dDeb;
+  var small=(o.mDeb===o.mFin)
+    ? o.jDeb+"–"+o.jFin+" "+MOIS[o.mFin-1].toLowerCase()
+    : o.jDeb+" "+MOIS[o.mDeb-1].toLowerCase()+"–"+o.jFin+" "+MOIS[o.mFin-1].toLowerCase();
+  var dd=new Date(Date.UTC(y,o.mDeb-1,o.jDeb)), ecart=Math.round((dd.getTime()-t0)/86400000);
+  var mot=ecart===0?"Aujourd’hui":ecart===1?"Demain":JOURS_LONGS[(dd.getUTCDay()+6)%7];
+  return {sem:dDeb.sem, titre:dDeb.titre,
+    html:'<span class="mqd eqproche"><b>'+esc(mot)+'</b><small>'+esc(small)+'</small></span>'};
 }
 var rnFait="";
 function renderRappelsInutiles(force){
@@ -8939,30 +8976,28 @@ function renderRappelsInutiles(force){
   fetchHoraireDB().then(function(db){
     if(!db) return;
     rnFait=cle;
-    var jours=rappelsInutiles(db), h=[], semPrec=-1, n=0;
+    var groupes=rappelsInutiles(db), h=[], semPrec=-1, n=0, annee=Number(db.year);
     var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate());
     var COURT={cm:"CM",adj:"Adj."};
     var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
-    jours.forEach(function(x){
-      var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
+    groupes.forEach(function(o){
+      n++;
+      var q=rnDateHtml(annee,o,t0);
       if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
-      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +q.html+'<span class="mqls">');
-      x.l.forEach(function(o){
-        n++;
-        var mv=o.moves.map(function(v){
-          return idLisible(v.id)+" "+(COURT[v.de.k]||PV_COURT[v.de.k]||v.de.t)+" → "
-            +(COURT[v.a.k]||PV_COURT[v.a.k]||v.a.t); });
-        h.push('<span class="mql" data-z="'+esc(o.P.z||"")+'" title="'+esc(o.com)+'">'
+      var mv=o.moves.map(function(v){
+        return idLisible(v.id)+" "+(COURT[v.de.k]||PV_COURT[v.de.k]||v.de.t)+" → "
+          +(COURT[v.a.k]||PV_COURT[v.a.k]||v.a.t); });
+      h.push('<button type="button" class="mqj" data-m="'+o.mDeb+'" data-j="'+o.jDeb+'" title="'+esc(q.titre)+'">'
+        +q.html+'<span class="mqls">'
+        +'<span class="mql" data-z="'+esc(o.P.z||"")+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
           +'<span class="mqpo"><span class="mqlg">'+esc(o.P.t)+'</span><span class="mqct">'
             +esc(o.P.k==="terr"?"T. arrière":o.P.t)+"</span></span>"
           +'<span class="mqc'+(o.id===moi?" moi":"")+'"><b>'+esc(idLisible(o.id))+"</b></span></span>"
           +'<span class="rnok"><b>Complet sans lui</b>'+(mv.length?" si "+esc(mv.join(", ")):"")+"</span>"
           +(o.com?'<span class="rncom">« '+esc(o.com)+' »</span>':"")
-          +"</span>");
-      });
-      h.push("</span></button>");
+        +"</span>"
+        +"</span></button>");
     });
     hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun rappel non nécessaire</b> '
       +"d'ici la fin de l'horaire.</p>";
