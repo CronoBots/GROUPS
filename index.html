@@ -9355,8 +9355,8 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
   });
   if(g==="PM"){
     t.dh="18 h"; t.dr="AM"; t.da="N"; t.hr="06-18"; t.ha="18-06";
-    (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p}); });
-    (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p}); });
+    (par.AM||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.reste.push({p:x.p, base:HOR_PAUSE.AM}); });
+    (par.N||[]).forEach(function(x){ if(caPlein(x) && ok(x)) t.arrive.push({p:x.p, base:HOR_PAUSE.N}); });
   }
   /* LE MATIN, D'ABORD 06-18 ET 18-06 AVEC CEUX DU POSTE. Le client, le
      30/09/2026 : « pour un AM, s'il faut une prolongation 12 h, c'est
@@ -9374,7 +9374,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
         o.gens.forEach(function(x){
           if(x.depuisD || x.p.id===sauf || !caPlein(x) || !ok(x)) return;
           if(c[0]==="PM" && veille[x.p.id]==="N"){ t.ecartes++; return; }
-          c[1].push({p:x.p});
+          c[1].push({p:x.p, base:HOR_PAUSE[c[0]]});
         });
       });
     });
@@ -9384,14 +9384,14 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     (par.PM||[]).forEach(function(x){
       if(!caPlein(x) || !ok(x)) return;
       if(veille[x.p.id]==="N"){ t.ecartes++; return; }
-      t.arrive.push({p:x.p});
+      t.arrive.push({p:x.p, base:HOR_PAUSE.PM});
     });
     var hier=veille._par;
     if(hier) (hier.N||[]).forEach(function(x){
       if(!caPlein(x) || !ok(x)) return;
       var auj=pausesDe(0)[x.p.id];
       if(auj && auj!=="N"){ t.ecartes++; return; }
-      t.reste.push({p:x.p});
+      t.reste.push({p:x.p, base:HOR_PAUSE.N});
     });
   }
   if(g==="N" && autres){
@@ -9414,7 +9414,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
         o.gens.forEach(function(x){
           if(x.depuisD || x.p.id===sauf || !caPlein(x) || !ok(x)) return;
           if(c[2] && (lendemain[x.p.id]==="AM"||lendemain[x.p.id]==="D")){ t.ecartes++; return; }
-          c[1].push({p:x.p});
+          c[1].push({p:x.p, base:HOR_PAUSE[c[0]]});
         });
       });
     });
@@ -9493,6 +9493,11 @@ function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
    journée pour un poste prend l'horaire de la pause : 6-14 au matin,
    14-22 l'après-midi. Le repos de 8 h est déjà compté sur la pause. */
 var CA_HOR_D={AM:"6-14", PM:"14-22"};
+/* L'HORAIRE DE BASE, pour dire d'où vient chacun dans une prolongation 12 h.
+   Le client, le 01/10/2026 : « pour les 12 h il faut préciser leur horaire de
+   base ». 06-18 par un matin (6-14), 18-06 par un après-midi (14-22) : le
+   trigramme porte sa pause normale en gris, comme « SKS 6-14 » ailleurs. */
+var HOR_PAUSE={AM:"6-14", PM:"14-22", N:"22-6"};
 function caChaineHtml(gr,g){
   var hD=CA_HOR_D[g]||"";
   function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
@@ -9541,7 +9546,7 @@ function caGroupes(t,large){
   if(caDouble(t)){
     function rang(h,l){
       return '<span class="mqr"><span class="cahr">'+h+'</span>'
-        +l.slice(0,6).map(function(o){ return caChip(o.p.id,""); }).join("")
+        +l.slice(0,6).map(function(o){ return caChip(o.p.id,o.base||""); }).join("")
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
     }
     var paire=(t.reste.length && t.arrive.length)
