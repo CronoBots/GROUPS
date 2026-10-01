@@ -1815,19 +1815,9 @@ body.sheet-on{overflow:hidden}
 .btnlike{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2); cursor:pointer}
 .btnlike:hover{border-color:var(--in); color:var(--in)}
 
-/* ---------- accueil / formulaire de configuration ---------- */
-.onboard-overlay{position:fixed; inset:0; z-index:100; background:rgba(10,16,20,.6); display:flex; align-items:flex-start; justify-content:center; padding:24px 16px; overflow:auto}
 /* Le défilement d'une modale ne se propage pas à la page derrière : arrivé en
    bout de liste, on ne fait plus bouger le fond. */
-.onboard-overlay,.sheet-boite{overscroll-behavior:contain}
-.onboard-card{width:100%; max-width:640px; margin:auto}
-.onboard-card>header{padding:16px}
-.onboard-card>header h2{font-size:17px}
-.obgroup{padding:0 16px 4px}
-.obgroup:first-child{padding-top:2px}
-.obgroup h3{font-size:11px; color:var(--faint); letter-spacing:.05em; text-transform:uppercase; margin:0 0 9px}
-.onboard-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-top:1px solid var(--line2)}
-@media (max-width:480px){.onboard-foot{flex-direction:column-reverse; align-items:stretch}}
+.sheet-boite{overscroll-behavior:contain}
 
 /* ---------- retour en haut ---------- */
 /* Le client, le 30/09/2026 : « un bouton pour remonter en haut de page, en
@@ -2671,24 +2661,6 @@ body[data-horaire="annee"] #rotasub{display:none}
   </section>
 
 </main>
-
-<div class="onboard-overlay" id="onboard" hidden>
-  <form class="card onboard-card" id="onboardForm" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
-    <header>
-      <h2 id="onboardTitle">Bienvenue — quelques infos avant de commencer</h2>
-    </header>
-    <p class="lede haut">
-      Les réglages communs à l'équipe (primes d'équipe, coefficients de rappel, chèques-repas, barèmes ONSS et impôt…)
-      sont déjà configurés. Il ne manque que ce qui vous est propre, expliqué ci-dessous. Rien n'est définitif :
-      vous pourrez tout corriger plus tard dans l'onglet <b>Réglages</b>.
-    </p>
-    <div class="pad stack" id="onboardFields"></div>
-    <footer class="onboard-foot">
-      <button type="button" class="btnlike" id="onboardSkip">Configurer plus tard</button>
-      <button type="submit" class="btn primary">Enregistrer et commencer</button>
-    </footer>
-  </form>
-</div>
 
 <div class="gate" id="gate" hidden>
   <div class="gate-bg" aria-hidden="true"></div>
@@ -4291,37 +4263,6 @@ function renderFields(){
   fill("baremeFields",BAREME_FIELDS,st.bareme);
   document.getElementById("paramNote").textContent=
     "Salaire horaire qui en découle : "+nf4.format(R(st.params.remFixe/st.params.divH,4))+" €. C'est lui qui sert aux suppléments de week-end, aux heures supplémentaires et aux primes de rappel.";
-}
-
-/* ===================== accueil / configuration initiale ===================== */
-var ONBOARD_GROUPS=[
- {t:"Votre situation familiale",fields:["statut","etatCivil","conjoint","enfants"]},
- {t:"Votre rémunération et votre temps de travail",fields:["remFixe","primeRemise","avanceMens","fraction"]},
- {t:"Votre équipe et votre cycle de roulement",fields:["binome","cycle","decalage"]},
- {t:"Vos déplacements domicile-travail",fields:["distance","indJour","avVelo","dedVelo"]},
- {t:"Vos avantages en nature",fields:["atnGsm","atnTel","atnNet","assGroupe"]}
-];
-function renderOnboard(){
-  var byK={}; PARAM_FIELDS.forEach(function(f){byK[f.k]=f;});
-  var h="";
-  ONBOARD_GROUPS.forEach(function(g){
-    h+='<div class="obgroup"><h3>'+g.t+"</h3><div class=\"grid\">";
-    g.fields.forEach(function(k){
-      var f=byK[k];
-      h+=fieldHTML(f,st.params[k],{idPrefix:"ob_",hint:f.onb||f.hint,bare:true});
-    });
-    h+="</div></div>";
-  });
-  document.getElementById("onboardFields").innerHTML=h;
-}
-function applyOnboard(){
-  PARAM_FIELDS.forEach(function(f){
-    if(!f.personal) return;
-    var el=document.getElementById("ob_"+f.k); if(!el) return;
-    var v=f.type==="select"?el.value:Number(el.value||0);
-    setParam(f.k,v);
-  });
-  save("config/params",st.params);
 }
 
 /* L'en-tête répond à « de qui parle cet écran » — identifiant et fonction —
