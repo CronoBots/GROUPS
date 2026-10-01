@@ -1874,7 +1874,9 @@ body.sheet-on{overflow:hidden}
 .gate-lede{font-size:13px; line-height:1.55; color:var(--ink2)}
 .gate-f{display:flex; flex-direction:column; gap:5px}
 .gate-f label{font-size:11.5px; font-weight:600; color:var(--muted)}
-.gate-f select,.gate-f input{padding:9px 11px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink); font-size:14px; min-width:0}
+/* font-size 16px minimum : en dessous, iOS Safari ZOOME au focus (puis la vue
+   reste zoomée/décalée). Les contrôles du gate restent donc à 16px. */
+.gate-f select,.gate-f input{padding:10px 11px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink); font-size:16px; min-width:0}
 .gate-f select:focus,.gate-f input:focus{background:var(--surface); border-color:var(--in)}
 .gate-f .gate-hint{font-size:11px; color:var(--faint)}
 .gate-f input.gate-confirm{font-family:"IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.22em; text-align:center; font-weight:600; font-size:18px}
@@ -10742,7 +10744,7 @@ function gateVueAccueil(){
 }
 function gateVueCreer(){
   document.getElementById("gate").classList.remove("is-home");
-  gateSetTitre("Créer mon compte","Vérifiez vos infos, puis confirmez");
+  gateSetTitre("Connexion","Vérifiez vos infos, puis confirmez");
   if(!_gateDB||!_gateDB.people){
     gateSetBody('<p class="gate-lede" id="gateLoad">Chargement de l\'horaire…</p>'
       +'<div class="gate-actions"><button type="button" class="gate-link" id="gateBack">← Retour</button></div>');
@@ -10774,7 +10776,7 @@ function gateVueCreer(){
     +'</div></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
-    +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Confirmer et lier à cet appareil</button>'
+    +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Se connecter</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
   var idSel=document.getElementById("gateId"), btn=document.getElementById("gateConfirm"),
@@ -10848,7 +10850,7 @@ function gateFinaliser(partial){
   lsSet("account/current",acc);
   appliquerCompte(acc);
   fermerGate();
-  if(typeof flash==="function") flash(acc.role==="rh"?"Connecté en BWZ RH":"Compte créé — bienvenue !");
+  if(typeof flash==="function") flash(acc.role==="rh"?"Connecté en BWZ RH":"Connecté — bienvenue !");
   if(_gateOnOk){ var f=_gateOnOk; _gateOnOk=null; f(); }
 }
 function appliquerCompte(acc){
