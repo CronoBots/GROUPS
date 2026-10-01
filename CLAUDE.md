@@ -4485,6 +4485,24 @@ Sous-effectifs d'ici la fin de l'année et compteurs **identiques à
 l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
 navigateur à 320 (hors ligne), 390 et 1280 px.
 
+### Le classeur du 01/10/2026 à 9 h 25
+
+Sept portes ouvertes, installé : **14 journées chez 9 personnes, 7
+compteurs**. Prestées 14 441 → 14 437. CKS part à 13 h le 30/09 (1 h de
+reprise) ; FPS : son 05/09 devient un DTT entier et le 07/09 un repos ;
+KDN en RTT le 16/12, ½ VA le 17/12 et ½ DTT le 18/12, remplacé par MHI
+(PM → N) ; JBA en VA le 18/12, remplacé par SPS ; LHR le 30/09 passe en
+`D-CPPT · 2h RTT` (6 h) ; SVE le 30/09 et le 01/10 en formation
+distillation `7h-15h · 8h +FT` — le poste entier part au compteur, 0 h
+payée (section 5 de `docs/conversion-horaire.md`), compteur flex time
++16 h. **VBN le 30/09** devient `["D-CPPT","2h RTT","+1h RHS compteur à
+0 Arrivée à 09h Départ à 15h"]` : lu 5 h (8 − 2 − 1), alors que 9 h-15 h
+en font 6 — question posée au client. Trois compteurs passent en négatif
+au classeur : VA restant de JBA (−8), RTT restant de KDN (−6) et de SMA
+(−4). Sous-effectifs d'ici la fin de l'année et compteurs **identiques
+à l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
+navigateur à 320 (hors ligne), 390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
