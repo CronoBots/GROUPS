@@ -10658,20 +10658,15 @@ function gateProfilHTML(p){
   var cadre=(typeof estCadre==="function") && estCadre(p);
   var contremaitre=(typeof estContremaitre==="function") && estContremaitre(p);
   var rows=[['Statut', esc(statutPersonne(p))]];
-  /* Travailleurs (ni contremaître ni adjoint) : équipe = n° de shift + poste attitré. */
-  if(!cadre){
-    rows.push(['Équipe', esc(equipeShift(p))]);
-    rows.push(['Poste', esc(posteAttitreTitre(p))]);
-  }
-  /* Polyvalences : tout le monde SAUF les contremaîtres (les adjoints les gardent). */
+  /* L'équipe (n° de shift) est déjà portée par l'en-tête → pas de ligne en double.
+     Travailleurs : on ajoute le poste actuellement attitré. */
+  if(!cadre) rows.push(['Poste', esc(posteAttitreTitre(p))]);
+  /* Polyvalences : tout le monde SAUF les contremaîtres (les adjoints les gardent).
+     Liste textuelle compacte (plus de pastilles). */
   if(!contremaitre){
     var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
-    var chips=polys.length
-      ? '<div class="gp-chips">'+polys.map(function(x){
-          return '<span class="gp-chip'+(x.forme?" forme":"")+'" data-z="'+esc(x.z||"gris")+'">'+esc(x.t)+(x.forme?" · en formation":"")+'</span>';
-        }).join("")+'</div>'
-      : '<span class="gp-dash">—</span>';
-    rows.push(['Polyvalences', chips]);
+    var liste=polys.map(function(x){ return esc(x.t)+(x.forme?" (en formation)":""); }).join(", ");
+    rows.push(['Polyvalences', liste||'<span class="gp-dash">—</span>']);
   }
   return ''
     +'<div class="gp-tri"><span class="gp-badge">'+esc(idLisible(p.id))+'</span><span class="gp-fn">'+esc(fn)+'</span></div>'
@@ -10729,10 +10724,10 @@ function gateVueCreer(){
   var vus={}; gens.forEach(function(p){ var b=idLisible(p.id); vus[b]=(vus[b]||0)+1; });
   var opts=gens.map(function(p){ var lu=(vus[idLisible(p.id)]>1)?p.id:idLisible(p.id); return '<option value="'+esc(p.id)+'">'+esc(lu)+'</option>'; }).join("");
   gateSetBody(''
-    +'<div class="gate-f"><label for="gateId">Votre identifiant (trigramme)</label>'
+    +'<div class="gate-f"><label for="gateId">Votre trigramme</label>'
     +'<select id="gateId">'+opts+'</select></div>'
     +'<div class="gp" id="gateProfil"></div>'
-    +'<div class="gate-f"><label for="gateConf">Votre trigramme</label>'
+    +'<div class="gate-f"><label for="gateConf">Confirmez votre trigramme</label>'
     +'<input id="gateConf" class="gate-confirm" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="•••"></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
