@@ -10651,13 +10651,15 @@ function _deviceId(){
   if(!d){ d="dev-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36); lsSet("account/device",d); }
   return d;
 }
-/* Statut d'emploi : « interim » est porté par la donnée (poly.statut) ; sinon un
-   cadre (contremaître/adjoint) est Employé et un opérateur de production Ouvrier. */
-function statutPersonne(p){
+/* Statut AFFICHÉ sur la carte (ne pas confondre avec statutPersonne() qui pilote
+   l'ONSS) : on montre « Intérimaire » quand la donnée le dit, sinon on réutilise
+   le statut de paie — qui gère déjà EMPLOYES_HORS_CADRE (SBZ/GKT/FLN/FPS/PLZ =
+   Employé). ⚠ Ne PAS redéclarer statutPersonne ici : elle existe (ligne ~6577)
+   et sa redéclaration faussait l'ONSS des 5 employés hors cadre. */
+function statutAffiche(p){
   var s=(p&&p.poly&&p.poly.statut)||"";
   if(/interim/i.test(s)) return "Intérimaire";
-  if(typeof estCadre==="function" && estCadre(p)) return "Employé";
-  return "Ouvrier";
+  return (typeof statutPersonne==="function") ? statutPersonne(p) : "";
 }
 /* Équipe d'un travailleur = numéro de shift (« Équipe 1 » à « Équipe 5 »).
    Vient de la catégorie « Shift N » ; à défaut d'un « éq. N » dans l'affectation. */
@@ -10706,7 +10708,7 @@ function gateProfilHTML(p){
   var sousTitre;
   if(cadre) sousTitre=(typeof fonctionPersonne==="function")?fonctionPersonne(p):p.cat;
   else { sousTitre=equipeShift(p); if(sousTitre==="—"&&typeof fonctionPersonne==="function") sousTitre=fonctionPersonne(p); }
-  var rows=[['Statut', esc(statutPersonne(p))]];
+  var rows=[['Statut', esc(statutAffiche(p))]];
   if(!cadre) rows.push(['Poste', esc(posteAttitreTitre(p))]);
   if(!contremaitre){
     var comp=competencesDe(p);
