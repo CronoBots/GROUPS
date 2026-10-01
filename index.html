@@ -1867,6 +1867,7 @@ body.sheet-on{overflow:hidden}
 .gate-f select:focus,.gate-f input:focus{background:var(--surface); border-color:var(--in)}
 .gate-f .gate-hint{font-size:11px; color:var(--faint)}
 .gate-f input.gate-confirm{font-family:"IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.22em; text-align:center; font-weight:600; font-size:18px}
+.gate-f input.gate-confirm:focus::placeholder{color:transparent}
 .gate-actions{display:flex; flex-direction:column; gap:9px; margin-top:2px}
 .gate-btn{appearance:none; width:100%; padding:11px 14px; border-radius:10px; font-size:14px; font-weight:600; border:1px solid var(--line); background:var(--surface2); color:var(--ink); cursor:pointer; transition:transform .12s ease, background .15s, border-color .15s, color .15s}
 .gate-btn:hover{border-color:var(--in); color:var(--in)}
@@ -1888,12 +1889,9 @@ body.sheet-on{overflow:hidden}
 .gp-v{color:var(--ink2); font-size:12.5px; min-width:0}
 .gp-dash{color:var(--faint)}
 .gp-chips{display:flex; flex-wrap:wrap; gap:6px}
-.gp-chip{font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; border:1px solid transparent; background:var(--at-gris-soft); color:var(--at-gris)}
-.gp-chip[data-z="jaune"]{background:var(--at-jaune-soft); color:var(--at-jaune)}
-.gp-chip[data-z="vert"]{background:var(--at-vert-soft); color:var(--at-vert)}
-.gp-chip[data-z="rouge"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
-.gp-chip[data-z="bleu"]{background:var(--at-bleu-soft); color:var(--at-bleu)}
-.gp-chip.forme{opacity:.8; font-style:italic}
+/* Pastilles de polyvalence NEUTRES (pas de code couleur par atelier). */
+.gp-chip{font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--line); background:var(--surface3); color:var(--ink2)}
+.gp-chip.forme{opacity:.75; font-style:italic}
 .gp-empty{font-size:12px; color:var(--faint)}
 .gate-rh-tag{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--in); background:var(--in-soft); padding:3px 9px; border-radius:999px}
 .rh-only{display:none}
@@ -10635,12 +10633,24 @@ function statutPersonne(p){
   if(typeof estCadre==="function" && estCadre(p)) return "Employé";
   return "Ouvrier";
 }
-function equipeLisibleDe(p){
-  var e=p&&p.e;
-  if(Array.isArray(e)) e=e.filter(Boolean).join(", ");
-  if(e===0||e===""||e===null||e===undefined) return "—";
-  if(typeof e==="number"||/^\d+$/.test(String(e))) return "Équipe "+e;
-  return String(e);
+/* Équipe d'un travailleur = numéro de shift (« Équipe 1 » à « Équipe 5 »).
+   Vient de la catégorie « Shift N » ; à défaut d'un « éq. N » dans l'affectation. */
+function equipeShift(p){
+  var m=String((p&&p.cat)||"").match(/shift\s*(\d+)/i);
+  if(m) return "Équipe "+m[1];
+  var e=p&&p.e; if(Array.isArray(e)) e=e.join(" ");
+  var m2=String(e||"").match(/éq\.?\s*(\d+)/i);
+  return m2 ? "Équipe "+m2[1] : "—";
+}
+/* Poste actuellement attitré (ex. « Gluten ») — titre lisible depuis POSTES_TRAVAIL. */
+function posteAttitreTitre(p){
+  var k=(typeof posteAttitre==="function")?posteAttitre(p):null;
+  if(!k && typeof posteDeFormation==="function") k=posteDeFormation(p);
+  if(k && typeof POSTES_TRAVAIL!=="undefined"){
+    var P=POSTES_TRAVAIL.filter(function(x){return x.k===k;})[0];
+    if(P) return P.t;
+  }
+  return "—";
 }
 function gateProfilHTML(p){
   if(!p) return '<p class="gp-empty">Choisissez votre identifiant ci-dessus.</p>';
@@ -10648,8 +10658,11 @@ function gateProfilHTML(p){
   var cadre=(typeof estCadre==="function") && estCadre(p);
   var contremaitre=(typeof estContremaitre==="function") && estContremaitre(p);
   var rows=[['Statut', esc(statutPersonne(p))]];
-  /* Équipe de production : uniquement pour les opérateurs (ni contremaître ni adjoint). */
-  if(!cadre) rows.push(['Équipe', esc(equipeLisibleDe(p))]);
+  /* Travailleurs (ni contremaître ni adjoint) : équipe = n° de shift + poste attitré. */
+  if(!cadre){
+    rows.push(['Équipe', esc(equipeShift(p))]);
+    rows.push(['Poste', esc(posteAttitreTitre(p))]);
+  }
   /* Polyvalences : tout le monde SAUF les contremaîtres (les adjoints les gardent). */
   if(!contremaitre){
     var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
@@ -10719,9 +10732,8 @@ function gateVueCreer(){
     +'<div class="gate-f"><label for="gateId">Votre identifiant (trigramme)</label>'
     +'<select id="gateId">'+opts+'</select></div>'
     +'<div class="gp" id="gateProfil"></div>'
-    +'<div class="gate-f"><label for="gateConf">Recopiez votre trigramme pour confirmer</label>'
+    +'<div class="gate-f"><label for="gateConf">Votre trigramme</label>'
     +'<input id="gateConf" class="gate-confirm" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="•••"></div>'
-    +'<span class="gate-hint">Cette recopie évite de lier un trigramme par mégarde.</span>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Confirmer et lier à cet appareil</button>'
