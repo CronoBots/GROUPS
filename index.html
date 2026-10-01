@@ -1853,6 +1853,17 @@ body.sheet-on{overflow:hidden}
 .gate{position:fixed; inset:0; z-index:350; display:flex; color:var(--ink)}
 .gate[hidden]{display:none}
 .gate-bg{position:absolute; inset:0; background:var(--marque); z-index:0}
+/* Accueil : plein écran sur le fond, logo centré, actions en bas (sans cadre). */
+.gate-home{position:absolute; inset:0; z-index:1; display:none; flex-direction:column; align-items:center;
+  padding:40px 20px calc(30px + env(safe-area-inset-bottom,0px)); overflow:auto}
+.gate.is-home .gate-home{display:flex}
+.gate.is-home .gate-scroll{display:none}
+.gate-home-mark{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px}
+.gate-home-mark img{width:clamp(118px,33vw,156px); height:auto; display:block}
+.gate-home-actions{flex:0 0 auto; width:100%; max-width:400px; display:flex; flex-direction:column; gap:12px}
+.gate-home-actions .gate-btn{padding:14px 16px; font-size:15px; border-radius:12px}
+.gate-link-light{color:rgba(255,255,255,.72)}
+.gate-link-light:hover{color:#fff}
 .gate-scroll{position:relative; z-index:1; width:100%; overflow:auto; display:flex; padding:28px 16px}
 .gate-box{width:100%; max-width:460px; margin:auto; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
 .gate-head{display:flex; align-items:center; gap:13px; padding:17px 20px; border-bottom:1px solid var(--line2)}
@@ -1878,21 +1889,17 @@ body.sheet-on{overflow:hidden}
 .gate-link{background:none; border:0; color:var(--muted); font-size:12.5px; cursor:pointer; padding:7px; text-decoration:underline; text-underline-offset:2px}
 .gate-link:hover{color:var(--in)}
 .gate-err{font-size:12.5px; color:var(--out); font-weight:600; min-height:1em}
-.gp{border:1px solid var(--line); border-radius:11px; background:var(--surface2); padding:14px; display:flex; flex-direction:column; gap:12px; text-align:center}
-.gp-tri{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; padding-bottom:12px; margin-bottom:2px; border-bottom:1px solid var(--line2)}
-.gp-badge{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:15px; letter-spacing:.05em; color:var(--sur-in); background:var(--in); padding:3px 9px; border-radius:7px}
-.gp-fn{font-size:13.5px; font-weight:600; color:var(--ink)}
-/* Chaque champ : le libellé (sous-titre) au-dessus, la valeur en dessous, centrés. */
+/* Carte d'identité : le trigramme en point focal (mono), l'équipe/fonction en
+   accent dessous, puis les champs centrés et empilés (libellé fin au-dessus). */
+.gp{border:1px solid var(--line); border-radius:14px; background:var(--surface2); padding:18px 16px 16px; text-align:center}
+.gp-id{display:flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid var(--line2)}
+.gp-tri{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:27px; letter-spacing:.07em; color:var(--ink); line-height:1}
+.gp-sub{font-size:11px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--in)}
 .gp-rows{display:flex; flex-direction:column; gap:12px}
 .gp-row{display:flex; flex-direction:column; gap:3px}
-.gp-k{color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.07em; font-weight:600}
-.gp-v{color:var(--ink); font-size:13px; line-height:1.4}
-.gp-dash{color:var(--faint)}
-.gp-chips{display:flex; flex-wrap:wrap; gap:6px}
-/* Pastilles de polyvalence NEUTRES (pas de code couleur par atelier). */
-.gp-chip{font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--line); background:var(--surface3); color:var(--ink2)}
-.gp-chip.forme{opacity:.75; font-style:italic}
-.gp-empty{font-size:12px; color:var(--faint)}
+.gp-k{color:var(--faint); font-size:9.5px; text-transform:uppercase; letter-spacing:.12em; font-weight:700}
+.gp-v{color:var(--ink); font-size:13.5px; line-height:1.45}
+.gp-empty{font-size:12.5px; color:var(--faint); padding:4px 0}
 .gate-rh-tag{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--in); background:var(--in-soft); padding:3px 9px; border-radius:999px}
 .rh-only{display:none}
 :root[data-rh="1"] .rh-only{display:revert}
@@ -2677,6 +2684,17 @@ body[data-horaire="annee"] #rotasub{display:none}
 
 <div class="gate" id="gate" hidden>
   <div class="gate-bg" aria-hidden="true"></div>
+  <!-- Accueil : logo sur le fond + boutons en bas de page (sans cadre) -->
+  <div class="gate-home" id="gateHome">
+    <div class="gate-home-mark">
+      <img src="logo.svg" alt="BIOWANZE" width="150" height="115" decoding="async">
+    </div>
+    <div class="gate-home-actions">
+      <button type="button" class="gate-btn primary" id="gateGoCreer">Connexion</button>
+      <button type="button" class="gate-link gate-link-light" id="gateGoRH">Connexion BWZ RH</button>
+    </div>
+  </div>
+  <!-- Création de compte / connexion RH : dans une carte -->
   <div class="gate-scroll">
     <section class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
       <header class="gate-head">
@@ -10653,23 +10671,25 @@ function posteAttitreTitre(p){
   return "—";
 }
 function gateProfilHTML(p){
-  if(!p) return '<p class="gp-empty">Choisissez votre identifiant ci-dessus.</p>';
-  var fn=(typeof fonctionPersonne==="function")?fonctionPersonne(p):(p.cat||"");
+  if(!p) return '<p class="gp-empty">Choisissez votre trigramme ci-dessus pour vérifier vos infos.</p>';
   var cadre=(typeof estCadre==="function") && estCadre(p);
   var contremaitre=(typeof estContremaitre==="function") && estContremaitre(p);
+  /* Sous-titre d'identité : équipe (n° de shift) pour un travailleur, fonction
+     pour un cadre ; repli sur la fonction si pas de n° de shift (STEP, formation). */
+  var sousTitre;
+  if(cadre) sousTitre=(typeof fonctionPersonne==="function")?fonctionPersonne(p):p.cat;
+  else { sousTitre=equipeShift(p); if(sousTitre==="—"&&typeof fonctionPersonne==="function") sousTitre=fonctionPersonne(p); }
   var rows=[['Statut', esc(statutPersonne(p))]];
-  /* L'équipe (n° de shift) est déjà portée par l'en-tête → pas de ligne en double.
-     Travailleurs : on ajoute le poste actuellement attitré. */
   if(!cadre) rows.push(['Poste', esc(posteAttitreTitre(p))]);
-  /* Polyvalences : tout le monde SAUF les contremaîtres (les adjoints les gardent).
-     Liste textuelle compacte (plus de pastilles). */
   if(!contremaitre){
     var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
-    var liste=polys.map(function(x){ return esc(x.t)+(x.forme?" (en formation)":""); }).join(", ");
-    rows.push(['Polyvalences', liste||'<span class="gp-dash">—</span>']);
+    var liste=polys.map(function(x){ return esc(x.t)+(x.forme?" (en formation)":""); }).join(" · ");
+    rows.push(['Polyvalences', liste||'—']);
   }
   return ''
-    +'<div class="gp-tri"><span class="gp-badge">'+esc(idLisible(p.id))+'</span><span class="gp-fn">'+esc(fn)+'</span></div>'
+    +'<div class="gp-id"><span class="gp-tri">'+esc(idLisible(p.id))+'</span>'
+    +(sousTitre&&sousTitre!=="—"?'<span class="gp-sub">'+esc(sousTitre)+'</span>':'')
+    +'</div>'
     +'<div class="gp-rows">'
     +rows.map(function(r){ return '<div class="gp-row"><span class="gp-k">'+r[0]+'</span><span class="gp-v">'+r[1]+'</span></div>'; }).join("")
     +'</div>';
@@ -10690,20 +10710,15 @@ function fermerGate(){
   if(typeof inerteFond==="function") try{ inerteFond(false); }catch(e){}
 }
 function gateVueAccueil(){
-  gateSetTitre("Bienvenue","BIOWANZE — créez votre compte pour commencer");
-  gateSetBody(''
-    +'<p class="gate-lede">Pour utiliser l\'application, liez votre <b>trigramme</b> à cet appareil : '
-    +'vous retrouverez votre horaire, vos compteurs et l\'estimation de vos fiches de paie.</p>'
-    +'<div class="gate-actions">'
-    +'<button type="button" class="gate-btn primary" id="gateGoCreer">Créer mon compte</button>'
-    +'<button type="button" class="gate-link" id="gateGoRH">Connexion BWZ RH</button>'
-    +'</div>');
+  /* Accueil « plein écran » : logo sur le fond, boutons en bas (boutons statiques). */
+  document.getElementById("gate").classList.add("is-home");
   document.getElementById("gateGoCreer").onclick=gateVueCreer;
   document.getElementById("gateGoRH").onclick=gateVueRH;
   setTimeout(function(){ try{ document.getElementById("gateGoCreer").focus(); }catch(e){} },30);
 }
 function gateVueCreer(){
-  gateSetTitre("Créer mon compte","Choisissez votre identifiant, vérifiez vos infos, confirmez");
+  document.getElementById("gate").classList.remove("is-home");
+  gateSetTitre("Créer mon compte","Vérifiez vos infos, puis confirmez");
   if(!_gateDB||!_gateDB.people){
     gateSetBody('<p class="gate-lede" id="gateLoad">Chargement de l\'horaire…</p>'
       +'<div class="gate-actions"><button type="button" class="gate-link" id="gateBack">← Retour</button></div>');
@@ -10756,6 +10771,7 @@ function gateVueCreer(){
   setTimeout(function(){ try{ idSel.focus(); }catch(e){} },30);
 }
 function gateVueRH(){
+  document.getElementById("gate").classList.remove("is-home");
   gateSetTitre("Connexion BWZ RH","Accès réservé — options d'administration");
   gateSetBody(''
     +'<p class="gate-lede">Entrez le code <b>BWZ RH</b> pour déverrouiller les options d\'administration.</p>'
