@@ -1345,6 +1345,11 @@ body.sheet-on{overflow:hidden}
 .capaire.plein{border-style:solid; border-color:var(--trait)}
 .mqc.manque{border-color:var(--at-rouge)}
 .mqc.manque b{color:var(--at-rouge); display:inline-block; min-width:3ch; text-align:center}
+/* EN FORMATION AU POSTE, dans les résultats comme dans l'onglet Équipe. Le
+   client, le 01/10/2026 : « il faut toujours que la personne en formation au
+   poste soit en jaune aussi ». Même jaune d'atelier que la table (.eqn.form). */
+.mqc.form{border-color:var(--at-jaune)}
+.mqc.form b{color:var(--at-jaune)}
 .cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
@@ -9077,7 +9082,7 @@ function renderManques(force){
            le module de recherche ») : cadre plein, un « ? » par place vide. */
         var oP=null; (o.vue&&o.vue.postes||[]).forEach(function(y){ if(y.P.k===o.k) oP=y; });
         var enP=oP?oP.gens.filter(function(y){ return !y.depuisD; }):[];
-        plus.unshift(caCadre("En poste",enP.map(function(y){ return caChip(y.p.id,""); }).join("")
+        plus.unshift(caCadre("En poste",enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
@@ -9482,8 +9487,8 @@ function caVerdict(r,mode){
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
-function caChip(id,sous){
-  return '<span class="mqc"><b>'+esc(idLisible(id))+"</b>"
+function caChip(id,sous,form){
+  return '<span class="mqc'+(form?" form":"")+'"><b>'+esc(idLisible(id))+"</b>"
     +(sous?"<small>"+esc(sous)+"</small>":"")+"</span>";
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
@@ -9649,7 +9654,7 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
     +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
-    +((au.length||tenu<attendu)?caCadre("En poste",au.map(function(x){ return caChip(x.p.id,""); }).join("")
+    +((au.length||tenu<attendu)?caCadre("En poste",au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
       +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
     +"</span>";
