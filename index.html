@@ -390,7 +390,7 @@ button{cursor:pointer}
 .btn{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2)}
 .btn:hover{border-color:var(--in); color:var(--in); background:var(--surface2)}
 .btn.primary{background:var(--in); border-color:var(--in); color:var(--sur-in)}
-.btn.primary:hover{background:var(--in2); border-color:var(--in2); color:#fff}
+.btn.primary:hover{background:var(--in2); border-color:var(--in2); color:var(--sur-in)}
 .btn.sm{padding:4px 9px; font-size:11.5px; border-radius:7px}
 
 .pill{display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600}
@@ -680,7 +680,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   border-radius:7px; font-size:12px; font-weight:600; color:var(--faint);
 }
 .shifts button:hover{border-color:var(--ink2); color:var(--ink2)}
-.shifts button[aria-pressed="true"]{color:#fff; border-color:transparent}
+.shifts button[aria-pressed="true"]{color:var(--sur-in); border-color:transparent}
 .shifts button[data-s="AM"][aria-pressed="true"]{background:var(--am)}
 .shifts button[data-s="PM"][aria-pressed="true"]{background:var(--pm)}
 .shifts button[data-s="N"][aria-pressed="true"]{background:var(--n)}
@@ -692,7 +692,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
 .icb{height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--faint)}
 .icb[aria-pressed="true"]{background:var(--good-soft); border-color:var(--good); color:var(--good)}
 .rap{height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--faint); font-size:10.5px; font-weight:700}
-.rap[data-r="J"]{background:var(--out2); border-color:transparent; color:#fff}
+.rap[data-r="J"]{background:var(--out2); border-color:transparent; color:var(--sur-in)}
 .rap[data-r="J2"]{background:var(--out-soft); border-color:var(--out2); color:var(--out)}
 .rap[data-r="MP"]{background:var(--surface3); border-color:var(--ink2); color:var(--ink2)}
 .rota-foot{display:flex; gap:16px; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line); background:var(--surface2); font-size:12px; color:var(--muted)}
@@ -10422,13 +10422,16 @@ function restaurerVue(){
   vueHoraire("annee");
 }
 
-document.getElementById("btnVider").addEventListener("click",viderMois);
+document.getElementById("btnVider").addEventListener("click",function(){
+  if(confirm("Vider l'horaire de "+MOIS[st.m].toLowerCase()+" "+st.y+" ?\nLes journées saisies ce mois-ci seront effacées (irréversible).")) viderMois();
+});
 /* Les journées posées par un pré-remplissage portent une marque, et se
    laissent rafraîchir. Celles d'avant cette marque passent pour de la saisie
    à la main et résistent : quand une règle de lecture est corrigée, seule une
    remise à zéro de l'année les rattrape. */
 document.getElementById("btnViderAn").addEventListener("click",function(){
   var an=st.y, faits=[];
+  if(!confirm("Effacer les douze mois de "+an+" ?\nToutes les journées de l'année seront remises à zéro (irréversible).")) return;
   for(var i=0;i<12;i++) faits.push(key(an,i));
   Promise.all(faits.map(function(k){ return readMonth(k); })).then(function(docs){
     var n=0;
