@@ -4496,8 +4496,16 @@ KDN en RTT le 16/12, ½ VA le 17/12 et ½ DTT le 18/12, remplacé par MHI
 distillation `7h-15h · 8h +FT` — le poste entier part au compteur, 0 h
 payée (section 5 de `docs/conversion-horaire.md`), compteur flex time
 +16 h. **VBN le 30/09** devient `["D-CPPT","2h RTT","+1h RHS compteur à
-0 Arrivée à 09h Départ à 15h"]` : lu 5 h (8 − 2 − 1), alors que 9 h-15 h
-en font 6 — question posée au client. Trois compteurs passent en négatif
+0 Arrivée à 09h Départ à 15h"]` : lu d'abord 5 h (8 − 2 − 1), alors que
+9 h-15 h en font 6. Le client, le même jour : « 6 h prestées (09-15),
++ 1 h sup faite après 15 h ». Le classeur le disait : « compteur à 0 »
+(JBS le 04/03, SMK le 06/08 l'écrivent aussi) veut dire que le compteur
+de récup. HS est vide — rien n'est repris. `lireJournee()` lit donc un
+« +Nh RHS » accompagné de « compteur à 0 » comme N heures sup (`r.hc`,
+prime de la pause payée) et non comme une reprise : 6 h prestées, 2 h de
+RTT, 1 h sup. Seule journée de l'année de cette forme ; neuf règles,
+sous-effectifs, Recyclage et compteurs identiques à l'octet ; la fiche
+de septembre porte l'heure sup, hors ligne compris. Trois compteurs passent en négatif
 au classeur : VA restant de JBA (−8), RTT restant de KDN (−6) et de SMA
 (−4). Sous-effectifs d'ici la fin de l'année et compteurs **identiques
 à l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au

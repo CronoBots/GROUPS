@@ -6005,6 +6005,13 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var qCx=mCx[1], cdCx=mCx[2].toUpperCase().replace(/\s+/g,"").replace(/^RTT-$/,"RTT");
     var nCx=(qCx==="1/2")?hJour/2:parseFloat(qCx.replace(",","."));
     if(!(nCx>0 && nCx<=hJour)) continue;
+    /* « +1h RHS compteur à 0 » (VBN le 30/09) : le compteur de récup. HS est
+       vide, rien n'est repris — l'heure est une heure sup faite après le
+       départ, versée au compteur. Le client, le 01/10/2026 : « 6 h prestées
+       (09-15), + 1 h sup faite après 15 h ». Seule journée de cette forme. */
+    if(cdCx==="RHS" && /compteur\s*(?:à|a)\s*0/i.test(comCx)){
+      r.hc=(r.hc||0)+nCx; if(!r.hcp){ r.hcp=r.hsp||r.s||null; if(r.hcp==="D") r.hcp=null; }
+      continue; }
     if(cdCx==="RHS"){ r.rhsJ=(r.rhsJ||0)+nCx; cxH+=nCx; cxVu=true; continue; }
     var codeCx=(cdCx==="-FT")?codeAbsence(nCx+"H -FT")
               :((nCx===hJour/2 && (cdCx==="VA"||cdCx==="DTT"||cdCx==="CSS"))?"1/2 "+cdCx
