@@ -356,6 +356,11 @@ button{cursor:pointer}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
+/* GRAND ÉCRAN : le contenu s'élargit pour remplir un moniteur de bureau — le
+   calendrier de l'année et la fiche de paie respirent au lieu de flotter dans
+   une colonne étroite. Le client, le 01/10/2026 : « optimise la version PC ».
+   En-deçà, la mesure lisible du téléphone et du laptop ne bouge pas. */
+@media (min-width:1400px){ .top-in,.tabs,.wrap{max-width:1340px} }
 /* Le bandeau des heures perdues : il n'apparaît que si l'horaire d'équipe
    n'a pas pu être lu, et alors il RESTE. Même jaune que l'atelier, celui
    qu'on lit déjà comme « attention, ce n'est pas tout à fait normal ». */
@@ -401,8 +406,8 @@ button{cursor:pointer}
    Chasse proportionnelle, et la même famille que tout le reste — une
    seconde police sur le chiffre qu'on regarde en premier se remarque. */
 .hero .big{font-size:clamp(36px,8vw,52px); font-weight:650; line-height:1; letter-spacing:-.025em; color:var(--in)}
-.tiles-note{grid-column:1/-1; margin:0; padding:11px 16px; background:var(--surface);
-  font-size:11.5px; color:var(--muted)}
+.tiles-note{margin:0; padding:11px 16px; background:var(--surface);
+  border-top:1px solid var(--line2); font-size:11.5px; color:var(--muted)}
 .tiles-note b{font-family:"IBM Plex Mono",monospace; color:var(--ink2); font-weight:600}
 .hero .lbl{font-size:12.5px; color:var(--muted); margin-bottom:7px}
 .hero .side{margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; font-size:12px; color:var(--muted)}
@@ -2456,6 +2461,7 @@ body[data-horaire="annee"] #rotasub{display:none}
       <div class="versements" id="versements" hidden></div>
       <div class="callout" id="alerteDefaut"></div>
       <div class="tiles" id="tiles"></div>
+      <p class="tiles-note" id="tilesNote"></p>
     </div>
 
     <div class="card">
@@ -3830,8 +3836,8 @@ function renderResume(C){
   ];
   document.getElementById("tiles").innerHTML=tiles.map(function(t){
     return '<div class="tile"><div class="v">'+t[0]+'</div><div class="k">'+t[1]+"</div></div>";
-  }).join("")+
-  '<p class="tiles-note">Salaire horaire <b>'+nf4.format(C.txh)+' €</b> — la base des suppléments de week-end, des heures supplémentaires et des primes de rappel.</p>';
+  }).join("");
+  document.getElementById("tilesNote").innerHTML='Salaire horaire <b>'+nf4.format(C.txh)+' €</b> — la base des suppléments de week-end, des heures supplémentaires et des primes de rappel.';
 
   /* cascade du brut au net */
   var atn=R((st.params.atnGsm||0)+(st.params.atnTel||0)+(st.params.atnNet||0));
