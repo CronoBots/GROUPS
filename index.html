@@ -2530,12 +2530,12 @@ body[data-horaire="annee"] #rotasub{display:none}
     <div class="card">
       <details class="fold" open>
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
-        <p class="lede haut">Choisissez votre fonction puis votre identifiant : votre horaire de l'année se
+        <p class="lede haut">Choisissez votre identifiant : votre horaire de l'année se
           remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
           désignées que par leurs initiales ou leur matricule.</p>
         <div class="pad qui">
-          <label>Fonction ou équipe<select id="prefillCat" aria-label="Équipe ou fonction"></select></label>
-          <label>Mon identifiant<select id="prefillId" aria-label="Personne"></select></label>
+          <label hidden>Fonction ou équipe<select id="prefillCat" aria-label="Équipe ou fonction"></select></label>
+          <label style="grid-column:1 / -1">Mon identifiant<select id="prefillId" aria-label="Personne"></select></label>
         </div>
         <p class="lede" id="prefillCompteurs"></p>
         <p class="lede" id="prefillHint"></p>
@@ -4720,54 +4720,41 @@ function alerteHoraire(perdu){
 }
 function renderPrefillSelects(db){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
-  var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
-  /* PERSONNE PAR DÉFAUT. Le client, le 30/09/2026 : « par défaut, aucun
-     trigramme d'opérateur ni réglage ne doit être sélectionné, pour ne pas
-     voir le salaire de la personne en défaut ». Un <select> prend sa
-     première option : sur un appareil neuf, la première fonction et le
-     premier trigramme de la liste étaient choisis d'office, et Mon salaire
-     montrait les heures et les primes d'un collègue. Les deux listes
-     commencent donc par un choix vide ; seul ce que l'utilisateur a choisi
-     lui-même (ui/prefillCat, ui/prefillId) revient. */
   var VIDE='<option value="">— Choisir —</option>';
-  catSel.innerHTML=VIDE+cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
-  var savedCat=lsGet("ui/prefillCat");
-  catSel.value=(savedCat && cats.indexOf(savedCat)>=0)?savedCat:"";
-  function fillIds(){
-    var cat=catSel.value;
-    if(!cat){ idSel.innerHTML=VIDE; idSel.value=""; return; }
-    var ids=db.people.filter(function(p){return p.cat===cat;}).map(function(p){return p.id;}).sort();
-    /* On montre le trigramme nu. Deux personnes du MÊME groupe qui le
-       partageraient donneraient deux entrées identiques, impossibles à
-       départager : celles-là gardent leur suffixe. Les deux GBT sont dans
-       deux équipes différentes, et le cas ne se présente pas aujourd'hui —
-       mais une liste où l'on ne peut pas se choisir serait pire que le
-       suffixe. */
-    var vus={};
-    ids.forEach(function(i){ var b=idLisible(i); vus[b]=(vus[b]||0)+1; });
-    idSel.innerHTML=VIDE+ids.map(function(i){
-      var lu=(vus[idLisible(i)]>1)?i:idLisible(i);
-      return '<option value="'+esc(i)+'">'+esc(lu)+"</option>";
-    }).join("");
-    var savedId=lsGet("ui/prefillId");
-    idSel.value=(savedId && ids.indexOf(savedId)>=0)?savedId:"";
+  /* PLUS DE SÉLECTEUR DE FONCTION. Le client, le 01/10/2026 : « pas besoin de
+     sélectionner le poste, uniquement le trigramme, ce sera plus simple ». Le
+     champ « Fonction ou équipe » est MASQUÉ mais reste dans la page : d'autres
+     écrans (pré-remplissage, compteurs, année, en-tête) lisent sa valeur, qu'on
+     tient à jour tout seul depuis la personne choisie (syncCat). La règle
+     employé/ouvrier ne bouge pas — elle suit la personne (statutPersonne),
+     jamais la catégorie. La liste commence par un choix vide : aucun trigramme
+     choisi d'office (le client, le 30/09/2026). */
+  var cats=[]; db.people.forEach(function(p){ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+  if(catSel) catSel.innerHTML=VIDE+cats.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+"</option>";}).join("");
+  /* Tout le monde dans UNE liste, par ordre de trigramme. Deux personnes au
+     même trigramme (deux équipes) gardent leur suffixe pour se départager. */
+  var gens=db.people.slice().sort(function(a,b){ var A=idLisible(a.id),B=idLisible(b.id); return A<B?-1:A>B?1:0; });
+  var vus={}; gens.forEach(function(p){ var b=idLisible(p.id); vus[b]=(vus[b]||0)+1; });
+  idSel.innerHTML=VIDE+gens.map(function(p){
+    var lu=(vus[idLisible(p.id)]>1)?p.id:idLisible(p.id);
+    return '<option value="'+esc(p.id)+'">'+esc(lu)+"</option>";
+  }).join("");
+  var savedId=lsGet("ui/prefillId");
+  idSel.value=db.people.some(function(p){return p.id===savedId;})?savedId:"";
+  /* La catégorie n'est plus choisie : elle SUIT la personne, pour que tout ce
+     qui la lit encore trouve la bonne valeur. */
+  function syncCat(){
+    var p=db.people.filter(function(x){return x.id===idSel.value;})[0];
+    if(catSel) catSel.value=p?p.cat:"";
+    lsSet("ui/prefillCat", catSel?catSel.value:"");
   }
-  /* Les compteurs du pied de classeur ne remplissent aucun champ : les
-     « reliquats au 1er du mois » de l'onglet sont des restes d'arrondi de
-     mois en mois, quand le classeur donne des SOLDES DE CONGÉ annuels. On
-     les affiche donc pour ce qu'ils sont — un repère, et de quoi contrôler
-     ce que l'horaire a produit. */
   function majCompteurs(){
     var el=document.getElementById("prefillCompteurs"); if(!el) return;
-    var p=db.people.filter(function(x){return x.id===idSel.value&&x.cat===catSel.value;})[0];
+    var p=db.people.filter(function(x){return x.id===idSel.value;})[0];
     if(!p||!p.c){ el.textContent=""; return; }
-    /* Les soldes ont leur onglet : les répéter ici ferait deux endroits à
-       tenir à jour et deux occasions de se contredire. On ne garde que ce
-       qui aide à choisir la bonne personne. */
     var txt=[];
-    /* Deux personnes peuvent donner les mêmes initiales. Celle dont la fiche
-       est la plus fournie garde l'identifiant nu, l'autre prend un suffixe —
-       et rien ne le laisse deviner dans la liste. */
+    /* Deux personnes peuvent donner les mêmes initiales : celle dont la fiche
+       est la plus fournie garde l'identifiant nu, l'autre prend un suffixe. */
     if(p.id.indexOf("-")>=0) txt.push("⚠ un autre "+idLisible(p.id)
        +" existe dans une autre équipe — vérifiez les journées avant de pré-remplir");
     if(p.poly&&p.poly.ateliers) txt.push("Postes : "+p.poly.ateliers.join(", "));
@@ -4782,9 +4769,8 @@ function renderPrefillSelects(db){
     if(st.view==="compteurs") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
   }
-  fillIds(); suivre();
-  catSel.onchange=function(){ lsSet("ui/prefillCat",catSel.value); fillIds(); suivre(); };
-  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); suivre(); };
+  syncCat(); suivre();
+  idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); syncCat(); suivre(); };
 }
 /* Plages horaires de l'horaire d'équipe dont le poste correspondant est
    confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés
@@ -6220,7 +6206,7 @@ function prefillFromHoraire(){
   prefillEnCours=true;
   fetchHoraireDB().then(function(db){
     if(!db){ prefillEnCours=false; return; }
-    var person=db.people.filter(function(p){return p.id===id && p.cat===catSel.value;})[0];
+    var person=db.people.filter(function(p){return p.id===id;})[0];
     if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
     st.personD=person.d;
     st.personCt=person.ct||null;
