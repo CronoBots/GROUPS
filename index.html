@@ -1960,6 +1960,8 @@ body.sheet-on{overflow:hidden}
 .ry-svg{width:100%; height:auto; display:block; margin-top:4px}
 .ry-xaxis{display:flex; justify-content:space-between; font-size:9px; color:var(--faint); padding:2px 2px 0}
 .ry-vide{font-size:12px; color:var(--faint); margin:8px 0 0}
+.ry-conges-tot{font-size:11.5px; color:var(--ink2); margin:9px 0 0; line-height:1.5}
+.ry-conges-tot b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:no-preference){.ry-bar>span{transition:background .15s}}
 @media (prefers-reduced-motion:reduce){.gate-btn{transition:none}}
 
@@ -6627,26 +6629,29 @@ function ryHeatmap(s){
     .map(function(x){return '<span class="ry-leg"><span class="ry-dot" style="background:var('+x[0]+')"></span>'+x[1]+'</span>';}).join("");
   return '<div class="ry-hm-scroll"><div class="ry-hm">'+cells+'</div></div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
 }
-/* Courbe cumulée des congés pris, par type, au fil de l'année. */
+/* Congés RESTANTS à prendre : UNE seule courbe, tous types combinés, qui part du
+   total de l'année et décroît vers 0 à mesure que les congés sont pris. */
 function ryCongesChart(s){
-  var kinds=RY_CONGES.filter(function(k){ return s.congesTot[k]>0.01; });
-  if(!kinds.length) return '<div class="ry-chart-t">Congés au fil de l\'année</div><p class="ry-vide">Aucun congé noté dans l\'horaire.</p>';
-  var W=300,H=118,pad=7, maxY=0, cum={};
-  kinds.forEach(function(k){ var c=0,arr=[],m; for(m=0;m<12;m++){ c+=s.congesMois[k][m]; arr.push(c); } cum[k]=arr; if(c>maxY)maxY=c; });
-  maxY=Math.max(maxY,1);
-  var COL={VA:"--in",RTT:"--am",DTT:"--pm",RJF:"--good",RHS:"--n"};
-  function X(m){ return (pad+(W-2*pad)*m/11).toFixed(1); }
+  var conso=z12(), m;
+  RY_CONGES.forEach(function(k){ for(m=0;m<12;m++) conso[m]+=s.congesMois[k][m]; });
+  var total=conso.reduce(function(a,b){return a+b;},0);
+  var fmt=function(v){ return (Math.round(v*10)/10).toLocaleString("fr-BE"); };
+  if(total<0.01) return '<div class="ry-chart-t">Congés restants à prendre</div><p class="ry-vide">Aucun congé noté dans l\'horaire.</p>';
+  var W=300,H=118,pad=7, maxY=total;
+  /* 13 points : plein au départ (i=0) → 0 en fin d'année (i=12). */
+  var pts=[total], c=0; for(m=0;m<12;m++){ c+=conso[m]; pts.push(total-c); }
+  function X(i){ return (pad+(W-2*pad)*i/12).toFixed(1); }
   function Y(v){ return (H-pad-(H-2*pad)*v/maxY).toFixed(1); }
+  var coords=pts.map(function(v,i){return X(i)+","+Y(v);}).join(" ");
   var grid='<line x1="'+pad+'" y1="'+Y(0)+'" x2="'+(W-pad)+'" y2="'+Y(0)+'" stroke="var(--line)" stroke-width="1"/>';
-  var polys=kinds.map(function(k){
-    var pts=cum[k].map(function(v,m){return X(m)+","+Y(v);}).join(" ");
-    return '<polyline points="'+pts+'" fill="none" stroke="var('+COL[k]+')" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
-  }).join("");
-  var leg=kinds.map(function(k){ return '<span class="ry-leg"><span class="ry-dot" style="background:var('+COL[k]+')"></span>'+k+' <b>'+(Math.round(s.congesTot[k]*10)/10).toLocaleString("fr-BE")+' j</b></span>'; }).join("");
-  return '<div class="ry-chart-t">Congés au fil de l\'année <span class="ry-hint">cumul en jours</span></div>'
-    +'<svg class="ry-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Congés cumulés par type">'+grid+polys+'</svg>'
+  var area='<polygon points="'+X(0)+','+Y(0)+' '+coords+' '+X(12)+','+Y(0)+'" fill="var(--in)" opacity="0.12"/>';
+  var line='<polyline points="'+coords+'" fill="none" stroke="var(--in)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
+  var detail=RY_CONGES.filter(function(k){return s.congesTot[k]>0.01;})
+    .map(function(k){ return k+' '+fmt(s.congesTot[k]); }).join(" · ");
+  return '<div class="ry-chart-t">Congés restants à prendre <span class="ry-hint">sur l\'année</span></div>'
+    +'<svg class="ry-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Congés restants au fil de l\'année">'+grid+area+line+'</svg>'
     +'<div class="ry-xaxis">'+RY_MC.map(function(c){return '<span>'+c+'</span>';}).join("")+'</div>'
-    +'<div class="ry-legs ry-legs-l">'+leg+'</div>';
+    +'<p class="ry-conges-tot">Total <b>'+fmt(total)+' j</b> · '+esc(detail)+'</p>';
 }
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
