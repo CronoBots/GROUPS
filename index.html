@@ -1171,6 +1171,11 @@ body.sheet-on{overflow:hidden}
 #mqCorps,#rnCorps{padding-top:0}
 #mqCorps .eqsem,#rnCorps .eqsem{margin:0 -16px}
 #mqCorps .mqj,#rnCorps .mqj:hover{background:var(--surface3)}
+/* FEEDBACK TACTILE : la carte du jour est cliquable (elle ouvre le tableau du
+   jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
+#mqCorps .mqj,#rnCorps .mqj,#caCorps .mqj{transition:filter .1s ease}
+#mqCorps .mqj:active,#rnCorps .mqj:active,#caCorps .mqj:active{filter:brightness(1.13)}
+@media (prefers-reduced-motion:reduce){#mqCorps .mqj,#rnCorps .mqj,#caCorps .mqj{transition:none}}
 /* La date, un bloc : jour de semaine, quantième, mois. */
 .mqd{display:flex; flex-direction:column; align-items:center; line-height:1.1; padding-top:1px}
 .mqd em{font-style:normal; font-size:10px; font-weight:600; color:var(--muted);
@@ -1211,10 +1216,12 @@ body.sheet-on{overflow:hidden}
 .mqeq{margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:600; color:var(--muted);
   white-space:nowrap}
 .mqr{display:flex; align-items:center; flex-wrap:wrap; gap:5px}
-.mqc{display:inline-flex; align-items:baseline; gap:4px; padding:2px 7px; border-radius:6px;
+/* Chips a HAUTEUR UNIFORME et indice d'heures aligne (le client, 02/10/2026) :
+   centrage vertical, line-height fixe, l'heure centree avec le trigramme. */
+.mqc{display:inline-flex; align-items:center; gap:5px; padding:3px 7px; border-radius:6px; line-height:1.3;
   background:var(--surface3); border:1px solid var(--trait)}
 .mqc b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--ink)}
-.mqc small{font-size:10px; color:var(--muted)}
+.mqc small{font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums}
 /* « Aucun remplaçant » est l'information la plus urgente : un trou que
    personne ne peut boucher. Une étiquette rouge pâle, de la forme des
    étiquettes de noms qu'elle remplace. */
@@ -1242,6 +1249,12 @@ body.sheet-on{overflow:hidden}
    manque. */
 .mqinc{font-size:10.5px; color:var(--muted); font-style:italic}
 .mqrien{margin:6px 0 4px; font-size:12.5px; color:var(--muted)}
+/* État vide POSITIF (le client, le 02/10/2026 : « ✓ tous les postes
+   couverts »), au lieu d'un panneau vide ou d'un « Aucun… » sec. */
+.mqok-vide{display:flex; flex-direction:column; gap:3px; padding:16px 2px 8px}
+.mqok-vide b{font-size:14px; font-weight:700; color:var(--ink)}
+.mqok-vide>span{font-size:12px; color:var(--muted)}
+.mqok-v{color:var(--good); font-weight:800; margin-right:2px}
 /* Sous 380 px, « Terrain arrière » se coupait entre la pause et l'équipe :
    l'équipe et l'étiquette prennent leur forme courte, la date et l'écart
    rendent quelques pixels. */
@@ -1486,6 +1499,14 @@ body.sheet-on{overflow:hidden}
 .eqp2 tbody tr[data-z="rouge"] th.eqposte{border-left-color:var(--at-rouge)}
 .eqp2 tbody tr[data-z="bleu"]  th.eqposte{border-left-color:var(--at-bleu)}
 .eqp2 tbody tr[data-z="gris"]  th.eqposte{border-left-color:var(--at-gris)}
+/* COHÉRENCE AVEC LES RÉSULTATS (le client, 02/10/2026) : la même pastille
+   d'atelier devant le nom du poste que dans le sous-effectif/congé. */
+.eqp2 tbody th.eqposte b::before{content:""; display:inline-block; width:6px; height:6px;
+  border-radius:2px; background:var(--at-gris); margin-right:5px; vertical-align:middle}
+.eqp2 tbody tr[data-z="jaune"] th.eqposte b::before{background:var(--at-jaune)}
+.eqp2 tbody tr[data-z="vert"]  th.eqposte b::before{background:var(--at-vert)}
+.eqp2 tbody tr[data-z="rouge"] th.eqposte b::before{background:var(--at-rouge)}
+.eqp2 tbody tr[data-z="bleu"]  th.eqposte b::before{background:var(--at-bleu)}
 .eqp2 tbody tr+tr th, .eqp2 tbody tr+tr td{border-top:1px solid var(--line2)}
 .eqp2 tbody tr:nth-child(even) td:not(.manque):not(.vide),
 .eqp2 tbody tr:nth-child(even) th{background:var(--surface2)}
@@ -9491,8 +9512,8 @@ function renderRappelsInutiles(force){
       });
       h.push("</span></button>");
     });
-    hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun rappel non nécessaire</b> '
-      +"d'ici la fin de l'horaire.</p>";
+    hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
+      +"<span>Aucun rappel non nécessaire d'ici la fin de l'horaire.</span></p>";
     document.getElementById("rnSub").textContent=n?n+" rappel"+(n>1?"s":""):"rien à signaler";
     hote.onclick=function(e){
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
@@ -9647,8 +9668,8 @@ function renderManques(force){
         +" encore à déterminer ce jour-là</span>");
       h.push("</span></button>");
     });
-    hote.innerHTML=h.join("")||'<p class="mqrien"><b>Aucun poste en sous-effectif</b> '
-      +"d'ici la fin de l'horaire.</p>";
+    hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Tous les postes sont couverts</b>'
+      +"<span>Aucun sous-effectif d'ici la fin de l'horaire.</span></p>";
     var n=r.jours.length;
     /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
        renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
