@@ -11089,6 +11089,14 @@ function competencesDe(p){
   if(t0){ out.push(t0); vus[t0]=1; }
   var polys=(typeof polyvalenceDe==="function")?(polyvalenceDe(HORAIRE_DB,p)||[]):[];
   polys.forEach(function(x){ if(vus[x.t]) return; vus[x.t]=1; out.push(x.t+(x.forme?" (en formation)":"")); });
+  /* TERRAIN ARRIÈRE D'OFFICE. Le client, le 02/10/2026 : « ceux qui ont
+     fermentation ET distillation doivent avoir d'office terrain arrière ».
+     C'est déjà la règle du placement (tientTerrainArriere) ; on la montre aussi
+     dans les polyvalences pour que la carte dise la vérité. */
+  if(typeof tientTerrainArriere==="function" && tientTerrainArriere(p)){
+    var tt=(typeof titrePoste==="function")?titrePoste("terr"):"Terrain arrière";
+    if(tt && !vus[tt]){ vus[tt]=1; out.push(tt); }
+  }
   return out;
 }
 function gateProfilHTML(p){
