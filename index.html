@@ -1181,7 +1181,7 @@ body.sheet-on{overflow:hidden}
 /* Une PASTILLE d'atelier devant le titre du poste, à la place de l'ancien
    filet vertical pleine hauteur (le client, le 02/10/2026) : même code
    couleur, moins de bruit, et plus de concurrence avec le rouge d'alerte. */
-.mqh{display:flex; align-items:center; gap:8px; min-width:0}
+.mqh{display:flex; align-items:center; flex-wrap:wrap; gap:4px 8px; min-width:0}
 .mqh::before{content:""; flex:0 0 auto; width:9px; height:9px; border-radius:3px;
   background:var(--at-gris)}
 .mql[data-z="jaune"] .mqh::before{background:var(--at-jaune)}
@@ -1206,6 +1206,14 @@ body.sheet-on{overflow:hidden}
 .mqpz-txt[data-s="AM"]{color:var(--am)}
 .mqpz-txt[data-s="PM"]{color:var(--pm)}
 .mqpz-txt[data-s="N"]{color:var(--n)}
+/* L'ÉQUIPE en toutes lettres ; sur mobile elle passe sous la pause, sur sa
+   propre ligne (le client, le 02/10/2026). */
+.mqeq2{font-size:12.5px; font-weight:500; color:var(--muted); flex:0 0 auto}
+.mqeq2::before{content:"·"; margin:0 7px 0 6px; color:var(--trait-fort)}
+@media (max-width:560px){
+  .mqeq2{flex-basis:100%; margin-left:17px}
+  .mqeq2::before{content:none}
+}
 .mqn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700;
   color:var(--at-rouge)}
 .mqeq{margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:600; color:var(--muted);
@@ -9634,8 +9642,8 @@ function renderManques(force){
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
-          +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</b>"
-          +(o.eq?" · Éq. "+esc(o.eq):"")+"</span></span>"
+          +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</b></span>"
+          +(o.eq?'<span class="mqeq2">Équipe '+esc(o.eq)+"</span>":"")+"</span>"
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
@@ -10325,8 +10333,8 @@ function caCalculer(){
     if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
     /* LA DATE SEULE en tête (le client, le 02/10/2026 : la ligne du jour le
        gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
-    var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</b>"
-      +(r.eq?" · Éq. "+esc(r.eq):"")+"</span>";
+    var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</b></span>"
+      +(r.eq?'<span class="mqeq2">Équipe '+esc(r.eq)+"</span>":"");
     h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span></span>");
