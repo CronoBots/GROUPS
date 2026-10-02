@@ -1199,6 +1199,13 @@ body.sheet-on{overflow:hidden}
 .mqpz[data-s="N"] {background:var(--n-soft);  color:var(--n)}
 .mqpo{font-size:14.5px; font-weight:700; color:var(--ink); white-space:nowrap;
   overflow:hidden; text-overflow:ellipsis; min-width:0}
+/* La pause (coloree) et l'equipe en meta sur la ligne du POSTE, pas sur la
+   ligne du jour (le client, le 02/10/2026). */
+.mqsub{font-size:12.5px; font-weight:500; color:var(--muted); flex:0 0 auto}
+.mqpz-txt{font-style:normal; font-weight:700; color:var(--d)}
+.mqpz-txt[data-s="AM"]{color:var(--am)}
+.mqpz-txt[data-s="PM"]{color:var(--pm)}
+.mqpz-txt[data-s="N"]{color:var(--n)}
 .mqn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700;
   color:var(--at-rouge)}
 .mqeq{margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:600; color:var(--muted);
@@ -9601,18 +9608,11 @@ function renderManques(force){
          sinon chaque fiche garde la sienne (le client, le 28/09/2026, « go »
          sur trois pistes : sans étiquette « Remplaçants possibles », « Aucun
          remplaçant » qui se voit, l'équipe sous la date). */
-      var eqs=x.l.map(function(o){ return o.eq; });
-      var eqJour=(eqs[0] && eqs.every(function(e){ return e===eqs[0]; }))?eqs[0]:"";
-      /* La PAUSE à gauche, avec la date et l'équipe, quand tous les manques du
-         jour sont de la même pause (le client, le 02/10/2026) ; sinon chaque
-         fiche garde la sienne. Même logique que l'équipe. */
-      var paus=x.l.map(function(o){ return o.pause; });
-      var pauseJour=(paus[0] && paus.every(function(p){ return p===paus[0]; }))?paus[0]:"";
-      var dateHtml=q.html;
-      if(eqJour) dateHtml=dateHtml.replace(/<\/span>$/,'<i class="mqeqd">Équipe '+esc(eqJour)+"</i></span>");
-      if(pauseJour) dateHtml=dateHtml.replace(/<\/span>$/,'<span class="mqpz mqpz-col" data-s="'+esc(pauseJour)+'">'+esc(pvNom(pauseJour))+"</span></span>");
+      /* LA DATE SEULE en tête du jour (le client, le 02/10/2026 : la ligne du
+         jour le gênait avec date+équipe+pause mêlées). La pause et l'équipe —
+         qui sont le créneau, pas le jour — descendent avec le poste. */
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +dateHtml+'<span class="mqls">');
+        +q.html+'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
           return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"
@@ -9632,10 +9632,10 @@ function renderManques(force){
         plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),o.tenu,o.attendu));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
-          +'<span class="mqh">'+(pauseJour?"":'<span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>")
-          +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
-            +esc(o.k==="terr"?"T. arrière":o.t)+"</span>")+"</span>"
-          +(o.eq && !eqJour?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
+          +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
+            +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
+          +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</b>"
+          +(o.eq?" · Éq. "+esc(o.eq):"")+"</span></span>"
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
@@ -10323,16 +10323,12 @@ function caCalculer(){
     var v=caVerdict(r,caMode); n[v.v]++;
     var q=dateEnMots(an,m,j,t0);
     if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
-    /* La PAUSE et l'ÉQUIPE à gauche, avec la date (le client, le 02/10/2026 :
-       « la pause doit être avec la date et l'équipe, à gauche »). La catete ne
-       garde que le verdict et le poste concerné. */
-    var dateHtml=q.html;
-    if(!r.hors){
-      if(r.eq) dateHtml=dateHtml.replace(/<\/span>$/,'<i class="mqeqd">Équipe '+esc(r.eq)+"</i></span>");
-      dateHtml=dateHtml.replace(/<\/span>$/,'<span class="mqpz mqpz-col" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</span></span>");
-    }
+    /* LA DATE SEULE en tête (le client, le 02/10/2026 : la ligne du jour le
+       gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
+    var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</b>"
+      +(r.eq?" · Éq. "+esc(r.eq):"")+"</span>";
     h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
-      +dateHtml+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
+      +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span></span>");
     if(!r.hors){
       /* UN JOUR « POSSIBLE » S'EXPLIQUE. Le client, le 02/10/2026 : « Possible
@@ -10347,7 +10343,7 @@ function caCalculer(){
            puis un mot de confirmation. */
         var cv=r.couverture;
         if(cv && cv.gens.length) h.push('<span class="mql" data-z="'+esc(cv.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpo">'+esc(cv.P.t)+"</span></span>"
+          +'<span class="mqpo">'+esc(cv.P.t)+"</span>"+caMeta+"</span>"
           +cadreEnPoste(cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),cv.tenu,cv.attendu)+"</span>");
         h.push('<span class="mql"><span class="caok">'
           +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
@@ -10379,7 +10375,7 @@ function caCalculer(){
           enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
           +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),t.tenu,t.attendu):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpo">'+esc(t.P.t)+"</span></span>"
+          +'<span class="mqpo">'+esc(t.P.t)+"</span>"+caMeta+"</span>"
           +cadreEnP+g.join("")+"</span>");
       });
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
