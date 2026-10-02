@@ -1456,13 +1456,21 @@ body.sheet-on{overflow:hidden}
    Le numéro reprend la couleur de la pause D, comme le liseré des colonnes. */
 .eqdsem{margin:0 0 9px; font-size:12px; color:var(--muted)}
 .eqdsem b{font-weight:700; color:var(--d)}
-/* L'ONGLET « DU JOUR » reprend TEL QUEL le cadre de l'Accueil (barre de date +
-   tableau dans un .card, mêmes classes, même style via .eqhote et la barre
-   compacte partagée ci-dessus). Seul sur l'onglet, le tableau tient entre les
-   deux barres sans défilement ; un léger facteur d'échelle (ajusterHauteurJour,
-   jamais au-dessus de 1) n'intervient qu'en secours, les jours exceptionnels
-   qui dépasseraient. Le client, le 02/10/2026 : « il suffisait de prendre le
-   tableau de l'accueil et de le déplacer dans l'onglet du jour ». */
+/* L'ONGLET « DU JOUR » reprend le cadre de l'Accueil (barre de date + tableau
+   dans un .card, mêmes classes, même style via .eqhote), mais le cadre REMPLIT
+   l'espace entre les deux barres avec la même marge aux quatre côtés (16 px, =
+   gauche/droite). Le tableau occupe tout le cadre : ses lignes s'étirent selon
+   leur nombre pour le remplir sans défilement. Hauteur du cadre posée en JS
+   (ajusterHauteurJour). Le client, le 02/10/2026 : « il suffisait de prendre le
+   tableau de l'accueil et de le déplacer », puis « pas de scroll, même écart
+   haut/bas que gauche/droite, hauteur des lignes adaptée ». */
+#v-jour{gap:0}
+body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:0}
+#v-jour .card{display:flex; flex-direction:column}
+#v-jour .card>.toolbar.eqnav{flex:0 0 auto}
+#jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
+#jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow:hidden}
+#jourCorps .eqp2{height:100%}
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
    effectif minimal se cale tout a droite de sa cellule. */
@@ -1638,6 +1646,19 @@ body.sheet-on{overflow:hidden}
 /* La ligne Formation s'écrit comme un poste, avec un liseré de l'encre
    principale (blanc en sombre). */
 .eqhote .eqp2 tbody tr.eqform th.eqposte{border-left-color:var(--ink)}
+/* LE BORD DROIT REPREND LA COULEUR DU BORD GAUCHE. Le client, le 02/10/2026 :
+   « les bords droit de ce tableau doivent être les mêmes que les bords gauche
+   (couleur) ». Le liseré d'atelier du POSTE (à gauche) est reflété sur la
+   dernière colonne (à droite), même largeur, même couleur ; l'en-tête reprend
+   le trait fort de son bord gauche. */
+.eqhote .eqp2 tbody td:last-child{border-right:3px solid transparent}
+.eqhote .eqp2 tbody tr[data-z="jaune"] td:last-child{border-right-color:var(--at-jaune)}
+.eqhote .eqp2 tbody tr[data-z="vert"]  td:last-child{border-right-color:var(--at-vert)}
+.eqhote .eqp2 tbody tr[data-z="rouge"] td:last-child{border-right-color:var(--at-rouge)}
+.eqhote .eqp2 tbody tr[data-z="bleu"]  td:last-child{border-right-color:var(--at-bleu)}
+.eqhote .eqp2 tbody tr[data-z="gris"]  td:last-child{border-right-color:var(--at-gris)}
+.eqhote .eqp2 tbody tr.eqform td:last-child{border-right-color:var(--ink)}
+.eqhote .eqp2 thead th:last-child{border-right:3px solid var(--trait-fort)}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
@@ -8606,7 +8627,12 @@ function renderEquipe(){
         jourHost.innerHTML=tableauHTML;
         var jourLbl=document.getElementById("jourLabel");
         if(jourLbl) jourLbl.textContent=document.getElementById("eqJour").textContent;
+        /* Deux passes : tout de suite (évite un saut visible), puis après
+           l'animation d'entrée de la vue — vueEntre translate le panneau de 6 px,
+           ce qui fausserait la mesure de la hauteur si on ne mesurait qu'une
+           fois (la marge basse tombait 6 px trop haut). */
         ajusterHauteurJour();
+        setTimeout(ajusterHauteurJour,260);
       }
     }
 
@@ -9818,17 +9844,27 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
    continue de tenir) la ramène dans le cadre plutôt que de laisser défiler. */
 function ajusterHauteurJour(){
   var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
-  var host=document.getElementById("jourCorps"); if(!host) return;
-  host.style.zoom="1";
-  if(!host.querySelector(".eqp2")) return;
-  var navH=0;
+  var card=document.querySelector("#v-jour .card"); if(!card) return;
+  card.style.height="";
+  if(!card.querySelector(".eqp2")) return;
+  /* La marge du cadre est la même sur les quatre côtés : 16 px, comme à gauche
+     et à droite (le padding du .wrap). On pose donc la hauteur du cadre pour que
+     son bas s'arrête à 16 px au-dessus de la barre d'onglets ; son haut est déjà
+     à 16 px sous l'en-tête. Le tableau (height:100 %) remplit le cadre, ses
+     lignes s'étirant selon leur nombre. */
+  var M=16, bas=window.innerHeight;
   if(window.matchMedia("(max-width:760px)").matches){
     var nav=document.querySelector(".navwrap > .tabs");
-    if(nav) navH=nav.getBoundingClientRect().height;
+    if(nav) bas=nav.getBoundingClientRect().top;   /* le HAUT de la barre d'onglets */
   }
-  var dispo=window.innerHeight-host.getBoundingClientRect().top-navH-6,
-      nat=host.scrollHeight;
-  if(nat>0 && dispo>140 && nat>dispo) host.style.zoom=String(Math.max(0.55, dispo/nat));
+  /* On vise le bas du cadre à M au-dessus de la barre d'onglets, par DELTA :
+     hauteur actuelle + (bas voulu − bas actuel). Viser le haut de la barre (et
+     non sa hauteur) rend le calcul insensible aux sous-pixels et au moment du
+     calcul : la marge basse tombe juste, égale aux autres. */
+  var r=card.getBoundingClientRect();
+  var voulu=bas-M;
+  var h=r.height+(voulu-r.bottom);
+  if(h>160) card.style.height=Math.round(h)+"px";
 }
 (function(){
   var t=null;
