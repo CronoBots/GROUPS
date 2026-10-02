@@ -9894,46 +9894,39 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
     if(g!==pause && !(pause==="D" && g==="AM")) return;
     var dA=g==="AM"?caCopie(par.D,null):null, dB=g==="AM"?caCopie(par.D,id):null;
     if(mode==="conge"){
-      /* CONGÉ — ON NE DÉPLACE PERSONNE. Le client, le 02/10/2026 : « il ne
-         faut jamais créer un trou pour en combler un autre ». On NE rejoue
-         donc pas la pause avec le rééquilibrage (celui-ci déplace un présent
-         vers le poste vide et reporte le manque ailleurs — bon pour une
-         absence imprévue, pas pour un congé planifié). Le trou reste sur le
-         poste de la personne ; aucun mouvement n'est proposé. Trois lectures :
-           — vReal : le jour réel, rééquilibré, juste pour « déjà en
-             sous-effectif » ;
-           — vNat : chacun à son poste naturel SANS rééquilibrage, qui donne
-             le poste de la personne et la liste des manques préexistants ;
-           — vB : la personne retirée, toujours sans rééquilibrage. Un poste
-             n'est un trou que s'il se creuse PAR son départ (pas déjà vide
-             dans vNat), et on ne le comble qu'avec des gens disponibles. */
+      /* CONGÉ — TOUT PART DU TABLEAU RÉEL. Le client, le 02/10/2026 : « regarde
+         dans le tableau où se trouve la personne (Terrain arrière, pas
+         Distillation) » et « il peut y avoir des cascades mais jamais laisser
+         un poste en sous-effectif ». On lit donc le jour RÉEL (rééquilibré,
+         vReal) : c'est là que la personne travaille vraiment, et c'est là que
+         se lisent les surnombres qui peuvent la remplacer.
+           — Si, SANS elle, son poste garde son minimum (il restait des
+             collègues) → « Possible », on montre qui le tient (« En poste »).
+           — Sinon le trou est SUR son poste ; on cherche qui peut le couvrir
+             par caCandidats() sur ces mêmes positions réelles : un surnombre
+             (son poste d'origine garde le minimum), quelqu'un en D, un
+             changement de pause, ou une cascade — toujours complète, jamais un
+             poste laissé à découvert. Aucun mouvement « report » n'est fabriqué
+             ici : on ne rejoue pas la pause, on propose des solutions. */
       var vReal=postesDePause(db,caCopie(par[g],null),g,mmdd,dA);
-      var vNat=postesDePause(db,caCopie(par[g],null),g,mmdd,dA,true);
-      var vB=postesDePause(db,caCopie(par[g],id),g,mmdd,dB,true);
-      vReal.postes.forEach(function(o){ if(o.manque) res.avant++; });
-      var manqueNat={};
-      vNat.postes.forEach(function(o){
-        if(o.manque) manqueNat[o.P.k]=o.tenu;
-        o.gens.forEach(function(x){ if(x.p.id===id && !x.depuisD) res.poste=o.P; });
+      var monO=null;
+      vReal.postes.forEach(function(o){
+        if(o.manque) res.avant++;
+        o.gens.forEach(function(x){ if(x.p.id===id && !x.depuisD) monO=o; });
       });
-      vB.postes.forEach(function(o){
-        if(!o.manque) return;
-        if(o.P.k in manqueNat && manqueNat[o.P.k]<=o.tenu) return;
-        var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,true,autres);
-        t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
-        res.trous.push(t);
-      });
-      /* QUI ASSURE LE POSTE QUAND LE CONGÉ PASSE SANS CHANGEMENT. Le client,
-         le 02/10/2026 : « quand c'est possible je veux voir qui prendra sa
-         place ». Sans la personne, le poste reste tenu par ses collègues : on
-         garde qui l'occupe (hors renfort du D) pour l'afficher en cadre plein,
-         comme « En poste » du module Recherche. */
-      if(res.poste) vB.postes.forEach(function(o){
-        if(o.P.k!==res.poste.k) return;
-        res.couverture={P:res.poste, pause:g, tenu:o.tenu, attendu:o.attendu,
-          gens:o.gens.filter(function(x){ return !x.depuisD; }).map(function(x){
-            return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; })};
-      });
+      if(monO){
+        var P=monO.P; res.poste=P;
+        var restants=monO.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
+        var tenuSans=effectif(restants,P,jour);
+        if(tenuSans>=monO.attendu){
+          res.couverture={P:P, pause:g, tenu:tenuSans, attendu:monO.attendu,
+            gens:restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; })};
+        } else {
+          var t=caCandidats(par,vReal,g,P,jour,pausesDe,id,true,autres);
+          t.pause=g; t.P=P; t.tenu=tenuSans; t.attendu=monO.attendu;
+          res.trous.push(t);
+        }
+      }
       return;
     }
     var vA=postesDePause(db,caCopie(par[g],null),g,mmdd,dA);
