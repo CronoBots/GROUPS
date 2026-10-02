@@ -1719,6 +1719,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* « Aujourd'hui » à la hauteur des flèches (le client, le 26/09/2026). */
 #v-resume .eqnav #eqAuj, #v-jour .eqnav #jourAuj{height:30px; padding:0 9px; font-size:11.5px;
   display:inline-flex; align-items:center}
+/* « Aujourd'hui » dit s'il sert. Ailleurs qu'au jour courant : accent doux qui
+   appelle à y revenir. Sur le jour courant (.estauj) : il s'éteint. */
+#eqAuj, #jourAuj{transition:opacity .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease}
+#eqAuj:not(.estauj), #jourAuj:not(.estauj){background:var(--in-soft); border-color:var(--in); color:var(--in)}
+#eqAuj.estauj, #jourAuj.estauj{opacity:.42}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
@@ -8265,6 +8270,18 @@ function renderEquipe(){
     document.getElementById("eqJour").textContent=
       JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]
       +" "+jour+" "+MOIS[mois-1].toLowerCase();
+    /* ÉTAT DU BOUTON « AUJOURD'HUI ». Le client, le 02/10/2026 : « ok pour tes
+       optimisations ». Sur le jour courant il n'a rien à faire : il se calme.
+       Dès qu'on a feuilleté ailleurs (flèche, swipe, calendrier), il s'allume —
+       un vrai « revenir à aujourd'hui », et un repère immédiat : la date à
+       l'écran est-elle le jour réel ou pas ? */
+    (function(){
+      var u=jourUsine();
+      var surAuj=(annee===u.getFullYear() && mois===u.getMonth()+1 && jour===u.getDate());
+      ["eqAuj","jourAuj"].forEach(function(id){
+        var b=document.getElementById(id); if(b) b.classList.toggle("estauj", surAuj);
+      });
+    })();
     /* l'onglet peut s'ouvrir avant que la liste des personnes soit garnie :
        l'identifiant choisi est connu bien avant, il est enregistré */
     var sel=document.getElementById("prefillId");
