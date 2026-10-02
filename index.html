@@ -1495,8 +1495,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 /* Le tableau reste collé à la barre de date (en haut) ; les hauteurs de ligne,
    étirées mais plafonnées par ajusterLignesJour, remplissent le cadre. Un
-   éventuel reliquat (jours légers) finit en bas, discret. */
-#jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow:hidden}
+   éventuel reliquat (jours légers) finit en bas, discret. Défilement vertical
+   en DERNIER recours seulement : les jours normaux tiennent (pas de scroll),
+   mais un écran très court sur un jour très chargé laisse feuilleter plutôt que
+   de cacher une ligne. Jamais de défilement latéral. */
+#jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto}
 /* CLIQUER LA DATE OUVRE UN SÉLECTEUR. Le client, le 02/10/2026 : « cliquer sur
    la date du jour doit pouvoir sélectionner la date que l'on veut ». Un champ
    date natif, transparent, couvre le libellé : le toucher ouvre le calendrier
@@ -8726,9 +8729,9 @@ function renderEquipe(){
         });
         ajusterHauteurJour();
         ajusterLignesJour();
-        /* Seconde passe après l'animation d'entrée (vueEntre translate le
-           panneau) : la mesure des hauteurs tombe alors juste. */
-        setTimeout(ajusterLignesJour,260);
+        /* Seconde passe à la frame suivante, une fois la mise en page posée
+           (la vue vient de passer en position:fixed, l'encoche de se résoudre). */
+        requestAnimationFrame(function(){ requestAnimationFrame(ajusterLignesJour); });
       }
     }
 
@@ -10013,6 +10016,25 @@ function ajusterLignesJour(){
   window.addEventListener("resize",relayer);
   window.addEventListener("orientationchange",function(){ setTimeout(function(){ ajusterHauteurJour(); ajusterLignesJour(); },250); });
   ajusterHauteurJour();
+  /* LE CADRE QUI CHANGE DE TAILLE RECALCULE LES LIGNES. Le client, le 02/10/2026 :
+     « zone vide dans le bas du cadre ». Sur téléphone, la barre d'adresse du
+     navigateur se masque/réapparaît au défilement : la zone visible — donc le
+     cadre, en position:fixed — grandit ou rétrécit SANS événement « resize »
+     fiable. Un ResizeObserver sur l'hôte (élément stable, non recréé au rendu)
+     relance l'ajustement à chaque changement de sa hauteur. Poser les hauteurs
+     de ligne ne modifie pas la taille de l'hôte (contraint par le flex du
+     cadre) : aucune boucle. */
+  if(typeof ResizeObserver!=="undefined"){
+    var host=document.getElementById("jourCorps");
+    if(host){
+      var ro=null;
+      var obs=new ResizeObserver(function(){
+        if(ro) return;
+        ro=requestAnimationFrame(function(){ ro=null; ajusterLignesJour(); });
+      });
+      obs.observe(host);
+    }
+  }
 })();
 
 /* ===================== congé et absence ===================== */
