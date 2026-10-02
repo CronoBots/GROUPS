@@ -1533,11 +1533,18 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    uniquement, on peut scroller pour voir le bas »). Jamais de défilement
    latéral, et aucun les jours qui tiennent. */
 #jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto}
-#jourCorps .eqp2{height:100%}
-/* Les lignes à un seul trigramme se serrent (hauteur minimale, juste leur
-   contenu) ; l'étirement du tableau va aux lignes chargées. Les jours où il y a
-   une ligne de plus, tout tient ainsi sans réduire le texte. */
-#jourCorps .eqp2 tbody tr.mono{height:0}
+/* Pas de plancher 44 px ici : chaque ligne part de sa vraie hauteur de contenu,
+   sinon les lignes à un trigramme seraient gonflées et l'écart ne serait pas
+   le même qu'ailleurs. ajusterLignesJour pose ensuite les hauteurs. */
+#jourCorps .eqp2 tbody tr{height:auto}
+/* L'ÉCART AUTOUR DES BADGES EST LE MÊME SUR TOUTES LES LIGNES. Le client, le
+   03/10/2026 : « l'espace entre les badges et les lignes de séparation doit être
+   le même pour toutes les lignes, mais optimisé pour remplir la surface ».
+   ajusterLignesJour() mesure la hauteur naturelle de chaque ligne et ajoute à
+   CHACUNE le même supplément (2P, réparti au-dessus et en dessous par le
+   centrage vertical) pour remplir le cadre : l'écart tombe donc identique
+   partout. Les jours trop chargés pour tenir gardent leur hauteur naturelle et
+   le cadre défile (overflow-y plus haut). */
 /* CLIQUER LA DATE OUVRE UN SÉLECTEUR. Le client, le 02/10/2026 : « cliquer sur
    la date du jour doit pouvoir sélectionner la date que l'on veut ». Un champ
    date natif, transparent, couvre le libellé : le toucher ouvre le calendrier
@@ -8786,14 +8793,10 @@ function renderEquipe(){
            il y a une ligne de plus. Une ligne est « mono » si aucune de ses cases
            ne porte plus d'une étiquette ; elle cède alors sa part d'étirement aux
            lignes à deux ou trois trigrammes. */
-        Array.prototype.forEach.call(jourHost.querySelectorAll(".eqp2 tbody tr"),function(tr){
-          var max=0;
-          Array.prototype.forEach.call(tr.querySelectorAll("td"),function(td){
-            var n=td.querySelectorAll(".eqn").length; if(n>max) max=n;
-          });
-          tr.classList.toggle("mono", max<=1);
-        });
         ajusterHauteurJour();
+        ajusterLignesJour();
+        /* Seconde passe à la frame suivante, une fois la mise en page posée. */
+        requestAnimationFrame(function(){ requestAnimationFrame(ajusterLignesJour); });
       }
     }
 
@@ -10057,12 +10060,42 @@ function ajusterHauteurJour(){
   var h=nav?Math.round(nav.getBoundingClientRect().height):64;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
 }
+/* ÉCART UNIFORME AUTOUR DES BADGES. On mesure la hauteur naturelle de chaque
+   ligne, puis on ajoute à TOUTES le même supplément pour remplir le cadre : le
+   centrage vertical le partage également au-dessus et en dessous, donc l'écart
+   est identique partout. Si le contenu dépasse déjà, on laisse le naturel (le
+   cadre défile). Robuste : relancé au resize ET par un ResizeObserver, car la
+   barre d'adresse du navigateur change la hauteur sans « resize » fiable. */
+function ajusterLignesJour(){
+  var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
+  var g=document.querySelector("#jourCorps .eqgrille");
+  var tbl=g&&g.querySelector(".eqp2"); if(!tbl) return;
+  var rows=Array.prototype.slice.call(tbl.querySelectorAll("tbody tr"));
+  if(!rows.length) return;
+  rows.forEach(function(r){ r.style.height=""; });
+  var thead=tbl.querySelector("thead");
+  var theadH=thead?thead.getBoundingClientRect().height:0;
+  var nat=rows.map(function(r){ return r.getBoundingClientRect().height; });
+  var sum=nat.reduce(function(a,b){ return a+b; },0);
+  var avail=g.clientHeight-theadH-1;
+  if(avail<=0) return;
+  if(sum<avail){
+    var sup=(avail-sum)/rows.length;           /* même supplément par ligne */
+    rows.forEach(function(r,i){ r.style.height=Math.round(nat[i]+sup)+"px"; });
+  }
+}
 (function(){
   var t=null;
-  function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterHauteurJour(); }); }
+  function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterHauteurJour(); ajusterLignesJour(); }); }
   window.addEventListener("resize",relayer);
-  window.addEventListener("orientationchange",function(){ setTimeout(ajusterHauteurJour,250); });
+  window.addEventListener("orientationchange",function(){ setTimeout(function(){ ajusterHauteurJour(); ajusterLignesJour(); },250); });
   ajusterHauteurJour();
+  if(typeof ResizeObserver!=="undefined"){
+    var host=document.getElementById("jourCorps");
+    if(host){ var ro=null;
+      new ResizeObserver(function(){ if(ro) return; ro=requestAnimationFrame(function(){ ro=null; ajusterLignesJour(); }); }).observe(host);
+    }
+  }
 })();
 
 /* ===================== congé et absence ===================== */
