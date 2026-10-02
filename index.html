@@ -1223,6 +1223,7 @@ body.sheet-on{overflow:hidden}
   background:var(--good-soft); color:var(--good); border:1px solid transparent}
 .mqfl{font-size:13px; color:var(--muted); margin-right:1px}
 .mqd .mqeqd{font-style:normal; font-size:10.5px; font-weight:650; color:var(--ink); margin-top:3px}
+.mqd .mqpz-col{margin-top:5px; align-self:flex-start}
 /* « 1 poste encore à déterminer » : il NUANCE les manques du jour plutôt
    qu'il n'en annonce un de plus — l'un de ces postes est peut-être celui qui
    manque. */
@@ -1381,6 +1382,11 @@ body.sheet-on{overflow:hidden}
    plein, et une place vide par étiquette « ? » bordée de rouge (le client,
    le 29/09/2026). */
 .capaire.plein{border-style:solid; border-color:var(--trait)}
+/* L'effectif en haut à droite du cadre « En poste », et sa BORDURE ROUGE
+   quand le poste manque de monde (le client, le 02/10/2026). */
+.capaire.plein.manque{border-color:var(--at-rouge)}
+.cagr-eff{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.cagr-eff .mqn{font-size:12px; font-weight:800}
 .mqc.manque{border-color:var(--at-rouge)}
 .mqc.manque b{color:var(--at-rouge); display:inline-block; min-width:3ch; text-align:center}
 /* EN FORMATION AU POSTE, dans les résultats comme dans l'onglet Équipe. Le
@@ -9571,8 +9577,14 @@ function renderManques(force){
          remplaçant » qui se voit, l'équipe sous la date). */
       var eqs=x.l.map(function(o){ return o.eq; });
       var eqJour=(eqs[0] && eqs.every(function(e){ return e===eqs[0]; }))?eqs[0]:"";
+      /* La PAUSE à gauche, avec la date et l'équipe, quand tous les manques du
+         jour sont de la même pause (le client, le 02/10/2026) ; sinon chaque
+         fiche garde la sienne. Même logique que l'équipe. */
+      var paus=x.l.map(function(o){ return o.pause; });
+      var pauseJour=(paus[0] && paus.every(function(p){ return p===paus[0]; }))?paus[0]:"";
       var dateHtml=q.html;
       if(eqJour) dateHtml=dateHtml.replace(/<\/span>$/,'<i class="mqeqd">Équipe '+esc(eqJour)+"</i></span>");
+      if(pauseJour) dateHtml=dateHtml.replace(/<\/span>$/,'<span class="mqpz mqpz-col" data-s="'+esc(pauseJour)+'">'+esc(pvNom(pauseJour))+"</span></span>");
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
         +dateHtml+'<span class="mqls">');
       x.l.forEach(function(o){
@@ -9591,13 +9603,12 @@ function renderManques(force){
            le module de recherche ») : cadre plein, un « ? » par place vide. */
         var oP=null; (o.vue&&o.vue.postes||[]).forEach(function(y){ if(y.P.k===o.k) oP=y; });
         var enP=oP?oP.gens.filter(function(y){ return !y.depuisD; }):[];
-        plus.unshift(caCadre("En poste",enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
-          +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"));
+        plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
+          +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),o.tenu,o.attendu));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
-          +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>"
+          +'<span class="mqh">'+(pauseJour?"":'<span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>")
           +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span>")+"</span>"
-          +'<span class="mqn">'+o.tenu+"/"+o.attendu+"</span>"
           +(o.eq && !eqJour?'<span class="mqeq"><span class="mqlg">Équipe </span><span class="mqct">Éq. </span>'+esc(o.eq)+"</span>":"")+"</span>"
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
@@ -10101,6 +10112,16 @@ function caChaineHtml(gr,g){
 function caCadre(titre,dedans,cl){
   return '<span class="capaire'+(cl?" "+cl:"")+'"><span class="cagr">'+titre+'</span><span class="mqr">'+dedans+"</span></span>";
 }
+/* LE CADRE « EN POSTE », avec l'effectif en haut à droite et une bordure rouge
+   si le poste est en sous-effectif (le client, le 02/10/2026). Remplace le
+   caCadre(...,"plein") pour ce cadre précis, dans tous les modules. */
+function cadreEnPoste(dedans,tenu,attendu){
+  var manque=tenu<attendu;
+  return '<span class="capaire plein'+(manque?" manque":"")+'">'
+    +'<span class="cagr cagr-eff"><span>En poste</span>'
+    +'<span class="mqn'+(manque?"":" ok")+'">'+tenu+"/"+attendu+"</span></span>"
+    +'<span class="mqr">'+dedans+"</span></span>";
+}
 function caGroupes(t,large,sansUrgence){
   var g=[];
   /* NE PAS DÉRANGER DEUX PERSONNES SI UNE SEULE SUFFIT. Le client, le
@@ -10228,10 +10249,10 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
   var au=o?o.gens.filter(function(x){ return !x.depuisD; }):[];
   var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(pvNom(g))+"</span>"
-    +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
+    +'<span class="mqpo">'+esc(P.t)+"</span>"
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
-    +((au.length||tenu<attendu)?caCadre("En poste",au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
-      +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"")
+    +((au.length||tenu<attendu)?cadreEnPoste(au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
+      +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenu,attendu):"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
     +"</span>";
   return {v:dispo?"ok":"non", html:h};
@@ -10276,11 +10297,18 @@ function caCalculer(){
     var v=caVerdict(r,caMode); n[v.v]++;
     var q=dateEnMots(an,m,j,t0);
     if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+    /* La PAUSE et l'ÉQUIPE à gauche, avec la date (le client, le 02/10/2026 :
+       « la pause doit être avec la date et l'équipe, à gauche »). La catete ne
+       garde que le verdict et le poste concerné. */
+    var dateHtml=q.html;
+    if(!r.hors){
+      if(r.eq) dateHtml=dateHtml.replace(/<\/span>$/,'<i class="mqeqd">Équipe '+esc(r.eq)+"</i></span>");
+      dateHtml=dateHtml.replace(/<\/span>$/,'<span class="mqpz mqpz-col" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</span></span>");
+    }
     h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
-      +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
+      +dateHtml+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span>"
-      +(r.hors?"":'<span class="mqpz" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</span>"
-        +esc((r.poste?caPoste(r.poste):"")+(r.eq?" · Éq. "+r.eq:"")))
+      +(r.hors?"":esc(r.poste?caPoste(r.poste):""))
       +"</span>");
     if(!r.hors){
       /* UN JOUR « POSSIBLE » S'EXPLIQUE. Le client, le 02/10/2026 : « Possible
@@ -10295,9 +10323,8 @@ function caCalculer(){
            puis un mot de confirmation. */
         var cv=r.couverture;
         if(cv && cv.gens.length) h.push('<span class="mql" data-z="'+esc(cv.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpz" data-s="'+esc(cv.pause)+'">'+esc(pvNom(cv.pause))+"</span>"
-          +'<span class="mqpo">'+esc(cv.P.t)+'</span><span class="mqn ok">'+cv.tenu+"/"+cv.attendu+"</span></span>"
-          +caCadre("En poste",cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),"plein")+"</span>");
+          +'<span class="mqpo">'+esc(cv.P.t)+"</span></span>"
+          +cadreEnPoste(cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),cv.tenu,cv.attendu)+"</span>");
         h.push('<span class="mql"><span class="caok">'
           +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
       }
@@ -10324,12 +10351,11 @@ function caCalculer(){
            02/10/2026 : « le cadre En poste doit y être pour le congé et
            l'absence, comme pour la recherche ». */
         var enP=t.enPoste||[], vides=Math.max(0,t.attendu-t.tenu);
-        var cadreEnP=(enP.length||vides)?caCadre("En poste",
+        var cadreEnP=(enP.length||vides)?cadreEnPoste(
           enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
-          +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"";
+          +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),t.tenu,t.attendu):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(pvNom(t.pause))+"</span>"
-          +'<span class="mqpo">'+esc(t.P.t)+'</span><span class="mqn">'+t.tenu+"/"+t.attendu+"</span></span>"
+          +'<span class="mqpo">'+esc(t.P.t)+"</span></span>"
           +cadreEnP+g.join("")+"</span>");
       });
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
