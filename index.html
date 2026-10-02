@@ -1452,6 +1452,10 @@ body.sheet-on{overflow:hidden}
    colonne de la pause reste collée à gauche pour qu'on sache toujours
    quelle ligne on lit. */
 .eqgrille{overflow-x:auto; -webkit-overflow-scrolling:touch}
+/* L'équipe en D de la semaine, au-dessus du tableau (le client, 02/10/2026).
+   Le numéro reprend la couleur de la pause D, comme le liseré des colonnes. */
+.eqdsem{margin:0 0 9px; font-size:12px; color:var(--muted)}
+.eqdsem b{font-weight:700; color:var(--d)}
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
    effectif minimal se cale tout a droite de sa cellule. */
@@ -7889,6 +7893,24 @@ function equipeALaPause(db,annee,mois,jour){
   });
   return out;
 }
+/* L'ÉQUIPE EN D DE LA SEMAINE. Le client, le 02/10/2026 : « dans équipe du
+   jour, il faut aussi indiquer l'équipe qui est en D cette semaine ». Le jour
+   (horaire variable) ne tourne qu'en semaine et c'est la même équipe du lundi
+   au vendredi ; sa colonne peut même disparaître un jour donné (consignation
+   meunerie basculée en AM). On la lit donc sur la semaine, pas sur le jour :
+   le premier jour ouvré qui porte un D donne l'équipe, les suivants la
+   confirment. */
+function equipeEnDSemaine(db,annee,mois,jour){
+  var base=new Date(Date.UTC(annee,mois-1,jour));
+  var lun=new Date(base);
+  lun.setUTCDate(base.getUTCDate()-((base.getUTCDay()+6)%7));
+  for(var i=0;i<5;i++){
+    var d=new Date(lun); d.setUTCDate(lun.getUTCDate()+i);
+    var e=equipeALaPause(db,d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate());
+    if(e.D) return e.D;
+  }
+  return "";
+}
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
    parce que le tableau des manques à venir en a besoin lui aussi : deux
    vues d'une même journée qui se contrediraient seraient pires qu'une. */
@@ -8410,7 +8432,9 @@ function renderEquipe(){
         PAUSES.forEach(function(g){ if(vp[g.k]){ rang++; if(g.k===k) mc=rang; } });
       })();
       var eqCycle=equipeALaPause(db,annee,mois,jour);
-      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
+      var eqDsem=equipeEnDSemaine(db,annee,mois,jour);
+      var tp=[(eqDsem?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
+        +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
