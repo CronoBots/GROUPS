@@ -1487,11 +1487,14 @@ body.sheet-on{overflow:hidden}
    (ajusterHauteurJour). Le client, le 02/10/2026 : « il suffisait de prendre le
    tableau de l'accueil et de le déplacer », puis « pas de scroll, même écart
    haut/bas que gauche/droite, hauteur des lignes adaptée ». */
-#v-jour{gap:0}
+/* La ligne de sélection de jour est SORTIE du cadre (le client, le 02/10/2026) :
+   elle flotte au-dessus de la carte, sans fond ni bordure, séparée d'un petit
+   écart. La carte ne contient plus que le tableau. */
+#v-jour{gap:8px}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
-#v-jour .card>.toolbar.eqnav{flex:0 0 auto}
+#v-jour>.toolbar.eqnav{flex:0 0 auto; background:transparent; border:0}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 /* Le tableau remplit le cadre (height:100 %) ; les jours assez chargés pour
    dépasser la hauteur disponible — surtout en page web, où la barre du
@@ -2597,13 +2600,13 @@ body[data-horaire="annee"] #rotasub{display:none}
        peuple #jourCorps), avec sa barre de date — rien d'autre, pas de
        sous-effectif ni de mise à l'échelle. -->
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
+    <div class="toolbar eqnav">
+      <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
+      <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
+      <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
+      <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
+    </div>
     <div class="card">
-      <div class="toolbar eqnav">
-        <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
-        <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
-        <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
-      </div>
       <div class="eqhote" id="jourCorps"></div>
     </div>
   </section>
