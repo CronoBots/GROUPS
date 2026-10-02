@@ -1775,6 +1775,20 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 .eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 .eqhote .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
+/* UN BADGE AVEC COMMENTAIRE : contour blanc discret + curseur. Le clic ouvre le
+   mot du classeur (le client, le 02/10/2026). Vient APRÈS moi/form/manque pour
+   primer : le contour blanc dit « il y a quelque chose à lire ». */
+.eqhote .eqp2 tbody td .eqn.coment{border-color:var(--ink); cursor:pointer}
+/* LE POPOVER DU COMMENTAIRE, sobre : une bulle posée près du badge, le temps
+   de la lire. Pro et discret — le client, le 02/10/2026. */
+.compop{position:fixed; z-index:120; max-width:min(280px, calc(100vw - 16px));
+  padding:8px 11px; border-radius:10px; background:var(--surface);
+  border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.42);
+  font-size:12px; line-height:1.4; color:var(--ink2); white-space:normal;
+  opacity:0; transform:translateY(4px); pointer-events:none;
+  transition:opacity .14s ease, transform .14s ease}
+.compop.on{opacity:1; transform:none}
+@media (prefers-reduced-motion:reduce){ .compop{transition:none} }
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
    place ; sur téléphone ils restent l'un sous l'autre (sa demande du
@@ -8436,8 +8450,14 @@ function renderEquipe(){
       var formIci=(x.consign||sansHoraire) ? false
                  : posteCourant ? (enFormation(x.p,jourCalc) && !compteAuPoste(x,posteCourant,jourCalc))
                                : enFormation(x.p,jourCalc);
+      /* LE COMMENTAIRE DU CLASSEUR, s'il y en a un (3e champ de la cellule). Le
+         client, le 02/10/2026 : « un badge avec commentaire a un contour blanc,
+         et le clic affiche le commentaire ». On le pose en data-com (lu au clic)
+         et on marque le badge « coment » pour le contour. */
+      var com=(x.p.d[mmdd]||[])[2]; com=com?String(com).trim():"";
       return '<span class="eqn'+(x.p.id===moi?" moi":"")
-        +(formIci?" form":"")+'"'
+        +(formIci?" form":"")+(com?" coment":"")+'"'
+        +(com?' data-com="'+esc(com)+'"':"")
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
@@ -9931,6 +9951,31 @@ function eqBouge(n){
     eqBouge(dx<0?1:-1);
   },{passive:true});
 });
+/* LE COMMENTAIRE AU CLIC D'UN TRIGRAMME. Le client, le 02/10/2026 : « cliquer
+   sur un trigramme affiche le commentaire s'il y en a un, pro et discret ».
+   Une bulle se pose au-dessus du badge (ou dessous s'il n'y a pas la place) ;
+   un clic ailleurs, un défilement ou un redimensionnement la referme. Un tap
+   n'est pas un swipe (celui-ci exige 60 px), les deux ne se gênent pas. */
+(function(){
+  var pop=null;
+  function bulle(){ if(!pop){ pop=document.createElement("div"); pop.className="compop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop); } return pop; }
+  function fermer(){ if(pop) pop.classList.remove("on"); }
+  function ouvrir(chip){
+    var com=chip.getAttribute("data-com"); if(!com) return;
+    var p=bulle(); p.textContent=com;
+    p.style.visibility="hidden"; p.classList.add("on"); p.style.left="0"; p.style.top="0";
+    var r=chip.getBoundingClientRect(), pr=p.getBoundingClientRect();
+    var left=Math.min(Math.max(8, r.left+r.width/2-pr.width/2), window.innerWidth-pr.width-8);
+    var top=r.top-pr.height-8; if(top<8) top=r.bottom+8;
+    p.style.left=Math.round(left)+"px"; p.style.top=Math.round(top)+"px"; p.style.visibility="";
+  }
+  document.addEventListener("click",function(e){
+    var chip=e.target.closest?e.target.closest(".eqn[data-com]"):null;
+    if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
+  });
+  window.addEventListener("scroll",fermer,true);
+  window.addEventListener("resize",fermer);
+})();
 document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
 document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
 document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
