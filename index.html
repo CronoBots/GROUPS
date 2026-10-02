@@ -1456,15 +1456,13 @@ body.sheet-on{overflow:hidden}
    Le numéro reprend la couleur de la pause D, comme le liseré des colonnes. */
 .eqdsem{margin:0 0 9px; font-size:12px; color:var(--muted)}
 .eqdsem b{font-weight:700; color:var(--d)}
-/* L'ONGLET « DU JOUR » : EXACTEMENT le tableau de l'Accueil, mais qui REMPLIT
-   la vue. Le client, le 02/10/2026 : « exactement comme celui de l'accueil,
-   mais il doit prendre toute la vue active ». Aucune mise à l'échelle : ce sont
-   les LIGNES qui s'étirent pour occuper la hauteur libre (hauteur de l'hôte
-   posée en JS par ajusterHauteurJour). Les jours chargés qui dépassent
-   défilent dans le cadre, comme avant. */
-#jourCorps{display:flex; flex-direction:column; min-height:0}
-#jourCorps .eqgrille{flex:1 1 auto; overflow:auto; min-height:0}
-#jourCorps .eqp2{height:100%}
+/* L'ONGLET « DU JOUR » reprend TEL QUEL le cadre de l'Accueil (barre de date +
+   tableau dans un .card, mêmes classes, même style via .eqhote et la barre
+   compacte partagée ci-dessus). Seul sur l'onglet, le tableau tient entre les
+   deux barres sans défilement ; un léger facteur d'échelle (ajusterHauteurJour,
+   jamais au-dessus de 1) n'intervient qu'en secours, les jours exceptionnels
+   qui dépasseraient. Le client, le 02/10/2026 : « il suffisait de prendre le
+   tableau de l'accueil et de le déplacer dans l'onglet du jour ». */
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
    effectif minimal se cale tout a droite de sa cellule. */
@@ -1642,10 +1640,10 @@ body.sheet-on{overflow:hidden}
 .eqhote .eqp2 tbody tr.eqform th.eqposte{border-left-color:var(--ink)}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
-#v-resume .toolbar.eqnav{padding:7px 12px}
-#v-resume .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
+#v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
+#v-resume .eqnav>button:not(.btn), #v-jour .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
 /* « Aujourd'hui » à la hauteur des flèches (le client, le 26/09/2026). */
-#v-resume .eqnav #eqAuj{height:30px; padding:0 9px; font-size:11.5px;
+#v-resume .eqnav #eqAuj, #v-jour .eqnav #jourAuj{height:30px; padding:0 9px; font-size:11.5px;
   display:inline-flex; align-items:center}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
@@ -2489,13 +2487,15 @@ body[data-horaire="annee"] #rotasub{display:none}
        peuple #jourCorps), avec sa barre de date — rien d'autre, pas de
        sous-effectif ni de mise à l'échelle. -->
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
-    <div class="toolbar eqnav">
-      <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
-      <div class="eqjour" id="jourLabel">—</div>
-      <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
-      <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
+    <div class="card">
+      <div class="toolbar eqnav">
+        <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <div class="eqjour" id="jourLabel">—</div>
+        <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
+        <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
+      </div>
+      <div class="eqhote" id="jourCorps"></div>
     </div>
-    <div class="eqhote" id="jourCorps"></div>
   </section>
 
   <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1" hidden>
@@ -9809,22 +9809,26 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
   if(n) n.addEventListener("click",function(){ eqBouge(1); });
   if(a) a.addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
 })();
-/* LE TABLEAU REMPLIT LA VUE DE L'ONGLET « DU JOUR ». On pose la hauteur de son
-   hôte pour qu'elle aille du bas de la barre de date jusqu'au-dessus de la barre
-   d'onglets ; le tableau (height:100 %) étire alors ses lignes pour l'occuper.
-   Pas de mise à l'échelle : le tableau reste identique à celui de l'Accueil. */
+/* LE TABLEAU TIENT ENTRE LES DEUX BARRES, SANS DÉFILEMENT. Le client, le
+   02/10/2026 : « entièrement visible, pas de scroll, entre les deux barres ».
+   On garde EXACTEMENT les dimensions de l'Accueil (pas d'étirement ni de mise à
+   l'échelle tant que ça tient) : la barre de date rétrécie et collée à l'en-tête
+   libère assez de hauteur. Par sécurité, si une journée très chargée dépassait,
+   un léger facteur d'échelle (jamais au-dessus de 1, pour que la largeur
+   continue de tenir) la ramène dans le cadre plutôt que de laisser défiler. */
 function ajusterHauteurJour(){
   var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
   var host=document.getElementById("jourCorps"); if(!host) return;
-  host.style.height="";
+  host.style.zoom="1";
   if(!host.querySelector(".eqp2")) return;
   var navH=0;
   if(window.matchMedia("(max-width:760px)").matches){
     var nav=document.querySelector(".navwrap > .tabs");
     if(nav) navH=nav.getBoundingClientRect().height;
   }
-  var h=window.innerHeight-host.getBoundingClientRect().top-navH-10;
-  if(h>180) host.style.height=h+"px";
+  var dispo=window.innerHeight-host.getBoundingClientRect().top-navH-6,
+      nat=host.scrollHeight;
+  if(nat>0 && dispo>140 && nat>dispo) host.style.zoom=String(Math.max(0.55, dispo/nat));
 }
 (function(){
   var t=null;
