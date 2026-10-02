@@ -1494,19 +1494,21 @@ body.sheet-on{overflow:hidden}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
-/* Plus aucune bordure en HAUT du tableau (le client, le 02/10/2026) : ni la
-   carte, ni la rangée d'en-tête. */
-#v-jour .card{border-top:0}
+/* La carte garde sa bordure (1 px) en HAUT comme en BAS — symétrique (le client,
+   le 02/10/2026 : « tout au-dessus, la même bordure qu'en dessous »). Seule la
+   grosse bordure de l'en-tête (2 px) est retirée, pour que le haut soit discret
+   comme le bas. */
 #jourCorps .eqp2 thead th{border-top:0}
-/* « AUJOURD'HUI » DANS L'ESPACE LIBRE DE LA CELLULE « POSTE » (le client, le
-   02/10/2026) : au lieu d'une ligne sous la date, un petit lien sous « Poste »
-   qui ramène au jour courant. Seulement hors d'aujourd'hui, et seulement sur
-   l'onglet Horaire — l'Accueil garde son bouton. */
-.eqhote .eqp2 thead th.eqposte{line-height:1.12}
-.posteauj{display:block; margin:3px auto 0; padding:0; background:transparent; border:0;
-  font-size:9px; font-weight:600; letter-spacing:.01em; text-transform:none;
-  color:var(--in); cursor:pointer; white-space:nowrap; line-height:1.1}
-@media (hover:hover){ .posteauj:hover{text-decoration:underline} }
+/* RETOUR À AUJOURD'HUI DANS LA CELLULE « POSTE » (le client, le 02/10/2026) :
+   plus de texte « Poste » ni de mot « aujourd'hui » — un bouton-icône (calendrier
+   au point du jour) centré dans la cellule, qui ramène au jour courant. Seulement
+   hors d'aujourd'hui, et seulement sur l'onglet Horaire (l'Accueil garde son
+   bouton). */
+.posteauj{display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; padding:0; background:transparent; border:0;
+  border-radius:8px; color:var(--in); cursor:pointer; transition:background-color .15s ease}
+.posteauj svg{width:17px; height:17px}
+@media (hover:hover){ .posteauj:hover{background:var(--in-soft)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date, hors cadre : en colonne et CENTRÉE. Ligne 1 : les flèches
    encadrent le jour (écrit un rien plus grand), le tout groupé au centre.
@@ -8544,8 +8546,11 @@ function renderEquipe(){
     var renJ=renfortDuJour(db,mmdd);
     PAUSES.forEach(function(g){
       var l=(par[g.k]||[]).slice();
-      if(!l.length) return;
-      aQui=true; total+=l.length;
+      /* La colonne D est TOUJOURS affichée, même vide et même le week-end (le
+         client, le 02/10/2026) : les autres pauses disparaissent si personne
+         n'y est, mais le D reste (cases « – »). */
+      if(!l.length && g.k!=="D") return;
+      if(l.length){ aQui=true; total+=l.length; }
       l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
                           : (a.p.cat<b.p.cat?-1:1); });
       vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null)};
@@ -8576,9 +8581,8 @@ function renderEquipe(){
             vp.D.n--; vp.AM.n++; return false;
           });
         });
-        var resteD=vp.D.vue.postes.some(function(o){ return o.gens.length; })
-          || vp.D.vue.formation.length || vp.D.vue.inconnus.length;
-        if(!resteD) delete vp.D;
+        /* On ne supprime plus la colonne D même si elle se vide (BLR/YRS passés
+           en AM) : elle reste toujours affichée (le client, le 02/10/2026). */
       }
     }
     /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
@@ -8634,8 +8638,10 @@ function renderEquipe(){
       var jsem=new Date(annee,mois-1,jour).getDay(), weekEnd=(jsem===0||jsem===6);
       var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
-      tp.push('<thead><tr><th class="eqposte"><span class="postelbl">Poste</span>'
-        +(surAuj?"":'<button type="button" class="posteauj" title="Revenir à aujourd’hui">aujourd’hui</button>')+"</th>");
+      tp.push('<thead><tr><th class="eqposte">'
+        +(surAuj?"":'<button type="button" class="posteauj" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">'
+          +'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15.3" r="1.7" fill="currentColor" stroke="none"/></svg>'
+          +"</button>")+"</th>");
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
