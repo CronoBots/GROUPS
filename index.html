@@ -211,10 +211,13 @@ button{cursor:pointer}
 /* ONGLET « DU JOUR » : une transition un peu plus ample, le tableau remplissant
    l'écran. Glissement-fondu directionnel, démarrage net puis arrivée douce. Le
    client, le 02/10/2026 : « une transition pro lors des changements de dates ». */
-@keyframes jourSlideG{from{opacity:0; transform:translateX(30px)} to{opacity:1; transform:none}}
-@keyframes jourSlideD{from{opacity:0; transform:translateX(-30px)} to{opacity:1; transform:none}}
-#jourCorps.glisse-g{animation:jourSlideG .28s cubic-bezier(.22,.61,.36,1)}
-#jourCorps.glisse-d{animation:jourSlideD .28s cubic-bezier(.22,.61,.36,1)}
+/* Changement de jour : le tableau arrive du côté où l'on va, en fondu et en
+   « se posant » (léger passage de 0.985 à 1), avec une décélération douce — un
+   effet plus soigné (le client, le 03/10/2026). */
+@keyframes jourSlideG{from{opacity:0; transform:translateX(44px) scale(.985)} to{opacity:1; transform:none}}
+@keyframes jourSlideD{from{opacity:0; transform:translateX(-44px) scale(.985)} to{opacity:1; transform:none}}
+#jourCorps.glisse-g{animation:jourSlideG .36s cubic-bezier(.18,.8,.25,1)}
+#jourCorps.glisse-d{animation:jourSlideD .36s cubic-bezier(.18,.8,.25,1)}
 @media (prefers-reduced-motion:reduce){
   #eqCorps.glisse-g,#eqCorps.glisse-d,#jourCorps.glisse-g,#jourCorps.glisse-d{animation:none}
 }
@@ -1529,6 +1532,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .jourline{display:flex; width:100%; align-items:center}
 #v-jour .jourline .eqjour{flex:1 1 auto; min-width:0; text-align:center;
   font-size:17.5px; font-weight:650; white-space:nowrap}
+/* Les flèches rentrent d'un écart fixe depuis le bord (le client, le 03/10/2026 :
+   « plus écartées du bord »), sans bouger selon la date. */
+#v-jour .jourline>button{margin:0 18px}
 /* Les flèches, maintenant dans .jourline (plus enfants directs de .eqnav),
    reprennent leur style : carré de 30 px bordé. */
 #v-jour .jourline button{width:30px; height:30px; display:grid; place-items:center;
