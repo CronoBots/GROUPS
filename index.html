@@ -10156,11 +10156,16 @@ function caCalculer(){
          montrer sous le verdict vert. */
       if(caMode==="conge" && v.v==="ok") h.push('<span class="mql"><span class="caok">'
         +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
-      /* « Changement de poste », au pluriel pour un changement en chaîne
-         (le client, le 30/09/2026). On NE le montre PAS quand c'est « Pas
-         possible » : ce réaménagement automatique ne résout rien (il déplace le
-         manque), et l'afficher sous un verdict négatif prêtait à confusion. */
-      if(r.moves.length && v.v!=="non") h.push('<span class="mql">'+caCadre(r.moves.length>1?"Changements de poste":"Changement de poste",
+      /* LE MANQUE VOYAGE. Le client, le 02/10/2026 : « Pourquoi GDT lié au
+         chaudière ? » — GDT est au Terrain arrière, mais pour l'y remplacer
+         quelqu'un y MONTE depuis un autre poste, et c'est CE poste-là qui se
+         retrouve à découvert. On montre donc TOUJOURS ce déplacement, y compris
+         sous « Pas possible » (titre « Le manque se reporte ») : c'est lui qui
+         explique pourquoi le trou tombe ailleurs que sur le poste de la
+         personne. Avant, le masquer sous un verdict négatif rendait le trou
+         incompréhensible. */
+      if(r.moves.length) h.push('<span class="mql">'+caCadre(
+        v.v==="non" ? "Le manque se reporte" : (r.moves.length>1?"Changements de poste":"Changement de poste"),
         r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join(""))+"</span>");
       r.trous.forEach(function(t){
         /* CONGÉ : on montre les solutions larges (même pause, depuis les D,
