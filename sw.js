@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v453";
+var V = "nfdm-v454";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png",
