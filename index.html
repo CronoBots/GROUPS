@@ -1297,7 +1297,7 @@ body.sheet-on{overflow:hidden}
 .caseg,.eqseg{display:grid; gap:4px; padding:3px;
   background:var(--surface2); border:1px solid var(--line); border-radius:10px}
 .caseg{grid-template-columns:1fr 1fr 1fr; margin:12px 16px 0}
-.eqseg{grid-template-columns:1fr 1fr 1fr; margin:0}
+.eqseg{grid-template-columns:1fr 1fr; margin:0}
 .caseg button,.eqseg button{padding:8px 6px; border:0; border-radius:8px; background:none;
   font-size:13px; font-weight:600; color:var(--muted);
   transition:background-color .18s ease, color .18s ease}
@@ -1456,12 +1456,6 @@ body.sheet-on{overflow:hidden}
    Le numéro reprend la couleur de la pause D, comme le liseré des colonnes. */
 .eqdsem{margin:0 0 9px; font-size:12px; color:var(--muted)}
 .eqdsem b{font-weight:700; color:var(--d)}
-/* LE PLEIN ÉCRAN « DU JOUR » : le tableau tient tout seul, sans défilement.
-   Largeur à 100 % (overflow latéral neutralisé), hauteur ajustée par zoom en
-   JS. Le client, le 02/10/2026. */
-.eqjourfit{margin-top:2px}
-.eqjourfit .eqgrille{overflow:visible}
-.eqjourfit .eqp2{width:100%}
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
    effectif minimal se cale tout a droite de sa cellule. */
@@ -2147,13 +2141,16 @@ body.sheet-on{overflow:hidden}
    spécificité égale c'est la dernière règle qui gagne, et une première
    tentative posée trois cents lignes plus haut n'avait rien changé du
    tout. */
-@media (max-width:375px){
+@media (max-width:430px){
   /* « nowrap » est le mot qui compte depuis la refonte en six onglets.
      « Mon horaire » et « Mon salaire » sont les deux intitulés en DEUX mots,
      et à 320 px ils passaient à la ligne : la barre montait de 59 à 74 px,
      quinze pixels pris au tableau sans que personne les ait demandés. Sur
-     une seule ligne, à 9,5 px et sans marge latérale, les six tiennent —
-     mesuré, rien n'est tronqué à 320 px. */
+     une seule ligne, à 9,5 px et sans marge latérale, ils tiennent — mesuré,
+     rien n'est tronqué à 320 px. Depuis l'onglet « Du jour » (le client, le
+     02/10/2026) ils sont SIX et non cinq : la règle couvre désormais tous les
+     téléphones (jusqu'à 430 px, l'iPhone Pro Max), pas seulement le bas de la
+     gamme, pour qu'« Mon horaire » ne déborde pas de sa case d'un sixième. */
   .tabs button{font-size:9.5px; padding-left:0; padding-right:0; gap:2px;
     white-space:nowrap}
 }
@@ -2324,6 +2321,9 @@ body[data-horaire="annee"] #rotasub{display:none}
     <button type="button" role="tab" id="tab-resume" data-v="resume" aria-selected="true" aria-controls="v-resume">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="4.5" rx="1.5"/><rect x="13.5" y="10.5" width="7.5" height="10.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
       Accueil</button>
+    <button type="button" role="tab" id="tab-jour" data-v="jour" aria-selected="false" aria-controls="v-jour">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18M9.5 9.5v10M15 9.5v10"/></svg>
+      Du jour</button>
     <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Mon horaire</button>
@@ -2473,6 +2473,22 @@ body[data-horaire="annee"] #rotasub{display:none}
 
   </section>
 
+  <!-- ============ DU JOUR ============ -->
+  <!-- UN ONGLET POUR LE SEUL TABLEAU DE L'ÉQUIPE DU JOUR. Le client, le
+       02/10/2026 : « crée un nouvel onglet avec juste l'équipe du jour présente
+       comme avant ». Même tableau que l'Accueil (rendu par renderEquipe, qui
+       peuple #jourCorps), avec sa barre de date — rien d'autre, pas de
+       sous-effectif ni de mise à l'échelle. -->
+  <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
+    <div class="toolbar eqnav">
+      <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
+      <div class="eqjour" id="jourLabel">—</div>
+      <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
+      <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
+    </div>
+    <div id="jourCorps"></div>
+  </section>
+
   <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1" hidden>
     <!-- UNE SEULE VUE, ET SON TITRE AU-DESSUS DU CADRE. Le client, le
          23/09/2026 : « je ne veux plus les autres boutons ; il faut donc
@@ -2603,26 +2619,9 @@ body[data-horaire="annee"] #rotasub{display:none}
          les échange sur place ; l'onglet n'en fait plus deux, et la barre de
          menu passe de six repères à cinq. -->
     <nav class="eqseg" role="tablist" aria-label="Vue de l'équipe">
-      <button type="button" role="tab" id="eqsub-tab-jour" data-sv="jour" aria-selected="true" aria-controls="eqsub-jour">Du jour</button>
-      <button type="button" role="tab" id="eqsub-tab-equipes" data-sv="equipes" aria-selected="false" aria-controls="eqsub-equipes" tabindex="-1">Les équipes</button>
+      <button type="button" role="tab" id="eqsub-tab-equipes" data-sv="equipes" aria-selected="true" aria-controls="eqsub-equipes">Les équipes</button>
       <button type="button" role="tab" id="eqsub-tab-poly" data-sv="poly" aria-selected="false" aria-controls="eqsub-poly" tabindex="-1">Recyclage</button>
     </nav>
-
-    <!-- LE TABLEAU DU JOUR, EN PLEIN ÉCRAN. Le client, le 02/10/2026 : « le
-         tableau équipe du jour doit être complètement visible sur un onglet à
-         part, sans scroll, optimisé pour la vue active ». Il réutilise le même
-         tableau que l'Accueil (rendu par renderEquipe), mais ajusté par zoom
-         pour tenir en hauteur ; sa largeur est à 100 %, donc aucun défilement
-         latéral. Sa barre de date pilote la même journée que l'Accueil. -->
-    <div class="stack" id="eqsub-jour" role="tabpanel" aria-labelledby="eqsub-tab-jour">
-      <div class="toolbar eqnav">
-        <button type="button" id="eqjPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour" id="eqJourFitLabel">—</div>
-        <button type="button" id="eqjNext" aria-label="Jour suivant">&rsaquo;</button>
-        <button type="button" class="btn sm" id="eqjAuj">Aujourd'hui</button>
-      </div>
-      <div class="eqjourfit" id="eqJourFit"></div>
-    </div><!-- /#eqsub-jour -->
     <div class="stack" id="eqsub-equipes" role="tabpanel" aria-labelledby="eqsub-tab-equipes">
     <div class="pvtete">
       <h2>Les équipes</h2>
@@ -4703,7 +4702,7 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["resume","horaire","salaire","equipe","reglages"];
+var VIEWS=["resume","jour","horaire","salaire","equipe","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
@@ -4733,7 +4732,7 @@ function setView(v,keepScroll){
   deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="horaire") renderCompteurs();
-  if(v==="resume") renderEquipe();
+  if(v==="resume"||v==="jour") renderEquipe();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="horaire") centrerSurAujourdhui();
 }
@@ -4759,13 +4758,11 @@ document.querySelector(".tabs").addEventListener("keydown",function(e){
    du haut retient le dernier onglet, et ne touche qu'à la visibilité — les
    deux sous-vues sont déjà remplies quand on arrive sur l'onglet. */
 function appliquerEqSub(){
-  var sv=st.eqsub||lsGet("ui/eqsub")||"jour";
+  var sv=st.eqsub||lsGet("ui/eqsub")||"equipes";
   st.eqsub=sv;
-  var jr=document.getElementById("eqsub-jour"),
-      eq=document.getElementById("eqsub-equipes"),
+  var eq=document.getElementById("eqsub-equipes"),
       po=document.getElementById("eqsub-poly");
   if(!eq||!po) return;
-  if(jr) jr.hidden=(sv!=="jour");
   eq.hidden=(sv!=="equipes");
   po.hidden=(sv!=="poly");
   Array.prototype.forEach.call(document.querySelectorAll("#v-equipe .eqseg button[data-sv]"),function(b){
@@ -4773,9 +4770,6 @@ function appliquerEqSub(){
     b.setAttribute("aria-selected",String(on));
     b.tabIndex=on?0:-1;
   });
-  /* « Du jour » réutilise le tableau de l'Accueil : on (re)lance son rendu, qui
-     peuple #eqJourFit et l'ajuste à l'écran une fois le panneau visible. */
-  if(sv==="jour") renderEquipe();
 }
 (function(){
   var seg=document.querySelector("#v-equipe .eqseg"); if(!seg) return;
@@ -8594,16 +8588,15 @@ function renderEquipe(){
       tp.push("</tbody></table></div></div>");
       var tableauHTML=tp.join("");
       h.push(tableauHTML);
-      /* LE MÊME TABLEAU, PLEIN ÉCRAN, SUR L'ONGLET ÉQUIPE › DU JOUR. On le
-         recopie dans son hôte et on l'ajuste à l'écran (le client, 02/10/2026).
-         Le rendu se fait même quand le panneau est masqué : l'ajustement, lui,
-         attend qu'il soit visible (ajusterTableauJour s'en assure). */
-      var fitHost=document.getElementById("eqJourFit");
-      if(fitHost){
-        fitHost.innerHTML=tableauHTML;
-        var fitLbl=document.getElementById("eqJourFitLabel");
-        if(fitLbl) fitLbl.textContent=document.getElementById("eqJour").textContent;
-        ajusterTableauJour();
+      /* LE MÊME TABLEAU, SUR SON ONGLET DÉDIÉ « DU JOUR ». Le client, le
+         02/10/2026 : « crée un nouvel onglet avec juste l'équipe du jour
+         présente comme avant ». On recopie le tableau tel quel (même rendu que
+         l'Accueil, scroll compris) dans l'hôte de l'onglet. */
+      var jourHost=document.getElementById("jourCorps");
+      if(jourHost){
+        jourHost.innerHTML=tableauHTML;
+        var jourLbl=document.getElementById("jourLabel");
+        if(jourLbl) jourLbl.textContent=document.getElementById("eqJour").textContent;
       }
     }
 
@@ -9796,39 +9789,15 @@ function eqBouge(n){
 document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
 document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
 document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
-/* La barre de date du plein écran « Du jour » pilote la même journée que
+/* La barre de date de l'onglet « Du jour » pilote la même journée que
    l'Accueil : elle passe par eqBouge()/renderEquipe(), qui repeuplent les deux
-   hôtes d'un coup. */
+   hôtes (#eqCorps et #jourCorps) d'un coup. */
 (function(){
-  var p=document.getElementById("eqjPrev"), n=document.getElementById("eqjNext"),
-      a=document.getElementById("eqjAuj");
+  var p=document.getElementById("jourPrev"), n=document.getElementById("jourNext"),
+      a=document.getElementById("jourAuj");
   if(p) p.addEventListener("click",function(){ eqBouge(-1); });
   if(n) n.addEventListener("click",function(){ eqBouge(1); });
   if(a) a.addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
-})();
-/* AJUSTER LE TABLEAU PLEIN ÉCRAN. Le client, le 02/10/2026 : « sans scroll,
-   optimisé pour la vue active ». Sa largeur est déjà à 100 % (aucun défilement
-   latéral) ; reste la hauteur. On mesure le tableau à l'échelle 1, puis un zoom
-   (jamais au-dessus de 1, pour que la largeur continue de tenir) le fait entrer
-   dans la hauteur disponible sous sa barre de date. On ne grossit pas les
-   journées légères : mieux vaut de l'air qu'un texte démesuré. */
-function ajusterTableauJour(){
-  var host=document.getElementById("eqJourFit"),
-      panel=document.getElementById("eqsub-jour");
-  if(!host||!panel||panel.hidden) return;
-  if(!host.querySelector(".eqp2")) return;
-  host.style.zoom="1";
-  var dispo=window.innerHeight-host.getBoundingClientRect().top-12,
-      nat=host.scrollHeight;
-  if(nat>0 && dispo>120 && nat>dispo){
-    host.style.zoom=String(Math.max(0.5, dispo/nat));
-  }
-}
-(function(){
-  var t=null;
-  function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterTableauJour(); }); }
-  window.addEventListener("resize",relayer);
-  window.addEventListener("orientationchange",function(){ setTimeout(ajusterTableauJour,250); });
 })();
 
 /* ===================== congé et absence ===================== */
