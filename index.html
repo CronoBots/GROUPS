@@ -2246,17 +2246,17 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
     <div class="card" id="caCard">
       <div class="caseg" role="tablist" aria-label="Type de demande">
-        <button type="button" role="tab" data-ca="conge" aria-selected="true">Congé</button>
-        <button type="button" role="tab" data-ca="absence" aria-selected="false">Absence</button>
-        <button type="button" role="tab" data-ca="recherche" aria-selected="false">Recherche</button>
+        <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
+        <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
+        <button type="button" role="tab" data-ca="recherche" aria-selected="false" tabindex="-1">Recherche</button>
       </div>
       <div class="caform jour" id="caForm">
         <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
         <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
         <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
         <div class="caduree" role="radiogroup" aria-label="Durée">
-          <button type="button" role="radio" data-du="jour" aria-checked="true"><span class="calong">Un </span>jour</button>
-          <button type="button" role="radio" data-du="periode" aria-checked="false"><span class="calong">Une </span>période</button>
+          <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
+          <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
         </div>
         <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
         <label class="caau">Au<input type="date" id="caAu"></label>
@@ -2617,15 +2617,21 @@ body[data-horaire="annee"] #rotasub{display:none}
       </details>
       <details class="fold">
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
-        <p class="lede haut">Choisissez votre identifiant : votre horaire de l'année se
-          remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
-          désignées que par leurs initiales ou leur matricule.</p>
-        <div class="pad qui">
-          <label hidden>Fonction ou équipe<select id="prefillCat" aria-label="Équipe ou fonction"></select></label>
-          <label style="grid-column:1 / -1">Mon identifiant<select id="prefillId" aria-label="Personne"></select></label>
+        <div id="quiCompte" hidden class="pad stack">
+          <p class="lede haut" id="quiCompteTxt"></p>
+          <div class="foot"><span class="sp"></span><button type="button" class="btnlike" id="btnChangerCompte">Changer de compte</button></div>
         </div>
-        <p class="lede" id="prefillCompteurs"></p>
-        <p class="lede" id="prefillHint"></p>
+        <div id="quiChoix">
+          <p class="lede haut" id="quiChoixTxt">Choisissez votre identifiant : votre horaire de l'année se
+            remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
+            désignées que par leurs initiales ou leur matricule.</p>
+          <div class="pad qui">
+            <label hidden>Fonction ou équipe<select id="prefillCat" aria-label="Équipe ou fonction"></select></label>
+            <label style="grid-column:1 / -1">Mon identifiant<select id="prefillId" aria-label="Personne"></select></label>
+          </div>
+          <p class="lede" id="prefillCompteurs"></p>
+          <p class="lede" id="prefillHint"></p>
+        </div>
       </details>
       <details class="fold">
         <summary>Mon contrat <span class="sub">rémunération, primes d'équipe, cycle</span></summary>
@@ -9856,13 +9862,23 @@ function caCalculer(){
   function mode(m){
     caMode=m;
     Array.prototype.forEach.call(seg.querySelectorAll("button"),function(b){
-      b.setAttribute("aria-selected",String(b.dataset.ca===m)); });
+      var on=b.dataset.ca===m; b.setAttribute("aria-selected",String(on)); b.tabIndex=on?0:-1; });
     document.getElementById("caCorps").innerHTML="";
     document.getElementById("caSub").textContent=m==="recherche"?"trouver quelqu'un pour un poste":"simuler une journée sans quelqu'un";
     caForme();
     caDates();
   }
   seg.addEventListener("click",function(e){ var b=e.target.closest("button[data-ca]"); if(b) mode(b.dataset.ca); });
+  /* Navigation clavier du tablist (flèches + Home/End), comme .eqseg — le rôle
+     « tablist » le promet (WCAG 2.1.1 / 4.1.2). */
+  seg.addEventListener("keydown",function(e){
+    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="Home"&&e.key!=="End") return;
+    var bs=Array.prototype.slice.call(seg.querySelectorAll("button[data-ca]"));
+    var i=bs.indexOf(document.activeElement); if(i<0) return;
+    e.preventDefault();
+    var j=e.key==="Home"?0:e.key==="End"?bs.length-1:(i+(e.key==="ArrowRight"?1:bs.length-1))%bs.length;
+    mode(bs[j].dataset.ca); bs[j].focus();
+  });
   document.getElementById("caGo").addEventListener("click",caCalculer);
   /* La recherche se lance au bouton « Vérifier », comme les deux autres
      (le client, le 29/09/2026) : rien ne s'affiche avant. */
@@ -9872,12 +9888,22 @@ function caCalculer(){
     caDuree=d; lsSet("ui/caDuree",d);
     caForme();
     Array.prototype.forEach.call(form.querySelectorAll(".caduree button"),function(b){
-      b.setAttribute("aria-checked",String(b.dataset.du===d)); });
+      var on=b.dataset.du===d; b.setAttribute("aria-checked",String(on)); b.tabIndex=on?0:-1; });
     var du=document.getElementById("caDu"), au=document.getElementById("caAu");
     if(d==="periode" && (!au.value||au.value<du.value)) au.value=du.value;
   }
-  form.querySelector(".caduree").addEventListener("click",function(e){
+  var dureeGrp=form.querySelector(".caduree");
+  dureeGrp.addEventListener("click",function(e){
     var b=e.target.closest("button[data-du]"); if(b) duree(b.dataset.du); });
+  /* Radiogroup : les flèches déplacent ET sélectionnent (WCAG). */
+  dureeGrp.addEventListener("keydown",function(e){
+    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="ArrowUp"&&e.key!=="ArrowDown"&&e.key!=="Home"&&e.key!=="End") return;
+    var bs=Array.prototype.slice.call(dureeGrp.querySelectorAll("button[data-du]"));
+    var i=bs.indexOf(document.activeElement); if(i<0) return;
+    e.preventDefault();
+    var j=e.key==="Home"?0:e.key==="End"?bs.length-1:(e.key==="ArrowRight"||e.key==="ArrowDown")?(i+1)%bs.length:(i-1+bs.length)%bs.length;
+    duree(bs[j].dataset.du); bs[j].focus();
+  });
   duree(caDuree);
   /* « Au » suit « Du » tant qu'on ne l'a pas mis plus loin */
   document.getElementById("caDu").addEventListener("change",function(){
@@ -10714,56 +10740,23 @@ function gateVueCreer(){
     +'<div class="gate-f"><label for="gateId">Votre trigramme</label>'
     +'<select id="gateId">'+opts+'</select></div>'
     +'<div class="gp" id="gateProfil"></div>'
-    +'<div class="gate-f"><label for="gateCode0">Confirmez votre trigramme</label>'
-    +'<div class="gate-code" id="gateCode" role="group" aria-label="Recopiez votre trigramme">'
-    +'<input id="gateCode0" class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="1re lettre">'
-    +'<input class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="2e lettre">'
-    +'<input class="gate-code-box" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" aria-label="3e lettre">'
-    +'</div></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
-    +'<button type="button" class="gate-btn primary" id="gateConfirm" disabled>Se connecter</button>'
+    +'<button type="button" class="gate-btn primary" id="gateConfirm">C\'est bien moi — me connecter</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
   var idSel=document.getElementById("gateId"), btn=document.getElementById("gateConfirm"),
-      err=document.getElementById("gateErr"),
-      boxes=[].slice.call(document.querySelectorAll("#gateCode .gate-code-box"));
+      err=document.getElementById("gateErr");
   function personne(){ return db.people.filter(function(x){return x.id===idSel.value;})[0]; }
-  function cible(){ return idLisible(idSel.value||"").toUpperCase(); }
-  function saisie(){ return boxes.map(function(b){return (b.value||"").toUpperCase();}).join(""); }
-  function valide(){ var ok=cible()!==""&&saisie()===cible(); btn.disabled=!ok; return ok; }
-  function resetBoxes(){ boxes.forEach(function(b){ b.value=""; }); }
-  function majProfil(){ document.getElementById("gateProfil").innerHTML=gateProfilHTML(personne()); valide(); }
+  function majProfil(){ document.getElementById("gateProfil").innerHTML=gateProfilHTML(personne()); }
   var savedId=lsGet("ui/prefillId");
   if(savedId){ for(var o=0;o<idSel.options.length;o++){ if(idSel.options[o].value===savedId){ idSel.value=savedId; break; } } }
   majProfil();
-  idSel.onchange=function(){ resetBoxes(); err.textContent=""; majProfil(); };
-  /* focus SANS défilement : sinon l'auto-avance entre cases faisait sauter la
-     vue (décalage horizontal) à chaque lettre saisie sur mobile. */
-  function foc(el){ if(!el) return; try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); } }
-  boxes.forEach(function(box,i){
-    box.oninput=function(){
-      box.value=(box.value||"").replace(/[^a-zA-Z]/g,"").toUpperCase().slice(0,1);
-      if(box.value && i<boxes.length-1) foc(boxes[i+1]);
-      err.textContent=""; valide();
-    };
-    box.onkeydown=function(e){
-      if(e.key==="Backspace" && !box.value && i>0){ foc(boxes[i-1]); }
-      else if(e.key==="ArrowLeft" && i>0){ e.preventDefault(); foc(boxes[i-1]); }
-      else if(e.key==="ArrowRight" && i<boxes.length-1){ e.preventDefault(); foc(boxes[i+1]); }
-      else if(e.key==="Enter"){ e.preventDefault(); if(valide()) btn.click(); }
-    };
-    box.onpaste=function(e){
-      e.preventDefault();
-      var t=(((e.clipboardData||window.clipboardData).getData("text"))||"").replace(/[^a-zA-Z]/g,"").toUpperCase();
-      for(var j=0;j<boxes.length;j++) boxes[j].value=t.charAt(j)||"";
-      foc(boxes[Math.min(t.length,boxes.length-1)]||boxes[0]);
-      err.textContent=""; valide();
-    };
-  });
+  idSel.onchange=function(){ err.textContent=""; majProfil(); };
+  /* La carte profil (poste, équipe, statut, polyvalences) sert de vérification :
+     on confirme d'un bouton unique plutôt que de recopier une valeur déjà visible. */
   btn.onclick=function(){
-    if(!valide()){ err.textContent="Le trigramme recopié ne correspond pas."; return; }
-    var p=personne(); if(!p){ err.textContent="Identifiant introuvable."; return; }
+    var p=personne(); if(!p){ err.textContent="Choisissez votre trigramme."; return; }
     gateFinaliser({ role:"employe", tri:p.id, cat:p.cat });
   };
   document.getElementById("gateBack").onclick=gateVueAccueil;
@@ -10809,8 +10802,33 @@ function appliquerCompte(acc){
     var tri=document.getElementById("brandtri"); if(tri) tri.textContent=idLisible(acc.tri);
   }
   majCompteUI();
+  majQuiJeSuis();
   /* La ligne du jour (date + poste) se recalcule une fois les sélecteurs garnis. */
   if(typeof majBrandsub==="function") setTimeout(majBrandsub,150);
+}
+/* « Qui je suis » (Réglages) : l'identité est GOUVERNÉE par le compte.
+   - Employé connecté : lecture seule (identité du compte) + « Changer de compte ».
+     Évite de se remettre « sans identité » via l'option vide tout en restant connecté.
+   - BWZ RH (sans identité) : le sélecteur reste actif pour choisir un identifiant
+     à visualiser (sinon l'app RH reste vide), avec une invite dédiée. */
+function majQuiJeSuis(){
+  var compte=document.getElementById("quiCompte"), choix=document.getElementById("quiChoix");
+  if(!compte||!choix) return;
+  var acc=st.account||lsGet("account/current");
+  var chg=document.getElementById("btnChangerCompte"); if(chg&&!chg._wired){ chg._wired=true; chg.onclick=deconnecterCompte; }
+  if(acc && acc.role==="employe" && acc.tri){
+    var txt=document.getElementById("quiCompteTxt");
+    if(txt) txt.innerHTML='Vous êtes connecté en tant que <b>'+esc(idLisible(acc.tri))+'</b>'
+      +(acc.cat?' · '+esc(acc.cat):'')+'. Votre horaire et vos compteurs suivent ce compte.';
+    compte.hidden=false; choix.hidden=true;
+  } else {
+    compte.hidden=true; choix.hidden=false;
+    var ct=document.getElementById("quiChoixTxt");
+    if(ct){
+      if(acc && acc.role==="rh") ct.innerHTML='Connecté en <b>BWZ RH</b>. Choisissez un identifiant pour afficher un horaire et une estimation de fiche (optionnel).';
+      else ct.textContent="Choisissez votre identifiant : votre horaire de l'année se remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont désignées que par leurs initiales ou leur matricule.";
+    }
+  }
 }
 function majCompteUI(){
   var el=document.getElementById("compteInfos"); if(!el) return;
