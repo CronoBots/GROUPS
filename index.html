@@ -1472,6 +1472,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 #jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow:hidden}
 #jourCorps .eqp2{height:100%}
+/* CLIQUER LA DATE OUVRE UN SÉLECTEUR. Le client, le 02/10/2026 : « cliquer sur
+   la date du jour doit pouvoir sélectionner la date que l'on veut ». Un champ
+   date natif, transparent, couvre le libellé : le toucher ouvre le calendrier
+   du système ; le pointillé sous la date dit qu'elle se touche. */
+.jourdatewrap{position:relative}
+.jourdatewrap #jourLabel{cursor:pointer; text-decoration:underline dotted var(--faint);
+  text-underline-offset:3px}
+.jourdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
+  border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
+/* LÉGER HALO AUTOUR DU CADRE. Le client, le 02/10/2026 : « léger halo autour du
+   cadre ? ». Un voile bleuté très doux détache le cadre du fond, sans l'alourdir. */
+#v-jour .card{box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45),
+  0 0 26px 2px rgba(132,166,216,.13)}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
@@ -2534,7 +2547,7 @@ body[data-horaire="annee"] #rotasub{display:none}
     <div class="card">
       <div class="toolbar eqnav">
         <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour" id="jourLabel">—</div>
+        <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
         <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
         <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
       </div>
@@ -8650,6 +8663,8 @@ function renderEquipe(){
         jourHost.innerHTML=tableauHTML;
         var jourLbl=document.getElementById("jourLabel");
         if(jourLbl) jourLbl.textContent=document.getElementById("eqJour").textContent;
+        var jourPick=document.getElementById("jourPick");
+        if(jourPick) jourPick.value=annee+"-"+pad2(mois)+"-"+pad2(jour);
         /* Deux passes : tout de suite (évite un saut visible), puis après
            l'animation d'entrée de la vue — vueEntre translate le panneau de 6 px,
            ce qui fausserait la mesure de la hauteur si on ne mesurait qu'une
@@ -9857,6 +9872,14 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
   if(p) p.addEventListener("click",function(){ eqBouge(-1); });
   if(n) n.addEventListener("click",function(){ eqBouge(1); });
   if(a) a.addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
+  /* Choisir une date au calendrier : on va directement à ce jour-là. */
+  var pick=document.getElementById("jourPick");
+  if(pick) pick.addEventListener("change",function(){
+    var v=pick.value; if(!v) return;
+    var q=v.split("-"); if(q.length!==3) return;
+    eqDate=new Date(Number(q[0]), Number(q[1])-1, Number(q[2])); eqAuto=false;
+    renderEquipe();
+  });
 })();
 /* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
    d'onglets (--jnav, encoche home comprise). Le cadre de l'onglet « Du jour »
