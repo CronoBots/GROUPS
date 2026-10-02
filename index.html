@@ -9888,7 +9888,12 @@ var HOR_PAUSE={AM:"6-14", PM:"14-22", N:"22-6"};
 function caChaineHtml(gr,g){
   var hD=CA_HOR_D[g]||"";
   function lieu(z){ return z.de?caPoste(z.de):"à dét."; }
-  if(!gr.tete.length) return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)); }).join("");
+  /* Solution en UNE étape : on dit où va la personne (son poste → le poste à
+     couvrir), sinon on ne voyait que « qui » sans « la solution ». */
+  if(!gr.tete.length){
+    var cibleD=caPoste(gr.fin[0].a);
+    return gr.fin.map(function(z){ return caChip(z.p.id,lieu(z)+" → "+cibleD); }).join('<i>ou</i>');
+  }
   /* UNE ÉTAPE PAR LIGNE. Le client, le 30/09/2026 : « moyen de mieux
      présenter la chaîne ? ». Tout se suivait sur une ligne qui passait à
      la ligne n'importe où (« PDF Chaud. → STEP puis JBI D ou MHI D →
