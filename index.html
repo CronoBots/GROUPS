@@ -1490,7 +1490,7 @@ body.sheet-on{overflow:hidden}
 /* La ligne de sélection de jour est SORTIE du cadre (le client, le 02/10/2026) :
    elle flotte au-dessus de la carte, sans fond ni bordure, séparée d'un petit
    écart. La carte ne contient plus que le tableau. */
-#v-jour{gap:8px}
+#v-jour{gap:0}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
@@ -1510,13 +1510,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .posteauj svg{width:17px; height:17px}
 @media (hover:hover){ .posteauj:hover{background:var(--in-soft)} }
 #eqCorps .posteauj{display:none}
-/* La barre de date : cellule à part, au-dessus du tableau, avec son propre cadre
-   (le client, le 03/10/2026 : « remets les bordures autour de la cellule de
-   sélection de jour »). Flèches encadrant le jour (un rien plus grand), le tout
-   centré. */
+/* La barre de date : cellule encadrée qui COLLE au cadre du tableau (le client,
+   le 03/10/2026). Elle s'arrondit en haut, reste carrée en bas, et n'a pas de
+   bordure du bas : la bordure du haut de la carte sert de séparation. Les deux
+   forment un seul bloc. */
 #v-jour>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
-  border:1px solid var(--line); border-radius:var(--r);
+  border:1px solid var(--line); border-bottom:0; border-radius:var(--r) var(--r) 0 0;
   flex-direction:column; align-items:center; gap:3px; padding:5px 12px}
+/* La carte, collée sous la barre de date : coins du HAUT carrés (la barre les
+   coiffe), coins du bas arrondis. Sa bordure du haut est la ligne de séparation. */
+#v-jour .card{border-radius:0 0 var(--r) var(--r)}
 #v-jour .jourline{display:flex; align-items:center; gap:12px}
 #v-jour .jourline .eqjour{flex:0 0 auto; font-size:16px; font-weight:650}
 /* Les flèches, maintenant dans .jourline (plus enfants directs de .eqnav),
@@ -2642,9 +2645,9 @@ body[data-horaire="annee"] #rotasub{display:none}
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
     <div class="toolbar eqnav">
       <div class="jourline">
-        <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <button type="button" id="jourPrev" aria-label="Jour précédent"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
         <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
-        <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
+        <button type="button" id="jourNext" aria-label="Jour suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
     </div>
     <div class="card">
