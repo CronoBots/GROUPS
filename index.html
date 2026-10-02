@@ -9762,14 +9762,13 @@ function caPlein(x){
   var h=x.r?x.r.h:null;
   return !!x.r && !x.r.jourCode && (h===undefined||h===null||h===""||Number(h)>=st.params.hJour-0.01);
 }
-function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres,conge){
-  /* CONGÉ : les chaînes se limitent à UN maillon (« max 1 »). Une chaîne plus
-     longue déplace un présent d'un poste tenu puis le comble — elle crée donc
-     un trou pour en combler un autre, ce que le client refuse pour un congé
-     (02/10/2026). Un seul maillon = quelqu'un en surnombre ou indéterminé qui
-     vient directement, sans dégarnir personne. */
-  var maxCh=conge?1:3;
-  if(!large) return {g:g, chaines:caChaines(vue,P,jour,maxCh), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
+function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
+  /* Les chaînes de caChaines sont TOUJOURS complètes : chaque poste vidé par
+     un maillon est repris par le maillon suivant (surnombre ou D), jamais
+     laissé à découvert. Le client, le 02/10/2026 : « il peut y avoir des
+     cascades mais en veillant à jamais laisser un poste en sous-effectif ».
+     On les garde donc à 3 maillons, même en congé. */
+  if(!large) return {g:g, chaines:caChaines(vue,P,jour,3), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   var veille=pausesDe(-1), lendemain=pausesDe(1);
   function reposOk(pid){
     var av=veille[pid], ap=lendemain[pid];
@@ -9777,7 +9776,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres,conge){
   }
   var dRelais=(g==="AM"||g==="PM") ? (par.D||[]).filter(function(x){
     return !(x.r && x.r.jourCode) && x.p.id!==sauf && reposOk(x.p.id); }) : null;
-  var t={g:g, chaines:caChaines(vue,P,jour,maxCh,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
+  var t={g:g, chaines:caChaines(vue,P,jour,3,dRelais), enD:[], change:[], reste:[], arrive:[], rappels:[], ecartes:0};
   function ok(x){ return x.p.id!==sauf && caSait(x,P,jour); }
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return;
@@ -9920,7 +9919,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
       vB.postes.forEach(function(o){
         if(!o.manque) return;
         if(o.P.k in manqueNat && manqueNat[o.P.k]<=o.tenu) return;
-        var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,true,autres,true);
+        var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,true,autres);
         t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
         res.trous.push(t);
       });
