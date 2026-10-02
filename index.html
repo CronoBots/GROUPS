@@ -2927,6 +2927,9 @@ function codeAbsence(t){
 var DEF_P={
   statut:"Employé", etatCivil:"Célibataire", conjoint:"Sans objet", enfants:0,
   remFixe:3000, primeRemise:0, avanceMens:0,
+  /* Ouvrier (CP 118) : payé à l'heure. Deux taux relevés sur les fiches —
+     « garanti » = base de toutes les heures, « moyen » = heures de maladie (SHG). */
+  salHorGaranti:0, salHorMoyen:0,
   divH:148.368007, fraction:1, hJour:8, hSemaine:38+40/60,
   /* primes d'équipe relevées sur les fiches 2026 (la note de 2020 donnait
      0,67 / 1,34 / 3,14 ; elles ont été indexées depuis) */
@@ -4197,8 +4200,14 @@ var PARAM_FIELDS=[
   onb:"Si vous êtes marié(e) ou cohabitant(e) légal(e), précisez si votre conjoint a des revenus propres — un conjoint sans revenus peut réduire votre précompte. Sinon, laissez « Sans objet »."},
  {k:"enfants",l:"Enfants à charge",scope:"params",step:"1",personal:true,
   onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
- {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,
-  onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs."},
+ {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,pour:"Employé",
+  onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs (statut employé)."},
+ {k:"salHorGaranti",l:"Salaire horaire garanti (€/h)",scope:"params",step:"0.0001",personal:true,pour:"Ouvrier",
+  hint:"ouvrier : « Rémunération à l'heure » de votre fiche — base de toutes les heures prestées et des jours payés",
+  onb:"Votre salaire horaire garanti (ouvrier), tel qu'indiqué sur votre fiche sous « Rémunération à l'heure ». C'est la base de toutes vos heures prestées et de vos jours payés."},
+ {k:"salHorMoyen",l:"Salaire horaire moyen (€/h)",scope:"params",step:"0.0001",personal:true,pour:"Ouvrier",
+  hint:"ouvrier : « Salaire Horaire Moyen » de votre fiche — sert aux heures de maladie (SHG)",
+  onb:"Votre salaire horaire moyen (ouvrier), indiqué « Salaire Horaire Moyen » sur votre fiche. Il sert au calcul des heures de maladie (salaire horaire garanti)."},
  {k:"primeRemise",l:"Prime de remise de pause (€/mois)",scope:"params",personal:true,
   onb:"Montant brut mensuel fixe pour les trente minutes de remise de pause faites avant votre propre pause. Laissez 0 si vous ne la percevez pas."},
  {k:"avanceMens",l:"Avance mensuelle (€)",scope:"params",personal:true,
@@ -4306,7 +4315,7 @@ var BAREME_FIELDS=[
    pour en corriger un. Groupés et titrés, on va droit au bon. */
 var PARAM_GROUPES=[
  {t:"Ma situation",         f:["statut","etatCivil","conjoint","enfants"]},
- {t:"Ma rémunération",      f:["remFixe","primeRemise","fraction","hJour","hSemaine","divH"]},
+ {t:"Ma rémunération",      f:["remFixe","salHorGaranti","salHorMoyen","primeRemise","fraction","hJour","hSemaine","divH"]},
  {t:"Mes primes d'équipe",  f:["primeAM","primePM","primeN","primeD","primeRemplCM"]},
  {t:"Mon cycle",            f:["binome","cycle","decalage"]},
  {t:"Mes déplacements",     f:["indJour","distance","indVeloKm","avVelo","dedVelo"]},
@@ -4317,7 +4326,10 @@ function remplirGroupes(hote,groupes,liste,src){
   var vus={}, h="";
   groupes.forEach(function(g){
     h+='<section class="grp"><h3>'+esc(g.t)+'</h3><div class="grid">';
-    g.f.forEach(function(k){ var f=byK[k]; if(!f) return; vus[k]=1; h+=fieldHTML(f,src[k]); });
+    g.f.forEach(function(k){ var f=byK[k]; if(!f) return; vus[k]=1;
+      /* champ propre à un statut : ne pas afficher pour l'autre */
+      if(f.pour && f.pour!==st.params.statut) return;
+      h+=fieldHTML(f,src[k]); });
     h+="</div></section>";
   });
   /* un champ ajouté plus tard et oublié d'un groupe doit rester joignable */
@@ -4757,7 +4769,7 @@ document.addEventListener("change",function(e){
     }
     else { st.bareme[t.dataset.k]=v; save("config/bareme",st.bareme); }
     if(t.dataset.k==="hJour"||t.dataset.k==="statut") renderRota();
-    if(t.dataset.k==="remFixe"||t.dataset.k==="divH") renderFields();
+    if(t.dataset.k==="remFixe"||t.dataset.k==="divH"||t.dataset.k==="statut") renderFields();
     refresh(); return;
   }
   if(t.dataset.k&&t.closest("#chk")){
