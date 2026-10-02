@@ -10077,11 +10077,19 @@ function ajusterLignesJour(){
   var theadH=thead?thead.getBoundingClientRect().height:0;
   var nat=rows.map(function(r){ return r.getBoundingClientRect().height; });
   var sum=nat.reduce(function(a,b){ return a+b; },0);
-  var avail=g.clientHeight-theadH-1;
+  var avail=Math.floor(g.clientHeight-theadH);
   if(avail<=0) return;
   if(sum<avail){
-    var sup=(avail-sum)/rows.length;           /* même supplément par ligne */
-    rows.forEach(function(r,i){ r.style.height=Math.round(nat[i]+sup)+"px"; });
+    /* Même supplément par ligne, posé par ARRONDI CUMULATIF : la somme des
+       hauteurs entières vaut exactement « avail », donc le tableau atteint le
+       bas sans laisser un filet qui n'irait pas toucher la bordure (le client,
+       le 03/10/2026 : « des fois les séparations ne vont pas jusqu'en bas »). */
+    var sup=(avail-sum)/rows.length, acc=0;
+    rows.forEach(function(r,i){
+      var suiv=acc+nat[i]+sup;
+      r.style.height=(Math.round(suiv)-Math.round(acc))+"px";
+      acc=suiv;
+    });
   }
 }
 (function(){
