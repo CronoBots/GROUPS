@@ -7346,9 +7346,34 @@ function peutTenir(person,P,jour){
    manque et que cette personne-là, marquée « R », peut le tenir. C'est ce
    que le « R » annonce. */
 var EST_RENFORT=/^r$/i;
+/* Combien de postes de production une personne sait-elle tenir ce jour-là.
+   Sert à distinguer le « mono-polyvalence » (un seul poste possible, il y est
+   cloué) du polyvalent (plusieurs, il peut aller aider). Le terrain arrière y
+   compte via tientTerrainArriere (ferm+disti). */
+function nbPostesTenables(person,jour){
+  var n=0;
+  for(var i=0;i<POSTES_TRAVAIL.length;i++){
+    if(!POSTES_TRAVAIL[i].cm && peutTenir(person,POSTES_TRAVAIL[i],jour)) n++;
+  }
+  return n;
+}
 function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
   function att(X){ return attenduAuPoste(X,gk,ren); }
   var i, j, P, Q, liste, cand, pris, garde;
+  /* LE POLYVALENT CÈDE SON POSTE AU MONO-POLYVALENCE ET VA AIDER. Le client,
+     le 02/10/2026 : « dès qu'un opérateur à poste unique est présent à un
+     poste, le polyvalent qui y est aussi passe d'office aider là où il
+     manque ». Un polyvalent fixé par sa cellule devient donc déplaçable si un
+     mono-polyvalence ancre déjà son poste — la cellule garde le mono (il ne
+     sait rien faire d'autre) et libère celui qui peut. Le surnombre exigé plus
+     bas (effectif>att) garantit que le poste reste tenu après son départ, et
+     il ne part que vers un VRAI manque qu'il sait tenir. */
+  function liberable(x,liste){
+    if(!x.fixe) return true;
+    if(nbPostesTenables(x.p,jour)<=1) return false;
+    return liste.some(function(y){
+      return y!==x && !y.depuisD && nbPostesTenables(y.p,jour)===1; });
+  }
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
   /* Combien de postes EN MANQUE cette personne saurait-elle tenir ? Un seul,
      et le placer n'est pas une supposition : c'est la seule lecture possible.
@@ -7404,7 +7429,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
         liste=parPoste[Q.k]||[];
         if(effectif(liste,Q,jour)<=att(Q)) continue;
         cand=liste.filter(function(x){
-          return !x.fixe && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
+          return liberable(x,liste) && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
         }).sort(parId);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
@@ -7450,6 +7475,33 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
       if(!pris) break;
       pris.comble=P.k;
       (parPoste[P.k]=parPoste[P.k]||[]).push(pris);
+    }
+  }
+  /* RENFORT TERRAIN ARRIÈRE — Option B (le client, le 02/10/2026). Un ferm+disti
+     resté en SURNOMBRE à un poste déjà ancré par un mono-polyvalence — qui, lui,
+     ne sait rien tenir d'autre — n'y reste pas inutile : comme ferm+disti =
+     polyvalent arrière, il rejoint le terrain arrière en renfort, à côté du
+     titulaire (« GDT n'est pas en distillation mais au terrain arrière avec
+     DWS »). On ne vide jamais son poste de départ (le surnombre est conservé),
+     et ceci vient APRÈS le comblement des vrais manques ci-dessus : aider là où
+     il MANQUE prime sur le renfort. */
+  var terr=null;
+  for(i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k==="terr") terr=POSTES_TRAVAIL[i];
+  if(terr && att(terr)>0){
+    for(i=0;i<POSTES_TRAVAIL.length;i++){
+      Q=POSTES_TRAVAIL[i];
+      if(Q.k==="terr" || Q.cm || !att(Q)) continue;
+      liste=parPoste[Q.k]||[];
+      while(effectif(liste,Q,jour)>att(Q)
+            && liste.some(function(y){ return !y.depuisD && nbPostesTenables(y.p,jour)===1; })){
+        cand=liste.filter(function(x){
+          return !x.depuisD && nbPostesTenables(x.p,jour)>1 && tientTerrainArriere(x.p,jour);
+        }).sort(parId);
+        if(!cand.length) break;
+        liste.splice(liste.indexOf(cand[0]),1);
+        cand[0].comble="terr";
+        (parPoste.terr=parPoste.terr||[]).push(cand[0]);
+      }
     }
   }
 }
