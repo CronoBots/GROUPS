@@ -1213,6 +1213,11 @@ body.sheet-on{overflow:hidden}
 .rncom{font-size:11px; color:var(--faint); font-style:italic; line-height:1.4}
 .mqaucun{display:inline-flex; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600;
   background:var(--at-rouge-soft); color:var(--at-rouge); border:1px solid transparent}
+/* Le pendant vert de .mqaucun : un jour « Possible » sans aucun trou le dit
+   explicitement (le client, le 02/10/2026 : « Possible (vert) devrait
+   expliquer ») au lieu de ne rien afficher sous le verdict. */
+.caok{display:inline-flex; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600;
+  background:var(--good-soft); color:var(--good); border:1px solid transparent}
 .mqfl{font-size:13px; color:var(--muted); margin-right:1px}
 .mqd .mqeqd{font-style:normal; font-size:10.5px; font-weight:650; color:var(--ink); margin-top:3px}
 /* « 1 poste encore à déterminer » : il NUANCE les manques du jour plutôt
@@ -9896,7 +9901,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
     vB.postes.forEach(function(o){
       var a=tA[o.P.k];
       if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
-      var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode==="absence",autres);
+      var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode!=="recherche",autres);
       t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
       res.trous.push(t);
     });
@@ -9909,8 +9914,15 @@ function caVerdict(r,mode){
     if(mode==="absence") return r.moves.length?{v:"chg",t:"Changement dans la pause"}:{v:"ok",t:"Rien à remplacer"};
     return r.moves.length?{v:"chg",t:"Possible avec changement"}:{v:"ok",t:"Possible"};
   }
+  /* CONGÉ : on cherche désormais au-delà de la seule « même pause » (le
+     client, le 02/10/2026 : « Pas possible devrait proposer des solutions »).
+     Un trou est résolu dès qu'une RÉORGANISATION le couvre — même pause,
+     quelqu'un depuis les D, ou un changement de pause — ce qui ne coûte
+     aucune heure sup. On n'y compte PAS les rappels sur repos ni les 12 h :
+     appeler quelqu'un en renfort pour un congé planifié n'a pas de sens. */
   var tous=r.trous.every(function(t){
-    return t.chaines.length || (mode==="absence" && caTrouve(t)); });
+    return mode==="absence" ? caTrouve(t)
+      : (t.chaines.length || t.enD.length || t.change.length); });
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
@@ -9968,7 +9980,7 @@ function caChaineHtml(gr,g){
 function caCadre(titre,dedans,cl){
   return '<span class="capaire'+(cl?" "+cl:"")+'"><span class="cagr">'+titre+'</span><span class="mqr">'+dedans+"</span></span>";
 }
-function caGroupes(t,large){
+function caGroupes(t,large,sansUrgence){
   var g=[];
   if(t.chaines.length) g.push(caCadre("Même pause",t.chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
@@ -9980,7 +9992,7 @@ function caGroupes(t,large){
      fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
      chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
      moitié seule n'est donc pas une solution : elle ne se montre pas. */
-  if(caDouble(t)){
+  if(caDouble(t) && !sansUrgence){
     function rang(h,l){
       return '<span class="mqr"><span class="cahr">'+h+'</span>'
         +l.slice(0,6).map(function(o){ return caChip(o.p.id,o.base||""); }).join("")
@@ -9997,7 +10009,7 @@ function caGroupes(t,large){
   }
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
      de la veille. Huit au plus en tout. */
-  if(t.rappels.length){
+  if(t.rappels.length && !sansUrgence){
     var parV={}, ordre=[], reste=8;
     t.rappels.forEach(function(o){ var k=o.veille||""; if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
     ordre.forEach(function(k){
@@ -10138,6 +10150,12 @@ function caCalculer(){
       +(r.hors?"":esc(r.pause+(r.poste?" · "+caPoste(r.poste):"")+(r.eq?" · Éq. "+r.eq:"")))
       +"</span>");
     if(!r.hors){
+      /* UN JOUR « POSSIBLE » S'EXPLIQUE. Le client, le 02/10/2026 : « Possible
+         (vert) devrait expliquer ». Pas de trou, pas de mouvement : l'équipe
+         reste au complet sans la personne, on le dit au lieu de ne rien
+         montrer sous le verdict vert. */
+      if(caMode==="conge" && v.v==="ok") h.push('<span class="mql"><span class="caok">'
+        +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
       /* « Changement de poste », au pluriel pour un changement en chaîne
          (le client, le 30/09/2026). On NE le montre PAS quand c'est « Pas
          possible » : ce réaménagement automatique ne résout rien (il déplace le
@@ -10145,9 +10163,12 @@ function caCalculer(){
       if(r.moves.length && v.v!=="non") h.push('<span class="mql">'+caCadre(r.moves.length>1?"Changements de poste":"Changement de poste",
         r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join(""))+"</span>");
       r.trous.forEach(function(t){
-        var g=caGroupes(t,caMode!=="conge");
+        /* CONGÉ : on montre les solutions larges (même pause, depuis les D,
+           changement de pause) mais sans rappel/12 h (sansUrgence=true) —
+           cf. caVerdict. L'absence garde l'éventail complet. */
+        var g=caGroupes(t,true,caMode==="conge");
         if(!g.length) g.push('<span class="mqr"><span class="mqaucun">'
-          +(caMode==="conge"?"Personne dans la même pause":"Aucun remplaçant")+"</span></span>");
+          +(caMode==="conge"?"Aucune réorganisation possible":"Aucun remplaçant")+"</span></span>");
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
           +'<span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(t.pause)+"</span>"
           +'<span class="mqpo">'+esc(t.P.t)+'</span><span class="mqn">'+t.tenu+"/"+t.attendu+"</span></span>"
