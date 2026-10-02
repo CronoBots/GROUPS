@@ -1157,12 +1157,14 @@ body.sheet-on{overflow:hidden}
    par poste en manque, dans la couleur de sa pause — on lit la semaine d'un
    coup d'œil sans dérouler quoi que ce soit. */
 .mqcorps{padding:2px 16px 8px}
-#mqCorps .mqj,#rnCorps .mqj{display:grid; grid-template-columns:44px 1fr; column-gap:14px; align-items:start;
+/* Le contexte (date · équipe · pause) EN LIGNE AU-DESSUS, pas en colonne à
+   gauche (le client, le 02/10/2026). La rangée s'empile : ligne de contexte,
+   puis les postes pleine largeur. */
+#mqCorps .mqj,#rnCorps .mqj{display:block;
   width:100%; text-align:left; background:none; border:0; border-top:1px solid var(--trait);
   cursor:pointer; padding:12px 8px; margin:0 -8px; width:calc(100% + 16px);
   border-radius:0; color:inherit; font:inherit}
 #mqCorps .mqj:first-child, #mqCorps .eqsem+.mqj, #rnCorps .mqj:first-child, #rnCorps .eqsem+.mqj{border-top:0}
-#mqCorps .mqj,#rnCorps .mqj{grid-template-columns:84px 1fr; column-gap:10px}
 /* Sans barre de repli, l'intertitre de semaine touche le haut du cadre :
    le cadre rogne ses coins, sans quoi le fond de l'intertitre en dépasse. */
 #mqCard, .eqcard{overflow:hidden}
@@ -1350,7 +1352,7 @@ body.sheet-on{overflow:hidden}
    le 29/09/2026) : il appartient au résultat, pas au bouton. */
 #caCorps{padding-top:0; border-top:1px solid var(--trait)}
 #caCorps:empty{display:none}
-#caCorps .mqj{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:start;
+#caCorps .mqj{display:block;
   background:none; border:0; border-top:1px solid var(--trait); cursor:pointer; padding:12px 8px;
   margin:0 -8px; width:calc(100% + 16px); border-radius:0; color:inherit; font:inherit; text-align:left}
 #caCorps .mqj:first-child, #caCorps .eqsem+.mqj{border-top:0}
@@ -1722,9 +1724,15 @@ body.sheet-on{overflow:hidden}
   letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
   background:var(--surface2); border-top:1px solid var(--trait); border-bottom:1px solid var(--trait)}
 .eqsem:first-child{border-top:0}
-.mqd.eqproche{flex-direction:column; align-items:flex-start; gap:0; line-height:1.15; padding:0}
-.mqd.eqproche b{font-size:13px; font-weight:650; color:var(--ink)}
-.mqd.eqproche small{font-size:10.5px; color:var(--muted)}
+/* EN LIGNE, au-dessus des postes : « Mercredi 21 octobre · Équipe 2 · NUIT ».
+   Le client, le 02/10/2026 : plus de colonne à gauche. */
+.mqd.eqproche{flex-direction:row; flex-wrap:wrap; align-items:center; gap:2px 8px;
+  line-height:1.2; padding:0; margin-bottom:9px}
+.mqd.eqproche b{font-size:13.5px; font-weight:700; color:var(--ink)}
+.mqd.eqproche small{font-size:12px; color:var(--muted); margin-left:-4px}
+.mqd.eqproche .mqeqd{margin-top:0}
+.mqd.eqproche .mqeqd::before{content:"·"; margin-right:7px; color:var(--trait-fort); font-weight:400}
+.mqd.eqproche .mqpz-col{margin-top:0; margin-left:1px}
 .eqrch{display:flex; flex-wrap:wrap; gap:5px; min-width:0}
 .eqrows .eqn{display:inline-flex; align-items:baseline; margin:0; padding:2px 7px;
   border-radius:6px; background:var(--surface3); border:1px solid var(--trait); white-space:nowrap}
@@ -10308,9 +10316,7 @@ function caCalculer(){
     }
     h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +dateHtml+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
-      +esc(v.t)+"</span>"
-      +(r.hors?"":esc(r.poste?caPoste(r.poste):""))
-      +"</span>");
+      +esc(v.t)+"</span></span>");
     if(!r.hors){
       /* UN JOUR « POSSIBLE » S'EXPLIQUE. Le client, le 02/10/2026 : « Possible
          (vert) devrait expliquer ». Pas de trou, pas de mouvement : l'équipe
