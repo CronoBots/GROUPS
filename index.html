@@ -1494,7 +1494,30 @@ body.sheet-on{overflow:hidden}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
-#v-jour>.toolbar.eqnav{flex:0 0 auto; background:transparent; border:0}
+/* La carte n'a plus de bordure en HAUT (le client, le 02/10/2026) : le tableau
+   commence sans filet au-dessus. */
+#v-jour .card{border-top:0}
+/* La barre de date, hors cadre : en colonne et CENTRÉE. Ligne 1 : les flèches
+   encadrent le jour (écrit un rien plus grand), le tout groupé au centre.
+   Ligne 2 : « aujourd'hui » en petit lien discret, centré, symétrique. */
+#v-jour>.toolbar.eqnav{flex:0 0 auto; background:transparent; border:0;
+  flex-direction:column; align-items:center; gap:3px; padding:2px 12px 4px}
+#v-jour .jourline{display:flex; align-items:center; gap:12px}
+#v-jour .jourline .eqjour{flex:0 0 auto; font-size:16px; font-weight:650}
+/* Les flèches, maintenant dans .jourline (plus enfants directs de .eqnav),
+   reprennent leur style : carré de 30 px bordé. */
+#v-jour .jourline button{width:30px; height:30px; display:grid; place-items:center;
+  border-radius:9px; border:1px solid var(--line); background:var(--surface);
+  color:var(--muted); font-size:16px; line-height:1}
+@media (hover:hover){ #v-jour .jourline button:hover{color:var(--ink); border-color:var(--in2)} }
+/* « Aujourd'hui » : lien sobre, sans cadre ni fond (reset complet du style
+   bouton). Accent discret hors d'aujourd'hui, éteint quand on y est déjà
+   (.estauj posée par renderEquipe). */
+#v-jour .jourauj{width:auto; height:auto; display:inline-block; background:transparent;
+  border:0; border-radius:0; box-shadow:none; padding:1px 8px; font-size:11px;
+  font-weight:600; letter-spacing:.02em; color:var(--in); cursor:pointer;
+  transition:opacity .16s ease, color .16s ease}
+#v-jour .jourauj.estauj{color:var(--faint)}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 /* Le tableau remplit le cadre (height:100 %) ; les jours assez chargés pour
    dépasser la hauteur disponible — surtout en page web, où la barre du
@@ -1734,15 +1757,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
-#v-resume .eqnav>button:not(.btn), #v-jour .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
+#v-resume .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
 /* « Aujourd'hui » à la hauteur des flèches (le client, le 26/09/2026). */
-#v-resume .eqnav #eqAuj, #v-jour .eqnav #jourAuj{height:30px; padding:0 9px; font-size:11.5px;
+#v-resume .eqnav #eqAuj{height:30px; padding:0 9px; font-size:11.5px;
   display:inline-flex; align-items:center}
-/* « Aujourd'hui » dit s'il sert. Ailleurs qu'au jour courant : accent doux qui
-   appelle à y revenir. Sur le jour courant (.estauj) : il s'éteint. */
-#eqAuj, #jourAuj{transition:opacity .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease}
-#eqAuj:not(.estauj), #jourAuj:not(.estauj){background:var(--in-soft); border-color:var(--in); color:var(--in)}
-#eqAuj.estauj, #jourAuj.estauj{opacity:.42}
+/* « Aujourd'hui » de l'Accueil dit s'il sert. Ailleurs qu'au jour courant :
+   accent doux qui appelle à y revenir. Sur le jour courant (.estauj) : il
+   s'éteint. (L'onglet Horaire a son propre lien discret, plus haut.) */
+#eqAuj{transition:opacity .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease}
+#eqAuj:not(.estauj){background:var(--in-soft); border-color:var(--in); color:var(--in)}
+#eqAuj.estauj{opacity:.42}
 /* Noms de poste courts sur téléphone : la colonne rend ses pixels aux
    trois pauses. */
 @media (max-width:760px){
@@ -2601,10 +2625,12 @@ body[data-horaire="annee"] #rotasub{display:none}
        sous-effectif ni de mise à l'échelle. -->
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
     <div class="toolbar eqnav">
-      <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
-      <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
-      <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
-      <button type="button" class="btn sm" id="jourAuj">Aujourd'hui</button>
+      <div class="jourline">
+        <button type="button" id="jourPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
+        <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
+      </div>
+      <button type="button" class="jourauj" id="jourAuj">Aujourd'hui</button>
     </div>
     <div class="card">
       <div class="eqhote" id="jourCorps"></div>
