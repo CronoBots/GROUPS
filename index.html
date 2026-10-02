@@ -1494,9 +1494,20 @@ body.sheet-on{overflow:hidden}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
-/* La carte n'a plus de bordure en HAUT (le client, le 02/10/2026) : le tableau
-   commence sans filet au-dessus. */
+/* Plus aucune bordure en HAUT du tableau (le client, le 02/10/2026) : ni la
+   carte, ni la rangée d'en-tête. */
 #v-jour .card{border-top:0}
+#jourCorps .eqp2 thead th{border-top:0}
+/* « AUJOURD'HUI » DANS L'ESPACE LIBRE DE LA CELLULE « POSTE » (le client, le
+   02/10/2026) : au lieu d'une ligne sous la date, un petit lien sous « Poste »
+   qui ramène au jour courant. Seulement hors d'aujourd'hui, et seulement sur
+   l'onglet Horaire — l'Accueil garde son bouton. */
+.eqhote .eqp2 thead th.eqposte{line-height:1.12}
+.posteauj{display:block; margin:3px auto 0; padding:0; background:transparent; border:0;
+  font-size:9px; font-weight:600; letter-spacing:.01em; text-transform:none;
+  color:var(--in); cursor:pointer; white-space:nowrap; line-height:1.1}
+@media (hover:hover){ .posteauj:hover{text-decoration:underline} }
+#eqCorps .posteauj{display:none}
 /* La barre de date, hors cadre : en colonne et CENTRÉE. Ligne 1 : les flèches
    encadrent le jour (écrit un rien plus grand), le tout groupé au centre.
    Ligne 2 : « aujourd'hui » en petit lien discret, centré, symétrique. */
@@ -1510,14 +1521,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   border-radius:9px; border:1px solid var(--line); background:var(--surface);
   color:var(--muted); font-size:16px; line-height:1}
 @media (hover:hover){ #v-jour .jourline button:hover{color:var(--ink); border-color:var(--in2)} }
-/* « Aujourd'hui » : lien sobre, sans cadre ni fond (reset complet du style
-   bouton). Accent discret hors d'aujourd'hui, éteint quand on y est déjà
-   (.estauj posée par renderEquipe). */
-#v-jour .jourauj{width:auto; height:auto; display:inline-block; background:transparent;
-  border:0; border-radius:0; box-shadow:none; padding:1px 8px; font-size:11px;
-  font-weight:600; letter-spacing:.02em; color:var(--in); cursor:pointer;
-  transition:opacity .16s ease, color .16s ease}
-#v-jour .jourauj.estauj{color:var(--faint)}
+/* « Aujourd'hui » n'est plus un bouton de la barre : il occupe l'espace libre
+   de la cellule « Poste » (le client, le 02/10/2026). Voir .posteauj. */
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 /* Le tableau remplit le cadre (height:100 %) ; les jours assez chargés pour
    dépasser la hauteur disponible — surtout en page web, où la barre du
@@ -2630,7 +2635,6 @@ body[data-horaire="annee"] #rotasub{display:none}
         <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
         <button type="button" id="jourNext" aria-label="Jour suivant">&rsaquo;</button>
       </div>
-      <button type="button" class="jourauj" id="jourAuj">Aujourd'hui</button>
     </div>
     <div class="card">
       <div class="eqhote" id="jourCorps"></div>
@@ -8335,13 +8339,13 @@ function renderEquipe(){
        Dès qu'on a feuilleté ailleurs (flèche, swipe, calendrier), il s'allume —
        un vrai « revenir à aujourd'hui », et un repère immédiat : la date à
        l'écran est-elle le jour réel ou pas ? */
-    (function(){
+    var surAuj=(function(){
       var u=jourUsine();
-      var surAuj=(annee===u.getFullYear() && mois===u.getMonth()+1 && jour===u.getDate());
-      ["eqAuj","jourAuj"].forEach(function(id){
-        var b=document.getElementById(id); if(b) b.classList.toggle("estauj", surAuj);
-      });
+      return (annee===u.getFullYear() && mois===u.getMonth()+1 && jour===u.getDate());
     })();
+    /* L'Accueil garde son bouton « Aujourd'hui » (qui s'allume/s'éteint) ; sur
+       l'onglet Horaire, c'est la cellule « Poste » qui ramène à aujourd'hui. */
+    (function(){ var b=document.getElementById("eqAuj"); if(b) b.classList.toggle("estauj", surAuj); })();
     /* l'onglet peut s'ouvrir avant que la liste des personnes soit garnie :
        l'identifiant choisi est connu bien avant, il est enregistré */
     var sel=document.getElementById("prefillId");
@@ -8630,7 +8634,8 @@ function renderEquipe(){
       var jsem=new Date(annee,mois-1,jour).getDay(), weekEnd=(jsem===0||jsem===6);
       var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
-      tp.push('<thead><tr><th class="eqposte">Poste</th>');
+      tp.push('<thead><tr><th class="eqposte"><span class="postelbl">Poste</span>'
+        +(surAuj?"":'<button type="button" class="posteauj" title="Revenir à aujourd’hui">aujourd’hui</button>')+"</th>");
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
@@ -10018,6 +10023,11 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
   if(p) p.addEventListener("click",function(){ eqBouge(-1); });
   if(n) n.addEventListener("click",function(){ eqBouge(1); });
   if(a) a.addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
+  /* « Aujourd'hui » dans la cellule Poste (onglet Horaire) : ramène au jour
+     courant. Délégué, car la cellule est reconstruite à chaque rendu. */
+  document.addEventListener("click",function(e){
+    if(e.target.closest && e.target.closest("#jourCorps .posteauj")){ eqDate=null; eqAuto=true; renderEquipe(); }
+  });
   /* Choisir une date au calendrier : on va directement à ce jour-là. */
   var pick=document.getElementById("jourPick");
   if(pick) pick.addEventListener("change",function(){
