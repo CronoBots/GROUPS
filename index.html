@@ -1944,6 +1944,22 @@ body.sheet-on{overflow:hidden}
 .ry-bar>i{font-size:9px; color:var(--faint); font-style:normal}
 .ry-insight{font-size:12px; color:var(--ink2); line-height:1.5; margin:0; padding-top:10px; border-top:1px solid var(--line2)}
 .ry-insight b{color:var(--ink); font-weight:600}
+.ry-sep{height:1px; background:var(--line2); margin:18px 16px 0}
+.ry-h2{padding:16px 16px 2px}
+.ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
+@media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
+.ry-panel{min-width:0}
+.ry-hm-scroll{overflow-x:auto; padding:4px 16px 2px}
+.ry-hm{display:grid; grid-template-rows:repeat(7,1fr); grid-auto-flow:column; grid-auto-columns:11px; gap:3px; width:max-content}
+.ry-hm-c{width:11px; height:11px; border-radius:2.5px; background:var(--surface3)}
+.ry-hm-e{background:transparent}
+.ry-hm-c.s-n{background:var(--n)} .ry-hm-c.s-am{background:var(--am)} .ry-hm-c.s-pm{background:var(--pm)} .ry-hm-c.s-d{background:var(--d)}
+.ry-hm-c.s-abs{background:var(--out)} .ry-hm-c.s-rep{background:var(--surface3)}
+.ry-legs-l{justify-content:flex-start; max-width:none; margin-top:9px; gap:6px 14px}
+.ry-legs-hm{justify-content:flex-start; max-width:none; padding:9px 16px 0; gap:6px 14px}
+.ry-svg{width:100%; height:auto; display:block; margin-top:4px}
+.ry-xaxis{display:flex; justify-content:space-between; font-size:9px; color:var(--faint); padding:2px 2px 0}
+.ry-vide{font-size:12px; color:var(--faint); margin:8px 0 0}
 @media (prefers-reduced-motion:no-preference){.ry-bar>span{transition:background .15s}}
 @media (prefers-reduced-motion:reduce){.gate-btn{transition:none}}
 
@@ -6493,27 +6509,51 @@ function prefillAuto(){
    n'est enregistré, et la classification des pauses/absences est exactement
    celle de l'app. ── */
 var _ryMode="pauses", _ryStats=null, _statsEqCache={};
+var RY_CONGES=["VA","RTT","DTT","RJF","RHS"];   /* types de congé suivis au fil de l'année */
+function z12(){ return [0,0,0,0,0,0,0,0,0,0,0,0]; }
+/* Un code de congé peut être N'IMPORTE OÙ dans la cellule du jour (le classeur
+   écrit souvent la pause d'équipe en 1er et le congé en 2e : ["PM","VA"]). On
+   scanne donc tous les éléments et on rend le 1er congé suivi, ou null. */
+function congeJour(entry){
+  if(!entry) return null;
+  var arr=(typeof entry==="string")?[entry]:entry;
+  for(var i=0;i<arr.length;i++){
+    var code=(typeof codeAbsence==="function")?codeAbsence(String(arr[i]||"")):null;
+    if(code && typeof ABSMAP!=="undefined" && ABSMAP[code] && RY_CONGES.indexOf(ABSMAP[code].k)>=0)
+      return {k:ABSMAP[code].k, h:(ABSMAP[code].h||8)};
+  }
+  return null;
+}
 function statsRythme(db,person,y){
   var P={N:0,AM:0,PM:0,D:0}, repos=0, absence=0, prestes=0, we=0, feriesT=0, heures=0;
-  var nuitsMois=new Array(12).join(",").split(",").map(function(){return 0;});
-  var F=(typeof feries==="function")?feries(y):{}, seq=[];
+  var nuitsMois=z12(), prestesMois=z12();
+  var congesMois={}; RY_CONGES.forEach(function(k){ congesMois[k]=z12(); });
+  var F=(typeof feries==="function")?feries(y):{}, seq=[], cal=[];
   for(var m=0;m<12;m++){
     var M={days:{}}; try{ remplirMois(db,person,y,m,M); }catch(e){}
     var nd=daysInMonth(y,m);
     for(var day=1;day<=nd;day++){
       var rec=M.days[day]||{}, dow=new Date(y,m,day).getDay();
+      /* congés LUS DANS L'HORAIRE (annotations), indépendamment de la paie. */
+      var cj=congeJour(person.d[pad2(m+1)+pad2(day)]);
+      if(cj) congesMois[cj.k][m]+=cj.h/8;   /* en jours (1/2 = 0,5 ; 2h = 0,25…) */
       if(rec.s && P.hasOwnProperty(rec.s)){
-        P[rec.s]++; prestes++; seq.push(rec.s);
+        P[rec.s]++; prestes++; prestesMois[m]++; seq.push(rec.s);
         heures += (rec.h!==undefined?rec.h:(st.params.hJour||8));
         if(rec.s==="N") nuitsMois[m]++;
         if(dow===0||dow===6) we++;
         if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) feriesT++;
-      } else if(rec.a){ absence++; seq.push("A"); } else { repos++; seq.push("R"); }
+        /* calendrier : un congé JOUR ENTIER prime sur la pause d'équipe notée. */
+        cal.push(cj&&cj.h>=8 ? "A" : rec.s);
+      } else if(rec.a){ absence++; seq.push("A"); cal.push("A"); }
+      else { repos++; seq.push("R"); cal.push(cj&&cj.h>=8?"A":"R"); }
     }
   }
   function maxRun(c){ var mx=0,k=0,i; for(i=0;i<seq.length;i++){ if(seq[i]===c){k++; if(k>mx)mx=k;} else k=0; } return mx; }
   var moisMax=0; for(var j=1;j<12;j++) if(nuitsMois[j]>nuitsMois[moisMax]) moisMax=j;
+  var congesTot={}; RY_CONGES.forEach(function(k){ congesTot[k]=congesMois[k].reduce(function(a,b){return a+b;},0); });
   return {pauses:P, repos:repos, absence:absence, prestes:prestes, we:we, nuitsMois:nuitsMois,
+    prestesMois:prestesMois, congesMois:congesMois, congesTot:congesTot, seq:seq, cal:cal, y:y,
     nuits:P.N, feriesT:feriesT, heures:Math.round(heures),
     serieN:maxRun("N"), serieR:maxRun("R"), moisMax:moisMax, pctN:prestes?Math.round(P.N/prestes*100):0};
 }
@@ -6565,6 +6605,49 @@ function ryCompareHTML(label,moi,eq){
     +'<div class="ry-cmp-b"><i class="moi" style="width:'+Math.round(moi/mx*100)+'%"></i><em>toi <b>'+moi+'</b></em></div>'
     +'<div class="ry-cmp-b"><i class="eqp" style="width:'+Math.round(eq/mx*100)+'%"></i><em>équipe <b>'+eq+'</b></em></div></div>';
 }
+function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé / absence",R:"Repos"})[t]||t; }
+/* Barres d'un tableau de 12 mois (cliquables → ouvre le mois). */
+function ryBars(arr,couleur){
+  var mx=Math.max.apply(null,arr.concat([1]));
+  return arr.map(function(v,m){
+    return '<button type="button" class="ry-bar" data-m="'+m+'" title="'+v+' en '+esc(MOIS[m])+' — voir le mois">'
+      +'<span style="height:'+Math.round(v/mx*100)+'%'+(couleur?';background:var('+couleur+')':'')+'"></span><i>'+RY_MC[m]+'</i></button>';
+  }).join("");
+}
+/* Calendrier annuel : une case par jour, colorée par pause/absence/repos. */
+function ryHeatmap(s){
+  var y=s.y, jan1=new Date(y,0,1).getDay(), off=(jan1+6)%7, cells="", i;
+  for(i=0;i<off;i++) cells+='<span class="ry-hm-c ry-hm-e"></span>';
+  (s.cal||s.seq).forEach(function(t,i){
+    var d=new Date(y,0,1+i);
+    var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":"s-rep");
+    cells+='<span class="ry-hm-c '+cls+'" title="'+esc(d.getDate()+" "+MOIS[d.getMonth()]+" — "+ryTypeLabel(t))+'"></span>';
+  });
+  var lg=[["--n","Nuit"],["--am","Matin"],["--pm","Après-m."],["--d","Jour"],["--out","Congé"],["--surface3","Repos"]]
+    .map(function(x){return '<span class="ry-leg"><span class="ry-dot" style="background:var('+x[0]+')"></span>'+x[1]+'</span>';}).join("");
+  return '<div class="ry-hm-scroll"><div class="ry-hm">'+cells+'</div></div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
+}
+/* Courbe cumulée des congés pris, par type, au fil de l'année. */
+function ryCongesChart(s){
+  var kinds=RY_CONGES.filter(function(k){ return s.congesTot[k]>0.01; });
+  if(!kinds.length) return '<div class="ry-chart-t">Congés au fil de l\'année</div><p class="ry-vide">Aucun congé noté dans l\'horaire.</p>';
+  var W=300,H=118,pad=7, maxY=0, cum={};
+  kinds.forEach(function(k){ var c=0,arr=[],m; for(m=0;m<12;m++){ c+=s.congesMois[k][m]; arr.push(c); } cum[k]=arr; if(c>maxY)maxY=c; });
+  maxY=Math.max(maxY,1);
+  var COL={VA:"--in",RTT:"--am",DTT:"--pm",RJF:"--good",RHS:"--n"};
+  function X(m){ return (pad+(W-2*pad)*m/11).toFixed(1); }
+  function Y(v){ return (H-pad-(H-2*pad)*v/maxY).toFixed(1); }
+  var grid='<line x1="'+pad+'" y1="'+Y(0)+'" x2="'+(W-pad)+'" y2="'+Y(0)+'" stroke="var(--line)" stroke-width="1"/>';
+  var polys=kinds.map(function(k){
+    var pts=cum[k].map(function(v,m){return X(m)+","+Y(v);}).join(" ");
+    return '<polyline points="'+pts+'" fill="none" stroke="var('+COL[k]+')" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+  }).join("");
+  var leg=kinds.map(function(k){ return '<span class="ry-leg"><span class="ry-dot" style="background:var('+COL[k]+')"></span>'+k+' <b>'+(Math.round(s.congesTot[k]*10)/10).toLocaleString("fr-BE")+' j</b></span>'; }).join("");
+  return '<div class="ry-chart-t">Congés au fil de l\'année <span class="ry-hint">cumul en jours</span></div>'
+    +'<svg class="ry-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Congés cumulés par type">'+grid+polys+'</svg>'
+    +'<div class="ry-xaxis">'+RY_MC.map(function(c){return '<span>'+c+'</span>';}).join("")+'</div>'
+    +'<div class="ry-legs ry-legs-l">'+leg+'</div>';
+}
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
       tete=document.getElementById("rythmeTete"), card=document.getElementById("rythmeCard");
@@ -6575,10 +6658,7 @@ function renderRythme(){
   card.hidden=false; if(tete) tete.hidden=false;
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
-  var s=_ryStats, maxN=Math.max.apply(null,s.nuitsMois.concat([1]));
-  var bars=s.nuitsMois.map(function(v,m){
-    return '<button type="button" class="ry-bar" data-m="'+m+'" title="'+v+' nuit'+(v>1?"s":"")+' en '+esc(MOIS[m])+' — voir le mois"><span style="height:'+Math.round(v/maxN*100)+'%"></span><i>'+RY_MC[m]+'</i></button>';
-  }).join("");
+  var s=_ryStats;
   corps.innerHTML=''
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
@@ -6589,9 +6669,17 @@ function renderRythme(){
     +'<div class="ry-kpi"><b>'+s.serieN+'</b><span>nuits d\'affilée</span></div>'
     +'<div class="ry-kpi"><b>'+s.serieR+'</b><span>repos d\'affilée</span></div>'
     +'</div>'
-    +'<div><div class="ry-chart-t">Nuits par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+bars+'</div></div>'
+    +'<div><div class="ry-chart-t">Nuits par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+ryBars(s.nuitsMois)+'</div></div>'
     +'<p class="ry-insight">'+ryInsight(s)+'</p>'
-    +'</div></div>';
+    +'</div></div>'
+    /* ── Mon année (heatmap) + jours prestés/mois + courbe des congés ── */
+    +'<div class="ry-sep"></div>'
+    +'<div class="ry-chart-t ry-h2">Mon année <span class="ry-hint">chaque case = un jour</span></div>'
+    + ryHeatmap(s)
+    +'<div class="ry-two">'
+    +'<div class="ry-panel"><div class="ry-chart-t">Jours prestés par mois</div><div class="ry-bars prest">'+ryBars(s.prestesMois,"--in")+'</div></div>'
+    +'<div class="ry-panel">'+ryCongesChart(s)+'</div>'
+    +'</div>';
   ryDonut();
   Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
