@@ -8555,10 +8555,14 @@ function renderEquipe(){
       })();
       var eqCycle=equipeALaPause(db,annee,mois,jour);
       var eqDsem=equipeEnDSemaine(db,annee,mois,jour);
-      /* La légende ne sert qu'en l'absence de colonne D (week-end, ou colonne
+      /* La légende ne sert qu'en l'absence de colonne D un JOUR OUVRÉ (colonne
          masquée quand la consignation meunerie bascule en AM) : sinon l'équipe
-         est déjà sous l'en-tête D, et la répéter ferait doublon. */
-      var tp=[(!vp.D&&eqDsem?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
+         est déjà sous l'en-tête D, et la répéter ferait doublon. Le week-end,
+         PERSONNE n'est en D — le client, le 02/10/2026 : « le samedi et dimanche
+         il n'y aura jamais de personne en D, il ne faut pas indiquer la ligne ».
+         (getDay : 0 = dimanche, 6 = samedi.) */
+      var jsem=new Date(annee,mois-1,jour).getDay(), weekEnd=(jsem===0||jsem===6);
+      var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
