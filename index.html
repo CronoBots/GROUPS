@@ -9982,7 +9982,18 @@ function caCadre(titre,dedans,cl){
 }
 function caGroupes(t,large,sansUrgence){
   var g=[];
-  if(t.chaines.length) g.push(caCadre("Même pause",t.chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
+  /* NE PAS DÉRANGER DEUX PERSONNES SI UNE SEULE SUFFIT. Le client, le
+     02/10/2026, capture à l'appui : « pourquoi faire un double changement de
+     poste alors que VGG peut remplacer directement ? ». Une chaîne à deux
+     maillons dérange deux opérateurs (l'un quitte son poste, un second le
+     comble) ; dès qu'UN seul remplacement existe — une chaîne d'un seul
+     maillon dans la pause, OU quelqu'un en D, OU un changement de pause — ces
+     chaînes à rallonge sont redondantes et ne se montrent plus. Elles ne
+     réapparaissent que si elles sont la SEULE solution. caChaines ne voyait
+     que la même pause et ignorait que le D pouvait couvrir directement. */
+  var unSeul = t.enD.length || t.change.length || t.chaines.some(function(gr){ return !gr.tete.length; });
+  var chaines = unSeul ? t.chaines.filter(function(gr){ return !gr.tete.length; }) : t.chaines;
+  if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
   if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
   if(t.change.length) g.push(caCadre("Change de pause",
