@@ -5968,6 +5968,19 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       r.h=Math.max(0,base);
     }
   }
+  /* UN RENFORT (« R ») QUI REMPLACE QUELQU'UN PREND SA PAUSE. Le client, le
+     02/10/2026 : MHI porte ["7h-15h","R","Remplace PDF jusque 14h"] et doit
+     être compté à la pause de PDF (AM, aux chaudières) pour y combler le
+     manque — pas rangé en « D ». Sa plage d'heures l'a classé en journée plus
+     haut ; mais pour un renfort, la plage n'est que ses heures, et c'est le
+     « Remplace » qui dit où il va. Une journée de jour franche (JBI « 7h rhs »,
+     sans « R ») n'est pas touchée. Avant la prime gardée, qui peut encore
+     primer si le commentaire la nomme. */
+  if(EST_RENFORT.test((raw[1]||"").trim()) && !r.sp
+     && SHIFT_CODES.indexOf((raw[0]||"").trim().toUpperCase())<0){
+    var rpR=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
+    if(rpR && rpR!==r.s){ r.s=rpR; r.modifie=true; }
+  }
   /* Le commentaire nomme la prime à conserver : il l'emporte sur le poste
      que la lecture a retenu, car il parle de la PAIE et non du travail. */
   var pg=primeGardee(raw);
