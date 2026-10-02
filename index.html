@@ -9923,6 +9923,17 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
         t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
         res.trous.push(t);
       });
+      /* QUI ASSURE LE POSTE QUAND LE CONGÉ PASSE SANS CHANGEMENT. Le client,
+         le 02/10/2026 : « quand c'est possible je veux voir qui prendra sa
+         place ». Sans la personne, le poste reste tenu par ses collègues : on
+         garde qui l'occupe (hors renfort du D) pour l'afficher en cadre plein,
+         comme « En poste » du module Recherche. */
+      if(res.poste) vB.postes.forEach(function(o){
+        if(o.P.k!==res.poste.k) return;
+        res.couverture={P:res.poste, pause:g, tenu:o.tenu, attendu:o.attendu,
+          gens:o.gens.filter(function(x){ return !x.depuisD; }).map(function(x){
+            return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; })};
+      });
       return;
     }
     var vA=postesDePause(db,caCopie(par[g],null),g,mmdd,dA);
@@ -10207,8 +10218,20 @@ function caCalculer(){
          (vert) devrait expliquer ». Pas de trou, pas de mouvement : l'équipe
          reste au complet sans la personne, on le dit au lieu de ne rien
          montrer sous le verdict vert. */
-      if(caMode==="conge" && v.v==="ok") h.push('<span class="mql"><span class="caok">'
-        +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
+      if(caMode==="conge" && v.v==="ok"){
+        /* Le poste de la personne reste tenu : on le montre dans le même cadre
+           plein « En poste » que le module Recherche (le client, le
+           02/10/2026 : « le cadre sans pointillés avec le poste qu'il
+           occupait, comme les autres modules »), avec qui l'assure à sa place,
+           puis un mot de confirmation. */
+        var cv=r.couverture;
+        if(cv && cv.gens.length) h.push('<span class="mql" data-z="'+esc(cv.P.z||"")+'"><span class="mqh">'
+          +'<span class="mqpz" data-s="'+esc(cv.pause)+'">'+esc(cv.pause)+"</span>"
+          +'<span class="mqpo">'+esc(cv.P.t)+'</span><span class="mqn ok">'+cv.tenu+"/"+cv.attendu+"</span></span>"
+          +caCadre("En poste",cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),"plein")+"</span>");
+        h.push('<span class="mql"><span class="caok">'
+          +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
+      }
       /* LE MANQUE VOYAGE. Le client, le 02/10/2026 : « Pourquoi GDT lié au
          chaudière ? » — GDT est au Terrain arrière, mais pour l'y remplacer
          quelqu'un y MONTE depuis un autre poste, et c'est CE poste-là qui se
