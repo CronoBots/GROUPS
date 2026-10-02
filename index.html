@@ -1182,13 +1182,16 @@ body.sheet-on{overflow:hidden}
 .mql[data-z="rouge"]{border-left-color:var(--at-rouge)}
 .mql[data-z="bleu"] {border-left-color:var(--at-bleu)}
 .mqh{display:flex; align-items:center; gap:8px; min-width:0}
-.mqpz{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:700;
-  min-width:26px; text-align:center; padding:2px 5px; border-radius:5px;
+/* La pause EN TOUTES LETTRES et en chip coloré (le client, le 02/10/2026 :
+   « pas assez facile de voir la pause… ») : « Nuit », « Matin », « Après-m. »,
+   « Jour » plutôt qu'une lettre, dans la couleur de la pause. */
+.mqpz{flex:0 0 auto; font-size:10.5px; font-weight:800; letter-spacing:.03em;
+  text-transform:uppercase; padding:3px 9px; border-radius:999px;
   background:var(--d-soft); color:var(--d)}
 .mqpz[data-s="AM"]{background:var(--am-soft); color:var(--am)}
 .mqpz[data-s="PM"]{background:var(--pm-soft); color:var(--pm)}
 .mqpz[data-s="N"] {background:var(--n-soft);  color:var(--n)}
-.mqpo{font-size:13px; font-weight:650; color:var(--ink); white-space:nowrap;
+.mqpo{font-size:14.5px; font-weight:700; color:var(--ink); white-space:nowrap;
   overflow:hidden; text-overflow:ellipsis; min-width:0}
 .mqn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700;
   color:var(--at-rouge)}
@@ -9309,6 +9312,10 @@ function renderAnnuaire(db,moi){
    qui reste en arrière. Le mois s'écrit en entier (« 30 septembre ») :
    le client, « il y a la place ». */
 var SEMAINES_RANG=["Cette semaine","Semaine prochaine","Plus tard"];
+/* Le nom de la pause, pour la pastille de contexte des résultats (le client,
+   le 02/10/2026). La lettre reste dans data-s pour la couleur. */
+var PV_NOM={AM:"Matin", PM:"Après-m.", N:"Nuit", D:"Jour"};
+function pvNom(p){ return PV_NOM[p]||p; }
 function dateEnMots(y,m,j,t0){
   if(!y) return {sem:2, html:'<span class="mqd eqproche"><b>Sans date</b></span>', titre:""};
   var d=new Date(Date.UTC(y,m-1,j)), ts=d.getTime(), ecart=Math.round((ts-t0)/86400000);
@@ -9435,7 +9442,7 @@ function renderRappelsInutiles(force){
           return idLisible(v.id)+" "+(COURT[v.de.k]||PV_COURT[v.de.k]||v.de.t)+" → "
             +(COURT[v.a.k]||PV_COURT[v.a.k]||v.a.t); });
         h.push('<span class="mql" data-z="'+esc(o.P.z||"")+'" title="'+esc(o.com)+'">'
-          +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
+          +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>"
           +'<span class="mqpo"><span class="mqlg">'+esc(o.P.t)+'</span><span class="mqct">'
             +esc(o.P.k==="terr"?"T. arrière":o.P.t)+"</span></span>"
           +'<span class="mqc'+(o.id===moi?" moi":"")+'"><b>'+esc(idLisible(o.id))+"</b></span></span>"
@@ -9587,7 +9594,7 @@ function renderManques(force){
         plus.unshift(caCadre("En poste",enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
-          +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</span>"
+          +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>"
           +'<span class="mqpo">'+(eqJour?esc(o.t):'<span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span>")+"</span>"
           +'<span class="mqn">'+o.tenu+"/"+o.attendu+"</span>"
@@ -10220,7 +10227,7 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
      l'équipe. La date est déjà dans le champ au-dessus. */
   var au=o?o.gens.filter(function(x){ return !x.depuisD; }):[];
   var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
-    +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(g)+"</span>"
+    +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(pvNom(g))+"</span>"
     +'<span class="mqpo">'+esc(P.t)+'</span><span class="mqn'+(tenu<attendu?"":" ok")+'">'+tenu+"/"+attendu+"</span>"
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
     +((au.length||tenu<attendu)?caCadre("En poste",au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
@@ -10272,7 +10279,8 @@ function caCalculer(){
     h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span>"
-      +(r.hors?"":esc(r.pause+(r.poste?" · "+caPoste(r.poste):"")+(r.eq?" · Éq. "+r.eq:"")))
+      +(r.hors?"":'<span class="mqpz" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</span>"
+        +esc((r.poste?caPoste(r.poste):"")+(r.eq?" · Éq. "+r.eq:"")))
       +"</span>");
     if(!r.hors){
       /* UN JOUR « POSSIBLE » S'EXPLIQUE. Le client, le 02/10/2026 : « Possible
@@ -10287,7 +10295,7 @@ function caCalculer(){
            puis un mot de confirmation. */
         var cv=r.couverture;
         if(cv && cv.gens.length) h.push('<span class="mql" data-z="'+esc(cv.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpz" data-s="'+esc(cv.pause)+'">'+esc(cv.pause)+"</span>"
+          +'<span class="mqpz" data-s="'+esc(cv.pause)+'">'+esc(pvNom(cv.pause))+"</span>"
           +'<span class="mqpo">'+esc(cv.P.t)+'</span><span class="mqn ok">'+cv.tenu+"/"+cv.attendu+"</span></span>"
           +caCadre("En poste",cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),"plein")+"</span>");
         h.push('<span class="mql"><span class="caok">'
@@ -10320,7 +10328,7 @@ function caCalculer(){
           enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
           +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(t.pause)+"</span>"
+          +'<span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(pvNom(t.pause))+"</span>"
           +'<span class="mqpo">'+esc(t.P.t)+'</span><span class="mqn">'+t.tenu+"/"+t.attendu+"</span></span>"
           +cadreEnP+g.join("")+"</span>");
       });
