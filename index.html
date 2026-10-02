@@ -202,6 +202,16 @@ button{cursor:pointer}
 @keyframes jourDroite{from{opacity:.2; transform:translateX(-18px)} to{opacity:1; transform:none}}
 #eqCorps.glisse-g{animation:jourGauche .2s ease-out}
 #eqCorps.glisse-d{animation:jourDroite .2s ease-out}
+/* ONGLET « DU JOUR » : une transition un peu plus ample, le tableau remplissant
+   l'écran. Glissement-fondu directionnel, démarrage net puis arrivée douce. Le
+   client, le 02/10/2026 : « une transition pro lors des changements de dates ». */
+@keyframes jourSlideG{from{opacity:0; transform:translateX(30px)} to{opacity:1; transform:none}}
+@keyframes jourSlideD{from{opacity:0; transform:translateX(-30px)} to{opacity:1; transform:none}}
+#jourCorps.glisse-g{animation:jourSlideG .28s cubic-bezier(.22,.61,.36,1)}
+#jourCorps.glisse-d{animation:jourSlideD .28s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion:reduce){
+  #eqCorps.glisse-g,#eqCorps.glisse-d,#jourCorps.glisse-g,#jourCorps.glisse-d{animation:none}
+}
 .btn,.eqnav button{transition:transform .12s ease, background-color .15s ease, border-color .15s ease}
 .btn:active,.eqnav button:active{transform:scale(.95)}
 /* Un bouton désactivé se lit comme tel et n'accepte plus le tape : la double
@@ -9832,21 +9842,30 @@ function renderManques(force){
     };
   });
 }
+/* Le tableau arrive du côté où l'on va : demain par la droite, hier par la
+   gauche. C'est ce qui fait sentir qu'on feuillette des journées. Les deux
+   hôtes (Accueil #eqCorps, onglet #jourCorps) jouent la même transition ; celui
+   qui n'est pas affiché l'ignore sans dommage. */
+function glisseCorps(n){
+  if(!n) return;
+  ["eqCorps","jourCorps"].forEach(function(id){
+    var c=document.getElementById(id); if(!c) return;
+    c.classList.remove("glisse-g","glisse-d"); void c.offsetWidth;
+    c.classList.add(n>0?"glisse-g":"glisse-d");
+  });
+}
 function eqBouge(n){
   var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false; renderEquipe();
-  /* Le tableau arrive du côté où l'on va : demain par la droite, hier par
-     la gauche. C'est ce qui fait sentir qu'on feuillette des journées. */
-  var c=document.getElementById("eqCorps");
-  c.classList.remove("glisse-g","glisse-d"); void c.offsetWidth;
-  c.classList.add(n>0?"glisse-g":"glisse-d");
+  glisseCorps(n);
 }
 /* FEUILLETER DU DOIGT. Sur téléphone, un glissement horizontal sur le
    tableau change de jour, comme les flèches. Seulement s'il est franc —
    soixante pixels, nettement plus large que haut — pour ne jamais voler
    un défilement vertical ; et jamais si le tableau défile lui-même de
    côté, auquel cas le geste lui appartient. */
-(function(){
-  var c=document.getElementById("eqCorps"), x0=null, y0=0, t0=0;
+["eqCorps","jourCorps"].forEach(function(id){
+  var c=document.getElementById(id); if(!c) return;
+  var x0=null, y0=0, t0=0;
   c.addEventListener("touchstart",function(e){
     if(e.touches.length!==1){ x0=null; return; }
     x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
@@ -9859,7 +9878,7 @@ function eqBouge(n){
     if(sc && sc.scrollWidth>sc.clientWidth+2) return;
     eqBouge(dx<0?1:-1);
   },{passive:true});
-})();
+});
 document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
 document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
 document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
@@ -9877,8 +9896,11 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
   if(pick) pick.addEventListener("change",function(){
     var v=pick.value; if(!v) return;
     var q=v.split("-"); if(q.length!==3) return;
-    eqDate=new Date(Number(q[0]), Number(q[1])-1, Number(q[2])); eqAuto=false;
-    renderEquipe();
+    var nd=new Date(Number(q[0]), Number(q[1])-1, Number(q[2]));
+    var av=eqDate?new Date(eqDate):new Date();
+    var n=(nd-av)>0?1:((nd-av)<0?-1:0);
+    eqDate=nd; eqAuto=false;
+    renderEquipe(); glisseCorps(n);
   });
 })();
 /* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
