@@ -1493,12 +1493,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
+/* Le tableau reste collé à la barre de date (en haut) ; les hauteurs de ligne,
+   étirées mais plafonnées par ajusterLignesJour, remplissent le cadre. Un
+   éventuel reliquat (jours légers) finit en bas, discret. */
 #jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow:hidden}
-#jourCorps .eqp2{height:100%}
-/* Les lignes à un seul trigramme se serrent (hauteur minimale, juste leur
-   contenu) ; l'étirement du tableau va aux lignes chargées. Les jours où il y a
-   une ligne de plus, tout tient ainsi sans réduire le texte. */
-#jourCorps .eqp2 tbody tr.mono{height:0}
 /* CLIQUER LA DATE OUVRE UN SÉLECTEUR. Le client, le 02/10/2026 : « cliquer sur
    la date du jour doit pouvoir sélectionner la date que l'on veut ». Un champ
    date natif, transparent, couvre le libellé : le toucher ouvre le calendrier
@@ -8727,6 +8725,10 @@ function renderEquipe(){
           tr.classList.toggle("mono", max<=1);
         });
         ajusterHauteurJour();
+        ajusterLignesJour();
+        /* Seconde passe après l'animation d'entrée (vueEntre translate le
+           panneau) : la mesure des hauteurs tombe alors juste. */
+        setTimeout(ajusterLignesJour,260);
       }
     }
 
@@ -9960,11 +9962,56 @@ function ajusterHauteurJour(){
   var h=nav?Math.round(nav.getBoundingClientRect().height):64;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
 }
+/* L'ÉTIREMENT DES LIGNES, PLAFONNÉ. Le client, le 02/10/2026 : « un écart
+   maximum au-dessus d'un badge », « la ligne formation est fort grande »,
+   « ceux avec 3 badges surtout ». On remplit le cadre en répartissant l'espace
+   libre sur les lignes, mais chaque ligne ne peut grandir que d'un maximum —
+   petit pour une ligne à un trigramme, modéré pour une ligne chargée (2-3
+   badges). Les lignes à 3 badges ne gonflent donc plus démesurément ; le
+   reliquat non distribué se partage en marge haut/bas (centrage CSS). Si une
+   journée très chargée dépasse, on serre les lignes mono pour tout faire tenir. */
+function ajusterLignesJour(){
+  var g=document.querySelector("#jourCorps .eqgrille");
+  var tbl=g&&g.querySelector(".eqp2");
+  if(!tbl) return;
+  var rows=Array.prototype.slice.call(tbl.querySelectorAll("tbody tr"));
+  if(!rows.length) return;
+  tbl.style.height=""; rows.forEach(function(r){ r.style.height=""; });
+  var thead=tbl.querySelector("thead");
+  var theadH=thead?thead.getBoundingClientRect().height:0;
+  var nat=rows.map(function(r){ return r.getBoundingClientRect().height; });
+  var sum=nat.reduce(function(a,b){ return a+b; },0);
+  /* −3 px de sécurité : l'arrondi des hauteurs par ligne, additionné, pouvait
+     dépasser de quelques pixels et faire rogner le bas du cadre. */
+  var avail=g.clientHeight-theadH-3;
+  if(avail<=0) return;
+  if(sum<=avail){
+    /* étirer, mais plafonné : +14 px pour une ligne mono, +34 px pour une ligne
+       chargée (≈ 17 px d'écart max de chaque côté des badges). Assez pour remplir
+       un jour normal, pas assez pour que les lignes à 2-3 badges se distendent. */
+    var caps=rows.map(function(r){ return r.classList.contains("mono")?14:34; });
+    var add=rows.map(function(){ return 0; });
+    var reste=avail-sum, act=rows.map(function(_,i){ return i; });
+    while(reste>0.5 && act.length){
+      var part=reste/act.length, nx=[];
+      act.forEach(function(i){ var pl=caps[i]-add[i]; var a=Math.min(part,pl); add[i]+=a; reste-=a; if(caps[i]-add[i]>0.5) nx.push(i); });
+      if(part<0.5) break; act=nx;
+    }
+    rows.forEach(function(r,i){ r.style.height=Math.round(nat[i]+add[i])+"px"; });
+  } else {
+    /* trop de contenu : on serre les lignes à un trigramme pour tout faire entrer. */
+    var mono=rows.filter(function(r){ return r.classList.contains("mono"); });
+    if(mono.length){
+      var per=(sum-avail)/mono.length;
+      mono.forEach(function(r){ r.style.height=Math.max(22, Math.round(r.getBoundingClientRect().height-per))+"px"; });
+    }
+  }
+}
 (function(){
   var t=null;
-  function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterHauteurJour(); }); }
+  function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterHauteurJour(); ajusterLignesJour(); }); }
   window.addEventListener("resize",relayer);
-  window.addEventListener("orientationchange",function(){ setTimeout(ajusterHauteurJour,250); });
+  window.addEventListener("orientationchange",function(){ setTimeout(function(){ ajusterHauteurJour(); ajusterLignesJour(); },250); });
   ajusterHauteurJour();
 })();
 
