@@ -1903,6 +1903,29 @@ body.sheet-on{overflow:hidden}
 :root[data-rh="1"] .rh-only{display:revert}
 .compte-info{display:flex; flex-direction:column; gap:3px; font-size:12.5px; color:var(--ink2)}
 .compte-info b{color:var(--ink); font-weight:600}
+/* ---------- « Mon rythme » (tableau de bord Accueil) ---------- */
+.ry-grid{display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:center; padding:16px}
+@media (max-width:560px){.ry-grid{grid-template-columns:1fr; justify-items:center; gap:18px}}
+.ry-don{display:flex; flex-direction:column; align-items:center; gap:11px}
+.ry-donut{width:130px; height:130px; border-radius:50%; position:relative; flex:0 0 auto}
+.ry-donut-c{position:absolute; inset:21px; border-radius:50%; background:var(--surface); display:grid; place-items:center; text-align:center}
+.ry-donut-c b{font-size:27px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1}
+.ry-donut-c span{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:2px}
+.ry-legs{display:flex; flex-wrap:wrap; gap:5px 13px; justify-content:center; max-width:210px}
+.ry-leg{font-size:11.5px; color:var(--ink2); display:inline-flex; align-items:center; gap:6px}
+.ry-leg b{color:var(--ink); font-variant-numeric:tabular-nums; font-weight:600}
+.ry-dot{width:9px; height:9px; border-radius:3px; display:inline-block; flex:0 0 auto}
+.ry-right{display:flex; flex-direction:column; gap:15px; min-width:0; width:100%}
+.ry-kpis{display:flex; gap:10px}
+.ry-kpi{flex:1; min-width:0; background:var(--surface2); border:1px solid var(--line); border-radius:11px; padding:11px 10px; text-align:center}
+.ry-kpi b{display:block; font-size:22px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1}
+.ry-kpi span{font-size:10.5px; color:var(--muted); line-height:1.25; display:block; margin-top:3px}
+.ry-chart-t{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:7px}
+.ry-bars{display:flex; align-items:flex-end; gap:4px; height:72px}
+.ry-bar{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end}
+.ry-bar>span{display:block; width:100%; max-width:15px; min-height:2px; background:var(--n); border-radius:3px 3px 0 0}
+.ry-bar>i{font-size:9px; color:var(--faint); font-style:normal}
+@media (prefers-reduced-motion:no-preference){.ry-bar>span{transition:height .35s ease}}
 @media (prefers-reduced-motion:reduce){.gate-btn{transition:none}}
 
 /* ---------- toast ---------- */
@@ -2323,6 +2346,17 @@ body[data-horaire="annee"] #rotasub{display:none}
     </div>
 
     <div class="eqcorps" id="eqReste"></div>
+
+    <!-- MON RYTHME. Vue d'ensemble de l'année pour l'opérateur : répartition des
+         pauses, nuits par mois, jours de week-end prestés. Rejoue l'horaire via
+         remplirMois() sur des mois jetables (rien n'est enregistré). -->
+    <div class="pvtete" id="rythmeTete" hidden>
+      <h2>Mon rythme</h2>
+      <p class="sub">réparti sur l'année d'horaire</p>
+    </div>
+    <div class="card" id="rythmeCard" hidden>
+      <div id="rythmeCorps"></div>
+    </div>
 
   </section>
 
@@ -4869,6 +4903,7 @@ function renderPrefillSelects(db){
     chargerPerso(idSel.value); renderFields();
     majCompteurs(); majBrandsub();
     prefillAuto();
+    if(typeof renderRythme==="function") renderRythme();
     if(!document.getElementById("annee").hidden) renderAnnee();
     if(st.view==="horaire") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
@@ -6431,6 +6466,61 @@ function prefillAuto(){
   if(cle===prefillFait) return;
   prefillFait=cle;
   prefillFromHoraire();
+}
+
+/* ── « Mon rythme » (Accueil) ────────────────────────────────────────────────
+   Vue d'ensemble de l'année pour l'opérateur. On REJOUE l'horaire via
+   remplirMois() (même lecture que la paie) sur des objets mois jetables : rien
+   n'est enregistré, et la classification des pauses/absences est exactement
+   celle de l'app. ── */
+function statsRythme(db,person,y){
+  var pauses={N:0,AM:0,PM:0,D:0}, repos=0, absence=0, prestes=0, we=0, nuitsMois=[];
+  for(var m=0;m<12;m++){
+    var M={days:{}};
+    try{ remplirMois(db,person,y,m,M); }catch(e){}
+    var nd=daysInMonth(y,m), nN=0;
+    for(var day=1;day<=nd;day++){
+      var rec=M.days[day]||{}, dow=new Date(y,m,day).getDay();
+      if(rec.s && pauses.hasOwnProperty(rec.s)){
+        pauses[rec.s]++; prestes++;
+        if(rec.s==="N") nN++;
+        if(dow===0||dow===6) we++;
+      } else if(rec.a){ absence++; } else { repos++; }
+    }
+    nuitsMois.push(nN);
+  }
+  return {pauses:pauses, repos:repos, absence:absence, prestes:prestes, we:we, nuitsMois:nuitsMois, nuits:pauses.N};
+}
+function renderRythme(){
+  var corps=document.getElementById("rythmeCorps"),
+      tete=document.getElementById("rythmeTete"), card=document.getElementById("rythmeCard");
+  if(!corps||!card) return;
+  var db=HORAIRE_DB, id=(typeof trigCourant==="function")?trigCourant():"";
+  var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
+  /* Pas de personne liée (RH, horaire absent) : on masque la section. */
+  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; return; }
+  card.hidden=false; if(tete) tete.hidden=false;
+  var y=Number(db.year)||st.y, s=statsRythme(db,person,y);
+  var segs=[["n","Nuit",s.pauses.N],["am","Matin",s.pauses.AM],["pm","Après-midi",s.pauses.PM],["d","Jour",s.pauses.D]];
+  var tot=s.prestes||1, acc=0, stops=[];
+  segs.forEach(function(x){ if(!x[2]) return; var a=acc, b=acc+x[2]/tot*360; stops.push("var(--"+x[0]+") "+a.toFixed(2)+"deg "+b.toFixed(2)+"deg"); acc=b; });
+  if(!stops.length) stops=["var(--line) 0 360deg"];
+  var legende=segs.filter(function(x){return x[2]>0;}).map(function(x){
+    return '<span class="ry-leg"><span class="ry-dot" style="background:var(--'+x[0]+')"></span>'+esc(x[1])+' <b>'+x[2]+'</b></span>';
+  }).join("");
+  var maxN=Math.max.apply(null,s.nuitsMois.concat([1]));
+  var MC=["J","F","M","A","M","J","J","A","S","O","N","D"];
+  var bars=s.nuitsMois.map(function(v,m){
+    return '<div class="ry-bar" title="'+v+' nuit'+(v>1?"s":"")+' en '+esc(MOIS[m])+'"><span style="height:'+Math.round(v/maxN*100)+'%"></span><i>'+MC[m]+'</i></div>';
+  }).join("");
+  corps.innerHTML=''
+    +'<div class="ry-grid">'
+    +'<div class="ry-don"><div class="ry-donut" style="background:conic-gradient('+stops.join(",")+')"><div class="ry-donut-c"><b>'+s.nuits+'</b><span>nuits</span></div></div><div class="ry-legs">'+legende+'</div></div>'
+    +'<div class="ry-right">'
+    +'<div class="ry-kpis"><div class="ry-kpi"><b>'+s.prestes+'</b><span>jours prestés</span></div>'
+    +'<div class="ry-kpi"><b>'+s.we+'</b><span>jours de week-end prestés</span></div></div>'
+    +'<div><div class="ry-chart-t">Nuits par mois</div><div class="ry-bars">'+bars+'</div></div>'
+    +'</div></div>';
 }
 
 /* ===================== l'équipe ===================== */
