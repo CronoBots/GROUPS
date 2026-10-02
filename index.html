@@ -8433,7 +8433,10 @@ function renderEquipe(){
       })();
       var eqCycle=equipeALaPause(db,annee,mois,jour);
       var eqDsem=equipeEnDSemaine(db,annee,mois,jour);
-      var tp=[(eqDsem?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
+      /* La légende ne sert qu'en l'absence de colonne D (week-end, ou colonne
+         masquée quand la consignation meunerie bascule en AM) : sinon l'équipe
+         est déjà sous l'en-tête D, et la répéter ferait doublon. */
+      var tp=[(!vp.D&&eqDsem?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">Poste</th>');
       PAUSES.forEach(function(g){
@@ -8443,7 +8446,11 @@ function renderEquipe(){
            effectif se lit en comptant les trigrammes. L'horaire de la
            pause a cédé sa place à l'ÉQUIPE qui y tourne selon son cycle
            (le client, le 28/09/2026), sur téléphone comme au bureau. */
-        var eqP=eqCycle[g.k];
+        /* La colonne D ne porte pas toujours d'équipe au cycle du jour (ses
+           occupants sont en horaire variable) : on retombe alors sur l'équipe
+           en D de la semaine, pour qu'elle s'affiche comme AM/PM/N (le client,
+           le 02/10/2026 : « pas d'équipe en dessous de D »). */
+        var eqP=eqCycle[g.k]||(g.k==="D"?eqDsem:"");
         tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
           +(eqP?'<em class="eqeq">Équipe '+esc(eqP)+"</em>":"")+"</th>");
       });
