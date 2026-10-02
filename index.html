@@ -1465,22 +1465,35 @@ body.sheet-on{overflow:hidden}
    tableau de l'accueil et de le déplacer », puis « pas de scroll, même écart
    haut/bas que gauche/droite, hauteur des lignes adaptée ». */
 #v-jour{gap:0}
-body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:0}
-/* ESSAI : sur téléphone, l'onglet « Du jour » masque la barre du haut pour
-   donner tout l'écran au tableau (le client, le 02/10/2026 : « supprime la
-   barre du haut pour voir ce que ça donne »). On remplace sa hauteur par la
-   seule zone sûre de l'encoche, plus les 16 px de marge ; la navigation reste
-   possible par la barre du bas. Sur ordinateur la barre du haut PORTE les
-   onglets : on n'y touche pas. */
-@media (max-width:760px){
-  body[data-view="jour"] .top{display:none}
-  body[data-view="jour"] .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 16px)}
-}
+/* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
+body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{display:flex; flex-direction:column}
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto}
 #jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
 #jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow:hidden}
 #jourCorps .eqp2{height:100%}
+/* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
+   02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
+   en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
+   l'appli installée a un viewport, une encoche et un indicateur home que le
+   navigateur n'a pas, d'où le scroll résiduel et l'espace vide). Le cadre
+   s'ANCRE sur la zone réellement visible par position:fixed : du bas de
+   l'encoche (en haut, l'en-tête BIOWANZE étant masqué) au-dessus de la barre
+   d'onglets (en bas, sa hauteur --jnav est fournie en JS). La zone fixe EST la
+   zone visible : rien à faire défiler. Marge de 16 px aux quatre côtés ; le
+   tableau remplit par flex. Sur ordinateur la barre du haut porte les onglets,
+   on n'y touche pas. */
+@media (max-width:760px){
+  body[data-view="jour"] .top{display:none}
+  body[data-view="jour"]{overflow:hidden}
+  body[data-view="jour"] .wrap{
+    position:fixed; inset:0; max-width:none; margin:0; overflow:hidden;
+    padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(var(--jnav,64px) + 16px);
+    display:flex; flex-direction:column;
+  }
+  #v-jour{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+  #v-jour .card{flex:1 1 auto; min-height:0}
+}
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
    effectif minimal se cale tout a droite de sa cellule. */
@@ -9845,42 +9858,23 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
   if(n) n.addEventListener("click",function(){ eqBouge(1); });
   if(a) a.addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
 })();
-/* LE TABLEAU TIENT ENTRE LES DEUX BARRES, SANS DÉFILEMENT. Le client, le
-   02/10/2026 : « entièrement visible, pas de scroll, entre les deux barres ».
-   On garde EXACTEMENT les dimensions de l'Accueil (pas d'étirement ni de mise à
-   l'échelle tant que ça tient) : la barre de date rétrécie et collée à l'en-tête
-   libère assez de hauteur. Par sécurité, si une journée très chargée dépassait,
-   un léger facteur d'échelle (jamais au-dessus de 1, pour que la largeur
-   continue de tenir) la ramène dans le cadre plutôt que de laisser défiler. */
+/* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
+   d'onglets (--jnav, encoche home comprise). Le cadre de l'onglet « Du jour »
+   s'ancre dessus par position:fixed et remplit la zone visible par flex — donc
+   rien ne défile, en PWA comme en navigateur (le client, 02/10/2026 : « tableau
+   toujours scrollable en PWA ? »). La hauteur de la barre est stable ; on la
+   relit au redimensionnement et à la rotation, au cas où la safe-area change. */
 function ajusterHauteurJour(){
-  var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
-  var card=document.querySelector("#v-jour .card"); if(!card) return;
-  card.style.height="";
-  if(!card.querySelector(".eqp2")) return;
-  /* La marge du cadre est la même sur les quatre côtés : 16 px, comme à gauche
-     et à droite (le padding du .wrap). On pose donc la hauteur du cadre pour que
-     son bas s'arrête à 16 px au-dessus de la barre d'onglets ; son haut est déjà
-     à 16 px sous l'en-tête. Le tableau (height:100 %) remplit le cadre, ses
-     lignes s'étirant selon leur nombre. */
-  var M=16, bas=window.innerHeight;
-  if(window.matchMedia("(max-width:760px)").matches){
-    var nav=document.querySelector(".navwrap > .tabs");
-    if(nav) bas=nav.getBoundingClientRect().top;   /* le HAUT de la barre d'onglets */
-  }
-  /* On vise le bas du cadre à M au-dessus de la barre d'onglets, par DELTA :
-     hauteur actuelle + (bas voulu − bas actuel). Viser le haut de la barre (et
-     non sa hauteur) rend le calcul insensible aux sous-pixels et au moment du
-     calcul : la marge basse tombe juste, égale aux autres. */
-  var r=card.getBoundingClientRect();
-  var voulu=bas-M;
-  var h=r.height+(voulu-r.bottom);
-  if(h>160) card.style.height=Math.round(h)+"px";
+  var nav=document.querySelector(".navwrap > .tabs");
+  var h=nav?Math.round(nav.getBoundingClientRect().height):64;
+  if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
 }
 (function(){
   var t=null;
   function relayer(){ if(t) return; t=requestAnimationFrame(function(){ t=null; ajusterHauteurJour(); }); }
   window.addEventListener("resize",relayer);
   window.addEventListener("orientationchange",function(){ setTimeout(ajusterHauteurJour,250); });
+  ajusterHauteurJour();
 })();
 
 /* ===================== congé et absence ===================== */
