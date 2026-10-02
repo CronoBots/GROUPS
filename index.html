@@ -9924,6 +9924,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
         } else {
           var t=caCandidats(par,vReal,g,P,jour,pausesDe,id,true,autres);
           t.pause=g; t.P=P; t.tenu=tenuSans; t.attendu=monO.attendu;
+          t.enPoste=restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; });
           res.trous.push(t);
         }
       }
@@ -9949,6 +9950,8 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
       if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
       var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode!=="recherche",autres);
       t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
+      t.enPoste=o.gens.filter(function(x){ return !x.depuisD; }).map(function(x){
+        return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; });
       res.trous.push(t);
     });
   });
@@ -10243,10 +10246,18 @@ function caCalculer(){
         var g=caGroupes(t,true,caMode==="conge");
         if(!g.length) g.push('<span class="mqr"><span class="mqaucun">'
           +(caMode==="conge"?"Aucune réorganisation possible":"Aucun remplaçant")+"</span></span>");
+        /* QUI TIENT ENCORE LE POSTE, en cadre plein « En poste » (avec « ? »
+           pour chaque place vide), comme le module Recherche. Le client, le
+           02/10/2026 : « le cadre En poste doit y être pour le congé et
+           l'absence, comme pour la recherche ». */
+        var enP=t.enPoste||[], vides=Math.max(0,t.attendu-t.tenu);
+        var cadreEnP=(enP.length||vides)?caCadre("En poste",
+          enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
+          +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),"plein"):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
           +'<span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(t.pause)+"</span>"
           +'<span class="mqpo">'+esc(t.P.t)+'</span><span class="mqn">'+t.tenu+"/"+t.attendu+"</span></span>"
-          +g.join("")+"</span>");
+          +cadreEnP+g.join("")+"</span>");
       });
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
         +" déjà en sous-effectif ce jour-là</span>");
