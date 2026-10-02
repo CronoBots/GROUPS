@@ -1248,6 +1248,11 @@ body.sheet-on{overflow:hidden}
    qu'il n'en annonce un de plus — l'un de ces postes est peut-être celui qui
    manque. */
 .mqinc{font-size:10.5px; color:var(--muted); font-style:italic}
+/* Un FILET FIN au-dessus de la note des écartés (le client, 02/10/2026). */
+.mqinc-ecart{display:block; border-top:1px solid var(--trait); margin-top:5px; padding-top:7px}
+/* « … pour faire 06-18 » après les trigrammes du doublage 12 h. */
+.cafaire{font-size:11px; color:var(--muted); font-style:italic}
+.cafaire .cahr{min-width:auto; font-style:normal; margin:0}
 .mqrien{margin:6px 0 4px; font-size:12.5px; color:var(--muted)}
 /* État vide POSITIF (le client, le 02/10/2026 : « ✓ tous les postes
    couverts »), au lieu d'un panneau vide ou d'un « Aucun… » sec. */
@@ -8642,7 +8647,7 @@ function renderEquipe(){
         else if(!x.fin) q=quand(aA,aM,aJ+1);
         else q=quand(x.fin[0],x.fin[1],x.fin[2]+1);
         var tete="";
-        if(q.sem!==semPrec){ tete='<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"; semPrec=q.sem; }
+        if(q.mois!==semPrec){ tete=q.moisNom?'<div class="eqsem">'+esc(q.moisNom)+"</div>":""; semPrec=q.mois; }
         return tete+'<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
           +'<span class="eqrch">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
       }).join("");
@@ -9371,19 +9376,22 @@ function renderAnnuaire(db,moi){
    fonction : deux copies d'une même règle divergent, et c'est la seconde
    qui reste en arrière. Le mois s'écrit en entier (« 30 septembre ») :
    le client, « il y a la place ». */
-var SEMAINES_RANG=["Cette semaine","Semaine prochaine","Plus tard"];
 /* Le nom de la pause, pour la pastille de contexte des résultats (le client,
    le 02/10/2026). La lettre reste dans data-s pour la couleur. */
 var PV_NOM={AM:"Matin", PM:"Après-m.", N:"Nuit", D:"Jour"};
 function pvNom(p){ return PV_NOM[p]||p; }
 function dateEnMots(y,m,j,t0){
-  if(!y) return {sem:2, html:'<span class="mqd eqproche"><b>Sans date</b></span>', titre:""};
+  if(!y) return {sem:2, mois:-1, moisNom:"", html:'<span class="mqd eqproche"><b>Sans date</b></span>', titre:""};
   var d=new Date(Date.UTC(y,m-1,j)), ts=d.getTime(), ecart=Math.round((ts-t0)/86400000);
   var lun0=t0-((new Date(t0).getUTCDay()+6)%7)*86400000;
   var jl=JOURS_LONGS[(d.getUTCDay()+6)%7];
   var sem=Math.floor((ts-lun0)/(7*86400000)); sem=sem<0?0:Math.min(sem,2);
   var mot=ecart===0?"Aujourd\u2019hui":ecart===1?"Demain":jl;
-  return {sem:sem, titre:jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase(),
+  /* On regroupe d\u00e9sormais les journ\u00e9es PAR MOIS (le client, le 02/10/2026 :
+     \u00ab au lieu de "plus tard", trier par mois \u00bb). L'intertitre devient le nom
+     du mois ; mois = y*12+index pour ne jamais confondre deux ann\u00e9es. */
+  return {sem:sem, mois:y*12+d.getUTCMonth(), moisNom:MOIS[d.getUTCMonth()],
+    titre:jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase(),
     html:'<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"
       +esc(d.getUTCDate()+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase())+"</small></span>"};
 }
@@ -9493,7 +9501,7 @@ function renderRappelsInutiles(force){
     var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
     jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
-      if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+      if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
         +q.html+'<span class="mqls">');
       x.l.forEach(function(o){
@@ -9623,7 +9631,7 @@ function renderManques(force){
     }
     r.jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
-      if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+      if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
       /* L'ÉQUIPE SOUS LA DATE quand tous les manques du jour sont de la
          même équipe — c'est le cas de toutes les journées au 28/09/2026 ;
          sinon chaque fiche garde la sienne (le client, le 28/09/2026, « go »
@@ -10193,10 +10201,13 @@ function caGroupes(t,large,sansUrgence){
      chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
      moitié seule n'est donc pas une solution : elle ne se montre pas. */
   if(caDouble(t) && !sansUrgence){
+    /* L'HORAIRE DEMANDÉ APRÈS LES TRIGRAMMES. Le client, le 02/10/2026 :
+       « indiquer 06-18 et 18-06 après les trigrammes avec "pour faire" ». */
     function rang(h,l){
-      return '<span class="mqr"><span class="cahr">'+h+'</span>'
+      return '<span class="mqr">'
         +l.slice(0,6).map(function(o){ return caChip(o.p.id,o.base||""); }).join("")
-        +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+"</span>";
+        +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")
+        +'<span class="cafaire">pour faire <span class="cahr">'+h+"</span></span></span>";
     }
     var paire=(t.reste.length && t.arrive.length)
       ? (t.arriveDabord?rang(t.ha,t.arrive)+rang(t.hr,t.reste):rang(t.hr,t.reste)+rang(t.ha,t.arrive)) : "";
@@ -10220,7 +10231,7 @@ function caGroupes(t,large,sansUrgence){
     });
     if(t.rappels.length>8) g.push('<span class="mqinc">+'+(t.rappels.length-8)+" autres rappels possibles</span>");
   }
-  if(t.ecartes) g.push('<span class="mqinc">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
+  if(t.ecartes) g.push('<span class="mqinc mqinc-ecart">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
     +" : moins de 8 h de repos</span>");
   return g;
 }
@@ -10343,7 +10354,7 @@ function caCalculer(){
       return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
     var v=caVerdict(r,caMode); n[v.v]++;
     var q=dateEnMots(an,m,j,t0);
-    if(q.sem!==semPrec){ h.push('<div class="eqsem">'+SEMAINES_RANG[q.sem]+"</div>"); semPrec=q.sem; }
+    if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
     /* LA DATE SEULE en tête (le client, le 02/10/2026 : la ligne du jour le
        gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
     var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</b>"
