@@ -1504,19 +1504,20 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    comme le bas. */
 #jourCorps .eqp2 thead th{border-top:0}
 /* BOUTON RETOUR DANS LA CELLULE « POSTE » (le client, le 03/10/2026 : « il faut
-   un bouton retour dans la case Poste »). Il ramène à aujourd'hui. Une flèche de
-   retour — PAS l'icône calendrier que le client n'aimait pas (retirée le
-   03/10/2026). Centré dans la cellule, seulement sur l'onglet Horaire (l'Accueil
-   garde son bouton « Aujourd'hui »). */
+   un bouton retour dans la case Poste », puis « un bouton plus professionnel »).
+   Une PASTILLE texte « Auj. » — pas l'icône calendrier qu'il n'aimait pas, pas la
+   flèche jugée trop fruste : la même pilule que le bouton « Aujourd'hui » de
+   l'Accueil (fond doux + contour d'accent), pour la cohérence. Seulement sur
+   l'onglet Horaire ; allumée quand on a navigué ailleurs, éteinte sur le jour
+   courant (.estauj). */
 .posteauj{display:inline-flex; align-items:center; justify-content:center;
-  width:28px; height:28px; padding:0; background:transparent; border:0;
-  border-radius:8px; color:var(--in); cursor:pointer; transition:background-color .15s ease}
-.posteauj svg{width:17px; height:17px}
-@media (hover:hover){ .posteauj:not(.estauj):hover{background:var(--in-soft)} }
-/* Toujours visible (le client, le 03/10/2026 : « je n'ai pas le bouton ») :
-   allumé (--in) quand on a navigué ailleurs, éteint (--faint) quand on est déjà
-   sur aujourd'hui — on sait ainsi toujours où il est. */
-.posteauj.estauj{color:var(--faint); cursor:default}
+  padding:3px 9px; background:transparent; border:1px solid var(--line);
+  border-radius:999px; color:var(--muted);
+  font-family:inherit; font-size:11px; font-weight:650; letter-spacing:.2px;
+  cursor:pointer; transition:background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease}
+.posteauj:not(.estauj){background:var(--in-soft); border-color:var(--in); color:var(--in)}
+.posteauj.estauj{opacity:.42; cursor:default}
+@media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date : cellule encadrée qui COLLE au cadre du tableau (le client,
    le 03/10/2026). Elle s'arrondit en haut, reste carrée en bas, et n'a pas de
@@ -8616,8 +8617,9 @@ function renderEquipe(){
             vp.D.n--; vp.AM.n++; return false;
           });
         });
-        /* On ne supprime plus la colonne D même si elle se vide (BLR/YRS passés
-           en AM) : elle reste toujours affichée (le client, le 02/10/2026). */
+        /* BLR/YRS peuvent vider la colonne D en passant en AM. Le retrait de la
+           colonne vide se décide plus bas, une fois les DS extraits (le client,
+           le 03/10/2026, revenant sur le « toujours affichée » du 02/10). */
       }
     }
     /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
@@ -8636,6 +8638,19 @@ function renderEquipe(){
       vp.D.vue.inconnus=vp.D.vue.inconnus.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
       dsD.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
       vp.D.ds=dsD;
+    }
+    /* ON RETIRE LA COLONNE D QUAND ELLE NE PORTE PERSONNE. Le client, le
+       03/10/2026 : « retirer la colonne D quand elle est vide ». Cela revient
+       sur le choix du 02/10/2026 (« D toujours affichée, même vide ») : une
+       colonne de tirets ne disait rien et mangeait un quart de la largeur. On
+       nulle vp.D quand aucun poste n'a de monde, aucun inconnu, aucun DS — mc,
+       en-tête et cases la sautent alors ensemble. Un JOUR OUVRÉ, l'équipe en D
+       de la semaine réapparaît dans la légende au-dessus du tableau (voir plus
+       bas) ; le week-end, personne n'est en D et rien ne s'affiche. */
+    if(vp.D){
+      var dPlein=vp.D.ds.length || vp.D.vue.inconnus.length
+        || vp.D.vue.postes.some(function(o){ return o.gens.length; });
+      if(!dPlein) vp.D=null;
     }
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
@@ -8674,9 +8689,7 @@ function renderEquipe(){
       var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">'
-        +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">'
-          +'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v1"/></svg>'
-          +"</button></th>");
+        +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">Auj.</button></th>');
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
