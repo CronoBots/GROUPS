@@ -1896,6 +1896,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   opacity:0; transform:translateY(4px); pointer-events:none;
   transition:opacity .14s ease, transform .14s ease}
 .compop.on{opacity:1; transform:none}
+/* UNE FLÈCHE QUI DÉSIGNE LE TRIGRAMME. Le client, le 03/10/2026 : « on ne voit
+   pas bien de quel trigramme vient le commentaire ». La bulle pointe vers le
+   badge (--cx = centre du badge dans la bulle, posé en JS) ; la flèche est en
+   bas quand la bulle est au-dessus, en haut quand elle passe dessous (.sous). */
+.compop::after{content:""; position:absolute; left:var(--cx,50%); transform:translateX(-50%);
+  width:0; height:0; border:6px solid transparent; pointer-events:none}
+.compop:not(.sous)::after{top:100%; border-top-color:var(--surface)}
+.compop.sous::after{bottom:100%; border-bottom-color:var(--surface)}
+/* Et le badge lui-même s'allume en accent tant que son commentaire est lu. */
+.eqn.coment-actif,
+.eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--in); color:var(--in); box-shadow:0 0 0 1px var(--in)}
 @media (prefers-reduced-motion:reduce){ .compop{transition:none} }
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
@@ -8406,12 +8417,17 @@ function horaireHabituelD(p){
   }
   return (_habDCache[p.id]=out);
 }
+/* Le popover de commentaire se referme dès que le tableau se reconstruit — donc
+   à chaque changement de jour (flèches, SWIPE sans clic, calendrier, « Aujourd'hui »).
+   Assigné plus bas par l'IIFE du popover ; no-op tant qu'il n'est pas prêt. */
+var fermerCompop=function(){};
 /* renderEquipe REND DE FAÇON ASYNCHRONE : tout le corps vit dans le
    .then() de fetchHoraireDB(). On RETOURNE cette promesse pour que l'appelant
    (eqBouge, choix de date) puisse enchaîner APRÈS que #jourCorps a reçu le
    nouveau jour — sans quoi un feuilletage lancé tout de suite travaillerait
    sur l'ancien contenu, aussitôt écrasé par le rendu différé. */
 function renderEquipe(){
+  fermerCompop();
   var hote=document.getElementById("eqCorps"); if(!hote) return Promise.resolve();
   return fetchHoraireDB().then(function(db){
     if(!db) return;
@@ -10157,16 +10173,31 @@ function eqBouge(n){
 (function(){
   var pop=null;
   function bulle(){ if(!pop){ pop=document.createElement("div"); pop.className="compop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop); } return pop; }
-  function fermer(){ if(pop) pop.classList.remove("on"); }
+  function fermer(){
+    if(pop) pop.classList.remove("on");
+    [].forEach.call(document.querySelectorAll(".eqn.coment-actif"),function(c){ c.classList.remove("coment-actif"); });
+  }
   function ouvrir(chip){
     var com=chip.getAttribute("data-com"); if(!com) return;
+    /* Toujours une majuscule en tête (le client, le 03/10/2026) : une note du
+       classeur écrite en minuscule (« échange avec… ») s'affiche capitalisée. */
+    com=com.charAt(0).toUpperCase()+com.slice(1);
+    fermer();                                   /* referme et dé-surligne l'ancien */
     var p=bulle(); p.textContent=com;
+    p.classList.remove("sous");
     p.style.visibility="hidden"; p.classList.add("on"); p.style.left="0"; p.style.top="0";
     var r=chip.getBoundingClientRect(), pr=p.getBoundingClientRect();
     var left=Math.min(Math.max(8, r.left+r.width/2-pr.width/2), window.innerWidth-pr.width-8);
-    var top=r.top-pr.height-8; if(top<8) top=r.bottom+8;
+    var top=r.top-pr.height-10;
+    if(top<8){ top=r.bottom+10; p.classList.add("sous"); }   /* pas la place au-dessus : dessous */
+    /* La flèche vise le CENTRE du badge, même quand la bulle a glissé pour
+       rester à l'écran ; elle reste bornée à l'intérieur de la bulle. */
+    var cx=Math.max(14, Math.min(pr.width-14, r.left+r.width/2-left));
+    p.style.setProperty("--cx", Math.round(cx)+"px");
     p.style.left=Math.round(left)+"px"; p.style.top=Math.round(top)+"px"; p.style.visibility="";
+    chip.classList.add("coment-actif");
   }
+  fermerCompop=fermer;                           /* exposé : renderEquipe ferme au changement de jour */
   document.addEventListener("click",function(e){
     var chip=e.target.closest?e.target.closest(".eqn[data-com]"):null;
     if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
