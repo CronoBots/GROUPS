@@ -959,9 +959,15 @@ body.sheet-on{overflow:hidden}
 .pvt{border-collapse:separate; border-spacing:0; width:100%; table-layout:fixed}
 .pvt th, .pvt td{padding:5px 2px; text-align:center; line-height:1.4;
   border-left:1px solid var(--line2); border-top:1px solid var(--line2)}
+/* Plus de bordure grise sous l'en-tête : seuls les filets de couleur des
+   ateliers (border-top) signalent les zones (le client, le 03/10/2026, « ne
+   garder que celles de couleur »). */
 .pvt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
-  border-top:0; border-bottom:1px solid var(--line);
+  border-top:0; border-bottom:0;
   font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--faint)}
+/* La première ligne de données ne porte plus de filet gris en haut non plus :
+   rien de gris ne coupe sous l'en-tête. */
+.pvt tbody tr:first-child th, .pvt tbody tr:first-child td{border-top:0}
 .pvt thead th[data-z]{border-top:3px solid transparent}
 .pvt thead th[data-z="jaune"]{border-top-color:var(--at-jaune)}
 .pvt thead th[data-z="vert"] {border-top-color:var(--at-vert)}
@@ -971,14 +977,18 @@ body.sheet-on{overflow:hidden}
    elle on ne sait plus de qui on lit la ligne. */
 .pvt th.pvqui{position:sticky; left:0; z-index:2; width:52px; text-align:center;
   background:var(--surface); border-left:0;
+  /* Même bordure forte qu'à droite de la colonne des postes dans l'onglet
+     horaire (le client, le 03/10/2026) : elle sépare les trigrammes des degrés. */
+  border-right:2px solid var(--trait-fort);
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
   color:var(--ink)}
-/* Un filet gris au-dessus de « Qui », de la même épaisseur que les filets
-   d'atelier des autres colonnes. Le client, le 22/09/2026 : « il faut un
-   bord gris au-dessus de "Qui" pour avoir comme les autres colonnes ».
-   Sans lui la ligne d'en-tête commençait par un creux de trois pixels. */
+/* Un filet TRANSPARENT de 3 px au-dessus de « Qui », de la même épaisseur que
+   les filets d'atelier des autres colonnes : il garde l'alignement de la ligne
+   d'en-tête (sans lui elle commençait par un creux de trois pixels, client du
+   22/09/2026) mais ne se voit plus — « ne garder que celles de couleur », le
+   client du 03/10/2026, « Qui » n'étant pas une zone colorée. */
 .pvt thead th.pvqui{z-index:3; font-family:inherit; font-size:9.5px;
-  font-weight:700; color:var(--faint); border-top:3px solid var(--line)}
+  font-weight:700; color:var(--faint); border-top:3px solid transparent}
 .pvt tbody tr:nth-child(even) th.pvqui,
 .pvt tbody tr:nth-child(even) td{background:var(--surface2)}
 .pvt td{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
@@ -11834,7 +11844,7 @@ function gateProfilHTML(p){
   if(cadre) sousTitre=(typeof fonctionPersonne==="function")?fonctionPersonne(p):p.cat;
   else { sousTitre=equipeShift(p); if(sousTitre==="—"&&typeof fonctionPersonne==="function") sousTitre=fonctionPersonne(p); }
   var rows=[['Statut', esc(statutAffiche(p))]];
-  if(!cadre) rows.push(['Poste', esc(posteAttitreTitre(p))]);
+  if(!cadre) rows.push(['Poste actuel', esc(posteAttitreTitre(p))]);
   if(!contremaitre){
     var comp=competencesDe(p);
     rows.push(['Polyvalences', comp.length?comp.map(function(t){return esc(t);}).join(" · "):'—']);
