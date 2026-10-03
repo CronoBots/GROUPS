@@ -1083,6 +1083,21 @@ body.sheet-on{overflow:hidden}
    le même que partout ailleurs dans l'application : une valeur de plus, ici,
    aurait fait un onglet qui ne respire pas comme les autres. */
 .orgcorps{display:flex; flex-direction:column; gap:16px}
+/* LE SEGMENT SE POSE SUR LE TABLEAU, comme la barre de date sur la carte du
+   jour. Le client, le 03/10/2026 : « coller le cadre du dessus au équipe comme
+   dans l'onglet horaire, même écart gauche/haut/droite et halo ». Le segment
+   coiffe (coins hauts arrondis, pas de bordure basse) ; la carte du tableau (et
+   de la grille Recyclage) reçoit la bordure haute forte --trait-fort et le halo
+   bleuté de #v-jour .card. #v-equipe passe en gap:0 pour les coller, l'écart de
+   16 px restant entre la carte et l'annuaire (géré par .stack à l'intérieur). */
+#v-equipe{gap:0}
+#v-equipe>.eqseg{border-radius:var(--r) var(--r) 0 0; border-bottom:0}
+/* Seule la PREMIÈRE carte (le tableau d'équipe, ou la grille Recyclage) est
+   coiffée par le segment : les cartes qui suivent (binômes, formation, station,
+   annuaire) gardent leur aspect normal. */
+#orgCorps>.card:first-child, #eqsub-poly>.card:first-child{
+  border-top:2px solid var(--trait-fort); border-radius:0 0 var(--r) var(--r);
+  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45), 0 0 26px 2px rgba(132,166,216,.13)}
 /* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
    Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
    à gauche, trigrammes empilés — parce que c'est le même objet regardé
@@ -1148,7 +1163,9 @@ body.sheet-on{overflow:hidden}
   border:1px solid var(--line); border-radius:6px; padding:1px 6px;
   background:var(--surface); line-height:1.5}
 .orgt td{white-space:normal}
-.orgt td .orgn.orgf{border-color:var(--at-jaune)}
+/* L'opérateur en formation : CONTOUR GRIS comme dans l'onglet horaire (le
+   client, le 03/10/2026), l'encre jaune suffisant à le signaler. */
+.orgt td .orgn.orgf{border-color:var(--trait)}
 .orgt td .orgn.moi{border-color:var(--in); text-decoration:none}
 .orgvide{color:var(--faint)}
 /* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
@@ -2867,10 +2884,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <button type="button" role="tab" id="eqsub-tab-poly" data-sv="poly" aria-selected="false" aria-controls="eqsub-poly" tabindex="-1">Recyclage</button>
     </nav>
     <div class="stack" id="eqsub-equipes" role="tabpanel" aria-labelledby="eqsub-tab-equipes">
-    <div class="pvtete">
-      <h2>Les équipes</h2>
-      <p class="sub" id="orgSub"></p>
-    </div>
+    <!-- Plus de titre « Les équipes » au-dessus : le segment se pose directement
+         sur le tableau (le client, le 03/10/2026, « coller le cadre du dessus au
+         équipe comme dans l'onglet horaire »). -->
     <div class="orgcorps" id="orgCorps"></div>
 
     <!-- L'ANNUAIRE RESTE ICI, et non dans le Résumé : le client a tranché le
@@ -2893,10 +2909,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          dessous la ligne avec les dates ». Ils annoncent la grille, ils n'en
          font pas partie. -->
     <div class="stack" id="eqsub-poly" role="tabpanel" aria-labelledby="eqsub-tab-poly" hidden>
-      <div class="pvtete">
-        <h2>Recyclage des polyvalences</h2>
-        <p class="sub" id="pvSub"></p>
-      </div>
+      <!-- Plus de titre au-dessus : le segment se pose sur la grille, comme pour
+           « Les équipes » (le client, le 03/10/2026). -->
       <div class="card">
         <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
         <div id="pvFin" class="pvfinav"></div>
@@ -9335,8 +9349,8 @@ function ditLaDate(f){
 function renderPolyvalence(){
   var hote=document.getElementById("pvTable"); if(!hote) return;
   fetchHoraireDB().then(function(db){
-    if(!db){ hote.innerHTML=""; 
-      document.getElementById("pvSub").textContent="horaire d'équipe indisponible";
+    if(!db){ hote.innerHTML="";
+      var ps0=document.getElementById("pvSub"); if(ps0) ps0.textContent="horaire d'équipe indisponible";
       return; }
     var sel=document.getElementById("prefillId");
     var moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
@@ -9401,7 +9415,8 @@ function renderPolyvalence(){
        encore lu. La période, elle, se lit AVANT, sans quoi aucun nombre du
        tableau ne veut dire quelque chose. */
     var jj=Number(t.debut.slice(2)), mm=Number(t.debut.slice(0,2));
-    document.getElementById("pvSub").textContent=
+    var ps1=document.getElementById("pvSub");
+    if(ps1) ps1.textContent=
       "du "+(jj===1?"1er":jj)+" "+MOIS[mm-1].toLowerCase()
       +" au "+Number(t.fin.slice(2))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase()
       +" "+db.year;
@@ -9571,7 +9586,6 @@ function renderOrganisation(){
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
-    var aForme=false;
     var t=['<div class="card"><div class="eqgrille"><table class="orgt">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
@@ -9605,8 +9619,7 @@ function renderOrganisation(){
            le titulaire, c'est tout l'objet de la règle de placement. Seul
            l'ORDRE demeure : celui que le classeur nomme au poste vient en
            tête, et il n'y a plus rien à expliquer en légende. */
-        /* Celui qui APPREND s'écrit en dernier, et en jaune. */
-        if(o.f.length) aForme=true;
+        /* Celui qui APPREND s'écrit en dernier, en jaune et contour gris. */
         t.push("<td>"+o.t.sort().concat(o.r.sort()).map(function(id){
           return _orgJeton(id,moi); }).join("")
           +o.f.sort().map(function(id){
@@ -9614,13 +9627,10 @@ function renderOrganisation(){
       });
       t.push("</tr>");
     });
-    /* La légende ne dit que ce qui est DESSINÉ : sans opérateur en formation
-       dans le tableau, elle n'a rien à expliquer et ne s'écrit pas. */
+    /* Plus de légende « formation » (le client, le 03/10/2026) : le contour gris
+       se lit seul, comme dans l'onglet horaire. Reste la note des orphelins, qui
+       dit une donnée et non une convention de dessin. */
     t.push("</tbody></table></div>"
-      +(aForme?'<p class="lede" style="padding:0 16px 10px">'
-        +'<span class="orgn orgf" style="display:inline">ABC</span> '
-        +"opérateur en formation au poste : il y est présent, pas encore validé."
-        +"</p>":"")
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
         +orphelins.length+" personne(s) que le classeur ne rattache à aucun poste : "
         +orphelins.map(function(x){ return esc(idLisible(x.id))+" (éq. "+esc(x.eq)+")"; }).join(", ")
