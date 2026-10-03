@@ -2632,6 +2632,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
       Équipe</button>
+    <button type="button" role="tab" id="tab-rh" data-v="rh" aria-selected="false" aria-controls="v-rh">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="5" width="15" height="16" rx="2.2"/><path d="M9 5V4a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5"/><path d="M8.5 12.5l2 2 4-4.5"/></svg>
+      RH</button>
     <button type="button" role="tab" id="tab-reglages" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
       Réglages</button>
@@ -2651,113 +2654,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 
   <!-- ============ RÉSUMÉ ============ -->
   <section class="panel stack" id="v-resume" role="tabpanel" aria-labelledby="tab-resume" tabindex="-1">
-    <!-- LA VUE DU JOUR. Le client, le 22/09/2026 : « ce qui est affiché
-         actuellement dans Équipe doit être affiché dans Résumé afin d'avoir
-         une vue directe sur la journée ». Le Résumé ne porte donc plus le
-         net du mois — il est parti dans « Mon salaire » avec tout ce qui
-         touche à la paie — mais ce qu'on vient chercher en ouvrant
-         l'application le matin : mon poste, les manques à venir, et qui
-         tient l'usine aujourd'hui.
-
-         Le sélecteur de mois n'y est plus non plus : cet écran parle
-         d'aujourd'hui, pas d'un mois. -->
-    <!-- TOUT EN HAUT, ET PLUS DE « MON PROCHAIN POSTE ». Le client, le
-         30/09/2026 : « le cadre congé/absence/recherche doit être tout en
-         haut ; on peut supprimer le cadre prochain poste ; poste en
-         sous-effectif et rappel non nécessaire doivent être juste en
-         dessous du cadre équipe du jour ». La barre du haut dit déjà le
-         poste du jour. -->
-    <!-- CONGÉ ET ABSENCE. Le client, le 29/09/2026 : un module de demande
-         de congé qui dit si c'est possible et propose les changements à
-         faire, « par les opérateurs d'une même pause et selon leurs
-         polyvalences » ; un module d'absence qui trouve les remplacements
-         ou changements à faire pour un jour ou une période. Les deux
-         rejouent la journée SANS la personne, par la chaîne du tableau du
-         jour (equipeDuJour, postesDePause) : ils ne peuvent pas dire
-         autre chose que lui. -->
-    <div class="pvtete">
-      <h2>Congé, absence et recherche</h2>
-      <p class="sub" id="caSub">simuler une journée sans quelqu'un</p>
-    </div>
-    <div class="card" id="caCard">
-      <div class="caseg" role="tablist" aria-label="Type de demande">
-        <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
-        <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
-        <button type="button" role="tab" data-ca="recherche" aria-selected="false" tabindex="-1">Recherche</button>
-      </div>
-      <div class="caform jour" id="caForm">
-        <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
-        <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
-        <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
-        <div class="caduree" role="radiogroup" aria-label="Durée">
-          <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
-          <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
-        </div>
-        <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
-        <label class="caau">Au<input type="date" id="caAu"></label>
-        <button type="button" class="btn primary" id="caGo">Vérifier</button>
-      </div>
-      <div class="mqcorps" id="caCorps"></div>
-    </div>
-
-    <div class="pvtete">
-      <h2>Équipes du jour</h2>
-      <p class="sub" id="eqSub"></p>
-    </div>
-    <div class="card">
-      <!-- Plus d'en-tête « Qui travaille » : le titre de section le dit, et
-           la barre du jour, juste dessous, porte la date. Le client, le
-           26/09/2026 : « comment mieux présenter ceci ? » — trois étages de
-           titres avant la première ligne du tableau. -->
-      <!-- LE JOUR ET SON TABLEAU DANS LE MÊME CADRE. Le client, le
-           23/09/2026 : « supprimer la zone "comment lire ce tableau" et lier
-           le cadre avec la sélection de jour au cadre qui reprend les trois
-           pauses ». C'étaient deux cadres pour une seule chose : on choisit
-           une journée POUR lire ce tableau-là, la barre de navigation et son
-           contenu ne se séparent pas.
-
-           D'où deux hôtes et non un : le tableau des pauses se rend ICI,
-           dans le cadre, et « Hors poste » garde le sien juste en dessous —
-           il parle d'autre chose, et un cadre dans un cadre ne se lit pas. -->
-      <div class="toolbar eqnav">
-        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour" id="eqJour">—</div>
-        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
-        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
-      </div>
-      <div class="eqhote" id="eqCorps"></div>
-    </div>
-
-    <!-- SOUS LES ÉQUIPES DU JOUR. Le client, le 28/09/2026 : « on peut
-         mettre les postes en sous-effectif sous les équipes du jour », puis
-         le 30/09 : « juste en dessous du cadre équipe du jour » — entre le
-         tableau et les cadres des absents et des congés. Un clic sur une
-         journée remonte au tableau.
-
-         Plus de barre de repli (le client, le 28/09/2026 : « retire-la ») :
-         le compte vit sous le titre, comme celui de « Équipes du jour ».
-         Le module regarde d'aujourd'hui à la fin de l'horaire, jamais en
-         arrière, sans choix d'horizon (le client, le 26/09/2026). -->
-    <div class="pvtete">
-      <h2>Postes en sous-effectif</h2>
-      <p class="sub" id="mqSub"></p>
-    </div>
-    <div class="card" id="mqCard">
-      <div class="mqcorps" id="mqCorps"></div>
-    </div>
-
-    <!-- RAPPELS NON NÉCESSAIRES. Le client, le 30/09/2026 : un cadre des
-         « erreurs » du classeur, un travailleur rappelé pour un poste où il
-         n'y avait pas besoin, l'effectif permettant une équipe complète. -->
-    <div class="pvtete">
-      <h2>Rappels non nécessaires</h2>
-      <p class="sub" id="rnSub"></p>
-    </div>
-    <div class="card" id="rnCard">
-      <div class="mqcorps" id="rnCorps"></div>
-    </div>
-
-    <div class="eqcorps" id="eqReste"></div>
+    <!-- L'ACCUEIL = « MON RYTHME ». Le client, le 03/10/2026 : « il faut un
+         onglet dédié au RH ». Le tableau du jour (doublon de l'onglet Horaire),
+         le module congé/absence/recherche et les alertes (sous-effectif,
+         rappels, hors-poste) ont rejoint l'onglet RH. L'Accueil ne garde que la
+         vue d'ensemble personnelle de l'opérateur. -->
+    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre rythme sur l'année d'horaire.</p>
 
     <!-- MON RYTHME. Vue d'ensemble de l'année pour l'opérateur : répartition des
          pauses, nuits par mois, jours de week-end prestés. Rejoue l'horaire via
@@ -3064,9 +2966,67 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     </div>
   </section>
 
-  <!-- ============ FICHE ============ -->
-    <!-- ============ CONTRÔLE ============ -->
-    <!-- ============ RÉGLAGES ============ -->
+  <!-- ============ RH ============ -->
+  <!-- Les outils de gestion d'équipe, regroupés. Le client, le 03/10/2026 :
+       « il faut un onglet dédié au RH ». Congé/absence/recherche, un sélecteur
+       de jour, les postes en sous-effectif, les rappels non nécessaires et le
+       hors-poste quittent l'Accueil (qui ne garde que « Mon rythme ») ; le
+       tableau du jour dupliqué disparaît — il reste sur l'onglet Horaire. -->
+  <section class="panel stack" id="v-rh" role="tabpanel" aria-labelledby="tab-rh" tabindex="-1" hidden>
+    <div class="pvtete">
+      <h2>Congé, absence et recherche</h2>
+      <p class="sub" id="caSub">simuler une journée sans quelqu'un</p>
+    </div>
+    <div class="card" id="caCard">
+      <div class="caseg" role="tablist" aria-label="Type de demande">
+        <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
+        <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
+        <button type="button" role="tab" data-ca="recherche" aria-selected="false" tabindex="-1">Recherche</button>
+      </div>
+      <div class="caform jour" id="caForm">
+        <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
+        <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
+        <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
+        <div class="caduree" role="radiogroup" aria-label="Durée">
+          <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
+          <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
+        </div>
+        <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
+        <label class="caau">Au<input type="date" id="caAu"></label>
+        <button type="button" class="btn primary" id="caGo">Vérifier</button>
+      </div>
+      <div class="mqcorps" id="caCorps"></div>
+    </div>
+
+    <!-- LE JOUR des alertes ci-dessous (sous-effectif, rappels, hors-poste).
+         Cette barre pilote eqDate, partagé avec l'onglet Horaire. -->
+    <div class="toolbar eqnav rhjour">
+      <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
+      <div class="eqjour" id="eqJour">—</div>
+      <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
+      <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
+    </div>
+
+    <div class="pvtete">
+      <h2>Postes en sous-effectif</h2>
+      <p class="sub" id="mqSub"></p>
+    </div>
+    <div class="card" id="mqCard">
+      <div class="mqcorps" id="mqCorps"></div>
+    </div>
+
+    <div class="pvtete">
+      <h2>Rappels non nécessaires</h2>
+      <p class="sub" id="rnSub"></p>
+    </div>
+    <div class="card" id="rnCard">
+      <div class="mqcorps" id="rnCorps"></div>
+    </div>
+
+    <div class="eqcorps" id="eqReste"></div>
+  </section>
+
+  <!-- ============ RÉGLAGES ============ -->
   <section class="panel stack" id="v-reglages" role="tabpanel" aria-labelledby="tab-reglages" tabindex="-1" hidden>
     <div class="card">
       <details class="fold" open>
@@ -5010,7 +4970,7 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["resume","jour","horaire","salaire","equipe","reglages"];
+var VIEWS=["resume","jour","horaire","salaire","equipe","rh","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
@@ -5040,7 +5000,12 @@ function setView(v,keepScroll){
   deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
   if(v==="horaire") renderCompteurs();
-  if(v==="resume"||v==="jour") renderEquipe();
+  /* RH porte désormais le tableau d'alertes (sous-effectif, rappels, hors-poste) :
+     son ouverture rend l'équipe du jour (qui alimente #jourCorps caché PUIS
+     renderManques/renderRappelsInutiles). L'Accueil, lui, ne montre que
+     « Mon rythme ». */
+  if(v==="jour"||v==="rh") renderEquipe();
+  if(v==="resume") renderRythme();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="horaire") centrerSurAujourdhui();
 }
@@ -7117,8 +7082,9 @@ function renderRythme(){
   if(!corps||!card) return;
   var db=HORAIRE_DB, id=(typeof trigCourant==="function")?trigCourant():"";
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
-  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; return; }
-  card.hidden=false; if(tete) tete.hidden=false;
+  var vide=document.getElementById("resumeVide");
+  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; return; }
+  card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
@@ -8492,7 +8458,13 @@ var fermerCompop=function(){};
    sur l'ancien contenu, aussitôt écrasé par le rendu différé. */
 function renderEquipe(){
   fermerCompop();
-  var hote=document.getElementById("eqCorps"); if(!hote) return Promise.resolve();
+  /* #eqCorps a disparu de l'Accueil (le tableau du jour ne vit plus que sur
+     l'onglet Horaire, #jourCorps). On ne dépend donc plus de lui : on continue
+     tant qu'AU MOINS un hôte existe, et on écrit dans chacun seulement s'il est
+     là. renderManques()/renderRappelsInutiles() (appelés plus bas) alimentent
+     l'onglet RH. */
+  var hote=document.getElementById("eqCorps"), jh0=document.getElementById("jourCorps");
+  if(!hote && !jh0) return Promise.resolve();
   return fetchHoraireDB().then(function(db){
     if(!db) return;
     var dt=eqJourValide(db), annee=dt.getFullYear(), mois=dt.getMonth()+1, jour=dt.getDate();
@@ -9091,12 +9063,15 @@ function renderEquipe(){
     var reste=document.getElementById("eqReste");
     if(reste) reste.innerHTML=cadres.join("");
 
-    hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
-    document.getElementById("eqSub").textContent=
-      total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
+    if(hote) hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
+    var es=document.getElementById("eqSub");
+    if(es) es.textContent=total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
+    /* Les alertes de l'onglet RH se rafraîchissent une fois le jour rendu. Elles
+       étaient APRÈS le return (donc inatteignables depuis que renderEquipe rend
+       une promesse) : on les remet DANS le .then. */
+    renderManques();
+    renderRappelsInutiles();
   });
-  renderManques();
-  renderRappelsInutiles();
 }
 /* ── La polyvalence : combien de journées COMPLÈTES à chaque autre poste ──
    Le client, le 22/09/2026 : « pour les opérateurs, cela peut être bien
