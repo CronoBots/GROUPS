@@ -961,11 +961,12 @@ body.sheet-on{overflow:hidden}
    plus marqué que --line2. L'en-tête garde ses seuls filets de couleur. */
 .pvt th, .pvt td{padding:5px 2px; text-align:center; line-height:1.4;
   border-left:1px solid var(--trait); border-top:1px solid var(--trait)}
-/* Plus de bordure grise sous l'en-tête : seuls les filets de couleur des
-   ateliers (border-top) signalent les zones (le client, le 03/10/2026, « ne
-   garder que celles de couleur »). */
+/* En haut de l'en-tête, seuls les filets de couleur des ateliers (border-top)
+   signalent les zones — pas de gris (le client, le 03/10/2026). SOUS la ligne
+   de poste, en revanche, le trait fort d'Horaire sépare l'en-tête des données
+   (le client, le 03/10/2026 : « il faut la bordure sous la ligne de poste »). */
 .pvt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
-  border-top:0; border-bottom:0;
+  border-top:0; border-bottom:2px solid var(--trait-fort);
   font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--faint)}
 /* La première ligne de données ne porte plus de filet gris en haut non plus :
    rien de gris ne coupe sous l'en-tête. */
@@ -1106,9 +1107,12 @@ body.sheet-on{overflow:hidden}
 #v-equipe>.eqseg{border-radius:var(--r) var(--r) 0 0; border-bottom:0}
 /* Seule la PREMIÈRE carte (le tableau d'équipe, ou la grille Recyclage) est
    coiffée par le segment : les cartes qui suivent (binômes, formation, station,
-   annuaire) gardent leur aspect normal. */
+   annuaire) gardent leur aspect normal.
+   PAS de bordure grise sous le segment (le client, le 03/10/2026 : « il ne faut
+   pas la bordure grise sous la ligne des 2 boutons ») : border-top:0. Le trait
+   fort vit SOUS la ligne de poste (en-tête du tableau), pas sous les boutons. */
 #orgCorps>.card:first-child, #eqsub-poly>.card:first-child{
-  border-top:2px solid var(--trait-fort); border-radius:0 0 var(--r) var(--r);
+  border-top:0; border-radius:0 0 var(--r) var(--r);
   box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45), 0 0 26px 2px rgba(132,166,216,.13)}
 /* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
    Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
@@ -2930,7 +2934,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="card">
         <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
         <div id="pvFin" class="pvfinav"></div>
-        <p class="eqleg" id="pvLeg"></p>
       </div>
     </div><!-- /#eqsub-poly -->
   </section>
@@ -9445,7 +9448,7 @@ function renderPolyvalence(){
        deviner. Le vert d'un quota atteint et le « 0/X » se lisent tout
        seuls : le chiffre y est écrit, et une légende qui répète ce que la
        case dit déjà est du bruit. */
-    document.getElementById("pvLeg").innerHTML=
+    var __legSupprimee=  /* légende retirée le 03/10/2026 ; #pvLeg n'est plus garni ni affiché */
       '<span><i class="lg-pvsien">\u25cf</i>Poste actuel</span>'
       +'<span><i class="lg-tiret">\u00b7</i>Poste non acquis</span>'
       +'<span><i class="lg-pvform">F</i>En formation</span>'
