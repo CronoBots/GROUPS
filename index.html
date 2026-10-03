@@ -1503,10 +1503,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    grosse bordure de l'en-tête (2 px) est retirée, pour que le haut soit discret
    comme le bas. */
 #jourCorps .eqp2 thead th{border-top:0}
-/* Plus de bouton de retour à aujourd'hui sur l'onglet Horaire (le client, le
-   03/10/2026 : « rien de dédié ») : toucher la date ouvre le calendrier, où
-   aujourd'hui se choisit. (Styles .posteauj conservés inertes, sans élément.) */
-.posteauj{display:none;
+/* BOUTON RETOUR DANS LA CELLULE « POSTE » (le client, le 03/10/2026 : « il faut
+   un bouton retour dans la case Poste »). Il ramène à aujourd'hui. Une flèche de
+   retour — PAS l'icône calendrier que le client n'aimait pas (retirée le
+   03/10/2026). Centré dans la cellule, seulement sur l'onglet Horaire (l'Accueil
+   garde son bouton « Aujourd'hui »). */
+.posteauj{display:inline-flex; align-items:center; justify-content:center;
   width:28px; height:28px; padding:0; background:transparent; border:0;
   border-radius:8px; color:var(--in); cursor:pointer; transition:background-color .15s ease}
 .posteauj svg{width:17px; height:17px}
@@ -8671,7 +8673,10 @@ function renderEquipe(){
       var jsem=new Date(annee,mois-1,jour).getDay(), weekEnd=(jsem===0||jsem===6);
       var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
         +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
-      tp.push('<thead><tr><th class="eqposte"></th>');
+      tp.push('<thead><tr><th class="eqposte">'
+        +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">'
+          +'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v1"/></svg>'
+          +"</button></th>");
       PAUSES.forEach(function(g){
         if(!vp[g.k]) return;
         /* Plus de « 10 pers. » sous la pause. Le client, le 26/09/2026
