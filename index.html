@@ -1627,7 +1627,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau remplit par flex. Sur ordinateur la barre du haut porte les onglets,
    on n'y touche pas. */
 @media (max-width:760px){
-  body[data-view="jour"] .top{display:none}
+  /* PLUS DE BARRE DU HAUT, SUR AUCUN ONGLET. Le client, le 03/10/2026 :
+     « supprimer la barre du haut sur tous les onglets ». Sur téléphone, les
+     onglets vivent déjà en bas (navwrap) et la barre du haut ne portait plus
+     que l'identité : on la masque partout pour rendre sa hauteur au contenu.
+     Comme elle couvrait l'encoche (padding-top:safe-area), on rend cette marge
+     au .wrap des vues qui défilent. (Au-delà de 760 px la barre porte les
+     onglets : elle reste, cf. placerOnglets.) */
+  .top{display:none}
+  .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 16px)}
+  /* La vue « Du jour » a son plein écran fixe, avec sa propre marge d'encoche. */
   body[data-view="jour"]{overflow:hidden}
   body[data-view="jour"] .wrap{
     position:fixed; inset:0; max-width:none; margin:0; overflow:hidden;
