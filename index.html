@@ -208,19 +208,20 @@ button{cursor:pointer}
 @keyframes jourDroite{from{opacity:.2; transform:translateX(-18px)} to{opacity:1; transform:none}}
 #eqCorps.glisse-g{animation:jourGauche .2s ease-out}
 #eqCorps.glisse-d{animation:jourDroite .2s ease-out}
-/* ONGLET « DU JOUR » : une transition un peu plus ample, le tableau remplissant
-   l'écran. Glissement-fondu directionnel, démarrage net puis arrivée douce. Le
-   client, le 02/10/2026 : « une transition pro lors des changements de dates ». */
-/* Changement de jour : le tableau arrive du côté où l'on va, en fondu et en
-   « se posant » (léger passage de 0.985 à 1), avec une décélération douce — un
-   effet plus soigné (le client, le 03/10/2026). */
-@keyframes jourSlideG{from{opacity:0; transform:translateX(44px) scale(.985)} to{opacity:1; transform:none}}
-@keyframes jourSlideD{from{opacity:0; transform:translateX(-44px) scale(.985)} to{opacity:1; transform:none}}
-#jourCorps.glisse-g{animation:jourSlideG .36s cubic-bezier(.18,.8,.25,1)}
-#jourCorps.glisse-d{animation:jourSlideD .36s cubic-bezier(.18,.8,.25,1)}
-@media (prefers-reduced-motion:reduce){
-  #eqCorps.glisse-g,#eqCorps.glisse-d,#jourCorps.glisse-g,#jourCorps.glisse-d{animation:none}
-}
+/* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
+   transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
+   tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
+   l'autre, les deux verrouillés comme un carrousel. pageJour() superpose deux
+   calques le temps du glissement, puis rend l'hôte à son état normal (un seul
+   contenu, le cadre qui défile). Chaque calque remplit l'hôte (inset:0, colonne
+   flex comme #jourCorps lui-même), si bien que .eqgrille garde sa taille et son
+   défilement ; l'hôte est en overflow:hidden, donc le calque qui sort est rogné.
+   Sous « prefers-reduced-motion » la règle globale (plus bas) coupe la
+   transition : les calques se posent d'emblée à leur place finale, et pageJour
+   les démonte quand même par sa minuterie. */
+#jourCorps.paging{position:relative}
+#jourCorps .jourlayer{position:absolute; inset:0; display:flex; flex-direction:column; will-change:transform; backface-visibility:hidden}
+#jourCorps .jourlayer.jlgo{transition:transform .36s cubic-bezier(.18,.8,.25,1)}
 .btn,.eqnav button{transition:transform .12s ease, background-color .15s ease, border-color .15s ease}
 .btn:active,.eqnav button:active{transform:scale(.95)}
 /* Un bouton désactivé se lit comme tel et n'accepte plus le tape : la double
@@ -8354,9 +8355,14 @@ function horaireHabituelD(p){
   }
   return (_habDCache[p.id]=out);
 }
+/* renderEquipe REND DE FAÇON ASYNCHRONE : tout le corps vit dans le
+   .then() de fetchHoraireDB(). On RETOURNE cette promesse pour que l'appelant
+   (eqBouge, choix de date) puisse enchaîner APRÈS que #jourCorps a reçu le
+   nouveau jour — sans quoi un feuilletage lancé tout de suite travaillerait
+   sur l'ancien contenu, aussitôt écrasé par le rendu différé. */
 function renderEquipe(){
-  var hote=document.getElementById("eqCorps"); if(!hote) return;
-  fetchHoraireDB().then(function(db){
+  var hote=document.getElementById("eqCorps"); if(!hote) return Promise.resolve();
+  return fetchHoraireDB().then(function(db){
     if(!db) return;
     var dt=eqJourValide(db), annee=dt.getFullYear(), mois=dt.getMonth()+1, jour=dt.getDate();
     var mmdd=pad2(mois)+pad2(jour);
@@ -9975,21 +9981,86 @@ function renderManques(force){
     };
   });
 }
-/* Le tableau arrive du côté où l'on va : demain par la droite, hier par la
-   gauche. C'est ce qui fait sentir qu'on feuillette des journées. Les deux
-   hôtes (Accueil #eqCorps, onglet #jourCorps) jouent la même transition ; celui
-   qui n'est pas affiché l'ignore sans dommage. */
+/* ACCUEIL (#eqCorps) : la page défile, pas de cadre clos — on garde le simple
+   glissement-fondu de l'arrivée (demain par la droite, hier par la gauche).
+   L'onglet « Du jour » (#jourCorps), lui, vit dans un cadre à hauteur fixe en
+   overflow:hidden : il peut donc jouer un VRAI feuilletage (pageJour), ce que
+   l'Accueil ne pourrait pas sans déborder. */
 function glisseCorps(n){
   if(!n) return;
-  ["eqCorps","jourCorps"].forEach(function(id){
-    var c=document.getElementById(id); if(!c) return;
-    c.classList.remove("glisse-g","glisse-d"); void c.offsetWidth;
-    c.classList.add(n>0?"glisse-g":"glisse-d");
-  });
+  var c=document.getElementById("eqCorps"); if(!c) return;
+  c.classList.remove("glisse-g","glisse-d"); void c.offsetWidth;
+  c.classList.add(n>0?"glisse-g":"glisse-d");
 }
+/* On fige l'état courant de l'onglet « Du jour » AVANT de re-rendre, pour
+   pouvoir le faire sortir : son HTML et le défilement de son cadre. */
+function snapJour(){
+  var h=document.getElementById("jourCorps"); if(!h) return null;
+  /* Si un feuilletage est encore en vol (tapotement rapide), le vrai contenu
+     courant est dans le PREMIER calque (le nouveau jour), pas dans l'hôte qui
+     porte deux calques imbriqués : on fige celui-là, pour que l'ancien jour qui
+     sort ne soit pas deux calques l'un dans l'autre. */
+  var src=h.querySelector(":scope > .jourlayer")||h;
+  var g=src.querySelector(".eqgrille");
+  return { html:src.innerHTML, scroll:g?g.scrollTop:0 };
+}
+/* VRAI FEUILLETAGE de l'onglet « Du jour ». n>0 (demain) : le nouveau jour
+   entre par la DROITE, l'ancien sort par la GAUCHE ; n<0, l'inverse. Les deux
+   calques glissent d'une largeur d'hôte, verrouillés. Le nouveau calque est
+   inséré EN PREMIER dans le DOM : ajusterLignesJour() fait
+   querySelector("#jourCorps .eqgrille") et doit tomber sur LUI, pas sur le
+   calque figé de l'ancien jour. À la fin on « déballe » le nouveau contenu
+   dans l'hôte (état normal : un seul enfant, le cadre qui défile) et on retire
+   l'ancien. Une minuterie démonte l'ensemble même sans transitionend (cas
+   « prefers-reduced-motion », où la transition est coupée). */
+function pageJour(old, n){
+  var host=document.getElementById("jourCorps");
+  if(!host || !n || !old) return;
+  if(host._pageFin) host._pageFin();            // feuilletage encore en vol : on le clôt net
+  var dir=n>0?1:-1;
+  var neuf=document.createElement("div"); neuf.className="jourlayer";
+  while(host.firstChild) neuf.appendChild(host.firstChild);
+  var anc=document.createElement("div"); anc.className="jourlayer"; anc.innerHTML=old.html;
+  host.appendChild(neuf); host.appendChild(anc);  // neuf d'abord : cible de querySelector
+  var g=anc.querySelector(".eqgrille"); if(g && old.scroll) g.scrollTop=old.scroll;
+  host.classList.add("paging");
+  neuf.style.transform="translateX("+(dir*100)+"%)";
+  anc.style.transform="translateX(0)";
+  void host.offsetWidth;                          // on fige la position de départ
+  neuf.classList.add("jlgo"); anc.classList.add("jlgo");
+  neuf.style.transform="translateX(0)";
+  anc.style.transform="translateX("+(-dir*100)+"%)";
+  var fait=false;
+  function fin(e){
+    /* transitionend BULLE depuis les descendants du calque (une puce, un
+       surlignage) : on ne clôt que sur le transform DU calque lui-même. La
+       minuterie reste le filet si aucun transitionend ne vient (reduced-motion,
+       où la transition est coupée). */
+    if(e && e.type==="transitionend" && (e.target!==neuf || e.propertyName!=="transform")) return;
+    if(fait) return; fait=true;
+    host.classList.remove("paging");
+    /* Démontage idempotent : on ne dépend pas de `anc` comme repère (un rendu
+       plus récent a pu déjà retirer les calques). On replace le contenu du
+       nouveau calque là où il était, puis on retire les deux calques s'ils
+       sont encore là. Si tout a déjà disparu, c'est un no-op silencieux. */
+    if(neuf.parentNode===host){
+      while(neuf.firstChild) host.insertBefore(neuf.firstChild, neuf);
+      host.removeChild(neuf);
+    }
+    if(anc.parentNode===host) host.removeChild(anc);
+    if(host._pageFin===fin) host._pageFin=null;
+  }
+  host._pageFin=fin;
+  neuf.addEventListener("transitionend",fin);
+  setTimeout(fin,440);
+}
+/* renderEquipe rend de façon asynchrone (promesse) : on lance le feuilletage
+   DANS son .then, une fois #jourCorps garni du nouveau jour. `old` est figé
+   AVANT le rendu — c'est le jour qu'on quitte, qui doit sortir. */
 function eqBouge(n){
-  var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false; renderEquipe();
-  glisseCorps(n);
+  var old=n?snapJour():null;
+  var d=new Date(eqDate); d.setDate(d.getDate()+n); eqDate=d; eqAuto=false;
+  renderEquipe().then(function(){ glisseCorps(n); pageJour(old,n); });
 }
 /* FEUILLETER DU DOIGT. Sur téléphone, un glissement horizontal sur le
    tableau change de jour, comme les flèches. Seulement s'il est franc —
@@ -10062,8 +10133,9 @@ document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=nul
     var nd=new Date(Number(q[0]), Number(q[1])-1, Number(q[2]));
     var av=eqDate?new Date(eqDate):new Date();
     var n=(nd-av)>0?1:((nd-av)<0?-1:0);
+    var old=n?snapJour():null;
     eqDate=nd; eqAuto=false;
-    renderEquipe(); glisseCorps(n);
+    renderEquipe().then(function(){ glisseCorps(n); pageJour(old,n); });
   });
 })();
 /* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
