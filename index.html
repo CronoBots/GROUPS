@@ -557,9 +557,11 @@ button{cursor:pointer}
    renderSlip(). Un style qui ne sert plus égare celui qui le relit. */
 /* Les quatre règles qui masquaient le sélecteur onglet par onglet ont
    disparu avec lui : il n'est plus présent que là où un hôte l'accueille.
-   Restent les deux vues de l'horaire qui n'ont pas de mois à choisir. */
-body[data-horaire="annee"][data-view="horaire"] .mnav,
-body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
+   Reste la vue Année de l'horaire, qui n'a pas de mois à choisir : on y
+   masque l'hôte de la barre de mois (display:none, pas visibility, pour ne
+   pas laisser un trou dans la barre héros du calendrier). Déclaratif : il suit
+   data-horaire quoi que fasse placerMnav au changement d'onglet. */
+body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
 /* Dans un onglet, il n'est plus un morceau d'en-tête mais une barre à lui,
    posée au-dessus de la première carte. */
 .mnavhote:empty{display:none}
@@ -732,6 +734,37 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   .day select{grid-area:a} .day input[type=number]{grid-area:h; max-width:76px; justify-self:end}
 }
 
+/* ---------- calendrier : la carte héros, façon onglet « Du jour » ---------- */
+/* Le client, le 03/10/2026 : un calendrier pro dans le style de l'onglet
+   horaire. La carte remplit le premier écran (puis on défile vers compteurs et
+   codes), coiffée d'une barre sombre : bascule Mois/Année + flèches de mois. On
+   reprend le chrome de #v-jour .card (bordure haute forte, halo bleuté) SANS son
+   position:fixed, pour garder le défilement de la page. */
+#calCard{display:flex; flex-direction:column; overflow:hidden;
+  border-top:2px solid var(--trait-fort); border-radius:var(--r);
+  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45), 0 0 26px 2px rgba(132,166,216,.13)}
+.calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:8px 12px; background:var(--surface2); border-bottom:1px solid var(--line)}
+/* La bascule reprend le segment iOS d'Équipe (.eqseg), simplement bornée en
+   largeur et posée sur --surface pour ressortir du fond de la barre. */
+.calseg{width:100%; max-width:240px; background:var(--surface)}
+.calline{display:flex; width:100%}
+.calline .mnavhote{flex:1 1 auto}
+.calline .mnavhote .mnav{width:100%; justify-content:center; gap:12px}
+.calline .mnavhote .mlabel{flex:1 1 auto; text-align:center; font-size:16px; font-weight:650; min-width:0}
+.calline .mnavhote .mnav button{width:34px; height:34px; font-size:18px}
+.calbody{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+.calbody .moiscal, .calbody .annee{flex:1 1 auto}
+.rota-footcard[hidden]{display:none}
+/* « Remplit le premier écran, puis on défile ». Sur téléphone, la carte héros
+   prend la hauteur visible moins la barre d'onglets du bas (--jnav, posée par
+   ajusterHauteurJour) et une marge ; au-delà (vue Année, haute), la carte
+   grandit et c'est la page qui défile — donc PAS de position:fixed ici, le
+   défilement doit atteindre les compteurs et les codes en dessous. */
+@media (max-width:760px){
+  #calCard{min-height:calc(100dvh - var(--jnav,64px) - 60px)}
+}
+
 /* ---------- horaire : le mois ---------- */
 /* Sept colonnes de jours et une huitième, étroite, pour les heures de la
    semaine — à droite, où on ne la confond pas avec un jour. */
@@ -745,7 +778,7 @@ body[data-horaire="semaine"][data-view="horaire"] .mnav{visibility:hidden}
   font-size:11px; font-variant-numeric:tabular-nums; color:var(--faint)}
 .mc-j{
   position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:1px; min-height:54px; padding:6px 2px 7px; border:1px solid var(--line2); border-radius:11px;
+  gap:1px; min-height:clamp(56px,11vw,92px); padding:6px 2px 7px; border:1px solid var(--line2); border-radius:11px;
   background:var(--surface2); color:var(--ink2); cursor:pointer;
 }
 .mc-j:hover{border-color:var(--in2)}
@@ -2441,13 +2474,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
   border:3px solid transparent; background-clip:content-box}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
-/* Le bouton de retour ne s'affiche que dans le détail d'une journée : dans
-   l'année, il n'y a rien à quitter. */
-body[data-horaire="annee"] #horNav{display:none}
-/* « Septembre 2026 » décrit le mois qu'on corrige, pas l'année qu'on lit :
-   sous le titre « Mon horaire · VBN · 2026 », il désignait autre chose que
-   ce qui était à l'écran. */
-body[data-horaire="annee"] #rotasub{display:none}
+/* #horNav (bouton « Retour à l'année ») et #rotasub (en-tête « Horaire presté »)
+   ont disparu : la bascule Mois/Année est un sélecteur segmenté dans la barre
+   héros, et le mois est nommé par le libellé de #mnav (« Octobre 2026 »). */
 
 @media print{
   .top,.tabs,.toolbar,.toast,.foot,.noprint{display:none!important}
@@ -2685,20 +2714,30 @@ body[data-horaire="annee"] #rotasub{display:none}
          case de l'année — c'est là qu'on corrige — et le bouton « Retour à
          l'année » ramène. Sans lui, la seule sortie aurait été de changer
          d'onglet. -->
-    <div class="pvtete">
-      <h2>Calendrier</h2>
-      <p class="sub" id="anneeSub"></p>
-    </div>
-    <div class="card">
-      <header>
-        <h2>Horaire presté</h2>
-        <span class="sub" id="rotasub"></span>
-      </header>
-      <div class="toolbar" id="horNav">
-        <button type="button" class="btn sm" id="btnRetourAnnee">&lsaquo; Retour à l'année</button>
+    <!-- Un vrai calendrier, dans le style de l'onglet « Du jour ». Le client, le
+         03/10/2026 : « il ne faut plus non plus la barre du dessus… je veux que
+         celui-ci ressemble à un calendrier pro et dans le style de l'onglet
+         horaire ». Plus de barre-titre « Calendrier », plus d'en-tête « Horaire
+         presté » : une carte héros qui remplit le premier écran, coiffée d'une
+         barre de navigation (bascule Mois/Année + flèches de mois ‹ Octobre 2026 ›
+         rangées ici via placerMnav). Les compteurs et les codes suivent dessous,
+         en défilement. Le MOIS est la vue par défaut. -->
+    <div class="card calhero" id="calCard">
+      <div class="toolbar eqnav calnav">
+        <div class="calseg eqseg" role="tablist" aria-label="Vue du calendrier">
+          <button type="button" role="tab" data-cal="mois"  aria-selected="true">Mois</button>
+          <button type="button" role="tab" data-cal="annee" aria-selected="false">Année</button>
+        </div>
+        <!-- La barre de navigation du mois (#mnav, exemplaire unique) vient se
+             ranger dans ce .mnavhote via placerMnav("horaire"). -->
+        <div class="calline"><div class="mnavhote"></div></div>
       </div>
-      <div class="annee" id="annee" hidden></div>
-      <div class="moiscal" id="moisCal"></div>
+      <div class="calbody">
+        <div class="annee" id="annee" hidden></div>
+        <div class="moiscal" id="moisCal"></div>
+      </div>
+    </div>
+    <div class="card rota-footcard" id="rotaFootCard">
       <div class="rota-foot">
         <span>Prestées <b id="tHeures">0</b> h</span>
         <span>Jours <b id="tJours">0</b></span>
@@ -4401,7 +4440,7 @@ function renderTotals(C){
   var rTot=C.acc.rapG+C.acc.rapP+C.acc.rapM;
   document.getElementById("tRap").textContent=rTot
     ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
-  document.getElementById("rotasub").textContent=MOIS[st.m]+" "+st.y;
+  var rsub=document.getElementById("rotasub"); if(rsub) rsub.textContent=MOIS[st.m]+" "+st.y;
   majMoisLabel(st.m,st.y);
   majBrandsub();
   var ms=[];
@@ -11346,7 +11385,7 @@ function renderAnnee(){
     }
     h.push('</div>');
     hote.innerHTML=h.join("");
-    document.getElementById("anneeSub").textContent=id+" · "+annee;
+    var asub=document.getElementById("anneeSub"); if(asub) asub.textContent=id+" · "+annee;
     centrerSurAujourdhui();
 
     function tuile(v,l){ return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>'; }
@@ -11394,23 +11433,28 @@ function renderAnnee(){
    septembre » : ils survivent à la vue semaine qui les a introduits. */
 var JOURS_LONGS=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 
-/* DEUX ÉTATS, ET NON TROIS VUES AU CHOIX. L'année est ce qu'on ouvre ; le
-   mois est le détail d'une journée, où l'on corrige. La bascule ne
-   s'enregistre plus : on revient toujours sur l'année, et le mois se
-   retrouve en cliquant la journée qu'on veut reprendre. */
+/* DEUX ÉTATS, UNE BASCULE SEGMENTÉE. Le client, le 03/10/2026 : « un calendrier
+   pro dans le style de l'onglet horaire ». Le MOIS est désormais le héros et la
+   vue par défaut ; l'Année reste une vue d'ensemble, atteinte par le segment
+   Mois/Année (et toujours en cliquant une journée de l'année pour la reprendre).
+   La barre de mois (#mnav) ne sert qu'en vue Mois : son hôte est masqué en vue
+   Année par une règle CSS déclarative sur data-horaire (plus haut). */
 function vueHoraire(v){
   var mensuel=(v==="mois");
   document.getElementById("annee").hidden=mensuel;
   var mc=document.getElementById("moisCal"); if(mc) mc.hidden=!mensuel;
   if(!mensuel && jourOuvert) fermerJour();
-  var pied=document.querySelector(".rota-foot"); if(pied) pied.hidden=!mensuel;
+  var fc=document.getElementById("rotaFootCard"); if(fc) fc.hidden=!mensuel;
   document.body.setAttribute("data-horaire", mensuel?"mois":"annee");
+  var seg=document.querySelector(".calseg");
+  if(seg) [].forEach.call(seg.querySelectorAll("button[data-cal]"),function(b){ b.setAttribute("aria-selected", b.dataset.cal===v?"true":"false"); });
   tipOff();
   if(!mensuel) renderAnnee();
-  else document.getElementById("anneeSub").textContent="";
+  else { var asub=document.getElementById("anneeSub"); if(asub) asub.textContent=""; }
 }
-document.getElementById("btnRetourAnnee").addEventListener("click",function(){
-  vueHoraire("annee");
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".calseg button[data-cal]"):null;
+  if(b) vueHoraire(b.dataset.cal);
 });
 /* Les sélecteurs « Qui je suis » ne se garnissent qu'UNE fois (le drapeau
    remplace l'ancien court-circuit « if(HORAIRE_DB) return »). Depuis que la
@@ -11430,16 +11474,16 @@ function ensurePrefillUI(){
   if(HORAIRE_DB){ appliquerPrefill(HORAIRE_DB); restaurerVue(); return; }
   fetchHoraireDB().then(function(db){ if(!db) return; appliquerPrefill(db); restaurerVue(); });
 }
-/* L'ANNÉE EST LA VUE PAR DÉFAUT. Le client, le 23/09/2026 : « dans l'onglet
-   Horaire il ne faut avoir que la vue année par défaut, et toujours scroller
-   jusqu'à la date du jour ». Le mois ne montre que trente journées ; l'année
-   les montre toutes, et c'est elle qu'on ouvre pour se situer. Les trois
-   boutons restent : le choix continue de tenir d'une visite à l'autre, seul
-   le point de départ change. */
+/* LE MOIS EST LA VUE PAR DÉFAUT. Le client, le 03/10/2026 : « un calendrier pro
+   dans le style de l'onglet horaire » — un calendrier s'ouvre sur le mois. Cela
+   REVIENT sur le 23/09/2026 (« l'année par défaut ») : l'année n'est plus le
+   point de départ mais une vue d'ensemble à un clic, par le segment Mois/Année.
+   On bascule une seule fois à l'ouverture ; ensuite le choix tient d'une visite
+   à l'autre (data-horaire persiste sur le body). */
 var vueRestauree=false;
 function restaurerVue(){
   if(vueRestauree) return; vueRestauree=true;
-  vueHoraire("annee");
+  vueHoraire("mois");
 }
 
 document.getElementById("btnVider").addEventListener("click",function(){
