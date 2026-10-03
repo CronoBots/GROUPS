@@ -1641,7 +1641,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (hover:hover){ #v-jour .jourline button:hover{color:var(--ink); border-color:var(--in2)} }
 /* « Aujourd'hui » n'est plus un bouton de la barre : il occupe l'espace libre
    de la cellule « Poste » (le client, le 02/10/2026). Voir .posteauj. */
-#jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
+/* touch-action:pan-y : sur l'onglet Horaire, le doigt ne sert qu'au défilement
+   VERTICAL ; le glissement horizontal (changement de jour) est géré en JS, et
+   le navigateur ne doit RIEN en faire — surtout pas un zoom par pincement ou
+   double-tape. Le client, le 03/10/2026 : « en swipe gauche/droite cela zoome
+   parfois ». Sans risque ici : le cadre est en overflow-x:hidden (aucun
+   défilement horizontal natif à préserver). */
+#jourCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden; touch-action:pan-y}
 /* Le tableau remplit le cadre (height:100 %) ; les jours assez chargés pour
    dépasser la hauteur disponible — surtout en page web, où la barre du
    navigateur rogne l'écran ; ça passe en PWA — se FEUILLETTENT verticalement
