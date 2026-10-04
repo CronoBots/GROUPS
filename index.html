@@ -881,9 +881,52 @@ body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
 .sheet-boite .rap::before{font-family:var(--sans,inherit)}
 .sheet-boite .aide{margin:0; border-top:1px solid var(--line2)}
 body.sheet-on{overflow:hidden}
-/* Le corps de la fiche personne reprend la carte de profil (.gp-*) dans la
-   feuille, avec la marge des autres contenus de feuille. */
-.persbody{padding:16px}
+/* ── FICHE PERSONNE (clic sur un trigramme dans Équipe) ──────────────────
+   Pensée pour une lecture en un coup d'œil par un contremaître. Identité dans
+   l'en-tête (trigramme en mono), puis statut, poste attitré et polyvalences.
+   Couleurs d'atelier en POINTS (pas de liseré épais), quotas en chiffres
+   tabulaires mono, barre de progression plate. */
+.sheet-spacer{width:34px; flex:0 0 auto}
+#persTitre{font-family:"IBM Plex Mono",monospace; font-size:19px; letter-spacing:.06em}
+.persbody{padding:16px 16px 8px}
+.pf-facts{display:flex; gap:26px; padding-bottom:2px}
+.pf-fact{display:flex; flex-direction:column; gap:4px; min-width:0}
+.pf-k{font-size:9.5px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; color:var(--faint)}
+.pf-v{display:flex; align-items:center; gap:7px; min-width:0; font-size:15px; font-weight:600;
+  color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-dot{flex:0 0 auto; width:9px; height:9px; border-radius:3px; background:var(--trait-fort)}
+.pf-dot[data-z="jaune"], .pf-p[data-z="jaune"] .pf-dot{background:var(--bordj)}
+.pf-dot[data-z="vert"],  .pf-p[data-z="vert"]  .pf-dot{background:var(--bordv)}
+.pf-dot[data-z="rouge"], .pf-p[data-z="rouge"] .pf-dot{background:var(--bordr)}
+.pf-dot[data-z="bleu"],  .pf-p[data-z="bleu"]  .pf-dot{background:var(--bordb)}
+.pf-dot[data-z="gris"],  .pf-p[data-z="gris"]  .pf-dot{background:var(--bordg)}
+.pf-sec{margin:20px 0 10px; font-size:9.5px; text-transform:uppercase; letter-spacing:.12em;
+  font-weight:700; color:var(--faint)}
+.pf-poly{list-style:none; margin:0; padding:0; border:1px solid var(--line2);
+  border-radius:13px; overflow:hidden}
+.pf-p{display:flex; flex-direction:column; gap:9px; padding:12px 14px; background:var(--surface)}
+.pf-p+.pf-p{border-top:1px solid var(--line2)}
+.pf-top{display:flex; align-items:center; gap:11px}
+.pf-p .pf-dot{width:10px; height:10px}
+.pf-mid{flex:1 1 auto; min-width:0}
+.pf-pnom{display:block; font-size:14px; font-weight:600; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-pmeta{display:block; margin-top:3px; font-size:11px; color:var(--faint)}
+.pf-badge{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:700;
+  font-variant-numeric:tabular-nums; padding:3px 9px; border-radius:7px; white-space:nowrap; letter-spacing:.02em}
+.pf-badge.ok{color:var(--at-vert); background:var(--at-vert-soft)}
+.pf-badge.go{color:var(--ink2); background:var(--surface2)}
+.pf-badge.vide{color:var(--muted); background:var(--surface2)}
+.pf-badge.forme{font-family:inherit; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--at-jaune); background:var(--at-jaune-soft)}
+.pf-bar{height:3px; border-radius:2px; background:var(--line2); overflow:hidden}
+.pf-bar>i{display:block; height:100%; border-radius:2px; background:var(--trait-fort)}
+.pf-p[data-z="jaune"] .pf-bar>i{background:var(--bordj)}
+.pf-p[data-z="vert"]  .pf-bar>i{background:var(--bordv)}
+.pf-p[data-z="rouge"] .pf-bar>i{background:var(--bordr)}
+.pf-p[data-z="bleu"]  .pf-bar>i{background:var(--bordb)}
+.pf-p[data-z="gris"]  .pf-bar>i{background:var(--bordg)}
+.pf-vide{margin:10px 2px 6px; font-size:13px; color:var(--muted); line-height:1.5}
 @media (min-width:640px){
   .sheet{align-items:center}
   .sheet-boite{border-radius:16px; border-bottom:1px solid var(--line)}
@@ -3204,7 +3247,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   <div class="sheet-fond" data-fermer="1"></div>
   <div class="sheet-boite" role="dialog" aria-modal="true" aria-labelledby="persTitre">
     <header class="sheet-tete">
-      <div class="sheet-quoi"><h2 id="persTitre">Fiche</h2><span>statut et polyvalences</span></div>
+      <span class="sheet-spacer" aria-hidden="true"></span>
+      <div class="sheet-quoi"><h2 id="persTitre">—</h2><span id="persSous"></span></div>
       <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
     </header>
     <div class="persbody" id="persBody"></div>
@@ -11941,10 +11985,63 @@ function gateProfilHTML(p){
 }
 /* ── FICHE PERSONNE AU CLIC D'UN TRIGRAMME (onglet Équipe) ─────────────────
    Le client, le 04/10/2026 : « cliquer sur un trigramme doit nous montrer le
-   statut et les polyvalences de la personne ». On réutilise gateProfilHTML —
-   qui construit déjà statut, poste actuel et polyvalences — dans un bottom-sheet
-   calqué sur celui du jour (#persSheet). Tout trigramme .orgn (grille, binômes,
-   listes) porte un data-id depuis _orgJeton. */
+   statut et les polyvalences », puis « optimise ». Fiche sur mesure
+   (persFicheHTML) : l'identité (trigramme + fonction · équipe) en en-tête,
+   le corps porte statut, poste attitré (point d'atelier coloré) et polyvalences
+   avec quota, formation et dates — le poste attitré n'est PAS répété dans la
+   liste. Bottom-sheet calqué sur le jour (#persSheet) ; tout trigramme .orgn
+   (grille, binômes, listes) porte un data-id depuis _orgJeton. */
+function persZonePoste(k){
+  if(!k||typeof POSTES_TRAVAIL==="undefined") return "";
+  var P=POSTES_TRAVAIL.filter(function(x){ return x.k===k; })[0];
+  return P?(P.z||""):"";
+}
+function persJour(iso){
+  var b=String(iso||"").split("-");
+  return b.length===3 ? b[2]+"/"+b[1]+"/"+b[0] : String(iso||"");
+}
+function persDateTxt(dt){
+  if(!dt) return "";
+  if(dt.fin) return "se termine le "+persJour(dt.fin);
+  if(dt.d)   return "acquise le "+persJour(dt.d);
+  return "";
+}
+function persFicheHTML(db,p){
+  var cadre=(typeof estCadre==="function")&&estCadre(p);
+  var cm=(typeof estContremaitre==="function")&&estContremaitre(p);
+  var h=['<div class="pf-facts">'];
+  h.push('<div class="pf-fact"><span class="pf-k">Statut</span><span class="pf-v">'
+    +esc((typeof statutAffiche==="function"?statutAffiche(p):"")||"—")+'</span></div>');
+  if(!cadre){
+    var sienZ=persZonePoste((typeof posteAttitre==="function")?posteAttitre(p):null);
+    h.push('<div class="pf-fact"><span class="pf-k">Poste attitré</span><span class="pf-v">'
+      +(sienZ?'<span class="pf-dot" data-z="'+esc(sienZ)+'"></span>':"")
+      +esc((typeof posteAttitreTitre==="function"?posteAttitreTitre(p):"")||"—")+'</span></div>');
+  }
+  h.push('</div>');
+  if(cm) return h.join("")+'<p class="pf-vide">Les contremaîtres n’ont pas de recyclage de polyvalence.</p>';
+  var polys=(typeof polyvalenceDe==="function"?polyvalenceDe(db,p):null)||[];
+  h.push('<div class="pf-sec">Polyvalences</div>');
+  if(!polys.length) return h.join("")+'<p class="pf-vide">Aucune polyvalence en dehors de son poste.</p>';
+  h.push('<ul class="pf-poly">');
+  polys.forEach(function(o){
+    var meta=persDateTxt((typeof dateDeLaPolyvalence==="function")?dateDeLaPolyvalence(p,o.t):null);
+    var badge, bcls, bar=true;
+    if(o.forme){ badge="Formation"; bcls="forme"; bar=false; }
+    else if(o.ok){ badge=o.n+"/"+o.q; bcls="ok"; }
+    else if(o.n>0){ badge=o.n+"/"+o.q; bcls="go"; }
+    else { badge=o.n+"/"+o.q; bcls="vide"; }
+    var pct=o.ok?100:Math.max(0,Math.min(100,Math.round((o.n/(o.q||1))*100)));
+    h.push('<li class="pf-p" data-z="'+esc(o.z||"")+'">'
+      +'<div class="pf-top"><span class="pf-dot"></span>'
+      +'<span class="pf-mid"><span class="pf-pnom">'+esc(o.t)+'</span>'
+      +(meta?'<span class="pf-pmeta">'+esc(meta)+'</span>':"")+'</span>'
+      +'<span class="pf-badge '+bcls+'">'+esc(badge)+'</span></div>'
+      +(bar?'<span class="pf-bar"><i style="width:'+pct+'%"></i></span>':"")
+      +'</li>');
+  });
+  return h.join("")+'</ul>';
+}
 var persRetour=null, persOuvert=false;
 function ouvrirPersonne(id){
   if(!id) return;
@@ -11954,8 +12051,14 @@ function ouvrirPersonne(id){
        || db.people.filter(function(x){ return idLisible(x.id)===idLisible(id); })[0];
     if(!p) return;
     var body=document.getElementById("persBody"); if(!body) return;
-    body.innerHTML=gateProfilHTML(p);
+    body.innerHTML=persFicheHTML(db,p);
     var tit=document.getElementById("persTitre"); if(tit) tit.textContent=idLisible(p.id);
+    var sous=document.getElementById("persSous");
+    if(sous){
+      var fn=(typeof fonctionPersonne==="function")?fonctionPersonne(p):"";
+      var eq=(!(typeof estCadre==="function"&&estCadre(p))&&typeof equipeShift==="function")?equipeShift(p):"";
+      sous.textContent=[fn,(eq&&eq!=="—")?eq:""].filter(Boolean).join(" · ");
+    }
     var f=document.getElementById("persSheet"); f.hidden=false;
     document.body.classList.add("sheet-on");
     persRetour=document.activeElement; persOuvert=true;
