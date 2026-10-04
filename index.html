@@ -1673,10 +1673,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    l'Accueil (fond doux + contour d'accent), pour la cohérence. Seulement sur
    l'onglet Horaire ; allumée quand on a navigué ailleurs, éteinte sur le jour
    courant (.estauj). */
+/* Rembourrage un peu plus généreux (le client, le 04/10/2026 : « intègre la
+   pastille, qu'elle ne flotte plus en orpheline ») : elle gagne en présence et
+   se lit comme un contrôle délibéré, à côté des en-têtes AM/PM/N bien remplis. */
 .posteauj{display:inline-flex; align-items:center; justify-content:center;
-  padding:3px 9px; background:transparent; border:1px solid var(--line);
+  padding:4px 13px; background:transparent; border:1px solid var(--line);
   border-radius:999px; color:var(--muted);
-  font-family:inherit; font-size:11px; font-weight:650; letter-spacing:.2px;
+  font-family:inherit; font-size:11.5px; font-weight:650; letter-spacing:.3px;
   cursor:pointer; transition:background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease}
 .posteauj:not(.estauj){background:var(--in-soft); border-color:var(--in); color:var(--in)}
 .posteauj.estauj{opacity:.42; cursor:default}
@@ -2059,8 +2062,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn+.eqn{margin-top:2px}
 .eqhote .eqp2 tbody td .eqn b{font-family:"IBM Plex Mono",monospace; font-size:11.5px;
   font-weight:700; letter-spacing:.02em; color:var(--ink)}
-.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in)}
+/* MOI — localisateur « où suis-je aujourd'hui ? ». C'est TA fiche : ton badge
+   doit sauter aux yeux. En plus du bord et de l'encre d'accent, un fond cyan
+   DOUX le fait ressortir d'un coup parmi les autres ; et le NOM DU POSTE de ta
+   ligne passe en accent (via :has) pour repérer aussi ton atelier du jour (le
+   client, le 04/10/2026). Tu n'es qu'à une pause/un poste par jour : un seul
+   badge et un seul libellé s'allument. */
+.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in); background:var(--in-soft)}
 .eqhote .eqp2 tbody td .eqn.moi b{color:var(--in); font-weight:700}
+#jourCorps .eqp2 tbody tr:has(td .eqn.moi) th.eqposte b{color:var(--in)}
 /* L'opérateur en formation : le TRIGRAMME reste jaune, mais la bordure redevient
    discrète (grise, comme un badge sans commentaire) — le client, le 02/10/2026 :
    le contour jaune était trop voyant. Le jaune de l'encre suffit à le signaler. */
@@ -2069,10 +2079,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 .eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 .eqhote .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
-/* UN BADGE AVEC COMMENTAIRE : contour blanc discret + curseur. Le clic ouvre le
-   mot du classeur (le client, le 02/10/2026). Vient APRÈS moi/form/manque pour
-   primer : le contour blanc dit « il y a quelque chose à lire ». */
-.eqhote .eqp2 tbody td .eqn.coment{border-color:var(--ink); cursor:pointer}
+/* UN BADGE AVEC COMMENTAIRE : un PETIT POINT « note » au coin, plus le gros
+   contour blanc d'avant (le client, le 04/10/2026 : remplacer le contour par un
+   indicateur discret). Le contour blanc monopolisait le seul encodage « bord »
+   et alourdissait la grille ; un point au coin dit « il y a quelque chose à
+   lire » sans peser. Le badge reste cliquable (curseur), le clic ouvre le mot du
+   classeur, et .coment-actif rallume le bord en accent le temps de la lecture. */
+.eqhote .eqp2 tbody td .eqn.coment{position:relative; cursor:pointer}
+.eqhote .eqp2 tbody td .eqn.coment::after{content:""; position:absolute; top:1px; right:2px;
+  width:4px; height:4px; border-radius:50%; background:var(--muted)}
 /* LE POPOVER DU COMMENTAIRE, sobre : une bulle posée près du badge, le temps
    de la lire. Pro et discret — le client, le 02/10/2026. */
 .compop{position:fixed; z-index:120; max-width:min(280px, calc(100vw - 16px));
