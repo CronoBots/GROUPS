@@ -108,6 +108,11 @@
   --cal-am-ink:#151E2F; --cal-pm-ink:#151E2F; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
   --shadow:0 1px 1px rgba(21,30,47,.05), 0 10px 26px -18px rgba(21,30,47,.42);
   --r:11px;
+  /* Cadre de l'onglet Horaire façon CRONOS.wtf (le client, le 04/10/2026) :
+     rayon plus généreux et bleu-cadre CRONOS (--home-halo-border). Théme-neutre
+     (même valeur en clair et sombre). */
+  --rj:22px;
+  --cadre:rgba(0,179,255,.55);
 }
 /* UN SEUL THÈME, LE SOMBRE. Le client, le 30/09/2026 : « l'app ne doit
    avoir que le thème sombre ». <html data-theme="dark"> le pose quel que
@@ -1689,16 +1694,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date est DANS la carte (le client, le 04/10/2026 : « la ligne de
-   date doit faire partie du tableau »). Ses côtés GAUCHE/DROITE prolongent le
-   CADRE BLEU façon CRONOS.wtf (le client, le 04/10/2026 : « cadre du même style
-   que Cronos.wtf en gardant les couleurs de poste ») : l'en-tête n'a pas de
-   poste → le bord y est bleu ; les lignes du tableau, elles, gardent leurs
-   liserés d'atelier. Bleu = rgba(0,179,255,.55), la teinte-cadre de CRONOS
-   (--home-halo-border). Le bas reste le filet-SÉPARATEUR interne — 2 px
-   --trait-fort, comme sous les postes. */
+   date doit faire partie du tableau »). Ses côtés n'ont PLUS de bord : c'est
+   désormais le CADRE BLEU CONTINU de la carte (--cadre, sur les 4 côtés) qui
+   fait le tour. Le bas reste le filet-SÉPARATEUR interne — 2 px --trait-fort,
+   comme sous les postes. */
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
   border:0; border-bottom:2px solid var(--trait-fort);
-  border-left:3px solid rgba(0,179,255,.55); border-right:3px solid rgba(0,179,255,.55);
   border-radius:0;
   flex-direction:column; align-items:center; gap:3px}
 /* La carte coiffe la barre de date ET le tableau en un bloc (le client, le
@@ -1706,12 +1707,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau, ce sont les liserés de couleur d'atelier déjà portés par la colonne
    Poste et la dernière colonne (le client, le 04/10/2026 : « les bordures
    gauche/droite doivent être celles de couleur, pas la grise en plus à
-   l'extérieur »). Il ne reste que l'horizontale : CADRE BLEU façon CRONOS.wtf en
-   HAUT comme en BAS — 2 px rgba(0,179,255,.55) — ; coins arrondis
-   (overflow:hidden rogne le fond). */
-#v-jour .card{border-radius:var(--r);
-  border-width:2px 0 2px 0; border-style:solid;
-  border-color:rgba(0,179,255,.55) transparent rgba(0,179,255,.55) transparent}
+   l'extérieur »). CADRE BLEU CONTINU façon CRONOS.wtf (le client, le
+   04/10/2026 : « forme et style du cadre comme Cronos.wtf ») : 2 px --cadre sur
+   les QUATRE côtés + rayon généreux --rj, pour un panneau arrondi fermé. Les
+   liserés d'atelier passent À L'INTÉRIEUR du cadre (sur les cellules), les
+   couleurs de poste sont donc gardées sans rompre le trait bleu. */
+#v-jour .card{border:2px solid var(--cadre); border-radius:var(--rj)}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -1773,8 +1774,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    bleu-cadre CRONOS rgba(0,179,255,…). Calibré bas (l'écran du téléphone sature
    plus qu'un moniteur). Vérifié au navigateur. */
 #v-jour .card{box-shadow:
-  0 0 32px rgba(0,179,255,.18),
-  0 0 72px rgba(0,179,255,.07)}
+  0 0 34px rgba(0,179,255,.22),
+  0 0 80px rgba(0,179,255,.09)}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
@@ -2017,15 +2018,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    l'arrondi — les deux coins du bas étaient dissymétriques. La zone de
    défilement (#jourCorps .eqgrille, overflow-y:auto) rognait en RECTANGLE et
    ignorait l'arrondi du cadre. On arrondit donc les deux clippeurs (corps +
-   grille) au rayon INTÉRIEUR du cadre (--r moins les 2 px du bord du bas), et
+   grille) au rayon INTÉRIEUR du cadre (--rj moins les 2 px du bord du bas), et
    on arrondit le coin extérieur des cellules de bord de la DERNIÈRE ligne pour
    que le liseré coloré suive la courbe. Résultat : coins arrondis, symétriques,
    liseré coloré qui épouse l'arrondi. Scopé à l'onglet Horaire (#jourCorps) —
    l'Accueil (#eqCorps) n'est pas dans un cadre arrondi. */
-#jourCorps, #jourCorps .eqgrille{border-bottom-left-radius:calc(var(--r) - 2px);
-  border-bottom-right-radius:calc(var(--r) - 2px)}
-#jourCorps .eqp2 tbody tr:last-child th.eqposte{border-bottom-left-radius:calc(var(--r) - 2px); overflow:hidden}
-#jourCorps .eqp2 tbody tr:last-child td:last-child{border-bottom-right-radius:calc(var(--r) - 2px); overflow:hidden}
+#jourCorps, #jourCorps .eqgrille{border-bottom-left-radius:calc(var(--rj) - 2px);
+  border-bottom-right-radius:calc(var(--rj) - 2px)}
+#jourCorps .eqp2 tbody tr:last-child th.eqposte{border-bottom-left-radius:calc(var(--rj) - 2px); overflow:hidden}
+#jourCorps .eqp2 tbody tr:last-child td:last-child{border-bottom-right-radius:calc(var(--rj) - 2px); overflow:hidden}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
