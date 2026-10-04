@@ -1586,9 +1586,10 @@ body.sheet-on{overflow:hidden}
    (ajusterHauteurJour). Le client, le 02/10/2026 : « il suffisait de prendre le
    tableau de l'accueil et de le déplacer », puis « pas de scroll, même écart
    haut/bas que gauche/droite, hauteur des lignes adaptée ». */
-/* La ligne de sélection de jour est SORTIE du cadre (le client, le 02/10/2026) :
-   elle flotte au-dessus de la carte, sans fond ni bordure, séparée d'un petit
-   écart. La carte ne contient plus que le tableau. */
+/* La ligne de sélection de jour est DANS la carte, en tête du tableau (le
+   client, le 04/10/2026 : « la ligne de date doit faire partie du tableau »).
+   La carte contient donc la barre de date PUIS le tableau ; #v-jour n'a plus
+   qu'un enfant, le gap:0 ne sert plus qu'à n'en jamais ajouter. */
 #v-jour{gap:0}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
@@ -1614,27 +1615,21 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .posteauj.estauj{opacity:.42; cursor:default}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
-/* La barre de date : cellule encadrée qui COLLE au cadre du tableau (le client,
-   le 03/10/2026). Elle s'arrondit en haut, reste carrée en bas, et n'a pas de
-   bordure du bas : la bordure du haut de la carte sert de séparation. Les deux
-   forment un seul bloc. */
-/* Les bords GAUCHE/DROITE de la barre de date ont LA MÊME bordure que le tableau
-   (le client, le 04/10/2026 : « les bordures doivent être les mêmes que le
-   tableau ») : 2 px --trait-fort, dans le prolongement du cadre du tableau en
-   dessous — une bordure continue, du haut de la barre jusqu'au bas du tableau.
-   Le haut reste un filet --line discret. */
-#v-jour>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
-  border-width:1px 2px 0 2px; border-style:solid;
-  border-color:var(--line) var(--trait-fort) transparent var(--trait-fort);
-  border-radius:var(--r) var(--r) 0 0;
-  flex-direction:column; align-items:center; gap:3px; padding:5px 12px}
-/* La carte, collée sous la barre de date : coins du HAUT carrés (la barre les
-   coiffe), coins du bas arrondis. Sa bordure du haut est la SÉPARATION sous la
-   date, et reprend celle sous les postes — 2 px --trait-fort (le client, le
-   03/10/2026). Portée par la carte, elle ne change pas la hauteur de la ligne
-   de date. */
-#v-jour .card{border-radius:0 0 var(--r) var(--r); border-top:2px solid var(--trait-fort);
-  border-left:2px solid var(--trait-fort); border-right:2px solid var(--trait-fort)}
+/* La barre de date est DANS la carte (le client, le 04/10/2026 : « la ligne de
+   date doit faire partie du tableau »). Elle n'a donc plus de cadre à elle :
+   le cadre, les côtés 2 px --trait-fort et les coins arrondis appartiennent à
+   la carte qui l'enveloppe. Il ne lui reste que le filet-SÉPARATEUR du bas —
+   2 px --trait-fort, comme sous les postes — qui la détache du tableau. */
+#v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
+  border:0; border-bottom:2px solid var(--trait-fort); border-radius:0;
+  flex-direction:column; align-items:center; gap:3px}
+/* La carte est le SEUL cadre : elle coiffe la barre de date ET le tableau en un
+   bloc (le client, le 04/10/2026). Côtés et bas 2 px --trait-fort, comme le
+   tableau ; haut en filet --line discret ; coins arrondis aux quatre angles
+   (overflow:hidden de .card rogne le fond de la barre sur l'arrondi du haut). */
+#v-jour .card{border-radius:var(--r);
+  border-width:1px 2px 2px 2px; border-style:solid;
+  border-color:var(--line) var(--trait-fort) var(--trait-fort) var(--trait-fort)}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -2689,14 +2684,18 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        peuple #jourCorps), avec sa barre de date — rien d'autre, pas de
        sous-effectif ni de mise à l'échelle. -->
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
-    <div class="toolbar eqnav">
-      <div class="jourline">
-        <button type="button" id="jourPrev" aria-label="Jour précédent"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
-        <button type="button" id="jourNext" aria-label="Jour suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
-      </div>
-    </div>
+    <!-- LA BARRE DE DATE EST DANS LA CARTE, pas au-dessus (le client, le
+         04/10/2026 : « la ligne de date doit faire partie du tableau »).
+         Un seul élément encadré contient la barre de date PUIS le tableau :
+         plus deux blocs collés qu'on faisait coïncider, mais un vrai bloc. -->
     <div class="card">
+      <div class="toolbar eqnav">
+        <div class="jourline">
+          <button type="button" id="jourPrev" aria-label="Jour précédent"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
+          <button type="button" id="jourNext" aria-label="Jour suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
       <div class="eqhote" id="jourCorps"></div>
     </div>
   </section>
