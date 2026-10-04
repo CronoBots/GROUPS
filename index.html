@@ -1694,12 +1694,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date est DANS la carte (le client, le 04/10/2026 : « la ligne de
-   date doit faire partie du tableau »). Ses côtés n'ont PLUS de bord : c'est
-   désormais le CADRE BLEU CONTINU de la carte (--cadre, sur les 4 côtés) qui
-   fait le tour. Le bas reste le filet-SÉPARATEUR interne — 2 px --trait-fort,
-   comme sous les postes. */
+   date doit faire partie du tableau »). Ses côtés portent le CADRE BLEU (--cadre,
+   2 px) : l'en-tête n'a pas de poste → le bord du cadre y est bleu, et il
+   s'aligne au bord extérieur (côtés de carte à 0). Le bas reste le
+   filet-SÉPARATEUR interne — 2 px --trait-fort, comme sous les postes. */
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
   border:0; border-bottom:2px solid var(--trait-fort);
+  border-left:2px solid var(--cadre); border-right:2px solid var(--cadre);
   border-radius:0;
   flex-direction:column; align-items:center; gap:3px}
 /* La carte coiffe la barre de date ET le tableau en un bloc (le client, le
@@ -1707,12 +1708,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau, ce sont les liserés de couleur d'atelier déjà portés par la colonne
    Poste et la dernière colonne (le client, le 04/10/2026 : « les bordures
    gauche/droite doivent être celles de couleur, pas la grise en plus à
-   l'extérieur »). CADRE BLEU CONTINU façon CRONOS.wtf (le client, le
-   04/10/2026 : « forme et style du cadre comme Cronos.wtf ») : 2 px --cadre sur
-   les QUATRE côtés + rayon généreux --rj, pour un panneau arrondi fermé. Les
-   liserés d'atelier passent À L'INTÉRIEUR du cadre (sur les cellules), les
-   couleurs de poste sont donc gardées sans rompre le trait bleu. */
-#v-jour .card{border:2px solid var(--cadre); border-radius:var(--rj)}
+   l'extérieur »). CADRE façon CRONOS.wtf (le client, le 04/10/2026 : « forme et
+   style du cadre comme Cronos.wtf », puis « superpose les bordures de couleur
+   SUR le bord extérieur, même épaisseur, comme si ça faisait partie du cadre »).
+   Un SEUL trait de 2 px fait le tour : bleu --cadre en HAUT et en BAS (ici), bleu
+   aussi sur les côtés de l'en-tête (barre de date + ligne des pauses), et couleur
+   D'ATELIER sur les côtés des lignes de poste — tout au bord extérieur, même
+   épaisseur, aucun double trait. Rayon généreux --rj. Les côtés de la carte sont
+   donc à 0 : ce sont les liserés (2 px) qui les portent. */
+#v-jour .card{border-width:2px 0; border-style:solid;
+  border-color:var(--cadre) transparent; border-radius:var(--rj)}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -1824,7 +1829,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* L'effectif ayant quitté cette colonne, elle n'a plus à être large que de
    son plus long intitulé — « TERRAIN ARRIÈRE » — et le reste va aux pauses. */
 .eqp2 th.eqposte{width:132px; text-align:left; white-space:nowrap;
-  padding-left:14px; padding-right:8px; border-left:3px solid transparent}
+  padding-left:14px; padding-right:8px; border-left:2px solid transparent}
 /* PAS de display:flex sur un <th> : il sort alors de la mise en page du
    tableau et sa ligne ne s'aligne plus sur les autres cellules. Le nom
    coule normalement, l'effectif flotte à droite. */
@@ -1985,7 +1990,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 th.eqposte{border-right:2px solid var(--trait-fort)}
 /* Le coin « Poste » ferme le tableau en haut et à gauche : en haut le trait des
    pauses (2 px), à gauche le trait fort à la largeur des liserés de zone. */
-.eqhote .eqp2 thead th.eqposte{border-top:2px solid var(--trait-fort); border-left:3px solid var(--trait-fort)}
+.eqhote .eqp2 thead th.eqposte{border-top:2px solid var(--trait-fort); border-left:2px solid var(--cadre)}
 /* La première colonne de pause n'ajoute pas son filet 1 px juste à côté du
    liseré : le bord droit coloré du poste est le seul trait de la séparation. */
 .eqhote .eqp2 thead th.eqposte + th, .eqhote .eqp2 tbody th.eqposte + td{border-left:0}
@@ -2003,14 +2008,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    04/10/2026 : « remets les bordures extérieures de couleur »). Le liseré de la
    dernière colonne reflète celui du bord gauche, même largeur, même couleur ;
    l'en-tête prend le trait fort. */
-.eqhote .eqp2 tbody td:last-child{border-right:3px solid transparent}
+.eqhote .eqp2 tbody td:last-child{border-right:2px solid transparent}
 .eqhote .eqp2 tbody tr[data-z="jaune"] td:last-child{border-right-color:var(--bordj)}
 .eqhote .eqp2 tbody tr[data-z="vert"]  td:last-child{border-right-color:var(--bordv)}
 .eqhote .eqp2 tbody tr[data-z="rouge"] td:last-child{border-right-color:var(--bordr)}
 .eqhote .eqp2 tbody tr[data-z="bleu"]  td:last-child{border-right-color:var(--bordb)}
 .eqhote .eqp2 tbody tr[data-z="gris"]  td:last-child{border-right-color:var(--bordg)}
 .eqhote .eqp2 tbody tr.eqform td:last-child{border-right-color:var(--ink)}
-.eqhote .eqp2 thead th:last-child{border-right:3px solid var(--trait-fort)}
+.eqhote .eqp2 thead th:last-child{border-right:2px solid var(--cadre)}
 /* COINS DU BAS — le liseré coloré épouse l'arrondi (le client, le 04/10/2026 :
    « surveille les coins pour qu'il soit bien fait »). Sans cela, le liseré
    d'atelier (3 px, vertical) heurtait le coin gris arrondi du cadre de travers :
