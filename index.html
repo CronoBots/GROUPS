@@ -1665,7 +1665,7 @@ body.sheet-on{overflow:hidden}
 #v-jour{gap:0}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
-#v-jour .card{display:flex; flex-direction:column}
+#v-jour .card{display:flex; flex-direction:column; position:relative}
 /* La carte garde sa bordure (1 px) en HAUT comme en BAS — symétrique (le client,
    le 02/10/2026 : « tout au-dessus, la même bordure qu'en dessous »). Seule la
    grosse bordure de l'en-tête (2 px) est retirée, pour que le haut soit discret
@@ -1787,6 +1787,18 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{box-shadow:
   0 0 34px rgba(0,179,255,.22),
   0 0 80px rgba(0,179,255,.09)}
+/* CADRE PERSISTANT PENDANT LE FEUILLETAGE (le client, le 04/10/2026 : « lors
+   d'un changement de date, les bordures du cadre doivent rester visibles »).
+   Les côtés du cadre sont portés par les liserés des CELLULES, qui glissent avec
+   le tableau pendant le changement de jour → à mi-course, les bords gauche/droite
+   se vident. On superpose donc, LE TEMPS du feuilletage seulement, un cadre bleu
+   complet (par-dessus le contenu qui glisse). Hors feuilletage il est invisible :
+   ce sont les liserés d'atelier qui dessinent les côtés. Ciblé via :has(.paging)
+   — la classe que pageJour pose sur #jourCorps pendant l'animation. */
+#v-jour .card::after{content:""; position:absolute; inset:0; z-index:4;
+  border:2px solid var(--cadre); border-radius:var(--rj);
+  pointer-events:none; opacity:0; transition:opacity .1s ease}
+#v-jour .card:has(#jourCorps.paging)::after{opacity:1}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
@@ -8954,15 +8966,17 @@ function renderEquipe(){
       })();
       var eqCycle=equipeALaPause(db,annee,mois,jour);
       var eqDsem=equipeEnDSemaine(db,annee,mois,jour);
-      /* La légende ne sert qu'en l'absence de colonne D un JOUR OUVRÉ (colonne
-         masquée quand la consignation meunerie bascule en AM) : sinon l'équipe
-         est déjà sous l'en-tête D, et la répéter ferait doublon. Le week-end,
-         PERSONNE n'est en D — le client, le 02/10/2026 : « le samedi et dimanche
-         il n'y aura jamais de personne en D, il ne faut pas indiquer la ligne ».
-         (getDay : 0 = dimanche, 6 = samedi.) */
-      var jsem=new Date(annee,mois-1,jour).getDay(), weekEnd=(jsem===0||jsem===6);
-      var tp=[(!vp.D&&eqDsem&&!weekEnd?'<p class="eqdsem">Équipe <b>'+esc(eqDsem)+"</b> en D cette semaine</p>":"")
-        +'<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
+      /* PLUS DE LÉGENDE « Équipe X en D cette semaine ». Elle ne s'affichait que
+         quand la colonne D était vide (vp.D nul) — c'est-à-dire quand PERSONNE
+         n'était affiché en D ce jour-là —, et donnait l'équipe-D NOMINALE de la
+         semaine par le cycle (equipeEnDSemaine), même si personne n'était
+         réellement en D ce jour précis. Le client, le 04/10/2026 : « il ne doit
+         pas y avoir de ligne "équipe en D cette semaine" quand personne n'est
+         affiché en D ce jour-là » — ce qui est justement le seul cas où elle
+         apparaissait. On la retire donc. (Revient sur le choix du 02/10/2026.)
+         eqDsem reste calculé : il sert encore d'étiquette d'équipe sous l'en-tête
+         D quand la colonne D EST affichée, cf. plus bas. */
+      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
       tp.push('<thead><tr><th class="eqposte">'
         +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">Auj.</button></th>');
       PAUSES.forEach(function(g){
