@@ -1737,7 +1737,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* L'effectif ayant quitté cette colonne, elle n'a plus à être large que de
    son plus long intitulé — « TERRAIN ARRIÈRE » — et le reste va aux pauses. */
 .eqp2 th.eqposte{width:132px; text-align:left; white-space:nowrap;
-  padding-left:14px; padding-right:8px; border-left:3px solid transparent}
+  padding-left:14px; padding-right:8px; border-left:0}
 /* PAS de display:flex sur un <th> : il sort alors de la mise en page du
    tableau et sa ligne ne s'aligne plus sur les autres cellules. Le nom
    coule normalement, l'effectif flotte à droite. */
@@ -1766,13 +1766,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   padding-left:8px; padding-right:8px;
   border-top:3px solid var(--line); border-left-color:var(--line)}
 .eqp2 thead th.eqposte small{text-transform:none; letter-spacing:0; opacity:.8}
-.eqp2 tbody tr[data-z="jaune"] th.eqposte{border-left-color:var(--bordj)}
-.eqp2 tbody tr[data-z="vert"]  th.eqposte{border-left-color:var(--bordv)}
-.eqp2 tbody tr[data-z="rouge"] th.eqposte{border-left-color:var(--bordr)}
-.eqp2 tbody tr[data-z="bleu"]  th.eqposte{border-left-color:var(--bordb)}
-.eqp2 tbody tr[data-z="gris"]  th.eqposte{border-left-color:var(--bordg)}
-/* Pas de pastille devant le poste dans l'équipe du jour (le client, le
-   02/10/2026) : le liseré gauche coloré de la ligne suffit à dire l'atelier. */
+/* LE LISERÉ D'ATELIER EST À DROITE DE LA COLONNE POSTE, plus en bord gauche du
+   tableau (le client, le 04/10/2026 : « retire les bordures extérieures de
+   couleur ; le bord de couleur doit être à droite de la colonne poste »). La
+   couleur de zone est portée par le bord DROIT de th.eqposte — voir
+   « .eqhote .eqp2 th.eqposte{border-right…} » plus bas. Le bord gauche n'a rien. */
 .eqp2 tbody tr+tr th, .eqp2 tbody tr+tr td{border-top:1px solid var(--line2)}
 .eqp2 tbody tr:nth-child(even) td:not(.manque):not(.vide),
 .eqp2 tbody tr:nth-child(even) th{background:var(--surface2)}
@@ -1878,14 +1876,22 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2[data-mc="3"] tr>:nth-child(3),
 .eqhote .eqp2[data-mc="4"] tr>:nth-child(4),
 .eqhote .eqp2[data-mc="5"] tr>:nth-child(5){box-shadow:inset 0 0 0 999px var(--maint)}
-/* La colonne des postes se sépare des pauses par le même trait que celui
-   sous la ligne des pauses. */
-.eqhote .eqp2 th.eqposte{border-right:2px solid var(--trait-fort)}
-/* Le coin « Poste » ferme le tableau en haut et à gauche. Le client, le
-   27/09/2026 : « remettre les bordures gauche et haute ». En haut, le trait
-   des pauses ; à gauche, la même encre, à la largeur des liserés de zone
-   qu'il surmonte. */
-.eqhote .eqp2 thead th.eqposte{border-top:2px solid var(--trait-fort); border-left:3px solid var(--trait-fort)}
+/* LE BORD DROIT DE LA COLONNE POSTE EST LE LISERÉ D'ATELIER (le client, le
+   04/10/2026). Trait de 3 px : --trait-fort par défaut (et en tête), coloré par
+   la zone de chaque ligne. Il sépare le poste des pauses ET dit l'atelier ; le
+   bord gauche du tableau, lui, n'a plus rien. */
+.eqhote .eqp2 th.eqposte{border-right:3px solid var(--trait-fort)}
+.eqhote .eqp2 tbody tr[data-z="jaune"] th.eqposte{border-right-color:var(--bordj)}
+.eqhote .eqp2 tbody tr[data-z="vert"]  th.eqposte{border-right-color:var(--bordv)}
+.eqhote .eqp2 tbody tr[data-z="rouge"] th.eqposte{border-right-color:var(--bordr)}
+.eqhote .eqp2 tbody tr[data-z="bleu"]  th.eqposte{border-right-color:var(--bordb)}
+.eqhote .eqp2 tbody tr[data-z="gris"]  th.eqposte{border-right-color:var(--bordg)}
+/* Le coin « Poste » : en tête, le trait des pauses ferme le haut. Plus de
+   bordure gauche (le liseré a filé à droite). */
+.eqhote .eqp2 thead th.eqposte{border-top:2px solid var(--trait-fort)}
+/* La première colonne de pause n'ajoute pas son filet 1 px juste à côté du
+   liseré : le bord droit coloré du poste est le seul trait de la séparation. */
+.eqhote .eqp2 thead th.eqposte + th, .eqhote .eqp2 tbody th.eqposte + td{border-left:0}
 /* Les intitulés de poste et le coin « Poste » s'écrivent comme dans le
    tableau des équipes (.orgt th.orgp) : capitales, 10,5 px au téléphone,
    12,5 px au bureau, encre principale ; la colonne fait 76 et 136 px. */
@@ -1893,21 +1899,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   letter-spacing:.02em; text-transform:uppercase; color:var(--ink); font-style:normal}
 .eqhote .eqp2 th.eqposte{width:136px; padding-left:7px; padding-right:7px}
 /* La ligne Formation s'écrit comme un poste, avec un liseré de l'encre
-   principale (blanc en sombre). */
-.eqhote .eqp2 tbody tr.eqform th.eqposte{border-left-color:var(--ink)}
-/* LE BORD DROIT REPREND LA COULEUR DU BORD GAUCHE. Le client, le 02/10/2026 :
-   « les bords droit de ce tableau doivent être les mêmes que les bords gauche
-   (couleur) ». Le liseré d'atelier du POSTE (à gauche) est reflété sur la
-   dernière colonne (à droite), même largeur, même couleur ; l'en-tête reprend
-   le trait fort de son bord gauche. */
-.eqhote .eqp2 tbody td:last-child{border-right:3px solid transparent}
-.eqhote .eqp2 tbody tr[data-z="jaune"] td:last-child{border-right-color:var(--bordj)}
-.eqhote .eqp2 tbody tr[data-z="vert"]  td:last-child{border-right-color:var(--bordv)}
-.eqhote .eqp2 tbody tr[data-z="rouge"] td:last-child{border-right-color:var(--bordr)}
-.eqhote .eqp2 tbody tr[data-z="bleu"]  td:last-child{border-right-color:var(--bordb)}
-.eqhote .eqp2 tbody tr[data-z="gris"]  td:last-child{border-right-color:var(--bordg)}
-.eqhote .eqp2 tbody tr.eqform td:last-child{border-right-color:var(--ink)}
-.eqhote .eqp2 thead th:last-child{border-right:3px solid var(--trait-fort)}
+   principale (blanc en sombre), à droite de la colonne poste comme les zones. */
+.eqhote .eqp2 tbody tr.eqform th.eqposte{border-right-color:var(--ink)}
+/* PLUS DE LISERÉ SUR LE BORD DROIT du tableau (le client, le 04/10/2026 :
+   « retire les bordures extérieures de couleur »). La couleur d'atelier ne se
+   lit plus qu'à droite de la colonne poste ; la dernière colonne finit nue. */
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
