@@ -12055,9 +12055,18 @@ function ouvrirPersonne(id){
     var tit=document.getElementById("persTitre"); if(tit) tit.textContent=idLisible(p.id);
     var sous=document.getElementById("persSous");
     if(sous){
-      var fn=(typeof fonctionPersonne==="function")?fonctionPersonne(p):"";
-      var eq=(!(typeof estCadre==="function"&&estCadre(p))&&typeof equipeShift==="function")?equipeShift(p):"";
-      sous.textContent=[fn,(eq&&eq!=="—")?eq:""].filter(Boolean).join(" · ");
+      /* Un seul libellé — pas « Équipe 4 · Équipe 4 » : pour un opérateur posté,
+         fonctionPersonne renvoie déjà « Équipe N » (sa catégorie « Shift N »),
+         identique à equipeShift. Même logique que gateProfilHTML : cadre →
+         fonction, sinon équipe (repli sur fonction si pas de n° de shift). */
+      var st2="";
+      if(typeof estCadre==="function"&&estCadre(p)){
+        st2=(typeof fonctionPersonne==="function")?fonctionPersonne(p):(p.cat||"");
+      } else {
+        st2=(typeof equipeShift==="function")?equipeShift(p):"";
+        if((!st2||st2==="—")&&typeof fonctionPersonne==="function") st2=fonctionPersonne(p);
+      }
+      sous.textContent=(st2&&st2!=="—")?st2:"";
     }
     var f=document.getElementById("persSheet"); f.hidden=false;
     document.body.classList.add("sheet-on");
