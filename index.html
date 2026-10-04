@@ -2110,9 +2110,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   width:0; height:0; border:6px solid transparent; pointer-events:none}
 .compop:not(.sous)::after{top:100%; border-top-color:var(--surface)}
 .compop.sous::after{bottom:100%; border-bottom-color:var(--surface)}
-/* Et le badge lui-même s'allume en accent tant que son commentaire est lu. */
+/* Et le badge sélectionné pour lire son commentaire s'allume en BLANC tant que
+   la bulle est ouverte (le client, le 04/10/2026 : « le trigramme sélectionné
+   doit être blanc au lieu de bleu »). Bord + anneau + trigramme en --ink ; on
+   force aussi le trigramme (qui pourrait être cyan « moi » ou jaune formation)
+   au blanc pendant la lecture. */
 .eqn.coment-actif,
-.eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--in); color:var(--in); box-shadow:0 0 0 1px var(--in)}
+.eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--ink); color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+.eqhote .eqp2 tbody td .eqn.coment-actif b{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){ .compop{transition:none} }
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
@@ -10374,9 +10379,12 @@ function eqBouge(n){
   }
   function ouvrir(chip){
     var com=chip.getAttribute("data-com"); if(!com) return;
-    /* Toujours une majuscule en tête (le client, le 03/10/2026) : une note du
-       classeur écrite en minuscule (« échange avec… ») s'affiche capitalisée. */
-    com=com.charAt(0).toUpperCase()+com.slice(1);
+    /* Une majuscule en tête de CHAQUE ligne (le client, le 03/10/2026 : en tête ;
+       le 04/10/2026 : « après un retour à la ligne volontaire, remettre une
+       majuscule »). Les notes du classeur, souvent en minuscule, s'affichent
+       proprement, et chaque ligne voulue (white-space:pre-line) démarre par une
+       capitale. On capitalise le 1er caractère non-espace de chaque ligne. */
+    com=com.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,ch){ return sp+ch.toUpperCase(); }); }).join("\n");
     fermer();                                   /* referme et dé-surligne l'ancien */
     var p=bulle(); p.textContent=com;
     p.classList.remove("sous");
