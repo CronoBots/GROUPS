@@ -1698,12 +1698,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau, ce sont les liserés de couleur d'atelier déjà portés par la colonne
    Poste et la dernière colonne (le client, le 04/10/2026 : « les bordures
    gauche/droite doivent être celles de couleur, pas la grise en plus à
-   l'extérieur »). Il ne reste que l'horizontale : filet --line discret en haut
-   comme en bas — identiques (le client, le 04/10/2026 : « pareil pour la bordure
-   du bas ») ; coins arrondis (overflow:hidden rogne le fond). */
+   l'extérieur »). Il ne reste que l'horizontale : filet --line discret en haut,
+   2 px --trait-fort en bas ; coins arrondis (overflow:hidden rogne le fond). */
 #v-jour .card{border-radius:var(--r);
-  border-width:1px 0 1px 0; border-style:solid;
-  border-color:var(--line) transparent var(--line) transparent}
+  border-width:1px 0 2px 0; border-style:solid;
+  border-color:var(--line) transparent var(--trait-fort) transparent}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -1992,6 +1991,22 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody tr[data-z="gris"]  td:last-child{border-right-color:var(--bordg)}
 .eqhote .eqp2 tbody tr.eqform td:last-child{border-right-color:var(--ink)}
 .eqhote .eqp2 thead th:last-child{border-right:3px solid var(--trait-fort)}
+/* COINS DU BAS — le liseré coloré épouse l'arrondi (le client, le 04/10/2026 :
+   « surveille les coins pour qu'il soit bien fait »). Sans cela, le liseré
+   d'atelier (3 px, vertical) heurtait le coin gris arrondi du cadre de travers :
+   à gauche il s'arrêtait trop tôt (petit vide), à droite il débordait sous
+   l'arrondi — les deux coins du bas étaient dissymétriques. La zone de
+   défilement (#jourCorps .eqgrille, overflow-y:auto) rognait en RECTANGLE et
+   ignorait l'arrondi du cadre. On arrondit donc les deux clippeurs (corps +
+   grille) au rayon INTÉRIEUR du cadre (--r moins les 2 px du bord du bas), et
+   on arrondit le coin extérieur des cellules de bord de la DERNIÈRE ligne pour
+   que le liseré coloré suive la courbe. Résultat : coins arrondis, symétriques,
+   liseré coloré qui épouse l'arrondi. Scopé à l'onglet Horaire (#jourCorps) —
+   l'Accueil (#eqCorps) n'est pas dans un cadre arrondi. */
+#jourCorps, #jourCorps .eqgrille{border-bottom-left-radius:calc(var(--r) - 2px);
+  border-bottom-right-radius:calc(var(--r) - 2px)}
+#jourCorps .eqp2 tbody tr:last-child th.eqposte{border-bottom-left-radius:calc(var(--r) - 2px); overflow:hidden}
+#jourCorps .eqp2 tbody tr:last-child td:last-child{border-bottom-right-radius:calc(var(--r) - 2px); overflow:hidden}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
