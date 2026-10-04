@@ -881,6 +881,9 @@ body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
 .sheet-boite .rap::before{font-family:var(--sans,inherit)}
 .sheet-boite .aide{margin:0; border-top:1px solid var(--line2)}
 body.sheet-on{overflow:hidden}
+/* Le corps de la fiche personne reprend la carte de profil (.gp-*) dans la
+   feuille, avec la marge des autres contenus de feuille. */
+.persbody{padding:16px}
 @media (min-width:640px){
   .sheet{align-items:center}
   .sheet-boite{border-radius:16px; border-bottom:1px solid var(--line)}
@@ -1225,6 +1228,14 @@ body.sheet-on{overflow:hidden}
    client, le 03/10/2026), l'encre jaune suffisant à le signaler. */
 .orgt td .orgn.orgf{border-color:var(--trait)}
 .orgt td .orgn.moi{border-color:var(--in); text-decoration:none}
+/* Un trigramme se clique pour ouvrir la fiche de la personne (le client, le
+   04/10/2026) : curseur et survol le signalent, partout où il porte un data-id
+   — grille, binômes, listes. */
+.orgn[data-id]{cursor:pointer}
+@media (hover:hover){
+  .orgt td .orgn[data-id]:hover{border-color:var(--in2); color:var(--ink)}
+  .orgb .orgn[data-id]:hover, .orgl .orgn[data-id]:hover{color:var(--in)}
+}
 .orgvide{color:var(--faint)}
 /* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
    six lignes de deux trigrammes, et s'étirait à 1146 px sur un écran de
@@ -3182,6 +3193,21 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <p class="sheet-src" id="sheetSrc"></p>
     <div class="rota" id="rota"></div>
     <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose un congé ou une maladie. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
+  </div>
+</div>
+
+<!-- FICHE PERSONNE — ouverte en cliquant un trigramme dans l'onglet Équipe (le
+     client, le 04/10/2026 : « cliquer sur un trigramme doit montrer le statut et
+     les polyvalences »). Même bottom-sheet que le jour ; le corps est rempli par
+     gateProfilHTML (statut, poste actuel, polyvalences). -->
+<div class="sheet" id="persSheet" hidden>
+  <div class="sheet-fond" data-fermer="1"></div>
+  <div class="sheet-boite" role="dialog" aria-modal="true" aria-labelledby="persTitre">
+    <header class="sheet-tete">
+      <div class="sheet-quoi"><h2 id="persTitre">Fiche</h2><span>statut et polyvalences</span></div>
+      <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
+    </header>
+    <div class="persbody" id="persBody"></div>
   </div>
 </div>
 <script>
@@ -9546,7 +9572,9 @@ function _orgZone(lib){
   return "";
 }
 function _orgJeton(id,moi,sup){
-  return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'">'
+  /* data-id : cliquer le trigramme ouvre la fiche (statut + polyvalences) de
+     la personne (le client, le 04/10/2026). Voir ouvrirPersonne(). */
+  return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'" data-id="'+esc(id)+'">'
     +esc(idLisible(id))+"</span>";
 }
 function renderOrganisation(){
@@ -11911,6 +11939,52 @@ function gateProfilHTML(p){
     +rows.map(function(r){ return '<div class="gp-row"><span class="gp-k">'+r[0]+'</span><span class="gp-v">'+r[1]+'</span></div>'; }).join("")
     +'</div>';
 }
+/* ── FICHE PERSONNE AU CLIC D'UN TRIGRAMME (onglet Équipe) ─────────────────
+   Le client, le 04/10/2026 : « cliquer sur un trigramme doit nous montrer le
+   statut et les polyvalences de la personne ». On réutilise gateProfilHTML —
+   qui construit déjà statut, poste actuel et polyvalences — dans un bottom-sheet
+   calqué sur celui du jour (#persSheet). Tout trigramme .orgn (grille, binômes,
+   listes) porte un data-id depuis _orgJeton. */
+var persRetour=null, persOuvert=false;
+function ouvrirPersonne(id){
+  if(!id) return;
+  fetchHoraireDB().then(function(db){
+    if(!db||!db.people) return;
+    var p=db.people.filter(function(x){ return x.id===id; })[0]
+       || db.people.filter(function(x){ return idLisible(x.id)===idLisible(id); })[0];
+    if(!p) return;
+    var body=document.getElementById("persBody"); if(!body) return;
+    body.innerHTML=gateProfilHTML(p);
+    var tit=document.getElementById("persTitre"); if(tit) tit.textContent=idLisible(p.id);
+    var f=document.getElementById("persSheet"); f.hidden=false;
+    document.body.classList.add("sheet-on");
+    persRetour=document.activeElement; persOuvert=true;
+    try{ inerteFond(true); }catch(e){}
+    var fb=f.querySelector(".sheet-fermer"); if(fb&&fb.focus) try{ fb.focus(); }catch(e){}
+  });
+}
+function fermerPersonne(){
+  if(!persOuvert) return;
+  persOuvert=false;
+  var f=document.getElementById("persSheet"); if(f) f.hidden=true;
+  document.body.classList.remove("sheet-on");
+  try{ inerteFond(false); }catch(e){}
+  if(persRetour&&persRetour.focus){ try{ persRetour.focus(); }catch(e){} }
+  persRetour=null;
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".orgn[data-id]"):null;
+  if(b) ouvrirPersonne(b.getAttribute("data-id"));
+});
+(function(){
+  var f=document.getElementById("persSheet"); if(!f) return;
+  f.addEventListener("click",function(e){
+    if(e.target.closest&&e.target.closest("[data-fermer]")) fermerPersonne();
+  });
+})();
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"&&persOuvert) fermerPersonne();
+});
 var _gateOnOk=null, _gateDB=null;
 function gateSetBody(h){ document.getElementById("gateBody").innerHTML=h; }
 function gateSetTitre(t,s){ document.getElementById("gateTitle").textContent=t; var e=document.getElementById("gateSub"); if(e&&s!=null) e.textContent=s; }
