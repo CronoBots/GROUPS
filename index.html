@@ -1689,14 +1689,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date est DANS la carte (le client, le 04/10/2026 : « la ligne de
-   date doit faire partie du tableau »). Ses côtés GAUCHE/DROITE portent un trait
-   gris de 3 px --trait-fort — même épaisseur que les liserés de couleur du
-   tableau, mais gris comme la séparation des pauses (le client, le 04/10/2026) ;
-   posés au bord, ils prolongent vers le haut les liserés du tableau. Le bas est
-   le filet-SÉPARATEUR — 2 px --trait-fort, comme sous les postes. */
+   date doit faire partie du tableau »). Ses côtés GAUCHE/DROITE prolongent le
+   CADRE BLEU façon CRONOS.wtf (le client, le 04/10/2026 : « cadre du même style
+   que Cronos.wtf en gardant les couleurs de poste ») : l'en-tête n'a pas de
+   poste → le bord y est bleu ; les lignes du tableau, elles, gardent leurs
+   liserés d'atelier. Bleu = rgba(0,179,255,.55), la teinte-cadre de CRONOS
+   (--home-halo-border). Le bas reste le filet-SÉPARATEUR interne — 2 px
+   --trait-fort, comme sous les postes. */
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
   border:0; border-bottom:2px solid var(--trait-fort);
-  border-left:3px solid var(--trait-fort); border-right:3px solid var(--trait-fort);
+  border-left:3px solid rgba(0,179,255,.55); border-right:3px solid rgba(0,179,255,.55);
   border-radius:0;
   flex-direction:column; align-items:center; gap:3px}
 /* La carte coiffe la barre de date ET le tableau en un bloc (le client, le
@@ -1704,11 +1706,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau, ce sont les liserés de couleur d'atelier déjà portés par la colonne
    Poste et la dernière colonne (le client, le 04/10/2026 : « les bordures
    gauche/droite doivent être celles de couleur, pas la grise en plus à
-   l'extérieur »). Il ne reste que l'horizontale : filet --line discret en haut,
-   2 px --trait-fort en bas ; coins arrondis (overflow:hidden rogne le fond). */
+   l'extérieur »). Il ne reste que l'horizontale : CADRE BLEU façon CRONOS.wtf en
+   HAUT comme en BAS — 2 px rgba(0,179,255,.55) — ; coins arrondis
+   (overflow:hidden rogne le fond). */
 #v-jour .card{border-radius:var(--r);
-  border-width:1px 0 2px 0; border-style:solid;
-  border-color:var(--line) transparent var(--trait-fort) transparent}
+  border-width:2px 0 2px 0; border-style:solid;
+  border-color:rgba(0,179,255,.55) transparent rgba(0,179,255,.55) transparent}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -1761,20 +1764,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   text-decoration-thickness:1px; text-underline-offset:4px}
 .jourdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
   border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
-/* HALO ET PROFONDEUR AUTOUR DU CADRE. Le client, le 02/10/2026 : « léger halo
-   autour du cadre ? », puis le 04/10/2026 : « ajoute du halo/profondeur au
-   contour ». On étage donc plusieurs ombres : un liseré de lumière INTÉRIEUR en
-   haut (lèvre éclairée, relief net) ; l'anneau de 1 px qui dessine le contour ;
-   DEUX ombres portées (une proche, une profonde et large) pour détacher le
-   cadre du fond en volume ; et DEUX voiles bleutés (un serré, un très étalé en
-   bloom) qui le font rayonner sur le navy. Vérifié au navigateur. */
+/* HALO BLEU façon CRONOS.wtf (le client, le 04/10/2026 : « cadre du même style
+   que Cronos.wtf »). CRONOS a JUSTEMENT abandonné le bloom multicouche — leur
+   commentaire : « border 1px + box-shadow blur 50/100px créait un double trait »
+   — au profit d'un contour net + UN glow propre. On suit leur recette : UN glow
+   serré (32 px) + UNE aura large et très faible (72 px) pour la présence, les
+   deux SANS flou tout contre le bord (donc pas de double trait). Teinte = le
+   bleu-cadre CRONOS rgba(0,179,255,…). Calibré bas (l'écran du téléphone sature
+   plus qu'un moniteur). Vérifié au navigateur. */
 #v-jour .card{box-shadow:
-  inset 0 1px 0 rgba(255,255,255,.08),
-  0 0 0 1px rgba(255,255,255,.07),
-  0 26px 70px rgba(0,0,0,.65),
-  0 10px 26px rgba(0,0,0,.45),
-  0 0 54px 8px rgba(132,166,216,.26),
-  0 0 120px 20px rgba(132,166,216,.13)}
+  0 0 32px rgba(0,179,255,.18),
+  0 0 72px rgba(0,179,255,.07)}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
