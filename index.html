@@ -108,11 +108,14 @@
   --cal-am-ink:#151E2F; --cal-pm-ink:#151E2F; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
   --shadow:0 1px 1px rgba(21,30,47,.05), 0 10px 26px -18px rgba(21,30,47,.42);
   --r:11px;
-  /* Cadre de l'onglet Horaire façon CRONOS.wtf (le client, le 04/10/2026) :
-     rayon plus généreux et bleu-cadre CRONOS (--home-halo-border). Théme-neutre
-     (même valeur en clair et sombre). */
+  /* Cadre de l'onglet Horaire : rayon généreux (--rj). COULEUR DU CADRE = GRIS
+     (le client, le 05/10/2026 : « je veux que les contours soient gris »).
+     Avant c'était un bleu-cadre CRONOS rgba(0,179,255,.55) ; on le neutralise en
+     gris froid (slate) pour un contour sobre qui ne tire pas l'œil — les seules
+     couleurs restent les liserés d'atelier sur les côtés et l'accent cyan (--in)
+     des badges. Thème-neutre (même valeur clair/sombre). */
   --rj:22px;
-  --cadre:rgba(0,179,255,.55);
+  --cadre:rgba(150,162,182,.55);
 }
 /* UN SEUL THÈME, LE SOMBRE. Le client, le 30/09/2026 : « l'app ne doit
    avoir que le thème sombre ». <html data-theme="dark"> le pose quel que
@@ -1776,17 +1779,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   text-decoration-thickness:1px; text-underline-offset:4px}
 .jourdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
   border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
-/* HALO BLEU façon CRONOS.wtf (le client, le 04/10/2026 : « cadre du même style
-   que Cronos.wtf »). CRONOS a JUSTEMENT abandonné le bloom multicouche — leur
-   commentaire : « border 1px + box-shadow blur 50/100px créait un double trait »
-   — au profit d'un contour net + UN glow propre. On suit leur recette : UN glow
-   serré (32 px) + UNE aura large et très faible (72 px) pour la présence, les
-   deux SANS flou tout contre le bord (donc pas de double trait). Teinte = le
-   bleu-cadre CRONOS rgba(0,179,255,…). Calibré bas (l'écran du téléphone sature
-   plus qu'un moniteur). Vérifié au navigateur. */
+/* HALO NEUTRE (le client, le 05/10/2026 : contours gris → plus de glow bleu).
+   On remplace l'ancien bloom bleu CRONOS par une PROFONDEUR neutre : une ombre
+   portée douce (donne du relief sans couleur) + un glow gris TRÈS faible pour
+   garder un soupçon de présence autour du cadre. Calibré bas (l'écran du
+   téléphone sature plus qu'un moniteur). Vérifié au navigateur. */
 #v-jour .card{box-shadow:
-  0 0 34px rgba(0,179,255,.22),
-  0 0 80px rgba(0,179,255,.09)}
+  0 0 28px rgba(150,162,182,.10),
+  0 16px 38px rgba(0,0,0,.33),
+  0 4px 12px rgba(0,0,0,.22)}
 /* CADRE FERMÉ PENDANT LE FEUILLETAGE — CÔTÉS SEULEMENT (le client, le 05/10/2026 :
    « j'aimerais que les bords extérieurs gauche/droite du cadre soient visibles
    même lors d'une transition de jour », capture à l'appui). HISTORIQUE : le 04/10
@@ -2062,6 +2063,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   border-bottom-right-radius:calc(var(--rj) - 2px)}
 #jourCorps .eqp2 tbody tr:last-child th.eqposte{border-bottom-left-radius:calc(var(--rj) - 2px); overflow:hidden}
 #jourCorps .eqp2 tbody tr:last-child td:last-child{border-bottom-right-radius:calc(var(--rj) - 2px); overflow:hidden}
+/* ⚠️ PENDANT LE FEUILLETAGE : coins du bas CARRÉS sur les calques qui glissent
+   (le client, le 05/10/2026 : « vérifie la qualité des coins, cela ne va pas »,
+   capture à l'appui). L'arrondi du bas ci-dessus est porté par la GRILLE et les
+   cellules de la dernière ligne ; or pendant .paging ces éléments vivent dans les
+   calques .jourlayer qui glissent → leurs coins arrondis se promènent EN PLEIN
+   MILIEU de la carte (le liseré se termine en enroulement, vu sur capture). Les
+   seuls coins qui doivent être ronds sont les coins EXTÉRIEURS, tracés par le
+   clip arrondi de la carte (overflow:hidden). On carre donc la grille et les
+   cellules de bord tant que .paging est actif ; au repos (sans .paging) l'arrondi
+   normal revient. Vérifié au navigateur (zoom sur le coin : liseré droit, net). */
+#jourCorps.paging .eqgrille,
+#jourCorps.paging .eqp2 tbody tr:last-child th.eqposte,
+#jourCorps.paging .eqp2 tbody tr:last-child td:last-child{border-radius:0}
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
