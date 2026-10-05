@@ -3548,8 +3548,14 @@ function key(y,m){return y+"-"+pad2(m+1);}
    harnais __horaireSig). Conservateur : on ne change pas les MOTS, on normalise la
    FORME — minutes « 14h00' » → « 14h00 », espaces multiples réduits (retours à la
    ligne gardés), majuscule en tête de chaque ligne (reprend l'existant de la bulle). */
+/* Fautes de trigramme connues, corrigées À L'AFFICHAGE (le client, le 05/10/2026 :
+   « PYL est PLZ »). Table extensible ; n'affecte QUE le texte montré (la logique lit
+   raw[2] brut, donc aucun effet sur placement/paie). PYL n'apparaît que dans des
+   commentaires informatifs (échange/inversion/présence) — pur confort de lecture. */
+var ALIAS_TRI_AFFICHAGE={PYL:"PLZ"};
 function nettoyerAffichage(txt){
   var s=String(txt==null?"":txt);
+  for(var a in ALIAS_TRI_AFFICHAGE){ s=s.replace(new RegExp("\\b"+a+"\\b","g"), ALIAS_TRI_AFFICHAGE[a]); }
   s=s.replace(/(\d{1,2}\s*h\s*\d{2})\s*['’]/g,"$1");
   s=s.split("\n").map(function(l){ return l.replace(/[ \t]+/g," ").replace(/^ +| +$/g,""); }).join("\n").replace(/^\n+|\n+$/g,"");
   s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }); }).join("\n");
@@ -8469,6 +8475,76 @@ window.__horaireSig=function(){
     window.__sigFull=full;
     out.global=h32(sig(out.placement)+sig(out.renfort)+sig(out.paiePerson)+sig(out.renvois));
     return out;
+  });
+};
+/* ⚙️ AUDIT « remplacement → poste » (debug, 05/10/2026, À RETIRER avec le harnais).
+   window.__auditRemplace() liste, sur toute l'année, les cellules dont le commentaire
+   parle de remplacement et où la résolution du poste par posteDuRemplace est DOUTEUSE :
+   remplacement ACTIF (« remplace X ») sans résolution, trigramme cité inconnu, plusieurs
+   trigrammes (ambiguïté), ou « remplac… » ni actif ni « remplacé par » (non classé).
+   Lecture seule — aucun effet sur le placement. Sert à trouver les vrais candidats à
+   fiabiliser avant toute correction. */
+window.__auditRemplace=function(){
+  return fetchHoraireDB().then(function(db){
+    if(!db) return {err:"no db"};
+    var hJour=st.params.hJour, ids={}; db.people.forEach(function(p){ ids[p.id]=1; });
+    var cas=[];
+    db.people.forEach(function(p){
+      for(var k in p.d){ var raw=p.d[k]; var com=(raw&&raw[2])||""; if(!/remplac/i.test(com)) continue;
+        var actifs=[], rx=/remplac(e|es|é|ée|és|ées)\b\s*(par\b)?([^.;]*)/gi, m;
+        while((m=rx.exec(com))){ if(m[1].charAt(0)!=="e"||m[1].length>2||m[2]) continue; actifs.push(m[3]||""); }
+        var hasActive=actifs.length>0;
+        var tris=hasActive?(actifs.join(" ").toUpperCase().match(/\b[A-Z]{3}(?:-\d+)?\b/g)||[]):[];
+        var res; try{ res=posteDuRemplace(db,raw,k,hJour); }catch(e){ res="ERR:"+e.message; }
+        var posteCell; try{ posteCell=parseHoraireEntry(raw,hJour).s||null; }catch(e){ posteCell="ERR"; }
+        var unknown=tris.filter(function(t){ return !ids[t]; });
+        var flags=[];
+        if(hasActive && !res) flags.push("ACTIF_SANS_RESOLUTION");
+        if(unknown.length) flags.push("TRI_INCONNU("+unknown.join(",")+")");
+        if(tris.length>1) flags.push("MULTI_TRI("+tris.join(",")+")");
+        if(!hasActive && !/remplac[ée]e?s?\s+par/i.test(com)) flags.push("NON_CLASSE");
+        if(flags.length) cas.push({id:p.id, d:k, com:com, res:(res||null), poste:posteCell, tris:tris, flags:flags});
+      }
+    });
+    var parFlag={}; cas.forEach(function(c){ c.flags.forEach(function(f){ var kk=f.split("(")[0]; parFlag[kk]=(parFlag[kk]||0)+1; }); });
+    window.__auditCas=cas;
+    return {total:cas.length, parFlag:parFlag};
+  });
+};
+/* ⚙️ AUDIT DES AUTRES RÈGLES (debug, 05/10/2026, À RETIRER avec le harnais).
+   window.__auditRegles() repère, sur toute l'année, les cellules où le COMMENTAIRE
+   mentionne une règle mais où elle n'est PAS CAPTÉE (intention non prise en compte →
+   paie/placement potentiellement faux) : « maintien/conserve prime » sans prime
+   résolue, « départ » sans heure parsée, « échange avec X » où X est inconnu,
+   « rappel » non tranché. Lecture seule. */
+window.__auditRegles=function(){
+  return fetchHoraireDB().then(function(db){
+    if(!db) return {err:"no db"};
+    var hJour=st.params.hJour, ids={}; db.people.forEach(function(p){ ids[p.id]=1; });
+    var out={primeNonCaptee:[], departNonCapte:[], echangeInconnu:[], rappelNonTranche:[]};
+    db.people.forEach(function(p){
+      for(var m=0;m<12;m++){ var ep,rv,fit;
+        try{ ep=epargnesDuMois(p,m+1); rv=renvoisDuMois(p,m+1,hJour); fit=cycleDuMois(p,2026,m+1); }catch(e){ continue; }
+        var nd=daysInMonth(2026,m);
+        for(var d=1;d<=nd;d++){ var k=pad2(m+1)+pad2(d); var raw=p.d[k]; if(!raw) continue; var com=(raw[2]||"");
+          if(/\b(?:conserv\w*|maintien\w*|maintenir|garde)\s+(?:sa |la |le |de |d')?prime/i.test(com)){
+            var pg; try{ pg=primeGardee(raw); }catch(e){ pg=null; }
+            if(!pg) out.primeNonCaptee.push({id:p.id,d:k,com:com});
+          }
+          if(/d[ée]part/i.test(com) && !/d[ée2]\s*part\w*\s*(?:[àa0]\s*)?\d{1,2}\s*[hH:]/i.test(com))
+            out.departNonCapte.push({id:p.id,d:k,com:com});
+          var me=/[ée]change\s+avec\s+([A-Za-z]{2,4}(?:-\d)?)/i.exec(com);
+          if(me && !ids[me[1].toUpperCase()]) out.echangeInconnu.push({id:p.id,d:k,com:com,tri:me[1]});
+          if(/rappe[lk]/i.test(com)){
+            var rapOk; try{ var pr=lireJournee(db,raw,2026,m+1,d,fit,ep[d],hJour,rv[d]);
+              rapOk=rappelDuJour(raw,(posteDeCycle(fit,2026,m+1,d)||pr.s),2026,k); }catch(e){ rapOk=null; }
+            if(!rapOk && !/[ée]change|inversion/i.test(com)) out.rappelNonTranche.push({id:p.id,d:k,com:com});
+          }
+        } }
+    });
+    window.__auditReglesCas=out;
+    var sum={}; for(var kk in out) sum[kk]=out[kk].length;
+    return sum;
   });
 };
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
