@@ -108,18 +108,14 @@
   --cal-am-ink:#151E2F; --cal-pm-ink:#151E2F; --cal-n-ink:#FFFFFF; --cal-d-ink:#FFFFFF;
   --shadow:0 1px 1px rgba(21,30,47,.05), 0 10px 26px -18px rgba(21,30,47,.42);
   --r:11px;
-  /* Cadre de l'onglet Horaire : rayon généreux (--rj). COULEUR DU CADRE = GRIS
-     (le client, le 05/10/2026 : « je veux que les contours soient gris »).
-     Avant c'était un bleu-cadre CRONOS. ⚠️ OPAQUE, et pas en rgba(…,.55) : le
-     client veut que « le gris vu pendant une transition soit le MÊME gris que la
-     bordure du dessus ». Or l'overlay des côtés (pendant le feuilletage) est posé
-     PAR-DESSUS les liserés d'atelier colorés ; en semi-transparent ceux-ci
-     transparaissaient (ex. gris + vert = rgb(125,183,157), mesuré) → un gris
-     « sale », différent du haut. En opaque, l'overlay couvre tout = gris pur
-     identique au haut. La valeur rgb(92,101,118) EST exactement ce que rendait
-     l'ancien rgba(150,162,182,.55) sur le fond sombre — donc le haut ne change
-     pas d'aspect. Thème-neutre (même valeur clair/sombre). La bordure BASSE, elle,
-     ne suit pas --cadre : elle prend la couleur du dernier poste (voir --cadre-bas). */
+  /* Cadre de l'onglet Horaire : rayon --rj, couleur --cadre. COULEUR = GRIS (le
+     client, le 05/10/2026 : « je veux que les contours soient gris »). Depuis la
+     refonte CADRE PRO (même jour), --cadre est la couleur de l'UNIQUE cadre porté
+     par la carte (bordure 1 px sur les 4 côtés, cf. #v-jour .card). Gris froid
+     OPAQUE : un cadre net et homogène, identique au repos et en transition
+     (le cadre ne bouge pas, le contenu glisse dedans). Thème-neutre (même valeur
+     clair/sombre). Les couleurs d'atelier ne sont plus dans le cadre : ce sont des
+     accents internes (liserés des lignes). */
   --rj:22px;
   --cadre:rgb(92,101,118);
 }
@@ -1702,54 +1698,29 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .posteauj.estauj{opacity:.42; cursor:default}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
-/* La barre de date est DANS la carte (le client, le 04/10/2026 : « la ligne de
-   date doit faire partie du tableau »). C'est elle qui trace tout le haut du
-   cadre — bord supérieur + côtés + coins arrondis — d'un seul tenant (2 px
-   --cadre, coins --rj), pour que l'arrondi du haut soit net (un seul élément,
-   pas de raccord de travers). La carte, elle, ne porte que le bord du bas. Le
-   filet du bas de la barre reste le SÉPARATEUR interne — 2 px --trait-fort. */
+/* La barre de date vit À L'INTÉRIEUR du cadre, qui est désormais porté par la
+   CARTE seule (cf. « CADRE PRO » juste en dessous). Elle n'a donc plus aucune
+   bordure de cadre ni coin : seulement un SÉPARATEUR interne sous elle (1 px
+   --line). Ses coins hauts sont ceux de la carte ; elle s'y insère par
+   l'overflow:hidden. */
 #v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
-  border:0; border-top:2px solid var(--cadre); border-bottom:2px solid var(--trait-fort);
-  border-left:2px solid var(--cadre); border-right:2px solid var(--cadre);
-  border-top-left-radius:var(--rj); border-top-right-radius:var(--rj);
-  border-bottom-left-radius:0; border-bottom-right-radius:0;
+  border:0; border-bottom:1px solid var(--line); border-radius:0;
   flex-direction:column; align-items:center; gap:3px}
-/* La carte coiffe la barre de date ET le tableau en un bloc (le client, le
-   04/10/2026). Mais ses CÔTÉS n'ont PAS de bordure : le bord gauche/droit du
-   tableau, ce sont les liserés de couleur d'atelier déjà portés par la colonne
-   Poste et la dernière colonne (le client, le 04/10/2026 : « les bordures
-   gauche/droite doivent être celles de couleur, pas la grise en plus à
-   l'extérieur »). CADRE façon CRONOS.wtf (le client, le 04/10/2026 : « forme et
-   style du cadre comme Cronos.wtf », puis « superpose les bordures de couleur
-   SUR le bord extérieur, même épaisseur »). Un SEUL trait de 2 px fait le tour :
-   bleu --cadre en haut/en-tête, couleur D'ATELIER sur les côtés des lignes,
-   bleu en bas — tout au bord extérieur, même épaisseur, aucun double trait.
-   ⚠️ COINS : pour que l'arrondi soit NET, chaque coin doit être tracé par UN
-   seul élément (sinon le bord-haut de la carte et le bord-côté de la barre de
-   date se raccordent de travers = « coins moches », le client le 04/10/2026).
-   Donc : la carte ne porte QUE le bord du BAS (2 px, arrondi par la grille +
-   les cellules — scroll-safe, toujours visible) ; le HAUT (bord + côtés +
-   coins arrondis) est tracé par la barre de date (voir .toolbar.eqnav). Les
-   côtés des lignes restent portés par les liserés (2 px). */
-#v-jour .card{border-width:0 0 2px 0; border-style:solid;
-  border-color:var(--cadre); border-radius:var(--rj); overflow:hidden}
-/* BORDURE BASSE = COULEUR DU DERNIER POSTE (le client, le 05/10/2026 : « mettre
-   la bordure extérieure basse de la couleur du dernier poste — STEP bleu, si
-   formation blanc — on ne verrait plus les différences »). Les coins du bas sont
-   tracés par le liseré d'atelier de la DERNIÈRE ligne, qui s'y enroule (fix du
-   04/10) ; quand le cadre est gris et le dernier liseré coloré (STEP=bleu,
-   formation=blanc), le coin montrait deux couleurs = « mal construit ». En
-   peignant la bordure basse de la MÊME couleur que ce liseré, le tour du coin
-   devient un seul trait continu. La couleur est posée en JS (majBordBasJour,
-   appelée à chaque rendu) dans --cadre-bas ; à défaut on retombe sur --cadre. */
-#v-jour .card{border-bottom-color:var(--cadre-bas, var(--cadre))}
-/* …SAUF pendant le feuilletage : le cadre redevient entièrement GRIS (haut, côtés
-   via l'overlay, ET bas) le temps du glissement — un « contenant » gris uniforme
-   dans lequel les pages défilent, puis les accents colorés reviennent au repos.
-   Sinon le bas resterait coloré pendant que les côtés passent en gris → raccord
-   gris/coloré au coin bas en pleine transition. Le :has(.paging) l'emporte en
-   spécificité sur la règle --cadre-bas ci-dessus. */
-#v-jour .card:has(#jourCorps.paging){border-bottom-color:var(--cadre)}
+/* ⭐ CADRE PRO — UN SEUL ÉLÉMENT (refonte le 05/10/2026 : le client « repars de
+   zéro, quelque chose de 100 % pro pour les bordures, la bordure en transition et
+   des coins pro, pas du bricolage »). AVANT, le cadre était dessiné par TROIS
+   éléments (haut = barre de date, bas = carte, côtés = liserés des cellules) → les
+   coins étaient des JOINTURES entre éléments, jamais nets ; et pendant le
+   feuilletage les côtés glissaient avec le contenu, d'où une pile de rustines
+   (overlay de côtés, carrage des cellules, couleur de bas dynamique, règles
+   :has…). PRINCIPE PRO : la CARTE porte TOUT le cadre — bordure 1 px sur les 4
+   côtés + coins arrondis + overflow:hidden. Un seul élément ⇒ coins PARFAITS par
+   construction, et cadre STABLE pendant la transition : il ne bouge jamais, le
+   contenu glisse À L'INTÉRIEUR (rogné par l'overflow). Toutes les rustines sont
+   supprimées. Les couleurs d'atelier restent des accents À L'INTÉRIEUR (liserés
+   des lignes), rognés proprement par les coins de la carte. --cadre = gris neutre
+   opaque. Le halo (profondeur neutre) est posé plus bas sur la même carte. */
+#v-jour .card{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -1811,27 +1782,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   0 0 28px rgba(150,162,182,.10),
   0 16px 38px rgba(0,0,0,.33),
   0 4px 12px rgba(0,0,0,.22)}
-/* CADRE FERMÉ PENDANT LE FEUILLETAGE — CÔTÉS SEULEMENT (le client, le 05/10/2026 :
-   « j'aimerais que les bords extérieurs gauche/droite du cadre soient visibles
-   même lors d'une transition de jour », capture à l'appui). HISTORIQUE : le 04/10
-   un overlay dessinait un cadre BLEU COMPLET (4 côtés) pendant .paging ; son bord
-   HAUT/BAS se superposait au bord bleu déjà tracé (toolbar en haut, carte en bas)
-   → une 2e ligne juste en dessous = le « cadre qui réapparaît et flashe par
-   au-dessous de l'autre ». Supprimé le matin, mais alors les côtés s'ouvraient
-   pendant le glissement (le contenu touchait le bord, cf. capture client).
-   CORRECTIF : on redessine un cadre pendant .paging MAIS seulement les côtés
-   GAUCHE/DROITE (border-left/right) — PAS de haut/bas, donc aucune ligne doublée
-   avec le cadre bleu existant, et plus de flash « par au-dessous ». Les côtés,
-   eux, étaient OUVERTS pendant le slide (les liserés d'atelier glissent avec le
-   tableau) → les fermer en bleu --cadre complète le cadre (haut+bas déjà bleus)
-   en un rectangle cohérent le temps du feuilletage. z-index:4 pour passer
-   au-dessus des calques qui glissent ; inset:0 + border-radius pour épouser la
-   carte ; pointer-events:none. Hors .paging : invisible (les liserés colorés
-   reprennent les côtés). */
-#v-jour .card::after{content:""; position:absolute; inset:0; z-index:4;
-  border:0 solid var(--cadre); border-left-width:2px; border-right-width:2px;
-  border-radius:var(--rj); pointer-events:none; opacity:0}
-#v-jour .card:has(#jourCorps.paging)::after{opacity:1}
+/* (Plus d'overlay de cadre pendant le feuilletage : inutile depuis le CADRE PRO.
+   Le cadre est porté par la carte seule et ne bouge jamais ; le contenu glisse à
+   l'intérieur. Aucun côté ne « se vide », aucun coin ne flotte. Cf. CADRE PRO.) */
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
@@ -2070,35 +2023,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody tr[data-z="gris"]  td:last-child{border-right-color:var(--bordg)}
 .eqhote .eqp2 tbody tr.eqform td:last-child{border-right-color:var(--ink)}
 .eqhote .eqp2 thead th:last-child{border-right:2px solid var(--cadre)}
-/* COINS DU BAS — le liseré coloré épouse l'arrondi (le client, le 04/10/2026 :
-   « surveille les coins pour qu'il soit bien fait »). Sans cela, le liseré
-   d'atelier (3 px, vertical) heurtait le coin gris arrondi du cadre de travers :
-   à gauche il s'arrêtait trop tôt (petit vide), à droite il débordait sous
-   l'arrondi — les deux coins du bas étaient dissymétriques. La zone de
-   défilement (#jourCorps .eqgrille, overflow-y:auto) rognait en RECTANGLE et
-   ignorait l'arrondi du cadre. On arrondit donc les deux clippeurs (corps +
-   grille) au rayon INTÉRIEUR du cadre (--rj moins les 2 px du bord du bas), et
-   on arrondit le coin extérieur des cellules de bord de la DERNIÈRE ligne pour
-   que le liseré coloré suive la courbe. Résultat : coins arrondis, symétriques,
-   liseré coloré qui épouse l'arrondi. Scopé à l'onglet Horaire (#jourCorps) —
-   l'Accueil (#eqCorps) n'est pas dans un cadre arrondi. */
-#jourCorps, #jourCorps .eqgrille{border-bottom-left-radius:calc(var(--rj) - 2px);
-  border-bottom-right-radius:calc(var(--rj) - 2px)}
-#jourCorps .eqp2 tbody tr:last-child th.eqposte{border-bottom-left-radius:calc(var(--rj) - 2px); overflow:hidden}
-#jourCorps .eqp2 tbody tr:last-child td:last-child{border-bottom-right-radius:calc(var(--rj) - 2px); overflow:hidden}
-/* ⚠️ PENDANT LE FEUILLETAGE : coins du bas CARRÉS sur les calques qui glissent
-   (le client, le 05/10/2026 : « vérifie la qualité des coins, cela ne va pas »,
-   capture à l'appui). L'arrondi du bas ci-dessus est porté par la GRILLE et les
-   cellules de la dernière ligne ; or pendant .paging ces éléments vivent dans les
-   calques .jourlayer qui glissent → leurs coins arrondis se promènent EN PLEIN
-   MILIEU de la carte (le liseré se termine en enroulement, vu sur capture). Les
-   seuls coins qui doivent être ronds sont les coins EXTÉRIEURS, tracés par le
-   clip arrondi de la carte (overflow:hidden). On carre donc la grille et les
-   cellules de bord tant que .paging est actif ; au repos (sans .paging) l'arrondi
-   normal revient. Vérifié au navigateur (zoom sur le coin : liseré droit, net). */
-#jourCorps.paging .eqgrille,
-#jourCorps.paging .eqp2 tbody tr:last-child th.eqposte,
-#jourCorps.paging .eqp2 tbody tr:last-child td:last-child{border-radius:0}
+/* COINS DU BAS : plus aucun arrondi à poser ici (refonte CADRE PRO, 05/10/2026).
+   C'est la CARTE (overflow:hidden + border-radius) qui rogne ses enfants — grille,
+   cellules de bord ET calques qui glissent — sur ses coins arrondis. Donc tout
+   coin rond est celui de la carte, par construction : pas d'arrondi sur la grille
+   ni sur les cellules, pas de liseré qui s'enroule, pas de carrage pendant le
+   feuilletage. On ne garde que le clip de la grille pour le défilement. */
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
 #v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
@@ -9184,7 +9114,6 @@ function renderEquipe(){
            lignes à deux ou trois trigrammes. */
         ajusterHauteurJour();
         ajusterLignesJour();
-        majBordBasJour();
         /* Seconde passe à la frame suivante, une fois la mise en page posée. */
         requestAnimationFrame(function(){ requestAnimationFrame(ajusterLignesJour); });
       }
@@ -10530,19 +10459,6 @@ function ajusterHauteurJour(){
   var nav=document.querySelector(".navwrap > .tabs");
   var h=nav?Math.round(nav.getBoundingClientRect().height):64;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
-}
-/* BORDURE BASSE DE LA COULEUR DU DERNIER POSTE (le client, le 05/10/2026). On
-   lit la couleur CALCULÉE du liseré (bord gauche) de la dernière ligne du
-   tableau et on la pose dans --cadre-bas sur la carte. Marche pour tous les cas
-   sans table de correspondance : STEP → bleu, formation → blanc, « à déterminer »
-   → gris. Si pas de dernière ligne, on vide --cadre-bas → la carte retombe sur
-   --cadre (gris). Appelée à chaque rendu (renderEquipe), donc la couleur suit le
-   jour affiché, y compris après un feuilletage (le nouveau jour est rendu dans
-   #jourCorps AVANT pageJour). */
-function majBordBasJour(){
-  var card=document.querySelector("#v-jour .card"); if(!card) return;
-  var th=document.querySelector("#jourCorps .eqp2 tbody tr:last-child th.eqposte");
-  card.style.setProperty("--cadre-bas", th ? getComputedStyle(th).borderLeftColor : "");
 }
 /* ÉCART UNIFORME AUTOUR DES BADGES. On mesure la hauteur naturelle de chaque
    ligne, puis on ajoute à TOUTES le même supplément pour remplir le cadre : le
