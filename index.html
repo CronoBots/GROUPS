@@ -1029,7 +1029,7 @@ body.sheet-on{overflow:hidden}
    plein borde ; l'en-tête garde ses séparateurs verticaux et son trait sous les
    postes (atelier coloré, ou gris pour la colonne « Qui »), sans trait au-dessus. */
 .pvt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
-  border-top:0; border-bottom:2px solid var(--trait-fort);
+  border-top:0; border-bottom:3px solid var(--trait-fort);
   font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--faint)}
 /* La première ligne de données ne porte plus de filet gris en haut non plus :
    rien de gris ne coupe sous l'en-tête. */
@@ -1168,11 +1168,17 @@ body.sheet-on{overflow:hidden}
 /* Depuis que Recyclage est un tableau EMPILÉ sous l'Équipe (plus de segment collé,
    le client le 05/10/2026), l'onglet retrouve l'écart normal du .stack entre ses
    groupes « titre + tableau ». Le titre se colle à sa grille via la marge de .pvtete. */
-/* TITRE CENTRÉ, « 100 % pro » : intitulé fort au centre, description plus petite
-   et discrète juste en dessous (le client, le 05/10/2026). */
-#v-equipe .pvtete{align-items:center; text-align:center; gap:3px; margin:0 0 7px}
-#v-equipe .pvtete h2{font-size:18px; font-weight:700; letter-spacing:-.015em}
-#v-equipe .pvtete .sub{font-size:11px}
+/* LE TITRE EST UNE BARRE DANS LA CARTE, collée au tableau — même style que la
+   barre de date de l'onglet horaire (le client, le 05/10/2026 : « les titres
+   doivent être dans une cellule collée au tableau comme la ligne de sélection de
+   jour d'horaire, même style/bordure/cadre »). Fond --surface2, bordure basse
+   --cadre, titre centré, description plus petite dessous. Le coin arrondi du haut
+   du cadre rogne la barre (overflow:hidden de la carte). */
+#v-equipe .card>.toolbar.orgtitle{flex-direction:column; align-items:center; gap:2px;
+  padding:9px 14px; border:0; border-bottom:1px solid var(--cadre); border-radius:0;
+  background:var(--surface2)}
+#v-equipe .orgtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em}
+#v-equipe .orgtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
 /* Les bords GAUCHE/DROITE du segment reprennent le trait gris structurant du
    tableau — 2 px --trait-fort (le client, le 04/10/2026 : « les bords de la
    cellule avec les boutons [Équipe/Recyclage] comme le tableau ») — au lieu du
@@ -3060,16 +3066,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          menu passe de six repères à cinq. -->
     <!-- RECYCLAGE = tableau SOUS le tableau Équipe (le client, le 05/10/2026). Plus de
          bascule par flèches : les deux grilles sont EMPILÉES, chacune sous son titre. -->
-    <div class="pvtete"><h2>Les équipes</h2><p class="sub">la composition, par poste et par équipe</p></div>
+    <!-- Le titre « Les équipes » est désormais une BARRE dans la carte du tableau
+         (injectée par renderOrganisation), collée au tableau comme la barre de
+         date d'horaire — plus de titre flottant au-dessus (le client, 05/10/2026). -->
     <div class="stack" id="eqsub-equipes">
     <div class="orgcorps" id="orgCorps"></div>
     </div><!-- /#eqsub-equipes -->
 
-    <!-- RECYCLAGE sous le tableau Équipe : titre « Recyclage des polyvalences » HORS du
-         cadre (le client, 22/09 + 05/10/2026), puis la grille des polyvalences. -->
-    <div class="pvtete"><h2>Recyclage des polyvalences</h2></div>
+    <!-- RECYCLAGE sous le tableau Équipe : le titre est une BARRE dans la carte,
+         collée au tableau, même style que la barre de date d'horaire (le client,
+         le 05/10/2026), puis la grille des polyvalences. -->
     <div class="stack" id="eqsub-poly">
       <div class="card">
+        <div class="toolbar orgtitle"><h2>Recyclage des polyvalences</h2></div>
         <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
         <div id="pvFin" class="pvfinav"></div>
       </div>
@@ -9958,7 +9967,7 @@ function renderOrganisation(){
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
-    var t=['<div class="card"><div class="eqgrille"><table class="orgt">'];
+    var t=['<div class="card"><div class="toolbar orgtitle"><h2>Les équipes</h2><p class="sub">la composition, par poste et par équipe</p></div><div class="eqgrille"><table class="orgt">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
        large, et l'intitulé long y sortait de la case. */
