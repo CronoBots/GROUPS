@@ -1795,10 +1795,21 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    complet (par-dessus le contenu qui glisse). Hors feuilletage il est invisible :
    ce sont les liserés d'atelier qui dessinent les côtés. Ciblé via :has(.paging)
    — la classe que pageJour pose sur #jourCorps pendant l'animation. */
+/* TIMING ANTI-FLASH (le client, le 05/10/2026 : « en changeant de jour, le cadre
+   qui réapparaît et qui flash par au-dessous de l'autre »). Le flash venait d'un
+   fondu SORTANT (.1s) : à la fin du feuilletage pageJour retire .paging et
+   remonte INSTANTANÉMENT le vrai cadre (liserés de couleur), mais l'overlay bleu
+   mettait encore 0,1 s à s'effacer → les deux cadres coexistaient ce dixième de
+   seconde = un cadre bleu qui flashe sous le cadre de couleur. Correctif : on ne
+   transitionne QUE l'entrée (fondu doux, posé sur l'état :has(.paging)) ; l'état
+   de base garde transition:none, donc l'overlay DISPARAÎT dans la même frame que
+   la suppression de .paging — exactement quand le vrai cadre revient. Plus aucun
+   recouvrement, plus de flash. Le fondu entrant, lui, masque le vidage des côtés
+   pendant que le tableau glisse. */
 #v-jour .card::after{content:""; position:absolute; inset:0; z-index:4;
   border:2px solid var(--cadre); border-radius:var(--rj);
-  pointer-events:none; opacity:0; transition:opacity .1s ease}
-#v-jour .card:has(#jourCorps.paging)::after{opacity:1}
+  pointer-events:none; opacity:0; transition:none}
+#v-jour .card:has(#jourCorps.paging)::after{opacity:1; transition:opacity .12s ease}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
