@@ -1781,15 +1781,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   text-decoration-thickness:1px; text-underline-offset:4px}
 .jourdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
   border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
-/* HALO NEUTRE (le client, le 05/10/2026 : contours gris → plus de glow bleu).
-   On remplace l'ancien bloom bleu CRONOS par une PROFONDEUR neutre : une ombre
-   portée douce (donne du relief sans couleur) + un glow gris TRÈS faible pour
-   garder un soupçon de présence autour du cadre. Calibré bas (l'écran du
-   téléphone sature plus qu'un moniteur). Vérifié au navigateur. */
+/* HALO LÉGER autour du cadre (le client, le 05/10/2026 : « on n'ajouterait pas un
+   halo léger au cadre ? »). On garde la PROFONDEUR neutre (ombres portées) et on
+   ajoute une lueur douce, froide (bleu-gris très désaturé — pas le bleu CRONOS),
+   pour que la carte « rayonne » un peu sur le fond sombre sans réintroduire de
+   couleur franche. Couches : liseré intérieur haut (reflet) + fin anneau 1px +
+   glow serré (36 px) + les deux ombres de profondeur. Calibré bas (le téléphone
+   sature plus qu'un moniteur). Vérifié au navigateur. */
 #v-jour .card{box-shadow:
-  0 0 28px rgba(150,162,182,.10),
-  0 16px 38px rgba(0,0,0,.33),
-  0 4px 12px rgba(0,0,0,.22)}
+  inset 0 1px 0 rgba(255,255,255,.05),
+  0 0 0 1px rgba(150,170,200,.08),
+  0 0 36px rgba(140,165,205,.16),
+  0 18px 44px rgba(0,0,0,.36),
+  0 5px 14px rgba(0,0,0,.24)}
 /* (Plus d'overlay de cadre pendant le feuilletage : inutile depuis le CADRE PRO.
    Le cadre est porté par la carte seule et ne bouge jamais ; le contenu glisse à
    l'intérieur. Aucun côté ne « se vide », aucun coin ne flotte. Cf. CADRE PRO.) */
@@ -1900,7 +1904,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps .eqp2 tbody tr[data-z="rouge"] th.eqposte::before{background:var(--bordr)}
 #jourCorps .eqp2 tbody tr[data-z="bleu"]  th.eqposte::before{background:var(--bordb)}
 #jourCorps .eqp2 tbody tr[data-z="gris"]  th.eqposte::before{background:var(--bordg)}
-#jourCorps .eqp2 tbody tr.eqform th.eqposte::before{background:var(--ink)}
+/* La barre de FORMATION reste blanche mais ADOUCIE (le client, le 05/10/2026 :
+   « ok ligne blanche [moins vive] ») : le blanc pur --ink ressortait plus que les
+   autres couleurs sur fond sombre. Un blanc un peu posé pèse pareil que les accents
+   colorés, tout en restant clairement distinct du gris (CM/ADJ). Longueur inchangée. */
+#jourCorps .eqp2 tbody tr.eqform th.eqposte::before{background:#C8CED9}
 /* Le nom du poste est CENTRÉ dans la cellule (le client, le 05/10/2026 : « le texte
    toujours centré dans la cellule »). La barre d'accent est en position:absolute
    (hors flux) tout à gauche, donc elle ne décale pas le texte : padding symétrique
