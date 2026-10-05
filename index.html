@@ -2623,14 +2623,23 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
     background:var(--marque); border-top:1px solid rgba(255,255,255,.10); gap:0;
   }
-  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-    min-height:44px; padding:5px 2px; border-radius:9px; font-size:10.5px; color:rgba(255,255,255,.66)}
-  .tabs button svg{display:block}
+  /* MENU PRO ET COMPACT (le client, le 06/10/2026 : « le menu doit faire
+     professionnel et ne pas prendre trop de place… retravaille le style, la forme,
+     les onglets et les noms »). Parti pris : des ICÔNES seules et épurées ; le NOM
+     ne s'affiche que sous l'onglet ACTIF — plus l'onglet principal « Horaire »,
+     toujours nommé. Moins de bruit que sept libellés permanents, orientation
+     gardée, et la barre ne grandit pas (un seul onglet actif fixe la hauteur).
+     Les libellés inactifs sont masqués par font-size:0 (l'icône, elle, garde sa
+     taille explicite). */
+  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    min-height:46px; padding:4px 2px; border-radius:11px; font-size:0; color:rgba(255,255,255,.56)}
+  .tabs button svg{display:block; width:22px; height:22px}
   /* Ces trois règles ont la MÊME spécificité que celles du haut de la
      feuille, qui peignent la barre du bureau ; elles gagnent parce qu'elles
      sont écrites APRÈS. Ne pas les déplacer plus haut. */
   .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
-  .tabs button[aria-selected="true"]{color:var(--marque-vif); background:rgba(255,255,255,.10)}
+  .tabs button[aria-selected="true"]{color:var(--marque-vif); background:transparent;
+    font-size:9.5px; font-weight:600}
   .tabs button[aria-selected="true"]::after{display:none}
   .tabs .dotwarn{position:absolute; top:4px; right:calc(50% - 16px); margin:0}
   /* UNE LIGNE, À TOUTES LES LARGEURS DE TÉLÉPHONE. « nowrap » ne valait que
@@ -2649,12 +2658,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      devient une PASTILLE cyan (--marque-vif) qui déborde au-dessus de la barre ; un
      anneau couleur-barre la détache du contenu, le libellé « Horaire » reste dessous,
      aligné avec les autres. Pastille en position absolue : la barre ne grandit pas. */
-  .tabs button#tab-jour{position:relative; flex:0 0 auto; width:74px; overflow:visible;
-    justify-content:flex-end; padding-bottom:6px; color:#fff; font-weight:600}
-  .tabs button#tab-jour svg{position:absolute; left:50%; top:-34px; margin:0;
-    transform:translateX(-50%); width:27px; height:27px; box-sizing:content-box; padding:13px;
+  .tabs button#tab-jour{position:relative; flex:0 0 auto; width:72px; overflow:visible;
+    justify-content:flex-end; padding-bottom:6px; color:#fff; font-weight:600; font-size:9.5px}
+  .tabs button#tab-jour svg{position:absolute; left:50%; top:-30px; margin:0;
+    transform:translateX(-50%); width:25px; height:25px; box-sizing:content-box; padding:12px;
     border-radius:50%; background:var(--marque-vif); color:var(--marque);
-    box-shadow:0 9px 20px -5px rgba(0,0,0,.6), 0 0 0 6px var(--marque);
+    box-shadow:0 8px 18px -5px rgba(0,0,0,.55), 0 0 0 6px var(--marque);
     transition:transform .18s ease, box-shadow .18s ease}
   .tabs button#tab-jour[aria-selected="true"]{background:transparent; color:var(--marque-vif)}
   .tabs button#tab-jour[aria-selected="true"] svg{transform:translateX(-50%) scale(1.05);
@@ -2701,8 +2710,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      02/10/2026) ils sont SIX et non cinq : la règle couvre désormais tous les
      téléphones (jusqu'à 430 px, l'iPhone Pro Max), pas seulement le bas de la
      gamme, pour qu'« Mon horaire » ne déborde pas de sa case d'un sixième. */
-  .tabs button{font-size:9.5px; padding-left:0; padding-right:0; gap:2px;
-    white-space:nowrap}
+  /* Libellés inactifs toujours masqués (font-size:0 hérité) ; on ne règle ici que
+     la taille du libellé VISIBLE (actif + l'onglet principal) pour les petits
+     écrans, et l'espacement des icônes. */
+  .tabs button{padding-left:0; padding-right:0; gap:2px; white-space:nowrap}
+  .tabs button[aria-selected="true"], .tabs button#tab-jour{font-size:9px}
 }
 
 
@@ -2872,7 +2884,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       Calendrier</button>
     <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M14.6 9.6a3 3 0 1 0 0 4.8"/><path d="M8.3 11.2h4.3M8.3 12.9h4.3"/></svg>
-      Mon salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
+      Salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
     <button type="button" role="tab" id="tab-jour" data-v="jour" aria-selected="false" aria-controls="v-jour">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18M9.5 9.5v10M15 9.5v10"/></svg>
       Horaire</button>
