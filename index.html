@@ -9782,7 +9782,15 @@ function renderPolyvalence(){
         var A=idLisible(a.id), B=idLisible(b.id);
         return A<B?-1:(A>B?1:0); })
       .forEach(function(p){
-        var v=polyvalenceDe(db,p)||[]; if(!v.length) return;
+        /* NE FIGURENT QUE LES POLYVALENTS. Le client, le 06/10/2026 : « ceux qui
+           n'ont qu'un poste attitré (pas de polyvalence) ou en formation à leur
+           premier poste ne doivent pas apparaître dans le tableau des recyclages ».
+           Une entrée de formation (case « F », acquis=false) ne suffit donc plus à
+           faire figurer quelqu'un : il faut au moins UNE polyvalence ACQUISE. Ceux
+           qui n'ont rien, comme ceux qui ne font que se former à leur premier poste,
+           sortent de la grille. */
+        var v=polyvalenceDe(db,p)||[];
+        if(!v.some(function(o){ return o.acquis; })) return;
         gens++;
         var par={}, sien=posteAttitre(p);
         v.forEach(function(o){ par[o.t]=o; });
