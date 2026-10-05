@@ -3542,6 +3542,19 @@ function eur(x){return nf.format(x)+" €";}
 function num(x){return nf0.format(x);}
 function pad2(n){return (n<10?"0":"")+n;}
 function key(y,m){return y+"-"+pad2(m+1);}
+/* NETTOYAGE D'AFFICHAGE d'un commentaire de cellule (le client, le 05/10/2026 :
+   optimiser l'affichage des commentaires). ⚠️ UNIQUEMENT pour l'affichage — la
+   LOGIQUE de placement/paie continue de lire raw[2] BRUT (prouvé non modifié par le
+   harnais __horaireSig). Conservateur : on ne change pas les MOTS, on normalise la
+   FORME — minutes « 14h00' » → « 14h00 », espaces multiples réduits (retours à la
+   ligne gardés), majuscule en tête de chaque ligne (reprend l'existant de la bulle). */
+function nettoyerAffichage(txt){
+  var s=String(txt==null?"":txt);
+  s=s.replace(/(\d{1,2}\s*h\s*\d{2})\s*['’]/g,"$1");
+  s=s.split("\n").map(function(l){ return l.replace(/[ \t]+/g," ").replace(/^ +| +$/g,""); }).join("\n").replace(/^\n+|\n+$/g,"");
+  s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }); }).join("\n");
+  return s;
+}
 var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
 function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
 function easter(y){
@@ -4348,7 +4361,7 @@ function majFeuille(){
     /* le commentaire est une phrase, pas un champ : il va à la ligne, et le
        séparateur qui le précédait laissait un point suspendu */
     src.innerHTML="Horaire d'équipe : "+(bouts.length?bouts.join(" · "):"—")
-      +(raw[2]?'<span class="com">'+esc(raw[2])+'</span>':"");
+      +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
     src.hidden=false;
   } else { src.hidden=true; }
 }
@@ -10171,13 +10184,13 @@ function renderRappelsInutiles(force){
         var mv=o.moves.map(function(v){
           return idLisible(v.id)+" "+(COURT[v.de.k]||PV_COURT[v.de.k]||v.de.t)+" → "
             +(COURT[v.a.k]||PV_COURT[v.a.k]||v.a.t); });
-        h.push('<span class="mql" data-z="'+esc(o.P.z||"")+'" title="'+esc(o.com)+'">'
+        h.push('<span class="mql" data-z="'+esc(o.P.z||"")+'" title="'+esc(nettoyerAffichage(o.com))+'">'
           +'<span class="mqh"><span class="mqpz" data-s="'+esc(o.pause)+'">'+esc(pvNom(o.pause))+"</span>"
           +'<span class="mqpo"><span class="mqlg">'+esc(o.P.t)+'</span><span class="mqct">'
             +esc(o.P.k==="terr"?"T. arrière":o.P.t)+"</span></span>"
           +'<span class="mqc'+(o.id===moi?" moi":"")+'"><b>'+esc(idLisible(o.id))+"</b></span></span>"
           +'<span class="rnok"><b>Complet sans lui</b>'+(mv.length?" si "+esc(mv.join(", ")):"")+"</span>"
-          +(o.com?'<span class="rncom">« '+esc(o.com)+' »</span>':"")
+          +(o.com?'<span class="rncom">« '+esc(nettoyerAffichage(o.com))+' »</span>':"")
           +"</span>");
       });
       h.push("</span></button>");
@@ -10475,12 +10488,9 @@ function eqBouge(n){
   }
   function ouvrir(chip){
     var com=chip.getAttribute("data-com"); if(!com) return;
-    /* Une majuscule en tête de CHAQUE ligne (le client, le 03/10/2026 : en tête ;
-       le 04/10/2026 : « après un retour à la ligne volontaire, remettre une
-       majuscule »). Les notes du classeur, souvent en minuscule, s'affichent
-       proprement, et chaque ligne voulue (white-space:pre-line) démarre par une
-       capitale. On capitalise le 1er caractère non-espace de chaque ligne. */
-    com=com.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,ch){ return sp+ch.toUpperCase(); }); }).join("\n");
+    /* Nettoyage d'affichage (casse en tête de ligne, espaces, minutes) — voir
+       nettoyerAffichage(). Ne touche QUE ce qui est montré ; data-com reste brut. */
+    com=nettoyerAffichage(com);
     fermer();                                   /* referme et dé-surligne l'ancien */
     var p=bulle(); p.textContent=com;
     p.classList.remove("sous");
