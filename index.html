@@ -8416,6 +8416,48 @@ function equipeEnDSemaine(db,annee,mois,jour){
   }
   return "";
 }
+/* ⚙️ HARNAIS DE NON-RÉGRESSION (debug, 05/10/2026). window.__horaireSig() calcule une
+   SIGNATURE déterministe de TOUT le calcul piloté par les commentaires de cellule —
+   placement (equipeDuJour), lecture paie (lireJournee + remplacementCM + rappelDuJour),
+   renfort (renfortDuJour), renvois (renvoisDuMois) — sur les 77 personnes × tous les
+   jours de 2026, en hachages compacts. Sert à PROUVER qu'une refonte du parsing des
+   commentaires ne change rien : on compare la signature avant/après, elle doit rester
+   identique. AUCUN effet tant qu'on ne l'appelle pas. Le détail par cellule est stocké
+   dans window.__sigFull pour localiser une éventuelle différence. */
+window.__horaireSig=function(){
+  return fetchHoraireDB().then(function(db){
+    if(!db) return {err:"no db"};
+    var y=2026, hJour=st.params.hJour;
+    function h32(s){var h=5381,i=s.length;while(i)h=(h*33)^s.charCodeAt(--i);return (h>>>0).toString(36);}
+    function pid(p){return (p&&(p.id||p.tri))||"?";}
+    function col(k,v){ if(v&&typeof v==="object"&&v.d&&(v.id||v.tri))return "P:"+pid(v); if(typeof v==="number"&&!isFinite(v))return "NF"; return v; }
+    function sig(x){ try{return h32(JSON.stringify(x,col));}catch(e){return "SERR:"+e.message;} }
+    var full={}, out={meta:{y:y,people:db.people.length}, placement:{}, renfort:{}, paiePerson:{}, renvois:{}};
+    for(var m=0;m<12;m++){ var nd=daysInMonth(y,m);
+      for(var d=1;d<=nd;d++){ var mm=pad2(m+1)+pad2(d);
+        try{ out.placement[mm]=sig(equipeDuJour(db,y,m+1,d)); }catch(e){ out.placement[mm]="ERR:"+e.message; }
+        try{ out.renfort[mm]=sig(renfortDuJour(db,mm)); }catch(e){ out.renfort[mm]="ERR:"+e.message; } } }
+    db.people.forEach(function(person){ var id=pid(person); var acc=[], rvAcc=[];
+      for(var m2=0;m2<12;m2++){ var ep,rv,fit;
+        try{ ep=epargnesDuMois(person,m2+1); rv=renvoisDuMois(person,m2+1,hJour); fit=cycleDuMois(person,y,m2+1); }
+        catch(e){ acc.push("CTXERR"+(m2+1)+":"+e.message); continue; }
+        rvAcc.push(sig(rv));
+        var nd2=daysInMonth(y,m2);
+        for(var d2=1;d2<=nd2;d2++){ var mmdd2=pad2(m2+1)+pad2(d2); var raw=person.d[mmdd2]; if(raw===undefined) continue;
+          var cell;
+          try{ var pr=lireJournee(db,raw,y,m2+1,d2,fit,ep[d2],hJour,rv[d2]);
+               var rcm=remplacementCM(raw,pr.s,hJour);
+               var rap=rappelDuJour(raw,(posteDeCycle(fit,y,m2+1,d2)||pr.s),y,mmdd2);
+               cell=sig({lj:pr,rcm:rcm,rap:rap}); }
+          catch(e){ cell="ERR:"+e.message; }
+          full[id+"/"+mmdd2]=cell; acc.push(mmdd2+"="+cell); } }
+      out.paiePerson[id]=h32(acc.join(";"));
+      out.renvois[id]=h32(rvAcc.join(";")); });
+    window.__sigFull=full;
+    out.global=h32(sig(out.placement)+sig(out.renfort)+sig(out.paiePerson)+sig(out.renvois));
+    return out;
+  });
+};
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
    parce que le tableau des manques à venir en a besoin lui aussi : deux
    vues d'une même journée qui se contrediraient seraient pires qu'une. */
