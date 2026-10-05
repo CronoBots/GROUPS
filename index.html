@@ -750,20 +750,15 @@ body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
    codes), coiffée d'une barre sombre : bascule Mois/Année + flèches de mois. On
    reprend le chrome de #v-jour .card (bordure haute forte, halo bleuté) SANS son
    position:fixed, pour garder le défilement de la page. */
-/* Même cadre PREMIUM que l'onglet Horaire (le client, le 05/10/2026 : « adapter ce
-   style de cadre et bordure pour le calendrier, équipe, recyclage »). Bord « métal
-   lustré » (dégradé masqué en anneau ::after) + halo cyan + relief, rayon --rj. La
-   barre .calnav vit à l'intérieur comme la barre de date du jour. */
+/* Même cadre que l'onglet Horaire (le client, le 05/10/2026 : « adapter ce style de
+   cadre pour le calendrier, équipe, recyclage ») : bordure GRISE UNIFORME 1 px --cadre
+   (plus de dégradé lustré — le client l'a fait retirer le même jour) + halo cyan +
+   relief, rayon --rj. La barre .calnav vit à l'intérieur comme la barre de date. */
 #calCard{display:flex; flex-direction:column; overflow:hidden; position:relative;
-  border:1px solid transparent; border-radius:var(--rj);
+  border:1px solid var(--cadre); border-radius:var(--rj);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
     0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
-#calCard::after{content:""; position:absolute; inset:0; border-radius:var(--rj);
-  padding:1.4px; pointer-events:none; z-index:6;
-  background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(120,135,160,.5) 26%, rgba(70,80,98,.55) 60%, rgba(160,180,210,.5));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude}
 .calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px;
   padding:8px 12px; background:var(--surface2); border-bottom:1px solid var(--line)}
 /* La bascule reprend le segment iOS d'Équipe (.eqseg), simplement bornée en
@@ -1169,63 +1164,25 @@ body.sheet-on{overflow:hidden}
    le même que partout ailleurs dans l'application : une valeur de plus, ici,
    aurait fait un onglet qui ne respire pas comme les autres. */
 .orgcorps{display:flex; flex-direction:column; gap:16px}
-/* LE SEGMENT SE POSE SUR LE TABLEAU, comme la barre de date sur la carte du
-   jour. Le client, le 03/10/2026 : « coller le cadre du dessus au équipe comme
-   dans l'onglet horaire, même écart gauche/haut/droite et halo ». Le segment
-   coiffe (coins hauts arrondis, pas de bordure basse) ; la carte du tableau (et
-   de la grille Recyclage) reçoit la bordure haute forte --trait-fort et le halo
-   bleuté de #v-jour .card. #v-equipe passe en gap:0 pour les coller, l'écart de
-   16 px restant entre la carte et l'annuaire (géré par .stack à l'intérieur). */
-#v-equipe{gap:0}
+/* Depuis que Recyclage est un tableau EMPILÉ sous l'Équipe (plus de segment collé,
+   le client le 05/10/2026), l'onglet retrouve l'écart normal du .stack entre ses
+   groupes « titre + tableau ». Le titre se colle à sa grille via la marge de .pvtete. */
+#v-equipe .pvtete{margin-bottom:-8px}
 /* Les bords GAUCHE/DROITE du segment reprennent le trait gris structurant du
    tableau — 2 px --trait-fort (le client, le 04/10/2026 : « les bords de la
    cellule avec les boutons [Équipe/Recyclage] comme le tableau ») — au lieu du
    fin 1 px --line de base. */
-#v-equipe>.eqseg{border-radius:var(--rj) var(--rj) 0 0; border-bottom:0;
-  border-left:1px solid transparent; border-right:1px solid transparent; position:relative}
-/* Bord lustré en HAUT du cadre Équipe/Recyclage : le segment porte la moitié
-   supérieure de l'anneau dégradé (coins hauts arrondis, PAS de bas — le raccord
-   avec la carte se fait sur un bord droit). Miroir du cadre Horaire. */
-#v-equipe>.eqseg::after{content:""; position:absolute; inset:0; border-radius:var(--rj) var(--rj) 0 0;
-  padding:1.4px 1.4px 0 1.4px; pointer-events:none; z-index:6;
-  background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(150,168,196,.62) 60%, rgba(120,138,166,.58));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude}
-/* La barre-sélecteur reprend le LOOK de la barre de date d'Horaire (le client, le
-   05/10/2026) : fond --surface2, séparateur bas --cadre, flèches chevron encadrées
-   + titre de la vue active centré seul. Surcharge le style « segment 2 boutons » de
-   base de .eqseg (grille → flex). */
-#v-equipe .eqsubbar{display:flex; grid-template-columns:none; gap:3px; padding:7px 12px;
-  background:var(--surface2); border-bottom:1px solid var(--cadre);
-  flex-direction:column; align-items:center}
-#v-equipe .eqsubbar .jourline{display:flex; width:100%; align-items:center}
-#v-equipe .eqsubbar .eqsubtitle{flex:1 1 auto; min-width:0; text-align:center; font-size:16px;
-  font-weight:650; white-space:nowrap; color:var(--ink); background:none; border:0; padding:4px 8px;
-  font-family:inherit; cursor:pointer; border-radius:8px}
-#v-equipe .eqsubbar .jourline>button:not(.eqsubtitle){flex:0 0 auto; margin:0 26px; width:30px;
-  height:30px; padding:0; display:grid; place-items:center; border-radius:9px;
-  border:1px solid var(--line); background:var(--surface); color:var(--muted); line-height:1}
-@media (hover:hover){ #v-equipe .eqsubbar .jourline>button:not(.eqsubtitle):hover{color:var(--ink); border-color:var(--in2)}
-  #v-equipe .eqsubbar .eqsubtitle:hover{background:var(--surface3)} }
-#v-equipe .eqsubbar button:active{transform:scale(.95)}
-/* Seule la PREMIÈRE carte (le tableau d'équipe, ou la grille Recyclage) est
-   coiffée par le segment : les cartes qui suivent (binômes, formation, station,
-   annuaire) gardent leur aspect normal.
-   PAS de bordure grise sous le segment (le client, le 03/10/2026 : « il ne faut
-   pas la bordure grise sous la ligne des 2 boutons ») : border-top:0. Le trait
-   fort vit SOUS la ligne de poste (en-tête du tableau), pas sous les boutons. */
-#orgCorps>.card:first-child, #eqsub-poly>.card:first-child{
-  border-top:0; border-radius:0 0 var(--rj) var(--rj); position:relative;
+/* ⭐ Recyclage = tableau SOUS le tableau Équipe (le client, le 05/10/2026 : plus de
+   bascule par flèches). Les deux grilles — composition (« Les équipes ») et matrice des
+   polyvalences (« Recyclage ») — sont des cartes EMPILÉES, chacune avec son titre
+   au-dessus (hors cadre, .pvtete) et son propre cadre : bordure GRISE UNIFORME 1 px
+   --cadre + coins arrondis + halo (plus de bord lustré, retiré le même jour). Seule la
+   1re carte de #orgCorps (le tableau d'équipe) est encadrée ; binômes/formation/station
+   gardent leur aspect normal. */
+#orgCorps>.card:first-child, #eqsub-poly>.card{
+  border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
     0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
-/* Bord lustré en BAS du cadre Équipe/Recyclage : la carte porte la moitié
-   inférieure de l'anneau (coins bas arrondis, PAS de haut — raccord au segment). */
-#orgCorps>.card:first-child::after, #eqsub-poly>.card:first-child::after{content:"";
-  position:absolute; inset:0; border-radius:0 0 var(--rj) var(--rj);
-  padding:0 1.4px 1.4px 1.4px; pointer-events:none; z-index:6;
-  background:linear-gradient(155deg, rgba(150,168,196,.6), rgba(90,104,128,.5) 50%, rgba(160,180,210,.5));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude}
 /* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
    Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
    à gauche, trigrammes empilés — parce que c'est le même objet regardé
@@ -1773,20 +1730,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    Elles deviennent un ACCENT interne collé au nom du poste (voir « ACCENT
    D'ATELIER » plus bas). Le cadre, lui, est un simple trait gris propre.
    --cadre = gris neutre opaque. Le halo (profondeur neutre) est posé plus bas. */
-#v-jour .card{border:1px solid transparent; border-radius:var(--rj); overflow:hidden}
-/* BORD « MÉTAL LUSTRÉ » (le client, le 05/10/2026 : « effet de brillance du cadre ? »,
-   puis « la meilleure »). Le trait du cadre n'est plus une couleur plate : c'est un
-   DÉGRADÉ qui accroche la lumière en haut (clair) et s'estompe vers le bas — une arête
-   métallique/vitrée. Technique : un anneau en ::after (dégradé masqué en « xor » pour ne
-   garder que le pourtour), inset:0 donc au ras du cadre, épousant les coins arrondis
-   (border-radius). z-index:6 : au-dessus du contenu qui glisse, mais statique (il ne
-   bouge pas en transition, comme un vrai cadre). pointer-events:none. --cadre reste la
-   teinte de base grise (séparateur de date, etc.). */
-#v-jour .card::after{content:""; position:absolute; inset:0; border-radius:var(--rj);
-  padding:1.4px; pointer-events:none; z-index:6;
-  background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(120,135,160,.5) 26%, rgba(70,80,98,.55) 60%, rgba(160,180,210,.5));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude}
+/* Bordure du cadre : trait GRIS UNIFORME (le client, le 05/10/2026 : « supprimer la
+   brillance… le bord gauche qui devient gris sur la droite »). On retire le dégradé
+   « métal lustré » (ex-::after masqué) au profit d'un simple 1 px --cadre sur les 4
+   côtés. Le halo/relief (box-shadow) reste. */
+#v-jour .card{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -3097,49 +3045,31 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          équipes ») et la matrice des polyvalences (« Recyclage »). Un segment
          les échange sur place ; l'onglet n'en fait plus deux, et la barre de
          menu passe de six repères à cinq. -->
-    <!-- SÉLECTEUR en barre, comme la cellule de date de l'onglet Horaire (le
-         client, le 05/10/2026) : flèches gauche/droite + SEUL le titre de la vue
-         active au centre. Les deux vues (Les équipes / Recyclage) s'échangent. -->
-    <div class="eqseg eqsubbar" aria-label="Vue de l'équipe">
-      <div class="jourline">
-        <button type="button" id="eqsubPrev" aria-label="Vue précédente"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <button type="button" class="eqjour eqsubtitle" id="eqsubTitle" aria-label="Changer de vue">Les équipes</button>
-        <button type="button" id="eqsubNext" aria-label="Vue suivante"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
-      </div>
-    </div>
-    <div class="stack" id="eqsub-equipes" role="tabpanel" aria-labelledby="eqsub-tab-equipes">
-    <!-- Plus de titre « Les équipes » au-dessus : le segment se pose directement
-         sur le tableau (le client, le 03/10/2026, « coller le cadre du dessus au
-         équipe comme dans l'onglet horaire »). -->
+    <!-- RECYCLAGE = tableau SOUS le tableau Équipe (le client, le 05/10/2026). Plus de
+         bascule par flèches : les deux grilles sont EMPILÉES, chacune sous son titre. -->
+    <div class="pvtete"><h2>Les équipes</h2><p class="sub">la composition, par poste et par équipe</p></div>
+    <div class="stack" id="eqsub-equipes">
     <div class="orgcorps" id="orgCorps"></div>
+    </div><!-- /#eqsub-equipes -->
 
-    <!-- L'ANNUAIRE RESTE ICI, et non dans le Résumé : le client a tranché le
-         22/09/2026. Les quatre cartes au-dessus disent la COMPOSITION —
-         qui est où — tandis que l'annuaire garde, sous chaque nom, ce que le
-         classeur écrit mot pour mot à côté de lui. On ne sait pas toujours
-         ce que cela désigne ; le supprimer serait perdre ce qu'on n'a pas
-         encore compris. -->
+    <!-- RECYCLAGE sous le tableau Équipe : titre « Recyclage des polyvalences » HORS du
+         cadre (le client, 22/09 + 05/10/2026), puis la grille des polyvalences. -->
+    <div class="pvtete"><h2>Recyclage des polyvalences</h2></div>
+    <div class="stack" id="eqsub-poly">
+      <div class="card">
+        <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
+        <div id="pvFin" class="pvfinav"></div>
+      </div>
+    </div><!-- /#eqsub-poly -->
+
+    <!-- L'ANNUAIRE reste dans l'onglet Équipe, après les deux grilles (le client,
+         22/09/2026). Il garde, sous chaque nom, ce que le classeur écrit mot pour mot. -->
     <div class="card">
       <details class="fold" id="eqAnnFold">
         <summary>Annuaire <span class="sub">la fonction et les postes de chacun</span></summary>
         <div class="eqann" id="eqAnnuaire"></div>
       </details>
     </div>
-    </div><!-- /#eqsub-equipes -->
-
-    <!-- Le recyclage des polyvalences, désormais sous-vue d'Équipe. Le titre
-         et la période vivent HORS du cadre — client, 22/09/2026 : « il faut le
-         titre "Recyclage des polyvalences" au dessus du cadre avec juste en
-         dessous la ligne avec les dates ». Ils annoncent la grille, ils n'en
-         font pas partie. -->
-    <div class="stack" id="eqsub-poly" role="tabpanel" aria-labelledby="eqsub-tab-poly" hidden>
-      <!-- Plus de titre au-dessus : le segment se pose sur la grille, comme pour
-           « Les équipes » (le client, le 03/10/2026). -->
-      <div class="card">
-        <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
-        <div id="pvFin" class="pvfinav"></div>
-      </div>
-    </div><!-- /#eqsub-poly -->
   </section>
 
   <section class="panel stack" id="v-salaire" role="tabpanel" aria-labelledby="tab-salaire" tabindex="-1" hidden>
@@ -5332,33 +5262,11 @@ document.querySelector(".tabs").addEventListener("keydown",function(e){
   setView(tabs[j].dataset.v,true);
   tabs[j].focus();
 });
-/* LA SOUS-NAVIGATION D'ÉQUIPE : « Les équipes » ou « Recyclage », deux vues
-   de la même structure d'usine. Elle mémorise le dernier choix comme la barre
-   du haut retient le dernier onglet, et ne touche qu'à la visibilité — les
-   deux sous-vues sont déjà remplies quand on arrive sur l'onglet. */
-function appliquerEqSub(){
-  var sv=st.eqsub||lsGet("ui/eqsub")||"equipes";
-  st.eqsub=sv;
-  var eq=document.getElementById("eqsub-equipes"),
-      po=document.getElementById("eqsub-poly");
-  if(!eq||!po) return;
-  eq.hidden=(sv!=="equipes");
-  po.hidden=(sv!=="poly");
-  var t=document.getElementById("eqsubTitle");
-  if(t) t.textContent=(sv==="poly")?"Recyclage":"Les équipes";
-}
-/* Deux vues seulement : une flèche (gauche OU droite) ou un clic sur le titre
-   bascule vers l'autre — comme la barre de date, mais à deux crans. */
-function basculeEqSub(){
-  st.eqsub=(st.eqsub==="poly")?"equipes":"poly";
-  lsSet("ui/eqsub",st.eqsub); appliquerEqSub();
-}
-(function(){
-  if(!document.querySelector("#v-equipe .eqsubbar")) return;
-  ["eqsubPrev","eqsubNext","eqsubTitle"].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.addEventListener("click",basculeEqSub);
-  });
-})();
+/* RECYCLAGE SOUS LE TABLEAU ÉQUIPE (le client, le 05/10/2026) : plus de bascule par
+   flèches. Les deux grilles — « Les équipes » (#eqsub-equipes) et « Recyclage des
+   polyvalences » (#eqsub-poly) — sont affichées EN PERMANENCE, empilées, chacune sous
+   son titre. appliquerEqSub devient un no-op (setView('equipe') l'appelle encore). */
+function appliquerEqSub(){ /* no-op : les deux vues sont visibles, plus de toggle */ }
 document.addEventListener("click",function(e){
   var g=e.target.closest("[data-go]"); if(g) setView(g.dataset.go);
 });
