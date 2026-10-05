@@ -110,12 +110,18 @@
   --r:11px;
   /* Cadre de l'onglet Horaire : rayon généreux (--rj). COULEUR DU CADRE = GRIS
      (le client, le 05/10/2026 : « je veux que les contours soient gris »).
-     Avant c'était un bleu-cadre CRONOS rgba(0,179,255,.55) ; on le neutralise en
-     gris froid (slate) pour un contour sobre qui ne tire pas l'œil — les seules
-     couleurs restent les liserés d'atelier sur les côtés et l'accent cyan (--in)
-     des badges. Thème-neutre (même valeur clair/sombre). */
+     Avant c'était un bleu-cadre CRONOS. ⚠️ OPAQUE, et pas en rgba(…,.55) : le
+     client veut que « le gris vu pendant une transition soit le MÊME gris que la
+     bordure du dessus ». Or l'overlay des côtés (pendant le feuilletage) est posé
+     PAR-DESSUS les liserés d'atelier colorés ; en semi-transparent ceux-ci
+     transparaissaient (ex. gris + vert = rgb(125,183,157), mesuré) → un gris
+     « sale », différent du haut. En opaque, l'overlay couvre tout = gris pur
+     identique au haut. La valeur rgb(92,101,118) EST exactement ce que rendait
+     l'ancien rgba(150,162,182,.55) sur le fond sombre — donc le haut ne change
+     pas d'aspect. Thème-neutre (même valeur clair/sombre). La bordure BASSE, elle,
+     ne suit pas --cadre : elle prend la couleur du dernier poste (voir --cadre-bas). */
   --rj:22px;
-  --cadre:rgba(150,162,182,.55);
+  --cadre:rgb(92,101,118);
 }
 /* UN SEUL THÈME, LE SOMBRE. Le client, le 30/09/2026 : « l'app ne doit
    avoir que le thème sombre ». <html data-theme="dark"> le pose quel que
@@ -1727,6 +1733,23 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    côtés des lignes restent portés par les liserés (2 px). */
 #v-jour .card{border-width:0 0 2px 0; border-style:solid;
   border-color:var(--cadre); border-radius:var(--rj); overflow:hidden}
+/* BORDURE BASSE = COULEUR DU DERNIER POSTE (le client, le 05/10/2026 : « mettre
+   la bordure extérieure basse de la couleur du dernier poste — STEP bleu, si
+   formation blanc — on ne verrait plus les différences »). Les coins du bas sont
+   tracés par le liseré d'atelier de la DERNIÈRE ligne, qui s'y enroule (fix du
+   04/10) ; quand le cadre est gris et le dernier liseré coloré (STEP=bleu,
+   formation=blanc), le coin montrait deux couleurs = « mal construit ». En
+   peignant la bordure basse de la MÊME couleur que ce liseré, le tour du coin
+   devient un seul trait continu. La couleur est posée en JS (majBordBasJour,
+   appelée à chaque rendu) dans --cadre-bas ; à défaut on retombe sur --cadre. */
+#v-jour .card{border-bottom-color:var(--cadre-bas, var(--cadre))}
+/* …SAUF pendant le feuilletage : le cadre redevient entièrement GRIS (haut, côtés
+   via l'overlay, ET bas) le temps du glissement — un « contenant » gris uniforme
+   dans lequel les pages défilent, puis les accents colorés reviennent au repos.
+   Sinon le bas resterait coloré pendant que les côtés passent en gris → raccord
+   gris/coloré au coin bas en pleine transition. Le :has(.paging) l'emporte en
+   spécificité sur la règle --cadre-bas ci-dessus. */
+#v-jour .card:has(#jourCorps.paging){border-bottom-color:var(--cadre)}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
@@ -9161,6 +9184,7 @@ function renderEquipe(){
            lignes à deux ou trois trigrammes. */
         ajusterHauteurJour();
         ajusterLignesJour();
+        majBordBasJour();
         /* Seconde passe à la frame suivante, une fois la mise en page posée. */
         requestAnimationFrame(function(){ requestAnimationFrame(ajusterLignesJour); });
       }
@@ -10506,6 +10530,19 @@ function ajusterHauteurJour(){
   var nav=document.querySelector(".navwrap > .tabs");
   var h=nav?Math.round(nav.getBoundingClientRect().height):64;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
+}
+/* BORDURE BASSE DE LA COULEUR DU DERNIER POSTE (le client, le 05/10/2026). On
+   lit la couleur CALCULÉE du liseré (bord gauche) de la dernière ligne du
+   tableau et on la pose dans --cadre-bas sur la carte. Marche pour tous les cas
+   sans table de correspondance : STEP → bleu, formation → blanc, « à déterminer »
+   → gris. Si pas de dernière ligne, on vide --cadre-bas → la carte retombe sur
+   --cadre (gris). Appelée à chaque rendu (renderEquipe), donc la couleur suit le
+   jour affiché, y compris après un feuilletage (le nouveau jour est rendu dans
+   #jourCorps AVANT pageJour). */
+function majBordBasJour(){
+  var card=document.querySelector("#v-jour .card"); if(!card) return;
+  var th=document.querySelector("#jourCorps .eqp2 tbody tr:last-child th.eqposte");
+  card.style.setProperty("--cadre-bas", th ? getComputedStyle(th).borderLeftColor : "");
 }
 /* ÉCART UNIFORME AUTOUR DES BADGES. On mesure la hauteur naturelle de chaque
    ligne, puis on ajoute à TOUTES le même supplément pour remplir le cadre : le
