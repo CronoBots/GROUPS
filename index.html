@@ -1787,23 +1787,27 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .card{box-shadow:
   0 0 34px rgba(0,179,255,.22),
   0 0 80px rgba(0,179,255,.09)}
-/* PAS D'OVERLAY DE CADRE PENDANT LE FEUILLETAGE (le client, le 05/10/2026 : « en
-   changeant de jour, le cadre qui réapparaît et qui flash par au-dessous de
-   l'autre »). HISTORIQUE : le 04/10 on superposait, le temps du feuilletage, un
-   cadre BLEU complet (#v-jour .card::after, piloté par :has(.paging)), parce que
-   les côtés du cadre — portés par les liserés d'atelier des CELLULES — glissent
-   avec le tableau et « se vident » à mi-course. DIAGNOSTIC (captures navigateur,
-   mobile + desktop) : au repos les côtés sont COLORÉS (liserés d'atelier) ; sous
-   .paging l'overlay les recouvrait de BLEU. Donc chaque changement faisait
-   coloré → tout bleu → coloré : un ÉCHANGE DE COULEUR aux instants de début/fin,
-   exactement le « cadre qui réapparaît par au-dessous ». Le timing (fondu .1s ou
-   instantané) n'y changeait rien : la cause est la COULEUR, pas la durée. Or en
-   plein glissement la page qui ENTRE porte déjà son propre liseré coloré sur son
-   bord → le cadre reste défini sans l'overlay (vérifié : overlay ON vs OFF à
-   mi-course = quasi identiques). CORRECTIF : on SUPPRIME l'overlay. Les côtés
-   restent les vrais liserés de couleur, jamais masqués, donc plus aucun échange
-   ni flash. La carte garde par ailleurs son clip arrondi (overflow:hidden), son
-   bord haut/bas bleu et son halo, qui la cernent pendant le glissement. */
+/* CADRE FERMÉ PENDANT LE FEUILLETAGE — CÔTÉS SEULEMENT (le client, le 05/10/2026 :
+   « j'aimerais que les bords extérieurs gauche/droite du cadre soient visibles
+   même lors d'une transition de jour », capture à l'appui). HISTORIQUE : le 04/10
+   un overlay dessinait un cadre BLEU COMPLET (4 côtés) pendant .paging ; son bord
+   HAUT/BAS se superposait au bord bleu déjà tracé (toolbar en haut, carte en bas)
+   → une 2e ligne juste en dessous = le « cadre qui réapparaît et flashe par
+   au-dessous de l'autre ». Supprimé le matin, mais alors les côtés s'ouvraient
+   pendant le glissement (le contenu touchait le bord, cf. capture client).
+   CORRECTIF : on redessine un cadre pendant .paging MAIS seulement les côtés
+   GAUCHE/DROITE (border-left/right) — PAS de haut/bas, donc aucune ligne doublée
+   avec le cadre bleu existant, et plus de flash « par au-dessous ». Les côtés,
+   eux, étaient OUVERTS pendant le slide (les liserés d'atelier glissent avec le
+   tableau) → les fermer en bleu --cadre complète le cadre (haut+bas déjà bleus)
+   en un rectangle cohérent le temps du feuilletage. z-index:4 pour passer
+   au-dessus des calques qui glissent ; inset:0 + border-radius pour épouser la
+   carte ; pointer-events:none. Hors .paging : invisible (les liserés colorés
+   reprennent les côtés). */
+#v-jour .card::after{content:""; position:absolute; inset:0; z-index:4;
+  border:0 solid var(--cadre); border-left-width:2px; border-right-width:2px;
+  border-radius:var(--rj); pointer-events:none; opacity:0}
+#v-jour .card:has(#jourCorps.paging)::after{opacity:1}
 /* TÉLÉPHONE — ONGLET « DU JOUR » SANS SCROLL, MÊME EN PWA. Le client, le
    02/10/2026 : « supprime la barre du haut », puis « tableau toujours scrollable
    en PWA ? ». On n'essaie plus de CALCULER une hauteur en pixels (fragile :
