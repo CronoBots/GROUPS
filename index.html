@@ -1191,6 +1191,23 @@ body.sheet-on{overflow:hidden}
   background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(150,168,196,.62) 60%, rgba(120,138,166,.58));
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor; mask-composite:exclude}
+/* La barre-sélecteur reprend le LOOK de la barre de date d'Horaire (le client, le
+   05/10/2026) : fond --surface2, séparateur bas --cadre, flèches chevron encadrées
+   + titre de la vue active centré seul. Surcharge le style « segment 2 boutons » de
+   base de .eqseg (grille → flex). */
+#v-equipe .eqsubbar{display:flex; grid-template-columns:none; gap:3px; padding:7px 12px;
+  background:var(--surface2); border-bottom:1px solid var(--cadre);
+  flex-direction:column; align-items:center}
+#v-equipe .eqsubbar .jourline{display:flex; width:100%; align-items:center}
+#v-equipe .eqsubbar .eqsubtitle{flex:1 1 auto; min-width:0; text-align:center; font-size:16px;
+  font-weight:650; white-space:nowrap; color:var(--ink); background:none; border:0; padding:4px 8px;
+  font-family:inherit; cursor:pointer; border-radius:8px}
+#v-equipe .eqsubbar .jourline>button:not(.eqsubtitle){flex:0 0 auto; margin:0 26px; width:30px;
+  height:30px; padding:0; display:grid; place-items:center; border-radius:9px;
+  border:1px solid var(--line); background:var(--surface); color:var(--muted); line-height:1}
+@media (hover:hover){ #v-equipe .eqsubbar .jourline>button:not(.eqsubtitle):hover{color:var(--ink); border-color:var(--in2)}
+  #v-equipe .eqsubbar .eqsubtitle:hover{background:var(--surface3)} }
+#v-equipe .eqsubbar button:active{transform:scale(.95)}
 /* Seule la PREMIÈRE carte (le tableau d'équipe, ou la grille Recyclage) est
    coiffée par le segment : les cartes qui suivent (binômes, formation, station,
    annuaire) gardent leur aspect normal.
@@ -3080,10 +3097,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          équipes ») et la matrice des polyvalences (« Recyclage »). Un segment
          les échange sur place ; l'onglet n'en fait plus deux, et la barre de
          menu passe de six repères à cinq. -->
-    <nav class="eqseg" role="tablist" aria-label="Vue de l'équipe">
-      <button type="button" role="tab" id="eqsub-tab-equipes" data-sv="equipes" aria-selected="true" aria-controls="eqsub-equipes">Les équipes</button>
-      <button type="button" role="tab" id="eqsub-tab-poly" data-sv="poly" aria-selected="false" aria-controls="eqsub-poly" tabindex="-1">Recyclage</button>
-    </nav>
+    <!-- SÉLECTEUR en barre, comme la cellule de date de l'onglet Horaire (le
+         client, le 05/10/2026) : flèches gauche/droite + SEUL le titre de la vue
+         active au centre. Les deux vues (Les équipes / Recyclage) s'échangent. -->
+    <div class="eqseg eqsubbar" aria-label="Vue de l'équipe">
+      <div class="jourline">
+        <button type="button" id="eqsubPrev" aria-label="Vue précédente"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button type="button" class="eqjour eqsubtitle" id="eqsubTitle" aria-label="Changer de vue">Les équipes</button>
+        <button type="button" id="eqsubNext" aria-label="Vue suivante"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
     <div class="stack" id="eqsub-equipes" role="tabpanel" aria-labelledby="eqsub-tab-equipes">
     <!-- Plus de titre « Les équipes » au-dessus : le segment se pose directement
          sur le tableau (le client, le 03/10/2026, « coller le cadre du dessus au
@@ -5321,25 +5344,19 @@ function appliquerEqSub(){
   if(!eq||!po) return;
   eq.hidden=(sv!=="equipes");
   po.hidden=(sv!=="poly");
-  Array.prototype.forEach.call(document.querySelectorAll("#v-equipe .eqseg button[data-sv]"),function(b){
-    var on=b.dataset.sv===sv;
-    b.setAttribute("aria-selected",String(on));
-    b.tabIndex=on?0:-1;
-  });
+  var t=document.getElementById("eqsubTitle");
+  if(t) t.textContent=(sv==="poly")?"Recyclage":"Les équipes";
+}
+/* Deux vues seulement : une flèche (gauche OU droite) ou un clic sur le titre
+   bascule vers l'autre — comme la barre de date, mais à deux crans. */
+function basculeEqSub(){
+  st.eqsub=(st.eqsub==="poly")?"equipes":"poly";
+  lsSet("ui/eqsub",st.eqsub); appliquerEqSub();
 }
 (function(){
-  var seg=document.querySelector("#v-equipe .eqseg"); if(!seg) return;
-  seg.addEventListener("click",function(e){
-    var b=e.target.closest("button[data-sv]"); if(!b) return;
-    st.eqsub=b.dataset.sv; lsSet("ui/eqsub",st.eqsub); appliquerEqSub();
-  });
-  seg.addEventListener("keydown",function(e){
-    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight") return;
-    var bs=Array.prototype.slice.call(seg.querySelectorAll("button[data-sv]"));
-    var i=bs.indexOf(document.activeElement); if(i<0) return;
-    e.preventDefault();
-    var j=(i+(e.key==="ArrowRight"?1:bs.length-1))%bs.length;
-    st.eqsub=bs[j].dataset.sv; lsSet("ui/eqsub",st.eqsub); appliquerEqSub(); bs[j].focus();
+  if(!document.querySelector("#v-equipe .eqsubbar")) return;
+  ["eqsubPrev","eqsubNext","eqsubTitle"].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener("click",basculeEqSub);
   });
 })();
 document.addEventListener("click",function(e){
