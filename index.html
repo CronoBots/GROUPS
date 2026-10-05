@@ -1937,7 +1937,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* L'horaire se met à côté du trigramme s'il y a la place, dessous sinon,
    et se coupe au tiret s'il ne tient pas sur une ligne (« (8h30-16h30) »
    dans une colonne D de 320 px). */
-.eqhote .eqp2 td .eqn .eqhd{display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px; white-space:nowrap}
+/* L'horaire inline (« 6-14 », « 8-16 », « 7-15 ») partage l'étiquette .eqn avec un
+   trigramme en IBM Plex Mono : ses chiffres prennent donc la MÊME chasse fixe, sinon
+   un « SKS 6-14 » juxtaposait mono et proportionnel dans le même bloc. Même encre. */
+.eqhote .eqp2 td .eqn .eqhd{font-family:"IBM Plex Mono",monospace; display:inline-block; margin-left:3px; font-size:9.5px; font-weight:500; color:var(--muted); line-height:11px; white-space:nowrap}
 /* Le zébra vaut pour toutes les cases, colonne D et tirets compris (le
    client, le 26/09/2026). */
 .eqhote .eqp2 td.vide{background:transparent}
@@ -8976,7 +8979,14 @@ function renderEquipe(){
          apparaissait. On la retire donc. (Revient sur le choix du 02/10/2026.)
          eqDsem reste calculé : il sert encore d'étiquette d'équipe sous l'en-tête
          D quand la colonne D EST affichée, cf. plus bas. */
-      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'];
+      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'
+        /* NOM ACCESSIBLE DU TABLEAU. À la navigation par tableau d'un lecteur
+           d'écran (touche T), il annonce ce qu'il est et pour quel jour. Invisible
+           à l'œil (.sr-only). La date est reconstruite depuis les variables déjà en
+           portée — pas de lecture DOM, donc jamais de null pendant le feuilletage. */
+        +'<caption class="sr-only">Équipe du jour — '
+        +esc(JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]+" "+jour+" "+MOIS[mois-1].toLowerCase())
+        +'</caption>'];
       tp.push('<thead><tr><th class="eqposte">'
         +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">Auj.</button></th>');
       PAUSES.forEach(function(g){
@@ -8991,7 +9001,10 @@ function renderEquipe(){
            en D de la semaine, pour qu'elle s'affiche comme AM/PM/N (le client,
            le 02/10/2026 : « pas d'équipe en dessous de D »). */
         var eqP=eqCycle[g.k]||(g.k==="D"?eqDsem:"");
-        tp.push('<th data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
+        /* scope="col" : la pause (AM/D/PM/N) est l'axe HORIZONTAL du tableau.
+           Sans lui, un lecteur d'écran annonçait le poste (th de ligne, scope="row")
+           mais restait muet sur la colonne — la moitié de l'information. */
+        tp.push('<th scope="col" data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
           +(eqP?'<em class="eqeq">Équipe '+esc(eqP)+"</em>":"")+"</th>");
       });
       tp.push("</tr></thead><tbody>");
