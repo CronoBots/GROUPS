@@ -750,9 +750,20 @@ body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
    codes), coiffée d'une barre sombre : bascule Mois/Année + flèches de mois. On
    reprend le chrome de #v-jour .card (bordure haute forte, halo bleuté) SANS son
    position:fixed, pour garder le défilement de la page. */
-#calCard{display:flex; flex-direction:column; overflow:hidden;
-  border-top:2px solid var(--trait-fort); border-radius:var(--r);
-  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45), 0 0 26px 2px rgba(132,166,216,.13)}
+/* Même cadre PREMIUM que l'onglet Horaire (le client, le 05/10/2026 : « adapter ce
+   style de cadre et bordure pour le calendrier, équipe, recyclage »). Bord « métal
+   lustré » (dégradé masqué en anneau ::after) + halo cyan + relief, rayon --rj. La
+   barre .calnav vit à l'intérieur comme la barre de date du jour. */
+#calCard{display:flex; flex-direction:column; overflow:hidden; position:relative;
+  border:1px solid transparent; border-radius:var(--rj);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
+    0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
+    0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
+#calCard::after{content:""; position:absolute; inset:0; border-radius:var(--rj);
+  padding:1.4px; pointer-events:none; z-index:6;
+  background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(120,135,160,.5) 26%, rgba(70,80,98,.55) 60%, rgba(160,180,210,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude}
 .calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px;
   padding:8px 12px; background:var(--surface2); border-bottom:1px solid var(--line)}
 /* La bascule reprend le segment iOS d'Équipe (.eqseg), simplement bornée en
@@ -1170,8 +1181,16 @@ body.sheet-on{overflow:hidden}
    tableau — 2 px --trait-fort (le client, le 04/10/2026 : « les bords de la
    cellule avec les boutons [Équipe/Recyclage] comme le tableau ») — au lieu du
    fin 1 px --line de base. */
-#v-equipe>.eqseg{border-radius:var(--r) var(--r) 0 0; border-bottom:0;
-  border-left:2px solid var(--trait-fort); border-right:2px solid var(--trait-fort)}
+#v-equipe>.eqseg{border-radius:var(--rj) var(--rj) 0 0; border-bottom:0;
+  border-left:1px solid transparent; border-right:1px solid transparent; position:relative}
+/* Bord lustré en HAUT du cadre Équipe/Recyclage : le segment porte la moitié
+   supérieure de l'anneau dégradé (coins hauts arrondis, PAS de bas — le raccord
+   avec la carte se fait sur un bord droit). Miroir du cadre Horaire. */
+#v-equipe>.eqseg::after{content:""; position:absolute; inset:0; border-radius:var(--rj) var(--rj) 0 0;
+  padding:1.4px 1.4px 0 1.4px; pointer-events:none; z-index:6;
+  background:linear-gradient(155deg, rgba(220,232,252,.92), rgba(150,168,196,.62) 60%, rgba(120,138,166,.58));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude}
 /* Seule la PREMIÈRE carte (le tableau d'équipe, ou la grille Recyclage) est
    coiffée par le segment : les cartes qui suivent (binômes, formation, station,
    annuaire) gardent leur aspect normal.
@@ -1179,8 +1198,17 @@ body.sheet-on{overflow:hidden}
    pas la bordure grise sous la ligne des 2 boutons ») : border-top:0. Le trait
    fort vit SOUS la ligne de poste (en-tête du tableau), pas sous les boutons. */
 #orgCorps>.card:first-child, #eqsub-poly>.card:first-child{
-  border-top:0; border-radius:0 0 var(--r) var(--r);
-  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 10px 38px rgba(0,0,0,.45), 0 0 26px 2px rgba(132,166,216,.13)}
+  border-top:0; border-radius:0 0 var(--rj) var(--rj); position:relative;
+  box-shadow:0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
+    0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
+/* Bord lustré en BAS du cadre Équipe/Recyclage : la carte porte la moitié
+   inférieure de l'anneau (coins bas arrondis, PAS de haut — raccord au segment). */
+#orgCorps>.card:first-child::after, #eqsub-poly>.card:first-child::after{content:"";
+  position:absolute; inset:0; border-radius:0 0 var(--rj) var(--rj);
+  padding:0 1.4px 1.4px 1.4px; pointer-events:none; z-index:6;
+  background:linear-gradient(155deg, rgba(150,168,196,.6), rgba(90,104,128,.5) 50%, rgba(160,180,210,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude}
 /* ── L'ONGLET ÉQUIPE : LA COMPOSITION ─────────────────────────────────────
    Même grammaire que le tableau du jour — postes en lignes, filet d'atelier
    à gauche, trigrammes empilés — parce que c'est le même objet regardé
