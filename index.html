@@ -1279,6 +1279,12 @@ body.sheet-on{overflow:hidden}
 .orgt tbody tr[data-z="rouge"] td:last-child{border-right-color:var(--bordr)}
 .orgt tbody tr[data-z="bleu"]  td:last-child{border-right-color:var(--bordb)}
 .orgt thead th:last-child{border-right:0}
+/* « Opérateur hors équipe » : ligne-titre sur toute la largeur, en bas du tableau des
+   équipes, au-dessus de la ligne STEP (le client, le 06/10/2026). Trait fort au-dessus
+   pour la détacher des équipes, fond --surface2, pas de liseré (bord à bord). */
+.orgt tbody tr.orghors th{border-top:2px solid var(--trait-fort); border-left:0;
+  background:var(--surface2); text-align:center; text-transform:uppercase; font-weight:700;
+  font-size:10px; letter-spacing:.06em; color:var(--ink2); padding:7px 8px}
 .orgt tbody tr+tr th, .orgt tbody tr+tr td{border-top:1px solid var(--trait)}
 .orgt tbody tr.zone1 th, .orgt tbody tr.zone1 td{border-top:2px solid var(--trait-fort)}
 /* La PREMIÈRE ligne ne porte pas de filet haut : sinon il doublait le bas de
@@ -10078,6 +10084,17 @@ function renderOrganisation(){
     /* Plus de légende « formation » (le client, le 03/10/2026) : le contour gris
        se lit seul, comme dans l'onglet horaire. Reste la note des orphelins, qui
        dit une donnée et non une convention de dessin. */
+    /* STEP = opérateurs HORS équipe, intégrés tout en bas du tableau des équipes (le
+       client, le 06/10/2026) : une ligne-titre « Opérateur hors équipe » puis la ligne
+       STEP avec leurs trigrammes, sur toute la largeur. Remplace le tableau Station
+       d'épuration séparé. */
+    var stepGens=db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); })
+      .sort(function(a,b){ return a.id<b.id?-1:1; });
+    if(stepGens.length){
+      t.push('<tr class="orghors"><th colspan="'+(eqs.length+1)+'">Opérateur hors équipe</th></tr>');
+      t.push('<tr data-z="bleu"><th class="orgp" scope="row">STEP</th><td colspan="'+eqs.length+'">'
+        +stepGens.map(function(p){ return _orgJeton(p.id,moi); }).join("")+'</td></tr>');
+    }
     t.push("</tbody></table></div>"
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
         +orphelins.length+" personne(s) que le classeur ne rattache à aucun poste : "
@@ -10263,9 +10280,8 @@ function renderOrganisation(){
       o.push("</tbody></table></div></div>");
       h.push(o.join(""));
     })();
-    h.push(carte("Station d\u2019épuration",
-      db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
-      "station d\u2019épuration", true));
+    /* Le tableau « Station d'épuration » séparé est supprimé : les opérateurs STEP
+       sont désormais intégrés en bas du tableau des équipes (le client, 06/10/2026). */
 
     hote.innerHTML=h.join("");
     renderAnnuaire(db,moi);
@@ -10281,17 +10297,26 @@ function renderAnnuaire(db,moi){
   cats.sort();
   var h=[];
   function carteP(p){
-    var at=(p.poly&&p.poly.ateliers)?p.poly.ateliers.map(atelierLisible).join(", "):"";
-    var ent=(p.e&&p.e.length)?p.e.join(" · "):"";
+    var atsArr=(p.poly&&p.poly.ateliers)?p.poly.ateliers.map(atelierLisible):[];
+    /* Optimisation du contenu (le client, le 06/10/2026 : « moyen d'optimiser le
+       contenu de l'annuaire ») : quand une personne tient TOUS les ateliers de
+       production (les 5), on ecrit « Tous les ateliers » au lieu de repeter la liste
+       — les adjoints/contremaitres l'affichaient 5x a l'identique. */
+    var TOUS=["Meunerie","Gluten","Fermentation","Distillation","Chaudières"];
+    var tous=atsArr.length>0 && TOUS.every(function(a){ return atsArr.indexOf(a)>=0; });
+    var at=tous?"Tous les ateliers":atsArr.join(", ");
+    var entRaw=(p.e&&p.e.length)?p.e.join(" · "):"";
+    /* Pour un cadre, la mention du classeur est le numero de binome (« 4 » ou
+       « 5 · adjoints contremaitre ») : affichee « Binome N », plus parlante ; le texte
+       brut reste en infobulle. */
+    var ent=entRaw, titreEnt="Tel que le classeur l’écrit au-dessus du nom";
+    if(estCadre(p)){ var m=/(\d+)/.exec(entRaw); if(m){ ent="Binôme "+m[1]; titreEnt=entRaw; } }
     var role=esc(statutPersonne(p))+(estCadre(p)?" · "+esc(fonctionPersonne(p)):"");
-    /* Les polyvalences sur leur propre ligne qui s'enroule : plusieurs ateliers
-       s'affichaient tronqués « Meunerie, Gluten… » (le client, le 06/10/2026 :
-       « on ne sait pas lire toutes les polyvalences quand il y en a plusieurs »). */
     var poly=at?esc(at):(estCadre(p)?"":"—");
     return '<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(idLisible(p.id))+"</b>"
       +'<span class="eqrole">'+role+"</span>"
       +(poly?'<span class="eqpoly">'+poly+"</span>":"")
-      +(ent?'<em class="eqat" title="Tel que le classeur l’écrit au-dessus du nom">'+esc(ent)+"</em>":"")
+      +(ent?'<em class="eqat" title="'+esc(titreEnt)+'">'+esc(ent)+"</em>":"")
       +"</div>";
   }
   function section(titre,liste){
