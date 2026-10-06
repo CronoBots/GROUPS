@@ -1082,6 +1082,13 @@ body.sheet-on{overflow:hidden}
    un point comme une absence de résultat. */
 .pvt td.pvzero{color:var(--line); font-size:13px}
 .pvt td.pvsien{color:var(--ink2); font-size:9px}
+/* HORS CLASSEUR : ligne-titre pleine largeur qui détache les opérateurs absents
+   du classeur RH (leur compteur est une estimation d'après le planning, pas un
+   recyclage officiel). Même traitement que « Opérateur hors équipe » du tableau
+   des équipes — trait fort au-dessus, fond --surface2 (le client, 06/10/2026). */
+.pvt tbody tr.pvsep td{border-top:2px solid var(--trait-fort); background:var(--surface2);
+  text-align:center; text-transform:uppercase; font-weight:700; font-size:9px;
+  letter-spacing:.06em; color:var(--ink2); padding:8px; font-family:inherit}
 /* ⚠ LES TROIS RÈGLES SUIVANTES PORTENT « tbody tr » SANS EN AVOIR BESOIN,
    et ce n'est pas du bavardage : la zébrure une ligne sur deux s'écrit
    « .pvt tbody tr:nth-child(odd) td », ce qui pèse deux classes et TROIS
@@ -1169,6 +1176,7 @@ body.sheet-on{overflow:hidden}
   .pvt td.pvzero{font-size:15px}
   .pvt td.pvsien{font-size:11px}
   .pvt tbody tr td.pvform{font-size:12px}
+  .pvt tbody tr.pvsep td{font-size:10px}
 }
 /* LES CARTES DE CET ONGLET SE TOUCHAIENT. Le client, le 22/09/2026 : « les
    différents cadres sont trop collés ». Elles vivent toutes dans #orgCorps,
@@ -9963,53 +9971,68 @@ function renderPolyvalence(){
        alphabétique ». Une seule liste, donc, sans intercalaire : on cherche
        quelqu'un par son trigramme, pas par son équipe. */
     var atteints=0, total=0, gens=0, vierges=0, finissent=[];
-    db.people.filter(function(p){ return !estCadre(p); })
+    /* NE FIGURENT QUE LES POLYVALENTS. Le client, le 06/10/2026 : « ceux qui
+       n'ont qu'un poste attitré (pas de polyvalence) ou en formation à leur
+       premier poste ne doivent pas apparaître dans le tableau des recyclages ».
+       Une entrée de formation (case « F », acquis=false) ne suffit pas : il faut
+       au moins UNE polyvalence ACQUISE. Les vrais contremaîtres, eux, ne font plus
+       de recyclage et sortent de la grille ; les adjoints y restent (voir plus bas). */
+    var elig=db.people.filter(function(p){ return !estContremaitre(p); })
+      .map(function(p){ return {p:p, v:polyvalenceDe(db,p)||[]}; })
+      .filter(function(o){ return o.v.some(function(x){ return x.acquis; }); })
       .sort(function(a,b){
-        var A=idLisible(a.id), B=idLisible(b.id);
-        return A<B?-1:(A>B?1:0); })
-      .forEach(function(p){
-        /* NE FIGURENT QUE LES POLYVALENTS. Le client, le 06/10/2026 : « ceux qui
-           n'ont qu'un poste attitré (pas de polyvalence) ou en formation à leur
-           premier poste ne doivent pas apparaître dans le tableau des recyclages ».
-           Une entrée de formation (case « F », acquis=false) ne suffit donc plus à
-           faire figurer quelqu'un : il faut au moins UNE polyvalence ACQUISE. Ceux
-           qui n'ont rien, comme ceux qui ne font que se former à leur premier poste,
-           sortent de la grille. */
-        var v=polyvalenceDe(db,p)||[];
-        if(!v.some(function(o){ return o.acquis; })) return;
-        gens++;
-        var par={}, sien=posteAttitre(p);
-        v.forEach(function(o){ par[o.t]=o; });
-        h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
-          +'<th class="pvqui'+(enFormation(p)?' pvform':'')+'" scope="row">'+esc(idLisible(p.id))+"</th>");
-        POSTES.forEach(function(P){
-          if(P.k===sien){
-            h.push('<td class="pvsien" title="Son poste'
-              +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">\u25cf</td>');
-            return; }
-          var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
-          if(!o){
-            /* Une case vide qui porte une date de FIN n'est pas une
-               lacune : la polyvalence a existé et elle a été retirée. */
-            h.push('<td class="pvzero" title="'
-              +(dt&&dt.fin ? "Polyvalence retirée le "+jourLisible(dt.fin)
-                           : "Pas la polyvalence de ce poste")
-              +'">\u00b7</td>'); return; }
-          if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
-            +'poste, pas encore validé">F</td>'); return; }
-          total++; if(o.ok) atteints++; if(!o.n) vierges++;
-          h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
-            +(dt&&dt.fin?" pvfin":"")
-            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
-            +(o.n?o.n+" journée(s) complète(s) sur "+o.q+" attendue(s)"
-                 :"polyvalence acquise, aucun remplacement fait")
-            +esc(ditLaDate(dt))
-            +'">'+o.n+"<u>/"+o.q+"</u></td>");
-          if(dt&&dt.fin) finissent.push(idLisible(p.id)+" \u00b7 "
-            +PV_COURT[P.k]+" le "+jourLisible(dt.fin));
-        });
-        h.push("</tr>");
+        var A=idLisible(a.p.id), B=idLisible(b.p.id);
+        return A<B?-1:(A>B?1:0); });
+    function dansClasseur(p){ return !!(RECYC_OFF && RECYC_OFF[idLisible(p.id)]); }
+    function renderRow(rec){
+      var p=rec.p, v=rec.v; gens++;
+      var par={}, sien=posteAttitre(p);
+      v.forEach(function(o){ par[o.t]=o; });
+      h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
+        +'<th class="pvqui'+(enFormation(p)?' pvform':'')+'" scope="row">'+esc(idLisible(p.id))+"</th>");
+      POSTES.forEach(function(P){
+        if(P.k===sien){
+          h.push('<td class="pvsien" title="Son poste'
+            +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">●</td>');
+          return; }
+        var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
+        if(!o){
+          /* Une case vide qui porte une date de FIN n'est pas une
+             lacune : la polyvalence a existé et elle a été retirée. */
+          h.push('<td class="pvzero" title="'
+            +(dt&&dt.fin ? "Polyvalence retirée le "+jourLisible(dt.fin)
+                         : "Pas la polyvalence de ce poste")
+            +'">·</td>'); return; }
+        if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
+          +'poste, pas encore validé">F</td>'); return; }
+        total++; if(o.ok) atteints++; if(!o.n) vierges++;
+        h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
+          +(dt&&dt.fin?" pvfin":"")
+          +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
+          +(o.n?o.n+" journée(s) complète(s) sur "+o.q+" attendue(s)"
+               :"polyvalence acquise, aucun remplacement fait")
+          +esc(ditLaDate(dt))
+          +'">'+o.n+"<u>/"+o.q+"</u></td>");
+        if(dt&&dt.fin) finissent.push(idLisible(p.id)+" · "
+          +PV_COURT[P.k]+" le "+jourLisible(dt.fin));
       });
+      h.push("</tr>");
+    }
+    function sep(txt){ h.push('<tr class="pvsep"><td colspan="'+(POSTES.length+1)+'">'+txt+"</td></tr>"); }
+    /* TROIS GROUPES. Le client, les 06-07/10/2026 : (1) opérateurs suivis par le
+       classeur RH, chiffres officiels sur 10 ; (2) opérateurs ABSENTS du classeur,
+       dont le compteur n'est qu'une estimation d'après le planning (jours tenus) et
+       peut dépasser le quota ; (3) ADJOINTS, détachés car leur objectif est de 5
+       recyclages par poste, non 10. Sans classeur chargé, tout retombe en une liste. */
+    var ops=elig.filter(function(o){ return !estCadre(o.p); });
+    var adj=elig.filter(function(o){ return estCadre(o.p); });
+    var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
+    var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
+    opsIn.forEach(renderRow);
+    if(RECYC_OFF && opsOut.length) sep("Hors classeur RH · estimation d'après le planning");
+    opsOut.forEach(renderRow);
+    if(adj.length) sep("Adjoints · objectif 5 par poste");
+    adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
     /* La période, et rien d'autre. Le client, le 22/09/2026 : « c'est la
@@ -12553,9 +12576,10 @@ function _deviceId(){
    et sa redéclaration faussait l'ONSS des 5 employés hors cadre. */
 /* Corrections de statut AFFICHÉ données par le client (le classeur anonymisé ne
    distingue pas toujours les intérimaires — cf. remarque ONSS). Le 06/10/2026 :
-   CDT et NPI sont intérimaires ; NPE est ouvrier (marqué intérim à tort). N'affecte
-   QUE l'affichage (pas l'ONSS : intérimaire = ouvrier côté paie). */
-var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", NPE:"Ouvrier"};
+   CDT, NPI et MGY sont intérimaires (le 06-07/10/2026) ; NPE est ouvrier (marqué
+   intérim à tort). N'affecte que l'affichage (pas l'ONSS : intérimaire = ouvrier
+   côté paie). */
+var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", MGY:"Intérimaire", NPE:"Ouvrier"};
 function statutAffiche(p){
   if(p && STATUT_CLIENT[p.id]) return STATUT_CLIENT[p.id];
   var s=(p&&p.poly&&p.poly.statut)||"";
