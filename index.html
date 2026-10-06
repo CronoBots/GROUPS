@@ -1320,6 +1320,12 @@ body.sheet-on{overflow:hidden}
   .orgt td .orgn[data-id]:hover{border-color:var(--in2); color:var(--ink)}
 }
 .orgvide{color:var(--faint)}
+/* Adjoint « en attente » : SKS est le binôme de GPS mais encore en formation.
+   Son trigramme (en style formation, .orgf) est empilé au-dessus d'une petite
+   mention « en attente » discrète, dans la case Adjoint du binôme. */
+.orgatt{display:inline-flex; flex-direction:column; align-items:center; gap:1px; vertical-align:middle; margin:2px}
+.orgatt em{font-style:normal; font-size:9px; font-weight:600; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--faint)}
 /* Binômes, formation et station sont désormais des TABLEAUX encadrés (.orgt),
    comme Équipe et Recyclage (le client, le 06/10/2026). Les anciennes tuiles
    (.orgbin/.orgb) et listes (.orgliste/.orgl) ont donc été retirées. */
@@ -10106,6 +10112,16 @@ function renderOrganisation(){
       if(!num) return;
       (bin[num]=bin[num]||{cm:[],adj:[]})[adj?"adj":"cm"].push(p.id);
     });
+    /* SKS est le binôme (adjoint) de GPS mais encore EN FORMATION : on le place
+       dans le binôme de GPS, marqué « en attente », tout en le laissant dans le
+       tableau formation (le client, le 06/10/2026). Table adjoint-en-attente -> son
+       contremaître ; placé dans le binôme où ce contremaître figure. */
+    var BINOME_ATTENTE={SKS:"GPS"};
+    Object.keys(BINOME_ATTENTE).forEach(function(adjId){
+      var cmId=BINOME_ATTENTE[adjId], num=null;
+      Object.keys(bin).forEach(function(n){ if(bin[n].cm.indexOf(cmId)>=0) num=n; });
+      if(num) (bin[num].att=bin[num].att||[]).push(adjId);
+    });
     var nums=Object.keys(bin).sort(function(a,b){ return Number(a)-Number(b); });
     if(nums.length){
       /* SIX TUILES, et non un tableau pleine largeur. Le tableau coûtait
@@ -10120,8 +10136,15 @@ function renderOrganisation(){
         function c(l,vide){ return l.length
           ? l.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
           : '<span class="orgvide">'+vide+"</span>"; }
+        function cAdj(){
+          var parts=[];
+          if(bin[n].adj && bin[n].adj.length) parts.push(bin[n].adj.sort().map(function(id){ return _orgJeton(id,moi); }).join(""));
+          if(bin[n].att && bin[n].att.length) parts.push(bin[n].att.sort().map(function(id){
+            return '<span class="orgatt">'+_orgJeton(id,moi," orgf")+'<em>en attente</em></span>'; }).join(""));
+          return parts.length ? parts.join("") : '<span class="orgvide">pas d’adjoint</span>';
+        }
         b.push('<tr><th class="orgp" scope="row">'+esc(n)+'</th><td>'
-          +c(bin[n].cm,"\u2014")+'</td><td>'+c(bin[n].adj,"pas d\u2019adjoint")+'</td></tr>');
+          +c(bin[n].cm,"\u2014")+'</td><td>'+cAdj()+'</td></tr>');
       });
       b.push("</tbody></table></div></div>");
       h.push(b.join(""));
@@ -10175,7 +10198,7 @@ function renderOrganisation(){
     /* Le client, le 22/09/2026 : « SKS et NPI n'ont pas encore d'équipe ».
        Ce n'est donc pas une lacune du classeur, c'est leur situation. */
     var nf=sansEquipe.length;
-    h.push(carte("Opérateur"+(nf>1?"s":"")+" en formation, pas encore d’équipe",
+    h.push(carte("Opérateur"+(nf>1?"s":"")+" en formation, sans équipe",
       sansEquipe, "poste à déterminer"));
     h.push(carte("Station d\u2019épuration",
       db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
