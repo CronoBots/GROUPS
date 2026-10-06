@@ -132,7 +132,7 @@
      tout l'objet. « blanc » veut dire SANS atelier : son fond est la surface
      même. */
   --paper:#070B15; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
-  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:.04;
+  --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:0;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --maint:rgba(110,210,240,.10);
@@ -189,13 +189,15 @@ body[data-sanspers] #v-salaire>:not(.salvide){display:none!important}
 html{min-height:calc(100% + env(safe-area-inset-top,0px)); touch-action:manipulation}
 body{min-height:calc(100vh + env(safe-area-inset-top,0px))}
 body::before{content:""; position:fixed; inset:0; z-index:-1; background:var(--fond); pointer-events:none}
-/* LE LOGO EN FILIGRANE, fixe sous toute l'application. Le client, le
-   30/09/2026 : « le logo doit rester en fond fixe dans mon app en filigrane
-   une fois l'écran de chargement disparu ». Même dessin et même place que
-   l'écran d'intro (logo.svg, déjà dans CORE : il tient hors ligne), très
-   pâle, sur un calque fixe comme le dégradé : les cartes passent dessus. */
+/* LE LOGO EN FILIGRANE, fixe sous toute l'application. D'abord ajouté le 30/09/2026
+   (« le logo doit rester en fond fixe en filigrane »), RETIRÉ le 06/10/2026 : le logo
+   contient un vert (#78e6af) qui donnait des « reflets verts » dans le halo du fond.
+   Le client : « le logo doit juste être sur l'écran de connexion ; sur le reste de
+   l'app, juste son background ». On garde donc le DÉGRADÉ navy (body::before) et on
+   coupe le filigrane via --filigrane:0 (le gate, lui, porte son propre logo, élément
+   séparé). Mécanisme conservé pour pouvoir le réactiver si besoin. */
 body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-  background:url(logo.svg) no-repeat 50% 50%/min(56vw,300px) auto; opacity:var(--filigrane,.06)}
+  background:url(logo.svg) no-repeat 50% 50%/min(56vw,300px) auto; opacity:var(--filigrane,0)}
 /* Safari sur iOS zoome de lui-même quand on met le curseur dans un champ de
    moins de 16 px, et ignore « user-scalable=no » depuis iOS 10. Seule la
    taille de police l'en empêche — on ne la force donc que là, pour ne pas
