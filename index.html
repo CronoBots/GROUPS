@@ -12405,7 +12405,13 @@ function _deviceId(){
    le statut de paie — qui gère déjà EMPLOYES_HORS_CADRE (SBZ/GKT/FLN/FPS/PLZ =
    Employé). ⚠ Ne PAS redéclarer statutPersonne ici : elle existe (ligne ~6577)
    et sa redéclaration faussait l'ONSS des 5 employés hors cadre. */
+/* Corrections de statut AFFICHÉ données par le client (le classeur anonymisé ne
+   distingue pas toujours les intérimaires — cf. remarque ONSS). Le 06/10/2026 :
+   CDT et NPI sont intérimaires ; NPE est ouvrier (marqué intérim à tort). N'affecte
+   QUE l'affichage (pas l'ONSS : intérimaire = ouvrier côté paie). */
+var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", NPE:"Ouvrier"};
 function statutAffiche(p){
+  if(p && STATUT_CLIENT[p.id]) return STATUT_CLIENT[p.id];
   var s=(p&&p.poly&&p.poly.statut)||"";
   if(/interim/i.test(s)) return "Intérimaire";
   return (typeof statutPersonne==="function") ? statutPersonne(p) : "";
