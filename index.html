@@ -1320,12 +1320,6 @@ body.sheet-on{overflow:hidden}
   .orgt td .orgn[data-id]:hover{border-color:var(--in2); color:var(--ink)}
 }
 .orgvide{color:var(--faint)}
-/* Adjoint « en attente » : SKS est le binôme de GPS mais encore en formation.
-   Son trigramme (en style formation, .orgf) est empilé au-dessus d'une petite
-   mention « en attente » discrète, dans la case Adjoint du binôme. */
-.orgatt{display:inline-flex; flex-direction:column; align-items:center; gap:1px; vertical-align:middle; margin:2px}
-.orgatt em{font-style:normal; font-size:9px; font-weight:600; letter-spacing:.03em;
-  text-transform:uppercase; color:var(--faint)}
 /* Binômes, formation et station sont désormais des TABLEAUX encadrés (.orgt),
    comme Équipe et Recyclage (le client, le 06/10/2026). Les anciennes tuiles
    (.orgbin/.orgb) et listes (.orgliste/.orgl) ont donc été retirées. */
@@ -9782,7 +9776,7 @@ function renderPolyvalence(){
        alphabétique ». Une seule liste, donc, sans intercalaire : on cherche
        quelqu'un par son trigramme, pas par son équipe. */
     var atteints=0, total=0, gens=0, vierges=0, finissent=[];
-    db.people.filter(function(p){ return !estContremaitre(p); })
+    db.people.filter(function(p){ return !estCadre(p); })
       .sort(function(a,b){
         var A=idLisible(a.id), B=idLisible(b.id);
         return A<B?-1:(A>B?1:0); })
@@ -10085,7 +10079,7 @@ function renderOrganisation(){
       if(!lignes.length) return;
       var s=['<div class="card"><div class="toolbar orgtitle"><h2>Statut des travailleurs</h2></div>'
         +'<div class="eqgrille"><table class="orgt"><thead><tr>'
-        +'<th class="orgp">Statut</th><th>Opérateur</th>'
+        +'<th class="orgp">Statut</th><th>Trigramme</th>'
         +'</tr></thead><tbody>'];
       lignes.forEach(function(lib){
         s.push('<tr><th class="orgp" scope="row"><span class="orgl1">'+esc(lib)
@@ -10128,7 +10122,7 @@ function renderOrganisation(){
          222 px pour six lignes de deux trigrammes, et ses trois colonnes
          s'étiraient à 1146 px sur un écran de bureau pour un contenu qui en
          demande quarante. Une tuile par binôme tient ce qu'elle porte. */
-      var b=['<div class="card"><div class="toolbar orgtitle"><h2>Les binômes</h2></div>'
+      var b=['<div class="card"><div class="toolbar orgtitle"><h2>Binôme contremaître/Adjoint</h2></div>'
         +'<div class="eqgrille"><table class="orgt"><thead><tr>'
         +'<th class="orgp">Binôme</th><th>Contremaître</th><th>Adjoint</th>'
         +'</tr></thead><tbody>'];
@@ -10140,7 +10134,7 @@ function renderOrganisation(){
           var parts=[];
           if(bin[n].adj && bin[n].adj.length) parts.push(bin[n].adj.sort().map(function(id){ return _orgJeton(id,moi); }).join(""));
           if(bin[n].att && bin[n].att.length) parts.push(bin[n].att.sort().map(function(id){
-            return '<span class="orgatt">'+_orgJeton(id,moi," orgf")+'<em>en attente</em></span>'; }).join(""));
+            return _orgJeton(id,moi," orgf"); }).join(""));
           return parts.length ? parts.join("") : '<span class="orgvide">pas d’adjoint</span>';
         }
         b.push('<tr><th class="orgp" scope="row">'+esc(n)+'</th><td>'
@@ -10163,7 +10157,7 @@ function renderOrganisation(){
       var o=['<div class="card"><div class="toolbar orgtitle"><h2>'+titre+'</h2></div>'
         +'<div class="eqgrille"><table class="orgt"><thead><tr>'];
       if(sansPoste){
-        o.push('<th>Opérateur</th></tr></thead><tbody><tr><td>'
+        o.push('<th>Trigramme</th></tr></thead><tbody><tr><td>'
           +gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; })
                .map(function(p){ return _orgJeton(p.id,moi); }).join("")
           +'</td></tr>');
@@ -10181,7 +10175,7 @@ function renderOrganisation(){
           if(!grp[a.crt]){ grp[a.crt]={lng:a.lng, crt:a.crt, z:a.z, ids:[]}; ordre.push(a.crt); }
           grp[a.crt].ids.push(p.id);
         });
-        o.push('<th class="orgp">Poste</th><th>Opérateur</th></tr></thead><tbody>');
+        o.push('<th class="orgp">Poste</th><th>Trigramme</th></tr></thead><tbody>');
         ordre.forEach(function(k){ var g=grp[k];
           o.push('<tr'+(g.z?' data-z="'+esc(g.z)+'"':'')+'><th class="orgp" scope="row"><span class="orgl1">'+esc(g.lng)
             +'</span><span class="orgl2">'+esc(g.crt)+'</span></th><td>'
