@@ -10065,7 +10065,11 @@ function renderOrganisation(){
        qui pilote l'ONSS). Les trigrammes de chaque statut remplissent la case,
        comme les postes des autres tableaux. */
     (function(){
-      var parStatut={}, ordreS=["Ouvrier","Employé","Intérimaire"];
+      /* Ordre voulu par le client (06/10/2026) : Employé, puis Ouvrier, puis
+         Intérimaire. Libellé du statut ABRÉGÉ sur téléphone (orgl1 entier au
+         bureau, orgl2 court sur mobile) — « Intérimaire » débordait la colonne. */
+      var ABR_STATUT={"Employé":"Empl.", "Ouvrier":"Ouvr.", "Intérimaire":"Intér."};
+      var parStatut={}, ordreS=["Employé","Ouvrier","Intérimaire"];
       db.people.forEach(function(p){
         var s=statutAffiche(p)||"Ouvrier";
         (parStatut[s]=parStatut[s]||[]).push(p.id);
@@ -10078,7 +10082,8 @@ function renderOrganisation(){
         +'<th class="orgp">Statut</th><th>Opérateur</th>'
         +'</tr></thead><tbody>'];
       lignes.forEach(function(lib){
-        s.push('<tr><th class="orgp" scope="row">'+esc(lib)+'</th><td>'
+        s.push('<tr><th class="orgp" scope="row"><span class="orgl1">'+esc(lib)
+          +'</span><span class="orgl2">'+esc(ABR_STATUT[lib]||lib)+'</span></th><td>'
           +parStatut[lib].sort().map(function(id){ return _orgJeton(id,moi); }).join("")
           +'</td></tr>');
       });
