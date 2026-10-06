@@ -2,7 +2,7 @@
 <html lang="fr" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <!-- La barre d'état du téléphone prend la couleur de la barre du haut, qui
      est celle du logo : sans cela un liseré d'une autre teinte la surmonte. -->
 <meta name="theme-color" content="#111727">
@@ -186,7 +186,7 @@ body[data-sanspers] #v-salaire>:not(.salvide){display:none!important}
    calcule le bloc des éléments fixes sans la hauteur de la barre d'état
    tant que la page ne la dépasse pas. Une page toujours au moins aussi
    haute que l'écran plus cette zone rend au cadre fixe tout l'écran. */
-html{min-height:calc(100% + env(safe-area-inset-top,0px))}
+html{min-height:calc(100% + env(safe-area-inset-top,0px)); touch-action:manipulation}
 body{min-height:calc(100vh + env(safe-area-inset-top,0px))}
 body::before{content:""; position:fixed; inset:0; z-index:-1; background:var(--fond); pointer-events:none}
 /* LE LOGO EN FILIGRANE, fixe sous toute l'application. Le client, le
@@ -3715,9 +3715,15 @@ function cyclePoste(idx,cycle,decal,ts){
 
 
 /* ===================== zoom ===================== */
-/* Une fiche de paie se lit à sa taille : un zoom accidentel, au pincement ou
-   à la molette, décale les colonnes de chiffres et fait perdre sa place.
-   Safari ignore « user-scalable=no » depuis iOS 10, d'où ces garde-fous. */
+/* Une fiche de paie se lit à sa taille : un zoom accidentel, au pincement, au
+   double-tap ou à la molette, décale les colonnes de chiffres et fait perdre sa
+   place. Le client, le 06/10/2026 : « sur PWA, désactiver absolument le zoom
+   in/out même au double clic ».
+   - En STANDALONE PWA (écran d'accueil), iOS RESPECTE « maximum-scale=1,
+     user-scalable=no » du viewport → pinch + double-tap coupés nativement (le
+     navigateur, lui, l'ignore depuis iOS 10 ; d'où les garde-fous JS ci-dessous
+     qui couvrent les deux cas). `touch-action:manipulation` (html+body) coupe
+     déjà le double-tap-zoom. */
 ["gesturestart","gesturechange","gestureend"].forEach(function(t){
   document.addEventListener(t,function(e){ e.preventDefault(); },{passive:false});
 });
@@ -3726,6 +3732,16 @@ document.addEventListener("wheel",function(e){
 },{passive:false});
 document.addEventListener("touchmove",function(e){
   if(e.touches&&e.touches.length>1) e.preventDefault();
+},{passive:false});
+/* Double-tap : on bloque UNIQUEMENT la 2e tape rapprochée AU MÊME ENDROIT (geste
+   de zoom) — pas deux taps à des endroits différents (deux boutons), pour ne
+   jamais casser un vrai double-clic sur des cibles distinctes. */
+var _dtT=0,_dtX=0,_dtY=0;
+document.addEventListener("touchend",function(e){
+  if(!e.changedTouches||e.changedTouches.length!==1){ _dtT=0; return; }
+  var t=e.changedTouches[0], now=Date.now();
+  if(now-_dtT<=320 && Math.abs(t.clientX-_dtX)<40 && Math.abs(t.clientY-_dtY)<40){ e.preventDefault(); }
+  _dtT=now; _dtX=t.clientX; _dtY=t.clientY;
 },{passive:false});
 
 /* ===================== état ===================== */
