@@ -1343,6 +1343,25 @@ body.sheet-on{overflow:hidden}
 .eqp.moi b{color:var(--in)}
 .eqann .grp{padding:14px 16px 6px}
 .eqann .grp h3{margin:0 0 10px}
+/* L'ANNUAIRE reçoit le même CADRE que les autres tableaux de l'onglet Équipe (le
+   client, le 06/10/2026 : « optimise le cadre annuaire ») : cadre gris uniforme,
+   coins arrondis, halo ; la barre « Annuaire » devient une barre de titre COLLÉE
+   (fond --surface2, titre centré, séparateur bas quand déplié), chevron ancré à
+   droite — même grammaire que .orgtitle. */
+#v-equipe .anncard{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
+  box-shadow:0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
+    0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
+#v-equipe .anncard>.fold{border-top:0}
+#v-equipe .anncard .fold>summary{position:relative; flex-direction:column; align-items:center; gap:2px;
+  background:var(--surface2); padding:9px 32px; font-size:16px; font-weight:700;
+  letter-spacing:-.012em; color:var(--ink)}
+#v-equipe .anncard .fold>summary .sub{font-size:11px; color:var(--faint); text-align:center}
+#v-equipe .anncard .fold>summary:hover{color:var(--in)}
+#v-equipe .anncard .fold[open]>summary{border-bottom:1px solid var(--cadre)}
+#v-equipe .anncard .fold>summary::after{position:absolute; right:16px; top:50%; margin:0;
+  transform:translateY(-50%) rotate(45deg)}
+#v-equipe .anncard .fold[open]>summary::after{transform:translateY(-50%) rotate(-135deg)}
+#v-equipe .anncard .eqann .grp:first-child{border-top:0}
 /* Un poste de travail, son effectif, et ceux qui le tiennent. */
 .eqpo{margin:0 0 10px}
 .eqpo h4{display:flex; align-items:center; gap:8px; margin:0 0 5px;
@@ -3116,7 +3135,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 
     <!-- L'ANNUAIRE reste dans l'onglet Équipe, après les deux grilles (le client,
          22/09/2026). Il garde, sous chaque nom, ce que le classeur écrit mot pour mot. -->
-    <div class="card">
+    <div class="card anncard">
       <details class="fold" id="eqAnnFold">
         <summary>Annuaire <span class="sub">la fonction et les postes de chacun</span></summary>
         <div class="eqann" id="eqAnnuaire"></div>
@@ -10219,15 +10238,14 @@ function renderOrganisation(){
       });
       var o=['<div class="card"><div class="toolbar orgtitle"><h2>Opérateur'+(rows.length>1?'s':'')+' en formation</h2></div>'
         +'<div class="eqgrille"><table class="orgt"><thead><tr>'
-        +'<th class="orgp">Poste</th><th>Équipe</th><th>Trigramme</th>'
+        +'<th class="orgp">Poste</th><th>Trigramme</th><th>Équipe</th>'
         +'</tr></thead><tbody>'];
       rows.forEach(function(r){
         var eqCell=r.eq
-          ? '<span class="orgl1">Équipe '+esc(r.eq)+'</span><span class="orgl2">Éq. '+esc(r.eq)+'</span>'
+          ? 'Équipe '+esc(r.eq)
           : '<span class="orgvide">sans équipe</span>';
         o.push('<tr'+(r.ab.z?' data-z="'+esc(r.ab.z)+'"':'')+'><th class="orgp" scope="row"><span class="orgl1">'+esc(r.ab.lng)
-          +'</span><span class="orgl2">'+esc(r.ab.crt)+'</span></th><td>'+eqCell+'</td><td>'
-          +_orgJeton(r.id,moi)+'</td></tr>');
+          +'</span><span class="orgl2">'+esc(r.ab.crt)+'</span></th><td>'+_orgJeton(r.id,moi)+'</td><td>'+eqCell+'</td></tr>');
       });
       o.push("</tbody></table></div></div>");
       h.push(o.join(""));
