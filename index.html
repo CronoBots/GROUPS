@@ -1090,7 +1090,7 @@ body.sheet-on{overflow:hidden}
    du classeur RH (leur compteur est une estimation d'après le planning, pas un
    recyclage officiel). Même traitement que « Opérateur hors équipe » du tableau
    des équipes — trait fort au-dessus, fond --surface2 (le client, 06/10/2026). */
-.pvt tbody tr.pvsep td{border-top:2px solid var(--trait-fort); background:var(--surface2);
+.pvt tr.pvsep td{border-top:2px solid var(--trait-fort); background:var(--surface2);
   text-align:center; text-transform:uppercase; font-weight:700; font-size:9px;
   letter-spacing:.06em; color:var(--ink2); padding:8px; font-family:inherit}
 /* EN-TÊTES RÉPÉTÉES sous chaque séparation (le client, 07/10/2026 : « remettre
@@ -1162,10 +1162,10 @@ body.sheet-on{overflow:hidden}
 .pvt tbody tr td.pvnul u{opacity:.6}
 .pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt tbody tr td.pvok u{opacity:.7}
-/* ÉCART app ≠ RH : fond ambre doux, pour repérer d'un coup d'œil où le planning
-   de l'app et le classeur RH divergent (le client, 07/10/2026). Vert = concorde. */
-.pvt tbody tr td.pvecart{color:var(--at-jaune); background:var(--at-jaune-soft)}
-.pvt tbody tr td.pvecart u{opacity:.7}
+/* UN CHIFFRE AU-DESSUS DU QUOTA ressort en ambre (le client, 07/10/2026) : plus
+   de fond coloré, c'est le NOMBRE qui porte le signal. En pratique c'est l'app
+   (jours planifiés) qui dépasse, le RH étant plafonné au nombre demandé. */
+.pvt td b.pvsup{color:var(--at-jaune); font-weight:700}
 /* LA VUE DE BUREAU A DE LA PLACE : qu'elle s'en serve. Le client, le
    22/09/2026 : « optimise la vue PC, les chiffres sont peu visibles (les 10
    et 5), titre plus grand ». Les réglages ci-dessus sont ceux d'une colonne
@@ -1199,7 +1199,7 @@ body.sheet-on{overflow:hidden}
   .pvt td.pvzero{font-size:15px}
   .pvt td.pvsien{font-size:11px}
   .pvt tbody tr td.pvform{font-size:12px}
-  .pvt tbody tr.pvsep td{font-size:10px}
+  .pvt tr.pvsep td{font-size:10px}
   /* Sur grand écran, la ligne des postes garde sa casse normale ; les
      MAJUSCULES sont réservées au mobile (base), comme l'onglet horaire. */
   .pvt thead th, .pvt tbody tr.pvhead th{text-transform:none}
@@ -9992,22 +9992,11 @@ function renderPolyvalence(){
     var POSTES=POSTES_TRAVAIL.filter(function(P){
       return !P.cm && P.k!=="adj" && !PV_SANS_RECYCLAGE[P.k]; });
     var t=calculerPolyvalence(db);
-    var h=['<thead><tr><th class="pvqui">Qui</th>'];
-    POSTES.forEach(function(P){
-      h.push('<th data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+'">'
-        +esc(PV_COURT[P.k]||P.t)+"</th>"); });
-    h.push("</tr></thead><tbody>");
-    /* Le client, le 22/09/2026 : « il n'est pas nécessaire de classer les
-       polyvalences par équipe ni par poste mais plutôt par ordre
-       alphabétique ». Une seule liste, donc, sans intercalaire : on cherche
-       quelqu'un par son trigramme, pas par son équipe. */
-    var atteints=0, total=0, gens=0, vierges=0, finissent=[];
     /* NE FIGURENT QUE LES POLYVALENTS. Le client, le 06/10/2026 : « ceux qui
        n'ont qu'un poste attitré (pas de polyvalence) ou en formation à leur
        premier poste ne doivent pas apparaître dans le tableau des recyclages ».
-       Une entrée de formation (case « F », acquis=false) ne suffit pas : il faut
-       au moins UNE polyvalence ACQUISE. Les vrais contremaîtres, eux, ne font plus
-       de recyclage et sortent de la grille ; les adjoints y restent (voir plus bas). */
+       Il faut au moins UNE polyvalence ACQUISE. Les vrais contremaîtres sortent
+       de la grille ; les adjoints y restent (bloc dédié, plus bas). */
     var elig=db.people.filter(function(p){ return !estContremaitre(p); })
       .map(function(p){ return {p:p, v:polyvalenceDe(db,p)||[]}; })
       .filter(function(o){ return o.v.some(function(x){ return x.acquis; }); })
@@ -10015,6 +10004,38 @@ function renderPolyvalence(){
         var A=idLisible(a.p.id), B=idLisible(b.p.id);
         return A<B?-1:(A>B?1:0); });
     function dansClasseur(p){ return !!(RECYC_OFF && RECYC_OFF[idLisible(p.id)]); }
+    /* TROIS GROUPES : (1) opérateurs suivis par le classeur RH ; (2) opérateurs
+       absents du classeur (pas de suivi RH, on indique /0) ; (3) adjoints
+       (objectif 5, non 10 ; dernière colonne = recyclages contremaître). */
+    var ops=elig.filter(function(o){ return !estCadre(o.p); });
+    var adj=elig.filter(function(o){ return estCadre(o.p); });
+    var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
+    var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
+    /* L'EN-TÊTE. Le séparateur du premier groupe passe AU-DESSUS des postes (le
+       client, le 07/10/2026) : il vit dans le thead, avant la ligne des postes
+       (un <td>, donc non collant ; seule la ligne des postes reste collante). */
+    var h=['<thead>'];
+    if(opsIn.length) h.push('<tr class="pvsep"><td colspan="'+(POSTES.length+1)
+      +'">Opérateurs du classeur RH · app / RH · objectif 10</td></tr>');
+    h.push('<tr><th class="pvqui">Qui</th>');
+    POSTES.forEach(function(P){
+      h.push('<th data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+'">'
+        +esc(PV_COURT[P.k]||P.t)+"</th>"); });
+    h.push("</tr></thead><tbody>");
+    var atteints=0, total=0, gens=0, vierges=0, finissent=[];
+    /* UN CHIFFRE PLUS GRAND QUE LE QUOTA est mis en avant (le client, le
+       07/10/2026) : on ne colore plus le FOND des cases, on signale le NOMBRE
+       lui-même — app comme RH. Le RH plafonne au quota, donc en pratique c'est
+       l'app (jours planifiés) qui dépasse et saute aux yeux. */
+    function pvNum(val,q){ return val>q ? '<b class="pvsup">'+val+"</b>" : ""+val; }
+    /* app / RH dans une case. Hors classeur, pas de suivi RH : rh=0, soit « app/0 »
+       (le client, 07/10/2026), pour garder partout le même format. */
+    function cellAppRh(app,rh,q,z,titre,dt){
+      var cls=(app===0&&rh===0)?" pvnul":"";
+      return '<td class="pvn'+cls+(dt&&dt.fin?" pvfin":"")+'" data-z="'+esc(z||"")
+        +'" title="'+esc(titre)+" — app "+app+" / RH "+rh+esc(ditLaDate(dt))+'">'
+        +pvNum(app,q)+"<u>/</u>"+pvNum(rh,q)+"</td>";
+    }
     function renderRow(rec){
       var p=rec.p, v=rec.v; gens++;
       var par={}, sien=posteAttitre(p), adjoint=estCadre(p), inClasseur=dansClasseur(p);
@@ -10026,18 +10047,12 @@ function renderPolyvalence(){
           h.push('<td class="pvsien" title="Son poste'
             +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">●</td>');
           return; }
-        /* Chez les adjoints, la dernière colonne n'est pas la STEP (ils n'y
-           vont pas) mais les recyclages CONTREMAÎTRE du classeur (le client,
-           le 07/10/2026). Objectif 5, comme leurs autres postes. */
         if(P.k==="step" && adjoint){
-          var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0, qc=POLY_QUOTA.adjoint;
-          h.push('<td class="pvn'+(cm?(cm>=qc?" pvok":""):" pvnul")
-            +'" data-z="gris" title="Recyclages contremaître (RH) : '+cm+" sur "+qc+' attendus">'+cm+"</td>");
+          var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0;
+          h.push(cellAppRh(0, cm, POLY_QUOTA.adjoint, "gris", "Recyclages contremaître"));
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
         if(!o){
-          /* Une case vide qui porte une date de FIN n'est pas une
-             lacune : la polyvalence a existé et elle a été retirée. */
           h.push('<td class="pvzero" title="'
             +(dt&&dt.fin ? "Polyvalence retirée le "+jourLisible(dt.fin)
                          : "Pas la polyvalence de ce poste")
@@ -10045,30 +10060,13 @@ function renderPolyvalence(){
         if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
           +'poste, pas encore validé">F</td>'); return; }
         total++; if(o.ok) atteints++; if(!o.n) vierges++;
-        /* LA VALEUR DE L'APP SUR CELLE DU RH, pas sur le quota (le client, le
-           07/10/2026) : « app / RH » pour voir les écarts réels. Le quota (10,
-           ou 5 pour les adjoints) est rappelé dans l'intitulé de séparation.
-           Vert = concorde, ambre = écart. Hors classeur, pas de RH : app seule. */
-        var app=o.app||0, rh=inClasseur?o.n:null;
-        if(rh!=null){
-          var ecart=app!==rh, cls=(app===0&&rh===0)?"pvnul":(ecart?"pvecart":"pvok");
-          h.push('<td class="pvn '+cls+(dt&&dt.fin?" pvfin":"")
-            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" — app "+app+" / RH "+rh
-            +(ecart?" (écart "+(app-rh>0?"+":"")+(app-rh)+")":" (concorde)")
-            +esc(ditLaDate(dt))+'">'+app+"<u>/</u>"+rh+"</td>");
-        } else {
-          h.push('<td class="pvn'+(app?"":" pvnul")+(dt&&dt.fin?" pvfin":"")
-            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" — app "+app
-            +" (estimation planning, pas de suivi RH)"+esc(ditLaDate(dt))+'">'+app+"</td>");
-        }
+        h.push(cellAppRh(o.app||0, inClasseur?o.n:0, o.q, P.z, P.t, dt));
         if(dt&&dt.fin) finissent.push(idLisible(p.id)+" · "
           +PV_COURT[P.k]+" le "+jourLisible(dt.fin));
       });
       h.push("</tr>");
     }
     function sep(txt){ h.push('<tr class="pvsep"><td colspan="'+(POSTES.length+1)+'">'+txt+"</td></tr>"); }
-    /* La ligne des postes, répétée sous une séparation. cmLast : la dernière
-       colonne devient « CM » (recyclages contremaître) pour le bloc adjoints. */
     function headRow(cmLast){
       var r=['<tr class="pvhead"><th class="pvqui" scope="col">Qui</th>'];
       POSTES.forEach(function(P){
@@ -10077,18 +10075,8 @@ function renderPolyvalence(){
           +esc(last?"Recyclages contremaître":P.t)+'">'+esc(last?"CM":(PV_COURT[P.k]||P.t))+"</th>"); });
       h.push(r.join("")+"</tr>");
     }
-    /* TROIS GROUPES. Le client, les 06-07/10/2026 : (1) opérateurs suivis par le
-       classeur RH, chiffres officiels sur 10 ; (2) opérateurs ABSENTS du classeur,
-       dont le compteur n'est qu'une estimation d'après le planning (jours tenus) et
-       peut dépasser le quota ; (3) ADJOINTS, détachés car leur objectif est de 5
-       recyclages par poste, non 10. Sans classeur chargé, tout retombe en une liste. */
-    var ops=elig.filter(function(o){ return !estCadre(o.p); });
-    var adj=elig.filter(function(o){ return estCadre(o.p); });
-    var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
-    var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
-    if(opsIn.length) sep("Opérateurs du classeur RH · app / RH · objectif 10");
     opsIn.forEach(renderRow);
-    if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · app seule, pas de suivi RH · objectif 10"); headRow(false); }
+    if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · pas de suivi RH (app / 0) · objectif 10"); headRow(false); }
     opsOut.forEach(renderRow);
     if(adj.length){ sep("Adjoints · app / RH · objectif 5"); headRow(true); }
     adj.forEach(renderRow);
