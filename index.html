@@ -997,6 +997,8 @@ body.sheet-on{overflow:hidden}
 .eqp{display:flex; flex-direction:column; gap:1px; padding:6px 9px; border-radius:9px;
   background:var(--surface2); min-width:0}
 .eqp b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; font-weight:600; color:var(--ink)}
+/* Opérateur en formation : trigramme JAUNE dans l'annuaire aussi (le client, 06/10/2026). */
+.eqp b.eqform{color:var(--at-jaune)}
 .eqp span{font-size:10.5px; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 /* La ligne de rôle (statut · fonction) reste courte ; la ligne des POLYVALENCES,
    elle, s'ENROULE et montre tous les ateliers (le client, le 06/10/2026 : « on ne
@@ -1056,6 +1058,9 @@ body.sheet-on{overflow:hidden}
   border-right:2px solid var(--trait-fort);
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
   color:var(--ink)}
+/* Opérateur en formation : trigramme JAUNE dans la colonne « Qui » du Recyclage aussi
+   (le client, 06/10/2026 : jaune partout comme l'onglet horaire). */
+.pvt th.pvqui.pvform{color:var(--at-jaune)}
 /* Un filet TRANSPARENT de 3 px au-dessus de « Qui », de la même épaisseur que
    les filets d'atelier des autres colonnes : il garde l'alignement de la ligne
    d'en-tête (sans lui elle commençait par un creux de trois pixels, client du
@@ -9833,7 +9838,7 @@ function renderPolyvalence(){
         var par={}, sien=posteAttitre(p);
         v.forEach(function(o){ par[o.t]=o; });
         h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
-          +'<th class="pvqui" scope="row">'+esc(idLisible(p.id))+"</th>");
+          +'<th class="pvqui'+(enFormation(p)?' pvform':'')+'" scope="row">'+esc(idLisible(p.id))+"</th>");
         POSTES.forEach(function(P){
           if(P.k===sien){
             h.push('<td class="pvsien" title="Son poste'
@@ -9940,6 +9945,16 @@ function _orgZone(lib){
 function _orgJeton(id,moi,sup){
   /* data-id : cliquer le trigramme ouvre la fiche (statut + polyvalences) de
      la personne (le client, le 04/10/2026). Voir ouvrirPersonne(). */
+  /* Les opérateurs EN FORMATION s'affichent en JAUNE (classe orgf, .orgn.orgf) PARTOUT
+     où leur trigramme apparaît — Les équipes, formation, statut, binôme — comme l'onglet
+     horaire (le client, le 06/10/2026). Détecté une fois via HORAIRE_DB, mis en cache. */
+  if(HORAIRE_DB){
+    if(!HORAIRE_DB.__formSet){
+      HORAIRE_DB.__formSet={};
+      (HORAIRE_DB.people||[]).forEach(function(p){ if(enFormation(p)) HORAIRE_DB.__formSet[p.id]=1; });
+    }
+    if(HORAIRE_DB.__formSet[id] && !/\borgf\b/.test(sup||"")) sup=(sup||"")+" orgf";
+  }
   return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'" data-id="'+esc(id)+'">'
     +esc(idLisible(id))+"</span>";
 }
@@ -10333,7 +10348,7 @@ function renderAnnuaire(db,moi){
     if(estCadre(p)){ var m=/(\d+)/.exec(entRaw); if(m){ ent="Binôme "+m[1]; titreEnt=entRaw; } }
     var role=esc(statutPersonne(p))+(estCadre(p)?" · "+esc(fonctionPersonne(p)):"");
     var poly=at?esc(at):(estCadre(p)?"":"—");
-    return '<div class="eqp'+(p.id===moi?" moi":"")+'"><b>'+esc(idLisible(p.id))+"</b>"
+    return '<div class="eqp'+(p.id===moi?" moi":"")+'"><b'+(enFormation(p)?' class="eqform"':'')+'>'+esc(idLisible(p.id))+"</b>"
       +'<span class="eqrole">'+role+"</span>"
       +(poly?'<span class="eqpoly">'+poly+"</span>":"")
       +(ent?'<em class="eqat" title="'+esc(titreEnt)+'">'+esc(ent)+"</em>":"")
