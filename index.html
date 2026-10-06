@@ -5602,6 +5602,23 @@ function viderMois(){
 /* ===================== horaire d'équipe (pré-remplissage) ===================== */
 var HORAIRE_DB=null, horaireFetching=null;
 var HORAIRE_URL="./data/horaire-2026.json";
+/* RECYCLAGES OFFICIELS (RH). Le compteur de polyvalence comptait jusqu'ici les
+   JOURS planifiés au poste — un proxy, deux à quatre fois trop haut. Le client,
+   le 06/10/2026, a fourni le classeur RH officiel « Suivi des recyclages » :
+   c'est LUI qui fait foi. On lit ses chiffres par trigramme et ils remplacent
+   le compteur, mais seulement pour les opérateurs qu'il liste (les autres
+   gardent le calcul planifié — décision du client). Chargé en même temps que
+   l'horaire pour être prêt avant le premier calcul ; une absence du fichier
+   laisse simplement l'ancien comportement. */
+var RECYC_OFF=null;
+var RECYC_URL="./data/recyclages-2026.json";
+var RECYC_POSTES=["meun","glut","ferm","dist","chau","step"];
+function lireRecyclages(){
+  if(RECYC_OFF) return Promise.resolve();
+  return fetch(RECYC_URL).then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ if(j && j.ops) RECYC_OFF=j.ops; })
+    .catch(function(){});
+}
 /* L'HORAIRE NE SE LIT PAS : ON PURGE ET ON RECOMMENCE, UNE FOIS.
 
    Le 23/09/2026, « Mon salaire » s'est vidé chez le client — 0 journée sur
@@ -5649,7 +5666,10 @@ function fetchHoraireDB(){
   }).then(function(db){
     if(!db || !db.people || !db.people.length) throw new Error("horaire vide");
     HORAIRE_DB=db; alerteHoraire(false);
-    return db;
+    /* On attend les recyclages officiels avant de rendre la main : ainsi le
+       premier calcul de polyvalence les a déjà, et son résultat mémoïsé n'est
+       jamais le mauvais. Leur absence n'empêche pas l'horaire de vivre. */
+    return lireRecyclages().then(function(){ return db; });
   }).catch(function(){ alerteHoraire(true); return null; });
   return horaireFetching;
 }
@@ -9681,6 +9701,16 @@ function calculerPolyvalence(db){
       });
     });
   }
+  /* Le classeur RH remplace le compteur « jours planifiés » par le nombre de
+     recyclages réellement effectués, poste par poste — mais SEULEMENT pour les
+     opérateurs qu'il liste. On n'ajoute pas de ligne : polyvalenceDe décide
+     quelles lignes s'affichent via aLaPolyvalence(), et ne lit ce compteur que
+     là. Terrain arrière n'est pas suivi par le classeur : on n'y touche pas. */
+  if(RECYC_OFF) db.people.forEach(function(p){
+    var o=RECYC_OFF[idLisible(p.id)]; if(!o) return;
+    var pr=parId[p.id]||(parId[p.id]={});
+    RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
+  });
   _polyCle=cle; _poly={parId:parId, debut:debut, fin:fin};
   return _poly;
 }
