@@ -8328,6 +8328,28 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
         cand=liste.filter(function(x){ return !x.fixe; }).sort(parId);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
+      /* RÈGLE B — DERNIER RECOURS (le client, le 07/10/2026). Quand rien d'autre
+         n'a pu combler P, un polyvalent ferm+disti — un polyvalent arrière —
+         resté en SURNOMBRE à un autre poste vient le tenir, MÊME fixé par sa
+         cellule : aider là où il MANQUE passe avant sa place de réserve. Cas
+         déclencheur : GPO le 08/10, bloqué en distillation à côté de QBY
+         (polyvalent, pas mono) pendant que la fermentation manquait. Placé tout
+         en bas pour ne RIEN déplacer tant qu'une autre solution existe ; le
+         surnombre (effectif>att) garantit que le poste de départ reste tenu.
+         Mesuré avant/après sur toute l'année : ne comble que de vrais manques. */
+      if(!pris){
+        for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
+          Q=POSTES_TRAVAIL[j];
+          if(Q.k===P.k || Q.cm || !att(Q)) continue;
+          liste=parPoste[Q.k]||[];
+          if(effectif(liste,Q,jour)<=att(Q)) continue;
+          cand=liste.filter(function(x){
+            return tientTerrainArriere(x.p,jour) && peutTenir(x.p,P,jour)
+                   && compteAuPoste(x,P,jour);
+          }).sort(parId);
+          if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
+        }
+      }
       if(!pris) break;
       pris.comble=P.k;
       (parPoste[P.k]=parPoste[P.k]||[]).push(pris);
