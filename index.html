@@ -1105,6 +1105,9 @@ body.sheet-on{overflow:hidden}
 .pvt tbody tr.pvhead th[data-z="vert"] {border-bottom-color:var(--bordv)}
 .pvt tbody tr.pvhead th[data-z="rouge"]{border-bottom-color:var(--bordr)}
 .pvt tbody tr.pvhead th[data-z="bleu"] {border-bottom-color:var(--bordb)}
+/* CM = la couleur GRISE du contremaître de l'onglet horaire (POSTES_TRAVAIL,
+   z:"gris" → --bordg), le client du 07/10/2026. */
+.pvt thead th[data-z="gris"], .pvt tbody tr.pvhead th[data-z="gris"]{border-bottom-color:var(--bordg)}
 /* ⚠ LES TROIS RÈGLES SUIVANTES PORTENT « tbody tr » SANS EN AVOIR BESOIN,
    et ce n'est pas du bavardage : la zébrure une ligne sur deux s'écrit
    « .pvt tbody tr:nth-child(odd) td », ce qui pèse deux classes et TROIS
@@ -9940,7 +9943,7 @@ function polyvalenceDe(db,p){
    lettres les avait remplacés une demi-heure durant — elle tenait à toutes
    les largeurs, mais ce n'était pas ce qu'il demandait. */
 var PV_COURT={meun:"Meun.", glut:"Glut.", ferm:"Ferm.", terr:"T. arr.",
-              dist:"Dist.", chau:"Chaud.", step:"STEP"};
+              dist:"Dist.", chau:"Chaud.", step:"STEP."};
 /* LA FEUILLE « POLYVALENCE » DATE CHAQUE ACQUISITION, et la grille ne le
    disait pas. Soixante-dix dates lues en commentaire sur la croix du
    classeur : « 31-01-2023 », « 01/03/2026 », mais aussi « supprimée àpd
@@ -10020,7 +10023,7 @@ function renderPolyvalence(){
         if(P.k==="step" && adjoint){
           var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0, qc=POLY_QUOTA.adjoint;
           h.push('<td class="pvn'+(cm>=qc?" pvok":"")+(cm?"":" pvnul")
-            +'" title="Recyclages contremaître : '+cm+" sur "+qc+'">'+cm+"<u>/"+qc+"</u></td>");
+            +'" data-z="gris" title="Recyclages contremaître : '+cm+" sur "+qc+'">'+cm+"<u>/"+qc+"</u></td>");
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
         if(!o){
@@ -10052,7 +10055,7 @@ function renderPolyvalence(){
       var r=['<tr class="pvhead"><th class="pvqui" scope="col">Qui</th>'];
       POSTES.forEach(function(P){
         var last=cmLast && P.k==="step";
-        r.push('<th data-z="'+esc(last?"":(P.z||""))+'" title="'
+        r.push('<th data-z="'+esc(last?"gris":(P.z||""))+'" title="'
           +esc(last?"Recyclages contremaître":P.t)+'">'+esc(last?"CM":(PV_COURT[P.k]||P.t))+"</th>"); });
       h.push(r.join("")+"</tr>");
     }
@@ -10065,10 +10068,11 @@ function renderPolyvalence(){
     var adj=elig.filter(function(o){ return estCadre(o.p); });
     var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
     var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
+    if(opsIn.length) sep("Opérateurs du classeur RH · recyclages officiels");
     opsIn.forEach(renderRow);
     if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · estimation d'après le planning"); headRow(false); }
     opsOut.forEach(renderRow);
-    if(adj.length){ sep("Adjoints · objectif 5 par poste (STEP → CM : recyclages contremaître)"); headRow(true); }
+    if(adj.length){ sep("Adjoints · objectif 5 par poste"); headRow(true); }
     adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
