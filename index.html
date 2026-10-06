@@ -1162,10 +1162,10 @@ body.sheet-on{overflow:hidden}
 .pvt tbody tr td.pvnul u{opacity:.6}
 .pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt tbody tr td.pvok u{opacity:.7}
-/* UN CHIFFRE AU-DESSUS DU QUOTA ressort en ambre (le client, 07/10/2026) : plus
-   de fond coloré, c'est le NOMBRE qui porte le signal. En pratique c'est l'app
-   (jours planifiés) qui dépasse, le RH étant plafonné au nombre demandé. */
-.pvt td b.pvsup{color:var(--at-jaune); font-weight:700}
+/* QUOTA ATTEINT → le chiffre passe au VERT, et AUCUNE autre couleur (le client,
+   le 07/10/2026) : plus de fond coloré, c'est le NOMBRE qui porte le signal.
+   app comme RH ; le RH plafonne au nombre demandé, l'app peut le dépasser. */
+.pvt td b.pvatt{color:var(--at-vert); font-weight:700}
 /* LA VUE DE BUREAU A DE LA PLACE : qu'elle s'en serve. Le client, le
    22/09/2026 : « optimise la vue PC, les chiffres sont peu visibles (les 10
    et 5), titre plus grand ». Les réglages ci-dessus sont ceux d'une colonne
@@ -1394,8 +1394,15 @@ body.sheet-on{overflow:hidden}
   .orgt thead th{font-size:12.5px}
   .orgn{font-size:13px}
 }
-.pvt tbody tr.moi th.pvqui{color:var(--in)}
-.pvt tbody tr.moi th.pvqui, .pvt tbody tr.moi td{background:var(--in-soft)}
+/* L'opérateur connecté : sa LIGNE encadrée en cyan de marque — fond --in-soft,
+   filet --in2 tout autour, trigramme gras accent — comme sa case est mise en
+   évidence dans l'horaire (le client, le 07/10/2026). */
+.pvt tbody tr.moi th.pvqui{color:var(--in); font-weight:700; background:var(--in-soft);
+  box-shadow:inset 0 1px 0 var(--in2), inset 0 -1px 0 var(--in2), inset 1px 0 0 var(--in2)}
+.pvt tbody tr.moi td{background:var(--in-soft);
+  box-shadow:inset 0 1px 0 var(--in2), inset 0 -1px 0 var(--in2)}
+.pvt tbody tr.moi td:last-child{
+  box-shadow:inset 0 1px 0 var(--in2), inset 0 -1px 0 var(--in2), inset -1px 0 0 var(--in2)}
 .lg-pvsien{font-style:normal; color:var(--ink2); font-size:9px}
 /* Se retrouver dans une liste de soixante-dix-sept identifiants demande un
    repère : le sien. */
@@ -10027,7 +10034,7 @@ function renderPolyvalence(){
        07/10/2026) : on ne colore plus le FOND des cases, on signale le NOMBRE
        lui-même — app comme RH. Le RH plafonne au quota, donc en pratique c'est
        l'app (jours planifiés) qui dépasse et saute aux yeux. */
-    function pvNum(val,q){ return val>q ? '<b class="pvsup">'+val+"</b>" : ""+val; }
+    function pvNum(val,q){ return val>=q ? '<b class="pvatt">'+val+"</b>" : ""+val; }
     /* app / RH dans une case. Hors classeur, pas de suivi RH : rh=0, soit « app/0 »
        (le client, 07/10/2026), pour garder partout le même format. */
     function cellAppRh(app,rh,q,z,titre,dt){
