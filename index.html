@@ -1166,6 +1166,10 @@ body.sheet-on{overflow:hidden}
    le 07/10/2026) : plus de fond coloré, c'est le NOMBRE qui porte le signal.
    app comme RH ; le RH plafonne au nombre demandé, l'app peut le dépasser. */
 .pvt td b.pvatt{color:var(--at-vert); font-weight:700}
+/* LES DEUX valeurs (app et RH) au quota → fond vert doux (le client, 07/10/2026).
+   Déclaré avant la règle « moi » : sur la ligne de l'opérateur connecté, c'est le
+   fond cyan de mise en évidence qui prime. */
+.pvt tbody tr td.pvokbg{background:var(--at-vert-soft)}
 /* LA VUE DE BUREAU A DE LA PLACE : qu'elle s'en serve. Le client, le
    22/09/2026 : « optimise la vue PC, les chiffres sont peu visibles (les 10
    et 5), titre plus grand ». Les réglages ci-dessus sont ceux d'une colonne
@@ -10038,7 +10042,9 @@ function renderPolyvalence(){
     /* app / RH dans une case. Hors classeur, pas de suivi RH : rh=0, soit « app/0 »
        (le client, 07/10/2026), pour garder partout le même format. */
     function cellAppRh(app,rh,q,z,titre,dt){
-      var cls=(app===0&&rh===0)?" pvnul":"";
+      /* Les DEUX valeurs au quota → fond vert (le client, 07/10/2026) : le poste
+         est acquis côté planning ET côté RH. Un seul des deux ne suffit pas. */
+      var cls=(app===0&&rh===0)?" pvnul":((app>=q&&rh>=q)?" pvokbg":"");
       return '<td class="pvn'+cls+(dt&&dt.fin?" pvfin":"")+'" data-z="'+esc(z||"")
         +'" title="'+esc(titre)+" — app "+app+" / RH "+rh+esc(ditLaDate(dt))+'">'
         +pvNum(app,q)+"<u>/</u>"+pvNum(rh,q)+"</td>";
