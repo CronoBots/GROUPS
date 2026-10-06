@@ -10279,13 +10279,18 @@ function renderOrganisation(){
       /* FUSION des cellules POSTE identiques (le client, le 06/10/2026) : comme le
          tableau est trie par poste, on regroupe les lignes consecutives de meme poste
          et on pose la cellule Poste une seule fois en rowspan sur le groupe. */
+      /* Separateurs entre postes comme le tableau Horaire / Les equipes (le client, le
+         06/10/2026) : trait FORT (classe zone1, 2px) au CHANGEMENT d'atelier (couleur),
+         trait fin (1px) sinon. */
+      var zPrecF=null;
       for(var fi=0; fi<rows.length; ){
         var base=rows[fi], span=1;
         while(fi+span<rows.length && rows[fi+span].ab.crt===base.ab.crt) span++;
+        var zoneChange=(fi>0 && base.ab.z!==zPrecF); zPrecF=base.ab.z;
         for(var fk=0; fk<span; fk++){
           var rr=rows[fi+fk];
           var eqCell=rr.eq ? 'Équipe '+esc(rr.eq) : '<span class="orgvide">sans équipe</span>';
-          o.push('<tr'+(rr.ab.z?' data-z="'+esc(rr.ab.z)+'"':'')+'>'
+          o.push('<tr'+(rr.ab.z?' data-z="'+esc(rr.ab.z)+'"':'')+(fk===0&&zoneChange?' class="zone1"':'')+'>'
             +(fk===0?'<th class="orgp" scope="row" rowspan="'+span+'"><span class="orgl1">'+esc(base.ab.lng)
                      +'</span><span class="orgl2">'+esc(base.ab.crt)+'</span></th>':'')
             +'<td>'+_orgJeton(rr.id,moi)+'</td><td>'+eqCell+'</td></tr>');
