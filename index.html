@@ -1177,7 +1177,7 @@ body.sheet-on{overflow:hidden}
 #v-equipe .card>.toolbar.orgtitle{flex-direction:column; align-items:center; gap:2px;
   padding:9px 14px; border:0; border-bottom:1px solid var(--cadre); border-radius:0;
   background:var(--surface2)}
-#v-equipe .orgtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em}
+#v-equipe .orgtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em; text-align:center}
 #v-equipe .orgtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
 /* Les bords GAUCHE/DROITE du segment reprennent le trait gris structurant du
    tableau — 2 px --trait-fort (le client, le 04/10/2026 : « les bords de la
@@ -1241,6 +1241,13 @@ body.sheet-on{overflow:hidden}
   font-size:10.5px; font-weight:700; letter-spacing:.02em;
   text-transform:uppercase; color:var(--ink); white-space:nowrap}
 .orgt thead th.orgp{z-index:3; border-left:0}
+/* Binômes, formation et station (cartes 2..4 de #orgCorps) n'ont PAS d'atelier :
+   le gros filet gauche 3px --trait-fort de la colonne poste n'a alors pas de
+   couleur de zone à porter et doublait le cadre d'un trait gris épais. On le retire —
+   le cadre 1px fait le bord (le client, le 06/10/2026 : « une bordure normale à
+   gauche du cadre de ces 3 tableaux »). Le tableau principal (first-child, avec
+   ateliers) garde ses liserés colorés. */
+#orgCorps>.card:not(:first-child) .orgt tbody th.orgp{border-left:0}
 .orgl1{display:none}
 @media (min-width:761px){
   .orgl1{display:inline}
@@ -10089,21 +10096,30 @@ function renderOrganisation(){
       if(!gens.length) return "";
       /* Présenté comme le tableau des équipes (le client, le 06/10/2026) : barre de
          titre collée + cadre gris, et une grille Poste / Opérateur groupée PAR POSTE
-         (postes en lignes, même grammaire que l'Équipe). Titre seul, sans sous-titre,
-         comme Équipe et Recyclage. */
-      var parPoste={}, ordre=[];
+         (postes en lignes, même grammaire que l'Équipe). Titre seul, sans sous-titre.
+         Le nom du poste est ABRÉGÉ sur téléphone, comme l'onglet horaire (le client,
+         le 06/10/2026) : orgl1 (entier) au bureau, orgl2 (PV_COURT) sur mobile. */
+      function abrevPoste(po){
+        var t=String(po||"");
+        if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP"};
+        for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i];
+          if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t}; }
+        return {lng:t, crt:t};
+      }
+      var grp={}, ordre=[];
       gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
-        var po=_orgPoste(p)||legende;
-        if(!parPoste[po]){ parPoste[po]=[]; ordre.push(po); }
-        parPoste[po].push(p.id);
+        var a=abrevPoste(_orgPoste(p)||legende);
+        if(!grp[a.crt]){ grp[a.crt]={lng:a.lng, crt:a.crt, ids:[]}; ordre.push(a.crt); }
+        grp[a.crt].ids.push(p.id);
       });
       var o=['<div class="card"><div class="toolbar orgtitle"><h2>'+titre+'</h2></div>'
         +'<div class="eqgrille"><table class="orgt"><thead><tr>'
         +'<th class="orgp">Poste</th><th>Opérateur</th>'
         +'</tr></thead><tbody>'];
-      ordre.forEach(function(po){
-        o.push('<tr><th class="orgp" scope="row">'+esc(po)+'</th><td>'
-          +parPoste[po].map(function(id){ return _orgJeton(id,moi); }).join("")
+      ordre.forEach(function(k){ var g=grp[k];
+        o.push('<tr><th class="orgp" scope="row"><span class="orgl1">'+esc(g.lng)
+          +'</span><span class="orgl2">'+esc(g.crt)+'</span></th><td>'
+          +g.ids.map(function(id){ return _orgJeton(id,moi); }).join("")
           +'</td></tr>');
       });
       o.push("</tbody></table></div></div>");
@@ -10114,7 +10130,7 @@ function renderOrganisation(){
        classeur ne nomme pas l'équipe. */
     /* Le client, le 22/09/2026 : « SKS et NPI n'ont pas encore d'équipe ».
        Ce n'est donc pas une lacune du classeur, c'est leur situation. */
-    h.push(carte("Opérateurs en formation, pas encore d\u2019équipe",
+    h.push(carte("En formation, sans équipe",
       sansEquipe, "poste à déterminer"));
     h.push(carte("Station d\u2019épuration",
       db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
