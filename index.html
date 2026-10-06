@@ -1187,15 +1187,16 @@ body.sheet-on{overflow:hidden}
    bascule par flèches). Les deux grilles — composition (« Les équipes ») et matrice des
    polyvalences (« Recyclage ») — sont des cartes EMPILÉES, chacune avec son titre
    au-dessus (hors cadre, .pvtete) et son propre cadre : bordure GRISE UNIFORME 1 px
-   --cadre + coins arrondis + halo (plus de bord lustré, retiré le même jour). Seule la
-   1re carte de #orgCorps (le tableau d'équipe) est encadrée ; binômes/formation/station
-   gardent leur aspect normal. */
+   --cadre + coins arrondis + halo (plus de bord lustré, retiré le même jour). Depuis le
+   06/10/2026 (« présenter les 3 tableaux comme horaire/équipe/recyclage »), TOUTES les
+   cartes de #orgCorps sont encadrées de la même façon — Équipe, binômes, formation et
+   station sont des tableaux au même chrome, barre de titre collée comprise. */
 /* Le CADRE GRIS reste (le client, le 05/10/2026 : « il fallait laisser la
    bordure du cadre et la séparation verticale de la première ligne »). Ce qui
    part sur la 1re ligne, c'est seulement le trait AU-DESSUS et les gros traits
    AUX EXTRÉMITÉS gauche/droite, qui doublaient le cadre — les séparateurs
    verticaux entre colonnes, eux, restent (voir .orgt/.pvt thead). */
-#orgCorps>.card:first-child, #eqsub-poly>.card{
+#orgCorps>.card, #eqsub-poly>.card{
   border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:0 0 50px rgba(105,178,203,.19), 0 0 110px rgba(105,178,203,.08),
     0 22px 50px rgba(0,0,0,.48), 0 7px 18px rgba(0,0,0,.32)}
@@ -1308,34 +1309,11 @@ body.sheet-on{overflow:hidden}
 .orgn[data-id]{cursor:pointer}
 @media (hover:hover){
   .orgt td .orgn[data-id]:hover{border-color:var(--in2); color:var(--ink)}
-  .orgb .orgn[data-id]:hover, .orgl .orgn[data-id]:hover{color:var(--in)}
 }
 .orgvide{color:var(--faint)}
-/* LES BINÔMES EN TUILES. Le tableau qu'elles remplacent coûtait 222 px pour
-   six lignes de deux trigrammes, et s'étirait à 1146 px sur un écran de
-   bureau. Une tuile tient ce qu'elle porte, et la grille en range autant que
-   la largeur en permet — trois sur un téléphone, six sur un bureau. */
-.orgbin{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
-  gap:1px; background:var(--line2)}
-.orgb{display:flex; align-items:baseline; gap:9px; padding:9px 12px;
-  background:var(--surface)}
-.orgb>b{flex:0 0 auto; min-width:20px; font-family:"IBM Plex Mono",monospace;
-  font-size:15px; font-weight:600; color:var(--faint)}
-.orgb>div{min-width:0}
-.orgb .orgn{line-height:1.45}
-/* L'adjoint sous le contremaître, en retrait : c'est la même hiérarchie que
-   dans le tableau des équipes, où le titulaire précède ceux qui peuvent le
-   remplacer. */
-.orgb .orgn+.orgn{font-size:11px; font-weight:500; color:var(--ink2)}
-.orgb .orgvide{font-size:10.5px; font-style:italic}
-/* La formation et la station : deux listes, pas des grilles — il n'y a rien
-   à croiser, seulement des gens et leur poste. */
-.orgliste{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:1px; background:var(--line2)}
-.orgl{display:flex; align-items:baseline; gap:9px; padding:9px 14px;
-  background:var(--surface)}
-.orgl em{font-style:normal; font-size:11.5px; color:var(--ink2); min-width:0;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* Binômes, formation et station sont désormais des TABLEAUX encadrés (.orgt),
+   comme Équipe et Recyclage (le client, le 06/10/2026). Les anciennes tuiles
+   (.orgbin/.orgb) et listes (.orgliste/.orgl) ont donc été retirées. */
 @media (min-width:761px){
   .orgt th, .orgt td{padding:8px 7px}
   /* 128 px, et non 104 : « TERRAIN ARRIÈRE » est le plus long des six
@@ -10018,7 +9996,7 @@ function renderOrganisation(){
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
-    var t=['<div class="card"><div class="toolbar orgtitle"><h2>Les équipes</h2><p class="sub">la composition, par poste et par équipe</p></div><div class="eqgrille"><table class="orgt">'];
+    var t=['<div class="card"><div class="toolbar orgtitle"><h2>Les équipes</h2></div><div class="eqgrille"><table class="orgt">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
        large, et l'intitulé long y sortait de la case. */
@@ -10091,30 +10069,44 @@ function renderOrganisation(){
          222 px pour six lignes de deux trigrammes, et ses trois colonnes
          s'étiraient à 1146 px sur un écran de bureau pour un contenu qui en
          demande quarante. Une tuile par binôme tient ce qu'elle porte. */
-      var b=['<div class="card"><header><h2>Les binômes</h2>'
-        +'<span class="sub">un contremaître, un adjoint</span></header>'
-        +'<div class="orgbin">'];
+      var b=['<div class="card"><div class="toolbar orgtitle"><h2>Les binômes</h2></div>'
+        +'<div class="eqgrille"><table class="orgt"><thead><tr>'
+        +'<th class="orgp">Binôme</th><th>Contremaître</th><th>Adjoint</th>'
+        +'</tr></thead><tbody>'];
       nums.forEach(function(n){
         function c(l,vide){ return l.length
           ? l.sort().map(function(id){ return _orgJeton(id,moi); }).join("")
           : '<span class="orgvide">'+vide+"</span>"; }
-        b.push('<div class="orgb"><b>'+esc(n)+"</b><div>"
-          +c(bin[n].cm,"\u2014")+c(bin[n].adj,"pas d\u2019adjoint")+"</div></div>");
+        b.push('<tr><th class="orgp" scope="row">'+esc(n)+'</th><td>'
+          +c(bin[n].cm,"\u2014")+'</td><td>'+c(bin[n].adj,"pas d\u2019adjoint")+'</td></tr>');
       });
-      b.push("</div></div>");
+      b.push("</tbody></table></div></div>");
       h.push(b.join(""));
     }
 
     /* --- 3 et 4. la formation, puis la station ------------------------- */
-    function carte(titre,sous,gens,legende){
+    function carte(titre,gens,legende){
       if(!gens.length) return "";
-      var o=['<div class="card"><header><h2>'+titre+"</h2>"
-        +'<span class="sub">'+sous+"</span></header><div class=\"orgliste\">"];
-      gens.sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
-        o.push('<div class="orgl">'+_orgJeton(p.id,moi)
-          +"<em>"+esc(_orgPoste(p)||legende)+"</em></div>");
+      /* Présenté comme le tableau des équipes (le client, le 06/10/2026) : barre de
+         titre collée + cadre gris, et une grille Poste / Opérateur groupée PAR POSTE
+         (postes en lignes, même grammaire que l'Équipe). Titre seul, sans sous-titre,
+         comme Équipe et Recyclage. */
+      var parPoste={}, ordre=[];
+      gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
+        var po=_orgPoste(p)||legende;
+        if(!parPoste[po]){ parPoste[po]=[]; ordre.push(po); }
+        parPoste[po].push(p.id);
       });
-      o.push("</div></div>");
+      var o=['<div class="card"><div class="toolbar orgtitle"><h2>'+titre+'</h2></div>'
+        +'<div class="eqgrille"><table class="orgt"><thead><tr>'
+        +'<th class="orgp">Poste</th><th>Opérateur</th>'
+        +'</tr></thead><tbody>'];
+      ordre.forEach(function(po){
+        o.push('<tr><th class="orgp" scope="row">'+esc(po)+'</th><td>'
+          +parPoste[po].map(function(id){ return _orgJeton(id,moi); }).join("")
+          +'</td></tr>');
+      });
+      o.push("</tbody></table></div></div>");
       return o.join("");
     }
     /* Ceux que le tableau porte déjà n'y figurent plus : les montrer deux
@@ -10123,9 +10115,8 @@ function renderOrganisation(){
     /* Le client, le 22/09/2026 : « SKS et NPI n'ont pas encore d'équipe ».
        Ce n'est donc pas une lacune du classeur, c'est leur situation. */
     h.push(carte("Opérateurs en formation, pas encore d\u2019équipe",
-      "leur poste est celui où ils APPRENNENT — ils n\u2019y sont pas validés",
       sansEquipe, "poste à déterminer"));
-    h.push(carte("Station d\u2019épuration", "attendue au matin",
+    h.push(carte("Station d\u2019épuration",
       db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
       "station d\u2019épuration"));
 
