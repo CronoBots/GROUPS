@@ -10217,10 +10217,10 @@ function renderOrganisation(){
       } else {
         var abrevPoste=function(po){
           var t=String(po||"");
-          if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP", z:"bleu"};
+          if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP", z:"bleu", ord:99};
           for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i];
-            if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||""}; }
-          return {lng:t, crt:t, z:""};
+            if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||"", ord:i}; }
+          return {lng:t, crt:t, z:"", ord:999};
         };
         var grp={}, ordre=[];
         gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
@@ -10254,20 +10254,22 @@ function renderOrganisation(){
     (function(){
       function abrevPoste(po){
         var t=String(po||"");
-        if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP", z:"bleu"};
+        if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP", z:"bleu", ord:99};
         for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i];
-          if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||""}; }
-        return {lng:t, crt:t, z:""};
+          if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||"", ord:i}; }
+        return {lng:t, crt:t, z:"", ord:999};
       }
       var rows=db.people.filter(function(p){ return enFormation(p); }).map(function(p){
         return {id:p.id, eq:_orgEquipe(p), ab:abrevPoste(_orgPoste(p)||"poste à déterminer")};
       });
       if(!rows.length) return;
+      /* Tri par POSTE de formation (ordre de production), puis equipe, puis id
+         — le client, le 06/10/2026 : « trier par poste de formation et non par equipe ». */
       rows.sort(function(a,b){
+        if(a.ab.ord!==b.ab.ord) return a.ab.ord-b.ab.ord;
         var ae=a.eq?0:1, be=b.eq?0:1;
         if(ae!==be) return ae-be;
         if(a.eq!==b.eq) return a.eq<b.eq?-1:1;
-        if(a.ab.crt!==b.ab.crt) return a.ab.crt<b.ab.crt?-1:1;
         return a.id<b.id?-1:1;
       });
       var o=['<div class="card"><div class="toolbar orgtitle"><h2>Opérateur'+(rows.length>1?'s':'')+' en formation</h2></div>'
