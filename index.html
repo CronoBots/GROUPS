@@ -2539,6 +2539,36 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .compte-info{display:flex; flex-direction:column; gap:3px; font-size:12.5px; color:var(--ink2)}
 .compte-info b{color:var(--ink); font-weight:600}
 /* ---------- « Mon rythme » (tableau de bord Accueil) ---------- */
+/* ── ONGLET PROFIL : en-tête d'identité, faits clés, polyvalences (06/10/2026) ── */
+.pf-head{display:flex; align-items:center; gap:13px; padding:2px}
+.pf-ava{flex:0 0 auto; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:700; font-size:15px; letter-spacing:.02em;
+  background:var(--marque-vif); color:var(--marque)}
+.pf-hmeta{min-width:0}
+.pf-hmeta b{display:block; font-size:18px; font-weight:700; letter-spacing:-.012em; color:var(--ink)}
+.pf-hsub{font-size:12.5px; color:var(--muted)}
+.pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
+.pf-fact{display:flex; flex-direction:column; gap:2px; padding:9px 12px; border-radius:11px; background:var(--surface2)}
+.pf-k{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em}
+.pf-v{font-size:13px; font-weight:600; color:var(--ink)}
+.pf-section{padding:14px 16px 2px}
+.pf-sec-t{font-size:13px; font-weight:700; color:var(--ink2); margin:0 0 10px; letter-spacing:.01em}
+.pf-polys{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.pf-poly{padding:9px 11px; border-radius:11px; background:var(--surface2); border-left:3px solid var(--line)}
+.pf-poly[data-z="jaune"]{border-left-color:var(--bordj)}
+.pf-poly[data-z="vert"] {border-left-color:var(--bordv)}
+.pf-poly[data-z="rouge"]{border-left-color:var(--bordr)}
+.pf-poly[data-z="bleu"] {border-left-color:var(--bordb)}
+.pf-poly-h{display:flex; justify-content:space-between; align-items:baseline; gap:6px}
+.pf-poly-n{font-size:12px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-poly-q{font-size:10px; color:var(--faint); white-space:nowrap}
+.pf-poly.ok .pf-poly-q{color:var(--at-vert); font-weight:600}
+.pf-poly.forme .pf-poly-q{color:var(--at-jaune); font-weight:600}
+.pf-poly-bar{height:5px; border-radius:3px; background:var(--surface3); margin-top:7px; overflow:hidden}
+.pf-poly-bar>span{display:block; height:100%; border-radius:3px; background:var(--in); min-width:5px}
+.pf-poly.ok .pf-poly-bar>span{background:var(--at-vert)}
+.pf-poly.forme .pf-poly-bar>span{background:var(--at-jaune)}
+.pf-poly.zero .pf-poly-bar>span{background:var(--line2)}
 .ry-wrap{display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:start; padding:16px}
 @media (max-width:620px){.ry-wrap{grid-template-columns:1fr; gap:18px}}
 .ry-don{display:flex; flex-direction:column; align-items:center; gap:11px; justify-self:center}
@@ -2968,7 +2998,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          le module congé/absence/recherche et les alertes (sous-effectif,
          rappels, hors-poste) ont rejoint l'onglet RH. L'Accueil ne garde que la
          vue d'ensemble personnelle de l'opérateur. -->
-    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre rythme sur l'année d'horaire.</p>
+    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
 
     <!-- MON RYTHME. Vue d'ensemble de l'année pour l'opérateur : répartition des
          pauses, nuits par mois, jours de week-end prestés. Rejoue l'horaire via
@@ -7413,6 +7443,54 @@ function ryCongesChart(s){
     +'<div class="ry-xaxis">'+RY_MC.map(function(c){return '<span>'+c+'</span>';}).join("")+'</div>'
     +'<p class="ry-conges-tot">Total <b>'+fmt(total)+' j</b> · '+esc(detail)+'</p>';
 }
+/* ── ONGLET PROFIL : en-tête d'identité + faits clés + polyvalences, AVANT le
+   « Mon rythme » (le client, le 06/10/2026 : « l'onglet Profil doit reprendre un
+   maximum d'info et de stats sur l'opérateur »). Réutilise les helpers existants
+   (statutAffiche / fonctionPersonne / equipeShift / posteAttitreTitre / polyvalenceDe). ── */
+function _pfBinome(p){
+  var po=(p&&p.postes)||{};
+  for(var k in po){ if(po.hasOwnProperty(k) && /contrema/i.test(k)){ var n=String(po[k].p||"").replace(/\D+/g,""); if(n) return "Binôme "+n; } }
+  return "";
+}
+function _pfHead(p){
+  var tri=idLisible(p.id);
+  var cadre=(typeof estCadre==="function")&&estCadre(p);
+  /* Rôle : pour un cadre, sa fonction (Contremaître/Adjoint) ; pour un travailleur,
+     « Opérateur » (fonctionPersonne renvoie l'équipe, pas un titre, côté opérateur). */
+  var role = cadre ? ((typeof fonctionPersonne==="function"?fonctionPersonne(p):"")||"Cadre") : "Opérateur";
+  var eq=(typeof equipeShift==="function")?equipeShift(p):"";
+  var sub=[]; if(eq&&eq!=="—") sub.push(eq);
+  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p); if(st2) sub.push(st2); }
+  return '<div class="pf-head">'
+    +'<span class="pf-ava">'+esc(tri)+'</span>'
+    +'<div class="pf-hmeta"><b>'+esc(role)+'</b>'
+    +(sub.length?'<span class="pf-hsub">'+esc(sub.join(" · "))+'</span>':'')+'</div></div>';
+}
+function _pfFacts(db,p){
+  var cadre=(typeof estCadre==="function")&&estCadre(p),
+      cm=(typeof estContremaitre==="function")&&estContremaitre(p);
+  var rows=[];
+  if(!cadre && typeof posteAttitreTitre==="function") rows.push(['Poste attitré', posteAttitreTitre(p)]);
+  var bn=_pfBinome(p); if(bn) rows.push(['Rôle', bn]);
+  var polys=(!cm&&typeof polyvalenceDe==="function")?(polyvalenceDe(db,p)||[]):[];
+  if(polys.length){ var v=polys.filter(function(x){return x.ok;}).length; rows.push(['Polyvalences validées', v+' / '+polys.length]); }
+  if(!rows.length) return '';
+  return '<div class="pf-facts">'+rows.map(function(r){
+    return '<div class="pf-fact"><span class="pf-k">'+esc(r[0])+'</span><span class="pf-v">'+esc(r[1])+'</span></div>'; }).join("")+'</div>';
+}
+function _pfPoly(db,p){
+  if(typeof polyvalenceDe!=="function") return '';
+  var polys=polyvalenceDe(db,p)||[]; if(!polys.length) return '';
+  var items=polys.map(function(x){
+    var pct=x.q?Math.max(6,Math.min(100,Math.round((x.n||0)/x.q*100))):0;
+    var cls=x.forme?'forme':(x.ok?'ok':((x.n||0)>0?'cours':'zero'));
+    var q=x.forme?'en formation':(x.ok?'acquise':(x.n||0)+'/'+x.q);
+    return '<div class="pf-poly '+cls+'" data-z="'+esc(x.z||'')+'">'
+      +'<div class="pf-poly-h"><span class="pf-poly-n">'+esc(x.t)+'</span><span class="pf-poly-q">'+esc(q)+'</span></div>'
+      +'<div class="pf-poly-bar"><span style="width:'+pct+'%"></span></div></div>';
+  }).join("");
+  return '<div class="pf-section"><div class="pf-sec-t">Polyvalences &amp; recyclage</div><div class="pf-polys">'+items+'</div></div>';
+}
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
       tete=document.getElementById("rythmeTete"), card=document.getElementById("rythmeCard");
@@ -7422,10 +7500,12 @@ function renderRythme(){
   var vide=document.getElementById("resumeVide");
   if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; return; }
   card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
+  if(tete) tete.innerHTML=_pfHead(person);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
-  corps.innerHTML=''
+  corps.innerHTML=_pfFacts(db,person)+_pfPoly(db,person)
+    +'<div class="ry-sep"></div><div class="ry-chart-t ry-h2">Mon rythme sur l\'année</div>'
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
     +'<div class="ry-right">'
