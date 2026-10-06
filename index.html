@@ -5658,6 +5658,12 @@ function renderPrefillSelects(db){
     if(!document.getElementById("annee").hidden) renderAnnee();
     if(st.view==="horaire") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
+    /* LE CONTENU EST RENDU → on retire l'écran d'intro SEULEMENT maintenant (et non
+       dès que les données sont fetchées) : ainsi la transition « vide → plein » du
+       démarrage reste TOUJOURS cachée par l'intro, même sur réseau lent (le client, le
+       06/10/2026 : « plusieurs changements d'affilée à l'ouverture »). Idempotent :
+       finIntro ignore les appels suivants, donc sans effet aux changements de personne. */
+    if(typeof finIntro==="function") finIntro();
   }
   syncCat(); suivre();
   idSel.onchange=function(){ lsSet("ui/prefillId",idSel.value); syncCat(); suivre(); };
@@ -12385,7 +12391,10 @@ function finIntro(){
     setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },600);
   },Math.max(0,900-(Date.now()-_introT0)));
 }
-setTimeout(finIntro,3000);
+/* Filet de sécurité allongé (3 s -> 7 s) : si le premier rendu complet n'a pas retiré
+   l'intro (données qui tardent), on ne la retire quand même pas trop tôt — sinon on
+   verrait l'état vide se remplir (le client, 06/10/2026). */
+setTimeout(finIntro,7000);
 
 /* ══════════════════════════════════════════════════════════════════════════
    COMPTES — un trigramme lié à CET appareil + connexion « BWZ RH ».
