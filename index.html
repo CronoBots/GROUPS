@@ -1241,13 +1241,15 @@ body.sheet-on{overflow:hidden}
   font-size:10.5px; font-weight:700; letter-spacing:.02em;
   text-transform:uppercase; color:var(--ink); white-space:nowrap}
 .orgt thead th.orgp{z-index:3; border-left:0}
-/* Binômes, formation et station (cartes 2..4 de #orgCorps) n'ont PAS d'atelier :
-   le gros filet gauche 3px --trait-fort de la colonne poste n'a alors pas de
-   couleur de zone à porter et doublait le cadre d'un trait gris épais. On le retire —
-   le cadre 1px fait le bord (le client, le 06/10/2026 : « une bordure normale à
-   gauche du cadre de ces 3 tableaux »). Le tableau principal (first-child, avec
-   ateliers) garde ses liserés colorés. */
-#orgCorps>.card:not(:first-child) .orgt tbody th.orgp{border-left:0}
+/* Le gros filet gauche 3px --trait-fort de la colonne poste n'a de sens QUE
+   s'il porte une couleur d'atelier (data-z). Sur une ligne SANS atelier —
+   binômes, statut des travailleurs, « poste à déterminer » — il resterait gris
+   et doublerait le cadre : on le retire, le cadre 1px fait le bord (le client,
+   le 06/10/2026 : « bordure normale à gauche du cadre »). Les lignes AVEC atelier
+   (tableau des équipes, formation, station) gardent leur liseré de couleur, comme
+   l'onglet horaire (le client, le 06/10/2026 : « ajouter la bordure de couleur à
+   gauche du poste comme horaire »). */
+#orgCorps .orgt tbody tr:not([data-z]) th.orgp{border-left:0}
 .orgl1{display:none}
 @media (min-width:761px){
   .orgl1{display:inline}
@@ -10055,6 +10057,35 @@ function renderOrganisation(){
       +"</div>");
     h.push(t.join(""));
 
+    /* --- 1 bis. le statut d'emploi des travailleurs -------------------- */
+    /* Le client, le 06/10/2026 : « un tableau avec le statut des travailleurs »
+       = le TYPE DE CONTRAT. Même chrome que les autres tableaux, groupé par
+       statut (Ouvrier / Employé / Intérimaire) via statutAffiche() — la même
+       fonction que la carte de profil (ne pas confondre avec statutPersonne,
+       qui pilote l'ONSS). Les trigrammes de chaque statut remplissent la case,
+       comme les postes des autres tableaux. */
+    (function(){
+      var parStatut={}, ordreS=["Ouvrier","Employé","Intérimaire"];
+      db.people.forEach(function(p){
+        var s=statutAffiche(p)||"Ouvrier";
+        (parStatut[s]=parStatut[s]||[]).push(p.id);
+      });
+      Object.keys(parStatut).forEach(function(s){ if(ordreS.indexOf(s)<0) ordreS.push(s); });
+      var lignes=ordreS.filter(function(s){ return parStatut[s] && parStatut[s].length; });
+      if(!lignes.length) return;
+      var s=['<div class="card"><div class="toolbar orgtitle"><h2>Statut des travailleurs</h2></div>'
+        +'<div class="eqgrille"><table class="orgt"><thead><tr>'
+        +'<th class="orgp">Statut</th><th>Opérateur</th>'
+        +'</tr></thead><tbody>'];
+      lignes.forEach(function(lib){
+        s.push('<tr><th class="orgp" scope="row">'+esc(lib)+'</th><td>'
+          +parStatut[lib].sort().map(function(id){ return _orgJeton(id,moi); }).join("")
+          +'</td></tr>');
+      });
+      s.push("</tbody></table></div></div>");
+      h.push(s.join(""));
+    })();
+
     /* --- 2. les binômes ------------------------------------------------ */
     /* Le NUMÉRO est le binôme, pas un poste. Celui qui porte en plus
        « Adjoints Contremaître » est l'adjoint ; l'autre est le contremaître.
@@ -10092,36 +10123,44 @@ function renderOrganisation(){
     }
 
     /* --- 3 et 4. la formation, puis la station ------------------------- */
-    function carte(titre,gens,legende){
+    function carte(titre,gens,legende,sansPoste){
       if(!gens.length) return "";
       /* Présenté comme le tableau des équipes (le client, le 06/10/2026) : barre de
-         titre collée + cadre gris, et une grille Poste / Opérateur groupée PAR POSTE
-         (postes en lignes, même grammaire que l'Équipe). Titre seul, sans sous-titre.
-         Le nom du poste est ABRÉGÉ sur téléphone, comme l'onglet horaire (le client,
-         le 06/10/2026) : orgl1 (entier) au bureau, orgl2 (PV_COURT) sur mobile. */
-      function abrevPoste(po){
-        var t=String(po||"");
-        if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP"};
-        for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i];
-          if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t}; }
-        return {lng:t, crt:t};
-      }
-      var grp={}, ordre=[];
-      gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
-        var a=abrevPoste(_orgPoste(p)||legende);
-        if(!grp[a.crt]){ grp[a.crt]={lng:a.lng, crt:a.crt, ids:[]}; ordre.push(a.crt); }
-        grp[a.crt].ids.push(p.id);
-      });
+         titre collée + cadre gris, grille Poste / Opérateur groupée PAR POSTE. Nom du
+         poste ABRÉGÉ sur téléphone comme l'onglet horaire (orgl1 entier au bureau,
+         orgl2/PV_COURT sur mobile) ET liseré de COULEUR d'atelier à gauche du poste via
+         data-z, exactement comme l'Équipe/Horaire (le client, le 06/10/2026). sansPoste :
+         pour la station le poste répétait le TITRE -> on retire la colonne poste (le
+         client : « redondance du poste, le tableau porte déjà ce nom »). */
       var o=['<div class="card"><div class="toolbar orgtitle"><h2>'+titre+'</h2></div>'
-        +'<div class="eqgrille"><table class="orgt"><thead><tr>'
-        +'<th class="orgp">Poste</th><th>Opérateur</th>'
-        +'</tr></thead><tbody>'];
-      ordre.forEach(function(k){ var g=grp[k];
-        o.push('<tr><th class="orgp" scope="row"><span class="orgl1">'+esc(g.lng)
-          +'</span><span class="orgl2">'+esc(g.crt)+'</span></th><td>'
-          +g.ids.map(function(id){ return _orgJeton(id,moi); }).join("")
+        +'<div class="eqgrille"><table class="orgt"><thead><tr>'];
+      if(sansPoste){
+        o.push('<th>Opérateur</th></tr></thead><tbody><tr><td>'
+          +gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; })
+               .map(function(p){ return _orgJeton(p.id,moi); }).join("")
           +'</td></tr>');
-      });
+      } else {
+        var abrevPoste=function(po){
+          var t=String(po||"");
+          if(/step|épuration|epuration/i.test(t)) return {lng:"Station d’épuration", crt:"STEP", z:"bleu"};
+          for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i];
+            if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||""}; }
+          return {lng:t, crt:t, z:""};
+        };
+        var grp={}, ordre=[];
+        gens.slice().sort(function(a,b){ return a.id<b.id?-1:1; }).forEach(function(p){
+          var a=abrevPoste(_orgPoste(p)||legende);
+          if(!grp[a.crt]){ grp[a.crt]={lng:a.lng, crt:a.crt, z:a.z, ids:[]}; ordre.push(a.crt); }
+          grp[a.crt].ids.push(p.id);
+        });
+        o.push('<th class="orgp">Poste</th><th>Opérateur</th></tr></thead><tbody>');
+        ordre.forEach(function(k){ var g=grp[k];
+          o.push('<tr'+(g.z?' data-z="'+esc(g.z)+'"':'')+'><th class="orgp" scope="row"><span class="orgl1">'+esc(g.lng)
+            +'</span><span class="orgl2">'+esc(g.crt)+'</span></th><td>'
+            +g.ids.map(function(id){ return _orgJeton(id,moi); }).join("")
+            +'</td></tr>');
+        });
+      }
       o.push("</tbody></table></div></div>");
       return o.join("");
     }
@@ -10130,11 +10169,12 @@ function renderOrganisation(){
        classeur ne nomme pas l'équipe. */
     /* Le client, le 22/09/2026 : « SKS et NPI n'ont pas encore d'équipe ».
        Ce n'est donc pas une lacune du classeur, c'est leur situation. */
-    h.push(carte("En formation, sans équipe",
+    var nf=sansEquipe.length;
+    h.push(carte("Opérateur"+(nf>1?"s":"")+" en formation, pas encore d’équipe",
       sansEquipe, "poste à déterminer"));
     h.push(carte("Station d\u2019épuration",
       db.people.filter(function(p){ return /step|épuration|epuration/i.test(p.cat||""); }),
-      "station d\u2019épuration"));
+      "station d\u2019épuration", true));
 
     hote.innerHTML=h.join("");
     renderAnnuaire(db,moi);
