@@ -1162,6 +1162,10 @@ body.sheet-on{overflow:hidden}
 .pvt tbody tr td.pvnul u{opacity:.6}
 .pvt tbody tr td.pvok{color:var(--at-vert); background:var(--at-vert-soft)}
 .pvt tbody tr td.pvok u{opacity:.7}
+/* ÉCART app ≠ RH : fond ambre doux, pour repérer d'un coup d'œil où le planning
+   de l'app et le classeur RH divergent (le client, 07/10/2026). Vert = concorde. */
+.pvt tbody tr td.pvecart{color:var(--at-jaune); background:var(--at-jaune-soft)}
+.pvt tbody tr td.pvecart u{opacity:.7}
 /* LA VUE DE BUREAU A DE LA PLACE : qu'elle s'en serve. Le client, le
    22/09/2026 : « optimise la vue PC, les chiffres sont peu visibles (les 10
    et 5), titre plus grand ». Les réglages ci-dessus sont ceux d'une colonne
@@ -9736,12 +9740,16 @@ function calculerPolyvalence(db){
      opérateurs qu'il liste. On n'ajoute pas de ligne : polyvalenceDe décide
      quelles lignes s'affichent via aLaPolyvalence(), et ne lit ce compteur que
      là. Terrain arrière n'est pas suivi par le classeur : on n'y touche pas. */
+  /* On GARDE la valeur de l'app (jours planifiés) AVANT de la remplacer par le
+     RH : le tableau recyclage affiche « app / RH » côte à côte pour voir les
+     écarts réels, tandis que le profil, lui, garde la valeur officielle RH. */
+  var parIdApp={}; for(var _pid in parId){ parIdApp[_pid]=Object.assign({}, parId[_pid]); }
   if(RECYC_OFF) db.people.forEach(function(p){
     var o=RECYC_OFF[idLisible(p.id)]; if(!o) return;
     var pr=parId[p.id]||(parId[p.id]={});
     RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
   });
-  _polyCle=cle; _poly={parId:parId, debut:debut, fin:fin};
+  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, debut:debut, fin:fin};
   return _poly;
 }
 /* SON poste — celui qui ne compte pas dans sa polyvalence, et le seul à
@@ -9892,6 +9900,7 @@ function polyvalenceDe(db,p){
      lui PDE n'a « pas de poste habituel », et ses 134 journées à la station
      d'épuration passent pour de la polyvalence alors que c'est son poste. */
   var t=calculerPolyvalence(db), par=t.parId[p.id]||{};
+  var parA=(t.parIdApp&&t.parIdApp[p.id])||{};  /* valeur app (jours planifiés), avant RH */
   /* Le poste de formation ne devient ni « son poste » ni une ligne de
      recyclage. Sa case porte un F : muette, à côté de cent douze journées,
      elle poserait plus de questions qu'elle n'en résout. */
@@ -9900,7 +9909,7 @@ function polyvalenceDe(db,p){
   POSTES_TRAVAIL.forEach(function(P){
     if(P.cm||P.k==="adj"||PV_SANS_RECYCLAGE[P.k]||P.k===sien) return;
     if(posteForm && P.k===posteForm){
-      out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true});
+      out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true, app:0});
       return;
     }
     var n=par[P.k]||0, a=aLaPolyvalence(p,P);
@@ -9920,7 +9929,7 @@ function polyvalenceDe(db,p){
        pas tenir le poste ou si elle le POUVAIT sans l'avoir encore fait, et
        c'est justement cela qu'un contremaître cherche. */
     if(!a) return;
-    out.push({t:P.t, k:P.k, z:P.z, n:n, q:q, ok:n>=q, acquis:a});
+    out.push({t:P.t, k:P.k, z:P.z, n:n, q:q, ok:n>=q, acquis:a, app:parA[P.k]||0});
   });
   out.sort(function(a,b){ return b.n-a.n; });
   return out;
@@ -10008,7 +10017,7 @@ function renderPolyvalence(){
     function dansClasseur(p){ return !!(RECYC_OFF && RECYC_OFF[idLisible(p.id)]); }
     function renderRow(rec){
       var p=rec.p, v=rec.v; gens++;
-      var par={}, sien=posteAttitre(p), adjoint=estCadre(p);
+      var par={}, sien=posteAttitre(p), adjoint=estCadre(p), inClasseur=dansClasseur(p);
       v.forEach(function(o){ par[o.t]=o; });
       h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
         +'<th class="pvqui'+(enFormation(p)?' pvform':'')+'" scope="row">'+esc(idLisible(p.id))+"</th>");
@@ -10022,8 +10031,8 @@ function renderPolyvalence(){
            le 07/10/2026). Objectif 5, comme leurs autres postes. */
         if(P.k==="step" && adjoint){
           var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0, qc=POLY_QUOTA.adjoint;
-          h.push('<td class="pvn'+(cm>=qc?" pvok":"")+(cm?"":" pvnul")
-            +'" data-z="gris" title="Recyclages contremaître : '+cm+" sur "+qc+'">'+cm+"<u>/"+qc+"</u></td>");
+          h.push('<td class="pvn'+(cm?(cm>=qc?" pvok":""):" pvnul")
+            +'" data-z="gris" title="Recyclages contremaître (RH) : '+cm+" sur "+qc+' attendus">'+cm+"</td>");
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
         if(!o){
@@ -10036,13 +10045,22 @@ function renderPolyvalence(){
         if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
           +'poste, pas encore validé">F</td>'); return; }
         total++; if(o.ok) atteints++; if(!o.n) vierges++;
-        h.push('<td class="pvn'+(o.ok?" pvok":"")+(o.n?"":" pvnul")
-          +(dt&&dt.fin?" pvfin":"")
-          +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" : "
-          +(o.n?o.n+" journée(s) complète(s) sur "+o.q+" attendue(s)"
-               :"polyvalence acquise, aucun remplacement fait")
-          +esc(ditLaDate(dt))
-          +'">'+o.n+"<u>/"+o.q+"</u></td>");
+        /* LA VALEUR DE L'APP SUR CELLE DU RH, pas sur le quota (le client, le
+           07/10/2026) : « app / RH » pour voir les écarts réels. Le quota (10,
+           ou 5 pour les adjoints) est rappelé dans l'intitulé de séparation.
+           Vert = concorde, ambre = écart. Hors classeur, pas de RH : app seule. */
+        var app=o.app||0, rh=inClasseur?o.n:null;
+        if(rh!=null){
+          var ecart=app!==rh, cls=(app===0&&rh===0)?"pvnul":(ecart?"pvecart":"pvok");
+          h.push('<td class="pvn '+cls+(dt&&dt.fin?" pvfin":"")
+            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" — app "+app+" / RH "+rh
+            +(ecart?" (écart "+(app-rh>0?"+":"")+(app-rh)+")":" (concorde)")
+            +esc(ditLaDate(dt))+'">'+app+"<u>/</u>"+rh+"</td>");
+        } else {
+          h.push('<td class="pvn'+(app?"":" pvnul")+(dt&&dt.fin?" pvfin":"")
+            +'" data-z="'+esc(P.z||"")+'" title="'+esc(P.t)+" — app "+app
+            +" (estimation planning, pas de suivi RH)"+esc(ditLaDate(dt))+'">'+app+"</td>");
+        }
         if(dt&&dt.fin) finissent.push(idLisible(p.id)+" · "
           +PV_COURT[P.k]+" le "+jourLisible(dt.fin));
       });
@@ -10068,11 +10086,11 @@ function renderPolyvalence(){
     var adj=elig.filter(function(o){ return estCadre(o.p); });
     var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
     var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
-    if(opsIn.length) sep("Opérateurs du classeur RH · recyclages officiels");
+    if(opsIn.length) sep("Opérateurs du classeur RH · app / RH · objectif 10");
     opsIn.forEach(renderRow);
-    if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · estimation d'après le planning"); headRow(false); }
+    if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · app seule, pas de suivi RH · objectif 10"); headRow(false); }
     opsOut.forEach(renderRow);
-    if(adj.length){ sep("Adjoints · objectif 5 par poste"); headRow(true); }
+    if(adj.length){ sep("Adjoints · app / RH · objectif 5"); headRow(true); }
     adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
