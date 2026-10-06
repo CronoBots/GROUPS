@@ -378,6 +378,52 @@ Si le nombre de personnes ou de journées s'écarte nettement des repères, la
 structure du classeur a bougé — vérifier la ligne des noms (10), la colonne
 des jours (2) et les blocs de mois avant d'aller plus loin.
 
+## Mettre à jour les recyclages depuis le classeur RH
+
+Le client envoie aussi, à part, le classeur RH **« Suivi des recyclages sur
+poste de production »** (fichier `.xlsx`, feuille `Suivi Polyvalence`). Il
+alimente la colonne des chiffres du tableau « Recyclage des polyvalences »
+(`RECYC_OFF` dans `index.html`, servi par `data/recyclages-2026.json`).
+
+**Comme l'horaire, une seule commande, et jamais à la main** :
+
+```bash
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx            # à blanc
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx --installer
+```
+
+**POURQUOI cet outil.** Le 06/10/2026 ce classeur a été lu à la main, et deux
+fois de travers : un seul poste sur trois d'abord, puis — corrigé — la colonne
+« Contremaître » des adjoints FUSIONNÉE avec « Centrale thermique » (chaudières
+à 10 au lieu de 5 + 5 contremaître). Le client, le 07/10/2026 : « mets en place
+exactement la même chose que pour l'horaire, et enregistre la marche à suivre
+pour ne JAMAIS passer à côté ». La lecture ne se fait donc plus jamais à la
+main : elle passe par **six portes** qui auraient arrêté chacune de ces erreurs.
+
+**Ce que le classeur contient.** La feuille est faite de SECTIONS empilées.
+Chaque section a sa ligne d'en-tête (`Nom | Prénom | Degré… | recyclage restant
+| <POSTE> …`), puis une ligne `J-1 … J-n` qui donne la **largeur** de chaque
+poste (n = l'objectif : 10 pour un opérateur, 5 pour un adjoint), puis les
+personnes. Chaque cellule sous un poste porte la **date** d'un recyclage fait ;
+le compte d'un poste = le nombre de cellules remplies. **La section des adjoints
+porte une colonne de plus, « Contremaître »** — d'où le `cm` du JSON, affiché à
+la place de la STEP dans le bloc adjoints du tableau.
+
+**Les six portes**, la première qui se ferme arrête tout : (1) lecture &
+structure ; (2) trigrammes connus, uniques, et présents dans l'horaire (même
+convention que `convertir-horaire._initiales`) ; (3) **bornes — aucun compte ne
+dépasse la largeur de sa colonne** (la porte qui ferme sur chaudières=10 dans
+une colonne large de 5) ; (4) intégralité — chaque cellule-date comptée une
+fois et une seule ; (5) cohérence — `fait + restant` multiple de 5 ≥ `fait` ;
+(6) anonymat — aucun nom dans la sortie. À blanc, l'outil imprime ensuite ce qui
+changerait. Avec `--installer`, et seulement si les six portes sont ouvertes :
+`data/recyclages-2026.json` est remplacé, le **brut** (`-brut.json`, trigrammes
+seuls, hors dépôt via `.gitignore`) est écrit à côté, `V` est incrémenté, le
+garde-fou du dépôt passe — sinon tout revient depuis la copie.
+
+**Restent à la main** : lire le rapport et dire au client ce qui a bougé, tester
+dans un navigateur, committer.
+
 ## Le convertisseur ne gardait qu'un commentaire sur deux
 
 Le client, le 23/09/2026 : « de nouveau tu poses des questions sans vérifier

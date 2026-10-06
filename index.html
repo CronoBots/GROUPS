@@ -1039,7 +1039,11 @@ body.sheet-on{overflow:hidden}
    postes (atelier coloré, ou gris pour la colonne « Qui »), sans trait au-dessus. */
 .pvt thead th{position:sticky; top:0; z-index:1; background:var(--surface);
   border-top:0; border-bottom:3px solid var(--trait-fort);
-  font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--ink)}
+  font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--ink);
+  /* MAJUSCULES sur mobile (base), comme les colonnes de postes de l'onglet
+     horaire (le client, 07/10/2026) ; repassé en casse normale sur grand
+     écran. Porte aussi les en-têtes répétées .pvhead (même règle plus bas). */
+  text-transform:uppercase}
 /* La première ligne de données ne porte plus de filet gris en haut non plus :
    rien de gris ne coupe sous l'en-tête. */
 .pvt tbody tr:first-child th, .pvt tbody tr:first-child td{border-top:0}
@@ -1089,6 +1093,18 @@ body.sheet-on{overflow:hidden}
 .pvt tbody tr.pvsep td{border-top:2px solid var(--trait-fort); background:var(--surface2);
   text-align:center; text-transform:uppercase; font-weight:700; font-size:9px;
   letter-spacing:.06em; color:var(--ink2); padding:8px; font-family:inherit}
+/* EN-TÊTES RÉPÉTÉES sous chaque séparation (le client, 07/10/2026 : « remettre
+   les postes juste en dessous de chaque séparation pour y voir plus clair »).
+   Même look que l'en-tête du haut — filets d'atelier colorés — mais dans le
+   corps, non collées. Pour les adjoints la dernière colonne devient « CM ». */
+.pvt tbody tr.pvhead th{background:var(--surface); font-family:inherit;
+  font-size:9.5px; font-weight:700; letter-spacing:.02em; color:var(--ink);
+  border-bottom:3px solid transparent; padding:6px 2px; text-transform:uppercase}
+.pvt tbody tr.pvhead th.pvqui{background:var(--surface); color:var(--faint)}
+.pvt tbody tr.pvhead th[data-z="jaune"]{border-bottom-color:var(--bordj)}
+.pvt tbody tr.pvhead th[data-z="vert"] {border-bottom-color:var(--bordv)}
+.pvt tbody tr.pvhead th[data-z="rouge"]{border-bottom-color:var(--bordr)}
+.pvt tbody tr.pvhead th[data-z="bleu"] {border-bottom-color:var(--bordb)}
 /* ⚠ LES TROIS RÈGLES SUIVANTES PORTENT « tbody tr » SANS EN AVOIR BESOIN,
    et ce n'est pas du bavardage : la zébrure une ligne sur deux s'écrit
    « .pvt tbody tr:nth-child(odd) td », ce qui pèse deux classes et TROIS
@@ -1177,6 +1193,9 @@ body.sheet-on{overflow:hidden}
   .pvt td.pvsien{font-size:11px}
   .pvt tbody tr td.pvform{font-size:12px}
   .pvt tbody tr.pvsep td{font-size:10px}
+  /* Sur grand écran, la ligne des postes garde sa casse normale ; les
+     MAJUSCULES sont réservées au mobile (base), comme l'onglet horaire. */
+  .pvt thead th, .pvt tbody tr.pvhead th{text-transform:none}
 }
 /* LES CARTES DE CET ONGLET SE TOUCHAIENT. Le client, le 22/09/2026 : « les
    différents cadres sont trop collés ». Elles vivent toutes dans #orgCorps,
@@ -9986,7 +10005,7 @@ function renderPolyvalence(){
     function dansClasseur(p){ return !!(RECYC_OFF && RECYC_OFF[idLisible(p.id)]); }
     function renderRow(rec){
       var p=rec.p, v=rec.v; gens++;
-      var par={}, sien=posteAttitre(p);
+      var par={}, sien=posteAttitre(p), adjoint=estCadre(p);
       v.forEach(function(o){ par[o.t]=o; });
       h.push('<tr'+(p.id===moi?' class="moi"':"")+'>'
         +'<th class="pvqui'+(enFormation(p)?' pvform':'')+'" scope="row">'+esc(idLisible(p.id))+"</th>");
@@ -9994,6 +10013,14 @@ function renderPolyvalence(){
         if(P.k===sien){
           h.push('<td class="pvsien" title="Son poste'
             +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">●</td>');
+          return; }
+        /* Chez les adjoints, la dernière colonne n'est pas la STEP (ils n'y
+           vont pas) mais les recyclages CONTREMAÎTRE du classeur (le client,
+           le 07/10/2026). Objectif 5, comme leurs autres postes. */
+        if(P.k==="step" && adjoint){
+          var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0, qc=POLY_QUOTA.adjoint;
+          h.push('<td class="pvn'+(cm>=qc?" pvok":"")+(cm?"":" pvnul")
+            +'" title="Recyclages contremaître : '+cm+" sur "+qc+'">'+cm+"<u>/"+qc+"</u></td>");
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
         if(!o){
@@ -10019,6 +10046,16 @@ function renderPolyvalence(){
       h.push("</tr>");
     }
     function sep(txt){ h.push('<tr class="pvsep"><td colspan="'+(POSTES.length+1)+'">'+txt+"</td></tr>"); }
+    /* La ligne des postes, répétée sous une séparation. cmLast : la dernière
+       colonne devient « CM » (recyclages contremaître) pour le bloc adjoints. */
+    function headRow(cmLast){
+      var r=['<tr class="pvhead"><th class="pvqui" scope="col">Qui</th>'];
+      POSTES.forEach(function(P){
+        var last=cmLast && P.k==="step";
+        r.push('<th data-z="'+esc(last?"":(P.z||""))+'" title="'
+          +esc(last?"Recyclages contremaître":P.t)+'">'+esc(last?"CM":(PV_COURT[P.k]||P.t))+"</th>"); });
+      h.push(r.join("")+"</tr>");
+    }
     /* TROIS GROUPES. Le client, les 06-07/10/2026 : (1) opérateurs suivis par le
        classeur RH, chiffres officiels sur 10 ; (2) opérateurs ABSENTS du classeur,
        dont le compteur n'est qu'une estimation d'après le planning (jours tenus) et
@@ -10029,9 +10066,9 @@ function renderPolyvalence(){
     var opsIn=ops.filter(function(o){ return dansClasseur(o.p); });
     var opsOut=ops.filter(function(o){ return !dansClasseur(o.p); });
     opsIn.forEach(renderRow);
-    if(RECYC_OFF && opsOut.length) sep("Hors classeur RH · estimation d'après le planning");
+    if(RECYC_OFF && opsOut.length){ sep("Hors classeur RH · estimation d'après le planning"); headRow(false); }
     opsOut.forEach(renderRow);
-    if(adj.length) sep("Adjoints · objectif 5 par poste");
+    if(adj.length){ sep("Adjoints · objectif 5 par poste (STEP → CM : recyclages contremaître)"); headRow(true); }
     adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
