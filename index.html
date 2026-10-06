@@ -2631,13 +2631,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      gardée, et la barre ne grandit pas (un seul onglet actif fixe la hauteur).
      Les libellés inactifs sont masqués par font-size:0 (l'icône, elle, garde sa
      taille explicite). */
-  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-    min-height:46px; padding:4px 2px; border-radius:11px; font-size:0; color:rgba(255,255,255,.56)}
+  .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    min-height:46px; padding:4px 2px; border-radius:11px; font-size:0; color:rgba(255,255,255,.6);
+    letter-spacing:.012em; line-height:1}
   .tabs button svg{display:block; width:22px; height:22px}
   /* Ces trois règles ont la MÊME spécificité que celles du haut de la
      feuille, qui peignent la barre du bureau ; elles gagnent parce qu'elles
      sont écrites APRÈS. Ne pas les déplacer plus haut. */
   .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
+  /* Focus clavier visible et à la marque (il ne l'était pas) : un anneau cyan posé
+     À L'INTÉRIEUR du bouton, qui ne déborde donc jamais de la barre. */
+  .tabs button:focus-visible{outline:none; box-shadow:inset 0 0 0 2px var(--marque-vif)}
   .tabs button[aria-selected="true"]{color:var(--marque-vif); background:transparent;
     font-size:9.5px; font-weight:600}
   .tabs button[aria-selected="true"]::after{display:none}
@@ -2650,7 +2654,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   /* Le geste répond sous le doigt : l'onglet s'enfonce et l'icône du choisi
      se soulève d'un cran. Un retour qu'on sent sans le lire. */
   .tabs button:active{transform:scale(.93)}
-  .tabs button svg{transition:transform .22s cubic-bezier(.3,1.4,.5,1)}
+  .tabs button svg{transition:transform .26s cubic-bezier(.22,1,.36,1)}
   .tabs button[aria-selected="true"] svg{transform:translateY(-1px) scale(1.08)}
   /* ONGLET PRINCIPAL — « Horaire » AU CENTRE, en PASTILLE INTÉGRÉE. L'ancien bouton
      flottant « ressortait de trop » (le client, le 06/10/2026 : « faire bien mieux
@@ -2663,12 +2667,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      toujours affiché dessous (blanc atténué au repos, cyan quand il est actif), seul
      onglet nommé en permanence — c'est ce qui le distingue avec la plaque. */
   .tabs button#tab-jour{color:rgba(255,255,255,.72); font-weight:600; font-size:9.5px}
-  .tabs button#tab-jour svg{width:21px; height:21px; padding:8px; margin:0; box-sizing:content-box;
-    border-radius:12px; background:var(--marque-vif); color:var(--marque);
-    box-shadow:0 2px 10px -2px rgba(105,178,203,.45);
-    transition:transform .18s ease, box-shadow .18s ease}
+  /* Plaque resserrée (33 px, ~1,5× une icône au lieu de 1,7× : distinguée sans être
+     massive) et profondeur RÉELLE — ombre portée sombre à offset + flou, plus un cheveu
+     de lumière en haut qui donne du relief à la surface cyan (même langage que .card) —
+     au lieu d'un halo coloré décoratif. */
+  .tabs button#tab-jour svg{width:21px; height:21px; padding:6px; margin:0; box-sizing:content-box;
+    border-radius:11px; background:var(--marque-vif); color:var(--marque);
+    box-shadow:0 4px 9px -3px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.28);
+    transition:transform .26s cubic-bezier(.22,1,.36,1), box-shadow .26s ease}
+  /* Actif : la plaque se pose plus franchement (ombre plus profonde, léger soulèvement)
+     + un fin liseré cyan de sélection, discret. */
   .tabs button#tab-jour[aria-selected="true"]{background:transparent; color:var(--marque-vif)}
-  .tabs button#tab-jour[aria-selected="true"] svg{box-shadow:0 2px 14px -1px rgba(105,178,203,.65)}
+  .tabs button#tab-jour[aria-selected="true"] svg{transform:translateY(-1px) scale(1.04);
+    box-shadow:0 6px 13px -3px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.34), 0 0 0 3px rgba(105,178,203,.22)}
   .tabs button#tab-jour:active svg{transform:scale(.93)}
   /* La pastille d'alerte « Mon salaire » ne doit pas se recaler sur ce bouton. */
   .tabs button#tab-jour .dotwarn{display:none}
@@ -2809,7 +2820,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    tableau qui passe dessous, d'une ombre montante — à plat, elle
    s'y confondait par le bas. */
 @media (max-width:760px){
-  .navwrap>.tabs{box-shadow:0 -12px 32px -22px rgba(0,0,0,.95)}
+  .navwrap>.tabs{box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 -10px 28px -20px rgba(0,0,0,.85)}
 }
 
 /* La molette, la sélection et le curseur portent la marque, et non
