@@ -5482,8 +5482,26 @@ function setView(v,keepScroll){
   VIEWS.forEach(function(x){
     var el=document.getElementById("v-"+x);
     el.hidden=(x!==v);
-    if(x===v && change){ el.classList.remove("entre"); void el.offsetWidth; el.classList.add("entre"); }
+    if(x===v){
+      if(change){ el.classList.remove("entre"); void el.offsetWidth; el.classList.add("entre"); }
+    } else {
+      /* Pas de classe d'entrée oubliée sur un panneau caché : sans ça, un
+         panneau figé à mi-animation gardait sa classe en réserve. */
+      el.classList.remove("entre");
+    }
   });
+  /* FILET DE SÉCURITÉ — ONGLET BLANC. Le client, le 07/10/2026 : « des fois en
+     changeant d'onglet rien n'est affiché ». Sur WebKit/iOS, relancer l'animation
+     d'entrée juste après un display:none laisse PARFOIS le panneau figé à
+     opacity:0 (animation bloquée à 0 %, classe .entre persistante) → onglet tout
+     blanc, durablement. On retire donc .entre une fois l'animation (0,22 s) passée :
+     l'état AU REPOS du panneau est opacity:1, donc un panneau resté invisible
+     réapparaît, et une animation déjà terminée n'est pas affectée (aucun changement
+     visible dans le cas normal). Reproduit et corrigé en stress-test de bascule. */
+  if(change){
+    var curPan=document.getElementById("v-"+v);
+    setTimeout(function(){ if(curPan) curPan.classList.remove("entre"); }, 260);
+  }
   Array.prototype.forEach.call(document.querySelectorAll(".tabs button"),function(b){
     var sel=b.dataset.v===v;
     b.setAttribute("aria-selected",String(sel));
