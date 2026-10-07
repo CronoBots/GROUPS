@@ -6617,7 +6617,15 @@ function jourPreste(annee,mmdd,comm){
   if(!m) return null;
   return Date.UTC(annee,Number(m[2])-1,Number(m[1]));
 }
+/* Une date de rappel mal écrite, tranchée par le client pour la journée
+   nommée seulement. VBN le 19/02, « rappel le 19.06 » : le client, le
+   07/10/2026, « j'ai fait 12h avec rappel le 19.02 et non 19.06 » — sa
+   fiche de février paie ce rappel. Une date postérieure au jour est
+   refusée plus bas ; on ne la devine pas, on la corrige ici, journée par
+   journée. Seule cellule de l'année à porter « rappel le 19.06 » ce jour-là. */
+var RAPPEL_DATE_TRANCHEE={"0219":[/rappel le 19\.06/i,"rappel le 19.02"]};
 function momentRappel(annee,mmdd,txt,comm){
+  var rt=RAPPEL_DATE_TRANCHEE[mmdd]; if(rt) txt=txt.replace(rt[0],rt[1]);
   var m=txt.match(RX_RAPPEL); if(!m) return null;
   var jour=jourPreste(annee,mmdd,comm);
   if(jour===null) jour=Date.UTC(annee,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
