@@ -1544,7 +1544,29 @@ n'est deviné à leur sujet :
     décembre 2025 à août 2026 sont dans les envois de la session, avec
     celles de LCI (200218, ouvrier) de janvier à août — mensuelles,
     deux régularisations de février, prime de fin d'année, pécule et
-    deux documents 2025 scannés. Elles restent hors du dépôt ;
+    deux documents 2025 scannés. Elles restent hors du dépôt.
+    **Fait le 07/10/2026**, janvier à août, SANS rien caler : la session
+    du 27/09 versait le reste de chaque mois en « autre rémunération
+    brute », ce qui égalisait le brut et ne mesurait rien. Juillet et
+    août tombent au centime ; chaque autre écart de brut a sa rubrique
+    et sa journée (reste non attribué : zéro). Le férié (fixe + 100 %
+    chez l'employé, 200 % dans l'application : 01/01, 06/04, 01/05,
+    25/05) fait l'essentiel de janvier, avril et mai — question
+    ci-dessous, inchangée. Le reste : le rappel du 25/06 (déjà listé) ;
+    une heure et demie (janvier) et trois quarts d'heure (avril) d'heures
+    sup que le classeur n'écrit pas ; le dimanche 22/03 payé 10 h 17 de
+    nuit au lieu de 8 h ; la durée des heures de déplacement du 20/03 et
+    du 14/04 ; un chèque-repas de plus ou de moins sur quatre mois ;
+    deux questions au client, juste dessous ;
+  - **VBN le 19/02**, `["18h-06h","8h +FT","remplace FPA rappel le
+    19.06 …"]` : la fiche paie un rappel (6 h 17 de déplacement), et
+    `momentRappel()` refuse une date de rappel POSTÉRIEURE au jour.
+    « 19.06 » pour « 19.02 » ? Question posée le 07/10/2026 ;
+  - **VBN le 19/03**, « 8h +FT … en HS ou FT » : la fiche paie les 8 h
+    en « HS pas compenser » (sursalaire ET heure, sans déduction), là
+    où l'application paie le sursalaire et déduit l'heure, versée au
+    compteur. Le choix de l'opérateur n'est pas écrit. Question posée
+    le 07/10/2026 ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
