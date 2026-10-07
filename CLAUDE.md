@@ -1561,7 +1561,17 @@ n'est deviné à leur sujet :
   - **VBN le 19/02**, `["18h-06h","8h +FT","remplace FPA rappel le
     19.06 …"]` : la fiche paie un rappel (6 h 17 de déplacement), et
     `momentRappel()` refuse une date de rappel POSTÉRIEURE au jour.
-    « 19.06 » pour « 19.02 » ? Question posée le 07/10/2026 ;
+    « 19.06 » pour « 19.02 » ? **Tranché le 07/10/2026** : « j'ai fait
+    12h avec rappel le 19.02 et non 19.06 ». `RAPPEL_DATE_TRANCHEE`
+    corrige la date pour cette journée seulement (une date postérieure
+    au jour reste refusée ailleurs). Les quatre sorties du vérificateur
+    sont identiques à l'octet — la règle est de paie seulement ; février
+    passe d'un écart de près d'une centaine d'euros de net à moins de
+    dix (un chèque-repas, un jour d'indemnité, quelques minutes de
+    déplacement). Six autres journées de l'année portent une date de
+    rappel postérieure au jour (JBI 08/03, VGG 26/05, SKS 26/06, PAM
+    15/03, 28/06 et 01/07, RCO 25/07, GDT 15/03, PLZ 28/04) — certaines
+    sont des nuits qui finissent le lendemain ; non tranchées ;
   - **VBN le 19/03**, « 8h +FT … en HS ou FT » : la fiche paie les 8 h
     en « HS pas compenser » (sursalaire ET heure, sans déduction), là
     où l'application paie le sursalaire et déduit l'heure, versée au
