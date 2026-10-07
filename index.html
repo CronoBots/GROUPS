@@ -567,20 +567,10 @@ button{cursor:pointer}
    masquaient onglet par onglet, celle qui le repliait sous 760 px, celle qui
    l'habillait de blanc sur le bleu, et l'écriture de #netTop dans
    renderSlip(). Un style qui ne sert plus égare celui qui le relit. */
-/* Les quatre règles qui masquaient le sélecteur onglet par onglet ont
-   disparu avec lui : il n'est plus présent que là où un hôte l'accueille.
-   Reste la vue Année de l'horaire, qui n'a pas de mois à choisir : on y
-   masque l'hôte de la barre de mois (display:none, pas visibility, pour ne
-   pas laisser un trou dans la barre héros du calendrier). Déclaratif : il suit
-   data-horaire quoi que fasse placerMnav au changement d'onglet. */
-body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
-/* Dans un onglet, il n'est plus un morceau d'en-tête mais une barre à lui,
-   posée au-dessus de la première carte. */
+/* Les règles qui masquaient le sélecteur onglet par onglet ont disparu avec
+   lui : il n'est plus présent que là où un hôte l'accueille — aujourd'hui le
+   seul sélecteur de mois du calendrier. */
 .mnavhote:empty{display:none}
-.mnavhote .mnav{justify-content:center; gap:6px;
-  background:var(--surface); border:1px solid var(--line); border-radius:12px;
-  padding:4px 6px}
-.mnavhote .mlabel{min-width:0; flex:1 1 auto}
 
 
 /* ---------- calendrier annuel ---------- */
@@ -760,27 +750,38 @@ body[data-horaire="annee"][data-view="horaire"] .mnavhote{display:none}
   border:1px solid var(--cadre); border-radius:var(--rj);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
-.calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px;
-  padding:8px 12px; background:var(--surface2); border-bottom:1px solid var(--line)}
-/* La bascule reprend le segment iOS d'Équipe (.eqseg), simplement bornée en
-   largeur et posée sur --surface pour ressortir du fond de la barre. */
-.calseg{width:100%; max-width:240px; background:var(--surface)}
-.calline{display:flex; width:100%}
-.calline .mnavhote{flex:1 1 auto}
-.calline .mnavhote .mnav{width:100%; justify-content:center; gap:12px}
-.calline .mnavhote .mlabel{flex:1 1 auto; text-align:center; font-size:16px; font-weight:650; min-width:0}
-.calline .mnavhote .mnav button{width:34px; height:34px; font-size:18px}
-.calbody{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
-.calbody .moiscal, .calbody .annee{flex:1 1 auto}
-.rota-footcard[hidden]{display:none}
-/* « Remplit le premier écran, puis on défile ». Sur téléphone, la carte héros
-   prend la hauteur visible moins la barre d'onglets du bas (--jnav, posée par
-   ajusterHauteurJour) et une marge ; au-delà (vue Année, haute), la carte
-   grandit et c'est la page qui défile — donc PAS de position:fixed ici, le
-   défilement doit atteindre les compteurs et les codes en dessous. */
-@media (max-width:760px){
-  #calCard{min-height:calc(100dvh - var(--jnav,64px) - 60px)}
-}
+.calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:0;
+  padding:0; background:var(--surface2); border-bottom:1px solid var(--cadre)}
+/* LE SÉLECTEUR DE MOIS = la ligne de date de l'onglet Horaire (.jourline, le
+   client le 07/10/2026) : flèches carrées ancrées aux bords, « Octobre 2026 »
+   centré et cliquable (ouvre le sélecteur de mois natif). */
+.calmois{display:flex; width:100%; align-items:center; padding:10px 0}
+.calmois .mnavhote{flex:1 1 auto; min-width:0}
+.calmois .mnav{display:flex; width:100%; align-items:center; gap:0}
+.calmois .mnav button{width:30px; height:30px; display:grid; place-items:center;
+  border-radius:9px; border:1px solid var(--line); background:var(--surface);
+  color:var(--muted); font-size:16px; line-height:1; margin:0 26px}
+@media(hover:hover){ .calmois .mnav button:hover{color:var(--ink); border-color:var(--in2)} }
+.calmois .mlabelwrap{flex:1 1 auto; min-width:0; position:relative; text-align:center}
+.calmois .mlabel{font-size:17.5px; font-weight:650; white-space:nowrap; color:var(--ink);
+  cursor:pointer; text-decoration:underline solid var(--trait);
+  text-decoration-thickness:1px; text-underline-offset:4px}
+.moisdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
+  border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
+/* LA BANDE DE STATS DU MOIS : des tuiles séparées par des filets --cadre (gap
+   1 px sur fond --cadre → hairlines nettes dans les deux sens, sans case vide
+   car les tuiles s'étirent par flex). Grande valeur mono + étiquette discrète. */
+.calstats{display:flex; flex-wrap:wrap; gap:1px; background:var(--cadre);
+  border-bottom:1px solid var(--cadre)}
+.cstat{flex:1 1 76px; min-width:76px; background:var(--surface2);
+  padding:10px 6px 9px; display:flex; flex-direction:column; align-items:center;
+  gap:2px; text-align:center}
+.cstat-v{font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:650;
+  color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1;
+  display:inline-flex; align-items:baseline; gap:2px; white-space:nowrap}
+.cstat-v i{font-size:10.5px; font-weight:500; font-style:normal; color:var(--muted)}
+.cstat-k{font-size:9.5px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--faint); font-weight:650}
 
 /* ---------- horaire : le mois ---------- */
 /* Sept colonnes de jours et une huitième, étroite, pour les heures de la
@@ -3048,7 +3049,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        chance que deux copies divergent. -->
   <div class="mnav" id="mnav">
     <button type="button" id="prev" aria-label="Mois précédent">&lsaquo;</button>
-    <div class="mlabel" id="mlabel">—</div>
+    <!-- CLIQUER LE MOIS OUVRE UN SÉLECTEUR, comme la date du jour de l'onglet
+         Horaire (le client, le 02/10/2026) : un champ « month » natif transparent
+         couvre le libellé ; le pointillé dit qu'il se touche. -->
+    <div class="mlabelwrap"><span class="mlabel" id="mlabel">—</span><input type="month" id="moisPick" class="moisdateinput" aria-label="Choisir un mois"></div>
     <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
   </div>
   <!-- CINQ ONGLETS, et non six. Le client, le 30/09/2026 : « fusionner
@@ -3142,49 +3146,35 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   </section>
 
   <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1" hidden>
-    <!-- UNE SEULE VUE, ET SON TITRE AU-DESSUS DU CADRE. Le client, le
-         23/09/2026 : « je ne veux plus les autres boutons ; il faut donc
-         supprimer la sélection de mois qui était au-dessus du cadre et y
-         ajouter un titre "Mon horaire" comme pour Équipe ».
-
-         Le MOIS n'a pas disparu pour autant : il n'est plus une vue qu'on
-         choisit, c'est le détail d'une journée. On l'ouvre en cliquant une
-         case de l'année — c'est là qu'on corrige — et le bouton « Retour à
-         l'année » ramène. Sans lui, la seule sortie aurait été de changer
-         d'onglet. -->
-    <!-- Un vrai calendrier, dans le style de l'onglet « Du jour ». Le client, le
-         03/10/2026 : « il ne faut plus non plus la barre du dessus… je veux que
-         celui-ci ressemble à un calendrier pro et dans le style de l'onglet
-         horaire ». Plus de barre-titre « Calendrier », plus d'en-tête « Horaire
-         presté » : une carte héros qui remplit le premier écran, coiffée d'une
-         barre de navigation (bascule Mois/Année + flèches de mois ‹ Octobre 2026 ›
-         rangées ici via placerMnav). Les compteurs et les codes suivent dessous,
-         en défilement. Le MOIS est la vue par défaut. -->
-    <div class="card calhero" id="calCard">
+    <!-- LE CALENDRIER, UN SEUL CADRE « PRO » DANS LE STYLE DE L'ONGLET HORAIRE
+         (le client, le 07/10/2026 : « il ne faut que le choix par mois ; le cadre
+         doit reprendre le style de horaire, la première ligne la sélection du mois
+         comme cela fonctionne pour le jour sélectionné dans horaire »). Plus de
+         bascule Mois/Année ni de vue année : un seul bloc encadré qui contient,
+         de haut en bas, (1) le SÉLECTEUR DE MOIS ‹ Octobre 2026 › — même barre que
+         la ligne de date de l'onglet Horaire, #mnav rangé ici via placerMnav ;
+         (2) la BANDE DE STATS du mois (prestées, jours, week-end, heures sup,
+         rappels, flex, vélo) ; (3) la GRILLE du mois. Les compteurs et les codes
+         suivent dessous, en défilement. -->
+    <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
-        <div class="calseg eqseg" role="tablist" aria-label="Vue du calendrier">
-          <button type="button" role="tab" data-cal="mois"  aria-selected="true">Mois</button>
-          <button type="button" role="tab" data-cal="annee" aria-selected="false">Année</button>
-        </div>
-        <!-- La barre de navigation du mois (#mnav, exemplaire unique) vient se
-             ranger dans ce .mnavhote via placerMnav("horaire"). -->
-        <div class="calline"><div class="mnavhote"></div></div>
+        <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
+             .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
+        <div class="calmois"><div class="mnavhote"></div></div>
       </div>
-      <div class="calbody">
-        <div class="annee" id="annee" hidden></div>
-        <div class="moiscal" id="moisCal"></div>
+      <!-- LES STATS IMPORTANTES DU MOIS, en tête du cadre. Les valeurs sont
+           écrites par renderSlip() dans ces mêmes identifiants (l'unité « h » est
+           portée par le balisage, pas par le texte). -->
+      <div class="calstats" id="calStats">
+        <div class="cstat"><span class="cstat-v"><b id="tHeures">0</b><i>h</i></span><span class="cstat-k">Prestées</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tJours">0</b></span><span class="cstat-k">Jours</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tRap">0</b><i id="tRapM"></i></span><span class="cstat-k">Rappels</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex time</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tVelo">0</b></span><span class="cstat-k">Vélo</span></div>
       </div>
-    </div>
-    <div class="card rota-footcard" id="rotaFootCard">
-      <div class="rota-foot">
-        <span>Prestées <b id="tHeures">0</b> h</span>
-        <span>Jours <b id="tJours">0</b></span>
-        <span>Week-end <b id="tWe">0</b> h</span>
-        <span>Vélo <b id="tVelo">0</b></span>
-        <span>Flex time <b id="tFt">0</b></span>
-        <span>Heures sup <b id="tHs">0</b></span>
-        <span>Rappels <b id="tRap">0</b></span>
-      </div>
+      <div class="moiscal" id="moisCal"></div>
     </div>
 
     <div class="card">
@@ -4982,11 +4972,14 @@ function renderTotals(C){
   document.getElementById("tWe").textContent=num(C.acc.sam+C.acc.dim);
   document.getElementById("tVelo").textContent=C.acc.velo;
   var ftS=C.acc.ftPlus-C.acc.ftMoins;
-  document.getElementById("tFt").textContent=(ftS>0?"+":"")+num(ftS)+" h";
-  document.getElementById("tHs").textContent=num(C.acc.hsHrs)+" h";
+  /* L'unité « h » est portée par le balisage de la tuile (cstat-v > i), pas par
+     le texte : on n'écrit donc que le nombre. */
+  document.getElementById("tFt").textContent=(ftS>0?"+":"")+num(ftS);
+  document.getElementById("tHs").textContent=num(C.acc.hsHrs);
   var rTot=C.acc.rapG+C.acc.rapP+C.acc.rapM;
-  document.getElementById("tRap").textContent=rTot
-    ? (rTot+" ("+eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP))+")") : "0";
+  document.getElementById("tRap").textContent=rTot;
+  var tRapM=document.getElementById("tRapM");
+  if(tRapM) tRapM.textContent=rTot?eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP)):"";
   var rsub=document.getElementById("rotasub"); if(rsub) rsub.textContent=MOIS[st.m]+" "+st.y;
   majMoisLabel(st.m,st.y);
   majBrandsub();
@@ -5343,8 +5336,11 @@ function majBrandsub(){
    tombée et la seconde forme avec elle. Un mécanisme qui ne sert plus
    égare celui qui le relit. */
 function majMoisLabel(m,y){
-  var el=document.getElementById("mlabel"); if(!el) return;
-  el.textContent=MOIS[m]+" "+y;
+  var el=document.getElementById("mlabel");
+  if(el) el.textContent=MOIS[m]+" "+y;
+  /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
+  var pick=document.getElementById("moisPick");
+  if(pick) pick.value=y+"-"+pad2(m+1);
 }
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
@@ -5846,7 +5842,6 @@ function renderPrefillSelects(db){
     majCompteurs(); majBrandsub();
     prefillAuto();
     if(typeof renderRythme==="function") renderRythme();
-    if(!document.getElementById("annee").hidden) renderAnnee();
     if(st.view==="horaire") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
     /* LE CONTENU EST RENDU → on retire l'écran d'intro SEULEMENT maintenant (et non
@@ -12393,195 +12388,36 @@ function tipOff(){ if(calTip) calTip.style.opacity="0"; }
    pas à faire sauter la page. */
 function centrerSurAujourdhui(){
   var pan=document.getElementById("v-horaire");
-  var an=document.getElementById("annee");
-  if(!pan || pan.hidden || !an || an.hidden) return;
-  var c=an.querySelector(".auj");
-  if(c && c.scrollIntoView) c.scrollIntoView({block:"center", inline:"center"});
-}
-function renderAnnee(){
-  var hote=document.getElementById("annee"); if(!hote) return;
-  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
-  var id=idSel?idSel.value:"";
-  if(!id){ hote.innerHTML='<p class="lede" style="padding:0">Choisissez une personne ci-dessus pour afficher son année.</p>'; return; }
-  fetchHoraireDB().then(function(db){
-    if(!db) return;
-    var person=db.people.filter(function(p){return p.id===id;})[0];
-    if(!person){ hote.innerHTML='<p class="lede" style="padding:0">Personne introuvable dans l\'horaire d\'équipe.</p>'; return; }
-    var annee=Number(db.year), jours=anneeDeLaPersonne(db,person,annee);
-    var auj=new Date(), ajd=(auj.getFullYear()===annee)?pad2(auj.getMonth()+1)+pad2(auj.getDate()):"";
-    /* Une journée porte parfois un poste ET une absence : le poste est celui
-       qui était PRÉVU, l'absence dit qu'il n'a pas été presté. Un congé posé
-       sur une nuit reste un congé. Ne regarder que le poste faisait passer
-       une semaine de vacances pour une semaine de travail, et gonflait les
-       totaux d'autant. C'est le nombre d'heures qui tranche. */
-    /* « Absence » ne veut rien dire tant qu'on n'a pas dit laquelle. Le
-       client, le 21/09/2026 : « tu indiques 94 jours d'absence, ça me paraît
-       beaucoup, que considères-tu absence ? » — et il avait raison : sur ses
-       94, 26 étaient des congés payés, 18 des vacances, 10 des récupérations
-       de jour férié, et 18 seulement de la maladie.
-
-       C'est la distinction qu'il avait déjà donnée pour l'onglet Équipe :
-       « il faut différencier absent et en congé ; les absents ne sont que
-       les personnes malades. » Elle vaut ici aussi.
-
-       Et une journée de repos qui ne porte qu'un mouvement de compteur —
-       ["-","4h +FT","presté le 27.04"] — est un REPOS. Le classeur y écrit
-       « - » ; les heures ont été faites un autre jour. Onze journées de VBN
-       passaient pour des absences à ce titre. */
-    var cpt={AM:0,PM:0,N:0,D:0}, mal=0, conge=0, repos=0, rcm=0, heures=0;
-    Object.keys(jours).forEach(function(k){
-      var j=jours[k], hj=(j.h===undefined?st.params.hJour:j.h), A=j.a&&ABSMAP[j.a];
-      if(j.s && hj>0){ cpt[j.s]=(cpt[j.s]||0)+1; heures+=hj; }
-      else if(A && A.k==="SMG") mal++;
-      else if(A && A.h>0) conge++;
-      else repos++;      /* un compteur seul ne fait pas une absence */
-      if(j.rcm) rcm++;
-    });
-
-    var h=[];
-    h.push('<div class="tuiles">');
-    h.push(tuile(num(R(heures,2)),"heures prestées"));
-    h.push(tuile(cpt.AM+cpt.PM+cpt.N+cpt.D,"jours prestés"));
-    h.push(tuile(conge,"jours de cong\u00e9"));
-    if(mal) h.push(tuile(mal,"jours de maladie"));
-    h.push(tuile(repos,"jours de repos"));
-    if(rcm) h.push(tuile(rcm,"remplacements CM"));
-    h.push('</div>');
-
-    h.push('<p class="legende">');
-    SHIFT_CODES.forEach(function(c){
-      h.push('<span><i style="background:var(--cal-'+c.toLowerCase()+')"></i>'
-             +esc(POSTE_LIB[c])+' <b style="color:var(--ink2)">'+cpt[c]+'</b></span>');
-    });
-    h.push('<span><i style="background:var(--cal-d); box-shadow:inset 0 -3.5px 0 var(--cal-n)"></i>Jour — le liseré dit la prime conservée</span>');
-    h.push('<span><i style="background:var(--surface3); box-shadow:inset 0 0 0 1px var(--line)"></i>Congé ou maladie</span>');
-    h.push('<span><i style="background:var(--surface2)"></i>Repos</span>');
-    h.push('</p>');
-
-    h.push('<div class="grille">');
-    for(var m=1;m<=12;m++){
-      var nd=daysInMonth(annee,m-1);
-      var prestes=0;
-      for(var q=1;q<=nd;q++){
-        var jj=jours[pad2(m)+pad2(q)];
-        if(jj&&jj.s&&(jj.h===undefined?st.params.hJour:jj.h)>0) prestes++;
-      }
-      var courant=(annee===st.y && m-1===st.m)?" courant":"";
-      h.push('<section class="mois'+courant+'">');
-      h.push('<h3>'+esc(MOIS[m-1])+'<small>'+prestes+' j</small></h3>');
-      h.push('<div class="sem">'+JOURS_COURTS.map(function(x){return "<span>"+x+"</span>";}).join("")+'</div>');
-      h.push('<div class="jours">');
-      /* la semaine commence le lundi : 0 pour lundi, 6 pour dimanche */
-      var decal=(new Date(annee,m-1,1).getDay()+6)%7;
-      for(var v=0;v<decal;v++) h.push('<button type="button" class="vide" tabindex="-1" aria-hidden="true"></button>');
-      for(var d=1;d<=nd;d++){
-        var mmdd=pad2(m)+pad2(d), j=jours[mmdd]||{}, cls=[], attr="";
-        var hj=(j.h===undefined?st.params.hJour:j.h);
-        var travaille=!!(j.s && hj>0);
-        var jour=new Date(annee,m-1,d).getDay();
-        if(jour===0||jour===6) cls.push("we");
-        if(!travaille && j.a) cls.push("abs");
-        if(mmdd===ajd) cls.push("auj");
-        /* La case dit ce qui a été PRESTÉ — une journée D-CPPT ou SD26 se
-           fait en horaire de jour, et l'afficher en nuit induirait en
-           erreur. Le liseré du bas dit la prime CONSERVÉE, dans la couleur
-           de la pause que le cycle prévoyait. Deux informations, deux
-           encodages, et le fond revient à la plus lue des deux. */
-        var preste=j.sp||(j.jour?"D":j.s);
-        if(travaille) attr=' data-p="'+esc(preste)+'"';
-        if(travaille && (j.jour||j.sp)){
-          cls.push("jour");
-          if(j.s!==preste) attr+=' style="--pr:var(--cal-'+j.s.toLowerCase()+')"';
-        }
-        var prevu=(!travaille && j.s && !j.a);
-        if(prevu) cls.push("prevu");
-        var etiq=travaille?marqueDoute(j,j.jour?etiqJour(j.jour):preste)
-                :(j.a?etiqAbsence(j.a):(prevu?j.s:""));
-        var lib=travaille?((j.jour||j.sp)?((j.jour?"journée de jour ("+j.jour+")"
-                 :POSTE_LIB[preste])+", prime "
-                 +(POSTE_LIB[j.s]||j.s)+" conservée"):POSTE_LIB[j.s])
-                :(j.a||(prevu?((POSTE_LIB[j.s]||j.s)+" prévu, non presté"):"repos"));
-        h.push('<button type="button" class="'+cls.join(" ")+'"'+attr
-          +' data-m="'+m+'" data-d="'+d+'" data-k="'+mmdd+'"'
-          +' aria-label="'+d+" "+esc(MOIS[m-1])+" — "+esc(lib)+'">'
-          +'<b>'+d+'</b>'+(etiq?'<i'+(etiq.length>3?' class="long"':'')+'>'
-          +esc(etiq.slice(0,4))+'</i>':'')+'</button>');
-      }
-      h.push('</div></section>');
-    }
-    h.push('</div>');
-    hote.innerHTML=h.join("");
-    var asub=document.getElementById("anneeSub"); if(asub) asub.textContent=id+" · "+annee;
-    centrerSurAujourdhui();
-
-    function tuile(v,l){ return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>'; }
-
-    hote.onmouseover=function(e){
-      var b=e.target.closest?e.target.closest("button[data-k]"):null;
-      if(!b) return;
-      var j=jours[b.dataset.k]||{}, m=Number(b.dataset.m), d=Number(b.dataset.d);
-      var hb=(j.h===undefined?st.params.hJour:j.h), tv=!!(j.s && hb>0);
-      var l=["<b>"+d+" "+MOIS[m-1]+" "+annee+"</b>"];
-      if(tv && (j.jour||j.sp)) l.push((j.jour?"Journée de jour ("+j.jour+")"
-                        :POSTE_LIB[j.sp])+" · "+num(hb)+" h"
-                        +"<br>Prime "+POSTE_LIB[j.s]+" conservée");
-      else if(tv) l.push(POSTE_LIB[j.s]+" · "+num(hb)+" h");
-      if(j.a) l.push(j.a+(tv?"":"")+(!tv&&j.s?" — prévu en "+POSTE_LIB[j.s]:""));
-      if(!tv && !j.a) l.push("Repos");
-      if(j.rcm) l.push("Remplacement contremaître");
-      if(j.rap) l.push("Rappel "+(j.rap==="J"?"J / J-1":"J-2 → J-15"));
-      if(j.brut && j.brut[2]) l.push('<span style="opacity:.75">'+esc(j.brut[2]).slice(0,120)+"</span>");
-      tipOn(b,l.join("<br>"));
-    };
-    hote.onmouseout=function(e){ if(e.target.closest && e.target.closest("button[data-k]")) tipOff(); };
-    hote.onclick=function(e){
-      var b=e.target.closest?e.target.closest("button[data-k]"):null;
-      if(!b) return;
-      /* LE CLIC OUVRE LA JOURNÉE, il ne se contente pas d'ouvrir le mois.
-         Il visait « .day[data-d] », une disposition en liste qui n'existe
-         plus : le sélecteur ne trouvait rien depuis longtemps, et le mois
-         s'ouvrait sur son premier jour. Cela comptait peu tant qu'un bouton
-         « Mois » existait ; c'est maintenant le SEUL chemin vers la
-         correction d'une journée. */
-      tipOff(); vueHoraire("mois");
-      var m=Number(b.dataset.m)-1, d=Number(b.dataset.d);
-      if(m!==st.m || annee!==st.y) loadMonth(annee,m);
-      setTimeout(function(){
-        var c=document.querySelector('.mc-j[data-d="'+d+'"]');
-        if(c) c.scrollIntoView({block:"center"});
-        ouvrirJour(d);
-      },260);
-    };
-  });
+  if(!pan || pan.hidden) return;
+  var c=pan.querySelector(".moiscal .mc-j.auj");
+  if(c && c.scrollIntoView) c.scrollIntoView({block:"nearest", inline:"nearest"});
 }
 
 /* Les noms de jour servent à la barre du haut, qui écrit « Mardi 22
    septembre » : ils survivent à la vue semaine qui les a introduits. */
 var JOURS_LONGS=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 
-/* DEUX ÉTATS, UNE BASCULE SEGMENTÉE. Le client, le 03/10/2026 : « un calendrier
-   pro dans le style de l'onglet horaire ». Le MOIS est désormais le héros et la
-   vue par défaut ; l'Année reste une vue d'ensemble, atteinte par le segment
-   Mois/Année (et toujours en cliquant une journée de l'année pour la reprendre).
-   La barre de mois (#mnav) ne sert qu'en vue Mois : son hôte est masqué en vue
-   Année par une règle CSS déclarative sur data-horaire (plus haut). */
-function vueHoraire(v){
-  var mensuel=(v==="mois");
-  document.getElementById("annee").hidden=mensuel;
-  var mc=document.getElementById("moisCal"); if(mc) mc.hidden=!mensuel;
-  if(!mensuel && jourOuvert) fermerJour();
-  var fc=document.getElementById("rotaFootCard"); if(fc) fc.hidden=!mensuel;
-  document.body.setAttribute("data-horaire", mensuel?"mois":"annee");
-  var seg=document.querySelector(".calseg");
-  if(seg) [].forEach.call(seg.querySelectorAll("button[data-cal]"),function(b){ b.setAttribute("aria-selected", b.dataset.cal===v?"true":"false"); });
+/* LE CALENDRIER N'A PLUS QU'UNE VUE : LE MOIS (le client, le 07/10/2026 : « il
+   ne faut que le choix par mois »). Plus de bascule Mois/Année ni de vue année ;
+   la grille du mois est toujours montrée. vueHoraire() ne sert plus qu'à
+   s'assurer que la grille est visible — conservée car restaurerVue() l'appelle. */
+function vueHoraire(){
+  var mc=document.getElementById("moisCal"); if(mc) mc.hidden=false;
   tipOff();
-  if(!mensuel) renderAnnee();
-  else { var asub=document.getElementById("anneeSub"); if(asub) asub.textContent=""; }
 }
-document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest(".calseg button[data-cal]"):null;
-  if(b) vueHoraire(b.dataset.cal);
-});
+/* Choisir un mois au sélecteur (champ « month » natif, comme la date du jour de
+   l'onglet Horaire) : on va directement à ce mois-là. */
+(function(){
+  var pick=document.getElementById("moisPick");
+  if(!pick) return;
+  pick.addEventListener("change",function(){
+    var v=pick.value; if(!v) return;                 /* « AAAA-MM » */
+    var q=v.split("-"); if(q.length<2) return;
+    var y=Number(q[0]), m=Number(q[1])-1;
+    if(isNaN(y)||isNaN(m)) return;
+    if(y!==st.y || m!==st.m) loadMonth(y,m);
+  });
+})();
 /* Les sélecteurs « Qui je suis » ne se garnissent qu'UNE fois (le drapeau
    remplace l'ancien court-circuit « if(HORAIRE_DB) return »). Depuis que la
    porte de connexion précharge l'horaire, HORAIRE_DB peut déjà être prêt au
