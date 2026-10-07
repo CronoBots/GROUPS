@@ -1334,7 +1334,7 @@ pour celles faites dans l'année et fin mars pour celles faites durant le mois
 de février ». Une heure sup non reprise avant sa date limite est payée — c'est
 ce que la fiche appelle « Recup à payer » ou « HS pas compenser ».
 
-Lecture retenue, à confirmer : l'année des heures sup court de mars à février.
+**Confirmé par le client le 07/10/2026** (« oui c'est bien ça pour la règle ») : l'année des heures sup court de mars à février.
 Ce qui est presté de mars à janvier se reprend au plus tard fin février ; ce
 qui est presté en février, au plus tard fin mars.
 

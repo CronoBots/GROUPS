@@ -1605,7 +1605,8 @@ n'est deviné à leur sujet :
     un choix ou une règle d'employé. **La date limite**, le client le
     07/10/2026 : « fin février pour celles faites dans l'année et fin
     mars pour celles faites durant le mois de février » — détail dans
-    `docs/regles-paie.md`, « La date limite des heures sup ». Elle
+    `docs/regles-paie.md`, « La date limite des heures sup » ; l'année
+    des heures sup court de mars à février, confirmé le même jour. Elle
     explique le solde remis à zéro en février (LCI par une reprise, VBN
     par une ligne « Recup à payer ») ; elle n'explique pas les nuits des
     21-22/03 de VBN payées « pas compenser » le mois même. Rien n'est
