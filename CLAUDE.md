@@ -1572,11 +1572,18 @@ n'est deviné à leur sujet :
     rappel postérieure au jour (JBI 08/03, VGG 26/05, SKS 26/06, PAM
     15/03, 28/06 et 01/07, RCO 25/07, GDT 15/03, PLZ 28/04) — certaines
     sont des nuits qui finissent le lendemain ; non tranchées ;
-  - **VBN le 19/03**, « 8h +FT … en HS ou FT » : la fiche paie les 8 h
-    en « HS pas compenser » (sursalaire ET heure, sans déduction), là
-    où l'application paie le sursalaire et déduit l'heure, versée au
-    compteur. Le choix de l'opérateur n'est pas écrit. Question posée
-    le 07/10/2026 ;
+  - **les 21 et 22/03 de VBN**, `["R-CM","18h-6h","remplace GPS;
+    remplace aussi YBT"]` : la fiche de mars paie 4 h à 187,5 % et 4 h
+    à 200 % en « HS pas compenser » (sursalaire ET heure, sans
+    déduction), là où l'application paie le sursalaire et déduit
+    l'heure, versée au compteur HS. **J'ai d'abord attribué ces 8 h au
+    19/03, et c'était faux** : le client, le 07/10/2026, « il est
+    indiqué +8 FT pour le 19/03 et rappel le 06/03 » — ces 8 h-là vont
+    au flex time (0 h payée, ce que l'application fait), et seul le
+    rappel se paie. Ce sont les 4 h au-delà de 8 des deux nuits de
+    12 h du week-end, mêmes taux des deux côtés. Payées ou au
+    compteur : le classeur ne l'écrit pas. Question posée le
+    07/10/2026 ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
