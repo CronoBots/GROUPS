@@ -1171,8 +1171,11 @@ body.sheet-on{overflow:hidden}
    le 07/10/2026) : plus de fond coloré, c'est le NOMBRE qui porte le signal.
    app comme RH ; le RH plafonne au nombre demandé, l'app peut le dépasser. */
 .pvt td b.pvatt{color:var(--at-vert); font-weight:700}
-/* Trigramme cliquable → tableau des dates app/RH (le client, 07/10/2026). */
+/* Comparatif app/RH : il s'ouvre au clic sur les CHIFFRES de recyclage (le
+   client, 07/10/2026 : « c'est en cliquant sur les chiffres de recyclage de
+   l'opérateur ») ; le trigramme reste une poignée. */
 .pvt tbody th.pvqui[scope="row"]{cursor:pointer}
+.pvt tbody td.pvn{cursor:pointer}
 /* ── MODALE « DATES APP / RH » d'un opérateur (le client, 07/10/2026) ──────── */
 .rdp-ov{position:fixed; inset:0; z-index:200; background:rgba(5,9,18,.66);
   display:flex; align-items:center; justify-content:center; padding:16px;
@@ -1208,9 +1211,16 @@ body.sheet-on{overflow:hidden}
 .rdp-ch{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint);
   font-weight:700; margin-bottom:6px}
 .rdp-ds{display:flex; flex-wrap:wrap; gap:4px}
+/* Chaque date est un BOUTON : la cliquer ouvre l'horaire du jour (le client,
+   07/10/2026 : « cliquer sur une date doit ouvrir le tableau horaire à cette
+   date-là »). Remis à plat pour garder l'allure des anciennes pastilles. */
 .rdp-d{font-family:"IBM Plex Mono",monospace; font-size:11px; font-variant-numeric:tabular-nums;
-  color:var(--ink2); background:var(--surface3); border-radius:5px; padding:2px 5px}
+  color:var(--ink2); background:var(--surface3); border:0; border-radius:5px; padding:2px 5px;
+  cursor:pointer; line-height:1.35; -webkit-tap-highlight-color:transparent}
+.rdp-d:hover{color:var(--ink); background:var(--line2)}
+.rdp-d:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 .rdp-m{color:var(--at-vert); background:var(--at-vert-soft); font-weight:600}
+.rdp-m:hover{color:var(--at-vert); background:var(--at-vert-soft); filter:brightness(1.15)}
 .rdp-vide{color:var(--line); font-size:13px}
 .rdp-rien{color:var(--faint); font-size:13px; padding:22px 4px; text-align:center}
 .rdp-note{font-size:10.5px; color:var(--faint); padding:9px 14px; border-top:1px solid var(--line2);
@@ -10222,12 +10232,19 @@ function renderPolyvalence(){
     adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
-    /* Clic sur un trigramme → le tableau des dates app / RH de l'opérateur
-       (le client, le 07/10/2026). Délégué une fois ; #pvTable survit aux rendus. */
+    /* Clic sur les CHIFFRES de recyclage (td.pvn) → le tableau des dates app / RH
+       de l'opérateur (le client, le 07/10/2026 : « c'est en cliquant sur les
+       chiffres de recyclage de l'opérateur que cela doit montrer un comparatif
+       app/RH »). Le trigramme reste une poignée. Quelle que soit la cible, on
+       remonte à la ligne pour retrouver l'opérateur. Délégué une fois ; #pvTable
+       survit aux rendus. */
     if(!hote._rdpBound){
       hote.addEventListener("click", function(e){
-        var th=e.target.closest && e.target.closest("th.pvqui");
-        if(!th || th.getAttribute("scope")!=="row") return;
+        if(!e.target.closest) return;
+        var cible=e.target.closest("td.pvn, th.pvqui[scope='row']");
+        if(!cible) return;
+        var tr=cible.closest("tr"); if(!tr) return;
+        var th=tr.querySelector("th.pvqui[scope='row']"); if(!th) return;
         var tri=idLisible(th.textContent.trim());
         var pers=db.people.filter(function(x){ return idLisible(x.id)===tri; })[0];
         if(pers) ouvrirDatesRecyclage(db,pers);
@@ -10296,7 +10313,13 @@ function ouvrirDatesRecyclage(db,p){
   function liste(dates,autres){
     if(!dates.length) return '<span class="rdp-vide">—</span>';
     var set={}; autres.forEach(function(d){ set[d]=1; });
-    return dates.map(function(d){ return '<span class="rdp-d'+(set[d]?" rdp-m":"")+'">'+esc(d)+"</span>"; }).join("");
+    /* Chaque date (format « JJ/MM ») devient un bouton portant jour et mois :
+       la cliquer ouvre l'horaire de ce jour-là. */
+    return dates.map(function(d){
+      var pm=String(d).split("/");
+      return '<button type="button" class="rdp-d'+(set[d]?" rdp-m":"")
+        +'" data-d="'+esc(pm[0]||"")+'" data-m="'+esc(pm[1]||"")+'">'+esc(d)+"</button>";
+    }).join("");
   }
   var corps=blocs.length ? blocs.map(function(b){
     return '<div class="rdp-poste"><div class="rdp-nom" data-z="'+esc(b.z||"")+'"><span>'+esc(b.t)
@@ -10310,8 +10333,21 @@ function ouvrirDatesRecyclage(db,p){
     +'<span class="rdp-ttl">Recyclages · dates app / RH</span>'
     +'<button type="button" class="rdp-close" aria-label="Fermer">×</button></div>'
     +'<div class="rdp-body">'+corps+"</div>"
-    +'<div class="rdp-note">App = jours planifiés · RH = recyclages du classeur · <b>vert</b> = date présente des deux côtés</div></div>';
-  ov.addEventListener("click", function(e){ if(e.target===ov || (e.target.closest && e.target.closest(".rdp-close"))) fermerDatesRecyclage(); });
+    +'<div class="rdp-note">App = jours planifiés · RH = recyclages du classeur · <b>vert</b> = date présente des deux côtés · <b>cliquez une date</b> pour l’ouvrir dans l’horaire</div></div>';
+  ov.addEventListener("click", function(e){
+    if(e.target===ov || (e.target.closest && e.target.closest(".rdp-close"))){ fermerDatesRecyclage(); return; }
+    /* Clic sur une date → l'onglet horaire ouvre ce jour-là (le client, le
+       07/10/2026). Même chemin que « cliquer un rappel » : eqDate + setView("jour"). */
+    var dd=e.target.closest && e.target.closest(".rdp-d");
+    if(dd && dd.dataset.d){
+      var jour=Number(dd.dataset.d), mois=Number(dd.dataset.m);
+      if(jour>0 && mois>0){
+        eqDate=new Date(Number(db.year),mois-1,jour); eqAuto=false;
+        fermerDatesRecyclage();
+        setView("jour");
+      }
+    }
+  });
   document.body.appendChild(ov);
 }
 document.addEventListener("keydown", function(e){ if(e.key==="Escape") fermerDatesRecyclage(); });
