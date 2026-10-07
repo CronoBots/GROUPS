@@ -55,6 +55,7 @@ S'il échoue, les fichiers d'avant sont remis en place depuis leur copie.
 Restent à faire à la main, et l'outil le rappelle : relire le rapport,
 tester dans un navigateur, committer.
 """
+import datetime
 import importlib.util
 import json
 import os
@@ -237,8 +238,19 @@ def _num(s):
         return False
 
 
-def composer_json(source_nom, ops):
-    """La sortie servie par l'app : postes libellés + ops {clés, restant}."""
+def _date_serie(s):
+    """Une série Excel (46165) → « JJ/MM ». Époque 1899-12-30 (convention Excel)."""
+    try:
+        d = datetime.date(1899, 12, 30) + datetime.timedelta(days=int(float(s)))
+        return "%02d/%02d" % (d.day, d.month)
+    except (TypeError, ValueError):
+        return None
+
+
+def composer_json(source_nom, ops, brut):
+    """La sortie servie par l'app : postes libellés + ops {clés, restant, dates}.
+    Les dates des recyclages RH (converties des séries Excel du brut, triées) sont
+    jointes pour le tableau « dates app / dates RH » au clic d'un opérateur."""
     out = {
         "source": source_nom,
         "postes": dict((k, LIBELLES[k]) for k in LIBELLES),
@@ -250,6 +262,16 @@ def composer_json(source_nom, ops):
         rec = ops[tri]
         o = dict((k, rec[k]) for k in CLES)
         o["restant"] = rec.get("restant", 0)
+        bru = brut.get(tri, {})
+        dates = {}
+        for k in CLES:
+            series = bru.get(k) or []
+            ds = [_date_serie(s) for s in sorted(series, key=lambda x: int(float(x)))]
+            ds = [d for d in ds if d]
+            if ds:
+                dates[k] = ds
+        if dates:
+            o["dates"] = dates
         out["ops"][tri] = o
     return out
 
@@ -359,7 +381,7 @@ def main():
     coher = [d for d in anom["coherence"] if not d.startswith("cellule hors poste")]
     porte(5, "cohérence (fait + restant = multiple de 5)", not coher, coher)
 
-    neuf = composer_json(os.path.basename(source), ops)
+    neuf = composer_json(os.path.basename(source), ops, brut)
     texte_sortie = json.dumps(neuf, ensure_ascii=False) + json.dumps(brut, ensure_ascii=False)
     fuite = [t for t in tokens_noms(noms) if t in _sans_accent(texte_sortie).upper()]
     porte(6, "anonymat (aucun nom dans la sortie)", not fuite,
