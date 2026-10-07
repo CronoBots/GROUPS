@@ -1568,7 +1568,7 @@ n'est deviné à leur sujet :
     sont identiques à l'octet — la règle est de paie seulement ; février
     passe d'un écart de près d'une centaine d'euros de net à moins de
     dix (un chèque-repas, un jour d'indemnité, quelques minutes de
-    déplacement). Six autres journées de l'année portent une date de
+    déplacement). Neuf autres journées de l'année portent une date de
     rappel postérieure au jour (JBI 08/03, VGG 26/05, SKS 26/06, PAM
     15/03, 28/06 et 01/07, RCO 25/07, GDT 15/03, PLZ 28/04) — certaines
     sont des nuits qui finissent le lendemain ; non tranchées ;
