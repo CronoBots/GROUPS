@@ -1609,8 +1609,10 @@ n'est deviné à leur sujet :
     des heures sup court de mars à février, confirmé le même jour. Elle
     explique le solde remis à zéro en février (LCI par une reprise, VBN
     par une ligne « Recup à payer ») ; elle n'explique pas les nuits des
-    21-22/03 de VBN payées « pas compenser » le mois même. Rien n'est
-    codé : l'application ne paie pas encore l'échéance ;
+    21-22/03 de VBN payées « pas compenser » le mois même. **Codé le
+    07/10/2026** : `echeanceHS()` paie le reste du compteur sur les
+    fiches de février et de mars (« Recup à payer »), voir
+    `docs/regles-paie.md` ; vérificateur identique à l'octet ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
