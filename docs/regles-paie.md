@@ -1327,6 +1327,26 @@ Fiche de juillet 2026 de GPS, vérifiée au navigateur :
 La ligne « HS non compensées » a disparu de ce mois : les heures ne sont plus
 payées deux fois, une fois maintenant et une fois à la reprise.
 
+### La date limite des heures sup
+
+**Le client, le 07/10/2026**, relayant la réponse du service : « fin février
+pour celles faites dans l'année et fin mars pour celles faites durant le mois
+de février ». Une heure sup non reprise avant sa date limite est payée — c'est
+ce que la fiche appelle « Recup à payer » ou « HS pas compenser ».
+
+Lecture retenue, à confirmer : l'année des heures sup court de mars à février.
+Ce qui est presté de mars à janvier se reprend au plus tard fin février ; ce
+qui est presté en février, au plus tard fin mars.
+
+Les fiches le confirment pour février : le solde HS de LCI passe à zéro par une
+reprise le 21/02, celui de VBN par une ligne « Recup à payer » sur la fiche de
+février. Elles ne l'expliquent PAS pour mars : les 8 h de VBN des 21 et 22/03
+sont payées « pas compenser » sur la fiche de mars, alors que leur date limite
+serait fin février 2027. Écart signalé au client.
+
+L'application ne simule pas encore ce paiement à l'échéance : elle paie le
+sursalaire le mois de la prestation et reporte l'heure au compteur.
+
 ### La règle vaut pour TOUTES les heures supplémentaires
 
 **Confirmé par le client le 25/09/2026**, interrogé sur les 205 autres
