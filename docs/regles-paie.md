@@ -1344,8 +1344,20 @@ février. Elles ne l'expliquent PAS pour mars : les 8 h de VBN des 21 et 22/03
 sont payées « pas compenser » sur la fiche de mars, alors que leur date limite
 serait fin février 2027. Écart signalé au client.
 
-L'application ne simule pas encore ce paiement à l'échéance : elle paie le
-sursalaire le mois de la prestation et reporte l'heure au compteur.
+**Codé le 07/10/2026** (`echeanceHS()`, « oui » du client) : l'application
+refait le compteur mois par mois, la plus ancienne heure reprise la première
+(heures sup prestées moins RHS), et paie sur la fiche de février ce qui reste
+des heures de mars à janvier, sur celle de mars ce qui reste de février —
+ligne « Recup à payer », au taux de base, le sursalaire ayant déjà été payé.
+Chaque mois est relu par `compute()` lui-même, sur le mois enregistré. 2025
+n'étant pas dans l'horaire, la fiche de février 2026 ne voit que janvier, et
+une reprise au-delà du compteur connu ne le rend pas négatif.
+
+Éprouvé au navigateur : PAM, 20 h en janvier jamais reprises → 20 h payées
+en février, puis ses 8 h de février → payées en mars ; AFA, 8,5 h en février
+dont 5 reprises → 3,5 h en mars ; GPS et JBI, tout repris → rien. VBN : rien,
+ses heures de janvier ne sont pas dans le classeur. Vérificateur identique à
+l'octet (règle de paie seulement).
 
 ### La règle vaut pour TOUTES les heures supplémentaires
 

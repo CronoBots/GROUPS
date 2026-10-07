@@ -3973,6 +3973,44 @@ function dateLongue(d){
 }
 function dayType(y,m,d){var w=new Date(Date.UTC(y,m,d)).getUTCDay(); return w===0?"Dimanche":(w===6?"Samedi":"Semaine");}
 
+/* L'ÉCHÉANCE DES HEURES SUP. Le client, le 07/10/2026 : « fin février pour
+   celles faites dans l'année et fin mars pour celles faites durant le mois
+   de février » ; une heure sup non reprise avant sa date limite est payée.
+   L'année des heures sup court de mars à février (confirmé le même jour).
+   Les fiches de VBN appellent ce paiement « Recup à payer ».
+
+   Le compteur se refait mois par mois, la plus ancienne heure reprise la
+   première : heures prestées (C.acc.hsHrs) moins heures reprises (RHS de
+   l'horaire et du champ « reprises au compteur HS »). Fin février, ce qui
+   reste des heures de mars à janvier se paie ; fin mars, ce qui reste des
+   heures de février. Chaque mois est relu par compute() lui-même, sur le
+   mois enregistré (le pré-remplissage les écrit tous) : aucune seconde
+   copie de la lecture. Un mois absent — 2025 n'est pas dans l'horaire —
+   compte pour zéro, et une reprise au-delà du compteur connu ne le rend
+   pas négatif : elle reprend des heures qu'on ne voit pas. */
+var _hsEchCalc=false;
+function hsDuMoisStocke(y,i){
+  var M=(y===st.y && i===st.m)?st.month:lsGet("months/"+key(y,i));
+  if(!M || !M.days) return {hs:0,rep:0};
+  M=mergeDefaults(M,DEF_M);
+  var sv=[st.y,st.m,st.month], C;
+  _hsEchCalc=true;
+  try{ st.y=y; st.m=i; st.month=M; C=compute(); }
+  finally{ st.y=sv[0]; st.m=sv[1]; st.month=sv[2]; _hsEchCalc=false; }
+  return {hs:Number(C.acc.hsHrs||0), rep:Number(C.acc.abs.RHS||0)+Number(M.rhsMois||0)};
+}
+function echeanceHS(y,m){
+  if(m!==1 && m!==2) return 0;
+  var vieux=0, fev=0, i, x, r;
+  for(i=2;i<=11;i++){ x=hsDuMoisStocke(y-1,i); vieux=Math.max(0,vieux+x.hs-x.rep); }
+  x=hsDuMoisStocke(y,0); vieux=Math.max(0,vieux+x.hs-x.rep);
+  x=hsDuMoisStocke(y,1); r=x.rep;
+  var pris=Math.min(vieux,r); vieux-=pris; r-=pris;
+  fev=Math.max(0,x.hs-r);
+  if(m===1) return R(vieux,2);
+  x=hsDuMoisStocke(y,2);
+  return R(Math.max(0,fev-x.rep),2);
+}
 function compute(){
   var p=st.params, b=st.bareme, M=st.month, y=st.y, m=st.m;
   var nd=daysInMonth(y,m), F=feries(y);
@@ -4300,6 +4338,10 @@ function compute(){
            ?Number(M.primeRemiseMois):Number(p.primeRemise||0);
   if(pRem) bl(null,"Prime de remise de pause",R(pRem));
   if(M.autreBrut) bl(null,"Autre rémunération brute",R(M.autreBrut));
+  /* L'échéance des heures sup (voir echeanceHS) : l'heure non reprise à
+     temps se paie au taux de base, le sursalaire l'ayant déjà été. */
+  var hEch=_hsEchCalc?0:echeanceHS(y,m);
+  if(hEch>0) bl(hEch,"Recup à payer — heures sup non reprises à l'échéance, à "+nf4.format(txh),R(hEch*txh),true);
 
   var brut100=0; brutLines.forEach(function(o){brut100+=o.v;}); brut100=R(brut100);
   var onss=R(brut100*b.onss*(p.statut==="Ouvrier"?b.majOuvrier:1));
@@ -4408,6 +4450,7 @@ var WHY=[
  [/^Suppl\. Équipe .*heures suppl/,"Sur des heures supplémentaires, la prime d'équipe monte d'un cran : 150 % en semaine, 200 % le samedi, 300 % le dimanche et les jours fériés."],
  [/^Suppl\. Équipe/,"Prime de pause, payée par heure de présence dans le poste. Elle suit le régime du jour : 100 % en semaine, 150 % le samedi, 200 % le dimanche et les jours fériés."],
  [/^Heures sup à compenser/,"Heures supplémentaires qui seront RÉCUPÉRÉES : le sursalaire est payé ce mois-ci au taux majoré, et l'heure de base est déduite juste en dessous puisqu'elle sera reprise plus tard. Net : la moitié du taux horaire."],
+ [/^Recup à payer/,"Heures supplémentaires restées au compteur après leur date limite — fin février pour celles de mars à janvier, fin mars pour celles de février. Elles se paient au taux de base : le sursalaire l'a déjà été le mois où elles ont été prestées."],
  [/^déduc HS à comp/,"La contrepartie de la ligne au-dessus : l'heure supplémentaire n'est pas payée maintenant, elle part au compteur de récup. HS et se paie le jour où elle est reprise."],
  [/^HS non compensées/,"Heures supplémentaires payées au lieu d'être récupérées : 150 % en semaine, 187,5 % le samedi, 200 % le dimanche et les jours fériés."],
  [/^Heure\(s\) de déplacement/,"Heures de trajet payées au salaire horaire simple, sans majoration."],
