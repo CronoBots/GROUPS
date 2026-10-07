@@ -1589,7 +1589,20 @@ n'est deviné à leur sujet :
     fiches de VBN portent DEUX traitements d'heures sup, « à compenser »
     avec déduction de l'heure (janvier, 1 h 30) et « pas compenser »
     sans déduction (mars, 8 h ; avril, 0 h 45). Ce qui fait passer de
-    l'un à l'autre est redemandé au client ;
+    l'un à l'autre est redemandé au client. Il répond le 07/10/2026 :
+    « on a une date limite pour reprendre ses HS, sinon elles sont
+    payées ». **Mesuré sur les 24 fiches** : LCI (ouvrier) n'a QUE des
+    « à compenser » (janvier, mars, avril), son solde d'heures sup
+    monte à 21 h en mai-juin et redescend par ses « Compensation
+    payée » (21/02, 06/04, 18/06, 05/07, 26/08) — jamais rien de payé
+    d'office. VBN (employé) a des « à compenser » en décembre 2025 et
+    janvier, son solde tombe à 0 sur la fiche de février, qui porte
+    une ligne « Recup à payer » presque entièrement annulée par la
+    régularisation du 09/03 ; à partir de mars, ses heures sup sont
+    « pas compenser » le mois même et son solde reste à 0. La date
+    limite n'explique donc pas mars à elle seule : demandé au client
+    quelle est cette date et si le changement de VBN en février est
+    un choix ou une règle d'employé ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
