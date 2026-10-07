@@ -1582,8 +1582,14 @@ n'est deviné à leur sujet :
     au flex time (0 h payée, ce que l'application fait), et seul le
     rappel se paie. Ce sont les 4 h au-delà de 8 des deux nuits de
     12 h du week-end, mêmes taux des deux côtés. Payées ou au
-    compteur : le classeur ne l'écrit pas. Question posée le
-    07/10/2026 ;
+    compteur : le classeur ne l'écrit pas. Le client, le 07/10/2026 :
+    « si rien n'est indiqué ce sont logiquement des HS, sinon il serait
+    indiqué FT+ » — c'est la règle du 25/09, et l'application la suit
+    déjà (HS, pas flex time). Reste ce qu'elle ne tranche pas : les
+    fiches de VBN portent DEUX traitements d'heures sup, « à compenser »
+    avec déduction de l'heure (janvier, 1 h 30) et « pas compenser »
+    sans déduction (mars, 8 h ; avril, 0 h 45). Ce qui fait passer de
+    l'un à l'autre est redemandé au client ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
