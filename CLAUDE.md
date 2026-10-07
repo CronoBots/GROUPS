@@ -1539,7 +1539,12 @@ n'est deviné à leur sujet :
   - ~~le départ anticipé sans code~~ et ~~« Polyvalence » sur un repos~~ :
     tranchés le 29/09/2026, voir « Les réponses du 29/09/2026 » ;
   - **le tableau des salaires de VBN** fiche contre application, comme celui
-    de LCI : le client renverra ses fiches (absentes de ce conteneur) ;
+    de LCI. **« absentes de ce conteneur » était faux** (relevé le
+    07/10/2026) : les fiches de VBN (contrat 200237, employé) de
+    décembre 2025 à août 2026 sont dans les envois de la session, avec
+    celles de LCI (200218, ouvrier) de janvier à août — mensuelles,
+    deux régularisations de février, prime de fin d'année, pécule et
+    deux documents 2025 scannés. Elles restent hors du dépôt ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
     6 h 25 = 170,44 €, application 183,37 €) ;
