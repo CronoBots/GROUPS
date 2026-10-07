@@ -1651,7 +1651,7 @@ body.sheet-on{overflow:hidden}
    horaire/équipes »). Même recette que #orgCorps>.card : bordure GRISE 1 px
    --cadre + coins --rj + overflow:hidden + halo. Remplace l'ancienne bordure
    --line/--r plus pâle de .card. */
-#v-rh #caCard, #v-rh #mqCard, #v-rh #rnCard, #v-rh .rhjourcard, #v-rh #eqReste .eqcard{
+#v-rh #caCard, #v-rh #mqCard, #v-rh #rnCard, #v-rh #eqReste .eqcard{
   border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
 /* LE TITRE EST UNE BARRE INTERNE collée au contenu — même grammaire que
@@ -1663,10 +1663,6 @@ body.sheet-on{overflow:hidden}
 #v-rh .rhtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em; text-align:center}
 #v-rh .rhtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
 #v-rh .rhtitle .sub:empty{display:none}
-/* La barre de jour remplit SEULE son cadre : pas de double trait en bas (le
-   cadre fait le bord), et elle reprend la ligne de date de l'onglet Horaire. */
-#v-rh .rhjourcard .toolbar.rhjour{border-bottom:0; padding:10px 14px}
-#v-rh .rhjour .eqjour{font-size:16px; font-weight:650}
 /* Les deux segments — Résumé (Congé/Absence/Recherche, trois voies) et Équipe
    (Les équipes / Recyclage, deux voies) — partagent tout leur style ; ils ne
    diffèrent que par le nombre de colonnes et la marge (le segment d'Équipe
@@ -3452,17 +3448,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="mqcorps" id="caCorps"></div>
     </div>
 
-    <!-- LE JOUR des alertes ci-dessous (sous-effectif, rappels, hors-poste), dans
-         son PROPRE CADRE pro comme la ligne de date de l'onglet Horaire. Cette
-         barre pilote eqDate, partagé avec l'onglet Horaire. -->
-    <div class="card rhjourcard">
-      <div class="toolbar eqnav rhjour">
-        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
-        <div class="eqjour" id="eqJour">—</div>
-        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
-        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
-      </div>
-    </div>
+    <!-- PAS DE SÉLECTEUR DE DATE ICI (le client, le 07/10/2026 : « pourquoi un
+         sélecteur de dates dans RH ? il n'est pas utile, ça doit toujours être par
+         rapport à la date d'aujourd'hui »). Tout l'onglet RH se lit sur AUJOURD'HUI :
+         sous-effectif et rappels balaient à partir du jour de l'usine
+         (renderManques/renderRappelsInutiles), et les listes Absents / Congé-repos
+         sont déjà fixées sur le jour de l'usine (cf. « LES DEUX CADRES DISENT
+         AUJOURD'HUI » dans renderEquipe). La barre de jour ne pilotait donc rien
+         d'utile dans RH : retirée. -->
 
     <div class="card" id="mqCard">
       <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
@@ -9185,9 +9178,12 @@ function renderEquipe(){
     if(!db) return;
     var dt=eqJourValide(db), annee=dt.getFullYear(), mois=dt.getMonth()+1, jour=dt.getDate();
     var mmdd=pad2(mois)+pad2(jour);
-    document.getElementById("eqJour").textContent=
-      JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]
+    /* Le libellé du jour (« Mardi 22 octobre ») : calculé une fois, servi au
+       libellé de l'onglet Horaire (#jourLabel). #eqJour n'existe plus dans RH
+       (sélecteur retiré) ; on le garnit encore s'il est présent, par sûreté. */
+    var labelJour=JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]
       +" "+jour+" "+MOIS[mois-1].toLowerCase();
+    var ejLbl=document.getElementById("eqJour"); if(ejLbl) ejLbl.textContent=labelJour;
     /* ÉTAT DU BOUTON « AUJOURD'HUI ». Le client, le 02/10/2026 : « ok pour tes
        optimisations ». Sur le jour courant il n'a rien à faire : il se calme.
        Dès qu'on a feuilleté ailleurs (flèche, swipe, calendrier), il s'allume —
@@ -9653,7 +9649,7 @@ function renderEquipe(){
       if(jourHost){
         jourHost.innerHTML=tableauHTML;
         var jourLbl=document.getElementById("jourLabel");
-        if(jourLbl) jourLbl.textContent=document.getElementById("eqJour").textContent;
+        if(jourLbl) jourLbl.textContent=labelJour;
         var jourPick=document.getElementById("jourPick");
         if(jourPick) jourPick.value=annee+"-"+pad2(mois)+"-"+pad2(jour);
         /* LES LIGNES À UN SEUL TRIGRAMME SE SERRENT, LES CHARGÉES RESPIRENT. Le
@@ -11322,9 +11318,6 @@ function eqBouge(n){
   window.addEventListener("scroll",fermer,true);
   window.addEventListener("resize",fermer);
 })();
-document.getElementById("eqPrev").addEventListener("click",function(){ eqBouge(-1); });
-document.getElementById("eqNext").addEventListener("click",function(){ eqBouge(1); });
-document.getElementById("eqAuj").addEventListener("click",function(){ eqDate=null; eqAuto=true; renderEquipe(); });
 /* La barre de date de l'onglet « Du jour » pilote la même journée que
    l'Accueil : elle passe par eqBouge()/renderEquipe(), qui repeuplent les deux
    hôtes (#eqCorps et #jourCorps) d'un coup. */
@@ -12157,15 +12150,13 @@ function caCalculer(){
   /* « Au » suit « Du » tant qu'on ne l'a pas mis plus loin */
   document.getElementById("caDu").addEventListener("change",function(){
     var au=document.getElementById("caAu"); if(!au.value||au.value<this.value) au.value=this.value; });
-  /* Un clic sur une journée montre son tableau, comme les sous-effectifs. */
+  /* Un clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là, comme les
+     sous-effectifs et les rappels (le client, 07/10/2026 : le sélecteur de date a
+     quitté RH ; il n'y a plus de barre vers laquelle défiler). */
   document.getElementById("caCorps").addEventListener("click",function(e){
     var b=e.target.closest?e.target.closest(".mqj"):null; if(!b||!caDB) return;
     eqDate=new Date(Number(caDB.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
-    renderEquipe();
-    var c=document.getElementById("eqJour"), top=document.querySelector(".top");
-    if(c){ c=c.parentNode;
-      var y=c.getBoundingClientRect().top+(window.pageYOffset||0)-(top?top.offsetHeight:0)-8;
-      try{ window.scrollTo({top:Math.max(0,y),behavior:"smooth"}); }catch(er){ window.scrollTo(0,Math.max(0,y)); } }
+    setView("jour");
   });
 })();
 
