@@ -3747,6 +3747,15 @@ function nettoyerAffichage(txt){
   var s=String(txt==null?"":txt);
   for(var a in ALIAS_TRI_AFFICHAGE){ s=s.replace(new RegExp("\\b"+a+"\\b","g"), ALIAS_TRI_AFFICHAGE[a]); }
   s=s.replace(/(\d{1,2}\s*h\s*\d{2})\s*['’]/g,"$1");
+  /* PHRASES À LA LIGNE (le client, le 07/10/2026). Une cellule met souvent
+     plusieurs actions bout à bout — « Échange avec JBI remplace FLI remplacé par
+     AFA ». On passe à la ligne AVANT chaque connecteur d'action, SANS toucher aux
+     mots (affichage seul ; raw[2] reste brut). Garde-fous : « remplaçait » (ç) ne
+     matche pas « remplace », et un connecteur précédé d'un mot de liaison
+     (« qui remplace », « en échange ») est recollé. Vérifié sur les 2481
+     commentaires de l'année : 1090 découpés, aucun mot perdu ni altéré. */
+  s=s.replace(/[ \t]+(?=remplac[eé]|échange avec|rappel|maintien|conserve)/gi,"\n");
+  s=s.replace(/\b(qui|en|ne|et|de|est)\n/gi,"$1 ");
   s=s.split("\n").map(function(l){ return l.replace(/[ \t]+/g," ").replace(/^ +| +$/g,""); }).join("\n").replace(/^\n+|\n+$/g,"");
   s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }); }).join("\n");
   return s;
@@ -9785,6 +9794,26 @@ function calculerPolyvalence(db){
   _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, debut:debut, fin:fin};
   return _poly;
 }
+/* COMBIEN DE FOIS A-T-IL REMPLACÉ COMME CONTREMAÎTRE. Le client, le 07/10/2026 :
+   « l'app doit compter combien de fois les adjoints ont remplacé comme
+   contremaître ». La colonne CM du recyclage montrait 0 côté app : elle ignore
+   désormais cette valeur, qui se lit dans l'horaire, journée par journée, via la
+   même détection « R-CM » que la prime (remplacementCM). Même période que la
+   polyvalence (1er février → aujourd'hui), et mémoïsé comme elle. */
+var _cmApp={}, _cmCle="";
+function compteRemplacementsCM(db,person){
+  var t=calculerPolyvalence(db), cle=t.debut+"/"+t.fin;
+  if(_cmCle!==cle){ _cmApp={}; _cmCle=cle; }
+  var id=person.id;
+  if(_cmApp[id]!==undefined) return _cmApp[id];
+  var annee=Number(db.year), n=0, m, j, mmdd;
+  for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
+    mmdd=pad2(m)+pad2(j); if(mmdd<t.debut||mmdd>t.fin) continue;
+    var raw=person.d[mmdd]; if(!raw) continue;
+    if(remplacementCM(raw,null,st.params.hJour)) n++;
+  }
+  return (_cmApp[id]=n);
+}
 /* SON poste — celui qui ne compte pas dans sa polyvalence, et le seul à
    porter la pastille pleine.
 
@@ -9914,6 +9943,12 @@ function aLaPolyvalence(p,P,jour){
    une journée passée au terrain arrière ne compte nulle part : on ne la
    reverse ni à l'un ni à l'autre, le client ne l'a pas demandé. */
 var PV_SANS_RECYCLAGE={ terr:true };
+/* POSTE D'AVANT LA FORMATION — pas de recyclage cette année (le client, le
+   07/10/2026). Ces opérateurs viennent d'un poste qu'ils maîtrisent encore et
+   n'ont donc pas à le recycler cette année : LCI et GST venaient de la
+   fermentation, LHR et SVE du gluten, ALZ de la fermentation (avant la
+   distillation). Override d'affichage par trigramme → clé de poste exempté. */
+var RECYC_EXEMPT={ LCI:"ferm", GST:"ferm", LHR:"glut", SVE:"glut", ALZ:"ferm" };
 function polyvalenceDe(db,p){
   if(estContremaitre(p)) return null;
   /* SON poste, celui qui ne compte pas. Trois pièges s'y trouvent :
@@ -9943,6 +9978,12 @@ function polyvalenceDe(db,p){
     if(P.cm||P.k==="adj"||PV_SANS_RECYCLAGE[P.k]||P.k===sien) return;
     if(posteForm && P.k===posteForm){
       out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true, app:0});
+      return;
+    }
+    /* Poste d'avant la formation : acquis, mais exempté de recyclage cette
+       année (le client, 07/10/2026). On le montre d'un « ✓ », sans quota. */
+    if(RECYC_EXEMPT[idLisible(p.id)]===P.k){
+      out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, exempt:true, app:0});
       return;
     }
     var n=par[P.k]||0, a=aLaPolyvalence(p,P);
@@ -10032,7 +10073,7 @@ function renderPolyvalence(){
        de la grille ; les adjoints y restent (bloc dédié, plus bas). */
     var elig=db.people.filter(function(p){ return !estContremaitre(p); })
       .map(function(p){ return {p:p, v:polyvalenceDe(db,p)||[]}; })
-      .filter(function(o){ return o.v.some(function(x){ return x.acquis; }); })
+      .filter(function(o){ return o.v.some(function(x){ return x.acquis || x.exempt; }); })
       .sort(function(a,b){
         var A=idLisible(a.p.id), B=idLisible(b.p.id);
         return A<B?-1:(A>B?1:0); });
@@ -10084,7 +10125,7 @@ function renderPolyvalence(){
           return; }
         if(P.k==="step" && adjoint){
           var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0;
-          h.push(cellAppRh(0, cm, POLY_QUOTA.adjoint, "gris", "Recyclages contremaître"));
+          h.push(cellAppRh(compteRemplacementsCM(db,p), cm, POLY_QUOTA.adjoint, "gris", "Recyclages contremaître"));
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
         if(!o){
@@ -10094,6 +10135,11 @@ function renderPolyvalence(){
             +'">·</td>'); return; }
         if(o.forme){ h.push('<td class="pvform" title="En formation à ce '
           +'poste, pas encore validé">F</td>'); return; }
+        /* Poste d'avant la formation : acquis comme un poste attribué, donc le
+           MÊME gros point ● que « son poste » (le client, le 07/10/2026), et pas
+           de recyclage cette année. */
+        if(o.exempt){ h.push('<td class="pvsien" title="Poste d\'avant la formation — '
+          +'acquis, pas de recyclage cette année (le client, 07/10/2026)">●</td>'); return; }
         total++; if(o.ok) atteints++; if(!o.n) vierges++;
         h.push(cellAppRh(o.app||0, inClasseur?o.n:0, o.q, P.z, P.t, dt));
         if(dt&&dt.fin) finissent.push(idLisible(p.id)+" · "
