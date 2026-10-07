@@ -1646,7 +1646,27 @@ body.sheet-on{overflow:hidden}
 @keyframes introBarre{from{transform:translateX(-110%)} to{transform:translateX(260%)}}
 
 /* ---------- congé et absence ---------- */
-#caCard{overflow:hidden}
+/* CADRE « PRO » DE L'ONGLET RH, aligné sur Horaire/Équipe (le client, le
+   07/10/2026 : « adapter les cadres de l'onglet RH avec le style des onglets
+   horaire/équipes »). Même recette que #orgCorps>.card : bordure GRISE 1 px
+   --cadre + coins --rj + overflow:hidden + halo. Remplace l'ancienne bordure
+   --line/--r plus pâle de .card. */
+#v-rh #caCard, #v-rh #mqCard, #v-rh #rnCard, #v-rh .rhjourcard, #v-rh #eqReste .eqcard{
+  border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
+  box-shadow:0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
+/* LE TITRE EST UNE BARRE INTERNE collée au contenu — même grammaire que
+   #v-equipe .orgtitle : fond --surface2, bord bas --cadre, titre centré,
+   description plus petite dessous. Le coin arrondi du cadre la rogne. */
+#v-rh .card>.toolbar.rhtitle{flex-direction:column; align-items:center; gap:2px;
+  padding:9px 14px; border:0; border-bottom:1px solid var(--cadre); border-radius:0;
+  background:var(--surface2)}
+#v-rh .rhtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em; text-align:center}
+#v-rh .rhtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
+#v-rh .rhtitle .sub:empty{display:none}
+/* La barre de jour remplit SEULE son cadre : pas de double trait en bas (le
+   cadre fait le bord), et elle reprend la ligne de date de l'onglet Horaire. */
+#v-rh .rhjourcard .toolbar.rhjour{border-bottom:0; padding:10px 14px}
+#v-rh .rhjour .eqjour{font-size:16px; font-weight:650}
 /* Les deux segments — Résumé (Congé/Absence/Recherche, trois voies) et Équipe
    (Les équipes / Recyclage, deux voies) — partagent tout leur style ; ils ne
    diffèrent que par le nombre de colonnes et la marge (le segment d'Équipe
@@ -3406,11 +3426,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        hors-poste quittent l'Accueil (qui ne garde que « Mon rythme ») ; le
        tableau du jour dupliqué disparaît — il reste sur l'onglet Horaire. -->
   <section class="panel stack" id="v-rh" role="tabpanel" aria-labelledby="tab-rh" tabindex="-1" hidden>
-    <div class="pvtete">
-      <h2>Congé, absence et recherche</h2>
-      <p class="sub" id="caSub">simuler une journée sans quelqu'un</p>
-    </div>
+    <!-- CADRE « PRO » comme les onglets Horaire/Équipe (le client, le 07/10/2026 :
+         « adapter les cadres de l'onglet RH avec le style des onglets horaire/
+         équipes »). Le titre n'est plus flottant au-dessus : c'est une BARRE
+         interne collée au contenu (.rhtitle), même grammaire que .orgtitle. -->
     <div class="card" id="caCard">
+      <div class="toolbar rhtitle"><h2>Congé, absence et recherche</h2><p class="sub" id="caSub">simuler une journée sans quelqu'un</p></div>
       <div class="caseg" role="tablist" aria-label="Type de demande">
         <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
         <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
@@ -3431,28 +3452,25 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="mqcorps" id="caCorps"></div>
     </div>
 
-    <!-- LE JOUR des alertes ci-dessous (sous-effectif, rappels, hors-poste).
-         Cette barre pilote eqDate, partagé avec l'onglet Horaire. -->
-    <div class="toolbar eqnav rhjour">
-      <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
-      <div class="eqjour" id="eqJour">—</div>
-      <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
-      <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
+    <!-- LE JOUR des alertes ci-dessous (sous-effectif, rappels, hors-poste), dans
+         son PROPRE CADRE pro comme la ligne de date de l'onglet Horaire. Cette
+         barre pilote eqDate, partagé avec l'onglet Horaire. -->
+    <div class="card rhjourcard">
+      <div class="toolbar eqnav rhjour">
+        <button type="button" id="eqPrev" aria-label="Jour précédent">&lsaquo;</button>
+        <div class="eqjour" id="eqJour">—</div>
+        <button type="button" id="eqNext" aria-label="Jour suivant">&rsaquo;</button>
+        <button type="button" class="btn sm" id="eqAuj">Aujourd'hui</button>
+      </div>
     </div>
 
-    <div class="pvtete">
-      <h2>Postes en sous-effectif</h2>
-      <p class="sub" id="mqSub"></p>
-    </div>
     <div class="card" id="mqCard">
+      <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
       <div class="mqcorps" id="mqCorps"></div>
     </div>
 
-    <div class="pvtete">
-      <h2>Rappels non nécessaires</h2>
-      <p class="sub" id="rnSub"></p>
-    </div>
     <div class="card" id="rnCard">
+      <div class="toolbar rhtitle"><h2>Rappels non nécessaires</h2><p class="sub" id="rnSub"></p></div>
       <div class="mqcorps" id="rnCorps"></div>
     </div>
 
