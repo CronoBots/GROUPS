@@ -1171,6 +1171,51 @@ body.sheet-on{overflow:hidden}
    le 07/10/2026) : plus de fond coloré, c'est le NOMBRE qui porte le signal.
    app comme RH ; le RH plafonne au nombre demandé, l'app peut le dépasser. */
 .pvt td b.pvatt{color:var(--at-vert); font-weight:700}
+/* Trigramme cliquable → tableau des dates app/RH (le client, 07/10/2026). */
+.pvt tbody th.pvqui[scope="row"]{cursor:pointer}
+/* ── MODALE « DATES APP / RH » d'un opérateur (le client, 07/10/2026) ──────── */
+.rdp-ov{position:fixed; inset:0; z-index:200; background:rgba(5,9,18,.66);
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  animation:rdpfade .14s ease}
+@keyframes rdpfade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){ .rdp-ov{animation:none} }
+.rdp{background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5); width:100%; max-width:430px;
+  max-height:min(88vh,720px); display:flex; flex-direction:column; overflow:hidden}
+.rdp-head{display:flex; align-items:center; gap:10px; padding:12px 14px;
+  background:var(--surface2); border-bottom:1px solid var(--cadre)}
+.rdp-tri{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13.5px;
+  color:var(--in); border:1px solid var(--in2); border-radius:7px; padding:2px 9px}
+.rdp-tri.pvform{color:var(--at-jaune); border-color:var(--at-jaune)}
+.rdp-ttl{font-size:13px; font-weight:600; color:var(--ink); flex:1}
+.rdp-close{border:0; background:none; color:var(--faint); font-size:22px; line-height:1;
+  cursor:pointer; padding:0 4px; border-radius:6px}
+.rdp-close:hover{color:var(--ink)}
+.rdp-body{overflow-y:auto; padding:4px 14px 12px}
+.rdp-poste{margin-top:12px}
+.rdp-nom{display:flex; justify-content:space-between; align-items:baseline;
+  font-size:13px; font-weight:700; color:var(--ink); border-left:3px solid var(--line);
+  padding:2px 0 6px 9px}
+.rdp-nom[data-z="jaune"]{border-left-color:var(--bordj)}
+.rdp-nom[data-z="vert"] {border-left-color:var(--bordv)}
+.rdp-nom[data-z="rouge"]{border-left-color:var(--bordr)}
+.rdp-nom[data-z="bleu"] {border-left-color:var(--bordb)}
+.rdp-nom[data-z="gris"] {border-left-color:var(--bordg)}
+.rdp-cnt{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:500;
+  color:var(--faint); font-variant-numeric:tabular-nums}
+.rdp-cols{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.rdp-col{background:var(--surface2); border:1px solid var(--line2); border-radius:9px; padding:7px 8px}
+.rdp-ch{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint);
+  font-weight:700; margin-bottom:6px}
+.rdp-ds{display:flex; flex-wrap:wrap; gap:4px}
+.rdp-d{font-family:"IBM Plex Mono",monospace; font-size:11px; font-variant-numeric:tabular-nums;
+  color:var(--ink2); background:var(--surface3); border-radius:5px; padding:2px 5px}
+.rdp-m{color:var(--at-vert); background:var(--at-vert-soft); font-weight:600}
+.rdp-vide{color:var(--line); font-size:13px}
+.rdp-rien{color:var(--faint); font-size:13px; padding:22px 4px; text-align:center}
+.rdp-note{font-size:10.5px; color:var(--faint); padding:9px 14px; border-top:1px solid var(--line2);
+  background:var(--surface2); line-height:1.45}
+.rdp-note b{color:var(--at-vert)}
 /* LES DEUX valeurs (app et RH) au quota → fond vert doux (le client, 07/10/2026).
    Déclaré avant la règle « moi » : sur la ligne de l'opérateur connecté, c'est le
    fond cyan de mise en évidence qui prime. */
@@ -9757,7 +9802,7 @@ function calculerPolyvalence(db){
   var debut=(fin>="0201")?"0201":"0101";
   var cle=annee+"/"+debut+"/"+fin+"/"+st.params.hJour;
   if(_poly && _polyCle===cle) return _poly;
-  var parId={}, m, j, mmdd;
+  var parId={}, parIdDates={}, m, j, mmdd;
   for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
     mmdd=pad2(m)+pad2(j); if(mmdd<debut || mmdd>fin) continue;
     var par=equipeDuJour(db,annee,m,j);
@@ -9778,6 +9823,10 @@ function calculerPolyvalence(db){
           if(o.P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           if(!parId[y.p.id]) parId[y.p.id]={};
           parId[y.p.id][o.P.k]=(parId[y.p.id][o.P.k]||0)+1;
+          /* On garde AUSSI les dates (jours planifiés comptés), pour le tableau
+             « dates app / dates RH » au clic d'un opérateur. */
+          if(!parIdDates[y.p.id]) parIdDates[y.p.id]={};
+          (parIdDates[y.p.id][o.P.k]=parIdDates[y.p.id][o.P.k]||[]).push(mmdd);
         });
       });
     });
@@ -9796,7 +9845,7 @@ function calculerPolyvalence(db){
     var pr=parId[p.id]||(parId[p.id]={});
     RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
   });
-  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, debut:debut, fin:fin};
+  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, parIdDates:parIdDates, debut:debut, fin:fin};
   return _poly;
 }
 /* COMBIEN DE FOIS A-T-IL REMPLACÉ COMME CONTREMAÎTRE. Le client, le 07/10/2026 :
@@ -9805,20 +9854,23 @@ function calculerPolyvalence(db){
    désormais cette valeur, qui se lit dans l'horaire, journée par journée, via la
    même détection « R-CM » que la prime (remplacementCM). Même période que la
    polyvalence (1er février → aujourd'hui), et mémoïsé comme elle. */
-var _cmApp={}, _cmCle="";
+var _cmApp={}, _cmDates={}, _cmCle="";
 function compteRemplacementsCM(db,person){
   var t=calculerPolyvalence(db), cle=t.debut+"/"+t.fin;
-  if(_cmCle!==cle){ _cmApp={}; _cmCle=cle; }
+  if(_cmCle!==cle){ _cmApp={}; _cmDates={}; _cmCle=cle; }
   var id=person.id;
   if(_cmApp[id]!==undefined) return _cmApp[id];
-  var annee=Number(db.year), n=0, m, j, mmdd;
+  var annee=Number(db.year), dates=[], m, j, mmdd;
   for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
     mmdd=pad2(m)+pad2(j); if(mmdd<t.debut||mmdd>t.fin) continue;
     var raw=person.d[mmdd]; if(!raw) continue;
-    if(remplacementCM(raw,null,st.params.hJour)) n++;
+    if(remplacementCM(raw,null,st.params.hJour)) dates.push(mmdd);
   }
-  return (_cmApp[id]=n);
+  _cmDates[id]=dates;
+  return (_cmApp[id]=dates.length);
 }
+/* Les jours R-CM (mmdd) d'un adjoint, pour le tableau des dates. */
+function datesRemplacementsCM(db,person){ compteRemplacementsCM(db,person); return _cmDates[person.id]||[]; }
 /* SON poste — celui qui ne compte pas dans sa polyvalence, et le seul à
    porter la pastille pleine.
 
@@ -10170,6 +10222,18 @@ function renderPolyvalence(){
     adj.forEach(renderRow);
     h.push("</tbody>");
     hote.innerHTML=h.join("");
+    /* Clic sur un trigramme → le tableau des dates app / RH de l'opérateur
+       (le client, le 07/10/2026). Délégué une fois ; #pvTable survit aux rendus. */
+    if(!hote._rdpBound){
+      hote.addEventListener("click", function(e){
+        var th=e.target.closest && e.target.closest("th.pvqui");
+        if(!th || th.getAttribute("scope")!=="row") return;
+        var tri=idLisible(th.textContent.trim());
+        var pers=db.people.filter(function(x){ return idLisible(x.id)===tri; })[0];
+        if(pers) ouvrirDatesRecyclage(db,pers);
+      });
+      hote._rdpBound=true;
+    }
     /* La période, et rien d'autre. Le client, le 22/09/2026 : « c'est la
        légende au-dessus que je n'aimais pas ». Elle annonçait quatre
        chiffres — personnes, postes au quota, total, sans remplacement —
@@ -10208,6 +10272,49 @@ function renderPolyvalence(){
       ? "Se termine : "+finissent.map(esc).join(" \u00b7 ") : "";
   }, function(){});
 }
+/* ── LE TABLEAU DES DATES au clic d'un opérateur du recyclage ──────────────
+   Le client, le 07/10/2026 : « au clic sur les recyclages d'un opérateur, voir
+   un tableau récapitulatif des dates app et des dates RH, pour les correspondances ».
+   Dates app = jours planifiés comptés (parIdDates) ; dates RH = recyclages du
+   classeur (servies dans recyclages-2026.json). Une date présente des DEUX côtés
+   ressort en vert. Affichage seul ; la logique de recyclage ne change pas. */
+function fermerDatesRecyclage(){ var o=document.getElementById("rdpOv"); if(o) o.parentNode.removeChild(o); }
+function ouvrirDatesRecyclage(db,p){
+  fermerDatesRecyclage();
+  var t=calculerPolyvalence(db), appD=(t.parIdDates&&t.parIdDates[p.id])||{};
+  var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], rhD=(ro&&ro.dates)||{};
+  var jm=function(x){ return x.slice(2)+"/"+x.slice(0,2); };
+  var blocs=[];
+  (polyvalenceDe(db,p)||[]).forEach(function(o){
+    if(o.forme||o.exempt) return;
+    blocs.push({t:o.t, z:o.z, app:(appD[o.k]||[]).map(jm), rh:rhD[o.k]||[]});
+  });
+  if(estCadre(p)){
+    var ca=datesRemplacementsCM(db,p).map(jm), cr=rhD.cm||[];
+    if(ca.length||cr.length) blocs.push({t:"Contremaître", z:"gris", app:ca, rh:cr});
+  }
+  function liste(dates,autres){
+    if(!dates.length) return '<span class="rdp-vide">—</span>';
+    var set={}; autres.forEach(function(d){ set[d]=1; });
+    return dates.map(function(d){ return '<span class="rdp-d'+(set[d]?" rdp-m":"")+'">'+esc(d)+"</span>"; }).join("");
+  }
+  var corps=blocs.length ? blocs.map(function(b){
+    return '<div class="rdp-poste"><div class="rdp-nom" data-z="'+esc(b.z||"")+'"><span>'+esc(b.t)
+      +'</span><span class="rdp-cnt">app '+b.app.length+" · RH "+b.rh.length+"</span></div>"
+      +'<div class="rdp-cols"><div class="rdp-col"><div class="rdp-ch">App</div><div class="rdp-ds">'+liste(b.app,b.rh)+"</div></div>"
+      +'<div class="rdp-col"><div class="rdp-ch">RH</div><div class="rdp-ds">'+liste(b.rh,b.app)+"</div></div></div></div>";
+  }).join("") : '<p class="rdp-rien">Aucun recyclage à comparer pour cet opérateur.</p>';
+  var ov=document.createElement("div"); ov.id="rdpOv"; ov.className="rdp-ov";
+  ov.innerHTML='<div class="rdp" role="dialog" aria-modal="true" aria-label="Dates de recyclage">'
+    +'<div class="rdp-head"><span class="rdp-tri'+(enFormation(p)?" pvform":"")+'">'+esc(idLisible(p.id))+"</span>"
+    +'<span class="rdp-ttl">Recyclages · dates app / RH</span>'
+    +'<button type="button" class="rdp-close" aria-label="Fermer">×</button></div>'
+    +'<div class="rdp-body">'+corps+"</div>"
+    +'<div class="rdp-note">App = jours planifiés · RH = recyclages du classeur · <b>vert</b> = date présente des deux côtés</div></div>';
+  ov.addEventListener("click", function(e){ if(e.target===ov || (e.target.closest && e.target.closest(".rdp-close"))) fermerDatesRecyclage(); });
+  document.body.appendChild(ov);
+}
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") fermerDatesRecyclage(); });
 /* ── L'ONGLET ÉQUIPE : QUI COMPOSE QUOI ───────────────────────────────────
    Le client, le 22/09/2026 : « l'onglet Équipe doit reconstruire les équipes
    (équipes 1 à 5 complètes par poste) et les binômes (adjoint,
