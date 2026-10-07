@@ -9948,12 +9948,14 @@ function aLaPolyvalence(p,P,jour){
    une journée passée au terrain arrière ne compte nulle part : on ne la
    reverse ni à l'un ni à l'autre, le client ne l'a pas demandé. */
 var PV_SANS_RECYCLAGE={ terr:true };
-/* POSTE D'AVANT LA FORMATION — pas de recyclage cette année (le client, le
-   07/10/2026). Ces opérateurs viennent d'un poste qu'ils maîtrisent encore et
-   n'ont donc pas à le recycler cette année : LCI et GST venaient de la
-   fermentation, LHR et SVE du gluten, ALZ de la fermentation (avant la
-   distillation). Override d'affichage par trigramme → clé de poste exempté. */
-var RECYC_EXEMPT={ LCI:"ferm", GST:"ferm", LHR:"glut", SVE:"glut", ALZ:"ferm" };
+/* POSTES EXEMPTÉS DE RECYCLAGE cette année — acquis au quotidien (le client, les
+   06-07/10/2026). Deux cas, même traitement (gros point ●, pas de recyclage) :
+   (1) le poste d'AVANT la formation, encore maîtrisé : LCI et GST venaient de la
+   fermentation, LHR et SVE du gluten, ALZ de la fermentation (avant distillation) ;
+   (2) les POLYVALENTS ARRIÈRE, qui tiennent fermentation ET distillation au
+   quotidien : FLN, FPS, SBZ. Override d'affichage par trigramme → postes exemptés. */
+var RECYC_EXEMPT={ LCI:["ferm"], GST:["ferm"], LHR:["glut"], SVE:["glut"], ALZ:["ferm"],
+                   FLN:["ferm","dist"], FPS:["ferm","dist"], SBZ:["ferm","dist"] };
 function polyvalenceDe(db,p){
   if(estContremaitre(p)) return null;
   /* SON poste, celui qui ne compte pas. Trois pièges s'y trouvent :
@@ -9985,9 +9987,9 @@ function polyvalenceDe(db,p){
       out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, forme:true, app:0});
       return;
     }
-    /* Poste d'avant la formation : acquis, mais exempté de recyclage cette
-       année (le client, 07/10/2026). On le montre d'un « ✓ », sans quota. */
-    if(RECYC_EXEMPT[idLisible(p.id)]===P.k){
+    /* Poste exempté (avant-formation ou polyvalent arrière) : acquis au
+       quotidien, pas de recyclage cette année (le client, 06-07/10/2026). */
+    if((RECYC_EXEMPT[idLisible(p.id)]||[]).indexOf(P.k)>=0){
       out.push({t:P.t, k:P.k, z:P.z, n:0, q:q, ok:false, acquis:false, exempt:true, app:0});
       return;
     }
@@ -10143,8 +10145,8 @@ function renderPolyvalence(){
         /* Poste d'avant la formation : acquis comme un poste attribué, donc le
            MÊME gros point ● que « son poste » (le client, le 07/10/2026), et pas
            de recyclage cette année. */
-        if(o.exempt){ h.push('<td class="pvsien" title="Poste d\'avant la formation — '
-          +'acquis, pas de recyclage cette année (le client, 07/10/2026)">●</td>'); return; }
+        if(o.exempt){ h.push('<td class="pvsien" title="Acquis au quotidien — '
+          +'pas de recyclage cette année (le client, 06-07/10/2026)">●</td>'); return; }
         total++; if(o.ok) atteints++; if(!o.n) vierges++;
         h.push(cellAppRh(o.app||0, inClasseur?o.n:0, o.q, P.z, P.t, dt));
         if(dt&&dt.fin) finissent.push(idLisible(p.id)+" · "
