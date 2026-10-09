@@ -1710,6 +1710,10 @@ n'est deviné à leur sujet :
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
+- **la paie de l'ouvrier** (09/10/2026, voir « La paie à l'heure de LCI,
+  revérifiée ») : vacances payées par la caisse et non par l'employeur ?
+  réduction du temps de travail non payée ? maladie du week-end majorée
+  comme le poste prévu ? Trois oui/non, posés au client ;
 - **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
@@ -1948,6 +1952,47 @@ Les deux documents de VBN datés du 24/02 que le texte ne lisait pas sont les
 **fiches fiscales 281.10 et 281.18 de 2025**, scannées : l'OCR en lit mal
 les montants, et les mêmes totaux 2025 (imposable, précompte, heures sup)
 sont en texte dans le compte individuel 2025, extrait sans erreur.
+
+### La paie à l'heure de LCI, revérifiée le 09/10/2026
+
+Le client : « vérifie les prestations et salaires ». Depuis la fin
+septembre, l'application paie un OUVRIER à l'heure (`salHorGaranti`,
+`salHorMoyen`, la branche `ouvrier` de `compute()`) ; la comparaison du
+26/09 calait encore une rémunération fixe, et ne mesurait donc plus rien.
+Elle est refaite sans calage, avec le taux garanti et le taux moyen imprimés sur
+chaque fiche (lus dans `CronoBots/groups-fiches`) : brut identique en
+janvier et en juin, trop haut les autres mois. **Jour par jour, la lecture
+de l'horaire concorde** — un jour presté est un jour d'« heures normales »,
+une absence une absence, un repos un repos, et les heures des jours prestés
+sont les mêmes à cinq journées près, toutes déjà connues (14/01, 20/02,
+17/03, 20/03, 13/04). Les écarts sont des RÈGLES DE PAIE d'ouvrier que
+l'application n'a pas :
+
+- **les vacances ne sont pas payées par l'employeur** : « Congé Légal »
+  porte des heures sans montant sur les huit fiches (16 h en février, 44 h
+  en avril…) — chez l'ouvrier, c'est la caisse de vacances qui paie.
+  L'application les paie au taux garanti ;
+- **la réduction du temps de travail n'est pas payée** : « RED TEMPS TRAV
+  NON PAYE » au détail des jours, « Réduction Temps Travail » sans montant
+  (6 h en avril, 8 h en mai). L'application la paie ;
+- **une maladie un samedi se paie à 150 %, un dimanche à 200 %** : « Heures
+  SHG Maladie à … à 150% / à 200% » les 02-03/05 et 11-12/07.
+  L'application paie toute la maladie au taux moyen simple ;
+- **chaque jour de week-end presté donne un jour de repos payé en
+  semaine** : « Jours de Compensation » = jours de « JOUR DE REPOS PAYE »
+  du détail, et ils suivent les jours de week-end prestés (6/6 en janvier,
+  5/5 en février, 4/4 en avril, 6/6 en août). Ce sont des repos « - » de
+  l'horaire, jamais choisis au hasard : 33 repos de semaine payés, 13 non.
+  L'application paie la même somme autrement (base du week-end dans la
+  prestation, aucun repos payé) ; l'écart n'apparaît que quand le jour de
+  compensation tombe le mois suivant (mai trop haut, juin trop bas).
+
+Les trois premières sont posées au client (« Ce qui attend le client »),
+rien n'est codé avant sa réponse : elles touchent à des montants. VBN
+(employé) est **identique à l'octet** à la comparaison du 07/10 : rien n'a
+régressé. Les scripts de comparaison vivent dans le scratchpad ; les
+copies texte des fiches qui y traînaient (nom, registre national, IBAN)
+ont été supprimées.
 
 ### Les relevés de pointage d'autres personnes, anonymisés
 
