@@ -268,12 +268,30 @@ def _date_serie(s):
         return None
 
 
-def composer_json(source_nom, ops, brut):
+def date_enregistrement(path):
+    """La date de mise à jour du classeur RH. Ses cellules n'en écrivent
+    AUCUNE (vérifié le 09/10/2026) : la seule qu'il porte est celle de son
+    dernier enregistrement, dcterms:modified de docProps/core.xml, en UTC.
+    Rendue à l'heure de Bruxelles, « AAAA-MM-JJTHH:MM » comme le `maj` de
+    l'horaire ; None si le fichier ne la porte pas."""
+    try:
+        m = re.search(rb"<dcterms:modified[^>]*>([^<]+)<",
+                      zipfile.ZipFile(path).read("docProps/core.xml"))
+        d = datetime.datetime.strptime(m.group(1).decode()[:19], "%Y-%m-%dT%H:%M:%S")
+        from zoneinfo import ZoneInfo
+        d = d.replace(tzinfo=datetime.timezone.utc).astimezone(ZoneInfo("Europe/Brussels"))
+        return d.strftime("%Y-%m-%dT%H:%M")
+    except Exception:
+        return None
+
+
+def composer_json(source_nom, ops, brut, maj=None):
     """La sortie servie par l'app : postes libellés + ops {clés, restant, dates}.
     Les dates des recyclages RH (converties des séries Excel du brut, triées) sont
     jointes pour le tableau « dates app / dates RH » au clic d'un opérateur."""
     out = {
         "source": source_nom,
+        "maj": maj,
         "postes": dict((k, LIBELLES[k]) for k in LIBELLES),
         "contremaitre": "Recyclages contremaitre (colonne des adjoints)",
         "note": "Terrain arriere non suivi (regle du classeur). cm = recyclages contremaitre (adjoints).",
@@ -336,6 +354,12 @@ def diff_installe(cible, neuf):
             anc = {}
     nx = neuf["ops"]
     lignes = []
+    try:
+        ancien_maj = json.load(open(cible, encoding="utf-8")).get("maj")
+    except Exception:
+        ancien_maj = None
+    if ancien_maj != neuf.get("maj"):
+        lignes.append("  date du classeur : %s → %s" % (ancien_maj, neuf.get("maj")))
     for tri in sorted(set(anc) | set(nx)):
         a, b = anc.get(tri), nx.get(tri)
         if a == b:
@@ -598,7 +622,7 @@ def main():
     coher = [d for d in anom["coherence"] if not d.startswith("cellule hors poste")]
     porte(5, "cohérence (fait + restant = multiple de 5)", not coher, coher)
 
-    neuf = composer_json(os.path.basename(source), ops, brut)
+    neuf = composer_json(os.path.basename(source), ops, brut, date_enregistrement(source))
     texte_sortie = json.dumps(neuf, ensure_ascii=False) + json.dumps(brut, ensure_ascii=False)
     fuite = [t for t in tokens_noms(noms) if t in _sans_accent(texte_sortie).upper()]
     porte(6, "anonymat (aucun nom dans la sortie)", not fuite,
