@@ -2910,6 +2910,13 @@ Puis, le même jour : « c'est mieux mais un rien plus haute » — zone
 d'accueil − 12 px, soit **22 px** du bas sur l'iPhone ; le navigateur ne
 bouge pas.
 
+**Plus haute** (le client, le 09/10/2026 : « tu peux augmenter la hauteur
+de la barre de menus ») : 61 px au lieu de 51 (boutons de 11 px de marge
+verticale, capsule de 6 px), l'onglet ouvert en pilule de 20 px de rayon ;
+le bas de page, la bulle et le bouton de retour en haut remontent de
+10 px. Mesuré à 320 (hors ligne) et 390 px : 16 px des trois bords, et le
+cadre du Planning toujours à 16 px de la capsule.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
