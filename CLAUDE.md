@@ -2831,6 +2831,17 @@ plus la zone d'accueil. On mesure désormais du haut de la barre au bas de
 l'écran. Mesuré : 16 px entre le cadre et la capsule, à 320 (hors ligne)
 et 390 px.
 
+**En PWA, la capsule descend dans la zone d'accueil, comme celle de
+Strava.** Le client, le 09/10/2026, deux captures côte à côte : « bonne
+sur navigateur », mais plus haute que Strava une fois installée. Elle se
+posait à 16 px AU-DESSUS de la zone d'accueil de l'iPhone (34 px), donc à
+50 px du bas ; Strava se pose à cheval sur cette zone. `--navbas` vaut
+`max(16px, zone d'accueil − 16px)` : 16 px dans le navigateur, où la zone
+vaut 0, inchangé ; 18 px sur l'écran d'accueil. Le bas de page, la bulle
+et le bouton de retour en haut suivent la même variable. Chromium n'a pas
+de zone d'accueil : mesuré 16 px à 320 (hors ligne) et 390 px, et la
+formule rend 18 px avec 34 px ; seul l'iPhone du client dit le reste.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
