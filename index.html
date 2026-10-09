@@ -1592,7 +1592,11 @@ body.sheet-on{overflow:hidden}
 #mqCard, .eqcard{overflow:hidden}
 #mqCorps,#rnCorps{padding-top:0}
 #mqCorps .eqsem,#rnCorps .eqsem{margin:0 -16px}
-#mqCorps .mqj,#rnCorps .mqj:hover{background:var(--surface3)}
+/* « #mqCorps .mqj, » sans « :hover » peignait EN PERMANENCE chaque journée
+   des sous-effectifs en --surface3 — le fond gris que seul ce cadre portait
+   (le client, le 09/10/2026 : « ce fond gris qui n'est présent que là-bas,
+   que je n'aime pas »). Le survol seulement, et sur un appareil qui survole. */
+@media (hover:hover){ #rnCorps .mqj:hover{background:var(--surface3)} }
 /* FEEDBACK TACTILE : la carte du jour est cliquable (elle ouvre le tableau du
    jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
 #mqCorps .mqj,#rnCorps .mqj,#caCorps .mqj{transition:filter .1s ease}
@@ -1693,6 +1697,27 @@ body.sheet-on{overflow:hidden}
   .mqpz{min-width:22px; padding:2px 3px} .mqpo{font-size:12.5px}
 }
 .mqrien b{color:var(--in)}
+/* LES SOUS-EFFECTIFS, UNE CARTE PAR JOURNÉE. Le client, le 09/10/2026 : « pas
+   assez clair entre les différents jours ». Chaque journée empile déjà des
+   blocs séparés de filets (en poste, rappels, prolongation…) : un filet de plus
+   entre deux journées ne se distinguait pas d'eux. Chaque journée est donc
+   une carte bordée, posée sur le fond du cadre — sans fond à elle —, avec un
+   en-tête : la date à gauche, les places vides à droite. Ces règles viennent
+   APRÈS celles qu'elles battent (#mqCorps .mqj, la première journée sans
+   filet, la règle sous 380 px) : à spécificité égale, la dernière gagne. */
+#mqCorps{padding-bottom:12px}
+#mqCorps .mqj, #mqCorps .mqj:first-child, #mqCorps .eqsem+.mqj{
+  background:none; border:1px solid var(--cadre); border-radius:12px;
+  margin:10px 0 0; width:100%; max-width:660px; padding:0; overflow:hidden}
+#mqCorps .mqj+.eqsem{margin-top:14px; border-top:1px solid var(--trait)}
+@media (hover:hover){ #mqCorps .mqj:hover{border-color:var(--trait-fort)} }
+.mqjt{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  padding:9px 12px 8px; border-bottom:1px solid var(--trait-fort)}
+.mqjn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700;
+  color:var(--at-rouge); white-space:nowrap}
+#mqCorps .mqls{padding:10px 12px 12px; gap:12px}
+#mqCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
+@media (max-width:380px){ .mqjt{padding:8px 10px 7px} #mqCorps .mqls{padding:9px 10px 11px} }
 /* L'écran d'intro : le logo monte en s'éclairant, le nom s'espace, un trait
    de lumière parcourt la barre. Sous « prefers-reduced-motion », la règle
    générale éteint tout : il reste un écran fixe, qui s'efface d'un coup. */
@@ -11518,7 +11543,10 @@ function renderManques(force){
          jour le gênait avec date+équipe+pause mêlées). La pause et l'équipe —
          qui sont le créneau, pas le jour — descendent avec le poste. */
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +q.html+'<span class="mqls">');
+        +'<span class="mqjt">'+q.html+'<span class="mqjn">'+(function(){
+          var v=0; x.l.forEach(function(o){ v+=Math.max(0,o.attendu-o.tenu); });
+          return v+(v>1?" places vides":" place vide"); })()+"</span></span>"
+        +'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
           return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"

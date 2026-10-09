@@ -3234,6 +3234,21 @@ qui ne servait qu'à lui, et les styles `.prochain`, `.pp-txt`,
 `.cardjour`. La barre du haut dit déjà le poste du jour. Vérificateur à
 zéro ; rien ne déborde à 320 (hors ligne), 390 et 1280 px.
 
+**Une carte par journée, et plus de fond gris.** Le client, le 09/10/2026 :
+« pas assez clair entre les différents jours de sous-effectif (il y a
+également ce fond gris qui n'est présent que là-bas, que je n'aime pas) ».
+Le gris était un défaut : `#mqCorps .mqj,#rnCorps .mqj:hover{…}`, le
+`:hover` manquant au premier sélecteur peignait en permanence chaque
+journée en `--surface3`. Il ne reste qu'un survol, sur les appareils qui
+survolent. Et chaque journée empilait des blocs (en poste, rappels,
+prolongation) séparés de filets, de sorte que le filet entre deux jours
+ne s'en distinguait pas. Chaque journée est désormais une carte bordée
+(`--cadre`, coins de 12 px, 10 px d'écart, 660 px au plus au bureau),
+sans fond à elle, avec un en-tête : la date à gauche, « 1 place vide » /
+« n places vides » en rouge à droite. Deux manques d'un même jour sont
+séparés d'un filet fort. Vérificateur identique à l'octet ; rien ne
+déborde à 320 (hors ligne), 390 et 1280 px.
+
 **Les sous-effectifs disent qui est en poste.** Le client, le 30/09/2026 :
 « il faut également marquer qui est en poste (même manière que le module
 de recherche) ». Chaque manque ouvre sur le cadre plein « En poste » de la
