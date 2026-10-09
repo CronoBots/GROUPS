@@ -3708,6 +3708,11 @@ ajoutait MGY, le classeur ajoute NPE ; le client, le 26/09/2026 : **les deux
 sont employés depuis août**. `poly.statut` retarde donc sur une embauche.
 Le détail est dans `docs/regles-paie.md`, section « Les intérimaires ».
 
+**Les nouveaux commencent toujours intérimaires** (le client, le
+09/10/2026, devant SLI affiché « Ouvrier ») : un opérateur sans ligne dans
+« Polyvalence » s'affiche « Intérimaire » — ce sont exactement les quatre
+arrivés en cours d'année. Voir `docs/regles-paie.md`, « Les intérimaires ».
+
 **Rien n'est codé, et c'est voulu.** Le client : « rien pour l'instant, mais
 garder l'info ». Une liste codée sans emploi égarerait celui qui la relit.
 

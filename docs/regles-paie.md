@@ -1080,6 +1080,20 @@ qui le dit, pas la colonne. **J'aurais dû le signaler à son arrivée** et
 demander qui il était ; je l'ai seulement compté (« une personne de
 plus »). Une personne nouvelle se fait confirmer par le client.
 
+**Et l'application l'affichait « Ouvrier ».** Le client, le 09/10/2026 :
+« pourquoi SLI a été placé en ouvrier alors que les nouveaux commencent
+toujours intérimaires ? ». Le statut affiché (`statutAffiche()`) lisait la
+colonne « interim » de « Polyvalence », puis les décisions du client
+(`STATUT_CLIENT`), puis retombait sur le statut de PAIE, « Ouvrier » par
+défaut. SLI n'avait ni ligne ni décision. **La règle se lit dans le
+classeur** : les opérateurs sans ligne dans « Polyvalence » sont exactement
+les quatre arrivés en cours d'année — CDT (13/07), MGY (09/03), NPI (14/09),
+SLI (12/10) —, et les trois premiers avaient été dits intérimaires le
+06/10 ; les cinq autres personnes sans ligne sont des contremaîtres. Un
+opérateur sans ligne est donc un nouveau, donc intérimaire, jusqu'à ce que
+le classeur ou le client dise autre chose. Affichage seulement : l'ONSS
+d'un intérimaire se calcule comme celle d'un ouvrier (`statutPersonne()`).
+
 **`poly.statut` peut donc retarder sur une embauche.** Le jour où cette
 colonne servira à un calcul, NPE en sera l'exemple : il faudra soit que le
 classeur soit corrigé, soit une table nommée qui porte la date d'embauche
