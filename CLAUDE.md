@@ -503,6 +503,14 @@ seconde.
 Classeur du 09/10/2026 : onze portes ouvertes, **une seule ligne change** —
 GPO, un recyclage de fermentation le 08/10 (2 → 3, restant 19 → 18).
 
+**La date du classeur s'affiche dans Réglages**, cadre « Classeurs », à côté
+de celle de l'horaire (le client, le 09/10/2026). Le classeur RH n'écrit
+AUCUNE date dans ses cellules : la sienne est celle de son dernier
+enregistrement (`dcterms:modified` des propriétés, en UTC), que l'outil
+rend à l'heure de Bruxelles dans le `maj` de `data/recyclages-2026.json`.
+D'où « enregistré le » à l'écran, et non « du ». Le rapport à blanc dit
+aussi quand cette date change.
+
 **Restent à la main** : lire le rapport et dire au client ce qui a bougé, tester
 dans un navigateur, committer.
 
