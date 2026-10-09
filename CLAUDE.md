@@ -3016,6 +3016,39 @@ table des codes de `docs/regles-paie.md`. Le vérificateur donne des
 sorties identiques à l'octet. Rien ne défile de côté à 320 px (hors
 ligne), 390 px et 1280 px.
 
+### Le relevé de prestations, comme celui reçu au travail
+
+Le client, le 09/10/2026 : « que l'app reproduise une feuille de prestation
+comme on reçoit au travail, afin de pouvoir directement comparer avec celle
+que l'on reçoit ». Un cadre repliable « Relevé de prestations » se trouve
+dans l'onglet Calendrier, sous le mois. `renderReleve()` le remplit à
+chaque calcul. Il écrit chaque journée du mois avec les codes de la note
+explicative du relevé mensuel (novembre 2025, dans le dépôt privé, résumée
+dans `regles/notes-internes.md`) :
+
+- **l'horaire** : 1A40, 2A40 et 3A40 pour les pauses, A21 pour le D seul
+  (7h-15h), 4A60 et TP pour le crédit-temps et le temps partiel, Y90 pour
+  un week-end sans prestation ;
+- **les prestations**, « P » + le jour (1, 3, 5, 8 pour un férié) + la
+  pause (0 à 3), sur la prime PAYÉE ;
+- **les heures sup** en « U » sur le même schéma, plus F0, J84 (rappel),
+  J83, A87 et Z93 ;
+- **les absences par leur numéro** : 75, 58, 54, 47, 50, 60, 4, 23, 79 ;
+- **9063** pour le chèque du jour ;
+- **au bas**, les totaux par code, 454 (chèques du mois, `crNb`), A10
+  (jours prestés), 290 (déplacements) et A! (vélo).
+
+Les valeurs sont en centièmes d'heure, comme sur le relevé. **Ce qui n'y
+est pas, et pourquoi** : les pointages IN/OUT, que l'application ne connaît
+pas ; le REP/FREE et le Z03 d'un repos de semaine, que le classeur ne
+distingue pas d'un repos ordinaire ; les soldes de contingents du bas de
+page. Rien n'est recalculé : la fonction relit les journées du mois comme
+`compute()` les paie. Le vérificateur donne des sorties identiques à
+l'octet. Vérifié sur septembre de VBN à 320 px (hors ligne), 390 px et
+1280 px : 30 lignes, aucun débordement. Les totaux montrent déjà les deux
+écarts connus de la fiche de septembre : la nuit du 30/09 (P13 6,00 au
+lieu d'un code du matin) et l'heure sup du même jour (U33 1,00).
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
