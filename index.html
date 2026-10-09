@@ -1181,6 +1181,41 @@ body.sheet-on{overflow:hidden}
    l'opérateur ») ; le trigramme reste une poignée. */
 .pvt tbody th.pvqui[scope="row"]{cursor:pointer}
 .pvt tbody td.pvn{cursor:pointer}
+/* ── FENÊTRE DE CONFIRMATION, au style de l'application ─────────────────────
+   Le client, le 09/10/2026 : « il faut un message de déconnexion plus
+   professionnel ». confirm() affichait la boîte du SYSTÈME — l'adresse du site
+   en titre, ses boutons, sa police — au milieu d'une application qui a tout
+   le reste à sa marque. confirmerPro() pose la même carte que les autres
+   fenêtres (fond voilé, carte arrondie, ombre), avec un titre, le compte en
+   pastille, une phrase, et deux boutons : Annuler et l'action. */
+.cfm-ov{position:fixed; inset:0; z-index:300; background:rgba(5,9,18,.66);
+  backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center;
+  padding:20px; animation:rdpfade .14s ease}
+@media(prefers-reduced-motion:reduce){ .cfm-ov{animation:none} .cfm{animation:none} }
+@keyframes cfmIn{from{opacity:0; transform:translateY(8px) scale(.98)} to{opacity:1; transform:none}}
+.cfm{background:var(--surface); border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5); width:100%; max-width:380px; overflow:hidden;
+  animation:cfmIn .18s cubic-bezier(.2,.7,.3,1)}
+.cfm-tete{display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding:22px 22px 6px; text-align:center}
+.cfm-ico{width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface2); border:1px solid var(--line); color:var(--in)}
+.cfm-tete h2{margin:0; font-size:17px; font-weight:650; letter-spacing:-.01em; color:var(--ink)}
+.cfm-qui{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;
+  letter-spacing:.04em; color:var(--in); border:1px solid var(--in); border-radius:7px;
+  padding:2px 9px}
+.cfm-txt{margin:0; padding:8px 22px 18px; font-size:13.5px; line-height:1.5;
+  color:var(--muted); text-align:center}
+.cfm-pied{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 18px 18px}
+.cfm-pied button{height:44px; border-radius:11px; font-size:14px; font-weight:600;
+  border:1px solid var(--line); background:var(--surface2); color:var(--ink); cursor:pointer}
+.cfm-pied .cfm-ok{background:var(--in); border-color:var(--in); color:var(--sur-in)}
+.cfm-pied button:active{transform:translateY(1px)}
+@media (hover:hover){
+  .cfm-pied .cfm-non:hover{border-color:var(--in2); color:var(--in)}
+  .cfm-pied .cfm-ok:hover{background:var(--in2); border-color:var(--in2)}
+}
+.cfm-pied button:focus-visible{outline:2px solid var(--in); outline-offset:2px}
 /* ── MODALE « DATES APP / RH » d'un opérateur (le client, 07/10/2026) ──────── */
 .rdp-ov{position:fixed; inset:0; z-index:200; background:rgba(5,9,18,.66);
   display:flex; align-items:center; justify-content:center; padding:16px;
@@ -13196,10 +13231,45 @@ function majCompteUI(){
   if(acc.at){ try{ L.push('Lié le '+new Date(acc.at).toLocaleDateString("fr-BE")); }catch(e){} }
   el.innerHTML=L.map(function(x){return '<span>'+x+'</span>';}).join("");
 }
+/* confirmerPro({titre, qui, texte, ok, annuler, icone}) → appelle surOui() si
+   l'on confirme. Échap, le fond ou « Annuler » referment sans rien faire ; le
+   focus va d'abord sur « Annuler », pour qu'un Entrée réflexe ne déconnecte
+   personne. */
+function confirmerPro(o, surOui){
+  var avant=document.activeElement;
+  var ov=document.createElement("div"); ov.className="cfm-ov";
+  ov.innerHTML='<div class="cfm" role="alertdialog" aria-modal="true" aria-labelledby="cfmT" aria-describedby="cfmX">'
+    +'<div class="cfm-tete">'+(o.icone?'<span class="cfm-ico" aria-hidden="true">'+o.icone+'</span>':'')
+    +'<h2 id="cfmT">'+esc(o.titre)+'</h2>'+(o.qui?'<span class="cfm-qui">'+esc(o.qui)+'</span>':'')+'</div>'
+    +'<p class="cfm-txt" id="cfmX">'+esc(o.texte)+'</p>'
+    +'<div class="cfm-pied"><button type="button" class="cfm-non">'+esc(o.annuler||"Annuler")+'</button>'
+    +'<button type="button" class="cfm-ok">'+esc(o.ok||"Confirmer")+'</button></div></div>';
+  function fermer(){ document.removeEventListener("keydown",clavier,true); if(ov.parentNode) ov.parentNode.removeChild(ov); if(avant&&avant.focus) try{avant.focus();}catch(e){} }
+  function clavier(e){
+    if(e.key==="Escape"){ e.preventDefault(); fermer(); }
+    else if(e.key==="Tab"){ var b=ov.querySelectorAll("button"), i=[].indexOf.call(b,document.activeElement);
+      e.preventDefault(); b[(i+(e.shiftKey?b.length-1:1))%b.length].focus(); }
+  }
+  ov.addEventListener("click",function(e){ if(e.target===ov) fermer(); });
+  ov.querySelector(".cfm-non").onclick=fermer;
+  ov.querySelector(".cfm-ok").onclick=function(){ fermer(); surOui(); };
+  document.addEventListener("keydown",clavier,true);
+  document.body.appendChild(ov);
+  ov.querySelector(".cfm-non").focus();
+}
 function deconnecterCompte(){
-  if(!confirm("Se déconnecter de ce compte sur cet appareil ?\nVos mois et réglages restent enregistrés ; vous pourrez relier un trigramme ensuite.")) return;
-  try{ localStorage.removeItem("account/current"); }catch(e){}
-  location.reload();
+  var acc=st.account||lsGet("account/current")||{};
+  var qui=acc.role==="rh"?"BWZ RH":(acc.tri?idLisible(acc.tri):"");
+  confirmerPro({
+    titre:"Se déconnecter ?",
+    qui:qui,
+    texte:"Ce compte ne sera plus lié à cet appareil. Vos mois et vos réglages restent enregistrés : vous les retrouverez en vous reconnectant.",
+    ok:"Se déconnecter", annuler:"Annuler",
+    icone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>'
+  }, function(){
+    try{ localStorage.removeItem("account/current"); }catch(e){}
+    location.reload();
+  });
 }
 function boot(){
   if(booted) return; booted=true;

@@ -2689,6 +2689,22 @@ au bureau à 20 px du coin. Le clic remonte en douceur, sauf sous
 ligne), 390 et 1280 px : caché en haut, visible à 0,55 descendu, 1 au
 survol, retour à 0 px après le clic.
 
+### La déconnexion se confirme dans une fenêtre de l'application
+
+Le client, le 09/10/2026 : « il faut un message de déconnexion plus
+professionnel ». `confirm()` ouvrait la boîte du SYSTÈME : l'adresse du site
+en titre, les boutons et la police du téléphone, au milieu d'une
+application qui a tout le reste à sa marque. `confirmerPro()` pose la même
+carte que les autres fenêtres (fond voilé, carte arrondie) : une icône, le
+titre « Se déconnecter ? », le compte en pastille (le trigramme, ou BWZ RH),
+une phrase qui dit ce qui se passe — le compte n'est plus lié à l'appareil,
+les mois et les réglages restent —, puis Annuler et Se déconnecter. Le focus
+va sur Annuler, pour qu'un Entrée réflexe ne déconnecte personne ; Échap et
+le fond referment. Elle resservira pour les autres confirmations (vider un
+mois, une année), qui passent encore par `confirm()`. Éprouvé à 320 (hors
+ligne), 390 et 1280 px : aucune boîte du système, Échap et Annuler gardent
+le compte, Se déconnecter le retire et rouvre l'écran de connexion.
+
 ### L'écran d'intro
 
 Le client, le 29/09/2026 : « un écran d'intro avec le logo au chargement de
