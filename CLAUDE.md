@@ -3016,6 +3016,11 @@ table des codes de `docs/regles-paie.md`. Le vérificateur donne des
 sorties identiques à l'octet. Rien ne défile de côté à 320 px (hors
 ligne), 390 px et 1280 px.
 
+Puis : « restant peut être exprimé en jour aussi ». Sous les heures du
+restant, les jours de 8 h en petit (« 12 h » puis « 1,5 j »), rouges
+quand le restant est négatif. Vérifié à 320 px (hors ligne), 390 px et
+1280 px, sans débordement.
+
 ### Le relevé de prestations, comme celui reçu au travail
 
 Le client, le 09/10/2026 : « que l'app reproduise une feuille de prestation
