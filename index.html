@@ -221,9 +221,13 @@ button{cursor:pointer}
 #eqCorps.glisse-g{animation:jourGauche .2s ease-out}
 #eqCorps.glisse-d{animation:jourDroite .2s ease-out}
 /* Le même feuilletage pour le MOIS, dans les onglets qui portent le sélecteur
-   de mois (le Calendrier et le Salaire) — le client, le 09/10/2026. */
-.panel.mois-g{animation:jourGauche .2s ease-out}
-.panel.mois-d{animation:jourDroite .2s ease-out}
+   de mois (le Calendrier et le Salaire) — le client, le 09/10/2026. Seul le
+   CONTENU des cartes glisse : la carte, sa bordure et la barre du mois restent
+   en place (le client, le 09/10/2026 : « les cadres ont l'air de se déplacer
+   au lieu de rester à leur place »). La carte rogne le temps du glissement. */
+.panel.mois-g>.card,.panel.mois-d>.card{overflow:clip}
+.panel.mois-g>.card>:not(.calnav){animation:jourGauche .2s ease-out}
+.panel.mois-d>.card>:not(.calnav){animation:jourDroite .2s ease-out}
 /* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
    transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
    tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
@@ -11822,6 +11826,7 @@ function eqBouge(n){
     go(n);
     c.classList.remove("mois-g","mois-d"); void c.offsetWidth;
     c.classList.add(n>0?"mois-g":"mois-d");
+    clearTimeout(c._moisT); c._moisT=setTimeout(function(){ c.classList.remove("mois-g","mois-d"); },260);
   },{passive:true});
 });
 /* LE COMMENTAIRE AU CLIC D'UN TRIGRAMME. Le client, le 02/10/2026 : « cliquer
