@@ -2769,6 +2769,24 @@ s'applique plus aux boutons, liens, champs et onglets, qui ne zooment pas
 (`touch-action:manipulation`) ; elle reste ailleurs. Quatre appuis = quatre
 mois et quatre jours, dans les deux sens, à 320 (hors ligne) et 390 px.
 
+### Le menu du bas, à la BETSFIX
+
+Le client, le 09/10/2026 : « un menu identique à celui du GitHub BETSFIX
+dans le bas de page et PWA ». Recopié de la feuille de `CronoBots/BETSFIX`
+(`app/web.py`, `.botnav` sous 1000 px), sous 760 px : une capsule
+flottante en pilule, à 16 px du bas et des côtés (safe area en plus), fond
+`rgba(24,27,36,.9)` sans flou, filet clair, ombre portée ; icônes seules
+de 25 px au trait 1,9, grises au repos ; l'onglet ouvert en pilule teintée
+de l'accent avec un filet, icône grossie d'un dixième. Seul l'accent
+diffère : le cyan de la marque au lieu du bleu de BETSFIX. **Pas de
+`backdrop-filter`, `transform` ni `will-change` sur la barre fixe** : sous
+iOS ils cassent le `position:fixed` (leçon de BETSFIX). L'onglet Horaire
+perd sa plaque cyan du 06/10 : tous les onglets se traitent pareil. Les
+libellés restent lus par les lecteurs d'écran. Le bas de page, la bulle et
+le bouton de retour en haut se décalent au-dessus de la capsule. Le bureau
+ne change pas. Mesuré à 320 (hors ligne) et 390 px : 16 px des trois bords,
+51 px de haut, sept onglets égaux, rien ne déborde.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
