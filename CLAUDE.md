@@ -2026,6 +2026,12 @@ pas les pauses. Deux pistes pour le client : le code `V` du relevé
 (heures sup volontaires, payées sans récupération) explique sans doute les
 « pas compenser » de VBN ; et les rappels pourraient proposer les
 permanents avant les intérimaires, comme le veut la note de 2017.
+Le client, le même jour : il pose la question des heures sup au bureau
+RH, et a demandé ses relevés de prestations officiels de toute l'année.
+**À leur arrivée** : chercher `V` ou `U` les 21 et 22/03 (nuits de 12 h,
+« pas compenser » sur la fiche), en janvier (1 h 30 « à compenser ») et en
+avril (0 h 45 « pas compenser ») ; les ranger dans le dépôt privé, jamais
+ici (nom et matricule).
 
 ### Toutes les fiches, recopiées une fois pour toutes
 
