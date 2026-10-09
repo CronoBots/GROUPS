@@ -1909,9 +1909,31 @@ du même nombre d'heures, **complété automatiquement par le compteur de RHS**
 chèque-repas un jour de repos. **Confronté aux fiches de LCI** : 33 des 36
 repos payés tombent aux positions de la note ; des 6 repos annoncés et non
 payés, 5 ont leur jour lié en vacances ou en maladie ; reste le 07/07.
-**L'application ne le calcule pas encore** : elle paie la base du week-end
-dans la prestation normale du jour même, ce qui fait la même somme, mais
-pas le même mois quand le repos tombe le mois suivant.
+**Calculé depuis le 09/10/2026, pour l'ouvrier** (`reposLiesAuWeekend()`) :
+la position de la personne dans la grille se lit sur ses propres cellules
+(le mois et le précédent, cycle de 5 semaines, 70 % d'accord au moins) ;
+chaque jour désigné paie les heures normales du week-end lié — dans le mois,
+ou dans le mois précédent, que `loadMonth()` lit désormais aussi
+(`st.moisPrec`) — et le complément de RHS sous 8 h. La base du week-end
+quitte alors la prestation normale, comme sur la fiche. Sans position
+lisible, l'ancienne façon reste (la base payée le jour même).
+
+**Et le férié presté de l'ouvrier ne se paie qu'une fois, à 200 %** : la
+prestation normale le comptait en plus à 100 %. La fiche de LCI le paie une
+fois (8 h en avril, 16 h en mai, écart exact) ; le « non déduit » du
+26/09/2026 vaut pour l'employé, dont le fixe paie déjà la journée.
+
+Mesuré sur les huit fiches de LCI : prestation normale et repos payé
+concordent en février, mars, mai, juin et juillet. Restent, chacun avec sa
+journée : janvier, le repos du 01/01, lié à un week-end de 2025 que
+l'horaire ne porte pas ; avril, l'écart connu du 13/04 et le repos du
+dimanche 05/04, que la grille place sur un jour de temps partiel et que la
+fiche ne paie pas ; août, le repos du jour A1 tombé un jour de temps partiel
+(03/09), que la fiche a payé le 31/08, et 4 h de RHS que le classeur
+n'écrit pas. **Quand le jour A1 tombe sur un temps partiel, la fiche paie
+le repos un autre jour** (02/02, 22/06, 31/08 : chaque fois le premier D de
+la semaine, écrit « - » dans le classeur) ; ce n'est pas écrit dans la
+note, et l'application ne le déplace pas.
 
 **La fiche, ligne par ligne** — ce qui confirme l'application : les
 suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié

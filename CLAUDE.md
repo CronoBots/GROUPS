@@ -1784,9 +1784,11 @@ n'est deviné à leur sujet :
   2009 ;
 - **la RJF de l'ouvrier** : la note ne la nomme pas — payée comme un férié
   (salaire moyen) ou au garanti ?
-- **le repos payé lié au week-end** : la note le décrit jour par jour et
-  les fiches de LCI le confirment (33 sur 36) ; à coder, si le client
-  veut que chaque mois tombe juste et pas seulement l'année ;
+- ~~le repos payé lié au week-end~~ : codé le 09/10/2026 à la demande du
+  client (« optimise tout ce qui peut l'être avec ces documents »), avec le
+  férié presté de l'ouvrier payé une seule fois ; voir
+  `docs/regles-paie.md`, « Les deux notes internes ». Prestation et repos
+  concordent sur cinq mois de LCI ; les restes ont chacun leur journée ;
 - **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
