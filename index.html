@@ -4395,11 +4395,24 @@ function compute(){
        reçoit son supplément plus haut) + chaque jour payé non presté en ligne au
        taux garanti ; la maladie (SHG) au salaire horaire moyen. */
     if(acc.hTot)  bl(acc.hTot,"Prestation normale à "+nf4.format(tgO),R(acc.hTot*tgO),true);
+    /* La NOTE EXPLICATIVE DE LA FICHE DE PAIE (v4, 2020), remise par le
+       client le 09/10/2026 et gardée dans le dépôt privé :
+       — RHS et DTT (codes 54 et 56) sont la « Compens. Collective Payée » ;
+         « Jour de repos payé » est le repos LIÉ AU WEEK-END presté, qui
+         n'est pas encore calculé ici ;
+       — « Hrs. Jours fériés » : le férié est payé au salaire horaire MOYEN
+         (code 50) ;
+       — « Réduction Temps Travail » : « non payé pour les ouvriers », mais
+         donne droit au chèque-repas (crRecup s'en charge). Les fiches de
+         LCI le confirment : 6 h en avril, 8 h en mai, sans montant.
+       La récupération de férié (RJF), que la note ne nomme pas, garde son
+       traitement d'avant. */
     var oRepos=ab("DTT")+ab("RHS");
-    if(oRepos)    bl(oRepos,"Jour de repos payé à "+nf4.format(tgO),R(oRepos*tgO),true);
-    var oFerie=ab("FER")+ab("RJF");
-    if(oFerie)    bl(oFerie,"Congé légal à "+nf4.format(tgO),R(oFerie*tgO),true);
-    if(ab("RTT")) bl(ab("RTT"),"Réduction temps travail à "+nf4.format(tgO),R(ab("RTT")*tgO),true);
+    if(oRepos)    bl(oRepos,"Compens. Collective Payée à "+nf4.format(tgO),R(oRepos*tgO),true);
+    var tFer=(tmO>0)?tmO:tgO;
+    if(ab("FER")) bl(ab("FER"),"Hrs. Jours fériés à "+nf4.format(tFer),R(ab("FER")*tFer),true);
+    if(ab("RJF")) bl(ab("RJF"),"Congé légal à "+nf4.format(tgO),R(ab("RJF")*tgO),true);
+    if(ab("RTT")) lines.push({q:ab("RTT"),l:"Réduction temps travail (non payée pour un ouvrier)",qh:true});
     if(ab("VA"))  bl(ab("VA"),"Heure(s) vacances à "+nf4.format(tgO),R(ab("VA")*tgO),true);
     if(ab("SMG")) bl(ab("SMG"),"Heures SHG maladie à "+nf4.format(tmO),R(ab("SMG")*tmO),true);
   } else {
