@@ -34,7 +34,20 @@ python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blan
 python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
 ```
 
-Le `.xlsm` reste HORS du dépôt. On LIT le rapport de comparaison, on dit au
+**Le classeur RH des recyclages** (« Suivi des recyclages sur poste de
+production », `.xlsx`) a la sienne, même démarche, onze portes :
+
+```bash
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx              # à blanc
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx --installer
+```
+
+Durées mesurées le 09/10/2026 : horaire **22 s à blanc, 0 s pour
+`--installer`** (il reprend le passage à blanc réussi), recyclages **moins
+d'une seconde**. Si c'est nettement plus long, quelque chose a régressé :
+voir « Huit portes, et vite ».
+
+Les deux sources restent HORS du dépôt. On LIT le rapport de comparaison, on dit au
 client ce qui a bougé, on teste au navigateur, on committe. Si une porte se
 ferme, on comprend pourquoi avant de toucher à quoi que ce soit : la
 contourner, c'est rouvrir le trou qu'elle ferme.
