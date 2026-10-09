@@ -2887,13 +2887,41 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .compte-info b{color:var(--ink); font-weight:600}
 /* ---------- « Mon rythme » (tableau de bord Accueil) ---------- */
 /* ── ONGLET PROFIL : en-tête d'identité, faits clés, polyvalences (06/10/2026) ── */
-.pf-head{display:flex; align-items:center; gap:13px; padding:2px}
-.pf-ava{flex:0 0 auto; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:700; font-size:15px; letter-spacing:.02em;
-  background:var(--marque-vif); color:var(--marque)}
-.pf-hmeta{min-width:0}
-.pf-hmeta b{display:block; font-size:18px; font-weight:700; letter-spacing:-.012em; color:var(--ink)}
-.pf-hsub{font-size:12.5px; color:var(--muted)}
+/* LE HÉROS DE L'ACCUEIL (le client, le 09/10/2026 : « il faut mieux présenter
+   la personne connectée dans le héros de la page d'accueil »). Une carte à la
+   couleur de la marque : qui l'on est, puis trois chiffres de soi. */
+#rythmeTete.pf-carte{padding:0; gap:0}
+.pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
+  background:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
+  box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
+.pf-hero::after{content:""; position:absolute; right:-40px; top:-40px; width:170px; height:170px; border-radius:50%;
+  background:radial-gradient(circle,rgba(94,200,232,.16),transparent 68%); pointer-events:none}
+.pf-head{position:relative; display:flex; align-items:center; gap:15px; padding:18px 18px 14px}
+.pf-ava{flex:0 0 auto; width:62px; height:62px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:700; font-size:17px; letter-spacing:.03em;
+  background:var(--marque-vif); color:var(--marque);
+  box-shadow:0 0 0 3px var(--marque),0 0 0 5px rgba(94,200,232,.45)}
+.pf-hmeta{min-width:0; display:flex; flex-direction:column; gap:3px}
+.pf-salut{font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.62)}
+.pf-hmeta b{display:block; font-size:21px; line-height:1.15; font-weight:700; letter-spacing:-.015em; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:4px}
+.pf-chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:600;
+  color:rgba(255,255,255,.86); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); white-space:nowrap}
+.pf-chip i{width:7px; height:7px; border-radius:2px; background:rgba(255,255,255,.5)}
+.pf-chip[data-z="jaune"] i{background:var(--bordj)} .pf-chip[data-z="vert"] i{background:var(--bordv)}
+.pf-chip[data-z="rouge"] i{background:var(--bordr)} .pf-chip[data-z="bleu"] i{background:var(--bordb)}
+.pf-chip[data-z="gris"] i{background:var(--bordg)}
+.pf-chip.interim{color:var(--at-jaune); border-color:rgba(255,200,80,.35)}
+.pf-kpis{position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(255,255,255,.1)}
+.pf-kpi{display:flex; flex-direction:column; gap:3px; padding:11px 14px 13px; min-width:0}
+.pf-kpi+.pf-kpi{border-left:1px solid rgba(255,255,255,.1)}
+.pf-kpi b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:19px; font-weight:700; color:#fff; white-space:nowrap}
+.pf-kpi b i{font-style:normal; font-size:12px; font-weight:600; color:rgba(255,255,255,.6); margin-left:2px}
+.pf-kpi span{font-size:10px; line-height:1.25; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
+.pf-kpi.ko b{color:#ff9b8f} .pf-kpi.att b{color:var(--at-jaune)}
+@media (max-width:380px){ .pf-head{padding:15px 14px 12px; gap:12px} .pf-ava{width:52px; height:52px; font-size:15px}
+  .pf-hmeta b{font-size:18px} .pf-kpi{padding:10px 10px 11px} .pf-kpi b{font-size:16px} .pf-kpi span{font-size:9px} }
 .pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
 .pf-fact{display:flex; flex-direction:column; gap:2px; padding:9px 12px; border-radius:11px; background:var(--surface2)}
 .pf-k{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em}
@@ -3355,22 +3383,30 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        Les icônes sont redessinées d'un même trait : Résumé porte une vue
        d'ensemble (tuiles), Mon salaire un billet frappé d'un €, là où la
        jauge et la feuille ne nommaient pas leur onglet. -->
+  <!-- LE MENU NOMMÉ PAR CE QUE CHAQUE ONGLET CONTIENT (le client, le 09/10/2026 :
+       « revois tous les onglets du menu pour mieux correspondre au contenu »).
+       Accueil : moi (profil, mois, compteurs, rythme, relevé) ; Salaire : ma
+       paie ; Planning : les équipes d'un jour ; Effectifs : sous-effectifs,
+       congé, absence, recherche de remplaçant, rappels non nécessaires ;
+       Équipes : la composition, le recyclage, les statuts et l'annuaire.
+       D'abord ce qui est à moi, puis l'usine du jour, puis sa structure.
+       Les identifiants (data-v) ne changent pas : ui/view reste valable. -->
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="true" aria-controls="v-horaire">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-      Calendrier</button>
-    <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
-      Équipe</button>
-    <button type="button" role="tab" id="tab-jour" data-v="jour" aria-selected="false" aria-controls="v-jour">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18M9.5 9.5v10M15 9.5v10"/></svg>
-      Horaire</button>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L12 4l8.5 6.5"/><path d="M5.5 9v10.5h13V9"/><circle cx="12" cy="13.2" r="2.1"/><path d="M8.6 19.5a3.4 3.4 0 0 1 6.8 0"/></svg>
+      Accueil</button>
     <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M14.6 9.6a3 3 0 1 0 0 4.8"/><path d="M8.3 11.2h4.3M8.3 12.9h4.3"/></svg>
       Salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
+    <button type="button" role="tab" id="tab-jour" data-v="jour" aria-selected="false" aria-controls="v-jour">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18M9.5 9.5v10M15 9.5v10"/></svg>
+      Planning</button>
     <button type="button" role="tab" id="tab-rh" data-v="rh" aria-selected="false" aria-controls="v-rh">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="5" width="15" height="16" rx="2.2"/><path d="M9 5V4a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5"/><path d="M8.5 12.5l2 2 4-4.5"/></svg>
-      RH</button>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 9.3-5"/><circle cx="16.8" cy="15.8" r="3"/><path d="M19 18l2.3 2.3"/></svg>
+      Effectifs</button>
+    <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
+      Équipes</button>
     <button type="button" role="tab" id="tab-reglages" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
       Réglages</button>
@@ -3430,10 +3466,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          possible »). En tête, qui l'on est ; puis le mois, les compteurs, l'année
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
-    <div class="pvtete" id="rythmeTete" hidden>
-      <h2>Mon rythme</h2>
-      <p class="sub">réparti sur l'année d'horaire</p>
-    </div>
+    <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -3654,7 +3687,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="card">
         <header><h2>Vérifier sa fiche en quatre temps</h2></header>
         <ol class="steps">
-          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Horaire, touchez une journée pour la corriger : elle ne sera plus retouchée.</span></li>
+          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Accueil, touchez une journée du mois pour la corriger : elle ne sera plus retouchée.</span></li>
           <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
           <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
           <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
@@ -6028,7 +6061,7 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["horaire","salaire","jour","equipe","rh","reglages"];
+var VIEWS=["horaire","salaire","jour","rh","equipe","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
@@ -8322,32 +8355,63 @@ function _pfBinome(p){
   for(var k in po){ if(po.hasOwnProperty(k) && /contrema/i.test(k)){ var n=String(po[k].p||"").replace(/\D+/g,""); if(n) return "Binôme "+n; } }
   return "";
 }
-function _pfHead(p){
+function _pfHead(db,p){
   var tri=idLisible(p.id);
-  var cadre=(typeof estCadre==="function")&&estCadre(p);
+  var cadre=(typeof estCadre==="function")&&estCadre(p),
+      cm=(typeof estContremaitre==="function")&&estContremaitre(p);
   /* Rôle : pour un cadre, sa fonction (Contremaître/Adjoint) ; pour un travailleur,
      « Opérateur » (fonctionPersonne renvoie l'équipe, pas un titre, côté opérateur). */
   var role = cadre ? ((typeof fonctionPersonne==="function"?fonctionPersonne(p):"")||"Cadre") : "Opérateur";
-  var eq=(typeof equipeShift==="function")?equipeShift(p):"";
-  var sub=[]; if(eq&&eq!=="—") sub.push(eq);
-  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p); if(st2) sub.push(st2); }
-  var bnH=_pfBinome(p); if(bnH) sub.push(bnH);
-  return '<div class="pf-head">'
-    +'<span class="pf-ava">'+esc(tri)+'</span>'
-    +'<div class="pf-hmeta"><b>'+esc(role)+'</b>'
-    +(sub.length?'<span class="pf-hsub">'+esc(sub.join(" · "))+'</span>':'')+'</div></div>';
-}
-function _pfFacts(db,p){
-  var cadre=(typeof estCadre==="function")&&estCadre(p),
-      cm=(typeof estContremaitre==="function")&&estContremaitre(p);
-  var rows=[];
-  if(!cadre && typeof posteAttitreTitre==="function") rows.push(['Poste attitré', posteAttitreTitre(p)]);
-  /* le binôme est dans la tête de profil, à côté du statut */
+  var hr=new Date().getHours(), salut=(hr>=18||hr<5)?"Bonsoir":"Bonjour";
+  /* Les puces : où l'on est rangé (équipe ou binôme), le poste attitré d'un
+     opérateur, le statut. */
+  var ch=[];
+  var bn=_pfBinome(p), eq=(typeof equipeShift==="function")?equipeShift(p):"";
+  if(bn) ch.push('<span class="pf-chip">'+esc(bn)+'</span>');
+  else if(eq&&eq!=="—") ch.push('<span class="pf-chip">'+esc(eq)+'</span>');
+  if(!cadre){
+    /* Le poste TENU, ou à défaut celui qu'on apprend — dit comme tel. */
+    var kt=(typeof posteAttitre==="function")?posteAttitre(p):null, kf=null;
+    if(!kt && typeof posteDeFormation==="function") kf=posteDeFormation(p);
+    var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(kt||kf)) P0=P; });
+    if(P0) ch.push('<span class="pf-chip'+(kf?' interim':'')+'" data-z="'+esc(P0.z||"")+'"><i></i>'
+      +(kf?'En formation · ':'')+esc(P0.t)+'</span>');
+  }
+  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p);
+    if(st2) ch.push('<span class="pf-chip'+(/int[ée]rim/i.test(st2)?' interim':'')+'">'+esc(st2)+'</span>'); }
+  /* Trois chiffres de soi, lus là où le reste de l'onglet les lit : vacances
+     restantes et flex time au jour de l'usine (comme l'état des compteurs),
+     polyvalences validées (comme « Mon rythme »). */
+  var k=[];
+  var c=p.c||{};
+  /* Ce qu'il reste à PLACER de ses congés (VA, RTT, DTT, RJF) : le « restant »
+     de l'état des compteurs, en jours de 8 h. */
+  if(c.solde){
+    var tot=0, vu=false, prev=c.prevision||{};
+    ["VA","RTT","DTT","RJF"].forEach(function(q){
+      if(c.solde[q]===undefined && prev[q]===undefined) return; vu=true;
+      var pv=(prev[q+"Total"]!==undefined)?prev[q+"Total"]:prev[q];
+      tot+=(c.restant&&c.restant[q]!==undefined)?Number(c.restant[q]):((Number(c.solde[q])||0)-(Number(pv)||0));
+    });
+    if(vu) k.push('<div class="pf-kpi'+(tot<0?' ko':'')+'"><b>'+num(R(tot/8,1))+'<i>j</i></b><span>Congés à placer</span></div>');
+  }
+  if(db && c.flex && typeof compteursCalcules==="function"){
+    var annee=Number(db.year), ju=jourUsine();
+    if(ju.getFullYear()>=annee){
+      var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
+          calc=compteursCalcules(p,annee,jq),
+          sj=R((Number(c.flex.report)||0)+calc.ftPlusJ-calc.ftMoinsJ,2);
+      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':'')+'"><b>'+num(sj)+'<i>h</i></b><span>Flex time</span></div>');
+    }
+  }
   var polys=(!cm&&typeof polyvalenceDe==="function")?(polyvalenceDe(db,p)||[]):[];
-  if(polys.length){ var v=polys.filter(function(x){return x.ok;}).length; rows.push(['Polyvalences validées', v+' / '+polys.length]); }
-  if(!rows.length) return '';
-  return '<div class="pf-facts">'+rows.map(function(r){
-    return '<div class="pf-fact"><span class="pf-k">'+esc(r[0])+'</span><span class="pf-v">'+esc(r[1])+'</span></div>'; }).join("")+'</div>';
+  if(polys.length){ var v=polys.filter(function(x){return x.ok;}).length;
+    k.push('<div class="pf-kpi"><b>'+v+'<i>/ '+polys.length+'</i></b><span>Polyvalences</span></div>'); }
+  return '<div class="pf-hero"><div class="pf-head">'
+    +'<span class="pf-ava" aria-hidden="true">'+esc(tri)+'</span>'
+    +'<div class="pf-hmeta"><span class="pf-salut">'+salut+' '+esc(tri)+'</span><b>'+esc(role)+'</b>'
+    +(ch.length?'<div class="pf-chips">'+ch.join("")+'</div>':'')+'</div></div>'
+    +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'')+'</div>';
 }
 function _pfPoly(db,p){
   if(typeof polyvalenceDe!=="function") return '';
@@ -8371,12 +8435,12 @@ function renderRythme(){
   var vide=document.getElementById("resumeVide");
   if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; return; }
   card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
-  if(tete) tete.innerHTML=_pfHead(person);
+  if(tete) tete.innerHTML=_pfHead(db,person);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
   var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="l'année "+y+" d'horaire";
-  var avant=_pfFacts(db,person)+_pfPoly(db,person);
+  var avant=_pfPoly(db,person);
   corps.innerHTML=avant
     +(avant?'<div class="ry-sep"></div>':'')+'<div class="ry-chart-t ry-h2">Répartition des journées</div>'
     +'<div class="ry-wrap">'
@@ -13112,7 +13176,7 @@ function renderCompteurs(){
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
   if(!catSel||!idSel||!idSel.value){
     ensurePrefillUI();
-    hote.innerHTML='<p class="lede" style="padding:0">Choisissez une personne dans l\'onglet Horaire pour afficher ses compteurs.</p>';
+    hote.innerHTML='<p class="lede" style="padding:0">Choisissez qui vous êtes dans les Réglages pour afficher vos compteurs.</p>';
     document.getElementById("cptSub").textContent="";
     return;
   }
