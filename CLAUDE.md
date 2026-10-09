@@ -2033,6 +2033,19 @@ RH, et a demandé ses relevés de prestations officiels de toute l'année.
 avril (0 h 45 « pas compenser ») ; les ranger dans le dépôt privé, jamais
 ici (nom et matricule).
 
+**Les permanents avant les intérimaires** (le client, le 09/10/2026 :
+« il faut toujours proposer les permanents avant les intérimaires », la
+règle de la note de 2017). `permanentsDabord()` range chaque liste de
+propositions — en D, changement de pause, prolongation 12 h, et les
+remplaçants du congé en heures — permanents d'abord, ordre d'origine
+gardé ; les rappels d'intérimaires ont leur cadre à eux, « Rappel -
+Intérimaire · Repos / Veille X », après tous ceux des permanents.
+`estInterim()` lit `statutAffiche()`. Mesuré au navigateur sur les 110
+cadres des sous-effectifs : aucun permanent après un intérimaire, SMK seul
+dans « Rappel - Intérimaire · Veille N ». Vérificateur identique à
+l'octet (il ne découpe pas ces modules) ; rien ne déborde à 320 (hors
+ligne), 390 et 1280 px.
+
 ### Toutes les fiches, recopiées une fois pour toutes
 
 Le client, le 09/10/2026 : « garde quelque part toutes les infos des fiches

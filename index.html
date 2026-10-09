@@ -12235,9 +12235,26 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     if(!reposOk(x.p.id)){ t.ecartes++; return; }
     t.rappels.push({p:x.p, veille:veille[x.p.id]||""});
   });
-  t.rappels.sort(function(a,b){ return (a.veille?1:0)-(b.veille?1:0)
+  /* LES PERMANENTS AVANT LES INTÉRIMAIRES. Note de service du 20/12/2017 :
+     « en cas de demande de remplacement engendrant une prime de rappel, le
+     personnel permanent est d'abord consulté, en utilisant toutes les
+     ressources possibles, avant les intérimaires de production ». Le client,
+     le 09/10/2026 : « il faut toujours proposer les permanents avant les
+     intérimaires ». D'où, dans chaque liste, les permanents d'abord (ordre
+     d'origine gardé), et les rappels d'intérimaires dans un cadre à eux,
+     après tous ceux des permanents. */
+  t.rappels.forEach(function(o){ o.interim=estInterim(o.p); });
+  t.rappels.sort(function(a,b){ return (a.interim?1:0)-(b.interim?1:0)
+    || (a.veille?1:0)-(b.veille?1:0)
     || (a.p.id<b.p.id?-1:a.p.id>b.p.id?1:0); });
+  ["enD","change","reste","arrive","m6","s6"].forEach(function(k){ if(t[k]) t[k]=permanentsDabord(t[k]); });
   return t;
+}
+function estInterim(p){ return statutAffiche(p)==="Intérimaire"; }
+function permanentsDabord(l){
+  var a=[], b=[];
+  l.forEach(function(o){ (estInterim(o.p)?b:a).push(o); });
+  return a.concat(b);
 }
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
 function caDouble6(t){ return !!(t.m6 && t.m6.length && t.s6.length); }
@@ -12388,6 +12405,7 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
   });
   if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
     if((x.r && x.r.jourCode) || !ok(x)) return; enD.push({p:x.p}); });
+  voisins=permanentsDabord(voisins); repos=permanentsDabord(repos); enD=permanentsDabord(enD);
   var trouve=voisins.length||repos.length||enD.length, loin=delai>7;
   var v=loin ? (trouve?{v:"chg",t:"Possible avec remplaçant"}:{v:"non",t:"Pas possible"})
              : complet?{v:"ok",t:"Possible"}:trouve?{v:"chg",t:"Possible avec remplaçant"}:{v:"non",t:"Pas possible"};
@@ -12538,11 +12556,12 @@ function caGroupes(t,large,sansUrgence){
      de la veille. Huit au plus en tout. */
   if(t.rappels.length && !sansUrgence){
     var parV={}, ordre=[], reste=8;
-    t.rappels.forEach(function(o){ var k=o.veille||""; if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
+    t.rappels.forEach(function(o){ var k=(o.interim?"I":"")+"|"+(o.veille||""); if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
     ordre.forEach(function(k){
       if(reste<=0) return;
       var l=parV[k].slice(0,reste); reste-=l.length;
-      g.push(caCadre("Rappel - "+(k?"Veille "+esc(k):"Repos"),
+      var v=k.slice(k.indexOf("|")+1), qui=k.charAt(0)==="I"?"Intérimaire · ":"";
+      g.push(caCadre("Rappel - "+qui+(v?"Veille "+esc(v):"Repos"),
         l.map(function(o){ return caChip(o.p.id,""); }).join("")));
     });
     if(t.rappels.length>8) g.push('<span class="mqinc">+'+(t.rappels.length-8)+" autres rappels possibles</span>");
