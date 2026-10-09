@@ -2013,6 +2013,20 @@ client, ci-dessous. ATA 60 h, VBN 7 h. Rien ne sort de l'écran à 320 (hors
 ligne), 390 et 1280 px ; les seuls débordements sont dans les tableaux qui
 défilent déjà de côté.
 
+**La suite, le même jour** : sept documents de plus (la note explicative
+du relevé mensuel, la filière intérimaires de 2017, la procédure des
+primes de rappel, la prime de garde de janvier et de septembre 2026, les
+montants des primes ponctuelles 2026 ; la fiche de paie et les repos
+étaient déjà rangés, texte identique). Rangés dans `regles/` du dépôt
+privé, métadonnées vidées ET commentaires JPEG des scans retirés — ils
+portaient le nom du copieur. Résumé dans `docs/regles-paie.md`, « La
+suite, remise le même jour ». **Rien n'est codé** : la procédure de rappel
+est celle déjà appliquée, la garde et les primes ponctuelles ne touchent
+pas les pauses. Deux pistes pour le client : le code `V` du relevé
+(heures sup volontaires, payées sans récupération) explique sans doute les
+« pas compenser » de VBN ; et les rappels pourraient proposer les
+permanents avant les intérimaires, comme le veut la note de 2017.
+
 ### Toutes les fiches, recopiées une fois pour toutes
 
 Le client, le 09/10/2026 : « garde quelque part toutes les infos des fiches
