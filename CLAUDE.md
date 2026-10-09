@@ -1934,14 +1934,20 @@ compte individuel (contrat) dans ses trimestres, et des montants pris pour
 le bloc adresse.
 
 **La sortie porte des montants de salaire** : l'outil refuse de l'écrire
-sous la racine du dépôt, et refuse une fiche qui serait dans le dépôt. Où
-la garder durablement est une question posée au client le 09/10/2026 (un
-dépôt privé à part, recommandé). **Les fiches ne se poussent jamais sur le
-git**, même pour les retirer ensuite : l'historique public les garderait.
+sous la racine du dépôt, et refuse une fiche qui serait dans le dépôt.
+**Elle vit dans le dépôt PRIVÉ `CronoBots/groups-fiches`** (le client, le
+09/10/2026, « garde toutes les infos utiles pour vérifier les prestations et
+payes »), `fiches/fiches-2026.json`, avec sa propre note `CLAUDE.md`. Une
+session qui doit vérifier une paie l'attache (`add_repo`) et le lit ; rien
+n'en revient ici que des règles écrites avec des lettres. L'application
+Claude ne peut pas créer de dépôt : c'est le client qui l'a créé. **Les
+fiches ne se poussent jamais sur un git**, même privé, même pour les retirer
+ensuite : elles portent le nom, le registre national et l'IBAN.
 
-**Reste à lire** : deux documents de VBN datés du 24/02 sont presque
-entièrement scannés (33 et 15 mots lisibles) ; leurs chiffres demandent
-l'OCR.
+Les deux documents de VBN datés du 24/02 que le texte ne lisait pas sont les
+**fiches fiscales 281.10 et 281.18 de 2025**, scannées : l'OCR en lit mal
+les montants, et les mêmes totaux 2025 (imposable, précompte, heures sup)
+sont en texte dans le compte individuel 2025, extrait sans erreur.
 
 ### Les relevés de pointage d'autres personnes, anonymisés
 
