@@ -531,35 +531,70 @@ button{cursor:pointer}
    prestée, le liseré du bas la prime conservée. */
 
 /* ---------- état des compteurs ---------- */
-.cpt-t{margin:22px 0 9px; font-size:12.5px; font-weight:700; letter-spacing:-.008em; color:var(--ink)}
-.cpt-t:first-child{margin-top:0}
-.cpt-tab{overflow-x:auto; border:1px solid var(--line2); border-radius:var(--r); background:var(--surface)}
-.cpt-tab table{border-collapse:collapse; width:100%; min-width:430px}
-.cpt-tab th{
-  text-align:right; font-size:10.5px; font-weight:600; color:var(--faint);
-  letter-spacing:.02em; padding:9px 13px; border-bottom:1px solid var(--line2); white-space:nowrap;
+/* ---------- état des compteurs (le client, le 09/10/2026) ----------
+   Plus de tableau qui déborde : un bloc par sujet, séparé du suivant par un
+   filet --cadre comme les cases du mois ; chaque compteur en une rangée. */
+#cptCorps{padding:0}
+.cpt-bloc{padding:14px 16px 16px; border-top:1px solid var(--cadre)}
+.cpt-bloc:first-child{border-top:0}
+.cpt-t{margin:0 0 11px; display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink)}
+.cpt-t span{font-size:10.5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--faint);
+  text-align:right}
+.cpt-n{margin:8px 0 0; font-size:11.5px; line-height:1.5; color:var(--muted)}
+/* une rangée de congé : nom, restant en grand, barre posé / droit */
+.cg-l{padding:9px 0 10px; border-top:1px solid var(--trait)}
+.cg-l:first-of-type{border-top:0; padding-top:0}
+.cg-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.cg-n{font-size:13.5px; font-weight:600; color:var(--ink); min-width:0}
+.cg-n i,.cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
+.cg-r{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); white-space:nowrap}
+.cg-r b{font-size:18px; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums}
+.cg-l.vide .cg-r b{color:var(--muted)}
+.cg-l.neg .cg-r b{color:var(--out2)}
+.cg-bar{height:6px; margin:7px 0 5px; border-radius:99px; background:var(--surface3); overflow:hidden}
+.cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
+.cg-l.neg .cg-bar i{background:var(--out2)}
+.cg-s{display:flex; justify-content:space-between; gap:10px; font-size:10.5px; color:var(--faint);
+  font-variant-numeric:tabular-nums}
+/* flex time : le solde du jour, sa jauge, quatre chiffres */
+.ft-hero{display:flex; align-items:center; gap:14px}
+.ft-v{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); white-space:nowrap}
+.ft-v b{font-size:30px; font-weight:650; color:var(--ink); letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.ft-l{display:flex; flex-direction:column; gap:2px; min-width:0}
+.ft-l span{font-size:11.5px; color:var(--muted)}
+.ft-l .ft-e{font-size:12.5px; font-weight:650; color:var(--good)}
+.ft-att .ft-e{color:var(--at-jaune)} .ft-ko .ft-e,.ft-ko .ft-v b{color:var(--out2)}
+.ft-jauge{position:relative; margin:14px 6px 26px}
+.ft-piste{display:flex; height:6px; border-radius:99px; overflow:hidden; background:var(--surface3)}
+.ft-piste .ft-z0{flex:0 0 78.57%; background:rgba(110,190,150,.28)}
+.ft-piste .ft-z1{flex:1 1 auto; background:rgba(230,190,90,.30)}
+.ft-pt{position:absolute; top:-4px; width:14px; height:14px; margin-left:-7px; border-radius:50%;
+  background:var(--ink); box-shadow:0 0 0 3px var(--surface)}
+.ft-ko .ft-pt{background:var(--out2)}
+.ft-gr{position:relative; height:0}
+.ft-gr span{position:absolute; top:8px; transform:translateX(-50%); font-size:10px; color:var(--faint);
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.ft-st{margin:0 -16px; border-top:1px solid var(--cadre)}
+.cpt-chk{margin:12px 0 0; font-size:11.5px; display:flex; align-items:center; gap:6px}
+.cpt-chk::before{content:""; width:7px; height:7px; border-radius:50%; flex:0 0 auto}
+.cpt-chk.ok{color:var(--muted)} .cpt-chk.ok::before{background:var(--good)}
+.cpt-chk.ko{color:var(--out2); font-weight:600} .cpt-chk.ko::before{background:var(--out2)}
+/* rangées simples : libellé à gauche, valeur à droite */
+.cpt-li{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:7px 0;
+  border-top:1px solid var(--trait); font-size:13px; color:var(--ink2)}
+.cpt-li:first-child,.cpt-t+.cpt-li{border-top:0; padding-top:0}
+.cpt-li b{font-family:"IBM Plex Mono",monospace; font-size:13.5px; font-weight:650; color:var(--ink);
+  white-space:nowrap; font-variant-numeric:tabular-nums}
+@media (min-width:761px){
+  .cpt-liste{display:grid; grid-template-columns:1fr 1fr; column-gap:28px}
+  .cpt-liste .cpt-li:nth-child(2){border-top:0; padding-top:0}
+  .cg-grille{display:grid; grid-template-columns:1fr 1fr; column-gap:28px}
+  .cg-grille .cg-l:nth-child(2){border-top:0; padding-top:0}
 }
-.cpt-tab th:first-child{text-align:left}
-.cpt-tab td{padding:9px 13px; font-size:12.5px; color:var(--ink2); text-align:right; border-bottom:1px solid var(--line2); font-variant-numeric:tabular-nums}
-.cpt-tab td:first-child{text-align:left; color:var(--ink)}
-.cpt-tab tr:last-child td{border-bottom:0}
-.cpt-v{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; color:var(--ink2)}
-.cpt-v.fort{color:var(--ink); font-weight:600}
-.cpt-ok{font-size:11.5px; color:var(--good)}
-.cpt-ko{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; color:var(--out2); font-weight:600}
-.cpt-c{font-size:10px; font-weight:600; color:var(--faint); letter-spacing:.03em; margin-left:4px}
-.cpt-n.cpt-ft-ko{color:var(--out2); font-weight:600}
-.cpt-n.cpt-ft-att{color:var(--at-jaune); font-weight:600}
-.cpt-n{margin:8px 2px 0; font-size:11.5px; line-height:1.5; color:var(--muted); max-width:72ch}
-.cpt-tuiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px}
-.cpt-tuiles div{background:var(--surface); border:1px solid var(--line2); border-radius:9px; padding:8px 13px; min-width:0}
-/* Une valeur seule (récup. HS, polyvalence à un atelier) ne s'étire pas sur
-   toute la largeur — elle resterait une pastille démesurée. Elle garde une
-   taille de tuile ; les groupes à plusieurs valeurs, eux, remplissent la ligne. */
-.cpt-tuiles div:only-child{max-width:260px}
-.cpt-tuiles b{display:block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:17px;
-  font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.25}
-.cpt-tuiles span{font-size:10.5px; color:var(--muted)}
+.cpt-puces{display:flex; flex-wrap:wrap; gap:6px}
+.cpt-puces span{font-size:12px; font-weight:600; color:var(--ink2); padding:4px 10px; border-radius:99px;
+  background:var(--surface3); border:1px solid var(--trait)}
 
 /* ---------- en-tête contextuel ---------- */
 /* LE NET À RECEVOIR A QUITTÉ LA BARRE DU HAUT. Le client, le 23/09/2026 :
@@ -809,6 +844,12 @@ button{cursor:pointer}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
 #salCard{display:flex; flex-direction:column; overflow:hidden; position:relative}
+/* Dans l'onglet du calendrier (le client, le 09/10/2026) : ses autres cadres — les
+   codes, l'état des compteurs — prennent la même bordure que #calCard. */
+#v-horaire .card{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
+    0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
+#v-horaire .card>header{border-bottom:1px solid var(--cadre)}
 #salCard .hero{border-bottom:1px solid var(--cadre)}
 #salCard .tiles{display:flex; flex-wrap:wrap; gap:1px; background:var(--cadre);
   border-bottom:1px solid var(--cadre)}
@@ -12890,6 +12931,9 @@ function compteursCalcules(person,annee,jusqua){
   return out;
 }
 
+/* Deux codes que la légende du classeur ne définit pas : on les écrit en
+   toutes lettres, avec le code à côté. */
+var LIB_CPT_LONG={MAL:"Maladie",FORM:"Formation"};
 function renderCompteurs(){
   var hote=document.getElementById("cptCorps"); if(!hote) return;
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
@@ -12912,40 +12956,39 @@ function renderCompteurs(){
         calc=compteursCalcules(person,annee,jusqua);
     document.getElementById("cptSub").textContent=id+" · "+annee
       +(db.maj?" · classeur du "+db.maj.slice(8,10)+"/"+db.maj.slice(5,7)+"/"+db.maj.slice(0,4):"");
+    /* LE CLIENT, LE 09/10/2026 : « optimiser l'onglet calendrier avec le même
+       style que les onglets horaire/équipe, surtout ne pas devoir faire de
+       scroll horizontal dans les cadres, et que les compteurs soient
+       professionnels et intuitifs ». Les deux tableaux (congés, flex time)
+       débordaient de leur cadre à 390 px (430 px de large pour 322). Chaque
+       compteur se lit désormais en une rangée : son nom, ce qui RESTE en grand,
+       une barre de ce qui est posé sur le droit de l'année. Le flex time a sa
+       jauge entre les bornes de la note du 18/09/2024 (−8 h, 80 h, 104 h), et
+       la confrontation au classeur tient en une ligne — elle ne parle que
+       s'il y a un écart. */
     var h=[];
 
     /* --- congés --- */
-    var solde=c.solde||{}, prev=c.prevision||{}, reste=c.restant||{};
-    h.push('<h3 class="cpt-t">Congés</h3>');
-    h.push('<div class="cpt-tab"><table><thead><tr><th>Compteur</th>'
-      +'<th>Au 1<sup>er</sup> janvier</th><th>Prévu</th><th>Restant</th></tr></thead><tbody>');
+    var solde=c.solde||{}, prev=c.prevision||{}, reste=c.restant||{}, lc=[];
     ["VA","RTT","DTT","RJF"].forEach(function(k){
       if(solde[k]===undefined && prev[k]===undefined) return;
       var pv=(prev[k+"Total"]!==undefined)?prev[k+"Total"]:prev[k];
-      var lib=libCompteur(db,k);
-      h.push('<tr><td>'+esc(lib)+(lib===k?"":' <span class="cpt-c">'+esc(k)+'</span>')+'</td><td>'
-             +hcell(solde[k])+'</td><td>'+hcell(pv)+'</td><td>'+hcell(reste[k],true)+'</td></tr>');
+      var tot=Number(solde[k])||0, pose=Number(pv)||0,
+          rs=(reste[k]!==undefined)?Number(reste[k]):R(tot-pose,2);
+      var lib=libCompteur(db,k), pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
+      lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'">'
+        +'<div class="cg-t"><span class="cg-n">'+esc(lib)+(lib===k?"":' <i>'+esc(k)+'</i>')+'</span>'
+        +'<span class="cg-r"><b>'+num(rs)+'</b> h</span></div>'
+        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h posées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div>'
+        +'<div class="cg-s"><span>'+num(pose)+' h posées</span><span>droit '+num(tot)+' h</span></div></div>');
     });
-    h.push('</tbody></table></div>');
-    h.push('<p class="cpt-n">Soldes 2025 inclus. « Prévu » compte les congés déjà posés dans l\'horaire, journées entières et heures isolées confondues.</p>');
+    if(lc.length) h.push(bloc("Congés","restant · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
 
-    /* --- flex time : les deux sources face à face --- */
+    /* --- flex time --- */
     var f=c.flex||{};
     var ecartP=(f["+FT"]!==undefined)?R(calc.ftPlus-f["+FT"],2):null;
     var ecartM=(f["-FT"]!==undefined)?R(calc.ftMoins-(-f["-FT"]),2):null;
-    h.push('<h3 class="cpt-t">Flex time</h3>');
-    h.push('<div class="cpt-tab"><table><thead><tr><th>Compteur</th>'
-      +'<th>Classeur</th><th>Recalculé depuis l\'horaire</th><th>Écart</th></tr></thead><tbody>');
-    h.push('<tr><td>Heures portées au compteur (+FT)</td><td>'+hcell(f["+FT"])
-      +'</td><td>'+hcell(calc.ftPlus)+'</td><td>'+ecart(ecartP)+'</td></tr>');
-    /* le classeur porte déjà les reprises en négatif : ne pas les retourner */
-    h.push('<tr><td>Heures reprises (−FT)</td><td>'+hcell(f["-FT"])
-      +'</td><td>'+hcell(calc.ftMoins?-calc.ftMoins:0)+'</td><td>'+ecart(ecartM)+'</td></tr>');
-    if(f.report!==undefined)
-      h.push('<tr><td>Report de '+(annee-1)+'</td><td>'+hcell(f.report)+'</td><td class="cpt-v">—</td><td class="cpt-v">—</td></tr>');
-    h.push('</tbody></table></div>');
-    h.push('<p class="cpt-n">Le report est saisi à la main en début d\'année : les compteurs repartent du solde de fin '
-      +(annee-1)+'. Il ne s\'ajoute pas aux deux lignes du dessus.</p>');
+    var ft=[];
     /* LE SOLDE AU JOUR J ET SES BORNES. Note de service du 18/09/2024
        (gestion des heures flex time, qui remplace celle du 26/04/2021) :
        minimum −8 h au moment de l'absence, maximum 104 h au moment de la
@@ -12955,25 +12998,42 @@ function renderCompteurs(){
        se lit donc AUJOURD'HUI (jour de l'usine) : report + heures portées −
        heures reprises jusqu'à ce jour. La fin d'année, elle, compte tout ce
        qui est déjà planifié. Le client, le 09/10/2026, en remettant la note. */
-    if(f.report!==undefined && jusqua){
-      var soldeJ=R(f.report+calc.ftPlusJ-calc.ftMoinsJ,2),
-          soldeFin=R(f.report+calc.ftPlus-calc.ftMoins,2),
-          etat=soldeJ>104?["ko","au-delà du plafond de 104 h"]
-              :soldeJ>80?["att","au-dessus de 80 h : des récupérations (−FT) sont à planifier pour redescendre à 80 h"]
-              :soldeJ<-8?["ko","sous le minimum de −8 h"]
-              :["ok","dans les bornes (−8 h à 104 h)"];
-      h.push('<div class="cpt-tuiles">'
-        +ctuile(num(soldeJ)+" h","solde au "+pad2(jusqua%100)+"/"+pad2(Math.floor(jusqua/100))+" (report compris)")
-        +ctuile(num(soldeFin)+" h","solde au 31/12, reprises planifiées comprises")+'</div>');
-      h.push('<p class="cpt-n cpt-ft-'+etat[0]+'">Solde du jour '+etat[1]+'. Le compteur monte et descend par heure entière.</p>');
+    var rep=(f.report!==undefined)?Number(f.report):0;
+    if(jusqua){
+      var soldeJ=R(rep+calc.ftPlusJ-calc.ftMoinsJ,2),
+          soldeFin=R(rep+calc.ftPlus-calc.ftMoins,2),
+          etat=soldeJ>104?["ko","Au-delà du plafond de 104 h"]
+              :soldeJ>80?["att","Au-dessus de 80 h : des −FT sont à planifier"]
+              :soldeJ<-8?["ko","Sous le minimum de −8 h"]
+              :["ok","Dans les bornes"];
+      var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
+      ft.push('<div class="ft-hero ft-'+etat[0]+'"><div class="ft-v"><b>'+num(soldeJ)+'</b> h</div>'
+        +'<div class="ft-l"><span>solde au '+pad2(jusqua%100)+'/'+pad2(Math.floor(jusqua/100))+'</span>'
+        +'<span class="ft-e">'+etat[1]+'</span></div></div>');
+      ft.push('<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
+        +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
+        +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
+        +'<div class="ft-gr"><span style="left:0">−8</span><span style="left:'+pos(0)+'%">0</span>'
+        +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>');
+      ft.push('<div class="calstats ft-st">'
+        +cst(num(rep),"h","Report "+(annee-1))
+        +cst("+"+num(calc.ftPlus),"h","Portées")
+        +cst("−"+num(calc.ftMoins),"h","Reprises")
+        +cst(num(soldeFin),"h","Au 31/12")+'</div>');
     }
+    var ecarts=[];
+    if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
+    if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
+    if(ecartP!==null||ecartM!==null)
+      ft.push(ecarts.length
+        ?'<p class="cpt-chk ko">Écart avec le pied du classeur : '+ecarts.join(", ")+'</p>'
+        :'<p class="cpt-chk ok">Concorde avec le pied du classeur</p>');
+    h.push(bloc("Flex time","bornes −8 h à 104 h",ft.join("")));
 
     /* --- récup. HS : hors classeur --- */
-    h.push('<h3 class="cpt-t">Récupération d\'heures supplémentaires</h3>');
-    h.push('<div class="cpt-tuiles">');
-    h.push(ctuile(num(R(calc.rhs,2))+" h","reprises sur l\'année, lues dans l\'horaire"));
-    h.push('</div>');
-    h.push('<p class="cpt-n">Ce compteur vit <b>hors du classeur</b> : les heures reprises y sont notées, celles qui l\'alimentent ne le sont pas. Le solde ne peut donc pas être affiché ici.</p>');
+    h.push(bloc("Récupération d'heures sup.","",
+      '<div class="cpt-li"><span>Reprises cette année</span><b>'+num(R(calc.rhs,2))+' h</b></div>'
+      +'<p class="cpt-n">Le solde vit hors du classeur : seules les reprises y sont notées.</p>'));
 
     /* --- temps de travail réduit ---
        Le bloc ne montrait que le congé parental : les huit personnes en
@@ -12981,52 +13041,43 @@ function renderCompteurs(){
        dans le classeur et rien à l'écran. Et « à planifier » ne se lisait
        que sous une écriture, alors que le classeur écrit tantôt « à
        planifier », tantôt « solde à planifier » — onze personnes sur seize
-       ne le voyaient pas. Mesuré par l'audit du 26/09/2026. Les trois
-       dispositifs se lisent ensemble, comme dans la légende de l'année. */
+       ne le voyaient pas. Mesuré par l'audit du 26/09/2026. */
     var cg=c.conges||{}, lots=[], vus={};
-    var NOM_REDUIT={CP:"congé parental",TP:"temps partiel",CT:"crédit-temps"};
+    var NOM_REDUIT={CP:"Congé parental",TP:"Temps partiel",CT:"Crédit-temps"};
     Object.keys(cg).sort().forEach(function(k){
       var m=/^(CP|TP|CT)(\d*)$/.exec(k); if(!m) return;
       vus[m[1]]=(vus[m[1]]||0)+1; lots.push([m[1],cg[k],vus[m[1]]]);
     });
     var aPlanifier=(cg["àplanifier"]!==undefined)?cg["àplanifier"]:cg["soldeàplanifier"];
     if(lots.length){
-      h.push('<h3 class="cpt-t">Temps de travail réduit</h3><div class="cpt-tuiles">');
-      lots.forEach(function(x){
-        h.push(ctuile(x[1]+" j",NOM_REDUIT[x[0]]+(vus[x[0]]>1?" · compteur "+x[2]:"")));
-      });
-      if(aPlanifier!==undefined) h.push(ctuile(aPlanifier+" j","à planifier"));
-      h.push('</div>');
-      if(lots.length>1) h.push('<p class="cpt-n">Plusieurs compteurs quand une période se termine et qu\'une autre s\'ouvre en cours d\'année.</p>');
+      var tr=lots.map(function(x){
+        return '<div class="cpt-li"><span>'+NOM_REDUIT[x[0]]+(vus[x[0]]>1?' <i>période '+x[2]+'</i>':'')+'</span><b>'+x[1]+' j</b></div>'; });
+      if(aPlanifier!==undefined) tr.push('<div class="cpt-li"><span>À planifier</span><b>'+aPlanifier+' j</b></div>');
+      h.push(bloc("Temps de travail réduit","journées posées",tr.join("")));
     }
 
     /* --- polyvalence --- */
     if(person.poly && person.poly.ateliers && person.poly.ateliers.length){
-      h.push('<h3 class="cpt-t">Polyvalence</h3><div class="cpt-tuiles">');
-      person.poly.ateliers.forEach(function(a){ h.push('<div><b style="font-size:12.5px">'+esc(a)+'</b><span>atelier</span></div>'); });
-      h.push('</div>');
-      if(person.poly.degre) h.push('<p class="cpt-n">Degré de polyvalence : '+esc(person.poly.degre)+'.</p>');
+      h.push(bloc("Polyvalence",person.poly.degre?"degré "+person.poly.degre:"",
+        '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ return '<span>'+esc(a)+'</span>'; }).join("")+'</div>'));
     }
 
-    /* --- absences de l'année --- */
-    var cles=Object.keys(calc.abs).sort();
+    /* --- congés et maladie de l'année --- */
+    var cles=Object.keys(calc.abs).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
     if(cles.length){
-      h.push('<h3 class="cpt-t">Congés et maladie de l\'année</h3><div class="cpt-tuiles">');
-      cles.forEach(function(k){ h.push(ctuile(num(R(calc.abs[k],2))+" h",libCompteur(db,k)===k?k:libCompteur(db,k))); });
-      h.push('</div>');
+      h.push(bloc("Congés et maladie de l'année","lus dans l'horaire",
+        '<div class="cpt-liste">'+cles.map(function(k){
+          var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
+          return '<div class="cpt-li"><span>'+esc(l)+(l===k?"":' <i>'+esc(k)+'</i>')+'</span><b>'+num(R(calc.abs[k],2))+' h</b></div>'; }).join("")+'</div>'));
     }
     hote.innerHTML=h.join("");
 
-    function hcell(v,fort){
-      if(v===undefined||v===null) return '<span class="cpt-v">—</span>';
-      return '<span class="cpt-v'+(fort?" fort":"")+'">'+num(v)+' h</span>';
+    function bloc(t,sous,corps){
+      return '<section class="cpt-bloc"><h3 class="cpt-t">'+esc(t)+(sous?'<span>'+esc(sous)+'</span>':'')+'</h3>'+corps+'</section>';
     }
-    function ecart(e){
-      if(e===null) return '<span class="cpt-v">—</span>';
-      if(!e) return '<span class="cpt-ok">concorde</span>';
-      return '<span class="cpt-ko">'+(e>0?"+":"")+num(e)+' h</span>';
+    function cst(v,u,k){
+      return '<div class="cstat"><span class="cstat-v"><b>'+esc(String(v))+'</b><i>'+u+'</i></span><span class="cstat-k">'+esc(k)+'</span></div>';
     }
-    function ctuile(v,l){ return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>'; }
   });
 }
 

@@ -2954,6 +2954,38 @@ calculé). Le vérificateur donne des sorties identiques à l'octet. Vérifié
 à 320 px (hors ligne), 390 px et 1280 px pour l'employé, et à 390 px pour
 le RH, sans aucune erreur.
 
+### Les compteurs du Calendrier, sans défilement de côté
+
+Le client, le 09/10/2026 : « optimiser l'onglet calendrier avec les mêmes
+styles que les onglets horaire/équipe, surtout ne pas devoir faire de
+scroll horizontal dans les cadres, et que les compteurs soient
+professionnels et intuitifs ». Mesuré avant le changement à 390 px : les deux
+tableaux de l'état des compteurs (congés, flex time) faisaient 430 px de
+large dans un cadre de 322 px, d'où un défilement de côté. Les phrases
+d'explication faisaient aussi plus de la moitié du cadre.
+`renderCompteurs()` dessine maintenant un bloc par sujet, séparés par des
+filets `--cadre` :
+
+- **Congés** : sur chaque rangée, le nom, ce qui RESTE en grand et une
+  barre « posé / droit de l'année ». Le restant devient rouge s'il est
+  négatif. Deux colonnes au bureau.
+- **Flex time** : le solde du jour en grand, avec son état. Une jauge de
+  −8 h à 104 h, le seuil de 80 h marqué. Quatre chiffres dans la bande de
+  `.calstats` (report, portées, reprises, solde au 31/12). La comparaison
+  au pied du classeur tient en une ligne, et elle ne passe au rouge que
+  s'il y a un écart.
+- **Récupération d'heures sup., temps réduit, congés et maladie** : des
+  rangées libellé / valeur. MAL et FORM sont écrits en toutes lettres
+  (`LIB_CPT_LONG`), car la légende du classeur ne les définit pas.
+- **Polyvalence** : une puce par atelier.
+
+Les cadres de l'onglet (les codes, les compteurs) prennent la bordure, le
+rayon et le relief de `#calCard`. Les styles `.cpt-tab` et `.cpt-tuiles`
+sont retirés. `compteursCalcules()` n'a pas changé : les quatre sorties du
+vérificateur sont identiques à l'octet. Mesuré à 320 px (hors ligne),
+390 px et 1280 px : aucun bloc ne défile de côté et rien ne dépasse de la
+page. Le cadre passe de 1 718 à 1 359 px de haut à 390 px.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
