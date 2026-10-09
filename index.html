@@ -1813,6 +1813,26 @@ body.sheet-on{overflow:hidden}
 .caduree button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .caform.jour:not(.rech) .cadu{grid-column:1 / -1}
 .caform.jour .caau{display:none}
+/* LE CONGÉ EN HEURES (note de service du 24/02/2022, le client le
+   09/10/2026) : trois choix de durée, et deux champs de plus en mode
+   « Heures » — combien d'heures, et en fin ou en début de pause. Le choix
+   « Heures » n'existe que dans l'onglet Congé. */
+.caduree{grid-template-columns:1fr 1fr 1fr}
+.caform:not(.conge) .caduree{grid-template-columns:1fr 1fr}
+.caform:not(.conge) .caduree [data-du="heures"]{display:none}
+.caform:not(.heures) .canbh,.caform:not(.heures) .camom{display:none}
+.caform.heures:not(.rech) .cadu{grid-column:1 / 4}
+.caform.heures:not(.rech) .canbh{grid-column:4 / 6}
+.caform.heures:not(.rech) .camom{grid-column:6 / 9}
+/* « Arrivée tard » ne tenait pas dans sa colonne à 320 px (49 px de place
+   pour 74) : marges et chevron resserrés pour ce seul menu. */
+.caform .camom select{padding-left:8px; padding-right:22px; background-position:right 7px center; font-size:13px}
+@media (max-width:379px){
+  .caform.heures:not(.rech) .cadu{grid-column:1 / 6}
+  .caform.heures:not(.rech) .canbh{grid-column:6 / 9}
+  .caform.heures:not(.rech) .camom{grid-column:1 / -1}
+}
+.caregle{display:block; font-size:11.5px; color:var(--muted); line-height:1.45}
 /* Recherche : pas d'aide, les trois champs sur une ligne, un seul titre. */
 /* Poste d'abord, puis la pause (le client, le 29/09/2026). */
 .caform.rech{grid-template-columns:1.3fr minmax(56px,.6fr) 1.2fr; gap:8px}
@@ -1848,6 +1868,8 @@ body.sheet-on{overflow:hidden}
   .caduree .calong{display:inline}
   .caduree button::first-letter{text-transform:none}
   .caform.jour .cadu,.caform.jour:not(.rech) .cadu{grid-column:3 / 5}
+  .caform.heures:not(.rech){grid-template-columns:110px minmax(230px,1fr) 160px 90px 170px auto}
+  .caform.heures:not(.rech) .cadu,.caform.heures:not(.rech) .canbh,.caform.heures:not(.rech) .camom{grid-column:auto}
   .caform.rech{grid-template-columns:220px 120px 200px max-content}
 }
 /* Le filet sous le formulaire n'apparaît qu'avec un résultat (le client,
@@ -3590,9 +3612,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <div class="caduree" role="radiogroup" aria-label="Durée">
           <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
           <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
+          <button type="button" role="radio" data-du="heures" aria-checked="false" tabindex="-1">Heures</button>
         </div>
         <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
         <label class="caau">Au<input type="date" id="caAu"></label>
+        <label class="canbh">Durée<select id="caNbH" aria-label="Nombre d'heures"><option value="1">1 h</option><option value="2" selected>2 h</option><option value="3">3 h</option><option value="4">4 h</option><option value="5">5 h</option><option value="6">6 h</option><option value="7">7 h</option></select></label>
+        <label class="camom">Moment<select id="caMom" aria-label="Moment"><option value="fin">Départ tôt</option><option value="debut">Arrivée tard</option></select></label>
         <button type="button" class="btn primary" id="caGo">Vérifier</button>
       </div>
       <div class="mqcorps" id="caCorps"></div>
@@ -11951,7 +11976,9 @@ function ajusterLignesJour(){
    Rien n'est écrit dans l'horaire : ce sont des propositions, que le
    contremaître fait ou ne fait pas. Deux vues qui compteraient autrement
    que le tableau du jour seraient pires qu'aucune — d'où le réemploi. */
-var caMode="conge", caDuree=lsGet("ui/caDuree")==="periode"?"periode":"jour";
+var caMode="conge", caDuree=/^(periode|heures)$/.test(lsGet("ui/caDuree")||"")?lsGet("ui/caDuree"):"jour";
+/* « Heures » n'existe que pour un congé : ailleurs il vaut « Un jour ». */
+function caDureeEff(){ return caMode==="recherche"?"jour":(caDuree==="heures"&&caMode!=="conge")?"jour":caDuree; }
 /* Plus de texte d'aide sous les onglets : le client, le 29/09/2026, « pas
    besoin des explications sous les boutons congés et absence » (la
    recherche n'en avait déjà plus). Les cadres de résultat se lisent seuls. */
@@ -12289,6 +12316,96 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
   });
   return res;
 }
+/* LE CONGÉ DE MOINS DE 8 HEURES EN PAUSE. Note de service du 24/02/2022
+   (prise de congé par heure, service Production), remise le 09/10/2026 ;
+   le client : « oui on peut regarder à cela, ça sera utile pour les
+   opérateurs ». Pour un congé de moins de 8 h :
+   - demandé PLUS DE 7 JOURS avant, il faut un remplaçant de la MÊME
+     FONCTION qui ne travaille PAS DANS LA MÊME PAUSE et vient EN FT —
+     l'après-midi qui arrive à 12 h au lieu de 14 h, un collègue qui n'est
+     pas en pause ce jour-là, ou un collègue en D — même si l'équipe est
+     complète ;
+   - demandé 7 JOURS OU MOINS avant : équipe complète, ou un remplaçant ;
+   - en période de D, personne n'est à indiquer.
+   « Même fonction » se lit comme partout : savoir tenir le poste
+   (caSait). Les règles de la maison tiennent : 12 h au plus par journée,
+   8 h de repos entre deux pauses (CA_REPOS_MIN), comptés sur les heures
+   NOUVELLES de qui remplace. La pause voisine est celle qui touche les
+   heures : en fin de pause, celle qui suit (la nuit : le matin du
+   lendemain) arrive plus tôt ; en début, celle qui précède (le matin : la
+   nuit de la veille) reste plus tard. */
+function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
+  var mmdd=pad2(m)+pad2(j), jour=an*10000+Number(mmdd);
+  var par=pausesDe(0)._par||equipeDuJour(db,an,m,j), g=null, moi=null;
+  ["AM","PM","N","D"].forEach(function(k){ (par[k]||[]).forEach(function(x){ if(x.p.id===id){ g=k; moi=x; } }); });
+  function dans(l){ return (l||[]).some(function(x){ return x.p.id===id; }); }
+  if(!g) return {v:"hors", t:"Déjà "+(dans(par.abs)?"malade":dans(par.cong)?"en congé":"en repos"), html:""};
+  if(g==="D") return {v:"ok", t:"Possible", html:'<span class="mql"><span class="caok">'
+    +"Période de D : un congé de moins de 8 h se demande sans remplaçant à indiquer.</span></span>"};
+  var pl=SHIFT_PLAGE[g], a=moment==="debut"?pl[0]:pl[1]-n, b=moment==="debut"?pl[0]+n:pl[1];
+  function hh(x){ x=((x%24)+24)%24; return pad2(Math.floor(x))+(x%1?"h"+pad2(Math.round(x%1*60)):""); }
+  var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null), o=null;
+  vue.postes.forEach(function(x){ x.gens.forEach(function(y){ if(y.p.id===id && !y.depuisD) o=x; }); });
+  var P=o?o.P:null;
+  if(!P) return {v:"non", t:"Poste introuvable", html:""};
+  var restants=o.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
+  var tenuSans=effectif(restants,P,jour), complet=tenuSans>=o.attendu;
+  /* MÊME FONCTION : pour un poste d'opérateur, pas un cadre (adjoint ou
+     contremaître) ; pour le poste de contremaître, un cadre, comme
+     ailleurs dans ce module (caSait). */
+  function ok(x){ return x.p.id!==id && caSait(x,P,jour) && (P.cm || !estCadre(x.p)); }
+  function plage(pid,dec){ var k=pausesDe(dec)[pid]; return k&&SHIFT_PLAGE[k]?[SHIFT_PLAGE[k][0]+24*dec,SHIFT_PLAGE[k][1]+24*dec]:null; }
+  /* Les heures nouvelles [s,e] (heures depuis 0 h du jour), et la journée
+     de la personne (dec) qui n'est pas comparée à elle-même. */
+  function reposOk(pid,s,e,dec){
+    for(var d=-2; d<=2; d++){
+      if(d===dec) continue;
+      var q=plage(pid,d); if(!q) continue;
+      if(q[1]<=s){ if(s-q[1]<CA_REPOS_MIN) return false; }
+      else if(q[0]>=e){ if(q[0]-e<CA_REPOS_MIN) return false; }
+      else return false;
+    }
+    return true;
+  }
+  var ecartes=0, voisins=[], repos=[], enD=[], vTitre="";
+  /* la pause voisine : [groupe, ses heures nouvelles, sa journée] */
+  var V=moment==="fin"
+    ? {AM:["PM",pausesDe(0)._par,[14-n,22],0], PM:["N",pausesDe(0)._par,[22-n,30],0], N:["AM",pausesDe(1)._par,[30-n,38],1]}[g]
+    : {AM:["N",pausesDe(-1)._par,[-2,6+n],-1], PM:["AM",pausesDe(0)._par,[6,14+n],0], N:["PM",pausesDe(0)._par,[14,22+n],0]}[g];
+  vTitre=(V[3]===1?"AM demain":V[3]===-1?"N veille":V[0])+(moment==="fin"?" arrive à "+hh(V[2][0])+" h":" reste jusqu'à "+hh(V[2][1])+" h");
+  if(V[1] && 8+n<=12) (V[1][V[0]]||[]).forEach(function(x){
+    if(!caPlein(x) || !ok(x)) return;
+    if(reposOk(x.p.id,V[2][0]+24*0,V[2][1],V[3])) voisins.push({p:x.p}); else ecartes++;
+  });
+  (par.off||[]).forEach(function(x){
+    if(!x.r || x.prevu || x.r.a || !ok(x)) return;
+    if(reposOk(x.p.id,a,b,0)) repos.push({p:x.p}); else ecartes++;
+  });
+  if(g==="AM"||g==="PM") (par.D||[]).forEach(function(x){
+    if((x.r && x.r.jourCode) || !ok(x)) return; enD.push({p:x.p}); });
+  var trouve=voisins.length||repos.length||enD.length, loin=delai>7;
+  var v=loin ? (trouve?{v:"chg",t:"Possible avec remplaçant"}:{v:"non",t:"Pas possible"})
+             : complet?{v:"ok",t:"Possible"}:trouve?{v:"chg",t:"Possible avec remplaçant"}:{v:"non",t:"Pas possible"};
+  var eqc=equipeALaPause(db,an,m,j);
+  var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh"><span class="mqpo">'+esc(P.t)+"</span>"
+    +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"
+    +(eqc[g]?" · Équipe "+esc(eqc[g]):"")+" · "+(moment==="fin"?"départ à "+hh(a)+" h":"arrivée à "+hh(b)+" h")
+    +" ("+n+" h)</span></span>"
+    +cadreEnPoste(restants.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
+      +new Array(Math.max(0,o.attendu-tenuSans)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenuSans,o.attendu)
+    +'<span class="caregle">'+(loin
+      ? "Demande à plus de 7 jours : un remplaçant de la même fonction, hors de votre pause, vient en FT ("+n+" h à son compteur flex time). Son nom et son accord vont sur la feuille de congé."
+      : complet ? "Demande à 7 jours ou moins : possible, l'équipe reste au complet sans vous ; un remplaçant n'est pas exigé."
+      : "Demande à 7 jours ou moins : l'équipe n'est pas au complet sans vous, il faut un remplaçant (son nom et son accord sur la feuille).")+"</span>";
+  if(loin || !complet){
+    if(voisins.length) h+=caCadre(vTitre,voisins.map(function(x){ return caChip(x.p.id,hh(V[2][0])+"-"+hh(V[2][1])); }).join(""));
+    if(repos.length) h+=caCadre("En repos · vient en FT",repos.map(function(x){ return caChip(x.p.id,hh(a)+"-"+hh(b)); }).join(""));
+    if(enD.length) h+=caCadre("En D",enD.map(function(x){ return caChip(x.p.id,hh(a)+"-"+hh(b)); }).join(""));
+    if(!trouve) h+='<span class="mqr"><span class="mqaucun">Aucun remplaçant de la même fonction'+(8+n>12?" (plus de 12 h pour la pause voisine)":"")+"</span></span>";
+    if(ecartes) h+='<span class="mqinc mqinc-ecart">'+ecartes+" écarté"+(ecartes>1?"s":"")+" : moins de 8 h de repos</span>";
+  }
+  return {v:v.v, t:v.t, html:h+"</span>"};
+}
 function caVerdict(r,mode){
   if(r.hors) return {v:"hors", t:mode==="conge"?"Déjà "+r.hors:"Pas prévu : "+r.hors};
   if(!r.trous.length){
@@ -12454,10 +12571,14 @@ function caForme(){
   /* La recherche se fait sur UNE date (le client, le 29/09/2026 : « la
      recherche doit être pour une date unique, pas de période ») : le choix
      de durée disparaît, et celui des deux autres modules reste retenu. */
-  var rech=caMode==="recherche", jour=rech||caDuree==="jour";
-  f.className="caform"+(jour?" jour":"")+(rech?" rech":"");
+  var rech=caMode==="recherche", de=caDureeEff(), jour=rech||de!=="periode";
+  f.className="caform"+(jour?" jour":"")+(rech?" rech":"")+(caMode==="conge"?" conge":"")+(de==="heures"?" heures":"");
   var carte=document.getElementById("caCard"); if(carte) carte.classList.toggle("rech",rech);
   var l=document.getElementById("caTDu"); if(l) l.textContent=jour?"Le":"Du";
+  /* le bouton coché suit la durée qui vaut vraiment ici (« Heures » n'existe
+     que pour un congé) */
+  Array.prototype.forEach.call(f.querySelectorAll(".caduree button"),function(b){
+    var on=b.dataset.du===de; b.setAttribute("aria-checked",String(on)); b.tabIndex=on?0:-1; });
 }
 function caIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
 function caDates(){
@@ -12515,7 +12636,7 @@ function caCalculer(){
   var rg=document.getElementById("caPause").value, rk=document.getElementById("caPoste").value;
   if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
   else { if(!id) return; lsSet("ui/caQui",id); }
-  var du=caLire("caDu"), au=(rech||caDuree==="jour")?du:(caLire("caAu")||du), an=Number(db.year);
+  var du=caLire("caDu"), au=(caDureeEff()!=="periode")?du:(caLire("caAu")||du), an=Number(db.year);
   if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
   var jours=[], d=new Date(du);
@@ -12542,6 +12663,19 @@ function caCalculer(){
       n[rr.v]++;
       h.push('<button type="button" class="mqj carech" data-m="'+m+'" data-j="'+j+'" title="Voir le tableau de ce jour">'
         +'<span class="mqls">'+rr.html+"</span></button>");
+      return;
+    }
+    if(caMode==="conge" && caDureeEff()==="heures"){
+      var rh=caCongeHeures(db,id,an,m,j,Number(document.getElementById("caNbH").value)||2,
+        document.getElementById("caMom").value,function(dec){
+          return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); },
+        Math.round((Date.UTC(an,m-1,j)-t0)/86400000));
+      n[rh.v]++;
+      var qh=dateEnMots(an,m,j,t0);
+      h.push('<div class="eqsem">'+esc(qh.moisNom)+"</div>"
+        +'<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qh.titre)+'">'
+        +qh.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+rh.v+'">'
+        +esc(rh.t)+"</span></span>"+rh.html+"</span></button>");
       return;
     }
     var r=caSimuler(db,id,an,m,j,caMode,function(dec){
