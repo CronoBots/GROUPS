@@ -3670,12 +3670,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
           <p class="lede">À venir — module d'administration BWZ RH.</p>
         </div>
       </details>
-      <details class="fold">
+      <details class="fold" id="quiFold">
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
-        <div id="quiCompte" hidden class="pad stack">
-          <p class="lede haut" id="quiCompteTxt"></p>
-          <div class="foot"><span class="sp"></span><button type="button" class="btnlike" id="btnChangerCompte">Changer de compte</button></div>
-        </div>
         <div id="quiChoix">
           <p class="lede haut" id="quiChoixTxt">Choisissez votre identifiant : votre horaire de l'année se
             remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont
@@ -13751,27 +13747,20 @@ function appliquerCompte(acc){
   if(typeof majBrandsub==="function") setTimeout(majBrandsub,150);
 }
 /* « Qui je suis » (Réglages) : l'identité est GOUVERNÉE par le compte.
-   - Employé connecté : lecture seule (identité du compte) + « Changer de compte ».
-     Évite de se remettre « sans identité » via l'option vide tout en restant connecté.
+   - Employé connecté : le cadre disparaît — « Mon compte » dit déjà le
+     trigramme, la fonction et porte la déconnexion (le client, le 09/10/2026 :
+     « c'est pas redondant ces 2 sections ? »).
    - BWZ RH (sans identité) : le sélecteur reste actif pour choisir un identifiant
      à visualiser (sinon l'app RH reste vide), avec une invite dédiée. */
 function majQuiJeSuis(){
-  var compte=document.getElementById("quiCompte"), choix=document.getElementById("quiChoix");
-  if(!compte||!choix) return;
+  var fold=document.getElementById("quiFold"), choix=document.getElementById("quiChoix");
+  if(!fold||!choix) return;
   var acc=st.account||lsGet("account/current");
-  var chg=document.getElementById("btnChangerCompte"); if(chg&&!chg._wired){ chg._wired=true; chg.onclick=deconnecterCompte; }
-  if(acc && acc.role==="employe" && acc.tri){
-    var txt=document.getElementById("quiCompteTxt");
-    if(txt) txt.innerHTML='Vous êtes connecté en tant que <b>'+esc(idLisible(acc.tri))+'</b>'
-      +(acc.cat?' · '+esc(acc.cat):'')+'. Votre horaire et vos compteurs suivent ce compte.';
-    compte.hidden=false; choix.hidden=true;
-  } else {
-    compte.hidden=true; choix.hidden=false;
-    var ct=document.getElementById("quiChoixTxt");
-    if(ct){
-      if(acc && acc.role==="rh") ct.innerHTML='Connecté en <b>BWZ RH</b>. Choisissez un identifiant pour afficher un horaire et une estimation de fiche (optionnel).';
-      else ct.textContent="Choisissez votre identifiant : votre horaire de l'année se remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont désignées que par leurs initiales ou leur matricule.";
-    }
+  fold.hidden=!!(acc && acc.role==="employe" && acc.tri);
+  var ct=document.getElementById("quiChoixTxt");
+  if(ct){
+    if(acc && acc.role==="rh") ct.innerHTML='Connecté en <b>BWZ RH</b>. Choisissez un identifiant pour afficher un horaire et une estimation de fiche (optionnel).';
+    else ct.textContent="Choisissez votre identifiant : votre horaire de l'année se remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont désignées que par leurs initiales ou leur matricule.";
   }
 }
 function majCompteUI(){

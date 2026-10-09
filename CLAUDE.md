@@ -2907,6 +2907,21 @@ mois, une année), qui passent encore par `confirm()`. Éprouvé à 320 (hors
 ligne), 390 et 1280 px : aucune boîte du système, Échap et Annuler gardent
 le compte, Se déconnecter le retire et rouvre l'écran de connexion.
 
+### « Qui je suis » ne se montre plus à un employé connecté
+
+Le client, le 09/10/2026, capture des Réglages : « c'est pas redondant ces
+2 sections ? ». Ça l'était. Pour un employé, « Mon compte » donnait le
+trigramme, la fonction et un bouton de déconnexion, et « Qui je suis »
+répétait la même phrase avec un second bouton qui faisait la même chose.
+Le cadre « Qui je suis » (`#quiFold`) est donc caché pour un compte
+employé ; son texte en double et `#btnChangerCompte` sont supprimés. Il
+reste affiché pour BWZ RH (le sélecteur sert à choisir l'horaire à
+afficher) et quand personne n'est connecté. `#prefillId` reste dans la
+page, caché : le pré-remplissage continue de le lire (VBN rempli, salaire
+calculé). Le vérificateur donne des sorties identiques à l'octet. Vérifié
+à 320 px (hors ligne), 390 px et 1280 px pour l'employé, et à 390 px pour
+le RH, sans aucune erreur.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
