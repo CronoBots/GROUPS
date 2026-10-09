@@ -1840,6 +1840,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/verifier-integralite.py` | confronte l'horaire au classeur entier : ce qui ne lui arrive pas |
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
+| `tools/extraire-fiches.py` | recopie toute une fiche de paie en JSON, sans rien d'identifiant — sortie hors du dépôt |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
@@ -1896,6 +1897,51 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 était silencieuse pendant deux commits, qui ont annoncé « fiches d'accord »
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
+
+### Toutes les fiches, recopiées une fois pour toutes
+
+Le client, le 09/10/2026 : « garde quelque part toutes les infos des fiches
+de paie, afin de pouvoir réutiliser les chiffres pour toute une série de
+vérifications ». `comparer-fiches.py` ne garde que des heures, le temps
+d'une comparaison ; `tools/extraire-fiches.py` recopie la fiche ENTIÈRE :
+
+```bash
+python3 tools/extraire-fiches.py CONTRAT=TRI,CONTRAT=TRI /hors/du/depot/fiches-2026.json FICHE.pdf …
+```
+
+**Il lit par la POSITION des mots** (pymupdf), pas par le flux de texte, qui
+mélange les deux colonnes : à gauche les lignes de rémunération et de
+retenue (quantité, libellé, code A/B/D/F/G, montant) et les bases ; à droite
+les informations générales, les soldes d'année et le détail des jours ; la
+ligne « EUR » du récapitulatif ; les prestations jour par jour d'un ouvrier.
+Le compte individuel annuel se lit par trimestre, et ce qui n'a pas de
+structure connue (une page scannée) est recopié mot par mot avec sa
+position.
+
+**Le contrôle de fidélité est la fiche elle-même** : sur les 21 fiches
+mensuelles de VBN et de LCI, la somme des lignes extraites redonne le TOTAL
+imprimé des rémunérations ET des retenues, et le récapitulatif se boucle
+(brut − ONSS = imposable, − précompte = net, + divers = net à recevoir).
+
+**Ce qui ne sort jamais** : le bloc nom et adresse, le numéro de registre
+national et la date de naissance qu'il contient, le numéro de contrat
+(remplacé par le trigramme donné), l'IBAN et le BIC, la référence de
+diffusion. **La garantie** relève tout cela sur les fiches elles-mêmes et
+le cherche en mots entiers dans la sortie ; un seul, et rien n'est écrit.
+**Elle a fermé trois fois à la mise au point, et à raison** : la ligne du
+virement (IBAN) entrait dans les informations générales, l'en-tête du
+compte individuel (contrat) dans ses trimestres, et des montants pris pour
+le bloc adresse.
+
+**La sortie porte des montants de salaire** : l'outil refuse de l'écrire
+sous la racine du dépôt, et refuse une fiche qui serait dans le dépôt. Où
+la garder durablement est une question posée au client le 09/10/2026 (un
+dépôt privé à part, recommandé). **Les fiches ne se poussent jamais sur le
+git**, même pour les retirer ensuite : l'historique public les garderait.
+
+**Reste à lire** : deux documents de VBN datés du 24/02 sont presque
+entièrement scannés (33 et 15 mots lisibles) ; leurs chiffres demandent
+l'OCR.
 
 ### Les relevés de pointage d'autres personnes, anonymisés
 
