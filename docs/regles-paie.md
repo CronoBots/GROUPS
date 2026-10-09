@@ -1108,6 +1108,17 @@ soit.
 « rien pour l'instant, mais garder l'info ». Une liste codée sans emploi
 égarerait celui qui la relit ; elle vit donc ici, et non dans `index.html`.
 
+**Ce que dit la note du 20/12/2017 sur la filière intérimaires de
+production** (remise le 09/10/2026) : sept intérimaires au plus, sur un
+poste d'opérateur, avec un **salaire identique à celui du poste pour le
+personnel Biowanze** pendant le remplacement ou la formation ; quatre mois
+pour juger s'ils peuvent devenir titulaires ; aucun remplacement avant
+d'avoir réussi les check-lists du poste ; et, **pour un remplacement qui
+engendre une prime de rappel, le personnel permanent est consulté
+d'abord**, avant les intérimaires. Le calcul de la paie ne change donc pas
+pour un intérimaire ; l'ordre des propositions de rappel, lui, pourrait le
+suivre (piste proposée au client, rien n'est codé).
+
 **Ce à quoi elle servira** — le client, le 22/09/2026 : « quand je te
 donnerai une fiche de paye d'un ouvrier, il ne faudra pas calculer les
 intérimaires de la même manière (pareil pour les primes et jours de paye) ».
@@ -2020,3 +2031,47 @@ règle du 15 de `fractionDuMois()` tombe donc juste pour tout contrat
 récent. Mesuré sur les sept contrats `TP` du classeur : tous à 10 ou 20 %,
 deux commencent un 15 ou un 16 (LAX en 2024 et DWS en mai 2025, avant la
 note de 2025) et celui de DWS dure 25 mois — sans effet sur 2026.
+
+### La suite, remise le même jour
+
+Le client, le 09/10/2026 (« je vais t'envoyer la suite des documents
+explicatifs », puis « suite ») : sept documents de plus, rangés comme les
+autres dans `CronoBots/groups-fiches/regles/`. La note explicative de la
+fiche de paie et la note sur les repos étaient déjà là, texte identique.
+
+**La note explicative du relevé mensuel (novembre 2025)** donne les codes
+des relevés de pointage que l'OCR du 27/09 avait dû deviner, et les
+confirme : `P1x` / `P3x` / `P5x` / `P8x` (semaine, samedi, dimanche, férié ;
+x = 0 jour, 1 matin, 2 après-midi, 3 nuit), `U` + jour + pause pour les
+heures sup, `Z03` repos payé, `Y90`/`Y91` week-end, `J84` déplacement
+(formation ou rappel), `F0` flex time positif, `A87` temps partiel, 9063 les
+chèques-repas ; absences 47 DTT, 54 heures sup à récupérer, 58 RTT, 60 flex
+time, 75 vacances, 23 congé parental, 50 récupération de férié, 79 sans
+solde, 99 temps partiel. Les durées sont en **centièmes** d'heure. Trois
+choses de plus :
+- **`Vxx` remplace `Uxx` quand les heures sup sont payées sans être
+  récupérées — les « heures sup volontaires »**. C'est sans doute la paire
+  « à compenser » / « pas compenser » des fiches de VBN (question ouverte,
+  `CLAUDE.md`) : le relevé de mars de VBN dirait `V` les 21 et 22/03 ;
+- deux horaires de jour existent côte à côte : **A40 fixe 7h30-16h00** et
+  **A21 / 1A60 fixe 7h-15h** (plus deux flottants, 8A41 et 8A21). La
+  question du D (7h30-16 de la note de 2009 ou 7-15 du client) n'est donc
+  pas tranchée par ce document : les deux sont des horaires réels ;
+- le flex time des horaires de jour flottants perd ce qui dépasse 12 h à
+  la fin du trimestre — une règle d'horaire flottant, pas des pauses.
+
+**La procédure des primes de rappel (OP_BWZ_CoD_00020)** est celle que
+l'application applique depuis septembre (« Primes de rappel » ci-dessus) :
+rien ne change. Elle vaut pour les permanents ET les intérimaires.
+
+**La prime de garde** (janvier 2026, remplacée en septembre 2026) paie une
+semaine ou un week-end de garde, plus 2 h de déplacement et les heures de
+présence en heures sup. L'horaire d'équipe ne porte aucune garde : rien à
+coder pour les pauses.
+
+**Les primes ponctuelles** (achat ou construction d'un logement, enfant de
+12 ans, mariage ; montants 2026 dans le PDF privé) ne sont pas des
+éléments du mois : rien à coder.
+
+**La filière intérimaires de production (20/12/2017)** : voir « Les
+intérimaires ».
