@@ -2917,6 +2917,60 @@ le bas de page, la bulle et le bouton de retour en haut remontent de
 10 px. Mesuré à 320 (hors ligne) et 390 px : 16 px des trois bords, et le
 cadre du Planning toujours à 16 px de la capsule.
 
+### « Votre horaire a changé » : dans l'application, et sur le téléphone
+
+Le client, le 09/10/2026 : « des notifications pour l'opérateur connecté,
+en cas de changement d'horaire, de poste ; il faut que cela soit
+professionnel », puis « go pour 1 et 2 » (dans l'application, et une
+notification du téléphone à l'ouverture). Le niveau 3 — une notification
+application fermée — demanderait un serveur d'envoi et une liste
+d'appareils abonnés hors du téléphone : écarté pour l'instant, c'est sa
+décision.
+
+**Il n'y a pas de serveur** : l'horaire change quand un classeur est
+installé, et l'application le découvre en s'ouvrant (le nouveau `V` vide
+les caches, l'horaire neuf arrive).
+
+- **L'instantané** (`notif/vu/<id>/<année>`) : pour chaque journée
+  d'aujourd'hui à la fin de l'horaire, ce que la cellule dit —
+  `descJourNotif()` : la pause, l'atelier ÉCRIT dans la cellule
+  (`posteEcrit`), le code de journée, le congé, « rappel ». Une absence
+  d'une journée entière se dit seule (« Maladie », pas « AM · MAL »). Le
+  poste vient de la cellule de la personne, jamais du rééquilibrage : on
+  annonce SON horaire, pas un placement déduit des absences des autres.
+- **La comparaison** (`detecterChangements()`) : une journée dont la
+  lecture a changé entre dans l'attente (`notif/attente/…`) avec son AVANT ;
+  elle y reste jusqu'au bouton « Vu » ou jusqu'à ce que la date passe. La
+  première fois, on photographie sans rien signaler ; le passé ne compte
+  pas ; un commentaire qui change sans changer la lecture non plus.
+- **La carte** sous le héros : liseré cyan (un changement n'est pas une
+  faute), « Votre horaire a changé · n journées modifiées · classeur du… »,
+  puis une ligne par série — **les journées qui se suivent et changent
+  pareil n'en font qu'une** (`groupesNotif()`) : « Du lundi 12 octobre au
+  dimanche 22 novembre · 42 j → Maladie ». L'avant barré ne s'écrit que
+  s'il est le même pour toute la série. Cinq lignes, le reste se déplie.
+  Une ligne ouvre son mois. Un point cyan sur l'onglet Accueil (`#notifDot`).
+- **Le téléphone** : Réglages → Mon compte → « Notifications du
+  téléphone », Activer / Désactiver (`ui/notifTel`). La permission n'est
+  demandée qu'à ce clic. `showNotification()` par le service worker — la
+  seule voie d'iOS, et seulement pour l'app installée sur l'écran
+  d'accueil (le réglage le dit sur un iPhone qui ne l'est pas). Une
+  notification par ouverture, seulement pour les journées NOUVELLEMENT
+  changées, même étiquette pour remplacer la précédente ; la toucher ramène
+  l'app (`notificationclick` dans `sw.js`).
+
+**Éprouvé sur un vrai changement** : instantané pris sur le classeur du
+01/10, puis celui du 09/10 servi à sa place. YBT : 65 journées, d'abord
+65 lignes « AM → AM · MAL » — d'où le regroupement et le libellé seul de
+l'absence ; ensuite « Du lundi 12 octobre au dimanche 22 novembre · 42 j →
+Maladie » et quatre lignes. VBN : deux journées. Chromium sans écran répond
+toujours « refusé » aux notifications : l'épreuve simule l'autorisation et
+enregistre ce que `showNotification()` reçoit — une à l'activation, une au
+changement, aucune au rechargement suivant. Vérificateur identique à
+l'octet ; rien ne déborde à 320 (hors ligne), 390 et 1280 px. **Seul
+l'iPhone du client dira si la notification s'affiche** une fois l'app
+installée.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
