@@ -1852,6 +1852,40 @@ body.sheet-on{overflow:hidden}
 .vsprec small{font-size:11px; color:var(--muted)}
 .slipbar{display:flex; gap:8px; justify-content:flex-end; padding:0 16px 10px}
 #foldSteps .steps{margin-top:0}
+/* « VOTRE HORAIRE A CHANGÉ » (renderNotif) : sous le héros, une carte à
+   liseré cyan — l'accent de la marque, pas une alerte rouge : un
+   changement n'est pas une faute. Une ligne par journée : la date, l'avant
+   barré, l'après en gras. */
+.notifcard{border:1px solid var(--cadre); border-left:3px solid var(--marque-vif); border-radius:var(--rj);
+  background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.18); overflow:hidden}
+.nt-tete{display:flex; align-items:center; gap:11px; padding:12px 14px}
+.nt-ico{flex:0 0 auto; display:grid; place-items:center; width:34px; height:34px; border-radius:50%;
+  color:var(--marque-vif); background:color-mix(in srgb,var(--marque-vif) 16%,transparent)}
+.nt-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+.nt-t b{font-size:14px; color:var(--ink)}
+.nt-t span{font-size:11.5px; color:var(--muted)}
+.nt-vu{flex:0 0 auto; min-height:34px; padding:0 14px; border-radius:999px; border:1px solid var(--cadre);
+  background:var(--surface2); color:var(--ink2); font:600 12.5px/1 inherit; font-family:inherit; cursor:pointer}
+.nt-l{list-style:none; margin:0; padding:0 0 4px}
+.nt-l li+li{border-top:1px solid var(--trait)}
+.nt-l li:first-child{border-top:1px solid var(--trait)}
+.nt-j{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:3px 12px; width:100%;
+  padding:9px 14px; background:none; border:0; color:inherit; font:inherit; text-align:left; cursor:pointer}
+.nt-d{font-size:12.5px; font-weight:650; color:var(--ink2)}
+.nt-ch{display:inline-flex; flex-wrap:wrap; align-items:baseline; gap:6px; font-size:12.5px}
+.nt-d small{font-weight:500; color:var(--muted)}
+.notifcard:not(.nt-ouvert) .nt-plus{display:none}
+.nt-tout{display:block; width:100%; padding:9px 14px 11px; border:0; border-top:1px solid var(--trait); background:none;
+  color:var(--marque-vif); font:600 12.5px/1 inherit; font-family:inherit; text-align:left; cursor:pointer}
+.nt-ch s{color:var(--faint); text-decoration-thickness:1px}
+.nt-ch i{font-style:normal; color:var(--marque-vif)}
+.nt-ch b{color:var(--ink)}
+@media (hover:hover){ .nt-j:hover{background:var(--surface2)} .nt-vu:hover{color:var(--ink); border-color:var(--trait-fort)} }
+.notifreg{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 2px; border-top:1px solid var(--trait)}
+.notifreg>div{display:flex; flex-direction:column; gap:2px; min-width:0}
+.notifreg b{font-size:13px} .notifreg span{font-size:11.5px; color:var(--muted)}
+.notifreg .btn{flex:0 0 auto}
+.tabs #notifDot{background:var(--marque-vif)}
 /* Les mois repliables (mqMoisTete) : l'intertitre devient un bouton de la
    largeur du cadre, avec un chevron ; le contenu d'un mois replié disparaît. */
 .mqtog{display:flex; width:calc(100% + 32px); justify-content:space-between; align-items:center; gap:10px;
@@ -3437,7 +3471,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="true" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L12 4l8.5 6.5"/><path d="M5.5 9v10.5h13V9"/><circle cx="12" cy="13.2" r="2.1"/><path d="M8.6 19.5a3.4 3.4 0 0 1 6.8 0"/></svg>
-      Accueil</button>
+      Accueil<span class="dotwarn" id="notifDot" hidden><span class="sr-only">horaire modifié</span></span></button>
     <button type="button" role="tab" id="tab-salaire" data-v="salaire" aria-selected="false" aria-controls="v-salaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M14.6 9.6a3 3 0 1 0 0 4.8"/><path d="M8.3 11.2h4.3M8.3 12.9h4.3"/></svg>
       Salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
@@ -3510,6 +3544,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
+    <div class="notifcard" id="notifCard" role="status" aria-live="polite" hidden></div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -3857,6 +3892,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <summary>Mon compte <span class="sub">trigramme lié à cet appareil</span></summary>
         <div class="pad stack">
           <div class="compte-info" id="compteInfos"></div>
+          <div class="notifreg">
+            <div><b>Notifications du téléphone</b><span id="notifEtat"></span></div>
+            <button type="button" class="btn sm" id="notifBtn" aria-pressed="false">Activer</button>
+          </div>
           <div class="foot">
             <span class="sp"></span>
             <button type="button" class="btnlike" id="btnDeconnexion">Se déconnecter / changer de compte</button>
@@ -8529,6 +8568,174 @@ function _pfEtat(db,p){
   }
   return etat;
 }
+/* ===================== ce qui a changé dans MON horaire =====================
+   Le client, le 09/10/2026 : « des notifications pour l'opérateur connecté, en
+   cas de changement d'horaire, de poste ; il faut que cela soit professionnel »,
+   puis « go pour 1 et 2 » — dans l'application, et une notification du
+   téléphone quand elle s'ouvre. Il n'y a pas de serveur : l'horaire change quand
+   un classeur est installé, et c'est l'application qui le découvre en
+   s'ouvrant.
+
+   UN INSTANTANÉ PAR TRIGRAMME (notif/vu/<id>) : pour chaque journée d'AUJOURD'HUI
+   à la fin de l'horaire, la cellule telle qu'écrite et ce qu'elle dit
+   (descJourNotif : la pause, l'atelier écrit, le congé, le rappel). À
+   l'ouverture suivante, une journée dont la lecture a changé entre dans la
+   liste d'attente (notif/attente/<id>), avec ce qu'elle disait AVANT ; elle y
+   reste jusqu'au bouton « Vu », ou jusqu'à ce que la date soit passée. Le
+   passé ne compte pas : une correction de juillet n'est pas une nouvelle pour
+   qui l'a vécue. Un commentaire qui change sans changer la lecture ne compte
+   pas non plus. La toute première fois, on photographie sans rien signaler.
+
+   Le poste se lit dans la CELLULE de la personne, pas dans le rééquilibrage :
+   c'est son horaire qu'on lui annonce, pas le placement que l'application
+   déduit des absences des autres. */
+var NOTIF_ABS_LIB={SMG:"Maladie",VA:"Vacances",RTT:"RTT",RJF:"RJF",RHS:"Récup. HS",DTT:"Congé d'ancienneté",CP:"Congé parental",TP:"Temps partiel",CT:"Crédit-temps"};
+function descJourNotif(db,p,annee,m,j){
+  var mmdd=pad2(m)+pad2(j), raw=p.d[mmdd];
+  if(raw===undefined) return null;
+  var c=moisDe(p,annee,m,st.params.hJour);
+  var r=lireJournee(db,raw,annee,m,j,c.fit,c.ep[j],st.params.hJour,c.rv[j]);
+  var parts=[];
+  var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
+  if(pv) parts.push(pv);
+  var k=posteEcrit(raw);
+  if(k){ var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k) P0=P; }); if(P0) parts.push(P0.t); }
+  if(r.jourCode) parts.push(etiqJour(r.jourCode));
+  /* Une absence d'une journée entière se dit seule : « Maladie », et non
+     « AM · MAL » — la pause est celle qu'on ne fera pas. */
+  if(r.a){ var A=ABSMAP[r.a];
+    if(A && A.h>=st.params.hJour-0.01 && !(r.h>0)) return NOTIF_ABS_LIB[A.k]||r.a;
+    parts.push(r.a); }
+  if(r.rs || (r.s && raw[2] && /rappe[lk]/i.test(String(raw[2])))) parts.push("rappel");
+  return parts.length?parts.join(" · "):"Repos";
+}
+function instantaneNotif(db,p){
+  var an=Number(db.year), ju=jourUsine(), out={};
+  if(ju.getFullYear()>an) return out;
+  var d=ju.getFullYear()<an?new Date(an,0,1):new Date(ju.getFullYear(),ju.getMonth(),ju.getDate());
+  for(;d.getFullYear()===an;d.setDate(d.getDate()+1)){
+    var m=d.getMonth()+1, j=d.getDate(), t=descJourNotif(db,p,an,m,j);
+    if(t!==null) out[pad2(m)+pad2(j)]=t;
+  }
+  return out;
+}
+function dateNotif(an,mmdd){
+  var d=new Date(an,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
+  return JOURS_LONGS[(d.getDay()+6)%7]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase();
+}
+/* LES JOURNÉES QUI SE SUIVENT ET CHANGENT PAREIL ne font qu'une ligne :
+   l'épreuve sur le classeur du 09/10 donnait 65 lignes pour une seule
+   maladie (YBT, du 12/10 à la fin de l'année). « Du lundi 12 octobre au
+   jeudi 31 décembre · 65 j » et « → Maladie » ; l'avant ne s'écrit que s'il
+   est le même pour toutes, sans quoi on barrerait une liste. */
+function groupesNotif(att,an,ks){
+  var g=[], cur=null;
+  ks.forEach(function(k){
+    var a=att[k], d=new Date(an,Number(k.slice(0,2))-1,Number(k.slice(2)));
+    if(cur && cur.apres===a.apres && (d-cur.dFin)<=86400000*1.5){
+      cur.fin=k; cur.dFin=d; cur.n++; if(cur.avant!==a.avant) cur.avant=null; }
+    else { cur={de:k,fin:k,dFin:d,n:1,avant:a.avant,apres:a.apres}; g.push(cur); }
+  });
+  return g;
+}
+function libGroupeNotif(an,x){
+  function bas(t){ return t.charAt(0).toLowerCase()+t.slice(1); }
+  return x.n===1?dateNotif(an,x.de):"Du "+bas(dateNotif(an,x.de))+" au "+bas(dateNotif(an,x.fin));
+}
+/* Compare, met la liste d'attente à jour, rend les journées NOUVELLEMENT
+   changées (pour la notification du téléphone). */
+function detecterChangements(db,p){
+  var an=Number(db.year), cle=p.id+"/"+an;
+  var vu=lsGet("notif/vu/"+cle), now=instantaneNotif(db,p);
+  var att=lsGet("notif/attente/"+cle)||{}, neufs=[], k;
+  var ju=jourUsine(), auj=ju.getFullYear()<an?"0000":(ju.getFullYear()>an?"9999":pad2(ju.getMonth()+1)+pad2(ju.getDate()));
+  for(k in att) if(k<auj) delete att[k];
+  if(vu && vu.j){
+    for(k in now){
+      if(!(k in vu.j) || vu.j[k]===now[k]) continue;
+      if(att[k]){ if(att[k].avant===now[k]) delete att[k]; else if(att[k].apres!==now[k]){ att[k].apres=now[k]; neufs.push(k); } }
+      else { att[k]={avant:vu.j[k], apres:now[k]}; neufs.push(k); }
+    }
+  }
+  lsSet("notif/vu/"+cle,{maj:db.maj||"",j:now});
+  lsSet("notif/attente/"+cle,att);
+  return {att:att, neufs:neufs.sort(), an:an, cle:cle};
+}
+function renderNotif(db,p){
+  var card=document.getElementById("notifCard"), dot=document.getElementById("notifDot");
+  if(!card) return;
+  if(!db||!p){ card.hidden=true; if(dot) dot.hidden=true; return; }
+  var x=detecterChangements(db,p), ks=Object.keys(x.att).sort();
+  if(dot) dot.hidden=!ks.length;
+  card.hidden=!ks.length;
+  if(!ks.length){ card.innerHTML=""; return; }
+  card.innerHTML='<div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>'
+    +'<div class="nt-t"><b>Votre horaire a changé</b><span>'+ks.length+" journée"+(ks.length>1?"s":"")+" modifiée"+(ks.length>1?"s":"")
+    +(db.maj?" · classeur du "+esc(dateFr(db.maj)):"")+'</span></div>'
+    +'<button type="button" class="nt-vu" id="notifVu">Vu</button></div>'
+    +'<ul class="nt-l">'+groupesNotif(x.att,x.an,ks).map(function(a,i){
+      return '<li'+(i>=5?' class="nt-plus"':'')+'><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"><span class="nt-d">'+esc(libGroupeNotif(x.an,a))
+        +(a.n>1?'<small> · '+a.n+' j</small>':'')+'</span>'
+        +'<span class="nt-ch">'+(a.avant?'<s>'+esc(a.avant)+'</s>':'')+'<i aria-label="devient">→</i>'
+        +'<b>'+esc(a.apres)+'</b></span></button></li>'; }).join("")
+    +'</ul>';
+  /* Au-delà de cinq lignes, le reste se déplie d'un appui. */
+  card.classList.remove("nt-ouvert");
+  var nG=card.querySelectorAll(".nt-plus").length;
+  if(nG){ var bt=document.createElement("button"); bt.type="button"; bt.className="nt-tout";
+    bt.textContent="Voir les "+nG+" autre"+(nG>1?"s":""); card.appendChild(bt);
+    bt.onclick=function(){ card.classList.add("nt-ouvert"); bt.parentNode.removeChild(bt); }; }
+  document.getElementById("notifVu").onclick=function(){
+    lsSet("notif/attente/"+x.cle,{}); card.hidden=true; card.innerHTML=""; if(dot) dot.hidden=true; };
+  card.querySelector(".nt-l").onclick=function(e){
+    var b=e.target.closest?e.target.closest(".nt-j"):null; if(!b) return;
+    try{ loadMonth(x.an,Number(b.dataset.m)-1); }catch(er){}
+    var c=document.getElementById("calCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start"});
+  };
+  if(x.neufs.length) notifierTelephone(p,x);
+}
+/* LA NOTIFICATION DU TÉLÉPHONE, seulement si l'opérateur l'a activée dans les
+   Réglages et que le téléphone l'a permise. Elle passe par le service worker
+   (showNotification), la seule voie qu'iOS accepte, et seulement pour l'app
+   installée sur l'écran d'accueil. Une par ouverture, qui résume ; la même
+   étiquette (tag) remplace la précédente au lieu d'empiler. */
+function notifActive(){ return !!lsGet("ui/notifTel") && ("Notification" in window) && Notification.permission==="granted"; }
+function notifierTelephone(p,x){
+  if(!notifActive() || !navigator.serviceWorker) return;
+  var gs=groupesNotif(x.att,x.an,x.neufs);
+  var l=gs.slice(0,3).map(function(a){ return libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" → ":"")+a.apres; });
+  if(gs.length>3) l.push("et "+(gs.length-3)+" autre"+(gs.length>4?"s":"")+" changement"+(gs.length>4?"s":""));
+  navigator.serviceWorker.ready.then(function(reg){
+    return reg.showNotification("Horaire modifié · "+idLisible(p.id),{
+      body:l.join("\n"), icon:"icon-192.png", badge:"favicon.png", tag:"horaire-"+p.id, renotify:true,
+      data:{url:"./"}});
+  }).catch(function(){});
+}
+function majNotifReglage(){
+  var el=document.getElementById("notifEtat"), b=document.getElementById("notifBtn"); if(!el||!b) return;
+  var ok=("Notification" in window) && navigator.serviceWorker;
+  var inst=(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
+  if(!ok){ el.textContent=/iPhone|iPad/.test(navigator.userAgent)&&!inst
+      ?"Sur iPhone, installez d'abord l'application sur l'écran d'accueil (Partager → Sur l'écran d'accueil)."
+      :"Ce navigateur ne permet pas les notifications."; b.hidden=true; return; }
+  b.hidden=false;
+  if(Notification.permission==="denied"){ el.textContent="Refusées dans les réglages du téléphone. Autorisez-les pour cette application, puis revenez ici."; b.hidden=true; return; }
+  var on=notifActive();
+  el.textContent=on?"Activées : une notification résume les journées modifiées quand l'application s'ouvre.":"Désactivées. Les changements restent signalés dans l'Accueil.";
+  b.textContent=on?"Désactiver":"Activer"; b.setAttribute("aria-pressed",on?"true":"false");
+}
+document.getElementById("notifBtn").addEventListener("click",function(){
+  if(notifActive()){ lsSet("ui/notifTel",false); majNotifReglage(); return; }
+  Promise.resolve(Notification.permission==="granted"?"granted":Notification.requestPermission()).then(function(r){
+    if(r==="granted"){ lsSet("ui/notifTel",true);
+      navigator.serviceWorker.ready.then(function(reg){ reg.showNotification("Notifications activées",{
+        body:"Vous serez prévenu quand votre horaire change.", icon:"icon-192.png", badge:"favicon.png", tag:"notif-ok"}); }).catch(function(){}); }
+    majNotifReglage();
+  });
+});
+majNotifReglage();
+document.addEventListener("visibilitychange",function(){ if(!document.hidden) majNotifReglage(); });
 function _pfPoly(db,p){
   if(typeof polyvalenceDe!=="function") return '';
   var polys=polyvalenceDe(db,p)||[]; if(!polys.length) return '';
@@ -8549,7 +8756,7 @@ function renderRythme(){
   var db=HORAIRE_DB, id=(typeof trigCourant==="function")?trigCourant():"";
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
-  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; return; }
+  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; renderNotif(null,null); return; }
   card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete) tete.innerHTML=_pfHead(db,person);
   /* Le retour se calcule APRÈS le premier affichage : il rejoue la journée
@@ -8557,6 +8764,7 @@ function renderRythme(){
   setTimeout(function(){
     var e=document.getElementById("pfEtat"); if(!e) return;
     var t=_pfEtat(db,person); e.textContent=t; e.hidden=!t;
+    renderNotif(db,person);
   },30);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);

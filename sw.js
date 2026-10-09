@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v622";
+var V = "nfdm-v623";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -127,4 +127,15 @@ self.addEventListener("fetch", function (e) {
       });
     })
   );
+});
+/* La notification « Horaire modifié » (index.html, notifierTelephone) : la
+   toucher ramène l'application au premier plan si elle est ouverte, et
+   l'ouvre sinon — sur l'Accueil, où la carte des changements l'attend. */
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  var cible = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (l) {
+    for (var i = 0; i < l.length; i++) if ("focus" in l[i]) return l[i].focus();
+    return self.clients.openWindow ? self.clients.openWindow(cible) : null;
+  }));
 });
