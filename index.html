@@ -225,9 +225,11 @@ button{cursor:pointer}
    CONTENU des cartes glisse : la carte, sa bordure et la barre du mois restent
    en place (le client, le 09/10/2026 : « les cadres ont l'air de se déplacer
    au lieu de rester à leur place »). La carte rogne le temps du glissement. */
-.panel.mois-g>.card,.panel.mois-d>.card{overflow:clip}
-.panel.mois-g>.card>:not(.calnav){animation:jourGauche .2s ease-out}
-.panel.mois-d>.card>:not(.calnav){animation:jourDroite .2s ease-out}
+/* Seuls les cadres qui CHANGENT avec le mois glissent : l'état des compteurs
+   et « Mon rythme » parlent de l'année, ils restent immobiles. */
+.panel.mois-g>.card:not(#cptCard):not(#rythmeCard),.panel.mois-d>.card:not(#cptCard):not(#rythmeCard){overflow:clip}
+.panel.mois-g>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourGauche .2s ease-out}
+.panel.mois-d>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourDroite .2s ease-out}
 /* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
    transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
    tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
@@ -2496,11 +2498,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    feuilletage. On ne garde que le clip de la grille pour le défilement. */
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
-#v-resume .toolbar.eqnav, #v-jour .toolbar.eqnav{padding:7px 12px}
-#v-resume .eqnav>button:not(.btn){width:30px; height:30px; font-size:16px}
-/* « Aujourd'hui » à la hauteur des flèches (le client, le 26/09/2026). */
-#v-resume .eqnav #eqAuj{height:30px; padding:0 9px; font-size:11.5px;
-  display:inline-flex; align-items:center}
+#v-jour .toolbar.eqnav{padding:7px 12px}
 /* « Aujourd'hui » de l'Accueil dit s'il sert. Ailleurs qu'au jour courant :
    accent doux qui appelle à y revenir. Sur le jour courant (.estauj) : il
    s'éteint. (L'onglet Horaire a son propre lien discret, plus haut.) */
@@ -2963,9 +2961,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
 .ry-panel{min-width:0}
-.ry-hm-scroll{overflow-x:auto; padding:4px 16px 2px}
-.ry-hm{display:grid; grid-template-rows:repeat(7,1fr); grid-auto-flow:column; grid-auto-columns:11px; gap:3px; width:max-content}
-.ry-hm-c{width:11px; height:11px; border-radius:2.5px; background:var(--surface3)}
+.ry-hm-box{padding:4px 16px 2px; display:flex; flex-direction:column; gap:3px; max-width:620px}
+.ry-hm-l{display:flex; align-items:center; gap:6px}
+.ry-hm-l>i{flex:0 0 10px; font-style:normal; font-size:9px; font-weight:650; color:var(--faint); text-align:center}
+.ry-hm{flex:1 1 auto; min-width:0; display:grid; grid-template-columns:repeat(31,minmax(0,1fr)); gap:2px}
+.ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
+.ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
 .ry-hm-e{background:transparent}
 .ry-hm-c.s-n{background:var(--n)} .ry-hm-c.s-am{background:var(--am)} .ry-hm-c.s-pm{background:var(--pm)} .ry-hm-c.s-d{background:var(--d)}
 .ry-hm-c.s-abs{background:var(--out)} .ry-hm-c.s-rep{background:var(--surface3)}
@@ -3355,10 +3356,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        d'ensemble (tuiles), Mon salaire un billet frappé d'un €, là où la
        jauge et la feuille ne nommaient pas leur onglet. -->
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab-resume" data-v="resume" aria-selected="true" aria-controls="v-resume">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-      Profil</button>
-    <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="false" aria-controls="v-horaire">
+    <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="true" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Calendrier</button>
     <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
@@ -3391,26 +3389,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 </div>
 
   <!-- ============ RÉSUMÉ ============ -->
-  <section class="panel stack" id="v-resume" role="tabpanel" aria-labelledby="tab-resume" tabindex="-1">
-    <!-- L'ACCUEIL = « MON RYTHME ». Le client, le 03/10/2026 : « il faut un
-         onglet dédié au RH ». Le tableau du jour (doublon de l'onglet Horaire),
-         le module congé/absence/recherche et les alertes (sous-effectif,
-         rappels, hors-poste) ont rejoint l'onglet RH. L'Accueil ne garde que la
-         vue d'ensemble personnelle de l'opérateur. -->
-    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
-
-    <!-- MON RYTHME. Vue d'ensemble de l'année pour l'opérateur : répartition des
-         pauses, nuits par mois, jours de week-end prestés. Rejoue l'horaire via
-         remplirMois() sur des mois jetables (rien n'est enregistré). -->
-    <div class="pvtete" id="rythmeTete" hidden>
-      <h2>Mon rythme</h2>
-      <p class="sub">réparti sur l'année d'horaire</p>
-    </div>
-    <div class="card" id="rythmeCard" hidden>
-      <div id="rythmeCorps"></div>
-    </div>
-
-  </section>
 
   <!-- ============ DU JOUR ============ -->
   <!-- UN ONGLET POUR LE SEUL TABLEAU DE L'ÉQUIPE DU JOUR. Le client, le
@@ -3435,7 +3413,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     </div>
   </section>
 
-  <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1" hidden>
+  <section class="panel stack" id="v-horaire" role="tabpanel" aria-labelledby="tab-horaire" tabindex="-1">
     <!-- LE CALENDRIER, UN SEUL CADRE « PRO » DANS LE STYLE DE L'ONGLET HORAIRE
          (le client, le 07/10/2026 : « il ne faut que le choix par mois ; le cadre
          doit reprendre le style de horaire, la première ligne la sélection du mois
@@ -3446,6 +3424,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          (2) la BANDE DE STATS du mois (prestées, jours, week-end, heures sup,
          rappels, flex, vélo) ; (3) la GRILLE du mois. Les compteurs et les codes
          suivent dessous, en défilement. -->
+    <!-- L'ACCUEIL FONDU DANS LE CALENDRIER (le client, le 09/10/2026 : « combiner
+         l'onglet calendrier avec l'accueil étant donné que les deux sont
+         personnels au profil », puis « de la manière la plus professionnelle
+         possible »). En tête, qui l'on est ; puis le mois, les compteurs, l'année
+         (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
+    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
+    <div class="pvtete" id="rythmeTete" hidden>
+      <h2>Mon rythme</h2>
+      <p class="sub">réparti sur l'année d'horaire</p>
+    </div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -3468,6 +3456,20 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="moiscal" id="moisCal"></div>
     </div>
 
+    <div class="card" id="cptCard">
+      <header>
+        <h2>État des compteurs</h2>
+        <span class="sub" id="cptSub"></span>
+      </header>
+      <div class="pad" id="cptCorps"></div>
+    </div>
+    <div class="card" id="rythmeCard" hidden>
+      <header>
+        <h2>Mon rythme</h2>
+        <span class="sub" id="rythmeSub"></span>
+      </header>
+      <div id="rythmeCorps"></div>
+    </div>
     <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
          le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
          on reçoit au travail afin de pouvoir directement comparer »). Codes et
@@ -3548,13 +3550,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          plus loin. Le client, le 22/09/2026 : « Horaire doit s'appeler
          Mon horaire et reprendre le contenu de l'onglet Compteurs ». -->
 
-    <div class="card">
-      <header>
-        <h2>État des compteurs</h2>
-        <span class="sub" id="cptSub"></span>
-      </header>
-      <div class="pad" id="cptCorps"></div>
-    </div>
   </section>
 
   <!-- ============ COMPTEURS ============ -->
@@ -4206,7 +4201,7 @@ document.addEventListener("touchend",function(e){
 },{passive:false});
 
 /* ===================== état ===================== */
-var st={db:null, params:null, bareme:null, month:null, mkey:null, y:0, m:0, ready:false, view:"resume", lastDay:0};
+var st={db:null, params:null, bareme:null, month:null, mkey:null, y:0, m:0, ready:false, view:"horaire", lastDay:0};
 var pending={};
 
 function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
@@ -6033,14 +6028,14 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["resume","horaire","salaire","jour","equipe","rh","reglages"];
+var VIEWS=["horaire","salaire","jour","equipe","rh","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
-var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", polyvalence:"equipe"};
+var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", polyvalence:"equipe", resume:"horaire"};
 function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
-  if(VIEWS.indexOf(v)<0) v="resume";
+  if(VIEWS.indexOf(v)<0) v="horaire";
   var change=(st.view!==v);
   st.view=v;
   VIEWS.forEach(function(x){
@@ -6086,7 +6081,7 @@ function setView(v,keepScroll){
      renderManques/renderRappelsInutiles). L'Accueil, lui, ne montre que
      « Mon rythme ». */
   if(v==="jour"||v==="rh") renderEquipe();
-  if(v==="resume") renderRythme();
+  if(v==="horaire") renderRythme();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="horaire") centrerSurAujourdhui();
 }
@@ -8273,16 +8268,26 @@ function ryBars(arr,couleur){
 }
 /* Calendrier annuel : une case par jour, colorée par pause/absence/repos. */
 function ryHeatmap(s){
-  var y=s.y, jan1=new Date(y,0,1).getDay(), off=(jan1+6)%7, cells="", i;
-  for(i=0;i<off;i++) cells+='<span class="ry-hm-c ry-hm-e"></span>';
-  (s.cal||s.seq).forEach(function(t,i){
-    var d=new Date(y,0,1+i);
-    var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":"s-rep");
-    cells+='<span class="ry-hm-c '+cls+'" title="'+esc(d.getDate()+" "+MOIS[d.getMonth()]+" — "+ryTypeLabel(t))+'"></span>';
-  });
+  /* UNE LIGNE PAR MOIS, une case par jour (le client, le 09/10/2026 : « ne pas
+     devoir faire de scroll horizontal dans les cadres »). Les 53 semaines
+     côte à côte demandaient 740 px ; 31 colonnes tiennent dans un téléphone,
+     et un mois se lit d'un regard, du 1 au 31. Le jour de l'usine est cerclé. */
+  var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=jourUsine(), m, d;
+  for(m=0;m<12;m++){
+    var nd=new Date(y,m+1,0).getDate(), cells="";
+    for(d=1;d<=31;d++){
+      if(d>nd){ cells+='<span class="ry-hm-c ry-hm-e"></span>'; continue; }
+      var t=seq[i++], dt=new Date(y,m,d);
+      var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":"s-rep");
+      var auj=(ju.getFullYear()===y&&ju.getMonth()===m&&ju.getDate()===d)?" auj":"";
+      var we=(dt.getDay()===0||dt.getDay()===6)?" we":"";
+      cells+='<span class="ry-hm-c '+cls+auj+we+'" title="'+esc(d+" "+MOIS[m]+" — "+ryTypeLabel(t))+'"></span>';
+    }
+    rows+='<div class="ry-hm-l"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
+  }
   var lg=[["--n","Nuit"],["--am","Matin"],["--pm","Après-m."],["--d","Jour"],["--out","Congé"],["--surface3","Repos"]]
     .map(function(x){return '<span class="ry-leg"><span class="ry-dot" style="background:var('+x[0]+')"></span>'+x[1]+'</span>';}).join("");
-  return '<div class="ry-hm-scroll"><div class="ry-hm">'+cells+'</div></div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
+  return '<div class="ry-hm-box">'+rows+'</div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
 }
 /* Congés RESTANTS à prendre : UNE seule courbe, tous types combinés, qui part du
    total de l'année et décroît vers 0 à mesure que les congés sont pris. */
@@ -8326,6 +8331,7 @@ function _pfHead(p){
   var eq=(typeof equipeShift==="function")?equipeShift(p):"";
   var sub=[]; if(eq&&eq!=="—") sub.push(eq);
   if(typeof statutAffiche==="function"){ var st2=statutAffiche(p); if(st2) sub.push(st2); }
+  var bnH=_pfBinome(p); if(bnH) sub.push(bnH);
   return '<div class="pf-head">'
     +'<span class="pf-ava">'+esc(tri)+'</span>'
     +'<div class="pf-hmeta"><b>'+esc(role)+'</b>'
@@ -8336,7 +8342,7 @@ function _pfFacts(db,p){
       cm=(typeof estContremaitre==="function")&&estContremaitre(p);
   var rows=[];
   if(!cadre && typeof posteAttitreTitre==="function") rows.push(['Poste attitré', posteAttitreTitre(p)]);
-  var bn=_pfBinome(p); if(bn) rows.push(['Rôle', bn]);
+  /* le binôme est dans la tête de profil, à côté du statut */
   var polys=(!cm&&typeof polyvalenceDe==="function")?(polyvalenceDe(db,p)||[]):[];
   if(polys.length){ var v=polys.filter(function(x){return x.ok;}).length; rows.push(['Polyvalences validées', v+' / '+polys.length]); }
   if(!rows.length) return '';
@@ -8369,8 +8375,10 @@ function renderRythme(){
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
-  corps.innerHTML=_pfFacts(db,person)+_pfPoly(db,person)
-    +'<div class="ry-sep"></div><div class="ry-chart-t ry-h2">Mon rythme sur l\'année</div>'
+  var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="l'année "+y+" d'horaire";
+  var avant=_pfFacts(db,person)+_pfPoly(db,person);
+  corps.innerHTML=avant
+    +(avant?'<div class="ry-sep"></div>':'')+'<div class="ry-chart-t ry-h2">Répartition des journées</div>'
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
     +'<div class="ry-right">'
@@ -13228,7 +13236,10 @@ function renderCompteurs(){
     }
 
     /* --- polyvalence --- */
-    if(person.poly && person.poly.ateliers && person.poly.ateliers.length){
+    /* Pas de doublon : quand « Mon rythme », juste en dessous, montre les
+       polyvalences avec leur recyclage (_pfPoly), la liste d'ateliers se tait. */
+    var polyRy=(typeof polyvalenceDe==="function")?(polyvalenceDe(db,person)||[]):[];
+    if(!polyRy.length && person.poly && person.poly.ateliers && person.poly.ateliers.length){
       h.push(bloc("Polyvalence",person.poly.degre?"degré "+person.poly.degre:"",
         '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; }); return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</div>'));
     }
@@ -14077,7 +14088,7 @@ function boot(){
       var y,m;
       if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
       else { y=now.getFullYear(); m=now.getMonth(); }
-      setView(lsGet("ui/view")||"resume",true);
+      setView(lsGet("ui/view")||"horaire",true);
       /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
          garnis dès le démarrage, quel que soit l'onglet ouvert */
       ensurePrefillUI();

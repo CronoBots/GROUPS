@@ -3049,6 +3049,36 @@ l'octet. Vérifié sur septembre de VBN à 320 px (hors ligne), 390 px et
 écarts connus de la fiche de septembre : la nuit du 30/09 (P13 6,00 au
 lieu d'un code du matin) et l'heure sup du même jour (U33 1,00).
 
+### L'Accueil fondu dans le Calendrier
+
+Le client, le 09/10/2026 : « que penses-tu de combiner l'onglet calendrier
+avec l'accueil étant donné que les deux sont personnels au profil ? », puis
+« go, et fais cela de la manière la plus professionnelle possible ». Les deux
+onglets parlaient de la même personne : l'Accueil montrait son profil et son
+année, le Calendrier son mois. **Sept onglets deviennent six** ; l'onglet
+garde le nom « Calendrier », « Mon horaire » ayant été écarté parce qu'il
+se serait lu à côté de l'onglet « Horaire » de l'équipe.
+
+L'onglet se lit de haut en bas : la tête du profil (trigramme, fonction,
+statut et binôme sur la ligne du dessous), le mois, l'état des compteurs,
+« Mon rythme » (répartition des pauses, nuits et week-ends comparés à
+l'équipe, l'année jour par jour, congés restants), le relevé de
+prestations, puis les codes. Ce qui était dit deux fois est parti : la
+ligne « Rôle » des faits (le binôme est dans la tête), et les puces de
+polyvalence des compteurs, qui ne s'affichent plus que si « Mon rythme »
+ne les porte pas.
+
+**L'année jour par jour défilait de côté** : 740 px de grille, semaines en
+colonnes. Elle est redessinée en douze rangées d'un mois sur trente et une
+colonnes, cases carrées de 14 px au plus, la case du jour cerclée : elle
+tient à 320 px. `VUES_MIGREES` envoie `resume` vers `horaire`, si bien
+qu'un appareil qui avait l'Accueil ouvert retrouve le Calendrier, et c'est
+la vue par défaut. Le glissement du mois n'anime que la carte du mois :
+les compteurs et « Mon rythme » parlent de l'année et ne bougent pas.
+Vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 px et
+1280 px, sans débordement ni erreur. **Le tableau « Six onglets » plus bas
+date du 22/09** : son Résumé a disparu depuis.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
