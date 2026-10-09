@@ -3079,6 +3079,40 @@ Vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 px et
 1280 px, sans débordement ni erreur. **Le tableau « Six onglets » plus bas
 date du 22/09** : son Résumé a disparu depuis.
 
+### Le héros de l'Accueil, et un menu nommé par son contenu
+
+Le client, le 09/10/2026 : « il faut mieux présenter la personne connectée
+dans le héros de la page d'accueil ; revois également tous les onglets du
+menu pour mieux correspondre au contenu ».
+
+**Le héros** (`_pfHead(db,p)`, dans `#rythmeTete`) est une carte à la
+couleur de la marque : l'avatar au trigramme cerclé de cyan, « Bonjour /
+Bonsoir » et le trigramme, la fonction en grand, puis des puces — binôme
+ou équipe, poste attitré à la couleur de sa zone (« En formation ·
+Meunerie » en jaune pour qui l'apprend), statut. Dessous, trois chiffres
+de soi, lus là où le reste de l'onglet les lit : **congés à placer** (la
+somme des « restant » VA, RTT, DTT, RJF de l'état des compteurs, en jours
+de 8 h — « vacances restantes » seules valaient 0 pour presque tout le
+monde, tout étant déjà posé), **flex time au jour de l'usine** (même
+calcul et mêmes couleurs que la jauge), **polyvalences validées** (pas pour
+un contremaître). Les « faits » qui suivaient la tête (`_pfFacts`) sont
+partis : ils redisaient le poste et les polyvalences. Le poste du jour
+n'y est pas : la barre du haut le dit déjà.
+
+**Le menu**, dans l'ordre : **Accueil** (moi : profil, mois, compteurs,
+rythme, relevé — « Calendrier » ne disait que le mois), **Salaire**,
+**Planning** (les équipes d'un jour — « Horaire » se confondait avec
+l'horaire personnel), **Effectifs** (sous-effectifs, congé, absence,
+recherche, rappels non nécessaires — « RH » nommait un service, pas un
+contenu), **Équipes** (composition, recyclage, statuts, annuaire),
+**Réglages**. D'abord ce qui est à moi, puis l'usine du jour, puis sa
+structure ; `VIEWS` suit. Les identifiants (`data-v`, `ui/view`) ne
+changent pas. Icônes redessinées pour Accueil (maison et personne) et
+Effectifs (personne et loupe). Deux phrases visibles renvoyaient encore à
+« l'onglet Horaire » : corrigées. Vérificateur identique à l'octet ;
+vérifié à 320 px (hors ligne), 390 px et 1280 px sur VBN, SKS, AFA et LCI,
+sans débordement ni erreur.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
