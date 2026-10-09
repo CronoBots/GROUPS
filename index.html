@@ -1886,6 +1886,54 @@ body.sheet-on{overflow:hidden}
 .notifreg b{font-size:13px} .notifreg span{font-size:11.5px; color:var(--muted)}
 .notifreg .btn{flex:0 0 auto}
 .tabs #notifDot{background:var(--marque-vif)}
+/* LA FENÊTRE DE RECHERCHE (#caSheet). Sur téléphone elle monte du bas,
+   pleine largeur, coins hauts arrondis, une poignée pour dire qu'elle se
+   referme ; au bureau elle se centre. Son en-tête reste collé en haut quand
+   les résultats défilent. Le fond voilé referme, comme Échap et le geste
+   retour (history). */
+.csheet{position:fixed; inset:0; z-index:250; display:flex; align-items:flex-end; justify-content:center}
+.csheet[hidden]{display:none}
+.cs-fond{position:absolute; inset:0; background:rgba(5,9,18,.66); animation:csFond .2s ease-out}
+.cs-panneau{position:relative; width:100%; max-width:760px; max-height:calc(100% - env(safe-area-inset-top,0px) - 28px);
+  overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  border-radius:20px 20px 0 0; animation:csMonte .26s cubic-bezier(.2,.8,.2,1)}
+.cs-panneau #caCard{margin:0; overflow:visible; border:1px solid var(--cadre); border-bottom:0; border-radius:20px 20px 0 0;
+  box-shadow:0 -14px 40px rgba(0,0,0,.5); padding-bottom:calc(14px + env(safe-area-inset-bottom,0px)); min-height:46vh}
+.cs-tete{position:sticky; top:0; z-index:3; display:grid; grid-template-columns:44px 1fr 44px; align-items:center;
+  padding:14px 6px 10px; background:var(--surface2); border-bottom:1px solid var(--cadre); border-radius:20px 20px 0 0}
+.cs-tete h2{grid-column:2; margin:0; text-align:center; font-size:16px; font-weight:700; letter-spacing:-.012em}
+.cs-poignee{position:absolute; top:6px; left:50%; width:38px; height:4px; margin-left:-19px; border-radius:2px; background:var(--trait-fort)}
+.cs-fermer{grid-column:3; display:grid; place-items:center; width:36px; height:36px; border-radius:50%; border:0;
+  background:transparent; color:var(--muted); cursor:pointer}
+.cs-fermer:hover,.cs-fermer:focus-visible{background:var(--surface3); color:var(--ink)}
+body.cs-ouvert{overflow:hidden}
+@keyframes csMonte{from{transform:translateY(24px); opacity:.4}to{transform:none; opacity:1}}
+@keyframes csFond{from{opacity:0}to{opacity:1}}
+@media (min-width:761px){
+  .csheet{align-items:center; padding:28px}
+  .cs-panneau{border-radius:var(--rj); max-height:calc(100% - 56px)}
+  .cs-panneau #caCard{border-radius:var(--rj); border-bottom:1px solid var(--cadre); padding-bottom:14px; min-height:0}
+  .cs-tete{border-radius:var(--rj) var(--rj) 0 0; padding-top:10px}
+  .cs-poignee{display:none}
+}
+@media (prefers-reduced-motion:reduce){ .cs-panneau,.cs-fond{animation:none} }
+/* Le bouton qui l'ouvre, en tête de l'onglet Effectifs. */
+.rhcherche{display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; text-align:left; cursor:pointer;
+  border:1px solid var(--cadre); border-radius:var(--rj); color:var(--ink); font:inherit;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--marque-vif) 14%,var(--surface)) 0%,var(--surface) 70%);
+  box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.rhc-ico{flex:0 0 auto; display:grid; place-items:center; width:40px; height:40px; border-radius:50%;
+  color:var(--marque-vif); background:color-mix(in srgb,var(--marque-vif) 18%,transparent)}
+.rhc-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.rhc-t b{font-size:15px} .rhc-t small{font-size:12px; color:var(--muted)}
+.rhc-fl{font-size:24px; line-height:1; color:var(--muted)}
+@media (hover:hover){ .rhcherche:hover{border-color:var(--trait-fort)} }
+.rhcherche:active{transform:scale(.99)}
+/* « Chercher un remplaçant », au pied de chaque sous-effectif. */
+.mqcher{display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin-top:2px; padding:7px 12px; border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); color:var(--marque-vif);
+  background:color-mix(in srgb,var(--marque-vif) 10%,transparent); font-size:12.5px; font-weight:650; cursor:pointer}
+@media (hover:hover){ .mqcher:hover{background:color-mix(in srgb,var(--marque-vif) 20%,transparent)} }
 /* Les mois repliables (mqMoisTete) : l'intertitre devient un bouton de la
    largeur du cadre, avec un chevron ; le contenu d'un mois replié disparaît. */
 .mqtog{display:flex; width:calc(100% + 32px); justify-content:space-between; align-items:center; gap:10px;
@@ -1922,7 +1970,7 @@ body.sheet-on{overflow:hidden}
    horaire/équipes »). Même recette que #orgCorps>.card : bordure GRISE 1 px
    --cadre + coins --rj + overflow:hidden + halo. Remplace l'ancienne bordure
    --line/--r plus pâle de .card. */
-#v-rh #caCard, #v-rh #mqCard, #v-rh #rnCard, #v-rh #eqReste .eqcard{
+#v-rh #mqCard, #v-rh #rnCard, #v-rh #eqReste .eqcard{
   border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
 /* LE TITRE EST UNE BARRE INTERNE collée au contenu — même grammaire que
@@ -3828,8 +3876,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <!-- LES SAUTS (le client, le 09/10/2026, « optimise tout ») : quatre cadres
          empilés, et le dernier à plusieurs écrans du premier. Une rangée de
          boutons mène droit à chacun, avec son compte. -->
+    <!-- LA RECHERCHE À PART (le client, le 09/10/2026 : « un bouton recherche
+         pour les 3 types de recherche, et donc ne pas les mélanger avec les
+         sous-effectifs et rappels »). L'onglet ne garde que la SURVEILLANCE ;
+         les trois outils — congé, absence, recherche d'un remplaçant — vivent
+         dans une fenêtre qu'on ouvre quand on en a besoin (#caSheet). -->
+    <button type="button" class="rhcherche" id="caOuvrir" aria-haspopup="dialog">
+      <span class="rhc-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
+      <span class="rhc-t"><b>Rechercher</b><small>Congé · absence · remplaçant</small></span>
+      <span class="rhc-fl" aria-hidden="true">›</span>
+    </button>
     <nav class="rhsauts" aria-label="Aller à">
-      <button type="button" data-saut="caCard">Demande</button>
       <button type="button" data-saut="mqCard">Sous-effectif<b id="sautMq"></b></button>
       <button type="button" data-saut="rnCard">Rappels<b id="sautRn"></b></button>
       <button type="button" data-saut="eqReste">Absents</button>
@@ -3838,30 +3895,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          « adapter les cadres de l'onglet RH avec le style des onglets horaire/
          équipes »). Le titre n'est plus flottant au-dessus : c'est une BARRE
          interne collée au contenu (.rhtitle), même grammaire que .orgtitle. -->
-    <div class="card" id="caCard">
-      <div class="toolbar rhtitle"><h2>Congé, absence et recherche</h2></div>
-      <div class="caseg" role="tablist" aria-label="Type de demande">
-        <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
-        <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
-        <button type="button" role="tab" data-ca="recherche" aria-selected="false" tabindex="-1">Recherche</button>
-      </div>
-      <div class="caform jour" id="caForm">
-        <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
-        <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
-        <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
-        <div class="caduree" role="radiogroup" aria-label="Durée">
-          <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
-          <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
-          <button type="button" role="radio" data-du="heures" aria-checked="false" tabindex="-1">Heures</button>
-        </div>
-        <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
-        <label class="caau">Au<input type="date" id="caAu"></label>
-        <label class="canbh">Durée<select id="caNbH" aria-label="Nombre d'heures"><option value="1">1 h</option><option value="2" selected>2 h</option><option value="3">3 h</option><option value="4">4 h</option><option value="5">5 h</option><option value="6">6 h</option><option value="7">7 h</option></select></label>
-        <label class="camom">Moment<select id="caMom" aria-label="Moment"><option value="fin">Départ tôt</option><option value="debut">Arrivée tard</option></select></label>
-        <button type="button" class="btn primary" id="caGo">Vérifier</button>
-      </div>
-      <div class="mqcorps" id="caCorps"></div>
-    </div>
 
     <!-- PAS DE SÉLECTEUR DE DATE ICI (le client, le 07/10/2026 : « pourquoi un
          sélecteur de dates dans RH ? il n'est pas utile, ça doit toujours être par
@@ -3884,6 +3917,39 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 
     <div class="eqcorps" id="eqReste"></div>
   </section>
+
+  <!-- LA FENÊTRE DE RECHERCHE : monte du bas sur téléphone, centrée au bureau.
+       Ouverte par #caOuvrir ou par « Chercher un remplaçant » d'un
+       sous-effectif (jour, pause et poste déjà remplis). -->
+  <div class="csheet" id="caSheet" hidden>
+    <div class="cs-fond" data-fermer></div>
+    <div class="cs-panneau" role="dialog" aria-modal="true" aria-labelledby="caTitre">
+      <div class="card" id="caCard">
+        <div class="cs-tete"><span class="cs-poignee" aria-hidden="true"></span><h2 id="caTitre">Rechercher</h2><button type="button" class="cs-fermer" id="caFermer" aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="caseg" role="tablist" aria-label="Type de demande">
+          <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
+          <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
+          <button type="button" role="tab" data-ca="recherche" aria-selected="false" tabindex="-1">Recherche</button>
+        </div>
+        <div class="caform jour" id="caForm">
+          <label class="caqui">Qui<select id="caQui" aria-label="Personne"></select></label>
+          <label class="capause">Pause<select id="caPause" aria-label="Pause"><option value="AM">AM</option><option value="PM">PM</option><option value="N" selected>N</option></select></label>
+          <label class="caposte">Poste<select id="caPoste" aria-label="Poste"></select></label>
+          <div class="caduree" role="radiogroup" aria-label="Durée">
+            <button type="button" role="radio" data-du="jour" aria-checked="true" tabindex="0"><span class="calong">Un </span>jour</button>
+            <button type="button" role="radio" data-du="periode" aria-checked="false" tabindex="-1"><span class="calong">Une </span>période</button>
+            <button type="button" role="radio" data-du="heures" aria-checked="false" tabindex="-1">Heures</button>
+          </div>
+          <label class="cadu"><span id="caTDu">Le</span><input type="date" id="caDu"></label>
+          <label class="caau">Au<input type="date" id="caAu"></label>
+          <label class="canbh">Durée<select id="caNbH" aria-label="Nombre d'heures"><option value="1">1 h</option><option value="2" selected>2 h</option><option value="3">3 h</option><option value="4">4 h</option><option value="5">5 h</option><option value="6">6 h</option><option value="7">7 h</option></select></label>
+          <label class="camom">Moment<select id="caMom" aria-label="Moment"><option value="fin">Départ tôt</option><option value="debut">Arrivée tard</option></select></label>
+          <button type="button" class="btn primary" id="caGo">Vérifier</button>
+        </div>
+        <div class="mqcorps" id="caCorps"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ RÉGLAGES ============ -->
   <section class="panel stack" id="v-reglages" role="tabpanel" aria-labelledby="tab-reglages" tabindex="-1" hidden>
@@ -6196,6 +6262,7 @@ var VIEWS=["horaire","salaire","jour","rh","equipe","reglages"];
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
 var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", polyvalence:"equipe", resume:"horaire"};
 function setView(v,keepScroll){
+  if(typeof rechercheOuverte==="function" && rechercheOuverte()) fermerRecherche();
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
   var change=(st.view!==v);
@@ -12293,6 +12360,9 @@ function renderManques(force){
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
+          +'<span class="mqcher" role="button" tabindex="0" data-pause="'+esc(o.pause)+'" data-poste="'+esc(o.k)+'">'
+          +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>'
+          +"Chercher un remplaçant</span>"
           +"</span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
@@ -12320,8 +12390,15 @@ function renderManques(force){
     hote.onclick=function(e){
       if(mqBascule(e)) return;
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
+      var ch=e.target.closest(".mqcher");
+      if(ch){ e.preventDefault(); e.stopPropagation();
+        ouvrirRecherche({pause:ch.dataset.pause, poste:ch.dataset.poste, an:Number(db.year),
+          mois:Number(b.dataset.m), jour:Number(b.dataset.j)}); return; }
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
+    };
+    hote.onkeydown=function(e){
+      if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("mqcher")){ e.preventDefault(); e.target.click(); }
     };
   });
 }
@@ -14502,6 +14579,53 @@ window.addEventListener("beforeprint",function(){
 });
 window.addEventListener("afterprint",function(){
   [].forEach.call(document.querySelectorAll("details.fold"),function(d){ if(d._impr){ d.open=d._avant; setTimeout(function(){ d._impr=0; },0); } });
+});
+/* ===================== la fenêtre de recherche =====================
+   Le client, le 09/10/2026 : « un bouton recherche pour les 3 types de
+   recherche, et donc ne pas les mélanger avec les sous-effectifs et
+   rappels ». ouvrirRecherche(pre) ouvre la fenêtre ; avec pre =
+   {pause, poste, an, mois, jour}, elle passe sur « Recherche », remplit les
+   trois champs et calcule — c'est le bouton « Chercher un remplaçant » d'un
+   sous-effectif. Une entrée d'historique la porte : le geste retour du
+   téléphone la referme au lieu de quitter l'onglet. */
+var caAvantFocus=null;
+function rechercheOuverte(){ var s=document.getElementById("caSheet"); return !!(s && !s.hidden); }
+function cacherRecherche(){
+  var s=document.getElementById("caSheet"); if(!s || s.hidden) return;
+  s.hidden=true; document.body.classList.remove("cs-ouvert");
+  if(caAvantFocus && caAvantFocus.focus) try{ caAvantFocus.focus(); }catch(e){}
+}
+function fermerRecherche(){
+  if(!rechercheOuverte()) return;
+  if(history.state && history.state.csheet) history.back(); else cacherRecherche();
+}
+function ouvrirRecherche(pre){
+  var s=document.getElementById("caSheet"); if(!s) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    caInit(db);
+    if(!rechercheOuverte()){
+      caAvantFocus=document.activeElement;
+      s.hidden=false; document.body.classList.add("cs-ouvert");
+      try{ history.pushState({csheet:1},""); }catch(e){}
+      var pn=s.querySelector(".cs-panneau"); if(pn) pn.scrollTop=0;
+    }
+    if(pre){
+      var b=s.querySelector('.caseg [data-ca="recherche"]'); if(b) b.click();
+      document.getElementById("caPause").value=pre.pause;
+      if(caPosteDe(pre.poste)) document.getElementById("caPoste").value=pre.poste;
+      document.getElementById("caDu").value=pre.an+"-"+pad2(pre.mois)+"-"+pad2(pre.jour);
+      caCalculer();
+    }
+    var f=document.getElementById("caFermer"); if(f) f.focus();
+  });
+}
+window.addEventListener("popstate",function(){ if(rechercheOuverte()) cacherRecherche(); });
+document.getElementById("caOuvrir").addEventListener("click",function(){ ouvrirRecherche(null); });
+document.getElementById("caFermer").addEventListener("click",fermerRecherche);
+document.querySelector("#caSheet .cs-fond").addEventListener("click",fermerRecherche);
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape" && rechercheOuverte() && !document.querySelector(".cfm-ov")){ e.preventDefault(); fermerRecherche(); }
 });
 document.querySelector(".rhsauts").addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("[data-saut]"):null; if(!b) return;
