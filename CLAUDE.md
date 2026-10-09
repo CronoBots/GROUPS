@@ -2841,6 +2841,9 @@ vaut 0, inchangé ; 18 px sur l'écran d'accueil. Le bas de page, la bulle
 et le bouton de retour en haut suivent la même variable. Chromium n'a pas
 de zone d'accueil : mesuré 16 px à 320 (hors ligne) et 390 px, et la
 formule rend 18 px avec 34 px ; seul l'iPhone du client dit le reste.
+Puis, le même jour : « c'est mieux mais un rien plus haute » — zone
+d'accueil − 12 px, soit **22 px** du bas sur l'iPhone ; le navigateur ne
+bouge pas.
 
 ### Le bouton de retour en haut
 
