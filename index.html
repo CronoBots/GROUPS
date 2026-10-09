@@ -3969,9 +3969,18 @@ document.addEventListener("touchmove",function(e){
 /* Double-tap : on bloque UNIQUEMENT la 2e tape rapprochée AU MÊME ENDROIT (geste
    de zoom) — pas deux taps à des endroits différents (deux boutons), pour ne
    jamais casser un vrai double-clic sur des cibles distinctes. */
+/* SAUF SUR UN BOUTON OU UN CHAMP. Le client, le 09/10/2026 : « les flèches
+   des mois sur mobile ne réagissent pas si l'on veut passer les mois
+   rapidement ». Appuyer vite sur la même flèche EST le geste ci-dessous :
+   la 2e tape était annulée, et chaque tape annulée relançant le délai, toutes
+   les suivantes l'étaient aussi — mesuré, quatre appuis rapides sur ›
+   avançaient d'UN mois. Un contrôle ne zoome pas au double-tap
+   (touch-action:manipulation) : il n'y a rien à bloquer sur lui. */
 var _dtT=0,_dtX=0,_dtY=0;
 document.addEventListener("touchend",function(e){
   if(!e.changedTouches||e.changedTouches.length!==1){ _dtT=0; return; }
+  var cible=e.target&&e.target.closest?e.target.closest('button,a,input,select,textarea,label,summary,[role="button"],[role="tab"]'):null;
+  if(cible){ _dtT=0; return; }
   var t=e.changedTouches[0], now=Date.now();
   if(now-_dtT<=320 && Math.abs(t.clientX-_dtX)<40 && Math.abs(t.clientY-_dtY)<40){ e.preventDefault(); }
   _dtT=now; _dtX=t.clientX; _dtY=t.clientY;
