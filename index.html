@@ -220,6 +220,10 @@ button{cursor:pointer}
 @keyframes jourDroite{from{opacity:.2; transform:translateX(-18px)} to{opacity:1; transform:none}}
 #eqCorps.glisse-g{animation:jourGauche .2s ease-out}
 #eqCorps.glisse-d{animation:jourDroite .2s ease-out}
+/* Le même feuilletage pour le MOIS, dans les onglets qui portent le sélecteur
+   de mois (le Calendrier et le Salaire) — le client, le 09/10/2026. */
+.panel.mois-g{animation:jourGauche .2s ease-out}
+.panel.mois-d{animation:jourDroite .2s ease-out}
 /* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
    transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
    tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
@@ -11367,6 +11371,47 @@ function eqBouge(n){
     var sc=e.target.closest && e.target.closest(".eqgrille");
     if(sc && sc.scrollWidth>sc.clientWidth+2) return;
     eqBouge(dx<0?1:-1);
+  },{passive:true});
+});
+/* FEUILLETER LES MOIS DU DOIGT. Le client, le 09/10/2026 : « le swipe
+   gauche droite pour la sélection de mois doit être actif sur les autres
+   onglets aussi ». Partout où le sélecteur de mois (#mnav) est rangé — le
+   Calendrier et le Salaire —, le même geste que pour le jour : franc
+   (60 px, 1,8 fois plus large que haut, moins de 0,7 s), jamais sur un champ
+   de saisie, et jamais dans un bloc qui défile lui-même de côté, auquel cas
+   le geste lui appartient. Vers la gauche, le mois suivant ; vers la droite,
+   le précédent — comme les flèches ‹ ›. */
+["v-horaire","v-salaire"].forEach(function(id){
+  var c=document.getElementById(id); if(!c) return;
+  var x0=null, y0=0, t0=0;
+  function defileDeCote(el){
+    for(; el && el!==c; el=el.parentElement){
+      if(el.scrollWidth>el.clientWidth+2){
+        var ox=getComputedStyle(el).overflowX;
+        if(ox==="auto"||ox==="scroll") return true;
+      }
+    }
+    return false;
+  }
+  c.addEventListener("touchstart",function(e){
+    if(e.touches.length!==1){ x0=null; return; }
+    var t=e.target;
+    /* sauf le champ invisible posé sur l'étiquette du mois (#moisPick) : un
+       appui l'ouvre toujours, seul un glissement franc change de mois */
+    if(t.closest && t.closest("input,select,textarea,[contenteditable]") && t.id!=="moisPick"){ x0=null; return; }
+    x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
+  },{passive:true});
+  c.addEventListener("touchend",function(e){
+    if(x0===null) return;
+    var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0; x0=null;
+    if(Date.now()-t0>700 || Math.abs(dx)<60 || Math.abs(dx)<1.8*Math.abs(dy)) return;
+    var nav=document.getElementById("mnav");
+    if(!nav || nav.hidden || !c.contains(nav)) return;
+    if(defileDeCote(e.target)) return;
+    var n=dx<0?1:-1;
+    go(n);
+    c.classList.remove("mois-g","mois-d"); void c.offsetWidth;
+    c.classList.add(n>0?"mois-g":"mois-d");
   },{passive:true});
 });
 /* LE COMMENTAIRE AU CLIC D'UN TRIGRAMME. Le client, le 02/10/2026 : « cliquer

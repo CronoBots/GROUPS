@@ -2663,6 +2663,19 @@ Rien ne bouge dans la lecture : les quatre sorties du vérificateur sont
 identiques à l'octet, et `comparer-fiches` passe son épreuve. Vérifié à
 320 (hors ligne), 390 et 1280 px, en clair et en sombre.
 
+**Et feuilleter les MOIS du doigt.** Le client, le 09/10/2026 : « le swipe
+gauche droite pour la sélection de mois doit être actif sur les autres
+onglets aussi ». Partout où le sélecteur de mois est rangé — Calendrier et
+Salaire —, le même geste franc change de mois (gauche : le suivant, droite :
+le précédent, comme ‹ ›), avec la même animation que le jour. Jamais sur un
+champ de saisie ni dans un bloc qui défile de côté — **sauf le champ
+invisible posé sur l'étiquette du mois** (`#moisPick`) : la première
+version l'excluait comme tout champ, et le geste ne prenait pas sur la barre
+du mois, l'endroit le plus naturel pour feuilleter. Un appui l'ouvre
+toujours ; seul un glissement de 60 px change de mois. Éprouvé à 320 (hors
+ligne), 390 et 1280 px, sur la barre du mois et au milieu du contenu :
+glissement franc dans les deux sens, court et en biais sans effet.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
