@@ -1820,6 +1820,15 @@ n'est deviné à leur sujet :
   « Les réponses du 29/09/2026 » ;
 - ~~le doublage de 12 h pour couvrir une absence~~ : tranché le
   29/09/2026 (A), voir « Recherche par pause et par poste » ;
+- **les soldes flex time sous −8 h** (09/10/2026) : la note du 18/09/2024
+  fixe le minimum à −8 h, et onze personnes sont en dessous au jour J
+  (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
+  des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
+  en rouge en attendant ;
+- **le congé de moins de 8 h** (note du 24/02/2022) : le module Congé ne
+  demande que des journées. Ajouter une demande en heures, qui cherche un
+  remplaçant de la même fonction dans une autre pause, en repos ou en D, et
+  dise si la demande est à plus ou moins de 7 jours ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -1976,6 +1985,37 @@ dictionnaire vide, et l'outil annonçait sereinement zéro mois lu. La panne
 était silencieuse pendant deux commits, qui ont annoncé « fiches d'accord »
 sans que rien ne l'ait été. `horaire()` lève désormais une exception avec le
 message de node. **Une panne silencieuse est pire que pas de contrôle.**
+
+### Cinq notes de service, et le solde flex time du jour
+
+Le client, le 09/10/2026 : cinq notes de service internes (flex time 2021
+et 2024, congé par heure en production 2022, absence imprévue 2025, temps
+partiels 2025), « à garder en privé et utiliser pour optimiser l'app ».
+Quatre sont des **scans** : Tesseract n'a pas le français dans ce conteneur
+et le proxy refuse de le télécharger (403) ; les neuf pages ont été lues
+une à une. Rangées dans `CronoBots/groups-fiches/regles/`, métadonnées
+vidées — elles portaient les identifiants de connexion de l'auteur et du
+copieur —, transcrites dans `regles/notes-internes.md`. Les règles, sans
+nom, sont dans `docs/regles-paie.md`, « Les notes de service du
+09/10/2026 » : la plupart confirment ce qui est déjà codé.
+
+**Ce qui est codé : le solde flex time AU JOUR J**, dans l'onglet
+Compteurs. La note de 2024 borne le compteur à −8 h et 104 h sur le solde
+« à la pointeuse, situation au jour J » — les reprises planifiées plus tard
+n'en déduisent rien — et demande de redescendre à 80 h au-delà. L'onglet ne
+montrait que les heures portées et reprises de l'année, jamais un solde.
+`compteursCalcules()` prend un troisième argument facultatif (MMJJ) et
+compte à part les ±FT jusqu'à ce jour ; le solde = report + portées −
+reprises au jour de l'usine, et une tuile donne le 31/12, reprises
+planifiées comprises. Une phrase dit l'état : dans les bornes, au-dessus de
+80 h (jaune), au-delà de 104 h ou sous −8 h (rouge). Le vérificateur appelle
+la fonction à deux arguments : ses quatre sorties sont identiques à
+l'octet. Mesuré au navigateur le 09/10 sur les 78 personnes : **aucune
+au-dessus de 80 h, onze sous −8 h** (PDR −49, TCE −37, CGI −32, PAM −20,
+ASS −19, DBE −16, AAI −12, PLZ −11, LHR et CDE −10, RDT −9) — question au
+client, ci-dessous. ATA 60 h, VBN 7 h. Rien ne sort de l'écran à 320 (hors
+ligne), 390 et 1280 px ; les seuls débordements sont dans les tableaux qui
+défilent déjà de côté.
 
 ### Toutes les fiches, recopiées une fois pour toutes
 
