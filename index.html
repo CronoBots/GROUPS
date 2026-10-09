@@ -531,6 +531,38 @@ button{cursor:pointer}
    prestée, le liseré du bas la prime conservée. */
 
 /* ---------- état des compteurs ---------- */
+/* ---------- relevé de prestations (le client, le 09/10/2026) ----------
+   Une ligne par jour, comme le relevé reçu au travail. Quatre colonnes qui
+   tiennent à 320 px : les codes passent à la ligne DANS leur case, jamais de
+   défilement de côté. */
+#relCorps{padding:0 0 14px}
+.rel-n{margin:0; padding:10px 16px; font-size:11.5px; color:var(--muted); border-bottom:1px solid var(--cadre)}
+.rel-tab{width:100%; border-collapse:collapse; table-layout:fixed; font-variant-numeric:tabular-nums}
+.rel-tab th{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint);
+  text-align:left; padding:8px 6px; border-bottom:1px solid var(--cadre); background:var(--surface2)}
+.rel-tab th:first-child,.rel-tab td:first-child{padding-left:16px; width:74px}
+.rel-tab th:nth-child(2){width:50px} .rel-tab th:last-child{width:40px; text-align:center; padding-right:12px}
+.rel-tab td{padding:6px; border-bottom:1px solid var(--trait); vertical-align:top; font-size:12px; color:var(--ink2)}
+.rel-tab tr.rel-we td{background:rgba(255,255,255,.025)}
+.rel-j{white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-size:11.5px}
+.rel-j b{font-family:inherit; font-weight:700; color:var(--ink)}
+.rel-j i{display:block; font-style:normal; font-family:inherit; font-size:9.5px; color:var(--out2); margin-top:1px}
+.rel-h{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600; color:var(--in)}
+.rel-v{color:var(--faint)}
+.rel-q{text-align:center; font-family:"IBM Plex Mono",monospace; padding-right:12px!important}
+.rel-c{display:flex; flex-wrap:wrap; gap:4px}
+.rel-c span{display:inline-flex; gap:5px; align-items:baseline; padding:1px 6px; border-radius:6px;
+  background:var(--surface2); border:1px solid var(--trait); font-family:"IBM Plex Mono",monospace;
+  font-size:11px; color:var(--ink2); white-space:nowrap}
+.rel-c b{font-weight:700; color:var(--ink)}
+.rel-tot{padding:12px 16px 0}
+.rel-tot h4{margin:0 0 8px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink)}
+.rel-bas{display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:6px; margin-top:10px}
+.rel-bas div{display:flex; flex-direction:column; gap:1px; padding:7px 9px; border-radius:9px; background:var(--surface2);
+  border:1px solid var(--trait)}
+.rel-bas b{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--in)}
+.rel-bas span{font-family:"IBM Plex Mono",monospace; font-size:16px; font-weight:650; color:var(--ink)}
+.rel-bas i{font-style:normal; font-size:10px; color:var(--faint)}
 /* ---------- état des compteurs (le client, le 09/10/2026) ----------
    Plus de tableau qui déborde : un bloc par sujet, séparé du suivant par un
    filet --cadre comme les cases du mois ; chaque compteur en une rangée. */
@@ -3436,6 +3468,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="moiscal" id="moisCal"></div>
     </div>
 
+    <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
+         le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
+         on reçoit au travail afin de pouvoir directement comparer »). Codes et
+         horaires de la note explicative du relevé mensuel (novembre 2025),
+         rangée dans le dépôt privé. Rempli par renderReleve(). -->
+    <div class="card">
+      <details class="fold" id="relFold">
+        <summary>Relevé de prestations <span class="sub">à comparer ligne à ligne avec celui reçu au travail</span></summary>
+        <div id="relCorps"></div>
+      </details>
+    </div>
     <div class="card">
       <details class="fold">
         <summary>Les codes <span class="sub">postes, congés, maladie et primes de rappel</span></summary>
@@ -5197,6 +5240,100 @@ function renderSlip(C){
   document.getElementById("slipsub").textContent=MOIS[st.m]+" "+st.y;
 }
 
+/* ===================== relevé de prestations ===================== */
+/* Le client, le 09/10/2026 : « que l'app reproduise une feuille de
+   prestation comme on reçoit au travail, afin de pouvoir directement
+   comparer avec celle que l'on reçoit pour voir si tout est correct ».
+
+   On écrit le mois avec les codes du relevé mensuel officiel, tels que les
+   donne sa note explicative (novembre 2025) :
+   - l'HORAIRE du jour : 1A40 matin, 2A40 après-midi, 3A40 nuit, A21 jour
+     fixe 7h-15h (« seulement D : 7-15 »), 4A60 crédit-temps, TP temps
+     partiel ; Y90 un week-end sans prestation ;
+   - les PRESTATIONS, « P » + le jour (1 semaine, 3 samedi, 5 dimanche,
+     8 férié) + la pause (0 jour, 1 matin, 2 après-midi, 3 nuit), sur la
+     prime PAYÉE ; les heures sup en « U » sur le même schéma (3, 4, 5) ;
+   - F0 le flex time épargné, J84 les heures de déplacement d'un rappel,
+     J83 le crédit-temps, A87 le temps partiel, Z93 un férié non presté ;
+   - les ABSENCES par leur numéro de contingent : 75 vacances, 58 RTT,
+     54 récup. d'heures sup, 47 DTT, 50 récup. de jour férié, 60 flex time
+     repris, 4 maladie, 23 congé parental, 79 sans solde ;
+   - 9063 le chèque-repas de la journée ; au bas, 454 les chèques du mois,
+     A10 les jours prestés, 290 les déplacements domicile-usine, A! le vélo.
+   Les valeurs sont en CENTIÈMES d'heure, comme sur le relevé (7,50 et non
+   7 h 30). Les pointages IN/OUT ne sont pas connus de l'application : la
+   colonne n'existe pas ici. Rien n'est recalculé : on relit les journées du
+   mois telles que compute() les paie. */
+var REL_ABS={VA:"75",RTT:"58",RHS:"54",DTT:"47",RJF:"50",SMG:"4",CPAR:"23",AUTRE:"79",CT:"J83",TP:"A87",FER:"Z93"};
+var REL_PAUSE={D:"0",AM:"1",PM:"2",N:"3"};
+var REL_HOR={AM:"1A40",PM:"2A40",N:"3A40",D:"A21"};
+function renderReleve(C){
+  var hote=document.getElementById("relCorps"); if(!hote) return;
+  var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m), F=feries(y);
+  var JC=["Di","Lu","Ma","Me","Je","Ve","Sa"], tot={}, ordre=[], lignes=[];
+  function val(h){ return nf.format(R(h,2)); }
+  function ajoute(L,code,h){
+    if(!(h>0)) return;
+    L.push([code,h]);
+    if(tot[code]===undefined){ tot[code]=0; ordre.push(code); }
+    tot[code]=R(tot[code]+h,2);
+  }
+  for(var d=1; d<=nd; d++){
+    var rec=M.days[d]||{}, t=dayType(y,m,d), w=new Date(Date.UTC(y,m,d)).getUTCDay();
+    var fer=!!F[y+"-"+pad2(m+1)+"-"+pad2(d)];
+    var jd=fer?"8":(t==="Samedi"?"3":t==="Dimanche"?"5":"1");
+    var ju=(fer||t==="Dimanche")?"5":(t==="Samedi"?"4":"3");
+    var L=[], hor="", chq=0;
+    var h=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:Number(rec.h)):0;
+    var codes=(rec.a?[rec.a]:[]).concat(rec.ax||[]);
+    if(rec.s){
+      hor=REL_HOR[rec.sp||rec.s]||REL_HOR[rec.s]||"";
+      if(rec.rs) ajoute(L,"U"+ju+(REL_PAUSE[rec.s]||"0"),h);
+      else ajoute(L,"P"+jd+(REL_PAUSE[rec.s]||"0"),h);
+      var hPres=h; codes.forEach(function(c){ var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
+      if(hPres>=4 && h>0) chq=1;
+    }
+    codes.forEach(function(c){
+      var A=ABSMAP[c]; if(!A) return;
+      if(A.ft>0) ajoute(L,"F0",A.ft);
+      else if(A.ft<0) ajoute(L,"60",-A.ft);
+      if(A.hs) ajoute(L,"U"+ju+(REL_PAUSE[rec.hsp||rec.s]||"0"),A.hs);
+      if(A.h>0){
+        var plein=(A.h>=p.hJour-0.01);
+        if(rec.s||!plein){
+          var rc=REL_ABS[A.k]||A.k;
+          ajoute(L,rc,A.h);
+          if(!rec.s && A.k==="CT") hor="4A60";
+          if(!rec.s && A.k==="TP") hor="TP";
+        }
+      }
+    });
+    if(rec.s && Number(rec.rh||0)>0) ajoute(L,"54",Number(rec.rh));
+    if(Number(rec.hc||0)>0) ajoute(L,"U"+ju+(REL_PAUSE[rec.hcp||rec.s]||"0"),Number(rec.hc));
+    [rec.r,(rec.r&&rec.r2&&rec.r2!=="MP")?rec.r2:null].forEach(function(rc){
+      if(!rc||rc==="MP") return;
+      ajoute(L,"J84",Number(p.rapHeures||0)*(rc==="J"?Number(p.rapMomentJ||0):Number(p.rapMomentJ2||0)));
+    });
+    if(!hor && !L.length && (t!=="Semaine")) hor="Y90";
+    if(chq){ if(tot["9063"]===undefined){ tot["9063"]=0; } tot["9063"]++; }
+    lignes.push('<tr'+(t!=="Semaine"||fer?' class="rel-we"':'')+'><td class="rel-j"><b>'+JC[w]+'</b> '+pad2(d)+'.'+pad2(m+1)+(fer?' <i>férié</i>':'')+'</td>'
+      +'<td class="rel-h">'+(hor||'<span class="rel-v">–</span>')+'</td>'
+      +'<td><div class="rel-c">'+L.map(function(x){ return '<span><b>'+esc(x[0])+'</b>'+val(x[1])+'</span>'; }).join("")+'</div></td>'
+      +'<td class="rel-q">'+(chq?'1':'')+'</td></tr>');
+  }
+  var tt=ordre.slice().sort(function(a,b){
+    function rang(c){ return /^P/.test(c)?0:/^U/.test(c)?1:/^[FJAZ]/.test(c)?2:3; }
+    return rang(a)-rang(b) || (a<b?-1:a>b?1:0);
+  }).map(function(c){ return '<span><b>'+esc(c)+'</b>'+val(tot[c])+'</span>'; }).join("");
+  var bas=[["454",C.crNb,"chèques-repas"],["A10",C.acc.jours,"jours prestés"],["290",C.joursInd,"déplacements"]];
+  if(C.acc.velo) bas.push(["A!",C.acc.velo,"vélo"]);
+  hote.innerHTML='<p class="rel-n">'+esc(MOIS[m])+' '+y+' · valeurs en centièmes d\'heure · sans les pointages IN/OUT</p>'
+    +'<table class="rel-tab"><thead><tr><th>Jour</th><th>Horaire</th><th>Code · Val.</th><th title="chèque-repas, code 9063">9063</th></tr></thead><tbody>'
+    +lignes.join("")+'</tbody></table>'
+    +'<div class="rel-tot"><h4>Totaux du mois</h4><div class="rel-c">'+tt+'</div>'
+    +'<div class="rel-bas">'+bas.map(function(x){ return '<div><b>'+x[0]+'</b><span>'+x[1]+'</span><i>'+x[2]+'</i></div>'; }).join("")+'</div></div>';
+}
+
 /* ===================== rendu — contrôle ===================== */
 var CHK=[
  ["Heures prestées","hTot",function(C){return C.acc.hTot;},true],
@@ -5429,7 +5566,7 @@ function refresh(){
      le reste, sans quoi la journée qu'on vient de changer reste comme elle
      était. */
   renderRota();
-  renderTotals(C); renderSlip(C); renderChk(C); renderResume(C);
+  renderTotals(C); renderSlip(C); renderChk(C); renderResume(C); renderReleve(C);
 }
 
 /* ===================== champs ===================== */
