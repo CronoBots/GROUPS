@@ -514,6 +514,51 @@ aussi quand cette date change.
 **Restent à la main** : lire le rapport et dire au client ce qui a bougé, tester
 dans un navigateur, committer.
 
+## Après le classeur : les cycles prolongés
+
+Le client, le 09/10/2026 : « pour les horaires après décembre 2026, il faut
+continuer le cycle des 5 équipes (5 semaines) et des 6 binômes
+(6 semaines) ; je pousserai le classeur 2027 quand il sera disponible, mais
+d'ici là les cycles représentent ce que les travailleurs doivent prester ».
+
+`horaireDe(annee)` rend l'horaire du classeur pour son année et, pour toute
+année qui le suit, un horaire **projeté** : chaque journée est une cellule
+franche seule (`["N"]`, `["-"]`), tirée du cycle de la personne, sans congé,
+remplacement ni compteur. Le pré-remplissage (onglets Calendrier et Mon salaire), le
+tableau du jour et la barre du haut s'en servent ; les sous-effectifs, les
+rappels non nécessaires et les modules congé/absence/recherche restent sur
+le classeur. Une ligne « Horaire 2027 prolongé par les cycles » le dit dans
+le cadre du mois et dans celui du salaire, et le tableau du jour ajoute
+« prolongé par les cycles ».
+
+**Calé sur les 92 derniers jours, et non sur un mois** (`calageLong()`). Sur
+un mois, le cycle de 5 semaines EST le début de celui de 6
+(`CYCLE5 = CYCLE6.slice(0,35)`), et `cycleDuMois()` hésite : en décembre, la
+moitié de l'équipe 2 sortait en « 6 semaines ». Sur trois mois, mesuré le
+09/10/2026 : les 11 contremaîtres en 6 semaines (90 à 100 % d'accord, six
+positions, une par binôme), les 62 opérateurs d'équipe et en formation en
+5 semaines (environ 95 %, une position par équipe : 1 à 9, 2 à 30, 3 à 2,
+4 à 23, 5 à 16). **La STEP n'est ni l'un ni l'autre** : CAN et PDE tournent
+sur deux semaines au matin, en décalé, lues dans leurs propres cellules
+(91 et 92 journées sur 92). En 2027 projeté : jamais deux équipes à la même
+pause, deux contremaîtres par pause sauf quand le binôme 2 (sans adjoint)
+y est seul. Les fériés suivent le cycle, comme dans le classeur.
+
+**Ne sont pas prolongés** (seuil 85 %) : BLR et YRS, les consignateurs, qui
+mêlent des D au cycle de l'équipe 2 (59 et 43 journées sur 92) ; SLI, dont
+la colonne s'arrête en octobre. Question au client (« Ce qui attend le
+client »). Ni rien des 2026 qui serait à 2027 : les compteurs (`c`) sont
+vidés, les contrats (`ct`) et les polyvalences gardés, puisqu'ils sont datés.
+
+Vérifié : la jonction décembre → janvier enchaîne sans saut (VBN, AFA, DWS,
+SBZ, LCI, CAN, PDE) ; février 2027 de VBN au Calendrier égale le calcul
+hors navigateur ; tableau du 04/01/2027, horloge au 04/01/2027 hors ligne
+(« Lundi 4 janvier · D ») ; 320 (hors ligne), 390 et 1280 px sans erreur ;
+les quatre sorties du vérificateur identiques à l'octet. **Quand le
+classeur 2027 arrivera**, l'application chargera toujours
+`data/horaire-2026.json` : il faudra lui apprendre à lire l'année suivante,
+et la projection ne servira plus qu'au-delà.
+
 ## Le convertisseur ne gardait qu'un commentaire sur deux
 
 Le client, le 23/09/2026 : « de nouveau tu poses des questions sans vérifier
@@ -1714,6 +1759,10 @@ n'est deviné à leur sujet :
   revérifiée ») : vacances payées par la caisse et non par l'employeur ?
   réduction du temps de travail non payée ? maladie du week-end majorée
   comme le poste prévu ? Trois oui/non, posés au client ;
+- **les cycles de 2027** (09/10/2026, voir « Après le classeur ») : BLR et
+  YRS (consignateurs) et SLI (colonne arrêtée en octobre) n'ont pas de
+  cycle à prolonger — en D du lundi au vendredi, ou le cycle de leur
+  équipe ?
 - **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
