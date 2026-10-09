@@ -544,6 +544,8 @@ button{cursor:pointer}
 .cpt-ok{font-size:11.5px; color:var(--good)}
 .cpt-ko{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; color:var(--out2); font-weight:600}
 .cpt-c{font-size:10px; font-weight:600; color:var(--faint); letter-spacing:.03em; margin-left:4px}
+.cpt-n.cpt-ft-ko{color:var(--out2); font-weight:600}
+.cpt-n.cpt-ft-att{color:var(--at-jaune); font-weight:600}
 .cpt-n{margin:8px 2px 0; font-size:11.5px; line-height:1.5; color:var(--muted); max-width:72ch}
 .cpt-tuiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px}
 .cpt-tuiles div{background:var(--surface); border:1px solid var(--line2); border-radius:9px; padding:8px 13px; min-width:0}
@@ -12698,8 +12700,12 @@ function libCompteur(db,code){
 function familleAbsence(code){
   return String(code||"").replace(/^\s*\d+(?:[.,]\d+)?\s*h\s*/i,"").replace(/\s+/g," ").trim() || code;
 }
-function compteursCalcules(person,annee){
-  var out={ftPlus:0,ftMoins:0,rhs:0,abs:{}}, m, d;
+function compteursCalcules(person,annee,jusqua){
+  /* « jusqua » (MMJJ, facultatif) : les heures flex time des journées
+     jusqu'à ce jour-là inclus, à part (ftPlusJ, ftMoinsJ) — le solde « au
+     jour J » de la note de service du 18/09/2024, qui ne compte pas les
+     reprises planifiées plus tard. */
+  var out={ftPlus:0,ftMoins:0,ftPlusJ:0,ftMoinsJ:0,rhs:0,abs:{}}, m, d;
   for(m=1;m<=12;m++){
     var ep=epargnesDuMois(person,m), rv=renvoisDuMois(person,m,st.params.hJour),
         nd=daysInMonth(annee,m-1);
@@ -12714,6 +12720,7 @@ function compteursCalcules(person,annee){
       for(var ci=0;ci<codes.length;ci++){
         var A=ABSMAP[codes[ci]]; if(!A) continue;
         if(A.ft>0) out.ftPlus+=A.ft; else if(A.ft<0) out.ftMoins-=A.ft;
+        if(jusqua && m*100+d<=jusqua){ if(A.ft>0) out.ftPlusJ+=A.ft; else if(A.ft<0) out.ftMoinsJ-=A.ft; }
         /* « 1H RTT », « 3H RTT »… sont le même congé pris à l'heure : ce
            sont des fractions d'un seul compteur, pas des absences
            différentes. */
@@ -12741,7 +12748,9 @@ function renderCompteurs(){
       hote.innerHTML='<p class="lede" style="padding:0">Aucun compteur pour '+esc(id)+' dans le classeur.</p>';
       return;
     }
-    var annee=Number(db.year), c=person.c, calc=compteursCalcules(person,annee);
+    var annee=Number(db.year), c=person.c, ju=jourUsine(),
+        jusqua=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():(ju.getFullYear()>annee?1231:0),
+        calc=compteursCalcules(person,annee,jusqua);
     document.getElementById("cptSub").textContent=id+" · "+annee
       +(db.maj?" · classeur du "+db.maj.slice(8,10)+"/"+db.maj.slice(5,7)+"/"+db.maj.slice(0,4):"");
     var h=[];
@@ -12778,6 +12787,27 @@ function renderCompteurs(){
     h.push('</tbody></table></div>');
     h.push('<p class="cpt-n">Le report est saisi à la main en début d\'année : les compteurs repartent du solde de fin '
       +(annee-1)+'. Il ne s\'ajoute pas aux deux lignes du dessus.</p>');
+    /* LE SOLDE AU JOUR J ET SES BORNES. Note de service du 18/09/2024
+       (gestion des heures flex time, qui remplace celle du 26/04/2021) :
+       minimum −8 h au moment de l'absence, maximum 104 h au moment de la
+       prestation — « solde apparaissant à la pointeuse, situation au jour
+       J », les reprises planifiées plus tard n'en déduisent rien — et qui
+       dépasse 80 h doit planifier des −FT pour redescendre à 80 h. Le solde
+       se lit donc AUJOURD'HUI (jour de l'usine) : report + heures portées −
+       heures reprises jusqu'à ce jour. La fin d'année, elle, compte tout ce
+       qui est déjà planifié. Le client, le 09/10/2026, en remettant la note. */
+    if(f.report!==undefined && jusqua){
+      var soldeJ=R(f.report+calc.ftPlusJ-calc.ftMoinsJ,2),
+          soldeFin=R(f.report+calc.ftPlus-calc.ftMoins,2),
+          etat=soldeJ>104?["ko","au-delà du plafond de 104 h"]
+              :soldeJ>80?["att","au-dessus de 80 h : des récupérations (−FT) sont à planifier pour redescendre à 80 h"]
+              :soldeJ<-8?["ko","sous le minimum de −8 h"]
+              :["ok","dans les bornes (−8 h à 104 h)"];
+      h.push('<div class="cpt-tuiles">'
+        +ctuile(num(soldeJ)+" h","solde au "+pad2(jusqua%100)+"/"+pad2(Math.floor(jusqua/100))+" (report compris)")
+        +ctuile(num(soldeFin)+" h","solde au 31/12, reprises planifiées comprises")+'</div>');
+      h.push('<p class="cpt-n cpt-ft-'+etat[0]+'">Solde du jour '+etat[1]+'. Le compteur monte et descend par heure entière.</p>');
+    }
 
     /* --- récup. HS : hors classeur --- */
     h.push('<h3 class="cpt-t">Récupération d\'heures supplémentaires</h3>');

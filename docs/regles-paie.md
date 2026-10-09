@@ -1973,3 +1973,50 @@ corrigée, le 09/10/2026, pour l'OUVRIER :
 les portent sans montant, sous « Congé légal »), la maladie du week-end, et
 tout ce qui touche à l'employé (férié, rappel sur un repos, heures sup
 « pas compenser »).
+
+## Les notes de service du 09/10/2026
+
+Le client, le 09/10/2026 : cinq notes de service internes, « à garder en
+privé et utiliser pour optimiser l'app ». Elles vivent dans le dépôt privé
+`CronoBots/groups-fiches` (`regles/`, métadonnées vidées, transcription dans
+`regles/notes-internes.md`) ; ici, seulement les règles.
+
+**Flex time (note du 18/09/2024, qui remplace celle du 26/04/2021)** — pour
+tout le personnel en pauses, intérimaires compris :
+- le compteur monte et descend **par heure entière** ;
+- **minimum −8 h** au moment de l'absence, **maximum 104 h** au moment de
+  la prestation (80 h avant septembre 2024), lu sur le solde du jour J :
+  les reprises planifiées plus tard n'en déduisent rien ; **au-delà de
+  80 h**, des récupérations (−FT) sont à planifier pour y redescendre ;
+- les quatre exemples de la note confirment des règles **déjà codées** :
+  « 2h +FT » de qui arrive plus tôt pour un collègue = 8 h payées et 2 h au
+  compteur ; « 2h −FT » = 8 h payées avec la prime de la pause prévue
+  (week-end compris) et 2 h retirées du compteur (section 6 de
+  `docs/conversion-horaire.md`) ; « 8h +FT » sur un repos = rien de payé,
+  8 h au compteur ; un **échange** de pause avec contrepartie = heures
+  payées, compteur inchangé ;
+- une modification d'horaire **demandée par la hiérarchie** donne droit à
+  la prime de rappel et aux heures en HS ou en flex time, au choix du
+  travailleur — c'est la règle du 25/09/2026 (le classeur écrit le +FT,
+  son silence désigne les HS).
+
+**Congé de moins de 8 h en pause (note du 24/02/2022)** : demandé plus de
+7 jours avant, il exige un remplaçant **de la même fonction et d'une autre
+pause** (ou en repos, ou en D), qui vient **en FT** — par exemple l'après-midi
+qui arrive à 12 h au lieu de 14 h ; moins de 7 jours avant : équipe
+complète ou remplaçant ; les congés d'heures **en période de D** n'ont
+besoin de personne.
+
+**Absence imprévue (note du 16/04/2025)** : justificatif au bureau RH dans
+les 2 jours ouvrables (samedi compris) ; un **jour d'absence sans
+certificat** non annoncé par mail dans ce délai devient une **absence
+injustifiée**. Le classeur l'écrit « Abs » comme une maladie : c'est
+l'écart connu de SPS le 21/08 (relevé : maladie sans certificat).
+
+**Temps partiel contractuel (note du 09/09/2025)** : **4/5 ou 9/10
+seulement**, début le **1er d'un mois**, **2 ans au plus**, demande 3 mois
+avant ; quota commun avec les crédits-temps avec motif (5 %, CCT 103). La
+règle du 15 de `fractionDuMois()` tombe donc juste pour tout contrat
+récent. Mesuré sur les sept contrats `TP` du classeur : tous à 10 ou 20 %,
+deux commencent un 15 ou un 16 (LAX en 2024 et DWS en mai 2025, avant la
+note de 2025) et celui de DWS dure 25 mois — sans effet sur 2026.
