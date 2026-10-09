@@ -2925,7 +2925,13 @@ professionnel », puis « go pour 1 et 2 » (dans l'application, et une
 notification du téléphone à l'ouverture). Le niveau 3 — une notification
 application fermée — demanderait un serveur d'envoi et une liste
 d'appareils abonnés hors du téléphone : écarté pour l'instant, c'est sa
-décision.
+décision. Le client a demandé pourquoi BETSFIX notifie écran verrouillé :
+son serveur Python garde les abonnements (`pushManager.subscribe`, clé
+VAPID) et envoie par `pywebpush` au service d'Apple, qui réveille le
+service worker. Ici, il faudrait un service d'abonnements (une
+fonction Supabase suffirait), une action GitHub qui compare l'horaire à
+chaque classeur et envoie, et deux secrets. Réponse le 09/10/2026 : « ne
+rien faire pour ça maintenant ».
 
 **Il n'y a pas de serveur** : l'horaire change quand un classeur est
 installé, et l'application le découvre en s'ouvrant (le nouveau `V` vide
