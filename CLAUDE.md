@@ -4630,6 +4630,34 @@ au classeur : VA restant de JBA (−8), RTT restant de KDN (−6) et de SMA
 à l'octet**, neuf règles à zéro, intégralité à zéro ; vérifié au
 navigateur à 320 (hors ligne), 390 et 1280 px.
 
+### Le classeur du 09/10/2026 à 9 h 30
+
+**La porte d'intégralité s'est fermée, sur une seule journée, et elle avait
+raison.** VBN le 15/10 : le commentaire écrit « cf. 09/10 », saut de ligne,
+puis la signature de son auteur et son deux-points. Le convertisseur, qui
+retire toute la tête d'un commentaire quand elle nomme un auteur, emportait
+le renvoi avec la signature ; l'anonymiseur, lui, ne retire que la ligne
+signée, et gardait « cf. 09/10 ». Le convertisseur relève désormais ce qui
+précède la DERNIÈRE ligne de la tête avant que les sauts de ligne soient
+écrasés, et le garde : la signature tient sur sa ligne. Mesuré : sur ce
+classeur, l'ancien et le nouveau convertisseur ne diffèrent que par cette
+journée ; sur le classeur du 01/10, ils sont identiques à l'octet.
+
+**Le garde-fou du dépôt s'est fermé ensuite** sur « Débourrage Ligne »
+(TCE le 05/10, « Débourrage Ligne L » : déboucher la ligne L) — lu en
+contexte, ajouté à `tools/formes-admises.txt`.
+
+Puis sept portes ouvertes, installé : **175 journées chez 38 personnes, 14
+compteurs**, et une personne de plus — **SLI**, opérateur en formation,
+21 journées. YBT malade du 12/10 à la fin de l'année (65 journées, ses VA
+deviennent des « Abs ») ; PDE malade du 10 au 16/10 ; FLN en congé du 29/10
+au 08/11, remplacé par ALZ au terrain arrière ; MHI en congé du 23 au 28/10 ;
+échanges IME/RDT (09-11/10), CJD/DBE (21-22/10), NPE/QBY (21/11) ; GBT-1
+rappelé les 21 et 22/10 pour QDE. Neuf règles à zéro, compteurs **77/78**
+(la nouvelle personne concorde), intégralité à zéro, découpe de
+`comparer-fiches` à l'épreuve ; vérifié au navigateur à 320 (hors ligne),
+390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
