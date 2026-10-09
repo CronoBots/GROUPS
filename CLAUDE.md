@@ -3196,8 +3196,9 @@ tout ». Mesuré d'abord à 390 px sur VBN : Accueil 3 903 px, **Salaire
   nécessaires se rangent par mois (`mqMoisTete()`), le mois qui vient
   ouvert, les suivants repliés sur leur intertitre, qui garde son compte et
   s'ouvre d'un appui (`mqBascule()`, retenu dans `MQ_OUVERT` le temps de la
-  page). Au-dessus, une rangée de sauts (`.rhsauts`) — Demande,
-  Sous-effectif avec son compte, rappels, absents — mène droit à chaque
+  page). Au-dessus, une rangée de sauts (`.rhsauts`) — Demande (partie
+  depuis avec la fenêtre de recherche), Sous-effectif avec son compte,
+  rappels, absents — mène droit à chaque
   cadre, sous la barre du haut. **11 795 → 3 848 px.**
 - **Salaire, replis qui se souviennent** : « Vérifier sa fiche en quatre
   temps », la fiche simulée et le contrôle sont des `details.fold
@@ -3624,6 +3625,37 @@ Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
 Les quatre sorties du vérificateur sont identiques à l'octet (il ne
 découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
 en sombre.
+
+### La recherche dans une fenêtre à elle
+
+Le client, le 09/10/2026 : « un bouton recherche pour les 3 types de
+recherche, et donc ne pas les mélanger avec les sous-effectifs et rappels
+etc », puis « go » sur la fenêtre et le bouton par sous-effectif. L'onglet
+Effectifs mêlait deux usages : CHERCHER une solution (un outil qu'on ouvre)
+et SURVEILLER ce qui ne va pas (une liste qu'on parcourt).
+
+- **`#caCard` quitte l'onglet** pour une fenêtre, `#caSheet`, hors des
+  onglets : elle monte du bas sur téléphone (poignée, coins hauts
+  arrondis, en-tête collé quand les résultats défilent) et se centre au
+  bureau (760 px au plus). Les trois onglets Congé · Absence · Recherche,
+  les champs et le calcul n'ont pas changé : seul leur cadre a bougé.
+- **En tête d'Effectifs, un bouton « Rechercher · Congé · absence ·
+  remplaçant »** (`#caOuvrir`). Le saut « Demande » de la rangée de sauts
+  part avec le cadre.
+- **« Chercher un remplaçant » au pied de chaque sous-effectif** (`.mqcher`) :
+  `ouvrirRecherche({pause, poste, an, mois, jour})` passe sur Recherche,
+  remplit les trois champs et calcule — avant, il fallait les recopier à la
+  main. Le reste de la fiche ouvre toujours le Planning de ce jour-là.
+- **Se referme** par la croix, le fond voilé, Échap et le geste retour du
+  téléphone : l'ouverture pose une entrée d'historique (`pushState`), et
+  `popstate` la referme au lieu de quitter l'onglet. Un clic sur une journée
+  du résultat ouvre le Planning et referme la fenêtre (`setView()` la ferme
+  toujours). La page dessous ne défile plus tant qu'elle est ouverte.
+
+Vérificateur identique à l'octet (aucune lecture touchée) ; éprouvé à 320
+(hors ligne), 390 et 1280 px : ouverture, focus sur la croix, calcul,
+retour, préremplissage depuis le sous-effectif du 10/10 (AM · STEP · Éq. 3,
+« Rappel - Repos » PDF), Échap, clic vers le Planning, rien ne déborde.
 
 ### Le congé en heures
 
