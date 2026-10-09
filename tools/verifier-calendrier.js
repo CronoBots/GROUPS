@@ -114,8 +114,10 @@ const MORCEAUX=[
   ["function posteDeFormation(","\n}"],
   ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
+  ["var RECYC_OFF=","\n"],
   ["function calculerPolyvalence(","\n}"],
   ["var PV_SANS_RECYCLAGE=","\n"],
+  ["var RECYC_EXEMPT=","};"],
   ["function polyvalenceDe(","\n}"],
   /* le mémo que equipeDuJour() emploie : sans lui la découpe le laisserait
      hors du champ et equipeDuJour() lèverait une ReferenceError */
@@ -150,6 +152,7 @@ const MORCEAUX=[
   ["function attenduAuPoste(","\n}"],
   ["function peutTenir(","\n}"],
   ["var EST_RENFORT=","\n"],
+  ["function nbPostesTenables(","\n}"],
   ["function reequilibrer(","\n}"],
   ["var POSTE_TRANCHE=","\n"],
   ["var POSTE_DU_JOUR=","\n"],

@@ -6769,11 +6769,26 @@ function cycleDuMois(person,annee,mois){
     if(v!==null) j.push([Date.UTC(annee,mois-1,d),v]);
   }
   if(j.length<10) return null;
-  var best=null, bs=-1, ci, bi, dec, ok, i, x;
-  for(ci=0; ci<CYCLES.length; ci++) for(bi=1; bi<=6; bi++) for(dec=0; dec<42; dec++){
-    ok=0;
-    for(i=0;i<j.length;i++){ x=cyclePoste(bi,CYCLES[ci],dec,j[i][0]); if((x==="-"?"":x)===j[i][1]) ok++; }
-    if(ok>bs){ bs=ok; best={cycle:CYCLES[ci],bi:bi,dec:dec}; }
+  /* Le binôme et le décalage ne comptent que par leur SOMME dans
+     cyclePoste() : la position est ANCRAGE[bi]-1+jour+dec, modulo la
+     longueur du cycle. Les 504 essais (2 cycles × 6 binômes × 42 décalages)
+     ne font donc que 77 positions distinctes : on compte chacune une fois,
+     puis on parcourt les essais DANS LE MÊME ORDRE, si bien que le premier
+     meilleur reste le même. Mesuré le 09/10/2026 : 80 % du temps du
+     vérificateur, et autant à l'ouverture de l'application. */
+  var best=null, bs=-1, ci, bi, dec, ok, i, x, k, cy, L, cnt, nj=[];
+  for(i=0;i<j.length;i++) nj.push(Math.round((j[i][0]-ANCRAGE_BASE)/86400000));
+  for(ci=0; ci<CYCLES.length; ci++){
+    cy=(CYCLES[ci]==="5 semaines")?CYCLE5:CYCLE6; L=cy.length; cnt=[];
+    for(k=0;k<L;k++){
+      ok=0;
+      for(i=0;i<j.length;i++){ x=cy[((((k+nj[i])%L)+L)%L)]||""; if((x==="-"?"":x)===j[i][1]) ok++; }
+      cnt.push(ok);
+    }
+    for(bi=1; bi<=6; bi++) for(dec=0; dec<42; dec++){
+      ok=cnt[((((ANCRAGE[Math.max(0,Math.min(ANCRAGE.length-1,bi-1))]-1+dec)%L)+L)%L)];
+      if(ok>bs){ bs=ok; best={cycle:CYCLES[ci],bi:bi,dec:dec}; }
+    }
   }
   if(bs/j.length<0.6) return null;      /* ajustement trop faible pour servir */
   return best;

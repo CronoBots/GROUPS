@@ -271,7 +271,7 @@ python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blan
 python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
 ```
 
-Elle enchaîne tout ce qui suit dans un dossier temporaire, derrière **sept
+Elle enchaîne tout ce qui suit dans un dossier temporaire, derrière **huit
 portes** — anonymiseur, second contrôle, **fidélité de la copie à la
 source**, convertisseur, export et son aller-retour, intégralité cellule par
 cellule, neuf règles dures du calendrier. La première qui se ferme arrête
@@ -280,6 +280,37 @@ comparateur. Avec `--installer`, les trois fichiers de `data/` sont
 remplacés ENSEMBLE, `V` est incrémenté, et le garde-fou du dépôt passe sur
 le résultat — s'il échoue, les fichiers d'avant reviennent depuis leur
 copie. Si rien n'a changé, rien n'est touché, pas même `V`.
+
+**Huit portes, et vite, depuis le 09/10/2026.** Le client : « pourquoi la
+mise en place est si longue ? », puis « vérifie et optimise au maximum
+cette tâche ». Un passage prenait **environ 4 minutes, et il en fallait
+deux** (à blanc, puis `--installer`) ; ce jour-là, deux portes fermées en
+ont fait quatre. Mesuré étape par étape, corrigé là où le temps passait,
+et **chaque correction prouvée identique à l'octet** sur deux classeurs :
+
+| Étape | Avant | Après | Cause |
+|---|---|---|---|
+| anonymiseur | 115 s | 16 s | chaque règle de nom balayait tout le XML (18 Mo) ; elle n'est plus essayée qu'au début des mots qui portent son premier mot (un index par partie), et `_sans_accent()` passe par une table |
+| convertisseur | 22 s | 4 s | `commentaires()` relue pour chaque colonne-personne (112 fois pour 12 feuilles) : mémoïsée |
+| vérificateur du calendrier | 14 s | 1,4 s | `cycleDuMois()` de l'application essayait 504 calages, qui ne font que 77 positions : comptées une fois, parcourues dans le même ordre (l'application s'ouvre plus vite aussi) |
+| garde-fou du dépôt | 14 s | 1,4 s | le contrôle croisé cherchait chaque OCCURRENCE de mot dans 18 Mo, et non chaque mot |
+
+Puis l'orchestration : les portes indépendantes tournent **en même temps**
+(le convertisseur part du classeur source), leurs comptes rendus
+s'impriment dans l'ordre, et la première porte fermée arrête tout comme
+avant. Une **huitième porte**, le garde-fou du dépôt sur l'horaire NEUF
+(`verifier-depot.py --horaire= --classeur=`), se ferme dès le passage à
+blanc — éprouvé en retirant « Débourrage Ligne » des formes admises :
+porte 8 fermée, rien d'installé. Et **`--installer` reprend un passage à
+blanc réussi** sur le même classeur, avec les mêmes outils et le même
+horaire installé (empreintes dans un mémo hors du dépôt), au lieu de le
+refaire. **22 s à blanc, 0 s pour l'installation.**
+
+**Et le vérificateur était cassé depuis le 07/10, en silence pour
+l'installation** : `--manques` et `--polyvalence` s'arrêtaient sur
+`nbPostesTenables`, `RECYC_OFF` et `RECYC_EXEMPT`, ajoutés à `index.html`
+sans entrer dans sa découpe. La porte 7 n'emploie que les neuf règles, qui
+ne les appellent pas — d'où le silence. Les trois sont dans la découpe.
 
 **La porte de fidélité est celle qui manquait** : hors des zones
 nominatives, la copie anonymisée ne doit différer de la source sur aucune
