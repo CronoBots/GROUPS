@@ -2705,6 +2705,21 @@ mois, une année), qui passent encore par `confirm()`. Éprouvé à 320 (hors
 ligne), 390 et 1280 px : aucune boîte du système, Échap et Annuler gardent
 le compte, Se déconnecter le retire et rouvre l'écran de connexion.
 
+### Mon salaire dans les cadres du Calendrier
+
+Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
+présentés comme pour le cadre horaire (sélection etc.) ». Le sélecteur de
+mois flottait au-dessus des cartes ; il est désormais la première ligne du
+premier cadre, `#salCard`, avec la barre `.calnav` / `.calmois` du
+Calendrier (même `.mnavhote`, donc `placerMnav("salaire")`, le glissement
+du mois et le masquage sans personne restent inchangés). Sous lui, le net,
+puis les six chiffres du mois en cases bordées comme `.calstats` (valeur
+mono 17 px, étiquette en petites capitales). Toutes les cartes de l'onglet
+prennent la bordure `--cadre`, le rayon `--rj` et le relief de `#calCard`.
+Aucune ligne de calcul touchée ; vérifié à 320 (hors ligne), 390 et
+1280 px, flèches du mois comprises. **Reste, préexistant** : à 320 px le
+tableau « Contrôle de la vraie fiche » est plus large que sa carte.
+
 ### L'écran d'intro
 
 Le client, le 29/09/2026 : « un écran d'intro avec le logo au chargement de

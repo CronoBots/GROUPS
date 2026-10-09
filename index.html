@@ -787,6 +787,27 @@ button{cursor:pointer}
 .cstat-k{font-size:9.5px; text-transform:uppercase; letter-spacing:.04em;
   color:var(--faint); font-weight:650}
 
+/* ---------- salaire : les cadres du Calendrier ---------- */
+/* Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
+   présentés comme pour le cadre horaire (sélection etc.) ». Tous les cadres de
+   l'onglet prennent la bordure grise uniforme, le rayon et le relief de
+   #calCard ; le premier porte la barre du mois (.calnav, la même) et la bande
+   des chiffres du mois, tracée comme .calstats : cases séparées par des filets
+   --cadre, grande valeur mono centrée, étiquette en petites capitales. */
+#v-salaire .card{border:1px solid var(--cadre); border-radius:var(--rj);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
+    0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
+#salCard{display:flex; flex-direction:column; overflow:hidden; position:relative}
+#salCard .hero{border-bottom:1px solid var(--cadre)}
+#salCard .tiles{display:flex; flex-wrap:wrap; gap:1px; background:var(--cadre);
+  border-bottom:1px solid var(--cadre)}
+#salCard .tile{flex:1 1 96px; min-width:96px; background:var(--surface2);
+  padding:10px 6px 9px; display:flex; flex-direction:column; align-items:center;
+  gap:2px; text-align:center}
+#salCard .tile .v{font-size:17px; font-weight:650; line-height:1.1; white-space:nowrap}
+#salCard .tile .k{font-size:9.5px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--faint); font-weight:650; margin-top:0}
+#salCard .tiles-note{border-top:0}
 /* ---------- horaire : le mois ---------- */
 /* Sept colonnes de jours et une huitième, étroite, pour les heures de la
    semaine — à droite, où on ne la confond pas avec un jour. */
@@ -3364,14 +3385,20 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          22/09/2026. Trois écrans d'hier s'y retrouvent, dans l'ordre où on
          les emploie : ce qu'on va toucher, d'où cela vient, et la
          confrontation à la vraie fiche. -->
-    <div class="mnavhote"></div>
-
     <div class="card salvide" id="salVide">
       <p><b>Aucun opérateur choisi.</b> Choisissez qui vous êtes dans
       <b>Réglages</b> : le salaire du mois se calcule sur votre horaire.</p>
     </div>
 
-    <div class="card">
+    <!-- LE CADRE DU MOIS, comme celui du Calendrier (le client, le 09/10/2026 :
+         « les cadres de l'onglet salaire doivent être présentés comme pour le
+         cadre horaire, sélection etc. ») : en première ligne le sélecteur de mois
+         (#mnav, rangé ici par placerMnav("salaire")), puis le net du mois, puis
+         la bande des chiffres du mois en cases bordées. -->
+    <div class="card salframe" id="salCard">
+      <div class="toolbar eqnav calnav">
+        <div class="calmois"><div class="mnavhote"></div></div>
+      </div>
       <div class="hero">
         <div aria-live="polite">
           <div class="lbl" id="heroLbl">Net à recevoir — septembre</div>
