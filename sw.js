@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v605";
+var V = "nfdm-v606";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
