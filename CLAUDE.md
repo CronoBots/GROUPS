@@ -3118,6 +3118,55 @@ Effectifs (personne et loupe). Deux phrases visibles renvoyaient encore à
 vérifié à 320 px (hors ligne), 390 px et 1280 px sur VBN, SKS, AFA et LCI,
 sans débordement ni erreur.
 
+### « Optimise tout » : six pistes, mesurées avant et après
+
+Le client, le 09/10/2026, après une liste de six pistes : « optimise
+tout ». Mesuré d'abord à 390 px sur VBN : Accueil 3 903 px, **Salaire
+5 025**, Planning 745, **Effectifs 11 795** (quatorze écrans), Équipes
+3 242.
+
+- **Effectifs, un mois ouvert** : les sous-effectifs et les rappels non
+  nécessaires se rangent par mois (`mqMoisTete()`), le mois qui vient
+  ouvert, les suivants repliés sur leur intertitre, qui garde son compte et
+  s'ouvre d'un appui (`mqBascule()`, retenu dans `MQ_OUVERT` le temps de la
+  page). Au-dessus, une rangée de sauts (`.rhsauts`) — Demande,
+  Sous-effectif avec son compte, rappels, absents — mène droit à chaque
+  cadre, sous la barre du haut. **11 795 → 3 848 px.**
+- **Salaire, replis qui se souviennent** : « Vérifier sa fiche en quatre
+  temps », la fiche simulée et le contrôle sont des `details.fold
+  data-memo`, fermés par défaut, leur état retenu par appareil
+  (`ui/fold/<id>`). Le net à recevoir reste sous la fiche repliée, le
+  statut du contrôle dans son intitulé ; l'impression déplie tout et
+  remet comme avant. **5 025 → 1 996 px.** Le contrôle ne déborde plus à
+  320 px (marges, champ et pastille resserrés sous 380 px).
+- **Le mois d'avant** : sous le net, « −279,88 € par rapport à
+  septembre », et la ligne de fiche qui a le plus bougé
+  (`netMoisPrecedent()`, qui relit le mois enregistré par `compute()`
+  lui-même, comme `hsDuMoisStocke()`). **Premier essai muet** : le mois
+  d'avant n'était pas encore dans le stockage, `save()` attendant 700 ms ;
+  `DERNIER_ECRIT` garde ce qui vient d'être écrit. Rien quand le mois
+  d'avant est vide (janvier) ou que les deux nets sont égaux.
+- **Le retour dans le héros** : « Absent jusqu'au 22 novembre », « En
+  repos · reprise le 12 octobre », « En congé · reprise demain »
+  (`_pfEtat()`, même lecture que les cadres Absents et Congé et repos :
+  `equipeDuJour()`, `finAbsence()`). Rien un jour travaillé. Calculé
+  30 ms APRÈS le premier affichage : `equipeDuJour()` rejoue toute l'usine
+  (170 ms au processeur divisé par quatre), le héros n'a pas à l'attendre.
+- **Les deux dernières boîtes du système** : « Vider ce mois » et
+  « Effacer toute l'année » passent par `confirmerPro()`, Annuler au
+  focus ; `viderAnnee()` sort de l'écouteur. Éprouvé : Échap referme sans
+  rien toucher, la confirmation efface bien les douze mois.
+- **Le chargement** : l'horaire est déjà compact (708 Ko, 108 compressés à
+  l'envoi). Profilé au processeur divisé par quatre : 2,2 s jusqu'au
+  héros, dont plus d'une seconde à lire le script lui-même ; la
+  comparaison à l'équipe était déjà différée et mémoïsée. Seul le calcul du
+  retour est différé ; découper `index.html` serait le vrai gain, et ce
+  n'est pas un chantier d'une passe.
+
+Vérificateur identique à l'octet (aucune lecture touchée), garde-fou du
+dépôt à zéro ; vérifié à 320 px (hors ligne), 390 et 1280 px sur VBN, YBT,
+LDY et SKS, sans débordement ni erreur.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
