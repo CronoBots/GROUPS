@@ -1072,6 +1072,14 @@ matricule.
 | **NPE** | « interim » | **employé depuis août 2026** — le classeur n'est pas à jour |
 | **MGY** | pas de ligne dans « Polyvalence » | **employé depuis août 2026** |
 
+**SLI, onzième, arrivé dans le classeur du 09/10/2026** : intérimaire en
+formation meunerie (le client, le 09/10/2026). Le classeur le range parmi
+les opérateurs en formation, « Meunerie » en ligne 9, sans ligne dans
+« Polyvalence » — donc sans `poly.statut` : comme pour MGY, c'est le client
+qui le dit, pas la colonne. **J'aurais dû le signaler à son arrivée** et
+demander qui il était ; je l'ai seulement compté (« une personne de
+plus »). Une personne nouvelle se fait confirmer par le client.
+
 **`poly.statut` peut donc retarder sur une embauche.** Le jour où cette
 colonne servira à un calcul, NPE en sera l'exemple : il faudra soit que le
 classeur soit corrigé, soit une table nommée qui porte la date d'embauche

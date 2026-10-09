@@ -6951,6 +6951,21 @@ function calageLong(p,annee){
     }
   }
   if(best.ok/j.length>=PROJ_SEUIL) return best;
+  /* Les consignateurs (BLR, YRS) se relaient : un cycle de cinq semaines
+     de leur équipe, puis cinq semaines de D du lundi au vendredi, et
+     l'autre en face. Le client, le 09/10/2026 : « il faut continuer comme
+     actuellement pour les consignateurs ». Mesuré : 87 et 89 journées sur
+     92, décalages à 35 jours l'un de l'autre ; personne d'autre ne le
+     préfère à son cycle. */
+  var alt=[];
+  for(k=0;k<70;k++) alt.push(k<35?CYCLE5[k]:(((k-35)%7)<5?"D":""));
+  best=null; L=70;
+  for(k=0;k<L;k++){
+    ok=0;
+    for(i=0;i<j.length;i++){ x=alt[(((j[i][0]+k)%L)+L)%L]||""; if((x==="-"?"":x)===j[i][1]) ok++; }
+    if(!best || ok>best.ok) best={nom:"relais consignation", motif:alt, k:k, ok:ok};
+  }
+  if(best.ok/j.length>=PROJ_SEUIL) return best;
   /* Une rotation de deux semaines, lue position par position dans les
      cellules de la personne : à chaque jour de la quinzaine, ce qu'elle
      y fait le plus souvent. */
