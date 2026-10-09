@@ -3249,6 +3249,17 @@ sans fond à elle, avec un en-tête : la date à gauche, « 1 place vide » /
 séparés d'un filet fort. Vérificateur identique à l'octet ; rien ne
 déborde à 320 (hors ligne), 390 et 1280 px.
 
+Puis, le même jour, sur sa capture d'iPhone : « 1 personne manquante » /
+« n personnes manquantes » au lieu de « place vide » ; la pause en code
+(AM, PM, N) et l'équipe en entier (« Équipe 3 ») sur la ligne du poste ;
+le nombre de journées du mois à droite de l'intertitre (« Octobre ·
+6 journées »), comme le total sous le titre. L'espace sous la date était
+plus grand qu'au-dessus : la date gardait la marge basse de 11 px de son
+ancienne disposition (`.mqd.eqproche`), annulée dans l'en-tête. Et le
+cadre « Congé, absence et recherche » perd sa description (`#caSub`,
+« simuler une journée sans quelqu'un », « trouver quelqu'un pour un
+poste », et le « VBN · 3 journées » qu'il écrivait après un calcul).
+
 **Les sous-effectifs disent qui est en poste.** Le client, le 30/09/2026 :
 « il faut également marquer qui est en poste (même manière que le module
 de recherche) ». Chaque manque ouvre sur le cadre plein « En poste » de la
