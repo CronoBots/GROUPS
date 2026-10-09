@@ -430,6 +430,12 @@ class Classeur:
             auteurs = _motif_auteurs(racine)
             for cm in racine.iter('{%s}comment' % M):
                 t = _TexteBarre(cm)
+                # Ce qui précède la DERNIÈRE ligne de la tête, relevé avant
+                # que resserrer() n'écrase les sauts de ligne : voir plus bas.
+                brute = re.match(r"^([^:]*):", t.s)
+                avant_sig = ""
+                if brute and "\n" in brute.group(1):
+                    avant_sig = " ".join(brute.group(1)[:brute.group(1).rfind("\n")].split())
                 t.resserrer()
                 # Les noms déclarés d'abord : ce qui reste — « , » esseulée,
                 # « /rt0xxxx: », « : » en tête — est balayé par AUTEUR et par
@@ -457,8 +463,20 @@ class Classeur:
                     # La borne de longueur n'est pas décorative : sans elle,
                     # un commentaire citant un auteur au fil du texte verrait
                     # tout son début avalé jusqu'au premier deux-points.
+                    #
+                    # MAIS LA SIGNATURE TIENT SUR SA LIGNE. VBN le 15/10, le
+                    # 09/10/2026 : « cf. 09/10 », saut de ligne, puis la
+                    # signature et son deux-points. La tête emportait le
+                    # renvoi avec elle ; l'anonymiseur, qui ne retire que la
+                    # ligne signée, le gardait — et la porte d'intégralité
+                    # s'est fermée sur ce désaccord. Ce qui précède la ligne
+                    # signée est du texte, et reste.
                     tete = re.match(r"^([^:]{0,48}):", t.s)
-                    if tete and auteurs.search(tete.group(1)):
+                    pre = avant_sig if (avant_sig and tete and
+                                        tete.group(1).startswith(avant_sig)) else ""
+                    if tete and pre and auteurs.search(tete.group(1)[len(pre):]):
+                        t.remplacer([(len(pre), tete.end(), " ")])
+                    elif tete and auteurs.search(tete.group(1)):
                         t.couper_tete(tete.end())
                     t.sub(auteurs, " ")
                     # Le nom parti, son ornement reste : « (external): ».
