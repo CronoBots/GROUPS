@@ -4097,6 +4097,79 @@ function echeanceHS(y,m){
   x=hsDuMoisStocke(y,2);
   return R(Math.max(0,fev-x.rep),2);
 }
+/* ===== Le repos payé lié au week-end (ouvrier) =====
+   La NOTE SUR LES REPOS de la grille 5 équipes (V3), remise par le client le
+   09/10/2026 et gardée dans le dépôt privé : les heures normales d'un samedi
+   ou d'un dimanche sont payées à 150 ou 200 %, leurs 100 % DÉDUITS, puis
+   payés un jour de repos désigné de la grille (« Jour de repos payé »).
+   Jours de la grille, le jour 1 étant un lundi (0 à 34 ci-dessous) :
+   8 et 9 ← 6 et 7 ; 17 et 18 ← 13 et 14 ; 26 ← 20 ; A1 (32) ← 21. Sans
+   prestation le jour lié, pas de repos payé ; moins de 8 h, le repos est
+   complété par le compteur de RHS. Confronté aux fiches de LCI : 33 des 36
+   repos payés aux positions de la note, et 5 des 6 repos annoncés non
+   payés ont leur jour lié en vacances ou en maladie. */
+var REPOS_LIES={7:5, 8:6, 16:12, 17:13, 25:19, 31:20};
+/* La position dans la grille de 5 semaines se lit sur les cellules de la
+   personne (le mois et le précédent), au cycle de 5 semaines seulement —
+   celui de la note. Sous 70 % d'accord, rien : le calcul garde l'ancienne
+   façon (la base du week-end payée le jour même). */
+function positionGrille5(cells,y,m){
+  if(!cells) return null;
+  var j=[], mm, d, nd, e, c, v, t;
+  for(mm=Math.max(0,m-1); mm<=m; mm++){
+    nd=daysInMonth(y,mm);
+    for(d=1; d<=nd; d++){
+      e=cells[pad2(mm+1)+pad2(d)]; if(!e) continue;
+      c=((typeof e==="string"?e:e[0])||"").trim();
+      v=(SHIFT_CODES.indexOf(c)>=0)?c:(c==="-"?"":null);
+      if(v===null) continue;
+      t=Date.UTC(y,mm,d);
+      j.push([Math.round((t-ANCRAGE_BASE)/86400000),v]);
+    }
+  }
+  if(j.length<20) return null;
+  var best=-1, bk=0, k, i, ok, x;
+  for(k=0;k<35;k++){
+    ok=0;
+    for(i=0;i<j.length;i++){ x=CYCLE5[(((j[i][0]+k)%35)+35)%35]||""; if((x==="-"?"":x)===j[i][1]) ok++; }
+    if(ok>best){ best=ok; bk=k; }
+  }
+  return (best/j.length>=0.7)?bk:null;
+}
+/* Les heures normales d'un samedi ou d'un dimanche presté — exactement ce
+   que compute() verse dans acc.sam et acc.dim (un férié tombant un samedi
+   compte comme un dimanche ; un rappel sur un repos n'a pas d'heure
+   normale). */
+function heuresWeekend(rec,y,m,d,hJour){
+  if(!rec || !rec.s || rec.rs) return 0;
+  var h=(rec.h===undefined||rec.h===null||rec.h==="")?hJour:Number(rec.h);
+  if(!(h>0)) return 0;
+  var t=dayType(y,m,d);
+  return (t==="Samedi"||t==="Dimanche")?h:0;
+}
+/* Le repos payé du mois : pour chaque jour désigné, les heures du week-end
+   lié — dans ce mois, ou dans le précédent (st.moisPrec). null si la
+   position dans la grille n'est pas lisible. */
+function reposLiesAuWeekend(M,y,m,hJour){
+  var k=positionGrille5(st.personD,y,m);
+  if(k===null) return null;
+  var nd=daysInMonth(y,m), out={h:0, rhs:0, jours:0}, d, n, pos, lien, dt, ly, lm, ld, rec, h, prec;
+  var pk=key(m?y:y-1, m?m-1:11);
+  prec=(st.moisPrec && st.moisPrec.k===pk)?st.moisPrec.M:null;
+  for(d=1; d<=nd; d++){
+    n=Math.round((Date.UTC(y,m,d)-ANCRAGE_BASE)/86400000);
+    pos=(((n+k)%35)+35)%35;
+    if(!(pos in REPOS_LIES)) continue;
+    dt=new Date(Date.UTC(y,m,d-(pos-REPOS_LIES[pos])));
+    ly=dt.getUTCFullYear(); lm=dt.getUTCMonth(); ld=dt.getUTCDate();
+    if(ly===y && lm===m) rec=(M.days||{})[ld];
+    else if(prec) rec=(prec.days||{})[ld];
+    else rec=null;
+    h=Math.min(hJour, heuresWeekend(rec,ly,lm,ld,hJour));
+    if(h>0){ out.h+=h; out.jours++; if(h<hJour) out.rhs+=hJour-h; }
+  }
+  return out;
+}
 function compute(){
   var p=st.params, b=st.bareme, M=st.month, y=st.y, m=st.m;
   var nd=daysInMonth(y,m), F=feries(y);
@@ -4394,7 +4467,18 @@ function compute(){
     /* Base HORAIRE : prestation normale (heures prestées × garanti, le week-end
        reçoit son supplément plus haut) + chaque jour payé non presté en ligne au
        taux garanti ; la maladie (SHG) au salaire horaire moyen. */
-    if(acc.hTot)  bl(acc.hTot,"Prestation normale à "+nf4.format(tgO),R(acc.hTot*tgO),true);
+    /* Avec la grille lisible, la base du week-end quitte la prestation
+       normale (la fiche n'y met que le lundi au vendredi) et revient en
+       « Jour de repos payé », le jour que la note désigne. */
+    var rWE=reposLiesAuWeekend(M,y,m,Number(p.hJour)||8);
+    /* Et le férié presté en semaine ne s'y paie pas non plus : la fiche de
+       l'ouvrier le paie UNE fois, « Prestation normale à 200 % » (la note :
+       « prestations normales sur dimanche, jour férié »). Le « non déduit »
+       du 26/09/2026 vaut pour l'employé, dont le fixe paie déjà la journée.
+       Fiches de LCI : 8 h en avril (le 06/04), 16 h en mai (14 et 25/05). */
+    var hPN=Math.max(0,acc.hTot-acc.ferie-(rWE?acc.sam+acc.dim:0));
+    if(hPN)       bl(hPN,"Prestation normale à "+nf4.format(tgO),R(hPN*tgO),true);
+    if(rWE && rWE.h) bl(rWE.h,"Jour de repos payé à "+nf4.format(tgO),R(rWE.h*tgO),true);
     /* La NOTE EXPLICATIVE DE LA FICHE DE PAIE (v4, 2020), remise par le
        client le 09/10/2026 et gardée dans le dépôt privé :
        — RHS et DTT (codes 54 et 56) sont la « Compens. Collective Payée » ;
@@ -4407,7 +4491,7 @@ function compute(){
          LCI le confirment : 6 h en avril, 8 h en mai, sans montant.
        La récupération de férié (RJF), que la note ne nomme pas, garde son
        traitement d'avant. */
-    var oRepos=ab("DTT")+ab("RHS");
+    var oRepos=ab("DTT")+ab("RHS")+((rWE&&rWE.rhs)||0);
     if(oRepos)    bl(oRepos,"Compens. Collective Payée à "+nf4.format(tgO),R(oRepos*tgO),true);
     var tFer=(tmO>0)?tmO:tgO;
     if(ab("FER")) bl(ab("FER"),"Hrs. Jours fériés à "+nf4.format(tFer),R(ab("FER")*tFer),true);
@@ -7675,6 +7759,7 @@ function prefillFromHoraire(){
         Object.keys(tot).forEach(function(k){ tot[k]+=b[k]; });
         if(b.changes||b.vides) touches++;
         if(i===st.m) st.month=M;
+        if(i===st.m-1) st.moisPrec={k:key(st.y,i), M:M};
         /* écriture silencieuse : douze « Enregistré » d'affilée seraient
            du bruit, le bilan ci-dessous suffit */
         save("months/"+key(st.y,i),M,true);
@@ -13032,6 +13117,14 @@ function loadMonth(y,m){
     renderRota(); renderFields(); refresh();
     if(migre) persistMonth();
     prefillAuto();
+  });
+  /* Le mois PRÉCÉDENT, pour le repos payé d'un ouvrier lié à un week-end
+     d'avant le 1er (reposLiesAuWeekend). */
+  var pk=key(m?y:y-1, m?m-1:11), mk=st.mkey;
+  readMonth(pk).then(function(d){
+    if(st.mkey!==mk) return;
+    st.moisPrec={k:pk, M:mergeDefaults(d,DEF_M)};
+    if(st.ready) refresh();
   });
 }
 
