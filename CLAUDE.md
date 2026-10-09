@@ -361,7 +361,8 @@ cp /tmp/nouveau.json data/horaire-2026.json
 ```
 
 Le comparateur dit tout : date de mise à jour du classeur, arrivées et
-départs, changements de groupe, journées modifiées avec l'avant et l'après,
+départs (une arrivée se fait TOUJOURS confirmer par le client : qui,
+quelle fonction, intérimaire ou non — SLI le 09/10/2026 ne l'a pas été), changements de groupe, journées modifiées avec l'avant et l'après,
 compteurs et polyvalence. Il ne manipule que des identifiants à trois
 lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
 dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
@@ -544,11 +545,27 @@ sur deux semaines au matin, en décalé, lues dans leurs propres cellules
 pause, deux contremaîtres par pause sauf quand le binôme 2 (sans adjoint)
 y est seul. Les fériés suivent le cycle, comme dans le classeur.
 
-**Ne sont pas prolongés** (seuil 85 %) : BLR et YRS, les consignateurs, qui
-mêlent des D au cycle de l'équipe 2 (59 et 43 journées sur 92) ; SLI, dont
-la colonne s'arrête en octobre. Question au client (« Ce qui attend le
-client »). Ni rien des 2026 qui serait à 2027 : les compteurs (`c`) sont
-vidés, les contrats (`ct`) et les polyvalences gardés, puisqu'ils sont datés.
+**Les consignateurs se relaient, et le relais se prolonge.** J'avais
+d'abord écrit qu'ils n'avaient pas de cycle (59 et 43 journées sur 92 sur
+les deux cycles), et posé la question. Le client, le 09/10/2026 : « il faut
+continuer comme actuellement pour les consignateurs ». Le classeur dit
+comment : BLR et YRS alternent par **périodes de cinq semaines calées sur
+le cycle de l'équipe 2** — l'un suit ce cycle pendant que l'autre fait des
+D du lundi au vendredi, puis ils échangent (le 02/11 et le 07/12, premiers
+jours du cycle de l'équipe 2). Un motif de 70 jours, cinq semaines de cycle
+puis cinq de D, les prend à **87 et 89 journées sur 92** (94 à 97 % sur
+toute l'année), avec des décalages exactement opposés ; aucune autre
+personne ne le préfère à son cycle. En 2027, l'échange suivant tombe le
+lundi 11/01. **J'aurais dû lire cette alternance avant de poser la
+question** : elle se voyait mois par mois dans leurs deux colonnes.
+
+**SLI n'est pas prolongé** : intérimaire en formation meunerie, arrivé
+dans le classeur du 09/10/2026 (voir `docs/regles-paie.md`, « Les
+intérimaires ») ; le client prolongera lui-même son horaire. **Son arrivée
+aurait dû lui être signalée ce jour-là**, avec la question de qui il
+était : une personne nouvelle se fait toujours confirmer. Rien des 2026
+qui serait à 2027 ne passe : les compteurs (`c`) sont vidés, les contrats
+(`ct`) et les polyvalences gardés, puisqu'ils sont datés.
 
 Vérifié : la jonction décembre → janvier enchaîne sans saut (VBN, AFA, DWS,
 SBZ, LCI, CAN, PDE) ; février 2027 de VBN au Calendrier égale le calcul
@@ -1759,10 +1776,6 @@ n'est deviné à leur sujet :
   revérifiée ») : vacances payées par la caisse et non par l'employeur ?
   réduction du temps de travail non payée ? maladie du week-end majorée
   comme le poste prévu ? Trois oui/non, posés au client ;
-- **les cycles de 2027** (09/10/2026, voir « Après le classeur ») : BLR et
-  YRS (consignateurs) et SLI (colonne arrêtée en octobre) n'ont pas de
-  cycle à prolonger — en D du lundi au vendredi, ou le cycle de leur
-  équipe ?
 - **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
@@ -4930,7 +4943,9 @@ contexte, ajouté à `tools/formes-admises.txt`.
 
 Puis sept portes ouvertes, installé : **175 journées chez 38 personnes, 14
 compteurs**, et une personne de plus — **SLI**, opérateur en formation,
-21 journées. YBT malade du 12/10 à la fin de l'année (65 journées, ses VA
+21 journées. **Je ne l'ai pas signalé au client, et j'aurais dû** : il a dû
+préciser lui-même que c'est un intérimaire en formation meunerie. Une
+ARRIVÉE du rapport se dit au client avec la question de qui elle est. YBT malade du 12/10 à la fin de l'année (65 journées, ses VA
 deviennent des « Abs ») ; PDE malade du 10 au 16/10 ; FLN en congé du 29/10
 au 08/11, remplacé par ALZ au terrain arrière ; MHI en congé du 23 au 28/10 ;
 échanges IME/RDT (09-11/10), CJD/DBE (21-22/10), NPE/QBY (21/11) ; GBT-1
