@@ -1772,6 +1772,29 @@ n'est deviné à leur sujet :
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
+- **la fiche de septembre de VBN** (reçue le 09/10/2026, rangée dans
+  `CronoBots/groups-fiches`) : VBN passe contremaître, avec une nouvelle
+  rémunération fixe. Comparée sans calage, chaque écart de brut a sa
+  ligne, et la somme ne laisse aucun reste :
+  - le fixe payé dépasse « fixe × 0,90 » d'exactement la moitié de
+    « hausse × 0,90 » : c'est sans doute un rappel de la hausse pour
+    une demi-quinzaine d'août. Hypothèse à faire confirmer ;
+  - le 30/09, `["D-CPPT","2h RTT","+1h RHS compteur à 0 Arrivée à 09h
+    Départ à 15h"]` : la fiche paie la prime du **matin** pour les 6 h
+    (38 h de matin contre 32 h, 64 h de nuit contre 70 h). L'application
+    garde la prime de nuit de la pause prévue, puisque le commentaire
+    n'en nomme aucune. Ma règle du 30/09 « celle de la pause prévue
+    sinon » est donc démentie par la fiche. Question posée au client ;
+  - le même jour, la fiche paie **0 h 30** d'heures sup à compenser.
+    L'application en paie 1 h, à la prime de nuit, comme le client l'a
+    dit le 01/10 (« + 1 h sup faite après 15 h »). Question posée ;
+  - les primes diverses : la fiche porte bien plus que les 4 primes de
+    remplacement de contremaître (R-CM des 01, 07, 08 et 09/09), et le
+    reste ne correspond pas à un nombre entier de primes. Question
+    posée ;
+  - indemnités : 17 jours sur la fiche contre 18 dans l'application,
+    plus une ligne « Indemn. déplacement/vélo » de 50 km, qui se saisit
+    dans le mois (`kmVelo`).
 - **la paie de l'ouvrier** (09/10/2026, voir « La paie à l'heure de LCI,
   revérifiée ») : ~~réduction du temps de travail non payée~~ — tranché
   par la note explicative de la fiche de paie (« non payé pour les
