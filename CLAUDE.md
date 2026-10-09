@@ -3963,6 +3963,19 @@ git config core.hooksPath .githooks     # une fois par machine
    jamais au tout premier lancement. Éprouvé : application ouverte, `V`
    changé sur le serveur, retour au premier plan simulé → la page se
    recharge seule sur le nouveau cache, puis tient hors ligne.
+   **Mais pas à l'ouverture**, depuis `nfdm-v604`. Le client, le
+   09/10/2026 : « il y a toujours un double chargement lors de
+   l'ouverture de l'app ». La page étant prise au réseau d'abord, elle
+   arrive DÉJÀ neuve à l'ouverture qui suit une mise à jour ; puis
+   l'enregistrement trouvait le nouveau `sw.js`, et `controllerchange`
+   la rechargeait pour rien — à chaque `V` poussé, donc presque à chaque
+   ouverture. Reproduit au navigateur : deux navigations. On ne recharge
+   plus que si la page peut être ancienne : chargée hors ligne (servie
+   par le cache), ou ouverte depuis plus de 15 s quand `verifier()` (retour
+   au premier plan, demi-heure) trouve la mise à jour. Éprouvé : ouverture
+   après une mise à jour, 1 navigation (2 avant) ; application ouverte
+   puis mise à jour au retour au premier plan, 1 rechargement ; page
+   chargée hors ligne puis réseau revenu, 1 rechargement.
 3. Tester dans un navigateur, pas seulement en unitaire. Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible

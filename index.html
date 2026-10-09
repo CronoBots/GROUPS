@@ -13672,15 +13672,30 @@ if(window.claude&&window.claude.use){
    - quand le nouveau service worker prend la main (skipWaiting + claim),
      la page se recharge UNE fois. Pas au tout premier lancement, où il
      n'y avait pas de service worker à remplacer. */
+/* LE DOUBLE CHARGEMENT À L'OUVERTURE. Le client, le 09/10/2026 : « il y a
+   toujours un double chargement lors de l'ouverture de l'app ». La page se
+   prend AU RÉSEAU D'ABORD (sw.js) : à l'ouverture qui suit une mise à jour,
+   elle arrive déjà neuve ; puis l'enregistrement trouve le nouveau sw.js,
+   qui prend la main, et la page se rechargeait — pour rien. Reproduit :
+   deux navigations à l'ouverture après un changement de V. On ne recharge
+   donc plus que si la page peut être ANCIENNE : chargée hors ligne (donc
+   depuis le cache), ou restée ouverte et ressortie plus tard (la mise à
+   jour vient alors de verifier(), au retour au premier plan ou à la
+   demi-heure). */
 if("serviceWorker" in navigator){
-  var swAvait=!!navigator.serviceWorker.controller, swRecharge=false;
+  var swAvait=!!navigator.serviceWorker.controller, swRecharge=false,
+      swNe=Date.now(), swHorsLigne=!navigator.onLine, swAncienne=false;
   navigator.serviceWorker.addEventListener("controllerchange",function(){
     if(!swAvait || swRecharge) return;
+    if(!swHorsLigne && !swAncienne) return;
     swRecharge=true; location.reload();
   });
   window.addEventListener("load",function(){
     navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(function(reg){
-      function verifier(){ try{ reg.update(); }catch(e){} }
+      function verifier(){
+        if(Date.now()-swNe>15000) swAncienne=true;
+        try{ reg.update(); }catch(e){}
+      }
       document.addEventListener("visibilitychange",function(){
         if(document.visibilityState==="visible") verifier();
       });
