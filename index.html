@@ -787,6 +787,11 @@ button{cursor:pointer}
 .cstat-k{font-size:9.5px; text-transform:uppercase; letter-spacing:.04em;
   color:var(--faint); font-weight:650}
 
+/* Une année projetée par les cycles (majProjNote) : une ligne discrète,
+   à l'encre de l'accent, sous la barre du mois. */
+.projnote{margin:0; padding:9px 16px; font-size:12px; line-height:1.4; color:var(--muted);
+  background:var(--in-soft); border-bottom:1px solid var(--cadre)}
+.projnote b{color:var(--in); font-weight:650}
 /* ---------- salaire : les cadres du Calendrier ---------- */
 /* Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
    présentés comme pour le cadre horaire (sélection etc.) ». Tous les cadres de
@@ -3250,6 +3255,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex time</span></div>
         <div class="cstat"><span class="cstat-v"><b id="tVelo">0</b></span><span class="cstat-k">Vélo</span></div>
       </div>
+      <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
     </div>
 
@@ -3408,6 +3414,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </div>
       <div class="versements" id="versements" hidden></div>
       <div class="callout" id="alerteDefaut"></div>
+      <p class="projnote" id="salProj" hidden></p>
       <div class="tiles" id="tiles"></div>
       <p class="tiles-note" id="tilesNote"></p>
     </div>
@@ -4678,7 +4685,19 @@ function caseJour(d){
     +'</button>';
 }
 
+/* Une année après le classeur est PROJETÉE (horaireDe) : le dire là où on
+   la lit, sans quoi un mois de cycle pur se prendrait pour l'horaire réel. */
+function majProjNote(){
+  var db=HORAIRE_DB, pr=db && Number(st.y)>Number(db.year);
+  ["calProj","salProj"].forEach(function(i){
+    var el=document.getElementById(i); if(!el) return;
+    el.hidden=!pr;
+    if(pr) el.innerHTML="<b>Horaire "+st.y+" prolongé par les cycles</b> — 5 semaines par équipe, "
+      +"6 par binôme, sans congés ni remplacements. Le classeur "+st.y+" le remplacera.";
+  });
+}
 function renderRota(){
+  majProjNote();
   var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m);
   var hote=document.getElementById("moisCal"); if(!hote) return;
   var h='<div class="mc-tete">'+
@@ -4849,6 +4868,7 @@ function slipRow(o){
   return tr;
 }
 function renderSlip(C){
+  majProjNote();
   var p=st.params, h="";
   C.head.forEach(function(o){
     if(o.t==="sec"){h+='<tr class="sec"><td colspan="3">'+o.l+"</td></tr>"; return;}
@@ -5377,8 +5397,9 @@ function renderFields(){
    le 26/09/2026). Le tableau du jour écrit (C) à côté d'eux. */
 var CONSIGNATEURS=["YRS","BLR"];
 function posteDuJourDe(db,id){
-  var au=new Date(), annee=Number(db.year);
-  if(au.getFullYear()!==annee) return null;
+  var au=new Date();
+  db=horaireDe(au.getFullYear()); if(!db) return null;
+  var annee=Number(db.year);
   var m=au.getMonth()+1, j=au.getDate(), mmdd=pad2(m)+pad2(j);
   var par=equipeDuJour(db,annee,m,j), i, k, q, r;
   for(i=0;i<EQ_GROUPES.length;i++){
@@ -6889,6 +6910,88 @@ function posteDeCycle(fit,annee,mois,jour){
   var x=cyclePoste(fit.bi,fit.cycle,fit.dec,Date.UTC(annee,mois-1,jour));
   return (x && x!=="-")?x:null;
 }
+/* ===================== au-delà du classeur =====================
+   Le client, le 09/10/2026 : « pour les horaires après décembre 2026, il
+   faut continuer le cycle des 5 équipes (5 semaines) et des 6 binômes
+   (6 semaines) ; tant que le classeur 2027 n'est pas là, les cycles
+   représentent ce que les travailleurs doivent prester ».
+
+   Chacun est calé sur les 92 DERNIERS jours de son classeur, et non sur un
+   mois : sur un mois, le cycle de 5 semaines est le début de celui de 6
+   (CYCLE5 = CYCLE6.slice(0,35)) et cycleDuMois() hésite entre les deux.
+   Sur trois mois, mesuré le 09/10/2026 : les 11 contremaîtres tombent sur
+   6 semaines (90 à 100 % d'accord, six positions, une par binôme), toutes
+   les équipes et les opérateurs en formation sur 5 semaines (environ 95 %,
+   une position par équipe). La STEP n'est ni l'un ni l'autre : elle a sa
+   rotation de deux semaines au matin, lue dans ses propres cellules
+   (91 et 92 journées sur 92). Sous 85 %, rien n'est prolongé plutôt que
+   deviné — les deux consignateurs, qui mêlent des D au cycle de leur
+   équipe — et une colonne qui ne va pas jusqu'au 31/12 non plus.
+
+   Les fériés suivent le cycle, comme dans le classeur. Une journée
+   projetée est une cellule franche seule (["N"], ["-"]) : ni congé, ni
+   remplacement, ni compteur — le classeur de l'année les dira. */
+var PROJ_JOURS=92, PROJ_SEUIL=0.85;
+function calageLong(p,annee){
+  var j=[], fin=Date.UTC(annee,11,31), t, dt, e, c, v, i, k, x, ok, L;
+  for(t=fin-(PROJ_JOURS-1)*86400000; t<=fin; t+=86400000){
+    dt=new Date(t); e=p.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())]; if(!e) continue;
+    c=((typeof e==="string"?e:e[0])||"").trim();
+    v=(SHIFT_CODES.indexOf(c)>=0)?c:(c==="-"?"":null);
+    if(v!==null) j.push([Math.round((t-ANCRAGE_BASE)/86400000),v]);
+  }
+  if(j.length<40) return null;
+  var best=null, cy=[["5 semaines",CYCLE5],["6 semaines",CYCLE6]], ci;
+  for(ci=0; ci<cy.length; ci++){
+    L=cy[ci][1].length;
+    for(k=0;k<L;k++){
+      ok=0;
+      for(i=0;i<j.length;i++){ x=cy[ci][1][(((j[i][0]+k)%L)+L)%L]||""; if((x==="-"?"":x)===j[i][1]) ok++; }
+      if(!best || ok>best.ok) best={nom:cy[ci][0], motif:cy[ci][1], k:k, ok:ok};
+    }
+  }
+  if(best.ok/j.length>=PROJ_SEUIL) return best;
+  /* Une rotation de deux semaines, lue position par position dans les
+     cellules de la personne : à chaque jour de la quinzaine, ce qu'elle
+     y fait le plus souvent. */
+  var cnt=[], motif=[], tot=0, q, m, mx;
+  for(k=0;k<14;k++) cnt.push({});
+  for(i=0;i<j.length;i++){ q=((j[i][0]%14)+14)%14; cnt[q][j[i][1]]=(cnt[q][j[i][1]]||0)+1; }
+  for(k=0;k<14;k++){ m=""; mx=0; for(x in cnt[k]) if(cnt[k][x]>mx){ mx=cnt[k][x]; m=x; } motif.push(m); tot+=mx; }
+  if(tot/j.length>=PROJ_SEUIL) return {nom:"2 semaines", motif:motif, k:0, ok:tot};
+  return null;
+}
+/* L'horaire d'une année : celui du classeur, ou, pour une année qui le
+   suit, celui que les cycles prolongent. null avant le classeur. */
+var _projCache={};
+function horaireDe(annee){
+  var db=HORAIRE_DB, y, out, t, n, x, L, dt;
+  annee=Number(annee);
+  if(!db) return null;
+  y=Number(db.year);
+  if(annee===y) return db;
+  if(!(annee>y)) return null;
+  out=_projCache[annee];
+  if(out && out.__src===db) return out;
+  out={year:annee, maj:db.maj, legende:db.legende, ateliers:db.ateliers,
+       projete:y, people:[], horsCycle:[]};
+  out.__src=db;
+  db.people.forEach(function(p){
+    var f=p.d["1231"]?calageLong(p,y):null;
+    if(!f){ out.horsCycle.push(p.id); return; }
+    var q={}, cle;
+    for(cle in p) if(cle!=="d" && cle!=="c") q[cle]=p[cle];
+    q.c={}; q.d={}; q.cycle=f.nom; L=f.motif.length;
+    for(t=Date.UTC(annee,0,1); t<=Date.UTC(annee,11,31); t+=86400000){
+      n=Math.round((t-ANCRAGE_BASE)/86400000);
+      x=f.motif[(((n+f.k)%L)+L)%L]||""; dt=new Date(t);
+      q.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())]=[(x && x!=="-")?x:"-"];
+    }
+    out.people.push(q);
+  });
+  _projCache[annee]=out;
+  return out;
+}
 /* Dernier recours : la personne était en repos et vient remplacer quelqu'un.
    Son cycle ne dit alors rien, mais le commentaire nomme la personne
    remplacée — on reprend le poste de celle-ci. Le client, à propos de LHR le
@@ -7496,19 +7599,31 @@ function prefillFromHoraire(){
     if(!db){ prefillEnCours=false; return; }
     var person=db.people.filter(function(p){return p.id===id;})[0];
     if(!person){ prefillEnCours=false; flash("Personne introuvable dans l'horaire d'équipe"); return; }
-    st.personD=person.d;
-    st.personCt=person.ct||null;
     /* Le statut suit la personne : le choisir, c'est le dire. Sans quoi un
        ouvrier gardait « Employé » et son ONSS était fausse de 8 %. */
     var stt=statutPersonne(person);
     if(stt && st.params.statut!==stt){
       st.params.statut=stt; save("params",st.params,true);
     }
-    if(Number(db.year)!==Number(st.y)){
-      prefillEnCours=false;
-      flash("L'horaire d'équipe porte sur "+db.year+", pas sur "+st.y);
+    /* Une année après le classeur se lit dans les cycles prolongés
+       (horaireDe) ; une année avant lui ne se lit nulle part. */
+    var dbA=horaireDe(st.y);
+    if(!dbA){
+      prefillEnCours=false; st.personD=null; st.personCt=null;
+      flash("L'horaire d'équipe commence en "+db.year+", pas en "+st.y);
       return;
     }
+    if(dbA!==db){
+      person=dbA.people.filter(function(p){return p.id===id;})[0];
+      if(!person){
+        prefillEnCours=false; st.personD=null; st.personCt=null;
+        flash("Pas de cycle à prolonger pour "+id+" en "+st.y+" : le classeur "+st.y+" le dira");
+        return;
+      }
+      db=dbA;
+    }
+    st.personD=person.d;
+    st.personCt=person.ct||null;
     var mois=[]; for(var i=0;i<12;i++) mois.push(i);
     Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); }))
     .then(function(docs){
@@ -7874,9 +7989,11 @@ function eqJourValide(db){
   /* Tant qu'on n'a pas choisi un jour à la main, le tableau suit le jour
      de l'usine : une application restée ouverte passe d'elle-même au jour
      suivant à 6 h, au prochain rendu. */
-  if(eqAuto || !eqDate || eqDate.getFullYear()!==a){
+  /* Une date après le classeur reste permise : son horaire est celui des
+     cycles prolongés (horaireDe). */
+  if(eqAuto || !eqDate || !horaireDe(eqDate.getFullYear())){
     var u=jourUsine();
-    eqDate=(u.getFullYear()===a)?u:new Date(a,st.m,1);
+    eqDate=horaireDe(u.getFullYear())?u:new Date(a,st.m,1);
   }
   return eqDate;
 }
@@ -9334,6 +9451,7 @@ function renderEquipe(){
   return fetchHoraireDB().then(function(db){
     if(!db) return;
     var dt=eqJourValide(db), annee=dt.getFullYear(), mois=dt.getMonth()+1, jour=dt.getDate();
+    db=horaireDe(annee)||db;
     var mmdd=pad2(mois)+pad2(jour);
     /* Le libellé du jour (« Mardi 22 octobre ») : calculé une fois, servi au
        libellé de l'onglet Horaire (#jourLabel). #eqJour n'existe plus dans RH
@@ -9946,7 +10064,8 @@ function renderEquipe(){
 
     if(hote) hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     var es=document.getElementById("eqSub");
-    if(es) es.textContent=total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total";
+    if(es) es.textContent=total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total"
+      +(db.projete?" · prolongé par les cycles":"");
     /* Les alertes de l'onglet RH se rafraîchissent une fois le jour rendu. Elles
        étaient APRÈS le return (donc inatteignables depuis que renderEquipe rend
        une promesse) : on les remet DANS le .then. */
