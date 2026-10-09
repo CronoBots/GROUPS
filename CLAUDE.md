@@ -2738,6 +2738,17 @@ toujours ; seul un glissement de 60 px change de mois. Éprouvé à 320 (hors
 ligne), 390 et 1280 px, sur la barre du mois et au milieu du contenu :
 glissement franc dans les deux sens, court et en biais sans effet.
 
+**Et les flèches répondent aux appuis rapides.** Le client, le 09/10/2026 :
+« les flèches gauche/droite des mois sur mobile ne réagissent pas si l'on
+veut passer les mois rapidement ». La garde anti-zoom au double-tap annulait
+toute 2e tape à moins de 320 ms au même endroit — c'est exactement appuyer
+vite sur la même flèche — et chaque tape annulée relançait le délai :
+mesuré au toucher simulé, **quatre appuis rapides sur › avançaient d'un
+mois**, et les flèches du jour de l'onglet Horaire d'un jour. La garde ne
+s'applique plus aux boutons, liens, champs et onglets, qui ne zooment pas
+(`touch-action:manipulation`) ; elle reste ailleurs. Quatre appuis = quatre
+mois et quatre jours, dans les deux sens, à 320 (hors ligne) et 390 px.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
