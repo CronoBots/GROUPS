@@ -545,18 +545,28 @@ button{cursor:pointer}
 /* une rangée de congé : nom, restant en grand, barre posé / droit */
 .cg-l{padding:9px 0 10px; border-top:1px solid var(--trait)}
 .cg-l:first-of-type{border-top:0; padding-top:0}
-.cg-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
-.cg-n{font-size:13.5px; font-weight:600; color:var(--ink); min-width:0}
-.cg-n i,.cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
-.cg-r{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); white-space:nowrap}
-.cg-r b{font-size:18px; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums}
-.cg-l.vide .cg-r b{color:var(--muted)}
-.cg-l.neg .cg-r b{color:var(--out2)}
-.cg-bar{height:6px; margin:7px 0 5px; border-radius:99px; background:var(--surface3); overflow:hidden}
+.cg-t{display:flex; align-items:center; gap:8px; min-width:0}
+.cg-n{font-size:13.5px; font-weight:600; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
+/* le code du compteur, en badge, AVANT l'intitulé (VA, RTT, DTT…) */
+.cpt-code{flex:0 0 auto; display:inline-block; width:46px; box-sizing:border-box; text-align:center; padding:2px 6px; border-radius:6px;
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.02em;
+  color:var(--in); background:var(--in-soft); border:1px solid var(--trait)}
+.cpt-lib{display:inline-flex; align-items:center; gap:8px; min-width:0}
+/* disponible · placé · restant : trois colonnes égales, le restant à droite et en avant */
+.cg-nb{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:9px 0 7px}
+.cg-nb div{display:flex; flex-direction:column; gap:1px; min-width:0}
+.cg-nb span{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint)}
+.cg-nb b{font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:600; color:var(--ink2);
+  font-variant-numeric:tabular-nums; white-space:nowrap}
+.cg-nb b i{font-style:normal; font-size:10.5px; font-weight:500; color:var(--muted); margin-left:2px}
+.cg-nb .cg-rs{text-align:right; align-items:flex-end}
+.cg-nb .cg-rs b{font-size:18px; font-weight:700; color:var(--ink)}
+.cg-l.vide .cg-rs b{color:var(--muted)}
+.cg-l.neg .cg-rs b{color:var(--out2)}
+.cg-bar{height:5px; border-radius:99px; background:var(--surface3); overflow:hidden}
 .cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
 .cg-l.neg .cg-bar i{background:var(--out2)}
-.cg-s{display:flex; justify-content:space-between; gap:10px; font-size:10.5px; color:var(--faint);
-  font-variant-numeric:tabular-nums}
 /* flex time : le solde du jour, sa jauge, quatre chiffres */
 .ft-hero{display:flex; align-items:center; gap:14px}
 .ft-v{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); white-space:nowrap}
@@ -12951,7 +12961,7 @@ function compteursCalcules(person,annee,jusqua){
 
 /* Deux codes que la légende du classeur ne définit pas : on les écrit en
    toutes lettres, avec le code à côté. */
-var LIB_CPT_LONG={MAL:"Maladie",FORM:"Formation"};
+var LIB_CPT_LONG={MAL:"Maladie",FORM:"Formation",DTT:"Congé d'ancienneté"};
 function renderCompteurs(){
   var hote=document.getElementById("cptCorps"); if(!hote) return;
   var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
@@ -12993,14 +13003,20 @@ function renderCompteurs(){
       var pv=(prev[k+"Total"]!==undefined)?prev[k+"Total"]:prev[k];
       var tot=Number(solde[k])||0, pose=Number(pv)||0,
           rs=(reste[k]!==undefined)?Number(reste[k]):R(tot-pose,2);
-      var lib=libCompteur(db,k), pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
+      var lib=libCompteur(db,k); if(lib===k && LIB_CPT_LONG[k]) lib=LIB_CPT_LONG[k]; var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
+      /* Le client, le 09/10/2026 : « disponible, placé, restant », et le
+         code AVANT l'intitulé complet. Trois chiffres dans l'ordre où on les
+         raisonne, le restant mis en avant ; la barre dit la même chose d'un
+         coup d'œil. */
       lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'">'
-        +'<div class="cg-t"><span class="cg-n">'+esc(lib)+(lib===k?"":' <i>'+esc(k)+'</i>')+'</span>'
-        +'<span class="cg-r"><b>'+num(rs)+'</b> h</span></div>'
-        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h posées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div>'
-        +'<div class="cg-s"><span>'+num(pose)+' h posées</span><span>droit '+num(tot)+' h</span></div></div>');
+        +'<div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
+        +(lib===k?'':'<span class="cg-n">'+esc(lib)+'</span>')+'</div>'
+        +'<div class="cg-nb"><div><span>Disponible</span><b>'+num(tot)+'<i>h</i></b></div>'
+        +'<div><span>Placé</span><b>'+num(pose)+'<i>h</i></b></div>'
+        +'<div class="cg-rs"><span>Restant</span><b>'+num(rs)+'<i>h</i></b></div></div>'
+        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h disponibles"><i style="width:'+R(pct,1)+'%"></i></div></div>');
     });
-    if(lc.length) h.push(bloc("Congés","restant · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
+    if(lc.length) h.push(bloc("Congés","en heures · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
 
     /* --- flex time --- */
     var f=c.flex||{};
@@ -13086,7 +13102,7 @@ function renderCompteurs(){
       h.push(bloc("Congés et maladie de l'année","lus dans l'horaire",
         '<div class="cpt-liste">'+cles.map(function(k){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
-          return '<div class="cpt-li"><span>'+esc(l)+(l===k?"":' <i>'+esc(k)+'</i>')+'</span>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
+          return '<div class="cpt-li"><span class="cpt-lib"><span class="cpt-code">'+esc(k)+'</span>'+(l===k?'':esc(l))+'</span>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
     }
     hote.innerHTML=h.join("");
 

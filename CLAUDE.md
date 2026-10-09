@@ -3003,6 +3003,19 @@ jours (8 h) ; les badges de poste optimisés ». Trois retouches :
 Les sorties du vérificateur sont identiques à l'octet. Rien ne défile de
 côté ni ne dépasse de la page à 320 px (hors ligne), 390 px et 1280 px.
 
+Et encore le même jour : « il faut que cela soit logique, donc le nombre
+disponible, le nombre placé, le nombre restant, et afficher VA avant
+l'intitulé complet ». Chaque congé porte d'abord son code en badge
+(`.cpt-code`, largeur fixe pour que les intitulés s'alignent), puis
+l'intitulé, puis trois colonnes : **Disponible** (le solde au 1er janvier,
+2025 inclus), **Placé** (posé dans l'horaire), **Restant** (en avant, à
+droite). La barre suit en dessous. La liste « Congés et maladie de
+l'année » prend le même badge devant l'intitulé. DTT, que la légende du
+classeur ne définit pas, s'écrit « Congé d'ancienneté », comme dans la
+table des codes de `docs/regles-paie.md`. Le vérificateur donne des
+sorties identiques à l'octet. Rien ne défile de côté à 320 px (hors
+ligne), 390 px et 1280 px.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
