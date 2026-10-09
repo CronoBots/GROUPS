@@ -429,7 +429,8 @@ fois de travers : un seul poste sur trois d'abord, puis — corrigé — la colo
 à 10 au lieu de 5 + 5 contremaître). Le client, le 07/10/2026 : « mets en place
 exactement la même chose que pour l'horaire, et enregistre la marche à suivre
 pour ne JAMAIS passer à côté ». La lecture ne se fait donc plus jamais à la
-main : elle passe par **six portes** qui auraient arrêté chacune de ces erreurs.
+main : elle passe par **six portes** qui auraient arrêté chacune de ces erreurs
+— onze depuis le 09/10/2026, voir plus bas.
 
 **Ce que le classeur contient.** La feuille est faite de SECTIONS empilées.
 Chaque section a sa ligne d'en-tête (`Nom | Prénom | Degré… | recyclage restant
@@ -451,6 +452,43 @@ changerait. Avec `--installer`, et seulement si les six portes sont ouvertes :
 `data/recyclages-2026.json` est remplacé, le **brut** (`-brut.json`, trigrammes
 seuls, hors dépôt via `.gitignore`) est écrit à côté, `V` est incrémenté, le
 garde-fou du dépôt passe — sinon tout revient depuis la copie.
+
+**La même démarche d'anonymat et de récupération que l'horaire, depuis le
+09/10/2026.** Le client, en envoyant la version du jour : « il faut exactement
+la même démarche d'anonymat et de récupération de toutes les infos ». Les six
+portes ne lisaient que les comptes de la feuille « Suivi Polyvalence » ; le
+reste du classeur — la feuille REGLES, le degré G/H, les formules, la mise en
+forme — tombait, et il n'y avait ni copie anonymisée ni contrôle indépendant.
+Cinq portes s'ajoutent, sur le modèle de `mettre-a-jour.py` :
+
+- (7) **copie anonymisée** `data/recyclages-2026.xlsx` : l'archive recopiée
+  telle quelle, sauf la colonne A des personnes (le trigramme) et la B
+  (vidée), leurs chaînes partagées (vidées — sans quoi le nom resterait dans
+  `sharedStrings.xml` ; refus si une autre cellule les emploie) et l'auteur
+  et le dernier modificateur du document. **Garantie** : l'archive entière
+  est relue, un seul mot de nom et la copie est détruite ;
+- (8) **second contrôle** : `verifier-anonymat.py` source → copie. Il a
+  d'abord fermé sur les quatre noms de poste écrits en capitales (meunerie,
+  gluten, fermentation et distillation) : lus et admis dans
+  `tools/survivants-admis.txt` ;
+- (9) **fidélité** : hors des colonnes de noms, aucune cellule d'aucune
+  feuille ne diffère de la source ;
+- (10) **export entier** `data/recyclages-2026-classeur.json` par
+  `exporter-classeur.py`, avec son aller-retour : 2 feuilles, 544 cellules,
+  29 formules, 202 dates, 56 fusions ;
+- (11) **intégralité** : l'export, lu par un autre chemin — le trigramme
+  ÉCRIT en colonne A de la copie, et non recalculé —, redonne pour chaque
+  personne et chaque poste les mêmes comptes ET les mêmes dates que la sortie.
+
+La copie et l'export sont la réserve locale, hors dépôt (`.gitignore`),
+comme `classeur-2026.xlsx` et son brut. **Éprouvées** : un mot de nom planté
+dans `workbook.xml` fait détruire la copie (7) ; une date décalée d'un jour
+dans la copie ferme la fidélité (9) ; une date retirée de l'export, puis une
+date changée, ferment l'intégralité (11). Toute la commande prend moins d'une
+seconde.
+
+Classeur du 09/10/2026 : onze portes ouvertes, **une seule ligne change** —
+GPO, un recyclage de fermentation le 08/10 (2 → 3, restant 19 → 18).
 
 **Restent à la main** : lire le rapport et dire au client ce qui a bougé, tester
 dans un navigateur, committer.
@@ -1774,7 +1812,8 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
-| `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière sept portes |
+| `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière huit portes |
+| `tools/mettre-a-jour-recyclage.py` | le classeur RH des recyclages, même démarche, onze portes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
 | `tools/verifier-integralite.py` | confronte l'horaire au classeur entier : ce qui ne lui arrive pas |

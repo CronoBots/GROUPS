@@ -45,12 +45,33 @@ LES PORTES, dans l'ordre — la première qui échoue arrête tout :
   6. ANONYMAT : la sortie (et le brut) ne portent AUCUN nom ni prénom du
      classeur.
 
+Puis, le client le 09/10/2026 : « exactement la même démarche d'anonymat et
+de récupération de toutes les infos » que pour l'horaire :
+
+  7. COPIE ANONYMISÉE : l'archive recopiée, colonne A des personnes = le
+     trigramme, colonne B vidée, leurs chaînes partagées vidées, auteur et
+     dernier modificateur retirés. GARANTIE : la copie est relue en entier,
+     un seul mot de nom et elle est détruite ;
+  8. SECOND CONTRÔLE : tools/verifier-anonymat.py source → copie, qui
+     n'emprunte rien à l'anonymiseur ;
+  9. FIDÉLITÉ : hors des colonnes de noms des personnes, la copie ne
+     diffère de la source sur AUCUNE cellule, d'aucune feuille ;
+ 10. EXPORT : tools/exporter-classeur.py recopie la copie ENTIÈRE en JSON
+     (cellules, types, formules, styles, fusions, lignes masquées…) avec
+     son aller-retour ;
+ 11. INTÉGRALITÉ : ce classeur entier, lu par un autre chemin (le trigramme
+     ÉCRIT en colonne A de la copie, et non recalculé), redonne pour chaque
+     personne et chaque poste les mêmes comptes et les mêmes dates que la
+     sortie.
+
 À blanc, l'outil s'arrête après les portes et imprime CE QUI CHANGERAIT par
 rapport au recyclage installé — à LIRE, et à dire au client. Avec
---installer, et seulement si les six portes sont ouvertes : data/recyclages-%d.json
-est remplacé, le brut (trigrammes seuls, jamais de nom) est écrit à côté, `V`
-est incrémenté dans sw.js, et le garde-fou du dépôt passe sur le résultat.
-S'il échoue, les fichiers d'avant sont remis en place depuis leur copie.
+--installer, et seulement si les onze portes sont ouvertes : data/recyclages-%d.json
+est remplacé, le brut (trigrammes seuls, jamais de nom) est écrit à côté, la
+copie anonymisée et son export entier vont dans data/ (hors dépôt, la
+réserve), `V` est incrémenté dans sw.js, et le garde-fou du dépôt passe sur
+le résultat. S'il échoue, les fichiers d'avant sont remis en place depuis
+leur copie.
 
 Restent à faire à la main, et l'outil le rappelle : relire le rapport,
 tester dans un navigateur, committer.
@@ -334,6 +355,197 @@ def _resume(o):
     return " ".join("%s=%s" % (k, o[k]) for k in CLES if o.get(k)) or "tout à 0"
 
 
+# ── L'anonymiseur du classeur RH ───────────────────────────────────────────
+# La même démarche que pour l'horaire (CLAUDE.md, « Garder le classeur sous la
+# main, anonymisé ») : on n'INTERPRÈTE rien, on recopie l'archive en ne
+# touchant QUE les noms. Ici les noms ont une place fixe — colonnes A (nom)
+# et B (prénom) des lignes de personnes de « Suivi Polyvalence » — et c'est
+# tout : la colonne A reçoit le trigramme, la B est vidée. Leurs chaînes
+# partagées sont vidées aussi (sans quoi le nom resterait dans
+# sharedStrings.xml), à condition qu'aucune autre cellule ne les emploie.
+# Sortent avec eux : l'auteur et le dernier modificateur du document.
+#
+# LA GARANTIE, comme l'anonymiseur de l'horaire : la copie est relue en entier
+# et l'on y cherche chaque mot de nom et de prénom (3 lettres et plus, sans
+# accent, en mot entier). Un seul, et la copie est détruite.
+
+def _cible_feuille(z):
+    wb = ET.fromstring(z.read("xl/workbook.xml"))
+    rels = ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))
+    rid = dict((r.get("Id"), r.get("Target")) for r in rels)
+    RNS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+    for sh in wb.findall(M + "sheets/" + M + "sheet"):
+        if "polyvalence" in (sh.get("name") or "").lower():
+            t = rid.get(sh.get(RNS + "id"))
+            return t if t.startswith("xl/") else "xl/" + t
+    raise ValueError("feuille « Suivi Polyvalence » introuvable")
+
+
+def _lettres(n):
+    s = ""
+    while n:
+        n, r = divmod(n - 1, 26)
+        s = chr(65 + r) + s
+    return s
+
+
+def anonymiser_recyclage(source, dst, sections, cells, cv):
+    """Copie anonymisée du classeur RH. Rend (nb de cellules remplacées,
+    mots surveillés). Lève ValueError si une chaîne de nom est partagée avec
+    une cellule qui n'en est pas une, ou si la garantie trouve un reste."""
+    get = lambda r, c: cells.get((r, c), "")
+    lignes = {}
+    for sec in sections:
+        for r in sec["data_rows"]:
+            nom, pre = get(r, 1), get(r, 2)
+            lignes[r] = cv._initiales((pre + " " + nom).strip()) or ""
+    z = zipfile.ZipFile(source)
+    feuille = _cible_feuille(z)
+    xml = z.read(feuille).decode("utf-8")
+    vides, n = set(), 0
+
+    def cellule(r, col, rep):
+        nonlocal xml, n
+        ref = "%s%d" % (col, r)
+        m = re.search(r'<c r="%s"(?=[\s>/])([^>]*?)(/>|>(.*?)</c>)' % ref, xml, re.S)
+        if not m:
+            return
+        attrs = m.group(1)
+        if re.search(r'\bt="s"', attrs):
+            v = re.search(r"<v>(\d+)</v>", m.group(3) or "")
+            if v:
+                vides.add(int(v.group(1)))
+        style = re.search(r'\bs="\d+"', attrs)
+        style = " " + style.group(0) if style else ""
+        nouveau = ('<c r="%s"%s t="inlineStr"><is><t>%s</t></is></c>' % (ref, style, rep)
+                   if rep else '<c r="%s"%s/>' % (ref, style))
+        xml = xml[:m.start()] + nouveau + xml[m.end():]
+        n += 1
+    for r, tri in sorted(lignes.items()):
+        cellule(r, "A", tri)
+        cellule(r, "B", "")
+    # une chaîne de nom employée ailleurs que dans une cellule de nom ?
+    employees = set()
+    for nomf in z.namelist():
+        if re.match(r"xl/worksheets/sheet\d+\.xml$", nomf):
+            texte = xml if nomf == feuille else z.read(nomf).decode("utf-8")
+            for m in re.finditer(r'<c [^>]*\bt="s"[^>]*>\s*(?:<f[^<]*</f>\s*)?<v>(\d+)</v>', texte):
+                employees.add(int(m.group(1)))
+    partagees = vides & employees
+    if partagees:
+        raise ValueError("%d chaîne(s) de nom employée(s) aussi par une autre cellule"
+                         % len(partagees))
+    surveilles = set()
+    for r in lignes:
+        for mot in re.split(r"[\s,.\-']+", get(r, 1) + " " + get(r, 2)):
+            mot = _sans_accent(mot).upper()
+            if len(mot) >= 3:
+                surveilles.add(mot)
+    encours = dst + ".en-cours"
+    with zipfile.ZipFile(encours, "w", zipfile.ZIP_DEFLATED) as zout:
+        for info in z.infolist():
+            donnee = z.read(info.filename)
+            if info.filename == feuille:
+                donnee = xml.encode("utf-8")
+            elif info.filename == "xl/sharedStrings.xml" and vides:
+                txt = donnee.decode("utf-8")
+                morceaux, i = [], [0]
+
+                def si(m):
+                    k = i[0]
+                    i[0] += 1
+                    return "<si><t></t></si>" if k in vides else m.group(0)
+                donnee = re.sub(r"<si>.*?</si>", si, txt, flags=re.S).encode("utf-8")
+            elif info.filename.startswith("docProps/"):
+                donnee = re.sub(rb"<(dc:creator|cp:lastModifiedBy)>[^<]*</\1>",
+                                rb"<\1></\1>", donnee)
+            zout.writestr(info, donnee)
+    # la garantie
+    restes = []
+    zr = zipfile.ZipFile(encours)
+    for nomf in zr.namelist():
+        if not re.search(r"\.(xml|rels|vml)$", nomf):
+            continue
+        plat = _sans_accent(zr.read(nomf).decode("utf-8", "replace")).upper()
+        for mot in surveilles:
+            if re.search(r"(?<![A-Z0-9])" + re.escape(mot) + r"(?![A-Z0-9])", plat):
+                restes.append((mot, nomf))
+    zr.close()
+    if restes:
+        os.remove(encours)
+        raise ValueError("garantie : %d nom(s) subsistent dans la copie (détruite) : %s"
+                         % (len(restes), ", ".join(sorted(set(f for _, f in restes)))))
+    os.replace(encours, dst)
+    return n, len(surveilles)
+
+
+def fidelite_recyclage(source, copie, sections, cv):
+    """Les cellules où la copie diffère de la source HORS des colonnes de
+    noms des lignes de personnes. Doit être vide."""
+    noms = set()
+    for sec in sections:
+        for r in sec["data_rows"]:
+            noms.add((r, 1))
+            noms.add((r, 2))
+
+    def lire(chemin):
+        cl = cv.Classeur(chemin)
+        out = {}
+        for f in cl.feuilles:
+            for l, ligne in cl.grille(f, fusions=()).items():
+                for c, v in ligne.items():
+                    out[(f, l, c)] = v
+        return out
+    a, b = lire(source), lire(copie)
+    ecarts = []
+    for k in sorted(set(a) | set(b), key=str):
+        if a.get(k) == b.get(k):
+            continue
+        f, l, c = k
+        if "polyvalence" in f.lower() and (l, c) in noms:
+            continue
+        ecarts.append("%s ligne %d colonne %d" % k)
+    return ecarts
+
+
+def integralite_export(export, sections, neuf):
+    """Le classeur ENTIER, exporté depuis la copie anonymisée, contre ce que
+    l'application lit. Deux chemins indépendants — la lecture des portes part
+    de la SOURCE et calcule le trigramme ; celui-ci part de la COPIE, où le
+    trigramme est écrit en colonne A par l'anonymiseur — doivent donner, pour
+    chaque personne et chaque poste, le même nombre de recyclages et les
+    mêmes dates."""
+    f = next(v for k, v in export["feuilles"].items() if "polyvalence" in k.lower())
+    cel = f["cellules"]
+    tot, vus = {}, set()
+    for sec in sections:
+        for r in sec["data_rows"]:
+            tri = str(cel.get("A%d" % r, ""))
+            vus.add(tri)
+            for (d, fin, key, _l, _n) in sec["postes"]:
+                vals = [cel["%s%d" % (_lettres(c), r)] for c in range(d, fin + 1)
+                        if str(cel.get("%s%d" % (_lettres(c), r), "")).strip()]
+                tot.setdefault((tri, key), []).extend(vals)
+    ecarts = []
+    for tri in sorted(vus - set(neuf["ops"])):
+        ecarts.append("« %s » : ligne de personne de la copie, absente de la sortie" % tri)
+    for tri in sorted(set(neuf["ops"]) - vus):
+        ecarts.append("%s : dans la sortie, absent de la copie anonymisée" % tri)
+    for (tri, key), vals in sorted(tot.items()):
+        o = neuf["ops"].get(tri)
+        if o is None:
+            continue
+        if o.get(key, 0) != len(vals):
+            ecarts.append("%s · %s : %d dans le classeur entier, %d dans la sortie"
+                          % (tri, key, len(vals), o.get(key, 0)))
+            continue
+        attendu = sorted(d for d in (_date_serie(v) for v in
+                         sorted(vals, key=lambda x: float(x) if _num(x) else 0)) if d)
+        if sorted((o.get("dates") or {}).get(key, [])) != attendu:
+            ecarts.append("%s · %s : dates différentes entre le classeur entier et la sortie"
+                          % (tri, key))
+    return ecarts
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if not args:
@@ -356,6 +568,11 @@ def main():
                   for p in json.load(open(horaire, encoding="utf-8")).get("people", []))
 
     cv = _convert()
+    copie_cible = os.path.join(data, "recyclages-%d.xlsx" % annee)
+    export_cible = os.path.join(data, "recyclages-%d-classeur.json" % annee)
+    travail = tempfile.mkdtemp(prefix="recyc-portes-")
+    copie = os.path.join(travail, os.path.basename(copie_cible))
+    export = os.path.join(travail, os.path.basename(export_cible))
     # ── 1. lecture & structure ────────────────────────────────────────────
     print("── 1. lecture & structure", flush=True)
     cells = lire_feuille(source)
@@ -387,19 +604,52 @@ def main():
     porte(6, "anonymat (aucun nom dans la sortie)", not fuite,
           ["nom/prénom présent : %s" % t for t in fuite])
 
+    # ── 7. la copie anonymisée, et sa garantie ────────────────────────────
+    try:
+        nrep, nsurv = anonymiser_recyclage(source, copie, sections, cells, cv)
+        porte(7, "copie anonymisée (garantie : aucun mot de nom dans l'archive)", True, [])
+        print("     %d cellule(s) de nom remplacée(s), %d mot(s) de nom cherché(s) : aucun"
+              % (nrep, nsurv))
+    except ValueError as e:
+        porte(7, "copie anonymisée", False, [str(e)])
+    # ── 8. le second contrôle, qui n'emprunte rien à l'anonymiseur ────────
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "verifier-anonymat.py"),
+                        source, copie], capture_output=True, text=True)
+    porte(8, "second contrôle d'anonymat (verifier-anonymat.py)", r.returncode == 0,
+          (r.stdout + r.stderr).strip().splitlines())
+    # ── 9. fidélité : hors des noms, la copie ne diffère de la source sur rien
+    ecarts = fidelite_recyclage(source, copie, sections, cv)
+    porte(9, "fidélité de la copie à la source (hors colonnes de noms)", not ecarts, ecarts)
+    # ── 10. le classeur ENTIER en JSON, depuis la copie, avec son aller-retour
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "exporter-classeur.py"),
+                        copie, export], capture_output=True, text=True)
+    porte(10, "export du classeur entier (aller-retour)", r.returncode == 0,
+          (r.stdout + r.stderr).strip().splitlines())
+    for l in r.stdout.strip().splitlines()[:2]:
+        print("     " + l)
+    # ── 11. intégralité : le classeur entier contre la sortie ─────────────
+    ecarts = integralite_export(json.load(open(export, encoding="utf-8")), sections, neuf)
+    porte(11, "intégralité classeur entier ↔ sortie (comptes et dates)", not ecarts, ecarts)
+
     print("\n══ CE QUI CHANGE par rapport au recyclage installé — à LIRE, et à dire"
           " au client ══\n")
     lignes = diff_installe(cible, neuf)
     print("\n".join(lignes) if lignes else "(rien)")
 
     if not installer:
-        print("\nLes six portes sont ouvertes. À blanc : rien n'est installé.")
+        print("\nLes onze portes sont ouvertes. À blanc : rien n'est installé.")
         print("Relancer avec --installer pour remplacer data/recyclages-%d.json." % annee)
         return 0
 
     # ── installer ──────────────────────────────────────────────────────────
     neuf_txt = json.dumps(neuf, ensure_ascii=False, indent=1)
     brut_txt = json.dumps(brut, ensure_ascii=False, indent=1)
+    def _pareil(a, b):
+        return os.path.exists(b) and open(a, "rb").read() == open(b, "rb").read()
+    for src_, dst_ in ((copie, copie_cible), (export, export_cible)):
+        if not _pareil(src_, dst_):
+            shutil.copy2(src_, dst_)
+            print("Réserve locale (hors dépôt) : %s" % os.path.relpath(dst_, RACINE))
     if os.path.exists(cible) and open(cible, encoding="utf-8").read() == neuf_txt \
             and os.path.exists(cible_brut) and open(cible_brut, encoding="utf-8").read() == brut_txt:
         print("\nLe recyclage installé est déjà identique : rien à installer, V ne bouge pas.")
