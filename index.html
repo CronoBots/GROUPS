@@ -13169,10 +13169,19 @@ function _deviceId(){
    intérim à tort). N'affecte que l'affichage (pas l'ONSS : intérimaire = ouvrier
    côté paie). */
 var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", MGY:"Intérimaire", NPE:"Ouvrier"};
+/* LES NOUVEAUX COMMENCENT TOUJOURS INTÉRIMAIRES. Le client, le 09/10/2026,
+   devant SLI affiché « Ouvrier ». Le classeur le dit à sa façon : les
+   opérateurs sans ligne dans la feuille « Polyvalence » sont exactement les
+   quatre arrivés en cours d'année (CDT, MGY, NPI, SLI), et les trois premiers
+   avaient été dits intérimaires le 06/10. Sans ligne et sans être cadre, on
+   est donc un nouveau, donc intérimaire — jusqu'à ce que le classeur ou le
+   client dise autre chose (STATUT_CLIENT passe avant). SLI tombait sur le
+   statut de paie par défaut, « Ouvrier », faute de ligne et de décision. */
 function statutAffiche(p){
   if(p && STATUT_CLIENT[p.id]) return STATUT_CLIENT[p.id];
   var s=(p&&p.poly&&p.poly.statut)||"";
   if(/interim/i.test(s)) return "Intérimaire";
+  if(p && !p.poly && !estCadre(p)) return "Intérimaire";
   return (typeof statutPersonne==="function") ? statutPersonne(p) : "";
 }
 /* Équipe d'un travailleur = numéro de shift (« Équipe 1 » à « Équipe 5 »).
