@@ -1773,9 +1773,20 @@ n'est deviné à leur sujet :
     13/04) en expliquent sans doute deux ; la troisième est l'une des
     demi-journées du 05, du 08 ou du 15/04 ;
 - **la paie de l'ouvrier** (09/10/2026, voir « La paie à l'heure de LCI,
-  revérifiée ») : vacances payées par la caisse et non par l'employeur ?
-  réduction du temps de travail non payée ? maladie du week-end majorée
-  comme le poste prévu ? Trois oui/non, posés au client ;
+  revérifiée ») : ~~réduction du temps de travail non payée~~ — tranché
+  par la note explicative de la fiche de paie (« non payé pour les
+  ouvriers »), appliqué le 09/10/2026, voir `docs/regles-paie.md`, « Les
+  deux notes internes ». Restent : vacances payées par la caisse et non
+  par l'employeur ? maladie du week-end majorée comme le poste prévu ? ;
+- **le D de la grille** (09/10/2026) : la note sur les repos écrit D =
+  7h30-16h (une demi-heure de midi non payée) ; le client avait dit le
+  28/09 « seulement D : 7-15 ». Lequel vaut aujourd'hui ? La note date de
+  2009 ;
+- **la RJF de l'ouvrier** : la note ne la nomme pas — payée comme un férié
+  (salaire moyen) ou au garanti ?
+- **le repos payé lié au week-end** : la note le décrit jour par jour et
+  les fiches de LCI le confirment (33 sur 36) ; à coder, si le client
+  veut que chaque mois tombe juste et pas seulement l'année ;
 - **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
@@ -2050,7 +2061,14 @@ l'application n'a pas :
   compensation tombe le mois suivant (mai trop haut, juin trop bas).
 
 Les trois premières sont posées au client (« Ce qui attend le client »),
-rien n'est codé avant sa réponse : elles touchent à des montants. VBN
+rien n'est codé avant sa réponse : elles touchent à des montants. **La
+deuxième est tranchée le même jour** par la note explicative de la fiche de
+paie, que le client a remise avec la note sur les repos de la grille :
+« Réduction Temps Travail … non payé pour les ouvriers ». Appliquée, avec
+deux autres lignes que la note corrige (libellé de la RHS/DTT, férié au
+salaire moyen) — voir `docs/regles-paie.md`, « Les deux notes internes ».
+L'écart de RTT d'avril et de mai disparaît exactement ; la quatrième ligne,
+le repos lié au week-end, est désormais décrite jour par jour par la note. VBN
 (employé) est **identique à l'octet** à la comparaison du 07/10 : rien n'a
 régressé. Les scripts de comparaison vivent dans le scratchpad ; les
 copies texte des fiches qui y traînaient (nom, registre national, IBAN)

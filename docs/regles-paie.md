@@ -1875,3 +1875,65 @@ motif les voie.
 Le classeur écrit aussi la date en tête du commentaire, suivie de deux
 points. Ce motif-là est délibérément étroit — ancré au début et exigeant le
 « : » — sans quoi n'importe quelle date y passerait.
+
+## Les deux notes internes
+
+Remises par le client le 09/10/2026, « à conserver en privé » : la **note
+sur les repos de la grille horaire en pauses, 5 équipes** (V3, 2009) et la
+**note explicative de la fiche de paie** (v4, 2020). Les PDF de ces notes, propriétés
+vidées, et leur transcription fidèle vivent dans le dépôt privé
+`CronoBots/groups-fiches`, dossier `regles/`. Ce qu'elles disent, sans
+montant :
+
+**La grille.** 38,4 h par semaine, 192 h sur les cinq semaines ; le jour 1
+est un lundi, et la grille est exactement `CYCLE5` (Ma Ma PM PM N N N, …,
+D D D en semaine 5). Ma 6h-14h, PM 14h-22h, N 22h-6h, **D 7h30-16h avec une
+demi-heure de midi non payée**.
+
+**Le repos lié au week-end.** Les heures normales prestées un samedi ou un
+dimanche sont payées à 150 % ou 200 %, puis leurs 100 % sont DÉDUITS
+(« Déduction prest norm ») et payés plus tard, un jour de repos désigné de
+la grille (« Jour de repos payé ») :
+
+| Repos payé (jour de la grille) | Lié aux prestations du |
+|---|---|
+| 8 et 9 | 6 et 7 (week-end de la semaine 1) |
+| 17 et 18 | 13 et 14 (week-end de la semaine 2) |
+| 26 | 20 (samedi de la semaine 3) |
+| A1 (jour 32) | 21 (dimanche de la semaine 3) |
+
+Les jours 27-28 et A2-A4 sont des repos non payés. Sans prestation le jour
+lié, pas de repos payé ; une prestation de moins de 8 h donne un repos payé
+du même nombre d'heures, **complété automatiquement par le compteur de RHS**
+(sauf si le travailleur l'a refusé sur sa demande de congé). Pas de
+chèque-repas un jour de repos. **Confronté aux fiches de LCI** : 33 des 36
+repos payés tombent aux positions de la note ; des 6 repos annoncés et non
+payés, 5 ont leur jour lié en vacances ou en maladie ; reste le 07/07.
+**L'application ne le calcule pas encore** : elle paie la base du week-end
+dans la prestation normale du jour même, ce qui fait la même somme, mais
+pas le même mois quand le repos tombe le mois suivant.
+
+**La fiche, ligne par ligne** — ce qui confirme l'application : les
+suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié
+200 % ; heures sup en semaine 150 %, samedi 200 %, dimanche et férié
+300 %), les heures sup à compenser (150, 187,5 et 200 %) et leur déduction
+à 100 %, l'indemnité de déplacement (jours prestés × abonnement social),
+la réduction de précompte sur les 130 premières heures sup, le brut ONSS
+majoré à 108 % de l'ouvrier, le chèque-repas des récupérations. Ce qui l'a
+corrigée, le 09/10/2026, pour l'OUVRIER :
+
+- **« Réduction Temps Travail » : non payée pour les ouvriers**, mais elle
+  donne droit au chèque-repas. L'application la payait au taux garanti ;
+  elle la montre désormais en heures, sans montant — comme les fiches de
+  LCI, dont l'écart de RTT d'avril et de mai disparaît exactement ;
+- **la RHS et la DTT (codes 54 et 56) sont la « Compens. Collective
+  Payée »**, et non un « Jour de repos payé », qui désigne le repos lié au
+  week-end : seul le libellé change ;
+- **le férié non presté (« Hrs. Jours fériés », code 50) se paie au salaire
+  horaire MOYEN**, et non au garanti sous « Congé légal ». La récupération
+  de férié (RJF), que la note ne nomme pas, garde son traitement.
+
+**Ce que les notes ne disent pas** : les vacances de l'ouvrier (les fiches
+les portent sans montant, sous « Congé légal »), la maladie du week-end, et
+tout ce qui touche à l'employé (férié, rappel sur un repos, heures sup
+« pas compenser »).
