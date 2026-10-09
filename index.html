@@ -1837,6 +1837,34 @@ body.sheet-on{overflow:hidden}
 .eqsemn{text-transform:none; letter-spacing:0; font-weight:500; font-size:11.5px}
 #mqCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
 @media (max-width:380px){ .mqjt{padding:8px 10px 7px} #mqCorps .mqls{padding:9px 10px 11px} }
+.rhsauts{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:0 0 2px}
+.rhsauts::-webkit-scrollbar{display:none}
+.rhsauts button{flex:1 0 auto; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-height:36px; padding:0 12px; border-radius:999px; border:1px solid var(--cadre); background:var(--surface);
+  color:var(--ink2); font:600 12.5px/1 inherit; font-family:inherit; cursor:pointer}
+.rhsauts b{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--at-rouge)}
+.rhsauts b:empty{display:none}
+@media (hover:hover){ .rhsauts button:hover{border-color:var(--trait-fort); color:var(--ink)} }
+@media (max-width:380px){ .rhsauts button{padding:0 9px; font-size:12px} }
+.vsprec{display:flex; flex-direction:column; align-items:flex-end; gap:1px; text-align:right; margin-top:4px}
+.vsprec b{font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.vsprec.plus b{color:var(--good)} .vsprec.moins b{color:var(--out)}
+.vsprec small{font-size:11px; color:var(--muted)}
+.slipbar{display:flex; gap:8px; justify-content:flex-end; padding:0 16px 10px}
+#foldSteps .steps{margin-top:0}
+/* Les mois repliables (mqMoisTete) : l'intertitre devient un bouton de la
+   largeur du cadre, avec un chevron ; le contenu d'un mois replié disparaît. */
+.mqtog{display:flex; width:calc(100% + 32px); justify-content:space-between; align-items:center; gap:10px;
+  font-family:inherit; cursor:pointer; text-align:left; min-height:38px; border-left:0; border-right:0; border-radius:0}
+.mqtog .mqtogn{display:inline-flex; align-items:center; gap:8px}
+.mqtog .mqtogn::before{content:""; width:7px; height:7px; border-right:1.6px solid currentColor; border-bottom:1.6px solid currentColor;
+  transform:rotate(-45deg); transition:transform .18s}
+.mqmois.ouvert>.mqtog .mqtogn::before{transform:rotate(45deg) translate(-2px,-2px)}
+.mqmois:not(.ouvert)>.mqmc{display:none}
+.mqmois+.mqmois>.mqtog{border-top:1px solid var(--trait)}
+#mqCorps .mqmois+.mqmois{margin-top:12px}
+#mqCorps .mqmois:last-child:not(.ouvert){margin-bottom:-12px}
+@media (hover:hover){ .mqtog:hover{color:var(--ink)} }
 /* L'écran d'intro : le logo monte en s'éclairant, le nom s'espace, un trait
    de lumière parcourt la barre. Sous « prefers-reduced-motion », la règle
    générale éteint tout : il reste un écran fixe, qui s'efface d'un coup. */
@@ -2790,6 +2818,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .chk input{width:84px}
   .chk th:nth-child(4),.chk td:nth-child(4){display:none}
 }
+/* À 320 px le tableau dépassait sa carte de 45 px (relevé le 09/10/2026) :
+   marges, champ et pastille se resserrent sous 380 px. */
+@media (max-width:380px){
+  .chk th,.chk td{padding-left:6px; padding-right:6px}
+  .chk td{font-size:12px}
+  .chk input{width:70px; padding:4px 5px; font-size:12px}
+  .chk .pill{padding:2px 6px; font-size:10.5px}
+}
 .callout{margin:0 16px 16px; padding:11px 13px; border-radius:9px; background:var(--out-soft); color:var(--out); font-size:12.5px}
 .callout:empty{display:none}
 
@@ -2915,6 +2951,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-chip[data-z="rouge"] i{background:var(--bordr)} .pf-chip[data-z="bleu"] i{background:var(--bordb)}
 .pf-chip[data-z="gris"] i{background:var(--bordg)}
 .pf-chip.interim{color:var(--at-jaune); border-color:rgba(255,200,80,.35)}
+.pf-etat{display:inline-flex; align-items:center; gap:6px; margin-top:7px; font-size:12.5px; font-weight:650; color:#9be3f5}
+.pf-etat[hidden]{display:none}
+.pf-etat::before{content:""; width:7px; height:7px; border-radius:50%; background:#5ec8e8; box-shadow:0 0 0 3px rgba(94,200,232,.22)}
 .pf-kpis{position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(255,255,255,.1)}
 .pf-kpi{display:flex; flex-direction:column; gap:3px; padding:11px 14px 13px; min-width:0}
 .pf-kpi+.pf-kpi{border-left:1px solid rgba(255,255,255,.1)}
@@ -3687,13 +3726,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </div>
 
       <div class="card">
-        <header><h2>Vérifier sa fiche en quatre temps</h2></header>
+        <details class="fold" id="foldSteps" data-memo>
+        <summary>Vérifier sa fiche en quatre temps <span class="sub">le mode d'emploi</span></summary>
         <ol class="steps">
           <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Accueil, touchez une journée du mois pour la corriger : elle ne sera plus retouchée.</span></li>
           <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
           <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
           <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
         </ol>
+        </details>
       </div>
     </div>
 
@@ -3707,15 +3748,18 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     </div>
 
     <div class="card">
-      <header>
-        <h2>Fiche de paie simulée</h2>
-        <span class="sub" id="slipsub"></span>
-        <div class="right noprint">
-          <button type="button" class="btn sm" id="whyAll" aria-pressed="false">Tout expliquer</button>
-          <button type="button" class="btn sm" id="btnPrint">Imprimer</button>
-        </div>
-      </header>
+      <!-- REPLIABLE, net toujours visible (le client, le 09/10/2026, « optimise
+           tout ») : la fiche ligne à ligne faisait 2 300 px à 390 px. On la
+           déplie pour la lire ; le net à recevoir reste dessous, replié ou
+           non. L'état se retient (data-memo), et l'impression déplie tout. -->
+      <details class="fold" id="foldSlip" data-memo>
+      <summary>Fiche de paie simulée <span class="sub" id="slipsub"></span></summary>
+      <div class="slipbar noprint">
+        <button type="button" class="btn sm" id="whyAll" aria-pressed="false">Tout expliquer</button>
+        <button type="button" class="btn sm" id="btnPrint">Imprimer</button>
+      </div>
       <table class="slip"><tbody id="slip"></tbody></table>
+      </details>
       <div class="final">
         <span class="k">Net à recevoir</span>
         <span class="v" id="netBig">—</span>
@@ -3724,10 +3768,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 
 
     <div class="card">
-      <header>
-        <h2>Contrôle de la vraie fiche</h2>
-        <div class="right"><span id="ctrlStatus"></span></div>
-      </header>
+      <details class="fold" id="foldCtrl" data-memo>
+      <summary>Contrôle de la vraie fiche <span class="sub" id="ctrlStatus"></span></summary>
       <p class="lede haut">Recopiez dix montants de la fiche reçue. Une ligne verte veut dire que le calcul et la fiche disent la même chose au centime près ; une ligne rouge indique l'écart à expliquer.</p>
       <table class="chk">
         <thead><tr><th>Ligne</th><th>Calculé ici</th><th>Sur ma fiche</th><th>Écart</th><th></th></tr></thead>
@@ -3735,6 +3777,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </table>
       <p class="lede" id="ctrlHint"></p>
       <div class="callout" id="recal"></div>
+      </details>
     </div>
   </section>
 
@@ -3745,6 +3788,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        hors-poste quittent l'Accueil (qui ne garde que « Mon rythme ») ; le
        tableau du jour dupliqué disparaît — il reste sur l'onglet Horaire. -->
   <section class="panel stack" id="v-rh" role="tabpanel" aria-labelledby="tab-rh" tabindex="-1" hidden>
+    <!-- LES SAUTS (le client, le 09/10/2026, « optimise tout ») : quatre cadres
+         empilés, et le dernier à plusieurs écrans du premier. Une rangée de
+         boutons mène droit à chacun, avec son compte. -->
+    <nav class="rhsauts" aria-label="Aller à">
+      <button type="button" data-saut="caCard">Demande</button>
+      <button type="button" data-saut="mqCard">Sous-effectif<b id="sautMq"></b></button>
+      <button type="button" data-saut="rnCard">Rappels<b id="sautRn"></b></button>
+      <button type="button" data-saut="eqReste">Absents</button>
+    </nav>
     <!-- CADRE « PRO » comme les onglets Horaire/Équipe (le client, le 07/10/2026 :
          « adapter les cadres de l'onglet RH avec le style des onglets horaire/
          équipes »). Le titre n'est plus flottant au-dessus : c'est une BARRE
@@ -4242,7 +4294,12 @@ var pending={};
 function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
+/* Ce qui vient d'être écrit, avant même que le délai de 700 ms ne le pose
+   dans le stockage : netMoisPrecedent() relit le mois d'avant au moment où le
+   pré-remplissage vient de l'écrire. */
+var DERNIER_ECRIT={};
 function save(path,data,muet){
+  DERNIER_ECRIT[path]=data;
   if(pending[path]) clearTimeout(pending[path]);
   pending[path]=setTimeout(function(){
     delete pending[path];
@@ -5434,6 +5491,29 @@ function majVersements(C){
       +"le solde serait négatif. Vérifiez le montant dans Réglages.</p>":"");
   el.hidden=false;
 }
+/* LE MOIS D'AVANT, en regard du net (le client, le 09/10/2026, « optimise
+   tout ») : « +84 € par rapport à août », et la ligne de la fiche qui a le
+   plus bougé. Le mois précédent est relu par compute() lui-même, sur le mois
+   enregistré — comme hsDuMoisStocke() — : aucune seconde copie du calcul. Un
+   mois sans journée (janvier, dont décembre n'est pas dans l'horaire) ne dit
+   rien plutôt qu'un écart de tout le salaire. */
+function netMoisPrecedent(C){
+  var y=st.m?st.y:st.y-1, i=st.m?st.m-1:11;
+  var M=DERNIER_ECRIT["months/"+key(y,i)]||lsGet("months/"+key(y,i));
+  if(!M || !M.days || !Object.keys(M.days).length) return null;
+  M=JSON.parse(JSON.stringify(M));
+  M=mergeDefaults(M,DEF_M);
+  var sv=[st.y,st.m,st.month], P;
+  try{ st.y=y; st.m=i; st.month=M; P=compute(); }
+  catch(e){ return null; }
+  finally{ st.y=sv[0]; st.m=sv[1]; st.month=sv[2]; }
+  var par={}, k;
+  C.brutLines.forEach(function(o){ par[o.l]=(par[o.l]||0)+Number(o.v||0); });
+  P.brutLines.forEach(function(o){ par[o.l]=(par[o.l]||0)-Number(o.v||0); });
+  var lib="", ec=0;
+  for(k in par) if(Math.abs(par[k])>Math.abs(ec)+0.004){ ec=par[k]; lib=k; }
+  return {mois:MOIS[i].toLowerCase(), d:R(C.net-P.net), lib:lib, ec:R(ec)};
+}
 function sumLines(C,re){var s=0; C.brutLines.forEach(function(o){if(re.test(o.l)) s+=o.v;}); return R(s);}
 function renderResume(C){
   var nd=daysInMonth(st.y,st.m), F=feries(st.y), M=st.month;
@@ -5453,7 +5533,13 @@ function renderResume(C){
   document.getElementById("heroSide").innerHTML=
     etat+
     "<span>"+saisis+" journée"+(saisis>1?"s":"")+" sur "+nd+"</span>"+
-    (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"");
+    (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"")+
+    (function(){ var x=netMoisPrecedent(C); if(!x || Math.abs(x.d)<0.01) return "";
+      var t=(x.d>0?"+":"\u2212")+eur(Math.abs(x.d))+" par rapport à "+x.mois;
+      var l=(x.lib && Math.abs(x.ec)>=1)?String(x.lib).replace(/\s+à\s+\d+,\d+(?=\s|$)/g,"").replace(/\s+/g," "):"";
+      if(l.length>38) l=l.slice(0,37)+"…";
+      return '<span class="vsprec '+(x.d>0?"plus":"moins")+'"><b>'+esc(t)+"</b>"
+        +(l?'<small>surtout '+esc(l)+" ("+(x.ec>0?"+":"\u2212")+esc(eur(Math.abs(x.ec)))+")</small>":"")+"</span>"; })();
   majVersements(C);
 
   var we=R(sumLines(C,/^Supplément weekend/)+sumLines(C,/^Supplément jour férié presté/)+sumLines(C,/^Déduction travail weekend/));
@@ -8412,8 +8498,34 @@ function _pfHead(db,p){
   return '<div class="pf-hero"><div class="pf-head">'
     +'<span class="pf-ava" aria-hidden="true">'+esc(tri)+'</span>'
     +'<div class="pf-hmeta"><span class="pf-salut">'+salut+' '+esc(tri)+'</span><b>'+esc(role)+'</b>'
-    +(ch.length?'<div class="pf-chips">'+ch.join("")+'</div>':'')+'</div></div>'
+    +(ch.length?'<div class="pf-chips">'+ch.join("")+'</div>':'')
+    +'<span class="pf-etat" id="pfEtat" hidden></span></div></div>'
     +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'')+'</div>';
+}
+function _pfEtat(db,p){
+  /* LE RETOUR, quand on n'est pas au travail aujourd'hui (le client, le
+     09/10/2026, « optimise tout ») : la barre du haut dit « Congé » ou
+     « Repos », pas QUAND on revient. Même lecture que les cadres Absents et
+     Congé et repos (equipeDuJour, finAbsence) : la maladie jusqu'à son
+     dernier jour, le congé et le repos jusqu'à la reprise du travail. Rien
+     les jours travaillés : la barre du haut le dit déjà. */
+  var etat="";
+  if(db && typeof equipeDuJour==="function"){
+    var ju2=jourUsine();
+    if(ju2.getFullYear()===Number(db.year)){
+      var par=equipeDuJour(db,ju2.getFullYear(),ju2.getMonth()+1,ju2.getDate()), moi=null, gr="";
+      ["abs","cong","off"].forEach(function(g){ (par[g]||[]).forEach(function(x){ if(x.p.id===p.id){ moi=x; gr=g; } }); });
+      if(moi && !moi.prevu && moi.r){
+        var fin=moi.fin;
+        if(gr==="off") fin=finAbsence(db,p,ju2.getFullYear(),ju2.getMonth()+1,ju2.getDate(),st.params.hJour,"CONGE");
+        var rep=function(f){ if(!f) return "demain";
+          var d=new Date(Date.UTC(f[0],f[1]-1,f[2]+1)); return "le "+d.getUTCDate()+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase(); };
+        etat=gr==="abs"?(fin?"Absent jusqu'au "+fin[2]+"\u00a0"+MOIS[fin[1]-1].toLowerCase():"Absent jusqu'à aujourd'hui")
+          :((gr==="cong"&&moi.r&&moi.r.a?"En congé · ":"En repos · ")+"reprise "+rep(fin));
+      }
+    }
+  }
+  return etat;
 }
 function _pfPoly(db,p){
   if(typeof polyvalenceDe!=="function") return '';
@@ -8438,6 +8550,12 @@ function renderRythme(){
   if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; return; }
   card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete) tete.innerHTML=_pfHead(db,person);
+  /* Le retour se calcule APRÈS le premier affichage : il rejoue la journée
+     de toute l'usine (equipeDuJour), et le héros n'a pas à l'attendre. */
+  setTimeout(function(){
+    var e=document.getElementById("pfEtat"); if(!e) return;
+    var t=_pfEtat(db,person); e.textContent=t; e.hidden=!t;
+  },30);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
@@ -11752,6 +11870,28 @@ function rappelsInutiles(db){
   return sortie;
 }
 var rnFait="";
+/* UN MOIS OUVERT, LES AUTRES REPLIÉS. Le client, le 09/10/2026, « optimise
+   tout » : l'onglet Effectifs faisait 11 800 px à 390 px — vingt-cinq
+   journées de sous-effectif dépliées avec toutes leurs solutions, quatorze
+   écrans. Le mois qui vient est ouvert ; les suivants se replient sur leur
+   intertitre, qui garde son compte et s'ouvre d'un appui. Le choix tient tant
+   que la page est ouverte (MQ_OUVERT), pas d'une visite à l'autre : on revient
+   toujours sur le mois qui vient. */
+var MQ_OUVERT={};
+function mqMoisTete(hote,mois,nom,compte,premier){
+  var k=hote+"/"+mois, o=(k in MQ_OUVERT)?MQ_OUVERT[k]:premier;
+  return '<section class="mqmois'+(o?" ouvert":"")+'" data-cle="'+esc(k)+'">'
+    +'<button type="button" class="eqsem mqtog" aria-expanded="'+(o?"true":"false")+'">'
+    +'<span class="mqtogn">'+esc(nom)+'</span><span class="eqsemn">'+compte+'</span></button><div class="mqmc">';
+}
+/* Rend vrai si le clic était pour un intertitre de mois. */
+function mqBascule(e){
+  var t=e.target.closest?e.target.closest(".mqtog"):null; if(!t) return false;
+  var sct=t.parentNode, o=!sct.classList.contains("ouvert");
+  sct.classList.toggle("ouvert",o); t.setAttribute("aria-expanded",o?"true":"false");
+  MQ_OUVERT[sct.getAttribute("data-cle")]=o;
+  return true;
+}
 function renderRappelsInutiles(force){
   var hote=document.getElementById("rnCorps"); if(!hote) return;
   var au=new Date(), cle=jourUsine().toDateString();
@@ -11765,7 +11905,10 @@ function renderRappelsInutiles(force){
     var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
     jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
-      if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
+      if(q.mois!==semPrec){
+        var nm=0; jours.forEach(function(z){ if(z.mois===x.mois) nm+=z.l.length; });
+        if(semPrec!==-1) h.push("</div></section>");
+        h.push(mqMoisTete("rn",x.mois,q.moisNom,nm+" rappel"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
       h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
         +q.html+'<span class="mqls">');
       x.l.forEach(function(o){
@@ -11784,14 +11927,17 @@ function renderRappelsInutiles(force){
       });
       h.push("</span></button>");
     });
+    if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
       +"<span>Aucun rappel non nécessaire d'ici la fin de l'horaire.</span></p>";
     document.getElementById("rnSub").textContent=n?n+" rappel"+(n>1?"s":""):"rien à signaler";
+    var sr=document.getElementById("sautRn"); if(sr) sr.textContent=n?String(n):"";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un rappel non nécessaire doit aller sur la
        vue horaire de ce jour-là »). setView("jour") bascule la vue et rend
        #jourCorps pour eqDate. */
     hote.onclick=function(e){
+      if(mqBascule(e)) return;
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
@@ -11896,7 +12042,8 @@ function renderManques(force){
     r.jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
       if(q.mois!==semPrec){ var nm=r.jours.filter(function(z){ return z.mois===x.mois; }).length;
-        h.push('<div class="eqsem">'+esc(q.moisNom)+'<span class="eqsemn">'+nm+" journée"+(nm>1?"s":"")+"</span></div>"); semPrec=q.mois; }
+        if(semPrec!==-1) h.push("</div></section>");
+        h.push(mqMoisTete("mq",x.mois,q.moisNom,nm+" journée"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
       /* L'ÉQUIPE SOUS LA DATE quand tous les manques du jour sont de la
          même équipe — c'est le cas de toutes les journées au 28/09/2026 ;
          sinon chaque fiche garde la sienne (le client, le 28/09/2026, « go »
@@ -11944,6 +12091,7 @@ function renderManques(force){
         +" encore à déterminer ce jour-là</span>");
       h.push("</span></button>");
     });
+    if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Tous les postes sont couverts</b>'
       +"<span>Aucun sous-effectif d'ici la fin de l'horaire.</span></p>";
     var n=r.jours.length;
@@ -11952,6 +12100,7 @@ function renderManques(force){
        même phrase ne disait rien de plus la seconde. */
     /* Le nombre de journées regardées n'est plus écrit (le client, le
        26/09/2026) : seules comptent celles qui manquent de monde. */
+    var sm=document.getElementById("sautMq"); if(sm) sm.textContent=n?String(n):"";
     document.getElementById("mqSub").textContent=
       n ? n+" journée"+(n>1?"s":"") : "rien à signaler";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
@@ -11959,6 +12108,7 @@ function renderManques(force){
        horaire de ce jour-là »). setView("jour") bascule la vue et rend
        #jourCorps pour eqDate. */
     hote.onclick=function(e){
+      if(mqBascule(e)) return;
       var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
@@ -13491,15 +13641,22 @@ function restaurerVue(){
 }
 
 document.getElementById("btnVider").addEventListener("click",function(){
-  if(confirm("Vider l'horaire de "+MOIS[st.m].toLowerCase()+" "+st.y+" ?\nLes journées saisies ce mois-ci seront effacées (irréversible).")) viderMois();
+  confirmerPro({titre:"Vider ce mois ?", qui:MOIS[st.m]+" "+st.y,
+    texte:"Les journées saisies ce mois-ci seront effacées. On ne peut pas revenir en arrière.",
+    ok:"Vider le mois", icone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>'}, viderMois);
 });
 /* Les journées posées par un pré-remplissage portent une marque, et se
    laissent rafraîchir. Celles d'avant cette marque passent pour de la saisie
    à la main et résistent : quand une règle de lecture est corrigée, seule une
    remise à zéro de l'année les rattrape. */
 document.getElementById("btnViderAn").addEventListener("click",function(){
-  var an=st.y, faits=[];
-  if(!confirm("Effacer les douze mois de "+an+" ?\nToutes les journées de l'année seront remises à zéro (irréversible).")) return;
+  var an=st.y;
+  confirmerPro({titre:"Effacer toute l'année ?", qui:String(an),
+    texte:"Les journées des douze mois seront remises à zéro. On ne peut pas revenir en arrière.",
+    ok:"Effacer l'année", icone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>'}, function(){ viderAnnee(an); });
+});
+function viderAnnee(an){
+  var faits=[];
   for(var i=0;i<12;i++) faits.push(key(an,i));
   Promise.all(faits.map(function(k){ return readMonth(k); })).then(function(docs){
     var n=0;
@@ -13515,7 +13672,7 @@ document.getElementById("btnViderAn").addEventListener("click",function(){
     flash(n+" journée(s) effacée(s) sur les douze mois de "+an
           +" — relancez le pré-remplissage");
   });
-});
+}
 
 /* ===================== export / import ===================== */
 function collectAll(){
@@ -14124,6 +14281,26 @@ function deconnecterCompte(){
     location.reload();
   });
 }
+/* Les replis marqués data-memo se souviennent d'une visite à l'autre, par
+   appareil. L'impression les déplie tous, puis les remet comme ils étaient. */
+[].forEach.call(document.querySelectorAll("details[data-memo]"),function(d){
+  var v=lsGet("ui/fold/"+d.id); if(v!==null) d.open=!!v;
+  d.addEventListener("toggle",function(){ if(!d._impr) lsSet("ui/fold/"+d.id,d.open); });
+});
+window.addEventListener("beforeprint",function(){
+  [].forEach.call(document.querySelectorAll("details.fold"),function(d){ d._impr=1; d._avant=d.open; d.open=true; });
+});
+window.addEventListener("afterprint",function(){
+  [].forEach.call(document.querySelectorAll("details.fold"),function(d){ if(d._impr){ d.open=d._avant; setTimeout(function(){ d._impr=0; },0); } });
+});
+document.querySelector(".rhsauts").addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("[data-saut]"):null; if(!b) return;
+  var el=document.getElementById(b.getAttribute("data-saut")); if(!el) return;
+  var top=document.querySelector("header.top"),
+      haut=el.getBoundingClientRect().top+window.pageYOffset-((top&&top.offsetHeight)||0)-10;
+  var doux=!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  try{ window.scrollTo({top:Math.max(0,haut),behavior:doux?"smooth":"auto"}); }catch(x){ window.scrollTo(0,Math.max(0,haut)); }
+});
 function boot(){
   if(booted) return; booted=true;
   document.getElementById("storeinfo").textContent = st.db
