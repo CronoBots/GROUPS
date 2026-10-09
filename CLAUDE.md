@@ -1825,10 +1825,6 @@ n'est deviné à leur sujet :
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
   des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
   en rouge en attendant ;
-- **le congé de moins de 8 h** (note du 24/02/2022) : le module Congé ne
-  demande que des journées. Ajouter une demande en heures, qui cherche un
-  remplaçant de la même fonction dans une autre pause, en repos ou en D, et
-  dise si la demande est à plus ou moins de 7 jours ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -3254,6 +3250,37 @@ Les onglets du cadre deviennent « Congé », « Absence », « Recherche ».
 Les quatre sorties du vérificateur sont identiques à l'octet (il ne
 découpe pas ces modules) ; rien ne déborde à 320 et 390 px, en clair et
 en sombre.
+
+### Le congé en heures
+
+Le client, le 09/10/2026, à la proposition tirée de la note de service du
+24/02/2022 (prise de congé par heure en production) : « oui on peut
+regarder à cela, ça sera utile pour les opérateurs ». Le module Congé a un
+troisième choix de durée, « Heures » (absent des onglets Absence et
+Recherche, où il vaut « Un jour ») : une date, une durée de 1 à 7 h, et
+« Départ tôt » ou « Arrivée tard ». `caCongeHeures()` applique la note :
+- **en période de D**, possible sans remplaçant à indiquer ;
+- **plus de 7 jours avant**, un remplaçant est exigé même si l'équipe est
+  complète ; **7 jours ou moins**, possible si le poste garde son effectif
+  sans la personne, sinon avec un remplaçant ;
+- les remplaçants, de la **même fonction** (savoir tenir le poste ; pour
+  un poste d'opérateur, pas un cadre — la première version proposait des
+  adjoints aux chaudières), **hors de la pause** : la pause voisine qui
+  arrive plus tôt ou reste plus tard (en fin de nuit, le matin du
+  lendemain ; en début de matin, la nuit de la veille), ceux qui sont en
+  repos ce jour-là, ceux qui sont en D (matin et après-midi). Ils viennent
+  en FT, n h à leur compteur ; 12 h au plus par journée, et 8 h de repos
+  comptées sur leurs heures NOUVELLES (« n écartés » sinon).
+
+Éprouvé : VBN en D le 12/10 (possible sans remplaçant), MMS le 13/10 en N
+(possible, l'équipe reste au complet), AFA contremaître le 13/10 (VGG
+arrive à 12 h, ATA et JBI en repos, ATR, FLI et VBN en D), GJR le 22/10 en
+N (le matin du lendemain arrive à 4 h), LAA le 20/10 en arrivée tardive
+(l'après-midi reste jusqu'à minuit, six écartés pour le repos). Sur
+téléphone, « Arrivée tard » ne tenait pas dans sa colonne à 320 px : sous
+380 px, le moment passe sur sa propre ligne. Vérificateur identique à
+l'octet (il ne découpe pas ce module) ; rien ne déborde à 320 (hors
+ligne), 390 et 1280 px.
 
 ### Les rappels que l'effectif ne demandait pas
 
