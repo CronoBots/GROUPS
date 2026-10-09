@@ -201,7 +201,7 @@ HORAIRE = os.path.join(RACINE, "data", "horaire-2026.json")
 CLASSEUR_ANON = os.path.join(RACINE, "data", "classeur-2026.xlsx")
 
 
-def _croise():
+def _croise(horaire=None, classeur=None):
     """LES DEUX SORTIES VIENNENT DU MÊME CLASSEUR : ce que l'une a retiré et
     que l'autre a gardé est suspect.
 
@@ -228,32 +228,66 @@ def _croise():
     commentaires du JSON, 3 signalés — et les trois étaient des prénoms.
     Aucun bruit.
     """
-    if not (os.path.exists(HORAIRE) and os.path.exists(CLASSEUR_ANON)):
+    horaire, classeur = horaire or HORAIRE, classeur or CLASSEUR_ANON
+    if not (os.path.exists(horaire) and os.path.exists(classeur)):
         return {}
     try:
-        db = json.load(io.open(HORAIRE, encoding="utf-8"))
-        z = zipfile.ZipFile(CLASSEUR_ANON)
+        db = json.load(io.open(horaire, encoding="utf-8"))
+        z = zipfile.ZipFile(classeur)
         blob = "".join(z.read(f).decode("utf-8", "ignore") for f in z.namelist()
                        if f.endswith((".xml", ".rels")))
     except Exception as e:
         print("  contrôle croisé impossible : %s" % e, file=sys.stderr)
         return {}
-    mots = {}
+    mots, vu = {}, {}
     for p in db.get("people", []):
         for jour, v in (p.get("d") or {}).items():
             if not v or len(v) < 3:
                 continue
             for m in re.findall(r"\b[A-ZÀ-Ý][a-zà-ÿ]{2,}\b", v[2] or ""):
-                if m not in blob:
+                # une recherche par MOT, pas par occurrence : 14 s → 0,2 s
+                # (mesuré le 09/10/2026, le classeur fait 18 Mo de XML)
+                if m not in vu:
+                    vu[m] = m not in blob
+                if vu[m]:
                     mots.setdefault(m, set()).add(
                         "data/horaire-2026.json (%s %s)" % (p.get("id"), jour))
     return mots
+
+
+def _option(nom):
+    for a in sys.argv[1:]:
+        if a.startswith(nom + "="):
+            return a.split("=", 1)[1]
+    return None
 
 
 def main():
     hist = "--historique" in sys.argv
     admises = _admises()
     restes = {}
+
+    # Les fichiers neufs, avant de les installer. tools/mettre-a-jour.py
+    # passe le nouvel horaire et le nouveau classeur anonymisé, encore dans
+    # leur dossier de travail : le garde-fou se ferme ALORS, au passage à
+    # blanc, et non après que l'installation a tout remplacé. Le 09/10/2026,
+    # une forme innocente (« Débourrage Ligne ») n'a été vue qu'à
+    # l'installation, et il a fallu tout refaire. Seul l'horaire est lu par
+    # les motifs — c'est lui qui entre dans le dépôt —, et le contrôle croisé
+    # compare les deux fichiers neufs.
+    horaire_neuf, classeur_neuf = _option("--horaire"), _option("--classeur")
+    if horaire_neuf:
+        with open(horaire_neuf, "rb") as f:
+            texte = _lire(f.read(), "data/horaire-2026.json")
+        for forme in _cherche(texte, False) - admises:
+            restes.setdefault(forme, set()).add("data/horaire-2026.json (neuf)")
+        for forme, ou in _croise(horaire_neuf, classeur_neuf).items():
+            if forme not in admises:
+                restes.setdefault(forme, set()).update(ou)
+        if not restes:
+            print("Aucune forme de nom que personne n'ait regardée.  (horaire neuf)")
+            return 0
+        return _rendre(restes)
 
     for nom in _fichiers():
         chemin = os.path.join(RACINE, nom)
@@ -285,6 +319,10 @@ def main():
         print("%d forme(s) admises dans %s." % (len(admises), "tools/formes-admises.txt"))
         return 0
 
+    return _rendre(restes)
+
+
+def _rendre(restes):
     print("%d forme(s) de nom que personne n'a encore regardée :\n" % len(restes))
     for forme in sorted(restes):
         ou = sorted(restes[forme])

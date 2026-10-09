@@ -340,6 +340,7 @@ class Classeur:
         # Les noms des personnes, appris de la ligne des noms. Posé par
         # convertir() AVANT la première lecture de commentaire.
         self.registre = None
+        self._comm = {}
 
     def _shared(self):
         if "xl/sharedStrings.xml" not in self.z.namelist():
@@ -413,7 +414,19 @@ class Classeur:
         return out
 
     def commentaires(self, feuille):
-        """{(ligne, colonne): texte anonymisé}"""
+        """{(ligne, colonne): texte anonymisé}
+
+        Mémoïsée, comme grille(), et pour la même raison mesurée le
+        09/10/2026 : contrats() la rappelle pour CHAQUE colonne-personne —
+        112 lectures complètes des commentaires pour douze feuilles, les
+        trois quarts du temps de conversion. La clé porte le registre : un
+        registre posé après coup refait la lecture."""
+        cle = (feuille, id(self.registre))
+        if cle not in self._comm:
+            self._comm[cle] = self._commentaires(feuille)
+        return self._comm[cle]
+
+    def _commentaires(self, feuille):
         p = self.feuilles[feuille]
         rp = p.replace("xl/worksheets/", "xl/worksheets/_rels/") + ".rels"
         if rp not in self.z.namelist():

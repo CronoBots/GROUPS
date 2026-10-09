@@ -32,7 +32,7 @@ CHERCHE les noms qu'il vient de remplacer. S'il en trouve un seul, il
 détruit sa sortie et s'arrête avec le détail. Un anonymiseur qui peut
 laisser passer un nom sans le dire ne vaut rien.
 """
-import os, re, shutil, sys, unicodedata, zipfile
+import bisect, os, re, shutil, sys, unicodedata, zipfile
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -303,6 +303,62 @@ def _sonde(texte):
     return m.group(0).lower() if m else ""
 
 
+_SA = {}
+
+
+def _plat(t):
+    """_sans_accent() sur un texte long, caractère par caractère par une table.
+
+    Mesuré le 09/10/2026 : _sans_accent() faisait 43 millions d'appels sur les
+    dix-huit méga-octets du classeur, 22 s sur les 115 de l'anonymiseur. Le
+    résultat est le même — éprouvé sur toutes les parties du classeur, octet
+    pour octet — parce que la forme NFD d'un texte est celle de ses
+    caractères mis bout à bout, aux marques de combinaison près, et que ce
+    sont justement elles qu'on retire."""
+    if t.isascii():
+        return t
+    autres = set(c for c in set(t) if ord(c) > 127)
+    for c in autres:
+        if c not in _SA:
+            _SA[c] = _sans_accent(c)
+    return t.translate(dict((ord(c), _SA[c]) for c in autres))
+
+
+def _commence_par(texte):
+    """Le premier mot du nom tel que son motif l'écrit en tête — en minuscules
+    et sans accent —, ou "" s'il ne commence pas par une lettre. _motif() et
+    _motif_seul() écrivent ce mot d'abord, après un « \\b » qui ne consomme
+    rien : une correspondance ne peut commencer qu'au début d'une occurrence
+    de ce mot."""
+    p = _plat(texte).strip()
+    if not p or not p[0].isalpha():
+        return ""
+    return re.split(r"\s+", p)[0].lower()
+
+
+def _index_mots(bas):
+    """Une seule lecture du texte : chaque mot (suite de lettres qui ne suit
+    pas un caractère de mot) et ses positions, les mots triés. Remplace un
+    balayage complet du texte PAR SONDE — deux mille par partie, 15 s."""
+    pos = {}
+    for m in re.finditer(r"(?<!\w)[^\W\d_]+", bas):
+        pos.setdefault(m.group(0), []).append(m.start())
+    return sorted(pos), pos
+
+
+def _debuts(index, prefixe):
+    """Les débuts de mot qui s'ouvrent sur `prefixe` (des lettres), triés :
+    exactement ce que rendrait finditer(r"(?<!\w)" + prefixe)."""
+    mots, pos = index
+    i = bisect.bisect_left(mots, prefixe)
+    out = []
+    while i < len(mots) and mots[i].startswith(prefixe):
+        out.extend(pos[mots[i]])
+        i += 1
+    out.sort()
+    return out
+
+
 def _remplacer(donnee, regles, sondes):
     """Applique les règles sur le texte d'une partie XML.
 
@@ -315,16 +371,61 @@ def _remplacer(donnee, regles, sondes):
     sonde est absente. Sans cela, deux mille motifs balaient chacun les dix-
     huit méga-octets du classeur, y compris ceux qui cherchent un nom qui n'y
     est pas.
+
+    ET UNE RÈGLE DONT LA SONDE EST PRÉSENTE NE BALAIE PLUS TOUT LE TEXTE. Le
+    09/10/2026, ce balayage faisait 110 des 115 secondes de l'anonymiseur :
+    la sonde est présente, mais une fois sur dix mille caractères. Une
+    correspondance ne peut commencer que là où commence sa sonde — le nom
+    s'écrit à partir de son premier mot —, donc on n'essaie la règle qu'à ces
+    positions (`match` à la position, le regard en arrière de « \b » voyant
+    toujours ce qui précède). La règle dont le nom ne COMMENCE pas par sa
+    sonde garde le balayage entier. Sortie identique à l'octet, éprouvée sur
+    le classeur.
     """
     txt = donnee.decode("utf-8", "replace")
-    plat = _sans_accent(txt)
+    plat = _plat(txt)
     bas = plat.lower()
-    presentes = set(sd for sd in sondes if sd in bas)
+    rapide = len(bas) == len(plat)
+    presentes = {}
+    positions, parsonde, index = {}, {}, None
     coupes = []
-    for motif, par, sonde in regles:
-        if sonde and sonde not in presentes:
+    for motif, par, sonde, debut in regles:
+        if rapide and debut:
+            pos = positions.get(debut)
+            if pos is None:
+                # Les débuts de mot qui s'ouvrent sur la sonde — le motif
+                # commence par « \\b » (_borner, le texte s'ouvrant sur une
+                # lettre) —, cherchés une fois par sonde, puis réduits à ceux
+                # qui portent le premier mot entier.
+                if index is None:
+                    index = _index_mots(bas)
+                tous = parsonde.get(sonde)
+                if tous is None:
+                    tous = _debuts(index, sonde)
+                    parsonde[sonde] = tous
+                if debut.isalpha():
+                    pos = tous if debut == sonde else _debuts(index, debut)
+                else:
+                    # « nom, » ou « j-m. » : la sonde suivie d'autre chose
+                    # qu'une lettre — le mot du texte EST la sonde, exactement
+                    pos = [i for i in index[1].get(sonde, ())
+                           if bas.startswith(debut, i)]
+                positions[debut] = pos
+            fin = -1
+            for i in pos:
+                if i < fin:
+                    continue          # finditer ne rend pas deux recouvrements
+                m = motif.match(plat, i)
+                if m:
+                    coupes.append((m.start(), m.end(), par))
+                    fin = m.end() if m.end() > m.start() else m.start() + 1
             continue
-        for m in re.finditer(motif, plat, re.I):
+        if sonde:
+            if sonde not in presentes:
+                presentes[sonde] = sonde in bas
+            if not presentes[sonde]:
+                continue
+        for m in motif.finditer(plat):
             coupes.append((m.start(), m.end(), par))
     if not coupes:
         return donnee, 0
@@ -670,11 +771,11 @@ def anonymiser(src, dst, tolere=()):
             for forme in _formes(cle):
                 m = _motif(forme)
                 if m:
-                    pesees.append((len(forme), m, ini, _sonde(forme)))
+                    pesees.append((len(forme), m, ini, _sonde(forme), _commence_par(forme)))
         else:
             m = _motif_seul(cle)
             if m:
-                pesees.append((len(cle), m, ini, _sonde(cle)))
+                pesees.append((len(cle), m, ini, _sonde(cle), _commence_par(cle)))
         for bout in bouts:
             if len(bout) >= 3:
                 surveille.append((bout, ini))
@@ -684,7 +785,7 @@ def anonymiser(src, dst, tolere=()):
     # ATTRAPE et non la longueur du motif : « [Tt][Rr][Ee]… » est un long
     # motif pour un petit mot, et il passerait devant.
     pesees.sort(key=lambda r: -r[0])
-    regles = [(m, ini, sd) for _, m, ini, sd in pesees]
+    regles = [(m, ini, sd, deb) for _, m, ini, sd, deb in pesees]
     # LE BLANC QUI PRÉCÈDE UNE SIGNATURE RESTE. AUTEUR commence par
     # « (?:^|\s) » et, remplacé par une chaîne vide, emportait le saut de
     # ligne qui séparait deux notes : « remplace ATA\nNom, Prénom:
@@ -693,8 +794,9 @@ def anonymiser(src, dst, tolere=()):
     # n'était plus un mot — « \bATA\b » ne le retrouvait plus. Le blanc
     # devient un regard en arrière : il borne la signature sans en faire
     # partie.
-    regles.append((AUTEUR.pattern.replace(r"(?:^|\s)", r"(?:^|(?<=\s))", 1), "", ""))
-    sondes = sorted(set(sd for _, _, sd in regles if sd))
+    regles.append((AUTEUR.pattern.replace(r"(?:^|\s)", r"(?:^|(?<=\s))", 1), "", "", False))
+    sondes = sorted(set(r[2] for r in regles if r[2]))
+    regles = [(re.compile(m, re.I), ini, sd, deb) for m, ini, sd, deb in regles]
 
     # On écrit À CÔTÉ. Tant que la garantie n'est pas franchie, le fichier
     # peut porter des noms : il n'a rien à faire à sa destination, où un
@@ -754,7 +856,7 @@ def anonymiser(src, dst, tolere=()):
     for info in zv.infolist():
         if not TEXTE.search(info.filename):
             continue
-        plat = _sans_accent(zv.read(info.filename).decode("utf-8", "replace"))
+        plat = _plat(zv.read(info.filename).decode("utf-8", "replace"))
         bas = plat.lower()
         for bout, ini in surveille:
             if bout in tolere or bout not in bas:
