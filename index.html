@@ -11871,7 +11871,12 @@ function eqBouge(n){
    relit au redimensionnement et à la rotation, au cas où la safe-area change. */
 function ajusterHauteurJour(){
   var nav=document.querySelector(".navwrap > .tabs");
-  var h=nav?Math.round(nav.getBoundingClientRect().height):64;
+  /* Du HAUT de la barre au bas de l'écran, et non sa seule hauteur : depuis
+     la capsule flottante (le client, le 09/10/2026), la barre est détachée de
+     16 px du bas plus la zone d'accueil de l'iPhone ; sa hauteur seule laissait
+     le tableau passer derrière elle (« l'horaire doit avoir un écart avec la
+     barre de menu, comme avant »). */
+  var h=nav?Math.round(window.innerHeight-nav.getBoundingClientRect().top):64;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
 }
 /* ÉCART UNIFORME AUTOUR DES BADGES. On mesure la hauteur naturelle de chaque

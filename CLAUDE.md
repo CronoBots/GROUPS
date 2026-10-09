@@ -2787,6 +2787,14 @@ le bouton de retour en haut se décalent au-dessus de la capsule. Le bureau
 ne change pas. Mesuré à 320 (hors ligne) et 390 px : 16 px des trois bords,
 51 px de haut, sept onglets égaux, rien ne déborde.
 
+**L'onglet Horaire passait sous la capsule**, et c'est le client qui l'a
+vu sur son iPhone. Son tableau remplit l'écran au-dessus de la barre, et
+`ajusterHauteurJour()` lui réservait la HAUTEUR de la barre (`--jnav`) :
+juste tant qu'elle touchait le bas, faux depuis qu'elle flotte à 16 px
+plus la zone d'accueil. On mesure désormais du haut de la barre au bas de
+l'écran. Mesuré : 16 px entre le cadre et la capsule, à 320 (hors ligne)
+et 390 px.
+
 ### Le bouton de retour en haut
 
 Le client, le 30/09/2026 : « un bouton pour remonter dans le haut de page,
