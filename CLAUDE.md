@@ -2850,6 +2850,15 @@ toujours ; seul un glissement de 60 px change de mois. Éprouvé à 320 (hors
 ligne), 390 et 1280 px, sur la barre du mois et au milieu du contenu :
 glissement franc dans les deux sens, court et en biais sans effet.
 
+**Les cadres restent en place.** Le client, le 09/10/2026 : « pourquoi lors
+du swipe les cadres ont l'air de se déplacer au lieu de rester à leur
+place ? ». L'animation s'appliquait à tout le panneau, cartes comprises.
+Elle ne s'applique plus qu'au contenu des cartes, hors barre du mois, et la
+carte rogne ce contenu le temps du glissement (`overflow:clip`, retiré après
+260 ms). Mesuré au toucher simulé, à 320 px (hors ligne) et à 390 px :
+pendant l'animation, la carte ne bouge pas d'un pixel, la barre du mois
+reste fixe et le contenu glisse de 13 à 16 px.
+
 **Et les flèches répondent aux appuis rapides.** Le client, le 09/10/2026 :
 « les flèches gauche/droite des mois sur mobile ne réagissent pas si l'on
 veut passer les mois rapidement ». La garde anti-zoom au double-tap annulait
