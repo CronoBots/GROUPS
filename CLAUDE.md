@@ -2986,6 +2986,23 @@ vérificateur sont identiques à l'octet. Mesuré à 320 px (hors ligne),
 390 px et 1280 px : aucun bloc ne défile de côté et rien ne dépasse de la
 page. Le cadre passe de 1 718 à 1 359 px de haut à 390 px.
 
+Puis, le même jour : « j'aime bcp l'évolution ; par contre le nombre de
+rappels et le montant ne se mettent pas bien ; les heures du bas aussi en
+jours (8 h) ; les badges de poste optimisés ». Trois retouches :
+
+- la case Rappels écrivait le montant collé au nombre (« 1 95,04 € » se
+  lisait comme un seul nombre). Le montant passe sous l'étiquette, en petit
+  (`.cstat-m`) ;
+- « Congés et maladie de l'année » donne les jours de 8 h en gras et les
+  heures à côté, plus discrètes (`hj()`) : 26 j · 208 h ;
+- les ateliers de polyvalence sont des badges compacts en grille de colonnes
+  égales, chacun avec un point à la couleur de sa zone (celle du liseré du
+  tableau du jour, lue dans `POSTES_TRAVAIL`). Cinq ateliers tiennent en deux
+  rangées alignées à 390 px.
+
+Les sorties du vérificateur sont identiques à l'octet. Rien ne défile de
+côté ni ne dépasse de la page à 320 px (hors ligne), 390 px et 1280 px.
+
 ### Mon salaire dans les cadres du Calendrier
 
 Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
