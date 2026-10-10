@@ -1835,7 +1835,7 @@ body.sheet-on{overflow:hidden}
 .mqrien{margin:6px 0 4px; font-size:12.5px; color:var(--muted)}
 /* État vide POSITIF (le client, le 02/10/2026 : « ✓ tous les postes
    couverts »), au lieu d'un panneau vide ou d'un « Aucun… » sec. */
-.mqok-vide{display:flex; flex-direction:column; gap:3px; padding:16px 2px 8px}
+.mqok-vide{display:flex; flex-direction:column; align-items:center; text-align:center; gap:4px; margin:0; padding:18px 4px}
 .mqok-vide b{font-size:14px; font-weight:700; color:var(--ink)}
 .mqok-vide>span{font-size:12px; color:var(--muted)}
 .mqok-v{color:var(--good); font-weight:800; margin-right:2px}
@@ -1944,7 +1944,7 @@ body.sheet-on{overflow:hidden}
   font-family:inherit; cursor:pointer; text-align:left; min-height:38px; border-left:0; border-right:0; border-radius:0}
 .mqtog .mqtogn{display:inline-flex; align-items:center; gap:8px}
 .mqtog .mqtogn::before{content:""; width:7px; height:7px; border-right:1.6px solid currentColor; border-bottom:1.6px solid currentColor;
-  transform:rotate(-45deg); transition:transform .18s}
+  transform:translateX(-2px) rotate(-45deg); transition:transform .18s}
 .mqmois.ouvert>.mqtog .mqtogn::before{transform:rotate(45deg) translate(-2px,-2px)}
 .mqmois:not(.ouvert)>.mqmc{display:none}
 .mqmois+.mqmois>.mqtog{border-top:1px solid var(--trait)}
@@ -2815,17 +2815,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    sous-effectifs, rangées serrées. */
 .eqabsseg{grid-template-columns:1fr 1fr; margin:12px 16px 10px}
 .eqabsseg .eqon{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; opacity:.75; margin-left:3px}
-#eqAbsCard .eqrows{padding:0 16px 6px; border-top:1px solid var(--trait)}
+#eqAbsCard .eqrows{padding:0 16px; border-top:1px solid var(--trait)}
+#eqAbsCard .mqmois:last-child>.mqtog{border-bottom:0}
+#eqAbsCard .mqd.eqproche{margin-bottom:0}
 #eqAbsCard .mqtog{margin:0 -16px}
-#eqAbsCard .mqmois:first-child>.mqtog, #eqAbsCard .eqsansd+.mqmois>.mqtog{border-top:0}
-#eqAbsCard .eqrow{padding:5px 0}
+#eqAbsCard .mqmois:first-child>.mqtog{border-top:0}
+#eqAbsCard .eqrow{padding:8px 0}
 #eqAbsCard .mqd.eqproche{flex-direction:column; gap:0; line-height:1.2}
 #eqAbsCard .mqd.eqproche b{font-size:13.5px}
 #eqAbsCard .mqd.eqproche small{font-size:11.5px; margin-left:0}
 #eqAbsCard .mqmc{padding:3px 0}
 #eqAbsCard .mqmc>.eqrow:first-child{border-top:0}
-#eqAbsCard .eqsansd .eqrow{padding:8px 0}
-#eqAbsCard .eqsansd{border-bottom:1px solid var(--trait)}
 .eqvide{margin:12px 0; color:var(--muted); font-size:13px; text-align:center}
 /* La date en deux lignes, le jour puis la date : dateEnMots(), commune aux
    trois cadres du Résumé. */
@@ -11095,9 +11095,8 @@ function renderEquipe(){
       /* Mois repliables, comme les sous-effectifs (le client, le
          10/10/2026 : « optimise au max » sur cinq pistes). Le mois du
          premier retour est ouvert, les suivants repliés sur leur intertitre
-         qui garde son compte ; « Sans date » passe en tête, hors des mois :
-         on ne le trouvait plus, sous la barre du menu. */
-      var semPrec=-1, nParMois={}, rangees=[], sansDate="";
+         qui garde son compte. */
+      var semPrec=-1, nParMois={}, rangees=[], nSans=0;
       grp.forEach(function(G){
         var x=G.x0, q;
         if(k==="abs") q=x.fin?quand(x.fin[0],x.fin[1],x.fin[2]):quand(aA,aM,aJ);
@@ -11106,11 +11105,13 @@ function renderEquipe(){
         else q=quand(x.fin[0],x.fin[1],x.fin[2]+1);
         var html='<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
           +'<span class="eqrch">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
-        if(!q.moisNom){ sansDate+=html; return; }
+        /* Les journées sans date de reprise ne s'affichent pas (le client,
+           le 10/10/2026), et ne comptent pas dans l'onglet. */
+        if(!q.moisNom){ nSans+=G.gens.length; return; }
         nParMois[q.mois]=(nParMois[q.mois]||0)+G.gens.length;
         rangees.push({q:q,html:html});
       });
-      var h2=sansDate?'<div class="eqsansd">'+sansDate+"</div>":"";
+      var h2="";
       rangees.forEach(function(R){
         if(R.q.mois!==semPrec){
           if(semPrec!==-1) h2+="</div></section>";
@@ -11128,7 +11129,7 @@ function renderEquipe(){
          trigrammes. */
       /* Même première ligne que les autres cadres de l'onglet : titre centré
          et compte dessous (le client, le 10/10/2026). */
-      cadres.push({k:k,n:l.length,html:h2});
+      cadres.push({k:k,n:l.length-nSans,html:h2});
     });
     /* UN SEUL CADRE À DEUX ONGLETS (le client, le 10/10/2026) : deux
        grands cadres empilés pour une seule question — qui n'est pas là, et
