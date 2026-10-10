@@ -1750,7 +1750,8 @@ body.sheet-on{overflow:hidden}
    jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
 .mqj{cursor:default}
 .mqj .mqd,.mqj .mqjt{cursor:pointer}
-.mqj .mqd b{text-decoration:underline solid var(--trait); text-decoration-thickness:1px; text-underline-offset:3px}
+/* Plus de soulignement sous le jour : le chevron au bout de la ligne dit
+   déjà qu'elle s'ouvre (le client, le 10/10/2026). */
 .mqvoir{display:inline-flex; align-self:flex-start; margin-top:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
   background:var(--surface2); color:var(--ink2); font:600 12.5px inherit; font-family:inherit; cursor:pointer}
 /* La date, un bloc : jour de semaine, quantième, mois. */
@@ -1844,7 +1845,7 @@ body.sheet-on{overflow:hidden}
 @media (max-width:380px){
   .mqlg{display:none} .mqct{display:inline}
   #mqCorps .mqj,#rnCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
-  .mqh{gap:5px} .mql{padding-left:7px} .mql>.mqcher{margin-left:-7px}
+  .mqh{gap:5px} .mql{padding-left:7px}
   .mqpz{min-width:22px; padding:2px 3px} .mqpo{font-size:12.5px}
 }
 .mqrien b{color:var(--in)}
@@ -1874,6 +1875,14 @@ body.sheet-on{overflow:hidden}
    (.mqd.eqproche) : dans l'en-tête, elle doublait l'espace sous la date
    (le client, le 09/10/2026). */
 .mqjt .mqd.eqproche{margin-bottom:0}
+/* Un chevron au bout de la ligne de date : c'est elle, et elle seule, qui
+   ouvre le Planning de ce jour (le client, le 10/10/2026, en retirant
+   « Chercher un remplaçant »). */
+.mqjt::after{content:""; flex:0 0 auto; align-self:center; width:7px; height:7px; margin:0 2px 0 -2px;
+  border-right:1.6px solid var(--muted); border-top:1.6px solid var(--muted); transform:rotate(45deg)}
+.mqjt .mqjn{margin-left:auto}
+/* L'intitulé est en capitales, l'unité d'heure non (« 12 h » et non « 12 H »). */
+.cagr .unite, .pf-proch-t .unite{text-transform:none}
 /* Le nombre de journées du mois, à droite de l'intertitre, comme le total
    sous le titre du cadre (le client, le 09/10/2026). */
 #mqCorps .eqsem{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
@@ -1931,11 +1940,6 @@ body.sheet-on{overflow:hidden}
 .regtete h2{grid-column:2; margin:0; font-size:17px; font-weight:700}
 .regretour{justify-self:start; display:inline-flex; align-items:center; gap:3px; height:36px; padding:0 8px 0 2px;
   border:0; background:none; color:var(--in); font:600 15px inherit; font-family:inherit; cursor:pointer}
-/* « Chercher un remplaçant », au pied de chaque sous-effectif. */
-.mqcher{display:inline-flex; align-items:center; justify-content:center; gap:6px; align-self:center; margin-top:6px; padding:7px 12px; border-radius:999px;
-  border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); color:var(--marque-vif);
-  background:color-mix(in srgb,var(--marque-vif) 10%,transparent); font-size:12.5px; font-weight:650; font-family:inherit; cursor:pointer}
-@media (hover:hover){ .mqcher:hover{background:color-mix(in srgb,var(--marque-vif) 20%,transparent)} }
 /* Les mois repliables (mqMoisTete) : l'intertitre devient un bouton de la
    largeur du cadre, avec un chevron ; le contenu d'un mois replié disparaît. */
 .mqtog{display:flex; width:calc(100% + 32px); justify-content:space-between; align-items:center; gap:10px;
@@ -8762,7 +8766,7 @@ function _pfHead(db,p){
     if(pr.k===0) quand=pr.enCours?("Fin à "+(PF_FIN[pr.pv]%24)+"\u00a0h"):("Début à "+PF_DEB[pr.pv]+"\u00a0h");
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
-      +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' j':'')+'</small><b>'+esc(quand)+'</b>'
+      +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
       +'<span>'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span>'
       +(pr.enCours?'<span class="pf-prog" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +'</span><span class="pf-fl" aria-hidden="true">›</span></button>';
@@ -12591,9 +12595,6 @@ function renderManques(force){
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
-          +'<button type="button" class="mqcher" data-pause="'+esc(o.pause)+'" data-poste="'+esc(o.k)+'">'
-          +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>'
-          +"Chercher un remplaçant</button>"
           +"</span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
@@ -12636,11 +12637,7 @@ function renderManques(force){
        #jourCorps pour eqDate. */
     hote.onclick=function(e){
       if(mqBascule(e)) return;
-      var ch=e.target.closest?e.target.closest(".mqcher"):null, b=e.target.closest?e.target.closest(".mqj"):null;
-      if(ch && b){ e.preventDefault(); e.stopPropagation();
-        ouvrirRecherche({pause:ch.dataset.pause, poste:ch.dataset.poste, an:Number(db.year),
-          mois:Number(b.dataset.m), jour:Number(b.dataset.j)}); return; }
-      b=mqCible(e); if(!b) return;
+      var b=mqCible(e); if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
     };
@@ -13522,7 +13519,7 @@ function caGroupes(t,large,sansUrgence){
        manquante : m6 = le matin (06-18), s6 = le PM (18-06), sans aucun repli
        14-02 / 02-14. */
     if(caDouble6(t)) paire=rang("06-18",t.m6)+rang("18-06",t.s6);
-    g.push('<span class="capaire"><span class="cagr">Prolongation 12 h</span>'+paire+"</span>");
+    g.push('<span class="capaire"><span class="cagr">Prolongation 12 <span class="unite">h</span></span>'+paire+"</span>");
   }
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
      de la veille. Huit au plus en tout. */
@@ -14816,29 +14813,6 @@ window.addEventListener("beforeprint",function(){
 window.addEventListener("afterprint",function(){
   [].forEach.call(document.querySelectorAll("details.fold"),function(d){ if(d._impr){ d.open=d._avant; setTimeout(function(){ d._impr=0; },0); } });
 });
-/* ===================== la fenêtre de recherche =====================
-   Le client, le 09/10/2026 : « un bouton recherche pour les 3 types de
-   recherche, et donc ne pas les mélanger avec les sous-effectifs et
-   rappels ». ouvrirRecherche(pre) ouvre la fenêtre ; avec pre =
-   {pause, poste, an, mois, jour}, elle passe sur « Recherche », remplit les
-   trois champs et calcule — c'est le bouton « Chercher un remplaçant » d'un
-   sous-effectif. Une entrée d'historique la porte : le geste retour du
-   téléphone la referme au lieu de quitter l'onglet. */
-function ouvrirRecherche(pre){
-  setView("recherche");
-  fetchHoraireDB().then(function(db){
-    if(!db) return;
-    caInit(db);
-    if(pre){
-      var b=document.querySelector('#caCard .caseg [data-ca="recherche"]'); if(b) b.click();
-      document.getElementById("caPause").value=pre.pause;
-      if(caPosteDe(pre.poste)) document.getElementById("caPoste").value=pre.poste;
-      document.getElementById("caDu").value=pre.an+"-"+pad2(pre.mois)+"-"+pad2(pre.jour);
-      caCalculer();
-    }
-  });
-}
-
 function boot(){
   if(booted) return; booted=true;
   /* La bulle de l'onglet Effectifs se calcule sans attendre qu'on ouvre
