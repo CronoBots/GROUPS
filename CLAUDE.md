@@ -4202,6 +4202,17 @@ annulé, la colonne d'intitulés est partie. Ce qui reste :
 CSS et une condition : vérificateur identique à l'octet ; rien ne déborde
 à 320 px (hors ligne), 390 et 1280 px.
 
+**L'horaire et la pause hors du badge** (le client, le 10/10/2026 :
+« l'horaire et la pause doivent être hors du trigramme »). Dans les
+propositions de remplacement (sous-effectifs, Recherche, congé en heures),
+le badge ne porte plus que le trigramme. L'horaire (« 06-14 ») ou la pause
+et le poste (« PM Glut. ») le suivent à droite, sur sa ligne de base, en
+mono gris (`caChip()` → `.mqcw` + `.mqch`). Les pistes des sous-effectifs,
+qui écrivaient leur badge à la main, passent elles aussi par `caChip()`.
+Mesuré : aucun `small` dans un badge, écart de ligne de base de 0 px ;
+vérificateur identique à l'octet ; rien ne déborde à 320 px (hors ligne),
+390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
