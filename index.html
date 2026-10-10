@@ -2005,6 +2005,7 @@ body.sheet-on{overflow:hidden}
 .dir-sb b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:#FF8A7A}
 .dir-sb span{font-size:10px; color:#8B96AD}
 .dir-sub-e{font-size:11px; color:#7E8AA3}
+.dir-sub2{padding:3px 2px 9px 76px}
 .dir-det{margin-top:8px}
 .dir-det>summary{cursor:pointer; font-size:12px; color:#6FD6F2; font-weight:600; list-style:none; padding:6px 0}
 .dir-det>summary::-webkit-details-marker{display:none}
@@ -9459,7 +9460,16 @@ function dirMalEstMal(c){ var X=(typeof ABSMAP!=="undefined")&&ABSMAP[c]; return
 function dirMalTeam(p){
   if(typeof estContremaitre==="function" && estContremaitre(p)) return "Contremaîtres";
   if(typeof estCadre==="function" && estCadre(p)) return "Adjoints";
-  return p.cat||"—";
+  if(typeof estInterim==="function" && estInterim(p)) return "Intérimaires";
+  /* Un opérateur « en formation » qui est en réalité un ancien (polyvalent,
+     donc plus d'un poste) est rattaché à son équipe de shift ; les vrais
+     stagiaires sont des intérimaires, déjà rangés ci-dessus. */
+  if(/formation/i.test((p&&p.cat)||"")){
+    var eq=(typeof equipeShift==="function")?equipeShift(p):"";
+    var m=/(\d+)/.exec(eq||"");
+    return m ? ("Shift "+m[1]) : "Formation";
+  }
+  return (p&&p.cat)||"—";
 }
 /* UNE SEULE PASSE lourde pour tous les agrégats annuels par équipe ET par
    opérateur : maladie (cycle-aware), jours programmés, maladie par poste,
@@ -9506,8 +9516,8 @@ function dirRH(db){
   _dirRHcache={y:y, team:T, malMois:malMois, total:total, sched:schedTot};
   return _dirRHcache;
 }
-function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Éq. "); }
-function dirTeamRank(k){ if(/Contrema/i.test(k))return 0; if(/Adjoint/i.test(k))return 1; var m=/Shift\s*(\d)/i.exec(k); if(m)return 10+Number(m[1]); if(/formation/i.test(k))return 60; if(/STEP/i.test(k))return 70; return 90; }
+function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Équipe "); }
+function dirTeamRank(k){ if(/Contrema/i.test(k))return 0; if(/Adjoint/i.test(k))return 1; var m=/Shift\s*(\d)/i.exec(k); if(m)return 10+Number(m[1]); if(/int[eé]rim/i.test(k))return 65; if(/formation/i.test(k))return 60; if(/STEP/i.test(k))return 70; return 90; }
 function dirTeams(T,opt){ return Object.keys(T).filter(function(k){ if(opt==="shift")return /^Shift\s*\d/i.test(k); return true; }).sort(function(a,b){ return dirTeamRank(a)-dirTeamRank(b); }); }
 function dirUn(x){ return (Math.round(x*10)/10).toString().replace(".",","); }
 function dirTblHTML(cols,rows){
@@ -9542,7 +9552,7 @@ function dirAbsPosteHTML(rh){
   var POSTS=["meun","glut","ferm","dist","chau","step"];
   var PT={meun:"Meunerie",glut:"Gluten",ferm:"Fermentation",dist:"Distillation",chau:"Chaudières",step:"STEP"};
   var byPost={}; POSTS.forEach(function(k){ byPost[k]=[]; });
-  dirTeams(rh.team,"shift").forEach(function(tm){ rh.team[tm].ops.forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push({tri:o.tri,taux:o.taux,mal:o.mal,team:tm}); }); });
+  dirTeams(rh.team).forEach(function(tm){ rh.team[tm].ops.forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push({tri:o.tri,taux:o.taux,mal:o.mal,team:tm}); }); });
   var rows=POSTS.map(function(k){ return {k:k, days:byPost[k].reduce(function(s,o){ return s+o.mal; },0), ops:byPost[k]}; }).sort(function(a,b){ return b.days-a.days; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.days); },1);
   return rows.map(function(r){
@@ -9619,7 +9629,7 @@ function dirCouvHTML(cov){
   if(!teams.length) return '<p class="dir-note">Aucune équipe de production à afficher.</p>';
   var h='<div class="dir-mx"><div class="mh"></div>'+cov.POSTS.map(function(k){ return '<div class="mh">'+SH[k]+'</div>'; }).join("");
   teams.forEach(function(tm){
-    h+='<div class="rh">'+esc(tm.replace(/^Shift\s*/i,"Éq. "))+'</div>'+cov.POSTS.map(function(k){
+    h+='<div class="rh">'+esc(tm.replace(/^Shift\s*/i,"Équipe "))+'</div>'+cov.POSTS.map(function(k){
       var v=cov.teams[tm].cov[k]||0, seuil=DIR_SEUIL[k]||2;
       return '<div class="mc '+(v<seuil?"lo":"ok")+'">'+v+'</div>';
     }).join("");
@@ -9638,20 +9648,24 @@ function dirBarsMois(arr,grad,y){
 function dirMqBars(mois){
   return dirBarsMois(mois,'linear-gradient(180deg,#F2B45A,#D98A2B)',_dirMqCache?_dirMqCache.y:0);
 }
-function dirRappListHTML(rappList){
-  if(!rappList||!rappList.length) return '';
-  var byTri={}; rappList.forEach(function(e){ (byTri[e.tri]=byTri[e.tri]||[]).push(e); });
-  var tris=Object.keys(byTri).sort(function(a,b){ return byTri[b].length-byTri[a].length; });
-  var inner=tris.map(function(tri){
-    var items=byTri[tri].sort(function(a,b){ return a.j<b.j?-1:(a.j>b.j?1:0); });
-    return '<div class="dir-li"><div class="dir-li-h"><b>'+esc(tri)+'</b><span>'+items.length+' rappel'+(items.length>1?"s":"")+'</span></div>'
-      +items.map(function(e){ return '<div class="dir-li-r"><u>'+esc(e.j.slice(2)+"/"+e.j.slice(0,2))+'</u><span>'+esc((e.c||"").slice(0,100))+'</span></div>'; }).join("")
-      +'</div>';
-  }).join("");
-  return '<details class="dir-det"><summary>Liste complète des rappels ('+rappList.length+')</summary><div class="dir-list">'+inner+'</div></details>';
+function dirRappRankHTML(rank, rappList){
+  var byTri={}; (rappList||[]).forEach(function(e){ (byTri[e.tri]=byTri[e.tri]||[]).push(e); });
+  var mx=rank.length?rank[0].n:1;
+  function row(o){
+    var items=(byTri[o.tri]||[]).slice().sort(function(a,b){ return a.j<b.j?-1:(a.j>b.j?1:0); });
+    var detail=items.length
+      ? '<div class="dir-sub2">'+items.map(function(e){ return '<div class="dir-li-r"><u>'+esc(e.j.slice(2)+"/"+e.j.slice(0,2))+'</u><span>'+esc((e.c||"").slice(0,110))+'</span></div>'; }).join("")+'</div>'
+      : '<div class="dir-sub"><span class="dir-sub-e">—</span></div>';
+    return '<details class="dir-exp"><summary><div class="dir-rk"><em>'+esc(o.tri)+'</em>'
+      +'<i style="width:'+Math.max(4,Math.round(o.n/mx*100))+'%;background:linear-gradient(90deg,#6FD6F2,#3A8FD8)"></i>'
+      +'<b>'+o.n+' <small>j</small></b></div></summary>'+detail+'</details>';
+  }
+  var top=rank.slice(0,10), rest=rank.slice(10);
+  var h=top.map(row).join("");
+  if(rest.length) h+='<details class="dir-det"><summary>Voir les '+rest.length+' autres personnes rappelées</summary><div>'+rest.map(row).join("")+'</div></details>';
+  return h;
 }
 function dirAnneeHTML(a){
-  var rappTop=a.rapp.slice(0,8), rappMx=rappTop.length?rappTop[0].n:1;
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
@@ -9668,14 +9682,9 @@ function dirAnneeHTML(a){
    +'<div class="dir-sec">Rappels par mois</div>'
    +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
    +'<p class="dir-note">'+rappTot+' jour'+(rappTot>1?"s":"")+' avec rappel sur l\'année (« rappel » noté dans l\'horaire, dans n\'importe quelle cellule). Les remplacements et R-CM sont des rotations d\'équipe, pas des rappels.</p>'
-   +'<div class="dir-sec">Les plus rappelés</div>'
-   +'<div class="dir-rank">'+rappTop.map(function(o){
-       return '<div class="dir-rk"><em>'+esc(o.tri)+'</em>'
-         +'<i style="width:'+Math.max(4,Math.round(o.n/rappMx*100))+'%;background:linear-gradient(90deg,#6FD6F2,#3A8FD8)"></i>'
-         +'<b>'+o.n+' <small>j</small></b></div>';
-     }).join("")+'</div>'
+   +'<div class="dir-sec">Les plus rappelés <span class="dir-hint">— dépliez pour le détail</span></div>'
+   +dirRappRankHTML(a.rapp, a.rappList)
    +'<p class="dir-note">'+a.rapp.length+' personnes rappelées au moins une fois sur l\'année.</p>'
-   +dirRappListHTML(a.rappList)
 
    +'<div class="dir-grp">Rythme &amp; charge</div>'
    +'<div class="dir-sec">Pauses en sous-effectif par mois · écoulé</div>'
