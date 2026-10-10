@@ -4180,6 +4180,19 @@ Vérificateur identique à l'octet, découpe de `comparer-fiches` à l'épreuve
 (il ne découpe ni `statsRythme()` ni `mqJoursAVenir()`). Rien ne déborde et
 aucune erreur à 320 px (hors ligne), 390 et 1280 px.
 
+**Une ligne par type de solution** (le client, le 10/10/2026, capture de
+l'iPhone : « encore moyen de mieux présenter les gens en pause et
+propositions de remplacement »). Dans les sous-effectifs et la Recherche,
+chaque cadre — En poste, Même pause, En D, Change de pause, Prolongation
+12 h, Rappel — tient sur une ligne : l'intitulé dans une colonne de 100 px
+(82 sous 380 px), les trigrammes à droite. Avant, l'intitulé passait
+au-dessus et la fiche du 12/10 (STEP AM, trois étiquettes) faisait
+environ 330 px ; elle en fait 197 à 390 px. La prolongation garde ses deux
+lignes d'horaires (`.capaire.prol`, intitulé sur les deux rangées). CSS
+seulement, plus une classe : vérificateur identique à l'octet ; aucune
+étiquette ne sort de sa fiche, rien ne déborde à 320 px (hors ligne), 390
+et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
