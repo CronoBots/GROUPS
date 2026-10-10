@@ -3894,6 +3894,15 @@ l'épreuve ; rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
   partagé exposerait les sous-effectifs aux drapeaux que `postesDePause()`
   pose sur les personnes (`fixe`, `fait`) : le gain ne vaut pas ce risque.
 
+**Les bords des lignes CM et ADJ du Planning en vrai gris** (le client, le
+10/10/2026, capture de l'iPhone : « ajouter des bords gris sur les 2 lignes
+du dessus »). Le trait de zone gauche et droit de ces deux lignes prenait
+`--bordg` (#AEB9CC), qui se lisait blanc sur le fond sombre, à côté du
+blanc adouci de la formation. Il passe à #7C8699, dans le tableau du jour
+seulement : `--bordg` sert aussi aux puces et à la grille du recyclage, que
+le client n'a pas demandé de changer. Mesuré à 320 px (hors ligne), 390 et
+1280 px : les deux traits rendent `rgb(124, 134, 153)`.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
