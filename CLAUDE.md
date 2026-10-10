@@ -3904,6 +3904,10 @@ interruption du haut du cadre jusqu'au bas du tableau. **J'avais d'abord
 compris de travers** : j'ai foncé le gris des lignes CM et ADJ (v635), ce
 que le client ne demandait pas ; c'est annulé. Vérifié à 320 px (hors
 ligne), 390 et 1280 px, sans erreur.
+Puis, le même jour : « retire juste pour la ligne de date et mets en gris
+la ligne des pauses ». La barre de date n'a plus de trait ; celui de la
+ligne des pauses passe à un gris moyen (#7C8699), `--bordg` s'y lisant
+blanc. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
 ### Le congé en heures
 
