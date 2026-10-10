@@ -2012,6 +2012,11 @@ body.sheet-on{overflow:hidden}
 .dir-subh{font-size:11px; color:#9AA5BC; font-weight:600; margin:12px 2px 6px}
 .dir-sb.lg b{color:#E0A24A}
 .dir-sb.lg span{color:#C98A5A}
+.dir-chips{display:flex; gap:7px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:4px 0 11px; margin:0 0 4px; position:sticky; top:0; z-index:3; background:#0B1018; scrollbar-width:none}
+.dir-chips::-webkit-scrollbar{display:none}
+.dir-chip{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:99px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#9AA5BC; cursor:pointer; white-space:nowrap}
+.dir-chip.on{background:#6FD6F2; color:#0B1018; border-color:#6FD6F2}
+.dir-page>.dir-grp:first-child{margin-top:4px; padding-top:0; border-top:none}
 .dir-det{margin-top:8px}
 .dir-det>summary{cursor:pointer; font-size:12px; color:#6FD6F2; font-weight:600; list-style:none; padding:6px 0}
 .dir-det>summary::-webkit-details-marker{display:none}
@@ -9335,7 +9340,9 @@ function ouvrirDirection(){
         inter=db.people.filter(function(p){ return estInterim(p); }).length,
         taux=(pres+mal)?Math.round(mal/(pres+mal)*1000)/10:0;
     document.getElementById("dirDate").textContent=JOURS_LONGS[(ju.getDay()+6)%7]+" "+j+" "+MOIS[m-1].toLowerCase()+" "+an;
-    var h='<div class="dir-kpis">'
+    var h='<div class="dir-chips" id="dirChips">'+dirChipsHTML()+'</div>'
+      +'<div class="dir-page" data-page="jour">'
+      +'<div class="dir-kpis">'
       +'<div class="dir-k ac"><b>'+pres+'<small>/'+db.people.length+'</small></b><span>Présents aujourd\'hui</span><em>toutes pauses et journée</em></div>'
       +'<div class="dir-k'+(taux>=8?' al':'')+'"><b>'+mal+'</b><span>Maladie</span><em>'+String(taux).replace(".",",")+' % de l\'effectif du jour</em></div>'
       +'<div class="dir-k"><b>'+cg+'</b><span>En congé</span><em>congés posés ce jour</em></div>'
@@ -9347,9 +9354,12 @@ function ouvrirDirection(){
         return '<div class="dir-p"><i data-p="'+g+'">'+g+'</i><b>'+n+'</b><span>'+(eqP[g]?"Équipe "+esc(eqP[g]):(g==="D"?"journée":"&nbsp;"))+'</span></div>';
       }).join("")+'</div>'
       +'<div class="dir-sec">Les sept jours qui viennent</div><div class="dir-sem" id="dirSem"></div>'
-      +'<div id="dirAnnee"></div>'
-      +'<p class="dir-note">'+inter+' intérimaire'+(inter>1?"s":"")+' dans l\'effectif · horaire '+(db0.maj?"du classeur du "+esc(dateFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p>';
+      +'<p class="dir-note">'+inter+' intérimaire'+(inter>1?"s":"")+' dans l\'effectif · horaire '+(db0.maj?"du classeur du "+esc(dateFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p>'
+      +'</div>'
+      +'<div id="dirAnnee"></div>';
     c.innerHTML=h;
+    var _ch=document.getElementById("dirChips"); if(_ch) _ch.onclick=function(e){ var t=e.target; while(t&&t!==_ch){ if(t.getAttribute&&t.getAttribute("data-page")){ dirShowPage(t.getAttribute("data-page")); break; } t=t.parentNode; } };
+    dirShowPage("jour");
     v.hidden=false; document.documentElement.style.overflow="hidden";
     document.getElementById("dirX").focus();
     function heure(){ var t=new Date(); document.getElementById("dirHeure").textContent=(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes(); }
@@ -9762,19 +9772,32 @@ function dirRappRankHTML(rank, rappList){
   if(rest.length) h+='<details class="dir-det"><summary>Voir les '+rest.length+' autres personnes rappelées</summary><div>'+rest.map(row).join("")+'</div></details>';
   return h;
 }
+function dirChipsHTML(){
+  var pages=[["jour","Vue du jour"],["absences","Absences"],["rappels","Rappels"],["rythme","Rythme"],["competences","Compétences"],["interim","Intérimaires"],["statut","Statut"]];
+  return pages.map(function(p){ return '<button type="button" class="dir-chip'+(p[0]==="jour"?" on":"")+'" data-page="'+p[0]+'">'+esc(p[1])+'</button>'; }).join("");
+}
+function dirShowPage(page){
+  var corps=document.getElementById("dirCorps"); if(!corps) return;
+  Array.prototype.forEach.call(corps.querySelectorAll(".dir-chip"),function(b){ b.classList.toggle("on", b.getAttribute("data-page")===page); });
+  Array.prototype.forEach.call(corps.querySelectorAll(".dir-page"),function(p){ p.hidden=(p.getAttribute("data-page")!==page); });
+  var v=document.getElementById("dirVue"); if(v) v.scrollTop=0;
+}
 function dirAnneeHTML(a){
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   var wait='<div class="dir-anb dir-anb-wait">…</div>';
   return ''
+   +'<div class="dir-page" data-page="absences" hidden>'
    +'<div class="dir-grp">Absences &amp; santé</div>'
    +'<div id="dirMal">'+wait+'</div>'
    +'<div class="dir-sec">Absents (maladie) par poste <span class="dir-hint">— dépliez pour les trigrammes</span></div>'
    +'<div id="dirAbsP">'+wait+'</div>'
-   +'<div class="dir-sec">Congés &amp; récupérations par équipe <span class="dir-hint">(jours)</span></div>'
+   +'<div class="dir-sec">Congés &amp; récupérations par équipe</div>'
    +'<div id="dirConges">'+wait+'</div>'
+   +'</div>'
 
+   +'<div class="dir-page" data-page="rappels" hidden>'
    +'<div class="dir-grp">Rappels</div>'
    +'<div class="dir-sec">Rappels par mois</div>'
    +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
@@ -9782,7 +9805,9 @@ function dirAnneeHTML(a){
    +'<div class="dir-sec">Les plus rappelés <span class="dir-hint">— dépliez pour le détail</span></div>'
    +dirRappRankHTML(a.rapp, a.rappList)
    +'<p class="dir-note">'+a.rapp.length+' personnes rappelées au moins une fois sur l\'année.</p>'
+   +'</div>'
 
+   +'<div class="dir-page" data-page="rythme" hidden>'
    +'<div class="dir-grp">Rythme &amp; charge</div>'
    +'<div class="dir-sec">Pauses en sous-effectif par mois · écoulé</div>'
    +'<div id="dirMqBars">'+wait+'</div>'
@@ -9799,7 +9824,9 @@ function dirAnneeHTML(a){
    +'<div id="dirFerWe">'+wait+'</div>'
    +'<div class="dir-sec">Heures sup &amp; flex time par équipe</div>'
    +'<div id="dirHsFt">'+wait+'</div>'
+   +'</div>'
 
+   +'<div class="dir-page" data-page="competences" hidden>'
    +'<div class="dir-grp">Compétences</div>'
    +'<div class="dir-sec">Recyclages à faire par poste</div>'
    +'<div id="dirRecyc">'+wait+'</div>'
@@ -9807,12 +9834,18 @@ function dirAnneeHTML(a){
    +'<div class="dir-sec">Postes à renforcer, par équipe</div>'
    +'<div id="dirCouv">'+wait+'</div>'
    +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : à renforcer — moins de 2, ou aucun pour STEP.</p>'
+   +'</div>'
 
+   +'<div class="dir-page" data-page="interim" hidden>'
    +'<div class="dir-grp">Intérimaires</div>'
    +'<div id="dirInterSec">'+wait+'</div>'
+   +'</div>'
+
+   +'<div class="dir-page" data-page="statut" hidden>'
    +'<div class="dir-grp">Comparatif par statut</div>'
    +'<div class="dir-sec">Employé · Ouvrier · Intérimaire <span class="dir-hint">— par personne sauf absentéisme et HS</span></div>'
-   +'<div id="dirStatut">'+wait+'</div>';
+   +'<div id="dirStatut">'+wait+'</div>'
+   +'</div>';
 }
 
 function majNotifReglage(){
