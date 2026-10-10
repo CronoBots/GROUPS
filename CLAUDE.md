@@ -4044,6 +4044,24 @@ déplacements :
 Vérifié à 320 px (hors ligne), 390 et 1280 px : le relevé se remplit dans
 Salaire (32 lignes en octobre), aucun débordement ni erreur.
 
+**Les intitulés relus** (le client, le 10/10/2026 : « trouves-tu les
+titres, intitulés, descriptions logiques avec le contenu ? », puis « oui,
+fais-le »). Quatre défauts : un sous-titre qui redit le titre, du jargon,
+une forme incohérente, des cadres voisins sans sous-titre. Changés :
+« Mes compteurs » · classeur du… (sans le trigramme, déjà dans le héros) ;
+« Mon rythme » · pauses, nuits et week-ends en 2026 ; « Récupération
+d'heures supplémentaires » · compteur de récup. HS ; « journées lues dans
+l'horaire » ; légende « Non payés » ; « Composition des équipes » ·
+5 équipes · 62 personnes ; « Binômes contremaître · adjoint » · 6 binômes ;
+« Opérateurs en formation » · 9 opérateurs ; « Du brut au net » · dans
+l'ordre de la fiche ; « Saisies du mois » ; fiche simulée · telle que le
+secrétariat social la calculerait ; « Comparer avec ma fiche » ; relevé ·
+à comparer avec le relevé reçu ; « Absents, congés et repos » ;
+sous-effectifs · 25 pauses d'ici le 31/12 ; Recherche · congé, absence ou
+remplaçant pour un poste, son troisième onglet « Remplaçant » ; primes de
+rappel · coefficients de la procédure de rappel. Les renvois du mode
+d'emploi suivent. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
