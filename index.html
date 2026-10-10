@@ -1886,49 +1886,11 @@ body.sheet-on{overflow:hidden}
 .notifreg b{font-size:13px} .notifreg span{font-size:11.5px; color:var(--muted)}
 .notifreg .btn{flex:0 0 auto}
 .tabs #notifDot{background:var(--marque-vif)}
-/* LA FENÊTRE DE RECHERCHE (#caSheet). Sur téléphone elle monte du bas,
-   pleine largeur, coins hauts arrondis, une poignée pour dire qu'elle se
-   referme ; au bureau elle se centre. Son en-tête reste collé en haut quand
-   les résultats défilent. Le fond voilé referme, comme Échap et le geste
-   retour (history). */
-.csheet{position:fixed; inset:0; z-index:250; display:flex; align-items:flex-end; justify-content:center}
-.csheet[hidden]{display:none}
-.cs-fond{position:absolute; inset:0; background:rgba(5,9,18,.66); animation:csFond .2s ease-out}
-.cs-panneau{position:relative; width:100%; max-width:760px; max-height:calc(100% - env(safe-area-inset-top,0px) - 28px);
-  overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
-  border-radius:20px 20px 0 0; animation:csMonte .26s cubic-bezier(.2,.8,.2,1)}
-.cs-panneau #caCard{margin:0; overflow:visible; border:1px solid var(--cadre); border-bottom:0; border-radius:20px 20px 0 0;
-  box-shadow:0 -14px 40px rgba(0,0,0,.5); padding-bottom:calc(14px + env(safe-area-inset-bottom,0px)); min-height:46vh}
-.cs-tete{position:sticky; top:0; z-index:3; display:grid; grid-template-columns:44px 1fr 44px; align-items:center;
-  padding:14px 6px 10px; background:var(--surface2); border-bottom:1px solid var(--cadre); border-radius:20px 20px 0 0}
-.cs-tete h2{grid-column:2; margin:0; text-align:center; font-size:16px; font-weight:700; letter-spacing:-.012em}
-.cs-poignee{position:absolute; top:6px; left:50%; width:38px; height:4px; margin-left:-19px; border-radius:2px; background:var(--trait-fort)}
-.cs-fermer{grid-column:3; display:grid; place-items:center; width:36px; height:36px; border-radius:50%; border:0;
-  background:transparent; color:var(--muted); cursor:pointer}
-.cs-fermer:hover,.cs-fermer:focus-visible{background:var(--surface3); color:var(--ink)}
-body.cs-ouvert{overflow:hidden}
-@keyframes csMonte{from{transform:translateY(24px); opacity:.4}to{transform:none; opacity:1}}
-@keyframes csFond{from{opacity:0}to{opacity:1}}
-@media (min-width:761px){
-  .csheet{align-items:center; padding:28px}
-  .cs-panneau{border-radius:var(--rj); max-height:calc(100% - 56px)}
-  .cs-panneau #caCard{border-radius:var(--rj); border-bottom:1px solid var(--cadre); padding-bottom:14px; min-height:0}
-  .cs-tete{border-radius:var(--rj) var(--rj) 0 0; padding-top:10px}
-  .cs-poignee{display:none}
-}
-@media (prefers-reduced-motion:reduce){ .cs-panneau,.cs-fond{animation:none} }
-/* Le bouton qui l'ouvre, en tête de l'onglet Effectifs. */
-.rhcherche{display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; text-align:left; cursor:pointer;
-  border:1px solid var(--cadre); border-radius:var(--rj); color:var(--ink); font:inherit;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--marque-vif) 14%,var(--surface)) 0%,var(--surface) 70%);
-  box-shadow:0 10px 26px rgba(0,0,0,.3)}
-.rhc-ico{flex:0 0 auto; display:grid; place-items:center; width:40px; height:40px; border-radius:50%;
-  color:var(--marque-vif); background:color-mix(in srgb,var(--marque-vif) 18%,transparent)}
-.rhc-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
-.rhc-t b{font-size:15px} .rhc-t small{font-size:12px; color:var(--muted)}
-.rhc-fl{font-size:24px; line-height:1; color:var(--muted)}
-@media (hover:hover){ .rhcherche:hover{border-color:var(--trait-fort)} }
-.rhcherche:active{transform:scale(.99)}
+/* L'en-tête des Réglages, qui ne sont plus un onglet : un retour vers l'Accueil. */
+.regtete{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin:-4px 0 2px}
+.regtete h2{grid-column:2; margin:0; font-size:17px; font-weight:700}
+.regretour{justify-self:start; display:inline-flex; align-items:center; gap:3px; height:36px; padding:0 8px 0 2px;
+  border:0; background:none; color:var(--in); font:600 15px inherit; font-family:inherit; cursor:pointer}
 /* « Chercher un remplaçant », au pied de chaque sous-effectif. */
 .mqcher{display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin-top:2px; padding:7px 12px; border-radius:999px;
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); color:var(--marque-vif);
@@ -3016,16 +2978,30 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
 .pf-hero::after{content:""; position:absolute; right:-40px; top:-40px; width:170px; height:170px; border-radius:50%;
   background:radial-gradient(circle,rgba(94,200,232,.16),transparent 68%); pointer-events:none}
-.pf-head{position:relative; display:flex; align-items:center; gap:15px; padding:18px 18px 14px}
-.pf-ava{flex:0 0 auto; width:62px; height:62px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:700; font-size:17px; letter-spacing:.03em;
-  background:var(--marque-vif); color:var(--marque);
-  box-shadow:0 0 0 3px var(--marque),0 0 0 5px rgba(94,200,232,.45)}
-.pf-hmeta{min-width:0; display:flex; flex-direction:column; gap:3px}
+.pf-head{position:relative; display:flex; align-items:center; gap:14px; padding:16px 64px 2px 16px}
+.pf-logo{flex:0 0 auto; height:44px; width:auto; display:block}
+.pf-sep{align-self:stretch; width:1px; margin:4px 0; background:rgba(255,255,255,.16)}
+.pf-hmeta{min-width:0; display:flex; flex-direction:column; gap:4px}
+.pf-tri{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:26px; line-height:1; font-weight:600; letter-spacing:.04em; color:#fff}
+.pf-role{font-size:12.5px; color:rgba(255,255,255,.72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-roue{position:absolute; z-index:1; top:12px; right:12px; width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#fff; cursor:pointer}
+.pf-roue:hover,.pf-roue:focus-visible{background:rgba(255,255,255,.16)}
+.pf-ligne{position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; padding:10px 16px 0}
 .pf-salut{font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.62)}
-.pf-hmeta b{display:block; font-size:21px; line-height:1.15; font-weight:700; letter-spacing:-.015em; color:#fff;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:4px}
+.pf-ligne .pf-etat{margin-top:0}
+.pf-proch{position:relative; display:flex; align-items:center; gap:12px; margin:12px 12px 0; padding:10px 12px; border-radius:12px;
+  background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.32)}
+.pf-pause{flex:0 0 auto; min-width:42px; height:34px; padding:0 8px; box-sizing:border-box; border-radius:9px; display:grid; place-items:center;
+  background:var(--marque-vif); color:var(--marque); font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:700; font-size:14px}
+.pf-proch-t{min-width:0; display:flex; flex-direction:column; gap:1px}
+.pf-proch-t small{font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.6)}
+.pf-proch-t b{font-size:15px; color:#fff}
+.pf-proch-t span{font-size:12.5px; color:rgba(255,255,255,.75)}
+.pf-kpis{margin-top:12px}
+.pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
+.pf-kpi.bon b{color:var(--good)}
+.pf-chips{position:relative; display:flex; flex-wrap:wrap; gap:5px; padding:8px 16px 0}
 .pf-chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:600;
   color:rgba(255,255,255,.86); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); white-space:nowrap}
 .pf-chip i{width:7px; height:7px; border-radius:2px; background:rgba(255,255,255,.5)}
@@ -3043,8 +3019,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-kpi b i{font-style:normal; font-size:12px; font-weight:600; color:rgba(255,255,255,.6); margin-left:2px}
 .pf-kpi span{font-size:10px; line-height:1.25; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
 .pf-kpi.ko b{color:#ff9b8f} .pf-kpi.att b{color:var(--at-jaune)}
-@media (max-width:380px){ .pf-head{padding:15px 14px 12px; gap:12px} .pf-ava{width:52px; height:52px; font-size:15px}
-  .pf-hmeta b{font-size:18px} .pf-kpi{padding:10px 10px 11px} .pf-kpi b{font-size:16px} .pf-kpi span{font-size:9px} }
+@media (max-width:380px){ .pf-head{padding:14px 60px 2px 14px; gap:11px} .pf-logo{height:38px} .pf-tri{font-size:22px} .pf-kpi{padding:10px 10px 11px} .pf-kpi b{font-size:16px} .pf-kpi span{font-size:9px} }
 .pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
 .pf-fact{display:flex; flex-direction:column; gap:2px; padding:9px 12px; border-radius:11px; background:var(--surface2)}
 .pf-k{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em}
@@ -3526,15 +3501,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <button type="button" role="tab" id="tab-jour" data-v="jour" aria-selected="false" aria-controls="v-jour">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9.5h18M9.5 9.5v10M15 9.5v10"/></svg>
       Planning</button>
+    <button type="button" role="tab" id="tab-recherche" data-v="recherche" aria-selected="false" aria-controls="v-recherche">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      Recherche</button>
     <button type="button" role="tab" id="tab-rh" data-v="rh" aria-selected="false" aria-controls="v-rh">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 9.3-5"/><circle cx="16.8" cy="15.8" r="3"/><path d="M19 18l2.3 2.3"/></svg>
       Effectifs</button>
     <button type="button" role="tab" id="tab-equipe" data-v="equipe" aria-selected="false" aria-controls="v-equipe">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg>
       Équipes</button>
-    <button type="button" role="tab" id="tab-reglages" data-v="reglages" aria-selected="false" aria-controls="v-reglages">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></svg>
-      Réglages</button>
   </nav>
 </header>
 <div class="navwrap" id="navwrap" hidden></div>
@@ -3876,16 +3851,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <!-- LES SAUTS (le client, le 09/10/2026, « optimise tout ») : quatre cadres
          empilés, et le dernier à plusieurs écrans du premier. Une rangée de
          boutons mène droit à chacun, avec son compte. -->
-    <!-- LA RECHERCHE À PART (le client, le 09/10/2026 : « un bouton recherche
-         pour les 3 types de recherche, et donc ne pas les mélanger avec les
-         sous-effectifs et rappels »). L'onglet ne garde que la SURVEILLANCE ;
-         les trois outils — congé, absence, recherche d'un remplaçant — vivent
-         dans une fenêtre qu'on ouvre quand on en a besoin (#caSheet). -->
-    <button type="button" class="rhcherche" id="caOuvrir" aria-haspopup="dialog">
-      <span class="rhc-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
-      <span class="rhc-t"><b>Rechercher</b><small>Congé · absence · remplaçant</small></span>
-      <span class="rhc-fl" aria-hidden="true">›</span>
-    </button>
     <nav class="rhsauts" aria-label="Aller à">
       <button type="button" data-saut="mqCard">Sous-effectif<b id="sautMq"></b></button>
       <button type="button" data-saut="rnCard">Rappels<b id="sautRn"></b></button>
@@ -3918,14 +3883,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <div class="eqcorps" id="eqReste"></div>
   </section>
 
-  <!-- LA FENÊTRE DE RECHERCHE : monte du bas sur téléphone, centrée au bureau.
-       Ouverte par #caOuvrir ou par « Chercher un remplaçant » d'un
-       sous-effectif (jour, pause et poste déjà remplis). -->
-  <div class="csheet" id="caSheet" hidden>
-    <div class="cs-fond" data-fermer></div>
-    <div class="cs-panneau" role="dialog" aria-modal="true" aria-labelledby="caTitre">
+  <!-- L'ONGLET RECHERCHE (le client, le 10/10/2026 : « je pensais à un
+       onglet recherche à part »). Congé, absence et recherche d'un remplaçant
+       y vivent seuls ; Effectifs ne garde que la surveillance, et « Chercher
+       un remplaçant » d'un sous-effectif y mène, jour, pause et poste remplis. -->
+  <section class="panel stack" id="v-recherche" role="tabpanel" aria-labelledby="tab-recherche" tabindex="-1" hidden>
       <div class="card" id="caCard">
-        <div class="cs-tete"><span class="cs-poignee" aria-hidden="true"></span><h2 id="caTitre">Rechercher</h2><button type="button" class="cs-fermer" id="caFermer" aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="toolbar rhtitle"><h2 id="caTitre">Rechercher</h2></div>
         <div class="caseg" role="tablist" aria-label="Type de demande">
           <button type="button" role="tab" data-ca="conge" aria-selected="true" tabindex="0">Congé</button>
           <button type="button" role="tab" data-ca="absence" aria-selected="false" tabindex="-1">Absence</button>
@@ -3948,11 +3912,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         </div>
         <div class="mqcorps" id="caCorps"></div>
       </div>
-    </div>
-  </div>
+  </section>
 
   <!-- ============ RÉGLAGES ============ -->
-  <section class="panel stack" id="v-reglages" role="tabpanel" aria-labelledby="tab-reglages" tabindex="-1" hidden>
+  <section class="panel stack" id="v-reglages" role="tabpanel" aria-label="Réglages" tabindex="-1" hidden>
+    <!-- Plus d’onglet pour les réglages (le client, le 10/10/2026) : la
+         roue du héros et le trigramme de la barre du haut y mènent. -->
+    <div class="regtete"><button type="button" class="regretour" data-go="horaire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Accueil</button><h2>Réglages</h2></div>
     <div class="card">
       <details class="fold" open>
         <summary>Mon compte <span class="sub">trigramme lié à cet appareil</span></summary>
@@ -6256,13 +6222,12 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["horaire","salaire","jour","rh","equipe","reglages"];
+var VIEWS=["horaire","salaire","jour","recherche","rh","equipe","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
 var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", polyvalence:"equipe", resume:"horaire"};
 function setView(v,keepScroll){
-  if(typeof rechercheOuverte==="function" && rechercheOuverte()) fermerRecherche();
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
   var change=(st.view!==v);
@@ -6313,6 +6278,7 @@ function setView(v,keepScroll){
   if(v==="horaire") renderRythme();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="horaire") centrerSurAujourdhui();
+  if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
@@ -8551,20 +8517,72 @@ function _pfBinome(p){
   for(var k in po){ if(po.hasOwnProperty(k) && /contrema/i.test(k)){ var n=String(po[k].p||"").replace(/\D+/g,""); if(n) return "Binôme "+n; } }
   return "";
 }
+/* LE HÉROS, refait le 10/10/2026 (le client : « le héros doit contenir le
+   logo et le trigramme doit être à côté ; il faut des infos intéressantes,
+   pas nécessairement les jours de congés restants »). En tête, le logo et le
+   trigramme côte à côte, la fonction dessous, et la roue des Réglages, qui
+   ne sont plus un onglet. Puis ce qu'on vient chercher en ouvrant
+   l'application : le PROCHAIN POSTE, le prochain week-end libre, les nuits du
+   mois et le flex time au jour de l'usine. Tout se lit dans les journées
+   de la personne, par lireJournee(), comme le calendrier. */
+var PF_HEURES={AM:"6 h-14 h", PM:"14 h-22 h", N:"22 h-6 h", D:"7 h-15 h"};
+function _pfJour(id,d){
+  var an=d.getFullYear(), db=(typeof horaireDe==="function")?horaireDe(an):null;
+  if(!db) return null;
+  var p=null; db.people.forEach(function(x){ if(x.id===id) p=x; });
+  if(!p) return null;
+  var m=d.getMonth()+1, j=d.getDate(), raw=p.d[pad2(m)+pad2(j)];
+  if(raw===undefined) return null;
+  var c=moisDe(p,an,m,st.params.hJour);
+  var r=lireJournee(db,raw,an,m,j,c.fit,c.ep[j],st.params.hJour,c.rv[j]);
+  var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
+  var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
+  return {pv:pv, presente:(h>0 && !!pv), raw:raw};
+}
+function _pfDateCourte(d){
+  var mo=MOIS[d.getMonth()].toLowerCase();
+  return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+".\u00a0"+d.getDate()+"\u00a0"+(mo.length>4?mo.slice(0,mo==="juillet"?4:3)+".":mo);
+}
+function _pfInfos(p){
+  var ju=jourUsine(), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
+  var d, k, x;
+  /* le prochain poste, à partir de demain */
+  for(k=1;k<=60;k++){
+    d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
+    x=_pfJour(p.id,d);
+    if(x && x.presente && PF_HEURES[x.pv]){
+      var kat=posteEcrit(x.raw), P0=null;
+      POSTES_TRAVAIL.forEach(function(P){ if(P.k===kat) P0=P; });
+      out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:""}; break;
+    }
+  }
+  /* le prochain week-end libre : samedi et dimanche sans prestation */
+  for(k=0;k<75;k++){
+    d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
+    if(d.getDay()!==6 && !(k===0 && d.getDay()===0)) continue;
+    var sam=d.getDay()===6?d:new Date(d.getFullYear(),d.getMonth(),d.getDate()-1),
+        dim=new Date(sam.getFullYear(),sam.getMonth(),sam.getDate()+1),
+        a=_pfJour(p.id,sam), b=_pfJour(p.id,dim);
+    if(!a||!b) continue;
+    if(!a.presente && !b.presente){ out.weekend={d:sam, ce:(k<=1)}; break; }
+  }
+  /* les nuits du mois : faites jusqu'à aujourd'hui, sur celles prévues */
+  var fin=new Date(base.getFullYear(),base.getMonth()+1,0).getDate(), faites=0, tot=0;
+  for(k=1;k<=fin;k++){
+    x=_pfJour(p.id,new Date(base.getFullYear(),base.getMonth(),k));
+    if(x && x.presente && x.pv==="N"){ tot++; if(k<=base.getDate()) faites++; }
+  }
+  out.nuits={f:faites, t:tot, mois:MOIS[base.getMonth()].toLowerCase()};
+  return out;
+}
 function _pfHead(db,p){
   var tri=idLisible(p.id);
-  var cadre=(typeof estCadre==="function")&&estCadre(p),
-      cm=(typeof estContremaitre==="function")&&estContremaitre(p);
-  /* Rôle : pour un cadre, sa fonction (Contremaître/Adjoint) ; pour un travailleur,
-     « Opérateur » (fonctionPersonne renvoie l'équipe, pas un titre, côté opérateur). */
+  var cadre=(typeof estCadre==="function")&&estCadre(p);
   var role = cadre ? ((typeof fonctionPersonne==="function"?fonctionPersonne(p):"")||"Cadre") : "Opérateur";
   var hr=new Date().getHours(), salut=(hr>=18||hr<5)?"Bonsoir":"Bonjour";
-  /* Les puces : où l'on est rangé (équipe ou binôme), le poste attitré d'un
-     opérateur, le statut. */
-  var ch=[];
   var bn=_pfBinome(p), eq=(typeof equipeShift==="function")?equipeShift(p):"";
-  if(bn) ch.push('<span class="pf-chip">'+esc(bn)+'</span>');
-  else if(eq&&eq!=="—") ch.push('<span class="pf-chip">'+esc(eq)+'</span>');
+  var ou=bn||((eq&&eq!=="—")?eq:"");
+  var ch=[];
   if(!cadre){
     /* Le poste TENU, ou à défaut celui qu'on apprend — dit comme tel. */
     var kt=(typeof posteAttitre==="function")?posteAttitre(p):null, kf=null;
@@ -8575,39 +8593,33 @@ function _pfHead(db,p){
   }
   if(typeof statutAffiche==="function"){ var st2=statutAffiche(p);
     if(st2) ch.push('<span class="pf-chip'+(/int[ée]rim/i.test(st2)?' interim':'')+'">'+esc(st2)+'</span>'); }
-  /* Trois chiffres de soi, lus là où le reste de l'onglet les lit : vacances
-     restantes et flex time au jour de l'usine (comme l'état des compteurs),
-     polyvalences validées (comme « Mon rythme »). */
-  var k=[];
-  var c=p.c||{};
-  /* Ce qu'il reste à PLACER de ses congés (VA, RTT, DTT, RJF) : le « restant »
-     de l'état des compteurs, en jours de 8 h. */
-  if(c.solde){
-    var tot=0, vu=false, prev=c.prevision||{};
-    ["VA","RTT","DTT","RJF"].forEach(function(q){
-      if(c.solde[q]===undefined && prev[q]===undefined) return; vu=true;
-      var pv=(prev[q+"Total"]!==undefined)?prev[q+"Total"]:prev[q];
-      tot+=(c.restant&&c.restant[q]!==undefined)?Number(c.restant[q]):((Number(c.solde[q])||0)-(Number(pv)||0));
-    });
-    if(vu) k.push('<div class="pf-kpi'+(tot<0?' ko':'')+'"><b>'+num(R(tot/8,1))+'<i>j</i></b><span>Congés à placer</span></div>');
+  var inf=_pfInfos(p), h='';
+  if(inf.prochain){
+    var pr=inf.prochain, quand=pr.k===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
+    h+='<div class="pf-proch"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
+      +'<span class="pf-proch-t"><small>Prochain poste</small><b>'+esc(quand)+'</b>'
+      +'<span>'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span></span></div>';
   }
+  var k=[];
+  if(inf.weekend) k.push('<div class="pf-kpi"><b class="pf-txt">'+(inf.weekend.ce?'Ce week-end':esc(_pfDateCourte(inf.weekend.d)))+'</b><span>Week-end libre</span></div>');
+  k.push('<div class="pf-kpi"><b>'+inf.nuits.f+'<i>/ '+inf.nuits.t+'</i></b><span>Nuits en '+esc(inf.nuits.mois)+'</span></div>');
+  var c=p.c||{};
   if(db && c.flex && typeof compteursCalcules==="function"){
     var annee=Number(db.year), ju=jourUsine();
     if(ju.getFullYear()>=annee){
       var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
           calc=compteursCalcules(p,annee,jq),
           sj=R((Number(c.flex.report)||0)+calc.ftPlusJ-calc.ftMoinsJ,2);
-      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':'')+'"><b>'+num(sj)+'<i>h</i></b><span>Flex time</span></div>');
+      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':' bon')+'"><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b><span>Flex time</span></div>');
     }
   }
-  var polys=(!cm&&typeof polyvalenceDe==="function")?(polyvalenceDe(db,p)||[]):[];
-  if(polys.length){ var v=polys.filter(function(x){return x.ok;}).length;
-    k.push('<div class="pf-kpi"><b>'+v+'<i>/ '+polys.length+'</i></b><span>Polyvalences</span></div>'); }
-  return '<div class="pf-hero"><div class="pf-head">'
-    +'<span class="pf-ava" aria-hidden="true">'+esc(tri)+'</span>'
-    +'<div class="pf-hmeta"><span class="pf-salut">'+salut+' '+esc(tri)+'</span><b>'+esc(role)+'</b>'
+  return '<div class="pf-hero">'
+    +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.7 4.7l1.6 1.6M17.7 17.7l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.7 19.3l1.6-1.6M17.7 6.3l1.6-1.6"/></svg></button>'
+    +'<div class="pf-head"><img class="pf-logo" src="logo.svg" alt="Biowanze" width="57" height="44"><span class="pf-sep" aria-hidden="true"></span>'
+    +'<div class="pf-hmeta"><b class="pf-tri">'+esc(tri)+'</b><span class="pf-role">'+esc(role+(ou?" · "+ou:""))+'</span></div></div>'
+    +'<div class="pf-ligne"><span class="pf-salut">'+salut+'</span><span class="pf-etat" id="pfEtat" hidden></span></div>'
     +(ch.length?'<div class="pf-chips">'+ch.join("")+'</div>':'')
-    +'<span class="pf-etat" id="pfEtat" hidden></span></div></div>'
+    +h
     +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'')+'</div>';
 }
 function _pfEtat(db,p){
@@ -14588,45 +14600,20 @@ window.addEventListener("afterprint",function(){
    trois champs et calcule — c'est le bouton « Chercher un remplaçant » d'un
    sous-effectif. Une entrée d'historique la porte : le geste retour du
    téléphone la referme au lieu de quitter l'onglet. */
-var caAvantFocus=null;
-function rechercheOuverte(){ var s=document.getElementById("caSheet"); return !!(s && !s.hidden); }
-function cacherRecherche(){
-  var s=document.getElementById("caSheet"); if(!s || s.hidden) return;
-  s.hidden=true; document.body.classList.remove("cs-ouvert");
-  if(caAvantFocus && caAvantFocus.focus) try{ caAvantFocus.focus(); }catch(e){}
-}
-function fermerRecherche(){
-  if(!rechercheOuverte()) return;
-  if(history.state && history.state.csheet) history.back(); else cacherRecherche();
-}
 function ouvrirRecherche(pre){
-  var s=document.getElementById("caSheet"); if(!s) return;
+  setView("recherche");
   fetchHoraireDB().then(function(db){
     if(!db) return;
     caInit(db);
-    if(!rechercheOuverte()){
-      caAvantFocus=document.activeElement;
-      s.hidden=false; document.body.classList.add("cs-ouvert");
-      try{ history.pushState({csheet:1},""); }catch(e){}
-      var pn=s.querySelector(".cs-panneau"); if(pn) pn.scrollTop=0;
-    }
     if(pre){
-      var b=s.querySelector('.caseg [data-ca="recherche"]'); if(b) b.click();
+      var b=document.querySelector('#caCard .caseg [data-ca="recherche"]'); if(b) b.click();
       document.getElementById("caPause").value=pre.pause;
       if(caPosteDe(pre.poste)) document.getElementById("caPoste").value=pre.poste;
       document.getElementById("caDu").value=pre.an+"-"+pad2(pre.mois)+"-"+pad2(pre.jour);
       caCalculer();
     }
-    var f=document.getElementById("caFermer"); if(f) f.focus();
   });
 }
-window.addEventListener("popstate",function(){ if(rechercheOuverte()) cacherRecherche(); });
-document.getElementById("caOuvrir").addEventListener("click",function(){ ouvrirRecherche(null); });
-document.getElementById("caFermer").addEventListener("click",fermerRecherche);
-document.querySelector("#caSheet .cs-fond").addEventListener("click",fermerRecherche);
-document.addEventListener("keydown",function(e){
-  if(e.key==="Escape" && rechercheOuverte() && !document.querySelector(".cfm-ov")){ e.preventDefault(); fermerRecherche(); }
-});
 document.querySelector(".rhsauts").addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("[data-saut]"):null; if(!b) return;
   var el=document.getElementById(b.getAttribute("data-saut")); if(!el) return;

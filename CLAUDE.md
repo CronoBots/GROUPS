@@ -18,6 +18,9 @@ branche, aucune pull request sauf demande. Les deux anciennes branches
 `claude/…` sont identiques à `main` ou déjà contenues dedans ; le serveur
 refuse de les supprimer depuis une session (comme les étiquettes), elles
 se suppriment à la main sur GitHub.
+**Pas de maquette.** Le client, le 10/10/2026 : « il ne faut pas de
+maquette ; toujours poussé sur main, et on optimisera au fur et à mesure ».
+On code dans l'application et on pousse.
 **Langue.** Le client, le 29/09/2026 : « réponds-moi toujours en
 français ». Toutes les réponses au client sont en français, comme
 l'interface, les commentaires de code et les messages de commit.
@@ -3656,6 +3659,48 @@ Vérificateur identique à l'octet (aucune lecture touchée) ; éprouvé à 320
 (hors ligne), 390 et 1280 px : ouverture, focus sur la croix, calcul,
 retour, préremplissage depuis le sous-effectif du 10/10 (AM · STEP · Éq. 3,
 « Rappel - Repos » PDF), Échap, clic vers le Planning, rien ne déborde.
+
+### Un onglet pour la recherche, et les réglages dans le héros
+
+Le client, le 10/10/2026 : « je pensais à un onglet recherche à part ; que
+penses-tu de placer les réglages dans le héros de l'accueil ? », puis, sur
+le héros, « il doit contenir le logo et le trigramme doit être à côté ; il
+faut des infos intéressantes, pas nécessairement les jours de congés
+restants ». **Et sur la méthode : « il ne faut pas de maquette ; toujours
+poussé sur main, et on optimisera au fur et à mesure ».** Une proposition
+passée par une maquette publiée a coûté un aller-retour pour rien : on code
+dans l'application, on pousse, et le client corrige sur la vraie page.
+
+- **La fenêtre de la veille devient un onglet**, `#v-recherche`, entre
+  Planning et Effectifs (vue `recherche`). Congé · Absence · Recherche, les
+  champs et le calcul n'ont pas bougé ; `#caSheet`, sa croix, son fond,
+  Échap, l'entrée d'historique et le bouton `#caOuvrir` d'Effectifs sont
+  partis. « Chercher un remplaçant » d'un sous-effectif ouvre l'onglet,
+  jour, pause et poste remplis (`ouvrirRecherche(pre)`).
+- **Réglages n'est plus un onglet** : la roue en haut à droite du héros
+  (`.pf-roue`) et le trigramme de la barre du haut (`data-go`, déjà là) y
+  mènent, et la page s'ouvre sur « ‹ Accueil » (`.regretour`). La vue
+  `reglages` reste dans `VIEWS`, de sorte que `ui/view` la retrouve.
+- **Le héros** : le logo (`logo.svg`, déjà dans `CORE`) et le trigramme en
+  grand, côte à côte, la fonction et le binôme ou l'équipe dessous ;
+  « Bonjour » et le retour (« En repos · reprise le 12 octobre ») ; les
+  puces poste et statut ; puis, au lieu des congés à placer et des
+  polyvalences, le **prochain poste** (la pause en pastille, « Demain » ou
+  le jour, ses heures, l'atelier si la cellule l'écrit) et trois chiffres :
+  le **prochain week-end libre** (samedi et dimanche sans prestation, « Ce
+  week-end » quand c'est le cas), les **nuits du mois** faites sur prévues,
+  et le **flex time** au jour de l'usine (vert, jaune au-dessus de 80 h,
+  rouge hors des bornes). `_pfInfos()` lit les journées par
+  `lireJournee()`, et `horaireDe()` pour passer en 2027. **Première
+  version fausse** : elle testait `r.h>0`, alors qu'une journée sans heure
+  écrite laisse `r.h` vide (journée entière) ; personne n'avait de prochain
+  poste et les nuits valaient 0/0. Corrigé par la règle de `compute()`.
+
+Mesuré le 10/10 sur VBN, SKS et LCI : prochain poste le lundi 12 (D 7-15,
+D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
+390 et 1280 px ; le sous-effectif du 10/10 mène à l'onglet avec STEP · AM
+calculé. Vérificateur identique à l'octet (`--polyvalence` ne bouge que
+par la date du jour, identique à `HEAD`).
 
 ### Le congé en heures
 
