@@ -9355,29 +9355,31 @@ var _dirAnneeCache=null, _dirMqCache=null;
 function dirAnnee(db){
   var y=Number(db.year);
   if(_dirAnneeCache && _dirAnneeCache.y===y) return _dirAnneeCache;
-  var ppl=db.people||[], mal=z12(), repl={}, nuitCat={}, effCat={};
+  var ppl=db.people||[], mal=z12(), rapp={}, rappMois=z12(), nuitCat={}, effCat={};
   ppl.forEach(function(p){
     var cat=p.cat||"—"; effCat[cat]=(effCat[cat]||0)+1;
-    var d=p.d||{}, mmdd, cell, m, i, t, actif;
+    var d=p.d||{}, mmdd, cell, m, i, t, estRappel;
     for(mmdd in d){ if(!d.hasOwnProperty(mmdd)) continue;
       cell=d[mmdd]; if(!cell||!cell.length) continue;
       m=Number(String(mmdd).slice(0,2))-1; if(m<0||m>11) continue;
       if(cell.indexOf("Abs")>=0) mal[m]++;
       if(cell[0]==="N") nuitCat[cat]=(nuitCat[cat]||0)+1;
-      /* la personne REMPLACE : code R ou R-CM, ou « remplace » en commentaire
-         — mais pas « remplacé par », qui dit l'inverse (elle est absente). */
-      actif=(cell.indexOf("R")>=0)||(cell.indexOf("R-CM")>=0);
+      /* UN RAPPEL : le commentaire porte « rappel ». Les remplacements et les
+         R-CM, eux, sont surtout des rotations d'équipe (le client, le
+         10/10/2026) — ce qui se remarque, c'est d'être rappelé sur un repos,
+         pas de tourner dans l'équipe. */
+      estRappel=false;
       for(i=1;i<cell.length;i++){ t=cell[i];
-        if(typeof t==="string" && /\bremplace\b/i.test(t) && !/rempla[cç]\w*\s+par/i.test(t)) actif=true; }
-      if(actif) repl[p.id]=(repl[p.id]||0)+1;
+        if(typeof t==="string" && /rappe[lk]/i.test(t)) estRappel=true; }
+      if(estRappel){ rapp[p.id]=(rapp[p.id]||0)+1; rappMois[m]++; }
     }
   });
-  var replArr=Object.keys(repl).map(function(k){ return {tri:k, n:repl[k]}; })
+  var rappArr=Object.keys(rapp).map(function(k){ return {tri:k, n:rapp[k]}; })
     .sort(function(a,b){ return b.n-a.n; });
   var nuitArr=Object.keys(nuitCat).map(function(k){
     return {cat:k, tot:nuitCat[k], n:effCat[k]||1, moy:nuitCat[k]/(effCat[k]||1)}; })
     .sort(function(a,b){ return b.moy-a.moy; });
-  _dirAnneeCache={y:y, mal:mal, repl:replArr, nuit:nuitArr}; return _dirAnneeCache;
+  _dirAnneeCache={y:y, mal:mal, rapp:rappArr, rappMois:rappMois, nuit:nuitArr}; return _dirAnneeCache;
 }
 /* Pauses en sous-effectif, mois par mois, sur les journées ÉCOULÉES. Même
    lecture que les sous-effectifs à venir (equipeDuJour + postesDePause), mais
@@ -9424,20 +9426,24 @@ function dirMqBars(mois){
 }
 function dirAnneeHTML(a){
   var malTot=a.mal.reduce(function(x,y){ return x+y; },0);
-  var replTop=a.repl.slice(0,8), replMx=replTop.length?replTop[0].n:1;
+  var rappTop=a.rapp.slice(0,8), rappMx=rappTop.length?rappTop[0].n:1;
+  var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"En formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   return ''
    +'<div class="dir-sec">Sur l\'année · maladie par mois</div>'
    +dirBarsMois(a.mal,'linear-gradient(180deg,#FF8A7A,#C65A4E)',a.y)
    +'<p class="dir-note">'+malTot+' jour'+(malTot>1?"s":"")+' de maladie sur l\'année (code « Abs » de l\'horaire).</p>'
-   +'<div class="dir-sec">Les « pompiers » du remplacement</div>'
-   +'<div class="dir-rank">'+replTop.map(function(o){
+   +'<div class="dir-sec">Rappels par mois</div>'
+   +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
+   +'<p class="dir-note">'+rappTot+' jour'+(rappTot>1?"s":"")+' avec rappel sur l\'année (« rappel » noté dans l\'horaire). Les remplacements et R-CM, eux, sont des rotations d\'équipe, pas des rappels.</p>'
+   +'<div class="dir-sec">Les plus rappelés</div>'
+   +'<div class="dir-rank">'+rappTop.map(function(o){
        return '<div class="dir-rk"><em>'+esc(o.tri)+'</em>'
-         +'<i style="width:'+Math.max(4,Math.round(o.n/replMx*100))+'%;background:linear-gradient(90deg,#6FD6F2,#3A8FD8)"></i>'
+         +'<i style="width:'+Math.max(4,Math.round(o.n/rappMx*100))+'%;background:linear-gradient(90deg,#6FD6F2,#3A8FD8)"></i>'
          +'<b>'+o.n+' <small>j</small></b></div>';
      }).join("")+'</div>'
-   +'<p class="dir-note">Jours où la personne remplace (R, R-CM ou « remplace » noté). '+a.repl.length+' personnes concernées sur l\'année.</p>'
+   +'<p class="dir-note">'+a.rapp.length+' personnes rappelées au moins une fois sur l\'année.</p>'
    +'<div class="dir-sec">Pauses en sous-effectif par mois · écoulé</div>'
    +'<div id="dirMqBars"><div class="dir-anb dir-anb-wait">…</div></div>'
    +'<p class="dir-note">Compté comme les sous-effectifs à venir, mais sur les journées déjà passées.</p>'
