@@ -3710,6 +3710,32 @@ tiret pour un repos. Le prochain poste dit « dans n j » et ouvre le
 Planning de ce jour-là. Le week-end libre se tait pour qui est malade
 aujourd'hui (YBT, absent jusqu'au 22/11, l'affichait).
 
+**Et encore le même jour**, capture de l'iPhone à l'appui : « l'onglet
+salaire n'est pas bien par rapport aux autres (vérifie toi) ; le héros
+peut mieux faire ; ça doit faire 100 % pro et pas d'info redondante ».
+
+- **Héros** : plus de « Bonjour », de ligne d'état ni de puces. Sous le
+  trigramme, deux lignes : fonction · binôme ou équipe, puis poste
+  attitré (en jaune s'il est en formation) · statut. Le bloc du prochain
+  poste dit « Reprise » quand on n'est pas au travail aujourd'hui, ce qui
+  remplace « En repos · reprise le 12 octobre » (le même jour écrit deux
+  fois) ; `_pfEtat()` est retiré. Les nuits du mois partent (la semaine
+  et le cadre du mois les montrent), le week-end libre ne s'écrit que
+  s'il tombe au-delà des sept jours, et « Flex time » devient « Solde
+  flex time » : le cadre du mois, juste dessous, donnait déjà un « Flex
+  time » qui est celui du MOIS. Seul dans le pied, il tient sur une ligne.
+- **Salaire**, mesuré à côté des autres onglets : le net perd son fond
+  cyan et se centre, en chiffres mono, comme les chiffres de l'Accueil ;
+  « Net estimé » sans le mois, déjà dans la barre ; les tuiles ne gardent
+  que l'argent (primes d'équipe, suppléments week-end, primes de rappel,
+  chèques-repas) — heures, jours et brut étaient déjà à l'Accueil ou en
+  tête de la cascade ; « Le mois en un coup d'œil » part (c'était le
+  calendrier de l'Accueil) ; la ligne « Net à recevoir » sous la fiche
+  simulée ne sert plus qu'à l'impression ; les cadres prennent le filet
+  sous l'en-tête des cadres de l'Accueil. **Piège évité** : masquer
+  `#v-salaire .final` aurait aussi masqué la dernière ligne de la
+  cascade (`.fall .row.final`) ; la règle vise `.card>.final`.
+
 Mesuré le 10/10 sur VBN, SKS et LCI : prochain poste le lundi 12 (D 7-15,
 D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
 390 et 1280 px ; le sous-effectif du 10/10 mène à l'onglet avec STEP · AM

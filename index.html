@@ -914,7 +914,21 @@ button{cursor:pointer}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
 #v-horaire .card>header{border-bottom:1px solid var(--cadre)}
-#salCard .hero{border-bottom:1px solid var(--cadre)}
+#salCard .hero{border-bottom:1px solid var(--cadre); background:none; flex-direction:column; align-items:center;
+  text-align:center; gap:10px; padding:18px 16px 16px}
+#salCard .hero .lbl{font-size:10.5px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
+#salCard .hero .big{color:var(--ink); font-family:"IBM Plex Mono",monospace; font-weight:650; font-size:clamp(32px,9vw,44px)}
+#salCard .hero .side{margin-left:0; align-items:center}
+#v-salaire .card{overflow:hidden}
+#v-salaire .card>header{border-bottom:1px solid var(--cadre)}
+/* Le net s'écrit en tête de l'onglet et au bas de la cascade : la ligne
+   sous la fiche simulée le répétait une troisième fois (le client, le
+   10/10/2026 : « pas d'info redondante »). Elle ne sert plus qu'à
+   l'impression. */
+#v-salaire .card>.final{display:none}
+@media print{ #v-salaire .card>.final{display:flex} }
+.pf-kpis>.pf-kpi:only-child{flex-direction:row; align-items:baseline; justify-content:space-between; padding:11px 16px}
+.pf-kpis>.pf-kpi:only-child span{order:-1}
 #salCard .tiles{display:flex; flex-wrap:wrap; gap:1px; background:var(--cadre);
   border-bottom:1px solid var(--cadre)}
 #salCard .tile{flex:1 1 96px; min-width:96px; background:var(--surface2);
@@ -2987,9 +3001,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-roue{position:absolute; z-index:1; top:12px; right:12px; width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#fff; cursor:pointer}
 .pf-roue:hover,.pf-roue:focus-visible{background:rgba(255,255,255,.16)}
-.pf-ligne{position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; padding:10px 16px 0}
-.pf-salut{font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.62)}
-.pf-ligne .pf-etat{margin-top:0}
 .pf-proch{position:relative; display:flex; align-items:center; gap:12px; margin:12px 12px 0; padding:10px 12px; border-radius:12px;
   background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.32)}
 .pf-pause{flex:0 0 auto; min-width:42px; height:34px; padding:0 8px; box-sizing:border-box; border-radius:9px; display:grid; place-items:center;
@@ -3022,19 +3033,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-jr i.ab{background:var(--surface3); color:var(--ink2); font-size:8.5px}
 @media (max-width:380px){ .pf-sem{gap:3px; padding:10px 10px 0} .pf-jr i{min-width:0; width:calc(100% - 6px); font-size:9px} .pf-jr i.ab{font-size:7.5px} }
 .pf-kpis{margin-top:12px}
+.pf-bas{height:12px}
+.pf-role2{font-size:12px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-role2.fo{color:var(--at-jaune)}
+.pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
 .pf-kpi.bon b{color:var(--good)}
-.pf-chips{position:relative; display:flex; flex-wrap:wrap; gap:5px; padding:8px 16px 0}
-.pf-chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:600;
-  color:rgba(255,255,255,.86); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); white-space:nowrap}
-.pf-chip i{width:7px; height:7px; border-radius:2px; background:rgba(255,255,255,.5)}
-.pf-chip[data-z="jaune"] i{background:var(--bordj)} .pf-chip[data-z="vert"] i{background:var(--bordv)}
-.pf-chip[data-z="rouge"] i{background:var(--bordr)} .pf-chip[data-z="bleu"] i{background:var(--bordb)}
-.pf-chip[data-z="gris"] i{background:var(--bordg)}
-.pf-chip.interim{color:var(--at-jaune); border-color:rgba(255,200,80,.35)}
-.pf-etat{display:inline-flex; align-items:center; gap:6px; margin-top:7px; font-size:12.5px; font-weight:650; color:#9be3f5}
-.pf-etat[hidden]{display:none}
-.pf-etat::before{content:""; width:7px; height:7px; border-radius:50%; background:#5ec8e8; box-shadow:0 0 0 3px rgba(94,200,232,.22)}
 .pf-kpis{position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(255,255,255,.1)}
 .pf-kpi{display:flex; flex-direction:column; gap:3px; padding:11px 14px 13px; min-width:0}
 .pf-kpi+.pf-kpi{border-left:1px solid rgba(255,255,255,.1)}
@@ -3799,15 +3803,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="fall" id="fall"></div>
     </div>
 
-    <div class="two">
-      <div class="card">
-        <header>
-          <h2>Le mois en un coup d'œil</h2>
-          <div class="right"><button type="button" class="btn sm" data-go="horaire">Ouvrir l'horaire</button></div>
-        </header>
-        <div class="cal" id="cal"></div>
-      </div>
-
+    <!-- « Le mois en un coup d'œil » est parti le 10/10/2026 (le client :
+         « pas d'info redondante ») : c'était le calendrier de l'Accueil. -->
       <div class="card">
         <details class="fold" id="foldSteps" data-memo>
         <summary>Vérifier sa fiche en quatre temps <span class="sub">le mode d'emploi</span></summary>
@@ -3819,7 +3816,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         </ol>
         </details>
       </div>
-    </div>
 
 
     <div class="card">
@@ -5618,7 +5614,7 @@ function renderResume(C){
      chiffre : une estimation tant que la fiche n'a rien confirmé. */
   var confirme=(chkState.ok>=CHK.length && !chkState.ko);
   document.getElementById("heroLbl").textContent=
-    (confirme?"Net à recevoir — ":"Net estimé — ")+MOIS[st.m].toLowerCase()+" "+st.y;
+    (confirme?"Net à recevoir":"Net estimé");
   document.getElementById("heroNet").textContent=eur(C.net);
 
   var etat=chkState.ko?'<span class="pill ko">'+chkState.ko+" écart"+(chkState.ko>1?"s":"")+" avec la fiche</span>"
@@ -5645,15 +5641,14 @@ function renderResume(C){
      horaire n'en est pas un : c'est un réglage, avec quatre décimales, qui
      prenait la place d'un résultat. Il descend en note, là où il sert —
      à comprendre d'où sortent les suppléments. */
-  var ft=R(C.acc.ftPlus-C.acc.ftMoins);
+  /* L'ARGENT seulement (le client, le 10/10/2026 : « pas d'info
+     redondante ») : heures, jours et flex time du mois sont dans le cadre
+     du mois de l'Accueil. */
   var tiles=[
-    [num(C.acc.hTot)+" h","Heures prestées"],
-    [String(C.acc.jours),"Jours de présence"],
     [eur(eq),"Primes d'équipe"],
-    [eur(we),"Suppléments week-end"],
-    [String(C.crNb),"Chèques-repas"],
-    rap?[eur(rap),"Primes de rappel"]
-       :[(ft>0?"+":"")+num(ft)+" h","Flex time du mois"]
+    [eur(we),"Suppl. week-end"],
+    [eur(rap||0),"Primes de rappel"],
+    [String(C.crNb),"Chèques-repas"]
   ];
   document.getElementById("tiles").innerHTML=tiles.map(function(t){
     return '<div class="tile"><div class="v">'+t[0]+'</div><div class="k">'+t[1]+"</div></div>";
@@ -5686,7 +5681,8 @@ function renderResume(C){
   });
   document.getElementById("fall").innerHTML=h;
 
-  /* calendrier du mois */
+  /* calendrier du mois — plus affiché depuis le 10/10/2026 */
+  if(!document.getElementById("cal")) return;
   var first=(new Date(Date.UTC(st.y,st.m,1)).getUTCDay()+6)%7, cells="";
   for(var i=0;i<first;i++) cells+='<button type="button" class="empty" tabindex="-1" aria-hidden="true"></button>';
   for(var dd=1; dd<=nd; dd++){
@@ -6473,7 +6469,7 @@ document.getElementById("whyAll").addEventListener("click",function(){
 document.getElementById("btnPrint").addEventListener("click",function(){ window.print(); });
 
 /* ===================== calendrier du résumé ===================== */
-document.getElementById("cal").addEventListener("click",function(e){
+if(document.getElementById("cal")) document.getElementById("cal").addEventListener("click",function(e){
   var b=e.target.closest("button[data-d]"); if(!b) return;
   setView("horaire");
   var row=document.querySelector('.day[data-d="'+b.dataset.d+'"]');
@@ -8584,6 +8580,7 @@ function _pfInfos(p){
   /* le prochain week-end libre : samedi et dimanche sans prestation — pas
      pour qui est malade aujourd'hui, à qui il ne dirait rien */
   var auj=_pfJour(p.id,base);
+  out.auj=auj;
   for(k=0;k<75 && !(auj && auj.ab==="MAL");k++){
     d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
     if(d.getDay()!==6 && !(k===0 && d.getDay()===0)) continue;
@@ -8613,26 +8610,30 @@ function _pfHead(db,p){
   var tri=idLisible(p.id);
   var cadre=(typeof estCadre==="function")&&estCadre(p);
   var role = cadre ? ((typeof fonctionPersonne==="function"?fonctionPersonne(p):"")||"Cadre") : "Opérateur";
-  var hr=new Date().getHours(), salut=(hr>=18||hr<5)?"Bonsoir":"Bonjour";
   var bn=_pfBinome(p), eq=(typeof equipeShift==="function")?equipeShift(p):"";
   var ou=bn||((eq&&eq!=="—")?eq:"");
-  var ch=[];
+  /* Deux lignes sous le trigramme, et rien de plus : la fonction et où l'on
+     est rangé ; puis le poste attitré d'un opérateur (ou celui qu'il
+     apprend) et le statut. Les puces et le « Bonjour » sont partis : une
+     seule chose par ligne, rien qui se répète plus bas. */
+  var l2=[], fo=false;
   if(!cadre){
-    /* Le poste TENU, ou à défaut celui qu'on apprend — dit comme tel. */
     var kt=(typeof posteAttitre==="function")?posteAttitre(p):null, kf=null;
     if(!kt && typeof posteDeFormation==="function") kf=posteDeFormation(p);
     var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(kt||kf)) P0=P; });
-    if(P0) ch.push('<span class="pf-chip'+(kf?' interim':'')+'" data-z="'+esc(P0.z||"")+'"><i></i>'
-      +(kf?'En formation · ':'')+esc(P0.t)+'</span>');
+    if(P0){ l2.push(P0.t+(kf?" · en formation":"")); fo=!!kf; }
   }
-  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p);
-    if(st2) ch.push('<span class="pf-chip'+(/int[ée]rim/i.test(st2)?' interim':'')+'">'+esc(st2)+'</span>'); }
+  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p); if(st2) l2.push(st2); }
   var inf=_pfInfos(p), h='';
+  /* UN SEUL BLOC POUR LA SUITE : « Prochain poste » un jour travaillé ;
+     « Reprise » quand on est en repos, en congé ou malade aujourd'hui —
+     c'est le même jour, inutile de l'écrire deux fois. */
   if(inf.prochain){
     var pr=inf.prochain, quand=pr.k===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
+    var aujT=inf.auj&&inf.auj.presente, lab=aujT?"Prochain poste":"Reprise";
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
-      +'<span class="pf-proch-t"><small>Prochain poste'+(pr.k>1?' · dans '+pr.k+'\u00a0j':'')+'</small><b>'+esc(quand)+'</b>'
+      +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' j':'')+'</small><b>'+esc(quand)+'</b>'
       +'<span>'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span></span>'
       +'<span class="pf-fl" aria-hidden="true">›</span></button>';
   }
@@ -8642,9 +8643,12 @@ function _pfHead(db,p){
         +'<b>'+o.d.getDate()+'</b><i'+(o.p?' data-p="'+esc(o.c)+'"':(o.c&&o.c!=="–"?' class="ab"':''))+'>'+esc(o.c||"·")+'</i></span>';
     }).join("")+'</div>';
   }
+  /* Le pied : ce que la semaine ne montre pas. Le week-end libre seulement
+     s'il tombe AU-DELÀ des sept jours, et le solde flex time au jour de
+     l'usine (le cadre du mois, plus bas, donne les heures du mois). */
   var k=[];
-  if(inf.weekend) k.push('<div class="pf-kpi"><b class="pf-txt">'+(inf.weekend.ce?'Ce week-end':esc(_pfDateCourte(inf.weekend.d)))+'</b><span>Week-end libre</span></div>');
-  k.push('<div class="pf-kpi"><b>'+inf.nuits.f+'<i>/ '+inf.nuits.t+'</i></b><span>Nuits en '+esc(inf.nuits.mois)+'</span></div>');
+  if(inf.weekend && (inf.weekend.d-new Date(jourUsine()))/864e5>=6)
+    k.push('<div class="pf-kpi"><b class="pf-txt">'+esc(_pfDateCourte(inf.weekend.d))+'</b><span>Prochain week-end libre</span></div>');
   var c=p.c||{};
   if(db && c.flex && typeof compteursCalcules==="function"){
     var annee=Number(db.year), ju=jourUsine();
@@ -8652,48 +8656,22 @@ function _pfHead(db,p){
       var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
           calc=compteursCalcules(p,annee,jq),
           sj=R((Number(c.flex.report)||0)+calc.ftPlusJ-calc.ftMoinsJ,2);
-      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':' bon')+'"><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b><span>Flex time</span></div>');
+      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':' bon')+'"><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b><span>Solde flex time</span></div>');
     }
   }
   return '<div class="pf-hero">'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.7 4.7l1.6 1.6M17.7 17.7l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.7 19.3l1.6-1.6M17.7 6.3l1.6-1.6"/></svg></button>'
     +'<div class="pf-head"><img class="pf-logo" src="logo.svg" alt="Biowanze" width="57" height="44"><span class="pf-sep" aria-hidden="true"></span>'
-    +'<div class="pf-hmeta"><b class="pf-tri">'+esc(tri)+'</b><span class="pf-role">'+esc(role+(ou?" · "+ou:""))+'</span></div></div>'
-    +'<div class="pf-ligne"><span class="pf-salut">'+salut+'</span><span class="pf-etat" id="pfEtat" hidden></span></div>'
-    +(ch.length?'<div class="pf-chips">'+ch.join("")+'</div>':'')
+    +'<div class="pf-hmeta"><b class="pf-tri">'+esc(tri)+'</b><span class="pf-role">'+esc(role+(ou?" · "+ou:""))+'</span>'
+    +(l2.length?'<span class="pf-role2'+(fo?' fo':'')+'">'+esc(l2.join(" · "))+'</span>':'')+'</div></div>'
     +h
-    +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'')+'</div>';
+    +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'<div class="pf-bas"></div>')+'</div>';
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
   eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
   setView("jour");
 });
-function _pfEtat(db,p){
-  /* LE RETOUR, quand on n'est pas au travail aujourd'hui (le client, le
-     09/10/2026, « optimise tout ») : la barre du haut dit « Congé » ou
-     « Repos », pas QUAND on revient. Même lecture que les cadres Absents et
-     Congé et repos (equipeDuJour, finAbsence) : la maladie jusqu'à son
-     dernier jour, le congé et le repos jusqu'à la reprise du travail. Rien
-     les jours travaillés : la barre du haut le dit déjà. */
-  var etat="";
-  if(db && typeof equipeDuJour==="function"){
-    var ju2=jourUsine();
-    if(ju2.getFullYear()===Number(db.year)){
-      var par=equipeDuJour(db,ju2.getFullYear(),ju2.getMonth()+1,ju2.getDate()), moi=null, gr="";
-      ["abs","cong","off"].forEach(function(g){ (par[g]||[]).forEach(function(x){ if(x.p.id===p.id){ moi=x; gr=g; } }); });
-      if(moi && !moi.prevu && moi.r){
-        var fin=moi.fin;
-        if(gr==="off") fin=finAbsence(db,p,ju2.getFullYear(),ju2.getMonth()+1,ju2.getDate(),st.params.hJour,"CONGE");
-        var rep=function(f){ if(!f) return "demain";
-          var d=new Date(Date.UTC(f[0],f[1]-1,f[2]+1)); return "le "+d.getUTCDate()+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase(); };
-        etat=gr==="abs"?(fin?"Absent jusqu'au "+fin[2]+"\u00a0"+MOIS[fin[1]-1].toLowerCase():"Absent jusqu'à aujourd'hui")
-          :((gr==="cong"&&moi.r&&moi.r.a?"En congé · ":"En repos · ")+"reprise "+rep(fin));
-      }
-    }
-  }
-  return etat;
-}
 /* ===================== ce qui a changé dans MON horaire =====================
    Le client, le 09/10/2026 : « des notifications pour l'opérateur connecté, en
    cas de changement d'horaire, de poste ; il faut que cela soit professionnel »,
@@ -8887,11 +8865,7 @@ function renderRythme(){
   if(tete) tete.innerHTML=_pfHead(db,person);
   /* Le retour se calcule APRÈS le premier affichage : il rejoue la journée
      de toute l'usine (equipeDuJour), et le héros n'a pas à l'attendre. */
-  setTimeout(function(){
-    var e=document.getElementById("pfEtat"); if(!e) return;
-    var t=_pfEtat(db,person); e.textContent=t; e.hidden=!t;
-    renderNotif(db,person);
-  },30);
+  setTimeout(function(){ renderNotif(db,person); },30);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
