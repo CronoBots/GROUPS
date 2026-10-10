@@ -1977,8 +1977,8 @@ body.sheet-on{overflow:hidden}
 .dir-anj.cur u{outline:1.5px solid rgba(111,214,242,.55); outline-offset:1px}
 .dir-anb-wait{align-items:center; justify-content:center; color:#9AA5BC; font-size:20px}
 .dir-rank{display:flex; flex-direction:column; gap:7px; margin-top:2px}
-.dir-rk{display:grid; grid-template-columns:76px 1fr auto; align-items:center; gap:10px}
-.dir-rk em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:#C9D1E0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dir-rk{display:grid; grid-template-columns:96px 1fr auto; align-items:center; gap:9px}
+.dir-rk em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:#C9D1E0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .dir-rk i{display:block; height:12px; border-radius:99px; min-width:4px}
 .dir-rk b{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap}
 .dir-rk b small{color:#9AA5BC; font-weight:500; font-size:11px}
@@ -2006,6 +2006,12 @@ body.sheet-on{overflow:hidden}
 .dir-sb span{font-size:10px; color:#8B96AD}
 .dir-sub-e{font-size:11px; color:#7E8AA3}
 .dir-sub2{padding:3px 2px 9px 76px}
+.dir-tgl{display:flex; gap:6px; margin:2px 0 12px}
+.dir-tg{font:inherit; font-size:11.5px; font-weight:600; padding:6px 12px; border-radius:99px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:#9AA5BC; cursor:pointer}
+.dir-tg.on{background:rgba(255,138,122,.14); border-color:rgba(255,138,122,.45); color:#FF8A7A}
+.dir-subh{font-size:11px; color:#9AA5BC; font-weight:600; margin:12px 2px 6px}
+.dir-sb.lg b{color:#E0A24A}
+.dir-sb.lg span{color:#C98A5A}
 .dir-det{margin-top:8px}
 .dir-det>summary{cursor:pointer; font-size:12px; color:#6FD6F2; font-weight:600; list-style:none; padding:6px 0}
 .dir-det>summary::-webkit-details-marker{display:none}
@@ -9444,17 +9450,28 @@ function dirMqEcoules(db){
 function dirAnneeRender(db){
   var host=document.getElementById("dirAnnee"); if(!host) return;
   host.innerHTML=dirAnneeHTML(dirAnnee(db));
+  if(!host.__longBound){ host.__longBound=true;
+    host.addEventListener("click", function(e){
+      var t=e.target, bt=null;
+      while(t && t!==host){ if(t.getAttribute && t.getAttribute("data-longtg")!=null){ bt=t; break; } t=t.parentNode; }
+      if(bt) dirSetLongue(bt.getAttribute("data-longtg")==="1");
+    });
+  }
+  var fill=function(id,html){ var el=document.getElementById(id); if(el){ try{ el.innerHTML=html; }catch(e){} } };
+  setTimeout(function(){
+    var rh=null; try{ rh=dirRH(db); }catch(e){}
+    if(rh){ fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirConges",dirCongesHTML(rh)); fill("dirFerWe",dirFerWeHTML(rh)); fill("dirHsFt",dirHsFtHTML(rh)); fill("dirInterSec",dirInterSecHTML(rh)); fill("dirStatut",dirStatutHTML(rh)); }
+  },30);
   setTimeout(function(){
     try{ caInit(db); }catch(e){}
-    var rh=null; try{ rh=dirRH(db); }catch(e){}
-    if(rh){ var fill=function(id,html){ var el=document.getElementById(id); if(el){ try{ el.innerHTML=html; }catch(e){} } };
-      fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirConges",dirCongesHTML(rh)); fill("dirFerWe",dirFerWeHTML(rh)); fill("dirHsFt",dirHsFtHTML(rh)); fill("dirInterSec",dirInterSecHTML(rh)); fill("dirStatut",dirStatutHTML(rh)); }
     var mois=null; try{ mois=dirMqEcoules(db); }catch(e){}
     var b1=document.getElementById("dirMqBars"); if(b1&&mois) b1.innerHTML=dirMqBars(mois);
+  },70);
+  setTimeout(function(){
+    try{ caInit(db); }catch(e){}
     var cov=null; try{ cov=dirCouverture(db); }catch(e){}
-    var b2=document.getElementById("dirRecyc"); if(b2&&cov) b2.innerHTML=dirRecycHTML(cov);
-    var b3=document.getElementById("dirCouv"); if(b3&&cov) b3.innerHTML=dirCouvHTML(cov);
-  },30);
+    if(cov){ fill("dirRecyc",dirRecycHTML(cov)); fill("dirCouv",dirCouvHTML(cov)); }
+  },110);
 }
 function dirMalEstMal(c){ var X=(typeof ABSMAP!=="undefined")&&ABSMAP[c]; return !!X && (X.k==="ABS"||X.k==="SMG"); }
 function dirMalTeam(p){
@@ -9477,22 +9494,23 @@ function dirMalTeam(p){
    et de lire les trigrammes avec leur taux. Classification reprise de
    statsRythme (presté/absence/repos) pour rester cohérent. */
 var _dirRHcache=null;
+/* Au-delà de cette durée (jours de cycle d'affilée en maladie), on parle de
+   longue maladie : la bascule « Hors longues maladies » les retire alors des
+   taux d'absentéisme pour laisser voir l'absentéisme courant. */
+var SEUIL_LONGUE=20, _dirHorsLongue=false;
 function dirRH(db){
   var y=Number(db.year);
   if(_dirRHcache && _dirRHcache.y===y) return _dirRHcache;
   var F=(typeof feries==="function")?feries(y):{}, hJ=(typeof st!=="undefined"&&st.params&&st.params.hJour)||8;
-  var T={}, S={}, malMois=z12(), total=0, schedTot=0;
-  function tg(tm){ if(!T[tm]) T[tm]={head:0,interim:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},malPoste:{},ops:[]}; return T[tm]; }
+  var T={}, S={}, allOps=[], total=0, schedTot=0;
+  function tg(tm){ if(!T[tm]) T[tm]={head:0,interim:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},restant:{VA:0,RTT:0,RJF:0},malPoste:{},ops:[]}; return T[tm]; }
   function sg(s){ if(!S[s]) S[s]={head:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},ops:[]}; return S[s]; }
   (db.people||[]).forEach(function(p){
     var primary=dirMalTeam(p), inter=(typeof estInterim==="function" && estInterim(p));
     var statut=(typeof statutAffiche==="function")?(statutAffiche(p)||"—"):"—";
-    /* Un intérimaire compte dans SON équipe (primary) ET dans la catégorie
-       « Intérimaires » — double lecture voulue par le client. Les agrégats par
-       poste l'excluent pour ne pas le compter deux fois (voir dirAbsPosteHTML). */
     var targets=[primary]; if(inter && primary!=="Intérimaires") targets.push("Intérimaires");
     var post=null; try{ post=posteAttitre(p); }catch(e){} if(post && typeof post!=="string") post=null;
-    var P={mal:0,sched:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},malPoste:{}};
+    var P={mal:0,sched:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{}}, malMois=z12(), run=0, maxRun=0;
     for(var m=0;m<12;m++){
       var M={days:{}}; try{ remplirMois(db,p,y,m,M); }catch(e){ continue; }
       var nd=daysInMonth(y,m);
@@ -9509,19 +9527,24 @@ function dirRH(db){
           if(pv==="N") P.nuit++;
           if(dow===0||dow===6) P.we++;
           if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) P.fer++;
+          run=0;
         } else if(rec.a && dirMalEstMal(rec.a)){
-          P.mal++; malMois[m]++; total++;
-          if(post) P.malPoste[post]=(P.malPoste[post]||0)+1;
-        }
+          P.mal++; malMois[m]++; run++; if(run>maxRun) maxRun=run;
+        } else { run=0; }
       }
     }
+    total+=P.mal;
     var tri=(typeof idLisible==="function"?idLisible(p.id):p.id)||p.id;
-    var opRec={tri:tri, mal:P.mal, sched:P.sched, taux:P.sched?P.mal/P.sched*100:0, post:post};
+    var opRec={tri:tri, mal:P.mal, sched:P.sched, taux:P.sched?P.mal/P.sched*100:0, post:post,
+               longue:(maxRun>=SEUIL_LONGUE), maxRun:maxRun, malMois:malMois};
+    allOps.push(opRec);
+    var cR=(p.c&&p.c.restant)||{};
     targets.forEach(function(tm){
       var o=tg(tm); o.head++; if(inter) o.interim++;
       o.mal+=P.mal; o.sched+=P.sched; o.nuit+=P.nuit; o.we+=P.we; o.fer+=P.fer; o.hs+=P.hs; o.ft+=P.ft;
+      o.restant.VA+=(cR.VA||0); o.restant.RTT+=(cR.RTT||0); o.restant.RJF+=(cR.RJF||0);
       Object.keys(P.conges).forEach(function(k){ o.conges[k]=(o.conges[k]||0)+P.conges[k]; });
-      Object.keys(P.malPoste).forEach(function(k){ o.malPoste[k]=(o.malPoste[k]||0)+P.malPoste[k]; });
+      opRec.post && (o.malPoste[opRec.post]=(o.malPoste[opRec.post]||0)); /* clé présente */
       o.ops.push(opRec);
     });
     var so=sg(statut); so.head++;
@@ -9529,35 +9552,53 @@ function dirRH(db){
     Object.keys(P.conges).forEach(function(k){ so.conges[k]=(so.conges[k]||0)+P.conges[k]; });
     so.ops.push(opRec);
   });
-  _dirRHcache={y:y, team:T, status:S, malMois:malMois, total:total, sched:schedTot};
+  _dirRHcache={y:y, team:T, status:S, allOps:allOps, total:total, sched:schedTot};
   return _dirRHcache;
 }
 function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Équipe "); }
 function dirTeamRank(k){ if(/Contrema/i.test(k))return 0; if(/Adjoint/i.test(k))return 1; var m=/Shift\s*(\d)/i.exec(k); if(m)return 10+Number(m[1]); if(/int[eé]rim/i.test(k))return 65; if(/formation/i.test(k))return 60; if(/STEP/i.test(k))return 70; return 90; }
 function dirTeams(T,opt){ return Object.keys(T).filter(function(k){ if(opt==="shift")return /^Shift\s*\d/i.test(k); return true; }).sort(function(a,b){ return dirTeamRank(a)-dirTeamRank(b); }); }
 function dirUn(x){ return (Math.round(x*10)/10).toString().replace(".",","); }
+/* Agrégat d'absentéisme à partir d'une liste d'opérateurs, longues maladies
+   retirées si la bascule est active. */
+function dirAbsAgg(ops){
+  var mal=0, sched=0;
+  (ops||[]).forEach(function(o){ if(_dirHorsLongue && o.longue) return; mal+=o.mal; sched+=o.sched; });
+  return {mal:mal, sched:sched, taux:sched?mal/sched*100:0};
+}
+function dirMalMoisOps(ops){ var a=z12(); (ops||[]).forEach(function(o){ if(_dirHorsLongue && o.longue) return; for(var m=0;m<12;m++) a[m]+=(o.malMois?o.malMois[m]:0); }); return a; }
+function dirLongCount(rh){ var n=0; (rh.allOps||[]).forEach(function(o){ if(o.longue) n++; }); return n; }
 function dirTblHTML(cols,rows){
-  var h='<div class="dir-tbl" style="grid-template-columns:minmax(66px,auto) repeat('+cols.length+',1fr)">';
+  var h='<div class="dir-tbl" style="grid-template-columns:minmax(72px,auto) repeat('+cols.length+',1fr)">';
   h+='<div class="th"></div>'+cols.map(function(c){ return '<div class="th">'+esc(c)+'</div>'; }).join("");
   rows.forEach(function(r){ h+='<div class="tr">'+esc(r.label)+'</div>'+r.cells.map(function(v){ return '<div class="td">'+v+'</div>'; }).join(""); });
   return h+'</div>';
 }
 function dirOpsSub(ops,withTeam){
-  var list=ops.filter(function(o){ return o.mal>0; }).sort(function(a,b){ return b.taux-a.taux; });
+  var list=(ops||[]).filter(function(o){ return o.mal>0; }).sort(function(a,b){ return b.taux-a.taux; });
   if(!list.length) return '<div class="dir-sub"><span class="dir-sub-e">Aucune maladie sur l\'année.</span></div>';
   return '<div class="dir-sub">'+list.map(function(o){
-    return '<div class="dir-sb"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j'+(withTeam&&o.team?' · '+esc(dirTeamLabel(o.team)):'')+'</span></div>';
+    return '<div class="dir-sb'+(o.longue?' lg':'')+'"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j'+(o.longue?' · longue':'')+(withTeam&&o.team?' · '+esc(dirTeamLabel(o.team)):'')+'</span></div>';
   }).join("")+'</div>';
 }
+function dirToggleHTML(rh){
+  var n=dirLongCount(rh);
+  return '<div class="dir-tgl">'
+    +'<button type="button" class="dir-tg'+(_dirHorsLongue?'':' on')+'" data-longtg="0">Toutes</button>'
+    +'<button type="button" class="dir-tg'+(_dirHorsLongue?' on':'')+'" data-longtg="1">Hors longues maladies'+(n?' ('+n+')':'')+'</button>'
+    +'</div>';
+}
 function dirMalHTML(rh){
-  var teams=dirTeams(rh.team), rows=teams.map(function(k){ var o=rh.team[k], s=o.sched||1; return {k:k, o:o, n:o.mal, taux:o.mal/s*100}; }).sort(function(a,b){ return b.taux-a.taux; });
+  var teams=dirTeams(rh.team);
+  var rows=teams.map(function(k){ var ag=dirAbsAgg(rh.team[k].ops); return {k:k, o:rh.team[k], n:ag.mal, taux:ag.taux}; }).sort(function(a,b){ return b.taux-a.taux; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.taux); },0.1);
-  var tauxG=rh.sched?(rh.total/rh.sched*100):0;
+  var g=dirAbsAgg(rh.allOps), mois=dirMalMoisOps(rh.allOps);
   return ''
+   +dirToggleHTML(rh)
    +'<div class="dir-sec">Maladie par mois</div>'
-   +dirBarsMois(rh.malMois,'linear-gradient(180deg,#FF8A7A,#C65A4E)',rh.y)
-   +'<p class="dir-note"><b>'+rh.total+'</b> jour'+(rh.total>1?"s":"")+' de maladie (jours prévus au cycle seulement — les « Abs » posés sur des repos ne comptent pas). Taux d\'absentéisme maladie : <b>'+dirUn(tauxG)+' %</b> des jours programmés.</p>'
-   +'<div class="dir-sec">Absentéisme maladie par équipe <span class="dir-hint">— dépliez pour les trigrammes</span></div>'
+   +dirBarsMois(mois,'linear-gradient(180deg,#FF8A7A,#C65A4E)',rh.y)
+   +'<p class="dir-note"><b>'+g.mal+'</b> jour'+(g.mal>1?"s":"")+' de maladie (jours prévus au cycle'+(_dirHorsLongue?', hors longues maladies':'')+'). Taux d\'absentéisme : <b>'+dirUn(g.taux)+' %</b> des jours programmés.</p>'
+   +'<div class="dir-sec">Absentéisme par équipe <span class="dir-hint">— dépliez pour les trigrammes</span></div>'
    +rows.map(function(o){
        return '<details class="dir-exp"><summary><div class="dir-rk"><em>'+esc(dirTeamLabel(o.k))+'</em>'
          +'<i style="width:'+Math.max(4,Math.round(o.taux/mx*100))+'%;background:linear-gradient(90deg,#FF8A7A,#C65A4E)"></i>'
@@ -9568,36 +9609,38 @@ function dirAbsPosteHTML(rh){
   var POSTS=["meun","glut","ferm","dist","chau","step"];
   var PT={meun:"Meunerie",glut:"Gluten",ferm:"Fermentation",dist:"Distillation",chau:"Chaudières",step:"STEP"};
   var byPost={}; POSTS.forEach(function(k){ byPost[k]=[]; });
-  dirTeams(rh.team).filter(function(k){return k!=="Intérimaires";}).forEach(function(tm){ rh.team[tm].ops.forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push({tri:o.tri,taux:o.taux,mal:o.mal,team:tm}); }); });
-  var rows=POSTS.map(function(k){ return {k:k, days:byPost[k].reduce(function(s,o){ return s+o.mal; },0), ops:byPost[k]}; }).sort(function(a,b){ return b.days-a.days; });
+  (rh.allOps||[]).forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push(o); });
+  var rows=POSTS.map(function(k){ var ag=dirAbsAgg(byPost[k]); return {k:k, days:ag.mal, ops:byPost[k]}; }).sort(function(a,b){ return b.days-a.days; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.days); },1);
   return rows.map(function(r){
     return '<details class="dir-exp"><summary><div class="dir-rk"><em>'+esc(PT[r.k])+'</em>'
       +'<i style="width:'+Math.max(4,Math.round(r.days/mx*100))+'%;background:linear-gradient(90deg,#F2B45A,#D98A2B)"></i>'
-      +'<b>'+r.days+' <small>j</small></b></div></summary>'+dirOpsSub(r.ops,true)+'</details>';
+      +'<b>'+r.days+' <small>j</small></b></div></summary>'+dirOpsSub(r.ops,false)+'</details>';
   }).join("");
 }
-function dirCongesHTML(rh){ return dirTblHTML(["VA","RTT","RHS"], dirTeams(rh.team).map(function(k){ var c=rh.team[k].conges; return {label:dirTeamLabel(k), cells:[Math.round(c.VA||0),Math.round(c.RTT||0),Math.round(c.RHS||0)]}; })); }
+function dirCongesHTML(rh){
+  var teams=dirTeams(rh.team);
+  var t1=dirTblHTML(["VA","RTT","RHS"], teams.map(function(k){ var c=rh.team[k].conges; return {label:dirTeamLabel(k), cells:[Math.round(c.VA||0),Math.round(c.RTT||0),Math.round(c.RHS||0)]}; }));
+  var t2=dirTblHTML(["VA","RTT","RJF"], teams.map(function(k){ var r=rh.team[k].restant; return {label:dirTeamLabel(k), cells:[Math.round((r.VA||0)/8),Math.round((r.RTT||0)/8),Math.round((r.RJF||0)/8)]}; }));
+  return '<div class="dir-subh">Consommés sur l\'année (jours)</div>'+t1
+    +'<div class="dir-subh">Solde restant (jours)</div>'+t2;
+}
 function dirFerWeHTML(rh){ return dirTblHTML(["Fériés","Week-ends"], dirTeams(rh.team).map(function(k){ var o=rh.team[k]; return {label:dirTeamLabel(k), cells:[o.fer||0,o.we||0]}; })); }
 function dirHsFtHTML(rh){ return dirTblHTML(["Heures sup","Flex time"], dirTeams(rh.team).map(function(k){ var o=rh.team[k], ft=Math.round(o.ft||0); return {label:dirTeamLabel(k), cells:[Math.round(o.hs||0)+' h',(ft>0?"+":"")+ft+' h']}; })); }
 function dirInterOpsHTML(ops){
   var list=(ops||[]).slice().sort(function(a,b){ return b.taux-a.taux; });
   if(!list.length) return '<p class="dir-note">Aucun intérimaire dans l\'effectif.</p>';
   return '<div class="dir-sub" style="padding-left:2px">'+list.map(function(o){
-    return '<div class="dir-sb"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j</span></div>';
+    return '<div class="dir-sb'+(o.longue?' lg':'')+'"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j'+(o.longue?' · longue':'')+'</span></div>';
   }).join("")+'</div>';
 }
-/* Section dédiée aux intérimaires : combien, dans quelles équipes, et leurs
-   chiffres. Les contremaîtres et adjoints (employés) en sont absents : ils ne
-   sont jamais intérimaires. */
 function dirInterSecHTML(rh){
   var I=rh.team["Intérimaires"];
   if(!I || !I.head) return '<p class="dir-note">Aucun intérimaire dans l\'effectif.</p>';
   var teams=dirTeams(rh.team).filter(function(k){ return k!=="Intérimaires" && k!=="Contremaîtres" && k!=="Adjoints"; });
   var rows=teams.map(function(k){ return {k:k, n:rh.team[k].interim, head:rh.team[k].head}; }).filter(function(o){ return o.n>0; }).sort(function(a,b){ return b.n-a.n; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.n); },1);
-  var taux=I.sched?(I.mal/I.sched*100):0, per=function(v){ return I.head?dirUn(v/I.head):"0"; };
-  var ftm=Math.round(I.ft||0);
+  var ag=dirAbsAgg(I.ops), per=function(v){ return I.head?dirUn(v/I.head):"0"; }, ftm=Math.round(I.ft||0);
   return ''
    +'<p class="dir-note"><b>'+I.head+'</b> intérimaire'+(I.head>1?"s":"")+' dans l\'effectif. Ils comptent aussi dans leur équipe.</p>'
    +'<div class="dir-sec">Répartition par équipe</div>'
@@ -9607,21 +9650,26 @@ function dirInterSecHTML(rh){
          +'<b>'+o.n+' <small>/'+o.head+'</small></b></div>';
      }).join("")+'</div>'
    +'<div class="dir-sec">Leurs chiffres</div>'
-   +dirTblHTML(["Absent.","Nuits/p","Fériés/p","WE/p","HS","Flex"],[{label:"Intérim", cells:[dirUn(taux)+' %', per(I.nuit), per(I.fer), per(I.we), Math.round(I.hs)+' h', (ftm>0?"+":"")+ftm+' h']}])
+   +dirTblHTML(["Absent.","Nuits/p","Fériés/p","WE/p","HS","Flex"],[{label:"Intérim", cells:[dirUn(ag.taux)+' %', per(I.nuit), per(I.fer), per(I.we), Math.round(I.hs)+' h', (ftm>0?"+":"")+ftm+' h']}])
    +'<div class="dir-sec">Les intérimaires <span class="dir-hint">— absentéisme par personne</span></div>'
    +dirInterOpsHTML(I.ops);
 }
-/* Comparatif par statut — Employé / Ouvrier / Intérimaire. Chiffres /pers, sauf
-   l'absentéisme (un taux) et les totaux HS/flex. */
 function dirStatutHTML(rh){
   var order=["Employé","Ouvrier","Intérimaire"];
   var rows=order.filter(function(s){ return rh.status[s]; }).map(function(s){
-    var o=rh.status[s], per=function(v){ return o.head?dirUn(v/o.head):"0"; }, ftm=Math.round(o.ft||0);
-    return {label:s+" ("+o.head+")", cells:[dirUn(o.sched?o.mal/o.sched*100:0)+' %', per(o.nuit), per(o.fer), per(o.we), Math.round(o.hs)+' h', (ftm>0?"+":"")+ftm+' h']};
+    var o=rh.status[s], ag=dirAbsAgg(o.ops), per=function(v){ return o.head?dirUn(v/o.head):"0"; }, ftm=Math.round(o.ft||0);
+    return {label:s+" ("+o.head+")", cells:[dirUn(ag.taux)+' %', per(o.nuit), per(o.fer), per(o.we), Math.round(o.hs)+' h', (ftm>0?"+":"")+ftm+' h']};
   });
   if(!rows.length) return '';
   return dirTblHTML(["Absent.","Nuits/p","Fériés/p","WE/p","HS","Flex"], rows);
 }
+function dirSetLongue(v){
+  _dirHorsLongue=!!v;
+  var rh=_dirRHcache; if(!rh) return;
+  var fill=function(id,html){ var el=document.getElementById(id); if(el) el.innerHTML=html; };
+  fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirStatut",dirStatutHTML(rh)); fill("dirInterSec",dirInterSecHTML(rh));
+}
+
 /* COUVERTURE DES POSTES PAR ÉQUIPE. Un opérateur « couvre » un poste s'il
    l'a attitré, ou s'il est polyvalent dessus ET recyclé à jour (ok) ou exempté
    de recyclage. Les polyvalents en retard (acquis mais pas ok) ne couvrent
