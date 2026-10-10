@@ -9448,7 +9448,7 @@ function dirAnneeRender(db){
     try{ caInit(db); }catch(e){}
     var rh=null; try{ rh=dirRH(db); }catch(e){}
     if(rh){ var fill=function(id,html){ var el=document.getElementById(id); if(el){ try{ el.innerHTML=html; }catch(e){} } };
-      fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirConges",dirCongesHTML(rh)); fill("dirFerWe",dirFerWeHTML(rh)); fill("dirHsFt",dirHsFtHTML(rh)); fill("dirInterim",dirInterimHTML(rh)); }
+      fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirConges",dirCongesHTML(rh)); fill("dirFerWe",dirFerWeHTML(rh)); fill("dirHsFt",dirHsFtHTML(rh)); fill("dirInterSec",dirInterSecHTML(rh)); fill("dirStatut",dirStatutHTML(rh)); }
     var mois=null; try{ mois=dirMqEcoules(db); }catch(e){}
     var b1=document.getElementById("dirMqBars"); if(b1&&mois) b1.innerHTML=dirMqBars(mois);
     var cov=null; try{ cov=dirCouverture(db); }catch(e){}
@@ -9460,7 +9460,6 @@ function dirMalEstMal(c){ var X=(typeof ABSMAP!=="undefined")&&ABSMAP[c]; return
 function dirMalTeam(p){
   if(typeof estContremaitre==="function" && estContremaitre(p)) return "Contremaîtres";
   if(typeof estCadre==="function" && estCadre(p)) return "Adjoints";
-  if(typeof estInterim==="function" && estInterim(p)) return "Intérimaires";
   /* Un opérateur « en formation » qui est en réalité un ancien (polyvalent,
      donc plus d'un poste) est rattaché à son équipe de shift ; les vrais
      stagiaires sont des intérimaires, déjà rangés ci-dessus. */
@@ -9482,38 +9481,55 @@ function dirRH(db){
   var y=Number(db.year);
   if(_dirRHcache && _dirRHcache.y===y) return _dirRHcache;
   var F=(typeof feries==="function")?feries(y):{}, hJ=(typeof st!=="undefined"&&st.params&&st.params.hJour)||8;
-  var T={}, malMois=z12(), total=0, schedTot=0;
-  function tg(tm){ if(!T[tm]) T[tm]={head:0,interim:0,sched:0,mal:0,we:0,fer:0,hs:0,ft:0,conges:{},malPoste:{},ops:[]}; return T[tm]; }
+  var T={}, S={}, malMois=z12(), total=0, schedTot=0;
+  function tg(tm){ if(!T[tm]) T[tm]={head:0,interim:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},malPoste:{},ops:[]}; return T[tm]; }
+  function sg(s){ if(!S[s]) S[s]={head:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},ops:[]}; return S[s]; }
   (db.people||[]).forEach(function(p){
-    var tm=dirMalTeam(p), o=tg(tm); o.head++;
-    if(typeof estInterim==="function" && estInterim(p)) o.interim++;
+    var primary=dirMalTeam(p), inter=(typeof estInterim==="function" && estInterim(p));
+    var statut=(typeof statutAffiche==="function")?(statutAffiche(p)||"—"):"—";
+    /* Un intérimaire compte dans SON équipe (primary) ET dans la catégorie
+       « Intérimaires » — double lecture voulue par le client. Les agrégats par
+       poste l'excluent pour ne pas le compter deux fois (voir dirAbsPosteHTML). */
+    var targets=[primary]; if(inter && primary!=="Intérimaires") targets.push("Intérimaires");
     var post=null; try{ post=posteAttitre(p); }catch(e){} if(post && typeof post!=="string") post=null;
-    var pMal=0, pSched=0;
+    var P={mal:0,sched:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},malPoste:{}};
     for(var m=0;m<12;m++){
       var M={days:{}}; try{ remplirMois(db,p,y,m,M); }catch(e){ continue; }
       var nd=daysInMonth(y,m);
       for(var day=1;day<=nd;day++){
         var mmdd=pad2(m+1)+pad2(day), rec=M.days[day]||{}, dow=new Date(y,m,day).getDay();
         var cj=(typeof congeJour==="function")?congeJour(p.d&&p.d[mmdd]):null;
-        if(cj && RY_CONGES.indexOf(cj.k)>=0) o.conges[cj.k]=(o.conges[cj.k]||0)+(cj.h||8)/8;
+        if(cj && RY_CONGES.indexOf(cj.k)>=0) P.conges[cj.k]=(P.conges[cj.k]||0)+(cj.h||8)/8;
         var codes=(rec.a?[rec.a]:[]).concat(rec.ax||[]), ci, X;
-        for(ci=0;ci<codes.length;ci++){ X=ABSMAP[codes[ci]]; if(X){ if(X.hs) o.hs+=X.hs; if(X.ft) o.ft+=X.ft; } }
+        for(ci=0;ci<codes.length;ci++){ X=ABSMAP[codes[ci]]; if(X){ if(X.hs) P.hs+=X.hs; if(X.ft) P.ft+=X.ft; } }
         if(!rec.s) continue;
-        o.sched++; schedTot++; pSched++;
+        P.sched++; schedTot++;
         var hh=(rec.h===undefined||rec.h===null||rec.h==="")?hJ:Number(rec.h), pv=postePeint(rec);
         if(hh>0 && (pv==="N"||pv==="AM"||pv==="PM"||pv==="D")){
-          if(dow===0||dow===6) o.we++;
-          if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) o.fer++;
+          if(pv==="N") P.nuit++;
+          if(dow===0||dow===6) P.we++;
+          if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) P.fer++;
         } else if(rec.a && dirMalEstMal(rec.a)){
-          o.mal++; malMois[m]++; total++; pMal++;
-          if(post) o.malPoste[post]=(o.malPoste[post]||0)+1;
+          P.mal++; malMois[m]++; total++;
+          if(post) P.malPoste[post]=(P.malPoste[post]||0)+1;
         }
       }
     }
     var tri=(typeof idLisible==="function"?idLisible(p.id):p.id)||p.id;
-    o.ops.push({tri:tri, mal:pMal, sched:pSched, taux:pSched?pMal/pSched*100:0, post:post});
+    var opRec={tri:tri, mal:P.mal, sched:P.sched, taux:P.sched?P.mal/P.sched*100:0, post:post};
+    targets.forEach(function(tm){
+      var o=tg(tm); o.head++; if(inter) o.interim++;
+      o.mal+=P.mal; o.sched+=P.sched; o.nuit+=P.nuit; o.we+=P.we; o.fer+=P.fer; o.hs+=P.hs; o.ft+=P.ft;
+      Object.keys(P.conges).forEach(function(k){ o.conges[k]=(o.conges[k]||0)+P.conges[k]; });
+      Object.keys(P.malPoste).forEach(function(k){ o.malPoste[k]=(o.malPoste[k]||0)+P.malPoste[k]; });
+      o.ops.push(opRec);
+    });
+    var so=sg(statut); so.head++;
+    so.mal+=P.mal; so.sched+=P.sched; so.nuit+=P.nuit; so.we+=P.we; so.fer+=P.fer; so.hs+=P.hs; so.ft+=P.ft;
+    Object.keys(P.conges).forEach(function(k){ so.conges[k]=(so.conges[k]||0)+P.conges[k]; });
+    so.ops.push(opRec);
   });
-  _dirRHcache={y:y, team:T, malMois:malMois, total:total, sched:schedTot};
+  _dirRHcache={y:y, team:T, status:S, malMois:malMois, total:total, sched:schedTot};
   return _dirRHcache;
 }
 function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Équipe "); }
@@ -9552,7 +9568,7 @@ function dirAbsPosteHTML(rh){
   var POSTS=["meun","glut","ferm","dist","chau","step"];
   var PT={meun:"Meunerie",glut:"Gluten",ferm:"Fermentation",dist:"Distillation",chau:"Chaudières",step:"STEP"};
   var byPost={}; POSTS.forEach(function(k){ byPost[k]=[]; });
-  dirTeams(rh.team).forEach(function(tm){ rh.team[tm].ops.forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push({tri:o.tri,taux:o.taux,mal:o.mal,team:tm}); }); });
+  dirTeams(rh.team).filter(function(k){return k!=="Intérimaires";}).forEach(function(tm){ rh.team[tm].ops.forEach(function(o){ if(o.post && byPost[o.post]) byPost[o.post].push({tri:o.tri,taux:o.taux,mal:o.mal,team:tm}); }); });
   var rows=POSTS.map(function(k){ return {k:k, days:byPost[k].reduce(function(s,o){ return s+o.mal; },0), ops:byPost[k]}; }).sort(function(a,b){ return b.days-a.days; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.days); },1);
   return rows.map(function(r){
@@ -9564,14 +9580,47 @@ function dirAbsPosteHTML(rh){
 function dirCongesHTML(rh){ return dirTblHTML(["VA","RTT","RHS"], dirTeams(rh.team).map(function(k){ var c=rh.team[k].conges; return {label:dirTeamLabel(k), cells:[Math.round(c.VA||0),Math.round(c.RTT||0),Math.round(c.RHS||0)]}; })); }
 function dirFerWeHTML(rh){ return dirTblHTML(["Fériés","Week-ends"], dirTeams(rh.team).map(function(k){ var o=rh.team[k]; return {label:dirTeamLabel(k), cells:[o.fer||0,o.we||0]}; })); }
 function dirHsFtHTML(rh){ return dirTblHTML(["Heures sup","Flex time"], dirTeams(rh.team).map(function(k){ var o=rh.team[k], ft=Math.round(o.ft||0); return {label:dirTeamLabel(k), cells:[Math.round(o.hs||0)+' h',(ft>0?"+":"")+ft+' h']}; })); }
-function dirInterimHTML(rh){
-  var rows=dirTeams(rh.team).filter(function(k){ return rh.team[k].head>0; }).map(function(k){ var o=rh.team[k]; return {k:k, n:o.interim, pct:o.head?o.interim/o.head*100:0, head:o.head}; }).sort(function(a,b){ return b.pct-a.pct; });
-  var mx=rows.reduce(function(m,o){ return Math.max(m,o.pct); },0.1);
-  return '<div class="dir-rank">'+rows.map(function(o){
-    return '<div class="dir-rk"><em>'+esc(dirTeamLabel(o.k))+'</em>'
-      +'<i style="width:'+Math.max(4,Math.round(o.pct/mx*100))+'%;background:linear-gradient(90deg,#9D7BF0,#6A47C8)"></i>'
-      +'<b>'+dirUn(o.pct)+' % <small>('+o.n+'/'+o.head+')</small></b></div>';
+function dirInterOpsHTML(ops){
+  var list=(ops||[]).slice().sort(function(a,b){ return b.taux-a.taux; });
+  if(!list.length) return '<p class="dir-note">Aucun intérimaire dans l\'effectif.</p>';
+  return '<div class="dir-sub" style="padding-left:2px">'+list.map(function(o){
+    return '<div class="dir-sb"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j</span></div>';
   }).join("")+'</div>';
+}
+/* Section dédiée aux intérimaires : combien, dans quelles équipes, et leurs
+   chiffres. Les contremaîtres et adjoints (employés) en sont absents : ils ne
+   sont jamais intérimaires. */
+function dirInterSecHTML(rh){
+  var I=rh.team["Intérimaires"];
+  if(!I || !I.head) return '<p class="dir-note">Aucun intérimaire dans l\'effectif.</p>';
+  var teams=dirTeams(rh.team).filter(function(k){ return k!=="Intérimaires" && k!=="Contremaîtres" && k!=="Adjoints"; });
+  var rows=teams.map(function(k){ return {k:k, n:rh.team[k].interim, head:rh.team[k].head}; }).filter(function(o){ return o.n>0; }).sort(function(a,b){ return b.n-a.n; });
+  var mx=rows.reduce(function(m,o){ return Math.max(m,o.n); },1);
+  var taux=I.sched?(I.mal/I.sched*100):0, per=function(v){ return I.head?dirUn(v/I.head):"0"; };
+  var ftm=Math.round(I.ft||0);
+  return ''
+   +'<p class="dir-note"><b>'+I.head+'</b> intérimaire'+(I.head>1?"s":"")+' dans l\'effectif. Ils comptent aussi dans leur équipe.</p>'
+   +'<div class="dir-sec">Répartition par équipe</div>'
+   +'<div class="dir-rank">'+rows.map(function(o){
+       return '<div class="dir-rk"><em>'+esc(dirTeamLabel(o.k))+'</em>'
+         +'<i style="width:'+Math.max(4,Math.round(o.n/mx*100))+'%;background:linear-gradient(90deg,#9D7BF0,#6A47C8)"></i>'
+         +'<b>'+o.n+' <small>/'+o.head+'</small></b></div>';
+     }).join("")+'</div>'
+   +'<div class="dir-sec">Leurs chiffres</div>'
+   +dirTblHTML(["Absent.","Nuits/p","Fériés/p","WE/p","HS","Flex"],[{label:"Intérim", cells:[dirUn(taux)+' %', per(I.nuit), per(I.fer), per(I.we), Math.round(I.hs)+' h', (ftm>0?"+":"")+ftm+' h']}])
+   +'<div class="dir-sec">Les intérimaires <span class="dir-hint">— absentéisme par personne</span></div>'
+   +dirInterOpsHTML(I.ops);
+}
+/* Comparatif par statut — Employé / Ouvrier / Intérimaire. Chiffres /pers, sauf
+   l'absentéisme (un taux) et les totaux HS/flex. */
+function dirStatutHTML(rh){
+  var order=["Employé","Ouvrier","Intérimaire"];
+  var rows=order.filter(function(s){ return rh.status[s]; }).map(function(s){
+    var o=rh.status[s], per=function(v){ return o.head?dirUn(v/o.head):"0"; }, ftm=Math.round(o.ft||0);
+    return {label:s+" ("+o.head+")", cells:[dirUn(o.sched?o.mal/o.sched*100:0)+' %', per(o.nuit), per(o.fer), per(o.we), Math.round(o.hs)+' h', (ftm>0?"+":"")+ftm+' h']};
+  });
+  if(!rows.length) return '';
+  return dirTblHTML(["Absent.","Nuits/p","Fériés/p","WE/p","HS","Flex"], rows);
 }
 /* COUVERTURE DES POSTES PAR ÉQUIPE. Un opérateur « couvre » un poste s'il
    l'a attitré, ou s'il est polyvalent dessus ET recyclé à jour (ok) ou exempté
@@ -9711,9 +9760,11 @@ function dirAnneeHTML(a){
    +'<div id="dirCouv">'+wait+'</div>'
    +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : à renforcer — moins de 2, ou aucun pour STEP.</p>'
 
-   +'<div class="dir-grp">Effectif</div>'
-   +'<div class="dir-sec">Part d\'intérimaires par équipe</div>'
-   +'<div id="dirInterim">'+wait+'</div>';
+   +'<div class="dir-grp">Intérimaires</div>'
+   +'<div id="dirInterSec">'+wait+'</div>'
+   +'<div class="dir-grp">Comparatif par statut</div>'
+   +'<div class="dir-sec">Employé · Ouvrier · Intérimaire <span class="dir-hint">— par personne sauf absentéisme et HS</span></div>'
+   +'<div id="dirStatut">'+wait+'</div>';
 }
 
 function majNotifReglage(){
