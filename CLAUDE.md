@@ -3909,6 +3909,18 @@ la ligne des pauses ». La barre de date n'a plus de trait ; celui de la
 ligne des pauses passe à un gris moyen (#7C8699), `--bordg` s'y lisant
 blanc. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**La ligne des équipes de l'onglet Équipes, comme celle des pauses** (le
+client, le 10/10/2026 : « ajouter une bordure aussi pour la ligne des
+équipes et la police de la ligne équipe doit être comme la ligne des
+pauses »). Dans le tableau « Les équipes » seulement (`.orgeqs`), la ligne
+d'en-tête prend le trait gris de 3 px à gauche et à droite, et « Éq. 1 »
+à « Éq. 5 » (« Équipe 1 » au bureau) s'écrivent comme AM · PM · N :
+13,5 px, graisse 650, sans capitales ; le coin « Poste » garde son
+écriture. Au passage, l'exposant d'équipe des deux GBT faisait déborder
+leur badge de sa case à 320 px : il est posé dans le coin du badge, qui
+garde la largeur des autres. Mesuré à 320 px, 390 et 1280 px : aucun badge
+hors de sa case, rien ne défile de côté.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
