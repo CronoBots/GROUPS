@@ -3771,6 +3771,54 @@ D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
 calculé. Vérificateur identique à l'octet (`--polyvalence` ne bouge que
 par la date du jour, identique à `HEAD`).
 
+### L'audit multi-agent du 10/10/2026
+
+Le client : « faut une analyse multi agent avec skill etc pour optimiser au
+max chaque onglet et toute l'app ». Sept auditeurs (un par onglet, plus un
+transversal : performance, hors ligne, accessibilité, cohérence), chacun au
+navigateur à 320, 390 et 1280 px sur VBN, LCI, YBT et SKS, puis un
+sceptique qui a tout remesuré : **72 constats bruts, 19 retenus, 19
+rejetés** (faux, déjà faits, ou contraires à une décision du client — par
+exemple les trigrammes empilés ou l'absence de légende au tableau du jour).
+
+**Premier lot, appliqué le même jour :**
+
+- **Planning à 320 px** : la date longue débordait sur la flèche « jour
+  suivant » et en volait le toucher, trois jours sur quatre. Libellé court
+  sous 380 px (« Sam. 10 oct. »), flèches à 10 px du bord, zone de toucher
+  de 44 px. Le glissement de jour écoute tout le cadre, barre de date
+  comprise (il visait `#eqCorps`, qui n'existe plus).
+- **Une fiche de journée n'est plus un bouton** (Effectifs, rappels,
+  Recherche) : toucher un trigramme ou commencer un défilement ouvrait le
+  Planning et faisait perdre la recherche. Seul l'en-tête de date y mène
+  (`mqCible()`), « Chercher un remplaçant » est un vrai bouton, et la
+  recherche d'un jour a son « Voir le planning de ce jour ».
+- **Salaire** : « Net imposable » portait le net APRÈS impôt (C.E) — il
+  s'appelle « Net après impôt » ; le mode d'emploi renvoyait aux onglets
+  disparus « Fiche » et « Contrôle ». Un contrat resté à l'exemple
+  (`valeurExemple()`) pâlit le net, l'appelle « Net d'exemple », tait la
+  comparaison au mois d'avant et monte l'alerte sous la barre du mois, avec
+  « Renseigner mon contrat ». Les tuiles passent en grille 2 × 2 (4 au
+  bureau) : la cinquième restait seule sur sa ligne.
+- **Équipes** : la période du recyclage s'écrivait dans un `#pvSub` qui
+  n'existait plus ; une ligne sous la grille dit ce que « 7/10 » compte
+  (jours relevés par l'app / recyclages des RH). L'annuaire prend
+  `statutAffiche()` comme le reste de l'onglet.
+- **Accueil** : la grille de polyvalences de « Mon rythme » (`_pfPoly`)
+  doublait l'onglet Équipes et coûtait 2,7 s au démarrage d'un téléphone
+  lent : retirée, les compteurs gardent les ateliers et « Voir mon
+  recyclage ». La courbe des congés restants (`ryCongesChart`) partait des
+  journées POSÉES et tombait à zéro par construction : retirée. Les congés
+  déjà comptés ne se redisent plus dans « Maladie et autres absences ». La
+  tuile du mois s'appelle « Flex du mois ». L'intro part dès que le héros
+  est dessiné, et la comparaison à l'équipe attend que le fil soit libre.
+
+Mesuré : l'intro part en 1,7 s (le filet de 7 s n'est plus atteint) ;
+Accueil de 3 903 à 3 509 px à 390 px ; rien ne déborde à 320 (hors ligne),
+390 et 1280 px ; vérificateur identique à l'octet. **Non fait, à faire
+valider** : binôme, cycle et décalage des Réglages déduits de la personne
+(ils touchent à la paie).
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

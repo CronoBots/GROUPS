@@ -914,6 +914,12 @@ button{cursor:pointer}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24)}
 #v-horaire .card>header{border-bottom:1px solid var(--cadre)}
+#salCard>.toolbar{order:-2}
+#salCard.exemple #alerteDefaut{order:-1; margin:12px 16px 4px}
+#salCard .vsprec{align-items:center; text-align:center}
+#salCard.exemple .hero .big{color:var(--faint)}
+#salCard.exemple .vsprec{display:none}
+#alerteDefaut .btn{margin-top:8px}
 #salCard .hero{border-bottom:1px solid var(--cadre); background:none; flex-direction:column; align-items:center;
   text-align:center; gap:10px; padding:18px 16px 16px}
 #salCard .hero .lbl{font-size:10.5px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
@@ -929,8 +935,9 @@ button{cursor:pointer}
 @media print{ #v-salaire .card>.final{display:flex} }
 .pf-kpis>.pf-kpi:only-child{flex-direction:row; align-items:baseline; justify-content:space-between; padding:11px 16px}
 .pf-kpis>.pf-kpi:only-child span{order:-1}
-#salCard .tiles{display:flex; flex-wrap:wrap; gap:1px; background:var(--cadre);
+#salCard .tiles{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--cadre);
   border-bottom:1px solid var(--cadre)}
+@media (min-width:520px){ #salCard .tiles{grid-template-columns:repeat(4,minmax(0,1fr))} }
 #salCard .tile{flex:1 1 96px; min-width:96px; background:var(--surface2);
   padding:10px 6px 9px; display:flex; flex-direction:column; align-items:center;
   gap:2px; text-align:center}
@@ -1709,7 +1716,7 @@ body.sheet-on{overflow:hidden}
    puis les postes pleine largeur. */
 #mqCorps .mqj,#rnCorps .mqj{display:block;
   width:100%; text-align:left; background:none; border:0; border-top:2px solid var(--trait-fort);
-  cursor:pointer; padding:16px 8px 14px; margin:0 -8px; width:calc(100% + 16px);
+  padding:16px 8px 14px; margin:0 -8px; width:calc(100% + 16px);
   border-radius:0; color:inherit; font:inherit}
 #mqCorps .mqj:first-child, #mqCorps .eqsem+.mqj, #rnCorps .mqj:first-child, #rnCorps .eqsem+.mqj{border-top:0}
 /* Sans barre de repli, l'intertitre de semaine touche le haut du cadre :
@@ -1721,12 +1728,14 @@ body.sheet-on{overflow:hidden}
    des sous-effectifs en --surface3 — le fond gris que seul ce cadre portait
    (le client, le 09/10/2026 : « ce fond gris qui n'est présent que là-bas,
    que je n'aime pas »). Le survol seulement, et sur un appareil qui survole. */
-@media (hover:hover){ #rnCorps .mqj:hover{background:var(--surface3)} }
+
 /* FEEDBACK TACTILE : la carte du jour est cliquable (elle ouvre le tableau du
    jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
-#mqCorps .mqj,#rnCorps .mqj,#caCorps .mqj{transition:filter .1s ease}
-#mqCorps .mqj:active,#rnCorps .mqj:active,#caCorps .mqj:active{filter:brightness(1.13)}
-@media (prefers-reduced-motion:reduce){#mqCorps .mqj,#rnCorps .mqj,#caCorps .mqj{transition:none}}
+.mqj{cursor:default}
+.mqj .mqd,.mqj .mqjt{cursor:pointer}
+.mqj .mqd b{text-decoration:underline solid var(--trait); text-decoration-thickness:1px; text-underline-offset:3px}
+.mqvoir{display:inline-flex; align-self:flex-start; margin-top:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
+  background:var(--surface2); color:var(--ink2); font:600 12.5px inherit; font-family:inherit; cursor:pointer}
 /* La date, un bloc : jour de semaine, quantième, mois. */
 .mqd{display:flex; flex-direction:column; align-items:center; line-height:1.1; padding-top:1px}
 .mqd em{font-style:normal; font-size:10px; font-weight:600; color:var(--muted);
@@ -1908,7 +1917,7 @@ body.sheet-on{overflow:hidden}
 /* « Chercher un remplaçant », au pied de chaque sous-effectif. */
 .mqcher{display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin-top:2px; padding:7px 12px; border-radius:999px;
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); color:var(--marque-vif);
-  background:color-mix(in srgb,var(--marque-vif) 10%,transparent); font-size:12.5px; font-weight:650; cursor:pointer}
+  background:color-mix(in srgb,var(--marque-vif) 10%,transparent); font-size:12.5px; font-weight:650; font-family:inherit; cursor:pointer}
 @media (hover:hover){ .mqcher:hover{background:color-mix(in srgb,var(--marque-vif) 20%,transparent)} }
 /* Les mois repliables (mqMoisTete) : l'intertitre devient un bouton de la
    largeur du cadre, avec un chevron ; le contenu d'un mois replié disparaît. */
@@ -2072,10 +2081,9 @@ body.sheet-on{overflow:hidden}
 #caCorps{padding-top:0; border-top:1px solid var(--trait)}
 #caCorps:empty{display:none}
 #caCorps .mqj{display:block;
-  background:none; border:0; border-top:2px solid var(--trait-fort); cursor:pointer; padding:16px 8px 14px;
+  background:none; border:0; border-top:2px solid var(--trait-fort); padding:16px 8px 14px;
   margin:0 -8px; width:calc(100% + 16px); border-radius:0; color:inherit; font:inherit; text-align:left}
 #caCorps .mqj:first-child, #caCorps .eqsem+.mqj{border-top:0}
-#caCorps .mqj:hover{background:var(--surface3)}
 #caCorps .eqsem{margin:0 -16px}
 .cabilan{display:flex; flex-wrap:wrap; gap:6px; padding:12px 0 10px}
 .caverd{display:inline-flex; align-items:center; gap:5px; padding:2px 8px; border-radius:6px;
@@ -2233,6 +2241,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* Les flèches rentrent d'un écart fixe depuis le bord (le client, le 03/10/2026 :
    « plus écartées du bord »), sans bouger selon la date. */
 #v-jour .jourline>button{margin:0 26px}
+#v-jour .jl-court{display:none}
+/* Zone de toucher de 44 px autour des flèches de 30 px. */
+#v-jour .jourline>button{position:relative}
+#v-jour .jourline>button::after{content:""; position:absolute; inset:-7px}
+@media (max-width:380px){
+  #v-jour .jourline>button{margin:0 10px}
+  #v-jour .jl-long{display:none} #v-jour .jl-court{display:inline}
+  #v-jour .jourline .eqjour{overflow:hidden; text-overflow:ellipsis}
+}
 /* Les flèches, maintenant dans .jourline (plus enfants directs de .eqnav),
    reprennent leur style : carré de 30 px bordé. */
 #v-jour .jourline button{width:30px; height:30px; display:grid; place-items:center;
@@ -3127,6 +3144,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
+.cpt-lien{display:inline-flex; margin-top:10px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
+  background:var(--surface2); color:var(--in); font:600 12.5px inherit; font-family:inherit; cursor:pointer}
 .ry-panel{min-width:0}
 .ry-hm-box{padding:4px 16px 2px; display:flex; flex-direction:column; gap:3px; max-width:620px}
 .ry-hm-l{display:flex; align-items:center; gap:6px}
@@ -3624,7 +3643,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span></div>
         <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span></div>
         <div class="cstat"><span class="cstat-v"><b id="tRap">0</b></span><span class="cstat-k">Rappels</span><span class="cstat-m" id="tRapM"></span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex time</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex du mois</span></div>
         <div class="cstat"><span class="cstat-v"><b id="tVelo">0</b></span><span class="cstat-k">Vélo</span></div>
       </div>
       <p class="projnote" id="calProj" hidden></p>
@@ -3756,7 +3775,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          le 05/10/2026), puis la grille des polyvalences. -->
     <div class="stack" id="eqsub-poly">
       <div class="card">
-        <div class="toolbar orgtitle"><h2>Recyclage des polyvalences</h2></div>
+        <div class="toolbar orgtitle"><h2>Recyclage des polyvalences</h2><span class="sub" id="pvSub"></span></div>
         <div class="eqgrille"><table class="pvt" id="pvTable"></table></div>
         <div id="pvFin" class="pvfinav"></div>
       </div>
@@ -3824,8 +3843,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <summary>Vérifier sa fiche en quatre temps <span class="sub">le mode d'emploi</span></summary>
         <ol class="steps">
           <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Accueil, touchez une journée du mois pour la corriger : elle ne sera plus retouchée.</span></li>
-          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils sont dans l'onglet Fiche, au-dessus du calcul.</span></li>
-          <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans Contrôle : chaque ligne se marque OK ou À vérifier.</span></li>
+          <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils se saisissent dans « Montants de ce mois », juste dessous.</span></li>
+          <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans « Contrôle de la vraie fiche », plus bas : chaque ligne se marque OK ou À vérifier.</span></li>
           <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
         </ol>
         </details>
@@ -5628,7 +5647,7 @@ function renderResume(C){
      chiffre : une estimation tant que la fiche n'a rien confirmé. */
   var confirme=(chkState.ok>=CHK.length && !chkState.ko);
   document.getElementById("heroLbl").textContent=
-    (confirme?"Net à recevoir":"Net estimé");
+    valeurExemple()?"Net d'exemple":(confirme?"Net à recevoir":"Net estimé");
   document.getElementById("heroNet").textContent=eur(C.net);
 
   var etat=chkState.ko?'<span class="pill ko">'+chkState.ko+" écart"+(chkState.ko>1?"s":"")+" avec la fiche</span>"
@@ -5667,7 +5686,7 @@ function renderResume(C){
   document.getElementById("tiles").innerHTML=tiles.map(function(t){
     return '<div class="tile"><div class="v">'+t[0]+'</div><div class="k">'+t[1]+"</div></div>";
   }).join("");
-  document.getElementById("tilesNote").innerHTML='Salaire horaire <b>'+nf4.format(C.txh)+' €</b> — la base des suppléments de week-end, des heures supplémentaires et des primes de rappel.';
+  document.getElementById("tilesNote").innerHTML='Salaire horaire'+(valeurExemple()?" d'exemple":"")+' <b>'+nf4.format(C.txh)+' €</b> — la base des suppléments de week-end, des heures supplémentaires et des primes de rappel.';
 
   /* cascade du brut au net */
   var atn=R((st.params.atnGsm||0)+(st.params.atnTel||0)+(st.params.atnNet||0));
@@ -5675,7 +5694,7 @@ function renderResume(C){
   var rows=[{l:"Brut total",s:"heures, suppléments, primes",v:C.A,k:"anchor"},
             {l:"Sécurité sociale",s:"cotisation ONSS du travailleur",v:-C.B,k:"out"},
             {l:"Précompte professionnel",s:"impôt retenu à la source",v:-C.D,k:"out"},
-            {l:"Net imposable",s:"ce qui reste après cotisations et impôt",v:C.E,k:"anchor"}];
+            {l:"Net après impôt",s:"le brut moins les cotisations et le précompte",v:C.E,k:"anchor"}];
   if(Math.abs(C.F)>=0.005) rows.push({l:"Indemnités nettes",s:"déplacement, vélo",v:C.F,k:"plus"});
   if(Math.abs(divers)>=0.005) rows.push({l:"Retenues nettes",s:"chèques-repas, assurance groupe, avantages repris, cotisation spéciale",v:-divers,k:"out"});
   if(C.avance) rows.push({l:"Avance déjà reçue",s:"versée en cours de mois",v:-C.avance,k:"out"});
@@ -5732,6 +5751,12 @@ function renderResume(C){
   Array.prototype.forEach.call(cal.querySelectorAll("button.fer,[data-fer]"),function(b){b.classList.add("fer");});
 }
 
+/* LE CONTRAT EST-IL ENCORE CELUI D'EXEMPLE ? Une seule règle pour l'alerte,
+   le libellé du net et la note du salaire horaire. */
+function valeurExemple(){
+  return (st.params.statut==="Ouvrier") ? !(Number(st.params.salHorGaranti)>0)
+                                        : (Number(st.params.remFixe)===DEF_P.remFixe);
+}
 function renderTotals(C){
   /* Un net calculé sur la rémunération par défaut est faux d'un facteur
      deux, sans que rien ne le dise : 20,22 €/h au lieu de 37,41. Le premier
@@ -5740,8 +5765,11 @@ function renderTotals(C){
   var alerte=document.getElementById("alerteDefaut");
   if(alerte){
     var ouvrierA=(st.params.statut==="Ouvrier");
-    var defaut = ouvrierA ? !(Number(st.params.salHorGaranti)>0)
-                          : (Number(st.params.remFixe)===DEF_P.remFixe);
+    var defaut = valeurExemple();
+    /* Le net d'exemple s'affichait en grand AVANT l'alerte qui l'invalide
+       (audit du 10/10/2026) : il pâlit, la comparaison au mois d'avant se
+       tait, et l'alerte monte juste sous la barre du mois. */
+    var sc=document.getElementById("salCard"); if(sc) sc.classList.toggle("exemple",!!defaut);
     alerte.innerHTML = !defaut ? "" : (ouvrierA
       ? "<b>Ce montant ne veut encore rien dire.</b> Votre salaire horaire n'est pas"
         +" renseigné. Indiquez-le dans <b>Réglages → Mon contrat</b> : « Salaire horaire"
@@ -5750,7 +5778,8 @@ function renderTotals(C){
         +" restée à la valeur d'exemple, ce qui donne un salaire horaire de "
         +nf4.format(R(DEF_P.remFixe/st.params.divH,4))+" €. Renseignez votre contrat dans "
         +"<b>Réglages → Mon contrat</b> : la rémunération fixe et la fraction payée "
-        +"se lisent en haut de votre fiche de paie.");
+        +"se lisent en haut de votre fiche de paie.")
+      + (defaut?' <button type="button" class="btn sm" data-go="reglages">Renseigner mon contrat</button>':"");
   }
   document.getElementById("tHeures").textContent=num(C.acc.hTot);
   document.getElementById("tJours").textContent=C.acc.jours;
@@ -8519,28 +8548,6 @@ function ryHeatmap(s){
 }
 /* Congés RESTANTS à prendre : UNE seule courbe, tous types combinés, qui part du
    total de l'année et décroît vers 0 à mesure que les congés sont pris. */
-function ryCongesChart(s){
-  var conso=z12(), m;
-  RY_CONGES.forEach(function(k){ for(m=0;m<12;m++) conso[m]+=s.congesMois[k][m]; });
-  var total=conso.reduce(function(a,b){return a+b;},0);
-  var fmt=function(v){ return (Math.round(v*10)/10).toLocaleString("fr-BE"); };
-  if(total<0.01) return '<div class="ry-chart-t">Congés restants à prendre</div><p class="ry-vide">Aucun congé noté dans l\'horaire.</p>';
-  var W=300,H=118,pad=7, maxY=total;
-  /* 13 points : plein au départ (i=0) → 0 en fin d'année (i=12). */
-  var pts=[total], c=0; for(m=0;m<12;m++){ c+=conso[m]; pts.push(total-c); }
-  function X(i){ return (pad+(W-2*pad)*i/12).toFixed(1); }
-  function Y(v){ return (H-pad-(H-2*pad)*v/maxY).toFixed(1); }
-  var coords=pts.map(function(v,i){return X(i)+","+Y(v);}).join(" ");
-  var grid='<line x1="'+pad+'" y1="'+Y(0)+'" x2="'+(W-pad)+'" y2="'+Y(0)+'" stroke="var(--line)" stroke-width="1"/>';
-  var area='<polygon points="'+X(0)+','+Y(0)+' '+coords+' '+X(12)+','+Y(0)+'" fill="var(--in)" opacity="0.12"/>';
-  var line='<polyline points="'+coords+'" fill="none" stroke="var(--in)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
-  var detail=RY_CONGES.filter(function(k){return s.congesTot[k]>0.01;})
-    .map(function(k){ return k+' '+fmt(s.congesTot[k]); }).join(" · ");
-  return '<div class="ry-chart-t">Congés restants à prendre <span class="ry-hint">sur l\'année</span></div>'
-    +'<svg class="ry-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Congés restants au fil de l\'année">'+grid+area+line+'</svg>'
-    +'<div class="ry-xaxis">'+RY_MC.map(function(c){return '<span>'+c+'</span>';}).join("")+'</div>'
-    +'<p class="ry-conges-tot">Total <b>'+fmt(total)+' j</b> · '+esc(detail)+'</p>';
-}
 /* ── ONGLET PROFIL : en-tête d'identité + faits clés + polyvalences, AVANT le
    « Mon rythme » (le client, le 06/10/2026 : « l'onglet Profil doit reprendre un
    maximum d'info et de stats sur l'opérateur »). Réutilise les helpers existants
@@ -8889,19 +8896,6 @@ document.getElementById("notifBtn").addEventListener("click",function(){
 });
 majNotifReglage();
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) majNotifReglage(); });
-function _pfPoly(db,p){
-  if(typeof polyvalenceDe!=="function") return '';
-  var polys=polyvalenceDe(db,p)||[]; if(!polys.length) return '';
-  var items=polys.map(function(x){
-    var pct=x.q?Math.max(6,Math.min(100,Math.round((x.n||0)/x.q*100))):0;
-    var cls=x.forme?'forme':(x.ok?'ok':((x.n||0)>0?'cours':'zero'));
-    var q=x.forme?'en formation':(x.ok?'acquise':(x.n||0)+'/'+x.q);
-    return '<div class="pf-poly '+cls+'" data-z="'+esc(x.z||'')+'">'
-      +'<div class="pf-poly-h"><span class="pf-poly-n">'+esc(x.t)+'</span><span class="pf-poly-q">'+esc(q)+'</span></div>'
-      +'<div class="pf-poly-bar"><span style="width:'+pct+'%"></span></div></div>';
-  }).join("");
-  return '<div class="pf-section"><div class="pf-sec-t">Polyvalences &amp; recyclage</div><div class="pf-polys">'+items+'</div></div>';
-}
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
       tete=document.getElementById("rythmeTete"), card=document.getElementById("rythmeCard");
@@ -8912,6 +8906,9 @@ function renderRythme(){
   if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; renderNotif(null,null); return; }
   card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete) tete.innerHTML=_pfHead(db,person);
+  /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
+     l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
+  if(typeof finIntro==="function") finIntro();
   /* Le retour se calcule APRÈS le premier affichage : il rejoue la journée
      de toute l'usine (equipeDuJour), et le héros n'a pas à l'attendre. */
   setTimeout(function(){ renderNotif(db,person); },30);
@@ -8919,9 +8916,7 @@ function renderRythme(){
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
   var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="l'année "+y+" d'horaire";
-  var avant=_pfPoly(db,person);
-  corps.innerHTML=avant
-    +(avant?'<div class="ry-sep"></div>':'')+'<div class="ry-chart-t ry-h2">Répartition des journées</div>'
+  corps.innerHTML='<div class="ry-chart-t ry-h2">Répartition des journées</div>'
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
     +'<div class="ry-right">'
@@ -8938,20 +8933,22 @@ function renderRythme(){
     +'<div class="ry-sep"></div>'
     +'<div class="ry-chart-t ry-h2">Mon année <span class="ry-hint">chaque case = un jour</span></div>'
     + ryHeatmap(s)
-    +'<div class="ry-two">'
-    +'<div class="ry-panel"><div class="ry-chart-t">Jours prestés par mois</div><div class="ry-bars prest">'+ryBars(s.prestesMois,"--in")+'</div></div>'
-    +'<div class="ry-panel">'+ryCongesChart(s)+'</div>'
-    +'</div>';
+    /* La courbe des « congés restants » partait des journées POSÉES et
+       tombait à zéro par construction, contre le « Restant » des compteurs
+       (audit du 10/10/2026) : retirée. */
+    +'<div class="ry-panel"><div class="ry-chart-t">Jours prestés par mois</div><div class="ry-bars prest">'+ryBars(s.prestesMois,"--in")+'</div></div>';
   ryDonut();
   Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
   });
   var cadre=(typeof estCadre==="function")&&estCadre(person);
-  setTimeout(function(){
+  /* La comparaison gèle le fil 1,4 s sur un téléphone lent : quand il est libre. */
+  var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
+  plusTard(function(){
     var box=document.getElementById("ryCompare"); if(!box) return;
     var eq=statsEquipe(db,y,cadre);
     box.innerHTML=eq ? (ryCompareHTML("Nuits",s.nuits,eq.nuits)+ryCompareHTML("Week-ends",s.we,eq.we)) : "";
-  },40);
+  });
 }
 
 /* ===================== l'équipe ===================== */
@@ -10910,7 +10907,11 @@ function renderEquipe(){
       if(jourHost){
         jourHost.innerHTML=tableauHTML;
         var jourLbl=document.getElementById("jourLabel");
-        if(jourLbl) jourLbl.textContent=labelJour;
+        /* Deux libellés, la feuille choisit : à 320 px le long recouvrait la
+           flèche « jour suivant » et en volait le toucher (audit du 10/10/2026). */
+        if(jourLbl){ var moL=MOIS[mois-1].toLowerCase();
+          jourLbl.innerHTML='<span class="jl-long">'+esc(labelJour)+'</span><span class="jl-court">'
+            +esc(labelJour.slice(0,3)+". "+jour+" "+(moL.length>4?moL.slice(0,moL==="juillet"?4:3)+".":moL))+'</span>'; }
         var jourPick=document.getElementById("jourPick");
         if(jourPick) jourPick.value=annee+"-"+pad2(mois)+"-"+pad2(jour);
         /* LES LIGNES À UN SEUL TRIGRAMME SE SERRENT, LES CHARGÉES RESPIRENT. Le
@@ -11574,8 +11575,11 @@ function renderPolyvalence(){
        dit qu'il se passe quelque chose ; elle ne dit pas QUAND, et c'est la
        date qui compte quand il reste cinq jours. */
     var av=document.getElementById("pvFin");
-    if(av) av.innerHTML=finissent.length
-      ? "Se termine : "+finissent.map(esc).join(" \u00b7 ") : "";
+    /* LA CASE « 7/10 » SE LISAIT « fait / quota » : c'est « jours relevés par
+       l'app / recyclages des RH » (audit du 10/10/2026). Une ligne le dit. */
+    if(av) av.innerHTML='<span class="pvleg">Chaque case : jours relevés par l\'app <u>/</u> recyclages enregistrés par les RH'
+      +' · objectif '+POLY_QUOTA.operateur+', adjoints '+POLY_QUOTA.adjoint+' · touchez les chiffres pour comparer les dates</span>'
+      +(finissent.length ? "<br>Se termine : "+finissent.map(esc).join(" \u00b7 ") : "");
   }, function(){});
 }
 /* ── LE TABLEAU DES DATES au clic d'un opérateur du recyclage ──────────────
@@ -12079,7 +12083,7 @@ function renderAnnuaire(db,moi){
        brut reste en infobulle. */
     var ent=entRaw, titreEnt="Tel que le classeur l’écrit au-dessus du nom";
     if(estCadre(p)){ var m=/(\d+)/.exec(entRaw); if(m){ ent="Binôme "+m[1]; titreEnt=entRaw; } }
-    var role=esc(statutPersonne(p))+(estCadre(p)?" · "+esc(fonctionPersonne(p)):"");
+    var role=esc(statutAffiche(p))+(estCadre(p)?" · "+esc(fonctionPersonne(p)):"");
     var poly=at?esc(at):(estCadre(p)?"":"—");
     return '<div class="eqp'+(p.id===moi?" moi":"")+'"><b'+(enFormation(p)?' class="eqform"':'')+'>'+esc(idLisible(p.id))+"</b>"
       +'<span class="eqrole">'+role+"</span>"
@@ -12268,7 +12272,7 @@ function renderRappelsInutiles(force){
         var nm=0; jours.forEach(function(z){ if(z.mois===x.mois) nm+=z.l.length; });
         if(semPrec!==-1) h.push("</div></section>");
         h.push(mqMoisTete("rn",x.mois,q.moisNom,nm+" rappel"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
-      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
+      h.push('<div class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
         +q.html+'<span class="mqls">');
       x.l.forEach(function(o){
         n++;
@@ -12284,7 +12288,7 @@ function renderRappelsInutiles(force){
           +(o.com?'<span class="rncom">« '+esc(nettoyerAffichage(o.com))+' »</span>':"")
           +"</span>");
       });
-      h.push("</span></button>");
+      h.push("</span></div>");
     });
     if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
@@ -12297,11 +12301,20 @@ function renderRappelsInutiles(force){
        #jourCorps pour eqDate. */
     hote.onclick=function(e){
       if(mqBascule(e)) return;
-      var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
+      var b=mqCible(e); if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
     };
   });
+}
+/* QUI OUVRE LE PLANNING DANS UNE FICHE DE JOURNÉE. Une fiche entière était un
+   <button> : toucher un trigramme ou commencer un défilement dessus changeait
+   d'onglet (audit du 10/10/2026). Seuls l'en-tête de date et le bouton
+   « Voir le planning » y mènent désormais. */
+function mqCible(e){
+  var t=e.target; if(!t.closest) return null;
+  if(!t.closest(".mqd,.mqjt,.mqvoir")) return null;
+  return t.closest(".mqj");
 }
 /* QUI POURRAIT BOUCHER LE TROU, parmi ceux qui sont là. Le client, le
    28/09/2026 : « pour les postes en sous-effectif, il faut indiquer
@@ -12411,7 +12424,7 @@ function renderManques(force){
       /* LA DATE SEULE en tête du jour (le client, le 02/10/2026 : la ligne du
          jour le gênait avec date+équipe+pause mêlées). La pause et l'équipe —
          qui sont le créneau, pas le jour — descendent avec le poste. */
-      h.push('<button type="button" class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
+      h.push('<div class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
         +'<span class="mqjt">'+q.html+'<span class="mqjn">'+(function(){
           var v=0; x.l.forEach(function(o){ v+=Math.max(0,o.attendu-o.tenu); });
           return v+(v>1?" personnes manquantes":" personne manquante"); })()+"</span></span>"
@@ -12442,16 +12455,16 @@ function renderManques(force){
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
-          +'<span class="mqcher" role="button" tabindex="0" data-pause="'+esc(o.pause)+'" data-poste="'+esc(o.k)+'">'
+          +'<button type="button" class="mqcher" data-pause="'+esc(o.pause)+'" data-poste="'+esc(o.k)+'">'
           +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>'
-          +"Chercher un remplaçant</span>"
+          +"Chercher un remplaçant</button>"
           +"</span>");
       });
       /* Un poste « à déterminer » le même jour peut être exactement celui
          qui manque : le dire, plutôt que de laisser croire à un trou. */
       if(x.inc) h.push('<span class="mqinc">'+x.inc+" poste"+(x.inc>1?"s":"")
         +" encore à déterminer ce jour-là</span>");
-      h.push("</span></button>");
+      h.push("</span></div>");
     });
     if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Tous les postes sont couverts</b>'
@@ -12471,16 +12484,13 @@ function renderManques(force){
        #jourCorps pour eqDate. */
     hote.onclick=function(e){
       if(mqBascule(e)) return;
-      var b=e.target.closest?e.target.closest(".mqj"):null; if(!b) return;
-      var ch=e.target.closest(".mqcher");
-      if(ch){ e.preventDefault(); e.stopPropagation();
+      var ch=e.target.closest?e.target.closest(".mqcher"):null, b=e.target.closest?e.target.closest(".mqj"):null;
+      if(ch && b){ e.preventDefault(); e.stopPropagation();
         ouvrirRecherche({pause:ch.dataset.pause, poste:ch.dataset.poste, an:Number(db.year),
           mois:Number(b.dataset.m), jour:Number(b.dataset.j)}); return; }
+      b=mqCible(e); if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
-    };
-    hote.onkeydown=function(e){
-      if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("mqcher")){ e.preventDefault(); e.target.click(); }
     };
   });
 }
@@ -12570,11 +12580,14 @@ function eqBouge(n){
    soixante pixels, nettement plus large que haut — pour ne jamais voler
    un défilement vertical ; et jamais si le tableau défile lui-même de
    côté, auquel cas le geste lui appartient. */
-["eqCorps","jourCorps"].forEach(function(id){
-  var c=document.getElementById(id); if(!c) return;
+/* Tout le cadre du jour écoute, barre de la date comprise (audit du
+   10/10/2026 : seul le tableau répondait), sauf les deux flèches. */
+[document.querySelector("#v-jour .card")].forEach(function(c){
+  if(!c) return;
   var x0=null, y0=0, t0=0;
   c.addEventListener("touchstart",function(e){
     if(e.touches.length!==1){ x0=null; return; }
+    if(e.target.closest && e.target.closest("#jourPrev,#jourNext")){ x0=null; return; }
     x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
   },{passive:true});
   c.addEventListener("touchend",function(e){
@@ -13485,8 +13498,8 @@ function caCalculer(){
       var rr=caRechercher(db,an,m,j,rg,rk,function(dec){
         return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
       n[rr.v]++;
-      h.push('<button type="button" class="mqj carech" data-m="'+m+'" data-j="'+j+'" title="Voir le tableau de ce jour">'
-        +'<span class="mqls">'+rr.html+"</span></button>");
+      h.push('<div class="mqj carech" data-m="'+m+'" data-j="'+j+'">'
+        +'<span class="mqls">'+rr.html+'<button type="button" class="mqvoir">Voir le planning de ce jour ›</button></span></div>');
       return;
     }
     if(caMode==="conge" && caDureeEff()==="heures"){
@@ -13497,9 +13510,9 @@ function caCalculer(){
       n[rh.v]++;
       var qh=dateEnMots(an,m,j,t0);
       h.push('<div class="eqsem">'+esc(qh.moisNom)+"</div>"
-        +'<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qh.titre)+'">'
+        +'<div class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qh.titre)+'">'
         +qh.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+rh.v+'">'
-        +esc(rh.t)+"</span></span>"+rh.html+"</span></button>");
+        +esc(rh.t)+"</span></span>"+rh.html+"</span></div>");
       return;
     }
     var r=caSimuler(db,id,an,m,j,caMode,function(dec){
@@ -13511,7 +13524,7 @@ function caCalculer(){
        gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
     var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(pvNom(r.pause))+"</b>"
       +(r.eq?" · Éq. "+esc(r.eq):"")+"</span>";
-    h.push('<button type="button" class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
+    h.push('<div class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span></span>");
     if(!r.hors){
@@ -13565,7 +13578,7 @@ function caCalculer(){
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
         +" déjà en sous-effectif ce jour-là</span>");
     }
-    h.push("</span></button>");
+    h.push("</span></div>");
   });
   var bil=[];
   if(rech){
@@ -13634,7 +13647,7 @@ function caCalculer(){
      sous-effectifs et les rappels (le client, 07/10/2026 : le sélecteur de date a
      quitté RH ; il n'y a plus de barre vers laquelle défiler). */
   document.getElementById("caCorps").addEventListener("click",function(e){
-    var b=e.target.closest?e.target.closest(".mqj"):null; if(!b||!caDB) return;
+    var b=mqCible(e); if(!b||!caDB) return;
     eqDate=new Date(Number(caDB.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
     setView("jour");
   });
@@ -13727,9 +13740,10 @@ function renderCompteurs(){
     var h=[];
 
     /* --- congés --- */
-    var solde=c.solde||{}, prev=c.prevision||{}, reste=c.restant||{}, lc=[];
+    var solde=c.solde||{}, prev=c.prevision||{}, reste=c.restant||{}, lc=[], dejaVu={};
     ["VA","RTT","DTT","RJF"].forEach(function(k){
       if(solde[k]===undefined && prev[k]===undefined) return;
+      dejaVu[k]=1;
       var pv=(prev[k+"Total"]!==undefined)?prev[k+"Total"]:prev[k];
       var tot=Number(solde[k])||0, pose=Number(pv)||0,
           rs=(reste[k]!==undefined)?Number(reste[k]):R(tot-pose,2);
@@ -13814,25 +13828,31 @@ function renderCompteurs(){
     });
     var aPlanifier=(cg["àplanifier"]!==undefined)?cg["àplanifier"]:cg["soldeàplanifier"];
     if(lots.length){
+      lots.forEach(function(x){ dejaVu[x[0]]=1; });
       var tr=lots.map(function(x){
         return '<div class="cpt-li"><span>'+NOM_REDUIT[x[0]]+(vus[x[0]]>1?' <i>période '+x[2]+'</i>':'')+'</span><b>'+x[1]+' j</b></div>'; });
       if(aPlanifier!==undefined) tr.push('<div class="cpt-li"><span>À planifier</span><b>'+aPlanifier+' j</b></div>');
       h.push(bloc("Temps de travail réduit","journées posées",tr.join("")));
     }
 
-    /* --- polyvalence --- */
-    /* Pas de doublon : quand « Mon rythme », juste en dessous, montre les
-       polyvalences avec leur recyclage (_pfPoly), la liste d'ateliers se tait. */
-    var polyRy=(typeof polyvalenceDe==="function")?(polyvalenceDe(db,person)||[]):[];
-    if(!polyRy.length && person.poly && person.poly.ateliers && person.poly.ateliers.length){
+    /* --- polyvalence ---
+       La grille de recyclage de « Mon rythme » répétait celle de l'onglet
+       Équipes, et coûtait 2,7 s au démarrage d'un téléphone lent (audit du
+       10/10/2026) : il reste les ateliers acquis et un lien vers le
+       recyclage. Pas pour un contremaître, qui ne tient pas d'atelier. */
+    var cmP=(typeof estContremaitre==="function")&&estContremaitre(person);
+    if(!cmP && person.poly && person.poly.ateliers && person.poly.ateliers.length){
       h.push(bloc("Polyvalence",person.poly.degre?"degré "+person.poly.degre:"",
-        '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; }); return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</div>'));
+        '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; }); return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</div>'
+        +'<button type="button" class="cpt-lien" data-go="equipe">Voir mon recyclage ›</button>'));
     }
 
     /* --- congés et maladie de l'année --- */
-    var cles=Object.keys(calc.abs).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
+    /* Les codes déjà comptés plus haut (congés, temps réduit) ne se redisent
+       pas : il reste la maladie et le reste (audit du 10/10/2026). */
+    var cles=Object.keys(calc.abs).filter(function(k){ return !dejaVu[k]; }).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
     if(cles.length){
-      h.push(bloc("Congés et maladie de l'année","lus dans l'horaire",
+      h.push(bloc("Maladie et autres absences","lus dans l'horaire",
         '<div class="cpt-liste">'+cles.map(function(k){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
           return '<div class="cpt-li"><span class="cpt-lib"><span class="cpt-code">'+esc(k)+'</span>'+(l===k?'':esc(l))+'</span>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
