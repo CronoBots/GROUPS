@@ -2255,6 +2255,13 @@ body.sheet-on{overflow:hidden}
    sa ligne de base, en mono plus discret. */
 .mqcw{display:inline-flex; align-items:baseline; gap:4px; white-space:nowrap}
 .mqch{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums}
+/* Dans les sous-effectifs, l'horaire revient dans le badge (le client, le
+   10/10/2026 : « pour le sous-effectif on peut remettre juste l'horaire dans
+   le badge avec le trigramme ») : le cadre passe du trigramme à l'ensemble. */
+#mqCorps .mqcw.hor{gap:5px; padding:3px 7px; border-radius:6px; background:var(--surface3); border:1px solid var(--trait); line-height:1.3}
+#mqCorps .mqcw.hor>.mqc{padding:0; border:0; background:none}
+#mqCorps .mqcw.hor:has(.mqc.form){border-color:var(--at-jaune)}
+#mqCorps .mqcw.hor:has(.mqc.moi){border-color:var(--in)}
 .capaire .mqr{align-items:baseline}
 .cafaire .cahr{margin-left:3px}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
@@ -12946,7 +12953,7 @@ function renderManques(force){
       if(q.mois!==semPrec){ var nm=0; r.jours.forEach(function(z){ if(z.mois===x.mois) nm+=mqPauses(z); });
         if(semPrec!==-1) h.push("</div></section>");
         var kk="mq/"+x.mois; mqOuv=(kk in MQ_OUVERT)?MQ_OUVERT[kk]:(semPrec===-1);
-        h.push(mqMoisTete("mq",x.mois,q.moisNom,'<span class="mqmn">'+nm+" pause"+(nm>1?"s":"")+" en sous-effectif</span>",semPrec===-1)); semPrec=q.mois; }
+        h.push(mqMoisTete("mq",x.mois,q.moisNom,'<span class="mqmn">'+nm+" pause"+(nm>1?"s":"")+"</span>",semPrec===-1)); semPrec=q.mois; }
       /* UN MOIS REPLIÉ NE SE CALCULE PAS : ses fiches (et leurs candidats,
          le plus lourd) se construisent à son dépli (audit du 10/10/2026 :
          l'onglet figeait 1,3 s à sa première ouverture). */
@@ -13034,7 +13041,7 @@ function renderManques(force){
       var tb=document.getElementById("tab-rh");
       if(tb) tb.setAttribute("aria-label","Effectifs"+(n?" · "+n+" pause"+(n>1?"s":"")+" en sous-effectif":"")); }
     document.getElementById("mqSub").textContent=
-      n ? n+" pause"+(n>1?"s":"")+" d'ici le 31/12" : "rien à signaler";
+      n ? n+" pause"+(n>1?"s":"")+" jusqu'à la fin de l'année" : "rien à signaler";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un effectif minimum doit aller sur la vue
        horaire de ce jour-là »). setView("jour") bascule la vue et rend
@@ -13822,7 +13829,10 @@ function caVerdict(r,mode){
 }
 function caChip(id,sous,form){
   var b='<span class="mqc'+(form?" form":"")+'"><b>'+esc(idLisible(id))+"</b></span>";
-  return sous?'<span class="mqcw">'+b+'<small class="mqch">'+esc(sous)+"</small></span>":b;
+  /* « hor » : la mention est un horaire seul (« 06-14 »), que les
+     sous-effectifs reposent DANS le badge (le client, le 10/10/2026) ;
+     une pause et un poste (« PM Glut. ») restent à côté partout. */
+  return sous?'<span class="mqcw'+(/^\d{1,2}h?-\d{1,2}h?$/.test(sous)?" hor":"")+'">'+b+'<small class="mqch">'+esc(sous)+"</small></span>":b;
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
 /* Les groupes de candidats d'un poste, dans l'ordre de caCandidats(). */
