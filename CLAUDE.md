@@ -4223,6 +4223,14 @@ sous-titre dit « 24 pauses jusqu'à la fin de l'année », l'intertitre du mois
 « 5 pauses ». Vérificateur identique à l'octet ; rien ne déborde à 320 px
 (hors ligne), 390 et 1280 px.
 
+**« Rappels évitables »** (le client, le 10/10/2026, à la question de
+l'intitulé : « Évitable »). « Rappels non nécessaires » jugeait le rappel ;
+le cadre dit seulement que l'équipe aurait été complète sans lui, et un
+rappel peut avoir une raison que le classeur n'écrit pas. Le titre et le
+message vide changent ; `rappelsInutiles()` et les identifiants
+(`#rnCorps`, `#rnSub`) gardent leur nom. Vérifié à 320 px (hors ligne),
+390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
