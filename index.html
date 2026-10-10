@@ -2243,28 +2243,16 @@ body.sheet-on{overflow:hidden}
 .mqc.form{border-color:var(--at-jaune)}
 .mqc.form b{color:var(--at-jaune)}
 .cachaine i{font-style:normal; font-size:10px; color:var(--muted)}
-/* UNE LIGNE PAR TYPE DE SOLUTION, l'intitulé à gauche et les trigrammes à
-   droite (le client, le 10/10/2026, capture de l'iPhone : « encore moyen de
-   mieux présenter les gens en pause et propositions de remplacement »).
-   Empilés, l'intitulé au-dessus et le trigramme dessous, « En poste »,
-   « Change de pause » et « Rappel - Repos » prenaient 330 px pour trois
-   étiquettes. La colonne d'intitulés a la même largeur dans toute la
-   fiche : on lit les solutions de haut en bas comme une liste. Sous-effectifs
-   et Recherche, qui partagent caGroupes(). */
-#mqCorps .capaire, #caCorps .capaire{display:grid; grid-template-columns:100px minmax(0,1fr);
-  align-items:center; column-gap:10px; row-gap:6px}
-#mqCorps .capaire>.cagr, #caCorps .capaire>.cagr{grid-column:1; margin:0; line-height:1.25}
-#mqCorps .capaire>.mqr, #mqCorps .capaire>.cachaine,
-#caCorps .capaire>.mqr, #caCorps .capaire>.cachaine{grid-column:2}
-#mqCorps .capaire.prol>.cagr, #caCorps .capaire.prol>.cagr{grid-row:1 / span 2; align-self:start; padding-top:5px}
-#mqCorps .capaire:not(.plein) .cagr, #caCorps .capaire:not(.plein) .cagr{color:var(--muted)}
-#mqCorps .capaire.plein .cagr, #caCorps .capaire.plein .cagr{color:var(--ink)}
-#mqCorps .capaire.plein, #caCorps .capaire.plein{padding:0 0 9px}
-#mqCorps .capaire.plein + .capaire:not(.plein), #caCorps .capaire.plein + .capaire:not(.plein){padding-top:9px}
-#mqCorps .capaire:not(.plein) + .capaire:not(.plein), #caCorps .capaire:not(.plein) + .capaire:not(.plein){padding-top:8px}
-#caCorps .cagr-eff{flex-direction:column; align-items:flex-start; gap:2px}
-@media (max-width:380px){
-  #mqCorps .capaire, #caCorps .capaire{grid-template-columns:82px minmax(0,1fr); column-gap:8px} }
+/* L'HORAIRE ALIGNÉ SUR LE TRIGRAMME (le client, le 10/10/2026 : « dans les
+   badges, les horaires prestés doivent être alignés au trigramme »). Centrés
+   l'un sur l'autre, un mono gras de 11,5 px et un texte de 10 px ne partagent
+   pas leur ligne d'écriture : l'heure paraissait plus basse. Les deux se
+   posent sur la même ligne de base, l'heure en mono comme le trigramme ;
+   « pour faire 06-18 » suit la même ligne que les étiquettes qu'il prolonge. */
+.mqc{align-items:baseline}
+.mqc small{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; line-height:1}
+.capaire .mqr{align-items:baseline}
+.cafaire .cahr{margin-left:3px}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
   .caseg button{font-size:12px; white-space:nowrap; padding:8px 2px} }
 /* Une carte par pause, et la pause en tableau dans le sens de la production.
@@ -12993,7 +12981,11 @@ function renderManques(force){
            le module de recherche ») : cadre plein, un « ? » par place vide. */
         var oP=null; (o.vue&&o.vue.postes||[]).forEach(function(y){ if(y.P.k===o.k) oP=y; });
         var enP=oP?oP.gens.filter(function(y){ return !y.depuisD; }):[];
-        plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
+        /* « En poste » seulement quand le poste en attend deux ou plus (le
+           client, le 10/10/2026 : « est-ce que le en poste est utile à part
+           pour les postes avec minimum de 2 ? ») : à un seul attendu, il ne
+           montrait qu'un « ? », que le « 0/1 » de l'en-tête dit déjà. */
+        if(o.attendu>=2) plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>')));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
