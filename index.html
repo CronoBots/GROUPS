@@ -10,7 +10,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ma paie">
+<meta name="apple-mobile-web-app-title" content="BIOWANZE">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1905,6 +1907,30 @@ body.sheet-on{overflow:hidden}
    liseré cyan — l'accent de la marque, pas une alerte rouge : un
    changement n'est pas une faute. Une ligne par journée : la date, l'avant
    barré, l'après en gras. */
+/* L'INVITATION À INSTALLER. Vue seulement dans le navigateur : installée,
+   l'application n'en a plus besoin. Android propose « Installer » (l'invite
+   du système), l'iPhone dit le geste (Partager → Sur l'écran d'accueil). */
+.installcard{border-left-color:var(--marque-vif)}
+.in-ico{flex:0 0 auto; width:40px; height:40px; border-radius:10px}
+.in-x{flex:0 0 auto; width:34px; height:34px; border:0; background:none; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
+/* HORS LIGNE. Une pastille discrète en haut de l'écran, comme les
+   applications natives, tant que le réseau manque. */
+.horsligne{position:fixed; z-index:60; left:50%; transform:translateX(-50%);
+  top:calc(env(safe-area-inset-top,0px) + 8px); display:flex; align-items:center; gap:7px;
+  padding:6px 12px; border-radius:999px; background:#2A2F3D; border:1px solid rgba(255,255,255,.12);
+  color:#E6E9F0; font-size:12px; font-weight:600; box-shadow:0 4px 14px rgba(0,0,0,.35); white-space:nowrap; pointer-events:none}
+.horsligne span{width:7px; height:7px; border-radius:50%; background:#E8A23A}
+.horsligne[hidden]{display:none}
+/* UNE APPLICATION, PAS UNE PAGE. Installée, l'interface ne se sélectionne
+   plus au doigt ni ne fait surgir le menu « copier / ouvrir le lien » sur un
+   appui long ; les champs et les textes de saisie restent sélectionnables.
+   Le rebond du défilement ne tire plus la page hors de l'écran. */
+@media (display-mode: standalone){
+  html,body{overscroll-behavior-y:none}
+  body{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+  input,textarea,select,[contenteditable]{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
+  img,svg{-webkit-user-drag:none}
+}
 .notifcard{border:1px solid var(--cadre); border-left:3px solid var(--marque-vif); border-radius:var(--rj);
   background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.18); overflow:hidden}
 .nt-tete{display:flex; align-items:center; gap:11px; padding:12px 14px}
@@ -3661,6 +3687,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <div class="notifcard" id="notifCard" role="status" aria-live="polite" hidden></div>
+    <div class="notifcard installcard" id="installCard" hidden>
+      <div class="nt-tete">
+        <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
+        <div class="nt-t"><b>Installer l'application</b><span id="installTxt">Sur l'écran d'accueil, en plein écran, même hors ligne.</span></div>
+        <button type="button" class="nt-vu in-go" id="installGo" hidden>Installer</button>
+        <button type="button" class="in-x" id="installX" aria-label="Masquer">×</button>
+      </div>
+    </div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -4105,6 +4139,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="horsligne" id="horsLigne" role="status" aria-live="polite" hidden><span aria-hidden="true"></span>Hors ligne · données de l'appareil</div>
 <button type="button" class="enhaut" id="enHaut" aria-label="Revenir en haut de la page" title="Haut de page">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
@@ -4467,6 +4502,12 @@ function save(path,data,muet){
   },700);
 }
 var flashT;
+/* LE RETOUR HAPTIQUE. Une impulsion de 8 ms au changement d'onglet, comme
+   les applications natives. Android seulement : iOS n'expose pas le
+   vibreur au web et ignore l'appel. Coupée sous « réduire les animations ». */
+function vibrer(){
+  try{ if(navigator.vibrate && !(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)) navigator.vibrate(8); }catch(e){}
+}
 function flash(msg){
   var el=document.getElementById("toast");
   el.textContent=msg; el.classList.add("on");
@@ -6445,7 +6486,9 @@ function setView(v,keepScroll){
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
-  var b=e.target.closest("button[data-v]"); if(b) setView(b.dataset.v);
+  var b=e.target.closest("button[data-v]"); if(!b) return;
+  if(b.dataset.v!==st.view) vibrer();
+  setView(b.dataset.v);
 });
 document.querySelector(".tabs").addEventListener("keydown",function(e){
   var k=e.key;
@@ -8976,6 +9019,31 @@ function notifierTelephone(p,x){
       data:{url:"./"}});
   }).catch(function(){});
 }
+/* ── L'INSTALLATION ET LE RÉSEAU ──────────────────────────────────────────
+   Le client, le 10/10/2026 : « que l'utilisateur ne pense pas à une page
+   web ». Dans le navigateur, une carte invite à installer (une fois masquée,
+   elle ne revient plus : ui/installVu) ; Android garde l'invite du système
+   pour le bouton, l'iPhone reçoit le geste à faire. Installée, rien. */
+(function(){
+  var carte=document.getElementById("installCard"), go=document.getElementById("installGo"),
+      txt=document.getElementById("installTxt"), invite=null;
+  function installee(){ return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true; }
+  function montrer(){
+    if(installee()||lsGet("ui/installVu")){ carte.hidden=true; return; }
+    var ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+    if(invite){ go.hidden=false; txt.textContent="Sur l'écran d'accueil, en plein écran, même hors ligne."; carte.hidden=false; }
+    else if(ios){ go.hidden=true; txt.innerHTML="Touchez <b>Partager</b> puis <b>Sur l'écran d'accueil</b>."; carte.hidden=false; }
+  }
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); invite=e; montrer(); });
+  window.addEventListener("appinstalled",function(){ lsSet("ui/installVu",true); carte.hidden=true; });
+  go.addEventListener("click",function(){ if(!invite) return; invite.prompt();
+    (invite.userChoice||Promise.resolve()).then(function(){ invite=null; montrer(); }); });
+  document.getElementById("installX").addEventListener("click",function(){ lsSet("ui/installVu",true); carte.hidden=true; });
+  montrer();
+  var hl=document.getElementById("horsLigne");
+  function reseau(){ hl.hidden=navigator.onLine!==false; }
+  window.addEventListener("online",reseau); window.addEventListener("offline",reseau); reseau();
+})();
 function majNotifReglage(){
   var el=document.getElementById("notifEtat"), b=document.getElementById("notifBtn"); if(!el||!b) return;
   var ok=("Notification" in window) && navigator.serviceWorker;
@@ -14849,7 +14917,12 @@ function boot(){
       var y,m;
       if(start&&/^\d{4}-\d{2}$/.test(start)){ y=Number(start.slice(0,4)); m=Number(start.slice(5))-1; }
       else { y=now.getFullYear(); m=now.getMonth(); }
-      setView(lsGet("ui/view")||"horaire",true);
+      /* Les raccourcis de l'icône (appui long, manifeste) ouvrent « ?vue=… » :
+         l'onglet demandé passe avant le dernier ouvert, puis l'adresse est
+         nettoyée pour qu'un rechargement ne le rouvre pas. */
+      var vueUrl=(location.search.match(/[?&]vue=([a-z]+)/)||[])[1];
+      if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
+      setView(vueUrl||lsGet("ui/view")||"horaire",true);
       /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
          garnis dès le démarrage, quel que soit l'onglet ouvert */
       ensurePrefillUI();
