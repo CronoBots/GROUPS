@@ -3921,6 +3921,15 @@ leur badge de sa case à 320 px : il est posé dans le coin du badge, qui
 garde la largeur des autres. Mesuré à 320 px, 390 et 1280 px : aucun badge
 hors de sa case, rien ne défile de côté.
 
+**Dans les listes de choix, « GBT Chaud. » et « GBT Glut. »** (le client,
+le 10/10/2026 : « au lieu de mettre GBT et le nom de l'équipe dans les
+listes de choix, il faut mettre GBT Chaud. et GBT Glu. »). Les trois listes
+de personnes (onglet des réglages, onglet de recherche, écran de connexion) départageaient les
+deux GBT par l'identifiant interne (« GBT-1 ») ou la catégorie (« Shift4 »).
+`libelleChoix()` les nomme désormais par leur poste attitré, l'abrégé de
+`PV_COURT` : « Glut. » et non « Glu. », pour rester l'abrégé qu'on lit
+partout ailleurs. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

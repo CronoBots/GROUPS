@@ -6236,6 +6236,15 @@ function dateFr(iso){
    Deux personnes portent réellement les mêmes initiales ; le suffixe est
    une commodité de l'application, pas leur nom. */
 function idLisible(id){ return String(id||"").split("-")[0]; }
+/* Le libellé d'une personne dans une LISTE DE CHOIX. Deux personnes au même
+   trigramme (GBT-1 et GBT) se départagent par leur poste, et non par
+   l'identifiant interne ou l'équipe (le client, le 10/10/2026 : « il faut
+   mettre GBT Chaud. et GBT Glut. ») : « GBT Chaud. », « GBT Glut. ». */
+function libelleChoix(p,vus){
+  var l=idLisible(p.id); if(!(vus[l]>1)) return l;
+  var k=null; try{ k=posteAttitre(p); }catch(e){ k=null; }
+  return l+" "+((k && PV_COURT[k]) || p.id);
+}
 function fonctionCourte(cat){
   var t=String(cat||"").replace(/\s+de production$/i,"").replace(/^Shift\s*/i,"Équipe ");
   t=t.replace(/^Contremaîtres\b/i,"Contremaître")
@@ -6733,8 +6742,7 @@ function renderPrefillSelects(db){
   var gens=db.people.slice().sort(function(a,b){ var A=idLisible(a.id),B=idLisible(b.id); return A<B?-1:A>B?1:0; });
   var vus={}; gens.forEach(function(p){ var b=idLisible(p.id); vus[b]=(vus[b]||0)+1; });
   idSel.innerHTML=VIDE+gens.map(function(p){
-    var lu=(vus[idLisible(p.id)]>1)?p.id:idLisible(p.id);
-    return '<option value="'+esc(p.id)+'">'+esc(lu)+"</option>";
+    return '<option value="'+esc(p.id)+'">'+esc(libelleChoix(p,vus))+"</option>";
   }).join("");
   var savedId=lsGet("ui/prefillId");
   idSel.value=db.people.some(function(p){return p.id===savedId;})?savedId:"";
@@ -13467,8 +13475,7 @@ function caInit(db){
   db.people.forEach(function(p){ var l=idLisible(p.id); vus[l]=(vus[l]||0)+1; });
   var gens=db.people.slice().sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
   sel.innerHTML=gens.map(function(p){
-    var l=idLisible(p.id);
-    return '<option value="'+esc(p.id)+'">'+esc(l+(vus[l]>1?" · "+(p.cat||p.id):""))+"</option>";
+    return '<option value="'+esc(p.id)+'">'+esc(libelleChoix(p,vus))+"</option>";
   }).join("");
   var moi=lsGet("ui/caQui")||lsGet("ui/prefillId");
   if(moi) sel.value=moi;
@@ -14597,7 +14604,7 @@ function gateVueCreer(){
      le suffixe n'apparaît que pour départager d'éventuels doublons lisibles. */
   var gens=db.people.slice().sort(function(a,b){ return idLisible(a.id).localeCompare(idLisible(b.id)); });
   var vus={}; gens.forEach(function(p){ var b=idLisible(p.id); vus[b]=(vus[b]||0)+1; });
-  var opts=gens.map(function(p){ var lu=(vus[idLisible(p.id)]>1)?p.id:idLisible(p.id); return '<option value="'+esc(p.id)+'">'+esc(lu)+'</option>'; }).join("");
+  var opts=gens.map(function(p){ return '<option value="'+esc(p.id)+'">'+esc(libelleChoix(p,vus))+'</option>'; }).join("");
   gateSetBody(''
     +'<div class="gate-f"><label for="gateId">Votre trigramme</label>'
     +'<select id="gateId">'+opts+'</select></div>'
