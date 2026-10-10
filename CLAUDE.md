@@ -3698,6 +3698,18 @@ dans l'application, on pousse, et le client corrige sur la vraie page.
   écrite laisse `r.h` vide (journée entière) ; personne n'avait de prochain
   poste et les nuits valaient 0/0. Corrigé par la règle de `compute()`.
 
+**Puis, le même jour** : « l'onglet horaire doit être un calendrier,
+l'onglet rechercher tout à droite ; pas mal le héros mais il y a moyen
+d'encore mieux faire ». L'icône de Planning, une grille qui se lisait
+comme un tableau, devient un calendrier à anneaux (le menu du téléphone
+n'a que des icônes : c'est par elles qu'on nomme un onglet). Recherche
+passe en dernier, après Équipes. Le héros gagne **les sept jours qui
+viennent**, aujourd'hui compris : le jour, la date, et la pause aux
+couleurs du calendrier (AM, PM, N, D), le congé ou « MAL » en neutre, un
+tiret pour un repos. Le prochain poste dit « dans n j » et ouvre le
+Planning de ce jour-là. Le week-end libre se tait pour qui est malade
+aujourd'hui (YBT, absent jusqu'au 22/11, l'affichait).
+
 Mesuré le 10/10 sur VBN, SKS et LCI : prochain poste le lundi 12 (D 7-15,
 D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
 390 et 1280 px ; le sous-effectif du 10/10 mène à l'onglet avec STEP · AM
