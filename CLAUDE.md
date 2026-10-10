@@ -4015,6 +4015,15 @@ courtes, 5 px de marge). Mesuré à 390 px : Absents 411 px (environ
 1 180 avant), Congé et repos 703 px (plus de 2 000 avant). Rien ne déborde
 à 320 px (hors ligne), 390 et 1280 px ; onglets et dépli éprouvés, aucune
 erreur.
+Puis : « centrage des textes ? ne pas afficher ceux sans date ». Les
+journées sans date de reprise (pas encore dans l'horaire, poste prévu non
+presté) ne s'affichent plus et ne comptent plus dans l'onglet (40 → 38).
+La date était plus haute que ses badges : elle gardait la marge basse de
+11 px de `.mqd.eqproche`, retirée ici (écart mesuré 0 px). Le chevron d'un
+mois replié se recentre sur celui d'un mois ouvert (`translateX(-2px)`,
+tous les cadres repliables), le dernier intertitre perd son filet doublé,
+et « Rien à signaler » se centre dans son cadre. Vérifié à 320 px (hors
+ligne), 390 et 1280 px.
 
 ### Le congé en heures
 
