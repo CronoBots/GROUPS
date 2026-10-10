@@ -3743,6 +3743,28 @@ La roue des réglages, dessinée en rayons, ressemblait à un bouton de
 luminosité (le client, le même jour) : c'est désormais un engrenage à
 dents.
 
+**« Go pour tout »** (le client, le même jour), sur cinq pistes proposées
+pour le héros :
+
+1. **le poste du moment** : tant que la pause du jour n'est pas finie, le
+   bloc dit « En poste · Fin à 15 h » avec une barre qui avance, ou
+   « Aujourd'hui · Début à 6 h » avant elle ; ensuite seulement le
+   prochain poste. Les heures se comptent depuis minuit du jour de
+   l'usine (`PF_DEB`, `PF_FIN`), la nuit finit donc à 30 h : LCI à 2 h le
+   17/10 est « En poste · Fin à 6 h » sur la nuit du 16 ;
+2. **les sept jours se touchent** : chacun ouvre le Planning de ce jour ;
+3. **l'atelier sous la pause** quand la cellule l'écrit (`PV_COURT`), et
+   un point jaune quand la journée porte un rappel ;
+4. **les changements dans la semaine** : la journée modifiée est cerclée
+   de cyan, l'ancienne lecture dans son libellé d'accessibilité. Quand
+   tous les changements tombent dans ces sept jours, la carte « Votre
+   horaire a changé » s'efface au profit d'une ligne « n journées
+   modifiées · Vu » sous la semaine ; s'il en reste au-delà, la carte
+   revient, et son « Vu » efface aussi les cercles. Éprouvé : 13 et 14/10
+   modifiés, cercles et ligne, carte cachée ; 13/10 et 20/11, carte
+   visible ; « Vu », cercles partis, et rien au rechargement ;
+5. **moins haut** : semaine et bloc du poste resserrés.
+
 Mesuré le 10/10 sur VBN, SKS et LCI : prochain poste le lundi 12 (D 7-15,
 D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
 390 et 1280 px ; le sous-effectif du 10/10 mène à l'onglet avec STEP · AM
