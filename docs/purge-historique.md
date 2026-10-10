@@ -1,4 +1,4 @@
-# Purge de l'historique — faite le 22/09/2026, à terminer côté GitHub
+# Purge de l'historique — faite le 22/09/2026, vérifiée complète le 10/10/2026
 
 ## Ce qui a été purgé
 
@@ -43,6 +43,8 @@ git push --force origin travail:claude/zen-bell-pfx7el
 - Le site répond, la version servie est la bonne.
 
 ## Ce qui reste, et ce n'est pas un détail
+
+> **Résolu depuis — voir « Vérifié résolu le 10/10/2026 » en fin de document.**
 
 **GitHub sert encore les anciens commits par leur empreinte.** Vérifié le
 22/09/2026 : trois anciennes empreintes répondent `HTTP 200` et le document
@@ -98,3 +100,37 @@ qui fuyait, et sur le fichier nettoyé.
 Elle l'est maintenant, dans `CLAUDE.md` sous « Conventions » : aucun nom
 complet, **et aucun montant de salaire**. Le dépôt est public — `docs/` se
 lit sans authentification, par le site comme par `raw.githubusercontent.com`.
+
+## Vérifié résolu le 10/10/2026
+
+Le reste décrit plus haut — les anciens commits encore servis par leur
+empreinte — **ne l'est plus**. Entre le 22/09 et le 10/10, le ramasse-miettes
+normal de GitHub a purgé les objets non-atteignables. Contrôlé le 10/10 sur le
+dépôt : les deux empreintes de blob des noms
+(`fee9c67…`, `78e254a…`) répondent **HTTP 404** à l'API git/blobs, et
+l'historique atteignable (toute l'ascendance de `main`, v660) descend de la
+purge — les onze commits « (montant retiré) » y sont, aucun nom ni montant n'y
+subsiste. La purge est donc **complète de fait**, sans suppression ni
+réécriture supplémentaire.
+
+## L'incident du 10/10/2026 — un garde-fou de plus
+
+Ce jour-là, en voulant appliquer la « voie 2 » (supprimer + recréer) pour
+solder le reste, le dépôt a été supprimé puis recréé **à partir d'un clone
+local périmé** : ce clone était resté à la v585 du 07/10 et n'avait jamais
+`fetch` les 91 commits (jusqu'à la v660) poussés depuis une autre machine. Le
+« c'est safe ? » avait été validé sur un `origin/main` **local**, pas sur le
+serveur. Quatre-vingt-onze commits ont ainsi été écrasés.
+
+Récupérés intégralement via la **restauration des dépôts supprimés de GitHub**
+(fenêtre 90 jours, `github.com/settings/deleted_repositories`) : il faut
+d'abord **renommer** le dépôt recréé pour libérer le nom, puis *Restore*. La
+restauration **ne réactive pas** GitHub Pages — à remettre à la main.
+
+**La règle qui en sort, et elle vaut pour tout dépôt :** avant toute opération
+destructive ou irréversible (supprimer/recréer, `force-push`, `reset --hard`
+d'une branche partagée), on lance `git fetch` et on **compare le `HEAD`
+distant au local, à l'écran**, avant de décider. Un `git status` propre ne
+dit rien de l'avance du serveur : il se compare au `origin/*` local, pas au
+dépôt. Et si une purge restait à faire, elle se ferait par `filter-repo` +
+`force-push` sur le **même** dépôt, jamais par suppression.
