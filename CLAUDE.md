@@ -3969,6 +3969,22 @@ l'onglet le dit en mots. La rangée « Sous-effectif · Rappels · Absents »
 Mesuré à 320 px (hors ligne), 390 et 1280 px : 25, comme le cadre ;
 l'onglet commence par le cadre des sous-effectifs ; rien ne déborde.
 
+**En pauses, et non en jours** (le client, le même jour : « indiquer en
+description 25 pauses en sous-effectif ; bien parler en pause et non en
+jour »). `mqPauses()` compte les pauses distinctes d'une journée de
+manque — deux postes vides la même nuit font une pause, un matin et une
+nuit en font deux. Le sous-titre dit « 25 pauses en sous-effectif »,
+chaque intertitre de mois « 6 pauses », la bulle et son libellé
+d'accessibilité comptent pareil. Au 10/10 les deux comptes tombent égaux
+(aucune journée n'a deux pauses en manque) : seul le mot change. Même
+demande : le nom du mois se centre verticalement dans son intertitre (le
+`align-items:baseline` de `#mqCorps .eqsem` le collait en haut) ; la
+description sous « Rappels non nécessaires » disparaît ; les cadres
+Absents et Congé et repos prennent la première ligne des autres cadres de
+l'onglet (`.toolbar.rhtitle` : titre centré, puis « 6 personnes ·
+jusqu'au » ou « 40 personnes · reprise »). Vérifié à 320 px (hors ligne),
+390 et 1280 px : écart de centrage 0 px, rien ne déborde, aucune erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

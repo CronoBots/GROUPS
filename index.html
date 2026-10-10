@@ -1876,6 +1876,9 @@ body.sheet-on{overflow:hidden}
 /* Le nombre de journées du mois, à droite de l'intertitre, comme le total
    sous le titre du cadre (le client, le 09/10/2026). */
 #mqCorps .eqsem{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+/* Le nom du mois centré verticalement dans son intertitre (le client, le
+   10/10/2026) : le baseline ci-dessus le collait en haut. */
+#mqCorps .eqsem.mqtog, #rnCorps .eqsem.mqtog{align-items:center}
 .eqsemn{text-transform:none; letter-spacing:0; font-weight:500; font-size:11.5px}
 #mqCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
 @media (max-width:380px){ .mqjt{padding:8px 10px 7px} #mqCorps .mqls{padding:9px 10px 11px} }
@@ -11083,10 +11086,12 @@ function renderEquipe(){
          tableau « Hors poste », les dates gagnent la largeur que prenaient
          l'intitulé et le compte — à 320 px elles tiennent à côté de leurs
          trigrammes. */
+      /* Même première ligne que les autres cadres de l'onglet : titre centré
+         et compte dessous (le client, le 10/10/2026). */
       cadres.push('<div class="card eqcard" data-s="'+k+'">'
-        +'<header><h2><span class="eqpt"></span>'+esc(k==="abs"?"Absents":"Congé et repos")
-        +' <span class="eqnb">'+l.length+'</span></h2>'
-        +'<span class="sub">'+(autreJour?"aujourd'hui · ":"")+(k==="abs"?"maladie · jusqu'au":"date de reprise")+"</span></header>"
+        +'<div class="toolbar rhtitle"><h2>'+esc(k==="abs"?"Absents":"Congé et repos")+'</h2>'
+        +'<p class="sub">'+(autreJour?"aujourd'hui · ":"")+l.length+" personne"+(l.length>1?"s":"")
+        +" · "+(k==="abs"?"jusqu'au":"reprise")+"</p></div>"
         +'<div class="eqrows">'+h2+"</div></div>");
     });
     var reste=document.getElementById("eqReste");
@@ -12329,7 +12334,8 @@ function renderRappelsInutiles(force){
     if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
       +"<span>Aucun rappel non nécessaire d'ici la fin de l'horaire.</span></p>";
-    document.getElementById("rnSub").textContent=n?n+" rappel"+(n>1?"s":""):"rien à signaler";
+    /* Plus de description sous le titre (le client, le 10/10/2026). */
+    document.getElementById("rnSub").textContent="";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un rappel non nécessaire doit aller sur la
        vue horaire de ce jour-là »). setView("jour") bascule la vue et rend
@@ -12403,6 +12409,12 @@ function pistesDeRemplacement(vue,P,gk,listeD,jour){
 /* Recalculer cent journées à chaque flèche de l'onglet Équipe serait du
    gaspillage : le tableau ne dépend QUE de la date du jour et de l'horizon. */
 var mqFait="";
+/* Le nombre de PAUSES d'une journée de sous-effectif : ses manques, chacun
+   rangé dans sa pause, une pause comptée une fois même s'il y manque
+   quelqu'un à deux postes. */
+function mqPauses(x){
+  var vu={}, n=0; (x.l||[]).forEach(function(m){ if(!vu[m.pause]){ vu[m.pause]=1; n++; } }); return n;
+}
 function renderManques(force){
   var hote=document.getElementById("mqCorps"); if(!hote) return;
   var au=new Date(), cle=au.toDateString()+"/"+mqHorizon;
@@ -12449,10 +12461,10 @@ function renderManques(force){
     var mqDiff=[], mqOuv=true;
     r.jours.forEach(function(x){
       var q=dateEnMots(Number(db.year),x.mois,x.jour,t0);
-      if(q.mois!==semPrec){ var nm=r.jours.filter(function(z){ return z.mois===x.mois; }).length;
+      if(q.mois!==semPrec){ var nm=0; r.jours.forEach(function(z){ if(z.mois===x.mois) nm+=mqPauses(z); });
         if(semPrec!==-1) h.push("</div></section>");
         var kk="mq/"+x.mois; mqOuv=(kk in MQ_OUVERT)?MQ_OUVERT[kk]:(semPrec===-1);
-        h.push(mqMoisTete("mq",x.mois,q.moisNom,nm+" journée"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
+        h.push(mqMoisTete("mq",x.mois,q.moisNom,nm+" pause"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
       /* UN MOIS REPLIÉ NE SE CALCULE PAS : ses fiches (et leurs candidats,
          le plus lourd) se construisent à son dépli (audit du 10/10/2026 :
          l'onglet figeait 1,3 s à sa première ouverture). */
@@ -12519,7 +12531,10 @@ function renderManques(force){
     };
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Tous les postes sont couverts</b>'
       +"<span>Aucun sous-effectif d'ici la fin de l'horaire.</span></p>";
-    var n=r.jours.length;
+    /* EN PAUSES, ET NON EN JOURS (le client, le 10/10/2026 : « 25 pauses en
+       sous-effectif ; bien parler en pause et non en jour ») : une journée
+       qui manque de monde le matin et la nuit compte deux pauses. */
+    var n=0; r.jours.forEach(function(z){ n+=mqPauses(z); });
     /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
        renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
        même phrase ne disait rien de plus la seconde. */
@@ -12532,9 +12547,9 @@ function renderManques(force){
     var nb=document.getElementById("rhNb");
     if(nb){ nb.textContent=n>99?"99+":String(n); nb.hidden=!n;
       var tb=document.getElementById("tab-rh");
-      if(tb) tb.setAttribute("aria-label","Effectifs"+(n?" · "+n+" journée"+(n>1?"s":"")+" en sous-effectif":"")); }
+      if(tb) tb.setAttribute("aria-label","Effectifs"+(n?" · "+n+" pause"+(n>1?"s":"")+" en sous-effectif":"")); }
     document.getElementById("mqSub").textContent=
-      n ? n+" journée"+(n>1?"s":"") : "rien à signaler";
+      n ? n+" pause"+(n>1?"s":"")+" en sous-effectif" : "rien à signaler";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un effectif minimum doit aller sur la vue
        horaire de ce jour-là »). setView("jour") bascule la vue et rend
