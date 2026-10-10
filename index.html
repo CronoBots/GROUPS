@@ -760,7 +760,8 @@ button{cursor:pointer}
 /* l'infobulle s'inverse avec le thème : un blanc figé ici disparaissait
    sur le fond clair que prend la bulle en mode sombre */
 #calTip b{color:inherit; font-weight:700}
-.orgn .orgeq{font-size:.68em; margin-left:1px; opacity:.75; line-height:1; align-self:flex-start; position:relative; top:-1px}
+.orgn{position:relative}
+.orgn .orgeq{position:absolute; top:0; right:1px; font-size:8px; line-height:1; opacity:.8; pointer-events:none}
 @media (max-width:620px){
   .annee{padding:0 12px 12px}
   .annee .grille{grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px}
@@ -1586,6 +1587,17 @@ body.sheet-on{overflow:hidden}
 .orgt tbody tr[data-z="rouge"] td:last-child{border-right-color:var(--bordr)}
 .orgt tbody tr[data-z="bleu"]  td:last-child{border-right-color:var(--bordb)}
 .orgt thead th:last-child{border-right:0}
+/* LA LIGNE DES ÉQUIPES comme la ligne des pauses du Planning (le client, le
+   10/10/2026 : « ajouter une bordure aussi pour la ligne des équipes et la
+   police de la ligne équipe doit être comme la ligne des pauses ») : même
+   trait gris de 3 px à gauche et à droite, même écriture (13,5 px, 650, sans
+   capitales). Seul le tableau « Les équipes » (.orgeqs) ; le coin « Poste »
+   garde la sienne. */
+.orgeqs thead th:not(.orgp){font-size:13.5px; font-weight:650; letter-spacing:0; text-transform:none}
+.orgeqs thead th:first-child::before,.orgeqs thead th:last-child::after{content:"";
+  position:absolute; top:0; bottom:0; width:3px; background:#7C8699; pointer-events:none}
+.orgeqs thead th:first-child::before{left:0}
+.orgeqs thead th:last-child::after{right:0}
 /* « Opérateur hors équipe » : ligne-titre sur toute la largeur, en bas du tableau des
    équipes, au-dessus de la ligne STEP (le client, le 06/10/2026). Trait fort au-dessus
    pour la détacher des équipes, fond --surface2. Les côtés reprennent le BLEU de l'atelier
@@ -11837,7 +11849,7 @@ function renderOrganisation(){
     });
     eqs.sort(function(a,b){ return Number(a)-Number(b); });
 
-    var t=['<div class="card"><div class="toolbar orgtitle"><h2>Les équipes</h2></div><div class="eqgrille"><table class="orgt">'];
+    var t=['<div class="card"><div class="toolbar orgtitle"><h2>Les équipes</h2></div><div class="eqgrille"><table class="orgt orgeqs">'];
     t.push('<thead><tr><th class="orgp">Poste</th>');
     /* « Éq. 3 » et non « Équipe 3 » : la colonne fait 57 px à 390 px de
        large, et l'intitulé long y sortait de la case. */
