@@ -3894,14 +3894,16 @@ l'épreuve ; rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
   partagé exposerait les sous-effectifs aux drapeaux que `postesDePause()`
   pose sur les personnes (`fixe`, `fait`) : le gain ne vaut pas ce risque.
 
-**Les bords des lignes CM et ADJ du Planning en vrai gris** (le client, le
-10/10/2026, capture de l'iPhone : « ajouter des bords gris sur les 2 lignes
-du dessus »). Le trait de zone gauche et droit de ces deux lignes prenait
-`--bordg` (#AEB9CC), qui se lisait blanc sur le fond sombre, à côté du
-blanc adouci de la formation. Il passe à #7C8699, dans le tableau du jour
-seulement : `--bordg` sert aussi aux puces et à la grille du recyclage, que
-le client n'a pas demandé de changer. Mesuré à 320 px (hors ligne), 390 et
-1280 px : les deux traits rendent `rgb(124, 134, 153)`.
+**La ligne du jour et celle des pauses prennent les traits latéraux** (le
+client, le 10/10/2026, capture de l'iPhone : « mettre les mêmes bordures
+pour la ligne des pauses et des jours »). Les lignes de poste du Planning
+portent un trait de 3 px à gauche et à droite, à la couleur de leur zone ;
+la barre de date et la ligne AM · PM · N n'en avaient pas. Elles prennent
+le gris des lignes CM et ADJ (`--bordg`), si bien que le trait court sans
+interruption du haut du cadre jusqu'au bas du tableau. **J'avais d'abord
+compris de travers** : j'ai foncé le gris des lignes CM et ADJ (v635), ce
+que le client ne demandait pas ; c'est annulé. Vérifié à 320 px (hors
+ligne), 390 et 1280 px, sans erreur.
 
 ### Le congé en heures
 
