@@ -395,6 +395,14 @@ button{cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--in); font-weight:600}
 .tabs button[aria-selected="true"]::after{content:""; position:absolute; left:11px; right:11px; bottom:-1px; height:2px; background:var(--in)}
 .tabs .dotwarn{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--out2); margin-left:6px; vertical-align:1px}
+/* La bulle du nombre de journées en sous-effectif, sur l'onglet Effectifs :
+   pastille rouge à chiffre, collée au coin de l'icône sur téléphone, à côté
+   du libellé au bureau. */
+.tabs .tabnb{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
+  padding:0 5px; margin-left:6px; border-radius:999px; background:#D63A30; color:#fff;
+  font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:0; vertical-align:1px; box-sizing:border-box;
+  box-shadow:0 0 0 2px var(--marque,#111727)}
+.tabs .tabnb[hidden]{display:none}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
@@ -1871,15 +1879,6 @@ body.sheet-on{overflow:hidden}
 .eqsemn{text-transform:none; letter-spacing:0; font-weight:500; font-size:11.5px}
 #mqCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
 @media (max-width:380px){ .mqjt{padding:8px 10px 7px} #mqCorps .mqls{padding:9px 10px 11px} }
-.rhsauts{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:0 0 2px}
-.rhsauts::-webkit-scrollbar{display:none}
-.rhsauts button{flex:1 0 auto; display:inline-flex; align-items:center; justify-content:center; gap:6px;
-  min-height:36px; padding:0 12px; border-radius:999px; border:1px solid var(--cadre); background:var(--surface);
-  color:var(--ink2); font:600 12.5px/1 inherit; font-family:inherit; cursor:pointer}
-.rhsauts b{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--at-rouge)}
-.rhsauts b:empty{display:none}
-@media (hover:hover){ .rhsauts button:hover{border-color:var(--trait-fort); color:var(--ink)} }
-@media (max-width:380px){ .rhsauts button{padding:0 9px; font-size:12px} }
 .vsprec{display:flex; flex-direction:column; align-items:flex-end; gap:1px; text-align:right; margin-top:4px}
 .vsprec b{font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums}
 .vsprec.plus b{color:var(--good)} .vsprec.moins b{color:var(--out)}
@@ -3492,6 +3491,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .navwrap>.tabs button:hover:not([aria-selected="true"]){color:#fff; background:rgba(255,255,255,.06)}
   .navwrap>.tabs button:active{transform:scale(.93)}
   .navwrap>.tabs .dotwarn{top:6px; right:calc(50% - 15px)}
+  .navwrap>.tabs .tabnb{position:absolute; top:3px; right:calc(50% - 22px); margin:0}
   /* Le contenu défile DERRIÈRE la capsule : le bas de page lui laisse sa place,
      la bulle et le bouton de retour en haut se posent au-dessus d'elle. */
   .wrap{padding-bottom:calc(90px + var(--navbas))}
@@ -3571,7 +3571,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       Salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
     <button type="button" role="tab" id="tab-rh" data-v="rh" aria-selected="false" aria-controls="v-rh">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 9.3-5"/><circle cx="16.8" cy="15.8" r="3"/><path d="M19 18l2.3 2.3"/></svg>
-      Effectifs</button>
+      Effectifs<span class="tabnb" id="rhNb" hidden></span></button>
     <button type="button" role="tab" id="tab-recherche" data-v="recherche" aria-selected="false" aria-controls="v-recherche">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       Recherche</button>
@@ -3905,14 +3905,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
        hors-poste quittent l'Accueil (qui ne garde que « Mon rythme ») ; le
        tableau du jour dupliqué disparaît — il reste sur l'onglet Horaire. -->
   <section class="panel stack" id="v-rh" role="tabpanel" aria-labelledby="tab-rh" tabindex="-1" hidden>
-    <!-- LES SAUTS (le client, le 09/10/2026, « optimise tout ») : quatre cadres
-         empilés, et le dernier à plusieurs écrans du premier. Une rangée de
-         boutons mène droit à chacun, avec son compte. -->
-    <nav class="rhsauts" aria-label="Aller à">
-      <button type="button" data-saut="mqCard">Sous-effectif<b id="sautMq"></b></button>
-      <button type="button" data-saut="rnCard">Rappels<b id="sautRn"></b></button>
-      <button type="button" data-saut="eqReste">Absents</button>
-    </nav>
     <!-- CADRE « PRO » comme les onglets Horaire/Équipe (le client, le 07/10/2026 :
          « adapter les cadres de l'onglet RH avec le style des onglets horaire/
          équipes »). Le titre n'est plus flottant au-dessus : c'est une BARRE
@@ -12338,7 +12330,6 @@ function renderRappelsInutiles(force){
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
       +"<span>Aucun rappel non nécessaire d'ici la fin de l'horaire.</span></p>";
     document.getElementById("rnSub").textContent=n?n+" rappel"+(n>1?"s":""):"rien à signaler";
-    var sr=document.getElementById("sautRn"); if(sr) sr.textContent=n?String(n):"";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un rappel non nécessaire doit aller sur la
        vue horaire de ce jour-là »). setView("jour") bascule la vue et rend
@@ -12534,7 +12525,14 @@ function renderManques(force){
        même phrase ne disait rien de plus la seconde. */
     /* Le nombre de journées regardées n'est plus écrit (le client, le
        26/09/2026) : seules comptent celles qui manquent de monde. */
-    var sm=document.getElementById("sautMq"); if(sm) sm.textContent=n?String(n):"";
+    /* LA BULLE DE L'ONGLET (le client, le 10/10/2026 : « sur l'onglet rh, il
+       doit y avoir une petite bulle avec le nombre de jours en sous-effectif »).
+       Elle remplace la rangée de sauts du haut de l'onglet, retirée le même
+       jour (« les badges au-dessus de la page rh ne sont pas utiles »). */
+    var nb=document.getElementById("rhNb");
+    if(nb){ nb.textContent=n>99?"99+":String(n); nb.hidden=!n;
+      var tb=document.getElementById("tab-rh");
+      if(tb) tb.setAttribute("aria-label","Effectifs"+(n?" · "+n+" journée"+(n>1?"s":"")+" en sous-effectif":"")); }
     document.getElementById("mqSub").textContent=
       n ? n+" journée"+(n>1?"s":"") : "rien à signaler";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
@@ -14744,16 +14742,15 @@ function ouvrirRecherche(pre){
     }
   });
 }
-document.querySelector(".rhsauts").addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest("[data-saut]"):null; if(!b) return;
-  var el=document.getElementById(b.getAttribute("data-saut")); if(!el) return;
-  var top=document.querySelector("header.top"),
-      haut=el.getBoundingClientRect().top+window.pageYOffset-((top&&top.offsetHeight)||0)-10;
-  var doux=!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  try{ window.scrollTo({top:Math.max(0,haut),behavior:doux?"smooth":"auto"}); }catch(x){ window.scrollTo(0,Math.max(0,haut)); }
-});
+
 function boot(){
   if(booted) return; booted=true;
+  /* La bulle de l'onglet Effectifs se calcule sans attendre qu'on ouvre
+     l'onglet, mais au repos : le calcul balaie toutes les journées à venir. */
+  fetchHoraireDB().then(function(db){ if(!db) return;
+    var auRepos=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:4000}); }:function(f){ setTimeout(f,1500); };
+    auRepos(function(){ try{ renderManques(); }catch(e){} });
+  },function(){});
   document.getElementById("storeinfo").textContent = st.db
     ? "Enregistré dans votre espace Claude : vos mois vous suivent d'un appareil à l'autre."
     : "Enregistré dans ce navigateur, sur cet appareil. Exportez de temps en temps pour garder une copie.";
