@@ -612,13 +612,11 @@ button{cursor:pointer}
 .cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
 .cg-l.neg .cg-bar i{background:var(--out2)}
 /* flex time : le solde du jour, sa jauge, quatre chiffres */
-.ft-hero{display:flex; align-items:center; gap:14px}
-.ft-v{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); white-space:nowrap}
-.ft-v b{font-size:30px; font-weight:650; color:var(--ink); letter-spacing:-.02em; font-variant-numeric:tabular-nums}
-.ft-l{display:flex; flex-direction:column; gap:2px; min-width:0}
-.ft-l span{font-size:11.5px; color:var(--muted)}
-.ft-l .ft-e{font-size:12.5px; font-weight:650; color:var(--good)}
-.ft-att .ft-e{color:var(--at-jaune)} .ft-ko .ft-e,.ft-ko .ft-v b{color:var(--out2)}
+.ft-ligne{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px 12px}
+.ft-ligne span{font-size:12px; color:var(--muted)}
+.ft-ligne b{font-family:"IBM Plex Mono",monospace; color:var(--ink); font-weight:650}
+.ft-ligne .ft-e{font-size:12.5px; font-weight:650; color:var(--good)}
+.ft-att .ft-e{color:var(--at-jaune)} .ft-ko .ft-e,.ft-ko b{color:var(--out2)}
 .ft-jauge{position:relative; margin:14px 6px 26px}
 .ft-piste{display:flex; height:6px; border-radius:99px; overflow:hidden; background:var(--surface3)}
 .ft-piste .ft-z0{flex:0 0 78.57%; background:rgba(110,190,150,.28)}
@@ -3701,13 +3699,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          horaires de la note explicative du relevé mensuel (novembre 2025),
          rangée dans le dépôt privé. Rempli par renderReleve(). -->
     <div class="card">
-      <details class="fold" id="relFold">
-        <summary>Relevé de prestations <span class="sub">à comparer ligne à ligne avec celui reçu au travail</span></summary>
-        <div id="relCorps"></div>
-      </details>
-    </div>
-    <div class="card">
-      <details class="fold">
+      <details class="fold" id="codesFold" data-memo>
         <summary>Les codes <span class="sub">postes, congés, maladie et primes de rappel</span></summary>
         <div class="codes">
           <div>
@@ -3922,6 +3914,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="callout" id="recal"></div>
       </details>
     </div>
+    <!-- Le relevé de prestations quitte l'Accueil pour Salaire (le client, le
+         10/10/2026) : on l'ouvre la feuille reçue au travail sous les yeux,
+         comme le contrôle de la fiche juste au-dessus. -->
+    <div class="card">
+      <details class="fold" id="relFold" data-memo>
+        <summary>Relevé de prestations <span class="sub">à comparer ligne à ligne avec celui reçu au travail</span></summary>
+        <div id="relCorps"></div>
+      </details>
+    </div>
   </section>
 
   <!-- ============ RH ============ -->
@@ -3945,6 +3946,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          AUJOURD'HUI » dans renderEquipe). La barre de jour ne pilotait donc rien
          d'utile dans RH : retirée. -->
 
+    <!-- Absents et congés en tête : il dit AUJOURD'HUI, les deux cadres
+         suivants les jours à venir (le client, le 10/10/2026). -->
+    <div class="eqcorps" id="eqReste"></div>
+
     <div class="card" id="mqCard">
       <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
       <div class="mqcorps" id="mqCorps"></div>
@@ -3955,7 +3960,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="mqcorps" id="rnCorps"></div>
     </div>
 
-    <div class="eqcorps" id="eqReste"></div>
   </section>
 
   <!-- L'ONGLET RECHERCHE (le client, le 10/10/2026 : « je pensais à un
@@ -13953,9 +13957,10 @@ function renderCompteurs(){
               :soldeJ<-8?["ko","Sous le minimum de −8 h"]
               :["ok","Dans les bornes"];
       var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
-      ft.push('<div class="ft-hero ft-'+etat[0]+'"><div class="ft-v"><b>'+num(soldeJ)+'</b> h</div>'
-        +'<div class="ft-l"><span>solde au '+pad2(jusqua%100)+'/'+pad2(Math.floor(jusqua/100))+'</span>'
-        +'<span class="ft-e">'+etat[1]+'</span></div></div>');
+      /* Le solde se lit en grand dans le héros, juste au-dessus : ici,
+         l'état et la jauge seulement (le client, le 10/10/2026). */
+      ft.push('<div class="ft-ligne ft-'+etat[0]+'"><span class="ft-e">'+etat[1]+'</span>'
+        +'<span>solde au '+pad2(jusqua%100)+'/'+pad2(Math.floor(jusqua/100))+' : <b>'+num(soldeJ)+'</b> h</span></div>');
       ft.push('<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
         +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
         +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
