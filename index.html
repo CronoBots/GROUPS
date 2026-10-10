@@ -9467,6 +9467,10 @@ function dirRecycHTML(cov){
       +'<b>'+cov.overdue[k]+'</b></div>';
   }).join("")+'</div>';
 }
+/* Seuil « à renforcer » par poste. STEP n'exige qu'un opérateur (effectif
+   requis faible) : 1 suffit, seul 0 est rouge. Les autres postes : au moins 2
+   (titulaire + back-up). Le client, le 10/10/2026. */
+var DIR_SEUIL={ step:1 };
 function dirCouvHTML(cov){
   var SH={meun:"Meu",glut:"Glu",ferm:"Fer",dist:"Dis",chau:"Cha",step:"STE"};
   var teams=Object.keys(cov.teams).sort();
@@ -9474,8 +9478,8 @@ function dirCouvHTML(cov){
   var h='<div class="dir-mx"><div class="mh"></div>'+cov.POSTS.map(function(k){ return '<div class="mh">'+SH[k]+'</div>'; }).join("");
   teams.forEach(function(tm){
     h+='<div class="rh">'+esc(tm.replace(/^Shift\s*/i,"Éq. "))+'</div>'+cov.POSTS.map(function(k){
-      var v=cov.teams[tm].cov[k]||0;
-      return '<div class="mc '+(v<2?"lo":"ok")+'">'+v+'</div>';
+      var v=cov.teams[tm].cov[k]||0, seuil=DIR_SEUIL[k]||2;
+      return '<div class="mc '+(v<seuil?"lo":"ok")+'">'+v+'</div>';
     }).join("");
   });
   return h+'</div>';
@@ -9537,7 +9541,7 @@ function dirAnneeHTML(a){
    +'<p class="dir-note">Opérateurs polyvalents dont le recyclage n\'est pas à jour sur ce poste.</p>'
    +'<div class="dir-sec">Postes à renforcer, par équipe</div>'
    +'<div id="dirCouv"><div class="dir-anb dir-anb-wait">…</div></div>'
-   +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : moins de 2 — à renforcer.</p>';
+   +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : à renforcer — moins de 2, ou aucun pour STEP.</p>';
 }
 
 function majNotifReglage(){
