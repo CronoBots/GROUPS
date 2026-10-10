@@ -4180,18 +4180,27 @@ Vérificateur identique à l'octet, découpe de `comparer-fiches` à l'épreuve
 (il ne découpe ni `statsRythme()` ni `mqJoursAVenir()`). Rien ne déborde et
 aucune erreur à 320 px (hors ligne), 390 et 1280 px.
 
-**Une ligne par type de solution** (le client, le 10/10/2026, capture de
-l'iPhone : « encore moyen de mieux présenter les gens en pause et
-propositions de remplacement »). Dans les sous-effectifs et la Recherche,
-chaque cadre — En poste, Même pause, En D, Change de pause, Prolongation
-12 h, Rappel — tient sur une ligne : l'intitulé dans une colonne de 100 px
-(82 sous 380 px), les trigrammes à droite. Avant, l'intitulé passait
-au-dessus et la fiche du 12/10 (STEP AM, trois étiquettes) faisait
-environ 330 px ; elle en fait 197 à 390 px. La prolongation garde ses deux
-lignes d'horaires (`.capaire.prol`, intitulé sur les deux rangées). CSS
-seulement, plus une classe : vérificateur identique à l'octet ; aucune
-étiquette ne sort de sa fiche, rien ne déborde à 320 px (hors ligne), 390
-et 1280 px.
+**Les trigrammes sous leur type, et « En poste » seulement à deux** (le
+client, le 10/10/2026, capture de l'iPhone). Une première version mettait
+chaque type de solution sur une ligne, l'intitulé à gauche et les
+trigrammes à droite (197 px au lieu de 330 pour la fiche du 12/10). Le
+client : « j'aimais mieux les trigrammes sous le type de rappel » —
+annulé, la colonne d'intitulés est partie. Ce qui reste :
+
+- **« En poste » ne se montre que si le poste attend deux personnes ou
+  plus** (« est-ce que le en poste est utile à part pour les postes avec
+  minimum de 2 ? ») : à un seul attendu, il ne portait qu'un « ? », que le
+  « 0/1 » de l'en-tête dit déjà. Au 10/10, 2 fiches sur 24 le gardent
+  (N Chaud. 1/2) ; la Recherche garde le sien, qui dit qui tient le poste ;
+- **l'horaire aligné sur le trigramme** dans les étiquettes (« ATA
+  06-14 ») : centrés l'un sur l'autre, un mono de 11,5 px et un texte de
+  10 px ne partageaient pas leur ligne d'écriture, et l'heure paraissait
+  plus basse. Les deux se posent sur la même ligne de base, l'heure en
+  mono ; « pour faire 06-18 » suit cette ligne, avec une espace devant
+  l'horaire, que la règle `.cahr{margin:0}` collait au mot.
+
+CSS et une condition : vérificateur identique à l'octet ; rien ne déborde
+à 320 px (hors ligne), 390 et 1280 px.
 
 ### Le congé en heures
 
