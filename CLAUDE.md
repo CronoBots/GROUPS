@@ -3873,6 +3873,27 @@ procédure exclut ; ses relevés de pointage diront si la prime a bien été
 refusée. Vérificateur identique à l'octet, découpe de `comparer-fiches` à
 l'épreuve ; rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
 
+**Le reste des finitions, le même jour** (le client : « Go ») :
+
+- **Les deux GBT se distinguent** dans l'onglet Équipes : un exposant
+  d'équipe (« GBT⁴ », « GBT⁵ ») et l'infobulle « GBT · Équipe 4 »,
+  calculés une fois pour les trigrammes que deux personnes partagent
+  (`_orgJeton`, `__partage`).
+- **Code mort retiré** : les règles CSS de l'ancienne plaque cyan de
+  l'onglet Planning (`#tab-jour`, retirée le 09/10, dont un
+  `.dotwarn{display:none}` qui aurait caché en silence un point d'alerte),
+  et quatre fonctions que plus rien n'appelait (`_orgZone`,
+  `anneeDeLaPersonne`, `atelierDuJour`, `tipOn`). Le menu du bas est
+  identique au pixel, capture contre capture, à 320, 390 et 1280 px.
+- **L'annuaire garde son contenu** : l'audit proposait d'en retirer le
+  statut et les polyvalences, déjà dans « Statut » et « Recyclage », mais
+  c'est le contenu que le client a lui-même réglé le 06/10.
+- **Effectifs n'est pas accéléré davantage** : profilé, il reste environ
+  350 ms de calcul sur PC, presque tout dans la lecture de chaque journée
+  de chacun (`equipeDuJour` → `lireJournee`). Mettre ces lectures en cache
+  partagé exposerait les sous-effectifs aux drapeaux que `postesDePause()`
+  pose sur les personnes (`fixe`, `fait`) : le gain ne vaut pas ce risque.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
