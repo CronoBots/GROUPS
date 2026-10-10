@@ -6416,7 +6416,6 @@ function setView(v,keepScroll){
   if(v==="jour"||v==="rh") renderEquipe();
   if(v==="horaire") renderRythme();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
-  if(v==="horaire") centrerSurAujourdhui();
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
@@ -14008,26 +14007,11 @@ function etiqAbsence(code){
 var calTip=null;
 function tipOff(){ if(calTip) calTip.style.opacity="0"; }
 
-/* TOUJOURS JUSQU'À LA DATE DU JOUR. Le client, le 23/09/2026. Douze mois
-   défilent sous l'écran, et on ouvre cette vue pour savoir où l'on en est —
-   pas pour relire janvier. La case du jour porte déjà la classe « auj » ; il
-   suffit de l'amener au milieu.
-
-   DEUX ENDROITS L'APPELLENT, et il en faut deux : le rendu de l'année, pour
-   le changement de personne, et l'ouverture de l'onglet — car setView()
-   remet la page en haut APRÈS coup, et la vue est déjà dessinée quand on
-   revient sur l'onglet.
-
-   Sans animation : le glissement se battrait avec le repli de la barre du
-   haut, qui écoute le défilement. Et seulement si le panneau est à l'écran :
-   un rendu déclenché par le sélecteur de personne depuis un autre onglet n'a
-   pas à faire sauter la page. */
-function centrerSurAujourdhui(){
-  var pan=document.getElementById("v-horaire");
-  if(!pan || pan.hidden) return;
-  var c=pan.querySelector(".moiscal .mc-j.auj");
-  if(c && c.scrollIntoView) c.scrollIntoView({block:"nearest", inline:"nearest"});
-}
+/* Plus de défilement vers la case du jour : c'était pour l'ancienne vue
+   année, douze mois sous l'écran. Le calendrier ne montre plus qu'un mois,
+   juste sous le héros ; amener la case du jour à l'écran faisait descendre
+   la page au retour sur l'Accueil, sur un écran de téléphone, et collait le
+   héros en haut (le client, le 10/10/2026). */
 
 /* Les noms de jour servent à la barre du haut, qui écrit « Mardi 22
    septembre » : ils survivent à la vue semaine qui les a introduits. */
