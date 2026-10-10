@@ -4611,6 +4611,30 @@ function reposLiesAuWeekend(M,y,m,hJour){
   }
   return out;
 }
+/* Le cycle de la personne liée, lu dans SES cellules (cycleDuMois, la
+   lecture du calendrier), plutôt que le binôme, le cycle et le décalage
+   saisis à la main dans les Réglages — que presque personne ne
+   renseignait, laissant « Binôme 1, 6 semaines, 0 » à tout le monde. Le
+   client, le 10/10/2026 : « Optimise tout », en réponse à la question.
+   Sans personne liée, ou un mois que le cycle ne cale pas, les réglages
+   reprennent la main, comme avant. */
+function cycleDitD(y,m,d){
+  var db=horaireDe(y), id=trigCourant(), per=null, fit=null, i;
+  if(db && id) for(i=0;i<db.people.length;i++) if(db.people[i].id===id){ per=db.people[i]; break; }
+  if(per){ try{ fit=moisDe(per,Number(y),m+1,st.params.hJour).fit; }catch(e){ fit=null; } }
+  if(fit) return posteDeCycle(fit,Number(y),m+1,d)==="D";
+  var p=st.params;
+  return cyclePoste(p.binomeIdx,p.cycle,p.decalage,Date.UTC(y,m,d))==="D";
+}
+function cycleLuPourMoi(){
+  var db=horaireDe(st.y), id=trigCourant(), i;
+  if(!db || !id) return null;
+  for(i=0;i<db.people.length;i++) if(db.people[i].id===id){
+    var fit=null; try{ fit=moisDe(db.people[i],Number(st.y),st.m+1,st.params.hJour).fit; }catch(e){}
+    return fit;
+  }
+  return null;
+}
 function compute(){
   var p=st.params, b=st.bareme, M=st.month, y=st.y, m=st.m;
   var nd=daysInMonth(y,m), F=feries(y);
@@ -4672,7 +4696,7 @@ function compute(){
        les jours prévus en "Day" de la 5ᵉ et 6ᵉ semaine du cycle ». Le poste
        D n'existe que dans ces deux semaines : il suffit de lire le cycle. */
     if(rec.r && rec.r!=="MP" && rec.s==="AM"
-       && cyclePoste(p.binomeIdx,p.cycle,p.decalage,Date.UTC(y,m,d))==="D"){
+       && cycleDitD(y,m,d)){
       acc.rapExclu++;
       rec=Object.keys(rec).reduce(function(o,k){ if(k!=="r"&&k!=="r2") o[k]=rec[k]; return o; },{});
     }
@@ -6080,6 +6104,24 @@ function renderFields(){
   }
   fill("monthFields",MONTH_FIELDS,st.month);
   remplirGroupes("paramFields",PARAM_GROUPES,PARAM_FIELDS,st.params);
+  /* Binôme, cycle et décalage ne servent qu'à la règle des primes de
+     rappel ; quand l'horaire cale le cycle de la personne liée, c'est lui
+     qui la sert (cycleDitD) : les trois champs n'ont plus rien à dire et
+     cèdent la place à une ligne en lecture seule. */
+  var fitMoi=cycleLuPourMoi();
+  if(fitMoi){
+    var prem=null;
+    ["binome","cycle","decalage"].forEach(function(k){
+      var el=document.querySelector('#paramFields [data-k="'+k+'"]'), f=el&&el.closest(".f");
+      if(f){ if(!prem) prem=f; f.hidden=true; }
+    });
+    if(prem){
+      var lu=document.createElement("div"); lu.className="f fige";
+      lu.innerHTML='<label>Cycle de roulement</label><output>'+esc(fitMoi.cycle)+'</output>'
+        +'<span class="hint">lu dans votre horaire, pour les primes de rappel</span>';
+      prem.parentNode.insertBefore(lu,prem);
+    }
+  }
   fill("rappelFields",RAPPEL_FIELDS,st.params);
   fill("baremeFields",BAREME_FIELDS.filter(function(f){ return f.k!=="calage"; }),st.bareme);
   document.getElementById("paramNote").textContent=

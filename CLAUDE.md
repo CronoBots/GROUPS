@@ -3815,9 +3815,9 @@ exemple les trigrammes empilés ou l'absence de légende au tableau du jour).
 
 Mesuré : l'intro part en 1,7 s (le filet de 7 s n'est plus atteint) ;
 Accueil de 3 903 à 3 509 px à 390 px ; rien ne déborde à 320 (hors ligne),
-390 et 1280 px ; vérificateur identique à l'octet. **Non fait, à faire
-valider** : binôme, cycle et décalage des Réglages déduits de la personne
-(ils touchent à la paie).
+390 et 1280 px ; vérificateur identique à l'octet. Binôme, cycle et
+décalage des Réglages : faits ensuite, voir « Le cycle des primes de
+rappel lu dans l'horaire ».
 
 **Second lot, le même jour :**
 
@@ -3852,6 +3852,26 @@ onglets (le client a lui-même choisi les titres centrés d'Effectifs et
 d'Équipes) ; un plancher de 11 px pour tous les libellés (à mesurer onglet
 par onglet) ; « 1 personne manquante » et le cadre « En poste » des
 sous-effectifs, demandés par le client.
+
+**Le cycle des primes de rappel lu dans l'horaire** (le client, le
+10/10/2026, « Optimise tout », en réponse à la question posée). Binôme,
+cycle et décalage ne servent qu'à une règle : pas de prime de rappel pour
+une prestation au matin sur une journée prévue en D du cycle (procédure,
+point D). Ils se saisissaient à la main, et presque personne ne le
+faisait : tout le monde calculait avec « Binôme 1, 6 semaines, 0 ».
+`cycleDitD()` lit désormais le cycle de la personne liée dans ses propres
+cellules (`moisDe().fit`, la lecture du calendrier) ; sans personne liée,
+ou un mois que le cycle ne cale pas, les trois réglages reprennent la
+main. Dans « Mon contrat », ils cèdent la place à une ligne en lecture
+seule, « Cycle de roulement · 6 semaines », lu dans l'horaire.
+
+Mesuré mois par mois sur VBN, LCI, AFA, VGG, GPS et JBI, ancienne et
+nouvelle version côte à côte : **seul JBI change**, trois primes de rappel
+retirées, le 06/07 et les 19 et 20/08, trois remplacements de
+contremaître en 6h-18h pendant ses semaines de D, soit le cas que la
+procédure exclut ; ses relevés de pointage diront si la prime a bien été
+refusée. Vérificateur identique à l'octet, découpe de `comparer-fiches` à
+l'épreuve ; rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
 
 ### Le congé en heures
 
