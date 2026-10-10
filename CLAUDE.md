@@ -3989,6 +3989,15 @@ repliable ». L'en-tête de chaque journée (`.mqjt`) prend le fond
 `--surface2` de l'intertitre (`.eqsem`), coins hauts arrondis comme la
 carte ; mesuré, les deux fonds sont identiques à 320 px (hors ligne), 390
 et 1280 px.
+Puis : « pour les mois il faut indiquer les pauses en sous-effectif en
+rouge, et retirer le 1 personne manquante pour mettre le 0/1 à la place ;
+centrer le badge de recherche ». L'intertitre dit « 6 pauses en
+sous-effectif » en rouge (`.mqmn`) ; l'en-tête du jour porte l'effectif
+« 0/1 » (un par manque, précédé de la pause et du poste, s'il y en a
+plusieurs), et le cadre « En poste » des sous-effectifs ne le répète plus
+(`cadreEnPoste()` sans compte ; la recherche garde le sien). « Chercher un
+remplaçant » est centré, y compris sous 380 px où la fiche a 7 px de marge
+à gauche (écart mesuré 0 px à 320 px hors ligne, 390 et 1280 px).
 
 ### Le congé en heures
 
