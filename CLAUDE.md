@@ -4062,6 +4062,23 @@ remplaçant pour un poste, son troisième onglet « Remplaçant » ; primes de
 rappel · coefficients de la procédure de rappel. Les renvois du mode
 d'emploi suivent. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**« Chercher un remplaçant » retiré** (le client, le 10/10/2026 : « est-il
+utile vu que les propositions sont déjà faites sous le sous-effectif ? »,
+puis « oui »). Vérifié avant de le retirer : la fiche et l'onglet
+Recherche appellent `caCandidats()` avec les mêmes arguments et
+`caGroupes(t,true)` : mêmes cadres, mêmes noms. Le bouton, son écouteur,
+ses styles et `ouvrirRecherche()`, qui ne servait qu'à lui, sont partis.
+La ligne de date ouvre toujours le Planning de ce jour (`mqCible()`) ; le
+soulignement du jour, seul indice, cède la place à un chevron au bout de
+la ligne. Même demande, les majuscules et les retours à la ligne relus
+sur les six onglets par un balayage au navigateur (textes courts sur
+plusieurs lignes, intitulés en minuscule, unité mise en capitales par
+`text-transform`) : aucun retour à la ligne parasite à 320 et 390 px ;
+deux unités passaient en capitales, « PROLONGATION 12 H » et « DANS 2 J »
+dans le héros — l'unité porte désormais `.unite`, hors capitales.
+Vérifié à 320 px (hors ligne), 390 et 1280 px : la ligne de date mène au
+Planning, le corps de la fiche n'y mène pas, aucune erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
