@@ -4025,6 +4025,25 @@ tous les cadres repliables), le dernier intertitre perd son filet doublé,
 et « Rien à signaler » se centre dans son cadre. Vérifié à 320 px (hors
 ligne), 390 et 1280 px.
 
+**Chaque cadre à sa place** (le client, le 10/10/2026 : « trouves-tu que
+chaque cadre est bien dans son onglet ? », puis « tout »). Quatre
+déplacements :
+
+- le **relevé de prestations** quitte l'Accueil pour **Salaire**, sous
+  « Contrôle de la vraie fiche » : on l'ouvre la feuille reçue au travail
+  sous les yeux, comme la fiche. Replié par défaut, état retenu
+  (`data-memo`) ;
+- **Absents et congés** passe en tête d'Effectifs : il dit aujourd'hui, les
+  sous-effectifs et les rappels les jours à venir ;
+- **les codes** de l'Accueil restent en bas, repliés par défaut, état retenu
+  (`#codesFold`) ;
+- le bloc flex time des compteurs ne répète plus le solde en grand (le
+  héros l'affiche juste au-dessus) : une ligne d'état, « Dans les bornes ·
+  solde au 10/10 : 7 h », puis la jauge et les quatre chiffres.
+
+Vérifié à 320 px (hors ligne), 390 et 1280 px : le relevé se remplit dans
+Salaire (32 lignes en octobre), aucun débordement ni erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
