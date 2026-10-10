@@ -3929,6 +3929,10 @@ deux GBT par l'identifiant interne (« GBT-1 ») ou la catégorie (« Shift4 »)
 `libelleChoix()` les nomme désormais par leur poste attitré, l'abrégé de
 `PV_COURT` : « Glut. » et non « Glu. », pour rester l'abrégé qu'on lit
 partout ailleurs. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+Puis, le même jour : « pareil pour le trigramme, pas besoin du numéro
+d'équipe ». L'exposant d'équipe des badges GBT de l'onglet Équipes
+(« GBT⁴ », « GBT⁵ ») et son infobulle sont retirés : la ligne du tableau
+dit déjà le poste. Le badge redevient « GBT » tout court.
 
 ### Le congé en heures
 
