@@ -3678,8 +3678,10 @@ dans l'application, on pousse, et le client corrige sur la vraie page.
   partis. « Chercher un remplaçant » d'un sous-effectif ouvre l'onglet,
   jour, pause et poste remplis (`ouvrirRecherche(pre)`).
 - **Réglages n'est plus un onglet** : la roue en haut à droite du héros
-  (`.pf-roue`) et le trigramme de la barre du haut (`data-go`, déjà là) y
-  mènent, et la page s'ouvre sur « ‹ Accueil » (`.regretour`). La vue
+  (`.pf-roue`) y mène — sur téléphone c'est le seul chemin, la barre du
+  haut étant masquée depuis le 03/10/2026 (je l'avais oublié et en ai
+  parlé au client comme si elle existait) ; au bureau, où la barre porte
+  les onglets, son trigramme (`data-go`) y mène aussi, et la page s'ouvre sur « ‹ Accueil » (`.regretour`). La vue
   `reglages` reste dans `VIEWS`, de sorte que `ui/view` la retrouve.
 - **Le héros** : le logo (`logo.svg`, déjà dans `CORE`) et le trigramme en
   grand, côte à côte, la fonction et le binôme ou l'équipe dessous ;
