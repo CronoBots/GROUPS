@@ -4107,6 +4107,45 @@ carte, la croix) et 1280 px : `?vue=salaire` ouvre Salaire et l'adresse
 redevient propre, rien ne déborde, aucune erreur. Chromium sans écran ne
 déclenche pas `beforeinstallprompt` : seul un Android dira le bouton.
 
+**Le « wow » : cinq pistes, toutes** (le client, le 10/10/2026 : « go tout
+optimal ») :
+
+- **l'écart avec le mois d'avant** sous les chiffres du mois de l'Accueil
+  (prestées, jours, week-end, heures sup : « ▼ 54 vs sept. »). Il est relu
+  par `netMoisPrecedent()`, le même `compute()`, et calculé une seule fois
+  par calcul (`precDe()`), puisque le net du Salaire le lit aussi. Un mois
+  d'avant jamais ouvert n'était pas stocké : il se lit désormais dans
+  l'horaire par `remplirMois()`, sur une copie, sans rien enregistrer ;
+- **« Mon année à ce jour »** en tête de Mon rythme (`ryAnneeHTML()`) : les
+  journées prestées faites et à venir (barre), les nuits faites et à venir,
+  le prochain congé posé (date, code, durée, dans combien de jours). Il est lu
+  par `_pfJour()`, la lecture du héros, et calculé au repos. **Première
+  version fausse** : le temps partiel de LCI passait pour son « prochain
+  congé ». `estCongePose()` écarte la maladie, TP, CP, CT, la grève et le
+  sans-solde ;
+- **un onglet arrive du côté où il est dans le menu** (`de-d` / `de-g`,
+  16 px), comme une application native. Le corps rogne le débord
+  (`overflow-x:clip`, qui ne casse pas les en-têtes collants) ;
+- **« Ajouter mes postes à mon agenda »** au pied du mois : un `.ics` des
+  120 jours qui viennent (postes avec leurs heures, l'atelier écrit,
+  « rappel » ; congés posés en journée entière). Chaque journée garde son
+  identifiant (`TRI-AAAAMMJJ@biowanze`), si bien que réimporter met à jour
+  au lieu de doubler. VBN : 84 événements ;
+- **la vue direction** (Réglages → Vue direction, plein écran, Échap ou la
+  croix pour fermer) : présents du jour sur l'effectif, maladie et son
+  pourcentage, congés, pauses en sous-effectif d'ici le 31/12, les quatre
+  pauses avec leur équipe, les sept jours qui viennent en barres (rouge les
+  jours en sous-effectif), l'heure. Tout est relu par `equipeDuJour()` et
+  `mqJoursAVenir()` : le 10/10, 32 présents sur 78, 10 · 10 · 12 par pause,
+  6 malades (15,8 %), 25 pauses en sous-effectif, comme l'onglet Effectifs.
+
+**Les squelettes de chargement ne sont pas faits** : l'écran d'intro couvre
+déjà le chargement de l'horaire (1,7 s), et rien d'autre n'attend le réseau.
+Les quatre sorties du vérificateur sont identiques à l'octet, la découpe de
+`comparer-fiches` est à l'épreuve. Rien ne déborde et aucune erreur à 320 px
+(hors ligne), 390 et 1280 px. Seul un téléphone dira comment l'agenda
+importe le fichier.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

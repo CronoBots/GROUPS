@@ -218,6 +218,16 @@ button{cursor:pointer}
    a demandé moins de mouvement. */
 @keyframes vueEntre{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
 .panel.entre{animation:vueEntre .22s cubic-bezier(.2,.7,.3,1)}
+/* UN ONGLET ARRIVE DU CÔTÉ OÙ IL EST DANS LE MENU (le client, le 10/10/2026 :
+   « une vraie immersion dans l'app ») : vers la droite, il glisse depuis la
+   droite ; vers la gauche, depuis la gauche — comme une application native.
+   Le corps rogne ce débord le temps du glissement (clip, et non hidden,
+   qui casserait les en-têtes collants). */
+@keyframes vueDeDroite{from{opacity:0; transform:translateX(16px)} to{opacity:1; transform:none}}
+@keyframes vueDeGauche{from{opacity:0; transform:translateX(-16px)} to{opacity:1; transform:none}}
+.panel.entre.de-d{animation-name:vueDeDroite}
+.panel.entre.de-g{animation-name:vueDeGauche}
+body{overflow-x:clip}
 @keyframes jourGauche{from{opacity:.2; transform:translateX(18px)} to{opacity:1; transform:none}}
 @keyframes jourDroite{from{opacity:.2; transform:translateX(-18px)} to{opacity:1; transform:none}}
 #eqCorps.glisse-g{animation:jourGauche .2s ease-out}
@@ -899,6 +909,12 @@ button{cursor:pointer}
 .cstat-m{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
   color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
 .cstat-m:empty{display:none}
+/* L'écart avec le mois d'avant : une ligne fine, neutre (plus d'heures n'est
+   ni bien ni mal), la flèche seule dit le sens. */
+.cstat-d{font-size:9.5px; font-weight:600; color:var(--muted); white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.cstat-d.plus{color:var(--in)}
+.cstat-d:empty{display:none}
 
 /* Une année projetée par les cycles (majProjNote) : une ligne discrète,
    à l'encre de l'accent, sous la barre du mois. */
@@ -1907,6 +1923,51 @@ body.sheet-on{overflow:hidden}
    liseré cyan — l'accent de la marque, pas une alerte rouge : un
    changement n'est pas une faute. Une ligne par journée : la date, l'avant
    barré, l'après en gras. */
+/* L'EXPORT VERS L'AGENDA : une action, au pied du mois. */
+.cal-act{padding:10px 12px 12px; display:flex; justify-content:center; border-top:1px solid var(--cadre)}
+.btn-agenda{display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 16px; border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); background:color-mix(in srgb,var(--marque-vif) 12%,transparent);
+  color:var(--ink); font:600 13px/1 inherit; font-family:inherit; cursor:pointer}
+.btn-agenda svg{color:var(--marque-vif)}
+/* LA VUE DIRECTION : l'usine en un écran, plein écran, à la marque. */
+.dirvue{position:fixed; inset:0; z-index:90; overflow:auto; overscroll-behavior:contain;
+  background:radial-gradient(120% 90% at 50% 0%,#1d2a47 0%,#111727 60%); color:#E8ECF4;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.dirvue[hidden]{display:none}
+.dir-in{max-width:1080px; margin:0 auto}
+.dir-tete{display:flex; align-items:center; gap:12px; margin-bottom:18px}
+.dir-logo{height:34px; width:auto}
+.dir-t{flex:1; min-width:0; display:flex; flex-direction:column}
+.dir-t b{font-size:16px; letter-spacing:.01em}
+.dir-t span{font-size:12.5px; color:#9AA5BC}
+.dir-h{font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums}
+.dir-x{width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#E8ECF4; font-size:22px; line-height:1; cursor:pointer}
+.dir-kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+@media (min-width:761px){ .dir-kpis{grid-template-columns:repeat(4,1fr)} .dir-h{font-size:26px} }
+.dir-k{border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.045); border-radius:16px; padding:14px 14px 12px}
+.dir-k b{display:block; font-family:"IBM Plex Mono",monospace; font-size:32px; font-weight:650; line-height:1.05; font-variant-numeric:tabular-nums}
+.dir-k b small{font-size:15px; color:#9AA5BC; font-weight:500}
+.dir-k span{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#9AA5BC; font-weight:650; margin-top:5px}
+.dir-k em{display:block; font-style:normal; font-size:12px; color:#C9D1E0; margin-top:3px}
+.dir-k.ok b{color:#5FD3A0} .dir-k.al b{color:#FF8A7A} .dir-k.ac b{color:#6FD6F2}
+.dir-sec{margin-top:22px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#9AA5BC; font-weight:650; margin-bottom:9px}
+.dir-pauses{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+@media (max-width:420px){ .dir-pauses{grid-template-columns:repeat(2,1fr)} }
+.dir-p{border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:12px; background:rgba(255,255,255,.035); text-align:center}
+.dir-p i{display:inline-block; font-style:normal; font-weight:700; font-size:12px; padding:3px 9px; border-radius:99px}
+.dir-p i[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
+.dir-p i[data-p="PM"]{background:var(--cal-pm); color:var(--cal-pm-ink)}
+.dir-p i[data-p="N"]{background:var(--cal-n); color:var(--cal-n-ink)}
+.dir-p i[data-p="D"]{background:var(--cal-d); color:var(--cal-d-ink)}
+.dir-p b{display:block; font-family:"IBM Plex Mono",monospace; font-size:28px; font-weight:650; margin-top:6px}
+.dir-p span{display:block; font-size:11.5px; color:#9AA5BC}
+.dir-sem{display:flex; align-items:flex-end; gap:8px; height:150px; padding:10px 12px 0; border:1px solid rgba(255,255,255,.1); border-radius:16px; background:rgba(255,255,255,.035)}
+.dir-j{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; padding-bottom:8px}
+.dir-j u{display:block; width:100%; max-width:34px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg,#6FD6F2,#3A8FD8); text-decoration:none}
+.dir-j b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:650}
+.dir-j span{font-size:10.5px; color:#9AA5BC; white-space:nowrap}
+.dir-j.mq b{color:#FF8A7A}
+.dir-note{font-size:12px; color:#9AA5BC; margin:12px 2px 0; line-height:1.45}
 /* L'INVITATION À INSTALLER. Vue seulement dans le navigateur : installée,
    l'application n'en a plus besoin. Android propose « Installer » (l'invite
    du système), l'iPhone dit le geste (Partager → Sur l'écran d'accueil). */
@@ -3224,6 +3285,16 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-bar>i{font-size:9px; color:var(--faint); font-style:normal}
 .ry-insight{font-size:12px; color:var(--ink2); line-height:1.5; margin:0; padding-top:10px; border-top:1px solid var(--line2)}
 .ry-insight b{color:var(--ink); font-weight:600}
+.ry-an{padding:0 16px}
+.ry-an:empty{display:none}
+.ry-an .ry-h2{padding:16px 0 2px}
+.ry-an-bar{height:8px; border-radius:99px; background:var(--surface3); overflow:hidden; margin-top:4px}
+.ry-an-bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--in))}
+.ry-an-leg{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin:6px 0 10px}
+.ry-an-leg b{color:var(--ink); font-variant-numeric:tabular-nums}
+.ry-an-k .ry-kpi>span{display:block}
+.ry-an-cg{flex:1.6}
+.ry-an-cg b{font-size:15px}
 .ry-sep{height:1px; background:var(--line2); margin:18px 16px 0}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
@@ -3705,16 +3776,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
            écrites par renderSlip() dans ces mêmes identifiants (l'unité « h » est
            portée par le balisage, pas par le texte). -->
       <div class="calstats" id="calStats">
-        <div class="cstat"><span class="cstat-v"><b id="tHeures">0</b><i>h</i></span><span class="cstat-k">Prestées</span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tJours">0</b></span><span class="cstat-k">Jours</span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tHeures">0</b><i>h</i></span><span class="cstat-k">Prestées</span><span class="cstat-d" id="dHeures"></span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tJours">0</b></span><span class="cstat-k">Jours</span><span class="cstat-d" id="dJours"></span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span><span class="cstat-d" id="dWe"></span></div>
+        <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span><span class="cstat-d" id="dHs"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tRap">0</b></span><span class="cstat-k">Rappels</span><span class="cstat-m" id="tRapM"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex du mois</span></div>
         <div class="cstat"><span class="cstat-v"><b id="tVelo">0</b></span><span class="cstat-k">Vélo</span></div>
       </div>
       <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
+      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>Ajouter mes postes à mon agenda</button></div>
     </div>
 
     <div class="card" id="cptCard">
@@ -4051,6 +4123,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
           </div>
         </div>
       </details>
+      <details class="fold">
+        <summary>Vue direction <span class="sub">l'usine en un écran</span></summary>
+        <div class="pad notifreg">
+          <div><b>Présenter l'usine aujourd'hui</b><span>Effectifs du jour par pause, maladie, congés, sous-effectifs à venir et la semaine qui vient, en plein écran.</span></div>
+          <button type="button" class="btn sm" id="dirBtn">Ouvrir</button>
+        </div>
+      </details>
       <details class="fold rh-only">
         <summary>Espace BWZ RH <span class="sub">options d'administration</span></summary>
         <p class="lede haut">Vous êtes connecté en tant que <b>BWZ RH</b>. Les options pour modifier directement l'application (postes, équipes, polyvalences, comptes liés, barèmes communs) arriveront ici.</p>
@@ -4139,6 +4218,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="dirvue" id="dirVue" role="dialog" aria-modal="true" aria-label="Vue direction" hidden>
+  <div class="dir-in">
+    <div class="dir-tete">
+      <img src="logo.svg" alt="" class="dir-logo">
+      <div class="dir-t"><b>Production · vue du jour</b><span id="dirDate"></span></div>
+      <span class="dir-h" id="dirHeure"></span>
+      <button type="button" class="dir-x" id="dirX" aria-label="Fermer">×</button>
+    </div>
+    <div id="dirCorps"></div>
+  </div>
+</div>
 <div class="horsligne" id="horsLigne" role="status" aria-live="polite" hidden><span aria-hidden="true"></span>Hors ligne · données de l'appareil</div>
 <button type="button" class="enhaut" id="enHaut" aria-label="Revenir en haut de la page" title="Haut de page">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -5721,6 +5811,13 @@ function majVersements(C){
 function netMoisPrecedent(C){
   var y=st.m?st.y:st.y-1, i=st.m?st.m-1:11;
   var M=DERNIER_ECRIT["months/"+key(y,i)]||lsGet("months/"+key(y,i));
+  /* Un mois d'avant jamais ouvert n'est pas stocké : on le lit dans
+     l'horaire, comme le pré-remplissage le ferait, sans rien enregistrer. */
+  if((!M || !M.days || !Object.keys(M.days).length) && HORAIRE_DB && Number(HORAIRE_DB.year)===y){
+    var idp=trigCourant(), pp=null;
+    HORAIRE_DB.people.forEach(function(x){ if(x.id===idp) pp=x; });
+    if(pp){ M=mergeDefaults({days:{}},DEF_M); try{ remplirMois(HORAIRE_DB,pp,y,i,M); }catch(e){ M=null; } }
+  }
   if(!M || !M.days || !Object.keys(M.days).length) return null;
   M=JSON.parse(JSON.stringify(M));
   M=mergeDefaults(M,DEF_M);
@@ -5733,11 +5830,15 @@ function netMoisPrecedent(C){
   P.brutLines.forEach(function(o){ par[o.l]=(par[o.l]||0)-Number(o.v||0); });
   var lib="", ec=0;
   for(k in par) if(Math.abs(par[k])>Math.abs(ec)+0.004){ ec=par[k]; lib=k; }
-  return {mois:MOIS[i].toLowerCase(), d:R(C.net-P.net), lib:lib, ec:R(ec)};
+  return {mois:MOIS[i].toLowerCase(), d:R(C.net-P.net), lib:lib, ec:R(ec), acc:P.acc};
 }
+/* Le mois d'avant ne se calcule qu'une fois par calcul : le net (Salaire)
+   et les chiffres du mois (Accueil) le lisent tous deux. */
+var _precMemo={C:null,v:null};
+function precDe(C){ if(_precMemo.C!==C){ _precMemo.C=C; _precMemo.v=netMoisPrecedent(C); } return _precMemo.v; }
 function sumLines(C,re){var s=0; C.brutLines.forEach(function(o){if(re.test(o.l)) s+=o.v;}); return R(s);}
 function renderResume(C){
-  var nd=daysInMonth(st.y,st.m), F=feries(st.y), M=st.month;
+  var nd=daysInMonth(st.y,st.m), F=feries(st.y), M=st.month, PREC=precDe(C);
   /* Annoncer « net à recevoir » sur un mois à moitié presté, c'est promettre
      un montant qu'on ne tiendra pas. Le libellé dit donc d'où vient le
      chiffre : une estimation tant que la fiche n'a rien confirmé. */
@@ -5755,7 +5856,7 @@ function renderResume(C){
     etat+
     "<span>"+saisis+" journée"+(saisis>1?"s":"")+" sur "+nd+"</span>"+
     (C.avance?"<span>avance déjà reçue "+eur(C.avance)+"</span>":"")+
-    (function(){ var x=netMoisPrecedent(C); if(!x || Math.abs(x.d)<0.01) return "";
+    (function(){ var x=PREC; if(!x || Math.abs(x.d)<0.01) return "";
       var t=(x.d>0?"+":"\u2212")+eur(Math.abs(x.d))+" par rapport à "+x.mois;
       var l=(x.lib && Math.abs(x.ec)>=1)?String(x.lib).replace(/\s+à\s+\d+,\d+(?=\s|$)/g,"").replace(/\s+/g," "):"";
       if(l.length>38) l=l.slice(0,37)+"…";
@@ -5881,6 +5982,21 @@ function renderTotals(C){
   document.getElementById("tJours").textContent=C.acc.jours;
   document.getElementById("tWe").textContent=num(C.acc.sam+C.acc.dim);
   document.getElementById("tVelo").textContent=C.acc.velo;
+  /* L'ÉCART AVEC LE MOIS D'AVANT, sous chaque chiffre (le client, le
+     10/10/2026 : « toutes les stats utiles pour un travailleur »). Relu par
+     netMoisPrecedent(), le même compute() que le mois affiché ; rien quand
+     le mois d'avant est vide ou que les deux chiffres sont égaux. */
+  (function(){
+    var PREC=precDe(C), pa=PREC&&PREC.acc, ab=PREC?({janvier:"janv.",février:"févr.",mars:"mars",avril:"avr.",mai:"mai",juin:"juin",juillet:"juil.",août:"août",septembre:"sept.",octobre:"oct.",novembre:"nov.",décembre:"déc."}[PREC.mois]||PREC.mois):"";
+    [["dHeures",C.acc.hTot,pa&&pa.hTot],["dJours",C.acc.jours,pa&&pa.jours],
+     ["dWe",C.acc.sam+C.acc.dim,pa&&(pa.sam+pa.dim)],["dHs",C.acc.hsHrs,pa&&pa.hsHrs]].forEach(function(t){
+      var el=document.getElementById(t[0]); if(!el) return;
+      var d=pa?R(Number(t[1]||0)-Number(t[2]||0)):0;
+      el.className="cstat-d"+(d>0?" plus":(d<0?" moins":""));
+      el.textContent=(pa&&Math.abs(d)>=0.01)?(d>0?"\u25B2 ":"\u25BC ")+num(Math.abs(d))+" vs "+ab:"";
+      el.title=pa?"Par rapport à "+PREC.mois:"";
+    });
+  })();
   var ftS=C.acc.ftPlus-C.acc.ftMoins;
   /* L'unité « h » est portée par le balisage de la tuile (cstat-v > i), pas par
      le texte : on n'écrit donc que le nombre. */
@@ -6437,12 +6553,14 @@ function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
   var change=(st.view!==v);
+  var iA=VIEWS.indexOf(st.view), iN=VIEWS.indexOf(v),
+      sens=(change && iA>=0 && st.view!=="reglages" && v!=="reglages")?(iN>iA?"de-d":"de-g"):"";
   st.view=v;
   VIEWS.forEach(function(x){
     var el=document.getElementById("v-"+x);
     el.hidden=(x!==v);
     if(x===v){
-      if(change){ el.classList.remove("entre"); void el.offsetWidth; el.classList.add("entre"); }
+      if(change){ el.classList.remove("entre","de-d","de-g"); void el.offsetWidth; el.classList.add("entre"); if(sens) el.classList.add(sens); }
     } else {
       /* Pas de classe d'entrée oubliée sur un panneau caché : sans ça, un
          panneau figé à mi-animation gardait sa classe en réserve. */
@@ -9044,6 +9162,123 @@ function notifierTelephone(p,x){
   function reseau(){ hl.hidden=navigator.onLine!==false; }
   window.addEventListener("online",reseau); window.addEventListener("offline",reseau); reseau();
 })();
+/* ── L'AGENDA DU TÉLÉPHONE ────────────────────────────────────────────────
+   Le client, le 10/10/2026 : « un vrai outil pour simplifier la vie de tous
+   les jours ». Les postes des 120 jours qui viennent, et les congés posés,
+   dans un fichier .ics que l'agenda du téléphone importe d'un geste. Chaque
+   journée garde le même identifiant d'un export à l'autre : réimporter met
+   à jour au lieu de doubler. Lu par _pfJour(), la lecture du héros. */
+function exporterAgenda(){
+  var id=trigCourant();
+  if(!id||!HORAIRE_DB){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
+  var ju=jourUsine(), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate());
+  function f2(n){ return (n<10?"0":"")+n; }
+  function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
+  function dt(d,h){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(h),Math.round((h%1)*60));
+    return jj(x)+"T"+f2(x.getHours())+f2(x.getMinutes())+"00"; }
+  var now=new Date(), stamp=now.getUTCFullYear()+f2(now.getUTCMonth()+1)+f2(now.getUTCDate())+"T"+f2(now.getUTCHours())+f2(now.getUTCMinutes())+"00Z";
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biowanze//Horaire//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+         "X-WR-CALNAME:Biowanze · "+idLisible(id)], n=0, k, d, x;
+  for(k=0;k<120;k++){
+    d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
+    x=_pfJour(id,d); if(!x) continue;
+    var ev=null;
+    if(x.presente && PF_DEB[x.pv]!=null){
+      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
+      ev=["DTSTART:"+dt(d,PF_DEB[x.pv]),"DTEND:"+dt(d,PF_FIN[x.pv]),
+          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")];
+    } else if(estCongePose(x.ab)){
+      var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+      ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:Congé "+x.ab,"TRANSP:TRANSPARENT"];
+    }
+    if(!ev) continue;
+    L.push("BEGIN:VEVENT","UID:"+idLisible(id)+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
+    L=L.concat(ev); L.push("END:VEVENT"); n++;
+  }
+  L.push("END:VCALENDAR");
+  if(!n){ flash("Aucun poste à exporter."); return; }
+  var blob=new Blob([L.join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"}),
+      url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download="biowanze-"+idLisible(id)+".ics";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+  flash(n+" journées envoyées vers l'agenda");
+}
+document.getElementById("icsBtn").addEventListener("click",exporterAgenda);
+
+/* ── LA VUE DIRECTION ─────────────────────────────────────────────────────
+   Le client, le 10/10/2026 : « il faut un vrai wow de la direction quand je
+   devrai la présenter ». L'usine du jour en un écran : qui est là, par
+   pause et avec quelle équipe, la maladie, les congés, les pauses en
+   sous-effectif d'ici la fin de l'année, et la semaine qui vient. Tout est
+   relu par equipeDuJour() et mqJoursAVenir(), les lectures du Planning et
+   des Effectifs : aucun chiffre n'est calculé à part. */
+var dirTic=null;
+function dirPresents(par){ var vu={}, n=0; ["AM","PM","N","D"].forEach(function(g){ (par[g]||[]).forEach(function(y){ if(!vu[y.p.id]){ vu[y.p.id]=1; n++; } }); }); return n; }
+function ouvrirDirection(){
+  var v=document.getElementById("dirVue"), c=document.getElementById("dirCorps");
+  fetchHoraireDB().then(function(db0){
+    if(!db0){ flash("Horaire indisponible."); return; }
+    var ju=jourUsine(), an=ju.getFullYear(), m=ju.getMonth()+1, j=ju.getDate();
+    var db=horaireDe(an)||db0;
+    var par=equipeDuJour(db,an,m,j), eqP={};
+    try{ eqP=equipeALaPause(db,an,m,j)||{}; }catch(e){}
+    var pres=dirPresents(par), mal=(par.abs||[]).length, cg=(par.cong||[]).length,
+        inter=db.people.filter(function(p){ return estInterim(p); }).length,
+        taux=(pres+mal)?Math.round(mal/(pres+mal)*1000)/10:0;
+    document.getElementById("dirDate").textContent=JOURS_LONGS[(ju.getDay()+6)%7]+" "+j+" "+MOIS[m-1].toLowerCase()+" "+an;
+    var h='<div class="dir-kpis">'
+      +'<div class="dir-k ac"><b>'+pres+'<small>/'+db.people.length+'</small></b><span>Présents aujourd\'hui</span><em>toutes pauses et journée</em></div>'
+      +'<div class="dir-k'+(taux>=8?' al':'')+'"><b>'+mal+'</b><span>Maladie</span><em>'+String(taux).replace(".",",")+' % de l\'effectif du jour</em></div>'
+      +'<div class="dir-k"><b>'+cg+'</b><span>En congé</span><em>congés posés ce jour</em></div>'
+      +'<div class="dir-k" id="dirMq"><b>…</b><span>Pauses en sous-effectif</span><em>d\'ici le 31/12</em></div>'
+      +'</div>'
+      +'<div class="dir-sec">Par pause</div><div class="dir-pauses">'
+      +["AM","PM","N","D"].map(function(g){
+        var vu={}, n=0; (par[g]||[]).forEach(function(y){ if(!vu[y.p.id]){ vu[y.p.id]=1; n++; } });
+        return '<div class="dir-p"><i data-p="'+g+'">'+g+'</i><b>'+n+'</b><span>'+(eqP[g]?"Équipe "+esc(eqP[g]):(g==="D"?"journée":"&nbsp;"))+'</span></div>';
+      }).join("")+'</div>'
+      +'<div class="dir-sec">Les sept jours qui viennent</div><div class="dir-sem" id="dirSem"></div>'
+      +'<p class="dir-note">'+inter+' intérimaire'+(inter>1?"s":"")+' dans l\'effectif · horaire '+(db0.maj?"du classeur du "+esc(dateFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p>';
+    c.innerHTML=h;
+    v.hidden=false; document.documentElement.style.overflow="hidden";
+    document.getElementById("dirX").focus();
+    function heure(){ var t=new Date(); document.getElementById("dirHeure").textContent=(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes(); }
+    heure(); clearInterval(dirTic); dirTic=setInterval(heure,15000);
+    /* Le plus lourd après le premier affichage : la semaine et les manques. */
+    setTimeout(function(){
+      var sem=[], mx=1, k, mq={};
+      try{
+        if(Number(db0.year)===an){
+          caInit(db0);
+          var r=mqJoursAVenir(db0,mqHorizon), nb=0;
+          r.jours.forEach(function(z){ nb+=mqPauses(z); mq[z.mois+"-"+z.jour]=mqPauses(z); });
+          var el=document.getElementById("dirMq");
+          if(el){ el.querySelector("b").textContent=nb; el.className="dir-k "+(nb?"al":"ok"); }
+        }
+      }catch(e){ var e2=document.getElementById("dirMq"); if(e2) e2.querySelector("b").textContent=MQ_NB==null?"—":MQ_NB; }
+      for(k=0;k<7;k++){
+        var d=new Date(an,m-1,j+k), dbk=horaireDe(d.getFullYear());
+        if(!dbk){ continue; }
+        var pk=equipeDuJour(dbk,d.getFullYear(),d.getMonth()+1,d.getDate()), n=dirPresents(pk);
+        sem.push({d:d,n:n,mq:mq[(d.getMonth()+1)+"-"+d.getDate()]||0}); if(n>mx) mx=n;
+      }
+      var hs=document.getElementById("dirSem"); if(!hs) return;
+      hs.innerHTML=sem.map(function(o,i){
+        return '<div class="dir-j'+(o.mq?' mq':'')+'" title="'+(o.mq?o.mq+" pause"+(o.mq>1?"s":"")+" en sous-effectif":"au complet")+'"><b>'+o.n+'</b><u style="height:'+Math.max(6,Math.round(o.n/mx*92))+'px"></u><span>'+(i===0?"Auj.":JOURS_LONGS[(o.d.getDay()+6)%7].slice(0,3)+". "+o.d.getDate())+'</span></div>';
+      }).join("");
+    },60);
+  });
+}
+function fermerDirection(){
+  var v=document.getElementById("dirVue"); if(v.hidden) return;
+  v.hidden=true; document.documentElement.style.overflow=""; clearInterval(dirTic);
+  var b=document.getElementById("dirBtn"); if(b) b.focus();
+}
+document.getElementById("dirBtn").addEventListener("click",ouvrirDirection);
+document.getElementById("dirX").addEventListener("click",fermerDirection);
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") fermerDirection(); });
+
 function majNotifReglage(){
   var el=document.getElementById("notifEtat"), b=document.getElementById("notifBtn"); if(!el||!b) return;
   var ok=("Notification" in window) && navigator.serviceWorker;
@@ -9068,6 +9303,41 @@ document.getElementById("notifBtn").addEventListener("click",function(){
 });
 majNotifReglage();
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) majNotifReglage(); });
+/* MON ANNÉE À CE JOUR (le client, le 10/10/2026 : « toutes les infos
+   nécessaires et stats utiles pour un travailleur »). Ce que la répartition
+   ne dit pas : où l'on en est. Les journées prestées faites et à venir, les
+   nuits faites et à venir, et le prochain congé posé — lus jour par jour par
+   _pfJour(), la lecture du héros. */
+/* Un congé POSÉ : ni la maladie, ni le temps de travail réduit (TP, CP, CT :
+   des jours hors contrat, pas des congés), ni la grève. */
+function estCongePose(ab){ return !!ab && !/^(MAL|–|TP|CP|CT|GREV|SANS)/.test(String(ab)); }
+function ryAnneeHTML(p,y){
+  var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
+  var fait=0, avenir=0, nF=0, nA=0, conge=null, congeN=0, d, x;
+  for(d=new Date(y,0,1); d.getFullYear()===y; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    x=_pfJour(p.id,d); if(!x) continue;
+    var passe=d.getTime()<t0;
+    if(x.presente && PF_HEURES[x.pv]){
+      if(passe){ fait++; if(x.pv==="N") nF++; } else { avenir++; if(x.pv==="N") nA++; }
+    } else if(!passe && estCongePose(x.ab)){
+      if(!conge){ conge={d:new Date(d), c:x.ab}; congeN=1; }
+      else if(congeN && Math.round((d-conge.d)/864e5)===congeN) congeN++;
+    }
+  }
+  var tot=fait+avenir; if(!tot) return "";
+  var pct=Math.round(fait/tot*100);
+  var cg="—", cgs="aucun d'ici le 31/12";
+  if(conge){ var k=Math.round((conge.d.getTime()-t0)/864e5);
+    cg=_pfDateCourte(conge.d); cgs=esc(conge.c)+(congeN>1?" · "+congeN+" j":"")+" · "+(k===0?"aujourd'hui":(k===1?"demain":"dans "+k+"\u00a0j")); }
+  return '<div class="ry-chart-t ry-h2">Mon année à ce jour</div>'
+    +'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="ry-an-leg"><span><b>'+fait+'</b> journées prestées</span><span><b>'+avenir+'</b> à venir</span></div>'
+    +'<div class="ry-kpis ry-an-k">'
+    +'<div class="ry-kpi"><b>'+nF+'</b><span>nuits faites</span></div>'
+    +'<div class="ry-kpi"><b>'+nA+'</b><span>nuits à venir</span></div>'
+    +'<div class="ry-kpi ry-an-cg"><b>'+cg+'</b><span>prochain congé<br>'+cgs+'</span></div>'
+    +'</div>';
+}
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
       tete=document.getElementById("rythmeTete"), card=document.getElementById("rythmeCard");
@@ -9088,7 +9358,8 @@ function renderRythme(){
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
   var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="pauses, nuits et week-ends en "+y;
-  corps.innerHTML='<div class="ry-chart-t ry-h2">Répartition des journées</div>'
+  corps.innerHTML='<div class="ry-an" id="ryAn"></div>'
+    +'<div class="ry-chart-t ry-h2">Répartition des journées</div>'
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
     +'<div class="ry-right">'
@@ -9116,6 +9387,7 @@ function renderRythme(){
   var cadre=(typeof estCadre==="function")&&estCadre(person);
   /* La comparaison gèle le fil 1,4 s sur un téléphone lent : quand il est libre. */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y); });
   plusTard(function(){
     var box=document.getElementById("ryCompare"); if(!box) return;
     var eq=statsEquipe(db,y,cadre);
@@ -12558,7 +12830,7 @@ function pistesDeRemplacement(vue,P,gk,listeD,jour){
 }
 /* Recalculer cent journées à chaque flèche de l'onglet Équipe serait du
    gaspillage : le tableau ne dépend QUE de la date du jour et de l'horizon. */
-var mqFait="";
+var mqFait="", MQ_NB=null;
 /* Le nombre de PAUSES d'une journée de sous-effectif : ses manques, chacun
    rangé dans sa pause, une pause comptée une fois même s'il y manque
    quelqu'un à deux postes. */
@@ -12684,6 +12956,7 @@ function renderManques(force){
        sous-effectif ; bien parler en pause et non en jour ») : une journée
        qui manque de monde le matin et la nuit compte deux pauses. */
     var n=0; r.jours.forEach(function(z){ n+=mqPauses(z); });
+    MQ_NB=n;
     /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
        renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
        même phrase ne disait rien de plus la seconde. */
