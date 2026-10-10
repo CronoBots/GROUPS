@@ -3999,6 +3999,23 @@ plusieurs), et le cadre « En poste » des sous-effectifs ne le répète plus
 remplaçant » est centré, y compris sous 380 px où la fiche a 7 px de marge
 à gauche (écart mesuré 0 px à 320 px hors ligne, 390 et 1280 px).
 
+**Absents et congés : un seul cadre à deux onglets** (le client, le
+10/10/2026, « optimise au max » sur cinq pistes proposées). Les deux
+cadres empilés, Absents puis Congé et repos, répondaient à une seule
+question — qui n'est pas là, et jusqu'à quand — et prenaient près de trois
+écrans. Ils deviennent `#eqAbsCard` : titre « Absents et congés », les
+onglets de la Recherche (`.caseg`) avec leur compte (« Absents 6 »,
+« Congé et repos 40 »), l'onglet retenu par appareil (`ui/eqResteOnglet`),
+et un sous-titre qui dit ce que la date veut dire (« malade · date de
+retour », « date de reprise du travail »). Les mois se replient comme les
+sous-effectifs (`mqMoisTete()`, compte de personnes à droite), le premier
+ouvert ; « Sans date » passe en tête, hors des mois, au lieu d'être caché
+sous la barre du menu ; les rangées se resserrent (date sur deux lignes
+courtes, 5 px de marge). Mesuré à 390 px : Absents 411 px (environ
+1 180 avant), Congé et repos 703 px (plus de 2 000 avant). Rien ne déborde
+à 320 px (hors ligne), 390 et 1280 px ; onglets et dépli éprouvés, aucune
+erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
