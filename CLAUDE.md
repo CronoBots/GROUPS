@@ -3739,6 +3739,9 @@ peut mieux faire ; ça doit faire 100 % pro et pas d'info redondante ».
 L'icône de Salaire, un billet frappé d'un €, devient un **portefeuille**
 (le client, le 10/10/2026 : « il faut changer le logo du salaire dans le
 menu ») : même trait que les autres, lisible à 25 px dans la capsule.
+La roue des réglages, dessinée en rayons, ressemblait à un bouton de
+luminosité (le client, le même jour) : c'est désormais un engrenage à
+dents.
 
 Mesuré le 10/10 sur VBN, SKS et LCI : prochain poste le lundi 12 (D 7-15,
 D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
