@@ -3819,6 +3819,40 @@ Accueil de 3 903 à 3 509 px à 390 px ; rien ne déborde à 320 (hors ligne),
 valider** : binôme, cycle et décalage des Réglages déduits de la personne
 (ils touchent à la paie).
 
+**Second lot, le même jour :**
+
+- **Effectifs** : un mois replié ne se calcule plus — ses fiches et leurs
+  candidats (`caCandidats`, le plus lourd) se construisent à son dépli
+  (`mqDiff`, `hote._diff` appelé par `mqBascule()`). Au processeur divisé
+  par quatre, 1 393 → 1 228 ms ; 6 fiches calculées sur 25 à l'ouverture.
+  L'essentiel du temps reste le balayage des journées (`mqJoursAVenir`).
+- **Réglages** : « Mon contrat » ne montre que ce qui est à soi ; les
+  valeurs communes sous cadenas vont dans un repli fermé « Valeurs communes
+  de l'équipe », écrites en clair (`valFige()` : taux en %, 38:40, diviseur
+  à deux décimales). Le calage du précompte, personnel, passe sous « Mon
+  précompte ». La sauvegarde suit `data-scope`, pas l'endroit du champ.
+- **Recherche sur une période** : les journées « possible, rien à
+  changer » et « déjà en repos ou en congé » tiennent chacune en une ligne
+  de dates ; seules les journées qui demandent quelque chose gardent leur
+  fiche. Le bilan reprend les mots des verdicts (`caVerdict`), la pause
+  s'écrit AM, PM ou N, et le dernier mode revient (`ui/caMode`). Mesuré :
+  VBN du 12/10 au 08/11, 12 fiches au lieu de 28.
+- **Planning** : un jour trop chargé pour le cadre se signale par un fondu
+  en bas, qui disparaît en bas du défilement.
+- **Mon rythme** compare à la « moyenne des opérateurs » (ou des cadres),
+  ce qu'il calcule, et non à une « équipe » ; plus de tutoiement.
+- Zones de toucher de 44 px autour des flèches du mois et de la roue ;
+  « STEP. » perd son point ; Recherche et Réglages prennent la bordure des
+  cadres de l'Accueil.
+
+Rien ne déborde à 320 (hors ligne), 390 et 1280 px, aucune erreur ;
+vérificateur identique à l'octet, découpe de `comparer-fiches` à l'épreuve.
+**Laissés de côté, et pourquoi** : unifier les têtes de cadre de tous les
+onglets (le client a lui-même choisi les titres centrés d'Effectifs et
+d'Équipes) ; un plancher de 11 px pour tous les libellés (à mesurer onglet
+par onglet) ; « 1 personne manquante » et le cadre « En poste » des
+sous-effectifs, demandés par le client.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
