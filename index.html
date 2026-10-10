@@ -9360,14 +9360,13 @@ var _dirAnneeCache=null, _dirMqCache=null;
 function dirAnnee(db){
   var y=Number(db.year);
   if(_dirAnneeCache && _dirAnneeCache.y===y) return _dirAnneeCache;
-  var ppl=db.people||[], mal=z12(), malCat={}, rapp={}, rappMois=z12(), nuitCat={}, effCat={};
+  var ppl=db.people||[], rapp={}, rappMois=z12(), nuitCat={}, effCat={};
   ppl.forEach(function(p){
     var cat=p.cat||"—"; effCat[cat]=(effCat[cat]||0)+1;
     var d=p.d||{}, mmdd, cell, m, i, t, estRappel;
     for(mmdd in d){ if(!d.hasOwnProperty(mmdd)) continue;
       cell=d[mmdd]; if(!cell||!cell.length) continue;
       m=Number(String(mmdd).slice(0,2))-1; if(m<0||m>11) continue;
-      if(cell.indexOf("Abs")>=0){ mal[m]++; malCat[cat]=(malCat[cat]||0)+1; }
       if(cell[0]==="N") nuitCat[cat]=(nuitCat[cat]||0)+1;
       /* UN RAPPEL : le commentaire porte « rappel ». Les remplacements et les
          R-CM, eux, sont surtout des rotations d'équipe (le client, le
@@ -9384,7 +9383,7 @@ function dirAnnee(db){
   var nuitArr=Object.keys(nuitCat).map(function(k){
     return {cat:k, tot:nuitCat[k], n:effCat[k]||1, moy:nuitCat[k]/(effCat[k]||1)}; })
     .sort(function(a,b){ return b.moy-a.moy; });
-  _dirAnneeCache={y:y, mal:mal, malCat:malCat, rapp:rappArr, rappMois:rappMois, nuit:nuitArr}; return _dirAnneeCache;
+  _dirAnneeCache={y:y, rapp:rappArr, rappMois:rappMois, nuit:nuitArr}; return _dirAnneeCache;
 }
 /* Pauses en sous-effectif, mois par mois, sur les journées ÉCOULÉES. Même
    lecture que les sous-effectifs à venir (equipeDuJour + postesDePause), mais
@@ -9414,12 +9413,67 @@ function dirAnneeRender(db){
   host.innerHTML=dirAnneeHTML(dirAnnee(db));
   setTimeout(function(){
     try{ caInit(db); }catch(e){}
+    var mal=null; try{ mal=dirMaladie(db); }catch(e){}
+    var b0=document.getElementById("dirMal"); if(b0&&mal) b0.innerHTML=dirMalHTML(mal);
     var mois=null; try{ mois=dirMqEcoules(db); }catch(e){}
     var b1=document.getElementById("dirMqBars"); if(b1&&mois) b1.innerHTML=dirMqBars(mois);
     var cov=null; try{ cov=dirCouverture(db); }catch(e){}
     var b2=document.getElementById("dirRecyc"); if(b2&&cov) b2.innerHTML=dirRecycHTML(cov);
     var b3=document.getElementById("dirCouv"); if(b3&&cov) b3.innerHTML=dirCouvHTML(cov);
   },30);
+}
+/* MALADIE, cycle-aware. Le classeur écrit « Abs » sur chaque case, repos
+   compris, et des « Abs » ont été tirés dans Excel sur des jours NON prévus au
+   cycle (le client, le 10/10/2026). On ne compte donc une maladie que les jours
+   où une pause était PRÉVUE (rec.s, via remplirMois), ce qui écarte les repos.
+   Contremaîtres et adjoints sont séparés ; la ligne formation n'est pas montrée.
+   Le taux = jours de maladie / jours programmés. */
+var _dirMalCache=null;
+function dirMalEstMal(c){ var X=(typeof ABSMAP!=="undefined")&&ABSMAP[c]; return !!X && (X.k==="ABS"||X.k==="SMG"); }
+function dirMalTeam(p){
+  if(typeof estContremaitre==="function" && estContremaitre(p)) return "Contremaîtres";
+  if(typeof estCadre==="function" && estCadre(p)) return "Adjoints";
+  return p.cat||"—";
+}
+function dirMaladie(db){
+  var y=Number(db.year);
+  if(_dirMalCache && _dirMalCache.y===y) return _dirMalCache;
+  var mois=z12(), malCat={}, schedCat={}, total=0, sched=0;
+  (db.people||[]).forEach(function(p){
+    var tm=dirMalTeam(p);
+    for(var m=0;m<12;m++){
+      var M={days:{}}; try{ remplirMois(db,p,y,m,M); }catch(e){ continue; }
+      var nd=daysInMonth(y,m);
+      for(var day=1;day<=nd;day++){
+        var rec=M.days[day]; if(!rec||!rec.s) continue; /* pas prévu au cycle → pas compté */
+        schedCat[tm]=(schedCat[tm]||0)+1; sched++;
+        if(rec.a && dirMalEstMal(rec.a)){ mois[m]++; total++; malCat[tm]=(malCat[tm]||0)+1; }
+      }
+    }
+  });
+  _dirMalCache={y:y, mois:mois, malCat:malCat, schedCat:schedCat, total:total, sched:sched};
+  return _dirMalCache;
+}
+function dirMalHTML(mal){
+  var CAT={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"En formation","Opérateurs STEP":"STEP"};
+  var rows=Object.keys(mal.schedCat).filter(function(k){ return k!=="Opérateurs en formation"; }).map(function(k){
+    var d=mal.malCat[k]||0, s=mal.schedCat[k]||1;
+    return {cat:k, n:d, taux:d/s*100};
+  }).sort(function(a,b){ return b.taux-a.taux; });
+  var mx=rows.reduce(function(m,o){ return Math.max(m,o.taux); },0.1);
+  var tauxG=mal.sched?(mal.total/mal.sched*100):0;
+  var one=function(x){ return (Math.round(x*10)/10).toString().replace(".",","); };
+  return ''
+   +'<div class="dir-sec">Sur l\'année · maladie par mois</div>'
+   +dirBarsMois(mal.mois,'linear-gradient(180deg,#FF8A7A,#C65A4E)',mal.y)
+   +'<p class="dir-note"><b>'+mal.total+'</b> jour'+(mal.total>1?"s":"")+' de maladie (jours prévus au cycle seulement — les « Abs » posés sur des repos ne comptent pas). Taux d\'absentéisme maladie : <b>'+one(tauxG)+' %</b> des jours programmés.</p>'
+   +'<div class="dir-sec">Absentéisme maladie par équipe</div>'
+   +'<div class="dir-rank">'+rows.map(function(o){
+       var lbl=CAT[o.cat]||o.cat;
+       return '<div class="dir-rk"><em>'+esc(lbl)+'</em>'
+         +'<i style="width:'+Math.max(4,Math.round(o.taux/mx*100))+'%;background:linear-gradient(90deg,#FF8A7A,#C65A4E)"></i>'
+         +'<b>'+one(o.taux)+' % <small>('+o.n+' j)</small></b></div>';
+     }).join("")+'</div>';
 }
 /* COUVERTURE DES POSTES PAR ÉQUIPE. Un opérateur « couvre » un poste s'il
    l'a attitré, ou s'il est polyvalent dessus ET recyclé à jour (ok) ou exempté
@@ -9497,24 +9551,12 @@ function dirMqBars(mois){
   return dirBarsMois(mois,'linear-gradient(180deg,#F2B45A,#D98A2B)',_dirMqCache?_dirMqCache.y:0);
 }
 function dirAnneeHTML(a){
-  var malTot=a.mal.reduce(function(x,y){ return x+y; },0);
   var rappTop=a.rapp.slice(0,8), rappMx=rappTop.length?rappTop[0].n:1;
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
-  var malArr=Object.keys(a.malCat).map(function(k){ return {cat:k, n:a.malCat[k]}; }).sort(function(x,y){ return y.n-x.n; });
-  var malCatMx=malArr.length?malArr[0].n:1;
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"En formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   return ''
-   +'<div class="dir-sec">Sur l\'année · maladie par mois</div>'
-   +dirBarsMois(a.mal,'linear-gradient(180deg,#FF8A7A,#C65A4E)',a.y)
-   +'<p class="dir-note">'+malTot+' jour'+(malTot>1?"s":"")+' de maladie sur l\'année (code « Abs » de l\'horaire).</p>'
-   +'<div class="dir-sec">Absents (maladie) par équipe</div>'
-   +'<div class="dir-rank">'+malArr.map(function(o){
-       var lbl=CATC[o.cat]||o.cat;
-       return '<div class="dir-rk"><em>'+esc(lbl)+'</em>'
-         +'<i style="width:'+Math.max(4,Math.round(o.n/malCatMx*100))+'%;background:linear-gradient(90deg,#FF8A7A,#C65A4E)"></i>'
-         +'<b>'+o.n+' <small>j</small></b></div>';
-     }).join("")+'</div>'
+   +'<div id="dirMal"><div class="dir-anb dir-anb-wait">…</div></div>'
    +'<div class="dir-sec">Rappels par mois</div>'
    +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
    +'<p class="dir-note">'+rappTot+' jour'+(rappTot>1?"s":"")+' avec rappel sur l\'année (« rappel » noté dans l\'horaire). Les remplacements et R-CM, eux, sont des rotations d\'équipe, pas des rappels.</p>'
