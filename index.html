@@ -1982,6 +1982,11 @@ body.sheet-on{overflow:hidden}
 .dir-rk i{display:block; height:12px; border-radius:99px; min-width:4px}
 .dir-rk b{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap}
 .dir-rk b small{color:#9AA5BC; font-weight:500; font-size:11px}
+.dir-mx{display:grid; grid-template-columns:auto repeat(6,1fr); gap:4px; align-items:center}
+.dir-mx .mh{font-size:9.5px; color:#9AA5BC; text-align:center; text-transform:uppercase; letter-spacing:.02em; font-weight:650; padding:2px 0}
+.dir-mx .rh{font-size:11px; color:#C9D1E0; white-space:nowrap; padding-right:6px; font-family:"IBM Plex Mono",monospace}
+.dir-mx .mc{text-align:center; padding:8px 0; border-radius:7px; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; background:rgba(255,255,255,.05); color:#8FA0B8}
+.dir-mx .mc.lo{background:rgba(255,138,122,.16); color:#FF8A7A; box-shadow:inset 0 0 0 1px rgba(255,138,122,.35)}
 /* L'INVITATION À INSTALLER. Vue seulement dans le navigateur : installée,
    l'application n'en a plus besoin. Android propose « Installer » (l'invite
    du système), l'iPhone dit le geste (Partager → Sur l'écran d'accueil). */
@@ -9355,14 +9360,14 @@ var _dirAnneeCache=null, _dirMqCache=null;
 function dirAnnee(db){
   var y=Number(db.year);
   if(_dirAnneeCache && _dirAnneeCache.y===y) return _dirAnneeCache;
-  var ppl=db.people||[], mal=z12(), rapp={}, rappMois=z12(), nuitCat={}, effCat={};
+  var ppl=db.people||[], mal=z12(), malCat={}, rapp={}, rappMois=z12(), nuitCat={}, effCat={};
   ppl.forEach(function(p){
     var cat=p.cat||"—"; effCat[cat]=(effCat[cat]||0)+1;
     var d=p.d||{}, mmdd, cell, m, i, t, estRappel;
     for(mmdd in d){ if(!d.hasOwnProperty(mmdd)) continue;
       cell=d[mmdd]; if(!cell||!cell.length) continue;
       m=Number(String(mmdd).slice(0,2))-1; if(m<0||m>11) continue;
-      if(cell.indexOf("Abs")>=0) mal[m]++;
+      if(cell.indexOf("Abs")>=0){ mal[m]++; malCat[cat]=(malCat[cat]||0)+1; }
       if(cell[0]==="N") nuitCat[cat]=(nuitCat[cat]||0)+1;
       /* UN RAPPEL : le commentaire porte « rappel ». Les remplacements et les
          R-CM, eux, sont surtout des rotations d'équipe (le client, le
@@ -9379,7 +9384,7 @@ function dirAnnee(db){
   var nuitArr=Object.keys(nuitCat).map(function(k){
     return {cat:k, tot:nuitCat[k], n:effCat[k]||1, moy:nuitCat[k]/(effCat[k]||1)}; })
     .sort(function(a,b){ return b.moy-a.moy; });
-  _dirAnneeCache={y:y, mal:mal, rapp:rappArr, rappMois:rappMois, nuit:nuitArr}; return _dirAnneeCache;
+  _dirAnneeCache={y:y, mal:mal, malCat:malCat, rapp:rappArr, rappMois:rappMois, nuit:nuitArr}; return _dirAnneeCache;
 }
 /* Pauses en sous-effectif, mois par mois, sur les journées ÉCOULÉES. Même
    lecture que les sous-effectifs à venir (equipeDuJour + postesDePause), mais
@@ -9408,9 +9413,68 @@ function dirAnneeRender(db){
   var host=document.getElementById("dirAnnee"); if(!host) return;
   host.innerHTML=dirAnneeHTML(dirAnnee(db));
   setTimeout(function(){
-    var mois=null; try{ caInit(db); mois=dirMqEcoules(db); }catch(e){}
-    var box=document.getElementById("dirMqBars"); if(box && mois) box.innerHTML=dirMqBars(mois);
+    try{ caInit(db); }catch(e){}
+    var mois=null; try{ mois=dirMqEcoules(db); }catch(e){}
+    var b1=document.getElementById("dirMqBars"); if(b1&&mois) b1.innerHTML=dirMqBars(mois);
+    var cov=null; try{ cov=dirCouverture(db); }catch(e){}
+    var b2=document.getElementById("dirRecyc"); if(b2&&cov) b2.innerHTML=dirRecycHTML(cov);
+    var b3=document.getElementById("dirCouv"); if(b3&&cov) b3.innerHTML=dirCouvHTML(cov);
   },30);
+}
+/* COUVERTURE DES POSTES PAR ÉQUIPE. Un opérateur « couvre » un poste s'il
+   l'a attitré, ou s'il est polyvalent dessus ET recyclé à jour (ok) ou exempté
+   de recyclage. Les polyvalents en retard (acquis mais pas ok) ne couvrent
+   pas : c'est le « deux combinés » demandé. Réutilise polyvalenceDe() et
+   posteAttitre(), donc aucun fetch de plus — tout vient de l'horaire. */
+var _dirCovCache=null;
+function dirCouverture(db){
+  var y=Number(db.year);
+  if(_dirCovCache && _dirCovCache.y===y) return _dirCovCache;
+  var POSTS=["meun","glut","ferm","dist","chau","step"], PT={};
+  (typeof POSTES_TRAVAIL!=="undefined"?POSTES_TRAVAIL:[]).forEach(function(P){ PT[P.k]=P.t; });
+  var teams={}, overdue={}; POSTS.forEach(function(k){ overdue[k]=0; });
+  (db.people||[]).forEach(function(p){
+    if(typeof estCadre==="function" && estCadre(p)) return;
+    var team=p.cat||"—", isShift=/^Shift\s*\d/i.test(team), covered={};
+    /* posteAttitre() renvoie la CLÉ du poste (une chaîne), pas un objet —
+       polyvalenceDe() fait d'ailleurs « P.k===sien ». Son poste le couvre. */
+    var mpk=null; try{ mpk=posteAttitre(p); }catch(e){}
+    if(mpk && typeof mpk==="string") covered[mpk]=1;
+    var poly=[]; try{ poly=polyvalenceDe(db,p)||[]; }catch(e){}
+    poly.forEach(function(e){
+      if(POSTS.indexOf(e.k)<0) return;
+      if(e.acquis && !e.ok && !e.exempt && !e.forme) overdue[e.k]++;
+      if(e.ok || e.exempt) covered[e.k]=1;
+    });
+    if(isShift){
+      if(!teams[team]) teams[team]={n:0, cov:{}};
+      teams[team].n++;
+      POSTS.forEach(function(k){ if(covered[k]) teams[team].cov[k]=(teams[team].cov[k]||0)+1; });
+    }
+  });
+  _dirCovCache={y:y, POSTS:POSTS, PT:PT, teams:teams, overdue:overdue};
+  return _dirCovCache;
+}
+function dirRecycHTML(cov){
+  var mx=1; cov.POSTS.forEach(function(k){ if(cov.overdue[k]>mx) mx=cov.overdue[k]; });
+  return '<div class="dir-rank">'+cov.POSTS.map(function(k){
+    return '<div class="dir-rk"><em>'+esc(cov.PT[k]||k)+'</em>'
+      +'<i style="width:'+Math.max(4,Math.round(cov.overdue[k]/mx*100))+'%;background:linear-gradient(90deg,#F2B45A,#D98A2B)"></i>'
+      +'<b>'+cov.overdue[k]+'</b></div>';
+  }).join("")+'</div>';
+}
+function dirCouvHTML(cov){
+  var SH={meun:"Meu",glut:"Glu",ferm:"Fer",dist:"Dis",chau:"Cha",step:"STE"};
+  var teams=Object.keys(cov.teams).sort();
+  if(!teams.length) return '<p class="dir-note">Aucune équipe de production à afficher.</p>';
+  var h='<div class="dir-mx"><div class="mh"></div>'+cov.POSTS.map(function(k){ return '<div class="mh">'+SH[k]+'</div>'; }).join("");
+  teams.forEach(function(tm){
+    h+='<div class="rh">'+esc(tm.replace(/^Shift\s*/i,"Éq. "))+'</div>'+cov.POSTS.map(function(k){
+      var v=cov.teams[tm].cov[k]||0;
+      return '<div class="mc '+(v<2?"lo":"ok")+'">'+v+'</div>';
+    }).join("");
+  });
+  return h+'</div>';
 }
 function dirBarsMois(arr,grad,y){
   var mx=Math.max.apply(null,arr.concat([1])), au=jourUsine();
@@ -9428,12 +9492,21 @@ function dirAnneeHTML(a){
   var malTot=a.mal.reduce(function(x,y){ return x+y; },0);
   var rappTop=a.rapp.slice(0,8), rappMx=rappTop.length?rappTop[0].n:1;
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
+  var malArr=Object.keys(a.malCat).map(function(k){ return {cat:k, n:a.malCat[k]}; }).sort(function(x,y){ return y.n-x.n; });
+  var malCatMx=malArr.length?malArr[0].n:1;
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"En formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   return ''
    +'<div class="dir-sec">Sur l\'année · maladie par mois</div>'
    +dirBarsMois(a.mal,'linear-gradient(180deg,#FF8A7A,#C65A4E)',a.y)
    +'<p class="dir-note">'+malTot+' jour'+(malTot>1?"s":"")+' de maladie sur l\'année (code « Abs » de l\'horaire).</p>'
+   +'<div class="dir-sec">Absents (maladie) par équipe</div>'
+   +'<div class="dir-rank">'+malArr.map(function(o){
+       var lbl=CATC[o.cat]||o.cat;
+       return '<div class="dir-rk"><em>'+esc(lbl)+'</em>'
+         +'<i style="width:'+Math.max(4,Math.round(o.n/malCatMx*100))+'%;background:linear-gradient(90deg,#FF8A7A,#C65A4E)"></i>'
+         +'<b>'+o.n+' <small>j</small></b></div>';
+     }).join("")+'</div>'
    +'<div class="dir-sec">Rappels par mois</div>'
    +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
    +'<p class="dir-note">'+rappTot+' jour'+(rappTot>1?"s":"")+' avec rappel sur l\'année (« rappel » noté dans l\'horaire). Les remplacements et R-CM, eux, sont des rotations d\'équipe, pas des rappels.</p>'
@@ -9454,7 +9527,13 @@ function dirAnneeHTML(a){
          +'<i style="width:'+Math.max(4,Math.round(o.moy/nuitMx*100))+'%;background:linear-gradient(90deg,#7B7BD0,#5455A8)"></i>'
          +'<b>'+Math.round(o.moy)+' <small>('+o.tot+')</small></b></div>';
      }).join("")+'</div>'
-   +'<p class="dir-note">Nuits planifiées sur l\'année ; moyenne par personne, total de l\'équipe entre parenthèses.</p>';
+   +'<p class="dir-note">Nuits planifiées sur l\'année ; moyenne par personne, total de l\'équipe entre parenthèses.</p>'
+   +'<div class="dir-sec">Recyclages à faire par poste</div>'
+   +'<div id="dirRecyc"><div class="dir-anb dir-anb-wait">…</div></div>'
+   +'<p class="dir-note">Opérateurs polyvalents dont le recyclage n\'est pas à jour sur ce poste.</p>'
+   +'<div class="dir-sec">Postes à renforcer, par équipe</div>'
+   +'<div id="dirCouv"><div class="dir-anb dir-anb-wait">…</div></div>'
+   +'<p class="dir-note">Opérateurs polyvalents ET recyclés par poste dans l\'équipe (le poste attitré compte). En rouge : moins de 2 — à renforcer.</p>';
 }
 
 function majNotifReglage(){
