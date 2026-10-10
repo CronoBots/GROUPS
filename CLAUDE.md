@@ -4213,6 +4213,16 @@ Mesuré : aucun `small` dans un badge, écart de ligne de base de 0 px ;
 vérificateur identique à l'octet ; rien ne déborde à 320 px (hors ligne),
 390 et 1280 px.
 
+Puis, le même jour : « pour le sous-effectif on peut remettre juste
+l'horaire dans le badge avec le trigramme ». Dans les sous-effectifs
+seulement, un horaire seul (« ATA 06-14 ») revient dans le badge : `caChip()`
+marque `.mqcw.hor` quand la mention est un horaire, et la feuille borde
+l'ensemble sous `#mqCorps`. Une pause et un poste (« CWN PM Glut. ») restent
+à côté, et la Recherche garde tout hors du badge. Même demande : le
+sous-titre dit « 24 pauses jusqu'à la fin de l'année », l'intertitre du mois
+« 5 pauses ». Vérificateur identique à l'octet ; rien ne déborde à 320 px
+(hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
