@@ -1846,7 +1846,7 @@ body.sheet-on{overflow:hidden}
 @media (max-width:380px){
   .mqlg{display:none} .mqct{display:inline}
   #mqCorps .mqj,#rnCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
-  .mqh{gap:5px} .mql{padding-left:7px}
+  .mqh{gap:5px} .mql{padding-left:7px} .mql>.mqcher{margin-left:-7px}
   .mqpz{min-width:22px; padding:2px 3px} .mqpo{font-size:12.5px}
 }
 .mqrien b{color:var(--in)}
@@ -1869,7 +1869,7 @@ body.sheet-on{overflow:hidden}
   /* Foncée comme l'intertitre du mois (le client, le 10/10/2026), coins
      hauts suivant ceux de la carte. */
   background:var(--surface2); border-radius:11px 11px 0 0}
-.mqjn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700;
+.mqjn{flex:0 0 auto; font-family:"IBM Plex Mono",monospace; font-size:13.5px; font-weight:700;
   color:var(--at-rouge); white-space:nowrap}
 #mqCorps .mqls{padding:10px 12px 12px; gap:12px}
 /* La date garde de son ancienne place une marge basse de 11 px
@@ -1883,6 +1883,9 @@ body.sheet-on{overflow:hidden}
    10/10/2026) : le baseline ci-dessus le collait en haut. */
 #mqCorps .eqsem.mqtog, #rnCorps .eqsem.mqtog{align-items:center}
 .eqsemn{text-transform:none; letter-spacing:0; font-weight:500; font-size:11.5px}
+/* Le compte du mois en rouge, comme l'effectif du jour (le client, le 10/10/2026). */
+.eqsemn .mqmn{color:var(--at-rouge); font-weight:650}
+.mqjn small{font-family:inherit; font-size:10px; font-weight:600; color:var(--muted); margin-right:2px}
 #mqCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
 @media (max-width:380px){ .mqjt{padding:8px 10px 7px} #mqCorps .mqls{padding:9px 10px 11px} }
 .vsprec{display:flex; flex-direction:column; align-items:flex-end; gap:1px; text-align:right; margin-top:4px}
@@ -1931,7 +1934,7 @@ body.sheet-on{overflow:hidden}
 .regretour{justify-self:start; display:inline-flex; align-items:center; gap:3px; height:36px; padding:0 8px 0 2px;
   border:0; background:none; color:var(--in); font:600 15px inherit; font-family:inherit; cursor:pointer}
 /* « Chercher un remplaçant », au pied de chaque sous-effectif. */
-.mqcher{display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin-top:2px; padding:7px 12px; border-radius:999px;
+.mqcher{display:inline-flex; align-items:center; justify-content:center; gap:6px; align-self:center; margin-top:6px; padding:7px 12px; border-radius:999px;
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); color:var(--marque-vif);
   background:color-mix(in srgb,var(--marque-vif) 10%,transparent); font-size:12.5px; font-weight:650; font-family:inherit; cursor:pointer}
 @media (hover:hover){ .mqcher:hover{background:color-mix(in srgb,var(--marque-vif) 20%,transparent)} }
@@ -12467,7 +12470,7 @@ function renderManques(force){
       if(q.mois!==semPrec){ var nm=0; r.jours.forEach(function(z){ if(z.mois===x.mois) nm+=mqPauses(z); });
         if(semPrec!==-1) h.push("</div></section>");
         var kk="mq/"+x.mois; mqOuv=(kk in MQ_OUVERT)?MQ_OUVERT[kk]:(semPrec===-1);
-        h.push(mqMoisTete("mq",x.mois,q.moisNom,nm+" pause"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
+        h.push(mqMoisTete("mq",x.mois,q.moisNom,'<span class="mqmn">'+nm+" pause"+(nm>1?"s":"")+" en sous-effectif</span>",semPrec===-1)); semPrec=q.mois; }
       /* UN MOIS REPLIÉ NE SE CALCULE PAS : ses fiches (et leurs candidats,
          le plus lourd) se construisent à son dépli (audit du 10/10/2026 :
          l'onglet figeait 1,3 s à sa première ouverture). */
@@ -12484,9 +12487,11 @@ function renderManques(force){
          jour le gênait avec date+équipe+pause mêlées). La pause et l'équipe —
          qui sont le créneau, pas le jour — descendent avec le poste. */
       h.push('<div class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +'<span class="mqjt">'+q.html+'<span class="mqjn">'+(function(){
-          var v=0; x.l.forEach(function(o){ v+=Math.max(0,o.attendu-o.tenu); });
-          return v+(v>1?" personnes manquantes":" personne manquante"); })()+"</span></span>"
+        /* L'effectif en tête du jour, « 0/1 », au lieu de « 1 personne
+           manquante » (le client, le 10/10/2026) ; un par manque s'il y en
+           a plusieurs, et le cadre « En poste » ne le répète plus. */
+        +'<span class="mqjt">'+q.html+'<span class="mqjn">'+x.l.map(function(o){
+          return (x.l.length>1?'<small>'+esc(o.pause)+" "+esc(PV_COURT[o.k]||o.t)+"</small> ":"")+o.tenu+"/"+o.attendu; }).join(" · ")+"</span></span>"
         +'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
@@ -12505,7 +12510,7 @@ function renderManques(force){
         var oP=null; (o.vue&&o.vue.postes||[]).forEach(function(y){ if(y.P.k===o.k) oP=y; });
         var enP=oP?oP.gens.filter(function(y){ return !y.depuisD; }):[];
         plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
-          +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),o.tenu,o.attendu));
+          +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>')));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
@@ -13400,10 +13405,10 @@ function caCadre(titre,dedans,cl){
    si le poste est en sous-effectif (le client, le 02/10/2026). Remplace le
    caCadre(...,"plein") pour ce cadre précis, dans tous les modules. */
 function cadreEnPoste(dedans,tenu,attendu){
-  var manque=tenu<attendu;
+  var sansCompte=(tenu==null), manque=sansCompte||tenu<attendu;
   return '<span class="capaire plein'+(manque?" manque":"")+'">'
     +'<span class="cagr cagr-eff"><span>En poste</span>'
-    +'<span class="mqn'+(manque?"":" ok")+'">'+tenu+"/"+attendu+"</span></span>"
+    +(sansCompte?"":'<span class="mqn'+(manque?"":" ok")+'">'+tenu+"/"+attendu+"</span>")+"</span>"
     +'<span class="mqr">'+dedans+"</span></span>";
 }
 function caGroupes(t,large,sansUrgence){
