@@ -3984,6 +3984,11 @@ Absents et Congé et repos prennent la première ligne des autres cadres de
 l'onglet (`.toolbar.rhtitle` : titre centré, puis « 6 personnes ·
 jusqu'au » ou « 40 personnes · reprise »). Vérifié à 320 px (hors ligne),
 390 et 1280 px : écart de centrage 0 px, rien ne déborde, aucune erreur.
+Puis : « la ligne avec la date doit être foncée comme la ligne des mois
+repliable ». L'en-tête de chaque journée (`.mqjt`) prend le fond
+`--surface2` de l'intertitre (`.eqsem`), coins hauts arrondis comme la
+carte ; mesuré, les deux fonds sont identiques à 320 px (hors ligne), 390
+et 1280 px.
 
 ### Le congé en heures
 
