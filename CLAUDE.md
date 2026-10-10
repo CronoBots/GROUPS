@@ -3934,6 +3934,14 @@ d'équipe ». L'exposant d'équipe des badges GBT de l'onglet Équipes
 (« GBT⁴ », « GBT⁵ ») et son infobulle sont retirés : la ligne du tableau
 dit déjà le poste. Le badge redevient « GBT » tout court.
 
+**Le menu dans l'ordre du client** (le 10/10/2026 : « menu dans ce sens :
+accueil, horaire, équipes, salaire, rh, recherche ») : Accueil · Planning ·
+Équipes · Salaire · Effectifs · Recherche. Le client nomme les onglets à sa
+façon (« horaire » pour Planning, « rh » pour Effectifs) ; les intitulés,
+choisis avec lui le 09/10, ne changent pas, et les identifiants (`data-v`,
+`ui/view`) non plus. `VIEWS` suit l'ordre. Vérifié à 320 px (hors ligne),
+390 et 1280 px : chaque onglet s'ouvre, rien ne déborde, aucune erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
