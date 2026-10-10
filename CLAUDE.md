@@ -3954,6 +3954,21 @@ y tenait à l'écran. La fonction et son appel sont retirés : 0 px, le héros
 à 16 px du haut après les cinq onglets. Vérificateur identique ; vérifié à
 320 px (hors ligne), 390 et 1280 px.
 
+**Une bulle sur l'onglet Effectifs, plus de rangée de sauts** (le client, le
+10/10/2026 : « sur l'onglet rh, il doit y avoir une petite bulle avec le
+nombre de jours en sous-effectif ; les badges au-dessus de la page rh ne
+sont pas utiles »). Une pastille rouge à chiffre (`#rhNb`) se pose au coin
+de l'icône sur téléphone, à côté du libellé au bureau ; elle dit le nombre
+de journées en sous-effectif d'aujourd'hui à la fin de l'horaire, le même
+que le sous-titre du cadre, et se tait à zéro. `renderManques()` l'écrit ;
+il est appelé au repos dès le démarrage (`requestIdleCallback`), si bien
+que la bulle est là sans ouvrir l'onglet. Le libellé d'accessibilité de
+l'onglet le dit en mots. La rangée « Sous-effectif · Rappels · Absents »
+(`.rhsauts`), ses styles et son écouteur sont retirés. Le rouge plein
+#D63A30 et non `--at-rouge`, trop pâle en sombre pour un chiffre blanc.
+Mesuré à 320 px (hors ligne), 390 et 1280 px : 25, comme le cadre ;
+l'onglet commence par le cadre des sous-effectifs ; rien ne déborde.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
