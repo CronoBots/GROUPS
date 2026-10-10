@@ -2249,8 +2249,12 @@ body.sheet-on{overflow:hidden}
    pas leur ligne d'écriture : l'heure paraissait plus basse. Les deux se
    posent sur la même ligne de base, l'heure en mono comme le trigramme ;
    « pour faire 06-18 » suit la même ligne que les étiquettes qu'il prolonge. */
-.mqc{align-items:baseline}
-.mqc small{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; line-height:1}
+/* HORS DU BADGE (le client, le 10/10/2026 : « l'horaire et la pause doivent
+   être hors du trigramme »). Le badge ne porte que le trigramme ; l'horaire
+   (« 06-14 ») ou la pause et le poste (« PM Glut. ») le suivent à droite, sur
+   sa ligne de base, en mono plus discret. */
+.mqcw{display:inline-flex; align-items:baseline; gap:4px; white-space:nowrap}
+.mqch{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums}
 .capaire .mqr{align-items:baseline}
 .cafaire .cahr{margin-left:3px}
 @media (max-width:380px){ #caCorps .mqj{grid-template-columns:72px 1fr; column-gap:6px}
@@ -12967,8 +12971,7 @@ function renderManques(force){
         +'<span class="mqls">');
       x.l.forEach(function(o){
         var pis=o.pistes.map(function(q){
-          return '<span class="mqc"><b>'+esc(idLisible(q.p.id))+"</b><small>"
-            +esc(DE[q.de]||PV_COURT[q.de]||q.de)+"</small></span>";
+          return caChip(q.p.id,DE[q.de]||PV_COURT[q.de]||q.de);
         });
         var tc=caCandidats(x.par,o.vue,o.pause,o.P,an*10000+Number(x.mmdd),function(dec){
           return pausesLe(new Date(an,x.mois-1,x.jour+dec)); },null,true,x.autres||(x.autres=caAutres(db,x.par,x.mmdd,null)));
@@ -13818,8 +13821,8 @@ function caVerdict(r,mode){
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
 function caChip(id,sous,form){
-  return '<span class="mqc'+(form?" form":"")+'"><b>'+esc(idLisible(id))+"</b>"
-    +(sous?"<small>"+esc(sous)+"</small>":"")+"</span>";
+  var b='<span class="mqc'+(form?" form":"")+'"><b>'+esc(idLisible(id))+"</b></span>";
+  return sous?'<span class="mqcw">'+b+'<small class="mqch">'+esc(sous)+"</small></span>":b;
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
 /* Les groupes de candidats d'un poste, dans l'ordre de caCandidats(). */
