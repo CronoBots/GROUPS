@@ -4079,6 +4079,34 @@ dans le héros — l'unité porte désormais `.unite`, hors capitales.
 Vérifié à 320 px (hors ligne), 390 et 1280 px : la ligne de date mène au
 Planning, le corps de la fiche n'y mène pas, aucune erreur.
 
+**Une application, pas une page** (le client, le 10/10/2026 : « que
+l'utilisateur ne pense pas à une page web ; un vrai « wow » de la
+direction »). Premier lot, sans rien changer à la lecture :
+
+- **le manifeste** nomme l'application « BIOWANZE · Mon équipe » et non plus
+  un simulateur de paie, déclare un `id`, et porte **quatre raccourcis**
+  (appui long sur l'icône) : Planning · Salaire · Effectifs · Recherche. Ils
+  ouvrent `./?vue=…` ; le démarrage prend cet onglet avant `ui/view`, puis
+  nettoie l'adresse (`history.replaceState`). Le titre iOS de l'écran
+  d'accueil passe de « Ma paie » à « BIOWANZE » ;
+- **installée** (`display-mode: standalone`), l'interface ne se sélectionne
+  plus au doigt, l'appui long n'ouvre plus le menu « copier / ouvrir le
+  lien » (les champs restent sélectionnables) et le rebond du défilement ne
+  tire plus la page ;
+- **une impulsion haptique** de 8 ms au changement d'onglet (`vibrer()`,
+  Android seulement, coupée sous « réduire les animations ») ;
+- **une carte « Installer l'application »** dans l'Accueil, dans le navigateur
+  seulement : le bouton de l'invite du système sur Android
+  (`beforeinstallprompt`), le geste « Partager → Sur l'écran d'accueil » sur
+  iPhone ; la croix la masque pour de bon (`ui/installVu`) ;
+- **« Hors ligne · données de l'appareil »**, une pastille en haut de
+  l'écran tant que le réseau manque (`#horsLigne`).
+
+Éprouvé à 320 px (hors ligne : la pastille paraît), 390 px en iPhone (la
+carte, la croix) et 1280 px : `?vue=salaire` ouvre Salaire et l'adresse
+redevient propre, rien ne déborde, aucune erreur. Chromium sans écran ne
+déclenche pas `beforeinstallprompt` : seul un Android dira le bouton.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
