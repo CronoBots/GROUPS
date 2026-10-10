@@ -3282,6 +3282,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-bar{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; background:none; border:0; padding:0; cursor:pointer}
 .ry-bar>span{display:block; width:100%; max-width:16px; min-height:2px; background:var(--n); border-radius:3px 3px 0 0}
 .ry-bar:hover>span,.ry-bar:focus-visible>span{background:var(--in)}
+.ry-barp>span.ry-pile{display:flex; flex-direction:column; background:none; overflow:hidden}
+.ry-barp>span.ry-pile u{display:block; width:100%; text-decoration:none}
+.ry-barp:hover>span.ry-pile,.ry-barp:focus-visible>span.ry-pile{background:none; filter:brightness(1.2)}
 .ry-bar>i{font-size:9px; color:var(--faint); font-style:normal}
 .ry-insight{font-size:12px; color:var(--ink2); line-height:1.5; margin:0; padding-top:10px; border-top:1px solid var(--line2)}
 .ry-insight b{color:var(--ink); font-weight:600}
@@ -3292,8 +3295,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--in))}
 .ry-an-leg{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin:6px 0 10px}
 .ry-an-leg b{color:var(--ink); font-variant-numeric:tabular-nums}
-.ry-an-k .ry-kpi>span{display:block}
-.ry-an-cg{flex:1.6}
+.ry-an-p{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px}
+.ry-an-pc{background:var(--surface2); border:1px solid var(--line); border-radius:11px; padding:9px 4px 8px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px}
+.ry-an-pc .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px; min-width:0; width:auto; height:auto}
+.ry-an-pc b{font-size:19px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1}
+.ry-an-pc span{font-size:10px; color:var(--muted); white-space:nowrap}
 .ry-an-cg b{font-size:15px}
 .ry-sep{height:1px; background:var(--line2); margin:18px 16px 0}
 .ry-h2{padding:16px 16px 2px}
@@ -8697,7 +8703,7 @@ function congeJour(entry){
 }
 function statsRythme(db,person,y){
   var P={N:0,AM:0,PM:0,D:0}, repos=0, absence=0, prestes=0, we=0, feriesT=0, heures=0;
-  var nuitsMois=z12(), prestesMois=z12();
+  var nuitsMois=z12(), prestesMois=z12(), pausesMois={AM:z12(),PM:z12(),N:z12(),D:z12()};
   var congesMois={}; RY_CONGES.forEach(function(k){ congesMois[k]=z12(); });
   var F=(typeof feries==="function")?feries(y):{}, seq=[], cal=[];
   for(var m=0;m<12;m++){
@@ -8708,14 +8714,21 @@ function statsRythme(db,person,y){
       /* congés LUS DANS L'HORAIRE (annotations), indépendamment de la paie. */
       var cj=congeJour(person.d[pad2(m+1)+pad2(day)]);
       if(cj) congesMois[cj.k][m]+=cj.h/8;   /* en jours (1/2 = 0,5 ; 2h = 0,25…) */
-      if(rec.s && P.hasOwnProperty(rec.s)){
-        P[rec.s]++; prestes++; prestesMois[m]++; seq.push(rec.s);
-        heures += (rec.h!==undefined?rec.h:(st.params.hJour||8));
-        if(rec.s==="N") nuitsMois[m]++;
+      /* PRESTÉ = des heures ET une pause, celle qui a été TENUE (postePeint,
+         comme le héros et le calendrier). Un congé ou une maladie garde la
+         pause PRÉVUE dans rec.s, à zéro heure : la compter gonflait l'année
+         (VBN : 264 journées « prestées » pour 174 réelles, audit du
+         10/10/2026). */
+      var hh=(rec.h===undefined||rec.h===null||rec.h==="")?(st.params.hJour||8):Number(rec.h), pv=postePeint(rec);
+      if(rec.s && hh>0 && P.hasOwnProperty(pv)){
+        P[pv]++; prestes++; prestesMois[m]++; seq.push(pv);
+        heures += hh;
+        if(pv==="N") nuitsMois[m]++;
+        pausesMois[pv][m]++;
         if(dow===0||dow===6) we++;
         if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) feriesT++;
         /* calendrier : un congé JOUR ENTIER prime sur la pause d'équipe notée. */
-        cal.push(cj&&cj.h>=8 ? "A" : rec.s);
+        cal.push(cj&&cj.h>=8 ? "A" : pv);
       } else if(rec.a){ absence++; seq.push("A"); cal.push("A"); }
       else { repos++; seq.push("R"); cal.push(cj&&cj.h>=8?"A":"R"); }
     }
@@ -8723,23 +8736,24 @@ function statsRythme(db,person,y){
   function maxRun(c){ var mx=0,k=0,i; for(i=0;i<seq.length;i++){ if(seq[i]===c){k++; if(k>mx)mx=k;} else k=0; } return mx; }
   var moisMax=0; for(var j=1;j<12;j++) if(nuitsMois[j]>nuitsMois[moisMax]) moisMax=j;
   var congesTot={}; RY_CONGES.forEach(function(k){ congesTot[k]=congesMois[k].reduce(function(a,b){return a+b;},0); });
-  return {pauses:P, repos:repos, absence:absence, prestes:prestes, we:we, nuitsMois:nuitsMois,
+  return {pausesMois:pausesMois, pauses:P, repos:repos, absence:absence, prestes:prestes, we:we, nuitsMois:nuitsMois,
     prestesMois:prestesMois, congesMois:congesMois, congesTot:congesTot, seq:seq, cal:cal, y:y,
     nuits:P.N, feriesT:feriesT, heures:Math.round(heures),
-    serieN:maxRun("N"), serieR:maxRun("R"), moisMax:moisMax, pctN:prestes?Math.round(P.N/prestes*100):0};
+    serieN:maxRun("N"), serieR:maxRun("R"), serieT:(function(){ var mx=0,k=0,i; for(i=0;i<seq.length;i++){ if(P.hasOwnProperty(seq[i])){k++; if(k>mx)mx=k;} else k=0; } return mx; })(), moisMax:moisMax, pctN:prestes?Math.round(P.N/prestes*100):0};
 }
 /* Moyenne de la classe (opérateurs ou cadres) — lourde (statsRythme × tout le
    monde), donc MÉMOÏSÉE et calculée en différé pour ne pas bloquer le 1er rendu. */
 function statsEquipe(db,y,cadre){
   var key=y+"/"+(cadre?"c":"o");
   if(_statsEqCache[key]!==undefined) return _statsEqCache[key];
-  var n=0,sN=0,sW=0,sP=0;
+  var n=0,sN=0,sW=0,sP=0,sAM=0,sPM=0,sD=0;
   db.people.forEach(function(p){
     if(((typeof estCadre==="function"&&estCadre(p))?1:0)!==(cadre?1:0)) return;
     var s=statsRythme(db,p,y); if(s.prestes<=0) return;
-    n++; sN+=s.nuits; sW+=s.we; sP+=s.prestes;
+    n++; sN+=s.nuits; sW+=s.we; sP+=s.prestes; sAM+=s.pauses.AM; sPM+=s.pauses.PM; sD+=s.pauses.D;
   });
-  var r=n?{n:n,nuits:Math.round(sN/n),we:Math.round(sW/n),prestes:Math.round(sP/n)}:null;
+  var r=n?{n:n,nuits:Math.round(sN/n),we:Math.round(sW/n),prestes:Math.round(sP/n),
+    AM:Math.round(sAM/n),PM:Math.round(sPM/n),D:Math.round(sD/n)}:null;
   _statsEqCache[key]=r; return r;
 }
 var RY_MC=["J","F","M","A","M","J","J","A","S","O","N","D"];
@@ -8764,8 +8778,10 @@ function ryDonut(){
 }
 function ryInsight(s){
   var b=[];
-  if(s.nuitsMois[s.moisMax]>0) b.push("Mois le plus chargé en nuits : <b>"+esc(MOIS[s.moisMax])+"</b> ("+s.nuitsMois[s.moisMax]+")");
-  b.push("<b>"+s.pctN+" %</b> des journées en nuit");
+  var pc=function(v){ return s.prestes?Math.round(v/s.prestes*100):0; };
+  b.push("<b>"+pc(s.pauses.AM)+"\u202f%</b> AM · <b>"+pc(s.pauses.PM)+"\u202f%</b> PM · <b>"+pc(s.pauses.N)+"\u202f%</b> N"+(s.pauses.D?" · <b>"+pc(s.pauses.D)+"\u202f%</b> D":""));
+  var mm=0, j; for(j=1;j<12;j++) if(s.prestesMois[j]>s.prestesMois[mm]) mm=j;
+  if(s.prestesMois[mm]>0) b.push("mois le plus chargé : <b>"+esc(MOIS[mm].toLowerCase())+"</b> ("+s.prestesMois[mm]+" journées)");
   if(s.feriesT>0) b.push("<b>"+s.feriesT+"</b> férié"+(s.feriesT>1?"s":"")+" travaillé"+(s.feriesT>1?"s":""));
   return b.join(" · ");
 }
@@ -8778,6 +8794,20 @@ function ryCompareHTML(label,moi,eq,tri,cadre){
     +'<span class="ry-cmp-d '+cls+'">'+(diff===0?"= moyenne":(diff>0?"+":"")+diff+" vs moyenne")+'</span></div>'
     +'<div class="ry-cmp-b"><i class="moi" style="width:'+Math.round(moi/mx*100)+'%"></i><em>'+esc(tri||"Moi")+' <b>'+moi+'</b></em></div>'
     +'<div class="ry-cmp-b"><i class="eqp" style="width:'+Math.round(eq/mx*100)+'%"></i><em>moyenne des '+qui+' <b>'+eq+'</b></em></div></div>';
+}
+/* Les quatre pauses empilées, mois par mois, aux couleurs du calendrier. */
+function ryBarsPauses(pm){
+  var mx=1, m, ordre=["N","PM","AM","D"], C={AM:"am",PM:"pm",N:"n",D:"d"};
+  for(m=0;m<12;m++) mx=Math.max(mx,pm.AM[m]+pm.PM[m]+pm.N[m]+pm.D[m]);
+  var out="";
+  for(m=0;m<12;m++){
+    var tot=pm.AM[m]+pm.PM[m]+pm.N[m]+pm.D[m];
+    out+='<button type="button" class="ry-bar ry-barp" data-m="'+m+'" title="'+esc(MOIS[m])+' : '+pm.AM[m]+' AM · '+pm.PM[m]+' PM · '+pm.N[m]+' N · '+pm.D[m]+' D — voir le mois">'
+      +'<span class="ry-pile" style="height:'+Math.round(tot/mx*100)+'%">'+ordre.map(function(g){
+        return pm[g][m]?'<u style="flex:'+pm[g][m]+';background:var(--'+C[g]+')"></u>':""; }).join("")
+      +'</span><i>'+RY_MC[m]+'</i></button>';
+  }
+  return out;
 }
 function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé / absence",R:"Repos"})[t]||t; }
 /* Barres d'un tableau de 12 mois (cliquables → ouvre le mois). */
@@ -9313,12 +9343,12 @@ document.addEventListener("visibilitychange",function(){ if(!document.hidden) ma
 function estCongePose(ab){ return !!ab && !/^(MAL|–|TP|CP|CT|GREV|SANS)/.test(String(ab)); }
 function ryAnneeHTML(p,y){
   var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
-  var fait=0, avenir=0, nF=0, nA=0, conge=null, congeN=0, d, x;
+  var fait=0, avenir=0, F={AM:0,PM:0,N:0,D:0}, A={AM:0,PM:0,N:0,D:0}, conge=null, congeN=0, d, x;
   for(d=new Date(y,0,1); d.getFullYear()===y; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
     x=_pfJour(p.id,d); if(!x) continue;
     var passe=d.getTime()<t0;
     if(x.presente && PF_HEURES[x.pv]){
-      if(passe){ fait++; if(x.pv==="N") nF++; } else { avenir++; if(x.pv==="N") nA++; }
+      if(passe){ fait++; if(F.hasOwnProperty(x.pv)) F[x.pv]++; } else { avenir++; if(A.hasOwnProperty(x.pv)) A[x.pv]++; }
     } else if(!passe && estCongePose(x.ab)){
       if(!conge){ conge={d:new Date(d), c:x.ab}; congeN=1; }
       else if(congeN && Math.round((d-conge.d)/864e5)===congeN) congeN++;
@@ -9332,11 +9362,13 @@ function ryAnneeHTML(p,y){
   return '<div class="ry-chart-t ry-h2">Mon année à ce jour</div>'
     +'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées"><i style="width:'+pct+'%"></i></div>'
     +'<div class="ry-an-leg"><span><b>'+fait+'</b> journées prestées</span><span><b>'+avenir+'</b> à venir</span></div>'
-    +'<div class="ry-kpis ry-an-k">'
-    +'<div class="ry-kpi"><b>'+nF+'</b><span>nuits faites</span></div>'
-    +'<div class="ry-kpi"><b>'+nA+'</b><span>nuits à venir</span></div>'
-    +'<div class="ry-kpi ry-an-cg"><b>'+cg+'</b><span>prochain congé<br>'+cgs+'</span></div>'
-    +'</div>';
+    /* TOUTES LES PAUSES, et pas seulement la nuit (le client, le 10/10/2026 :
+       « pourquoi les stats ne parlent que de nuit ? il faut voir aussi les
+       autres pauses ») : faites en grand, à venir dessous. */
+    +'<div class="ry-an-p">'+["AM","PM","N","D"].map(function(g){
+      return '<div class="ry-an-pc"><i class="pf-pause" data-p="'+g+'">'+g+'</i><b>'+F[g]+'</b><span>+'+A[g]+' à venir</span></div>';
+    }).join("")+'</div>'
+    +'<div class="ry-kpi ry-an-cg"><b>'+cg+'</b><span>prochain congé · '+cgs+'</span></div>';
 }
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
@@ -9366,10 +9398,10 @@ function renderRythme(){
     +'<div class="ry-cmp" id="ryCompare"><div class="ry-cmp-wait">Comparaison à la moyenne…</div></div>'
     +'<div class="ry-kpis">'
     +'<div class="ry-kpi"><b>'+s.heures.toLocaleString("fr-BE")+'</b><span>heures (est.)</span></div>'
-    +'<div class="ry-kpi"><b>'+s.serieN+'</b><span>nuits d\'affilée</span></div>'
+    +'<div class="ry-kpi"><b>'+s.serieT+'</b><span>jours de travail d\'affilée</span></div>'
     +'<div class="ry-kpi"><b>'+s.serieR+'</b><span>repos d\'affilée</span></div>'
     +'</div>'
-    +'<div><div class="ry-chart-t">Nuits par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+ryBars(s.nuitsMois)+'</div></div>'
+    +'<div><div class="ry-chart-t">Pauses par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div></div>'
     +'<p class="ry-insight">'+ryInsight(s)+'</p>'
     +'</div></div>'
     /* ── Mon année (heatmap) + jours prestés/mois + courbe des congés ── */
@@ -9391,7 +9423,10 @@ function renderRythme(){
   plusTard(function(){
     var box=document.getElementById("ryCompare"); if(!box) return;
     var eq=statsEquipe(db,y,cadre);
-    box.innerHTML=eq ? (ryCompareHTML("Nuits",s.nuits,eq.nuits,idLisible(person.id),cadre)+ryCompareHTML("Week-ends",s.we,eq.we,idLisible(person.id),cadre)) : "";
+    var tri=idLisible(person.id);
+    box.innerHTML=eq ? (ryCompareHTML("Matins",s.pauses.AM,eq.AM,tri,cadre)+ryCompareHTML("Après-midi",s.pauses.PM,eq.PM,tri,cadre)
+      +ryCompareHTML("Nuits",s.nuits,eq.nuits,tri,cadre)+(s.pauses.D||eq.D?ryCompareHTML("Journées (D)",s.pauses.D,eq.D,tri,cadre):"")
+      +ryCompareHTML("Week-ends",s.we,eq.we,tri,cadre)) : "";
   });
 }
 
@@ -12616,8 +12651,17 @@ var mqHorizon=0;
 /* « octo » n'est pas une abréviation ; celles-ci sont celles de l'usage. */
 var MOIS_BREF=["janv.","févr.","mars","avr.","mai","juin",
                "juil.","août","sept.","oct.","nov.","déc."];
+/* LES PAUSES DÉJÀ FINIES AUJOURD'HUI (le client, le 10/10/2026 : « une
+   pause qui est terminée mais aujourd'hui ne doit plus être visible dans
+   les sous-effectifs »). Le jour de l'usine commence à 6 h : ses heures se
+   comptent depuis minuit, la nuit finit donc à 30 h (PF_FIN). */
+function pausesFinies(){
+  var ju=jourUsine(), h=(new Date()-new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()))/36e5, out={};
+  ["AM","PM","N"].forEach(function(g){ if(h>=PF_FIN[g]) out[g]=true; });
+  return out;
+}
 function mqJoursAVenir(db,horizon){
-  var au=new Date(), sortie=[], vus=0;
+  var au=jourUsine(), sortie=[], vus=0, finies=pausesFinies(), premier=true;
   /* l'horaire ne couvre qu'une année : au-delà, il n'y a rien à annoncer */
   var annee=Number(db.year);
   var d=new Date(au.getFullYear(),au.getMonth(),au.getDate());
@@ -12634,6 +12678,7 @@ function mqJoursAVenir(db,horizon){
       if(g.k==="off"||g.k==="abs"||g.k==="cong"||g.k==="D") return;
       var l=par[g.k]; if(!l||!l.length) return;
       personne=true;
+      if(premier && finies[g.k]) return;
       var vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
       inconnus+=vue.inconnus.length;
       vue.postes.forEach(function(o){
@@ -12645,6 +12690,7 @@ function mqJoursAVenir(db,horizon){
     });
     if(personne){ vus++; if(manques.length)
       sortie.push({mois:m, jour:j, mmdd:mmdd, l:manques, inc:inconnus, par:par}); }
+    premier=false;
     d.setDate(d.getDate()+1);
   }
   return {jours:sortie, examines:vus};
@@ -12839,7 +12885,7 @@ function mqPauses(x){
 }
 function renderManques(force){
   var hote=document.getElementById("mqCorps"); if(!hote) return;
-  var au=new Date(), cle=au.toDateString()+"/"+mqHorizon;
+  var au=jourUsine(), cle=au.toDateString()+"/"+mqHorizon+"/"+Object.keys(pausesFinies()).join("");
   if(!force && cle===mqFait) return;
   fetchHoraireDB().then(function(db){
     if(!db) return;

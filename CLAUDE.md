@@ -4146,6 +4146,40 @@ Les quatre sorties du vérificateur sont identiques à l'octet, la découpe de
 (hors ligne), 390 et 1280 px. Seul un téléphone dira comment l'agenda
 importe le fichier.
 
+**Toutes les pauses dans les statistiques, et plus de pause finie dans
+les sous-effectifs** (le client, le 10/10/2026, capture de l'iPhone à
+16 h 06 : « pourquoi les stats ne parlent que de nuit ? il faut voir aussi
+les autres pauses ; une pause qui est terminée mais aujourd'hui ne doit
+plus être visible dans les sous-effectifs »).
+
+- **« Mon année à ce jour »** montre AM, PM, N et D, chacune avec ce qui
+  est fait et ce qui reste à venir (VBN : 34 · 12 · 66 · 16, plus 7 · 7 ·
+  19 · 13), puis le prochain congé. **Mon rythme** compare matins,
+  après-midi, nuits, journées (D) et week-ends à la moyenne
+  (`statsEquipe()` calcule les quatre). « Nuits par mois » devient
+  **« Pauses par mois »**, une barre empilée aux couleurs du calendrier
+  (`ryBarsPauses()`). La phrase du bas donne la part de chaque pause et le
+  mois le plus chargé. « Nuits d'affilée » devient « jours de travail
+  d'affilée ».
+- **`statsRythme()` comptait les congés comme prestés** : un congé ou une
+  maladie garde la pause PRÉVUE dans `rec.s`, à zéro heure, et passait le
+  test. VBN : 264 journées « prestées » pour 174 réelles. Une journée
+  compte désormais si elle a des heures, et elle compte à la pause TENUE
+  (`postePeint()`, comme le héros et le calendrier). Le donut et
+  « Mon année » donnent maintenant le même total : 41 + 19 + 85 + 29 = 174,
+  soit 128 faites et 46 à venir.
+- **Les sous-effectifs partent du jour de l'usine** (`jourUsine()`) et,
+  ce jour-là, sautent les pauses déjà finies (`pausesFinies()`, `PF_FIN` :
+  l'AM à 14 h, le PM à 22 h, la nuit à 6 h le lendemain). La clé du cache
+  de `renderManques()` porte les pauses finies : le cadre se refait quand
+  une pause se termine. La bulle et la vue direction suivent, puisqu'elles
+  lisent `mqJoursAVenir()`. Mesuré horloge au 10/10 : à 10 h, 25 pauses,
+  l'AM STEP du jour en tête ; à 16 h 06 et à 23 h, 24, le lundi 12 en tête.
+
+Vérificateur identique à l'octet, découpe de `comparer-fiches` à l'épreuve
+(il ne découpe ni `statsRythme()` ni `mqJoursAVenir()`). Rien ne déborde et
+aucune erreur à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
