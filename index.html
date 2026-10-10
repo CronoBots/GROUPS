@@ -2810,6 +2810,23 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqvide{color:var(--faint)}
 .eqnb{font-size:12px; font-weight:500; color:var(--faint); margin-left:4px}
 .eqrows{padding:0 16px 4px}
+/* Le cadre à deux onglets (le client, le 10/10/2026, « optimise au max ») :
+   onglets de la Recherche, compte à côté du libellé, mois repliables des
+   sous-effectifs, rangées serrées. */
+.eqabsseg{grid-template-columns:1fr 1fr; margin:12px 16px 10px}
+.eqabsseg .eqon{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; opacity:.75; margin-left:3px}
+#eqAbsCard .eqrows{padding:0 16px 6px; border-top:1px solid var(--trait)}
+#eqAbsCard .mqtog{margin:0 -16px}
+#eqAbsCard .mqmois:first-child>.mqtog, #eqAbsCard .eqsansd+.mqmois>.mqtog{border-top:0}
+#eqAbsCard .eqrow{padding:5px 0}
+#eqAbsCard .mqd.eqproche{flex-direction:column; gap:0; line-height:1.2}
+#eqAbsCard .mqd.eqproche b{font-size:13.5px}
+#eqAbsCard .mqd.eqproche small{font-size:11.5px; margin-left:0}
+#eqAbsCard .mqmc{padding:3px 0}
+#eqAbsCard .mqmc>.eqrow:first-child{border-top:0}
+#eqAbsCard .eqsansd .eqrow{padding:8px 0}
+#eqAbsCard .eqsansd{border-bottom:1px solid var(--trait)}
+.eqvide{margin:12px 0; color:var(--muted); font-size:13px; text-align:center}
 /* La date en deux lignes, le jour puis la date : dateEnMots(), commune aux
    trois cadres du Résumé. */
 .eqrow{display:grid; grid-template-columns:84px 1fr; column-gap:10px; align-items:center;
@@ -11075,18 +11092,35 @@ function renderEquipe(){
          dimanche, celle du jour de l'usine. */
       var t0=Date.UTC(aA,aM-1,aJ);
       function quand(y,m,j){ return dateEnMots(y,m,j,t0); }
-      var semPrec=-1;
-      var h2=grp.map(function(G){
+      /* Mois repliables, comme les sous-effectifs (le client, le
+         10/10/2026 : « optimise au max » sur cinq pistes). Le mois du
+         premier retour est ouvert, les suivants repliés sur leur intertitre
+         qui garde son compte ; « Sans date » passe en tête, hors des mois :
+         on ne le trouvait plus, sous la barre du menu. */
+      var semPrec=-1, nParMois={}, rangees=[], sansDate="";
+      grp.forEach(function(G){
         var x=G.x0, q;
         if(k==="abs") q=x.fin?quand(x.fin[0],x.fin[1],x.fin[2]):quand(aA,aM,aJ);
         else if(G.c===99999999) q=quand(0);
         else if(!x.fin) q=quand(aA,aM,aJ+1);
         else q=quand(x.fin[0],x.fin[1],x.fin[2]+1);
-        var tete="";
-        if(q.mois!==semPrec){ tete=q.moisNom?'<div class="eqsem">'+esc(q.moisNom)+"</div>":""; semPrec=q.mois; }
-        return tete+'<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
+        var html='<div class="eqrow"'+(q.titre?' title="'+esc(q.titre)+'"':"")+">"+q.html
           +'<span class="eqrch">'+G.gens.map(function(x){ return chip(x,g,null); }).join("")+"</span></div>";
-      }).join("");
+        if(!q.moisNom){ sansDate+=html; return; }
+        nParMois[q.mois]=(nParMois[q.mois]||0)+G.gens.length;
+        rangees.push({q:q,html:html});
+      });
+      var h2=sansDate?'<div class="eqsansd">'+sansDate+"</div>":"";
+      rangees.forEach(function(R){
+        if(R.q.mois!==semPrec){
+          if(semPrec!==-1) h2+="</div></section>";
+          var n=nParMois[R.q.mois];
+          h2+=mqMoisTete("eq"+k,R.q.mois,R.q.moisNom,n+" personne"+(n>1?"s":""),semPrec===-1);
+          semPrec=R.q.mois;
+        }
+        h2+=R.html;
+      });
+      if(semPrec!==-1) h2+="</div></section>";
       /* DEUX CADRES, et non deux lignes d'un tableau. Le client, le
          26/09/2026 : « je veux également séparer les 2 cadres ». Sorties du
          tableau « Hors poste », les dates gagnent la largeur que prenaient
@@ -11094,14 +11128,45 @@ function renderEquipe(){
          trigrammes. */
       /* Même première ligne que les autres cadres de l'onglet : titre centré
          et compte dessous (le client, le 10/10/2026). */
-      cadres.push('<div class="card eqcard" data-s="'+k+'">'
-        +'<div class="toolbar rhtitle"><h2>'+esc(k==="abs"?"Absents":"Congé et repos")+'</h2>'
-        +'<p class="sub">'+(autreJour?"aujourd'hui · ":"")+l.length+" personne"+(l.length>1?"s":"")
-        +" · "+(k==="abs"?"jusqu'au":"reprise")+"</p></div>"
-        +'<div class="eqrows">'+h2+"</div></div>");
+      cadres.push({k:k,n:l.length,html:h2});
     });
+    /* UN SEUL CADRE À DEUX ONGLETS (le client, le 10/10/2026) : deux
+       grands cadres empilés pour une seule question — qui n'est pas là, et
+       jusqu'à quand. Les onglets sont ceux de la Recherche (.caseg), le
+       compte dans chacun ; le sous-titre dit ce que la date veut dire. */
     var reste=document.getElementById("eqReste");
-    if(reste) reste.innerHTML=cadres.join("");
+    if(reste){
+      var parK={abs:{n:0,html:""},cong:{n:0,html:""}};
+      cadres.forEach(function(c){ parK[c.k]=c; });
+      var ong=lsGet("ui/eqResteOnglet")==="cong"?"cong":"abs";
+      if(!parK[ong].n && parK[ong==="abs"?"cong":"abs"].n) ong=(ong==="abs"?"cong":"abs");
+      var SUB={abs:"malade · date de retour", cong:"date de reprise du travail"};
+      var pre=autreJour?"aujourd'hui · ":"";
+      reste.innerHTML=(parK.abs.n||parK.cong.n)?'<div class="card eqcard" id="eqAbsCard">'
+        +'<div class="toolbar rhtitle"><h2>Absents et congés</h2><p class="sub" id="eqAbsSub">'+esc(pre+SUB[ong])+"</p></div>"
+        +'<div class="caseg eqabsseg" role="tablist" aria-label="Absents ou congés">'
+        +["abs","cong"].map(function(k){
+          return '<button type="button" role="tab" data-eqo="'+k+'" data-sub="'+esc(pre+SUB[k])+'" aria-selected="'+(k===ong)+'" tabindex="'+(k===ong?0:-1)+'">'
+            +(k==="abs"?"Absents":"Congé et repos")+' <span class="eqon">'+parK[k].n+"</span></button>"; }).join("")
+        +"</div>"
+        +["abs","cong"].map(function(k){
+          return '<div class="eqrows" data-eqo="'+k+'"'+(k===ong?"":" hidden")+">"
+            +(parK[k].html||'<p class="eqvide">Personne aujourd\u2019hui.</p>')+"</div>"; }).join("")
+        +"</div>":"";
+      if(!reste._ecoute){
+        reste._ecoute=true;
+        reste.addEventListener("click",function(e){
+          if(mqBascule(e)) return;
+          var b=e.target.closest?e.target.closest("button[data-eqo]"):null; if(!b) return;
+          var k=b.getAttribute("data-eqo"); lsSet("ui/eqResteOnglet",k);
+          Array.prototype.forEach.call(reste.querySelectorAll("button[data-eqo]"),function(x){
+            var on=x===b; x.setAttribute("aria-selected",on); x.tabIndex=on?0:-1; });
+          Array.prototype.forEach.call(reste.querySelectorAll(".eqrows[data-eqo]"),function(x){
+            x.hidden=x.getAttribute("data-eqo")!==k; });
+          var sb=document.getElementById("eqAbsSub"); if(sb) sb.textContent=b.getAttribute("data-sub");
+        });
+      }
+    }
 
     if(hote) hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     var es=document.getElementById("eqSub");
