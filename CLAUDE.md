@@ -3942,6 +3942,18 @@ choisis avec lui le 09/10, ne changent pas, et les identifiants (`data-v`,
 `ui/view`) non plus. `VIEWS` suit l'ordre. Vérifié à 320 px (hors ligne),
 390 et 1280 px : chaque onglet s'ouvre, rien ne déborde, aucune erreur.
 
+**Le héros ne se colle plus en haut au retour sur l'Accueil** (le client, le
+10/10/2026 : « en changeant d'onglet, quand on revient sur l'accueil, le
+héros est collé au-dessus de l'écran et n'a plus l'écart »). `setView()`
+appelait encore `centrerSurAujourdhui()`, né pour la vue année (douze mois
+sous l'écran) : il amenait la case du jour du calendrier à l'écran. Sur un
+téléphone, cette case est sous le bas de l'écran, et la page descendait
+d'autant. Reproduit à 390 × 600 : 80 px de défilement après chaque
+changement d'onglet ; Chromium à 800 px de haut ne le montrait pas, la case
+y tenait à l'écran. La fonction et son appel sont retirés : 0 px, le héros
+à 16 px du haut après les cinq onglets. Vérificateur identique ; vérifié à
+320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
