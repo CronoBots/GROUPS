@@ -760,8 +760,6 @@ button{cursor:pointer}
 /* l'infobulle s'inverse avec le thème : un blanc figé ici disparaissait
    sur le fond clair que prend la bulle en mode sombre */
 #calTip b{color:inherit; font-weight:700}
-.orgn{position:relative}
-.orgn .orgeq{position:absolute; top:0; right:1px; font-size:8px; line-height:1; opacity:.8; pointer-events:none}
 @media (max-width:620px){
   .annee{padding:0 12px 12px}
   .annee .grille{grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px}
@@ -11737,24 +11735,8 @@ function _orgJeton(id,moi,sup){
     }
     if(HORAIRE_DB.__formSet[id] && !/\borgf\b/.test(sup||"")) sup=(sup||"")+" orgf";
   }
-  /* Deux personnes s'affichent « GBT » (GBT-1 en équipe 4, GBT en équipe 5) :
-     un exposant d'équipe les distingue, l'infobulle le dit en entier. Audit
-     du 10/10/2026. */
-  var eqx="", tit="";
-  if(HORAIRE_DB){
-    if(!HORAIRE_DB.__partage){
-      var nb={}; HORAIRE_DB.__partage={};
-      (HORAIRE_DB.people||[]).forEach(function(p){ var l=idLisible(p.id); nb[l]=(nb[l]||0)+1; });
-      (HORAIRE_DB.people||[]).forEach(function(p){
-        var m=/Shift\s*(\d)/i.exec(p.cat||"");
-        if(nb[idLisible(p.id)]>1) HORAIRE_DB.__partage[p.id]=m?m[1]:"";
-      });
-    }
-    if(HORAIRE_DB.__partage[id]){ eqx='<sup class="orgeq">'+esc(HORAIRE_DB.__partage[id])+"</sup>";
-      tit=' title="'+esc(idLisible(id))+" \u00b7 \u00c9quipe "+esc(HORAIRE_DB.__partage[id])+'"'; }
-  }
-  return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'" data-id="'+esc(id)+'"'+tit+'>'
-    +esc(idLisible(id))+eqx+"</span>";
+  return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'" data-id="'+esc(id)+'">'
+    +esc(idLisible(id))+"</span>";
 }
 function renderOrganisation(){
   var hote=document.getElementById("orgCorps"); if(!hote) return;
