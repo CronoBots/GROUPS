@@ -9444,7 +9444,11 @@ function dirCouverture(db){
     poly.forEach(function(e){
       if(POSTS.indexOf(e.k)<0) return;
       if(e.acquis && !e.ok && !e.exempt && !e.forme) overdue[e.k]++;
-      if(e.ok || e.exempt) covered[e.k]=1;
+      /* COUVERTURE = polyvalence ACTIVE : qui PEUT tenir le poste, recyclage à
+         jour ou non (le client, le 10/10/2026 : « même sans les recyclages
+         nécessaires, ils peuvent quand même tenir le poste »). Le recyclage en
+         retard est un suivi à part, pas une incapacité à dépanner. */
+      if(e.acquis || e.exempt) covered[e.k]=1;
     });
     if(isShift){
       if(!teams[team]) teams[team]={n:0, cov:{}};
@@ -9533,7 +9537,7 @@ function dirAnneeHTML(a){
    +'<p class="dir-note">Opérateurs polyvalents dont le recyclage n\'est pas à jour sur ce poste.</p>'
    +'<div class="dir-sec">Postes à renforcer, par équipe</div>'
    +'<div id="dirCouv"><div class="dir-anb dir-anb-wait">…</div></div>'
-   +'<p class="dir-note">Opérateurs polyvalents ET recyclés par poste dans l\'équipe (le poste attitré compte). En rouge : moins de 2 — à renforcer.</p>';
+   +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : moins de 2 — à renforcer.</p>';
 }
 
 function majNotifReglage(){
