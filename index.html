@@ -2017,6 +2017,17 @@ body.sheet-on{overflow:hidden}
 .dir-chip{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:99px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#9AA5BC; cursor:pointer; white-space:nowrap}
 .dir-chip.on{background:#6FD6F2; color:#0B1018; border-color:#6FD6F2}
 .dir-page>.dir-grp:first-child{margin-top:4px; padding-top:0; border-top:none}
+.dir-cards{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px}
+.dir-card{text-align:left; display:flex; flex-direction:column; gap:2px; padding:15px 14px 13px; border-radius:16px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#E8ECF4; cursor:pointer; min-height:96px}
+.dir-card:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.16)}
+.dir-card:active{transform:scale(.985)}
+.dir-card-t{font-size:13.5px; font-weight:700; line-height:1.2}
+.dir-card-v{font-family:"IBM Plex Mono",monospace; font-size:25px; font-weight:650; color:#6FD6F2; line-height:1.05; margin-top:3px}
+.dir-card-v small{font-size:14px; color:#9AA5BC; font-weight:500}
+.dir-card-v.dir-card-go{color:#51607A; font-size:22px}
+.dir-card-d{font-size:11px; color:#9AA5BC; margin-top:auto; padding-top:4px}
+.dir-back{font:inherit; font-size:13px; font-weight:600; color:#6FD6F2; background:none; border:0; cursor:pointer; padding:2px 0 12px}
+.dir-back:hover{color:#8FE0F5}
 .dir-det{margin-top:8px}
 .dir-det>summary{cursor:pointer; font-size:12px; color:#6FD6F2; font-weight:600; list-style:none; padding:6px 0}
 .dir-det>summary::-webkit-details-marker{display:none}
@@ -4316,7 +4327,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   <div class="dir-in">
     <div class="dir-tete">
       <img src="logo.svg" alt="" class="dir-logo">
-      <div class="dir-t"><b>Production · vue du jour</b><span id="dirDate"></span></div>
+      <div class="dir-t"><b>Production · Direction</b><span id="dirDate"></span></div>
       <span class="dir-h" id="dirHeure"></span>
       <button type="button" class="dir-x" id="dirX" aria-label="Fermer">×</button>
     </div>
@@ -9345,8 +9356,9 @@ function ouvrirDirection(){
         inter=db.people.filter(function(p){ return estInterim(p); }).length,
         taux=(pres+mal)?Math.round(mal/(pres+mal)*1000)/10:0;
     document.getElementById("dirDate").textContent=JOURS_LONGS[(ju.getDay()+6)%7]+" "+j+" "+MOIS[m-1].toLowerCase()+" "+an;
-    var h='<div class="dir-chips" id="dirChips">'+dirChipsHTML()+'</div>'
-      +'<div class="dir-page" data-page="jour">'
+    var h='<div class="dir-page" data-page="hub">'+dirHubHTML(pres,db.people.length,inter)+'</div>'
+      +'<div class="dir-page" data-page="jour" hidden>'
+      +'<button type="button" class="dir-back" data-page="hub">‹ Direction</button>'
       +'<div class="dir-kpis">'
       +'<div class="dir-k ac"><b>'+pres+'<small>/'+db.people.length+'</small></b><span>Présents aujourd\'hui</span><em>toutes pauses et journée</em></div>'
       +'<div class="dir-k'+(taux>=8?' al':'')+'"><b>'+mal+'</b><span>Maladie</span><em>'+String(taux).replace(".",",")+' % de l\'effectif du jour</em></div>'
@@ -9363,8 +9375,8 @@ function ouvrirDirection(){
       +'</div>'
       +'<div id="dirAnnee"></div>';
     c.innerHTML=h;
-    var _ch=document.getElementById("dirChips"); if(_ch) _ch.onclick=function(e){ var t=e.target; while(t&&t!==_ch){ if(t.getAttribute&&t.getAttribute("data-page")){ dirShowPage(t.getAttribute("data-page")); break; } t=t.parentNode; } };
-    dirShowPage("jour");
+    c.onclick=function(e){ var t=e.target; while(t&&t!==c){ if(t.getAttribute&&t.getAttribute("data-page")){ dirShowPage(t.getAttribute("data-page")); break; } t=t.parentNode; } };
+    dirShowPage("hub");
     v.hidden=false; document.documentElement.style.overflow="hidden";
     document.getElementById("dirX").focus();
     function heure(){ var t=new Date(); document.getElementById("dirHeure").textContent=(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes(); }
@@ -9477,6 +9489,8 @@ function dirAnneeRender(db){
   setTimeout(function(){
     var rh=null; try{ rh=dirRH(db); }catch(e){}
     if(rh){ fill("dirMal",dirMalHTML(rh)); fill("dirAbsP",dirAbsPosteHTML(rh)); fill("dirConges",dirCongesHTML(rh)); fill("dirFerWe",dirFerWeHTML(rh)); fill("dirHsFt",dirHsFtHTML(rh)); fill("dirInterSec",dirInterSecHTML(rh)); fill("dirStatut",dirStatutHTML(rh)); }
+    try{ if(rh){ var _ga=dirAbsAgg(rh.allOps||[]), _ea=document.getElementById("dirCardAbs"); if(_ea) _ea.textContent=dirUn(_ga.taux)+' %'; } }catch(e){}
+    try{ var _aa=dirAnnee(db), _rt=_aa.rappMois.reduce(function(x,y){return x+y;},0), _er=document.getElementById("dirCardRapp"); if(_er) _er.textContent=String(_rt); }catch(e){}
   },30);
   setTimeout(function(){
     try{ caInit(db); }catch(e){}
@@ -9778,23 +9792,38 @@ function dirRappRankHTML(rank, rappList){
   if(rest.length) h+='<details class="dir-det"><summary>Voir les '+rest.length+' autres personnes rappelées</summary><div>'+rest.map(row).join("")+'</div></details>';
   return h;
 }
-function dirChipsHTML(){
-  var pages=[["jour","Vue du jour"],["absences","Absences"],["rappels","Rappels"],["rythme","Rythme"],["competences","Compétences"],["interim","Intérimaires"],["statut","Statut"]];
-  return pages.map(function(p){ return '<button type="button" class="dir-chip'+(p[0]==="jour"?" on":"")+'" data-page="'+p[0]+'">'+esc(p[1])+'</button>'; }).join("");
-}
 function dirShowPage(page){
   var corps=document.getElementById("dirCorps"); if(!corps) return;
-  Array.prototype.forEach.call(corps.querySelectorAll(".dir-chip"),function(b){ b.classList.toggle("on", b.getAttribute("data-page")===page); });
   Array.prototype.forEach.call(corps.querySelectorAll(".dir-page"),function(p){ p.hidden=(p.getAttribute("data-page")!==page); });
   var v=document.getElementById("dirVue"); if(v) v.scrollTop=0;
+}
+/* Écran d'accueil de Direction : une carte par section, avec son chiffre clé.
+   Taper une carte ouvre la section en plein écran (bouton Retour en haut). */
+function dirHubHTML(pres, total, inter){
+  var cards=[
+    {k:"jour", t:"Vue du jour", v:pres+" <small>/"+total+"</small>", d:"présents aujourd'hui"},
+    {k:"absences", t:"Absences & santé", v:'<span id="dirCardAbs">…</span>', d:"taux d'absentéisme"},
+    {k:"rappels", t:"Rappels", v:'<span id="dirCardRapp">…</span>', d:"jours avec rappel"},
+    {k:"rythme", t:"Rythme & charge", v:"", d:"nuits, fériés, heures sup, sous-effectifs"},
+    {k:"competences", t:"Compétences", v:"", d:"recyclages, postes à renforcer"},
+    {k:"interim", t:"Intérimaires", v:String(inter), d:"dans l'effectif"},
+    {k:"statut", t:"Comparatif", v:"", d:"employé · ouvrier · intérimaire"}
+  ];
+  return '<div class="dir-cards">'+cards.map(function(c){
+    return '<button type="button" class="dir-card" data-page="'+c.k+'">'
+      +'<span class="dir-card-t">'+esc(c.t)+'</span>'
+      +(c.v?'<span class="dir-card-v">'+c.v+'</span>':'<span class="dir-card-v dir-card-go">›</span>')
+      +'<span class="dir-card-d">'+esc(c.d)+'</span></button>';
+  }).join("")+'</div>';
 }
 function dirAnneeHTML(a){
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
   var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   var wait='<div class="dir-anb dir-anb-wait">…</div>';
+  var back='<button type="button" class="dir-back" data-page="hub">‹ Direction</button>';
   return ''
-   +'<div class="dir-page" data-page="absences" hidden>'
+   +'<div class="dir-page" data-page="absences" hidden>'+back
    +'<div class="dir-grp">Absences &amp; santé</div>'
    +'<div id="dirMal">'+wait+'</div>'
    +'<div class="dir-sec">Absents (maladie) par poste <span class="dir-hint">— dépliez pour les trigrammes</span></div>'
@@ -9803,7 +9832,7 @@ function dirAnneeHTML(a){
    +'<div id="dirConges">'+wait+'</div>'
    +'</div>'
 
-   +'<div class="dir-page" data-page="rappels" hidden>'
+   +'<div class="dir-page" data-page="rappels" hidden>'+back
    +'<div class="dir-grp">Rappels</div>'
    +'<div class="dir-sec">Rappels par mois</div>'
    +dirBarsMois(a.rappMois,'linear-gradient(180deg,#6FD6F2,#3A8FD8)',a.y)
@@ -9813,7 +9842,7 @@ function dirAnneeHTML(a){
    +'<p class="dir-note">'+a.rapp.length+' personnes rappelées au moins une fois sur l\'année.</p>'
    +'</div>'
 
-   +'<div class="dir-page" data-page="rythme" hidden>'
+   +'<div class="dir-page" data-page="rythme" hidden>'+back
    +'<div class="dir-grp">Rythme &amp; charge</div>'
    +'<div class="dir-sec">Pauses en sous-effectif par mois · écoulé</div>'
    +'<div id="dirMqBars">'+wait+'</div>'
@@ -9832,7 +9861,7 @@ function dirAnneeHTML(a){
    +'<div id="dirHsFt">'+wait+'</div>'
    +'</div>'
 
-   +'<div class="dir-page" data-page="competences" hidden>'
+   +'<div class="dir-page" data-page="competences" hidden>'+back
    +'<div class="dir-grp">Compétences</div>'
    +'<div class="dir-sec">Recyclages à faire par poste</div>'
    +'<div id="dirRecyc">'+wait+'</div>'
@@ -9842,12 +9871,12 @@ function dirAnneeHTML(a){
    +'<p class="dir-note">Opérateurs capables de tenir le poste dans l\'équipe — polyvalence active, poste attitré compris (le recyclage à jour n\'est pas requis pour dépanner). En rouge : à renforcer — moins de 2, ou aucun pour STEP.</p>'
    +'</div>'
 
-   +'<div class="dir-page" data-page="interim" hidden>'
+   +'<div class="dir-page" data-page="interim" hidden>'+back
    +'<div class="dir-grp">Intérimaires</div>'
    +'<div id="dirInterSec">'+wait+'</div>'
    +'</div>'
 
-   +'<div class="dir-page" data-page="statut" hidden>'
+   +'<div class="dir-page" data-page="statut" hidden>'+back
    +'<div class="dir-grp">Comparatif par statut</div>'
    +'<div class="dir-sec">Employé · Ouvrier · Intérimaire <span class="dir-hint">— par personne sauf absentéisme et HS</span></div>'
    +'<div id="dirStatut">'+wait+'</div>'
