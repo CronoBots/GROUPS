@@ -4231,6 +4231,32 @@ message vide changent ; `rappelsInutiles()` et les identifiants
 (`#rnCorps`, `#rnSub`) gardent leur nom. Vérifié à 320 px (hors ligne),
 390 et 1280 px.
 
+**Le bureau** (le client, le 12/10/2026 : « le site est pas optimisé pc »,
+capture d'une fenêtre de 1920 px à l'appui). La barre du haut tenait sur
+deux lignes. Le tableau du jour faisait 330 px de haut au milieu d'un
+écran vide, avec des badges de 11 px. Tout ce qui suit ne vaut qu'au-delà
+de 1100 px, dans un bloc posé en fin de feuille :
+
+- **Une barre d'application** : la marque à gauche, le jour derrière un
+  filet, les onglets à droite, sur une seule ligne de 59 px. Ses bords
+  intérieurs suivent la largeur du contenu (`--lw`) : le logo et le dernier
+  onglet tombent sur les bords des cartes.
+- **Le Planning remplit l'écran** : la carte va de sous la barre au bas de
+  la fenêtre (`--jtop`, mesuré par `ajusterHauteurJour()`). Comme sur
+  téléphone, `ajusterLignesJour()` partage la hauteur entre les lignes.
+  Pauses en 16 px, postes en 13 px, badges en 13,5 px.
+- **Plus large au-delà de 1600 px** : le contenu passe de 1 340 à 1 480 px.
+- **Effectifs** : les fiches de sous-effectif s'affichent sur deux colonnes
+  (une seule fiche de 660 px laissait la moitié du cadre vide). Les mois
+  restent en travers. Absents, congés et repos passent aussi sur deux
+  colonnes.
+
+Rien ne change sous 1100 px : à 900 px la carte du Planning garde ses
+340 px. Les quatre sorties du vérificateur sont identiques à l'octet
+(`--polyvalence` comparé à `HEAD`, puisqu'elle dépend de la date du jour).
+Rien ne déborde à 320 px (hors ligne), 390, 900, 1280 et 1920 px, aucune
+erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
