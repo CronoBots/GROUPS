@@ -73,6 +73,7 @@ const MORCEAUX=[
   ["function dureeReelle(","\n}"],
   ["var ALIAS_HORAIRE=","\n"],
   ["var COQUILLES=","\n"],
+  ["var HS_TRANCHEES=","};"],
   ["var JOUR_EN_ABSENCE=","\n"],
   ["var RX_PRIS_AILLEURS=","\n"],
   ["function parseHoraireEntry(","\n}"],
