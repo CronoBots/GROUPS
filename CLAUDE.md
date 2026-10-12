@@ -6243,6 +6243,21 @@ FPS, dist. PAM, à 320 px (hors ligne), 390 et 1280 px ; VGG le 27/09 ne
 bouge pas ; les quatre sorties du vérificateur identiques à l'octet (le
 26/10 est à venir).
 
+**Puis les autres journées du projet falling film relues** (le client :
+« suite »). Le projet garde chacun à son poste (`PROJETS_SUR_POSTE`) ;
+un balayage des journées à venir, atelier écrit contre atelier placé, a
+montré trois personnes qui n'y étaient pas : SPS le 26/10, `["7h-15h",
+"F", … "maintien prime N RCO et LDY présents"]`, comptée aux chaudières
+de nuit ; SKS le 15/10 en « D-F », comptée en meunerie l'après-midi ; PLZ
+le 15/10, « SLT et BGT présents ». Une plage de jour, « D-F » ou d'autres
+nommés « présents » sortent désormais du poste. **« Remplacé par » avait
+été ajouté aussi, et c'était faux** : trois sous-effectifs sont apparus,
+qui n'existent pas — ATR ne remplace ATA le 15/10 que de 12 h 30 à 13 h 30,
+SBZ le 09/10 et GDT le 05/10 sont remplacés parce qu'ils vont eux-mêmes
+remplacer quelqu'un. Retiré. Les quatre sorties du vérificateur sont
+identiques à l'octet (aucun manque ne bougeait par ces trois-là) ;
+Planning du 15/10 vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
