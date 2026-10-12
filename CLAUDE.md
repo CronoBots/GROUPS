@@ -1846,12 +1846,8 @@ n'est deviné à leur sujet :
   « Les réponses du 29/09/2026 » ;
 - ~~le doublage de 12 h pour couvrir une absence~~ : tranché le
   29/09/2026 (A), voir « Recherche par pause et par poste » ;
-- **trois heures sup écrites en plage** (12/10/2026), que l'application ne
-  paie pas : QBY le 13/02, `["PM","gluten","Trip usine 14h-02h Rappel le
-  13/02"]` (12 h, l'application en lit 8) ; JBS le 03/09, `["PM","N",
-  "remplace KDN en pause N … preste 14h-18h en HS"]` (la nuit, plus 4 h
-  sup en PM ?) ; JBI le 23/06, `["PM","R-CM","remplace YPE + 06h-10h
-  interventions chaudières rappel le?"]` (4 h et un rappel douteux) ;
+- ~~trois heures sup écrites en plage~~ : tranchées le 12/10/2026, voir
+  « Les chaudières d'ATR », fin ;
 - **les soldes flex time sous −8 h** (09/10/2026) : la note du 18/09/2024
   fixe le minimum à −8 h, et onze personnes sont en dessous au jour J
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
@@ -6219,6 +6215,19 @@ l'octet ; au Planning du 16/10, CM PM : JBI seul, à 320 px (hors ligne),
 mal écrit sur une absence déjà codée, « remplace aussi » d'un cadre) ;
 **trois journées passées perdent des heures sup écrites en plage** —
 questions au client, dans « Ce qui attend le client ».
+
+**Tranchées le même jour.** Le client : QBY « a bien fait 12h et il n'y a
+pas de cellule avec du FT+ ce jour-là, donc c'est bien du HS » ; « oui »
+pour JBS ; « oui HS pour JBI, et rappel le 22/06 ». `HS_TRANCHEES` pose les
+4 h sup de chaque journée (`r.hc`) à la prime de leur plage — nuit pour
+QBY (22 h-2 h), après-midi pour JBS (14 h-18 h), matin pour JBI
+(6 h-10 h) — et `RAPPEL_DATE_TRANCHEE` lit « rappel le? » de JBI comme
+« rappel le 22/06 » (rappel J). Table nommée, journée par journée, et non
+une règle « plage plus longue que la pause », qui prendrait aussi des
+remplacements partiels. Les deux outils qui découpent `lireJournee()` la
+prennent. Avant : 0 h sup sur les trois journées ; après : 4 h chacune.
+Les quatre sorties du vérificateur sont identiques à l'octet (règle de
+paie seulement), découpe de `comparer-fiches` à l'épreuve.
 
 ### Un commentaire peut relever l'effectif d'une journée
 

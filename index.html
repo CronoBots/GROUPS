@@ -7890,7 +7890,21 @@ function jourPreste(annee,mmdd,comm){
    fiche de février paie ce rappel. Une date postérieure au jour est
    refusée plus bas ; on ne la devine pas, on la corrige ici, journée par
    journée. Seule cellule de l'année à porter « rappel le 19.06 » ce jour-là. */
-var RAPPEL_DATE_TRANCHEE={"0219":[/rappel le 19\.06/i,"rappel le 19.02"]};
+/* JBI le 23/06, « remplace YPE + 06h-10h interventions chaidières rappel
+   le? » : le client, le 12/10/2026, « rappel le 22/06 ». */
+var RAPPEL_DATE_TRANCHEE={"0219":[/rappel le 19\.06/i,"rappel le 19.02"],
+  "0623":[/rappel le\s*\?/i,"rappel le 22/06"]};
+/* DES HEURES SUP ÉCRITES EN PLAGE, tranchées par le client pour la journée
+   nommée seulement, le 12/10/2026 : aucune n'écrit « +FT », donc ce sont
+   des HS (la règle du 25/09). QBY le 13/02, « Trip usine 14h-02h » : 12 h,
+   les 4 h après 22 h en nuit — « il a bien fait 12h » ; JBS le 03/09, la
+   nuit pour KDN et « preste 14h-18h en HS » ; JBI le 23/06, son après-midi
+   et « 06h-10h interventions chaudières ». Le motif du commentaire garde
+   la correction sur sa journée ; une règle générale « plage plus longue
+   que la pause » attraperait aussi des remplacements partiels. */
+var HS_TRANCHEES={"0213":[/trip usine 14h-02h/i,4,"N"],
+  "0903":[/preste 14h-18h en hs/i,4,"PM"],
+  "0623":[/06h-10h interventions/i,4,"AM"]};
 function momentRappel(annee,mmdd,txt,comm){
   var rt=RAPPEL_DATE_TRANCHEE[mmdd]; if(rt) txt=txt.replace(rt[0],rt[1]);
   var m=txt.match(RX_RAPPEL); if(!m) return null;
@@ -8430,6 +8444,8 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       if(r.plageEp && r.h>0 && r.h<hJour-0.01) r.h=Math.max(0,r.h-hc);
     }
   }
+  var hsT=HS_TRANCHEES[pad2(mois)+pad2(jour)];
+  if(hsT && !r.hc && hsT[0].test(raw[2]||"")){ r.hc=hsT[1]; r.hcp=hsT[2]; }
   /* LES DEUX HEURES DU PROJET FALLING FILM. Le client, le 28/09/2026 : les
      opérateurs en formation « tiennent bien leurs pauses à leurs postes et
      suivent la formation avant ou après (2 h de FT+ ou de HS selon la
