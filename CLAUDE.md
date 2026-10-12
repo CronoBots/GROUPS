@@ -6229,6 +6229,20 @@ prennent. Avant : 0 h sup sur les trois journées ; après : 4 h chacune.
 Les quatre sorties du vérificateur sont identiques à l'octet (règle de
 paie seulement), découpe de `comparer-fiches` à l'épreuve.
 
+**Le 26/10 en PM, tranché le même jour.** JBI porte `["PM","F","projet
+falling film en distillation remplace en ferm-liq pour QBY"]` ; l'appli le
+laissait adjoint, GPO tenant la fermentation. Le client : « JBI en
+fermentation, PAM en distillation, FPS terrain et GPO gluten », puis
+« il tient le poste mais suivra la formation quand même ». PAM et FPS y
+étaient déjà ; JBI et GPO entrent dans `POSTE_DU_JOUR`. **Et la table ne
+suffisait pas** : GPO, mis au gluten, en surnombre, partait au terrain
+arrière en renfort (le même renfort que pour ATR le 29/06). Un poste
+tranché par le client est désormais inamovible (`x.fixe`), comme un atelier
+écrit. Planning du 26/10 PM : ferm. JBI, glut. GPO · GSK · RDT, t. arr.
+FPS, dist. PAM, à 320 px (hors ligne), 390 et 1280 px ; VGG le 27/09 ne
+bouge pas ; les quatre sorties du vérificateur identiques à l'octet (le
+26/10 est à venir).
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance

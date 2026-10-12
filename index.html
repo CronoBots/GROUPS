@@ -10911,7 +10911,12 @@ var POSTE_TRANCHE={QBY:"dist"};
    26/09/2026, entre les trois lectures : « A », BBZ en distillation et VGG
    au terrain arrière, qu'il sait tenir. C'est la seule table qui passe
    AVANT la cellule, et elle ne vaut que pour la journée nommée. */
-var POSTE_DU_JOUR={VGG:{"20260927":"terr"}};
+/* Le 26/10 en PM, le client le 12/10/2026 : « JBI en fermentation, PAM en
+   distillation, FPS terrain et GPO gluten » — JBI, `["PM","F","projet
+   falling film en distillation remplace en ferm-liq pour QBY"]`, « tient le
+   poste mais suivra la formation quand même ». Sans cela JBI restait
+   adjoint et GPO tenait la fermentation ; PAM et FPS y étaient déjà. */
+var POSTE_DU_JOUR={VGG:{"20260927":"terr"}, JBI:{"20261026":"ferm"}, GPO:{"20261026":"glut"}};
 /* LE POSTE HABITUEL QUE LE CLIENT DONNE, quand le classeur en écrit un autre.
    Le client, le 27/09/2026 : « dans l'équipe 5, par défaut c'est toujours
    AAI qui tient le poste distillation et SMA le terrain ». La chaîne disait
@@ -11424,7 +11429,10 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     if(!k) k=posteParDefaut(x.p);
-    x.fixe=!!posteEcrit(x.p.d[mmdd]);   /* écrit dans la cellule : inamovible */
+    /* écrit dans la cellule, ou tranché par le client pour ce jour
+       (POSTE_DU_JOUR) : inamovible. GPO le 26/10, mis au gluten par le
+       client, partait sinon au terrain arrière en renfort. */
+    x.fixe=!!posteEcrit(x.p.d[mmdd]) || !!(POSTE_DU_JOUR[x.p.id]&&POSTE_DU_JOUR[x.p.id][String(jourCalc)]);
     x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
