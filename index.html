@@ -1444,6 +1444,9 @@ body.sheet-on{overflow:hidden}
 .rdp-m{color:var(--at-vert); background:var(--at-vert-soft); font-weight:600}
 .rdp-m:hover{color:var(--at-vert); background:var(--at-vert-soft); filter:brightness(1.15)}
 .rdp-vide{color:var(--line); font-size:13px}
+.rdp-pq{margin-top:8px; padding:7px 8px; border:1px dashed var(--line2); border-radius:9px}
+.rdp-pql{display:flex; gap:8px; align-items:baseline; font-size:12px; color:var(--muted); line-height:1.4; padding:1px 0}
+.rdp-pqd{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink2); flex:none; font-variant-numeric:tabular-nums}
 .rdp-rien{color:var(--faint); font-size:13px; padding:22px 4px; text-align:center}
 .rdp-note{font-size:10.5px; color:var(--faint); padding:9px 14px; border-top:1px solid var(--line2);
   background:var(--surface2); line-height:1.45}
@@ -10417,6 +10420,12 @@ function posteEcrit(raw){
   var cE=String((raw&&raw[2])||"");
   var mE=/^\s*(?:en|au|à la)\s+([A-Za-zà-ÿ.\-]+)/i.exec(cE);
   if(mE && cE.indexOf("?")<0){ k=posteDepuisNom(mE[1]); if(k) return k; }
+  /* « CH » EN CAPITALES DIT LES CHAUDIÈRES. ATR le 29/06, ["N","AM",
+     "Présent pour redémarrage CH à la demande de JBY"] : le client l'a
+     confirmé le 12/10/2026, et le classeur RH des recyclages compte ce
+     jour-là un recyclage de chaudières. Seule journée de l'année à
+     l'écrire ; capitales exigées, mot entier, pas de doute. */
+  if(/(^|[^A-Za-zÀ-ÿ])CH([^A-Za-zÀ-ÿ]|$)/.test(cE) && cE.indexOf("?")<0) return "chau";
   return null;
 }
 /* Un opérateur en formation FIGURE au poste, mais n'y COMPTE pas. Le
@@ -10839,7 +10848,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
       while(effectif(liste,Q,jour)>att(Q)
             && liste.some(function(y){ return !y.depuisD && nbPostesTenables(y.p,jour)===1; })){
         cand=liste.filter(function(x){
-          return !x.depuisD && nbPostesTenables(x.p,jour)>1 && tientTerrainArriere(x.p,jour);
+          return !x.depuisD && !x.fixe && nbPostesTenables(x.p,jour)>1 && tientTerrainArriere(x.p,jour);
         }).sort(parId);
         if(!cand.length) break;
         liste.splice(liste.indexOf(cand[0]),1);
@@ -12242,7 +12251,11 @@ function calculerPolyvalence(db){
   var debut=(fin>="0201")?"0201":"0101";
   var cle=annee+"/"+debut+"/"+fin+"/"+st.params.hJour;
   if(_poly && _polyCle===cle) return _poly;
-  var parId={}, parIdDates={}, m, j, mmdd;
+  var parId={}, parIdDates={}, lieux={}, m, j, mmdd;
+  /* OÙ chacun a été placé chaque jour, compté ou non : le tableau des dates
+     au clic d'un opérateur s'en sert pour dire pourquoi une date du classeur
+     RH n'est pas comptée (le client, le 12/10/2026, « ABC »). */
+  function noterLieu(y,k,h){ (lieux[y.p.id]=lieux[y.p.id]||{})[mmdd]={k:k, h:h}; }
   for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
     mmdd=pad2(m)+pad2(j); if(mmdd<debut || mmdd>fin) continue;
     var par=equipeDuJour(db,annee,m,j);
@@ -12254,11 +12267,12 @@ function calculerPolyvalence(db){
          place que la consignation tient déjà. Mais une journée en D n'est
          pas un recyclage : les copies venues du D ne comptent pas ici. */
       postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null).postes.forEach(function(o){
-        if(o.P.cm||o.P.k==="adj") return;
         o.gens.forEach(function(y){
           if(y.depuisD) return;
           var r=y.r; if(!r||!r.s) return;
           var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
+          noterLieu(y,o.P.cm?"cm":o.P.k,h);
+          if(o.P.cm||o.P.k==="adj") return;
           if(Math.abs(h-st.params.hJour)>0.01) return;
           if(o.P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           if(!parId[y.p.id]) parId[y.p.id]={};
@@ -12269,6 +12283,26 @@ function calculerPolyvalence(db){
           (parIdDates[y.p.id][o.P.k]=parIdDates[y.p.id][o.P.k]||[]).push(mmdd);
         });
       });
+    });
+    /* UNE JOURNÉE EN D QUI ÉCRIT L'ATELIER COMPTE. Le client, le 12/10/2026,
+       devant ATR le 16/09, ["D","chaudières"], « 3ème homme » du nettoyage
+       Bang and Clean selon quatre collègues : le classeur RH y compte un
+       recyclage. Le D restait hors du compte (« le Jour ne tient pas un
+       poste de production ») ; il y entre quand la cellule ou l'annotation
+       NOMME l'atelier — sept journées depuis le 01/02. Un D sans atelier
+       écrit ne dit pas où la personne était, et ne compte toujours pas. */
+    (par.D||[]).forEach(function(y){
+      var r=y.r; if(!r) return;
+      var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
+      if(!(lieux[y.p.id]&&lieux[y.p.id][mmdd])) noterLieu(y,"D",h);
+      if(Math.abs(h-st.params.hJour)>0.01) return;
+      var k=posteEcrit(y.p.d[mmdd]);
+      if(!k||RECYC_POSTES.indexOf(k)<0) return;
+      if(k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
+      if(!parId[y.p.id]) parId[y.p.id]={};
+      parId[y.p.id][k]=(parId[y.p.id][k]||0)+1;
+      if(!parIdDates[y.p.id]) parIdDates[y.p.id]={};
+      (parIdDates[y.p.id][k]=parIdDates[y.p.id][k]||[]).push(mmdd);
     });
   }
   /* Le classeur RH remplace le compteur « jours planifiés » par le nombre de
@@ -12285,7 +12319,7 @@ function calculerPolyvalence(db){
     var pr=parId[p.id]||(parId[p.id]={});
     RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
   });
-  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, parIdDates:parIdDates, debut:debut, fin:fin};
+  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, parIdDates:parIdDates, lieux:lieux, debut:debut, fin:fin};
   return _poly;
 }
 /* COMBIEN DE FOIS A-T-IL REMPLACÉ COMME CONTREMAÎTRE. Le client, le 07/10/2026 :
@@ -12728,6 +12762,25 @@ function renderPolyvalence(){
    Dates app = jours planifiés comptés (parIdDates) ; dates RH = recyclages du
    classeur (servies dans recyclages-2026.json). Une date présente des DEUX côtés
    ressort en vert. Affichage seul ; la logique de recyclage ne change pas. */
+/* POURQUOI UNE DATE DU CLASSEUR RH N'EST PAS COMPTÉE PAR L'APPLICATION. Le
+   client, le 12/10/2026, « ABC », après l'analyse des chaudières d'ATR : la
+   réponse se lit dans la journée telle que l'application l'a placée
+   (t.lieux) et dans ce que la cellule écrit. Rien n'est recalculé ici. */
+function raisonNonCompte(db,p,k,jjmm,t){
+  var pm=String(jjmm).split("/"), mmdd=pad2(Number(pm[1]))+pad2(Number(pm[0]));
+  if(mmdd<t.debut) return "avant la période";
+  if(mmdd>t.fin) return "à venir";
+  var L=t.lieux&&t.lieux[p.id]&&t.lieux[p.id][mmdd];
+  var court=function(n){ return String(Math.round(n*100)/100).replace(".",","); };
+  if(!L) return "pas présent dans l'horaire";
+  var w=posteEcrit(p.d[mmdd]);
+  if(L.k==="D") return w&&w!==k ? "journée en D, "+(PV_COURT[w]||w) : "journée en D";
+  if(Math.abs(L.h-st.params.hJour)>0.01) return "journée de "+court(L.h)+" h";
+  if(L.k===k) return "son poste attitré";
+  if(w&&w!==k) return "autre atelier dans l'horaire ("+(PV_COURT[w]||w)+")";
+  var ou=L.k==="cm"?"CM":L.k==="adj"?"adjoint":(PV_COURT[L.k]||L.k);
+  return "atelier non écrit (placé "+ou+")";
+}
 function fermerDatesRecyclage(){ var o=document.getElementById("rdpOv"); if(o) o.parentNode.removeChild(o); }
 function ouvrirDatesRecyclage(db,p){
   fermerDatesRecyclage();
@@ -12737,7 +12790,7 @@ function ouvrirDatesRecyclage(db,p){
   var blocs=[];
   (polyvalenceDe(db,p)||[]).forEach(function(o){
     if(o.forme||o.exempt) return;
-    blocs.push({t:o.t, z:o.z, app:(appD[o.k]||[]).map(jm), rh:rhD[o.k]||[]});
+    blocs.push({t:o.t, z:o.z, k:o.k, app:(appD[o.k]||[]).map(jm), rh:rhD[o.k]||[]});
   });
   if(estCadre(p)){
     var ca=datesRemplacementsCM(db,p).map(jm), cr=rhD.cm||[];
@@ -12754,11 +12807,25 @@ function ouvrirDatesRecyclage(db,p){
         +'" data-d="'+esc(pm[0]||"")+'" data-m="'+esc(pm[1]||"")+'">'+esc(d)+"</button>";
     }).join("");
   }
+  /* Sous chaque poste, les dates RH que l'application ne compte pas, avec
+     leur raison. Pas pour le contremaître, compté par un autre chemin. */
+  function pourquoi(b){
+    if(!b.k) return "";
+    var set={}; b.app.forEach(function(d){ set[d]=1; });
+    var manq=b.rh.filter(function(d){ return !set[d]; });
+    if(!manq.length) return "";
+    return '<div class="rdp-pq"><div class="rdp-ch">Non comptées par l’app</div>'
+      +manq.map(function(d){
+        return '<div class="rdp-pql"><span class="rdp-pqd">'+esc(d)+'</span>'
+          +esc(raisonNonCompte(db,p,b.k,d,t))+"</div>";
+      }).join("")+"</div>";
+  }
   var corps=blocs.length ? blocs.map(function(b){
     return '<div class="rdp-poste"><div class="rdp-nom" data-z="'+esc(b.z||"")+'"><span>'+esc(b.t)
       +'</span><span class="rdp-cnt">app '+b.app.length+" · RH "+b.rh.length+"</span></div>"
       +'<div class="rdp-cols"><div class="rdp-col"><div class="rdp-ch">App</div><div class="rdp-ds">'+liste(b.app,b.rh)+"</div></div>"
-      +'<div class="rdp-col"><div class="rdp-ch">RH</div><div class="rdp-ds">'+liste(b.rh,b.app)+"</div></div></div></div>";
+      +'<div class="rdp-col"><div class="rdp-ch">RH</div><div class="rdp-ds">'+liste(b.rh,b.app)+"</div></div></div>"
+      +pourquoi(b)+"</div>";
   }).join("") : '<p class="rdp-rien">Aucun recyclage à comparer pour cet opérateur.</p>';
   var ov=document.createElement("div"); ov.id="rdpOv"; ov.className="rdp-ov";
   ov.innerHTML='<div class="rdp" role="dialog" aria-modal="true" aria-label="Dates de recyclage">'

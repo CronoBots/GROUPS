@@ -115,6 +115,7 @@ const MORCEAUX=[
   ["function aLaPolyvalence(","\n}"],
   ["var _poly=null",";"],
   ["var RECYC_OFF=","\n"],
+  ["var RECYC_POSTES=","\n"],
   ["function calculerPolyvalence(","\n}"],
   ["var PV_SANS_RECYCLAGE=","\n"],
   ["var RECYC_EXEMPT=","};"],
