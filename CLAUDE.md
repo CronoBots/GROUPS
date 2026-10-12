@@ -1846,6 +1846,12 @@ n'est deviné à leur sujet :
   « Les réponses du 29/09/2026 » ;
 - ~~le doublage de 12 h pour couvrir une absence~~ : tranché le
   29/09/2026 (A), voir « Recherche par pause et par poste » ;
+- **trois heures sup écrites en plage** (12/10/2026), que l'application ne
+  paie pas : QBY le 13/02, `["PM","gluten","Trip usine 14h-02h Rappel le
+  13/02"]` (12 h, l'application en lit 8) ; JBS le 03/09, `["PM","N",
+  "remplace KDN en pause N … preste 14h-18h en HS"]` (la nuit, plus 4 h
+  sup en PM ?) ; JBI le 23/06, `["PM","R-CM","remplace YPE + 06h-10h
+  interventions chaudières rappel le?"]` (4 h et un rappel douteux) ;
 - **les soldes flex time sous −8 h** (09/10/2026) : la note du 18/09/2024
   fixe le minimum à −8 h, et onze personnes sont en dessous au jour J
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
@@ -6196,6 +6202,23 @@ et FPS comptent plus que lui (le RH ne note pas toutes les journées).
 Neuf règles et compteurs identiques à l'octet. Vérifié à 320 px (hors
 ligne), 390 et 1280 px : ATR « 28/09 · autre atelier dans l'horaire
 (T. arr.) » au gluten, FPA cinq dates expliquées, rien ne déborde.
+
+**Les commentaires relus, le même jour** (le client : « d'autres
+commentaires non compris ou utilisés à bon escient ? »). Les règles
+faibles du vérificateur, lues une par une : 3 mentions non comprises et 50
+motifs trop étroits. **Une seule journée à venir était fausse** : GPS le
+16/10, `["PM","VM-F", … "ATEX poussières … de 08h30' à 16h30' remplacé
+par JBI"]`, restait contremaître de l'après-midi à côté de JBI, qui le
+remplace. « VM-F », « AM-VM » et « PM-VM » entrent dans `COQUILLES` : GPS
+passe en formation comme ATA (même formation, même jour, prime recalée
+sur le cycle comme toute journée F) ; DBE et RDT ne bougent pas. Mentions
+non comprises 3 → 0 ; sous-effectifs, Recyclage et compteurs identiques à
+l'octet ; au Planning du 16/10, CM PM : JBI seul, à 320 px (hors ligne),
+390 et 1280 px. Des 50 motifs trop étroits, la plupart sont sans effet
+(plages d'une formation d'une heure sur une journée F, « remplacé pa »
+mal écrit sur une absence déjà codée, « remplace aussi » d'un cadre) ;
+**trois journées passées perdent des heures sup écrites en plage** —
+questions au client, dans « Ce qui attend le client ».
 
 ### Un commentaire peut relever l'effectif d'une journée
 
