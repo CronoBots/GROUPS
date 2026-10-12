@@ -10243,7 +10243,19 @@ var EST_FORMATION=/^d?\s*-?\s*f$/i;
 var PROJETS_SUR_POSTE=[/falling\s*film/i];
 function surSonPosteMalgreF(raw){
   var c=String((raw&&raw[2])||""), i;
-  for(i=0;i<PROJETS_SUR_POSTE.length;i++) if(PROJETS_SUR_POSTE[i].test(c)) return true;
+  /* ... SAUF quand le classeur dit qu'il ne l'a PAS tenu. Le 12/10/2026,
+     relu journée par journée : une plage de jour (SPS le 26/10, 7h-15h,
+     « RCO et LDY présents » à sa nuit), « D-F » (SKS le 15/10), ou d'autres
+     nommés « présents » à sa place (PLZ le 15/10). « Remplacé par » ne
+     suffit PAS : ATR ne remplace ATA le 15/10 que de 12 h 30 à 13 h 30, et
+     SBZ le 09/10 est remplacé parce qu'il va lui-même remplacer QDE — les
+     exclure faisait apparaître trois sous-effectifs qui n'existent pas. */
+  var horsPoste=/\bpr[ée]sents?\b/i.test(c)
+    || /^D\s*-\s*F$/i.test(String((raw&&raw[1])||"").trim());
+  var pl0=plageMention(String((raw&&raw[0])||"").trim());
+  if(pl0 && posteDepuisPlage(pl0)==="D") horsPoste=true;
+  if(!horsPoste)
+    for(i=0;i<PROJETS_SUR_POSTE.length;i++) if(PROJETS_SUR_POSTE[i].test(c)) return true;
   /* « REMPLACÉ AU CPPT PAR X » : un autre va à la réunion, il reste à son
      poste. GPS le 24/11, ["N","D-CPPT","remplacé au CPPT par TFI"] : sans
      cette lecture, le contremaître de nuit passait à 0/1. Le 29/09/2026,
