@@ -6128,6 +6128,34 @@ rappelé les 21 et 22/10 pour QDE. Neuf règles à zéro, compteurs **77/78**
 `comparer-fiches` à l'épreuve ; vérifié au navigateur à 320 (hors ligne),
 390 et 1280 px.
 
+### Le classeur du 12/10/2026 à 9 h 27
+
+Huit portes ouvertes, installé : **51 journées chez 24 personnes, 14
+compteurs**, aucune arrivée ni aucun départ. Les journées du 09 au 11/10
+complétées (départs anticipés en −FT : GKT, GPS, JBI, JBS ; MHI « départ à
+5h » sans code, lu en RHS par la règle du 29/09 ; GST « Abs » le 10/10 ;
+VGG en « 8h -FT » le 11/10 ; échange ATA/YPE les 10 et 11/10). Plus loin :
+AFA en RHS du 14 au 17/12, VGG le remplace en R-CM les 14 et 15 ; FPA au
+gluten pour GSK les 28 et 29/10 ; RDT en VA et RTT les 04-06/11 et
+08-09/12 ; SPS remplace QDE en nuit les 21 et 22/12. Sous-effectifs d'ici
+la fin de l'année **24 → 23 journées**, 25 → 23 places (les chaudières de
+nuit sont comblées). Compteurs 77/78 (FPA, l'écart connu), intégralité à
+zéro.
+
+**« Falling film »** (JBI, 02 au 04/11 et 09 au 13/11, en annotation d'un
+7h-15h, sans commentaire) : mention nouvelle, 8 journées non comprises.
+Ce sont les semaines de D de JBI, et il suivait déjà le projet le 26/10
+(« projet falling film en distillation ») : une tâche de jour, comme
+« consign. ». Elle entre dans `MENTIONS_NEUTRES` ; la journée reste un D de
+8 h, et la règle des 2 h sup du projet (qui lit le commentaire) ne s'y
+applique pas. Seule la règle faible change (11 → 3 mentions) ; les quatre
+sorties du vérificateur sont identiques à l'octet sur le nouvel horaire.
+
+**Recyclages** (classeur RH du 12/10/2026 à 9 h 14), onze portes ouvertes :
+ATR gluten 0 → 4 et chaudières 1 → 2 (restant 17 → 12), JBI distillation
+1 → 2 et contremaître 0 → 5 (restant 24 → 18), SBZ chaudières 0 → 1
+(restant 12 → 11).
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
