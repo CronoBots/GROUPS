@@ -6156,6 +6156,47 @@ ATR gluten 0 → 4 et chaudières 1 → 2 (restant 17 → 12), JBI distillation
 1 → 2 et contremaître 0 → 5 (restant 24 → 18), SBZ chaudières 0 → 1
 (restant 12 → 11).
 
+### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
+
+Le client, le 12/10/2026 : « ATR est bien aux chaudières les deux jours
+encodés dans le fichier RH ; trouve pourquoi ». L'application en comptait
+0. Les trois propositions ont été acceptées (« ABC ») :
+
+- **A — une journée en D qui écrit l'atelier compte.** ATR le 16/09,
+  `["D","chaudières"]`, troisième homme du nettoyage Bang and Clean : le D
+  restait hors du compte. `calculerPolyvalence()` lit désormais la colonne
+  D quand la cellule ou l'annotation nomme l'atelier (`posteEcrit()`), à
+  8 h, hors poste attitré ; un D sans atelier écrit ne compte toujours pas.
+  Sept journées depuis le 01/02 (ATR, VGG, CWN). `RECYC_POSTES` entre dans
+  la découpe du vérificateur.
+- **B — « CH » en capitales, mot entier, se lit chaudières**
+  (`posteEcrit()`) : ATR le 29/06, « Présent pour redémarrage CH ». Seule
+  journée de l'année à l'écrire.
+- **C — pourquoi une date RH n'est pas comptée** : au clic sur un opérateur
+  du recyclage, sous chaque poste, « Non comptées par l'app » donne la
+  raison de chaque date RH absente des dates de l'application — « journée
+  en D », « atelier non écrit (placé X) », « autre atelier dans l'horaire
+  (X) », « journée de n h », « son poste attitré », « pas présent dans
+  l'horaire ». `calculerPolyvalence()` garde où chacun a été placé chaque
+  jour (`lieux`) ; `raisonNonCompte()` le relit, sans rien recalculer.
+
+**B seul ne suffisait pas, et la mesure l'a montré** : le 29/06 se lisait
+bien « chaudières », mais le renfort du terrain arrière (option B du
+02/10) l'en retirait, ATR y étant en surnombre. Ce renfort ignorait
+`x.fixe`, alors que `postesDePause()` écrit « écrit dans la cellule :
+inamovible ». Il le respecte désormais. **Les sous-effectifs ne bougent
+pas** (`--manques 0926` et `0101` identiques à l'octet) : le renfort ne
+comble aucun manque. Le Recyclage, oui — ceux dont l'atelier écrit était
+retiré pour le terrain arrière retrouvent leur journée : ATR chaudières
+0 → 2 et meunerie 1 → 2, VGG meunerie 4 → 5 et chaudières 2 → 5, CWN STEP
+7 → 9, FPA chaudières 6 → 10, FPS meunerie 2 → 6 et gluten 2 → 5, PLZ
+meunerie 15 → 17, CDE fermentation et JBI gluten +1 ; 20 → 22 couples au
+quota. ATR chaudières et VGG concordent désormais avec le classeur RH ; FPA
+et FPS comptent plus que lui (le RH ne note pas toutes les journées).
+Neuf règles et compteurs identiques à l'octet. Vérifié à 320 px (hors
+ligne), 390 et 1280 px : ATR « 28/09 · autre atelier dans l'horaire
+(T. arr.) » au gluten, FPA cinq dates expliquées, rien ne déborde.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
