@@ -6191,8 +6191,11 @@ remplacé, sinon leur poste habituel. **La première version ne prenait que
 la cellule**, et le 13/10 restait vide : AAI et GKT écrivent l'atelier dans
 le commentaire. Les morceaux ne valent que s'ils couvrent TOUTE la pause ;
 le poste compte alors une personne de plus (`o.relais`). Au Planning, les
-relais s'écrivent dans la case, badge à bord pointillé d'accent et horaire
-(« AAI 06-18 », « GKT 18-06 »), l'infobulle disant « relais 12 h ». Mesuré
+relais s'écrivent dans la case, badge à bord pointillé d'accent et la PART
+de la pause que chacun tient (« AAI 14-18 », « GKT 18-22 ») — d'abord leur
+plage entière (« 06-18 », « 18-06 »), corrigée le même jour par le client :
+« ils tiennent d'autres postes dans leurs pauses respectives, mais ce sont
+bien eux qui partagent le PM ». L'infobulle donne leur journée. Mesuré
 (`--placement --tout` imprime les relais) : **40 postes couverts sur
 l'année**, tous des paires 06-18 / 18-06, 14-02 / 02-14 ou 22-10 / 10-22 ;
 places creuses de l'année 250 → **218** ; d'ici la fin de l'année seul le

@@ -11615,14 +11615,21 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
       if(kp!==k) return;
-      cand.push({p:p, a:x0, b:x1, hor:pad2(Math.floor(pl[0])%24)+"-"+pad2(Math.floor(pl[1])%24)});
+      cand.push({p:p, a:x0, b:x1, plage:pl});
     });
   });
   cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
   var fin=W0, pris=[];
   cand.forEach(function(c){
-    if(c.a<=fin+0.01 && c.b>fin+0.01){ fin=c.b; pris.push(c); }
+    if(c.a<=fin+0.01 && c.b>fin+0.01){ c.de=fin; fin=c.b; pris.push(c); }
   });
+  /* L'HORAIRE AFFICHÉ EST LA PART DE LA PAUSE qu'il tient, pas sa plage :
+     AAI 14-18, GKT 18-22 (le client, le 13/10/2026 : « ils tiennent
+     d'autres postes dans leurs pauses respectives, mais ce sont bien eux qui
+     partagent le PM »). Le second commence où le premier s'arrête. */
+  function hh(v){ v=((v%24)+24)%24; var h=Math.floor(v), m=Math.round((v-h)*60);
+    return pad2(h)+(m?"h"+pad2(m):""); }
+  pris.forEach(function(c){ c.hor=hh(c.de)+"-"+hh(c.b); });
   return fin>=W1-0.01 ? pris : [];
 }
 /* L'HORAIRE HABITUEL D'UNE PERSONNE EN D, lu sur ses propres journées. Le
@@ -12077,7 +12084,7 @@ function renderEquipe(){
                poste est tenu, mais par deux personnes venues des pauses
                voisines (le client, le 13/10/2026). */
             +(o.relais||[]).map(function(r){
-              return '<span class="eqn relais" title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, "+esc(r.hor)
+              return '<span class="eqn relais" title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
                 +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("")
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
