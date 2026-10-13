@@ -4334,6 +4334,23 @@ restants doivent être affichés sous le calendrier des 7 jours ».
 Compteurs du vérificateur identiques à l'octet ; neuf règles à zéro ; rien
 ne déborde à 320 px (hors ligne), 390 et 1280 px, aucune erreur.
 
+**Une ligne par journée, et le poste** (le client, le 13/10/2026 : « chaque
+jour doit être sur une ligne, le titre du cadre « Mise à jour de votre
+horaire » et cela doit également afficher le poste »). Le regroupement en
+séries (`groupesNotif()`) est retiré : chaque journée modifiée a sa ligne
+(`parJourNotif()`), sur l'Accueil comme dans la notification du téléphone
+(trois journées puis « et n autres »). Le jour se lit en entier, abrégé
+sous 380 px (« Ven. »). `descJourNotif()` écrit désormais le poste d'une
+pause AM, PM ou N même quand la cellule ne le nomme pas : le poste attitré
+de la personne ce jour-là (`posteAttitreLe()`), ou celui qu'elle apprend
+si elle est en formation ; jamais le placement que le rééquilibrage tire
+des absences des autres. **Changer cette description aurait annoncé toute
+l'année comme modifiée** : l'instantané porte `NOTIF_VERSION` (2), et une
+autre version se rephotographie sans rien signaler. Éprouvé : VBN avec un
+instantané v1, aucune carte ; avec un instantané v2 truqué, « Repos → N ·
+Contremaître », GJR « → PM · Chaudières », LCI « → N · Distillation ».
+Rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
