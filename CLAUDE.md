@@ -6381,6 +6381,17 @@ remplacer AFA (congé VA) ; poste pour poste YPE, GPS ; adjoint faisant
 fonction JBI (même pause), VGG. Vérifié à 320 px (hors ligne), 390 et
 1280 px.
 
+**La prolongation 12 h poste pour poste passe avant l'adjoint** (le client,
+le 13/10/2026 : « si les prolongations 12h sont poste pour poste cela doit
+être avant adjoint faisant fonction »). Quand tous les membres proposés de la
+paire ont le poste vide pour poste habituel ce jour-là, le cadre
+« Prolongation 12 h » se place juste après « Poste pour poste » ; sinon, il
+reste après le changement de pause. La paire 06-18 / 18-06 se prend au poste
+du jour, et non au poste habituel : un adjoint qui y figure la laisse donc
+après l'adjoint. Mesuré sur les 22 fiches à venir : les 26/10 et 27/10 (FLI
+06-18, ATA 18-06) passent avant l'adjoint ; les 24/11 et 25/11 (VGG dans la
+paire) restent après. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 **Et la première mesure a montré un faux trou, plus ancien.** Le 21/12,
 « À remplacer » donnait CGI avec « 8H +FT ». Sa cellule, `["N","8h +FT",
 "remplace BLR"]`, dit qu'il tient la meunerie de nuit et verse le poste
