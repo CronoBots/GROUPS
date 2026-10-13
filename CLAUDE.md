@@ -4427,6 +4427,12 @@ heures (« +7 h »), vert dans les bornes, jaune au-dessus de 80 h, rouge
 au-delà de 104 h ou sous −8 h (PDR −49 h) ; le pied du héros ne garde que
 le week-end libre lointain. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**L'ancienne pause n'est plus barrée ni pâlie** (le client, le même jour :
+« il ne faut pas barrer ni diminuer la visibilité du badge de la pause qui
+était prévue avant le changement »). L'avant s'écrit comme l'après, en
+pleine couleur ; la flèche seule dit le sens (« PM → N »). Les règles
+`.nt-e.av` sont retirées. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
