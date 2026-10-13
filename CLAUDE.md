@@ -6195,7 +6195,13 @@ relais s'écrivent dans la case, badge à bord pointillé d'accent et la PART
 de la pause que chacun tient (« AAI 14-18 », « GKT 18-22 ») — d'abord leur
 plage entière (« 06-18 », « 18-06 »), corrigée le même jour par le client :
 « ils tiennent d'autres postes dans leurs pauses respectives, mais ce sont
-bien eux qui partagent le PM ». L'infobulle donne leur journée. Mesuré
+bien eux qui partagent le PM ». L'infobulle donne leur journée. **Et j'avais
+oublié leur commentaire** : le client, le même jour, « de nouveau pourquoi
+pas de commentaire justificatif dans les trigrammes de ces 2 personnes ? ».
+Tout badge du Planning qui a un commentaire le porte (trigramme souligné,
+le clic l'affiche, `data-com`) ; les badges de relais le portent désormais
+aussi, celui de la cellule qui fonde le relais (la veille si elle vient de
+la veille). **À chaque nouveau badge, reprendre ce mécanisme.** Mesuré
 (`--placement --tout` imprime les relais) : **40 postes couverts sur
 l'année**, tous des paires 06-18 / 18-06, 14-02 / 02-14 ou 22-10 / 10-22 ;
 places creuses de l'année 250 → **218** ; d'ici la fin de l'année seul le

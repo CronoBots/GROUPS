@@ -11615,7 +11615,7 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
       if(kp!==k) return;
-      cand.push({p:p, a:x0, b:x1, plage:pl});
+      cand.push({p:p, a:x0, b:x1, plage:pl, com:String(raw[2]||"").trim()});
     });
   });
   cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
@@ -12084,7 +12084,9 @@ function renderEquipe(){
                poste est tenu, mais par deux personnes venues des pauses
                voisines (le client, le 13/10/2026). */
             +(o.relais||[]).map(function(r){
-              return '<span class="eqn relais" title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
+              /* son commentaire du jour, comme tout badge (contour blanc, le
+                 clic l'affiche) : c'est lui qui justifie le relais */
+              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'"':'"')+' title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
                 +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("")
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
