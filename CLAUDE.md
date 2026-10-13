@@ -4259,6 +4259,33 @@ Rien ne change sous 1100 px : à 900 px la carte du Planning garde ses
 Rien ne déborde à 320 px (hors ligne), 390, 900, 1280 et 1920 px, aucune
 erreur.
 
+### Le verdict en bandeau, une capsule par remplaçant
+
+Le client, le 13/10/2026, capture du Congé de PLZ le 30/10 : « comment
+mieux présenter les remplaçants et leurs horaires prévus, et le badge
+"possible" ». Le petit badge du verdict se perdait entre la date et le
+poste, et la mention à côté d'un trigramme avait trois sens selon le cadre :
+« PM » (d'où il vient), « 06-14 » (ce qu'on lui demanderait), « N
+Adjoint ». Rien ne disait lequel.
+
+- **Le verdict est un bandeau** de toute la largeur, avec un liseré et une
+  icône cerclée à sa couleur : ✓ possible, ⇄ avec changement ou remplaçable,
+  ✕ pas possible, – hors (`.catete .caverd`). Le bilan d'une période garde
+  ses petits badges.
+- **L'horaire à tenir s'écrit une fois**, en tête de la fiche, à côté de la
+  pause (« Gluten · AM 06-14 · Éq. 5 », `caCreneau()`). Cela vaut pour
+  les trois onglets de la Recherche et pour les sous-effectifs.
+- **Chaque remplaçant est une capsule** « trigramme | ce qu'il a de prévu » :
+  la pause en couleur du calendrier, son horaire, son poste s'il en change
+  (« SVE | PM 14-22 Dist. », « VGG | D 7-15 », « ADK | Repos »,
+  `caPrevu()`). Le D prend l'horaire que la personne écrit en D, sinon
+  7-15. L'horaire de base des prolongations 12 h passe dans la même
+  capsule (`caBase()`). « 06-14 » ne s'écrit donc plus à côté de qui vient
+  du D (la règle du 30/09) : c'est l'horaire en tête de la fiche qui le dit.
+
+Vérificateur à zéro (il ne découpe pas ces modules) ; rien ne déborde à 320
+(hors ligne), 390 et 1280 px dans la Recherche et les sous-effectifs.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

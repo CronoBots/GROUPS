@@ -2280,6 +2280,31 @@ body.sheet-on{overflow:hidden}
 .caverd[data-v="non"]{background:var(--at-rouge-soft); color:var(--at-rouge)}
 .caverd[data-v="hors"]{background:var(--surface3); color:var(--muted)}
 .catete{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted)}
+/* LE VERDICT EN BANDEAU (le client, le 13/10/2026, « mieux présenter le badge
+   possible ») : toute la largeur de la fiche, un liseré et une pastille-icône
+   à sa couleur — ✓ possible, ⇄ avec changement, ✕ pas possible, – hors. On
+   le lit avant tout le reste, il ne se perd plus entre la date et le poste. */
+.catete .caverd{display:flex; width:100%; gap:10px; padding:9px 12px; border-radius:10px;
+  font-size:13.5px; white-space:normal; box-shadow:inset 3px 0 0 currentColor}
+.catete .caverd::before{content:"✓"; flex:0 0 auto; display:grid; place-items:center; width:20px; height:20px;
+  border-radius:50%; border:2px solid currentColor; font-size:12px; font-weight:800; line-height:1}
+.catete .caverd[data-v="chg"]::before{content:"⇄"}
+.catete .caverd[data-v="non"]::before{content:"✕"}
+.catete .caverd[data-v="hors"]::before{content:"–"}
+/* l'horaire à tenir, à côté de la pause de la fiche */
+.mqhr{font:600 11.5px "IBM Plex Mono",monospace; color:var(--ink2); font-variant-numeric:tabular-nums}
+.mqh>.mqhr{align-self:center}
+/* la pause prévue d'un remplaçant : pastille de couleur, puis son horaire */
+/* UNE CAPSULE PAR PERSONNE : le trigramme, un filet, puis ce qu'elle a de
+   prévu. Trois morceaux posés côte à côte ne disaient pas qui allait avec
+   quoi. */
+.mqcw.prev{align-items:stretch; gap:0; border:1px solid var(--trait); border-radius:7px; background:var(--surface3); overflow:hidden}
+.mqcw.prev>.mqc{border:0; border-radius:0}
+.mqcw.prev>.mqch{display:inline-flex; align-items:center; gap:4px; padding:0 7px; border-left:1px solid var(--trait);
+  background:var(--surface); color:var(--ink2)}
+.mqcw.prev:has(.mqc.form){border-color:var(--at-jaune)}
+.mqcw.prev .mqch .mqpz-txt{font-family:inherit}
+.mqchp{color:var(--muted)}
 .cagr{font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted);
   margin-right:2px}
 .cachaine{display:grid; width:100%; box-sizing:border-box; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:5px 8px;
@@ -13881,8 +13906,7 @@ function renderManques(force){
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
-          +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</b>"
-          +(o.eq?" · Équipe "+esc(o.eq):"")+"</span></span>"
+          +caCreneau(o.pause,"").replace(/<\/span>$/,(o.eq?" · Équipe "+esc(o.eq):"")+"</span>")+"</span>"
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
@@ -14747,12 +14771,39 @@ function caVerdict(r,mode){
 }
 function caChip(id,sous,form){
   var b='<span class="mqc'+(form?" form":"")+'"><b>'+esc(idLisible(id))+"</b></span>";
+  /* {html:…} : une mention déjà mise en forme (caPrevu), posée telle quelle */
+  if(sous && sous.html) return '<span class="mqcw prev">'+b+'<small class="mqch">'+sous.html+"</small></span>";
   /* « hor » : la mention est un horaire seul (« 06-14 »), que les
      sous-effectifs reposent DANS le badge (le client, le 10/10/2026) ;
      une pause et un poste (« PM Glut. ») restent à côté partout. */
   return sous?'<span class="mqcw'+(/^\d{1,2}h?-\d{1,2}h?$/.test(sous)?" hor":"")+'">'+b+'<small class="mqch">'+esc(sous)+"</small></span>":b;
 }
 function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
+/* CE QUE LE REMPLAÇANT A DE PRÉVU CE JOUR-LÀ. Le client, le 13/10/2026 :
+   « comment mieux présenter les remplaçants et leurs horaires prévus ». La
+   mention mêlait trois sens — « PM » (d'où il vient), « 06-14 » (ce qu'on
+   lui demanderait), « N Adjoint » — et rien ne disait lequel. Elle dit
+   désormais toujours la même chose : sa pause prévue, en pastille aux
+   couleurs du calendrier, son horaire prévu, et son poste s'il en change.
+   L'horaire à tenir, le même pour tous, est écrit UNE fois en tête de la
+   fiche, à côté de la pause (caCreneau). Le D prend l'horaire que la
+   personne écrit en D, sinon 7-15 (« seulement D : 7-15 »). */
+function caPrevu(g,P,p){
+  var hor=g==="D"?((p&&horaireHabituelD(p))||"7-15"):(HOR_PAUSE[g]||"");
+  return {html:'<b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"+(hor?" "+esc(hor):"")
+    +(P?' <span class="mqchp">'+esc(P.k==="adj"?"Adj.":caPoste(P))+"</span>":"")};
+}
+/* L'horaire de base d'une prolongation (« 06-14 ») dit sa pause : même capsule. */
+function caBase(b){
+  for(var g in HOR_PAUSE) if(HOR_PAUSE[g]===b) return caPrevu(g);
+  return b||"";
+}
+/* La pause de la fiche ET l'horaire qu'on demande d'y tenir. */
+function caCreneau(g,eq){
+  return '<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"
+    +(HOR_PAUSE[g]?' <span class="mqhr">'+HOR_PAUSE[g]+"</span>":"")
+    +(eq?" · Éq. "+esc(eq):"")+"</span>";
+}
 /* Les groupes de candidats d'un poste, dans l'ordre de caCandidats(). */
 /* L'HORAIRE PROPOSÉ À QUI VIENT DU D. Le client, le 30/09/2026 : « tu peux
    proposer de modifier l'horaire des personnes en D ». Qui quitte sa
@@ -14829,8 +14880,9 @@ function caGroupes(t,large,sansUrgence){
     var ls=(l||[]).filter(function(o){ return !(sansUrgence && o.type==="rap"); });
     if(!ls.length) return;
     g.push(caCadre(titre,ls.slice(0,8).map(function(o){
-      return caChip(o.p.id, o.type==="meme" ? "Même pause" : o.type==="D" ? "D "+(CA_HOR_D[t.g]||"")
-        : o.type==="chg" ? o.de : "Rappel"+(o.veille?" · veille "+o.veille:"")+(o.interim?" · intérim":""));
+      return caChip(o.p.id, o.type==="meme" ? "Même pause" : o.type==="D" ? caPrevu("D",null,o.p)
+        : o.type==="chg" ? caPrevu(o.de,null,o.p)
+        : {html:"Repos"+(o.veille?' · veille <b class="mqpz-txt" data-s="'+esc(o.veille)+'">'+esc(o.veille)+"</b>":"")+(o.interim?" · intérim":"")});
     }).join("")+(ls.length>8?'<span class="mqinc">+'+(ls.length-8)+"</span>":"")));
   }
   function prolongation(){
@@ -14838,7 +14890,7 @@ function caGroupes(t,large,sansUrgence){
        « indiquer 06-18 et 18-06 après les trigrammes avec "pour faire" ». */
     function rang(h,l){
       return '<span class="mqr">'
-        +l.slice(0,6).map(function(o){ return caChip(o.p.id,o.base||""); }).join("")
+        +l.slice(0,6).map(function(o){ return caChip(o.p.id,caBase(o.base)); }).join("")
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")
         +'<span class="cafaire">pour faire <span class="cahr">'+h+"</span></span></span>";
     }
@@ -14862,9 +14914,9 @@ function caGroupes(t,large,sansUrgence){
   if(large){ cadrePP("Poste pour poste",t.pp); if(prolPP) g.push(prolongation()); cadrePP("Adjoint faisant fonction",t.adj); }
   if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
-  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
+  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,caPrevu("D",null,o.p)); }).join("")));
   if(t.change.length) g.push(caCadre("Change de pause",
-    t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
+    t.change.slice(0,8).map(function(o){ return caChip(o.p.id,caPrevu(o.de,o.P,o.p)); }).join("")
     +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")));
   /* LE DOUBLAGE VA TOUJOURS PAR PAIRE. Le client, le 29/09/2026 : « si on
      fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
@@ -14965,6 +15017,7 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
   var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(pvNom(g))+"</span>"
     +'<span class="mqpo">'+esc(P.t)+"</span>"
+    +(HOR_PAUSE[g]?'<span class="mqhr">'+HOR_PAUSE[g]+"</span>":"")
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
     +((au.length||tenu<attendu)?cadreEnPoste(au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
       +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenu,attendu):"")
@@ -15032,8 +15085,7 @@ function caCalculer(){
     if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
     /* LA DATE SEULE en tête (le client, le 02/10/2026 : la ligne du jour le
        gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
-    var caMeta=r.hors?"":'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(r.pause)+'">'+esc(r.pause)+"</b>"
-      +(r.eq?" · Éq. "+esc(r.eq):"")+"</span>";
+    var caMeta=r.hors?"":caCreneau(r.pause,r.eq);
     h.push('<div class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span></span>");
@@ -15082,7 +15134,7 @@ function caCalculer(){
           enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
           +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),t.tenu,t.attendu):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
-          +'<span class="mqpo">'+esc(t.P.t)+"</span>"+caMeta+"</span>"
+          +'<span class="mqpo">'+esc(t.P.t)+"</span>"+(t.g&&t.g!==r.pause?caCreneau(t.g,""):caMeta)+"</span>"
           +cadreEnP+g.join("")+"</span>");
       });
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
