@@ -4381,8 +4381,8 @@ Google, jusqu'à un jour). Le fichier demande une heure
 (`REFRESH-INTERVAL`), sans garantie que l'agenda la respecte.
 
 - **Écrit par `node tools/verifier-calendrier.js --agendas cal`**, avec
-  `icsAgenda()` découpée dans `index.html`, la même qui sert « Télécharger
-  une fois » : il n'existe pas de seconde copie. `lectureAgenda()` est la
+  `icsAgenda()` découpée dans `index.html` : il n'existe pas de seconde
+  copie. `lectureAgenda()` est la
   lecture du héros, sortie de `_pfJour()` pour pouvoir être découpée.
   `horaireDe()` et `calageLong()` entrent dans la découpe : les fichiers
   vont du 1er janvier de l'année du classeur au **30 juin de la suivante**,
@@ -4404,8 +4404,10 @@ Google, jusqu'à un jour). Le fichier demande une heure
 - **Le bouton** « S'abonner à mon horaire » ouvre `webcal://…/cal/<id>.ics`
   sur un iPhone, un iPad ou un Mac ; ailleurs, la page d'ajout de l'agenda
   de Google (l'application Android ne sait pas s'abonner, il faut le site).
-  Dessous : « Copier l'adresse » et « Télécharger une fois » (l'ancien
-  `.ics` de 120 jours). Le service worker ne met jamais `cal/` en cache.
+  Le service worker ne met jamais `cal/` en cache. **Le seul bouton**
+  (le client, le même jour : « il ne faut que le bouton abonnement ») :
+  « Copier l'adresse » et « Télécharger une fois » sont retirés, avec
+  `exporterAgenda()` — un fichier téléchargé ne se met jamais à jour.
 - **Public, et c'est la décision du client** : chacun peut lire l'horaire
   d'un collègue à son trigramme, comme il le peut déjà dans
   `data/horaire-2026.json`. Une adresse avec un jeton par personne était
@@ -4417,6 +4419,13 @@ lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
 Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
 événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
 téléphone dira comment l'abonnement s'affiche.**
+
+**Le solde flex time rangé avec les congés restants** (le client, le
+13/10/2026 : « le solde flex time doit être affiché comme les autres congés
+sous le calendrier 7 jours »). Une tuile « FT » au bout de la rangée, en
+heures (« +7 h »), vert dans les bornes, jaune au-dessus de 80 h, rouge
+au-delà de 104 h ou sous −8 h (PDR −49 h) ; le pied du héros ne garde que
+le week-end libre lointain. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
 ### Le congé en heures
 

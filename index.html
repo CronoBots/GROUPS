@@ -1934,7 +1934,6 @@ body.sheet-on{overflow:hidden}
 .btn-agenda svg{color:var(--marque-vif)}
 .cal-act{flex-direction:column; align-items:center; gap:6px}
 .cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
-.cal-act-s .lien{padding:0; border:0; background:none; font:inherit; color:var(--marque-vif); cursor:pointer; text-decoration:underline; text-underline-offset:2px}
 /* LA VUE DIRECTION : l'usine en un écran, plein écran, à la marque. */
 .dirvue{position:fixed; inset:0; z-index:90; overflow:auto; overscroll-behavior:contain;
   background:radial-gradient(120% 90% at 50% 0%,#1d2a47 0%,#111727 60%); color:#E8ECF4;
@@ -3386,6 +3385,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cg-i b{font:700 15px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap}
 .pf-cg-i b i{font-style:normal; font-size:10.5px; font-weight:600; color:rgba(255,255,255,.6); margin-left:2px}
 .pf-cg-i.neg b{color:#ff9b8f} .pf-cg-i.vide b{color:rgba(255,255,255,.45)}
+.pf-cg-i.ft.bon b{color:var(--good)} .pf-cg-i.ft.att b{color:#f2c94c} .pf-cg-i.ft.ko b{color:#ff9b8f}
 @media (hover:hover){ .pf-cg:hover{background:rgba(255,255,255,.07)} }
 @media (max-width:380px){ .pf-cg{gap:7px; padding:7px 8px} .pf-cg-t{width:52px; font-size:8.5px} .pf-cg-i b{font-size:13px} }
 .pf-bas{height:12px}
@@ -4031,9 +4031,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
-        <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.
-          <button type="button" class="lien" id="icsCopie">Copier l'adresse</button> ·
-          <button type="button" class="lien" id="icsDl">Télécharger une fois</button></p></div>
+        <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
     </div>
 
     <div class="card" id="cptCard">
@@ -9271,28 +9269,33 @@ function _pfHead(db,p){
      « les soldes de congés restants doivent être affichés sous le calendrier
      des 7 jours »). En jours de 8 h, le code d'abord ; rouge sous zéro, pâle
      à zéro. Un appui mène à l'état des compteurs, plus bas. */
-  var sc=soldesConges(p.c);
-  if(sc.length) h+='<button type="button" class="pf-cg" aria-label="Congés restants, voir mes compteurs">'
-    +'<span class="pf-cg-t">Congés restants</span><span class="pf-cg-l">'+sc.map(function(o){
-      var j=R(o.rs/8,2);
-      return '<span class="pf-cg-i'+(o.rs<0?' neg':o.rs===0?' vide':'')+'" title="'+esc(o.k)+' : '+num(o.rs)+' h restantes sur '+num(o.tot)+' h">'
-        +'<small>'+esc(o.k)+'</small><b>'+num(j)+'<i>j</i></b></span>'; }).join("")+'</span></button>';
-  /* Le pied : ce que la semaine ne montre pas. Le week-end libre seulement
-     s'il tombe AU-DELÀ des sept jours, et le solde flex time au jour de
-     l'usine (le cadre du mois, plus bas, donne les heures du mois). */
-  var k=[];
-  if(inf.weekend && (inf.weekend.d-new Date(jourUsine()))/864e5>=6)
-    k.push('<div class="pf-kpi"><b class="pf-txt">'+esc(_pfDateCourte(inf.weekend.d))+'</b><span>Prochain week-end libre</span></div>');
-  var c=p.c||{};
+  /* Le solde flex time au jour de l'usine, rangé avec eux (le client, le
+     13/10/2026 : « le solde flex time doit être affiché comme les autres
+     congés sous le calendrier 7 jours »). En heures, comme le compteur et la
+     note de 2024 ; vert dans les bornes, jaune au-dessus de 80 h, rouge
+     au-delà de 104 h ou sous −8 h. */
+  var c=p.c||{}, ft="";
   if(db && c.flex && typeof compteursCalcules==="function"){
     var annee=Number(db.year), ju=jourUsine();
     if(ju.getFullYear()>=annee){
       var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
           calc=compteursCalcules(p,annee,jq),
           sj=R((Number(c.flex.report)||0)+calc.ftPlusJ-calc.ftMoinsJ,2);
-      k.push('<div class="pf-kpi'+(sj>104||sj<-8?' ko':sj>80?' att':' bon')+'"><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b><span>Solde flex time</span></div>');
+      ft='<span class="pf-cg-i ft '+(sj>104||sj<-8?'ko':sj>80?'att':'bon')+'" title="Solde flex time au '+pad2(ju.getDate())+'/'+pad2(ju.getMonth()+1)+' : '+num(sj)+' h">'
+        +'<small>FT</small><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b></span>';
     }
   }
+  var sc=soldesConges(p.c);
+  if(sc.length||ft) h+='<button type="button" class="pf-cg" aria-label="Congés restants et solde flex time, voir mes compteurs">'
+    +'<span class="pf-cg-t">Congés restants</span><span class="pf-cg-l">'+sc.map(function(o){
+      var j=R(o.rs/8,2);
+      return '<span class="pf-cg-i'+(o.rs<0?' neg':o.rs===0?' vide':'')+'" title="'+esc(o.k)+' : '+num(o.rs)+' h restantes sur '+num(o.tot)+' h">'
+        +'<small>'+esc(o.k)+'</small><b>'+num(j)+'<i>j</i></b></span>'; }).join("")+ft+'</span></button>';
+  /* Le pied : le week-end libre, seulement s'il tombe AU-DELÀ des sept
+     jours. */
+  var k=[];
+  if(inf.weekend && (inf.weekend.d-new Date(jourUsine()))/864e5>=6)
+    k.push('<div class="pf-kpi"><b class="pf-txt">'+esc(_pfDateCourte(inf.weekend.d))+'</b><span>Prochain week-end libre</span></div>');
   return '<div class="pf-hero">'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
     +'<div class="pf-head"><img class="pf-logo" src="logo.svg" alt="Biowanze" width="57" height="44"><span class="pf-sep" aria-hidden="true"></span>'
@@ -9591,21 +9594,6 @@ function icsAgenda(id,debut,nJours,stamp){
   L.push("END:VCALENDAR");
   return {texte:L.join("\r\n")+"\r\n", n:n};
 }
-function exporterAgenda(){
-  var id=trigCourant();
-  if(!id||!HORAIRE_DB){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
-  var ju=jourUsine(), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate());
-  function f2(n){ return (n<10?"0":"")+n; }
-  var now=new Date(), stamp=now.getUTCFullYear()+f2(now.getUTCMonth()+1)+f2(now.getUTCDate())+"T"+f2(now.getUTCHours())+f2(now.getUTCMinutes())+"00Z";
-  var res=icsAgenda(id,base,120,stamp);
-  if(!res.n){ flash("Aucun poste à exporter."); return; }
-  var blob=new Blob([res.texte],{type:"text/calendar;charset=utf-8"}),
-      url=URL.createObjectURL(blob), a=document.createElement("a");
-  a.href=url; a.download="biowanze-"+idLisible(id)+".ics";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(url); },4000);
-  flash(res.n+" journées envoyées vers l'agenda");
-}
 /* L'ABONNEMENT (le client, le 13/10/2026 : « adresse trigramme pour
    l'agenda »). tools/verifier-calendrier.js --agendas écrit cal/<id>.ics à
    chaque classeur installé ; le téléphone s'y abonne une fois et le relit
@@ -9625,14 +9613,6 @@ function abonnerAgenda(){
   else window.open("https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal),"_blank","noopener");
 }
 document.getElementById("icsBtn").addEventListener("click",abonnerAgenda);
-document.getElementById("icsDl").addEventListener("click",exporterAgenda);
-document.getElementById("icsCopie").addEventListener("click",function(){
-  var id=trigCourant(); if(!id){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
-  var u=adresseAgenda(id).replace(/^https?:/,"webcal:");
-  function ok(){ flash("Adresse copiée : collez-la dans « Ajouter un abonnement »"); }
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok,function(){ prompt("Adresse de l'abonnement",u); });
-  else prompt("Adresse de l'abonnement",u);
-});
 
 /* ── LA VUE DIRECTION ─────────────────────────────────────────────────────
    Le client, le 10/10/2026 : « il faut un vrai wow de la direction quand je
