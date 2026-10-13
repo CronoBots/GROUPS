@@ -2107,6 +2107,10 @@ body.sheet-on{overflow:hidden}
 .nt-e.av{border-style:dashed; color:var(--muted); font-weight:500; opacity:.7}
 .nt-e.av:not([data-p]){background:none}
 .nt-e.av span{text-decoration:line-through; text-decoration-thickness:1px}
+/* l'avant sans libellé n'est qu'une pastille : sans ce contour, « PM → N »
+   se lisait comme deux états présents à la fois */
+.nt-e.av:not(:has(span)) .nt-p{background:none!important; color:var(--muted)!important;
+  outline:1px dashed var(--trait-fort); outline-offset:-1px; text-decoration:line-through}
 .nt-p{display:inline-grid; place-items:center; min-width:24px; height:20px; padding:0 4px; border-radius:5px;
   font:700 11px/1 "IBM Plex Mono",ui-monospace,monospace; font-style:normal}
 .nt-p[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
@@ -9359,6 +9363,13 @@ function dateNotif(an,mmdd){
    sur une ligne »). Le regroupement en séries obligeait à lire « 21 – 22
    oct. · 2 j » pour savoir ce qui change chaque jour. La notification du
    téléphone suit la même règle : trois journées, puis « et n autres ». */
+/* Le commentaire d'une journée, d'une ligne, la majuscule en tête (le
+   client, le 13/10/2026 : « mettre des majuscules dans les commentaires ») :
+   « échange avec GPS » s'écrit « Échange avec GPS ». */
+function comNotif(raw){
+  var c=raw&&raw[2]?String(raw[2]).replace(/\s+/g," ").trim():"";
+  return c?c.charAt(0).toUpperCase()+c.slice(1):"";
+}
 function parJourNotif(att,ks){
   return ks.map(function(k){ return {de:k,fin:k,n:1,avant:att[k].avant,apres:att[k].apres}; });
 }
@@ -9446,7 +9457,7 @@ function renderNotif(db,p){
          commentaire dans le changement il faut l'afficher ») : c'est lui qui
          dit POURQUOI — « Remplace FLI », « échange avec GPS ». Celui de
          l'horaire installé, déjà débarrassé du barré et des signatures. */
-      var raw=p.d[a.de], com=raw&&raw[2]?String(raw[2]).replace(/\s+/g," ").trim():"";
+      var raw=p.d[a.de], com=comNotif(raw);
       return '<li'+(i>=5?' class="nt-plus"':'')+'><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"'
         +' aria-label="'+esc(libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" devient ":"")+a.apres+(com?" · "+com:""))+'">'
         +'<span class="nt-d"><b>'+mot[1]+'</b><small>'+mot[2]+'</small></span>'
@@ -9458,7 +9469,7 @@ function renderNotif(db,p){
   card.classList.remove("nt-ouvert");
   var nG=card.querySelectorAll(".nt-plus").length;
   if(nG){ var bt=document.createElement("button"); bt.type="button"; bt.className="nt-tout";
-    bt.textContent="Voir les "+nG+" autre"+(nG>1?"s":""); card.appendChild(bt);
+    bt.textContent=nG>1?"Voir les "+nG+" autres journées":"Voir l\u2019autre journée"; card.appendChild(bt);
     bt.onclick=function(){ card.classList.add("nt-ouvert"); bt.parentNode.removeChild(bt); }; }
   document.getElementById("notifVu").onclick=function(){
     lsSet("notif/attente/"+x.cle,{}); card.hidden=true; card.innerHTML=""; if(dot) dot.hidden=true;
@@ -9480,7 +9491,7 @@ function notifActive(){ return !!lsGet("ui/notifTel") && ("Notification" in wind
 function notifierTelephone(p,x){
   if(!notifActive() || !navigator.serviceWorker) return;
   var gs=parJourNotif(x.att,x.neufs);
-  var l=gs.slice(0,3).map(function(a){ var raw=p.d[a.de], com=raw&&raw[2]?String(raw[2]).replace(/\s+/g," ").trim():"";
+  var l=gs.slice(0,3).map(function(a){ var raw=p.d[a.de], com=comNotif(raw);
     return libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" → ":"")+a.apres+(com?" (« "+com+" »)":""); });
   if(gs.length>3) l.push("et "+(gs.length-3)+" autre"+(gs.length>4?"s":"")+" changement"+(gs.length>4?"s":""));
   navigator.serviceWorker.ready.then(function(reg){

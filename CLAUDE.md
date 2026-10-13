@@ -4368,6 +4368,16 @@ un encadré à filet cyan, celui de l'horaire installé (« remplace ATA »,
 notification du téléphone le cite entre guillemets. Vérifié sur VBN à
 320 px (hors ligne), 390 et 1280 px.
 
+**Majuscule en tête du commentaire, et trois finitions** (le client, le
+même jour : « mettre des majuscules dans les commentaires ; est-ce pro à
+100 % ? »). `comNotif()` met la majuscule à la première lettre
+(« Échange avec GPS »), sur l'Accueil comme dans la notification du
+téléphone. Relu sur sa capture : « Voir les 1 autre » devient « Voir
+l'autre journée » (« Voir les 2 autres journées » au pluriel). Une ancienne
+pause écrite seule (« PM → N ») avait l'air d'un état présent : elle est
+pâlie, en pointillé et barrée, comme l'ancien libellé. Vérifié à 320 px
+(hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
