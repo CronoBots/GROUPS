@@ -1806,8 +1806,6 @@ body.sheet-on{overflow:hidden}
 /* La pause (coloree) et l'equipe en meta sur la ligne du POSTE, pas sur la
    ligne du jour (le client, le 02/10/2026). */
 .mqsub{font-size:12.5px; font-weight:500; color:var(--muted); flex:0 0 auto}
-/* « À remplacer » : qui manque à ce poste, et pourquoi (le client, le 13/10/2026) */
-.mqar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:4px 0 2px; font-size:12px; font-weight:600; color:var(--muted)}
 .mqpz-txt{font-style:normal; font-weight:700; color:var(--d)}
 .mqpz-txt[data-s="AM"]{color:var(--am)}
 .mqpz-txt[data-s="PM"]{color:var(--pm)}
@@ -2313,6 +2311,10 @@ body.sheet-on{overflow:hidden}
   border-bottom:1px solid var(--trait)}
 .cagr-eff{display:flex; align-items:center; justify-content:space-between; gap:10px}
 .cagr-eff .mqn{font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+/* « À remplacer » : le manque, en rouge comme les « ? », avant les solutions */
+.capaire.arem>.cagr{color:var(--at-rouge)}
+.capaire.arem .mqc{border-color:var(--at-rouge)}
+.capaire.arem .mqc b{color:var(--at-rouge)}
 .mqc.manque{border-color:var(--at-rouge)}
 .mqc.manque b{color:var(--at-rouge); display:inline-block; min-width:3ch; text-align:center}
 /* EN FORMATION AU POSTE, dans les résultats comme dans l'onglet Équipe. Le
@@ -13762,11 +13764,14 @@ function aRemplacer(par,g,P,jour){
       out.push({p:x.p, motif:motif(x)});
     });
   }
-  voir(par.abs,function(){ return "malade"; });
-  voir(par.cong,function(x){ return String(x.r.a||"congé").replace(/^8H\s*-?FT$/i,"FT"); });
-  voir((par.off||[]).filter(function(x){ return x.prevu; }),function(){ return "absent"; });
+  var MOTIF={VA:"Congé VA", RTT:"RTT", DTT:"Congé d'ancienneté", RJF:"RJF", RHS:"Récup. HS",
+             CP:"Congé parental", TP:"Temps partiel", CT:"Crédit-temps", GREVE:"Grève"};
+  voir(par.abs,function(){ return "Malade"; });
+  voir(par.cong,function(x){ var c=String(x.r.a||"");
+    return /-\s*FT$/i.test(c)?"Flex time":(MOTIF[c]||(c?"Congé "+c:"Congé")); });
+  voir((par.off||[]).filter(function(x){ return x.prevu; }),function(){ return "Absent"; });
   voir((par.D||[]).filter(function(x){ return x.r && x.r.jourCode; }),function(x){
-    return EST_FORMATION.test(x.r.jourCode)?"formation":x.r.jourCode; });
+    return EST_FORMATION.test(x.r.jourCode)?"Formation":etiqJour(x.r.jourCode); });
   return out;
 }
 function renderManques(force){
@@ -13863,12 +13868,17 @@ function renderManques(force){
         if(o.attendu>=2) plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>')));
         var arem=aRemplacer(x.par,o.pause,o.P,an*10000+Number(x.mmdd));
+        /* « À REMPLACER », un cadre plein comme « En poste », en tête : qui
+           manque et pourquoi, le motif à côté du trigramme (le client, le
+           13/10/2026 : la ligne « n'est pas professionnelle ni dans le même
+           style que les propositions »). */
+        if(arem.length) plus.unshift(caCadre("À remplacer",arem.map(function(a){
+          return caChip(a.p.id,a.motif); }).join(""),"plein arem"));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
           +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</b>"
           +(o.eq?" · Équipe "+esc(o.eq):"")+"</span></span>"
-          +(arem.length?'<span class="mqar">À remplacer '+arem.map(function(a){ return caChip(a.p.id,a.motif); }).join("")+"</span>":"")
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
@@ -14508,17 +14518,32 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
      une autre pause, en repos — quittent leur cadre pour un cadre à eux, en
      tête : d'abord ce qui ne coûte rien (D, changement de pause), puis les
      rappels, permanents avant intérimaires comme partout. */
-  t.pp=[];
+  t.pp=[]; t.adj=[];
+  /* POUR UN CONTREMAÎTRE, LE POSTE POUR POSTE EST UN CONTREMAÎTRE ; l'adjoint
+     qui peut faire fonction a son cadre à lui, juste après (le client, le
+     13/10/2026 : « le poste pour poste doit faire la différence entre
+     contremaître et adjoint »). */
   [["enD","D"],["change","chg"],["rappels","rap"]].forEach(function(c){
     t[c[0]]=t[c[0]].filter(function(o){
+      if(P.k==="cm" && estCadre(o.p) && !estContremaitre(o.p)){ o.type=c[1]; t.adj.push(o); return false; }
       if(posteAttitreLe(o.p,jour)!==P.k) return true;
       o.type=c[1]; t.pp.push(o); return false; });
   });
   t.pp=permanentsDabord(t.pp);
+  /* l'adjoint déjà dans la pause, qui passe au poste de contremaître sans
+     déranger personne, vient en tête de son cadre */
+  if(P.k==="cm"){
+    var meme=[];
+    t.chaines=t.chaines.filter(function(gr){
+      var adjSeul=!gr.tete.length && gr.fin.every(function(z){ return estCadre(z.p) && !estContremaitre(z.p); });
+      if(adjSeul) gr.fin.forEach(function(z){ meme.push({p:z.p, type:"meme"}); });
+      return !adjSeul; });
+    t.adj=meme.concat(t.adj);
+  }
   return t;
 }
 /* Ce que le poste pour poste offre sans rappel (le Congé n'en compte pas). */
-function caPPReorg(t){ return (t.pp||[]).some(function(o){ return o.type!=="rap"; }); }
+function caPPReorg(t){ return (t.pp||[]).concat(t.adj||[]).some(function(o){ return o.type!=="rap"; }); }
 function estInterim(p){ return statutAffiche(p)==="Intérimaire"; }
 function permanentsDabord(l){
   var a=[], b=[];
@@ -14528,7 +14553,7 @@ function permanentsDabord(l){
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
 function caDouble6(t){ return !!(t.m6 && t.m6.length && t.s6.length); }
 function caDouble(t){ return (t.reste.length>0 && t.arrive.length>0) || caDouble6(t); }
-function caTrouve(t){ return (t.pp&&t.pp.length)||t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
+function caTrouve(t){ return (t.pp&&t.pp.length)||(t.adj&&t.adj.length)||t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
   var par=equipeDuJour(db,annee,m,j), pause=null;
@@ -14796,13 +14821,15 @@ function caGroupes(t,large,sansUrgence){
      que la même pause et ignorait que le D pouvait couvrir directement. */
   var unSeul = t.enD.length || t.change.length || caPPReorg(t) || t.chaines.some(function(gr){ return !gr.tete.length; });
   var chaines = unSeul ? t.chaines.filter(function(gr){ return !gr.tete.length; }) : t.chaines;
-  if(large && t.pp && t.pp.length){
-    var ppSans=t.pp.filter(function(o){ return !(sansUrgence && o.type==="rap"); });
-    if(ppSans.length) g.push(caCadre("Poste pour poste",ppSans.slice(0,8).map(function(o){
-      return caChip(o.p.id, o.type==="D" ? "D "+(CA_HOR_D[t.g]||"")
+  function cadrePP(titre,l){
+    var ls=(l||[]).filter(function(o){ return !(sansUrgence && o.type==="rap"); });
+    if(!ls.length) return;
+    g.push(caCadre(titre,ls.slice(0,8).map(function(o){
+      return caChip(o.p.id, o.type==="meme" ? "Même pause" : o.type==="D" ? "D "+(CA_HOR_D[t.g]||"")
         : o.type==="chg" ? o.de : "Rappel"+(o.veille?" · veille "+o.veille:"")+(o.interim?" · intérim":""));
-    }).join("")+(ppSans.length>8?'<span class="mqinc">+'+(ppSans.length-8)+"</span>":"")));
+    }).join("")+(ls.length>8?'<span class="mqinc">+'+(ls.length-8)+"</span>":"")));
   }
+  if(large){ cadrePP("Poste pour poste",t.pp); cadrePP("Adjoint faisant fonction",t.adj); }
   if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
   if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
