@@ -6258,6 +6258,29 @@ remplacer quelqu'un. Retiré. Les quatre sorties du vérificateur sont
 identiques à l'octet (aucun manque ne bougeait par ces trois-là) ;
 Planning du 15/10 vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**SLT le 28/09 en PM, « remplace CDE »** (le client, le 13/10/2026 : « SLT
+remplace CDE en meunerie »). Sa cellule `["PM","","remplace CDE"]` n'écrit
+pas l'atelier ; CDE porte « Abs · remplacée par SLT ». Le Planning le
+laissait au gluten (sa ligne 9) et envoyait PLZ en meunerie : « remplace X »
+n'est lu qu'en DERNIER recours, après le poste attitré (sauf pour un
+opérateur en formation). **Une règle générale a été essayée et retirée** :
+lire « remplace X » avant le poste attitré quand X répond « remplacé par »,
+hors cadres et hors remplacements de quelques heures. Elle déplaçait
+**environ 40 journées** sur l'année et en vidait deux (le 26/07 en
+distillation et le 06/07 au terrain arrière) : le poste attitré du remplacé
+ne dit pas où il aurait été ce jour-là. SLT entre donc dans `POSTE_DU_JOUR`.
+**Et la table fuyait** : `posteAttitreLe()` demande le poste attitré avec
+une cellule vide, et `posteTenu()` y appliquait la table, si bien que le
+poste tranché devenait le poste attitré du jour et que la journée ne
+comptait pas au Recyclage (déjà vrai pour VGG le 27/09, sans effet, le
+terrain arrière ne se recycle pas). La table ne vaut plus que pour une
+journée écrite. Mesuré : une seule journée change au placement
+(`--placement --tout`, nouveau mode du vérificateur, comparé ligne à ligne) ;
+neuf règles, manques et compteurs identiques à l'octet ; Recyclage SLT
+meunerie 1 → 2, PLZ 18 → 17. La découpe de `POSTE_DU_JOUR` se ferme sur
+`};` (la table tient sur deux lignes). Vérifié à 320 px (hors ligne), 390
+et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance

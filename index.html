@@ -10928,7 +10928,15 @@ var POSTE_TRANCHE={QBY:"dist"};
    falling film en distillation remplace en ferm-liq pour QBY"]`, « tient le
    poste mais suivra la formation quand même ». Sans cela JBI restait
    adjoint et GPO tenait la fermentation ; PAM et FPS y étaient déjà. */
-var POSTE_DU_JOUR={VGG:{"20260927":"terr"}, JBI:{"20261026":"ferm"}, GPO:{"20261026":"glut"}};
+/* Le 28/09 en PM, SLT porte ["PM","","remplace CDE"] et CDE « Abs ·
+   remplacée par SLT » : la chaîne le laissait au gluten (sa ligne 9) et
+   envoyait PLZ en meunerie. Le client, le 13/10/2026 : « SLT remplace CDE
+   en meunerie ». Une règle générale — « remplace X » quand X répond
+   « remplacé par » — a été mesurée et écartée : elle déplaçait une
+   quarantaine de journées, et en vidait deux (26/07 distillation, 06/07
+   terrain arrière). */
+var POSTE_DU_JOUR={VGG:{"20260927":"terr"}, JBI:{"20261026":"ferm"}, GPO:{"20261026":"glut"},
+                   SLT:{"20260928":"meun"}};
 /* LE POSTE HABITUEL QUE LE CLIENT DONNE, quand le classeur en écrit un autre.
    Le client, le 27/09/2026 : « dans l'équipe 5, par défaut c'est toujours
    AAI qui tient le poste distillation et SMA le terrain ». La chaîne disait
@@ -10959,7 +10967,10 @@ function posteTenu(person,raw,hJour,poste,jour){
      Aucune de ces 184 journées n'est aussi un remplacement de contremaître :
      l'ordre ci-dessous n'arbitre donc rien qui existe, il ne fait que rendre
      à la cellule ce qui lui revient. */
-  k=jour&&POSTE_DU_JOUR[(person&&person.id)||""];
+  /* Seulement pour une JOURNÉE : posteAttitreLe() demande le poste attitré
+     avec une cellule vide, et la table en faisait sinon le poste attitré du
+     jour — SLT le 28/09 ne comptait pas son recyclage de meunerie. */
+  k=jour&&raw&&raw.length&&POSTE_DU_JOUR[(person&&person.id)||""];
   if(k&&k[String(jour)]) return k[String(jour)];
   k=posteEcrit(raw); if(k) return k;
   /* LA TRANCHE DE PÉRIODE VIENT APRÈS LA CELLULE ET AVANT TOUT LE RESTE.

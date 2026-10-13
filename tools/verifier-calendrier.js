@@ -157,7 +157,7 @@ const MORCEAUX=[
   ["function nbPostesTenables(","\n}"],
   ["function reequilibrer(","\n}"],
   ["var POSTE_TRANCHE=","\n"],
-  ["var POSTE_DU_JOUR=","\n"],
+  ["var POSTE_DU_JOUR=","};"],
   ["var POSTE_HABITUEL=","\n"],
   ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
@@ -278,7 +278,7 @@ function affichageRecord(rec,hJour){
 /* --- lecture du classeur ------------------------------------------------- */
 /* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=["--journee","--manques","--polyvalence","--doublons"].map(o=>ARGS.indexOf(o))
+const coupe=["--journee","--manques","--polyvalence","--doublons","--placement"].map(o=>ARGS.indexOf(o))
   .filter(i=>i>=0).sort((a,b)=>a-b)[0];
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
@@ -348,6 +348,32 @@ if(process.argv.indexOf("--doublons")>=0){
    alerte juste ou s'il crie tous les jours.
 
    node tools/verifier-calendrier.js --manques [MMJJ]                      */
+/* --placement MMJJ… : ce que le tableau du jour montre, pause par pause et
+   poste par poste, avec la cellule de chacun. Né le 13/10/2026 pour SLT, qui
+   « remplace CDE » en meunerie et n'y était pas. */
+if(process.argv.indexOf("--placement")>=0){
+  let dates=process.argv.slice(process.argv.indexOf("--placement")+1).filter(a=>/^\d{4}$/.test(a));
+  if(process.argv.indexOf("--tout")>=0){ dates=[];
+    for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++) dates.push(pad2(m)+pad2(d)); }
+  dates.forEach(mmdd=>{
+    const m=Number(mmdd.slice(0,2)), d=Number(mmdd.slice(2));
+    const par=equipeDuJour(db,ANNEE,m,d);
+    console.log("\n"+mmdd.slice(2)+"/"+mmdd.slice(0,2));
+    EQ_GROUPES.forEach(g=>{
+      if(["off","abs","cong"].indexOf(g.k)>=0) return;
+      const l=par[g.k]; if(!l||!l.length) return;
+      const vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
+      console.log("  "+g.k);
+      vue.postes.forEach(o=>{ if(!o.gens.length && !o.attendu) return;
+        console.log("    "+(o.P.t+" "+o.tenu+"/"+o.attendu).padEnd(24)
+          +o.gens.map(y=>y.p.id+" "+JSON.stringify(y.p.d[mmdd]||[])).join("  "));
+      });
+      if(vue.inconnus.length) console.log("    à déterminer : "+vue.inconnus.map(y=>y.p.id).join(" "));
+    });
+  });
+  process.exit(0);
+}
+
 if(process.argv.indexOf("--manques")>=0){
   const i0=process.argv.indexOf("--manques");
   const depart=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:"0101";
