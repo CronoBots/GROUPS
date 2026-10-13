@@ -2086,19 +2086,27 @@ body.sheet-on{overflow:hidden}
 .nt-d{display:flex; flex-direction:column; gap:2px; min-width:0}
 .nt-d b{font-size:14px; font-weight:700; color:var(--ink); white-space:nowrap; font-variant-numeric:tabular-nums}
 .nt-d small{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.nt-d .jc{display:none}
-@media (max-width:379px){ .nt-d .jl{display:none} .nt-d .jc{display:inline} }
-.nt-ch{display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:5px; min-width:0}
+.nt-ch{display:flex; align-items:center; justify-content:flex-end; flex-wrap:nowrap; gap:5px; min-width:0}
+/* sur une ligne, toujours : l'avant cède sa place d'abord, puis le libellé
+   de l'après se coupe en « … » plutôt que de passer dessous */
+.nt-e b{font-weight:inherit} .nt-e .pc{display:none}
+@media (max-width:379px){ .nt-e .pl{display:none} .nt-e .pc{display:inline} }
+.nt-ch>.nt-e{min-width:0; flex-shrink:1} .nt-ch>.nt-e.av{flex-shrink:4} .nt-ch>.nt-fl{flex-shrink:0}
 .nt-e{display:inline-flex; align-items:center; gap:5px; max-width:100%; padding:3px 7px 3px 3px; border-radius:7px;
   background:var(--surface2); border:1px solid var(--trait); font-size:12px; font-weight:600; color:var(--ink)}
 .nt-e:not(:has(.nt-p)){padding-left:7px}
 .nt-e:not(:has(span)){padding:0; border:0; background:none}
 .nt-e span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-/* l'avant : en contour gris, sans fond — un trait sur une pastille pleine
-   la rendait illisible */
-.nt-e.av{background:none; border-style:dashed; color:var(--muted); font-weight:500}
+/* LE BADGE PREND LA COULEUR DE SA PAUSE (le client, le 13/10/2026), celle
+   du calendrier : fond doux et filet de la pause, pastille pleine. L'avant
+   garde sa couleur, pâli, en pointillé et le texte barré. */
+.nt-e[data-p="AM"]{background:var(--am-soft); border-color:var(--cal-am)}
+.nt-e[data-p="PM"]{background:var(--pm-soft); border-color:var(--cal-pm)}
+.nt-e[data-p="N"]{background:var(--n-soft); border-color:var(--cal-n)}
+.nt-e[data-p="D"]{background:var(--d-soft); border-color:var(--cal-d)}
+.nt-e.av{border-style:dashed; color:var(--muted); font-weight:500; opacity:.7}
+.nt-e.av:not([data-p]){background:none}
 .nt-e.av span{text-decoration:line-through; text-decoration-thickness:1px}
-.nt-e.av .nt-p{background:none!important; color:var(--muted)!important; box-shadow:inset 0 0 0 1px var(--trait-fort)}
 .nt-p{display:inline-grid; place-items:center; min-width:24px; height:20px; padding:0 4px; border-radius:5px;
   font:700 11px/1 "IBM Plex Mono",ui-monospace,monospace; font-style:normal}
 .nt-p[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
@@ -9351,25 +9359,18 @@ function dateNotif(an,mmdd){
 function parJourNotif(att,ks){
   return ks.map(function(k){ return {de:k,fin:k,n:1,avant:att[k].avant,apres:att[k].apres}; });
 }
-/* LA DATE D'UNE LIGNE TIENT EN DEUX ÉTAGES COURTS (le client, le 13/10/2026 :
-   « optimise les notifications personnelles, ça doit faire pro »). « Du
-   mercredi 21 octobre au jeudi 22 octobre » passait à la ligne n'importe où
-   et repoussait le changement tantôt à droite, tantôt dessous. En haut le
-   quantième (« 21 – 22 oct. »), en dessous les jours et la durée. */
-function dateCourteNotif(an,x){
-  function d(k){ return new Date(an,Number(k.slice(0,2))-1,Number(k.slice(2))); }
-  function jr(t){ var s=JOURS_LONGS[(t.getDay()+6)%7]; return s.slice(0,3).toLowerCase()+"."; }
-  var a=d(x.de), b=d(x.fin), ma=MOIS_BREF[a.getMonth()], mb=MOIS_BREF[b.getMonth()];
-  if(x.n===1) return {h:a.getDate()+"\u00a0"+ma, s:JOURS_LONGS[(a.getDay()+6)%7]};
-  return {h:(ma===mb?a.getDate():a.getDate()+"\u00a0"+ma)+" – "+b.getDate()+"\u00a0"+mb,
-          s:jr(a)+" → "+jr(b)+" · "+x.n+"\u00a0j"};
-}
 /* Un état en pastille : la pause aux couleurs du calendrier, le reste à côté. */
 function pastilleNotif(t,avant){
   var m=String(t||"").split(" · "), pv=/^(AM|PM|N|D)$/.test(m[0])?m.shift():null;
-  return '<span class="nt-e'+(avant?' av':'')+'">'
+  return '<span class="nt-e'+(avant?' av':'')+'"'+(pv?' data-p="'+pv+'"':'')+'>'
     +(pv?'<i class="nt-p" data-p="'+pv+'">'+pv+'</i>':'')
-    +(m.length?'<span>'+esc(m.join(" · "))+'</span>':'')+'</span>';
+    +(m.length?'<span>'+m.map(function(t){
+      /* Sous 380 px, le poste s'abrège (« CM », « Chaud. ») : en entier, il
+         se coupait en « Contrem… » dès que l'avant tenait sur la même ligne. */
+      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.t===t) P0=P; });
+      var c=P0?(P0.k==="cm"?"CM":P0.k==="adj"?"Adj.":PV_COURT[P0.k]):null;
+      return c?'<b class="pl">'+esc(t)+'</b><b class="pc">'+esc(c)+'</b>':esc(t);
+    }).join(" · ")+'</span>':'')+'</span>';
 }
 function libGroupeNotif(an,x){
   function bas(t){ return t.charAt(0).toLowerCase()+t.slice(1); }
@@ -9426,16 +9427,21 @@ function renderNotif(db,p){
   }
   card.hidden=!(ks.length && horsSem);
   if(card.hidden){ card.innerHTML=""; if(ks.length && x.neufs.length) notifierTelephone(p,x); return; }
+  /* LES JOURS SE DISENT COMME AUX SOUS-EFFECTIFS (le client, le 13/10/2026) :
+     « Aujourd'hui », « Demain », puis le jour en toutes lettres, et la date
+     en dessous (dateEnMots, la même fonction). */
+  var ju0=jourUsine(), t0=Date.UTC(ju0.getFullYear(),ju0.getMonth(),ju0.getDate());
   card.innerHTML='<div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>'
     +'<div class="nt-t"><b>Mise à jour de votre horaire</b><span>'+ks.length+" journée"+(ks.length>1?"s":"")
     +(/^\d{4}-(\d{2})-(\d{2})/.test(db.maj||"")?" · classeur du "+db.maj.slice(8,10)+"/"+db.maj.slice(5,7):"")+'</span></div>'
     +'<button type="button" class="nt-vu" id="notifVu">Vu</button></div>'
     +'<ul class="nt-l">'+parJourNotif(x.att,ks).map(function(a,i){
-      var dc=dateCourteNotif(x.an,a);
+      var dm=dateEnMots(x.an,Number(a.de.slice(0,2)),Number(a.de.slice(2)),t0),
+          mot=/<b>(.*?)<\/b><small>(.*?)<\/small>/.exec(dm.html);
       return '<li'+(i>=5?' class="nt-plus"':'')+'><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"'
         +' aria-label="'+esc(libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" devient ":"")+a.apres)+'">'
-        +'<span class="nt-d"><b>'+esc(dc.h)+'</b><small><span class="jl">'+esc(dc.s)+'</span><span class="jc">'+esc(dc.s.slice(0,3))+'.</span></small></span>'
+        +'<span class="nt-d"><b>'+mot[1]+'</b><small>'+mot[2]+'</small></span>'
         +'<span class="nt-ch">'+(a.avant?pastilleNotif(a.avant,true)+'<i class="nt-fl" aria-hidden="true">→</i>':'')
         +pastilleNotif(a.apres)+'</span><span class="nt-sv" aria-hidden="true">›</span></button></li>'; }).join("")
     +'</ul>';
