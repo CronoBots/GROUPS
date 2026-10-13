@@ -9147,6 +9147,12 @@ function lectureAgenda(db,p,an,m,j){
   var h=r.s?((r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h)):0;
   var ab=null;
   if(!(h>0) && r.a){ var A=ABSMAP[r.a]; ab=(A&&A.k==="SMG")?"MAL":String(r.a).replace(/^\d+H\s*/,""); }
+  /* Une journée entière de flex time repris (« 8h -FT ») garde ses heures
+     PAYÉES depuis le compteur, mais personne ne vient : seules les heures
+     présentes comptent, comme pour l'équipe du jour. */
+  var hPres=h;
+  [r.a].concat(r.ax||[]).forEach(function(c){ var X=c&&ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
+  if(h>0 && !(hPres>0)){ h=0; ab="-FT"; }
   var kat=posteEcrit(raw);
   return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
@@ -9570,14 +9576,17 @@ function icsAgenda(id,debut,nJours,stamp){
     x=lectureAgenda(db,p,an,d.getMonth()+1,d.getDate()); if(!x) continue;
     /* Une journée entière versée au flex time (« 8h +FT ») est une journée
        TRAVAILLÉE : ses heures vont au compteur, la personne est au poste.
-       Une formation n'est pas un congé, et un ±FT sur un repos non plus :
-       c'est presque toujours un renvoi (« presté le 28.02 »). */
+       Une formation n'est pas un congé. Un flex time REPRIS sur une journée
+       prévue au poste (« 8h -FT ») est un congé, sous son code « -FT » (le
+       client, le 13/10/2026 : « le flex time est bien un congé quand on le
+       reprend ») ; un ±FT sur un repos n'en est pas un : c'est un renvoi
+       (« cf 14/06 », « presté le 28.02 »), les heures vivent ailleurs. */
     var ev=null, ft=!!(x.ab && /\+FT/.test(x.ab));
     if((x.presente||ft) && PF_DEB[x.pv]!=null){
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
       ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,PF_DEB[x.pv]),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
           "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")];
-    } else if(x.ab==="FORM" || (estCongePose(x.ab) && !/FT/.test(x.ab))){
+    } else if(x.ab==="FORM" || (estCongePose(x.ab) && (!/FT/.test(x.ab) || (x.ab==="-FT" && x.pv)))){
       var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
       ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:"+(x.ab==="FORM"?"Formation":x.ab),"TRANSP:TRANSPARENT"];
     }
