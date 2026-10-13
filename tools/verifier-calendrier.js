@@ -138,6 +138,7 @@ const MORCEAUX=[
   ["function roleDeFeuille(","\n}"],
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
+  ["function remplPartiel(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],
   ["function formationCommencee(","\n}"],

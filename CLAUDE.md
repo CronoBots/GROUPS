@@ -6262,24 +6262,42 @@ Planning du 15/10 vérifié à 320 px (hors ligne), 390 et 1280 px.
 remplace CDE en meunerie »). Sa cellule `["PM","","remplace CDE"]` n'écrit
 pas l'atelier ; CDE porte « Abs · remplacée par SLT ». Le Planning le
 laissait au gluten (sa ligne 9) et envoyait PLZ en meunerie : « remplace X »
-n'est lu qu'en DERNIER recours, après le poste attitré (sauf pour un
-opérateur en formation). **Une règle générale a été essayée et retirée** :
-lire « remplace X » avant le poste attitré quand X répond « remplacé par »,
-hors cadres et hors remplacements de quelques heures. Elle déplaçait
-**environ 40 journées** sur l'année et en vidait deux (le 26/07 en
-distillation et le 06/07 au terrain arrière) : le poste attitré du remplacé
-ne dit pas où il aurait été ce jour-là. SLT entre donc dans `POSTE_DU_JOUR`.
+n'était lu qu'en DERNIER recours, après le poste attitré (sauf pour un
+opérateur en formation). **J'ai d'abord écarté la règle générale, et
+c'était contraire à la doctrine** : elle déplaçait une quarantaine de
+journées, j'ai posé SLT seul dans `POSTE_DU_JOUR`. Le client, aussitôt :
+« comme toujours, le commentaire doit toujours être l'info prioritaire ».
+Les deux trous qu'elle créait (26/07, 06/07) n'en ajoutaient pas : ils
+DÉPLAÇAIENT un trou existant vers le poste que le commentaire libère.
+
+**« Remplace X » prime désormais sur le poste attitré, pour tout le
+monde** (`postesDePause()`) : le remplaçant prend `posteAttitreLe()` du
+remplacé ce jour-là, s'il en a la polyvalence. Pas quand l'atelier est
+écrit ou tranché, pas pour un contremaître, pas quand X est présent dans la
+même pause, et pas pour un remplacement partiel (`remplPartiel()`) : une
+heure dans le commentaire, une plage de moins de 8 h, un « ? », ou un
+« R-CM » écrit. **Ces deux dernières gardes viennent de la mesure** : sans
+elles, cinq adjoints en R-CM (ATR le 13/02 « remplace SKS remplace PBL »,
+VGG le 28/07…) quittaient le contremaître pour l'atelier du trigramme, et
+« remplace QBY? » (JBI le 18/11) se lisait comme sûr. SLT n'a plus besoin de
+`POSTE_DU_JOUR` : la règle rend son placement à l'identique.
+
 **Et la table fuyait** : `posteAttitreLe()` demande le poste attitré avec
-une cellule vide, et `posteTenu()` y appliquait la table, si bien que le
-poste tranché devenait le poste attitré du jour et que la journée ne
-comptait pas au Recyclage (déjà vrai pour VGG le 27/09, sans effet, le
-terrain arrière ne se recycle pas). La table ne vaut plus que pour une
-journée écrite. Mesuré : une seule journée change au placement
-(`--placement --tout`, nouveau mode du vérificateur, comparé ligne à ligne) ;
-neuf règles, manques et compteurs identiques à l'octet ; Recyclage SLT
-meunerie 1 → 2, PLZ 18 → 17. La découpe de `POSTE_DU_JOUR` se ferme sur
-`};` (la table tient sur deux lignes). Vérifié à 320 px (hors ligne), 390
-et 1280 px.
+une cellule vide, et `posteTenu()` y appliquait `POSTE_DU_JOUR`, si bien
+que le poste tranché devenait le poste attitré du jour et que la journée ne
+comptait pas au Recyclage. La table ne vaut plus que pour une journée
+écrite.
+
+Mesuré par `--placement --tout` (nouveau mode du vérificateur, toute
+l'année pause par pause, comparé ligne à ligne) : **37 pauses changent**,
+toutes passées sauf les 27-29/10 (GKT « remplace QBY » passe du terrain
+arrière à la distillation, aucun manque ne bouge) ; neuf règles, compteurs
+et `--manques 1013` identiques à l'octet ; places creuses de l'année
+279 → 277 ; Recyclage 22 → 23 couples au quota (AAI fermentation 3 → 8,
+PLZ distillation 9 → 10 ✓, SLT meunerie 1 → 2, GKT, SKS, JKS +1 ou 2 ;
+PLZ fermentation 13 → 10, PAM, HKB, ALZ, VGG −1). La découpe de
+`POSTE_DU_JOUR` se ferme sur `};`. Vérifié à 320 px (hors ligne), 390 et
+1280 px.
 
 ### Un commentaire peut relever l'effectif d'une journée
 
