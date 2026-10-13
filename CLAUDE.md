@@ -4286,6 +4286,32 @@ Adjoint ». Rien ne disait lequel.
 Vérificateur à zéro (il ne découpe pas ces modules) ; rien ne déborde à 320
 (hors ligne), 390 et 1280 px dans la Recherche et les sous-effectifs.
 
+### « Horaire modifié », et les congés restants sous la semaine
+
+Le client, le 13/10/2026, capture de l'Accueil : « optimise les
+notifications personnelles, ça doit faire pro ; les soldes de congés
+restants doivent être affichés sous le calendrier des 7 jours ».
+
+- **La carte de notification** s'intitule « Horaire modifié · 6 journées ·
+  classeur du 13/10 ». Chaque ligne est une grille fixe : la date courte
+  sur deux étages (« 21 – 22 oct. », puis « mer. → jeu. · 2 j »,
+  `dateCourteNotif()`), le changement calé à droite, un chevron. Avant, la
+  date longue (« Du mercredi 21 octobre au jeudi 22 octobre ») passait à la
+  ligne n'importe où et poussait le changement tantôt à droite, tantôt
+  dessous. Le changement est en pastilles (`pastilleNotif()`) : la pause aux
+  couleurs du calendrier, le reste à côté. L'avant est en contour gris
+  pointillé, le texte barré. **La première version barrait une pastille
+  pleine**, et le trait sur le fond coloré la rendait illisible.
+- **Les congés restants** (`soldesConges()`, que l'état des compteurs
+  emploie aussi) : une rangée « Congés restants » sous la semaine du héros,
+  VA, RTT, DTT et RJF en jours de 8 h, en rouge sous zéro et pâle à zéro.
+  Un appui mène aux compteurs. C'était l'inverse du 10/10 (« pas
+  nécessairement les jours de congés restants ») : la demande du jour
+  prime.
+
+Compteurs du vérificateur identiques à l'octet ; neuf règles à zéro ; rien
+ne déborde à 320 px (hors ligne), 390 et 1280 px, aucune erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
