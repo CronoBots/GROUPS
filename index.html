@@ -1806,6 +1806,8 @@ body.sheet-on{overflow:hidden}
 /* La pause (coloree) et l'equipe en meta sur la ligne du POSTE, pas sur la
    ligne du jour (le client, le 02/10/2026). */
 .mqsub{font-size:12.5px; font-weight:500; color:var(--muted); flex:0 0 auto}
+/* « À remplacer » : qui manque à ce poste, et pourquoi (le client, le 13/10/2026) */
+.mqar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:4px 0 2px; font-size:12px; font-weight:600; color:var(--muted)}
 .mqpz-txt{font-style:normal; font-weight:700; color:var(--d)}
 .mqpz-txt[data-s="AM"]{color:var(--am)}
 .mqpz-txt[data-s="PM"]{color:var(--pm)}
@@ -11380,6 +11382,14 @@ function equipeDuJour(db,annee,mois,jour){
         fin:finAbsence(db,p,annee,mois,jour,st.params.hJour,"CONGE")});
       return;
     }
+    /* ÉPARGNÉ N'EST PAS ABSENT. « 8h +FT » sur un poste : le poste entier
+       part au compteur et rien n'est payé (docs/conversion-horaire.md,
+       section 5), mais la personne a TRAVAILLÉ. CGI le 21/12, ["N","8h +FT",
+       "remplace BLR"], tient la meunerie de nuit ; sans heure payée, il
+       tombait dans les congés et le poste paraissait vide. Vu le 13/10/2026
+       en écrivant « À remplacer » sous les sous-effectifs. */
+    var X0=r.a&&ABSMAP[r.a];
+    if(!(h>0) && r.s && X0 && X0.ft>0){ par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r}); return; }
     if(h>0) par[pv]?par[pv].push({p:p,r:r}):par.off.push({p:p,r:r});
     else if(r.a&&ABSMAP[r.a]){
       var fam=ABSMAP[r.a].k;
@@ -13665,6 +13675,29 @@ var mqFait="", MQ_NB=null;
 function mqPauses(x){
   var vu={}, n=0; (x.l||[]).forEach(function(m){ if(!vu[m.pause]){ vu[m.pause]=1; n++; } }); return n;
 }
+/* QUI FAUT-IL REMPLACER. Le client, le 13/10/2026 : « pour les
+   sous-effectifs, en plus de mettre le poste où il manque quelqu'un, cela
+   serait bien de dire quelle est la personne qu'il faut remplacer ». C'est
+   celle qui était PRÉVUE à cette pause (la pause gardée dans sa journée,
+   r.s) et dont c'est le poste habituel ce jour-là, mais qui n'y est pas :
+   malade, en congé, prévue non présente, ou sortie en formation, réunion
+   (colonne D). Le motif suit le trigramme. */
+function aRemplacer(par,g,P,jour){
+  var out=[];
+  function voir(l,motif){
+    (l||[]).forEach(function(x){
+      if(!x.r || x.r.s!==g) return;
+      if(posteAttitreLe(x.p,jour)!==P.k) return;
+      out.push({p:x.p, motif:motif(x)});
+    });
+  }
+  voir(par.abs,function(){ return "malade"; });
+  voir(par.cong,function(x){ return String(x.r.a||"congé").replace(/^8H\s*-?FT$/i,"FT"); });
+  voir((par.off||[]).filter(function(x){ return x.prevu; }),function(){ return "absent"; });
+  voir((par.D||[]).filter(function(x){ return x.r && x.r.jourCode; }),function(x){
+    return EST_FORMATION.test(x.r.jourCode)?"formation":x.r.jourCode; });
+  return out;
+}
 function renderManques(force){
   var hote=document.getElementById("mqCorps"); if(!hote) return;
   var au=jourUsine(), cle=au.toDateString()+"/"+mqHorizon+"/"+Object.keys(pausesFinies()).join("");
@@ -13758,11 +13791,13 @@ function renderManques(force){
            montrait qu'un « ? », que le « 0/1 » de l'en-tête dit déjà. */
         if(o.attendu>=2) plus.unshift(cadreEnPoste(enP.map(function(y){ return caChip(y.p.id,"",enFormation(y.p,an*10000+Number(x.mmdd))&&!compteAuPoste(y,oP.P,an*10000+Number(x.mmdd))); }).join("")
           +new Array(Math.max(0,o.attendu-o.tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>')));
+        var arem=aRemplacer(x.par,o.pause,o.P,an*10000+Number(x.mmdd));
         h.push('<span class="mql" data-z="'+esc(o.z)+'">'
           +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(o.t)+'</span><span class="mqct">'
             +esc(o.k==="terr"?"T. arrière":o.t)+"</span></span>"
           +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(o.pause)+'">'+esc(o.pause)+"</b>"
           +(o.eq?" · Équipe "+esc(o.eq):"")+"</span></span>"
+          +(arem.length?'<span class="mqar">À remplacer '+arem.map(function(a){ return caChip(a.p.id,a.motif); }).join("")+"</span>":"")
           +(pis.length?'<span class="mqr"><span class="mqfl" aria-label="Remplaçants possibles">\u2192</span>'+pis.join("")+"</span>":"")
           +plus.join("")
           +(pis.length||plus.length?"":'<span class="mqr"><span class="mqaucun">Aucun remplaçant</span></span>')
@@ -14396,8 +14431,23 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
     || (a.veille?1:0)-(b.veille?1:0)
     || (a.p.id<b.p.id?-1:a.p.id>b.p.id?1:0); });
   ["enD","change","reste","arrive","m6","s6"].forEach(function(k){ if(t[k]) t[k]=permanentsDabord(t[k]); });
+  /* POSTE POUR POSTE D'ABORD. Le client, le 13/10/2026 : « dans les
+     propositions, s'il y en a, il faut toujours proposer le poste pour poste
+     en premier lieu ». Ceux dont c'est AUSSI le poste habituel — en D, dans
+     une autre pause, en repos — quittent leur cadre pour un cadre à eux, en
+     tête : d'abord ce qui ne coûte rien (D, changement de pause), puis les
+     rappels, permanents avant intérimaires comme partout. */
+  t.pp=[];
+  [["enD","D"],["change","chg"],["rappels","rap"]].forEach(function(c){
+    t[c[0]]=t[c[0]].filter(function(o){
+      if(posteAttitreLe(o.p,jour)!==P.k) return true;
+      o.type=c[1]; t.pp.push(o); return false; });
+  });
+  t.pp=permanentsDabord(t.pp);
   return t;
 }
+/* Ce que le poste pour poste offre sans rappel (le Congé n'en compte pas). */
+function caPPReorg(t){ return (t.pp||[]).some(function(o){ return o.type!=="rap"; }); }
 function estInterim(p){ return statutAffiche(p)==="Intérimaire"; }
 function permanentsDabord(l){
   var a=[], b=[];
@@ -14407,7 +14457,7 @@ function permanentsDabord(l){
 /* Une moitié de doublage ne suffit pas : il en faut une de chaque côté. */
 function caDouble6(t){ return !!(t.m6 && t.m6.length && t.s6.length); }
 function caDouble(t){ return (t.reste.length>0 && t.arrive.length>0) || caDouble6(t); }
-function caTrouve(t){ return t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
+function caTrouve(t){ return (t.pp&&t.pp.length)||t.chaines.length||t.enD.length||t.change.length||t.rappels.length||caDouble(t); }
 function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var mmdd=pad2(m)+pad2(j), jour=annee*10000+Number(mmdd);
   var par=equipeDuJour(db,annee,m,j), pause=null;
@@ -14591,7 +14641,7 @@ function caVerdict(r,mode){
      appeler quelqu'un en renfort pour un congé planifié n'a pas de sens. */
   var tous=r.trous.every(function(t){
     return mode==="absence" ? caTrouve(t)
-      : (t.chaines.length || t.enD.length || t.change.length); });
+      : (t.chaines.length || t.enD.length || t.change.length || caPPReorg(t)); });
   if(mode==="conge") return tous?{v:"chg",t:"Possible avec changement"}:{v:"non",t:"Pas possible"};
   return tous?{v:"chg",t:"Remplaçable"}:{v:"non",t:"Aucun remplaçant"};
 }
@@ -14673,8 +14723,15 @@ function caGroupes(t,large,sansUrgence){
      chaînes à rallonge sont redondantes et ne se montrent plus. Elles ne
      réapparaissent que si elles sont la SEULE solution. caChaines ne voyait
      que la même pause et ignorait que le D pouvait couvrir directement. */
-  var unSeul = t.enD.length || t.change.length || t.chaines.some(function(gr){ return !gr.tete.length; });
+  var unSeul = t.enD.length || t.change.length || caPPReorg(t) || t.chaines.some(function(gr){ return !gr.tete.length; });
   var chaines = unSeul ? t.chaines.filter(function(gr){ return !gr.tete.length; }) : t.chaines;
+  if(large && t.pp && t.pp.length){
+    var ppSans=t.pp.filter(function(o){ return !(sansUrgence && o.type==="rap"); });
+    if(ppSans.length) g.push(caCadre("Poste pour poste",ppSans.slice(0,8).map(function(o){
+      return caChip(o.p.id, o.type==="D" ? "D "+(CA_HOR_D[t.g]||"")
+        : o.type==="chg" ? o.de : "Rappel"+(o.veille?" · veille "+o.veille:"")+(o.interim?" · intérim":""));
+    }).join("")+(ppSans.length>8?'<span class="mqinc">+'+(ppSans.length-8)+"</span>":"")));
+  }
   if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
   if(!large) return g;
   if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));

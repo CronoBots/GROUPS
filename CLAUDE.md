@@ -6299,6 +6299,34 @@ PLZ fermentation 13 → 10, PAM, HKB, ALZ, VGG −1). La découpe de
 `POSTE_DU_JOUR` se ferme sur `};`. Vérifié à 320 px (hors ligne), 390 et
 1280 px.
 
+**Les sous-effectifs disent qui remplacer, et le poste pour poste vient en
+tête** (le client, le 13/10/2026 : « en plus de mettre le poste où il manque
+quelqu'un, dire quelle est la personne qu'il faut remplacer ; dans les
+propositions, s'il y en a, toujours proposer le poste pour poste en premier
+lieu »). Sous la ligne du poste, « À remplacer » nomme ceux qui étaient
+PRÉVUS à cette pause (`r.s`) et dont c'est le poste habituel ce jour-là
+(`posteAttitreLe()`), avec leur motif : malade, le code du congé, absent
+(poste prévu non presté), formation ou le code de jour (`aRemplacer()`).
+Dans `caCandidats()`, ceux dont c'est AUSSI le poste habituel quittent les
+cadres « En D », « Change de pause » et les rappels pour un cadre « Poste
+pour poste », le premier de la fiche : D et changement de pause d'abord,
+rappels ensuite, permanents avant intérimaires. Il vaut pour les
+sous-effectifs et la Recherche ; le Congé n'y compte pas les rappels.
+Mesuré le 13/10 : 21 fiches sur 21 nomment qui remplacer, 20 ont un poste
+pour poste.
+
+**Et la première mesure a montré un faux trou, plus ancien.** Le 21/12,
+« À remplacer » donnait CGI avec « 8H +FT ». Sa cellule, `["N","8h +FT",
+"remplace BLR"]`, dit qu'il tient la meunerie de nuit et verse le poste
+entier au compteur (section 5 de `docs/conversion-horaire.md`) : 0 h
+payée, donc `equipeDuJour()` le rangeait en congé. Un code d'épargne
+(`ft>0`) sans heure payée laisse désormais la personne à sa pause. 92
+journées de l'année portent « 8h +FT » ; **86 pauses changent**, les places
+creuses de l'année passent de 277 à **249**, et d'ici la fin de l'année de
+22 à **21** (la meunerie du 21/12 disparaît) ; neuf règles et compteurs
+identiques à l'octet ; Recyclage : cinq cases d'une journée, 23 couples au
+quota inchangés. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Un commentaire peut relever l'effectif d'une journée
 
 Le client, le 25/09/2026 : « quand il est écrit "Test de performance
