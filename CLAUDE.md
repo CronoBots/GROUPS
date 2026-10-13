@@ -64,6 +64,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
+| lecture de l'horaire dans `index.html`, `data/` | `node tools/verifier-calendrier.js --agendas cal` : ne doit changer que ce qui est voulu |
 
 **Mesurer avant, mesurer après, et prouver que rien d'autre n'a bougé.** Un
 chiffre inchangé ne prouve rien tant qu'on n'a pas montré que le mécanisme
@@ -1859,25 +1860,8 @@ n'est deviné à leur sujet :
 
 ### Pour plus tard, à la demande du client
 
-- **Un calendrier du téléphone qui se met à jour seul** (le client, le
-  13/10/2026 : « note pour plus tard, calendrier personnel mis à jour
-  automatiquement sur smartphone selon les modifications »). Rien n'est
-  codé. Aujourd'hui, « Ajouter mes postes à mon agenda » télécharge un
-  `.ics` de 120 jours : c'est une importation unique, et il faut la refaire
-  après chaque classeur. Les identifiants `TRI-AAAAMMJJ@biowanze` mettent
-  bien à jour au lieu de doubler, mais seulement à la main. Pour que le
-  téléphone se mette à jour seul, il faut un **abonnement** (`webcal://`),
-  c'est-à-dire une adresse fixe par personne que l'agenda relit tout seul
-  (souvent toutes les quelques heures sous iOS ; Google l'impose à un
-  rythme plus lent, jusqu'à un jour).
-  La piste la plus simple : `mettre-a-jour.py --installer` écrit un
-  `cal/<TRI>.ics` par personne à côté de `data/`, servi par GitHub Pages,
-  et le bouton propose « S'abonner » au lieu de « Télécharger ». **À
-  trancher avec le client avant de coder** : ces fichiers seraient
-  publics, au même titre que `data/horaire-2026.json` qui l'est déjà, mais
-  une adresse par trigramme rend l'horaire de chacun plus facile à
-  trouver. Une adresse non devinable (un jeton par personne) ou un
-  service hors de GitHub Pages sont les autres options.
+- ~~Un calendrier du téléphone qui se met à jour seul~~ : fait le
+  13/10/2026, voir « L'abonnement à l'agenda ».
 
 ### Les réponses du 29/09/2026
 
@@ -1975,6 +1959,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/comparer-horaire.py` | dit ce qui change entre deux versions converties |
 | `tools/comparer-fiches.py` | confronte les fiches de paie à ce que l'horaire produit |
 | `tools/extraire-fiches.py` | recopie toute une fiche de paie en JSON, sans rien d'identifiant — sortie hors du dépôt |
+| `cal/<id>.ics` | l'abonnement agenda de chacun, écrit par `verifier-calendrier.js --agendas` |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
@@ -4377,6 +4362,58 @@ l'autre journée » (« Voir les 2 autres journées » au pluriel). Une ancienne
 pause écrite seule (« PM → N ») avait l'air d'un état présent : elle est
 pâlie, en pointillé et barrée, comme l'ancien libellé. Vérifié à 320 px
 (hors ligne), 390 et 1280 px.
+
+**Le poste n'est plus écrit pour un contremaître ou un adjoint** (le
+client, le même jour : « ok pour les CM ») : leur fonction ne change
+jamais, la répéter sur chaque ligne n'apprenait rien. Seul l'atelier d'un
+opérateur s'écrit. `NOTIF_VERSION` passe à 3.
+
+### L'abonnement à l'agenda
+
+Le client, le 13/10/2026, capture de son abonnement « Jours fériés
+belges » : « est-ce possible de créer un fichier qui s'ajoute comme cela ? »,
+puis « adresse trigramme pour l'agenda ». **Un fichier par personne,
+`cal/<id>.ics`** (`cal/GBT-1.ics` pour le second GBT), servi par GitHub
+Pages. Le téléphone s'y abonne une fois et le relit seul : une journée
+modifiée est corrigée, une journée devenue repos disparaît. Le délai est
+celui du téléphone (iPhone : Réglages → Calendrier → Comptes → Récupérer ;
+Google, jusqu'à un jour). Le fichier demande une heure
+(`REFRESH-INTERVAL`), sans garantie que l'agenda la respecte.
+
+- **Écrit par `node tools/verifier-calendrier.js --agendas cal`**, avec
+  `icsAgenda()` découpée dans `index.html`, la même qui sert « Télécharger
+  une fois » : il n'existe pas de seconde copie. `lectureAgenda()` est la
+  lecture du héros, sortie de `_pfJour()` pour pouvoir être découpée.
+  `horaireDe()` et `calageLong()` entrent dans la découpe : les fichiers
+  vont du 1er janvier de l'année du classeur au **30 juin de la suivante**,
+  par les cycles prolongés (SLI ne l'est pas). 78 fichiers, 26 606
+  événements, 4,8 Mo.
+- **`mettre-a-jour.py --installer` les réécrit** sur l'horaire installé.
+  L'horodatage est celui du classeur, si bien qu'un horaire inchangé donne
+  des fichiers identiques à l'octet, et les fichiers d'une personne partie
+  sont retirés. **Après une modification de la lecture dans `index.html`,
+  relancer la commande** et committer ce qui bouge.
+- **Contenu** : poste et heures (fuseau de Bruxelles déclaré), atelier
+  écrit, « rappel » ; congés posés en journée entière ; « Formation ».
+  Ni commentaire, ni nom. **Deux défauts de l'ancien export trouvés en
+  relisant les 26 674 événements** : une journée entière « 8h +FT » (poste
+  tenu, heures au compteur) s'écrivait « Congé +FT » — c'est désormais le
+  poste ; un ±FT sur un repos (« presté le 28.02 », un renvoi) donnait un
+  « Congé -FT » — il ne donne plus rien ; le code de formation s'écrit
+  « Formation », et non plus comme un congé.
+- **Le bouton** « S'abonner à mon horaire » ouvre `webcal://…/cal/<id>.ics`
+  sur un iPhone, un iPad ou un Mac ; ailleurs, la page d'ajout de l'agenda
+  de Google (l'application Android ne sait pas s'abonner, il faut le site).
+  Dessous : « Copier l'adresse » et « Télécharger une fois » (l'ancien
+  `.ics` de 120 jours). Le service worker ne met jamais `cal/` en cache.
+- **Public, et c'est la décision du client** : chacun peut lire l'horaire
+  d'un collègue à son trigramme, comme il le peut déjà dans
+  `data/horaire-2026.json`. Une adresse avec un jeton par personne était
+  l'autre option, écartée.
+
+Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
+événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
+téléphone dira comment l'abonnement s'affiche.**
 
 ### Le congé en heures
 

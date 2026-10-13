@@ -297,6 +297,12 @@ def main():
             shutil.copy2(os.path.join(avant, nom), dest)
         print("\nLE GARDE-FOU DU DÉPÔT ÉCHOUE : les fichiers d'avant sont remis en place.")
         return 1
+    # Les abonnements agenda (cal/<id>.ics), réécrits sur l'horaire installé :
+    # c'est par eux que le téléphone de chacun se met à jour seul.
+    r = subprocess.run(["node", os.path.join(OUTILS, "verifier-calendrier.js"),
+                        cibles["horaire"], "--agendas", os.path.join(RACINE, "cal")],
+                       cwd=RACINE, capture_output=True, text=True)
+    print("Agendas : " + (r.stdout.strip() or r.stderr.strip()))
     print("\nInstallé : %s" % ", ".join(os.path.relpath(c, RACINE) for c in cibles.values()))
     if m:
         print("V : nfdm-v%s → nfdm-v%d" % (m.group(1), int(m.group(1)) + 1))

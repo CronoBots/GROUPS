@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v698";
+var V = "nfdm-v699";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -97,6 +97,9 @@ self.addEventListener("fetch", function (e) {
      branche « fonts.googleapis/gstatic » à gérer, et plus de réponse opaque
      à laisser passer sans pouvoir la vérifier. Tout passe par la garde 200. */
   if (!sameOrigin) return;
+  /* les abonnements agenda (cal/<id>.ics) : jamais en cache, c'est le
+     téléphone qui les relit, et il doit lire le dernier horaire */
+  if (/\/cal\/[^/]+\.ics$/.test(url.pathname)) return;
 
   if (req.mode === "navigate" || /\/(index\.html)?$/.test(url.pathname)
       || /\.(html|webmanifest)$/.test(url.pathname)) {
