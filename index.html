@@ -2114,6 +2114,9 @@ body.sheet-on{overflow:hidden}
 .nt-p[data-p="N"]{background:var(--cal-n); color:var(--cal-n-ink)}
 .nt-p[data-p="D"]{background:var(--cal-d); color:var(--cal-d-ink)}
 .nt-fl{font-style:normal; font-size:13px; color:var(--marque-vif)}
+.nt-com{grid-column:1/-1; margin-top:-2px; padding:6px 9px; border-left:2px solid var(--marque-vif);
+  border-radius:0 6px 6px 0; background:var(--surface2); font-size:12px; line-height:1.4; color:var(--muted);
+  overflow-wrap:anywhere}
 .nt-sv{font-size:18px; line-height:1; color:var(--faint)}
 .notifcard:not(.nt-ouvert) .nt-plus{display:none}
 .nt-tout{display:block; width:100%; padding:9px 14px 11px; border:0; border-top:1px solid var(--trait); background:none;
@@ -9439,11 +9442,17 @@ function renderNotif(db,p){
     +'<ul class="nt-l">'+parJourNotif(x.att,ks).map(function(a,i){
       var dm=dateEnMots(x.an,Number(a.de.slice(0,2)),Number(a.de.slice(2)),t0),
           mot=/<b>(.*?)<\/b><small>(.*?)<\/small>/.exec(dm.html);
+      /* LE COMMENTAIRE DE LA JOURNÉE (le client, le 13/10/2026 : « s'il y a un
+         commentaire dans le changement il faut l'afficher ») : c'est lui qui
+         dit POURQUOI — « Remplace FLI », « échange avec GPS ». Celui de
+         l'horaire installé, déjà débarrassé du barré et des signatures. */
+      var raw=p.d[a.de], com=raw&&raw[2]?String(raw[2]).replace(/\s+/g," ").trim():"";
       return '<li'+(i>=5?' class="nt-plus"':'')+'><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"'
-        +' aria-label="'+esc(libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" devient ":"")+a.apres)+'">'
+        +' aria-label="'+esc(libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" devient ":"")+a.apres+(com?" · "+com:""))+'">'
         +'<span class="nt-d"><b>'+mot[1]+'</b><small>'+mot[2]+'</small></span>'
         +'<span class="nt-ch">'+(a.avant?pastilleNotif(a.avant,true)+'<i class="nt-fl" aria-hidden="true">→</i>':'')
-        +pastilleNotif(a.apres)+'</span><span class="nt-sv" aria-hidden="true">›</span></button></li>'; }).join("")
+        +pastilleNotif(a.apres)+'</span><span class="nt-sv" aria-hidden="true">›</span>'
+        +(com?'<span class="nt-com">'+esc(com)+'</span>':'')+'</button></li>'; }).join("")
     +'</ul>';
   /* Au-delà de cinq lignes, le reste se déplie d'un appui. */
   card.classList.remove("nt-ouvert");
@@ -9471,7 +9480,8 @@ function notifActive(){ return !!lsGet("ui/notifTel") && ("Notification" in wind
 function notifierTelephone(p,x){
   if(!notifActive() || !navigator.serviceWorker) return;
   var gs=parJourNotif(x.att,x.neufs);
-  var l=gs.slice(0,3).map(function(a){ return libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" → ":"")+a.apres; });
+  var l=gs.slice(0,3).map(function(a){ var raw=p.d[a.de], com=raw&&raw[2]?String(raw[2]).replace(/\s+/g," ").trim():"";
+    return libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" → ":"")+a.apres+(com?" (« "+com+" »)":""); });
   if(gs.length>3) l.push("et "+(gs.length-3)+" autre"+(gs.length>4?"s":"")+" changement"+(gs.length>4?"s":""));
   navigator.serviceWorker.ready.then(function(reg){
     return reg.showNotification("Mise à jour de votre horaire · "+idLisible(p.id),{

@@ -4361,6 +4361,13 @@ est retiré). La ligne ne passe plus jamais à la ligne. Sous 380 px, le
 poste s'abrège (« CM », « Chaud. ») : en entier, il se coupait en
 « Contrem… ». Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**Et le commentaire de la journée** (le client, le même jour : « s'il y a un
+commentaire dans le changement il faut l'afficher ») : sous la ligne, dans
+un encadré à filet cyan, celui de l'horaire installé (« remplace ATA »,
+« échange avec ATA ») ; il dit pourquoi la journée a changé. La
+notification du téléphone le cite entre guillemets. Vérifié sur VBN à
+320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
