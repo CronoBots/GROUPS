@@ -6366,6 +6366,21 @@ sous-effectifs et la Recherche ; le Congé n'y compte pas les rappels.
 Mesuré le 13/10 : 21 fiches sur 21 nomment qui remplacer, 20 ont un poste
 pour poste.
 
+**Puis plus intuitif, et le contremaître distingué de l'adjoint** (le
+client, le même jour : « le poste pour poste doit faire la différence entre
+contremaître et adjoint ; la ligne avec la personne à remplacer n'est pas
+professionnelle ni dans le même style que les propositions »). « À
+remplacer » devient la première section de la fiche, du même style que les
+propositions, intitulé et badges en rouge (`.capaire.arem`), le motif en
+clair à côté du trigramme : maladie, congé et son code, flex time, formation. Pour un poste
+de contremaître, le poste pour poste ne garde que les contremaîtres ; les
+adjoints proposés — l'adjoint déjà dans la pause (« Même pause », retiré
+des chaînes), en D, d'une autre pause ou en rappel — ont leur section,
+« Adjoint faisant fonction », juste après (`t.adj`). Le 23/10 PM : À
+remplacer AFA (congé VA) ; poste pour poste YPE, GPS ; adjoint faisant
+fonction JBI (même pause), VGG. Vérifié à 320 px (hors ligne), 390 et
+1280 px.
+
 **Et la première mesure a montré un faux trou, plus ancien.** Le 21/12,
 « À remplacer » donnait CGI avec « 8H +FT ». Sa cellule, `["N","8h +FT",
 "remplace BLR"]`, dit qu'il tient la meunerie de nuit et verse le poste
