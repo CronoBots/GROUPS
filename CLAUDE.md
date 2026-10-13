@@ -4411,6 +4411,9 @@ Google, jusqu'à un jour). Le fichier demande une heure
   `data/horaire-2026.json`. Une adresse avec un jeton par personne était
   l'autre option, écartée.
 
+**Un congé porte son seul code** (le client, le même jour : « RJF au
+lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
+
 Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
 événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
 téléphone dira comment l'abonnement s'affiche.**
