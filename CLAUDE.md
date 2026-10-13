@@ -6158,6 +6158,27 @@ ATR gluten 0 → 4 et chaudières 1 → 2 (restant 17 → 12), JBI distillation
 1 → 2 et contremaître 0 → 5 (restant 24 → 18), SBZ chaudières 0 → 1
 (restant 12 → 11).
 
+### Le classeur du 13/10/2026 à 10 h 17
+
+Huit portes ouvertes en 17 s, installé : **73 journées chez 22 personnes, 9
+compteurs**, aucune arrivée ni aucun départ. FLN malade du 12 au 16/10,
+remplacé par ALZ puis GKT (rappelé les 14 et 15/10) ; les remplacements que
+YBT, malade, portait encore dans ses commentaires (22/10, 23/10, 05/11,
+19/11, 24 et 25/11) passent à JBI, rappelé ; échanges VBN/GPS (21-22/10),
+VBN/FLI (09-10/11, 21-22/12), GSK/IME (02-03/12) ; ALZ en RTT le 13/10, le
+23/10 et le 31/12 ; GBT en RTT le 31/10 ; SVE en RTT et VA du 12 au 14/10.
+Neuf règles à zéro, compteurs 77/78 (FPA, l'écart connu), intégralité à
+zéro. Sous-effectifs d'ici la fin de l'année **21 → 23 places** : le 12/12 AM
+contremaître disparaît (JBI) ; apparaissent le **31/10 AM fermentation** (LHS
+malade, CHD en RTT) et le **13/10 PM terrain arrière**. Celui-ci est un
+**écart connu** : ALZ, qui remplaçait FLN, prend un RTT, et le classeur
+couvre l'après-midi par deux 12 h — AAI `["6h-18h","4h +FT","poly. Etoh.
+Remplace ALZ (FLN)"]` et GKT `["18h-6h","4h +FT",…"remplace ALZ (FLN) de
+18h à 22h"]`. L'application ne sait pas additionner deux moitiés de pause
+venues du matin et de la nuit ; sa propre fiche propose d'ailleurs cette
+paire-là (« AAI 06-18 · GKT 18-06 »). Vérifié à 320 px (hors ligne), 390 et
+1280 px.
+
 ### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
 
 Le client, le 12/10/2026 : « ATR est bien aux chaudières les deux jours
