@@ -4351,6 +4351,16 @@ instantané v1, aucune carte ; avec un instantané v2 truqué, « Repos → N ·
 Contremaître », GJR « → PM · Chaudières », LCI « → N · Distillation ».
 Rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
 
+**Les badges aux couleurs de la pause, les jours comme aux sous-effectifs**
+(le client, le même jour). Tout le badge prend la couleur de sa pause,
+celle du calendrier : fond doux, filet et pastille pleine. L'ancien état
+garde sa couleur, pâli, en pointillé, avec le texte barré. La date se lit
+par `dateEnMots()`, comme aux sous-effectifs : « Aujourd'hui », « Demain »,
+puis le jour en entier, et « 16 octobre » dessous (`dateCourteNotif()`
+est retiré). La ligne ne passe plus jamais à la ligne. Sous 380 px, le
+poste s'abrège (« CM », « Chaud. ») : en entier, il se coupait en
+« Contrem… ». Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
