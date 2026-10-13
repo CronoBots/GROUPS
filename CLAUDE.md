@@ -6179,6 +6179,27 @@ venues du matin et de la nuit ; sa propre fiche propose d'ailleurs cette
 paire-là (« AAI 06-18 · GKT 18-06 »). Vérifié à 320 px (hors ligne), 390 et
 1280 px.
 
+**Deux 12 h qui se relaient tiennent le poste** (le client, le même jour :
+« oui pour les 12 h pour couvrir un trou, et il faut trouver une manière pro
+de l'afficher dans l'horaire »). L'écart connu ci-dessus est levé.
+`relaisDouze()`, appelé par `postesDePause()` pour un poste encore vide et
+jamais pour la colonne D, cherche ceux d'une AUTRE pause, la veille et le
+lendemain compris, dont la plage écrite dépasse 8 h et déborde sur la pause
+sans la contenir, au poste qu'ils tiennent : l'atelier écrit, dans la
+cellule ou en tête du commentaire (« poly. Etoh. Remplace ALZ »), celui du
+remplacé, sinon leur poste habituel. **La première version ne prenait que
+la cellule**, et le 13/10 restait vide : AAI et GKT écrivent l'atelier dans
+le commentaire. Les morceaux ne valent que s'ils couvrent TOUTE la pause ;
+le poste compte alors une personne de plus (`o.relais`). Au Planning, les
+relais s'écrivent dans la case, badge à bord pointillé d'accent et horaire
+(« AAI 06-18 », « GKT 18-06 »), l'infobulle disant « relais 12 h ». Mesuré
+(`--placement --tout` imprime les relais) : **40 postes couverts sur
+l'année**, tous des paires 06-18 / 18-06, 14-02 / 02-14 ou 22-10 / 10-22 ;
+places creuses de l'année 250 → **218** ; d'ici la fin de l'année seul le
+13/10 PM disparaît ; neuf règles, compteurs et Recyclage identiques à
+l'octet (les relais ne sont pas dans `gens`). `PF_DEB` entre dans la
+découpe du vérificateur. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
 
 Le client, le 12/10/2026 : « ATR est bien aux chaudières les deux jours

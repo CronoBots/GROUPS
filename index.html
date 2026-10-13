@@ -2878,6 +2878,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn.form{border-color:var(--trait)}
 .eqhote .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
+/* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
+.eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
+.eqhote .eqp2 tbody td .eqn.relais b{color:var(--in)}
 .eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 .eqhote .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
 /* UN BADGE AVEC COMMENTAIRE : un SOULIGNEMENT FIN (trait plein 1px) sous le
@@ -11564,10 +11567,63 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     gens.forEach(function(x){ (enFormation(x.p,jourCalc)?apprend:tient).push(x); });
     gens=tient.concat(apprend);
     var attendu=attenduAuPoste(P,gk,ren);
-    sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail,
-                 manque:!!(attendu && tenu<attendu), creux:Math.max(0,attendu-gens.length)});
+    var creux=Math.max(0,attendu-gens.length), relais=[];
+    /* DEUX 12 H QUI SE RELAIENT TIENNENT LE POSTE. Le client, le 13/10/2026,
+       sur le terrain arrière du jour (ALZ en RTT à la place de FLN, AAI en
+       6h-18h puis GKT en 18h-6h) : « oui pour les 12 h pour couvrir un
+       trou ». Seulement pour un poste encore vide, et seulement si les
+       morceaux couvrent TOUTE la pause. */
+    if(attendu && tenu<attendu && gk!=="D"){
+      relais=relaisDouze(db,gk,mmdd,P.k,parId,jourCalc);
+      if(relais.length){ tenu++; creux=Math.max(0,creux-1); }
+    }
+    sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail, relais:relais,
+                 manque:!!(attendu && tenu<attendu), creux:creux});
   });
   return {postes:sortie, formation:formation, inconnus:inconnus};
+}
+/* Les relais d'une pause : ceux d'une AUTRE pause — la veille et le
+   lendemain compris — dont la plage écrite dépasse 8 h et déborde sur
+   celle-ci, au poste qu'ils tiennent eux-mêmes ce jour-là (l'atelier écrit,
+   sinon leur poste). Ils ne valent ensemble que s'ils couvrent toute la
+   pause : AAI 6h-18h couvre 14 h-18 h, GKT 18h-6h 18 h-22 h. Rend la liste
+   (vide si la pause n'est pas couverte), avec l'horaire de chacun. */
+function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
+  var W0=PF_DEB[gk], W1=PF_FIN[gk], an=Number(db.year);
+  var d0=new Date(an,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
+  var cand=[];
+  [-1,0,1].forEach(function(dec){
+    var d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+dec);
+    if(d.getFullYear()!==an) return;
+    var md=pad2(d.getMonth()+1)+pad2(d.getDate());
+    db.people.forEach(function(p){
+      var raw=p.d[md]; if(!raw) return;
+      if(/abs|mal/i.test(String(raw[1]||""))) return;
+      var pl=null, i;
+      for(i=0;i<2 && !pl;i++) pl=plageMention(String(raw[i]||""));
+      if(!pl || pl[1]-pl[0]<=8.01) return;
+      var a=pl[0]+24*dec, b=pl[1]+24*dec;
+      var x0=Math.max(a,W0), x1=Math.min(b,W1);
+      if(x1-x0<0.5) return;
+      /* la pause n'est pas la sienne : sa plage la déborde, sans la contenir */
+      if(a<=W0+0.01 && b>=W1-0.01) return;
+      /* le poste qu'il tient : l'atelier écrit, dans la cellule ou en tête
+         du commentaire (« poly. Etoh. Remplace ALZ »), celui du remplacé, et
+         seulement à défaut son poste habituel */
+      var c=String(raw[2]||""), kp=posteEcrit(raw)
+        ||posteDepuisNom(c.split(/[\s.,;]+(?:remp|rappel)/i)[0].trim())
+        ||atelierDuRemplace(raw,parId,p)
+        ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
+      if(kp!==k) return;
+      cand.push({p:p, a:x0, b:x1, hor:pad2(Math.floor(pl[0])%24)+"-"+pad2(Math.floor(pl[1])%24)});
+    });
+  });
+  cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
+  var fin=W0, pris=[];
+  cand.forEach(function(c){
+    if(c.a<=fin+0.01 && c.b>fin+0.01){ fin=c.b; pris.push(c); }
+  });
+  return fin>=W1-0.01 ? pris : [];
 }
 /* L'HORAIRE HABITUEL D'UNE PERSONNE EN D, lu sur ses propres journées. Le
    client, le 28/09/2026, à la question de l'horaire d'un « D » seul :
@@ -12017,11 +12073,17 @@ function renderEquipe(){
           if(mq) cl.push("manque");
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
+            /* LES RELAIS DE 12 H, à bord pointillé, avec leur horaire : le
+               poste est tenu, mais par deux personnes venues des pauses
+               voisines (le client, le 13/10/2026). */
+            +(o.relais||[]).map(function(r){
+              return '<span class="eqn relais" title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, "+esc(r.hor)
+                +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("")
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
                dans la recherche. */
             +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque" title="Place vide ('+o.tenu+" / "+aP+')"><b>?</b></span>'):"")
-            +(o.gens.length||mq?"":'<span class="eqvide">\u2014</span>')
+            +(o.gens.length||mq||(o.relais&&o.relais.length)?"":'<span class="eqvide">\u2014</span>')
             +"</td>");
         });
         tp.push("</tr>");
