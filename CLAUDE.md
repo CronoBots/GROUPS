@@ -6392,6 +6392,20 @@ après l'adjoint. Mesuré sur les 22 fiches à venir : les 26/10 et 27/10 (FLI
 06-18, ATA 18-06) passent avant l'adjoint ; les 24/11 et 25/11 (VGG dans la
 paire) restent après. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**Un adjoint qui « remplace » un contremaître tient le poste de
+contremaître** (le client, le 13/10/2026, sur le 23/10 encore en
+sous-effectif : « JBI est bien là et son commentaire indique bien la
+solution »). JBI porte `["AM","PM","MPE : Remplace AFA …"]`. La règle
+générale « remplace X » écartait tout remplacé dont le poste habituel est
+contremaître. `atelierDuRemplace()` le rend désormais à un adjoint
+(`estCadre` sans `estContremaitre`). Mesuré par `--placement --tout` : quatre
+pauses changent (16/03 N, JBI ; 29/04 AM, ATR ; 20/06 PM, couvert par le
+relais ATA 14-18 + ATR 18-22 ; 23/10 PM, JBI). Les sous-effectifs à venir
+passent de 22 à **21** places. Les neuf règles, les compteurs et le Recyclage
+sont identiques à l'octet. Même demande : « À remplacer » écrit « Absent »
+au lieu de « Malade », et le congé par son seul code (« VA », « RTT »,
+« -FT »).
+
 **Et la première mesure a montré un faux trou, plus ancien.** Le 21/12,
 « À remplacer » donnait CGI avec « 8H +FT ». Sa cellule, `["N","8h +FT",
 "remplace BLR"]`, dit qu'il tient la meunerie de nuit et verse le poste

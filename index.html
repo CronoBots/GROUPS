@@ -10435,6 +10435,10 @@ function atelierDuRemplace(raw,parId,qui,ce){
     if(!cible || cible===qui) continue;
     if(ce && ce.presents[cible.id]) continue;
     k=ce?posteAttitreLe(cible,ce.jour):posteHabituel(cible);
+    /* UN ADJOINT QUI « REMPLACE » UN CONTREMAÎTRE TIENT LE POSTE DE
+       CONTREMAÎTRE. Le client, le 13/10/2026, sur JBI le 23/10 (« Remplace
+       AFA ») : la solution est écrite dans son commentaire. */
+    if(k==="cm" && estCadre(qui) && !estContremaitre(qui)) return k;
     if(!k || k==="cm" || k==="adj") continue;
     if(k==="terr"){ if(tientTerrainArriere(qui)) return k; continue; }
     for(i=0;i<POSTES_TRAVAIL.length;i++){
@@ -13764,11 +13768,11 @@ function aRemplacer(par,g,P,jour){
       out.push({p:x.p, motif:motif(x)});
     });
   }
-  var MOTIF={VA:"Congé VA", RTT:"RTT", DTT:"Congé d'ancienneté", RJF:"RJF", RHS:"Récup. HS",
-             CP:"Congé parental", TP:"Temps partiel", CT:"Crédit-temps", GREVE:"Grève"};
-  voir(par.abs,function(){ return "Malade"; });
+  /* « Absent » et non « Malade », et le congé par son seul code (« VA ») :
+     le client, le 13/10/2026. */
+  voir(par.abs,function(){ return "Absent"; });
   voir(par.cong,function(x){ var c=String(x.r.a||"");
-    return /-\s*FT$/i.test(c)?"Flex time":(MOTIF[c]||(c?"Congé "+c:"Congé")); });
+    return /-\s*FT$/i.test(c)?"-FT":(c||"Congé"); });
   voir((par.off||[]).filter(function(x){ return x.prevu; }),function(){ return "Absent"; });
   voir((par.D||[]).filter(function(x){ return x.r && x.r.jourCode; }),function(x){
     return EST_FORMATION.test(x.r.jourCode)?"Formation":etiqJour(x.r.jourCode); });
