@@ -14518,7 +14518,7 @@ function caCandidats(par,vue,g,P,jour,pausesDe,sauf,large,autres){
      une autre pause, en repos — quittent leur cadre pour un cadre à eux, en
      tête : d'abord ce qui ne coûte rien (D, changement de pause), puis les
      rappels, permanents avant intérimaires comme partout. */
-  t.pp=[]; t.adj=[];
+  t.pp=[]; t.adj=[]; t.pk=P.k; t.jour=jour;
   /* POUR UN CONTREMAÎTRE, LE POSTE POUR POSTE EST UN CONTREMAÎTRE ; l'adjoint
      qui peut faire fonction a son cadre à lui, juste après (le client, le
      13/10/2026 : « le poste pour poste doit faire la différence entre
@@ -14829,18 +14829,7 @@ function caGroupes(t,large,sansUrgence){
         : o.type==="chg" ? o.de : "Rappel"+(o.veille?" · veille "+o.veille:"")+(o.interim?" · intérim":""));
     }).join("")+(ls.length>8?'<span class="mqinc">+'+(ls.length-8)+"</span>":"")));
   }
-  if(large){ cadrePP("Poste pour poste",t.pp); cadrePP("Adjoint faisant fonction",t.adj); }
-  if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
-  if(!large) return g;
-  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
-  if(t.change.length) g.push(caCadre("Change de pause",
-    t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
-    +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")));
-  /* LE DOUBLAGE VA TOUJOURS PAR PAIRE. Le client, le 29/09/2026 : « si on
-     fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
-     chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
-     moitié seule n'est donc pas une solution : elle ne se montre pas. */
-  if(caDouble(t) && !sansUrgence){
+  function prolongation(){
     /* L'HORAIRE DEMANDÉ APRÈS LES TRIGRAMMES. Le client, le 02/10/2026 :
        « indiquer 06-18 et 18-06 après les trigrammes avec "pour faire" ». */
     function rang(h,l){
@@ -14856,8 +14845,28 @@ function caGroupes(t,large,sansUrgence){
        manquante : m6 = le matin (06-18), s6 = le PM (18-06), sans aucun repli
        14-02 / 02-14. */
     if(caDouble6(t)) paire=rang("06-18",t.m6)+rang("18-06",t.s6);
-    g.push('<span class="capaire prol"><span class="cagr">Prolongation 12 <span class="unite">h</span></span>'+paire+"</span>");
+    return '<span class="capaire prol"><span class="cagr">Prolongation 12 <span class="unite">h</span></span>'+paire+"</span>";
   }
+  /* UNE PROLONGATION POSTE POUR POSTE PASSE AVANT L'ADJOINT. Le client, le
+     13/10/2026 : « si les prolongations 12h sont poste pour poste cela doit
+     être avant adjoint faisant fonction ». Poste pour poste = tous les
+     membres proposés ont ce poste pour poste habituel ce jour-là (un adjoint
+     dans une paire de contremaîtres la laisse après l'adjoint). */
+  var prolPP = large && caDouble(t) && !sansUrgence && t.pk
+    && (caDouble6(t) ? t.m6.concat(t.s6) : t.reste.concat(t.arrive))
+      .every(function(o){ return posteAttitreLe(o.p,t.jour)===t.pk; });
+  if(large){ cadrePP("Poste pour poste",t.pp); if(prolPP) g.push(prolongation()); cadrePP("Adjoint faisant fonction",t.adj); }
+  if(chaines.length) g.push(caCadre("Même pause",chaines.map(function(gr){ return caChaineHtml(gr,t.g); }).join("")));
+  if(!large) return g;
+  if(t.enD.length) g.push(caCadre("En D",t.enD.map(function(o){ return caChip(o.p.id,CA_HOR_D[t.g]||""); }).join("")));
+  if(t.change.length) g.push(caCadre("Change de pause",
+    t.change.slice(0,8).map(function(o){ return caChip(o.p.id,o.de+" "+caPoste(o.P)); }).join("")
+    +(t.change.length>8?'<span class="mqinc">+'+(t.change.length-8)+"</span>":"")));
+  /* LE DOUBLAGE VA TOUJOURS PAR PAIRE. Le client, le 29/09/2026 : « si on
+     fait rester un 06-18, il faut un 18-06 pour que cela fonctionne », et
+     chaque ligne dit l'horaire qu'on demande (« 14-02 », « 02-14 »). Une
+     moitié seule n'est donc pas une solution : elle ne se montre pas. */
+  if(caDouble(t) && !sansUrgence && !prolPP) g.push(prolongation());
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
      de la veille. Huit au plus en tout. */
   if(t.rappels.length && !sansUrgence){
