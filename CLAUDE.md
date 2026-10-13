@@ -4443,6 +4443,42 @@ le week-end libre lointain. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 pleine couleur ; la flèche seule dit le sens (« PM → N »). Les règles
 `.nt-e.av` sont retirées. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+### Les changements de poste faits par l'application, à prévenir
+
+Le client, le 13/10/2026, sur PDF mis à la STEP le 14/10 (CAN en RJF, PDE
+malade, cellule `["6h-14h"]` sans atelier écrit) : « si c'est l'application
+qui fait le transfert de poste il faut pouvoir le savoir et le différencier,
+car nous devons avertir PDF qu'il devra s'y rendre », puis « ok go » sur
+trois propositions. `transfertApp()` reconnaît un transfert : quelqu'un que
+le rééquilibrage a placé (`comble` ou `deduit`) à un autre poste que son
+poste habituel du jour (`posteAttitreLe()`, ou celui qu'il apprend s'il est
+en formation), jamais ce que la cellule ou un commentaire écrit, ni la
+consignation venue du D. La raison se lit au poste d'arrivée
+(`aRemplacer()`).
+
+- **Planning** : badge à bord orange en pointillé, « ↪ » devant le
+  trigramme ; au clic, « Proposé par l'application : Chaudières → STEP
+  (PDE absent · CAN en RJF). À confirmer avec PDF. », puis le commentaire du
+  classeur s'il y en a un.
+- **Effectifs** : cadre « Changements de poste à prévenir », sept jours
+  (`transfertsAVenir()`, mémoïsée par jour de l'usine et par classeur, sans
+  les pauses finies), une ligne par transfert ; une bulle orange sur
+  l'onglet, à côté de la rouge des sous-effectifs.
+- **Accueil de la personne** : la journée de la semaine porte « ↪ STEP »
+  cerclé d'orange, le bloc du prochain poste aussi, et une ligne sous la
+  semaine : « Demain : STEP au lieu de Chaudières · proposé par
+  l'application, à confirmer ». Calculé 60 ms après le premier affichage.
+
+**L'application ne sait pas si la personne a été prévenue** : la marque
+reste jusqu'à ce que le classeur écrive le transfert (cellule ou
+commentaire : la cellule fixe alors le poste) ou que la journée passe. CAN
+annulera ses congés des 13 et 14/10 : au classeur suivant, PDF retourne aux
+chaudières de lui-même. Mesuré le 13/10 : 7 transferts, 5 personnes (PDF
+14-16/10 à la STEP, GPO 15/10 Gluten → Fermentation ; AAI 15/10 Distillation
+→ Terrain arrière, LHR et PLZ le 18/10). Aucune lecture touchée : neuf
+règles à zéro, découpe de `comparer-fiches` à l'épreuve. Vérifié à 320 px
+(hors ligne), 390 et 1280 px, sans débordement ni erreur.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
