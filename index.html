@@ -415,6 +415,15 @@ body{overflow-x:clip}
   font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:0; vertical-align:1px; box-sizing:border-box;
   box-shadow:0 0 0 2px var(--marque,#111727)}
 .tabs .tabnb[hidden]{display:none}
+/* Changements de poste à prévenir (onglet Effectifs) */
+#apCorps .mqc.app{border-style:dashed; border-color:#F2994A}
+#apCorps .mqh{flex-wrap:wrap; row-gap:4px}
+#apCorps .apmv{font-size:12.5px; color:var(--ink2)}
+#apCorps .apmv b{color:var(--ink)}
+#apCorps .apr{display:block; font-size:11.5px; color:var(--muted); margin-top:2px}
+/* La bulle orange : les changements de poste proposés par l'application
+   d'ici sept jours, à prévenir. */
+.tabs .tabnb.app{background:#E07B24}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
@@ -2937,6 +2946,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
 .eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
 .eqhote .eqp2 tbody td .eqn.relais b{color:var(--in)}
+/* Le changement de poste fait par l'application : bord orange en pointillé
+   et « ↪ » devant le trigramme (le client, le 13/10/2026). */
+.eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
+.eqn .eqapp{color:#F2994A; font-weight:700; margin-right:2px}
 .eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 .eqhote .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
 /* UN BADGE AVEC COMMENTAIRE : un SOULIGNEMENT FIN (trait plein 1px) sous le
@@ -3363,6 +3376,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-chg{position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; margin:8px 12px 0; padding:6px 6px 6px 12px;
   border-radius:10px; background:rgba(94,200,232,.1); border:1px solid rgba(94,200,232,.3); font-size:12px; color:#bfeaf7}
 .pf-chg[hidden]{display:none}
+/* Le changement de poste proposé par l'application, dans la semaine du héros */
+.pf-jr.app{box-shadow:inset 0 0 0 1.5px #F2994A}
+.pf-jr.app .pf-at{color:#F7B57A}
+.pf-app{display:flex; flex-direction:column; gap:3px; margin:8px 12px 0; padding:7px 12px; border-radius:10px;
+  background:rgba(242,153,74,.12); border:1px dashed rgba(242,153,74,.55); font-size:12px; color:#fff; line-height:1.35}
+.pf-app small{color:rgba(255,255,255,.65); font-size:11px}
+.pf-app[hidden]{display:none}
 .pf-vu{height:28px; padding:0 12px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:#fff;
   font:600 12px inherit; font-family:inherit; cursor:pointer}
 .pf-prog{display:block; height:4px; margin-top:6px; border-radius:2px; background:rgba(255,255,255,.14); overflow:hidden}
@@ -3796,6 +3816,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .navwrap>.tabs button:active{transform:scale(.93)}
   .navwrap>.tabs .dotwarn{top:6px; right:calc(50% - 15px)}
   .navwrap>.tabs .tabnb{position:absolute; top:3px; right:calc(50% - 22px); margin:0}
+  .navwrap>.tabs .tabnb.app{right:auto; left:calc(50% - 22px)}
   /* Le contenu défile DERRIÈRE la capsule : le bas de page lui laisse sa place,
      la bulle et le bouton de retour en haut se posent au-dessus d'elle. */
   .wrap{padding-bottom:calc(90px + var(--navbas))}
@@ -3931,7 +3952,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       Salaire<span class="dotwarn" id="ctrlDot" hidden><span class="sr-only">écart à vérifier</span></span></button>
     <button type="button" role="tab" id="tab-rh" data-v="rh" aria-selected="false" aria-controls="v-rh">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 9.3-5"/><circle cx="16.8" cy="15.8" r="3"/><path d="M19 18l2.3 2.3"/></svg>
-      Effectifs<span class="tabnb" id="rhNb" hidden></span></button>
+      Effectifs<span class="tabnb" id="rhNb" hidden></span><span class="tabnb app" id="rhApp" hidden></span></button>
     <button type="button" role="tab" id="tab-recherche" data-v="recherche" aria-selected="false" aria-controls="v-recherche">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       Recherche</button>
@@ -4298,6 +4319,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <!-- Absents et congés en tête : il dit AUJOURD'HUI, les deux cadres
          suivants les jours à venir (le client, le 10/10/2026). -->
     <div class="eqcorps" id="eqReste"></div>
+
+    <!-- Les changements de poste que l'APPLICATION propose, pour prévenir
+         les intéressés (le client, le 13/10/2026). -->
+    <div class="card" id="apCard">
+      <div class="toolbar rhtitle"><h2>Changements de poste à prévenir</h2><p class="sub" id="apSub"></p></div>
+      <div class="mqcorps" id="apCorps"></div>
+    </div>
 
     <div class="card" id="mqCard">
       <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
@@ -9157,6 +9185,35 @@ function lectureAgenda(db,p,an,m,j){
   return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
+/* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
+   13/10/2026). La journée de la semaine porte le poste proposé avec « ↪ »,
+   et une ligne sous la semaine le dit en mots. Calculé après le premier
+   affichage : il rejoue l'usine sur sept jours. */
+function marquerTransfertsHeros(db,p){
+  var box=document.getElementById("pfApp"); if(!box||!db||!p) return;
+  var mes=transfertsAVenir(db,7).filter(function(t){ return t.p.id===p.id; });
+  var ju=jourUsine(), t0=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
+  var lignes=mes.map(function(t){
+    var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
+    var court=(Pz&&PV_COURT[t.vers])?PV_COURT[t.vers].replace(/\.$/,""):nomPosteApp(t.vers);
+    var j=document.querySelector('.pf-jr[data-an="'+t.an+'"][data-k="'+t.mmdd+'"]');
+    if(j){
+      j.classList.add("app");
+      var at=j.querySelector(".pf-at"); if(at) at.textContent="\u21aa "+court;
+      j.setAttribute("aria-label",j.getAttribute("aria-label")+" · "+nomPosteApp(t.vers)
+        +" au lieu de "+nomPosteApp(t.de)+", proposé par l'application");
+    }
+    var pr=document.querySelector('.pf-proch[data-an="'+t.an+'"][data-m="'+t.m+'"][data-j="'+t.j+'"] .pf-proch-h');
+    if(pr) pr.textContent=PF_HEURES[t.pause]+" · \u21aa "+nomPosteApp(t.vers);
+    var q=dateEnMots(t.an,t.m,t.j,t0), e=Math.round((Date.UTC(t.an,t.m-1,t.j)-t0)/864e5),
+        jour=e===0?"Aujourd\u2019hui":e===1?"Demain":q.titre;
+    return '<span><b class="eqapp" aria-hidden="true">\u21aa</b> <b>'+esc(jour)+'</b> : '
+      +esc(nomPosteApp(t.vers))+" au lieu de "+esc(nomPosteApp(t.de))
+      +' <small>· proposé par l\'application, à confirmer</small></span>';
+  });
+  box.innerHTML=lignes.join("");
+  box.hidden=!lignes.length;
+}
 function _pfDateCourte(d){
   var mo=MOIS[d.getMonth()].toLowerCase();
   return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+".\u00a0"+d.getDate()+"\u00a0"+(mo.length>4?mo.slice(0,mo==="juillet"?4:3)+".":mo);
@@ -9249,7 +9306,7 @@ function _pfHead(db,p){
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
-      +'<span>'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span>'
+      +'<span class="pf-proch-h">'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span>'
       +(pr.enCours?'<span class="pf-prog" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +'</span><span class="pf-fl" aria-hidden="true">›</span></button>';
   }
@@ -9263,7 +9320,7 @@ function _pfHead(db,p){
         +'<small>'+(ix===0?'Auj.':JOURS_LONGS[(o.d.getDay()+6)%7].slice(0,3))+'</small>'
         +'<b>'+o.d.getDate()+'</b><i'+(o.p?' data-p="'+esc(o.c)+'"':(o.c&&o.c!=="–"?' class="ab"':''))+'>'+esc(o.c||"·")+'</i>'
         +'<span class="pf-at">'+esc(o.at||"\u00a0")+'</span></button>';
-    }).join("")+'</div><div class="pf-chg" id="pfChg" hidden></div>';
+    }).join("")+'</div><div class="pf-chg" id="pfChg" hidden></div><div class="pf-app" id="pfApp" hidden></div>';
   }
   /* LES CONGÉS RESTANTS, juste sous la semaine (le client, le 13/10/2026 :
      « les soldes de congés restants doivent être affichés sous le calendrier
@@ -10242,6 +10299,7 @@ function renderRythme(){
   /* Le retour se calcule APRÈS le premier affichage : il rejoue la journée
      de toute l'usine (equipeDuJour), et le héros n'a pas à l'attendre. */
   setTimeout(function(){ renderNotif(db,person); },30);
+  setTimeout(function(){ try{ marquerTransfertsHeros(db,person); }catch(e){} },60);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats;
@@ -12037,11 +12095,20 @@ function renderEquipe(){
          et le clic affiche le commentaire ». On le pose en data-com (lu au clic)
          et on marque le badge « coment » pour le contour. */
       var com=(x.p.d[mmdd]||[])[2]; com=com?String(com).trim():"";
-      return '<span class="eqn'+(x.p.id===moi?" moi":"")
+      /* Un changement de poste fait par l'application se distingue : bord
+         orange en pointillé, « ↪ » devant le trigramme, et l'explication au
+         clic, avant le commentaire du classeur s'il y en a un. */
+      var tr=(posteCourant && g.k!=="D") ? transfertApp(x,posteCourant.k,jourCalc) : null;
+      if(tr){
+        var trTxt=texteTransfert(x,tr,raisonTransfert(par,g.k,posteCourant,jourCalc));
+        note=trTxt; com=trTxt+(com?"\n\nCommentaire : "+com:"");
+      }
+      return '<span class="eqn'+(x.p.id===moi?" moi":"")+(tr?" app":"")
         +(formIci?" form":"")+(com?" coment":"")+'"'
         +(com?' data-com="'+esc(com)+'"':"")
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
+        +(tr?'<b class="eqapp" aria-hidden="true">\u21aa</b>':"")
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
         /* Plus de « (F) » : l'étiquette jaune le dit déjà (le client, le
            28/09/2026). */
@@ -12557,6 +12624,7 @@ function renderEquipe(){
        une promesse) : on les remet DANS le .then. */
     renderManques();
     renderRappelsInutiles();
+    renderTransferts();
   });
 }
 /* ── La polyvalence : combien de journées COMPLÈTES à chaque autre poste ──
@@ -13818,6 +13886,50 @@ function mqBascule(e){
   if(o && sct.parentNode && sct.parentNode._diff) sct.parentNode._diff(sct);
   return true;
 }
+var apFait="";
+function renderTransferts(force){
+  var hote=document.getElementById("apCorps"); if(!hote) return;
+  var au=jourUsine(), cle=au.toDateString()+"/"+Object.keys(pausesFinies()).join("");
+  if(!force && cle===apFait) return;
+  fetchHoraireDB().then(function(db){
+    if(!db) return;
+    apFait=cle;
+    var l=transfertsAVenir(db,7), h=[], jPrec="";
+    var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate());
+    var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
+    l.forEach(function(t){
+      if(t.mmdd!==jPrec){
+        if(jPrec) h.push("</span></div>");
+        var q=dateEnMots(t.an,t.m,t.j,t0);
+        h.push('<div class="mqj" data-m="'+t.m+'" data-j="'+t.j+'" title="'+esc(q.titre)+'">'+q.html+'<span class="mqls">');
+        jPrec=t.mmdd;
+      }
+      var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
+      h.push('<span class="mql" data-z="'+esc(Pz&&Pz.z||"")+'">'
+        +'<span class="mqh"><span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(pvNom(t.pause))+"</span>"
+        +'<span class="mqc app'+(t.p.id===moi?" moi":"")+'"><b class="eqapp" aria-hidden="true">\u21aa</b><b>'+esc(idLisible(t.p.id))+"</b></span>"
+        +'<span class="apmv">'+esc(nomPosteApp(t.de))+" → <b>"+esc(nomPosteApp(t.vers))+"</b></span></span>"
+        +(t.raison?'<span class="apr">'+esc(t.raison)+"</span>":"")
+        +"</span>");
+    });
+    if(jPrec) h.push("</span></div>");
+    hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
+      +"<span>Aucun changement de poste proposé par l'application d'ici sept jours.</span></p>";
+    var n=l.length;
+    var np={}; l.forEach(function(t){ np[t.p.id]=1; }); np=Object.keys(np).length;
+    document.getElementById("apSub").textContent=n
+      ? n+" changement"+(n>1?"s":"")+" · "+np+" personne"+(np>1?"s":"")+" à prévenir, sept jours"
+      : "";
+    var nb=document.getElementById("rhApp");
+    if(nb){ nb.textContent=n>99?"99+":String(n); nb.hidden=!n;
+      nb.setAttribute("aria-label",n+" changement"+(n>1?"s":"")+" de poste à prévenir"); }
+    hote.onclick=function(e){
+      var b=mqCible(e); if(!b) return;
+      eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
+      setView("jour");
+    };
+  });
+}
 function renderRappelsInutiles(force){
   var hote=document.getElementById("rnCorps"); if(!hote) return;
   var au=new Date(), cle=jourUsine().toDateString();
@@ -13944,6 +14056,73 @@ function mqPauses(x){
    r.s) et dont c'est le poste habituel ce jour-là, mais qui n'y est pas :
    malade, en congé, prévue non présente, ou sortie en formation, réunion
    (colonne D). Le motif suit le trigramme. */
+/* LES CHANGEMENTS DE POSTE FAITS PAR L'APPLICATION. Le client, le
+   13/10/2026, sur PDF mis à la STEP le 14/10 (CAN en RJF, PDE malade) :
+   « si c'est l'application qui fait le transfert de poste il faut pouvoir
+   le savoir et le différencier, car nous devons avertir PDF qu'il devra s'y
+   rendre ». Est un transfert de l'application quiconque le rééquilibrage a
+   placé (comble, ou déduit de sa polyvalence) à un autre poste que son poste
+   habituel du jour — jamais ce que la cellule ou un commentaire écrit, ni
+   la consignation venue du D ; rend {de, vers} ou null. */
+function transfertApp(x,k,jour){
+  if(!x || x.depuisD || !(x.comble||x.deduit)) return null;
+  var de=posteAttitreLe(x.p,jour)||(enFormation(x.p,jour)?posteDeFormation(x.p):null)||null;
+  if(de===k) return null;
+  return {de:de, vers:k};
+}
+function nomPosteApp(k){
+  if(!k) return "à déterminer";
+  if(k==="cm") return "Contremaître";
+  if(k==="adj") return "Adjoint";
+  for(var i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k===k) return POSTES_TRAVAIL[i].t;
+  return k;
+}
+/* La raison, lue au poste d'arrivée : ceux qui y étaient prévus et n'y sont
+   pas (aRemplacer), sinon « renfort ». */
+function raisonTransfert(par,g,P,jour){
+  var r=aRemplacer(par,g,P,jour);
+  return r.length ? r.map(function(y){ return idLisible(y.p.id)+" "+y.motif; }).join(", ") : "";
+}
+function texteTransfert(x,t,raison){
+  return "Proposé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
+    +(raison?" ("+raison+")":"")+". À confirmer avec "+idLisible(x.p.id)+".";
+}
+/* Les transferts d'une journée, pause par pause (AM, PM, N). */
+function transfertsDuJour(db,annee,m,j){
+  var mmdd=pad2(m)+pad2(j), jc=annee*10000+Number(mmdd), out=[];
+  var par=equipeDuJour(db,annee,m,j);
+  ["AM","PM","N"].forEach(function(g){
+    var l=par[g]; if(!l||!l.length) return;
+    var vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
+    vue.postes.forEach(function(o){
+      o.gens.forEach(function(x){
+        var t=transfertApp(x,o.P.k,jc); if(!t) return;
+        out.push({p:x.p, pause:g, de:t.de, vers:t.vers, raison:raisonTransfert(par,g,o.P,jc)});
+      });
+    });
+  });
+  return out;
+}
+/* Les transferts des sept jours qui viennent, aujourd'hui compris (sans
+   les pauses déjà finies). Une fois par jour de l'usine et par classeur :
+   l'onglet Effectifs et le héros de l'Accueil lisent la même liste. */
+var _trCache={cle:"", l:null};
+function transfertsAVenir(db,n){
+  var au=jourUsine(), finies=pausesFinies(), annee=Number(db.year);
+  var cle=au.toDateString()+"/"+Object.keys(finies).join("")+"/"+(db.maj||"")+"/"+n;
+  if(_trCache.cle===cle && _trCache.l) return _trCache.l;
+  var out=[], d=new Date(au.getFullYear(),au.getMonth(),au.getDate());
+  for(var i=0;i<n;i++, d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    if(d.getFullYear()!==annee) break;
+    var m=d.getMonth()+1, j=d.getDate();
+    transfertsDuJour(db,annee,m,j).forEach(function(t){
+      if(i===0 && finies[t.pause]) return;
+      t.an=annee; t.m=m; t.j=j; t.mmdd=pad2(m)+pad2(j); out.push(t);
+    });
+  }
+  _trCache={cle:cle, l:out};
+  return out;
+}
 function aRemplacer(par,g,P,jour){
   var out=[];
   function voir(l,motif){
@@ -16378,7 +16557,7 @@ function boot(){
      l'onglet, mais au repos : le calcul balaie toutes les journées à venir. */
   fetchHoraireDB().then(function(db){ if(!db) return;
     var auRepos=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:4000}); }:function(f){ setTimeout(f,1500); };
-    auRepos(function(){ try{ renderManques(); }catch(e){} });
+    auRepos(function(){ try{ renderManques(); }catch(e){} try{ renderTransferts(); }catch(e){} });
   },function(){});
   document.getElementById("storeinfo").textContent = st.db
     ? "Enregistré dans votre espace Claude : vos mois vous suivent d'un appareil à l'autre."
