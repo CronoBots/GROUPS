@@ -1932,6 +1932,9 @@ body.sheet-on{overflow:hidden}
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); background:color-mix(in srgb,var(--marque-vif) 12%,transparent);
   color:var(--ink); font:600 13px/1 inherit; font-family:inherit; cursor:pointer}
 .btn-agenda svg{color:var(--marque-vif)}
+.cal-act{flex-direction:column; align-items:center; gap:6px}
+.cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
+.cal-act-s .lien{padding:0; border:0; background:none; font:inherit; color:var(--marque-vif); cursor:pointer; text-decoration:underline; text-underline-offset:2px}
 /* LA VUE DIRECTION : l'usine en un écran, plein écran, à la marque. */
 .dirvue{position:fixed; inset:0; z-index:90; overflow:auto; overscroll-behavior:contain;
   background:radial-gradient(120% 90% at 50% 0%,#1d2a47 0%,#111727 60%); color:#E8ECF4;
@@ -4027,7 +4030,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </div>
       <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
-      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>Ajouter mes postes à mon agenda</button></div>
+      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
+        <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.
+          <button type="button" class="lien" id="icsCopie">Copier l'adresse</button> ·
+          <button type="button" class="lien" id="icsDl">Télécharger une fois</button></p></div>
     </div>
 
     <div class="card" id="cptCard">
@@ -9134,7 +9140,14 @@ function _pfJour(id,d){
   if(!db) return null;
   var p=null; db.people.forEach(function(x){ if(x.id===id) p=x; });
   if(!p) return null;
-  var m=d.getMonth()+1, j=d.getDate(), raw=p.d[pad2(m)+pad2(j)];
+  return lectureAgenda(db,p,an,d.getMonth()+1,d.getDate());
+}
+/* CE QU'UNE JOURNÉE EST POUR SON TITULAIRE : la pause tenue, présente ou non,
+   le congé, l'atelier écrit, le rappel. Le héros, l'export de l'agenda et
+   les abonnements écrits par tools/verifier-calendrier.js --agendas la
+   lisent tous : une seule lecture, découpée par l'outil. */
+function lectureAgenda(db,p,an,m,j){
+  var raw=p.d[pad2(m)+pad2(j)];
   if(raw===undefined) return null;
   var c=moisDe(p,an,m,st.params.hJour);
   var r=lireJournee(db,raw,an,m,j,c.fit,c.ep[j],st.params.hJour,c.rv[j]);
@@ -9334,6 +9347,10 @@ function descJourNotif(db,p,annee,m,j){
   if(!k && /^(AM|PM|N)$/.test(pv||"") && r.h!==0){
     var jr=annee*10000+m*100+j;
     k=posteAttitreLe(p,jr)||(enFormation(p,jr)?posteDeFormation(p):null);
+    /* Un contremaître ou un adjoint tient toujours la même fonction : la
+       répéter sur chaque ligne n'apprend rien (le client, le 13/10/2026).
+       Seul l'atelier d'un opérateur, qui change, s'écrit. */
+    if(k==="cm"||k==="adj") k=null;
   }
   if(k){ var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k) P0=P; }); if(P0) parts.push(P0.t); }
   if(r.jourCode) parts.push(etiqJour(r.jourCode));
@@ -9392,7 +9409,7 @@ function libGroupeNotif(an,x){
 }
 /* Compare, met la liste d'attente à jour, rend les journées NOUVELLEMENT
    changées (pour la notification du téléphone). */
-var NOTIF_VERSION=2;
+var NOTIF_VERSION=3;
 function detecterChangements(db,p){
   var an=Number(db.year), cle=p.id+"/"+an;
   var vu=lsGet("notif/vu/"+cle), now=instantaneNotif(db,p);
@@ -9531,43 +9548,91 @@ function notifierTelephone(p,x){
    dans un fichier .ics que l'agenda du téléphone importe d'un geste. Chaque
    journée garde le même identifiant d'un export à l'autre : réimporter met
    à jour au lieu de doubler. Lu par _pfJour(), la lecture du héros. */
+/* LE FICHIER AGENDA d'une personne, de debut sur nJours. horaireDe() passe
+   d'elle-même à l'année que les cycles prolongent. stamp est la date
+   d'écriture (UTC, AAAAMMJJTHHMMSSZ) : l'outil y met celle du classeur, pour
+   qu'un même horaire donne un fichier identique à l'octet. Fuseau de
+   Bruxelles déclaré : un agenda réglé ailleurs garde les bonnes heures. */
+var ICS_TZ=["BEGIN:VTIMEZONE","TZID:Europe/Brussels",
+  "BEGIN:DAYLIGHT","TZOFFSETFROM:+0100","TZOFFSETTO:+0200","TZNAME:CEST","DTSTART:19700329T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU","END:DAYLIGHT",
+  "BEGIN:STANDARD","TZOFFSETFROM:+0200","TZOFFSETTO:+0100","TZNAME:CET","DTSTART:19701025T030000","RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU","END:STANDARD",
+  "END:VTIMEZONE"];
+function icsAgenda(id,debut,nJours,stamp){
+  function f2(n){ return (n<10?"0":"")+n; }
+  function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
+  function dt(d,h){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(h),Math.round((h%1)*60));
+    return jj(x)+"T"+f2(x.getHours())+f2(x.getMinutes())+"00"; }
+  var nom=idLisible(id), L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biowanze//Horaire//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "X-WR-CALNAME:Biowanze · "+nom,"X-WR-TIMEZONE:Europe/Brussels","REFRESH-INTERVAL;VALUE=DURATION:PT1H","X-PUBLISHED-TTL:PT1H"].concat(ICS_TZ),
+    n=0, k, d, x, db, p, an=null;
+  for(k=0;k<nJours;k++){
+    d=new Date(debut.getFullYear(),debut.getMonth(),debut.getDate()+k);
+    if(d.getFullYear()!==an){ an=d.getFullYear(); db=horaireDe(an); p=null;
+      if(db) db.people.forEach(function(q){ if(q.id===id) p=q; }); }
+    if(!p) continue;
+    x=lectureAgenda(db,p,an,d.getMonth()+1,d.getDate()); if(!x) continue;
+    /* Une journée entière versée au flex time (« 8h +FT ») est une journée
+       TRAVAILLÉE : ses heures vont au compteur, la personne est au poste.
+       Une formation n'est pas un congé, et un ±FT sur un repos non plus :
+       c'est presque toujours un renvoi (« presté le 28.02 »). */
+    var ev=null, ft=!!(x.ab && /\+FT/.test(x.ab));
+    if((x.presente||ft) && PF_DEB[x.pv]!=null){
+      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
+      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,PF_DEB[x.pv]),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
+          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")];
+    } else if(x.ab==="FORM" || (estCongePose(x.ab) && !/FT/.test(x.ab))){
+      var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+      ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:"+(x.ab==="FORM"?"Formation":"Congé "+x.ab),"TRANSP:TRANSPARENT"];
+    }
+    if(!ev) continue;
+    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
+    L=L.concat(ev); L.push("END:VEVENT"); n++;
+  }
+  L.push("END:VCALENDAR");
+  return {texte:L.join("\r\n")+"\r\n", n:n};
+}
 function exporterAgenda(){
   var id=trigCourant();
   if(!id||!HORAIRE_DB){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
   var ju=jourUsine(), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate());
   function f2(n){ return (n<10?"0":"")+n; }
-  function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
-  function dt(d,h){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(h),Math.round((h%1)*60));
-    return jj(x)+"T"+f2(x.getHours())+f2(x.getMinutes())+"00"; }
   var now=new Date(), stamp=now.getUTCFullYear()+f2(now.getUTCMonth()+1)+f2(now.getUTCDate())+"T"+f2(now.getUTCHours())+f2(now.getUTCMinutes())+"00Z";
-  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biowanze//Horaire//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
-         "X-WR-CALNAME:Biowanze · "+idLisible(id)], n=0, k, d, x;
-  for(k=0;k<120;k++){
-    d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
-    x=_pfJour(id,d); if(!x) continue;
-    var ev=null;
-    if(x.presente && PF_DEB[x.pv]!=null){
-      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
-      ev=["DTSTART:"+dt(d,PF_DEB[x.pv]),"DTEND:"+dt(d,PF_FIN[x.pv]),
-          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")];
-    } else if(estCongePose(x.ab)){
-      var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
-      ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:Congé "+x.ab,"TRANSP:TRANSPARENT"];
-    }
-    if(!ev) continue;
-    L.push("BEGIN:VEVENT","UID:"+idLisible(id)+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
-    L=L.concat(ev); L.push("END:VEVENT"); n++;
-  }
-  L.push("END:VCALENDAR");
-  if(!n){ flash("Aucun poste à exporter."); return; }
-  var blob=new Blob([L.join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"}),
+  var res=icsAgenda(id,base,120,stamp);
+  if(!res.n){ flash("Aucun poste à exporter."); return; }
+  var blob=new Blob([res.texte],{type:"text/calendar;charset=utf-8"}),
       url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download="biowanze-"+idLisible(id)+".ics";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function(){ URL.revokeObjectURL(url); },4000);
-  flash(n+" journées envoyées vers l'agenda");
+  flash(res.n+" journées envoyées vers l'agenda");
 }
-document.getElementById("icsBtn").addEventListener("click",exporterAgenda);
+/* L'ABONNEMENT (le client, le 13/10/2026 : « adresse trigramme pour
+   l'agenda »). tools/verifier-calendrier.js --agendas écrit cal/<id>.ics à
+   chaque classeur installé ; le téléphone s'y abonne une fois et le relit
+   seul, comme « Jours fériés belges ». webcal:// ouvre l'abonnement sur un
+   iPhone, un iPad ou un Mac ; ailleurs, l'agenda de Google le reçoit par son
+   adresse d'ajout (sur le web : l'appli Android ne sait pas s'abonner). */
+function adresseAgenda(id){
+  var dir=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
+  return dir+"cal/"+encodeURIComponent(id)+".ics";
+}
+function abonnerAgenda(){
+  var id=trigCourant();
+  if(!id){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
+  var https=adresseAgenda(id), webcal=https.replace(/^https?:/,"webcal:");
+  var apple=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+  if(apple) location.href=webcal;
+  else window.open("https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal),"_blank","noopener");
+}
+document.getElementById("icsBtn").addEventListener("click",abonnerAgenda);
+document.getElementById("icsDl").addEventListener("click",exporterAgenda);
+document.getElementById("icsCopie").addEventListener("click",function(){
+  var id=trigCourant(); if(!id){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
+  var u=adresseAgenda(id).replace(/^https?:/,"webcal:");
+  function ok(){ flash("Adresse copiée : collez-la dans « Ajouter un abonnement »"); }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok,function(){ prompt("Adresse de l'abonnement",u); });
+  else prompt("Adresse de l'abonnement",u);
+});
 
 /* ── LA VUE DIRECTION ─────────────────────────────────────────────────────
    Le client, le 10/10/2026 : « il faut un vrai wow de la direction quand je

@@ -180,11 +180,22 @@ const MORCEAUX=[
   ["function easter(","\n}"],
   ["function feries(","\n}"],
   ["function meunDepuisD(","\n}"],
-  ["function postesDePause(","\n}"]
+  ["function postesDePause(","\n}"],
+  /* les abonnements agenda (--agendas) : la lecture du héros et l'écriture
+     du fichier, celles de l'application, et la prolongation par les cycles */
+  ["var PROJ_JOURS=","\n"],
+  ["function calageLong(","\n}"],
+  ["var _projCache=","\n"],
+  ["function horaireDe(","\n}"],
+  ["function lectureAgenda(","\n}"],
+  ["function estCongePose(","\n"],
+  ["var ICS_TZ=","];"],
+  ["function icsAgenda(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
    n'en a qu'un besoin, la journée contractuelle. */
 const st={params:{hJour:8}};
+var HORAIRE_DB=null;
 eval(MORCEAUX.map(m=>part(m[0],m[1])).join("\n"));
 
 /* Découper du code par repères est fragile : une table remplie sur deux
@@ -281,12 +292,45 @@ function affichageRecord(rec,hJour){
 /* --- lecture du classeur ------------------------------------------------- */
 /* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=["--journee","--manques","--polyvalence","--doublons","--placement"].map(o=>ARGS.indexOf(o))
+const coupe=["--journee","--manques","--polyvalence","--doublons","--placement","--agendas"].map(o=>ARGS.indexOf(o))
   .filter(i=>i>=0).sort((a,b)=>a-b)[0];
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
 const ANNEE=Number(db.year);
+
+/* ── les abonnements agenda ──────────────────────────────────────────────
+   Le client, le 13/10/2026 : un calendrier du téléphone qui se met à jour
+   seul, à une adresse au trigramme. Un fichier cal/<id>.ics par personne,
+   du 1er janvier de l'année du classeur au 30 juin de la suivante (que les
+   cycles prolongent). Écrit par icsAgenda() de index.html, la même qui sert
+   le bouton « Télécharger une fois » : il n'y a pas de seconde copie.
+   L'horodatage est celui du classeur : un horaire inchangé donne des
+   fichiers identiques à l'octet. Les fichiers d'une personne partie sont
+   retirés. Ni commentaire ni nom : pause, atelier, « rappel », congé.
+
+   node tools/verifier-calendrier.js [horaire.json] --agendas DOSSIER      */
+if(ARGS.indexOf("--agendas")>=0){
+  const dir=ARGS[ARGS.indexOf("--agendas")+1];
+  if(!dir){ console.error("--agendas DOSSIER"); process.exit(2); }
+  HORAIRE_DB=db;
+  const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(db.maj||"");
+  const stamp=m?m[1]+m[2]+m[3]+"T"+(m[4]||"00")+(m[5]||"00")+"00Z":ANNEE+"0101T000000Z";
+  const debut=new Date(ANNEE,0,1), fin=new Date(ANNEE+1,5,30);
+  const nJ=Math.round((fin-debut)/864e5)+1;
+  fs.mkdirSync(dir,{recursive:true});
+  const ecrits=new Set(); let total=0;
+  db.people.forEach(p=>{
+    const r=icsAgenda(p.id,debut,nJ,stamp);
+    const f=path.join(dir,p.id+".ics");
+    if(!fs.existsSync(f) || fs.readFileSync(f,"utf8")!==r.texte) fs.writeFileSync(f,r.texte);
+    ecrits.add(p.id+".ics"); total+=r.n;
+  });
+  const partis=fs.readdirSync(dir).filter(f=>/\.ics$/.test(f) && !ecrits.has(f));
+  partis.forEach(f=>fs.unlinkSync(path.join(dir,f)));
+  console.log(ecrits.size+" agendas, "+total+" événements"+(partis.length?", "+partis.length+" retiré(s)":"")+" → "+dir);
+  process.exit(0);
+}
 
 /* ── les doublons : un remplacé qui reste à sa pause ─────────────────────
    Le client, le 26/09/2026, devant deux contremaîtres de nuit : « vérifie
