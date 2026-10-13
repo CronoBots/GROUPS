@@ -1857,6 +1857,28 @@ n'est deviné à leur sujet :
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
 
+### Pour plus tard, à la demande du client
+
+- **Un calendrier du téléphone qui se met à jour seul** (le client, le
+  13/10/2026 : « note pour plus tard, calendrier personnel mis à jour
+  automatiquement sur smartphone selon les modifications »). Rien n'est
+  codé. Aujourd'hui, « Ajouter mes postes à mon agenda » télécharge un
+  `.ics` de 120 jours : c'est une importation unique, et il faut la refaire
+  après chaque classeur. Les identifiants `TRI-AAAAMMJJ@biowanze` mettent
+  bien à jour au lieu de doubler, mais seulement à la main. Pour que le
+  téléphone se mette à jour seul, il faut un **abonnement** (`webcal://`),
+  c'est-à-dire une adresse fixe par personne que l'agenda relit tout seul
+  (souvent toutes les quelques heures sous iOS ; Google l'impose à un
+  rythme plus lent, jusqu'à un jour).
+  La piste la plus simple : `mettre-a-jour.py --installer` écrit un
+  `cal/<TRI>.ics` par personne à côté de `data/`, servi par GitHub Pages,
+  et le bouton propose « S'abonner » au lieu de « Télécharger ». **À
+  trancher avec le client avant de coder** : ces fichiers seraient
+  publics, au même titre que `data/horaire-2026.json` qui l'est déjà, mais
+  une adresse par trigramme rend l'horaire de chacun plus facile à
+  trouver. Une adresse non devinable (un jeton par personne) ou un
+  service hors de GitHub Pages sont les autres options.
+
 ### Les réponses du 29/09/2026
 
 **Un départ anticipé sans code est une reprise (RHS).** Le client : « A :
