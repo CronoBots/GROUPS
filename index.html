@@ -417,10 +417,18 @@ body{overflow-x:clip}
 .tabs .tabnb[hidden]{display:none}
 /* Changements de poste à prévenir (onglet Effectifs) */
 #apCorps .mqc.app{border-style:dashed; border-color:#F2994A}
-#apCorps .mqh{flex-wrap:wrap; row-gap:4px}
-#apCorps .apmv{font-size:12.5px; color:var(--ink2)}
-#apCorps .apmv b{color:var(--ink)}
-#apCorps .apr{display:block; font-size:11.5px; color:var(--muted); margin-top:2px}
+#apCorps .mqc.app b{color:#F7B57A}
+#apCorps .capaire.apv>.cagr, #apCorps .apn{color:#F2994A}
+#apCorps .apnote{font-size:12.5px; color:var(--ink2)}
+/* Les cartes du jour, comme celles des sous-effectifs (#mqCorps). */
+#apCorps{padding-top:0; padding-bottom:12px}
+#apCorps .mqj, #apCorps .mqj:first-child{display:block; text-align:left; color:inherit; font:inherit;
+  background:none; border:1px solid var(--cadre); border-radius:12px;
+  margin:10px 0 0; width:100%; max-width:660px; padding:0; overflow:hidden}
+@media (hover:hover){ #apCorps .mqj:hover{border-color:var(--trait-fort)} }
+#apCorps .mqls{padding:10px 12px 12px; gap:12px}
+#apCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
+@media (max-width:380px){ #apCorps .mqls{padding:9px 10px 11px} }
 /* La bulle orange : les changements de poste proposés par l'application
    d'ici sept jours, à prévenir. */
 .tabs .tabnb.app{background:#E07B24}
@@ -2947,9 +2955,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
 .eqhote .eqp2 tbody td .eqn.relais b{color:var(--in)}
 /* Le changement de poste fait par l'application : bord orange en pointillé
-   et « ↪ » devant le trigramme (le client, le 13/10/2026). */
+   sans flèche (le client, le 13/10/2026). */
 .eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
-.eqn .eqapp{color:#F2994A; font-weight:700; margin-right:2px}
 .eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 .eqhote .eqp2 tbody td .eqn.manque b{color:var(--at-rouge); display:inline-block; min-width:calc(3ch + .06em); text-align:center}
 /* UN BADGE AVEC COMMENTAIRE : un SOULIGNEMENT FIN (trait plein 1px) sous le
@@ -9186,8 +9193,9 @@ function lectureAgenda(db,p,an,m,j){
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
-   13/10/2026). La journée de la semaine porte le poste proposé avec « ↪ »,
-   et une ligne sous la semaine le dit en mots. Calculé après le premier
+   13/10/2026). La journée de la semaine porte le poste proposé, cerclée
+   d'orange (sans flèche, le client, le même jour), et une ligne sous la
+   semaine dit en mots le poste et qui il remplace. Calculé après le premier
    affichage : il rejoue l'usine sur sept jours. */
 function marquerTransfertsHeros(db,p){
   var box=document.getElementById("pfApp"); if(!box||!db||!p) return;
@@ -9199,16 +9207,17 @@ function marquerTransfertsHeros(db,p){
     var j=document.querySelector('.pf-jr[data-an="'+t.an+'"][data-k="'+t.mmdd+'"]');
     if(j){
       j.classList.add("app");
-      var at=j.querySelector(".pf-at"); if(at) at.textContent="\u21aa "+court;
+      var at=j.querySelector(".pf-at"); if(at) at.textContent=court;
       j.setAttribute("aria-label",j.getAttribute("aria-label")+" · "+nomPosteApp(t.vers)
         +" au lieu de "+nomPosteApp(t.de)+", proposé par l'application");
     }
     var pr=document.querySelector('.pf-proch[data-an="'+t.an+'"][data-m="'+t.m+'"][data-j="'+t.j+'"] .pf-proch-h');
-    if(pr) pr.textContent=PF_HEURES[t.pause]+" · \u21aa "+nomPosteApp(t.vers);
+    if(pr) pr.textContent=PF_HEURES[t.pause]+" · "+nomPosteApp(t.vers);
     var q=dateEnMots(t.an,t.m,t.j,t0), e=Math.round((Date.UTC(t.an,t.m-1,t.j)-t0)/864e5),
         jour=e===0?"Aujourd\u2019hui":e===1?"Demain":q.titre;
-    return '<span><b class="eqapp" aria-hidden="true">\u21aa</b> <b>'+esc(jour)+'</b> : '
+    return '<span><b>'+esc(jour)+'</b> : '
       +esc(nomPosteApp(t.vers))+" au lieu de "+esc(nomPosteApp(t.de))
+      +(t.r?' <small>· '+esc(raisonTexte(t.r))+'</small>':"")
       +' <small>· proposé par l\'application, à confirmer</small></span>';
   });
   box.innerHTML=lignes.join("");
@@ -11100,6 +11109,9 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
             if(!renfort.length) continue;
             source.splice(source.indexOf(renfort[0]),1);
             renfort[0].comble=Q.k;
+            /* Qui il relaie : la raison du changement, dite à celui qu'on
+               prévient (le client, le 13/10/2026). Aucun effet sur le placement. */
+            renfort[0].relaie=relais[0];
             parPoste[Q.k].splice(parPoste[Q.k].indexOf(relais[0]),1);
             parPoste[Q.k].push(renfort[0]);
             pris=relais[0];
@@ -11160,7 +11172,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
         }).sort(parId);
         if(!cand.length) break;
         liste.splice(liste.indexOf(cand[0]),1);
-        cand[0].comble="terr";
+        cand[0].comble="terr"; cand[0].renfortTerr=true;
         (parPoste.terr=parPoste.terr||[]).push(cand[0]);
       }
     }
@@ -12096,11 +12108,11 @@ function renderEquipe(){
          et on marque le badge « coment » pour le contour. */
       var com=(x.p.d[mmdd]||[])[2]; com=com?String(com).trim():"";
       /* Un changement de poste fait par l'application se distingue : bord
-         orange en pointillé, « ↪ » devant le trigramme, et l'explication au
-         clic, avant le commentaire du classeur s'il y en a un. */
+         orange en pointillé (sans flèche, le client, le 13/10/2026), et
+         l'explication au clic, avant le commentaire du classeur s'il y en a un. */
       var tr=(posteCourant && g.k!=="D") ? transfertApp(x,posteCourant.k,jourCalc) : null;
       if(tr){
-        var trTxt=texteTransfert(x,tr,raisonTransfert(par,g.k,posteCourant,jourCalc));
+        var trTxt=texteTransfert(x,tr,raisonTexte(raisonsTransfert(par,g.k,posteCourant,jourCalc,x,vp[g.k]&&vp[g.k].vue,tr.de)));
         note=trTxt; com=trTxt+(com?"\n\nCommentaire : "+com:"");
       }
       return '<span class="eqn'+(x.p.id===moi?" moi":"")+(tr?" app":"")
@@ -12108,7 +12120,6 @@ function renderEquipe(){
         +(com?' data-com="'+esc(com)+'"':"")
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
-        +(tr?'<b class="eqapp" aria-hidden="true">\u21aa</b>':"")
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
         /* Plus de « (F) » : l'étiquette jaune le dit déjà (le client, le
            28/09/2026). */
@@ -13894,25 +13905,40 @@ function renderTransferts(force){
   fetchHoraireDB().then(function(db){
     if(!db) return;
     apFait=cle;
-    var l=transfertsAVenir(db,7), h=[], jPrec="";
+    var l=transfertsAVenir(db,7), h=[];
     var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate());
     var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
-    l.forEach(function(t){
-      if(t.mmdd!==jPrec){
-        if(jPrec) h.push("</span></div>");
-        var q=dateEnMots(t.an,t.m,t.j,t0);
-        h.push('<div class="mqj" data-m="'+t.m+'" data-j="'+t.j+'" title="'+esc(q.titre)+'">'+q.html+'<span class="mqls">');
-        jPrec=t.mmdd;
-      }
-      var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
-      h.push('<span class="mql" data-z="'+esc(Pz&&Pz.z||"")+'">'
-        +'<span class="mqh"><span class="mqpz" data-s="'+esc(t.pause)+'">'+esc(pvNom(t.pause))+"</span>"
-        +'<span class="mqc app'+(t.p.id===moi?" moi":"")+'"><b class="eqapp" aria-hidden="true">\u21aa</b><b>'+esc(idLisible(t.p.id))+"</b></span>"
-        +'<span class="apmv">'+esc(nomPosteApp(t.de))+" → <b>"+esc(nomPosteApp(t.vers))+"</b></span></span>"
-        +(t.raison?'<span class="apr">'+esc(t.raison)+"</span>":"")
-        +"</span>");
+    /* UNE CARTE PAR JOURNÉE, comme les sous-effectifs (le client, le
+       13/10/2026 : « mieux présenter ce qui est dans ce nouveau cadre et
+       dire pourquoi ils doivent être changés de poste ») : la date en
+       en-tête, puis par changement le poste d'arrivée et sa pause, « À
+       prévenir » (qui, d'où, vers où) et « Remplace » (qui, et pourquoi). */
+    var jours=[], parJ={};
+    l.forEach(function(t){ if(!parJ[t.mmdd]){ parJ[t.mmdd]=[]; jours.push(t.mmdd); } parJ[t.mmdd].push(t); });
+    jours.forEach(function(k){
+      var lt=parJ[k], t1=lt[0], q=dateEnMots(t1.an,t1.m,t1.j,t0), eqc={};
+      try{ eqc=equipeALaPause(db,t1.an,t1.m,t1.j)||{}; }catch(e){}
+      h.push('<div class="mqj" data-m="'+t1.m+'" data-j="'+t1.j+'" title="'+esc(q.titre)+'">'
+        +'<span class="mqjt">'+q.html+'<span class="mqjn apn">'+lt.length+" changement"+(lt.length>1?"s":"")+"</span></span>"
+        +'<span class="mqls">');
+      lt.forEach(function(t){
+        var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
+        var nomV=nomPosteApp(t.vers), r=t.r||{qui:[],note:""};
+        var prev='<span class="mqcw"><span class="mqc app'+(t.p.id===moi?" moi":"")+'"><b>'+esc(idLisible(t.p.id))+"</b></span>"
+          +'<small class="mqch">'+esc(t.de?(PV_COURT[t.de]||nomPosteApp(t.de)):"à dét.")+" \u2192 "+esc(PV_COURT[t.vers]||nomV)+"</small></span>";
+        var rem=r.qui.length
+          ? caCadre("Remplace",r.qui.map(function(y){ return caChip(y.p.id,y.motif); }).join(""),"plein arem")
+          : caCadre("Pourquoi",'<span class="apnote">'+esc(r.note)+"</span>","plein");
+        h.push('<span class="mql" data-z="'+esc(Pz&&Pz.z||"")+'">'
+          +'<span class="mqh"><span class="mqpo"><span class="mqlg">'+esc(nomV)+'</span><span class="mqct">'
+            +esc(t.vers==="terr"?"T. arrière":nomV)+"</span></span>"
+          +caCreneau(t.pause,eqc[t.pause]||"")+"</span>"
+          +caCadre("À prévenir",prev,"plein apv")
+          +rem
+          +"</span>");
+      });
+      h.push("</span></div>");
     });
-    if(jPrec) h.push("</span></div>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
       +"<span>Aucun changement de poste proposé par l'application d'ici sept jours.</span></p>";
     var n=l.length;
@@ -14077,15 +14103,43 @@ function nomPosteApp(k){
   for(var i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k===k) return POSTES_TRAVAIL[i].t;
   return k;
 }
-/* La raison, lue au poste d'arrivée : ceux qui y étaient prévus et n'y sont
-   pas (aRemplacer), sinon « renfort ». */
-function raisonTransfert(par,g,P,jour){
-  var r=aRemplacer(par,g,P,jour);
-  return r.length ? r.map(function(y){ return idLisible(y.p.id)+" "+y.motif; }).join(", ") : "";
+/* POURQUOI LE CHANGEMENT, c'est-à-dire QUI il remplace (le client, le
+   13/10/2026 : « dire pourquoi ils doivent être changés de poste, donc qui
+   il faut remplacer »). Dans l'ordre :
+   1. ceux qui étaient prévus au poste d'arrivée et n'y sont pas
+      (aRemplacer : absent, congé, formation) ;
+   2. en cascade, celui qu'il relaie, parti combler un autre poste ;
+   3. le titulaire du poste d'arrivée, présent mais placé ailleurs ;
+   4. le renfort du terrain arrière, venu d'un poste en surnombre ;
+   5. sinon, une place que personne de la pause ne tient d'habitude.
+   Rend {qui:[{p,motif}], note}. */
+function raisonsTransfert(par,g,P,jour,x,vue,de){
+  var qui=aRemplacer(par,g,P,jour), ou={};
+  ((vue&&vue.postes)||[]).forEach(function(o){ o.gens.forEach(function(y){ ou[y.p.id]=o.P.k; }); });
+  function court(k){ return k?(PV_COURT[k]||nomPosteApp(k)):"?"; }
+  if(qui.length) return {qui:qui, note:""};
+  if(x && x.relaie){
+    var r=x.relaie, k=ou[r.p.id];
+    return {qui:[{p:r.p, motif:"passé en "+court(k)}], note:""};
+  }
+  ((vue&&vue.postes)||[]).forEach(function(o){
+    if(o.P.k===P.k) return;
+    o.gens.forEach(function(y){
+      if(y.depuisD || y.p.id===(x&&x.p.id)) return;
+      if(posteAttitreLe(y.p,jour)===P.k) qui.push({p:y.p, motif:"passé en "+court(o.P.k)});
+    });
+  });
+  if(qui.length) return {qui:qui, note:""};
+  if(x && x.renfortTerr) return {qui:[], note:"Renfort : "+nomPosteApp(de)+" en surnombre"};
+  return {qui:[], note:"Place sans titulaire dans l'équipe"};
+}
+function raisonTexte(r){
+  return r.qui.length ? "remplace "+r.qui.map(function(y){ return idLisible(y.p.id)+" ("+y.motif+")"; }).join(", ")
+                      : r.note.charAt(0).toLowerCase()+r.note.slice(1);
 }
 function texteTransfert(x,t,raison){
   return "Proposé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
-    +(raison?" ("+raison+")":"")+". À confirmer avec "+idLisible(x.p.id)+".";
+    +(raison?", "+raison:"")+". À confirmer avec "+idLisible(x.p.id)+".";
 }
 /* Les transferts d'une journée, pause par pause (AM, PM, N). */
 function transfertsDuJour(db,annee,m,j){
@@ -14097,7 +14151,7 @@ function transfertsDuJour(db,annee,m,j){
     vue.postes.forEach(function(o){
       o.gens.forEach(function(x){
         var t=transfertApp(x,o.P.k,jc); if(!t) return;
-        out.push({p:x.p, pause:g, de:t.de, vers:t.vers, raison:raisonTransfert(par,g,o.P,jc)});
+        out.push({p:x.p, pause:g, de:t.de, vers:t.vers, r:raisonsTransfert(par,g,o.P,jc,x,vue,t.de)});
       });
     });
   });

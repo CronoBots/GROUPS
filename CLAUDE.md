@@ -4479,6 +4479,26 @@ chaudières de lui-même. Mesuré le 13/10 : 7 transferts, 5 personnes (PDF
 règles à zéro, découpe de `comparer-fiches` à l'épreuve. Vérifié à 320 px
 (hors ligne), 390 et 1280 px, sans débordement ni erreur.
 
+**Sans flèche, et chaque changement dit qui il remplace** (le client, le
+même jour : « retirer la flèche ; mieux présenter ce nouveau cadre et dire
+pourquoi ils doivent être changés de poste, donc qui il faut remplacer »).
+Le « ↪ » est retiré partout : le bord orange en pointillé suffit. Le cadre
+d'Effectifs prend les cartes des sous-effectifs : la date en en-tête avec
+« n changements », puis par changement le poste d'arrivée et sa pause
+(« STEP · AM 06-14 · Éq. 4 »), un cadre « À prévenir » (« PDF | Chaud. →
+STEP ») et un cadre « Remplace » rouge (« PDE Absent · CAN RJF »).
+`raisonsTransfert()` cherche, dans l'ordre : ceux prévus au poste et
+absents (`aRemplacer()`) ; en cascade, celui qu'il relaie
+(`x.relaie`, posé par `reequilibrer()`) ; le titulaire du poste placé
+ailleurs (« PLZ passé en Ferm. ») ; le renfort du terrain arrière
+(`x.renfortTerr` : « Renfort : Distillation en surnombre ») ; sinon
+« Place sans titulaire dans l'équipe » (GPO le 15/10, la place de
+fermentation vacante de l'équipe 4). La même raison est dans
+l'explication du badge au Planning et sous la semaine du héros. Les deux
+drapeaux ne changent aucun placement : les cinq sorties du vérificateur
+(dont `--placement --tout`) sont identiques à l'octet. Vérifié à 320 px
+(hors ligne), 390 et 1280 px.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du
