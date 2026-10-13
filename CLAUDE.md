@@ -4416,6 +4416,16 @@ Google, jusqu'à un jour). Le fichier demande une heure
 **Un congé porte son seul code** (le client, le même jour : « RJF au
 lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
 
+**Le flex time repris est un congé** (le client, le même jour : « le
+flextime est bien un congé quand on le reprend »). Une journée entière
+« 8h -FT » sur un poste prévu s'affichait encore comme le poste (« N »)
+dans l'agenda et dans la semaine du héros : ses heures sont payées depuis
+le compteur, mais personne ne vient. `lectureAgenda()` ne compte plus que
+les heures PRÉSENTES, comme `equipeDuJour()` : la journée devient le congé
+« -FT », en journée entière. **236 journées** de l'agenda changent ; un
+±FT sur un repos (un renvoi) reste sans événement. L'intitulé « Congés
+restants », avec la tuile FT, reste tel quel.
+
 Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
 événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
 téléphone dira comment l'abonnement s'affiche.**
