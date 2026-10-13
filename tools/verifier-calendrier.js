@@ -139,6 +139,8 @@ const MORCEAUX=[
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
   ["function remplPartiel(","\n}"],
+  ["var PF_DEB=","\n"],
+  ["function relaisDouze(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],
   ["function formationCommencee(","\n}"],
@@ -367,7 +369,8 @@ if(process.argv.indexOf("--placement")>=0){
       console.log("  "+g.k);
       vue.postes.forEach(o=>{ if(!o.gens.length && !o.attendu) return;
         console.log("    "+(o.P.t+" "+o.tenu+"/"+o.attendu).padEnd(24)
-          +o.gens.map(y=>y.p.id+" "+JSON.stringify(y.p.d[mmdd]||[])).join("  "));
+          +o.gens.map(y=>y.p.id+" "+JSON.stringify(y.p.d[mmdd]||[])).join("  ")
+          +(o.relais&&o.relais.length?"  relais 12 h : "+o.relais.map(r=>r.p.id+" "+r.hor).join(" + "):""));
       });
       if(vue.inconnus.length) console.log("    à déterminer : "+vue.inconnus.map(y=>y.p.id).join(" "));
     });
