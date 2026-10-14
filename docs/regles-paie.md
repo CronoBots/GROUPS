@@ -2174,3 +2174,23 @@ entièrement en heures sup (`r.rs`), ne donne PAS de chèque-repas :
 L'indemnité de déplacement, elle, reste due : la fiche d'avril de LCI en
 compte 12 jours, ces deux-là compris. Une journée de travail ordinaire,
 même faite en remplacement, garde son chèque.
+
+## Une nuit de rappel épargnée sur la case du lendemain
+
+Établi le 14/10/2026 à partir du classeur, confirmé par l'état de présence
+SAP et la fiche de juin de VBN. Une nuit finit le matin du jour suivant, et
+le classeur peut écrire son épargne sur cette case : VBN le 25/06,
+`["23-06h","R-CM","Remplace ATA Rappel le 25/06"]`, puis le 26/06
+`["-","7h +FT"]`. Quand le lendemain est un repos qui ne porte que « n h
++FT », pour autant d'heures que la nuit de rappel sur un repos, la nuit ne
+paie pas d'heures sup : les heures vont au compteur flex time par la case
+du lendemain. La prime de rappel reste due.
+
+## La prime d'un rappel sur un repos du cycle
+
+Un rappel sur un repos du cycle (voir « un rappel sur un repos DU CYCLE se
+paie en heures sup ») donne la prime de rappel, même quand la cellule écrit
+la pause faite (« PM · R-CM · … rappel le … »). La procédure de rappel :
+« rappel d'un repos, repos maintenu ». Avant le 14/10/2026, l'application la
+refusait sur 14 journées de l'année, parce qu'elle comparait la prestation
+à la pause écrite au lieu du repos.
