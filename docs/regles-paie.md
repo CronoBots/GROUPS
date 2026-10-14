@@ -2280,3 +2280,13 @@ les 7 journées d'août, ni les 4 de septembre ne redonnent le montant,
 ni par jour ni par heure. Les notes de service ne parlent pas de la paie
 d'une promotion. La fiche d'octobre (début novembre) dira si un
 rattrapage continue.
+
+**Tranché le 14/10/2026** : la hausse prend effet au 15/09, et le client
+le dit : « le RH a fait une erreur ». La fiche de septembre paie trop :
+le nouveau fixe sur tout le mois, plus une demi-hausse. Un effet au
+15/09 donne au contraire l'ancien fixe jusqu'au 14 et le nouveau à
+partir du 15. L'écart avec la fiche est donc une erreur de la fiche,
+pas de l'application. Il vaut « hausse × 0,90 » en entier, et le client
+le signale à la RH. Reste à décider comment l'application partage un
+mois où le fixe change : aujourd'hui, une ligne « 15/09 » du réglage ne
+vaut qu'à partir du mois suivant (le montant en vigueur au 1er du mois).
