@@ -1676,8 +1676,10 @@ L'audit a trouvé des informations que le classeur porte et que l'application
 ne sait pas encore interpréter. **Elles sont toutes dans le brut**, et rien
 n'est deviné à leur sujet :
 
-- **les lettres G et H** du degré de polyvalence — la fiche d'ouvrier
-  porte une « Classification entreprise » qui commence par la même lettre ;
+- ~~les lettres G et H~~ du degré de polyvalence — la fiche d'ouvrier
+  porte une « Classification entreprise » qui commence par la même lettre.
+  Tranché le 14/10/2026, le client : « c'est le degré de polyvalence mais
+  ça ne change rien du tout ». Rien à coder ;
 - **les fiches d'ouvrier de LCI** (26/09/2026) — les grèves sont tranchées
   (`GREVE_JOURS`), le `+FT` sur un poste prévu aussi (voir
   `docs/conversion-horaire.md`, section 5 : +240 h chez 52 personnes), la
