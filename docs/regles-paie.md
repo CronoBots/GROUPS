@@ -2139,3 +2139,14 @@ classeur : l'application ne peut pas le lire et garde la règle ordinaire
 (sursalaire payé, heure au compteur). C'est la raison des « pas compenser »
 de mars et d'avril sur les fiches d'un employé : un écart connu, non
 corrigé.
+
+## La prime des heures sup d'une plage de 12 h
+
+Le client, le 14/10/2026, sur VBN les 21 et 22/03 (« 18h-6h », SAP : 8 h de
+nuit et 4 h sup de l'après-midi), puis « oui » pour tout le monde. Quand une
+plage plus longue que la journée couvre une pause entière et déborde avant
+ou après, les heures en plus prennent la prime de la pause où elles
+tombent : « 18h-6h » donne 8 h de nuit et 4 h sup à la prime de
+l'après-midi ; « 6h-18h », 8 h de matin et 4 h à l'après-midi ; « 14h-2h »,
+8 h d'après-midi et 4 h de nuit. Les heures elles-mêmes suivent la règle
+ordinaire (sursalaire payé, heure au compteur). 180 journées en 2026.
