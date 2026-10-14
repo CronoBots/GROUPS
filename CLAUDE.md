@@ -1585,6 +1585,9 @@ un changement de personne dans le même navigateur.
 
 ### Un férié presté se paie à 200 %, prime d'équipe comprise
 
+**Chez l'ouvrier seulement depuis le 14/10/2026** : l'employé est payé
+fixe + 100 %, voir « Ce qui attend le client ».
+
 Le rapprochement au centime des fiches de LCI (26/09/2026) : mai, le 21/07
 et le 15/08 manquaient exactement « heures fériées × taux horaire », et la
 prime d'équipe doublée. Le client : « c'est la même règle pour les employés
@@ -1890,7 +1893,11 @@ n'est deviné à leur sujet :
   férié presté de l'ouvrier payé une seule fois ; voir
   `docs/regles-paie.md`, « Les deux notes internes ». Prestation et repos
   concordent sur cinq mois de LCI ; les restes ont chacun leur journée ;
-- **le férié d'un employé** (27/09/2026) : les fiches de VBN paient
+- ~~le férié d'un employé~~ : tranché le 14/10/2026, le client : « ok »
+  pour fixe + 100 % sans attendre d'autre fiche. Appliqué (« Supplément
+  weekend à <taux> », non déduit, prime d'équipe à 200 %) ; VBN mai au
+  centime, janvier et avril ne gardent que les heures sup non écrites des
+  14/01 et 04/04 ; l'ouvrier garde 200 %. Historique : les fiches de VBN paient
   « fixe + 100 % » (supplément non déduit) le 01/01 travaillé ET les trois
   fériés en « 8h -FT » (06/04, 01/05, 25/05) ; celles de LCI, ouvrier,
   200 % sur ses cinq fériés travaillés. L'application applique 200 % à

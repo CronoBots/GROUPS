@@ -908,6 +908,16 @@ Mesuré sur LCI : mai (16 h fériées, −(montant retiré) € + −39,20 € d
 (−(montant retiré) € + −14,40 €) et 15/08, un samedi (−(montant retiré) € + −7,20 €) — après
 la règle, les trois mois concordent au centime sur le brut.
 
+**Chez l'employé, c'est fixe + 100 %** (le client, le 14/10/2026 : « ok »,
+sans attendre la fiche d'un autre employé). Les fiches de VBN paient ses
+fériés en semaine — le 01/01 travaillé, et les 06/04, 01/05 et 25/05 en
+« 8h -FT » — sur une ligne « Supplément weekend à <taux> » sans
+pourcentage : 100 % du salaire horaire, non déduit, la prime d'équipe
+restant à 200 %. L'application écrit la même ligne. Mesuré sur VBN, sans
+calage : mai tombe au centime ; en janvier et en avril il ne reste que les
+heures sup des 14/01 et 04/04, que le classeur n'écrit pas. L'ouvrier garde
+ses 200 %.
+
 ### Un déplacement demandé garde la prime la plus élevée
 
 Le client, le 26/09/2026 : « si c'est un déplacement qui est demandé par la
