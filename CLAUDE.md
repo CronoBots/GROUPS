@@ -1854,10 +1854,6 @@ n'est deviné à leur sujet :
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
   des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
   en rouge en attendant ;
-- **l'adresse de l'usine** (14/10/2026) : le client a écrit « Rue Léon
-  Charlier 11 », Plans d'Apple donne « BioWanze s.a., Rue Léon Charlier
-  18 » (sa propre entrée, sur sa capture). L'agenda écrit 11 ; les
-  coordonnées pointent le site quel que soit le numéro. Lequel garder ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -3136,6 +3132,74 @@ l'octet. Vérifié sur septembre de VBN à 320 px (hors ligne), 390 px et
 1280 px : 30 lignes, aucun débordement. Les totaux montrent déjà les deux
 écarts connus de la fiche de septembre : la nuit du 30/09 (P13 6,00 au
 lieu d'un code du matin) et l'heure sup du même jour (U33 1,00).
+
+### Les états de présence SAP, confrontés jour par jour
+
+Le client, le 14/10/2026 : sa responsable RH lui a ouvert ses « États de
+présence » officiels (SAP), de janvier au 13/10/2026, « place-les dans le
+git privé et commençons ensemble la vérification ». Ce sont des PDF
+**texte**, pas des scans : horaire prévu (PRJ), codes de prestation et
+d'absence avec leur durée, pointage IN/OUT, chèque-repas, puis la synthèse
+du mois et les droits à l'absence. Rangés dans `CronoBots/groups-fiches`,
+`releves/`, propriétés vidées (l'identifiant de connexion de l'émetteur),
+avec leur extraction jour par jour sans l'en-tête personnel
+(`releves/lire-etat-presence.py`, par la position des mots). Le portail en
+propose aussi d'octobre à décembre 2025.
+
+**La confrontation** : le « Relevé de prestations » de l'application
+(`renderReleve()`), relevé au navigateur mois par mois pour VBN, contre
+l'état SAP, code par code et jour par jour. Le flex time n'a pas de code
+journalier chez SAP (il vit dans le compteur « BIOW flextime ») : F0 et 60
+sont écartés de la comparaison. **285 journées, 263 identiques**. Les
+heures prestées (codes P) du mois concordent à 2 h près ou mieux.
+
+Trois défauts du relevé de l'application, corrigés (affichage seulement,
+`compute()` n'est pas touché) :
+
+- le RJF s'écrivait **50** : c'est **48** (« Jour férié choix libre ») ; la
+  formation et la délégation syndicale (`FORM`) s'écrivent **68**
+  (« Congé syndical ») ;
+- un rappel sur un repos écrivait ses heures sup DEUX fois — une fois par
+  `rec.rs`, une fois par son code « nH HS » : U31 16 au lieu de 8 le 02/10,
+  U33 14 au lieu de 7 le 25/06 ;
+- le chèque d'une journée entière de récupération (RTT, DTT, RHS, flex time
+  repris) n'apparaissait pas dans la colonne 9063, alors que `crRecup` le
+  paie au mois et que SAP le porte jour par jour.
+
+Les 22 écarts restants, rangés :
+
+- **la pause d'un remplacement partiel** : le 21/01, `["R-CM","2h +FT",
+  "remplace GPS de 20h à 22h00'"]`, l'application lit PM 6 h ; SAP dit nuit
+  8 h (pointé 19:20-06:05), les 2 h de 20 h à 22 h au flex time. Le 05/03,
+  « remplace GPS arrivée à 15h00' », l'application lit AM ; SAP dit PM
+  7 h + 1 h de RTT (pointé 15:16-22:00). Question posée au client ;
+- **les heures sup du week-end sont des « V »** (Overtime 187,5 % / 200 %),
+  pas des « U » : 21 et 22/03 (V42, V52 : la PAUSE des 4 h est l'après-midi,
+  18 h-22 h, et non la nuit), 04/04 (V43 0,75). Ce sont exactement les
+  « pas compenser » des fiches de mars et d'avril, et l'unique « à
+  compenser » de janvier est l'U30 du 14/01, un mercredi. Question posée ;
+- **un même congé écrit deux fois** : le 30/01 porte « 4h RTT », et le 04/02
+  « 4h -FT pris le 30.01 » ; le 05/03 porte « 1h -FT », et le 01/03 « 1h RTT
+  pris le 05.03 ». L'application compte les deux ; SAP un seul, un RTT les
+  deux fois. Question posée ;
+- **le chèque d'un jour de délégation** (12/02, « DS à l'extérieur ») : SAP
+  le donne, l'application non. Question posée ;
+- **le rappel sur un repos payé** (REP, 25/06) : SAP ne porte aucune heure
+  sup, seulement le déplacement — comme la fiche. Question déjà ouverte ;
+- **le 30/09** confirme la fiche : prime du matin pour les 6 h (P11) et
+  0,5 h sup de jour (U30). Questions déjà ouvertes ;
+- **la durée des heures de déplacement** (J84 : 6,29, 4,98, 6,28, 6,63,
+  4,6 h) contre le réglage fixe de l'application ;
+- **ce que le classeur n'écrit pas** : 1,5 h sup le 14/01 (formation
+  jusqu'à 16 h 15), 0,5 h de compensation le 09/02, venu puis malade le
+  08/03 (salaire garanti 5,72 h et 2,28 h prestées), 0,75 h sup le 04/04,
+  arrivée tardive de 0,25 h le 30/07, maladie sans certificat (code 15)
+  les 02/07 et 10/09 — écarts connus ;
+- **le DTT** se décompte en « Congé d'ancienneté » (56) en semaine et en
+  « VCP » (47) le week-end (17 au 21/07) ; le relevé de l'application écrit
+  47 partout ;
+- **le chèque du 02/10** (rappel un vendredi de repos, 8 h sup au matin) :
+  SAP n'en donne pas, l'application oui.
 
 ### L'Accueil fondu dans le Calendrier
 
@@ -4418,6 +4482,15 @@ Google, jusqu'à un jour). Le fichier demande une heure
   `data/horaire-2026.json`. Une adresse avec un jeton par personne était
   l'autre option, écartée.
 
+**« Roue libre »** (le client, le 14/10/2026 : « pour un adjoint, il faut
+préciser dans l'agenda "Roue libre" quand il ne remplace à aucun poste ce
+jour-là »). `lectureAgenda()` pose `roue` pour un adjoint (`estCadre` sans
+`estContremaitre`) présent à une pause AM, PM ou N, sans « R-CM », sans
+atelier écrit et sans remplacement en commentaire ; l'événement s'intitule
+« N · Roue libre ». En 2026 : ATR 27, FPA 18, JBI 36, VGG 31 journées ;
+les journées projetées par les cycles (2027) n'ont pas de commentaire et
+le sont toutes.
+
 **Un congé porte son seul code** (le client, le même jour : « RJF au
 lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
 
@@ -4458,7 +4531,8 @@ téléphone dira comment l'abonnement s'affiche.**
   sans rue ni repère, là où l'entrée choisie à la main cadre le site et sa
   route. Le rayon passe à 500 m, avec `X-APPLE-REFERENCEFRAME=1` comme
   l'écrit l'agenda d'Apple lui-même. Seul l'iPhone dira si le cadrage
-  convient ;
+  convient. **L'adresse est bien le n° 11** (le client, le 14/10/2026,
+  alors que Plans d'Apple écrit 18) ;
 - **le contremaître DE LA PAUSE**, et l'adjoint qui le remplace (« R-CM »
   écrit, le client : « oui »), commence 30 min avant pour la remise :
   05h30-14, 13h30-22, 21h30-06. Jamais en D, et **pas un contremaître en
