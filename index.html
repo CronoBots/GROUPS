@@ -9226,7 +9226,32 @@ function lectureAgenda(db,p,an,m,j){
      remplacement en commentaire. */
   var roue=/^(AM|PM|N)$/.test(pv||"") && h>0 && estCadre(p) && !estContremaitre(p) && !rcm && !kat
     && !/\bremplace(r|ment)?\b|\brempl\b/i.test(String(raw[2]||""));
-  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, remise:remise, roue:roue,
+  /* Le poste tenu, pour l'agenda (le client, le 14/10/2026 : « des jours sont
+     sans rien »). Un adjoint qui n'écrit pas d'atelier tient souvent un
+     poste quand même : « R-CM » écrit, il est contremaître ; « remplace X »
+     pour la journée entière, il tient le poste de X ce jour-là — la lecture
+     du Planning (atelierDuRemplace). Un remplacement de quelques heures ne
+     dit pas le poste de la journée : il reste sans poste. */
+  var ka=kat;
+  if(!ka && /^(AM|PM|N)$/.test(pv||"") && h>0){
+    if(rcm && estCadre(p) && !estContremaitre(p)) ka="cm";
+    else if(!remplPartiel(raw)){
+      var parId={}; db.people.forEach(function(q){ parId[q.id]=q; });
+      try{ ka=atelierDuRemplace(raw,parId,p,{mmdd:pad2(m)+pad2(j),jour:an*10000+m*100+j,presents:{}})||null; }catch(e){ ka=null; }
+      if(ka==="cm" && estContremaitre(p)) ka=null;
+    }
+    /* Un opérateur dont la journée ne dit rien d'autre tient son poste
+       habituel ce jour-là (ou celui qu'il apprend, en formation) — comme les
+       notifications. Pas le placement que le rééquilibrage tire des absences
+       des autres. Contremaîtres et adjoints restent sans poste écrit : leur
+       fonction ne change pas. */
+    if(!ka && !estCadre(p)){
+      var jr=an*10000+m*100+j;
+      try{ ka=posteAttitreLe(p,jr)||(enFormation(p,jr)?posteDeFormation(p):null)||null; }catch(e){ ka=null; }
+      if(ka==="cm"||ka==="adj") ka=null;
+    }
+  }
+  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, roue:roue,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
@@ -9277,7 +9302,7 @@ function _pfInfos(p){
     x=_pfJour(p.id,d);
     if(x && x.presente && PF_HEURES[x.pv]){
       if(k===0 && hNow>=PF_FIN[x.pv]) continue;
-      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
+      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
       var deb=pfDebut(x);
       out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:"", deb:deb, heures:pfHeures(x),
         enCours:(k===0 && hNow>=deb),
@@ -9730,14 +9755,17 @@ function icsAgenda(id,debut,nJours,stamp){
        (« cf 14/06 », « presté le 28.02 »), les heures vivent ailleurs. */
     var ev=null, ft=!!(x.ab && /\+FT/.test(x.ab));
     if((x.presente||ft) && PF_DEB[x.pv]!=null){
-      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
+      var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
       /* La remise de pause (lectureAgenda, x.remise) avance le début de
          30 min : 05h30-14, 13h30-22, 21h30-06. */
       ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,pfDebut(x)),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
           "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.roue?" · Roue libre":"")+(x.rappel?" · rappel":"")].concat(icsLieu());
-    } else if(x.ab==="FORM" || (estCongePose(x.ab) && (!/FT/.test(x.ab) || (x.ab==="-FT" && x.pv)))){
+    } else if(x.ab==="FORM"){
+      /* Les jours de travail seulement (le client, le 14/10/2026 : « il ne
+         faut pas afficher les congés dans l'agenda »). Une formation est une
+         journée de travail : elle reste. */
       var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
-      ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:"+(x.ab==="FORM"?"Formation":x.ab),"TRANSP:TRANSPARENT"];
+      ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:Formation","TRANSP:TRANSPARENT"];
     }
     if(!ev) continue;
     /* Le commentaire de la journée dans la note de l'événement (le client,
