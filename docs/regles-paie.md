@@ -2257,3 +2257,15 @@ au 15/08, la seconde quinzaine d'août étant rappelée en septembre (la fiche
 d'août est payée entièrement à l'ancien fixe). Question reposée au client
 (la RH a-t-elle fait partir la hausse au 15/08 ?). Rien n'est codé : avec
 « 01/09 » dans le réglage, l'application retrouve tout sauf ce rappel.
+
+Le client demande si la réponse est dans ses documents. Vérifié le
+14/10/2026, elle n'y est pas. Les fiches et les états SAP d'août, de
+septembre et d'octobre n'écrivent ni date d'effet ni ligne de rappel :
+le rattrapage est fondu dans « Montant heures prestées ». Le congé
+parental n'y est pour rien : septembre n'en porte aucun jour, mars non
+plus, et les deux mois sont payés exactement au fixe × 0,90. Les
+remplacements de contremaître (R-CM) ne l'expliquent pas non plus : ni
+les 7 journées d'août, ni les 4 de septembre ne redonnent le montant,
+ni par jour ni par heure. Les notes de service ne parlent pas de la paie
+d'une promotion. La fiche d'octobre (début novembre) dira si un
+rattrapage continue.
