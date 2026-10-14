@@ -2158,3 +2158,19 @@ l'état de présence SAP : « Congé syndical » 8 h et un chèque), puis « oui
 pour tout le monde : une journée ENTIÈRE de congé syndical donne le
 chèque-repas, bien que personne ne soit à l'usine. Une demi-journée suit la
 règle ordinaire (quatre heures présentes). 37 journées en 2026.
+
+## Pas de chèque-repas pour un rappel sur un repos
+
+Établi le 14/10/2026 à partir des documents : le client ne savait pas, et
+la réponse était dans ce qu'il avait envoyé. Un rappel sur un repos, payé
+entièrement en heures sup (`r.rs`), ne donne PAS de chèque-repas :
+
+- la note sur les repos de la grille : « les chèques-repas sont attribués
+  lors des jours de prestations » ;
+- la fiche d'avril de LCI : 10 jours d'heures normales et 9 chèques. Les
+  11 et 13/04, rappels payés entièrement en heures sup, n'en ont pas ;
+- les états de présence SAP de VBN : pas de chèque le 25/06 ni le 02/10.
+
+L'indemnité de déplacement, elle, reste due : la fiche d'avril de LCI en
+compte 12 jours, ces deux-là compris. Une journée de travail ordinaire,
+même faite en remplacement, garde son chèque.

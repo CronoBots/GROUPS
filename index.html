@@ -5098,8 +5098,15 @@ function compute(){
          ni chèque ni indemnité — 18 jours pour 19 à l'application. */
       var hPres=h;
       ((rec.a?[rec.a]:[]).concat(rec.ax||[])).forEach(function(c){ var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
-      /* le chèque-repas suppose au moins quatre heures prestées */
-      if(hPres>=4) acc.joursCr++;
+      /* le chèque-repas suppose au moins quatre heures prestées. UN RAPPEL
+         SUR UN REPOS N'EN DONNE PAS (r.rs, journée payée entièrement en heures
+         sup) : la note sur les repos de la grille le dit — « les chèques-repas
+         sont attribués lors des jours de prestations » —, et les sources le
+         montrent quatre fois sur quatre : fiche d'avril de LCI, 10 jours
+         d'heures normales et 9 chèques, rien les 11 et 13/04 ; états SAP de
+         VBN, ni le 25/06 ni le 02/10. L'indemnité de déplacement, elle, reste
+         due (12 jours sur la fiche d'avril de LCI, ces deux-là compris). */
+      if(hPres>=4 && !rec.rs) acc.joursCr++;
       /* un rappel sur un repos ne donne AUCUNE heure normale : ses heures
          passent par les heures sup à compenser (voir lireJournee, r.rs) */
       /* UN FÉRIÉ PRESTÉ SE PAIE À 200 %, PRIME D'ÉQUIPE COMPRISE. Établi le
@@ -5973,7 +5980,7 @@ function renderReleve(C){
          VBN le 02/10, U31 16 au lieu de 8 sur l'état de présence SAP. */
       if(!rec.rs) ajoute(L,"P"+jd+(REL_PAUSE[rec.s]||"0"),h);
       var hPres=h; codes.forEach(function(c){ var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
-      if(hPres>=4 && h>0) chq=1;
+      if(hPres>=4 && h>0 && !rec.rs) chq=1;
     }
     if(jourSyndicalEntier(rec,p.hJour)) chq=1;
     codes.forEach(function(c){
