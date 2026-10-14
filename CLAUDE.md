@@ -1879,6 +1879,18 @@ n'est deviné à leur sujet :
   l'ouvrier, elle l'est (`docs/regles-paie.md`) ; tout le reste de l'écart
   de LCI est ce repos, le 01/01 (un week-end de 2025), le 13/04 et le
   17/03 ;
+- **deux questions pour la RH** (le client, le 14/10/2026 : « garde la
+  question pour RH »), tirées des fiches de LCI, ouvrier :
+  - **la nuit de 12 h « 18h-06h »** (LCI le 20/03) : la fiche paie les 4 h
+    de 18 h à 22 h à la prime de NUIT à 150 % ; l'application les paie à
+    la prime de l'après-midi, la pause où elles tombent, comme les états
+    SAP de VBN, employé, les 21 et 22/03 (V42). Prime de nuit pour
+    l'ouvrier ? Mars de LCI −13,20 € de prime ;
+  - **« DS-CE + ½ VA »** (LCI le 15/04, `["DS-CE","1/2VA"]`) : la fiche paie
+    les 4 h prestées avec la prime du matin ; l'application les lit sans
+    prime (code de jour). Le 18/03, même forme, a déjà la prime de
+    l'après-midi des deux côtés. Trois journées de l'année (18/03, 15/04,
+    21/10). Avril de LCI −(montant retiré) € ;
 - ~~le D de la grille~~ (09/10/2026) : tranché le 14/10/2026, le client :
   « le D est un jour où le travailleur peut choisir son horaire (6-14 /
   7-15 / 7:30-16) ; le choix par défaut est celui indiqué dans l'horaire
