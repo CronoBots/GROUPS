@@ -5306,7 +5306,7 @@ function compute(){
   if(ab("SMG") && !ouvrier) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
   if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
-  if(ab("CE")) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
+  if(ab("CE") && !ouvrier) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
   if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
@@ -5422,7 +5422,11 @@ function compute(){
          LCI le confirment : 6 h en avril, 8 h en mai, sans montant.
        La récupération de férié (RJF), que la note ne nomme pas, garde son
        traitement d'avant. */
-    var oRepos=ab("DTT")+ab("RHS")+((rWE&&rWE.rhs)||0);
+    /* La demi-journée de conseil d'entreprise (`1/2 CE`, « PM · DS-CE ») :
+       sans prime d'équipe, mais PAYÉE. La fiche de LCI du 25/08 porte ces
+       4 h en « Compensation payée » au taux garanti ; l'application les
+       montrait en heures sans montant (vérifié le 14/10/2026, −106,25 €). */
+    var oRepos=ab("DTT")+ab("RHS")+ab("CE")+((rWE&&rWE.rhs)||0);
     if(oRepos)    bl(oRepos,"Compens. Collective Payée à "+nf4.format(tgO),R(oRepos*tgO),true);
     var tFer=(tmO>0)?tmO:tgO;
     if(ab("FER")) bl(ab("FER"),"Hrs. Jours fériés à "+nf4.format(tFer),R(ab("FER")*tFer),true);
