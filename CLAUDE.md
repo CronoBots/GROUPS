@@ -1869,7 +1869,10 @@ n'est deviné à leur sujet :
   28/09 « seulement D : 7-15 ». Lequel vaut aujourd'hui ? La note date de
   2009 ;
 - **la RJF de l'ouvrier** : la note ne la nomme pas — payée comme un férié
-  (salaire moyen) ou au garanti ?
+  (salaire moyen) ou au garanti ? Le client, le 14/10/2026 : RJF veut dire
+  « récupération jour férié » (la légende disait « férié à choix libre »,
+  corrigé). Le taux n'est pas tranché : question pour la RH, l'application
+  garde le garanti ;
 - ~~le repos payé lié au week-end~~ : codé le 09/10/2026 à la demande du
   client (« optimise tout ce qui peut l'être avec ces documents »), avec le
   férié presté de l'ouvrier payé une seule fois ; voir
