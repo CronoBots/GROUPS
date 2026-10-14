@@ -4980,6 +4980,24 @@ function echeanceHS(y,m){
    repos payés aux positions de la note, et 5 des 6 repos annoncés non
    payés ont leur jour lié en vacances ou en maladie. */
 var REPOS_LIES={7:5, 8:6, 16:12, 17:13, 25:19, 31:20};
+var REPOS_A1=31;
+/* La cellule du jour (la date peut déborder sur le mois suivant) porte-t-elle
+   le temps partiel « TP », en cellule franche ou en annotation ? */
+function jourTP(cells,y,m,d){
+  if(!cells) return false;
+  var t=new Date(Date.UTC(y,m,d));
+  if(t.getUTCFullYear()!==y) return false;
+  var e=cells[pad2(t.getUTCMonth()+1)+pad2(t.getUTCDate())];
+  if(!e) return false;
+  if(typeof e==="string") e=[e];
+  return String(e[0]||"").trim().toUpperCase()==="TP" || String(e[1]||"").trim().toUpperCase()==="TP";
+}
+function jourRepos(cells,y,m,d){
+  var e=cells && cells[pad2(m+1)+pad2(d)];
+  if(!e) return false;
+  if(typeof e==="string") e=[e];
+  return String(e[0]||"").trim()==="-" && !String(e[1]||"").trim();
+}
 /* La position dans la grille de 5 semaines se lit sur les cellules de la
    personne (le mois et le précédent), au cycle de 5 semaines seulement —
    celui de la note. Sous 70 % d'accord, rien : le calcul garde l'ancienne
@@ -5030,8 +5048,21 @@ function reposLiesAuWeekend(M,y,m,hJour){
   for(d=1; d<=nd; d++){
     n=Math.round((Date.UTC(y,m,d)-ANCRAGE_BASE)/86400000);
     pos=(((n+k)%35)+35)%35;
-    if(!(pos in REPOS_LIES)) continue;
-    dt=new Date(Date.UTC(y,m,d-(pos-REPOS_LIES[pos])));
+    /* LE REPOS DU JEUDI A1 RECULE AU LUNDI QUAND LE JEUDI EST UN TP. Le
+       client, le 14/10/2026 (« oui ») : les fiches de LCI le paient le
+       lundi de la même semaine (02/02, 22/06, 31/08 ; rien le 13/04, un
+       rappel presté) quand le jeudi est un TP, et le jeudi quand il est un
+       repos (trois sur trois). Le jeudi peut être du mois suivant : 31/08 pour 03/09. */
+    var posR=pos, dR=d;
+    if(pos===REPOS_A1-3){
+      /* … et seulement si ce lundi est un repos : le 13/04, rappelé et
+         présent, la fiche ne paie aucun repos. */
+      if(!jourTP(st.personD,y,m,d+3) || !jourRepos(st.personD,y,m,d)) continue;
+      posR=REPOS_A1; dR=d+3;
+    }
+    else if(!(pos in REPOS_LIES)) continue;
+    else if(pos===REPOS_A1 && jourTP(st.personD,y,m,d)) continue;
+    dt=new Date(Date.UTC(y,m,dR-(posR-REPOS_LIES[posR])));
     ly=dt.getUTCFullYear(); lm=dt.getUTCMonth(); ld=dt.getUTCDate();
     if(ly===y && lm===m) rec=(M.days||{})[ld];
     else if(prec) rec=(prec.days||{})[ld];
