@@ -4453,9 +4453,11 @@ Google, jusqu'à un jour). Le fichier demande une heure
   copie. `lectureAgenda()` est la
   lecture du héros, sortie de `_pfJour()` pour pouvoir être découpée.
   `horaireDe()` et `calageLong()` entrent dans la découpe : les fichiers
-  vont du 1er janvier de l'année du classeur au **30 juin de la suivante**,
-  par les cycles prolongés (SLI ne l'est pas). 78 fichiers, 26 606
-  événements, 4,8 Mo.
+  vont du 1er janvier de l'année du classeur au **31 décembre de la
+  suivante** (le client, le 14/10/2026 : « jusque fin décembre 2027 » ; le
+  30 juin d'abord), par les cycles prolongés (SLI ne l'est pas). 78
+  fichiers, 36 344 événements, 16 Mo ; l'extension n'a fait qu'ajouter des
+  lignes, aucune de 2026 ne bouge.
 - **`mettre-a-jour.py --installer` les réécrit** sur l'horaire installé.
   L'horodatage est celui du classeur, si bien qu'un horaire inchangé donne
   des fichiers identiques à l'octet, et les fichiers d'une personne partie
