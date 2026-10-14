@@ -1833,8 +1833,11 @@ n'est deviné à leur sujet :
     partagée par quinzaine. Voir `docs/regles-paie.md`, « La prime de
     remise de pause » ;
   - indemnités : 17 jours sur la fiche contre 18 dans l'application,
-    plus une ligne « Indemn. déplacement/vélo » de 50 km, qui se saisit
-    dans le mois (`kmVelo`).
+    plus une ligne « Indemn. déplacement/vélo ». **Répondu le
+    14/10/2026** : un jour venu à vélo, qui ne donne pas l'indemnité
+    voiture (18 − 1 = 17). L'application le fait déjà : la journée
+    marquée « Vélo » sort des jours d'indemnité et compte
+    2 × la distance en km vélo. Rien à coder, il suffit de marquer le jour.
 - **la paie de l'ouvrier** (09/10/2026, voir « La paie à l'heure de LCI,
   revérifiée ») : ~~réduction du temps de travail non payée~~ — tranché
   par la note explicative de la fiche de paie (« non payé pour les
