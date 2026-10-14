@@ -4464,7 +4464,8 @@ Google, jusqu'à un jour). Le fichier demande une heure
   sont retirés. **Après une modification de la lecture dans `index.html`,
   relancer la commande** et committer ce qui bouge.
 - **Contenu** : poste et heures (fuseau de Bruxelles déclaré), atelier
-  écrit, « rappel » ; congés posés en journée entière ; « Formation ».
+  écrit, « rappel » ; « Formation ». Les congés en sont retirés depuis le
+  14/10/2026 (voir plus bas).
   Aucun nom. **« Ni commentaire » était vrai jusqu'au 14/10/2026** : voir
   plus bas, le commentaire est désormais dans la note. **Deux défauts de l'ancien export trouvés en
   relisant les 26 674 événements** : une journée entière « 8h +FT » (poste
@@ -4492,6 +4493,25 @@ atelier écrit et sans remplacement en commentaire ; l'événement s'intitule
 « N · Roue libre ». En 2026 : ATR 27, FPA 18, JBI 36, VGG 31 journées ;
 les journées projetées par les cycles (2027) n'ont pas de commentaire et
 le sont toutes.
+
+**Les jours de travail seulement, et chacun avec son poste** (le client,
+le 14/10/2026 : « il ne faut pas afficher les congés dans l'agenda » ;
+« des jours sont sans rien », sur l'agenda d'ATR). Les congés (VA, RTT,
+RJF, DTT, RHS, -FT…) ne donnent plus d'événement ; la formation reste,
+c'est une journée de travail. 36 344 → **33 427 événements**. Le poste de
+l'agenda (`x.ka`, `lectureAgenda()`) : l'atelier écrit ; sinon, pour un
+adjoint, « Contremaître » si « R-CM » est écrit, et le poste du remplacé
+pour un « remplace X » d'une journée entière (`atelierDuRemplace()`, la
+lecture du Planning ; pas un remplacement de quelques heures,
+`remplPartiel()`) ; pour un opérateur, son poste habituel ce jour-là
+(`posteAttitreLe()`, ou celui qu'il apprend), comme les notifications.
+Les contremaîtres gardent la pause seule. ATR passe de 98 journées sans
+poste à **4** (des remplacements de quelques heures, des évaluations) ;
+LCI lit la fermentation jusqu'au 29/09 et la distillation ensuite, SKS le
+terrain arrière jusqu'au 20/09. **Premier essai faux** : le jour passé en
+`Date` au lieu du nombre AAAAMMJJ que `_posteDePeriode()` attend, et LCI
+était en distillation toute l'année. Les quatre sorties du vérificateur
+sont identiques à l'octet (agenda seulement).
 
 **Un congé porte son seul code** (le client, le même jour : « RJF au
 lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
