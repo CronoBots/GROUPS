@@ -378,7 +378,7 @@ porte des euros.
 | `RTT` | réduction du temps de travail | Heure(s) RTT | oui | fiches |
 | `RHS` | récupération d'heures supplémentaires | Heure(s) récup. heures supplémentaires | oui | client, 20/09 |
 | `DTT` | congé d'ancienneté | Heure(s) repos compensatoire | oui | fiches |
-| `RJF` | jour férié de remplacement, à choix libre | Heure(s) jour férié / RJF | oui | classeur |
+| `RJF` | récupération d’un jour férié (le client, le 14/10/2026) | Heure(s) jour férié / RJF | oui | classeur |
 | `FER` | jour férié légal | Heure(s) jour férié | oui | fiches |
 | `SMG` | **salaire mensuel garanti** — la maladie payée par l'employeur | Heure(s) SMG maladie | oui | fiches |
 | `FORM` | formation, congé syndical | Heure(s) formation syndicale | oui | fiches |
