@@ -3176,8 +3176,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(198px,1fr)); gap:11px 15px}
 .f{display:flex; flex-direction:column; gap:3px; min-width:0}
 .f label{font-size:11.5px; color:var(--muted)}
-.f input,.f select{padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); font-size:13px; min-width:0}
-.f input:focus,.f select:focus{background:var(--surface)}
+.f input,.f select,.f textarea{padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); font-size:13px; min-width:0}
+.f input:focus,.f select:focus,.f textarea:focus{background:var(--surface)}
+.f textarea{font:inherit; font-size:13px; font-family:var(--mono,ui-monospace,monospace); color:var(--ink); resize:vertical; line-height:1.5}
+.f.f-texte{grid-column:1/-1}
 .f input[type=number]{font-family:"IBM Plex Mono",monospace; text-align:right}
 .f .hint{font-size:10.5px; color:var(--faint)}
 /* Une valeur commune se lit, elle ne se remplit pas : pas de cadre de
@@ -4681,7 +4683,7 @@ function codeAbsence(t){
 
 var DEF_P={
   statut:"Employé", etatCivil:"Célibataire", conjoint:"Sans objet", enfants:0,
-  remFixe:3000, primeRemise:0, avanceMens:0,
+  remFixe:3000, remHist:"", primeRemise:0, avanceMens:0,
   /* Ouvrier (CP 118) : payé à l'heure. Deux taux relevés sur les fiches —
      « garanti » = base de toutes les heures, « moyen » = heures de maladie (SHG). */
   salHorGaranti:0, salHorMoyen:0,
@@ -5066,7 +5068,17 @@ function cycleLuPourMoi(){
 function compute(){
   var p=st.params, b=st.bareme, M=st.month, y=st.y, m=st.m;
   var nd=daysInMonth(y,m), F=feries(y);
-  var remFixe=(M.remFixeMois!==null&&M.remFixeMois!==undefined&&M.remFixeMois!=="")?Number(M.remFixeMois):p.remFixe;
+  /* LA RÉMUNÉRATION FIXE CHANGE EN COURS D'ANNÉE : indexation, hausse,
+     changement de fonction. Le client, le 14/10/2026 : « prends en compte
+     les indexations et augmentations salariales suite à mon changement de
+     fonction ». Les fiches de VBN en portent trois en 2026 (01/01, 01/03,
+     septembre), et le taux horaire des suppléments suit chacune. Le mois
+     prend le montant en vigueur à son 1er jour (remHist, une ligne par
+     changement) ; la valeur saisie sur le mois lui-même passe avant, le
+     réglage simple en dernier. */
+  var remHistM=remFixeDuMois(p.remHist,y,m);
+  var remFixe=(M.remFixeMois!==null&&M.remFixeMois!==undefined&&M.remFixeMois!=="")?Number(M.remFixeMois)
+             :(remHistM!==null?remHistM:p.remFixe);
   var indJour=(M.indJourMois!==null&&M.indJourMois!==undefined&&M.indJourMois!=="")?Number(M.indJourMois):p.indJour;
   /* OUVRIER (CP 118) : payé à l'heure. Le taux de base des suppléments et de la
      prestation normale devient le salaire horaire garanti ; la maladie (SHG) est
@@ -6365,6 +6377,9 @@ function fieldHTML(f,val,opt){
       '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></output>'+
       (hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
   }
+  if(f.type==="texte"){
+    return '<div class="f f-texte"><label for="'+id+'">'+f.l+'</label><textarea id="'+id+'" rows="3" spellcheck="false" autocomplete="off"'+attrs+'>'+esc(val||"")+'</textarea>'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  }
   if(f.type==="select"){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
@@ -6439,6 +6454,9 @@ var PARAM_FIELDS=[
   onb:"Nombre d'enfants fiscalement à votre charge. Chaque enfant réduit le précompte professionnel retenu sur votre salaire."},
  {k:"remFixe",l:"Rémunération périodique fixe (€)",scope:"params",personal:true,pour:"Employé",
   onb:"Votre rémunération mensuelle brute fixe, telle qu'indiquée sur votre contrat ou votre dernière fiche de paie. C'est la base de tous les calculs (statut employé)."},
+ {k:"remHist",l:"Évolutions de la rémunération fixe",scope:"params",type:"texte",personal:true,pour:"Employé",
+  hint:"une ligne par changement, la date d'effet puis le montant : « 01/03/2026 3100,00 ». Chaque mois prend le montant en vigueur à son 1er jour.",
+  onb:"Les indexations, hausses et changements de fonction de l'année, tels que vos fiches de paie les montrent (« Rém. périodique fixe »). Une ligne par changement : la date d'effet, puis le nouveau montant. Chaque mois est calculé avec le montant en vigueur à son 1er jour. Laissez vide si votre rémunération n'a pas changé."},
  {k:"salHorGaranti",l:"Salaire horaire garanti (€/h)",scope:"params",step:"0.0001",personal:true,pour:"Ouvrier",
   hint:"ouvrier : « Rémunération à l'heure » de votre fiche — base de toutes les heures prestées et des jours payés",
   onb:"Votre salaire horaire garanti (ouvrier), tel qu'indiqué sur votre fiche sous « Rémunération à l'heure ». C'est la base de toutes vos heures prestées et de vos jours payés."},
@@ -6552,7 +6570,7 @@ var BAREME_FIELDS=[
    pour en corriger un. Groupés et titrés, on va droit au bon. */
 var PARAM_GROUPES=[
  {t:"Ma situation",         f:["statut","etatCivil","conjoint","enfants"]},
- {t:"Ma rémunération",      f:["remFixe","salHorGaranti","salHorMoyen","primeRemise","fraction","hJour","hSemaine","divH"]},
+ {t:"Ma rémunération",      f:["remFixe","remHist","salHorGaranti","salHorMoyen","primeRemise","fraction","hJour","hSemaine","divH"]},
  {t:"Mes primes d'équipe",  f:["primeAM","primePM","primeN","primeD","primeRemplCM"]},
  {t:"Mon cycle",            f:["binome","cycle","decalage"]},
  {t:"Mes déplacements",     f:["indJour","distance","indVeloKm","avVelo","dedVelo"]},
@@ -7025,7 +7043,7 @@ document.addEventListener("change",function(e){
     /* ceinture : aucun champ figé n'est rendu comme un champ, mais un
        évènement forgé ou un champ oublié ne doit pas pouvoir passer */
     if(estFigee(t.dataset.k)) return;
-    var v=t.tagName==="SELECT"?t.value:(t.value===""?null:Number(t.value));
+    var v=(t.tagName==="SELECT"||t.tagName==="TEXTAREA")?t.value:(t.value===""?null:Number(t.value));
     if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
     else if(t.dataset.scope==="params"){
       /* Une hausse ne réécrit pas le passé. Le client, le 22/09/2026 :
@@ -8957,6 +8975,25 @@ function remplirMois(db,person,y,m,M){
 /* Fige une valeur de paramètre sur les mois déjà écoulés de l'année
    affichée, sans toucher à ceux qui portent déjà une valeur propre : c'est
    l'utilisateur qui l'y a mise, elle prime. */
+/* « 01/03/2026 3100,00 » : une ligne par changement de rémunération fixe.
+   Rend le montant en vigueur au 1er jour du mois (m de 0 à 11), ou null si
+   aucune ligne ne le couvre. Une date sans année est de l'année du mois. */
+function remFixeDuMois(txt,y,m){
+  if(!txt) return null;
+  var lignes=String(txt).split(/[\n;]+/), best=null, bestD=-1, cible=y*10000+(m+1)*100+1;
+  lignes.forEach(function(l){
+    var md=/(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/.exec(l); if(!md) return;
+    var reste=l.slice(md.index+md[0].length);
+    var mm=/(\d[\d\s\u00a0\u202f.]*(?:,\d+)?)/.exec(reste); if(!mm) return;
+    var brut=mm[1].replace(/[\s\u00a0\u202f]/g,"");
+    var v=/,/.test(brut)?Number(brut.replace(/\./g,"").replace(",",".")):Number(brut);
+    if(!(v>0)) return;
+    var an=md[3]?Number(md[3]):y; if(an<100) an+=2000;
+    var d=an*10000+Number(md[2])*100+Number(md[1]);
+    if(d<=cible && d>bestD){ bestD=d; best=v; }
+  });
+  return best;
+}
 function figerPasse(cleMois,ancienne){
   if(ancienne===null||ancienne===undefined||ancienne==="") return;
   var au=new Date(), an=Number(st.y);
