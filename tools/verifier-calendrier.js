@@ -623,6 +623,7 @@ if(process.argv.indexOf("--journee")>=0){
       (r.h===undefined?"(défaut "+H_JOUR+")":r.h)+"  absence="+(r.a||"—")+
       "  épargne="+(r.epargne||0)+
       ((r.ax&&r.ax.length)?"  codes en plus="+r.ax.join(", "):"")+
+      (r.hc?"  heures sup="+r.hc+(r.hcp?" ("+r.hcp+")":""):"")+
       (r.modifie?"  [poste corrigé]":""));
     /* r.s est la prime PAYÉE, r.sp le poste PRESTÉ quand ils diffèrent, et
        c'est r.sp qui décide dans quelle pause la vue du jour range la

@@ -3133,6 +3133,19 @@ l'octet. Vérifié sur septembre de VBN à 320 px (hors ligne), 390 px et
 écarts connus de la fiche de septembre : la nuit du 30/09 (P13 6,00 au
 lieu d'un code du matin) et l'heure sup du même jour (U33 1,00).
 
+### Le changement d'heure
+
+Le client, le 14/10/2026 : en octobre, ceux qui font la nuit du passage
+reçoivent 1 h sup au compteur ; en mars, ils prestent 7 h et sont payés
+8 h. Règle dans `docs/regles-paie.md`, « Le changement d'heure ». Codé
+dans `lireJournee()` pour la nuit du samedi qui précède le dernier dimanche
+d'octobre (le 24/10 en 2026) : **13 personnes**, +1 h chacune (`r.hc`,
+prime N). Mars ne demande rien. Les cinq sorties du vérificateur sont
+identiques à l'octet (règle de paie seulement), les agendas aussi ;
+`--journee` imprime désormais les heures sup d'une journée. Vérifié au
+relevé d'ATR (« U43 1,00 » le 24/10) à 320 px (hors ligne), 390 et
+1280 px.
+
 ### Les états de présence SAP, confrontés jour par jour
 
 Le client, le 14/10/2026 : sa responsable RH lui a ouvert ses « États de
