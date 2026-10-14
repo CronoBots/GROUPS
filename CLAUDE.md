@@ -1865,10 +1865,19 @@ n'est deviné à leur sujet :
   l'ouvrier, elle l'est (`docs/regles-paie.md`) ; tout le reste de l'écart
   de LCI est ce repos, le 01/01 (un week-end de 2025), le 13/04 et le
   17/03 ;
-- **le D de la grille** (09/10/2026) : la note sur les repos écrit D =
-  7h30-16h (une demi-heure de midi non payée) ; le client avait dit le
-  28/09 « seulement D : 7-15 ». Lequel vaut aujourd'hui ? La note date de
-  2009 ;
+- ~~le D de la grille~~ (09/10/2026) : tranché le 14/10/2026, le client :
+  « le D est un jour où le travailleur peut choisir son horaire (6-14 /
+  7-15 / 7:30-16) ; le choix par défaut est celui indiqué dans l'horaire
+  dans son cycle perso ». `horaireHabituelD()` lit désormais la cellule
+  franche des jours que le cycle de la personne met en D (« 6h-14h » chez
+  DBE, « 7h-15h » chez VBN, « H. flott. » chez VGG) et un D sans heure
+  prend cet horaire, au Planning, dans l'agenda, à l'Accueil et dans les
+  propositions ; à défaut, 7-15. L'ancienne lecture ne savait pas que
+  « 6h-14h » est un horaire de D, et rendait 10-18 à QBY (ses jours de
+  CE). Agendas : 893 événements passent de 7 h à 6 h (62 en 2026, 831 en
+  2027 projeté), aucun n'apparaît ni ne disparaît ; personne n'écrit
+  7h30-16h. Les cinq sorties du vérificateur sont identiques à l'octet
+  (aucune heure payée ne bouge) ;
 - **la RJF de l'ouvrier** : la note ne la nomme pas — payée comme un férié
   (salaire moyen) ou au garanti ? Le client, le 14/10/2026 : RJF veut dire
   « récupération jour férié » (la légende disait « férié à choix libre »,

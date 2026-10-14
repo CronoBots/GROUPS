@@ -1935,6 +1935,18 @@ est un lundi, et la grille est exactement `CYCLE5` (Ma Ma PM PM N N N, …,
 D D D en semaine 5). Ma 6h-14h, PM 14h-22h, N 22h-6h, **D 7h30-16h avec une
 demi-heure de midi non payée**.
 
+**L'horaire du D se choisit** (le client, le 14/10/2026) : « le D est un
+jour où le travailleur peut choisir son horaire (6-14 / 7-15 / 7:30-16) ;
+logiquement le choix par défaut est celui indiqué dans l'horaire dans son
+cycle perso ». Le 7h30-16h de la note de 2009 n'est donc qu'un des trois.
+Les jours que son cycle met en D, la cellule franche de chacun écrit cet
+horaire (« 7h-15h », « 6h-14h », « H. flott. », ou « D » seul) :
+`horaireHabituelD()` retient le plus écrit (deux fois au moins, 60 % au
+moins), et un D sans heure écrite le prend — au Planning, dans l'agenda,
+à l'Accueil et dans les propositions de remplacement. À défaut, 7-15
+(« seulement D », le 28/09/2026). Aucune heure payée ne change : un D
+vaut toujours 8 h, sans prime d'équipe.
+
 **Le repos lié au week-end.** Les heures normales prestées un samedi ou un
 dimanche sont payées à 150 % ou 200 %, puis leurs 100 % sont DÉDUITS
 (« Déduction prest norm ») et payés plus tard, un jour de repos désigné de
