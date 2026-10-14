@@ -2194,3 +2194,14 @@ la pause faite (« PM · R-CM · … rappel le … »). La procédure de rappel 
 « rappel d'un repos, repos maintenu ». Avant le 14/10/2026, l'application la
 refusait sur 14 journées de l'année, parce qu'elle comparait la prestation
 à la pause écrite au lieu du repos.
+
+## La prime de rappel prend la pause des heures ajoutées
+
+Établi le 14/10/2026 sur trois journées et deux personnes, au centième :
+VBN les 19/02 et 14/04 (fiches et état SAP), LCI le 20/03 (fiche). Quand la
+plage déborde de la journée (« 18h-06h » : rappel pour 18 h-22 h), la prime
+de pause de la prime de rappel est celle de la pause où tombent les heures
+en plus (l'après-midi), et non celle de la journée (la nuit). La fiche et
+SAP reprennent la prime en heures de déplacement : le montant divisé par le
+taux horaire, soit 2 h × (coefficient du jour + prime de pause × coefficient
+de pause ÷ taux) × coefficient du moment.

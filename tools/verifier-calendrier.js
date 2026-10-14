@@ -275,6 +275,7 @@ function enregistre(r,hJour){
     if(r.ax && r.ax.length) rec.ax=r.ax.slice();
     /* le poste des heures supplémentaires, quand il n'est pas celui du jour */
     if(r.hsp) rec.hsp=r.hsp;
+    if(r.rpp) rec.rpp=r.rpp;
     /* les heures reprises au compteur HS dans une journée prestée */
     if(r.rhsJ) rec.rh=r.rhsJ;
     /* rappel sur un repos payé en heures sup (compute() le lit) */
@@ -624,7 +625,7 @@ if(process.argv.indexOf("--journee")>=0){
       "  épargne="+(r.epargne||0)+
       ((r.ax&&r.ax.length)?"  codes en plus="+r.ax.join(", "):"")+
       (r.hc?"  heures sup="+r.hc+(r.hcp?" ("+r.hcp+")":""):"")+
-      (r.hsp?"  prime des HS="+r.hsp:"")+
+      (r.hsp?"  prime des HS="+r.hsp:"")+(r.rpp?"  pause des heures en plus="+r.rpp:"")+
       (r.modifie?"  [poste corrigé]":""));
     /* r.s est la prime PAYÉE, r.sp le poste PRESTÉ quand ils diffèrent, et
        c'est r.sp qui décide dans quelle pause la vue du jour range la
