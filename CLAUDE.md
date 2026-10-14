@@ -3229,8 +3229,16 @@ Les 22 écarts restants, rangés :
   U52 les 21 et 22/03, la pause de SAP ;
 - **un même congé écrit deux fois** : le 30/01 porte « 4h RTT », et le 04/02
   « 4h -FT pris le 30.01 » ; le 05/03 porte « 1h -FT », et le 01/03 « 1h RTT
-  pris le 05.03 ». L'application compte les deux ; SAP un seul, un RTT les
-  deux fois. Question posée ;
+  pris le 05.03 ». **Répondu le 14/10/2026, et il n'y avait pas
+  d'écart** : le client a posé les DEUX congés chaque fois (« le 30/01
+  j'étais en congé en combinant 4h -FT et 4h RTT, je n'ai pas travaillé »).
+  Le renvoi du 04/02 pose bien le −FT sur le 30/01, et le relevé de
+  l'application écrit « P12 4,00 · 58 4,00 · 60 4,00 · chèque 1 », SAP
+  « P12 4 · 58 4 · chèque 1 » : les 4 h de flex time repris, payées depuis
+  le compteur, sont la « prestation » P12 de SAP, qui n'a pas de code
+  journalier pour le flex time (le 60 est écarté de la comparaison). Le
+  05/03 de même. Je l'avais rangé parmi les écarts sur la seule colonne 60.
+  Rien n'a changé dans le code ;
 - **le chèque d'un jour de délégation** (12/02, « DS à l'extérieur ») : SAP
   le donne, l'application non. Question posée ;
 - **le rappel sur un repos payé** (REP, 25/06) : SAP ne porte aucune heure
