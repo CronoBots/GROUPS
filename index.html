@@ -8083,6 +8083,7 @@ var RAPPEL_DATE_TRANCHEE={"0219":[/rappel le 19\.06/i,"rappel le 19.02"],
    et « 06h-10h interventions chaudières ». Le motif du commentaire garde
    la correction sur sa journée ; une règle générale « plage plus longue
    que la pause » attraperait aussi des remplacements partiels. */
+var HS_DUREE_TRANCHEE={"0930":[/compteur\s*(?:à|a)\s*0\s*Arriv[ée]e\s*à\s*09h\s*D[ée]part\s*à\s*15h/i,0.5,"D"]};
 var HS_TRANCHEES={"0213":[/trip usine 14h-02h/i,4,"N"],
   "0903":[/preste 14h-18h en hs/i,4,"PM"],
   "0623":[/06h-10h interventions/i,4,"AM"]};
@@ -8611,6 +8612,27 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
      l'année. Un échange n'est pas un rappel : ATA le 27/08, « échange avec
      GPS », est payé normalement. Sans le mot « rappel », rien ne change : le
      cycle s'y trompe (VGG le 08/05, repos au cycle, matin au relevé). */
+  /* UNE JOURNÉE À CODE DE JOUR (CPPT, DS-CE…) DONT LE COMMENTAIRE ÉCRIT
+     L'ARRIVÉE ET LE DÉPART prend la prime de la pause où tombent ses heures,
+     et non celle de la pause prévue. VBN le 30/09, ["D-CPPT","2h RTT","+1h
+     RHS compteur à 0 Arrivée à 09h Départ à 15h"] : nuit au cycle, mais
+     l'état de présence SAP paie les 6 h à la prime du matin (P11). Le
+     client, le 14/10/2026 : « oui », c'est sa réponse du 30/09 pour un CPPT
+     (la prime que le commentaire indique ; ici les heures qu'il écrit).
+     C'est la règle des heures en plus (rpp) appliquée aux heures prestées.
+     Seule journée de l'année de cette forme. */
+  if(r.jourCode && r.s && r.s!=="D" && raw[2]){
+    var mAr=/arriv[ée]e?\s*(?:à|a)?\s*(\d{1,2})\s*[h:]\s*(\d{2})?/i.exec(raw[2]),
+        mDe=/d[ée]part\s*(?:à|a)?\s*(\d{1,2})\s*[h:]\s*(\d{2})?/i.exec(raw[2]);
+    if(mAr && mDe){
+      var hAr=+mAr[1]+(mAr[2]?+mAr[2]/60:0), hDe=+mDe[1]+(mDe[2]?+mDe[2]/60:0);
+      if(hAr<6) hAr+=24; if(hDe<=hAr) hDe+=24;
+      var bestP=null, bestH=0;
+      ["AM","PM","N"].forEach(function(kk){ var pl=SHIFT_PLAGE[kk];
+        var ov=Math.min(hDe,pl[1])-Math.max(hAr,pl[0]); if(ov>bestH+0.01){ bestH=ov; bestP=kk; } });
+      if(bestP && bestP!==r.s){ r.s=bestP; if(r.hcp && r.hcp!=="D") r.hcp=bestP; }
+    }
+  }
   var reposCycle=(raw[0]||"").trim()==="-"
     || (fit && !posteDeCycle(fit,annee,mois,jour) && !/[ée]change|inversion/i.test(raw[2]||""));
   if(reposCycle && r.s && !r.a && !(r.ax && r.ax.length)
@@ -8728,6 +8750,11 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     r.ax=(r.ax||[]).concat([codeCx]); cxVu=true;
     cxH+=ABSMAP[codeCx].h||0;
   }
+  /* L'HEURE SUP DU 30/09, TRANCHÉE PAR LE CLIENT (14/10/2026) : le classeur
+     écrit « +1h RHS compteur à 0 », l'état SAP paie 0,5 h sup de jour (U30),
+     sans prime — sortie pointée à 15 h 30. « Oui » : 0,5 h sans prime. */
+  var hsDt=HS_DUREE_TRANCHEE[pad2(mois)+pad2(jour)];
+  if(hsDt && hsDt[0].test(raw.join(" ")) && r.hc>0){ r.hc=hsDt[1]; r.hcp=hsDt[2]; }
   if(cxVu && cxH>0){
     var absJ=(r.rhsJ||0);
     ((r.a?[r.a]:[]).concat(r.ax||[])).forEach(function(c){

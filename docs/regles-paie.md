@@ -2205,3 +2205,13 @@ en plus (l'après-midi), et non celle de la journée (la nuit). La fiche et
 SAP reprennent la prime en heures de déplacement : le montant divisé par le
 taux horaire, soit 2 h × (coefficient du jour + prime de pause × coefficient
 de pause ÷ taux) × coefficient du moment.
+
+## Une réunion dont le commentaire écrit les heures
+
+Le client, le 14/10/2026, sur VBN le 30/09 (`["D-CPPT","2h RTT","+1h RHS
+compteur à 0 Arrivée à 09h Départ à 15h"]`). Une journée à code de jour
+(CPPT, DS-CE…) dont le commentaire écrit l'arrivée et le départ prend la
+prime de la pause où tombent ces heures : 9 h-15 h donne le matin, même si
+le cycle prévoyait une nuit. L'état de présence SAP paie ainsi (P11). Cette
+journée-là, l'heure sup est de 0,5 h sans prime (sortie pointée à 15 h 30),
+par décision du client, alors que le classeur écrit « +1h ».

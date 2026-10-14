@@ -1788,10 +1788,12 @@ n'est deviné à leur sujet :
     (38 h de matin contre 32 h, 64 h de nuit contre 70 h). L'application
     garde la prime de nuit de la pause prévue, puisque le commentaire
     n'en nomme aucune. Ma règle du 30/09 « celle de la pause prévue
-    sinon » est donc démentie par la fiche. Question posée au client ;
+    sinon » est donc démentie par la fiche. **Tranché le 14/10/2026**,
+    voir « Les états de présence SAP » ;
   - le même jour, la fiche paie **0 h 30** d'heures sup à compenser.
-    L'application en paie 1 h, à la prime de nuit, comme le client l'a
-    dit le 01/10 (« + 1 h sup faite après 15 h »). Question posée ;
+    L'application en payait 1 h, à la prime de nuit, comme le client l'a
+    dit le 01/10 (« + 1 h sup faite après 15 h »). **Tranché le
+    14/10/2026** : 0,5 h sans prime ;
   - les primes diverses : la fiche porte bien plus que les 4 primes de
     remplacement de contremaître (R-CM des 01, 07, 08 et 09/09), et le
     reste ne correspond pas à un nombre entier de primes. Question
@@ -3277,7 +3279,20 @@ Les 22 écarts restants, rangés :
   vérificateur et les agendas sont identiques à l'octet (la paie seule
   change) ; vérifié à 320 px (hors ligne), 390 et 1280 px ;
 - **le 30/09** confirme la fiche : prime du matin pour les 6 h (P11) et
-  0,5 h sup de jour (U30). Questions déjà ouvertes ;
+  0,5 h sup de jour (U30). **Tranché le 14/10/2026.** Le client : « oui,
+  je pensais déjà avoir répondu à cette question pour un CPPT » (le 30/09 :
+  « la prime qui est bien indiquée dans le commentaire »). Je n'avais pas
+  relié sa réponse à cette journée, où le commentaire n'écrit pas de
+  prime mais écrit les heures. Une journée à code de jour (CPPT, DS-CE…)
+  dont le commentaire écrit l'arrivée et le départ prend la prime de la
+  pause où tombent ces heures : 9 h-15 h donne le matin, quand le cycle
+  prévoyait une nuit (la semaine était passée en matin par échanges ; SAP
+  planifie 1A40). C'est la seule journée de l'année de cette forme. L'heure
+  sup passe à 0,5 h sans prime (`HS_DUREE_TRANCHEE`, décision du client
+  pour cette journée), alors que le classeur écrit « +1h ». Relevé de
+  septembre : « 1A40 · P11 6,00 · 58 2,00 · U30 0,50 · chèque 1 »,
+  identique à SAP. Les cinq sorties du vérificateur et les agendas sont
+  identiques à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px ;
 - **la durée des heures de déplacement** (J84 : 6,29, 4,98, 6,28, 6,63,
   4,6 h) contre le réglage fixe de l'application. **Résolu le 14/10/2026,
   sans question.** SAP et la fiche expriment la prime de rappel en heures
