@@ -1827,8 +1827,11 @@ n'est deviné à leur sujet :
     14/10/2026** : 0,5 h sans prime ;
   - les primes diverses : la fiche porte bien plus que les 4 primes de
     remplacement de contremaître (R-CM des 01, 07, 08 et 09/09), et le
-    reste ne correspond pas à un nombre entier de primes. Question
-    posée ;
+    reste ne correspond pas à un nombre entier de primes. **Répondu le
+    14/10/2026** : ce reste est la moitié de la prime mensuelle de remise
+    de pause (nommé le 15/09). Elle est payée dans « Primes Diverses »,
+    partagée par quinzaine. Voir `docs/regles-paie.md`, « La prime de
+    remise de pause » ;
   - indemnités : 17 jours sur la fiche contre 18 dans l'application,
     plus une ligne « Indemn. déplacement/vélo » de 50 km, qui se saisit
     dans le mois (`kmVelo`).
