@@ -190,6 +190,8 @@ const MORCEAUX=[
   ["function calageLong(","\n}"],
   ["var _projCache=","\n"],
   ["function horaireDe(","\n}"],
+  ["var _habDCache=","\n"],
+  ["function horaireHabituelD(","\n}"],
   ["function lectureAgenda(","\n}"],
   ["function estCongePose(","\n"],
   ["var ICS_TZ=","];"],

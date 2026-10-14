@@ -9536,6 +9536,16 @@ function lectureAgenda(db,p,an,m,j){
       if(pb<=pa) pb+=24;
       if(pb-pa>=4 && pb-pa<=12){ hd=pa; hf=pb; }
     }
+    /* UN D SANS HEURE ÉCRITE PREND L'HORAIRE PAR DÉFAUT DE SON CYCLE (le
+       client, le 14/10/2026 : « le choix par défaut est celui indiqué dans
+       l'horaire dans son cycle perso »), 6-14 chez DBE, 7-15 chez VBN ; à
+       défaut, PF_DEB et PF_FIN donnent 7-15. Pas une journée à code (F,
+       CPPT, DS…), dont l'horaire est celui de la formation ou de la
+       réunion. */
+    if(pv==="D" && hd==null && !r.jourCode){
+      var habD=horaireHabituelD(p);
+      if(habD && habD.a!=null){ hd=habD.a; hf=habD.b; }
+    }
     /* UNE PLAGE COLLÉE À LA PAUSE LA PROLONGE (le client, le 14/10/2026 :
        ATR le 31/10, ["chaudières","3h +FT","remplace PDF remplace FPA de
        22h à 01h00'"], fait 14-22 puis 22-01). Une plage DANS la pause dit un
@@ -12345,33 +12355,52 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
   pris.forEach(function(c){ c.hor=hh(c.de)+"-"+hh(c.b); });
   return fin>=W1-0.01 ? pris : [];
 }
-/* L'HORAIRE HABITUEL D'UNE PERSONNE EN D, lu sur ses propres journées. Le
-   client, le 28/09/2026, à la question de l'horaire d'un « D » seul :
-   « horaire selon celui qu'ils font en D ». Le classeur ne le dit pas le
-   jour même, mais la personne l'écrit souvent ailleurs : FLI met « 7h-15h »
-   à côté de neuf de ses « D », AFA et GPS écrivent 7h-15h en cellule
-   franche. On retient la plage de JOURNÉE (pas une plage de pause) qu'elle
-   écrit sur un jour de D — annotation d'un « D », ou cellule franche seule
-   — si elle revient au moins deux fois et fait au moins 60 % de ce qu'elle
-   écrit ; sinon rien, plutôt que deviner. Une fois par personne. */
+/* L'HORAIRE PAR DÉFAUT D'UNE PERSONNE EN D. Le client, le 14/10/2026 :
+   « le D est un jour où le travailleur peut choisir son horaire
+   (6-14 / 7-15 / 7:30-16) ; logiquement le choix par défaut est celui
+   indiqué dans l'horaire dans son cycle perso ». Les jours que SON cycle
+   met en D, la cellule franche écrit cet horaire : « 7h-15h » chez VBN,
+   « 6h-14h » chez DBE, « H. flott. » chez VGG, « D » seul chez YBT. On
+   retient la plage de journée (début de 6 h à 8 h, fin de 14 h à 16 h 30)
+   ou « H. flott. » la plus écrite, si elle revient au moins deux fois et
+   fait au moins 60 % de ce qui est écrit ; sinon rien, et l'appelant
+   prend 7-15. Lu sur le classeur, une fois par personne : une année
+   projetée garde l'horaire de sa personne. Rend {lib, a, b} (a et b nuls
+   pour « H. flott. »), ou null.
+   L'ancienne version (28/09/2026) lisait toutes les journées, cycle ou
+   non, et ne savait pas que « 6h-14h » est un horaire de D : elle rendait
+   « 10-18 » à QBY, l'horaire de ses jours de conseil d'entreprise. */
 var _habDCache={};
 function horaireHabituelD(p){
+  if(!p) return null;
   if(p.id in _habDCache) return _habDCache[p.id];
-  var n={}, tot=0, k, e, e0, e1, pl, cle, best=null, bn=0;
-  for(k in p.d){
-    e=p.d[k]; if(!e||!e.length) continue;
-    e0=String(e[0]||"").trim(); e1=String(e[1]||"").trim(); pl=null;
-    if(e0==="D") pl=plageMention(e1);
-    else if(!e1) pl=plageMention(e0);
-    if(!pl || posteDepuisPlage(pl)!=="D") continue;
-    cle=pl[0]+"-"+pl[1]; n[cle]=(n[cle]||0)+1; tot++;
+  var db=HORAIRE_DB, src=p, y, i, m, d, fit, e, c0, pl, cle, n={}, tot=0, best=null, bn=0;
+  if(db) for(i=0;i<db.people.length;i++) if(db.people[i].id===p.id){ src=db.people[i]; break; }
+  y=db?Number(db.year):NaN;
+  if(!(y>0)) return null;   /* sans classeur, pas de cycle : on ne met rien en cache */
+  for(m=1;m<=12;m++){
+    fit=null; try{ fit=moisDe(src,y,m,8).fit; }catch(er){ fit=null; }
+    if(!fit) continue;
+    for(d=1;d<=31;d++){
+      e=src.d[pad2(m)+pad2(d)]; if(!e||!e.length) continue;
+      if(posteDeCycle(fit,y,m,d)!=="D") continue;
+      c0=String(e[0]||"").trim();
+      if(/^h\.?\s*flot/i.test(c0)) cle="hf";
+      else { pl=plageMention(c0);
+        if(!pl || pl[0]<5.9 || pl[0]>8.1 || pl[1]<13.9 || pl[1]>16.6) continue;
+        cle=pl[0]+"-"+pl[1]; }
+      n[cle]=(n[cle]||0)+1; tot++;
+    }
   }
   for(cle in n) if(n[cle]>bn){ bn=n[cle]; best=cle; }
   var out=null;
   if(best && bn>=2 && bn/tot>=0.6){
-    var ab=best.split("-").map(Number);
-    var hh=function(x){ x=((x%24)+24)%24; var h=Math.floor(x+1e-6), m=Math.round((x-h)*60); return m?h+"h"+pad2(m):String(h); };
-    out=hh(ab[0])+"-"+hh(ab[1]);
+    if(best==="hf") out={lib:"H.fl.", a:null, b:null};
+    else {
+      var ab=best.split("-").map(Number);
+      var hh=function(x){ var h=Math.floor(x+1e-6), mn=Math.round((x-h)*60); return mn?h+"h"+pad2(mn):String(h); };
+      out={lib:hh(ab[0])+"-"+hh(ab[1]), a:ab[0], b:ab[1]};
+    }
   }
   return (_habDCache[p.id]=out);
 }
@@ -12491,21 +12520,19 @@ function renderEquipe(){
          « il faut indiquer l'horaire de tous ceux qui apparaissent dans la
          colonne D ». Une plage écrite dans le classeur passe avant. */
       if(!lib && CONSIGNATEURS.indexOf(x.p.id)>=0) lib="8-16";
-      /* « D » sans rien d'autre : 7-15, AVANT l'horaire habituel. Le
-         client, le 28/09/2026 : « les gens où il est seulement marqué D
-         doivent avoir 7-15 sous eux », puis, l'horaire habituel ayant
-         écrit (10-18) sous QBY : « ceux qui sont en D sans rien d'autre sont
-         en 7-15 ». « Seulement D », c'est aussi « PM · D » et « - · D » (le
-         poste prévu remplacé par D dans l'annotation), et « D · meunerie »
-         (un atelier, pas une heure). Pas une journée à code — D-CPPT,
-         DS-CE, F — qui n'est pas « seulement D » ; une prime conservée n'y
-         change rien. */
+      /* Puis l'horaire par défaut de la personne, celui que son cycle
+         écrit en D (le client, le 14/10/2026 : « le choix par défaut est
+         celui indiqué dans l'horaire dans son cycle perso »), et à défaut
+         7-15 pour un « D » sans rien d'autre (le client, le 28/09/2026 :
+         « seulement D : 7-15 »). « Seulement D », c'est aussi « PM · D » et
+         « - · D », et « D · meunerie » (un atelier, pas une heure). Une
+         journée à code — D-CPPT, DS-CE, F — prend l'horaire par défaut, mais
+         jamais 7-15 : elle n'est pas « seulement D ». Le 28/09, le 7-15
+         passait AVANT l'horaire habituel ; la réponse du 14/10 inverse
+         l'ordre. */
       var r0=String(raw[0]||"").trim(), r1=String(raw[1]||"").trim();
+      if(!lib){ var hab=horaireHabituelD(x.p); if(hab) lib=hab.lib; }
       if(!lib && !(x.r&&x.r.jourCode) && (/^d$/i.test(r1) || /^d$/i.test(r0))) lib="7-15";
-      /* Sinon l'horaire qu'elle fait d'habitude en D, lu sur ses autres
-         journées (horaireHabituelD) : il ne sert plus qu'aux journées qui ne
-         sont pas « seulement D ». */
-      if(!lib) lib=horaireHabituelD(x.p)||"";
       /* Sans parenthèses depuis le 28/09/2026 : dans l'étiquette, un
          chiffre à côté d'un trigramme ne peut être qu'un horaire, et les
          deux signes le faisaient passer à la ligne. */
@@ -15648,10 +15675,11 @@ function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
    désormais toujours la même chose : sa pause prévue, en pastille aux
    couleurs du calendrier, son horaire prévu, et son poste s'il en change.
    L'horaire à tenir, le même pour tous, est écrit UNE fois en tête de la
-   fiche, à côté de la pause (caCreneau). Le D prend l'horaire que la
-   personne écrit en D, sinon 7-15 (« seulement D : 7-15 »). */
+   fiche, à côté de la pause (caCreneau). Le D prend l'horaire par défaut
+   de son cycle (horaireHabituelD), sinon 7-15 (« seulement D : 7-15 »). */
 function caPrevu(g,P,p){
-  var hor=g==="D"?((p&&horaireHabituelD(p))||"7-15"):(HOR_PAUSE[g]||"");
+  var hab=g==="D"&&horaireHabituelD(p);
+  var hor=g==="D"?((hab&&hab.lib)||"7-15"):(HOR_PAUSE[g]||"");
   return {html:'<b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"+(hor?" "+esc(hor):"")
     +(P?' <span class="mqchp">'+esc(P.k==="adj"?"Adj.":caPoste(P))+"</span>":"")};
 }
