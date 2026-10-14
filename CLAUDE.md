@@ -1854,6 +1854,10 @@ n'est deviné à leur sujet :
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
   des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
   en rouge en attendant ;
+- **l'adresse de l'usine** (14/10/2026) : le client a écrit « Rue Léon
+  Charlier 11 », Plans d'Apple donne « BioWanze s.a., Rue Léon Charlier
+  18 » (sa propre entrée, sur sa capture). L'agenda écrit 11 ; les
+  coordonnées pointent le site quel que soit le numéro. Lequel garder ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -4436,14 +4440,36 @@ téléphone dira comment l'abonnement s'affiche.**
 
 - **la note** (`DESCRIPTION`) porte le commentaire de la journée, tel que
   `data/horaire-2026.json` le publie déjà, majuscule en tête ;
-- **le lieu** (`LOCATION`) de chaque poste presté est l'adresse de l'usine,
-  « BioWanze s.a., Rue Léon Charlier 11, 4520 Wanze » (`ICS_LIEU`) :
-  l'agenda du téléphone en fait le lien vers la carte. « Rue Léon » est
-  admis dans `tools/formes-admises.txt` : c'est une rue ;
-- **un contremaître en poste** — ou l'adjoint qui le remplace, « R-CM »
-  écrit — commence 30 min avant la pause pour la remise : 05h30-14,
-  13h30-22, 21h30-06 ; jamais en D ; cette demi-heure ne compte pas dans les
-  12 h de la journée : seul l'agenda la montre, aucun calcul ne la lit.
+- **le lieu** de chaque poste presté est l'usine, « BioWanze s.a. »,
+  Rue Léon Charlier 11, 4520 Wanze. « Rue Léon » et « Wanze, Belgique » sont
+  admis dans `tools/formes-admises.txt` : c'est une adresse. **Le texte
+  seul ne suffisait pas**, et la capture du client le montrait : l'iPhone
+  géocodait l'adresse lui-même, posait l'épingle sur une maison voisine et
+  écrivait le lieu en blanc, là où une entrée choisie dans Plans s'écrit
+  en rouge. Le client, le même jour : « pourquoi le lieu n'est pas indiqué
+  en rouge comme une entrée manuelle ? ». `icsLieu()` donne donc un lieu
+  STRUCTURÉ : `LOCATION` (nom puis adresse), `X-APPLE-STRUCTURED-LOCATION`
+  (nom, adresse, coordonnées) et `GEO` pour les autres agendas. Les
+  coordonnées sont celles du site dans OpenStreetMap (zone industrielle
+  « BioWanze S.A. », 50,531149 · 5,207899). Seul l'iPhone dira s'il s'écrit
+  bien en rouge ;
+- **le contremaître DE LA PAUSE**, et l'adjoint qui le remplace (« R-CM »
+  écrit, le client : « oui »), commence 30 min avant pour la remise :
+  05h30-14, 13h30-22, 21h30-06. Jamais en D, et **pas un contremaître en
+  surplus** (le client : « cela dépend si le contremaître est celui de la
+  pause, pas un contremaître en D qui fait 6-14 en surplus »).
+  `lectureAgenda()` pose `remise` : il est celui de la pause si la cellule
+  franche écrit cette pause (ou une autre, l'annotation celle-ci : il a
+  changé de pause), si son cycle la lui donne, ou si le commentaire dit un
+  remplacement, un échange, une inversion ou un rappel. **Ma première règle
+  oubliait « Remplacement ATA », « pour remplacer YBT », « inversion avec
+  AFA » et les journées entières versées au flex time** : 54 journées
+  revenaient à l'heure de la pause, 17 après correction, toutes un D ou un
+  repos sans remplacement (FLI le 13/10, « D · 6h-14h », l'exemple même
+  du client ; YPE du 30/03 au 01/04 ; les deux SD26 de GPS). Cette
+  demi-heure ne compte pas dans les 12 h de la journée. L'Accueil la montre
+  aussi (`pfDebut()`, `pfHeures()`) : VBN le 15/10 au soir, « Reprise ·
+  Demain · 5 h 30-14 h », le 16/10 à 7 h « En poste · Fin à 14 h ».
 
 Le texte s'échappe (virgule, point-virgule, saut de ligne : `icsTexte()`)
 et toute ligne de plus de 75 octets se plie (`icsPlier()`, RFC 5545) :

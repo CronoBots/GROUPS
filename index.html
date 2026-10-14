@@ -9160,6 +9160,11 @@ function _pfBinome(p){
    mois et le flex time au jour de l'usine. Tout se lit dans les journées
    de la personne, par lireJournee(), comme le calendrier. */
 var PF_HEURES={AM:"6 h-14 h", PM:"14 h-22 h", N:"22 h-6 h", D:"7 h-15 h"};
+/* Le début d'un poste, remise de pause comprise (x.remise : 30 min plus tôt). */
+function pfDebut(x){ return PF_DEB[x.pv]-(x.remise?0.5:0); }
+var PF_HEURES_REMISE={AM:"5 h 30-14 h", PM:"13 h 30-22 h", N:"21 h 30-6 h"};
+function pfHeures(x){ return (x.remise && PF_HEURES_REMISE[x.pv]) || PF_HEURES[x.pv]; }
+function pfHeureTxt(h){ return Math.floor(h)+"\u00a0h"+(h%1?"\u00a0"+Math.round((h%1)*60):""); }
 /* début et fin de chaque pause, en heures depuis minuit du jour de l'usine */
 var PF_DEB={AM:6, PM:14, N:22, D:7}, PF_FIN={AM:14, PM:22, N:30, D:15};
 function _pfJour(id,d){
@@ -9189,7 +9194,24 @@ function lectureAgenda(db,p,an,m,j){
   [r.a].concat(r.ax||[]).forEach(function(c){ var X=c&&ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
   if(h>0 && !(hPres>0)){ h=0; ab="-FT"; }
   var kat=posteEcrit(raw);
-  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat,
+  /* LA REMISE DE PAUSE (le client, le 14/10/2026) : le contremaître DE LA
+     PAUSE arrive 30 min avant elle — 5 h 30, 13 h 30, 21 h 30 —, et
+     l'adjoint qui le remplace (« R-CM » écrit) aussi. Pas en D, et pas un
+     contremaître en surplus : « cela dépend si le contremaître est celui de
+     la pause (pas un contremaître en D qui fait 6-14 en surplus) ». Il est
+     celui de la pause si la cellule franche écrit cette pause (ou une autre
+     pause, l'annotation celle-ci : il a changé de pause), si son cycle la lui
+     donne, ou si le commentaire dit un remplacement, un échange, une
+     inversion ou un rappel. En surplus : un D ou un repos qui écrit une
+     plage ou une pause sans rien de tout cela (FLI le 13/10, « D · 6h-14h »). Cette
+     demi-heure ne compte pas dans les 12 h de la journée : seuls l'agenda
+     et l'Accueil la montrent, aucun calcul ne la lit. */
+  var c0=String(raw[0]||"").trim(), rcm=/R\s*-?\s*CM/i.test(c0+" "+(raw[1]||""));
+  var a0=String(raw[1]||"").trim();
+  var remise=/^(AM|PM|N)$/.test(pv||"") && (rcm || (estContremaitre(p)
+    && (c0===pv || (/^(AM|PM|N)$/.test(c0) && a0===pv) || posteDeCycle(c.fit,an,m,j)===pv
+        || /\bremplace(r|ment)?\b|\brempl\b|[ée]change|inversion|rappe[lk]/i.test(String(raw[2]||"")))));
+  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, remise:remise,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
@@ -9241,9 +9263,10 @@ function _pfInfos(p){
     if(x && x.presente && PF_HEURES[x.pv]){
       if(k===0 && hNow>=PF_FIN[x.pv]) continue;
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
-      out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:"",
-        enCours:(k===0 && hNow>=PF_DEB[x.pv]),
-        pct:Math.max(0,Math.min(100,Math.round((hNow-PF_DEB[x.pv])/(PF_FIN[x.pv]-PF_DEB[x.pv])*100)))};
+      var deb=pfDebut(x);
+      out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:"", deb:deb, heures:pfHeures(x),
+        enCours:(k===0 && hNow>=deb),
+        pct:Math.max(0,Math.min(100,Math.round((hNow-deb)/(PF_FIN[x.pv]-deb)*100)))};
       break;
     }
   }
@@ -9311,11 +9334,11 @@ function _pfHead(db,p){
     var pr=inf.prochain, quand=pr.k===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
     var aujT=inf.auj&&inf.auj.presente,
         lab=pr.enCours?"En poste":(pr.k===0?"Aujourd'hui":(aujT?"Prochain poste":"Reprise"));
-    if(pr.k===0) quand=pr.enCours?("Fin à "+(PF_FIN[pr.pv]%24)+"\u00a0h"):("Début à "+PF_DEB[pr.pv]+"\u00a0h");
+    if(pr.k===0) quand=pr.enCours?("Fin à "+(PF_FIN[pr.pv]%24)+"\u00a0h"):("Début à "+pfHeureTxt(pr.deb));
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
-      +'<span class="pf-proch-h">'+esc(PF_HEURES[pr.pv]+(pr.atelier?" · "+pr.atelier:""))+'</span>'
+      +'<span class="pf-proch-h">'+esc(pr.heures+(pr.atelier?" · "+pr.atelier:""))+'</span>'
       +(pr.enCours?'<span class="pf-prog" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +'</span><span class="pf-fl" aria-hidden="true">›</span></button>';
   }
@@ -9626,9 +9649,20 @@ var ICS_TZ=["BEGIN:VTIMEZONE","TZID:Europe/Brussels",
   "BEGIN:DAYLIGHT","TZOFFSETFROM:+0100","TZOFFSETTO:+0200","TZNAME:CEST","DTSTART:19700329T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU","END:DAYLIGHT",
   "BEGIN:STANDARD","TZOFFSETFROM:+0200","TZOFFSETTO:+0100","TZNAME:CET","DTSTART:19701025T030000","RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU","END:STANDARD",
   "END:VTIMEZONE"];
-/* L'adresse de l'usine dans chaque poste (le client, le 14/10/2026) :
-   l'agenda du téléphone en fait un lien vers la carte. */
-var ICS_LIEU="BioWanze s.a., Rue Léon Charlier 11, 4520 Wanze";
+/* L'adresse de l'usine dans chaque poste (le client, le 14/10/2026). Le
+   texte seul ne suffit pas : l'iPhone le géocode lui-même, se trompe de
+   maison, et l'écrit en blanc. Comme une entrée choisie dans Plans (le
+   client, le même jour, captures à l'appui : « pourquoi le lieu n'est pas
+   indiqué en rouge comme une entrée manuelle »), il lui faut un lieu
+   STRUCTURÉ : nom, adresse et coordonnées (X-APPLE-STRUCTURED-LOCATION ;
+   GEO pour les autres agendas). Les coordonnées sont celles du site dans
+   OpenStreetMap (zone industrielle « BioWanze S.A. »). */
+var ICS_NOM="BioWanze s.a.", ICS_ADR="Rue Léon Charlier 11, 4520 Wanze, Belgique", ICS_GEO=[50.531149,5.207899];
+function icsLieu(){
+  return ["LOCATION:"+icsTexte(ICS_NOM+"\n"+ICS_ADR),
+    "X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-ADDRESS=\""+ICS_ADR+"\";X-APPLE-RADIUS=150;X-TITLE=\""+ICS_NOM+"\":geo:"+ICS_GEO[0]+","+ICS_GEO[1],
+    "GEO:"+ICS_GEO[0]+";"+ICS_GEO[1]];
+}
 /* Texte d'une propriété iCalendar : barre oblique inverse, point-virgule,
    virgule et saut de ligne s'échappent (RFC 5545, 3.3.11). */
 function icsTexte(t){ return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
@@ -9671,15 +9705,10 @@ function icsAgenda(id,debut,nJours,stamp){
     var ev=null, ft=!!(x.ab && /\+FT/.test(x.ab));
     if((x.presente||ft) && PF_DEB[x.pv]!=null){
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
-      /* LA REMISE DE PAUSE (le client, le 14/10/2026) : un contremaître en
-         poste — ou l'adjoint qui le remplace, « R-CM » — arrive 30 min avant
-         la pause pour la reprendre : 05h30-14, 13h30-22, 21h30-06. Pas en D.
-         Cette demi-heure ne compte pas dans les 12 h de la journée : seul
-         l'agenda la montre, aucun calcul ne la lit. */
-      var cm=x.pv!=="D" && (estContremaitre(p) || /R\s*-?\s*CM/i.test((x.raw[0]||"")+" "+(x.raw[1]||"")));
-      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,PF_DEB[x.pv]-(cm?0.5:0)),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
-          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":""),
-          "LOCATION:"+icsTexte(ICS_LIEU)];
+      /* La remise de pause (lectureAgenda, x.remise) avance le début de
+         30 min : 05h30-14, 13h30-22, 21h30-06. */
+      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,pfDebut(x)),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
+          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")].concat(icsLieu());
     } else if(x.ab==="FORM" || (estCongePose(x.ab) && (!/FT/.test(x.ab) || (x.ab==="-FT" && x.pv)))){
       var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
       ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:"+(x.ab==="FORM"?"Formation":x.ab),"TRANSP:TRANSPARENT"];
