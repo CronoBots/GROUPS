@@ -9265,6 +9265,15 @@ function lectureAgenda(db,p,an,m,j){
      pause. Les heures se comptent depuis minuit du jour de l'usine. */
   var hd=null, hf=null, com=String(raw[2]||"");
   if(h>0 && PF_DEB[pv]!=null){
+    /* LA PLAGE ÉCRITE DANS LA CELLULE (le client, le même jour : « NPE fait
+       6-10 et QBY 10-22 » ; QBY écrit « 10h-22h », l'agenda le mettait en
+       14-22). Elle dit l'horaire presté, 12 h comprises (« 06h-18h » n'est
+       pas un matin de 8 h). Pas avec un code de jour (F, CPPT, DS…) : la
+       plage n'y est que la pause prévue ; pas quand l'annotation écrit une
+       pause (« 7h-15h · AM ») : c'est elle qui dit ce qui a été presté.
+       Une annotation qui écrit une plage passe avant la cellule. */
+    var mc=plageMention(a0)||plageMention(c0);   /* l'annotation dit le presté (YPE le 30/03, « 7h-15h · 6h-14h ») */
+    if(mc && mc[1]-mc[0]>=4 && mc[1]-mc[0]<=12.5 && !r.jourCode && !/^(AM|PM|N|D)$/i.test(a0)){ hd=mc[0]; hf=mc[1]; }
     var mp=pv==="D" && com.match(/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*['\u2019]?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/i);
     if(mp){
       var pa=Number(mp[1])+Number(mp[2]||0)/60, pb=Number(mp[3])+Number(mp[4]||0)/60;
