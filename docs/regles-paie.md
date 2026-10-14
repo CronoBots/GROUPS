@@ -2075,3 +2075,28 @@ coder pour les pauses.
 
 **La filière intérimaires de production (20/12/2017)** : voir « Les
 intérimaires ».
+
+## Le changement d'heure
+
+Le client, le 14/10/2026 : « le jour du changement d'heure d'octobre, toutes
+les personnes faisant la nuit (qui vont travailler 1 h de plus avec le
+changement d'heure) vont recevoir 1 h d'HS dans leur compteur ; le cas
+contraire, pour le changement d'heure de mars, ils presteront 7 h mais
+seront payés normalement les 8 h ».
+
+L'heure change la nuit du samedi au **dernier dimanche** du mois, vers 2 h
+ou 3 h : c'est donc la nuit (22 h-6 h) de la journée du **samedi** — le
+24/10 et le 28/03 en 2026.
+
+- **Octobre** : `lireJournee()` ajoute une heure sup (`r.hc`, à la prime de
+  nuit) à qui tient la nuit ce samedi-là, présent à l'heure du passage. Elle
+  suit le circuit des heures sup écrites : sursalaire payé, heure au
+  compteur. Une absence d'une journée entière n'y a pas droit (VBN, RJF le
+  24/10/2026) ; une plage écrite qui ne couvre pas 2 h-3 h non plus. Seau du
+  samedi, comme le reste de la nuit : le classeur ne dit pas que cette heure
+  serait payée au taux du dimanche.
+- **Mars** : rien à coder, la journée reste payée 8 h.
+
+En 2026 : 13 personnes de nuit le 24/10, chacune +1 h (ATR : « U43 1,00 »
+au relevé). L'agenda n'a rien à faire : ses heures sont écrites à l'heure
+de Bruxelles, et le téléphone allonge ou raccourcit la nuit de lui-même.

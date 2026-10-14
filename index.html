@@ -8629,6 +8629,25 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var hCx=(r.h===undefined)?hJour:r.h;
     r.h=Math.max(0,Math.min(hCx,hJour-absJ));
   }
+  /* LE CHANGEMENT D'HEURE. Le client, le 14/10/2026 : « le jour du
+     changement d'heure d'octobre, toutes les personnes faisant la nuit (qui
+     vont travailler 1 h de plus) reçoivent 1 h d'HS dans leur compteur ; le
+     cas contraire, en mars, ils presteront 7 h mais seront payés
+     normalement les 8 h ». L'heure se passe la nuit du samedi au dernier
+     dimanche du mois, donc dans la nuit de la journée du SAMEDI (22 h-6 h,
+     la nuit de l'usine). En octobre : une heure sup au compteur, à la prime
+     de nuit, par le circuit des heures sup écrites (r.hc). En mars : rien à
+     changer, la journée reste payée 8 h. Seulement pour qui est présent à la
+     nuit à l'heure du passage (2 h-3 h) : une plage écrite qui ne la couvre
+     pas n'y a pas droit. */
+  var dimOct=31-new Date(Date.UTC(annee,9,31)).getUTCDay();
+  if(mois===10 && jour===dimOct-1 && (r.sp||r.s)==="N"
+     && (r.h===undefined || r.h>0) && !(r.a && ABSMAP[r.a] && ABSMAP[r.a].h>=hJour)){
+    var plCh=r.plage, okCh=true;
+    if(plCh){ var dC=plCh[0], fC=plCh[1]; if(fC<=dC) fC+=24; if(dC<12){ dC+=24; fC+=24; }
+      okCh=(dC<=26 && fC>=27); }
+    if(okCh){ r.hc=(r.hc||0)+1; if(!r.hcp) r.hcp="N"; r.chgHeure=true; }
+  }
   /* « Abs » un jour de grève : ce n'est pas une maladie — voir GREVE_JOURS */
   if(r.a==="MAL" && GREVE_JOURS[String(annee)+pad2(mois)+pad2(jour)]) r.a="GREVE";
   return r;
