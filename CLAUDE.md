@@ -1812,8 +1812,8 @@ n'est deviné à leur sujet :
     06/09, septembre entier au nouveau fixe et la demi-hausse en plus,
     soit un effet au 15/08. **Tranché le 14/10/2026** : effet au 15/09,
     « le RH a fait une erreur ». La fiche paie trop, à signaler à la RH
-    (détail dans `docs/regles-paie.md`). Reste le partage d'un mois où le
-    fixe change, question ouverte au client ;
+    (détail dans `docs/regles-paie.md`). Le partage d'un mois où le fixe
+    change (les deux fixes, selon quelle clé ?) passe à la RH ;
   - le 30/09, `["D-CPPT","2h RTT","+1h RHS compteur à 0 Arrivée à 09h
     Départ à 15h"]` : la fiche paie la prime du **matin** pour les 6 h
     (38 h de matin contre 32 h, 64 h de nuit contre 70 h). L'application

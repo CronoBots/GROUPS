@@ -2290,3 +2290,7 @@ pas de l'application. Il vaut « hausse × 0,90 » en entier, et le client
 le signale à la RH. Reste à décider comment l'application partage un
 mois où le fixe change : aujourd'hui, une ligne « 15/09 » du réglage ne
 vaut qu'à partir du mois suivant (le montant en vigueur au 1er du mois).
+Le client a d'abord répondu « tout le mois est payé au même fixe », puis
+« je pense que c'est les deux fixes pour septembre ». Il n'en est pas
+sûr, et la clé de partage (par demi-mois ou par jours de calendrier)
+n'est écrite nulle part. La question passe à la RH, rien n'est codé.
