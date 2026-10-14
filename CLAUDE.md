@@ -1691,7 +1691,8 @@ n'est deviné à leur sujet :
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
   - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
-    veille `AM · VM` — l'heure de visite médicale hors horaire ? (−(montant retiré) €) ;
+    veille `AM · VM` — l'heure de visite médicale hors horaire ? Le
+    client, le 14/10/2026 : « je vérifierai » ;
   - ~~le départ anticipé sans code~~ et ~~« Polyvalence » sur un repos~~ :
     tranchés le 29/09/2026, voir « Les réponses du 29/09/2026 » ;
   - **le tableau des salaires de VBN** fiche contre application, comme celui
