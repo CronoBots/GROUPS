@@ -9626,6 +9626,27 @@ var ICS_TZ=["BEGIN:VTIMEZONE","TZID:Europe/Brussels",
   "BEGIN:DAYLIGHT","TZOFFSETFROM:+0100","TZOFFSETTO:+0200","TZNAME:CEST","DTSTART:19700329T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU","END:DAYLIGHT",
   "BEGIN:STANDARD","TZOFFSETFROM:+0200","TZOFFSETTO:+0100","TZNAME:CET","DTSTART:19701025T030000","RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU","END:STANDARD",
   "END:VTIMEZONE"];
+/* L'adresse de l'usine dans chaque poste (le client, le 14/10/2026) :
+   l'agenda du téléphone en fait un lien vers la carte. */
+var ICS_LIEU="BioWanze s.a., Rue Léon Charlier 11, 4520 Wanze";
+/* Texte d'une propriété iCalendar : barre oblique inverse, point-virgule,
+   virgule et saut de ligne s'échappent (RFC 5545, 3.3.11). */
+function icsTexte(t){ return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+/* Une ligne de plus de 75 octets se plie : saut de ligne puis une espace
+   (RFC 5545, 3.1). On compte en octets UTF-8 et on ne coupe jamais un
+   caractère en deux. */
+function icsPlier(l){
+  var out=[], cur="", n=0, i, c, b;
+  for(i=0;i<l.length;i++){
+    c=l.charAt(i); b=c.charCodeAt(0);
+    if(b>=0xD800 && b<0xDC00 && i+1<l.length){ c+=l.charAt(++i); }
+    b=unescape(encodeURIComponent(c)).length;
+    if(n+b>(out.length?74:75)){ out.push(cur); cur=""; n=0; }
+    cur+=c; n+=b;
+  }
+  out.push(cur);
+  return out.join("\r\n ");
+}
 function icsAgenda(id,debut,nJours,stamp){
   function f2(n){ return (n<10?"0":"")+n; }
   function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
@@ -9650,15 +9671,26 @@ function icsAgenda(id,debut,nJours,stamp){
     var ev=null, ft=!!(x.ab && /\+FT/.test(x.ab));
     if((x.presente||ft) && PF_DEB[x.pv]!=null){
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===x.k) P0=P; });
-      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,PF_DEB[x.pv]),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
-          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":"")];
+      /* LA REMISE DE PAUSE (le client, le 14/10/2026) : un contremaître en
+         poste — ou l'adjoint qui le remplace, « R-CM » — arrive 30 min avant
+         la pause pour la reprendre : 05h30-14, 13h30-22, 21h30-06. Pas en D.
+         Cette demi-heure ne compte pas dans les 12 h de la journée : seul
+         l'agenda la montre, aucun calcul ne la lit. */
+      var cm=x.pv!=="D" && (estContremaitre(p) || /R\s*-?\s*CM/i.test((x.raw[0]||"")+" "+(x.raw[1]||"")));
+      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,PF_DEB[x.pv]-(cm?0.5:0)),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
+          "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.rappel?" · rappel":""),
+          "LOCATION:"+icsTexte(ICS_LIEU)];
     } else if(x.ab==="FORM" || (estCongePose(x.ab) && (!/FT/.test(x.ab) || (x.ab==="-FT" && x.pv)))){
       var d2=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
       ev=["DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(d2),"SUMMARY:"+(x.ab==="FORM"?"Formation":x.ab),"TRANSP:TRANSPARENT"];
     }
     if(!ev) continue;
+    /* Le commentaire de la journée dans la note de l'événement (le client,
+       le 14/10/2026), majuscule en tête comme sur l'Accueil. */
+    var com=String(x.raw[2]||"").replace(/[ \t]+/g," ").trim();
+    if(com) ev.push("DESCRIPTION:"+icsTexte(com.charAt(0).toUpperCase()+com.slice(1)));
     L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
-    L=L.concat(ev); L.push("END:VEVENT"); n++;
+    L=L.concat(ev.map(icsPlier)); L.push("END:VEVENT"); n++;
   }
   L.push("END:VCALENDAR");
   return {texte:L.join("\r\n")+"\r\n", n:n};

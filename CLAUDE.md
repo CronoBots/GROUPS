@@ -4395,7 +4395,8 @@ Google, jusqu'à un jour). Le fichier demande une heure
   relancer la commande** et committer ce qui bouge.
 - **Contenu** : poste et heures (fuseau de Bruxelles déclaré), atelier
   écrit, « rappel » ; congés posés en journée entière ; « Formation ».
-  Ni commentaire, ni nom. **Deux défauts de l'ancien export trouvés en
+  Aucun nom. **« Ni commentaire » était vrai jusqu'au 14/10/2026** : voir
+  plus bas, le commentaire est désormais dans la note. **Deux défauts de l'ancien export trouvés en
   relisant les 26 674 événements** : une journée entière « 8h +FT » (poste
   tenu, heures au compteur) s'écrivait « Congé +FT » — c'est désormais le
   poste ; un ±FT sur un repos (« presté le 28.02 », un renvoi) donnait un
@@ -4429,6 +4430,29 @@ restants », avec la tuile FT, reste tel quel.
 Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
 événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
 téléphone dira comment l'abonnement s'affiche.**
+
+**Le commentaire, l'adresse et la remise de pause** (le client, le
+14/10/2026). Trois ajouts aux événements de `icsAgenda()` :
+
+- **la note** (`DESCRIPTION`) porte le commentaire de la journée, tel que
+  `data/horaire-2026.json` le publie déjà, majuscule en tête ;
+- **le lieu** (`LOCATION`) de chaque poste presté est l'adresse de l'usine,
+  « BioWanze s.a., Rue Léon Charlier 11, 4520 Wanze » (`ICS_LIEU`) :
+  l'agenda du téléphone en fait le lien vers la carte. « Rue Léon » est
+  admis dans `tools/formes-admises.txt` : c'est une rue ;
+- **un contremaître en poste** — ou l'adjoint qui le remplace, « R-CM »
+  écrit — commence 30 min avant la pause pour la remise : 05h30-14,
+  13h30-22, 21h30-06 ; jamais en D ; cette demi-heure ne compte pas dans les
+  12 h de la journée : seul l'agenda la montre, aucun calcul ne la lit.
+
+Le texte s'échappe (virgule, point-virgule, saut de ligne : `icsTexte()`)
+et toute ligne de plus de 75 octets se plie (`icsPlier()`, RFC 5545) :
+mesuré, aucune ligne des 78 fichiers ne dépasse 75 octets. Le
+vérificateur découpe les deux fonctions et `ICS_LIEU`. ATR le 25/10 :
+13h30-22, « Remplace AFA » ; un opérateur garde 6 h, 14 h, 22 h. Les
+quatre sorties du vérificateur (dont `--placement --tout`) sont
+identiques à l'octet ; rien ne déborde à 320 px (hors ligne), 390 et
+1280 px.
 
 **Le solde flex time rangé avec les congés restants** (le client, le
 13/10/2026 : « le solde flex time doit être affiché comme les autres congés
@@ -6448,6 +6472,18 @@ places creuses de l'année 250 → **218** ; d'ici la fin de l'année seul le
 13/10 PM disparaît ; neuf règles, compteurs et Recyclage identiques à
 l'octet (les relais ne sont pas dans `gens`). `PF_DEB` entre dans la
 découpe du vérificateur. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
+### Le classeur du 13/10/2026 à 15 h 58
+
+Huit portes ouvertes en 15 s, installé : **33 journées chez 13 personnes,
+8 compteurs**, aucune arrivée ni aucun départ. AFA absent jusqu'en
+décembre a désormais ses remplaçants écrits — VBN les 04/11 et 23/11, ATR
+en R-CM du 02 au 06/12 — : **six sous-effectifs de contremaître
+disparaissent**, 20 → 14 places d'ici la fin de l'année. AFA et ATR
+échangent leur pause le 25/10 ; HKB remplace BLR (VA) en meunerie le 11/12 ; formations EPI et
+ATEX de CDT et NPI ; BLR, JBA et YRS : congés corrigés ; SMA part à 12 h le
+13/10, relayé par PDR. CAN est toujours en RJF les 13 et 14/10 : PDF reste
+proposé à la STEP. Intégralité à zéro.
 
 ### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
 
