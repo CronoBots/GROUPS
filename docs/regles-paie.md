@@ -2245,3 +2245,15 @@ Reste ouvert : le rappel d'une hausse qui prend effet en cours de mois. La
 fiche de septembre paie, en plus du nouveau fixe, exactement la moitié de
 « hausse × fraction », sans doute pour la seconde quinzaine d'août. Sa
 règle de calcul dépend de la date d'effet exacte, demandée au client.
+
+Le client, le 14/10/2026 : nommé contremaître **le 15 septembre**. Le
+classeur concorde (« CM » écrit le 15/09, plus aucun « R-CM » ensuite).
+**La fiche ne concorde pas avec un effet au 15/09** : elle applique le
+nouveau taux horaire (nouveau fixe ÷ 148,368) dès le week-end des 05 et
+06/09. Elle paie septembre entier au nouveau fixe × 0,90, PLUS la moitié de
+la hausse (arrondie au cent) × 0,90. Un effet au 15/09 aurait donné moins
+que « nouveau fixe × 0,90 », pas plus. Les chiffres collent avec un effet
+au 15/08, la seconde quinzaine d'août étant rappelée en septembre (la fiche
+d'août est payée entièrement à l'ancien fixe). Question reposée au client
+(la RH a-t-elle fait partir la hausse au 15/08 ?). Rien n'est codé : avec
+« 01/09 » dans le réglage, l'application retrouve tout sauf ce rappel.
