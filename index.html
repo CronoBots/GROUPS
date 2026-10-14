@@ -5371,7 +5371,12 @@ function compute(){
   var wkL=ouvrier?"Prestation normale à ":"Supplément weekend à ";
   if(acc.dim) bl(acc.dim,wkL+nf4.format(txh)+" à 200 %",R(acc.dim*txh*2),true);
   if(acc.sam) bl(acc.sam,wkL+nf4.format(txh)+" à 150 %",R(acc.sam*txh*1.5),true);
-  if(acc.ferie) bl(acc.ferie,(ouvrier?"Prestation normale à ":"Supplément jour férié presté à ")+nf4.format(txh)+" à 200 %",R(acc.ferie*txh*2),true);
+  /* LE FÉRIÉ PRESTÉ D'UN EMPLOYÉ : FIXE + 100 %. Le client, le 14/10/2026
+     (« ok »), sur les fiches de VBN : le 01/01, le 06/04, les 01 et 25/05
+     se paient « Supplément weekend à <taux> », sans pourcentage, non déduit,
+     la prime d'équipe restant à 200 %. L'ouvrier garde ses 200 % (fiches de
+     LCI, au centime). */
+  if(acc.ferie) bl(acc.ferie,ouvrier?("Prestation normale à "+nf4.format(txh)+" à 200 %"):("Supplément weekend à "+nf4.format(txh)),R(acc.ferie*txh*(ouvrier?2:1)),true);
   if(acc.sam||acc.dim) bl(-(acc.sam+acc.dim),(ouvrier?"déduction prest norm à ":"Déduction travail weekend à ")+nf4.format(txh),R(-(acc.sam+acc.dim)*txh),true);
   SHIFT_CODES.forEach(function(s){
     var pr=primes[s]; if(!pr) return;
@@ -5628,7 +5633,7 @@ var WHY=[
  [/^Heure\(s\) supplémentaires prestées/,"Total des heures cochées avec un code HS dans l'horaire. Chacune est payée avec le supplément légal (150 / 187,5 / 200 %) et la prime d'équipe majorée d'un cran, en plus de l'horaire normal du jour."],
  [/^Supplément weekend .* à 200 %/,"Dimanche et jour férié : chaque heure reçoit 200 % du salaire horaire, en plus de la rémunération fixe. Le salaire horaire vaut la rémunération fixe divisée par le diviseur horaire mensuel, arrondie à quatre décimales."],
  [/^Supplément weekend .* à 150 %/,"Samedi : chaque heure reçoit 150 % du salaire horaire."],
- [/^Supplément jour férié presté/,"Un jour férié presté en semaine donne 200 % de plus, et sa prime d'équipe est majorée comme un dimanche. Contrairement au week-end, ce supplément n'est pas déduit ensuite. Un férié qui tombe un samedi se paie comme un dimanche."],
+ [/^Supplément weekend à [\d.,]+$/,"Jour férié presté en semaine : chaque heure reçoit 100 % du salaire horaire en plus de la rémunération fixe, sans déduction ensuite, comme sur la fiche. Sa prime d'équipe est majorée comme un dimanche."],
  [/^Déduction travail weekend/,"Les heures du week-end sont déjà comprises dans la rémunération fixe. Cette ligne en retire une fois 100 % pour ne pas les payer deux fois : il reste donc +50 % le samedi et +100 % le dimanche par rapport à une heure de semaine."],
  [/^Suppl\. Équipe .*heures suppl/,"Sur des heures supplémentaires, la prime d'équipe monte d'un cran : 150 % en semaine, 200 % le samedi, 300 % le dimanche et les jours fériés."],
  [/^Suppl\. Équipe/,"Prime de pause, payée par heure de présence dans le poste. Elle suit le régime du jour : 100 % en semaine, 150 % le samedi, 200 % le dimanche et les jours fériés."],
