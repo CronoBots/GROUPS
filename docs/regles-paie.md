@@ -2126,3 +2126,16 @@ tout le monde : quand la pause ne vient que du remplacé et que l'heure
 d'arrivée écrite tombe hors de cette pause, la pause est celle qui contient
 l'heure d'arrivée. Pas quand le commentaire écrit aussi une plage « de A à
 B » : il décrit alors plusieurs morceaux. Une seule journée en 2026.
+
+## Les heures sup du shut-down 2026
+
+Le client, le 14/10/2026, avec l'annonce du bureau RH et son formulaire :
+l'inspection sociale a autorisé les heures sup pendant le shut-down 2026
+(surcroît extraordinaire de travail). Ces heures « HS SD 2026 » pouvaient, au
+choix du travailleur et par un formulaire de validation, être payées à la
+fin du mois ou récupérées. En temps normal, les heures sup vont toujours au
+compteur. Le choix n'est écrit que sur le formulaire, jamais dans le
+classeur : l'application ne peut pas le lire et garde la règle ordinaire
+(sursalaire payé, heure au compteur). C'est la raison des « pas compenser »
+de mars et d'avril sur les fiches d'un employé : un écart connu, non
+corrigé.

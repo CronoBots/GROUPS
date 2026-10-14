@@ -3210,7 +3210,15 @@ Les 22 écarts restants, rangés :
   pas des « U » : 21 et 22/03 (V42, V52 : la PAUSE des 4 h est l'après-midi,
   18 h-22 h, et non la nuit), 04/04 (V43 0,75). Ce sont exactement les
   « pas compenser » des fiches de mars et d'avril, et l'unique « à
-  compenser » de janvier est l'U30 du 14/01, un mercredi. Question posée ;
+  compenser » de janvier est l'U30 du 14/01, un mercredi. **Répondu le
+  14/10/2026** : pendant le shut-down 2026, l'inspection sociale a autorisé
+  les heures sup « HS SD 2026 », et un formulaire RH laissait chacun choisir
+  de les faire payer à la fin du mois ou de les récupérer ; le client a
+  sans doute choisi le paiement. En temps normal, elles vont toujours au
+  compteur. Ce choix est écrit sur le formulaire, **pas dans le classeur** :
+  c'est un écart connu, et l'application garde la règle ordinaire (« à
+  compenser »). Reste la PAUSE de ces 4 h (18 h-22 h, l'après-midi chez
+  SAP, la nuit dans l'application) ;
 - **un même congé écrit deux fois** : le 30/01 porte « 4h RTT », et le 04/02
   « 4h -FT pris le 30.01 » ; le 05/03 porte « 1h -FT », et le 01/03 « 1h RTT
   pris le 05.03 ». L'application compte les deux ; SAP un seul, un RTT les
