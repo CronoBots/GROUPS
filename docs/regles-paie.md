@@ -2028,6 +2028,32 @@ semaine 3 (avril, août), un week-end de 2025 (janvier), le 13/04 et le
 17/03. L'employé ne change pas (la branche `ouvrier` seule est
 touchée).
 
+**La maladie de l'ouvrier, tranchée le 14/10/2026.** Le client : « oui »
+au samedi à 150 % et au dimanche à 200 % (fiches de LCI, 02-03/05 et
+11-12/07, « Heures SHG Maladie à … à 150% / à 200% »). Il a ajouté :
+« pour le premier mois de maladie c'est payé par l'employeur, après c'est
+la mutuelle qui prend le relai ». Dans la branche `ouvrier` de `compute()`,
+la maladie d'une journée se paie donc au salaire horaire moyen ×1 en
+semaine, ×1,5 le samedi et ×2 le dimanche, chaque fois sur sa propre
+ligne, comme la fiche. Au-delà de 30 jours calendrier depuis le premier
+jour de la maladie, les heures s'affichent sans montant, sous « Maladie
+au-delà du premier mois (payée par la mutuelle) ». Le premier jour vient
+de `rangMaladie()`. Elle remonte l'horaire tant que les journées sont de
+la maladie ou des repos, puisque l'incapacité court pendant les repos, et
+s'arrête à une journée prestée ou à un autre code.
+
+Pour « premier mois », j'ai compté **30 jours calendrier**, la durée du
+salaire garanti en droit belge (`MALADIE_EMPLOYEUR_J`). Le client n'a pas
+dit le nombre exact : c'est une question pour la RH.
+
+**Mesuré.** LCI tombe au centime sur le brut en mai, juin et juillet.
+Éprouvé sur deux maladies longues de l'horaire : QDE, malade depuis fin
+juillet, passe à la mutuelle fin août et reste sans montant tout
+septembre ; CDE, malade depuis le 09/09, y passe le 09/10. La règle ne vaut
+que pour l'ouvrier : chez l'employé, la rémunération fixe continue d'être
+payée telle quelle. Ce que fait une fiche d'employé après un mois de
+maladie reste une question pour la RH.
+
 ## Les notes de service du 09/10/2026
 
 Le client, le 09/10/2026 : cinq notes de service internes, « à garder en

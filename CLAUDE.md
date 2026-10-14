@@ -1845,8 +1845,12 @@ n'est deviné à leur sujet :
   deux notes internes ». ~~Vacances payées par la caisse~~ : tranché le
   14/10/2026 (« A pour les VA »), les `VA` d'un ouvrier s'affichent en
   heures sans montant, voir `docs/regles-paie.md`, « Les deux notes
-  internes » ; LCI juin au centime sur le brut. Reste : maladie du
-  week-end majorée comme le poste prévu ? ;
+  internes » ; LCI juin au centime sur le brut. ~~Maladie du week-end~~ :
+  tranchée le même jour (samedi 150 %, dimanche 200 %, et payée par
+  l'employeur le premier mois seulement, ensuite par la mutuelle) ; LCI au
+  centime en mai, juin et juillet. Restent pour la RH : le « premier mois »
+  vaut-il 30 jours calendrier ? Que fait la fiche d'un EMPLOYÉ après un
+  mois de maladie ? ;
 - **le repos lié au dimanche de la semaine 3 de l'ouvrier** (14/10/2026) :
   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
   le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
@@ -2209,7 +2213,9 @@ l'application n'a pas :
   (6 h en avril, 8 h en mai). L'application la paie ;
 - **une maladie un samedi se paie à 150 %, un dimanche à 200 %** : « Heures
   SHG Maladie à … à 150% / à 200% » les 02-03/05 et 11-12/07.
-  L'application paie toute la maladie au taux moyen simple ;
+  L'application payait toute la maladie au taux moyen simple ; **tranché
+  le 14/10/2026**, elle la majore, et au-delà du premier mois elle n'en
+  paie plus rien (mutuelle) ;
 - **chaque jour de week-end presté donne un jour de repos payé en
   semaine** : « Jours de Compensation » = jours de « JOUR DE REPOS PAYE »
   du détail, et ils suivent les jours de week-end prestés (6/6 en janvier,
