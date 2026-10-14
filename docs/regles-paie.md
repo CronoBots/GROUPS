@@ -2021,6 +2021,12 @@ même semaine (02/02, 13/04 — un rappel presté, d'où aucun repos —, 22/06,
 31/08) ; trois fois sur trois, le jour A1 est un « - » et la fiche paie ce
 jour-là (12/03, 21/05, 30/07). Question posée au client, rien n'est codé.
 
+**Appliqué le 14/10/2026** (le client : « oui ») : quand le jour A1 est un
+`TP`, le repos payé recule au lundi de la même semaine, à condition que ce
+lundi soit un repos — le 13/04, rappelé et présent, la fiche n'en paie
+aucun. Le jeudi peut être du mois suivant (31/08 pour le 03/09). Mesuré sur
+LCI sans calage : août tombe au centime, et avril ne garde que le 13/04.
+
 **La fiche, ligne par ligne** — ce qui confirme l'application : les
 suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié
 200 % ; heures sup en semaine 150 %, samedi 200 %, dimanche et férié

@@ -1859,7 +1859,12 @@ n'est deviné à leur sujet :
   fixe perd les heures au-delà, au taux horaire. Restent pour la RH : le
   « premier mois » vaut-il 30 jours calendrier ? Comment le fixe d'un
   employé est-il réduit ? ;
-- **le repos lié au dimanche de la semaine 3 de l'ouvrier** (14/10/2026) :
+- ~~le repos lié au dimanche de la semaine 3 de l'ouvrier~~ : tranché le
+  14/10/2026 par le client lui-même (« oui »), appliqué : le repos du jeudi
+  A1 recule au lundi de la même semaine quand le jeudi est un `TP` et le
+  lundi un repos (`jourTP()`, `jourRepos()`). LCI : août au centime, avril
+  +35 € (le 13/04 seul) ; vérificateur identique à l'octet. Historique
+  (14/10/2026) :
   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
   le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
   22/06, 31/08), et le jour A1 quand il est un « - » (3 sur 3). Le
