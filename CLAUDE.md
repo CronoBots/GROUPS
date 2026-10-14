@@ -4553,6 +4553,23 @@ ou RHS (06-10, 06-12, 14-18…), arrivées tardives, les 21 formations
 datées (08h30-16h30, 09h-17h). Les quatre sorties du vérificateur sont
 identiques à l'octet (agenda seulement).
 
+**Une plage collée à la pause la prolonge, et le Planning l'écrit** (le
+client, le 14/10/2026 : ATR le 31/10, `["chaudières","3h +FT","remplace
+PDF remplace FPA de 22h à 01h00'"]`, fait 14-22 puis 22-01, et l'agenda le
+laissait en 14-22 ; « quand un horaire est diminué ou prolongé, comme QBY et
+NPE, il faut écrire l'horaire dans la bulle du trigramme »). Sur une pause,
+une plage « de X à Y » DANS la pause reste un remplacement de quelques
+heures ; une plage qui COMMENCE à la fin de la pause, ou FINIT à son début
+(4 h au plus), la prolonge (`lectureAgenda()`, `hd`/`hf`). Pas au passif :
+« Remplacé de 14h à 18h par AAI » (BBZ le 09/07, GBT les 21-22/03) dit que
+l'autre vient — les trois faux de la première mesure. **71 événements** de
+l'agenda changent, relus un par un (22-24, 22-01, 20-22, 12-14…). Au
+Planning, un badge de pause dont l'horaire diffère de la pause porte cet
+horaire, le même que l'agenda et l'Accueil (`horaireModifie()`) : le 18/10
+« NPE 6-10 », « QBY 10-22 » ; le 31/10 « ATR 14-1 », « FPA 1-6 ». Vérifié à
+320 px (hors ligne), 390 et 1280 px, aucun badge hors de sa case ; les
+quatre sorties du vérificateur identiques à l'octet.
+
 **Un congé porte son seul code** (le client, le même jour : « RJF au
 lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
 

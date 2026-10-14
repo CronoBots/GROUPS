@@ -9299,6 +9299,24 @@ function lectureAgenda(db,p,an,m,j){
       if(pb<=pa) pb+=24;
       if(pb-pa>=4 && pb-pa<=12){ hd=pa; hf=pb; }
     }
+    /* UNE PLAGE COLLÉE À LA PAUSE LA PROLONGE (le client, le 14/10/2026 :
+       ATR le 31/10, ["chaudières","3h +FT","remplace PDF remplace FPA de
+       22h à 01h00'"], fait 14-22 puis 22-01). Une plage DANS la pause dit un
+       remplacement de quelques heures ; une plage qui commence à la fin de
+       la pause, ou finit à son début, dit qu'on est resté ou venu plus tôt.
+       Pas quand elle suit « remplacé par » : c'est alors l'autre qui vient. */
+    if(pv!=="D"){
+      var rxPl=/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*['’]?\s*(?:a|à)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, mpl;
+      while((mpl=rxPl.exec(com))){
+        var avPl=com.slice(0,mpl.index), apPl=com.slice(mpl.index+mpl[0].length);
+        if(/remplac\S*\s+pa?r?\b[^.;]*$/i.test(avPl) || /rempla\S*\u00e9\s*$/i.test(avPl) || /^\s*['\u2019]?\s*par\b/i.test(apPl)) continue;
+        var qa=Number(mpl[1])+Number(mpl[2]||0)/60, qb=Number(mpl[3])+Number(mpl[4]||0)/60;
+        if(qa<6) qa+=24; if(qb<=qa) qb+=24;
+        var d1=(hd!=null?hd:PF_DEB[pv]), f1=(hf!=null?hf:PF_FIN[pv]);
+        if(Math.abs(qa-f1)<0.01 && qb-qa<=4.01) hf=qb;
+        else if(Math.abs(qb-d1)<0.01 && qb-qa<=4.01) hd=qa;
+      }
+    }
     var heureDe=function(rx,lo,hi){
       var m2=com.match(rx); if(!m2) return null;
       var v=Number(m2[1])+Number(m2[2]||0)/60;
@@ -12256,6 +12274,22 @@ function renderEquipe(){
          deux signes le faisaient passer à la ligne. */
       return lib?'<small class="eqhd">'+esc(lib)+"</small>":"";
     }
+    /* UN HORAIRE DIMINUÉ OU PROLONGÉ S'ÉCRIT DANS LE BADGE (le client, le
+       14/10/2026 : « quand un horaire est diminué/prolongé comme QBY et NPE,
+       il faut écrire l'horaire dans la bulle du trigramme »). Le même horaire
+       que l'agenda et l'Accueil (lectureAgenda : plage de la cellule,
+       arrivée, départ, plage collée à la pause) ; rien quand la personne
+       fait sa pause telle quelle. */
+    function horaireModifie(x,k){
+      if(x.relais || !PF_DEB[k] || k==="D") return "";
+      var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return ""; }
+      if(!L || L.pv!==k || (L.hd==null && L.hf==null)) return "";
+      var d=(L.hd!=null?L.hd:PF_DEB[k]), f=(L.hf!=null?L.hf:PF_FIN[k]);
+      if(Math.abs(d-PF_DEB[k])<0.01 && Math.abs(f-PF_FIN[k])<0.01) return "";
+      function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
+        return mn?e+"h"+pad2(mn):String(e); }
+      return '<small class="eqhd">'+hh(d)+"-"+hh(f)+"</small>";
+    }
     function chip(x,g,posteCourant,nu,sansHoraire){
       /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
          ne sait pas jusqu'à quand. Le client, le 23/09/2026 : « pourquoi pas
@@ -12322,7 +12356,8 @@ function renderEquipe(){
            28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
-        +(nu&&(g.k==="D"||x.consign)&&!sansHoraire?horaireEcritD(x):"")
+        +(nu&&(g.k==="D"||x.consign)&&!sansHoraire?horaireEcritD(x)
+          :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
