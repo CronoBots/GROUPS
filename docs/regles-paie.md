@@ -2150,3 +2150,11 @@ tombent : « 18h-6h » donne 8 h de nuit et 4 h sup à la prime de
 l'après-midi ; « 6h-18h », 8 h de matin et 4 h à l'après-midi ; « 14h-2h »,
 8 h d'après-midi et 4 h de nuit. Les heures elles-mêmes suivent la règle
 ordinaire (sursalaire payé, heure au compteur). 180 journées en 2026.
+
+## Le chèque-repas d'une journée de délégation syndicale
+
+Le client, le 14/10/2026, sur VBN le 12/02 (« N · DS · à l'extérieur »,
+l'état de présence SAP : « Congé syndical » 8 h et un chèque), puis « oui »
+pour tout le monde : une journée ENTIÈRE de congé syndical donne le
+chèque-repas, bien que personne ne soit à l'usine. Une demi-journée suit la
+règle ordinaire (quatre heures présentes). 37 journées en 2026.

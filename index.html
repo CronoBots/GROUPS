@@ -5119,6 +5119,12 @@ function compute(){
       }
       if(hPres>0){ if(rec.v){acc.velo++;} else {acc.joursInd++;} }
     }
+    /* UNE JOURNÉE ENTIÈRE DE DÉLÉGATION SYNDICALE DONNE LE CHÈQUE-REPAS. Le
+       client, le 14/10/2026, sur VBN le 12/02, « N · DS · à l'extérieur » :
+       l'état de présence SAP porte « Congé syndical » 8 h et un chèque ;
+       « oui », pour tout le monde. Personne n'est à l'usine, mais le jour
+       compte comme presté pour le chèque. */
+    if(jourSyndicalEntier(rec,p.hJour)) acc.joursCr++;
     /* OP_BWZ_CoD_00020, point D : « aucune prime ne sera accordée en cas de
        demande de la ligne hiérarchique pour une prestation en pause AM dans
        les jours prévus en "Day" de la 5ᵉ et 6ᵉ semaine du cycle ». Le poste
@@ -5969,6 +5975,7 @@ function renderReleve(C){
       var hPres=h; codes.forEach(function(c){ var X=ABSMAP[c]; if(X && X.ft<0) hPres+=X.ft; });
       if(hPres>=4 && h>0) chq=1;
     }
+    if(jourSyndicalEntier(rec,p.hJour)) chq=1;
     codes.forEach(function(c){
       var A=ABSMAP[c]; if(!A) return;
       if(A.ft>0) ajoute(L,"F0",A.ft);
@@ -7514,6 +7521,14 @@ var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
    dans le commentaire — c'est lui qui la dit, on la lit où elle est. Sans
    cela, la cellule franche ne portant aucun poste, le cycle donnait la nuit
    et l'épargne s'en retranchait : 4 h au lieu de 8. */
+/* Une journée entière de congé syndical (DS, code FORM d'une journée) : le
+   chèque-repas est dû (le client, le 14/10/2026). */
+function jourSyndicalEntier(rec,hJour){
+  var codes=(rec.a?[rec.a]:[]).concat(rec.ax||[]);
+  for(var i=0;i<codes.length;i++){ var A=ABSMAP[codes[i]];
+    if(A && A.k==="FORM" && A.h>=hJour-0.01) return true; }
+  return false;
+}
 function parseHoraireEntry(e,hJour,epargne,renvois){
   if(typeof e==="string") e=[e];
   var prestera=/prest\w*\s+la\s+pause\s+(AM|PM|N)\b/i.exec((e&&e[2])||"");

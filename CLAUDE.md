@@ -3240,7 +3240,13 @@ Les 22 écarts restants, rangés :
   05/03 de même. Je l'avais rangé parmi les écarts sur la seule colonne 60.
   Rien n'a changé dans le code ;
 - **le chèque d'un jour de délégation** (12/02, « DS à l'extérieur ») : SAP
-  le donne, l'application non. Question posée ;
+  le donne, l'application non. **Tranché le 14/10/2026** (le client :
+  « oui », pour tout le monde) : une journée entière de congé syndical (DS,
+  code FORM d'une journée) donne le chèque-repas, à la fiche comme au relevé
+  (`jourSyndicalEntier()`). **37 journées chez 12 personnes** (JKS 13,
+  LHR 11, FLI 3…) ; les cinq sorties du vérificateur identiques à l'octet
+  (règle de paie seulement) ; relevé de février « 68 8,00 · chèque 1 »,
+  comme SAP, à 320 px (hors ligne), 390 et 1280 px ;
 - **le rappel sur un repos payé** (REP, 25/06) : SAP ne porte aucune heure
   sup, seulement le déplacement — comme la fiche. Question déjà ouverte ;
 - **le 30/09** confirme la fiche : prime du matin pour les 6 h (P11) et
