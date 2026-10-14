@@ -2050,9 +2050,23 @@ dit le nombre exact : c'est une question pour la RH.
 Éprouvé sur deux maladies longues de l'horaire : QDE, malade depuis fin
 juillet, passe à la mutuelle fin août et reste sans montant tout
 septembre ; CDE, malade depuis le 09/09, y passe le 09/10. La règle ne vaut
-que pour l'ouvrier : chez l'employé, la rémunération fixe continue d'être
-payée telle quelle. Ce que fait une fiche d'employé après un mois de
-maladie reste une question pour la RH.
+que pour l'ouvrier dans cette première version.
+
+**Et pour l'employé, le même jour.** Le client : « c'est pareil pour les
+maladies employé ». Au-delà du premier mois, la fiche simulée d'un employé
+retire de la rémunération fixe les heures de maladie au taux horaire
+(fixe ÷ diviseur), sans descendre sous zéro, sur une ligne « Maladie
+au-delà du premier mois (payée par la mutuelle) ». La majoration du
+week-end reste propre à l'ouvrier : elle n'a été confirmée que pour lui.
+Aucune fiche d'employé malade plus d'un mois n'a été vue. **La façon dont
+le secrétariat social réduit le fixe** (au taux horaire, en jours, au
+prorata du mois ?) **est donc une question pour la RH.** Éprouvé sur YBT
+(employé, malade sans interruption du 01/01 au 22/11) : octobre entier
+retiré, novembre en partie, décembre payé en entier.
+
+**Une limite** : une maladie en cours au 1er janvier n'a pas de début
+lisible dans l'horaire de l'année. L'application paie alors ses 30
+premiers jours de janvier, faute de mieux.
 
 ## Les notes de service du 09/10/2026
 

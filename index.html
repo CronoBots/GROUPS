@@ -5246,11 +5246,14 @@ function compute(){
          après c'est la mutuelle qui prend le relai ». Le mois se compte en
          30 jours calendrier depuis le premier jour de la maladie
          (rangMaladie). */
-      if(ouvrier && A.k==="SMG" && (rec.s||!pleineJournee)){
+      /* Le premier mois vaut aussi pour l'EMPLOYÉ (le client, le
+         14/10/2026 : « c'est pareil pour les maladies employé ») ; la
+         majoration du week-end, elle, n'a été confirmée que chez l'ouvrier. */
+      if(A.k==="SMG" && (rec.s||!pleineJournee)){
         var rgM=rangMaladie(y,m,d,p.hJour);
         if(rgM && rgM>MALADIE_EMPLOYEUR_J) acc.smgMut+=A.h;
-        else if(t==="Samedi") acc.smgSam+=A.h;
-        else if(t==="Dimanche") acc.smgDim+=A.h;
+        else if(ouvrier && t==="Samedi") acc.smgSam+=A.h;
+        else if(ouvrier && t==="Dimanche") acc.smgDim+=A.h;
       }
       if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
       if(A.hs){
@@ -5341,7 +5344,7 @@ function compute(){
   if(ab("TP")) lines.push({q:ab("TP"),l:"Heure(s) temps partiel",qh:true});
   if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) crédit-temps",qh:true});
   if(ab("FER") && !ouvrier) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
-  if(ab("SMG") && !ouvrier) lines.push({q:ab("SMG"),l:"Heure(s) SMG maladie",qh:true});
+  if(ab("SMG")-acc.smgMut>0 && !ouvrier) lines.push({q:ab("SMG")-acc.smgMut,l:"Heure(s) SMG maladie",qh:true});
   if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
   if(ab("CE") && !ouvrier) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
@@ -5482,6 +5485,14 @@ function compute(){
     if(acc.smgMut) lines.push({q:acc.smgMut,l:"Maladie au-delà du premier mois (payée par la mutuelle)",qh:true});
   } else {
     bl(null,"Montant heures prestées",R(remFixe*frac));
+    /* Au-delà du premier mois, la mutuelle paie : la rémunération fixe perd
+       ces heures au taux horaire (fixe ÷ diviseur), sans descendre sous zéro.
+       La façon exacte dont le secrétariat social réduit le fixe d'un employé
+       n'est confirmée par aucune fiche : question à la RH. */
+    if(acc.smgMut){
+      var dedMut=Math.min(R(acc.smgMut*txh),R(remFixe*frac));
+      bl(-acc.smgMut,"Maladie au-delà du premier mois (payée par la mutuelle) à "+nf4.format(txh),-dedMut,true);
+    }
   }
   var rcmJ=Number(M.rcmJours||0);
   if(rcmJ) bl(rcmJ,"Prime de remplacement contremaître à "+nf4.format(p.primeRemplCM),R(rcmJ*p.primeRemplCM));
