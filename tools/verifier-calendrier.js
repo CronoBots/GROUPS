@@ -190,6 +190,9 @@ const MORCEAUX=[
   ["function lectureAgenda(","\n}"],
   ["function estCongePose(","\n"],
   ["var ICS_TZ=","];"],
+  ["var ICS_LIEU=","\n"],
+  ["function icsTexte(","\n"],
+  ["function icsPlier(","\n}"],
   ["function icsAgenda(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
