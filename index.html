@@ -4998,6 +4998,15 @@ function jourRepos(cells,y,m,d){
   if(typeof e==="string") e=[e];
   return String(e[0]||"").trim()==="-" && !String(e[1]||"").trim();
 }
+/* Le jour est-il le repos payé A1 de la personne (le jeudi, ou le lundi
+   quand ce jeudi est un TP) ? Mois de 0 à 11. */
+function reposA1(cells,y,m,d){
+  var k=positionGrille5(cells,y,m); if(k===null) return false;
+  var pos=(((Math.round((Date.UTC(y,m,d)-ANCRAGE_BASE)/86400000)+k)%35)+35)%35;
+  if(pos===REPOS_A1) return !jourTP(cells,y,m,d);
+  if(pos===REPOS_A1-3) return jourTP(cells,y,m,d+3);
+  return false;
+}
 /* La position dans la grille de 5 semaines se lit sur les cellules de la
    personne (le mois et le précédent), au cycle de 5 semaines seulement —
    celui de la note. Sous 70 % d'accord, rien : le calcul garde l'ancienne
@@ -5050,13 +5059,14 @@ function reposLiesAuWeekend(M,y,m,hJour){
     pos=(((n+k)%35)+35)%35;
     /* LE REPOS DU JEUDI A1 RECULE AU LUNDI QUAND LE JEUDI EST UN TP. Le
        client, le 14/10/2026 (« oui ») : les fiches de LCI le paient le
-       lundi de la même semaine (02/02, 22/06, 31/08 ; rien le 13/04, un
-       rappel presté) quand le jeudi est un TP, et le jeudi quand il est un
-       repos (trois sur trois). Le jeudi peut être du mois suivant : 31/08 pour 03/09. */
+       lundi de la même semaine quand le jeudi est un TP (02/02, 22/06,
+       31/08 ; le 13/04, rappelé, n'est qu'un repos sans paiement), et le
+       jeudi quand il est un repos (trois sur trois). Le jeudi peut être du mois suivant : 31/08 pour 03/09. */
     var posR=pos, dR=d;
     if(pos===REPOS_A1-3){
-      /* … et seulement si ce lundi est un repos : le 13/04, rappelé et
-         présent, la fiche ne paie aucun repos. */
+      /* … et seulement si ce lundi n'est pas presté : le 13/04, rappelé,
+         le détail des jours écrit « REPOS DIMANCHE » (un repos) mais aucun
+         « JOUR DE REPOS PAYE ». */
       if(!jourTP(st.personD,y,m,d+3) || !jourRepos(st.personD,y,m,d)) continue;
       posR=REPOS_A1; dR=d+3;
     }
@@ -8758,9 +8768,29 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
   }
   var reposCycle=(raw[0]||"").trim()==="-"
     || (fit && !posteDeCycle(fit,annee,mois,jour) && !/[ée]change|inversion/i.test(raw[2]||""));
-  if(reposCycle && r.s && !r.a && !(r.ax && r.ax.length)
+  /* LE JOUR DU REPOS A1 EST UN REPOS. LCI le 13/04, ["N","22h-10h",
+     "Rappel le 07/04 + rappel le 13/04"] : le cycle y met un D, mais c'est
+     le jour de son repos A1 reculé au lundi (le jeudi 16/04 est un TP), et
+     le détail des jours de la fiche d'avril écrit « REPOS DIMANCHE » puis
+     12 h d'heures sup à la prime de nuit, rien en heures normales. Le client, le 14/10/2026 : « tu
+     ne sais pas vérifier ça par rapport au cycle et au commentaire ?! ». */
+  if(!reposCycle && /rappe[lk]/i.test(raw[2]||"") && typeof reposA1==="function"){
+    for(var qA=0; qA<db.people.length; qA++) if(db.people[qA].d[pad2(mois)+pad2(jour)]===raw){
+      if(reposA1(db.people[qA].d,annee,mois-1,jour)) reposCycle=true; break; }
+  }
+  /* Les heures sup qu'une plage plus longue que la journée a déjà posées
+     (« 22h-10h » : 8 h et « 4H HS ») ne l'empêchent pas : la journée entière
+     est un rappel. LCI le 13/04, ["N","22h-10h","Rappel le 07/04 + rappel
+     le 13/04"], repos au cycle (shut-down, équipe 5 en repos du 10 au
+     14/04) : la fiche paie 12 h d'heures sup et rien en heures normales.
+     Le client, le 14/10/2026 : « tu ne sais pas vérifier ça par rapport au
+     cycle et au commentaire ?! ». */
+  var mPl=/^(\d+)H HS$/.exec(r.a||""), hsPlage=(mPl && !(r.ax && r.ax.length))?+mPl[1]:0;
+  if(reposCycle && r.s && (!r.a || hsPlage) && !(r.ax && r.ax.length)
      && !(r.epargne>0) && /rappe[lk]/i.test(raw[2]||"")){
-    var hRs=(r.h===undefined)?hJour:r.h;
+    var hRs=((r.h===undefined)?hJour:r.h)+hsPlage;
+    /* toute la plage est le rappel : une seule pause, celle de la cellule */
+    if(hsPlage && hRs<=12){ delete r.a; r.hsp=r.s; delete r.rpp; }
     if(hRs>=1 && hRs<=12 && Math.abs(hRs-Math.round(hRs))<0.01){
       r.ax=[Math.round(hRs)+"H HS"]; r.hsp=r.hsp||r.s; r.rs=true;
       /* SAUF SI LE LENDEMAIN LES VERSE AU FLEX TIME. Une nuit finit le

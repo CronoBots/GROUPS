@@ -2023,9 +2023,21 @@ jour-là (12/03, 21/05, 30/07). Question posée au client, rien n'est codé.
 
 **Appliqué le 14/10/2026** (le client : « oui ») : quand le jour A1 est un
 `TP`, le repos payé recule au lundi de la même semaine, à condition que ce
-lundi soit un repos — le 13/04, rappelé et présent, la fiche n'en paie
-aucun. Le jeudi peut être du mois suivant (31/08 pour le 03/09). Mesuré sur
-LCI sans calage : août tombe au centime, et avril ne garde que le 13/04.
+lundi ne soit pas presté — le 13/04, rappelé, le détail des jours écrit
+« REPOS DIMANCHE » (un repos, sans paiement) et aucun « JOUR DE REPOS
+PAYE ». Le jeudi peut être du mois suivant (31/08 pour le 03/09).
+
+**Et ce lundi-là est un repos pour un rappel.** LCI le 13/04, `["N",
+"22h-10h","Rappel le 07/04 + rappel le 13/04"]` : le cycle y met un D, la
+cellule une nuit, et l'application payait 8 h normales et 4 h sup au matin.
+La fiche paie 12 h d'heures sup à compenser, toutes à la prime de nuit,
+rien en heures normales : c'est un rappel sur un repos. Le client, le
+14/10/2026 : « tu ne sais pas vérifier ça par rapport au cycle et au
+commentaire ?! » — la réponse était dans la grille et le commentaire.
+`lireJournee()` traite le jour du repos A1 (`reposA1()`) comme un repos du
+cycle, et une plage de 12 h y devient 12 h sup à la pause de la cellule,
+prime de rappel comprise. Mesuré sur LCI sans calage : août au centime,
+avril à −3,80 € (au lieu de +247,80 €).
 
 **La fiche, ligne par ligne** — ce qui confirme l'application : les
 suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié
