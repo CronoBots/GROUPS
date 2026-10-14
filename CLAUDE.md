@@ -4451,8 +4451,14 @@ téléphone dira comment l'abonnement s'affiche.**
   STRUCTURÉ : `LOCATION` (nom puis adresse), `X-APPLE-STRUCTURED-LOCATION`
   (nom, adresse, coordonnées) et `GEO` pour les autres agendas. Les
   coordonnées sont celles du site dans OpenStreetMap (zone industrielle
-  « BioWanze S.A. », 50,531149 · 5,207899). Seul l'iPhone dira s'il s'écrit
-  bien en rouge ;
+  « BioWanze S.A. », 50,531149 · 5,207899). Le lieu s'écrit désormais en
+  rouge et Plans pose l'épingle au bon endroit (le client, le 14/10/2026).
+  **Mais l'aperçu de carte dans l'événement était trop serré** : avec un
+  rayon (`X-APPLE-RADIUS`) de 150 m, il ne montrait que quelques bâtiments,
+  sans rue ni repère, là où l'entrée choisie à la main cadre le site et sa
+  route. Le rayon passe à 500 m, avec `X-APPLE-REFERENCEFRAME=1` comme
+  l'écrit l'agenda d'Apple lui-même. Seul l'iPhone dira si le cadrage
+  convient ;
 - **le contremaître DE LA PAUSE**, et l'adjoint qui le remplace (« R-CM »
   écrit, le client : « oui »), commence 30 min avant pour la remise :
   05h30-14, 13h30-22, 21h30-06. Jamais en D, et **pas un contremaître en
