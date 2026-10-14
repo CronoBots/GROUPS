@@ -3271,7 +3271,7 @@ Les 22 écarts restants, rangés :
   14/10/2026** : pendant le shut-down 2026, l'inspection sociale a autorisé
   les heures sup « HS SD 2026 », et un formulaire RH laissait chacun choisir
   de les faire payer à la fin du mois ou de les récupérer ; le client a
-  sans doute choisi le paiement. En temps normal, elles vont toujours au
+  choisi le paiement (confirmé le 14/10/2026). En temps normal, elles vont toujours au
   compteur. Ce choix est écrit sur le formulaire, **pas dans le classeur** :
   c'est un écart connu, et l'application garde la règle ordinaire (« à
   compenser »). **La PAUSE de ces 4 h est tranchée le même jour** (le
