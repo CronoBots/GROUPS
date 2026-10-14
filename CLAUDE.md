@@ -4513,6 +4513,24 @@ terrain arrière jusqu'au 20/09. **Premier essai faux** : le jour passé en
 était en distillation toute l'année. Les quatre sorties du vérificateur
 sont identiques à l'octet (agenda seulement).
 
+**L'horaire que le commentaire écrit** (le client, le 14/10/2026 : « si
+le commentaire précise l'horaire, il faut adapter cet horaire au
+commentaire », ATR le 16/10, « ATEX … de 08h30' à 16h30' », que l'agenda
+mettait en 7-15). `lectureAgenda()` pose `hd` et `hf`, lus par
+`pfDebut()` et `pfFin()` dans l'agenda et dans le bloc du prochain poste
+de l'Accueil : une journée de jour (D, formation) qui écrit une plage de
+4 à 12 h la prend ; « arrivée à 9h » et « départ à 15h » valent pour toute
+journée prestée, s'ils tombent près de la pause (une heure avant 6 h est du
+lendemain : « arrivée à 01h00' » d'une nuit). Sur une pause, « de 20h à
+22h » dit un remplacement de quelques heures et ne compte pas ; « remplace
+X … départ à » sans rien de posé ce jour-là, c'est X qui part (la garde du
+départ anticipé du 29/09). La plage de la cellule n'est pas lue : avec un
+code de jour, elle ne dit que la pause prévue. **613 événements** changent
+d'heure sur 2026-2027, relus par échantillon : départs avec RTT, −FT, ½ VA
+ou RHS (06-10, 06-12, 14-18…), arrivées tardives, les 21 formations
+datées (08h30-16h30, 09h-17h). Les quatre sorties du vérificateur sont
+identiques à l'octet (agenda seulement).
+
 **Un congé porte son seul code** (le client, le même jour : « RJF au
 lieu de Congé RJF ») : « VA », « RJF », « RTT », comme dans l'horaire.
 

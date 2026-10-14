@@ -141,6 +141,7 @@ const MORCEAUX=[
   ["function remplPartiel(","\n}"],
   ["var PF_DEB=","\n"],
   ["function pfDebut(","\n"],
+  ["function pfFin(","\n"],
   ["function relaisDouze(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],

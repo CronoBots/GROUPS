@@ -9171,9 +9171,13 @@ function _pfBinome(p){
    de la personne, par lireJournee(), comme le calendrier. */
 var PF_HEURES={AM:"6 h-14 h", PM:"14 h-22 h", N:"22 h-6 h", D:"7 h-15 h"};
 /* Le début d'un poste, remise de pause comprise (x.remise : 30 min plus tôt). */
-function pfDebut(x){ return PF_DEB[x.pv]-(x.remise?0.5:0); }
+function pfDebut(x){ return x.hd!=null?x.hd:PF_DEB[x.pv]-(x.remise?0.5:0); }
+function pfFin(x){ return x.hf!=null?x.hf:PF_FIN[x.pv]; }
 var PF_HEURES_REMISE={AM:"5 h 30-14 h", PM:"13 h 30-22 h", N:"21 h 30-6 h"};
-function pfHeures(x){ return (x.remise && PF_HEURES_REMISE[x.pv]) || PF_HEURES[x.pv]; }
+function pfHeures(x){
+  if(x.hd!=null || x.hf!=null) return pfHeureTxt(pfDebut(x)%24)+"-"+pfHeureTxt(pfFin(x)%24);
+  return (x.remise && PF_HEURES_REMISE[x.pv]) || PF_HEURES[x.pv];
+}
 function pfHeureTxt(h){ return Math.floor(h)+"\u00a0h"+(h%1?"\u00a0"+Math.round((h%1)*60):""); }
 /* début et fin de chaque pause, en heures depuis minuit du jour de l'usine */
 var PF_DEB={AM:6, PM:14, N:22, D:7}, PF_FIN={AM:14, PM:22, N:30, D:15};
@@ -9251,7 +9255,40 @@ function lectureAgenda(db,p,an,m,j){
       if(ka==="cm"||ka==="adj") ka=null;
     }
   }
-  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, roue:roue,
+  /* L'HORAIRE QUE LE COMMENTAIRE ÉCRIT (le client, le 14/10/2026 : « si le
+     commentaire précise l'horaire, il faut adapter cet horaire au
+     commentaire », ATR le 16/10, « ATEX … de 08h30' à 16h30' »). Une journée
+     de jour (D, formation) qui écrit une plage de 4 à 12 h la prend ; sur
+     une pause, « de 20h à 22h » dit un remplacement de quelques heures, pas
+     l'horaire de la journée, et ne compte pas. « Arrivée à 9h » et « départ
+     à 15h » valent pour toute journée prestée, s'ils tombent près de la
+     pause. Les heures se comptent depuis minuit du jour de l'usine. */
+  var hd=null, hf=null, com=String(raw[2]||"");
+  if(h>0 && PF_DEB[pv]!=null){
+    var mp=pv==="D" && com.match(/\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*['\u2019]?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/i);
+    if(mp){
+      var pa=Number(mp[1])+Number(mp[2]||0)/60, pb=Number(mp[3])+Number(mp[4]||0)/60;
+      if(pb<=pa) pb+=24;
+      if(pb-pa>=4 && pb-pa<=12){ hd=pa; hf=pb; }
+    }
+    var heureDe=function(rx,lo,hi){
+      var m2=com.match(rx); if(!m2) return null;
+      var v=Number(m2[1])+Number(m2[2]||0)/60;
+      if(v<6) v+=24;
+      return (v>=lo && v<=hi)?v:null;
+    };
+    var d0=PF_DEB[pv], f0=PF_FIN[pv];
+    var ar=heureDe(/arriv\S*\s*(?:\u00e0|a)?\s*(\d{1,2})\s*h\s*(\d{2})?/i, d0-4, f0-1);
+    var dp=heureDe(/d\S{0,2}part\s*(?:\u00e0|a)?\s*(\d{1,2})\s*h\s*(\d{2})?/i, d0+1, f0+4);
+    if(ar!=null) hd=ar;
+    /* « remplace X … départ à 10h » sans rien de posé ce jour-là : c'est X
+       qui part (la règle du départ anticipé, le 29/09/2026). */
+    var iR=com.search(/rempla(?:ce|cement)\b/i), iD=com.search(/d\S{0,2}part\s/i);
+    if(dp!=null && iR>=0 && iR<iD && !r.a && !(r.ax&&r.ax.length) && !r.rhsJ) dp=null;
+    if(dp!=null) hf=dp;
+    if(hd!=null && hf!=null && hf<=hd){ hd=null; hf=null; }
+  }
+  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, roue:roue, hd:hd, hf:hf,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
@@ -9301,12 +9338,12 @@ function _pfInfos(p){
     d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
     x=_pfJour(p.id,d);
     if(x && x.presente && PF_HEURES[x.pv]){
-      if(k===0 && hNow>=PF_FIN[x.pv]) continue;
+      if(k===0 && hNow>=pfFin(x)) continue;
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
       var deb=pfDebut(x);
       out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:"", deb:deb, heures:pfHeures(x),
         enCours:(k===0 && hNow>=deb),
-        pct:Math.max(0,Math.min(100,Math.round((hNow-deb)/(PF_FIN[x.pv]-deb)*100)))};
+        pct:Math.max(0,Math.min(100,Math.round((hNow-deb)/(pfFin(x)-deb)*100))), fin:pfFin(x)};
       break;
     }
   }
@@ -9374,7 +9411,7 @@ function _pfHead(db,p){
     var pr=inf.prochain, quand=pr.k===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
     var aujT=inf.auj&&inf.auj.presente,
         lab=pr.enCours?"En poste":(pr.k===0?"Aujourd'hui":(aujT?"Prochain poste":"Reprise"));
-    if(pr.k===0) quand=pr.enCours?("Fin à "+(PF_FIN[pr.pv]%24)+"\u00a0h"):("Début à "+pfHeureTxt(pr.deb));
+    if(pr.k===0) quand=pr.enCours?("Fin à "+pfHeureTxt(pr.fin%24)):("Début à "+pfHeureTxt(pr.deb));
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
@@ -9758,7 +9795,7 @@ function icsAgenda(id,debut,nJours,stamp){
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
       /* La remise de pause (lectureAgenda, x.remise) avance le début de
          30 min : 05h30-14, 13h30-22, 21h30-06. */
-      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,pfDebut(x)),"DTEND;TZID=Europe/Brussels:"+dt(d,PF_FIN[x.pv]),
+      ev=["DTSTART;TZID=Europe/Brussels:"+dt(d,pfDebut(x)),"DTEND;TZID=Europe/Brussels:"+dt(d,pfFin(x)),
           "SUMMARY:"+x.pv+(P0?" · "+P0.t:"")+(x.roue?" · Roue libre":"")+(x.rappel?" · rappel":"")].concat(icsLieu());
     } else if(x.ab==="FORM"){
       /* Les jours de travail seulement (le client, le 14/10/2026 : « il ne
