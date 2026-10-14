@@ -3185,7 +3185,15 @@ Les 22 écarts restants, rangés :
 
 - **la pause d'un remplacement partiel** : le 21/01, `["R-CM","2h +FT",
   "remplace GPS de 20h à 22h00'"]`, l'application lit PM 6 h ; SAP dit nuit
-  8 h (pointé 19:20-06:05), les 2 h de 20 h à 22 h au flex time. Le 05/03,
+  8 h (pointé 19:20-06:05), les 2 h de 20 h à 22 h au flex time. **Tranché
+  le 14/10/2026** (le client : « oui », pour tout le monde) : un
+  remplacement « de A à 22h » épargné en +FT, quand la pause ne vient que
+  du remplacé (d'après-midi), ouvre une NUIT — la personne est venue plus
+  tôt. `lireJournee()` lit N, 8 h, les heures du remplacement au flex time.
+  Une seule journée de l'année ; `--placement --tout` ne change que le
+  21/01 (CM PM 2/1 → 1/1, CM N 0/1 → 1/1), les autres sorties sont
+  identiques à l'octet ; relevé de janvier « 3A40 · P13 8,00 · F0 2,00 »,
+  comme SAP. Le 05/03,
   « remplace GPS arrivée à 15h00' », l'application lit AM ; SAP dit PM
   7 h + 1 h de RTT (pointé 15:16-22:00). Question posée au client ;
 - **les heures sup du week-end sont des « V »** (Overtime 187,5 % / 200 %),

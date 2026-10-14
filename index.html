@@ -8349,6 +8349,18 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
        qui tranche — la règle de la section 6 bis. */
     var duCycle=(!r.s && !r.jour)
       ? posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour) : null;
+    /* UN REMPLACEMENT QUI FINIT À 22 H, ÉPARGNÉ EN +FT, OUVRE UNE NUIT. Le
+       client, le 14/10/2026, sur VBN le 21/01 : ["R-CM","2h +FT","remplace
+       GPS de 20h à 22h00'"]. GPS est d'après-midi, mais VBN est venu plus
+       tôt pour sa NUIT : son état de présence SAP dit nuit 8 h (pointé
+       19 h 20 - 6 h 05) et les 2 h du remplacement au flex time. Le +FT le
+       dit : des heures prises dans la pause ne s'épargnent pas en plus. */
+    if(duCycle==="PM" && r.epargne>0){
+      var plR=plageCommentaire(raw[2]);
+      if(plR && Math.abs(plR[1]-22)<0.01 && plR[0]>=14
+         && Math.abs((plR[1]-plR[0])-r.epargne)<0.01
+         && /\bremplace\s+[A-Z]{3}\b[^.;]*?\bde\s+\d/.test(raw[2]||"")) duCycle="N";
+    }
     if(!duCycle) duCycle=posteDeCycle(fit,annee,mois,jour);
     if(!duCycle) duCycle=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
     if(!duCycle && r.jour) duCycle=r.s||"D";
