@@ -1862,8 +1862,12 @@ n'est deviné à leur sujet :
 - ~~le repos lié au dimanche de la semaine 3 de l'ouvrier~~ : tranché le
   14/10/2026 par le client lui-même (« oui »), appliqué : le repos du jeudi
   A1 recule au lundi de la même semaine quand le jeudi est un `TP` et le
-  lundi un repos (`jourTP()`, `jourRepos()`). LCI : août au centime, avril
-  +35 € (le 13/04 seul) ; vérificateur identique à l'octet. Historique
+  lundi un repos (`jourTP()`, `jourRepos()`). LCI : août au centime ; le
+  13/04, ce lundi où il est rappelé, se lit en rappel sur un repos
+  (`reposA1()` : 12 h sup de nuit, comme la fiche — **je l'avais laissé en
+  « question » alors que le cycle et le commentaire le disaient**, le
+  client l'a relevé) ; avril −3,80 € au lieu de +(montant retiré) € ; vérificateur
+  et VBN identiques. Historique
   (14/10/2026) :
   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
   le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
