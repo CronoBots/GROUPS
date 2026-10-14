@@ -1806,7 +1806,12 @@ n'est deviné à leur sujet :
   ligne, et la somme ne laisse aucun reste :
   - le fixe payé dépasse « fixe × 0,90 » d'exactement la moitié de
     « hausse × 0,90 » : c'est sans doute un rappel de la hausse pour
-    une demi-quinzaine d'août. Hypothèse à faire confirmer ;
+    une demi-quinzaine d'août. Hypothèse à faire confirmer. Le client,
+    le 14/10/2026 : nommé le **15/09** (le classeur écrit « CM » ce
+    jour-là). La fiche le contredit : nouveau taux horaire dès les 05 et
+    06/09, septembre entier au nouveau fixe et la demi-hausse en plus,
+    soit un effet au 15/08. Question reposée, rien n'est codé (détail
+    dans `docs/regles-paie.md`) ;
   - le 30/09, `["D-CPPT","2h RTT","+1h RHS compteur à 0 Arrivée à 09h
     Départ à 15h"]` : la fiche paie la prime du **matin** pour les 6 h
     (38 h de matin contre 32 h, 64 h de nuit contre 70 h). L'application
