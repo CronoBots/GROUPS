@@ -944,7 +944,9 @@ Proposé au client comme « règle A partout », cela aurait cassé le 18/02 ;
 d'où la question, et sa réponse : « si AM et DS-CE alors oui c'est 8 h
 prime du matin ». La règle ne vaut donc que pour la cellule franche **PM** :
 4 h prestées avec la prime, et 4 h du code `1/2 CE` — ligne « Heure(s)
-conseil d'entreprise, sans prime d'équipe ». **La nuit est tranchée le
+conseil d'entreprise, sans prime d'équipe ». Sans prime, mais payées : chez
+l'ouvrier, ces 4 h vont à la « Compens. Collective Payée » au taux garanti,
+comme sur la fiche du 25/08 (depuis le 14/10/2026 ; avant, aucun montant). **La nuit est tranchée le
 30/09/2026**, en deux temps : « les heures prestées gardent la prime de
 nuit », puis « pas obligatoirement la prime de nuit, mais la prime qui est
 bien indiquée dans le commentaire ». Une journée « DS-CE » ou « D-CPPT »
@@ -1955,10 +1957,19 @@ l'horaire ne porte pas ; avril, l'écart connu du 13/04 et le repos du
 dimanche 05/04, que la grille place sur un jour de temps partiel et que la
 fiche ne paie pas ; août, le repos du jour A1 tombé un jour de temps partiel
 (03/09), que la fiche a payé le 31/08, et 4 h de RHS que le classeur
-n'écrit pas. **Quand le jour A1 tombe sur un temps partiel, la fiche paie
+n'écrit pas. **Ces 4 h n'étaient pas une RHS cachée, et c'était faux de
+le dire** (remesuré le 14/10/2026) : c'est la demi-journée de conseil
+d'entreprise du 25/08 (`PM · DS-CE`, code `1/2 CE`), que la fiche paie en
+« Compensation payée ». L'application la montrait en heures, sans montant ;
+pour l'ouvrier, elle entre désormais dans la « Compens. Collective Payée »
+au taux garanti. Août passe de −(montant retiré) € à −(montant retiré) €, le repos du 31/08. **Quand le jour A1 tombe sur un temps partiel, la fiche paie
 le repos un autre jour** (02/02, 22/06, 31/08 : chaque fois le premier D de
 la semaine, écrit « - » dans le classeur) ; ce n'est pas écrit dans la
-note, et l'application ne le déplace pas.
+note, et l'application ne le déplace pas. Remesuré le 14/10/2026 : quatre
+fois sur quatre, le jour A1 est un `TP` et le repos part au lundi de la
+même semaine (02/02, 13/04 — un rappel presté, d'où aucun repos —, 22/06,
+31/08) ; trois fois sur trois, le jour A1 est un « - » et la fiche paie ce
+jour-là (12/03, 21/05, 30/07). Question posée au client, rien n'est codé.
 
 **La fiche, ligne par ligne** — ce qui confirme l'application : les
 suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié

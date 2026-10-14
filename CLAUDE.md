@@ -1836,6 +1836,16 @@ n'est deviné à leur sujet :
   ouvriers »), appliqué le 09/10/2026, voir `docs/regles-paie.md`, « Les
   deux notes internes ». Restent : vacances payées par la caisse et non
   par l'employeur ? maladie du week-end majorée comme le poste prévu ? ;
+- **le repos lié au dimanche de la semaine 3 de l'ouvrier** (14/10/2026) :
+  quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
+  le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
+  22/06, 31/08), et le jour A1 quand il est un « - » (3 sur 3). Le
+  déplacer aussi ? Seul août change de mois (−(montant retiré) €). Remesuré le même
+  jour, fiche par fiche, sur l'application actuelle : la demi-journée de
+  conseil d'entreprise du 25/08 n'était pas payée à l'ouvrier, elle l'est
+  (`docs/regles-paie.md`) ; tout le reste de l'écart de LCI est l'une des
+  questions ci-dessous (vacances, maladie du week-end), le 01/01 (un
+  week-end de 2025), le 13/04 et le 17/03 ;
 - **le D de la grille** (09/10/2026) : la note sur les repos écrit D =
   7h30-16h (une demi-heure de midi non payée) ; le client avait dit le
   28/09 « seulement D : 7-15 ». Lequel vaut aujourd'hui ? La note date de
