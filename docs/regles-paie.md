@@ -1881,7 +1881,12 @@ Elle se partage par **demi-mois** autour d'une nomination au 15. C'est
 aussi un indice pour le fixe du même mois : la clé de partage de la RH
 serait la quinzaine. Dans l'application, on saisit la prime entière
 dans les réglages, et la moitié dans « Prime de remise » de septembre
-(`primeRemiseMois`). Le montant reste sur l'appareil.
+(`primeRemiseMois`). Le montant reste sur l'appareil. **Le montant réel
+de la prime ne sera connu qu'avec la fiche d'octobre** (le client, le
+14/10/2026), premier mois complet comme contremaître, reçue début
+novembre. Le double du reste de septembre n'est qu'une estimation
+jusque-là ; la fiche d'octobre dira aussi si le partage par quinzaine
+est le bon.
 
 ## Le rappel se compte depuis le jour PRESTÉ
 
