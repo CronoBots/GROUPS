@@ -3217,8 +3217,16 @@ Les 22 écarts restants, rangés :
   sans doute choisi le paiement. En temps normal, elles vont toujours au
   compteur. Ce choix est écrit sur le formulaire, **pas dans le classeur** :
   c'est un écart connu, et l'application garde la règle ordinaire (« à
-  compenser »). Reste la PAUSE de ces 4 h (18 h-22 h, l'après-midi chez
-  SAP, la nuit dans l'application) ;
+  compenser »). **La PAUSE de ces 4 h est tranchée le même jour** (le
+  client : « oui », pour tout le monde) : quand une plage plus longue que la
+  journée couvre une pause entière et déborde, les heures en plus prennent
+  la prime de la pause où elles tombent — « 18h-6h » : 8 h de nuit et 4 h
+  sup à la prime de l'après-midi ; « 6h-18h » : 8 h de matin et 4 h à
+  l'après-midi. `parseHoraireEntry()` pose `hsp`. **180 journées** sur
+  l'année (141 en après-midi, 26 au matin, 13 de nuit) ; les cinq sorties
+  du vérificateur sont identiques à l'octet (règle de paie seulement), et
+  `--journee` imprime désormais « prime des HS ». Relevé de mars : U42 et
+  U52 les 21 et 22/03, la pause de SAP ;
 - **un même congé écrit deux fois** : le 30/01 porte « 4h RTT », et le 04/02
   « 4h -FT pris le 30.01 » ; le 05/03 porte « 1h -FT », et le 01/03 « 1h RTT
   pris le 05.03 ». L'application compte les deux ; SAP un seul, un RTT les

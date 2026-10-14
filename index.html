@@ -7781,6 +7781,25 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
         var n=Math.round(reste);
         if(Math.abs(reste-n)<0.01 && n>=1 && n<=8 && !out.a && ABSMAP[n+"H HS"]){
           out.a=n+"H HS";
+          /* LES HEURES EN PLUS PRENNENT LA PRIME DE LA PAUSE OÙ ELLES
+             TOMBENT. Le client, le 14/10/2026, sur VBN les 21 et 22/03,
+             « 18h-6h » : SAP paie 8 h de nuit et les 4 h de 18 h à 22 h à la
+             prime de l'après-midi (V42, V52). Pour tout le monde : une plage
+             qui couvre la pause entière et déborde avant ou après. */
+          var stdP=SHIFT_PLAGE[out.s];
+          if(stdP && out.s!=="D"){
+            for(var kP=-24;kP<=24;kP+=24){
+              var aP=plage[0]+kP, bP=plage[1]+kP; if(bP<=aP) bP+=24;
+              if(aP<=stdP[0]+0.01 && bP>=stdP[1]-0.01){
+                var avP=stdP[0]-aP, apP=bP-stdP[1];
+                var milP=(avP>=apP)?(aP+stdP[0])/2:(stdP[1]+bP)/2;
+                if(milP>=30) milP-=24; if(milP<6) milP+=24;
+                ["AM","PM","N"].forEach(function(kk){ var pl=SHIFT_PLAGE[kk];
+                  if(milP>=pl[0] && milP<pl[1] && kk!==out.s) out.hsp=kk; });
+                break;
+              }
+            }
+          }
         } else out.h=hJour+reste;
         out.modifie=true;
       }
