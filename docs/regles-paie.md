@@ -2215,3 +2215,16 @@ prime de la pause où tombent ces heures : 9 h-15 h donne le matin, même si
 le cycle prévoyait une nuit. L'état de présence SAP paie ainsi (P11). Cette
 journée-là, l'heure sup est de 0,5 h sans prime (sortie pointée à 15 h 30),
 par décision du client, alors que le classeur écrit « +1h ».
+
+## Un jour à vélo sort de l'indemnité voiture
+
+Établi le 14/10/2026 sur les fiches et les états de présence SAP d'un
+employé, confirmé par lui. Un jour où l'on vient à vélo ne donne pas
+l'indemnité de déplacement en voiture (« jours indemnité déplac./privé ») :
+il est payé en kilomètres (« Indemn. déplacement/vélo (kms) »), au nombre de
+km de l'aller-retour. Les deux documents ne datent pas ces jours ; leur
+nombre se lit par différence : jours d'indemnité de l'état SAP (« Total
+jours indemnité KM ») − jours voiture de la fiche. Trois mois sur trois
+concordent avec les km de la fiche ; les six autres mois, la différence
+est nulle et la fiche n'a pas de ligne vélo. Dans l'application, c'est le
+champ km vélo du mois et la case vélo d'une journée.
