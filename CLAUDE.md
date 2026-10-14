@@ -1769,6 +1769,19 @@ n'est deviné à leur sujet :
     07/10/2026** : `echeanceHS()` paie le reste du compteur sur les
     fiches de février et de mars (« Recup à payer »), voir
     `docs/regles-paie.md` ; vérificateur identique à l'octet ;
+  - **le salaire de VBN remesuré le 14/10/2026**, janvier à septembre,
+    sans calage (rémunération fixe et taux d'indemnité de chaque fiche, le
+    reste de ses réglages ; montants dans le scratchpad, jamais ici).
+    Juin et août tombent au centime une fois retirées les rubriques que
+    l'application ne simule pas, et février à quelques euros près :
+    « Recup à payer » (février), simple et double pécule de vacances (mai),
+    treizième mois (juin), avantage non récurrent (août). Les autres mois,
+    chaque reste a sa cause, toutes déjà connues : le férié de l'employé
+    (100 % sur la fiche, 200 % dans l'application : janvier, avril, mai),
+    les heures sup du shut-down payées « pas compenser » (mars), l'arrivée
+    tardive du 30/07 (juillet) ; en septembre toutes les lignes concordent
+    sauf deux, le rappel de la hausse sur le fixe et les primes diverses,
+    deux questions déjà posées ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
     (cellule `N`, payé 12 h sup) ; ~~la prime de rappel du 20/03~~, résolue
     le 14/10/2026 (prime de l'après-midi, la pause des heures ajoutées) ;
