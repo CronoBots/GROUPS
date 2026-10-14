@@ -140,6 +140,7 @@ const MORCEAUX=[
   ["function atelierDuRemplace(","\n}"],
   ["function remplPartiel(","\n}"],
   ["var PF_DEB=","\n"],
+  ["function pfDebut(","\n"],
   ["function relaisDouze(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],
@@ -190,7 +191,8 @@ const MORCEAUX=[
   ["function lectureAgenda(","\n}"],
   ["function estCongePose(","\n"],
   ["var ICS_TZ=","];"],
-  ["var ICS_LIEU=","\n"],
+  ["var ICS_NOM=","\n"],
+  ["function icsLieu(","\n}"],
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
   ["function icsAgenda(","\n}"]
