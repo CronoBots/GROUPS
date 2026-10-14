@@ -3169,6 +3169,14 @@ l'état SAP, code par code et jour par jour. Le flex time n'a pas de code
 journalier chez SAP (il vit dans le compteur « BIOW flextime ») : F0 et 60
 sont écartés de la comparaison. **285 journées, 263 identiques**. Les
 heures prestées (codes P) du mois concordent à 2 h près ou mieux.
+**Remesuré le 14/10/2026 au soir, après les corrections du jour : 276
+identiques sur 285**, et les six primes de rappel (J84) tombent les mêmes
+jours des deux côtés (leur durée dépend du taux horaire personnel, que le
+profil de test ne porte pas). Les neuf restantes sont toutes des écarts
+connus que le classeur n'écrit pas : 14/01 (1,5 h sup), 09/02 (0,5 h de
+compensation), 08/03 (venu puis malade), 21 et 22/03 (heures sup du
+shut-down payées, V au lieu de U), 04/04 (0,75 h sup), 02/07 et 10/09
+(maladie sans certificat), 30/07 (arrivée tardive).
 
 Trois défauts du relevé de l'application, corrigés (affichage seulement,
 `compute()` n'est pas touché) :
