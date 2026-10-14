@@ -1870,6 +1870,19 @@ pleins. Elle n'est **pas** proratisée par la fraction, contrairement à la
 rémunération fixe : c'est le montant tel qu'il figure sur la fiche qui se
 saisit. À confirmer sur la première fiche qui la porte.
 
+**La première fiche qui la porte est celle de septembre** (le client, le
+14/10/2026). Ses « Primes Diverses » contiennent les 4 primes de
+remplacement de contremaître (R-CM des 01, 07, 08 et 09/09, au forfait
+de mars à août) plus un reste, qui n'est pas un nombre entier de primes
+R-CM. Selon le client, ce reste est **la moitié de sa prime de remise de
+pause** : nommé le 15/09, il n'a droit qu'à la seconde quinzaine. La
+prime arrive donc dans « Primes Diverses », et non sur une ligne à elle.
+Elle se partage par **demi-mois** autour d'une nomination au 15. C'est
+aussi un indice pour le fixe du même mois : la clé de partage de la RH
+serait la quinzaine. Dans l'application, on saisit la prime entière
+dans les réglages, et la moitié dans « Prime de remise » de septembre
+(`primeRemiseMois`). Le montant reste sur l'appareil.
+
 ## Le rappel se compte depuis le jour PRESTÉ
 
 Le classeur porte parfois le compteur sur une journée, et le travail sur une
