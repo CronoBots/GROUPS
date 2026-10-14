@@ -1925,7 +1925,7 @@ n'est deviné à leur sujet :
   fixe le minimum à −8 h, et onze personnes sont en dessous au jour J
   (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
   des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
-  en rouge en attendant ;
+  en rouge en attendant. Le client, le 14/10/2026 : « je vérifierai » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
