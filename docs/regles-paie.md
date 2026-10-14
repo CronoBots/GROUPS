@@ -189,6 +189,16 @@ et 6 du cycle, il suffit donc de lire le cycle de la personne. Un rappel coché
 en pause AM sur une de ces journées ne produit pas de prime, et la fiche
 l'indique en ligne d'information.
 
+**Elle ne vaut que pour une prestation tenue DANS la pause AM** (le client,
+le 14/10/2026, sur JBI les 06/07, 19 et 20/08, « 6h-18h · R-CM · rappel
+le … » pendant ses semaines de D : « il y a bien rappel car il ne fait pas
+son horaire de D normal et il fait plus de 8 h, et en plus il est indiqué
+rappel »). Une journée de plus de 8 h, ou dont des heures débordent la
+journée (vers une autre pause), donne la prime. Mesuré : JBI retrouve ses
+trois primes, et ATR le 09/03 (« 6h-17h · 3 HS rappel le 09/03 ») la
+sienne ; VGG, FPA et VBN ne bougent pas. Un rappel en 6 h-14 h un jour de D
+reste sans prime.
+
 ## Prime de remplacement de contremaître
 
 Les adjoints contremaître **n'ont pas** de prime mensuelle fixe. Le client :

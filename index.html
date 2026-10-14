@@ -5171,8 +5171,16 @@ function compute(){
     /* OP_BWZ_CoD_00020, point D : « aucune prime ne sera accordée en cas de
        demande de la ligne hiérarchique pour une prestation en pause AM dans
        les jours prévus en "Day" de la 5ᵉ et 6ᵉ semaine du cycle ». Le poste
-       D n'existe que dans ces deux semaines : il suffit de lire le cycle. */
-    if(rec.r && rec.r!=="MP" && rec.s==="AM"
+       D n'existe que dans ces deux semaines : il suffit de lire le cycle.
+       UNE PRESTATION QUI DÉBORDE LA PAUSE N'EST PAS CELLE-LÀ (le client, le
+       14/10/2026, sur JBI les 06/07, 19 et 20/08, « 6h-18h · R-CM · rappel
+       le … » pendant ses semaines de D : « il y a bien rappel car il ne fait
+       pas son horaire de D normal et il fait plus de 8 h, et en plus il est
+       indiqué rappel »). Le point D ne vaut que pour une prestation tenue
+       dans la pause AM : plus de 8 h, ou des heures au-delà de la journée
+       (rpp, hsp), et la prime est due. */
+    var debordeAM=(Number(rec.h)>Number(p.hJour||8)) || !!rec.rpp || !!rec.hsp;
+    if(rec.r && rec.r!=="MP" && rec.s==="AM" && !debordeAM
        && cycleDitD(y,m,d)){
       acc.rapExclu++;
       rec=Object.keys(rec).reduce(function(o,k){ if(k!=="r"&&k!=="r2") o[k]=rec[k]; return o; },{});

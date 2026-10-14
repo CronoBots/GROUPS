@@ -4172,6 +4172,14 @@ contremaître en 6h-18h pendant ses semaines de D, soit le cas que la
 procédure exclut ; ses relevés de pointage diront si la prime a bien été
 refusée. Vérificateur identique à l'octet, découpe de `comparer-fiches` à
 l'épreuve ; rien ne déborde à 320 px (hors ligne), 390 et 1280 px.
+**C'était faux pour ces trois-là, et le client l'a tranché le 14/10/2026** :
+« il y a bien rappel car il ne fait pas son horaire de D normal et il fait
+plus de 8 h, et en plus il est indiqué rappel ». Le point D ne vaut que pour
+une prestation tenue dans la pause AM : une journée de plus de 8 h, ou dont
+des heures débordent (`rpp`, `hsp`), garde sa prime. JBI retrouve ses trois
+primes, ATR le 09/03 (« 6h-17h · 3 HS rappel ») la sienne ; VGG, FPA et VBN
+inchangés. Les cinq sorties du vérificateur et les agendas sont identiques
+à l'octet (règle de paie seulement).
 
 **Le reste des finitions, le même jour** (le client : « Go ») :
 
