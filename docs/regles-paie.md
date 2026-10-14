@@ -2104,3 +2104,15 @@ au relevé). Vérifié sur l'horaire 2027 prolongé par les cycles, horloge
 au 30/10/2027 : AFA, de nuit ce samedi-là, « U43 1,00 », et rien le
 dimanche 31. L'agenda n'a rien à faire : ses heures sont écrites à l'heure
 de Bruxelles, et le téléphone allonge ou raccourcit la nuit de lui-même.
+
+## Un remplacement qui finit à 22 h, épargné en flex time
+
+Le client, le 14/10/2026, sur l'état de présence SAP d'un contremaître :
+une cellule sans pause (`R-CM`), « 2h +FT » et « remplace X de 20h à
+22h », X étant d'après-midi. SAP paie une **nuit de 8 h** et met les 2 h au
+flex time : la personne était de nuit et est venue plus tôt pour couvrir la
+fin de l'après-midi. Des heures prises DANS la pause ne s'épargneraient pas
+en plus. Règle pour tout le monde : quand la pause ne vient que du remplacé,
+qu'il est d'après-midi, que le remplacement finit à 22 h et que ses heures
+sont exactement celles du +FT, la journée est une nuit de 8 h, plus ces
+heures au compteur. Une seule journée en 2026.
