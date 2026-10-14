@@ -1769,6 +1769,17 @@ n'est deviné à leur sujet :
     07/10/2026** : `echeanceHS()` paie le reste du compteur sur les
     fiches de février et de mars (« Recup à payer »), voir
     `docs/regles-paie.md` ; vérificateur identique à l'octet ;
+  - **les évolutions de la rémunération fixe** (le client, le 14/10/2026 :
+    « prends en compte les indexations et augmentations salariales suite à
+    mon changement de fonction ») : réglage personnel `remHist`, une ligne
+    par changement (date d'effet, montant), lu par `remFixeDuMois()` dans
+    `compute()`. Éprouvé sur les neuf mois de VBN avec un seul jeu de
+    réglages : brut, net et montant des heures prestées identiques au
+    centime à ceux obtenus en saisissant le fixe de chaque fiche à la main.
+    Saisie vérifiée à 320 px (hors ligne), 390 et 1280 px ; vérificateur
+    identique à l'octet. L'exemple de l'aide est neutre : la première
+    version recopiait un vrai montant, retiré avant le commit. Reste le
+    rappel d'une hausse en cours de mois (question de la date d'effet) ;
   - **le salaire de VBN remesuré le 14/10/2026**, janvier à septembre,
     sans calage (rémunération fixe et taux d'indemnité de chaque fiche, le
     reste de ses réglages ; montants dans le scratchpad, jamais ici).

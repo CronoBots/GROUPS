@@ -2228,3 +2228,20 @@ jours indemnité KM ») − jours voiture de la fiche. Trois mois sur trois
 concordent avec les km de la fiche ; les six autres mois, la différence
 est nulle et la fiche n'a pas de ligne vélo. Dans l'application, c'est le
 champ km vélo du mois et la case vélo d'une journée.
+
+## La rémunération fixe suit ses évolutions de l'année
+
+Le client, le 14/10/2026 : « prends en compte les indexations et
+augmentations salariales suite à mon changement de fonction ». Les fiches
+d'un employé portent, en 2026, trois changements de « Rém. périodique
+fixe » : l'indexation au 01/01, une hausse au 01/03 et le changement de
+fonction en septembre. Le taux horaire des suppléments (fixe ÷ 148,368)
+suit chacun. Le réglage « Évolutions de la rémunération fixe » (`remHist`,
+personnel) prend une ligne par changement, la date d'effet puis le montant ;
+chaque mois est calculé avec le montant en vigueur à son 1er jour. La valeur
+saisie sur le mois lui-même passe avant, le réglage simple en dernier.
+
+Reste ouvert : le rappel d'une hausse qui prend effet en cours de mois. La
+fiche de septembre paie, en plus du nouveau fixe, exactement la moitié de
+« hausse × fraction », sans doute pour la seconde quinzaine d'août. Sa
+règle de calcul dépend de la date d'effet exacte, demandée au client.
