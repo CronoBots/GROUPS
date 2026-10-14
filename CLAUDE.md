@@ -1770,8 +1770,8 @@ n'est deviné à leur sujet :
     fiches de février et de mars (« Recup à payer »), voir
     `docs/regles-paie.md` ; vérificateur identique à l'octet ;
   - restes connus du rapprochement de LCI, sans question posée : le 13/04
-    (cellule `N`, payé 12 h sup), la prime de rappel du 20/03 (fiche
-    6 h 25 = (montant retiré) €, application (montant retiré) €) ;
+    (cellule `N`, payé 12 h sup) ; ~~la prime de rappel du 20/03~~, résolue
+    le 14/10/2026 (prime de l'après-midi, la pause des heures ajoutées) ;
   - **trois chèques d'avril** : la fiche en porte 9 pour 12 journées
     indemnisées. Les deux journées payées entièrement en heures sup (11 et
     13/04) en expliquent sans doute deux ; la troisième est l'une des
@@ -3279,7 +3279,28 @@ Les 22 écarts restants, rangés :
 - **le 30/09** confirme la fiche : prime du matin pour les 6 h (P11) et
   0,5 h sup de jour (U30). Questions déjà ouvertes ;
 - **la durée des heures de déplacement** (J84 : 6,29, 4,98, 6,28, 6,63,
-  4,6 h) contre le réglage fixe de l'application ;
+  4,6 h) contre le réglage fixe de l'application. **Résolu le 14/10/2026,
+  sans question.** SAP et la fiche expriment la prime de rappel en heures
+  au taux horaire : 2 h × (coefficient du jour + prime de pause ×
+  coefficient de pause ÷ taux) × coefficient du moment. Le relevé de
+  l'application écrivait seulement 2 h × le coefficient du moment (3 ou
+  4 h). Le calcul tombe juste sur les six dates, à une condition : **la
+  prime de pause est celle des heures ajoutées**. Les nuits de 12 h des
+  19/02 et 14/04 (« 18h-06h », rappel pour 18 h-22 h) prennent la prime
+  de l'après-midi : 6 h 17 sur les fiches, 6,29 et 6,28 h chez SAP. La
+  prime de nuit aurait donné 6,64 h. LCI le 20/03, même forme, le
+  confirme : 6 h 25 sur sa fiche avec l'après-midi au taux de début
+  d'année, alors que la nuit donnait les (montant retiré) € de l'application au
+  lieu de (montant retiré) €. `parseHoraireEntry()` pose `rpp`, la pause de
+  l'excédent, dès que la plage déborde de la journée, que les heures en
+  plus soient payées, épargnées ou reportées ; `hsp` en reprend la valeur
+  quand elles sont payées. `compute()` paie la prime de rappel à
+  `rpp || hsp || s`, la fiche simulée écrit les heures de déplacement en
+  montant ÷ taux (VBN en juin : 13 h 16, comme la fiche), et le relevé
+  écrit la même durée en J84. 230 journées de rappel de l'année ont une
+  plage qui déborde ; leur prime suit désormais cette règle. Les cinq
+  sorties du vérificateur et les agendas sont identiques à l'octet ;
+  `--journee` imprime « pause des heures en plus » ;
 - **ce que le classeur n'écrit pas** : 1,5 h sup le 14/01 (formation
   jusqu'à 16 h 15), 0,5 h de compensation le 09/02, venu puis malade le
   08/03 (salaire garanti 5,72 h et 2,28 h prestées), 0,75 h sup le 04/04,

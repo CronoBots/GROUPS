@@ -5076,7 +5076,7 @@ function compute(){
   var tgO=R(Number(p.salHorGaranti)||0,4), tmO=R(Number(p.salHorMoyen)||tgO,4);
   var txh=R((ouvrier && tgO>0)?tgO:(remFixe/p.divH),4);
   var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
-           rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapExclu:0,abs:{},
+           rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapJour:{},rapExclu:0,abs:{},
            hsHrs:0,hsAComp:{},hsAutoPoste:{}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
   var noms=SHIFT_NOMS;
@@ -5152,12 +5152,25 @@ function compute(){
       }
       else{
         var cm=(rc==="J")?Number(p.rapMomentJ||0):Number(p.rapMomentJ2||0);
-        mt=R(Number(p.rapHeures||0)*(txh*(COEF_J[tj]||0)+(primes[rec.s]||0)*(COEF_P[tj]||0))*cm);
+        /* LA PRIME DE PAUSE EST CELLE DES HEURES AJOUTÉES. Une nuit de 12 h
+           (« 18h-06h ») rappelée pour 18 h-22 h prend la prime de
+           l'après-midi, où tombent les heures en plus (rec.hsp), et non celle
+           de la nuit. Trois journées le montrent au centième (14/10/2026) :
+           VBN les 19/02 et 14/04, 6 h 17 de déplacement sur ses fiches et
+           6,29 et 6,28 h sur l'état SAP ; LCI le 20/03, 6 h 25 sur sa fiche
+           (au taux de début d'année), là où la prime de nuit donnait les
+           (montant retiré) € de l'application au lieu de (montant retiré) €. */
+        var prP=primes[rec.rpp||rec.hsp||rec.s]||0;
+        mt=R(Number(p.rapHeures||0)*(txh*(COEF_J[tj]||0)+prP*(COEF_P[tj]||0))*cm);
         /* « la prime de rappel est constituée de 2 heures de déplacement
-           multipliées par un coefficient » : le coefficient du moment porte
-           sur les heures, et c'est bien en heures de déplacement que la
-           prime est reprise sur la fiche. */
-        acc.rapHrs[rc]+=Number(p.rapHeures||0)*cm;
+           multipliées par un coefficient », et la fiche la reprend en HEURES
+           DE DÉPLACEMENT : le montant divisé par le taux horaire — 13 h 16
+           en juin pour VBN, deux rappels de nuit J ou J-1, comme l'état de
+           présence SAP (J84 6,63 + 6,63). Écrire 2 h × le coefficient du
+           moment, comme avant, ne donnait que 8 h. */
+        var hDep=txh>0?mt/txh:Number(p.rapHeures||0)*cm;
+        acc.rapHrs[rc]+=hDep;
+        acc.rapJour[d]=(acc.rapJour[d]||0)+hDep;
         if(rc==="J") acc.rapG++; else acc.rapP++;
       }
       acc.rapMt[rc]=R(acc.rapMt[rc]+mt);
@@ -6010,10 +6023,9 @@ function renderReleve(C){
       if(X.k==="RTT"||X.k==="DTT"||X.k==="RHS") hRec+=X.h||0; else if(X.ft<0) hRec-=X.ft; });
       if(hRec>=p.hJour-0.01) chq=1; }
     if(Number(rec.hc||0)>0) ajoute(L,"U"+ju+(REL_PAUSE[rec.hcp||rec.s]||"0"),Number(rec.hc));
-    [rec.r,(rec.r&&rec.r2&&rec.r2!=="MP")?rec.r2:null].forEach(function(rc){
-      if(!rc||rc==="MP") return;
-      ajoute(L,"J84",Number(p.rapHeures||0)*(rc==="J"?Number(p.rapMomentJ||0):Number(p.rapMomentJ2||0)));
-    });
+    /* J84 : les heures de déplacement des rappels du jour, telles que
+       compute() les paie (montant ÷ taux), comme l'état de présence SAP */
+    if(C && C.acc && C.acc.rapJour) ajoute(L,"J84",R(C.acc.rapJour[d]||0,2));
     if(!hor && !L.length && (t!=="Semaine")) hor="Y90";
     if(chq){ if(tot["9063"]===undefined){ tot["9063"]=0; } tot["9063"]++; }
     lignes.push('<tr'+(t!=="Semaine"||fer?' class="rel-we"':'')+'><td class="rel-j"><b>'+JC[w]+'</b> '+pad2(d)+'.'+pad2(m+1)+(fer?' <i>férié</i>':'')+'</td>'
@@ -7802,30 +7814,34 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
        journée (« presté le 27.04 »). */
     var d=dureeReelle(out.s,plage,hJour), exc=d-hJour;
     if(exc>0.01){
+      /* LES HEURES EN PLUS PRENNENT LA PRIME DE LA PAUSE OÙ ELLES TOMBENT.
+         Le client, le 14/10/2026, sur VBN les 21 et 22/03, « 18h-6h » : SAP
+         paie 8 h de nuit et les 4 h de 18 h à 22 h à la prime de
+         l'après-midi (V42, V52). Pour tout le monde : une plage qui couvre
+         la pause entière et déborde avant ou après. La pause de l'excédent
+         (rpp) vaut aussi pour la prime de rappel, que les heures en plus
+         soient payées, épargnées ou reportées (compute()). */
+      var pExc=null, stdP=SHIFT_PLAGE[out.s];
+      if(stdP && out.s!=="D"){
+        for(var kP=-24;kP<=24;kP+=24){
+          var aP=plage[0]+kP, bP=plage[1]+kP; if(bP<=aP) bP+=24;
+          if(aP<=stdP[0]+0.01 && bP>=stdP[1]-0.01){
+            var avP=stdP[0]-aP, apP=bP-stdP[1];
+            var milP=(avP>=apP)?(aP+stdP[0])/2:(stdP[1]+bP)/2;
+            if(milP>=30) milP-=24; if(milP<6) milP+=24;
+            ["AM","PM","N"].forEach(function(kk){ var pl=SHIFT_PLAGE[kk];
+              if(milP>=pl[0] && milP<pl[1] && kk!==out.s) pExc=kk; });
+            break;
+          }
+        }
+      }
+      if(pExc) out.rpp=pExc;
       var reste=exc-epargne;
       if(!ftPlus && reste>0.01){
         var n=Math.round(reste);
         if(Math.abs(reste-n)<0.01 && n>=1 && n<=8 && !out.a && ABSMAP[n+"H HS"]){
           out.a=n+"H HS";
-          /* LES HEURES EN PLUS PRENNENT LA PRIME DE LA PAUSE OÙ ELLES
-             TOMBENT. Le client, le 14/10/2026, sur VBN les 21 et 22/03,
-             « 18h-6h » : SAP paie 8 h de nuit et les 4 h de 18 h à 22 h à la
-             prime de l'après-midi (V42, V52). Pour tout le monde : une plage
-             qui couvre la pause entière et déborde avant ou après. */
-          var stdP=SHIFT_PLAGE[out.s];
-          if(stdP && out.s!=="D"){
-            for(var kP=-24;kP<=24;kP+=24){
-              var aP=plage[0]+kP, bP=plage[1]+kP; if(bP<=aP) bP+=24;
-              if(aP<=stdP[0]+0.01 && bP>=stdP[1]-0.01){
-                var avP=stdP[0]-aP, apP=bP-stdP[1];
-                var milP=(avP>=apP)?(aP+stdP[0])/2:(stdP[1]+bP)/2;
-                if(milP>=30) milP-=24; if(milP<6) milP+=24;
-                ["AM","PM","N"].forEach(function(kk){ var pl=SHIFT_PLAGE[kk];
-                  if(milP>=pl[0] && milP<pl[1] && kk!==out.s) out.hsp=kk; });
-                break;
-              }
-            }
-          }
+          if(pExc) out.hsp=pExc;
         } else out.h=hJour+reste;
         out.modifie=true;
       }
@@ -8849,6 +8865,7 @@ function remplirMois(db,person,y,m,M){
       /* le poste des heures supplémentaires, et le fait qu'elles aillent au
          compteur plutôt que sur la fiche du mois */
       if(parsed.hsp) nrec.hsp=parsed.hsp; else delete nrec.hsp;
+      if(parsed.rpp) nrec.rpp=parsed.rpp; else delete nrec.rpp;
       if(parsed.rhsJ) nrec.rh=parsed.rhsJ; else delete nrec.rh;
       if(parsed.rs) nrec.rs=1; else delete nrec.rs;
       if(parsed.hc){ nrec.hc=parsed.hc; if(parsed.hcp) nrec.hcp=parsed.hcp; else delete nrec.hcp; }
