@@ -5048,6 +5048,30 @@ function reposLiesAuWeekend(M,y,m,hJour){
    client, le 10/10/2026 : « Optimise tout », en réponse à la question.
    Sans personne liée, ou un mois que le cycle ne cale pas, les réglages
    reprennent la main, comme avant. */
+/* Le rang d'une journée de maladie dans sa série : 1 le premier jour de
+   l'incapacité, en jours CALENDRIER. La série remonte tant que les jours
+   sont de la maladie ou des repos (l'incapacité court pendant les repos) ;
+   elle s'arrête à une journée prestée ou à un autre code. Sans personne
+   liée dans l'horaire, null : rien n'est retiré. */
+var MALADIE_EMPLOYEUR_J=30;
+function rangMaladie(y,m,d,hJour){
+  var db=horaireDe(y), id=trigCourant(), per=null, i;
+  if(db && id) for(i=0;i<db.people.length;i++) if(db.people[i].id===id){ per=db.people[i]; break; }
+  if(!per) return null;
+  var x=new Date(Date.UTC(y,m,d)), debut=new Date(x.getTime());
+  for(i=0;i<400;i++){
+    x.setUTCDate(x.getUTCDate()-1);
+    var yy=x.getUTCFullYear(), mm=x.getUTCMonth()+1, jj=x.getUTCDate();
+    if(yy!==Number(y)) break;
+    var raw=per.d[pad2(mm)+pad2(jj)]; if(raw===undefined) break;
+    var c; try{ c=moisDe(per,yy,mm,hJour); }catch(e){ break; }
+    var r=lireJournee(db,raw,yy,mm,jj,c.fit,c.ep[jj],hJour,c.rv[jj]);
+    var A=r.a&&ABSMAP[r.a];
+    if(A){ if(A.k!=="SMG") break; debut=new Date(x.getTime()); }
+    else if(r.s && !(r.h===0)) break;
+  }
+  return Math.round((Date.UTC(y,m,d)-debut.getTime())/864e5)+1;
+}
 function cycleDitD(y,m,d){
   var db=horaireDe(y), id=trigCourant(), per=null, fit=null, i;
   if(db && id) for(i=0;i<db.people.length;i++) if(db.people[i].id===id){ per=db.people[i]; break; }
@@ -5087,7 +5111,7 @@ function compute(){
   var ouvrier=(p.statut==="Ouvrier");
   var tgO=R(Number(p.salHorGaranti)||0,4), tmO=R(Number(p.salHorMoyen)||tgO,4);
   var txh=R((ouvrier && tgO>0)?tgO:(remFixe/p.divH),4);
-  var acc={hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
+  var acc={smgSam:0,smgDim:0,smgMut:0,hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
            rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapJour:{},rapExclu:0,abs:{},
            hsHrs:0,hsAComp:{},hsAutoPoste:{}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
@@ -5214,6 +5238,20 @@ function compute(){
          est écrite. Même mois, même fiche ; c'est le jour qui change. */
       var pleineJournee=(A.h>=p.hJour-0.01);
       acc.abs[A.k]=(acc.abs[A.k]||0)+((rec.s||!pleineJournee)?A.h:0);
+      /* LA MALADIE DE L'OUVRIER : majorée le week-end, et payée par
+         l'employeur le premier mois seulement. Le client, le 14/10/2026 :
+         « oui » au samedi à 150 % et au dimanche à 200 % (fiches de LCI,
+         02-03/05 et 11-12/07, « Heures SHG Maladie à … à 150% / à 200% »),
+         puis « pour le premier mois de maladie c'est payé par l'employeur,
+         après c'est la mutuelle qui prend le relai ». Le mois se compte en
+         30 jours calendrier depuis le premier jour de la maladie
+         (rangMaladie). */
+      if(ouvrier && A.k==="SMG" && (rec.s||!pleineJournee)){
+        var rgM=rangMaladie(y,m,d,p.hJour);
+        if(rgM && rgM>MALADIE_EMPLOYEUR_J) acc.smgMut+=A.h;
+        else if(t==="Samedi") acc.smgSam+=A.h;
+        else if(t==="Dimanche") acc.smgDim+=A.h;
+      }
       if(A.ft>0) acc.ftPlus+=A.ft; else if(A.ft<0) acc.ftMoins-=A.ft;
       if(A.hs){
         var bkt=isFer?"Dimanche":t;
@@ -5437,7 +5475,11 @@ function compute(){
        montant (huit fiches de LCI). Le client, le 14/10/2026 : « A pour les
        VA ». Heures montrées, rien payé. */
     if(ab("VA"))  lines.push({q:ab("VA"),l:"Congé légal (vacances payées par la caisse de vacances)",qh:true});
-    if(ab("SMG")) bl(ab("SMG"),"Heures SHG maladie à "+nf4.format(tmO),R(ab("SMG")*tmO),true);
+    var smgSem=Math.max(0,ab("SMG")-acc.smgSam-acc.smgDim-acc.smgMut);
+    if(smgSem)     bl(smgSem,"Heures SHG maladie à "+nf4.format(tmO),R(smgSem*tmO),true);
+    if(acc.smgSam) bl(acc.smgSam,"Heures SHG maladie à "+nf4.format(tmO)+" à 150 %",R(acc.smgSam*tmO*1.5),true);
+    if(acc.smgDim) bl(acc.smgDim,"Heures SHG maladie à "+nf4.format(tmO)+" à 200 %",R(acc.smgDim*tmO*2),true);
+    if(acc.smgMut) lines.push({q:acc.smgMut,l:"Maladie au-delà du premier mois (payée par la mutuelle)",qh:true});
   } else {
     bl(null,"Montant heures prestées",R(remFixe*frac));
   }
