@@ -4524,8 +4524,17 @@ journée prestée, s'ils tombent près de la pause (une heure avant 6 h est du
 lendemain : « arrivée à 01h00' » d'une nuit). Sur une pause, « de 20h à
 22h » dit un remplacement de quelques heures et ne compte pas ; « remplace
 X … départ à » sans rien de posé ce jour-là, c'est X qui part (la garde du
-départ anticipé du 29/09). La plage de la cellule n'est pas lue : avec un
-code de jour, elle ne dit que la pause prévue. **613 événements** changent
+départ anticipé du 29/09). **La plage de la cellule, écartée d'abord, est
+lue depuis** (le client, le même jour : « NPE fait 6-10 et QBY 10-22 » ;
+QBY écrit `["10h-22h","4h +FT","… remplace NPE de 10h à 14h"]` et
+l'agenda le mettait en 14-22). Elle donne `hd`/`hf`, 12 h comprises, et
+le commentaire l'affine ensuite ; l'annotation passe avant la cellule
+quand elle écrit une plage (YPE le 30/03, « 7h-15h · 6h-14h ») ; elle ne
+compte pas avec un code de jour (F, CPPT, DS… : elle n'y est que la pause
+prévue) ni quand l'annotation écrit une pause (« 7h-15h · AM »). **198
+événements** de plus changent : les 12 h « 06h-18h » affichées 05h30-14,
+les « 18h-06h » affichées 21h30-06 ou 22-06, les 10-22, 14-02, 22-10 et
+02-14 des relais. **613 événements** changent
 d'heure sur 2026-2027, relus par échantillon : départs avec RTT, −FT, ½ VA
 ou RHS (06-10, 06-12, 14-18…), arrivées tardives, les 21 formations
 datées (08h30-16h30, 09h-17h). Les quatre sorties du vérificateur sont
