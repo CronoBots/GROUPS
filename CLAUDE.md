@@ -3139,7 +3139,9 @@ Le client, le 14/10/2026 : en octobre, ceux qui font la nuit du passage
 reçoivent 1 h sup au compteur ; en mars, ils prestent 7 h et sont payés
 8 h. Règle dans `docs/regles-paie.md`, « Le changement d'heure ». Codé
 dans `lireJournee()` pour la nuit du samedi qui précède le dernier dimanche
-d'octobre (le 24/10 en 2026) : **13 personnes**, +1 h chacune (`r.hc`,
+d'octobre, calculée sur l'année lue — **la règle vaut chaque année** (le
+client, le 14/10/2026), vérifiée sur 2027 projeté (AFA, « U43 1,00 » le
+30/10/2027). En 2026, le 24/10 : **13 personnes**, +1 h chacune (`r.hc`,
 prime N). Mars ne demande rien. Les cinq sorties du vérificateur sont
 identiques à l'octet (règle de paie seulement), les agendas aussi ;
 `--journee` imprime désormais les heures sup d'une journée. Vérifié au

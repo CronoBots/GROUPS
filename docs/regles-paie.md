@@ -2086,7 +2086,9 @@ seront payés normalement les 8 h ».
 
 L'heure change la nuit du samedi au **dernier dimanche** du mois, vers 2 h
 ou 3 h : c'est donc la nuit (22 h-6 h) de la journée du **samedi** — le
-24/10 et le 28/03 en 2026.
+24/10 et le 28/03 en 2026, le 30/10 et le 27/03 en 2027. **La règle vaut
+chaque année** (le client, le 14/10/2026) : le dernier dimanche est
+calculé sur l'année de la journée lue, rien n'est daté dans le code.
 
 - **Octobre** : `lireJournee()` ajoute une heure sup (`r.hc`, à la prime de
   nuit) à qui tient la nuit ce samedi-là, présent à l'heure du passage. Elle
@@ -2098,5 +2100,7 @@ ou 3 h : c'est donc la nuit (22 h-6 h) de la journée du **samedi** — le
 - **Mars** : rien à coder, la journée reste payée 8 h.
 
 En 2026 : 13 personnes de nuit le 24/10, chacune +1 h (ATR : « U43 1,00 »
-au relevé). L'agenda n'a rien à faire : ses heures sont écrites à l'heure
+au relevé). Vérifié sur l'horaire 2027 prolongé par les cycles, horloge
+au 30/10/2027 : AFA, de nuit ce samedi-là, « U43 1,00 », et rien le
+dimanche 31. L'agenda n'a rien à faire : ses heures sont écrites à l'heure
 de Bruxelles, et le téléphone allonge ou raccourcit la nuit de lui-même.
