@@ -4533,7 +4533,18 @@ téléphone dira comment l'abonnement s'affiche.**
   sans rue ni repère, là où l'entrée choisie à la main cadre le site et sa
   route. Le rayon passe à 500 m, avec `X-APPLE-REFERENCEFRAME=1` comme
   l'écrit l'agenda d'Apple lui-même. Seul l'iPhone dira si le cadrage
-  convient. **L'adresse est bien le n° 11** (le client, le 14/10/2026,
+  convient. **Le cadrage ne suffisait pas** : le client, le
+  14/10/2026, deux cartes côte à côte, « la meilleure est la plus
+  complète ». Une entrée choisie dans Plans porte l'identifiant de la
+  fiche du lieu chez Apple (`X-APPLE-MAPKIT-HANDLE`), qui donne nom, photo
+  et itinéraire ; aucun texte ne le reconstitue. Le client s'est envoyé
+  une invitation iCloud avec ce lieu, et le `.eml` a donné la ligne :
+  l'identifiant (`ICS_MAPKIT`, il ne contient que pays, province,
+  commune, rue et nom du lieu), le rayon (172,93 m) et les coordonnées
+  qu’Apple y écrit (50,531912 · 5,206511) sont repris tels
+  quels. La fiche Apple dit « 18 » ; le texte du lieu garde le n° 11.
+  Rien d'autre de l'invitation n'est recopié (adresse mail, nom). Seul
+  l'iPhone dira si l'aperçu est désormais celui de l'entrée manuelle. **L'adresse est bien le n° 11** (le client, le 14/10/2026,
   alors que Plans d'Apple écrit 18) ;
 - **le contremaître DE LA PAUSE**, et l'adjoint qui le remplace (« R-CM »
   écrit, le client : « oui »), commence 30 min avant pour la remise :

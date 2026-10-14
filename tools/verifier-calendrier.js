@@ -192,6 +192,7 @@ const MORCEAUX=[
   ["function estCongePose(","\n"],
   ["var ICS_TZ=","];"],
   ["var ICS_NOM=","\n"],
+  ["var ICS_MAPKIT=","\n"],
   ["function icsLieu(","\n}"],
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
