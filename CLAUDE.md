@@ -1708,7 +1708,7 @@ n'est deviné à leur sujet :
     et sa journée (reste non attribué : zéro). Le férié (fixe + 100 %
     chez l'employé, 200 % dans l'application : 01/01, 06/04, 01/05,
     25/05) fait l'essentiel de janvier, avril et mai — question
-    ci-dessous, inchangée. Le reste : le rappel du 25/06 (déjà listé) ;
+    ci-dessous, inchangée. Le reste : le rappel du 25/06 (tranché le 14/10/2026 : flex time écrit le lendemain) ;
     une heure et demie (janvier) et trois quarts d'heure (avril) d'heures
     sup que le classeur n'écrit pas ; le dimanche 22/03 payé 10 h 17 de
     nuit au lieu de 8 h ; la durée des heures de déplacement du 20/03 et
@@ -1832,10 +1832,10 @@ n'est deviné à leur sujet :
   finit par « ? » — seule journée de l'année de cette forme. Prestées
   14 448 → 14 447, repos +1 ; sous-effectifs, Recyclage et compteurs
   identiques à l'octet ;
-- **le rappel sur un repos d'un EMPLOYÉ** : VBN le 25/06, la fiche ne
-  porte aucune heure sup mais 13 h 16 d'« Heure de déplacement » au taux
-  plein ; l'application paie 7 h sup. Les relevés (JBI, codes U) disent
-  heures sup. À trancher avec une autre fiche d'employé ;
+- ~~le rappel sur un repos d'un EMPLOYÉ~~ (VBN le 25/06) : tranché le
+  14/10/2026 par le classeur lui-même, sans question. Le lendemain porte
+  `["-","7h +FT"]` : les heures sont au flex time, et ce n'était pas une
+  règle d'employé. Voir « Les états de présence SAP » ;
 - ~~« remplace Y » sans rien chez Y~~ : tranché le 29/09/2026 (B), voir
   « Les réponses du 29/09/2026 » ;
 - ~~le D seul sans heure écrite~~ : tranché le 28/09/2026, 7-15 (voir
@@ -3248,7 +3248,34 @@ Les 22 écarts restants, rangés :
   (règle de paie seulement) ; relevé de février « 68 8,00 · chèque 1 »,
   comme SAP, à 320 px (hors ligne), 390 et 1280 px ;
 - **le rappel sur un repos payé** (REP, 25/06) : SAP ne porte aucune heure
-  sup, seulement le déplacement — comme la fiche. Question déjà ouverte ;
+  sup, seulement le déplacement, comme la fiche. **Ce n'était pas une
+  question à poser** (14/10/2026) : la réponse est dans le classeur. VBN
+  porte `["23-06h","R-CM","Remplace ATA Rappel le 25/06"]`, et le
+  lendemain `["-","7h +FT"]`, seul, sans date ni commentaire. Une nuit
+  finit le matin du jour suivant, et c'est sur cette case que l'épargne
+  est écrite. L'application payait les 7 h en heures sup ET les comptait
+  au flex time le 26/06, soit deux fois. `lireJournee()` ne pose plus
+  d'heure sup sur une nuit de rappel sur un repos quand le lendemain est
+  un repos qui ne porte que « n h +FT », pour le même nombre d'heures. Sur
+  les 62 repos de l'année qui portent « n h +FT », c'est la seule journée
+  de cette forme ; les autres écrivent une date (« presté le », « cf »),
+  déjà rattachée à son jour. SKS le 13/04, `["10h-22h","8h +FT","rappel le
+  09.04"]` puis le 14/04 `["-","4h +FT","rappel le 13.04"]`, n'est pas
+  touché : plage de jour, commentaire, ni fiche ni relevé pour trancher.
+  **Et la prime de rappel manquait** sur cette nuit, ainsi que sur 13
+  autres rappels sur un repos du cycle dont la cellule écrit la pause
+  faite. `rappelDuJour()` recevait cette pause comme « poste prévu », et
+  la prestation ne débordait pas d'elle-même. Ces journées sont : JBI les
+  15/01, 22 et 23/08 ; VGG le 10/05 ; PDF le 18/06 ; JKS les 23/01 et
+  02/05 ; LAA le 21/08 ; JBA le 13/08 ; PAM les 14/01, 20 et 21/06 ; SPS
+  le 21/01. Un rappel lu sur un repos (`r.rs`) a désormais le repos pour
+  poste prévu, comme le veut la procédure (« rappel d'un repos, repos
+  maintenu »), et la fiche de juin le confirme : ses 13 h 16 de
+  déplacement sont les deux rappels des 11 et 25/06. VGG le 26/05
+  (« Rappel le 25/06 », date postérieure) reste sans prime. Relevé de
+  juin : « 3A40 · J84 », sans U ni chèque, comme SAP. Les cinq sorties du
+  vérificateur et les agendas sont identiques à l'octet (la paie seule
+  change) ; vérifié à 320 px (hors ligne), 390 et 1280 px ;
 - **le 30/09** confirme la fiche : prime du matin pour les 6 h (P11) et
   0,5 h sup de jour (U30). Questions déjà ouvertes ;
 - **la durée des heures de déplacement** (J84 : 6,29, 4,98, 6,28, 6,63,

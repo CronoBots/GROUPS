@@ -8598,6 +8598,21 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var hRs=(r.h===undefined)?hJour:r.h;
     if(hRs>=1 && hRs<=12 && Math.abs(hRs-Math.round(hRs))<0.01){
       r.ax=[Math.round(hRs)+"H HS"]; r.hsp=r.hsp||r.s; r.rs=true;
+      /* SAUF SI LE LENDEMAIN LES VERSE AU FLEX TIME. Une nuit finit le
+         matin du jour suivant, et c'est sur cette case que le classeur écrit
+         l'épargne : VBN le 25/06, ["23-06h","R-CM","Remplace ATA Rappel le
+         25/06"], puis le 26/06 ["-","7h +FT"], seul, sans date ni
+         commentaire. L'état de présence SAP pointe la nuit (22 h 20 à 6 h)
+         sans aucune heure sup, avec la seule prime de rappel, et la fiche de
+         juin aussi (14/10/2026). Les heures partent au compteur par la case
+         du lendemain ; la nuit ne paie ni heure sup ni heure normale. Seule
+         journée de l'année de cette forme. */
+      if(r.s==="N"){
+        var dS=new Date(Date.UTC(annee,mois-1,jour+1)), kS=pad2(dS.getUTCMonth()+1)+pad2(dS.getUTCDate()), qS, rawS=null;
+        if(dS.getUTCFullYear()===annee) for(qS=0; qS<db.people.length; qS++){ if(db.people[qS].d[pad2(mois)+pad2(jour)]===raw){ rawS=db.people[qS].d[kS]; break; } }
+        var mS=rawS && rawS.length===2 && (rawS[0]||"").trim()==="-" && /^\s*(\d+)\s*h\s*\+\s*FT\s*$/i.exec(rawS[1]||"");
+        if(mS && parseInt(mS[1],10)===Math.round(hRs)){ r.ax=[]; r.ftLendemain=true; }
+      }
     }
   }
   /* « SD26 · n h +FT » : UN REPOS OU UN POSTE, ET LE CYCLE LE DIT. Sur un
@@ -8804,7 +8819,12 @@ function remplirMois(db,person,y,m,M){
     var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour,renvois[day]);
     if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
     if(dejaEncode){ bilan.kept++; continue; }
-    var rap=rappelDuJour(raw,posteDeCycle(fitCycle,y,m+1,day)||parsed.s,y,mmdd);
+    /* un rappel lu sur un repos du cycle (r.rs) a pour poste prévu le REPOS,
+       même quand la cellule écrit la pause faite : sans cela la nuit de VBN
+       le 25/06, ["23-06h","R-CM",…], ne débordait pas de sa propre pause et
+       perdait sa prime, que la fiche de juin et l'état SAP portent (J84,
+       14/10/2026). 17 journées de l'année. */
+    var rap=rappelDuJour(raw,parsed.rs?"-":(posteDeCycle(fitCycle,y,m+1,day)||parsed.s),y,mmdd);
     /* mention de rappel que la règle n'a pas tranchée : double rappel,
        renvoi à une autre journée, rappel d'un collègue. Mieux vaut le dire
        que de la laisser passer sous silence. */
@@ -11804,7 +11824,7 @@ window.__horaireSig=function(){
           var cell;
           try{ var pr=lireJournee(db,raw,y,m2+1,d2,fit,ep[d2],hJour,rv[d2]);
                var rcm=remplacementCM(raw,pr.s,hJour);
-               var rap=rappelDuJour(raw,(posteDeCycle(fit,y,m2+1,d2)||pr.s),y,mmdd2);
+               var rap=rappelDuJour(raw,pr.rs?"-":(posteDeCycle(fit,y,m2+1,d2)||pr.s),y,mmdd2);
                cell=sig({lj:pr,rcm:rcm,rap:rap}); }
           catch(e){ cell="ERR:"+e.message; }
           full[id+"/"+mmdd2]=cell; acc.push(mmdd2+"="+cell); } }
@@ -11875,7 +11895,7 @@ window.__auditRegles=function(){
           if(me && !ids[me[1].toUpperCase()]) out.echangeInconnu.push({id:p.id,d:k,com:com,tri:me[1]});
           if(/rappe[lk]/i.test(com)){
             var rapOk; try{ var pr=lireJournee(db,raw,2026,m+1,d,fit,ep[d],hJour,rv[d]);
-              rapOk=rappelDuJour(raw,(posteDeCycle(fit,2026,m+1,d)||pr.s),2026,k); }catch(e){ rapOk=null; }
+              rapOk=rappelDuJour(raw,pr.rs?"-":(posteDeCycle(fit,2026,m+1,d)||pr.s),2026,k); }catch(e){ rapOk=null; }
             if(!rapOk && !/[ée]change|inversion/i.test(com)) out.rappelNonTranche.push({id:p.id,d:k,com:com});
           }
         } }
