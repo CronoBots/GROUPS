@@ -3194,8 +3194,18 @@ Les 22 écarts restants, rangés :
   21/01 (CM PM 2/1 → 1/1, CM N 0/1 → 1/1), les autres sorties sont
   identiques à l'octet ; relevé de janvier « 3A40 · P13 8,00 · F0 2,00 »,
   comme SAP. Le 05/03,
-  « remplace GPS arrivée à 15h00' », l'application lit AM ; SAP dit PM
-  7 h + 1 h de RTT (pointé 15:16-22:00). Question posée au client ;
+  « remplace GPS arrivée à 15h00' », l'application lisait AM ; SAP dit PM
+  7 h + 1 h de RTT (pointé 15:16-22:00). **Tranché le 14/10/2026** (le
+  client : « je faisais PM », arrivé pour la remise de 15 h 30, 1 h RTT et
+  1 h -FT posées toutes deux) : quand la pause ne vient que du remplacé et
+  que le commentaire écrit « arrivée à H » hors de cette pause, la pause
+  est celle qui contient H — sauf si le commentaire écrit aussi une plage
+  (VGG le 10/06, « de 22h à 23h … Arrivée à 08h », plusieurs morceaux, non
+  touché). Une seule journée ; `--placement --tout` ne change que le 05/03
+  (CM AM 2/1 → 1/1, CM PM 0/1 → 1/1). Relevé de mars : « 2A40 · P12 7,00 ·
+  58 1,00 · 60 1,00 », comme SAP pour la pause, les heures et le RTT. Le
+  −FT reste compté (le client l'a posé) ; SAP n'écrit aucun mouvement de
+  flex time ce jour-là ;
 - **les heures sup du week-end sont des « V »** (Overtime 187,5 % / 200 %),
   pas des « U » : 21 et 22/03 (V42, V52 : la PAUSE des 4 h est l'après-midi,
   18 h-22 h, et non la nuit), 04/04 (V43 0,75). Ce sont exactement les

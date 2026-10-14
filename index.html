@@ -8361,6 +8361,24 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
          && Math.abs((plR[1]-plR[0])-r.epargne)<0.01
          && /\bremplace\s+[A-Z]{3}\b[^.;]*?\bde\s+\d/.test(raw[2]||"")) duCycle="N";
     }
+    /* UNE ARRIVÉE HORS DE LA PAUSE DU REMPLACÉ DIT LA PAUSE FAITE. Le client,
+       le 14/10/2026, sur VBN le 05/03 : ["R-CM","1h -FT","remplace GPS
+       arrivée à 15h00' …"]. GPS est du matin, mais VBN faisait l'APRÈS-MIDI
+       (arrivé pour la remise de 15 h 30) : une arrivée à 15 h ne tombe pas
+       dans un matin. La pause est celle qui contient l'heure d'arrivée.
+       Pas quand le commentaire écrit aussi une plage (VGG le 10/06, « de 22h
+       à 23h … Arrivée à 08h ») : il décrit alors plusieurs morceaux. */
+    var mArr=(!r.s && !r.jour && duCycle && SHIFT_PLAGE[duCycle] && duCycle!=="D"
+              && !plageCommentaire(raw[2]))
+      ? /\barriv\S*\s*(?:à|a)\s*(\d{1,2})\s*h/i.exec(raw[2]||"") : null;
+    if(mArr){
+      var hArr=Number(mArr[1]); if(hArr<6) hArr+=24;
+      var plC=SHIFT_PLAGE[duCycle];
+      if(hArr<plC[0] || hArr>=plC[1]){
+        ["AM","PM","N"].forEach(function(k){ var pl=SHIFT_PLAGE[k];
+          if(hArr>=pl[0] && hArr<pl[1]) duCycle=k; });
+      }
+    }
     if(!duCycle) duCycle=posteDeCycle(fit,annee,mois,jour);
     if(!duCycle) duCycle=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
     if(!duCycle && r.jour) duCycle=r.s||"D";
