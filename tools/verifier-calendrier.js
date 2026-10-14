@@ -307,8 +307,9 @@ const ANNEE=Number(db.year);
 /* ── les abonnements agenda ──────────────────────────────────────────────
    Le client, le 13/10/2026 : un calendrier du téléphone qui se met à jour
    seul, à une adresse au trigramme. Un fichier cal/<id>.ics par personne,
-   du 1er janvier de l'année du classeur au 30 juin de la suivante (que les
-   cycles prolongent). Écrit par icsAgenda() de index.html, la même qui sert
+   du 1er janvier de l'année du classeur au 31 décembre de la suivante (que
+   les cycles prolongent ; le client, le 14/10/2026 : « jusque fin décembre
+   2027 »). Écrit par icsAgenda() de index.html, la même qui sert
    le bouton « Télécharger une fois » : il n'y a pas de seconde copie.
    L'horodatage est celui du classeur : un horaire inchangé donne des
    fichiers identiques à l'octet. Les fichiers d'une personne partie sont
@@ -321,7 +322,7 @@ if(ARGS.indexOf("--agendas")>=0){
   HORAIRE_DB=db;
   const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(db.maj||"");
   const stamp=m?m[1]+m[2]+m[3]+"T"+(m[4]||"00")+(m[5]||"00")+"00Z":ANNEE+"0101T000000Z";
-  const debut=new Date(ANNEE,0,1), fin=new Date(ANNEE+1,5,30);
+  const debut=new Date(ANNEE,0,1), fin=new Date(ANNEE+1,11,31);
   const nJ=Math.round((fin-debut)/864e5)+1;
   fs.mkdirSync(dir,{recursive:true});
   const ecrits=new Set(); let total=0;
