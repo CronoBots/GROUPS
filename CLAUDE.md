@@ -6747,6 +6747,20 @@ ATEX de CDT et NPI ; BLR, JBA et YRS : congés corrigés ; SMA part à 12 h le
 13/10, relayé par PDR. CAN est toujours en RJF les 13 et 14/10 : PDF reste
 proposé à la STEP. Intégralité à zéro.
 
+### Le classeur du 14/10/2026 à 10 h 19
+
+Huit portes ouvertes en 15 s, installé : **14 journées chez 7 personnes,
+4 compteurs**, aucune arrivée ni aucun départ. PDR en congé du 14 au
+17/11 (VA, RJF), ALZ le remplace en distillation ; PLZ en RJF le 30/10,
+remplacé par « CJT » — le classeur l'écrit ainsi, et c'est CJD qui porte
+« Remplace PLZ » ce jour-là (passé du PM à l'AM) ; CAN rappelé le 13/10
+au lieu de son VA ; PDF à la STEP pour PDE les 15 et 16/10 (le transfert
+proposé par l'application est désormais écrit) ; GST part à 20 h le 13/10
+(2 h RHS) ; GDT a un temps partiel à 90 % à partir du 01/10. Neuf règles à
+zéro, sous-effectifs d'ici la fin de l'année identiques à l'octet,
+compteurs 77/78 (FPA, l'écart connu), intégralité à zéro ; agendas
+réécrits ; vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
 
 Le client, le 12/10/2026 : « ATR est bien aux chaudières les deux jours
