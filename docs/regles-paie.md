@@ -2116,3 +2116,13 @@ en plus. Règle pour tout le monde : quand la pause ne vient que du remplacé,
 qu'il est d'après-midi, que le remplacement finit à 22 h et que ses heures
 sont exactement celles du +FT, la journée est une nuit de 8 h, plus ces
 heures au compteur. Une seule journée en 2026.
+
+## Une arrivée hors de la pause du remplacé
+
+Le client, le 14/10/2026, sur l'état de présence SAP d'un contremaître :
+une cellule sans pause (`R-CM`), « remplace X arrivée à 15h », X étant du
+matin. Il faisait l'après-midi, arrivé pour la remise de pause. Règle pour
+tout le monde : quand la pause ne vient que du remplacé et que l'heure
+d'arrivée écrite tombe hors de cette pause, la pause est celle qui contient
+l'heure d'arrivée. Pas quand le commentaire écrit aussi une plage « de A à
+B » : il décrit alors plusieurs morceaux. Une seule journée en 2026.
