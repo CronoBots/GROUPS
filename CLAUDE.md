@@ -3262,7 +3262,21 @@ Les 22 écarts restants, rangés :
   « VCP » (47) le week-end (17 au 21/07) ; le relevé de l'application écrit
   47 partout ;
 - **le chèque du 02/10** (rappel un vendredi de repos, 8 h sup au matin) :
-  SAP n'en donne pas, l'application oui.
+  SAP n'en donne pas, l'application oui. **Tranché le 14/10/2026 par les
+  documents, sans réponse du client** (« je ne sais pas, tu n'as pas cette
+  information dans les documents ? ») : je lui avais posé la question
+  sans avoir relu ses propres envois. La note sur les repos de la grille
+  le dit (« les chèques-repas sont attribués lors des jours de
+  prestations »), et les quatre cas connus concordent. Sur la fiche
+  d'avril de LCI, il y a 10 jours d'heures normales et 9 chèques ; les 11
+  et 13/04, journées entières en heures sup, n'ont pas de chèque. Les
+  états SAP de VBN n'en donnent ni le 25/06 ni le 02/10. Un rappel sur
+  un repos (`r.rs`) ne donne donc plus de chèque, ni à la fiche
+  (`compute()`), ni au relevé. L'indemnité de déplacement reste due : la
+  fiche d'avril de LCI en compte 12 jours, ces deux-là compris. Les cinq
+  sorties du vérificateur sont identiques à l'octet (la règle est de paie
+  seulement). Le relevé d'octobre de VBN laisse la colonne 9063 vide le
+  02/10, à 320 px (hors ligne), 390 et 1280 px.
 
 ### L'Accueil fondu dans le Calendrier
 
