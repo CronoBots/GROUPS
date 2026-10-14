@@ -3286,8 +3286,10 @@ Les 22 écarts restants, rangés :
   arrivée tardive de 0,25 h le 30/07, maladie sans certificat (code 15)
   les 02/07 et 10/09 — écarts connus ;
 - **le DTT** se décompte en « Congé d'ancienneté » (56) en semaine et en
-  « VCP » (47) le week-end (17 au 21/07) ; le relevé de l'application écrit
-  47 partout ;
+  « VCP » (47) le week-end (17 au 21/07) ; le relevé de l'application
+  écrivait 47 partout. **Corrigé le 14/10/2026** (affichage seulement) :
+  56 du lundi au vendredi, 47 le samedi et le dimanche. Les cinq journées
+  concordent, le férié du 21/07 compris (SAP y écrit 56) ;
 - **le chèque du 02/10** (rappel un vendredi de repos, 8 h sup au matin) :
   SAP n'en donne pas, l'application oui. **Tranché le 14/10/2026 par les
   documents, sans réponse du client** (« je ne sais pas, tu n'as pas cette
