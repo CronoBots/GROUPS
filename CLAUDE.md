@@ -1848,9 +1848,11 @@ n'est deviné à leur sujet :
   internes » ; LCI juin au centime sur le brut. ~~Maladie du week-end~~ :
   tranchée le même jour (samedi 150 %, dimanche 200 %, et payée par
   l'employeur le premier mois seulement, ensuite par la mutuelle) ; LCI au
-  centime en mai, juin et juillet. Restent pour la RH : le « premier mois »
-  vaut-il 30 jours calendrier ? Que fait la fiche d'un EMPLOYÉ après un
-  mois de maladie ? ;
+  centime en mai, juin et juillet. Le premier mois vaut aussi pour
+  l'employé (le client : « c'est pareil pour les maladies employé ») : le
+  fixe perd les heures au-delà, au taux horaire. Restent pour la RH : le
+  « premier mois » vaut-il 30 jours calendrier ? Comment le fixe d'un
+  employé est-il réduit ? ;
 - **le repos lié au dimanche de la semaine 3 de l'ouvrier** (14/10/2026) :
   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
   le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
