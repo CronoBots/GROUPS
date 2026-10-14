@@ -4510,6 +4510,22 @@ Vérifié à 320 px (hors ligne), 390 et 1280 px : téléchargement (79
 événements pour VBN), adresse d'abonnement, rien ne déborde. **Seul un
 téléphone dira comment l'abonnement s'affiche.**
 
+**Partager l'abonnement à un collègue** (le client, le 14/10/2026 : un
+lien `webcal://…/cal/ATR.ics` envoyé à un collègue ouvrait, chez lui, une
+RECHERCHE de ce texte dans son agenda). Beaucoup de messageries ne
+prennent pas `webcal://` pour un lien. On partage donc un lien `https`
+ordinaire, **`agenda.html?id=TRI`**, que toutes rendent cliquable : la
+page dit de qui est l'horaire et lance la bonne méthode selon le
+téléphone qui l'ouvre (`webcal://` sur Apple, la page d'ajout de Google
+ailleurs), avec « Copier l'adresse » et la marche à suivre à la main ; un
+navigateur intégré (WhatsApp, Messenger) est invité à passer par Safari ;
+un trigramme sans fichier se dit (« Aucun horaire n'est publié »). Dans
+l'application, « Partager le lien » sous « S'abonner » ouvre le menu de
+partage du téléphone (`navigator.share`), sinon copie le lien. Vérifié à
+la largeur d'un iPhone, d'un Pixel, à 1280 px et dans l'application à
+320 px hors ligne. Seul un vrai téléphone dira si la messagerie de chacun
+laisse passer.
+
 **Le commentaire, l'adresse et la remise de pause** (le client, le
 14/10/2026). Trois ajouts aux événements de `icsAgenda()` :
 

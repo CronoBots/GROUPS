@@ -1949,6 +1949,7 @@ body.sheet-on{overflow:hidden}
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); background:color-mix(in srgb,var(--marque-vif) 12%,transparent);
   color:var(--ink); font:600 13px/1 inherit; font-family:inherit; cursor:pointer}
 .btn-agenda svg{color:var(--marque-vif)}
+.btn-agenda.sec{min-height:34px; font-size:13px; background:transparent; border-color:var(--cadre)}
 .cal-act{flex-direction:column; align-items:center; gap:6px}
 .cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
 /* LA VUE DIRECTION : l'usine en un écran, plein écran, à la marque. */
@@ -4053,6 +4054,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
+        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager le lien</button>
         <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
     </div>
 
@@ -9767,6 +9769,23 @@ function abonnerAgenda(){
   else window.open("https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal),"_blank","noopener");
 }
 document.getElementById("icsBtn").addEventListener("click",abonnerAgenda);
+/* PARTAGER L'ABONNEMENT (le client, le 14/10/2026 : un lien webcal://
+   envoyé à un collègue ouvrait une RECHERCHE dans son agenda — beaucoup de
+   messageries ne le prennent pas pour un lien). On partage un lien https
+   ordinaire vers agenda.html?id=TRI, qui lance la bonne méthode sur le
+   téléphone qui l'ouvre. Menu de partage du système s'il existe, sinon
+   copie dans le presse-papiers. */
+function partagerAgenda(){
+  var id=trigCourant();
+  if(!id){ flash("Choisissez d'abord qui vous êtes dans Réglages."); return; }
+  var dir=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
+  var url=dir+"agenda.html?id="+encodeURIComponent(id);
+  var txt="Mon horaire BIOWANZE dans ton agenda : ouvre ce lien et touche « S'abonner ».";
+  if(navigator.share){ navigator.share({title:"Horaire "+id.replace(/-\d$/,""),text:txt,url:url}).catch(function(){}); return; }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function(){ flash("Lien copié : "+url); },function(){ window.prompt("Lien à partager :",url); });
+  else window.prompt("Lien à partager :",url);
+}
+document.getElementById("icsPartager").addEventListener("click",partagerAgenda);
 
 /* ── LA VUE DIRECTION ─────────────────────────────────────────────────────
    Le client, le 10/10/2026 : « il faut un vrai wow de la direction quand je

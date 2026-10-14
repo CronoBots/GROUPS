@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111727">
+<meta name="robots" content="noindex">
+<title>Abonnement agenda · BIOWANZE</title>
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- LA PAGE D'ABONNEMENT À PARTAGER (le client, le 14/10/2026 : un lien
+     webcal:// envoyé à un collègue ouvrait une RECHERCHE dans son agenda).
+     Beaucoup de messageries ne reconnaissent pas webcal:// comme un lien et le
+     passent comme du texte. On partage donc un lien https ordinaire,
+     agenda.html?id=TRI, que toutes rendent cliquable ; la page lance la
+     bonne méthode selon le téléphone : webcal:// sur Apple, la page d'ajout
+     de Google ailleurs (l'application Android ne sait pas s'abonner). Rien
+     d'autre que le trigramme n'y passe. -->
+<style>
+@font-face{font-family:'Archivo';font-weight:400 700;font-display:swap;src:url(fonts/archivo-latin.woff2) format('woff2')}
+:root{color-scheme:dark;--fond:#111727;--carte:#212737;--ink:#EEF1F7;--muted:#AEB6C6;--in:#69B2CB;--sur-in:#0B1220;--trait:#343B4D;--rouge:#F08A80}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 50% 35%,#1b2640,#111727 70%) fixed,var(--fond);color:var(--ink);font:15px/1.5 Archivo,system-ui,sans-serif;padding:max(24px,env(safe-area-inset-top)) 16px 32px;display:flex;justify-content:center}
+main{width:100%;max-width:440px}
+.logo{display:block;height:44px;margin:8px auto 22px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:16px;padding:22px 20px}
+h1{font-size:20px;margin:0 0 4px;text-align:center}
+.tri{display:inline-block;font:700 15px ui-monospace,"IBM Plex Mono",monospace;background:#2B3244;border:1px solid var(--trait);border-radius:7px;padding:1px 8px;letter-spacing:.04em}
+p{margin:10px 0;color:var(--muted)}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:700;font-size:16px;border-radius:12px;padding:14px 16px;margin:16px 0 8px;background:var(--in);color:var(--sur-in);border:0;cursor:pointer}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--trait);font-weight:600;font-size:14px;padding:11px 14px;margin-top:8px}
+ol{color:var(--muted);padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+code{font:12.5px ui-monospace,"IBM Plex Mono",monospace;color:var(--ink);word-break:break-all}
+.err{color:var(--rouge);text-align:center}
+.pied{font-size:12.5px;text-align:center;margin-top:16px}
+details{margin-top:14px;border-top:1px solid var(--trait);padding-top:10px}
+summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="logo.svg" alt="BIOWANZE">
+  <div class="carte" id="ok" hidden>
+    <h1>Horaire de <span class="tri" id="tri"></span></h1>
+    <p style="text-align:center">Abonnez votre agenda : les postes s'y ajoutent et se mettent à jour tout seuls à chaque nouvel horaire.</p>
+    <a class="btn" id="go" href="#">S'abonner dans mon agenda</a>
+    <p id="aide" style="font-size:13.5px"></p>
+    <button class="btn sec" id="copier" type="button">Copier l'adresse de l'agenda</button>
+    <details id="main">
+      <summary>Ajouter à la main</summary>
+      <p><b>iPhone</b> : Calendrier → Calendriers → Ajouter un calendrier → Ajouter un abonnement, puis coller l'adresse.</p>
+      <p><b>Android</b> : sur <b>calendar.google.com</b> (dans un navigateur, version ordinateur) → Autres agendas → + → À partir de l'URL, puis coller l'adresse. L'agenda apparaît ensuite dans l'application.</p>
+      <p><code id="url"></code></p>
+    </details>
+  </div>
+  <div class="carte" id="ko" hidden>
+    <h1>Lien incomplet</h1>
+    <p class="err" id="koTxt">Ce lien ne précise pas de qui il faut afficher l'horaire.</p>
+  </div>
+  <p class="pied">BIOWANZE · Mon équipe</p>
+</main>
+<script>
+(function(){
+  var m=/[?&]id=([A-Za-z]{3}(?:-\d)?)(?:&|$)/.exec(location.search);
+  var $=function(i){return document.getElementById(i);};
+  if(!m){ $("ko").hidden=false; return; }
+  var id=m[1].toUpperCase();
+  var dir=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
+  var https=dir+"cal/"+encodeURIComponent(id)+".ics", webcal=https.replace(/^https?:/,"webcal:");
+  var ua=navigator.userAgent||"";
+  var apple=/iPhone|iPad|iPod|Macintosh/.test(ua);
+  /* Les navigateurs intégrés (WhatsApp, Messenger, Instagram…) bloquent
+     souvent webcal:// : on le dit plutôt que d'échouer en silence. */
+  var integre=/FBAN|FBAV|Instagram|WhatsApp|Line\/|GSA\//.test(ua);
+  $("tri").textContent=id.replace(/-\d$/,"");
+  $("url").textContent=https;
+  var go=$("go");
+  if(apple){
+    go.href=webcal;
+    $("aide").textContent=integre
+      ? "Si rien ne se passe, ouvrez cette page dans Safari (bouton ⋯ ou Partager → Ouvrir dans Safari), puis touchez à nouveau le bouton."
+      : "L'iPhone demande ensuite « S'abonner » : confirmez.";
+  } else {
+    go.href="https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal);
+    go.target="_blank"; go.rel="noopener";
+    $("aide").textContent="Google Agenda s'ouvre et propose d'ajouter l'agenda : confirmez. Si l'application l'ouvre sans rien proposer, utilisez « Ajouter à la main » ci-dessous.";
+  }
+  $("copier").onclick=function(){
+    var b=this, fini=function(){ b.textContent="Adresse copiée ✓"; setTimeout(function(){ b.textContent="Copier l'adresse de l'agenda"; },2000); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(https).then(fini,function(){ $("main").open=true; });
+    else $("main").open=true;
+  };
+  $("ok").hidden=false;
+  /* Un trigramme inconnu se dit tout de suite. */
+  try{ fetch(https,{method:"HEAD",cache:"no-store"}).then(function(r){
+    if(!r.ok){ $("ok").hidden=true; $("koTxt").textContent="Aucun horaire n'est publié pour « "+id+" »."; $("ko").hidden=false; }
+  },function(){}); }catch(e){}
+})();
+</script>
+</body>
+</html>
