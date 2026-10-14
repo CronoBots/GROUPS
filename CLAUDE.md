@@ -1842,8 +1842,11 @@ n'est deviné à leur sujet :
   revérifiée ») : ~~réduction du temps de travail non payée~~ — tranché
   par la note explicative de la fiche de paie (« non payé pour les
   ouvriers »), appliqué le 09/10/2026, voir `docs/regles-paie.md`, « Les
-  deux notes internes ». Restent : vacances payées par la caisse et non
-  par l'employeur ? maladie du week-end majorée comme le poste prévu ? ;
+  deux notes internes ». ~~Vacances payées par la caisse~~ : tranché le
+  14/10/2026 (« A pour les VA »), les `VA` d'un ouvrier s'affichent en
+  heures sans montant, voir `docs/regles-paie.md`, « Les deux notes
+  internes » ; LCI juin au centime sur le brut. Reste : maladie du
+  week-end majorée comme le poste prévu ? ;
 - **le repos lié au dimanche de la semaine 3 de l'ouvrier** (14/10/2026) :
   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos
   le lundi de la même semaine, 4 fois sur 4 chez LCI (02/02, 13/04,
@@ -2199,7 +2202,8 @@ l'application n'a pas :
 - **les vacances ne sont pas payées par l'employeur** : « Congé Légal »
   porte des heures sans montant sur les huit fiches (16 h en février, 44 h
   en avril…) — chez l'ouvrier, c'est la caisse de vacances qui paie.
-  L'application les paie au taux garanti ;
+  L'application les payait au taux garanti ; **tranché le 14/10/2026**,
+  elle les montre en heures sans montant ;
 - **la réduction du temps de travail n'est pas payée** : « RED TEMPS TRAV
   NON PAYE » au détail des jours, « Réduction Temps Travail » sans montant
   (6 h en avril, 8 h en mai). L'application la paie ;

@@ -5432,7 +5432,11 @@ function compute(){
     if(ab("FER")) bl(ab("FER"),"Hrs. Jours fériés à "+nf4.format(tFer),R(ab("FER")*tFer),true);
     if(ab("RJF")) bl(ab("RJF"),"Congé légal à "+nf4.format(tgO),R(ab("RJF")*tgO),true);
     if(ab("RTT")) lines.push({q:ab("RTT"),l:"Réduction temps travail (non payée pour un ouvrier)",qh:true});
-    if(ab("VA"))  bl(ab("VA"),"Heure(s) vacances à "+nf4.format(tgO),R(ab("VA")*tgO),true);
+    /* Les vacances d'un ouvrier sont payées par la CAISSE DE VACANCES, pas
+       par l'employeur : la fiche porte « Congé Légal » en heures, sans
+       montant (huit fiches de LCI). Le client, le 14/10/2026 : « A pour les
+       VA ». Heures montrées, rien payé. */
+    if(ab("VA"))  lines.push({q:ab("VA"),l:"Congé légal (vacances payées par la caisse de vacances)",qh:true});
     if(ab("SMG")) bl(ab("SMG"),"Heures SHG maladie à "+nf4.format(tmO),R(ab("SMG")*tmO),true);
   } else {
     bl(null,"Montant heures prestées",R(remFixe*frac));

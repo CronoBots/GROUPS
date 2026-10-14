@@ -2014,6 +2014,20 @@ les portent sans montant, sous « Congé légal »), la maladie du week-end, et
 tout ce qui touche à l'employé (férié, rappel sur un repos, heures sup
 « pas compenser »).
 
+**Les vacances de l'ouvrier, tranchées le 14/10/2026.** Le client, à la
+question « payées par la caisse de vacances, et non sur la fiche ? » :
+« A pour les VA ». Les journées `VA` d'un ouvrier ne se paient plus au taux
+garanti : la fiche simulée les montre en heures, sans montant, sous
+« Congé légal (vacances payées par la caisse de vacances) ». C'est la
+lecture des huit fiches de LCI. Mesuré, mois par mois, sur LCI, sans
+calage, avec les taux de chaque fiche : l'écart « vacances » disparaît
+exactement (février, mars, avril, mai, juin, juillet). Juin tombe au
+centime sur le brut. Les restes de LCI ont tous une cause déjà connue :
+la maladie du week-end (mai, juillet), le repos lié au dimanche de la
+semaine 3 (avril, août), un week-end de 2025 (janvier), le 13/04 et le
+17/03. L'employé ne change pas (la branche `ouvrier` seule est
+touchée).
+
 ## Les notes de service du 09/10/2026
 
 Le client, le 09/10/2026 : cinq notes de service internes, « à garder en
