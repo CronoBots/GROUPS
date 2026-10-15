@@ -6959,6 +6959,27 @@ zéro, sous-effectifs d'ici la fin de l'année identiques à l'octet,
 compteurs 77/78 (FPA, l'écart connu), intégralité à zéro ; agendas
 réécrits ; vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+### Le classeur du 15/10/2026 à 14 h 09
+
+Huit portes ouvertes en 20 s, installé : **122 journées chez 47 personnes,
+19 compteurs**, aucune arrivée ni aucun départ. Les journées du 13 au 15/10
+complétées (la formation d'anglais du 14/10 devient des départs en RTT, RHS
+ou DTT ; CAN rappelé, son RJF du 14 annulé ; LHR, BLR et ATA « Abs ·
+justificatif à fournir ») ; échanges ATR/AFA (24-25/10), DBE puis PLZ
+(21-22/10), ASS/IME (06-08/11 et 11-13/12) ; « Test performance sécheur 1 »
+écrit du 04 au 06/11 (sans effectif demandé) ; GPO en distillation pour PAM
+du 13 au 15/11, FPA en R-CM les 14 et 15/11 ; congés de JBS, MGY, NPI, LCI.
+Neuf règles à zéro, compteurs 77/78 (FPA, l'écart connu), intégralité à
+zéro ; agendas réécrits. Sous-effectifs d'ici la fin de l'année **14 → 15
+places** : le **15/10 PM meunerie** — CDE et LHR absentes, CDE écrit
+« remplacée par ? et PLZ » alors que PLZ est au projet falling film
+(« SLT et BGT présents ») : le classeur ne sait pas lui-même qui est venu.
+Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
+**Recyclages** (classeur RH du 15/10/2026 à 13 h 49), onze portes
+ouvertes : JBI fermentation 0 → 1 (restant 18 → 17) ; VGG meunerie 4 → 5,
+gluten 1 → 2, fermentation 2 → 5, distillation 0 → 1 (restant 16 → 10).
+
 ### Les chaudières d'ATR : trois raisons, trois réponses (« ABC »)
 
 Le client, le 12/10/2026 : « ATR est bien aux chaudières les deux jours
