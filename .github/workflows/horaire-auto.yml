@@ -1,0 +1,36 @@
+# La mise à jour de l'horaire sans personne au clavier : chaque heure, le
+# dernier e-mail « BIOWANZE horaire » est lu dans le Gmail du client, le
+# classeur passe les huit portes de mettre-a-jour.py et s'installe sur main.
+# Le classeur ne touche jamais le dépôt ; le journal ne reçoit que des lignes
+# d'état (voir tools/horaire-auto.py). Lançable à la main : onglet Actions,
+# « Horaire automatique », Run workflow.
+name: Horaire automatique
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horaire-auto
+  cancel-in-progress: false
+
+jobs:
+  horaire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Identité git
+        run: |
+          git config user.name "BIOWANZE horaire automatique"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config core.hooksPath .githooks
+      - name: Lire Gmail, passer les portes, installer
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python3 tools/horaire-auto.py
