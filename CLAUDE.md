@@ -4266,6 +4266,22 @@ choses :
   16/10 sur VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI, à 320 px
   (hors ligne), 390 et 1280 px ; vérificateur et agendas identiques.
 
+**Puis en profil de réseau social** (le client, le même jour : « c'est
+possible de présenter cela comme un style de présentation de réseau
+social ? »). `_pfHead()` pose une couverture à la couleur de la marque, avec
+le logo à droite à côté de la roue, et un avatar rond au trigramme, cerclé
+de cyan et à cheval sur elle. Dessous : le trigramme et son statut, la
+fonction (« bio ») et, en jaune, la formation. Puis une rangée de chiffres
+comme sous un profil : binôme et partenaire (Adjoint ou Contremaître) pour
+un cadre, l'équipe pour un opérateur, les polyvalences validées (pas pour un
+contremaître, celles qui se terminent sont retirées par `polyFinie()`), et
+le prochain week-end libre (« 17 oct. », toujours affiché). Celui-ci
+quitte le pied du héros. Rien de neuf n'est calculé. **Première version
+fausse sur deux points** : le logo, en haut à gauche, passait sous
+l'avatar, et l'identité chevauchait la couverture à 320 px. Elle commence
+désormais sous la couverture. Vérifié sur VBN, SKS, GJR, JBI et SLI à
+320 px (hors ligne), 390 et 1280 px, sans débordement ni erreur.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
