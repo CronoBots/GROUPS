@@ -450,6 +450,20 @@ chaîne, montée avec lui ce jour-là :
    portes puis installe, pousse sur main ; les e-mails vont à la corbeille et
    le rapport de ce qui change part par e-mail au client.
 
+**Les recyclages suivent le même chemin** (le client, le 16/10/2026 :
+« peut-on mettre cela en place pour le fichier des recyclages aussi ? ») :
+un dossier OneDrive à eux, un second flux Power Automate, un e-mail
+« BIOWANZE recyclage », et `horaire-auto.py` le fait passer par les onze
+portes de `mettre-a-jour-recyclage.py --installer`. **Piège évité** : le brut
+des recyclages vit hors du dépôt, donc absent sur GitHub, et l'outil
+réinstallait (et montait `V`) à chaque passage. Le script regarde si
+`data/recyclages-2026.json` a vraiment changé, et remet `sw.js` sinon.
+Éprouvé en local sur un clone sans brut : classeur identique, rien ne
+bouge, `sw.js` compris ; classeur du 12/10, installé avec son rapport
+(JBI, VGG) ; un horaire donné à la place du classeur RH, porte 1 fermée,
+rien installé. Pas de notification du téléphone pour les recyclages :
+seulement l'e-mail de rapport.
+
 **Le planificateur de GitHub ne lançait rien** : le 16/10/2026, aucun
 passage automatique en plus de deux heures (zéro événement `schedule`, alors
 que fichier, branche et action étaient en ordre). Le client : « faisons le
