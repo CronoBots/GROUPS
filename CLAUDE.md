@@ -4420,6 +4420,25 @@ se décide, passe avant « Mon rythme », ce qui se constate. À 390 px,
 l'Accueil de VBN fait 2 985 px. Neuf règles à zéro ; vérifié sur VBN et SKS
 à 320 px (hors ligne), 390 et 1280 px.
 
+**Et la seconde passe complète** (le client, le même jour : « réorganise
+tout l'accueil à fond pro 100 % »). Relevé sur captures à 320, 390 et
+1280 px, puis corrigé en une fois :
+- le flex time et la récup. HS deviennent deux tuiles « Heures », du même
+  dessin que les congés : le solde en grand avec son état en couleur et en
+  mots, la jauge −8 / 80 / 104 (le « 0 » s'y chevauchait avec « −8 », il
+  est retiré dans la tuile), portées et reprises de l'année. La bande
+  `.calstats` du flex time, `.ft-ligne` et `cst()` sont retirés ;
+- la légende du mois tient en deux lignes au lieu de trois, avec des mots
+  courts (« Congé ou maladie », « Prime conservée », « Rappel ») ;
+- l'agenda quitte le cadre du mois pour un cadre à lui, « Agenda du
+  téléphone », avant les codes : c'est un réglage qu'on fait une fois, pas
+  une lecture du mois. Il se cache avec le héros quand personne n'est
+  connecté.
+
+L'ordre est désormais : héros, mois, compteurs, rythme, agenda, codes. À
+390 px, l'Accueil de VBN fait 2 930 px. Neuf règles à zéro ; vérifié sur VBN
+et SKS à 320 px (hors ligne), 390 et 1280 px, et sans personne connectée.
+
 Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
 et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
 gardés. Les deux boutons d'agenda passent sur une ligne (« Partager »). Mesuré

@@ -635,6 +635,14 @@ body{overflow-x:clip}
 .cg-d{font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
 .cg-d b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2)}
 @media (max-width:380px){ .cg-l{padding:9px 10px 10px} .cg-t{flex-direction:column; align-items:flex-start; gap:5px} }
+.hr-grille{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:761px){ .hr-grille{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:380px){ .hr-grille{grid-template-columns:1fr} }
+.hr-t .ft-jauge{margin:6px 6px 20px}
+.hr-t .ft-gr span:nth-child(2){display:none}
+.hr-t .ft-e{font-weight:650; white-space:normal}
+.hr-t.ft-ok .ft-e{color:var(--good)} .hr-t.ft-att .ft-e{color:#f2c94c} .hr-t.ft-ko .ft-e{color:var(--out2)}
+.hr-t.ft-ko{border-color:color-mix(in srgb,var(--out2) 45%,var(--line))}
 .cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
 /* le code du compteur, en badge, AVANT l'intitulé (VA, RTT, DTT…) */
 .cpt-code{flex:0 0 auto; display:inline-block; width:46px; box-sizing:border-box; text-align:center; padding:2px 6px; border-radius:6px;
@@ -642,10 +650,6 @@ body{overflow-x:clip}
   color:var(--in); background:var(--in-soft); border:1px solid var(--trait)}
 .cpt-lib{display:inline-flex; align-items:center; gap:8px; min-width:0}
 /* flex time : le solde du jour, sa jauge, quatre chiffres */
-.ft-ligne{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px 12px}
-.ft-ligne span{font-size:12px; color:var(--muted)}
-.ft-ligne b{font-family:"IBM Plex Mono",monospace; color:var(--ink); font-weight:650}
-.ft-ligne .ft-e{font-size:12.5px; font-weight:650; color:var(--good)}
 .ft-att .ft-e{color:var(--at-jaune)} .ft-ko .ft-e,.ft-ko b{color:var(--out2)}
 .ft-jauge{position:relative; margin:14px 6px 26px}
 .ft-piste{display:flex; height:6px; border-radius:99px; overflow:hidden; background:var(--surface3)}
@@ -657,7 +661,6 @@ body{overflow-x:clip}
 .ft-gr{position:relative; height:0}
 .ft-gr span{position:absolute; top:8px; transform:translateX(-50%); font-size:10px; color:var(--faint);
   font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
-.ft-st{margin:0 -16px -16px; border-top:1px solid var(--cadre); grid-template-columns:1fr 1fr}
 .cpt-chk{margin:12px 0 0; font-size:11.5px; display:flex; align-items:center; gap:6px}
 .cpt-chk::before{content:""; width:7px; height:7px; border-radius:50%; flex:0 0 auto}
 .cpt-chk.ok{color:var(--muted)} .cpt-chk.ok::before{background:var(--good)}
@@ -1982,7 +1985,7 @@ body.sheet-on{overflow:hidden}
    changement n'est pas une faute. Une ligne par journée : la date, l'avant
    barré, l'après en gras. */
 /* L'EXPORT VERS L'AGENDA : une action, au pied du mois. */
-.cal-act{padding:10px 12px 12px; display:flex; justify-content:center; border-top:1px solid var(--cadre)}
+.cal-act{padding:12px; display:flex; justify-content:center}
 .btn-agenda{display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 16px; border-radius:999px;
   border:1px solid color-mix(in srgb,var(--marque-vif) 45%,transparent); background:color-mix(in srgb,var(--marque-vif) 12%,transparent);
   color:var(--ink); font:600 13px/1 inherit; font-family:inherit; cursor:pointer}
@@ -4100,9 +4103,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <span class="csec" id="cVelo"><span class="csec-k">Vélo</span><b id="tVelo">0</b></span>
       </div>
       </div>
-      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
-        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button>
-        <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
+
     </div>
 
     <!-- Mon rythme puis mes compteurs, chacun à découvert (le client, le
@@ -4121,6 +4122,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <span class="sub" id="rythmeSub"></span>
       </header>
       <div id="rythmeCorps"></div>
+    </div>
+    <!-- L'agenda du téléphone, sorti du cadre du mois le 16/10/2026 : c'est un
+         réglage qu'on fait une fois, pas une lecture du mois. -->
+    <div class="card" id="agendaCard" hidden>
+      <header><h2>Agenda du téléphone</h2><span class="sub">mon horaire, mis à jour seul</span></header>
+      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
+        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
     </div>
     <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
          le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
@@ -5962,12 +5970,12 @@ function legendeMois(){
   ["AM","PM","N","D"].forEach(function(k){
     if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
   });
-  if(abs)  h.push('<span><i class="lg-abs"></i>congé ou maladie — non presté</span>');
-  if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu, non presté</span>');
-  if(jour) h.push('<span><i class="lg-jour"></i>journée de jour, prime conservée</span>');
-  if(part) h.push('<span><i class="lg-pt lg-part"></i>heures en moins ou en plus</span>');
-  if(velo) h.push('<span><i class="lg-pt lg-velo"></i>vélo</span>');
-  if(rap)  h.push('<span><i class="lg-pt lg-rap"></i>prime de rappel</span>');
+  if(abs)  h.push('<span><i class="lg-abs"></i>Congé ou maladie</span>');
+  if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu non presté</span>');
+  if(jour) h.push('<span><i class="lg-jour"></i>Prime conservée</span>');
+  if(part) h.push('<span><i class="lg-pt lg-part"></i>Heures en ±</span>');
+  if(velo) h.push('<span><i class="lg-pt lg-velo"></i>Vélo</span>');
+  if(rap)  h.push('<span><i class="lg-pt lg-rap"></i>Rappel</span>');
   return h.length?'<div class="mc-leg">'+h.join("")+"</div>":"";
 }
 
@@ -10926,8 +10934,9 @@ function renderRythme(){
   var db=HORAIRE_DB, id=(typeof trigCourant==="function")?trigCourant():"";
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
-  if(!db||!person){ card.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; renderNotif(null,null); return; }
-  card.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
+  var ag=document.getElementById("agendaCard");
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; renderNotif(null,null); return; }
+  card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete) tete.innerHTML=_pfHead(db,person);
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
      l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
@@ -16391,31 +16400,27 @@ function renderCompteurs(){
               :soldeJ<-8?["ko","Sous le minimum de −8 h"]
               :["ok","Dans les bornes"];
       var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
-      /* Le solde se lit en grand dans le héros, juste au-dessus : ici,
-         l'état et la jauge seulement (le client, le 10/10/2026). */
-      ft.push('<div class="ft-ligne ft-'+etat[0]+'"><span class="ft-e">'+etat[1]+'</span>'
-        +'<span>solde du classeur : <b>'+num(soldeJ)+'</b> h</span></div>');
-      ft.push('<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
+      /* Refonte du 16/10/2026 : le flex time et la récup. HS sont deux
+         tuiles du même dessin que les congés. Le solde en grand, son état
+         en couleur et en mots, la jauge −8 / 80 / 104, puis l'année. */
+      ft.push('<div class="cg-l hr-t ft-'+etat[0]+'"><div class="cg-t"><span class="cpt-code">FT</span><span class="cg-n">Flex time</span></div>'
+        +'<div class="cg-rs"><b>'+(soldeJ>0?"+":"")+num(soldeJ)+'<i>h</i></b><em class="ft-e">'+etat[1]+'</em></div>'
+        +'<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
         +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
         +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
         +'<div class="ft-gr"><span style="left:0">−8</span><span style="left:'+pos(0)+'%">0</span>'
-        +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>');
-      ft.push('<div class="calstats ft-st">'
-        +cst("+"+num(calc.ftPlus),"h","Portées "+annee)
-        +cst("−"+num(calc.ftMoins),"h","Reprises "+annee)+'</div>');
-      /* La case « Solde » redisait la ligne du dessus : retirée le 16/10/2026. */
+        +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>'
+        +'<div class="cg-d"><b>+'+num(calc.ftPlus)+'</b> portées · <b>−'+num(calc.ftMoins)+'</b> reprises en '+annee+'</div></div>');
     }
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
     if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
-    if(ecarts.length)
-      ft.push('<p class="cpt-chk ko">Écart avec le pied du classeur : '+ecarts.join(", ")+'</p>');
-    h.push(bloc("Flex time","bornes −8 h à 104 h",ft.join("")));
-
-    /* --- récup. HS : hors classeur --- */
-    h.push(bloc("Récupération d'heures supplémentaires","compteur de récup. HS",
-      '<div class="cpt-li"><span>Reprises cette année</span><b>'+num(R(calc.rhs,2))+' h</b></div>'
-      +'<p class="cpt-n">Le solde vit hors du classeur : seules les reprises y sont notées.</p>'));
+    /* Récup. HS : le classeur ne note que les reprises, pas le solde. */
+    ft.push('<div class="cg-l hr-t"><div class="cg-t"><span class="cpt-code">RHS</span><span class="cg-n">Récup. heures sup.</span></div>'
+      +'<div class="cg-rs"><b>'+num(R(calc.rhs,2))+'<i>h</i></b><em>reprises en '+annee+'</em></div>'
+      +'<div class="cg-d">Le solde n\'est pas dans le classeur : seules les reprises y sont notées.</div></div>');
+    h.push(bloc("Heures","flex time · bornes −8 h à 104 h",'<div class="cg-grille hr-grille">'+ft.join("")+'</div>'
+      +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
 
     /* --- temps de travail réduit ---
        Le bloc ne montrait que le congé parental : les huit personnes en
@@ -16471,9 +16476,6 @@ function renderCompteurs(){
     function hj(h){
       var j=R(h/8,2);
       return '<span class="cpt-hj"><b>'+num(j)+' j</b><i>'+num(R(h,2))+' h</i></span>';
-    }
-    function cst(v,u,k){
-      return '<div class="cstat"><span class="cstat-v"><b>'+esc(String(v))+'</b><i>'+u+'</i></span><span class="cstat-k">'+esc(k)+'</span></div>';
     }
   });
 }
