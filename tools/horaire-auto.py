@@ -344,7 +344,10 @@ def message_horaire(liste):
     reste = sum((s["fin"] - s["deb"]).days + 1 for s in series[3:])
     if reste:
         lignes.append("+ %d autre%s journée%s" % (reste, "s" if reste > 1 else "", "s" if reste > 1 else ""))
-    return ("Votre horaire a changé · %d journées" % n, "\n".join(lignes))
+    # le titre seul : iOS le coupe à environ 25 signes, « · 8 journées »
+    # devenait « · 8 j… » (capture du client, le 16/10/2026) ; les lignes
+    # et « + n autres journées » disent déjà combien
+    return ("Votre horaire a changé", "\n".join(lignes))
 
 
 def changements_recyclage(avant, apres):
