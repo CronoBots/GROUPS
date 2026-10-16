@@ -427,6 +427,41 @@ Si le nombre de personnes ou de journées s'écarte nettement des repères, la
 structure du classeur a bougé — vérifier la ligne des noms (10), la colonne
 des jours (2) et les blocs de mois avant d'aller plus loin.
 
+## La mise à jour automatique de l'horaire
+
+Le client, le 16/10/2026 : « que l'horaire soit mis à jour automatiquement
+tous les jours ». Son PC de travail est un PC virtuel (application Windows) :
+le serveur n'y est visible que par l'Explorateur, et son iPhone n'y a pas
+accès. Ni PowerShell, ni droit « Ouvrir une session en tant que tâche ». La
+chaîne, montée avec lui ce jour-là :
+
+1. **PC virtuel** : tâche « Copie horaire BIOWANZE » du Planificateur
+   (dossier RemoteDesktop), `robocopy` du récapitulatif vers
+   `OneDrive\Horaire auto`. Déclencheurs : chaque jour, à l'ouverture de
+   session et à la connexion à distance (« N'exécuter que si l'utilisateur
+   est connecté » : l'autre option est refusée). robocopy ne recopie que si le
+   fichier a changé.
+2. **Power Automate** (« Horaire BIOWANZE vers Gmail ») : à chaque
+   modification du fichier, Get file content, puis un e-mail « BIOWANZE
+   horaire » à son Gmail, classeur en pièce jointe.
+3. **GitHub**, chaque heure (`.github/workflows/horaire-auto.yml`,
+   `tools/horaire-auto.py`) : le dernier e-mail est lu par IMAP, le classeur
+   écrit dans un dossier temporaire, `mettre-a-jour.py` passe les huit
+   portes puis installe, pousse sur main ; les e-mails vont à la corbeille et
+   le rapport de ce qui change part par e-mail au client.
+
+**Le journal d'une action est public** : il ne reçoit que des lignes d'état.
+Le compte rendu d'une porte fermée peut contenir le nom qu'une garantie a
+trouvé ; il part au client par e-mail, jamais au journal.
+
+**Deux refus de plus qu'à la main** : un horaire identique n'installe rien
+(pas même `V`), et une ARRIVÉE n'est installée que si son trigramme est dans
+`tools/arrivees-confirmees.txt` — on l'y ajoute quand le client a dit qui
+c'est. Secrets du dépôt : `GMAIL_USER`, `GMAIL_APP_PASSWORD`. Éprouvé en
+local le 16/10/2026 : horaire identique, horaire changé (122 journées),
+arrivée refusée puis acceptée une fois confirmée, porte 1 fermée sans un mot
+au journal.
+
 ## Mettre à jour les recyclages depuis le classeur RH
 
 Le client envoie aussi, à part, le classeur RH **« Suivi des recyclages sur
@@ -2054,6 +2089,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
 | `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière huit portes |
+| `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée chaque heure par GitHub |
 | `tools/mettre-a-jour-recyclage.py` | le classeur RH des recyclages, même démarche, onze portes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
