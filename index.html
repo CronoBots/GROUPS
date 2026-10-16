@@ -3335,8 +3335,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
   background:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
   box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
-.pf-hero::after{content:""; position:absolute; right:-40px; top:-40px; width:170px; height:170px; border-radius:50%;
-  background:radial-gradient(circle,rgba(94,200,232,.16),transparent 68%); pointer-events:none}
 .pf-head{position:relative; display:flex; align-items:center; gap:14px; padding:16px 64px 2px 16px}
 .pf-logo{flex:0 0 auto; height:44px; width:auto; display:block}
 .pf-sep{align-self:stretch; width:1px; margin:4px 0; background:rgba(255,255,255,.16)}
@@ -3344,8 +3342,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-tri{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:26px; line-height:1; font-weight:600; letter-spacing:.04em; color:#fff}
 .pf-role{font-size:12.5px; color:rgba(255,255,255,.72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-roue{position:absolute; z-index:1; top:12px; right:12px; width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#fff; cursor:pointer}
-.pf-roue:hover,.pf-roue:focus-visible{background:rgba(255,255,255,.16)}
+  background:none; border:0; color:rgba(255,255,255,.82); cursor:pointer}
+/* Sans halo ni cercle blanc autour (le client, le 16/10/2026) : l'icône seule. */
+.pf-roue:hover,.pf-roue:focus-visible{color:#fff}
 .pf-proch{position:relative; display:flex; align-items:center; gap:12px; margin:10px 12px 0; padding:9px 12px; border-radius:12px;
   background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.32)}
 .pf-pause{flex:0 0 auto; min-width:42px; height:34px; padding:0 8px; box-sizing:border-box; border-radius:9px; display:grid; place-items:center;
@@ -3415,6 +3414,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-bas{height:12px}
 .pf-role2{font-size:12px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-role2.fo{color:var(--at-jaune)}
+.pf-ligne1{display:flex; align-items:center; gap:10px; min-width:0}
+.pf-stat{flex:0 0 auto; padding:3px 8px; border-radius:999px; font-size:10.5px; font-weight:650; letter-spacing:.04em; text-transform:uppercase;
+  color:rgba(255,255,255,.8); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14)}
+.pf-stat.int{color:var(--at-jaune); border-color:rgba(232,190,80,.4); background:rgba(232,190,80,.1)}
+.pf-fonc{font-size:15px; font-weight:650; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-ou{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-ou b{color:#fff; font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
+.pf-ou.fo{color:var(--at-jaune)}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
 .pf-kpi.bon b{color:var(--good)}
@@ -9700,17 +9707,23 @@ function _pfInfos(p){
      pause n'est pas finie : « En poste » pendant, « Aujourd'hui » avant ;
      sinon on cherche à partir de demain. Les heures se comptent depuis
      minuit du jour de l'usine, la nuit finit donc à 30 h. */
-  var hNow=(new Date()-base)/36e5;
+  var hNow=(new Date()-base)/36e5, mt=new Date(), cal0=new Date(mt.getFullYear(),mt.getMonth(),mt.getDate());
   for(k=0;k<=60;k++){
     d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
     x=_pfJour(p.id,d);
     if(x && x.presente && PF_HEURES[x.pv]){
-      if(k===0 && hNow>=pfFin(x)) continue;
+      /* L'HEURE DÉCIDE, pas le jour de l'usine (le client, le 16/10/2026 :
+         « ce matin je faisais AM mais en me connectant à 05h il était marqué
+         que je travaillais demain »). Avant 6 h le jour de l'usine est
+         encore la veille, et le matin qui commence à 5 h 30 se lisait
+         « Demain ». hRel compte les heures depuis minuit du jour du poste. */
+      var hRel=hNow-24*k;
+      if(hRel>=pfFin(x)) continue;
       var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
       var deb=pfDebut(x);
-      out.prochain={d:d, pv:x.pv, k:k, atelier:P0?P0.t:"", deb:deb, heures:pfHeures(x),
-        enCours:(k===0 && hNow>=deb),
-        pct:Math.max(0,Math.min(100,Math.round((hNow-deb)/(pfFin(x)-deb)*100))), fin:pfFin(x)};
+      out.prochain={d:d, pv:x.pv, k:k, kc:Math.round((d-cal0)/864e5), atelier:P0?P0.t:"", deb:deb, heures:pfHeures(x),
+        enCours:(hRel>=deb),
+        pct:Math.max(0,Math.min(100,Math.round((hRel-deb)/(pfFin(x)-deb)*100))), fin:pfFin(x)};
       break;
     }
   }
@@ -9733,7 +9746,7 @@ function _pfInfos(p){
     d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
     x=_pfJour(p.id,d);
     var tr=!!(x&&x.presente&&PF_HEURES[x.pv]);
-    out.sem.push({d:d, c:!x?"":(tr?x.pv:(x.ab||"–")), p:tr,
+    out.sem.push({auj:+d===+cal0, d:d, c:!x?"":(tr?x.pv:(x.ab||"–")), p:tr,
       at:(tr&&x.k&&PV_COURT[x.k])?PV_COURT[x.k].replace(/\.$/,""):"", rap:!!(x&&x.rappel)});
   }
   return out;
@@ -9764,36 +9777,52 @@ function soldesConges(c){
   });
   return out;
 }
+/* Le partenaire de binôme : l'autre cadre qui porte le même numéro dans la
+   colonne Contremaître (le classeur l'écrit « Contremaître → 5 »). */
+function _pfPartenaire(db,p){
+  var bn=_pfBinome(p); if(!bn||!db) return "";
+  var out=[];
+  db.people.forEach(function(x){ if(x.id!==p.id && _pfBinome(x)===bn) out.push(idLisible(x.id)); });
+  return out.join(", ");
+}
 function _pfHead(db,p){
   var tri=idLisible(p.id);
   var cadre=(typeof estCadre==="function")&&estCadre(p);
   var role = cadre ? ((typeof fonctionPersonne==="function"?fonctionPersonne(p):"")||"Cadre") : "Opérateur";
   var bn=_pfBinome(p), eq=(typeof equipeShift==="function")?equipeShift(p):"";
-  var ou=bn||((eq&&eq!=="—")?eq:"");
-  /* Deux lignes sous le trigramme, et rien de plus : la fonction et où l'on
-     est rangé ; puis le poste attitré d'un opérateur (ou celui qu'il
-     apprend) et le statut. Les puces et le « Bonjour » sont partis : une
-     seule chose par ligne, rien qui se répète plus bas. */
-  var l2=[], fo=false;
-  if(!cadre){
+  /* L'IDENTITÉ EN TROIS LIGNES (le client, le 16/10/2026 : « le héros doit
+     mieux présenter la personne connectée ») : le trigramme et son statut en
+     pastille ; la fonction, en clair (le poste attitré d'un opérateur) ; où
+     l'on est rangé — le binôme et son partenaire pour un cadre, l'équipe
+     pour un opérateur, ou le poste qu'il apprend, en jaune. */
+  var st=(typeof statutAffiche==="function")?statutAffiche(p):"";
+  var ou="", fo=false;
+  if(cadre){
+    var pa=_pfPartenaire(db,p);
+    ou=bn?esc(bn)+(pa?' · avec <b>'+esc(pa)+'</b>':' · sans adjoint'):(eq&&eq!=="—"?esc(eq):"");
+  } else {
     var kt=(typeof posteAttitre==="function")?posteAttitre(p):null, kf=null;
     if(!kt && typeof posteDeFormation==="function") kf=posteDeFormation(p);
     var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(kt||kf)) P0=P; });
-    if(P0){ l2.push(P0.t+(kf?" · en formation":"")); fo=!!kf; }
+    var mo=[]; if(eq&&eq!=="—") mo.push(eq);
+    if(P0 && kt) role=P0.t;
+    if(P0 && kf){ mo.push("En formation · "+P0.t); fo=true; }
+    ou=esc(mo.join(" · "));
   }
-  if(typeof statutAffiche==="function"){ var st2=statutAffiche(p); if(st2) l2.push(st2); }
   var inf=_pfInfos(p), h='';
   /* UN SEUL BLOC POUR LA SUITE : « Prochain poste » un jour travaillé ;
      « Reprise » quand on est en repos, en congé ou malade aujourd'hui —
      c'est le même jour, inutile de l'écrire deux fois. */
   if(inf.prochain){
-    var pr=inf.prochain, quand=pr.k===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
+    /* Les mots suivent le CALENDRIER : à 5 h, le matin du jour est
+       « Aujourd'hui », même si le jour de l'usine est encore la veille. */
+    var pr=inf.prochain, quand=pr.kc===1?"Demain":(JOURS_LONGS[(pr.d.getDay()+6)%7]+" "+pr.d.getDate()+" "+MOIS[pr.d.getMonth()].toLowerCase());
     var aujT=inf.auj&&inf.auj.presente,
-        lab=pr.enCours?"En poste":(pr.k===0?"Aujourd'hui":(aujT?"Prochain poste":"Reprise"));
-    if(pr.k===0) quand=pr.enCours?("Fin à "+pfHeureTxt(pr.fin%24)):("Début à "+pfHeureTxt(pr.deb));
+        lab=pr.enCours?"En poste":(pr.kc<=0?"Aujourd'hui":(aujT?"Prochain poste":"Reprise"));
+    if(pr.enCours||pr.kc<=0) quand=pr.enCours?("Fin à "+pfHeureTxt(pr.fin%24)):("Début à "+pfHeureTxt(pr.deb));
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
-      +'<span class="pf-proch-t"><small>'+lab+(pr.k>1?' · dans '+pr.k+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
+      +'<span class="pf-proch-t"><small>'+lab+(pr.kc>1?' · dans '+pr.kc+' <span class="unite">j</span>':'')+'</small><b>'+esc(quand)+'</b>'
       +'<span class="pf-proch-h">'+esc(pr.heures+(pr.atelier?" · "+pr.atelier:""))+'</span>'
       +(pr.enCours?'<span class="pf-prog" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +'</span><span class="pf-fl" aria-hidden="true">›</span></button>';
@@ -9802,10 +9831,10 @@ function _pfHead(db,p){
     h+='<div class="pf-sem" aria-label="Mes sept prochains jours">'+inf.sem.map(function(o,ix){
       var lib=JOURS_LONGS[(o.d.getDay()+6)%7]+" "+o.d.getDate()+" "+MOIS[o.d.getMonth()].toLowerCase()
         +" : "+(o.p?o.c+(o.at?" · "+o.at:""):(o.c==="–"?"repos":o.c))+(o.rap?" · rappel":"");
-      return '<button type="button" class="pf-jr'+(ix===0?' auj':'')+'" data-an="'+o.d.getFullYear()+'" data-m="'+(o.d.getMonth()+1)+'" data-j="'+o.d.getDate()+'"'
+      return '<button type="button" class="pf-jr'+(o.auj?' auj':'')+'" data-an="'+o.d.getFullYear()+'" data-m="'+(o.d.getMonth()+1)+'" data-j="'+o.d.getDate()+'"'
         +' data-k="'+pad2(o.d.getMonth()+1)+pad2(o.d.getDate())+'" aria-label="'+esc(lib)+'">'
         +(o.rap?'<em class="pf-rap" aria-hidden="true"></em>':'')
-        +'<small>'+(ix===0?'Auj.':JOURS_LONGS[(o.d.getDay()+6)%7].slice(0,3))+'</small>'
+        +'<small>'+(o.auj?'Auj.':JOURS_LONGS[(o.d.getDay()+6)%7].slice(0,3))+'</small>'
         +'<b>'+o.d.getDate()+'</b><i'+(o.p?' data-p="'+esc(o.c)+'"':(o.c&&o.c!=="–"?' class="ab"':''))+'>'+esc(o.c||"·")+'</i>'
         +'<span class="pf-at">'+esc(o.at||"\u00a0")+'</span></button>';
     }).join("")+'</div><div class="pf-chg" id="pfChg" hidden></div><div class="pf-app" id="pfApp" hidden></div>';
@@ -9844,8 +9873,10 @@ function _pfHead(db,p){
   return '<div class="pf-hero">'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
     +'<div class="pf-head"><img class="pf-logo" src="logo.svg" alt="Biowanze" width="57" height="44"><span class="pf-sep" aria-hidden="true"></span>'
-    +'<div class="pf-hmeta"><b class="pf-tri">'+esc(tri)+'</b><span class="pf-role">'+esc(role+(ou?" · "+ou:""))+'</span>'
-    +(l2.length?'<span class="pf-role2'+(fo?' fo':'')+'">'+esc(l2.join(" · "))+'</span>':'')+'</div></div>'
+    +'<div class="pf-hmeta"><span class="pf-ligne1"><b class="pf-tri">'+esc(tri)+'</b>'
+    +(st?'<span class="pf-stat'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')+'</span>'
+    +'<span class="pf-fonc">'+esc(role)+'</span>'
+    +(ou?'<span class="pf-ou'+(fo?' fo':'')+'">'+ou+'</span>':'')+'</div></div>'
     +h
     +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'<div class="pf-bas"></div>')+'</div>';
 }
