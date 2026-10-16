@@ -4357,6 +4357,29 @@ code posé). Choisir autre chose les remplace (`rec.rh` et les congés de
 `rec.ax` partent ; les heures sup d'un rappel restent). Aucun calcul
 touché. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**Tout l'Accueil réorganisé** (le client, le même jour : « optimise et
+réorganise TOUT le contenu de l'accueil … j'aime bcp la première partie avec
+la bannière, trigramme et poste »). Le héros ne bouge pas. Dessous : le mois
+avec son bilan, puis **un seul cadre « Mon année » à deux onglets, Compteurs
+et Rythme** (`#anCard`, `data-o`, onglet retenu dans `ui/accOnglet`). Les deux
+cartes empilées faisaient 2 900 px. Toucher les congés restants du héros
+ouvre l'onglet Compteurs. Les redites sont retirées :
+- « Jours prestés par mois » (la barre empilée des pauses a la même
+  hauteur), avec `ryBars()` ;
+- la case « Solde » du flex time (la ligne au-dessus le dit) ;
+- « Concorde avec le pied du classeur », qui ne parle plus que s'il y a un
+  écart.
+
+Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
+et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
+gardés. Les deux boutons d'agenda passent sur une ligne (« Partager »). Mesuré
+à 390 px : **4 200 → 2 550 px** pour VBN. Aucun calcul touché, neuf règles à
+zéro. **Une ligne CSS orpheline**, restée du nettoyage des anciennes règles
+`.cg-nb` (une règle sur deux lignes dont seule la première était retirée),
+a d'abord annulé la règle qui la suivait : un compteur d'accolades ne la voit
+pas, la capture si. Vérifié sur VBN et SKS à 320 px (hors ligne), 390 et
+1280 px, sans débordement ni erreur.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
