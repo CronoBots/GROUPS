@@ -123,12 +123,15 @@ BLOCS = [
     ("conges", 431, 440, None),
 ]
 
-# Le libellé « Total: » du bloc flex time est le report de l'année
-# précédente. Le client : « les compteurs totaux sont repartis d'où ils
-# étaient en fin d'année 2025, donc des valeurs manuelles avaient été
-# rentrées en début d'année. » Ce n'est donc pas la somme des colonnes +FT
-# et -FT de l'année en cours, et le nommer « Total » induirait en erreur.
-RENOMME = {"Total": "report"}
+# Le libellé « Total: » du bloc flex time EST LE SOLDE flex time de la
+# personne. Le client, le 16/10/2026 : « les heures de FT sont celles
+# indiquées dans la ligne 430 ». Il ne se refait pas avec les colonnes +FT
+# et -FT, qui ne comptent que l'année en cours : le solde de fin 2025 y est
+# déjà, entré à la main en début d'année (« les compteurs totaux sont
+# repartis d'où ils étaient en fin d'année 2025 »). Il a été lu jusqu'au
+# 16/10/2026 comme le seul report de 2025, et l'application y rajoutait les
+# ±FT de l'année : PDR à −45 h au lieu de −3.
+RENOMME = {"Total": "total"}
 
 # Trigrammes corrigés à la demande du client, quand la règle des initiales
 # tombe sur un trigramme déjà pris ou attribué à quelqu'un d'autre.

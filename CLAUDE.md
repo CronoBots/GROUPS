@@ -2025,11 +2025,12 @@ n'est deviné à leur sujet :
   29/09/2026 (A), voir « Recherche par pause et par poste » ;
 - ~~trois heures sup écrites en plage~~ : tranchées le 12/10/2026, voir
   « Les chaudières d'ATR », fin ;
-- **les soldes flex time sous −8 h** (09/10/2026) : la note du 18/09/2024
-  fixe le minimum à −8 h, et onze personnes sont en dessous au jour J
-  (jusqu'à −49 h). Le minimum est-il appliqué, ou ces soldes comptent-ils
-  des −FT remplacés (remarque 3 de la note) ? Les compteurs les marquent
-  en rouge en attendant. Le client, le 14/10/2026 : « je vérifierai » ;
+- ~~les soldes flex time sous −8 h~~ : la question était FAUSSE, et je
+  l'ai fait passer à la RH. Le client, le 16/10/2026 : « les heures de FT
+  sont celles indiquées dans la ligne 430 » — la case « Total: » du pied
+  de feuille EST le solde. Je la lisais comme le seul report de 2025 et y
+  ajoutais les ±FT de l'année. Relu juste : personne sous −8 h (SMA
+  exactement −8), voir « Cinq notes de service » ;
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
@@ -2214,15 +2215,23 @@ Compteurs. La note de 2024 borne le compteur à −8 h et 104 h sur le solde
 n'en déduisent rien — et demande de redescendre à 80 h au-delà. L'onglet ne
 montrait que les heures portées et reprises de l'année, jamais un solde.
 `compteursCalcules()` prend un troisième argument facultatif (MMJJ) et
-compte à part les ±FT jusqu'à ce jour ; le solde = report + portées −
-reprises au jour de l'usine, et une tuile donne le 31/12, reprises
-planifiées comprises. Une phrase dit l'état : dans les bornes, au-dessus de
+compte à part les ±FT jusqu'à ce jour. Le solde est la case « Total: »
+du classeur, telle quelle (`soldeFTClasseur()`). Une phrase dit l'état : dans les bornes, au-dessus de
 80 h (jaune), au-delà de 104 h ou sous −8 h (rouge). Le vérificateur appelle
 la fonction à deux arguments : ses quatre sorties sont identiques à
-l'octet. Mesuré au navigateur le 09/10 sur les 78 personnes : **aucune
-au-dessus de 80 h, onze sous −8 h** (PDR −49, TCE −37, CGI −32, PAM −20,
-ASS −19, DBE −16, AAI −12, PLZ −11, LHR et CDE −10, RDT −9) — question au
-client, ci-dessous. ATA 60 h, VBN 7 h. Rien ne sort de l'écran à 320 (hors
+l'octet.
+
+**Et le solde était faux jusqu'au 16/10/2026.** J'avais lu « Total: » comme
+le report de 2025 et je calculais report + portées − reprises : « onze
+personnes sous −8 h » (PDR −49…), une question posée au client puis passée
+à la RH. Le client : « les heures de FT sont celles indiquées dans la ligne
+430, pour PDR donc −3 ». La case contient déjà le solde de fin 2025 et
+toutes les journées écrites de l'année : la recompter avec les colonnes +FT
+et −FT doublait l'année. Le convertisseur la nomme désormais `total`.
+Il s'affiche tel quel, sans en retirer les ±FT planifiés plus tard : ce
+serait supposer ce que la case compte. Mesuré au 16/10 : **personne sous
+−8 h** (SMA −8, CKS et LHS −7), personne au-dessus de 80 h (ADK 68 h). **La leçon** : un libellé du classeur se lit tel qu'il
+est écrit — « Total » veut dire total ; c'est moi qui l'avais renommé. Rien ne sort de l'écran à 320 (hors
 ligne), 390 et 1280 px ; les seuls débordements sont dans les tableaux qui
 défilent déjà de côté.
 
@@ -3231,7 +3240,7 @@ filets `--cadre` :
   négatif. Deux colonnes au bureau.
 - **Flex time** : le solde du jour en grand, avec son état. Une jauge de
   −8 h à 104 h, le seuil de 80 h marqué. Quatre chiffres dans la bande de
-  `.calstats` (report, portées, reprises, solde au 31/12). La comparaison
+  `.calstats` (portées, reprises, total du classeur). La comparaison
   au pied du classeur tient en une ligne, et elle ne passe au rouge que
   s'il y a un écart.
 - **Récupération d'heures sup., temps réduit, congés et maladie** : des
@@ -4994,7 +5003,7 @@ identiques à l'octet ; rien ne déborde à 320 px (hors ligne), 390 et
 13/10/2026 : « le solde flex time doit être affiché comme les autres congés
 sous le calendrier 7 jours »). Une tuile « FT » au bout de la rangée, en
 heures (« +7 h »), vert dans les bornes, jaune au-dessus de 80 h, rouge
-au-delà de 104 h ou sous −8 h (PDR −49 h) ; le pied du héros ne garde que
+au-delà de 104 h ou sous −8 h ; le pied du héros ne garde que
 le week-end libre lointain. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
 **L'ancienne pause n'est plus barrée ni pâlie** (le client, le même jour :
