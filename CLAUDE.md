@@ -4370,6 +4370,16 @@ ouvre l'onglet Compteurs. Les redites sont retirées :
 - « Concorde avec le pied du classeur », qui ne parle plus que s'il y a un
   écart.
 
+**Les onglets n'ont vécu qu'une version.** Le client, capture de la
+comparaison à la moyenne à l'appui : « toute cette partie-là est inutile, et
+le rythme, le nombre de nuits et le graphique peuvent être visibles sans
+devoir passer par un bouton ». Ont été retirés la comparaison à la moyenne
+(`ryCompareHTML()`, `statsEquipe()` et son cache, qui calculait `statsRythme()`
+pour tout le monde au repos) ainsi que les trois chiffres (heures estimées,
+jours de travail et de repos d'affilée). Les onglets sont partis aussi :
+« Mon rythme » puis « Mes compteurs » s'affichent chacun à découvert, dans
+deux cadres. À 390 px, l'Accueil de VBN fait environ 3 200 px.
+
 Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
 et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
 gardés. Les deux boutons d'agenda passent sur une ligne (« Partager »). Mesuré

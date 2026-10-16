@@ -239,9 +239,9 @@ body{overflow-x:clip}
    au lieu de rester à leur place »). La carte rogne le temps du glissement. */
 /* Seuls les cadres qui CHANGENT avec le mois glissent : l'état des compteurs
    et « Mon rythme » parlent de l'année, ils restent immobiles. */
-.panel.mois-g>.card:not(#anCard),.panel.mois-d>.card:not(#anCard){overflow:clip}
-.panel.mois-g>.card:not(#anCard)>:not(.calnav){animation:jourGauche .2s ease-out}
-.panel.mois-d>.card:not(#anCard)>:not(.calnav){animation:jourDroite .2s ease-out}
+.panel.mois-g>.card:not(#cptCard):not(#rythmeCard),.panel.mois-d>.card:not(#cptCard):not(#rythmeCard){overflow:clip}
+.panel.mois-g>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourGauche .2s ease-out}
+.panel.mois-d>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourDroite .2s ease-out}
 /* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
    transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
    tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
@@ -1989,13 +1989,6 @@ body.sheet-on{overflow:hidden}
 .btn-agenda.sec{min-height:34px; font-size:13px; background:transparent; border-color:var(--cadre)}
 .cal-act{flex-direction:column; align-items:center; gap:6px}
 .cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
-/* Mon année : un cadre, deux onglets (16/10/2026) */
-.anseg{grid-template-columns:1fr 1fr}
-#anCard[data-o="cpt"] #rythmeCard,#anCard[data-o="ry"] #cptCard{display:none}
-#anCard[data-o="cpt"] .an-s-ry,#anCard[data-o="ry"] .an-s-cpt{display:none}
-#anCard:has(#rythmeCard[hidden]) .anseg{display:none}
-#anCard:has(#rythmeCard[hidden]) #cptCard{display:block}
-#anCard #rythmeCorps{padding-top:4px}
 .cal-act{flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px}
 .cal-act .btn-agenda{min-height:38px; padding:0 14px; font-size:13px}
 .cal-act-s{flex-basis:100%}
@@ -3528,19 +3521,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-leg b{color:var(--ink); font-variant-numeric:tabular-nums; font-weight:600}
 .ry-dot{width:9px; height:9px; border-radius:3px; display:inline-block; flex:0 0 auto}
 .ry-right{display:flex; flex-direction:column; gap:16px; min-width:0}
-.ry-cmp{display:flex; flex-direction:column; gap:12px}
-.ry-cmp-wait{font-size:12px; color:var(--faint)}
-.ry-cmp-row{display:flex; flex-direction:column; gap:5px}
-.ry-cmp-h{display:flex; justify-content:space-between; align-items:baseline; font-size:12px}
-.ry-cmp-h>span:first-child{color:var(--ink2); font-weight:600}
-.ry-cmp-d{font-size:11px; font-weight:700}
-.ry-cmp-d.up{color:var(--out2)} .ry-cmp-d.down{color:var(--good)} .ry-cmp-d.eq{color:var(--muted)}
-.ry-cmp-b{position:relative; height:19px; background:var(--surface2); border:1px solid var(--line2); border-radius:6px; overflow:hidden; display:flex; align-items:center}
-.ry-cmp-b>i{position:absolute; left:0; top:0; bottom:0; border-radius:6px}
-.ry-cmp-b>i.moi{background:var(--in)} .ry-cmp-b>i.eqp{background:var(--trait-fort)}
-.ry-cmp-b>em{position:relative; z-index:1; font-style:normal; font-size:10.5px; color:var(--ink); padding:0 8px; white-space:nowrap}
-.ry-cmp-b>em b{font-variant-numeric:tabular-nums; font-weight:700}
-.ry-kpis{display:flex; gap:9px}
 .ry-kpi{flex:1; min-width:0; background:var(--surface2); border:1px solid var(--line); border-radius:11px; padding:10px 7px; text-align:center}
 .ry-kpi b{display:block; font-size:19px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1}
 .ry-kpi span{font-size:10px; color:var(--muted); line-height:1.2; display:block; margin-top:3px}
@@ -4131,20 +4111,22 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
     </div>
 
-    <!-- MON ANNÉE : compteurs et rythme dans un seul cadre à deux onglets (le
-         client, le 16/10/2026 : « optimise et réorganise TOUT le contenu de
-         l'accueil »). Les deux cartes empilées faisaient 2 900 px à 390 px. -->
-    <div class="card" id="anCard" data-o="cpt">
+    <!-- Mon rythme puis mes compteurs, chacun à découvert (le client, le
+         16/10/2026 : « le rythme, nombre de nuits et graphique peuvent être
+         visibles sans devoir passer par un bouton »). -->
+    <div class="card" id="rythmeCard" hidden>
       <header>
-        <h2>Mon année</h2>
-        <span class="sub an-s-cpt" id="cptSub"></span><span class="sub an-s-ry" id="rythmeSub"></span>
+        <h2>Mon rythme</h2>
+        <span class="sub" id="rythmeSub"></span>
       </header>
-      <div class="caseg anseg" role="tablist" aria-label="Compteurs ou rythme">
-        <button type="button" role="tab" data-ano="cpt" aria-selected="true">Compteurs</button>
-        <button type="button" role="tab" data-ano="ry" aria-selected="false">Rythme</button>
-      </div>
-      <div id="cptCard"><div class="pad" id="cptCorps"></div></div>
-      <div id="rythmeCard" hidden><div id="rythmeCorps"></div></div>
+      <div id="rythmeCorps"></div>
+    </div>
+    <div class="card" id="cptCard">
+      <header>
+        <h2>Mes compteurs</h2>
+        <span class="sub" id="cptSub"></span>
+      </header>
+      <div class="pad" id="cptCorps"></div>
     </div>
     <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
          le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
@@ -9428,7 +9410,7 @@ function prefillAuto(){
    remplirMois() (même lecture que la paie) sur des objets mois jetables : rien
    n'est enregistré, et la classification des pauses/absences est exactement
    celle de l'app. ── */
-var _ryMode="pauses", _ryStats=null, _statsEqCache={};
+var _ryMode="pauses", _ryStats=null;
 var RY_CONGES=["VA","RTT","DTT","RJF","RHS"];   /* types de congé suivis au fil de l'année */
 function z12(){ return [0,0,0,0,0,0,0,0,0,0,0,0]; }
 /* Un code de congé peut être N'IMPORTE OÙ dans la cellule du jour (le classeur
@@ -9484,21 +9466,6 @@ function statsRythme(db,person,y){
     nuits:P.N, feriesT:feriesT, heures:Math.round(heures),
     serieN:maxRun("N"), serieR:maxRun("R"), serieT:(function(){ var mx=0,k=0,i; for(i=0;i<seq.length;i++){ if(P.hasOwnProperty(seq[i])){k++; if(k>mx)mx=k;} else k=0; } return mx; })(), moisMax:moisMax, pctN:prestes?Math.round(P.N/prestes*100):0};
 }
-/* Moyenne de la classe (opérateurs ou cadres) — lourde (statsRythme × tout le
-   monde), donc MÉMOÏSÉE et calculée en différé pour ne pas bloquer le 1er rendu. */
-function statsEquipe(db,y,cadre){
-  var key=y+"/"+(cadre?"c":"o");
-  if(_statsEqCache[key]!==undefined) return _statsEqCache[key];
-  var n=0,sN=0,sW=0,sP=0,sAM=0,sPM=0,sD=0;
-  db.people.forEach(function(p){
-    if(((typeof estCadre==="function"&&estCadre(p))?1:0)!==(cadre?1:0)) return;
-    var s=statsRythme(db,p,y); if(s.prestes<=0) return;
-    n++; sN+=s.nuits; sW+=s.we; sP+=s.prestes; sAM+=s.pauses.AM; sPM+=s.pauses.PM; sD+=s.pauses.D;
-  });
-  var r=n?{n:n,nuits:Math.round(sN/n),we:Math.round(sW/n),prestes:Math.round(sP/n),
-    AM:Math.round(sAM/n),PM:Math.round(sPM/n),D:Math.round(sD/n)}:null;
-  _statsEqCache[key]=r; return r;
-}
 var RY_MC=["J","F","M","A","M","J","J","A","S","O","N","D"];
 function ryDonut(){
   var box=document.getElementById("ryDonBox"); if(!box||!_ryStats) return;
@@ -9527,16 +9494,6 @@ function ryInsight(s){
   if(s.prestesMois[mm]>0) b.push("mois le plus chargé : <b>"+esc(MOIS[mm].toLowerCase())+"</b> ("+s.prestesMois[mm]+" journées)");
   if(s.feriesT>0) b.push("<b>"+s.feriesT+"</b> férié"+(s.feriesT>1?"s":"")+" travaillé"+(s.feriesT>1?"s":""));
   return b.join(" · ");
-}
-/* La comparaison se fait à la MOYENNE de tous les opérateurs (ou de tous les
-   cadres), pas à une équipe ; et l'application vouvoie partout ailleurs
-   (audit du 10/10/2026). */
-function ryCompareHTML(label,moi,eq,tri,cadre){
-  var mx=Math.max(moi,eq,1), diff=moi-eq, cls=diff>0?"up":diff<0?"down":"eq", qui=cadre?"cadres":"opérateurs";
-  return '<div class="ry-cmp-row"><div class="ry-cmp-h"><span>'+esc(label)+'</span>'
-    +'<span class="ry-cmp-d '+cls+'">'+(diff===0?"= moyenne":(diff>0?"+":"")+diff+" vs moyenne")+'</span></div>'
-    +'<div class="ry-cmp-b"><i class="moi" style="width:'+Math.round(moi/mx*100)+'%"></i><em>'+esc(tri||"Moi")+' <b>'+moi+'</b></em></div>'
-    +'<div class="ry-cmp-b"><i class="eqp" style="width:'+Math.round(eq/mx*100)+'%"></i><em>moyenne des '+qui+' <b>'+eq+'</b></em></div></div>';
 }
 /* Les quatre pauses empilées, mois par mois, aux couleurs du calendrier. */
 function ryBarsPauses(pm){
@@ -9974,16 +9931,9 @@ function _pfHead(db,p){
     +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
     +h+'<div class="pf-bas"></div></div>';
 }
-function anOnglet(k){
-  var c=document.getElementById("anCard"); if(!c) return;
-  c.setAttribute("data-o",k); lsSet("ui/accOnglet",k);
-  Array.prototype.forEach.call(c.querySelectorAll("[data-ano]"),function(b){ b.setAttribute("aria-selected",String(b.getAttribute("data-ano")===k)); });
-}
 document.addEventListener("click",function(e){
-  var ao=e.target.closest?e.target.closest("[data-ano]"):null;
-  if(ao){ anOnglet(ao.getAttribute("data-ano")); return; }
   var cg=e.target.closest?e.target.closest(".pf-cg"):null;
-  if(cg){ anOnglet("cpt"); var cc=document.getElementById("anCard"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
+  if(cg){ var cc=document.getElementById("cptCard"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
   eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
   setView("jour");
@@ -11029,12 +10979,9 @@ function renderRythme(){
     +'<div class="ry-wrap">'
     +'<div class="ry-don" id="ryDonBox"></div>'
     +'<div class="ry-right">'
-    +'<div class="ry-cmp" id="ryCompare"><div class="ry-cmp-wait">Comparaison à la moyenne…</div></div>'
-    +'<div class="ry-kpis">'
-    +'<div class="ry-kpi"><b>'+s.heures.toLocaleString("fr-BE")+'</b><span>heures (est.)</span></div>'
-    +'<div class="ry-kpi"><b>'+s.serieT+'</b><span>jours de travail d\'affilée</span></div>'
-    +'<div class="ry-kpi"><b>'+s.serieR+'</b><span>repos d\'affilée</span></div>'
-    +'</div>'
+    /* La comparaison à la moyenne et les trois chiffres (heures estimées,
+       jours d'affilée) sont retirés : « toute cette partie-là est inutile »
+       (le client, le 16/10/2026). */
     +'<div><div class="ry-chart-t">Pauses par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div></div>'
     +'<p class="ry-insight">'+ryInsight(s)+'</p>'
     +'</div></div>'
@@ -11047,18 +10994,8 @@ function renderRythme(){
   Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
   });
-  var cadre=(typeof estCadre==="function")&&estCadre(person);
-  /* La comparaison gèle le fil 1,4 s sur un téléphone lent : quand il est libre. */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y); });
-  plusTard(function(){
-    var box=document.getElementById("ryCompare"); if(!box) return;
-    var eq=statsEquipe(db,y,cadre);
-    var tri=idLisible(person.id);
-    box.innerHTML=eq ? (ryCompareHTML("Matins",s.pauses.AM,eq.AM,tri,cadre)+ryCompareHTML("Après-midi",s.pauses.PM,eq.PM,tri,cadre)
-      +ryCompareHTML("Nuits",s.nuits,eq.nuits,tri,cadre)+(s.pauses.D||eq.D?ryCompareHTML("Journées (D)",s.pauses.D,eq.D,tri,cadre):"")
-      +ryCompareHTML("Week-ends",s.we,eq.we,tri,cadre)) : "";
-  });
 }
 
 /* ===================== l'équipe ===================== */
@@ -17385,7 +17322,6 @@ function boot(){
          nettoyée pour qu'un rechargement ne le rouvre pas. */
       var vueUrl=(location.search.match(/[?&]vue=([a-z]+)/)||[])[1];
       if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
-      if(lsGet("ui/accOnglet")==="ry") anOnglet("ry");
       setView(vueUrl||lsGet("ui/view")||"horaire",true);
       /* Une notification touchée alors que l'application est déjà ouverte :
          le service worker ne recharge pas la page, il lui dit l'onglet. */
