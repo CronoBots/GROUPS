@@ -479,7 +479,9 @@ change pour vous » devenait du bruit) — un abonné sans trigramme reconnu
 garde le message commun. Le poste d'un OPÉRATEUR suit la pause
 (« Mercredi 21/10 : PM → AM · Gluten »), lu dans son agenda `cal/<id>.ics`
 que l'installation vient de réécrire : la lecture de l'application, pas une
-copie de ses règles ; rien pour un contremaître ou un adjoint. Une journée se décrit par sa cellule et son
+copie de ses règles ; rien pour un contremaître ou un adjoint.
+Exception, le client le même jour : VBN reçoit chaque classeur, horaire et
+recyclages, même sans changement pour lui (`TOUJOURS_PREVENIR`). Une journée se décrit par sa cellule et son
 annotation, jamais par le commentaire (comme `detecterChangements()`),
 une absence entière par son seul mot (Maladie, VA, Flex time repris), une
 ligne par journée, jamais regroupée (le client, capture à l'appui : « il ne
