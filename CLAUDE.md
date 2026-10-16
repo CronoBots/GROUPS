@@ -471,13 +471,15 @@ D'abord sans notification du téléphone ; le client, le 16/10/2026 :
 les deux arrivent ensemble. **Puis personnelles**, le même jour (le
 client, capture à l'appui : « les notifications doivent être optimisées
 au max ») : `notifications()` compare l'avant et l'après et chacun lit ce
-qui change POUR LUI — « Votre horaire a changé / Du 17/10
-au 30/10 : Maladie », « Recyclage enregistré / Chaudières le 15/10 ·
+qui change POUR LUI — « Votre horaire a été modifié /
+Samedi 17/10 : N → Maladie », « Recyclage enregistré / Chaudières le 15/10 ·
 encore 9 à faire » —, les autres « Classeur du 16/10 à 7 h 48 · rien ne
 change pour vous ». Une journée se décrit par sa cellule et son
 annotation, jamais par le commentaire (comme `detecterChangements()`),
-une absence entière par son seul mot (Maladie, VA, Flex time repris), et
-les journées qui se suivent et deviennent la même chose font une ligne.
+une absence entière par son seul mot (Maladie, VA, Flex time repris), une
+ligne par journée, jamais regroupée (le client, capture à l'appui : « il ne
+faut pas regrouper les jours »), trois au plus puis « + n autres journées ».
+Le titre seul : iOS le coupe vers 28 signes (« · 8 j… » sur sa capture).
 `envoyer-push.js --messages=` choisit le message par l'identifiant de
 l'abonnement, que l'application envoie désormais ENTIER (« GBT-1 ») ;
 toucher la notification ouvre l'Accueil ou l'onglet Équipes, y compris

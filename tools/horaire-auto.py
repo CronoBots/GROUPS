@@ -315,39 +315,18 @@ def changements_horaire(avant, apres, annee, jour):
 
 
 def message_horaire(liste):
-    """Titre et texte d'une notification « votre horaire a changé » : une
-    ligne par journée, trois au plus, la plus proche en tête."""
-    import datetime
-    n = len(liste)
-    if n == 1:
-        dt, a, b = liste[0]
-        return ("Votre horaire a changé",
-                "%s %s : %s → %s" % (JOURS_L[dt.weekday()], dt.strftime("%d/%m"), a, b))
-    # les journées qui se suivent et deviennent la même chose n'en font
-    # qu'une ligne : « Du 17/10 au 30/10 : Maladie » (l'avant n'est écrit
-    # que s'il est le même pour toute la série)
-    series = []
-    for dt, a, b in liste:
-        s = series[-1] if series else None
-        if s and s["b"] == b and dt - s["fin"] == datetime.timedelta(days=1):
-            s["fin"] = dt
-            s["a"] = s["a"] if s["a"] == a else None
-        else:
-            series.append({"deb": dt, "fin": dt, "a": a, "b": b})
-    lignes = []
-    for s in series[:3]:
-        if s["deb"] == s["fin"]:
-            quand = "%s %s" % (JOURS_C[s["deb"].weekday()].capitalize(), s["deb"].strftime("%d/%m"))
-        else:
-            quand = "Du %s au %s" % (s["deb"].strftime("%d/%m"), s["fin"].strftime("%d/%m"))
-        lignes.append("%s : %s" % (quand, ("%s → %s" % (s["a"], s["b"])) if s["a"] else s["b"]))
-    reste = sum((s["fin"] - s["deb"]).days + 1 for s in series[3:])
-    if reste:
+    """Titre et texte d'une notification « votre horaire a été modifié » :
+    une ligne par journée, jamais regroupées, trois au plus, la plus proche
+    en tête, toujours « Mercredi 21/10 : PM → N » (le client, le
+    16/10/2026 : « il ne faut pas regrouper les jours »). Le titre seul :
+    iOS le coupe à environ 28 signes, et « · 8 journées » devenait
+    « · 8 j… » ; « + n autres journées » dit déjà combien."""
+    lignes = ["%s %s : %s → %s" % (JOURS_L[dt.weekday()], dt.strftime("%d/%m"), a, b)
+              for dt, a, b in liste[:3]]
+    reste = len(liste) - 3
+    if reste > 0:
         lignes.append("+ %d autre%s journée%s" % (reste, "s" if reste > 1 else "", "s" if reste > 1 else ""))
-    # le titre seul : iOS le coupe à environ 25 signes, « · 8 journées »
-    # devenait « · 8 j… » (capture du client, le 16/10/2026) ; les lignes
-    # et « + n autres journées » disent déjà combien
-    return ("Votre horaire a changé", "\n".join(lignes))
+    return ("Votre horaire a été modifié", "\n".join(lignes))
 
 
 def changements_recyclage(avant, apres):
