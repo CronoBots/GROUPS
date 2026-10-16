@@ -9741,6 +9741,18 @@ function _pfInfos(p){
 /* LES SOLDES DE CONGÉS d'une personne, tels que le pied du classeur les écrit :
    disponible, placé, restant, en heures. Une seule lecture, pour l'état des
    compteurs et pour le héros de l'Accueil (deux copies divergent). */
+/* LE SOLDE FLEX TIME EST LA CASE « Total: » DU CLASSEUR (ligne 430). Le
+   client, le 16/10/2026 : « les heures de FT sont celles indiquées dans la
+   ligne 430 ». Je l'avais lue comme le seul report de 2025 et j'y ajoutais
+   les ±FT de l'année : PDR à −45 h au lieu de −3, et dix personnes « sous
+   −8 h » qui ne l'étaient pas. Il s'affiche tel quel : retirer les ±FT
+   planifiés après aujourd'hui serait supposer ce que la case compte, et
+   le client lit −3, pas un solde recalculé. Un ancien horaire en cache
+   porte encore « report », de même valeur. */
+function soldeFTClasseur(f){
+  f=f||{}; var v=(f.total!==undefined)?f.total:f.report;
+  return R(Number(v)||0,2);
+}
 function soldesConges(c){
   var solde=(c&&c.solde)||{}, prev=(c&&c.prevision)||{}, reste=(c&&c.restant)||{}, out=[];
   ["VA","RTT","DTT","RJF"].forEach(function(k){
@@ -9813,8 +9825,8 @@ function _pfHead(db,p){
     if(ju.getFullYear()>=annee){
       var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
           calc=compteursCalcules(p,annee,jq),
-          sj=R((Number(c.flex.report)||0)+calc.ftPlusJ-calc.ftMoinsJ,2);
-      ft='<span class="pf-cg-i ft '+(sj>104||sj<-8?'ko':sj>80?'att':'bon')+'" title="Solde flex time au '+pad2(ju.getDate())+'/'+pad2(ju.getMonth()+1)+' : '+num(sj)+' h">'
+          sj=soldeFTClasseur(c.flex);
+      ft='<span class="pf-cg-i ft '+(sj>104||sj<-8?'ko':sj>80?'att':'bon')+'" title="Solde flex time (Total du classeur) : '+num(sj)+' h">'
         +'<small>FT</small><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b></span>';
     }
   }
@@ -16354,14 +16366,11 @@ function renderCompteurs(){
        minimum −8 h au moment de l'absence, maximum 104 h au moment de la
        prestation — « solde apparaissant à la pointeuse, situation au jour
        J », les reprises planifiées plus tard n'en déduisent rien — et qui
-       dépasse 80 h doit planifier des −FT pour redescendre à 80 h. Le solde
-       se lit donc AUJOURD'HUI (jour de l'usine) : report + heures portées −
-       heures reprises jusqu'à ce jour. La fin d'année, elle, compte tout ce
-       qui est déjà planifié. Le client, le 09/10/2026, en remettant la note. */
-    var rep=(f.report!==undefined)?Number(f.report):0;
+       dépasse 80 h doit planifier des −FT pour redescendre à 80 h. Le client,
+       le 09/10/2026, en remettant la note. Le solde est la case « Total: »
+       du classeur (soldeFTClasseur()). */
     if(jusqua){
-      var soldeJ=R(rep+calc.ftPlusJ-calc.ftMoinsJ,2),
-          soldeFin=R(rep+calc.ftPlus-calc.ftMoins,2),
+      var soldeJ=soldeFTClasseur(f),
           etat=soldeJ>104?["ko","Au-delà du plafond de 104 h"]
               :soldeJ>80?["att","Au-dessus de 80 h : des −FT sont à planifier"]
               :soldeJ<-8?["ko","Sous le minimum de −8 h"]
@@ -16370,17 +16379,16 @@ function renderCompteurs(){
       /* Le solde se lit en grand dans le héros, juste au-dessus : ici,
          l'état et la jauge seulement (le client, le 10/10/2026). */
       ft.push('<div class="ft-ligne ft-'+etat[0]+'"><span class="ft-e">'+etat[1]+'</span>'
-        +'<span>solde au '+pad2(jusqua%100)+'/'+pad2(Math.floor(jusqua/100))+' : <b>'+num(soldeJ)+'</b> h</span></div>');
+        +'<span>solde du classeur : <b>'+num(soldeJ)+'</b> h</span></div>');
       ft.push('<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
         +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
         +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
         +'<div class="ft-gr"><span style="left:0">−8</span><span style="left:'+pos(0)+'%">0</span>'
         +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>');
       ft.push('<div class="calstats ft-st">'
-        +cst(num(rep),"h","Report "+(annee-1))
-        +cst("+"+num(calc.ftPlus),"h","Portées")
-        +cst("−"+num(calc.ftMoins),"h","Reprises")
-        +cst(num(soldeFin),"h","Au 31/12")+'</div>');
+        +cst("+"+num(calc.ftPlus),"h","Portées "+annee)
+        +cst("−"+num(calc.ftMoins),"h","Reprises "+annee)
+        +cst(num(soldeJ),"h","Solde")+'</div>');
     }
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
