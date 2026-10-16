@@ -118,6 +118,17 @@ sceptique** avant d'être cru : l'audit du 26/09/2026 a ainsi trouvé qu'un
 constat « barré = annulé » avait été mesuré sur une copie corrompue, et
 qu'un correctif proposé aurait attribué 460 signatures au mauvais homonyme.
 
+**« Optimise tout » veut dire TOUT, en une passe.** Le client, le
+16/10/2026 : « comment cela se fait que je dois te demander de refaire point
+par point alors que je t'avais déjà demandé de faire cela avant ». Sa
+demande de refondre tout l'Accueil avait reçu des déplacements et des
+fusions de cadres ; les blocs eux-mêmes n'étaient pas repris, et il a fallu
+quatre demandes de plus. Quand le client demande de tout optimiser :
+(1) photographier la page entière à 320, 390 et 1280 px ; (2) dresser
+SOI-MÊME la liste de chaque défaut, bloc par bloc : redites, ordre,
+légendes, vides, troncatures, style hétérogène ; (3) tout corriger avant de
+rendre la main ; (4) dire ce qui reste, et pourquoi.
+
 **Écrire ici ce qui a été appris**, dans la section qui en parle, avec la
 date, la mesure et l'erreur commise s'il y en a eu une. Une affirmation de
 ce fichier démentie par la mesure se CORRIGE sur place, en disant qu'elle
@@ -4398,6 +4409,16 @@ restant est négatif. Ce sont les jours du héros, avec leur détail. Sous
 380 px, l'intitulé passe sous le code : à côté, « Congé d'ancienneté » se
 coupait. Aucun calcul touché, neuf règles à zéro. Vérifié sur VBN et SKS à
 320 px (hors ligne), 390 et 1280 px.
+
+**Puis la passe complète** (le même jour, voir « Méthode de travail »).
+Le donut de « Mon rythme » et ses pourcentages redisaient les cases AM ·
+PM · N · D de « Mon année » : ils sont retirés, avec `ryDonut()`.
+« Pauses par mois » gagne une légende de couleurs et 96 px de haut, et le
+sous-titre ne promet plus des week-ends qu'il ne montre pas. Le flex time
+ne laisse plus de bande vide sous ses chiffres. « Mes compteurs », ce qui
+se décide, passe avant « Mon rythme », ce qui se constate. À 390 px,
+l'Accueil de VBN fait 2 985 px. Neuf règles à zéro ; vérifié sur VBN et SKS
+à 320 px (hors ligne), 390 et 1280 px.
 
 Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
 et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
