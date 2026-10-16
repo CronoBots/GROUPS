@@ -462,6 +462,17 @@ local le 16/10/2026 : horaire identique, horaire changé (122 journées),
 arrivée refusée puis acceptée une fois confirmée, porte 1 fermée sans un mot
 au journal.
 
+**Éprouvé en vrai le 16/10/2026**, sur l'adresse dédiée `biowanzeapp@gmail.com`
+(le client n'a pas voulu mêler son Gmail personnel ; l'Outlook du travail ne
+s'ouvre pas sans autorisation du service informatique) : tâche lancée sur le
+PC virtuel, e-mail reçu, passage lancé à la main (« Run workflow » — la
+session ne peut pas déclencher d'action, 403), réussi en moins d'une minute.
+Classeur du 16/10 à 7 h 48 installé par le commit automatique 3db7ba2 :
+29 journées chez 7 personnes, 3 compteurs ; garde-fou du dépôt et neuf règles
+à zéro relus après coup. Le journal d'une action ne se lit pas depuis la
+session (GitHub le sert d'un autre hôte) : l'état se lit au commit et à
+l'e-mail de rapport.
+
 ## Mettre à jour les recyclages depuis le classeur RH
 
 Le client envoie aussi, à part, le classeur RH **« Suivi des recyclages sur
