@@ -473,6 +473,34 @@ Classeur du 16/10 à 7 h 48 installé par le commit automatique 3db7ba2 :
 session (GitHub le sert d'un autre hôte) : l'état se lit au commit et à
 l'e-mail de rapport.
 
+**Et le téléphone sonne, application fermée** (le client, le 16/10/2026 :
+« une notification PWA lors de la mise à jour du classeur », puis « B tant
+que mnt » : la même pour tous). Le 09/10 il l'avait écartée faute de
+serveur ; l'action GitHub en tient lieu. Après chaque classeur poussé,
+`tools/envoyer-push.js` (Node, `web-push`) envoie « Horaire mis à jour ·
+Classeur du … » à chaque abonné ; `sw.js` l'affiche (`push`), un appui
+ouvre l'application. **Les abonnements sont dans la base Supabase du projet
+PINO**, le choix du client — et non un projet à part, que je recommandais :
+table `biowanze_push` (endpoint, clés, trigramme), RLS sans politique, donc
+fermée au public ; on n'y entre que par trois fonctions `security definer` :
+`biowanze_abonner` et `biowanze_desabonner` (ouvertes, l'adresse doit être
+en https), `biowanze_abonnes` qui ne rend la liste qu'à la clé partagée
+`PUSH_CLE` (seule son empreinte SHA-256 est dans la base). L'application
+s'abonne quand on touche « Activer » dans Réglages (`abonnerPush()`), se
+désabonne à « Désactiver », et se réabonne en silence une fois par jour si
+c'était déjà actif. Clé publique VAPID écrite dans `index.html` ET
+`tools/envoyer-push.js`, la même ; la privée est le secret
+`VAPID_PRIVATE_KEY`. Le trigramme est gardé pour, plus tard, ne prévenir que
+ceux dont l'horaire change (l'option A). Une notification manquée ne fait
+jamais échouer le passage. **Éprouvé** : lecture directe de la table
+refusée, adresse non https refusée, liste refusée sans la clé ; un faux
+abonné envoyé au vrai service de Google, qui répond « inexistant », est
+retiré de la base ; au navigateur, Activer inscrit (clé de 65 octets) et
+Désactiver désinscrit, à 320 px (hors ligne avant), 390 et 1280 px ; un
+message reçu par le service worker s'affiche. Vérificateur identique à
+l'octet. Sur iPhone, seulement pour l'application installée (iOS 16.4 et
+plus) : seul le téléphone du client dira si elle sonne.
+
 ## Mettre à jour les recyclages depuis le classeur RH
 
 Le client envoie aussi, à part, le classeur RH **« Suivi des recyclages sur
@@ -2100,6 +2128,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
 | `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
 | `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière huit portes |
+| `tools/envoyer-push.js` | la notification du téléphone à chaque classeur installé |
 | `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée chaque heure par GitHub |
 | `tools/mettre-a-jour-recyclage.py` | le classeur RH des recyclages, même démarche, onze portes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |

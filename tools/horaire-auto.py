@@ -231,6 +231,15 @@ def main():
                        "Installé, mais le commit ou l'envoi sur main a échoué. À"
                        " transmettre à Claude.\n\n" + (p.stderr or "")[-4000:])
     etat("Classeur du %s installé%s." % (quand, " et poussé sur main" if pousser else ""))
+    if pousser:
+        # La notification du téléphone, application fermée (le client, le
+        # 16/10/2026 : la même pour tous). Elle ne fait jamais échouer le
+        # passage : l'horaire est déjà publié.
+        n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"),
+                            "Horaire mis à jour",
+                            "Classeur du %s · ouvrez l'application pour voir vos journées." % quand],
+                           cwd=RACINE, capture_output=True, text=True)
+        etat((n.stdout or "").strip() or "Notifications : non envoyées.")
     return fin(0, "BIOWANZE · horaire du %s installé" % quand,
                "L'application est à jour (classeur du %s).\n\nCe qui change :\n\n%s"
                % (quand, rapport))

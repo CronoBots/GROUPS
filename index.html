@@ -10767,6 +10767,46 @@ function dirAnneeHTML(a){
    +'</div>';
 }
 
+/* L'ABONNEMENT AUX NOTIFICATIONS APPLICATION FERMÉE (le client, le
+   16/10/2026). Le téléphone donne une adresse d'envoi, gardée dans la base
+   Supabase du projet PINO (table biowanze_push, fermée au public : on n'y
+   entre que par biowanze_abonner et biowanze_desabonner). L'action GitHub y
+   envoie un message à chaque classeur installé (tools/envoyer-push.js, dont
+   la clé publique doit être la même que celle-ci). Le trigramme est gardé
+   pour pouvoir, plus tard, ne prévenir que ceux dont l'horaire change. */
+var PUSH_SUPABASE="https://pnizdddritizjbsksoir.supabase.co",
+    PUSH_CLE_SUPABASE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
+    PUSH_VAPID="BF28dyZP0cTh-oFWm2lZiYLHxdp3lTem9lTN806GT-jVeiMkWk0tnRKMux_6qpojHLmlon3N1F4llyPCUX8efpg";
+function pushRpc(nom,corps){
+  return fetch(PUSH_SUPABASE+"/rest/v1/rpc/"+nom,{method:"POST",
+    headers:{apikey:PUSH_CLE_SUPABASE,"Content-Type":"application/json"},body:JSON.stringify(corps)});
+}
+function pushCle(b64){
+  var s=(b64+"===".slice((b64.length+3)%4)).replace(/-/g,"+").replace(/_/g,"/"), r=atob(s), a=new Uint8Array(r.length);
+  for(var i=0;i<r.length;i++) a[i]=r.charCodeAt(i);
+  return a;
+}
+function pushPossible(){ return !!(navigator.serviceWorker && window.PushManager); }
+function abonnerPush(){
+  if(!pushPossible()) return Promise.resolve(false);
+  return navigator.serviceWorker.ready.then(function(reg){
+    return reg.pushManager.getSubscription().then(function(s){
+      return s || reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:pushCle(PUSH_VAPID)});
+    });
+  }).then(function(s){
+    var j=s.toJSON(), k=j.keys||{};
+    return pushRpc("biowanze_abonner",{p_endpoint:j.endpoint,p_p256dh:k.p256dh,p_auth:k.auth,
+      p_tri:idLisible(trigCourant()).slice(0,10)}).then(function(r){ return r.ok; });
+  }).catch(function(){ return false; });
+}
+function desabonnerPush(){
+  if(!pushPossible()) return Promise.resolve();
+  return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription(); })
+    .then(function(s){ if(!s) return;
+      return pushRpc("biowanze_desabonner",{p_endpoint:s.endpoint}).catch(function(){})
+        .then(function(){ return s.unsubscribe(); });
+    }).catch(function(){});
+}
 function majNotifReglage(){
   var el=document.getElementById("notifEtat"), b=document.getElementById("notifBtn"); if(!el||!b) return;
   var ok=("Notification" in window) && navigator.serviceWorker;
@@ -10777,19 +10817,27 @@ function majNotifReglage(){
   b.hidden=false;
   if(Notification.permission==="denied"){ el.textContent="Refusées dans les réglages du téléphone. Autorisez-les pour cette application, puis revenez ici."; b.hidden=true; return; }
   var on=notifActive();
-  el.textContent=on?"Activées : une notification résume les journées modifiées quand l'application s'ouvre.":"Désactivées. Les changements restent signalés dans l'Accueil.";
+  el.textContent=on?(pushPossible()
+      ?"Activées : vous êtes prévenu à chaque mise à jour du classeur, même application fermée, et l'application résume vos journées modifiées à l'ouverture."
+      :"Activées : une notification résume les journées modifiées quand l'application s'ouvre.")
+    :"Désactivées. Les changements restent signalés dans l'Accueil.";
   b.textContent=on?"Désactiver":"Activer"; b.setAttribute("aria-pressed",on?"true":"false");
 }
 document.getElementById("notifBtn").addEventListener("click",function(){
-  if(notifActive()){ lsSet("ui/notifTel",false); majNotifReglage(); return; }
+  if(notifActive()){ lsSet("ui/notifTel",false); desabonnerPush(); majNotifReglage(); return; }
   Promise.resolve(Notification.permission==="granted"?"granted":Notification.requestPermission()).then(function(r){
-    if(r==="granted"){ lsSet("ui/notifTel",true);
+    if(r==="granted"){ lsSet("ui/notifTel",true); abonnerPush();
       navigator.serviceWorker.ready.then(function(reg){ reg.showNotification("Notifications activées",{
         body:"Vous serez prévenu quand votre horaire change.", icon:"icon-192.png", badge:"favicon.png", tag:"notif-ok"}); }).catch(function(){}); }
     majNotifReglage();
   });
 });
 majNotifReglage();
+/* Déjà activées sur cet appareil (avant le 16/10, ou après une réinstallation) :
+   l'abonnement est refait en silence, une fois par jour au plus. */
+(function(){ var auj=new Date().toDateString();
+  if(notifActive() && lsGet("ui/pushVu")!==auj) setTimeout(function(){
+    abonnerPush().then(function(ok){ if(ok) lsSet("ui/pushVu",auj); }); },4000); })();
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) majNotifReglage(); });
 /* MON ANNÉE À CE JOUR (le client, le 10/10/2026 : « toutes les infos
    nécessaires et stats utiles pour un travailleur »). Ce que la répartition
