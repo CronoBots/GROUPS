@@ -4380,6 +4380,14 @@ jours de travail et de repos d'affilée). Les onglets sont partis aussi :
 « Mon rythme » puis « Mes compteurs » s'affichent chacun à découvert, dans
 deux cadres. À 390 px, l'Accueil de VBN fait environ 3 200 px.
 
+**« Mon année » monte dans le héros** (le client, le même jour : « prochain
+congé inutile aussi, mais mon année avec la ligne de progression et les
+stats de pauses sont intéressantes près du héros »). `ryAnneeHTML()` remplit
+`#ryAn`, placé au pied du héros sous les congés restants. On y lit la barre
+des journées prestées et à venir, puis AM, PM, N et D, faites et à venir. Le
+prochain congé est retiré, avec `estCongePose()`. « Mon rythme » ne garde que
+la répartition, les pauses par mois et l'année jour par jour.
+
 Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
 et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
 gardés. Les deux boutons d'agenda passent sur une ligne (« Partager »). Mesuré
