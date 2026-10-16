@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v741";
+var V = "nfdm-v742";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -134,6 +134,18 @@ self.addEventListener("fetch", function (e) {
 /* La notification « Horaire modifié » (index.html, notifierTelephone) : la
    toucher ramène l'application au premier plan si elle est ouverte, et
    l'ouvre sinon — sur l'Accueil, où la carte des changements l'attend. */
+/* LA NOTIFICATION REÇUE APPLICATION FERMÉE (le client, le 16/10/2026) :
+   l'action GitHub l'envoie à chaque classeur installé (tools/envoyer-push.js).
+   iOS exige qu'un message reçu s'affiche toujours. */
+self.addEventListener("push", function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data ? e.data.text() : "" }; }
+  e.waitUntil(self.registration.showNotification(d.title || "Horaire mis à jour", {
+    body: d.body || "", icon: "icon-192.png", badge: "favicon.png",
+    tag: d.tag || "classeur", renotify: true, data: { url: d.url || "./" }
+  }));
+});
+
 self.addEventListener("notificationclick", function (e) {
   e.notification.close();
   var cible = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
