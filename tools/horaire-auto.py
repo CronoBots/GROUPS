@@ -369,8 +369,10 @@ def message_recyclage(ajout, retire, restant, annee=2026):
         lignes.append("+ %d autre%s recyclage%s" % (r, "s" if r > 1 else "", "s" if r > 1 else ""))
     if restant is not None:
         lignes.append("Encore %s recyclage%s à faire" % (restant, "s" if str(restant) not in ("0", "1") else ""))
-    titre = ("Recyclage enregistré" if len(ajout) == 1 else
-             "%d recyclages enregistrés" % len(ajout) if ajout else "Vos recyclages ont été corrigés")
+    # le même style que « Votre horaire a été modifié » (le client, le
+    # 16/10/2026) ; le nombre est dans les lignes, le titre reste court
+    titre = ("Votre recyclage a été ajouté" if len(ajout) == 1 else
+             "Vos recyclages ont été ajoutés" if ajout else "Vos recyclages ont été modifiés")
     return titre, "\n".join(lignes)
 
 
