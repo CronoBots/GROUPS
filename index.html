@@ -613,31 +613,34 @@ body{overflow-x:clip}
 .cpt-t span{font-size:10.5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--faint);
   text-align:right}
 .cpt-n{margin:8px 0 0; font-size:11.5px; line-height:1.5; color:var(--muted)}
-/* une rangée de congé : nom, restant en grand, barre posé / droit */
-.cg-l{padding:9px 0 10px; border-top:1px solid var(--trait)}
-.cg-l:first-of-type{border-top:0; padding-top:0}
-.cg-t{display:flex; align-items:center; gap:8px; min-width:0}
-.cg-n{font-size:13.5px; font-weight:600; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* Congés : une tuile par code, le restant en jours en grand (16/10/2026) */
+.cg-grille{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
+@media (min-width:761px){ .cg-grille{grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px} }
+.cg-l{display:flex; flex-direction:column; gap:7px; min-width:0; padding:10px 12px 11px;
+  background:var(--surface2); border:1px solid var(--line); border-radius:12px}
+.cg-t{display:flex; align-items:center; gap:7px; min-width:0}
+.cg-t .cpt-code{width:auto; min-width:40px}
+.cg-n{font-size:11.5px; font-weight:600; color:var(--muted); min-width:0; line-height:1.25;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.cg-rs{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-top:2px}
+.cg-rs b{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap; font-size:24px; font-weight:700; color:var(--ink); line-height:1}
+.cg-rs b i{font-style:normal; font-size:12px; font-weight:600; color:var(--muted); margin-left:2px}
+.cg-rs em{font-style:normal; font-size:11px; color:var(--muted); white-space:nowrap}
+.cg-l.vide .cg-rs b{color:var(--muted)}
+.cg-l.neg{border-color:color-mix(in srgb,var(--out2) 45%,var(--line))}
+.cg-l.neg .cg-rs b,.cg-l.neg .cg-rs em{color:var(--out2)}
+.cg-bar{height:4px; border-radius:99px; background:var(--surface3); overflow:hidden}
+.cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
+.cg-l.neg .cg-bar i{background:var(--out2)}
+.cg-d{font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+.cg-d b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2)}
+@media (max-width:380px){ .cg-l{padding:9px 10px 10px} .cg-t{flex-direction:column; align-items:flex-start; gap:5px} }
 .cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
 /* le code du compteur, en badge, AVANT l'intitulé (VA, RTT, DTT…) */
 .cpt-code{flex:0 0 auto; display:inline-block; width:46px; box-sizing:border-box; text-align:center; padding:2px 6px; border-radius:6px;
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.02em;
   color:var(--in); background:var(--in-soft); border:1px solid var(--trait)}
 .cpt-lib{display:inline-flex; align-items:center; gap:8px; min-width:0}
-.cg-l{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:16px; align-items:center}
-.cg-g{display:flex; flex-direction:column; gap:7px; min-width:0}
-.cg-d{font-size:11.5px; color:var(--muted)}
-.cg-d b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2)}
-.cg-rs{display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:64px}
-.cg-rs span{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint)}
-.cg-rs b{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap; font-size:20px; font-weight:700; color:var(--ink); line-height:1.1}
-.cg-rs b i{font-style:normal; font-size:11px; font-weight:500; color:var(--muted); margin-left:2px}
-.cg-rs em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--muted)}
-.cg-l.vide .cg-rs b{color:var(--muted)}
-.cg-l.neg .cg-rs b,.cg-l.neg .cg-rs em{color:var(--out2)}
-.cg-bar{height:5px; border-radius:99px; background:var(--surface3); overflow:hidden}
-.cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
-.cg-l.neg .cg-bar i{background:var(--out2)}
 /* flex time : le solde du jour, sa jauge, quatre chiffres */
 .ft-ligne{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px 12px}
 .ft-ligne span{font-size:12px; color:var(--muted)}
@@ -668,8 +671,6 @@ body{overflow-x:clip}
 @media (min-width:761px){
   .cpt-liste{display:grid; grid-template-columns:1fr 1fr; column-gap:28px}
   .cpt-liste .cpt-li:nth-child(2){border-top:0; padding-top:0}
-  .cg-grille{display:grid; grid-template-columns:1fr 1fr; column-gap:28px}
-  .cg-grille .cg-l:nth-child(2){border-top:0; padding-top:0}
 }
 /* Polyvalence : des badges compacts, un point à la couleur de la zone de
    l'atelier (la même que le liseré du tableau du jour). En grille de trois
@@ -16392,14 +16393,15 @@ function renderCompteurs(){
       /* Compacté le 16/10/2026 (refonte de l'Accueil) : une rangée par
          congé, les trois chiffres gardés — disponible et placé sous la barre,
          le restant en grand à droite. Deux fois moins haut. */
-      lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'">'
-        +'<div class="cg-g"><div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
+      var jr=R(rs/8,2);
+      lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'" title="'+esc(lib)+' : '+num(rs)+' h restantes, '+num(pose)+' h placées sur '+num(tot)+' h">'
+        +'<div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
         +(lib===k?'':'<span class="cg-n">'+esc(lib)+'</span>')+'</div>'
+        +'<div class="cg-rs"><b>'+num(jr)+'<i>j</i></b><em>'+num(rs)+' h restantes</em></div>'
         +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h disponibles"><i style="width:'+R(pct,1)+'%"></i></div>'
-        +'<div class="cg-d">Placé <b>'+num(pose)+' h</b> · disponible <b>'+num(tot)+' h</b></div></div>'
-        +'<div class="cg-rs"><span>Restant</span><b>'+num(rs)+'<i>h</i></b><em>'+num(R(rs/8,2))+' j</em></div></div>');
+        +'<div class="cg-d"><b>'+num(pose)+'</b> / '+num(tot)+' h placées</div></div>');
     });
-    if(lc.length) h.push(bloc("Congés","en heures · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
+    if(lc.length) h.push(bloc("Congés restants","jours de 8 h · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
 
     /* --- flex time --- */
     var f=c.flex||{};

@@ -4388,6 +4388,17 @@ des journées prestées et à venir, puis AM, PM, N et D, faites et à venir. Le
 prochain congé est retiré, avec `estCongePose()`. « Mon rythme » ne garde que
 la répartition, les pauses par mois et l'année jour par jour.
 
+**Les congés en tuiles** (le client, le même jour : « il n'y a pas une façon
+plus professionnelle d'afficher les compteurs sur l'Accueil ? »). « Congés
+restants » devient une grille de tuiles, deux de front sur téléphone et
+quatre au bureau. Chaque tuile porte le code et son intitulé, le restant en
+jours de 8 h en grand avec les heures à côté, une barre fine « placé sur
+disponible », puis « 56 / 68 h placées ». La tuile se borde de rouge quand le
+restant est négatif. Ce sont les jours du héros, avec leur détail. Sous
+380 px, l'intitulé passe sous le code : à côté, « Congé d'ancienneté » se
+coupait. Aucun calcul touché, neuf règles à zéro. Vérifié sur VBN et SKS à
+320 px (hors ligne), 390 et 1280 px.
+
 Chaque congé tient sur une rangée : code, intitulé, barre, « Placé · disponible »,
 et le restant en grand à droite. Les trois chiffres demandés le 09/10 sont
 gardés. Les deux boutons d'agenda passent sur une ligne (« Partager »). Mesuré
