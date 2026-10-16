@@ -4281,6 +4281,12 @@ fausse sur deux points** : le logo, en haut à gauche, passait sous
 l'avatar, et l'identité chevauchait la couverture à 320 px. Elle commence
 désormais sous la couverture. Vérifié sur VBN, SKS, GJR, JBI et SLI à
 320 px (hors ligne), 390 et 1280 px, sans débordement ni erreur.
+Puis, le même jour (le client : « le trigramme dans le cercle est top ! il
+faut le poste puis le statut à la place du VBN en dehors du cercle, pas
+besoin de badge pour le statut ») : à côté de l'avatar, le poste en grand
+(« Contremaître », « Chaudières »), puis le statut en clair, sans pastille
+(jaune pour un intérimaire) ; le trigramme ne s'écrit plus qu'une fois, dans
+le cercle. Vérifié sur les mêmes cinq personnes, aux mêmes largeurs.
 
 ### L'audit multi-agent du 10/10/2026
 
