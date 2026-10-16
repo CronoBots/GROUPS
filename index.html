@@ -5810,6 +5810,16 @@ function isoWeek(dt){
    sous-produit. Depuis que le pré-remplissage se fait seul, la saisie est
    l'exception. Le mois est donc un calendrier, et la correction une feuille
    que l'on ouvre sur la journée touchée. */
+/* Les congés d'une journée qui ne sont pas dans rec.a : les codes en plus
+   (rec.ax) qui retirent des heures ou bougent le flex time, et la reprise
+   partielle d'heures sup (rec.rh). Les heures sup d'un rappel n'en sont
+   pas : ce ne sont pas des congés. */
+function congeLu(c){ var X=ABSMAP[c]; return !!(X && (X.h>0 || X.ft)); }
+function jourCongesLus(rec){
+  var l=(rec.ax||[]).filter(congeLu);
+  if(rec.s && Number(rec.rh||0)>0) l.push(num(Number(rec.rh))+"H RHS");
+  return l;
+}
 function ligneJour(d){
   var p=st.params, M=st.month, y=st.y, m=st.m, F=feries(y);
   var dt=new Date(Date.UTC(y,m,d)), wd=(dt.getUTCDay()+6)%7;
@@ -5817,6 +5827,13 @@ function ligneJour(d){
   var rec=M.days[d]||{};
   var absOpts="";
   ABS.forEach(function(a){ if(!a.hidden) absOpts+='<option value="'+a.c+'">'+(a.c||"—")+"</option>"; });
+  /* Ce que l'horaire pose sans passer par rec.a — une reprise partielle
+     (rec.rh, « 2h RHS ») ou un congé lu dans le commentaire (rec.ax) — se
+     montre en tête de la liste, choisi (le client, le 16/10/2026 : « les
+     2h RHS doivent être sélectionnées pour comprendre ») ; « — » laissait
+     croire qu'aucun congé n'était posé. */
+  var luJour=jourCongesLus(rec);
+  if(luJour.length) absOpts='<option value="__lu">'+esc((rec.a?[rec.a]:[]).concat(luJour).join(" + "))+"</option>"+absOpts;
   var btns="";
   SHIFTS.forEach(function(sh){
     btns+='<button type="button" data-s="'+sh.c+'" title="'+(SHIFT_HEURES[sh.c]||"repos")
@@ -5839,7 +5856,7 @@ function ligneJour(d){
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'+
     '</button>'+
     '<button type="button" class="rap" data-r="'+esc(rec.r||"")+'" title="'+RAP_TITRE[rec.r||""]+'" aria-label="Prime de rappel le '+d+'">'+RAP_TXT[rec.r||""]+'</button>';
-  row.querySelector(".abs").value=rec.a||"";
+  row.querySelector(".abs").value=luJour.length?"__lu":(rec.a||"");
   var hi=row.querySelector(".hrs");
   hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
   hi.disabled=!rec.s;
@@ -7220,7 +7237,12 @@ document.addEventListener("change",function(e){
   if(t.classList.contains("abs")){
     var d=Number(t.closest(".day").dataset.d);
     var rec=st.month.days[d]||(st.month.days[d]={});
-    rec.a=t.value; delete rec.auto; persistMonth(); refresh(); return;
+    if(t.value==="__lu") return;
+    /* Un autre choix remplace ce que l'horaire avait posé : la reprise
+       partielle et les congés lus partent avec, les heures sup restent. */
+    rec.a=t.value; delete rec.rh;
+    if(rec.ax){ rec.ax=rec.ax.filter(function(c){ return !congeLu(c); }); if(!rec.ax.length) delete rec.ax; }
+    delete rec.auto; persistMonth(); refresh(); return;
   }
   if(t.classList.contains("hrs")){
     var d2=Number(t.closest(".day").dataset.d);
