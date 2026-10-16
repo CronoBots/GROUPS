@@ -4329,6 +4329,23 @@ disque sombre translucide : à droite elle couvrait la marque. Vérifié sur
 VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI à 320 px (hors ligne),
 390 et 1280 px, sans débordement ni erreur.
 
+**Le cadre du mois réorganisé** (le client, le même jour, capture à
+l'appui : « je ne suis pas satisfait de la partie calendrier ; réorganise
+tout 100 % pro »). Dans l'ordre : la barre du mois, **le calendrier tout
+de suite dessous** (il venait après sept tuiles de chiffres), la légende,
+puis le **bilan du mois** (« Bilan d'août »). Un repos n'est plus une case
+pleine : sans bordure ni fond, le numéro pâle (classe `repos`), si bien
+que les journées prestées ressortent seules. Le samedi et le dimanche ont
+leur en-tête un peu plus marqué ; le jour courant porte son numéro en
+pastille d'accent ; la colonne des heures de la semaine est séparée d'un
+filet. Le bilan a quatre chiffres fixes sur une rangée (prestées, jours,
+week-end, heures sup, avec l'écart au mois d'avant) ; les rappels (et leur
+montant, « 1 · (montant retiré) € »), le flex du mois et le vélo passent sur une
+ligne dessous et **ne s'écrivent que s'ils ne valent pas zéro** — « 0
+vélo » et « 0 rappel » n'apprenaient rien. Aucun calcul touché.
+Vérifié sur VBN en octobre et en août à 320 px (hors ligne), 390 et
+1280 px, sans débordement ni erreur.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
