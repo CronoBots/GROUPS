@@ -193,7 +193,6 @@ const MORCEAUX=[
   ["var _habDCache=","\n"],
   ["function horaireHabituelD(","\n}"],
   ["function lectureAgenda(","\n}"],
-  ["function estCongePose(","\n"],
   ["var ICS_TZ=","];"],
   ["var ICS_NOM=","\n"],
   ["var ICS_MAPKIT=","\n"],
