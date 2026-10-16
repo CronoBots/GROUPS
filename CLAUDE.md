@@ -4243,6 +4243,29 @@ D 7-15, AM 6-14), nuits 0/2, 1/1, 1/6. Rien ne déborde à 320 (hors ligne),
 calculé. Vérificateur identique à l'octet (`--polyvalence` ne bouge que
 par la date du jour, identique à `HEAD`).
 
+**Le héros, le 16/10/2026** (le client, capture de l'iPhone : « le héros
+doit mieux présenter la personne connectée, le bouton setting ne doit pas
+avoir la lumière blanche autour ; ce matin je faisais AM mais en me
+connectant à 05h il était marqué que je travaillais demain »). Trois
+choses :
+
+- **l'identité en trois lignes** : le trigramme et le statut en pastille
+  (jaune pour un intérimaire), la fonction en clair (le poste attitré d'un
+  opérateur), puis le rangement : « Binôme 5 · avec ATR » pour un cadre
+  (`_pfPartenaire()`, l'autre cadre du même numéro de binôme), l'équipe
+  pour un opérateur, « En formation · Meunerie » en jaune ;
+- **la roue sans halo** : plus de cercle blanc ni de lueur cyan derrière
+  elle, l'icône seule ;
+- **le poste du moment se calcule sur l'HEURE**. Avant 6 h, le jour de
+  l'usine est encore la veille (`jourUsine()`), et le matin du jour, qui
+  commence à 5 h 30 pour le contremaître de la pause, se lisait « Demain ».
+  `_pfInfos()` compte désormais les heures depuis minuit du jour de chaque
+  poste, et les mots suivent le calendrier (`kc`) : à 3 h et à 5 h,
+  « Aujourd'hui · Début à 5 h 30 » ; à 5 h 45, « En poste · Fin à 14 h » ;
+  « Auj. » de la semaine est le jour du calendrier. Vérifié horloge au
+  16/10 sur VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI, à 320 px
+  (hors ligne), 390 et 1280 px ; vérificateur et agendas identiques.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
