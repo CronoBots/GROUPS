@@ -450,6 +450,19 @@ chaîne, montée avec lui ce jour-là :
    portes puis installe, pousse sur main ; les e-mails vont à la corbeille et
    le rapport de ce qui change part par e-mail au client.
 
+**Le planificateur de GitHub ne lançait rien** : le 16/10/2026, aucun
+passage automatique en plus de deux heures (zéro événement `schedule`, alors
+que fichier, branche et action étaient en ordre). Le client : « faisons le
+nécessaire ». C'est donc la base Supabase de PINO qui lance l'action :
+`pg_cron` (tâche `biowanze-horaire`, toutes les 15 minutes) appelle
+`biowanze_lancer_horaire()`, qui envoie un `workflow_dispatch` à GitHub par
+`pg_net`. Le jeton GitHub (accès à ce seul dépôt, permission Actions en
+écriture) est dans le coffre de la base, secret `biowanze_github`, déposé par
+le client lui-même dans l'éditeur SQL : il ne passe ni par le dépôt ni par la
+conversation. Sans secret, la fonction ne fait rien. Elle est fermée au
+public (appel anonyme : 401). Le cron du fichier `horaire-auto.yml` reste en
+secours.
+
 **Le journal d'une action est public** : il ne reçoit que des lignes d'état.
 Le compte rendu d'une porte fermée peut contenir le nom qu'une garantie a
 trouvé ; il part au client par e-mail, jamais au journal.
