@@ -1055,6 +1055,45 @@ body{overflow-x:clip}
 .mc-leg .lg-velo{background:var(--good)} .mc-leg .lg-rap{background:var(--out2)}
 .mc-leg .lg-part{background:var(--muted)}
 
+
+/* ---------- horaire : le cadre du mois réorganisé (16/10/2026) ---------- */
+/* Le client : « je ne suis pas satisfait de la partie calendrier ;
+   réorganise tout 100 % pro ». Le calendrier vient juste sous la barre du
+   mois ; un repos n'est plus une case pleine (il pesait autant qu'une
+   journée prestée) ; le bilan du mois passe dessous, quatre chiffres
+   alignés, et les secondaires ne s'écrivent que s'ils ne valent pas zéro. */
+#calCard .moiscal{padding:12px 12px 14px}
+#calCard .mc-tete span:nth-child(6),#calCard .mc-tete span:nth-child(7){color:var(--muted); font-weight:600}
+#calCard .mc-tete span{font-size:10px; text-transform:uppercase; letter-spacing:.05em}
+#calCard .mc-j{min-height:clamp(50px,9vw,74px); border-radius:10px; gap:2px}
+#calCard .mc-n{font-size:11.5px}
+#calCard .mc-t{font-size:11px; font-weight:750}
+#calCard .mc-j.repos{background:none; border-color:transparent}
+#calCard .mc-j.repos .mc-n{color:var(--faint)}
+@media(hover:hover){ #calCard .mc-j.repos:hover{border-color:var(--line2)} }
+#calCard .mc-j.abs{border-color:var(--line2)}
+#calCard .mc-j.auj{outline:2px solid var(--in); outline-offset:-2px}
+#calCard .mc-j.auj .mc-n{background:var(--in); color:var(--sur-in); border-radius:6px; padding:0 4px; font-weight:700}
+#calCard .mc-sem>.mc-hcol{justify-content:center; border-left:1px solid var(--line2); font-size:10.5px; color:var(--muted)}
+#calCard .mc-tete>.mc-hcol{justify-content:center; font-family:inherit}
+#calCard .mc-leg{margin-top:10px; padding-top:10px; font-size:10.5px; gap:5px 12px}
+#calCard .calbilan{border-top:1px solid var(--cadre)}
+.calbilan-t{padding:11px 16px 9px; font-size:10.5px; font-weight:650; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--faint); text-align:center}
+#calStats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--cadre)}
+#calStats .cstat{min-width:0; padding:10px 4px 9px}
+.calsec{display:flex; gap:1px; background:var(--cadre); border-top:1px solid var(--cadre)}
+.calsec[hidden],.csec[hidden]{display:none}
+.csec{flex:1 1 0; min-width:0; display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap;
+  gap:2px 6px; padding:9px 6px; background:var(--surface2); text-align:center}
+.csec-k{font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--faint); font-weight:650}
+.csec b{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:650; color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap}
+.csec .cstat-m::before{content:"· "; color:var(--faint)}
+#calStats .cstat-k{white-space:nowrap}
+@media (max-width:380px){ #calCard .moiscal{padding:10px 8px 12px} #calStats .cstat-v{font-size:15.5px}
+  #calStats .cstat-k{font-size:8.5px; letter-spacing:.02em} }
+
 /* ---------- horaire : la feuille d'une journée ---------- */
 /* Corriger est l'exception : cela mérite une surface dédiée, ouverte sur la
    journée touchée, avec sous les yeux ce que le classeur d'équipe en dit. */
@@ -4059,20 +4098,26 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
              .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
         <div class="calmois"><div class="mnavhote"></div></div>
       </div>
-      <!-- LES STATS IMPORTANTES DU MOIS, en tête du cadre. Les valeurs sont
-           écrites par renderSlip() dans ces mêmes identifiants (l'unité « h » est
-           portée par le balisage, pas par le texte). -->
+      <p class="projnote" id="calProj" hidden></p>
+      <div class="moiscal" id="moisCal"></div>
+      <!-- LE BILAN DU MOIS, sous le calendrier (le client, le 16/10/2026 :
+           « réorganise tout 100 % pro ») : quatre chiffres fixes, puis les
+           secondaires, qui ne s'affichent que s'ils ne valent pas zéro. Les
+           valeurs sont écrites par renderSlip() dans ces identifiants. -->
+      <div class="calbilan">
+      <div class="calbilan-t" id="calBilanT">Bilan du mois</div>
       <div class="calstats" id="calStats">
         <div class="cstat"><span class="cstat-v"><b id="tHeures">0</b><i>h</i></span><span class="cstat-k">Prestées</span><span class="cstat-d" id="dHeures"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tJours">0</b></span><span class="cstat-k">Jours</span><span class="cstat-d" id="dJours"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span><span class="cstat-d" id="dWe"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span><span class="cstat-d" id="dHs"></span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tRap">0</b></span><span class="cstat-k">Rappels</span><span class="cstat-m" id="tRapM"></span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tFt">0</b><i>h</i></span><span class="cstat-k">Flex du mois</span></div>
-        <div class="cstat"><span class="cstat-v"><b id="tVelo">0</b></span><span class="cstat-k">Vélo</span></div>
       </div>
-      <p class="projnote" id="calProj" hidden></p>
-      <div class="moiscal" id="moisCal"></div>
+      <div class="calsec" id="calSec">
+        <span class="csec" id="cRap"><span class="csec-k">Rappels</span><b id="tRap">0</b><span class="cstat-m" id="tRapM"></span></span>
+        <span class="csec" id="cFt"><span class="csec-k">Flex du mois</span><b><span id="tFt">0</span> h</b></span>
+        <span class="csec" id="cVelo"><span class="csec-k">Vélo</span><b id="tVelo">0</b></span>
+      </div>
+      </div>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
         <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager le lien</button>
         <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
@@ -5836,6 +5881,7 @@ function caseJour(d){
   if(preste&&(rec.j||rec.sp)) cls.push("jour");
   if(fer) cls.push("fer");
   if(auj) cls.push("auj");
+  if(!preste&&!tag) cls.push("repos");
   var pr=(preste&&gardePrime(rec))?' style="--pr:var(--'+rec.s.toLowerCase()+')"':"";
   var lib=preste?(rec.j?("journée de jour ("+rec.j+"), prime "+rec.s+" conservée")
                  :(rec.sp?((POSTE_LIB[rec.sp]||rec.sp)+", prime "+rec.s+" conservée")
@@ -6465,6 +6511,15 @@ function renderTotals(C){
   document.getElementById("tRap").textContent=rTot;
   var tRapM=document.getElementById("tRapM");
   if(tRapM) tRapM.textContent=rTot?eur(R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP)):"";
+  (function(){
+    var vis=0;
+    [["cRap",rTot],["cFt",ftS],["cVelo",C.acc.velo]].forEach(function(t){
+      var el=document.getElementById(t[0]); if(!el) return;
+      el.hidden=!Number(t[1]); if(!el.hidden) vis++;
+    });
+    var sec=document.getElementById("calSec"); if(sec) sec.hidden=!vis;
+    var bt=document.getElementById("calBilanT"); if(bt) { var mm=MOIS[st.m].toLowerCase(); bt.textContent="Bilan "+(/^[aeiouâéèêîôû]/.test(mm)?"d'":"de ")+mm; }
+  })();
   var rsub=document.getElementById("rotasub"); if(rsub) rsub.textContent=MOIS[st.m]+" "+st.y;
   majMoisLabel(st.m,st.y);
   majBrandsub();
