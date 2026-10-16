@@ -3433,6 +3433,35 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-kpi span{font-size:10px; line-height:1.25; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
 .pf-kpi.ko b{color:#ff9b8f} .pf-kpi.att b{color:var(--at-jaune)}
 @media (max-width:380px){ .pf-head{padding:14px 60px 2px 14px; gap:11px} .pf-logo{height:38px} .pf-tri{font-size:22px} .pf-kpi{padding:10px 10px 11px} .pf-kpi b{font-size:16px} .pf-kpi span{font-size:9px} }
+/* Le profil façon réseau social (16/10/2026) : couverture, avatar à cheval,
+   identité, rangée de chiffres. Écrit après les anciennes règles .pf-* qu'il
+   remplace : à spécificité égale, la dernière écrite gagne. */
+.pf-couv{position:relative; height:74px; overflow:hidden;
+  background:radial-gradient(90% 160% at 100% 0%,rgba(105,178,203,.45) 0%,rgba(105,178,203,0) 60%),
+    linear-gradient(135deg,#2a4170 0%,#1a2747 55%,var(--marque) 100%);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.pf-couv img{position:absolute; right:58px; top:50%; transform:translateY(-50%); height:34px; width:auto; opacity:.95}
+.pf-couv::after{content:""; position:absolute; right:-30px; bottom:-60px; width:190px; height:190px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.08); box-shadow:0 0 0 22px rgba(255,255,255,.025),0 0 0 44px rgba(255,255,255,.02)}
+.pf-roue{top:17px; right:10px}
+@media (min-width:761px){ .pf-roue{top:28px} }
+.pf-prof{position:relative; display:flex; align-items:flex-start; gap:12px; padding:0 16px; margin-top:-34px}
+.pf-av{flex:0 0 auto; width:76px; height:76px; border-radius:50%; display:grid; place-items:center; box-sizing:border-box;
+  background:linear-gradient(145deg,#2b4a7a,#162340); border:3px solid #16203a; box-shadow:0 0 0 2px var(--marque-vif),0 6px 16px rgba(0,0,0,.4);
+  font:700 23px/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.03em; color:#fff}
+.pf-prof .pf-hmeta{padding-top:40px; gap:3px}
+.pf-prof .pf-tri{font-size:21px}
+.pf-prof .pf-fonc{font-size:13.5px; font-weight:600; color:rgba(255,255,255,.82)}
+.pf-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); margin:12px 12px 0; padding:8px 0;
+  border-top:1px solid rgba(255,255,255,.1); border-bottom:1px solid rgba(255,255,255,.1)}
+.pf-st{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:0 4px; text-align:center}
+.pf-st+.pf-st{border-left:1px solid rgba(255,255,255,.08)}
+.pf-st b{font:700 17px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+.pf-st span{font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:rgba(255,255,255,.58); white-space:nowrap}
+@media (max-width:380px){ .pf-couv{height:66px} .pf-couv img{height:30px; right:54px} .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
+  .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:35px} .pf-prof .pf-tri{font-size:19px} .pf-st b{font-size:15px} .pf-st span{font-size:9px} }
+@media (min-width:761px){ .pf-couv{height:96px} .pf-couv img{height:44px; right:64px} .pf-prof{padding:0 20px; margin-top:-40px}
+  .pf-av{width:88px; height:88px; font-size:26px} .pf-prof .pf-hmeta{padding-top:46px} .pf-prof .pf-tri{font-size:24px} }
 .pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
 .pf-fact{display:flex; flex-direction:column; gap:2px; padding:9px 12px; border-radius:11px; background:var(--surface2)}
 .pf-k{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em}
@@ -9865,20 +9894,37 @@ function _pfHead(db,p){
       var j=R(o.rs/8,2);
       return '<span class="pf-cg-i'+(o.rs<0?' neg':o.rs===0?' vide':'')+'" title="'+esc(o.k)+' : '+num(o.rs)+' h restantes sur '+num(o.tot)+' h">'
         +'<small>'+esc(o.k)+'</small><b>'+num(j)+'<i>j</i></b></span>'; }).join("")+ft+'</span></button>';
-  /* Le pied : le week-end libre, seulement s'il tombe AU-DELÀ des sept
-     jours. */
-  var k=[];
-  if(inf.weekend && (inf.weekend.d-new Date(jourUsine()))/864e5>=6)
-    k.push('<div class="pf-kpi"><b class="pf-txt">'+esc(_pfDateCourte(inf.weekend.d))+'</b><span>Prochain week-end libre</span></div>');
+  /* un profil comme sur un réseau social (le client, le 16/10/2026 : « c'est
+     possible de présenter cela comme un style de présentation de réseau
+     social ? »). Une couverture à la couleur de la marque, le logo dedans ;
+     l'avatar rond au trigramme, à cheval sur elle ; le trigramme et son
+     statut, la fonction en « bio » ; puis la rangée de chiffres des profils —
+     où l'on est rangé, les polyvalences validées, le prochain week-end
+     libre. Les mêmes informations qu'avant, rien de calculé en plus. */
+  var stats=[];
+  if(cadre){
+    if(bn) stats.push([esc(String(bn).replace(/^Binôme\s*/i,"")),"Binôme"]);
+    var pa2=_pfPartenaire(db,p);
+    if(pa2) stats.push([esc(pa2),estContremaitre(p)?"Adjoint":"Contremaître"]);
+  } else if(eq&&eq!=="—") stats.push([esc(String(eq).replace(/^Équipe\s*/i,"")),"Équipe"]);
+  if(!(typeof estContremaitre==="function"&&estContremaitre(p))){
+    var at=(p.poly&&p.poly.ateliers)||[], np=0;
+    at.forEach(function(a){ if(!polyFinie(p,a)) np++; });
+    stats.push([String(np),np>1?"Polyvalences":"Polyvalence"]);
+  }
+  if(inf.weekend) var wd=inf.weekend.d, wm=MOIS[wd.getMonth()].toLowerCase();
+  stats.push([wd.getDate()+"\u00a0"+(wm.length>4?wm.slice(0,wm==="juillet"?4:3)+".":wm),"Week-end libre"]);
+  var bio=esc(role);
   return '<div class="pf-hero">'
+    +'<div class="pf-couv" aria-hidden="true"><img src="logo.svg" alt="" width="57" height="44"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
-    +'<div class="pf-head"><img class="pf-logo" src="logo.svg" alt="Biowanze" width="57" height="44"><span class="pf-sep" aria-hidden="true"></span>'
+    +'<div class="pf-prof"><span class="pf-av" aria-hidden="true">'+esc(tri)+'</span>'
     +'<div class="pf-hmeta"><span class="pf-ligne1"><b class="pf-tri">'+esc(tri)+'</b>'
     +(st?'<span class="pf-stat'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')+'</span>'
-    +'<span class="pf-fonc">'+esc(role)+'</span>'
-    +(ou?'<span class="pf-ou'+(fo?' fo':'')+'">'+ou+'</span>':'')+'</div></div>'
-    +h
-    +(k.length?'<div class="pf-kpis">'+k.join("")+'</div>':'<div class="pf-bas"></div>')+'</div>';
+    +'<span class="pf-fonc">'+bio+'</span>'
+    +(fo?'<span class="pf-ou fo">'+ou+'</span>':'')+'</div></div>'
+    +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
+    +h+'<div class="pf-bas"></div></div>';
 }
 document.addEventListener("click",function(e){
   var cg=e.target.closest?e.target.closest(".pf-cg"):null;
