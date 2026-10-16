@@ -4296,6 +4296,19 @@ Le logo entier passe en haut à gauche, au-dessus de l'avatar ; la roue
 reste en haut à droite. Aucune donnée ne change. Vérifié sur VBN (à 3 h,
 5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI, à 320 px (hors ligne), 390 et
 1280 px : rien ne déborde, aucune erreur.
+Puis le héros et le calendrier en un seul cadre (le client, le même jour :
+« comment combiner le héros avec le cadre calendrier en dessous ? il ne
+faut pas de redondance et il faut que cela soit 100 % pro »). **La bande
+des sept jours est retirée** : le calendrier du mois, juste dessous, montre
+les mêmes journées. Le calendrier se soude sous le héros : les coins se
+touchent sans arrondi, un seul filet sépare les deux, et il ne reste qu'une
+ombre. Les cartes de mise à jour d'horaire et d'installation passent
+au-dessus du héros. La carte « Mise à jour de votre horaire » montre
+désormais tous les changements, puisque les cercles de la semaine ont
+disparu avec elle ; la ligne des changements de poste proposés par
+l'application reste sous le prochain poste. Neuf règles à zéro (aucune
+lecture touchée) ; vérifié sur VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI
+et SLI à 320 px (hors ligne), 390 et 1280 px, sans débordement ni erreur.
 
 ### L'audit multi-agent du 10/10/2026
 

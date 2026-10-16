@@ -3335,6 +3335,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
   background:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
   box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
+/* LE HÉROS ET LE MOIS NE FONT QU'UN CADRE (le client, le 16/10/2026 :
+   « comment combiner le héros avec le cadre calendrier, sans redondance et
+   100 % pro »). Le calendrier se soude sous le héros : coins du bas du héros
+   et du haut du calendrier droits, un seul filet entre les deux, une seule
+   ombre. */
+#rythmeTete:not([hidden]) .pf-hero{border-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0; box-shadow:none}
+#rythmeTete:not([hidden])+#calCard{margin-top:-16px; border-top-left-radius:0; border-top-right-radius:0}
 .pf-head{position:relative; display:flex; align-items:center; gap:14px; padding:16px 64px 2px 16px}
 .pf-logo{flex:0 0 auto; height:44px; width:auto; display:block}
 .pf-sep{align-self:stretch; width:1px; margin:4px 0; background:rgba(255,255,255,.16)}
@@ -3362,43 +3369,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pause[data-p="PM"]{background:var(--cal-pm); color:var(--cal-pm-ink)}
 .pf-pause[data-p="N"]{background:var(--cal-n); color:var(--cal-n-ink)}
 .pf-pause[data-p="D"]{background:var(--cal-d); color:var(--cal-d-ink)}
-.pf-sem{position:relative; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; padding:10px 12px 0}
-.pf-jr{position:relative; display:flex; flex-direction:column; align-items:center; gap:1px; padding:5px 0 4px; border-radius:9px;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); min-width:0; font:inherit; color:inherit; cursor:pointer}
-@media (hover:hover){ .pf-jr:hover{background:rgba(255,255,255,.09)} }
-.pf-jr:active{transform:scale(.96)}
-.pf-jr.auj{border-color:rgba(105,178,203,.6); background:rgba(105,178,203,.1)}
-.pf-jr.chg{border-color:#5ec8e8; box-shadow:0 0 0 1px #5ec8e8, 0 0 12px rgba(94,200,232,.35)}
-.pf-jr.chg::after{content:""; position:absolute; top:-3px; left:-3px; width:8px; height:8px; border-radius:50%; background:#5ec8e8;
-  box-shadow:0 0 0 2px var(--marque)}
-.pf-jr small{font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:rgba(255,255,255,.55)}
-.pf-jr b{font-size:13.5px; color:#fff; line-height:1.1}
-.pf-jr i{font-style:normal; margin-top:2px; min-width:26px; height:17px; padding:0 3px; box-sizing:border-box; border-radius:5px;
-  display:grid; place-items:center; font:700 10px "IBM Plex Mono",ui-monospace,monospace; color:rgba(255,255,255,.4)}
-.pf-jr i[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
-.pf-jr i[data-p="PM"]{background:var(--cal-pm); color:var(--cal-pm-ink)}
-.pf-jr i[data-p="N"]{background:var(--cal-n); color:var(--cal-n-ink)}
-.pf-jr i[data-p="D"]{background:var(--cal-d); color:var(--cal-d-ink)}
-.pf-jr i.ab{background:var(--surface3); color:var(--ink2); font-size:8.5px}
-.pf-at{font-size:8.5px; line-height:1.2; color:rgba(255,255,255,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-.pf-rap{position:absolute; top:4px; right:4px; width:6px; height:6px; border-radius:50%; background:var(--at-jaune)}
-.pf-chg{position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; margin:8px 12px 0; padding:6px 6px 6px 12px;
-  border-radius:10px; background:rgba(94,200,232,.1); border:1px solid rgba(94,200,232,.3); font-size:12px; color:#bfeaf7}
-.pf-chg[hidden]{display:none}
-/* Le changement de poste proposé par l'application, dans la semaine du héros */
-.pf-jr.app{box-shadow:inset 0 0 0 1.5px #F2994A}
-.pf-jr.app .pf-at{color:#F7B57A}
+/* Le changement de poste proposé par l'application, sous le prochain poste */
 .pf-app{display:flex; flex-direction:column; gap:3px; margin:8px 12px 0; padding:7px 12px; border-radius:10px;
   background:rgba(242,153,74,.12); border:1px dashed rgba(242,153,74,.55); font-size:12px; color:#fff; line-height:1.35}
 .pf-app small{color:rgba(255,255,255,.65); font-size:11px}
 .pf-app[hidden]{display:none}
-.pf-vu{height:28px; padding:0 12px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:#fff;
-  font:600 12px inherit; font-family:inherit; cursor:pointer}
 .pf-prog{display:block; height:4px; margin-top:6px; border-radius:2px; background:rgba(255,255,255,.14); overflow:hidden}
 .pf-prog i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
-@media (max-width:380px){ .pf-sem{gap:3px; padding:8px 10px 0} .pf-jr i{min-width:0; width:calc(100% - 6px); font-size:9px} .pf-jr i.ab{font-size:7.5px} .pf-at{font-size:7.5px} }
 .pf-kpis{margin-top:12px}
-/* les congés restants, sous la semaine */
+/* les congés restants, au pied du héros */
 .pf-cg{display:flex; align-items:center; gap:10px; width:calc(100% - 24px); margin:10px 12px 0; padding:8px 10px 8px 12px;
   border-radius:12px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left; cursor:pointer}
 .pf-cg-t{flex:0 0 auto; width:62px; font-size:9.5px; line-height:1.25; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
@@ -4066,7 +4045,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          possible »). En tête, qui l'on est ; puis le mois, les compteurs, l'année
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
-    <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <div class="notifcard" id="notifCard" role="status" aria-live="polite" hidden></div>
     <div class="notifcard installcard" id="installCard" hidden>
       <div class="nt-tete">
@@ -4076,6 +4054,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <button type="button" class="in-x" id="installX" aria-label="Masquer">×</button>
       </div>
     </div>
+    <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -9711,13 +9690,6 @@ function marquerTransfertsHeros(db,p){
   var lignes=mes.map(function(t){
     var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
     var court=(Pz&&PV_COURT[t.vers])?PV_COURT[t.vers].replace(/\.$/,""):nomPosteApp(t.vers);
-    var j=document.querySelector('.pf-jr[data-an="'+t.an+'"][data-k="'+t.mmdd+'"]');
-    if(j){
-      j.classList.add("app");
-      var at=j.querySelector(".pf-at"); if(at) at.textContent=court;
-      j.setAttribute("aria-label",j.getAttribute("aria-label")+" · "+nomPosteApp(t.vers)
-        +" au lieu de "+nomPosteApp(t.de)+", proposé par l'application");
-    }
     var pr=document.querySelector('.pf-proch[data-an="'+t.an+'"][data-m="'+t.m+'"][data-j="'+t.j+'"] .pf-proch-h');
     if(pr) pr.textContent=PF_HEURES[t.pause]+" · "+nomPosteApp(t.vers);
     var q=dateEnMots(t.an,t.m,t.j,t0), e=Math.round((Date.UTC(t.an,t.m-1,t.j)-t0)/864e5),
@@ -9863,18 +9835,10 @@ function _pfHead(db,p){
       +(pr.enCours?'<span class="pf-prog" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +'</span><span class="pf-fl" aria-hidden="true">›</span></button>';
   }
-  if(inf.sem && inf.sem.length){
-    h+='<div class="pf-sem" aria-label="Mes sept prochains jours">'+inf.sem.map(function(o,ix){
-      var lib=JOURS_LONGS[(o.d.getDay()+6)%7]+" "+o.d.getDate()+" "+MOIS[o.d.getMonth()].toLowerCase()
-        +" : "+(o.p?o.c+(o.at?" · "+o.at:""):(o.c==="–"?"repos":o.c))+(o.rap?" · rappel":"");
-      return '<button type="button" class="pf-jr'+(o.auj?' auj':'')+'" data-an="'+o.d.getFullYear()+'" data-m="'+(o.d.getMonth()+1)+'" data-j="'+o.d.getDate()+'"'
-        +' data-k="'+pad2(o.d.getMonth()+1)+pad2(o.d.getDate())+'" aria-label="'+esc(lib)+'">'
-        +(o.rap?'<em class="pf-rap" aria-hidden="true"></em>':'')
-        +'<small>'+(o.auj?'Auj.':JOURS_LONGS[(o.d.getDay()+6)%7].slice(0,3))+'</small>'
-        +'<b>'+o.d.getDate()+'</b><i'+(o.p?' data-p="'+esc(o.c)+'"':(o.c&&o.c!=="–"?' class="ab"':''))+'>'+esc(o.c||"·")+'</i>'
-        +'<span class="pf-at">'+esc(o.at||"\u00a0")+'</span></button>';
-    }).join("")+'</div><div class="pf-chg" id="pfChg" hidden></div><div class="pf-app" id="pfApp" hidden></div>';
-  }
+  /* PLUS DE BANDE DES SEPT JOURS (le client, le 16/10/2026 : « pas de
+     redondance ») : le calendrier du mois, soudé au héros juste dessous, les
+     montre déjà. Reste la ligne des changements de poste proposés. */
+  h+='<div class="pf-app" id="pfApp" hidden></div>';
   /* LES CONGÉS RESTANTS, juste sous la semaine (le client, le 13/10/2026 :
      « les soldes de congés restants doivent être affichés sous le calendrier
      des 7 jours »). En jours de 8 h, le code d'abord ; rouge sous zéro, pâle
@@ -9937,7 +9901,7 @@ function _pfHead(db,p){
 document.addEventListener("click",function(e){
   var cg=e.target.closest?e.target.closest(".pf-cg"):null;
   if(cg){ var cc=document.getElementById("cptCorps"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
-  var b=e.target.closest?e.target.closest(".pf-proch,.pf-jr"):null; if(!b) return;
+  var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
   eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
   setView("jour");
 });
@@ -10071,25 +10035,7 @@ function renderNotif(db,p){
   if(!db||!p){ card.hidden=true; if(dot) dot.hidden=true; return; }
   var x=detecterChangements(db,p), ks=Object.keys(x.att).sort();
   if(dot) dot.hidden=!ks.length;
-  /* LES CHANGEMENTS DANS LA SEMAINE DU HÉROS : la journée modifiée y est
-     cerclée de cyan, avec ce qu'elle disait avant. Quand tous tombent dans
-     ces sept jours, la carte s'efface : une ligne sous la semaine suffit,
-     avec son « Vu ». */
-  var horsSem=0, chg=document.getElementById("pfChg");
-  ks.forEach(function(k){
-    var j=document.querySelector('.pf-jr[data-an="'+x.an+'"][data-k="'+k+'"]');
-    if(j){ j.classList.add("chg"); j.setAttribute("aria-label",j.getAttribute("aria-label")+" · modifié (avant : "+(x.att[k].avant||"—")+")"); }
-    else horsSem++;
-  });
-  if(chg){
-    var dedans=ks.length-horsSem;
-    chg.hidden=!(ks.length && !horsSem);
-    chg.innerHTML=chg.hidden?"":'<span>'+dedans+" journée"+(dedans>1?"s":"")+" modifiée"+(dedans>1?"s":"")+'</span><button type="button" class="pf-vu">Vu</button>';
-    var bvu=chg.querySelector(".pf-vu");
-    if(bvu) bvu.onclick=function(){ lsSet("notif/attente/"+x.cle,{}); chg.hidden=true; if(dot) dot.hidden=true;
-      Array.prototype.forEach.call(document.querySelectorAll(".pf-jr.chg"),function(j){ j.classList.remove("chg"); }); };
-  }
-  card.hidden=!(ks.length && horsSem);
+  card.hidden=!ks.length;
   if(card.hidden){ card.innerHTML=""; if(ks.length && x.neufs.length) notifierTelephone(p,x); return; }
   /* LES JOURS SE DISENT COMME AUX SOUS-EFFECTIFS (le client, le 13/10/2026) :
      « Aujourd'hui », « Demain », puis le jour en toutes lettres, et la date
@@ -10123,8 +10069,7 @@ function renderNotif(db,p){
     bt.onclick=function(){ card.classList.add("nt-ouvert"); bt.parentNode.removeChild(bt); }; }
   document.getElementById("notifVu").onclick=function(){
     lsSet("notif/attente/"+x.cle,{}); card.hidden=true; card.innerHTML=""; if(dot) dot.hidden=true;
-    if(chg) chg.hidden=true;
-    Array.prototype.forEach.call(document.querySelectorAll(".pf-jr.chg"),function(j){ j.classList.remove("chg"); }); };
+  };
   card.querySelector(".nt-l").onclick=function(e){
     var b=e.target.closest?e.target.closest(".nt-j"):null; if(!b) return;
     try{ loadMonth(x.an,Number(b.dataset.m)-1); }catch(er){}
