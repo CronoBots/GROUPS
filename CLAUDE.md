@@ -473,8 +473,13 @@ client, capture à l'appui : « les notifications doivent être optimisées
 au max ») : `notifications()` compare l'avant et l'après et chacun lit ce
 qui change POUR LUI — « Votre horaire a été modifié /
 Samedi 17/10 : N → Maladie », « Votre recyclage a été ajouté / Jeudi 15/10 :
-Chaudières / Encore 9 recyclages à faire » —, les autres « Classeur du 16/10 à 7 h 48 · rien ne
-change pour vous ». Une journée se décrit par sa cellule et son
+Chaudières / Encore 9 recyclages à faire » —, et ceux pour qui rien ne change ne reçoivent
+RIEN (le client, le même jour : « go » ; avec un classeur par jour, « rien ne
+change pour vous » devenait du bruit) — un abonné sans trigramme reconnu
+garde le message commun. Le poste d'un OPÉRATEUR suit la pause
+(« Mercredi 21/10 : PM → AM · Gluten »), lu dans son agenda `cal/<id>.ics`
+que l'installation vient de réécrire : la lecture de l'application, pas une
+copie de ses règles ; rien pour un contremaître ou un adjoint. Une journée se décrit par sa cellule et son
 annotation, jamais par le commentaire (comme `detecterChangements()`),
 une absence entière par son seul mot (Maladie, VA, Flex time repris), une
 ligne par journée, jamais regroupée (le client, capture à l'appui : « il ne

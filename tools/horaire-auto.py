@@ -314,14 +314,42 @@ def changements_horaire(avant, apres, annee, jour):
     return out
 
 
-def message_horaire(liste):
+def postes_agenda(pid):
+    """{date: poste} lu dans l'agenda de la personne (cal/<id>.ics), que
+    mettre-a-jour.py vient de réécrire sur l'horaire installé : c'est la
+    lecture de l'application elle-même (lectureAgenda : atelier écrit, sinon
+    le poste habituel ce jour-là), et non une seconde copie de ses règles."""
+    import datetime
+    out, quand = {}, None
+    try:
+        lignes = open(os.path.join(RACINE, "cal", pid + ".ics"), encoding="utf-8").read().splitlines()
+    except OSError:
+        return out
+    for l in lignes:
+        m = re.match(r"UID:.*-(\d{8})@", l)
+        if m:
+            quand = datetime.date(int(m.group(1)[:4]), int(m.group(1)[4:6]), int(m.group(1)[6:]))
+        elif l.startswith("SUMMARY:") and quand:
+            morceaux = l[8:].split(" · ")
+            if morceaux[0] in ("AM", "PM", "N") and len(morceaux) > 1 and morceaux[1] not in ("rappel", "Roue libre"):
+                out[quand] = morceaux[1]
+            quand = None
+    return out
+
+
+def message_horaire(liste, postes=None):
     """Titre et texte d'une notification « votre horaire a été modifié » :
     une ligne par journée, jamais regroupées, trois au plus, la plus proche
     en tête, toujours « Mercredi 21/10 : PM → N » (le client, le
     16/10/2026 : « il ne faut pas regrouper les jours »). Le titre seul :
     iOS le coupe à environ 28 signes, et « · 8 journées » devenait
     « · 8 j… » ; « + n autres journées » dit déjà combien."""
-    lignes = ["%s %s : %s → %s" % (JOURS_L[dt.weekday()], dt.strftime("%d/%m"), a, b)
+    postes = postes or {}
+    # le poste d'un OPÉRATEUR sur une pause (le client, le 16/10/2026 : « go »),
+    # comme la carte de l'application ; jamais pour un cadre, dont la
+    # fonction ne change pas (postes vide)
+    lignes = ["%s %s : %s → %s%s" % (JOURS_L[dt.weekday()], dt.strftime("%d/%m"), a, b,
+                                     " · " + postes[dt] if b in ("AM", "PM", "N") and dt in postes else "")
               for dt, a, b in liste[:3]]
     reste = len(liste) - 3
     if reste > 0:
@@ -378,38 +406,40 @@ def message_recyclage(ajout, retire, restant, annee=2026):
 
 def notifications(avant_h, avant_r, installes):
     """Une notification par classeur installé, PERSONNELLE : chacun lit ce
-    qui change pour lui, et les autres que rien ne change pour eux (le client,
-    le 16/10/2026 : « les notifications doivent être optimisées au max »).
-    Le trigramme de l'abonnement choisit le message ; sans trigramme, ou
-    s'il ne désigne personne, le message commun."""
+    qui change pour lui (le client, le 16/10/2026 : « les notifications
+    doivent être optimisées au max »). Celui pour qui rien ne change ne reçoit
+    RIEN (le client, le même jour : « go ») : avec un classeur par jour, « rien
+    ne change pour vous » devenait du bruit. Le trigramme de l'abonnement
+    choisit le message ; sans trigramme, ou s'il ne désigne personne de
+    connu, le message commun."""
     out = []
     for x in installes:
         quand = _court(x[6])
         if x[0] == "horaire":
             apres = _lire(HORAIRE)
             ch = changements_horaire(avant_h, apres, int(apres.get("year") or 2026), _aujourdhui())
-            par = {}
+            par, connus = {}, []
             for p in apres.get("people") or []:
                 pid = p.get("id")
+                connus.append(pid)
                 if pid in ch:
-                    t, b = message_horaire(ch[pid])
-                else:
-                    t, b = "Horaire mis à jour", "Classeur du %s · rien ne change pour vous." % quand
-                par[pid] = {"title": t, "body": b}
-            out.append({"tag": "horaire", "url": "./?vue=horaire", "par_tri": par,
+                    cadre = p.get("cat") == "Contremaîtres de production"
+                    t, b = message_horaire(ch[pid], {} if cadre else postes_agenda(pid))
+                    par[pid] = {"title": t, "body": b}
+            out.append({"tag": "horaire", "url": "./?vue=horaire", "par_tri": par, "connus": connus,
                         "defaut": {"title": "Horaire mis à jour",
                                    "body": "Classeur du %s · ouvrez l'application pour voir vos journées." % quand}})
         else:
             apres = _lire(RECYC)
             ch = changements_recyclage(avant_r, apres)
             par = {}
-            for t in apres.get("ops") or {}:
-                if t in ch:
-                    ti, b = message_recyclage(*ch[t])
-                else:
-                    ti, b = "Recyclages mis à jour", "Classeur RH du %s · rien ne change pour vous." % quand
+            for t in ch:
+                ti, b = message_recyclage(*ch[t])
                 par[t] = {"title": ti, "body": b}
-            out.append({"tag": "recyclage", "url": "./?vue=equipe", "par_tri": par,
+            # les recyclages ne visent que des opérateurs, mais tout le monde
+            # est connu de l'horaire : un contremaître n'en reçoit aucun
+            connus = [p.get("id") for p in (_lire(HORAIRE).get("people") or [])]
+            out.append({"tag": "recyclage", "url": "./?vue=equipe", "par_tri": par, "connus": connus,
                         "defaut": {"title": "Recyclages mis à jour",
                                    "body": "Classeur RH du %s · le recyclage est dans l'onglet Équipes." % quand}})
     return out
