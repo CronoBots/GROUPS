@@ -29,6 +29,14 @@ intérimaire ou non) n'est installée que si son trigramme est dans
 `tools/arrivees-confirmees.txt` ; et un horaire identique à celui en place
 n'installe rien, pas même `V`.
 
+LE CLASSEUR DES RECYCLAGES suit le même chemin depuis le 16/10/2026 (le
+client : « peut-on mettre cela en place pour le fichier des recyclages
+aussi ? ») : un e-mail « BIOWANZE recyclage » porte le classeur RH, que
+`mettre-a-jour-recyclage.py --installer` fait passer par ses onze portes.
+Son brut vit hors du dépôt, donc absent ici : l'outil réinstallerait à chaque
+passage. On regarde donc si `data/recyclages-2026.json` a VRAIMENT changé, et
+sinon `sw.js` est remis comme avant — pas de `V` qui bouge pour rien.
+
 Secrets : GMAIL_USER, GMAIL_APP_PASSWORD (mot de passe d'application Google).
 """
 import email
@@ -45,6 +53,8 @@ from email.message import EmailMessage
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTILS = os.path.join(RACINE, "tools")
 SUJET = "BIOWANZE horaire"
+SUJET_RECYC = "BIOWANZE recyclage"
+RECYC = os.path.join(RACINE, "data", "recyclages-2026.json")
 HORAIRE = os.path.join(RACINE, "data", "horaire-2026.json")
 CONFIRMEES = os.path.join(OUTILS, "arrivees-confirmees.txt")
 
@@ -61,18 +71,14 @@ def _option(nom):
     return None
 
 
-def lire_gmail(user, mdp, dest):
-    """Le dernier e-mail « BIOWANZE horaire » : sa pièce jointe écrite dans
-    `dest`. Rend (imap, uids de tous ces e-mails) ou (None, []) s'il n'y en a
-    pas. La pièce jointe se reconnaît à son contenu (une archive ZIP), pas à
+def lire_gmail(imap, sujet, dest):
+    """Le dernier e-mail du sujet donné : sa pièce jointe écrite dans
+    `dest`. Rend les uids de tous ces e-mails ([] s'il n'y en a pas). La pièce jointe se reconnaît à son contenu (une archive ZIP), pas à
     son nom : Power Automate peut l'appeler par l'identifiant du fichier."""
-    imap = imaplib.IMAP4_SSL("imap.gmail.com")
-    imap.login(user, mdp)
-    imap.select("INBOX")
-    typ, data = imap.uid("search", None, '(SUBJECT "%s")' % SUJET)
+    typ, data = imap.uid("search", None, '(SUBJECT "%s")' % sujet)
     uids = sorted((data[0] or b"").split(), key=int)
     if not uids:
-        return imap, []
+        return []
     typ, msg = imap.uid("fetch", uids[-1], "(RFC822)")
     m = email.message_from_bytes(msg[0][1])
     meilleure = None
@@ -83,10 +89,10 @@ def lire_gmail(user, mdp, dest):
         if contenu[:2] == b"PK" and (meilleure is None or len(contenu) > len(meilleure)):
             meilleure = contenu
     if meilleure is None:
-        return imap, uids          # un e-mail sans classeur : à la corbeille quand même
+        return uids                # un e-mail sans classeur : à la corbeille quand même
     with open(dest, "wb") as f:
         f.write(meilleure)
-    return imap, uids
+    return uids
 
 
 def corbeille(imap, uids):
@@ -136,113 +142,186 @@ def git(*args):
                           capture_output=True, text=True)
 
 
-def main():
-    user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
-    pousser = "--sans-pousser" not in sys.argv
-    tmp = tempfile.mkdtemp(prefix="biowanze-auto-")
-    source = os.path.join(tmp, "Recapitulatif.xlsm")
-    imap, uids = None, []
+def _quand(maj):
+    try:
+        d = maj.split("T")[0].split("-")
+        return "%s/%s/%s à %s" % (d[2], d[1], d[0], maj.split("T")[1][:5].replace(":", " h "))
+    except (IndexError, AttributeError):
+        return str(maj)
 
-    local = _option("--fichier")
-    if local:
-        source = os.path.abspath(local)
-    else:
-        if not (user and mdp):
-            sys.exit("GMAIL_USER et GMAIL_APP_PASSWORD manquent.")
-        imap, uids = lire_gmail(user, mdp, source)
-        if not uids:
-            etat("Aucun e-mail « %s » : rien à faire." % SUJET)
-            return 0
-        etat("%d e-mail(s) « %s » ; le plus récent est lu." % (len(uids), SUJET))
-        if not os.path.exists(source):
-            corbeille(imap, uids)
-            envoyer(user, mdp, "BIOWANZE · horaire NON installé",
-                    "L'e-mail « %s » ne portait pas de classeur en pièce jointe."
-                    " Vérifier le flux Power Automate (pièce jointe : File content)." % SUJET)
-            etat("Pas de classeur en pièce jointe : rien installé.")
-            return 1
 
-    def fin(code, sujet, corps):
-        if imap is not None:
-            corbeille(imap, uids)
-        envoyer(user, mdp, sujet, corps)
-        return code
-
-    # 1. à blanc : les huit portes
+def traiter_horaire(source):
+    """Rend (code, sujet, corps, installé?, quand)."""
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source],
                        cwd=RACINE, capture_output=True, text=True)
     sortie = (r.stdout or "") + (r.stderr or "")
     if r.returncode != 0:
         porte = re.search(r"PORTE FERMÉE à l'étape (\d+)", sortie)
-        etat("Porte %s fermée : rien installé." % (porte.group(1) if porte else "?"))
-        return fin(1, "BIOWANZE · horaire NON installé (porte %s fermée)"
-                   % (porte.group(1) if porte else "?"),
-                   "Une porte s'est fermée : rien n'a été installé. À transmettre à"
-                   " Claude tel quel.\n\n" + sortie[-12000:])
-
+        n = porte.group(1) if porte else "?"
+        etat("Horaire : porte %s fermée, rien installé." % n)
+        return (1, "BIOWANZE · horaire NON installé (porte %s fermée)" % n,
+                "Une porte s'est fermée : rien n'a été installé. À transmettre à"
+                " Claude tel quel.\n\n" + sortie[-12000:], False, "")
     memo = json.load(open(os.path.join(tempfile.gettempdir(),
                                        "biowanze-dernier-blanc.json"), encoding="utf-8"))
     neuf = os.path.join(memo["tmp"], "horaire-2026.json")
     rapport = open(os.path.join(memo["tmp"], "comparaison.txt"), encoding="utf-8").read()
-    maj = json.load(open(neuf, encoding="utf-8")).get("maj", "?")
-    try:
-        d = maj.split("T")[0].split("-")
-        quand = "%s/%s/%s à %s" % (d[2], d[1], d[0], maj.split("T")[1].replace(":", " h "))
-    except IndexError:
-        quand = maj
-
+    quand = _quand(json.load(open(neuf, encoding="utf-8")).get("maj", "?"))
     if open(neuf, "rb").read() == open(HORAIRE, "rb").read():
-        etat("Classeur du %s : horaire identique à celui en place, rien installé." % quand)
-        return fin(0, "BIOWANZE · classeur du %s, rien de changé" % quand,
-                   "Les huit portes sont ouvertes, et l'horaire est identique à celui"
-                   " en place : rien n'a été installé.")
-
+        etat("Horaire du %s : identique à celui en place, rien installé." % quand)
+        return (0, "BIOWANZE · classeur du %s, rien de changé" % quand,
+                "Les huit portes sont ouvertes, et l'horaire est identique à celui"
+                " en place : rien n'a été installé.", False, quand)
     nouveaux = [t for t in arrivees(rapport) if t not in confirmees()]
     if nouveaux:
-        etat("Arrivée(s) à confirmer (%s) : rien installé." % ", ".join(nouveaux))
-        return fin(1, "BIOWANZE · horaire NON installé : nouvelle personne à confirmer",
-                   "Le classeur du %s ajoute : %s.\n\nUne arrivée se fait toujours"
-                   " confirmer avant d'être installée : dire à Claude qui c'est, sa"
-                   " fonction, intérimaire ou non. Il l'ajoutera à"
-                   " tools/arrivees-confirmees.txt et le prochain envoi s'installera."
-                   "\n\nCe qui change :\n\n%s" % (quand, ", ".join(nouveaux), rapport))
-
-    # 2. installer (reprend le passage à blanc)
+        etat("Horaire : arrivée(s) à confirmer (%s), rien installé." % ", ".join(nouveaux))
+        return (1, "BIOWANZE · horaire NON installé : nouvelle personne à confirmer",
+                "Le classeur du %s ajoute : %s.\n\nUne arrivée se fait toujours"
+                " confirmer avant d'être installée : dire à Claude qui c'est, sa"
+                " fonction, intérimaire ou non. Il l'ajoutera à"
+                " tools/arrivees-confirmees.txt et le prochain envoi s'installera."
+                "\n\nCe qui change :\n\n%s" % (quand, ", ".join(nouveaux), rapport),
+                False, quand)
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source,
                         "--installer"], cwd=RACINE, capture_output=True, text=True)
     sortie = (r.stdout or "") + (r.stderr or "")
     if r.returncode != 0:
-        etat("Installation refusée par le garde-fou du dépôt : rien installé.")
-        return fin(1, "BIOWANZE · horaire NON installé (garde-fou du dépôt)",
-                   "Le garde-fou du dépôt a refusé l'installation ; les fichiers d'avant"
-                   " sont en place. À transmettre à Claude tel quel.\n\n" + sortie[-12000:])
+        etat("Horaire : installation refusée par le garde-fou du dépôt.")
+        return (1, "BIOWANZE · horaire NON installé (garde-fou du dépôt)",
+                "Le garde-fou du dépôt a refusé l'installation ; les fichiers d'avant"
+                " sont en place. À transmettre à Claude tel quel.\n\n" + sortie[-12000:],
+                False, quand)
+    etat("Horaire du %s installé." % quand)
+    return (0, "BIOWANZE · horaire du %s installé" % quand,
+            "L'application est à jour (classeur du %s).\n\nCe qui change :\n\n%s"
+            % (quand, rapport), True, quand)
 
-    if pousser:
-        git("add", "data/horaire-2026.json", "sw.js", "cal")
-        message = ("Classeur du %s (mise à jour automatique)\n\n"
-                   "Les huit portes de mettre-a-jour.py ouvertes, installé par"
-                   " .github/workflows/horaire-auto.yml." % quand)
+
+def traiter_recyclage(source):
+    """Rend (code, sujet, corps, installé?, quand)."""
+    sw = os.path.join(RACINE, "sw.js")
+    sw_avant = open(sw, "rb").read()
+    json_avant = open(RECYC, "rb").read() if os.path.exists(RECYC) else b""
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour-recyclage.py"),
+                        source, "--installer"], cwd=RACINE, capture_output=True, text=True)
+    sortie = (r.stdout or "") + (r.stderr or "")
+    if r.returncode != 0:
+        porte = re.search(r"PORTE FERMÉE à l'étape (\d+)", sortie)
+        n = porte.group(1) if porte else "?"
+        # rien ne doit rester à moitié posé
+        open(sw, "wb").write(sw_avant)
+        if json_avant:
+            open(RECYC, "wb").write(json_avant)
+        etat("Recyclages : porte %s fermée, rien installé." % n)
+        return (1, "BIOWANZE · recyclages NON installés (porte %s fermée)" % n,
+                "Une porte s'est fermée : rien n'a été installé. À transmettre à"
+                " Claude tel quel.\n\n" + sortie[-12000:], False, "")
+    m = re.search(r"══ CE QUI CHANGE.*?══\n\n(.*?)(?:\n\n(?:Réserve locale|Le recyclage installé|Installé|Les onze)|\Z)",
+                  sortie, re.S)
+    rapport = m.group(1).strip() if m else "(rapport introuvable)"
+    quand = _quand(json.load(open(RECYC, encoding="utf-8")).get("maj", "?"))
+    if open(RECYC, "rb").read() == json_avant:
+        open(sw, "wb").write(sw_avant)
+        etat("Recyclages du %s : identiques à ceux en place, rien installé." % quand)
+        return (0, "BIOWANZE · recyclages enregistrés le %s, rien de changé" % quand,
+                "Les onze portes sont ouvertes, et les recyclages sont identiques à"
+                " ceux en place : rien n'a été installé.", False, quand)
+    etat("Recyclages du %s installés." % quand)
+    return (0, "BIOWANZE · recyclages enregistrés le %s installés" % quand,
+            "L'application est à jour (classeur RH enregistré le %s).\n\nCe qui change :"
+            "\n\n%s" % (quand, rapport), True, quand)
+
+
+def main():
+    user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
+    pousser = "--sans-pousser" not in sys.argv
+    tmp = tempfile.mkdtemp(prefix="biowanze-auto-")
+    imap = None
+    lots = []          # (genre, source, uids)
+
+    local = _option("--fichier")
+    local_r = _option("--recyclage")
+    if local or local_r:
+        if local:
+            lots.append(("horaire", os.path.abspath(local), []))
+        if local_r:
+            lots.append(("recyclage", os.path.abspath(local_r), []))
+    else:
+        if not (user and mdp):
+            sys.exit("GMAIL_USER et GMAIL_APP_PASSWORD manquent.")
+        imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        imap.login(user, mdp)
+        imap.select("INBOX")
+        for genre, sujet, nom in (("horaire", SUJET, "Recapitulatif.xlsm"),
+                                  ("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx")):
+            source = os.path.join(tmp, nom)
+            uids = lire_gmail(imap, sujet, source)
+            if not uids:
+                continue
+            etat("%d e-mail(s) « %s » ; le plus récent est lu." % (len(uids), sujet))
+            if not os.path.exists(source):
+                corbeille(imap, uids)
+                envoyer(user, mdp, "BIOWANZE · %s NON installé" % genre,
+                        "L'e-mail « %s » ne portait pas de classeur en pièce jointe."
+                        " Vérifier le flux Power Automate (pièce jointe : File content)." % sujet)
+                etat("%s : pas de classeur en pièce jointe, rien installé." % genre.capitalize())
+                continue
+            lots.append((genre, source, uids))
+        if not lots:
+            etat("Aucun e-mail « %s » ni « %s » : rien à faire." % (SUJET, SUJET_RECYC))
+            return 0
+
+    resultats = []     # (genre, uids, code, sujet, corps, installé, quand)
+    for genre, source, uids in lots:
+        f = traiter_horaire if genre == "horaire" else traiter_recyclage
+        resultats.append((genre, uids) + f(source))
+
+    installes = [x for x in resultats if x[5]]
+    publie = True
+    if installes and pousser:
+        fichiers = ["sw.js"]
+        titres = []
+        for x in installes:
+            if x[0] == "horaire":
+                fichiers += ["data/horaire-2026.json", "cal"]
+                titres.append("Classeur du %s" % x[6])
+            else:
+                fichiers.append("data/recyclages-2026.json")
+                titres.append("Recyclages enregistrés le %s" % x[6])
+        git("add", *fichiers)
+        message = ("%s (mise à jour automatique)\n\nPortes de mettre-a-jour.py et de"
+                   " mettre-a-jour-recyclage.py ouvertes, installé par"
+                   " .github/workflows/horaire-auto.yml." % " ; ".join(titres))
         c = git("commit", "-q", "-m", message)
         p = git("push", "-q", "origin", "HEAD:main") if c.returncode == 0 else c
         if p.returncode != 0:
+            publie = False
             etat("Le commit ou l'envoi sur main a échoué.")
             print((p.stderr or "")[-2000:])
-            return fin(1, "BIOWANZE · horaire NON publié",
-                       "Installé, mais le commit ou l'envoi sur main a échoué. À"
-                       " transmettre à Claude.\n\n" + (p.stderr or "")[-4000:])
-    etat("Classeur du %s installé%s." % (quand, " et poussé sur main" if pousser else ""))
-    if pousser:
-        # La notification du téléphone, application fermée (le client, le
-        # 16/10/2026 : la même pour tous). Elle ne fait jamais échouer le
-        # passage : l'horaire est déjà publié.
-        n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"),
-                            "Horaire mis à jour",
-                            "Classeur du %s · ouvrez l'application pour voir vos journées." % quand],
-                           cwd=RACINE, capture_output=True, text=True)
-        etat((n.stdout or "").strip() or "Notifications : non envoyées.")
-    return fin(0, "BIOWANZE · horaire du %s installé" % quand,
-               "L'application est à jour (classeur du %s).\n\nCe qui change :\n\n%s"
-               % (quand, rapport))
+        else:
+            etat("Poussé sur main.")
+            if any(x[0] == "horaire" for x in installes):
+                # La notification du téléphone, application fermée (le client,
+                # le 16/10/2026 : la même pour tous). Elle ne fait jamais
+                # échouer le passage : l'horaire est déjà publié.
+                q = [x[6] for x in installes if x[0] == "horaire"][0]
+                n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"),
+                                    "Horaire mis à jour",
+                                    "Classeur du %s · ouvrez l'application pour voir vos journées." % q],
+                                   cwd=RACINE, capture_output=True, text=True)
+                etat((n.stdout or "").strip() or "Notifications : non envoyées.")
+
+    code = 0
+    for genre, uids, c, sujet, corps, inst, quand in resultats:
+        if inst and pousser and not publie:
+            c, sujet = 1, "BIOWANZE · %s NON publié" % genre
+            corps = ("Installé, mais le commit ou l'envoi sur main a échoué. À"
+                     " transmettre à Claude.\n\n" + corps)
+        if imap is not None and uids:
+            corbeille(imap, uids)
+        envoyer(user, mdp, sujet, corps)
+        code = max(code, c)
+    return code
 
 
 if __name__ == "__main__":
