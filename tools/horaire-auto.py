@@ -404,6 +404,12 @@ def message_recyclage(ajout, retire, restant, annee=2026):
     return titre, "\n".join(lignes)
 
 
+# Prévenus de CHAQUE classeur installé, même quand rien ne change pour eux
+# (le client, le 16/10/2026 : « tant que maintenant, VBN reçoit aussi les
+# mises à jour des classeurs horaires et recyclages même s'il n'y figure pas »).
+TOUJOURS_PREVENIR = ("VBN",)
+
+
 def notifications(avant_h, avant_r, installes):
     """Une notification par classeur installé, PERSONNELLE : chacun lit ce
     qui change pour lui (le client, le 16/10/2026 : « les notifications
@@ -426,6 +432,9 @@ def notifications(avant_h, avant_r, installes):
                     cadre = p.get("cat") == "Contremaîtres de production"
                     t, b = message_horaire(ch[pid], {} if cadre else postes_agenda(pid))
                     par[pid] = {"title": t, "body": b}
+            for pid in TOUJOURS_PREVENIR:
+                par.setdefault(pid, {"title": "Horaire mis à jour",
+                                     "body": "Classeur du %s · rien ne change pour vous." % quand})
             out.append({"tag": "horaire", "url": "./?vue=horaire", "par_tri": par, "connus": connus,
                         "defaut": {"title": "Horaire mis à jour",
                                    "body": "Classeur du %s · ouvrez l'application pour voir vos journées." % quand}})
@@ -436,6 +445,9 @@ def notifications(avant_h, avant_r, installes):
             for t in ch:
                 ti, b = message_recyclage(*ch[t])
                 par[t] = {"title": ti, "body": b}
+            for t in TOUJOURS_PREVENIR:
+                par.setdefault(t, {"title": "Recyclages mis à jour",
+                                   "body": "Classeur RH du %s · rien ne change pour vous." % quand})
             # les recyclages ne visent que des opérateurs, mais tout le monde
             # est connu de l'horaire : un contremaître n'en reçoit aucun
             connus = [p.get("id") for p in (_lire(HORAIRE).get("people") or [])]
