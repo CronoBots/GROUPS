@@ -3,6 +3,12 @@
    installé — appelé par tools/horaire-auto.py après un envoi réussi sur main.
 
      node tools/envoyer-push.js "Titre" "Texte"
+     node tools/envoyer-push.js --messages=fichier.json
+
+   Le second, depuis le 16/10/2026 (« les notifications doivent être
+   optimisées au max ») : un message PAR PERSONNE, choisi par le trigramme de
+   l'abonnement — {tag, url, defaut:{title,body}, par_tri:{ID:{title,body}}}.
+   Un abonnement « GBT », que deux personnes portent, prend le message commun.
 
    Le client, le 16/10/2026 : « une notification PWA lors de la mise à jour du
    classeur », puis « B tant que mnt » : la même pour tous les abonnés. Le
@@ -37,17 +43,33 @@ function rpc(nom, corps) {
   });
 }
 
+function lireMessages() {
+  var opt = process.argv.slice(2).filter(function (a) { return a.indexOf("--messages=") === 0; })[0];
+  if (opt) return JSON.parse(require("fs").readFileSync(opt.slice(11), "utf8"));
+  return { tag: "classeur", url: "./", par_tri: {},
+           defaut: { title: process.argv[2] || "Horaire mis à jour", body: process.argv[3] || "" } };
+}
+
+/* Le message d'un abonné : celui de son identifiant, sinon celui de son
+   trigramme s'il ne désigne qu'une personne, sinon le message commun. */
+function messageDe(m, tri) {
+  var par = m.par_tri || {};
+  if (tri && par[tri]) return par[tri];
+  var ids = Object.keys(par).filter(function (k) { return tri && k.split("-")[0] === tri; });
+  return ids.length === 1 ? par[ids[0]] : m.defaut;
+}
+
 function main() {
-  var titre = process.argv[2] || "Horaire mis à jour";
-  var texte = process.argv[3] || "";
+  var m = lireMessages();
   var prive = process.env.VAPID_PRIVATE_KEY, cle = process.env.PUSH_CLE;
   if (!prive || !cle) { console.log("Notifications : secrets absents, rien envoyé."); return Promise.resolve(); }
   webpush.setVapidDetails("https://cronobots.github.io/groups/", VAPID_PUBLIQUE, prive);
-  var charge = JSON.stringify({ title: titre, body: texte, tag: "classeur", url: "./" });
   return rpc("biowanze_abonnes", { p_cle: cle }).then(function (liste) {
     var ok = 0, morts = 0, ko = 0;
     return Promise.all((liste || []).map(function (a) {
       var sub = { endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } };
+      var x = messageDe(m, a.tri);
+      var charge = JSON.stringify({ title: x.title, body: x.body, tag: m.tag || "classeur", url: m.url || "./" });
       return webpush.sendNotification(sub, charge, { TTL: 86400 }).then(function () { ok++; })
         .catch(function (e) {
           if (e && (e.statusCode === 404 || e.statusCode === 410)) {

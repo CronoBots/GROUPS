@@ -10785,7 +10785,9 @@ function dirAnneeHTML(a){
    entre que par biowanze_abonner et biowanze_desabonner). L'action GitHub y
    envoie un message à chaque classeur installé (tools/envoyer-push.js, dont
    la clé publique doit être la même que celle-ci). Le trigramme est gardé
-   pour pouvoir, plus tard, ne prévenir que ceux dont l'horaire change. */
+   pour que chacun lise ce qui change pour lui (tools/horaire-auto.py,
+   notifications()) : l'identifiant ENTIER, « GBT-1 » et non « GBT », sans
+   quoi les deux GBT ne se départageraient pas. */
 var PUSH_SUPABASE="https://pnizdddritizjbsksoir.supabase.co",
     PUSH_CLE_SUPABASE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
     PUSH_VAPID="BF28dyZP0cTh-oFWm2lZiYLHxdp3lTem9lTN806GT-jVeiMkWk0tnRKMux_6qpojHLmlon3N1F4llyPCUX8efpg";
@@ -10808,7 +10810,7 @@ function abonnerPush(){
   }).then(function(s){
     var j=s.toJSON(), k=j.keys||{};
     return pushRpc("biowanze_abonner",{p_endpoint:j.endpoint,p_p256dh:k.p256dh,p_auth:k.auth,
-      p_tri:idLisible(trigCourant()).slice(0,10)}).then(function(r){ return r.ok; });
+      p_tri:String(trigCourant()).slice(0,10)}).then(function(r){ return r.ok; });
   }).catch(function(){ return false; });
 }
 function desabonnerPush(){
@@ -17274,6 +17276,11 @@ function boot(){
       var vueUrl=(location.search.match(/[?&]vue=([a-z]+)/)||[])[1];
       if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
       setView(vueUrl||lsGet("ui/view")||"horaire",true);
+      /* Une notification touchée alors que l'application est déjà ouverte :
+         le service worker ne recharge pas la page, il lui dit l'onglet. */
+      if(navigator.serviceWorker) navigator.serviceWorker.addEventListener("message",function(e){
+        var d=e.data||{}; if(d.type==="vue"&&VIEWS.indexOf(d.vue)>=0) setView(d.vue);
+      });
       /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
          garnis dès le démarrage, quel que soit l'onglet ouvert */
       ensurePrefillUI();
