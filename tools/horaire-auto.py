@@ -280,6 +280,10 @@ def _desc_jour(j):
         return "Flex time repris"
     if a == "-":
         return "Repos" if repos else "%s non presté" % cel
+    # l'annotation qui est une pause ou une plage dit ce qui a été PRESTÉ :
+    # elle remplace la pause prévue (« PM · N » se lit « N »)
+    if re.fullmatch(r"(?i)AM|PM|N|D|\d{1,2}\s*h?\s*(\d\d)?'?\s*-\s*\d{1,2}\s*h?\s*(\d\d)?'?", a):
+        return a
     base = "Repos" if repos else cel
     if a and a != cel:
         base = a if repos else base + " · " + a
