@@ -472,7 +472,7 @@ les deux arrivent ensemble. **Puis personnelles**, le même jour (le
 client, capture à l'appui : « les notifications doivent être optimisées
 au max ») : `notifications()` compare l'avant et l'après et chacun lit ce
 qui change POUR LUI — « Votre horaire a été modifié /
-Samedi 17/10 : N → Maladie », « Recyclage enregistré / Jeudi 15/10 :
+Samedi 17/10 : N → Maladie », « Votre recyclage a été ajouté / Jeudi 15/10 :
 Chaudières / Encore 9 recyclages à faire » —, les autres « Classeur du 16/10 à 7 h 48 · rien ne
 change pour vous ». Une journée se décrit par sa cellule et son
 annotation, jamais par le commentaire (comme `detecterChangements()`),
