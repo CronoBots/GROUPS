@@ -1,6 +1,6 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v751";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
+var V = "nfdm-v752";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./banniere.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png",

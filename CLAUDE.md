@@ -2203,6 +2203,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
 | `sw.js` | cache et fonctionnement hors ligne |
 | `logo.png` | le logo Biowanze, source des icônes — ne sert pas à l'application |
+| `banniere.jpg` | la couverture du héros de l'Accueil, tirée de `banniere-biowanze-usine.png` |
 
 ## Contrôler contre les fiches de paie
 
@@ -4309,6 +4310,24 @@ disparu avec elle ; la ligne des changements de poste proposés par
 l'application reste sous le prochain poste. Neuf règles à zéro (aucune
 lecture touchée) ; vérifié sur VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI
 et SLI à 320 px (hors ligne), 390 et 1280 px, sans débordement ni erreur.
+
+**Puis la bannière du client** (le même jour : « j'ai déposé la bannière
+dans le git »). Il a poussé deux versions de la même image, l'usine vue du
+ciel à gauche et la marque avec son nom à droite :
+`banniere-biowanze-usine.png` (2170 × 540, 2,7 Mo) et une copie `.jfif`
+plus petite. L'application emploie `banniere.jpg`, tirée du PNG à 1600 px
+de large (134 Ko), dans `CORE` du service worker pour le hors ligne ; les
+deux originaux restent tels quels et ne sont pas chargés. Elle remplace le
+dégradé, la marque dessinée (`PF_MARQUE`, retirée) et le petit logo de la
+couverture : la bannière porte déjà la marque. Sur téléphone la couverture
+garde les proportions de l'image (2170/540), rien n'est rogné. Au bureau
+elle fait 240 px de haut, calée en bas à droite, pour que la marque et
+« biowanze » restent entiers. **Un `max-height` avait d'abord été essayé** :
+avec `aspect-ratio`, il rétrécit aussi la LARGEUR, et la bannière laissait
+un vide à droite. La roue passe en haut à GAUCHE, sur l'usine, dans un
+disque sombre translucide : à droite elle couvrait la marque. Vérifié sur
+VBN (3 h, 5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI à 320 px (hors ligne),
+390 et 1280 px, sans débordement ni erreur.
 
 ### L'audit multi-agent du 10/10/2026
 
