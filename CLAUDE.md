@@ -4287,6 +4287,15 @@ besoin de badge pour le statut ») : à côté de l'avatar, le poste en grand
 (« Contremaître », « Chaudières »), puis le statut en clair, sans pastille
 (jaune pour un intérimaire) ; le trigramme ne s'écrit plus qu'une fois, dans
 le cercle. Vérifié sur les mêmes cinq personnes, aux mêmes largeurs.
+Puis une vraie bannière (le client, le même jour : « peut-être avec une
+bannière dans toute la zone où il y a le logo ? »). La couverture passe de
+74 à 112 px (100 sous 380 px, 132 au bureau). La marque du logo, sans le
+mot, y est dessinée en grand, à droite, et déborde du cadre (`PF_MARQUE`,
+le tracé de `logo.svg`, en SVG dans la page : rien à mettre en cache).
+Le logo entier passe en haut à gauche, au-dessus de l'avatar ; la roue
+reste en haut à droite. Aucune donnée ne change. Vérifié sur VBN (à 3 h,
+5 h, 5 h 45, 16 h), SKS, GJR, JBI et SLI, à 320 px (hors ligne), 390 et
+1280 px : rien ne déborde, aucune erreur.
 
 ### L'audit multi-agent du 10/10/2026
 

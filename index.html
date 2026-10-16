@@ -3436,15 +3436,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* Le profil façon réseau social (16/10/2026) : couverture, avatar à cheval,
    identité, rangée de chiffres. Écrit après les anciennes règles .pf-* qu'il
    remplace : à spécificité égale, la dernière écrite gagne. */
-.pf-couv{position:relative; height:74px; overflow:hidden;
-  background:radial-gradient(90% 160% at 100% 0%,rgba(105,178,203,.45) 0%,rgba(105,178,203,0) 60%),
-    linear-gradient(135deg,#2a4170 0%,#1a2747 55%,var(--marque) 100%);
+.pf-couv{position:relative; height:112px; overflow:hidden;
+  background:radial-gradient(70% 120% at 85% 10%,rgba(120,230,175,.22) 0%,rgba(120,230,175,0) 60%),
+    radial-gradient(60% 140% at 0% 100%,rgba(95,140,200,.28) 0%,rgba(95,140,200,0) 65%),
+    linear-gradient(160deg,#243a66 0%,#1a2747 55%,var(--marque) 100%);
   border-bottom:1px solid rgba(255,255,255,.08)}
-.pf-couv img{position:absolute; right:58px; top:50%; transform:translateY(-50%); height:34px; width:auto; opacity:.95}
-.pf-couv::after{content:""; position:absolute; right:-30px; bottom:-60px; width:190px; height:190px; border-radius:50%;
-  border:1px solid rgba(255,255,255,.08); box-shadow:0 0 0 22px rgba(255,255,255,.025),0 0 0 44px rgba(255,255,255,.02)}
-.pf-roue{top:17px; right:10px}
-@media (min-width:761px){ .pf-roue{top:28px} }
+/* La bannière : la marque du logo en grand, débordant à droite, et le logo
+   entier en haut à gauche ; l'avatar se pose sous le logo. */
+.pf-couv-m{position:absolute; right:-34px; top:-26px; height:190px; width:auto; opacity:.2}
+.pf-couv::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg,rgba(17,23,39,.35) 0%,rgba(17,23,39,0) 55%)}
+.pf-couv img{position:absolute; z-index:1; left:16px; top:14px; height:34px; width:auto}
+.pf-roue{top:12px; right:10px}
 .pf-prof{position:relative; display:flex; align-items:flex-start; gap:12px; padding:0 16px; margin-top:-34px}
 .pf-av{flex:0 0 auto; width:76px; height:76px; border-radius:50%; display:grid; place-items:center; box-sizing:border-box;
   background:linear-gradient(145deg,#2b4a7a,#162340); border:3px solid #16203a; box-shadow:0 0 0 2px var(--marque-vif),0 6px 16px rgba(0,0,0,.4);
@@ -3461,9 +3463,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-st+.pf-st{border-left:1px solid rgba(255,255,255,.08)}
 .pf-st b{font:700 17px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
 .pf-st span{font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:rgba(255,255,255,.58); white-space:nowrap}
-@media (max-width:380px){ .pf-couv{height:66px} .pf-couv img{height:30px; right:54px} .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
+@media (max-width:380px){ .pf-couv{height:100px} .pf-couv img{height:30px; left:12px; top:12px} .pf-couv-m{height:170px} .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
   .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:36px} .pf-prof .pf-poste{font-size:17px} .pf-prof .pf-tri{font-size:19px} .pf-st b{font-size:15px} .pf-st span{font-size:9px} }
-@media (min-width:761px){ .pf-couv{height:96px} .pf-couv img{height:44px; right:64px} .pf-prof{padding:0 20px; margin-top:-40px}
+@media (min-width:761px){ .pf-couv{height:132px} .pf-couv img{height:40px; left:20px; top:18px} .pf-couv-m{height:230px; right:-20px} .pf-roue{top:16px} .pf-prof{padding:0 20px; margin-top:-40px}
   .pf-av{width:88px; height:88px; font-size:26px} .pf-prof .pf-hmeta{padding-top:48px} .pf-prof .pf-poste{font-size:21px} .pf-prof .pf-tri{font-size:24px} }
 .pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
 .pf-fact{display:flex; flex-direction:column; gap:2px; padding:9px 12px; border-radius:11px; background:var(--surface2)}
@@ -9817,6 +9819,8 @@ function _pfPartenaire(db,p){
   db.people.forEach(function(x){ if(x.id!==p.id && _pfBinome(x)===bn) out.push(idLisible(x.id)); });
   return out.join(", ");
 }
+/* La marque seule (le dessin du logo, sans le mot), pour la bannière du héros. */
+var PF_MARQUE="M905 888.39c-243.48 0-441.57-198.09-441.57-441.57S661.52 5.25 905 5.25a42 42 0 110 83.93c-197.2 0-357.64 160.44-357.64 357.64S707.8 804.46 905 804.46a42 42 0 110 83.93zm441.34-46.46a42 42 0 01-41.73 46.46C1061.12 888.39 863 690.3 863 446.82c0-228.56 174.55-417.09 397.35-439.35 0 0 26.22-2.34 61.2-2.47A24.37 24.37 0 011346 28.16c.33 6.73.59 13.72.59 19.06 0 228.55-174.55 417.09-397.34 439.35 19.78 178 170.7 317.06 353.73 317.89 21.7.09 41.11 15.86 43.36 37.47zM1237.15 95.68C1094 123.13 980.91 236.18 953.46 379.36a16.31 16.31 0 0019 19c143.18-27.45 256.23-140.51 283.68-283.68a16.29 16.29 0 00-18.99-19z";
 function _pfHead(db,p){
   var tri=idLisible(p.id);
   var cadre=(typeof estCadre==="function")&&estCadre(p);
@@ -9919,7 +9923,7 @@ function _pfHead(db,p){
   stats.push([wd.getDate()+"\u00a0"+(wm.length>4?wm.slice(0,wm==="juillet"?4:3)+".":wm),"Week-end libre"]);
   var bio=esc(role);
   return '<div class="pf-hero">'
-    +'<div class="pf-couv" aria-hidden="true"><img src="logo.svg" alt="" width="57" height="44"></div>'
+    +'<div class="pf-couv" aria-hidden="true"><svg class="pf-couv-m" viewBox="455 0 900 900"><defs><linearGradient id="pfMg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78e6af"/><stop offset="1" stop-color="#5f8cc8"/></linearGradient></defs><path fill="url(#pfMg)" d="'+PF_MARQUE+'"/></svg><img src="logo.svg" alt="" width="57" height="44"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
     +'<div class="pf-prof"><span class="pf-av" aria-hidden="true">'+esc(tri)+'</span>'
     /* À côté du cercle, le poste puis le statut en clair, sans badge (le
