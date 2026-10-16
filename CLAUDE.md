@@ -4346,6 +4346,17 @@ vélo » et « 0 rappel » n'apprenaient rien. Aucun calcul touché.
 Vérifié sur VBN en octobre et en août à 320 px (hors ligne), 390 et
 1280 px, sans débordement ni erreur.
 
+**La feuille du jour montre la reprise partielle** (le client, le même
+jour, capture de VBN le 14/10, `["7h-15h","2h RHS","Départ à 13h"]` :
+« dans les sélections, les 2h HS doivent être sélectionnées pour
+comprendre »). La liste des congés disait « — » : une reprise partielle
+vit dans `rec.rh`, et un congé lu dans le commentaire dans `rec.ax`, pas
+dans `rec.a`. `jourCongesLus()` les rassemble, et la feuille les met en
+tête de la liste, choisis (« 2H RHS », ou « 4H RTT + 2H RHS » avec un
+code posé). Choisir autre chose les remplace (`rec.rh` et les congés de
+`rec.ax` partent ; les heures sup d'un rappel restent). Aucun calcul
+touché. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
