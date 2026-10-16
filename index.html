@@ -239,9 +239,9 @@ body{overflow-x:clip}
    au lieu de rester à leur place »). La carte rogne le temps du glissement. */
 /* Seuls les cadres qui CHANGENT avec le mois glissent : l'état des compteurs
    et « Mon rythme » parlent de l'année, ils restent immobiles. */
-.panel.mois-g>.card:not(#cptCard):not(#rythmeCard),.panel.mois-d>.card:not(#cptCard):not(#rythmeCard){overflow:clip}
-.panel.mois-g>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourGauche .2s ease-out}
-.panel.mois-d>.card:not(#cptCard):not(#rythmeCard)>:not(.calnav){animation:jourDroite .2s ease-out}
+.panel.mois-g>.card:not(#anCard),.panel.mois-d>.card:not(#anCard){overflow:clip}
+.panel.mois-g>.card:not(#anCard)>:not(.calnav){animation:jourGauche .2s ease-out}
+.panel.mois-d>.card:not(#anCard)>:not(.calnav){animation:jourDroite .2s ease-out}
 /* ONGLET « DU JOUR » : VRAI FEUILLETAGE. Le client, le 03/10/2026, après la
    transition « un peu plus ample » puis « plus soignée » : on veut SENTIR qu'on
    tourne la page — l'ancien jour SORT d'un côté pendant que le nouveau ENTRE de
@@ -624,19 +624,17 @@ body{overflow-x:clip}
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.02em;
   color:var(--in); background:var(--in-soft); border:1px solid var(--trait)}
 .cpt-lib{display:inline-flex; align-items:center; gap:8px; min-width:0}
-/* disponible · placé · restant : trois colonnes égales, le restant à droite et en avant */
-.cg-nb{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:9px 0 7px}
-.cg-nb div{display:flex; flex-direction:column; gap:1px; min-width:0}
-.cg-nb span{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint)}
-.cg-nb b{font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:600; color:var(--ink2);
-  font-variant-numeric:tabular-nums; white-space:nowrap}
-.cg-nb b i{font-style:normal; font-size:10.5px; font-weight:500; color:var(--muted); margin-left:2px}
-.cg-nb .cg-rs{text-align:right; align-items:flex-end}
-.cg-nb .cg-rs b{font-size:18px; font-weight:700; color:var(--ink)}
+.cg-l{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:16px; align-items:center}
+.cg-g{display:flex; flex-direction:column; gap:7px; min-width:0}
+.cg-d{font-size:11.5px; color:var(--muted)}
+.cg-d b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2)}
+.cg-rs{display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:64px}
+.cg-rs span{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint)}
+.cg-rs b{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap; font-size:20px; font-weight:700; color:var(--ink); line-height:1.1}
+.cg-rs b i{font-style:normal; font-size:11px; font-weight:500; color:var(--muted); margin-left:2px}
+.cg-rs em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--muted)}
 .cg-l.vide .cg-rs b{color:var(--muted)}
-.cg-l.neg .cg-rs b{color:var(--out2)}
-.cg-nb .cg-rs em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--muted)}
-.cg-l.neg .cg-rs em{color:var(--out2)}
+.cg-l.neg .cg-rs b,.cg-l.neg .cg-rs em{color:var(--out2)}
 .cg-bar{height:5px; border-radius:99px; background:var(--surface3); overflow:hidden}
 .cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
 .cg-l.neg .cg-bar i{background:var(--out2)}
@@ -656,7 +654,7 @@ body{overflow-x:clip}
 .ft-gr{position:relative; height:0}
 .ft-gr span{position:absolute; top:8px; transform:translateX(-50%); font-size:10px; color:var(--faint);
   font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
-.ft-st{margin:0 -16px; border-top:1px solid var(--cadre)}
+.ft-st{margin:0 -16px; border-top:1px solid var(--cadre); grid-template-columns:1fr 1fr}
 .cpt-chk{margin:12px 0 0; font-size:11.5px; display:flex; align-items:center; gap:6px}
 .cpt-chk::before{content:""; width:7px; height:7px; border-radius:50%; flex:0 0 auto}
 .cpt-chk.ok{color:var(--muted)} .cpt-chk.ok::before{background:var(--good)}
@@ -1991,6 +1989,16 @@ body.sheet-on{overflow:hidden}
 .btn-agenda.sec{min-height:34px; font-size:13px; background:transparent; border-color:var(--cadre)}
 .cal-act{flex-direction:column; align-items:center; gap:6px}
 .cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
+/* Mon année : un cadre, deux onglets (16/10/2026) */
+.anseg{grid-template-columns:1fr 1fr}
+#anCard[data-o="cpt"] #rythmeCard,#anCard[data-o="ry"] #cptCard{display:none}
+#anCard[data-o="cpt"] .an-s-ry,#anCard[data-o="ry"] .an-s-cpt{display:none}
+#anCard:has(#rythmeCard[hidden]) .anseg{display:none}
+#anCard:has(#rythmeCard[hidden]) #cptCard{display:block}
+#anCard #rythmeCorps{padding-top:4px}
+.cal-act{flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px}
+.cal-act .btn-agenda{min-height:38px; padding:0 14px; font-size:13px}
+.cal-act-s{flex-basis:100%}
 /* LA VUE DIRECTION : l'usine en un écran, plein écran, à la marque. */
 .dirvue{position:fixed; inset:0; z-index:90; overflow:auto; overscroll-behavior:contain;
   background:radial-gradient(120% 90% at 50% 0%,#1d2a47 0%,#111727 60%); color:#E8ECF4;
@@ -4119,23 +4127,24 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </div>
       </div>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
-        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager le lien</button>
+        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button>
         <p class="cal-act-s">Votre agenda se met à jour seul à chaque nouvel horaire.</p></div>
     </div>
 
-    <div class="card" id="cptCard">
+    <!-- MON ANNÉE : compteurs et rythme dans un seul cadre à deux onglets (le
+         client, le 16/10/2026 : « optimise et réorganise TOUT le contenu de
+         l'accueil »). Les deux cartes empilées faisaient 2 900 px à 390 px. -->
+    <div class="card" id="anCard" data-o="cpt">
       <header>
-        <h2>Mes compteurs</h2>
-        <span class="sub" id="cptSub"></span>
+        <h2>Mon année</h2>
+        <span class="sub an-s-cpt" id="cptSub"></span><span class="sub an-s-ry" id="rythmeSub"></span>
       </header>
-      <div class="pad" id="cptCorps"></div>
-    </div>
-    <div class="card" id="rythmeCard" hidden>
-      <header>
-        <h2>Mon rythme</h2>
-        <span class="sub" id="rythmeSub"></span>
-      </header>
-      <div id="rythmeCorps"></div>
+      <div class="caseg anseg" role="tablist" aria-label="Compteurs ou rythme">
+        <button type="button" role="tab" data-ano="cpt" aria-selected="true">Compteurs</button>
+        <button type="button" role="tab" data-ano="ry" aria-selected="false">Rythme</button>
+      </div>
+      <div id="cptCard"><div class="pad" id="cptCorps"></div></div>
+      <div id="rythmeCard" hidden><div id="rythmeCorps"></div></div>
     </div>
     <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
          le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
@@ -9545,13 +9554,6 @@ function ryBarsPauses(pm){
 }
 function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé / absence",R:"Repos"})[t]||t; }
 /* Barres d'un tableau de 12 mois (cliquables → ouvre le mois). */
-function ryBars(arr,couleur){
-  var mx=Math.max.apply(null,arr.concat([1]));
-  return arr.map(function(v,m){
-    return '<button type="button" class="ry-bar" data-m="'+m+'" title="'+v+' en '+esc(MOIS[m])+' — voir le mois">'
-      +'<span style="height:'+Math.round(v/mx*100)+'%'+(couleur?';background:var('+couleur+')':'')+'"></span><i>'+RY_MC[m]+'</i></button>';
-  }).join("");
-}
 /* Calendrier annuel : une case par jour, colorée par pause/absence/repos. */
 function ryHeatmap(s){
   /* UNE LIGNE PAR MOIS, une case par jour (le client, le 09/10/2026 : « ne pas
@@ -9972,9 +9974,16 @@ function _pfHead(db,p){
     +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
     +h+'<div class="pf-bas"></div></div>';
 }
+function anOnglet(k){
+  var c=document.getElementById("anCard"); if(!c) return;
+  c.setAttribute("data-o",k); lsSet("ui/accOnglet",k);
+  Array.prototype.forEach.call(c.querySelectorAll("[data-ano]"),function(b){ b.setAttribute("aria-selected",String(b.getAttribute("data-ano")===k)); });
+}
 document.addEventListener("click",function(e){
+  var ao=e.target.closest?e.target.closest("[data-ano]"):null;
+  if(ao){ anOnglet(ao.getAttribute("data-ano")); return; }
   var cg=e.target.closest?e.target.closest(".pf-cg"):null;
-  if(cg){ var cc=document.getElementById("cptCorps"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
+  if(cg){ anOnglet("cpt"); var cc=document.getElementById("anCard"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
   eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
   setView("jour");
@@ -10983,7 +10992,7 @@ function ryAnneeHTML(p,y){
   var cg="—", cgs="aucun d'ici le 31/12";
   if(conge){ var k=Math.round((conge.d.getTime()-t0)/864e5);
     cg=_pfDateCourte(conge.d); cgs=esc(conge.c)+(congeN>1?" · "+congeN+" j":"")+" · "+(k===0?"aujourd'hui":(k===1?"demain":"dans "+k+"\u00a0j")); }
-  return '<div class="ry-chart-t ry-h2">Mon année à ce jour</div>'
+  return '<div class="ry-chart-t ry-h2">À ce jour</div>'
     +'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées"><i style="width:'+pct+'%"></i></div>'
     +'<div class="ry-an-leg"><span><b>'+fait+'</b> journées prestées</span><span><b>'+avenir+'</b> à venir</span></div>'
     /* TOUTES LES PAUSES, et pas seulement la nuit (le client, le 10/10/2026 :
@@ -11029,14 +11038,11 @@ function renderRythme(){
     +'<div><div class="ry-chart-t">Pauses par mois <span class="ry-hint">touchez un mois</span></div><div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div></div>'
     +'<p class="ry-insight">'+ryInsight(s)+'</p>'
     +'</div></div>'
-    /* ── Mon année (heatmap) + jours prestés/mois + courbe des congés ── */
     +'<div class="ry-sep"></div>'
-    +'<div class="ry-chart-t ry-h2">Mon année <span class="ry-hint">chaque case = un jour</span></div>'
-    + ryHeatmap(s)
-    /* La courbe des « congés restants » partait des journées POSÉES et
-       tombait à zéro par construction, contre le « Restant » des compteurs
-       (audit du 10/10/2026) : retirée. */
-    +'<div class="ry-panel"><div class="ry-chart-t">Jours prestés par mois</div><div class="ry-bars prest">'+ryBars(s.prestesMois,"--in")+'</div></div>';
+    +'<div class="ry-chart-t ry-h2">Jour par jour <span class="ry-hint">chaque case = un jour</span></div>'
+    + ryHeatmap(s);
+    /* « Jours prestés par mois » redisait « Pauses par mois » (la barre
+       empilée en a la hauteur) : retiré le 16/10/2026. */
   ryDonut();
   Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
@@ -16452,13 +16458,15 @@ function renderCompteurs(){
          code AVANT l'intitulé complet. Trois chiffres dans l'ordre où on les
          raisonne, le restant mis en avant ; la barre dit la même chose d'un
          coup d'œil. */
+      /* Compacté le 16/10/2026 (refonte de l'Accueil) : une rangée par
+         congé, les trois chiffres gardés — disponible et placé sous la barre,
+         le restant en grand à droite. Deux fois moins haut. */
       lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'">'
-        +'<div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
+        +'<div class="cg-g"><div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
         +(lib===k?'':'<span class="cg-n">'+esc(lib)+'</span>')+'</div>'
-        +'<div class="cg-nb"><div><span>Disponible</span><b>'+num(tot)+'<i>h</i></b></div>'
-        +'<div><span>Placé</span><b>'+num(pose)+'<i>h</i></b></div>'
-        +'<div class="cg-rs"><span>Restant</span><b>'+num(rs)+'<i>h</i></b><em>'+num(R(rs/8,2))+' j</em></div></div>'
-        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h disponibles"><i style="width:'+R(pct,1)+'%"></i></div></div>');
+        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h disponibles"><i style="width:'+R(pct,1)+'%"></i></div>'
+        +'<div class="cg-d">Placé <b>'+num(pose)+' h</b> · disponible <b>'+num(tot)+' h</b></div></div>'
+        +'<div class="cg-rs"><span>Restant</span><b>'+num(rs)+'<i>h</i></b><em>'+num(R(rs/8,2))+' j</em></div></div>');
     });
     if(lc.length) h.push(bloc("Congés","en heures · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
 
@@ -16493,16 +16501,14 @@ function renderCompteurs(){
         +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>');
       ft.push('<div class="calstats ft-st">'
         +cst("+"+num(calc.ftPlus),"h","Portées "+annee)
-        +cst("−"+num(calc.ftMoins),"h","Reprises "+annee)
-        +cst(num(soldeJ),"h","Solde")+'</div>');
+        +cst("−"+num(calc.ftMoins),"h","Reprises "+annee)+'</div>');
+      /* La case « Solde » redisait la ligne du dessus : retirée le 16/10/2026. */
     }
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
     if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
-    if(ecartP!==null||ecartM!==null)
-      ft.push(ecarts.length
-        ?'<p class="cpt-chk ko">Écart avec le pied du classeur : '+ecarts.join(", ")+'</p>'
-        :'<p class="cpt-chk ok">Concorde avec le pied du classeur</p>');
+    if(ecarts.length)
+      ft.push('<p class="cpt-chk ko">Écart avec le pied du classeur : '+ecarts.join(", ")+'</p>');
     h.push(bloc("Flex time","bornes −8 h à 104 h",ft.join("")));
 
     /* --- récup. HS : hors classeur --- */
@@ -17379,6 +17385,7 @@ function boot(){
          nettoyée pour qu'un rechargement ne le rouvre pas. */
       var vueUrl=(location.search.match(/[?&]vue=([a-z]+)/)||[])[1];
       if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
+      if(lsGet("ui/accOnglet")==="ry") anOnglet("ry");
       setView(vueUrl||lsGet("ui/view")||"horaire",true);
       /* Une notification touchée alors que l'application est déjà ouverte :
          le service worker ne recharge pas la page, il lui dit l'onglet. */
