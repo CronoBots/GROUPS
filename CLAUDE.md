@@ -461,8 +461,14 @@ réinstallait (et montait `V`) à chaque passage. Le script regarde si
 Éprouvé en local sur un clone sans brut : classeur identique, rien ne
 bouge, `sw.js` compris ; classeur du 12/10, installé avec son rapport
 (JBI, VGG) ; un horaire donné à la place du classeur RH, porte 1 fermée,
-rien installé. Pas de notification du téléphone pour les recyclages :
-seulement l'e-mail de rapport.
+rien installé. **Éprouvé en vrai le même jour** : classeur RH du 16/10 à
+13 h 45 installé par le commit automatique 6bdf61c (VGG, chaudières le
+15/10). Le premier envoi portait le sujet « BIOWANZE horaire », le flux
+ayant été copié de celui de l'horaire : porte 1 fermée, rien installé.
+D'abord sans notification du téléphone ; le client, le 16/10/2026 :
+« je n'ai rien reçu pour le recyclage ». Une notification par passage,
+« Recyclages mis à jour », ou « Horaire et recyclages mis à jour » quand
+les deux arrivent ensemble.
 
 **Le planificateur de GitHub ne lançait rien** : le 16/10/2026, aucun
 passage automatique en plus de deux heures (zéro événement `schedule`, alors

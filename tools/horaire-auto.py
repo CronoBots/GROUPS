@@ -300,16 +300,25 @@ def main():
             print((p.stderr or "")[-2000:])
         else:
             etat("Poussé sur main.")
-            if any(x[0] == "horaire" for x in installes):
-                # La notification du téléphone, application fermée (le client,
-                # le 16/10/2026 : la même pour tous). Elle ne fait jamais
-                # échouer le passage : l'horaire est déjà publié.
-                q = [x[6] for x in installes if x[0] == "horaire"][0]
-                n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"),
-                                    "Horaire mis à jour",
-                                    "Classeur du %s · ouvrez l'application pour voir vos journées." % q],
-                                   cwd=RACINE, capture_output=True, text=True)
-                etat((n.stdout or "").strip() or "Notifications : non envoyées.")
+            # La notification du téléphone, application fermée (le client,
+            # le 16/10/2026 : la même pour tous ; puis « je n'ai rien reçu
+            # pour le recyclage » : les recyclages aussi). Une seule par
+            # passage, même étiquette. Elle ne fait jamais échouer le
+            # passage : tout est déjà publié.
+            h = [x[6] for x in installes if x[0] == "horaire"]
+            r = [x[6] for x in installes if x[0] != "horaire"]
+            if h and r:
+                titre = "Horaire et recyclages mis à jour"
+                texte = "Classeur du %s · recyclages enregistrés le %s." % (h[0], r[0])
+            elif h:
+                titre = "Horaire mis à jour"
+                texte = "Classeur du %s · ouvrez l'application pour voir vos journées." % h[0]
+            else:
+                titre = "Recyclages mis à jour"
+                texte = "Enregistrés le %s · voir le recyclage dans l'onglet Équipes." % r[0]
+            n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"), titre, texte],
+                               cwd=RACINE, capture_output=True, text=True)
+            etat((n.stdout or "").strip() or "Notifications : non envoyées.")
 
     code = 0
     for genre, uids, c, sujet, corps, inst, quand in resultats:
