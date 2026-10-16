@@ -468,7 +468,22 @@ ayant été copié de celui de l'horaire : porte 1 fermée, rien installé.
 D'abord sans notification du téléphone ; le client, le 16/10/2026 :
 « je n'ai rien reçu pour le recyclage ». Une notification par passage,
 « Recyclages mis à jour », ou « Horaire et recyclages mis à jour » quand
-les deux arrivent ensemble.
+les deux arrivent ensemble. **Puis personnelles**, le même jour (le
+client, capture à l'appui : « les notifications doivent être optimisées
+au max ») : `notifications()` compare l'avant et l'après et chacun lit ce
+qui change POUR LUI — « Votre horaire a changé · 14 journées / Du 17/10
+au 30/10 : Maladie », « Recyclage enregistré / Chaudières le 15/10 ·
+encore 9 à faire » —, les autres « Classeur du 16/10 à 7 h 48 · rien ne
+change pour vous ». Une journée se décrit par sa cellule et son
+annotation, jamais par le commentaire (comme `detecterChangements()`),
+une absence entière par son seul mot (Maladie, VA, Flex time repris), et
+les journées qui se suivent et deviennent la même chose font une ligne.
+`envoyer-push.js --messages=` choisit le message par l'identifiant de
+l'abonnement, que l'application envoie désormais ENTIER (« GBT-1 ») ;
+toucher la notification ouvre l'Accueil ou l'onglet Équipes, y compris
+quand l'application est déjà ouverte (message du service worker).
+« from BIOWANZE » sous le titre est écrit par iOS pour toute
+notification d'une application web : on ne peut pas le retirer.
 
 **Le planificateur de GitHub ne lançait rien** : le 16/10/2026, aucun
 passage automatique en plus de deux heures (zéro événement `schedule`, alors

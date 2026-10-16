@@ -232,8 +232,192 @@ def traiter_recyclage(source):
             "\n\n%s" % (quand, rapport), True, quand)
 
 
+JOURS_C = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
+JOURS_L = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+POSTES_RECYC = {"meun": "Meunerie", "glut": "Gluten", "ferm": "Fermentation",
+                "dist": "Distillation", "chau": "Chaudières", "step": "STEP",
+                "cm": "Contremaître"}
+
+
+def _lire(chemin):
+    try:
+        return json.load(open(chemin, encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _aujourdhui():
+    import datetime
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.datetime.now(ZoneInfo("Europe/Brussels")).date()
+    except Exception:
+        return datetime.date.today()
+
+
+def _court(quand):
+    """« 16/10/2026 à 13 h 45 » → « 16/10 à 13 h 45 » : l'année se devine."""
+    return re.sub(r"^(\d\d/\d\d)/\d{4}", r"\1", quand or "")
+
+
+def _desc_jour(j):
+    """Ce que la cellule dit, sans le commentaire : « Repos », « AM »,
+    « AM · MAL », « 18h-06h ». Un commentaire seul qui change ne compte pas,
+    comme dans l'application (detecterChangements)."""
+    j = j or []
+    cel = (j[0] if len(j) > 0 else "").strip()
+    ann = (j[1] if len(j) > 1 else "").strip()
+    repos = cel in ("", "-")
+    a = ann.rstrip(" ?").strip()
+    # une absence d'une journée entière se dit seule, comme l'application :
+    # « Maladie », « VA », et non « N · Abs »
+    if re.fullmatch(r"(?i)abs\.?|mal", a):
+        return "Maladie"
+    m = re.fullmatch(r"(?i)(?:8\s*h\s*)?(VA|RTT|RJF|DTT|RHS|CP|TP|CT|CSS|GREVE)", a)
+    if m:
+        return m.group(1).upper()
+    if re.fullmatch(r"(?i)8\s*h\s*-\s*FT", a):
+        return "Flex time repris"
+    if a == "-":
+        return "Repos" if repos else "%s non presté" % cel
+    base = "Repos" if repos else cel
+    if a and a != cel:
+        base = a if repos else base + " · " + a
+    return base
+
+
+def changements_horaire(avant, apres, annee, jour):
+    """{id: [(date, avant, après)]} pour les journées d'aujourd'hui à la fin
+    de l'année dont la cellule a changé."""
+    import datetime
+    av = {p.get("id"): p.get("d") or {} for p in avant.get("people") or []}
+    out = {}
+    for p in apres.get("people") or []:
+        pid = p.get("id")
+        if pid not in av:
+            continue                         # une arrivée : rien à comparer
+        d1, d2 = av[pid], p.get("d") or {}
+        for k in sorted(set(d1) | set(d2)):
+            try:
+                dt = datetime.date(annee, int(k[:2]), int(k[2:]))
+            except ValueError:
+                continue
+            if dt < jour:
+                continue
+            a, b = _desc_jour(d1.get(k)), _desc_jour(d2.get(k))
+            if a != b:
+                out.setdefault(pid, []).append((dt, a, b))
+    return out
+
+
+def message_horaire(liste):
+    """Titre et texte d'une notification « votre horaire a changé » : une
+    ligne par journée, trois au plus, la plus proche en tête."""
+    import datetime
+    n = len(liste)
+    if n == 1:
+        dt, a, b = liste[0]
+        return ("Votre horaire a changé",
+                "%s %s : %s → %s" % (JOURS_L[dt.weekday()], dt.strftime("%d/%m"), a, b))
+    # les journées qui se suivent et deviennent la même chose n'en font
+    # qu'une ligne : « Du 17/10 au 30/10 : Maladie » (l'avant n'est écrit
+    # que s'il est le même pour toute la série)
+    series = []
+    for dt, a, b in liste:
+        s = series[-1] if series else None
+        if s and s["b"] == b and dt - s["fin"] == datetime.timedelta(days=1):
+            s["fin"] = dt
+            s["a"] = s["a"] if s["a"] == a else None
+        else:
+            series.append({"deb": dt, "fin": dt, "a": a, "b": b})
+    lignes = []
+    for s in series[:3]:
+        if s["deb"] == s["fin"]:
+            quand = "%s %s" % (JOURS_C[s["deb"].weekday()].capitalize(), s["deb"].strftime("%d/%m"))
+        else:
+            quand = "Du %s au %s" % (s["deb"].strftime("%d/%m"), s["fin"].strftime("%d/%m"))
+        lignes.append("%s : %s" % (quand, ("%s → %s" % (s["a"], s["b"])) if s["a"] else s["b"]))
+    reste = sum((s["fin"] - s["deb"]).days + 1 for s in series[3:])
+    if reste:
+        lignes.append("+ %d autre%s journée%s" % (reste, "s" if reste > 1 else "", "s" if reste > 1 else ""))
+    return ("Votre horaire a changé · %d journées" % n, "\n".join(lignes))
+
+
+def changements_recyclage(avant, apres):
+    """{trigramme: ([(poste, date)] ajoutés, nb retirés, restant)}."""
+    out = {}
+    av = avant.get("ops") or {}
+    for t, o in (apres.get("ops") or {}).items():
+        a = (av.get(t) or {}).get("dates") or {}
+        b = o.get("dates") or {}
+        ajout, retire = [], 0
+        for poste in set(a) | set(b):
+            la, lb = list(a.get(poste) or []), list(b.get(poste) or [])
+            for x in lb:
+                if x in la:
+                    la.remove(x)
+                else:
+                    ajout.append((poste, x))
+            retire += len(la)
+        if ajout or retire:
+            out[t] = (sorted(ajout, key=lambda x: x[1][3:] + x[1][:2]), retire, o.get("restant"))
+    return out
+
+
+def message_recyclage(ajout, retire, restant):
+    morceaux = ["%s le %s" % (POSTES_RECYC.get(p, p), d) for p, d in ajout[:3]]
+    if len(ajout) > 3:
+        morceaux.append("+ %d autre%s" % (len(ajout) - 3, "s" if len(ajout) > 4 else ""))
+    titre = ("Recyclage enregistré" if len(ajout) == 1 else
+             "%d recyclages enregistrés" % len(ajout) if ajout else "Vos recyclages ont été corrigés")
+    texte = ", ".join(morceaux)
+    if restant is not None:
+        texte += (" · " if texte else "") + "encore %s à faire" % restant
+    return titre, texte
+
+
+def notifications(avant_h, avant_r, installes):
+    """Une notification par classeur installé, PERSONNELLE : chacun lit ce
+    qui change pour lui, et les autres que rien ne change pour eux (le client,
+    le 16/10/2026 : « les notifications doivent être optimisées au max »).
+    Le trigramme de l'abonnement choisit le message ; sans trigramme, ou
+    s'il ne désigne personne, le message commun."""
+    out = []
+    for x in installes:
+        quand = _court(x[6])
+        if x[0] == "horaire":
+            apres = _lire(HORAIRE)
+            ch = changements_horaire(avant_h, apres, int(apres.get("year") or 2026), _aujourdhui())
+            par = {}
+            for p in apres.get("people") or []:
+                pid = p.get("id")
+                if pid in ch:
+                    t, b = message_horaire(ch[pid])
+                else:
+                    t, b = "Horaire mis à jour", "Classeur du %s · rien ne change pour vous." % quand
+                par[pid] = {"title": t, "body": b}
+            out.append({"tag": "horaire", "url": "./?vue=horaire", "par_tri": par,
+                        "defaut": {"title": "Horaire mis à jour",
+                                   "body": "Classeur du %s · ouvrez l'application pour voir vos journées." % quand}})
+        else:
+            apres = _lire(RECYC)
+            ch = changements_recyclage(avant_r, apres)
+            par = {}
+            for t in apres.get("ops") or {}:
+                if t in ch:
+                    ti, b = message_recyclage(*ch[t])
+                else:
+                    ti, b = "Recyclages mis à jour", "Classeur RH du %s · rien ne change pour vous." % quand
+                par[t] = {"title": ti, "body": b}
+            out.append({"tag": "recyclage", "url": "./?vue=equipe", "par_tri": par,
+                        "defaut": {"title": "Recyclages mis à jour",
+                                   "body": "Classeur RH du %s · le recyclage est dans l'onglet Équipes." % quand}})
+    return out
+
+
 def main():
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
+    avant_h, avant_r = _lire(HORAIRE), _lire(RECYC)
     pousser = "--sans-pousser" not in sys.argv
     tmp = tempfile.mkdtemp(prefix="biowanze-auto-")
     imap = None
@@ -305,20 +489,19 @@ def main():
             # pour le recyclage » : les recyclages aussi). Une seule par
             # passage, même étiquette. Elle ne fait jamais échouer le
             # passage : tout est déjà publié.
-            h = [x[6] for x in installes if x[0] == "horaire"]
-            r = [x[6] for x in installes if x[0] != "horaire"]
-            if h and r:
-                titre = "Horaire et recyclages mis à jour"
-                texte = "Classeur du %s · recyclages enregistrés le %s." % (h[0], r[0])
-            elif h:
-                titre = "Horaire mis à jour"
-                texte = "Classeur du %s · ouvrez l'application pour voir vos journées." % h[0]
-            else:
-                titre = "Recyclages mis à jour"
-                texte = "Enregistrés le %s · voir le recyclage dans l'onglet Équipes." % r[0]
-            n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"), titre, texte],
-                               cwd=RACINE, capture_output=True, text=True)
-            etat((n.stdout or "").strip() or "Notifications : non envoyées.")
+            # Puis personnelles (« optimisées au max ») : voir notifications().
+            try:
+                msgs = notifications(avant_h, avant_r, installes)
+            except Exception as e:           # jamais d'échec pour une notification
+                msgs = []
+                etat("Notifications : messages non calculés (%s)." % type(e).__name__)
+            for m in msgs:
+                chemin = os.path.join(tmp, "notif-%s.json" % m["tag"])
+                json.dump(m, open(chemin, "w", encoding="utf-8"), ensure_ascii=False)
+                n = subprocess.run(["node", os.path.join(OUTILS, "envoyer-push.js"),
+                                    "--messages=" + chemin],
+                                   cwd=RACINE, capture_output=True, text=True)
+                etat((n.stdout or "").strip() or "Notifications : non envoyées.")
 
     code = 0
     for genre, uids, c, sujet, corps, inst, quand in resultats:

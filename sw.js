@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v744";
+var V = "nfdm-v745";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -150,7 +150,11 @@ self.addEventListener("notificationclick", function (e) {
   e.notification.close();
   var cible = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (l) {
-    for (var i = 0; i < l.length; i++) if ("focus" in l[i]) return l[i].focus();
+    var vue = (cible.match(/[?&]vue=([a-z]+)/) || [])[1];
+    for (var i = 0; i < l.length; i++) if ("focus" in l[i]) {
+      if (vue) l[i].postMessage({ type: "vue", vue: vue });
+      return l[i].focus();
+    }
     return self.clients.openWindow ? self.clients.openWindow(cible) : null;
   }));
 });
