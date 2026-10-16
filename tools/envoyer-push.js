@@ -7,7 +7,7 @@
 
    Le second, depuis le 16/10/2026 (« les notifications doivent être
    optimisées au max ») : un message PAR PERSONNE, choisi par le trigramme de
-   l'abonnement — {tag, url, defaut:{title,body}, par_tri:{ID:{title,body}}}.
+   l'abonnement — {tag, url, defaut:{title,body}, par_tri:{ID:{title,body}}, connus:[ID]}.
    Un abonnement « GBT », que deux personnes portent, prend le message commun.
 
    Le client, le 16/10/2026 : « une notification PWA lors de la mise à jour du
@@ -56,7 +56,11 @@ function messageDe(m, tri) {
   var par = m.par_tri || {};
   if (tri && par[tri]) return par[tri];
   var ids = Object.keys(par).filter(function (k) { return tri && k.split("-")[0] === tri; });
-  return ids.length === 1 ? par[ids[0]] : m.defaut;
+  if (ids.length === 1) return par[ids[0]];
+  // une personne connue pour qui rien ne change ne reçoit rien (le client,
+  // le 16/10/2026) ; un abonné sans trigramme reconnu, le message commun
+  var connus = (m.connus || []).filter(function (k) { return tri && (k === tri || k.split("-")[0] === tri); });
+  return connus.length ? null : m.defaut;
 }
 
 function main() {
@@ -65,10 +69,11 @@ function main() {
   if (!prive || !cle) { console.log("Notifications : secrets absents, rien envoyé."); return Promise.resolve(); }
   webpush.setVapidDetails("https://cronobots.github.io/groups/", VAPID_PUBLIQUE, prive);
   return rpc("biowanze_abonnes", { p_cle: cle }).then(function (liste) {
-    var ok = 0, morts = 0, ko = 0;
+    var ok = 0, morts = 0, ko = 0, tus = 0;
     return Promise.all((liste || []).map(function (a) {
       var sub = { endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } };
       var x = messageDe(m, a.tri);
+      if (!x) { tus++; return null; }
       var charge = JSON.stringify({ title: x.title, body: x.body, tag: m.tag || "classeur", url: m.url || "./" });
       return webpush.sendNotification(sub, charge, { TTL: 86400 }).then(function () { ok++; })
         .catch(function (e) {
@@ -78,7 +83,7 @@ function main() {
           ko++;
         });
     })).then(function () {
-      console.log("Notifications : " + ok + " envoyée(s), " + morts + " abonnement(s) périmé(s) retiré(s), " + ko + " échec(s).");
+      console.log("Notifications : " + ok + " envoyée(s), " + morts + " abonnement(s) périmé(s) retiré(s), " + ko + " échec(s), " + tus + " sans changement.");
     });
   }).catch(function (e) { console.log("Notifications : non envoyées (" + e.message + ")."); });
 }
