@@ -350,16 +350,28 @@ def changements_recyclage(avant, apres):
     return out
 
 
-def message_recyclage(ajout, retire, restant):
-    morceaux = ["%s le %s" % (POSTES_RECYC.get(p, p), d) for p, d in ajout[:3]]
+def message_recyclage(ajout, retire, restant, annee=2026):
+    """Même forme que l'horaire (le client, le 16/10/2026) : une ligne par
+    recyclage, « Jeudi 15/10 : Chaudières », trois au plus, puis ce qui
+    reste à faire. Les dates du classeur RH n'ont pas d'année : celle du
+    classeur."""
+    import datetime
+    lignes = []
+    for p, d in ajout[:3]:
+        try:
+            dt = datetime.date(annee, int(d[3:5]), int(d[:2]))
+            quand = "%s %s" % (JOURS_L[dt.weekday()], d)
+        except ValueError:
+            quand = d
+        lignes.append("%s : %s" % (quand, POSTES_RECYC.get(p, p)))
     if len(ajout) > 3:
-        morceaux.append("+ %d autre%s" % (len(ajout) - 3, "s" if len(ajout) > 4 else ""))
+        r = len(ajout) - 3
+        lignes.append("+ %d autre%s recyclage%s" % (r, "s" if r > 1 else "", "s" if r > 1 else ""))
+    if restant is not None:
+        lignes.append("Encore %s recyclage%s à faire" % (restant, "s" if str(restant) not in ("0", "1") else ""))
     titre = ("Recyclage enregistré" if len(ajout) == 1 else
              "%d recyclages enregistrés" % len(ajout) if ajout else "Vos recyclages ont été corrigés")
-    texte = ", ".join(morceaux)
-    if restant is not None:
-        texte += (" · " if texte else "") + "encore %s à faire" % restant
-    return titre, texte
+    return titre, "\n".join(lignes)
 
 
 def notifications(avant_h, avant_r, installes):
