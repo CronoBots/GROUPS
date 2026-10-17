@@ -4648,6 +4648,22 @@ neuf règles à zéro, le calage par défaut de la prolongation inchangé.
 Vérifié sur VBN, LCI, CAN, BLR et SKS à 320 px (hors ligne), 390 et
 1280 px, sans débordement ni erreur.
 
+Puis, le même jour (le client, capture de « Mon rythme » : « la partie
+avec mois le plus chargé et férié n'est pas utile ; centrer et optimiser
+les légendes des deux autres graphiques ; la barre de progression du cycle,
+peut-on encore l'optimiser ? ») : la phrase du mois le plus chargé et des
+fériés travaillés part, avec `ryInsight()` ; les légendes « Pauses par
+mois » et « Jour par jour » sont centrées sous leur graphique. Le cycle
+n'est plus une barre mais une **frise** (`ryCycleHTML()`) : une case par
+jour du cycle, groupée par semaine, à la couleur de la pause tenue (celle
+des badges), le congé en contour, la maladie en rouge, le repos vide ; les
+jours passés pleins, ceux à venir pâlis, aujourd'hui cerclé, la semaine en
+cours encadrée. En tête, « Semaine 6 / 6 » à droite du titre (et le
+pourcentage à droite de « Mon année ») ; dessous, prestées et à venir, puis
+les bornes. Le relais de consignation (10 semaines) prend des cases plus
+fines. Vérifié sur VBN, LCI, CAN, BLR et SKS à 320 px (hors ligne), 390 et
+1280 px, sans débordement ni erreur ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
