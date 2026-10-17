@@ -4713,6 +4713,18 @@ bouton, son écouteur et son survol sont retirés) ; le filet au-dessus de
 « Jour par jour » part, avec `.ry-sep`. Vérifié à 320 px (hors ligne), 390
 et 1280 px ; neuf règles à zéro.
 
+Puis (le client, le même jour, deux captures : « supprimer la partie
+explication des horaires des années futures et supprimer la ligne bilan,
+les stats parlent d'elles-mêmes ; centrer et espacer la légende pour
+utiliser la largeur ») : la note « Horaire 2029 prolongé par les cycles… »
+quitte le cadre du mois ET celui du salaire (`#calProj`, `#salProj`,
+`majProjNote()` et `.projnote` retirés ; le tableau du jour garde son
+« prolongé par les cycles »). Le titre « Bilan d'octobre » part
+(`#calBilanT`), les quatre chiffres suivent le calendrier sous un seul
+filet. La légende du mois se répartit sur toute la largeur
+(`space-evenly`). Vérifié en octobre 2026 et en janvier 2028 projeté, à
+320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

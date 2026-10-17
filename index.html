@@ -937,11 +937,6 @@ body{overflow-x:clip}
 .cstat-d.plus{color:var(--in)}
 .cstat-d:empty{display:none}
 
-/* Une année projetée par les cycles (majProjNote) : une ligne discrète,
-   à l'encre de l'accent, sous la barre du mois. */
-.projnote{margin:0; padding:9px 16px; font-size:12px; line-height:1.4; color:var(--muted);
-  background:var(--in-soft); border-bottom:1px solid var(--cadre)}
-.projnote b{color:var(--in); font-weight:650}
 /* ---------- salaire : les cadres du Calendrier ---------- */
 /* Le client, le 09/10/2026 : « les cadres de l'onglet salaire doivent être
    présentés comme pour le cadre horaire (sélection etc.) ». Tous les cadres de
@@ -1101,11 +1096,10 @@ body{overflow-x:clip}
 #calCard .mc-j.auj .mc-n{background:var(--in); color:var(--sur-in); border-radius:6px; padding:0 4px; font-weight:700}
 #calCard .mc-sem>.mc-hcol{justify-content:center; border-left:1px solid var(--line2); font-size:10.5px; color:var(--muted)}
 #calCard .mc-tete>.mc-hcol{justify-content:center; font-family:inherit}
-#calCard .mc-leg{margin-top:10px; padding-top:10px; font-size:10.5px; gap:5px 12px}
+#calCard .mc-leg{margin-top:10px; padding-top:10px; font-size:10.5px; gap:7px 0; justify-content:space-evenly}
+#calCard .mc-leg>span{padding:0 6px}
 #calCard .calbilan{border-top:1px solid var(--cadre)}
-.calbilan-t{padding:11px 16px 9px; font-size:10.5px; font-weight:650; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--faint); text-align:center}
-#calStats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--cadre)}
+#calStats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr))}
 #calStats .cstat{min-width:0; padding:10px 4px 9px}
 .calsec{display:flex; gap:1px; background:var(--cadre); border-top:1px solid var(--cadre)}
 .calsec[hidden],.csec[hidden]{display:none}
@@ -4301,14 +4295,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
              .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
         <div class="calmois"><div class="mnavhote"></div></div>
       </div>
-      <p class="projnote" id="calProj" hidden></p>
       <div class="moiscal" id="moisCal"></div>
       <!-- LE BILAN DU MOIS, sous le calendrier (le client, le 16/10/2026 :
            « réorganise tout 100 % pro ») : quatre chiffres fixes, puis les
            secondaires, qui ne s'affichent que s'ils ne valent pas zéro. Les
            valeurs sont écrites par renderSlip() dans ces identifiants. -->
       <div class="calbilan">
-      <div class="calbilan-t" id="calBilanT">Bilan du mois</div>
       <div class="calstats" id="calStats">
         <div class="cstat"><span class="cstat-v"><b id="tHeures">0</b><i>h</i></span><span class="cstat-k">Prestées</span><span class="cstat-d" id="dHeures"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tJours">0</b></span><span class="cstat-k">Jours</span><span class="cstat-d" id="dJours"></span></div>
@@ -4512,7 +4504,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </div>
       <div class="versements" id="versements" hidden></div>
       <div class="callout" id="alerteDefaut"></div>
-      <p class="projnote" id="salProj" hidden></p>
       <div class="tiles" id="tiles"></div>
       <p class="tiles-note" id="tilesNote"></p>
     </div>
@@ -6171,19 +6162,7 @@ function caseJour(d){
     +'</button>';
 }
 
-/* Une année après le classeur est PROJETÉE (horaireDe) : le dire là où on
-   la lit, sans quoi un mois de cycle pur se prendrait pour l'horaire réel. */
-function majProjNote(){
-  var db=HORAIRE_DB, pr=db && Number(st.y)>Number(db.year);
-  ["calProj","salProj"].forEach(function(i){
-    var el=document.getElementById(i); if(!el) return;
-    el.hidden=!pr;
-    if(pr) el.innerHTML="<b>Horaire "+st.y+" prolongé par les cycles</b> — 5 semaines par équipe, "
-      +"6 par binôme, sans congés ni remplacements. Le classeur "+st.y+" le remplacera.";
-  });
-}
 function renderRota(){
-  majProjNote();
   var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m);
   var hote=document.getElementById("moisCal"); if(!hote) return;
   var h='<div class="mc-tete">'+
@@ -6355,7 +6334,6 @@ function slipRow(o){
   return tr;
 }
 function renderSlip(C){
-  majProjNote();
   var p=st.params, h="";
   C.head.forEach(function(o){
     if(o.t==="sec"){h+='<tr class="sec"><td colspan="3">'+o.l+"</td></tr>"; return;}
@@ -6789,7 +6767,6 @@ function renderTotals(C){
       el.hidden=!Number(t[1]); if(!el.hidden) vis++;
     });
     var sec=document.getElementById("calSec"); if(sec) sec.hidden=!vis;
-    var bt=document.getElementById("calBilanT"); if(bt) { var mm=MOIS[st.m].toLowerCase(); bt.textContent="Bilan "+(/^[aeiouâéèêîôû]/.test(mm)?"d'":"de ")+mm; }
   })();
   var rsub=document.getElementById("rotasub"); if(rsub) rsub.textContent=MOIS[st.m]+" "+st.y;
   majMoisLabel(st.m,st.y);
