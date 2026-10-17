@@ -2152,10 +2152,11 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   padding:calc(56px + env(safe-area-inset-top)) 0 calc(80px + env(safe-area-inset-bottom)); transform:translateY(12px); transition:transform .32s cubic-bezier(.22,.68,.16,1)}
 .inst.inst-visible .inst-page{transform:none}
 .inst.inst-fleche-haut .inst-page{padding-top:calc(70px + env(safe-area-inset-top)); padding-bottom:calc(24px + env(safe-area-inset-bottom))}
-.inst-tete{display:flex; align-items:center; gap:10px; margin:0 0 22px}
-.inst-tete img{width:36px; height:36px; border-radius:9px}
-.inst-tete b{display:block; font-size:16px; font-weight:700; letter-spacing:.02em}
-.inst-tete small{display:block; font-size:12px; color:rgba(255,255,255,.62)}
+/* Le logo vectoriel, fond transparent, puis le titre centré dessous */
+.inst-tete{display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; margin:0 0 20px; padding:0 20px}
+.inst-tete img{height:44px; width:auto; margin-bottom:6px}
+.inst-tete b{display:block; font-size:17px; font-weight:700; letter-spacing:.02em}
+.inst-tete small{display:block; font-size:12.5px; color:rgba(255,255,255,.62)}
 .inst-fermer{position:fixed; z-index:5; top:calc(12px + env(safe-area-inset-top)); right:14px; width:40px; height:40px; border-radius:50%;
   border:0; background:rgba(255,255,255,.1); color:#fff; font-size:24px; line-height:1; cursor:pointer}
 .inst.inst-fleche-haut .inst-fermer{right:auto; left:14px}
@@ -2283,18 +2284,17 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   padding:28px 14px calc(6px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(17,23,39,0),#111727 55%);
   color:var(--marque-vif); pointer-events:none; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em}
 .inst-fleche[hidden]{display:none}
-.inst-fleche>*{animation:instBas 1.2s ease-in-out infinite}
+.inst-f{display:flex; flex-direction:column; align-items:center; gap:2px; animation:instBas 1.2s ease-in-out infinite}
 .inst-fleche svg{width:30px; height:30px}
 .inst-fleche.bas-droite{align-items:flex-end}
-.inst-fleche.bas-droite>*{margin-right:4px}
-.inst-fleche.haut-droite{top:0; bottom:auto; align-items:flex-end; flex-direction:column-reverse;
+.inst-fleche.bas-droite .inst-f{margin-right:4px}
+.inst-fleche.haut-droite{top:0; bottom:auto; align-items:flex-end;
   padding:calc(6px + env(safe-area-inset-top)) 14px 28px; background:linear-gradient(rgba(17,23,39,.9) 40%,rgba(17,23,39,0))}
-.inst-fleche.haut-droite>*{animation-name:instHaut}
-.inst-fleche.haut-droite svg{transform:rotate(180deg); animation-name:instHautFleche}
+.inst-fleche.haut-droite .inst-f{flex-direction:column-reverse; animation-name:instHaut}
+.inst-fleche.haut-droite svg{transform:rotate(180deg)}
 @keyframes instBas{50%{transform:translateY(6px)}}
 @keyframes instHaut{50%{transform:translateY(-6px)}}
-@keyframes instHautFleche{0%,100%{transform:rotate(180deg)}50%{transform:rotate(180deg) translateY(6px)}}
-@media (prefers-reduced-motion:reduce){.inst-fleche>*,.inst-barres .actif i::after,.inst-legende.entre,.d-doigt,.d-doigt::after,.d-app img,.d-menu,.d-feuille,.d-valider,.d-voile{animation:none}.inst,.inst-page{transition:none}}
+@media (prefers-reduced-motion:reduce){.inst-f,.inst-fleche svg,.inst-barres .actif i::after,.inst-legende.entre,.d-doigt,.d-doigt::after,.d-app img,.d-menu,.d-feuille,.d-valider,.d-voile{animation:none}.inst,.inst-page{transition:none}}
 .gate-inst{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:2px; padding:11px 14px;
   border-radius:12px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); color:#fff; font-size:13.5px; font-weight:600; cursor:pointer}
 .in-x{flex:0 0 auto; width:34px; height:34px; border:0; background:none; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
@@ -4769,7 +4769,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 <div id="instGuide" class="inst" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BIOWANZE" hidden>
   <div class="inst-page">
     <button type="button" class="inst-fermer" id="instFermer" aria-label="Fermer">&times;</button>
-    <div class="inst-tete"><img src="icon-192.png" alt=""><div><b>Installer BIOWANZE</b><small>Sur l'écran d'accueil, comme une application</small></div></div>
+    <div class="inst-tete"><img src="logo.svg" alt=""><b>Installer BIOWANZE</b><small>Sur l'écran d'accueil, comme une application</small></div>
     <div class="inst-demo" id="instDemo" aria-hidden="true">
       <div class="inst-tel" id="instTel"><div class="inst-ecran" id="instEcran"></div></div>
     </div>
@@ -4783,8 +4783,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <button type="button" class="inst-continuer" id="instContinuer">Continuer sans installer</button>
   </div>
   <div class="inst-fleche" id="instFleche" aria-hidden="true" hidden>
-    <span>Ici</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg>
+    <div class="inst-f"><span>Ici</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>
   </div>
 </div>
 <div class="horsligne" id="horsLigne" role="status" aria-live="polite" hidden><span aria-hidden="true"></span>Hors ligne · données de l'appareil</div>
@@ -10422,7 +10422,9 @@ function notifierTelephone(p,x){
   var NAVS=ios?[["safari","Safari"],["chrome","Chrome"],["edge","Edge"],["firefox","Firefox"]]
               :[["chrome","Chrome"],["samsung","Samsung"],["edge","Edge"],["firefox","Firefox"]];
   var LIEN=location.origin+location.pathname.replace(/index\.html$/,"");
-  var HOTE=LIEN.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  /* L'adresse que le téléphone dessiné affiche (le client, le 17/10/2026) :
+     le nom de l'application, pas celui de l'hébergeur. */
+  var HOTE="BioWanze.app";
 
   /* ── Pictogrammes ── */
   function svg(d,plein){ return '<svg viewBox="0 0 24 24" '+(plein?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"')+'>'+d+'</svg>'; }
@@ -10580,7 +10582,7 @@ function notifierTelephone(p,x){
     if(installee()){ reussi(true); return; }
     if(integre){
       action.innerHTML='<p class="inst-info">Cette page est ouverte dans une application (messagerie, réseau social). L\'installation se fait depuis le navigateur :</p>'
-        +(android?'<a class="inst-bouton" href="intent://'+HOTE+'/#installer#Intent;scheme=https;package=com.android.chrome;end">'+I.externe+'Ouvrir dans Chrome</a>':'');
+        +(android?'<a class="inst-bouton" href="intent://'+LIEN.replace(/^https?:\/\//,"")+'#installer#Intent;scheme=https;package=com.android.chrome;end">'+I.externe+'Ouvrir dans Chrome</a>':'');
       if(!android) montre({barre:["haut-droite",I.points],e:[{s:"barre",c:"Touchez <b>⋯</b> (ou <b>↗</b>)"},{s:"menu",haut:1,t:"Ouvrir dans Safari",i:I.externe,c:"Choisissez <b>Ouvrir dans Safari</b>"}]},false);
       plus.innerHTML='<button type="button" class="inst-lien" id="instCopier">Copier le lien</button>';
       return;

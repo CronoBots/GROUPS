@@ -4565,6 +4565,14 @@ bureau à 1280 : rien ne déborde, aucune erreur. **Ce qui n'est pas repris
 de Pino** : son manifeste n'est chargé que sur téléphone (au bureau, pas
 de proposition d'installation), et son bandeau d'installation flottant.
 BIOWANZE garde sa carte dans l'Accueil, et reste installable au bureau.
+Puis, le même jour (le client) : le téléphone dessiné affiche l'adresse
+« BioWanze.app » et non celle de l'hébergeur (`HOTE`, affichage seulement ;
+le lien `intent://` et « Copier le lien » gardent la vraie adresse). « Ici »
+n'était pas centré sur sa flèche : les deux étaient calés séparément au
+bord droit. Ils sont désormais dans un même bloc (`.inst-f`), et l'écart
+mesuré entre leurs centres est de 0 px. En tête, le logo vectoriel à fond
+transparent (`logo.svg`) remplace l'icône à tuile, avec le titre et le
+sous-titre centrés dessous. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
