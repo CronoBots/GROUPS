@@ -2134,8 +2134,14 @@ body.sheet-on{overflow:hidden}
 /* L'INVITATION À INSTALLER. Vue seulement dans le navigateur : installée,
    l'application n'en a plus besoin. Android propose « Installer » (l'invite
    du système), l'iPhone dit le geste (Partager → Sur l'écran d'accueil). */
-.installcard{border-left-color:var(--marque-vif)}
+.installcard{padding:14px; display:flex; flex-direction:column; gap:12px}
+.in-l{display:flex; align-items:flex-start; gap:12px}
 .in-ico{flex:0 0 auto; width:40px; height:40px; border-radius:10px}
+.in-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; padding-top:2px}
+.in-t b{font-size:14.5px; color:var(--ink)}
+.in-t span{font-size:12.5px; line-height:1.4; color:var(--muted)}
+.installcard .in-x{margin:-6px -6px 0 0}
+.installcard .in-go{width:100%; justify-content:center}
 /* LE GUIDE D'INSTALLATION, à la manière de Pino (le client, le 17/10/2026) :
    plein écran, un téléphone dessiné rejoue en boucle les gestes du
    navigateur ouvert, un doigt sur le bouton à toucher, et finit sur l'icône
@@ -4288,14 +4294,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
-    <div class="notifcard installcard" id="installCard" hidden>
-      <div class="nt-tete">
-        <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
-        <div class="nt-t"><b>Installer l'application</b><span id="installTxt">Sur l'écran d'accueil, en plein écran, même hors ligne.</span></div>
-        <button type="button" class="nt-vu in-go" id="installGo">Installer</button>
-        <button type="button" class="in-x" id="installX" aria-label="Masquer">×</button>
-      </div>
-    </div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
@@ -4349,6 +4347,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <header><h2>Agenda du téléphone</h2><span class="sub">mon horaire, mis à jour seul</span></header>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
         <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
+    </div>
+    <!-- L'invitation à installer, au bas de l'Accueil depuis le 17/10/2026 (le
+         client : « dans le bas de l'accueil, on ne sait pas tout lire ») :
+         le texte passe à la ligne au lieu d'être coupé. -->
+    <div class="card installcard" id="installCard" hidden>
+      <div class="in-l">
+        <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
+        <div class="in-t"><b>Installer l'application</b><span id="installTxt">Sur l'écran d'accueil, plein écran et hors ligne.</span></div>
+        <button type="button" class="in-x" id="installX" aria-label="Masquer">×</button>
+      </div>
+      <button type="button" class="btn-agenda in-go" id="installGo">Installer</button>
     </div>
     <!-- LE RELEVÉ DE PRESTATIONS, tel qu'on le reçoit au travail (le client,
          le 09/10/2026 : « que l'app reproduise une feuille de prestation comme
@@ -10712,8 +10721,8 @@ function notifierTelephone(p,x){
     var gi=document.getElementById("gateInstall"); if(gi) gi.hidden=installee();
     majReglage();
     if(installee()||lsGet("ui/installVu")){ carte.hidden=true; return; }
-    if(invite&&!integre){ txt.textContent="Sur l'écran d'accueil, en plein écran, même hors ligne."; carte.hidden=false; }
-    else if(ios||android){ txt.textContent=integre?"Ouvrez d'abord ce lien dans "+(ios?"Safari":"Chrome")+".":"En trois gestes : le guide vous les montre."; carte.hidden=false; }
+    if(invite&&!integre){ txt.textContent="Sur l'écran d'accueil, plein écran et hors ligne."; carte.hidden=false; }
+    else if(ios||android){ txt.textContent=integre?"Ouvrez d'abord ce lien dans "+(ios?"Safari":"Chrome")+".":"Trois gestes, le guide vous les montre."; carte.hidden=false; }
   }
   function majReglage(){
     var e=document.getElementById("installEtat"), b=document.getElementById("installReg"); if(!e) return;
