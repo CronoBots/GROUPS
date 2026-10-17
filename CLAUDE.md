@@ -4468,6 +4468,36 @@ deux lignes (« Polyvalence » touchait « Week-end libre »), et la ligne de
 formation aussi (« Distillation » était coupé). Vérifié sur LCI, GJR, PAM,
 AAI, SKS, VBN, ATR et GPS à 320 px (hors ligne), 390 et 1280 px.
 
+**Troisième passe complète** (le client, le 17/10/2026 : « optimise un max
+encore l'accueil »). Captures à 320, 390 et 1280 px sur LCI et VBN, puis :
+- **la tuile RHS contredisait la liste du bas** : « 1 h reprises » d'un
+  côté, « RHS 2 j · 16 h » de l'autre. Les reprises partielles (« 1h rhs »,
+  `r.rhs`) et les journées entières (code RHS, `calc.abs.RHS`) sont lues
+  par deux chemins qui s'excluent ; la tuile les additionne (LCI : 17 h,
+  « 2 j entières · 1 h en partie »), et la liste ne redit plus RHS ;
+- « 1/2 VA » se coupait sur deux lignes dans son badge et redisait un
+  congé déjà en tuile : un code ne se coupe plus, et une demi-journée d'un
+  congé déjà compté plus haut ne revient pas en bas ;
+- héros : « Équipe 5 » n'est plus écrit sous le poste (c'est le premier
+  chiffre) ; sous 760 px, les intitulés des chiffres passent sur deux lignes
+  (« Polyvalence » touchait « Week-end libre » à 390 px aussi) ;
+- intitulés de bloc : sous 380 px, le sous-titre passe sous le titre
+  (« Congés restants » se coupait) ; « Maladie et autres absences » perd le
+  sien, qui la coupait en deux lignes ;
+- polyvalence : « Mon recyclage › » en lien simple, plus en gros bouton ;
+- jour par jour : la légende prend les codes et l'ordre des autres
+  (AM, PM, N, D) ; le congé ou la maladie est un contour neutre, comme au
+  mois (en orange, il se confondait avec le matin), et l'infobulle dit
+  « Congé ou maladie » (« absence » veut dire maladie dans la maison) ;
+  « Repos » quitte la légende (une case vide se lit seule) ;
+- bureau : la grille jour par jour ne tenait que la moitié du cadre (cases
+  de 22 px au plus, 900 px de large), et les barres des pauses par mois
+  passent à 34 px.
+Aucun calcul touché, neuf règles à zéro. Vérifié sur LCI et VBN à 320 px
+(hors ligne), 390 et 1280 px, sans débordement ni erreur. Reste, et c'est
+voulu : les congés restants en résumé dans le héros et en tuiles dessous
+(demandé le 13/10, question posée au client).
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
