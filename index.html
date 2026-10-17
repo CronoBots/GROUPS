@@ -3444,7 +3444,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-fonc{font-size:15px; font-weight:650; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou b{color:#fff; font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
-.pf-ou.fo{color:var(--at-jaune)}
+.pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
 .pf-kpi.bon b{color:var(--good)}
@@ -3482,8 +3482,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   border-top:1px solid rgba(255,255,255,.1); border-bottom:1px solid rgba(255,255,255,.1)}
 .pf-st{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:0 4px; text-align:center}
 .pf-st+.pf-st{border-left:1px solid rgba(255,255,255,.08)}
+.pf-st.lg b{font-size:14px; line-height:1.4; letter-spacing:-.02em}
+@media (max-width:380px){ .pf-st.lg b{font-size:12.5px; line-height:1.45} }
+@media (min-width:761px){ .pf-st.lg b{font-size:17px; line-height:1.15} }
 .pf-st b{font:700 17px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
 .pf-st span{font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:rgba(255,255,255,.58); white-space:nowrap}
+@media (max-width:380px){ .pf-st span{white-space:normal; line-height:1.15; letter-spacing:.02em} }
 @media (max-width:380px){ .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
   .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:36px} .pf-prof .pf-poste{font-size:17px} .pf-prof .pf-tri{font-size:19px} .pf-st b{font-size:15px} .pf-st span{font-size:9px} }
 @media (min-width:761px){ .pf-couv{aspect-ratio:auto; height:240px; background-position:100% 100%} .pf-roue{top:14px; left:14px} .pf-prof{padding:0 20px; margin-top:-40px}
@@ -9806,6 +9810,44 @@ function _pfPartenaire(db,p){
   db.people.forEach(function(x){ if(x.id!==p.id && _pfBinome(x)===bn) out.push(idLisible(x.id)); });
   return out.join(", ");
 }
+/* LE BINÔME AVEC QUI TOURNE L'ÉQUIPE D'UN OPÉRATEUR (le client, le
+   17/10/2026 : « les opérateurs doivent voir leur équipe et le binôme avec
+   qui ils tournent ; on se fout du numéro de binôme, le plus important ce
+   sont les initiales »). Les équipes tournent sur 5 semaines, les binômes
+   sur 6 : le binôme change d'une semaine à l'autre. On prend le premier jour,
+   à partir d'aujourd'hui, où l'équipe est en AM, PM ou N (equipeALaPause(),
+   le cycle de l'équipe), et les cadres dont la cellule franche (la rotation
+   PRÉVUE, pas les remplacements) écrit cette pause. Sur les quatre premiers
+   jours de SEMAINE seulement : le week-end, les cadres tournent autrement
+   (le samedi 17/10, l'équipe 2 était au matin avec l'adjoint du binôme 3,
+   alors qu'elle tourne la semaine avec GPS). Le binôme qui réunit le plus
+   de voix l'emporte. Rend les trigrammes, contremaître d'abord. */
+function _pfBinomeEquipe(p,eq){
+  eq=String(eq||"").replace(/\D+/g,""); if(!eq || typeof equipeALaPause!=="function") return null;
+  var ju=jourUsine(), k, d, an, db, mm, pv, vote={}, best=null, bs=0, pause, x, n=0, dbB=null;
+  for(k=0;k<28 && n<4;k++){
+    d=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()+k); an=d.getFullYear();
+    if(d.getDay()===0 || d.getDay()===6) continue;
+    db=(typeof horaireDe==="function")?horaireDe(an):null; if(!db) continue;
+    pause=equipeALaPause(db,an,d.getMonth()+1,d.getDate()); pv=null;
+    for(x in pause){ if(pause.hasOwnProperty(x) && String(pause[x]).split("/").indexOf(eq)>=0) pv=x; }
+    if(!pv || pv==="D") continue;
+    mm=pad2(d.getMonth()+1)+pad2(d.getDate()); n++; dbB=db;
+    db.people.forEach(function(c){
+      if(!estCadre(c)) return;
+      var bn=_pfBinome(c); if(!bn) return;
+      var e=c.d&&c.d[mm]; if(!e) return;
+      var fr=((typeof e==="string"?e:e[0])||"").trim();
+      if(fr===pv) vote[bn]=(vote[bn]||0)+1;
+    });
+  }
+  for(x in vote){ if(vote.hasOwnProperty(x) && vote[x]>bs){ bs=vote[x]; best=x; } }
+  if(!best) return null;
+  /* tout le binôme, même celui qui manque ce jour-là */
+  var tous=dbB.people.filter(function(c){ return estCadre(c) && _pfBinome(c)===best; });
+  tous.sort(function(a,b){ return (estContremaitre(b)?1:0)-(estContremaitre(a)?1:0); });
+  return {tri:tous.map(function(c){ return idLisible(c.id); })};
+}
 /* La marque seule (le dessin du logo, sans le mot), pour la bannière du héros. */
 function _pfHead(db,p){
   var tri=idLisible(p.id);
@@ -9888,10 +9930,15 @@ function _pfHead(db,p){
      libre. Les mêmes informations qu'avant, rien de calculé en plus. */
   var stats=[];
   if(cadre){
-    if(bn) stats.push([esc(String(bn).replace(/^Binôme\s*/i,"")),"Binôme"]);
+    /* pas de numéro de binôme (le client, le 17/10/2026 : « pour adjoint et
+       contremaître, le numéro de binôme dans le héros est inutile ») */
     var pa2=_pfPartenaire(db,p);
     if(pa2) stats.push([esc(pa2),estContremaitre(p)?"Adjoint":"Contremaître"]);
-  } else if(eq&&eq!=="—") stats.push([esc(String(eq).replace(/^Équipe\s*/i,"")),"Équipe"]);
+  } else if(eq&&eq!=="—"){
+    stats.push([esc(String(eq).replace(/^Équipe\s*/i,"")),"Équipe"]);
+    var bq=_pfBinomeEquipe(p,eq);
+    if(bq && bq.tri.length) stats.push([esc(bq.tri.join("\u200a·\u200a")),"Binôme",' lg" title="Le binôme qui tourne avec l\'équipe '+esc(String(eq).replace(/^Équipe\s*/i,""))+' : '+esc(bq.tri.join(" et "))]);
+  }
   if(!(typeof estContremaitre==="function"&&estContremaitre(p))){
     var at=(p.poly&&p.poly.ateliers)||[], np=0;
     at.forEach(function(a){ if(!polyFinie(p,a)) np++; });
@@ -9909,7 +9956,7 @@ function _pfHead(db,p){
     +'<div class="pf-hmeta"><span class="pf-poste">'+bio+'</span>'
     +(st?'<span class="pf-st2'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')
     +(fo?'<span class="pf-ou fo">'+ou+'</span>':'')+'</div></div>'
-    +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
+    +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st'+(x[2]||'')+'"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
     +h+'<div class="ry-an pf-an" id="ryAn"></div><div class="pf-bas"></div></div>';
 }
 document.addEventListener("click",function(e){
