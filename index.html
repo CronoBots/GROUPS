@@ -612,6 +612,7 @@ body{overflow-x:clip}
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink)}
 .cpt-t span{font-size:10.5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--faint);
   text-align:right}
+@media (max-width:380px){ .cpt-t{flex-direction:column; align-items:flex-start; gap:2px} .cpt-t span{text-align:left} }
 .cpt-n{margin:8px 0 0; font-size:11.5px; line-height:1.5; color:var(--muted)}
 /* Congés : une tuile par code, le restant en jours en grand (16/10/2026) */
 .cg-grille{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
@@ -620,6 +621,7 @@ body{overflow-x:clip}
   background:var(--surface2); border:1px solid var(--line); border-radius:12px}
 .cg-t{display:flex; align-items:center; gap:7px; min-width:0}
 .cg-t .cpt-code{width:auto; min-width:40px}
+.cpt-code{white-space:nowrap}
 .cg-n{font-size:11.5px; font-weight:600; color:var(--muted); min-width:0; line-height:1.25;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 .cg-rs{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-top:2px}
@@ -3487,7 +3489,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (min-width:761px){ .pf-st.lg b{font-size:17px; line-height:1.15} }
 .pf-st b{font:700 17px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
 .pf-st span{font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:rgba(255,255,255,.58); white-space:nowrap}
-@media (max-width:380px){ .pf-st span{white-space:normal; line-height:1.15; letter-spacing:.02em} }
+@media (max-width:760px){ .pf-st span{white-space:normal; line-height:1.15; letter-spacing:.02em} }
 @media (max-width:380px){ .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
   .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:36px} .pf-prof .pf-poste{font-size:17px} .pf-prof .pf-tri{font-size:19px} .pf-st b{font-size:15px} .pf-st span{font-size:9px} }
 @media (min-width:761px){ .pf-couv{aspect-ratio:auto; height:240px; background-position:100% 100%} .pf-roue{top:14px; left:14px} .pf-prof{padding:0 20px; margin-top:-40px}
@@ -3552,8 +3554,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
-.cpt-lien{display:inline-flex; margin-top:10px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
-  background:var(--surface2); color:var(--in); font:600 12.5px inherit; font-family:inherit; cursor:pointer}
+.cpt-lien{display:inline-flex; margin-top:8px; padding:4px 0; border:0; background:none; color:var(--in);
+  font:600 12px inherit; font-family:inherit; cursor:pointer}
 .ry-panel{min-width:0}
 .ry-hm-box{padding:4px 16px 2px; display:flex; flex-direction:column; gap:3px; max-width:620px}
 .ry-hm-l{display:flex; align-items:center; gap:6px}
@@ -3563,7 +3565,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
 .ry-hm-e{background:transparent}
 .ry-hm-c.s-n{background:var(--n)} .ry-hm-c.s-am{background:var(--am)} .ry-hm-c.s-pm{background:var(--pm)} .ry-hm-c.s-d{background:var(--d)}
-.ry-hm-c.s-abs{background:var(--out)} .ry-hm-c.s-rep{background:var(--surface3)}
+.ry-hm-c.s-abs{background:transparent; box-shadow:inset 0 0 0 1.5px var(--muted)}
+.ry-dot.abs{background:transparent!important; box-shadow:inset 0 0 0 1.5px var(--muted)}
+@media (min-width:761px){ .ry-hm-box{max-width:900px} .ry-hm-c{max-height:22px} .ry-bar>span{max-width:34px} } .ry-hm-c.s-rep{background:var(--surface3)}
 .ry-bloc{padding:0 16px}
 .ry-bloc .ry-h2{padding:16px 0 4px}
 .ry-legs-l{justify-content:flex-start; max-width:none; margin-top:9px; gap:6px 14px}
@@ -9494,7 +9498,7 @@ function ryBarsPauses(pm){
   }
   return out;
 }
-function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé / absence",R:"Repos"})[t]||t; }
+function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé ou maladie",R:"Repos"})[t]||t; }
 /* Barres d'un tableau de 12 mois (cliquables → ouvre le mois). */
 /* Calendrier annuel : une case par jour, colorée par pause/absence/repos. */
 function ryHeatmap(s){
@@ -9515,8 +9519,11 @@ function ryHeatmap(s){
     }
     rows+='<div class="ry-hm-l"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
   }
-  var lg=[["--n","Nuit"],["--am","Matin"],["--pm","Après-m."],["--d","Jour"],["--out","Congé"],["--surface3","Repos"]]
-    .map(function(x){return '<span class="ry-leg"><span class="ry-dot" style="background:var('+x[0]+')"></span>'+x[1]+'</span>';}).join("");
+  /* Les codes et l'ordre des autres légendes (AM, PM, N, D) ; le congé ou
+     la maladie en contour neutre, comme au calendrier du mois : en orange,
+     il se confondait avec le matin (passe du 17/10/2026). */
+  var lg=[["--am","AM"],["--pm","PM"],["--n","N"],["--d","D"],["","Congé ou maladie"]]
+    .map(function(x){return '<span class="ry-leg"><span class="ry-dot'+(x[0]?'" style="background:var('+x[0]+')"':' abs"')+'></span>'+x[1]+'</span>';}).join("");
   return '<div class="ry-hm-box">'+rows+'</div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
 }
 /* Congés RESTANTS à prendre : UNE seule courbe, tous types combinés, qui part du
@@ -9868,7 +9875,7 @@ function _pfHead(db,p){
     var kt=(typeof posteAttitre==="function")?posteAttitre(p):null, kf=null;
     if(!kt && typeof posteDeFormation==="function") kf=posteDeFormation(p);
     var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(kt||kf)) P0=P; });
-    var mo=[]; if(eq&&eq!=="—") mo.push(eq);
+    var mo=[];
     if(P0 && kt) role=P0.t;
     if(P0 && kf){ mo.push("En formation · "+P0.t); fo=true; }
     ou=esc(mo.join(" · "));
@@ -16462,10 +16469,16 @@ function renderCompteurs(){
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
     if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
-    /* Récup. HS : le classeur ne note que les reprises, pas le solde. */
+    /* Récup. HS : le classeur ne note que les reprises, pas le solde. Les
+       journées entières (« RHS ») et les reprises partielles (« 1h rhs »)
+       sont lues par deux chemins : la tuile les additionne (passe du
+       17/10/2026 : elle disait « 1 h » quand la liste du bas disait
+       « RHS 2 j · 16 h »), et la liste ne les redit plus. */
+    var rhsJ=calc.abs.RHS||0, rhsT=R(calc.rhs+rhsJ,2); dejaVu.RHS=1;
     ft.push('<div class="cg-l hr-t"><div class="cg-t"><span class="cpt-code">RHS</span><span class="cg-n">Récup. heures sup.</span></div>'
-      +'<div class="cg-rs"><b>'+num(R(calc.rhs,2))+'<i>h</i></b><em>reprises en '+annee+'</em></div>'
-      +'<div class="cg-d">Le solde n\'est pas dans le classeur : seules les reprises y sont notées.</div></div>');
+      +'<div class="cg-rs"><b>'+num(rhsT)+'<i>h</i></b><em>reprises en '+annee+'</em></div>'
+      +'<div class="cg-d">'+(rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+'</b> j entières · <b>'+num(R(calc.rhs,2))+'</b> h en partie. ':'')
+      +'Le solde n\'est pas dans le classeur.</div></div>');
     h.push(bloc("Heures","flex time · bornes −8 h à 104 h",'<div class="cg-grille hr-grille">'+ft.join("")+'</div>'
       +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
 
@@ -16500,15 +16513,15 @@ function renderCompteurs(){
     if(!cmP && person.poly && person.poly.ateliers && person.poly.ateliers.length){
       h.push(bloc("Polyvalence",person.poly.degre?"degré "+person.poly.degre:"",
         '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; }); return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</div>'
-        +'<button type="button" class="cpt-lien" data-go="equipe">Voir mon recyclage ›</button>'));
+        +'<button type="button" class="cpt-lien" data-go="equipe">Mon recyclage ›</button>'));
     }
 
     /* --- congés et maladie de l'année --- */
     /* Les codes déjà comptés plus haut (congés, temps réduit) ne se redisent
        pas : il reste la maladie et le reste (audit du 10/10/2026). */
-    var cles=Object.keys(calc.abs).filter(function(k){ return !dejaVu[k]; }).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
+    var cles=Object.keys(calc.abs).filter(function(k){ return !dejaVu[k] && !dejaVu[k.replace(/^1\/2\s*/,"")]; }).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
     if(cles.length){
-      h.push(bloc("Maladie et autres absences","journées lues dans l'horaire",
+      h.push(bloc("Maladie et autres absences","",
         '<div class="cpt-liste">'+cles.map(function(k){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
           return '<div class="cpt-li"><span class="cpt-lib"><span class="cpt-code">'+esc(k)+'</span>'+(l===k?'':esc(l))+'</span>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
