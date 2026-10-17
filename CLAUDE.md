@@ -4610,6 +4610,20 @@ sur VBN, trois journées en attente, à 320 px (hors ligne), 390 et
 1280 px : badge à 8 px de la roue, sous-titre sur une ligne, Échap
 referme, « Vu » efface et rien ne revient au rechargement, aucune erreur.
 
+**L'invitation à installer, au bas de l'Accueil** (le client, le 17/10/2026,
+capture de l'iPhone : « le cadre Installer l'application dans le bas de
+l'Accueil, et optimise car on ne sait pas tout lire »). Le sous-titre était
+coupé par des points de suspension (« En trois gestes : le guide v… ») : la
+carte empruntait le style des notifications, qui coupe le sous-titre à une
+ligne. Elle devient un cadre ordinaire, placé après l'agenda : l'icône, le
+titre et un texte qui passe à la ligne, la croix en haut à droite, puis
+« Installer » sur toute la largeur. Les textes sont plus courts : « Trois
+gestes, le guide vous les montre. », ou « Sur l'écran d'accueil, plein écran
+et hors ligne. » quand Android propose l'installation. Mesuré à 320 px (hors
+ligne) et 390 px en iPhone : aucun texte coupé, rien ne déborde, et le
+bouton ouvre le guide. Au bureau, la carte reste cachée sans invite du
+système, comme avant.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
