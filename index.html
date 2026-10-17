@@ -1017,12 +1017,27 @@ body{overflow-x:clip}
 .mc-j[data-s="PM"]{background:var(--pm-soft)} .mc-j[data-s="PM"] .mc-t{color:var(--pm)}
 .mc-j[data-s="N"] {background:var(--n-soft)}  .mc-j[data-s="N"]  .mc-t{color:var(--n)}
 .mc-j[data-s="D"] {background:var(--d-soft)}  .mc-j[data-s="D"]  .mc-t{color:var(--d)}
+/* LES COULEURS DES BADGES (le client, le 17/10/2026 : « dans le calendrier
+   il faut que les couleurs de pauses soient les mêmes que les badges ») :
+   la pause s'écrit dans la pastille pleine du héros et des notifications
+   (--cal-*), sur un fond teinté de la même couleur. D est vert, comme
+   partout ailleurs, et non plus gris. */
+.mc-j[data-s] .mc-t{padding:1px 7px; border-radius:99px; line-height:1.35}
+.mc-j[data-s="AM"]{background:color-mix(in srgb,var(--cal-am) 20%,var(--surface))} .mc-j[data-s="AM"] .mc-t{background:var(--cal-am); color:var(--cal-am-ink)}
+.mc-j[data-s="PM"]{background:color-mix(in srgb,var(--cal-pm) 20%,var(--surface))} .mc-j[data-s="PM"] .mc-t{background:var(--cal-pm); color:var(--cal-pm-ink)}
+.mc-j[data-s="N"]{background:color-mix(in srgb,var(--cal-n) 26%,var(--surface))} .mc-j[data-s="N"] .mc-t{background:var(--cal-n); color:var(--cal-n-ink)}
+.mc-j[data-s="D"]{background:color-mix(in srgb,var(--cal-d) 24%,var(--surface))} .mc-j[data-s="D"] .mc-t{background:var(--cal-d); color:var(--cal-d-ink)}
 /* Le poste « D » est gris : une absence en gris pâle lui ressemblait trop.
    Le trait discontinu, lui, ne ressemble à aucun poste — il dit « rien n'a
    été presté ce jour-là » sans avoir à comparer deux gris. */
 .mc-j.abs{background:none; border-style:dashed; border-color:var(--line)}
 .mc-j.abs .mc-t{color:var(--muted)}
 .mc-j.abs .mc-n{color:var(--faint)}
+/* La maladie ne se lit pas comme un congé (le client, le 17/10/2026) :
+   contour rouge en tirets, code en rouge. */
+.mc-j.abs.mal{border-color:#E5574D; background:rgba(214,58,48,.08)}
+.mc-j.abs.mal .mc-t{color:#F07A70}
+.mc-leg .lg-mal{background:rgba(214,58,48,.08); border:1px dashed #E5574D; box-shadow:none}
 /* barré : ce qui était au programme et n'a pas eu lieu */
 .mc-j.prevu .mc-t,.cal button.prevu .tag,.mois .jours button.prevu i,
 .mc-leg s{text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--faint)}
@@ -1043,7 +1058,9 @@ body{overflow-x:clip}
   .moiscal{padding:10px 10px 14px}
   .mc-tete,.mc-sem{grid-template-columns:repeat(7,minmax(0,1fr)) 30px; gap:4px}
   .mc-j{min-height:48px; border-radius:9px}
+  .mc-j[data-s] .mc-t{padding:1px 4px; max-width:100%; overflow:hidden; text-overflow:clip}
 }
+@media (max-width:360px){ .mc-t{font-size:9px; letter-spacing:0} .mc-j[data-s] .mc-t{padding:1px 3px} }
 
 .mc-leg{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:13px; padding-top:12px;
   border-top:1px solid var(--line2); font-size:11px; color:var(--muted)}
@@ -1053,6 +1070,8 @@ body{overflow-x:clip}
 .mc-leg i[data-s="PM"]{background:var(--pm-soft); box-shadow:inset 0 0 0 1.5px var(--pm)}
 .mc-leg i[data-s="N"] {background:var(--n-soft);  box-shadow:inset 0 0 0 1.5px var(--n)}
 .mc-leg i[data-s="D"] {background:var(--d-soft);  box-shadow:inset 0 0 0 1.5px var(--d)}
+.mc-leg i[data-s="AM"]{background:var(--cal-am); box-shadow:none} .mc-leg i[data-s="PM"]{background:var(--cal-pm); box-shadow:none}
+.mc-leg i[data-s="N"]{background:var(--cal-n); box-shadow:none} .mc-leg i[data-s="D"]{background:var(--cal-d); box-shadow:none}
 .mc-leg .lg-abs{background:var(--surface2); box-shadow:inset 0 0 0 1px var(--line)}
 .mc-leg .lg-jour{background:var(--d-soft); box-shadow:inset 0 -3px 0 var(--n)}
 .mc-leg .lg-pt{width:6px; height:6px; border-radius:50%}
@@ -1076,6 +1095,8 @@ body{overflow-x:clip}
 #calCard .mc-j.repos .mc-n{color:var(--faint)}
 @media(hover:hover){ #calCard .mc-j.repos:hover{border-color:var(--line2)} }
 #calCard .mc-j.abs{border-color:var(--line2)}
+#calCard .mc-j.abs.mal{border-color:#E5574D}
+@media (max-width:360px){ #calCard .mc-t{font-size:9.5px; letter-spacing:0} }
 #calCard .mc-j.auj{outline:2px solid var(--in); outline-offset:-2px}
 #calCard .mc-j.auj .mc-n{background:var(--in); color:var(--sur-in); border-radius:6px; padding:0 4px; font-weight:700}
 #calCard .mc-sem>.mc-hcol{justify-content:center; border-left:1px solid var(--line2); font-size:10.5px; color:var(--muted)}
@@ -3609,9 +3630,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
 .ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
 .ry-hm-e{background:transparent}
-.ry-hm-c.s-n{background:var(--n)} .ry-hm-c.s-am{background:var(--am)} .ry-hm-c.s-pm{background:var(--pm)} .ry-hm-c.s-d{background:var(--d)}
+.ry-hm-c.s-n{background:var(--cal-n)} .ry-hm-c.s-am{background:var(--cal-am)} .ry-hm-c.s-pm{background:var(--cal-pm)} .ry-hm-c.s-d{background:var(--cal-d)}
 .ry-hm-c.s-abs{background:transparent; box-shadow:inset 0 0 0 1.5px var(--muted)}
 .ry-dot.abs{background:transparent!important; box-shadow:inset 0 0 0 1.5px var(--muted)}
+/* La maladie se distingue du congé (le client, le 17/10/2026 : « ne pas faire
+   les congés et maladies de la même manière ») : contour et hachures rouges. */
+.ry-hm-c.s-mal,.ry-dot.mal{background:repeating-linear-gradient(135deg,rgba(214,58,48,.55) 0 2px,transparent 2px 4px)!important; box-shadow:inset 0 0 0 1.5px #E5574D}
 @media (min-width:761px){ .ry-hm-box{max-width:900px} .ry-hm-c{max-height:22px} .ry-bar>span{max-width:34px} } .ry-hm-c.s-rep{background:var(--surface3)}
 .ry-bloc{padding:0 16px}
 .ry-bloc .ry-h2{padding:16px 0 4px}
@@ -5958,7 +5982,7 @@ function caseJour(d){
   var tag=preste?marqueDoute(rec,(rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
-  if(!preste&&rec.a&&ABSMAP[rec.a]) cls.push("abs");
+  if(!preste&&rec.a&&ABSMAP[rec.a]){ cls.push("abs"); if(ABSMAP[rec.a].k==="SMG") cls.push("mal"); }
   if(prevu) cls.push("abs","prevu");
   if(preste&&(rec.j||rec.sp)) cls.push("jour");
   if(fer) cls.push("fer");
@@ -6026,12 +6050,12 @@ function renderRota(){
    qu'avec ce que le mois contient vraiment. */
 function legendeMois(){
   var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
-  var vus={}, abs=false, jour=false, velo=false, rap=false, part=false, prevu=false;
+  var vus={}, abs=false, mal=false, jour=false, velo=false, rap=false, part=false, prevu=false;
   for(d=1; d<=nd; d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
     if(preste) vus[rec.j?"D":rec.s]=1;
-    else if(rec.a&&ABSMAP[rec.a]) abs=true;
+    else if(rec.a&&ABSMAP[rec.a]){ if(ABSMAP[rec.a].k==="SMG") mal=true; else abs=true; }
     else if(rec.s) prevu=true;
     if(preste&&rec.j) jour=true;
     if(preste&&rec.a) part=true;
@@ -6042,7 +6066,8 @@ function legendeMois(){
   ["AM","PM","N","D"].forEach(function(k){
     if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
   });
-  if(abs)  h.push('<span><i class="lg-abs"></i>Congé ou maladie</span>');
+  if(abs)  h.push('<span><i class="lg-abs"></i>Congé</span>');
+  if(mal)  h.push('<span><i class="lg-mal"></i>Maladie</span>');
   if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu non presté</span>');
   if(jour) h.push('<span><i class="lg-jour"></i>Prime conservée</span>');
   if(part) h.push('<span><i class="lg-pt lg-part"></i>Heures en ±</span>');
@@ -9528,7 +9553,7 @@ function statsRythme(db,person,y){
         if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) feriesT++;
         /* calendrier : un congé JOUR ENTIER prime sur la pause d'équipe notée. */
         cal.push(cj&&cj.h>=8 ? "A" : pv);
-      } else if(rec.a){ absence++; seq.push("A"); cal.push("A"); }
+      } else if(rec.a){ absence++; seq.push("A"); cal.push(ABSMAP[rec.a]&&ABSMAP[rec.a].k==="SMG"?"M":"A"); }
       else { repos++; seq.push("R"); cal.push(cj&&cj.h>=8?"A":"R"); }
     }
   }
@@ -9557,12 +9582,12 @@ function ryBarsPauses(pm){
     var tot=pm.AM[m]+pm.PM[m]+pm.N[m]+pm.D[m];
     out+='<button type="button" class="ry-bar ry-barp" data-m="'+m+'" title="'+esc(MOIS[m])+' : '+pm.AM[m]+' AM · '+pm.PM[m]+' PM · '+pm.N[m]+' N · '+pm.D[m]+' D — voir le mois">'
       +'<span class="ry-pile" style="height:'+Math.round(tot/mx*100)+'%">'+ordre.map(function(g){
-        return pm[g][m]?'<u style="flex:'+pm[g][m]+';background:var(--'+C[g]+')"></u>':""; }).join("")
+        return pm[g][m]?'<u style="flex:'+pm[g][m]+';background:var(--cal-'+C[g]+')"></u>':""; }).join("")
       +'</span><i>'+RY_MC[m]+'</i></button>';
   }
   return out;
 }
-function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé ou maladie",R:"Repos"})[t]||t; }
+function ryTypeLabel(t){ return ({N:"Nuit",AM:"Matin",PM:"Après-midi",D:"Jour",A:"Congé",M:"Maladie",R:"Repos"})[t]||t; }
 /* Barres d'un tableau de 12 mois (cliquables → ouvre le mois). */
 /* Calendrier annuel : une case par jour, colorée par pause/absence/repos. */
 function ryHeatmap(s){
@@ -9576,7 +9601,7 @@ function ryHeatmap(s){
     for(d=1;d<=31;d++){
       if(d>nd){ cells+='<span class="ry-hm-c ry-hm-e"></span>'; continue; }
       var t=seq[i++], dt=new Date(y,m,d);
-      var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":"s-rep");
+      var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":(t==="M"?"s-mal":"s-rep"));
       var auj=(ju.getFullYear()===y&&ju.getMonth()===m&&ju.getDate()===d)?" auj":"";
       var we=(dt.getDay()===0||dt.getDay()===6)?" we":"";
       cells+='<span class="ry-hm-c '+cls+auj+we+'" title="'+esc(d+" "+MOIS[m]+" — "+ryTypeLabel(t))+'"></span>';
@@ -9586,8 +9611,8 @@ function ryHeatmap(s){
   /* Les codes et l'ordre des autres légendes (AM, PM, N, D) ; le congé ou
      la maladie en contour neutre, comme au calendrier du mois : en orange,
      il se confondait avec le matin (passe du 17/10/2026). */
-  var lg=[["--am","AM"],["--pm","PM"],["--n","N"],["--d","D"],["","Congé ou maladie"]]
-    .map(function(x){return '<span class="ry-leg"><span class="ry-dot'+(x[0]?'" style="background:var('+x[0]+')"':' abs"')+'></span>'+x[1]+'</span>';}).join("");
+  var lg=[["--cal-am","AM"],["--cal-pm","PM"],["--cal-n","N"],["--cal-d","D"],["abs","Congé"],["mal","Maladie"]]
+    .map(function(x){return '<span class="ry-leg"><span class="ry-dot'+(x[0].charAt(0)==="-"?'" style="background:var('+x[0]+')"':' '+x[0]+'"')+'></span>'+x[1]+'</span>';}).join("");
   return '<div class="ry-hm-box">'+rows+'</div><div class="ry-legs ry-legs-hm">'+lg+'</div>';
 }
 /* Congés RESTANTS à prendre : UNE seule courbe, tous types combinés, qui part du
@@ -10015,8 +10040,10 @@ function _pfHead(db,p){
     at.forEach(function(a){ if(!polyFinie(p,a)) np++; });
     stats.push([String(np),np>1?"Polyvalences":"Polyvalence"]);
   }
-  if(inf.weekend) var wd=inf.weekend.d, wm=MOIS[wd.getMonth()].toLowerCase();
-  stats.push([wd.getDate()+"\u00a0"+(wm.length>4?wm.slice(0,wm==="juillet"?4:3)+".":wm),"Week-end libre"]);
+  /* Sans week-end libre à venir (malade jusqu'à la fin de l'horaire), pas de
+     case : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
+  if(inf.weekend){ var wd=inf.weekend.d, wm=MOIS[wd.getMonth()].toLowerCase();
+    stats.push([wd.getDate()+"\u00a0"+(wm.length>4?wm.slice(0,wm==="juillet"?4:3)+".":wm),"Week-end libre"]); }
   var bio=esc(role);
   return '<div class="pf-hero">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
@@ -11194,7 +11221,7 @@ function renderRythme(){
     +'<div class="ry-chart-t ry-h2">Pauses par mois <span class="ry-hint">touchez un mois</span></div>'
     +'<div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div>'
     +'<div class="ry-legs ry-legs-l">'+[["am","AM"],["pm","PM"],["n","N"],["d","D"]].map(function(x){
-      return '<span class="ry-leg"><span class="ry-dot" style="background:var(--'+x[0]+')"></span>'+x[1]+'</span>'; }).join("")+'</div>'
+      return '<span class="ry-leg"><span class="ry-dot" style="background:var(--cal-'+x[0]+')"></span>'+x[1]+'</span>'; }).join("")+'</div>'
     +'<p class="ry-insight">'+ryInsight(s)+'</p>'
     +'</div>'
     +'<div class="ry-sep"></div>'
