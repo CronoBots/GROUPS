@@ -4498,6 +4498,28 @@ Aucun calcul touché, neuf règles à zéro. Vérifié sur LCI et VBN à 320 px
 voulu : les congés restants en résumé dans le héros et en tuiles dessous
 (demandé le 13/10, question posée au client).
 
+**Le guide d'installation** (le client, le 17/10/2026 : « l'app amène à
+l'explication d'installation complète, professionnelle et intuitive de l'app
+sur mobile ? »). Non : la carte du 10/10 ne disait qu'une ligne à l'iPhone,
+rien à un Android sans invite du système, rien sur l'écran de connexion, et
+plus rien une fois masquée. `guideInstall()` ouvre une fenêtre (du bas sur
+téléphone, au centre au bureau) : un onglet iPhone / Android choisi selon
+l'appareil, les étapes numérotées avec le pictogramme du bouton à toucher
+(Partager, Sur l'écran d'accueil, menu ⋮, menu de Samsung Internet), la
+variante de Chrome ou Firefox sur iPhone (iOS 16.4 et plus), le bouton
+« Installer maintenant » quand Android l'offre, et ce que l'installation
+apporte. **Une messagerie (WhatsApp, Messenger, Instagram…) ne sait pas
+installer** : le guide le dit d'abord, avec « Ouvrir dans Safari » et
+« Copier le lien ». **Sur iPhone, l'application installée ne partage pas la
+mémoire de Safari** : la dernière étape prévient que la connexion se refait
+une fois. Le guide s'ouvre depuis l'écran de connexion (« Installer
+l'application sur mon téléphone »), la carte de l'Accueil (« Comment
+faire ») et les Réglages (« Application sur l'écran d'accueil », qui dit
+aussi si elle est installée). Vérifié en iPhone Safari à 320 px (hors
+ligne) et 390, Android Chrome et WhatsApp à 390, bureau à 1280 : rien ne
+déborde, Échap et la croix ferment. Seul un vrai téléphone dira si les
+libellés de son système sont exactement ceux-là.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
