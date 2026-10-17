@@ -4668,9 +4668,8 @@ Puis (le client, le même jour : « dans jour par jour ajouter la ligne avec
 les numéros de jours au-dessus et supprimer l'explication ; séparer le
 cadre calendrier du héros juste après la progression de cycle ») : la
 grille « Jour par jour » a une ligne de numéros au-dessus (`.ry-hm-n`),
-tous au bureau, 1, 5, 10… 30 et un point entre sur téléphone, où les
-nombres à deux chiffres se chevaucheraient ; le jour courant y est en
-clair. « chaque case = un jour » est retiré. Le héros et le cadre du mois
+le jour courant en clair (d'abord 1, 5, 10… 30 seulement sur téléphone,
+puis les 31, voir plus bas). « chaque case = un jour » est retiré. Le héros et le cadre du mois
 ne sont plus soudés (la règle du 16/10 est retirée) : deux cadres, 16 px
 d'écart, chacun ses coins et son ombre. Vérifié à 320 px (hors ligne),
 390 et 1280 px ; neuf règles à zéro.
@@ -4696,6 +4695,15 @@ puis ATA · JBI, BLR GPS (le binôme 2 n'a pas d'adjoint) puis FLI · FPA ;
 SLI, sans cycle calé, n'a ni l'un ni l'autre. À 320 px, une pastille longue
 passe sous le titre. Vérifié à 320 px (hors ligne), 390 et 1280 px, sans
 débordement ni erreur ; neuf règles à zéro.
+
+Puis (le client, le même jour : « la hauteur de la ligne des cases des
+cycles doit être la même que celle de l'année ; les jours ne sont pas tous
+affichés dans la ligne des jours ») : les cases des deux frises font 8 px
+de haut, comme la barre de « Mon année », et la semaine en cours n'est plus
+qu'un contour, sans marge qui grandirait la frise. La ligne des numéros de
+« Jour par jour » écrit désormais les 31 jours, aussi sur téléphone :
+chiffres resserrés (7 px sous 380 px, 8,5 px au-delà, 10 px au bureau).
+Vérifié à 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
