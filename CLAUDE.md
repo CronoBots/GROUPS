@@ -4675,6 +4675,28 @@ ne sont plus soudés (la règle du 16/10 est retirée) : deux cadres, 16 px
 d'écart, chacun ses coins et son ombre. Vérifié à 320 px (hors ligne),
 390 et 1280 px ; neuf règles à zéro.
 
+Puis (le client, le même jour : « faire pareil avec le prochain cycle, et
+à chaque fois indiquer à droite l'équipe avec laquelle on travaille si
+c'est la fiche d'un contremaître ou adjoint, ou les trigrammes du CM et de
+l'adjoint si c'est un opérateur ») : une seconde frise, « Mon prochain
+cycle », commence le lendemain du dernier jour du cycle en cours, même
+longueur et même calage ; ses jours ne sont pas pâlis, tous étant à venir,
+et sa légende dit les journées à prester. La semaine du cycle passe à côté
+du titre, en petit. À droite de chaque titre, une pastille cyan
+(`cycleAvec()`) : pour un cadre, l'équipe que son cycle met à sa pause
+(`equipeALaPause()`) ; pour un opérateur, le contremaître et l'adjoint dont
+la cellule franche porte sa pause (la lecture de `_pfBinomeEquipe()`).
+Seuls les jours de semaine où la cellule franche prévoit AM, PM ou N
+comptent (le week-end, les cadres tournent autrement). Les cycles de 5 et
+6 semaines glissent l'un sur l'autre : quand le partenaire change en cours
+de cycle et pèse au moins un quart des jours, la pastille écrit « A → B »
+dans l'ordre (la STEP : « ATA · JBI → AFA · YBT »). Mesuré au 17/10 contre
+le classeur : VBN Éq. 5 puis Éq. 1, GPS Éq. 2 puis Éq. 4, LCI AFA · YBT
+puis ATA · JBI, BLR GPS (le binôme 2 n'a pas d'adjoint) puis FLI · FPA ;
+SLI, sans cycle calé, n'a ni l'un ni l'autre. À 320 px, une pastille longue
+passe sous le titre. Vérifié à 320 px (hors ligne), 390 et 1280 px, sans
+débordement ni erreur ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

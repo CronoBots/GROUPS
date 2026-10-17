@@ -3737,9 +3737,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-an{padding:0 12px; margin-top:4px}
 .pf-an .ry-h2{padding:12px 0 0}
 .pf-an .ry-an-p{margin-bottom:0}
-.ry-an-t{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+.ry-an-t{display:flex; flex-wrap:wrap; row-gap:4px; align-items:center; justify-content:space-between; gap:8px}
 .ry-an-t>b{font:700 12px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--ink); white-space:nowrap}
 .pf-an .ry-an-t{padding-top:12px} .pf-an .ry-an-t .ry-h2{padding:0}
+.ry-an-t>b.cy-avec{font:700 11.5px/1.2 "IBM Plex Mono",ui-monospace,monospace; color:var(--marque-vif); flex:0 0 auto; padding:3px 8px; border-radius:99px; background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.3)}
 .cy-fr{display:flex; gap:5px; margin-top:7px}
 .cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:2px; border-radius:6px}
 .cy-s.cour{background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
@@ -11539,7 +11540,56 @@ function cycleActuel(p){
    par semaine, à la couleur de la pause tenue (celle des badges), le congé
    en contour, la maladie en rouge, le repos vide. Les jours passés sont
    pleins, ceux qui viennent pâlis, aujourd'hui cerclé. */
-function ryCycleHTML(p,c){
+/* AVEC QUI L'ON TOURNE PENDANT UN CYCLE (le client, le 17/10/2026 : « à
+   chaque fois indiquer à droite l'équipe avec laquelle on travaille si
+   c'est la fiche d'un contremaître ou adjoint, ou les trigrammes du CM et
+   de l'adjoint si c'est un opérateur »). Les jours de semaine du cycle où
+   la cellule franche de la personne prévoit AM, PM ou N : pour un cadre,
+   l'équipe que son cycle met à cette pause (equipeALaPause) ; pour un
+   opérateur, le binôme dont les cadres ont cette pause en cellule franche
+   (la lecture de _pfBinomeEquipe). Le week-end, les cadres tournent
+   autrement : il ne compte pas. Les cycles de 5 et 6 semaines glissent l'un
+   sur l'autre : celui qui change en cours de cycle s'écrit « A → B », dans
+   l'ordre où il vient, s'il pèse au moins un quart des jours. */
+function cycleAvec(p,c){
+  var cadre=estCadre(p), vote={}, ordre=[], n=0, i, d, an, db, mm, me, e, fr, x, k;
+  for(i=0;i<c.L;i++){
+    d=new Date(c.deb.getFullYear(),c.deb.getMonth(),c.deb.getDate()+i);
+    if(d.getDay()===0||d.getDay()===6) continue;
+    an=d.getFullYear(); db=horaireDe(an); if(!db) continue;
+    mm=pad2(d.getMonth()+1)+pad2(d.getDate()); me=null;
+    db.people.forEach(function(q){ if(q.id===p.id) me=q; }); if(!me) continue;
+    e=me.d[mm]; if(!e) continue;
+    fr=((typeof e==="string"?e:e[0])||"").trim();
+    if(!/^(AM|PM|N)$/.test(fr)) continue;
+    var vu={};
+    if(cadre){
+      x=equipeALaPause(db,an,d.getMonth()+1,d.getDate())[fr];
+      if(x) String(x).split("/").forEach(function(q){ vu["Éq. "+q]=1; });
+    } else {
+      db.people.forEach(function(q){
+        if(!estCadre(q)) return; var bn=_pfBinome(q); if(!bn) return;
+        var f=q.d&&q.d[mm]; if(!f) return;
+        if(((typeof f==="string"?f:f[0])||"").trim()===fr) vu[bn]=1;
+      });
+    }
+    var any=false;
+    for(k in vu){ any=true; if(!vote[k]){ vote[k]=0; ordre.push(k); } vote[k]++; }
+    if(any) n++;
+  }
+  if(!n) return "";
+  var garde=ordre.filter(function(k){ return vote[k]>=n/4; });
+  if(garde.length>2) garde=garde.sort(function(a,b){ return vote[b]-vote[a]; }).slice(0,2)
+    .sort(function(a,b){ return ordre.indexOf(a)-ordre.indexOf(b); });
+  if(cadre) return garde.join(" → ");
+  var db0=HORAIRE_DB;
+  return garde.map(function(bn){
+    var tous=db0.people.filter(function(q){ return estCadre(q) && _pfBinome(q)===bn; });
+    tous.sort(function(a,b){ return (estContremaitre(b)?1:0)-(estContremaitre(a)?1:0); });
+    return tous.map(function(q){ return idLisible(q.id); }).join(" · ");
+  }).join(" → ");
+}
+function ryCycleHTML(p,c,titre,prochain){
   var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
   var sem="", cases="", fait=0, avenir=0, i, d, x, cl, ti;
   for(i=0;i<c.L;i++){
@@ -11552,19 +11602,29 @@ function ryCycleHTML(p,c){
     else { cl="s-rep"; ti="Repos"; }
     var t=d.getTime();
     if(pres){ if(t<t0) fait++; else avenir++; }
-    cases+='<span class="cy-c '+cl+(t>t0?' av':'')+(t===t0?' auj':'')+'" title="'+esc(JOURS_LONGS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
-    if(i%7===6||i===c.L-1){ sem+='<span class="cy-s'+(Math.floor(i/7)===Math.floor(c.pos/7)?' cour':'')+'">'+cases+'</span>'; cases=""; }
+    cases+='<span class="cy-c '+cl+(t>t0&&!prochain?' av':'')+(t===t0?' auj':'')+'" title="'+esc(JOURS_LONGS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
+    if(i%7===6||i===c.L-1){ sem+='<span class="cy-s'+(!prochain&&Math.floor(i/7)===Math.floor(c.pos/7)?' cour':'')+'">'+cases+'</span>'; cases=""; }
   }
-  var dm=function(d){ return d.getDate()+"\u00a0"+MOIS_BREF[d.getMonth()]; };
-  var ou=c.L%7===0?"Semaine "+(Math.floor(c.pos/7)+1)+"\u00a0/\u00a0"+(c.L/7):"Jour "+(c.pos+1)+"\u00a0/\u00a0"+c.L;
-  return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">Mon cycle actuel</span><b>'+ou+'</b></div>'
-    +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="Cycle du '+dm(c.deb)+' au '+dm(c.fin)+' : '+fait+' journées prestées, '+avenir+' à venir">'+sem+'</div>'
-    +'<div class="ry-an-leg"><span><b>'+fait+'</b> prestées · <b>'+avenir+'</b> à venir</span><span>'+dm(c.deb)+' – '+dm(c.fin)+'</span></div>';
+  var dm=function(d){ return d.getDate()+" "+MOIS_BREF[d.getMonth()]; };
+  var ou=prochain?(c.L%7===0?(c.L/7)+" semaines":c.L+" jours")
+                 :(c.L%7===0?"semaine "+(Math.floor(c.pos/7)+1)+" / "+(c.L/7):"jour "+(c.pos+1)+" / "+c.L);
+  var av=""; try{ av=cycleAvec(p,c); }catch(e){ av=""; }
+  return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
+    +(av?'<b class="cy-avec" title="'+(estCadre(p)?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')+'</div>'
+    +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="'+titre+' du '+dm(c.deb)+' au '+dm(c.fin)+(av?', avec '+esc(av):'')+'">'+sem+'</div>'
+    +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestées · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+'</span></div>';
 }
 function ryAnneeHTML(p,y){
   var h=ryBarre("Mon année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
-  if(c) h+=ryCycleHTML(p,c);
+  if(c){
+    h+=ryCycleHTML(p,c,"Mon cycle actuel",false);
+    /* le cycle suivant, de la même façon (le client, le 17/10/2026 : « faire
+       pareil avec le prochain cycle ») : il commence le lendemain du dernier
+       jour, même longueur, même calage. */
+    var deb=new Date(c.fin.getFullYear(),c.fin.getMonth(),c.fin.getDate()+1);
+    h+=ryCycleHTML(p,{nom:c.nom,L:c.L,pos:-1,deb:deb,fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+c.L-1)},"Mon prochain cycle",true);
+  }
   return h;
 }
 /* LES PAUSES DE L'ANNÉE, faites et à venir, revenues dans « Mon rythme »
