@@ -3596,13 +3596,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
   background:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
   box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
-/* LE HÉROS ET LE MOIS NE FONT QU'UN CADRE (le client, le 16/10/2026 :
-   « comment combiner le héros avec le cadre calendrier, sans redondance et
-   100 % pro »). Le calendrier se soude sous le héros : coins du bas du héros
-   et du haut du calendrier droits, un seul filet entre les deux, une seule
-   ombre. */
-#rythmeTete:not([hidden]) .pf-hero{border-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0; box-shadow:none}
-#rythmeTete:not([hidden])+#calCard{margin-top:-16px; border-top-left-radius:0; border-top-right-radius:0}
+/* Le héros et le mois ont été soudés en un cadre le 16/10/2026, puis
+   séparés le 17/10/2026 (le client : « séparer le cadre calendrier du héros
+   juste après la progression de cycle ») : deux cadres, l'écart de la pile. */
 .pf-head{position:relative; display:flex; align-items:center; gap:14px; padding:16px 64px 2px 16px}
 .pf-logo{flex:0 0 auto; height:44px; width:auto; display:block}
 .pf-sep{align-self:stretch; width:1px; margin:4px 0; background:rgba(255,255,255,.16)}
@@ -3775,6 +3771,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-hm-l{display:flex; align-items:center; gap:6px}
 .ry-hm-l>i{flex:0 0 10px; font-style:normal; font-size:9px; font-weight:650; color:var(--faint); text-align:center}
 .ry-hm{flex:1 1 auto; min-width:0; display:grid; grid-template-columns:repeat(31,minmax(0,1fr)); gap:2px}
+.ry-hm-n{font:600 8.5px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--faint); text-align:center; overflow:visible; white-space:nowrap}
+.ry-hm-n.auj{color:var(--ink)}
+.ry-hm-n b{font-weight:600} .ry-hm-n em{display:none; font-style:normal}
+@media (min-width:761px){ .ry-hm-n{font-size:10px} .ry-hm-n b{display:none} .ry-hm-n em{display:inline} }
+.ry-hm-tete{margin-bottom:1px}
 .ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
 .ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
 .ry-hm-e{background:transparent}
@@ -9752,6 +9753,12 @@ function ryHeatmap(s){
      côte à côte demandaient 740 px ; 31 colonnes tiennent dans un téléphone,
      et un mois se lit d'un regard, du 1 au 31. Le jour de l'usine est cerclé. */
   var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=jourUsine(), m, d;
+  /* les numéros des jours au-dessus (le client, le 17/10/2026) : tous au
+     bureau ; sur téléphone 1, 5, 10… 30 et un point entre, sinon ils
+     se chevauchent à 320 px */
+  var num="";
+  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+((d===1||d%5===0)?d:'<b>·</b><em>'+d+'</em>')+'</span>';
+  rows+='<div class="ry-hm-l ry-hm-tete"><i></i><div class="ry-hm">'+num+'</div></div>';
   for(m=0;m<12;m++){
     var nd=new Date(y,m+1,0).getDate(), cells="";
     for(d=1;d<=31;d++){
@@ -11604,7 +11611,7 @@ function renderRythme(){
       return '<span class="ry-leg"><span class="ry-dot" style="background:var(--cal-'+x[0]+')"></span>'+x[1]+'</span>'; }).join("")+'</div>'
     +'</div>'
     +'<div class="ry-sep"></div>'
-    +'<div class="ry-chart-t ry-h2">Jour par jour <span class="ry-hint">chaque case = un jour</span></div>'
+    +'<div class="ry-chart-t ry-h2">Jour par jour</div>'
     + ryHeatmap(s);
   Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };

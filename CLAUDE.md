@@ -4664,6 +4664,17 @@ les bornes. Le relais de consignation (10 semaines) prend des cases plus
 fines. Vérifié sur VBN, LCI, CAN, BLR et SKS à 320 px (hors ligne), 390 et
 1280 px, sans débordement ni erreur ; neuf règles à zéro.
 
+Puis (le client, le même jour : « dans jour par jour ajouter la ligne avec
+les numéros de jours au-dessus et supprimer l'explication ; séparer le
+cadre calendrier du héros juste après la progression de cycle ») : la
+grille « Jour par jour » a une ligne de numéros au-dessus (`.ry-hm-n`),
+tous au bureau, 1, 5, 10… 30 et un point entre sur téléphone, où les
+nombres à deux chiffres se chevaucheraient ; le jour courant y est en
+clair. « chaque case = un jour » est retiré. Le héros et le cadre du mois
+ne sont plus soudés (la règle du 16/10 est retirée) : deux cadres, 16 px
+d'écart, chacun ses coins et son ombre. Vérifié à 320 px (hors ligne),
+390 et 1280 px ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
