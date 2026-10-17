@@ -4449,6 +4449,25 @@ a d'abord annulé la règle qui la suivait : un compteur d'accolades ne la voit
 pas, la capture si. Vérifié sur VBN et SKS à 320 px (hors ligne), 390 et
 1280 px, sans débordement ni erreur.
 
+**Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
+héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
+tournent ; on se fout du numéro de binôme, le plus important ce sont les
+initiales », puis « pour adjoint et contremaître, le numéro de binôme dans le
+héros est inutile »). Les chiffres d'un opérateur portent « Équipe » puis
+« Binôme » : les trigrammes du contremaître et de l'adjoint (« AFA · YBT »,
+« GPS » seul pour le binôme 2). `_pfBinomeEquipe()` prend la pause de
+l'équipe par son cycle (`equipeALaPause()`) et les cadres dont la cellule
+franche, la rotation prévue, écrit cette pause, sur les quatre premiers jours
+de SEMAINE à partir d'aujourd'hui. **La première version prenait le premier
+jour venu, un samedi, et donnait un faux binôme à l'équipe 2** (l'adjoint du
+binôme 3, au matin du 18/10 ; elle tourne la semaine avec GPS) : le week-end,
+les cadres tournent autrement. Mesuré au 17/10 contre le classeur : équipe 2
+GPS, équipe 4 ATA · JBI, équipe 5 AFA · YBT. Un cadre ne voit plus que son
+partenaire, sans numéro. Sous 380 px, les intitulés des chiffres passent sur
+deux lignes (« Polyvalence » touchait « Week-end libre »), et la ligne de
+formation aussi (« Distillation » était coupé). Vérifié sur LCI, GJR, PAM,
+AAI, SKS, VBN, ATR et GPS à 320 px (hors ligne), 390 et 1280 px.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
