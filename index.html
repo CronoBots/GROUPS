@@ -3741,11 +3741,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-t>b{font:700 12px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--ink); white-space:nowrap}
 .pf-an .ry-an-t{padding-top:12px} .pf-an .ry-an-t .ry-h2{padding:0}
 .ry-an-t>b.cy-avec{font:700 11.5px/1.2 "IBM Plex Mono",ui-monospace,monospace; color:var(--marque-vif); flex:0 0 auto; padding:3px 8px; border-radius:99px; background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.3)}
-.cy-fr{display:flex; gap:5px; margin-top:7px}
-.cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:2px; border-radius:6px}
-.cy-s.cour{background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
-.cy-c{height:16px; border-radius:3px; background:rgba(255,255,255,.07)}
-.cy-fr.long{gap:3px} .cy-fr.long .cy-s{gap:1px; padding:1px} .cy-fr.long .cy-c{height:13px; border-radius:2px}
+.cy-fr{display:flex; gap:5px; margin-top:6px}
+.cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; border-radius:3px}
+.cy-s.cour{box-shadow:0 0 0 2px rgba(255,255,255,.22)}
+.cy-c{height:8px; border-radius:2px; background:rgba(255,255,255,.07)}
+.cy-fr.long{gap:3px}
 .cy-c.s-am{background:var(--cal-am)} .cy-c.s-pm{background:var(--cal-pm)} .cy-c.s-n{background:var(--cal-n)} .cy-c.s-d{background:var(--cal-d)}
 .cy-c.s-cg{background:transparent; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
 .cy-c.s-mal{background:repeating-linear-gradient(135deg,rgba(214,58,48,.55) 0 2px,transparent 2px 4px); box-shadow:inset 0 0 0 1.5px #E5574D}
@@ -3774,8 +3774,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-hm{flex:1 1 auto; min-width:0; display:grid; grid-template-columns:repeat(31,minmax(0,1fr)); gap:2px}
 .ry-hm-n{font:600 8.5px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--faint); text-align:center; overflow:visible; white-space:nowrap}
 .ry-hm-n.auj{color:var(--ink)}
-.ry-hm-n b{font-weight:600} .ry-hm-n em{display:none; font-style:normal}
-@media (min-width:761px){ .ry-hm-n{font-size:10px} .ry-hm-n b{display:none} .ry-hm-n em{display:inline} }
+.ry-hm-n{letter-spacing:-.06em; margin:0 -2px}
+@media (max-width:380px){ .ry-hm-n{font-size:7px; letter-spacing:-.1em} }
+@media (min-width:761px){ .ry-hm-n{font-size:10px; letter-spacing:0; margin:0} }
 .ry-hm-tete{margin-bottom:1px}
 .ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
 .ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
@@ -9754,11 +9755,10 @@ function ryHeatmap(s){
      côte à côte demandaient 740 px ; 31 colonnes tiennent dans un téléphone,
      et un mois se lit d'un regard, du 1 au 31. Le jour de l'usine est cerclé. */
   var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=jourUsine(), m, d;
-  /* les numéros des jours au-dessus (le client, le 17/10/2026) : tous au
-     bureau ; sur téléphone 1, 5, 10… 30 et un point entre, sinon ils
-     se chevauchent à 320 px */
+  /* les numéros des jours au-dessus, tous (le client, le 17/10/2026) ;
+     resserrés sur téléphone pour que deux chiffres tiennent sur une case */
   var num="";
-  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+((d===1||d%5===0)?d:'<b>·</b><em>'+d+'</em>')+'</span>';
+  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+d+'</span>';
   rows+='<div class="ry-hm-l ry-hm-tete"><i></i><div class="ry-hm">'+num+'</div></div>';
   for(m=0;m<12;m++){
     var nd=new Date(y,m+1,0).getDate(), cells="";
