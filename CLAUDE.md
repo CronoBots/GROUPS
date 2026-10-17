@@ -4495,9 +4495,9 @@ encore l'accueil »). Captures à 320, 390 et 1280 px sur LCI et VBN, puis :
   de 22 px au plus, 900 px de large), et les barres des pauses par mois
   passent à 34 px.
 Aucun calcul touché, neuf règles à zéro. Vérifié sur LCI et VBN à 320 px
-(hors ligne), 390 et 1280 px, sans débordement ni erreur. Reste, et c'est
-voulu : les congés restants en résumé dans le héros et en tuiles dessous
-(demandé le 13/10, question posée au client).
+(hors ligne), 390 et 1280 px, sans débordement ni erreur. Les congés
+restants écrits deux fois (héros et tuiles) : tranché le 17/10/2026, un
+seul endroit, voir « Les congés en un seul endroit ».
 
 **Le guide d'installation** (le client, le 17/10/2026 : « l'app amène à
 l'explication d'installation complète, professionnelle et intuitive de l'app
@@ -4623,6 +4623,30 @@ et hors ligne. » quand Android propose l'installation. Mesuré à 320 px (hors
 ligne) et 390 px en iPhone : aucun texte coupé, rien ne déborde, et le
 bouton ouvre le guide. Au bureau, la carte reste cachée sans invite du
 système, comme avant.
+
+**Les congés en un seul endroit, et le cycle en cours** (le client, le
+17/10/2026, à la question des congés restants écrits deux fois : « non, il
+faut regrouper tout au même endroit ; remettre les badges de pause AM PM N
+D dans la partie Mon rythme ; sous Mon année 2026 et sa progression, la
+même chose pour Mon cycle actuel »). La rangée des congés restants et du
+solde flex time quitte le héros : ils ne vivent plus que dans « Mes
+compteurs », en tuiles (`.pf-cg` et son écouteur sont retirés). Les cases
+AM · PM · N · D, faites et à venir, reviennent en tête de « Mon rythme »
+(`ryPausesHTML()`, « Pauses de l'année »). Le pied du héros garde « Mon
+année » et gagne « Mon cycle actuel » : la semaine du cycle et ses bornes
+(« Semaine 6 sur 6 · 7 sept. – 18 oct. »), la même barre de journées
+prestées faites et à venir, comptées sur le cycle (`ryCompte()`,
+`ryBarre()`). `cycleActuel()` cale le cycle par `calageLong()`, qui prend
+désormais une fin facultative, sur les 92 jours qui entourent aujourd'hui
+(sur un seul mois, 5 et 6 semaines se confondent), puis sur ceux qui en
+partent si le premier calage échoue : VBN, nommé contremaître le 15/09, ne
+calait pas sur la fenêtre qui chevauche le changement. Mesuré au 17/10 :
+VBN semaine 6 sur 6 (sa semaine de D), LCI et SKS semaine 1 sur 5 depuis le
+12/10, BLR semaine 3 sur 10 (le relais de consignation), CAN semaine 2 sur
+2 (la quinzaine de la STEP, partie du lundi). Aucune lecture touchée :
+neuf règles à zéro, le calage par défaut de la prolongation inchangé.
+Vérifié sur VBN, LCI, CAN, BLR et SKS à 320 px (hors ligne), 390 et
+1280 px, sans débordement ni erreur.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et

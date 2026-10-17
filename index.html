@@ -3638,19 +3638,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-prog{display:block; height:4px; margin-top:6px; border-radius:2px; background:rgba(255,255,255,.14); overflow:hidden}
 .pf-prog i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
 .pf-kpis{margin-top:12px}
-/* les congés restants, au pied du héros */
-.pf-cg{display:flex; align-items:center; gap:10px; width:calc(100% - 24px); margin:10px 12px 0; padding:8px 10px 8px 12px;
-  border-radius:12px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left; cursor:pointer}
-.pf-cg-t{flex:0 0 auto; width:62px; font-size:9.5px; line-height:1.25; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
-.pf-cg-l{flex:1; min-width:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:4px}
-.pf-cg-i{display:flex; flex-direction:column; align-items:center; gap:1px; min-width:0; padding:4px 2px; border-radius:8px; background:rgba(255,255,255,.05)}
-.pf-cg-i small{font:700 9.5px/1.2 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.04em; color:rgba(255,255,255,.6)}
-.pf-cg-i b{font:700 15px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap}
-.pf-cg-i b i{font-style:normal; font-size:10.5px; font-weight:600; color:rgba(255,255,255,.6); margin-left:2px}
-.pf-cg-i.neg b{color:#ff9b8f} .pf-cg-i.vide b{color:rgba(255,255,255,.45)}
-.pf-cg-i.ft.bon b{color:var(--good)} .pf-cg-i.ft.att b{color:#f2c94c} .pf-cg-i.ft.ko b{color:#ff9b8f}
-@media (hover:hover){ .pf-cg:hover{background:rgba(255,255,255,.07)} }
-@media (max-width:380px){ .pf-cg{gap:7px; padding:7px 8px} .pf-cg-t{width:52px; font-size:8.5px} .pf-cg-i b{font-size:13px} }
 .pf-bas{height:12px}
 .pf-role2{font-size:12px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-role2.fo{color:var(--at-jaune)}
@@ -3756,6 +3743,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-an{padding:0 12px; margin-top:4px}
 .pf-an .ry-h2{padding:12px 0 0}
 .pf-an .ry-an-p{margin-bottom:0}
+.ry-an-sous{font-size:11.5px; color:var(--muted); margin-top:2px}
 .ry-an-bar{height:8px; border-radius:99px; background:var(--surface3); overflow:hidden; margin-top:4px}
 .ry-an-bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--in))}
 .ry-an-leg{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin:6px 0 10px}
@@ -8722,8 +8710,8 @@ function posteDeCycle(fit,annee,mois,jour){
    projetée est une cellule franche seule (["N"], ["-"]) : ni congé, ni
    remplacement, ni compteur — le classeur de l'année les dira. */
 var PROJ_JOURS=92, PROJ_SEUIL=0.85;
-function calageLong(p,annee){
-  var j=[], fin=Date.UTC(annee,11,31), t, dt, e, c, v, i, k, x, ok, L;
+function calageLong(p,annee,finTs){
+  var j=[], fin=finTs||Date.UTC(annee,11,31), t, dt, e, c, v, i, k, x, ok, L;
   for(t=fin-(PROJ_JOURS-1)*86400000; t<=fin; t+=86400000){
     dt=new Date(t); e=p.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())]; if(!e) continue;
     c=((typeof e==="string"?e:e[0])||"").trim();
@@ -10155,32 +10143,9 @@ function _pfHead(db,p){
      redondance ») : le calendrier du mois, soudé au héros juste dessous, les
      montre déjà. Reste la ligne des changements de poste proposés. */
   h+='<div class="pf-app" id="pfApp" hidden></div>';
-  /* LES CONGÉS RESTANTS, juste sous la semaine (le client, le 13/10/2026 :
-     « les soldes de congés restants doivent être affichés sous le calendrier
-     des 7 jours »). En jours de 8 h, le code d'abord ; rouge sous zéro, pâle
-     à zéro. Un appui mène à l'état des compteurs, plus bas. */
-  /* Le solde flex time au jour de l'usine, rangé avec eux (le client, le
-     13/10/2026 : « le solde flex time doit être affiché comme les autres
-     congés sous le calendrier 7 jours »). En heures, comme le compteur et la
-     note de 2024 ; vert dans les bornes, jaune au-dessus de 80 h, rouge
-     au-delà de 104 h ou sous −8 h. */
-  var c=p.c||{}, ft="";
-  if(db && c.flex && typeof compteursCalcules==="function"){
-    var annee=Number(db.year), ju=jourUsine();
-    if(ju.getFullYear()>=annee){
-      var jq=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():1231,
-          calc=compteursCalcules(p,annee,jq),
-          sj=soldeFTClasseur(c.flex);
-      ft='<span class="pf-cg-i ft '+(sj>104||sj<-8?'ko':sj>80?'att':'bon')+'" title="Solde flex time (Total du classeur) : '+num(sj)+' h">'
-        +'<small>FT</small><b>'+(sj>0?'+':'')+num(sj)+'<i>h</i></b></span>';
-    }
-  }
-  var sc=soldesConges(p.c);
-  if(sc.length||ft) h+='<button type="button" class="pf-cg" aria-label="Congés restants et solde flex time, voir mes compteurs">'
-    +'<span class="pf-cg-t">Congés restants</span><span class="pf-cg-l">'+sc.map(function(o){
-      var j=R(o.rs/8,2);
-      return '<span class="pf-cg-i'+(o.rs<0?' neg':o.rs===0?' vide':'')+'" title="'+esc(o.k)+' : '+num(o.rs)+' h restantes sur '+num(o.tot)+' h">'
-        +'<small>'+esc(o.k)+'</small><b>'+num(j)+'<i>j</i></b></span>'; }).join("")+ft+'</span></button>';
+  /* LES CONGÉS RESTANTS ne sont plus dans le héros (le client, le
+     17/10/2026 : « il faut regrouper tout au même endroit ») : ils vivent
+     dans « Mes compteurs », en tuiles, avec le solde flex time. */
   /* un profil comme sur un réseau social (le client, le 16/10/2026 : « c'est
      possible de présenter cela comme un style de présentation de réseau
      social ? »). Une couverture à la couleur de la marque, le logo dedans ;
@@ -10223,8 +10188,6 @@ function _pfHead(db,p){
     +h+'<div class="ry-an pf-an" id="ryAn"></div><div class="pf-bas"></div></div>';
 }
 document.addEventListener("click",function(e){
-  var cg=e.target.closest?e.target.closest(".pf-cg"):null;
-  if(cg){ var cc=document.getElementById("cptCard"); if(cc&&cc.scrollIntoView) cc.scrollIntoView({block:"start",behavior:"smooth"}); return; }
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
   eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
   setView("jour");
@@ -11517,29 +11480,65 @@ document.addEventListener("visibilitychange",function(){ if(!document.hidden) ma
    ne dit pas : où l'on en est. Les journées prestées faites et à venir, les
    nuits faites et à venir, et le prochain congé posé — lus jour par jour par
    _pfJour(), la lecture du héros. */
-function ryAnneeHTML(p,y){
+function ryCompte(p,deb,fin){
   var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
-  var fait=0, avenir=0, F={AM:0,PM:0,N:0,D:0}, A={AM:0,PM:0,N:0,D:0}, d, x;
-  for(d=new Date(y,0,1); d.getFullYear()===y; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
-    x=_pfJour(p.id,d); if(!x) continue;
-    var passe=d.getTime()<t0;
-    if(x.presente && PF_HEURES[x.pv]){
-      if(passe){ fait++; if(F.hasOwnProperty(x.pv)) F[x.pv]++; } else { avenir++; if(A.hasOwnProperty(x.pv)) A[x.pv]++; }
-    }
+  var o={fait:0,avenir:0,F:{AM:0,PM:0,N:0,D:0},A:{AM:0,PM:0,N:0,D:0}}, d, x;
+  for(d=new Date(deb); d<=fin; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    x=_pfJour(p.id,d); if(!x || !(x.presente && PF_HEURES[x.pv])) continue;
+    if(d.getTime()<t0){ o.fait++; if(o.F.hasOwnProperty(x.pv)) o.F[x.pv]++; }
+    else { o.avenir++; if(o.A.hasOwnProperty(x.pv)) o.A[x.pv]++; }
   }
-  var tot=fait+avenir; if(!tot) return "";
-  var pct=Math.round(fait/tot*100);
-  /* Dans le héros depuis le 16/10/2026 (le client : « mon année avec la
-     ligne de progression et les stats de pauses sont intéressantes près du
-     héros ») ; le prochain congé en est retiré, « inutile ». */
-  return '<div class="ry-chart-t ry-h2">Mon année '+y+'</div>'
-    +'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées"><i style="width:'+pct+'%"></i></div>'
-    +'<div class="ry-an-leg"><span><b>'+fait+'</b> journées prestées</span><span><b>'+avenir+'</b> à venir</span></div>'
-    /* TOUTES LES PAUSES, et pas seulement la nuit (le client, le 10/10/2026 :
-       « pourquoi les stats ne parlent que de nuit ? il faut voir aussi les
-       autres pauses ») : faites en grand, à venir dessous. */
-    +'<div class="ry-an-p">'+["AM","PM","N","D"].map(function(g){
-      return '<div class="ry-an-pc"><i class="pf-pause" data-p="'+g+'">'+g+'</i><b>'+F[g]+'</b><span>+'+A[g]+' à venir</span></div>';
+  return o;
+}
+function ryBarre(titre,sous,o,lib){
+  var tot=o.fait+o.avenir; if(!tot) return "";
+  var pct=Math.round(o.fait/tot*100);
+  return '<div class="ry-chart-t ry-h2">'+titre+'</div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
+    +'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="ry-an-leg"><span><b>'+o.fait+'</b> journées prestées</span><span><b>'+o.avenir+'</b> à venir</span></div>';
+}
+/* LE CYCLE EN COURS (le client, le 17/10/2026 : « sous mon année avec sa
+   progression, la même chose pour mon cycle actuel avec l'état
+   d'avancement du cycle en cours »). Le cycle se cale comme la
+   prolongation (calageLong), mais sur les 92 jours qui entourent
+   aujourd'hui : sur un seul mois, 5 et 6 semaines se confondent. Le cycle
+   commence un lundi ; la position du jour donne la semaine et les bornes. */
+function cycleActuel(p){
+  var db=HORAIRE_DB; if(!db) return null;
+  var y=Number(db.year), ju=jourUsine(), pers=p, cal;
+  var tj=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
+  db.people.forEach(function(x){ if(x.id===p.id) pers=x; });
+  /* Une personne qui a changé de place dans le cycle (VBN, nommé
+     contremaître le 15/09) ne cale pas sur la fenêtre qui chevauche le
+     changement : on essaie aussi celles qui commencent aujourd'hui. */
+  if(ju.getFullYear()===y){ var fy=Date.UTC(y,11,31);
+    [tj+45*86400000,tj+91*86400000,tj+60*86400000].some(function(f){
+      cal=calageLong(pers,y,Math.min(f,fy)); return !!cal; }); }
+  else if(ju.getFullYear()>y && pers.d["1231"]) cal=calageLong(pers,y);
+  if(!cal) return null;
+  var L=cal.motif.length, n=Math.round((tj-ANCRAGE_BASE)/86400000);
+  /* la quinzaine de la STEP n'a pas d'ancrage : on la fait partir du lundi */
+  var pos=cal.nom==="2 semaines"?(((n+2)%L)+L)%L:(((n+cal.k)%L)+L)%L;
+  var deb=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()-pos);
+  return {nom:cal.nom, L:L, pos:pos, deb:deb, fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1)};
+}
+function ryAnneeHTML(p,y){
+  var h=ryBarre("Mon année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
+  var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
+  if(c){
+    var dm=function(d){ return d.getDate()+"\u00a0"+MOIS_BREF[d.getMonth()]; };
+    var sous=(c.L%7===0?"Semaine "+(Math.floor(c.pos/7)+1)+" sur "+(c.L/7):"Jour "+(c.pos+1)+" sur "+c.L)+" · "+dm(c.deb)+" – "+dm(c.fin);
+    h+=ryBarre("Mon cycle actuel",sous,ryCompte(p,c.deb,c.fin),"Journées prestées du cycle en cours");
+  }
+  return h;
+}
+/* LES PAUSES DE L'ANNÉE, faites et à venir, revenues dans « Mon rythme »
+   (le client, le 17/10/2026 : « remettre les badges de pause AM PM N D
+   dans la partie mon rythme ») ; le héros ne garde que les progressions. */
+function ryPausesHTML(p,y){
+  var o=ryCompte(p,new Date(y,0,1),new Date(y,11,31)); if(!(o.fait+o.avenir)) return "";
+  return '<div class="ry-an-p">'+["AM","PM","N","D"].map(function(g){
+      return '<div class="ry-an-pc"><i class="pf-pause" data-p="'+g+'">'+g+'</i><b>'+o.F[g]+'</b><span>+'+o.A[g]+' à venir</span></div>';
     }).join("")+'</div>';
 }
 function renderRythme(){
@@ -11569,6 +11568,8 @@ function renderRythme(){
      qu'elles ne disent pas : la saison mois par mois, puis l'année jour par
      jour. */
   corps.innerHTML='<div class="ry-bloc">'
+    +'<div class="ry-chart-t ry-h2">Pauses de l\'année <span class="ry-hint">faites · à venir</span></div>'
+    +'<div id="ryPauses"></div>'
     +'<div class="ry-chart-t ry-h2">Pauses par mois <span class="ry-hint">touchez un mois</span></div>'
     +'<div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div>'
     +'<div class="ry-legs ry-legs-l">'+[["am","AM"],["pm","PM"],["n","N"],["d","D"]].map(function(x){
@@ -11582,7 +11583,8 @@ function renderRythme(){
     b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
   });
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y); });
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
+    var b=document.getElementById("ryPauses"); if(b) b.innerHTML=ryPausesHTML(person,y); });
 }
 
 /* ===================== l'équipe ===================== */
