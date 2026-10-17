@@ -4585,8 +4585,30 @@ et en Chrome Android (en haut à droite), à 320 et 390 px.
 Le titre devient « Installer l'application » (le client : le logo dit déjà
 BIOWANZE). Le sous-titre « Sur l'écran d'accueil, comme une application »
 redisait « application » et ce que les étapes montrent ; il dit désormais
-ce que l'application apporte : « Votre horaire et votre salaire en un
-geste, même hors ligne ».
+ce que l'application apporte, sur une seule ligne : d'abord « Votre
+horaire et votre salaire en un geste, même hors ligne », qui passait à la
+ligne à 320 et 390 px ; puis « Horaire et salaire, même hors ligne », en
+`white-space:nowrap` (le client : « une phrase plus courte sans mise à la
+ligne »).
+
+**Les changements d'horaire, un badge dans le héros** (le client, le
+17/10/2026 : « ne devraient-elles pas être un badge quelque part dans le
+héros qui affiche les changements, au lieu d'un cadre au-dessus ?
+Optimise au maximum »). Le cadre « Mise à jour de votre horaire »
+poussait tout l'Accueil vers le bas tant qu'on n'avait pas touché « Vu ».
+Une pilule sombre, cloche et nombre de journées sur une pastille cyan, se
+pose désormais sur la bannière, à côté de la roue (`badgeNotifHTML()`,
+`NOTIF_NB`) ; elle pulse trois fois à l'arrivée, puis se tait. Un appui
+ouvre les changements dans une feuille (`#notifOv`), du bas sur téléphone
+et au centre au bureau : « Horaire modifié », un sous-titre d'une ligne
+(« 3 journées · classeur du 16/10 »), les journées avec leur commentaire,
+puis « Vu, effacer », qui efface le badge et l'attente. La croix, le fond,
+Échap ou un appui sur une journée referment la feuille ; le dépli « Voir
+les n autres » est parti, la liste défile dans la feuille. Le point de
+l'onglet Accueil et la notification du téléphone ne changent pas. Vérifié
+sur VBN, trois journées en attente, à 320 px (hors ligne), 390 et
+1280 px : badge à 8 px de la roue, sous-titre sur une ligne, Échap
+referme, « Vu » efface et rien ne revient au rechargement, aucune erreur.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et

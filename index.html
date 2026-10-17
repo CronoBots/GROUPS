@@ -2156,7 +2156,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst-tete{display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; margin:0 0 20px; padding:0 20px}
 .inst-tete img{height:44px; width:auto; margin-bottom:6px}
 .inst-tete b{display:block; font-size:17px; font-weight:700; letter-spacing:.02em}
-.inst-tete small{display:block; font-size:12.5px; color:rgba(255,255,255,.62); text-wrap:balance}
+.inst-tete small{display:block; font-size:12.5px; color:rgba(255,255,255,.62); white-space:nowrap}
 .inst-fermer{position:fixed; z-index:5; top:calc(12px + env(safe-area-inset-top)); right:14px; width:40px; height:40px; border-radius:50%;
   border:0; background:rgba(255,255,255,.1); color:#fff; font-size:24px; line-height:1; cursor:pointer}
 .inst.inst-fleche-haut .inst-fermer{right:auto; left:14px}
@@ -2321,6 +2321,33 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 }
 .notifcard{border:1px solid var(--cadre); border-left:3px solid var(--marque-vif); border-radius:var(--rj);
   background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.18); overflow:hidden}
+/* Le badge du héros : une pilule sombre comme la roue, à côté d'elle, la
+   cloche et le nombre de journées sur une pastille cyan. */
+.pf-notif{position:absolute; z-index:1; top:10px; left:58px; height:40px; padding:0 6px 0 11px; border:0; border-radius:999px;
+  display:inline-flex; align-items:center; gap:7px; background:rgba(17,23,39,.62); color:#fff; cursor:pointer; font-family:inherit}
+.pf-notif b{min-width:22px; height:22px; padding:0 6px; box-sizing:border-box; border-radius:999px; display:grid; place-items:center;
+  background:var(--marque-vif); color:var(--marque); font:700 12px/1 "IBM Plex Mono",ui-monospace,monospace}
+.pf-notif::after{content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:0 0 0 0 rgba(105,178,203,.6); animation:ntPouls 2.4s ease-out 3}
+@keyframes ntPouls{0%{box-shadow:0 0 0 0 rgba(105,178,203,.55)}70%,100%{box-shadow:0 0 0 10px rgba(105,178,203,0)}}
+@media (min-width:761px){ .pf-notif{top:14px; left:62px} }
+/* La feuille des changements : du bas sur téléphone, au centre au bureau. */
+html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
+.nt-ov{position:fixed; inset:0; z-index:420; display:flex; align-items:flex-end; justify-content:center;
+  background:rgba(5,9,18,.62); opacity:0; transition:opacity .2s ease}
+.nt-ov[hidden]{display:none}
+.nt-ov.vis{opacity:1}
+.notifcard.nt-feuille{width:100%; max-width:560px; max-height:min(82vh,640px); display:flex; flex-direction:column;
+  border-left:1px solid var(--cadre); border-radius:20px 20px 0 0; padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -12px 40px rgba(0,0,0,.45); transform:translateY(24px); transition:transform .24s cubic-bezier(.22,.68,.16,1)}
+.nt-ov.vis .nt-feuille{transform:none}
+.nt-feuille .nt-l{overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; flex:1 1 auto}
+.nt-poignee{width:38px; height:4px; margin:8px auto 0; border-radius:2px; background:var(--trait-fort)}
+.nt-x{flex:0 0 auto; width:40px; height:40px; margin-right:-6px; border:0; border-radius:10px; background:none; color:var(--muted); font-size:24px; line-height:1; cursor:pointer}
+.nt-t span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.nt-pied{padding:10px 14px 12px; border-top:1px solid var(--trait)}
+.nt-pied .nt-vu{width:100%; min-height:42px; border-radius:12px}
+@media (min-width:761px){ .nt-ov{align-items:center; padding:20px} .notifcard.nt-feuille{border-radius:20px} .nt-poignee{display:none} }
+@media (prefers-reduced-motion:reduce){ .nt-ov,.notifcard.nt-feuille{transition:none} .pf-notif::after{animation:none} }
 .nt-tete{display:flex; align-items:center; gap:11px; padding:12px 14px}
 .nt-ico{flex:0 0 auto; display:grid; place-items:center; width:34px; height:34px; border-radius:50%;
   color:var(--marque-vif); background:color-mix(in srgb,var(--marque-vif) 16%,transparent)}
@@ -2367,9 +2394,6 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   border-radius:0 6px 6px 0; background:var(--surface2); font-size:12px; line-height:1.4; color:var(--muted);
   overflow-wrap:anywhere}
 .nt-sv{font-size:18px; line-height:1; color:var(--faint)}
-.notifcard:not(.nt-ouvert) .nt-plus{display:none}
-.nt-tout{display:block; width:100%; padding:9px 14px 11px; border:0; border-top:1px solid var(--trait); background:none;
-  color:var(--marque-vif); font:600 12.5px/1 inherit; font-family:inherit; text-align:left; cursor:pointer}
 @media (hover:hover){ .nt-j:hover{background:var(--surface2)} .nt-vu:hover{color:var(--ink); border-color:var(--trait-fort)} }
 .notifreg{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 2px; border-top:1px solid var(--trait)}
 .notifreg>div{display:flex; flex-direction:column; gap:2px; min-width:0}
@@ -4263,7 +4287,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
          possible »). En tête, qui l'on est ; puis le mois, les compteurs, l'année
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
-    <div class="notifcard" id="notifCard" role="status" aria-live="polite" hidden></div>
+    <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
     <div class="notifcard installcard" id="installCard" hidden>
       <div class="nt-tete">
         <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
@@ -4772,7 +4796,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 <div id="instGuide" class="inst" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BIOWANZE" hidden>
   <div class="inst-page">
     <button type="button" class="inst-fermer" id="instFermer" aria-label="Fermer">&times;</button>
-    <div class="inst-tete"><img src="logo.svg" alt=""><b>Installer l'application</b><small>Votre horaire et votre salaire en un geste, même hors ligne</small></div>
+    <div class="inst-tete"><img src="logo.svg" alt=""><b>Installer l'application</b><small>Horaire et salaire, même hors ligne</small></div>
     <div class="inst-demo" id="instDemo" aria-hidden="true">
       <div class="inst-tel" id="instTel"><div class="inst-ecran" id="instEcran"></div></div>
     </div>
@@ -10179,6 +10203,7 @@ function _pfHead(db,p){
   return '<div class="pf-hero">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
+    +badgeNotifHTML()
     +'<div class="pf-prof"><span class="pf-av" aria-hidden="true">'+esc(tri)+'</span>'
     /* À côté du cercle, le poste puis le statut en clair, sans badge (le
        client, le 16/10/2026 : le trigramme est déjà dans le cercle). */
@@ -10319,24 +10344,67 @@ function detecterChangements(db,p){
   lsSet("notif/attente/"+cle,att);
   return {att:att, neufs:neufs.sort(), an:an, cle:cle};
 }
+/* UN BADGE DANS LE HÉROS, ET NON PLUS UN CADRE AU-DESSUS (le client, le
+   17/10/2026 : « les notifications de changement d'horaire ne devraient pas
+   être un badge quelque part dans le héros qui affiche les changements au
+   lieu d'un cadre au-dessus ? »). Le cadre poussait tout l'Accueil vers le
+   bas tant qu'on n'avait pas touché « Vu ». Une cloche et le nombre de
+   journées se posent sur la bannière, à côté de la roue ; un appui ouvre les
+   changements dans une feuille (du bas sur téléphone, au centre au bureau),
+   qui se referme par la croix, le fond, Échap ou « Vu », lequel efface le
+   badge. NOTIF_NB garde le compte : le héros se redessine sans attendre
+   renderNotif(), qui le met à jour 30 ms après. */
+var NOTIF_NB=0;
+function badgeNotifHTML(){
+  if(!NOTIF_NB) return "";
+  return '<button type="button" class="pf-notif" id="pfNotif" aria-haspopup="dialog" aria-label="Horaire modifié : '+NOTIF_NB+' journée'+(NOTIF_NB>1?'s':'')+'">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'
+    +'<b>'+NOTIF_NB+'</b></button>';
+}
+function majBadgeNotif(){
+  var h=document.querySelector("#rythmeTete .pf-hero"); if(!h) return;
+  var v=document.getElementById("pfNotif"); if(v) v.parentNode.removeChild(v);
+  if(!NOTIF_NB) return;
+  var r=h.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
+  if(r&&r.nextSibling) h.insertBefore(w.firstChild,r.nextSibling); else h.appendChild(w.firstChild);
+}
+var notifRetour=null;
+function ouvrirNotif(){
+  var ov=document.getElementById("notifOv"); if(!ov||!NOTIF_NB) return;
+  notifRetour=document.activeElement; ov.hidden=false; document.documentElement.classList.add("nt-ouverte");
+  requestAnimationFrame(function(){ ov.classList.add("vis"); });
+  var x=document.getElementById("notifX"); if(x) try{ x.focus({preventScroll:true}); }catch(e){}
+}
+function fermerNotif(){
+  var ov=document.getElementById("notifOv"); if(!ov||ov.hidden) return;
+  ov.classList.remove("vis"); document.documentElement.classList.remove("nt-ouverte"); ov.hidden=true;
+  if(notifRetour&&notifRetour.focus) try{ notifRetour.focus({preventScroll:true}); }catch(e){}
+}
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(t.closest&&t.closest("#pfNotif")){ ouvrirNotif(); return; }
+  if(t.id==="notifOv"||(t.closest&&t.closest("#notifX"))) fermerNotif();
+});
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") fermerNotif(); });
 function renderNotif(db,p){
   var card=document.getElementById("notifCard"), dot=document.getElementById("notifDot");
   if(!card) return;
-  if(!db||!p){ card.hidden=true; if(dot) dot.hidden=true; return; }
+  if(!db||!p){ NOTIF_NB=0; majBadgeNotif(); fermerNotif(); card.innerHTML=""; if(dot) dot.hidden=true; return; }
   var x=detecterChangements(db,p), ks=Object.keys(x.att).sort();
   if(dot) dot.hidden=!ks.length;
-  card.hidden=!ks.length;
-  if(card.hidden){ card.innerHTML=""; if(ks.length && x.neufs.length) notifierTelephone(p,x); return; }
+  NOTIF_NB=ks.length; majBadgeNotif();
+  if(!ks.length){ fermerNotif(); card.innerHTML=""; return; }
   /* LES JOURS SE DISENT COMME AUX SOUS-EFFECTIFS (le client, le 13/10/2026) :
      « Aujourd'hui », « Demain », puis le jour en toutes lettres, et la date
      en dessous (dateEnMots, la même fonction). */
   var ju0=jourUsine(), t0=Date.UTC(ju0.getFullYear(),ju0.getMonth(),ju0.getDate());
-  card.innerHTML='<div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
+  /* Le sous-titre tient sur une ligne : le nombre et la date du classeur. */
+  card.innerHTML='<div class="nt-poignee" aria-hidden="true"></div><div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>'
-    +'<div class="nt-t"><b>Mise à jour de votre horaire</b><span>'+ks.length+" journée"+(ks.length>1?"s":"")
+    +'<div class="nt-t"><b>Horaire modifié</b><span>'+ks.length+" journée"+(ks.length>1?"s":"")
     +(/^\d{4}-(\d{2})-(\d{2})/.test(db.maj||"")?" · classeur du "+db.maj.slice(8,10)+"/"+db.maj.slice(5,7):"")+'</span></div>'
-    +'<button type="button" class="nt-vu" id="notifVu">Vu</button></div>'
-    +'<ul class="nt-l">'+parJourNotif(x.att,ks).map(function(a,i){
+    +'<button type="button" class="nt-x" id="notifX" aria-label="Fermer">&times;</button></div>'
+    +'<ul class="nt-l">'+parJourNotif(x.att,ks).map(function(a){
       var dm=dateEnMots(x.an,Number(a.de.slice(0,2)),Number(a.de.slice(2)),t0),
           mot=/<b>(.*?)<\/b><small>(.*?)<\/small>/.exec(dm.html);
       /* LE COMMENTAIRE DE LA JOURNÉE (le client, le 13/10/2026 : « s'il y a un
@@ -10344,24 +10412,19 @@ function renderNotif(db,p){
          dit POURQUOI — « Remplace FLI », « échange avec GPS ». Celui de
          l'horaire installé, déjà débarrassé du barré et des signatures. */
       var raw=p.d[a.de], com=comNotif(raw);
-      return '<li'+(i>=5?' class="nt-plus"':'')+'><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"'
+      return '<li><button type="button" class="nt-j" data-m="'+Number(a.de.slice(0,2))+'"'
         +' aria-label="'+esc(libGroupeNotif(x.an,a)+" : "+(a.avant?a.avant+" devient ":"")+a.apres+(com?" · "+com:""))+'">'
         +'<span class="nt-d"><b>'+mot[1]+'</b><small>'+mot[2]+'</small></span>'
         +'<span class="nt-ch">'+(a.avant?pastilleNotif(a.avant,true)+'<i class="nt-fl" aria-hidden="true">→</i>':'')
         +pastilleNotif(a.apres)+'</span><span class="nt-sv" aria-hidden="true">›</span>'
         +(com?'<span class="nt-com">'+esc(com)+'</span>':'')+'</button></li>'; }).join("")
-    +'</ul>';
-  /* Au-delà de cinq lignes, le reste se déplie d'un appui. */
-  card.classList.remove("nt-ouvert");
-  var nG=card.querySelectorAll(".nt-plus").length;
-  if(nG){ var bt=document.createElement("button"); bt.type="button"; bt.className="nt-tout";
-    bt.textContent=nG>1?"Voir les "+nG+" autres journées":"Voir l\u2019autre journée"; card.appendChild(bt);
-    bt.onclick=function(){ card.classList.add("nt-ouvert"); bt.parentNode.removeChild(bt); }; }
+    +'</ul><div class="nt-pied"><button type="button" class="nt-vu" id="notifVu">Vu, effacer</button></div>';
   document.getElementById("notifVu").onclick=function(){
-    lsSet("notif/attente/"+x.cle,{}); card.hidden=true; card.innerHTML=""; if(dot) dot.hidden=true;
+    lsSet("notif/attente/"+x.cle,{}); NOTIF_NB=0; majBadgeNotif(); fermerNotif(); card.innerHTML=""; if(dot) dot.hidden=true;
   };
   card.querySelector(".nt-l").onclick=function(e){
     var b=e.target.closest?e.target.closest(".nt-j"):null; if(!b) return;
+    fermerNotif();
     try{ loadMonth(x.an,Number(b.dataset.m)-1); }catch(er){}
     var c=document.getElementById("calCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start"});
   };
