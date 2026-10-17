@@ -2209,6 +2209,7 @@ une décision du client, comme pour les noms (`docs/purge-historique.md`).
 | `cal/<id>.ics` | l'abonnement agenda de chacun, écrit par `verifier-calendrier.js --agendas` |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
+| `tools/qr-installer.py` | écrit `qr-installer.svg`, le QR code du guide d'installation (`#installer`) |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |
 | `docs/regles-paie.md` | les règles de calcul confirmées par le client |
@@ -4519,6 +4520,51 @@ aussi si elle est installée). Vérifié en iPhone Safari à 320 px (hors
 ligne) et 390, Android Chrome et WhatsApp à 390, bureau à 1280 : rien ne
 déborde, Échap et la croix ferment. Seul un vrai téléphone dira si les
 libellés de son système sont exactement ceux-là.
+
+**Puis comme Pino** (le client, le même jour : « pour l'installation de
+l'app, la même chose que pour le GitHub pizzeria Pino »). Le dépôt
+`CronoBots/PIZZAPINO` a été lu : son guide n'est pas une notice, c'est une
+démonstration. Le guide de BIOWANZE en est la reprise, aux couleurs de la
+marque (`#instGuide`, `guideInstall()` inchangé pour les appelants), et la
+fenêtre à onglets iPhone / Android de la version du matin est retirée :
+- plein écran : un téléphone dessiné à 212 × 400, mis à l'échelle de
+  l'écran, rejoue en boucle les gestes. La page dessinée est l'Accueil
+  (la bannière, un avatar « BWZ » et des cadres vides), sans personne
+  dedans. Un doigt se pose sur le bouton à toucher, et la boucle finit sur
+  l'icône BIOWANZE posée sur l'écran d'accueil ;
+- les gestes sont ceux du navigateur réellement ouvert : Safari (sous
+  iOS 26, Partager est rangé sous « ⋯ » ; sur iPad, il est en haut),
+  Chrome, Edge et Firefox sur iPhone ; Chrome, Samsung, Edge et Firefox
+  sur Android. « Pas le bon navigateur ? » corrige d'un geste ;
+- dessous, une barre par étape (toucher un segment rejoue son étape),
+  « Étape n sur m » et la consigne ; une flèche « Ici » montre le vrai
+  bouton du navigateur, en bas ou en haut à droite ;
+- une messagerie est d'abord invitée à ouvrir le lien dans le
+  navigateur : « Ouvrir dans Chrome » (lien `intent://`) sur Android, la
+  démonstration de « Ouvrir dans Safari » sur iPhone, et « Copier le
+  lien » ;
+- quand Android offre l'invite du système, il n'y a qu'un bouton :
+  « Installer l'application ». La carte de l'Accueil n'a plus qu'un
+  bouton « Installer », qui lance cette invite ou ouvre le guide ;
+- au bureau, un QR code (`qr-installer.svg`, écrit par
+  `tools/qr-installer.py`), qui mène à `…/groups/#installer` : cette
+  adresse ouvre le guide à l'arrivée, puis la marque est retirée de
+  l'adresse (sinon l'icône ajoutée sur iPhone rouvrirait le guide à chaque
+  lancement) ;
+- après l'installation : « C'est installé ! ». Le retour arrière d'Android
+  ferme le guide sans quitter l'application (entrée d'historique), comme
+  Échap et la croix.
+
+**Le premier QR code ne se lisait pas** : jsQR le rendait vide, alors que
+celui de Pino, de même dessin, se lisait. Le cœur des yeux était au cyan
+clair de la marque, que le lecteur prenait pour du blanc. Il est passé au
+cyan foncé (`#1F6F8B`) : le code rend l'adresse. Vérifié en iPhone Safari
+(iOS 18 et 26) à 320 px (hors ligne, ouvert par l'écran de connexion,
+fermé par le retour arrière) et 390, en Android Chrome, en WhatsApp et au
+bureau à 1280 : rien ne déborde, aucune erreur. **Ce qui n'est pas repris
+de Pino** : son manifeste n'est chargé que sur téléphone (au bureau, pas
+de proposition d'installation), et son bandeau d'installation flottant.
+BIOWANZE garde sa carte dans l'Accueil, et reste installable au bureau.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
