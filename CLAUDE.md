@@ -4520,6 +4520,26 @@ ligne) et 390, Android Chrome et WhatsApp à 390, bureau à 1280 : rien ne
 déborde, Échap et la croix ferment. Seul un vrai téléphone dira si les
 libellés de son système sont exactement ceux-là.
 
+**Congé et maladie séparés, les couleurs des badges partout** (le client,
+le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
+maladies de la même manière ; dans le calendrier il faut que les couleurs
+de pauses soient les mêmes que les badges »). Le calendrier du mois et
+« Mon rythme » (barres, jour par jour, légendes) peignaient les pauses avec
+`--am`, `--pm`, `--n`, `--d` (D gris), alors que les badges du héros, des
+notifications et de la vue direction emploient `--cal-*` (D vert). Tout
+passe à `--cal-*` : au calendrier du mois, la pause s'écrit dans une
+pastille pleine sur un fond teinté de sa couleur. La maladie (un code de
+la famille `SMG`, donc `MAL` et l'« Abs » du classeur) a désormais son
+signe : hachures et contour rouges dans le jour par jour (`s-mal`), tirets
+rouges et code rouge au calendrier du mois (`.mal`) ; le congé garde le
+contour neutre. Légendes « Congé » et « Maladie » séparées. **Et le héros
+plantait** pour qui n'a plus de week-end libre dans l'horaire (YBT, malade
+jusqu'à la fin de l'année) : la case « Week-end libre » de la passe du
+17/10 lisait `inf.weekend` sans garde, et tout l'Accueil restait vide. La
+case se tait désormais. Aucune lecture touchée, neuf règles à zéro ;
+vérifié sur LCI, YBT et VBN à 320 px (hors ligne), 390 et 1280 px, aucun
+code ne déborde de sa case.
+
 ### L'audit multi-agent du 10/10/2026
 
 Le client : « faut une analyse multi agent avec skill etc pour optimiser au
