@@ -4573,6 +4573,15 @@ bord droit. Ils sont désormais dans un même bloc (`.inst-f`), et l'écart
 mesuré entre leurs centres est de 0 px. En tête, le logo vectoriel à fond
 transparent (`logo.svg`) remplace l'icône à tuile, avec le titre et le
 sous-titre centrés dessous. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+**Et ce n'était pas fini** : le client, « juste Ici devait être centré sur
+la flèche à droite, et non centrer la flèche ». La flèche n'avait pas
+bougé, mais « ICI » restait visiblement à gauche de la pointe :
+l'espacement des lettres (.12em) laisse un blanc après le dernier « I »,
+que la boîte mesurée comptait. `margin-right:-.12em` le retire. **Mesurer
+la boîte ne suffisait pas** : il fallait regarder la capture. Écart au
+centre de la pointe : moins d'un pixel en Safari iOS 26 (en bas à
+droite), en Safari iOS 18 (en bas au centre, où est le bouton Partager)
+et en Chrome Android (en haut à droite), à 320 et 390 px.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
