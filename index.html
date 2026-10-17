@@ -2136,49 +2136,165 @@ body.sheet-on{overflow:hidden}
    du système), l'iPhone dit le geste (Partager → Sur l'écran d'accueil). */
 .installcard{border-left-color:var(--marque-vif)}
 .in-ico{flex:0 0 auto; width:40px; height:40px; border-radius:10px}
-.in-guide{background:none}
-/* LE GUIDE D'INSTALLATION : une fenêtre qui monte du bas sur téléphone, au
-   centre au bureau ; un onglet par système, les étapes numérotées avec le
-   pictogramme du bouton à toucher, tel que le téléphone le dessine. */
-.ig-ov{position:fixed; inset:0; z-index:400; background:rgba(5,9,18,.66); display:flex;
-  align-items:flex-end; justify-content:center; animation:rdpfade .14s ease}
-.ig{background:var(--surface); border:1px solid var(--line); border-radius:20px 20px 0 0;
-  width:100%; max-width:520px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
-  box-shadow:0 -12px 40px rgba(0,0,0,.45); animation:cfmIn .2s cubic-bezier(.2,.7,.3,1);
-  padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (min-width:761px){ .ig-ov{align-items:center; padding:20px} .ig{border-radius:20px} }
-@media(prefers-reduced-motion:reduce){ .ig-ov,.ig{animation:none} }
-.ig-tete{display:flex; align-items:center; gap:12px; padding:16px 14px 12px 18px; border-bottom:1px solid var(--trait)}
-.ig-ico{border-radius:11px; flex:0 0 auto}
-.ig-t{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px}
-.ig-t h2{margin:0; font-size:17px; font-weight:650; color:var(--ink)}
-.ig-t span{font-size:12px; color:var(--muted)}
-.ig-x{flex:0 0 auto; width:40px; height:40px; border:0; background:none; color:var(--muted); font-size:24px; cursor:pointer; border-radius:10px}
-.ig-corps{overflow-y:auto; padding:14px 18px 20px; display:flex; flex-direction:column; gap:14px; -webkit-overflow-scrolling:touch}
-.ig-seg{display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border-radius:12px; background:var(--surface2); border:1px solid var(--line)}
-.ig-seg button{height:36px; border:0; border-radius:9px; background:none; color:var(--muted); font-size:13.5px; font-weight:600; cursor:pointer}
-.ig-seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.ig-alerte{border:1px solid var(--at-jaune,#E0B341); border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.45; color:var(--ink); background:rgba(224,179,65,.08)}
-.ig-alerte strong{display:block; margin-bottom:4px}
-.ig-ok{border:1px solid var(--marque-vif); border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.45; color:var(--ink)}
-.ig-ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0}
-.ig-ol li{display:grid; grid-template-columns:28px 1fr; gap:12px; padding:11px 0; border-top:1px solid var(--trait); font-size:14px; line-height:1.45; color:var(--ink)}
-.ig-ol li:first-child{border-top:0}
-.ig-n{width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700;
-  background:var(--marque-vif); color:#08111F}
-.ig-ol small{display:block; font-size:12px; color:var(--muted); margin-top:3px}
-.ig-pic{display:inline-flex; align-items:center; justify-content:center; vertical-align:-6px; min-width:26px; height:24px;
-  padding:0 5px; margin:0 2px; border-radius:7px; border:1px solid var(--line); background:var(--surface2); color:var(--in)}
-.ig-pic svg{display:block}
-.ig-btn{height:46px; border-radius:12px; border:0; background:var(--in); color:var(--sur-in); font-size:15px; font-weight:650; cursor:pointer; width:100%}
-.ig-sec{height:40px; border-radius:11px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font-size:13.5px; font-weight:600; cursor:pointer; padding:0 14px}
-.ig-plus{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-.ig-plus div{border:1px solid var(--trait); border-radius:11px; padding:9px 10px; font-size:12px; line-height:1.35; color:var(--muted)}
-.ig-plus b{display:block; font-size:12.5px; color:var(--ink); margin-bottom:1px}
-.ig-lien{display:flex; gap:8px; align-items:center}
-.ig-lien code{flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px;
-  padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); color:var(--ink)}
-.ig-h{margin:0; font-size:12px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+/* LE GUIDE D'INSTALLATION, à la manière de Pino (le client, le 17/10/2026) :
+   plein écran, un téléphone dessiné rejoue en boucle les gestes du
+   navigateur ouvert, un doigt sur le bouton à toucher, et finit sur l'icône
+   BIOWANZE posée sur l'écran d'accueil. Dessous, la progression et la
+   consigne de l'étape ; une flèche « Ici » montre le vrai bouton du
+   navigateur. Au bureau, un QR code à scanner avec le téléphone. */
+html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
+.inst{position:fixed; inset:0; z-index:2500; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+  background:#111727; background-image:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%); color:#fff; opacity:0; transition:opacity .26s ease}
+.inst[hidden]{display:none}
+.inst.inst-visible{opacity:1}
+.inst:focus{outline:none}
+.inst-page{position:relative; max-width:460px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:calc(56px + env(safe-area-inset-top)) 0 calc(80px + env(safe-area-inset-bottom)); transform:translateY(12px); transition:transform .32s cubic-bezier(.22,.68,.16,1)}
+.inst.inst-visible .inst-page{transform:none}
+.inst.inst-fleche-haut .inst-page{padding-top:calc(70px + env(safe-area-inset-top)); padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.inst-tete{display:flex; align-items:center; gap:10px; margin:0 0 22px}
+.inst-tete img{width:36px; height:36px; border-radius:9px}
+.inst-tete b{display:block; font-size:16px; font-weight:700; letter-spacing:.02em}
+.inst-tete small{display:block; font-size:12px; color:rgba(255,255,255,.62)}
+.inst-fermer{position:fixed; z-index:5; top:calc(12px + env(safe-area-inset-top)); right:14px; width:40px; height:40px; border-radius:50%;
+  border:0; background:rgba(255,255,255,.1); color:#fff; font-size:24px; line-height:1; cursor:pointer}
+.inst.inst-fleche-haut .inst-fermer{right:auto; left:14px}
+.inst-action{margin-top:18px; width:100%; max-width:400px; padding:0 20px}
+.inst-action:empty{display:none}
+.inst-info{margin:0 0 14px; font-size:14px; line-height:1.5; color:rgba(255,255,255,.78); text-align:center}
+.inst-bouton{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; border:0; border-radius:14px;
+  background:var(--marque-vif); color:#0b1220; font-size:15px; font-weight:700; text-decoration:none; cursor:pointer;
+  box-shadow:0 14px 30px -14px rgba(105,178,203,.8)}
+.inst-bouton svg{width:20px; height:20px}
+.inst-bouton.sec{margin-top:10px; background:rgba(255,255,255,.08); color:#fff; box-shadow:none; border:1px solid rgba(255,255,255,.18)}
+.inst-qr{display:block; margin:0 auto; width:220px; height:220px; border-radius:16px}
+.inst-reussi{display:flex; align-items:center; gap:14px; margin:0; padding:14px 16px; border-radius:14px;
+  background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.45)}
+.inst-reussi svg{width:26px; height:26px; color:var(--marque-vif); flex-shrink:0}
+.inst-reussi span{display:flex; flex-direction:column; font-size:13.5px; color:rgba(255,255,255,.78)}
+.inst-reussi b{font-size:17px; font-weight:700; color:#fff}
+/* Le téléphone, dessiné à 212 × 400 puis mis à l'échelle de l'écran */
+.inst-demo{position:relative; flex-shrink:0}
+.inst-demo[hidden]{display:none}
+.inst-tel{position:absolute; left:0; top:0; transform-origin:0 0; width:212px; padding:8px; border-radius:38px; background:#05070d;
+  box-shadow:0 0 0 1.5px #2b3550,0 30px 60px -24px #000,0 0 80px -20px rgba(105,178,203,.4)}
+.inst-ecran{position:relative; height:384px; border-radius:30px; overflow:hidden; background:#111727; font-family:-apple-system,system-ui,sans-serif}
+.inst-ecran::before{content:""; position:absolute; z-index:6; left:50%; top:7px; width:62px; height:18px; margin-left:-31px; border-radius:12px; background:#000}
+.inst-ecran img{display:block}
+.d-page{position:absolute; inset:0; background:#111727; display:flex; flex-direction:column; gap:8px}
+.d-page .d-ban{width:100%; aspect-ratio:2170/540; object-fit:cover}
+.d-av{position:absolute; left:12px; top:36px; width:34px; height:34px; border-radius:50%; background:#1b2640; border:2px solid #69B2CB;
+  color:#fff; font:700 9px/30px -apple-system,system-ui,sans-serif; text-align:center}
+.d-bloc{margin:0 10px; border-radius:10px; background:#212737; height:46px}
+.d-bloc.g{height:104px}
+.d-bloc i{display:block; margin:9px 10px 0; height:6px; width:55%; border-radius:3px; background:rgba(255,255,255,.14)}
+.d-voile{position:absolute; inset:0; background:rgba(0,0,0,.45); animation:dIn .3s ease}
+.d-barre{position:absolute; left:0; right:0; z-index:2; background:rgba(28,28,30,.96); display:flex; flex-direction:column; gap:6px; padding:7px 10px}
+.d-barre.haut{top:0; flex-direction:row; align-items:center; padding:30px 8px 7px 10px}
+.d-barre.bas{bottom:0; padding-bottom:16px}
+.d-url{flex:1; display:block; padding:6px 10px; border-radius:10px; background:#3a3a3c; color:#ebebf5; font-size:10px; text-align:center; white-space:nowrap; overflow:hidden}
+.d-outils{display:flex; justify-content:space-between; padding:0 4px}
+.d-ic{display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:8px; color:rgba(235,235,245,.35)}
+.d-ic svg{width:17px; height:17px}
+.d-ic.fort{color:#0A84FF}
+.d-ic.cible{color:#0A84FF; background:rgba(10,132,255,.18)}
+.d-menu{position:absolute; z-index:3; display:flex; flex-direction:column; background:#2c2c2e; border-radius:14px; overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.5); animation:dMenu .3s cubic-bezier(.2,.8,.2,1)}
+.d-menu.bas{left:8px; right:8px; bottom:84px}
+.d-menu.haut{right:6px; top:30px; width:164px; border-radius:10px}
+.d-ligne{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 12px; font-size:10.5px; color:#f2f2f7}
+.d-ligne+.d-ligne{border-top:.5px solid rgba(255,255,255,.08)}
+.d-ligne b{font-weight:500; line-height:1.3}
+.d-ligne svg{width:14px; height:14px; flex-shrink:0}
+.d-vide i{display:block; height:7px; width:60%; border-radius:4px; background:rgba(255,255,255,.12)}
+.d-ligne.cible{background:rgba(10,132,255,.22)}
+.d-feuille{position:absolute; z-index:3; left:0; right:0; bottom:0; padding:12px 10px 18px; border-radius:16px 16px 0 0; background:#1c1c1e;
+  display:flex; flex-direction:column; gap:6px; animation:dMonte .35s cubic-bezier(.2,.8,.2,1)}
+.d-f-tete{display:flex; align-items:center; gap:8px; padding:0 4px 4px}
+.d-f-tete img{width:28px; height:28px; border-radius:7px}
+.d-f-tete span,.d-v-app span{display:flex; flex-direction:column; font-size:10px; color:#f2f2f7}
+.d-f-tete small,.d-v-app small{color:#8e8e93; font-size:8.5px}
+.d-f-apps{display:flex; justify-content:space-around; padding:4px 0 6px}
+.d-f-apps i{width:32px; height:32px; border-radius:9px; background:#3a3a3c}
+.d-feuille .d-ligne{background:#2c2c2e; border-radius:10px; border:0}
+.d-feuille .d-ligne.cible{background:#2c2c2e; box-shadow:inset 0 0 0 1.5px #0A84FF}
+.d-valider.ios{position:absolute; z-index:3; left:0; right:0; top:0; padding:30px 12px 18px; border-radius:0 0 16px 16px; background:#1c1c1e;
+  animation:dDescend .35s cubic-bezier(.2,.8,.2,1)}
+.d-v-tete{display:flex; align-items:center; justify-content:space-between; font-size:10px; color:#0A84FF; margin-bottom:12px}
+.d-v-tete b{color:#f2f2f7; font-weight:600}
+.d-v-ok{font-weight:700; padding:3px 6px; border-radius:6px}
+.d-v-app{display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:#2c2c2e}
+.d-v-app img{width:40px; height:40px; border-radius:10px}
+.d-valider.and{position:absolute; z-index:3; left:14px; right:14px; top:50%; transform:translateY(-50%); padding:18px 14px 12px; border-radius:20px;
+  background:#2b2930; color:#e6e1e5; display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; animation:dIn .3s ease}
+.d-valider.and img{width:40px; height:40px; border-radius:10px; margin-bottom:6px}
+.d-valider.and b{font-size:12px; font-weight:500}
+.d-valider.and small{font-size:9px; color:#cac4d0}
+.d-v-boutons{display:flex; justify-content:flex-end; gap:12px; align-self:stretch; margin-top:12px; font-size:10.5px; color:#d0bcff}
+.d-v-boutons span{padding:5px 8px}
+.d-valider.and .d-v-ok{background:#d0bcff; color:#381e72; border-radius:999px; padding:5px 12px}
+.d-accueil{position:absolute; inset:0; padding:36px 16px 0; background:linear-gradient(160deg,#24365c,#111727 55%,#1b2640)}
+.d-heure{text-align:center; font-size:30px; font-weight:300; color:#fff; margin-bottom:22px; letter-spacing:.02em}
+.d-grille{display:grid; grid-template-columns:repeat(4,1fr); gap:16px 13px}
+.d-grille i{aspect-ratio:1; border-radius:24%; background:rgba(255,255,255,.12)}
+.d-app{position:relative; display:flex; flex-direction:column; align-items:center}
+.d-app img{width:100%; aspect-ratio:1; border-radius:24%; box-shadow:0 0 0 1.5px #69B2CB,0 6px 20px -2px rgba(105,178,203,.8);
+  animation:dPop .7s cubic-bezier(.3,1.6,.5,1) .3s both}
+.d-app small{position:absolute; top:100%; margin-top:3px; font-size:7.5px; color:#fff; letter-spacing:.02em}
+.d-doigt{position:absolute; z-index:5; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; pointer-events:none;
+  background:rgba(255,255,255,.38); box-shadow:0 0 0 2px rgba(255,255,255,.85),0 4px 12px rgba(0,0,0,.4); animation:dDoigt 2.6s ease-in-out both}
+.d-doigt::after{content:""; position:absolute; inset:0; border-radius:50%; border:2px solid #fff; opacity:0; animation:dOnde 2.6s ease-out both}
+@keyframes dDoigt{0%{opacity:0; transform:translate(26px,40px) scale(1.2)}25%{opacity:1; transform:none}40%{transform:scale(.8)}50%{transform:none}85%{opacity:1}100%{opacity:0}}
+@keyframes dOnde{0%,38%{opacity:0; transform:scale(1)}42%{opacity:.9}70%{opacity:0; transform:scale(2.4)}100%{opacity:0}}
+@keyframes dIn{from{opacity:0}}
+@keyframes dMonte{from{transform:translateY(100%)}}
+@keyframes dDescend{from{transform:translateY(-100%)}}
+@keyframes dMenu{from{opacity:0; transform:scale(.92)}}
+@keyframes dPop{from{opacity:0; transform:scale(.3)}}
+/* Sous le téléphone : progression et consigne de l'étape */
+.inst-suivi{margin-top:26px; max-width:calc(100% - 40px); text-align:center}
+.inst-suivi[hidden]{display:none}
+.inst-barres{display:flex; gap:5px}
+.inst-barres button{flex:1; height:18px; padding:7px 0; border:0; background:none; cursor:pointer}
+.inst-barres i{display:block; height:4px; border-radius:2px; background:rgba(255,255,255,.16); overflow:hidden; position:relative}
+.inst-barres i::after{content:""; position:absolute; inset:0; background:var(--marque-vif); transform:scaleX(0); transform-origin:0 50%}
+.inst-barres .fait i::after{transform:none}
+.inst-barres .actif i::after{animation:instBarre var(--d,2800ms) linear forwards}
+@keyframes instBarre{to{transform:none}}
+.inst-num{margin:14px 0 4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--marque-vif)}
+.inst-legende{margin:0; min-height:2.7em; font-size:17px; line-height:1.35; color:#fff}
+.inst-legende b{color:var(--marque-vif); font-weight:650}
+.inst-legende.entre{animation:instLeg .45s ease}
+@keyframes instLeg{from{opacity:0; transform:translateY(6px)}}
+.inst-plus{text-align:center; margin-top:8px; padding:0 16px; width:100%; max-width:400px}
+.inst-plus:empty{display:none}
+.inst-navs summary{list-style:none; display:inline-block; font-size:13px; color:rgba(255,255,255,.7); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:6px}
+.inst-navs summary::-webkit-details-marker{display:none}
+.inst-navs div{display:flex; gap:6px; margin-top:12px}
+.inst-navs button{flex:1; min-width:0; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:10px; background:none;
+  color:rgba(255,255,255,.75); font-size:13px; cursor:pointer}
+.inst-navs button[aria-pressed="true"]{background:var(--marque-vif); border-color:var(--marque-vif); color:#0b1220; font-weight:650}
+.inst-note{margin:10px 0 0; font-size:12.5px; line-height:1.45; color:rgba(255,255,255,.62)}
+.inst-lien{background:none; border:0; color:rgba(255,255,255,.75); font-size:13.5px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:6px; word-break:break-all}
+.inst-continuer{display:block; margin:14px auto 0; background:none; border:0; color:rgba(255,255,255,.62); cursor:pointer; padding:10px;
+  font-size:12px; font-weight:650; text-transform:uppercase; letter-spacing:.12em}
+/* La flèche montre le vrai bouton du navigateur, hors de la page */
+.inst-fleche{position:fixed; left:0; right:0; bottom:0; z-index:4; display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:28px 14px calc(6px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(17,23,39,0),#111727 55%);
+  color:var(--marque-vif); pointer-events:none; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em}
+.inst-fleche[hidden]{display:none}
+.inst-fleche>*{animation:instBas 1.2s ease-in-out infinite}
+.inst-fleche svg{width:30px; height:30px}
+.inst-fleche.bas-droite{align-items:flex-end}
+.inst-fleche.bas-droite>*{margin-right:4px}
+.inst-fleche.haut-droite{top:0; bottom:auto; align-items:flex-end; flex-direction:column-reverse;
+  padding:calc(6px + env(safe-area-inset-top)) 14px 28px; background:linear-gradient(rgba(17,23,39,.9) 40%,rgba(17,23,39,0))}
+.inst-fleche.haut-droite>*{animation-name:instHaut}
+.inst-fleche.haut-droite svg{transform:rotate(180deg); animation-name:instHautFleche}
+@keyframes instBas{50%{transform:translateY(6px)}}
+@keyframes instHaut{50%{transform:translateY(-6px)}}
+@keyframes instHautFleche{0%,100%{transform:rotate(180deg)}50%{transform:rotate(180deg) translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.inst-fleche>*,.inst-barres .actif i::after,.inst-legende.entre,.d-doigt,.d-doigt::after,.d-app img,.d-menu,.d-feuille,.d-valider,.d-voile{animation:none}.inst,.inst-page{transition:none}}
 .gate-inst{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:2px; padding:11px 14px;
   border-radius:12px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); color:#fff; font-size:13.5px; font-weight:600; cursor:pointer}
 .in-x{flex:0 0 auto; width:34px; height:34px; border:0; background:none; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
@@ -4149,8 +4265,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <div class="nt-tete">
         <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
         <div class="nt-t"><b>Installer l'application</b><span id="installTxt">Sur l'écran d'accueil, en plein écran, même hors ligne.</span></div>
-        <button type="button" class="nt-vu in-go" id="installGo" hidden>Installer</button>
-        <button type="button" class="nt-vu in-guide" id="installGuide">Comment faire</button>
+        <button type="button" class="nt-vu in-go" id="installGo">Installer</button>
         <button type="button" class="in-x" id="installX" aria-label="Masquer">×</button>
       </div>
     </div>
@@ -4646,17 +4761,30 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <div id="dirCorps"></div>
   </div>
 </div>
-<!-- GUIDE D'INSTALLATION (le client, le 17/10/2026 : « l'explication
-     d'installation complète, professionnelle et intuitive sur mobile »).
-     Rempli par guideInstall() selon le téléphone et le navigateur. -->
-<div class="ig-ov" id="igOv" hidden>
-  <div class="ig" role="dialog" aria-modal="true" aria-labelledby="igTitre">
-    <header class="ig-tete">
-      <img src="icon-192.png" alt="" width="44" height="44" class="ig-ico">
-      <div class="ig-t"><h2 id="igTitre">Installer BIOWANZE</h2><span>Sur l'écran d'accueil, comme une application</span></div>
-      <button type="button" class="ig-x" id="igX" aria-label="Fermer">&times;</button>
-    </header>
-    <div class="ig-corps" id="igCorps"></div>
+<!-- GUIDE D'INSTALLATION, à la manière de Pino (le client, le 17/10/2026) :
+     une démonstration plutôt qu'une notice. Un téléphone dessiné rejoue en
+     boucle les gestes du navigateur ouvert, un doigt sur le bouton à
+     toucher ; dessous, la progression et la consigne ; toucher un segment
+     rejoue son étape. Rempli par guideInstall(). -->
+<div id="instGuide" class="inst" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BIOWANZE" hidden>
+  <div class="inst-page">
+    <button type="button" class="inst-fermer" id="instFermer" aria-label="Fermer">&times;</button>
+    <div class="inst-tete"><img src="icon-192.png" alt=""><div><b>Installer BIOWANZE</b><small>Sur l'écran d'accueil, comme une application</small></div></div>
+    <div class="inst-demo" id="instDemo" aria-hidden="true">
+      <div class="inst-tel" id="instTel"><div class="inst-ecran" id="instEcran"></div></div>
+    </div>
+    <div class="inst-suivi" id="instSuivi">
+      <div class="inst-barres" id="instBarres"></div>
+      <p class="inst-num" id="instNum"></p>
+      <p class="inst-legende" id="instLegende" aria-live="polite"></p>
+    </div>
+    <div class="inst-action" id="instAction"></div>
+    <div class="inst-plus" id="instPlus"></div>
+    <button type="button" class="inst-continuer" id="instContinuer">Continuer sans installer</button>
+  </div>
+  <div class="inst-fleche" id="instFleche" aria-hidden="true" hidden>
+    <span>Ici</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg>
   </div>
 </div>
 <div class="horsligne" id="horsLigne" role="status" aria-live="polite" hidden><span aria-hidden="true"></span>Hors ligne · données de l'appareil</div>
@@ -10257,143 +10385,289 @@ function notifierTelephone(p,x){
 /* ── L'INSTALLATION ET LE RÉSEAU ──────────────────────────────────────────
    Le client, le 10/10/2026 : « que l'utilisateur ne pense pas à une page
    web ». Dans le navigateur, une carte invite à installer (une fois masquée,
-   elle ne revient plus : ui/installVu) ; Android garde l'invite du système
-   pour le bouton, l'iPhone reçoit le geste à faire. Installée, rien.
-   Le 17/10/2026 (« l'explication d'installation complète, professionnelle
-   et intuitive ») : un guide pas à pas, guideInstall(), ouvert depuis la
-   carte, l'écran de connexion et les Réglages ; il choisit iPhone ou
-   Android selon l'appareil et le navigateur, et arrête d'abord celui qui
-   lit le lien dans une messagerie (elle ne sait pas installer). */
+   elle ne revient plus : ui/installVu) ; son bouton lance l'invite du
+   système quand Android la propose, le guide sinon. Installée, rien.
+   Le 17/10/2026 (« pour l'installation de l'app, la même chose que pour
+   Pino ») : le guide est une démonstration plein écran. Un téléphone
+   dessiné rejoue les gestes du navigateur réellement ouvert (Safari,
+   Chrome, Edge, Firefox, Samsung), la flèche « Ici » montre son vrai
+   bouton, le navigateur se corrige d'un geste ; une messagerie (WhatsApp,
+   Messenger…) est d'abord invitée à ouvrir le lien dans le navigateur ;
+   au bureau, un QR code à scanner. L'adresse #installer ouvre le guide à
+   l'arrivée : c'est celle du QR code. */
 (function(){
   var carte=document.getElementById("installCard"), go=document.getElementById("installGo"),
-      txt=document.getElementById("installTxt"), invite=null,
-      ov=document.getElementById("igOv"), corps=document.getElementById("igCorps"), sys=null, retourFocus=null;
+      txt=document.getElementById("installTxt"), invite=null;
+  var guide=document.getElementById("instGuide"), ecran=document.getElementById("instEcran"),
+      demo=document.getElementById("instDemo"), tel=document.getElementById("instTel"),
+      barres=document.getElementById("instBarres"), numero=document.getElementById("instNum"),
+      legende=document.getElementById("instLegende"), suivi=document.getElementById("instSuivi"),
+      action=document.getElementById("instAction"), plus=document.getElementById("instPlus"),
+      continuer=document.getElementById("instContinuer"), fleche=document.getElementById("instFleche"),
+      html=document.documentElement;
+  var calme=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   var ua=navigator.userAgent||"";
   function installee(){ return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true; }
-  function estIOS(){ return /iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1); }
-  function estAndroid(){ return /Android/i.test(ua); }
-  function mobile(){ return estIOS()||estAndroid(); }
+  var ipad=/iPad/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  var ios=ipad||/iPhone|iPod/.test(ua), android=/Android/i.test(ua);
   /* Navigateur intégré à une autre application (WhatsApp, Messenger,
-     Facebook, Instagram, l'application Google…) : il ne sait pas installer,
-     il faut ouvrir le lien dans Safari ou Chrome. */
-  function integre(){ return /FBAN|FBAV|FB_IAB|Instagram|Messenger|WhatsApp|Snapchat|LinkedInApp|Line\/|GSA\/|MicroMessenger|; wv\)/.test(ua); }
-  function nav(){ if(/CriOS/.test(ua)) return "Chrome"; if(/FxiOS/.test(ua)) return "Firefox"; if(/EdgiOS|EdgA/.test(ua)) return "Edge";
-    if(/SamsungBrowser/.test(ua)) return "Samsung"; return estIOS()?"Safari":"Chrome"; }
+     Facebook, Instagram, l'application Google…) : il ne sait pas installer. */
+  var integre=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|WhatsApp|Snapchat|TikTok|BytedanceWebview|LinkedInApp|Pinterest|Line\/|GSA\/|MicroMessenger|; wv\)/.test(ua);
+  var safariVersion=+((/Version\/(\d+)/.exec(ua)||[])[1]||0);
+  /* Le navigateur reconnu ; null : un navigateur rare, on montre le plus
+     courant du téléphone sans prétendre savoir où sont ses boutons. */
+  var detecte=ios?(/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/OPiOS|DuckDuckGo|YaBrowser/.test(ua)?null:"safari")
+                 :(/SamsungBrowser/.test(ua)?"samsung":/EdgA/.test(ua)?"edge":/Firefox/.test(ua)?"firefox":/OPR|MiuiBrowser|HuaweiBrowser|YaBrowser/.test(ua)?null:"chrome");
+  var choix=detecte||(ios?"safari":"chrome");
+  var NAVS=ios?[["safari","Safari"],["chrome","Chrome"],["edge","Edge"],["firefox","Firefox"]]
+              :[["chrome","Chrome"],["samsung","Samsung"],["edge","Edge"],["firefox","Firefox"]];
   var LIEN=location.origin+location.pathname.replace(/index\.html$/,"");
-  /* Les pictogrammes, dessinés comme le téléphone les dessine. */
-  var SV='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-  var PIC={
-    partager:SV+'<path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5v10h14V11h-1"/></svg>',
-    ajouter:SV+'<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8v8M8 12h8"/></svg>',
-    points:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
-    menu:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
-    burger:SV+'<path d="M4 7h16M4 12h16M4 17h16"/></svg>',
-    installer:SV+'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>'
+  var HOTE=LIEN.replace(/^https?:\/\//,"").replace(/\/$/,"");
+
+  /* ── Pictogrammes ── */
+  function svg(d,plein){ return '<svg viewBox="0 0 24 24" '+(plein?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"')+'>'+d+'</svg>'; }
+  var I={
+    partage:svg('<path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"/>'),
+    ajout:svg('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>'),
+    tel:svg('<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v6M9 11.5h6"/>'),
+    points:svg('<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>',1),
+    pointsV:svg('<circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>',1),
+    lignes:svg('<path d="M4 7h16M4 12h16M4 17h16"/>'),
+    retour:svg('<path d="M15 5l-7 7 7 7"/>'),
+    avance:svg('<path d="M9 5l7 7-7 7"/>'),
+    livre:svg('<path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/>'),
+    onglets:svg('<rect x="4" y="7" width="13" height="13" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v10"/>'),
+    plus:svg('<path d="M12 5v14M5 12h14"/>'),
+    copie:svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+    etoile:svg('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'),
+    ok:svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+    externe:svg('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>')
   };
-  function pic(n,l){ return '<span class="ig-pic" role="img" aria-label="'+l+'">'+PIC[n]+'</span>'; }
-  function etapes(l){ return '<ol class="ig-ol">'+l.map(function(e,i){
-    return '<li><span class="ig-n">'+(i+1)+'</span><div>'+e+'</div></li>'; }).join("")+'</ol>'; }
-  var APRES='Ouvrez <b>BIOWANZE</b> depuis son icône sur l\'écran d\'accueil et connectez-vous avec votre trigramme.';
-  function iphone(){
-    var n=nav(), l=[];
-    if(n==="Safari"){
-      l.push('Touchez '+pic("partager","Partager")+' <b>Partager</b> dans la barre du bas de Safari.<small>Sous iOS 26, il se trouve dans le menu '+pic("points","Plus")+' en bas à droite.</small>');
-    } else {
-      l.push('Touchez '+pic("partager","Partager")+' <b>Partager</b>, en haut à droite de la barre d\'adresse de '+n+'.<small>Il faut iOS 16.4 ou plus récent. Sinon, ouvrez le lien dans Safari.</small>');
-    }
-    l.push('Faites défiler la liste et touchez '+pic("ajouter","Sur l'écran d'accueil")+' <b>Sur l\'écran d\'accueil</b>.<small>Absent de la liste ? Touchez « Plus » ou « Modifier les actions » en bas.</small>');
-    l.push('Laissez <b>Ouvrir en tant qu\'app web</b> activé, puis touchez <b>Ajouter</b> en haut à droite.');
-    l.push(APRES+'<small>L\'application installée ne partage pas la mémoire de Safari : la connexion se refait une seule fois.</small>');
-    return etapes(l);
+
+  /* ── Les scènes du téléphone ──
+     barre : le navigateur, le bouton à toucher en avant ; menu : un menu
+     ouvert ; feuille : la feuille de partage d'iOS ; valider : la
+     confirmation ; accueil : l'écran d'accueil, l'icône qui arrive.
+     La page est l'Accueil dessiné, sans personne dedans. */
+  var PAGE='<div class="d-page"><img class="d-ban" src="banniere.jpg" alt=""><span class="d-av">BWZ</span>'
+    +'<span class="d-bloc g"><i></i></span><span class="d-bloc"><i></i></span><span class="d-bloc"><i></i></span></div>';
+  var ICO='<img src="icon-192.png" alt="">';
+  function barre(pos,icone,cible){
+    var url='<span class="d-url">'+HOTE+'</span>';
+    var c=function(i,on){ return '<span class="d-ic'+(on&&cible?' cible':on?' fort':'')+'">'+i+'</span>'; };
+    if(pos==="haut-droite") return '<div class="d-barre haut">'+url+c(icone,1)+'</div>';
+    var outils=pos==="bas-centre"?[I.retour,I.avance,icone,I.livre,I.onglets]:[I.retour,I.avance,I.plus,I.onglets,icone];
+    var cle=pos==="bas-centre"?2:4;
+    return '<div class="d-barre bas">'+url+'<div class="d-outils">'+outils.map(function(i,k){ return c(i,k===cle); }).join("")+'</div></div>';
   }
-  function android(){
-    var h="", n=nav();
-    if(invite) h+='<button type="button" class="ig-btn" id="igInstaller">Installer maintenant</button><p class="ig-h">Ou à la main</p>';
-    var l=[];
-    if(n==="Samsung"){
-      l.push('Touchez '+pic("burger","Menu")+' <b>Menu</b>, en bas à droite de Samsung Internet.');
-      l.push('Touchez <b>Ajouter page à</b>, puis <b>Écran d\'accueil</b>.');
-    } else {
-      l.push('Touchez '+pic("menu","Menu")+' <b>Menu</b>, en haut à droite de '+n+'.');
-      l.push('Touchez '+pic("installer","Installer")+' <b>Installer l\'application</b> ou <b>Ajouter à l\'écran d\'accueil</b>.');
+  function vide(n){ var s=""; for(var i=0;i<n;i++) s+='<span class="d-ligne d-vide"><i></i></span>'; return s; }
+  function scene(e,m){
+    var b=m.barre;
+    if(e.s==="barre") return PAGE+barre(b[0],b[1],true);
+    if(e.s==="menu") return PAGE+barre(b[0],b[1],false)+'<div class="d-voile"></div>'
+      +'<div class="d-menu '+(e.haut?'haut':'bas')+'">'+vide(e.haut?2:3)
+      +'<span class="d-ligne cible"><b>'+e.t+'</b>'+(e.i||"")+'</span>'+vide(e.haut?3:1)+'</div>';
+    if(e.s==="feuille") return PAGE+'<div class="d-voile"></div><div class="d-feuille">'
+      +'<div class="d-f-tete">'+ICO+'<span><b>BIOWANZE</b><small>'+HOTE+'</small></span></div>'
+      +'<div class="d-f-apps"><i></i><i></i><i></i><i></i></div>'
+      +'<span class="d-ligne"><b>Copier</b>'+I.copie+'</span><span class="d-ligne"><b>Ajouter aux favoris</b>'+I.etoile+'</span>'
+      +'<span class="d-ligne cible"><b>Sur l\'écran d\'accueil</b>'+I.ajout+'</span></div>';
+    if(e.s==="valider"){
+      if(ios) return PAGE+'<div class="d-voile"></div><div class="d-valider ios"><div class="d-v-tete"><span>Annuler</span><b>Écran d\'accueil</b><span class="d-v-ok cible">'+e.t+'</span></div>'
+        +'<div class="d-v-app">'+ICO+'<span><b>BIOWANZE</b><small>'+HOTE+'</small></span></div></div>';
+      return PAGE+'<div class="d-voile"></div><div class="d-valider and">'+ICO+'<b>Installer l\'application ?</b><small>BIOWANZE · '+HOTE+'</small>'
+        +'<div class="d-v-boutons"><span>Annuler</span><span class="d-v-ok cible">'+e.t+'</span></div></div>';
     }
-    l.push('Confirmez avec <b>Installer</b>.<small>L\'icône BIOWANZE arrive sur l\'écran d\'accueil et dans la liste des applications.</small>');
-    l.push(APRES);
-    return h+etapes(l);
+    var g=""; for(var i=0;i<16;i++) g+=i===9?'<span class="d-app">'+ICO+'<small>BIOWANZE</small></span>':'<i></i>';
+    return '<div class="d-accueil"><div class="d-heure">'+new Date().toTimeString().slice(0,5)+'</div><div class="d-grille">'+g+'</div></div>';
   }
-  function rendre(){
-    var h="";
-    if(installee()){
-      corps.innerHTML='<div class="ig-ok"><b>L\'application est installée sur cet appareil.</b><br>Vous l\'utilisez en ce moment depuis l\'écran d\'accueil : elle se met à jour toute seule.</div>';
-      return;
+
+  /* ── Les méthodes, navigateur par navigateur ── */
+  var FEUILLE={s:"feuille",c:"Choisissez <b>Sur l'écran d'accueil</b>"};
+  var AJOUT_IOS={s:"valider",t:"Ajouter",c:"Touchez <b>Ajouter</b>"};
+  var M={
+    ios:{
+      safari:function(){
+        /* Depuis iOS 26, Partager est rangé sous « ⋯ ». */
+        if(ipad) return {barre:["haut-droite",I.partage],f:"haut-droite",e:[{s:"barre",c:"Touchez <b>Partager</b> en haut à droite"},FEUILLE,AJOUT_IOS]};
+        if(safariVersion>=26) return {barre:["bas-droite",I.points],f:"bas-droite",e:[{s:"barre",c:"Touchez <b>⋯</b> en bas à droite"},{s:"menu",t:"Partager",i:I.partage,c:"Touchez <b>Partager</b>"},FEUILLE,AJOUT_IOS]};
+        return {barre:["bas-centre",I.partage],f:"bas-centre",e:[{s:"barre",c:"Touchez <b>Partager</b> en bas de l'écran"},FEUILLE,AJOUT_IOS]};
+      },
+      chrome:function(){ return {barre:["haut-droite",I.partage],f:"haut-droite",e:[{s:"barre",c:"Touchez <b>Partager</b> dans la barre d'adresse"},FEUILLE,AJOUT_IOS]}; },
+      edge:function(){ return {barre:["bas-droite",I.lignes],f:"bas-droite",e:[{s:"barre",c:"Touchez <b>≡</b> en bas à droite"},{s:"menu",t:"Partager",i:I.partage,c:"Touchez <b>Partager</b>"},FEUILLE,AJOUT_IOS]}; },
+      firefox:function(){ return {barre:["bas-droite",I.lignes],f:"bas-droite",e:[{s:"barre",c:"Touchez <b>≡</b> en bas à droite"},{s:"menu",t:"Partager",i:I.partage,c:"Touchez <b>Partager</b>"},FEUILLE,AJOUT_IOS]}; }
+    },
+    android:{
+      chrome:function(){ return {barre:["haut-droite",I.pointsV],f:"haut-droite",e:[{s:"barre",c:"Touchez <b>⋮</b> en haut à droite"},{s:"menu",haut:1,t:"Ajouter à l'écran d'accueil",i:I.ajout,c:"Choisissez <b>Ajouter à l'écran d'accueil</b>"},{s:"valider",t:"Installer",c:"Touchez <b>Installer</b>"}]}; },
+      samsung:function(){ return {barre:["bas-droite",I.lignes],f:"bas-droite",e:[{s:"barre",c:"Touchez <b>≡</b> en bas à droite"},{s:"menu",t:"Ajouter la page à",i:I.ajout,c:"Choisissez <b>Ajouter la page à</b>"},{s:"menu",t:"Écran d'accueil",i:I.tel,c:"Puis <b>Écran d'accueil</b>"},{s:"valider",t:"Ajouter",c:"Touchez <b>Ajouter</b>"}]}; },
+      edge:function(){ return {barre:["bas-centre",I.points],f:"bas-centre",e:[{s:"barre",c:"Touchez <b>⋯</b> en bas de l'écran"},{s:"menu",t:"Ajouter au téléphone",i:I.tel,c:"Choisissez <b>Ajouter au téléphone</b>"},{s:"valider",t:"Installer",c:"Touchez <b>Installer</b>"}]}; },
+      firefox:function(){ return {barre:["haut-droite",I.pointsV],f:"haut-droite",e:[{s:"barre",c:"Touchez <b>⋮</b> en haut à droite"},{s:"menu",haut:1,t:"Ajouter à l'écran d'accueil",i:I.ajout,c:"Choisissez <b>Ajouter à l'écran d'accueil</b>"},{s:"valider",t:"Ajouter",c:"Touchez <b>Ajouter</b>"}]}; }
     }
-    if(integre()){
-      h+='<div class="ig-alerte"><strong>Ouvrez d\'abord ce lien dans '+(estIOS()?"Safari":"Chrome")+'</strong>'
-        +'Vous êtes dans le navigateur d\'une autre application (messagerie, réseau social), qui ne sait pas installer. '
-        +'Touchez '+pic(estIOS()?"points":"menu","Menu")+' puis <b>Ouvrir dans '+(estIOS()?"Safari":"le navigateur")+'</b>, ou copiez le lien.</div>'
-        +'<div class="ig-lien"><code>'+LIEN.replace(/^https?:\/\//,"")+'</code><button type="button" class="ig-sec" id="igCopier">Copier</button></div>';
-    } else if(!mobile()){
-      h+='<div class="ig-ok">Sur ordinateur, ouvrez ce lien sur votre téléphone, puis suivez les étapes ci-dessous.'
-        +'<div class="ig-lien" style="margin-top:8px"><code>'+LIEN.replace(/^https?:\/\//,"")+'</code><button type="button" class="ig-sec" id="igCopier">Copier</button></div></div>';
+  };
+  var FIN={s:"accueil",c:"L'icône <b>BIOWANZE</b> est sur votre écran d'accueil",fin:1};
+
+  /* ── La démonstration ── */
+  var m=null, pas=0, minuterie=null, LT=212, HT=400, echelle=1;
+  function ajuste(){
+    echelle=Math.max(.75,Math.min(1.35,(innerHeight-470)/HT,(innerWidth-48)/LT));
+    tel.style.transform="scale("+echelle+")";
+    demo.style.width=LT*echelle+"px"; demo.style.height=HT*echelle+"px";
+    suivi.style.width=Math.max(260,LT*echelle+40)+"px";
+  }
+  window.addEventListener("resize",function(){ if(!guide.hidden&&!demo.hidden) ajuste(); });
+  function joue(i){
+    clearTimeout(minuterie);
+    pas=i;
+    var e=m.e[i], duree=e.fin?3400:2800;
+    ecran.innerHTML=scene(e,m);
+    ecran.className="inst-ecran s-"+e.s;
+    var nb=m.e.length-(m.e[m.e.length-1].fin?1:0);
+    numero.textContent=e.fin?"Terminé":"Étape "+(i+1)+" sur "+nb;
+    legende.innerHTML=e.c;
+    legende.classList.remove("entre"); void legende.offsetWidth; legende.classList.add("entre");
+    var b=barres.children;
+    for(var k=0;k<b.length;k++){ b[k].className=k<i?"fait":k===i?"actif":""; b[k].style.setProperty("--d",duree+"ms"); }
+    /* Le doigt se pose sur l'élément à toucher. */
+    var cible=ecran.querySelector(".cible");
+    if(cible){
+      var r=cible.getBoundingClientRect(), o=ecran.getBoundingClientRect();
+      var doigt=document.createElement("span"); doigt.className="d-doigt";
+      doigt.style.left=(r.left-o.left+r.width/2)/echelle+"px";
+      doigt.style.top=(r.top-o.top+r.height/2)/echelle+"px";
+      ecran.appendChild(doigt);
     }
-    h+='<div class="ig-seg" role="group" aria-label="Système du téléphone">'
-      +'<button type="button" data-sys="ios" aria-pressed="'+(sys==="ios")+'">iPhone</button>'
-      +'<button type="button" data-sys="android" aria-pressed="'+(sys==="android")+'">Android</button></div>';
-    h+=sys==="ios"?iphone():android();
-    h+='<p class="ig-h">Une fois installée</p><div class="ig-plus">'
-      +'<div><b>Plein écran</b>Sans barre d\'adresse, comme une application.</div>'
-      +'<div><b>Hors ligne</b>L\'horaire reste lisible sans réseau.</div>'
-      +'<div><b>Notifications</b>'+(sys==="ios"?'Sur iPhone, seulement une fois installée.':'Quand votre horaire change.')+'</div>'
-      +'<div><b>À jour</b>Chaque nouvel horaire arrive tout seul.</div></div>';
-    if(!mobile()&&invite) h+='<button type="button" class="ig-sec" id="igInstaller">Installer sur cet ordinateur</button>';
-    corps.innerHTML=h;
+    if(!calme&&m.e.length>1) minuterie=setTimeout(function(){ joue((pas+1)%m.e.length); },duree);
   }
-  function ouvrir(){
-    retourFocus=document.activeElement;
-    if(!sys) sys=estIOS()?"ios":(estAndroid()?"android":"ios");
-    rendre(); ov.hidden=false; document.documentElement.style.overflow="hidden";
-    setTimeout(function(){ var x=document.getElementById("igX"); if(x) x.focus(); },30);
+  function montre(methode,finale){
+    m={barre:methode.barre,f:methode.f,e:finale===false?methode.e:methode.e.concat([FIN])};
+    demo.hidden=false; suivi.hidden=false;
+    ajuste();
+    barres.innerHTML=m.e.map(function(e,i){ return '<button type="button" data-pas="'+i+'" aria-label="Revoir l\'étape '+(i+1)+'"><i></i></button>'; }).join("");
+    joue(0);
   }
-  function fermer(){ ov.hidden=true; document.documentElement.style.overflow="";
-    if(retourFocus&&retourFocus.focus) try{ retourFocus.focus(); }catch(e){} }
-  function lancer(){ if(!invite) return; invite.prompt();
-    (invite.userChoice||Promise.resolve()).then(function(){ invite=null; montrer(); if(!ov.hidden) rendre(); }); }
-  ov.addEventListener("click",function(e){
-    var t=e.target;
-    if(t===ov){ fermer(); return; }
-    var b=t.closest&&t.closest("button"); if(!b) return;
-    if(b.id==="igX") fermer();
-    else if(b.dataset.sys){ sys=b.dataset.sys; rendre(); }
-    else if(b.id==="igInstaller") lancer();
-    else if(b.id==="igCopier"){
-      var ok=function(){ b.textContent="Copié"; setTimeout(function(){ b.textContent="Copier"; },1600); };
-      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(LIEN).then(ok,function(){ flash(LIEN); });
-      else flash(LIEN);
+  barres.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-pas]"); if(b) joue(+b.getAttribute("data-pas")); });
+  function pointe(ou){
+    fleche.className="inst-fleche "+ou; fleche.hidden=false;
+    guide.classList.toggle("inst-fleche-haut",ou==="haut-droite");
+  }
+  function sansFleche(){ fleche.hidden=true; guide.classList.remove("inst-fleche-haut"); }
+  /* Le choix du navigateur : présélectionné, corrigeable d'un geste. */
+  function selecteur(){
+    plus.innerHTML='<details class="inst-navs"><summary>Pas le bon navigateur ?</summary><div>'
+      +NAVS.map(function(n){ return '<button type="button" data-nav="'+n[0]+'" aria-pressed="'+(n[0]===choix)+'">'+n[1]+'</button>'; }).join("")+'</div></details>'
+      +(ios?'<p class="inst-note">Une fois installée, reconnectez-vous avec votre trigramme.</p>':'');
+  }
+  plus.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("button"); if(!b) return;
+    if(b.getAttribute("data-nav")){ choix=b.getAttribute("data-nav"); manuel=true; rendre(); var d=plus.querySelector("details"); if(d) d.open=true; }
+    else if(b.id==="instCopier"){
+      (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(LIEN+"#installer"):Promise.reject())
+        .then(function(){ b.textContent="Lien copié ✓"; },function(){ b.textContent=LIEN; });
     }
   });
-  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!ov.hidden) fermer(); });
-  window.guideInstall=ouvrir;
+
+  /* ── Ce qu'on affiche ── */
+  var manuel=false;
+  function demander(){
+    var p=invite; invite=null; if(!p) return;
+    p.prompt();
+    (p.userChoice||Promise.resolve()).then(function(r){ if(r&&r.outcome==="accepted") reussi(); else { montrer(); if(!guide.hidden) rendre(); } },function(){ if(!guide.hidden) rendre(); });
+  }
+  function rendre(){
+    clearTimeout(minuterie); sansFleche();
+    action.innerHTML=""; plus.innerHTML=""; demo.hidden=true; suivi.hidden=true;
+    continuer.textContent="Continuer sans installer";
+    if(installee()){ reussi(true); return; }
+    if(integre){
+      action.innerHTML='<p class="inst-info">Cette page est ouverte dans une application (messagerie, réseau social). L\'installation se fait depuis le navigateur :</p>'
+        +(android?'<a class="inst-bouton" href="intent://'+HOTE+'/#installer#Intent;scheme=https;package=com.android.chrome;end">'+I.externe+'Ouvrir dans Chrome</a>':'');
+      if(!android) montre({barre:["haut-droite",I.points],e:[{s:"barre",c:"Touchez <b>⋯</b> (ou <b>↗</b>)"},{s:"menu",haut:1,t:"Ouvrir dans Safari",i:I.externe,c:"Choisissez <b>Ouvrir dans Safari</b>"}]},false);
+      plus.innerHTML='<button type="button" class="inst-lien" id="instCopier">Copier le lien</button>';
+      return;
+    }
+    if(ios||android){
+      if(android&&invite&&!manuel){
+        /* Android propose l'installation directe : un bouton suffit. */
+        action.innerHTML='<button type="button" class="inst-bouton" id="instInstaller">'+I.tel+'Installer l\'application</button>';
+        montre({barre:["haut-droite",I.pointsV],e:[{s:"valider",t:"Installer",c:"Touchez <b>Installer l'application</b>, puis confirmez"}]});
+      } else {
+        var meth=M[ios?"ios":"android"][choix]();
+        montre(meth);
+        /* La flèche ne montre un bouton que dans le navigateur réellement ouvert. */
+        if(choix===detecte) pointe(meth.f);
+      }
+      selecteur();
+      return;
+    }
+    /* Ordinateur : l'installation se fait sur le téléphone. */
+    action.innerHTML='<p class="inst-info">L\'application s\'installe sur votre téléphone. Scannez ce code avec son appareil photo :</p>'
+      +'<img class="inst-qr" src="qr-installer.svg" alt="QR code vers l\'application BIOWANZE" width="220" height="220">'
+      +(invite?'<button type="button" class="inst-bouton sec" id="instInstaller">Installer aussi sur cet ordinateur</button>':'');
+  }
+  action.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("#instInstaller"); if(b) demander(); });
+  function reussi(deja){
+    clearTimeout(minuterie); sansFleche();
+    action.innerHTML='<p class="inst-reussi">'+I.ok+'<span><b>'+(deja?'Déjà installée':'C\'est installé !')+'</b>'
+      +(deja?'Vous utilisez l\'application depuis l\'écran d\'accueil : elle se met à jour toute seule.':'Ouvrez BIOWANZE depuis votre écran d\'accueil.')+'</span></p>';
+    plus.innerHTML=""; demo.hidden=true; suivi.hidden=true;
+    continuer.textContent="Fermer";
+    if(carte) carte.hidden=true;
+  }
+
+  /* ── Ouvrir, fermer ── */
+  var historique=false, avant=null;
+  function ouvrir(pousse){
+    avant=document.activeElement; manuel=false;
+    guide.hidden=false; guide.scrollTop=0;
+    rendre();
+    html.classList.add("inst-ouvert");
+    requestAnimationFrame(function(){ guide.classList.add("inst-visible"); });
+    /* Le bouton « retour » d'Android ferme le guide au lieu de quitter l'application. */
+    if(pousse!==false&&history.pushState){ history.pushState({inst:1},""); historique=true; }
+    try{ guide.focus({preventScroll:true}); }catch(e){}
+  }
+  function fermer(){
+    if(guide.hidden) return;
+    clearTimeout(minuterie);
+    guide.classList.remove("inst-visible"); html.classList.remove("inst-ouvert");
+    setTimeout(function(){ guide.hidden=true; },260);
+    if(avant&&avant.focus) try{ avant.focus({preventScroll:true}); }catch(e){}
+  }
+  function quitter(){ if(historique){ historique=false; history.back(); } else fermer(); }
+  window.addEventListener("popstate",function(){ if(historique){ historique=false; fermer(); } });
+  document.getElementById("instFermer").addEventListener("click",quitter);
+  continuer.addEventListener("click",quitter);
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!guide.hidden) quitter(); });
+  window.guideInstall=function(){ ouvrir(true); };
+
   function montrer(){
     var gi=document.getElementById("gateInstall"); if(gi) gi.hidden=installee();
     majReglage();
     if(installee()||lsGet("ui/installVu")){ carte.hidden=true; return; }
-    document.getElementById("installGuide").hidden=!!invite;
-    if(invite){ go.hidden=false; txt.textContent="Sur l'écran d'accueil, en plein écran, même hors ligne."; carte.hidden=false; }
-    else if(mobile()){ go.hidden=true; txt.textContent=integre()?"Ouvrez d'abord ce lien dans "+(estIOS()?"Safari":"Chrome")+".":"En trois gestes, sur l'écran d'accueil."; carte.hidden=false; }
+    if(invite&&!integre){ txt.textContent="Sur l'écran d'accueil, en plein écran, même hors ligne."; carte.hidden=false; }
+    else if(ios||android){ txt.textContent=integre?"Ouvrez d'abord ce lien dans "+(ios?"Safari":"Chrome")+".":"En trois gestes : le guide vous les montre."; carte.hidden=false; }
   }
   function majReglage(){
     var e=document.getElementById("installEtat"), b=document.getElementById("installReg"); if(!e) return;
     e.textContent=installee()?"Installée sur cet appareil":"Pas encore installée : le guide montre comment";
     if(b) b.textContent=installee()?"Voir":"Installer";
   }
-  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); invite=e; montrer(); if(!ov.hidden) rendre(); });
-  window.addEventListener("appinstalled",function(){ lsSet("ui/installVu",true); carte.hidden=true; montrer(); if(!ov.hidden) rendre(); });
-  go.addEventListener("click",lancer);
-  document.getElementById("installGuide").addEventListener("click",ouvrir);
-  document.getElementById("installReg").addEventListener("click",ouvrir);
-  document.getElementById("gateInstall").addEventListener("click",ouvrir);
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); invite=e; montrer(); if(!guide.hidden&&!manuel) rendre(); });
+  window.addEventListener("appinstalled",function(){ invite=null; lsSet("ui/installVu",true); carte.hidden=true; montrer(); if(!guide.hidden) reussi(); });
+  /* Le bouton de la carte : l'invite directe quand Android la propose, le guide sinon. */
+  go.addEventListener("click",function(){ if(invite&&!integre) demander(); else ouvrir(true); });
+  document.getElementById("installReg").addEventListener("click",function(){ ouvrir(true); });
+  document.getElementById("gateInstall").addEventListener("click",function(){ ouvrir(true); });
   document.getElementById("installX").addEventListener("click",function(){ lsSet("ui/installVu",true); carte.hidden=true; });
   montrer();
+  /* Arrivée par le QR code (#installer). La marque est retirée de l'adresse
+     tout de suite : sur iPhone, l'icône ajoutée ouvre l'adresse affichée, et
+     le guide ne doit pas se rouvrir à chaque lancement. Pas d'entrée
+     d'historique : ajoutée sans geste, Chrome la sauterait au retour. */
+  if(location.hash==="#installer"){
+    history.replaceState(history.state,"",location.pathname+location.search);
+    if(!installee()) ouvrir(false);
+  }
   var hl=document.getElementById("horsLigne");
   function reseau(){ hl.hidden=navigator.onLine!==false; }
   window.addEventListener("online",reseau); window.addEventListener("offline",reseau); reseau();
