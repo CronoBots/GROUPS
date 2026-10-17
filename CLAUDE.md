@@ -4725,6 +4725,10 @@ filet. La légende du mois se répartit sur toute la largeur
 (`space-evenly`). Vérifié en octobre 2026 et en janvier 2028 projeté, à
 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
 
+Le sous-titre de « Mon rythme » perd son « · 2026 » (le client, le même
+jour : l'année est déjà dans les trois titres) : « mois par mois et jour
+par jour ».
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
