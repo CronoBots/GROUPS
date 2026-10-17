@@ -4705,6 +4705,14 @@ qu'un contour, sans marge qui grandirait la frise. La ligne des numéros de
 chiffres resserrés (7 px sous 380 px, 8,5 px au-delà, 10 px au bureau).
 Vérifié à 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
 
+Puis (le client, le même jour) : les trois blocs de « Mon rythme »
+s'intitulent « 2026 : Mes pauses », « 2026 : Mois par mois » et « 2026 :
+Jour par jour », sans explication à côté (« faites · à venir », « touchez
+un mois ») ; un mois du graphique ne se touche plus (la barre n'est plus un
+bouton, son écouteur et son survol sont retirés) ; le filet au-dessus de
+« Jour par jour » part, avec `.ry-sep`. Vérifié à 320 px (hors ligne), 390
+et 1280 px ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

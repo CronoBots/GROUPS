@@ -3724,9 +3724,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-chart-t{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:7px}
 .ry-hint{text-transform:none; letter-spacing:0; color:var(--faint); font-weight:400; font-size:9.5px}
 .ry-bars{display:flex; align-items:flex-end; gap:4px; height:96px}
-.ry-bar{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; background:none; border:0; padding:0; cursor:pointer}
+.ry-bar{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; background:none; border:0; padding:0}
 .ry-bar>span{display:block; width:100%; max-width:16px; min-height:2px; background:var(--n); border-radius:3px 3px 0 0}
-.ry-bar:hover>span,.ry-bar:focus-visible>span{background:var(--in)}
 .ry-barp>span.ry-pile{display:flex; flex-direction:column; background:none; overflow:hidden}
 .ry-barp>span.ry-pile u{display:block; width:100%; text-decoration:none}
 .ry-barp:hover>span.ry-pile,.ry-barp:focus-visible>span.ry-pile{background:none; filter:brightness(1.2)}
@@ -3761,7 +3760,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-pc .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px; min-width:0; width:auto; height:auto}
 .ry-an-pc b{font-size:19px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.1}
 .ry-an-pc span{font-size:10px; color:var(--muted); white-space:nowrap}
-.ry-sep{height:1px; background:var(--line2); margin:18px 16px 0}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
@@ -9739,10 +9737,10 @@ function ryBarsPauses(pm){
   var out="";
   for(m=0;m<12;m++){
     var tot=pm.AM[m]+pm.PM[m]+pm.N[m]+pm.D[m];
-    out+='<button type="button" class="ry-bar ry-barp" data-m="'+m+'" title="'+esc(MOIS[m])+' : '+pm.AM[m]+' AM · '+pm.PM[m]+' PM · '+pm.N[m]+' N · '+pm.D[m]+' D — voir le mois">'
+    out+='<span class="ry-bar ry-barp" title="'+esc(MOIS[m])+' : '+pm.AM[m]+' AM · '+pm.PM[m]+' PM · '+pm.N[m]+' N · '+pm.D[m]+' D">'
       +'<span class="ry-pile" style="height:'+Math.round(tot/mx*100)+'%">'+ordre.map(function(g){
         return pm[g][m]?'<u style="flex:'+pm[g][m]+';background:var(--cal-'+C[g]+')"></u>':""; }).join("")
-      +'</span><i>'+RY_MC[m]+'</i></button>';
+      +'</span><i>'+RY_MC[m]+'</i></span>';
   }
   return out;
 }
@@ -11663,19 +11661,16 @@ function renderRythme(){
      qu'elles ne disent pas : la saison mois par mois, puis l'année jour par
      jour. */
   corps.innerHTML='<div class="ry-bloc">'
-    +'<div class="ry-chart-t ry-h2">Pauses de l\'année <span class="ry-hint">faites · à venir</span></div>'
+    +'<div class="ry-chart-t ry-h2">'+y+' : Mes pauses</div>'
     +'<div id="ryPauses"></div>'
-    +'<div class="ry-chart-t ry-h2">Pauses par mois <span class="ry-hint">touchez un mois</span></div>'
+    +'<div class="ry-chart-t ry-h2">'+y+' : Mois par mois</div>'
     +'<div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div>'
     +'<div class="ry-legs ry-legs-l">'+[["am","AM"],["pm","PM"],["n","N"],["d","D"]].map(function(x){
       return '<span class="ry-leg"><span class="ry-dot" style="background:var(--cal-'+x[0]+')"></span>'+x[1]+'</span>'; }).join("")+'</div>'
     +'</div>'
-    +'<div class="ry-sep"></div>'
-    +'<div class="ry-chart-t ry-h2">Jour par jour</div>'
+    +'<div class="ry-chart-t ry-h2">'+y+' : Jour par jour</div>'
     + ryHeatmap(s);
-  Array.prototype.forEach.call(corps.querySelectorAll(".ry-bar"),function(b){
-    b.onclick=function(){ var m=Number(b.dataset.m); try{ loadMonth(y,m); }catch(e){} setView("horaire"); };
-  });
+  /* plus d'action au toucher d'un mois (le client, le 17/10/2026) */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
     var b=document.getElementById("ryPauses"); if(b) b.innerHTML=ryPausesHTML(person,y); });
