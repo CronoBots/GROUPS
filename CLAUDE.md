@@ -29,6 +29,14 @@ le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
 le crochet n'était pas installé — lire le code de retour ne suffit pas si
 la commande est enchaînée avec `;` au lieu de `&&`.
 
+**Aucune demande d'autorisation.** Le client, le 18/10/2026 : « il faut
+que tu acceptes tout tout seul ». `.claude/settings.json` autorise donc
+le terminal, les fichiers, le web, les artefacts et les connecteurs
+(Notion, GitHub, Supabase, sessions, Docs). Une session cloud ne lit ce
+fichier que si elle n'a qu'un seul dépôt ; le reste se règle par le mode
+« Auto » du menu à côté de la zone de saisie, que seul le client peut
+choisir.
+
 **Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
 main :
 
