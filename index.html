@@ -1134,6 +1134,25 @@ body{overflow-x:clip}
 @media (min-width:900px){ #calCard .mc-j{min-height:78px; padding-top:10px; gap:6px}
   #calCard .mc-n{font-size:13px} #calCard .mc-t{font-size:12.5px} #calCard .mc-j[data-s] .mc-t{padding:2px 11px}
   #calCard .mc-j .mc-t.long{font-size:12px} #calCard .mc-leg{font-size:11.5px; gap:8px 26px} }
+/* LES CONGÉS SE VOIENT (le client, le 18/10/2026 : « les congés ne se
+   voient pas fort »). Un congé avait le contour en tirets et le code gris
+   d'un poste prévu non presté : deux choses différentes, et la plus
+   fréquente était la plus pâle. Le congé prend une case teintée, un filet
+   plein et son code dans une pastille claire, neutre, qu'on ne confond ni
+   avec une pause (couleurs) ni avec la maladie (rouge). Le poste prévu non
+   presté garde les tirets : c'est lui, le fantôme. */
+#calCard .mc-j.abs:not(.mal):not(.prevu){background:rgba(214,222,236,.09); border:1px solid rgba(214,222,236,.30)}
+#calCard .mc-j.abs:not(.mal):not(.prevu) .mc-n{color:var(--ink2)}
+#calCard .mc-j.abs:not(.mal):not(.prevu) .mc-t{background:#D3DAE6; color:#151B2C; padding:1px 6px; border-radius:99px; line-height:1.35}
+#calCard .mc-j.abs:not(.mal):not(.prevu) .mc-t.long{padding:1px 3px}
+#calCard .mc-j.prevu{border:1px dashed var(--line2)}
+#calCard .mc-j.prevu .mc-t{color:var(--muted)}
+#calCard .mc-leg .lg-abs{background:#D3DAE6; border:0; box-shadow:none; border-radius:99px}
+#calCard .mc-leg .lg-prevu{background:none; border:1px dashed var(--muted); box-shadow:none}
+#calCard .mc-leg s{color:var(--muted)}
+/* le montant des rappels quitte la chasse fixe, comme les autres chiffres */
+#calCard .csec .cstat-m{font-family:inherit; font-weight:600}
+@media (min-width:900px){ #calCard .mc-j.abs:not(.mal):not(.prevu) .mc-t{padding:2px 10px} }
 
 /* ---------- horaire : la feuille d'une journée ---------- */
 /* Corriger est l'exception : cela mérite une surface dédiée, ouverte sur la
@@ -2928,6 +2947,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      au .wrap des vues qui défilent. (Au-delà de 760 px la barre porte les
      onglets : elle reste, cf. placerOnglets.) */
   .top{display:none}
+  /* La bande de la barre d'état reste OPAQUE (le client, le 18/10/2026 :
+     « diminuer le flou dans le haut de l'écran »). Sans barre du haut, le
+     contenu défilait sous l'heure et la batterie, et l'iPhone le montrait
+     flou et grisé. Une bande à la couleur de la marque couvre désormais la
+     zone de l'encoche : rien ne passe plus dessous. Hauteur nulle hors de
+     l'application installée, où cette zone n'existe pas. */
+  html::after{content:""; position:fixed; top:0; left:0; right:0; z-index:95;
+    height:env(safe-area-inset-top,0px); background:var(--marque); pointer-events:none}
   .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 16px)}
   /* La vue « Du jour » a son plein écran fixe, avec sa propre marge d'encoche. */
   body[data-view="jour"]{overflow:hidden}
@@ -6327,7 +6354,7 @@ function legendeMois(){
   });
   if(abs)  h.push('<span><i class="lg-abs"></i>Congé</span>');
   if(mal)  h.push('<span><i class="lg-mal"></i>Maladie</span>');
-  if(prevu) h.push('<span><i class="lg-abs"></i><s>AM</s> prévu non presté</span>');
+  if(prevu) h.push('<span><i class="lg-prevu"></i><s>AM</s> non presté</span>');
   if(jour) h.push('<span><i class="lg-jour"></i>Prime conservée</span>');
   if(part) h.push('<span><i class="lg-pt lg-part"></i>Heures modifiées</span>');
   if(velo) h.push('<span><i class="lg-pt lg-velo"></i>Vélo</span>');
