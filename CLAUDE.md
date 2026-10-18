@@ -4603,6 +4603,17 @@ formulaire. Vérificateur identique à l'octet ; vérifié sur VBN (01, 02, 03,
 09, 15/10) et YBT (maladie) à 320 px (hors ligne), 390 et 1280 px, rien ne
 déborde, l'interrupteur vélo s'enregistre.
 
+**Glisser d'un jour à l'autre sur la feuille** (le client, le 18/10/2026 :
+« il faut pouvoir swiper gauche/droite sur ces fiches »). Le même geste
+franc que le Planning et les mois (60 px, 1,8 fois plus large que haut,
+moins de 0,7 s) : vers la gauche le jour suivant, vers la droite le
+précédent, et le contenu arrive du côté où l'on va (`jourBouge()`). Les
+flèches ‹ › et celles du clavier font de même, et toutes passent désormais
+d'un mois à l'autre : la feuille du 1er octobre mène au 30 septembre (avant,
+elles s'arrêtaient au bord du mois). Éprouvé au toucher simulé à 320 px
+(hors ligne), 390 et 1280 px : 01/10 → 02/10 → 30/09, un glissement court ou
+en biais ne change rien, rien ne déborde. Vérificateur identique à l'octet.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les

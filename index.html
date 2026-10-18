@@ -1166,6 +1166,9 @@ body{overflow-x:clip}
 .sheet-boite .day{border-bottom:0; padding:14px 16px}
 /* la journée lue (18/10/2026) : ce qui a été presté, puis ses nuances */
 .sheet-boite .day.lu{display:block; padding:14px 16px 16px}
+.sheet-boite.jour-g{overflow-x:clip} .sheet-boite.jour-d{overflow-x:clip}
+.sheet-boite.jour-g>:not(.sheet-tete){animation:jourGauche .2s ease-out}
+.sheet-boite.jour-d>:not(.sheet-tete){animation:jourDroite .2s ease-out}
 .sheet-boite .aide[hidden]{display:none}
 .sheet-src .src-t{display:inline-block; margin-right:8px; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
 .sheet-src .com{font-style:normal; color:var(--ink2); margin-top:6px; padding-left:8px; border-left:2px solid var(--line)}
@@ -6428,14 +6431,44 @@ document.getElementById("moisCal").addEventListener("click",function(e){
 document.getElementById("jourSheet").addEventListener("click",function(e){
   if(e.target.closest("[data-fermer]")) fermerJour();
 });
-document.getElementById("sheetPrev").addEventListener("click",function(){
-  if(jourOuvert>1) ouvrirJour(jourOuvert-1);
-});
-document.getElementById("sheetNext").addEventListener("click",function(){
-  if(jourOuvert<daysInMonth(st.y,st.m)) ouvrirJour(jourOuvert+1);
-});
+/* Passer au jour d'à côté, au-delà du mois s'il le faut : la feuille du 31
+   mène au 1er du mois suivant, comme on feuillette un agenda. Le contenu
+   arrive du côté où l'on va. */
+function jourBouge(n){
+  if(!jourOuvert) return;
+  var d=jourOuvert+n;
+  if(d<1){ go(-1); d=daysInMonth(st.y,st.m); }
+  else if(d>daysInMonth(st.y,st.m)){ go(1); d=1; }
+  ouvrirJour(d);
+  var b=document.querySelector("#jourSheet .sheet-boite");
+  b.classList.remove("jour-g","jour-d"); void b.offsetWidth;
+  b.classList.add(n>0?"jour-g":"jour-d");
+  clearTimeout(b._jT); b._jT=setTimeout(function(){ b.classList.remove("jour-g","jour-d"); },260);
+}
+document.getElementById("sheetPrev").addEventListener("click",function(){ jourBouge(-1); });
+document.getElementById("sheetNext").addEventListener("click",function(){ jourBouge(1); });
+/* GLISSER D'UN JOUR À L'AUTRE (le client, le 18/10/2026 : « il faut pouvoir
+   swiper gauche/droite sur ces fiches »). Même geste franc que le Planning
+   et les mois : 60 px, 1,8 fois plus large que haut, moins de 0,7 s. Vers la
+   gauche le jour suivant, vers la droite le précédent. */
+(function(){
+  var b=document.querySelector("#jourSheet .sheet-boite"), x0=null, y0=0, t0=0;
+  b.addEventListener("touchstart",function(e){
+    if(e.touches.length!==1){ x0=null; return; }
+    if(e.target.closest && e.target.closest("input,select,textarea")){ x0=null; return; }
+    x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
+  },{passive:true});
+  b.addEventListener("touchend",function(e){
+    if(x0===null) return;
+    var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0; x0=null;
+    if(Date.now()-t0>700 || Math.abs(dx)<60 || Math.abs(dx)<1.8*Math.abs(dy)) return;
+    jourBouge(dx<0?1:-1);
+  },{passive:true});
+})();
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape" && jourOuvert) fermerJour();
+  else if(jourOuvert && (e.key==="ArrowLeft"||e.key==="ArrowRight")
+          && !(e.target.closest && e.target.closest("input,select,textarea"))) jourBouge(e.key==="ArrowRight"?1:-1);
 });
 document.querySelector("#jourSheet .sheet-boite").addEventListener("keydown",
   piegeTab(document.querySelector("#jourSheet .sheet-boite")));
