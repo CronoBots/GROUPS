@@ -1581,6 +1581,34 @@ Vérifié à 320, 390 et 1280 px pour un contremaître (VBN, rien), un adjoint
 ni erreur ; vérificateur (calendrier, manques, polyvalence, compteurs 78/78)
 et `comparer-fiches.py VBN` identiques à l'octet ; hors ligne.
 
+**Les recyclages dans le héros** (le client, le 18/10/2026 : « pour ceux qui
+ont des recyclages à faire, indiquer la progression et les compteurs dans
+leur héros, tout près des polyvalences »), `nfdm-v824`. Dans le cadre
+« Polyvalences », pour qui a un « restant » au classeur RH (sauf un
+contremaître) :
+- sur chaque puce, fait / objectif, par `polyvalenceDe()`, la lecture de
+  l'onglet Recyclage, sans seconde copie de la règle ; au vert au quota, et
+  aucune autre couleur (règle du 07/10). Un atelier exempté (le client,
+  06-07/10) dit « exempté » au lieu de rester muet. Pour un adjoint, une
+  puce « Contremaître », sur 5 ;
+- dessous, la progression du classeur RH : la somme de ses recyclages
+  faits, sur fait + SON « restant » (ATR 18 / 30, 12 à faire) ;
+- posé après le premier affichage (`recyclageHeros()`, dans le même
+  `plusTard` que « Mon année ») : `calculerPolyvalence()` rejoue l'année,
+  et avait coûté 2,7 s au démarrage d'un téléphone lent. Le héros reste
+  sous la seconde.
+**Mesuré avant de choisir** : le « restant » du classeur égale la somme de
+ce qui manque à chaque atelier pour 20 personnes sur 29, et pas pour 9
+(DWS 17 contre 27, FLN 7 contre 22, PAM 18 contre 10…). Pour ces neuf,
+« fait + restant » vaut 15 ou 20 là où l'application attend 30 ou 40. La
+copie du classeur RH n'est pas dans le dépôt : impossible d'y lire la
+largeur de leurs sections. Rien n'est deviné : chaque chiffre est montré tel
+que le classeur le donne, et la question est posée
+(`docs/questions-client.md`). Vérifié pour ATR (adjoint), FLN (deux
+ateliers exemptés), PDE, ASS, VBN (contremaître, rien) et CWN (restant 0,
+pas de progression), à 320, 390 et 1280 px ; vérificateur et fiches
+identiques à l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
