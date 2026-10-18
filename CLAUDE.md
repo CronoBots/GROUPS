@@ -4737,9 +4737,12 @@ filet. La légende du mois se répartit sur toute la largeur
 (`space-evenly`). Vérifié en octobre 2026 et en janvier 2028 projeté, à
 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
 
-Le sous-titre de « Mon rythme » perd son « · 2026 » (le client, le même
-jour : l'année est déjà dans les trois titres) : « mois par mois et jour
-par jour ».
+Le sous-titre de « Mon rythme » a perdu son « · 2026 », puis c'est l'inverse
+qu'il fallait (le client, le 18/10/2026 : « non, 2026 apparaît toujours ») :
+**j'avais compris le sous-titre, il parlait des trois titres**. Ils
+redeviennent « Mes pauses », « Mois par mois » et « Jour par jour », et
+l'année ne s'écrit plus qu'une fois, en sous-titre du cadre : « année 2026 »
+(« mois par mois et jour par jour » redisait les titres).
 
 Puis (le client, le 18/10/2026) : **un cadre dans sa seconde semaine de D
 (la 6e de son cycle de 6 semaines) n'affiche plus d'équipe pour le cycle
