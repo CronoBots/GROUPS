@@ -4723,6 +4723,13 @@ derrière les cases dans `.mc-grille` (`--g`, l'écart entre colonnes, sert
 à la caler). Affichage seulement ; vérificateur identique à l'octet ;
 vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+Puis, le même jour, capture à l'appui : « je n'aime pas du tout les
+colonnes de wk ». La bande est retirée. Le week-end se distingue case par
+case : un samedi ou un dimanche sans prestation garde une tuile très
+légère (`.mc-j.we`), là où un repos de semaine n'a rien, et SAM et DIM
+s'écrivent en cyan ; les jours prestés gardent leur couleur. Le jour
+courant garde sa pastille. Vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
