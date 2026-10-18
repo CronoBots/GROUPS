@@ -4541,6 +4541,21 @@ la dernière valeur à droite quand on descend (il apparaît après 300 px).
 Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à
 320 px (hors ligne), 390 et 1280 px.
 
+**« Super intuitif et propre »** (le client, le 18/10/2026, juste après).
+Chaque rangée se lit maintenant comme une phrase : le NOM d'abord, le code
+en petite étiquette après lui (la colonne de codes laissait un grand vide
+entre « VA » et « Vacances annuelles ») ; à droite, ce qu'il reste à faire.
+Un congé tout placé tient sur une ligne, « ✓ Tout placé » en vert, sans
+détail ni barre. Le restant s'écrit « 12 h à placer » (« de trop » sous
+zéro). Le flex time perd sa pastille : son état passe sous la valeur, en
+couleur (« Dans les bornes », « À redescendre », « Au-delà de 104 h »,
+« Sous −8 h »), la date du solde dans l'infobulle. La RHS dit « repris en
+2026 », le temps réduit « 26 j posés en 2 périodes », sans la liste. Le
+total s'écrit « 1,5 jours à placer, soit 12 h », sous un filet ; « soldes
+2025 inclus » passe en infobulle, « jours de 8 h » devient « 1 jour = 8 h ».
+Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à
+320 px (hors ligne), 390 et 1280 px, rien ne déborde.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
