@@ -4650,6 +4650,18 @@ translucide avec un filet, la légende suit. Mesuré à 320 px (hors ligne), 390
 et 1280 px : une seule taille de badge par largeur, aucun texte coupé, rien
 ne déborde ; vérificateur identique à l'octet.
 
+**Le poste prévu non presté ne s'affiche plus barré** (le client, le
+18/10/2026 : « utile de mettre les pauses barrées ? », puis « 3 »). Au
+calendrier du mois, une journée dont le classeur prévoyait une pause sans
+qu'elle soit faite, ni congé écrit (VBN le 15/10, « 7h-15h · - · cf.
+09/10 », un D déplacé), montrait le code barré dans une case en tirets.
+Elle se lit désormais comme un repos ordinaire, et l'entrée « AM non
+presté » quitte la légende. L'infobulle et la feuille du jour disent
+toujours « prévu, non presté ». CSS seulement : la règle dure « poste prévu
+effacé » du vérificateur porte sur la lecture, qui ne change pas, et ses
+sorties sont identiques à l'octet. Vérifié à 320 px (hors ligne), 390 et
+1280 px, rien ne déborde.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
