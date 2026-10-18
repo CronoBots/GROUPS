@@ -4484,6 +4484,35 @@ a d'abord annulé la règle qui la suivait : un compteur d'accolades ne la voit
 pas, la capture si. Vérifié sur VBN et SKS à 320 px (hors ligne), 390 et
 1280 px, sans débordement ni erreur.
 
+**« Mes compteurs », une seule forme de rangée** (le client, le
+18/10/2026, capture de l'iPhone : « il y a moyen d'optimiser bien mieux
+cela pour être intuitif, propre et professionnel »). Défauts relevés à 320,
+390 et 1280 px :
+- quatre tuiles de congés de même taille, même vides (« 0 j ») ;
+- des chiffres en chasse fixe (« 2,5 j » se lisait « 2 , 5  j ») ;
+- des badges encadrés à chaque ligne ;
+- un texte d'excuse dans la tuile RHS (« Le solde n'est pas dans le
+  classeur ») ;
+- une jauge flex time au gros rond blanc ;
+- des sous-titres longs ;
+- des tuiles en haut et des rangées en bas, deux styles ;
+- le lien « Mon recyclage » en grande police (raccourci `font` invalide).
+
+Tout compteur est désormais une rangée (`.cr`) : le code en petites
+capitales d'accent et le nom à gauche, le détail dessous, la valeur en
+grand à droite, dans la police du texte avec des chiffres alignés. Les
+congés commencent par **le total à placer** (« 5,5 j à placer · 44 h »).
+Chaque congé montre « placé sur disponible », sa barre et son restant ; un
+congé tout placé tient sur une ligne pâle, « Tout placé », en fin de liste.
+Les restants négatifs s'écrivent avec un vrai signe moins. Le flex time
+a son état en pastille et une jauge fine dont le point prend la couleur de
+l'état, avec des repères −8 h, 80 h et 104 h. La RHS dit « reprises en
+2026 », et le solde absent passe dans l'infobulle. Le temps réduit et la
+maladie prennent la même rangée. Au bureau, deux colonnes. Aucun calcul
+touché : le vérificateur est identique à l'octet. Vérifié sur VBN, LCI,
+ATA et SMA à 320 px (hors ligne), 390 et 1280 px, sans débordement ni
+erreur.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les

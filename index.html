@@ -614,84 +614,69 @@ body{overflow-x:clip}
   text-align:right}
 @media (max-width:380px){ .cpt-t{flex-direction:column; align-items:flex-start; gap:2px} .cpt-t span{text-align:left} }
 .cpt-n{margin:8px 0 0; font-size:11.5px; line-height:1.5; color:var(--muted)}
-/* Congés : une tuile par code, le restant en jours en grand (16/10/2026) */
-.cg-grille{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
-@media (min-width:761px){ .cg-grille{grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px} }
-.cg-l{display:flex; flex-direction:column; gap:7px; min-width:0; padding:10px 12px 11px;
-  background:var(--surface2); border:1px solid var(--line); border-radius:12px}
-.cg-t{display:flex; align-items:center; gap:7px; min-width:0}
-.cg-t .cpt-code{width:auto; min-width:40px}
-.cpt-code{white-space:nowrap}
-.cg-n{font-size:11.5px; font-weight:600; color:var(--muted); min-width:0; line-height:1.25;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-.cg-rs{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-top:2px}
-.cg-rs b{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap; font-size:24px; font-weight:700; color:var(--ink); line-height:1}
-.cg-rs b i{font-style:normal; font-size:12px; font-weight:600; color:var(--muted); margin-left:2px}
-.cg-rs em{font-style:normal; font-size:11px; color:var(--muted); white-space:nowrap}
-.cg-l.vide .cg-rs b{color:var(--muted)}
-.cg-l.neg{border-color:color-mix(in srgb,var(--out2) 45%,var(--line))}
-.cg-l.neg .cg-rs b,.cg-l.neg .cg-rs em{color:var(--out2)}
-.cg-bar{height:4px; border-radius:99px; background:var(--surface3); overflow:hidden}
-.cg-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
-.cg-l.neg .cg-bar i{background:var(--out2)}
-.cg-d{font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
-.cg-d b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink2)}
-@media (max-width:380px){ .cg-l{padding:9px 10px 10px} .cg-t{flex-direction:column; align-items:flex-start; gap:5px} }
-.hr-grille{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media (min-width:761px){ .hr-grille{grid-template-columns:repeat(2,minmax(0,1fr))} }
-@media (max-width:380px){ .hr-grille{grid-template-columns:1fr} }
-.hr-t .ft-jauge{margin:6px 6px 20px}
-.hr-t .ft-gr span:nth-child(2){display:none}
-.hr-t .ft-e{font-weight:650; white-space:normal}
-.hr-t.ft-ok .ft-e{color:var(--good)} .hr-t.ft-att .ft-e{color:#f2c94c} .hr-t.ft-ko .ft-e{color:var(--out2)}
-.hr-t.ft-ko{border-color:color-mix(in srgb,var(--out2) 45%,var(--line))}
-.cpt-li i{font-style:normal; font-size:10px; font-weight:650; color:var(--faint); letter-spacing:.04em; margin-left:3px}
-/* le code du compteur, en badge, AVANT l'intitulé (VA, RTT, DTT…) */
-.cpt-code{flex:0 0 auto; display:inline-block; width:46px; box-sizing:border-box; text-align:center; padding:2px 6px; border-radius:6px;
-  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.02em;
-  color:var(--in); background:var(--in-soft); border:1px solid var(--trait)}
-.cpt-lib{display:inline-flex; align-items:center; gap:8px; min-width:0}
-/* flex time : le solde du jour, sa jauge, quatre chiffres */
-.ft-att .ft-e{color:var(--at-jaune)} .ft-ko .ft-e,.ft-ko b{color:var(--out2)}
-.ft-jauge{position:relative; margin:14px 6px 26px}
-.ft-piste{display:flex; height:6px; border-radius:99px; overflow:hidden; background:var(--surface3)}
-.ft-piste .ft-z0{flex:0 0 78.57%; background:rgba(110,190,150,.28)}
-.ft-piste .ft-z1{flex:1 1 auto; background:rgba(230,190,90,.30)}
-.ft-pt{position:absolute; top:-4px; width:14px; height:14px; margin-left:-7px; border-radius:50%;
-  background:var(--ink); box-shadow:0 0 0 3px var(--surface)}
-.ft-ko .ft-pt{background:var(--out2)}
+/* Une seule forme de rangée pour tous les compteurs (le client, le
+   18/10/2026 : « optimiser bien mieux cela pour être intuitif, propre et
+   professionnel »). À gauche le nom et, dessous, le détail ; à droite la
+   valeur en grand et son unité. Les chiffres sont dans la police du texte,
+   chiffres alignés : en chasse fixe, « 2,5 j » se lisait « 2 , 5  j ». */
+.cr{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:14px; row-gap:6px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--trait)}
+.cpt-t+.cr,.cr-l>.cr:first-child{border-top:0; padding-top:2px}
+.cr-n{min-width:0; display:flex; align-items:baseline; gap:7px; font-size:14px; font-weight:600; color:var(--ink); line-height:1.25}
+.cr-c{flex:0 0 auto; font-size:10.5px; font-weight:700; letter-spacing:.05em; color:var(--in)}
+.cr-s{grid-column:1; font-size:11.5px; color:var(--muted); line-height:1.35; font-variant-numeric:tabular-nums}
+.cr-s b{font-weight:650; color:var(--ink2)}
+.cr-v{grid-row:1 / span 2; grid-column:2; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;
+  font-size:22px; font-weight:700; letter-spacing:-.01em; color:var(--ink); line-height:1.05}
+.cr-v small{font-size:12px; font-weight:600; color:var(--muted); margin-left:2px; letter-spacing:0}
+.cr-v em{display:block; font-style:normal; font-size:11px; font-weight:500; color:var(--muted); margin-top:3px}
+.cr.sans-s .cr-v{grid-row:1}
+.cr-w{grid-column:1 / -1}
+.cr-bar{grid-column:1 / -1; height:4px; border-radius:99px; background:var(--surface3); overflow:hidden}
+.cr-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
+/* un congé tout placé : la rangée pâlit, sa valeur dit « Tout placé » */
+.cr.vide .cr-n{color:var(--muted)} .cr.vide .cr-v{font-size:12.5px; font-weight:600; color:var(--faint)}
+.cr.vide{padding:8px 0} .cr.vide .cr-bar,.cr.vide .cr-s{display:none} .cr.vide .cr-v{grid-row:1}
+.cr.neg .cr-v,.cr.neg .cr-v small,.cr.neg .cr-s b{color:var(--out2)} .cr.neg .cr-bar i{background:var(--out2)}
+/* le total des congés, la réponse qu'on cherche en premier */
+.cr-tot{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin:0 0 12px; font-variant-numeric:tabular-nums}
+.cr-tot b{font-size:30px; font-weight:750; letter-spacing:-.02em; color:var(--ink); line-height:1}
+.cr-tot b small{font-size:15px; font-weight:650; color:var(--muted); margin-left:3px}
+.cr-tot span{font-size:12.5px; color:var(--muted)}
+/* flex time : l'état en pastille, une jauge fine */
+.cr-e{display:inline-block; font-size:10.5px; font-weight:650; padding:1px 7px; border-radius:99px;
+  color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
+.ft-att .cr-e{color:var(--at-jaune); background:color-mix(in srgb,var(--at-jaune) 14%,transparent)}
+.ft-ko .cr-e{color:var(--out2); background:color-mix(in srgb,var(--out2) 14%,transparent)}
+.ft-ko .cr-v{color:var(--out2)}
+.ft-jauge{grid-column:1 / -1; position:relative; margin:4px 0 22px}
+.ft-piste{display:flex; height:4px; border-radius:99px; overflow:hidden; background:var(--surface3)}
+.ft-piste .ft-z0{flex:0 0 78.57%; background:rgba(110,190,150,.30)}
+.ft-piste .ft-z1{flex:1 1 auto; background:rgba(230,190,90,.34)}
+.ft-pt{position:absolute; top:-3px; width:10px; height:10px; margin-left:-5px; border-radius:50%;
+  background:var(--good); box-shadow:0 0 0 2px var(--surface)}
+.ft-att .ft-pt{background:var(--at-jaune)} .ft-ko .ft-pt{background:var(--out2)}
 .ft-gr{position:relative; height:0}
-.ft-gr span{position:absolute; top:8px; transform:translateX(-50%); font-size:10px; color:var(--faint);
-  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
-.cpt-chk{margin:12px 0 0; font-size:11.5px; display:flex; align-items:center; gap:6px}
+.ft-gr span{position:absolute; top:7px; font-size:10px; color:var(--faint); font-variant-numeric:tabular-nums}
+.ft-gr span:first-child{left:0} .ft-gr span:last-child{right:0}
+.ft-gr span.mid{transform:translateX(-50%)}
+.cpt-chk{margin:10px 0 0; font-size:11.5px; display:flex; align-items:center; gap:6px}
 .cpt-chk::before{content:""; width:7px; height:7px; border-radius:50%; flex:0 0 auto}
-.cpt-chk.ok{color:var(--muted)} .cpt-chk.ok::before{background:var(--good)}
 .cpt-chk.ko{color:var(--out2); font-weight:600} .cpt-chk.ko::before{background:var(--out2)}
-/* rangées simples : libellé à gauche, valeur à droite */
-.cpt-li{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:7px 0;
-  border-top:1px solid var(--trait); font-size:13px; color:var(--ink2)}
-.cpt-li:first-child,.cpt-t+.cpt-li{border-top:0; padding-top:0}
-.cpt-li b{font-family:"IBM Plex Mono",monospace; font-size:13.5px; font-weight:650; color:var(--ink);
-  white-space:nowrap; font-variant-numeric:tabular-nums}
+/* au bureau, deux colonnes de rangées */
 @media (min-width:761px){
-  .cpt-liste{display:grid; grid-template-columns:1fr 1fr; column-gap:28px}
-  .cpt-liste .cpt-li:nth-child(2){border-top:0; padding-top:0}
+  .cr-l{display:grid; grid-template-columns:1fr 1fr; column-gap:32px; align-items:start}
+  .cr-l>.cr:nth-child(2){border-top:0; padding-top:2px}
 }
 /* Polyvalence : des badges compacts, un point à la couleur de la zone de
-   l'atelier (la même que le liseré du tableau du jour). En grille de trois
-   colonnes égales sur téléphone, cinq ateliers tiennent en deux rangées
-   alignées au lieu de flotter. */
-.cpt-puces{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:6px}
-.cpt-puces span{display:flex; align-items:center; gap:6px; min-width:0; font-size:11.5px; font-weight:600;
-  color:var(--ink2); padding:5px 8px; border-radius:8px; background:var(--surface2); border:1px solid var(--trait);
+   l'atelier (la même que le liseré du tableau du jour). */
+.cpt-puces{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:6px}
+.cpt-puces span{display:flex; align-items:center; gap:7px; min-width:0; font-size:12.5px; font-weight:600;
+  color:var(--ink2); padding:6px 9px; border-radius:8px; background:var(--surface2); border:1px solid var(--trait);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .cpt-puces i{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--bordg)}
 .cpt-puces [data-z="jaune"] i{background:var(--bordj)} .cpt-puces [data-z="vert"] i{background:var(--bordv)}
 .cpt-puces [data-z="rouge"] i{background:var(--bordr)} .cpt-puces [data-z="bleu"] i{background:var(--bordb)}
-.cpt-hj{display:inline-flex; align-items:baseline; gap:8px; white-space:nowrap}
-.cpt-hj b{font-family:"IBM Plex Mono",monospace; font-size:13.5px; font-weight:650; color:var(--ink)}
-.cpt-hj i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint);
-  min-width:44px; text-align:right}
 
 /* ---------- en-tête contextuel ---------- */
 /* LE NET À RECEVOIR A QUITTÉ LA BARRE DU HAUT. Le client, le 23/09/2026 :
@@ -3785,8 +3770,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
-.cpt-lien{display:inline-flex; margin-top:8px; padding:4px 0; border:0; background:none; color:var(--in);
-  font:600 12px inherit; font-family:inherit; cursor:pointer}
+.cpt-lien{display:inline-flex; margin-top:10px; padding:4px 0; border:0; background:none; color:var(--in);
+  font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
 .ry-panel{min-width:0}
 .ry-hm-box{padding:4px 16px 2px; display:flex; flex-direction:column; gap:3px; max-width:620px}
 .ry-hm-l{display:flex; align-items:center; gap:6px}
@@ -17217,28 +17202,33 @@ function renderCompteurs(){
        s'il y a un écart. */
     var h=[];
 
-    /* --- congés --- */
-    var lc=[], dejaVu={};
+    /* --- congés ---
+       Refonte du 18/10/2026 (le client : « intuitif, propre et
+       professionnel ») : d'abord le total à placer, la réponse qu'on
+       cherche ; puis une rangée par congé — le code et son nom, « placé sur
+       disponible » dessous, le restant en grand à droite (les trois chiffres
+       demandés le 09/10). Un congé tout placé ne prend plus la place d'une
+       tuile : sa rangée pâlit et dit « Tout placé », en fin de liste. */
+    var lc=[], lcVide=[], dejaVu={}, totRs=0;
     soldesConges(c).forEach(function(o){
       var k=o.k, tot=o.tot, pose=o.pose, rs=o.rs;
-      dejaVu[k]=1;
-      var lib=libCompteur(db,k); if(lib===k && LIB_CPT_LONG[k]) lib=LIB_CPT_LONG[k]; var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
-      /* Le client, le 09/10/2026 : « disponible, placé, restant », et le
-         code AVANT l'intitulé complet. Trois chiffres dans l'ordre où on les
-         raisonne, le restant mis en avant ; la barre dit la même chose d'un
-         coup d'œil. */
-      /* Compacté le 16/10/2026 (refonte de l'Accueil) : une rangée par
-         congé, les trois chiffres gardés — disponible et placé sous la barre,
-         le restant en grand à droite. Deux fois moins haut. */
-      var jr=R(rs/8,2);
-      lc.push('<div class="cg-l'+(rs<0?" neg":rs===0?" vide":"")+'" title="'+esc(lib)+' : '+num(rs)+' h restantes, '+num(pose)+' h placées sur '+num(tot)+' h">'
-        +'<div class="cg-t"><span class="cpt-code">'+esc(k)+'</span>'
-        +(lib===k?'':'<span class="cg-n">'+esc(lib)+'</span>')+'</div>'
-        +'<div class="cg-rs"><b>'+num(jr)+'<i>j</i></b><em>'+num(rs)+' h restantes</em></div>'
-        +'<div class="cg-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h disponibles"><i style="width:'+R(pct,1)+'%"></i></div>'
-        +'<div class="cg-d"><b>'+num(pose)+'</b> / '+num(tot)+' h placées</div></div>');
+      dejaVu[k]=1; if(rs>0) totRs+=rs;
+      var lib=libCompteur(db,k); if(lib===k && LIB_CPT_LONG[k]) lib=LIB_CPT_LONG[k];
+      var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0, vide=rs===0;
+      var html='<div class="cr'+(rs<0?" neg":vide?" vide":"")+'" title="'+esc(lib)+' : '+num(rs)+' h restantes, '+num(pose)+' h placées sur '+num(tot)+' h">'
+        +'<div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(lib===k?k:lib)+'</span></div>'
+        +'<div class="cr-s"><b>'+num(pose)+' h</b> placées sur '+num(tot)+' h</div>'
+        +(vide?'<div class="cr-v">Tout placé</div>'
+              :'<div class="cr-v">'+String(num(R(rs/8,2))).replace("-","−")+'<small>j</small><em>'+String(num(rs)).replace("-","−")+' h</em></div>')
+        +'<div class="cr-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div></div>';
+      (vide?lcVide:lc).push(html);
     });
-    if(lc.length) h.push(bloc("Congés restants","jours de 8 h · soldes "+(annee-1)+" inclus",'<div class="cg-grille">'+lc.join("")+'</div>'));
+    if(lc.length||lcVide.length){
+      var totJ=R(totRs/8,2);
+      h.push(bloc("Congés restants","jours de 8 h",
+        '<div class="cr-tot"><b>'+num(totJ)+'<small>j</small></b><span>'+(totRs?'à placer · '+num(R(totRs,2))+' h':'tout est placé')+' · soldes '+(annee-1)+' inclus</span></div>'
+        +'<div class="cr-l">'+lc.concat(lcVide).join("")+'</div>'));
+    }
 
     /* --- flex time --- */
     var f=c.flex||{};
@@ -17255,37 +17245,35 @@ function renderCompteurs(){
        du classeur (soldeFTClasseur()). */
     if(jusqua){
       var soldeJ=soldeFTClasseur(f),
-          etat=soldeJ>104?["ko","Au-delà du plafond de 104 h"]
-              :soldeJ>80?["att","Au-dessus de 80 h : des −FT sont à planifier"]
+          etat=soldeJ>104?["ko","Au-delà de 104 h"]
+              :soldeJ>80?["att","Au-dessus de 80 h : −FT à planifier"]
               :soldeJ<-8?["ko","Sous le minimum de −8 h"]
               :["ok","Dans les bornes"];
       var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
-      /* Refonte du 16/10/2026 : le flex time et la récup. HS sont deux
-         tuiles du même dessin que les congés. Le solde en grand, son état
-         en couleur et en mots, la jauge −8 / 80 / 104, puis l'année. */
-      ft.push('<div class="cg-l hr-t ft-'+etat[0]+'"><div class="cg-t"><span class="cpt-code">FT</span><span class="cg-n">Flex time</span></div>'
-        +'<div class="cg-rs"><b>'+(soldeJ>0?"+":"")+num(soldeJ)+'<i>h</i></b><em class="ft-e">'+etat[1]+'</em></div>'
+      ft.push('<div class="cr ft-'+etat[0]+'"><div class="cr-n"><span class="cr-c">FT</span><span>Flex time</span></div>'
+        +'<div class="cr-s"><span class="cr-e">'+etat[1]+'</span></div>'
+        +'<div class="cr-v">'+(soldeJ>0?"+":"")+String(num(soldeJ)).replace("-","−")+'<small>h</small><em>solde</em></div>'
         +'<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
         +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
         +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
-        +'<div class="ft-gr"><span style="left:0">−8</span><span style="left:'+pos(0)+'%">0</span>'
-        +'<span style="left:'+pos(80)+'%">80</span><span style="left:100%">104</span></div></div>'
-        +'<div class="cg-d"><b>+'+num(calc.ftPlus)+'</b> portées · <b>−'+num(calc.ftMoins)+'</b> reprises en '+annee+'</div></div>');
+        +'<div class="ft-gr"><span>−8 h</span><span class="mid" style="left:'+pos(80)+'%">80 h</span><span>104 h</span></div></div>'
+        +'<div class="cr-s cr-w"><b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises en '+annee+'</div></div>');
     }
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
     if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
     /* Récup. HS : le classeur ne note que les reprises, pas le solde. Les
        journées entières (« RHS ») et les reprises partielles (« 1h rhs »)
-       sont lues par deux chemins : la tuile les additionne (passe du
-       17/10/2026 : elle disait « 1 h » quand la liste du bas disait
-       « RHS 2 j · 16 h »), et la liste ne les redit plus. */
+       sont lues par deux chemins : la rangée les additionne (passe du
+       17/10/2026), et la liste du bas ne les redit plus. Le « solde absent
+       du classeur » ne s'écrit plus en clair (18/10/2026) : il reste dans
+       l'infobulle. */
     var rhsJ=calc.abs.RHS||0, rhsT=R(calc.rhs+rhsJ,2); dejaVu.RHS=1;
-    ft.push('<div class="cg-l hr-t"><div class="cg-t"><span class="cpt-code">RHS</span><span class="cg-n">Récup. heures sup.</span></div>'
-      +'<div class="cg-rs"><b>'+num(rhsT)+'<i>h</i></b><em>reprises en '+annee+'</em></div>'
-      +'<div class="cg-d">'+(rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+'</b> j entières · <b>'+num(R(calc.rhs,2))+'</b> h en partie. ':'')
-      +'Le solde n\'est pas dans le classeur.</div></div>');
-    h.push(bloc("Heures","flex time · bornes −8 h à 104 h",'<div class="cg-grille hr-grille">'+ft.join("")+'</div>'
+    ft.push('<div class="cr" title="Le classeur note les reprises, pas le solde du compteur.">'
+      +'<div class="cr-n"><span class="cr-c">RHS</span><span>Récup. heures sup.</span></div>'
+      +'<div class="cr-s">reprises en '+annee+(rhsJ&&calc.rhs?' · <b>'+num(R(rhsJ/8,2))+' j</b> entières, <b>'+num(R(calc.rhs,2))+' h</b> en partie':'')+'</div>'
+      +'<div class="cr-v">'+num(rhsT)+'<small>h</small></div></div>');
+    h.push(bloc("Heures","",'<div class="cr-l">'+ft.join("")+'</div>'
       +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
 
     /* --- temps de travail réduit ---
@@ -17305,9 +17293,11 @@ function renderCompteurs(){
     if(lots.length){
       lots.forEach(function(x){ dejaVu[x[0]]=1; });
       var tr=lots.map(function(x){
-        return '<div class="cpt-li"><span>'+NOM_REDUIT[x[0]]+(vus[x[0]]>1?' <i>période '+x[2]+'</i>':'')+'</span><b>'+x[1]+' j</b></div>'; });
-      if(aPlanifier!==undefined) tr.push('<div class="cpt-li"><span>À planifier</span><b>'+aPlanifier+' j</b></div>');
-      h.push(bloc("Temps de travail réduit","journées posées",tr.join("")));
+        var plus=vus[x[0]]>1;
+        return '<div class="cr'+(plus?'':' sans-s')+'"><div class="cr-n"><span class="cr-c">'+x[0]+'</span><span>'+NOM_REDUIT[x[0]]+'</span></div>'
+          +(plus?'<div class="cr-s">période '+x[2]+'</div>':'')+'<div class="cr-v">'+num(x[1])+'<small>j</small></div></div>'; });
+      if(aPlanifier!==undefined) tr.push('<div class="cr"><div class="cr-n"><span>À planifier</span></div><div class="cr-s">reste du droit de l\'année</div><div class="cr-v">'+num(aPlanifier)+'<small>j</small></div></div>');
+      h.push(bloc("Temps de travail réduit","journées posées",'<div class="cr-l">'+tr.join("")+'</div>'));
     }
 
     /* --- polyvalence ---
@@ -17328,9 +17318,9 @@ function renderCompteurs(){
     var cles=Object.keys(calc.abs).filter(function(k){ return !dejaVu[k] && !dejaVu[k.replace(/^1\/2\s*/,"")]; }).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
     if(cles.length){
       h.push(bloc("Maladie et autres absences","",
-        '<div class="cpt-liste">'+cles.map(function(k){
+        '<div class="cr-l">'+cles.map(function(k){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
-          return '<div class="cpt-li"><span class="cpt-lib"><span class="cpt-code">'+esc(k)+'</span>'+(l===k?'':esc(l))+'</span>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
+          return '<div class="cr sans-s"><div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(l===k?k:l)+'</span></div>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
     }
     hote.innerHTML=h.join("");
 
@@ -17341,7 +17331,7 @@ function renderCompteurs(){
        gras, ce qu'on compte d'habitude ; l'heure à côté, en plus discret. */
     function hj(h){
       var j=R(h/8,2);
-      return '<span class="cpt-hj"><b>'+num(j)+' j</b><i>'+num(R(h,2))+' h</i></span>';
+      return '<div class="cr-v">'+num(j)+'<small>j</small><em>'+num(R(h,2))+' h</em></div>';
     }
   });
 }
