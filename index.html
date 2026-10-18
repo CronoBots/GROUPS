@@ -8388,7 +8388,11 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      -FT ». Le classeur l'écrit parfois lui-même dans le commentaire de la
      journée visée : ["PM","4h -FT","+4h RTT"], et la somme tombe alors
      juste à zéro heure prestée. */
-  if(renvois && renvois.length) out.ax=renvois.slice();
+  if(renvois && renvois.length){
+    var rvC=renvois.filter(function(c){ return !/^RHS@/.test(c); });
+    if(rvC.length) out.ax=rvC;
+    renvois.forEach(function(c){ if(/^RHS@/.test(c)) out.rvRHS=(out.rvRHS||0)+Number(c.slice(4)); });
+  }
   /* les heures supplémentaires d'un rappel logé dans une cellule de congé */
   if(axHS) out.ax=(out.ax||[]).concat([axHS]);
   out.epargne=(A2&&A2.ft>0)?A2.ft:0;
@@ -9257,6 +9261,9 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
      non payé. */
   var rxCx=/\+\s*(\d+(?:[.,]\d+)?|1\/2)\s*h?\s*(rhs|rtt-?|dtt|va|css|-\s*ft)\b/gi, mCx, cxH=0, cxVu=false;
   var comCx=String(raw[2]||"");
+  /* la reprise écrite sur un autre jour (renvoisDuMois, « RHS@n ») suit
+     le même chemin que celle du commentaire */
+  if(r.rvRHS>0) comCx+=" +"+r.rvRHS+"h rhs";
   while(r.s && (mCx=rxCx.exec(comCx))){
     var qCx=mCx[1], cdCx=mCx[2].toUpperCase().replace(/\s+/g,"").replace(/^RTT-$/,"RTT");
     var nCx=(qCx==="1/2")?hJour/2:parseFloat(qCx.replace(",","."));
@@ -9354,7 +9361,14 @@ function renvoisDuMois(person,mois,hJour){
     m=RX_PRIS_AILLEURS.exec(e[2]||""); if(!m) continue;
     if(Number(m[2])!==mois) continue;
     code=parseHoraireEntry(["",e[1]||""],hJour).a;
-    if(!code || !ABSMAP[code]) continue;
+    /* « 2h rhs pris le 15.05 » (VGG, écrit le 16/05) : une reprise
+       d'heures sup n'est pas un code du barème, elle se lit comme le
+       « +Nh rhs » d'un commentaire. Le client, le 18/10/2026 : « oui ». */
+    if(!code || !ABSMAP[code]){
+      var mR=/(\d+(?:[.,]\d+)?)\s*h?\s*rhs\b/i.exec(e[1]||"");
+      if(!mR) continue;
+      code="RHS@"+mR[1].replace(",",".");
+    }
     (out[Number(m[1])]=out[Number(m[1])]||[]).push(code);
   }
   return out;
@@ -9376,7 +9390,8 @@ function renvoisAffiches(person,mois){
     m=null;
     if(/\+\s*FT/i.test(annot)) m=com.match(RX_RENVOI);
     if(!m){ m=RX_PRIS_AILLEURS.exec(com);
-      if(m){ var c=parseHoraireEntry(["",annot],hJ).a; if(!c||!ABSMAP[c]) m=null; } }
+      if(m){ var c=parseHoraireEntry(["",annot],hJ).a;
+        if((!c||!ABSMAP[c]) && !/\d\s*h?\s*rhs\b/i.test(annot)) m=null; } }
     if(!m) continue;
     var jd=pad2(Number(m[1]))+"/"+pad2(Number(m[2])), js=mmdd.slice(2)+"/"+mmdd.slice(0,2);
     if(js===jd) continue;

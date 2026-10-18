@@ -2145,8 +2145,10 @@ AVANT le départ — c'est alors l'autre qui part. **Cinq journées** : LCI
 05/04 (4 h, comme sa fiche), VGG 23/07 (2 h, comme son relevé), BLR 28/08
 (2 h), YRS 09/01 (1 h 15) et 08/01 (0 h 30). Neuf règles, `--manques 0929`
 et `--compteurs` identiques à l'octet ; Recyclage : VGG chaudières 3 → 2
-(le 23/07 n'est plus une journée pleine). VGG le 15/05 reste un écart
-connu : sa cellule `["AM","R-CM","Remplace AFA"]` ne dit pas le départ.
+(le 23/07 n'est plus une journée pleine). VGG le 15/05 n'est plus un
+écart connu : sa cellule `["AM","R-CM","Remplace AFA"]` ne dit pas le
+départ, mais celle du 16/05 l'écrit (« 2h rhs pris le 15.05 départ à
+12h »), voir « Le cadre du mois, repris case par case » (18/10/2026).
 
 **« Polyvalence » sur un repos est une note.** Le client : « le mot
 polyvalence veut juste dire qu'à partir de ce jour-là ils ont changé de
@@ -2721,7 +2723,7 @@ l'arrange mieux ». Un D déplacé fait d'un repos au cycle un jour
 travaillé normal. JBI les 08/08 et 14 au 16/08 restent un écart connu.
 
 Écarts connus, que le classeur n'écrit pas : RHS d'un départ anticipé
-(VGG 15/05 et 03/04 ; le 23/07, « départ à 20h », est lu depuis le
+(VGG 03/04 ; le 15/05 est lu depuis le 18/10/2026 ; le 23/07, « départ à 20h », est lu depuis le
 29/09/2026), flex time épargné non écrit
 (AFA 30/07, JBI 18/08, VGG 01/07), maladie sans certificat écrite en
 poste (VGG 07/08), une pause prévue différente (AFA 12 au 15/01 en SD26,
@@ -4818,11 +4820,16 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   (« PM · 8h +FT · cf 20/12 ») et ATA le 16/03 (« 06h-18h ») ont travaillé
   ce jour-là, et une première version les montrait en repos. Les heures
   affichées sont celles que le commentaire nomme (« +4h +FT cf 08/03 »),
-  sinon celles de l'annotation. Un seul jour n'a pas le point, le 15/05 de
-  VGG : le 16/05 écrit
-  « 2h rhs pris le 15.05 départ à 12h », que le calcul ne lit pas
-  (`renvoisDuMois()` n'accepte que les codes du barème) — l'écart connu du
-  29/09, dont la réponse est en fait écrite dans le classeur ;
+  sinon celles de l'annotation. Un seul jour n'avait pas le point, le
+  15/05 de VGG : le 16/05 écrit « 2h rhs pris le 15.05 départ à 12h », que
+  le calcul ne lisait pas (`renvoisDuMois()` n'acceptait que les codes du
+  barème). Le client, le 18/10/2026 : « oui ». `renvoisDuMois()` rend
+  désormais « RHS@n » pour une reprise d'heures sup renvoyée, et
+  `lireJournee()` la lit comme le « +Nh rhs » d'un commentaire : le 15/05
+  passe de 8 h à 6 h prestées et 2 h de récup. HS, la feuille le dit. Seule
+  journée de l'année de cette forme ; les cinq sorties du vérificateur et
+  les agendas sont identiques à l'octet (l'agenda garde 6-14, le départ
+  étant écrit sur l'autre case) ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse
