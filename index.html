@@ -1059,7 +1059,8 @@ body{overflow-x:clip}
    Année sous la barre du mois ; en Année, les douze grilles se suivent,
    chacune sous son nom, deux puis trois de front sur grand écran. Le bilan
    chiffré, qui parle d'un mois, se retire. */
-.calvue{display:flex; align-self:stretch; gap:2px; padding:2px; margin:0 26px 12px; border-radius:9px;
+.calvue-l{display:flex; align-self:stretch; gap:8px; margin:0 26px 12px}
+.calvue{flex:1 1 auto; min-width:0; display:flex; gap:2px; padding:2px; border-radius:9px;
   background:var(--surface); border:1px solid var(--line)}
 .calvue button{flex:1 1 0; min-width:0; padding:5px 12px; border:0; border-radius:7px; background:none;
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
@@ -1067,8 +1068,19 @@ body{overflow-x:clip}
 #calCard.vue-an .calbilan{display:none}
 /* au bureau, une bascule de 1 100 px ne se lit plus comme un choix : elle
    garde la largeur d'un téléphone, au centre */
-@media (min-width:761px){ .calvue{align-self:center; width:420px; max-width:calc(100% - 52px); margin:0 0 12px} }
+@media (min-width:761px){ .calvue-l{align-self:center; width:520px; max-width:calc(100% - 52px); margin:0 0 12px} }
+/* REVENIR À AUJOURD'HUI (le client, le 19/10/2026 : « dans le calendrier il
+   faut un bouton pour revenir à aujourd'hui, le mois actuel ou l'année ») :
+   à côté de la bascule, du même gabarit. Éteint sur le mois en cours ; en
+   Année, il ramène aussi l'écran au mois en cours. */
+.calauj{flex:0 0 auto; padding:0 14px; border-radius:9px; border:1px solid var(--line); background:var(--surface);
+  color:var(--in); font:inherit; font-size:12px; font-weight:650; cursor:pointer; white-space:nowrap}
+.calauj:disabled{color:var(--faint); cursor:default}
+@media (hover:hover){ .calauj:not(:disabled):hover{border-color:var(--in2)} }
+@media (max-width:360px){ .calvue-l{margin:0 14px 12px; gap:6px} .calauj{padding:0 10px} }
 .mc-an{display:grid; grid-template-columns:minmax(0,1fr); gap:18px}
+.mc-mois{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
+@media (min-width:761px){ .mc-mois{scroll-margin-top:84px} }
 .mc-an-t{font-size:13px; font-weight:700; color:var(--ink); margin:0 2px 8px; letter-spacing:.01em}
 .mc-an-t.auj{color:var(--in)}
 @media (min-width:761px){ .mc-an{grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 18px} }
@@ -4461,9 +4473,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
              .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
         <div class="calmois"><div class="mnavhote"></div></div>
-        <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
-          <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
-          <button type="button" data-cv="annee" aria-pressed="false">Année</button>
+        <div class="calvue-l">
+          <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
+            <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
+            <button type="button" data-cv="annee" aria-pressed="false">Année</button>
+          </div>
+          <button type="button" class="calauj" id="calAuj">Aujourd’hui</button>
         </div>
       </div>
       <div class="moiscal" id="moisCal"></div>
@@ -6456,7 +6471,7 @@ function renderRota(){
    (caseJour), mois après mois, et la légende de ce que l'année contient.
    Chaque mois se lit dans son enregistrement, comme loadMonth ; le mois
    affiché garde st.month, qui peut porter une saisie pas encore écrite. */
-var calVue=(lsGet("ui/calVue")==="annee")?"annee":"mois", jourAttendu=null, _anJeton=0;
+var calVue=(lsGet("ui/calVue")==="annee")?"annee":"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
 function vueAnnee(){ return calVue==="annee" && st.view==="horaire"; }
 function avecMois(m,M,f){
   var sv=[st.m,st.month]; st.m=m; st.month=M;
@@ -6490,8 +6505,19 @@ function renderAnnee(hote){
       h+='<section class="mc-mois" data-m="'+i+'"><h3 class="mc-an-t'+(cur?' auj':'')+'">'+esc(MOIS[i])+'</h3>'+g+'</section>';
     });
     hote.innerHTML=h+'</div>'+(dr?legendeHTML(dr):"");
+    if(_anMontrer!==null){ var sec=hote.querySelector('.mc-mois[data-m="'+_anMontrer+'"]'); _anMontrer=null;
+      if(sec) sec.scrollIntoView({behavior:"smooth", block:"start"}); }
   });
 }
+function allerAujourdhui(){
+  var ja=jourPerso(st.personObj), y=ja.getFullYear(), m=ja.getMonth();
+  if(calVue==="annee"){
+    /* le mois en cours à l'écran, une fois l'année dessinée (renderAnnee) */
+    _anMontrer=m;
+    if(y!==st.y || m!==st.m) loadMonth(y,m); else renderRota();
+  } else if(y!==st.y || m!==st.m) loadMonth(y,m);
+}
+(function(){ var b=document.getElementById("calAuj"); if(b) b.addEventListener("click",allerAujourdhui); })();
 function choisirVue(v){
   calVue=(v==="annee")?"annee":"mois"; lsSet("ui/calVue",calVue);
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
@@ -7548,6 +7574,8 @@ function majMoisLabel(m,y){
   if(pick){ pick.value=y+"-"+pad2(m+1); pick.min=AN_MIN+"-01"; }
   var pv=document.getElementById("prev");
   if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(y<AN_MIN||(y===AN_MIN&&m===0));
+  var ba=document.getElementById("calAuj"), ja=jourPerso(st.personObj);
+  if(ba) ba.disabled=(calVue!=="annee" && y===ja.getFullYear() && m===ja.getMonth());
 }
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
@@ -10257,7 +10285,7 @@ function ryHeatmap(s){
      devoir faire de scroll horizontal dans les cadres »). Les 53 semaines
      côte à côte demandaient 740 px ; 31 colonnes tiennent dans un téléphone,
      et un mois se lit d'un regard, du 1 au 31. Le jour de l'usine est cerclé. */
-  var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=jourUsine(), m, d;
+  var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=s.ju||jourUsine(), m, d;
   /* les numéros des jours au-dessus (le client, le 17/10/2026) : tous au
      bureau ; sur téléphone 1, 5, 10… 30 et un point entre — les 31 y
      étaient trop serrés (le client, le même jour) */
@@ -10494,7 +10522,7 @@ function lectureAgenda(db,p,an,m,j){
 function marquerTransfertsHeros(db,p){
   var box=document.getElementById("pfApp"); if(!box||!db||!p) return;
   var mes=transfertsAVenir(db,7).filter(function(t){ return t.p.id===p.id; });
-  var ju=jourUsine(), t0=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
+  var ju=jourPerso(p), t0=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
   var lignes=mes.map(function(t){
     var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
     var court=(Pz&&PV_COURT[t.vers])?PV_COURT[t.vers].replace(/\.$/,""):nomPosteApp(t.vers);
@@ -10515,7 +10543,7 @@ function _pfDateCourte(d){
   return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+".\u00a0"+d.getDate()+"\u00a0"+(mo.length>4?mo.slice(0,mo==="juillet"?4:3)+".":mo);
 }
 function _pfInfos(p){
-  var ju=jourUsine(), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
+  var ju=jourPerso(p), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
   var d, k, x;
   /* LE POSTE DU MOMENT, puis le prochain. Aujourd'hui compte tant que sa
      pause n'est pas finie : « En poste » pendant, « Aujourd'hui » avant ;
@@ -10615,7 +10643,7 @@ function _pfPartenaire(db,p){
    de voix l'emporte. Rend les trigrammes, contremaître d'abord. */
 function _pfBinomeEquipe(p,eq){
   eq=String(eq||"").replace(/\D+/g,""); if(!eq || typeof equipeALaPause!=="function") return null;
-  var ju=jourUsine(), k, d, an, db, mm, pv, vote={}, best=null, bs=0, pause, x, n=0, dbB=null;
+  var ju=jourPerso(p), k, d, an, db, mm, pv, vote={}, best=null, bs=0, pause, x, n=0, dbB=null;
   for(k=0;k<28 && n<4;k++){
     d=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()+k); an=d.getFullYear();
     if(d.getDay()===0 || d.getDay()===6) continue;
@@ -10982,7 +11010,7 @@ function renderNotif(db,p){
   /* LES JOURS SE DISENT COMME AUX SOUS-EFFECTIFS (le client, le 13/10/2026) :
      « Aujourd'hui », « Demain », puis le jour en toutes lettres, et la date
      en dessous (dateEnMots, la même fonction). */
-  var ju0=jourUsine(), t0=Date.UTC(ju0.getFullYear(),ju0.getMonth(),ju0.getDate());
+  var ju0=jourPerso(p), t0=Date.UTC(ju0.getFullYear(),ju0.getMonth(),ju0.getDate());
   /* Le sous-titre tient sur une ligne : le nombre et la date du classeur. */
   card.innerHTML='<div class="nt-poignee" aria-hidden="true"></div><div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>'
@@ -12101,7 +12129,7 @@ document.addEventListener("visibilitychange",function(){ if(!document.hidden) ma
    nuits faites et à venir, et le prochain congé posé — lus jour par jour par
    _pfJour(), la lecture du héros. */
 function ryCompte(p,deb,fin){
-  var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
+  var ju=jourPerso(p), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
   var o={fait:0,avenir:0,F:{AM:0,PM:0,N:0,D:0},A:{AM:0,PM:0,N:0,D:0}}, d, x;
   for(d=new Date(deb); d<=fin; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
     x=_pfJour(p.id,d); if(!x || !(x.presente && PF_HEURES[x.pv])) continue;
@@ -12125,7 +12153,7 @@ function ryBarre(titre,sous,o,lib){
    commence un lundi ; la position du jour donne la semaine et les bornes. */
 function cycleActuel(p){
   var db=HORAIRE_DB; if(!db) return null;
-  var y=Number(db.year), ju=jourUsine(), pers=p, cal;
+  var y=Number(db.year), ju=jourPerso(p), pers=p, cal;
   var tj=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
   db.people.forEach(function(x){ if(x.id===p.id) pers=x; });
   /* Une personne qui a changé de place dans le cycle (VBN, nommé
@@ -12198,7 +12226,7 @@ function cycleAvec(p,c){
   }).join(" → ");
 }
 function ryCycleHTML(p,c,titre,prochain){
-  var ju=jourUsine(), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
+  var ju=jourPerso(p), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
   var sem="", cases="", fait=0, avenir=0, i, d, x, cl, ti;
   for(i=0;i<c.L;i++){
     d=new Date(c.deb.getFullYear(),c.deb.getMonth(),c.deb.getDate()+i);
@@ -12268,7 +12296,7 @@ function renderRythme(){
   setTimeout(function(){ try{ marquerTransfertsHeros(db,person); }catch(e){} },60);
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
-  var s=_ryStats;
+  var s=_ryStats; s.ju=jourPerso(person);
   var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="année "+y;
   /* Refonte du 16/10/2026 : le donut et ses pourcentages redisaient les
      cases AM · PM · N · D de « Mon année », au pied du héros. Restent ce
@@ -12305,6 +12333,21 @@ function jourUsine(){
   var n=new Date(), d=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   if(n.getHours()<6) d.setDate(d.getDate()-1);
   return d;
+}
+/* LE JOUR D'UNE PERSONNE (le client, le 19/10/2026 à 0 h 16 : « pourquoi je
+   suis toujours sur l'ancien cycle alors que je ne fais pas la nuit ? »). Le
+   jour de l'usine garde la veille jusqu'à 6 h, pour l'équipe de la nuit en
+   cours ; pour soi, la veille ne dure que tant qu'on y tient encore son
+   poste (une nuit qui finit à 6 h). En repos la veille, minuit passé, c'est
+   aujourd'hui. Le héros, « Mon année », les cycles et la frise le lisent ;
+   le Planning et les effectifs gardent le jour de l'usine. */
+function jourPerso(p){
+  var n=new Date(), cal=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  if(n.getHours()>=6 || !p) return cal;
+  var v=new Date(cal.getFullYear(),cal.getMonth(),cal.getDate()-1), x=null;
+  try{ x=_pfJour(p.id,v); }catch(e){}
+  if(x && x.presente && PF_HEURES[x.pv] && (n-v)/36e5<pfFin(x)) return v;
+  return cal;
 }
 function eqAnnee(db){ return Number(db.year); }
 function eqJourValide(db){

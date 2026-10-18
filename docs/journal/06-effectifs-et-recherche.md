@@ -1611,6 +1611,37 @@ ateliers exemptés), PDE, ASS, VBN (contremaître, rien) et CWN (restant 0,
 pas de progression), à 320, 390 et 1280 px ; vérificateur et fiches
 identiques à l'octet ; hors ligne.
 
+**Le jour d'une personne, et « Aujourd'hui » au calendrier** (le client, le
+19/10/2026 à 0 h 16, capture à l'appui : « pourquoi je suis toujours sur
+l'ancien cycle au lieu du nouveau qui commence aujourd'hui en nuit, alors
+que je ne fais pas la nuit ? », puis « dans le calendrier il faut un bouton
+pour revenir à aujourd'hui, le mois actuel ou l'année »), `nfdm-v825` :
+- **le jour de l'usine** (`jourUsine()`, la veille jusqu'à 6 h, règle du
+  27/09/2026 pour l'équipe de la nuit en cours) servait aussi au héros, à
+  « Mon année », aux deux cycles, à la frise et aux dates des
+  notifications. En repos le dimanche, VBN restait donc jusqu'à 6 h le
+  lundi sur le cycle « 7 sept. – 18 oct. », pendant que le bloc du dessus
+  annonçait déjà la nuit « d'aujourd'hui ». `jourPerso(p)` : avant 6 h, la
+  veille ne dure que si la personne y tient encore son poste
+  (`pfFin()`, une nuit finit à 30 h) ; sinon, c'est le jour du calendrier.
+  Le Planning, les effectifs et les compteurs gardent le jour de l'usine.
+  Éprouvé à heure simulée (Bruxelles, `page.clock`), sur la version d'avant
+  et sur la nouvelle : VBN à 0 h 16, avant « 7 sept. – 18 oct. »,
+  après « 19 oct. – 29 nov. », comme à 7 h ; LCI, de nuit le 18,
+  « En poste, encore 5 h 45 » sur son cycle en cours, avant comme après ;
+- **le bouton « Aujourd'hui »**, à côté de la bascule Mois | Année, du même
+  gabarit. En Mois, il ramène au mois en cours et s'éteint quand on y est
+  déjà ; en Année, il ramène à l'année en cours et fait défiler jusqu'au
+  mois en cours, une fois l'année dessinée (`_anMontrer`, et non un délai
+  fixe). Mesuré : depuis août, retour en octobre, bouton éteint ; depuis
+  2027 en Année, retour en 2026, octobre à 16 px du haut sur téléphone et
+  à 84 px au bureau, sous l'en-tête.
+Vérifié à 320, 390 et 1280 px, sans débordement ni erreur ; vérificateur et
+fiches identiques à l'octet ; hors ligne. **Erreur commise en testant** :
+un `pkill -f "http.server 8766"` a tué le shell qui le lançait, sa propre
+ligne de commande contenant le motif. Arrêter un serveur de test par son
+PID, pas par un motif.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
