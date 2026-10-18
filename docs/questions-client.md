@@ -286,6 +286,20 @@ n'est deviné à leur sujet :
   de feuille EST le solde. Je la lisais comme le seul report de 2025 et y
   ajoutais les ±FT de l'année. Relu juste : personne sous −8 h (SMA
   exactement −8), voir « Cinq notes de service » ;
+- **le « recyclage restant » du classeur RH ne se recoupe pas pour neuf
+  personnes** (posée le 18/10/2026, en mettant les recyclages dans le
+  héros). Pour vingt personnes, le restant écrit par le classeur égale ce
+  qui manque pour atteindre l'objectif de chaque atelier possédé (10 pour un
+  opérateur, 5 pour un adjoint, 5 de plus pour le contremaître d'un
+  adjoint). Pour neuf, non : DWS 17 au classeur pour 27, SBZ 11 pour 26,
+  FLN 7 pour 22, FPS 15 pour 30, PLZ 8 pour 28, PAM 18 pour 10, ASS 10 et
+  PDR 2 pour 0, VBN 30 pour 5. Le total « fait + restant » de ces
+  personnes vaut 15 ou 20 là où l'application attend 30 ou 40 : leur
+  objectif semble être de 5 par atelier, ou ne porter que sur certains
+  ateliers. **Quel est l'objectif de recyclage de ces neuf personnes, et
+  sur quels ateliers ?** En attendant, le héros montre les deux chiffres
+  tels que le classeur les donne : fait / objectif par atelier, et la
+  progression avec SON restant ;
 - **deux journées de la relecture des commentaires** (posées le
   18/10/2026 ; le client : « je te dirai demain soir ») :
   - **VGG le 15/03**, `AM · 1h RTT · presté 7h le 20.03`, et le 20/03

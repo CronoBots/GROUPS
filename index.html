@@ -3780,6 +3780,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pv-l i{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--bordg)}
 .pf-pv-l [data-z="jaune"] i{background:var(--bordj)} .pf-pv-l [data-z="vert"] i{background:var(--bordv)}
 .pf-pv-l [data-z="rouge"] i{background:var(--bordr)} .pf-pv-l [data-z="bleu"] i{background:var(--bordb)}
+/* le compteur d'un atelier : au vert quand le quota est atteint, et aucune
+   autre couleur (la règle de l'onglet Recyclage, le client, le 07/10/2026) */
+.pf-pv-n{font-weight:700; font-size:11.5px; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; margin-left:1px}
+.pf-pv-n.ok{color:var(--at-vert)}
+.pf-pv-n.ex{font-weight:600; font-size:11px; color:rgba(255,255,255,.42)}
+.pf-rc{grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 10px; align-items:baseline;
+  margin-top:4px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08)}
+.pf-rc[hidden]{display:none}
+.pf-rc-t,.pf-rc-r{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap}
+.pf-rc-t b,.pf-rc-r b{color:#fff; font-weight:700; font-variant-numeric:tabular-nums}
+.pf-rc-r{text-align:right}
+.pf-rc-bar{grid-column:1 / -1; height:6px; border-radius:3px; background:rgba(255,255,255,.10); overflow:hidden}
+.pf-rc-bar i{display:block; height:100%; border-radius:3px; background:var(--marque-vif)}
 .pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
 .pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:12px 12px 13px}
 @media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
@@ -10729,13 +10742,17 @@ function _pfHead(db,p){
      le bloc « Polyvalence » de « Mes compteurs » les disait déjà et s'en va.
      Pas pour un contremaître, qui ne tient pas d'atelier. Un toucher mène au
      recyclage, comme le lien qu'avait le bloc. */
-  var pl=p.poly&&p.poly.ateliers;
-  if(!((typeof estContremaitre==="function")&&estContremaitre(p)) && pl && pl.length){
-    h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", "))+'. Voir mon recyclage">'
-      +'<span class="pf-pv-t">Polyvalences'+(p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
+  /* Les recyclages restants du classeur RH : les compteurs viennent se
+     poser sur ces puces juste après le premier affichage (recyclageHeros). */
+  var pl=(p.poly&&p.poly.ateliers)||[], cmH=(typeof estContremaitre==="function")&&estContremaitre(p),
+      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?RECYC_OFF[idLisible(p.id)]:null, aRec=!!(roH&&roH.restant>0);
+  if(!cmH && (pl.length||aRec)){
+    h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
+      +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
       +'<span class="pf-fl" aria-hidden="true">›</span>'
-      +'<span class="pf-pv-l">'+pl.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; });
-        return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</span></button>'+h;
+      +(pl.length?'<span class="pf-pv-l">'+pl.map(function(a){ var z="", k=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)){ z=P.z; k=P.k; } });
+        return '<span data-z="'+z+'" data-k="'+k+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</span>':'')
+      +(aRec?'<span class="pf-rc" id="pfRecyc" hidden></span>':'')+'</button>'+h;
   }
   var bio=esc(role);
   return '<div class="pf-hero">'
@@ -10750,6 +10767,38 @@ function _pfHead(db,p){
     +((st||fo)?'<span class="pf-st2'+(/int/i.test(st)?' int':'')+'">'+esc(st)+(st&&fo?'<i aria-hidden="true"> · </i>':'')+(fo?'<span class="pf-fo">'+ou+'</span>':'')+'</span>':'')
     +'</div></div>'
     +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div></div><div class="pf-bas"></div></div>';
+}
+/* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
+   ont des recyclages à faire, indiquer la progression et les compteurs dans
+   leur héros, tout près des polyvalences »). Sur chaque puce, fait / objectif
+   — polyvalenceDe(), la même lecture que l'onglet Recyclage ; « Contremaître »
+   pour un adjoint. Dessous, la progression du classeur RH : la somme de ses
+   recyclages faits, et SON « restant ». Les deux ne se recoupent pas pour neuf
+   personnes (docs/questions-client.md) : chacune est montrée telle que le
+   classeur l'écrit. Posé après le premier affichage : calculerPolyvalence()
+   rejoue l'année. */
+function recyclageHeros(db,p){
+  var hote=document.getElementById("pfRecyc"); if(!hote||!db||!p) return;
+  var ro=RECYC_OFF&&RECYC_OFF[idLisible(p.id)]; if(!ro||!(ro.restant>0)) return;
+  var pv=hote.parentNode, l=pv.querySelector(".pf-pv-l"), q;
+  (polyvalenceDe(db,p)||[]).forEach(function(o){
+    if(o.forme||!l) return;
+    var c=l.querySelector('[data-k="'+o.k+'"]'); if(!c||c.querySelector(".pf-pv-n")) return;
+    /* exempté (avant-formation, polyvalent arrière : le client, 06-07/10) :
+       sans compteur, et dit comme tel plutôt que muet */
+    c.insertAdjacentHTML("beforeend",o.exempt?'<b class="pf-pv-n ex">exempté</b>'
+      :'<b class="pf-pv-n'+(o.ok?' ok':'')+'">'+o.n+'/'+o.q+'</b>');
+  });
+  if(estCadre(p) && l && !l.querySelector('[data-k="cm"]')){
+    q=POLY_QUOTA.adjoint;
+    l.insertAdjacentHTML("beforeend",'<span data-z="gris" data-k="cm"><i></i>Contremaître<b class="pf-pv-n'+((ro.cm||0)>=q?' ok':'')+'">'+(ro.cm||0)+'/'+q+'</b></span>');
+  }
+  var fait=(ro.cm||0); RECYC_POSTES.forEach(function(k){ fait+=Number(ro[k])||0; });
+  var tot=fait+ro.restant, pct=tot?Math.round(fait/tot*100):0;
+  hote.innerHTML='<span class="pf-rc-t">Recyclages <b>'+fait+'</b> / '+tot+'</span>'
+    +'<span class="pf-rc-r"><b>'+ro.restant+'</b> à faire</span>'
+    +'<span class="pf-rc-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Recyclages faits : '+fait+' sur '+tot+'"><i style="width:'+pct+'%"></i></span>';
+  hote.hidden=false;
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
@@ -12238,6 +12287,7 @@ function renderRythme(){
   /* plus d'action au toucher d'un mois (le client, le 17/10/2026) */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
+    try{ recyclageHeros(db,person); }catch(e){}
     var b=document.getElementById("ryPauses"); if(b) b.innerHTML=ryPausesHTML(person,y); });
 }
 
