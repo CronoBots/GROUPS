@@ -1548,6 +1548,39 @@ flèches de sélection sont décalés ; il faut aussi empêcher d'aller avant
   bureau finissent à 40 px l'une de l'autre, ce qui tient au nombre de
   lignes de chacune.
 
+**Les périodes de maladie, les polyvalences dans le héros** (le client, le
+18/10/2026 : « indiquer le nombre de périodes de maladie ; pour les
+opérateurs/adjoints, dans le héros, indiquer les polyvalences »),
+`nfdm-v823` :
+- **une période de maladie** enjambe les jours de repos et s'arrête au
+  premier jour prévu qui n'est pas en maladie. Mesuré sur tout le classeur
+  avant de choisir : 238 suites de jours consécutifs chez 65 personnes ;
+  dans 6 cas seulement, deux maladies ne sont séparées que par 2 à 4 jours
+  de repos laissés vides. Le classeur tranche lui-même : ATR numérote la
+  même absence « cp 6/20 », « cp 7/20 », puis « cp 8/20 » après trois jours
+  vides, et ainsi jusqu'à « cp 12/20 ». Les quatre autres cas (YPE, CJD,
+  FPS, LHS) n'ont pas de commentaire qui dise le contraire : même règle.
+  Un jour travaillé ou une autre absence entre deux maladies coupe la
+  période (23 cas). `compteursCalcules()` rend `malPer` : **232 périodes**
+  sur le classeur. Le décompte indépendant, sans la règle des repos, en
+  trouve 238 : l'écart est exactement celui des 6 trous, la règle mord.
+  VBN 4 (8 mars, 26 mai, 2 juillet, 10 septembre), ATR 3, PDE 3. La
+  rangée « Maladie » de « Mes compteurs » écrit « en 4 périodes » sous son
+  nom, comme le congé parental ;
+- **les polyvalences** montent dans le héros, au-dessus du bloc du
+  prochain poste, pour tout le monde sauf un contremaître (`estContremaitre`,
+  la même garde qu'avant) : les ateliers acquis, un point à la couleur de
+  leur zone, et le « degré » quand le classeur le donne (colonne « Degré de
+  polyvalence », la lettre G ou H de la fiche de paie). Un toucher mène au
+  recyclage. Le bloc « Polyvalence » de « Mes compteurs » les répétait : il
+  part, avec ses styles (`.cpt-puces`, `.cpt-lien`). La classe `pf-poly`
+  était déjà prise par l'ancien profil : la nouvelle s'appelle `pf-pv`,
+  vérifiée libre avant l'emploi (leçon de la v822).
+Vérifié à 320, 390 et 1280 px pour un contremaître (VBN, rien), un adjoint
+(ATR, cinq ateliers) et un opérateur (PDE, trois, degré G), sans débordement
+ni erreur ; vérificateur (calendrier, manques, polyvalence, compteurs 78/78)
+et `comparer-fiches.py VBN` identiques à l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

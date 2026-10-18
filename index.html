@@ -684,15 +684,6 @@ body{overflow-x:clip}
   .cr-l>.cr.vide{padding-top:8px}
   .cr-tot{border-bottom:0; padding-bottom:4px}
 }
-/* Polyvalence : des badges compacts, un point à la couleur de la zone de
-   l'atelier (la même que le liseré du tableau du jour). */
-.cpt-puces{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:6px}
-.cpt-puces span{display:flex; align-items:center; gap:7px; min-width:0; font-size:12.5px; font-weight:600;
-  color:var(--ink2); padding:6px 9px; border-radius:8px; background:var(--surface2); border:1px solid var(--trait);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.cpt-puces i{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--bordg)}
-.cpt-puces [data-z="jaune"] i{background:var(--bordj)} .cpt-puces [data-z="vert"] i{background:var(--bordv)}
-.cpt-puces [data-z="rouge"] i{background:var(--bordr)} .cpt-puces [data-z="bleu"] i{background:var(--bordb)}
 
 /* ---------- en-tête contextuel ---------- */
 /* LE NET À RECEVOIR A QUITTÉ LA BARRE DU HAUT. Le client, le 23/09/2026 :
@@ -3776,6 +3767,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-rg b{font-family:inherit; font-weight:650; letter-spacing:.01em}
 /* Le prochain poste et le week-end libre : un seul cadre, deux lignes
    séparées d'un filet (18/10/2026). */
+.pf-pv{display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px 10px; box-sizing:border-box;
+  width:calc(100% - 24px); margin:12px 12px 0; padding:10px 12px 11px; border-radius:12px; text-align:left; cursor:pointer;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); color:inherit; font:inherit}
+@media (hover:hover){ .pf-pv:hover{background:rgba(255,255,255,.07)} }
+.pf-pv-t{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.6)}
+.pf-pv-t em{font-style:normal; font-weight:600; letter-spacing:.02em; text-transform:none; margin-left:7px; color:rgba(255,255,255,.45)}
+.pf-pv .pf-fl{color:rgba(255,255,255,.45); font-size:18px; line-height:1}
+.pf-pv-l{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px}
+.pf-pv-l span{display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:8px; white-space:nowrap;
+  font-size:12.5px; font-weight:600; color:rgba(255,255,255,.88); background:rgba(255,255,255,.06)}
+.pf-pv-l i{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--bordg)}
+.pf-pv-l [data-z="jaune"] i{background:var(--bordj)} .pf-pv-l [data-z="vert"] i{background:var(--bordv)}
+.pf-pv-l [data-z="rouge"] i{background:var(--bordr)} .pf-pv-l [data-z="bleu"] i{background:var(--bordb)}
 .pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
 .pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:12px 12px 13px}
 @media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
@@ -3796,6 +3800,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
   .pf-gauche{min-width:0}
   .pf-gauche .pf-bloc{margin:12px 0 0 12px}
+  .pf-gauche .pf-pv{margin:12px 0 0 12px; width:calc(100% - 12px)}
   .pf-corps>.pf-an{padding:0 12px 0 0; margin-top:4px}
   .pf-corps>.pf-an .ry-an-t:first-child{padding-top:14px}
 }
@@ -3909,8 +3914,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-h2{padding:16px 16px 2px}
 .ry-two{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:6px 16px 16px}
 @media (max-width:620px){.ry-two{grid-template-columns:1fr; gap:16px}}
-.cpt-lien{display:inline-flex; margin-top:10px; padding:4px 0; border:0; background:none; color:var(--in);
-  font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
 .ry-panel{min-width:0}
 .ry-hm-box{padding:4px 16px 2px; display:flex; flex-direction:column; gap:3px; max-width:620px; margin:0 auto; box-sizing:border-box; width:100%}
 .ry-hm-l{display:flex; align-items:center; gap:6px}
@@ -10720,6 +10723,20 @@ function _pfHead(db,p){
      bloc et l'identité tiennent la colonne de gauche, les progressions celle
      de droite. */
   if(h.indexOf('pf-proch')>=0||we) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,'<div class="pf-bloc">$1'+we+'</div>$2');
+  /* LES POLYVALENCES D'UN OPÉRATEUR OU D'UN ADJOINT (le client, le
+     18/10/2026 : « pour les opérateurs/adjoints, dans le héros, indiquer les
+     polyvalences »). Les ateliers acquis, un point à la couleur de leur zone ;
+     le bloc « Polyvalence » de « Mes compteurs » les disait déjà et s'en va.
+     Pas pour un contremaître, qui ne tient pas d'atelier. Un toucher mène au
+     recyclage, comme le lien qu'avait le bloc. */
+  var pl=p.poly&&p.poly.ateliers;
+  if(!((typeof estContremaitre==="function")&&estContremaitre(p)) && pl && pl.length){
+    h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", "))+'. Voir mon recyclage">'
+      +'<span class="pf-pv-t">Polyvalences'+(p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
+      +'<span class="pf-fl" aria-hidden="true">›</span>'
+      +'<span class="pf-pv-l">'+pl.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; });
+        return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</span></button>'+h;
+  }
   var bio=esc(role);
   return '<div class="pf-hero">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
@@ -17601,7 +17618,13 @@ function compteursCalcules(person,annee,jusqua){
      jusqu'à ce jour-là inclus, à part (ftPlusJ, ftMoinsJ) — le solde « au
      jour J » de la note de service du 18/09/2024, qui ne compte pas les
      reprises planifiées plus tard. */
-  var out={ftPlus:0,ftMoins:0,ftPlusJ:0,ftMoinsJ:0,rhs:0,abs:{}}, m, d;
+  /* LES PÉRIODES DE MALADIE (le client, le 18/10/2026 : « indiquer le
+     nombre de périodes de maladie »). Une période enjambe les jours de
+     repos et s'arrête au premier jour prévu qui n'est pas en maladie. C'est
+     le classeur qui le dit : une même absence y est numérotée « cp 6/20 »,
+     « cp 7/20 », puis « cp 8/20 » après trois jours de repos laissés vides.
+     Six trous de repos seul sur tout le classeur, 232 périodes. */
+  var out={ftPlus:0,ftMoins:0,ftPlusJ:0,ftMoinsJ:0,rhs:0,abs:{},malPer:0}, m, d, enMal=false;
   for(m=1;m<=12;m++){
     var ep=epargnesDuMois(person,m), rv=renvoisDuMois(person,m,st.params.hJour),
         nd=daysInMonth(annee,m-1);
@@ -17613,6 +17636,9 @@ function compteursCalcules(person,annee,jusqua){
          renvoie : le pied de classeur les compte tous, où qu'ils soient
          écrits — les déplacer ne doit donc rien ajouter ni rien perdre. */
       var codes=(r.a?[r.a]:[]).concat(r.ax||[]);
+      var mal=codes.some(function(c){ return ABSMAP[c] && ABSMAP[c].k==="SMG"; });
+      if(mal){ if(!enMal) out.malPer++; enMal=true; }
+      else if(r.s||r.a) enMal=false;
       for(var ci=0;ci<codes.length;ci++){
         var A=ABSMAP[codes[ci]]; if(!A) continue;
         if(A.ft>0) out.ftPlus+=A.ft; else if(A.ft<0) out.ftMoins-=A.ft;
@@ -17759,17 +17785,7 @@ function renderCompteurs(){
         +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
     }
 
-    /* --- polyvalence ---
-       La grille de recyclage de « Mon rythme » répétait celle de l'onglet
-       Équipes, et coûtait 2,7 s au démarrage d'un téléphone lent (audit du
-       10/10/2026) : il reste les ateliers acquis et un lien vers le
-       recyclage. Pas pour un contremaître, qui ne tient pas d'atelier. */
-    var cmP=(typeof estContremaitre==="function")&&estContremaitre(person);
-    if(!cmP && person.poly && person.poly.ateliers && person.poly.ateliers.length){
-      h.push(bloc("Polyvalence",person.poly.degre?"degré "+person.poly.degre:"",
-        '<div class="cpt-puces">'+person.poly.ateliers.map(function(a){ var z=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)) z=P.z; }); return '<span data-z="'+z+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</div>'
-        +'<button type="button" class="cpt-lien" data-go="equipe">Mon recyclage ›</button>'));
-    }
+    /* La polyvalence est montée dans le héros (le client, le 18/10/2026). */
 
     /* --- congés et maladie de l'année --- */
     /* Les codes déjà comptés plus haut (congés, temps réduit) ne se redisent
@@ -17779,7 +17795,8 @@ function renderCompteurs(){
       h.push(bloc("Maladie et formation","",
         '<div class="cr-l">'+cles.map(function(k){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
-          return '<div class="cr sans-s"><div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(l===k?k:l)+'</span></div>'+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
+          var per=(ABSMAP[k]&&ABSMAP[k].k==="SMG"&&calc.malPer)?'<div class="cr-s">en <b>'+calc.malPer+'</b> période'+(calc.malPer>1?'s':'')+'</div>':'';
+          return '<div class="cr'+(per?'':' sans-s')+'"><div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(l===k?k:l)+'</span></div>'+per+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
     }
     hote.innerHTML=h.join("");
 
