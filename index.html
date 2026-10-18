@@ -3816,6 +3816,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-fonc{font-size:15px; font-weight:650; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou b{color:#fff; font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
+.pf-rg{color:rgba(255,255,255,.78)}
+.pf-rg b{font-family:inherit; font-weight:650; letter-spacing:.01em}
+.pf-we{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:10px 13px 0; padding:0; font-size:12.5px; color:rgba(255,255,255,.62)}
+.pf-we b{color:#fff; font-weight:600; white-space:nowrap}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
@@ -3851,18 +3855,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-prof .pf-poste{font-size:19px; line-height:1.15; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-prof .pf-st2{font-size:13px; color:rgba(255,255,255,.66)}
 .pf-prof .pf-st2.int{color:var(--at-jaune)}
-.pf-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); margin:12px 12px 0; padding:8px 0;
-  border-top:1px solid rgba(255,255,255,.1); border-bottom:1px solid rgba(255,255,255,.1)}
-.pf-st{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:0 4px; text-align:center}
-.pf-st+.pf-st{border-left:1px solid rgba(255,255,255,.08)}
-.pf-st.lg b{font-size:14px; line-height:1.4; letter-spacing:-.02em}
-@media (max-width:380px){ .pf-st.lg b{font-size:12.5px; line-height:1.45} }
-@media (min-width:761px){ .pf-st.lg b{font-size:17px; line-height:1.15} }
-.pf-st b{font:700 17px/1.15 "IBM Plex Mono",ui-monospace,monospace; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-.pf-st span{font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:rgba(255,255,255,.58); white-space:nowrap}
-@media (max-width:760px){ .pf-st span{white-space:normal; line-height:1.15; letter-spacing:.02em} }
 @media (max-width:380px){ .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
-  .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:36px} .pf-prof .pf-poste{font-size:17px} .pf-prof .pf-tri{font-size:19px} .pf-st b{font-size:15px} .pf-st span{font-size:9px} }
+  .pf-av{width:66px; height:66px; font-size:20px} .pf-prof .pf-hmeta{padding-top:36px} .pf-prof .pf-poste{font-size:17px} .pf-prof .pf-tri{font-size:19px} }
 @media (min-width:761px){ .pf-couv{aspect-ratio:auto; height:240px; background-position:100% 100%} .pf-roue{top:14px; right:14px; left:auto} .pf-prof{padding:0 20px; margin-top:-40px}
   .pf-av{width:88px; height:88px; font-size:26px} .pf-prof .pf-hmeta{padding-top:48px} .pf-prof .pf-poste{font-size:21px} .pf-prof .pf-tri{font-size:24px} }
 .pf-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 16px 2px}
@@ -10613,26 +10607,27 @@ function _pfHead(db,p){
      statut, la fonction en « bio » ; puis la rangée de chiffres des profils —
      où l'on est rangé, les polyvalences validées, le prochain week-end
      libre. Les mêmes informations qu'avant, rien de calculé en plus. */
-  var stats=[];
+  /* PLUS DE RANGÉE DE CHIFFRES (le client, le 18/10/2026, capture à
+     l'appui : « ceci est inutile présenté comme cela »). « ATR / ADJOINT »
+     et « 24 oct. / WEEK-END LIBRE » en grands caractères à chasse fixe
+     disaient deux choses de natures différentes comme des statistiques.
+     Le binôme rejoint l'identité, sous le poste (« Binôme · ATR »,
+     « Équipe 5 · AFA · YBT ») ; le week-end libre devient une ligne sous
+     le prochain poste, avec le jour en entier. Le nombre de polyvalences
+     part : l'onglet Équipes (Recyclage) les montre, poste par poste. */
+  var rg="";
   if(cadre){
-    /* pas de numéro de binôme (le client, le 17/10/2026 : « pour adjoint et
-       contremaître, le numéro de binôme dans le héros est inutile ») */
     var pa2=_pfPartenaire(db,p);
-    if(pa2) stats.push([esc(pa2),estContremaitre(p)?"Adjoint":"Contremaître"]);
+    if(pa2) rg='Binôme · <b>'+esc(pa2)+'</b>';
   } else if(eq&&eq!=="—"){
-    stats.push([esc(String(eq).replace(/^Équipe\s*/i,"")),"Équipe"]);
-    var bq=_pfBinomeEquipe(p,eq);
-    if(bq && bq.tri.length) stats.push([esc(bq.tri.join("\u200a·\u200a")),"Binôme",' lg" title="Le binôme qui tourne avec l\'équipe '+esc(String(eq).replace(/^Équipe\s*/i,""))+' : '+esc(bq.tri.join(" et "))]);
-  }
-  if(!(typeof estContremaitre==="function"&&estContremaitre(p))){
-    var at=(p.poly&&p.poly.ateliers)||[], np=0;
-    at.forEach(function(a){ if(!polyFinie(p,a)) np++; });
-    stats.push([String(np),np>1?"Polyvalences":"Polyvalence"]);
+    var eqn=String(eq).replace(/^Équipe\s*/i,""), bq=_pfBinomeEquipe(p,eq);
+    rg='Équipe '+esc(eqn)+(bq&&bq.tri.length?' · <b>'+esc(bq.tri.join(" · "))+'</b>':'');
   }
   /* Sans week-end libre à venir (malade jusqu'à la fin de l'horaire), pas de
-     case : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
-  if(inf.weekend){ var wd=inf.weekend.d, wm=MOIS[wd.getMonth()].toLowerCase();
-    stats.push([inf.weekend.ce?"Ce week-end":wd.getDate()+"\u00a0"+(wm.length>4?wm.slice(0,wm==="juillet"?4:3)+".":wm),"Week-end libre"]); }
+     ligne : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
+  if(inf.weekend){ var wd=inf.weekend.d;
+    var weT=inf.weekend.ce?"Ce week-end":JOURS_LONGS[(wd.getDay()+6)%7]+" "+wd.getDate()+" "+MOIS[wd.getMonth()].toLowerCase();
+    h=h.replace('<div class="pf-app"','<div class="pf-we"><span>Prochain week-end libre</span><b>'+esc(weT)+'</b></div><div class="pf-app"'); }
   var bio=esc(role);
   return '<div class="pf-hero">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
@@ -10642,9 +10637,9 @@ function _pfHead(db,p){
     /* À côté du cercle, le poste puis le statut en clair, sans badge (le
        client, le 16/10/2026 : le trigramme est déjà dans le cercle). */
     +'<div class="pf-hmeta"><span class="pf-poste">'+bio+'</span>'
+    +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(st?'<span class="pf-st2'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')
     +(fo?'<span class="pf-ou fo">'+ou+'</span>':'')+'</div></div>'
-    +(stats.length?'<div class="pf-stats">'+stats.map(function(x){ return '<div class="pf-st'+(x[2]||'')+'"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join("")+'</div>':'')
     +h+'<div class="ry-an pf-an" id="ryAn"></div><div class="pf-bas"></div></div>';
 }
 document.addEventListener("click",function(e){
