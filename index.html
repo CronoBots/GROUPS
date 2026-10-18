@@ -636,6 +636,7 @@ body{overflow-x:clip}
 .cr-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
 /* un congé tout placé : la rangée pâlit, sa valeur dit « Tout placé » */
 .cr.vide .cr-n{color:var(--muted)} .cr.vide .cr-v{font-size:12.5px; font-weight:600; color:var(--faint)}
+.cr.fini .cr-v{font-size:12.5px; font-weight:600; color:var(--faint)}
 .cr.vide{padding:8px 0} .cr.vide .cr-bar,.cr.vide .cr-s{display:none} .cr.vide .cr-v{grid-row:1}
 .cr.neg .cr-v,.cr.neg .cr-v small,.cr.neg .cr-s b{color:var(--out2)} .cr.neg .cr-bar i{background:var(--out2)}
 /* le total des congés, la réponse qu'on cherche en premier */
@@ -17265,7 +17266,8 @@ function renderCompteurs(){
        additionnées (passe du 17/10/2026). */
     var rhsJ=calc.abs.RHS||0, rhsT=R(calc.rhs+rhsJ,2); dejaVu.RHS=1;
     lc.push(rangee("","RHS","Récup. heures sup.",
-      (rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+' j</b> entières, <b>'+num(R(calc.rhs,2))+' h</b> en partie':'en '+annee),
+      (rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+' j</b> entières, <b>'+num(R(calc.rhs,2))+' h</b> en partie'
+        :rhsJ?'en journées entières':calc.rhs?'en reprises partielles':'aucune reprise cette année'),
       num(rhsT),'h','reprises','','Le classeur note les reprises, pas le solde du compteur.'));
 
     /* --- temps de travail réduit ---
@@ -17286,7 +17288,8 @@ function renderCompteurs(){
       var l=parCode[k], tot=l.reduce(function(s,v){return s+v;},0);
       var det='<b>'+num(tot)+' j</b> posés'+(l.length>1?' en '+l.length+' périodes ('+l.map(function(v){return num(v);}).join(" + ")+')':'');
       lc.push((aPlanifier!==undefined && i===0)
-        ? rangee("",k,NOM_REDUIT[k],det,num(aPlanifier),'j','à planifier')
+        ? (Number(aPlanifier)===0 ? rangee("fini",k,NOM_REDUIT[k],det,'Tout planifié','','')
+            : rangee("",k,NOM_REDUIT[k],det,num(aPlanifier),'j','à planifier'))
         : rangee("",k,NOM_REDUIT[k],det,num(tot),'j','posés'));
     });
 
