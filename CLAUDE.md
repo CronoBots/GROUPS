@@ -4894,6 +4894,20 @@ relevés et corrigés :
 Aucune lecture touchée, neuf règles à zéro ; rien ne déborde, aucune
 erreur.
 
+**Le prochain poste en billet** (le client, le 18/10/2026 : « j'aime
+prochain wk libre mais pas la présentation du prochain poste »). Le bloc
+se lit désormais de haut en bas : l'intitulé (« Prochain poste »,
+« Reprise », « En poste ») et, à droite dans une pastille, quand
+(« Aujourd'hui », « Demain », « Dans 3 j », « Encore 2 h 40 » en
+poste) ; puis la pause en grand carré à sa couleur, la date entière, et
+l'heure de début et de fin reliées par un trait, qui se remplit comme
+une barre de progression pendant la pause ; l'atelier dessous (en orange
+quand c'est un changement proposé par l'application). « Aujourd'hui »
+n'est plus écrit deux fois, ni « Début à 22 h » à côté de l'horaire qui
+le dit déjà. La ligne du week-end libre ne change pas. Aucune lecture
+touchée, neuf règles à zéro ; vérifié sur VBN, LCI, SKS et YBT à 320 px
+(hors ligne), 390 et 1280 px, à 5 h 10, 17 h 18 et en poste.
+
 **Troisième passe complète** (le client, le 17/10/2026 : « optimise un max
 encore l'accueil »). Captures à 320, 390 et 1280 px sur LCI et VBN, puis :
 - **la tuile RHS contredisait la liste du bas** : « 1 h reprises » d'un
