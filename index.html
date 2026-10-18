@@ -8052,11 +8052,32 @@ var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
    cellule franche vide ou « - » et en tête du commentaire : « remplace X
    pour le … » au fil d'une journée travaillée ne renvoie rien. */
 var RX_POUR_LE=/^\s*pour\s+(?:le\s+)?(\d{1,2})\s*[.\/-]\s*(\d{1,2})\b/i;
+/* UN CONGÉ SUR UN REPOS QUI NOMME UNE SEULE DATE (le client, le 18/10/2026 :
+   « tous les commentaires doivent être vérifiés, pour le classeur existant
+   et les futurs »). Relus un par un, les commentaires qui citent une date
+   sur une cellule « - » portant un congé écrivent tous la même chose sous
+   d'autres mots : « cf 02/01 », « Cfr 17/12 », « du 19/10 », « au 18/02 »,
+   « arrivée à 08h00' le 25.03 ». Le congé appartient à la journée nommée,
+   et celle-ci l'écrit souvent elle-même (CKS le 14/01, « +2h RTT Départ à
+   9h ») : il était compté DEUX fois, une fois sur le repos. Une seule date,
+   pas de « rappel », pas de « +FT » (l'épargne a son chemin,
+   RX_RENVOI) ; « voir » et les jours fériés écrits « -01/01 » ne
+   renvoient rien. */
+var RX_DATE_SEULE=/(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?!\s*h)(?:[.\/-]\d{2,4})?/g;
 function prisAilleurs(e){
   var com=String(e[2]||""), m=RX_PRIS_AILLEURS.exec(com);
   if(m) return m;
   var fr=String(e[0]||"").trim();
-  return (!fr || fr==="-") ? RX_POUR_LE.exec(com) : null;
+  if(fr && fr!=="-") return null;
+  m=RX_POUR_LE.exec(com); if(m) return m;
+  var an=String(e[1]||"");
+  if(!an || /\+\s*FT/i.test(an) || /rappe[lk]|\bvoir\b/i.test(com)) return null;
+  var tous=com.match(RX_DATE_SEULE)||[];
+  if(tous.length!==1) return null;
+  RX_DATE_SEULE.lastIndex=0;
+  m=RX_DATE_SEULE.exec(com); RX_DATE_SEULE.lastIndex=0;
+  if(!m || Number(m[1])<1 || Number(m[1])>31 || Number(m[2])<1 || Number(m[2])>12) return null;
+  return m;
 }
 /* « DS » EN CELLULE FRANCHE, ET LA PAUSE DANS LE COMMENTAIRE. JKS le 21/10
    (classeur du 28/09/2026) : ["DS","4h +FT","… présent à la DS prestera la
@@ -8403,7 +8424,9 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      journée visée : ["PM","4h -FT","+4h RTT"], et la somme tombe alors
      juste à zéro heure prestée. */
   if(renvois && renvois.length){
-    var rvC=renvois.filter(function(c){ return !/^RHS@/.test(c); });
+    /* un congé que la journée écrit déjà elle-même ne se compte pas deux
+       fois (FPA le 02/01, « 4h RTT- », et le 03/01 « 4h RTT cf 02/01 ») */
+    var rvC=renvois.filter(function(c){ return !/^RHS@/.test(c) && c!==out.a; });
     if(rvC.length) out.ax=rvC;
     renvois.forEach(function(c){ if(/^RHS@/.test(c)) out.rvRHS=(out.rvRHS||0)+Number(c.slice(4)); });
   }

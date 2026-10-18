@@ -78,6 +78,7 @@ const MORCEAUX=[
   ["var JOUR_EN_ABSENCE=","\n"],
   ["var RX_PRIS_AILLEURS=","\n"],
   ["var RX_POUR_LE=","\n"],
+  ["var RX_DATE_SEULE=","\n"],
   ["function prisAilleurs(","\n}"],
   ["function parseHoraireEntry(","\n}"],
   ["var CYCLES=[","];"],
@@ -655,8 +656,45 @@ const REGLES=[
   ["vues en désaccord",    "le mois et l'année ne montrent pas la même chose le même jour"],
   ["mention non comprise", "la case dit quelque chose, mais un morceau de la cellule reste illisible"],
   ["mention avalée",       "le motif des ateliers la reconnaît, mais elle ne devient AUCUN poste — l'outil croit l'avoir comprise"],
-  ["motif trop étroit",    "un motif plus large trouverait davantage dans le même commentaire — l'outil lit moins qu'il ne croit"]
+  ["motif trop étroit",    "un motif plus large trouverait davantage dans le même commentaire — l'outil lit moins qu'il ne croit"],
+  ["date d'un autre jour", "un congé, une reprise ou du flex time écrit avec la date d'un autre jour, que la lecture ne rattache à rien"]
 ];
+/* LA DATE D'UN AUTRE JOUR (le client, le 18/10/2026 : « tous les
+   commentaires doivent être vérifiés, pour le classeur existant et les
+   futurs »). Trois renvois de congé sont passés en silence — « 2h rhs pris
+   le 15.05 », « 4h rhs pour le 16.10 », « 4h RTT cf 02/01 » — parce
+   qu'aucun motif ne les lisait et qu'aucune règle ne disait qu'ils
+   existaient. Celle-ci regarde chaque cellule qui porte un code d'heures
+   (congé, reprise, flex time, heures sup) et chaque date de son
+   commentaire : une date est EXPLIQUÉE si c'est le jour même, si les motifs
+   de l'application la lisent (rappel, « pris le », « presté le », renvoi
+   d'épargne, prisAilleurs()), ou si les mots juste avant en font une
+   simple référence (« mail du », « déplacé au », « voir », « encodé le »,
+   « formation le »…). Le reste s'imprime : c'est une forme nouvelle, à lire
+   avant qu'elle ne déplace des heures. */
+const DATE_NEUTRE=/(?:^|[^a-zà-ÿ])(?:mail|demande|encod[\wà-ÿ]*|faite?s?|changement|formation|ce|cppt|ds|d[ée]plac[\wà-ÿ]*|report[\wà-ÿ]*|voir|cfr?|du|au|aux|sur|jeudi|lundi|mardi|mercredi|vendredi|samedi|dimanche|[ée]change|annul[\wà-ÿ]*|cie|pc)\W*(?:(?:le|les|au|aux)\s+)?(?:\d{1,2}\s*(?:&|et|,)\s*)*$/i;
+function datesNonLues(raw,mmdd){
+  const an=String(raw[1]||""), com=String(raw[2]||"");
+  if(!/(\bft\b|rtt|rhs|dtt|\bva\b|rjf|css|\bhs\b)/i.test(an) || !com) return [];
+  const lues=new Set(), rx=/(?<![\dh])(\d{1,2})\s*[.\/]\s*(\d{1,2})(?![\dh])(?:[.\/]\d{2,4})?/g;
+  const marque=(re)=>{ if(!re) return; const g=new RegExp(re.source,"gi"); let m; while((m=g.exec(com))) lues.add(m.index+m[0].lastIndexOf(m[1],m[0].length-1-m[2].length)); };
+  [typeof RX_RAPPEL!=="undefined"?RX_RAPPEL:null, RX_PRIS_AILLEURS, RX_POUR_LE,
+   typeof RX_PRESTE_AILLEURS!=="undefined"?RX_PRESTE_AILLEURS:null,
+   /\+\s*FT/i.test(an)?RX_RENVOI:null].forEach(marque);
+  const pa=prisAilleurs(raw); if(pa) lues.add(pa.index+pa[0].indexOf(pa[1]));
+  const reste=[]; let m;
+  while((m=rx.exec(com))){
+    const d=Number(m[1]), mo=Number(m[2]);
+    if(d<1||d>31||mo<1||mo>12) continue;
+    if(pad2(mo)+pad2(d)===mmdd) continue;
+    let deja=false; lues.forEach(i=>{ if(Math.abs(i-m.index)<=1) deja=true; });
+    if(deja) continue;
+    if(DATE_NEUTRE.test(com.slice(Math.max(0,m.index-28),m.index))) continue;
+    if(/rappe[lk]/i.test(com.slice(Math.max(0,m.index-30),m.index))) continue;
+    reste.push(m[0]);
+  }
+  return reste;
+}
 const fautes={}; REGLES.forEach(r=>fautes[r[0]]=[]);
 let cellules=0, postes=0, absences=0, repos=0, prevus=0;
 const incomprises={}, avalees={}, etroits={};
@@ -804,6 +842,9 @@ for(const p of db.people){
         if(etroits[cle].ex.length<3) etroits[cle].ex.push(ou+"  "+src+"   → "+plus.join(", "));
         fautes["motif trop étroit"].push(ou+"  "+src);
       });
+      /* 13. la date d'un autre jour que rien ne lit (règle faible) */
+      const dnl=datesNonLues(raw,mmdd);
+      if(dnl.length) fautes["date d'un autre jour"].push(ou+"  "+src+"   → "+dnl.join(", "));
       /* 8. le trajet par le mois doit rendre exactement la même case */
       const viaMois=affichageRecord(enregistre(r,H_JOUR),H_JOUR);
       if(viaMois.genre!==a.genre || viaMois.etiquette!==a.etiquette)
@@ -863,7 +904,7 @@ if(total){
    échoue toujours ne sert plus de porte — on finit par ne plus lire son
    code de retour. Mesuré par l'audit du 26/09/2026 : « 66 faute(s) », les
    neuf règles dures à zéro. --strict rend l'ancien comportement. */
-const FAIBLES=new Set(["mention non comprise","mention avalée","motif trop étroit"]);
+const FAIBLES=new Set(["mention non comprise","mention avalée","motif trop étroit","date d'un autre jour"]);
 const dures=REGLES.reduce((s,[nom])=>s+(FAIBLES.has(nom)?0:fautes[nom].length),0);
 const questions=total-dures;
 console.log(dures?("\n"+dures+" faute(s) à corriger."):"\nAucune faute dans les neuf règles dures.");

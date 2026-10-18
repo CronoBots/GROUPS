@@ -164,6 +164,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("var ALIAS_HORAIRE=","\n"),g("var COQUILLES=","\n"),g("var HS_DUREE_TRANCHEE=","};"),g("var HS_TRANCHEES=","};"),g("var JOUR_EN_ABSENCE=","\n"),
  g("var RX_PRIS_AILLEURS=","\n"),
  g("var RX_POUR_LE=","\n"),
+ g("var RX_DATE_SEULE=","\n"),
  g("function prisAilleurs(","\n}"),
  g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
