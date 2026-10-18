@@ -4744,6 +4744,13 @@ redeviennent « Mes pauses », « Mois par mois » et « Jour par jour », et
 l'année ne s'écrit plus qu'une fois, en sous-titre du cadre : « année 2026 »
 (« mois par mois et jour par jour » redisait les titres).
 
+**La roue des réglages en haut à droite de la bannière** (le client, le
+18/10/2026). Elle était à gauche depuis le 16/10 pour ne pas couvrir la
+marque ; elle mord désormais un peu sur le haut du logo, à la demande du
+client. Le badge des changements d'horaire prend sa place en haut à gauche,
+sur l'usine. La roue ouvre bien les Réglages à 320 px (hors ligne), 390 et
+1280 px.
+
 Puis (le client, le 18/10/2026) : **un cadre dans sa seconde semaine de D
 (la 6e de son cycle de 6 semaines) n'affiche plus d'équipe pour le cycle
 actuel** — elle a repris son cycle de 5 semaines sans lui. VBN et ATR, en
