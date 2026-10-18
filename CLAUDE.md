@@ -4814,8 +4814,8 @@ case AM reste à SMA). Le commentaire s'ouvre au clic, comme sur tout badge.
 La surbrillance de la pause du moment passe d'un rang de colonne à la clé
 de pause de chaque case (`data-k`, `data-mck`), un rang ne tenant plus
 quand une case en couvre deux. Affichage seulement ; vérificateur identique
-à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px. **À l'essai** :
-le client dira s'il garde.
+à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px. **Gardée** (le
+client, le 18/10/2026 : « on garde la fusion »).
 Puis (le client : « go » sur deux retouches) : un trait fin en pointillé
 marque, dans la case fusionnée, la limite de chaque pause (14 h, 22 h), et
 la pause du moment y garde son voile, posé derrière les barres sur sa seule
