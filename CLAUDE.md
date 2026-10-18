@@ -4730,6 +4730,12 @@ légère (`.mc-j.we`), là où un repos de semaine n'a rien, et SAM et DIM
 s'écrivent en cyan ; les jours prestés gardent leur couleur. Le jour
 courant garde sa pastille. Vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+Puis : « il faut mettre des bordures aux cellules sans rien aussi ».
+Tout repos (et poste prévu non presté) a désormais un filet fin ; le
+samedi et le dimanche gardent en plus leur tuile légère. Les cases avant
+le 1er et après le dernier jour restent vides. Vérifié à 320 px (hors
+ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
