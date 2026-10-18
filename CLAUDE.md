@@ -4849,6 +4849,38 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   4 h RTT, son agenda perd le matin du 13/11, et la fermentation de ce
   matin-là passe de 2/1 à 1/1 (LHS la tient). Les manques, le Recyclage et
   les compteurs sont identiques à l'octet ;
+- **puis tous les commentaires** (le client, le 18/10/2026 : « tous les
+  commentaires doivent être vérifiés, pour le classeur existant et les
+  futurs »). Les 853 dates citées par les commentaires de l'horaire ont été
+  classées une à une. Une famille entière échappait encore : un congé posé
+  sur un repos (« - ») qui nomme UNE date sous d'autres mots — « cf
+  02/01 », « Cfr 17/12 », « du 19/10 », « au 18/02 », « arrivée à 08h00' le
+  25.03 ». Le congé était compté sur le repos, et souvent une seconde fois
+  sur la journée nommée, qui l'écrit elle-même (CKS le 14/01, « +2h RTT
+  Départ à 9h »). `prisAilleurs()` les lit désormais comme « pris le »
+  (une seule date, ni « rappel », ni « voir », ni « +FT »), et un congé
+  renvoyé que la journée porte déjà n'est pas ajouté. 15 cellules sources
+  redeviennent des repos ; sept journées changent d'heures : IME 25/03
+  7 → 5 h (2 h RTT, arrivé à 8 h), SPS 02/02 8 → 6 h, DBE 15/03 8 → 6 h
+  (départ à 20 h), KDN 17/12 et ADK 14/10 4 → 0 h (remplacés, ½ VA ou ½ DTT
+  en plus), JBI 21/08 4 → 0 h (le RJF « cf 21/08 » posé le 13/08 : relevé
+  d'août, écart connu levé) ; VBN 14/06 garde ses 4 h payées mais reçoit les
+  4 h de −FT écrites le 19/06, et n'est plus compté présent (le précédent du
+  30/01 : RTT et −FT posés ensemble, il n'a pas travaillé). **Les compteurs
+  flex time passent de 77/78 à 78/78** : l'« erreur du classeur » de FPA
+  était un −FT compté deux fois. Placement : trois pauses passées perdent
+  une personne comptée deux fois (14/06, 14/10, 17/12), manques et
+  Recyclage identiques à l'octet. Agendas : ADK 14/10, KDN 17/12 et VBN
+  14/06 retirés, IME 25/03 commence à 8 h.
+  **Et pour les classeurs futurs, une règle faible du vérificateur, « date
+  d'un autre jour »** : toute cellule portant un code d'heures dont le
+  commentaire cite une date que rien ne lit (ni le jour même, ni un motif de
+  l'application, ni un mot de simple référence — « mail du », « déplacé
+  au », « voir », « encodé le »…). `mettre-a-jour.py` l'ajoute au rapport,
+  qui part par e-mail avec chaque classeur. Éprouvée : « à reprendre le
+  13/11 » planté chez CKS est signalé. Elle en signale une aujourd'hui,
+  VGG le 15/03, « 1h RTT · presté 7h le 20.03 » (et le 20/03 « SD 26 · voir
+  15.03 ») : question au client ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse
@@ -9331,7 +9363,11 @@ node tools/verifier-calendrier.js --compteurs
 Il recalcule les compteurs flex time de chacun depuis ses journées et les
 compare à ceux du pied de classeur, saisis à la main. Les neuf règles
 regardent ce que la case AFFICHE ; celui-ci additionne ce qu'elle COMPTE.
-**76 personnes sur 77 doivent concorder exactement** — la seule divergence
-connue est une erreur du classeur (FPA, 39 h contre 36 au 22/09/2026 ;
-44 contre 41 la veille — l'écart de 3 h, lui, ne bouge pas), documentée en
-section 10 bis.
+**Tout le monde doit concorder exactement : 78 sur 78 depuis le 18/10/2026.**
+La divergence de FPA (3 h de −FT de trop), écrite ici comme « une erreur du
+classeur » depuis le 22/09, **n'en était pas une** : sa cellule du 07/11
+porte « 3h -FT » et celle du 03/11 « 3h -FT pris le 07.11 », et
+l'application comptait les deux. Un congé renvoyé que la journée écrit déjà
+ne se compte plus deux fois (voir « Le cadre du mois, repris case par
+case »). Une divergence revenue est donc une faute de lecture à chercher,
+pas un écart connu.

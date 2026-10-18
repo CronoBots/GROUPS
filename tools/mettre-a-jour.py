@@ -255,11 +255,24 @@ def main():
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "comparer-horaire.py"),
                         cibles["horaire"], neuf["horaire"]],
                        cwd=RACINE, capture_output=True, text=True)
+    # Les commentaires qui citent la date d'un autre jour sans que la lecture
+    # la rattache à rien (règle faible du vérificateur, 18/10/2026) : une
+    # forme nouvelle de renvoi se lit ici, et part dans l'e-mail du rapport.
+    dates = ""
+    journal = os.path.join(tmp, "7-calendrier.log")
+    if os.path.exists(journal):
+        texte = open(journal, encoding="utf-8").read()
+        mt = re.search(r"── date d'un autre jour \((\d+)\)\n(.*?)(?:\n\n|\Z)", texte, re.S)
+        if mt:
+            dates = ("\nCommentaires à relire — une date d'un autre jour que l'application"
+                     " ne rattache à rien (%s) :\n%s\n" % (mt.group(1), mt.group(2)))
     with open(rapport, "w", encoding="utf-8") as f:
-        f.write(r.stdout)
+        f.write(r.stdout + dates)
     print("\n══ CE QUI CHANGE par rapport à l'horaire installé — à LIRE, et à dire"
           " au client ══\n")
     print(r.stdout.strip() or "(rien)")
+    if dates:
+        print(dates)
 
     if not installer:
         print("\nLes huit portes sont ouvertes. À blanc : rien n'est installé.")
