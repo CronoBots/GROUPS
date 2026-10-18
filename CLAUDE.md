@@ -4662,6 +4662,18 @@ effacé » du vérificateur porte sur la lecture, qui ne change pas, et ses
 sorties sont identiques à l'octet. Vérifié à 320 px (hors ligne), 390 et
 1280 px, rien ne déborde.
 
+**Un coin pour le commentaire** (le client, le 18/10/2026, capture du mois :
+« rien n'indique un commentaire pourtant il est encore dans la cellule »).
+Depuis que le poste prévu non presté se lit comme un repos, rien ne disait
+que la cellule du 15/10 de VBN (« 7h-15h · - · cf. 09/10 remplace ATA… »)
+porte un commentaire. Toute journée dont la cellule du classeur a un
+commentaire porte un petit triangle cyan dans son coin bas droit, comme le
+coin rouge d'Excel (`comJour()`), et la légende dit « Commentaire » les mois
+où il y en a. Un appui ouvre la feuille du jour, qui cite le commentaire.
+La marque « AM non presté » est partie de `legendeMois()` avec sa variable.
+Affichage seulement : vérificateur identique à l'octet ; vérifié à 320 px
+(hors ligne), 390 et 1280 px, rien ne déborde.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les

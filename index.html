@@ -1070,6 +1070,8 @@ body{overflow-x:clip}
 .mc-leg .lg-pt{width:6px; height:6px; border-radius:50%}
 .mc-leg .lg-velo{background:var(--good)} .mc-leg .lg-rap{background:var(--out2)}
 .mc-leg .lg-part{background:var(--muted)}
+.mc-com{position:absolute; right:3px; bottom:3px; width:0; height:0; border-style:solid; border-width:0 0 7px 7px; border-color:transparent transparent var(--in) transparent; border-bottom-right-radius:2px; opacity:.85; pointer-events:none}
+.mc-leg .lg-com{width:0; height:0; border-radius:0; background:none; border-style:solid; border-width:0 0 8px 8px; border-color:transparent transparent var(--in) transparent}
 
 
 /* ---------- horaire : le cadre du mois réorganisé (16/10/2026) ---------- */
@@ -6325,7 +6327,16 @@ function caseJour(d){
     +'<span class="mc-n">'+d+'</span>'
     +(tag?'<span class="mc-t'+(String(tag).length>3?" long":"")+'">'+esc(tag)+'</span>':"")
     +(marques?'<span class="mc-m">'+marques+'</span>':"")
+    +(comJour(d)?'<i class="mc-com" title="Commentaire du classeur"></i>':"")
     +'</button>';
+}
+
+/* La cellule du classeur porte-t-elle un commentaire ? Un coin, comme dans
+   Excel : une journée lue en repos (poste prévu non presté, heures renvoyées
+   ailleurs) le dit encore (le client, le 18/10/2026). */
+function comJour(d){
+  var raw=st.personD&&st.personD[pad2(st.m+1)+pad2(d)];
+  return !!(raw&&raw[2]&&String(raw[2]).trim());
 }
 
 function renderRota(){
@@ -6359,7 +6370,7 @@ function renderRota(){
    qu'avec ce que le mois contient vraiment. */
 function legendeMois(){
   var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
-  var vus={}, abs=false, mal=false, jour=false, velo=false, rap=false, part=false, prevu=false;
+  var vus={}, abs=false, mal=false, jour=false, velo=false, rap=false, part=false, com=false;
   for(d=1; d<=nd; d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
@@ -6368,11 +6379,11 @@ function legendeMois(){
     if(preste) vus[rec.j?"D":rec.s]=1;
     else if(epR){}
     else if(rec.a&&ABSMAP[rec.a]){ if(ABSMAP[rec.a].k==="SMG") mal=true; else abs=true; }
-    else if(rec.s) prevu=true;
     if(preste&&rec.j) jour=true;
     if(preste&&rec.a) part=true;
     if(rec.v) velo=true;
     if(rec.r) rap=true;
+    if(comJour(d)) com=true;
   }
   var h=[];
   ["AM","PM","N","D"].forEach(function(k){
@@ -6384,6 +6395,7 @@ function legendeMois(){
   if(part) h.push('<span><i class="lg-pt lg-part"></i>Heures modifiées</span>');
   if(velo) h.push('<span><i class="lg-pt lg-velo"></i>Vélo</span>');
   if(rap)  h.push('<span><i class="lg-pt lg-rap"></i>Rappel</span>');
+  if(com)  h.push('<span><i class="lg-com"></i>Commentaire</span>');
   return h.length?'<div class="mc-leg">'+h.join("")+"</div>":"";
 }
 
