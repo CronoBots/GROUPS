@@ -622,35 +622,35 @@ body{overflow-x:clip}
 .cr{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:14px; row-gap:6px; align-items:center;
   padding:11px 0; border-top:1px solid var(--trait)}
 .cpt-t+.cr,.cr-l>.cr:first-child{border-top:0; padding-top:2px}
-.cr-n{min-width:0; display:flex; align-items:baseline; gap:7px; font-size:14px; font-weight:600; color:var(--ink); line-height:1.25}
-.cr-c{flex:0 0 auto; min-width:38px; font-size:10.5px; font-weight:700; letter-spacing:.05em; color:var(--in)}
+.cr-tot+.cr-l>.cr:first-child{padding-top:11px}
+.cr-n{min-width:0; display:flex; align-items:center; flex-wrap:wrap; gap:4px 7px; font-size:14px; font-weight:600; color:var(--ink); line-height:1.25}
+.cr-c{order:2; flex:0 0 auto; font-size:9.5px; font-weight:700; letter-spacing:.05em; color:var(--in);
+  padding:1px 5px; border-radius:5px; background:color-mix(in srgb,var(--in) 12%,transparent)}
 .cr-s{grid-column:1; font-size:11.5px; color:var(--muted); line-height:1.35; font-variant-numeric:tabular-nums}
 .cr-s b{font-weight:650; color:var(--ink2)}
 .cr-v{grid-row:1 / span 2; grid-column:2; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;
   font-size:22px; font-weight:700; letter-spacing:-.01em; color:var(--ink); line-height:1.05}
 .cr-v small{font-size:12px; font-weight:600; color:var(--muted); margin-left:2px; letter-spacing:0}
 .cr-v em{display:block; font-style:normal; font-size:11px; font-weight:500; color:var(--muted); margin-top:3px}
+.ft-ok .cr-v em{color:var(--good); font-weight:650} .ft-att .cr-v em{color:var(--at-jaune); font-weight:650}
+.ft-ko .cr-v em{color:var(--out2); font-weight:650}
 .cr.sans-s .cr-v{grid-row:1}
 .cr-w{grid-column:1 / -1}
 .cr-bar{grid-column:1 / -1; height:4px; border-radius:99px; background:var(--surface3); overflow:hidden}
 .cr-bar i{display:block; height:100%; border-radius:99px; background:var(--in)}
 /* un congé tout placé : la rangée pâlit, sa valeur dit « Tout placé » */
-.cr.vide .cr-n{color:var(--muted)} .cr.vide .cr-v{font-size:12.5px; font-weight:600; color:var(--faint)}
-.cr.fini .cr-v{font-size:12.5px; font-weight:600; color:var(--faint)}
+.cr.vide .cr-n,.cr.fini .cr-n{color:var(--muted)}
+.cr.vide .cr-v,.cr.fini .cr-v{font-size:12px; font-weight:600; color:var(--good)}
+.cr.vide .cr-v::before,.cr.fini .cr-v::before{content:"✓ "}
 .cr.vide{padding:8px 0} .cr.vide .cr-bar,.cr.vide .cr-s{display:none} .cr.vide .cr-v{grid-row:1}
 .cr.neg .cr-v,.cr.neg .cr-v small,.cr.neg .cr-s b{color:var(--out2)} .cr.neg .cr-bar i{background:var(--out2)}
 /* le total des congés, la réponse qu'on cherche en premier */
-.cr-tot{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin:0 0 12px; font-variant-numeric:tabular-nums}
+.cr-tot{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin:0 0 6px; padding:0 0 12px; border-bottom:1px solid var(--trait); font-variant-numeric:tabular-nums}
 .cr-tot b{font-size:30px; font-weight:750; letter-spacing:-.02em; color:var(--ink); line-height:1}
 .cr-tot b small{font-size:15px; font-weight:650; color:var(--muted); margin-left:3px}
 .cr-tot span{font-size:12.5px; color:var(--muted)}
 /* flex time : l'état en pastille, une jauge fine */
-.cr-e{display:inline-block; font-size:10.5px; font-weight:650; padding:1px 7px; border-radius:99px;
-  color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
-.ft-att .cr-e{color:var(--at-jaune); background:color-mix(in srgb,var(--at-jaune) 14%,transparent)}
-.ft-ko .cr-e{color:var(--out2); background:color-mix(in srgb,var(--out2) 14%,transparent)}
 .ft-ko .cr-v{color:var(--out2)}
-.cr-s .cr-e{margin-right:6px}
 .ft-jauge{grid-column:1 / -1; position:relative; margin:4px 0 22px}
 .ft-piste{display:flex; height:4px; border-radius:99px; overflow:hidden; background:var(--surface3)}
 .ft-piste .ft-z0{flex:0 0 78.57%; background:rgba(110,190,150,.30)}
@@ -17231,9 +17231,9 @@ function renderCompteurs(){
       var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
       var bar='<div class="cr-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div>';
       lc.push(rs===0
-        ? rangee("vide",k,lib==k?k:lib,'<b>'+num(pose)+' h</b> placées sur '+num(tot)+' h','Tout placé','','',bar)
+        ? rangee("vide",k,lib==k?k:lib,'','Tout placé','','','',num(tot)+' h placées sur '+num(tot)+' h')
         : rangee(rs<0?"neg":"",k,lib==k?k:lib,'<b>'+num(pose)+' h</b> placées sur '+num(tot)+' h',
-            MOINS(R(rs/8,2)),'j',MOINS(rs)+' h restantes',bar,lib+' : '+num(rs)+' h restantes'));
+            MOINS(R(rs/8,2)),'j',MOINS(rs)+' h '+(rs<0?'de trop':'à placer'),bar,lib+' : '+num(rs)+' h à placer'));
     });
 
     /* --- flex time ---
@@ -17246,17 +17246,18 @@ function renderCompteurs(){
     if(jusqua){
       var soldeJ=soldeFTClasseur(f),
           etat=soldeJ>104?["ko","Au-delà de 104 h"]
-              :soldeJ>80?["att","Au-dessus de 80 h : −FT à planifier"]
-              :soldeJ<-8?["ko","Sous le minimum de −8 h"]
+              :soldeJ>80?["att","À redescendre"]
+              :soldeJ<-8?["ko","Sous −8 h"]
               :["ok","Dans les bornes"];
       var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
       lc.push(rangee("ft-"+etat[0],"FT","Flex time",
-        '<span class="cr-e">'+etat[1]+'</span> <b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises',
-        (soldeJ>0?"+":"")+MOINS(soldeJ),'h','solde',
+        '<b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises',
+        (soldeJ>0?"+":"")+MOINS(soldeJ),'h',etat[1],
         '<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
         +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
         +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
-        +'<div class="ft-gr"><span>−8 h</span><span class="mid" style="left:'+pos(80)+'%">80 h</span><span>104 h</span></div></div>'));
+        +'<div class="ft-gr"><span>−8 h</span><span class="mid" style="left:'+pos(80)+'%">80 h</span><span>104 h</span></div></div>',
+        'Solde au '+String(ju.getDate()).padStart(2,"0")+'/'+String(ju.getMonth()+1).padStart(2,"0")+', bornes −8 h et 104 h'));
     }
     var ecarts=[];
     if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
@@ -17266,9 +17267,9 @@ function renderCompteurs(){
        additionnées (passe du 17/10/2026). */
     var rhsJ=calc.abs.RHS||0, rhsT=R(calc.rhs+rhsJ,2); dejaVu.RHS=1;
     lc.push(rangee("","RHS","Récup. heures sup.",
-      (rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+' j</b> entières, <b>'+num(R(calc.rhs,2))+' h</b> en partie'
-        :rhsJ?'en journées entières':calc.rhs?'en reprises partielles':'aucune reprise cette année'),
-      num(rhsT),'h','reprises','','Le classeur note les reprises, pas le solde du compteur.'));
+      (rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+' j</b> entières et <b>'+num(R(calc.rhs,2))+' h</b> en partie de journée'
+        :rhsJ?'En journées entières':calc.rhs?'En partie de journée':'Aucune reprise cette année'),
+      num(rhsT),'h','repris en '+annee,'','Le classeur note les reprises, pas le solde du compteur.'));
 
     /* --- temps de travail réduit ---
        Le compteur du pied de feuille compte les journées POSÉES, et
@@ -17286,7 +17287,7 @@ function renderCompteurs(){
     ordre.forEach(function(k,i){
       dejaVu[k]=1;
       var l=parCode[k], tot=l.reduce(function(s,v){return s+v;},0);
-      var det='<b>'+num(tot)+' j</b> posés'+(l.length>1?' en '+l.length+' périodes ('+l.map(function(v){return num(v);}).join(" + ")+')':'');
+      var det='<b>'+num(tot)+' j</b> posés'+(l.length>1?' en '+l.length+' périodes':'');
       lc.push((aPlanifier!==undefined && i===0)
         ? (Number(aPlanifier)===0 ? rangee("fini",k,NOM_REDUIT[k],det,'Tout planifié','','')
             : rangee("",k,NOM_REDUIT[k],det,num(aPlanifier),'j','à planifier'))
@@ -17295,8 +17296,8 @@ function renderCompteurs(){
 
     if(lc.length){
       var totJ=R(totRs/8,2);
-      h.push(bloc("Congés","jours de 8 h",
-        '<div class="cr-tot"><b>'+num(totJ)+'<small>j</small></b><span>'+(totRs?'à placer · '+num(R(totRs,2))+' h':'tout est placé')+' · soldes '+(annee-1)+' inclus</span></div>'
+      h.push(bloc("Congés","1 jour = 8 h",
+        '<div class="cr-tot" title="Soldes '+(annee-1)+' compris"><b>'+num(totJ)+'<small>'+(totJ>1?'jours':'jour')+'</small></b><span>'+(totRs?'à placer, soit '+num(R(totRs,2))+' h':'tout est placé')+'</span></div>'
         +'<div class="cr-l">'+lc.join("")+'</div>'
         +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
     }
