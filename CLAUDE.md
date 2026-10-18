@@ -138,6 +138,18 @@ ce fichier démentie par la mesure se CORRIGE sur place, en disant qu'elle
 sous-section « Ce qui attend le client ». Quand il répond, on applique, on
 mesure, et on retire la question de la liste.
 
+**Le dossier Notion** (le client, le 18/10/2026 : « optimise au maximum ce
+git avec le connecteur Notion, du travail de professionnel »). Une page
+privée de son espace Notion, « BIOWANZE · Dossier projet », en donne la
+vue d'ensemble : état du projet, règles, guide de l'application,
+procédures, architecture, synthèse des règles de lecture et de paie, et
+deux bases — « Suivi — questions et écarts » (questions client et RH,
+écarts connus, chantiers, avec statut) et « Journal des versions ». Ce
+fichier reste la source de vérité : une décision s'écrit d'abord ici, puis
+se reporte dans Notion (statut du suivi, ligne du journal) par le
+connecteur. Notion suit la même règle que le dépôt : ni nom, ni montant
+de salaire, ni identifiant de connexion.
+
 ## Avant de toucher à l'horaire d'équipe
 
 **Lis `docs/conversion-horaire.md`** — et `docs/regles-paie.md` avant de
