@@ -3818,8 +3818,31 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-ou b{color:#fff; font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
 .pf-rg{color:rgba(255,255,255,.78)}
 .pf-rg b{font-family:inherit; font-weight:650; letter-spacing:.01em}
-.pf-we{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:10px 13px 0; padding:0; font-size:12.5px; color:rgba(255,255,255,.62)}
+/* Le prochain poste et le week-end libre : un seul cadre, deux lignes
+   séparées d'un filet (18/10/2026). */
+.pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
+.pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:11px 12px}
+@media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
+.pf-we{display:flex; align-items:center; gap:8px; padding:9px 12px 10px; border-top:1px solid rgba(105,178,203,.2);
+  font-size:12.5px; color:rgba(255,255,255,.66)}
+.pf-we svg{flex:0 0 auto; color:var(--marque-vif)}
+.pf-we span{flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-we b{color:#fff; font-weight:600; white-space:nowrap}
+.pf-bloc:not(:has(.pf-proch)) .pf-we{border-top:0}
+.pf-st2 i{font-style:normal}
+.pf-fo{color:var(--at-jaune)}
+/* Les progressions : un filet entre l'année et chaque cycle, et la semaine
+   du cycle lisible à côté de son titre. */
+.pf-an .ry-an-t~.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
+.pf-an .ry-hint{font-size:11px; color:var(--muted)}
+.pf-an .ry-an-leg{margin-bottom:12px}
+@media (min-width:761px){
+  .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
+  .pf-gauche{min-width:0}
+  .pf-gauche .pf-bloc{margin:12px 0 0 12px}
+  .pf-corps>.pf-an{padding:0 12px 0 0; margin-top:4px}
+  .pf-corps>.pf-an .ry-an-t:first-child{padding-top:14px}
+}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
@@ -10625,9 +10648,17 @@ function _pfHead(db,p){
   }
   /* Sans week-end libre à venir (malade jusqu'à la fin de l'horaire), pas de
      ligne : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
+  var we="";
   if(inf.weekend){ var wd=inf.weekend.d;
     var weT=inf.weekend.ce?"Ce week-end":JOURS_LONGS[(wd.getDay()+6)%7]+" "+wd.getDate()+" "+MOIS[wd.getMonth()].toLowerCase();
-    h=h.replace('<div class="pf-app"','<div class="pf-we"><span>Prochain week-end libre</span><b>'+esc(weT)+'</b></div><div class="pf-app"'); }
+    we='<div class="pf-we"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><span>Week-end libre</span><b>'+esc(weT)+'</b></div>'; }
+  /* LE PROCHAIN POSTE ET LE WEEK-END LIBRE DANS UN SEUL BLOC (le client, le
+     18/10/2026 : « il y a moyen de faire bien mieux pour le héros, je veux
+     du 100 % »). Le week-end flottait seul entre le bloc et « Mon année » :
+     il devient la seconde ligne du même cadre, sous un filet. Au bureau, ce
+     bloc et l'identité tiennent la colonne de gauche, les progressions celle
+     de droite. */
+  if(h.indexOf('pf-proch')>=0||we) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,'<div class="pf-bloc">$1'+we+'</div>$2');
   var bio=esc(role);
   return '<div class="pf-hero">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
@@ -10638,9 +10669,9 @@ function _pfHead(db,p){
        client, le 16/10/2026 : le trigramme est déjà dans le cercle). */
     +'<div class="pf-hmeta"><span class="pf-poste">'+bio+'</span>'
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
-    +(st?'<span class="pf-st2'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')
-    +(fo?'<span class="pf-ou fo">'+ou+'</span>':'')+'</div></div>'
-    +h+'<div class="ry-an pf-an" id="ryAn"></div><div class="pf-bas"></div></div>';
+    +((st||fo)?'<span class="pf-st2'+(/int/i.test(st)?' int':'')+'">'+esc(st)+(st&&fo?'<i aria-hidden="true"> · </i>':'')+(fo?'<span class="pf-fo">'+ou+'</span>':'')+'</span>':'')
+    +'</div></div>'
+    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div></div><div class="pf-bas"></div></div>';
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".pf-proch"):null; if(!b) return;
