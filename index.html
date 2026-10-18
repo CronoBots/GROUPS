@@ -1136,11 +1136,8 @@ body{overflow-x:clip}
 .sheet-nav:hover,.sheet-fermer:hover{color:var(--ink); border-color:var(--in2)}
 .sheet-src{margin:0; padding:10px 16px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
 .sheet-src[hidden]{display:none}
-.sheet-main{display:flex; align-items:center; gap:10px; padding:10px 16px; font-size:12.5px; color:var(--ink2); background:color-mix(in srgb,var(--at-jaune,#E0B000) 12%,var(--surface2)); border-bottom:1px solid var(--line2)}
-.sheet-main[hidden]{display:none}
-.sheet-main span{flex:1; min-width:0}
-.sheet-main b{font-family:"IBM Plex Mono",monospace}
-.sheet-main button{flex:none; min-height:36px; padding:0 12px; border-radius:10px; border:1px solid var(--cadre,var(--line2)); background:var(--surface); color:var(--ink); font:inherit; font-weight:650; cursor:pointer}
+.day.lu .shifts button:disabled,.day.lu .abs:disabled,.day.lu .hrs:disabled,.day.lu .rap:disabled{cursor:default; opacity:1}
+.day.lu .shifts button:disabled:not([aria-pressed="true"]){opacity:.45}
 .sheet-src b{font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
 .sheet-src .com{display:block; margin-top:3px; color:var(--faint); font-style:italic}
 .sheet-boite .day{border-bottom:0; padding:14px 16px}
@@ -4834,9 +4831,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
     </header>
     <p class="sheet-src" id="sheetSrc"></p>
-    <div class="sheet-main" id="sheetMain" hidden></div>
     <div class="rota" id="rota"></div>
-    <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose un congé ou une maladie. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
+    <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">La journée est lue dans l'horaire d'équipe, tel que le classeur l'écrit : la pause allumée est celle de la prime payée (comme le code P du relevé de prestations), le menu montre le congé ou la maladie, le champ les heures payées. Elle se relit à chaque ouverture et ne se corrige pas ici. Seul le <b>vélo</b>, que le classeur n'écrit pas, se coche à la main.</p></details>
   </div>
 </div>
 
@@ -6110,6 +6106,13 @@ function ligneJour(d){
   var hi=row.querySelector(".hrs");
   hi.value=rec.s?(rec.h===undefined||rec.h===null||rec.h===""?p.hJour:rec.h):"";
   hi.disabled=!rec.s;
+  /* Une journée que le classeur écrit se lit, elle ne se corrige plus : il
+     la relit à chaque ouverture (le client, le 18/10/2026). Seul le vélo,
+     qu'il n'écrit pas, reste à la main. */
+  if(st.personD && st.personD[pad2(m+1)+pad2(d)]!==undefined){
+    row.classList.add("lu");
+    row.querySelectorAll(".shifts button,.abs,.hrs,.rap").forEach(function(x){ x.disabled=true; });
+  }
   return row;
 }
 
@@ -6250,35 +6253,6 @@ function majFeuille(){
       +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
     src.hidden=false;
   } else { src.hidden=true; }
-  majJourMain(d);
-}
-/* UNE JOURNÉE CORRIGÉE À LA MAIN N'EST PLUS RETOUCHÉE PAR L'HORAIRE, et elle
-   le reste même quand le classeur ou une règle de lecture la change ensuite :
-   VBN le 30/09 gardait « N » sur son téléphone, alors que le classeur lu
-   depuis le 14/10/2026 dit AM (le client, le 18/10/2026 : « pourquoi le 30 je
-   suis en nuit alors que non ? »). La feuille le dit désormais, avec ce que
-   dit le classeur, et un bouton pour le reprendre. */
-function majJourMain(d){
-  var hote=document.getElementById("sheetMain"); if(!hote) return;
-  hote.hidden=true; hote.innerHTML="";
-  var rec=st.month&&st.month.days[d];
-  if(!rec || rec.auto || !(rec.s||rec.a) || !st.personObj || !st.personDb) return;
-  var T={days:{}};
-  try{ remplirMois(st.personDb,st.personObj,st.y,st.m,T); }catch(e){ return; }
-  var c=T.days[d]||{};
-  if((rec.s||"")===(c.s||"") && (rec.a||"")===(c.a||"")) return;
-  var dit=[];
-  if(c.s) dit.push(c.s+" \u00b7 "+String(c.h===undefined?st.params.hJour:c.h).replace(".",",")+" h");
-  if(c.a) dit.push(c.a);
-  hote.innerHTML='<span>Corrigée à la main. Le classeur dit <b>'+esc(dit.join(" + ")||"repos")+'</b>.</span>'
-    +'<button type="button" id="sheetReprendre">Reprendre</button>';
-  hote.hidden=false;
-  document.getElementById("sheetReprendre").onclick=function(){
-    delete st.month.days[d];
-    remplirMois(st.personDb,st.personObj,st.y,st.m,st.month);
-    persistMonth(); refresh(); majFeuille();
-    flash("Journée reprise depuis le classeur");
-  };
 }
 /* ACCESSIBILITÉ DES MODALES. Les deux boîtes de dialogue — la feuille du jour
    et l'accueil — sont HORS du <main> : on peut donc rendre le fond inerte
@@ -9379,7 +9353,13 @@ function remplirMois(db,person,y,m,M){
     var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
     var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour,renvois[day]);
     if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
-    if(dejaEncode){ bilan.kept++; continue; }
+    /* LE CLASSEUR L'EMPORTE TOUJOURS (le client, le 18/10/2026 : « il ne faut
+       plus les journées touchées à la main »). Une journée qu'il couvre est
+       relue à chaque ouverture, même corrigée sur l'appareil : le 30/09 de
+       VBN gardait une nuit d'avant la règle du 14/10 alors que le relevé dit
+       1A40 (matin). Seul le vélo, que le classeur n'écrit pas, reste à
+       l'appareil. */
+    dejaEncode=false;
     /* un rappel lu sur un repos du cycle (r.rs) a pour poste prévu le REPOS,
        même quand la cellule écrit la pause faite : sans cela la nuit de VBN
        le 25/06, ["23-06h","R-CM",…], ne débordait pas de sa propre pause et
@@ -9466,8 +9446,8 @@ function remplirMois(db,person,y,m,M){
 }
 /* L'horaire d'équipe couvre l'année entière : la découper mois par mois
    obligeait à douze allers-retours pour un résultat déjà connu. Un seul
-   clic remplit les douze. Les journées déjà encodées à la main ne sont
-   jamais écrasées — le bouton se rejoue donc sans risque. */
+   clic remplit les douze. Depuis le 18/10/2026, le classeur l'emporte sur
+   toute saisie de l'appareil ; seul le vélo reste. */
 /* Fige une valeur de paramètre sur les mois déjà écoulés de l'année
    affichée, sans toucher à ceux qui portent déjà une valeur propre : c'est
    l'utilisateur qui l'y a mise, elle prime. */
