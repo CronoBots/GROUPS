@@ -1599,8 +1599,10 @@ contremaître) :
   sous la seconde.
 **Mesuré avant de choisir** : le « restant » du classeur égale la somme de
 ce qui manque à chaque atelier pour 20 personnes sur 29, et pas pour 9
-(DWS 17 contre 27, FLN 7 contre 22, PAM 18 contre 10…). Pour ces neuf,
-« fait + restant » vaut 15 ou 20 là où l'application attend 30 ou 40. La
+(DWS 17 contre 27, FLN 7 contre 22, PAM 18 contre 10…). « Fait +
+restant » vaut 15 ou 20 pour cinq d'entre eux, là où l'application attend
+30 ou 40 ; 30 pour PAM et VBN, 10 pour ASS et PDR. (Une première écriture,
+corrigée avant de rendre la main, disait « 15 ou 20 » pour les neuf.) La
 copie du classeur RH n'est pas dans le dépôt : impossible d'y lire la
 largeur de leurs sections. Rien n'est deviné : chaque chiffre est montré tel
 que le classeur le donne, et la question est posée
