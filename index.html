@@ -7967,6 +7967,42 @@ function purgerHoraire(){
     }));
   }).catch(function(){});
 }
+/* « Remplace » son propre trigramme : une faute d'encodage, corrigée quand
+   elle est certaine. Le client, le 18/10/2026, devant SMK le 23/10,
+   « remplace SMK », alors que CGI écrit le même jour « remplacé par SMK » :
+   « il faut corriger le commentaire dans celui qui remplace si on est
+   certain que c'est bien une erreur d'encodage ». Certain, c'est : un
+   commentaire qui écrit « remplace X » dans la colonne de X lui-même, et UNE
+   SEULE autre personne qui, le même jour, sur la même cellule franche
+   (même pause prévue), écrit « remplacé par X ». Le X fautif devient alors
+   ce trigramme-là. Sans répondant unique (YPE le 23/06, SLT le 01/10), rien
+   n'est touché. Appliquée au chargement, une fois, pour que toute
+   l'application (placement, commentaires, agendas) lise la même chose ; le
+   vérificateur la découpe et l'applique aussi. Rend la liste des
+   corrections. */
+function corrigerAutoRemplacements(db){
+  var faits=[];
+  if(!db || !db.people) return faits;
+  function base(id){ return String(id).split("-")[0]; }
+  db.people.forEach(function(p){
+    var b=base(p.id), rx=new RegExp("\\bremplace\\s+"+b+"\\b","i");
+    Object.keys(p.d||{}).forEach(function(md){
+      var raw=p.d[md]; if(!raw || !raw[2] || !rx.test(String(raw[2]))) return;
+      var rxPar=new RegExp("remplac[ée]e?s?\\s+(?:[^.]*?\\s)?par\\s+(?:[A-Z]{3}\\s*(?:et|,)?\\s*)*"+b+"\\b","i");
+      var rep=db.people.filter(function(q){
+        var c=q!==p && q.d && q.d[md];
+        return c && c[2] && rxPar.test(String(c[2])) && String(c[0]||"")===String(raw[0]||"");
+      });
+      if(rep.length!==1) return;
+      var y=base(rep[0].id);
+      if(y===b || new RegExp("\\b"+y+"\\b").test(String(raw[2]))) return;
+      var nouv=String(raw[2]).replace(rx,function(m){ return m.replace(new RegExp(b+"$"),y); });
+      faits.push({id:p.id, md:md, avant:raw[2], apres:nouv});
+      raw[2]=nouv;
+    });
+  });
+  return faits;
+}
 function fetchHoraireDB(){
   if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
   if(horaireFetching) return horaireFetching;
@@ -7976,6 +8012,7 @@ function fetchHoraireDB(){
     });
   }).then(function(db){
     if(!db || !db.people || !db.people.length) throw new Error("horaire vide");
+    corrigerAutoRemplacements(db);
     HORAIRE_DB=db; alerteHoraire(false);
     /* On attend les recyclages officiels avant de rendre la main : ainsi le
        premier calcul de polyvalence les a déjà, et son résultat mémoïsé n'est

@@ -147,6 +147,7 @@ const MORCEAUX=[
   ["function pfDebut(","\n"],
   ["function pfFin(","\n"],
   ["function relaisDouze(","\n}"],
+  ["function corrigerAutoRemplacements(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],
   ["function formationCommencee(","\n}"],
@@ -311,6 +312,10 @@ const coupe=["--journee","--manques","--polyvalence","--doublons","--placement",
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
 const db=JSON.parse(fs.readFileSync(fichier,"utf8"));
+/* la correction des « remplace » son propre trigramme, comme l'application
+   au chargement (corrigerAutoRemplacements, découpée dans index.html) */
+const AUTO_CORR=corrigerAutoRemplacements(db);
+if(ARGS.indexOf("--auto-remplacements")>=0){ AUTO_CORR.forEach(c=>console.log(c.id+" "+c.md+" : "+JSON.stringify(c.avant)+" -> "+JSON.stringify(c.apres))); process.exit(0); }
 const ANNEE=Number(db.year);
 
 /* ── les abonnements agenda ──────────────────────────────────────────────

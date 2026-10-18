@@ -4794,6 +4794,27 @@ part de la case (`.eqfus-sep`, `.eqfus-maint`) ; la case entière n'est
 plus voilée. Vérifié le 27/01 à 15 h (PM voilé) et le 13/10, à 320 px (hors
 ligne), 390 et 1280 px ; vérificateur identique à l'octet.
 
+**« Remplace » son propre trigramme : une faute d'encodage corrigée**
+(le client, le 18/10/2026, devant SMK le 23/10, « remplace SMK » : « il
+faut corriger le commentaire dans celui qui remplace si on est certain
+que c'est bien une erreur d'encodage et que l'on est sûr de ne pas faire
+d'erreur »). C'est la seule correction du classeur que l'application
+s'autorise, et elle est bornée : un commentaire qui écrit « remplace X »
+dans la colonne de X lui-même, et UNE SEULE autre personne qui, le même
+jour et sur la même cellule franche, écrit « remplacé par X ». Le X fautif
+devient alors ce trigramme (`corrigerAutoRemplacements()`, au chargement
+de l'horaire ; le vérificateur la découpe et l'applique aussi, et
+`--auto-remplacements` liste ce qu'elle corrige). Mesuré sur le classeur
+du 16/10 : **6 journées, toutes SMK pour CGI** (10/07, 14/08, 23/10,
+27/11, 16 et 17/12), CGI écrivant chaque fois « remplacé par SMK ». Deux
+journées qui se nomment elles-mêmes restent telles quelles, faute de
+répondant : YPE le 23/06 (« échange avec ATA remplace YPE ») et SLT le
+01/10 (« remplace SLT de 12h30 à 14h »). Seul le texte change : neuf
+règles, `--manques 0926`, `--polyvalence` et `--compteurs` identiques à
+l'octet, `--placement --tout` ne diffère que par ce texte, `cal/SMK.ics`
+par la note de ces journées. Vérifié au Planning du 23/10 (« SMK :
+remplace CGI ») à 320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
