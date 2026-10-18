@@ -2121,6 +2121,16 @@ n'est deviné à leur sujet :
   de feuille EST le solde. Je la lisais comme le seul report de 2025 et y
   ajoutais les ±FT de l'année. Relu juste : personne sous −8 h (SMA
   exactement −8), voir « Cinq notes de service » ;
+- **deux journées de la relecture des commentaires** (posées le
+  18/10/2026 ; le client : « je te dirai demain soir ») :
+  - **VGG le 15/03**, `AM · 1h RTT · presté 7h le 20.03`, et le 20/03
+    `SD 26 · voir 15.03` : les 7 h sont-elles faites le 15/03, et que
+    veut dire le 20.03 ? Seule journée signalée par la règle « date d'un
+    autre jour » ;
+  - **JBI le 21/08** : le RJF « cf 21/08 » écrit le 13/08 y est désormais
+    posé, et l'application compte 0 h travaillée (4 h avant). Le
+    commentaire dit « RJF sur la pause AM » : a-t-il travaillé
+    l'après-midi ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.
