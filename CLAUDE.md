@@ -4763,6 +4763,14 @@ Reste, et pourquoi : rien vu d'autre à ces largeurs ; au bureau, le tableau
 remplit l'écran comme voulu le 12/10. Affichage seulement ; vérificateur
 identique à l'octet ; rien ne déborde, aucune erreur.
 
+**La colonne D tout à droite** (le client, le 18/10/2026 : « mettre la
+colonne D tout à droite ? »). Le Planning se lit AM · PM · N · D : les
+trois pauses d'affilée, la journée à part. Elle était entre AM et PM depuis
+le 26/09 (l'ordre des heures d'arrivée). Seul l'ordre de `PAUSES` change ;
+la surbrillance de la pause du moment suit, son rang se calculant sur cet
+ordre (AM surlignée le 13/10 à 10 h). Affichage seulement ; vérificateur
+identique à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
