@@ -71,11 +71,21 @@ def _option(nom):
     return None
 
 
-def lire_gmail(imap, sujet, dest):
+def lire_gmail(imap, sujet, dest, moi=None):
     """Le dernier e-mail du sujet donné : sa pièce jointe écrite dans
     `dest`. Rend les uids de tous ces e-mails ([] s'il n'y en a pas). La pièce jointe se reconnaît à son contenu (une archive ZIP), pas à
-    son nom : Power Automate peut l'appeler par l'identifiant du fichier."""
-    typ, data = imap.uid("search", None, '(SUBJECT "%s")' % sujet)
+    son nom : Power Automate peut l'appeler par l'identifiant du fichier.
+
+    JAMAIS ses propres rapports. Le 16/10/2026, de 11 h 45 à 16 h 45, le
+    rapport « BIOWANZE · horaire NON installé », envoyé à la même adresse,
+    répondait à la recherche (Gmail cherche par mots : « BIOWANZE » et
+    « horaire » y sont) : sans pièce jointe, il partait à la corbeille et
+    un nouveau rapport le remplaçait, 22 fois, toutes les 15 minutes,
+    jusqu'à l'arrivée d'un vrai classeur (relu dans la boîte par le
+    connecteur Gmail, le 18/10/2026). Les e-mails de l'adresse du robot
+    sont donc écartés."""
+    crit = '(SUBJECT "%s")' % sujet if not moi else '(SUBJECT "%s" NOT FROM "%s")' % (sujet, moi)
+    typ, data = imap.uid("search", None, crit)
     uids = sorted((data[0] or b"").split(), key=int)
     if not uids:
         return []
@@ -481,7 +491,7 @@ def main():
         for genre, sujet, nom in (("horaire", SUJET, "Recapitulatif.xlsm"),
                                   ("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx")):
             source = os.path.join(tmp, nom)
-            uids = lire_gmail(imap, sujet, source)
+            uids = lire_gmail(imap, sujet, source, user)
             if not uids:
                 continue
             etat("%d e-mail(s) « %s » ; le plus récent est lu." % (len(uids), sujet))

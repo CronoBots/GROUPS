@@ -544,6 +544,24 @@ secours.
 Le compte rendu d'une porte fermée peut contenir le nom qu'une garantie a
 trouvé ; il part au client par e-mail, jamais au journal.
 
+**Le robot se répondait à lui-même, et le connecteur Gmail l'a montré**
+(18/10/2026 ; le client a connecté Gmail, la boîte de l'application). Le
+16/10, après un e-mail portant le classeur RH sous le sujet de l'horaire
+(11 h 41), le rapport « BIOWANZE · horaire NON installé » est reparti
+**22 fois, toutes les 15 minutes, de 11 h 45 à 16 h 45** : envoyé à la
+même adresse, il répondait à la recherche IMAP (Gmail cherche par mots,
+« BIOWANZE » et « horaire » y sont), partait à la corbeille faute de
+pièce jointe, et un nouveau rapport le remplaçait. Seule l'arrivée d'un
+vrai classeur à 16 h 46 a cassé la boucle. `lire_gmail()` écarte
+désormais les e-mails de l'adresse du robot (`NOT FROM`) ; la même
+recherche dans la boîte (`-from:` l'adresse du robot) ne rend plus que les
+cinq envois du classeur. Le journal d'une action restant illisible depuis
+la session, **c'est la boîte, par le connecteur Gmail, qui dit
+désormais ce que la mise à jour automatique a fait** : rapports reçus,
+portes fermées, classeurs arrivés. Aucun classeur n'est arrivé entre le
+16/10 à 16 h 46 et le 18/10 au soir (week-end : la tâche du PC virtuel ne
+copie qu'à l'ouverture de session).
+
 **Deux refus de plus qu'à la main** : un horaire identique n'installe rien
 (pas même `V`), et une ARRIVÉE n'est installée que si son trigramme est dans
 `tools/arrivees-confirmees.txt` — on l'y ajoute quand le client a dit qui
