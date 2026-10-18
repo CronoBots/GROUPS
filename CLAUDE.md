@@ -4556,6 +4556,15 @@ total s'écrit « 1,5 jours à placer, soit 12 h », sous un filet ; « soldes
 Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à
 320 px (hors ligne), 390 et 1280 px, rien ne déborde.
 
+**Le code d'abord, et « restant »** (le client, le 18/10/2026 : « le nom
+raccourci du congé doit être affiché en premier (VA RHS RTT…) ; au lieu de
+« à placer » il faut mettre restant »). L'étiquette du code passe devant le
+nom, à largeur fixe (44 px) pour que les noms s'alignent ; à 320 px, un nom
+long passe sur deux lignes à côté d'elle, sans descendre sous le code. Le
+total dit « 1,5 jours restants, soit 12 h », chaque congé « 12 h
+restantes ». Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA
+et SMA à 320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
