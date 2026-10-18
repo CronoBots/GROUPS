@@ -4713,6 +4713,16 @@ Vérificateur identique à l'octet.
 Reste, et pourquoi : rien de vu à ces trois largeurs. Vérificateur
 identique à l'octet ; rien ne déborde, aucune erreur.
 
+**Plus de colonne des heures, et le week-end en bande** (le client, le
+18/10/2026 : « pas besoin de la colonne avec nombre d'heures et il faut
+différencier les 2 colonnes de wk »). La colonne « H » du calendrier du
+mois (heures de chaque semaine) est retirée, avec ses styles : le bilan
+du mois donne les heures. Samedi et dimanche se lisent sur une bande
+claire arrondie (`.mc-we`), de l'en-tête à la dernière semaine, posée
+derrière les cases dans `.mc-grille` (`--g`, l'écart entre colonnes, sert
+à la caler). Affichage seulement ; vérificateur identique à l'octet ;
+vérifié à 320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
