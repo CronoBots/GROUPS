@@ -4746,6 +4746,23 @@ Planning, graphiques) : la teinte ne change pas, seule la clarté baisse.
 Vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 et
 1280 px.
 
+**Passe complète du Planning** (le client, le 18/10/2026 : « optimise aussi
+le Planning 100 % pro »). Photographié à 320 px (hors ligne), 390 et
+1280 px, le 18/10 (dimanche) et le 13/10 (relais de 12 h, horaires
+modifiés). Relevé et corrigé :
+- sur téléphone, un badge avec horaire (« ATA 8-14 », « QBY 10-22 »)
+  passait à la ligne dans une case et pas dans l'autre, et prenait une
+  forme à lui, plus large : l'horaire s'écrit toujours sous le trigramme,
+  en petit, si bien que tous les badges ont la largeur d'un trigramme ;
+- « Auj. », grisé sur le jour courant, se lisait comme un bouton en panne :
+  il disparaît ce jour-là et revient dès qu'on change de jour ;
+- la pastille « Hors ligne » couvrait la date du Planning (et le haut du
+  héros) : sur téléphone elle se pose au-dessus de la capsule du menu, et
+  s'efface d'elle-même 4 s après la perte du réseau.
+Reste, et pourquoi : rien vu d'autre à ces largeurs ; au bureau, le tableau
+remplit l'écran comme voulu le 12/10. Affichage seulement ; vérificateur
+identique à l'octet ; rien ne déborde, aucune erreur.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
