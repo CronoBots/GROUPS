@@ -1,0 +1,466 @@
+# Nouveaux classeurs, mise à jour automatique, recyclages, cycles prolongés
+
+Historique déplacé tel quel de `CLAUDE.md` le 18/10/2026. Les dates, mesures et erreurs y restent.
+
+## Mettre à jour l'horaire depuis un nouveau classeur
+
+Le client envoie régulièrement le récapitulatif Excel. **Depuis le 26/09/2026,
+une seule commande** :
+
+```bash
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blanc
+python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
+```
+
+Elle enchaîne tout ce qui suit dans un dossier temporaire, derrière **huit
+portes** — anonymiseur, second contrôle, **fidélité de la copie à la
+source**, convertisseur, export et son aller-retour, intégralité cellule par
+cellule, neuf règles dures du calendrier. La première qui se ferme arrête
+tout, et rien n'est installé. Elle imprime ensuite le rapport du
+comparateur. Avec `--installer`, les trois fichiers de `data/` sont
+remplacés ENSEMBLE, `V` est incrémenté, et le garde-fou du dépôt passe sur
+le résultat — s'il échoue, les fichiers d'avant reviennent depuis leur
+copie. Si rien n'a changé, rien n'est touché, pas même `V`.
+
+**Huit portes, et vite, depuis le 09/10/2026.** Le client : « pourquoi la
+mise en place est si longue ? », puis « vérifie et optimise au maximum
+cette tâche ». Un passage prenait **environ 4 minutes, et il en fallait
+deux** (à blanc, puis `--installer`) ; ce jour-là, deux portes fermées en
+ont fait quatre. Mesuré étape par étape, corrigé là où le temps passait,
+et **chaque correction prouvée identique à l'octet** sur deux classeurs :
+
+| Étape | Avant | Après | Cause |
+|---|---|---|---|
+| anonymiseur | 115 s | 16 s | chaque règle de nom balayait tout le XML (18 Mo) ; elle n'est plus essayée qu'au début des mots qui portent son premier mot (un index par partie), et `_sans_accent()` passe par une table |
+| convertisseur | 22 s | 4 s | `commentaires()` relue pour chaque colonne-personne (112 fois pour 12 feuilles) : mémoïsée |
+| vérificateur du calendrier | 14 s | 1,4 s | `cycleDuMois()` de l'application essayait 504 calages, qui ne font que 77 positions : comptées une fois, parcourues dans le même ordre (l'application s'ouvre plus vite aussi) |
+| garde-fou du dépôt | 14 s | 1,4 s | le contrôle croisé cherchait chaque OCCURRENCE de mot dans 18 Mo, et non chaque mot |
+
+Puis l'orchestration : les portes indépendantes tournent **en même temps**
+(le convertisseur part du classeur source), leurs comptes rendus
+s'impriment dans l'ordre, et la première porte fermée arrête tout comme
+avant. Une **huitième porte**, le garde-fou du dépôt sur l'horaire NEUF
+(`verifier-depot.py --horaire= --classeur=`), se ferme dès le passage à
+blanc — éprouvé en retirant « Débourrage Ligne » des formes admises :
+porte 8 fermée, rien d'installé. Et **`--installer` reprend un passage à
+blanc réussi** sur le même classeur, avec les mêmes outils et le même
+horaire installé (empreintes dans un mémo hors du dépôt), au lieu de le
+refaire. **22 s à blanc, 0 s pour l'installation.**
+
+**Et le vérificateur était cassé depuis le 07/10, en silence pour
+l'installation** : `--manques` et `--polyvalence` s'arrêtaient sur
+`nbPostesTenables`, `RECYC_OFF` et `RECYC_EXEMPT`, ajoutés à `index.html`
+sans entrer dans sa découpe. La porte 7 n'emploie que les neuf règles, qui
+ne les appellent pas — d'où le silence. Les trois sont dans la découpe.
+
+**La porte de fidélité est celle qui manquait** : hors des zones
+nominatives, la copie anonymisée ne doit différer de la source sur aucune
+cellule. Elle se ferme sur l'ancienne copie de référence — 480 cellules —
+et s'ouvre sur la nouvelle.
+
+**Éprouvée sur le classeur du 26/09/2026** : les sept portes s'ouvrent, et
+les trois fichiers produits sont **identiques à l'octet** à ceux de `data/`.
+La procédure est donc reproductible de bout en bout, ce qui est la meilleure
+preuve qu'elle ne régresse pas.
+
+**Restent à la main** : lire le rapport et dire au client ce qui a bougé,
+tester dans un navigateur, committer. Le détail des étapes, pour
+comprendre ce que l'outil fait ou le refaire pas à pas :
+
+**Ne jamais écraser l'ancien JSON sans avoir regardé ce qui change.** Le
+client renvoie souvent le même classeur corrigé sur quelques journées ; une
+journée qui bouge déplace des heures, des primes et parfois un chèque-repas.
+Convertir d'abord à côté, comparer, puis installer.
+
+```bash
+# 1. convertir À CÔTÉ — le classeur reste HORS du dépôt, il contient des noms
+python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm \
+        /tmp/nouveau.json 2026
+
+# 2. comparer à la version en place, et RENDRE COMPTE de ce qui change
+python3 tools/comparer-horaire.py data/horaire-2026.json /tmp/nouveau.json
+
+# 3. installer
+cp /tmp/nouveau.json data/horaire-2026.json
+
+# 4. contrôler les repères (section 11 de docs/conversion-horaire.md)
+# 5. incrémenter V dans sw.js
+# 6. tester dans un navigateur
+```
+
+Le comparateur dit tout : date de mise à jour du classeur, arrivées et
+départs (une arrivée se fait TOUJOURS confirmer par le client : qui,
+quelle fonction, intérimaire ou non — SLI le 09/10/2026 ne l'a pas été), changements de groupe, journées modifiées avec l'avant et l'après,
+compteurs et polyvalence. Il ne manipule que des identifiants à trois
+lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
+dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
+est une correction attendue ou une erreur de saisie.
+
+**Le poste tenu est en ligne 9** — établi avec le client, voir la section
+9 bis de `docs/conversion-horaire.md`. Le convertisseur ne la lit pas encore ;
+c'est le premier chantier ouvert.
+
+Pour regarder ce qui entoure les noms sans rien convertir :
+
+```bash
+python3 tools/convertir-horaire.py /chemin/Recapitulatif.xlsm --entetes
+```
+
+Il imprime les lignes 5 à 12 de chaque feuille, colonne par colonne, les
+noms réduits à leurs initiales.
+
+**Le convertisseur dit maintenant ce qu'il ne reprend pas.** Il ne lisait que
+la ligne des noms, les journées et le pied de feuille ; tout le reste tombait
+sans un mot — et le poste de travail de chacun était probablement là. Il
+compte désormais les cellules qu'il laisse et les annonce, ligne par ligne.
+Ces messages se lisent : une perte silencieuse est une perte qu'on ne corrige
+jamais.
+
+Il garde aussi, dans le champ `e` de chaque personne, **tout ce qui est écrit
+au-dessus de son nom** et entre le nom et la première journée — sans
+l'interpréter, comme le reste.
+
+Le convertisseur signale de son côté les anomalies du classeur : trigrammes
+partagés, corrections devenues orphelines, compteur écrit dans la mauvaise
+colonne. Ces messages vont sur la sortie d'erreur ; ils ne sont pas du bruit.
+
+**Ne jamais committer le `.xlsm`**, ni aucun nom complet. Le convertisseur
+n'en laisse pas sortir : identifiants à trois lettres, et commentaires
+débarrassés du nom de leur auteur.
+
+**Il a eu le même trou que l'anonymiseur, et le 22/09/2026 il a failli
+écrire trois noms complets dans `data/horaire-2026.json`** — fichier d'un
+dépôt PUBLIC. Son motif `AUTEUR` exige une virgule : « Nom Prénom : »
+lui échappait, « Nom, Prénom/rt0xxxx: » aussi (le suffixe rompt
+l'ancrage), et « Prénom: » — un prénom seul — n'a aucune forme
+reconnaissable. C'est la COMPARAISON avec la version en place qui l'a
+montré, l'ancien JSON portant « (nom retiré) » là où le nouveau écrivait le
+prénom.
+
+Il ne devine donc plus la forme d'un nom : `_motif_auteurs()` prend **ceux
+qu'Excel déclare dans `<authors>`** pour le fichier de commentaires qu'il
+est en train de lire, et les retire où qu'ils soient — nom complet ou mot
+isolé. Rien à inférer, rien à rater. La majuscule initiale est exigée :
+« Marie » est un nom, « marie » un verbe français.
+
+Ses motifs restent les SIENS, et ne sont pas empruntés à l'anonymiseur :
+les deux outils doivent pouvoir se contredire, sans quoi le second ne
+vérifie plus, il répète.
+
+Si le nombre de personnes ou de journées s'écarte nettement des repères, la
+structure du classeur a bougé — vérifier la ligne des noms (10), la colonne
+des jours (2) et les blocs de mois avant d'aller plus loin.
+
+## La mise à jour automatique de l'horaire
+
+Le client, le 16/10/2026 : « que l'horaire soit mis à jour automatiquement
+tous les jours ». Son PC de travail est un PC virtuel (application Windows) :
+le serveur n'y est visible que par l'Explorateur, et son iPhone n'y a pas
+accès. Ni PowerShell, ni droit « Ouvrir une session en tant que tâche ». La
+chaîne, montée avec lui ce jour-là :
+
+1. **PC virtuel** : tâche « Copie horaire BIOWANZE » du Planificateur
+   (dossier RemoteDesktop), `robocopy` du récapitulatif vers
+   `OneDrive\Horaire auto`. Déclencheurs : chaque jour, à l'ouverture de
+   session et à la connexion à distance (« N'exécuter que si l'utilisateur
+   est connecté » : l'autre option est refusée). robocopy ne recopie que si le
+   fichier a changé.
+2. **Power Automate** (« Horaire BIOWANZE vers Gmail ») : à chaque
+   modification du fichier, Get file content, puis un e-mail « BIOWANZE
+   horaire » à son Gmail, classeur en pièce jointe.
+3. **GitHub**, chaque heure (`.github/workflows/horaire-auto.yml`,
+   `tools/horaire-auto.py`) : le dernier e-mail est lu par IMAP, le classeur
+   écrit dans un dossier temporaire, `mettre-a-jour.py` passe les huit
+   portes puis installe, pousse sur main ; les e-mails vont à la corbeille et
+   le rapport de ce qui change part par e-mail au client.
+
+**Les recyclages suivent le même chemin** (le client, le 16/10/2026 :
+« peut-on mettre cela en place pour le fichier des recyclages aussi ? ») :
+un dossier OneDrive à eux, un second flux Power Automate, un e-mail
+« BIOWANZE recyclage », et `horaire-auto.py` le fait passer par les onze
+portes de `mettre-a-jour-recyclage.py --installer`. **Piège évité** : le brut
+des recyclages vit hors du dépôt, donc absent sur GitHub, et l'outil
+réinstallait (et montait `V`) à chaque passage. Le script regarde si
+`data/recyclages-2026.json` a vraiment changé, et remet `sw.js` sinon.
+Éprouvé en local sur un clone sans brut : classeur identique, rien ne
+bouge, `sw.js` compris ; classeur du 12/10, installé avec son rapport
+(JBI, VGG) ; un horaire donné à la place du classeur RH, porte 1 fermée,
+rien installé. **Éprouvé en vrai le même jour** : classeur RH du 16/10 à
+13 h 45 installé par le commit automatique 6bdf61c (VGG, chaudières le
+15/10). Le premier envoi portait le sujet « BIOWANZE horaire », le flux
+ayant été copié de celui de l'horaire : porte 1 fermée, rien installé.
+D'abord sans notification du téléphone ; le client, le 16/10/2026 :
+« je n'ai rien reçu pour le recyclage ». Une notification par passage,
+« Recyclages mis à jour », ou « Horaire et recyclages mis à jour » quand
+les deux arrivent ensemble. **Puis personnelles**, le même jour (le
+client, capture à l'appui : « les notifications doivent être optimisées
+au max ») : `notifications()` compare l'avant et l'après et chacun lit ce
+qui change POUR LUI — « Votre horaire a été modifié /
+Samedi 17/10 : N → Maladie », « Votre recyclage a été ajouté / Jeudi 15/10 :
+Chaudières / Encore 9 recyclages à faire » —, et ceux pour qui rien ne change ne reçoivent
+RIEN (le client, le même jour : « go » ; avec un classeur par jour, « rien ne
+change pour vous » devenait du bruit) — un abonné sans trigramme reconnu
+garde le message commun. Le poste d'un OPÉRATEUR suit la pause
+(« Mercredi 21/10 : PM → AM · Gluten »), lu dans son agenda `cal/<id>.ics`
+que l'installation vient de réécrire : la lecture de l'application, pas une
+copie de ses règles ; rien pour un contremaître ou un adjoint.
+Exception, le client le même jour : VBN reçoit chaque classeur, horaire et
+recyclages, même sans changement pour lui (`TOUJOURS_PREVENIR`). Une journée se décrit par sa cellule et son
+annotation, jamais par le commentaire (comme `detecterChangements()`),
+une absence entière par son seul mot (Maladie, VA, Flex time repris), une
+ligne par journée, jamais regroupée (le client, capture à l'appui : « il ne
+faut pas regrouper les jours »), trois au plus puis « + n autres journées ».
+Le titre seul : iOS le coupe vers 28 signes (« · 8 j… » sur sa capture).
+`envoyer-push.js --messages=` choisit le message par l'identifiant de
+l'abonnement, que l'application envoie désormais ENTIER (« GBT-1 ») ;
+toucher la notification ouvre l'Accueil ou l'onglet Équipes, y compris
+quand l'application est déjà ouverte (message du service worker).
+« from BIOWANZE » sous le titre est écrit par iOS pour toute
+notification d'une application web : on ne peut pas le retirer.
+
+**Le planificateur de GitHub ne lançait rien** : le 16/10/2026, aucun
+passage automatique en plus de deux heures (zéro événement `schedule`, alors
+que fichier, branche et action étaient en ordre). Le client : « faisons le
+nécessaire ». C'est donc la base Supabase de PINO qui lance l'action :
+`pg_cron` (tâche `biowanze-horaire`, toutes les 15 minutes) appelle
+`biowanze_lancer_horaire()`, qui envoie un `workflow_dispatch` à GitHub par
+`pg_net`. Le jeton GitHub (accès à ce seul dépôt, permission Actions en
+écriture) est dans le coffre de la base, secret `biowanze_github`, déposé par
+le client lui-même dans l'éditeur SQL : il ne passe ni par le dépôt ni par la
+conversation. Sans secret, la fonction ne fait rien. Elle est fermée au
+public (appel anonyme : 401). Le cron du fichier `horaire-auto.yml` reste en
+secours.
+
+**Le journal d'une action est public** : il ne reçoit que des lignes d'état.
+Le compte rendu d'une porte fermée peut contenir le nom qu'une garantie a
+trouvé ; il part au client par e-mail, jamais au journal.
+
+**Le robot se répondait à lui-même, et le connecteur Gmail l'a montré**
+(18/10/2026 ; le client a connecté Gmail, la boîte de l'application). Le
+16/10, après un e-mail portant le classeur RH sous le sujet de l'horaire
+(11 h 41), le rapport « BIOWANZE · horaire NON installé » est reparti
+**22 fois, toutes les 15 minutes, de 11 h 45 à 16 h 45** : envoyé à la
+même adresse, il répondait à la recherche IMAP (Gmail cherche par mots,
+« BIOWANZE » et « horaire » y sont), partait à la corbeille faute de
+pièce jointe, et un nouveau rapport le remplaçait. Seule l'arrivée d'un
+vrai classeur à 16 h 46 a cassé la boucle. `lire_gmail()` écarte
+désormais les e-mails de l'adresse du robot (`NOT FROM`) ; la même
+recherche dans la boîte (`-from:` l'adresse du robot) ne rend plus que les
+cinq envois du classeur. Le journal d'une action restant illisible depuis
+la session, **c'est la boîte, par le connecteur Gmail, qui dit
+désormais ce que la mise à jour automatique a fait** : rapports reçus,
+portes fermées, classeurs arrivés. Aucun classeur n'est arrivé entre le
+16/10 à 16 h 46 et le 18/10 au soir (week-end : la tâche du PC virtuel ne
+copie qu'à l'ouverture de session).
+
+**Les e-mails obsolètes partent à la corbeille** (le client, le
+18/10/2026 : « prévoir la suppression des mails une fois qu'ils sont
+obsolètes »). Ceux qui portent un classeur y partaient déjà dès leur
+lecture ; les rapports du robot, envoyés à la même adresse, restaient.
+`purger_rapports()` met à la corbeille, à chaque passage, ceux de plus de
+sept jours, **le plus récent excepté** (dernier état connu) ; Gmail vide
+sa corbeille après 30 jours. Éprouvé sur une boîte simulée : quatre
+rapports dont trois vieux, les deux plus anciens retirés, le dernier gardé.
+Au 18/10, la boîte en porte cinq, tous du 16/10 : rien à retirer avant le
+23/10.
+
+**Deux refus de plus qu'à la main** : un horaire identique n'installe rien
+(pas même `V`), et une ARRIVÉE n'est installée que si son trigramme est dans
+`tools/arrivees-confirmees.txt` — on l'y ajoute quand le client a dit qui
+c'est. Secrets du dépôt : `GMAIL_USER`, `GMAIL_APP_PASSWORD`. Éprouvé en
+local le 16/10/2026 : horaire identique, horaire changé (122 journées),
+arrivée refusée puis acceptée une fois confirmée, porte 1 fermée sans un mot
+au journal.
+
+**Éprouvé en vrai le 16/10/2026**, sur l'adresse dédiée `biowanzeapp@gmail.com`
+(le client n'a pas voulu mêler son Gmail personnel ; l'Outlook du travail ne
+s'ouvre pas sans autorisation du service informatique) : tâche lancée sur le
+PC virtuel, e-mail reçu, passage lancé à la main (« Run workflow » — la
+session ne peut pas déclencher d'action, 403), réussi en moins d'une minute.
+Classeur du 16/10 à 7 h 48 installé par le commit automatique 3db7ba2 :
+29 journées chez 7 personnes, 3 compteurs ; garde-fou du dépôt et neuf règles
+à zéro relus après coup. Le journal d'une action ne se lit pas depuis la
+session (GitHub le sert d'un autre hôte) : l'état se lit au commit et à
+l'e-mail de rapport.
+
+**Et le téléphone sonne, application fermée** (le client, le 16/10/2026 :
+« une notification PWA lors de la mise à jour du classeur », puis « B tant
+que mnt » : la même pour tous). Le 09/10 il l'avait écartée faute de
+serveur ; l'action GitHub en tient lieu. Après chaque classeur poussé,
+`tools/envoyer-push.js` (Node, `web-push`) envoie « Horaire mis à jour ·
+Classeur du … » à chaque abonné ; `sw.js` l'affiche (`push`), un appui
+ouvre l'application. **Les abonnements sont dans la base Supabase du projet
+PINO**, le choix du client — et non un projet à part, que je recommandais :
+table `biowanze_push` (endpoint, clés, trigramme), RLS sans politique, donc
+fermée au public ; on n'y entre que par trois fonctions `security definer` :
+`biowanze_abonner` et `biowanze_desabonner` (ouvertes, l'adresse doit être
+en https), `biowanze_abonnes` qui ne rend la liste qu'à la clé partagée
+`PUSH_CLE` (seule son empreinte SHA-256 est dans la base). L'application
+s'abonne quand on touche « Activer » dans Réglages (`abonnerPush()`), se
+désabonne à « Désactiver », et se réabonne en silence une fois par jour si
+c'était déjà actif. Clé publique VAPID écrite dans `index.html` ET
+`tools/envoyer-push.js`, la même ; la privée est le secret
+`VAPID_PRIVATE_KEY`. Le trigramme est gardé pour, plus tard, ne prévenir que
+ceux dont l'horaire change (l'option A). Une notification manquée ne fait
+jamais échouer le passage. **Éprouvé** : lecture directe de la table
+refusée, adresse non https refusée, liste refusée sans la clé ; un faux
+abonné envoyé au vrai service de Google, qui répond « inexistant », est
+retiré de la base ; au navigateur, Activer inscrit (clé de 65 octets) et
+Désactiver désinscrit, à 320 px (hors ligne avant), 390 et 1280 px ; un
+message reçu par le service worker s'affiche. Vérificateur identique à
+l'octet. Sur iPhone, seulement pour l'application installée (iOS 16.4 et
+plus) : seul le téléphone du client dira si elle sonne.
+
+## Mettre à jour les recyclages depuis le classeur RH
+
+Le client envoie aussi, à part, le classeur RH **« Suivi des recyclages sur
+poste de production »** (fichier `.xlsx`, feuille `Suivi Polyvalence`). Il
+alimente la colonne des chiffres du tableau « Recyclage des polyvalences »
+(`RECYC_OFF` dans `index.html`, servi par `data/recyclages-2026.json`).
+
+**Comme l'horaire, une seule commande, et jamais à la main** :
+
+```bash
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx            # à blanc
+python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx --installer
+```
+
+**POURQUOI cet outil.** Le 06/10/2026 ce classeur a été lu à la main, et deux
+fois de travers : un seul poste sur trois d'abord, puis — corrigé — la colonne
+« Contremaître » des adjoints FUSIONNÉE avec « Centrale thermique » (chaudières
+à 10 au lieu de 5 + 5 contremaître). Le client, le 07/10/2026 : « mets en place
+exactement la même chose que pour l'horaire, et enregistre la marche à suivre
+pour ne JAMAIS passer à côté ». La lecture ne se fait donc plus jamais à la
+main : elle passe par **six portes** qui auraient arrêté chacune de ces erreurs
+— onze depuis le 09/10/2026, voir plus bas.
+
+**Ce que le classeur contient.** La feuille est faite de SECTIONS empilées.
+Chaque section a sa ligne d'en-tête (`Nom | Prénom | Degré… | recyclage restant
+| <POSTE> …`), puis une ligne `J-1 … J-n` qui donne la **largeur** de chaque
+poste (n = l'objectif : 10 pour un opérateur, 5 pour un adjoint), puis les
+personnes. Chaque cellule sous un poste porte la **date** d'un recyclage fait ;
+le compte d'un poste = le nombre de cellules remplies. **La section des adjoints
+porte une colonne de plus, « Contremaître »** — d'où le `cm` du JSON, affiché à
+la place de la STEP dans le bloc adjoints du tableau.
+
+**Les six portes**, la première qui se ferme arrête tout : (1) lecture &
+structure ; (2) trigrammes connus, uniques, et présents dans l'horaire (même
+convention que `convertir-horaire._initiales`) ; (3) **bornes — aucun compte ne
+dépasse la largeur de sa colonne** (la porte qui ferme sur chaudières=10 dans
+une colonne large de 5) ; (4) intégralité — chaque cellule-date comptée une
+fois et une seule ; (5) cohérence — `fait + restant` multiple de 5 ≥ `fait` ;
+(6) anonymat — aucun nom dans la sortie. À blanc, l'outil imprime ensuite ce qui
+changerait. Avec `--installer`, et seulement si les six portes sont ouvertes :
+`data/recyclages-2026.json` est remplacé, le **brut** (`-brut.json`, trigrammes
+seuls, hors dépôt via `.gitignore`) est écrit à côté, `V` est incrémenté, le
+garde-fou du dépôt passe — sinon tout revient depuis la copie.
+
+**La même démarche d'anonymat et de récupération que l'horaire, depuis le
+09/10/2026.** Le client, en envoyant la version du jour : « il faut exactement
+la même démarche d'anonymat et de récupération de toutes les infos ». Les six
+portes ne lisaient que les comptes de la feuille « Suivi Polyvalence » ; le
+reste du classeur — la feuille REGLES, le degré G/H, les formules, la mise en
+forme — tombait, et il n'y avait ni copie anonymisée ni contrôle indépendant.
+Cinq portes s'ajoutent, sur le modèle de `mettre-a-jour.py` :
+
+- (7) **copie anonymisée** `data/recyclages-2026.xlsx` : l'archive recopiée
+  telle quelle, sauf la colonne A des personnes (le trigramme) et la B
+  (vidée), leurs chaînes partagées (vidées — sans quoi le nom resterait dans
+  `sharedStrings.xml` ; refus si une autre cellule les emploie) et l'auteur
+  et le dernier modificateur du document. **Garantie** : l'archive entière
+  est relue, un seul mot de nom et la copie est détruite ;
+- (8) **second contrôle** : `verifier-anonymat.py` source → copie. Il a
+  d'abord fermé sur les quatre noms de poste écrits en capitales (meunerie,
+  gluten, fermentation et distillation) : lus et admis dans
+  `tools/survivants-admis.txt` ;
+- (9) **fidélité** : hors des colonnes de noms, aucune cellule d'aucune
+  feuille ne diffère de la source ;
+- (10) **export entier** `data/recyclages-2026-classeur.json` par
+  `exporter-classeur.py`, avec son aller-retour : 2 feuilles, 544 cellules,
+  29 formules, 202 dates, 56 fusions ;
+- (11) **intégralité** : l'export, lu par un autre chemin — le trigramme
+  ÉCRIT en colonne A de la copie, et non recalculé —, redonne pour chaque
+  personne et chaque poste les mêmes comptes ET les mêmes dates que la sortie.
+
+La copie et l'export sont la réserve locale, hors dépôt (`.gitignore`),
+comme `classeur-2026.xlsx` et son brut. **Éprouvées** : un mot de nom planté
+dans `workbook.xml` fait détruire la copie (7) ; une date décalée d'un jour
+dans la copie ferme la fidélité (9) ; une date retirée de l'export, puis une
+date changée, ferment l'intégralité (11). Toute la commande prend moins d'une
+seconde.
+
+Classeur du 09/10/2026 : onze portes ouvertes, **une seule ligne change** —
+GPO, un recyclage de fermentation le 08/10 (2 → 3, restant 19 → 18).
+
+**La date du classeur s'affiche dans Réglages**, cadre « Classeurs », à côté
+de celle de l'horaire (le client, le 09/10/2026). Le classeur RH n'écrit
+AUCUNE date dans ses cellules : la sienne est celle de son dernier
+enregistrement (`dcterms:modified` des propriétés, en UTC), que l'outil
+rend à l'heure de Bruxelles dans le `maj` de `data/recyclages-2026.json`.
+D'où « enregistré le » à l'écran, et non « du ». Le rapport à blanc dit
+aussi quand cette date change.
+
+**Restent à la main** : lire le rapport et dire au client ce qui a bougé, tester
+dans un navigateur, committer.
+
+## Après le classeur : les cycles prolongés
+
+Le client, le 09/10/2026 : « pour les horaires après décembre 2026, il faut
+continuer le cycle des 5 équipes (5 semaines) et des 6 binômes
+(6 semaines) ; je pousserai le classeur 2027 quand il sera disponible, mais
+d'ici là les cycles représentent ce que les travailleurs doivent prester ».
+
+`horaireDe(annee)` rend l'horaire du classeur pour son année et, pour toute
+année qui le suit, un horaire **projeté** : chaque journée est une cellule
+franche seule (`["N"]`, `["-"]`), tirée du cycle de la personne, sans congé,
+remplacement ni compteur. Le pré-remplissage (onglets Calendrier et Mon salaire), le
+tableau du jour et la barre du haut s'en servent ; les sous-effectifs, les
+rappels non nécessaires et les modules congé/absence/recherche restent sur
+le classeur. Une ligne « Horaire 2027 prolongé par les cycles » le dit dans
+le cadre du mois et dans celui du salaire, et le tableau du jour ajoute
+« prolongé par les cycles ».
+
+**Calé sur les 92 derniers jours, et non sur un mois** (`calageLong()`). Sur
+un mois, le cycle de 5 semaines EST le début de celui de 6
+(`CYCLE5 = CYCLE6.slice(0,35)`), et `cycleDuMois()` hésite : en décembre, la
+moitié de l'équipe 2 sortait en « 6 semaines ». Sur trois mois, mesuré le
+09/10/2026 : les 11 contremaîtres en 6 semaines (90 à 100 % d'accord, six
+positions, une par binôme), les 62 opérateurs d'équipe et en formation en
+5 semaines (environ 95 %, une position par équipe : 1 à 9, 2 à 30, 3 à 2,
+4 à 23, 5 à 16). **La STEP n'est ni l'un ni l'autre** : CAN et PDE tournent
+sur deux semaines au matin, en décalé, lues dans leurs propres cellules
+(91 et 92 journées sur 92). En 2027 projeté : jamais deux équipes à la même
+pause, deux contremaîtres par pause sauf quand le binôme 2 (sans adjoint)
+y est seul. Les fériés suivent le cycle, comme dans le classeur.
+
+**Les consignateurs se relaient, et le relais se prolonge.** J'avais
+d'abord écrit qu'ils n'avaient pas de cycle (59 et 43 journées sur 92 sur
+les deux cycles), et posé la question. Le client, le 09/10/2026 : « il faut
+continuer comme actuellement pour les consignateurs ». Le classeur dit
+comment : BLR et YRS alternent par **périodes de cinq semaines calées sur
+le cycle de l'équipe 2** — l'un suit ce cycle pendant que l'autre fait des
+D du lundi au vendredi, puis ils échangent (le 02/11 et le 07/12, premiers
+jours du cycle de l'équipe 2). Un motif de 70 jours, cinq semaines de cycle
+puis cinq de D, les prend à **87 et 89 journées sur 92** (94 à 97 % sur
+toute l'année), avec des décalages exactement opposés ; aucune autre
+personne ne le préfère à son cycle. En 2027, l'échange suivant tombe le
+lundi 11/01. **J'aurais dû lire cette alternance avant de poser la
+question** : elle se voyait mois par mois dans leurs deux colonnes.
+
+**SLI n'est pas prolongé** : intérimaire en formation meunerie, arrivé
+dans le classeur du 09/10/2026 (voir `docs/regles-paie.md`, « Les
+intérimaires ») ; le client prolongera lui-même son horaire. **Son arrivée
+aurait dû lui être signalée ce jour-là**, avec la question de qui il
+était : une personne nouvelle se fait toujours confirmer. Rien des 2026
+qui serait à 2027 ne passe : les compteurs (`c`) sont vidés, les contrats
+(`ct`) et les polyvalences gardés, puisqu'ils sont datés.
+
+Vérifié : la jonction décembre → janvier enchaîne sans saut (VBN, AFA, DWS,
+SBZ, LCI, CAN, PDE) ; février 2027 de VBN au Calendrier égale le calcul
+hors navigateur ; tableau du 04/01/2027, horloge au 04/01/2027 hors ligne
+(« Lundi 4 janvier · D ») ; 320 (hors ligne), 390 et 1280 px sans erreur ;
+les quatre sorties du vérificateur identiques à l'octet. **Quand le
+classeur 2027 arrivera**, l'application chargera toujours
+`data/horaire-2026.json` : il faudra lui apprendre à lire l'année suivante,
+et la projection ne servira plus qu'au-delà.
+
