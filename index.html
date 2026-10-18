@@ -988,13 +988,9 @@ body{overflow-x:clip}
    semaine — à droite, où on ne la confond pas avec un jour. */
 .moiscal{padding:12px 14px 16px}
 .mc-tete,.mc-sem{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--g); position:relative}
-/* Le week-end se lit comme une bande derrière samedi et dimanche, de
-   l'en-tête à la dernière semaine (le client, le 18/10/2026 : « il faut
-   différencier les 2 colonnes de wk »). La colonne des heures de la
-   semaine est partie : le bilan du mois les donne. */
-.mc-grille{position:relative; --g:5px}
-.mc-we{position:absolute; top:-5px; bottom:1px; right:-5px; width:calc(2*(100% - 6*var(--g))/7 + var(--g) + 10px);
-  border-radius:13px; background:rgba(214,222,236,.06); box-shadow:inset 0 0 0 1px rgba(214,222,236,.10); pointer-events:none}
+/* La colonne des heures de la semaine est partie : le bilan du mois les
+   donne. Le week-end se distingue case par case (voir .mc-j.we). */
+.mc-grille{--g:5px}
 .mc-tete{margin-bottom:6px}
 .mc-tete span{text-align:center; font-size:10.5px; color:var(--faint); letter-spacing:.03em}
 .mc-sem{margin-bottom:5px}
@@ -1197,6 +1193,14 @@ body{overflow-x:clip}
 @media (max-width:420px){ #calCard .mc-m{left:4px; right:auto} }
 #calCard .mc-com{top:2px; right:2px; bottom:auto; border-width:0 8px 8px 0; border-color:transparent #E5574D transparent transparent; border-radius:0 7px 0 0; opacity:1}
 #calCard .mc-leg .lg-com{border-width:0 8px 8px 0; border-color:transparent #E5574D transparent transparent}
+/* Le week-end, case par case : un samedi ou un dimanche sans prestation
+   garde une tuile très légère, là où un repos de semaine n'a rien ; les
+   jours prestés gardent leur couleur. SAM et DIM en cyan. Une bande
+   derrière les deux colonnes a vécu une version ; le client : « je n'aime
+   pas du tout » (18/10/2026). */
+#calCard .mc-j.we.repos,#calCard .mc-j.we.prevu{background:rgba(214,222,236,.045); border:1px solid rgba(214,222,236,.07)}
+#calCard .mc-j.we.repos:not(.auj) .mc-n,#calCard .mc-j.we.prevu:not(.auj) .mc-n{color:var(--muted)}
+#calCard .mc-tete span:nth-child(6),#calCard .mc-tete span:nth-child(7){color:var(--in); font-weight:650}
 /* Le point vélo d'une journée D, verte elle aussi, se voyait mal : blanc. */
 #calCard .mc-j[data-s="D"] .mc-velo{background:#fff}
 /* Les pastilles de pause du héros et de « Mon rythme » prennent la police
@@ -6340,7 +6344,8 @@ function caseJour(d){
   var epRepos=!!(!preste && rec.rvS);
   var tag=epRepos?"":preste?marqueDoute(rec,(rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
-  var cls=["mc-j"];
+  var cls=["mc-j"], jsem=new Date(y,m,d).getDay();
+  if(jsem===0||jsem===6) cls.push("we");
   if(!preste&&!epRepos&&rec.a&&ABSMAP[rec.a]){ cls.push("abs"); if(ABSMAP[rec.a].k==="SMG") cls.push("mal"); }
   if(prevu&&!epRepos) cls.push("abs","prevu");
   if(preste&&(rec.j||rec.sp)) cls.push("jour");
@@ -6379,7 +6384,7 @@ function comJour(d){
 function renderRota(){
   var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m);
   var hote=document.getElementById("moisCal"); if(!hote) return;
-  var h='<div class="mc-grille"><i class="mc-we" aria-hidden="true"></i><div class="mc-tete">'+
+  var h='<div class="mc-grille"><div class="mc-tete">'+
     ["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")+
     '</div>';
   var premier=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
