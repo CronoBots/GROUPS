@@ -4771,20 +4771,22 @@ numéros de « Jour par jour » revient à 1, 5, 10… 30 et un point entre sur
 téléphone (« tous les chiffres, c'est trop serré ») ; le bureau garde les
 31. Vérifié à 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
 
-**Une journée corrigée à la main le dit** (le client, le 18/10/2026,
-capture de la feuille du 30/09 : « pourquoi le 30 je suis en nuit alors que
-non ? »). Le classeur, lu depuis le 14/10, dit AM (9 h-15 h) ; sur un
-appareil neuf, la feuille s'allume bien sur AM. Son téléphone gardait N :
-une journée touchée à la main (bouton, heures, congé, rappel) perd sa marque
-`auto` et n'est plus jamais rafraîchie par l'horaire, même quand une règle
-de lecture change ensuite. **Le code n'avait pas de faute, l'appareil une
-copie figée, et rien ne le disait.** `majJourMain()` relit la journée par
-`remplirMois()` sur un mois jetable ; si la saisie diffère du classeur, la
-feuille écrit « Corrigée à la main. Le classeur dit AM · 6 h + 2H RTT » et
-un bouton « Reprendre » rend la journée à l'horaire. Éprouvé à 320 px (hors
-ligne), 390 et 1280 px : N posé à la main, la ligne paraît ; après « Reprendre », AM
-revient et la ligne disparaît ; rien ne déborde. Neuf règles à zéro (aucune
-lecture touchée).
+**Le classeur l'emporte toujours, même sur une journée touchée à la main**
+(le client, le 18/10/2026, capture de la feuille du 30/09 : « pourquoi le
+30 je suis en nuit alors que non ? », puis « ça doit être marqué comme dans
+la feuille de prestation ; il ne faut plus les journées touchées à la
+main »). Le classeur, lu depuis le 14/10, dit AM (9 h-15 h, le `1A40 · P11`
+du relevé) ; son téléphone gardait N, une journée corrigée sur l'appareil
+n'étant jamais rafraîchie par l'horaire. **J'ai d'abord ajouté une ligne
+« Corrigée à la main » et un bouton « Reprendre »** : le client n'y a rien
+compris et ne se souvenait d'aucune saisie. C'est retiré. `remplirMois()`
+relit désormais TOUTE journée que le classeur couvre, à chaque ouverture ;
+la feuille du jour l'affiche sans la laisser corriger (pause, congé,
+heures et rappel grisés), et seul le vélo, que le classeur n'écrit pas,
+reste à la main et survit au rechargement. Éprouvé à 320 px (hors ligne),
+390 et 1280 px : un N forcé sur le 30/09 redevient AM au rechargement, le
+vélo coché reste ; rien ne déborde. Neuf règles à zéro (aucune lecture
+touchée).
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
