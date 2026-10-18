@@ -4513,6 +4513,23 @@ touché : le vérificateur est identique à l'octet. Vérifié sur VBN, LCI,
 ATA et SMA à 320 px (hors ligne), 390 et 1280 px, sans débordement ni
 erreur.
 
+**Tous les congés dans une seule liste** (le client, le 18/10/2026 : « il
+faut regrouper les types de congé ensemble et les présenter de la même
+manière »). Les blocs « Congés restants », « Heures » et « Temps de
+travail réduit » deviennent un seul bloc, « Congés ». Il commence par le
+total à placer, puis une rangée par type, dans un ordre fixe : VA, RTT,
+DTT, RJF, FT, RHS, puis CP, TP et CT. Chaque rangée a la même forme
+(`rangee()`) : le code et le nom, une ligne de détail, la valeur en grand
+à droite et, dessous, ce qu'elle mesure (« 12 h restantes », « solde »,
+« reprises », « à planifier »). Un congé tout placé tient sur une ligne
+pâle, à sa place dans l'ordre. Les périodes d'un même code de temps
+réduit s'additionnent sur une seule rangée (« 26 j posés en 2 périodes
+(5 + 21) »), et « À planifier » devient sa valeur. Au bureau, la liste
+coule sur deux colonnes de journal (`columns:2`), sans les trous d'une
+grille. La maladie garde son bloc : ce n'est pas un congé. Vérificateur
+identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à 320 px (hors
+ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
