@@ -4530,6 +4530,17 @@ grille. La maladie garde son bloc : ce n'est pas un congé. Vérificateur
 identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à 320 px (hors
 ligne), 390 et 1280 px.
 
+**« 100 % ? »** (le client, le 18/10/2026, capture du cadre regroupé). Non :
+deux défauts dans le cadre. La rangée RHS de VBN écrivait « en 2026 », ce
+qui ne disait rien : elle dit désormais « en reprises partielles », « en
+journées entières » ou « aucune reprise cette année ». Un congé parental ou
+un temps partiel sans rien à planifier affichait « 0 j à planifier » en
+grand : il s'écrit « Tout planifié », en petit, comme « Tout placé ». Le
+troisième défaut est hors du cadre : le bouton de retour en haut passe sur
+la dernière valeur à droite quand on descend (il apparaît après 300 px).
+Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA et SMA à
+320 px (hors ligne), 390 et 1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
