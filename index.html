@@ -3786,15 +3786,25 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pv-t{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.6)}
 .pf-pv-t em{font-style:normal; font-weight:600; letter-spacing:.02em; text-transform:none; margin-left:7px; color:rgba(255,255,255,.45)}
 .pf-pv .pf-fl{color:rgba(255,255,255,.45); font-size:18px; line-height:1}
-.pf-pv-l{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px}
-.pf-pv-l span{display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:8px; white-space:nowrap;
+.pf-pv-l{grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px}
+/* DEUX PAR DEUX, SUR TOUTE LA LARGEUR (le client, le 19/10/2026 : « les
+   badges doivent occuper la largeur du cadre, 2 par 2 sur mobile ») ; trois
+   de front au bureau. Le nom se resserre, le compteur reste calé à droite. */
+@media (min-width:761px){ .pf-pv-l{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.pf-pv-l span{display:flex; align-items:center; gap:6px; min-width:0; padding:5px 9px; border-radius:8px; white-space:nowrap;
   font-size:12.5px; font-weight:600; color:rgba(255,255,255,.88); background:rgba(255,255,255,.06)}
+.pf-pv-l em{font-style:normal; min-width:0; overflow:hidden; text-overflow:ellipsis}
+.pf-pv-l .pf-pv-n{margin-left:auto; padding-left:4px}
+/* à 320 px, un badge fait 115 px : « Fermentation 10/10 » n'y tient pas.
+   Les abréviations de l'onglet Recyclage (PV_COURT) prennent le relais. */
+@media (max-width:360px){ .pf-pv-l span{font-size:12px; padding:5px 7px; gap:5px} .pf-pv-l .pf-pv-n{font-size:11px}
+  .pf-pv-l em[data-c]{font-size:0} .pf-pv-l em[data-c]::after{content:attr(data-c); font-size:12px} }
 .pf-pv-l i{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--bordg)}
 .pf-pv-l [data-z="jaune"] i{background:var(--bordj)} .pf-pv-l [data-z="vert"] i{background:var(--bordv)}
 .pf-pv-l [data-z="rouge"] i{background:var(--bordr)} .pf-pv-l [data-z="bleu"] i{background:var(--bordb)}
 /* le compteur d'un atelier : au vert quand le quota est atteint, et aucune
    autre couleur (la règle de l'onglet Recyclage, le client, le 07/10/2026) */
-.pf-pv-n{font-weight:700; font-size:11.5px; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; margin-left:1px}
+.pf-pv-n{font-weight:700; font-size:11.5px; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; flex:0 0 auto}
 .pf-pv-n.ok{color:var(--at-vert)}
 .pf-pv-n.ex{font-weight:600; font-size:11px; color:rgba(255,255,255,.42)}
 .pf-rc{grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 10px; align-items:baseline;
@@ -10779,7 +10789,7 @@ function _pfHead(db,p){
       +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
       +'<span class="pf-fl" aria-hidden="true">›</span>'
       +(pl.length?'<span class="pf-pv-l">'+pl.map(function(a){ var z="", k=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)){ z=P.z; k=P.k; } });
-        return '<span data-z="'+z+'" data-k="'+k+'"><i></i>'+esc(a)+'</span>'; }).join("")+'</span>':'')
+        return '<span data-z="'+z+'" data-k="'+k+'" title="'+esc(a)+'"><i></i><em data-c="'+esc((typeof PV_COURT!=="undefined"&&PV_COURT[k])||a)+'">'+esc(a)+'</em></span>'; }).join("")+'</span>':'')
       +(aRec?'<span class="pf-rc" id="pfRecyc" hidden></span>':'')+'</button>'+h;
   }
   var bio=esc(role);
@@ -10819,7 +10829,7 @@ function recyclageHeros(db,p){
   });
   if(estCadre(p) && l && !l.querySelector('[data-k="cm"]')){
     q=POLY_QUOTA.adjoint;
-    l.insertAdjacentHTML("beforeend",'<span data-z="gris" data-k="cm"><i></i>Contremaître<b class="pf-pv-n'+((ro.cm||0)>=q?' ok':'')+'">'+(ro.cm||0)+'/'+q+'</b></span>');
+    l.insertAdjacentHTML("beforeend",'<span data-z="gris" data-k="cm" title="Contremaître"><i></i><em data-c="Contrem.">Contremaître</em><b class="pf-pv-n'+((ro.cm||0)>=q?' ok':'')+'">'+(ro.cm||0)+'/'+q+'</b></span>');
   }
   var fait=(ro.cm||0); RECYC_POSTES.forEach(function(k){ fait+=Number(ro[k])||0; });
   var tot=fait+ro.restant, pct=tot?Math.round(fait/tot*100):0;

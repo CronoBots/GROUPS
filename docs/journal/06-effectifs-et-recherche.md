@@ -1642,6 +1642,19 @@ un `pkill -f "http.server 8766"` a tué le shell qui le lançait, sa propre
 ligne de commande contenant le motif. Arrêter un serveur de test par son
 PID, pas par un motif.
 
+**Les badges de polyvalence, deux par deux** (le client, le 19/10/2026 :
+« les badges doivent s'arranger pour occuper la largeur du cadre, 2 par 2
+sur mobile »), `nfdm-v826`. Le cadre « Polyvalences » du héros passe d'une
+rangée qui s'enroulait à une grille : deux colonnes égales sur téléphone,
+trois au bureau, le nom à gauche et le compteur calé à droite. Mesuré à
+320 px : un badge fait 115 px, et « Fermentation 1/5 », « Chaudières
+5/10 », « Fermentation exempté », « Contremaître 5/5 » y étaient coupés.
+Sous 361 px, les abréviations de l'onglet Recyclage (`PV_COURT` : Meun.,
+Ferm., Chaud. ; « Contrem. ») prennent le relais, le nom entier restant
+dans l'infobulle : plus aucune coupure. ATR : 2+2+2 badges de 150 px à
+390, 3+3 de 137 px au bureau ; FLN : 2+2+1. Vérificateur et fiches
+identiques à l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
