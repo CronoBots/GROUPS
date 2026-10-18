@@ -4621,6 +4621,23 @@ sur la page restée visible au-dessus d'elles. Le flou est retiré, le voile
 reste : la page dessous est nette et assombrie. Vérifié à 320 px (hors ligne),
 390 et 1280 px, feuille du 01/10 ouverte ; vérificateur identique à l'octet.
 
+**Les congés se voient, et la barre d'état reste opaque** (le client, le
+18/10/2026, capture du mois : « les congés ne se voient pas fort, et
+autres ? »). Un congé (CP, RJF, VA…) avait le contour en tirets et le code
+gris d'un poste prévu non presté : la case la plus fréquente était la plus
+pâle. Il prend une case teintée, un filet plein et son code dans une
+pastille claire et neutre, qu'on ne confond ni avec une pause ni avec la
+maladie ; le poste prévu non presté garde ses tirets, et sa légende devient
+« AM non presté » (deux lignes de légende au lieu de trois à 390 px). Le
+montant des rappels du bilan quitte la chasse fixe. **Et le flou du haut
+n'était pas celui que j'avais retiré** : sur sa capture, c'est le contenu
+qui défile sous l'heure et la batterie de l'iPhone, montré flou par iOS ; le
+voile des fenêtres n'y était pour rien. Une bande à la couleur de la marque
+(`html::after`, hauteur `env(safe-area-inset-top)`) couvre désormais cette
+zone. Chromium n'a pas d'encoche (hauteur 0) : seul l'iPhone dira si le flou
+a disparu. Vérificateur identique à l'octet ; vérifié à 320 px (hors ligne),
+390 et 1280 px, rien ne déborde.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
