@@ -3262,10 +3262,24 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 td.vide{color:var(--trait)}
 /* La pause du moment : un voile léger posé PAR-DESSUS le fond de la case
    (zébra, manque), qui garde ainsi sa couleur. */
-.eqhote .eqp2[data-mc="2"] tr>:nth-child(2),
-.eqhote .eqp2[data-mc="3"] tr>:nth-child(3),
-.eqhote .eqp2[data-mc="4"] tr>:nth-child(4),
-.eqhote .eqp2[data-mc="5"] tr>:nth-child(5){box-shadow:inset 0 0 0 999px var(--maint)}
+/* Chaque case porte la clé de sa pause (data-k, « AM PM » pour une case
+   fusionnée) : un rang ne tient plus quand une case en couvre deux. */
+.eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"],
+.eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"],
+.eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]{box-shadow:inset 0 0 0 999px var(--maint)}
+/* LA CASE FUSIONNÉE : deux 12 h qui tiennent un poste sur des pauses
+   voisines (le client, le 18/10/2026 : « si 2 personnes font 12 h sur 3
+   pauses pour combler un poste, est-ce possible de fusionner les
+   cellules ? »). Une barre par personne, longue de ses heures. */
+.eqhote .eqp2 td.fusion{padding:4px 4px}
+.eqfus{display:flex; gap:3px; align-items:stretch}
+.eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1px; padding:3px 4px; border-radius:6px; border:1px dashed var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
+.eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--in); line-height:13px}
+.eqfus>.eqseg small{font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--muted); line-height:11px}
+.eqfus>.eqseg.moi{border-style:solid; background:var(--in-soft)}
+.eqfus>.eqseg.coment{cursor:pointer}
+.eqfus>.eqseg.coment b{text-decoration:underline solid var(--muted); text-underline-offset:2px}
 /* LE BORD DROIT DE LA COLONNE POSTE EST UN SÉPARATEUR GRIS, pas un liseré de
    couleur (le client, le 04/10/2026 : « la couleur intérieure fait doublon avec
    le bord extérieur gauche »). 2 px --trait-fort : il sépare les libellés des
@@ -13602,7 +13616,7 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
       if(kp!==k) return;
-      cand.push({p:p, a:x0, b:x1, plage:pl, com:String(raw[2]||"").trim()});
+      cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim()});
     });
   });
   cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
@@ -14017,14 +14031,13 @@ function renderEquipe(){
          minuit, la nuit en cours est celle de la veille. La colonne se
          désigne par son rang, que chaque ligne respecte (l'intitulé, puis
          une case par pause montrée). */
-      var mc=0;
+      var mc=0, mck="";
       (function(){
         var n=new Date(), hh=n.getHours()+n.getMinutes()/60, k, d=new Date(n);
         if(hh<6){ k="N"; d.setDate(d.getDate()-1); }
         else k=hh<14?"AM":hh<22?"PM":"N";
         if(d.getFullYear()!==annee || d.getMonth()+1!==mois || d.getDate()!==jour || !vp[k]) return;
-        var rang=1;
-        PAUSES.forEach(function(g){ if(vp[g.k]){ rang++; if(g.k===k) mc=rang; } });
+        mck=k; mc=1;
       })();
       var eqCycle=equipeALaPause(db,annee,mois,jour);
       var eqDsem=equipeEnDSemaine(db,annee,mois,jour);
@@ -14038,7 +14051,7 @@ function renderEquipe(){
          apparaissait. On la retire donc. (Revient sur le choix du 02/10/2026.)
          eqDsem reste calculé : il sert encore d'étiquette d'équipe sous l'en-tête
          D quand la colonne D EST affichée, cf. plus bas. */
-      var tp=['<div class="eqgrille"><table class="eqp2"'+(mc?' data-mc="'+mc+'"':"")+'>'
+      var tp=['<div class="eqgrille"><table class="eqp2"'+(mck?' data-mck="'+mck+'"':"")+'>'
         /* NOM ACCESSIBLE DU TABLEAU. À la navigation par tableau d'un lecteur
            d'écran (touche T), il annonce ce qu'il est et pour quel jour. Invisible
            à l'œil (.sr-only). La date est reconstruite depuis les variables déjà en
@@ -14063,7 +14076,7 @@ function renderEquipe(){
         /* scope="col" : la pause (AM/D/PM/N) est l'axe HORIZONTAL du tableau.
            Sans lui, un lecteur d'écran annonçait le poste (th de ligne, scope="row")
            mais restait muet sur la colonne — la moitié de l'information. */
-        tp.push('<th scope="col" data-s="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
+        tp.push('<th scope="col" data-s="'+esc(g.k)+'" data-k="'+esc(g.k)+'"><b>'+esc(g.t)+"</b>"
           +(eqP?'<em class="eqeq">Équipe '+esc(eqP)+"</em>":"")+"</th>");
       });
       tp.push("</tr></thead><tbody>");
@@ -14073,6 +14086,50 @@ function renderEquipe(){
          cela. Les zones se rangent dans l'ordre où le tableau les montre —
          celui de la production. */
       var zPrec=null;
+      /* Pose la clé de pause sur la case qu'un tour de boucle vient d'écrire. */
+      function avecK(fn){ return function(g){ var n=tp.length; fn(g);
+        if(tp.length>n) tp[tp.length-1]=tp[tp.length-1].replace(/^<td(?! data-k)/,'<td data-k="'+g.k+'"'); }; }
+      var ORDRE3=["AM","PM","N"];
+      /* La fusion d'une ligne : pour chaque pause tenue par des relais de
+         12 h (et personne d'autre), chacun des deux qui tient aussi, seul,
+         le même poste sur toute la pause voisine fait fusionner les deux
+         cases. Rend {debut:{k:[clés]}, saute:{k:1}, rel:{premièreClé:[relais]}}. */
+      function fusionsLigne(P){
+        var f={debut:{}, saute:{}, rel:{}};
+        ORDRE3.forEach(function(X,ix){
+          if(!vp[X]) return;
+          var oX=poste(X,P.k); if(!oX || !oX.relais || !oX.relais.length || oX.gens.length) return;
+          var grp=[X];
+          oX.relais.forEach(function(rl){
+            var Y=null, iy=-1;
+            if(rl.A<PF_DEB[X]-0.01 && ix>0){ iy=ix-1; }
+            else if(rl.B>PF_FIN[X]+0.01 && ix<2){ iy=ix+1; }
+            if(iy<0) return; Y=ORDRE3[iy];
+            if(!vp[Y] || f.saute[Y] || f.debut[Y]) return;
+            if(!(rl.A<=PF_DEB[Y]+0.01 && rl.B>=PF_FIN[Y]-0.01)) return;
+            var oY=poste(Y,P.k);
+            if(!oY || oY.manque || (oY.relais&&oY.relais.length) || oY.gens.length!==1 || oY.gens[0].p.id!==rl.p.id) return;
+            if(grp.indexOf(Y)<0) grp.push(Y);
+          });
+          if(grp.length<2) return;
+          grp.sort(function(a,b){ return ORDRE3.indexOf(a)-ORDRE3.indexOf(b); });
+          f.debut[grp[0]]=grp; f.rel[grp[0]]=oX.relais;
+          grp.slice(1).forEach(function(k){ f.saute[k]=1; });
+        });
+        return f;
+      }
+      function hhF(v){ v=((v%24)+24)%24; var h=Math.floor(v), m=Math.round((v-h)*60); return pad2(h)+(m?"h"+pad2(m):""); }
+      function caseFusion(grp,rels){
+        var S=PF_DEB[grp[0]], E=PF_FIN[grp[grp.length-1]];
+        var segs=rels.slice().sort(function(a,b){ return a.A-b.A; }).map(function(rl){
+          var a=Math.max(rl.A,S), b=Math.min(rl.B,E), hor=hhF(a)+"-"+hhF(b);
+          return '<span class="eqseg'+(rl.p.id===moi?" moi":"")+(rl.com?' coment" data-com="'+esc(rl.com)+'"':'"')
+            +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
+            +' title="'+esc(fonctionPersonne(rl.p))+" · tient le poste de "+esc(hhF(a)+" à "+hhF(b))+" (sa journée : "+esc(hhF(rl.A)+"-"+hhF(rl.B))+')">'
+            +'<b>'+esc(idLisible(rl.p.id))+'</b><small>'+esc(hor)+'</small></span>';
+        }).join("");
+        return '<td class="fusion" colspan="'+grp.length+'" data-k="'+grp.join(" ")+'"><div class="eqfus">'+segs+'</div></td>';
+      }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -14089,8 +14146,11 @@ function renderEquipe(){
              aux trois pauses la largeur que prenait l'intitulé. */
           +'<th class="eqposte" scope="row"><b><span class="orgl1">'+esc(P.t)
           +'</span><span class="orgl2">'+esc(EQ_COURT[P.k]||P.t)+"</span></b></th>");
-        PAUSES.forEach(function(g){
+        var fus=fusionsLigne(P);
+        PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
+          if(fus.saute[g.k]) return;
+          if(fus.debut[g.k]){ tp.push(caseFusion(fus.debut[g.k],fus.rel[g.k])); return; }
           var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
           /* Le client : « on peut également mettre "-" pour la STEP PM et
              N ». Une case grise et muette laissait croire à un oubli ; le
@@ -14124,7 +14184,7 @@ function renderEquipe(){
             +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque" title="Place vide ('+o.tenu+" / "+aP+')"><b>?</b></span>'):"")
             +(o.gens.length||mq||(o.relais&&o.relais.length)?"":'<span class="eqvide">\u2014</span>')
             +"</td>");
-        });
+        }));
         tp.push("</tr>");
       });
       /* L'opérateur dont le poste reste indéterminé se lisait dans la
@@ -14143,7 +14203,7 @@ function renderEquipe(){
       if(incTot){
         tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row">'
           +'<b><span class="orgl1">\u00c0 déterminer</span><span class="orgl2">\u00c0 dét.</span></b></th>');
-        PAUSES.forEach(function(g){
+        PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.inconnus;
           /* Case vide : le même tiret court que partout ailleurs (le
@@ -14151,7 +14211,7 @@ function renderEquipe(){
           tp.push(li.length
             ? "<td>"+li.map(function(x){ return chip(x,g,null,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
-        });
+        }));
         tp.push("</tr>");
       }
       /* La formation hors poste a sa ligne, pause par pause (la journée,
@@ -14159,7 +14219,7 @@ function renderEquipe(){
       var aFormL=PAUSES.some(function(g){ return vp[g.k] && vp[g.k].vue.formation.length; });
       if(aFormL){
         tp.push('<tr class="zone1 eqform"><th class="eqposte" scope="row"><b><span class="orgl1">Formation</span><span class="orgl2">Form.</span></b></th>');
-        PAUSES.forEach(function(g){
+        PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           var li=vp[g.k].vue.formation;
           /* Case vide : le même tiret court que partout ailleurs (le
@@ -14167,18 +14227,18 @@ function renderEquipe(){
           tp.push(li.length
             ? "<td>"+li.map(function(x){ return chip(x,g,null,true,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
-        });
+        }));
         tp.push("</tr>");
       }
       if(vp.D && vp.D.ds && vp.D.ds.length){
         tp.push('<tr class="zone1 eqform eqds"><th class="eqposte" scope="row"><b>DS</b></th>');
-        PAUSES.forEach(function(g){
+        PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           var li=g.k==="D"?vp.D.ds:[];
           tp.push(li.length
             ? "<td>"+li.map(function(x){ return chip(x,g,null,true,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
-        });
+        }));
         tp.push("</tr>");
       }
       /* Aucune légende sous ce tableau, pas même celle du manque : le
@@ -16294,7 +16354,7 @@ function eqBouge(n){
   }
   fermerCompop=fermer;                           /* exposé : renderEquipe ferme au changement de jour */
   document.addEventListener("click",function(e){
-    var chip=e.target.closest?e.target.closest(".eqn[data-com]"):null;
+    var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com]"):null;
     if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
   });
   window.addEventListener("scroll",fermer,true);

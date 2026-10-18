@@ -4771,6 +4771,23 @@ la surbrillance de la pause du moment suit, son rang se calculant sur cet
 ordre (AM surlignée le 13/10 à 10 h). Affichage seulement ; vérificateur
 identique à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px.
 
+**Les relais de 12 h dans une case fusionnée** (le client, le 18/10/2026 :
+« si 2 personnes font 12 h sur 3 pauses pour combler un poste, est-ce
+possible de fusionner les cellules ? », puis « essaye pour voir »). Sur
+une ligne du Planning, une pause tenue seulement par deux relais
+(`relaisDouze()`) fusionne avec la pause voisine quand le relais qui en
+vient y tient, seul, le même poste toute la pause (`fusionsLigne()`). La
+case (`colspan`, `caseFusion()`) porte une barre par personne, longue de
+ses heures, avec la part qu'elle tient : le 27/01, contremaître, « ATA
+06-18 | YPE 18-06 » sur AM · PM · N ; le 13/10, terrain arrière, « AAI
+14-18 | GKT 18-06 » sur PM · N (AAI est à la distillation le matin, la
+case AM reste à SMA). Le commentaire s'ouvre au clic, comme sur tout badge.
+La surbrillance de la pause du moment passe d'un rang de colonne à la clé
+de pause de chaque case (`data-k`, `data-mck`), un rang ne tenant plus
+quand une case en couvre deux. Affichage seulement ; vérificateur identique
+à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px. **À l'essai** :
+le client dira s'il garde.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
