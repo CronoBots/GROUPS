@@ -143,11 +143,13 @@ git avec le connecteur Notion, du travail de professionnel »). Une page
 privée de son espace Notion, « BIOWANZE · Dossier projet », en donne la
 vue d'ensemble : état du projet, règles, guide de l'application,
 procédures, architecture, synthèse des règles de lecture et de paie, et
-deux bases — « Suivi — questions et écarts » (questions client et RH,
-écarts connus, chantiers, avec statut) et « Journal des versions ». Ce
-fichier reste la source de vérité : une décision s'écrit d'abord ici, puis
-se reporte dans Notion (statut du suivi, ligne du journal) par le
-connecteur. Notion suit la même règle que le dépôt : ni nom, ni montant
+trois bases — « Suivi — questions et écarts » (questions client et RH,
+écarts connus, chantiers, avec statut), « Journal des versions » (du
+22/09 à aujourd'hui) et « Décisions du client » (la décision, sa date,
+son domaine et son effet dans l'application) — et une liste « Démarrer
+une session de travail ». Ce fichier reste la source de vérité : une
+décision s'écrit d'abord ici, puis se reporte dans Notion (base
+Décisions, statut du suivi, ligne du journal) par le connecteur. Notion suit la même règle que le dépôt : ni nom, ni montant
 de salaire, ni identifiant de connexion.
 
 ## Avant de toucher à l'horaire d'équipe
