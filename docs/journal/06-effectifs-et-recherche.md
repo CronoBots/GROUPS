@@ -1475,6 +1475,40 @@ de toutes les journées à code de jour. Neuf règles à zéro (aucune lecture
 touchée) ; vérifié à 320 px (hors ligne), 390 et 1280 px, sans débordement
 ni erreur.
 
+**L'année, avec les cases du mois** (le client, le 18/10/2026 : « la même
+chose que le calendrier mais pour l'année »). Le 07/10, le client avait fait
+retirer la bascule Mois/Année (« il ne faut que le choix par mois ») : la
+vue année d'alors ne montrait que douze petites grilles colorées. Je lui ai
+d'abord proposé une frise compacte dans « Mon rythme » ; elle y était déjà
+(« Jour par jour »), et je ne l'avais pas vue avant de la proposer : un
+`grep -n ryHeatmap` aurait suffi. Ce qu'il voulait, c'est le calendrier
+lui-même. `nfdm-v821` :
+- une bascule « Mois | Année » sous la barre du mois, retenue dans
+  `ui/calVue` ;
+- en Année, `renderAnnee()` dessine les douze mois avec `caseJour()`, la
+  fonction même du mois (codes, congés, maladie, commentaires, rappels,
+  prime conservée, jour courant). Chaque mois est relu dans son
+  enregistrement, comme le fait `loadMonth()` ; le mois affiché garde
+  `st.month`. La légende réunit ce que l'année contient
+  (`legendeDrapeaux()` / `legendeHTML()`, l'ancienne `legendeMois()`
+  coupée en deux) ;
+- un mois par ligne sur téléphone, deux de front à partir de 761 px, trois
+  à partir de 1100 px, avec des cases de 52 px au bureau ; le bilan du mois
+  se retire ;
+- les flèches et le glissement changent d'année, et l'étiquette dit
+  « 2026 » ; l'onglet Salaire, qui partage la barre, reste au mois
+  (`vueAnnee()` exige l'Accueil) ;
+- toucher un jour d'un autre mois charge ce mois, puis ouvre sa feuille
+  (`jourAttendu`) ; dans la feuille, ‹ › passent au mois voisin
+  (`allerMois()`), et non à l'année voisine : `go()` aurait sauté d'un an
+  au 31.
+Mesuré pour VBN : 12 mois, 365 cases, 271 codes, 162 commentaires. Le 3 mars
+touché ouvre « Mardi 3 mars » ; 29 jours suivants mènent au « Mercredi 1
+avril », toujours en 2026. Le choix est gardé au rechargement, et la vue tient
+hors ligne. Le vérificateur (calendrier, manques, polyvalence, compteurs) et
+`comparer-fiches.py VBN` sortent identiques à l'octet avant et après.
+Vérifié à 320, 390 et 1280 px, sans débordement ni erreur.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

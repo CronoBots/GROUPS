@@ -1138,6 +1138,25 @@ body{overflow-x:clip}
 @media (min-width:900px){ #calCard .mc-j{min-height:78px; padding-top:10px; gap:6px}
   #calCard .mc-n{font-size:13px} #calCard .mc-t{font-size:12.5px} #calCard .mc-j[data-s] .mc-t{padding:2px 11px}
   #calCard .mc-j .mc-t.long{font-size:12px} #calCard .mc-leg{font-size:11.5px; gap:8px 26px} }
+/* L'ANNÉE, LES MÊMES CASES QUE LE MOIS (le client, le 18/10/2026 : « la
+   même chose que le calendrier mais pour l'année »). Une bascule Mois |
+   Année sous la barre du mois ; en Année, les douze grilles se suivent,
+   chacune sous son nom, deux puis trois de front sur grand écran. Le bilan
+   chiffré, qui parle d'un mois, se retire. */
+.calvue{display:flex; gap:2px; padding:2px; margin:0 0 10px; border-radius:9px;
+  background:var(--surface); border:1px solid var(--line)}
+.calvue button{min-width:64px; padding:4px 12px; border:0; border-radius:7px; background:none;
+  color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
+.calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink)}
+#calCard.annee .calbilan{display:none}
+.mc-an{display:grid; grid-template-columns:minmax(0,1fr); gap:18px}
+.mc-an-t{font-size:13px; font-weight:700; color:var(--ink); margin:0 2px 8px; letter-spacing:.01em}
+.mc-an-t.auj{color:var(--in)}
+@media (min-width:761px){ .mc-an{grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 18px} }
+@media (min-width:1100px){ .mc-an{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (min-width:761px){ #calCard.annee .mc-j{min-height:52px; padding-top:6px; gap:3px}
+  #calCard.annee .mc-n{font-size:11.5px} #calCard.annee .mc-t{font-size:11px}
+  #calCard.annee .mc-j[data-s] .mc-t{padding:1px 6px} #calCard.annee .mc-j .mc-t.long{font-size:9.5px} }
 /* LES CONGÉS SE VOIENT (le client, le 18/10/2026 : « les congés ne se
    voient pas fort »). Un congé avait le contour en tirets et le code gris
    d'un poste prévu non presté : deux choses différentes, et la plus
@@ -4498,6 +4517,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
              .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
         <div class="calmois"><div class="mnavhote"></div></div>
+        <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
+          <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
+          <button type="button" data-cv="annee" aria-pressed="false">Année</button>
+        </div>
       </div>
       <div class="moiscal" id="moisCal"></div>
       <!-- LE BILAN DU MOIS, sous le calendrier (le client, le 16/10/2026 :
@@ -6450,9 +6473,8 @@ function comJour(d){
   return !!(raw&&raw[2]&&String(raw[2]).trim());
 }
 
-function renderRota(){
-  var p=st.params, M=st.month, y=st.y, m=st.m, nd=daysInMonth(y,m);
-  var hote=document.getElementById("moisCal"); if(!hote) return;
+function grilleMois(){
+  var y=st.y, m=st.m, nd=daysInMonth(y,m);
   var h='<div class="mc-grille"><div class="mc-tete">'+
     ["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")+
     '</div>';
@@ -6469,14 +6491,80 @@ function renderRota(){
     if(cases.length===7) videSemaine();
   }
   if(cases.length) videSemaine();
-  hote.innerHTML=h+'</div>'+legendeMois();
-  if(jourOuvert) majFeuille();
+  return h+'</div>';
 }
+function renderRota(){
+  var hote=document.getElementById("moisCal"); if(!hote) return;
+  var cc=document.getElementById("calCard"); if(cc) cc.classList.toggle("annee",calVue==="annee");
+  if(calVue==="annee") renderAnnee(hote);
+  else hote.innerHTML=grilleMois()+legendeHTML(legendeDrapeaux());
+  if(jourOuvert) majFeuille();
+  /* le jour touché dans l'année, une fois son mois chargé */
+  if(jourAttendu && st.month!==jourAttendu.avant && st.m===jourAttendu.m){
+    var d=jourAttendu.d; jourAttendu=null; ouvrirJour(d);
+  }
+}
+
+/* ===================== l'année, les cases du mois ===================== */
+/* Le client, le 07/10/2026, avait fait retirer la vue année (douze petites
+   grilles qui ne disaient que la couleur) ; le 18/10/2026 : « la même chose
+   que le calendrier mais pour l'année ». Ce sont donc les cases du mois
+   (caseJour), mois après mois, et la légende de ce que l'année contient.
+   Chaque mois se lit dans son enregistrement, comme loadMonth ; le mois
+   affiché garde st.month, qui peut porter une saisie pas encore écrite. */
+var calVue=(lsGet("ui/calVue")==="annee")?"annee":"mois", jourAttendu=null, _anJeton=0;
+function vueAnnee(){ return calVue==="annee" && st.view==="horaire"; }
+function avecMois(m,M,f){
+  var sv=[st.m,st.month]; st.m=m; st.month=M;
+  try{ return f(); } finally{ st.m=sv[0]; st.month=sv[1]; }
+}
+function renderAnnee(hote){
+  var y=st.y, jeton=++_anJeton, mois=[], i;
+  for(i=0;i<12;i++) mois.push(i);
+  Promise.all(mois.map(function(i){
+    return i===st.m ? Promise.resolve(null) : readMonth(key(y,i));
+  })).then(function(docs){
+    if(jeton!==_anJeton || calVue!=="annee" || st.y!==y) return;
+    var auj=new Date(), h='<div class="mc-an">', dr=null;
+    docs.forEach(function(doc,i){
+      var M;
+      if(i===st.m) M=st.month;
+      else { migreMois(doc); M=mergeDefaults(doc,DEF_M); if(!M.days) M.days={}; }
+      var g=avecMois(i,M,function(){
+        var f=legendeDrapeaux();
+        if(!dr) dr=f; else Object.keys(f).forEach(function(k){
+          if(k==="vus") Object.keys(f.vus).forEach(function(s){ dr.vus[s]=1; });
+          else dr[k]=dr[k]||f[k];
+        });
+        return grilleMois();
+      });
+      var cur=(auj.getFullYear()===y && auj.getMonth()===i);
+      h+='<section class="mc-mois" data-m="'+i+'"><h3 class="mc-an-t'+(cur?' auj':'')+'">'+esc(MOIS[i])+'</h3>'+g+'</section>';
+    });
+    hote.innerHTML=h+'</div>'+(dr?legendeHTML(dr):"");
+  });
+}
+function choisirVue(v){
+  calVue=(v==="annee")?"annee":"mois"; lsSet("ui/calVue",calVue);
+  [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
+    b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
+  });
+  majMoisLabel(st.m,st.y); renderRota();
+}
+(function(){
+  var cv=document.getElementById("calVue"); if(!cv) return;
+  [].forEach.call(cv.querySelectorAll("button"),function(b){
+    b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
+  });
+  cv.addEventListener("click",function(e){
+    var b=e.target.closest("button[data-cv]"); if(b && b.dataset.cv!==calVue) choisirVue(b.dataset.cv);
+  });
+})();
 
 /* Une légende fixe finit par ne plus être lue ; une légende qui ne nomme
    que ce qui est à l'écran se relit à chaque mois. Elle n'apparaît donc
    qu'avec ce que le mois contient vraiment. */
-function legendeMois(){
+function legendeDrapeaux(){
   var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
   var vus={}, abs=false, mal=false, jour=false, velo=false, rap=false, part=false, com=false;
   for(d=1; d<=nd; d++){
@@ -6493,6 +6581,10 @@ function legendeMois(){
     if(rec.r) rap=true;
     if(comJour(d)) com=true;
   }
+  return {vus:vus, abs:abs, mal:mal, jour:jour, velo:velo, rap:rap, part:part, com:com};
+}
+function legendeHTML(f){
+  var vus=f.vus, abs=f.abs, mal=f.mal, jour=f.jour, velo=f.velo, rap=f.rap, part=f.part, com=f.com;
   var h=[];
   ["AM","PM","N","D"].forEach(function(k){
     if(vus[k]) h.push('<span><i data-s="'+k+'"></i>'+esc(POSTE_LIB[k]||k)+"</span>");
@@ -6598,7 +6690,10 @@ function fermerJour(){
   sheetRetour=null;
 }
 document.getElementById("moisCal").addEventListener("click",function(e){
-  var b=e.target.closest(".mc-j"); if(b) ouvrirJour(Number(b.dataset.d));
+  var b=e.target.closest(".mc-j"); if(!b) return;
+  var g=b.closest(".mc-mois"), m=g?Number(g.dataset.m):st.m, d=Number(b.dataset.d);
+  if(m===st.m) ouvrirJour(d);
+  else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(st.y,m); }
 });
 document.getElementById("jourSheet").addEventListener("click",function(e){
   if(e.target.closest("[data-fermer]")) fermerJour();
@@ -6609,8 +6704,8 @@ document.getElementById("jourSheet").addEventListener("click",function(e){
 function jourBouge(n){
   if(!jourOuvert) return;
   var d=jourOuvert+n;
-  if(d<1){ go(-1); d=daysInMonth(st.y,st.m); }
-  else if(d>daysInMonth(st.y,st.m)){ go(1); d=1; }
+  if(d<1){ allerMois(-1); d=daysInMonth(st.y,st.m); }
+  else if(d>daysInMonth(st.y,st.m)){ allerMois(1); d=1; }
   ouvrirJour(d);
   var b=document.querySelector("#jourSheet .sheet-boite");
   b.classList.remove("jour-g","jour-d"); void b.offsetWidth;
@@ -7499,7 +7594,7 @@ function majBrandsub(){
    égare celui qui le relit. */
 function majMoisLabel(m,y){
   var el=document.getElementById("mlabel");
-  if(el) el.textContent=MOIS[m]+" "+y;
+  if(el) el.textContent=vueAnnee()?String(y):MOIS[m]+" "+y;
   /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
   var pick=document.getElementById("moisPick");
   if(pick) pick.value=y+"-"+pad2(m+1);
@@ -7692,6 +7787,7 @@ function setView(v,keepScroll){
     b.tabIndex=sel?0:-1;
   });
   placerMnav(v);
+  majMoisLabel(st.m,st.y);
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
   if(!keepScroll) window.scrollTo(0,0);
@@ -7894,7 +7990,13 @@ if(document.getElementById("cal")) document.getElementById("cal").addEventListen
 /* ===================== outils du mois ===================== */
 document.getElementById("prev").addEventListener("click",function(){go(-1);});
 document.getElementById("next").addEventListener("click",function(){go(1);});
+/* En Année, les flèches et le glissement vont d'une année à l'autre ; la
+   feuille du jour, elle, passe toujours au mois voisin (allerMois). */
 function go(step){
+  if(vueAnnee()){ loadMonth(st.y+step,st.m); return; }
+  allerMois(step);
+}
+function allerMois(step){
   var m=st.m+step, y=st.y;
   if(m<0){m=11;y--;} if(m>11){m=0;y++;}
   loadMonth(y,m);
