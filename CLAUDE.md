@@ -4683,6 +4683,16 @@ du commentaire passe en rouge dans le coin haut droit, et les points
 vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 et
 1280 px.
 
+**Le vélo coché se perdait** (le client, le 18/10/2026 : « je suis venu en
+vélo les 12, 13 et 14 et mes ajouts manuels sont toujours annulés »).
+`save()` attend 700 ms avant d'écrire ; quitter l'application avant (sur
+iPhone, balayer vers le haut juste après avoir coché) perdait la dernière
+saisie. Reproduit au navigateur : trois vélos cochés, rechargement
+immédiat, deux restaient. `viderEcritures()` écrit tout ce qui attend dès
+que la page se cache ou se ferme (`visibilitychange`, `pagehide`,
+`beforeunload`) : trois sur trois, rechargement immédiat ou non.
+Vérificateur identique à l'octet.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
