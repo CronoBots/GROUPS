@@ -4729,6 +4729,16 @@ Le sous-titre de « Mon rythme » perd son « · 2026 » (le client, le même
 jour : l'année est déjà dans les trois titres) : « mois par mois et jour
 par jour ».
 
+Puis (le client, le 18/10/2026) : **un cadre dans sa seconde semaine de D
+(la 6e de son cycle de 6 semaines) n'affiche plus d'équipe pour le cycle
+actuel** — elle a repris son cycle de 5 semaines sans lui. VBN et ATR, en
+semaine 6 le 18/10, n'ont plus que « Équipe 1 » au prochain cycle ; GPS,
+en semaine 3, garde « Équipe 2 ». L'équipe ou le binôme s'écrit en texte
+cyan, sans pastille, et « Éq. 5 » devient « Équipe 5 ». La ligne des
+numéros de « Jour par jour » revient à 1, 5, 10… 30 et un point entre sur
+téléphone (« tous les chiffres, c'est trop serré ») ; le bureau garde les
+31. Vérifié à 320 px (hors ligne), 390 et 1280 px ; neuf règles à zéro.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs

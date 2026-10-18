@@ -3733,7 +3733,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-t{display:flex; flex-wrap:wrap; row-gap:4px; align-items:center; justify-content:space-between; gap:8px}
 .ry-an-t>b{font:700 12px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--ink); white-space:nowrap}
 .pf-an .ry-an-t{padding-top:12px} .pf-an .ry-an-t .ry-h2{padding:0}
-.ry-an-t>b.cy-avec{font:700 11.5px/1.2 "IBM Plex Mono",ui-monospace,monospace; color:var(--marque-vif); flex:0 0 auto; padding:3px 8px; border-radius:99px; background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.3)}
+.ry-an-t>b.cy-avec{font-family:inherit; font-weight:600; font-size:12px; line-height:1.2; color:var(--marque-vif); flex:0 1 auto; text-align:right}
 .cy-fr{display:flex; gap:5px; margin-top:6px}
 .cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; border-radius:3px}
 .cy-s.cour{box-shadow:0 0 0 2px rgba(255,255,255,.22)}
@@ -3766,9 +3766,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-hm{flex:1 1 auto; min-width:0; display:grid; grid-template-columns:repeat(31,minmax(0,1fr)); gap:2px}
 .ry-hm-n{font:600 8.5px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--faint); text-align:center; overflow:visible; white-space:nowrap}
 .ry-hm-n.auj{color:var(--ink)}
-.ry-hm-n{letter-spacing:-.06em; margin:0 -2px}
-@media (max-width:380px){ .ry-hm-n{font-size:7px; letter-spacing:-.1em} }
-@media (min-width:761px){ .ry-hm-n{font-size:10px; letter-spacing:0; margin:0} }
+.ry-hm-n b{font-weight:600} .ry-hm-n em{display:none; font-style:normal}
+@media (min-width:761px){ .ry-hm-n{font-size:10px} .ry-hm-n b{display:none} .ry-hm-n em{display:inline} }
 .ry-hm-tete{margin-bottom:1px}
 .ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
 .ry-hm-c.auj{box-shadow:0 0 0 1.5px var(--ink)}
@@ -9730,10 +9729,11 @@ function ryHeatmap(s){
      côte à côte demandaient 740 px ; 31 colonnes tiennent dans un téléphone,
      et un mois se lit d'un regard, du 1 au 31. Le jour de l'usine est cerclé. */
   var y=s.y, seq=s.cal||s.seq, rows="", i=0, ju=jourUsine(), m, d;
-  /* les numéros des jours au-dessus, tous (le client, le 17/10/2026) ;
-     resserrés sur téléphone pour que deux chiffres tiennent sur une case */
+  /* les numéros des jours au-dessus (le client, le 17/10/2026) : tous au
+     bureau ; sur téléphone 1, 5, 10… 30 et un point entre — les 31 y
+     étaient trop serrés (le client, le même jour) */
   var num="";
-  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+d+'</span>';
+  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+((d===1||d%5===0)?d:'<b>·</b><em>'+d+'</em>')+'</span>';
   rows+='<div class="ry-hm-l ry-hm-tete"><i></i><div class="ry-hm">'+num+'</div></div>';
   for(m=0;m<12;m++){
     var nd=new Date(y,m+1,0).getDate(), cells="";
@@ -11540,7 +11540,7 @@ function cycleAvec(p,c){
     var vu={};
     if(cadre){
       x=equipeALaPause(db,an,d.getMonth()+1,d.getDate())[fr];
-      if(x) String(x).split("/").forEach(function(q){ vu["Éq. "+q]=1; });
+      if(x) String(x).split("/").forEach(function(q){ vu["Équipe "+q]=1; });
     } else {
       db.people.forEach(function(q){
         if(!estCadre(q)) return; var bn=_pfBinome(q); if(!bn) return;
@@ -11584,6 +11584,10 @@ function ryCycleHTML(p,c,titre,prochain){
   var ou=prochain?(c.L%7===0?(c.L/7)+" semaines":c.L+" jours")
                  :(c.L%7===0?"semaine "+(Math.floor(c.pos/7)+1)+" / "+(c.L/7):"jour "+(c.pos+1)+" / "+c.L);
   var av=""; try{ av=cycleAvec(p,c); }catch(e){ av=""; }
+  /* Un cadre dans sa seconde semaine de D (la 6e du cycle) ne tourne plus
+     avec cette équipe : elle a repris son cycle de 5 semaines sans lui (le
+     client, le 17/10/2026). L'équipe actuelle ne s'écrit donc plus. */
+  if(!prochain && estCadre(p) && c.L===42 && Math.floor(c.pos/7)===5) av="";
   return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
     +(av?'<b class="cy-avec" title="'+(estCadre(p)?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')+'</div>'
     +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="'+titre+' du '+dm(c.deb)+' au '+dm(c.fin)+(av?', avec '+esc(av):'')+'">'+sem+'</div>'
