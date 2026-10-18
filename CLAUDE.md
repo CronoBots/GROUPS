@@ -4584,6 +4584,25 @@ droite d'une rangée quand on descend (il s'efface en haut de page, à 55 %
 d'opacité) ; les déplacer tous deux serait un autre chantier. Aucun calcul
 touché : vérificateur identique à l'octet.
 
+**La feuille d'une journée lue, en clair** (le client, le 18/10/2026,
+capture de la feuille du 01/10 : « pro ? »). Non : depuis que le classeur
+l'emporte, la journée s'affichait comme un formulaire grisé (boutons de
+pause éteints, menu « — », champ « 8 », « Rappel aucun » en chasse fixe, et
+une aide « Comment lire cette ligne » qui décrivait des commandes
+inutilisables). `jourLuHTML()` remplace ce formulaire pour toute journée du
+classeur : la pause en pastille à la couleur du calendrier (contour pour un
+congé, rouge pour la maladie), son nom, l'horaire de l'agenda
+(`_pfJour()`, `pfHeures()`, remise de 30 min comprise) et les heures
+payées ; puis, seulement s'il y a lieu, « Prévu au cycle » quand la cellule
+franche dit une autre pause, la prime conservée, le congé posé, la prime de
+rappel en mots et le rappel sur un repos. Le vélo, seul réglage restant,
+devient un interrupteur, et ne s'affiche que les jours prestés. La ligne du
+classeur s'intitule « Classeur », le commentaire en citation ; l'aide se
+cache pour une journée lue. Les journées hors classeur gardent le
+formulaire. Vérificateur identique à l'octet ; vérifié sur VBN (01, 02, 03,
+09, 15/10) et YBT (maladie) à 320 px (hors ligne), 390 et 1280 px, rien ne
+déborde, l'interrupteur vélo s'enregistre.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les

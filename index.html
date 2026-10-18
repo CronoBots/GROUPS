@@ -1164,6 +1164,32 @@ body{overflow-x:clip}
 .sheet-src .com{display:block; margin-top:3px; color:var(--faint); font-style:italic}
 .sheet-src .rv{display:block; margin-top:6px; padding:5px 8px; border-left:2px solid var(--in); background:color-mix(in srgb,var(--in) 8%,transparent); border-radius:0 6px 6px 0; color:var(--ink2); font-style:normal}
 .sheet-boite .day{border-bottom:0; padding:14px 16px}
+/* la journée lue (18/10/2026) : ce qui a été presté, puis ses nuances */
+.sheet-boite .day.lu{display:block; padding:14px 16px 16px}
+.sheet-boite .aide[hidden]{display:none}
+.sheet-src .src-t{display:inline-block; margin-right:8px; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
+.sheet-src .com{font-style:normal; color:var(--ink2); margin-top:6px; padding-left:8px; border-left:2px solid var(--line)}
+.jl-tete{display:flex; align-items:center; gap:12px}
+.jl-p{flex:0 0 auto; min-width:48px; height:48px; padding:0 8px; box-sizing:border-box; display:grid; place-items:center; border-radius:12px;
+  font:700 15px/1 "IBM Plex Mono",ui-monospace,monospace; color:#fff; background:var(--surface3)}
+.jl-p[data-s="AM"]{background:var(--cal-am)} .jl-p[data-s="PM"]{background:var(--cal-pm)}
+.jl-p[data-s="N"]{background:var(--cal-n)} .jl-p[data-s="D"]{background:var(--cal-d)}
+.jl-p[data-a="cg"]{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line)}
+.jl-p[data-a="mal"]{background:transparent; color:#E5574D; box-shadow:inset 0 0 0 1.5px #E5574D}
+.jl-p[data-a="rep"]{background:transparent; color:var(--faint); box-shadow:inset 0 0 0 1.5px var(--line2)}
+.jl-quoi{min-width:0}
+.jl-quoi b{display:block; font-size:17px; font-weight:650; color:var(--ink); line-height:1.2}
+.jl-quoi span{display:block; margin-top:3px; font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+.jl-l{margin-top:14px; border-top:1px solid var(--line2)}
+.jl-r{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13px}
+.jl-r span{color:var(--muted)} .jl-r b{font-weight:600; color:var(--ink); text-align:right}
+.jl-velo{margin-top:14px; width:100%; display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:12px;
+  border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; cursor:pointer}
+.jl-velo span{flex:1; text-align:left}
+.jl-sw{position:relative; width:38px; height:22px; border-radius:99px; background:var(--surface3); transition:background .15s}
+.jl-sw::after{content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .15s}
+.jl-velo[aria-pressed="true"]{border-color:var(--in)} .jl-velo[aria-pressed="true"] .jl-sw{background:var(--in)}
+.jl-velo[aria-pressed="true"] .jl-sw::after{transform:translateX(16px)}
 /* Dans la feuille, la date est déjà dans le titre et le code presté dans la
    ligne d'horaire juste au-dessus : la répéter volerait la place des
    commandes. Chacune prend donc toute la largeur qu'il lui faut, et les
@@ -6134,9 +6160,56 @@ function ligneJour(d){
      qu'il n'écrit pas, reste à la main. */
   if(st.personD && st.personD[pad2(m+1)+pad2(d)]!==undefined){
     row.classList.add("lu");
-    row.querySelectorAll(".shifts button,.abs,.hrs,.rap").forEach(function(x){ x.disabled=true; });
+    row.innerHTML=jourLuHTML(d,rec,luJour);
   }
   return row;
+}
+/* La journée que le classeur écrit se LIT : un formulaire grisé (boutons
+   éteints, menu « — », champ « 8 », « Rappel aucun ») avait l'air d'une
+   saisie bloquée (le client, le 18/10/2026 : « pro ? »). La feuille dit
+   donc ce qui a été presté, en clair, puis ce qui le nuance ; seul le vélo
+   reste un bouton. */
+function nomCodeJour(c){
+  var X=ABSMAP[c]; if(X&&X.k==="SMG") return "Maladie";
+  var k=(X&&X.k)||c, l=st.personDb?libCompteur(st.personDb,k):k;
+  if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
+  return l;
+}
+function jourLuHTML(d,rec,luJour){
+  var y=st.y, m=st.m, x=null;
+  try{ x=st.personObj?_pfJour(st.personObj.id,new Date(y,m,d)):null; }catch(e){ x=null; }
+  var raw=(st.personD&&st.personD[pad2(m+1)+pad2(d)])||[];
+  var hp=heuresJour(rec), preste=hp>0, pv=preste?postePeint(rec):"";
+  var code, titre, sous="", cls="";
+  if(preste){
+    code=marqueDoute(rec,rec.j?etiqJour(rec.j):pv); cls=' data-s="'+esc(pv)+'"';
+    titre=rec.j?("Jour · "+esc(etiqJour(rec.j))):esc(SHIFT_NOMS[pv]||pv);
+    var hor=(x&&x.presente&&PF_HEURES[x.pv])?pfHeures(x):"";
+    sous=(hor?esc(hor)+" · ":"")+num(hp)+"\u00a0h payées";
+  } else if(rec.a&&ABSMAP[rec.a]){
+    code=etiqAbsence(rec.a); cls=ABSMAP[rec.a].k==="SMG"?' data-a="mal"':' data-a="cg"';
+    titre=esc(nomCodeJour(rec.a)); sous="Journée non prestée";
+  } else if(rec.s){
+    code=rec.s; cls=' data-a="cg"'; titre=esc(SHIFT_NOMS[rec.s]||rec.s)+" prévu";
+    sous="Non presté";
+  } else { code="–"; cls=' data-a="rep"'; titre="Repos"; }
+  var l=[];
+  function lig(t,v){ l.push('<div class="jl-r"><span>'+t+'</span><b>'+v+'</b></div>'); }
+  var prevu=String(raw[0]||"").trim().toUpperCase();
+  if(preste && SHIFT_NOMS[prevu] && prevu!==pv) lig("Prévu au cycle",esc(prevu)+" · "+esc(SHIFT_NOMS[prevu]));
+  if(gardePrime(rec)) lig("Prime payée",esc(SHIFT_NOMS[rec.s]||rec.s)+" (conservée)");
+  var cg=(preste&&rec.a?[rec.a]:[]).concat(luJour||[]);
+  if(cg.length) lig("Congé posé",cg.map(esc).join(" + "));
+  if(rec.r) lig("Prime de rappel",esc({J:"Rappel J ou J-1",J2:"Rappel J-2 à J-15",MP:"Changement de pause"}[rec.r]||rec.r));
+  if(rec.rs) lig("Rappelé sur un repos","Payé en heures sup.");
+  return '<div class="jl">'
+    +'<div class="jl-tete"><span class="jl-p"'+cls+'>'+esc(code)+'</span>'
+    +'<div class="jl-quoi"><b>'+titre+'</b>'+(sous?'<span>'+sous+'</span>':'')+'</div></div>'
+    +(l.length?'<div class="jl-l">'+l.join("")+'</div>':'')
+    +((preste||rec.v)?'<button type="button" class="jl-velo bike" aria-pressed="'+(!!rec.v)+'">'
+    +'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 7h4M14 7l4.5 10M9 17h6.5"/></svg>'
+    +'<span>Venu à vélo</span><i class="jl-sw" aria-hidden="true"></i></button>':'')
+    +'</div>';
 }
 
 /* La case porte les trois choses qu'on cherche du regard : le poste, ce qui
@@ -6281,7 +6354,7 @@ function majFeuille(){
     if(raw[1]) bouts.push(esc(raw[1]));
     /* le commentaire est une phrase, pas un champ : il va à la ligne, et le
        séparateur qui le précédait laissait un point suspendu */
-    h="Horaire d'équipe : "+(bouts.length?bouts.join(" · "):"—")
+    h='<span class="src-t">Classeur</span>'+(bouts.length?bouts.join(" · "):"—")
       +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
   }
   /* les heures qu'une autre cellule écrit pour ce jour, et l'inverse
@@ -6291,6 +6364,9 @@ function majFeuille(){
   if(rj.rvS && !(heuresJour(rj)>0))
     h+='<span class="rv">Ces heures comptent le '+esc(rj.rvS)+'.</span>';
   src.innerHTML=h; src.hidden=!h;
+  /* l'aide décrit le formulaire : elle n'a rien à dire d'une journée lue */
+  var aide=document.querySelector("#jourSheet .aide");
+  if(aide) aide.hidden=!!(raw!==null&&raw!==undefined);
 }
 /* ACCESSIBILITÉ DES MODALES. Les deux boîtes de dialogue — la feuille du jour
    et l'accueil — sont HORS du <main> : on peut donc rendre le fond inerte
