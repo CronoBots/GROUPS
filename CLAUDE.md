@@ -4875,6 +4875,25 @@ polyvalences part : l'onglet Équipes les montre poste par poste. Neuf
 règles à zéro (aucune lecture touchée) ; vérifié sur VBN, LCI, YBT et PDE
 à 320 px (hors ligne), 390 et 1280 px, rien ne déborde, aucune erreur.
 
+**Puis le héros repris en entier** (le client, le 18/10/2026 : « il y a
+moyen de faire bien mieux pour le héros, je veux du 100 % »). Photographié
+à 320 px (hors ligne), 390 et 1280 px sur VBN, LCI, SKS et YBT. Défauts
+relevés et corrigés :
+- le week-end libre flottait seul, mal aligné, entre le prochain poste et
+  « Mon année » : il devient la seconde ligne du même cadre (`.pf-bloc`),
+  sous un filet, avec une icône de calendrier ; « Week-end libre » tout
+  court, « Prochain week-end… » se coupait à 320 px ;
+- le statut et la formation prenaient deux lignes : une seule, « Ouvrier ·
+  En formation · Distillation », la formation en jaune ;
+- les trois progressions se suivaient sans séparation : un filet entre
+  l'année et chaque cycle, et la semaine du cycle (« semaine 6 / 6 »)
+  passe de 9,5 à 11 px ;
+- au bureau, tout s'étirait sur 1 100 px (barres de 1 100 px, week-end aux
+  deux bouts de l'écran) : deux colonnes, l'identité et le bloc du poste à
+  gauche, les progressions à droite ; le héros passe de 714 à 595 px.
+Aucune lecture touchée, neuf règles à zéro ; rien ne déborde, aucune
+erreur.
+
 **Troisième passe complète** (le client, le 17/10/2026 : « optimise un max
 encore l'accueil »). Captures à 320, 390 et 1280 px sur LCI et VBN, puis :
 - **la tuile RHS contredisait la liste du bas** : « 1 h reprises » d'un
