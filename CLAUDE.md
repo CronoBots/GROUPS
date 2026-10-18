@@ -4863,6 +4863,18 @@ deux lignes (« Polyvalence » touchait « Week-end libre »), et la ligne de
 formation aussi (« Distillation » était coupé). Vérifié sur LCI, GJR, PAM,
 AAI, SKS, VBN, ATR et GPS à 320 px (hors ligne), 390 et 1280 px.
 
+**Plus de rangée de chiffres dans le héros** (le client, le 18/10/2026,
+capture de « ATR / ADJOINT · 24 oct. / WEEK-END LIBRE » : « ceci est
+inutile présenté comme cela »). Deux informations de nature différente
+s'y lisaient comme des statistiques, en grands caractères à chasse fixe.
+Le binôme rejoint l'identité, sous le poste : « Binôme · ATR » pour un
+cadre, « Équipe 5 · AFA · YBT » pour un opérateur. Le week-end libre
+devient une ligne sous le prochain poste, « Prochain week-end libre ·
+Samedi 24 octobre », absente quand il n'y en a plus (YBT). Le nombre de
+polyvalences part : l'onglet Équipes les montre poste par poste. Neuf
+règles à zéro (aucune lecture touchée) ; vérifié sur VBN, LCI, YBT et PDE
+à 320 px (hors ligne), 390 et 1280 px, rien ne déborde, aucune erreur.
+
 **Troisième passe complète** (le client, le 17/10/2026 : « optimise un max
 encore l'accueil »). Captures à 320, 390 et 1280 px sur LCI et VBN, puis :
 - **la tuile RHS contredisait la liste du bas** : « 1 h reprises » d'un
