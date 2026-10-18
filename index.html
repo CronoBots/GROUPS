@@ -2442,6 +2442,12 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   color:#E6E9F0; font-size:12px; font-weight:600; box-shadow:0 4px 14px rgba(0,0,0,.35); white-space:nowrap; pointer-events:none}
 .horsligne span{width:7px; height:7px; border-radius:50%; background:#E8A23A}
 .horsligne[hidden]{display:none}
+/* Sur téléphone, en haut, elle couvrait la date du Planning et le haut du
+   héros (18/10/2026) : elle se pose au-dessus de la capsule du menu. */
+@media (max-width:760px){
+  .horsligne{top:auto; bottom:calc(var(--navbas,16px) + 76px)}
+}
+@media (max-width:380px){ .horsligne{font-size:11px; padding:5px 10px} }
 /* UNE APPLICATION, PAS UNE PAGE. Installée, l'interface ne se sélectionne
    plus au doigt ni ne fait surgir le menu « copier / ouvrir le lien » sur un
    appui long ; les champs et les textes de saisie restent sélectionnables.
@@ -2866,7 +2872,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .posteauj:not(.estauj){background:transparent;
   border-color:color-mix(in srgb, var(--in) 55%, var(--muted));
   color:color-mix(in srgb, var(--in) 70%, var(--muted))}
-.posteauj.estauj{opacity:.42; cursor:default}
+/* Sur le jour courant, « Auj. » ne sert à rien : il disparaît au lieu de
+   rester grisé, qui se lisait comme un bouton en panne (18/10/2026). */
+.posteauj.estauj{visibility:hidden}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
 /* La barre de date vit À L'INTÉRIEUR du cadre, qui est désormais porté par la
@@ -3401,6 +3409,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (min-width:761px){
   .eqhote .eqp2 tbody td .eqn{display:inline-flex; vertical-align:middle; margin:1px 2px}
   .eqhote .eqp2 tbody td .eqn+.eqn{margin-top:1px}
+}
+/* Sur téléphone, un badge qui porte un horaire (« ATA 8-14 », « QBY 10-22 »)
+   le met TOUJOURS sous le trigramme : en ligne, il passait à la ligne dans
+   une case et pas dans l'autre, et ces badges-là prenaient une forme à eux
+   (le client, le 18/10/2026 : « optimise le Planning 100 % pro »). */
+@media (max-width:760px){
+  .eqhote .eqp2 tbody td .eqn:has(.eqhd){flex-direction:column; align-items:center; padding:2px 5px 1px}
+  .eqhote .eqp2 tbody td .eqn .eqhd{font-size:9px; line-height:10px; letter-spacing:-.02em; margin:0}
 }
 @media (max-width:380px){
   .eqhote .eqp2 tbody td .eqn{padding:1px 3px; column-gap:3px}
@@ -11095,7 +11111,14 @@ function notifierTelephone(p,x){
     if(!installee()) ouvrir(false);
   }
   var hl=document.getElementById("horsLigne");
-  function reseau(){ hl.hidden=navigator.onLine!==false; }
+  /* Elle se montre quatre secondes à chaque perte du réseau, puis s'efface :
+     posée en permanence, elle couvrait un morceau de page (18/10/2026). */
+  var tHl=null;
+  function reseau(){
+    var hors=navigator.onLine===false;
+    hl.hidden=!hors; clearTimeout(tHl);
+    if(hors) tHl=setTimeout(function(){ hl.hidden=true; },4000);
+  }
   window.addEventListener("online",reseau); window.addEventListener("offline",reseau); reseau();
 })();
 /* ── L'AGENDA DU TÉLÉPHONE ────────────────────────────────────────────────
