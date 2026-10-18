@@ -8044,6 +8044,20 @@ var JOUR_EN_ABSENCE={"ds":"FORM"};
 /* « pris le 19.09 », « pris les 3 et 4.07 » — le commentaire dit que les
    heures de l'annotation ont été prises un autre jour. 26 journées. */
 var RX_PRIS_AILLEURS=/\bpris\w*\s+les?\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
+/* « POUR LE 16.10 » EN TÊTE DU COMMENTAIRE D'UN REPOS (le 18/10/2026, en
+   revérifiant tout l'horaire après VGG le 15/05). RDT le 13/10,
+   ["-","4h rhs","pour le 16.10"] : le 16/10 il part à 18 h ; CKS le 12/11,
+   ["-","4h RTT","pour 13/11"] : le 13/11 est une demi-journée de VA,
+   « remplacé par LHS ». Même sens que « pris le », mais seulement sur une
+   cellule franche vide ou « - » et en tête du commentaire : « remplace X
+   pour le … » au fil d'une journée travaillée ne renvoie rien. */
+var RX_POUR_LE=/^\s*pour\s+(?:le\s+)?(\d{1,2})\s*[.\/-]\s*(\d{1,2})\b/i;
+function prisAilleurs(e){
+  var com=String(e[2]||""), m=RX_PRIS_AILLEURS.exec(com);
+  if(m) return m;
+  var fr=String(e[0]||"").trim();
+  return (!fr || fr==="-") ? RX_POUR_LE.exec(com) : null;
+}
 /* « DS » EN CELLULE FRANCHE, ET LA PAUSE DANS LE COMMENTAIRE. JKS le 21/10
    (classeur du 28/09/2026) : ["DS","4h +FT","… présent à la DS prestera la
    pause N"]. C'est la même journée que son 17/06, ["DS + PM","4h +FT"] (voir
@@ -8262,7 +8276,7 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      où la cellule porte un vrai poste amputent, elles, des heures
      réellement prestées : elles attendent l'arbitrage du client, parce
      qu'y toucher changerait une fiche de paie. */
-  if(RX_PRIS_AILLEURS.test(e[2]||"")) A.abs=null;
+  if(prisAilleurs(e)) A.abs=null;
   [A,C].forEach(function(x){
     if(x.abs && !out.a){ out.a=x.abs; if(/\+\s*FT/i.test(x.abs)) ftPlus=true; }
     if(x.jour) jourPrime=x.jour;
@@ -9358,7 +9372,7 @@ function renvoisDuMois(person,mois,hJour){
     if(!Object.prototype.hasOwnProperty.call(person.d,mmdd)) continue;
     e=person.d[mmdd];
     if(!e || typeof e==="string" || e.length<3) continue;
-    m=RX_PRIS_AILLEURS.exec(e[2]||""); if(!m) continue;
+    m=prisAilleurs(e); if(!m) continue;
     if(Number(m[2])!==mois) continue;
     code=parseHoraireEntry(["",e[1]||""],hJour).a;
     /* « 2h rhs pris le 15.05 » (VGG, écrit le 16/05) : une reprise
@@ -9389,7 +9403,7 @@ function renvoisAffiches(person,mois){
     var annot=e[1]||"", com=e[2]||"";
     m=null;
     if(/\+\s*FT/i.test(annot)) m=com.match(RX_RENVOI);
-    if(!m){ m=RX_PRIS_AILLEURS.exec(com);
+    if(!m){ m=prisAilleurs(e);
       if(m){ var c=parseHoraireEntry(["",annot],hJ).a;
         if((!c||!ABSMAP[c]) && !/\d\s*h?\s*rhs\b/i.test(annot)) m=null; } }
     if(!m) continue;
@@ -9922,7 +9936,7 @@ function renvoisHeures(p,mois){
     if(!e || typeof e==="string" || e.length<3) continue;
     var com=String(e[2]||""), annot=String(e[1]||"");
     m=/\+\s*FT/i.test(annot)?com.match(RX_RENVOI):null;
-    if(!m) m=RX_PRIS_AILLEURS.exec(com);
+    if(!m) m=prisAilleurs(e);
     if(!m || Number(m[2])!==mois) continue;
     if(pad2(Number(m[2]))+pad2(Number(m[1]))===mmdd) continue;
     var bouts=com.match(/(?:arriv\S*|d\S{0,2}part)\s*(?:\u00e0|a)?\s*\d{1,2}\s*h\s*\d{0,2}/gi);

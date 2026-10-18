@@ -77,6 +77,8 @@ const MORCEAUX=[
   ["var HS_TRANCHEES=","};"],
   ["var JOUR_EN_ABSENCE=","\n"],
   ["var RX_PRIS_AILLEURS=","\n"],
+  ["var RX_POUR_LE=","\n"],
+  ["function prisAilleurs(","\n}"],
   ["function parseHoraireEntry(","\n}"],
   ["var CYCLES=[","];"],
   ["function cycleDuMois(","\n}"],

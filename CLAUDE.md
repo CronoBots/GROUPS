@@ -4835,7 +4835,20 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   `lectureAgenda()` de ce jour-là. Sept événements de 2026 changent, chacun
   lu contre sa cellule : VGG 15/05 6-12, ATR 21/01 fin à 12 h, CKS 27/06
   début à 7 h, CWN 26/06 fin à 20 h, FPA 19/09 début à 0 h, SVE nuit du
-  12/07 fin à 2 h, VBN 19/09 début à 16 h ;
+  12/07 fin à 2 h, VBN 19/09 début à 16 h. **Et VGG n'était pas seul** (le
+  client : « bizarre que cela ne concernait que VGG, tu es sûr ? ») :
+  relu tout l'horaire, les 29 « pris le » (10 RTT, 15 −FT, 3 VA, 1 RHS)
+  étaient bien comptés sauf la reprise de VGG, mais deux renvois s'écrivent
+  « pour le », que rien ne lisait. RDT le 13/10, ["-","4h rhs","pour le
+  16.10"] : le 16/10 il part à 18 h, 8 h payées comme travaillées ; CKS le
+  12/11, ["-","4h RTT","pour 13/11"] : le 13/11, ½ VA « remplacé par LHS »,
+  4 h travaillées alors qu'il n'est pas venu, et le RTT affiché le 12/11 sur
+  un repos. `RX_POUR_LE` et `prisAilleurs()` les lisent comme « pris le »,
+  mais seulement en tête du commentaire d'une cellule franche vide ou « - ».
+  RDT 16/10 : 4 h prestées et 4 h de récup. HS ; CKS 13/11 : 0 h, ½ VA et
+  4 h RTT, son agenda perd le matin du 13/11, et la fermentation de ce
+  matin-là passe de 2/1 à 1/1 (LHS la tient). Les manques, le Recyclage et
+  les compteurs sont identiques à l'octet ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse
@@ -7506,7 +7519,7 @@ l'année 269 → 268 places ; neuf règles, Recyclage et compteurs identiques
   (« en fermentation », « en meunerie remplace TCE »), sauf s'il doute
   (ALZ le 23/10, « …pour remplacer FPS? »). Trois journées de l'année, une
   seule change de place ; neuf règles, sous-effectifs, Recyclage et
-  compteurs identiques à l'octet ;
+  les compteurs sont identiques à l'octet ;
 - 21 et 22/10 N chaudières (équipe 2) : ADS en RJF, sans remplaçant
   écrit, alors que le gluten a quatre personnes pour deux ;
 - 12/11 N terrain arrière (équipe 1) : GDT en VA remplacé par BBZ, qui
