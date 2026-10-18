@@ -3934,8 +3934,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .cy-c.s-am{background:var(--cal-am)} .cy-c.s-pm{background:var(--cal-pm)} .cy-c.s-n{background:var(--cal-n)} .cy-c.s-d{background:var(--cal-d)}
 .cy-c.s-cg{background:transparent; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
 .cy-c.s-mal{background:repeating-linear-gradient(135deg,rgba(214,58,48,.55) 0 2px,transparent 2px 4px); box-shadow:inset 0 0 0 1.5px #E5574D}
-.cy-c.av{opacity:.42}
-.cy-c.auj{opacity:1; box-shadow:inset 0 0 0 2px #fff}
+.cy-c.auj{box-shadow:inset 0 0 0 2px #fff}
 .ry-an-sous{font-size:11.5px; color:var(--muted); margin-top:2px}
 .ry-an-bar{height:8px; border-radius:99px; background:var(--surface3); overflow:hidden; margin-top:4px}
 .ry-an-bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--in))}
@@ -12248,7 +12247,11 @@ function ryCycleHTML(p,c,titre,prochain){
     else { cl="s-rep"; ti="Repos"; }
     var t=d.getTime();
     if(pres){ if(t<t0) fait++; else avenir++; }
-    cases+='<span class="cy-c '+cl+(t>t0&&!prochain?' av':'')+(t===t0?' auj':'')+'" title="'+esc(JOURS_LONGS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
+    /* PLUS DE JOURS À VENIR ESTOMPÉS (le client, le 19/10/2026 : « le cycle
+       actuel n'est pas bien visible comme le prochain cycle ») : au premier
+       jour d'un cycle, tout était pâle. Les deux cycles se lisent en pleine
+       couleur ; le jour cerclé et la semaine encadrée disent où l'on en est. */
+    cases+='<span class="cy-c '+cl+(t===t0?' auj':'')+'" title=""'+esc(JOURS_LONGS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
     if(i%7===6||i===c.L-1){ sem+='<span class="cy-s'+(!prochain&&Math.floor(i/7)===Math.floor(c.pos/7)?' cour':'')+'">'+cases+'</span>'; cases=""; }
   }
   var dm=function(d){ return d.getDate()+" "+MOIS_BREF[d.getMonth()]; };

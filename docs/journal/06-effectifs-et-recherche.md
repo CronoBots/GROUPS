@@ -1655,6 +1655,19 @@ dans l'infobulle : plus aucune coupure. ATR : 2+2+2 badges de 150 px à
 390, 3+3 de 137 px au bureau ; FLN : 2+2+1. Vérificateur et fiches
 identiques à l'octet ; hors ligne.
 
+**Le cycle actuel en pleine couleur** (le client, le 19/10/2026 à 0 h 28,
+capture à l'appui : « le cycle actuel n'est pas bien visible comme le
+prochain cycle »), `nfdm-v827`. Les jours à venir du cycle actuel étaient
+estompés (`.cy-c.av`, opacité 0,42) ; au premier jour d'un cycle, tout
+l'était donc, à côté d'un prochain cycle en pleine couleur. Estomper les
+jours PASSÉS à la place aurait ramené le défaut en fin de cycle (à la
+semaine 6/6, la capture du matin se lisait bien parce que tout y était
+passé) : l'estompage part. Le jour cerclé de blanc et la semaine encadrée
+disent où l'on en est, et le texte dessous compte les jours prestés et à
+venir. Mesuré le 19/10 à 0 h 28 (heure simulée) : 0 case pâle sur 42
+(VBN, ATR) et sur 35 (LCI), un jour cerclé et une semaine encadrée par
+cycle actuel. Vérificateur et fiches identiques à l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
