@@ -5298,6 +5298,21 @@ function save(path,data,muet){
     else if(!quiet) flash("Enregistré sur cet appareil");
   },700);
 }
+/* L'écriture attend 700 ms ; quitter l'application avant (iPhone : on
+   balaie vers le haut juste après avoir coché le vélo) la perdait. Tout ce
+   qui attend s'écrit dès que la page se cache ou se ferme (le client, le
+   18/10/2026 : « mes ajouts manuels sont toujours annulés »). */
+function viderEcritures(){
+  Object.keys(pending).forEach(function(path){
+    clearTimeout(pending[path]); delete pending[path];
+    var data=DERNIER_ECRIT[path];
+    lsSet(path,data);
+    if(st.db){ try{ st.db.doc(path).set(JSON.parse(JSON.stringify(data))); }catch(e){} }
+  });
+}
+window.addEventListener("pagehide",viderEcritures);
+window.addEventListener("beforeunload",viderEcritures);
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden") viderEcritures(); });
 var flashT;
 /* LE RETOUR HAPTIQUE. Une impulsion de 8 ms au changement d'onglet, comme
    les applications natives. Android seulement : iOS n'expose pas le
