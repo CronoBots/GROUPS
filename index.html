@@ -6171,12 +6171,12 @@ function caseJour(d){
   /* Une cellule qui écrit les heures d'un AUTRE jour (« 2h +FT · cf 01/09 »)
      reste un repos, sans marque : la marque des heures modifiées va sur le
      jour qui les reçoit (rec.rvD), là où elles comptent. */
-  var epRepos=!!(!preste && !rec.s && rec.rvS);
+  var epRepos=!!(!preste && rec.rvS);
   var tag=epRepos?"":preste?marqueDoute(rec,(rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
   if(!preste&&!epRepos&&rec.a&&ABSMAP[rec.a]){ cls.push("abs"); if(ABSMAP[rec.a].k==="SMG") cls.push("mal"); }
-  if(prevu) cls.push("abs","prevu");
+  if(prevu&&!epRepos) cls.push("abs","prevu");
   if(preste&&(rec.j||rec.sp)) cls.push("jour");
   if(fer) cls.push("fer");
   if(auj) cls.push("auj");
@@ -6236,7 +6236,7 @@ function legendeMois(){
   for(d=1; d<=nd; d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
-    var epR=!!(!preste && !rec.s && rec.rvS);
+    var epR=!!(!preste && rec.rvS);
     if(rec.rvD&&rec.rvD.length) part=true;
     if(preste) vus[rec.j?"D":rec.s]=1;
     else if(epR){}
@@ -9380,8 +9380,17 @@ function renvoisAffiches(person,mois){
     if(!m) continue;
     var jd=pad2(Number(m[1]))+"/"+pad2(Number(m[2])), js=mmdd.slice(2)+"/"+mmdd.slice(0,2);
     if(js===jd) continue;
-    if(Number(m[2])===mois){ d=Number(m[1]); (cible[d]=cible[d]||[]).push(annot.trim()+" · écrites au "+js); }
-    if(Number(mmdd.slice(0,2))===mois) source[Number(mmdd.slice(2))]=jd;
+    /* les heures que le commentaire attribue (« +4h +FT cf 08/03 ») passent
+       avant celles de l'annotation, qui peut porter aussi celles du jour */
+    var hc=com.match(/\+?\s*(\d+(?:[.,]\d+)?)\s*h\s*\+\s*FT/i);
+    var quoi=hc?(hc[1]+"h +FT"):annot.trim();
+    if(Number(m[2])===mois){ d=Number(m[1]); (cible[d]=cible[d]||[]).push(quoi+" · écrites au "+js); }
+    /* la cellule source ne devient un repos à l'écran que si sa cellule
+       franche en est un (« - ») : JBS le 21/12, ["PM","8h +FT","cf 20/12 …"],
+       et ATA le 16/03, « 06h-18h », ont bien travaillé ce jour-là */
+    var franche=(e[0]||"").trim();
+    if(Number(mmdd.slice(0,2))===mois && (!franche || franche==="-"))
+      source[Number(mmdd.slice(2))]=jd;
   }
   return {cible:cible, source:source};
 }

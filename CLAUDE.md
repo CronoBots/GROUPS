@@ -4810,7 +4810,19 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   les mêmes motifs : le point va sur le jour qui reçoit les heures, la
   feuille de ce jour écrit « Heures de cette journée : 2h +FT · écrites au
   02/09 », et celle du 02/09 « Ces heures comptent le 01/09 » (`rvD`,
-  `rvS`, effacés avec les autres champs du pré-remplissage) ;
+  `rvS`, effacés avec les autres champs du pré-remplissage). **Mesuré pour
+  tout le monde** (le client : « cela est bon pour tout le monde ? ») : 86
+  renvois chez 28 personnes, relus au navigateur un par un. 85 jours qui
+  reçoivent des heures portent le point. La cellule source ne devient un
+  repos que si sa cellule franche est « - » : JBS le 21/12
+  (« PM · 8h +FT · cf 20/12 ») et ATA le 16/03 (« 06h-18h ») ont travaillé
+  ce jour-là, et une première version les montrait en repos. Les heures
+  affichées sont celles que le commentaire nomme (« +4h +FT cf 08/03 »),
+  sinon celles de l'annotation. Un seul jour n'a pas le point, le 15/05 de
+  VGG : le 16/05 écrit
+  « 2h rhs pris le 15.05 départ à 12h », que le calcul ne lit pas
+  (`renvoisDuMois()` n'accepte que les codes du barème) — l'écart connu du
+  29/09, dont la réponse est en fait écrite dans le classeur ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse
