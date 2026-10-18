@@ -4614,6 +4614,13 @@ elles s'arrêtaient au bord du mois). Éprouvé au toucher simulé à 320 px
 (hors ligne), 390 et 1280 px : 01/10 → 02/10 → 30/09, un glissement court ou
 en biais ne change rien, rien ne déborde. Vérificateur identique à l'octet.
 
+**Plus de flou derrière les fenêtres** (le client, le 18/10/2026 : « diminuer
+le flou dans le haut de l'écran »). La feuille d'une journée et la fenêtre de
+confirmation posaient un voile sombre ET un flou (`backdrop-filter:blur(2px)`)
+sur la page restée visible au-dessus d'elles. Le flou est retiré, le voile
+reste : la page dessous est nette et assombrie. Vérifié à 320 px (hors ligne),
+390 et 1280 px, feuille du 01/10 ouverte ; vérificateur identique à l'octet.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
