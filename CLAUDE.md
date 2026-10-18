@@ -4674,6 +4674,15 @@ La marque « AM non presté » est partie de `legendeMois()` avec sa variable.
 Affichage seulement : vérificateur identique à l'octet ; vérifié à 320 px
 (hors ligne), 390 et 1280 px, rien ne déborde.
 
+Puis, le même jour (le client : « des fines bordures sur les pauses comme
+sur les congés, et le commentaire avec le triangle rouge en haut à droite
+comme Excel ») : chaque journée de pause a un filet de 1 px à la couleur de
+sa pause, et son badge un liseré clair comme celui du congé ; le triangle
+du commentaire passe en rouge dans le coin haut droit, et les points
+(vélo, rappel, heures modifiées) en haut à gauche. Affichage seulement ;
+vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 et
+1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
