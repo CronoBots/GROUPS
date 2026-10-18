@@ -4565,6 +4565,25 @@ total dit « 1,5 jours restants, soit 12 h », chaque congé « 12 h
 restantes ». Vérificateur identique à l'octet ; vérifié sur VBN, LCI, ATA
 et SMA à 320 px (hors ligne), 390 et 1280 px.
 
+**Passe complète de l'Accueil** (le client, le 18/10/2026 : « Optimisation
+acceuil ? »). Photographié à 320 px (hors ligne), 390 et 1280 px sur VBN, LCI
+et SKS. Défauts relevés et corrigés :
+- au bureau, dans « Mes compteurs », la seconde colonne commençait par un
+  filet et pas la première (Formation sous un trait, Maladie sans) : chaque
+  colonne commence désormais par le sien ;
+- le détail d'une rangée (« 56 h placées sur 68 h ») commençait sous
+  l'étiquette du code, et non sous le nom : il s'aligne sous le nom, sauf
+  sous 380 px où il reprend la largeur ; un chiffre et son unité ne se
+  séparent plus (« −55 / h » à 320 px) ;
+- dans la frise du cycle, la case du jour débordait de la frise (anneau
+  extérieur) : l'anneau est intérieur ;
+- le pourcentage de « Mon année » était en chasse fixe (« 75 % » espacé) :
+  police du texte.
+Reste, et pourquoi : le bouton de retour en haut passe sur la valeur de
+droite d'une rangée quand on descend (il s'efface en haut de page, à 55 %
+d'opacité) ; les déplacer tous deux serait un autre chantier. Aucun calcul
+touché : vérificateur identique à l'octet.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
