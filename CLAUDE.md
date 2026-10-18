@@ -4787,6 +4787,12 @@ de pause de chaque case (`data-k`, `data-mck`), un rang ne tenant plus
 quand une case en couvre deux. Affichage seulement ; vérificateur identique
 à l'octet ; vérifié à 320 px (hors ligne), 390 et 1280 px. **À l'essai** :
 le client dira s'il garde.
+Puis (le client : « go » sur deux retouches) : un trait fin en pointillé
+marque, dans la case fusionnée, la limite de chaque pause (14 h, 22 h), et
+la pause du moment y garde son voile, posé derrière les barres sur sa seule
+part de la case (`.eqfus-sep`, `.eqfus-maint`) ; la case entière n'est
+plus voilée. Vérifié le 27/01 à 15 h (PM voilé) et le 13/10, à 320 px (hors
+ligne), 390 et 1280 px ; vérificateur identique à l'octet.
 
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils

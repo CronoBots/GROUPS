@@ -3271,7 +3271,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    voisines (le client, le 18/10/2026 : « si 2 personnes font 12 h sur 3
    pauses pour combler un poste, est-ce possible de fusionner les
    cellules ? »). Une barre par personne, longue de ses heures. */
-.eqhote .eqp2 td.fusion{padding:4px 4px}
+.eqhote .eqp2 td.fusion{padding:4px 4px; position:relative}
+/* Les limites de pause restent lisibles dans la case fusionnée (un trait
+   fin à 14 h, à 22 h), et la pause du moment y garde son voile, posé
+   derrière les barres plutôt que sur toute la case. */
+.eqhote .eqp2[data-mck] tr>td.fusion{box-shadow:none}
+.eqfus-sep{position:absolute; top:0; bottom:0; width:0; border-left:1px dashed var(--trait-fort); pointer-events:none}
+.eqfus-maint{position:absolute; top:0; bottom:0; background:var(--maint); pointer-events:none}
+.eqfus{position:relative; z-index:1}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:1px; padding:3px 4px; border-radius:6px; border:1px dashed var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
@@ -14128,7 +14135,12 @@ function renderEquipe(){
             +' title="'+esc(fonctionPersonne(rl.p))+" · tient le poste de "+esc(hhF(a)+" à "+hhF(b))+" (sa journée : "+esc(hhF(rl.A)+"-"+hhF(rl.B))+')">'
             +'<b>'+esc(idLisible(rl.p.id))+'</b><small>'+esc(hor)+'</small></span>';
         }).join("");
-        return '<td class="fusion" colspan="'+grp.length+'" data-k="'+grp.join(" ")+'"><div class="eqfus">'+segs+'</div></td>';
+        var n=grp.length, fond="";
+        grp.forEach(function(k,i){
+          if(i) fond+='<i class="eqfus-sep" style="left:'+(100*i/n)+'%"></i>';
+          if(k===mck) fond+='<i class="eqfus-maint" style="left:'+(100*i/n)+'%;width:'+(100/n)+'%"></i>';
+        });
+        return '<td class="fusion" colspan="'+n+'" data-k="'+grp.join(" ")+'">'+fond+'<div class="eqfus">'+segs+'</div></td>';
       }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
