@@ -1136,6 +1136,11 @@ body{overflow-x:clip}
 .sheet-nav:hover,.sheet-fermer:hover{color:var(--ink); border-color:var(--in2)}
 .sheet-src{margin:0; padding:10px 16px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
 .sheet-src[hidden]{display:none}
+.sheet-main{display:flex; align-items:center; gap:10px; padding:10px 16px; font-size:12.5px; color:var(--ink2); background:color-mix(in srgb,var(--at-jaune,#E0B000) 12%,var(--surface2)); border-bottom:1px solid var(--line2)}
+.sheet-main[hidden]{display:none}
+.sheet-main span{flex:1; min-width:0}
+.sheet-main b{font-family:"IBM Plex Mono",monospace}
+.sheet-main button{flex:none; min-height:36px; padding:0 12px; border-radius:10px; border:1px solid var(--cadre,var(--line2)); background:var(--surface); color:var(--ink); font:inherit; font-weight:650; cursor:pointer}
 .sheet-src b{font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
 .sheet-src .com{display:block; margin-top:3px; color:var(--faint); font-style:italic}
 .sheet-boite .day{border-bottom:0; padding:14px 16px}
@@ -4829,6 +4834,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
     </header>
     <p class="sheet-src" id="sheetSrc"></p>
+    <div class="sheet-main" id="sheetMain" hidden></div>
     <div class="rota" id="rota"></div>
     <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">Un bouton pose le poste, le menu pose un congé ou une maladie. Le champ <b>Heures</b> se corrige pour une journée plus courte ou plus longue que d'habitude. Pour des heures prestées <b>en plus</b> de l'horaire normal, choisissez un code <b>HS</b> dans le menu : elles sont payées avec le supplément légal et la prime d'équipe majorée d'un cran. Le flex time (<b>+FT</b> / <b>−FT</b>) compense en temps, sans supplément. Une journée corrigée ici n'est plus retouchée par l'horaire d'équipe.</p></details>
   </div>
@@ -6244,6 +6250,35 @@ function majFeuille(){
       +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
     src.hidden=false;
   } else { src.hidden=true; }
+  majJourMain(d);
+}
+/* UNE JOURNÉE CORRIGÉE À LA MAIN N'EST PLUS RETOUCHÉE PAR L'HORAIRE, et elle
+   le reste même quand le classeur ou une règle de lecture la change ensuite :
+   VBN le 30/09 gardait « N » sur son téléphone, alors que le classeur lu
+   depuis le 14/10/2026 dit AM (le client, le 18/10/2026 : « pourquoi le 30 je
+   suis en nuit alors que non ? »). La feuille le dit désormais, avec ce que
+   dit le classeur, et un bouton pour le reprendre. */
+function majJourMain(d){
+  var hote=document.getElementById("sheetMain"); if(!hote) return;
+  hote.hidden=true; hote.innerHTML="";
+  var rec=st.month&&st.month.days[d];
+  if(!rec || rec.auto || !(rec.s||rec.a) || !st.personObj || !st.personDb) return;
+  var T={days:{}};
+  try{ remplirMois(st.personDb,st.personObj,st.y,st.m,T); }catch(e){ return; }
+  var c=T.days[d]||{};
+  if((rec.s||"")===(c.s||"") && (rec.a||"")===(c.a||"")) return;
+  var dit=[];
+  if(c.s) dit.push(c.s+" \u00b7 "+String(c.h===undefined?st.params.hJour:c.h).replace(".",",")+" h");
+  if(c.a) dit.push(c.a);
+  hote.innerHTML='<span>Corrigée à la main. Le classeur dit <b>'+esc(dit.join(" + ")||"repos")+'</b>.</span>'
+    +'<button type="button" id="sheetReprendre">Reprendre</button>';
+  hote.hidden=false;
+  document.getElementById("sheetReprendre").onclick=function(){
+    delete st.month.days[d];
+    remplirMois(st.personDb,st.personObj,st.y,st.m,st.month);
+    persistMonth(); refresh(); majFeuille();
+    flash("Journée reprise depuis le classeur");
+  };
 }
 /* ACCESSIBILITÉ DES MODALES. Les deux boîtes de dialogue — la feuille du jour
    et l'accueil — sont HORS du <main> : on peut donc rendre le fond inerte
@@ -9528,20 +9563,20 @@ function prefillFromHoraire(){
        (horaireDe) ; une année avant lui ne se lit nulle part. */
     var dbA=horaireDe(st.y);
     if(!dbA){
-      prefillEnCours=false; st.personD=null; st.personCt=null;
+      prefillEnCours=false; st.personD=null; st.personCt=null; st.personObj=null;
       flash("L'horaire d'équipe commence en "+db.year+", pas en "+st.y);
       return;
     }
     if(dbA!==db){
       person=dbA.people.filter(function(p){return p.id===id;})[0];
       if(!person){
-        prefillEnCours=false; st.personD=null; st.personCt=null;
+        prefillEnCours=false; st.personD=null; st.personCt=null; st.personObj=null;
         flash("Pas de cycle à prolonger pour "+id+" en "+st.y+" : le classeur "+st.y+" le dira");
         return;
       }
       db=dbA;
     }
-    st.personD=person.d;
+    st.personD=person.d; st.personObj=person; st.personDb=db;
     st.personCt=person.ct||null;
     var mois=[]; for(var i=0;i<12;i++) mois.push(i);
     Promise.all(mois.map(function(i){ return readMonth(key(st.y,i)); }))
