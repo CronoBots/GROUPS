@@ -4736,6 +4736,16 @@ samedi et le dimanche gardent en plus leur tuile légère. Les cases avant
 le 1er et après le dernier jour restent vides. Vérifié à 320 px (hors
 ligne), 390 et 1280 px.
 
+**Le texte des pauses en blanc partout** (le client, le 18/10/2026 :
+« AM et PM sont en noir, il y a une raison ? »). Oui : sur l'orange
+(#C68128) et le turquoise (#229B97) du thème sombre, le blanc ne tenait
+qu'à 3,2 et 3,4:1, d'où une encre sombre. Les deux fonds s'assombrissent
+d'un cran (#B5721F, #1E8C88) et toutes les pauses s'écrivent en blanc
+(3,9 et 4,1:1, en gras). Les couleurs servent partout (calendrier,
+Planning, graphiques) : la teinte ne change pas, seule la clarté baisse.
+Vérificateur identique à l'octet ; vérifié à 320 px (hors ligne), 390 et
+1280 px.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
