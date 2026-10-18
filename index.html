@@ -1164,6 +1164,7 @@ body{overflow-x:clip}
 .day.lu .shifts button:disabled:not([aria-pressed="true"]){opacity:.45}
 .sheet-src b{font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
 .sheet-src .com{display:block; margin-top:3px; color:var(--faint); font-style:italic}
+.sheet-src .rv{display:block; margin-top:6px; padding:5px 8px; border-left:2px solid var(--in); background:color-mix(in srgb,var(--in) 8%,transparent); border-radius:0 6px 6px 0; color:var(--ink2); font-style:normal}
 .sheet-boite .day{border-bottom:0; padding:14px 16px}
 /* Dans la feuille, la date est déjà dans le titre et le code presté dans la
    ligne d'horaire juste au-dessus : la répéter volerait la place des
@@ -6167,10 +6168,10 @@ function caseJour(d){
      journées de l'année dans ce cas. Le poste prévu s'affiche donc barré :
      ce qui était au programme, et qui n'a pas eu lieu. */
   var prevu=(!preste && rec.s && !(rec.a&&ABSMAP[rec.a]));
-  /* Un « +FT » sur un repos sans heure prestée est un renvoi (« cf 01/09 ») :
-     les heures appartiennent à un autre jour. Ce n'est pas un congé, la case
-     reste un repos, avec la marque des heures modifiées. */
-  var epRepos=(!preste && !rec.s && rec.a && /\+\s*FT$/i.test(rec.a));
+  /* Une cellule qui écrit les heures d'un AUTRE jour (« 2h +FT · cf 01/09 »)
+     reste un repos, sans marque : la marque des heures modifiées va sur le
+     jour qui les reçoit (rec.rvD), là où elles comptent. */
+  var epRepos=!!(!preste && !rec.s && rec.rvS);
   var tag=epRepos?"":preste?marqueDoute(rec,(rec.j?etiqJour(rec.j):postePeint(rec)))
                :(rec.a&&ABSMAP[rec.a]?etiqAbsence(rec.a):(prevu?rec.s:""));
   var cls=["mc-j"];
@@ -6189,7 +6190,8 @@ function caseJour(d){
   var marques="";
   if(rec.v) marques+='<i class="mc-velo" title="Vélo"></i>';
   if(rec.r) marques+='<i class="mc-rap" title="Prime de rappel"></i>';
-  if((preste||epRepos)&&rec.a) marques+='<i class="mc-part" title="'+esc(rec.a)+'"></i>';
+  if((preste&&rec.a)||(rec.rvD&&rec.rvD.length))
+    marques+='<i class="mc-part" title="'+esc([preste&&rec.a?rec.a:""].concat(rec.rvD||[]).filter(Boolean).join(" ; "))+'"></i>';
   return '<button type="button" class="'+cls.join(" ")+'" data-d="'+d+'"'+pr
     +(preste?' data-s="'+esc(postePeint(rec))+'"':"")
     +' aria-label="'+d+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
@@ -6234,9 +6236,10 @@ function legendeMois(){
   for(d=1; d<=nd; d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
-    var epR=(!preste && !rec.s && rec.a && /\+\s*FT$/i.test(rec.a));
+    var epR=!!(!preste && !rec.s && rec.rvS);
+    if(rec.rvD&&rec.rvD.length) part=true;
     if(preste) vus[rec.j?"D":rec.s]=1;
-    else if(epR) part=true;
+    else if(epR){}
     else if(rec.a&&ABSMAP[rec.a]){ if(ABSMAP[rec.a].k==="SMG") mal=true; else abs=true; }
     else if(rec.s) prevu=true;
     if(preste&&rec.j) jour=true;
@@ -6273,16 +6276,23 @@ function majFeuille(){
      veut sous les yeux au moment de contredire ce qu'elle a produit. */
   var src=document.getElementById("sheetSrc");
   var raw=st.personD?st.personD[pad2(st.m+1)+pad2(d)]:null;
+  var rj=st.month.days[d]||{}, h="";
   if(raw && (raw[0]||raw[1]||raw[2])){
     var bouts=[];
     if(raw[0]) bouts.push('<b>'+esc(raw[0])+'</b>');
     if(raw[1]) bouts.push(esc(raw[1]));
     /* le commentaire est une phrase, pas un champ : il va à la ligne, et le
        séparateur qui le précédait laissait un point suspendu */
-    src.innerHTML="Horaire d'équipe : "+(bouts.length?bouts.join(" · "):"—")
+    h="Horaire d'équipe : "+(bouts.length?bouts.join(" · "):"—")
       +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
-    src.hidden=false;
-  } else { src.hidden=true; }
+  }
+  /* les heures qu'une autre cellule écrit pour ce jour, et l'inverse
+     (renvoisAffiches(), le 18/10/2026) */
+  if(rj.rvD&&rj.rvD.length)
+    h+='<span class="rv">Heures de cette journée : '+rj.rvD.map(esc).join(" ; ")+'</span>';
+  if(rj.rvS && !(heuresJour(rj)>0))
+    h+='<span class="rv">Ces heures comptent le '+esc(rj.rvS)+'.</span>';
+  src.innerHTML=h; src.hidden=!h;
 }
 /* ACCESSIBILITÉ DES MODALES. Les deux boîtes de dialogue — la feuille du jour
    et l'accueil — sont HORS du <main> : on peut donc rendre le fond inerte
@@ -9349,6 +9359,32 @@ function renvoisDuMois(person,mois,hJour){
   }
   return out;
 }
+/* LES HEURES ÉCRITES SUR UN AUTRE JOUR (le client, le 18/10/2026 : « les
+   heures modifiées avec commentaire pour d'autres cellules ne devraient-elles
+   pas être dans la cellule du jour en question ? »). VBN le 02/09,
+   ["-","2h +FT","cf 01/09"] : les 2 h sont celles de la nuit du 01/09.
+   epargnesDuMois() et renvoisDuMois() les comptent déjà sur le bon jour ;
+   celle-ci ne fait que le DIRE, pour l'affichage : quel jour reçoit, depuis
+   quelle cellule, et quoi. Mêmes motifs, mêmes conditions. */
+function renvoisAffiches(person,mois){
+  var cible={}, source={}, mmdd, e, m, d, hJ=st.params.hJour;
+  for(mmdd in person.d){
+    if(!Object.prototype.hasOwnProperty.call(person.d,mmdd)) continue;
+    e=person.d[mmdd];
+    if(!e || typeof e==="string" || e.length<3) continue;
+    var annot=e[1]||"", com=e[2]||"";
+    m=null;
+    if(/\+\s*FT/i.test(annot)) m=com.match(RX_RENVOI);
+    if(!m){ m=RX_PRIS_AILLEURS.exec(com);
+      if(m){ var c=parseHoraireEntry(["",annot],hJ).a; if(!c||!ABSMAP[c]) m=null; } }
+    if(!m) continue;
+    var jd=pad2(Number(m[1]))+"/"+pad2(Number(m[2])), js=mmdd.slice(2)+"/"+mmdd.slice(0,2);
+    if(js===jd) continue;
+    if(Number(m[2])===mois){ d=Number(m[1]); (cible[d]=cible[d]||[]).push(annot.trim()+" · écrites au "+js); }
+    if(Number(mmdd.slice(0,2))===mois) source[Number(mmdd.slice(2))]=jd;
+  }
+  return {cible:cible, source:source};
+}
 function epargnesDuMois(person,mois){
   var out={};
   for(var d=1; d<=31; d++){
@@ -9372,6 +9408,7 @@ function remplirMois(db,person,y,m,M){
   var epargnes=epargnesDuMois(person,m+1);
   var renvois=renvoisDuMois(person,m+1,st.params.hJour);
   var fitCycle=cycleDuMois(person,y,m+1);
+  var rvAff; try{ rvAff=renvoisAffiches(person,m+1); }catch(e){ rvAff={cible:{},source:{}}; }
   for(var day=1; day<=nd; day++){
     var rec=M.days[day];
     /* « déjà encodé » ne veut dire quelque chose que si c'est la MAIN qui a
@@ -9431,6 +9468,10 @@ function remplirMois(db,person,y,m,M){
          le mois relit ce qui a été écrit ici, et les deux doivent montrer
          la même étiquette — c'est la règle « vues en désaccord ». */
       if(parsed.doute) nrec.q=1; else delete nrec.q;
+      /* heures écrites ailleurs (rvD), ou cellule qui écrit celles d'un
+         autre jour (rvS) : affichage seulement, voir renvoisAffiches() */
+      if(rvAff.cible[day]) nrec.rvD=rvAff.cible[day]; else delete nrec.rvD;
+      if(rvAff.source[day]) nrec.rvS=rvAff.source[day]; else delete nrec.rvS;
       if(rap) { nrec.r=rap; bilan.rappels++; } else delete nrec.r;
       var rap2=rap?secondRappel(raw,y,mmdd):null;
       if(rap2) nrec.r2=rap2; else delete nrec.r2;
@@ -9458,7 +9499,7 @@ function remplirMois(db,person,y,m,M){
          LCI héritait des trois heures sup d'AFA, sursalaire et prime
          compris. Changer de personne, ou recevoir un classeur qui change
          une journée en repos, suffisait. */
-      var CHAMPS_AUTO=["s","h","a","r","r2","ax","hsp","rs","rh","j","sp","q","hc","hcp"], vu=false, ci;
+      var CHAMPS_AUTO=["s","h","a","r","r2","ax","hsp","rs","rh","j","sp","q","hc","hcp","rvD","rvS"], vu=false, ci;
       if(rec){
         for(ci=0; ci<CHAMPS_AUTO.length; ci++){
           if(rec[CHAMPS_AUTO[ci]]!==undefined){ delete rec[CHAMPS_AUTO[ci]]; vu=true; }

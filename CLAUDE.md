@@ -4800,8 +4800,17 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   prime conservée ;
 - un « +FT » sur un repos sans heure prestée (VBN le 02/09, « 2h +FT · cf
   01/09 ») s'affichait comme un congé « 2+FT » : c'est un renvoi, les heures
-  sont celles d'un autre jour. La case reste un repos, avec le point des
-  heures modifiées (affichage seulement, comme l'agenda depuis le 13/10) ;
+  sont celles d'un autre jour. La case reste un repos (affichage seulement,
+  comme l'agenda depuis le 13/10). **Le point des heures modifiées y est
+  d'abord resté, et c'était le mauvais jour** (le client, le même jour :
+  « les heures modifiées avec commentaire pour d'autres cellules ne
+  devraient-elles pas être dans la cellule du jour en question ? »). Le
+  calcul les comptait déjà sur le 01/09 (`epargnesDuMois()`,
+  `renvoisDuMois()`) ; `renvoisAffiches()` le dit désormais à l'écran, avec
+  les mêmes motifs : le point va sur le jour qui reçoit les heures, la
+  feuille de ce jour écrit « Heures de cette journée : 2h +FT · écrites au
+  02/09 », et celle du 02/09 « Ces heures comptent le 01/09 » (`rvD`,
+  `rvS`, effacés avec les autres champs du pré-remplissage) ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse
