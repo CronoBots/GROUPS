@@ -1509,6 +1509,45 @@ hors ligne. Le vérificateur (calendrier, manques, polyvalence, compteurs) et
 `comparer-fiches.py VBN` sortent identiques à l'octet avant et après.
 Vérifié à 320, 390 et 1280 px, sans débordement ni erreur.
 
+Le même soir (le client, capture du téléphone à l'appui : « les boutons mois
+année doivent prendre la largeur du cadre et en année le background et les
+flèches de sélection sont décalés ; il faut aussi empêcher d'aller avant
+2026 »), `nfdm-v822` :
+- **le décalage** : la classe `annee` posée sur `#calCard` rencontrait
+  `.annee{padding:0 16px 16px}`, reste CSS de la vue année retirée le
+  07/10, qu'aucun élément ne portait plus. La barre et la grille
+  rentraient de 12 px de chaque côté (372 px au lieu de 396 à 430 px). La
+  classe devient `vue-an`, et les 75 lignes mortes (`.annee`,
+  `.mois .jours`) partent. Mesuré : 396 px dans les deux modes. **Erreur
+  commise** : la v821 avait été vérifiée par débordements et troncatures,
+  qui ne voient pas un retrait intérieur. Il fallait comparer les boîtes
+  des deux modes ;
+- **la bascule** prend la largeur du cadre, alignée sur les flèches
+  (344 px à 430). Au bureau, elle garde 420 px, au centre : étirée sur
+  1 100 px, elle ne se lisait plus comme un choix ;
+- **pas avant 2026** (`AN_MIN`) : la flèche ‹ s'éteint en janvier 2026
+  (en Mois) ou en 2026 (en Année), aussi dans l'onglet Salaire, qui
+  partage la barre. Le glissement bute au même endroit, le sélecteur
+  refuse un mois de 2025 (`min`), et la feuille du 1er janvier ne recule
+  plus. Éprouvé : le glissement mord (janvier → février → janvier), puis
+  ne descend pas plus bas ; en Année, 2026 → 2027 → 2026, et pas en deçà ;
+- **un vrai défaut trouvé en vérifiant** : ouverte directement en Année sur
+  un appareil neuf, la vue n'avait de codes que pour le mois en cours (22
+  sur 271). Le pré-remplissage écrit les douze mois par `save()`, qui
+  attend 700 ms, et `renderAnnee()` les relisait avant. Le premier test de
+  la v821 partait du mode Mois et basculait après quatre secondes : il ne
+  pouvait pas le voir. La vue prend désormais la version en attente
+  (`pending` / `DERNIER_ECRIT`) : 271 codes dès 1,5 s ;
+- **passe complète de l'Accueil** (320, 390, 1280 px, bloc par bloc) : la
+  frise « Jour par jour » de « Mon rythme » restait collée à gauche au
+  bureau, sous une légende centrée ; elle est centrée (124 px de chaque
+  côté). Rien d'autre ne déborde ni n'est tronqué, et aucune erreur.
+  Reste, volontairement : la frise « Jour par jour » recoupe la vue Année,
+  mais elle donne l'année sur un seul écran, là où la vue Année en demande
+  dix sur un téléphone ; et les deux colonnes de « Mes compteurs » au
+  bureau finissent à 40 px l'une de l'autre, ce qui tient au nombre de
+  lignes de chacune.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
