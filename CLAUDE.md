@@ -4827,9 +4827,15 @@ capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
   désormais « RHS@n » pour une reprise d'heures sup renvoyée, et
   `lireJournee()` la lit comme le « +Nh rhs » d'un commentaire : le 15/05
   passe de 8 h à 6 h prestées et 2 h de récup. HS, la feuille le dit. Seule
-  journée de l'année de cette forme ; les cinq sorties du vérificateur et
-  les agendas sont identiques à l'octet (l'agenda garde 6-14, le départ
-  étant écrit sur l'autre case) ;
+  journée de l'année de cette forme ; les cinq sorties du vérificateur sont
+  identiques à l'octet. **L'agenda gardait 6-14**, le départ étant écrit sur
+  l'autre case ; le client : « les agendas doivent être corrects aussi ».
+  `renvoisHeures()` passe les « arrivée à » et « départ à » d'une cellule
+  qui renvoie à un autre jour (mêmes motifs que `renvoisDuMois()`) à
+  `lectureAgenda()` de ce jour-là. Sept événements de 2026 changent, chacun
+  lu contre sa cellule : VGG 15/05 6-12, ATR 21/01 fin à 12 h, CKS 27/06
+  début à 7 h, CWN 26/06 fin à 20 h, FPA 19/09 début à 0 h, SVE nuit du
+  12/07 fin à 2 h, VBN 19/09 début à 16 h ;
 - « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
   resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
 - les chiffres du bilan et le flex du mois quittent la police à chasse

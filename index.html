@@ -9907,6 +9907,29 @@ function _pfJour(id,d){
    le congé, l'atelier écrit, le rappel. Le héros, l'export de l'agenda et
    les abonnements écrits par tools/verifier-calendrier.js --agendas la
    lisent tous : une seule lecture, découpée par l'outil. */
+/* L'HEURE D'ARRIVÉE OU DE DÉPART ÉCRITE SUR UN AUTRE JOUR (le client, le
+   18/10/2026 : « les agendas doivent être corrects aussi »). VGG le 16/05,
+   ["-","2h rhs","pris le 15.05 départ à 12h00' …"] : le départ est celui du
+   15/05. Mêmes motifs que renvoisDuMois() ; seuls les morceaux « arrivée à »
+   et « départ à » passent au jour nommé, mémoïsés par personne et par mois. */
+function renvoisHeures(p,mois){
+  var memo=p._rvH||(p._rvH={});
+  if(memo[mois]) return memo[mois];
+  var out={}, mmdd, e, m;
+  for(mmdd in p.d){
+    if(!Object.prototype.hasOwnProperty.call(p.d,mmdd)) continue;
+    e=p.d[mmdd];
+    if(!e || typeof e==="string" || e.length<3) continue;
+    var com=String(e[2]||""), annot=String(e[1]||"");
+    m=/\+\s*FT/i.test(annot)?com.match(RX_RENVOI):null;
+    if(!m) m=RX_PRIS_AILLEURS.exec(com);
+    if(!m || Number(m[2])!==mois) continue;
+    if(pad2(Number(m[2]))+pad2(Number(m[1]))===mmdd) continue;
+    var bouts=com.match(/(?:arriv\S*|d\S{0,2}part)\s*(?:\u00e0|a)?\s*\d{1,2}\s*h\s*\d{0,2}/gi);
+    if(bouts) out[Number(m[1])]=((out[Number(m[1])]||"")+" "+bouts.join(" ")).trim();
+  }
+  return (memo[mois]=out);
+}
 function lectureAgenda(db,p,an,m,j){
   var raw=p.d[pad2(m)+pad2(j)];
   if(raw===undefined) return null;
@@ -10023,6 +10046,8 @@ function lectureAgenda(db,p,an,m,j){
         else if(Math.abs(qb-d1)<0.01 && qb-qa<=4.01) hd=qa;
       }
     }
+    var rvH=(an===(db.year||an))?(renvoisHeures(p,m)[j]||""):"";
+    if(rvH) com=com+" "+rvH;
     var heureDe=function(rx,lo,hi){
       var m2=com.match(rx); if(!m2) return null;
       var v=Number(m2[1])+Number(m2[2]||0)/60;
