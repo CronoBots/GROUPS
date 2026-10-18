@@ -15,7 +15,9 @@ Le chemin, établi avec le client le 16/10/2026 :
   3. ce script lit le DERNIER de ces e-mails par IMAP, met le classeur dans
      un dossier temporaire HORS du dépôt, et lance `mettre-a-jour.py` : les
      huit portes, puis l'installation. Il pousse sur main, met les e-mails à
-     la corbeille et envoie au client le rapport de ce qui a bougé.
+     la corbeille et envoie au client le rapport de ce qui a bougé. Ses
+     rapports de plus de sept jours partent à la corbeille, le plus récent
+     excepté (`purger_rapports()`).
 
 CE QUI NE S'IMPRIME JAMAIS : le compte rendu des portes. Une porte fermée
 imprime son contexte, et le contexte d'une garantie d'anonymat qui s'est
@@ -110,6 +112,32 @@ def corbeille(imap, uids):
     for u in uids:
         imap.uid("store", u, "+X-GM-LABELS", "\\Trash")
     imap.expunge()
+
+
+GARDE_RAPPORTS = 7      # jours
+
+def purger_rapports(imap, moi, garde=GARDE_RAPPORTS):
+    """Les rapports du robot devenus obsolètes vont à la corbeille (le
+    client, le 18/10/2026 : « prévoir la suppression des mails une fois
+    qu'ils sont obsolètes »). Les e-mails du classeur y partent déjà dès
+    qu'ils sont lus ; restaient les rapports, envoyés à la même adresse et
+    jamais retirés. Un rapport de plus de `garde` jours est obsolète : un
+    classeur plus récent l'a remplacé, ou le dépôt et l'application disent
+    désormais la même chose. Le plus récent est TOUJOURS gardé, même vieux :
+    c'est le dernier état connu. Gmail vide sa corbeille après 30 jours.
+    Rend le nombre de rapports retirés."""
+    import datetime
+    limite = (datetime.date.today() - datetime.timedelta(days=garde))
+    avant = limite.strftime("%d-%b-%Y")      # format IMAP ; l'action tourne en locale C
+    typ, data = imap.uid("search", None, '(FROM "%s" SUBJECT "BIOWANZE")' % moi)
+    tous = sorted((data[0] or b"").split(), key=int)
+    typ, data = imap.uid("search", None,
+                         '(FROM "%s" SUBJECT "BIOWANZE" BEFORE %s)' % (moi, avant))
+    vieux = set((data[0] or b"").split())
+    retirer = [u for u in tous[:-1] if u in vieux]
+    if retirer:
+        corbeille(imap, retirer)
+    return len(retirer)
 
 
 def envoyer(user, mdp, sujet, corps):
@@ -488,6 +516,9 @@ def main():
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(user, mdp)
         imap.select("INBOX")
+        n = purger_rapports(imap, user)
+        if n:
+            etat("%d rapport(s) de plus de %d jours mis à la corbeille." % (n, GARDE_RAPPORTS))
         for genre, sujet, nom in (("horaire", SUJET, "Recapitulatif.xlsm"),
                                   ("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx")):
             source = os.path.join(tmp, nom)

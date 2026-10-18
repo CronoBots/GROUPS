@@ -562,6 +562,17 @@ portes fermées, classeurs arrivés. Aucun classeur n'est arrivé entre le
 16/10 à 16 h 46 et le 18/10 au soir (week-end : la tâche du PC virtuel ne
 copie qu'à l'ouverture de session).
 
+**Les e-mails obsolètes partent à la corbeille** (le client, le
+18/10/2026 : « prévoir la suppression des mails une fois qu'ils sont
+obsolètes »). Ceux qui portent un classeur y partaient déjà dès leur
+lecture ; les rapports du robot, envoyés à la même adresse, restaient.
+`purger_rapports()` met à la corbeille, à chaque passage, ceux de plus de
+sept jours, **le plus récent excepté** (dernier état connu) ; Gmail vide
+sa corbeille après 30 jours. Éprouvé sur une boîte simulée : quatre
+rapports dont trois vieux, les deux plus anciens retirés, le dernier gardé.
+Au 18/10, la boîte en porte cinq, tous du 16/10 : rien à retirer avant le
+23/10.
+
 **Deux refus de plus qu'à la main** : un horaire identique n'installe rien
 (pas même `V`), et une ARRIVÉE n'est installée que si son trigramme est dans
 `tools/arrivees-confirmees.txt` — on l'y ajoute quand le client a dit qui
