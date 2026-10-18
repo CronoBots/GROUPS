@@ -4693,6 +4693,26 @@ que la page se cache ou se ferme (`visibilitychange`, `pagehide`,
 `beforeunload`) : trois sur trois, rechargement immédiat ou non.
 Vérificateur identique à l'octet.
 
+**Quatrième passe complète de l'Accueil** (le client, le 18/10/2026 :
+« optimise au max pro 100 % »). Photographié à 320 px (hors ligne), 390 et
+1280 px sur VBN. Relevé et corrigé :
+- le héros donnait « Week-end libre · 17 oct. » le dimanche 18 : un
+  dimanche comptait comme le week-end en cours, déjà à moitié passé. Seul
+  un samedi ouvre désormais un week-end (24 oct.), et « Ce week-end »
+  s'écrit le samedi même ;
+- « Maladie et autres absences » devient « Maladie et formation » : chez
+  nous, absence veut dire maladie ;
+- « Récup. Jour férié » (intitulé du classeur) s'écrit « Récup. jour
+  férié » à l'écran (`libCompteur()`), comme « Récup. temps de travail » ;
+- les pastilles de pause du héros et de « Mes pauses » quittent la chasse
+  fixe pour la police des badges du calendrier ;
+- le point vélo d'un jour D, vert sur vert, passe en blanc ;
+- le bouton de retour en haut ne se montre plus qu'en REMONTANT, et
+  s'efface 2,2 s après le geste : en permanence, il couvrait la valeur de
+  droite des rangées des compteurs (l'écart connu depuis le 18/10).
+Reste, et pourquoi : rien de vu à ces trois largeurs. Vérificateur
+identique à l'octet ; rien ne déborde, aucune erreur.
+
 **Le binôme de l'équipe, en initiales** (le client, le 17/10/2026 : « dans le
 héros les opérateurs doivent voir leur équipe et le binôme avec qui ils
 tournent ; on se fout du numéro de binôme, le plus important ce sont les
