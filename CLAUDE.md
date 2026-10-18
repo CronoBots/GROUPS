@@ -4788,6 +4788,31 @@ reste à la main et survit au rechargement. Éprouvé à 320 px (hors ligne),
 vélo coché reste ; rien ne déborde. Neuf règles à zéro (aucune lecture
 touchée).
 
+**Le cadre du mois, repris case par case** (le client, le 18/10/2026,
+capture de septembre : « comment optimiser cela ? 100 % pro »). Relevé à
+320, 390 et 1280 px, puis corrigé en une fois :
+- le numéro du jour tombe au même endroit dans toutes les cases : le repos,
+  centré, décalait sa ligne ;
+- un code de plus de trois signes (« CPPT ») se resserre au lieu d'être
+  coupé par le bord de sa case à 320 et 390 px ;
+- les points (vélo, rappel, heures modifiées) passent dans le coin haut
+  droit : en bas, ils mordaient sur la pastille et sur le liseré de la
+  prime conservée ;
+- un « +FT » sur un repos sans heure prestée (VBN le 02/09, « 2h +FT · cf
+  01/09 ») s'affichait comme un congé « 2+FT » : c'est un renvoi, les heures
+  sont celles d'un autre jour. La case reste un repos, avec le point des
+  heures modifiées (affichage seulement, comme l'agenda depuis le 13/10) ;
+- « Heures en ± » devient « Heures modifiées » ; la légende est centrée et
+  resserrée sous 380 px (deux lignes à 320 px au lieu de trois) ;
+- les chiffres du bilan et le flex du mois quittent la police à chasse
+  fixe (« 0,5 » s'y lisait « 0 , 5 ») ; « +1  h » perd son espace double ;
+- au bureau, cases de 78 px et textes agrandis, qui flottaient dans des
+  cases de 260 px.
+Le 30/09 garde « CPPT » avec le liseré de la prime du matin : c'est la règle
+de toutes les journées à code de jour. Neuf règles à zéro (aucune lecture
+touchée) ; vérifié à 320 px (hors ligne), 390 et 1280 px, sans débordement
+ni erreur.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
