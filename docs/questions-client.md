@@ -11,23 +11,16 @@ des questions au client ».
 
 ## Au client
 
-1. **L'horaire affiché des journées à code sans heures** (`D-CPPT`,
-   `DS-CE`, `F` : une dizaine de présences d'ici la fin de l'année). La
-   prime est tranchée (19/10/2026 : celle de la pause qui devait être
-   prestée, sinon prime de jour). Reste l'heure de début et de fin au
-   Planning, dans l'agenda et à l'Accueil — aujourd'hui aucune. A :
-   7h30-16h ; B : l'horaire de la pause qui devait être prestée (le D de
-   la personne, 6h-14h ou 7h-15h, ou sa pause) ; C : aucune heure.
-2. **Les 51 matricules** de « Polyvalence » vivent dans le dépôt public,
+1. **Les 51 matricules** de « Polyvalence » vivent dans le dépôt public,
    à côté du trigramme. `CLAUDE.md` les tolère (« initiales ou
    matricule ») ; s'ils figurent sur les fiches de paie, ils relient le
    trigramme à la personne. Les retirer ?
-3. **Purger l'historique git public** (posée le 26/09/2026) : d'anciennes
+2. **Purger l'historique git public** (posée le 26/09/2026) : d'anciennes
    versions de `data/` portent encore des identifiants de connexion et
    quatre prénoms, et `verifier-depot.py --historique` signale des formes
    anciennes. Réécrire l'histoire d'un dépôt public est la décision du
    client ; la procédure est prête dans `docs/purge-historique.md`.
-4. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
+3. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
    25/09/2026, `docs/journal/08-verifications.md`) : les heures réellement
    faites, ou le solde du mois contractuel une fois les absences
    retirées ? Aucun montant n'en dépend (la ligne est une quantité, le

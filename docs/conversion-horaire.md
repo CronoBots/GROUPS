@@ -384,6 +384,17 @@ prime D du barème (« Prime équipe D — jour »), que l'application posait
 déjà dans ces deux cas : un repos au cycle sans journée de jour à ±35
 jours, ou un D dont les deux cellules ne disent pas le même horaire.
 
+**L'horaire affiché d'une journée à code** (19/10/2026). Le client :
+« les formations (F), les horaires sont affichés en commentaire, sinon
+reçus par mail, mais c'est souvent 07h30-16h si non précisé. Pour les CPPT
+et DS, c'est la règle que nous avions établie avant, mais oui, souvent
+07h-15h qui est fait. » `horaireJourCode()`, dans l'ordre : la plage de la
+cellule ou de l'annotation ; celle du commentaire (pas celle d'un
+« remplace X de … à … » ; pour un CPPT ou un DS, pas une heure de
+formation sous 3 h 30) ; une formation courte dans une pause écrite et non
+remplacée montre la pause ; à défaut 7h30-16h (formation) ou 7h-15h (CPPT,
+DS). La prime n'en dépend pas. SD26 et TP ne changent pas.
+
 **Une absence qui couvre la journée entière l'emporte** : `?DS|VA`,
 `?CP|?DS`, `?DS|RJF` restent des absences. On ne transforme pas un congé en
 prestation.

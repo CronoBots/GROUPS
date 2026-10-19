@@ -200,6 +200,7 @@ const MORCEAUX=[
   ["var _habDCache=","\n"],
   ["function horaireHabituelD(","\n}"],
   ["function renvoisHeures(","\n}"],
+  ["function horaireJourCode(","\n}"],
   ["function lectureAgenda(","\n}"],
   ["var ICS_TZ=","];"],
   ["var ICS_NOM=","\n"],

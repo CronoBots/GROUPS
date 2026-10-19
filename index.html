@@ -10610,6 +10610,43 @@ function renvoisHeures(p,mois){
   }
   return (memo[mois]=out);
 }
+/* L'HORAIRE D'UNE JOURNÉE À CODE SANS HEURE. Le client, le 19/10/2026 :
+   « les formations (F), les horaires sont affichés en commentaire, sinon
+   reçus par mail, mais c'est souvent 07h30-16h si non précisé. Pour les
+   CPPT et DS, c'est la règle que nous avions établie avant, mais oui,
+   souvent 07h-15h qui est fait. » La règle d'avant est celle de la PRIME
+   (la pause qui devait être prestée) ; l'horaire, lui, est celui qui est
+   fait. Dans l'ordre : une plage de journée écrite dans la cellule ou
+   l'annotation (« 6h-14h · D-CPPT », « 10h-18h · D-F »), puis celle du
+   commentaire, quelle que soit sa durée (« Anglais de 07h30 à 10h30 »,
+   « horaire 08h-12h ») ; à défaut 7h30-16h pour une formation, 7h-15h pour
+   un CPPT ou un DS. SD26, TP et le reste ne changent pas. */
+function horaireJourCode(p,raw,code){
+  var f=EST_FORMATION.test(String(code||"").replace(/-?(AM|PM|N)$/i,"")), ds=/DS|CPPT/i.test(String(code||""));
+  if(!f && !ds) return null;
+  var pl=plageMention(String(raw[1]||"").trim())||plageMention(String(raw[0]||"").trim());
+  if(pl && pl[1]-pl[0]>=4 && pl[1]-pl[0]<=12.5) return pl;
+  /* une formation courte DANS une pause écrite (« AM · F · Safety Days de
+     10h30 à 11h30 ») se suit pendant la pause : c'est la pause qu'on montre
+     (le client, le 22/09/2026 : « dans leurs heures de travail ») */
+  var pz=(f && !/remplac\S*\s+pa?r/i.test(String(raw[2]||"")))
+    ?(/^(AM|PM|N)\b/i.exec(String(raw[0]||"").trim())||[])[1]:null;
+  var rx=/(\d{1,2})\s*h\s*(?:à)?\s*(\d{2})?\s*['\u2019]?\s*(?:-|\u00e0|a)\s*(\d{1,2})\s*h\s*(\d{2})?/gi,
+      com=String(raw[2]||""), mc;
+  while((mc=rx.exec(com))){
+    /* « Remplace FPS de 12h à 14h », « rempl par ATR de 9h30 à 10h30 » :
+       l'horaire d'un remplacement, pas celui de la journée */
+    if(/rempla?c?\S*\s+(?:pa?r\s+)?[A-Z]{3}\s*(?:de\s*)?$/i.test(com.slice(0,mc.index))) continue;
+    var a=Number(mc[1])+Number(mc[2]||0)/60, b=Number(mc[3])+Number(mc[4]||0)/60;
+    if(b<=a) b+=24;
+    if(b-a<0.5 || b-a>12.5) continue;
+    /* une heure de formation un jour de CPPT ou de DS n'est pas la journée */
+    if(!f && b-a<3.5) continue;
+    if(pz && b-a<4){ pz=pz.toUpperCase(); return [PF_DEB[pz],PF_FIN[pz]]; }
+    return [a,b];
+  }
+  return f?[7.5,16]:[7,15];
+}
 function lectureAgenda(db,p,an,m,j){
   var raw=p.d[pad2(m)+pad2(j)];
   if(raw===undefined) return null;
@@ -10707,6 +10744,10 @@ function lectureAgenda(db,p,an,m,j){
     if(pv==="D" && hd==null && !r.jourCode){
       var habD=horaireHabituelD(p);
       if(habD && habD.a!=null){ hd=habD.a; hf=habD.b; }
+    }
+    if(pv==="D" && hd==null && r.jourCode){
+      var hjc=horaireJourCode(p,raw,r.jourCode);
+      if(hjc){ hd=hjc[0]; hf=hjc[1]; }
     }
     /* UNE PLAGE COLLÉE À LA PAUSE LA PROLONGE (le client, le 14/10/2026 :
        ATR le 31/10, ["chaudières","3h +FT","remplace PDF remplace FPA de
@@ -14289,6 +14330,8 @@ function renderEquipe(){
          passait AVANT l'horaire habituel ; la réponse du 14/10 inverse
          l'ordre. */
       var r0=String(raw[0]||"").trim(), r1=String(raw[1]||"").trim();
+      if(!lib && x.r && x.r.jourCode){ var hjc=horaireJourCode(x.p,raw,x.r.jourCode);
+        if(hjc) lib=hh(hjc[0])+"-"+hh(hjc[1]); }
       if(!lib){ var hab=horaireHabituelD(x.p); if(hab) lib=hab.lib; }
       if(!lib && !(x.r&&x.r.jourCode) && (/^d$/i.test(r1) || /^d$/i.test(r0))) lib="7-15";
       /* Sans parenthèses depuis le 28/09/2026 : dans l'étiquette, un
