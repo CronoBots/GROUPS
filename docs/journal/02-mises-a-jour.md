@@ -491,3 +491,17 @@ retiré de l'horaire installé revient comme arrivée (Opérateurs STEP),
 est confirmé d'office et installé ; VBN retiré revient comme arrivée chez
 les contremaîtres, et rien n'est installé.
 
+
+**« Avant je recevais la notification PWA »** (le client, le 19/10/2026).
+Ce qu'il recevait est la notification que l'APPLICATION affiche à son
+ouverture quand son horaire a changé (`notifierTelephone()`, par le
+service worker), et non le push du robot, qui n'a jamais été envoyé :
+`VAPID_PRIVATE_KEY` et `PUSH_CLE` sont vides depuis le 16/10 au moins
+(« secrets absents, rien envoyé » dans le journal du robot ce jour-là).
+Aucun horaire n'ayant été installé du 16/10 au 19/10 (porte 8 fermée le
+soir du 19), il n'y avait rien à annoncer. Éprouvé au navigateur après
+les changements du jour (`jourPerso()` dans `renderNotif()`) : ouverture
+sur l'horaire du 16/10, puis sur celui du 19/10 → « Mise à jour de votre
+horaire · VBN — Dimanche 1 novembre : PM → N (« Échange avec FLI ») ».
+Piège du test : Chromium sans écran laisse la permission à « denied »
+malgré `grantPermissions` ; il faut la forcer pour voir l'appel.
