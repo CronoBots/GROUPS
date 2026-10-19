@@ -1771,7 +1771,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | **tranché le 26/09/2026, pour tout le monde** : un rappel sur un repos sans « +FT » se paie en heures sup à compenser, prime de pause majorée, aucune heure normale (`r.rs`) ; 122 journées. Le 11/04 concorde, taux de 187,5 % compris ; le 13/04 (cellule `N`, pas `-`) reste un écart |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
-| 15/04 | `DS-CE · 1/2VA` | prime du matin | l'application pose la prime de jour |
+| 15/04 | `DS-CE · 1/2VA` | prime du matin | **tranché le 19/10/2026** : jour de D de sa rotation, fait en 6h-14h — prime du matin (`pauseDeRotationD()`) |
 | 22/03 | `N` | prime de nuit sans heure normale | **faux écart** : la suite du jour était sur la page suivante, que l'outil ne lisait pas |
 
 Chacune touche à un montant : la règle se demande au client, une à la fois
