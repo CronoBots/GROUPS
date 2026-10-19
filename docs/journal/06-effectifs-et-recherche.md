@@ -1734,7 +1734,26 @@ prend une plage de jours (le mois entier sans argument, comme avant), et
 25 octobre, « N · Congé · Commentaire » ; 9 – 15 mars, « Maladie ·
 Commentaire » ; le mois d'octobre garde sa légende entière. Le héros dit
 « Année 2026 », « Cycle actuel », « Prochain cycle ». Vérifié à 320, 390
-et 1280 px ; vérificateur et fiches identiques à l'octet ; hors ligne. Vérificateur et fiches identiques à
+et 1280 px ; vérificateur et fiches identiques à l'octet ; hors ligne.
+
+**La semaine, optimisée** (le client, capture de la semaine 31 : « moyen
+d'optimiser ? »), `nfdm-v834` :
+- la date s'écrivait deux fois (« 27 » dans la case, « LUNDI 27 JUILLET »
+  à côté) : le jour seul reste, le mois étant dans la barre ; la ligne du
+  jour dit « Lundi · aujourd'hui » ;
+- « 21 h 30-6 h » devient « 21 h 30 – 6 h » ;
+- le commentaire garde les retours à la ligne que `nettoyerAffichage()`
+  met entre les actions (« Remplace ATA » / « Remplace GPS de 18h à 22h ») :
+  la vue les écrasait ;
+- `nettoyerAffichage()` coupe et accentue aussi « Echange avec », écrit
+  sans accent dans 107 commentaires sur 6 891 ; un seul est découpé
+  autrement. Aucun outil ne l'emploie : `--agendas cal` régénéré, 0
+  fichier changé ;
+- cases de 50 px au lieu de 58, rangées resserrées.
+Mesuré sur la semaine 31 à 390 px : 526 px avant, 514 après. Le gain est
+mince parce que les commentaires à deux actions prennent maintenant deux
+lignes, ce qui est voulu. Vérifié à 320, 390 et 1280 px, rien de coupé ;
+vérificateur et fiches identiques à l'octet ; hors ligne. Vérificateur et fiches identiques à
 l'octet ; hors ligne.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
