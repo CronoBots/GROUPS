@@ -8216,9 +8216,11 @@ function majClasseurs(){
    message fugace : sans horaire, la moitié de l'application affiche des
    zéros parfaitement crédibles. */
 function lireHoraire(url,frais){
-  /* Le premier essai se sert normalement — le cache d'abord, c'est tout
-     l'intérêt de ne pas attendre 690 Ko. Seule la REPRISE exige du frais. */
-  return fetch(url,frais?{cache:"no-store"}:undefined).then(function(r){
+  /* Revalidé (« no-cache ») : le cache HTTP du navigateur ne rend plus
+     jusqu'à dix minutes un horaire déjà remplacé ; le service worker fait le
+     reste (réseau d'abord, cache hors ligne : sw.js, jsonFrais, 19/10/2026).
+     La REPRISE exige du frais. */
+  return fetch(url,{cache:frais?"no-store":"no-cache"}).then(function(r){
     if(!r.ok) throw new Error("HTTP "+r.status);
     return r.json();
   });

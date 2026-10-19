@@ -505,3 +505,21 @@ sur l'horaire du 16/10, puis sur celui du 19/10 → « Mise à jour de votre
 horaire · VBN — Dimanche 1 novembre : PM → N (« Échange avec FLI ») ».
 Piège du test : Chromium sans écran laisse la permission à « denied »
 malgré `grantPermissions` ; il faut la forcer pour voir l'appel.
+
+**L'horaire au réseau d'abord** (le client, le 19/10/2026 à 22 h 34,
+capture de l'application ouverte sur l'ordinateur : « Mes compteurs ·
+classeur du 16/10/2026 » et le 1er novembre en PM, alors que le classeur
+du 19/10 était en ligne depuis 22 h 20). `sw.js` servait
+`data/*.json` du cache d'abord et le rafraîchissait derrière : la
+première ouverture qui suit une mise à jour montrait TOUJOURS l'ancien
+horaire, et seule la suivante le nouveau. CLAUDE.md le disait (« l'horaire
+JSON reste au cache d'abord, rafraîchi en arrière-plan ») : c'était un
+choix de vitesse, et il contredit le but de l'application. Désormais
+`jsonFrais()` : réseau d'abord, revalidé (« no-cache », un 304 sans corps
+quand rien n'a changé, pas 714 Ko), le cache au-delà de 4 s ou hors ligne ;
+`lireHoraire()` demande aussi en « no-cache », pour le cas sans service
+worker. Reproduit puis éprouvé au navigateur, version d'avant (v836) et
+nouvelle (v837), deux ouvertures sur l'horaire du 16/10, horaire remplacé
+sur le serveur, une seule réouverture : avant « classeur du 16/10 », après
+« classeur du 19/10 » ; hors ligne ensuite, « classeur du 19/10 » dans les
+deux.
