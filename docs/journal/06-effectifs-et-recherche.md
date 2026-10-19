@@ -2522,6 +2522,24 @@ un toucher resté sans effet. **Ce que seul un téléphone dira** : si
 Messenger laisse passer `x-safari-https://` et `intent://`. S'ils sont
 bloqués, le menu ⋯ / ⋮ reste écrit sous le bouton.
 
+**Le téléphone a répondu le soir même** (capture du client, Messenger sur
+iPhone, 19 h 02) : « Ouvrir dans Safari » n'y fait rien, `x-safari-https://`
+est bloqué ; et la page disait « Facebook », Messenger sur iPhone
+s'annonçant `FBAN/FBIOS`. **Le pari sur le bouton était faux** : le geste
+sûr, le menu ⋯ de la fenêtre intégrée, n'était qu'une note sous lui. La
+page met désormais ce geste en premier, en grand (« Touchez ⋯ en haut à
+droite, puis Ouvrir dans le navigateur »). Le bouton passe en second et
+COPIE d'abord le lien de la page ; s'il ne mène nulle part en 1,5 s, un
+encadré dit « Le lien de cette page est copié… Ouvrez Safari, touchez la
+barre d'adresse et collez le lien ». « S'abonner » devient secondaire dans
+une messagerie, où il ne peut pas marcher. L'application se nomme
+« Messenger ou Facebook » quand la signature ne tranche pas. La marche à
+la main suit les mots d'iOS 17-18 (« Ajouter un calendrier avec
+abonnement ») et rappelle qu'elle marche même depuis Messenger. Vérifié
+en imitant Messenger sur iPhone (`FBIOS`) et sur Android : le geste en
+tête, le lien copié, le message après un bouton bloqué ; rien de changé
+dans Safari.
+
 **Le commentaire, l'adresse et la remise de pause** (le client, le
 14/10/2026). Trois ajouts aux événements de `icsAgenda()` :
 
