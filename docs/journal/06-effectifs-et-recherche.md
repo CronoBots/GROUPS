@@ -1703,6 +1703,17 @@ Vérifié à 320, 360, 390 et 1280 px, sans débordement ni erreur ; les vues
 Mois et Année repassent leur scénario ; vérificateur et fiches identiques
 à l'octet ; hors ligne.
 
+Le même jour (le client : « nom du mois complet et les boutons plus proches
+des bords gauche et droit »), `nfdm-v829` : l'étiquette de la semaine écrit
+le mois en entier (« 19 – 25 octobre », « 28 septembre – 4 octobre ») ; les
+flèches ‹ › passent de 26 à 12 px du bord intérieur du cadre (13 px du
+bord mesurés), et la rangée Semaine | Mois | Année | Aujourd'hui s'aligne
+sur elles. Mesuré à 320 px : la semaine à cheval tenait en 205 px pour 204
+de place entre les flèches ; l'étiquette passe à 16 px sous 361 px
+(188 px). Au bureau, la rangée garde 520 px au centre. Dans l'onglet de
+la paie, qui partage la barre, le mois reste affiché. Vérificateur et fiches identiques à
+l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
