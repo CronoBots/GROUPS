@@ -1724,7 +1724,17 @@ L'onglet de la paie garde le champ « mois ». Le glissement n'est pas
 bloqué par un appui sur l'un des trois. Mesuré à 320 et 1280 px : le
 3 décembre mène à « 30 novembre – 6 décembre », un jour de 2025 à la
 première semaine de 2026, 2027 choisi à ses douze mois. Vérificateur et
-fiches identiques à l'octet ; hors ligne. Vérificateur et fiches identiques à
+fiches identiques à l'octet ; hors ligne.
+
+Puis (le client : « légende de la vue semaine, et retirer les mon du
+héros »), `nfdm-v833`. La semaine porte sa légende, sous la liste, et elle
+ne nomme que ce que ses sept jours contiennent : `legendeDrapeaux(d1,d2)`
+prend une plage de jours (le mois entier sans argument, comme avant), et
+`fusionDrapeaux()` réunit les jours d'une semaine à cheval. Mesuré : 19 –
+25 octobre, « N · Congé · Commentaire » ; 9 – 15 mars, « Maladie ·
+Commentaire » ; le mois d'octobre garde sa légende entière. Le héros dit
+« Année 2026 », « Cycle actuel », « Prochain cycle ». Vérifié à 320, 390
+et 1280 px ; vérificateur et fiches identiques à l'octet ; hors ligne. Vérificateur et fiches identiques à
 l'octet ; hors ligne.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
