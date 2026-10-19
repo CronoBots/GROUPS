@@ -11,16 +11,12 @@ des questions au client ».
 
 ## Au client
 
-1. **Les 51 matricules** de « Polyvalence » vivent dans le dépôt public,
-   à côté du trigramme. `CLAUDE.md` les tolère (« initiales ou
-   matricule ») ; s'ils figurent sur les fiches de paie, ils relient le
-   trigramme à la personne. Les retirer ?
-2. **Purger l'historique git public** (posée le 26/09/2026) : d'anciennes
+1. **Purger l'historique git public** (posée le 26/09/2026) : d'anciennes
    versions de `data/` portent encore des identifiants de connexion et
-   quatre prénoms, et `verifier-depot.py --historique` signale des formes
+   quatre prénoms, celles de ce fichier deux numéros de contrat, et `verifier-depot.py --historique` signale des formes
    anciennes. Réécrire l'histoire d'un dépôt public est la décision du
    client ; la procédure est prête dans `docs/purge-historique.md`.
-3. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
+2. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
    25/09/2026, `docs/journal/08-verifications.md`) : les heures réellement
    faites, ou le solde du mois contractuel une fois les absences
    retirées ? Aucun montant n'en dépend (la ligne est une quantité, le
@@ -31,26 +27,26 @@ des questions au client ».
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
 
-5. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
+3. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
    partager le mois entre les deux fixes, par demi-mois ou par jours de
    calendrier ? Et à signaler : la fiche de septembre paie la hausse dès le
    15/08 (« le RH a fait une erreur »). Voir `docs/regles-paie.md`.
-6. **La maladie** : le « premier mois » payé par l'employeur vaut-il
+4. **La maladie** : le « premier mois » payé par l'employeur vaut-il
    30 jours calendrier (`MALADIE_EMPLOYEUR_J`) ? Comment le fixe d'un
    employé est-il réduit au-delà — au taux horaire, en jours, au prorata ?
-7. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
+5. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
    l'ouvrier ?
-8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
+6. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti.
-9. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
+7. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
    correspond pas aux objectifs par atelier pour DWS (17 au classeur pour
    27), SBZ (11/26), FLN (7/22), FPS (15/30), PLZ (8/28), PAM (18/10),
    ASS (10/0), PDR (2/0), VBN (30/5). Quel est leur objectif, et sur
    quels ateliers ? Le héros montre en attendant les chiffres du classeur.
-10. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
+8. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
 
