@@ -38,6 +38,12 @@ code{font:12.5px ui-monospace,"IBM Plex Mono",monospace;color:var(--ink);word-br
 details{margin-top:14px;border-top:1px solid var(--trait);padding-top:10px}
 summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
 [hidden]{display:none!important}
+.etape{background:rgba(105,178,203,.10);border:1px solid rgba(105,178,203,.35);border-radius:12px;padding:14px 14px 4px;margin:14px 0 6px}
+.etape b{color:var(--ink)}
+.etape p{margin:6px 0}
+.etape .btn{margin:12px 0 8px}
+.num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--in);color:var(--sur-in);font-size:13px;font-weight:700;margin-right:6px}
+.alerte{background:rgba(240,138,128,.10);border:1px solid rgba(240,138,128,.4);border-radius:12px;padding:10px 12px;color:var(--ink);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -46,7 +52,21 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
   <div class="carte" id="ok" hidden>
     <h1>Horaire de <span class="tri" id="tri"></span></h1>
     <p style="text-align:center">Abonnez votre agenda : les postes s'y ajoutent et se mettent à jour tout seuls à chaque nouvel horaire.</p>
+    <!-- SORTIR DE LA MESSAGERIE D'ABORD (le client, le 19/10/2026 : « chez elle,
+         rien ne se passe avec le lien partagé dans Messenger »). Le navigateur
+         intégré de Messenger, WhatsApp, Instagram… bloque webcal:// sur
+         iPhone, et ne connaît pas le compte Google sur Android : le bouton
+         « S'abonner » n'y fait rien. On propose donc d'abord d'ouvrir la page
+         dans le vrai navigateur. -->
+    <div class="etape" id="sortir" hidden>
+      <p><span class="num">1</span><b id="sortirT">Ouvrir cette page dans le navigateur</b></p>
+      <p id="sortirP"></p>
+      <a class="btn" id="ouvrir" href="#">Ouvrir dans le navigateur</a>
+      <p style="font-size:13px" id="sortirAide"></p>
+    </div>
+    <p id="etape2" hidden><span class="num">2</span><b>Puis, dans le navigateur :</b></p>
     <a class="btn" id="go" href="#">S'abonner dans mon agenda</a>
+    <p class="alerte" id="rien" hidden>Rien ne s'est ouvert ? Le navigateur de cette application bloque sans doute l'ajout d'agenda : ouvrez la page dans le navigateur (étape 1), ou suivez « Ajouter à la main » ci-dessous.</p>
     <p id="aide" style="font-size:13.5px"></p>
     <button class="btn sec" id="copier" type="button">Copier l'adresse de l'agenda</button>
     <details id="main">
@@ -74,15 +94,18 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
   var apple=/iPhone|iPad|iPod|Macintosh/.test(ua);
   /* Les navigateurs intégrés (WhatsApp, Messenger, Instagram…) bloquent
      souvent webcal:// : on le dit plutôt que d'échouer en silence. */
-  var integre=/FBAN|FBAV|Instagram|WhatsApp|Line\/|GSA\//.test(ua);
+  /* Messenger sur Android s'annonce « Orca » ou « FB_IAB » : l'ancien motif
+     ne le voyait pas (le client, le 19/10/2026). */
+  var integre=/FBAN|FBAV|FB_IAB|FB4A|Orca|Messenger|Instagram|WhatsApp|Snapchat|Line\/|GSA\/|musical_ly|Twitter/.test(ua);
+  var appli=/Orca|Messenger/.test(ua)?"Messenger":(/Instagram/.test(ua)?"Instagram":(/WhatsApp/.test(ua)?"WhatsApp":(/FBAN|FBAV|FB_IAB|FB4A/.test(ua)?"Facebook":"cette application")));
+  var android=/Android/.test(ua);
   $("tri").textContent=id.replace(/-\d$/,"");
   $("url").textContent=https;
   var go=$("go");
   if(apple){
     go.href=webcal;
-    $("aide").textContent=integre
-      ? "Si rien ne se passe, ouvrez cette page dans Safari (bouton ⋯ ou Partager → Ouvrir dans Safari), puis touchez à nouveau le bouton."
-      : "L'iPhone demande ensuite « S'abonner » : confirmez.";
+    /* dans une messagerie, l'étape 1 dit déjà comment en sortir */
+    $("aide").textContent="L'iPhone demande ensuite «\u00a0S'abonner\u00a0» : confirmez.";
   } else {
     go.href="https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal);
     go.target="_blank"; go.rel="noopener";
@@ -93,6 +116,33 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
     if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(https).then(fini,function(){ $("main").open=true; });
     else $("main").open=true;
   };
+  if(integre){
+    var sans=location.href.replace(/^https?:\/\//,"");
+    $("sortir").hidden=false; $("etape2").hidden=false;
+    $("sortirP").textContent=appli.charAt(0).toUpperCase()+appli.slice(1)+" ouvre les liens dans sa propre fenêtre, qui ne sait pas ajouter un agenda.";
+    var ou=$("ouvrir");
+    if(apple){
+      /* x-safari-https:// ouvre Safari depuis iOS 17 */
+      ou.href="x-safari-https://"+sans; ou.textContent="Ouvrir dans Safari";
+      $("sortirAide").textContent="Si le bouton ne fait rien : touchez ⋯ (ou l'icône de partage) en haut ou en bas de l'écran, puis «\u00a0Ouvrir dans Safari\u00a0» ou «\u00a0Ouvrir dans le navigateur\u00a0».";
+    } else if(android){
+      /* un lien « intent » rend la page au navigateur du téléphone */
+      ou.href="intent://"+sans+"#Intent;scheme=https;action=android.intent.action.VIEW;end";
+      $("sortirAide").textContent="Si le bouton ne fait rien : touchez ⋮ en haut à droite, puis «\u00a0Ouvrir dans Chrome\u00a0» ou «\u00a0Ouvrir dans le navigateur\u00a0».";
+    } else {
+      ou.hidden=true;
+      $("sortirAide").textContent="Utilisez le menu de l'application (⋯ ou ⋮) puis «\u00a0Ouvrir dans le navigateur\u00a0».";
+    }
+  }
+  /* Le bouton n'a rien ouvert : on le dit, au lieu d'un silence. Un vrai
+     départ vers l'agenda fait perdre le focus ou cache la page. */
+  var parti=false, marque=function(){ parti=true; };
+  window.addEventListener("blur",marque); window.addEventListener("pagehide",marque);
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) parti=true; });
+  go.addEventListener("click",function(){
+    parti=false;
+    setTimeout(function(){ if(!parti){ $("rien").hidden=false; $("main").open=true; } },2500);
+  });
   $("ok").hidden=false;
   /* Un trigramme inconnu se dit tout de suite. */
   try{ fetch(https,{method:"HEAD",cache:"no-store"}).then(function(r){
