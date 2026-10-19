@@ -9,9 +9,10 @@ garde son icône et **fonctionne hors ligne**.
 
 À la première ouverture, un court formulaire demande vos informations
 personnelles (rémunération, situation familiale, équipe…) avec une
-explication pour chaque champ. Les réglages communs à toute l'équipe
-(primes, barèmes) sont déjà configurés. Tout reste modifiable ensuite dans
-l'onglet « Réglages ».
+explication pour chaque champ. Les réglages personnels restent modifiables
+dans l'onglet « Réglages ». Les paramètres communs de l'équipe sont livrés
+avec l'application et certains sont verrouillés pour éviter une modification
+accidentelle.
 
 ## Installer
 
@@ -33,8 +34,10 @@ Une fois le dépôt publié sur GitHub Pages, ouvrez son adresse :
 - Cotisation spéciale de sécurité sociale (barème et plafonds)
 - Chèques-repas, indemnités de déplacement voiture et vélo, avantages en nature
 
-Tous les barèmes sont modifiables dans la page (onglet « Barèmes ») : rien
-n'est figé dans le code.
+Les paramètres affichés dans « Barèmes » dépendent de leur type : les
+paramètres personnels modifiables se règlent dans l'application, tandis que
+les valeurs communes verrouillées sont mises à jour avec une nouvelle version
+de l'application.
 
 ## Pré-remplir depuis l'horaire d'équipe
 
