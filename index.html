@@ -6563,7 +6563,7 @@ function renderSemaine(hote){
     return pending[ch] ? Promise.resolve(DERNIER_ECRIT[ch]) : readMonth(k);
   })).then(function(docs){
     if(jeton!==_semJeton || calVue!=="semaine") return;
-    var parK={}, h="", tot=0, nbj=0, auj=jourPerso(st.personObj), aujT=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
+    var parK={}, h="", tot=0, nbj=0, dr=null, auj=jourPerso(st.personObj), aujT=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
     ks.forEach(function(k,i){ var ym=cles[k], M;
       if(ym[0]===st.y && ym[1]===st.m) M=st.month;
       else { M=docs[i]||{}; migreMois(M); M=mergeDefaults(M,DEF_M); if(!M.days) M.days={}; }
@@ -6571,7 +6571,7 @@ function renderSemaine(hote){
     jours.forEach(function(d){
       var y=d.getFullYear(), m=d.getMonth(), j=d.getDate(), M=parK[key(y,m)];
       var dans=(y>=AN_MIN), rec=(M&&M.days[j])||{};
-      var cas=dans?avecJour(y,m,M,function(){ return caseJour(j); }):'<span class="mc-j repos sem-hors"><span class="mc-n">'+j+'</span></span>';
+      var cas=dans?avecJour(y,m,M,function(){ dr=fusionDrapeaux(dr,legendeDrapeaux(j,j)); return caseJour(j); }):'<span class="mc-j repos sem-hors"><span class="mc-n">'+j+'</span></span>';
       var hj=dans?heuresJour(rec):0; if(hj>0){ tot+=hj; nbj++; }
       var x=null; if(dans && st.personObj){ try{ x=_pfJour(st.personObj.id,d); }catch(e){} }
       var l1=JOURS_LONGS[(d.getDay()+6)%7]+" "+j+" "+MOIS[m].toLowerCase(), l2="", l3="", com="";
@@ -6597,7 +6597,7 @@ function renderSemaine(hote){
     var dTh=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+3);
     hote.innerHTML='<div class="sem-t"><b>Semaine '+isoWeek(new Date(Date.UTC(dTh.getFullYear(),dTh.getMonth(),dTh.getDate())))+'</b>'
       +'<span>'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
-      +'<div class="sem-liste">'+h+'</div>';
+      +'<div class="sem-liste">'+h+'</div>'+(dr?legendeHTML(dr):"");
   });
 }
 function renderAnnee(hote){
@@ -6663,10 +6663,10 @@ function choisirVue(v){
 /* Une légende fixe finit par ne plus être lue ; une légende qui ne nomme
    que ce qui est à l'écran se relit à chaque mois. Elle n'apparaît donc
    qu'avec ce que le mois contient vraiment. */
-function legendeDrapeaux(){
+function legendeDrapeaux(d1,d2){
   var M=st.month, nd=daysInMonth(st.y,st.m), d, rec;
   var vus={}, abs=false, mal=false, jour=false, velo=false, rap=false, part=false, com=false;
-  for(d=1; d<=nd; d++){
+  for(d=(d1||1); d<=(d2||nd); d++){
     rec=M.days[d]||{};
     var preste=(heuresJour(rec)>0);
     var epR=!!(!preste && rec.rvS);
@@ -6681,6 +6681,15 @@ function legendeDrapeaux(){
     if(comJour(d)) com=true;
   }
   return {vus:vus, abs:abs, mal:mal, jour:jour, velo:velo, rap:rap, part:part, com:com};
+}
+/* deux légendes en une : ce que l'un OU l'autre contient */
+function fusionDrapeaux(a,b){
+  if(!a) return b; if(!b) return a;
+  Object.keys(b).forEach(function(k){
+    if(k==="vus") Object.keys(b.vus).forEach(function(s){ a.vus[s]=1; });
+    else a[k]=a[k]||b[k];
+  });
+  return a;
 }
 function legendeHTML(f){
   var vus=f.vus, abs=f.abs, mal=f.mal, jour=f.jour, velo=f.velo, rap=f.rap, part=f.part, com=f.com;
@@ -12398,15 +12407,16 @@ function ryCycleHTML(p,c,titre,prochain){
     +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestées · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+'</span></div>';
 }
 function ryAnneeHTML(p,y){
-  var h=ryBarre("Mon année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
+  var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
   if(c){
-    h+=ryCycleHTML(p,c,"Mon cycle actuel",false);
+    /* sans « Mon » (le client, le 19/10/2026 : « retirer les mon du héros ») */
+    h+=ryCycleHTML(p,c,"Cycle actuel",false);
     /* le cycle suivant, de la même façon (le client, le 17/10/2026 : « faire
        pareil avec le prochain cycle ») : il commence le lendemain du dernier
        jour, même longueur, même calage. */
     var deb=new Date(c.fin.getFullYear(),c.fin.getMonth(),c.fin.getDate()+1);
-    h+=ryCycleHTML(p,{nom:c.nom,L:c.L,pos:-1,deb:deb,fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+c.L-1)},"Mon prochain cycle",true);
+    h+=ryCycleHTML(p,{nom:c.nom,L:c.L,pos:-1,deb:deb,fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+c.L-1)},"Prochain cycle",true);
   }
   return h;
 }
