@@ -51,11 +51,11 @@ def main():
         print("ÉCHEC: une ou plusieurs icônes du manifeste sont absentes.")
         return 1
 
-    core_match = re.search(r"var\\s+CORE\\s*=\\s*\\[(.*?)\\];", service_worker, re.S)
+    core_match = re.search(r"var\s+CORE\s*=\s*\[(.*?)\];", service_worker, re.S)
     if not core_match:
         print("ÉCHEC: liste CORE introuvable dans le service worker.")
         return 1
-    core_assets = re.findall(r"""["'](\\./[^"']+)["']""", core_match.group(1))
+    core_assets = re.findall(r"""["'](\./[^"']+)["']""", core_match.group(1))
     if not core_assets:
         print("ÉCHEC: liste CORE vide ou illisible.")
         return 1
@@ -100,7 +100,7 @@ def main():
             try:
                 datetime.date(schedule_year, month, day)
             except ValueError:
-                print("ÉCHEC: date invalide pour 2026.")
+                print("ÉCHEC: date invalide pour l’année de l’horaire.")
                 return 1
             if not isinstance(entry, list) or not all(isinstance(v, str) for v in entry):
                 print("ÉCHEC: contenu d'une journée invalide.")
