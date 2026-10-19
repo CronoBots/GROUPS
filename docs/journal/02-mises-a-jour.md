@@ -89,8 +89,10 @@ cp /tmp/nouveau.json data/horaire-2026.json
 ```
 
 Le comparateur dit tout : date de mise à jour du classeur, arrivées et
-départs (une arrivée se fait TOUJOURS confirmer par le client : qui,
-quelle fonction, intérimaire ou non — SLI le 09/10/2026 ne l'a pas été), changements de groupe, journées modifiées avec l'avant et l'après,
+départs (une arrivée se faisait TOUJOURS confirmer par le client : qui,
+quelle fonction, intérimaire ou non — SLI le 09/10/2026 ne l'a pas été ;
+**depuis le 19/10/2026, un nouvel OPÉRATEUR est intérimaire d'office**,
+voir « Un nouvel opérateur est toujours un intérimaire »), changements de groupe, journées modifiées avec l'avant et l'après,
 compteurs et polyvalence. Il ne manipule que des identifiants à trois
 lettres. Sa sortie n'est pas un journal à archiver : **il faut la lire, et
 dire au client ce qui a bougé** — c'est lui qui sait si une journée modifiée
@@ -463,4 +465,29 @@ les quatre sorties du vérificateur identiques à l'octet. **Quand le
 classeur 2027 arrivera**, l'application chargera toujours
 `data/horaire-2026.json` : il faudra lui apprendre à lire l'année suivante,
 et la projection ne servira plus qu'au-delà.
+
+## Un nouvel opérateur est toujours un intérimaire
+
+Le client, le 19/10/2026 : « quand un nouvel opérateur apparaît, c'est
+toujours un intérimaire ; il faut que le nouveau système de mise à jour du
+classeur le prenne en compte ». Jusque-là, `tools/horaire-auto.py`
+refusait d'installer un classeur qui ajoutait une personne absente de
+`tools/arrivees-confirmees.txt`, et demandait au client « qui c'est,
+intérimaire ou non » : l'horaire restait bloqué jusqu'à sa réponse.
+
+Désormais, une arrivée qui n'est pas dans une catégorie de contremaîtres
+(`cat` sans « contrema », la même garde que `estCadre()` de l'application)
+est inscrite d'office dans `tools/arrivees-confirmees.txt` — « nouvel
+opérateur, intérimaire d'office (sa catégorie) — règle du client du
+19/10/2026 » — et l'horaire s'installe ; le rapport e-mail commence par
+« Nouvel intérimaire : XXX (catégorie) ». Le robot committe ce fichier avec
+l'horaire. Une arrivée chez les contremaîtres sort de la règle et bloque
+toujours, avec un message qui le dit. L'application affiche déjà un tel
+nouveau « Intérimaire » : absent de « Polyvalence » et pas cadre
+(`statutAffiche()`).
+
+Éprouvé dans une copie de travail, sur le classeur du 19/10/2026 : PDE
+retiré de l'horaire installé revient comme arrivée (Opérateurs STEP),
+est confirmé d'office et installé ; VBN retiré revient comme arrivée chez
+les contremaîtres, et rien n'est installé.
 
