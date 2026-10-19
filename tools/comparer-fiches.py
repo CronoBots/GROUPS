@@ -172,6 +172,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("var RX_PRIME_GARDEE=","\n"),g("function primeGardee(","\n}"),g("function motPrime(","\n}"),
  g("var GREVE_JOURS=","\n"),g("var CONSIGNATEURS=","\n"),g("var EST_RENFORT=","\n"),g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
  g("var RX_PRESTE_H=","\n"),
+ g("var RX_FT_SUR=","\n"),
  g("var RX_RENVOI=","\n"),
  g("function renvoisDuMois(","\n}"),
  g("function epargnesDuMois(","\n}")].join("\n"));

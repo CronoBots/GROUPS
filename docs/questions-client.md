@@ -301,12 +301,6 @@ n'est deviné à leur sujet :
   sur quels ateliers ?** En attendant, le héros montre les deux chiffres
   tels que le classeur les donne : fait / objectif par atelier, et la
   progression avec SON restant ;
-- **une journée de la relecture des commentaires** (posée le
-  18/10/2026 ; le client : « je te dirai demain soir ») :
-  - **JBI le 21/08** : le RJF « cf 21/08 » écrit le 13/08 y est désormais
-    posé, et l'application compte 0 h travaillée (4 h avant). Le
-    commentaire dit « RJF sur la pause AM » : a-t-il travaillé
-    l'après-midi ?
 - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
   figurent sur les fiches de paie, ils relient le trigramme à la personne.

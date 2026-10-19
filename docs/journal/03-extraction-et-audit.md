@@ -1190,3 +1190,17 @@ journée de l'année qui l'écrit ainsi. Mesuré : vérificateur, une journée
 prestée de moins et une absence affichée de plus ; neuf règles à 0 ;
 manques, polyvalences, compteurs et fiches VBN identiques à l'octet ;
 l'agenda de VGG perd le 15/03, rien d'autre ne change dans `cal/`.
+
+### JBI le 21/08 : PM presté, RJF sur la pause du matin (19/10/2026)
+
+Question posée le 18/10 : depuis que le RJF « cf 21/08 » du 13/08 est posé
+le 21/08, l'application y comptait 0 h (le RJF retirait 8 h, le +FT 4 h).
+Le client, le 19/10 : « il a fait PM à la place de YPE, mais était en RJF
+pour sa pause du matin (RJF décalé à un autre jour pour être compté), il y
+a aussi une remarque de 4h FT+ qui ont été faites le 18/08 ». Désormais :
+21/08 PM 8 h et RJF compté ; les 4 h +FT épargnées sur le 18/08
+(`RX_FT_SUR`, « FT sur » ajouté à `RX_RENVOI`, et « sur la pause X »
+dans `lireJournee()`). Mesuré : une journée prestée de plus, une absence
+de moins ; neuf règles à 0 ; manques, compteurs et fiches VBN identiques à
+l'octet ; polyvalence : JBI Gluten 3/5 → 4/5 (le remplacement du 21/08
+compte) ; agenda : le 21/08 de JBI dit « Contremaître ».
