@@ -12,14 +12,41 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEDULE = ROOT / "data" / "horaire-2026.json"
+MANIFEST = ROOT / "manifest.webmanifest"
 
 
 def main():
     try:
         with SCHEDULE.open(encoding="utf-8") as f:
             data = json.load(f)
+        with MANIFEST.open(encoding="utf-8") as f:
+            manifest = json.load(f)
     except (OSError, UnicodeError, json.JSONDecodeError):
         print("ÉCHEC: le JSON d'horaire est absent ou invalide.")
+        return 1
+
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("icons"), list):
+        print("ÉCHEC: manifeste PWA invalide ou sans icônes.")
+        return 1
+
+    assets = []
+    for icon in manifest["icons"]:
+        if not isinstance(icon, dict) or not isinstance(icon.get("src"), str):
+            print("ÉCHEC: déclaration d'icône invalide dans le manifeste.")
+            return 1
+        assets.append(icon["src"])
+    for shortcut in manifest.get("shortcuts", []):
+        if not isinstance(shortcut, dict):
+            print("ÉCHEC: raccourci PWA invalide.")
+            return 1
+        for icon in shortcut.get("icons", []):
+            if not isinstance(icon, dict) or not isinstance(icon.get("src"), str):
+                print("ÉCHEC: icône de raccourci invalide.")
+                return 1
+            assets.append(icon["src"])
+    missing = [asset for asset in assets if not (ROOT / asset).is_file()]
+    if missing:
+        print("ÉCHEC: une ou plusieurs icônes du manifeste sont absentes.")
         return 1
 
     if not isinstance(data, dict) or data.get("year") != 2026:
