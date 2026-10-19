@@ -300,6 +300,15 @@ def exporter(chemin, cv):
         for ligne in g:
             for col, val in g[ligne].items():
                 cellules[_adresse(ligne, col)] = _sans_login(val, cv)
+        # LES MATRICULES. La colonne A de « Polyvalence » donne le numéro de
+        # chacun, celui que la fiche de paie imprime à « Matricule » : à côté
+        # du trigramme, il dirait qui est qui. Le client, le 19/10/2026 :
+        # « oui, tu peux retirer ». Rien ne s'en sert ; la case reste, son
+        # texte devient « (retiré) ».
+        if nom == "Polyvalence":
+            for a in list(cellules):
+                if re.fullmatch(r"A\d+", a) and re.fullmatch(r"\s*\d{5,7}\s*", str(cellules[a])):
+                    cellules[a] = "(retiré)"
 
         racine = ET.fromstring(z.read(cl.feuilles[nom]))
         types, dates, formules, styles = {}, {}, {}, {}

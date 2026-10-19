@@ -1312,9 +1312,9 @@ le fichier tel qu'il était, recopié en entier pour l'historique.
 >     tranchés le 29/09/2026, voir « Les réponses du 29/09/2026 » ;
 >   - **le tableau des salaires de VBN** fiche contre application, comme celui
 >     de LCI. **« absentes de ce conteneur » était faux** (relevé le
->     07/10/2026) : les fiches de VBN (contrat 200237, employé) de
+>     07/10/2026) : les fiches de VBN (employé) de
 >     décembre 2025 à août 2026 sont dans les envois de la session, avec
->     celles de LCI (200218, ouvrier) de janvier à août — mensuelles,
+>     celles de LCI (ouvrier) de janvier à août — mensuelles,
 >     deux régularisations de février, prime de fin d'année, pécule et
 >     deux documents 2025 scannés. Elles restent hors du dépôt.
 >     **Fait le 07/10/2026**, janvier à août, SANS rien caler : la session
@@ -1612,3 +1612,19 @@ changent d'heure — 110 en 7h30-16h, 45 en 6h-14h et 18 en 14h-22h
 Leçon de terminal : `pgrep -f "http-server -p 87"` dans une boucle `kill`
 trouve aussi le shell qui la lance, et le tue — garder le PID du serveur
 (`& SP=$!`) et ne tuer que lui.
+
+### Les matricules n'étaient pas publics (19/10/2026)
+
+**La question « les 51 matricules de Polyvalence vivent dans le dépôt
+public » était FAUSSE.** Le client a répondu « oui, tu peux retirer, mais ce
+n'est pas grave pour nous ». En vérifiant avant d'agir :
+`data/classeur-2026-brut.json`, seul fichier à les porter, est dans
+`.gitignore`, n'apparaît dans aucun commit (`git log --all` : 0) et GitHub
+Pages répond 404. `horaire-2026.json` et `recyclages-2026.json` n'en portent
+aucun. Ce qui était public : DEUX de ces numéros, cités dans
+`questions-client.md` à côté d'un trigramme (« contrat … »). Retirés de
+l'arbre ; ils restent dans l'historique de ce fichier, que seule la purge
+efface. L'export du brut (local) remplace désormais la colonne A de
+« Polyvalence » par « (retiré) », puisque le client l'a accepté.
+Leçon : une affirmation sur ce qui est public se vérifie par `git ls-files`
+et `git log --all`, pas par la présence d'un fichier dans le dossier.
