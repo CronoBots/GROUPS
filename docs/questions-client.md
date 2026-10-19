@@ -24,9 +24,9 @@ n'est deviné à leur sujet :
     changé dans le code ;
   - la paie à l'heure elle-même — voir `docs/regles-paie.md`, « La fiche
     d'ouvrier » ;
-  - **LCI le 17/03** : 1 h sup sur la fiche, `["AM"]` dans l'horaire, la
-    veille `AM · VM` — l'heure de visite médicale hors horaire ? Le
-    client, le 14/10/2026 : « je vérifierai » ;
+  - ~~**LCI le 17/03**~~ : 1 h sup sur la fiche, `["AM"]` dans l'horaire.
+    Tranché le 19/10/2026 : LCI a réellement fait 1 h de plus ce jour-là,
+    que le classeur n'écrit pas — **écart connu**, rien à coder ;
   - ~~le départ anticipé sans code~~ et ~~« Polyvalence » sur un repos~~ :
     tranchés le 29/09/2026, voir « Les réponses du 29/09/2026 » ;
   - **le tableau des salaires de VBN** fiche contre application, comme celui
