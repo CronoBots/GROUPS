@@ -1262,3 +1262,13 @@ n'était pas dans un autre horaire prévu ou si l'horaire de ces D n'est
 pas précisé ». C'est ce que fait déjà le repli de `lireJournee()` (prime
 D du barème) ; aucun changement de code, la règle est écrite dans
 `docs/conversion-horaire.md`.
+
+### Une question déjà tranchée, reposée (19/10/2026)
+
+En dressant la liste des points ouverts, j'ai reposé au client les « pas
+compenser » des 21 et 22/03 de VBN. Il les avait tranchés le 14/10 (heures
+sup du SD26, payées ou récupérées au choix, par formulaire) et c'était déjà
+écrit dans `docs/regles-paie.md` ; seul `docs/questions-client.md` ne
+l'avait pas rayé. Leçon : une question tranchée se raye dans
+`questions-client.md` le jour même, et une liste de points ouverts se
+recoupe avec `regles-paie.md` avant d'être donnée.
