@@ -43,6 +43,8 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
 .etape p{margin:6px 0}
 .etape .btn{margin:12px 0 8px}
 .num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--in);color:var(--sur-in);font-size:13px;font-weight:700;margin-right:6px}
+.geste{background:#2B3244;border:1px solid var(--trait);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px}
+.geste b{font-size:18px;letter-spacing:.06em}
 .alerte{background:rgba(240,138,128,.10);border:1px solid rgba(240,138,128,.4);border-radius:12px;padding:10px 12px;color:var(--ink);font-size:13.5px}
 </style>
 </head>
@@ -61,7 +63,9 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
     <div class="etape" id="sortir" hidden>
       <p><span class="num">1</span><b id="sortirT">Ouvrir cette page dans le navigateur</b></p>
       <p id="sortirP"></p>
+      <p class="geste" id="sortirGeste"></p>
       <a class="btn" id="ouvrir" href="#">Ouvrir dans le navigateur</a>
+      <p class="alerte" id="bloque" hidden></p>
       <p style="font-size:13px" id="sortirAide"></p>
     </div>
     <p id="etape2" hidden><span class="num">2</span><b>Puis, dans le navigateur :</b></p>
@@ -71,7 +75,7 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
     <button class="btn sec" id="copier" type="button">Copier l'adresse de l'agenda</button>
     <details id="main">
       <summary>Ajouter à la main</summary>
-      <p><b>iPhone</b> : Calendrier → Calendriers → Ajouter un calendrier → Ajouter un abonnement, puis coller l'adresse.</p>
+      <p><b>iPhone</b> : copier l'adresse ci-dessous, puis app Calendrier → Calendriers (en bas) → Ajouter un calendrier → Ajouter un calendrier avec abonnement, et coller l'adresse. Cela marche même depuis Messenger.</p>
       <p><b>Android</b> : sur <b>calendar.google.com</b> (dans un navigateur, version ordinateur) → Autres agendas → + → À partir de l'URL, puis coller l'adresse. L'agenda apparaît ensuite dans l'application.</p>
       <p><code id="url"></code></p>
     </details>
@@ -97,7 +101,9 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
   /* Messenger sur Android s'annonce « Orca » ou « FB_IAB » : l'ancien motif
      ne le voyait pas (le client, le 19/10/2026). */
   var integre=/FBAN|FBAV|FB_IAB|FB4A|Orca|Messenger|Instagram|WhatsApp|Snapchat|Line\/|GSA\/|musical_ly|Twitter/.test(ua);
-  var appli=/Orca|Messenger/.test(ua)?"Messenger":(/Instagram/.test(ua)?"Instagram":(/WhatsApp/.test(ua)?"WhatsApp":(/FBAN|FBAV|FB_IAB|FB4A/.test(ua)?"Facebook":"cette application")));
+  /* Messenger sur iPhone s'annonce souvent comme Facebook (FBAN/FBIOS) : la
+     capture du client, le 19/10/2026, disait « Facebook » dans Messenger. */
+  var appli=/Orca|Messenger/.test(ua)?"Messenger":(/Instagram/.test(ua)?"Instagram":(/WhatsApp/.test(ua)?"WhatsApp":(/FBAN|FBAV|FB_IAB|FB4A/.test(ua)?"Messenger ou Facebook":"cette application")));
   var android=/Android/.test(ua);
   $("tri").textContent=id.replace(/-\d$/,"");
   $("url").textContent=https;
@@ -121,18 +127,30 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
     $("sortir").hidden=false; $("etape2").hidden=false;
     $("sortirP").textContent=appli.charAt(0).toUpperCase()+appli.slice(1)+" ouvre les liens dans sa propre fenêtre, qui ne sait pas ajouter un agenda.";
     var ou=$("ouvrir");
-    if(apple){
-      /* x-safari-https:// ouvre Safari depuis iOS 17 */
-      ou.href="x-safari-https://"+sans; ou.textContent="Ouvrir dans Safari";
-      $("sortirAide").textContent="Si le bouton ne fait rien : touchez ⋯ (ou l'icône de partage) en haut ou en bas de l'écran, puis «\u00a0Ouvrir dans Safari\u00a0» ou «\u00a0Ouvrir dans le navigateur\u00a0».";
-    } else if(android){
-      /* un lien « intent » rend la page au navigateur du téléphone */
-      ou.href="intent://"+sans+"#Intent;scheme=https;action=android.intent.action.VIEW;end";
-      $("sortirAide").textContent="Si le bouton ne fait rien : touchez ⋮ en haut à droite, puis «\u00a0Ouvrir dans Chrome\u00a0» ou «\u00a0Ouvrir dans le navigateur\u00a0».";
-    } else {
-      ou.hidden=true;
-      $("sortirAide").textContent="Utilisez le menu de l'application (⋯ ou ⋮) puis «\u00a0Ouvrir dans le navigateur\u00a0».";
-    }
+    /* LE GESTE QUI MARCHE TOUJOURS D'ABORD (le client, le 19/10/2026,
+       capture de Messenger sur iPhone : le bouton « Ouvrir dans Safari »
+       n'y fait rien, x-safari-https:// est bloqué). Le menu de la fenêtre
+       intégrée, lui, sait ouvrir le vrai navigateur. Le bouton reste en
+       second, et copie d'abord le lien de la page : s'il est bloqué, il
+       suffit de le coller dans le navigateur. */
+    var menu=apple?"⋯":"⋮", nav=apple?"Safari":"le navigateur";
+    $("sortirGeste").innerHTML="Touchez <b>"+menu+"</b> en haut à droite de l'écran, puis «\u00a0Ouvrir dans "+(apple?"le navigateur":"Chrome")+"\u00a0» (ou «\u00a0Ouvrir dans "+(apple?"Safari":"le navigateur")+"\u00a0»).";
+    ou.className="btn sec";
+    if(apple){ ou.href="x-safari-https://"+sans; ou.textContent="Ou : copier le lien et ouvrir Safari"; }
+    else if(android){ ou.href="intent://"+sans+"#Intent;scheme=https;action=android.intent.action.VIEW;end"; ou.textContent="Ou : copier le lien et ouvrir le navigateur"; }
+    else { ou.href="#"; ou.textContent="Copier le lien de cette page"; }
+    ou.addEventListener("click",function(){
+      var copie=false;
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(location.href); copie=true; } }catch(e){}
+      var depart=false, f=function(){ depart=true; };
+      window.addEventListener("blur",f); document.addEventListener("visibilitychange",function(){ if(document.hidden) depart=true; });
+      setTimeout(function(){ if(depart) return;
+        $("bloque").textContent=(copie?"Le lien de cette page est copié. ":"")+appli.charAt(0).toUpperCase()+appli.slice(1)+" a bloqué l'ouverture. "
+          +(copie?"Ouvrez "+nav+", touchez la barre d'adresse et collez le lien ; ou touchez "+menu+" en haut à droite.":"Touchez "+menu+" en haut à droite, puis « Ouvrir dans le navigateur ».");
+        $("bloque").hidden=false; },1500);
+    });
+    $("sortirAide").textContent="Ensuite, dans "+nav+", touchez «\u00a0S'abonner dans mon agenda\u00a0».";
+    go.className="btn sec";
   }
   /* Le bouton n'a rien ouvert : on le dit, au lieu d'un silence. Un vrai
      départ vers l'agenda fait perdre le focus ou cache la page. */
