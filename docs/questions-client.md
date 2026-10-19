@@ -62,7 +62,12 @@ n'est deviné à leur sujet :
     déplacement). Les neuf autres dates de rappel postérieures au jour
     sont **tranchées le 19/10/2026** : « ce sont bien des fautes de
     frappe, il faut les prendre en compte » (voir le journal 03) ;
-  - **les 21 et 22/03 de VBN**, `["R-CM","18h-6h","remplace GPS;
+  - ~~**les 21 et 22/03 de VBN**~~ — **tranché le 14/10/2026** (rappelé
+    par le client le 19/10/2026 : « nous en avions déjà parlé ») : heures
+    sup du shut-down, payées ou récupérées au choix de la personne par le
+    formulaire RH, choix absent du classeur ; écart connu, voir
+    `docs/regles-paie.md`, « Les heures sup du shut-down 2026 ». Historique :
+    `["R-CM","18h-6h","remplace GPS;
     remplace aussi YBT"]` : la fiche de mars paie 4 h à 187,5 % et 4 h
     à 200 % en « HS pas compenser » (sursalaire ET heure, sans
     déduction), là où l'application paie le sursalaire et déduit
