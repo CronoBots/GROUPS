@@ -41,6 +41,7 @@ sinon `sw.js` est remis comme avant — pas de `V` qui bouge pour rien.
 
 Secrets : GMAIL_USER, GMAIL_APP_PASSWORD (mot de passe d'application Google).
 """
+import datetime
 import email
 import imaplib
 import json
@@ -211,15 +212,36 @@ def traiter_horaire(source):
                 "Les huit portes sont ouvertes, et l'horaire est identique à celui"
                 " en place : rien n'a été installé.", False, quand)
     nouveaux = [t for t in arrivees(rapport) if t not in confirmees()]
-    if nouveaux:
-        etat("Horaire : arrivée(s) à confirmer (%s), rien installé." % ", ".join(nouveaux))
-        return (1, "BIOWANZE · horaire NON installé : nouvelle personne à confirmer",
-                "Le classeur du %s ajoute : %s.\n\nUne arrivée se fait toujours"
-                " confirmer avant d'être installée : dire à Claude qui c'est, sa"
-                " fonction, intérimaire ou non. Il l'ajoutera à"
-                " tools/arrivees-confirmees.txt et le prochain envoi s'installera."
-                "\n\nCe qui change :\n\n%s" % (quand, ", ".join(nouveaux), rapport),
+    # UN NOUVEL OPÉRATEUR EST TOUJOURS UN INTÉRIMAIRE (le client, le
+    # 19/10/2026 : « quand un nouvel opérateur apparaît c'est toujours un
+    # intérimaire, il faut que la mise à jour le prenne en compte »). Une
+    # arrivée hors des contremaîtres est donc confirmée d'office, comme
+    # intérimaire, et l'horaire s'installe ; l'application l'affiche déjà
+    # « Intérimaire » (absent de « Polyvalence », pas cadre : statutAffiche).
+    # Une arrivée chez les contremaîtres sort de cette règle : elle attend
+    # toujours le client.
+    par_id = dict((p.get("id"), p) for p in json.load(open(neuf, encoding="utf-8")).get("people", []))
+    cadres = [t for t in nouveaux if re.search(r"contrema", str((par_id.get(t) or {}).get("cat", "")), re.I)]
+    interims = [t for t in nouveaux if t not in cadres]
+    if cadres:
+        etat("Horaire : arrivée(s) de contremaître à confirmer (%s), rien installé." % ", ".join(cadres))
+        return (1, "BIOWANZE · horaire NON installé : nouveau contremaître à confirmer",
+                "Le classeur du %s ajoute chez les contremaîtres : %s.\n\nUn nouvel"
+                " opérateur est confirmé d'office comme intérimaire, pas un"
+                " contremaître : dire à Claude qui c'est et sa fonction. Il"
+                " l'ajoutera à tools/arrivees-confirmees.txt et le prochain envoi"
+                " s'installera.\n\nCe qui change :\n\n%s" % (quand, ", ".join(cadres), rapport),
                 False, quand)
+    annonce = ""
+    if interims:
+        jour = datetime.date.today().strftime("%d/%m/%Y")
+        with open(CONFIRMEES, "a", encoding="utf-8") as f:
+            for t in interims:
+                f.write("%s  # %s : nouvel opérateur, intérimaire d'office (%s) — règle du client du 19/10/2026\n"
+                        % (t, jour, (par_id.get(t) or {}).get("cat", "catégorie inconnue")))
+        annonce = ("Nouvel intérimaire : " if len(interims) == 1 else "Nouveaux intérimaires : ") \
+            + ", ".join("%s (%s)" % (t, (par_id.get(t) or {}).get("cat", "?")) for t in interims) + ".\n\n"
+        etat("Horaire : %s confirmé(s) d'office comme intérimaire(s)." % ", ".join(interims))
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source,
                         "--installer"], cwd=RACINE, capture_output=True, text=True)
     sortie = (r.stdout or "") + (r.stderr or "")
@@ -231,8 +253,8 @@ def traiter_horaire(source):
                 False, quand)
     etat("Horaire du %s installé." % quand)
     return (0, "BIOWANZE · horaire du %s installé" % quand,
-            "L'application est à jour (classeur du %s).\n\nCe qui change :\n\n%s"
-            % (quand, rapport), True, quand)
+            "L'application est à jour (classeur du %s).\n\n%sCe qui change :\n\n%s"
+            % (quand, annonce, rapport), True, quand)
 
 
 def traiter_recyclage(source):
@@ -550,7 +572,7 @@ def main():
         titres = []
         for x in installes:
             if x[0] == "horaire":
-                fichiers += ["data/horaire-2026.json", "cal"]
+                fichiers += ["data/horaire-2026.json", "cal", "tools/arrivees-confirmees.txt"]
                 titres.append("Classeur du %s" % x[6])
             else:
                 fichiers.append("data/recyclages-2026.json")
