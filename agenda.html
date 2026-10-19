@@ -54,6 +54,7 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
   <div class="carte" id="ok" hidden>
     <h1>Horaire de <span class="tri" id="tri"></span></h1>
     <p style="text-align:center">Abonnez votre agenda : les postes s'y ajoutent et se mettent à jour tout seuls à chaque nouvel horaire.</p>
+    <p style="text-align:center;font-size:13.5px" id="auto" hidden>Votre agenda s'ouvre… Sinon, touchez le bouton ci-dessous.</p>
     <!-- SORTIR DE LA MESSAGERIE D'ABORD (le client, le 19/10/2026 : « chez elle,
          rien ne se passe avec le lien partagé dans Messenger »). Le navigateur
          intégré de Messenger, WhatsApp, Instagram… bloque webcal:// sur
@@ -162,10 +163,27 @@ summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
     setTimeout(function(){ if(!parti){ $("rien").hidden=false; $("main").open=true; } },2500);
   });
   $("ok").hidden=false;
-  /* Un trigramme inconnu se dit tout de suite. */
+  if(!integre) $("auto").hidden=false;
+  /* LE LIEN PARTAGÉ AGIT COMME LE BOUTON « S'ABONNER » (le client, le
+     19/10/2026, capture de la fenêtre « Calendrier avec abonnement »
+     d'iPhone : « j'aimerais que le lien partagé réagisse exactement comme
+     le bouton »). Hors d'une messagerie, la page lance l'abonnement d'elle-
+     même, une fois l'horaire trouvé : l'iPhone ouvre directement cette
+     fenêtre, Android la page d'ajout de Google. Le contenu reste dessous,
+     pour qui annule ou revient. Dans une messagerie, l'ouverture serait
+     bloquée en silence : on s'en tient aux étapes. */
+  var lance=false;
+  function lancer(){
+    if(lance || integre) return; lance=true;
+    if(apple) location.href=webcal;
+    else location.href=go.href;
+  }
+  /* Un trigramme inconnu se dit tout de suite ; sinon, l'abonnement part. */
   try{ fetch(https,{method:"HEAD",cache:"no-store"}).then(function(r){
-    if(!r.ok){ $("ok").hidden=true; $("koTxt").textContent="Aucun horaire n'est publié pour « "+id+" »."; $("ko").hidden=false; }
-  },function(){}); }catch(e){}
+    if(!r.ok){ lance=true; $("ok").hidden=true; $("koTxt").textContent="Aucun horaire n'est publié pour « "+id+" »."; $("ko").hidden=false; }
+    else lancer();
+  },function(){ lancer(); }); }catch(e){ lancer(); }
+  setTimeout(lancer,1500);
 })();
 </script>
 </body>
