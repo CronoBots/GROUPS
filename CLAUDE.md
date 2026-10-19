@@ -287,8 +287,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
 
    Depuis `nfdm-v119`, la PAGE se prend **au réseau d'abord** : une version
    poussée arrive au premier rechargement, et non au deuxième comme avant.
-   L'horaire JSON reste au cache d'abord, rafraîchi en arrière-plan ; icônes
-   et polices, au cache. Hors ligne, tout retombe sur le cache — vérifié à
+   L'horaire JSON aussi, depuis `nfdm-v837` (`jsonFrais()`, revalidé, le
+   cache au-delà de 4 s ou hors ligne) : au cache d'abord, la première
+   ouverture après une mise à jour montrait l'ancien. Icônes et polices,
+   au cache. Hors ligne, tout retombe sur le cache — vérifié à
    chaque fois avec Playwright en mode `setOffline(true)`.
 
    **Et l'application installée se met à jour sans être fermée**, depuis

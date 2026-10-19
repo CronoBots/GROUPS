@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v836";
+var V = "nfdm-v837";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./banniere.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -89,6 +89,31 @@ function reseauPuisCache(req) {
     });
   });
 }
+/* L'HORAIRE AU RÉSEAU D'ABORD (le client, le 19/10/2026, capture de
+   l'application ouverte sur l'ordinateur : « classeur du 16/10 » et le
+   1er novembre en PM, alors que celui du 19/10 était en ligne). Servi du
+   cache d'abord et rafraîchi derrière, l'horaire neuf n'apparaissait qu'à
+   l'ouverture SUIVANTE : la première après une mise à jour montrait
+   toujours l'ancien. Il est désormais revalidé (« no-cache » : 304 sans
+   corps s'il n'a pas changé) ; au-delà de quatre secondes, ou hors ligne,
+   le cache répond. */
+function jsonFrais(req) {
+  var reseau = fetch(req, { cache: "no-cache" }).then(function (res) {
+    if (res && res.ok) { cacheSiBon(req, res); return res; }
+    throw new Error("HTTP " + (res && res.status));
+  });
+  return new Promise(function (resolve) {
+    var fini = false;
+    function rendre(r) { if (!fini) { fini = true; resolve(r); } }
+    var t = setTimeout(function () {
+      caches.match(req).then(function (hit) { if (hit) rendre(hit); });
+    }, 4000);
+    reseau.then(function (res) { clearTimeout(t); rendre(res); }, function () {
+      clearTimeout(t);
+      caches.match(req).then(function (hit) { rendre(hit || Response.error()); });
+    });
+  });
+}
 self.addEventListener("fetch", function (e) {
   var req = e.request;
   if (req.method !== "GET") return;
@@ -101,6 +126,11 @@ self.addEventListener("fetch", function (e) {
   /* les abonnements agenda (cal/<id>.ics) : jamais en cache, c'est le
      téléphone qui les relit, et il doit lire le dernier horaire */
   if (/\/cal\/[^/]+\.ics$/.test(url.pathname)) return;
+
+  if (/\/data\/[^/]+\.json$/.test(url.pathname)) {
+    e.respondWith(jsonFrais(req));
+    return;
+  }
 
   if (req.mode === "navigate" || /\/(index\.html)?$/.test(url.pathname)
       || /\.(html|webmanifest)$/.test(url.pathname)) {
