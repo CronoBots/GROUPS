@@ -81,7 +81,12 @@ def main():
     ids = set()
     days = 0
     for person in people:
-        if not isinstance(person, dict) or not person.get("id") or not isinstance(person.get("cat"), str):
+        if (
+            not isinstance(person, dict)
+            or not isinstance(person.get("id"), str)
+            or not person["id"].strip()
+            or not isinstance(person.get("cat"), str)
+        ):
             print("ÉCHEC: structure d'une entrée personne invalide.")
             return 1
         if person["id"] in ids:
