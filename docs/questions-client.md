@@ -301,12 +301,8 @@ n'est deviné à leur sujet :
   sur quels ateliers ?** En attendant, le héros montre les deux chiffres
   tels que le classeur les donne : fait / objectif par atelier, et la
   progression avec SON restant ;
-- **deux journées de la relecture des commentaires** (posées le
+- **une journée de la relecture des commentaires** (posée le
   18/10/2026 ; le client : « je te dirai demain soir ») :
-  - **VGG le 15/03**, `AM · 1h RTT · presté 7h le 20.03`, et le 20/03
-    `SD 26 · voir 15.03` : les 7 h sont-elles faites le 15/03, et que
-    veut dire le 20.03 ? Seule journée signalée par la règle « date d'un
-    autre jour » ;
   - **JBI le 21/08** : le RJF « cf 21/08 » écrit le 13/08 y est désormais
     posé, et l'application compte 0 h travaillée (4 h avant). Le
     commentaire dit « RJF sur la pause AM » : a-t-il travaillé
