@@ -1,0 +1,32 @@
+name: Vérifications de base
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+      - name: Installer Python et Node
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Vérifier la syntaxe Python
+        run: python -m compileall -q tools
+      - name: Vérifier la syntaxe du contrôleur calendrier
+        run: node --check tools/verifier-calendrier.js
+      - name: Vérifier la structure de l'horaire
+        run: python tools/ci-smoke.py
