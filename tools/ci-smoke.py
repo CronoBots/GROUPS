@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCHEDULE = ROOT / "data" / "horaire-2026.json"
 MANIFEST = ROOT / "manifest.webmanifest"
+SERVICE_WORKER = ROOT / "sw.js"
 
 
 def main():
@@ -21,6 +22,7 @@ def main():
             data = json.load(f)
         with MANIFEST.open(encoding="utf-8") as f:
             manifest = json.load(f)
+        service_worker = SERVICE_WORKER.read_text(encoding="utf-8")
     except (OSError, UnicodeError, json.JSONDecodeError):
         print("ÉCHEC: le JSON d'horaire est absent ou invalide.")
         return 1
@@ -48,6 +50,20 @@ def main():
     if missing:
         print("ÉCHEC: une ou plusieurs icônes du manifeste sont absentes.")
         return 1
+
+    core_match = re.search(r"var\\s+CORE\\s*=\\s*\\[(.*?)\\];", service_worker, re.S)
+    if not core_match:
+        print("ÉCHEC: liste CORE introuvable dans le service worker.")
+        return 1
+    core_assets = re.findall(r"""["'](\\./[^"']+)["']""", core_match.group(1))
+    if not core_assets:
+        print("ÉCHEC: liste CORE vide ou illisible.")
+        return 1
+    for asset in core_assets:
+        target = ROOT / asset.removeprefix("./")
+        if not (target.is_file() or target.is_dir()):
+            print("ÉCHEC: une ressource déclarée dans le cache initial est absente.")
+            return 1
 
     if not isinstance(data, dict):
         print("ÉCHEC: racine JSON inattendue.")
