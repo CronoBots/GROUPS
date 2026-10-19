@@ -2540,6 +2540,24 @@ en imitant Messenger sur iPhone (`FBIOS`) et sur Android : le geste en
 tête, le lien copié, le message après un bouton bloqué ; rien de changé
 dans Safari.
 
+**Le lien partagé fait comme le bouton** (le client, le 19/10/2026 à
+19 h 42, capture de la fenêtre « Calendrier avec abonnement » d'iPhone,
+adresse déjà remplie : « j'aimerais que le lien partagé à un ami réagisse
+exactement comme le bouton S'abonner à mon horaire »). `agenda.html`
+lance désormais l'abonnement d'elle-même, sans second toucher, dès que le
+fichier de l'horaire est trouvé (ou au bout de 1,5 s) : `webcal://` sur
+Apple, qui ouvre cette fenêtre-là, la page d'ajout de Google ailleurs. Le
+contenu reste dessous pour qui annule (« Votre agenda s'ouvre… Sinon,
+touchez le bouton ci-dessous »). Pas dans une messagerie, où l'ouverture
+serait bloquée en silence ; pas pour un trigramme sans fichier. Le texte
+du partage dit « ouvre ce lien, ton agenda propose de s'abonner ».
+Observé par les navigations (`nfdm-v831`) : Safari et Edge sur iPhone
+partent vers `webcal://…/cal/VBN.ics`, Chrome sur Android vers
+`calendar.google.com/calendar/r?cid=…`, Messenger reste sur la page, XYZ
+affiche « Aucun horaire n'est publié » sans rien ouvrir. Un lien
+`webcal://` partagé tel quel reste exclu : beaucoup de messageries ne le
+rendent pas cliquable (14/10).
+
 **Le commentaire, l'adresse et la remise de pause** (le client, le
 14/10/2026). Trois ajouts aux événements de `icsAgenda()` :
 
