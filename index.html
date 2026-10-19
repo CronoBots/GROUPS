@@ -1073,19 +1073,19 @@ body{overflow-x:clip}
 .sem-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 10px;
   font-size:12.5px; color:var(--muted)}
 .sem-t b{font-size:13px; font-weight:700; color:var(--ink)}
-.sem-liste{display:flex; flex-direction:column; gap:6px}
-.sem-l{display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px; align-items:center; padding:6px;
+.sem-liste{display:flex; flex-direction:column; gap:4px}
+.sem-l{display:grid; grid-template-columns:58px minmax(0,1fr); gap:12px; align-items:center; padding:5px 6px;
   border-radius:12px; cursor:pointer}
 .sem-l.auj{background:rgba(105,178,203,.08); box-shadow:inset 0 0 0 1px rgba(105,178,203,.28)}
 @media (hover:hover){ .sem-l:not(.hors):hover{background:rgba(255,255,255,.04)} }
 .sem-l.hors{cursor:default; opacity:.45}
-#calCard .sem-l .mc-j{min-height:58px; width:100%}
+#calCard .sem-l .mc-j{min-height:50px; width:100%}
 .sem-d{display:flex; flex-direction:column; gap:2px; min-width:0}
 .sem-j{font-size:11px; font-weight:650; text-transform:uppercase; letter-spacing:.04em; color:var(--faint)}
 .sem-l.auj .sem-j{color:var(--in)}
 .sem-p{font-size:14px; color:var(--ink2)} .sem-p b{color:var(--ink); font-weight:700}
 .sem-a{font-size:12.5px; color:var(--muted)}
-.sem-c{font-size:12px; line-height:1.35; color:var(--muted); font-style:italic;
+.sem-c{font-size:12px; line-height:1.35; color:var(--muted); font-style:italic; white-space:pre-line;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 @media (max-width:360px){ .sem-l{grid-template-columns:56px minmax(0,1fr); gap:10px} }
 /* au bureau, une bascule de 1 100 px ne se lit plus comme un choix : elle
@@ -5277,10 +5277,12 @@ function nettoyerAffichage(txt){
      matche pas « remplace », et un connecteur précédé d'un mot de liaison
      (« qui remplace », « en échange ») est recollé. Vérifié sur les 2481
      commentaires de l'année : 1090 découpés, aucun mot perdu ni altéré. */
-  s=s.replace(/[ \t]+(?=remplac[eé]|échange avec|rappel|maintien|conserve)/gi,"\n");
+  /* « Echange » sans accent (107 commentaires sur 6 891, mesuré le
+     19/10/2026) se coupe et s'accentue comme « Échange », à l'affichage. */
+  s=s.replace(/[ \t]+(?=remplac[eé]|[ée]change avec|rappel|maintien|conserve)/gi,"\n");
   s=s.replace(/\b(qui|en|ne|et|de|est)\n/gi,"$1 ");
   s=s.split("\n").map(function(l){ return l.replace(/[ \t]+/g," ").replace(/^ +| +$/g,""); }).join("\n").replace(/^\n+|\n+$/g,"");
-  s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }); }).join("\n");
+  s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }).replace(/^(\s*)Echange\b/,"$1Échange"); }).join("\n");
   return s;
 }
 var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
@@ -6574,9 +6576,12 @@ function renderSemaine(hote){
       var cas=dans?avecJour(y,m,M,function(){ dr=fusionDrapeaux(dr,legendeDrapeaux(j,j)); return caseJour(j); }):'<span class="mc-j repos sem-hors"><span class="mc-n">'+j+'</span></span>';
       var hj=dans?heuresJour(rec):0; if(hj>0){ tot+=hj; nbj++; }
       var x=null; if(dans && st.personObj){ try{ x=_pfJour(st.personObj.id,d); }catch(e){} }
-      var l1=JOURS_LONGS[(d.getDay()+6)%7]+" "+j+" "+MOIS[m].toLowerCase(), l2="", l3="", com="";
+      /* OPTIMISÉ le 19/10/2026 (le client : « moyen d'optimiser ? ») : la case
+         porte déjà le numéro et l'en-tête le mois ; le jour seul suffit. */
+      var cur0=(d.getTime()===aujT);
+      var l1=JOURS_LONGS[(d.getDay()+6)%7]+(cur0?" · aujourd'hui":""), l2="", l3="", com="";
       if(x && x.presente && PF_HEURES[x.pv]){
-        l2='<b>'+esc(ryTypeLabel(x.pv))+'</b> · '+esc(pfHeures(x));
+        l2='<b>'+esc(ryTypeLabel(x.pv))+'</b> · '+esc(String(pfHeures(x)).replace(/\s*-\s*/,"\u00a0–\u00a0"));
         var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
         if(P0) l3=esc(P0.t);
       } else if(dans && rec.a && ABSMAP[rec.a]){
