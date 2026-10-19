@@ -1711,7 +1711,20 @@ bord mesurés), et la rangée Semaine | Mois | Année | Aujourd'hui s'aligne
 sur elles. Mesuré à 320 px : la semaine à cheval tenait en 205 px pour 204
 de place entre les flèches ; l'étiquette passe à 16 px sous 361 px
 (188 px). Au bureau, la rangée garde 520 px au centre. Dans l'onglet de
-la paie, qui partage la barre, le mois reste affiché. Vérificateur et fiches identiques à
+la paie, qui partage la barre, le mois reste affiché.
+
+Puis (le client : « les sélecteurs de date propres à chaque mode ne sont
+pas adaptés ; en Année il propose aussi le mois »), `nfdm-v830`. Toucher
+l'étiquette ouvrait toujours le champ « mois » natif. Chaque vue a
+désormais le sien, posé au même endroit et seul visible : un mois en Mois
+(`#moisPick`, inchangé) ; un JOUR en Semaine (`#semPick`, type « date »),
+dont on affiche la semaine, faute de champ « semaine » sur iPhone ; une
+liste d'années en Année (`#anPick`), d'AN_MIN à l'année suivante.
+L'onglet de la paie garde le champ « mois ». Le glissement n'est pas
+bloqué par un appui sur l'un des trois. Mesuré à 320 et 1280 px : le
+3 décembre mène à « 30 novembre – 6 décembre », un jour de 2025 à la
+première semaine de 2026, 2027 choisi à ses douze mois. Vérificateur et
+fiches identiques à l'octet ; hors ligne. Vérificateur et fiches identiques à
 l'octet ; hors ligne.
 
 **Congé et maladie séparés, les couleurs des badges partout** (le client,

@@ -4398,7 +4398,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     <!-- CLIQUER LE MOIS OUVRE UN SÉLECTEUR, comme la date du jour de l'onglet
          Horaire (le client, le 02/10/2026) : un champ « month » natif transparent
          couvre le libellé ; le pointillé dit qu'il se touche. -->
-    <div class="mlabelwrap"><span class="mlabel" id="mlabel">—</span><input type="month" id="moisPick" class="moisdateinput" aria-label="Choisir un mois"></div>
+    <div class="mlabelwrap"><span class="mlabel" id="mlabel">—</span><input type="month" id="moisPick" class="moisdateinput" aria-label="Choisir un mois"><input type="date" id="semPick" class="moisdateinput" aria-label="Choisir un jour de la semaine" hidden><select id="anPick" class="moisdateinput" aria-label="Choisir une année" hidden></select></div>
     <button type="button" id="next" aria-label="Mois suivant">&rsaquo;</button>
   </div>
   <!-- CINQ ONGLETS, et non six. Le client, le 30/09/2026 : « fusionner
@@ -7699,6 +7699,18 @@ function majMoisLabel(m,y){
   /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
   var pick=document.getElementById("moisPick");
   if(pick){ pick.value=y+"-"+pad2(m+1); pick.min=AN_MIN+"-01"; }
+  /* UN SÉLECTEUR PAR VUE (le client, le 19/10/2026 : « les sélecteurs de
+     date ne sont pas adaptés ; en Année il propose aussi le mois ») : un
+     mois en Mois ; un jour en Semaine, dont on montre la semaine (iOS n'a
+     pas de champ « semaine ») ; une année en Année, depuis AN_MIN. */
+  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick"), vs=vueSemaine(), va=vueAnnee();
+  if(pick) pick.hidden=vs||va;
+  if(sp){ sp.hidden=!vs; sp.min=AN_MIN+"-01-01";
+    var s0=semDeb||semDepuisMois(); if(vs) sp.value=s0.getFullYear()+"-"+pad2(s0.getMonth()+1)+"-"+pad2(s0.getDate()); }
+  if(ap){ ap.hidden=!va;
+    if(va){ var yMax=Math.max(y,new Date().getFullYear())+1, o="";
+      for(var a=AN_MIN;a<=yMax;a++) o+='<option value="'+a+'"'+(a===y?' selected':'')+'>'+a+'</option>';
+      ap.innerHTML=o; ap.value=String(y); } }
   var pv=document.getElementById("prev");
   var sd=vueSemaine()?(semDeb||semDepuisMois()):null;
   if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0)));
@@ -16683,7 +16695,7 @@ function eqBouge(n){
     var t=e.target;
     /* sauf le champ invisible posé sur l'étiquette du mois (#moisPick) : un
        appui l'ouvre toujours, seul un glissement franc change de mois */
-    if(t.closest && t.closest("input,select,textarea,[contenteditable]") && t.id!=="moisPick"){ x0=null; return; }
+    if(t.closest && t.closest("input,select,textarea,[contenteditable]") && !/^(moisPick|semPick|anPick)$/.test(t.id)){ x0=null; return; }
     x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
   },{passive:true});
   c.addEventListener("touchend",function(e){
@@ -18109,6 +18121,19 @@ function vueHoraire(){
   var mc=document.getElementById("moisCal"); if(mc) mc.hidden=false;
   tipOff();
 }
+/* En Semaine, un jour choisi mène à sa semaine ; en Année, l'année choisie. */
+(function(){
+  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick");
+  if(sp) sp.addEventListener("change",function(){
+    var q=String(sp.value||"").split("-"); if(q.length<3) return;
+    var d=new Date(Number(q[0]),Number(q[1])-1,Number(q[2])); if(isNaN(d)) return;
+    var l=lundiDe(d); allerSemaine(l<semMin()?semMin():l);
+  });
+  if(ap) ap.addEventListener("change",function(){
+    var y=Number(ap.value); if(!y||y<AN_MIN||y===st.y) return;
+    loadMonth(y,st.m);
+  });
+})();
 /* Choisir un mois au sélecteur (champ « month » natif, comme la date du jour de
    l'onglet Horaire) : on va directement à ce mois-là. */
 (function(){
