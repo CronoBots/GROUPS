@@ -59,10 +59,9 @@ n'est deviné à leur sujet :
     sont identiques à l'octet — la règle est de paie seulement ; février
     passe d'un écart de près d'une centaine d'euros de net à moins de
     dix (un chèque-repas, un jour d'indemnité, quelques minutes de
-    déplacement). Neuf autres journées de l'année portent une date de
-    rappel postérieure au jour (JBI 08/03, VGG 26/05, SKS 26/06, PAM
-    15/03, 28/06 et 01/07, RCO 25/07, GDT 15/03, PLZ 28/04) — certaines
-    sont des nuits qui finissent le lendemain ; non tranchées ;
+    déplacement). Les neuf autres dates de rappel postérieures au jour
+    sont **tranchées le 19/10/2026** : « ce sont bien des fautes de
+    frappe, il faut les prendre en compte » (voir le journal 03) ;
   - **les 21 et 22/03 de VBN**, `["R-CM","18h-6h","remplace GPS;
     remplace aussi YBT"]` : la fiche de mars paie 4 h à 187,5 % et 4 h
     à 200 % en « HS pas compenser » (sursalaire ET heure, sans
@@ -215,11 +214,14 @@ n'est deviné à leur sujet :
     la prime de l'après-midi, la pause où elles tombent, comme les états
     SAP de VBN, employé, les 21 et 22/03 (V42). Prime de nuit pour
     l'ouvrier ? Mars de LCI −13,20 € de prime ;
-  - **« DS-CE + ½ VA »** (LCI le 15/04, `["DS-CE","1/2VA"]`) : la fiche paie
-    les 4 h prestées avec la prime du matin ; l'application les lit sans
-    prime (code de jour). Le 18/03, même forme, a déjà la prime de
-    l'après-midi des deux côtés. Trois journées de l'année (18/03, 15/04,
-    21/10). Avril de LCI −3,60 € ;
+  - **« DS-CE + ½ VA »** (LCI le 15/04, `["DS-CE","1/2VA"]`) : la règle
+    est confirmée par le client le 19/10/2026, « pour les CPPT, DS
+    (réunion syndicale), ce sont bel et bien les primes de la pause
+    initiale » — l'application le fait déjà (18/03 PM, 21/10 AM). **Reste
+    une question au client** : le 15/04, l'équipe de LCI est en repos au
+    cycle (13 N, 14 et 15 repos), donc pas de pause initiale ni de prime ;
+    sa fiche paie la prime du matin. Quelle était sa pause prévue ce
+    jour-là ? Avril de LCI −3,60 € ;
 - ~~le D de la grille~~ (09/10/2026) : tranché le 14/10/2026, le client :
   « le D est un jour où le travailleur peut choisir son horaire (6-14 /
   7-15 / 7:30-16) ; le choix par défaut est celui indiqué dans l'horaire
