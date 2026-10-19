@@ -377,7 +377,12 @@ après : si elles disent toutes deux la même journée de jour, sa prime
 s'applique — « 6h-14h » donne le matin. LCI le 15/04, `["DS-CE","1/2VA"]`,
 a ses 11/03 et 20/05 en 6h-14h : prime du matin, comme sa fiche d'avril.
 Seule la prime change : le poste presté (`r.sp`) reste D, et la personne
-ne compte pas dans l'effectif du matin.
+ne compte pas dans l'effectif du matin. **Sinon, prime de jour** — le client, le
+même jour : « prime de jour si la personne n'était pas dans un autre
+horaire prévu ou si l'horaire de ces D n'est pas précisé ». C'est la
+prime D du barème (« Prime équipe D — jour »), que l'application posait
+déjà dans ces deux cas : un repos au cycle sans journée de jour à ±35
+jours, ou un D dont les deux cellules ne disent pas le même horaire.
 
 **Une absence qui couvre la journée entière l'emporte** : `?DS|VA`,
 `?CP|?DS`, `?DS|RJF` restent des absences. On ne transforme pas un congé en

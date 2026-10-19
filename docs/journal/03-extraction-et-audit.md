@@ -1256,3 +1256,9 @@ et QBY perdait une journée de polyvalence (Gluten 18 → 17). Le poste
 presté (`r.sp`) reste désormais D : polyvalences, manques (dont les quatre
 jours touchés), compteurs, vérificateur et fiches VBN identiques à
 l'octet ; agendas inchangés.
+
+Complété par le client le même soir : « prime de jour si la personne
+n'était pas dans un autre horaire prévu ou si l'horaire de ces D n'est
+pas précisé ». C'est ce que fait déjà le repli de `lireJournee()` (prime
+D du barème) ; aucun changement de code, la règle est écrite dans
+`docs/conversion-horaire.md`.
