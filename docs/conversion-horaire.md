@@ -75,6 +75,14 @@ pause plus haute que celle de la cellule** en fait la pause prestée
 (`["PM","18h-6h"]` = nuit et 4 h sup). Détail dans `CLAUDE.md`, « Les
 relevés de cinq employés ».
 
+**« Presté 7h le 20.03 » déplace les heures** (19/10/2026). Le client,
+à propos de VGG le 15/03, `["AM","1h RTT","presté 7h le 20.03"]`, et du
+20/03, `["-","SD 26","voir 15.03"]` : « les commentaires disent bien qu'il
+a fait 7h le 20/03 pour SD26 ». La journée qui l'écrit perd ces heures
+(0 h prestée, la 1 h RTT reste), celle qu'elle nomme en vaut autant (7 h,
+et non les 8 h d'une journée de jour). Le nombre d'heures est exigé :
+« presté le 27.04 », sans heures, reste un renvoi d'épargne.
+
 **Une plage épargnée se retire de la PLAGE, pas de la journée.** La
 présence est la durée de la plage écrite, relue sur le poste du jour ; les
 heures `+FT` s'en retirent, et ce qui reste, plafonné à la journée, est

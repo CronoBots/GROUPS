@@ -1177,3 +1177,16 @@ les deux présents (16 journées), ce qui est juste.
 `data/classeur-2026.xlsx` et six de `data/horaire-2026.json`. Le purger est
 une décision du client, comme pour les noms (`docs/purge-historique.md`).
 
+
+### « Presté 7h le 20.03 » : des heures faites un autre jour (19/10/2026)
+
+Question posée le 18/10 : VGG le 15/03, `["AM","1h RTT","presté 7h le
+20.03"]`, et le 20/03, `["-","SD 26","voir 15.03"]`. L'application comptait
+7 h le 15/03 et 8 h le 20/03, soit 15 h pour une seule journée prévue. Le
+client, le 19/10 : « les commentaires disent bien qu'il a fait 7h le 20/03
+pour SD26 ». Désormais 0 h le 15/03 (la 1 h RTT reste) et 7 h le 20/03
+(`RX_PRESTE_H`, le marqueur « DEP@n » de `renvoisDuMois()`). C'est la seule
+journée de l'année qui l'écrit ainsi. Mesuré : vérificateur, une journée
+prestée de moins et une absence affichée de plus ; neuf règles à 0 ;
+manques, polyvalences, compteurs et fiches VBN identiques à l'octet ;
+l'agenda de VGG perd le 15/03, rien d'autre ne change dans `cal/`.

@@ -8990,9 +8990,10 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
   if(renvois && renvois.length){
     /* un congé que la journée écrit déjà elle-même ne se compte pas deux
        fois (FPA le 02/01, « 4h RTT- », et le 03/01 « 4h RTT cf 02/01 ») */
-    var rvC=renvois.filter(function(c){ return !/^RHS@/.test(c) && c!==out.a; });
+    var rvC=renvois.filter(function(c){ return !/^(?:RHS|DEP)@/.test(c) && c!==out.a; });
     if(rvC.length) out.ax=rvC;
-    renvois.forEach(function(c){ if(/^RHS@/.test(c)) out.rvRHS=(out.rvRHS||0)+Number(c.slice(4)); });
+    renvois.forEach(function(c){ if(/^RHS@/.test(c)) out.rvRHS=(out.rvRHS||0)+Number(c.slice(4));
+      if(/^DEP@/.test(c)) out.dep=(out.dep||0)+Number(c.slice(4)); });
   }
   /* les heures supplémentaires d'un rappel logé dans une cellule de congé */
   if(axHS) out.ax=(out.ax||[]).concat([axHS]);
@@ -9048,6 +9049,14 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
      reste renseigné, c'est celui qui était prévu ; il ne donne ni heure
      prestée ni prime d'équipe. */
   if((e[1]||"").trim()==="-" && out.s){ out.h=0; out.modifie=true; }
+  /* « PRESTÉ 7H LE 20.03 » : les heures du poste prévu ont été faites UN
+     AUTRE JOUR. Le client, le 19/10/2026, à propos de VGG le 15/03
+     (["AM","1h RTT","presté 7h le 20.03"]) : « les commentaires disent bien
+     qu'il a fait 7h le 20/03 pour SD26 ». La journée source les perd ; le
+     20/03 les reçoit par renvoisDuMois() (« DEP@7 »). */
+  if(out.dep>0){ out.h=out.dep; out.modifie=true; }
+  var mDep=RX_PRESTE_H.exec(String(e[2]||""));
+  if(mDep && out.h>0){ out.h=Math.max(0,out.h-Number(mDep[1].replace(",","."))); out.modifie=true; }
   return out;
 }
 /* Remplacement de contremaître donnant droit à une prime forfaitaire par
@@ -9576,6 +9585,11 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
       /* « - » dans la colonne d'annotation : le poste était prévu, il n'a
          pas été presté. */
       if((raw[1]||"").trim()==="-") base=0;
+      /* les heures prestées un autre jour (« presté 7h le 20.03 ») : la
+         journée qui les reçoit en vaut autant, celle qui les écrit les perd */
+      if(r.dep>0) base=r.dep;
+      var mDp=RX_PRESTE_H.exec(String(raw[2]||""));
+      if(mDp) base-=Number(mDp[1].replace(",","."));
       r.h=Math.max(0,base);
     }
   }
@@ -9947,6 +9961,9 @@ function plageHorsPoste(plage,poste){
    ATA le 27/01, « rappel le 27.01 », épargnait deux fois les mêmes quatre
    heures. Sept autres n'en étaient pas non plus : « CP déplacés aux 26 &
    27/03 », « encodé le 13/08 », « Sera en repos le jeudi 30/04 ». */
+/* « presté 7h le 20.03 » : des heures (le nombre est exigé) faites un
+   autre jour que celui de la cellule — voir parseHoraireEntry(). */
+var RX_PRESTE_H=/prest[\u00e9e]e?s?\s+(\d+(?:[.,]\d+)?)\s*h\s+le\s+(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
 var RX_RENVOI=/(?:^|prest[\u00e9e]e?s?(?:\s+[A-Za-z]{1,3})?\s+le|\bdu|\bcf\.?)\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})/i;
 /* Où retombent les heures que les commentaires renvoient à un autre jour.
    Jumelle d'epargnesDuMois(), mais dans l'autre sens : celle-ci part de la
@@ -9959,6 +9976,9 @@ function renvoisDuMois(person,mois,hJour){
     if(!Object.prototype.hasOwnProperty.call(person.d,mmdd)) continue;
     e=person.d[mmdd];
     if(!e || typeof e==="string" || e.length<3) continue;
+    var mD=RX_PRESTE_H.exec(String(e[2]||""));
+    if(mD && Number(mD[3])===mois && pad2(Number(mD[3]))+pad2(Number(mD[2]))!==mmdd)
+      (out[Number(mD[2])]=out[Number(mD[2])]||[]).push("DEP@"+mD[1].replace(",","."));
     m=prisAilleurs(e); if(!m) continue;
     if(Number(m[2])!==mois) continue;
     code=parseHoraireEntry(["",e[1]||""],hJour).a;
@@ -9988,7 +10008,12 @@ function renvoisAffiches(person,mois){
     e=person.d[mmdd];
     if(!e || typeof e==="string" || e.length<3) continue;
     var annot=e[1]||"", com=e[2]||"";
-    m=null;
+    m=RX_PRESTE_H.exec(com);
+    if(m){
+      if(Number(m[3])===mois && pad2(Number(m[3]))+pad2(Number(m[2]))!==mmdd){ d=Number(m[2]);
+        (cible[d]=cible[d]||[]).push(m[1]+"h prestées · écrites au "+mmdd.slice(2)+"/"+mmdd.slice(0,2)); }
+      continue;
+    }
     if(/\+\s*FT/i.test(annot)) m=com.match(RX_RENVOI);
     if(!m){ m=prisAilleurs(e);
       if(m){ var c=parseHoraireEntry(["",annot],hJ).a;
