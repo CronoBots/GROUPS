@@ -523,3 +523,23 @@ nouvelle (v837), deux ouvertures sur l'horaire du 16/10, horaire remplacé
 sur le serveur, une seule réouverture : avant « classeur du 16/10 », après
 « classeur du 19/10 » ; hors ligne ensuite, « classeur du 19/10 » dans les
 deux.
+
+### La fenêtre de robocopy, cachée (20/10/2026)
+
+Le client : « une fenêtre apparaît sur mon écran quelques secondes puis
+disparaît », la nuit comme le jour, « avant je n'avais jamais eu ces
+fenêtres ». C'est la tâche « Copie horaire BIOWANZE » du PC virtuel, créée
+le 16/10 : « N'exécuter que si l'utilisateur est connecté » (l'autre option
+est refusée) ouvre la console de `robocopy` à chaque passage — toutes les
+15 minutes de 8 h à 20 h en semaine, et à chaque ouverture de session ou
+connexion à distance (la passe de 01 h 39 était une connexion, pas le
+planning). Une fausse piste d'abord : le Planificateur de son PC à lui,
+dont les quatre tâches sont Adobe et OneDrive.
+
+Corrigé sans retaper les chemins : un `cache.vbs` de deux lignes dans ses
+Documents relance ses arguments par `WScript.Shell.Run …, 0, True`, et les
+deux actions (horaire, recyclages) passent de `robocopy` à `wscript.exe`
+avec, en tête des arguments existants, le chemin du script et `robocopy`.
+Éprouvé : exécution à la main, aucune fenêtre, état « Prêt », résultat
+(0x0). Limite connue : le script ne renvoie pas le code de `robocopy`, une
+copie échouée afficherait aussi (0x0).
