@@ -253,15 +253,28 @@ fraction, son cycle, ses déplacements, ses avantages, les montants de chaque
 mois, et le « calage barème » que l'onglet Contrôle recalcule sur sa propre
 fiche.
 
-## Vos données
+## Vos données et confidentialité
 
-Elles ne quittent jamais l'appareil : tout est enregistré par le navigateur.
-Rien n'est envoyé à GitHub ni à aucun serveur — l'hébergement ne sert qu'à
-livrer la page.
+Les informations personnelles saisies pour votre fiche de paie sont
+principalement conservées dans le stockage local du navigateur. Le bouton
+**Exporter mes données** produit un fichier `.json` de sauvegarde que vous
+pouvez importer sur un autre appareil. Protégez ce fichier : il peut contenir
+des informations personnelles et salariales.
 
-Le bouton **Exporter mes données** en bas de page produit un fichier `.json`
-qui sert de sauvegarde et permet de transférer vos mois vers un autre appareil
-(bouton **Importer**).
+**Attention : cela ne signifie pas que toutes les données de l'application
+sont privées.** L'horaire d'équipe utilisé pour le pré-remplissage est servi
+depuis ce dépôt GitHub. Tant que le dépôt est public, les fichiers d'horaires
+et les calendriers publiés peuvent être consultés directement, sans passer par
+l'application.
+
+Si vous activez les notifications, l'application transmet également des
+informations techniques d'abonnement à un service distant. N'activez pas cette
+fonction en supposant qu'aucune donnée ne quitte l'appareil.
+
+Le stockage local et le masquage de fonctions dans l'interface ne constituent
+pas un contrôle d'accès pour des données publiées sur le Web. Si les horaires
+ou certaines fonctions RH doivent être réservés au personnel, une solution
+d'authentification et de stockage protégée est nécessaire.
 
 ## Fichiers
 
