@@ -75,12 +75,13 @@ pause plus haute que celle de la cellule** en fait la pause prestée
 (`["PM","18h-6h"]` = nuit et 4 h sup). Détail dans `CLAUDE.md`, « Les
 relevés de cinq employés ».
 
-**« Presté 7h le 20.03 » déplace les heures** (19/10/2026). Le client,
-à propos de VGG le 15/03, `["AM","1h RTT","presté 7h le 20.03"]`, et du
-20/03, `["-","SD 26","voir 15.03"]` : « les commentaires disent bien qu'il
-a fait 7h le 20/03 pour SD26 ». La journée qui l'écrit perd ces heures
-(0 h prestée, la 1 h RTT reste), celle qu'elle nomme en vaut autant (7 h,
-et non les 8 h d'une journée de jour). Le nombre d'heures est exigé :
+**« Presté 7h le 20.03 » donne la durée du jour nommé** (19/10/2026). Le
+client, à propos de VGG le 15/03, `["AM","1h RTT","presté 7h le 20.03"]`,
+et du 20/03, `["-","SD 26","voir 15.03"]` : « les commentaires disent bien
+qu'il a fait 7h le 20/03 pour SD26 », puis « VGG a bien fait AM aussi le
+15/03 ». Le jour nommé vaut ces heures (7 h, et non les 8 h d'une journée
+de jour) ; la journée qui l'écrit garde les siennes (7 h d'AM, 1 h RTT).
+Une première lecture lui retirait les 7 h : c'était faux. Le nombre d'heures est exigé :
 « presté le 27.04 », sans heures, reste un renvoi d'épargne.
 
 **« FT sur 18/08 » et « RJF sur la pause AM »** (19/10/2026). Le client,

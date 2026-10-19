@@ -1191,6 +1191,12 @@ prestée de moins et une absence affichée de plus ; neuf règles à 0 ;
 manques, polyvalences, compteurs et fiches VBN identiques à l'octet ;
 l'agenda de VGG perd le 15/03, rien d'autre ne change dans `cal/`.
 
+**Le 15/03 à 0 h était FAUX** (même jour, v840). J'en avais tiré que les
+7 h avaient quitté le 15/03 ; le client : « VGG a bien fait AM aussi le
+15/03 ». Le 15/03 revient à 7 h d'AM (1 h RTT), le 20/03 reste à 7 h. La
+phrase dit la durée du jour nommé, elle ne retire rien au jour qui
+l'écrit.
+
 ### JBI le 21/08 : PM presté, RJF sur la pause du matin (19/10/2026)
 
 Question posée le 18/10 : depuis que le RJF « cf 21/08 » du 13/08 est posé
@@ -1204,3 +1210,25 @@ dans `lireJournee()`). Mesuré : une journée prestée de plus, une absence
 de moins ; neuf règles à 0 ; manques, compteurs et fiches VBN identiques à
 l'octet ; polyvalence : JBI Gluten 3/5 → 4/5 (le remplacement du 21/08
 compte) ; agenda : le 21/08 de JBI dit « Contremaître ».
+
+### Les dates de rappel postérieures au jour sont des fautes de frappe (19/10/2026)
+
+Le client, le 19/10, des neuf journées listées : « ce sont bien des fautes
+de frappe, il faut les prendre en compte ». `momentRappel()` refusait une
+date postérieure ; elle compte désormais comme un rappel J (demandé le jour
+même), la vraie date n'étant pas écrite. Trois des neuf comptaient déjà
+par leur « presté le » (JBI 08/03, GDT 15/03, PLZ 28/04). Et SKS le 26/06,
+`["6h-14h +","1/2DTT","… remplace SBZ de 18h à 22h rappel le 29/06"]`, ne
+débordait pas de son matin parce que `rappelDuJour()` ne regardait que la
+plage de la cellule : la plage du commentaire est désormais essayée aussi.
+Mesuré par `window.__horaireSig()` sur 27 595 journées, avant et après :
+exactement sept changent — VGG 15/03 (ci-dessus), VGG 26/05, SKS 26/06,
+PAM 15/03, 28/06 et 01/07, RCO 25/07, qui gagnent leur prime de rappel ;
+aucune autre. Vérificateur, manques, polyvalences, compteurs et fiches VBN
+identiques à l'octet.
+
+**CPPT, DS, DS-CE : la prime de la pause initiale**, confirmé le même jour
+(« ce sont bel et bien les primes de la pause initiale qui doivent être
+prises en compte »). C'était déjà la règle (section 6 bis de
+`docs/conversion-horaire.md`), rien n'a changé dans le code. Le 15/04 de LCI,
+que le cycle met en repos, reste une question au client.

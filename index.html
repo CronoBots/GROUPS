@@ -9056,11 +9056,10 @@ function parseHoraireEntry(e,hJour,epargne,renvois){
   /* « PRESTÉ 7H LE 20.03 » : les heures du poste prévu ont été faites UN
      AUTRE JOUR. Le client, le 19/10/2026, à propos de VGG le 15/03
      (["AM","1h RTT","presté 7h le 20.03"]) : « les commentaires disent bien
-     qu'il a fait 7h le 20/03 pour SD26 ». La journée source les perd ; le
-     20/03 les reçoit par renvoisDuMois() (« DEP@7 »). */
+     qu'il a fait 7h le 20/03 pour SD26 », puis « VGG a bien fait AM aussi
+     le 15/03 ». La journée source garde ses heures ; le 20/03 vaut les 7 h
+     qu'il reçoit par renvoisDuMois() (« DEP@7 »). */
   if(out.dep>0){ out.h=out.dep; out.modifie=true; }
-  var mDep=RX_PRESTE_H.exec(String(e[2]||""));
-  if(mDep && out.h>0){ out.h=Math.max(0,out.h-Number(mDep[1].replace(",","."))); out.modifie=true; }
   return out;
 }
 /* Remplacement de contremaître donnant droit à une prime forfaitaire par
@@ -9194,9 +9193,9 @@ function jourPreste(annee,mmdd,comm){
 /* Une date de rappel mal écrite, tranchée par le client pour la journée
    nommée seulement. VBN le 19/02, « rappel le 19.06 » : le client, le
    07/10/2026, « j'ai fait 12h avec rappel le 19.02 et non 19.06 » — sa
-   fiche de février paie ce rappel. Une date postérieure au jour est
-   refusée plus bas ; on ne la devine pas, on la corrige ici, journée par
-   journée. Seule cellule de l'année à porter « rappel le 19.06 » ce jour-là. */
+   fiche de février paie ce rappel. Une date postérieure au jour compte
+   plus bas comme un rappel du jour même (le client, le 19/10/2026) ; celle-
+   ci, dont la vraie date est connue, se corrige ici. Seule cellule de l'année à porter « rappel le 19.06 » ce jour-là. */
 /* JBI le 23/06, « remplace YPE + 06h-10h interventions chaidières rappel
    le? » : le client, le 12/10/2026, « rappel le 22/06 ». */
 var RAPPEL_DATE_TRANCHEE={"0219":[/rappel le 19\.06/i,"rappel le 19.02"],
@@ -9221,7 +9220,12 @@ function momentRappel(annee,mmdd,txt,comm){
   var dem=Date.UTC(annee,Number(m[2])-1,Number(m[1]));
   var ec=Math.round((jour-dem)/86400000);
   if(ec<-300) ec=Math.round((jour-Date.UTC(annee-1,Number(m[2])-1,Number(m[1])))/86400000);
-  if(ec<0) return null;
+  /* UNE DATE POSTÉRIEURE AU JOUR EST UNE FAUTE DE FRAPPE. Le client, le
+     19/10/2026, des neuf journées qui en portent une (VGG le 26/05,
+     « Rappel le 25/06 » ; PAM le 01/07, « rappel le 05.07 »…) : « ce sont
+     bien des fautes de frappe, il faut les prendre en compte ». La vraie
+     date n'étant pas écrite, le rappel compte comme demandé le jour même. */
+  if(ec<0) return "J";
   if(ec<=1) return "J";
   return (ec<=15)?"J2":null;
 }
@@ -9271,11 +9275,13 @@ function rappelDuJour(e,postePrevu,annee,mmdd){
   if(/\brepos\b|cong[ée]|avait pos[ée]/i.test(e[2]||"")) return mom;
   if(gainFT((e[0]||"")+" "+(e[1]||""))!==null) return mom;
   var d=debordePoste(plageRappel(e),postePrevu);
-  if(!d) return null;
+  /* la cellule peut écrire la journée et le commentaire le rappel : SKS le
+     26/06, ["6h-14h +","1/2DTT","départ à 10h remplace SBZ de 18h à 22h
+     rappel le 29/06"] — rappelée le soir après son matin */
+  var pc=plageCommentaire(e[2]||""), d2=pc?debordePoste(pc,postePrevu):null;
   /* trente minutes avant la pause suffisent ; après, il en faut trois heures */
-  if(d.avant>=0.5-0.01) return mom;
-  if(d.apres>=3-0.01) return mom;
-  return null;
+  function deborde(x){ return !!x && (x.avant>=0.5-0.01 || x.apres>=3-0.01); }
+  return (deborde(d)||deborde(d2))?mom:null;
 }
 /* Deux rappels à deux dates, deux primes. La fiche de LCI le 13/04,
    ["N","22h-10h","Rappel le 07/04 + rappel le 13/04"] : 12 h 05 d'heures
@@ -9590,10 +9596,8 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
          pas été presté. */
       if((raw[1]||"").trim()==="-") base=0;
       /* les heures prestées un autre jour (« presté 7h le 20.03 ») : la
-         journée qui les reçoit en vaut autant, celle qui les écrit les perd */
+         journée qui les reçoit en vaut autant */
       if(r.dep>0) base=r.dep;
-      var mDp=RX_PRESTE_H.exec(String(raw[2]||""));
-      if(mDp) base-=Number(mDp[1].replace(",","."));
       r.h=Math.max(0,base);
     }
   }
