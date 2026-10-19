@@ -7828,20 +7828,17 @@ function deplierBarre(){
   }
   window.addEventListener("scroll",jauger,{passive:true});
 })();
-/* LE BOUTON DE RETOUR EN HAUT : visible passé 300 px de descente. */
+/* LE BOUTON DE RETOUR EN HAUT. Du 18/10 au 19/10/2026, il ne se montrait
+   qu'en REMONTANT et s'effaçait après deux secondes, parce que posé en
+   permanence il couvrait la valeur de droite des rangées. Le client, le
+   19/10/2026 : « ce bouton devrait toujours être visible quand on n'est
+   pas en haut de page ». Il l'est donc dès 200 px de descente, en montant
+   comme en descendant ; il garde son opacité réduite, pleine sous le doigt. */
 (function(){
   var b=document.getElementById("enHaut"); if(!b) return;
-  /* Il ne se montre que quand on REMONTE, et s'efface deux secondes après
-     le geste : posé en permanence, il couvrait la valeur de droite des
-     rangées (le client, 18/10/2026, « optimise au max »). */
-  var dernier=0, tEff=null;
   function voir(){
     var y=window.pageYOffset||document.documentElement.scrollTop||0;
-    var monte=y<dernier-4, descend=y>dernier+4;
-    if(monte||descend) dernier=y;
-    if(y<=300||descend){ b.classList.remove("on"); return; }
-    if(monte){ b.classList.add("on"); clearTimeout(tEff);
-      tEff=setTimeout(function(){ if(!b.matches(":hover,:focus-visible")) b.classList.remove("on"); },2200); }
+    b.classList.toggle("on",y>200);
   }
   window.addEventListener("scroll",voir,{passive:true});
   b.addEventListener("click",function(){
