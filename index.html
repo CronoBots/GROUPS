@@ -9343,7 +9343,38 @@ function cycleDuMois(person,annee,mois){
     }
   }
   if(bs/j.length<0.6) return null;      /* ajustement trop faible pour servir */
+  /* la personne, pour pauseDeRotationD() — non énumérable, elle ne pèse pas
+     dans les signatures */
+  try{ Object.defineProperty(best,"p",{value:person}); }catch(er){}
   return best;
+}
+/* LA ROTATION DES JOURS DE D. Le client, le 19/10/2026 : « certains
+   opérateurs ont une rotation des jours de D de leur cycle (lundi mardi
+   mercredi ou mercredi jeudi vendredi) ». Le cycle de l'équipe ne la
+   connaît pas : il met ces jours en repos. Une journée CPPT ou DS qui y
+   tombe prend pourtant la prime de la pause qui devait être prestée (le
+   client, même jour) — la journée de D. On la lit dans la personne elle-
+   même, à la même place du cycle de cinq semaines : LCI le 15/04,
+   ["DS-CE","1/2VA"], a ses 11/03 et 20/05 en « 6h-14h », comme les 16 et
+   17/04 ; sa fiche d'avril paie la prime du matin. Toutes les cellules
+   prises à ±35 jours doivent être une journée de jour, sinon rien. */
+function pauseDeRotationD(p,annee,mois,jour){
+  if(!p || !p.d) return null;
+  var t=Date.UTC(annee,mois-1,jour), vu=null, k, dt, e, c0, pl, s;
+  for(k=-35;k<=35;k+=70){
+    dt=new Date(t+k*86400000);
+    if(dt.getUTCFullYear()!==annee) continue;
+    e=p.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())];
+    if(!e || typeof e==="string") return null;
+    c0=String(e[0]||"").trim();
+    pl=plageMention(c0);
+    if(c0==="D") s="D";
+    else if(pl && pl[0]>=5.9 && pl[0]<=8.1 && pl[1]>=13.9 && pl[1]<=16.6) s=parseHoraireEntry([c0],8).s;
+    else return null;
+    if(!s || (vu && vu!==s)) return null;
+    vu=s;
+  }
+  return vu;
 }
 function posteDeCycle(fit,annee,mois,jour){
   if(!fit) return null;
@@ -9575,7 +9606,16 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     }
     if(!duCycle) duCycle=posteDeCycle(fit,annee,mois,jour);
     if(!duCycle) duCycle=posteDuRemplace(db,raw,pad2(mois)+pad2(jour),hJour);
+    /* un jour de D du cycle : sa prime est celle de l'horaire de D de la
+       personne, lu dans ses propres cellules (pauseDeRotationD) */
+    var sansD=null;
+    if((!duCycle || duCycle==="D") && r.jour && fit){
+      var pD=pauseDeRotationD(fit.p,annee,mois,jour);
+      if(pD && pD!=="D"){ sansD=duCycle||r.s||"D"; duCycle=pD; } }
     if(!duCycle && r.jour) duCycle=r.s||"D";
+    /* la PRIME seule : le poste presté, qui place la personne dans
+       l'effectif, reste celui que donnait le cycle (Safety Days du 27/05) */
+    if(sansD && sansD!==duCycle){ r.sp=sansD; r.modifie=true; }
     if(duCycle && duCycle!==r.s){
       r.s=duCycle; r.modifie=true;
       var AR=r.a&&ABSMAP[r.a];

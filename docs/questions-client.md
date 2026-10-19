@@ -218,10 +218,10 @@ n'est deviné à leur sujet :
     est confirmée par le client le 19/10/2026, « pour les CPPT, DS
     (réunion syndicale), ce sont bel et bien les primes de la pause
     initiale » — l'application le fait déjà (18/03 PM, 21/10 AM). **Reste
-    une question au client** : le 15/04, l'équipe de LCI est en repos au
-    cycle (13 N, 14 et 15 repos), donc pas de pause initiale ni de prime ;
-    sa fiche paie la prime du matin. Quelle était sa pause prévue ce
-    jour-là ? Avril de LCI −3,60 € ;
+    une question au client**, tranchée le même jour : « certains opérateurs
+    ont une rotation des jours de D de leur cycle (lundi mardi mercredi ou
+    mercredi jeudi vendredi) » ; le 15/04 de LCI était un jour de D, fait
+    en 6h-14h, d'où la prime du matin. Voir `pauseDeRotationD()` ;
 - ~~le D de la grille~~ (09/10/2026) : tranché le 14/10/2026, le client :
   « le D est un jour où le travailleur peut choisir son horaire (6-14 /
   7-15 / 7:30-16) ; le choix par défaut est celui indiqué dans l'horaire
