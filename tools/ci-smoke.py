@@ -49,8 +49,12 @@ def main():
         print("ÉCHEC: une ou plusieurs icônes du manifeste sont absentes.")
         return 1
 
-    if not isinstance(data, dict) or data.get("year") != 2026:
-        print("ÉCHEC: année ou racine JSON inattendue.")
+    if not isinstance(data, dict):
+        print("ÉCHEC: racine JSON inattendue.")
+        return 1
+    schedule_year = data.get("year")
+    if type(schedule_year) is not int or not 2000 <= schedule_year <= 2100:
+        print("ÉCHEC: année d'horaire invalide.")
         return 1
 
     people = data.get("people")
@@ -78,7 +82,7 @@ def main():
                 return 1
             month, day = int(date_key[:2]), int(date_key[2:])
             try:
-                datetime.date(2026, month, day)
+                datetime.date(schedule_year, month, day)
             except ValueError:
                 print("ÉCHEC: date invalide pour 2026.")
                 return 1
