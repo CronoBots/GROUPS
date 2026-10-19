@@ -83,6 +83,16 @@ a fait 7h le 20/03 pour SD26 ». La journée qui l'écrit perd ces heures
 et non les 8 h d'une journée de jour). Le nombre d'heures est exigé :
 « presté le 27.04 », sans heures, reste un renvoi d'épargne.
 
+**« FT sur 18/08 » et « RJF sur la pause AM »** (19/10/2026). Le client,
+à propos de JBI le 21/08, `["R-CM","4h +FT","remplace YPE … RJF sur la
+pause AM, encodé le 13/08 FT sur18/08 DANS SAP"]` : « il a fait PM à la
+place de YPE, mais était en RJF pour sa pause du matin ; […] 4h FT+ qui
+ont été faites le 18/08 ». Le +FT annoncé « FT sur JJ/MM » s'épargne sur
+le jour nommé, pas sur la cellule ; un congé renvoyé « sur la pause X » un
+jour où l'on preste une autre pause ne retire rien : 8 h de PM prestées,
+le RJF compté. GPS le même jour (`["18h-22h","4h +FT","… RHS sur la
+pause N"]`) n'est pas touché : sa reprise n'est pas un congé renvoyé.
+
 **Une plage épargnée se retire de la PLAGE, pas de la journée.** La
 présence est la durée de la plage écrite, relue sur le poste du jour ; les
 heures `+FT` s'en retirent, et ce qui reste, plafonné à la journée, est

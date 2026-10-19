@@ -94,6 +94,7 @@ const MORCEAUX=[
   ["function lireJournee(","\n}"],
   ["function plageHorsPoste(","\n}"],
   ["var RX_PRESTE_H=","\n"],
+  ["var RX_FT_SUR=","\n"],
   ["var RX_RENVOI=","\n"],
   ["function renvoisDuMois(","\n}"],
   ["function epargnesDuMois(","\n}"],
