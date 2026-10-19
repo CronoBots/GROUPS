@@ -20,13 +20,19 @@ jobs:
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
-      - name: Installer Python et Node
+      - name: Installer Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
       - name: Vérifier la syntaxe Python
         run: python -m compileall -q tools
-      - name: Vérifier la syntaxe du contrôleur calendrier
-        run: node --check tools/verifier-calendrier.js
+      - name: Vérifier la syntaxe JavaScript
+        run: |
+          node --check tools/verifier-calendrier.js
+          node --check sw.js
       - name: Vérifier la structure de l'horaire
         run: python tools/ci-smoke.py
