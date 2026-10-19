@@ -1232,3 +1232,27 @@ identiques à l'octet.
 prises en compte »). C'était déjà la règle (section 6 bis de
 `docs/conversion-horaire.md`), rien n'a changé dans le code. Le 15/04 de LCI,
 que le cycle met en repos, reste une question au client.
+
+### La rotation des jours de D (19/10/2026)
+
+Le client, sur le 15/04 de LCI (DS-CE, cycle de l'équipe en repos, fiche
+payant le matin) : « la prime de pause est celle de la pause qui devait
+être prestée au lieu du CPPT, DS », puis « certains opérateurs ont une
+rotation des jours de D de leur cycle (lundi mardi mercredi ou mercredi
+jeudi vendredi) ». Le cycle de l'application disait bien D ce jour-là ; il
+ne savait pas que le D de LCI se fait en 6h-14h. `pauseDeRotationD()` le
+lit dans ses cellules à ±35 jours (11/03 et 20/05 : 6h-14h).
+
+Mesuré par `window.__horaireSig()` : 15 journées changent de prime, D → AM
+— LCI 15/04 et 16/12, JKS 25/02 et 28/10 (CPPT, DS-CE), et onze
+formations (F, D-F) sur un jour de D en 6h-14h : LHR 14/01, NPE 01 et
+02/04, APN, GDT, HKB et NRD le 27/05 (Safety Days), CJD 16/10, GDT et KDN
+18/11, AAI 16/12. Ces formations suivent la règle de la section 6 bis,
+« conserve la prime de pause normalement effectuée dans le cycle ».
+
+**Erreur commise puis corrigée** : la première version changeait aussi le
+poste PRESTÉ ; les Safety Days du 27/05 entraient dans l'effectif du matin
+et QBY perdait une journée de polyvalence (Gluten 18 → 17). Le poste
+presté (`r.sp`) reste désormais D : polyvalences, manques (dont les quatre
+jours touchés), compteurs, vérificateur et fiches VBN identiques à
+l'octet ; agendas inchangés.

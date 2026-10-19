@@ -83,6 +83,7 @@ const MORCEAUX=[
   ["function parseHoraireEntry(","\n}"],
   ["var CYCLES=[","];"],
   ["function cycleDuMois(","\n}"],
+  ["function pauseDeRotationD(","\n}"],
   ["function posteDeCycle(","\n}"],
   ["function posteDuRemplace(","\n}"],
   ["function plageCommentaire(","\n}"],

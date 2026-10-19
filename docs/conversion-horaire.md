@@ -367,6 +367,18 @@ Exemples relus dans le classeur 2026 :
 | `DS-CE` / `1h rhs` (LCI 17/06) | N | **N**, prime de nuit conservée sur 7 h ; l'heure reprise se paie sans prime (`docs/regles-paie.md`, « RHS ») |
 | `-` / `D-F` (ATR 23/04) | repos | **D**, sans prime |
 
+**Un jour de D du cycle prend la prime de l'horaire de D de la personne**
+(19/10/2026). Le client : « la prime de pause est celle de la pause qui
+devait être prestée au lieu du CPPT, DS », et « certains opérateurs ont
+une rotation des jours de D de leur cycle (lundi mardi mercredi ou mercredi
+jeudi vendredi) ». Quand le cycle donne D (ou rien) un jour à code, on lit
+la cellule de la personne à la même place du cycle, cinq semaines avant et
+après : si elles disent toutes deux la même journée de jour, sa prime
+s'applique — « 6h-14h » donne le matin. LCI le 15/04, `["DS-CE","1/2VA"]`,
+a ses 11/03 et 20/05 en 6h-14h : prime du matin, comme sa fiche d'avril.
+Seule la prime change : le poste presté (`r.sp`) reste D, et la personne
+ne compte pas dans l'effectif du matin.
+
 **Une absence qui couvre la journée entière l'emporte** : `?DS|VA`,
 `?CP|?DS`, `?DS|RJF` restent des absences. On ne transforme pas un congé en
 prestation.

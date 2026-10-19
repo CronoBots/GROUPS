@@ -166,7 +166,7 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("var RX_POUR_LE=","\n"),
  g("var RX_DATE_SEULE=","\n"),
  g("function prisAilleurs(","\n}"),
- g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),
+ g("function parseHoraireEntry(","\n}"),g("var CYCLES=[","];"),g("function cycleDuMois(","\n}"),g("function pauseDeRotationD(","\n}"),
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
  g("function plageCommentaire(","\n}"),g("function debordePoste(","\n}"),
  g("var RX_PRIME_GARDEE=","\n"),g("function primeGardee(","\n}"),g("function motPrime(","\n}"),
