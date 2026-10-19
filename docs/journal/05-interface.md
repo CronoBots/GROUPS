@@ -1076,3 +1076,19 @@ barre du haut écrit « Choisissez qui vous êtes / dans Réglages » sur deux
 lignes — sur une seule, elle chevauchait BIOWANZE à 320 px. Vérifié à 320
 (hors ligne), 390 et 1280 px.
 
+
+### Une note écrite dans l'annotation se montre comme un commentaire (19/10/2026)
+
+Le client : « les commentaires de JBI du 02/11 au 11/11 n'apparaissent pas,
+car ils ont indiqué "Falling film" dans la case au lieu du commentaire ».
+La journée se lisait juste (un D de 8 h, `MENTIONS_NEUTRES`) ; seul
+l'affichage ne regardait que la colonne commentaire. `comAffiche(raw)`
+rend le commentaire, ou, s'il n'y en a pas, une tâche écrite dans
+l'annotation (`NOTES_ANNOTATION` : falling film, consignations,
+« Polyvalence ») — jamais un code, une plage ni un atelier. Elle sert le
+coin du calendrier, la vue semaine, la bulle des badges d'équipe et la
+note de l'agenda. Mesuré : seules les 8 journées « Falling film » de JBI
+changent dans `cal/` (une DESCRIPTION de plus chacune) ; vérificateur,
+manques, polyvalences, compteurs et fiches VBN identiques. Navigateur :
+novembre marque les 02-04 et 09-12, la semaine les affiche, hors ligne
+sans erreur.

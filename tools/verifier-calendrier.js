@@ -206,6 +206,8 @@ const MORCEAUX=[
   ["var ICS_NOM=","\n"],
   ["var ICS_MAPKIT=","\n"],
   ["function icsLieu(","\n}"],
+  ["var NOTES_ANNOTATION=","\n"],
+  ["function comAffiche(","\n}"],
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
   ["function icsAgenda(","\n}"]
