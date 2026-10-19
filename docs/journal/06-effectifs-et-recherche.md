@@ -1668,6 +1668,41 @@ venir. Mesuré le 19/10 à 0 h 28 (heure simulée) : 0 case pâle sur 42
 (VBN, ATR) et sur 35 (LCI), un jour cerclé et une semaine encadrée par
 cycle actuel. Vérificateur et fiches identiques à l'octet ; hors ligne.
 
+**La vue Semaine** (le client, le 19/10/2026 : « ajout d'une vue semaine en
+plus de la vue mois et année »), `nfdm-v828`. La bascule devient Semaine |
+Mois | Année. Une semaine n'a d'intérêt que si elle dit ce que le mois n'a
+pas la place d'écrire : une ligne par jour, la case du mois à gauche
+(`caseJour()`, la même, codes et marques compris), et à droite le jour en
+toutes lettres, la pause et ses heures (« Nuit · 21 h 30-6 h »), l'atelier,
+ou l'absence et son libellé (`libCompteur()`), puis le commentaire du
+classeur sur deux lignes. Les heures et l'atelier sont ceux du héros et de
+l'agenda (`lectureAgenda()` par `_pfJour()`). En tête, « Semaine 43 » et
+le total : « 4 journées · 32 h ». La ligne du jour est mise en avant.
+- La semaine va du lundi au dimanche. Le mois de son jeudi (la règle des
+  semaines ISO) devient le mois de l'application : repasser en Mois
+  retombe dessus. Une semaine à cheval relit ses deux mois comme l'Année
+  (y compris l'écriture en attente) ; `avecJour()` bascule aussi l'année et
+  `st.personD` pour une semaine qui déborde sur l'année suivante.
+- Les flèches et le glissement vont d'une semaine à l'autre ; plancher : la
+  semaine du 1er janvier 2026, dont les jours de 2025 sont grisés.
+  « Aujourd'hui » ramène à la semaine en cours. Le sélecteur de mois mène à
+  la semaine du 1er du mois choisi.
+- Toucher une ligne ouvre la feuille du jour, mois et année chargés au
+  besoin.
+- Mesuré, le 19/10 à 10 h (heure simulée) : 19 – 25 oct., semaine 43 ;
+  › › mène au 2 – 8 nov. ; « Aujourd'hui » ramène au 19 – 25 oct., éteint ;
+  janvier donne « 29 déc. – 4 janv. », flèche ‹ éteinte, et un ‹ forcé ne
+  bouge pas ; octobre donne « 28 sept. – 4 oct. » ; une ligne de
+  septembre ouvre « Lundi 28 septembre », la semaine gardée.
+- Trois boutons dans la bascule : à 320 px, « Semaine » dépassait d'un
+  pixel (47 px de texte pour 46). Mesuré par la largeur réelle du texte
+  (un `Range`), pas par `scrollWidth`, qui signalait les trois boutons
+  « coupés » même à 1280 px : la marge passe à 2 px sous 361 px (47 pour
+  50).
+Vérifié à 320, 360, 390 et 1280 px, sans débordement ni erreur ; les vues
+Mois et Année repassent leur scénario ; vérificateur et fiches identiques
+à l'octet ; hors ligne.
+
 **Congé et maladie séparés, les couleurs des badges partout** (le client,
 le 17/10/2026, capture de « Mon rythme » : « ne pas faire les congés et
 maladies de la même manière ; dans le calendrier il faut que les couleurs
