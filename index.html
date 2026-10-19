@@ -1062,10 +1062,30 @@ body{overflow-x:clip}
 .calvue-l{display:flex; align-self:stretch; gap:8px; margin:0 26px 12px}
 .calvue{flex:1 1 auto; min-width:0; display:flex; gap:2px; padding:2px; border-radius:9px;
   background:var(--surface); border:1px solid var(--line)}
-.calvue button{flex:1 1 0; min-width:0; padding:5px 12px; border:0; border-radius:7px; background:none;
+.calvue button{flex:1 1 0; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
 .calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink)}
-#calCard.vue-an .calbilan{display:none}
+#calCard.vue-an .calbilan,#calCard.vue-sem .calbilan{display:none}
+/* LA SEMAINE : une ligne par jour, la case du mois à gauche, le détail à
+   droite (le client, le 19/10/2026) */
+.sem-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 10px;
+  font-size:12.5px; color:var(--muted)}
+.sem-t b{font-size:13px; font-weight:700; color:var(--ink)}
+.sem-liste{display:flex; flex-direction:column; gap:6px}
+.sem-l{display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px; align-items:center; padding:6px;
+  border-radius:12px; cursor:pointer}
+.sem-l.auj{background:rgba(105,178,203,.08); box-shadow:inset 0 0 0 1px rgba(105,178,203,.28)}
+@media (hover:hover){ .sem-l:not(.hors):hover{background:rgba(255,255,255,.04)} }
+.sem-l.hors{cursor:default; opacity:.45}
+#calCard .sem-l .mc-j{min-height:58px; width:100%}
+.sem-d{display:flex; flex-direction:column; gap:2px; min-width:0}
+.sem-j{font-size:11px; font-weight:650; text-transform:uppercase; letter-spacing:.04em; color:var(--faint)}
+.sem-l.auj .sem-j{color:var(--in)}
+.sem-p{font-size:14px; color:var(--ink2)} .sem-p b{color:var(--ink); font-weight:700}
+.sem-a{font-size:12.5px; color:var(--muted)}
+.sem-c{font-size:12px; line-height:1.35; color:var(--muted); font-style:italic;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+@media (max-width:360px){ .sem-l{grid-template-columns:56px minmax(0,1fr); gap:10px} }
 /* au bureau, une bascule de 1 100 px ne se lit plus comme un choix : elle
    garde la largeur d'un téléphone, au centre */
 @media (min-width:761px){ .calvue-l{align-self:center; width:520px; max-width:calc(100% - 52px); margin:0 0 12px} }
@@ -1077,7 +1097,7 @@ body{overflow-x:clip}
   color:var(--in); font:inherit; font-size:12px; font-weight:650; cursor:pointer; white-space:nowrap}
 .calauj:disabled{color:var(--faint); cursor:default}
 @media (hover:hover){ .calauj:not(:disabled):hover{border-color:var(--in2)} }
-@media (max-width:360px){ .calvue-l{margin:0 14px 12px; gap:6px} .calauj{padding:0 10px} }
+@media (max-width:360px){ .calvue-l{margin:0 12px 12px; gap:6px} .calauj{padding:0 9px} .calvue button{font-size:11.5px; padding:5px 2px} }
 .mc-an{display:grid; grid-template-columns:minmax(0,1fr); gap:18px}
 .mc-mois{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
 @media (min-width:761px){ .mc-mois{scroll-margin-top:84px} }
@@ -4484,6 +4504,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <div class="calmois"><div class="mnavhote"></div></div>
         <div class="calvue-l">
           <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
+            <button type="button" data-cv="semaine" aria-pressed="false">Semaine</button>
             <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
             <button type="button" data-cv="annee" aria-pressed="false">Année</button>
           </div>
@@ -6463,8 +6484,10 @@ function grilleMois(){
 }
 function renderRota(){
   var hote=document.getElementById("moisCal"); if(!hote) return;
-  var cc=document.getElementById("calCard"); if(cc) cc.classList.toggle("vue-an",calVue==="annee");
+  var cc=document.getElementById("calCard");
+  if(cc){ cc.classList.toggle("vue-an",calVue==="annee"); cc.classList.toggle("vue-sem",calVue==="semaine"); }
   if(calVue==="annee") renderAnnee(hote);
+  else if(calVue==="semaine") renderSemaine(hote);
   else hote.innerHTML=grilleMois()+legendeHTML(legendeDrapeaux());
   if(jourOuvert) majFeuille();
   /* le jour touché dans l'année, une fois son mois chargé */
@@ -6480,11 +6503,99 @@ function renderRota(){
    (caseJour), mois après mois, et la légende de ce que l'année contient.
    Chaque mois se lit dans son enregistrement, comme loadMonth ; le mois
    affiché garde st.month, qui peut porter une saisie pas encore écrite. */
-var calVue=(lsGet("ui/calVue")==="annee")?"annee":"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
+var calVue=({annee:1,semaine:1}[lsGet("ui/calVue")])?lsGet("ui/calVue"):"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
 function vueAnnee(){ return calVue==="annee" && st.view==="horaire"; }
+function vueSemaine(){ return calVue==="semaine" && st.view==="horaire"; }
 function avecMois(m,M,f){
   var sv=[st.m,st.month]; st.m=m; st.month=M;
   try{ return f(); } finally{ st.m=sv[0]; st.month=sv[1]; }
+}
+/* ===================== la semaine, jour par jour ===================== */
+/* Le client, le 19/10/2026 : « ajout d'une vue semaine en plus de la vue
+   mois et année ». Ce que le mois n'a pas la place de dire : une ligne par
+   jour, la case du mois à gauche (caseJour, la même), et à droite le jour en
+   toutes lettres, la pause et ses heures, l'atelier, le commentaire du
+   classeur. Les heures et l'atelier sont ceux du héros et de l'agenda
+   (lectureAgenda, par _pfJour). La semaine va du lundi au dimanche ; elle
+   peut chevaucher deux mois, chacun relu comme dans l'Année. */
+var semDeb=null, _semJeton=0;
+function lundiDe(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7)); }
+/* le premier lundi permis : celui de la semaine du 1er janvier d'AN_MIN */
+function semMin(){ return lundiDe(new Date(AN_MIN,0,1)); }
+/* la semaine à montrer en passant en Semaine : celle d'aujourd'hui si le
+   mois affiché est le mois en cours, sinon celle du 1er du mois affiché */
+function semDepuisMois(){
+  var ja=jourPerso(st.personObj);
+  return (ja.getFullYear()===st.y && ja.getMonth()===st.m) ? lundiDe(ja) : lundiDe(new Date(st.y,st.m,1));
+}
+function libSemaine(d0){
+  var d6=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+6);
+  return d0.getDate()+(d0.getMonth()!==d6.getMonth()?" "+MOIS_BREF[d0.getMonth()]:"")+" – "+d6.getDate()+" "+MOIS_BREF[d6.getMonth()];
+}
+/* la semaine bouge : le mois de son jeudi (la règle des semaines ISO)
+   devient le mois de l'application, comme si on l'avait choisi */
+function allerSemaine(d0){
+  if(d0<semMin()) return;
+  semDeb=d0;
+  var j=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+3);
+  if(j.getFullYear()!==st.y || j.getMonth()!==st.m) loadMonth(j.getFullYear(),j.getMonth());
+  else { majMoisLabel(st.m,st.y); renderRota(); }
+}
+function avecJour(y,m,M,f){
+  var sv=[st.y,st.m,st.month,st.personD]; st.y=y; st.m=m; st.month=M;
+  if(y!==sv[0]){ var dbY=(typeof horaireDe==="function")?horaireDe(y):null, pY=null;
+    if(dbY && st.personObj) dbY.people.forEach(function(x){ if(x.id===st.personObj.id) pY=x; });
+    st.personD=pY?pY.d:{}; }
+  try{ return f(); } finally{ st.y=sv[0]; st.m=sv[1]; st.month=sv[2]; st.personD=sv[3]; }
+}
+function renderSemaine(hote){
+  if(!semDeb) semDeb=semDepuisMois();
+  var d0=semDeb, jeton=++_semJeton, jours=[], i, cles={};
+  for(i=0;i<7;i++) jours.push(new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i));
+  jours.forEach(function(d){ cles[key(d.getFullYear(),d.getMonth())]=[d.getFullYear(),d.getMonth()]; });
+  var ks=Object.keys(cles);
+  Promise.all(ks.map(function(k){
+    var ym=cles[k], ch="months/"+k;
+    if(ym[0]===st.y && ym[1]===st.m) return Promise.resolve(null);
+    return pending[ch] ? Promise.resolve(DERNIER_ECRIT[ch]) : readMonth(k);
+  })).then(function(docs){
+    if(jeton!==_semJeton || calVue!=="semaine") return;
+    var parK={}, h="", tot=0, nbj=0, auj=jourPerso(st.personObj), aujT=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
+    ks.forEach(function(k,i){ var ym=cles[k], M;
+      if(ym[0]===st.y && ym[1]===st.m) M=st.month;
+      else { M=docs[i]||{}; migreMois(M); M=mergeDefaults(M,DEF_M); if(!M.days) M.days={}; }
+      parK[k]=M; });
+    jours.forEach(function(d){
+      var y=d.getFullYear(), m=d.getMonth(), j=d.getDate(), M=parK[key(y,m)];
+      var dans=(y>=AN_MIN), rec=(M&&M.days[j])||{};
+      var cas=dans?avecJour(y,m,M,function(){ return caseJour(j); }):'<span class="mc-j repos sem-hors"><span class="mc-n">'+j+'</span></span>';
+      var hj=dans?heuresJour(rec):0; if(hj>0){ tot+=hj; nbj++; }
+      var x=null; if(dans && st.personObj){ try{ x=_pfJour(st.personObj.id,d); }catch(e){} }
+      var l1=JOURS_LONGS[(d.getDay()+6)%7]+" "+j+" "+MOIS[m].toLowerCase(), l2="", l3="", com="";
+      if(x && x.presente && PF_HEURES[x.pv]){
+        l2='<b>'+esc(ryTypeLabel(x.pv))+'</b> · '+esc(pfHeures(x));
+        var P0=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===(x.ka||x.k)) P0=P; });
+        if(P0) l3=esc(P0.t);
+      } else if(dans && rec.a && ABSMAP[rec.a]){
+        var fam=familleAbsence(rec.a), lib="";
+        try{ lib=libCompteur(st.personDb||HORAIRE_DB,fam); }catch(e){}
+        if(!lib||lib===fam) lib=LIB_CPT_LONG[fam]||"";
+        l2='<b>'+esc(rec.a)+'</b>'+(lib?' · '+esc(lib):'');
+      } else if(dans) l2='Repos';
+      if(dans){ var raw=avecJour(y,m,M,function(){ return st.personD&&st.personD[pad2(m+1)+pad2(j)]; });
+        if(raw&&raw[2]&&String(raw[2]).trim()) com=nettoyerAffichage(raw[2]); }
+      var cur=(d.getTime()===aujT);
+      h+='<div class="sem-l'+(cur?' auj':'')+(dans?'':' hors')+'" data-y="'+y+'" data-m="'+m+'">'+cas
+        +'<div class="sem-d"><span class="sem-j">'+esc(l1)+'</span>'
+        +(l2?'<span class="sem-p">'+l2+'</span>':'')
+        +(l3?'<span class="sem-a">'+l3+'</span>':'')
+        +(com?'<span class="sem-c">'+esc(com)+'</span>':'')+'</div></div>';
+    });
+    var dTh=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+3);
+    hote.innerHTML='<div class="sem-t"><b>Semaine '+isoWeek(new Date(Date.UTC(dTh.getFullYear(),dTh.getMonth(),dTh.getDate())))+'</b>'
+      +'<span>'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
+      +'<div class="sem-liste">'+h+'</div>';
+  });
 }
 function renderAnnee(hote){
   var y=st.y, jeton=++_anJeton, mois=[], i;
@@ -6520,6 +6631,7 @@ function renderAnnee(hote){
 }
 function allerAujourdhui(){
   var ja=jourPerso(st.personObj), y=ja.getFullYear(), m=ja.getMonth();
+  if(calVue==="semaine"){ allerSemaine(lundiDe(ja)); return; }
   if(calVue==="annee"){
     /* le mois en cours à l'écran, une fois l'année dessinée (renderAnnee) */
     _anMontrer=m;
@@ -6528,7 +6640,8 @@ function allerAujourdhui(){
 }
 (function(){ var b=document.getElementById("calAuj"); if(b) b.addEventListener("click",allerAujourdhui); })();
 function choisirVue(v){
-  calVue=(v==="annee")?"annee":"mois"; lsSet("ui/calVue",calVue);
+  calVue=({annee:1,semaine:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
+  if(calVue==="semaine") semDeb=semDepuisMois();
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
     b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
   });
@@ -6673,10 +6786,12 @@ function fermerJour(){
   sheetRetour=null;
 }
 document.getElementById("moisCal").addEventListener("click",function(e){
-  var b=e.target.closest(".mc-j"); if(!b) return;
-  var g=b.closest(".mc-mois"), m=g?Number(g.dataset.m):st.m, d=Number(b.dataset.d);
-  if(m===st.m) ouvrirJour(d);
-  else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(st.y,m); }
+  var b=e.target.closest(".mc-j"), ls=e.target.closest(".sem-l");
+  if(!b && ls) b=ls.querySelector("button.mc-j");
+  if(!b || !b.dataset.d) return;
+  var g=b.closest(".mc-mois")||ls, m=g?Number(g.dataset.m):st.m, y=(g&&g.dataset.y)?Number(g.dataset.y):st.y, d=Number(b.dataset.d);
+  if(m===st.m && y===st.y) ouvrirJour(d);
+  else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
 document.getElementById("jourSheet").addEventListener("click",function(e){
   if(e.target.closest("[data-fermer]")) fermerJour();
@@ -7577,14 +7692,16 @@ function majBrandsub(){
    égare celui qui le relit. */
 function majMoisLabel(m,y){
   var el=document.getElementById("mlabel");
-  if(el) el.textContent=vueAnnee()?String(y):MOIS[m]+" "+y;
+  if(el) el.textContent=vueAnnee()?String(y):(vueSemaine()?libSemaine(semDeb||semDepuisMois()):MOIS[m]+" "+y);
   /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
   var pick=document.getElementById("moisPick");
   if(pick){ pick.value=y+"-"+pad2(m+1); pick.min=AN_MIN+"-01"; }
   var pv=document.getElementById("prev");
-  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(y<AN_MIN||(y===AN_MIN&&m===0));
+  var sd=vueSemaine()?(semDeb||semDepuisMois()):null;
+  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0)));
   var ba=document.getElementById("calAuj"), ja=jourPerso(st.personObj);
-  if(ba) ba.disabled=(calVue!=="annee" && y===ja.getFullYear() && m===ja.getMonth());
+  if(ba) ba.disabled=(calVue==="semaine")?(!!sd && sd.getTime()===lundiDe(ja).getTime())
+                    :(calVue!=="annee" && y===ja.getFullYear() && m===ja.getMonth());
 }
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
@@ -7985,6 +8102,7 @@ document.getElementById("next").addEventListener("click",function(){go(1);});
 var AN_MIN=2026;
 function go(step){
   if(vueAnnee()){ if(st.y+step>=AN_MIN) loadMonth(st.y+step,st.m); return; }
+  if(vueSemaine()){ var b0=semDeb||semDepuisMois(); allerSemaine(new Date(b0.getFullYear(),b0.getMonth(),b0.getDate()+7*step)); return; }
   allerMois(step);
 }
 function allerMois(step){
@@ -17999,6 +18117,7 @@ function vueHoraire(){
     var y=Number(q[0]), m=Number(q[1])-1;
     if(isNaN(y)||isNaN(m)) return;
     if(y<AN_MIN){ majMoisLabel(st.m,st.y); return; }
+    if(vueSemaine()){ allerSemaine(lundiDe(new Date(y,m,1))<semMin()?semMin():lundiDe(new Date(y,m,1))); return; }
     if(y!==st.y || m!==st.m) loadMonth(y,m);
   });
 })();
