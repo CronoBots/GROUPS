@@ -818,7 +818,7 @@ body{overflow-x:clip}
 .calmois .mnav{display:flex; width:100%; align-items:center; gap:0}
 .calmois .mnav button{width:30px; height:30px; display:grid; place-items:center;
   border-radius:9px; border:1px solid var(--line); background:var(--surface);
-  color:var(--muted); font-size:16px; line-height:1; margin:0 26px}
+  color:var(--muted); font-size:16px; line-height:1; margin:0 12px}
 @media(hover:hover){ .calmois .mnav button:hover{color:var(--ink); border-color:var(--in2)} }
 .mnav button:disabled{opacity:.3; cursor:default; pointer-events:none}
 .calmois .mlabelwrap{flex:1 1 auto; min-width:0; position:relative; text-align:center}
@@ -1059,7 +1059,9 @@ body{overflow-x:clip}
    Année sous la barre du mois ; en Année, les douze grilles se suivent,
    chacune sous son nom, deux puis trois de front sur grand écran. Le bilan
    chiffré, qui parle d'un mois, se retire. */
-.calvue-l{display:flex; align-self:stretch; gap:8px; margin:0 26px 12px}
+/* flèches et bascule à 12 px des bords (le client, le 19/10/2026 : « les
+   boutons plus proches des bords gauche et droit ») */
+.calvue-l{display:flex; align-self:stretch; gap:8px; margin:0 12px 12px}
 .calvue{flex:1 1 auto; min-width:0; display:flex; gap:2px; padding:2px; border-radius:9px;
   background:var(--surface); border:1px solid var(--line)}
 .calvue button{flex:1 1 0; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
@@ -1088,7 +1090,7 @@ body{overflow-x:clip}
 @media (max-width:360px){ .sem-l{grid-template-columns:56px minmax(0,1fr); gap:10px} }
 /* au bureau, une bascule de 1 100 px ne se lit plus comme un choix : elle
    garde la largeur d'un téléphone, au centre */
-@media (min-width:761px){ .calvue-l{align-self:center; width:520px; max-width:calc(100% - 52px); margin:0 0 12px} }
+@media (min-width:761px){ .calvue-l{align-self:center; width:520px; max-width:calc(100% - 24px); margin:0 0 12px} }
 /* REVENIR À AUJOURD'HUI (le client, le 19/10/2026 : « dans le calendrier il
    faut un bouton pour revenir à aujourd'hui, le mois actuel ou l'année ») :
    à côté de la bascule, du même gabarit. Éteint sur le mois en cours ; en
@@ -1097,7 +1099,7 @@ body{overflow-x:clip}
   color:var(--in); font:inherit; font-size:12px; font-weight:650; cursor:pointer; white-space:nowrap}
 .calauj:disabled{color:var(--faint); cursor:default}
 @media (hover:hover){ .calauj:not(:disabled):hover{border-color:var(--in2)} }
-@media (max-width:360px){ .calvue-l{margin:0 12px 12px; gap:6px} .calauj{padding:0 9px} .calvue button{font-size:11.5px; padding:5px 2px} }
+@media (max-width:360px){ .calmois .mlabel{font-size:16px} .calvue-l{gap:6px} .calauj{padding:0 9px} .calvue button{font-size:11.5px; padding:5px 2px} }
 .mc-an{display:grid; grid-template-columns:minmax(0,1fr); gap:18px}
 .mc-mois{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
 @media (min-width:761px){ .mc-mois{scroll-margin-top:84px} }
@@ -6530,7 +6532,8 @@ function semDepuisMois(){
 }
 function libSemaine(d0){
   var d6=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+6);
-  return d0.getDate()+(d0.getMonth()!==d6.getMonth()?" "+MOIS_BREF[d0.getMonth()]:"")+" – "+d6.getDate()+" "+MOIS_BREF[d6.getMonth()];
+  /* le mois en entier (le client, le 19/10/2026 : « nom du mois complet ») */
+  return d0.getDate()+(d0.getMonth()!==d6.getMonth()?" "+MOIS[d0.getMonth()].toLowerCase():"")+" – "+d6.getDate()+" "+MOIS[d6.getMonth()].toLowerCase();
 }
 /* la semaine bouge : le mois de son jeudi (la règle des semaines ISO)
    devient le mois de l'application, comme si on l'avait choisi */
