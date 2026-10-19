@@ -279,3 +279,52 @@ git config core.hooksPath .githooks     # une fois par machine
   l'équipe — primes d'équipe, chèque-repas, barèmes — ne sont pas
   concernées : elles n'appartiennent à personne en particulier.
 
+
+## Un intérimaire que le classeur ne recense pas
+
+Le 19/10/2026 au soir, la mise à jour automatique a refusé le classeur du
+jour : **porte 8 fermée**, « Prénom Nom » dans `data/horaire-2026.json`
+neuf. Le client : « pourquoi pas de mise à jour horaire ? ». Un seul
+commentaire, celui de GPS le 26/10 : « Visite du site avec Prénom Nom
+(intérimaire chaudières) ». Le client, le même soir : « LCO est un nouvel
+intérimaire chaudière, il ne figure pas encore dans le tableau ».
+
+**Pourquoi il est passé.** L'anonymiseur et le convertisseur apprennent
+les noms du classeur lui-même : la ligne des noms, « Personnel », la
+colonne Prénom de « Polyvalence ». Ce nom n'est dans aucune — une seule
+occurrence dans tout le fichier (`comments8.xml`). Il a traversé les trois
+sorties (horaire, copie anonymisée, export brut). **Le second contrôle
+d'anonymat (porte 2) a répondu « aucune chaîne de forme nominale ne
+survit »** : il cherche les noms de la source et les signatures, pas une
+forme au fil du texte. C'est la porte 8, faite de motifs indépendants,
+qui l'a arrêté. Rien n'a été installé, rien n'a fuité.
+
+**Ce qui est corrigé** : c'est le classeur qui dit que c'est quelqu'un —
+« (intérimaire » suit son nom. L'anonymiseur (`INTERIMAIRE`,
+`_sans_interimaire()`) et le convertisseur (`_INTERIM`,
+`_coupes_interimaire()`) ont chacun SA règle, écrite séparément : un
+« Prénom Nom » suivi de « (intérimaire » ou « (intérim » prend le
+trigramme de la convention maison (`_initiales()`, prénom d'abord comme au
+fil d'une phrase), celui qu'il recevra en entrant dans la ligne des noms.
+Pour lui, c'est LCO, inconnu jusque-là (ni dans l'horaire, ni aux recyclages, ni cité).
+Le nom n'est écrit nulle part dans le dépôt : la règle porte sur la
+FORME, pas sur la personne. Éprouvé sur des exemples fictifs : « Remplace
+GPS (intérimaire) » et « Formation (intérim) » ne bougent pas.
+
+**Mesuré sur le classeur du 19/10/2026 (13 h 22)**, anciens outils puis
+nouveaux : une seule journée diffère, GPS le 26/10, « Visite du site avec
+LCO (intérimaire chaudières) » ; le nom n'est plus dans aucune des trois
+sorties ; les huit portes s'ouvrent. Installé : 55 journées modifiées chez
+27 personnes, 15 compteurs, 78 agendas ; intégralité à 0, garde-fou à 0,
+flex time 78/78, neuf règles à 0.
+
+**Erreur commise en cherchant.** J'ai cru que la porte 8, qui ne lit que
+l'horaire neuf, laisserait l'export brut emporter un nom dans le dépôt, et
+je l'avais étendue. C'était faux : `data/classeur-2026-brut.json` et
+`data/classeur-2026.xlsx` sont exclus par `.gitignore` et ne sont jamais
+publiés. L'extension a été retirée avant le commit.
+
+**Ce qui n'a pas pu être fait d'ici** : le robot avait mis l'e-mail à la
+corbeille après l'avoir lu, et l'outil Gmail de la session ne télécharge
+pas les pièces jointes ; le client a déposé le classeur dans la
+conversation.

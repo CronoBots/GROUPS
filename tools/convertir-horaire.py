@@ -506,6 +506,7 @@ class Classeur:
                 # et non effacé : « changement d'équipe de MMS » se lit
                 # encore, « changement d'équipe de » ne dit plus rien.
                 t.remplacer(_coupes_registre(t.s, self.registre))
+                t.remplacer(_coupes_interimaire(t.s))
                 t.sub(AUTEUR, " ")
                 t.elaguer(" .;:")
                 t.resserrer()
@@ -809,6 +810,26 @@ def _coupes_registre(txt, registre):
     motif, tri = registre
     return [(m.start(), m.end(), tri[m.group(0)])
             for m in motif.finditer(_plier(txt)) if txt[m.start()].isupper()]
+
+
+# L'INTÉRIMAIRE NOMMÉ AU FIL D'UN COMMENTAIRE (19/10/2026) : « Visite du
+# site avec Prénom Nom (intérimaire chaudières) ». Personne ne le recense —
+# ni la ligne des noms, ni « Personnel » —, c'est la parenthèse qui dit que
+# c'est quelqu'un. Il prend le trigramme que _initiales() lui donnera quand
+# il entrera dans l'horaire. Écrit ici, sans rien emprunter à l'anonymiseur :
+# les deux outils doivent pouvoir se contredire.
+_INTERIM = re.compile(r"([A-ZÀ-Ý][a-zß-ÿ'’-]+)[ \t]+((?:[A-ZÀ-Ý][a-zß-ÿ'’-]+[ \t]*){1,2}?)"
+                      r"(?=[ \t]*\([ \t]*(?:intérim|interim))")
+
+
+def _coupes_interimaire(txt):
+    """[(début, fin, trigramme)] des noms suivis de « (intérimaire »."""
+    out = []
+    for m in _INTERIM.finditer(txt):
+        tri = _initiales(m.group(1) + " " + m.group(2).strip())
+        if tri:
+            out.append((m.start(), m.start(2) + len(m.group(2).rstrip()), tri))
+    return out
 
 
 def _annuaire(cl):

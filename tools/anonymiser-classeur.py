@@ -220,6 +220,44 @@ def _sans_login(donnee):
     return ET.tostring(r, encoding="UTF-8", xml_declaration=True), n
 
 
+# UNE PERSONNE QUE LE CLASSEUR NE RECENSE PAS. Le 19/10/2026, un commentaire
+# a nommé en toutes lettres un intérimaire attendu aux chaudières, « Prénom
+# Nom (intérimaire chaudières) » : ni la ligne des noms, ni « Personnel », ni
+# « Polyvalence » ne le connaissaient, et le nom a traversé les trois
+# sorties. La porte 8 l'a arrêté. C'est le classeur qui dit que c'est
+# quelqu'un : « (intérimaire » suit son nom. Il est remplacé par son
+# trigramme, celui que la convention maison lui donnera le jour où il
+# entrera dans la ligne des noms (première lettre du prénom, première et
+# dernière du nom). Le prénom vient d'abord, comme on l'écrit au fil d'une
+# phrase. Motif écrit ICI, et non emprunté au convertisseur.
+INTERIMAIRE = re.compile(
+    r"\b([A-ZÀ-Þ][a-zà-ÿ'’-]+)[ \t]+([A-ZÀ-Þ][a-zà-ÿ'’-]{1,}(?:[ \t]+[A-ZÀ-Þ][a-zà-ÿ'’-]{1,})?)"
+    r"(?=[ \t]*\([ \t]*int[ée]rim)")
+
+
+def _sans_interimaire(donnee):
+    """Remplacer par son trigramme le nom suivi de « (intérimaire »."""
+    ET.register_namespace("", _M_SS)
+    try:
+        r = ET.fromstring(donnee)
+    except ET.ParseError:
+        return donnee, 0
+    n = 0
+    for cm in r.iter("{%s}comment" % _M_SS):
+        noeuds = list(cm.iter("{%s}t" % _M_SS))
+        joint = "".join(x.text or "" for x in noeuds)
+        coupes = []
+        for m in INTERIMAIRE.finditer(joint):
+            tri = _initiales(m.group(1) + " " + m.group(2))
+            if tri:
+                coupes.append((m.start(), m.end(), tri))
+        if coupes and _editer_morceaux(noeuds, coupes):
+            n += len(coupes)
+    if not n:
+        return donnee, 0
+    return ET.tostring(r, encoding="UTF-8", xml_declaration=True), n
+
+
 def _formes(nom):
     """Toutes les façons d'écrire un nom dans le classeur.
 
@@ -830,6 +868,8 @@ def anonymiser(src, dst, tolere=()):
                 donnee, m = _remplacer(donnee, regles, sondes)
                 n += m
                 if COMMENTAIRES.search(info.filename):
+                    donnee, m = _sans_interimaire(donnee)
+                    n += m
                     donnee, m = _sans_login(donnee)
                     n += m
                     logins += m
