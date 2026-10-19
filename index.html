@@ -5266,6 +5266,21 @@ function key(y,m){return y+"-"+pad2(m+1);}
    raw[2] brut, donc aucun effet sur placement/paie). PYL n'apparaît que dans des
    commentaires informatifs (échange/inversion/présence) — pur confort de lecture. */
 var ALIAS_TRI_AFFICHAGE={PYL:"PLZ"};
+/* LE COMMENTAIRE À MONTRER. Le client, le 19/10/2026 : « les commentaires
+   de JBI du 02/11 au 11/11 n'apparaissent pas, car ils ont indiqué
+   "Falling film" dans la case au lieu du commentaire ». Une tâche écrite
+   dans l'annotation, sans commentaire, est une note : on la montre comme
+   un commentaire. Seulement les tâches de MENTIONS_NEUTRES qui sont des
+   mots (le projet falling film, les consignations, « Polyvalence ») — pas
+   un code, une plage ni un atelier. La lecture de la journée n'en dépend
+   pas. */
+var NOTES_ANNOTATION=["fallingfilm","consign","polyvalence"];
+function comAffiche(raw){
+  if(!raw || typeof raw==="string") return "";
+  var c=String(raw[2]||"").trim(); if(c) return c;
+  var a=String(raw[1]||"").trim();
+  return (a && NOTES_ANNOTATION.indexOf(a.toLowerCase().replace(/[\s.]/g,""))>=0)?a:"";
+}
 function nettoyerAffichage(txt){
   var s=String(txt==null?"":txt);
   for(var a in ALIAS_TRI_AFFICHAGE){ s=s.replace(new RegExp("\\b"+a+"\\b","g"), ALIAS_TRI_AFFICHAGE[a]); }
@@ -6463,7 +6478,7 @@ function caseJour(d){
    ailleurs) le dit encore (le client, le 18/10/2026). */
 function comJour(d){
   var raw=st.personD&&st.personD[pad2(st.m+1)+pad2(d)];
-  return !!(raw&&raw[2]&&String(raw[2]).trim());
+  return !!comAffiche(raw);
 }
 
 function grilleMois(){
@@ -6591,7 +6606,7 @@ function renderSemaine(hote){
         l2='<b>'+esc(rec.a)+'</b>'+(lib?' · '+esc(lib):'');
       } else if(dans) l2='Repos';
       if(dans){ var raw=avecJour(y,m,M,function(){ return st.personD&&st.personD[pad2(m+1)+pad2(j)]; });
-        if(raw&&raw[2]&&String(raw[2]).trim()) com=nettoyerAffichage(raw[2]); }
+        if(comAffiche(raw)) com=nettoyerAffichage(comAffiche(raw)); }
       var cur=(d.getTime()===aujT);
       h+='<div class="sem-l'+(cur?' auj':'')+(dans?'':' hors')+'" data-y="'+y+'" data-m="'+m+'">'+cas
         +'<div class="sem-d"><span class="sem-j">'+esc(l1)+'</span>'
@@ -11731,7 +11746,7 @@ function icsAgenda(id,debut,nJours,stamp){
     if(!ev) continue;
     /* Le commentaire de la journée dans la note de l'événement (le client,
        le 14/10/2026), majuscule en tête comme sur l'Accueil. */
-    var com=String(x.raw[2]||"").replace(/[ \t]+/g," ").trim();
+    var com=comAffiche(x.raw).replace(/[ \t]+/g," ").trim();
     if(com) ev.push("DESCRIPTION:"+icsTexte(com.charAt(0).toUpperCase()+com.slice(1)));
     L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
     L=L.concat(ev.map(icsPlier)); L.push("END:VEVENT"); n++;
@@ -14402,7 +14417,7 @@ function renderEquipe(){
          client, le 02/10/2026 : « un badge avec commentaire a un contour blanc,
          et le clic affiche le commentaire ». On le pose en data-com (lu au clic)
          et on marque le badge « coment » pour le contour. */
-      var com=(x.p.d[mmdd]||[])[2]; com=com?String(com).trim():"";
+      var com=comAffiche(x.p.d[mmdd]);
       /* Un changement de poste fait par l'application se distingue : bord
          orange en pointillé (sans flèche, le client, le 13/10/2026), et
          l'explication au clic, avant le commentaire du classeur s'il y en a un. */
