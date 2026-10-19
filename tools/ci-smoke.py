@@ -4,6 +4,7 @@
 Vérifie seulement la structure publique attendue du JSON d'horaire. Les
 identifiants, commentaires et journées ne sont jamais imprimés dans les logs.
 """
+import datetime
 import json
 import re
 import sys
@@ -30,11 +31,16 @@ def main():
         print("ÉCHEC: liste de personnes absente ou vide.")
         return 1
 
+    ids = set()
     days = 0
     for person in people:
         if not isinstance(person, dict) or not person.get("id") or not isinstance(person.get("cat"), str):
             print("ÉCHEC: structure d'une entrée personne invalide.")
             return 1
+        if person["id"] in ids:
+            print("ÉCHEC: identifiant personne dupliqué.")
+            return 1
+        ids.add(person["id"])
         calendar = person.get("d")
         if not isinstance(calendar, dict):
             print("ÉCHEC: calendrier personne absent ou invalide.")
@@ -44,8 +50,10 @@ def main():
                 print("ÉCHEC: clé de date invalide.")
                 return 1
             month, day = int(date_key[:2]), int(date_key[2:])
-            if not (1 <= month <= 12 and 1 <= day <= 31):
-                print("ÉCHEC: date hors limites.")
+            try:
+                datetime.date(2026, month, day)
+            except ValueError:
+                print("ÉCHEC: date invalide pour 2026.")
                 return 1
             if not isinstance(entry, list) or not all(isinstance(v, str) for v in entry):
                 print("ÉCHEC: contenu d'une journée invalide.")
