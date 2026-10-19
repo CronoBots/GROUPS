@@ -557,6 +557,16 @@ au bureau à 20 px du coin. Le clic remonte en douceur, sauf sous
 ligne), 390 et 1280 px : caché en haut, visible à 0,55 descendu, 1 au
 survol, retour à 0 px après le clic.
 
+Le 18/10/2026 (« optimise au max »), il ne se montrait plus qu'en
+REMONTANT et s'effaçait 2,2 s après, parce qu'il couvrait la valeur de
+droite des rangées. Le client, le 19/10/2026 : « il apparaît quand on
+remonte mais n'est pas visible quand on descend ; il devrait toujours être
+visible quand on n'est pas en haut de page ». Il l'est désormais dès
+200 px, dans les deux sens, sans s'effacer ; l'opacité de 0,55 reste
+(`nfdm-v832`). Mesuré à 390 et 1280 px : caché en haut et à 150 px,
+visible à 800 et 1 600 px en descendant, encore visible trois secondes
+après, et après une remontée ; caché après le clic, la page en haut.
+
 ### La déconnexion se confirme dans une fenêtre de l'application
 
 Le client, le 09/10/2026 : « il faut un message de déconnexion plus
