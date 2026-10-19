@@ -2497,6 +2497,31 @@ la largeur d'un iPhone, d'un Pixel, à 1280 px et dans l'application à
 320 px hors ligne. Seul un vrai téléphone dira si la messagerie de chacun
 laisse passer.
 
+**Le vrai téléphone l'a dit** (le client, le 19/10/2026 : « j'ai partagé le
+lien à mon épouse ; chez moi cela ouvre bien l'ajout dans le calendrier,
+mais chez elle rien ne se passe avec le lien partagé dans Messenger »). Le
+lien s'ouvrait, mais dans le navigateur INTÉGRÉ de Messenger, qui bloque
+`webcal://` sur iPhone et ne connaît pas le compte Google sur Android : le
+bouton « S'abonner » n'y faisait rien. L'invitation à « passer par
+Safari » n'était qu'une ligne d'aide sous ce bouton, et seulement sur
+iPhone ; sur Android, rien. `agenda.html` :
+- reconnaît aussi Messenger sur Android (« Orca », « FB_IAB »), Snapchat,
+  TikTok, X ;
+- dans une messagerie, une **étape 1** encadrée : « Messenger ouvre les
+  liens dans sa propre fenêtre, qui ne sait pas ajouter un agenda », un
+  bouton « Ouvrir dans Safari » (`x-safari-https://`, iOS 17 et
+  suivants) ou « Ouvrir dans le navigateur » (un lien `intent://` sur
+  Android), et le menu ⋯ / ⋮ en secours ; puis l'étape 2, « S'abonner » ;
+- **plus de silence** : si « S'abonner » n'a rien ouvert au bout de 2,5 s
+  (ni perte de focus, ni page cachée), un encadré le dit et la marche à
+  suivre à la main s'ouvre.
+Vérifié en imitant quatre navigateurs (Messenger sur iPhone et sur
+Android ; Safari ; Chrome) :
+l'étape 1 n'apparaît que dans Messenger, avec le bon bouton ; l'aide suit
+un toucher resté sans effet. **Ce que seul un téléphone dira** : si
+Messenger laisse passer `x-safari-https://` et `intent://`. S'ils sont
+bloqués, le menu ⋯ / ⋮ reste écrit sous le bouton.
+
 **Le commentaire, l'adresse et la remise de pause** (le client, le
 14/10/2026). Trois ajouts aux événements de `icsAgenda()` :
 
