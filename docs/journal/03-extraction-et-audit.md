@@ -1592,3 +1592,23 @@ le fichier tel qu'il était, recopié en entier pour l'historique.
 > - **les 51 matricules** de « Polyvalence » vivent dans le dépôt public, à côté
 >   du trigramme. Ce fichier les tolère (« initiales ou matricule ») ; s'ils
 >   figurent sur les fiches de paie, ils relient le trigramme à la personne.
+
+### L'horaire affiché des journées à code (19/10/2026)
+
+Réponse du client : formations, l'horaire du commentaire, sinon
+7h30-16h ; CPPT et DS, souvent 7h-15h. `horaireJourCode()` sert l'agenda,
+le Planning et les étiquettes d'équipe. Trois versions avant la bonne,
+chacune relue sur les agendas : la première prenait l'horaire de D de la
+personne pour un CPPT (« PM DS-CE » de QBY en 6h-14h) et ignorait les
+formations de moins de 4 h ; la deuxième remplaçait un matin entier par
+« Safety Days de 10h30 à 11h30 » et lisait « Remplace FPS de 12h à 14h »
+comme l'horaire d'un CPPT ; la troisième montrait la nuit d'un formé
+« remplacé par » deux collègues. Mesuré : 230 événements d'agenda
+changent d'heure — 110 en 7h30-16h, 45 en 6h-14h et 18 en 14h-22h
+(formation courte dans la pause), 20 en 8h30-16h30, le reste à l'horaire
+écrit. Vérificateur, manques, polyvalences, compteurs, fiches VBN et les
+27 595 journées de paie identiques : rien de payé ne bouge.
+
+Leçon de terminal : `pgrep -f "http-server -p 87"` dans une boucle `kill`
+trouve aussi le shell qui la lance, et le tue — garder le PID du serveur
+(`& SP=$!`) et ne tuer que lui.
