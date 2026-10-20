@@ -1436,3 +1436,32 @@ seule légende de colonne, « faites · à venir ». Une ligne touchée ouvre ce
 jour dans le calendrier (éprouvé : 6 novembre, 21 octobre). Hauteur de
 l'Accueil 2 879 px à 390 (2 952 avant), 2 990 à 320 (3 063) ; rien de
 tronqué pour cinq personnes, aucune erreur, hors ligne compris.
+
+## Héros : la bande du haut retirée, passe complète (20/10/2026, `nfdm-v880`)
+
+Le client, capture à l'appui : « il y a une zone foncée et une zone de
+flou, ce n'était pas le cas avant » ; puis « retire la bande et optimise
+tout le contenu du héros ». Aucun changement du haut de page depuis le
+18/10 (relu commit par commit) : la zone foncée est la bande opaque posée
+ce jour-là sous la barre d'état, le flou juste dessous vient de l'iPhone,
+qui floute lui-même ce qui passe sous le haut de l'écran. La bande est
+retirée : le contenu repasse sous l'heure et la batterie, comme avant le
+18/10.
+
+Photographié à 320, 390 et 1280 px pour VBN et GBT. Défauts relevés et
+corrigés : (1) le pourcentage de l'année était dans le titre, celui du
+cycle au bout de sa barre — tous deux au bout de la barre désormais ;
+(2) « 128 journées prestées » d'un côté, « 1 prestée » de l'autre — la
+légende de l'année devient « 128 prestées · 42 à venir » ; (3) la ligne D
+de « Mes pauses » d'un opérateur disait « mer. 24 févr. · dans 126 j ·
+1 +0 » : elle ne s'affiche que s'il reste des D dans l'année ou si le
+prochain revient dans les 60 jours ; (4) au bureau, la colonne de gauche
+restait vide sous le prochain poste pendant que la droite descendait seule :
+« Mes pauses » passe à gauche, sous lui (son propre conteneur, `#ryPr`,
+après les progressions au téléphone). Mesuré : héros 755 px au bureau pour
+VBN, rien de tronqué pour cinq personnes, aucune erreur, hors ligne
+compris ; la frise ouvre toujours le cycle, une pause ouvre son jour.
+
+**Reste, et pourquoi** : la roue des réglages couvre le bas du logo de la
+couverture au téléphone, voulu (le 18/10) pour garder la couverture basse ;
+le flou de l'iPhone sous la barre d'état ne dépend pas de l'application.
