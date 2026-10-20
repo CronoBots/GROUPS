@@ -1285,3 +1285,11 @@ bureau, le `flex-wrap` centrait déjà. Vérificateur identique à l'octet
 Relevé des 23 cellules « D » annotées d'une plage (22 en 2026, aucune en
 2027) : 21 montrent la plage écrite, et BLR, les 22/01 et 27/10, montre
 « 8-16 » malgré « 7h-15h ». Le client : « il faut bien laisser 8-16 ».
+Puis, dans la foulée : « si c'est bien précisé dans la cellule, il faut
+prendre la valeur de la cellule ». La première réponse est donc remplacée
+(`nfdm-v869`) : pour un consignateur ou son remplaçant, une plage écrite
+dans la cellule ou l'annotation passe avant « 8-16 ». Relevé des seize
+journées de consignation qui écrivent une plage : huit changent — BLR les
+21-22/01, 09-10/06, 22-23/07 et 27/10 passent de « 8-16 » à « 7-15 », YRS
+le 12/03 à « 8-16h30 » —, les huit autres montraient déjà la plage.
+Vérificateur identique (le badge seul change), hors ligne sans erreur.

@@ -14572,9 +14572,16 @@ function renderEquipe(){
          28/09/2026 : « 7h30-16 » passait à la ligne dans toutes les cases
          de téléphone, puis « écrire 8-16, ça ira mieux ». BLR ou YRS rangé
          à la meunerie du matin est en consignation, quoi qu'écrive la
-         cellule. */
-      if(x.consign) return '<small class="eqhd">8-16</small>';
+         cellule — sauf une plage que la cellule écrit elle-même (le
+         client, le 20/10/2026 : « si c'est bien précisé dans la cellule,
+         il faut prendre la valeur de la cellule » ; « D · 7h-15h » donne
+         7-15). */
       var raw=x.p.d&&x.p.d[mmdd]||[], lib="";
+      if(x.consign){
+        var plC=null;
+        [raw[1],raw[0]].some(function(v){ plC=lirePlage(v); return !!plC; });
+        return '<small class="eqhd">'+(plC?hh(plC[0])+"-"+hh(plC[1]):"8-16")+'</small>';
+      }
       var codeJour=!!(x.r&&(x.r.jourCode||x.r.sp));
       function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
         return mn?e+"h"+pad2(mn):String(e); }
