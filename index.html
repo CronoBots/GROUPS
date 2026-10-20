@@ -1067,7 +1067,10 @@ body{overflow-x:clip}
 .calvue button{flex:1 1 0; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
 .calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink)}
-#calCard.vue-an .calbilan,#calCard.vue-sem .calbilan{display:none}
+#calCard.vue-an .calbilan,#calCard.vue-sem .calbilan,#calCard.vue-cy .calbilan{display:none}
+/* LE CYCLE : la grille du mois, du lundi où il commence à son dernier jour ;
+   le 1er de chaque mois porte le nom du mois (le titre dit déjà le premier) */
+.mc-n small{font-size:.8em; font-weight:600; color:var(--faint)}
 /* LA SEMAINE : une ligne par jour, la case du mois à gauche, le détail à
    droite (le client, le 19/10/2026) */
 .sem-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 10px;
@@ -1095,11 +1098,14 @@ body{overflow-x:clip}
    faut un bouton pour revenir à aujourd'hui, le mois actuel ou l'année ») :
    à côté de la bascule, du même gabarit. Éteint sur le mois en cours ; en
    Année, il ramène aussi l'écran au mois en cours. */
-.calauj{flex:0 0 auto; padding:0 14px; border-radius:9px; border:1px solid var(--line); background:var(--surface);
-  color:var(--in); font:inherit; font-size:12px; font-weight:650; cursor:pointer; white-space:nowrap}
-.calauj:disabled{color:var(--faint); cursor:default}
-@media (hover:hover){ .calauj:not(:disabled):hover{border-color:var(--in2)} }
-@media (max-width:360px){ .calmois .mlabel{font-size:16px} .calvue-l{gap:6px} .calauj{padding:0 9px} .calvue button{font-size:11.5px; padding:5px 2px} }
+/* PLUS DISCRET depuis le 20/10/2026 (le client : « un bouton plus discret
+   pour revenir à aujourd'hui ») : une icône sans cadre, qui laisse la place
+   aux quatre vues. */
+.calauj{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:32px; padding:0;
+  border-radius:9px; border:0; background:none; color:var(--in); cursor:pointer}
+.calauj:disabled{color:var(--faint); opacity:.55; cursor:default}
+@media (hover:hover){ .calauj:not(:disabled):hover{background:var(--surface)} }
+@media (max-width:360px){ .calmois .mlabel{font-size:16px} .calvue-l{gap:6px} .calauj{width:28px} .calvue button{font-size:11.5px; padding:5px 2px} }
 .mc-an{display:grid; grid-template-columns:minmax(0,1fr); gap:18px}
 .mc-mois{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
 @media (min-width:761px){ .mc-mois{scroll-margin-top:84px} }
@@ -3960,13 +3966,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-t{display:flex; flex-wrap:wrap; row-gap:4px; align-items:center; justify-content:space-between; gap:8px}
 .ry-an-t>b{font-family:inherit; font-weight:700; font-size:12.5px; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap}
 .ry-an-t>b small{font-size:11px; font-weight:500; color:var(--faint)}
-/* L'année suivante au pied du héros (ryAnSuivanteHTML, 20/10/2026) */
-.ry-suiv{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; width:100%; margin-top:12px; padding:11px 0 2px;
-  border:0; border-top:1px solid rgba(255,255,255,.07); background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
-.ry-suiv .ry-h2{padding:0}
-.ry-suiv-t{flex:1 1 auto; font-size:12.5px; color:var(--muted)} .ry-suiv-t b{color:var(--ink); font-weight:700}
-.ry-suiv-v{font-size:12px; font-weight:600; color:var(--marque-vif); white-space:nowrap}
-.ry-suiv:hover .ry-suiv-v,.ry-suiv:focus-visible .ry-suiv-v{text-decoration:underline}
 /* AU BUREAU, LE CALENDRIER ET LES COMPTEURS CÔTE À CÔTE (le client, le
    20/10/2026, proposition 1) : en une colonne, la page faisait 2 900 px à
    1280 px, autant qu'au téléphone. Le reste garde toute la largeur ; les
@@ -4626,11 +4625,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <div class="calmois"><div class="mnavhote"></div></div>
         <div class="calvue-l">
           <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
+            <button type="button" data-cv="cycle" aria-pressed="false">Cycle</button>
             <button type="button" data-cv="semaine" aria-pressed="false">Semaine</button>
             <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
             <button type="button" data-cv="annee" aria-pressed="false">Année</button>
           </div>
-          <button type="button" class="calauj" id="calAuj">Aujourd’hui</button>
+          <button type="button" class="calauj" id="calAuj" aria-label="Revenir à aujourd’hui" title="Aujourd’hui"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15" r="2.2" fill="currentColor"/></svg></button>
         </div>
       </div>
       <div class="moiscal" id="moisCal"></div>
@@ -6624,9 +6624,10 @@ function grilleMois(){
 function renderRota(){
   var hote=document.getElementById("moisCal"); if(!hote) return;
   var cc=document.getElementById("calCard");
-  if(cc){ cc.classList.toggle("vue-an",calVue==="annee"); cc.classList.toggle("vue-sem",calVue==="semaine"); }
+  if(cc){ cc.classList.toggle("vue-an",calVue==="annee"); cc.classList.toggle("vue-sem",calVue==="semaine"); cc.classList.toggle("vue-cy",calVue==="cycle"); }
   if(calVue==="annee") renderAnnee(hote);
   else if(calVue==="semaine") renderSemaine(hote);
+  else if(calVue==="cycle") renderCycle(hote);
   else hote.innerHTML=grilleMois()+legendeHTML(legendeDrapeaux());
   if(jourOuvert) majFeuille();
   /* le jour touché dans l'année, une fois son mois chargé */
@@ -6642,9 +6643,10 @@ function renderRota(){
    (caseJour), mois après mois, et la légende de ce que l'année contient.
    Chaque mois se lit dans son enregistrement, comme loadMonth ; le mois
    affiché garde st.month, qui peut porter une saisie pas encore écrite. */
-var calVue=({annee:1,semaine:1}[lsGet("ui/calVue")])?lsGet("ui/calVue"):"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
+var calVue=({annee:1,semaine:1,cycle:1}[lsGet("ui/calVue")])?lsGet("ui/calVue"):"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
 function vueAnnee(){ return calVue==="annee" && st.view==="horaire"; }
 function vueSemaine(){ return calVue==="semaine" && st.view==="horaire"; }
+function vueCycle(){ return calVue==="cycle" && st.view==="horaire"; }
 function avecMois(m,M,f){
   var sv=[st.m,st.month]; st.m=m; st.month=M;
   try{ return f(); } finally{ st.m=sv[0]; st.month=sv[1]; }
@@ -6740,6 +6742,89 @@ function renderSemaine(hote){
       +'<div class="sem-liste">'+h+'</div>'+(dr?legendeHTML(dr):"");
   });
 }
+/* ===================== le cycle, présenté comme le mois ===================== */
+/* Le client, le 20/10/2026 : « ajouter une vue cycle qui serait présentée
+   comme une vue mois ». Les cases du mois (caseJour), semaine par semaine,
+   du lundi où le cycle commence à son dernier jour. Le cycle est celui du
+   héros (cycleActuel : 5 ou 6 semaines, calé sur la personne) ; les
+   suivants et les précédents se posent bout à bout, de la même longueur.
+   Sans calage (personne sans cycle lisible), cinq semaines depuis le lundi. */
+var cyDeb=null, _cyJeton=0, _cyRef=null;
+function cycleRef(){
+  var ja=jourPerso(st.personObj), cle=(st.personObj&&st.personObj.id)+"|"+ja.toDateString();
+  if(_cyRef && _cyRef.cle===cle) return _cyRef;
+  var c=null; try{ c=st.personObj?cycleActuel(st.personObj):null; }catch(e){ c=null; }
+  _cyRef=c?{cle:cle, deb:new Date(c.deb.getFullYear(),c.deb.getMonth(),c.deb.getDate()), L:c.L, nom:c.nom}
+          :{cle:cle, deb:lundiDe(ja), L:35, nom:""};
+  return _cyRef;
+}
+function joursEntre(a,b){ return Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000); }
+/* le premier jour du cycle qui contient d */
+function cycleDe(d){
+  var r=cycleRef(), k=Math.floor(joursEntre(r.deb,d)/r.L);
+  return new Date(r.deb.getFullYear(),r.deb.getMonth(),r.deb.getDate()+k*r.L);
+}
+function cycDepuisMois(){
+  var ja=jourPerso(st.personObj);
+  return cycleDe((ja.getFullYear()===st.y && ja.getMonth()===st.m) ? ja : new Date(st.y,st.m,1));
+}
+/* le cycle ne commence pas tout entier avant 2026 */
+function cycMin(){ return cycleDe(new Date(AN_MIN,0,1)); }
+function libCycle(d0){
+  var dn=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+cycleRef().L-1);
+  /* à cheval sur deux années, l'année nouvelle à la fin : « 30 novembre –
+     10 janvier 2027 » */
+  function lib(nom){ return d0.getDate()+(d0.getMonth()!==dn.getMonth()||d0.getFullYear()!==dn.getFullYear()?" "+nom(d0.getMonth()):"")
+    +" – "+dn.getDate()+" "+nom(dn.getMonth())+(d0.getFullYear()!==dn.getFullYear()?" "+dn.getFullYear():""); }
+  /* au téléphone étroit, les mois abrégés si le titre ne tient pas */
+  var l=lib(function(m){ return MOIS[m].toLowerCase(); });
+  return (l.length>22 && window.innerWidth<380)?lib(function(m){ return MOIS_BREF[m]; }):l;
+}
+/* le cycle bouge : le mois de son jour du milieu devient celui de
+   l'application, comme pour la semaine */
+function allerCycle(d0){
+  if(d0<cycMin()) return;
+  cyDeb=d0;
+  var j=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+Math.floor(cycleRef().L/2));
+  if(j.getFullYear()!==st.y || j.getMonth()!==st.m) loadMonth(j.getFullYear(),j.getMonth());
+  else { majMoisLabel(st.m,st.y); renderRota(); }
+}
+function renderCycle(hote){
+  if(!cyDeb) cyDeb=cycDepuisMois();
+  var r=cycleRef(), d0=cyDeb, jeton=++_cyJeton, jours=[], i, cles={};
+  for(i=0;i<r.L;i++) jours.push(new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i));
+  jours.forEach(function(d){ cles[key(d.getFullYear(),d.getMonth())]=[d.getFullYear(),d.getMonth()]; });
+  var ks=Object.keys(cles);
+  Promise.all(ks.map(function(k){
+    var ym=cles[k], ch="months/"+k;
+    if(ym[0]===st.y && ym[1]===st.m) return Promise.resolve(null);
+    return pending[ch] ? Promise.resolve(DERNIER_ECRIT[ch]) : readMonth(k);
+  })).then(function(docs){
+    if(jeton!==_cyJeton || calVue!=="cycle") return;
+    var parK={}, tot=0, nbj=0, dr=null, cases=[], g="";
+    ks.forEach(function(k,i){ var ym=cles[k], M;
+      if(ym[0]===st.y && ym[1]===st.m) M=st.month;
+      else { M=docs[i]||{}; migreMois(M); M=mergeDefaults(M,DEF_M); if(!M.days) M.days={}; }
+      parK[k]=M; });
+    jours.forEach(function(d,ix){
+      var y=d.getFullYear(), m=d.getMonth(), j=d.getDate(), M=parK[key(y,m)], dans=(y>=AN_MIN);
+      var mo=(j===1)?'<small> '+esc(MOIS_BREF[m])+'</small>':"";
+      var cas=dans?avecJour(y,m,M,function(){ dr=fusionDrapeaux(dr,legendeDrapeaux(j,j)); return caseJour(j); })
+                   .replace(' data-d="',' data-y="'+y+'" data-m="'+m+'" data-d="')
+                   .replace('<span class="mc-n">'+j+'</span>','<span class="mc-n">'+j+mo+'</span>')
+                  :'<span class="mc-j repos sem-hors"><span class="mc-n">'+j+mo+'</span></span>';
+      var hj=dans?heuresJour((M&&M.days[j])||{}):0; if(hj>0){ tot+=hj; nbj++; }
+      cases.push(cas);
+      if(cases.length===7){ g+='<div class="mc-sem">'+cases.join("")+'</div>'; cases=[]; }
+    });
+    if(cases.length){ while(cases.length<7) cases.push('<span class="mc-vide"></span>'); g+='<div class="mc-sem">'+cases.join("")+'</div>'; }
+    hote.innerHTML='<div class="sem-t"><b>Cycle'+(r.nom?' de '+esc(r.nom):'')+'</b>'
+      +'<span>'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
+      +'<div class="mc-grille"><div class="mc-tete">'
+      +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")
+      +'</div>'+g+'</div>'+(dr?legendeHTML(dr):"");
+  });
+}
 function renderAnnee(hote){
   var y=st.y, jeton=++_anJeton, mois=[], i;
   for(i=0;i<12;i++) mois.push(i);
@@ -6775,6 +6860,7 @@ function renderAnnee(hote){
 function allerAujourdhui(){
   var ja=jourPerso(st.personObj), y=ja.getFullYear(), m=ja.getMonth();
   if(calVue==="semaine"){ allerSemaine(lundiDe(ja)); return; }
+  if(calVue==="cycle"){ allerCycle(cycleDe(ja)); return; }
   if(calVue==="annee"){
     /* le mois en cours à l'écran, une fois l'année dessinée (renderAnnee) */
     _anMontrer=m;
@@ -6783,8 +6869,9 @@ function allerAujourdhui(){
 }
 (function(){ var b=document.getElementById("calAuj"); if(b) b.addEventListener("click",allerAujourdhui); })();
 function choisirVue(v){
-  calVue=({annee:1,semaine:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
+  calVue=({annee:1,semaine:1,cycle:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
   if(calVue==="semaine") semDeb=semDepuisMois();
+  if(calVue==="cycle") cyDeb=cycDepuisMois();
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
     b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
   });
@@ -6941,7 +7028,7 @@ document.getElementById("moisCal").addEventListener("click",function(e){
   var b=e.target.closest(".mc-j"), ls=e.target.closest(".sem-l");
   if(!b && ls) b=ls.querySelector("button.mc-j");
   if(!b || !b.dataset.d) return;
-  var g=b.closest(".mc-mois")||ls, m=g?Number(g.dataset.m):st.m, y=(g&&g.dataset.y)?Number(g.dataset.y):st.y, d=Number(b.dataset.d);
+  var g=b.dataset.m?b:(b.closest(".mc-mois")||ls), m=g?Number(g.dataset.m):st.m, y=(g&&g.dataset.y)?Number(g.dataset.y):st.y, d=Number(b.dataset.d);
   if(m===st.m && y===st.y) ouvrirJour(d);
   else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
@@ -7845,7 +7932,7 @@ function majBrandsub(){
    égare celui qui le relit. */
 function majMoisLabel(m,y){
   var el=document.getElementById("mlabel");
-  if(el) el.textContent=vueAnnee()?String(y):(vueSemaine()?libSemaine(semDeb||semDepuisMois()):MOIS[m]+" "+y);
+  if(el) el.textContent=vueAnnee()?String(y):(vueSemaine()?libSemaine(semDeb||semDepuisMois()):(vueCycle()?libCycle(cyDeb||cycDepuisMois()):MOIS[m]+" "+y));
   /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
   var pick=document.getElementById("moisPick");
   if(pick){ pick.value=y+"-"+pad2(m+1); pick.min=AN_MIN+"-01"; }
@@ -7853,19 +7940,20 @@ function majMoisLabel(m,y){
      date ne sont pas adaptés ; en Année il propose aussi le mois ») : un
      mois en Mois ; un jour en Semaine, dont on montre la semaine (iOS n'a
      pas de champ « semaine ») ; une année en Année, depuis AN_MIN. */
-  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick"), vs=vueSemaine(), va=vueAnnee();
+  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick"), vc=vueCycle(), vs=vueSemaine()||vc, va=vueAnnee();
   if(pick) pick.hidden=vs||va;
   if(sp){ sp.hidden=!vs; sp.min=AN_MIN+"-01-01";
-    var s0=semDeb||semDepuisMois(); if(vs) sp.value=s0.getFullYear()+"-"+pad2(s0.getMonth()+1)+"-"+pad2(s0.getDate()); }
+    var s0=vc?(cyDeb||cycDepuisMois()):(semDeb||semDepuisMois()); if(vs) sp.value=s0.getFullYear()+"-"+pad2(s0.getMonth()+1)+"-"+pad2(s0.getDate()); }
   if(ap){ ap.hidden=!va;
     if(va){ var yMax=Math.max(y,new Date().getFullYear())+1, o="";
       for(var a=AN_MIN;a<=yMax;a++) o+='<option value="'+a+'"'+(a===y?' selected':'')+'>'+a+'</option>';
       ap.innerHTML=o; ap.value=String(y); } }
   var pv=document.getElementById("prev");
-  var sd=vueSemaine()?(semDeb||semDepuisMois()):null;
-  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0)));
+  var sd=vueSemaine()?(semDeb||semDepuisMois()):null, cd=vc?(cyDeb||cycDepuisMois()):null;
+  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(cd?(cd.getTime()<=cycMin().getTime()):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0))));
   var ba=document.getElementById("calAuj"), ja=jourPerso(st.personObj);
-  if(ba) ba.disabled=(calVue==="semaine")?(!!sd && sd.getTime()===lundiDe(ja).getTime())
+  if(ba) ba.disabled=(calVue==="cycle")?(!!cd && cd.getTime()===cycleDe(ja).getTime())
+                    :(calVue==="semaine")?(!!sd && sd.getTime()===lundiDe(ja).getTime())
                     :(calVue!=="annee" && y===ja.getFullYear() && m===ja.getMonth());
 }
 function dateFr(iso){
@@ -8265,6 +8353,7 @@ var AN_MIN=2026;
 function go(step){
   if(vueAnnee()){ if(st.y+step>=AN_MIN) loadMonth(st.y+step,st.m); return; }
   if(vueSemaine()){ var b0=semDeb||semDepuisMois(); allerSemaine(new Date(b0.getFullYear(),b0.getMonth(),b0.getDate()+7*step)); return; }
+  if(vueCycle()){ var c0=cyDeb||cycDepuisMois(); allerCycle(new Date(c0.getFullYear(),c0.getMonth(),c0.getDate()+cycleRef().L*step)); return; }
   allerMois(step);
 }
 function allerMois(step){
@@ -12762,32 +12851,8 @@ function ryAnneeHTML(p,y){
     var deb=new Date(c.fin.getFullYear(),c.fin.getMonth(),c.fin.getDate()+1);
     h+=ryCycleHTML(p,{nom:c.nom,L:c.L,pos:-1,deb:deb,fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+c.L-1)},"Prochain cycle",true);
   }
-  return h+ryAnSuivanteHTML(p,y);
+  return h;
 }
-/* L'HORAIRE DE L'ANNÉE SUIVANTE, DÈS QU'IL EST REÇU (le client, le
-   20/10/2026 : « tout optimiser », proposition 5). Une ligne au pied du
-   héros : le classeur de l'an prochain est là, combien de jours de congé y
-   sont déjà posés, et un appui ouvre son mois de janvier. Rien tant que
-   l'année suivante n'est que prolongée par les cycles. */
-var RX_CONGE_POSE=/^(1\/2)?(VA|RTT|DTT|RJF|RHS)$/i;
-function ryAnSuivanteHTML(p,y){
-  var an=y+1, db=(typeof HORAIRES!=="undefined")?HORAIRES[an]:null, q=null, n=0, d, x;
-  if(!db || db.projete) return "";
-  db.people.forEach(function(z){ if(z.id===p.id) q=z; });
-  if(!q) return "";
-  for(d=new Date(an,0,1); d.getFullYear()===an; d=new Date(an,d.getMonth(),d.getDate()+1)){
-    x=_pfJour(p.id,d); if(x && !x.presente && x.ab && RX_CONGE_POSE.test(String(x.ab))) n+=/^1\/2/.test(String(x.ab))?0.5:1;
-  }
-  return '<button type="button" class="ry-suiv" data-an="'+an+'">'
-    +'<span class="ry-chart-t ry-h2">Horaire '+an+'</span>'
-    +'<span class="ry-suiv-t">'+(n?'<b>'+num(n)+'</b> jour'+(n>=2?'s':'')+' de congé déjà posé'+(n>=2?'s':''):'Classeur reçu')+'</span>'
-    +'<span class="ry-suiv-v">Voir janvier ›</span></button>';
-}
-document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest(".ry-suiv"):null; if(!b) return;
-  try{ loadMonth(Number(b.dataset.an),0); }catch(er){}
-  var c=document.getElementById("calCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"});
-});
 /* LES PAUSES DE L'ANNÉE, faites et à venir, revenues dans « Mon rythme »
    (le client, le 17/10/2026 : « remettre les badges de pause AM PM N D
    dans la partie mon rythme ») ; le héros ne garde que les progressions. */
@@ -18825,6 +18890,7 @@ function vueHoraire(){
   if(sp) sp.addEventListener("change",function(){
     var q=String(sp.value||"").split("-"); if(q.length<3) return;
     var d=new Date(Number(q[0]),Number(q[1])-1,Number(q[2])); if(isNaN(d)) return;
+    if(vueCycle()){ var c=cycleDe(d); allerCycle(c<cycMin()?cycMin():c); return; }
     var l=lundiDe(d); allerSemaine(l<semMin()?semMin():l);
   });
   if(ap) ap.addEventListener("change",function(){
@@ -18844,6 +18910,7 @@ function vueHoraire(){
     if(isNaN(y)||isNaN(m)) return;
     if(y<AN_MIN){ majMoisLabel(st.m,st.y); return; }
     if(vueSemaine()){ allerSemaine(lundiDe(new Date(y,m,1))<semMin()?semMin():lundiDe(new Date(y,m,1))); return; }
+    if(vueCycle()){ allerCycle(cycleDe(new Date(y,m,1))<cycMin()?cycMin():cycleDe(new Date(y,m,1))); return; }
     if(y!==st.y || m!==st.m) loadMonth(y,m);
   });
 })();
