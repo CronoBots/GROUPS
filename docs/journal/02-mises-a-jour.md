@@ -701,3 +701,28 @@ dans les macros. Réponses du client :
 
 Tant que l'étape 3 n'est pas atteinte, la règle du 27/09 tient : le
 classeur reste la seule source de l'application.
+
+**Étape 1, parité en lecture : l'inventaire (20/10/2026, `nfdm-v883`).**
+Mesuré sur le classeur du 19/10 à 13 h 22 (celui installé) :
+`verifier-integralite.py` retrouve les 103 colonnes-personnes et 27 575
+journées identiques — la grille est entière. Le reste du classeur :
+compteurs du pied de feuille (lus, `c`), polyvalences et leurs dates
+(lues), légende des codes (lue), grille poste par poste de la feuille
+cachée (le Planning), date de mise à jour (lue), couleurs (des bandes de
+colonnes, trois cellules jaunes « Abs » dont le commentaire dit tout, le
+seuil du flex time déjà montré), texte barré (retiré, règle du 26/09). Ce qui
+manquait : **les commentaires du pied de feuille**. Les contrats réduits
+servaient au calcul sans jamais se lire, et 17 notes n'arrivaient pas
+(jours fériés à reprendre, « −4 h VA suite au congé parental », un
+contrat écrit en deux périodes). Ils arrivent tous (`ct`, notes et texte
+entier) et s'affichent dans « Mes compteurs », « Contrat et notes du
+classeur » : 14 notes chez 13 personnes. Passage à blanc : seul `ct` change,
+chez 15 personnes ; vérificateur, manques, polyvalences, compteurs et
+fiches VBN identiques à l'octet ; agendas inchangés.
+
+Restent hors de l'application, et pourquoi : les noms, prénoms et
+matricules (onglets Polyvalence et Personnel) — le site est public, ils
+arriveront avec la base à comptes de l'étape 2 ; deux commentaires de
+l'onglet Polyvalence (une polyvalence finie en 2018, une date de 2018) qui
+ne se rattachent à personne de l'horaire actuel ; les macros (elles
+fabriquent le classeur, elles n'y écrivent rien d'autre).

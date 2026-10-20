@@ -1067,6 +1067,10 @@ body{overflow-x:clip}
 .calvue button{flex:1 1 0; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
 .calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink)}
+/* les notes du pied de feuille, dans « Mes compteurs » */
+.cpt-notes{margin:2px 0 4px; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px}
+.cpt-notes li{position:relative; padding:8px 10px 8px 12px; border-radius:9px; background:var(--surface2); border:1px solid var(--line);
+  font-size:13px; line-height:1.4; color:var(--ink2)}
 #calCard.vue-an .calbilan,#calCard.vue-sem .calbilan,#calCard.vue-cy .calbilan{display:none}
 /* LE CYCLE : la grille du mois, du lundi où il commence à son dernier jour ;
    le 1er de chaque mois porte le nom du mois (le titre dit déjà le premier) */
@@ -19005,6 +19009,24 @@ function renderCompteurs(){
           var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
           var per=(ABSMAP[k]&&ABSMAP[k].k==="SMG"&&calc.malPer)?'<div class="cr-s">en <b>'+calc.malPer+'</b> période'+(calc.malPer>1?'s':'')+'</div>':'';
           return '<div class="cr'+(per?'':' sans-s')+'"><div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(l===k?k:l)+'</span></div>'+per+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
+    }
+    /* --- contrat et notes du classeur --- */
+    /* LE PIED DE FEUILLE EN CLAIR (le client, le 20/10/2026 : « tout ce qui
+       figure dans le fichier doit s'y retrouver », étape 1 du remplacement
+       du classeur). Les contrats réduits servaient au calcul sans jamais se
+       lire ; les autres notes (jours fériés à reprendre, heures retirées)
+       n'arrivaient pas. Le texte tel qu'écrit, une fois : un commentaire
+       découpé en périodes se montre entier. */
+    var ctN=[], touts=[];
+    (person.ct||[]).forEach(function(c){ if(c.tout) touts.push(c.tout); });
+    (person.ct||[]).forEach(function(c){
+      var t=String(c.tout||c.txt||"").replace(/\s+/g," ").trim();
+      if(!t || (!c.tout && touts.some(function(x){ return x.indexOf(c.txt)>=0 && x!==c.txt; }))) return;
+      if(ctN.indexOf(t)<0) ctN.push(t);
+    });
+    if(ctN.length){
+      h.push(bloc("Contrat et notes du classeur","pied de feuille",
+        '<ul class="cpt-notes">'+ctN.map(function(t){ return '<li>'+esc(t.charAt(0).toUpperCase()+t.slice(1))+'</li>'; }).join("")+'</ul>'));
     }
     hote.innerHTML=h.join("");
 

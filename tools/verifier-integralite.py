@@ -249,6 +249,7 @@ def main():
     sac = _reduit(" ".join(
         [" ".join(v[1:]) for p in hor["people"] for v in p["d"].values()]
         + [c.get("txt", "") for p in hor["people"] for c in p.get("ct", [])]
+        + [c.get("tout", "") for p in hor["people"] for c in p.get("ct", [])]
         + [x.get("txt", "") for p in hor["people"]
            for x in ((p.get("poly") or {}).get("dates") or {}).values()]))
     pied, poly = [], []
