@@ -4414,7 +4414,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque.propose>b{color:#F2994A}
 #jourCorps.eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
 @media (max-width:760px){
-  #jourCorps .eqp2 thead th[data-k="D"]{width:15%}
+  /* la grille : colonnes de largeur égale, voisins étirés à la même hauteur */
+  #jourCorps .eqp2 td .eqc{display:grid; grid-template-columns:repeat(2,max-content); justify-content:center; align-items:stretch; gap:2px}
+  #jourCorps .eqp2 td .eqc:has(> :only-child){grid-template-columns:max-content}
+  #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn{margin:0; width:auto; justify-self:stretch}
+  #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin-top:0}
+}
+@media (min-width:761px){
+  #jourCorps .eqp2 td .eqc{display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch; gap:4px}
+  #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn,#jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin:0}
 }
 @media (min-width:761px){
   #jourCorps.eqhote .eqp2 tbody td .eqn{min-width:calc(3ch + 18px); min-height:24px; margin:2px 3px; padding:2px 4px; border-radius:7px; font-size:13.5px}
@@ -14668,7 +14676,7 @@ function renderEquipe(){
            28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
-        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun)&&!sansHoraire?horaireEcritD(x)
+        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.deD)&&(!sansHoraire||x.deD)?horaireEcritD(x)
           :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
@@ -14839,6 +14847,28 @@ function renderEquipe(){
         || vp.D.vue.postes.some(function(o){ return o.gens.length; });
       if(!dPlein) vp.D=null;
     }
+    /* PLUS DE COLONNE D : SES GENS VONT DANS LA COLONNE AM (le client, le
+       20/10/2026 : « retirer la colonne D, mais au lieu de ça les mettre
+       dans la colonne AM avec l'horaire choisi »). Chacun rejoint la case AM
+       de son poste — la formation, le DS et « à déterminer » leurs lignes —
+       avec son horaire dans le badge (x.deD, horaireEcritD). Rien ne change
+       aux comptes : la case AM garde son effectif et son manque calculés
+       sans eux, comme la colonne D n'attendait personne. */
+    var dsAff=[], incD=[];
+    if(vp.D){
+      if(!vp.AM) vp.AM={n:0, vue:{postes:[], inconnus:[], formation:[]}};
+      var vA=vp.AM.vue;
+      vp.D.vue.postes.forEach(function(oD){
+        if(!oD.gens.length) return;
+        var oA=null; vA.postes.forEach(function(o){ if(o.P.k===oD.P.k) oA=o; });
+        if(!oA){ oA={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
+        oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x); });
+      });
+      vA.formation=(vA.formation||[]).concat((vp.D.vue.formation||[]).map(function(x){ x.deD=true; return x; }));
+      incD=(vp.D.vue.inconnus||[]).map(function(x){ x.deD=true; return x; });
+      dsAff=(vp.D.ds||[]).map(function(x){ x.deD=true; return x; });
+      vp.D=null;
+    }
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes
@@ -14998,7 +15028,12 @@ function renderEquipe(){
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
           /* comblable par un changement proposé : orange, pas rouge */
           if(mq) cl.push(o.propose?"propose":"manque");
+          /* LES BADGES DANS UNE GRILLE (.eqc, le client, le 20/10/2026 : « il
+             y a moyen de mieux disposer les badges trigramme non ? ») : deux
+             colonnes au téléphone, alignées d'une ligne à l'autre, deux
+             voisins à la même hauteur ; un badge seul reste centré. */
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
+            +((o.gens.length||mq||(o.relais&&o.relais.length))?'<div class="eqc">':'')
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
             /* LES RELAIS DE 12 H, à bord pointillé, avec leur horaire : le
                poste est tenu, mais par deux personnes venues des pauses
@@ -15012,7 +15047,7 @@ function renderEquipe(){
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
                dans la recherche. */
             +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
-            +(o.gens.length||mq||(o.relais&&o.relais.length)?"":'<span class="eqvide">\u2014</span>')
+            +(o.gens.length||mq||(o.relais&&o.relais.length)?"</div>":'<span class="eqvide">\u2014</span>')
             +"</td>");
         }));
         tp.push("</tr>");
@@ -15030,12 +15065,13 @@ function renderEquipe(){
       var incTot=0;
       PAUSES.forEach(function(g){
         if(vp[g.k]) incTot+=vp[g.k].vue.inconnus.length; });
+      incTot+=incD.length;
       if(incTot){
         tp.push('<tr class="zone1 eqinc"><th class="eqposte" scope="row">'
           +'<b><span class="orgl1">\u00c0 déterminer</span><span class="orgl2">\u00c0 dét.</span></b></th>');
         PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
-          var li=vp[g.k].vue.inconnus;
+          var li=vp[g.k].vue.inconnus.concat(g.k==="AM"?incD:[]);
           /* Case vide : le même tiret court que partout ailleurs (le
              client, le 28/09/2026, « uniformiser »). */
           tp.push(li.length
@@ -15060,11 +15096,11 @@ function renderEquipe(){
         }));
         tp.push("</tr>");
       }
-      if(vp.D && vp.D.ds && vp.D.ds.length){
+      if(dsAff.length){
         tp.push('<tr class="zone1 eqform eqds"><th class="eqposte" scope="row"><b>DS</b></th>');
         PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
-          var li=g.k==="D"?vp.D.ds:[];
+          var li=g.k==="AM"?dsAff:[];
           tp.push(li.length
             ? "<td>"+li.map(function(x){ return chip(x,g,null,true,true); }).join("")+"</td>"
             : '<td class="vide">\u2013</td>');
