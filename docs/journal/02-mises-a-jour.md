@@ -727,3 +727,47 @@ l'onglet Polyvalence (une polyvalence finie en 2018, une date de 2018) qui
 n'arrivent sur aucune personne de l'horaire (le convertisseur ne
 rattache pas leur ligne ; pourquoi, c'est à examiner) ; les macros (elles
 fabriquent le classeur, elles n'y écrivent rien d'autre).
+
+## Étape 2 : la base BIOWANZE (20/10/2026)
+
+**Où.** Supabase refuse un troisième projet gratuit (le compte en a deux).
+Le client, entre un projet dédié payant et le projet PINO : « si je mets
+dans PINO, ce sera possible de différencier par après ? » — oui, à
+condition de tout ranger à part dès le début. La base vit donc dans le
+projet PINO, dans un **schéma `biowanze` jamais exposé à l'API** : ni le
+public ni un compte de PINO n'y entre ; seules des fonctions
+`public.biowanze_*` y lisent ou écrivent, après avoir vérifié l'appelant.
+Le jour d'un projet dédié, le schéma se recopie d'un bloc et l'application
+change d'adresse.
+
+**Structure** (`base/01-fondations.sql`, sans donnée) : personnes
+(trigramme, nom, prénom, matricule, catégorie, statut), comptes (un
+utilisateur de connexion, une personne, un rôle : RH, hiérarchie,
+opérateur), journées (cellule, annotation, commentaire, et leur source :
+classeur ou saisie), événements structurés (remplacement, échange, rappel,
+congé…), demandes (validées par le contremaître et la RH), polyvalences,
+et un **historique** de chaque écriture (avant, après, auteur, heure) —
+les journées venues du classeur exceptées, des milliers à chaque passage.
+Toutes les tables sous RLS sans règle ouverte.
+
+**Lecture** (`base/02-lecture.sql`) : `biowanze_moi`, `biowanze_personnes`,
+`biowanze_journees`, pour un utilisateur connecté ET rattaché à un compte.
+Éprouvé dans une transaction annulée : connecté sans compte, 0 journée ;
+avec un compte opérateur, 1 journée et le rôle « operateur » ; le public
+ne peut ni appeler les fonctions ni entrer dans le schéma.
+
+**Synchronisation** (`base/03-synchro.sql`, `tools/base-synchro.py`) : le
+robot recopie l'horaire installé quand la version de la base diffère du
+fichier, par lots de 12 personnes, avec la clé qu'il a déjà pour les
+notifications (`PUSH_CLE`, dont la base ne garde que l'empreinte ; une
+mauvaise clé est refusée, éprouvé). Une journée que le classeur n'écrit
+plus se VIDE au lieu d'être effacée ; une journée saisie dans
+l'application n'est jamais écrasée. Erreur commise : la première version
+effaçait les journées avant de les réécrire, et l'ordre `delete` faisait
+attendre au connecteur Supabase une confirmation manuelle — trois essais
+expirés à 60 s, rien d'appliqué ; la version qui vide ne demande rien.
+
+**Reste à faire pour la connexion** : l'envoi des e-mails de connexion
+(Supabase n'écrit qu'à l'équipe du projet sans serveur d'envoi à soi) ;
+les noms, prénoms et matricules, lus dans le classeur par le robot ;
+l'écran de connexion de l'application.

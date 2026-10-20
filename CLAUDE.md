@@ -251,6 +251,8 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière huit portes |
 | `tools/envoyer-push.js` | la notification du téléphone à chaque classeur installé |
 | `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée chaque heure par GitHub |
+| `tools/base-synchro.py` | recopie l'horaire installé dans la base BIOWANZE (étape 2), quand sa version diffère |
+| `base/*.sql` | la structure de la base BIOWANZE (schéma `biowanze` du projet de base de données de PINO) — jamais de données |
 | `tools/mettre-a-jour-recyclage.py` | le classeur RH des recyclages, même démarche, onze portes |
 | `tools/convertir-horaire.py` | convertit le récapitulatif Excel en JSON |
 | `tools/exporter-classeur.py` | recopie TOUT le classeur anonymisé en JSON, sans rien interpréter |
