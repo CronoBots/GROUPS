@@ -1140,3 +1140,14 @@ propres décisions, que je n'avais pas relues avant de proposer — erreur de
 méthode : le tiret des cases vides (voulu le 26/09), l'effectif sous la
 pause (retiré le 26/09, « le total est déjà sous À l'usine »), l'horaire
 dans le badge (contraire à l'uniformisation demandée le même jour).
+
+**Suite, même jour** (`nfdm-v854`). Le client : « ne pas mettre de légende
+à ce planning, mettre les horaires dans les badges, donc ceux avec l'horaire
+peuvent être plus grands, même tous de la même taille ». La légende est
+retirée (fonction et styles). Le cadre entoure de nouveau toute l'étiquette,
+trigramme ET horaire en petit dessous, DANS le badge ; largeur commune
+`3ch + 10px` (31 px au téléphone, 52 px au bureau), un badge à horaire plus
+haut d'une ligne (31 × 28 contre 31 × 18). Une première largeur de 35 px
+défaisait les deux badges par ligne (35 + 35 + marges > 80 px de pause) :
+ramenée à 31. Le tiret des cases vides et l'effectif sous la pause restent
+comme le client les avait voulus le 26/09.
