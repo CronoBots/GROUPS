@@ -1092,3 +1092,18 @@ changent dans `cal/` (une DESCRIPTION de plus chacune) ; vérificateur,
 manques, polyvalences, compteurs et fiches VBN identiques. Navigateur :
 novembre marque les 02-04 et 09-12, la semaine les affiche, hors ligne
 sans erreur.
+
+## Accueil, passe du 20/10/2026
+
+Le client : « optimise l'accueil au max et propose des changements ».
+Photographié à 320, 390 et 1280 px (hauteurs 3 067, 2 921, 2 910 px),
+aucun débordement ni erreur mesurés. Défauts relevés et corrigés :
+« 1 prestées » dans le cycle (accord), « 1,5 jours restants » (au-dessous
+de deux, le singulier), « journées prestées » sans accord dans la barre de
+l'année, « 75 % » sans dire de quoi (« 75 % fait »), la légende AM · PM ·
+N · D dite trois fois dans la page (celle de « Mois par mois » retirée : le
+« jour par jour » juste dessous et le calendrier la donnent). Vérifié et
+NON fautif : « ▼ 56 vs sept. » compare bien deux mois entiers. Les
+changements de structure (bureau sur deux colonnes, « jour par jour » qui
+redit la vue Année du calendrier, explication du flex time, congés « tout
+placés » regroupés) sont proposés au client, non faits.
