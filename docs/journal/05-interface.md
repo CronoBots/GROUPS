@@ -1122,3 +1122,21 @@ Voir janvier › », seulement quand le classeur de l'année suivante est reçu
 (pas prolongé). (2) NON fait : replier « Jour par jour » — le client :
 « mais j'aime bien jour par jour ». Éprouvé à 320, 390 et 1280 px : aucun
 débordement, aucune erreur ; le lien ouvre janvier 2027, hors ligne compris.
+
+## Planning : badges côte à côte, colonne D étroite, année, légende (20/10/2026)
+
+Le client, capture du 21/10 : « comment optimiser les badges et la vue ? »,
+puis « go » sur sept propositions. Faits (`nfdm-v853`) : au téléphone, les
+badges (de même taille) se rangent DEUX par ligne au lieu de s'empiler ; la
+colonne D prend 15 % de la largeur (53 px à 390, chaque pause 80 px) ;
+l'année s'écrit dans le titre hors de l'année en cours (« Mardi 5 janvier
+2027 ») ; une légende repliée sous le tableau, des seuls signes présents ce
+jour-là, ouverte ou fermée d'un jour à l'autre. Mesuré à 320, 390 et
+1280 px : le tableau du 20/10 tient dans l'écran (650 px), aucune case ne
+déborde, aucune erreur.
+
+NON faits, et redemandés : trois des sept propositions revenaient sur ses
+propres décisions, que je n'avais pas relues avant de proposer — erreur de
+méthode : le tiret des cases vides (voulu le 26/09), l'effectif sous la
+pause (retiré le 26/09, « le total est déjà sous À l'usine »), l'horaire
+dans le badge (contraire à l'uniformisation demandée le même jour).
