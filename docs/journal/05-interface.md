@@ -1262,3 +1262,21 @@ trou, en haut à droite, les titulaires la colonne de gauche — meunerie AM
 un titulaire au-dessus de l'apprenti, en bas à droite (gluten AM du 21/10
 « DBE GBT / SLT NPI »). Plusieurs apprentis et un compte impair : le trou
 reste en haut à droite.
+
+**Le dernier badge d'un compte impair se centre, et une cellule « D »
+annotée d'une plage garde son horaire (20/10/2026, `nfdm-v868`).** Le
+client, sur la capture du 14/10 : « pourquoi ne voit-on pas l'horaire
+presté par FLI, étant donné qu'il est en D ? », et « en cas de nombre
+impair, les cadres du dernier opérateur doivent être toujours centrés
+comme FPS ». FLI avait « D · 06h-14h » : la plage le range au matin, et le
+badge n'y prenait l'horaire que pour une colonne D, une consignation ou un
+`deD` — un 6-14 au matin est l'horaire du matin, `horaireModifie` se tait.
+`celluleD(x)` ajoute ce cas, seulement quand l'annotation est une plage :
+« D · AM » (16 jours sur les deux années) passe au matin à l'heure du
+matin, et l'horaire habituel de journée y serait faux. Mesuré au 14/10 :
+« FLI 6-14 ». Au téléphone (320 et 390 px), le dernier enfant impair
+d'une case prend les deux colonnes et se centre : écart de centre 0 px
+pour les six cases impaires du jour (CM, chaudières AM « GBT 6-10 »…). Avec
+des apprentis la case est toujours paire, la règle ne la touche pas ; sur
+bureau, le `flex-wrap` centrait déjà. Vérificateur identique à l'octet
+(base, manques), aucune erreur de page.

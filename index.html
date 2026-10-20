@@ -4446,6 +4446,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn{margin:0; width:auto; justify-self:stretch}
   /* la case vide qui pousse l'apprenti en bas à droite */
   #jourCorps .eqp2 td .eqc .eqtrou{display:block}
+  /* Nombre impair : le dernier badge se centre sous les deux colonnes,
+     comme sur la ligne FORM. (le client, le 20/10/2026 : « les cadres du
+     dernier opérateur doivent être toujours centrés »). Avec des
+     apprentis, la case est toujours paire (trou ou apprenti en haut à
+     droite) : la règle ne la touche pas. */
+  #jourCorps.eqhote .eqp2 tbody td .eqc>:last-child:nth-child(odd):not(:only-child){grid-column:1 / -1; justify-self:center}
   #jourCorps .eqp2 td .eqc.aform{grid-template-columns:repeat(2,max-content)}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin-top:0}
 }
@@ -14555,6 +14561,12 @@ function renderEquipe(){
        même jour : « il doit toujours être marqué l'horaire de quelqu'un
        en D ; cet horaire doit être entre parenthèses ; si BLR ou YRS est
        en D, il faut mettre (C) pour Consignation ». */
+    function celluleD(x){
+      var r=x.p.d&&x.p.d[mmdd];
+      /* Seulement avec une plage écrite : « D · AM » passe au matin à
+         l'horaire du matin, et l'horaire habituel de journée y serait faux. */
+      return !!r && /^d$/i.test(String(r[0]||"").trim()) && /\d\s*h?\s*\d*\s*-\s*\d/.test(String(r[1]||""));
+    }
     function horaireEcritD(x){
       /* « 8-16 » et non plus « 7h30-16 », puis « Cons. ». Le client, le
          28/09/2026 : « 7h30-16 » passait à la ligne dans toutes les cases
@@ -14711,7 +14723,11 @@ function renderEquipe(){
            28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
-        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.deD)&&(!sansHoraire||x.deD)?horaireEcritD(x)
+        /* Une cellule « D » qui donne une pause par son annotation (« D ·
+           06h-14h » : au matin) garde son horaire dans le badge. Le client,
+           le 20/10/2026 : « pourquoi ne voit-on pas l'horaire presté par
+           FLI, étant donné qu'il est en D ? ». */
+        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.deD||celluleD(x))&&(!sansHoraire||x.deD)?horaireEcritD(x)
           :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
