@@ -3877,19 +3877,23 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-an .ry-an-t~.ry-an-t,.pf-an .cy-bloc>.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
 .pf-an .ry-hint{font-size:11px; color:var(--muted)}
 .pf-an .ry-an-leg{margin-bottom:12px}
-/* les prochaines pauses, trois tuiles sous le cycle actuel */
-.pf-pr{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:6px 0 12px}
-.pf-pr-c{display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 4px 8px; border-radius:11px;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); text-align:center; min-width:0}
-.pf-pr-c .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px; width:auto; height:auto; min-width:0}
-.pf-pr-c b{font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; font-variant-numeric:tabular-nums}
-.pf-pr-c span{font-size:11px; color:var(--muted); white-space:nowrap}
-.pf-pr-c small{margin-top:3px; padding-top:5px; border-top:1px solid rgba(255,255,255,.08); align-self:stretch;
-  font-size:10.5px; color:var(--muted); white-space:nowrap}
-.pf-pr-c small b{font-size:inherit; color:var(--ink2); font-weight:700}
-/* quatre pauses : deux par ligne au téléphone, quatre de front au bureau */
-.pf-pr.q4{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media (min-width:520px){ .pf-pr.q4{grid-template-columns:repeat(4,minmax(0,1fr))} }
+/* mes pauses : une ligne par pause, la prochaine date à gauche, l'année
+   (faites · à venir) à droite */
+.pf-pr-l{font-size:10.5px; color:var(--muted); white-space:nowrap}
+.pf-pr{display:flex; flex-direction:column; margin:4px 0 12px; border-radius:12px; overflow:hidden;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
+.pf-pr-c{display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:10px; width:100%;
+  padding:9px 12px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+.pf-pr-c+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
+.pf-pr-c:disabled{cursor:default}
+@media (hover:hover){ .pf-pr-c:not(:disabled):hover{background:rgba(105,178,203,.08)} }
+.pf-pr-c .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 0; border-radius:99px; width:34px; height:auto; min-width:0; text-align:center}
+.pf-pr-d{display:flex; align-items:baseline; gap:8px; min-width:0; white-space:nowrap}
+.pf-pr-d b{font-size:14px; font-weight:650; color:#fff; font-variant-numeric:tabular-nums}
+.pf-pr-d span{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis}
+.pf-pr-n{display:flex; align-items:baseline; gap:6px; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pf-pr-n b{font-size:14px; font-weight:700; color:var(--ink)}
+.pf-pr-n span{font-size:12px; color:var(--muted)}
 @media (min-width:761px){
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
   .pf-gauche{min-width:0}
@@ -12978,16 +12982,30 @@ function ryProchainesHTML(p,y){
   }
   var JC=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
   var ks=["AM","PM","N","D"].filter(function(k){ return k!=="D" || vu.D || (o && (o.F.D||o.A.D)); });
+  /* EN LISTE, ET NON PLUS EN TUILES (le client, le 20/10/2026 : « moyen
+     d'optimiser 100 % pro ? ») : quatre tuiles de deux lignes prenaient
+     270 px au téléphone pour quatre dates. Une ligne par pause, comme le
+     week-end libre et le prochain congé : la pause, sa prochaine date et
+     le délai, puis l'année à droite, sous une seule légende de colonne.
+     Une ligne touchée ouvre ce jour dans le calendrier. */
   return '<div class="ry-an-t pf-pr-t"><span class="ry-chart-t ry-h2">Mes pauses</span>'
-    +'</div>'
-    +'<div class="pf-pr'+(ks.length===4?' q4':'')+'">'+ks.map(function(k){
-      var v=vu[k], quand=!v?"—":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
-      return '<div class="pf-pr-c"><i class="pf-pause" data-p="'+k+'">'+k+'</i>'
-        +'<b>'+(v?esc(JC[v.d.getDay()]+" "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()]):"—")+'</b>'
-        +'<span>'+esc(v?quand:"rien de prévu")+'</span>'
-        +(o?'<small title="'+k+' en '+y+' : '+o.F[k]+' faite'+(o.F[k]>1?'s':'')+', '+o.A[k]+' à venir"><b>'+o.F[k]+'</b> faite'+(o.F[k]>1?'s':'')+' · +'+o.A[k]+(ks.length===4?' à venir':'')+'</small>':'')+'</div>';
+    +(o?'<span class="pf-pr-l">faites · à venir</span>':'')+'</div>'
+    +'<div class="pf-pr">'+ks.map(function(k){
+      var v=vu[k], quand=!v?"":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
+      return '<button type="button" class="pf-pr-c"'+(v?' data-y="'+v.d.getFullYear()+'" data-m="'+v.d.getMonth()+'" data-d="'+v.d.getDate()+'"':' disabled')
+        +' aria-label="'+k+(v?', prochaine '+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+v.d.getDate()+" "+MOIS[v.d.getMonth()].toLowerCase()):', rien de prévu')
+        +(o?', '+o.F[k]+' faites et '+o.A[k]+' à venir en '+y:'')+'">'
+        +'<i class="pf-pause" data-p="'+k+'">'+k+'</i>'
+        +'<span class="pf-pr-d">'+(v?'<b>'+esc(JC[v.d.getDay()]+" "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</b><span>'+esc(quand)+'</span>':'<span>rien de prévu</span>')+'</span>'
+        +(o?'<span class="pf-pr-n"><b>'+o.F[k]+'</b><span>+'+o.A[k]+'</span></span>':'')+'</button>';
     }).join("")+'</div>';
 }
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".pf-pr-c[data-d]"):null; if(!b) return;
+  var y=Number(b.dataset.y), m=Number(b.dataset.m), d=Number(b.dataset.d);
+  if(m===st.m && y===st.y) ouvrirJour(d);
+  else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
+});
 function ryAnneeHTML(p,y){
   var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
