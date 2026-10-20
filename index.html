@@ -13652,7 +13652,22 @@ var POSTE_TRANCHE={QBY:"dist"};
    falling film en distillation remplace en ferm-liq pour QBY"]`, « tient le
    poste mais suivra la formation quand même ». Sans cela JBI restait
    adjoint et GPO tenait la fermentation ; PAM et FPS y étaient déjà. */
-var POSTE_DU_JOUR={VGG:{"20260927":"terr"}, JBI:{"20261026":"ferm"}, GPO:{"20261026":"glut"}};
+/* UNE DÉCISION DU JOUR TOMBE QUAND LA CELLULE CHANGE (le client, le
+   20/10/2026 : « GPO 26/10 remplace QBY, alors pourquoi est-il mis en
+   fermentation au lieu de distillation ? »). La décision du 12/10 portait
+   sur GPO `["PM"]` et JBI `["PM","F",…]` ; le classeur écrit depuis
+   GPO `["PM","disti","Remplace QBY"]` et JBI `["18h-6h","R-CM","MPE :
+   Remplace AFA…"]`, et la table, lue avant la cellule, imposait encore
+   « gluten » et « fermentation ». Chaque décision garde donc la cellule
+   (poste prévu et annotation) sur laquelle elle a été prise : différente,
+   elle ne vaut plus et le classeur reprend la main (posteImpose). */
+var POSTE_DU_JOUR={VGG:{"20260927":{k:"terr", si:["PM","distillation"]}}, JBI:{"20261026":{k:"ferm", si:["PM","F"]}}, GPO:{"20261026":{k:"glut", si:["PM",""]}}};
+function posteImpose(id,jour,raw){
+  var t=POSTE_DU_JOUR[id||""], e=t&&t[String(jour)];
+  if(!e || !raw || !raw.length) return null;
+  if(String(raw[0]||"").trim()!==e.si[0] || String(raw[1]||"").trim()!==e.si[1]) return null;
+  return e.k;
+}
 /* LE POSTE HABITUEL QUE LE CLIENT DONNE, quand le classeur en écrit un autre.
    Le client, le 27/09/2026 : « dans l'équipe 5, par défaut c'est toujours
    AAI qui tient le poste distillation et SMA le terrain ». La chaîne disait
@@ -13686,8 +13701,8 @@ function posteTenu(person,raw,hJour,poste,jour){
   /* Seulement pour une JOURNÉE : posteAttitreLe() demande le poste attitré
      avec une cellule vide, et la table en faisait sinon le poste attitré du
      jour — SLT le 28/09 ne comptait pas son recyclage de meunerie. */
-  k=jour&&raw&&raw.length&&POSTE_DU_JOUR[(person&&person.id)||""];
-  if(k&&k[String(jour)]) return k[String(jour)];
+  k=jour?posteImpose(person&&person.id,jour,raw):null;
+  if(k) return k;
   k=posteEcrit(raw); if(k) return k;
   /* LA TRANCHE DE PÉRIODE VIENT APRÈS LA CELLULE ET AVANT TOUT LE RESTE.
 
@@ -14197,7 +14212,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        est lui-même présent dans la pause, ni pour quelques heures (une
        heure dans le commentaire, une plage de moins de 8 h). */
     if(!k && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
-       && !(POSTE_DU_JOUR[x.p.id]&&POSTE_DU_JOUR[x.p.id][String(jourCalc)])
+       && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd])
        && !remplPartiel(x.p.d[mmdd]))
       k=atelierDuRemplace(x.p.d[mmdd],parId,x.p,{mmdd:mmdd,jour:jourCalc,presents:presents});
     if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
@@ -14207,7 +14222,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     /* écrit dans la cellule, ou tranché par le client pour ce jour
        (POSTE_DU_JOUR) : inamovible. GPO le 26/10, mis au gluten par le
        client, partait sinon au terrain arrière en renfort. */
-    x.fixe=!!posteEcrit(x.p.d[mmdd]) || !!(POSTE_DU_JOUR[x.p.id]&&POSTE_DU_JOUR[x.p.id][String(jourCalc)]);
+    x.fixe=!!posteEcrit(x.p.d[mmdd]) || !!posteImpose(x.p.id,jourCalc,x.p.d[mmdd]);
     x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });

@@ -2892,3 +2892,22 @@ passe en petit dessous. Mesuré : une seule taille, 33 × 18 px au téléphone,
 42 × 24 px au bureau (avant, un badge portant un horaire était plus large
 ou doublé en hauteur, VGG « H.fl. » sur la capture du client ; ces tailles
 n'ont pas été mesurées).
+
+## Une décision du jour tombe quand la cellule change (20/10/2026)
+
+Le client : « GPO 26/10 remplace QBY, alors pourquoi est-il mis en
+fermentation au lieu de distillation ? ». `POSTE_DU_JOUR`, la seule table lue
+AVANT la cellule, portait la décision du 12/10 (« JBI en fermentation, GPO
+gluten »), prise sur GPO `["PM"]` et JBI `["PM","F",… remplace en ferm-liq
+pour QBY]` — retrouvées dans l'historique de `data/`. Le classeur a changé
+depuis : GPO `["PM","disti","Remplace QBY"]`, JBI `["18h-6h","R-CM","MPE :
+Remplace AFA…"]`. La table imposait encore le gluten à GPO (le
+rééquilibrage le portait ensuite à la fermentation vide) et la fermentation
+de nuit à JBI, qui remplace un contremaître. **Erreur de conception** : une
+décision prise sur une cellule n'aurait jamais dû survivre à sa
+modification. Chaque entrée garde désormais la cellule (poste prévu et
+annotation) sur laquelle elle a été prise, et `posteImpose()` ne l'applique
+que si elle n'a pas changé. Mesuré : le 26/10, GPO en distillation PM, JBI
+contremaître de nuit, le manque de contremaître de nuit disparaît (21 → 20
+journées, 23 → 22 places creuses) ; 4 lignes de `--placement --tout`
+changent, toutes le 26/10 ; le 27/09, VGG reste au terrain arrière.
