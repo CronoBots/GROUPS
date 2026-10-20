@@ -1409,3 +1409,20 @@ calendrier). (3) La ligne du congé perd ses codes : « Congé · 6 j ». Une
 première écriture, « Prochain congé · 6 j », se tronquait à 320 px ;
 mesurée sans troncature pour cinq personnes (VBN, GBT, ATR, KDN, JBS),
 aucune erreur, hors ligne compris.
+
+**Héros : « Prochain congé », et « Mes pauses » réunies aux prochaines
+(20/10/2026, `nfdm-v877`).** Le client : « il faut indiquer Prochain congé
+(pas de durée) », et « ne faut-il pas combiner mes pauses avec prochaines
+pauses ? ». La ligne du congé dit « Prochain congé » et la date. Les tuiles
+« Mes pauses » de « Mon rythme » (revenues là le 17/10, « le héros ne garde
+que les progressions ») rejoignent celles du héros, sous le nom « Mes
+pauses » : par pause, la prochaine date et son délai, puis l'année
+(« 31 faites · +7 à venir »). Le D s'y ajoute s'il existe dans l'année ou
+à venir ; à quatre, deux tuiles par ligne au téléphone, quatre au bureau.
+« Mon rythme » garde « Mois par mois » et « Jour par jour ».
+
+**Mesuré** pour cinq personnes à 320 px : rien de tronqué après une
+correction — « Prochain congé » et « Vendredi 13 novembre » ne tenaient
+pas sur une ligne (JBS) ; sous 360 px les deux dates du bloc s'abrègent
+(« ven. 13 nov. »). Hauteur de l'Accueil 2 952 px à 390 (2 931 avant),
+2 346 à 1280 (2 445) ; aucune erreur, hors ligne compris.
