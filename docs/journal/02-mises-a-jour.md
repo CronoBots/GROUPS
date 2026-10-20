@@ -724,5 +724,6 @@ Restent hors de l'application, et pourquoi : les noms, prénoms et
 matricules (onglets Polyvalence et Personnel) — le site est public, ils
 arriveront avec la base à comptes de l'étape 2 ; deux commentaires de
 l'onglet Polyvalence (une polyvalence finie en 2018, une date de 2018) qui
-ne se rattachent à personne de l'horaire actuel ; les macros (elles
+n'arrivent sur aucune personne de l'horaire (le convertisseur ne
+rattache pas leur ligne ; pourquoi, c'est à examiner) ; les macros (elles
 fabriquent le classeur, elles n'y écrivent rien d'autre).
