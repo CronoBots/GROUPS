@@ -1396,3 +1396,16 @@ cycle, le pourcentage au bout (« 5 % fait »), l'équipe ou le binôme
 gardant sa place à droite du titre. Mesuré : VBN 1 prestée sur 21, 5 % ;
 GBT 6 sur 18, 33 %. Aucun débordement à 320, 390 et 1280 px, aucune
 erreur, hors ligne compris ; la frise ouvre toujours la vue Cycle.
+
+**Héros : plus de redites (20/10/2026, `nfdm-v875`).** Le client, à deux
+redites relevées : « oui exactement, et les types de congé des prochains
+congés ne sont pas utiles non plus ». (1) « Prochaines pauses » ne redit
+plus le prochain poste : VBN, de nuit ce soir, lit la nuit suivante,
+« mer. 21 oct. · demain ». (2) Un week-end libre pris dans le prochain congé
+cède la place au premier week-end libre après la reprise
+(`weekendLibreApres`) : VBN, en congé du 23 au 30, passait du samedi 24
+octobre au samedi 14 novembre (31 en PM, 7-8 en AM, conforme au
+calendrier). (3) La ligne du congé perd ses codes : « Congé · 6 j ». Une
+première écriture, « Prochain congé · 6 j », se tronquait à 320 px ;
+mesurée sans troncature pour cinq personnes (VBN, GBT, ATR, KDN, JBS),
+aucune erreur, hors ligne compris.
