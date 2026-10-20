@@ -3865,11 +3865,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-we span{flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-we b{color:#fff; font-weight:600; white-space:nowrap}
 .pf-bloc:not(:has(.pf-proch)) .pf-we{border-top:0}
+.pf-we+.pf-we{border-top:0; padding-top:0}
 .pf-st2 i{font-style:normal}
 .pf-fo{color:var(--at-jaune)}
 /* Les progressions : un filet entre l'année et chaque cycle, et la semaine
    du cycle lisible à côté de son titre. */
-.pf-an .ry-an-t~.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
+.pf-an .ry-an-t~.ry-an-t,.pf-an .cy-bloc>.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
 .pf-an .ry-hint{font-size:11px; color:var(--muted)}
 .pf-an .ry-an-leg{margin-bottom:12px}
 @media (min-width:761px){
@@ -3984,6 +3985,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; border-radius:3px}
 .cy-s.cour{box-shadow:0 0 0 2px rgba(255,255,255,.22)}
 .cy-c{height:8px; border-radius:2px; background:rgba(255,255,255,.07)}
+.cy-bloc{cursor:pointer; border-radius:10px}
+.cy-bloc:focus-visible{outline:2px solid var(--marque-vif); outline-offset:4px}
+@media (hover:hover){ .cy-bloc:hover .ry-an-leg span:last-child{color:var(--marque-vif)} }
 .cy-fr.long{gap:3px}
 .cy-c.s-am{background:var(--cal-am)} .cy-c.s-pm{background:var(--cal-pm)} .cy-c.s-n{background:var(--cal-n)} .cy-c.s-d{background:var(--cal-d)}
 .cy-c.s-cg{background:transparent; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
@@ -11077,6 +11081,23 @@ function _pfDateCourte(d){
   var mo=MOIS[d.getMonth()].toLowerCase();
   return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+".\u00a0"+d.getDate()+"\u00a0"+(mo.length>4?mo.slice(0,mo==="juillet"?4:3)+".":mo);
 }
+var RX_CONGE_PROCHAIN=/^(1\/2\s*)?(VA|RTT|RJF|DTT|RHS|CP|CPAR)$/i;
+function prochainConge(p){
+  var ja=jourPerso(p), i, d, x, deb=null, n=0, codes=[];
+  for(i=1;i<=120;i++){
+    d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
+    try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
+    if(!deb){ if(x && !x.presente && RX_CONGE_PROCHAIN.test(String(x.ab||"").trim())) deb=d; else continue; }
+    if(!x || x.presente) break;
+    var ab=String(x.ab||"").trim();
+    if(RX_CONGE_PROCHAIN.test(ab)){
+      n+=/^1\/2/.test(ab)?0.5:1;
+      var c=ab.replace(/^1\/2\s*/,"").toUpperCase(); if(c==="CPAR") c="CP";
+      if(codes.indexOf(c)<0) codes.push(c);
+    }
+  }
+  return deb?{d:deb, n:n, codes:codes}:null;
+}
 function _pfInfos(p){
   var ju=jourPerso(p), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
   var d, k, x;
@@ -11318,6 +11339,18 @@ function _pfHead(db,p){
   if(inf.weekend){ var wd=inf.weekend.d;
     var weT=inf.weekend.ce?"Ce week-end":JOURS_LONGS[(wd.getDay()+6)%7]+" "+wd.getDate()+" "+MOIS[wd.getMonth()].toLowerCase();
     we='<div class="pf-we"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><span>Week-end libre</span><b>'+esc(weT)+'</b></div>'; }
+  /* LE PROCHAIN CONGÉ, sous le week-end libre (le client, le 20/10/2026 :
+     « faire un check complet de l'accueil… qu'est-ce qui serait bien
+     d'ajouter »). Le premier jour de congé posé dans les 120 jours qui
+     viennent, et combien de jours de congé avant la reprise : les repos du
+     milieu ne comptent pas, la période s'arrête au premier jour presté. Ni
+     maladie, ni formation, ni crédit-temps (une journée par semaine). */
+  var pcg=prochainConge(p);
+  if(pcg){
+    var pcT=JOURS_LONGS[(pcg.d.getDay()+6)%7]+" "+pcg.d.getDate()+" "+MOIS[pcg.d.getMonth()].toLowerCase();
+    we+='<div class="pf-we pf-cg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/><circle cx="12" cy="12" r="3.5"/></svg>'
+      +'<span>Congé '+esc(pcg.codes.join(" · "))+(pcg.n>1?' · '+num(pcg.n)+' j':'')+'</span><b>'+esc(pcT)+'</b></div>';
+  }
   /* LE PROCHAIN POSTE ET LE WEEK-END LIBRE DANS UN SEUL BLOC (le client, le
      18/10/2026 : « il y a moyen de faire bien mieux pour le héros, je veux
      du 100 % »). Le week-end flottait seul entre le bloc et « Mon année » :
@@ -12823,7 +12856,7 @@ function ryCycleHTML(p,c,titre,prochain){
        actuel n'est pas bien visible comme le prochain cycle ») : au premier
        jour d'un cycle, tout était pâle. Les deux cycles se lisent en pleine
        couleur ; le jour cerclé et la semaine encadrée disent où l'on en est. */
-    cases+='<span class="cy-c '+cl+(t===t0?' auj':'')+'" title=""'+esc(JOURS_LONGS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
+    cases+='<span class="cy-c '+cl+(t===t0?' auj':'')+'" title="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
     if(i%7===6||i===c.L-1){ sem+='<span class="cy-s'+(!prochain&&Math.floor(i/7)===Math.floor(c.pos/7)?' cour':'')+'">'+cases+'</span>'; cases=""; }
   }
   var dm=function(d){ return d.getDate()+" "+MOIS_BREF[d.getMonth()]; };
@@ -12834,11 +12867,28 @@ function ryCycleHTML(p,c,titre,prochain){
      avec cette équipe : elle a repris son cycle de 5 semaines sans lui (le
      client, le 17/10/2026). L'équipe actuelle ne s'écrit donc plus. */
   if(!prochain && estCadre(p) && c.L===42 && Math.floor(c.pos/7)===5) av="";
-  return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
+  /* UN APPUI OUVRE CE CYCLE DANS LE CALENDRIER (le client, le 20/10/2026 :
+     « j'aime vraiment beaucoup la vue par cycle ») */
+  var iso=c.deb.getFullYear()+"-"+pad2(c.deb.getMonth()+1)+"-"+pad2(c.deb.getDate());
+  return '<div class="cy-bloc" data-cyc="'+iso+'" role="button" tabindex="0" aria-label="Voir ce cycle dans le calendrier">'
+    +'<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
     +(av?'<b class="cy-avec" title="'+(estCadre(p)?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')+'</div>'
     +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="'+titre+' du '+dm(c.deb)+' au '+dm(c.fin)+(av?', avec '+esc(av):'')+'">'+sem+'</div>'
-    +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestée'+(fait>1?'s':'')+' · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+'</span></div>';
+    +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestée'+(fait>1?'s':'')+' · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+' ›</span></div></div>';
 }
+function ouvrirCycle(el){
+  var q=String(el.dataset.cyc||"").split("-"); if(q.length<3) return;
+  var d0=new Date(Number(q[0]),Number(q[1])-1,Number(q[2]));
+  if(calVue!=="cycle") choisirVue("cycle");
+  allerCycle(d0);
+  var c=document.getElementById("calCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"});
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".cy-bloc[data-cyc]"):null; if(b) ouvrirCycle(b);
+});
+document.addEventListener("keydown",function(e){
+  if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("cy-bloc")){ e.preventDefault(); ouvrirCycle(e.target); }
+});
 function ryAnneeHTML(p,y){
   var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }

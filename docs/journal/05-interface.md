@@ -1322,3 +1322,37 @@ sans cadre, pâlie quand on y est déjà : la place va aux quatre vues.
 **La ligne « Horaire 2027 · n jours de congé déjà posés · Voir janvier »**
 (`ryAnSuivanteHTML`, proposition 5 du même jour) est retirée du héros, avec
 son style et son clic.
+
+## Accueil, contrôle complet après la vue Cycle (20/10/2026, `nfdm-v871`)
+
+Le client : « faire un check complet de l'accueil, qu'est-ce qui devient
+inutile, qu'est-ce qui serait bien d'ajouter, dans quel ordre, et est-ce que
+chaque partie est logique ». Photographié à 320, 390 et 1280 px, pour un
+contremaître (VBN) et un opérateur (GBT) : hauteurs 2 946, 2 835 et 2 376 px,
+aucun débordement ni erreur. Ordre relevé : héros (identité, prochain
+poste, week-end libre, année, cycle actuel, prochain cycle) → calendrier et
+bilan du mois → compteurs → Mon rythme (pauses, mois par mois, jour par
+jour) → agenda du téléphone → codes. Il reste logique, du plus immédiat au
+plus rare : rien n'est déplacé.
+
+**Faute trouvée** : l'infobulle des cases des frises de cycle était cassée
+depuis `9ad3540` (`title=""'+…`, l'attribut vide puis le texte hors de
+tout attribut), et elle aurait de toute façon nommé le mauvais jour :
+`JOURS_LONGS[d.getDay()]` part du lundi, `getDay()` du dimanche. Mesuré
+après : « Mardi 20 octobre · N ».
+
+**Ajouts** : (1) les frises « Cycle actuel » et « Prochain cycle » ouvrent
+ce cycle dans la vue Cycle du calendrier (un « › » après les dates le
+dit) — éprouvé : « 30 novembre – 10 janvier 2027 », puis « 19 octobre –
+29 novembre » ; (2) une ligne « Congé … » sous le week-end libre : le
+premier congé posé dans les 120 jours, ses codes et le nombre de jours de
+congé avant la reprise, les repos du milieu non comptés, ni maladie, ni
+formation, ni crédit-temps. Mesuré : VBN « Congé RJF · VA · 6 j, vendredi
+23 octobre » (23-25, 28-29 RJF, 30 VA, reprise le 31 en PM, conforme au
+calendrier), GBT « Congé VA · RTT · 2 j, vendredi 30 octobre ».
+
+**Laissé, et pourquoi** : « Jour par jour » redit la vue Année et la vue
+Cycle, mais le client l'a gardé (« j'aime bien jour par jour ») ; le total
+« Congés · n jours restants » redit la seule ligne RTT quand les autres
+congés sont tout placés, mais il reste le total dès que deux compteurs
+ont un reste.
