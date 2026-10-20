@@ -251,7 +251,7 @@ def _croise(horaire=None, classeur=None):
                     vu[m] = m not in blob
                 if vu[m]:
                     mots.setdefault(m, set()).add(
-                        "data/horaire-2026.json (%s %s)" % (p.get("id"), jour))
+                        "data/%s (%s %s)" % (os.path.basename(horaire), p.get("id"), jour))
     return mots
 
 
@@ -278,9 +278,9 @@ def main():
     horaire_neuf, classeur_neuf = _option("--horaire"), _option("--classeur")
     if horaire_neuf:
         with open(horaire_neuf, "rb") as f:
-            texte = _lire(f.read(), "data/horaire-2026.json")
+            texte = _lire(f.read(), "data/" + os.path.basename(horaire_neuf))
         for forme in _cherche(texte, False) - admises:
-            restes.setdefault(forme, set()).add("data/horaire-2026.json (neuf)")
+            restes.setdefault(forme, set()).add("data/%s (neuf)" % os.path.basename(horaire_neuf))
         for forme, ou in _croise(horaire_neuf, classeur_neuf).items():
             if forme not in admises:
                 restes.setdefault(forme, set()).update(ou)
@@ -299,10 +299,16 @@ def main():
         for forme in _cherche(texte, bool(CLASSEUR.search(nom))) - admises:
             restes.setdefault(forme, set()).add(nom)
 
-    # Le contrôle croisé, qui ne repose sur aucun motif.
-    for forme, ou in _croise().items():
-        if forme not in admises:
-            restes.setdefault(forme, set()).update(ou)
+    # Le contrôle croisé, qui ne repose sur aucun motif — une année par
+    # classeur (2027 reçu le 20/10/2026), chacune contre sa copie anonymisée.
+    for nom in sorted(os.listdir(os.path.join(RACINE, "data"))):
+        a = re.match(r"horaire-(\d{4})\.json$", nom)
+        if not a:
+            continue
+        for forme, ou in _croise(os.path.join(RACINE, "data", nom),
+                                 os.path.join(RACINE, "data", "classeur-%s.xlsx" % a.group(1))).items():
+            if forme not in admises:
+                restes.setdefault(forme, set()).update(ou)
 
     if hist:
         for sha, chemin in _blobs():

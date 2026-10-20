@@ -578,3 +578,73 @@ classeurs envoyés étaient identiques aux installés : le robot ne publie
 alors rien (pas de `V`, pas de commit) et range l'e-mail, comme prévu. La
 preuve d'une publication viendra à la prochaine modification du
 récapitulatif sur le serveur.
+
+## Le classeur 2027 : un horaire par année (20/10/2026)
+
+Le client, le 20/10/2026, envoie le récapitulatif 2027 : « il faudra faire
+la même chose que pour le 2026 mais faire attention aux compteurs car je
+ne sais pas s'ils les ont déjà mis à jour, ça m'étonnerait ; par contre
+des congés et changements sont déjà écrits dedans ». Même nom de fichier,
+mêmes douze feuilles ; seul l'onglet « Config » le date (« Contremaîtres-
+2027 », 14 noms sur 14).
+
+**Les portes.** À blanc avec l'année 2027 : la porte 2 s'est fermée sur
+« Formation Atex » (17 commentaires, la formation ATEX), la porte 8 sur
+« Formation Atex », « Formation ATEX » et « Atex + trigramme » ; lues dans
+leur contexte, admises (`survivants-admis.txt`, `formes-admises.txt`). Puis
+les huit portes ouvertes : 76 personnes, 27 376 journées, aucune faute dans
+les neuf règles dures. Partis : ASS, NPI, SLI ; JBS passe en renfort ;
+arrivé : DCI (Shift 4, Chaudières). Le client : « opérateur ouvrier
+chaudière, absent de longue durée, il n'apparaît plus dans les horaires
+2026 » — un retour, pas un intérimaire (`STATUT_CLIENT`,
+`arrivees-confirmees.txt`) ; sa ligne de « Polyvalence » 2027 suffisait
+déjà à le dire ouvrier.
+
+**Les compteurs, mesurés.** Soldes au 1er janvier : 16 personnes sur 75
+en ont un en 2027 (78 sur 78 en 2026), sans rapport avec les restes de
+2026 ; le total de flex time, 5 sur 76 ; les congés posés, eux, y sont —
+d'où des restants négatifs (−56 h de VA chez VBN). Puis le client : « il
+ne faut pas se fier aux compteurs 2027 pour le moment ». `soldesSaisis()`
+ne lit donc les soldes d'une année que si elle est dans
+`COMPTEURS_FIABLES` (le client l'a dit) ET si la moitié au moins des
+personnes en ont : sinon « Compteurs » montre les congés posés, ni restant
+ni solde de flex time, avec un avis ; la Direction tait ses restants.
+
+**L'application, une année par classeur.** Elle prolongeait déjà les
+cycles de 2026 sur 2027 (`horaireDe`, « cycles prolongés »). Désormais
+`HORAIRE_ANNEES=[2026,2027]` : chaque fichier se lit à part (avec sa
+reprise), `horaireDe(an)` rend le vrai classeur de l'année, et ne prolonge
+qu'au-delà du dernier ; `HORAIRE_DB` reste l'année du jour de l'usine (2026
+aujourd'hui, 2027 au 1er janvier). Éprouvé au navigateur : les deux
+fichiers chargés, janvier 2027 réel (D du 4 au 8, VA le 29), hors ligne
+compris ; horloge au 15/03/2027, l'avis des compteurs ; aucune erreur.
+Vérificateur, manques, polyvalence, compteurs et fiches : identiques à
+l'octet pour 2026.
+
+**Les agendas** vont du 1er janvier de l'avant-dernière année au 31
+décembre de la dernière, chacune lue dans son classeur : aucun événement
+2026 changé, 74 agendas 2027 passés du prolongé au réel (19 320 → 18 241
+événements, les congés posés n'étant plus des journées de travail), DCI
+reçoit le sien. **Erreur de ma part** : le premier `--installer` 2027 a
+réécrit `cal/` depuis le SEUL horaire 2027 — trois personnes de 2026
+retirées, toutes les années 2026 effacées des agendas. Vu au `git status`
+avant tout commit, remis par `git checkout cal/`. Une installation lit
+maintenant tous les `data/horaire-AAAA.json`.
+
+**Le robot.** `mettre-a-jour.py` lit l'année dans le classeur et refuse un
+second argument qui la contredit (éprouvé : le classeur 2027 donné pour
+2026 → « rien n'est fait ») ; une année nouvelle s'ajoute d'office à
+`HORAIRE_ANNEES` (éprouvé dans une copie du dépôt) et, si le garde-fou
+échoue, ses fichiers sont retirés. `horaire-auto.py` lisait le DERNIER
+e-mail « BIOWANZE horaire » : un 2027 arrivé après un 2026 l'aurait fait
+jeter. Il garde désormais le plus récent de CHAQUE année (éprouvé sur une
+boîte simulée : vieux 2026, 2027, 2026 récent, pièce illisible → le 2026
+récent et le 2027) ; ses sujets et commits disent « horaire 2027 ».
+`ci-smoke.py` contrôle chaque horaire et que `HORAIRE_ANNEES` et `data/`
+concordent (saboté : la liste réduite à 2026 → échec).
+
+**Deux écritures neuves.** « H. flot. » (un seul t, 144 journées) : la
+même chose que « H. flott. », ajoutée. « CEP » chez ADK, seize jeudis de
+janvier à juin, avec un poste : sans doute le congé-éducation payé, mais
+le classeur ne le dit pas — question au client, la journée reste lue
+prestée en attendant.

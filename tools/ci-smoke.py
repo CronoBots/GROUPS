@@ -11,14 +11,35 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SCHEDULE = ROOT / "data" / "horaire-2026.json"
+# Un horaire par année depuis le 20/10/2026 (classeur 2027) : chacun se
+# contrôle, et l'application doit les déclarer tous (HORAIRE_ANNEES).
+SCHEDULES = sorted((ROOT / "data").glob("horaire-[0-9][0-9][0-9][0-9].json"))
+PAGE = ROOT / "index.html"
 MANIFEST = ROOT / "manifest.webmanifest"
 SERVICE_WORKER = ROOT / "sw.js"
 
 
 def main():
+    if not SCHEDULES:
+        print("ÉCHEC: aucun horaire dans data/.")
+        return 1
+    declarees = re.search(r"var\s+HORAIRE_ANNEES\s*=\s*\[([^\]]*)\]",
+                          PAGE.read_text(encoding="utf-8"))
+    declarees = set(int(x) for x in re.findall(r"\d{4}", declarees.group(1))) if declarees else set()
+    presentes = set(int(f.stem[-4:]) for f in SCHEDULES)
+    if declarees != presentes:
+        print("ÉCHEC: HORAIRE_ANNEES de index.html (%s) ne correspond pas aux horaires de data/ (%s)."
+              % (sorted(declarees), sorted(presentes)))
+        return 1
+    code = 0
+    for schedule in SCHEDULES:
+        code = max(code, controler(schedule))
+    return code
+
+
+def controler(schedule):
     try:
-        with SCHEDULE.open(encoding="utf-8") as f:
+        with schedule.open(encoding="utf-8") as f:
             data = json.load(f)
         with MANIFEST.open(encoding="utf-8") as f:
             manifest = json.load(f)
@@ -69,8 +90,8 @@ def main():
         print("ÉCHEC: racine JSON inattendue.")
         return 1
     schedule_year = data.get("year")
-    if type(schedule_year) is not int or not 2000 <= schedule_year <= 2100:
-        print("ÉCHEC: année d'horaire invalide.")
+    if type(schedule_year) is not int or schedule_year != int(schedule.stem[-4:]):
+        print("ÉCHEC: année d'horaire invalide (%s)." % schedule.name)
         return 1
 
     people = data.get("people")
@@ -112,7 +133,7 @@ def main():
                 return 1
             days += 1
 
-    print("OK: JSON valide; %d personnes, %d entrées de journées." % (len(people), days))
+    print("OK: %s valide; %d personnes, %d entrées de journées." % (schedule.name, len(people), days))
     return 0
 
 

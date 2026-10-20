@@ -23,30 +23,38 @@ des questions au client ».
    salaire de VBN tombe au centime sans elle) ; elle sert à confronter les
    heures de l'application à celles de la fiche.
 
+3. **« CEP » chez ADK en 2027** (posée le 20/10/2026) : seize journées,
+   une par semaine de janvier à juin (le jeudi le plus souvent), écrites
+   avec un poste et l'annotation « CEP » (`["PM","CEP"]`), sans
+   commentaire, inconnues de 2026 et de la légende. Est-ce le congé-
+   éducation payé (des cours, la personne n'est pas au poste) ? Si oui,
+   la journée est une absence payée, sans prime de pause. En attendant,
+   l'application la lit comme un poste presté, 8 h et la prime.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
 
-3. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
+4. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
    partager le mois entre les deux fixes, par demi-mois ou par jours de
    calendrier ? Et à signaler : la fiche de septembre paie la hausse dès le
    15/08 (« le RH a fait une erreur »). Voir `docs/regles-paie.md`.
-4. **La maladie** : le « premier mois » payé par l'employeur vaut-il
+5. **La maladie** : le « premier mois » payé par l'employeur vaut-il
    30 jours calendrier (`MALADIE_EMPLOYEUR_J`) ? Comment le fixe d'un
    employé est-il réduit au-delà — au taux horaire, en jours, au prorata ?
-5. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
+6. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
    l'ouvrier ?
-6. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
+7. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti.
-7. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
+8. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
    correspond pas aux objectifs par atelier pour DWS (17 au classeur pour
    27), SBZ (11/26), FLN (7/22), FPS (15/30), PLZ (8/28), PAM (18/10),
    ASS (10/0), PDR (2/0), VBN (30/5). Quel est leur objectif, et sur
    quels ateliers ? Le héros montre en attendant les chiffres du classeur.
-8. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
+9. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
 

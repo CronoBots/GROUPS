@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v844";
+var V = "nfdm-v845";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./banniere.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -10,7 +10,8 @@ var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./ban
                (accents rares) est pris à la demande par le handler ci-dessous. */
             "./fonts/archivo-latin.woff2", "./fonts/ibmplexmono-400-latin.woff2",
             "./fonts/ibmplexmono-500-latin.woff2", "./fonts/ibmplexmono-600-latin.woff2"];
-/* data/horaire-2026.json (environ 714 Ko au dernier inventaire) est volontairement
+/* data/horaire-AAAA.json (un par année : 2026 et 2027 depuis le 20/10/2026,
+   environ 700 Ko chacun) est volontairement
    absent d'ici : il est mis en cache à la demande par le handler fetch ci-dessous,
    seulement pour qui utilise le pré-remplissage, plutôt que de ralentir l'installation
    pour tout le monde. La taille varie avec les mises à jour de l'horaire. */

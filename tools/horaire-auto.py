@@ -58,8 +58,33 @@ OUTILS = os.path.join(RACINE, "tools")
 SUJET = "BIOWANZE horaire"
 SUJET_RECYC = "BIOWANZE recyclage"
 RECYC = os.path.join(RACINE, "data", "recyclages-2026.json")
-HORAIRE = os.path.join(RACINE, "data", "horaire-2026.json")
 CONFIRMEES = os.path.join(OUTILS, "arrivees-confirmees.txt")
+
+
+def horaire_de(annee):
+    """data/horaire-AAAA.json : un classeur par année depuis le 20/10/2026
+    (le client envoie le récapitulatif 2027 en gardant celui de 2026)."""
+    return os.path.join(RACINE, "data", "horaire-%d.json" % annee)
+
+
+def horaires_installes():
+    """{année: horaire installé}, pour chaque data/horaire-AAAA.json."""
+    out = {}
+    for nom in os.listdir(os.path.join(RACINE, "data")):
+        m = re.match(r"horaire-(\d{4})\.json$", nom)
+        if m:
+            out[int(m.group(1))] = _lire(horaire_de(int(m.group(1))))
+    return out
+
+
+def annee_classeur(chemin):
+    """La lecture de l'année de tools/mettre-a-jour.py, empruntée telle
+    quelle : deux copies d'une même règle divergent."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("maj", os.path.join(OUTILS, "mettre-a-jour.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.annee_classeur(chemin)
 
 
 def etat(texte):
@@ -106,6 +131,39 @@ def lire_gmail(imap, sujet, dest, moi=None):
     with open(dest, "wb") as f:
         f.write(meilleure)
     return uids
+
+
+def lire_gmail_par_annee(imap, sujet, dossier, moi=None):
+    """Tous les e-mails du sujet, du plus récent au plus ancien : la pièce
+    jointe de chacun est lue, et l'on garde la PLUS RÉCENTE DE CHAQUE ANNÉE.
+    Avant le 20/10/2026, seul le dernier e-mail était lu : un classeur 2027
+    arrivé après un 2026 dans le même quart d'heure l'aurait fait jeter.
+    Rend (uids, {année: chemin}, nombre de pièces dont l'année ne se lit pas)."""
+    crit = '(SUBJECT "%s")' % sujet if not moi else '(SUBJECT "%s" NOT FROM "%s")' % (sujet, moi)
+    typ, data = imap.uid("search", None, crit)
+    uids = sorted((data[0] or b"").split(), key=int)
+    par_an, illisibles = {}, 0
+    for u in reversed(uids):
+        typ, msg = imap.uid("fetch", u, "(RFC822)")
+        m = email.message_from_bytes(msg[0][1])
+        meilleure = None
+        for part in m.walk():
+            if part.get_content_maintype() == "multipart":
+                continue
+            contenu = part.get_payload(decode=True) or b""
+            if contenu[:2] == b"PK" and (meilleure is None or len(contenu) > len(meilleure)):
+                meilleure = contenu
+        if meilleure is None:
+            continue
+        chemin = os.path.join(dossier, "Recapitulatif-%s.xlsm" % u.decode())
+        with open(chemin, "wb") as f:
+            f.write(meilleure)
+        an = annee_classeur(chemin)
+        if an is None:
+            illisibles += 1
+        elif an not in par_an:
+            par_an[an] = chemin
+    return uids, par_an, illisibles
 
 
 def corbeille(imap, uids):
@@ -190,7 +248,7 @@ def _quand(maj):
 
 
 def traiter_horaire(source):
-    """Rend (code, sujet, corps, installé?, quand)."""
+    """Rend (code, sujet, corps, installé?, quand, année)."""
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source],
                        cwd=RACINE, capture_output=True, text=True)
     sortie = (r.stdout or "") + (r.stderr or "")
@@ -200,17 +258,20 @@ def traiter_horaire(source):
         etat("Horaire : porte %s fermée, rien installé." % n)
         return (1, "BIOWANZE · horaire NON installé (porte %s fermée)" % n,
                 "Une porte s'est fermée : rien n'a été installé. À transmettre à"
-                " Claude tel quel.\n\n" + sortie[-12000:], False, "")
+                " Claude tel quel.\n\n" + sortie[-12000:], False, "", None)
     memo = json.load(open(os.path.join(tempfile.gettempdir(),
                                        "biowanze-dernier-blanc.json"), encoding="utf-8"))
-    neuf = os.path.join(memo["tmp"], "horaire-2026.json")
+    annee = int(memo["cle"]["annee"])
+    neuf = os.path.join(memo["tmp"], "horaire-%d.json" % annee)
     rapport = open(os.path.join(memo["tmp"], "comparaison.txt"), encoding="utf-8").read()
-    quand = _quand(json.load(open(neuf, encoding="utf-8")).get("maj", "?"))
-    if open(neuf, "rb").read() == open(HORAIRE, "rb").read():
+    # l'année dite partout : deux classeurs vivent côte à côte (20/10/2026)
+    quand = "%s, horaire %d" % (_quand(json.load(open(neuf, encoding="utf-8")).get("maj", "?")), annee)
+    installe = horaire_de(annee)
+    if os.path.exists(installe) and open(neuf, "rb").read() == open(installe, "rb").read():
         etat("Horaire du %s : identique à celui en place, rien installé." % quand)
         return (0, "BIOWANZE · classeur du %s, rien de changé" % quand,
                 "Les huit portes sont ouvertes, et l'horaire est identique à celui"
-                " en place : rien n'a été installé.", False, quand)
+                " en place : rien n'a été installé.", False, quand, annee)
     nouveaux = [t for t in arrivees(rapport) if t not in confirmees()]
     # UN NOUVEL OPÉRATEUR EST TOUJOURS UN INTÉRIMAIRE (le client, le
     # 19/10/2026 : « quand un nouvel opérateur apparaît c'est toujours un
@@ -231,7 +292,7 @@ def traiter_horaire(source):
                 " contremaître : dire à Claude qui c'est et sa fonction. Il"
                 " l'ajoutera à tools/arrivees-confirmees.txt et le prochain envoi"
                 " s'installera.\n\nCe qui change :\n\n%s" % (quand, ", ".join(cadres), rapport),
-                False, quand)
+                False, quand, annee)
     annonce = ""
     if interims:
         jour = datetime.date.today().strftime("%d/%m/%Y")
@@ -250,15 +311,15 @@ def traiter_horaire(source):
         return (1, "BIOWANZE · horaire NON installé (garde-fou du dépôt)",
                 "Le garde-fou du dépôt a refusé l'installation ; les fichiers d'avant"
                 " sont en place. À transmettre à Claude tel quel.\n\n" + sortie[-12000:],
-                False, quand)
+                False, quand, annee)
     etat("Horaire du %s installé." % quand)
     return (0, "BIOWANZE · horaire du %s installé" % quand,
             "L'application est à jour (classeur du %s).\n\n%sCe qui change :\n\n%s"
-            % (quand, annonce, rapport), True, quand)
+            % (quand, annonce, rapport), True, quand, annee)
 
 
 def traiter_recyclage(source):
-    """Rend (code, sujet, corps, installé?, quand)."""
+    """Rend (code, sujet, corps, installé?, quand, None)."""
     sw = os.path.join(RACINE, "sw.js")
     sw_avant = open(sw, "rb").read()
     json_avant = open(RECYC, "rb").read() if os.path.exists(RECYC) else b""
@@ -275,7 +336,7 @@ def traiter_recyclage(source):
         etat("Recyclages : porte %s fermée, rien installé." % n)
         return (1, "BIOWANZE · recyclages NON installés (porte %s fermée)" % n,
                 "Une porte s'est fermée : rien n'a été installé. À transmettre à"
-                " Claude tel quel.\n\n" + sortie[-12000:], False, "")
+                " Claude tel quel.\n\n" + sortie[-12000:], False, "", None)
     m = re.search(r"══ CE QUI CHANGE.*?══\n\n(.*?)(?:\n\n(?:Réserve locale|Le recyclage installé|Installé|Les onze)|\Z)",
                   sortie, re.S)
     rapport = m.group(1).strip() if m else "(rapport introuvable)"
@@ -285,11 +346,11 @@ def traiter_recyclage(source):
         etat("Recyclages du %s : identiques à ceux en place, rien installé." % quand)
         return (0, "BIOWANZE · recyclages enregistrés le %s, rien de changé" % quand,
                 "Les onze portes sont ouvertes, et les recyclages sont identiques à"
-                " ceux en place : rien n'a été installé.", False, quand)
+                " ceux en place : rien n'a été installé.", False, quand, None)
     etat("Recyclages du %s installés." % quand)
     return (0, "BIOWANZE · recyclages enregistrés le %s installés" % quand,
             "L'application est à jour (classeur RH enregistré le %s).\n\nCe qui change :"
-            "\n\n%s" % (quand, rapport), True, quand)
+            "\n\n%s" % (quand, rapport), True, quand, None)
 
 
 JOURS_C = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
@@ -482,8 +543,8 @@ def notifications(avant_h, avant_r, installes):
     for x in installes:
         quand = _court(x[6])
         if x[0] == "horaire":
-            apres = _lire(HORAIRE)
-            ch = changements_horaire(avant_h, apres, int(apres.get("year") or 2026), _aujourdhui())
+            apres = _lire(horaire_de(x[7]))
+            ch = changements_horaire(avant_h.get(x[7]) or {}, apres, x[7], _aujourdhui())
             par, connus = {}, []
             for p in apres.get("people") or []:
                 pid = p.get("id")
@@ -510,7 +571,8 @@ def notifications(avant_h, avant_r, installes):
                                    "body": "Classeur RH du %s · rien ne change pour vous." % quand})
             # les recyclages ne visent que des opérateurs, mais tout le monde
             # est connu de l'horaire : un contremaître n'en reçoit aucun
-            connus = [p.get("id") for p in (_lire(HORAIRE).get("people") or [])]
+            connus = sorted(set(p.get("id") for h in horaires_installes().values()
+                                for p in (h.get("people") or [])))
             out.append({"tag": "recyclage", "url": "./?vue=equipe", "par_tri": par, "connus": connus,
                         "defaut": {"title": "Recyclages mis à jour",
                                    "body": "Classeur RH du %s · le recyclage est dans l'onglet Équipes." % quand}})
@@ -519,7 +581,7 @@ def notifications(avant_h, avant_r, installes):
 
 def main():
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
-    avant_h, avant_r = _lire(HORAIRE), _lire(RECYC)
+    avant_h, avant_r = horaires_installes(), _lire(RECYC)
     pousser = "--sans-pousser" not in sys.argv
     tmp = tempfile.mkdtemp(prefix="biowanze-auto-")
     imap = None
@@ -541,8 +603,27 @@ def main():
         n = purger_rapports(imap, user)
         if n:
             etat("%d rapport(s) de plus de %d jours mis à la corbeille." % (n, GARDE_RAPPORTS))
-        for genre, sujet, nom in (("horaire", SUJET, "Recapitulatif.xlsm"),
-                                  ("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx")):
+        # L'horaire : la plus récente pièce jointe de CHAQUE année (2026 et
+        # 2027 se copient du serveur côte à côte depuis le 20/10/2026).
+        uids, par_an, illisibles = lire_gmail_par_annee(imap, SUJET, tmp, user)
+        if uids:
+            etat("%d e-mail(s) « %s » ; le plus récent de chaque année est lu (%s)."
+                 % (len(uids), SUJET, ", ".join(str(a) for a in sorted(par_an)) or "aucune"))
+            if illisibles:
+                envoyer(user, mdp, "BIOWANZE · horaire : %d classeur(s) sans année lisible" % illisibles,
+                        "L'année de %d pièce(s) jointe(s) « %s » ne se lit pas dans l'onglet"
+                        " Config (« Contremaîtres-AAAA ») : ignorée(s). À transmettre à"
+                        " Claude." % (illisibles, SUJET))
+            if not par_an:
+                corbeille(imap, uids)
+                if not illisibles:
+                    envoyer(user, mdp, "BIOWANZE · horaire NON installé",
+                            "L'e-mail « %s » ne portait pas de classeur en pièce jointe."
+                            " Vérifier le flux Power Automate (pièce jointe : File content)." % SUJET)
+                etat("Horaire : aucun classeur lisible en pièce jointe, rien installé.")
+            for i, an in enumerate(sorted(par_an)):
+                lots.append(("horaire", par_an[an], uids if i == 0 else []))
+        for genre, sujet, nom in (("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx"),):
             source = os.path.join(tmp, nom)
             uids = lire_gmail(imap, sujet, source, user)
             if not uids:
@@ -560,7 +641,7 @@ def main():
             etat("Aucun e-mail « %s » ni « %s » : rien à faire." % (SUJET, SUJET_RECYC))
             return 0
 
-    resultats = []     # (genre, uids, code, sujet, corps, installé, quand)
+    resultats = []     # (genre, uids, code, sujet, corps, installé, quand, année)
     for genre, source, uids in lots:
         f = traiter_horaire if genre == "horaire" else traiter_recyclage
         resultats.append((genre, uids) + f(source))
@@ -572,7 +653,8 @@ def main():
         titres = []
         for x in installes:
             if x[0] == "horaire":
-                fichiers += ["data/horaire-2026.json", "cal", "tools/arrivees-confirmees.txt"]
+                fichiers += ["data/horaire-%d.json" % x[7], "cal", "tools/arrivees-confirmees.txt",
+                             "index.html"]      # HORAIRE_ANNEES, si l'année est nouvelle
                 titres.append("Classeur du %s" % x[6])
             else:
                 fichiers.append("data/recyclages-2026.json")
@@ -609,7 +691,7 @@ def main():
                 etat((n.stdout or "").strip() or "Notifications : non envoyées.")
 
     code = 0
-    for genre, uids, c, sujet, corps, inst, quand in resultats:
+    for genre, uids, c, sujet, corps, inst, quand, _an in resultats:
         if inst and pousser and not publie:
             c, sujet = 1, "BIOWANZE · %s NON publié" % genre
             corps = ("Installé, mais le commit ou l'envoi sur main a échoué. À"
