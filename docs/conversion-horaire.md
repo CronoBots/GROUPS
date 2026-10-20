@@ -2169,7 +2169,7 @@ la case AM · Meunerie du Planning reçoit, depuis la colonne D
 
 | Qui | Horaire affiché | Compte dans l'effectif |
 |---|---|---|
-| BLR ou YRS en D (consignation) | « 8-16 » | oui |
+| BLR ou YRS en D (consignation) | « 8-16 », même si la cellule écrit une autre plage (« D · 7h-15h », le client, le 20/10/2026 : c'est ce qui est prévu) | oui |
 | qui les remplace (« remplace YRS » dans son commentaire) — VGG les 19-21/10 | le sien (« H.fl. ») | oui, il tient la consignation |
 | un opérateur en formation à la meunerie, en D — SLI, SKS | le sien (« 7-15 ») | **non** : « les opérateurs en formation ne comptent pas pour l'effectif minimum » |
 

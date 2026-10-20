@@ -1280,3 +1280,8 @@ pour les six cases impaires du jour (CM, chaudières AM « GBT 6-10 »…). Avec
 des apprentis la case est toujours paire, la règle ne la touche pas ; sur
 bureau, le `flex-wrap` centrait déjà. Vérificateur identique à l'octet
 (base, manques), aucune erreur de page.
+
+**Consignation : « 8-16 » quoi qu'écrive la cellule, confirmé (20/10/2026).**
+Relevé des 23 cellules « D » annotées d'une plage (22 en 2026, aucune en
+2027) : 21 montrent la plage écrite, et BLR, les 22/01 et 27/10, montre
+« 8-16 » malgré « 7h-15h ». Le client : « il faut bien laisser 8-16 ».
