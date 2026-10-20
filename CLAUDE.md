@@ -35,7 +35,13 @@ le terminal, les fichiers, le web, les artefacts et les connecteurs
 (Notion, GitHub, Supabase, sessions, Docs). Une session cloud ne lit ce
 fichier que si elle n'a qu'un seul dépôt ; le reste se règle par le mode
 « Auto » du menu à côté de la zone de saisie, que seul le client peut
-choisir.
+choisir. Le 20/10/2026 : « j'aimerais que tu arrêtes de me demander les
+permissions, que tu le fasses tout seul ». Ni fenêtre d'autorisation (la
+liste de `.claude/settings.json` couvre aussi Gmail et le connecteur des
+sessions), ni question de choix : quand plusieurs améliorations se
+présentent, on fait celles qu'on recommande, puis on dit ce qui a été fait.
+On ne demande que ce que le classeur et le client seuls savent (une règle
+de lecture ou de paie), et ce qui reviendrait sur une décision du client.
 
 **Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
 main :
