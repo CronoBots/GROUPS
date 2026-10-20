@@ -171,6 +171,7 @@ const MORCEAUX=[
   ["function reequilibrer(","\n}"],
   ["var POSTE_TRANCHE=","\n"],
   ["var POSTE_DU_JOUR=","};"],
+  ["function posteImpose(","\n}"],
   ["var POSTE_HABITUEL=","\n"],
   ["function posteParDefaut(","\n}"],
   ["function posteTenu(","\n}"],
