@@ -1293,3 +1293,32 @@ journées de consignation qui écrivent une plage : huit changent — BLR les
 21-22/01, 09-10/06, 22-23/07 et 27/10 passent de « 8-16 » à « 7-15 », YRS
 le 12/03 à « 8-16h30 » —, les huit autres montraient déjà la plage.
 Vérificateur identique (le badge seul change), hors ligne sans erreur.
+
+## Calendrier : la vue Cycle, « Aujourd'hui » discret (20/10/2026, `nfdm-v870`)
+
+Le client : « ajouter une vue cycle qui serait présentée comme une vue
+mois… cycle, semaine, mois, année. Et un bouton plus discret pour revenir à
+aujourd'hui », et « supprimer la phrase qui parle de l'horaire 2027 sous le
+héros ».
+
+**Cycle.** Un cinquième bouton, en tête de la bascule. Les cases du mois
+(`caseJour`), semaine par semaine, du lundi où le cycle commence à son
+dernier jour : le cycle du héros (`cycleActuel`, 5 ou 6 semaines calées sur
+la personne), les autres posés bout à bout de la même longueur
+(`cycleDe`). Sans calage, cinq semaines depuis le lundi. Les mois se
+relisent comme dans la Semaine ; le 1er de chaque mois porte son nom
+abrégé ; une case d'un autre mois ouvre sa feuille. Le titre dit les bornes
+(« 19 octobre – 29 novembre », « 30 novembre – 10 janvier 2027 », abrégé au
+téléphone étroit quand il ne tient pas), l'en-tête « Cycle de 6 semaines ·
+21 journées · 168 h ». ‹ › passent d'un cycle à l'autre, ‹ s'éteint au
+cycle qui contient le 1er janvier 2026 ; le sélecteur de date mène au cycle
+du jour choisi. Le bilan du mois se retire, comme en Semaine et en Année.
+Mesuré le 20/10 pour VBN, à 320, 390 et 1280 px : 42 cases, aucune page
+plus large que l'écran, aucune erreur, hors ligne compris.
+
+**Aujourd'hui** n'est plus un bouton encadré mais une icône de calendrier
+sans cadre, pâlie quand on y est déjà : la place va aux quatre vues.
+
+**La ligne « Horaire 2027 · n jours de congé déjà posés · Voir janvier »**
+(`ryAnSuivanteHTML`, proposition 5 du même jour) est retirée du héros, avec
+son style et son clic.
