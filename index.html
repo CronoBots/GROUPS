@@ -3832,7 +3832,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* DEUX PAR DEUX, SUR TOUTE LA LARGEUR (le client, le 19/10/2026 : « les
    badges doivent occuper la largeur du cadre, 2 par 2 sur mobile ») ; trois
    de front au bureau. Le nom se resserre, le compteur reste calé à droite. */
-@media (min-width:761px){ .pf-pv-l{grid-template-columns:repeat(3,minmax(0,1fr))} }
+/* au bureau, autant de colonnes que la colonne de gauche en tient, jamais
+   une puce coupée (« Fermentation 9/10 » se tronquait sur trois colonnes,
+   20/10/2026) */
+@media (min-width:761px){ .pf-pv-l{grid-template-columns:repeat(auto-fill,minmax(168px,1fr))} }
 .pf-pv-l span{display:flex; align-items:center; gap:6px; min-width:0; padding:5px 9px; border-radius:8px; white-space:nowrap;
   font-size:12.5px; font-weight:600; color:rgba(255,255,255,.88); background:rgba(255,255,255,.06)}
 .pf-pv-l em{font-style:normal; min-width:0; overflow:hidden; text-overflow:ellipsis}
@@ -3904,6 +3907,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .pf-corps>#ryAn{grid-column:2; grid-row:1 / span 2}
   .pf-corps>.pf-gauche{grid-column:1; grid-row:1}
   .pf-corps>#ryPr{grid-column:1; grid-row:2; padding:0 0 0 12px; margin-top:0}
+  /* avec les polyvalences, la gauche est déjà la plus longue : « Mes
+     pauses » reste à droite, sous les progressions (JKS, 20/10/2026) */
+  .pf-corps:has(.pf-pv)>.pf-gauche{grid-row:1 / span 2}
+  .pf-corps:has(.pf-pv)>#ryAn{grid-row:1}
+  .pf-corps:has(.pf-pv)>#ryPr{grid-column:2; grid-row:2; padding:0 12px 0 0}
 }
 /* au téléphone, un filet entre le cycle et « Mes pauses », comme entre
    l'année et le cycle */
@@ -4015,6 +4023,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .cy-c{height:8px; border-radius:2px; background:rgba(255,255,255,.07)}
 .cy-bloc{cursor:pointer; border-radius:10px}
 .cy-prog{display:flex; align-items:center; gap:10px; margin:2px 0 8px}
+/* le titre et ce qui l'accompagne à droite sur la même ligne de base */
+.pf-an .ry-an-t{align-items:baseline}
+.ry-an-cpt{font-size:12px; color:var(--muted); white-space:nowrap} .ry-an-cpt b{color:var(--ink); font-weight:700}
+.cy-prog.ry-an-prog{margin:4px 0 14px}
 .cy-prog .ry-an-bar{flex:1 1 auto; margin:0}
 .cy-prog>b{flex:0 0 auto; font-weight:700; font-size:12.5px; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap}
 .cy-prog>b small{font-size:11px; font-weight:500; color:var(--faint)}
@@ -12840,9 +12852,12 @@ function ryBarre(titre,sous,o,lib){
   /* LA MÊME MISE EN PAGE QUE LE CYCLE (le client, le 20/10/2026 :
      « optimise tout le contenu du héros ») : le pourcentage au bout de la
      barre et non plus dans le titre, la légende « n prestées · n à venir ». */
-  return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+'</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
-    +'<div class="cy-prog"><div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div><b>'+pct+'\u00a0%<small> fait</small></b></div>'
-    +'<div class="ry-an-leg"><span><b>'+o.fait+'</b> prestée'+(o.fait>1?'s':'')+' · <b>'+o.avenir+'</b> à venir</span></div>';
+  /* « n prestées · n à venir » à droite du titre, et plus sur une ligne à
+     part : le titre restait seul sur la sienne (20/10/2026, « optimise
+     encore »). */
+  return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+'</span>'
+    +'<span class="ry-an-cpt"><b>'+o.fait+'</b> prestée'+(o.fait>1?'s':'')+' · <b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
+    +'<div class="cy-prog ry-an-prog"><div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div><b>'+pct+'\u00a0%<small> fait</small></b></div>';
 }
 /* LE CYCLE EN COURS (le client, le 17/10/2026 : « sous mon année avec sa
    progression, la même chose pour mon cycle actuel avec l'état

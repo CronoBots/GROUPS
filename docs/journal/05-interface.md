@@ -1464,3 +1464,20 @@ compris ; la frise ouvre toujours le cycle, une pause ouvre son jour.
 
 **Reste, et pourquoi** : le flou de l'iPhone sous la barre d'état ne
 dépend pas de l'application.
+
+**Seconde passe (20/10/2026, `nfdm-v881`).** Le client : « optimise
+encore ». Héros photographié à 320, 390 et 1280 px pour cinq profils :
+contremaître en poste (VBN), opérateur polyvalent (JKS), opérateur en
+formation (GST), opérateur STEP en congé (PDE), contremaître en congé
+(YPE). Défauts relevés et corrigés : (1) depuis le pourcentage au bout de la
+barre, « Année 2026 » restait seul sur sa ligne : « 168 prestées · 39 à
+venir » passe à sa droite, une ligne de moins (−22 px) ; (2) le titre et
+ce qui l'accompagne à droite (« Équipe 1 », les journées) n'étaient pas
+sur la même ligne de base : alignés ; (3) au bureau, « Fermentation 9/10 »
+se tronquait dans les polyvalences sur trois colonnes : autant de colonnes
+que la place en tient ; (4) au bureau, avec les polyvalences, la colonne
+de gauche devenait la plus longue une fois « Mes pauses » dessous : elle
+reste alors à droite (JKS, héros 956 → 749 px). Vérifié et NON fautif :
+« Aujourd'hui » sur une nuit du 21 lu le 20 à 22 h 59 venait de l'horloge
+du test, interprétée en temps universel (00 h 59 à Bruxelles). Aucun
+débordement, aucune erreur, hors ligne compris.
