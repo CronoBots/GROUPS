@@ -543,3 +543,22 @@ avec, en tête des arguments existants, le chemin du script et `robocopy`.
 Éprouvé : exécution à la main, aucune fenêtre, état « Prêt », résultat
 (0x0). Limite connue : le script ne renvoie pas le code de `robocopy`, une
 copie échouée afficherait aussi (0x0).
+
+Suite, même nuit. **Deux erreurs de ma part pendant le réglage**, à ne pas
+refaire : (1) j'ai « corrigé » de mémoire un chemin du serveur en y
+ajoutant une barre qui n'existait pas (le dossier s'écrit d'un seul
+tenant) — mes exemples « la case doit donner » portaient ce faux chemin, et
+le test de l'Explorateur a donc échoué pour rien. Ne jamais réécrire un
+chemin que le client a collé ; lui faire AJOUTER un préfixe, pas recopier.
+(2) « la tâche reste En cours » : le Planificateur ne se rafraîchit pas
+seul. Les comptes rendus (`/LOG:` ajouté aux deux actions, `copie1.log` et
+`copie2.log` dans ses Documents) disaient que les deux copies avaient fini
+en moins d'une seconde ; F5 a montré « Prêt ». Toujours demander
+l'actualisation avant de chercher une panne. Les journaux s'écrivent dans
+la page de codes OEM : « op‚rateurs », « Sdzucker » ne sont qu'un défaut
+d'affichage du Bloc-notes.
+
+Constat en passant : aucun classeur d'horaire n'était arrivé seul depuis le
+16/10 à 11 h 09, et le dossier OneDrive « Horaire auto » était vide la nuit
+du 20/10 avant la copie à la main. La cause n'est pas établie ; les
+journaux de copie diront demain si la tâche de 8 h copie bien.
