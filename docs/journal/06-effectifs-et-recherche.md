@@ -2889,4 +2889,6 @@ style a une liste `cssRules` (vide), et il ne lisait jamais son sélecteur.
 **Badges de même taille** : le cadre quitte l'étiquette pour le seul
 trigramme, largeur fixe `3ch + 12px` ; l'horaire (« H.fl. », « 7-15 »)
 passe en petit dessous. Mesuré : une seule taille, 33 × 18 px au téléphone,
-42 × 24 px au bureau (avant : de 33 × 18 à 46 × 32 selon l'horaire).
+42 × 24 px au bureau (avant, un badge portant un horaire était plus large
+ou doublé en hauteur, VGG « H.fl. » sur la capture du client ; ces tailles
+n'ont pas été mesurées).
