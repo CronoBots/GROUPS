@@ -14095,7 +14095,20 @@ function equipeDuJour(db,annee,mois,jour){
    (postesDePause), et on garde : BLR et YRS où qu'ils tombent, et quiconque
    y est placé à la meunerie en y comptant (compteAuPoste). Pas une journée
    à code : en formation, en CPPT ou en CE, on n'est pas à la meunerie. Des
-   COPIES, marquées depuisD : les mêmes objets servent à la colonne D. */
+   COPIES, marquées depuisD : les mêmes objets servent à la colonne D.
+
+   ET CEUX QUI LES REMPLACENT, ET LES APPRENTIS MEUNIERS (le client, le
+   20/10/2026) : « si quelqu'un remplace YRS ou BLR en horaire consignation
+   meunerie (exemple VGG le 19 octobre), il doit être dans la cellule du
+   matin avec son horaire affiché avec le trigramme au lieu d'être dans la
+   colonne des D ». Puis : « Les opérateurs en formation à des postes en D peuvent
+   également être dans cette cellule s'ils sont en formation à ce poste
+   (attention, les opérateurs en formation ne comptent pas pour l'effectif
+   minimum) ». Le remplaçant se lit à son commentaire (« remplace YRS ») et
+   compte, comme la consignation qu'il tient ; l'apprenti, à son poste de
+   formation (posteDeFormation, la meunerie), et ne compte pas : effectif()
+   l'écarte déjà par compteAuPoste(). */
+var RX_REMPL_CONSIGN=new RegExp("\\bremplace\\s+(?:"+CONSIGNATEURS.join("|")+")\\b","i");
 function meunDepuisD(db,listeD,mmdd){
   if(!listeD||!listeD.length) return [];
   var jour=Number(db.year)*10000+Number(mmdd), P=null, out=[], i;
@@ -14105,8 +14118,10 @@ function meunDepuisD(db,listeD,mmdd){
     o.gens.forEach(function(x){
       if(x.r && x.r.jourCode) return;
       var cons=CONSIGNATEURS.indexOf(x.p.id)>=0;
-      if(!cons && !(o.P.k==="meun" && compteAuPoste(x,P,jour))) return;
-      out.push({p:x.p, r:x.r, depuisD:true, consign:cons});
+      var remp=!cons && RX_REMPL_CONSIGN.test(String(((x.p.d||{})[mmdd]||[])[2]||""));
+      var appr=!cons && !remp && enFormation(x.p,jour) && posteDeFormation(x.p)==="meun";
+      if(!cons && !remp && !appr && !(o.P.k==="meun" && compteAuPoste(x,P,jour))) return;
+      out.push({p:x.p, r:x.r, depuisD:true, consign:cons, remplCons:remp, apprMeun:appr});
     });
   });
   return out;
@@ -14232,7 +14247,13 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     gens.forEach(function(x){ (enFormation(x.p,jourCalc)?apprend:tient).push(x); });
     gens=tient.concat(apprend);
     var attendu=attenduAuPoste(P,gk,ren);
-    var creux=Math.max(0,attendu-gens.length), relais=[];
+    /* LES PLACES CREUSES SE COMPTENT SUR CEUX QUI TIENNENT LE POSTE (tenu),
+       pas sur les présents. Le client, le 20/10/2026 : « les opérateurs en
+       formation ne comptent pas pour l'effectif minimum ». Compté sur les
+       présents, un apprenti bouchait une place que le « manque » disait
+       vide : 207 places creuses sur l'année au lieu de 219 (21 au lieu de
+       23 depuis le 26/09). Seul le vérificateur (--manques) les lit. */
+    var creux=Math.max(0,attendu-tenu), relais=[];
     /* DEUX 12 H QUI SE RELAIENT TIENNENT LE POSTE. Le client, le 13/10/2026,
        sur le terrain arrière du jour (ALZ en RTT à la place de FLN, AAI en
        6h-18h puis GKT en 18h-6h) : « oui pour les 12 h pour couvrir un
@@ -14564,7 +14585,7 @@ function renderEquipe(){
            28/09/2026). */
         /* Pas d'horaire sur la ligne FORMATION (le client, le 28/09/2026) :
            tous les autres présents en D ont le leur. */
-        +(nu&&(g.k==="D"||x.consign)&&!sansHoraire?horaireEcritD(x)
+        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun)&&!sansHoraire?horaireEcritD(x)
           :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
@@ -14627,15 +14648,16 @@ function renderEquipe(){
        doit compter dans l'effectif meunerie du matin ». postesDePause() les
        a déjà comptés à AM · Meunerie (meunDepuisD) — en semaine. Ici on
        règle l'AFFICHAGE : dans la case AM, seuls BLR et YRS parmi ceux qui
-       viennent du D ; les autres personnes en D à la meunerie restent dans la
-       colonne D, mais comptent. BLR et YRS quittent la colonne D, qui
+       viennent du D — et, depuis le 20/10/2026, qui les remplace et les
+       apprentis meuniers (meunDepuisD) ; les autres personnes en D à la
+       meunerie restent dans la colonne D, mais comptent. BLR et YRS quittent la colonne D, qui
        disparaît si elle ne portait qu'eux. Le week-end, rien ne change. */
     if(vp.AM){
       var dejaAM={};
       vp.AM.vue.postes.forEach(function(o){
         o.gens=o.gens.filter(function(x){
           if(!x.depuisD) return true;
-          if(!x.consign) return false;
+          if(!(x.consign||x.remplCons||x.apprMeun)) return false;
           dejaAM[x.p.id]=true; return true;
         });
       });

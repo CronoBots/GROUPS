@@ -2836,3 +2836,26 @@ case ; sur téléphone elles restent l'une sous l'autre (sa demande du
 Vérificateur à zéro ; vérifié à 320 (hors ligne), 390 et 1280 px.
 
 
+
+## La case du matin à la meunerie : remplaçants et apprentis (20/10/2026)
+
+Le client : « si quelqu'un remplace YRS ou BLR en horaire consignation
+meunerie (exemple VGG le 19 octobre), il doit être dans la cellule du matin
+avec son horaire affiché avec le trigramme au lieu d'être dans la colonne
+des D ». Puis : « Les opérateurs en formation à des postes en D peuvent également être
+dans cette cellule s'ils sont en formation à ce poste (attention, les
+opérateurs en formation ne comptent pas pour l'effectif minimum) ».
+`meunDepuisD()` reconnaît le remplaçant à son commentaire
+(`RX_REMPL_CONSIGN`, « remplace YRS|BLR ») et l'apprenti à son poste de
+formation (`posteDeFormation() === "meun"`) ; tous deux passent dans la
+case AM, avec leur propre horaire (`horaireEcritD`, pas le « 8-16 » des
+consignateurs). Éprouvé au navigateur, 20/10 : « TCE · VGG H.fl. · SLI
+7-15 », SLI en jaune. `--placement --tout` : 25 lignes de meunerie
+changent, toutes par l'arrivée de SLI ou SKS (en formation, non comptés)
+ou de VGG à l'affichage ; aucun effectif ne bouge (1/2 reste 1/2).
+
+**Un compte faux trouvé en passant** : les « places creuses » du
+vérificateur se comptaient sur les PRÉSENTS (`attendu − gens.length`), si
+bien qu'un apprenti bouchait une place que le manque disait vide. Comptées
+désormais sur ceux qui tiennent le poste : 207 → 219 sur l'année, 21 → 23
+depuis le 26/09. Aucun écran ne lisait ce chiffre.

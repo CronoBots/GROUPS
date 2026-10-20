@@ -2160,3 +2160,19 @@ sous `RTT` **et** `DTT` à la fois. Ces deux endroits-là recopient ce
 qu'ÉCRIT le secrétariat social, ce qui n'est pas la même question que ce que
 le code SIGNIFIE : ils ne bougeront qu'une fois lue une vraie fiche portant
 des heures DTT.
+
+## La consignation meunerie : qui va dans la case du matin
+
+Établi avec le client le 28/09/2026, complété le 20/10/2026. En semaine,
+la case AM · Meunerie du Planning reçoit, depuis la colonne D
+(`meunDepuisD()`) :
+
+| Qui | Horaire affiché | Compte dans l'effectif |
+|---|---|---|
+| BLR ou YRS en D (consignation) | « 8-16 » | oui |
+| qui les remplace (« remplace YRS » dans son commentaire) — VGG les 19-21/10 | le sien (« H.fl. ») | oui, il tient la consignation |
+| un opérateur en formation à la meunerie, en D — SLI, SKS | le sien (« 7-15 ») | **non** : « les opérateurs en formation ne comptent pas pour l'effectif minimum » |
+
+Les autres présents en D à la meunerie restent dans la colonne D et comptent
+s'ils y sont valides. Les places creuses se comptent sur ceux qui tiennent
+le poste, jamais sur les présents.
