@@ -2859,3 +2859,34 @@ vérificateur se comptaient sur les PRÉSENTS (`attendu − gens.length`), si
 bien qu'un apprenti bouchait une place que le manque disait vide. Comptées
 désormais sur ceux qui tiennent le poste : 207 → 219 sur l'année, 21 → 23
 depuis le 26/09. Aucun écran ne lisait ce chiffre.
+
+## Les changements proposés ne déplacent plus personne (20/10/2026)
+
+Le client, capture du 19/10 à l'appui : « il ne faut pas déplacer
+automatiquement les remplacements proposés par l'application. Il faut les
+laisser dans leur poste normal, mais indiquer le background en orange dans
+le poste en sous-effectif et laisser les pointillés sur l'opérateur qui peut
+aller sur le poste en sous-effectif. Il faut aussi uniformiser les tailles
+des badges des trigrammes ».
+
+Le rééquilibrage reste le CALCUL (l'onglet Effectifs et le vérificateur le
+lisent : `--manques`, `--placement` identiques à l'octet). Au tableau du
+Planning seulement (`renderEquipe`), chaque personne qu'il a déplacée
+(`transfertApp`) retourne à son poste d'origine, marquée `x.propose` ; le
+poste visé retrouve son vrai compte et, s'il manque, prend la classe
+`propose` — fond orange (`--propose-fond`), place vide « ? » orange — au
+lieu du rouge. Une proposition vers un poste qui, sans elle, est tenu
+tombe : PLZ le 22/10, « Gluten → Terrain arrière » l'après-midi, où ATR et
+GDT tiennent déjà le poste une fois chacun à sa place.
+
+**Deux fonds qui ne se voyaient pas** : celui du poste proposé, écrasé par
+les lignes rayées (`tr:nth-child(odd) td:not(.manque)`), et — défaut plus
+ancien — celui d'un vrai manque dans la colonne de la pause en cours, sous
+le voile `box-shadow` de `data-mck`. Les deux passent devant. Mon premier
+script de contrôle des règles CSS était faux : sous Chrome, une règle de
+style a une liste `cssRules` (vide), et il ne lisait jamais son sélecteur.
+
+**Badges de même taille** : le cadre quitte l'étiquette pour le seul
+trigramme, largeur fixe `3ch + 12px` ; l'horaire (« H.fl. », « 7-15 »)
+passe en petit dessous. Mesuré : une seule taille, 33 × 18 px au téléphone,
+42 × 24 px au bureau (avant : de 33 × 18 à 46 × 32 selon l'horaire).
