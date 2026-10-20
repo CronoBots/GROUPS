@@ -1253,3 +1253,12 @@ opérateurs hors formation ». La case vide se pose désormais juste après le
 premier titulaire : meunerie AM « TCE · / VGG SLI », chaudières AM « PDF · /
 ATR MGY ». L'apprenti reste en bas à droite, un titulaire au-dessus quand
 ils sont quatre.
+
+**Un seul apprenti, en haut à droite** (même jour, `nfdm-v867`). Le client :
+« du coup, si un seul en formation, il doit être au-dessus à droite au lieu
+d'en dessous ». Un seul apprenti et un compte impair : il prend la place du
+trou, en haut à droite, les titulaires la colonne de gauche — meunerie AM
+« TCE SLI / VGG », chaudières AM « PDF MGY / ATR ». Quatre badges : toujours
+un titulaire au-dessus de l'apprenti, en bas à droite (gluten AM du 21/10
+« DBE GBT / SLT NPI »). Plusieurs apprentis et un compte impair : le trou
+reste en haut à droite.
