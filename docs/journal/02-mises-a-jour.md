@@ -572,3 +572,9 @@ flux Power Automate aussi — **piège** : le déclencheur OneDrive Entreprise
 fileId ») ; le dossier se choisit au sélecteur (icône, Root › BIOWANZE ›
 dossier), qui enregistre son identifiant. Éprouvé par le client : « ça
 fonctionne ».
+Le client, dans la foulée : « mail reçu sur gmail » — la chaîne entière
+(copie cachée, OneDrive, Power Automate, boîte du robot) passe. Les
+classeurs envoyés étaient identiques aux installés : le robot ne publie
+alors rien (pas de `V`, pas de commit) et range l'e-mail, comme prévu. La
+preuve d'une publication viendra à la prochaine modification du
+récapitulatif sur le serveur.
