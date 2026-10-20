@@ -1168,3 +1168,12 @@ ne s'écrivait pas. Aucun compte ne bouge (vérificateur et manques
 identiques) : la colonne D n'attendait personne. Le 21/10 : CKS « 7-15 » en
 fermentation du matin, MMS « 7h30-16 » en formation, ATR, LCI, QBY « 7-15 »
 en DS.
+
+**Tous les badges à la même hauteur** (même jour, `nfdm-v858`). Le client :
+« tous les badges de la même hauteur (la même que pour ceux avec horaire) ».
+La hauteur est fixe, celle d'un badge à horaire : 28 px au téléphone, 43 au
+bureau, le trigramme seul centré. Une hauteur seulement minimale laissait,
+au bureau, des badges de 47 px : les cases à plusieurs lignes étiraient
+chaque badge à la hauteur de sa rangée (`align-items:stretch`), remplacé
+par un alignement en haut. Mesuré : une seule hauteur à 320, 390 et
+1280 px, aucune case qui déborde.
