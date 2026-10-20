@@ -648,3 +648,18 @@ même chose que « H. flott. », ajoutée. « CEP » chez ADK, seize jeudis de
 janvier à juin, avec un poste : sans doute le congé-éducation payé, mais
 le classeur ne le dit pas — question au client, la journée reste lue
 prestée en attendant.
+
+**La cloche, aussi pour l'année suivante** (même jour, `nfdm-v846`). Le
+client : « cela compte comme modifications ? ou seulement les jours qui
+diffèrent de mon cycle normal ? ». Ni l'un ni l'autre : une modification
+est une journée dont la cellule a changé entre deux classeurs de la MÊME
+année ; un écart au cycle (congé, échange) se lit dans l'horaire, il ne
+sonne pas, et un classeur qui arrive pour une année neuve non plus. Mais
+la cloche de l'application ne regardait que l'année en cours : un 2027
+modifié d'ici décembre n'aurait jamais sonné (le robot, lui, compare déjà
+année par année pour les notifications du téléphone), et le 1er janvier le
+premier instantané de 2027 se serait pris en silence. `renderNotif()`
+tient désormais un instantané par année, de l'année en cours au dernier
+classeur reçu. Éprouvé : première ouverture sans badge ; le 11/01/2027
+changé (AM → PM, « échange avec GPS ») → badge 1, la feuille ouvre janvier
+2027 ; « Vu » l'efface.
