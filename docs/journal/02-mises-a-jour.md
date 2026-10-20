@@ -760,7 +760,11 @@ ne peut ni appeler les fonctions ni entrer dans le schéma.
 robot recopie l'horaire installé quand la version de la base diffère du
 fichier, par lots de 12 personnes, avec la clé qu'il a déjà pour les
 notifications (`PUSH_CLE`, dont la base ne garde que l'empreinte ; une
-mauvaise clé est refusée, éprouvé). Une journée que le classeur n'écrit
+mauvaise clé est refusée, éprouvé). **Faux, corrigé le même soir** : le
+robot n'a PAS cette clé — `PUSH_CLE` et `VAPID_PRIVATE_KEY` sont vides
+sur GitHub depuis le 16/10 au moins (écrit plus haut dans ce journal, et
+relu trop tard). Une nouvelle clé a été tirée, son empreinte posée dans
+`biowanze.cle_robot` ; le client doit la coller dans le secret `PUSH_CLE`. Une journée que le classeur n'écrit
 plus se VIDE au lieu d'être effacée ; une journée saisie dans
 l'application n'est jamais écrasée. Erreur commise : la première version
 effaçait les journées avant de les réécrire, et l'ordre `delete` faisait
@@ -783,3 +787,29 @@ comme le public : 1 puis 0 ; le public n'entre toujours pas dans le
 schéma) ; les fonctions d'accès `public.biowanze_*`, qui doivent rester
 dans `public` pour être appelables ; la tâche planifiée `biowanze-horaire`
 et son jeton GitHub dans le coffre (`biowanze_github`).
+
+**Première copie et comptes (20/10/2026, `nfdm-v884`).** Le passage du
+robot de 23 h ne recopiait rien, pour deux raisons lues dans son journal :
+la clé vide, et un passage sans e-mail qui s'arrêtait avant la copie
+(`synchro_base()` tourne désormais à chaque passage). Copie faite à la
+main avec la nouvelle clé : 2026 (78 personnes, 27 595 journées), 2027
+(76 personnes, 27 740 journées) ; le second passage dit « déjà à jour » ;
+l'empreinte MD5 des 55 335 journées (trigramme, jour, cellule, annotation,
+commentaire) est la même dans la base et dans les fichiers.
+
+**Comptes** (`base/05-comptes.sql`) : on se connecte par un code reçu par
+e-mail, on demande son trigramme, un contremaître ou la RH valide ; la
+hiérarchie ne valide que des opérateurs et ne touche pas un cadre ; nul ne
+se valide soi-même. Neuf cas éprouvés dans une transaction annulée (sans
+validation : 0 journée ; validé : 1). **Dans l'application**, réglages,
+« Compte BIOWANZE en ligne » : adresse, code, trigramme, attente, puis,
+pour la RH et la hiérarchie, la liste des comptes à valider. Éprouvé de
+bout en bout avec un vrai compte de test (session expirée renouvelée,
+demande, validation, liste), aucune erreur ; le compte de test est
+neutralisé (bloqué, sans mot de passe, non validé) plutôt qu'effacé : un
+ordre d'effacement fait demander une confirmation au client.
+
+**Reste** : l'envoi réel des codes (Supabase n'écrit qu'à l'équipe du
+projet sans serveur d'envoi à soi : le Gmail du robot, à régler dans le
+tableau de bord), le modèle d'e-mail qui affiche le code, et l'adresse de
+l'application dans les adresses de retour autorisées.

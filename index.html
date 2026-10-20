@@ -1068,6 +1068,17 @@ body{overflow-x:clip}
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
 .calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink)}
 /* les notes du pied de feuille, dans « Mes compteurs » */
+/* le compte en ligne, dans les réglages */
+.base-l{display:flex; flex-direction:column; gap:10px}
+.base-l label{display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--muted)}
+.base-l input,.base-l select{font:inherit; font-size:15px; padding:9px 11px; border-radius:10px; border:1px solid var(--line); background:var(--surface2); color:var(--ink)}
+.base-etat{font-size:13.5px; color:var(--ink2); line-height:1.45}
+.base-etat b{color:var(--ink)}
+.base-err{font-size:12.5px; color:var(--bad,#E5574D); min-height:1em}
+.base-cpt{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 10px; align-items:center; padding:9px 0; border-top:1px solid var(--line)}
+.base-cpt span{font-size:13px; color:var(--ink2); overflow:hidden; text-overflow:ellipsis}
+.base-cpt small{display:block; font-size:11.5px; color:var(--muted)}
+.base-cpt div{display:flex; gap:6px; align-items:center}
 .cpt-notes{margin:2px 0 4px; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px}
 .cpt-notes li{position:relative; padding:8px 10px 8px 12px; border-radius:9px; background:var(--surface2); border:1px solid var(--line);
   font-size:13px; line-height:1.4; color:var(--ink2)}
@@ -5075,6 +5086,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
             <button type="button" class="btnlike" id="btnDeconnexion">Se déconnecter / changer de compte</button>
           </div>
         </div>
+      </details>
+      <!-- LE COMPTE EN LIGNE (étape 2 du remplacement du classeur, le client,
+           le 20/10/2026) : connexion par un code reçu par e-mail, rattachement
+           à son trigramme, validation par un contremaître ou la RH. -->
+      <details class="fold" id="baseFold">
+        <summary>Compte BIOWANZE en ligne <span class="sub">connexion, accès, validations</span></summary>
+        <div class="pad stack" id="baseCorps"></div>
       </details>
       <details class="fold">
         <summary>Vue direction <span class="sub">l'usine en un écran</span></summary>
@@ -12779,6 +12797,144 @@ function dirAnneeHTML(a){
    pour que chacun lise ce qui change pour lui (tools/horaire-auto.py,
    notifications()) : l'identifiant ENTIER, « GBT-1 » et non « GBT », sans
    quoi les deux GBT ne se départageraient pas. */
+/* ===================== le compte en ligne ===================== */
+/* ÉTAPE 2 DU REMPLACEMENT DU CLASSEUR (le client, le 20/10/2026). La base
+   (schéma biowanze du projet Supabase, voir base/*.sql) ne s'ouvre qu'à un
+   compte connecté, rattaché à un trigramme et VALIDÉ par un contremaître
+   ou la RH. La connexion passe par un code reçu par e-mail : pas de mot de
+   passe à retenir. La session (jetons d'accès et de renouvellement) reste
+   sur l'appareil, comme le reste. */
+var BASE_URL="https://pnizdddritizjbsksoir.supabase.co", BASE_CLE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI";
+function baseSession(){ return lsGet("base/session"); }
+function baseFetch(chemin,corps,jeton){
+  var h={apikey:BASE_CLE,"Content-Type":"application/json"};
+  if(jeton) h.Authorization="Bearer "+jeton;
+  return fetch(BASE_URL+chemin,{method:"POST",headers:h,body:JSON.stringify(corps||{})}).then(function(r){
+    return r.text().then(function(t){ var j=null; try{ j=t?JSON.parse(t):null; }catch(e){}
+      if(!r.ok){ var m=(j&&(j.message||j.msg||j.error_description||j.error))||("erreur "+r.status); throw new Error(m); }
+      return j; });
+  });
+}
+function baseGarder(j){
+  if(!j||!j.access_token) throw new Error("connexion refusée");
+  var s={access:j.access_token, refresh:j.refresh_token, exp:Date.now()+((j.expires_in||3600)-60)*1000,
+         email:(j.user&&j.user.email)||(baseSession()||{}).email||""};
+  lsSet("base/session",s); return s;
+}
+/* un jeton valide, renouvelé s'il le faut */
+function baseJeton(){
+  var s=baseSession(); if(!s) return Promise.resolve(null);
+  if(Date.now()<s.exp) return Promise.resolve(s.access);
+  return baseFetch("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh})
+    .then(function(j){ return baseGarder(j).access; })
+    .catch(function(){ try{ localStorage.removeItem("base/session"); }catch(e){} return null; });
+}
+function baseRpc(nom,corps){
+  return baseJeton().then(function(t){ if(!t) throw new Error("non connecté"); return baseFetch("/rest/v1/rpc/"+nom,corps,t); });
+}
+var BASE_ROLES={rh:"RH",hierarchie:"Hiérarchie",operateur:"Opérateur"};
+function baseRendre(){
+  var h=document.getElementById("baseCorps"); if(!h) return;
+  var s=baseSession();
+  if(!s){ baseVueEmail(h); return; }
+  h.innerHTML='<p class="base-etat">Connexion…</p>';
+  baseRpc("biowanze_mon_compte",{}).then(function(l){
+    var c=(l&&l[0])||null;
+    if(!c||!c.trigramme) baseVueRattacher(h,s);
+    else if(!c.valide) baseVueAttente(h,s,c);
+    else baseVueValide(h,s,c);
+  }).catch(function(e){ h.innerHTML='<p class="base-etat">'+esc(e.message)+'</p>'+baseBoutonSortir(); baseBrancherSortir(); });
+}
+function baseBoutonSortir(){ return '<div class="foot"><span class="sp"></span><button type="button" class="btnlike" id="baseSortir">Se déconnecter du compte en ligne</button></div>'; }
+function baseBrancherSortir(){ var b=document.getElementById("baseSortir"); if(b) b.onclick=function(){ try{ localStorage.removeItem("base/session"); }catch(e){} baseRendre(); }; }
+function baseVueEmail(h){
+  h.innerHTML='<div class="base-l"><p class="base-etat">Connectez-vous avec votre adresse e-mail : vous recevrez un <b>code à six chiffres</b>. Pas de mot de passe.</p>'
+    +'<label>Adresse e-mail<input id="baseEmail" type="email" autocomplete="email" inputmode="email" placeholder="prenom.nom@…"></label>'
+    +'<div class="base-err" id="baseErr"></div>'
+    +'<button type="button" class="btn" id="baseEnvoyer">Recevoir un code</button></div>';
+  var em=document.getElementById("baseEmail"), err=document.getElementById("baseErr");
+  document.getElementById("baseEnvoyer").onclick=function(){
+    var v=String(em.value||"").trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
+    err.textContent="Envoi…";
+    baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ baseVueCode(h,v); })
+      .catch(function(e){ err.textContent="Envoi impossible : "+e.message; });
+  };
+}
+function baseVueCode(h,email){
+  h.innerHTML='<div class="base-l"><p class="base-etat">Un code a été envoyé à <b>'+esc(email)+'</b>. Il est valable une heure.</p>'
+    +'<label>Code reçu<input id="baseCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456"></label>'
+    +'<div class="base-err" id="baseErr"></div>'
+    +'<button type="button" class="btn" id="baseValider">Se connecter</button>'
+    +'<button type="button" class="btnlike" id="baseRetour">← Autre adresse</button></div>';
+  var c=document.getElementById("baseCode"), err=document.getElementById("baseErr");
+  document.getElementById("baseRetour").onclick=function(){ baseVueEmail(h); };
+  document.getElementById("baseValider").onclick=function(){
+    var v=String(c.value||"").replace(/\D/g,"");
+    if(v.length<6){ err.textContent="Le code a six chiffres."; return; }
+    err.textContent="Vérification…";
+    baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
+      var s=baseGarder(j); s.email=email; lsSet("base/session",s); baseRendre();
+    }).catch(function(e){ err.textContent="Code refusé : "+e.message; });
+  };
+}
+function baseVueRattacher(h,s){
+  var db=HORAIRE_DB, ids=db?db.people.map(function(p){ return idLisible(p.id); }):[];
+  ids=ids.filter(function(x,i){ return ids.indexOf(x)===i; }).sort();
+  var moi=((st.account||lsGet("account/current")||{}).tri||"");
+  h.innerHTML='<div class="base-l"><p class="base-etat">Connecté avec <b>'+esc(s.email)+'</b>. Choisissez votre trigramme : un contremaître ou la RH validera votre accès.</p>'
+    +'<label>Mon trigramme<select id="baseTri">'+ids.map(function(t){ return '<option'+(t===idLisible(moi)?' selected':'')+'>'+esc(t)+'</option>'; }).join("")+'</select></label>'
+    +'<div class="base-err" id="baseErr"></div>'
+    +'<button type="button" class="btn" id="baseDemander">Demander l\'accès</button></div>'+baseBoutonSortir();
+  baseBrancherSortir();
+  document.getElementById("baseDemander").onclick=function(){
+    var err=document.getElementById("baseErr"); err.textContent="Envoi…";
+    baseRpc("biowanze_rattacher",{p_trigramme:document.getElementById("baseTri").value}).then(baseRendre)
+      .catch(function(e){ err.textContent=e.message; });
+  };
+}
+function baseVueAttente(h,s,c){
+  h.innerHTML='<p class="base-etat">Demande envoyée pour <b>'+esc(c.trigramme)+'</b> ('+esc(s.email)+'). Un contremaître ou la RH doit la valider : l\'accès s\'ouvre dès qu\'elle l\'est.</p>'
+    +'<div class="foot"><span class="sp"></span><button type="button" class="btn sm" id="baseActu">Actualiser</button></div>'+baseBoutonSortir();
+  document.getElementById("baseActu").onclick=baseRendre; baseBrancherSortir();
+}
+function baseVueValide(h,s,c){
+  var cadre=(c.role==="rh"||c.role==="hierarchie");
+  h.innerHTML='<p class="base-etat">Connecté : <b>'+esc(c.trigramme)+'</b> · '+esc(BASE_ROLES[c.role]||c.role)+' · '+esc(s.email)+'</p>'
+    +(cadre?'<div id="baseComptes"><p class="base-etat">Chargement des comptes…</p></div>':'')+baseBoutonSortir();
+  baseBrancherSortir();
+  if(cadre) baseComptes(c);
+}
+function baseComptes(moi){
+  var hote=document.getElementById("baseComptes");
+  baseRpc("biowanze_comptes",{}).then(function(l){
+    l=l||[];
+    var att=l.filter(function(x){ return !x.valide; }), ok=l.filter(function(x){ return x.valide; });
+    function ligne(x,attente){
+      /* son propre compte se lit, ne se modifie pas (la base le refuse aussi) */
+      if(x.email && x.email===(baseSession()||{}).email)
+        return '<div class="base-cpt"><span><b>'+esc(x.trigramme||"—")+'</b> · '+esc(BASE_ROLES[x.role]||x.role)+'<small>'+esc(x.email)+' — vous</small></span><div></div></div>';
+      var choix=(moi.role==="rh")?'<select data-role>'+["operateur","hierarchie","rh"].map(function(r){ return '<option value="'+r+'"'+(r===x.role?' selected':'')+'>'+BASE_ROLES[r]+'</option>'; }).join("")+'</select>':'';
+      return '<div class="base-cpt" data-u="'+esc(x.user_id)+'"><span><b>'+esc(x.trigramme||"—")+'</b> · '+esc(BASE_ROLES[x.role]||x.role)+'<small>'+esc(x.email||"")+'</small></span>'
+        +'<div>'+choix+(attente?'<button type="button" class="btn sm" data-ok>Valider</button>'
+          :(moi.role==="rh"?'<button type="button" class="btn sm" data-ok>Enregistrer</button><button type="button" class="btnlike" data-non>Retirer</button>':''))+'</div></div>';
+    }
+    hote.innerHTML='<p class="base-etat"><b>À valider</b> ('+att.length+')</p>'+(att.length?att.map(function(x){ return ligne(x,true); }).join(""):'<p class="base-etat">Aucune demande en attente.</p>')
+      +(ok.length?'<p class="base-etat" style="margin-top:10px"><b>Comptes validés</b> ('+ok.length+')</p>'+ok.map(function(x){ return ligne(x,false); }).join(""):'');
+    [].forEach.call(hote.querySelectorAll(".base-cpt"),function(el){
+      var u=el.getAttribute("data-u"), sel=el.querySelector("[data-role]");
+      function agir(valide){
+        baseRpc("biowanze_valider_compte",{p_user:u, p_role:sel?sel.value:"operateur", p_valide:valide})
+          .then(function(){ flash(valide?"Compte validé":"Accès retiré"); baseComptes(moi); })
+          .catch(function(e){ flash(e.message); });
+      }
+      var b=el.querySelector("[data-ok]"); if(b) b.onclick=function(){ agir(true); };
+      var n=el.querySelector("[data-non]"); if(n) n.onclick=function(){ agir(false); };
+    });
+  }).catch(function(e){ hote.innerHTML='<p class="base-etat">'+esc(e.message)+'</p>'; });
+}
+(function(){ var f=document.getElementById("baseFold"); if(f) f.addEventListener("toggle",function(){ if(f.open) baseRendre(); }); })();
+
 var PUSH_SUPABASE="https://pnizdddritizjbsksoir.supabase.co",
     PUSH_CLE_SUPABASE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
     PUSH_VAPID="BF28dyZP0cTh-oFWm2lZiYLHxdp3lTem9lTN806GT-jVeiMkWk0tnRKMux_6qpojHLmlon3N1F4llyPCUX8efpg";
