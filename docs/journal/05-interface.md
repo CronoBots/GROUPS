@@ -1151,3 +1151,20 @@ haut d'une ligne (31 × 28 contre 31 × 18). Une première largeur de 35 px
 défaisait les deux badges par ligne (35 + 35 + marges > 80 px de pause) :
 ramenée à 31. Le tiret des cases vides et l'effectif sous la pause restent
 comme le client les avait voulus le 26/09.
+
+**Grille de badges, puis plus de colonne D** (même jour, `nfdm-v855`).
+Le client : « il y a moyen de mieux disposer les badges trigramme non ? » —
+le badge seul d'une seconde ligne se centrait en pyramide (TCE VGG / SLI)
+et un badge à horaire dépassait son voisin. Les badges d'une case vivent
+désormais dans une grille (`.eqc`) : deux colonnes au téléphone, alignées
+d'une ligne à l'autre, deux voisins à la même hauteur, un badge seul
+centré. Une première version (`min-width:100%`) ramenait les badges à
+27 px, sous la largeur commune ; corrigée (`justify-self:stretch`), 31 px.
+Puis : « retirer la colonne D, mais au lieu de ça les mettre dans la
+colonne AM avec l'horaire choisi ». Les gens en D rejoignent la case AM de
+leur poste, la formation, le DS et « à déterminer » leurs lignes, leur
+horaire dans le badge (`x.deD`), même sur les lignes Formation et DS où il
+ne s'écrivait pas. Aucun compte ne bouge (vérificateur et manques
+identiques) : la colonne D n'attendait personne. Le 21/10 : CKS « 7-15 » en
+fermentation du matin, MMS « 7h30-16 » en formation, ATR, LCI, QBY « 7-15 »
+en DS.
