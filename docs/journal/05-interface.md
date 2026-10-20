@@ -1225,3 +1225,12 @@ porte un opérateur en formation (la règle de l'étiquette jaune :
 meunerie AM « LDY VGG | SKS SLI », gluten AM « DBE GBT SLT | NPI », chaudières
 PM « KDN PDF | MGY ». Mesuré à 320, 390 et 1280 px : tailles inchangées,
 aucune case qui déborde, aucune erreur.
+
+**L'apprenti en bas à droite** (même jour, `nfdm-v864`). Le client, sur les
+deux colonnes de la version précédente : « celui en formation doit être mis
+en bas à droite ; s'ils sont 4, il faut qu'il y en ait un en poste au-dessus
+de lui ». Retour à la grille remplie ligne par ligne, titulaires d'abord,
+apprentis à la fin ; quand le compte est impair, une case vide (`.eqtrou`,
+au téléphone seulement) précède les apprentis. Le 21/10 : gluten AM « DBE
+GBT / SLT NPI », chaudières PM « KDN PDF / · MGY », meunerie « LDY VGG / SKS
+SLI ».
