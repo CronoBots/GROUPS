@@ -1374,3 +1374,16 @@ lue y était « AFA · YBT → ATA · JBI ». Pour VBN (six semaines commençant
 lundi-là) la faute ne se voyait pas : le contrôle du `nfdm-v870` n'avait
 regardé que lui. Le départ se recale désormais quand la personne ou le
 jour change ; mesuré, les deux concordent pour VBN, ATR et GBT.
+
+**Héros : « Prochain cycle » retiré, « Prochaines pauses » ajoutées
+(20/10/2026, `nfdm-v873`).** Le client : « cycle actuel, on peut le
+laisser, mais prochain cycle est devenu inutile », et « ajouter une stat
+prochain matin, prochain PM et prochaine nuit pour savoir quand cela
+arrivera ». La frise du cycle suivant (ajoutée le 17/10) part : la vue
+Cycle du calendrier la montre en un appui. À sa place, trois tuiles AM ·
+PM · N : la première journée prestée à cette pause dans les 180 jours,
+aujourd'hui compris tant que la pause n'est pas finie, la date et le délai
+(« aujourd'hui », « demain », « dans 11 j »). Mesuré le 20/10 : VBN N
+mar. 20 oct., PM sam. 31 oct., AM ven. 6 nov., conformes à son calendrier ;
+GBT AM demain, PM dans 3 j, N dans 6 j. À 320 px les trois dates tiennent ;
+aucun débordement, aucune erreur, hors ligne compris.
