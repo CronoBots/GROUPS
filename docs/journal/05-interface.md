@@ -1462,6 +1462,5 @@ après les progressions au téléphone). Mesuré : héros 755 px au bureau pour
 VBN, rien de tronqué pour cinq personnes, aucune erreur, hors ligne
 compris ; la frise ouvre toujours le cycle, une pause ouvre son jour.
 
-**Reste, et pourquoi** : la roue des réglages couvre le bas du logo de la
-couverture au téléphone, voulu (le 18/10) pour garder la couverture basse ;
-le flou de l'iPhone sous la barre d'état ne dépend pas de l'application.
+**Reste, et pourquoi** : le flou de l'iPhone sous la barre d'état ne
+dépend pas de l'application.
