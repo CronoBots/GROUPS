@@ -739,6 +739,12 @@ def main():
                                    cwd=RACINE, capture_output=True, text=True)
                 etat((n.stdout or "").strip() or "Notifications : non envoyées.")
 
+    # LA BASE BIOWANZE (étape 2, 20/10/2026) : l'horaire installé y est
+    # recopié quand sa version diffère. Jamais d'échec pour elle.
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
+                       cwd=RACINE, capture_output=True, text=True)
+    etat((r.stdout or "").strip() or "Base : non recopiée.")
+
     code = 0
     for genre, uids, c, sujet, corps, inst, quand, _an in resultats:
         if inst and pousser and not publie:
