@@ -16023,9 +16023,9 @@ function _orgJeton(id,moi,sup){
    classeur les avait écrites « Opérateurs en formation ». Manquaient deux
    cas : qui n'est que dans le classeur d'une année SUIVANTE (DCI, en 2027
    seulement), et l'arrivée rangée d'emblée dans une équipe. gensAVenir()
-   rend les premiers, marqués de leur année (_an) ; nouvelOperateur() dit
-   qui est nouveau : pas cadre, et sans ligne dans « Polyvalence » ou absent
-   du classeur de l'année en cours. L'affichage seul : rien ne change à
+   rend les premiers, marqués de leur année (_an), pour le tableau de
+   statut ; nouvelOperateur() dit qui est nouveau au tableau de formation :
+   pas cadre, et sans ligne dans « Polyvalence ». L'affichage seul : rien ne change à
    l'effectif, que compteAuPoste() décide toujours. LCO, nommé dans un
    commentaire du 26/10, n'a pas encore de colonne : il viendra avec elle. */
 function gensAVenir(db){
@@ -16042,9 +16042,14 @@ function gensAVenir(db){
   });
   return out;
 }
+/* Le client, le même jour : « DCI n'est pas en formation chaudière, il est
+   validé et seul poste connu ; c'est LCO le nouveau aux chaudières ». Venir
+   d'une année suivante ne fait donc pas un apprenti : seule l'absence de
+   ligne dans « Polyvalence » (aucun poste validé) le fait. DCI reste au
+   tableau de statut, pas à celui de formation. */
 function nouvelOperateur(db,p){
   if(!p || estCadre(p)) return false;
-  return !!p._an || !p.poly;
+  return !p.poly;
 }
 function renderOrganisation(){
   var hote=document.getElementById("orgCorps"); if(!hote) return;

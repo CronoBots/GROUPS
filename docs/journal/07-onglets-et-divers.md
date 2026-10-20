@@ -511,7 +511,13 @@ rangée d'emblée dans une équipe. `gensAVenir()` ajoute les premiers,
 marqués de leur année ; `nouvelOperateur()` (pas cadre ; sans ligne dans
 « Polyvalence » ou venu d'une année suivante) les met au tableau de
 formation. Éprouvé : DCI « Chaud. · Équipe 4 · dès 2027 » en formation,
-« Ouvr. » au statut ; 10 opérateurs en formation au lieu de 9. LCO n'est
+« Ouvr. » au statut ; 10 opérateurs en formation au lieu de 9. **C'était
+faux pour DCI**, le client aussitôt : « DCI n'est pas en formation
+chaudière, il est validé et seul poste connu. C'est LCO le nouveau aux
+chaudières ». Venir d'une année suivante ne fait pas un apprenti : seul
+un opérateur SANS ligne dans « Polyvalence » (aucun poste validé) entre
+d'office au tableau de formation ; DCI reste au statut seulement
+(`nfdm-v857`, 9 opérateurs en formation). LCO n'est
 dans aucun classeur — un seul commentaire le nomme, le 26/10 (« Visite du
 site avec LCO (intérimaire chaudières) ») : il viendra avec sa colonne.
 L'effectif n'en dépend pas (vérificateur et polyvalence identiques).
