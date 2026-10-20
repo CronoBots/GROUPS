@@ -1213,3 +1213,15 @@ aucune case qui déborde.
 téléphone (2 avant), 6 px au bureau (4 avant). Deux badges et l'écart font
 68 px à 320, dans une pause de 74 : toujours deux par ligne, aucune case
 qui déborde.
+
+**Qui tient le poste à gauche, qui s'y forme à droite** (même jour,
+`nfdm-v863`). Le client : « les personnes qui ont le poste doivent être
+prioritaires sur le côté gauche de la case par rapport aux personnes qui
+sont en formation, qui doivent être placées à droite ». Quand une case
+porte un opérateur en formation (la règle de l'étiquette jaune :
+`enFormation` et pas `compteAuPoste`), elle se coupe en deux colonnes
+(`.eqc.deux`) : à gauche ceux qui tiennent, les relais et les places vides,
+à droite les apprentis ; sans apprenti, la grille ordinaire. Le 21/10 :
+meunerie AM « LDY VGG | SKS SLI », gluten AM « DBE GBT SLT | NPI », chaudières
+PM « KDN PDF | MGY ». Mesuré à 320, 390 et 1280 px : tailles inchangées,
+aucune case qui déborde, aucune erreur.

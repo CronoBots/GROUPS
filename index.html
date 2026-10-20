@@ -4444,6 +4444,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   #jourCorps .eqp2 td .eqc{display:grid; grid-template-columns:repeat(2,max-content); justify-content:center; align-items:start; gap:4px}
   #jourCorps .eqp2 td .eqc:has(> :only-child){grid-template-columns:max-content}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn{margin:0; width:auto; justify-self:stretch}
+  /* deux colonnes : qui tient le poste, puis qui s'y forme */
+  #jourCorps .eqp2 td .eqc.deux{grid-template-columns:repeat(2,max-content)}
+  #jourCorps .eqp2 td .eqcol{display:flex; flex-direction:column; gap:4px}
+  #jourCorps.eqhote .eqp2 tbody td .eqcol>.eqn{margin:0; width:auto}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin-top:0}
 }
 @media (max-width:360px){
@@ -4453,6 +4457,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 }
 @media (min-width:761px){
   #jourCorps .eqp2 td .eqc{display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:6px}
+  #jourCorps .eqp2 td .eqcol{display:flex; flex-wrap:wrap; justify-content:center; gap:6px}
+  #jourCorps.eqhote .eqp2 tbody td .eqcol>.eqn{margin:0}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn,#jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin:0}
 }
 @media (min-width:761px){
@@ -15064,22 +15070,31 @@ function renderEquipe(){
              y a moyen de mieux disposer les badges trigramme non ? ») : deux
              colonnes au téléphone, alignées d'une ligne à l'autre, deux
              voisins à la même hauteur ; un badge seul reste centré. */
-          tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
-            +((o.gens.length||mq||(o.relais&&o.relais.length))?'<div class="eqc">':'')
-            +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
-            /* LES RELAIS DE 12 H, à bord pointillé, avec leur horaire : le
-               poste est tenu, mais par deux personnes venues des pauses
-               voisines (le client, le 13/10/2026). */
-            +(o.relais||[]).map(function(r){
+          /* QUI TIENT LE POSTE À GAUCHE, QUI S'Y FORME À DROITE (le client, le
+             20/10/2026 : « les personnes qui ont le poste doivent être
+             prioritaires sur le côté gauche de la case par rapport aux
+             personnes qui sont en formation, qui doivent être placées à
+             droite »). La même règle que l'étiquette jaune (compteAuPoste) ;
+             les relais et les places vides vont avec ceux qui tiennent. Sans
+             personne en formation, la grille ordinaire. */
+          var tientH=[], formH=[];
+          o.gens.forEach(function(x){
+            var h=chip(x,g,o.P||null,true);
+            (enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc) ? formH : tientH).push(h);
+          });
+          var relH=(o.relais||[]).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
               return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'"':'"')+' title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
-                +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("")
-            /* Une étiquette « ? » bordée de rouge par place vide, au lieu
-               du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
-               dans la recherche. */
-            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
-            +(o.gens.length||mq||(o.relais&&o.relais.length)?"</div>":'<span class="eqvide">\u2014</span>')
+                +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("");
+          /* Une étiquette « ? » par place vide, au lieu du compte « 1 / 2 »
+             (le client, le 29/09/2026). */
+          var mqH=mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"";
+          var gauche=tientH.join("")+relH+mqH, plein=!!(o.gens.length||mq||(o.relais&&o.relais.length));
+          tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
+            +(!plein ? '<span class="eqvide">\u2014</span>'
+              : formH.length && gauche ? '<div class="eqc deux"><div class="eqcol">'+gauche+'</div><div class="eqcol">'+formH.join("")+'</div></div>'
+              : '<div class="eqc">'+gauche+formH.join("")+'</div>')
             +"</td>");
         }));
         tp.push("</tr>");
