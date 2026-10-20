@@ -199,6 +199,52 @@ def purger_rapports(imap, moi, garde=GARDE_RAPPORTS):
     return len(retirer)
 
 
+def genre_sans_changement(sujet):
+    """Le classeur dont parle un rapport « rien de changé » : « horaire
+    2027 », « recyclages » ; None pour tout autre rapport. Les rapports
+    d'avant le 20/10/2026 ne disaient pas l'année : c'était 2026."""
+    if not re.search(r"rien de chang\u00e9\s*$", sujet or ""):
+        return None
+    m = re.search(r"horaire (\d{4})", sujet)
+    if m:
+        return "horaire " + m.group(1)
+    if "recyclages" in sujet:
+        return "recyclages"
+    if "classeur du" in sujet:
+        return "horaire 2026"
+    return None
+
+
+def purger_sans_changement(imap, moi):
+    """« Rien de changé » ne vaut que jusqu'au rapport suivant du même
+    classeur. Le client, le 20/10/2026, devant sa boîte : « et pas de
+    nettoyage ici des anciens mails ? » — douze « rien de changé » en deux
+    heures, gardés sept jours par purger_rapports(). On ne garde donc que le
+    plus récent de chaque classeur (horaire de chaque année, recyclages) ;
+    les installations et les portes fermées gardent leurs sept jours. Rend
+    le nombre de rapports retirés."""
+    import email.header
+    typ, data = imap.uid("search", None, '(FROM "%s" SUBJECT "BIOWANZE")' % moi)
+    uids = sorted((data[0] or b"").split(), key=int)
+    vus, retirer = set(), []
+    for u in reversed(uids):                 # du plus récent au plus ancien
+        typ, msg = imap.uid("fetch", u, "(BODY.PEEK[HEADER.FIELDS (SUBJECT)])")
+        try:
+            brut = email.message_from_bytes(msg[0][1]).get("Subject", "")
+            sujet = str(email.header.make_header(email.header.decode_header(brut)))
+        except Exception:
+            continue
+        g = genre_sans_changement(" ".join(sujet.split()))
+        if g is None:
+            continue
+        if g in vus:
+            retirer.append(u)
+        vus.add(g)
+    if retirer:
+        corbeille(imap, retirer)
+    return len(retirer)
+
+
 def envoyer(user, mdp, sujet, corps):
     if not (user and mdp):
         print("\n" + sujet + "\n" + corps)       # essai local : à l'écran
@@ -603,6 +649,9 @@ def main():
         n = purger_rapports(imap, user)
         if n:
             etat("%d rapport(s) de plus de %d jours mis à la corbeille." % (n, GARDE_RAPPORTS))
+        n = purger_sans_changement(imap, user)
+        if n:
+            etat("%d rapport(s) « rien de changé » remplacé(s) mis à la corbeille." % n)
         # L'horaire : la plus récente pièce jointe de CHAQUE année (2026 et
         # 2027 se copient du serveur côte à côte depuis le 20/10/2026).
         uids, par_an, illisibles = lire_gmail_par_annee(imap, SUJET, tmp, user)
