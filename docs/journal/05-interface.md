@@ -1356,3 +1356,21 @@ Cycle, mais le client l'a gardé (« j'aime bien jour par jour ») ; le total
 « Congés · n jours restants » redit la seule ligne RTT quand les autres
 congés sont tout placés, mais il reste le total dès que deux compteurs
 ont un reste.
+
+**La vue du cycle : l'équipe ou le binôme du cycle, et un cycle calé comme le
+héros (20/10/2026, `nfdm-v872`).** Le client : « dans la vue cycle, les
+contremaîtres et adjoints doivent voir avec quelle équipe ils sont le
+cycle, et pour les 5 équipes avec quel binôme ils sont (pas le numéro mais
+les trigrammes du binôme) ». L'en-tête porte à droite la lecture du héros
+(`cycleAvec`) sur le cycle affiché : VBN et ATR « Équipe 1 », puis
+« Équipe 3 », « Équipe 2 » ; GBT « AFA · YBT », puis « ATA · JBI »,
+« GPS » ; les journées passent dessous.
+
+**Erreur trouvée en le mesurant** : ouverte d'emblée en Cycle (vue gardée
+d'une visite à l'autre), la vue partait avant que la personne soit connue,
+donc du lundi de la semaine, et gardait ce départ : GBT avait « 19 octobre
+– 22 novembre » quand le héros disait « 12 oct. – 15 nov. », et l'équipe
+lue y était « AFA · YBT → ATA · JBI ». Pour VBN (six semaines commençant ce
+lundi-là) la faute ne se voyait pas : le contrôle du `nfdm-v870` n'avait
+regardé que lui. Le départ se recale désormais quand la personne ou le
+jour change ; mesuré, les deux concordent pour VBN, ATR et GBT.
