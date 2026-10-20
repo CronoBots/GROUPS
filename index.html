@@ -15117,10 +15117,19 @@ function renderEquipe(){
           if(relH) gaucheA.push(relH);
           if(mqH) gaucheA.push(mqH);
           var nG=tientH.length+(o.relais||[]).length+(mq?Math.max(1,aP-o.tenu):0);
-          if(formH.length && nG && (nG+formH.length)%2) gaucheA.splice(1,0,'<span class="eqtrou" aria-hidden="true"></span>');
+          /* Puis : « si un seul en formation, il doit être au-dessus à
+             droite au lieu d'en dessous ». Un seul apprenti et un compte
+             impair : il prend la place du trou, en haut à droite, et les
+             titulaires la colonne de gauche — TCE SLI / VGG. Compte pair
+             (quatre) : en bas à droite, un titulaire au-dessus. */
+          var formA=formH.slice();
+          if(formA.length && nG && (nG+formA.length)%2){
+            if(formA.length===1){ gaucheA.splice(1,0,formA[0]); formA=[]; }
+            else gaucheA.splice(1,0,'<span class="eqtrou" aria-hidden="true"></span>');
+          }
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +(!plein ? '<span class="eqvide">\u2014</span>'
-              : '<div class="eqc'+(formH.length?' aform':'')+'">'+gaucheA.join("")+formH.join("")+'</div>')
+              : '<div class="eqc'+(formH.length?' aform':'')+'">'+gaucheA.join("")+formA.join("")+'</div>')
             +"</td>");
         }));
         tp.push("</tr>");
