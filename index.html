@@ -15075,11 +15075,24 @@ function renderEquipe(){
              droite »). La même règle que l'étiquette jaune (compteAuPoste) ;
              les relais et les places vides vont avec ceux qui tiennent. Sans
              personne en formation, la grille ordinaire. */
-          var tientH=[], formH=[];
-          o.gens.forEach(function(x){
+          /* ET PARMI CEUX QUI TIENNENT, l'équipe de la pause à son horaire
+             normal d'abord (le client, le même jour : « prioritairement,
+             ceux de gauche sont ceux de la pause et de l'horaire normal, au
+             lieu de ceux qui tiennent le poste mais sont en décalé ») :
+             0 son équipe, horaire normal ; 1 une autre équipe (remplaçant,
+             renfort, adjoint) ; 2 un autre horaire (badge à horaire : H.fl.,
+             7-15, plage partielle). Tri stable : l'ordre d'avant tient à
+             rang égal. */
+          var tientR=[], formH=[], eqP=String(eqCycle[g.k]||"").split("/");
+          o.gens.forEach(function(x,ix){
             var h=chip(x,g,o.P||null,true);
-            (enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc) ? formH : tientH).push(h);
+            if(enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc)){ formH.push(h); return; }
+            var m=/shift\s*(\d+)/i.exec(String(x.p.cat||"")), sienne=!!(m && eqP.indexOf(m[1])>=0);
+            var rg=/eqhd/.test(h)?2:(sienne?0:1);
+            tientR.push({h:h, r:rg, i:ix});
           });
+          tientR.sort(function(a,b){ return a.r-b.r || a.i-b.i; });
+          var tientH=tientR.map(function(t){ return t.h; });
           var relH=(o.relais||[]).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
