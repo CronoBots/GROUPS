@@ -1426,3 +1426,13 @@ correction — « Prochain congé » et « Vendredi 13 novembre » ne tenaient
 pas sur une ligne (JBS) ; sous 360 px les deux dates du bloc s'abrègent
 (« ven. 13 nov. »). Hauteur de l'Accueil 2 952 px à 390 (2 931 avant),
 2 346 à 1280 (2 445) ; aucune erreur, hors ligne compris.
+
+**Héros : « Mes pauses » en liste (20/10/2026, `nfdm-v878`).** Le client,
+sur sa capture : « moyen d'optimiser 100 % pro ? ». Les quatre tuiles de
+deux lignes prenaient environ 270 px au téléphone pour quatre dates. Une
+ligne par pause, comme le week-end libre et le prochain congé : la pause,
+sa prochaine date et le délai, puis l'année à droite (« 31 +7 »), sous une
+seule légende de colonne, « faites · à venir ». Une ligne touchée ouvre ce
+jour dans le calendrier (éprouvé : 6 novembre, 21 octobre). Hauteur de
+l'Accueil 2 879 px à 390 (2 952 avant), 2 990 à 320 (3 063) ; rien de
+tronqué pour cinq personnes, aucune erreur, hors ligne compris.
