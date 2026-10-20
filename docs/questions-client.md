@@ -31,30 +31,40 @@ des questions au client ».
    la journée est une absence payée, sans prime de pause. En attendant,
    l'application la lit comme un poste presté, 8 h et la prime.
 
+4. **Un « R-CM » de quelques heures, dans quelle ligne du Planning ?**
+   (posée le 20/10/2026) Le Planning range un remplacement de
+   contremaître PARTIEL dans la ligne Adjoint — la règle de la prime
+   (`remplacementCM`, journée entière seulement) sert aussi au rangement.
+   C'est le cas de VGG le 05/06 (« R-CM, remplace ATA de 10h à 14h ») et le 30/06,
+   FPA le 19/09 (« remplace FLI de 0h à 6h »), JBI le 21/08 (« R-CM,
+   4h +FT, remplace YPE », GPS faisant 18h-22h). Faut-il les montrer dans
+   la ligne Contremaître, à côté du titulaire, avec leurs heures ? La prime
+   ne change pas.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
 
-4. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
+5. **Le mois où le fixe change** (VBN, contremaître au 15/09) : comment
    partager le mois entre les deux fixes, par demi-mois ou par jours de
    calendrier ? Et à signaler : la fiche de septembre paie la hausse dès le
    15/08 (« le RH a fait une erreur »). Voir `docs/regles-paie.md`.
-5. **La maladie** : le « premier mois » payé par l'employeur vaut-il
+6. **La maladie** : le « premier mois » payé par l'employeur vaut-il
    30 jours calendrier (`MALADIE_EMPLOYEUR_J`) ? Comment le fixe d'un
    employé est-il réduit au-delà — au taux horaire, en jours, au prorata ?
-6. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
+7. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
    l'ouvrier ?
-7. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
+8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti.
-8. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
+9. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
    correspond pas aux objectifs par atelier pour DWS (17 au classeur pour
    27), SBZ (11/26), FLN (7/22), FPS (15/30), PLZ (8/28), PAM (18/10),
    ASS (10/0), PDR (2/0), VBN (30/5). Quel est leur objectif, et sur
    quels ateliers ? Le héros montre en attendant les chiffres du classeur.
-9. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
+10. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
 
