@@ -680,3 +680,24 @@ ne garde que le plus récent de chaque classeur (horaire de chaque année,
 recyclages ; un ancien sujet sans année est 2026) ; installations et portes
 fermées gardent leurs sept jours. Éprouvé sur une boîte simulée aux sujets
 réels : 4 retirés sur 9, ni installation ni porte fermée touchées.
+
+## Remplacer le classeur Excel : les réponses du client (20/10/2026)
+
+Proposition du jour (page Notion « Proposition — remplacer le classeur
+Excel par l'application ») : la saisie dans l'application, l'Excel en
+sortie, en trois étapes. Le classeur analysé : 14 classeurs par fonction
+recopiés par macro (valeurs et commentaires) dans le récapitulatif, environ
+12 000 commentaires, une feuille cachée de 13 000 formules qui refait la
+grille poste par poste, une protection par un mot de passe court lisible
+dans les macros. Réponses du client :
+
+- **Qui saisit** : la RH et la ligne hiérarchique.
+- **Qui valide une demande d'opérateur** : les contremaîtres et la RH.
+- **Qui lit le classeur** : tout le monde, pour connaître son horaire ;
+  seule la RH sait l'encoder.
+- **Noms et matricules dans la base** : accepté.
+- **Dans l'ordre** : (1) parité en lecture, (2) saisie en parallèle avec
+  un export Excel identique, (3) l'application comme source.
+
+Tant que l'étape 3 n'est pas atteinte, la règle du 27/09 tient : le
+classeur reste la seule source de l'application.
