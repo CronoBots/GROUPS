@@ -4417,11 +4417,23 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque.propose>b{color:#F2994A}
 #jourCorps.eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
 @media (max-width:760px){
+  /* DES BADGES PLUS GRANDS (le client, le 20/10/2026, « 1 et 3 ») : trois
+     colonnes de 97 px depuis le retrait du D, la place est là. 13 px au
+     lieu de 11,5, même hauteur pour tous ; 12 px sous 361 px de large, où
+     deux badges doivent encore tenir dans 74 px. */
+  #jourCorps.eqhote .eqp2 tbody td .eqn{height:32px; font-size:13px}
+  #jourCorps.eqhote .eqp2 tbody td .eqn>b{font-size:13px; line-height:16px}
+  #jourCorps.eqhote .eqp2 td .eqn .eqhd{font-size:9.5px; line-height:10px}
   /* la grille : colonnes de largeur égale, voisins étirés à la même hauteur */
   #jourCorps .eqp2 td .eqc{display:grid; grid-template-columns:repeat(2,max-content); justify-content:center; align-items:start; gap:2px}
   #jourCorps .eqp2 td .eqc:has(> :only-child){grid-template-columns:max-content}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn{margin:0; width:auto; justify-self:stretch}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin-top:0}
+}
+@media (max-width:360px){
+  #jourCorps.eqhote .eqp2 tbody td .eqn{height:30px; font-size:12px}
+  #jourCorps.eqhote .eqp2 tbody td .eqn>b{font-size:12px; line-height:15px}
+  #jourCorps.eqhote .eqp2 td .eqn .eqhd{font-size:9px}
 }
 @media (min-width:761px){
   #jourCorps .eqp2 td .eqc{display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:4px}
@@ -15049,7 +15061,7 @@ function renderEquipe(){
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
                dans la recherche. */
-            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
+            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(candidatsPlace(v,P,g.k,jourCalc,o,aP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
             +(o.gens.length||mq||(o.relais&&o.relais.length)?"</div>":'<span class="eqvide">\u2014</span>')
             +"</td>");
         }));
@@ -16874,6 +16886,35 @@ function raisonTexte(r){
 function texteTransfert(x,t,raison){
   return "Proposé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
     +(raison?", "+raison:"")+". À confirmer avec "+idLisible(x.p.id)+".";
+}
+/* QUI PEUT COMBLER UNE PLACE VIDE (le client, le 20/10/2026, « 1 et 3 » :
+   « toucher un ? pour voir qui peut combler »). Au toucher du « ? », la
+   bulle des commentaires dit, parmi les présents de la pause : ceux qui
+   savent tenir le poste (peutTenir, et y comptent : compteAuPoste), où ils
+   sont, si leur poste est en surnombre (on peut les prendre sans créer un
+   autre trou), et la proposition de l'application s'il y en a une. La
+   même polyvalence que le rééquilibrage, rien de plus. */
+function candidatsPlace(vue,P,gk,jour,oP,aP){
+  var c=[], prop=[];
+  (vue.postes||[]).forEach(function(o){
+    if(o.P.k===P.k) return;
+    var surn=o.attendu?effectif(o.gens,o.P,jour)>o.attendu:true;
+    o.gens.forEach(function(x){
+      if(x.deD || x.depuisD) return;
+      if(!peutTenir(x.p,P,jour) || !compteAuPoste(x,P,jour)) return;
+      if(x.propose===P.k) prop.push(idLisible(x.p.id));
+      c.push({t:idLisible(x.p.id)+" ("+o.P.t.toLowerCase()+(surn?", en surnombre":"")+")", s:surn?0:1});
+    });
+  });
+  (vue.inconnus||[]).forEach(function(x){
+    if(peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour)) c.push({t:idLisible(x.p.id)+" (poste à déterminer)", s:0});
+  });
+  c.sort(function(a,b){ return a.s-b.s || (a.t<b.t?-1:1); });
+  var t="Place vide · "+P.t+" "+gk+" ("+oP.tenu+"/"+aP+")";
+  if(prop.length) t+="\nProposé : "+prop.join(", ");
+  t+=c.length ? "\nPeuvent le tenir : "+c.map(function(x){ return x.t; }).join(" · ")
+              : "\nPersonne de la pause n'a cette polyvalence.";
+  return t;
 }
 /* Les transferts d'une journée, pause par pause (AM, PM, N). */
 function transfertsDuJour(db,annee,m,j){
