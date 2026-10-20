@@ -189,6 +189,7 @@ const MORCEAUX=[
   ["var CONSIGNATEURS=","\n"],
   ["function easter(","\n}"],
   ["function feries(","\n}"],
+  ["var RX_REMPL_CONSIGN=","\n"],
   ["function meunDepuisD(","\n}"],
   ["function postesDePause(","\n}"],
   /* les abonnements agenda (--agendas) : la lecture du héros et l'écriture
