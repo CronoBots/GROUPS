@@ -663,3 +663,20 @@ tient désormais un instantané par année, de l'année en cours au dernier
 classeur reçu. Éprouvé : première ouverture sans badge ; le 11/01/2027
 changé (AM → PM, « échange avec GPS ») → badge 1, la feuille ouvre janvier
 2027 ; « Vu » l'efface.
+
+**La chaîne 2027, de bout en bout** (même nuit). Sur le PC, une troisième
+action copie « Horaires 2027 » vers `BIOWANZE\Horaire 2027 auto` (un
+dossier à part : même nom de fichier qu'en 2026) ; un flux Power Automate
+« BIOWANZE horaire 2027 vers Gmail », copie du premier, dossier choisi au
+sélecteur, même sujet. Un doublon « Horaires 2027 auto » (avec un s) créé
+par erreur a été retiré. À 3 h 34, trois e-mails ; à 3 h 45 le robot a
+rendu « horaire 2027, rien de changé » et « horaire 2026, rien de changé »
+— chacun reconnu à son année, comparé au sien.
+
+**Les « rien de changé » ne s'empilent plus.** Le client, devant sa boîte :
+« et pas de nettoyage ici des anciens mails ? » — douze « rien de changé »
+en deux heures, gardés sept jours comme tout rapport. `purger_sans_changement()`
+ne garde que le plus récent de chaque classeur (horaire de chaque année,
+recyclages ; un ancien sujet sans année est 2026) ; installations et portes
+fermées gardent leurs sept jours. Éprouvé sur une boîte simulée aux sujets
+réels : 4 retirés sur 9, ni installation ni porte fermée touchées.
