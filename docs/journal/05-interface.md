@@ -1201,3 +1201,9 @@ tient, « proposé » ou « en surnombre » — le proposé d'abord, puis le
 surnombre (`bulleCandidatsHTML()`, données en `data-cand`). Une première
 version nommait ses classes `cpt-…`, déjà prises par les compteurs : le
 titre sortait en capitales. Renommées `cdp-…`.
+
+**Un cran plus petits** (même jour, `nfdm-v861`). Le client : « sur mobile
+les badges sont un rien trop grands ». 12,5 px et 30 px de haut au
+téléphone (33 × 30 à 390), 12 px et 28 px sous 361 px (32 × 28 à 320) ;
+bureau inchangé (52 × 43). Toujours une seule hauteur, deux par ligne,
+aucune case qui déborde.
