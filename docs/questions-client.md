@@ -41,7 +41,20 @@ des questions au client ».
    la ligne Contremaître, à côté du titulaire, avec leurs heures ? La prime
    ne change pas.
 
+- **Remplacer le classeur Excel par la saisie dans l'application**
+  (proposition du 20/10/2026, page Notion « Proposition — remplacer le
+  classeur Excel par l'application ») : faut-il le faire, et par quelle
+  étape commencer — parité en lecture, saisie en parallèle avec export
+  Excel identique, puis l'application comme source ? Rien n'est construit
+  avant la réponse : cela reviendrait sur la règle du 27/09 (« le classeur
+  est la seule source »). Questions liées pour la RH ci-dessous.
+
 ## À la RH
+- Accepte-t-elle de saisir l'horaire dans l'application, et qui d'autre
+  saisit (contremaîtres, adjoints) ? Qui valide une demande d'opérateur ?
+- Qui utilise encore le classeur Excel en aval (paie, SAP, direction), et
+  sous quel format ? L'informatique et la protection des données
+  acceptent-elles noms et matricules dans la base (Supabase, hébergée en Europe) ?
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
 
