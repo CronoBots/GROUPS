@@ -1234,3 +1234,14 @@ apprentis à la fin ; quand le compte est impair, une case vide (`.eqtrou`,
 au téléphone seulement) précède les apprentis. Le 21/10 : gluten AM « DBE
 GBT / SLT NPI », chaudières PM « KDN PDF / · MGY », meunerie « LDY VGG / SKS
 SLI ».
+
+**L'équipe de la pause à son horaire normal, d'abord** (même jour,
+`nfdm-v865`). Le client : « prioritairement, ceux de gauche sont ceux de la
+pause et de l'horaire normal, au lieu de ceux qui tiennent le poste mais
+sont en décalé ». Parmi ceux qui tiennent, trois rangs, tri stable : 0
+l'équipe que le cycle met à cette pause (« Shift N » contre
+`equipeALaPause`), horaire normal ; 1 une autre équipe (échange,
+remplaçant, renfort, adjoint) ; 2 un autre horaire (badge à horaire). Les
+apprentis restent en bas à droite. Le 21/10 : gluten AM « GBT SLT / DBE
+NPI » (DBE, équipe 2, en échange), fermentation AM « CHD SMA / CKS 7-15 »,
+meunerie « LDY VGG / SKS SLI ».
