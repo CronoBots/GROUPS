@@ -1481,3 +1481,11 @@ reste alors à droite (JKS, héros 956 → 749 px). Vérifié et NON fautif :
 « Aujourd'hui » sur une nuit du 21 lu le 20 à 22 h 59 venait de l'horloge
 du test, interprétée en temps universel (00 h 59 à Bruxelles). Aucun
 débordement, aucune erreur, hors ligne compris.
+
+**Le statut à côté du poste (20/10/2026, `nfdm-v882`).** Le client : « le
+statut de travail à côté de son poste ? ». « Employé », « Ouvrier » ou
+« Intérimaire » (en jaune) devient une étiquette à droite du poste ; la
+troisième ligne ne reste que pour la formation (« En formation ·
+Chaudières »). Une ligne de moins pour qui n'est pas en formation : héros
+de VBN 745 → 726 px à 390. Mesuré pour sept profils à 320, 390 et
+1280 px : ni poste ni étiquette tronqués, aucune erreur, hors ligne compris.
