@@ -1107,3 +1107,18 @@ NON fautif : « ▼ 56 vs sept. » compare bien deux mois entiers. Les
 changements de structure (bureau sur deux colonnes, « jour par jour » qui
 redit la vue Année du calendrier, explication du flex time, congés « tout
 placés » regroupés) sont proposés au client, non faits.
+
+**Suite, même jour** (`nfdm-v848`). Le client : « il faut tout
+optimiser ». Faits : (1) au bureau (≥ 1100 px), calendrier et compteurs
+côte à côte, les compteurs en une colonne de rangées — 2 910 → 2 412 px à
+1280 ; (3) les congés « Tout placé » regroupés en une rangée « VA · DTT ·
+RJF — Congés » ; une première version écrivait leurs noms en toutes
+lettres, quatre lignes à 320 px, ramenée au seul mot « Congés » ; (4) le
+report de l'an passé du flex time dit quand il n'est pas nul — total du
+classeur − (+FT) − (−FT), de −8 h à +90 h selon les personnes en 2026 :
+« +62 h portées · −55 h reprises · report 2025 −7 h » pour un solde de
+0 h ; (5) au pied du héros, « Horaire 2027 · 7 jours de congé déjà posés ·
+Voir janvier › », seulement quand le classeur de l'année suivante est reçu
+(pas prolongé). (2) NON fait : replier « Jour par jour » — le client :
+« mais j'aime bien jour par jour ». Éprouvé à 320, 390 et 1280 px : aucun
+débordement, aucune erreur ; le lien ouvre janvier 2027, hors ligne compris.
