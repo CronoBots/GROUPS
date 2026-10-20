@@ -212,6 +212,7 @@ const MORCEAUX=[
   ["function comAffiche(","\n}"],
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
+  ["function icsSequence(","\n}"],
   ["function icsAgenda(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
@@ -341,7 +342,8 @@ const ANNEE=Number(db.year);
    d'une installation) et l'agenda va du 1er janvier de l'avant-dernière
    année au 31 décembre de la dernière — 2026 et 2027, 30 Mo comme avant.
    L'horodatage est le plus récent des classeurs : un horaire inchangé
-   donne des fichiers identiques à l'octet, quel que soit celui donné. Les
+   donne des fichiers identiques à l'octet, quel que soit celui donné
+   (faux jusqu'au 20/10/2026 : voir HORAIRE_DB plus bas). Les
    fichiers d'une personne absente des deux années sont retirés.
 
    node tools/verifier-calendrier.js [horaire.json] --agendas DOSSIER      */
@@ -358,6 +360,16 @@ if(ARGS.indexOf("--agendas")>=0){
   });
   const annees=Object.keys(HORAIRES).map(Number).sort();
   const derniere=annees[annees.length-1];
+  /* HORAIRE_DB EST CELUI DE L'ANNÉE EN COURS, comme dans l'application
+     (l'année du jour d'usine), et non celui donné en argument. Mesuré le
+     20/10/2026 : le robot passe le classeur qu'il installe, 2027 ce
+     jour-là, et l'horaire de journée habituel (horaireHabituelD, lu dans
+     HORAIRE_DB) venait alors de 2027 : 137 journées D de CHD, MMS, QBY et
+     SKS passaient de 6-14 à 7-15 dans les agendas, et revenaient au
+     prochain classeur 2026 — l'application, elle, disait 6-14. */
+  const anCourant=new Date().getFullYear();
+  const anRef=HORAIRES[anCourant]?anCourant:(annees.filter(a=>a<=anCourant).pop()||annees[0]);
+  HORAIRE_DB=HORAIRES[anRef];
   const majs=annees.map(a=>HORAIRES[a].maj||"").sort();
   const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(majs[majs.length-1]);
   const stamp=m?m[1]+m[2]+m[3]+"T"+(m[4]||"00")+(m[5]||"00")+"00Z":ANNEE+"0101T000000Z";

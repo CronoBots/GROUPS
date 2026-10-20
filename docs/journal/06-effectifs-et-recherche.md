@@ -2940,3 +2940,28 @@ qu'il est affiché, `#jourCorps`), contre ce que chaque cellule écrit :
 le nouveau tableau coexistent — 448 « doublons » (601 sur l'ancienne
 version), tous faux. Relevé refait en attendant un seul tableau : les seuls
 doublons sont les deux GBT, deux personnes au même trigramme (4 jours).
+
+### Un événement changé que l'agenda de Google ne relisait pas (20/10/2026, `nfdm-v879`)
+
+Le client : « sur l'agenda de mon ami sur Android, il n'a toujours pas le
+commentaire pour le falling film ». Le fichier publié (`cal/JBI.ics`, relu
+en ligne le 20/10) portait la note « Falling film » sur ses huit journées
+depuis `4e713b5` (19/10). La faute n'était pas dans le fichier mais dans ce
+qu'il ne disait pas : un événement n'avait ni `SEQUENCE` ni
+`LAST-MODIFIED`, et Google Agenda garde un événement déjà importé tant que
+rien ne lui dit qu'il a changé. Chaque événement porte désormais
+`LAST-MODIFIED` (l'horodatage du classeur) et `SEQUENCE`, le nombre de
+minutes entre le 1er janvier 2026 et cet horodatage (`icsSequence`) :
+croissant d'un classeur à l'autre, identique pour un même classeur.
+L'effet ne se verra qu'à la prochaine relecture de Google, jusqu'à un jour.
+
+**Erreur trouvée en régénérant** : 137 journées D de CHD, MMS, QBY et SKS
+changeaient d'heure (7-15 → 6-14). Le robot passe à `--agendas` le
+classeur qu'il installe, 2027 ce jour-là, et `HORAIRE_DB` — où
+`horaireHabituelD` lit l'horaire de journée habituel — était celui-là.
+Les agendas suivaient donc l'année du dernier classeur reçu, et l'affirmation
+« identiques à l'octet, quel que soit celui donné » était fausse.
+`HORAIRE_DB` est désormais l'année en cours, comme dans l'application :
+mesuré, les agendas écrits avec 2026 et avec 2027 en argument sont
+identiques à l'octet. Vérificateur, manques, polyvalences, compteurs
+identiques.
