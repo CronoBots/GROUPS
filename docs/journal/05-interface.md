@@ -1387,3 +1387,12 @@ aujourd'hui compris tant que la pause n'est pas finie, la date et le délai
 mar. 20 oct., PM sam. 31 oct., AM ven. 6 nov., conformes à son calendrier ;
 GBT AM demain, PM dans 3 j, N dans 6 j. À 320 px les trois dates tiennent ;
 aucun débordement, aucune erreur, hors ligne compris.
+
+**Héros : la barre de progression du cycle actuel (20/10/2026,
+`nfdm-v874`).** Le client, sur sa capture : « 100 % pro ? Et si on ajoute
+une barre de progression du cycle actuel ? ». La barre de l'année, reprise
+entre le titre du cycle et sa frise : journées prestées sur journées du
+cycle, le pourcentage au bout (« 5 % fait »), l'équipe ou le binôme
+gardant sa place à droite du titre. Mesuré : VBN 1 prestée sur 21, 5 % ;
+GBT 6 sur 18, 33 %. Aucun débordement à 320, 390 et 1280 px, aucune
+erreur, hors ligne compris ; la frise ouvre toujours la vue Cycle.

@@ -3997,6 +3997,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .cy-s.cour{box-shadow:0 0 0 2px rgba(255,255,255,.22)}
 .cy-c{height:8px; border-radius:2px; background:rgba(255,255,255,.07)}
 .cy-bloc{cursor:pointer; border-radius:10px}
+.cy-prog{display:flex; align-items:center; gap:10px; margin:2px 0 8px}
+.cy-prog .ry-an-bar{flex:1 1 auto; margin:0}
+.cy-prog>b{flex:0 0 auto; font-weight:700; font-size:12.5px; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap}
+.cy-prog>b small{font-size:11px; font-weight:500; color:var(--faint)}
 .cy-bloc:focus-visible{outline:2px solid var(--marque-vif); outline-offset:4px}
 @media (hover:hover){ .cy-bloc:hover .ry-an-leg span:last-child{color:var(--marque-vif)} }
 .cy-fr.long{gap:3px}
@@ -12885,6 +12889,7 @@ function ryCycleHTML(p,c,titre,prochain){
   var ou=prochain?(c.L%7===0?(c.L/7)+" semaines":c.L+" jours")
                  :(c.L%7===0?"semaine "+(Math.floor(c.pos/7)+1)+" / "+(c.L/7):"jour "+(c.pos+1)+" / "+c.L);
   var av=""; try{ av=cycleAvec(p,c); }catch(e){ av=""; }
+  var pct=(fait+avenir)?Math.round(fait/(fait+avenir)*100):0;
   /* Un cadre dans sa seconde semaine de D (la 6e du cycle) ne tourne plus
      avec cette équipe : elle a repris son cycle de 5 semaines sans lui (le
      client, le 17/10/2026). L'équipe actuelle ne s'écrit donc plus. */
@@ -12895,6 +12900,11 @@ function ryCycleHTML(p,c,titre,prochain){
   return '<div class="cy-bloc" data-cyc="'+iso+'" role="button" tabindex="0" aria-label="Voir ce cycle dans le calendrier">'
     +'<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
     +(av?'<b class="cy-avec" title="'+(estCadre(p)?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')+'</div>'
+    /* LA BARRE DE PROGRESSION DU CYCLE (le client, le 20/10/2026 : « et si
+       on ajoute une barre de progression du cycle actuel ? ») : la même que
+       celle de l'année, journées prestées sur journées du cycle ; le
+       pourcentage s'écrit au bout, la frise garde le détail jour par jour. */
+    +(!prochain&&(fait+avenir)?'<div class="cy-prog"><div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées du cycle"><i style="width:'+pct+'%"></i></div><b>'+pct+'\u00a0%<small> fait</small></b></div>':'')
     +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="'+titre+' du '+dm(c.deb)+' au '+dm(c.fin)+(av?', avec '+esc(av):'')+'">'+sem+'</div>'
     +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestée'+(fait>1?'s':'')+' · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+' ›</span></div></div>';
 }
