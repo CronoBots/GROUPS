@@ -15872,9 +15872,10 @@ function renderPolyvalence(){
     var av=document.getElementById("pvFin");
     /* LA CASE « 7/10 » SE LISAIT « fait / quota » : c'est « jours relevés par
        l'app / recyclages des RH » (audit du 10/10/2026). Une ligne le dit. */
-    if(av) av.innerHTML='<span class="pvleg">Chaque case : jours relevés par l\'app <u>/</u> recyclages enregistrés par les RH'
-      +' · objectif '+POLY_QUOTA.operateur+', adjoints '+POLY_QUOTA.adjoint+' · touchez les chiffres pour comparer les dates</span>'
-      +(finissent.length ? "<br>Se termine : "+finissent.map(esc).join(" \u00b7 ") : "");
+    /* Plus d'explication sous la grille (le client, le 20/10/2026 :
+       « supprimer l'explication dans le bas des recyclages ») ; reste la
+       liste des polyvalences qui se terminent, qui est une information. */
+    if(av) av.innerHTML=finissent.length ? "Se termine : "+finissent.map(esc).join(" \u00b7 ") : "";
   }, function(){});
 }
 /* ── LE TABLEAU DES DATES au clic d'un opérateur du recyclage ──────────────
@@ -16014,6 +16015,36 @@ function _orgJeton(id,moi,sup){
   }
   return '<span class="orgn'+(id===moi?" moi":"")+(sup||"")+'" data-id="'+esc(id)+'">'
     +esc(idLisible(id))+"</span>";
+}
+/* LES NOUVEAUX OPÉRATEURS, D'OFFICE DANS LES TABLEAUX DE STATUT ET DE
+   FORMATION (le client, le 20/10/2026 : « ajouter les nouveaux opérateurs
+   automatiquement dans les tableaux de statut et de formation (DCI, LCO
+   etc.) »). Les arrivées de 2026 (CDT, MGY, NPI, SLI) y étaient déjà : le
+   classeur les avait écrites « Opérateurs en formation ». Manquaient deux
+   cas : qui n'est que dans le classeur d'une année SUIVANTE (DCI, en 2027
+   seulement), et l'arrivée rangée d'emblée dans une équipe. gensAVenir()
+   rend les premiers, marqués de leur année (_an) ; nouvelOperateur() dit
+   qui est nouveau : pas cadre, et sans ligne dans « Polyvalence » ou absent
+   du classeur de l'année en cours. L'affichage seul : rien ne change à
+   l'effectif, que compteAuPoste() décide toujours. LCO, nommé dans un
+   commentaire du 26/10, n'a pas encore de colonne : il viendra avec elle. */
+function gensAVenir(db){
+  var vus={}, out=[], k;
+  if(!db || typeof HORAIRES==="undefined") return out;
+  db.people.forEach(function(p){ vus[p.id]=1; });
+  Object.keys(HORAIRES).map(Number).sort().forEach(function(an){
+    if(an<=Number(db.year)) return;
+    HORAIRES[an].people.forEach(function(p){
+      if(vus[p.id]) return; vus[p.id]=1;
+      var q={}; for(k in p) if(p.hasOwnProperty(k)) q[k]=p[k];
+      q._an=an; out.push(q);
+    });
+  });
+  return out;
+}
+function nouvelOperateur(db,p){
+  if(!p || estCadre(p)) return false;
+  return !!p._an || !p.poly;
 }
 function renderOrganisation(){
   var hote=document.getElementById("orgCorps"); if(!hote) return;
@@ -16197,7 +16228,7 @@ function renderOrganisation(){
          bureau, orgl2 court sur mobile) — « Intérimaire » débordait la colonne. */
       var ABR_STATUT={"Employé":"Empl.", "Ouvrier":"Ouvr.", "Intérimaire":"Intér."};
       var parStatut={}, ordreS=["Employé","Ouvrier","Intérimaire"];
-      db.people.forEach(function(p){
+      db.people.concat(gensAVenir(db)).forEach(function(p){
         var s=statutAffiche(p)||"Ouvrier";
         (parStatut[s]=parStatut[s]||[]).push(p.id);
       });
@@ -16333,8 +16364,11 @@ function renderOrganisation(){
           if(P.rx && P.rx.test(t)) return {lng:P.t, crt:PV_COURT[P.k]||P.t, z:P.z||"", ord:i}; }
         return {lng:t, crt:t, z:"", ord:999};
       }
-      var rows=db.people.filter(function(p){ return enFormation(p); }).map(function(p){
-        return {id:p.id, eq:_orgEquipe(p), ab:abrevPoste(_orgPoste(p)||"poste à déterminer")};
+      var rows=db.people.concat(gensAVenir(db)).filter(function(p){ return enFormation(p) || nouvelOperateur(db,p); }).map(function(p){
+        var eq=_orgEquipe(p);
+        /* qui n'est que dans le classeur d'une année suivante le dit */
+        if(p._an) eq=(eq?eq+" · ":"")+"dès "+p._an;
+        return {id:p.id, eq:eq, ab:abrevPoste(_orgPoste(p)||"poste à déterminer")};
       });
       if(!rows.length) return;
       /* Tri par POSTE de formation (ordre de production), puis equipe, puis id
