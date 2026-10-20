@@ -3877,6 +3877,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-an .ry-an-t~.ry-an-t,.pf-an .cy-bloc>.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
 .pf-an .ry-hint{font-size:11px; color:var(--muted)}
 .pf-an .ry-an-leg{margin-bottom:12px}
+/* les prochaines pauses, trois tuiles sous le cycle actuel */
+.pf-pr{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:6px 0 12px}
+.pf-pr-c{display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 4px 8px; border-radius:11px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); text-align:center; min-width:0}
+.pf-pr-c .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px; width:auto; height:auto; min-width:0}
+.pf-pr-c b{font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pf-pr-c span{font-size:11px; color:var(--muted); white-space:nowrap}
 @media (min-width:761px){
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
   .pf-gauche{min-width:0}
@@ -12904,19 +12911,40 @@ document.addEventListener("click",function(e){
 document.addEventListener("keydown",function(e){
   if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("cy-bloc")){ e.preventDefault(); ouvrirCycle(e.target); }
 });
+/* LE PROCHAIN MATIN, LE PROCHAIN PM, LA PROCHAINE NUIT (le client, le
+   20/10/2026 : « ajouter une stat prochain matin, prochain PM et prochaine
+   nuit pour savoir quand cela arrivera »). La première journée prestée à
+   cette pause, dans les 180 jours ; aujourd'hui compte tant que la pause
+   n'est pas finie. */
+function ryProchainesHTML(p){
+  var ja=jourPerso(p), now=new Date(), t0=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()), vu={}, reste=3, i, d, x;
+  for(i=0;i<=180 && reste;i++){
+    d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
+    try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
+    if(!x || !x.presente || vu[x.pv] || ["AM","PM","N"].indexOf(x.pv)<0) continue;
+    if(i===0 && (now-t0)/36e5>=pfFin(x)) continue;
+    vu[x.pv]={d:d, i:i}; reste--;
+  }
+  var JC=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
+  return '<div class="ry-an-t pf-pr-t"><span class="ry-chart-t ry-h2">Prochaines pauses</span></div>'
+    +'<div class="pf-pr">'+["AM","PM","N"].map(function(k){
+      var v=vu[k], quand=!v?"—":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
+      return '<div class="pf-pr-c"><i class="pf-pause" data-p="'+k+'">'+k+'</i>'
+        +'<b>'+(v?esc(JC[v.d.getDay()]+" "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()]):"—")+'</b>'
+        +'<span>'+esc(v?quand:"rien de prévu")+'</span></div>';
+    }).join("")+'</div>';
+}
 function ryAnneeHTML(p,y){
   var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
   if(c){
     /* sans « Mon » (le client, le 19/10/2026 : « retirer les mon du héros ») */
     h+=ryCycleHTML(p,c,"Cycle actuel",false);
-    /* le cycle suivant, de la même façon (le client, le 17/10/2026 : « faire
-       pareil avec le prochain cycle ») : il commence le lendemain du dernier
-       jour, même longueur, même calage. */
-    var deb=new Date(c.fin.getFullYear(),c.fin.getMonth(),c.fin.getDate()+1);
-    h+=ryCycleHTML(p,{nom:c.nom,L:c.L,pos:-1,deb:deb,fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+c.L-1)},"Prochain cycle",true);
+    /* Plus de « Prochain cycle » (ajouté le 17/10/2026) : le client, le
+       20/10/2026, « prochain cycle est devenu inutile » — la vue Cycle du
+       calendrier le montre en un appui sur ›, avec l'équipe ou le binôme. */
   }
-  return h;
+  return h+ryProchainesHTML(p);
 }
 /* LES PAUSES DE L'ANNÉE, faites et à venir, revenues dans « Mon rythme »
    (le client, le 17/10/2026 : « remettre les badges de pause AM PM N D
