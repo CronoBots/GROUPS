@@ -1207,3 +1207,9 @@ les badges sont un rien trop grands ». 12,5 px et 30 px de haut au
 téléphone (33 × 30 à 390), 12 px et 28 px sous 361 px (32 × 28 à 320) ;
 bureau inchangé (52 × 43). Toujours une seule hauteur, deux par ligne,
 aucune case qui déborde.
+
+**De légers écarts entre les badges** (même jour, `nfdm-v862`). Le client :
+« il faut de légers écarts entre les badges ». Grille à 4 px d'écart au
+téléphone (2 avant), 6 px au bureau (4 avant). Deux badges et l'écart font
+68 px à 320, dans une pause de 74 : toujours deux par ligne, aucune case
+qui déborde.
