@@ -1177,3 +1177,17 @@ au bureau, des badges de 47 px : les cases à plusieurs lignes étiraient
 chaque badge à la hauteur de sa rangée (`align-items:stretch`), remplacé
 par un alignement en haut. Mesuré : une seule hauteur à 320, 390 et
 1280 px, aucune case qui déborde.
+
+**Badges agrandis, et qui peut combler une place vide** (même jour,
+`nfdm-v859`). Le client choisit « 1 et 3 » parmi cinq propositions. (1) Au
+téléphone, trigrammes à 13 px au lieu de 11,5, badges de 32 px de haut
+(12 px et 30 px sous 361 px de large, où deux badges doivent tenir dans une
+pause de 74 px) : mesuré 33 × 32 à 390, 32 × 30 à 320, toujours deux par
+ligne, aucune case qui déborde. (3) Le « ? » d'une place vide s'ouvre au
+toucher dans la bulle des commentaires (`candidatsPlace()`) : la place et
+son compte, la proposition de l'application s'il y en a une, puis les
+présents de la pause qui savent tenir le poste (peutTenir et
+compteAuPoste, la même polyvalence que le rééquilibrage), ceux d'un poste
+en surnombre d'abord. Le 21/10 : « Place vide · Terrain arrière AM (0/1) ·
+Proposé : SMA · Peuvent le tenir : SMA (fermentation, en surnombre) · AAI
+(distillation) ».
