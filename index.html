@@ -11109,7 +11109,7 @@ function _pfDateCourte(d){
 }
 var RX_CONGE_PROCHAIN=/^(1\/2\s*)?(VA|RTT|RJF|DTT|RHS|CP|CPAR)$/i;
 function prochainConge(p){
-  var ja=jourPerso(p), i, d, x, deb=null, n=0, codes=[];
+  var ja=jourPerso(p), i, d, x, deb=null, fin=null, n=0, codes=[];
   for(i=1;i<=120;i++){
     d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
     try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
@@ -11117,12 +11117,23 @@ function prochainConge(p){
     if(!x || x.presente) break;
     var ab=String(x.ab||"").trim();
     if(RX_CONGE_PROCHAIN.test(ab)){
-      n+=/^1\/2/.test(ab)?0.5:1;
+      n+=/^1\/2/.test(ab)?0.5:1; fin=d;
       var c=ab.replace(/^1\/2\s*/,"").toUpperCase(); if(c==="CPAR") c="CP";
       if(codes.indexOf(c)<0) codes.push(c);
     }
   }
-  return deb?{d:deb, n:n, codes:codes}:null;
+  return deb?{d:deb, fin:fin, n:n, codes:codes}:null;
+}
+/* le premier samedi après d dont le samedi et le dimanche sont sans
+   prestation, dans les 75 jours (la lecture de _pfInfos) */
+function weekendLibreApres(p,d0){
+  for(var k=1;k<=75;k++){
+    var sam=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+k); if(sam.getDay()!==6) continue;
+    var dim=new Date(sam.getFullYear(),sam.getMonth(),sam.getDate()+1), a, b;
+    try{ a=_pfJour(p.id,sam); b=_pfJour(p.id,dim); }catch(e){ a=b=null; }
+    if(a && b && !a.presente && !b.presente) return sam;
+  }
+  return null;
 }
 function _pfInfos(p){
   var ju=jourPerso(p), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
@@ -11361,7 +11372,12 @@ function _pfHead(db,p){
   }
   /* Sans week-end libre à venir (malade jusqu'à la fin de l'horaire), pas de
      ligne : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
-  var we="";
+  var we="", pcg=prochainConge(p);
+  /* UN WEEK-END PRIS DANS LE PROCHAIN CONGÉ NE DIT RIEN (le client, le
+     20/10/2026) : c'est alors le premier week-end libre après la reprise. */
+  if(inf.weekend && pcg && inf.weekend.d>=pcg.d && inf.weekend.d<=pcg.fin){
+    var wa=weekendLibreApres(p,pcg.fin); inf.weekend=wa?{d:wa, ce:false}:null;
+  }
   if(inf.weekend){ var wd=inf.weekend.d;
     var weT=inf.weekend.ce?"Ce week-end":JOURS_LONGS[(wd.getDay()+6)%7]+" "+wd.getDate()+" "+MOIS[wd.getMonth()].toLowerCase();
     we='<div class="pf-we"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><span>Week-end libre</span><b>'+esc(weT)+'</b></div>'; }
@@ -11371,11 +11387,12 @@ function _pfHead(db,p){
      viennent, et combien de jours de congé avant la reprise : les repos du
      milieu ne comptent pas, la période s'arrête au premier jour presté. Ni
      maladie, ni formation, ni crédit-temps (une journée par semaine). */
-  var pcg=prochainConge(p);
   if(pcg){
     var pcT=JOURS_LONGS[(pcg.d.getDay()+6)%7]+" "+pcg.d.getDate()+" "+MOIS[pcg.d.getMonth()].toLowerCase();
     we+='<div class="pf-we pf-cg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/><circle cx="12" cy="12" r="3.5"/></svg>'
-      +'<span>Congé '+esc(pcg.codes.join(" · "))+(pcg.n>1?' · '+num(pcg.n)+' j':'')+'</span><b>'+esc(pcT)+'</b></div>';
+      /* sans les codes (le client, le 20/10/2026 : « les types de congé
+         des prochains congés ne sont pas utiles ») */
+      +'<span>Congé · '+num(pcg.n)+' j</span><b>'+esc(pcT)+'</b></div>';
   }
   /* LE PROCHAIN POSTE ET LE WEEK-END LIBRE DANS UN SEUL BLOC (le client, le
      18/10/2026 : « il y a moyen de faire bien mieux pour le héros, je veux
@@ -12928,11 +12945,15 @@ document.addEventListener("keydown",function(e){
    n'est pas finie. */
 function ryProchainesHTML(p){
   var ja=jourPerso(p), now=new Date(), t0=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()), vu={}, reste=3, i, d, x;
+  /* Le prochain poste, déjà dans le héros, n'est pas redit (le client, le
+     20/10/2026) : la nuit de ce soir là-haut, ici la nuit suivante. */
+  var pp=null; try{ var inf=_pfInfos(p); pp=inf&&inf.prochain&&inf.prochain.d; }catch(e){ pp=null; }
   for(i=0;i<=180 && reste;i++){
     d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
     try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
     if(!x || !x.presente || vu[x.pv] || ["AM","PM","N"].indexOf(x.pv)<0) continue;
     if(i===0 && (now-t0)/36e5>=pfFin(x)) continue;
+    if(pp && d.getTime()===new Date(pp.getFullYear(),pp.getMonth(),pp.getDate()).getTime()) continue;
     vu[x.pv]={d:d, i:i}; reste--;
   }
   var JC=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
