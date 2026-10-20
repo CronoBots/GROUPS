@@ -1071,6 +1071,10 @@ body{overflow-x:clip}
 /* LE CYCLE : la grille du mois, du lundi où il commence à son dernier jour ;
    le 1er de chaque mois porte le nom du mois (le titre dit déjà le premier) */
 .mc-n small{font-size:.8em; font-weight:600; color:var(--faint)}
+/* l'équipe ou le binôme à droite du titre, les journées dessous */
+.sem-t.cy-t{flex-wrap:wrap; row-gap:2px}
+.sem-t.cy-t .cy-avec{font-size:12.5px; font-weight:650; color:var(--marque-vif); text-align:right}
+.sem-t.cy-t .cy-stat{flex:1 0 100%}
 /* LA SEMAINE : une ligne par jour, la case du mois à gauche, le détail à
    droite (le client, le 19/10/2026) */
 .sem-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 10px;
@@ -6753,7 +6757,7 @@ function renderSemaine(hote){
    héros (cycleActuel : 5 ou 6 semaines, calé sur la personne) ; les
    suivants et les précédents se posent bout à bout, de la même longueur.
    Sans calage (personne sans cycle lisible), cinq semaines depuis le lundi. */
-var cyDeb=null, _cyJeton=0, _cyRef=null;
+var cyDeb=null, _cyJeton=0, _cyRef=null, _cyCle=null;
 function cycleRef(){
   var ja=jourPerso(st.personObj), cle=(st.personObj&&st.personObj.id)+"|"+ja.toDateString();
   if(_cyRef && _cyRef.cle===cle) return _cyRef;
@@ -6788,13 +6792,17 @@ function libCycle(d0){
    l'application, comme pour la semaine */
 function allerCycle(d0){
   if(d0<cycMin()) return;
-  cyDeb=d0;
+  cyDeb=d0; _cyCle=cycleRef().cle;
   var j=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+Math.floor(cycleRef().L/2));
   if(j.getFullYear()!==st.y || j.getMonth()!==st.m) loadMonth(j.getFullYear(),j.getMonth());
   else { majMoisLabel(st.m,st.y); renderRota(); }
 }
 function renderCycle(hote){
-  if(!cyDeb) cyDeb=cycDepuisMois();
+  /* Le cycle se recale quand la personne (ou le jour) change : ouvert en
+     Cycle avant que la personne soit connue, il partait du lundi de la
+     semaine, une semaine à côté du héros pour un cycle de cinq semaines
+     (GBT, le 20/10/2026 : « 19 octobre » au lieu du 12). */
+  if(!cyDeb || _cyCle!==cycleRef().cle){ cyDeb=cycDepuisMois(); _cyCle=cycleRef().cle; majMoisLabel(st.m,st.y); }
   var r=cycleRef(), d0=cyDeb, jeton=++_cyJeton, jours=[], i, cles={};
   for(i=0;i<r.L;i++) jours.push(new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i));
   jours.forEach(function(d){ cles[key(d.getFullYear(),d.getMonth())]=[d.getFullYear(),d.getMonth()]; });
@@ -6822,8 +6830,15 @@ function renderCycle(hote){
       if(cases.length===7){ g+='<div class="mc-sem">'+cases.join("")+'</div>'; cases=[]; }
     });
     if(cases.length){ while(cases.length<7) cases.push('<span class="mc-vide"></span>'); g+='<div class="mc-sem">'+cases.join("")+'</div>'; }
-    hote.innerHTML='<div class="sem-t"><b>Cycle'+(r.nom?' de '+esc(r.nom):'')+'</b>'
-      +'<span>'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
+    /* AVEC QUI L'ON TOURNE CE CYCLE (le client, le 20/10/2026 : « les
+       contremaîtres et adjoints doivent voir avec quelle équipe ils sont le
+       cycle, et pour les 5 équipes avec quel binôme, les trigrammes ») : la
+       lecture du héros (cycleAvec), sur le cycle affiché. */
+    var av=""; try{ av=st.personObj?cycleAvec(st.personObj,{deb:d0, L:r.L}):""; }catch(e){ av=""; }
+    var cadre=!!(st.personObj && estCadre(st.personObj));
+    hote.innerHTML='<div class="sem-t cy-t"><b>Cycle'+(r.nom?' de '+esc(r.nom):'')+'</b>'
+      +(av?'<b class="cy-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')
+      +'<span class="cy-stat">'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
       +'<div class="mc-grille"><div class="mc-tete">'
       +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")
       +'</div>'+g+'</div>'+(dr?legendeHTML(dr):"");
@@ -6875,7 +6890,7 @@ function allerAujourdhui(){
 function choisirVue(v){
   calVue=({annee:1,semaine:1,cycle:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
   if(calVue==="semaine") semDeb=semDepuisMois();
-  if(calVue==="cycle") cyDeb=cycDepuisMois();
+  if(calVue==="cycle"){ cyDeb=cycDepuisMois(); _cyCle=cycleRef().cle; }
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
     b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
   });
