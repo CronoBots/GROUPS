@@ -91,7 +91,7 @@
      la même ligne, et une couleur qui ne distingue pas ne sert à rien. */
   --at-jaune:#7F5400; --at-jaune-soft:#F6E6CB;
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
-  --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF;
+  --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
   --at-bleu:#23609C;  --at-bleu-soft:#D5EAFF;
   --at-gris:#60697A;  --at-gris-soft:#E7EBF3;
   /* Variantes un rien plus vives, réservées aux liserés gauche/droite du
@@ -146,7 +146,7 @@
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
-  --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30;
+  --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
   --at-gris:#969FAE;  --at-gris-soft:#1D2432;
   /* Variantes un rien plus vives, réservées aux liserés gauche/droite du
@@ -4384,6 +4384,42 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 }
 @media (min-width:1100px) and (max-width:1399px){ .top{--lw:1180px} }
 @media (min-width:1400px) and (max-width:1599px){ .top{--lw:1340px} }
+/* DES BADGES DE MÊME TAILLE AU PLANNING (le client, le 20/10/2026 : « il
+   faut aussi uniformiser les tailles des badges des trigrammes »). Le cadre
+   quitte l'étiquette pour le seul trigramme, de largeur fixe (trois signes
+   à chasse fixe) ; l'horaire (« H.fl. », « 7-15 », « 8-16 ») se lit en petit
+   SOUS le badge, au lieu de l'élargir ou de le doubler en hauteur. Les
+   états (moi, formation, relais, proposé, place vide, commentaire ouvert)
+   suivent le cadre sur le trigramme. Posé en dernier, avec l'identifiant :
+   il bat les règles d'avant, téléphone et bureau. */
+#jourCorps.eqhote .eqp2 tbody td .eqn,
+#jourCorps.eqhote .eqp2 tbody td .eqn:is(.moi,.form,.relais,.app,.manque,.coment,.coment-actif){
+  display:flex; flex-direction:column; align-items:center; row-gap:1px; width:max-content;
+  padding:0; margin:0 auto; border:0; background:none; box-shadow:none; line-height:normal}
+#jourCorps.eqhote .eqp2 tbody td .eqn+.eqn{margin-top:3px}
+#jourCorps.eqhote .eqp2 tbody td .eqn>b{display:block; box-sizing:border-box; width:calc(3ch + 12px); min-width:0;
+  height:18px; line-height:16px; padding:0; text-align:center; letter-spacing:0; font-size:11.5px;
+  border-radius:6px; background:var(--surface3); border:1px solid var(--trait)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.moi>b{border-color:var(--in); background:var(--in-soft)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.relais>b{border-style:dashed; border-color:var(--in)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.app>b{border-style:dashed; border-color:#F2994A}
+#jourCorps.eqhote .eqp2 tbody td .eqn.manque>b{border-color:var(--at-rouge)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.manque.propose>b{border-color:#F2994A; color:#F2994A}
+#jourCorps.eqhote .eqp2 tbody td .eqn.coment-actif>b{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+#jourCorps.eqhote .eqp2 td .eqn .eqhd{margin:0; font-size:9px; line-height:10px; letter-spacing:-.02em}
+/* Le poste qu'un changement proposé comblerait : fond orange, pas rouge
+   (le client, le 20/10/2026). */
+#jourCorps .eqp2 tbody td.propose{background:var(--propose-fond)}
+/* Le voile de la pause en cours (box-shadow, data-mck) recouvrait le fond :
+   un manque ou une proposition dans la colonne du moment ne se voyait pas. */
+#jourCorps .eqp2 tbody td.propose,#jourCorps .eqp2 tbody td.manque{box-shadow:none}
+@media (min-width:761px){
+  #jourCorps.eqhote .eqp2 tbody td .eqn,
+  #jourCorps.eqhote .eqp2 tbody td .eqn:is(.moi,.form,.relais,.app,.manque,.coment,.coment-actif){display:inline-flex; vertical-align:top; margin:2px 3px}
+  #jourCorps.eqhote .eqp2 tbody td .eqn+.eqn{margin-top:2px}
+  #jourCorps.eqhote .eqp2 tbody td .eqn>b{width:calc(3ch + 18px); height:24px; line-height:22px; font-size:13.5px; border-radius:7px}
+  #jourCorps.eqhote .eqp2 td .eqn .eqhd{font-size:10.5px; line-height:12px}
+}
 </style>
 </head>
 <body>
@@ -14571,8 +14607,12 @@ function renderEquipe(){
          orange en pointillé (sans flèche, le client, le 13/10/2026), et
          l'explication au clic, avant le commentaire du classeur s'il y en a un. */
       var tr=(posteCourant && g.k!=="D") ? transfertApp(x,posteCourant.k,jourCalc) : null;
+      /* resté à son poste, il POURRAIT aller combler x.propose (20/10/2026) */
+      if(!tr && x.propose && posteCourant && x.propose!==posteCourant.k) tr={de:posteCourant.k, vers:x.propose};
       if(tr){
-        var trTxt=texteTransfert(x,tr,raisonTexte(raisonsTransfert(par,g.k,posteCourant,jourCalc,x,vp[g.k]&&vp[g.k].vue,tr.de)));
+        var Pv=posteCourant;
+        if(tr.vers!==posteCourant.k) POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===tr.vers) Pv=Q; });
+        var trTxt=texteTransfert(x,tr,raisonTexte(raisonsTransfert(par,g.k,Pv,jourCalc,x,vp[g.k]&&vp[g.k].vue,tr.de)));
         note=trTxt; com=trTxt+(com?"\n\nCommentaire : "+com:"");
       }
       return '<span class="eqn'+(x.p.id===moi?" moi":"")+(tr?" app":"")
@@ -14673,6 +14713,47 @@ function renderEquipe(){
            le 03/10/2026, revenant sur le « toujours affichée » du 02/10). */
       }
     }
+    /* LES CHANGEMENTS PROPOSÉS NE DÉPLACENT PLUS PERSONNE (le client, le
+       20/10/2026) : « il ne faut pas déplacer automatiquement les
+       remplacements proposés par l'application. Il faut les laisser dans
+       leur poste normal, mais indiquer le background en orange dans le
+       poste en sous-effectif et laisser les pointillés sur l'opérateur qui
+       peut aller sur le poste en sous-effectif ». Le rééquilibrage reste le
+       calcul (les manques de l'onglet Effectifs le lisent) ; ici, au
+       tableau, chaque personne qu'il a déplacée (transfertApp) retourne à
+       son poste d'origine, marquée x.propose (le poste où elle pourrait
+       aller) ; le poste qu'elle aurait comblé retrouve son vrai compte et,
+       s'il manque, se marque o.propose — fond orange au lieu du rouge. */
+    ["AM","PM","N"].forEach(function(gk){
+      var v=vp[gk]&&vp[gk].vue; if(!v) return;
+      function oDe(k){ return v.postes.filter(function(o){ return o.P.k===k; })[0]||null; }
+      v.postes.slice().forEach(function(o){
+        o.gens.slice().forEach(function(x){
+          var t=transfertApp(x,o.P.k,jourCalc), o2=t&&t.de?oDe(t.de):null;
+          if(!o2) return;
+          o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
+          x.propose=o.P.k; o.propose=true;
+          if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
+          if(compteAuPoste(x,o2.P,jourCalc)) o2.tenu++;
+          o.manque=!!(o.attendu && o.tenu<o.attendu); o2.manque=!!(o2.attendu && o2.tenu<o2.attendu);
+        });
+      });
+      /* Une proposition n'a de sens que vers un poste qui, sans elle, reste
+         sous son effectif : PLZ le 22/10 « Gluten → Terrain arrière »
+         l'après-midi, où ATR et GDT tiennent déjà le poste une fois chacun
+         à sa place. Sinon, ni pointillé ni orange. */
+      v.postes.forEach(function(o){
+        o.gens.forEach(function(x){
+          if(!x.propose) return;
+          var oc=oDe(x.propose);
+          if(!oc || !oc.manque){ delete x.propose; if(oc) oc.propose=false; }
+        });
+      });
+      v.postes.forEach(function(o){
+        if(!o.propose) return;
+        o.propose=v.postes.some(function(q){ return q.gens.some(function(x){ return x.propose===o.P.k; }); });
+      });
+    });
     /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
        ligne sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce
        jour-là ». Ceux que leur journée de réunion (DS, DS-CE, CPPT,
@@ -14860,7 +14941,8 @@ function renderEquipe(){
              où il manque réellement quelqu'un ». Ailleurs, le compte se lit
              en comptant les trigrammes — il n'a rien à dire de plus. */
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
-          if(mq) cl.push("manque");
+          /* comblable par un changement proposé : orange, pas rouge */
+          if(mq) cl.push(o.propose?"propose":"manque");
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +o.gens.map(function(x){ return chip(x,g,o.P||null,true); }).join("")
             /* LES RELAIS DE 12 H, à bord pointillé, avec leur horaire : le
@@ -14874,7 +14956,7 @@ function renderEquipe(){
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
                dans la recherche. */
-            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque" title="Place vide ('+o.tenu+" / "+aP+')"><b>?</b></span>'):"")
+            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
             +(o.gens.length||mq||(o.relais&&o.relais.length)?"":'<span class="eqvide">\u2014</span>')
             +"</td>");
         }));
