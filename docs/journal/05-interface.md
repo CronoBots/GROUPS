@@ -1245,3 +1245,11 @@ remplaçant, renfort, adjoint) ; 2 un autre horaire (badge à horaire). Les
 apprentis restent en bas à droite. Le 21/10 : gluten AM « GBT SLT / DBE
 NPI » (DBE, équipe 2, en échange), fermentation AM « CHD SMA / CKS 7-15 »,
 meunerie « LDY VGG / SKS SLI ».
+
+**Le trou en haut à droite** (même jour, `nfdm-v866`). Le client, capture
+du 20/10 (« TCE VGG / · SLI ») : « VGG et ATR devraient être à gauche
+aussi ; il ne faut jamais laisser de trou en bas à gauche s'il y a d'autres
+opérateurs hors formation ». La case vide se pose désormais juste après le
+premier titulaire : meunerie AM « TCE · / VGG SLI », chaudières AM « PDF · /
+ATR MGY ». L'apprenti reste en bas à droite, un titulaire au-dessus quand
+ils sont quatre.
