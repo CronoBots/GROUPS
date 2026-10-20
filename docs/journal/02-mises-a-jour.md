@@ -771,3 +771,15 @@ expirés à 60 s, rien d'appliqué ; la version qui vide ne demande rien.
 (Supabase n'écrit qu'à l'équipe du projet sans serveur d'envoi à soi) ;
 les noms, prénoms et matricules, lus dans le classeur par le robot ;
 l'écran de connexion de l'application.
+
+**Ce qui est à BIOWANZE dans le projet de PINO, renommé « UPLOADED » par
+le client le 20/10/2026.** Relevé : les tables de PINO (`abonnes`,
+`compteur`, `cache_avis`, `cache_facebook`) et ses fonctions restent dans
+`public`, intactes. À BIOWANZE : le schéma `biowanze` (huit tables) ; la
+table des abonnements aux notifications, qui vivait encore dans `public`
+— déplacée dans `biowanze` (`abonnements_push`, `base/04-notifications.sql`)
+et éprouvée dans une transaction annulée (s'abonner puis se désabonner
+comme le public : 1 puis 0 ; le public n'entre toujours pas dans le
+schéma) ; les fonctions d'accès `public.biowanze_*`, qui doivent rester
+dans `public` pour être appelables ; la tâche planifiée `biowanze-horaire`
+et son jeton GitHub dans le coffre (`biowanze_github`).
