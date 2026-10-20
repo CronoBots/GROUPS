@@ -45,6 +45,14 @@ python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm              # à blan
 python3 tools/mettre-a-jour.py /chemin/Recapitulatif.xlsm --installer
 ```
 
+**Un classeur par année** (depuis le 20/10/2026, 2026 et 2027 côte à côte).
+L'année se lit dans le classeur (onglet « Config », « …-2027 ») : chacun
+s'installe dans son `data/horaire-AAAA.json`, une année nouvelle s'ajoute
+d'office à `HORAIRE_ANNEES` de `index.html`, et un classeur ne remplace
+jamais celui d'une autre année. Les compteurs d'une année ne se lisent que
+si le client a dit qu'ils sont fiables (`COMPTEURS_FIABLES`) : ceux de 2027
+ne l'étaient pas à la réception.
+
 **Le classeur RH des recyclages** (« Suivi des recyclages sur poste de
 production », `.xlsx`) a la sienne, même démarche, onze portes :
 
@@ -226,8 +234,8 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | Fichier | Rôle |
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
-| `data/horaire-2026.json` | horaire d'équipe anonymisé, pour le pré-remplissage |
-| `data/classeur-2026-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application |
+| `data/horaire-AAAA.json` | horaire d'équipe anonymisé d'une année (2026, 2027), pour le pré-remplissage |
+| `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
 | `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |

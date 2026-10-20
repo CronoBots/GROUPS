@@ -215,7 +215,7 @@ const MORCEAUX=[
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
    n'en a qu'un besoin, la journée contractuelle. */
 const st={params:{hJour:8}};
-var HORAIRE_DB=null;
+var HORAIRE_DB=null, HORAIRES={};
 eval(MORCEAUX.map(m=>part(m[0],m[1])).join("\n"));
 
 /* Découper du code par repères est fragile : une table remplie sur deux
@@ -327,26 +327,45 @@ const ANNEE=Number(db.year);
 /* ── les abonnements agenda ──────────────────────────────────────────────
    Le client, le 13/10/2026 : un calendrier du téléphone qui se met à jour
    seul, à une adresse au trigramme. Un fichier cal/<id>.ics par personne,
-   du 1er janvier de l'année du classeur au 31 décembre de la suivante (que
-   les cycles prolongent ; le client, le 14/10/2026 : « jusque fin décembre
-   2027 »). Écrit par icsAgenda() de index.html, la même qui sert
-   le bouton « Télécharger une fois » : il n'y a pas de seconde copie.
-   L'horodatage est celui du classeur : un horaire inchangé donne des
-   fichiers identiques à l'octet. Les fichiers d'une personne partie sont
-   retirés. Ni commentaire ni nom : pause, atelier, « rappel », congé.
+   écrit par icsAgenda() de index.html, la même qui sert le bouton
+   « Télécharger une fois » : il n'y a pas de seconde copie. Ni commentaire
+   ni nom : pause, atelier, « rappel », congé.
+
+   DEUX ANNÉES, chacune lue dans son classeur. Jusqu'au 20/10/2026, de
+   l'année du classeur au 31 décembre de la suivante, que les cycles
+   prolongeaient (le client, le 14/10/2026 : « jusque fin décembre 2027 »).
+   Le classeur 2027 reçu, on lit TOUS les data/horaire-AAAA.json (celui
+   donné en argument remplace celui de son année : c'est l'horaire neuf
+   d'une installation) et l'agenda va du 1er janvier de l'avant-dernière
+   année au 31 décembre de la dernière — 2026 et 2027, 30 Mo comme avant.
+   L'horodatage est le plus récent des classeurs : un horaire inchangé
+   donne des fichiers identiques à l'octet, quel que soit celui donné. Les
+   fichiers d'une personne absente des deux années sont retirés.
 
    node tools/verifier-calendrier.js [horaire.json] --agendas DOSSIER      */
 if(ARGS.indexOf("--agendas")>=0){
   const dir=ARGS[ARGS.indexOf("--agendas")+1];
   if(!dir){ console.error("--agendas DOSSIER"); process.exit(2); }
-  HORAIRE_DB=db;
-  const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(db.maj||"");
+  HORAIRE_DB=db; HORAIRES={}; HORAIRES[ANNEE]=db;
+  fs.readdirSync(path.join(RACINE,"data")).forEach(f=>{
+    const a=/^horaire-(\d{4})\.json$/.exec(f);
+    if(!a || Number(a[1])===ANNEE) return;
+    const x=JSON.parse(fs.readFileSync(path.join(RACINE,"data",f),"utf8"));
+    if(Number(x.year)!==Number(a[1])) return;
+    corrigerAutoRemplacements(x); HORAIRES[Number(x.year)]=x;
+  });
+  const annees=Object.keys(HORAIRES).map(Number).sort();
+  const derniere=annees[annees.length-1];
+  const majs=annees.map(a=>HORAIRES[a].maj||"").sort();
+  const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(majs[majs.length-1]);
   const stamp=m?m[1]+m[2]+m[3]+"T"+(m[4]||"00")+(m[5]||"00")+"00Z":ANNEE+"0101T000000Z";
-  const debut=new Date(ANNEE,0,1), fin=new Date(ANNEE+1,11,31);
+  const premiere=annees.length>1?derniere-1:derniere;
+  const debut=new Date(premiere,0,1), fin=new Date(annees.length>1?derniere:derniere+1,11,31);
   const nJ=Math.round((fin-debut)/864e5)+1;
   fs.mkdirSync(dir,{recursive:true});
-  const ecrits=new Set(); let total=0;
-  db.people.forEach(p=>{
+  const ecrits=new Set(); let total=0, gens={};
+  annees.filter(a=>a>=premiere).forEach(a=>HORAIRES[a].people.forEach(p=>{ gens[p.id]=1; }));
+  Object.keys(gens).sort().map(id=>({id:id})).forEach(p=>{
     const r=icsAgenda(p.id,debut,nJ,stamp);
     const f=path.join(dir,p.id+".ics");
     if(!fs.existsSync(f) || fs.readFileSync(f,"utf8")!==r.texte) fs.writeFileSync(f,r.texte);

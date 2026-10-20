@@ -51,6 +51,14 @@ par git, qui écraserait aussi ce qu'on n'a pas touché.
 
 Restent à faire à la main, et l'outil le rappelle : relire le rapport,
 tester dans un navigateur, committer.
+
+L'ANNÉE SE LIT DANS LE CLASSEUR. Le 20/10/2026, le client envoie le
+récapitulatif 2027 : même nom de fichier, mêmes feuilles. Dans l'onglet
+« Config », chaque groupe s'appelle « Contremaîtres-2027 », « Op.
+gluten-2027 »… : l'année
+est celle que ces noms portent tous (14 sur 14 dans les deux classeurs).
+Donnée en second argument, elle doit concorder, sinon rien ne se passe —
+un classeur 2027 installé sur l'horaire 2026 effacerait l'année en cours.
 """
 import hashlib
 import importlib.util
@@ -207,15 +215,43 @@ def _portes(source, annee, tmp, neuf):
         _rendre(8, "garde-fou du dépôt sur l'horaire neuf", f8.result())
 
 
+def annee_classeur(source):
+    """L'année que portent les noms de groupe de l'onglet Config (« …-2027 »),
+    lue dans les chaînes partagées du classeur ; None si elle ne se lit pas
+    ou si deux années se disputent la majorité."""
+    import collections
+    import zipfile
+    try:
+        x = zipfile.ZipFile(source).read("xl/sharedStrings.xml").decode("utf-8")
+    except (OSError, KeyError, zipfile.BadZipFile):
+        return None
+    vus = collections.Counter()
+    for si in re.findall(r"<si>(.*?)</si>", x, re.S):
+        m = re.search(r"-(20\d\d)\s*$", re.sub(r"<[^>]+>", "", si))
+        if m:
+            vus[int(m.group(1))] += 1
+    tete = vus.most_common(2)
+    if not tete or (len(tete) > 1 and tete[1][1] * 2 >= tete[0][1]):
+        return None
+    return tete[0][0]
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if not args:
         sys.exit(__doc__)
     source = os.path.abspath(args[0])
-    annee = int(args[1]) if len(args) > 1 else 2026
     installer = "--installer" in sys.argv
     if not os.path.exists(source):
         sys.exit("introuvable : %s" % source)
+    lue = annee_classeur(source)
+    if len(args) > 1 and lue is not None and int(args[1]) != lue:
+        sys.exit("Le classeur est celui de %d, pas de %s : rien n'est fait." % (lue, args[1]))
+    annee = int(args[1]) if len(args) > 1 else lue
+    if annee is None:
+        sys.exit("L'année du classeur ne se lit pas dans l'onglet Config : la donner"
+                 " en second argument.")
+    print("Classeur %d." % annee, flush=True)
     if os.path.commonpath([source, RACINE]) == RACINE:
         sys.exit("Le classeur source porte des noms : il ne doit pas être dans le dépôt.")
 
@@ -291,11 +327,24 @@ def main():
     avant = os.path.join(tmp, "avant")
     os.makedirs(avant)
     sw = os.path.join(RACINE, "sw.js")
-    for cle, chemin in list(cibles.items()) + [("sw", sw)]:
+    page = os.path.join(RACINE, "index.html")
+    nouveaux = [c for c in cibles.values() if not os.path.exists(c)]
+    for cle, chemin in list(cibles.items()) + [("sw", sw), ("page", page)]:
         if os.path.exists(chemin):
             shutil.copy2(chemin, os.path.join(avant, os.path.basename(chemin)))
     for cle in cibles:
         shutil.copy2(neuf[cle], cibles[cle])
+    # UNE ANNÉE NOUVELLE se déclare dans l'application (HORAIRE_ANNEES), sans
+    # quoi son horaire serait installé et jamais lu ; la CI (ci-smoke.py)
+    # vérifie que la liste et data/ concordent. Le 20/10/2026, 2027.
+    html = open(page, encoding="utf-8").read()
+    la = re.search(r"var HORAIRE_ANNEES=\[([\d,\s]*)\];", html)
+    annees_page = [int(x) for x in re.findall(r"\d{4}", la.group(1))] if la else []
+    if la and annee not in annees_page:
+        html = html.replace(la.group(0), "var HORAIRE_ANNEES=[%s];"
+                            % ",".join(str(a) for a in sorted(annees_page + [annee])), 1)
+        open(page, "w", encoding="utf-8").write(html)
+        print("Année %d ajoutée à HORAIRE_ANNEES dans index.html." % annee)
     texte = open(sw, encoding="utf-8").read()
     m = re.search(r'var V = "nfdm-v(\d+)";', texte)
     if m:
@@ -306,8 +355,10 @@ def main():
     if r.returncode != 0:
         print(r.stdout)
         for nom in os.listdir(avant):
-            dest = sw if nom == "sw.js" else os.path.join(data, nom)
+            dest = sw if nom == "sw.js" else page if nom == "index.html" else os.path.join(data, nom)
             shutil.copy2(os.path.join(avant, nom), dest)
+        for c in nouveaux:          # une année qui n'existait pas : retirée
+            os.remove(c)
         print("\nLE GARDE-FOU DU DÉPÔT ÉCHOUE : les fichiers d'avant sont remis en place.")
         return 1
     # Les abonnements agenda (cal/<id>.ics), réécrits sur l'horaire installé :

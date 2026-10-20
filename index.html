@@ -7120,10 +7120,11 @@ function netMoisPrecedent(C){
   var M=DERNIER_ECRIT["months/"+key(y,i)]||lsGet("months/"+key(y,i));
   /* Un mois d'avant jamais ouvert n'est pas stocké : on le lit dans
      l'horaire, comme le pré-remplissage le ferait, sans rien enregistrer. */
-  if((!M || !M.days || !Object.keys(M.days).length) && HORAIRE_DB && Number(HORAIRE_DB.year)===y){
+  var dbM=HORAIRE_DB?horaireDe(y):null;
+  if((!M || !M.days || !Object.keys(M.days).length) && dbM && !dbM.projete){
     var idp=trigCourant(), pp=null;
-    HORAIRE_DB.people.forEach(function(x){ if(x.id===idp) pp=x; });
-    if(pp){ M=mergeDefaults({days:{}},DEF_M); try{ remplirMois(HORAIRE_DB,pp,y,i,M); }catch(e){ M=null; } }
+    dbM.people.forEach(function(x){ if(x.id===idp) pp=x; });
+    if(pp){ M=mergeDefaults({days:{}},DEF_M); try{ remplirMois(dbM,pp,y,i,M); }catch(e){ M=null; } }
   }
   if(!M || !M.days || !Object.keys(M.days).length) return null;
   M=JSON.parse(JSON.stringify(M));
@@ -8170,7 +8171,17 @@ function viderMois(){
 
 /* ===================== horaire d'équipe (pré-remplissage) ===================== */
 var HORAIRE_DB=null, horaireFetching=null;
-var HORAIRE_URL="./data/horaire-2026.json";
+/* UN CLASSEUR PAR ANNÉE. Le client, le 20/10/2026, envoie le récapitulatif
+   2027 (« il faudra faire la même chose que pour le 2026 ») : chaque année
+   se lit dans le sien (HORAIRES, par année), et horaireDe() ne prolonge les
+   cycles qu'au-delà du dernier reçu. HORAIRE_DB reste l'année COURANTE —
+   celle du jour de l'usine, ou la plus proche avant lui — que lisent les
+   écrans du jour (équipe, compteurs, effectifs). Ajouter une année, c'est
+   l'ajouter ici. */
+var HORAIRE_ANNEES=[2026,2027];
+var HORAIRES={};
+function horaireUrl(an){ return "./data/horaire-"+an+".json"; }
+var HORAIRE_URL=horaireUrl(HORAIRE_ANNEES[0]);
 /* RECYCLAGES OFFICIELS (RH). Le compteur de polyvalence comptait jusqu'ici les
    JOURS planifiés au poste — un proxy, deux à quatre fois trop haut. Le client,
    le 06/10/2026, a fourni le classeur RH officiel « Suivi des recyclages » :
@@ -8240,11 +8251,11 @@ function lireHoraire(url,frais){
     return r.json();
   });
 }
-function purgerHoraire(){
+function purgerHoraire(url){
   if(!window.caches || !caches.keys) return Promise.resolve();
   return caches.keys().then(function(ks){
     return Promise.all(ks.map(function(k){
-      return caches.open(k).then(function(c){ return c.delete(HORAIRE_URL); });
+      return caches.open(k).then(function(c){ return c.delete(url||HORAIRE_URL); });
     }));
   }).catch(function(){});
 }
@@ -8287,13 +8298,31 @@ function corrigerAutoRemplacements(db){
 function fetchHoraireDB(){
   if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
   if(horaireFetching) return horaireFetching;
-  horaireFetching=lireHoraire(HORAIRE_URL).catch(function(){
-    return purgerHoraire().then(function(){
-      return lireHoraire(HORAIRE_URL+"?reprise="+Date.now(),true);
+  /* Chaque année se lit à part, avec sa reprise : une année illisible
+     n'empêche pas les autres de vivre (au-delà de la dernière lue, les
+     cycles prolongent). Il n'y a d'alerte que si AUCUNE ne se lit. */
+  function lireAnnee(an){
+    var url=horaireUrl(an);
+    return lireHoraire(url).catch(function(){
+      return purgerHoraire(url).then(function(){
+        return lireHoraire(url+"?reprise="+Date.now(),true);
+      });
+    }).then(function(db){
+      if(!db || !db.people || !db.people.length || Number(db.year)!==an) return null;
+      corrigerAutoRemplacements(db);
+      return db;
+    },function(){ return null; });
+  }
+  horaireFetching=Promise.all(HORAIRE_ANNEES.map(lireAnnee)).then(function(l){
+    var ju=jourUsine().getFullYear(), db=null;
+    HORAIRES={};
+    l.forEach(function(x){ if(x) HORAIRES[Number(x.year)]=x; });
+    l.forEach(function(x){
+      if(!x) return;
+      /* l'année du jour ; sinon la dernière avant lui ; sinon la première */
+      if(!db || (Number(x.year)<=ju && (Number(db.year)>ju || Number(x.year)>Number(db.year)))) db=x;
     });
-  }).then(function(db){
-    if(!db || !db.people || !db.people.length) throw new Error("horaire vide");
-    corrigerAutoRemplacements(db);
+    if(!db) throw new Error("horaire vide");
     HORAIRE_DB=db; alerteHoraire(false);
     /* On attend les recyclages officiels avant de rendre la main : ainsi le
        premier calcul de polyvalence les a déjà, et son résultat mémoïsé n'est
@@ -8375,7 +8404,9 @@ function renderPrefillSelects(db){
 /* Plages horaires de l'horaire d'équipe dont le poste correspondant est
    confirmé : 6h-14h est le matin, 7h-15h et l'horaire flottant sont payés
    comme un poste de jour (cf. SHIFT_HEURES). Clés sous forme normalisée. */
-var HORAIRE_PLAGES={"6h-14h":"AM","7h-15h":"D","8h30-16h30":"D","hflott":"D"};
+/* « H. flot. », un seul t : la même chose, écrite ainsi 144 fois dans le
+   classeur 2027 (20/10/2026). */
+var HORAIRE_PLAGES={"6h-14h":"AM","7h-15h":"D","8h30-16h30":"D","hflott":"D","hflot":"D"};
 function normPlage(tok){
   return tok.toLowerCase().replace(/[ '.]/g,"").replace(/(^|-)0(\d)/g,"$1$2");
 }
@@ -9462,15 +9493,18 @@ function calageLong(p,annee,finTs){
   if(tot/j.length>=PROJ_SEUIL) return {nom:"2 semaines", motif:motif, k:0, ok:tot};
   return null;
 }
-/* L'horaire d'une année : celui du classeur, ou, pour une année qui le
-   suit, celui que les cycles prolongent. null avant le classeur. */
+/* L'horaire d'une année : celui de son classeur (HORAIRES), ou, pour une
+   année qui suit le DERNIER classeur lu, celui que ses cycles prolongent.
+   null avant le premier. */
 var _projCache={};
 function horaireDe(annee){
-  var db=HORAIRE_DB, y, out, t, n, x, L, dt;
+  var db=HORAIRE_DB, y, out, t, n, x, L, dt, k;
   annee=Number(annee);
   if(!db) return null;
+  if(HORAIRES[annee]) return HORAIRES[annee];
   y=Number(db.year);
   if(annee===y) return db;
+  for(k in HORAIRES) if(HORAIRES.hasOwnProperty(k) && Number(k)>y){ y=Number(k); db=HORAIRES[k]; }
   if(!(annee>y)) return null;
   out=_projCache[annee];
   if(out && out.__src===db) return out;
@@ -10329,19 +10363,21 @@ function prefillFromHoraire(){
     if(stt && st.params.statut!==stt){
       st.params.statut=stt; save("params",st.params,true);
     }
-    /* Une année après le classeur se lit dans les cycles prolongés
-       (horaireDe) ; une année avant lui ne se lit nulle part. */
+    /* Chaque année se lit dans son classeur ; une année après le dernier,
+       dans les cycles prolongés (horaireDe) ; une année avant le premier ne
+       se lit nulle part. */
     var dbA=horaireDe(st.y);
     if(!dbA){
       prefillEnCours=false; st.personD=null; st.personCt=null; st.personObj=null;
-      flash("L'horaire d'équipe commence en "+db.year+", pas en "+st.y);
+      flash("L'horaire d'équipe commence en "+AN_MIN+", pas en "+st.y);
       return;
     }
     if(dbA!==db){
       person=dbA.people.filter(function(p){return p.id===id;})[0];
       if(!person){
         prefillEnCours=false; st.personD=null; st.personCt=null; st.personObj=null;
-        flash("Pas de cycle à prolonger pour "+id+" en "+st.y+" : le classeur "+st.y+" le dira");
+        flash(dbA.projete?"Pas de cycle à prolonger pour "+id+" en "+st.y+" : le classeur "+st.y+" le dira"
+                         :id+" n'est pas dans le classeur "+st.y);
         return;
       }
       db=dbA;
@@ -10899,6 +10935,32 @@ function _pfInfos(p){
 function soldeFTClasseur(f){
   f=f||{}; var v=(f.total!==undefined)?f.total:f.report;
   return R(Number(v)||0,2);
+}
+/* LES SOLDES D'UNE ANNÉE NEUVE NE SONT PAS ENCORE SAISIS. Le client, le
+   20/10/2026, en envoyant le classeur 2027 : « faire attention aux
+   compteurs car je ne sais pas s'ils les ont déjà mis à jour, ça
+   m'étonnerait ». Mesuré : 16 personnes sur 75 y ont un solde au 1er
+   janvier (78 sur 78 en 2026), et 5 sur 76 un total de flex time, sans
+   rapport avec les restes de 2026 — alors que les congés déjà posés y sont,
+   d'où des « restants » négatifs (−56 h de VA). Tant que la moitié des
+   personnes au moins n'a pas de solde, l'année se dit « soldes pas encore
+   saisis » : on montre ce qui est posé, ni restant ni solde de flex time.
+   Et le client, le même jour : « il ne faut pas se fier aux compteurs 2027
+   pour le moment ». Une année ne passe donc pour saisie que si le client
+   l'a dit (COMPTEURS_FIABLES) ET si la mesure le confirme : un classeur
+   rempli à moitié ne lève pas la garde. 2027 s'ajoute ici quand il le dit. */
+var COMPTEURS_FIABLES=[2026];
+function soldesSaisis(db){
+  if(!db || !db.people) return false;
+  if(db.__soldes!==undefined) return db.__soldes;
+  if(COMPTEURS_FIABLES.indexOf(Number(db.year))<0) return (db.__soldes=false);
+  var n=0, ok=0;
+  db.people.forEach(function(p){
+    var s=p.c&&p.c.solde, k, t=0; if(!s) return;
+    n++; for(k in s) if(s.hasOwnProperty(k)) t+=Math.abs(Number(s[k])||0);
+    if(t>0) ok++;
+  });
+  return (db.__soldes=(n>0 && ok*2>=n));
 }
 function soldesConges(c){
   var solde=(c&&c.solde)||{}, prev=(c&&c.prevision)||{}, reste=(c&&c.restant)||{}, out=[];
@@ -12038,7 +12100,7 @@ function dirRH(db){
     Object.keys(P.conges).forEach(function(k){ so.conges[k]=(so.conges[k]||0)+P.conges[k]; });
     so.ops.push(opRec);
   });
-  _dirRHcache={y:y, team:T, status:S, allOps:allOps, total:total, sched:schedTot};
+  _dirRHcache={y:y, team:T, status:S, allOps:allOps, total:total, sched:schedTot, saisis:soldesSaisis(db)};
   return _dirRHcache;
 }
 function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Équipe "); }
@@ -12109,7 +12171,8 @@ function dirCongesHTML(rh){
   var t1=dirTblHTML(["VA","RTT","RHS"], teams.map(function(k){ var c=rh.team[k].conges; return {label:dirTeamLabel(k), cells:[Math.round(c.VA||0),Math.round(c.RTT||0),Math.round(c.RHS||0)]}; }));
   var t2=dirTblHTML(["VA","RTT","RJF"], teams.map(function(k){ var r=rh.team[k].restant; return {label:dirTeamLabel(k), cells:[Math.round((r.VA||0)/8),Math.round((r.RTT||0)/8),Math.round((r.RJF||0)/8)]}; }));
   return '<div class="dir-subh">Consommés sur l\'année (jours)</div>'+t1
-    +'<div class="dir-subh">Solde restant (jours)</div>'+t2;
+    +'<div class="dir-subh">Solde restant (jours)</div>'
+    +(rh.saisis===false?'<p class="lede" style="padding:0">Soldes '+rh.y+' pas encore saisis dans le classeur.</p>':t2);
 }
 function dirFerWeHTML(rh){ return dirTblHTML(["Fériés","Week-ends"], dirTeams(rh.team).map(function(k){ var o=rh.team[k]; return {label:dirTeamLabel(k), cells:[o.fer||0,o.we||0]}; })); }
 function dirHsFtHTML(rh){ return dirTblHTML(["Heures sup","Flex time"], dirTeams(rh.team).map(function(k){ var o=rh.team[k], ft=Math.round(o.ft||0); return {label:dirTeamLabel(k), cells:[Math.round(o.hs||0)+' h',(ft>0?"+":"")+ft+' h']}; })); }
@@ -14309,7 +14372,7 @@ function renderEquipe(){
         if(b<=a) b+=24;
         return [a,b];
       }
-      if([raw[0],raw[1]].some(function(v){ return /flott/i.test(String(v||"")); }))
+      if([raw[0],raw[1]].some(function(v){ return /flot(t|\b)/i.test(String(v||"")); }))
         /* « H.fl. » et non « H. flot. » : l'étiquette tient alors sur une
            ligne, comme « ATR 7-15 » (le client, le 29/09/2026). */
         lib="H.fl.";
@@ -18096,11 +18159,17 @@ function renderCompteurs(){
         +'<div class="cr-v">'+val+(unite?'<small>'+unite+'</small>':'')+(leg?'<em>'+leg+'</em>':'')+'</div>'
         +(extra||'')+'</div>';
     }
-    var lc=[], dejaVu={}, totRs=0;
+    var lc=[], dejaVu={}, totRs=0, saisis=soldesSaisis(db);
     soldesConges(c).forEach(function(o){
       var k=o.k, tot=o.tot, pose=o.pose, rs=o.rs;
-      dejaVu[k]=1; if(rs>0) totRs+=rs;
+      dejaVu[k]=1;
       var lib=libCompteur(db,k); if(lib===k && LIB_CPT_LONG[k]) lib=LIB_CPT_LONG[k];
+      if(!saisis){
+        lc.push(rangee("",k,lib==k?k:lib,pose?'Solde '+annee+' pas encore saisi':'Rien de posé',
+          num(R(pose/8,2)),'j',num(pose)+' h posées'));
+        return;
+      }
+      if(rs>0) totRs+=rs;
       var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
       var bar='<div class="cr-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div>';
       lc.push(rs===0
@@ -18116,7 +18185,11 @@ function renderCompteurs(){
     var f=c.flex||{};
     var ecartP=(f["+FT"]!==undefined)?R(calc.ftPlus-f["+FT"],2):null;
     var ecartM=(f["-FT"]!==undefined)?R(calc.ftMoins-(-f["-FT"]),2):null;
-    if(jusqua){
+    if(jusqua && !saisis){
+      lc.push(rangee("","FT","Flex time",
+        '<b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises',
+        '—','','report '+(annee-1)+' pas encore saisi','','Le classeur '+annee+' ne porte pas encore le report du flex time.'));
+    }else if(jusqua){
       var soldeJ=soldeFTClasseur(f),
           etat=soldeJ>104?["ko","Au-delà de 104 h"]
               :soldeJ>80?["att","À redescendre"]
@@ -18170,7 +18243,8 @@ function renderCompteurs(){
     if(lc.length){
       var totJ=R(totRs/8,2);
       h.push(bloc("Congés","1 jour = 8 h",
-        '<div class="cr-tot" title="Soldes '+(annee-1)+' compris"><b>'+num(totJ)+'<small>'+(totJ>1?'jours':'jour')+'</small></b><span>'+(totRs?(totJ>1?'restants':'restant')+', soit '+num(R(totRs,2))+' h':'tout est placé')+'</span></div>'
+        (saisis?'<div class="cr-tot" title="Soldes '+(annee-1)+' compris"><b>'+num(totJ)+'<small>'+(totJ>1?'jours':'jour')+'</small></b><span>'+(totRs?(totJ>1?'restants':'restant')+', soit '+num(R(totRs,2))+' h':'tout est placé')+'</span></div>'
+          :'<p class="cpt-chk">Les soldes '+annee+' ne sont pas encore saisis dans le classeur : seuls les congés déjà posés sont comptés.</p>')
         +'<div class="cr-l">'+lc.join("")+'</div>'
         +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
     }
@@ -18591,7 +18665,10 @@ function _deviceId(){
    CDT, NPI et MGY sont intérimaires (le 06-07/10/2026) ; NPE est ouvrier (marqué
    intérim à tort). N'affecte que l'affichage (pas l'ONSS : intérimaire = ouvrier
    côté paie). */
-var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", MGY:"Intérimaire", NPE:"Ouvrier"};
+/* DCI (le client, le 20/10/2026) : « opérateur ouvrier chaudière, absent de
+   longue durée, il n'apparaît plus dans les horaires 2026 » — il revient
+   dans le classeur 2027 : un retour, pas une arrivée. */
+var STATUT_CLIENT={CDT:"Intérimaire", NPI:"Intérimaire", MGY:"Intérimaire", NPE:"Ouvrier", DCI:"Ouvrier"};
 /* LES NOUVEAUX COMMENCENT TOUJOURS INTÉRIMAIRES. Le client, le 09/10/2026,
    devant SLI affiché « Ouvrier ». Le classeur le dit à sa façon : les
    opérateurs sans ligne dans la feuille « Polyvalence » sont exactement les

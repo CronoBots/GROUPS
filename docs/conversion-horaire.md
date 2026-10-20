@@ -146,7 +146,8 @@ Dans cet ordre, le premier qui répond gagne :
 1. **Le commentaire nomme un poste** — `?AM`, `?PM`, `?N`, `?D` → ce poste.
    Il l'emporte sur le code franc : la journée a été modifiée.
 2. **Le commentaire donne une plage dont l'équivalence est confirmée** —
-   `6h-14h` → AM ; `7h-15h`, `8h30-16h30`, `H. flott.` → D.
+   `6h-14h` → AM ; `7h-15h`, `8h30-16h30`, `H. flott.` → D. (`H. flot.`,
+   un seul t, s'écrit 144 fois dans le classeur 2027 : la même chose.)
 3. **Le code franc de la cellule** — `AM`, `PM`, `N`, `D`.
 4. **Déduire le poste de la plage horaire** (uniquement si rien ci-dessus) :
    - le poste dont **le début coïncide** avec le début de la plage
