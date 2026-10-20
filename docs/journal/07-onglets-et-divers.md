@@ -495,3 +495,23 @@ retirer la rend à l'utilisateur. Trois exceptions restent à lui :
 `calage` (que l'onglet Contrôle recalcule sur sa propre fiche), tout ce qui
 est marqué `personal:true`, et les montants du mois.
 
+
+## Les nouveaux opérateurs d'office dans les tableaux (20/10/2026)
+
+Le client : « supprimer l'explication dans le bas des recyclages, ajouter
+les nouveaux opérateurs automatiquement dans les tableaux de statut et de
+formation (DCI, LCO etc.) ». La ligne « Chaque case : jours relevés par
+l'app / recyclages enregistrés par les RH… » est retirée ; reste « Se
+termine : … » quand une polyvalence finit. Mesuré : les arrivées de 2026
+(CDT, MGY, NPI, SLI) étaient déjà dans les deux tableaux — le classeur les
+écrit « Opérateurs en formation ». Manquaient qui n'est que dans le
+classeur d'une année suivante (DCI, 2027 seulement : ni statut ni
+formation, les tableaux ne lisant que l'année en cours) et une arrivée
+rangée d'emblée dans une équipe. `gensAVenir()` ajoute les premiers,
+marqués de leur année ; `nouvelOperateur()` (pas cadre ; sans ligne dans
+« Polyvalence » ou venu d'une année suivante) les met au tableau de
+formation. Éprouvé : DCI « Chaud. · Équipe 4 · dès 2027 » en formation,
+« Ouvr. » au statut ; 10 opérateurs en formation au lieu de 9. LCO n'est
+dans aucun classeur — un seul commentaire le nomme, le 26/10 (« Visite du
+site avec LCO (intérimaire chaudières) ») : il viendra avec sa colonne.
+L'effectif n'en dépend pas (vérificateur et polyvalence identiques).
