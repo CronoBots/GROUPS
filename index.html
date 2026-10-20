@@ -12092,6 +12092,11 @@ function icsPlier(l){
   out.push(cur);
   return out.join("\r\n ");
 }
+function icsSequence(stamp){
+  var m=/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/.exec(String(stamp||""));
+  if(!m) return 0;
+  return Math.max(0,Math.round((Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-Date.UTC(2026,0,1))/60000));
+}
 function icsAgenda(id,debut,nJours,stamp){
   function f2(n){ return (n<10?"0":"")+n; }
   function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
@@ -12132,7 +12137,16 @@ function icsAgenda(id,debut,nJours,stamp){
        le 14/10/2026), majuscule en tête comme sur l'Accueil. */
     var com=comAffiche(x.raw).replace(/[ \t]+/g," ").trim();
     if(com) ev.push("DESCRIPTION:"+icsTexte(com.charAt(0).toUpperCase()+com.slice(1)));
-    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp);
+    /* UN NUMÉRO DE RÉVISION (le client, le 20/10/2026 : « sur l'agenda de
+       mon ami sur Android, il n'a toujours pas le commentaire pour le
+       falling film »). Le fichier publié portait la note depuis le 19/10 ;
+       Google Agenda, lui, garde un événement déjà importé tant que rien ne
+       lui dit qu'il a changé. SEQUENCE et LAST-MODIFIED le disent : le
+       numéro est le nombre de minutes entre le 1er janvier 2026 et
+       l'horodatage du classeur, donc croissant d'un classeur à l'autre et
+       identique pour un même classeur — un horaire inchangé donne toujours
+       les mêmes fichiers à l'octet. */
+    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+icsSequence(stamp));
     L=L.concat(ev.map(icsPlier)); L.push("END:VEVENT"); n++;
   }
   L.push("END:VCALENDAR");
