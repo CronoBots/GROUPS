@@ -4444,10 +4444,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   #jourCorps .eqp2 td .eqc{display:grid; grid-template-columns:repeat(2,max-content); justify-content:center; align-items:start; gap:4px}
   #jourCorps .eqp2 td .eqc:has(> :only-child){grid-template-columns:max-content}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn{margin:0; width:auto; justify-self:stretch}
-  /* deux colonnes : qui tient le poste, puis qui s'y forme */
-  #jourCorps .eqp2 td .eqc.deux{grid-template-columns:repeat(2,max-content)}
-  #jourCorps .eqp2 td .eqcol{display:flex; flex-direction:column; gap:4px}
-  #jourCorps.eqhote .eqp2 tbody td .eqcol>.eqn{margin:0; width:auto}
+  /* la case vide qui pousse l'apprenti en bas à droite */
+  #jourCorps .eqp2 td .eqc .eqtrou{display:block}
+  #jourCorps .eqp2 td .eqc.aform{grid-template-columns:repeat(2,max-content)}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin-top:0}
 }
 @media (max-width:360px){
@@ -4457,8 +4456,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 }
 @media (min-width:761px){
   #jourCorps .eqp2 td .eqc{display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:6px}
-  #jourCorps .eqp2 td .eqcol{display:flex; flex-wrap:wrap; justify-content:center; gap:6px}
-  #jourCorps.eqhote .eqp2 tbody td .eqcol>.eqn{margin:0}
+  #jourCorps .eqp2 td .eqc .eqtrou{display:none}
   #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn,#jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin:0}
 }
 @media (min-width:761px){
@@ -15090,11 +15088,18 @@ function renderEquipe(){
           /* Une étiquette « ? » par place vide, au lieu du compte « 1 / 2 »
              (le client, le 29/09/2026). */
           var mqH=mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"";
+          /* Puis, le même jour : « celui en formation doit être mis en bas à
+             droite ; s'ils sont 4, il faut qu'il y en ait un en poste
+             au-dessus de lui ». La grille se remplit ligne par ligne, ceux
+             qui tiennent d'abord, les apprentis à la fin ; si le compte est
+             impair, une case vide (.eqtrou, au téléphone seulement) précède
+             les apprentis, pour que le dernier tombe en bas à droite. */
           var gauche=tientH.join("")+relH+mqH, plein=!!(o.gens.length||mq||(o.relais&&o.relais.length));
+          var nG=tientH.length+(o.relais||[]).length+(mq?Math.max(1,aP-o.tenu):0);
+          var trou=(formH.length && nG && (nG+formH.length)%2)?'<span class="eqtrou" aria-hidden="true"></span>':'';
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +(!plein ? '<span class="eqvide">\u2014</span>'
-              : formH.length && gauche ? '<div class="eqc deux"><div class="eqcol">'+gauche+'</div><div class="eqcol">'+formH.join("")+'</div></div>'
-              : '<div class="eqc">'+gauche+formH.join("")+'</div>')
+              : '<div class="eqc'+(formH.length?' aform':'')+'">'+gauche+trou+formH.join("")+'</div>')
             +"</td>");
         }));
         tp.push("</tr>");
