@@ -1191,3 +1191,13 @@ compteAuPoste, la même polyvalence que le rééquilibrage), ceux d'un poste
 en surnombre d'abord. Le 21/10 : « Place vide · Terrain arrière AM (0/1) ·
 Proposé : SMA · Peuvent le tenir : SMA (fermentation, en surnombre) · AAI
 (distillation) ».
+
+**La bulle d'une place vide, mise en forme** (même jour, `nfdm-v860`). Le
+client : « supprime les mots place vide et optimise le rendu des
+propositions ». La bulle n'est plus une phrase où le proposé revenait deux
+fois : un titre (« Terrain arrière · AM · 0/1 »), puis un candidat par
+ligne — son badge, pointillé orange pour la proposition, le poste qu'il
+tient, « proposé » ou « en surnombre » — le proposé d'abord, puis le
+surnombre (`bulleCandidatsHTML()`, données en `data-cand`). Une première
+version nommait ses classes `cpt-…`, déjà prises par les compteurs : le
+titre sortait en capitales. Renommées `cdp-…`.

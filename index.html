@@ -3394,6 +3394,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--ink); color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
 .eqhote .eqp2 tbody td .eqn.coment-actif b{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){ .compop{transition:none} }
+/* la bulle des candidats d'une place vide (bulleCandidatsHTML) */
+.compop.cdp{white-space:normal; min-width:200px}
+.compop.cdp .cdp-t{display:block; font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:6px}
+.compop.cdp .cdp-l{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.compop.cdp li{display:flex; align-items:center; gap:8px}
+.compop.cdp .eqn{display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; min-width:calc(3ch + 12px); height:24px; padding:0 4px;
+  font:700 12px/1 "IBM Plex Mono",monospace; border-radius:6px; background:var(--surface3); border:1px solid var(--trait); color:var(--ink)}
+.compop.cdp .eqn.app{border-style:dashed; border-color:#F2994A}
+.compop.cdp .eqn.form b{color:var(--at-jaune)}
+.compop.cdp .cdp-de{flex:1 1 auto; font-size:12px; color:var(--ink2)}
+.compop.cdp em{font-style:normal; font-size:11px; font-weight:600; white-space:nowrap}
+.compop.cdp .cdp-pr{color:#F2994A} .compop.cdp .cdp-su{color:var(--good)}
+.compop.cdp .cdp-vide{font-size:12px; color:var(--muted)}
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
    place ; sur téléphone ils restent l'un sous l'autre (sa demande du
@@ -15043,6 +15056,7 @@ function renderEquipe(){
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
           /* comblable par un changement proposé : orange, pas rouge */
           if(mq) cl.push(o.propose?"propose":"manque");
+          var cdP=mq?candidatsPlace(v,P,g.k,jourCalc,o,aP):null;
           /* LES BADGES DANS UNE GRILLE (.eqc, le client, le 20/10/2026 : « il
              y a moyen de mieux disposer les badges trigramme non ? ») : deux
              colonnes au téléphone, alignées d'une ligne à l'autre, deux
@@ -15061,7 +15075,7 @@ function renderEquipe(){
             /* Une étiquette « ? » bordée de rouge par place vide, au lieu
                du compte « 1 / 2 » (le client, le 29/09/2026) : la même que
                dans la recherche. */
-            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(candidatsPlace(v,P,g.k,jourCalc,o,aP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
+            +(mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"")
             +(o.gens.length||mq||(o.relais&&o.relais.length)?"</div>":'<span class="eqvide">\u2014</span>')
             +"</td>");
         }));
@@ -16895,26 +16909,37 @@ function texteTransfert(x,t,raison){
    autre trou), et la proposition de l'application s'il y en a une. La
    même polyvalence que le rééquilibrage, rien de plus. */
 function candidatsPlace(vue,P,gk,jour,oP,aP){
-  var c=[], prop=[];
+  var c=[];
   (vue.postes||[]).forEach(function(o){
     if(o.P.k===P.k) return;
     var surn=o.attendu?effectif(o.gens,o.P,jour)>o.attendu:true;
     o.gens.forEach(function(x){
       if(x.deD || x.depuisD) return;
       if(!peutTenir(x.p,P,jour) || !compteAuPoste(x,P,jour)) return;
-      if(x.propose===P.k) prop.push(idLisible(x.p.id));
-      c.push({t:idLisible(x.p.id)+" ("+o.P.t.toLowerCase()+(surn?", en surnombre":"")+")", s:surn?0:1});
+      c.push({id:idLisible(x.p.id), de:o.P.t, s:!!surn, pr:x.propose===P.k, f:enFormation(x.p,jour)});
     });
   });
   (vue.inconnus||[]).forEach(function(x){
-    if(peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour)) c.push({t:idLisible(x.p.id)+" (poste à déterminer)", s:0});
+    if(peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour)) c.push({id:idLisible(x.p.id), de:"poste à déterminer", s:true, pr:false});
   });
-  c.sort(function(a,b){ return a.s-b.s || (a.t<b.t?-1:1); });
-  var t="Place vide · "+P.t+" "+gk+" ("+oP.tenu+"/"+aP+")";
-  if(prop.length) t+="\nProposé : "+prop.join(", ");
-  t+=c.length ? "\nPeuvent le tenir : "+c.map(function(x){ return x.t; }).join(" · ")
-              : "\nPersonne de la pause n'a cette polyvalence.";
-  return t;
+  /* le proposé d'abord, puis qui est en surnombre, puis les autres */
+  c.sort(function(a,b){ return (b.pr-a.pr) || (b.s-a.s) || (a.id<b.id?-1:1); });
+  return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c};
+}
+/* LA BULLE D'UNE PLACE VIDE mise en forme (le client, le 20/10/2026 :
+   « supprime les mots place vide et optimise le rendu des propositions »).
+   Le titre dit le poste, la pause et le compte ; dessous, un candidat par
+   ligne : son badge (pointillé orange pour la proposition de
+   l'application), le poste qu'il tient, et « proposé » ou « en surnombre ».
+   Plus de liste en phrase où le proposé revenait deux fois. */
+function bulleCandidatsHTML(d){
+  var h='<b class="cdp-t">'+esc(d.t)+'</b>';
+  if(!d.l.length) return h+'<span class="cdp-vide">Personne de la pause n\'a cette polyvalence.</span>';
+  return h+'<ul class="cdp-l">'+d.l.map(function(x){
+    return '<li><span class="eqn'+(x.pr?' app':'')+(x.f?' form':'')+'"><b>'+esc(x.id)+'</b></span>'
+      +'<span class="cdp-de">'+esc(x.de)+'</span>'
+      +(x.pr?'<em class="cdp-pr">proposé</em>':x.s?'<em class="cdp-su">en surnombre</em>':'')+'</li>';
+  }).join("")+'</ul>';
 }
 /* Les transferts d'une journée, pause par pause (AM, PM, N). */
 function transfertsDuJour(db,annee,m,j){
@@ -17292,7 +17317,9 @@ function eqBouge(n){
        nettoyerAffichage(). Ne touche QUE ce qui est montré ; data-com reste brut. */
     com=nettoyerAffichage(com);
     fermer();                                   /* referme et dé-surligne l'ancien */
-    var p=bulle(); p.textContent=com;
+    var p=bulle(), cand=chip.getAttribute("data-cand");
+    if(cand){ try{ p.innerHTML=bulleCandidatsHTML(JSON.parse(cand)); p.classList.add("cdp"); }catch(e){ p.textContent=com; } }
+    else { p.textContent=com; p.classList.remove("cdp"); }
     p.classList.remove("sous");
     p.style.visibility="hidden"; p.classList.add("on"); p.style.left="0"; p.style.top="0";
     var r=chip.getBoundingClientRect(), pr=p.getBoundingClientRect();
