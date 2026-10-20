@@ -562,3 +562,13 @@ Constat en passant : aucun classeur d'horaire n'était arrivé seul depuis le
 16/10 à 11 h 09, et le dossier OneDrive « Horaire auto » était vide la nuit
 du 20/10 avant la copie à la main. La cause n'est pas établie ; les
 journaux de copie diront demain si la tâche de 8 h copie bien.
+
+**Tout regroupé dans un dossier OneDrive « BIOWANZE »** (20/10/2026, à la
+demande du client) : `Horaire auto`, `Recyclage auto` et `cache.vbs`, le
+dossier marqué « Toujours conserver sur cet appareil ». Les deux actions de
+la tâche ont reçu les nouveaux chemins (script et destination). Les deux
+flux Power Automate aussi — **piège** : le déclencheur OneDrive Entreprise
+« When a file is modified » refuse un chemin TAPÉ (`BadRequest`, « Invalid
+fileId ») ; le dossier se choisit au sélecteur (icône, Root › BIOWANZE ›
+dossier), qui enregistre son identifiant. Éprouvé par le client : « ça
+fonctionne ».
