@@ -2911,3 +2911,32 @@ que si elle n'a pas changé. Mesuré : le 26/10, GPO en distillation PM, JBI
 contremaître de nuit, le manque de contremaître de nuit disparaît (21 → 20
 journées, 23 → 22 places creuses) ; 4 lignes de `--placement --tout`
 changent, toutes le 26/10 ; le 27/09, VGG reste au terrain arrière.
+
+## L'audit du Planning sur toute l'année (20/10/2026)
+
+Le client, après GPO le 26/10 : « vérifie le reste, ce sont des fautes
+graves ». Le contrôle a été mesuré AU NAVIGATEUR, jour par jour sur 2026 (le tableau tel
+qu'il est affiché, `#jourCorps`), contre ce que chaque cellule écrit :
+
+- **poste écrit** (« disti », « gluten », « ferm. liq »…) : 994 journées.
+  Le moteur seul en contredisait 27 (rééquilibrage : le polyvalent fixé
+  par sa cellule cédé au mono-polyvalence, règle du 02/10). Au tableau,
+  après les propositions sans déplacement, il en restait 10 : le retour se
+  faisait au poste ATTITRÉ, et seulement s'il différait du poste visé — FPS
+  le 06/07, « N gluten », porté au terrain arrière, son habitude, n'en
+  revenait pas. Corrigé : le rééquilibrage note le poste d'avant
+  (`x.avant`), et le retour s'y fait. Dernier cas, celui de JBI le 21/08, dont le poste
+  d'avant (adjoint) n'avait plus de case : elle est recréée. **Reste 1 sur
+  994** : VGG le 27/09 au terrain arrière, décision du client du 26/09.
+- **remplacements d'une journée entière** (« remplace X » sans heure ni
+  cascade, 421) : aucun mal placé une fois écartés les faux signalements —
+  R-CM en contremaître, cascades (« (absence GDT) »), relais de 12 h
+  affichés en case fusionnée (JBI le 30/01, FPA le 06/07, LAA le 25/07).
+- **R-CM partiels rangés en adjoint** : question au client
+  (`docs/questions-client.md`).
+
+**Une erreur de mesure, la mienne** : le premier relevé lisait la page
+60 ms après chaque changement de jour, pendant l'animation où l'ancien et
+le nouveau tableau coexistent — 448 « doublons » (601 sur l'ancienne
+version), tous faux. Relevé refait en attendant un seul tableau : les seuls
+doublons sont les deux GBT, deux personnes au même trigramme (4 jours).
