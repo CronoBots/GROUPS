@@ -974,18 +974,27 @@ def contrats(cl, feuille, colonne, annee=None):
             continue
         bouts = [m for m in CONTRAT.finditer(txt)]
         if not bouts:
-            # Sans pourcentage, seul un code explicite fait un contrat ; le
+            # Sans pourcentage, seul un code explicite fait un contrat. Le
             # reste du pied de feuille — jours fériés non pris, notes de
-            # planification — vit dans l'export intégral, pas ici.
+            # planification — est gardé comme NOTE, sans rien de compris :
+            # l'application le montre tel quel (le client, le 20/10/2026 :
+            # « tout ce qui figure dans le fichier doit s'y retrouver »).
             if re.search(r"\b(CP|TP|CT)\b", txt, re.I):
                 d, fin = _periode(txt, annee)
                 out.append({"txt": txt, "l": ligne, "d": d, "fin": fin})
+            else:
+                out.append({"txt": txt, "l": ligne, "note": True})
             continue
         for i, m in enumerate(bouts):
             arret = bouts[i + 1].start() if i + 1 < len(bouts) else len(txt)
             bout = txt[m.start():arret]
             fiche = {"txt": txt if len(bouts) == 1 else bout.strip(),
                      "l": ligne}
+            # Le commentaire ENTIER sur le premier morceau d'un commentaire
+            # découpé : c'est lui que l'application montre, les morceaux ne
+            # servent qu'au calcul.
+            if len(bouts) > 1 and i == 0:
+                fiche["tout"] = txt
             pct = int(m.group(2))
             code = (m.group(1) or "").upper()
             if code:

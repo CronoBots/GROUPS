@@ -1409,6 +1409,15 @@ la structure a bougé et les compteurs sont ignorés plutôt que lus de travers.
 | `flex` | 409-430 | compteurs flex time, détail de 1 h à 8 h puis totaux |
 | `conges` | 431-440 | CP et « à planifier », dont la position varie |
 
+**Les commentaires du pied de feuille vont dans `ct`** (`contrats()`), avec
+le texte tel qu'écrit. Un contrat réduit porte sa fraction (`f`) et sa
+période ; un commentaire découpé en plusieurs périodes garde le texte
+entier sur son premier morceau (`tout`) ; un commentaire sans contrat —
+jours fériés à reprendre, heures retirées — est une **note** (`note: true`),
+sans rien de compris. Le client, le 20/10/2026 : « tout ce qui figure dans
+le fichier doit s'y retrouver ». L'application les montre dans « Mes
+compteurs », « Contrat et notes du classeur ».
+
 Dans le bloc des prévisions, un libellé qui revient est un total et prend le
 suffixe `Total` : VBN a 40 h de RTT en journées entières plus 14 h prises à
 l'heure, soit `RTT: 40` et `RTTTotal: 54`.
