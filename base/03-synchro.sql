@@ -13,7 +13,7 @@ alter table biowanze.synchros enable row level security;
 create or replace function biowanze.cle_robot(p_cle text) returns boolean
 language sql immutable set search_path = '' as $$
   select encode(extensions.digest(coalesce(p_cle,''),'sha256'),'hex')
-       = '14c71b1d41e83372565d3b7ad1a05321a2c5059e9218e3d83cf022e12fb1aeca'
+       = '292e079ae143e8da9c64d3320047ffd15cd9fe2de9a4a05a53292257f349ee0c'
 $$;
 revoke all on function biowanze.cle_robot(text) from public, anon, authenticated;
 

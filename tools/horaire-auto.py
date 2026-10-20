@@ -625,6 +625,16 @@ def notifications(avant_h, avant_r, installes):
     return out
 
 
+def synchro_base():
+    """LA BASE BIOWANZE (étape 2, 20/10/2026) : l'horaire installé y est
+    recopié quand sa version diffère — à CHAQUE passage, e-mail ou non : la
+    première version ne la recopiait qu'après une installation, et le
+    passage sans e-mail s'arrêtait avant. Jamais d'échec pour elle."""
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
+                       cwd=RACINE, capture_output=True, text=True)
+    etat((r.stdout or "").strip() or "Base : non recopiée.")
+
+
 def main():
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
     avant_h, avant_r = horaires_installes(), _lire(RECYC)
@@ -687,7 +697,8 @@ def main():
                 continue
             lots.append((genre, source, uids))
         if not lots:
-            etat("Aucun e-mail « %s » ni « %s » : rien à faire." % (SUJET, SUJET_RECYC))
+            etat("Aucun e-mail « %s » ni « %s » : rien à installer." % (SUJET, SUJET_RECYC))
+            synchro_base()
             return 0
 
     resultats = []     # (genre, uids, code, sujet, corps, installé, quand, année)
@@ -739,11 +750,7 @@ def main():
                                    cwd=RACINE, capture_output=True, text=True)
                 etat((n.stdout or "").strip() or "Notifications : non envoyées.")
 
-    # LA BASE BIOWANZE (étape 2, 20/10/2026) : l'horaire installé y est
-    # recopié quand sa version diffère. Jamais d'échec pour elle.
-    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
-                       cwd=RACINE, capture_output=True, text=True)
-    etat((r.stdout or "").strip() or "Base : non recopiée.")
+    synchro_base()
 
     code = 0
     for genre, uids, c, sujet, corps, inst, quand, _an in resultats:
