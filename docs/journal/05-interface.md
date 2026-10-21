@@ -1621,3 +1621,37 @@ compteurs »** : le total des congés reste en tête, c'est le résumé de
 tous les compteurs et il ne double une ligne que lorsqu'un seul compteur
 a un solde ; **« Prochain poste »** : la date reste, le billet du 18/10
 est le dessin du client et l'en-tête du téléphone ne montre pas la date.
+
+### Le contrôle « UI UX Pro Max » (21/10/2026, `nfdm-v911`)
+
+Le client : « check avec le nouveau skill ». La liste de contrôle avant
+livraison du skill (`references/pro-rules.md`) a été traduite en mesures
+au navigateur, sur chaque écran à 375 px (son « petit téléphone ») et
+1280 px : contraste de chaque texte contre son fond réel (4,5:1, 3:1 en
+grand), cibles du doigt de 44 px, boutons à icône sans nom, champs sans
+libellé, images sans texte, émojis en guise d'icônes, défilement
+horizontal, zoom, mouvement réduit, focus visible.
+
+Avant : 90 textes sous le contraste minimal, 220 cibles de moins de
+44 px ; aucun bouton sans nom, aucun champ sans libellé, aucune image
+sans texte, aucun émoji, pas de défilement horizontal, mouvement réduit
+et focus visible présents. **Erreur de mesure rattrapée** : le premier
+calcul prenait un fond à 2,5 % d'opacité pour du blanc pur (les
+week-ends du relevé à « 1,7:1 ») ; les fonds se composent désormais
+couche par couche.
+
+Corrigé : dans le thème sombre, les pastilles de pause (fond clair) et
+les compteurs de présents passent à l'encre foncée (de 2,1-2,7:1 à plus
+de 6:1), les pastilles de nombre orange de même ; l'orange et le
+sarcelle du calendrier, un ton plus soutenus (3,9 et 4,1 → 4,5:1 et
+plus) ; tirets et points des cases vides au gris lisible. Au téléphone,
+44 px pour les petits boutons, les bascules, les flèches, les champs du
+Salaire, des Réglages et de la Recherche, les en-têtes de mois, le menu
+et la croix de l'espace RH, les lignes « Mes pauses » et celles de
+l'explication du salaire. Après : **0** texte sous le contraste,
+**0** cible sous 44 px hors les cases du calendrier (43 px de large :
+sept colonnes à 375 px) ; aucun défilement horizontal, aucune erreur.
+
+Laissé, et pourquoi : **le zoom reste bloqué** — la règle du skill dit
+l'inverse, mais c'est une décision du client (06/10/2026 : « désactiver
+absolument le zoom in/out même au double clic »).
