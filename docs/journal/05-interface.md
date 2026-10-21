@@ -1950,3 +1950,45 @@ parallèles ; en attendant leurs rapports :
   (pointer:fine)`) : mode d'emploi du Salaire, consigne de l'Horaire
   production, aide des compteurs du Personnel. Le guide d'installation
   garde « Touchez » : il décrit un téléphone.
+
+### « Vraiment adapté au PC », les trois audits (22/10/2026, `nfdm-v923`)
+
+Trois audits parallèles des 51 captures (l’accueil, le planning et les équipes ;
+le salaire, les effectifs, la recherche, les réglages et la direction ;
+l’espace RH), chaque
+constat revu sur la capture avant d'être appliqué.
+
+Appliqué (au-delà de 1100 px, sauf mention) :
+- Accueil : le passage de « Mes pauses » à droite dès 1240 px (v914) est
+  RETIRÉ — à 1280 la colonne de gauche finissait 140 px plus haut ;
+  jusqu'à 1599 px la fiche reprend sa disposition du 20/10, dès 1600 elle
+  est en trois colonnes. Calendrier et compteurs à la même hauteur ;
+  « Mon rythme » sur 1 200 px, mois et jours en 11 px (9 et 10 avant).
+- Équipes : en-têtes du recyclage en 12 px (9,5 avant), « Opérateurs hors
+  équipe » en 11 px.
+- Horaire production : la rangée de boutons passe à la ligne (on ne voyait
+  rien après « Gluten » à 1280) ; l'en-tête des noms colle à celui des
+  postes (une bande de 3 à 4 px laissait voir le corps défiler).
+- Dans l’espace RH : les outils d'en-tête collés à droite ; recherche du
+  Personnel à 420 px ; l'historique vide en 900 px ; au tableau de bord, le
+  second « Ouvrir le planning » retiré et la pastille « AM » à 11 px ; dès
+  1500 px, la table des absences à 1 100 px et les onglets des demandes à
+  760 px.
+- Direction : la largeur de la carte, les tuiles en rangées pleines (cinq
+  par rangée à 1920), sans redire le logo du menu.
+- Recherche : la carte à 1 100 px au plus, centrée.
+- Effectifs : les sous-effectifs et les absents au même rythme de colonnes
+  (360 et 300 px) ; une grille essayée sur les rappels évitables rétrécissait
+  l'en-tête du mois — retirée (photographié).
+- Salaire : le bouton « Renseigner mon contrat » sous la phrase ; les
+  libellés du relevé en 11,5 px ; l'échelle du flex time en 11 px.
+
+Non appliqué, et pourquoi : élargir le Planning du jour à 1 240 px (le
+client le trouvait trop grand ; 1 000 px voulus) ; masquer les boutons
+ronds de l'Horaire production (l'outil du client les a) ; deux colonnes
+aux Réglages et une refonte de « Du brut au net » (pas de défaut de
+lecture, seulement de la place).
+
+Mesuré après : aucune police utile sous 10,5 px à 1280 et 1920 px (21
+avant), aucun défilement horizontal de page à 320, 390, 1280 et 1920 px,
+aucune erreur ; seul l'Horaire production défile dans sa zone, comme voulu.
