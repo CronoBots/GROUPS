@@ -898,3 +898,10 @@ et la sélection sont retirés, les « six chiffres » des textes aussi : on
 valide au bouton ou par Entrée, quelle que soit la longueur. Éprouvé au
 navigateur avec un code de huit chiffres ; parcours entier rejoué, aucune
 erreur.
+
+**Première notification reçue (21/10/2026).** Le client a posé le secret
+`VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
+d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
+soit rouvert, a été refusé par Apple (400 « VapidPkHashMismatch » : abonné
+avec l'ancienne clé) ; après la réouverture, l'application s'est
+réabonnée seule et l'essai est passé (201), reçu sur le téléphone.
