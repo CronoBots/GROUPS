@@ -132,7 +132,10 @@ IGNORES = ("tools/formes-admises.txt",)
 # des formes admises ; on l'écarte, LUI SEUL.
 # Le 22/10/2026, find-skills (vercel-labs/skills) : un fichier d'instructions
 # anglais, lu en entier avant d'entrer, mêmes en-têtes, même raison.
-TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/")
+# Le même jour, supabase-postgres-best-practices (Supabase) : 36 fichiers
+# Markdown anglais de règles Postgres, lus en entier, même raison.
+TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/",
+         ".claude/skills/supabase-postgres-best-practices/")
 
 
 def _tiers(chemin):
