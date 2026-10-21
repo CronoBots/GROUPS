@@ -1606,3 +1606,18 @@ l'affichage. Téléphone et tablette ne changent pas (mesuré à 390 et
 bord, pas de défilement horizontal ; Gestion → Tableau de bord (espace à
 248 px, section cochée, pastille « 1 »), → Personnel, puis l'onglet
 Salaire referme l'espace, puis Réglages ; aucune erreur.
+
+### « Valide toujours tout seul » (21/10/2026, `nfdm-v908`)
+
+Le client : « j'aimerais que tu valides toujours tout seul et pousser sur
+Notion et GitHub ; on perd un temps fou car je ne fais pas attention que
+tu ne progresses pas tant que je n'ai pas validé ». La règle est dans
+CLAUDE.md. Les trois choix laissés en suspens au tour précédent sont
+tranchés : **légende de l'Équipe du jour** ajoutée au PC (vous, en
+formation, commentaire, changement de poste proposé, relais 12 h, place
+vide — le sens lu dans le code qui pose chaque repère ; au téléphone le
+tableau tient sur un écran au pixel près, pas de place) ; **« Mes
+compteurs »** : le total des congés reste en tête, c'est le résumé de
+tous les compteurs et il ne double une ligne que lorsqu'un seul compteur
+a un solde ; **« Prochain poste »** : la date reste, le billet du 18/10
+est le dessin du client et l'en-tête du téléphone ne montre pas la date.
