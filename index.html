@@ -5245,15 +5245,16 @@ html .eqleg-souris{display:none}
   html #ryPr .pf-pr-c:nth-child(n+3){border-top:1px solid rgba(255,255,255,.07)}
   html #ryPr .pf-pr-c:nth-child(even){border-left:1px solid rgba(255,255,255,.07)}
 }
-/* Le logo sur toute la largeur du menu (le client, le 22/10/2026 : « sur PC,
+/* Le logo dans la colonne du menu (le client, le 22/10/2026 : « sur PC,
    le logo doit prendre toute la largeur de la colonne de menu et pas
-   besoin de réécrire BIOWANZE ») : le logo porte déjà le nom ; le titre
+   besoin de réécrire BIOWANZE », puis « le logo peut être plus petit et
+   centré horizontalement ») : 96 px de haut, centré ; le logo porte déjà le nom ; le titre
    reste pour les lecteurs d'écran. L'ordre des blocs du menu est fixé par
    la feuille, quel que soit l'ordre du document. */
 @media (min-width:1100px){
   html .top>.top-in{order:0} html .top>.mnav{order:1} html .top>.tabs{order:2}
   html .top>.side-gestion{order:3} html .top>.side-pied{order:4}
-  html .top .brand .blogo{flex:0 0 100%; width:100%; height:auto; max-height:none; margin:0 0 4px}
+  html .top .brand .blogo{flex:0 0 100%; width:100%; height:96px; max-height:none; object-fit:contain; object-position:center; margin:2px 0 8px}
   html .top .bmark h1{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 }
 /* LE PLANNING AU PC (le client, le 22/10/2026 : « il ne faut pas de
@@ -5629,11 +5630,9 @@ html .eqleg-souris{display:none}
   <!-- ============ COMPTEURS ============ -->
   <!-- ============ ÉQUIPE ============ -->
   <section class="panel stack" id="v-equipe" role="tabpanel" aria-labelledby="tab-equipe" tabindex="-1" hidden>
-    <!-- Le planning des équipes, qui remplace le classeur (le client, le 21/10/2026). -->
-    <div class="card pad gr-entree">
-      <div><b>Planning des équipes</b><span>Toutes les équipes, jour par jour : postes, congés, absences et présents par pause.</span></div>
-      <button type="button" class="btn" data-ouvrir-grille="planning">Ouvrir</button>
-    </div>
+    <!-- La carte « Planning des équipes » est retirée de l'onglet Équipes
+         (le client, le 22/10/2026 : « Planning des équipes ne doit pas
+         apparaître dans Équipes ») : il s'ouvre par le menu. -->
     <!-- L'ORGANISATION, et non la journée. Le client, le 22/09/2026 :
          « l'onglet Équipe doit reconstruire les équipes (équipes 1 à 5
          complètes par poste) et les binômes (adjoint, contremaître), plus
@@ -14446,11 +14445,14 @@ function wsBadge(){
   if(!b) return; var i=b.querySelector(".ws-pastille"); if(i) i.remove();
   if(n){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=n; b.appendChild(s); }
 }
+function dmRemplacee(x){ return x.statut==="annulee"&&/^Remplacée par la demande/.test(x.motif_refus||""); }
+/* modifiable par son auteur tant que ni le contremaître ni la RH ne l'a visée */
+function dmModifiable(x){ return x.a_moi&&x.statut==="en_attente"&&!x.cm&&!x.rh; }
 function dmStatut(x){
   if(dmATraiter(x)) return '<span class="dm-st dm-afaire">'+(dmAccordAttendu(x)?'À signer':'À viser')+'</span>';
   if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
-  if(x.statut==="annulee") return '<span class="dm-st">Annulée</span>';
+  if(x.statut==="annulee") return '<span class="dm-st">'+(dmRemplacee(x)?'Modifiée':'Annulée')+'</span>';
   return '<span class="dm-st dm-att">En attente</span>';
 }
 function dmEtapes(x){
@@ -14489,7 +14491,7 @@ function dmCarte(x,valideur){
   var act='';
   if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour signer</button></div>';
   else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour viser</button></div>';
-  else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike" data-dm-annuler="'+x.id+'">Annuler ma demande</button>':'')+'</div>';
+  else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike" data-dm-annuler="'+x.id+'">Annuler ma demande</button>':'')+'</div>';
   return '<article class="dm-carte'+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
     +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<b class="dm-moi">Ma demande</b>')+dmStatut(x)+'</header>'
     +'<div class="dm-quoi"><span class="dm-form">'+esc(DM_FORMS[f].t)+'</span><b>'+esc(dmPeriode(x.du,x.au))+'</b></div>'
@@ -14499,7 +14501,8 @@ function dmCarte(x,valideur){
     +(x.texte?'<p class="dm-texte">« '+esc(x.texte)+' »</p>':'')
     +(visa.length?'<p class="dm-visa">'+visa.map(esc).join(" · ")+'</p>':'')
     +(x.statut==="refusee"&&x.motif_refus?'<p class="dm-texte dm-motif">Motif : '+esc(x.motif_refus)+'</p>':'')
-    +dmEtapes(x)+act+'</article>';
+    +(dmRemplacee(x)?'<p class="dm-texte">'+esc(x.motif_refus)+'.</p>':'')
+    +(x.statut==='annulee'?'':dmEtapes(x))+act+'</article>';
 }
 function renderDemandes(){
   var hote=document.getElementById("wsDem"), val=peutSaisir();
@@ -14510,11 +14513,15 @@ function renderDemandes(){
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; });
   var onglets=val?[["traiter","À traiter",l.filter(dmATraiter).length],["attente","En attente",l.filter(function(x){ return x.statut==="en_attente"; }).length],["toutes","Toutes",0],["miennes","Les miennes",l.filter(function(x){ return x.a_moi; }).length]]
-    :[["miennes","Mes demandes",l.filter(function(x){ return x.a_moi; }).length]].concat(rempl.length?[["remplace","Je remplace",rempl.filter(dmAccordAttendu).length]]:[]);
+    :[["miennes","En cours",l.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length],["histo","Historique",0]].concat(rempl.length?[["remplace","Je remplace",rempl.filter(dmAccordAttendu).length]]:[]);
   if(onglets.length>1) h.push('<div class="pl-seg dm-onglets" id="dmOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.onglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
-  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi:GR.onglet==="remplace"?x.je_remplace:true; });
+  /* l'opérateur : « En cours » (ses demandes en attente) et « Historique »
+     (acceptées, refusées, annulées, modifiées), les plus récentes d'abord */
+  var miennesEnCours=!val&&GR.onglet==="miennes";
+  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi&&(val||x.statut==="en_attente"):GR.onglet==="histo"?x.a_moi&&x.statut!=="en_attente":GR.onglet==="remplace"?x.je_remplace:true; });
+  if(GR.onglet==="histo") f=f.slice().sort(function(a,b){ return String(b.cree_le||"").localeCompare(String(a.cree_le||"")); });
   h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val&&!x.a_moi); }).join("")+'</div>'
-    :'<div class="ws-carte"><p class="ws-vide">'+(GR.onglet==="traiter"?'Rien à traiter : toutes les demandes ont reçu votre réponse.':GR.onglet==="miennes"?'Aucune demande pour l\'instant. « Nouvelle demande » pour poser un congé.':'Aucune demande.')+'</p></div>');
+    :'<div class="ws-carte"><p class="ws-vide">'+(GR.onglet==="traiter"?'Rien à traiter : toutes les demandes ont reçu votre réponse.':GR.onglet==="miennes"?(miennesEnCours?'Aucune demande en cours. « Nouvelle demande » pour poser un congé ; les demandes traitées sont dans l\'historique.':'Aucune demande pour l\'instant. « Nouvelle demande » pour poser un congé.'):GR.onglet==="histo"?'Aucune demande traitée pour l\'instant.':'Aucune demande.')+'</p></div>');
   hote.innerHTML=h.join("");
   dmBrancher();
   if(GR.dmForm){ var pf=GR.dmForm; GR.dmForm=null; dmFormulaire(pf); }
@@ -14655,13 +14662,18 @@ function dmFormulaire(pre){
   chargerCodes().then(function(codes){
     var dem=codes.filter(function(c){ return (c.famille==="conge"||c.famille==="recup")&&c.code!=="CSS"; });
     var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(x,y){ return (x.cat===(p&&p.cat)?0:1)-(y.cat===(p&&p.cat)?0:1)||(x.id<y.id?-1:1); });
-    var etat={f:pre.f||"courte", t:{pause:[],day:[]}, plus:0};
+    var mod=pre.modifier||null;
+    var etat={f:(mod&&mod.formulaire)||pre.f||"courte", t:{pause:[],day:[]}, plus:0, texte:mod?(mod.texte||""):""};
+    /* MODIFIER : la feuille se rouvre remplie de la demande en attente */
+    if(mod) dmLignes(mod).forEach(function(z){ var l={j:z.j}; if(z.pause) l.pause=z.pause; else l.code=z.code; if(z.rp) l.rp=z.rp;
+      var k=etat.f==="longue"&&(z.prevue||dmPrevue(moi,z.j))==="D"?"day":"pause"; etat.t[k].push(l); });
+    if(mod&&etat.f==="sans_solde") etat.plus=Math.max(0,etat.t.pause.length-DM_PAPIER.sans_solde.blocs[0].n);
     var np=(p&&grNom(p))||idLisible(moi||""), poste=p?(wsPosteEq(p).filter(Boolean)[0]||wsPoste(p)):"";
     var pn=dmPpOuvrir('<div class="dm-pp-choix" id="ppChoix" role="tablist">'
         +[["courte","Courte durée","remplacement, modif. de pause"],["longue","Longue durée","≥ 1 semaine"],["sans_solde","Sans solde",""]].map(function(z){ return '<button type="button" data-f="'+z[0]+'"><b>'+z[1]+'</b>'+(z[2]?'<small>'+z[2]+'</small>':'')+'</button>'; }).join("")+'</div>'
         +'<details class="dm-pp-aide"><summary>Remplir une période d\'un coup</summary><div class="dm-dates"><label>Du<input type="date" id="ppDu"></label><label>Au<input type="date" id="ppAu"></label></div><button type="button" class="btn" id="ppRemplir">Remplir les lignes</button><p class="pn-note">Seuls les jours de travail prévus s\'inscrivent, dans les lignes libres.</p></details>'
         +'<div class="dm-papier" id="ppFeuille"></div><div class="dm-apercu" id="ppInfo" hidden></div><p class="pn-note" id="ppErr"></p>',
-      '<button type="button" class="btn ss-ok" id="ppSigner">Signer et envoyer</button>');
+      '<button type="button" class="btn ss-ok" id="ppSigner">'+(mod?'Signer et envoyer la modification':'Signer et envoyer')+'</button>');
     function optsType(sel,pv){
       var o='<option value=""></option>'+dem.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===sel?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
       if(DM_PAPIER[etat.f].pause) o+='<optgroup label="Modification pause">'+DM_PAUSES.filter(function(k){ return k!==pv; }).map(function(k){ return '<option value="pause:'+k+'"'+(sel==="pause:"+k?' selected':'')+'>→ '+k+'</option>'; }).join("")+'</optgroup>';
@@ -14754,8 +14766,9 @@ function dmFormulaire(pre){
       if(bloquant.length) return;
       var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp; return o; });
       b.disabled=true; err.textContent="Envoi…";
-      baseRpc("biowanze_demander_formulaire",{p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""})
-        .then(function(){ grFermerPanneau(); flash("Demande signée et envoyée"+(lignes.some(function(l){ return l.rp; })?" : votre remplaçant, votre contremaître et la RH la recevront":" : votre contremaître et la RH la recevront")); GR.onglet="miennes"; return dmCharger().then(renderDemandes); })
+      (mod?baseRpc("biowanze_modifier_demande",{p_id:mod.id,p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""})
+           :baseRpc("biowanze_demander_formulaire",{p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""}))
+        .then(function(){ grFermerPanneau(); flash((mod?"Demande modifiée":"Demande signée et envoyée")+(lignes.some(function(l){ return l.rp; })?" : votre remplaçant, votre contremaître et la RH la recevront":" : votre contremaître et la RH la recevront")); GR.onglet="miennes"; return dmCharger().then(renderDemandes); })
         .catch(function(e){ b.disabled=false; err.textContent=baseMsg(e); });
     };
   }).catch(function(e){ flash("Demandes indisponibles : "+baseMsg(e)); });
@@ -14788,6 +14801,8 @@ function renderHisto(){
   g.querySelector(".ws-main").addEventListener("click",function(e){
     if(e.target.closest("#grZone")) return;
     var x=e.target.closest("[data-dm-voir]"); if(x){ dmFeuilleVoir(x.getAttribute("data-dm-voir")); return; }
+    x=e.target.closest("[data-dm-modifier]");
+    if(x){ var dx=(GR.demandes||[]).filter(function(z){ return String(z.id)===x.getAttribute("data-dm-modifier"); })[0]; if(dx) dmFormulaire({modifier:dx}); return; }
     x=e.target.closest("[data-dm-annuler]");
     if(x){ x.disabled=true; baseRpc("biowanze_annuler_demande",{p_id:Number(x.getAttribute("data-dm-annuler"))}).then(function(){ flash("Demande annulée"); return dmCharger().then(renderDemandes); }).catch(function(er){ x.disabled=false; flash(baseMsg(er)); }); return; }
     x=e.target.closest("[data-pers]"); if(x){ grPersonne(x.getAttribute("data-pers")); return; }

@@ -1820,3 +1820,7 @@ depuis la feuille) ; RH à 1280 (catégories, Direction depuis la Gestion
 et marquée, l'espace RH s'ouvre et se referme sur un onglet) ; 900 px
 inchangé. Aucun défilement horizontal, aucune erreur ; contraste et
 cibles à zéro partout, hors les cases du calendrier (connues).
+
+Le même jour, le client : « sur PC le logo peut être plus petit et centré
+horizontalement dans la colonne du menu ». 96 px de haut, centré
+(`object-fit:contain`), au lieu des 165 px de toute la largeur.
