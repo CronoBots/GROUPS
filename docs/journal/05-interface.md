@@ -1901,3 +1901,33 @@ lignes pour la RH, aucun pour l'opérateur ; le bouton des adjoints retire le
 groupe ; Gluten des cinq équipes ; survol ligne et colonne ; une case
 ouvre la saisie ; 2027 puis retour ; Vue journée) ; aucune erreur,
 aucun défilement horizontal de la page.
+
+### L'Accueil réorganisé (22/10/2026, `nfdm-v921`)
+
+Le client : « GO », à la proposition de réorganiser l'Accueil au PC.
+
+- **Retirés de l'Accueil, passés dans Réglages** : « Agenda du
+  téléphone » et « Les codes » — un réglage et une référence, dont on ne
+  se sert qu'une fois.
+- **« Mois par mois » retiré de Mon rythme** : le « jour par jour », juste
+  dessous, dit la même saison en plus précis (et le client l'aimait, le
+  20/10).
+- **Ajoutés, sous le héros** : « Ma semaine » (aujourd'hui et les six
+  jours suivants, la pause ou ce qui la remplace, un point quand la
+  journée porte un commentaire ; un toucher ouvre le jour) et « Mes
+  demandes » (celles en cours, avec leurs étapes ; « Nouvelle demande » et
+  « Mes demandes » ouvrent l'espace des demandes). Au PC, côte à côte,
+  dans les deux colonnes du calendrier et des compteurs.
+- **Ce qui n'a pas été fait de la proposition, et pourquoi** : la photo
+  du haut devait passer à ~90 px ; à 100 puis 140 px, le logo du bandeau
+  se coupait (photographié) — elle garde ses 190 px. Les trois colonnes
+  au PC rendaient le calendrier trop étroit à 1280 px (≈ 400 px) : Ma
+  semaine et Mes demandes se rangent dans les deux colonnes existantes.
+
+Mesuré à 1280 px : la page passe de 2 208 à 2 008 px, le calendrier
+monte de 631 à 758 px du haut, avec deux blocs utiles de plus.
+
+Le même jour, le style clair de l'ancienne page Équipes du client a été
+posé sur l'onglet Équipes, puis RETIRÉ à sa demande : « il faut garder le
+thème initial pour tous les onglets, sauf celui de l'horaire, que l'on
+optimisera ensemble ». Seul l'Horaire production a le style de l'outil.
