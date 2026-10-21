@@ -1687,3 +1687,21 @@ Laissé, et pourquoi : le zoom bloqué (décision du 06/10) et le bouton
 polyvalences, retirée le 03/10, n'est pas remise sans le client ; la
 carte « Planning des équipes » reste au PC tant que le menu de gauche ne
 mène pas à toutes ses vues.
+
+### Direction, un onglet et non plus une feuille (21/10/2026, `nfdm-v913`)
+
+Le client : « Direction doit s'afficher comme un onglet au lieu d'une
+feuille à part ». La vue s'ouvrait par-dessus tout (`position:fixed`,
+défilement de la page bloqué, croix pour fermer) : elle est désormais le
+panneau `#v-direction`, une vue comme les autres de `VIEWS`, choisie par
+`setView()` depuis la barre du bas, le menu de gauche au PC ou le bouton
+des Réglages ; la croix et la touche Échap n'ont plus lieu d'être. La
+carte sombre reste, posée dans la page. L'horloge s'arrête quand on
+quitte l'onglet. Une personne qui n'est pas RH n'y atterrit jamais, même
+si l'onglet était le dernier ouvert sur l'appareil.
+
+Éprouvé au navigateur : RH à 320, 390 et 1280 px, onglet sélectionné,
+aucun défilement horizontal, aucune erreur ; une section puis « ‹
+Direction » ramène à l'accueil de la vue ; Salaire puis Direction la
+rouvre ; un opérateur dont la dernière vue était Direction retombe sur
+l'Accueil, sans onglet Direction.
