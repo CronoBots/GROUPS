@@ -5081,6 +5081,58 @@ html .pvt thead th,html .pvt thead th.pvqui{font-size:10.5px}
   /* la bannière de l'Accueil n'occupe plus le tiers de l'écran */
   html .pf-couv{height:190px}
 }
+/* LE MENU DE CONTRÔLE À GAUCHE (le client, le 21/10/2026 : « sur PC cela
+   peut être une plateforme avec menu de contrôle complet sur la gauche »).
+   L'en-tête devient une colonne fixe de 248 px : la marque et le jour, les
+   sections de l'application, la Gestion (l'espace RH s'ouvre à DROITE du
+   menu, qui reste utilisable ; son propre menu se cache), et les Réglages
+   en bas. Le contenu prend le reste de la largeur. */
+.side-gestion,.side-pied{display:none}
+@media (min-width:1100px){
+  :root{--side:248px}
+  body{padding-left:var(--side)}
+  html .top{position:fixed; left:0; top:0; bottom:0; width:var(--side); z-index:60; display:flex; flex-direction:column; align-items:stretch;
+    padding:18px 12px 14px; border-bottom:0; border-right:1px solid rgba(255,255,255,.08); overflow-y:auto; transform:none;
+    box-shadow:inset -1px 0 0 rgba(255,255,255,.02)}
+  html .top>.top-in{flex:0 0 auto; max-width:none; margin:0; padding:0 4px 14px; border-bottom:1px solid rgba(255,255,255,.08)}
+  html .top .brand{flex-wrap:wrap; row-gap:8px; width:100%}
+  html .top .ident{flex-basis:100%; padding-left:0; margin-left:0; border-left:0; text-align:left; align-items:flex-start}
+  html .top>.tabs{flex:0 0 auto; flex-direction:column; align-items:stretch; max-width:none; margin:12px 0 0; padding:0; gap:2px}
+  html .top>.tabs button{display:flex; align-items:center; justify-content:flex-start; gap:12px; padding:10px 12px; border-radius:10px;
+    font-size:14px; font-weight:550; text-align:left; color:var(--muted)}
+  html .top>.tabs button svg{display:block; flex:0 0 auto; width:20px; height:20px}
+  html .top>.tabs button:hover{background:rgba(255,255,255,.05); color:var(--ink)}
+  html .top>.tabs button[aria-selected="true"]{background:var(--in-soft); color:var(--ink); font-weight:650}
+  html .top>.tabs button[aria-selected="true"] svg{color:var(--in)}
+  html .top>.tabs button[aria-selected="true"]::after{display:none}
+  html .top>.tabs .tabnb{position:static; margin:0 0 0 auto}
+  html .top>.tabs .tabnb.app{margin-left:4px}
+  html .top>.tabs .tabnb+.tabnb.app,html .top>.tabs .tabnb.app+.tabnb{margin-left:4px}
+  html .top>.tabs .dotwarn{margin-left:auto}
+  /* l'espace RH ouvert : c'est lui qui est sélectionné, pas l'onglet d'en dessous */
+  body.ws-ouvert .top>.tabs button[aria-selected="true"]{background:none; color:var(--muted); font-weight:550}
+  body.ws-ouvert .top>.tabs button[aria-selected="true"] svg{color:inherit}
+  .side-gestion{display:flex; flex-direction:column; gap:2px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08)}
+  .side-gestion[hidden]{display:none}
+  .side-titre{margin:0 12px 6px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .side-gestion button,.side-lien{display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border:0; border-radius:10px;
+    background:none; color:var(--muted); font:inherit; font-size:14px; font-weight:550; text-align:left; cursor:pointer}
+  .side-gestion button:hover,.side-lien:hover{background:rgba(255,255,255,.05); color:var(--ink)}
+  .side-gestion button[aria-current="page"]{background:var(--in-soft); color:var(--ink); font-weight:650}
+  .side-gestion button[aria-current="page"] svg{color:var(--in)}
+  .side-gestion svg,.side-lien svg{flex:0 0 auto}
+  .side-nb{margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
+  .side-nb[hidden]{display:none}
+  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid rgba(255,255,255,.08)}
+  body[data-view="reglages"] .side-lien[data-go="reglages"]{background:var(--in-soft); color:var(--ink)}
+  /* l'espace RH à droite du menu, sans son propre menu */
+  html .grille.ws{left:var(--side)}
+  html .grille.ws .ws-nav{display:none}
+  /* le tableau de bord en colonnes qui se remplissent : une carte longue
+     (les absents) ne creuse plus de trou sous les autres */
+  html .ws-grille{display:block; columns:3 300px; column-gap:14px}
+  html .ws-grille>.ws-carte{break-inside:avoid; margin:0 0 14px; display:block}
+}
 html .pvt td.pvsien{font-size:10.5px}
 /* l'Équipe du jour tient sur un écran au pixel près : ses sous-libellés
    ne grandissent qu'au-delà du téléphone (essayé à 10 px : les pastilles
@@ -5174,6 +5226,15 @@ html #calCard .mc-j[data-s] .mc-t.long,html #calCard .mc-j.abs:not(.mal):not(.pr
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.2"/><path d="M7.5 15v-3M12 15V9M16.5 15v-5"/></svg>
       Direction</button>
   </nav>
+  <!-- LE MENU DE CONTRÔLE DU PC (le client, le 21/10/2026 : « sur PC cela peut
+       être une plateforme avec menu de contrôle complet sur la gauche »).
+       Au-delà de 1100 px l'en-tête devient une colonne : la marque, les
+       sections, puis la Gestion (l'espace RH, ouvert à droite du menu) et,
+       en bas, les Réglages. Cachés en dessous. -->
+  <nav class="side-gestion" id="sideGestion" aria-label="Gestion" hidden></nav>
+  <div class="side-pied" id="sidePied">
+    <button type="button" class="side-lien" data-go="reglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Réglages</span></button>
+  </div>
 </header>
 <div class="navwrap" id="navwrap" hidden></div>
 
@@ -13739,7 +13800,7 @@ function ouvrirGrille(section,formulaire){
     if(!GR.vue) GR.vue=window.innerWidth<700?"semaine":"mois";
     grCaler(jourUsine());
     g.hidden=false; document.body.classList.add("sheet-on"); g.classList.toggle("edit",peutSaisir());
-    try{ inerteFond(true); }catch(e){}
+    if(!mqSide.matches) try{ inerteFond(true); }catch(e){}
     var a=compteBase()||{};
     document.getElementById("wsRole").textContent=peutSaisir()?(a.base==="rh"?"Espace RH":"Espace hiérarchie"):"Planning";
     document.getElementById("wsMoi").innerHTML=a.tri?'<span class="pl-tri">'+esc(idLisible(a.tri))+'</span><span><b>'+esc(idLisible(a.tri))+'</b><small>'+esc(BASE_ROLES[a.base]||"")+'</small></span>':'';
@@ -13760,6 +13821,7 @@ function fermerGrille(){
   document.getElementById("grille").hidden=true;
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
+  try{ sideMaj(); }catch(e){}
   /* une case modifiée : toute l'application relit l'horaire */
   if(GR.modifie){ try{ localStorage.removeItem("base/saisies"); }catch(e){} location.reload(); }
 }
@@ -13907,6 +13969,7 @@ function wsAller(s){
   document.getElementById("wsMenu").innerHTML=l.map(function(x){
     return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(x.s===s?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
   wsBadge();
+  try{ sideMaj(); }catch(e){}
   [].forEach.call(document.querySelectorAll("#grille .ws-s"),function(el){ el.hidden=el.getAttribute("data-s")!==s; });
   var act=document.querySelector('#wsMenu button[aria-current="page"]');
   if(act&&act.scrollIntoView) try{ act.scrollIntoView({block:"nearest",inline:"center"}); }catch(e){}
@@ -13930,7 +13993,8 @@ function wsQui(p){ var n=grNom(p), q=wsPosteEq(p);
    écrit le numéro de l'équipe */
 function wsPosteEq(p){
   var k=p.postes?Object.keys(p.postes):[], f=GR_FEUILLES.filter(function(x){ return k.indexOf(x[0])>=0; })[0];
-  if(!f) return [p.cat||"",""];
+  /* la catégorie telle que le classeur l'écrit, avec sa majuscule à l'affichage (« chaudières éq. 5 ») */
+  if(!f){ var c=String(p.cat||""); return [c.charAt(0).toUpperCase()+c.slice(1),""]; }
   var v=String(p.postes[f[0]].p||"");
   if(/^\d+$/.test(v)) return [f[0]==="Contremaître"?"Contremaître":f[1],"Équipe "+v];
   return [v,/^Shift/.test(f[0])?f[1]:""];
@@ -14167,6 +14231,7 @@ function dmATraiter(x){
 }
 function wsBadge(){
   var n=(GR.demandes||[]).filter(dmATraiter).length, b=document.querySelector('#wsMenu button[data-s="demandes"]');
+  var sn=document.getElementById("sideDemNb"); if(sn){ sn.hidden=!n; sn.textContent=n; }
   if(!b) return; var i=b.querySelector(".ws-pastille"); if(i) i.remove();
   if(n){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=n; b.appendChild(s); }
 }
@@ -21748,7 +21813,31 @@ function majQuiJeSuis(){
     else ct.textContent="Choisissez votre identifiant : votre horaire de l'année se remplit alors tout seul, et se remet à jour à chaque ouverture. Les personnes ne sont désignées que par leurs initiales ou leur matricule.";
   }
 }
+/* le menu de contrôle du PC : le groupe Gestion suit le compte */
+var mqSide=window.matchMedia("(min-width:1100px)");
+function sideMaj(){
+  var g=document.getElementById("sideGestion"); if(!g) return;
+  var l=compteBase()?wsSections():[];
+  g.hidden=!l.length;
+  var ouvert=!document.getElementById("grille").hidden;
+  g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
+    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Planning des équipes":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':'')+'</button>'; }).join(""):'';
+  document.body.classList.toggle("ws-ouvert",ouvert);
+  var n=(GR.demandes||[]).filter(dmATraiter).length, nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
+}
+(function(){
+  var g=document.getElementById("sideGestion");
+  if(g) g.addEventListener("click",function(e){ var b=e.target.closest("[data-side-ws]"); if(!b) return;
+    var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); });
+  /* au PC, un onglet de l'application referme l'espace qui est à droite du menu */
+  var t=document.querySelector("header.top .tabs");
+  if(t) t.addEventListener("click",function(){ if(!document.getElementById("grille").hidden) fermerGrille(); },true);
+  var p=document.getElementById("sidePied");
+  if(p) p.addEventListener("click",function(e){ if(e.target.closest("[data-go]")&&!document.getElementById("grille").hidden) fermerGrille(); },true);
+  setTimeout(function(){ try{ sideMaj(); }catch(e){} },0);
+})();
 function majCompteUI(){
+  try{ sideMaj(); }catch(e){}
   var el=document.getElementById("compteInfos"); if(!el) return;
   var acc=st.account||lsGet("account/current");
   var b=document.getElementById("btnDeconnexion"); if(b&&!b._wired){ b._wired=true; b.onclick=deconnecterCompte; }

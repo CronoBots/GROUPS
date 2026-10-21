@@ -1582,3 +1582,27 @@ Recherche vient de la langue du navigateur de test, pas d'un téléphone
 français ; les redites de « Mes compteurs » et du « Prochain poste », la
 légende de l'Équipe du jour et le regroupement des cartes d'Effectifs par
 mois touchent à des choix faits avec le client et attendent son avis.
+
+### Le menu de contrôle à gauche, au PC (21/10/2026, `nfdm-v907`)
+
+Le client : « sur PC cela peut être une plateforme avec menu de contrôle
+complet sur la gauche. Tout doit être optimisé. » Au-delà de 1100 px,
+l'en-tête devient une colonne fixe de 248 px, comme les applications RH du
+marché : la marque, le jour et le poste ; les sept sections de l'application (Effectifs garde
+ses deux pastilles) ;
+un groupe **Gestion** (« Mon équipe » pour un opérateur) qui ouvre les
+sections de l'espace RH (Demandes y porte le nombre à traiter) et,
+en bas, les Réglages. L'espace RH s'ouvre À DROITE du menu, qui reste
+utilisable (le fond n'est plus rendu inerte au PC) ; son propre menu se
+cache ; un onglet de l'application ou les Réglages le referment. La
+sélection suit : l'onglet sous l'espace ouvert s'efface au profit de la
+section de Gestion. Le tableau de bord passe en colonnes qui se remplissent
+(la carte des absents ne creuse plus de trou). La catégorie écrite en
+minuscule par le classeur (« chaudières éq. 5 ») prend sa majuscule à
+l'affichage. Téléphone et tablette ne changent pas (mesuré à 390 et
+1000 px : pas de menu latéral, contenu à 0 px du bord).
+
+Éprouvé au navigateur à 1280 px, Supabase simulé : contenu à 248 px du
+bord, pas de défilement horizontal ; Gestion → Tableau de bord (espace à
+248 px, section cochée, pastille « 1 »), → Personnel, puis l'onglet
+Salaire referme l'espace, puis Réglages ; aucune erreur.
