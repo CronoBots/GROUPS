@@ -1992,3 +1992,27 @@ lecture, seulement de la place).
 Mesuré après : aucune police utile sous 10,5 px à 1280 et 1920 px (21
 avant), aucun défilement horizontal de page à 320, 390, 1280 et 1920 px,
 aucune erreur ; seul l'Horaire production défile dans sa zone, comme voulu.
+
+### Revenir en arrière depuis une demande, au téléphone (22/10/2026, `nfdm-v924`)
+
+Le client : « quand je regarde une demande sur mobile, pas possible de
+revenir en arrière ». Reproduit au navigateur (390 px, tactile) : la
+feuille s'ouvre en plein écran ; le geste « retour » du téléphone QUITTAIT
+la page entière (l'application ne posait aucune étape dans l'historique) ;
+et la croix, à 17 px du haut d'une feuille qui commence au bord de
+l'écran, tombait sous la barre d'état dans l'application installée.
+
+- Ouvrir une feuille (panneau) ou l'espace RH pose une étape dans
+  l'historique ; « retour » referme la feuille, puis l'espace, dans
+  l'ordre — même procédé que le guide d'installation. Refermer par un
+  bouton retire l'étape (un seul `history.go(-n)` pour plusieurs), pour
+  que le retour suivant ne sorte pas de l'application.
+- L'en-tête de la feuille laisse la place de la barre d'état
+  (`env(safe-area-inset-top)`), un bouton « ‹ Retour » bien visible à
+  gauche, la croix à 44 px.
+
+Éprouvé : 1er retour → feuille fermée, espace ouvert ; 2e → espace
+fermé, toujours dans l'application ; « ‹ Retour » et la croix ferment la
+feuille ; un retour ensuite ferme l'espace sans quitter la page ; aucune
+erreur, et les parcours des demandes (`dm3.js`, `dmod.js`), du menu et de
+l'Horaire production passent.
