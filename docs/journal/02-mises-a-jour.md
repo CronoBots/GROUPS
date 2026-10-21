@@ -1155,6 +1155,11 @@ connexion ». Retirée de `base/email-code.html` ; le client la retire dans
 Supabase. Erreur de ma part : ce texte caché avait été présenté comme un
 plus « professionnel ». Si rien n'arrive encore, la quarantaine Outlook
 et l'envoi depuis un domaine de l'entreprise.
+Mesuré à 04 h 50 UTC dans la boîte d'envoi du robot (connecteur Gmail) :
+le code part bien de Gmail, sans aucun retour d'erreur, mais le message
+porte TOUJOURS le `<div style="display:none…">` : Supabase garde l'ancien
+modèle, le dépôt seul avait été corrigé. Le client doit supprimer cette
+ligne dans « Magic Link » et dans « Confirm signup ».
 
 **Le planning dans le sens du classeur, et le téléphone d'abord
 (21/10/2026, `nfdm-v896`).** Le client : « le module RH doit être fait dans
