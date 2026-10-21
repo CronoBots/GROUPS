@@ -1924,8 +1924,11 @@ Le client : « GO », à la proposition de réorganiser l'Accueil au PC.
   au PC rendaient le calendrier trop étroit à 1280 px (≈ 400 px) : Ma
   semaine et Mes demandes se rangent dans les deux colonnes existantes.
 
-Mesuré à 1280 px : la page passe de 2 208 à 2 008 px, le calendrier
-monte de 631 à 758 px du haut, avec deux blocs utiles de plus.
+Mesuré à 1280 px, photo à 190 px : la page passe de 2 208 à 2 058 px ;
+le calendrier, lui, DESCEND de 631 à 808 px du haut, sous Ma semaine et
+Mes demandes. Une première version de cette entrée disait « 2 008 px, le
+calendrier monte à 758 » : mesuré avec la photo à 140 px, elle était
+fausse et est corrigée ici.
 
 Le même jour, le style clair de l'ancienne page Équipes du client a été
 posé sur l'onglet Équipes, puis RETIRÉ à sa demande : « il faut garder le
