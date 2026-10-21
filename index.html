@@ -5423,6 +5423,22 @@ html .hp-fab:hover{opacity:1}
   html #v-horaire>#semCard{grid-column:1}
   html #v-horaire>#demCard{grid-column:2}
 }
+/* L'ACCUEIL SUR GRAND ÉCRAN (« optimise tout pour que ce soit vraiment
+   adapté au PC », le 22/10/2026). Dès 1600 px, la fiche du haut passe en
+   trois colonnes — le poste, l'année et le cycle, mes pauses — au lieu de
+   laisser vide le bas de la colonne de gauche ; Ma semaine et Mes demandes,
+   côte à côte, prennent la même hauteur. */
+@media (min-width:1100px){ html #v-horaire>#semCard,html #v-horaire>#demCard{align-self:stretch} }
+@media (min-width:1600px){
+  html .pf-corps,html .pf-corps:has(.pf-pv){grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr); grid-template-rows:auto}
+  html .pf-corps>.pf-gauche,html .pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
+  html .pf-corps>#ryAn,html .pf-corps:has(.pf-pv)>#ryAn{grid-column:2; grid-row:1}
+  html .pf-corps>#ryPr,html .pf-corps:has(.pf-pv)>#ryPr{grid-column:3; grid-row:1; padding:0 12px 0 0; margin-top:4px}
+  html #ryPr .pf-pr{display:flex; flex-direction:column}
+  html #ryPr .pf-pr-c:nth-child(n){border-left:0}
+  html #ryPr .pf-pr-c+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
+  html #ryPr .ry-an-t:first-child{padding-top:14px}
+}
 </style>
 </head>
 <body>
@@ -5768,10 +5784,10 @@ html .hp-fab:hover{opacity:1}
         <details class="fold" id="foldSteps" data-memo>
         <summary>Vérifier sa fiche en quatre temps <span class="sub">le mode d'emploi</span></summary>
         <ol class="steps">
-          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Accueil, touchez une journée du mois pour la corriger : elle ne sera plus retouchée.</span></li>
+          <li><span><b>L'horaire est déjà là.</b> Il se remplit depuis l'horaire d'équipe et se remet à jour tout seul. Dans l'onglet Accueil, <span class="eqleg-tact">touchez</span><span class="eqleg-souris">cliquez</span> une journée du mois pour la corriger : elle ne sera plus retouchée.</span></li>
           <li><span><b>Complétez les montants du mois.</b> Primes, avance déjà reçue, treizième mois, pécule : ils se saisissent dans « Saisies du mois », juste dessous.</span></li>
           <li><span><b>Comparez.</b> Quand la vraie fiche arrive, recopiez ses dix montants dans « Comparer avec ma fiche », plus bas : chaque ligne se marque OK ou À vérifier.</span></li>
-          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, touchez n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
+          <li><span><b>Creusez un écart.</b> Dans la fiche simulée, <span class="eqleg-tact">touchez</span><span class="eqleg-souris">cliquez</span> n'importe quelle ligne pour lire d'où vient le chiffre et quelle règle l'a produit.</span></li>
         </ol>
         </details>
       </div>
@@ -14172,7 +14188,8 @@ function renderGrille(){
   var lg=document.getElementById("grLegende"), L=db.legende||{};
   if(lg) lg.innerHTML=Object.keys(L).filter(function(c){ return c!=="xxx"; }).map(function(c){ return '<span><b>'+esc(c)+'</b> : '+esc(L[c])+'</span>'; }).join("");
   var sous=document.getElementById("grSous");
-  sous.textContent=(peutSaisir()?"Touchez une case pour la modifier, un nom pour ses compteurs":"Touchez un nom pour ses compteurs")
+  var vb=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?"Cliquez":"Touchez";
+  sous.textContent=(peutSaisir()?vb+" une case pour la modifier, un nom pour ses compteurs":vb+" un nom pour ses compteurs")
     +" · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?");
 }
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
@@ -14476,7 +14493,7 @@ function renderPersonnel(){
       +'<td class="ws-n'+(fx<0?' ws-neg':'')+'" data-l="Flex (h)">'+(fx>0?'+':'')+fx+'</td></tr>');
   });
   if(!gens.length) h.push('<tr><td colspan="8" class="ws-vide">Personne ne correspond.</td></tr>');
-  h.push('</tbody></table></div><p class="ws-aide">Restants en heures : le solde au 01/01 du classeur, moins ce qui est posé sur l\'année. Touchez une ligne pour la fiche.</p>');
+  h.push('</tbody></table></div><p class="ws-aide">Restants en heures : le solde au 01/01 du classeur, moins ce qui est posé sur l\'année. <span class="eqleg-tact">Touchez</span><span class="eqleg-souris">Cliquez</span> une ligne pour la fiche.</p>');
   hote.innerHTML=h.join("");
   var ch=document.getElementById("wsChP");
   ch.oninput=function(){ GR.chercheP=this.value; var pos=this.selectionStart; renderPersonnel(); var c=document.getElementById("wsChP"); c.focus(); try{ c.setSelectionRange(pos,pos); }catch(e){} };

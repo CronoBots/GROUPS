@@ -1934,3 +1934,19 @@ Le même jour, le style clair de l'ancienne page Équipes du client a été
 posé sur l'onglet Équipes, puis RETIRÉ à sa demande : « il faut garder le
 thème initial pour tous les onglets, sauf celui de l'horaire, que l'on
 optimisera ensemble ». Seul l'Horaire production a le style de l'outil.
+
+### « Vraiment adapté au PC », première passe (22/10/2026, `nfdm-v922`)
+
+Le client : « optimise tout pour que cela soit vraiment adapté sur PC ».
+51 captures à 1280 et 1920 px (`audit-pc`), relues par trois audits
+parallèles ; en attendant leurs rapports :
+
+- **Le héros à 1920 px** laissait vide le bas de sa colonne de gauche,
+  sous « En poste » : dès 1600 px il passe en trois colonnes (le poste ;
+  l'année et le cycle ; mes pauses en liste). Mesuré : 615 → 520 px de
+  haut, le calendrier apparaît sans défiler.
+- **Ma semaine et Mes demandes**, côte à côte, prennent la même hauteur.
+- **« Touchez » devient « Cliquez » à la souris** (`(hover:hover) and
+  (pointer:fine)`) : mode d'emploi du Salaire, consigne de l'Horaire
+  production, aide des compteurs du Personnel. Le guide d'installation
+  garde « Touchez » : il décrit un téléphone.
