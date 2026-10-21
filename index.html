@@ -1234,6 +1234,23 @@ body{overflow-x:clip}
 .sheet-nav:hover,.sheet-fermer:hover{color:var(--ink); border-color:var(--in2)}
 .sheet-src{margin:0; padding:10px 16px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
 .sheet-src[hidden]{display:none}
+/* La saisie d'une journée par la RH et la hiérarchie (module 1, 21/10/2026) */
+.sheet-saisie{padding:10px 16px; border-bottom:1px solid var(--line2); background:var(--surface2)}
+.sheet-saisie[hidden]{display:none}
+.sheet-saisie .ss-ouvrir{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; color:var(--muted)}
+.ss-f{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ss-f label{display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:600; color:var(--muted); min-width:0}
+.ss-f select,.ss-f input,.ss-f textarea{font:inherit; font-size:15px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); min-width:0}
+.ss-f textarea{resize:vertical; min-height:56px}
+.ss-f .ss-large{grid-column:1 / -1}
+.ss-f input[hidden]{display:none}
+.ss-note{grid-column:1 / -1; font-size:12px; color:var(--out)}
+.ss-note:empty{display:none}
+.ss-act{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.ss-act .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650}
+.ss-act .sp{flex:1}
+.sheet-src .src-app{color:var(--in)}
+.sheet-src .cl{display:block; margin-top:4px; color:var(--faint)}
 .day.lu .shifts button:disabled,.day.lu .abs:disabled,.day.lu .hrs:disabled,.day.lu .rap:disabled{cursor:default; opacity:1}
 .day.lu .shifts button:disabled:not([aria-pressed="true"]){opacity:.45}
 .sheet-src b{font-family:"IBM Plex Mono",monospace; color:var(--ink2)}
@@ -5233,6 +5250,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       <button type="button" class="sheet-fermer" data-fermer="1" aria-label="Fermer">&times;</button>
     </header>
     <p class="sheet-src" id="sheetSrc"></p>
+    <div class="sheet-saisie" id="sheetSaisie" hidden></div>
     <div class="rota" id="rota"></div>
     <details class="aide"><summary>Comment lire cette ligne</summary><p class="lede">La journée est lue dans l'horaire d'équipe, tel que le classeur l'écrit : la pause allumée est celle de la prime payée (comme le code P du relevé de prestations), le menu montre le congé ou la maladie, le champ les heures payées. Elle se relit à chaque ouverture et ne se corrige pas ici. Seul le <b>vélo</b>, que le classeur n'écrit pas, se coche à la main.</p></details>
   </div>
@@ -7036,6 +7054,16 @@ function majFeuille(){
     h='<span class="src-t">Classeur</span>'+(bouts.length?bouts.join(" · "):"—")
       +(raw[2]?'<span class="com">'+esc(nettoyerAffichage(raw[2]))+'</span>':"");
   }
+  var pid=st.personObj&&st.personObj.id, md=pad2(st.m+1)+pad2(d), sai=pid?saisieDe(pid,st.y,md):null;
+  if(sai){
+    /* saisie dans l'application : elle passe avant le classeur, qui reste lisible à côté */
+    h=h.replace('<span class="src-t">Classeur</span>','<span class="src-t src-app">Saisi dans l\'application</span>')
+      +'<span class="cl">'+(sai.auteur?'par '+esc(sai.auteur)+', ':'')+'le '+esc(new Date(sai.maj_le).toLocaleDateString("fr-BE"))
+      +(sai.cl_cellule||sai.cl_annotation||sai.cl_commentaire
+        ?' · le classeur dit '+[sai.cl_cellule,sai.cl_annotation].filter(Boolean).map(esc).join(" · ")
+          +(sai.cl_commentaire?' (« '+esc(sai.cl_commentaire)+' »)':'')
+        :' · le classeur ne dit rien ce jour-là')+'</span>';
+  }
   /* les heures qu'une autre cellule écrit pour ce jour, et l'inverse
      (renvoisAffiches(), le 18/10/2026) */
   if(rj.rvD&&rj.rvD.length)
@@ -7043,6 +7071,14 @@ function majFeuille(){
   if(rj.rvS && !(heuresJour(rj)>0))
     h+='<span class="rv">Ces heures comptent le '+esc(rj.rvS)+'.</span>';
   src.innerHTML=h; src.hidden=!h;
+  var ss=document.getElementById("sheetSaisie");
+  if(ss){
+    ss.hidden=!(peutSaisir()&&pid);
+    if(!ss.hidden){
+      ss.innerHTML='<div class="ss-ouvrir"><span>'+esc(idLisible(pid))+' · journée tenue dans l\'application</span><button type="button" class="btn" id="ssOuvrir">Modifier la journée</button></div>';
+      document.getElementById("ssOuvrir").onclick=function(){ saisieFormulaire(ss,pid,st.y,md,raw); };
+    }
+  }
   /* l'aide décrit le formulaire : elle n'a rien à dire d'une journée lue */
   var aide=document.querySelector("#jourSheet .aide");
   if(aide) aide.hidden=!!(raw!==null&&raw!==undefined);
@@ -8604,7 +8640,9 @@ function fetchHoraireDB(){
       return db;
     },function(){ return null; });
   }
-  horaireFetching=Promise.all(HORAIRE_ANNEES.map(lireAnnee)).then(function(l){
+  horaireFetching=Promise.all([Promise.all(HORAIRE_ANNEES.map(lireAnnee)),chargerSaisies()]).then(function(r){
+    var l=r[0], sa=r[1]||{};
+    l.forEach(function(x){ if(x) appliquerSaisies(x,sa[x.year]||sa[String(x.year)]); });
     var ju=jourUsine().getFullYear(), db=null;
     HORAIRES={};
     l.forEach(function(x){ if(x) HORAIRES[Number(x.year)]=x; });
@@ -12836,6 +12874,107 @@ function baseMsg(e){
   if(/expired|invalid|not found/i.test(m)&&/token|otp|code/i.test(m)) return "code expiré ou incorrect";
   if(/failed to fetch|networkerror|load failed|network/i.test(m)) return "pas de connexion internet";
   return m;
+}
+/* LES SAISIES (module 1 de la plateforme, le 21/10/2026). La RH et la
+   hiérarchie saisissent une journée dans l'application ; la base la garde
+   (base/09-saisie.sql) et la copie du classeur ne l'écrase jamais. Pour
+   tout compte validé, les saisies de l'année se POSENT par-dessus l'horaire
+   du classeur au chargement : toute l'application (paie, compteurs,
+   planning) les lit comme une cellule du classeur. Hors ligne, la dernière
+   liste reçue ; trois secondes au plus d'attente, puis on continue sans. */
+function compteBase(){ var a=st.account||lsGet("account/current")||{}; return (a.email&&baseSession())?a:null; }
+function peutSaisir(){ var a=compteBase(); return !!(a&&(a.base==="rh"||a.base==="hierarchie")); }
+function chargerSaisies(){
+  if(!compteBase()) return Promise.resolve(null);
+  var cache=lsGet("base/saisies");
+  var p=Promise.all(HORAIRE_ANNEES.map(function(an){
+    return baseRpc("biowanze_saisies",{p_annee:an}).then(function(l){ return [an,l||[]]; });
+  })).then(function(r){ var o={}; r.forEach(function(x){ o[x[0]]=x[1]; }); lsSet("base/saisies",o); return o; });
+  var delai=new Promise(function(ok){ setTimeout(function(){ ok(null); },3000); });
+  return Promise.race([p,delai]).then(function(o){ return o||cache; },function(){ return cache; });
+}
+function appliquerSaisies(db,liste){
+  db._saisies={};
+  (liste||[]).forEach(function(x){
+    var p=db.people.filter(function(q){ return q.id===x.trigramme; })[0]; if(!p) return;
+    var md=String(x.jour).slice(5,7)+String(x.jour).slice(8,10);
+    var e=[x.cellule||"",x.annotation||"",x.commentaire||""];
+    while(e.length&&!e[e.length-1]) e.pop();
+    if(!p.d) p.d={};
+    if(e.length) p.d[md]=e; else delete p.d[md];
+    db._saisies[p.id+"|"+md]=x;
+  });
+}
+function saisieDe(id,an,md){ var db=HORAIRES&&HORAIRES[an]; return db&&db._saisies?db._saisies[id+"|"+md]||null:null; }
+function chargerCodes(){
+  var c=lsGet("base/codes");
+  if(c&&c.length) return Promise.resolve(c);
+  return baseRpc("biowanze_codes",{}).then(function(l){ lsSet("base/codes",l||[]); return l||[]; });
+}
+var SS_FAMILLES={poste:"Poste",conge:"Congés",flex:"Flex time",recup:"Récupérations",absence:"Absence",
+  remplacement:"Remplacement",formation:"Formation et santé",syndical:"Syndical",arret:"Arrêt",atelier:"Atelier tenu"};
+var SS_PLAGE=/^\d{1,2}h(\d{2})?-\d{1,2}h(\d{2})?$/;
+/* Après une saisie, la page se recharge pour que TOUT relise la journée, puis
+   rouvre la même feuille du jour. */
+function rouvrirApresSaisie(){
+  var r=lsGet("ui/rouvrirJour"); if(!r) return;
+  try{ localStorage.removeItem("ui/rouvrirJour"); }catch(e){}
+  if(r.y!==st.y||r.m!==st.m) return;
+  setTimeout(function(){ try{ ouvrirJour(r.d); if(r.msg) flash(r.msg); }catch(e){} },400);
+}
+function saisieFormulaire(hote,id,an,md,raw){
+  hote.innerHTML='<p class="base-etat">Chargement des codes…</p>';
+  chargerCodes().then(function(codes){
+    var postes=codes.filter(function(c){ return c.famille==="poste"; });
+    var ordre=[]; codes.forEach(function(c){ if(ordre.indexOf(c.famille)<0) ordre.push(c.famille); });
+    function opts(liste,val){ return liste.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===val?' selected':'')+'>'+esc(c.code)+' — '+esc(c.libelle)+'</option>'; }).join(""); }
+    var cel=raw&&raw[0]||"", ann=raw&&raw[1]||"", com=raw&&raw[2]||"", notes=[];
+    function connu(v){ return !v||SS_PLAGE.test(v)||codes.some(function(c){ return c.code===v; }); }
+    if(!connu(cel)){ notes.push("Le classeur écrit « "+cel+" » pour le poste, hors de la liste : choisissez le code."); cel=""; }
+    if(!connu(ann)){ notes.push("Le classeur écrit « "+ann+" », hors de la liste : choisissez le code."); ann=""; }
+    var celPlage=SS_PLAGE.test(cel), annPlage=SS_PLAGE.test(ann);
+    hote.innerHTML='<div class="ss-f">'
+      +'<label>Poste prévu<select id="ssCel"><option value="">—</option>'+opts(postes,cel)
+        +'<option value="#plage"'+(celPlage?' selected':'')+'>Plage horaire…</option></select>'
+        +'<input id="ssCelP" placeholder="6h-18h" value="'+(celPlage?esc(cel):"")+'"'+(celPlage?'':' hidden')+'></label>'
+      +'<label>Ce qui a été fait<select id="ssAnn"><option value="">— comme prévu —</option>'
+        +ordre.map(function(f){ return '<optgroup label="'+esc(SS_FAMILLES[f]||f)+'">'+opts(codes.filter(function(c){ return c.famille===f; }),ann)+'</optgroup>'; }).join("")
+        +'<option value="#plage"'+(annPlage?' selected':'')+'>Plage horaire…</option></select>'
+        +'<input id="ssAnnP" placeholder="18h-22h" value="'+(annPlage?esc(ann):"")+'"'+(annPlage?'':' hidden')+'></label>'
+      +'<label class="ss-large">Commentaire<textarea id="ssCom" rows="2" placeholder="remplace ABC de 18h à 22h">'+esc(com)+'</textarea></label>'
+      +'<div class="ss-note" id="ssNote">'+notes.map(esc).join("<br>")+'</div>'
+      +'<div class="ss-act"><button type="button" class="btn ss-ok" id="ssOk">Enregistrer</button>'
+        +(saisieDe(id,an,md)?'<button type="button" class="btnlike" id="ssClasseur">Revenir au classeur</button>':'')
+        +'<span class="sp"></span><button type="button" class="btnlike" id="ssFermer">Fermer</button></div>'
+      +'</div>';
+    function plage(sel,inp){ var s=document.getElementById(sel),i=document.getElementById(inp);
+      s.onchange=function(){ i.hidden=s.value!=="#plage"; if(!i.hidden) try{ i.focus(); }catch(e){} }; }
+    plage("ssCel","ssCelP"); plage("ssAnn","ssAnnP");
+    function val(sel,inp){ var s=document.getElementById(sel).value; return s==="#plage"?String(document.getElementById(inp).value||"").replace(/\s+/g,""):s; }
+    var note=document.getElementById("ssNote");
+    function fini(msg){
+      lsSet("ui/rouvrirJour",{y:st.y,m:st.m,d:jourOuvert,msg:msg});
+      try{ localStorage.removeItem("base/saisies"); }catch(e){}
+      location.reload();
+    }
+    document.getElementById("ssOk").onclick=function(){
+      var c=val("ssCel","ssCelP"), a=val("ssAnn","ssAnnP");
+      if((c&&!connu(c))||(a&&!connu(a))){ note.textContent="Une plage horaire s'écrit « 6h-18h » ou « 8h30-16h30 »."; return; }
+      this.disabled=true; note.textContent="Enregistrement…";
+      var jour=an+"-"+md.slice(0,2)+"-"+md.slice(2);
+      baseRpc("biowanze_saisir",{p_trigramme:id,p_jour:jour,p_cellule:c,p_annotation:a,p_commentaire:document.getElementById("ssCom").value})
+        .then(function(){ fini("Journée enregistrée"); })
+        .catch(function(e){ document.getElementById("ssOk").disabled=false; note.textContent=baseMsg(e); });
+    };
+    var b=document.getElementById("ssClasseur");
+    if(b) b.onclick=function(){
+      b.disabled=true; note.textContent="…";
+      baseRpc("biowanze_annuler_saisie",{p_trigramme:id,p_jour:an+"-"+md.slice(0,2)+"-"+md.slice(2)})
+        .then(function(){ fini("La journée reprend ce que dit le classeur"); })
+        .catch(function(e){ b.disabled=false; note.textContent=baseMsg(e); });
+    };
+    document.getElementById("ssFermer").onclick=function(){ majFeuille(); };
+  }).catch(function(e){ hote.innerHTML='<p class="base-etat">Codes indisponibles : '+esc(baseMsg(e))+'.</p>'; });
 }
 /* Au démarrage, un compte venu de la base se revérifie en silence : un accès
    retiré par la RH ramène à l'écran d'accès, un rôle changé s'applique. Hors
@@ -19959,6 +20098,8 @@ document.addEventListener("visibilitychange",function(){
 });
 function gateEntrer(c,db){
   _gateAttente=false;
+  /* l'horaire lu avant la connexion n'avait pas les saisies : on le relira */
+  HORAIRE_DB=null; horaireFetching=null;
   var p=db.people.filter(function(x){ return x.id===c.trigramme; })[0];
   gateFinaliser({ role:c.role==="rh"?"rh":"employe", tri:c.trigramme, cat:p?p.cat:"",
                   email:(baseSession()||{}).email||"", base:c.role });
@@ -20118,7 +20259,7 @@ function boot(){
          garnis dès le démarrage, quel que soit l'onglet ouvert */
       ensurePrefillUI();
       loadMonth(y,m);
-      fetchHoraireDB().then(finIntro,finIntro);
+      fetchHoraireDB().then(finIntro,finIntro).then(function(){ setTimeout(rouvrirApresSaisie,600); });
     }
     /* Compte obligatoire : un trigramme doit être lié à l'appareil,
        par un compte validé par la RH, avant d'accéder à l'application. Remplace l'ancien

@@ -1017,3 +1017,37 @@ les 55 335 journées. L'envoi par Gmail ne s'éprouve qu'au robot : au
 passage de 02 h 00 UTC, « Sauvegarde : 55584 lignes, 292 Ko chiffrés,
 envoyée » (30 s, une fois par jour ; les passages suivants ne font qu'une
 recherche dans la boîte).
+
+**Module 1 de la plateforme : la saisie des journées (21/10/2026,
+`nfdm-v892`).** Le client : « GO ». Dans la base (`base/09-saisie.sql`) :
+la LISTE FERMÉE des codes, `biowanze.codes`, 67 codes en 10 familles, aux
+écritures que le classeur emploie le plus (l'application les lit déjà) et
+aux heures des formules du pied (VA 8 h, demi 4 h, « N h RTT »,
+« N h ±FT ») ; « xxx » n'y est pas. `biowanze_saisir` (RH et hiérarchie
+seules) refuse un code hors liste — une plage « 6h-18h » reste permise ;
+la première saisie d'une journée garde ce que le classeur en disait
+(`cl_*`), et la copie du classeur (`biowanze_synchro`, `03-synchro.sql`)
+ne touche plus une journée saisie que dans ces `cl_*` : on voit où les
+deux divergent pendant la marche en parallèle. `biowanze_annuler_saisie`
+rend la journée au classeur ; `biowanze_saisies(année)` les donne à tout
+compte validé. Éprouvé dans un bloc annulé (la clé du robot y remplacée le
+temps du bloc) : code inconnu refusé ; saisie posée, classeur gardé à
+côté ; le classeur repasse avec une autre valeur, la saisie tient et le
+`cl_` suit ; une saisie visible ; l'annulation rend la valeur du classeur ;
+un opérateur est refusé. Rien n'est resté (0 saisie, rôle rh, clé du
+robot intacte : « Base : déjà à jour »).
+
+Dans l'application, pour tout compte validé, les saisies de l'année se
+POSENT par-dessus l'horaire du classeur au chargement
+(`appliquerSaisies`) : paie, compteurs, planning les lisent comme une
+cellule ; hors ligne, la dernière liste reçue ; trois secondes d'attente au
+plus. La feuille du jour dit « Saisi dans l'application », par qui, quand,
+et ce que dit le classeur. La RH et la hiérarchie y ont « Modifier la
+journée » : poste prévu, ce qui a été fait (codes groupés par famille, ou
+une plage), commentaire ; une écriture du classeur hors liste est signalée
+et ne se renvoie pas ; « Revenir au classeur » annule. Après
+l'enregistrement, la page se recharge et rouvre la même journée, pour que
+tout relise. Éprouvé au navigateur, Supabase simulé : saisie affichée et
+pré-remplie, envoi exact, réouverture, annulation, bouton absent pour un
+opérateur qui voit pourtant la saisie, hors ligne la saisie reste ;
+aucune erreur. Vérificateur : quatre sorties identiques à l'octet.
