@@ -12827,7 +12827,7 @@ var BASE_ROLES={rh:"RH",hierarchie:"Hiérarchie",operateur:"Opérateur"};
 /* les messages de Supabase, en anglais, dits en français */
 function baseMsg(e){
   var m=String(e&&e.message||e||"");
-  if(/rate limit|security purposes|too many/i.test(m)) return "trop de demandes, réessayez dans une minute";
+  if(/rate limit|security purposes|too many/i.test(m)) return "un code vient déjà de partir, attendez une minute avant d'en redemander un";
   if(/expired|invalid|not found/i.test(m)&&/token|otp|code/i.test(m)) return "code expiré ou incorrect";
   if(/failed to fetch|networkerror|load failed|network/i.test(m)) return "pas de connexion internet";
   return m;
@@ -19844,10 +19844,22 @@ function gateVueCode(email){
   /* six chiffres tapés ou collés : on n'attend pas le bouton */
   c.oninput=function(){ err.textContent=""; if(String(c.value).replace(/\D/g,"").length===6) valider(); };
   c.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); valider(); } };
-  document.getElementById("gateRenvoi").onclick=function(){
+  /* Supabase refuse un second code avant 60 s : le bouton attend avec lui
+     au lieu de laisser croire à une panne. */
+  var renvoi=document.getElementById("gateRenvoi");
+  function attendre(n){
+    renvoi.disabled=true; renvoi.textContent="Renvoyer un code ("+n+" s)";
+    var t=setInterval(function(){
+      if(!document.body.contains(renvoi)){ clearInterval(t); return; }
+      n--; if(n>0){ renvoi.textContent="Renvoyer un code ("+n+" s)"; return; }
+      clearInterval(t); renvoi.disabled=false; renvoi.textContent="Renvoyer un code";
+    },1000);
+  }
+  attendre(60);
+  renvoi.onclick=function(){
     err.textContent="Envoi…";
-    baseFetch("/auth/v1/otp",{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; })
-      .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; });
+    baseFetch("/auth/v1/otp",{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; attendre(60); })
+      .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; attendre(30); });
   };
   document.getElementById("gateBack").onclick=gateVueEmail;
   setTimeout(function(){ try{ c.focus(); }catch(e){} },30);

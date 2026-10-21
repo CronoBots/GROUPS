@@ -875,3 +875,15 @@ fait dès la prochaine ouverture. Un seul abonnement était dans la base.
 sous Xvfb) : ancienne clé → désabonné, réabonné avec la nouvelle ;
 ouverture suivante → rien à refaire ; aucune erreur. Vérificateur : quatre
 sorties identiques à l'octet.
+
+**« Your sign-in link » et une page 404 (21/10/2026, `nfdm-v887`).**
+Deuxième connexion du client : l'e-mail reçu est le modèle d'origine de
+Supabase, en anglais, avec un lien et sans code. La première connexion
+d'une adresse utilise « Confirm signup » (réglé), les suivantes « Magic
+Link », resté d'origine. Le lien ouvrait
+`cronobots.github.io/#error=…otp_expired` : l'adresse de l'application
+réglée sans `/groups/`, et le lien déjà consommé, sans doute par l'analyse
+des liens de la messagerie d'entreprise — une raison de plus pour un code
+sans lien. Le « trop de demandes » de l'écran vient de la règle de
+Supabase : un code par minute et par adresse. L'écran le dit désormais et
+le bouton « Renvoyer un code » attend 60 s avec un compte à rebours.
