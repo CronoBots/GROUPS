@@ -21059,7 +21059,9 @@ function gateAvecDB(suite){
 }
 /* Seules les adresses de l'entreprise (le client, le 21/10/2026). La base en
    est seule juge (base/06-domaines.sql, biowanze.domaines_autorises) ; cette
-   copie ne sert qu'à le dire avant d'envoyer. */
+   copie ne sert qu'à le dire quand l'envoi échoue : une adresse précise peut
+   être admise par la base seule (biowanze.adresses_autorisees,
+   base/11-adresses.sql), on tente donc toujours l'envoi. */
 var DOMAINES_AUTORISES=["biowanze.be","cropenergies.com"];
 function emailAutorise(v){ return DOMAINES_AUTORISES.indexOf(String(v).split("@")[1]||"")>=0; }
 function gateSortirBase(){ try{ localStorage.removeItem("base/session"); }catch(e){} _gateAttente=false; gateVueEmail(); }
@@ -21084,10 +21086,10 @@ function gateVueEmail(){
   function envoyer(){
     var v=String(em.value||"").trim().toLowerCase();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
-    if(!emailAutorise(v)){ err.textContent="Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application."; return; }
     err.textContent=""; btn.disabled=true; btn.textContent="Envoi…";
     baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
-      .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code"; err.textContent="Envoi impossible : "+baseMsg(e)+"."; });
+      .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code";
+        err.textContent=emailAutorise(v)?"Envoi impossible : "+baseMsg(e)+".":"Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application."; });
   }
   btn.onclick=envoyer;
   em.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); envoyer(); } };
