@@ -13512,6 +13512,28 @@ function baseGarder(j){
          email:(j.user&&j.user.email)||(baseSession()||{}).email||""};
   lsSet("base/session",s); return s;
 }
+/* LE LIEN D'UN E-MAIL CONNECTE AUSSI (le client, le 21/10/2026, capture :
+   « Confirm your email address », puis une page 404). À la première
+   inscription d'une adresse, Supabase envoie l'e-mail « Confirm signup »,
+   avec un LIEN et non un code ; ce lien ramène sur la page avec la session
+   dans l'ancre (#access_token=…). On la garde, on efface l'ancre, et
+   l'écran d'accès reprend à l'étape du compte. Les e-mails demandent
+   désormais à revenir sur cette page-ci (redirect_to), et non à la racine
+   du site, qui n'existe pas. */
+var ADRESSE_APP=location.origin+location.pathname;
+function baseDepuisLien(){
+  var h=String(location.hash||"").replace(/^#/,""); if(!/(^|&)(access_token|error)=/.test(h)) return false;
+  var q={}; h.split("&").forEach(function(x){ var i=x.indexOf("="); if(i>0) q[decodeURIComponent(x.slice(0,i))]=decodeURIComponent(x.slice(i+1).replace(/\+/g," ")); });
+  try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+  if(!q.access_token) return false;
+  var email="";
+  try{ var p=q.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"); while(p.length%4) p+="="; email=JSON.parse(decodeURIComponent(escape(atob(p)))).email||""; }catch(e){}
+  baseGarder({access_token:q.access_token, refresh_token:q.refresh_token, expires_in:Number(q.expires_in)||3600, user:{email:email}});
+  if(email) lsSet("base/email",email);
+  return true;
+}
+var _lienConnexion=false;
+try{ _lienConnexion=baseDepuisLien(); }catch(e){}
 /* un jeton valide, renouvelé s'il le faut */
 function baseJeton(){
   var s=baseSession(); if(!s) return Promise.resolve(null);
@@ -21592,7 +21614,7 @@ function ouvrirGate(onOk){
   var g=document.getElementById("gate");
   g.hidden=false;
   if(typeof inerteFond==="function") try{ inerteFond(true); }catch(e){}
-  gateVueAccueil();
+  if(_lienConnexion){ _lienConnexion=false; gateVueCreer(); } else gateVueAccueil();
   fetchHoraireDB().then(function(db){ _gateDB=db; },function(){ _gateDB=null; });
 }
 function fermerGate(){
@@ -21654,7 +21676,7 @@ function gateVueEmail(){
     var v=String(em.value||"").trim().toLowerCase();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
     err.textContent=""; btn.disabled=true; btn.textContent="Envoi…";
-    baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
+    baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
       .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code";
         err.textContent=emailAutorise(v)?"Envoi impossible : "+baseMsg(e)+".":"Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application."; });
   }
@@ -21706,7 +21728,7 @@ function gateVueCode(email){
   attendre(60);
   renvoi.onclick=function(){
     err.textContent="Envoi…";
-    baseFetch("/auth/v1/otp",{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; attendre(60); })
+    baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; attendre(60); })
       .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; attendre(30); });
   };
   document.getElementById("gateBack").onclick=gateVueEmail;
