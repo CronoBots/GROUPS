@@ -1181,3 +1181,35 @@ libellés de période coupés — zéro sur 60 semaines et 14 mois parcourus.
 Éprouvé : RH et opérateur, semaine, mois, recherche, fiche, trois jours
 posés d'un coup, les cinq sections de l'espace ; aucune erreur, aucun
 débordement ; vérificateur identique ; connexion et saisie rejouées.
+
+**Module 3 : les demandes de congé (21/10/2026, `nfdm-v897`).** Le client :
+« go pour le module Demandes ». Le circuit est celui du 20/10 (« les
+contremaîtres et RH ») : l'opérateur demande ; un contremaître (rôle
+hiérarchie) ET la RH valident, dans n'importe quel ordre ; un refus suffit
+(avec son motif) ; la demande d'un cadre n'attend que la RH ; nul ne valide
+la sienne. Acceptée, elle POSE son code sur chaque jour de travail de la
+période — le poste prévu reste, le repos est sauté, le commentaire dit
+« Demande n° N » — comme une saisie, que le classeur n'écrase plus
+(`base/10-demandes.sql`). Codes demandables : les familles congé et
+récupération de la liste fermée ; deux mois au plus, une année à la fois,
+pas deux demandes en attente sur les mêmes jours. Éprouvé dans un bloc
+annulé : demande, chevauchement refusé, « Abs » non demandable, opérateur
+sans pouvoir de décision, il ne voit que les siennes ; contremaître →
+« validée en partie », RH → acceptée, 5 jours posés et 2 jours de repos
+sautés ; annulation ; refus avec motif, puis plus de retour ; la demande
+d'un cadre : refusée à lui-même, acceptée par la RH seule.
+
+Dans l'application, une section « Demandes » de l'espace, ouverte à tout
+compte validé (l'opérateur y a son planning et ses demandes), et
+« Demander un congé » dans la feuille de SON jour. Le formulaire dit avant
+l'envoi les jours de travail couverts, les heures et le solde après
+(« VA restant 92 h → 68 h », alerte s'il devient négatif). Le valideur voit
+le solde du demandeur et combien de ses collègues d'équipe sont déjà
+absents au plus fort de la période ; Valider, ou Refuser avec un motif ;
+les étapes (Contremaître → RH) se cochent avec le trigramme de qui a
+validé. Pastille du nombre à traiter dans le menu ; carte « Demandes à
+traiter » au tableau de bord. Éprouvé au navigateur à 320, 390 et 1280 px,
+Supabase simulé : demande depuis la feuille du jour, aperçu exact, envoi,
+seconde demande annulée, pastille, validation, refus motivé ; aucune
+erreur ; planning, espace, saisie et connexion rejoués ; vérificateur
+identique.

@@ -200,7 +200,7 @@ qui suivent s'y ajoutent comme des sections.
 1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes. **Fait le 21/10/2026** (`base/09-saisie.sql`, feuille du jour) ; restent les droits par périmètre (équipe, fonction) et une saisie de plusieurs jours d'un coup.
 2. Remplacements, échanges et rappels en événements à deux personnes
    (≈ 75 % des commentaires ; alimentent la paie).
-3. Demandes de congé, opérateur → contremaître → RH, avec soldes.
+3. Demandes de congé, opérateur → contremaître → RH, avec soldes. **Fait le 21/10/2026** (`base/10-demandes.sql`, section « Demandes » de l'espace).
 4. Compteurs calculés ; soldes d'ouverture saisis une fois par an.
 5. Cycle généré et changement d'année automatique.
 6. Effectif par pause et par poste, alertes, suggestion de remplaçant.

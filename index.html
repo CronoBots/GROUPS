@@ -2461,6 +2461,43 @@ body.sheet-on{overflow:hidden}
   .pl-equipes button{padding:6px 11px; font-size:12px}
   .pl-legende{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:6px 12px; white-space:nowrap}
 }
+/* LES DEMANDES (21/10/2026) */
+.ws-pastille{margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11px; font-weight:700; display:inline-grid; place-items:center}
+.ws-tete .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650; padding:8px 14px}
+.dm-onglets{margin-bottom:14px; flex-wrap:wrap}
+.dm-onglets .dm-n{display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:var(--surface3); font-size:11px}
+.dm-liste{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px}
+.dm-carte{border:1px solid var(--line2); border-radius:14px; background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:9px; min-width:0}
+.dm-carte.dm-a-faire{border-color:color-mix(in srgb,var(--in) 55%,var(--line2)); box-shadow:inset 3px 0 0 var(--in)}
+.dm-carte header{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.dm-moi{font-size:14px}
+.dm-st{flex:0 0 auto; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--surface2); color:var(--muted)}
+.dm-st.dm-att{background:var(--at-jaune-soft); color:var(--at-jaune)}
+.dm-st.dm-ok{background:var(--good-soft); color:var(--good)}
+.dm-st.dm-non{background:var(--at-rouge-soft); color:var(--at-rouge)}
+.dm-quoi{display:flex; align-items:center; gap:10px; font-size:14.5px}
+.dm-info{margin:0; font-size:12.5px; color:var(--ink2)}
+.dm-info.dm-alerte{color:var(--out)}
+.dm-texte{margin:0; font-size:13px; color:var(--muted); font-style:italic}
+.dm-motif{color:var(--at-rouge); font-style:normal}
+.dm-etapes{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px}
+.dm-etapes i{color:var(--faint); font-style:normal}
+.dm-et{padding:3px 8px; border-radius:7px; border:1px dashed var(--line); color:var(--muted)}
+.dm-et.fait{border-style:solid; border-color:color-mix(in srgb,var(--good) 45%,transparent); background:var(--good-soft); color:var(--good)}
+.dm-act{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding-top:4px}
+.dm-act .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650; padding:9px 18px}
+.dm-act .dm-refus{background:var(--at-rouge-soft); border-color:var(--at-rouge); color:var(--at-rouge); font-weight:650}
+.dm-motif-in{flex:1 1 180px; min-width:0; font:inherit; font-size:14px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink)}
+.dm-dates{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.dm-dates label{display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600; color:var(--muted)}
+.dm-dates input{font:inherit; font-size:15px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); color:var(--ink); min-width:0}
+.dm-apercu{display:flex; flex-direction:column; gap:6px; padding:10px 12px; border-radius:12px; background:var(--surface2); margin-top:4px}
+.dm-apercu div{display:flex; justify-content:space-between; gap:10px; font-size:13px; color:var(--ink2)}
+.dm-apercu b{font-variant-numeric:tabular-nums}
+.dm-apercu em{font-style:normal}
+.dm-apercu .dm-neg{color:var(--out)}
+.ws-carte .ws-liste li[data-ws]{cursor:pointer}
+@media (max-width:699px){ .dm-liste{grid-template-columns:1fr} .ws-menu .ws-pastille{margin-left:6px} }
 .gr-entree{display:flex; align-items:center; gap:12px}
 .gr-entree div{flex:1; min-width:0}
 .gr-entree b{display:block}
@@ -5532,6 +5569,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
         <span><i class="pl-pa f-conge"></i>Congé</span><span><i class="pl-pa f-absence"></i>Maladie</span><span><i class="pl-pa f-flex"></i>Flex, récup.</span><span><i class="pl-pa f-formation"></i>Formation</span><span><i class="pl-pa f-arret"></i>SD26</span>
       </div>
     </section>
+    <section class="ws-s" data-s="demandes" id="wsDem" hidden></section>
     <section class="ws-s" data-s="personnel" id="wsPers" hidden></section>
     <section class="ws-s" data-s="absences" id="wsAbs" hidden></section>
     <section class="ws-s" data-s="historique" id="wsHisto" hidden></section>
@@ -7413,7 +7451,13 @@ function majFeuille(){
     h+='<span class="rv">Ces heures comptent le '+esc(rj.rvS)+'.</span>';
   src.innerHTML=h; src.hidden=!h;
   var ss=document.getElementById("sheetSaisie");
-  if(ss){
+  var monTri=idLisible((compteBase()||{}).tri||"");
+  if(ss&&!peutSaisir()&&compteBase()&&pid&&idLisible(pid)===monTri){
+    ss.hidden=false;
+    var jd=st.y+"-"+md.slice(0,2)+"-"+md.slice(2);
+    ss.innerHTML='<div class="ss-ouvrir"><span>Un congé ce jour-là ?</span><button type="button" class="btn" id="ssDemander">Demander un congé</button></div>';
+    document.getElementById("ssDemander").onclick=function(){ fermerJour(); ouvrirGrille("demandes",{du:jd,au:jd}); };
+  } else if(ss){
     ss.hidden=!(peutSaisir()&&pid);
     if(!ss.hidden){
       ss.innerHTML='<div class="ss-ouvrir"><span>'+esc(idLisible(pid))+' · journée tenue dans l\'application</span><button type="button" class="btn" id="ssOuvrir">Modifier la journée</button></div>';
@@ -13495,9 +13539,10 @@ function grDecaler(sens){
   else GR.debut=new Date(d.getFullYear(),d.getMonth()+sens,1);
   grFermerPanneau(); renderGrille();
 }
-function ouvrirGrille(section){
+function ouvrirGrille(section,formulaire){
   var g=document.getElementById("grille");
   if(typeof section!=="string") section=null;
+  if(formulaire) GR.dmForm=formulaire;
   fetchHoraireDB().then(function(){
     if(!GR.vue) GR.vue=window.innerWidth<700?"semaine":"mois";
     grCaler(jourUsine());
@@ -13514,6 +13559,7 @@ function ouvrirGrille(section){
         GR.noms={}; (l||[]).forEach(function(x){ GR.noms[x.trigramme]=x; }); relire();
       }).catch(function(){});
       chargerCodes().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
+      if(GR.section!=="demandes") dmCharger().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
     }
   });
 }
@@ -13654,6 +13700,7 @@ function grEditer(td){
 var WS_SECTIONS=[
   {s:"tdb",t:"Tableau de bord",rh:1,i:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'},
   {s:"planning",t:"Planning",i:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'},
+  {s:"demandes",t:"Demandes",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
   {s:"personnel",t:"Personnel",rh:1,i:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>'},
   {s:"absences",t:"Absences et congés",rh:1,i:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'},
   {s:"historique",t:"Historique",rh:1,i:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'}];
@@ -13667,6 +13714,7 @@ function wsAller(s){
   GR.section=s; lsSet("ui/wsSection",s); grFermerPanneau();
   document.getElementById("wsMenu").innerHTML=l.map(function(x){
     return '<button type="button" data-s="'+x.s+'" aria-current="'+(x.s===s?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
+  wsBadge();
   [].forEach.call(document.querySelectorAll("#grille .ws-s"),function(el){ el.hidden=el.getAttribute("data-s")!==s; });
   var act=document.querySelector('#wsMenu button[aria-current="page"]');
   if(act&&act.scrollIntoView) try{ act.scrollIntoView({block:"nearest",inline:"nearest"}); }catch(e){}
@@ -13675,6 +13723,7 @@ function wsAller(s){
   else if(s==="personnel") renderPersonnel();
   else if(s==="absences") renderAbsences();
   else if(s==="historique") renderHisto();
+  else if(s==="demandes"){ GR.demandes=null; renderDemandes(); }
   var m=document.querySelector("#grille .ws-main"); if(m){ m.scrollTop=0; m.classList.toggle("ws-plein",s==="planning"); }
 }
 function wsTete(t,sous,actions){
@@ -13713,6 +13762,12 @@ function renderTdb(){
     +'<div class="ws-kpi"><span class="pl-pa f-absence">Abs</span><b>'+n("abs")+'</b><small>Malades</small></div>'
     +'<div class="ws-kpi"><span class="pl-pa f-conge">VA</span><b>'+n("cong")+'</b><small>En congé</small></div></div>');
   h.push('<div class="ws-grille">');
+  var dmT=(GR.demandes||[]).filter(dmATraiter);
+  h.push('<section class="ws-carte"><header><h3>Demandes à traiter</h3><span class="ws-badge'+(dmT.length?' ws-alerte':' ws-ok')+'">'+(dmT.length||'aucune')+'</span></header>'
+    +(dmT.length?'<ul class="ws-liste">'+dmT.slice(0,5).map(function(x){ var p=dmPersonne(x.trigramme);
+        return '<li data-ws="demandes"><span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc([x.prenom,x.nom].filter(Boolean).join(" ")||(p?wsPosteEq(p)[0]:x.trigramme))+'</b><small>'+esc(dmPeriode(x.du,x.au))+'</small></span></span><span class="pl-pa f-'+esc(grFamille(x.code)||"conge")+'">'+esc(x.code)+'</span></li>'; }).join("")+'</ul>'
+      +'<button type="button" class="btnlike ws-lien" data-ws="demandes">Ouvrir les demandes</button>'
+      :'<p class="ws-vide">'+(GR.demandes===null?'Chargement…':'Aucune demande n\'attend votre réponse.')+'</p>')+'</section>');
   /* le sous-effectif des quinze jours */
   var mq=[]; try{ caInit(db); mq=mqJoursAVenir(db,14).jours; }catch(e){ mq=[]; }
   var nbm=0; mq.forEach(function(x){ nbm+=x.l.length; });
@@ -13804,6 +13859,169 @@ function renderAbsences(){
   hote.innerHTML=h.join("");
   document.getElementById("wsHor").addEventListener("click",function(e){ var b=e.target.closest("button[data-h]"); if(!b) return; GR.horizon=Number(b.getAttribute("data-h")); renderAbsences(); });
 }
+/* LES DEMANDES (module 3, le 21/10/2026 : « go pour le module Demandes »).
+   L'opérateur demande depuis son téléphone ; le contremaître et la RH
+   valident (le circuit du 20/10/2026) ; acceptée, la demande se pose
+   d'elle-même sur ses jours de travail (base/10-demandes.sql). Le
+   formulaire dit, avant l'envoi, combien de jours de travail elle couvre,
+   combien d'heures, et le solde qu'il restera ; le valideur voit le solde
+   du demandeur et combien de ses collègues sont déjà absents ces jours-là. */
+GR.demandes=null; GR.onglet=null; GR.dmForm=null;
+var DM_RAPIDES=["VA","1/2VA","RTT","DTT","RJF","RHS","CSS"];
+var DM_COMPTEUR={"VA":"VA","1/2VA":"VA","RTT":"RTT","DTT":"DTT","1/2DTT":"DTT","RJF":"RJF","1/2RJF":"RJF"};
+function dmCompteur(code){ return DM_COMPTEUR[code]||(/^\d+h\s*RTT$/i.test(code)?"RTT":""); }
+function dmHeures(code){ var c=(lsGet("base/codes")||[]).filter(function(x){ return x.code===code; })[0]; return c&&c.unite==="h"?Number(c.heures)||0:0; }
+function dmJour(s){ var p=String(s).split("-"); return new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); }
+function dmPeriode(du,au){
+  var a=dmJour(du), b=dmJour(au);
+  return du===au?wsDateCourte(a)+" "+a.getFullYear():wsDateCourte(a)+" → "+wsDateCourte(b)+" "+b.getFullYear();
+}
+/* les jours de travail que la période couvre, selon le prévu */
+function dmJoursTravail(pid,du,au){
+  var a=dmJour(du), b=dmJour(au), n=0, tot=0;
+  for(var d=new Date(a); d<=b; d.setDate(d.getDate()+1)){
+    tot++; var db=HORAIRES&&HORAIRES[d.getFullYear()], p=db&&db.people.filter(function(x){ return x.id===pid; })[0];
+    var e=p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())]; var c=String((e||[])[0]||"").trim();
+    if(c&&c!=="-") n++;
+  }
+  return {travail:n, jours:tot};
+}
+function dmPersonne(tri){ var db=wsDb(); return db&&db.people.filter(function(x){ return x.id===tri; })[0]; }
+function dmRestant(p,cpt){ if(!p||!cpt) return null; var r=wsRestants(p).filter(function(x){ return x.t===cpt; })[0]; return r?r.v:null; }
+/* combien de collègues de la même équipe sont déjà absents, au plus fort de la période */
+function dmCharge(p,du,au){
+  if(!p) return 0; var a=dmJour(du), b=dmJour(au), max=0;
+  for(var d=new Date(a); d<=b; d.setDate(d.getDate()+1)){
+    var db=HORAIRES&&HORAIRES[d.getFullYear()]; if(!db) continue;
+    var md=pad2(d.getMonth()+1)+pad2(d.getDate()), n=0;
+    db.people.forEach(function(q){ if(q.id===p.id||q.cat!==p.cat) return; var e=(q.d||{})[md]||[], f=grFamille(e[1]); if(f==="conge"||f==="absence"||f==="recup") n++; });
+    if(n>max) max=n;
+  }
+  return max;
+}
+function dmCharger(){
+  if(!compteBase()) return Promise.resolve([]);
+  return baseRpc("biowanze_demandes",{}).then(function(l){ GR.demandes=l||[]; wsBadge(); return GR.demandes; });
+}
+function dmATraiter(x){
+  var r=(compteBase()||{}).base;
+  return x.statut==="en_attente"&&!x.a_moi&&((r==="rh"&&x.attend_rh)||(r==="hierarchie"&&x.attend_cm));
+}
+function wsBadge(){
+  var n=(GR.demandes||[]).filter(dmATraiter).length, b=document.querySelector('#wsMenu button[data-s="demandes"]');
+  if(!b) return; var i=b.querySelector(".ws-pastille"); if(i) i.remove();
+  if(n){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=n; b.appendChild(s); }
+}
+function dmStatut(x){
+  if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
+  if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
+  if(x.statut==="annulee") return '<span class="dm-st">Annulée</span>';
+  return '<span class="dm-st dm-att">En attente</span>';
+}
+function dmEtapes(x){
+  var cadre=!x.attend_cm&&!x.cm&&x.statut==="en_attente"&&!x.attend_rh?false:null;
+  var e=[];
+  if(x.cm||x.attend_cm) e.push('<span class="dm-et'+(x.cm?' fait':'')+'">'+(x.cm?'✓ ':'')+'Contremaître'+(x.cm?' · '+esc(x.cm):'')+'</span>');
+  e.push('<span class="dm-et'+(x.rh?' fait':'')+'">'+(x.rh?'✓ ':'')+'RH'+(x.rh?' · '+esc(x.rh):'')+'</span>');
+  return '<div class="dm-etapes">'+e.join('<i>→</i>')+'</div>';
+}
+function dmCarte(x,valideur){
+  var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
+  var j=dmJoursTravail(x.trigramme,x.du,x.au), h=dmHeures(x.code), cpt=dmCompteur(x.code), rest=dmRestant(p,cpt);
+  var info=[j.travail+' jour'+(j.travail>1?'s':'')+' de travail'+(h?' · '+(j.travail*h)+' h':'')];
+  if(valideur&&cpt&&rest!==null) info.push(cpt+' restant '+rest+' h'+(x.statut==="en_attente"&&h?' → '+(rest-j.travail*h)+' h':''));
+  if(valideur&&x.statut==="en_attente"){ var c=dmCharge(p,x.du,x.au); info.push(c?'jusqu\'à '+c+' collègue'+(c>1?'s':'')+' déjà absent'+(c>1?'s':''):'aucun collègue absent'); }
+  var neg=valideur&&cpt&&rest!==null&&h&&rest-j.travail*h<0;
+  var act='';
+  if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-ok="'+x.id+'">Valider</button><button type="button" class="btnlike" data-dm-non="'+x.id+'">Refuser</button></div>';
+  else if(x.a_moi&&x.statut==="en_attente") act='<div class="dm-act"><button type="button" class="btnlike" data-dm-annuler="'+x.id+'">Annuler ma demande</button></div>';
+  return '<article class="dm-carte'+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
+    +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<b class="dm-moi">Ma demande</b>')+dmStatut(x)+'</header>'
+    +'<div class="dm-quoi"><span class="pl-pa f-'+esc(grFamille(x.code)||"conge")+'">'+esc(x.code)+'</span><b>'+esc(dmPeriode(x.du,x.au))+'</b></div>'
+    +'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>'
+    +(x.texte?'<p class="dm-texte">« '+esc(x.texte)+' »</p>':'')
+    +(x.statut==="refusee"&&x.motif_refus?'<p class="dm-texte dm-motif">Motif : '+esc(x.motif_refus)+'</p>':'')
+    +dmEtapes(x)+act+'</article>';
+}
+function renderDemandes(){
+  var hote=document.getElementById("wsDem"), val=peutSaisir();
+  if(!GR.onglet) GR.onglet=val?"traiter":"miennes";
+  var l=GR.demandes;
+  var h=[wsTete("Demandes",val?"Congés demandés par le personnel : le contremaître et la RH valident ; acceptée, la demande se pose sur le planning.":"Demandez un congé : votre contremaître et la RH le valident, puis il apparaît sur le planning.",
+    '<button type="button" class="btn ss-ok" id="dmNouvelle">+ Nouvelle demande</button>')];
+  if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
+  var onglets=val?[["traiter","À traiter",l.filter(dmATraiter).length],["attente","En attente",l.filter(function(x){ return x.statut==="en_attente"; }).length],["toutes","Toutes",l.length],["miennes","Les miennes",l.filter(function(x){ return x.a_moi; }).length]]
+    :[["miennes","Mes demandes",l.length]];
+  if(val) h.push('<div class="pl-seg dm-onglets" id="dmOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.onglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
+  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi:true; });
+  h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val&&!x.a_moi); }).join("")+'</div>'
+    :'<div class="ws-carte"><p class="ws-vide">'+(GR.onglet==="traiter"?'Rien à traiter : toutes les demandes ont reçu votre réponse.':GR.onglet==="miennes"?'Aucune demande pour l\'instant. « Nouvelle demande » pour poser un congé.':'Aucune demande.')+'</p></div>');
+  hote.innerHTML=h.join("");
+  dmBrancher();
+  if(GR.dmForm){ var pf=GR.dmForm; GR.dmForm=null; dmFormulaire(pf); }
+}
+function dmBrancher(){
+  var b=document.getElementById("dmNouvelle"); if(b) b.onclick=function(){ dmFormulaire({}); };
+  var o=document.getElementById("dmOnglets");
+  if(o) o.onclick=function(e){ var x=e.target.closest("button[data-o]"); if(!x) return; GR.onglet=x.getAttribute("data-o"); renderDemandes(); };
+}
+function dmDecider(id,ok,motif,btn){
+  if(btn) btn.disabled=true;
+  baseRpc("biowanze_decider_demande",{p_id:Number(id),p_accepte:ok,p_motif:motif||null}).then(function(r){
+    r=String(r||"");
+    if(/^acceptee/.test(r)){ GR.modifie=true; try{ localStorage.removeItem("base/saisies"); }catch(e){} flash("Demande acceptée : "+(r.split(":")[1]||0)+" jour(s) posé(s) sur le planning"); }
+    else flash(r==="refusee"?"Demande refusée":"Validée de votre côté : elle attend l'autre validation");
+    return dmCharger().then(renderDemandes);
+  }).catch(function(e){ if(btn) btn.disabled=false; flash(baseMsg(e)); });
+}
+/* le formulaire, dans le panneau */
+function dmFormulaire(pre){
+  var a=compteBase()||{}, moi=a.tri, p=dmPersonne(moi);
+  var auj=jourUsine(), d0=pre.du||(auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate()));
+  chargerCodes().then(function(codes){
+    var dem=codes.filter(function(c){ return c.famille==="conge"||c.famille==="recup"; });
+    var etat={code:pre.code||"VA"};
+    var pn=grOuvrirPanneau('<div class="pn-tete"><div><b>Nouvelle demande</b><span>'+esc(p?(grNom(p)||idLisible(moi))+' · '+wsPoste(p):idLisible(moi||""))+'</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
+      +'<div class="pn-corps"><p class="pn-t">Quoi</p><div class="pn-puces" id="dmCodes">'
+      +DM_RAPIDES.filter(function(k){ return dem.some(function(c){ return c.code===k; }); }).map(function(k){
+        var c=dem.filter(function(x){ return x.code===k; })[0];
+        return '<button type="button" class="pl-pa f-'+esc(c.famille)+'" data-v="'+esc(k)+'" title="'+esc(c.libelle)+'">'+esc(k)+'</button>'; }).join("")+'</div>'
+      +'<select id="dmTous" aria-label="Tous les congés"><option value="">Autre congé…</option>'+dem.map(function(c){ return '<option value="'+esc(c.code)+'">'+esc(c.code)+' — '+esc(c.libelle)+'</option>'; }).join("")+'</select>'
+      +'<p class="pn-choix" id="dmChoix"></p>'
+      +'<p class="pn-t">Quand</p><div class="dm-dates"><label>Du<input type="date" id="dmDu" value="'+esc(d0)+'"></label><label>Au<input type="date" id="dmAu" value="'+esc(pre.au||d0)+'"></label></div>'
+      +'<div class="dm-apercu" id="dmApercu"></div>'
+      +'<p class="pn-t">Message (facultatif)</p><textarea id="dmTexte" rows="2" placeholder="mariage, déménagement…"></textarea>'
+      +'<p class="pn-note" id="dmErr"></p></div>'
+      +'<div class="pn-pied"><button type="button" class="btn ss-ok" id="dmEnvoyer">Envoyer la demande</button></div>');
+    var lib={}; dem.forEach(function(c){ lib[c.code]=c.libelle; });
+    function apercu(){
+      [].forEach.call(pn.querySelectorAll("#dmCodes button"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-v")===etat.code)); });
+      document.getElementById("dmChoix").innerHTML='<b>'+esc(etat.code)+'</b> — '+esc(lib[etat.code]||"");
+      var du=document.getElementById("dmDu").value, au=document.getElementById("dmAu").value, el=document.getElementById("dmApercu");
+      if(!du||!au||au<du){ el.innerHTML='<p class="pn-note">La fin doit suivre le début.</p>'; return; }
+      var j=dmJoursTravail(moi,du,au), h=dmHeures(etat.code), cpt=dmCompteur(etat.code), r=dmRestant(p,cpt);
+      var apres=r!==null&&h?r-j.travail*h:null;
+      el.innerHTML='<div><span>Jours de travail couverts</span><b>'+j.travail+' sur '+j.jours+'</b></div>'
+        +(h?'<div><span>Heures</span><b>'+(j.travail*h)+' h</b></div>':'')
+        +(r!==null?'<div><span>'+cpt+' restant</span><b>'+r+' h'+(apres!==null?' → <em'+(apres<0?' class="dm-neg"':'')+'>'+apres+' h</em>':'')+'</b></div>':'')
+        +(!j.travail?'<p class="pn-note">Aucun jour de travail prévu sur cette période : rien ne serait posé.</p>':'')
+        +(apres!==null&&apres<0?'<p class="pn-note">Le solde deviendrait négatif.</p>':'');
+    }
+    pn.querySelector("#dmCodes").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; etat.code=b.getAttribute("data-v"); document.getElementById("dmTous").value=""; apercu(); });
+    document.getElementById("dmTous").onchange=function(){ if(this.value){ etat.code=this.value; apercu(); } };
+    document.getElementById("dmDu").onchange=function(){ var au=document.getElementById("dmAu"); if(!au.value||au.value<this.value) au.value=this.value; apercu(); };
+    document.getElementById("dmAu").onchange=apercu;
+    apercu();
+    document.getElementById("dmEnvoyer").onclick=function(){
+      var du=document.getElementById("dmDu").value, au=document.getElementById("dmAu").value, err=document.getElementById("dmErr"), b=this;
+      if(!du||!au||au<du){ err.textContent="Choisissez une période valable."; return; }
+      b.disabled=true; err.textContent="Envoi…";
+      baseRpc("biowanze_demander",{p_code:etat.code,p_du:du,p_au:au,p_texte:document.getElementById("dmTexte").value})
+        .then(function(){ grFermerPanneau(); flash("Demande envoyée : votre contremaître et la RH la recevront"); GR.onglet=peutSaisir()?"miennes":"miennes"; return dmCharger().then(renderDemandes); })
+        .catch(function(e){ b.disabled=false; err.textContent=baseMsg(e); });
+    };
+  }).catch(function(e){ flash("Demandes indisponibles : "+baseMsg(e)); });
+}
 /* ── l'historique ── */
 function wsChargerHisto(n){
   if(!peutSaisir()) return Promise.resolve([]);
@@ -13831,7 +14049,17 @@ function renderHisto(){
   /* hors du planning : une personne ouvre sa fiche, un lien change de section ou d'onglet */
   g.querySelector(".ws-main").addEventListener("click",function(e){
     if(e.target.closest("#grZone")) return;
-    var x=e.target.closest("[data-pers]"); if(x){ grPersonne(x.getAttribute("data-pers")); return; }
+    var x=e.target.closest("[data-dm-ok]"); if(x){ dmDecider(x.getAttribute("data-dm-ok"),true,null,x); return; }
+    x=e.target.closest("[data-dm-annuler]");
+    if(x){ x.disabled=true; baseRpc("biowanze_annuler_demande",{p_id:Number(x.getAttribute("data-dm-annuler"))}).then(function(){ flash("Demande annulée"); return dmCharger().then(renderDemandes); }).catch(function(er){ x.disabled=false; flash(baseMsg(er)); }); return; }
+    x=e.target.closest("[data-dm-non]");
+    if(x){ /* refuser : un motif, puis confirmer */
+      var act=x.parentNode, id=x.getAttribute("data-dm-non");
+      act.innerHTML='<input type="text" class="dm-motif-in" placeholder="Motif du refus (facultatif)" aria-label="Motif du refus"><button type="button" class="btn dm-refus" data-dm-refuser="'+id+'">Refuser</button><button type="button" class="btnlike" data-dm-garder>Annuler</button>';
+      try{ act.querySelector("input").focus(); }catch(er){} return; }
+    x=e.target.closest("[data-dm-refuser]"); if(x){ dmDecider(x.getAttribute("data-dm-refuser"),false,x.parentNode.querySelector("input").value,x); return; }
+    x=e.target.closest("[data-dm-garder]"); if(x){ renderDemandes(); return; }
+    x=e.target.closest("[data-pers]"); if(x){ grPersonne(x.getAttribute("data-pers")); return; }
     x=e.target.closest("[data-ws]"); if(x){ wsAller(x.getAttribute("data-ws")); return; }
     x=e.target.closest("[data-vue]"); if(x){ var v=x.getAttribute("data-vue"); fermerGrille(); setView(v); }
   });
