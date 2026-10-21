@@ -42,6 +42,15 @@ sessions), ni question de choix : quand plusieurs améliorations se
 présentent, on fait celles qu'on recommande, puis on dit ce qui a été fait.
 On ne demande que ce que le classeur et le client seuls savent (une règle
 de lecture ou de paie), et ce qui reviendrait sur une décision du client.
+Le 21/10/2026, plus net encore : « j'aimerais que tu valides toujours
+tout seul et pousser sur Notion et GitHub ; on perd un temps fou car je
+ne fais pas attention que tu ne progresses pas tant que je n'ai pas
+validé ». **Ne jamais finir un tour sur une question de goût ou de
+choix** (« dites-moi lesquels appliquer ») : trancher selon la
+recommandation, l'appliquer, la vérifier, committer, pousser sur `main`,
+reporter dans Notion, puis DIRE ce qui a été choisi et pourquoi — le
+client corrige après coup s'il le veut. Les fenêtres d'autorisation de
+la session ne s'effacent que par le mode « Auto » choisi par le client.
 
 **Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
 main :
