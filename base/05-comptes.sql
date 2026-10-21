@@ -41,30 +41,25 @@ begin
   return 'en_attente';
 end $$;
 
--- Les comptes, pour la RH et la hiérarchie.
+-- Les comptes, pour la RH seule. Le client, le 21/10/2026 : « il n'y a que
+-- le RH qui peut valider l'accès » (les contremaîtres valident les demandes
+-- des opérateurs, pas les accès).
 create or replace function public.biowanze_comptes()
 returns table (user_id uuid, email text, trigramme text, role text, valide boolean, cree_le timestamptz)
 language sql stable security definer set search_path = '' as $$
   select c.user_id, c.email, p.trigramme, c.role::text, c.valide, c.cree_le
   from biowanze.comptes c left join biowanze.personnes p on p.id = c.personne_id
-  where biowanze.role_courant() in ('rh','hierarchie')
+  where biowanze.role_courant() = 'rh'
   order by c.valide, c.cree_le desc
 $$;
 
--- Valider un compte (et en fixer le rôle). La hiérarchie valide des
--- opérateurs ; seule la RH donne « hiérarchie » ou « rh ».
+-- Valider un compte (et en fixer le rôle) : la RH seule, jamais le sien.
 create or replace function public.biowanze_valider_compte(p_user uuid, p_role text default 'operateur', p_valide boolean default true)
 returns void language plpgsql security definer set search_path = '' as $$
-declare moi biowanze.role := biowanze.role_courant();
 begin
-  if moi is null or moi = 'operateur' then raise exception 'réservé à la RH et à la hiérarchie'; end if;
+  if biowanze.role_courant() is distinct from 'rh' then raise exception 'réservé à la RH'; end if;
   if p_role not in ('operateur','hierarchie','rh') then raise exception 'rôle inconnu'; end if;
-  if moi = 'hierarchie' and p_role <> 'operateur' then raise exception 'seule la RH donne ce rôle'; end if;
   if p_user = auth.uid() then raise exception 'on ne se valide pas soi-même'; end if;
-  if moi = 'hierarchie' and exists (select 1 from biowanze.comptes
-       where user_id = p_user and valide and role <> 'operateur') then
-    raise exception 'seule la RH modifie ce compte';
-  end if;
   update biowanze.comptes
      set role = p_role::biowanze.role, valide = p_valide,
          valide_par = auth.uid(), valide_le = now()

@@ -5087,13 +5087,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
           </div>
         </div>
       </details>
-      <!-- LE COMPTE EN LIGNE (étape 2 du remplacement du classeur, le client,
-           le 20/10/2026) : connexion par un code reçu par e-mail, rattachement
-           à son trigramme, validation par un contremaître ou la RH. -->
-      <details class="fold" id="baseFold">
-        <summary>Compte BIOWANZE en ligne <span class="sub">connexion, accès, validations</span></summary>
-        <div class="pad stack" id="baseCorps"></div>
-      </details>
       <details class="fold">
         <summary>Vue direction <span class="sub">l'usine en un écran</span></summary>
         <div class="pad notifreg">
@@ -5101,12 +5094,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
           <button type="button" class="btn sm" id="dirBtn">Ouvrir</button>
         </div>
       </details>
-      <details class="fold rh-only">
-        <summary>Espace BWZ RH <span class="sub">options d'administration</span></summary>
-        <p class="lede haut">Vous êtes connecté en tant que <b>BWZ RH</b>. Les options pour modifier directement l'application (postes, équipes, polyvalences, comptes liés, barèmes communs) arriveront ici.</p>
-        <div class="pad stack" id="rhOptions">
-          <p class="lede">À venir — module d'administration BWZ RH.</p>
-        </div>
+      <!-- Les accès ne se valident que par la RH (le client, le 21/10/2026) :
+           la liste des comptes vit ici, la connexion sur l'écran d'accès. -->
+      <details class="fold rh-only" id="rhFold">
+        <summary>Espace BWZ RH <span class="sub">accès à valider</span></summary>
+        <div class="pad stack" id="rhOptions"><div id="baseComptes"></div></div>
       </details>
       <details class="fold" id="quiFold">
         <summary>Qui je suis <span class="sub">ma ligne dans l'horaire d'équipe</span></summary>
@@ -5170,7 +5162,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     </div>
     <div class="gate-home-actions">
       <button type="button" class="gate-btn primary" id="gateGoCreer">Connexion</button>
-      <button type="button" class="gate-link gate-link-light" id="gateGoRH">Connexion BWZ RH</button>
       <button type="button" class="gate-inst" id="gateInstall" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10 18h4"/></svg>Installer l'application sur mon téléphone</button>
     </div>
   </div>
@@ -12833,80 +12824,31 @@ function baseRpc(nom,corps){
   return baseJeton().then(function(t){ if(!t) throw new Error("non connecté"); return baseFetch("/rest/v1/rpc/"+nom,corps,t); });
 }
 var BASE_ROLES={rh:"RH",hierarchie:"Hiérarchie",operateur:"Opérateur"};
-function baseRendre(){
-  var h=document.getElementById("baseCorps"); if(!h) return;
-  var s=baseSession();
-  if(!s){ baseVueEmail(h); return; }
-  h.innerHTML='<p class="base-etat">Connexion…</p>';
+/* les messages de Supabase, en anglais, dits en français */
+function baseMsg(e){
+  var m=String(e&&e.message||e||"");
+  if(/rate limit|security purposes|too many/i.test(m)) return "trop de demandes, réessayez dans une minute";
+  if(/expired|invalid|not found/i.test(m)&&/token|otp|code/i.test(m)) return "code expiré ou incorrect";
+  if(/failed to fetch|networkerror|load failed|network/i.test(m)) return "pas de connexion internet";
+  return m;
+}
+/* Au démarrage, un compte venu de la base se revérifie en silence : un accès
+   retiré par la RH ramène à l'écran d'accès, un rôle changé s'applique. Hors
+   ligne, ou la base injoignable, on garde le compte de l'appareil. */
+function baseVerifierCompte(acc){
+  if(!acc||!acc.email||!baseSession()||navigator.onLine===false) return;
   baseRpc("biowanze_mon_compte",{}).then(function(l){
     var c=(l&&l[0])||null;
-    if(!c||!c.trigramme) baseVueRattacher(h,s);
-    else if(!c.valide) baseVueAttente(h,s,c);
-    else baseVueValide(h,s,c);
-  }).catch(function(e){ h.innerHTML='<p class="base-etat">'+esc(e.message)+'</p>'+baseBoutonSortir(); baseBrancherSortir(); });
-}
-function baseBoutonSortir(){ return '<div class="foot"><span class="sp"></span><button type="button" class="btnlike" id="baseSortir">Se déconnecter du compte en ligne</button></div>'; }
-function baseBrancherSortir(){ var b=document.getElementById("baseSortir"); if(b) b.onclick=function(){ try{ localStorage.removeItem("base/session"); }catch(e){} baseRendre(); }; }
-function baseVueEmail(h){
-  h.innerHTML='<div class="base-l"><p class="base-etat">Connectez-vous avec votre adresse e-mail : vous recevrez un <b>code à six chiffres</b>. Pas de mot de passe.</p>'
-    +'<label>Adresse e-mail<input id="baseEmail" type="email" autocomplete="email" inputmode="email" placeholder="prenom.nom@…"></label>'
-    +'<div class="base-err" id="baseErr"></div>'
-    +'<button type="button" class="btn" id="baseEnvoyer">Recevoir un code</button></div>';
-  var em=document.getElementById("baseEmail"), err=document.getElementById("baseErr");
-  document.getElementById("baseEnvoyer").onclick=function(){
-    var v=String(em.value||"").trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
-    err.textContent="Envoi…";
-    baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ baseVueCode(h,v); })
-      .catch(function(e){ err.textContent="Envoi impossible : "+e.message; });
-  };
-}
-function baseVueCode(h,email){
-  h.innerHTML='<div class="base-l"><p class="base-etat">Un code a été envoyé à <b>'+esc(email)+'</b>. Il est valable une heure.</p>'
-    +'<label>Code reçu<input id="baseCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456"></label>'
-    +'<div class="base-err" id="baseErr"></div>'
-    +'<button type="button" class="btn" id="baseValider">Se connecter</button>'
-    +'<button type="button" class="btnlike" id="baseRetour">← Autre adresse</button></div>';
-  var c=document.getElementById("baseCode"), err=document.getElementById("baseErr");
-  document.getElementById("baseRetour").onclick=function(){ baseVueEmail(h); };
-  document.getElementById("baseValider").onclick=function(){
-    var v=String(c.value||"").replace(/\D/g,"");
-    if(v.length<6){ err.textContent="Le code a six chiffres."; return; }
-    err.textContent="Vérification…";
-    baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
-      var s=baseGarder(j); s.email=email; lsSet("base/session",s); baseRendre();
-    }).catch(function(e){ err.textContent="Code refusé : "+e.message; });
-  };
-}
-function baseVueRattacher(h,s){
-  var db=HORAIRE_DB, ids=db?db.people.map(function(p){ return idLisible(p.id); }):[];
-  ids=ids.filter(function(x,i){ return ids.indexOf(x)===i; }).sort();
-  var moi=((st.account||lsGet("account/current")||{}).tri||"");
-  h.innerHTML='<div class="base-l"><p class="base-etat">Connecté avec <b>'+esc(s.email)+'</b>. Choisissez votre trigramme : un contremaître ou la RH validera votre accès.</p>'
-    +'<label>Mon trigramme<select id="baseTri">'+ids.map(function(t){ return '<option'+(t===idLisible(moi)?' selected':'')+'>'+esc(t)+'</option>'; }).join("")+'</select></label>'
-    +'<div class="base-err" id="baseErr"></div>'
-    +'<button type="button" class="btn" id="baseDemander">Demander l\'accès</button></div>'+baseBoutonSortir();
-  baseBrancherSortir();
-  document.getElementById("baseDemander").onclick=function(){
-    var err=document.getElementById("baseErr"); err.textContent="Envoi…";
-    baseRpc("biowanze_rattacher",{p_trigramme:document.getElementById("baseTri").value}).then(baseRendre)
-      .catch(function(e){ err.textContent=e.message; });
-  };
-}
-function baseVueAttente(h,s,c){
-  h.innerHTML='<p class="base-etat">Demande envoyée pour <b>'+esc(c.trigramme)+'</b> ('+esc(s.email)+'). Un contremaître ou la RH doit la valider : l\'accès s\'ouvre dès qu\'elle l\'est.</p>'
-    +'<div class="foot"><span class="sp"></span><button type="button" class="btn sm" id="baseActu">Actualiser</button></div>'+baseBoutonSortir();
-  document.getElementById("baseActu").onclick=baseRendre; baseBrancherSortir();
-}
-function baseVueValide(h,s,c){
-  var cadre=(c.role==="rh"||c.role==="hierarchie");
-  h.innerHTML='<p class="base-etat">Connecté : <b>'+esc(c.trigramme)+'</b> · '+esc(BASE_ROLES[c.role]||c.role)+' · '+esc(s.email)+'</p>'
-    +(cadre?'<div id="baseComptes"><p class="base-etat">Chargement des comptes…</p></div>':'')+baseBoutonSortir();
-  baseBrancherSortir();
-  if(cadre) baseComptes(c);
+    if(!c||!c.valide||!c.trigramme){ try{ localStorage.removeItem("account/current"); }catch(e){} location.reload(); return; }
+    var role=c.role==="rh"?"rh":"employe";
+    if(role!==acc.role||c.trigramme!==acc.tri||c.role!==acc.base){
+      acc.role=role; acc.tri=c.trigramme; acc.base=c.role; lsSet("account/current",acc); appliquerCompte(acc);
+    }
+  },function(){});
 }
 function baseComptes(moi){
-  var hote=document.getElementById("baseComptes");
+  var hote=document.getElementById("baseComptes"); if(!hote) return;
+  hote.innerHTML='<p class="base-etat">Chargement des comptes…</p>';
   baseRpc("biowanze_comptes",{}).then(function(l){
     l=l||[];
     var att=l.filter(function(x){ return !x.valide; }), ok=l.filter(function(x){ return x.valide; });
@@ -12931,9 +12873,13 @@ function baseComptes(moi){
       var b=el.querySelector("[data-ok]"); if(b) b.onclick=function(){ agir(true); };
       var n=el.querySelector("[data-non]"); if(n) n.onclick=function(){ agir(false); };
     });
-  }).catch(function(e){ hote.innerHTML='<p class="base-etat">'+esc(e.message)+'</p>'; });
+  }).catch(function(e){ hote.innerHTML='<p class="base-etat">'+esc(baseMsg(e))+'</p>'; });
 }
-(function(){ var f=document.getElementById("baseFold"); if(f) f.addEventListener("toggle",function(){ if(f.open) baseRendre(); }); })();
+(function(){ var f=document.getElementById("rhFold"); if(f) f.addEventListener("toggle",function(){
+  if(!f.open) return;
+  if(!baseSession()){ document.getElementById("baseComptes").innerHTML='<p class="base-etat">Reconnectez-vous avec votre adresse e-mail pour valider les accès.</p>'; return; }
+  baseComptes({role:"rh"});
+}); })();
 
 var PUSH_SUPABASE="https://pnizdddritizjbsksoir.supabase.co",
     PUSH_CLE_SUPABASE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
@@ -19573,7 +19519,6 @@ setTimeout(finIntro,7000);
    erreur. Le code RH ne protège rien de sensible (application statique, tout
    est côté client) : il ne fait que déverrouiller des options d'édition.
    ════════════════════════════════════════════════════════════════════════ */
-var RH_CODE="RH2027";   /* ← code BWZ RH (modifiable : changez cette valeur) */
 function _deviceId(){
   var d=lsGet("account/device");
   if(!d){ d="dev-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36); lsSet("account/device",d); }
@@ -19810,26 +19755,114 @@ function gateVueAccueil(){
   /* Accueil « plein écran » : logo sur le fond, boutons en bas (boutons statiques). */
   document.getElementById("gate").classList.add("is-home");
   document.getElementById("gateGoCreer").onclick=gateVueCreer;
-  document.getElementById("gateGoRH").onclick=gateVueRH;
   setTimeout(function(){ try{ document.getElementById("gateGoCreer").focus(); }catch(e){} },30);
 }
+/* L'ÉCRAN D'ACCÈS (le client, le 21/10/2026 : « toute la démarche pour
+   les accès doit se faire sur l'écran d'accès au site », et « il n'y a que
+   le RH qui peut valider l'accès »). Adresse e-mail, code reçu, trigramme,
+   puis l'attente : l'application ne s'ouvre qu'au compte validé par la RH.
+   La base (schéma biowanze, base/05-comptes.sql) en est seule juge. */
+var _gateAttente=false;
+function gateAvecDB(suite){
+  if(_gateDB&&_gateDB.people){ suite(_gateDB); return; }
+  gateSetBody('<p class="gate-lede" id="gateLoad">Chargement de l\'horaire…</p>'
+    +'<div class="gate-actions"><button type="button" class="gate-link" id="gateBack">← Retour</button></div>');
+  document.getElementById("gateBack").onclick=gateVueAccueil;
+  fetchHoraireDB().then(function(db){
+    _gateDB=db;
+    if(db&&db.people){ suite(db); return; }
+    var l=document.getElementById("gateLoad");
+    if(l){ l.innerHTML='Horaire indisponible. Vérifiez la connexion puis <button type="button" class="gate-link" id="gateRetry" style="display:inline;padding:0">réessayez</button>.';
+      var r=document.getElementById("gateRetry"); if(r) r.onclick=function(){ HORAIRE_DB=null; horaireFetching=null; gateAvecDB(suite); }; }
+  },function(){});
+}
+function gateSortirBase(){ try{ localStorage.removeItem("base/session"); }catch(e){} _gateAttente=false; gateVueEmail(); }
 function gateVueCreer(){
   document.getElementById("gate").classList.remove("is-home");
-  gateSetTitre("Connexion","Vérifiez vos infos, puis confirmez");
-  if(!_gateDB||!_gateDB.people){
-    gateSetBody('<p class="gate-lede" id="gateLoad">Chargement de l\'horaire…</p>'
-      +'<div class="gate-actions"><button type="button" class="gate-link" id="gateBack">← Retour</button></div>');
-    document.getElementById("gateBack").onclick=gateVueAccueil;
-    fetchHoraireDB().then(function(db){
-      _gateDB=db;
-      if(db&&db.people){ gateVueCreer(); return; }
-      var l=document.getElementById("gateLoad");
-      if(l){ l.innerHTML='Horaire indisponible. Vérifiez la connexion puis <button type="button" class="gate-link" id="gateRetry" style="display:inline;padding:0">réessayez</button>.';
-        var r=document.getElementById("gateRetry"); if(r) r.onclick=function(){ HORAIRE_DB=null; horaireFetching=null; gateVueCreer(); }; }
-    },function(){});
-    return;
+  if(baseSession()) gateBaseEtat(); else gateVueEmail();
+}
+function gateVueEmail(){
+  _gateAttente=false;
+  gateSetTitre("Connexion","Un code vous est envoyé par e-mail");
+  gateSetBody(''
+    +'<p class="gate-lede">Entrez votre adresse e-mail : vous recevrez un <b>code à six chiffres</b>. Pas de mot de passe à retenir.</p>'
+    +'<div class="gate-f"><label for="gateEmail">Adresse e-mail</label>'
+    +'<input id="gateEmail" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="prenom.nom@…"></div>'
+    +'<div class="gate-err" id="gateErr"></div>'
+    +'<div class="gate-actions">'
+    +'<button type="button" class="gate-btn primary" id="gateEnvoyer">Recevoir un code</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
+    +'</div>');
+  var em=document.getElementById("gateEmail"), err=document.getElementById("gateErr"), btn=document.getElementById("gateEnvoyer");
+  var der=lsGet("base/email"); if(der) em.value=der;
+  function envoyer(){
+    var v=String(em.value||"").trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
+    err.textContent=""; btn.disabled=true; btn.textContent="Envoi…";
+    baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
+      .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code"; err.textContent="Envoi impossible : "+baseMsg(e)+"."; });
   }
-  var db=_gateDB;
+  btn.onclick=envoyer;
+  em.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); envoyer(); } };
+  document.getElementById("gateBack").onclick=gateVueAccueil;
+  setTimeout(function(){ try{ em.focus(); }catch(e){} },30);
+}
+function gateVueCode(email){
+  gateSetTitre("Code reçu",email);
+  gateSetBody(''
+    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir. Le code est valable une heure ; regardez aussi les courriers indésirables.</p>'
+    +'<div class="gate-f"><label for="gateCode">Code à six chiffres</label>'
+    +'<input id="gateCode" class="gate-confirm" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••"></div>'
+    +'<div class="gate-err" id="gateErr"></div>'
+    +'<div class="gate-actions">'
+    +'<button type="button" class="gate-btn primary" id="gateValider">Se connecter</button>'
+    +'<button type="button" class="gate-link" id="gateRenvoi">Renvoyer un code</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
+    +'</div>');
+  var c=document.getElementById("gateCode"), err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false;
+  function valider(){
+    var v=String(c.value||"").replace(/\D/g,"");
+    if(v.length<6){ err.textContent="Le code a six chiffres."; return; }
+    if(enCours) return; enCours=true;
+    err.textContent=""; btn.disabled=true; btn.textContent="Vérification…";
+    baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
+      var s=baseGarder(j); s.email=email; lsSet("base/session",s); gateBaseEtat();
+    }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter"; err.textContent="Code refusé : "+baseMsg(e)+"."; try{ c.select(); }catch(x){} });
+  }
+  btn.onclick=valider;
+  /* six chiffres tapés ou collés : on n'attend pas le bouton */
+  c.oninput=function(){ err.textContent=""; if(String(c.value).replace(/\D/g,"").length===6) valider(); };
+  c.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); valider(); } };
+  document.getElementById("gateRenvoi").onclick=function(){
+    err.textContent="Envoi…";
+    baseFetch("/auth/v1/otp",{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; })
+      .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; });
+  };
+  document.getElementById("gateBack").onclick=gateVueEmail;
+  setTimeout(function(){ try{ c.focus(); }catch(e){} },30);
+}
+/* Où en est le compte ? Sans trigramme : le choisir ; non validé : attendre ;
+   validé : entrer. */
+function gateBaseEtat(){
+  gateSetTitre("Connexion",(baseSession()||{}).email||"");
+  gateSetBody('<p class="gate-lede">Vérification de votre accès…</p>');
+  baseRpc("biowanze_mon_compte",{}).then(function(l){
+    var c=(l&&l[0])||null;
+    if(!c||!c.trigramme) gateAvecDB(gateVueRattacher);
+    else if(!c.valide) gateVueAttente(c);
+    else gateAvecDB(function(db){ gateEntrer(c,db); });
+  }).catch(function(e){
+    if(!baseSession()){ gateVueEmail(); return; }
+    gateSetBody('<p class="gate-lede">Accès impossible à vérifier : '+esc(baseMsg(e))+'.</p>'
+      +'<div class="gate-actions"><button type="button" class="gate-btn primary" id="gateRe">Réessayer</button>'
+      +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button></div>');
+    document.getElementById("gateRe").onclick=gateBaseEtat;
+    document.getElementById("gateBack").onclick=gateSortirBase;
+  });
+}
+function gateVueRattacher(db){
+  _gateAttente=false;
+  gateSetTitre("Votre trigramme","Vérifiez vos infos, puis demandez l'accès");
   /* Un SEUL choix : l'identifiant. Tous les trigrammes dans une liste triée ;
      le suffixe n'apparaît que pour départager d'éventuels doublons lisibles. */
   var gens=db.people.slice().sort(function(a,b){ return idLisible(a.id).localeCompare(idLisible(b.id)); });
@@ -19841,8 +19874,8 @@ function gateVueCreer(){
     +'<div class="gp" id="gateProfil"></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
-    +'<button type="button" class="gate-btn primary" id="gateConfirm">C\'est bien moi — me connecter</button>'
-    +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
+    +'<button type="button" class="gate-btn primary" id="gateConfirm">C\'est bien moi — demander l\'accès</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
     +'</div>');
   var idSel=document.getElementById("gateId"), btn=document.getElementById("gateConfirm"),
       err=document.getElementById("gateErr");
@@ -19852,43 +19885,47 @@ function gateVueCreer(){
   if(savedId){ for(var o=0;o<idSel.options.length;o++){ if(idSel.options[o].value===savedId){ idSel.value=savedId; break; } } }
   majProfil();
   idSel.onchange=function(){ err.textContent=""; majProfil(); };
-  /* La carte profil (poste, équipe, statut, polyvalences) sert de vérification :
-     on confirme d'un bouton unique plutôt que de recopier une valeur déjà visible. */
   btn.onclick=function(){
     var p=personne(); if(!p){ err.textContent="Choisissez votre trigramme."; return; }
-    gateFinaliser({ role:"employe", tri:p.id, cat:p.cat });
+    btn.disabled=true; err.textContent="";
+    baseRpc("biowanze_rattacher",{p_trigramme:p.id}).then(gateBaseEtat)
+      .catch(function(e){ btn.disabled=false; err.textContent=baseMsg(e); });
   };
-  document.getElementById("gateBack").onclick=gateVueAccueil;
+  document.getElementById("gateBack").onclick=gateSortirBase;
   setTimeout(function(){ try{ idSel.focus(); }catch(e){} },30);
 }
-function gateVueRH(){
-  document.getElementById("gate").classList.remove("is-home");
-  gateSetTitre("Connexion BWZ RH","Accès réservé — options d'administration");
+function gateVueAttente(c){
+  _gateAttente=true;
+  gateSetTitre("Accès demandé",(baseSession()||{}).email||"");
   gateSetBody(''
-    +'<p class="gate-lede">Entrez le code <b>BWZ RH</b> pour déverrouiller les options d\'administration.</p>'
-    +'<div class="gate-f"><label for="gateRHCode">Code RH</label>'
-    +'<input id="gateRHCode" type="password" autocomplete="off" spellcheck="false" placeholder="Code BWZ RH"></div>'
-    +'<div class="gate-err" id="gateRHErr"></div>'
+    +'<p class="gate-lede">Demande envoyée pour <b>'+esc(idLisible(c.trigramme))+'</b>. La <b>RH</b> doit la valider : l\'application s\'ouvre dès qu\'elle l\'est.</p>'
     +'<div class="gate-actions">'
-    +'<button type="button" class="gate-btn primary" id="gateRHGo">Se connecter</button>'
-    +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
+    +'<button type="button" class="gate-btn primary" id="gateRe">Vérifier maintenant</button>'
+    +'<button type="button" class="gate-link" id="gateAutreTri">Ce n\'est pas mon trigramme</button>'
+    +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
     +'</div>');
-  var code=document.getElementById("gateRHCode"), err=document.getElementById("gateRHErr");
-  function tenter(){
-    if(String(code.value||"").trim().toUpperCase()===String(RH_CODE).toUpperCase()){ gateFinaliser({ role:"rh" }); }
-    else { err.textContent="Code incorrect."; try{ code.select(); }catch(e){} }
-  }
-  document.getElementById("gateRHGo").onclick=tenter;
-  code.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); tenter(); } };
-  document.getElementById("gateBack").onclick=gateVueAccueil;
-  setTimeout(function(){ try{ code.focus(); }catch(e){} },30);
+  document.getElementById("gateRe").onclick=gateBaseEtat;
+  document.getElementById("gateAutreTri").onclick=function(){ gateAvecDB(gateVueRattacher); };
+  document.getElementById("gateBack").onclick=gateSortirBase;
+}
+/* revenu dans l'application pendant l'attente : on revérifie seul */
+document.addEventListener("visibilitychange",function(){
+  var g=document.getElementById("gate");
+  if(document.visibilityState==="visible"&&_gateAttente&&g&&!g.hidden) gateBaseEtat();
+});
+function gateEntrer(c,db){
+  _gateAttente=false;
+  var p=db.people.filter(function(x){ return x.id===c.trigramme; })[0];
+  gateFinaliser({ role:c.role==="rh"?"rh":"employe", tri:c.trigramme, cat:p?p.cat:"",
+                  email:(baseSession()||{}).email||"", base:c.role });
 }
 function gateFinaliser(partial){
-  var acc={ role:partial.role, tri:partial.tri||"", cat:partial.cat||"", device:_deviceId(), at:new Date().toISOString() };
+  var acc={ role:partial.role, tri:partial.tri||"", cat:partial.cat||"", email:partial.email||"", base:partial.base||"",
+            device:_deviceId(), at:new Date().toISOString() };
   lsSet("account/current",acc);
   appliquerCompte(acc);
   fermerGate();
-  if(typeof flash==="function") flash(acc.role==="rh"?"Connecté en BWZ RH":"Connecté — bienvenue !");
+  if(typeof flash==="function") flash(acc.role==="rh"?"Connecté — RH":"Connecté — bienvenue !");
   if(_gateOnOk){ var f=_gateOnOk; _gateOnOk=null; f(); }
 }
 function appliquerCompte(acc){
@@ -19930,6 +19967,7 @@ function majCompteUI(){
   var L=[];
   if(acc.role==="rh"){ L.push('<span class="gate-rh-tag">BWZ RH</span>'); if(acc.tri) L.push('Identifiant : <b>'+esc(idLisible(acc.tri))+'</b>'); }
   else { L.push('Trigramme lié : <b>'+esc(idLisible(acc.tri||"—"))+'</b>'); if(acc.cat) L.push('Fonction : <b>'+esc(acc.cat)+'</b>'); }
+  if(acc.email) L.push('Compte : <b>'+esc(acc.email)+'</b>');
   if(acc.at){ try{ L.push('Lié le '+new Date(acc.at).toLocaleDateString("fr-BE")); }catch(e){} }
   el.innerHTML=L.map(function(x){return '<span>'+x+'</span>';}).join("");
 }
@@ -19969,7 +20007,7 @@ function deconnecterCompte(){
     ok:"Se déconnecter", annuler:"Annuler",
     icone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>'
   }, function(){
-    try{ localStorage.removeItem("account/current"); }catch(e){}
+    try{ localStorage.removeItem("account/current"); localStorage.removeItem("base/session"); }catch(e){}
     location.reload();
   });
 }
@@ -20038,11 +20076,15 @@ function boot(){
       loadMonth(y,m);
       fetchHoraireDB().then(finIntro,finIntro);
     }
-    /* Compte obligatoire : un trigramme doit être lié à l'appareil (ou une
-       connexion BWZ RH) avant d'accéder à l'application. Remplace l'ancien
+    /* Compte obligatoire : un trigramme doit être lié à l'appareil,
+       par un compte validé par la RH, avant d'accéder à l'application. Remplace l'ancien
        onboarding sautable ; les infos de paie se règlent ensuite dans Réglages. */
     var _acc=lsGet("account/current");
+    /* L'ancien accès RH par un code écrit dans la page ne vaut plus : la RH
+       entre par son compte validé dans la base (le client, le 21/10/2026). */
+    if(_acc && _acc.role==="rh" && !_acc.email){ try{ localStorage.removeItem("account/current"); }catch(e){} _acc=null; }
     if(_acc && _acc.role){
+      baseVerifierCompte(_acc);
       appliquerCompte(_acc);
       if(!st.state.onboarded){ st.state.onboarded=true; save("config/state",st.state); }
       startApp();
