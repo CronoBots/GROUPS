@@ -70,15 +70,25 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 
 ## La plateforme (inventaire du 21/10/2026, `docs/plateforme.md`)
 
-1. **Un classeur de fonction** (par exemple Poly arrière) : le récapitulatif
-   ne reçoit que des VALEURS. Les formules du pied (prévisions VA, RTT…) et
-   d'éventuelles listes déroulantes vivent dans les 14 classeurs sources,
-   que nous n'avons pas. En recevoir un, même d'une ancienne année,
-   permettrait de reprendre les calculs tels quels.
-2. **« xxx »** (« congé accordé sous restriction – rappelable ») est dans
-   la légende mais dans aucune journée de 2026 : encore utilisé ?
-3. **Les bornes du flex time** diffèrent selon les personnes ([−8 ; 80],
-   [−8 ; 24], sous −9) : quelle règle les fixe ?
+1. **Les bornes du flex time** : [−8 ; 80] pour 70 personnes, [−8 ; 24]
+   pour 11 (dans 02, 08, 09 et 12 ; six d'entre elles arrivées en cours
+   d'année, quatre présentes toute l'année ; ni le temps partiel, ni le
+   statut, ni la fonction ne l'expliquent). Quelle règle ? Nouvel engagé,
+   période d'essai ?
+2. **Trois personnes n'arrivent jamais au récapitulatif** (les macros
+   copient des plages fixes) : une 6e personne en Fermentation, une en
+   Chaudières + renfort, un « CM Travaux ». Faut-il qu'elles soient dans
+   l'application ?
+
+## À la RH (d'après les 14 classeurs de fonction)
+
+1. Le solde RTT `64-(n*4)` et le `-4` : que retranche-t-on ?
+2. Le DTT `report + 24 + 16` : d'où viennent ces crédits ?
+3. « RTT- » (41 fois, du 02 au 10/01) : des RTT de 2025 pris en janvier ?
+4. Pourquoi les RHS n'ont-elles aucun compteur ?
+5. Les couleurs peintes à la main : jaune, orange (SD26 ?), lavande ?
+6. Des erreurs de formule ont été mesurées (un flex time jamais compté,
+   un DTT fictif de 224 h…) : la liste est dans `docs/plateforme.md`.
 
 ## Écarts connus — aucune question
 
