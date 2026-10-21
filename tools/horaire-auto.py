@@ -635,6 +635,35 @@ def synchro_base():
     etat((r.stdout or "").strip() or "Base : non recopiée.")
 
 
+def identites_base(source, annee):
+    """LES NOMS ET MATRICULES (étape 2, 21/10/2026) : lus dans le classeur
+    par le convertisseur, écrits dans un fichier du dossier temporaire —
+    jamais dans le dépôt, qui est public — puis envoyés à la base, qui seule
+    les garde ; base-synchro.py efface le fichier. Le journal de l'action
+    n'en dit que le nombre. Jamais d'échec pour eux."""
+    if not os.environ.get("PUSH_CLE"):
+        return
+    fd, chemin = tempfile.mkstemp(prefix="biowanze-identites-", suffix=".json")
+    os.close(fd)
+    sortie = os.path.join(tempfile.gettempdir(), "biowanze-identites-horaire.json")
+    try:
+        r = subprocess.run([sys.executable, os.path.join(OUTILS, "convertir-horaire.py"),
+                            source, sortie, str(annee or 2026), "--identites=" + chemin],
+                           cwd=RACINE, capture_output=True, text=True)
+        if r.returncode != 0:
+            etat("Base : identités non lues (convertisseur, code %d)." % r.returncode)
+            return
+        r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py"),
+                            "--identites=" + chemin], cwd=RACINE, capture_output=True, text=True)
+        etat((r.stdout or "").strip() or "Base : identités non envoyées.")
+    finally:
+        for f in (chemin, sortie):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+
+
 def main():
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
     avant_h, avant_r = horaires_installes(), _lire(RECYC)
@@ -705,6 +734,8 @@ def main():
     for genre, source, uids in lots:
         f = traiter_horaire if genre == "horaire" else traiter_recyclage
         resultats.append((genre, uids) + f(source))
+        if genre == "horaire" and resultats[-1][2] == 0:
+            identites_base(source, resultats[-1][7])
 
     installes = [x for x in resultats if x[5]]
     publie = True

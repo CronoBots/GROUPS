@@ -961,3 +961,24 @@ celle de tout le projet, partagé avec PINO, qui n'a aucun compte ; s'il en
 prend un jour, la règle s'appliquera aussi à lui. Un sous-domaine
 (`…@xx.cropenergies.com`) n'est pas accepté : à ajouter dans la table si
 besoin.
+
+**Les noms, prénoms et matricules dans la base (21/10/2026).** Le client
+avait dit « oui » le 20/10 aux noms et matricules dans la base. L'onglet
+« Polyvalence » porte matricule (colonne A, quand ce n'est pas un statut
+« interim », « Adj CM »…), nom et prénom ; `polyvalence()` les range à
+côté de la fiche, et le rattachement — celui qui donne déjà la
+polyvalence au bon identifiant, homonymes et CORRECTIONS compris — les
+donne à l'identifiant. À défaut de ligne (5 contremaîtres et 4 opérateurs
+en formation, absents de l'onglet), le nom tel que la ligne des noms
+l'écrit, « Nom P. ». Rien n'entre dans la sortie : seule l'option
+`--identites=FICHIER` l'écrit, refusée si le fichier est dans le dépôt
+(éprouvé), en 0600. Le robot, après un horaire dont les portes sont
+ouvertes, convertit avec cette option dans le dossier temporaire, envoie
+par `base-synchro.py --identites` (`public.biowanze_identites`, clé du
+robot, `base/07-identites.sql`) et efface ; son journal public n'en dit
+que le nombre. Le matricule n'est rendu par aucune fonction de lecture.
+Mesuré : sortie du convertisseur identique à l'octet avec et sans
+l'option ; `mettre-a-jour.py` à blanc rend `data/horaire-2026.json` à
+l'octet ; première copie 78 personnes (69 complètes, 48 matricules à six
+chiffres, 9 en « Nom P. ») ; second envoi 0 changement ; mauvaise clé
+refusée ; fichiers temporaires effacés.

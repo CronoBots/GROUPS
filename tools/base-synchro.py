@@ -17,6 +17,10 @@ que l'empreinte. Sans elle, le script ne fait rien et le dit.
 
     PUSH_CLE=… python3 tools/base-synchro.py            # ce qui a changé
     PUSH_CLE=… python3 tools/base-synchro.py --tout     # tout, même à jour
+    PUSH_CLE=… python3 tools/base-synchro.py --identites=/tmp/x.json
+
+La troisième envoie les noms, prénoms et matricules qu'a écrits
+convertir-horaire.py --identites (un fichier HORS du dépôt), puis l'efface.
 """
 import json
 import os
@@ -50,11 +54,29 @@ def horaires():
     return out
 
 
+def identites(cle, chemin):
+    """Les noms et matricules : ils ne passent que par ce fichier, effacé
+    aussitôt envoyé, et le journal (public) n'en dit que le nombre."""
+    try:
+        lot = json.load(open(chemin, encoding="utf-8"))
+        n = rpc("biowanze_identites", {"p_cle": cle, "p_lot": lot})
+        print("Base : identités, %d personne(s) mise(s) à jour sur %d." % (n or 0, len(lot)))
+    finally:
+        try:
+            os.remove(chemin)
+        except OSError:
+            pass
+    return 0
+
+
 def main():
     cle = os.environ.get("PUSH_CLE")
     if not cle:
         print("Base : secret PUSH_CLE absent, rien recopié.")
         return 0
+    for a in sys.argv[1:]:
+        if a.startswith("--identites="):
+            return identites(cle, a.split("=", 1)[1])
     tout = "--tout" in sys.argv
     etat = {int(x["annee"]): x["maj"] for x in (rpc("biowanze_synchro_etat", {"p_cle": cle}) or [])}
     faits = []

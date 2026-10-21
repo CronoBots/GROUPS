@@ -19,7 +19,7 @@ Deux règles de confidentialité, non négociables :
   - les commentaires Excel portent le nom de leur auteur en préfixe, retiré
     ici, y compris au milieu d'un fil de discussion.
 """
-import datetime, difflib, hashlib, json, re, sys, unicodedata, zipfile
+import datetime, difflib, hashlib, json, os, re, sys, unicodedata, zipfile
 import xml.etree.ElementTree as ET
 
 M = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -177,6 +177,19 @@ CORRECTIONS = {
 # Les corrections qu'a employées l'onglet Polyvalence : sans elles, une
 # correction qui n'y sert qu'à cet onglet se signalerait comme « inutilisée ».
 _corrections_polyvalence = set()
+
+# L'IDENTITÉ DE CHACUN, pour la base BIOWANZE seule (étape 2 ; le client, le
+# 20/10/2026 : noms et matricules dans la base, « oui »). L'onglet
+# « Polyvalence » porte le matricule, le nom et le prénom ; polyvalence() les
+# range ici, à côté de la fiche, et le rattachement les donne à l'identifiant
+# qui reçoit cette fiche. Rien de cela n'entre dans la sortie : seule l'option
+# --identites=FICHIER l'écrit, et HORS du dépôt (le robot l'envoie à la base
+# puis l'efface).
+_identite_ligne = {}
+IDENTITES = {}
+# À défaut de ligne dans « Polyvalence » (contremaîtres, opérateurs en
+# formation), le nom tel que la ligne des noms l'écrit, « Nom P. ».
+_AFFICHES = {}
 
 
 def _cle_nom(t):
@@ -1262,6 +1275,9 @@ def polyvalence(cl, annuaire):
             fiche["dates"] = dates
         if not fiche:
             continue
+        _identite_ligne[id(fiche)] = {
+            "nom": famille, "prenom": prenom,
+            "matricule": statut if re.match(r"^\d[\d.\s]*$", statut) else None}
         # On rend les lignes TELLES QUELLES, sans en écraser aucune : le
         # classeur en porte deux pour GBT — Gluten et Chaudières — et ce
         # sont deux personnes. C'est au rattachement de les départager.
@@ -1479,7 +1495,7 @@ def convertir(chemin_xlsm, annee):
         # sous celui-là que l'onglet Polyvalence inscrit la personne.
         f = fiches.setdefault(cle, {"base": base, "officiel": bool(officiel),
                                     "reel": annuaire.get(cle) or _initiales(nom),
-                                    "nomcle": _cle_nom(nom),
+                                    "nomcle": _cle_nom(nom), "affiche": nom,
                                     "cat": categorie, "d": {}, "c": {}, "e": [],
                                     "postes": {}, "ct": []})
         # Le poste est propre à la FEUILLE : la même personne est « Adjoints
@@ -1581,6 +1597,7 @@ def convertir(chemin_xlsm, annee):
                                  key=lambda x: (x.get("d") or "", x["l"]))
             gens[ident] = p
             cles_ident[ident] = f.get("nomcle")
+            _AFFICHES[ident] = f.get("affiche")
             reels.setdefault(f.get("reel"), []).append(ident)
 
     # La polyvalence se rattache par le trigramme RÉEL — le client : « dans
@@ -1606,11 +1623,13 @@ def convertir(chemin_xlsm, annee):
             vise = [i for i in libres if cles_ident.get(i) == cle_lig]
             if len(vise) == 1:
                 gens[vise[0]]["poly"] = fiche
+                IDENTITES[vise[0]] = _identite_ligne.get(id(fiche))
                 libres.remove(vise[0])
             else:
                 restantes.append(fiche)
         if len(restantes) == 1 and len(libres) == 1:
             gens[libres[0]]["poly"] = restantes[0]
+            IDENTITES[libres[0]] = _identite_ligne.get(id(restantes[0]))
         elif restantes:
             print("  polyvalence : %d ligne(s) « %s » pour %d personne(s)"
                   " (%s) que le nom ne départage pas — %s. Les trancher dans"
@@ -1736,3 +1755,23 @@ if __name__ == "__main__":
         print(out)
     else:
         open(dst, "w", encoding="utf-8").write(out)
+    for a in sys.argv[1:]:
+        if a.startswith("--identites="):
+            # jamais dans le dépôt : il est public
+            cible = os.path.realpath(a.split("=", 1)[1])
+            depot = os.path.realpath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if cible == depot or cible.startswith(depot + os.sep):
+                sys.exit("--identites : le fichier doit être HORS du dépôt, il porte des noms.")
+            fd = os.open(cible, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                ids = {}
+                for p in data["people"]:
+                    v = IDENTITES.get(p["id"])
+                    if not v and _AFFICHES.get(p["id"]):
+                        v = {"nom": _AFFICHES[p["id"]].strip(), "prenom": None, "matricule": None}
+                    if v:
+                        ids[p["id"]] = v
+                json.dump(ids, f, ensure_ascii=False)
+            print("Identités : %d personnes sur %d, dont %d par l'onglet Polyvalence."
+                  % (len(ids), len(data["people"]),
+                     sum(1 for v in IDENTITES.values() if v)), file=sys.stderr)
