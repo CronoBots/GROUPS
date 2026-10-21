@@ -328,3 +328,23 @@ publiés. L'extension a été retirée avant le commit.
 corbeille après l'avoir lu, et l'outil Gmail de la session ne télécharge
 pas les pièces jointes ; le client a déposé le classeur dans la
 conversation.
+
+
+## Une chaudière prise pour un nom (21/10/2026)
+
+Le 21/10/2026 à 12 h 45 UTC, le robot a installé le classeur 2027 mais
+refusé le 2026 : **porte 8 fermée** sur un mot à majuscule suivi de « Demandé ». Le
+client a reçu l'e-mail d'échec de GitHub (« All jobs have failed ») :
+c'est le code 1 d'une porte fermée, voulu — une forme de nom non regardée
+EST une faute. Le client a déposé le classeur dans la conversation (l'outil
+Gmail ne télécharge pas les pièces jointes, comme le 19/10).
+
+Lu dans son contexte : un commentaire du 20/10, « Renfort pour démarrage
+Stein/arrêt … Demandé le 20/10 15h ». Le mot revient dans des dizaines
+de commentaires depuis janvier (« Test de performance … », « fuite
+blowdown … ») : c'est une chaudière et son fabricant, comme Stein, pas
+une personne. Il passait jusque-là parce qu'un point ou une minuscule le
+suivait ; ici, deux espaces puis « Demandé » avec sa majuscule. Admis dans
+`tools/formes-admises.txt` avec sa raison, pour cette forme seule.
+Installé ensuite : les huit portes ouvertes, 63 journées modifiées chez
+25 personnes, 12 compteurs ; intégralité et garde-fou à 0.
