@@ -2195,8 +2195,6 @@ body.sheet-on{overflow:hidden}
 .pl-t{border-collapse:separate; border-spacing:0; font-size:12px}
 .pl-t th,.pl-t td{border-bottom:1px solid var(--line2); white-space:nowrap}
 .pl-t thead th{position:sticky; top:0; z-index:2; background:var(--surface); padding:6px 2px; font-weight:600; text-align:center; height:44px; box-sizing:border-box}
-.pl-t thead tr.pl-cvl th{top:44px; height:26px; padding:2px; border-bottom:1px solid var(--line)}
-.pl-t thead tr.pl-cvl .pl-qui{font-size:11px; color:var(--muted); vertical-align:middle}
 .pl-cv{display:inline-flex; gap:2px}
 .pl-cv i{font-style:normal; min-width:14px; padding:1px 2px; border-radius:4px; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:700; color:#fff; line-height:1.4}
 .pl-cv .c-am{background:var(--am)} .pl-cv .c-pm{background:var(--pm)} .pl-cv .c-n{background:var(--n)}
@@ -2207,10 +2205,6 @@ body.sheet-on{overflow:hidden}
 .pl-t thead th.pl-fe b{color:var(--out)}
 .pl-t thead th.pl-we{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}
 .pl-t thead th.pl-auj b{display:inline-block; min-width:26px; padding:2px 4px; border-radius:8px; background:var(--in); color:var(--sur-in)}
-.pl-t .pl-qui{position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; padding:6px 10px 6px 12px; border-right:1px solid var(--line); min-width:150px; max-width:190px}
-.pl-t thead .pl-qui{z-index:3; font-size:11.5px; color:var(--muted); vertical-align:bottom}
-.pl-t tbody .pl-qui{cursor:pointer; display:flex; align-items:center; gap:9px}
-.pl-t tbody tr:hover .pl-qui{background:var(--surface2)}
 .pl-tri{flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:var(--in-soft); color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700}
 .pl-id{min-width:0; display:flex; flex-direction:column}
 .pl-id b{font-size:13px; overflow:hidden; text-overflow:ellipsis}
@@ -2251,13 +2245,7 @@ body.sheet-on{overflow:hidden}
 .pl-panneau[hidden]{display:none}
 @media (max-width:699px){
   .pl-panneau{top:auto; width:100%; max-height:86vh; border-left:0; border-top:1px solid var(--line); border-radius:18px 18px 0 0; box-shadow:0 -16px 40px rgba(0,0,0,.3); padding-bottom:env(safe-area-inset-bottom,0px)}
-  /* au téléphone, la personne se réduit à son trigramme (le nom est dans
-     sa fiche) : trois jours de la semaine tiennent à l'écran au lieu de deux */
-  .pl-t .pl-qui{min-width:52px; max-width:52px; padding:4px 6px}
-  .pl-t tbody .pl-qui .pl-id{display:none}
-  .pl-t thead .pl-qui{font-size:0}
-  .pl-t thead tr.pl-cvl .pl-qui{font-size:9.5px}
-  .pl-tri{width:38px; height:30px; font-size:10.5px}
+          .pl-tri{width:38px; height:30px; font-size:10.5px}
   .pl-sem td.pl-c{min-width:84px}
   .pl-legende{font-size:10.5px; gap:4px 10px; padding:6px 12px}
   .pl-nav b{min-width:0}
@@ -2395,6 +2383,83 @@ body.sheet-on{overflow:hidden}
   .ws-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ws-kpi b{font-size:24px}
   .ws-tete h2{font-size:19px}
+}
+/* le planning dans le sens du classeur : dates en lignes, personnes en
+   colonnes (21/10/2026) */
+.pl-v thead th{height:auto; vertical-align:bottom}
+.pl-v thead th.pl-coin{position:sticky; left:0; top:0; z-index:4; width:52px; min-width:52px; font-size:15px; font-weight:700; color:var(--ink2)}
+.pl-v thead th.pl-coin small{display:block; font-size:10px; font-weight:600; color:var(--muted)}
+.pl-v thead th.pl-cvh{position:sticky; left:52px; top:0; z-index:4; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; border-right:1px solid var(--line)}
+.pl-v thead th.pl-pers{min-width:96px; max-width:120px; padding:8px 4px 7px; cursor:pointer; border-bottom:1px solid var(--line)}
+.pl-v thead th.pl-pers:hover{background:var(--surface2)}
+.pl-v .pl-pers .pl-tri{margin:0 auto 5px}
+.pl-v .pl-pn{display:block; font-size:12px; font-weight:650; color:var(--ink); white-space:normal; line-height:1.2; max-height:2.4em; overflow:hidden}
+.pl-v .pl-pp{display:block; font-size:10.5px; font-weight:500; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px}
+.pl-v tbody th.pl-date{position:sticky; left:0; z-index:1; width:52px; min-width:52px; background:var(--surface); text-align:center; padding:4px 2px; border-right:0}
+.pl-v tbody th.pl-date small{display:block; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+.pl-v tbody th.pl-date b{display:block; font-size:15px; font-variant-numeric:tabular-nums}
+.pl-v tbody td.pl-cvd{position:sticky; left:52px; z-index:1; background:var(--surface); padding:4px 6px; text-align:center; border-right:1px solid var(--line)}
+.pl-v tbody tr.pl-we th.pl-date,.pl-v tbody tr.pl-we td.pl-cvd{background:color-mix(in srgb,var(--surface2) 60%,var(--surface))}
+.pl-v tbody tr.pl-we th.pl-date b{color:var(--muted)}
+.pl-v tbody tr.pl-fe th.pl-date b{color:var(--out)}
+.pl-v tbody tr.pl-auj th.pl-date b{display:inline-block; min-width:28px; padding:2px 4px; border-radius:8px; background:var(--in); color:var(--sur-in)}
+.pl-v tbody tr.pl-auj td.pl-c{box-shadow:inset 0 1px 0 var(--in),inset 0 -1px 0 var(--in)}
+.pl-v tbody tr.pl-deb th,.pl-v tbody tr.pl-deb td{border-top:1px solid var(--line)}
+.pl-v tbody tr.pl-we td.pl-c{background:color-mix(in srgb,var(--surface2) 70%,var(--paper))}
+.pl-v td.pl-c{width:auto; min-width:96px; max-width:none; height:48px}
+.pl-v td.pl-c .pl-pa{max-width:88px}
+.pl-v.pl-sem td.pl-c{height:58px}
+@media (max-width:699px){
+  .pl-v thead th.pl-pers{min-width:72px; max-width:80px}
+  .pl-v td.pl-c{min-width:72px}
+  .pl-v td.pl-c .pl-pa{max-width:64px}
+  .pl-v .pl-pn{font-size:11px}
+  .pl-v .pl-pp{display:none}
+  .pl-v thead th.pl-cvh,.pl-v tbody td.pl-cvd{padding-left:3px; padding-right:3px; width:30px; min-width:30px; left:44px}
+  .pl-v thead th.pl-cvh{font-size:0}
+  .pl-v thead th.pl-cvh::after{content:"Prés."; font-size:9px}
+  .pl-v thead th.pl-coin,.pl-v tbody th.pl-date{width:44px; min-width:44px}
+  .pl-v thead th.pl-coin{font-size:13px}
+  .pl-v .pl-cv{flex-direction:column; gap:1px}
+  .pl-v .pl-cv i{min-width:16px; font-size:9.5px; line-height:1.25}
+}
+#grAuj{display:inline-flex; align-items:center; gap:6px}
+#grAuj svg{display:none}
+@media (max-width:699px){ #grAuj svg{display:block} }
+@media (max-width:359px){
+  .grille .pl-barre{gap:4px; padding-left:8px; padding-right:8px}
+  .grille .pl-barre .pl-nav b{font-size:11.5px; letter-spacing:-.01em}
+  .grille .pl-barre .pl-nav button{width:24px}
+}
+.pl-loupe{display:none; width:38px; height:38px; flex:0 0 auto; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink2); cursor:pointer; place-items:center}
+@media (max-width:699px){
+  /* le téléphone : une ligne pour le menu, une pour la période, une pour
+     les équipes ; le titre se tait (le menu le dit déjà) */
+  .grille.ws .ws-nav{flex-direction:row; align-items:center; padding:6px 8px 6px 10px; gap:6px}
+  .grille.ws .ws-marque{order:2; padding:0}
+  .grille.ws .ws-marque img,.grille.ws .ws-marque > div{display:none}
+  .grille.ws .ws-menu{order:1; flex:1; min-width:0; padding:0}
+  .grille.ws .ws-x-tel{width:34px; height:34px; font-size:18px}
+  .ws-planning .pl-tete{display:none}
+  .pl-barre{flex-wrap:nowrap; padding:10px 12px 8px; gap:6px}
+  .pl-nav{flex:1; min-width:0}
+  .pl-nav b{flex:1; min-width:0; font-size:12.5px; overflow:hidden; text-overflow:ellipsis}
+  .pl-barre #grAuj{width:36px; height:36px; padding:0; display:grid; place-items:center}
+  .pl-nav button{width:28px; height:30px}
+  .pl-nav b{padding:0 2px}
+  .pl-loupe{width:36px; height:36px}
+  .pl-barre #grAuj span{display:none}
+  .pl-seg button{padding:6px 10px; font-size:12px}
+  .pl-seg button[aria-pressed="false"]{display:none}
+  .pl-seg button{font-size:0}
+  .pl-seg button::after{content:attr(data-court); font-size:12px}
+  .pl-loupe{display:grid}
+  .pl-barre input[type=search]{display:none}
+  .pl-barre.cherche > *:not(input):not(.pl-loupe){display:none}
+  .pl-barre.cherche input[type=search]{display:block; flex:1}
+  .pl-equipes{padding:0 12px 8px}
+  .pl-equipes button{padding:6px 11px; font-size:12px}
+  .pl-legende{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:6px 12px; white-space:nowrap}
 }
 .gr-entree{display:flex; align-items:center; gap:12px}
 .gr-entree div{flex:1; min-width:0}
@@ -5455,8 +5520,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
       </header>
       <div class="pl-barre">
         <div class="pl-nav"><button type="button" id="grPrec" aria-label="Période précédente">&lsaquo;</button><b id="grPeriode"></b><button type="button" id="grSuiv" aria-label="Période suivante">&rsaquo;</button></div>
-        <button type="button" class="btnlike" id="grAuj">Aujourd'hui</button>
-        <div class="pl-seg" id="grVue" role="group" aria-label="Affichage"><button type="button" data-v="semaine">Semaine</button><button type="button" data-v="mois">Mois</button></div>
+        <button type="button" class="btnlike" id="grAuj" aria-label="Aujourd'hui"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg><span>Aujourd'hui</span></button>
+        <div class="pl-seg" id="grVue" role="group" aria-label="Affichage"><button type="button" data-v="semaine" data-court="Sem.">Semaine</button><button type="button" data-v="mois" data-court="Mois">Mois</button></div>
+        <button type="button" class="pl-loupe" id="grLoupe" aria-label="Rechercher une personne" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
         <input type="search" id="grCherche" placeholder="Rechercher une personne" aria-label="Rechercher une personne">
       </div>
       <div class="pl-equipes" id="grEquipes" role="group" aria-label="Équipes"></div>
@@ -13277,6 +13343,8 @@ var GR_PIED=[
 /* les codes qu'on pose d'un geste, dans l'ordre de leur fréquence au classeur */
 var GR_RAPIDES=["VA","1/2VA","RTT","Abs","RJF","DTT","RHS","F"];
 var JOURS_C=["Di","Lu","Ma","Me","Je","Ve","Sa"];
+/* les abréviations françaises des mois, celles de l'usage */
+var MOIS_C=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 function grCol(c){ return (c.length<2?" ":"")+c; }
 function grGens(db,f){
   return db.people.filter(function(p){ return p.postes&&p.postes[f]; })
@@ -13345,10 +13413,11 @@ function grCaler(dt){
   else GR.debut=new Date(dt.getFullYear(),dt.getMonth(),1);
 }
 function grLibelle(){
-  var j=grJours(), a=j[0], b=j[j.length-1];
-  if(GR.vue!=="semaine") return MOIS[a.getMonth()]+" "+a.getFullYear();
-  return "Semaine "+isoWeek(new Date(Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())))+" · "+a.getDate()+(a.getMonth()!==b.getMonth()?" "+MOIS[a.getMonth()].slice(0,3).toLowerCase()+".":"")
-    +" – "+b.getDate()+" "+MOIS[b.getMonth()].slice(0,3).toLowerCase()+". "+b.getFullYear();
+  var j=grJours(), a=j[0], b=j[j.length-1], court=window.innerWidth<700;
+  if(GR.vue!=="semaine") return court?(a.getFullYear()===jourUsine().getFullYear()?MOIS[a.getMonth()].toLowerCase():MOIS_C[a.getMonth()]+" "+a.getFullYear()):MOIS[a.getMonth()]+" "+a.getFullYear();
+  if(court) return a.getMonth()!==b.getMonth()?a.getDate()+"/"+(a.getMonth()+1)+"–"+b.getDate()+"/"+(b.getMonth()+1):a.getDate()+"–"+b.getDate()+" "+MOIS_C[b.getMonth()];
+  return "Semaine "+isoWeek(new Date(Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())))+" · "+a.getDate()+(a.getMonth()!==b.getMonth()?" "+MOIS_C[a.getMonth()]:"")
+    +" – "+b.getDate()+" "+MOIS_C[b.getMonth()]+" "+b.getFullYear();
 }
 function grCase(p,dt,db){
   var md=pad2(dt.getMonth()+1)+pad2(dt.getDate()), e=(p.d&&p.d[md])||[], sai=db&&db._saisies&&db._saisies[p.id+"|"+md];
@@ -13385,30 +13454,28 @@ function renderGrille(){
   var gens=grGens(db,GR.feuille), q=GR.cherche.toLowerCase();
   if(q) gens=gens.filter(function(p){ return (idLisible(p.id)+" "+grNom(p)+" "+(p.postes[GR.feuille].p||"")).toLowerCase().indexOf(q)>=0; });
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
-  var h=['<table class="pl-t'+(GR.vue==="semaine"?' pl-sem':'')+'"><thead><tr><th class="pl-qui">'+gens.length+' personne'+(gens.length>1?'s':'')+'</th>'];
-  jours.forEach(function(dt){
-    var k=dt.getFullYear()+pad2(dt.getMonth()+1)+pad2(dt.getDate()), dw=dt.getDay(), cl=[];
-    if(dw===0||dw===6) cl.push("pl-we"); if(fer[dt.getFullYear()+"-"+pad2(dt.getMonth()+1)+"-"+pad2(dt.getDate())]) cl.push("pl-fe"); if(k===ajk) cl.push("pl-auj");
-    h.push('<th class="'+cl.join(" ")+'"><small>'+JOURS_C[dw]+'</small><b>'+dt.getDate()+'</b></th>');
-  });
-  h.push('</tr><tr class="pl-cvl"><th class="pl-qui">Présents</th>');
-  /* les présents par pause, sous chaque date : ce que la feuille cachée du
-     classeur ébauchait sans jamais l'achever */
-  jours.forEach(function(dt){
-    var md=pad2(dt.getMonth()+1)+pad2(dt.getDate()), n={AM:0,PM:0,N:0};
-    gens.forEach(function(p){ var z=grPause((p.d&&p.d[md])||[]); if(n[z]!==undefined) n[z]++; });
-    h.push('<th><span class="pl-cv" title="présents : '+n.AM+' le matin, '+n.PM+' l\'après-midi, '+n.N+' la nuit">'
-      +['AM','PM','N'].map(function(z){ return '<i class="c-'+z.toLowerCase()+(n[z]?'':' c-0')+'">'+n[z]+'</i>'; }).join("")+'</span></th>');
+  /* LES DATES À LA VERTICALE, LES PERSONNES À L'HORIZONTALE (le client, le
+     21/10/2026), le sens du classeur : une colonne par personne, une ligne
+     par jour ; la date et les présents restent figés à gauche, les
+     personnes en haut. */
+  var h=['<table class="pl-t pl-v'+(GR.vue==="semaine"?' pl-sem':'')+'"><thead><tr><th class="pl-coin">'+gens.length+'<small>pers.</small></th><th class="pl-cvh">Présents</th>'];
+  gens.forEach(function(p){
+    var n=grNom(p), po=p.postes[GR.feuille].p||"";
+    h.push('<th class="pl-pers" data-pers="'+esc(p.id)+'" title="'+esc((n?n+" · ":"")+po)+'"><span class="pl-tri">'+esc(idLisible(p.id))+'</span>'
+      +'<span class="pl-pn">'+esc(n||po)+'</span>'+(n?'<span class="pl-pp">'+esc(po)+'</span>':'')+'</th>');
   });
   h.push('</tr></thead><tbody>');
-  if(!gens.length) h.push('<tr><td class="pl-msg" colspan="'+(jours.length+1)+'">Personne ne correspond.</td></tr>');
-  gens.forEach(function(p){
-    var n=grNom(p);
-    h.push('<tr><th class="pl-qui" data-pers="'+esc(p.id)+'"><span class="pl-tri">'+esc(idLisible(p.id))+'</span><span class="pl-id"><b>'+esc(n||p.postes[GR.feuille].p||p.cat||"")+'</b>'+(n?'<small>'+esc(p.postes[GR.feuille].p||p.cat||"")+'</small>':'')+'</span></th>');
-    jours.forEach(function(dt){
-      var cl=(dt.getDay()===0||dt.getDay()===6)?' pl-we':'';
-      h.push(grCase(p,dt,db).replace('class="pl-c','class="pl-c'+cl));
-    });
+  if(!gens.length) h.push('<tr><td class="pl-msg" colspan="3">Personne ne correspond.</td></tr>');
+  else jours.forEach(function(dt){
+    var k=dt.getFullYear()+pad2(dt.getMonth()+1)+pad2(dt.getDate()), md=k.slice(4), dw=dt.getDay(), cl=[];
+    if(dw===0||dw===6) cl.push("pl-we"); if(fer[dt.getFullYear()+"-"+md.slice(0,2)+"-"+md.slice(2)]) cl.push("pl-fe"); if(k===ajk) cl.push("pl-auj");
+    if(dt.getDate()===1||dw===1) cl.push("pl-deb");
+    var n={AM:0,PM:0,N:0};
+    gens.forEach(function(p){ var z=grPause((p.d&&p.d[md])||[]); if(n[z]!==undefined) n[z]++; });
+    h.push('<tr class="'+cl.join(" ")+'" data-md="'+md+'"><th class="pl-date"><small>'+JOURS_C[dw]+'</small><b>'+dt.getDate()+'</b></th>'
+      +'<td class="pl-cvd"><span class="pl-cv" title="présents : '+n.AM+' le matin, '+n.PM+' l\'après-midi, '+n.N+' la nuit">'
+      +['AM','PM','N'].map(function(z){ return '<i class="c-'+z.toLowerCase()+(n[z]?'':' c-0')+'">'+n[z]+'</i>'; }).join("")+'</span></td>');
+    gens.forEach(function(p){ h.push(grCase(p,dt,db)); });
     h.push('</tr>');
   });
   h.push('</tbody></table>');
@@ -13419,8 +13486,8 @@ function renderGrille(){
 }
 function grAujourdhui(){ grCaler(jourUsine()); renderGrille(); grCentrer(); }
 function grCentrer(){
-  var z=document.getElementById("grZone"), th=z.querySelector("thead .pl-auj"), q=z.querySelector("thead .pl-qui");
-  if(th&&q) z.scrollLeft=Math.max(0,th.offsetLeft-q.offsetWidth-th.offsetWidth*2);
+  var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
+  if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-t.offsetHeight-(GR.vue==="semaine"?0:r.offsetHeight*2));
 }
 function grDecaler(sens){
   var d=GR.debut;
@@ -13631,7 +13698,7 @@ function wsPoste(p){ return wsPosteEq(p).filter(Boolean).join(" · "); }
 function wsRestants(p){
   return GR_PIED.map(function(r){ var so=p.c&&p.c.solde&&p.c.solde[r.s]; return {t:r.t, v:(typeof so==="number")?so-grCompte(p,r.c):null}; });
 }
-function wsDateCourte(dt){ return JOURS_C[dt.getDay()]+" "+dt.getDate()+" "+MOIS[dt.getMonth()].slice(0,3).toLowerCase()+"."; }
+function wsDateCourte(dt){ return JOURS_C[dt.getDay()]+" "+dt.getDate()+" "+MOIS_C[dt.getMonth()]; }
 /* ── le tableau de bord ── */
 function renderTdb(){
   var hote=document.getElementById("wsTdb"), db=wsDb(); if(!db){ hote.innerHTML=wsTete("Tableau de bord","Horaire indisponible."); return; }
@@ -13773,7 +13840,10 @@ function renderHisto(){
   document.getElementById("grSuiv").onclick=function(){ grDecaler(1); };
   document.getElementById("grVue").addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("button[data-v]"); if(!b) return;
-    var garde=GR.debut; GR.vue=b.getAttribute("data-v"); lsSet("ui/grVue",GR.vue);
+    var v=b.getAttribute("data-v");
+    /* au téléphone, un seul bouton, qui bascule */
+    if(v===GR.vue&&window.innerWidth<700) v=v==="semaine"?"mois":"semaine";
+    var garde=GR.debut; GR.vue=v; lsSet("ui/grVue",GR.vue);
     var auj=jourUsine(); grCaler(auj.getMonth()===garde.getMonth()&&auj.getFullYear()===garde.getFullYear()?auj:garde); grFermerPanneau(); renderGrille(); setTimeout(grCentrer,30);
   });
   document.getElementById("grEquipes").addEventListener("click",function(e){
@@ -13781,6 +13851,11 @@ function renderHisto(){
     GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau(); renderGrille();
   });
   document.getElementById("grCherche").oninput=function(){ GR.cherche=this.value.trim(); renderGrille(); };
+  /* au téléphone, la recherche est une loupe : la place va au planning */
+  document.getElementById("grLoupe").onclick=function(){
+    var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));
+    var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; GR.cherche=""; renderGrille(); }
+  };
   document.getElementById("grZone").addEventListener("click",function(e){
     var td=e.target.closest&&e.target.closest("td[data-p]"); if(td){ grEditer(td); return; }
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
