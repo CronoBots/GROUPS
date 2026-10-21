@@ -813,3 +813,15 @@ ordre d'effacement fait demander une confirmation au client.
 projet sans serveur d'envoi à soi : le Gmail du robot, à régler dans le
 tableau de bord), le modèle d'e-mail qui affiche le code, et l'adresse de
 l'application dans les adresses de retour autorisées.
+
+**La clé du robot et l'envoi des codes (21/10/2026).** Le client a posé
+le secret `PUSH_CLE` ; le passage de 23 h 30 l'a lue et dit « Base : déjà
+à jour » (une mauvaise clé aurait été refusée et écrite « non recopiée »).
+Le client a ensuite réglé dans le tableau de bord le serveur d'envoi (le
+Gmail du robot, un mot de passe d'application à part, port 465), les deux
+modèles « Confirm signup » et « Magic Link » (objet « Votre code
+BIOWANZE », corps avec `{{ .Token }}`) et l'adresse de l'application.
+Essai réel depuis son téléphone : code reçu, connexion, demande sur son
+trigramme ; son compte est validé avec le rôle `rh`, le seul compte
+validé de la base. Reste `VAPID_PRIVATE_KEY`, toujours vide : les
+notifications push du robot ne partent pas.
