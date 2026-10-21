@@ -30,7 +30,7 @@ var webpush = require("web-push");
 
 var SUPABASE = "https://pnizdddritizjbsksoir.supabase.co";
 var CLE_PUBLIQUE_SUPABASE = "sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI";
-var VAPID_PUBLIQUE = "BF28dyZP0cTh-oFWm2lZiYLHxdp3lTem9lTN806GT-jVeiMkWk0tnRKMux_6qpojHLmlon3N1F4llyPCUX8efpg";
+var VAPID_PUBLIQUE = "BEsXedq1zksnwfpG_CIU_kTTzqZk3dG-v-oG31DyU3ijWFqBe9eacgnwZCKGFj8tcpzEObb2o0qLHh0ZtPLYC0E";
 
 function rpc(nom, corps) {
   return fetch(SUPABASE + "/rest/v1/rpc/" + nom, {

@@ -12883,7 +12883,7 @@ function baseComptes(moi){
 
 var PUSH_SUPABASE="https://pnizdddritizjbsksoir.supabase.co",
     PUSH_CLE_SUPABASE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
-    PUSH_VAPID="BF28dyZP0cTh-oFWm2lZiYLHxdp3lTem9lTN806GT-jVeiMkWk0tnRKMux_6qpojHLmlon3N1F4llyPCUX8efpg";
+    PUSH_VAPID="BEsXedq1zksnwfpG_CIU_kTTzqZk3dG-v-oG31DyU3ijWFqBe9eacgnwZCKGFj8tcpzEObb2o0qLHh0ZtPLYC0E";
 function pushRpc(nom,corps){
   return fetch(PUSH_SUPABASE+"/rest/v1/rpc/"+nom,{method:"POST",
     headers:{apikey:PUSH_CLE_SUPABASE,"Content-Type":"application/json"},body:JSON.stringify(corps)});
@@ -12898,7 +12898,17 @@ function abonnerPush(){
   if(!pushPossible()) return Promise.resolve(false);
   return navigator.serviceWorker.ready.then(function(reg){
     return reg.pushManager.getSubscription().then(function(s){
-      return s || reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:pushCle(PUSH_VAPID)});
+      function neuf(){ return reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:pushCle(PUSH_VAPID)}); }
+      if(!s) return neuf();
+      /* Abonné avec une autre clé (la paire a été renouvelée le 21/10/2026,
+         la privée d'avant n'ayant jamais été posée) : le robot ne pourrait
+         pas lui écrire. On le désabonne, partout, puis on le réabonne. */
+      var k=s.options&&s.options.applicationServerKey;
+      if(k){ var a=new Uint8Array(k), c=pushCle(PUSH_VAPID), meme=a.length===c.length;
+        for(var i=0;meme&&i<a.length;i++) if(a[i]!==c[i]) meme=false;
+        if(!meme) return pushRpc("biowanze_desabonner",{p_endpoint:s.endpoint}).catch(function(){})
+          .then(function(){ return s.unsubscribe(); }).then(neuf); }
+      return s;
     });
   }).then(function(s){
     var j=s.toJSON(), k=j.keys||{};
@@ -12941,10 +12951,11 @@ document.getElementById("notifBtn").addEventListener("click",function(){
 });
 majNotifReglage();
 /* Déjà activées sur cet appareil (avant le 16/10, ou après une réinstallation) :
-   l'abonnement est refait en silence, une fois par jour au plus. */
+   l'abonnement est refait en silence, une fois par jour au plus ; un
+   abonnement fait avec l'ancienne clé est remplacé à cette occasion. */
 (function(){ var auj=new Date().toDateString();
-  if(notifActive() && lsGet("ui/pushVu")!==auj) setTimeout(function(){
-    abonnerPush().then(function(ok){ if(ok) lsSet("ui/pushVu",auj); }); },4000); })();
+  if(notifActive() && lsGet("ui/pushVu2")!==auj) setTimeout(function(){
+    abonnerPush().then(function(ok){ if(ok) lsSet("ui/pushVu2",auj); }); },4000); })();
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) majNotifReglage(); });
 /* MON ANNÉE À CE JOUR (le client, le 10/10/2026 : « toutes les infos
    nécessaires et stats utiles pour un travailleur »). Ce que la répartition

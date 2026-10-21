@@ -856,3 +856,22 @@ Vérificateur : quatre sorties identiques à l'octet.
 déjà connecté par son trigramme seul, avant ce jour, le reste ; seules les
 nouvelles connexions passent par la validation de la RH. Les y obliger
 tous fermerait l'application à chacun jusqu'à sa validation.
+
+**Une nouvelle paire de clés pour les notifications (21/10/2026,
+`nfdm-v886`).** Le client : « que manque-t-il pour les notifications ? ».
+Le secret `VAPID_PRIVATE_KEY` est vide, et la clé privée qui allait avec
+la clé publique écrite le 16/10 n'est nulle part : ni sur GitHub, ni dans
+le dépôt, ni dans le dossier de travail. Elle ne peut pas se retrouver :
+une paire neuve a été tirée (P-256, vérifiée par `web-push`, qui signe
+avec elle), la publique remplace l'ancienne dans `index.html` et
+`tools/envoyer-push.js`, la privée est remise au client pour le secret,
+jamais affichée. Un téléphone abonné avec l'ancienne clé ne pourrait plus
+recevoir : `abonnerPush()` compare la clé de l'abonnement à la sienne, et
+si elle diffère, désabonne (base et téléphone) puis réabonne. La marque
+« réabonné aujourd'hui » change de nom (`ui/pushVu2`) pour que ce soit
+fait dès la prochaine ouverture. Un seul abonnement était dans la base.
+Éprouvé au navigateur, le service d'abonnement simulé (Chromium sans
+écran refuse l'abonnement réel, même avec la permission accordée, et même
+sous Xvfb) : ancienne clé → désabonné, réabonné avec la nouvelle ;
+ouverture suivante → rien à refaire ; aucune erreur. Vérificateur : quatre
+sorties identiques à l'octet.
