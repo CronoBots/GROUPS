@@ -19792,6 +19792,11 @@ function gateAvecDB(suite){
       var r=document.getElementById("gateRetry"); if(r) r.onclick=function(){ HORAIRE_DB=null; horaireFetching=null; gateAvecDB(suite); }; }
   },function(){});
 }
+/* Seules les adresses de l'entreprise (le client, le 21/10/2026). La base en
+   est seule juge (base/06-domaines.sql, biowanze.domaines_autorises) ; cette
+   copie ne sert qu'à le dire avant d'envoyer. */
+var DOMAINES_AUTORISES=["biowanze.be","cropenergies.com"];
+function emailAutorise(v){ return DOMAINES_AUTORISES.indexOf(String(v).split("@")[1]||"")>=0; }
 function gateSortirBase(){ try{ localStorage.removeItem("base/session"); }catch(e){} _gateAttente=false; gateVueEmail(); }
 function gateVueCreer(){
   document.getElementById("gate").classList.remove("is-home");
@@ -19801,9 +19806,9 @@ function gateVueEmail(){
   _gateAttente=false;
   gateSetTitre("Connexion","Un code vous est envoyé par e-mail");
   gateSetBody(''
-    +'<p class="gate-lede">Entrez votre adresse e-mail : vous recevrez un <b>code de connexion</b>. Pas de mot de passe à retenir.</p>'
+    +'<p class="gate-lede">Entrez votre adresse e-mail <b>professionnelle</b> (@biowanze.be ou @cropenergies.com) : vous recevrez un <b>code de connexion</b>. Pas de mot de passe à retenir.</p>'
     +'<div class="gate-f"><label for="gateEmail">Adresse e-mail</label>'
-    +'<input id="gateEmail" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="prenom.nom@…"></div>'
+    +'<input id="gateEmail" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="prenom.nom@biowanze.be"></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateEnvoyer">Recevoir un code</button>'
@@ -19814,6 +19819,7 @@ function gateVueEmail(){
   function envoyer(){
     var v=String(em.value||"").trim().toLowerCase();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; return; }
+    if(!emailAutorise(v)){ err.textContent="Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application."; return; }
     err.textContent=""; btn.disabled=true; btn.textContent="Envoi…";
     baseFetch("/auth/v1/otp",{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
       .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code"; err.textContent="Envoi impossible : "+baseMsg(e)+"."; });

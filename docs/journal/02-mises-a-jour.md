@@ -939,3 +939,25 @@ séparer liés (« 1 heure », « Se connecter », « à la RH », « y répondr
 sécurité en deux temps (la question, puis la consigne) et le pied
 raccourci (« ne pas y répondre »), qui laissaient un mot seul sur sa
 ligne à 320 et 390 px. Relu à 320, 390 et 800 px.
+
+**Seules les adresses de l'entreprise (21/10/2026, `nfdm-v890`).** Le
+client : « que seules les adresses en @biowanze.be et @cropenergies.com
+soient prises en compte pour la vérification ». La base en est seule
+juge (`base/06-domaines.sql`) : table `biowanze.domaines_autorises`, un
+déclencheur sur `auth.users` qui refuse la création d'un compte d'une
+autre adresse — Supabase n'envoie alors aucun code — ou le changement
+d'adresse vers une autre ; `biowanze_rattacher` refuse aussi (un compte
+créé avant la règle). L'écran d'accès le dit avant d'envoyer
+(`DOMAINES_AUTORISES`) et demande l'adresse professionnelle. Éprouvé : au
+vrai service, une adresse hors liste → refus, message en français, aucun
+e-mail ; dans un bloc annulé, majuscules acceptées
+(« CropEnergies.com »), faux domaine « biowanze.be.evil.com » refusé,
+changement d'adresse refusé, mise à jour d'un ancien compte hors domaine
+sans toucher à l'adresse acceptée (la connexion des comptes existants ne
+casse pas), demande de trigramme hors domaine refusée ; au navigateur,
+Gmail refusé sans appel au serveur, une adresse cropenergies acceptée.
+Vérificateur : quatre sorties identiques. **À savoir** : `auth.users` est
+celle de tout le projet, partagé avec PINO, qui n'a aucun compte ; s'il en
+prend un jour, la règle s'appliquera aussi à lui. Un sous-domaine
+(`…@xx.cropenergies.com`) n'est pas accepté : à ajouter dans la table si
+besoin.
