@@ -2829,7 +2829,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 /* Sur téléphone, en haut, elle couvrait la date du Planning et le haut du
    héros (18/10/2026) : elle se pose au-dessus de la capsule du menu. */
 @media (max-width:760px){
-  .horsligne{top:auto; bottom:calc(var(--navbas,16px) + 76px)}
+  .horsligne{top:auto; bottom:calc(var(--navbas,16px) + 76px + var(--vvbas,0px))}
 }
 @media (max-width:380px){ .horsligne{font-size:11px; padding:5px 10px} }
 /* UNE APPLICATION, PAS UNE PAGE. Installée, l'interface ne se sélectionne
@@ -4523,7 +4523,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    collant qui l'enfermait. Sorti de là, il vaut mieux que n'importe quel
    vh. */
 .navwrap{
-  position:fixed; left:0; right:0; top:0; bottom:0; z-index:50;
+  position:fixed; left:0; right:0; top:0; bottom:var(--vvbas,0px); z-index:50;
   display:flex; align-items:flex-end; pointer-events:none;
 }
 .navwrap[hidden]{display:none}
@@ -4789,8 +4789,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   /* Le contenu défile DERRIÈRE la capsule : le bas de page lui laisse sa place,
      la bulle et le bouton de retour en haut se posent au-dessus d'elle. */
   .wrap{padding-bottom:calc(90px + var(--navbas))}
-  .toast{bottom:calc(80px + var(--navbas))}
-  .enhaut{bottom:calc(78px + var(--navbas))}
+  .toast{bottom:calc(80px + var(--navbas) + var(--vvbas,0px))}
+  .enhaut{bottom:calc(78px + var(--navbas) + var(--vvbas,0px))}
 }
 @supports not (color:color-mix(in srgb,red,blue)){
   @media (max-width:760px){ .navwrap>.tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)} }
@@ -19276,6 +19276,34 @@ function eqBouge(n){
    rien ne défile, en PWA comme en navigateur (le client, 02/10/2026 : « tableau
    toujours scrollable en PWA ? »). La hauteur de la barre est stable ; on la
    relit au redimensionnement et à la rotation, au cas où la safe-area change. */
+/* LA BARRE DU BAS QUI REMONTE (le client, le 21/10/2026, capture à
+   l'appui : « de temps en temps la barre de menu déconne » — la capsule et
+   le bouton de retour en haut au milieu de l'écran, décalés de la hauteur
+   du clavier). Sous iOS, en application installée, la zone de mise en page
+   reste parfois RACCOURCIE après la fermeture du clavier : tout ce qui est
+   fixé par le bas se pose sur ce bas fantôme, jusqu'au geste suivant.
+   L'écran réellement visible (visualViewport) dit où est le vrai bas :
+   quand il descend plus bas que la zone de mise en page, --vvbas (négatif)
+   y ramène la barre, la bulle, le bandeau hors ligne et le bouton de
+   retour en haut. Quand le clavier est OUVERT (le visible plus court), on
+   ne bouge rien : la barre reste derrière lui, comme avant. Puis on
+   redemande sa place à la page (scrollTo sur place), ce qui suffit souvent
+   à iOS pour recaler la zone de mise en page. */
+(function(){
+  var vv=window.visualViewport; if(!vv) return;
+  var dern=null;
+  function caler(){
+    var d=Math.round(window.innerHeight-(vv.offsetTop+vv.height)), v=d<0?d:0;
+    if(v!==dern){ dern=v; document.documentElement.style.setProperty("--vvbas",v+"px"); }
+  }
+  function recaler(){ caler(); setTimeout(function(){ try{ window.scrollTo(window.pageXOffset,window.pageYOffset); }catch(e){} caler(); },120); }
+  vv.addEventListener("resize",caler); vv.addEventListener("scroll",caler);
+  window.addEventListener("resize",caler);
+  window.addEventListener("focusout",recaler);
+  window.addEventListener("pageshow",recaler);
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) recaler(); });
+  caler();
+})();
 function ajusterHauteurJour(){
   var nav=document.querySelector(".navwrap > .tabs");
   /* Du HAUT de la barre au bas de l'écran, et non sa seule hauteur : depuis

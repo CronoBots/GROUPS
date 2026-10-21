@@ -1505,3 +1505,25 @@ pas lu ; `loadMonth` le rappelle ensuite. Après : Accueil complet dès
 l'entrée, aucune erreur. Piège du test : `pageerror` de Playwright ne
 remontait pas l'erreur ; il a fallu écouter `error` dans la page.
 Vérificateur : quatre sorties identiques à l'octet.
+
+### La capsule qui remonte de la hauteur du clavier (21/10/2026, `nfdm-v903`)
+
+Le client, capture de l'iPhone à l'appui : « de temps en temps la barre de
+menu déconne ». La capsule ET le bouton de retour en haut flottaient au
+milieu de l'écran, décalés d'environ 300 points — la hauteur du clavier.
+Défaut d'iOS en application installée : après la fermeture du clavier, la
+zone de mise en page reste parfois raccourcie, et tout ce qui est fixé par
+le bas s'y pose jusqu'au geste suivant. L'ancrage par quatre côtés du
+22/09 n'y peut rien : c'est ce bas-là qui est faux.
+
+On mesure l'écran réellement visible (`visualViewport`) : quand son bas
+descend sous celui de la zone de mise en page, `--vvbas` (négatif) y
+ramène la capsule, la bulle, le bandeau hors ligne et le bouton de retour
+en haut ; clavier ouvert, on ne bouge rien. Au retour au premier plan, à
+`pageshow` et à la sortie d'un champ, un `scrollTo` sur place redemande à
+iOS de recaler sa zone. Chromium ne reproduit pas le défaut : on a
+simulé un écran visible plus haut de 300 px que la zone de mise en page,
+à 320 et 390 px : la capsule descend de 300 px (le mécanisme mord), ne
+bouge pas quand le visible est plus court (clavier ouvert), revient à
+16 px du bas ensuite, et hors ligne. Seul l'iPhone du client dira si c'est
+guéri.
