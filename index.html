@@ -5400,6 +5400,29 @@ html .hp-fabs{position:absolute; right:40px; bottom:56px; display:flex; flex-dir
 html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(17,24,39,.35); background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; opacity:.65; cursor:pointer}
 html .hp-fab:hover{opacity:1}
 @media (max-width:699px){ html .xl-pilules,html .ws-planning .gr-zone,html .ws-planning .xl-legende{margin-left:8px; margin-right:8px} html .hp-fabs{right:18px} }
+/* L'ACCUEIL RÉORGANISÉ (le client, le 22/10/2026, « go ») : la photo garde
+   190 px au PC (à 100 ou 140, le logo du bandeau se coupait), Ma semaine et Mes demandes au-dessus du calendrier et des
+   compteurs, dans leurs deux colonnes. */
+#semCard .ms-l{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; padding:12px}
+.ms-j{position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; min-height:84px; padding:8px 2px; border-radius:12px;
+  border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; cursor:pointer}
+.ms-j.auj{border-color:var(--in); background:var(--in-soft)}
+.ms-j small{font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+.ms-j b{font-size:16px; font-variant-numeric:tabular-nums}
+.ms-j .pl-pa{max-width:100%}
+.ms-repos{font-size:11.5px; color:var(--muted)}
+.ms-com{position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:var(--at-jaune)}
+@media (hover:hover){ .ms-j:hover{border-color:var(--in2)} }
+@media (max-width:420px){ #semCard .ms-l{gap:4px; padding:10px 8px} .ms-j{min-height:76px; padding:6px 0} .ms-j b{font-size:15px} .ms-j .pl-pa{font-size:10.5px; padding:2px 4px} }
+.md-l{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:10px}
+.md-l li{display:flex; flex-direction:column; gap:4px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2)}
+.md-l li b{font-size:14px} .md-f{font-size:12px; color:var(--muted)}
+.md-vide{margin:0 0 10px; color:var(--muted); font-size:13.5px}
+.md-act{display:flex; flex-wrap:wrap; gap:8px}
+@media (min-width:1100px){
+  html #v-horaire>#semCard{grid-column:1}
+  html #v-horaire>#demCard{grid-column:2}
+}
 </style>
 </head>
 <body>
@@ -5562,6 +5585,18 @@ html .hp-fab:hover{opacity:1}
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
+    <!-- MA SEMAINE ET MES DEMANDES (le client, le 22/10/2026, « go ») : les
+         sept jours qui viennent, et les demandes en cours avec leur
+         avancement. Au PC, côte à côte au-dessus du calendrier et des
+         compteurs, dans leurs deux colonnes. -->
+    <div class="card" id="semCard" hidden>
+      <header><h2>Ma semaine</h2><span class="sub" id="semSub"></span></header>
+      <div class="ms-l" id="semCorps"></div>
+    </div>
+    <div class="card" id="demCard" hidden>
+      <header><h2>Mes demandes</h2><span class="sub" id="demSub"></span></header>
+      <div class="pad" id="demCorps"></div>
+    </div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
@@ -5615,16 +5650,6 @@ html .hp-fab:hover{opacity:1}
       </header>
       <div id="rythmeCorps"></div>
     </div>
-    <!-- L'agenda du téléphone, sorti du cadre du mois le 16/10/2026 : c'est un
-         réglage qu'on fait une fois, pas une lecture du mois. -->
-    <div class="card" id="agendaCard" hidden>
-      <header><h2>Agenda du téléphone</h2><span class="sub">mon horaire, mis à jour seul</span></header>
-      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
-        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
-    </div>
-    <!-- L'invitation à installer, au bas de l'Accueil depuis le 17/10/2026 (le
-         client : « dans le bas de l'accueil, on ne sait pas tout lire ») :
-         le texte passe à la ligne au lieu d'être coupé. -->
     <div class="card installcard" id="installCard" hidden>
       <div class="in-l">
         <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
@@ -5638,70 +5663,6 @@ html .hp-fab:hover{opacity:1}
          on reçoit au travail afin de pouvoir directement comparer »). Codes et
          horaires de la note explicative du relevé mensuel (novembre 2025),
          rangée dans le dépôt privé. Rempli par renderReleve(). -->
-    <div class="card">
-      <details class="fold" id="codesFold" data-memo>
-        <summary>Les codes <span class="sub">postes, congés, maladie et primes de rappel</span></summary>
-        <div class="codes">
-          <div>
-            <h3>Postes</h3>
-            <dl>
-              <dt>AM</dt><dd>avant-midi, 6h – 14h</dd>
-              <dt>PM</dt><dd>après-midi, 14h – 22h</dd>
-              <dt>N</dt><dd>nuit, 22h – 6h</dd>
-              <dt>D</dt><dd>jour, horaire variable (7h-15h, 7h30-16h ou flottant)</dd>
-            </dl>
-            <h3>Primes de rappel</h3>
-            <dl>
-              <dt>J</dt><dd>rappel le jour même ou la veille</dd>
-              <dt>J-2</dt><dd>rappel annoncé entre J-2 et J-15</dd>
-              <dt>MP</dt><dd>modification de pause</dd>
-            </dl>
-          </div>
-          <div>
-            <h3>Congés et maladie payés</h3>
-            <dl>
-              <dt>VA</dt><dd>vacances annuelles</dd>
-              <dt>RTT</dt><dd>réduction du temps de travail</dd>
-              <dt>RHS</dt><dd>récupération d'heures supplémentaires — seul, la journée entière ; avec un nombre, une reprise qui comble la journée</dd>
-              <dt>DTT</dt><dd>congé d'ancienneté</dd>
-              <dt>RJF</dt><dd>récupération d’un jour férié</dd>
-              <dt>FER</dt><dd>jour férié légal</dd>
-              <dt>SMG</dt><dd><b>salaire mensuel garanti</b> — la maladie que l'employeur continue de payer. L'intitulé vient de la fiche de paie, qui écrit « Heure(s) SMG maladie »</dd>
-              <dt>ABS</dt><dd>ce que le classeur écrit pour une maladie — <b>toujours</b>, même quand le commentaire parle d'un remplacement : celui-là dit la journée qui était PRÉVUE. La lecture le range en SMG. Posé à la main dans le mois, en revanche, c'est une absence non rémunérée</dd>
-              <dt>FORM</dt><dd>formation, congé syndical</dd>
-            </dl>
-          </div>
-          <div>
-            <h3>Temps de travail réduit</h3>
-            <dl>
-              <dt>CP</dt><dd>congé parental, 9/10 ou 4/5 — pour s'occuper de son enfant</dd>
-              <dt>CT</dt><dd>crédit-temps, 4/5 (1/5) ou mi-temps (1/2) — temporaire, selon un motif</dd>
-              <dt>TP</dt><dd>temps partiel — le régime que dit le contrat, sans durée imposée</dd>
-            </dl>
-            <p class="sub" style="margin:-4px 0 10px">Le jour n'est pas presté et ne se paie pas :
-              la réduction est <b>déjà dans la rémunération fixe</b>, par la fraction payée des Réglages.
-              Le congé parental et le crédit-temps ouvrent en plus une <b>allocation de l'ONEM</b>,
-              versée hors fiche de paie — elle n'est donc pas simulée ici. Le temps partiel n'ouvre rien.</p>
-            <h3>Non payés</h3>
-            <dl>
-              <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
-              <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
-              <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
-              <dt>GREV</dt><dd>grève reconnue : l'employeur ne paie rien. Le classeur écrit « Abs » ; les jours de grève sont connus (10/02, 12/05, 16/06)</dd>
-            </dl>
-            <h3>Heures supplémentaires</h3>
-            <dl>
-              <dt>HS</dt><dd>heures prestées en plus de l'horaire du jour, avec supplément et prime d'équipe majorée d'un cran</dd>
-            </dl>
-            <h3>Demi-journées</h3>
-            <dl>
-              <dt>1/2 …</dt><dd>4 h au lieu de 8 h</dd>
-              <dt>3H …</dt><dd>3 h seulement, pour les codes horaires</dd>
-            </dl>
-          </div>
-        </div>
-      </details>
-    </div>
 
     <!-- Les compteurs suivent l'horaire : c'est le même sujet vu de
          plus loin. Le client, le 22/09/2026 : « Horaire doit s'appeler
@@ -6027,6 +5988,83 @@ html .hp-fab:hover{opacity:1}
           <button type="button" class="btnlike" id="btnViderAn">Vider l'année</button>
           <button type="button" class="btnlike" id="btnExport">Exporter</button>
           <label class="btnlike" for="fileImport">Importer<input type="file" id="fileImport" accept="application/json,.json" hidden></label>
+        </div>
+      </details>
+    </div>
+    <!-- Venus de l'Accueil (le client, le 22/10/2026, « go » à la proposition :
+         « Agenda du téléphone et Les codes passent dans Réglages : on ne s'en
+         sert qu'une fois »). -->
+    <!-- L'agenda du téléphone, sorti du cadre du mois le 16/10/2026 : c'est un
+         réglage qu'on fait une fois, pas une lecture du mois. -->
+    <div class="card" id="agendaCard" hidden>
+      <header><h2>Agenda du téléphone</h2><span class="sub">mon horaire, mis à jour seul</span></header>
+      <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
+        <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
+    </div>
+    <!-- L'invitation à installer, au bas de l'Accueil depuis le 17/10/2026 (le
+         client : « dans le bas de l'accueil, on ne sait pas tout lire ») :
+         le texte passe à la ligne au lieu d'être coupé. -->
+    <div class="card">
+      <details class="fold" id="codesFold" data-memo>
+        <summary>Les codes <span class="sub">postes, congés, maladie et primes de rappel</span></summary>
+        <div class="codes">
+          <div>
+            <h3>Postes</h3>
+            <dl>
+              <dt>AM</dt><dd>avant-midi, 6h – 14h</dd>
+              <dt>PM</dt><dd>après-midi, 14h – 22h</dd>
+              <dt>N</dt><dd>nuit, 22h – 6h</dd>
+              <dt>D</dt><dd>jour, horaire variable (7h-15h, 7h30-16h ou flottant)</dd>
+            </dl>
+            <h3>Primes de rappel</h3>
+            <dl>
+              <dt>J</dt><dd>rappel le jour même ou la veille</dd>
+              <dt>J-2</dt><dd>rappel annoncé entre J-2 et J-15</dd>
+              <dt>MP</dt><dd>modification de pause</dd>
+            </dl>
+          </div>
+          <div>
+            <h3>Congés et maladie payés</h3>
+            <dl>
+              <dt>VA</dt><dd>vacances annuelles</dd>
+              <dt>RTT</dt><dd>réduction du temps de travail</dd>
+              <dt>RHS</dt><dd>récupération d'heures supplémentaires — seul, la journée entière ; avec un nombre, une reprise qui comble la journée</dd>
+              <dt>DTT</dt><dd>congé d'ancienneté</dd>
+              <dt>RJF</dt><dd>récupération d’un jour férié</dd>
+              <dt>FER</dt><dd>jour férié légal</dd>
+              <dt>SMG</dt><dd><b>salaire mensuel garanti</b> — la maladie que l'employeur continue de payer. L'intitulé vient de la fiche de paie, qui écrit « Heure(s) SMG maladie »</dd>
+              <dt>ABS</dt><dd>ce que le classeur écrit pour une maladie — <b>toujours</b>, même quand le commentaire parle d'un remplacement : celui-là dit la journée qui était PRÉVUE. La lecture le range en SMG. Posé à la main dans le mois, en revanche, c'est une absence non rémunérée</dd>
+              <dt>FORM</dt><dd>formation, congé syndical</dd>
+            </dl>
+          </div>
+          <div>
+            <h3>Temps de travail réduit</h3>
+            <dl>
+              <dt>CP</dt><dd>congé parental, 9/10 ou 4/5 — pour s'occuper de son enfant</dd>
+              <dt>CT</dt><dd>crédit-temps, 4/5 (1/5) ou mi-temps (1/2) — temporaire, selon un motif</dd>
+              <dt>TP</dt><dd>temps partiel — le régime que dit le contrat, sans durée imposée</dd>
+            </dl>
+            <p class="sub" style="margin:-4px 0 10px">Le jour n'est pas presté et ne se paie pas :
+              la réduction est <b>déjà dans la rémunération fixe</b>, par la fraction payée des Réglages.
+              Le congé parental et le crédit-temps ouvrent en plus une <b>allocation de l'ONEM</b>,
+              versée hors fiche de paie — elle n'est donc pas simulée ici. Le temps partiel n'ouvre rien.</p>
+            <h3>Non payés</h3>
+            <dl>
+              <dt>+FT</dt><dd>flex time presté pour un collègue : pas payé ce jour-là, mis de côté</dd>
+              <dt>−FT</dt><dd>flex time récupéré : payé comme un jour presté</dd>
+              <dt>SANS SOLDE</dt><dd>congé sans solde</dd>
+              <dt>GREV</dt><dd>grève reconnue : l'employeur ne paie rien. Le classeur écrit « Abs » ; les jours de grève sont connus (10/02, 12/05, 16/06)</dd>
+            </dl>
+            <h3>Heures supplémentaires</h3>
+            <dl>
+              <dt>HS</dt><dd>heures prestées en plus de l'horaire du jour, avec supplément et prime d'équipe majorée d'un cran</dd>
+            </dl>
+            <h3>Demi-journées</h3>
+            <dl>
+              <dt>1/2 …</dt><dd>4 h au lieu de 8 h</dd>
+              <dt>3H …</dt><dd>3 h seulement, pour les codes horaires</dd>
+            </dl>
+          </div>
         </div>
       </details>
     </div>
@@ -15386,10 +15424,8 @@ function renderRythme(){
      jour. */
   corps.innerHTML='<div class="ry-bloc">'
     /* « Mes pauses » a rejoint le héros (20/10/2026, ryProchainesHTML) */
-    +'<div class="ry-chart-t ry-h2">Mois par mois</div>'
-    +'<div class="ry-bars">'+ryBarsPauses(s.pausesMois)+'</div>'
-    /* sans légende (20/10/2026) : la même que celle du « jour par jour »,
-       juste dessous, et que celle du calendrier, plus haut */
+    /* « Mois par mois » retiré le 22/10/2026 (le client, « go ») : le jour
+       par jour, juste dessous, dit la même saison en plus précis. */
     +'</div>'
     /* gardé ouvert (le client, le 20/10/2026 : « mais j'aime bien jour par
        jour », à la proposition de le replier) */
@@ -15397,11 +15433,59 @@ function renderRythme(){
     + ryHeatmap(s);
   /* plus d'action au toucher d'un mois (le client, le 17/10/2026) */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
+  try{ renderSemaine(db,person); renderMesDemandes(); }catch(e){}
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryProchainesHTML(person,y);
     try{ recyclageHeros(db,person); }catch(e){}
   });
 }
+
+/* MA SEMAINE : aujourd'hui et les six jours suivants, la pause (ou ce qui
+   la remplace : congé, maladie, formation), un toucher ouvre le jour. */
+function renderSemaine(db,person){
+  var c=document.getElementById("semCard"), corps=document.getElementById("semCorps"); if(!c||!corps) return;
+  var j0=jourUsine(), j6=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+6), h=[];
+  for(var i=0;i<7;i++){
+    var d=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+i), dbx=horaireDe(d.getFullYear())||db;
+    var p=dbx&&dbx.people.filter(function(x){ return x.id===person.id; })[0], md=pad2(d.getMonth()+1)+pad2(d.getDate());
+    var e=(p&&p.d&&p.d[md])||[], pv=String(e[0]||"").trim(), an=String(e[1]||"").trim(), fa=grFamille(an);
+    /* l'annotation l'emporte quand elle dit un poste ou une absence ; un atelier ou un remplacement laisse la pause */
+    var v=an&&fa!=="atelier"&&fa!=="remplacement"&&fa!=="autre"?an:pv, fv=grFamille(v);
+    var cls=fv==="poste"||!fv?grPosteCls(v):"f-"+fv;
+    h.push('<button type="button" class="ms-j'+(i===0?' auj':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'" aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' : '+(v&&v!=="-"?grAffiche(v):'repos'))+'">'
+      +'<small>'+(i===0?'Auj.':JOURS_C[d.getDay()])+'</small><b>'+d.getDate()+'</b>'
+      +(v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">repos</span>')
+      +(e[2]?'<i class="ms-com" aria-hidden="true"></i>':'')+'</button>');
+  }
+  corps.innerHTML=h.join(""); c.hidden=false;
+  document.getElementById("semSub").textContent="du "+j0.getDate()+" "+MOIS_C[j0.getMonth()]+" au "+j6.getDate()+" "+MOIS_C[j6.getMonth()];
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
+  var y=Number(b.dataset.y), m=Number(b.dataset.m), d=Number(b.dataset.d);
+  if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
+});
+/* MES DEMANDES : celles en cours, avec leurs étapes ; sinon un bouton */
+function renderMesDemandes(){
+  var c=document.getElementById("demCard"), corps=document.getElementById("demCorps"); if(!c||!corps) return;
+  if(!compteBase()){ c.hidden=true; return; }
+  function rendre(){
+    var l=(GR.demandes||[]).filter(function(x){ return x.a_moi&&x.statut==="en_attente"; });
+    var fait=(GR.demandes||[]).filter(function(x){ return x.a_moi&&x.statut!=="en_attente"; }).length;
+    document.getElementById("demSub").textContent=l.length?l.length+" en cours":(fait?fait+" traitée"+(fait>1?"s":""):"");
+    corps.innerHTML=(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><b>'+esc(dmPeriode(x.du,x.au))+'</b><span class="md-f">'+esc(DM_FORMS[x.formulaire||"courte"].t)+'</span>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
+      :'<p class="md-vide">Aucune demande en cours.</p>')
+      +'<div class="md-act"><button type="button" class="btn ss-ok" data-md="nouvelle">Nouvelle demande</button><button type="button" class="btnlike" data-md="voir">Mes demandes</button></div>';
+    c.hidden=false;
+  }
+  rendre();
+  dmCharger().then(rendre,function(){});
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("#demCard [data-md]"):null; if(!b) return;
+  GR.onglet="miennes";
+  if(b.getAttribute("data-md")==="nouvelle") ouvrirGrille("demandes",{}); else ouvrirGrille("demandes");
+});
 
 /* ===================== l'équipe ===================== */
 /* Un travailleur en pauses ne se demande pas seulement ce qu'IL fait : il se
