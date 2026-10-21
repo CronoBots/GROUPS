@@ -1013,5 +1013,7 @@ dernières sont gardées. Jamais au dépôt, qui est public. Mesuré :
 292 Ko chiffrés ; 0,46 s dans la base pour la plus grosse table, sous la
 limite de 3 s du rôle public ; relu identique ; une mauvaise clé ne
 l'ouvre pas ; la commande de restauration écrite en tête du fichier rend
-les 55 335 journées. L'envoi par Gmail ne s'éprouve qu'au robot (pas de
-mot de passe ici) : à vérifier dans son journal au premier passage.
+les 55 335 journées. L'envoi par Gmail ne s'éprouve qu'au robot : au
+passage de 02 h 00 UTC, « Sauvegarde : 55584 lignes, 292 Ko chiffrés,
+envoyée » (30 s, une fois par jour ; les passages suivants ne font qu'une
+recherche dans la boîte).
