@@ -1160,9 +1160,12 @@ et l'envoi depuis un domaine de l'entreprise.
 (21/10/2026, `nfdm-v896`).** Le client : « le module RH doit être fait dans
 le même sens que le module VOR, les dates sur la verticale et les
 personnes sur l'horizontale ; 100 % optimisé, mobile ainsi que PC ».
-« VOR » n'existe nulle part dans l'application (ni l'onglet Planning, qui
-range les postes en lignes et les pauses en colonnes) ; la consigne, elle,
-est claire, et c'est le sens du classeur. Le planning est retourné : une
+« VOR » était une erreur de dictée ; le client, ensuite : « le module de
+l'application doit être le même que le module Excel propre à l'usine, car
+les personnes qui devront l'utiliser ont l'habitude de travailler avec les
+dates à la verticale et les noms à l'horizontale ». C'est donc une RÈGLE de
+la plateforme : elle garde la disposition du classeur, que les
+utilisateurs connaissent. Le planning est retourné : une
 COLONNE par personne (trigramme, nom, poste ; toucher l'en-tête ouvre la
 fiche), une LIGNE par jour, la date et les présents par pause figés à
 gauche, les personnes figées en haut, l'ouverture sur la ligne du jour.
