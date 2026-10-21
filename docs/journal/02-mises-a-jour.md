@@ -998,3 +998,20 @@ prénom, le nom et la fonction à côté du trigramme
 (`public.biowanze_comptes_rh`, réservée à la RH) : une demande « ABC »
 seule se validait mal. Éprouvé au navigateur, Supabase simulé, aucune
 erreur ; vérificateur identique.
+
+**La sauvegarde quotidienne de la base (21/10/2026).** La formule gratuite
+de Supabase n'en fait aucune ; il en fallait une avant la moindre saisie
+dans l'application. `public.biowanze_sauvegarde` (`base/08-sauvegarde.sql`,
+clé du robot) rend tout le schéma `biowanze`, table par table, en JSON ;
+`tools/base-sauvegarde.py`, au premier passage du robot de chaque jour, le
+compresse, le CHIFFRE (openssl, AES-256, PBKDF2, 200 000 tours) avec la
+clé du robot, le RELIT avant de l'envoyer, et l'envoie en pièce jointe à
+la boîte Gmail du robot, « Sauvegarde BWZ-base AAAA-MM-JJ » — sans le mot
+« BIOWANZE », que `purger_rapports()` jetterait à sept jours ; les 30
+dernières sont gardées. Jamais au dépôt, qui est public. Mesuré :
+12,3 Mo de JSON (55 335 journées, 79 personnes, 163 lignes d'historique),
+292 Ko chiffrés ; 0,46 s dans la base pour la plus grosse table, sous la
+limite de 3 s du rôle public ; relu identique ; une mauvaise clé ne
+l'ouvre pas ; la commande de restauration écrite en tête du fichier rend
+les 55 335 journées. L'envoi par Gmail ne s'éprouve qu'au robot (pas de
+mot de passe ici) : à vérifier dans son journal au premier passage.

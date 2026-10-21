@@ -252,6 +252,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/envoyer-push.js` | la notification du téléphone à chaque classeur installé |
 | `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée chaque heure par GitHub |
 | `tools/base-synchro.py` | recopie l'horaire installé dans la base BIOWANZE (étape 2), quand sa version diffère |
+| `tools/base-sauvegarde.py` | la sauvegarde quotidienne de la base, chiffrée par la clé du robot, envoyée à sa boîte Gmail (30 gardées) ; la commande de restauration est en tête du fichier |
 | `base/*.sql` | la structure de la base BIOWANZE (schéma `biowanze` du projet de base de données de PINO) — jamais de données ; `06-domaines.sql` touche `auth.users`, commune à tout le projet |
 | `convertir-horaire.py --identites=F` | noms, prénoms et matricules pour la base seule : `F` doit être HORS du dépôt (l'outil refuse sinon) ; le robot l'envoie (`base-synchro.py --identites=F`) puis l'efface |
 | `base/email-code.html` | le modèle de l'e-mail du code de connexion, à coller dans Supabase (« Magic Link » et « Confirm signup ») |
