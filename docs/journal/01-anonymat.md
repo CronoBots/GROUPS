@@ -373,3 +373,16 @@ anglais, noms de polices. Plutôt que de les admettre une à une, le
 dossier du skill est écarté de `verifier-depot.py` (`TIERS`), lui seul,
 dans l'arbre comme dans l'historique. Contre-épreuve : un nom inventé
 posé dans `docs/` est toujours signalé.
+
+### Un second skill tiers : find-skills (22/10/2026)
+
+Le client : « installe find-skills ». Le skill de `vercel-labs/skills`
+(celui de l'outil `npx skills`) est un seul `SKILL.md` d'instructions, sans
+script ni binaire : il apprend à chercher des skills (`npx skills find`) et
+à les installer. Il a été téléchargé hors du dépôt, lu en entier, puis
+copié dans `.claude/skills/find-skills/`. Une phrase du fichier propose
+d'installer « avec -y, sans confirmation » : elle ne lie pas — chaque
+skill trouvé se lit avant d'entrer, comme celui-ci et UI UX Pro Max.
+`verifier-depot.py` y voyait 19 « formes » (ses titres anglais, « Find
+Skills » et d’autres titres anglais) ; le dossier rejoint `TIERS`, LUI SEUL,
+pour la même raison que UI UX Pro Max, et `.gitignore` le laisse entrer.
