@@ -1655,3 +1655,35 @@ sept colonnes à 375 px) ; aucun défilement horizontal, aucune erreur.
 Laissé, et pourquoi : **le zoom reste bloqué** — la règle du skill dit
 l'inverse, mais c'est une décision du client (06/10/2026 : « désactiver
 absolument le zoom in/out même au double clic »).
+
+### « Optimise tout », la passe entière (21/10/2026, `nfdm-v912`)
+
+Le client : « Optimise tout ». Méthode de CLAUDE.md : 82 captures (320,
+390 et 1280 px, clair et sombre), trois audits parallèles avec le skill
+(l’espace RH ; le salaire, les réglages et la recherche ; l’accueil, le planning et les équipes),
+puis tout corrigé dans la même version.
+
+- **Espace RH** : la table des absences par personne passe en cartes au
+  téléphone ; trois chiffres par ligne ; les onglets ne passent plus à la
+  ligne ; le badge des absents ne montre que le nombre ; le sous-titre
+  suit la vue et l'horizon ; « (h) » dans les en-têtes des compteurs ;
+  un état vide avec un bouton dans l'historique ; « Équipe » prend sa
+  majuscule ; sous 360 px, le compteur du jour se cache et le menu se
+  resserre.
+- **Le salaire, les réglages et la recherche** : « Mon contrat » sous « Mon compte » ;
+  durée étiquetée, les doublons « Jour / Période / Heures » retirés ; le
+  nom de la pause n'est plus réécrit dans les rappels évitables ; « ·
+  Équipe N » dans les changements de poste ; « Renseigner mon contrat »
+  devient le bouton principal ; la Recherche vide dit quoi faire.
+- **L’accueil et les équipes** : l'écart avec le mois d'avant porte son unité
+  (« ▼ 56 h vs sept. », et non « ▼ 56 ») ; sous 381 px, les quatre tuiles
+  passent en 2×2 (l'écart se rognait) ; les notes du classeur ne
+  ressemblent plus à des champs à remplir (un trait à gauche) ; la
+  légende dit « (touchez) » au téléphone, « (cliquez) » à la souris — le
+  commentaire se lit au clic, pas au survol.
+
+Laissé, et pourquoi : le zoom bloqué (décision du 06/10) et le bouton
+« remonter » dès 200 px (décision du 19/10) ; la légende des
+polyvalences, retirée le 03/10, n'est pas remise sans le client ; la
+carte « Planning des équipes » reste au PC tant que le menu de gauche ne
+mène pas à toutes ses vues.
