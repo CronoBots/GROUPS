@@ -825,3 +825,34 @@ Essai réel depuis son téléphone : code reçu, connexion, demande sur son
 trigramme ; son compte est validé avec le rôle `rh`, le seul compte
 validé de la base. Reste `VAPID_PRIVATE_KEY`, toujours vide : les
 notifications push du robot ne partent pas.
+
+**Les accès passent par l'écran d'accès, et la RH seule les valide
+(21/10/2026, `nfdm-v885`).** Le client, après l'essai : « toute la
+démarche que nous venons de faire pour les accès doit se faire sur l'écran
+d'accès au site […] et non dans les réglages », puis « il n'y a que le RH
+qui peut valider l'accès ». Fait :
+- l'écran d'accès, bouton « Connexion » : adresse, code (envoyé seul à six
+  chiffres), trigramme avec sa carte de vérification, puis « Accès
+  demandé » ; l'application ne s'ouvre qu'au compte validé, revérifié au
+  retour au premier plan ;
+- le bouton « Connexion BWZ RH » et son code écrit dans la page (donc
+  public) sont retirés ; la RH entre par son compte, de rôle `rh`, et un
+  appareil resté sur l'ancien accès RH par code revient à l'écran d'accès ;
+- le repli « Compte BIOWANZE en ligne » des réglages disparaît ; la liste
+  des comptes à valider est dans « Espace BWZ RH », visible de la RH seule ;
+- la base : `biowanze_comptes` et `biowanze_valider_compte` réservées à la
+  RH (`base/05-comptes.sql`). Éprouvé dans un bloc annulé : un compte de la
+  hiérarchie validé est refusé (« réservé à la RH ») et ne voit aucun
+  compte ; la RH en voit deux et valide ;
+- au démarrage, un compte venu de la base se revérifie : un accès retiré
+  ramène à l'écran d'accès, un rôle changé s'applique ; hors ligne, rien ne
+  change.
+Éprouvé au navigateur (Supabase simulé) : adresse invalide, code refusé,
+choix du trigramme, attente, rechargement pendant l'attente, validation,
+liste de la RH, accès retiré, ancien accès RH, hors ligne ; aucune erreur.
+Vérificateur : quatre sorties identiques à l'octet.
+
+**Choix fait sans demander, à revoir si le client le veut** : un appareil
+déjà connecté par son trigramme seul, avant ce jour, le reste ; seules les
+nouvelles connexions passent par la validation de la RH. Les y obliger
+tous fermerait l'application à chacun jusqu'à sa validation.
