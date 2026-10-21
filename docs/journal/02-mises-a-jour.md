@@ -1321,3 +1321,25 @@ remplaçant, passage aux trois formulaires, ligne ajoutée au sans solde,
 envoi ; signature du remplaçant ; refus sans motivation bloqué, visa
 avec RAPPELABLE ; aucun débordement, aucune erreur ; connexion et hors
 ligne rejoués ; vérificateur identique.
+
+
+**« La connexion ne fonctionne toujours pas » (21/10/2026, soir,
+`nfdm-v909`).** Captures du client : un e-mail en anglais « Confirm your
+email address » avec un lien, puis une page 404 de GitHub Pages à la
+racine `cronobots.github.io/#access_token=…`. Cause : l'adresse
+@cropenergies.com n'avait pas encore de compte ; pour une PREMIÈRE
+inscription Supabase n'envoie pas « Magic Link » (le code) mais « Confirm
+signup », resté au modèle d'origine (un lien, pas de code), et ce lien
+revient à l'adresse du site réglée chez Supabase, la racine, sans
+`/groups/`. Mesuré dans la base : le clic avait suffi à confirmer le
+compte (connexion à 19 h 53 UTC), mais il n'était relié à rien ; un
+second compte @biowanze.be, créé le matin, non plus. Les deux adresses
+du client ont été reliées à VBN, rôle RH validé, comme celle du robot.
+Dans l'application : les demandes de code portent `redirect_to` vers la
+page de l'application, et une page ouverte avec la session dans l'ancre
+la garde, efface l'ancre et rouvre l'écran d'accès à l'étape du compte
+(`baseDepuisLien`). Éprouvé au navigateur : retour par lien → ancre
+effacée, écran d'accès fermé, compte RH ; l'envoi d'un code porte
+`redirect_to`. Reste au client, dans Supabase : coller le modèle à code
+dans « Confirm signup », mettre l'adresse de l'application en « Site
+URL » et dans les « Redirect URLs » (sinon `redirect_to` est ignoré).
