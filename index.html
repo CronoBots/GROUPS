@@ -2760,7 +2760,7 @@ html .mqinc{font-size:12px}
 .dir-card-t{font-size:13.5px; font-weight:700; line-height:1.2}
 .dir-card-v{font-family:"IBM Plex Mono",monospace; font-size:25px; font-weight:650; color:#6FD6F2; line-height:1.05; margin-top:3px}
 .dir-card-v small{font-size:14px; color:#9AA5BC; font-weight:500}
-.dir-card-v.dir-card-go{color:#51607A; font-size:22px}
+.dir-card-v.dir-card-go{color:#8592AB; font-size:22px}
 .dir-card-d{font-size:11px; color:#9AA5BC; margin-top:auto; padding-top:4px}
 .dir-back{font:inherit; font-size:13px; font-weight:600; color:#6FD6F2; background:none; border:0; cursor:pointer; padding:2px 0 12px}
 .dir-back:hover{color:#8FE0F5}
@@ -5257,22 +5257,16 @@ html .eqleg-souris{display:none}
   html .top .bmark h1{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 }
 /* LE PLANNING AU PC (le client, le 22/10/2026 : « il ne faut pas de
-   légende au planning sur PC et il faut optimiser son affichage ») : plus
-   de légende ; le tableau prend toute la largeur à droite du menu ; sur un écran
-   d'au moins 1500 × 850, les trigrammes grossissent pour se lire de loin
-   (en dessous, ils passaient à la ligne et le tableau débordait). */
+   légende au planning sur PC », puis « j'aime beaucoup le planning sur
+   mobile, mais j'ai du mal avec la version PC (tableau trop grand ?) ») :
+   plus de légende, et la carte reprend la forme du téléphone — une
+   colonne de 1000 px au plus, centrée, à la hauteur de la fenêtre — au lieu
+   d'un tableau étiré sur 1 600 px où l'œil traverse des vides pour lier
+   un poste à ses trigrammes. Les pastilles gardent la taille du PC. */
 @media (min-width:1100px){
   html .eqleg{display:none}
-  html body[data-view="jour"] .wrap{max-width:none; padding-left:20px; padding-right:20px}
-}
-@media (min-width:1500px) and (min-height:850px){
-  html #jourCorps .eqp2 th.eqposte{width:190px}
-  html #jourCorps .eqp2 tbody th.eqposte, html #jourCorps .eqp2 tbody th.eqposte b{font-size:14px}
-  html #jourCorps .eqp2 thead th b{font-size:18px}
-  html #jourCorps .eqp2 thead th em{font-size:13px}
-  html #jourCorps.eqhote .eqp2 tbody td .eqn{padding:5px 11px; margin:3px 4px; border-radius:8px; line-height:20px}
-  html #jourCorps.eqhote .eqp2 tbody td .eqn b{font-size:15.5px}
-  html #jourCorps.eqhote .eqp2 td .eqn .eqhd{font-size:12px; line-height:16px}
+  html body[data-view="jour"] #v-jour .card{max-width:1000px; width:100%; margin-left:auto; margin-right:auto}
+  html #jourCorps .eqp2 th.eqposte{width:150px}
 }
 /* UN FILET SOUS LA BARRE DE TITRE (le client, le 22/10/2026) : au PC, le
    même trait que celui qui sépare le menu du contenu court en haut de la
@@ -5281,6 +5275,47 @@ html .eqleg-souris{display:none}
    l'application (l.196), qu'il avait remplacé en v915. */
 @media (min-width:1100px){
   html::before{content:""; position:fixed; top:0; left:0; right:0; height:1px; background:#232937; z-index:70; pointer-events:none}
+}
+/* LE MENU RANGÉ (le client, le 22/10/2026 : « comment organiserais-tu mieux
+   les onglets et catégories du menu ? », puis « optimise au maximum »).
+   Au PC, trois catégories : Mon espace (Accueil · Salaire), L'usine
+   (Planning · Équipes · Effectifs · Recherche), Gestion (Direction et
+   l'espace RH). L'ordre se fait par la feuille : le document garde
+   l'ordre du client (10/10), que suivent la tablette et les flèches.
+   Au téléphone, cinq icônes : Effectifs · Recherche · Direction passent
+   dans la feuille « Plus ». */
+.side-cat{display:none}
+#tab-plus{display:none}
+.plusfond,.plusfeuille{display:none}
+@media (min-width:1100px){
+  html .top>.tabs .side-cat{display:block; margin:14px 12px 6px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  html .top>.tabs .side-cat[data-cat="moi"]{order:0; margin-top:4px}
+  html .top>.tabs #tab-horaire{order:1}
+  html .top>.tabs #tab-salaire{order:2}
+  html .top>.tabs .side-cat[data-cat="usine"]{order:3}
+  html .top>.tabs #tab-jour{order:4}
+  html .top>.tabs #tab-equipe{order:5}
+  html .top>.tabs #tab-rh{order:6}
+  html .top>.tabs #tab-recherche{order:7}
+  html .top>.tabs #tab-direction{display:none}
+}
+@media (max-width:760px){
+  html .navwrap>.tabs #tab-rh,html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction{display:none}
+  html .navwrap>.tabs #tab-plus{display:flex; position:relative}
+  html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
+  html .plusfond:not([hidden]){display:block; position:fixed; inset:0; z-index:79; background:rgba(4,7,14,.55)}
+  html .plusfeuille:not([hidden]){display:block; position:fixed; z-index:80; left:16px; right:16px;
+    bottom:calc(var(--navbas,0px) + 84px + env(safe-area-inset-bottom,0px)); max-height:calc(100vh - 160px); overflow-y:auto;
+    padding:8px; border-radius:20px; background:#181b24; border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
+  .plus-titre{margin:8px 12px 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .plusfeuille button{display:flex; align-items:center; gap:14px; width:100%; min-height:48px; padding:10px 12px; border:0; border-radius:12px;
+    background:none; color:var(--ink); font:inherit; font-size:15px; font-weight:550; text-align:left; cursor:pointer}
+  .plusfeuille button svg{flex:0 0 auto; width:22px; height:22px; color:var(--muted)}
+  .plusfeuille button[aria-current="page"]{background:var(--in-soft)}
+  .plusfeuille button[aria-current="page"] svg{color:var(--in)}
+  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#D63A30; color:#fff; font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
+  .plus-nb.app{background:#E07B24; color:#fff}
+  .plus-nb+.plus-nb{margin-left:6px}
 }
 </style>
 </head>
@@ -5338,6 +5373,8 @@ html .eqleg-souris{display:none}
        Effectifs · Recherche.
        Les identifiants (data-v) ne changent pas : ui/view reste valable. -->
   <nav class="tabs" role="tablist" aria-label="Sections">
+    <span class="side-cat" data-cat="moi" aria-hidden="true">Mon espace</span>
+    <span class="side-cat" data-cat="usine" aria-hidden="true">L’usine</span>
     <button type="button" role="tab" id="tab-horaire" data-v="horaire" aria-selected="true" aria-controls="v-horaire">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L12 4l8.5 6.5"/><path d="M5.5 9v10.5h13V9"/><circle cx="12" cy="13.2" r="2.1"/><path d="M8.6 19.5a3.4 3.4 0 0 1 6.8 0"/></svg>
       Accueil<span class="dotwarn" id="notifDot" hidden><span class="sr-only">horaire modifié</span></span></button>
@@ -5359,6 +5396,13 @@ html .eqleg-souris{display:none}
     <button type="button" role="tab" id="tab-direction" data-v="direction" aria-selected="false" aria-controls="v-direction">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.2"/><path d="M7.5 15v-3M12 15V9M16.5 15v-5"/></svg>
       Direction</button>
+    <!-- LE BOUTON « PLUS » DU TÉLÉPHONE (le client, le 22/10/2026 : « optimise
+         au maximum » le menu) : cinq icônes en bas au lieu de sept ;
+         Effectifs · Recherche · Direction · la Gestion passent dans sa
+         feuille. Caché au-delà de 760 px. -->
+    <button type="button" id="tab-plus" aria-haspopup="dialog" aria-expanded="false" aria-controls="plusFeuille">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+      Plus<span class="tabnb" id="plusNb" hidden></span></button>
   </nav>
   <!-- LE MENU DE CONTRÔLE DU PC (le client, le 21/10/2026 : « sur PC cela peut
        être une plateforme avec menu de contrôle complet sur la gauche »).
@@ -5371,6 +5415,8 @@ html .eqleg-souris{display:none}
   </div>
 </header>
 <div class="navwrap" id="navwrap" hidden></div>
+<div class="plusfond" id="plusFond" hidden></div>
+<div class="plusfeuille" id="plusFeuille" role="dialog" aria-modal="true" aria-label="Plus de sections" hidden></div>
 
 <main class="wrap" id="contenu" tabindex="-1">
 <!-- SANS HORAIRE, DES ZÉROS PARFAITEMENT CRÉDIBLES : heures, primes,
@@ -9063,6 +9109,8 @@ function setView(v,keepScroll){
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
   if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
+  var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="rh"||v==="recherche"||v==="direction");
+  try{ sideMaj(); }catch(e){}
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(!b) return;
@@ -21987,14 +22035,21 @@ function sideMaj(){
   var l=compteBase()?wsSections():[];
   g.hidden=!l.length;
   var ouvert=!document.getElementById("grille").hidden;
-  g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
-    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Planning des équipes":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':'')+'</button>'; }).join(""):'';
+  /* Direction rejoint la Gestion au PC (le client, le 22/10/2026) : elle
+     n'est qu'à la RH, comme le reste de la colonne. */
+  var dir=document.getElementById("tab-direction"), estRH=document.documentElement.getAttribute("data-rh")==="1";
+  g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'
+    +(estRH&&dir?'<button type="button" data-go="direction"'+(!ouvert&&st.view==="direction"?' aria-current="page"':'')+'>'+dir.querySelector("svg").outerHTML+'<span>Direction</span></button>':'')
+    +l.map(function(x){
+    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Planning par personne":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':'')+'</button>'; }).join(""):'';
   document.body.classList.toggle("ws-ouvert",ouvert);
   var n=(GR.demandes||[]).filter(dmATraiter).length, nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
 }
 (function(){
   var g=document.getElementById("sideGestion");
-  if(g) g.addEventListener("click",function(e){ var b=e.target.closest("[data-side-ws]"); if(!b) return;
+  if(g) g.addEventListener("click",function(e){
+    if(e.target.closest("[data-go]")){ if(!document.getElementById("grille").hidden) fermerGrille(); return; }
+    var b=e.target.closest("[data-side-ws]"); if(!b) return;
     var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); });
   /* au PC, un onglet de l'application referme l'espace qui est à droite du menu */
   var t=document.querySelector("header.top .tabs");
@@ -22002,6 +22057,45 @@ function sideMaj(){
   var p=document.getElementById("sidePied");
   if(p) p.addEventListener("click",function(e){ if(e.target.closest("[data-go]")&&!document.getElementById("grille").hidden) fermerGrille(); },true);
   setTimeout(function(){ try{ sideMaj(); }catch(e){} },0);
+})();
+/* LA FEUILLE « PLUS » DU TÉLÉPHONE : Effectifs (et ses deux pastilles),
+   Recherche · Direction pour la RH, puis la Gestion. Reconstruite à chaque
+   ouverture, elle lit l'état du moment : rien à tenir à jour en double. */
+(function(){
+  var bt=document.getElementById("tab-plus"), f=document.getElementById("plusFeuille"), fond=document.getElementById("plusFond");
+  if(!bt||!f||!fond) return;
+  function nb(id){ var e=document.getElementById(id); return e&&!e.hidden&&e.textContent?e.textContent:""; }
+  function ligne(attr,ic,txt,extra,cur){ return '<button type="button" '+attr+(cur?' aria-current="page"':'')+'>'+ic+'<span>'+esc(txt)+'</span>'+(extra||"")+'</button>'; }
+  function svgDe(id){ var t=document.getElementById(id); return t?t.querySelector("svg").outerHTML:""; }
+  function ouvrir(){
+    var h='<p class="plus-titre">Sections</p>'
+      +ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
+      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche")
+      +(document.documentElement.getAttribute("data-rh")==="1"?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
+    var l=compteBase()?wsSections():[];
+    if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
+      var dn=x.s==="demandes"?(GR.demandes||[]).filter(dmATraiter).length:0;
+      return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Planning par personne":x.t,dn?'<span class="plus-nb">'+dn+'</span>':'');
+    }).join("");
+    f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
+    var p=f.querySelector("button"); if(p) p.focus();
+  }
+  function fermer(){ if(f.hidden) return; f.hidden=true; fond.hidden=true; bt.setAttribute("aria-expanded","false"); }
+  bt.addEventListener("click",function(){ if(f.hidden){ vibrer(); ouvrir(); } else fermer(); });
+  fond.addEventListener("click",fermer);
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!f.hidden){ fermer(); bt.focus(); } });
+  f.addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    var ws=b.getAttribute("data-side-ws");
+    fermer();
+    if(ws){ if(document.getElementById("grille").hidden) ouvrirGrille(ws); else wsAller(ws); }
+    /* data-go : setView par l'écouteur commun du document */
+  });
+  /* la pastille du bouton : celle d'Effectifs (absents du jour), recopiée */
+  function pastille(){ var n=document.getElementById("plusNb"), a=nb("rhNb")||nb("rhApp"); n.hidden=!a; n.textContent=a; n.classList.toggle("app",!nb("rhNb")&&!!nb("rhApp")); }
+  if(window.MutationObserver){ var mo=new MutationObserver(pastille);
+    ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,childList:true,characterData:true,subtree:true}); }); }
+  pastille();
 })();
 function majCompteUI(){
   try{ sideMaj(); }catch(e){}
