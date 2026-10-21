@@ -168,3 +168,25 @@ grant execute on function public.biowanze_saisir(text,date,text,text,text) to au
 grant execute on function public.biowanze_annuler_saisie(text,date) to authenticated;
 grant execute on function public.biowanze_saisies(int) to authenticated;
 revoke all on function biowanze.code_valide(text) from public, anon, authenticated;
+
+-- L'HISTORIQUE DES SAISIES, pour la RH et la hiérarchie (l'espace RH,
+-- 21/10/2026) : qui a changé quelle journée, quand, avant et après. Les
+-- écritures du robot (sans auteur) n'y sont pas.
+create or replace function public.biowanze_historique(p_limite int default 60)
+returns table (quand timestamptz, auteur text, trigramme text, jour date, operation text,
+               avant_cellule text, avant_annotation text, apres_cellule text, apres_annotation text, apres_source text, commentaire text)
+language sql stable security definer set search_path = '' as $$
+  select h.quand, pa.trigramme, p.trigramme, coalesce((h.apres->>'jour')::date, (h.avant->>'jour')::date),
+         h.operation, h.avant->>'cellule', h.avant->>'annotation', h.apres->>'cellule', h.apres->>'annotation',
+         h.apres->>'source', h.apres->>'commentaire'
+  from biowanze.historique h
+  left join biowanze.personnes p on p.id = coalesce((h.apres->>'personne_id')::uuid, (h.avant->>'personne_id')::uuid)
+  left join biowanze.comptes ca on ca.user_id = h.auteur
+  left join biowanze.personnes pa on pa.id = ca.personne_id
+  where h.table_nom = 'journees' and h.auteur is not null
+    and biowanze.role_courant() in ('rh','hierarchie')
+  order by h.quand desc
+  limit least(greatest(coalesce(p_limite,60),1),500)
+$$;
+revoke all on function public.biowanze_historique(int) from public, anon;
+grant execute on function public.biowanze_historique(int) to authenticated;
