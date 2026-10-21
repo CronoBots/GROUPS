@@ -1051,3 +1051,28 @@ tout relise. Éprouvé au navigateur, Supabase simulé : saisie affichée et
 pré-remplie, envoi exact, réouverture, annulation, bouton absent pour un
 opérateur qui voit pourtant la saisie, hors ligne la saisie reste ;
 aucune erreur. Vérificateur : quatre sorties identiques à l'octet.
+
+**La grille, à l'image du classeur (21/10/2026, `nfdm-v893`).** Le client,
+devant la saisie dans la feuille du jour : « je pensais que tu allais faire
+une plateforme qui ressemble plus à ce qui existe pour le moment ». Ce qui
+existe, c'est la grille : une feuille par équipe, une colonne par
+personne, une ligne par jour. Elle est refaite telle quelle, en plein
+écran (« L'horaire en grille », en tête de l'onglet Équipes et dans
+l'Espace BWZ RH) : les feuilles du récapitulatif (Shift 1 à 5, Opérateurs,
+STEP, Contremaîtres) ; les personnes dans l'ordre de leurs colonnes
+(`postes[feuille].c`, que le convertisseur lit déjà) ; la ligne 9 (poste
+tenu) et la ligne 10 (trigramme, et le nom pour un compte validé, lu dans
+la base) en en-tête figé ; deux colonnes par personne, le prévu et
+l'annotation en rouge comme la macro la peint, le triangle du commentaire
+(lu au survol, ou au toucher pour qui ne saisit pas) ; les 365 jours,
+week-ends et fériés grisés, mois en bandes alternées, le jour marqué ; le
+pied recalculé sur la spécification des 14 classeurs (VA, RTT, DTT, RJF
+prévus en heures, restants = solde au 01/01 du classeur − prévu, rouges
+si négatifs, flex time de l'année). La RH et la hiérarchie touchent une
+case : la liste fermée (postes seuls pour le prévu), le commentaire, ou
+« Revenir au classeur » ; la case se met à jour sur place, en bleu, et
+l'application relit tout en fermant la grille. Éprouvé au navigateur à
+320, 390 et 1280 px (365 lignes, 15 colonnes en Shift 1, 11 chez les
+contremaîtres, aucun débordement de page, ouverture sur le jour) : envoi
+exact, annulation, rechargement ; aucune erreur ; parcours de connexion et
+de saisie rejoués. Vérificateur : quatre sorties identiques.
