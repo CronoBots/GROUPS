@@ -931,3 +931,11 @@ messageries n'inversent pas les couleurs. Le logo est en PNG
 (`logo-email.png`, 360 px, tiré de `logo.svg` au navigateur) : les
 messageries ne lisent pas le SVG. Aperçu à 320, 390 et 800 px, sans
 débordement.
+Relu ensuite à la demande du client (« retour à la ligne, espace ? ») :
+espaces insécables de la typographie française devant « : » et « ? »,
+dans les guillemets et avant le tiret ; mots qui ne doivent pas se
+séparer liés (« 1 heure », « Se connecter », « à la RH », « y répondre »,
+« de connexion », qui passe entier à la ligne à 320 px) ; l'encart de
+sécurité en deux temps (la question, puis la consigne) et le pied
+raccourci (« ne pas y répondre »), qui laissaient un mot seul sur sa
+ligne à 320 et 390 px. Relu à 320, 390 et 800 px.
