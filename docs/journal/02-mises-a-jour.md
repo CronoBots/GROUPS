@@ -1155,3 +1155,26 @@ connexion ». Retirée de `base/email-code.html` ; le client la retire dans
 Supabase. Erreur de ma part : ce texte caché avait été présenté comme un
 plus « professionnel ». Si rien n'arrive encore, la quarantaine Outlook
 et l'envoi depuis un domaine de l'entreprise.
+
+**Le planning dans le sens du classeur, et le téléphone d'abord
+(21/10/2026, `nfdm-v896`).** Le client : « le module RH doit être fait dans
+le même sens que le module VOR, les dates sur la verticale et les
+personnes sur l'horizontale ; 100 % optimisé, mobile ainsi que PC ».
+« VOR » n'existe nulle part dans l'application (ni l'onglet Planning, qui
+range les postes en lignes et les pauses en colonnes) ; la consigne, elle,
+est claire, et c'est le sens du classeur. Le planning est retourné : une
+COLONNE par personne (trigramme, nom, poste ; toucher l'en-tête ouvre la
+fiche), une LIGNE par jour, la date et les présents par pause figés à
+gauche, les personnes figées en haut, l'ouverture sur la ligne du jour.
+Au téléphone, mesuré à 320, 360, 375 et 390 px : le menu de l'espace
+tient sur une ligne (le × au bout), le titre se tait, la barre aussi
+(période, Aujourd'hui en icône, un seul bouton Sem./Mois qui bascule, la
+recherche en loupe), la légende sur une ligne qui défile, les présents
+en colonne de 30 px ; trois personnes visibles à 320 px, quatre à 390.
+Défauts relevés et corrigés en chemin : barre plus large que l'écran à
+320 px (le bouton « période suivante » hors d'atteinte), « Octo. 2026 »
+(abréviations maison : désormais celles de l'usage, janv., févr., oct.),
+libellés de période coupés — zéro sur 60 semaines et 14 mois parcourus.
+Éprouvé : RH et opérateur, semaine, mois, recherche, fiche, trois jours
+posés d'un coup, les cinq sections de l'espace ; aucune erreur, aucun
+débordement ; vérificateur identique ; connexion et saisie rejouées.
