@@ -21678,7 +21678,10 @@ function gateVueEmail(){
     err.textContent=""; btn.disabled=true; btn.textContent="Envoi…";
     baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
       .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code";
-        err.textContent=emailAutorise(v)?"Envoi impossible : "+baseMsg(e)+".":"Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application."; });
+        /* la règle des domaines seulement quand la BASE refuse l'adresse ; un
+           envoi trop rapproché (429) ou une coupure garde son vrai motif */
+        var refus=/non autoris|database error|P0001|unexpected_failure/i.test(String(e&&e.message||e));
+        err.textContent=(!emailAutorise(v)&&refus)?"Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application.":"Envoi impossible : "+baseMsg(e)+"."; });
   }
   btn.onclick=envoyer;
   em.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); envoyer(); } };

@@ -1343,3 +1343,14 @@ effacée, écran d'accès fermé, compte RH ; l'envoi d'un code porte
 `redirect_to`. Reste au client, dans Supabase : coller le modèle à code
 dans « Confirm signup », mettre l'adresse de l'application en « Site
 URL » et dans les « Redirect URLs » (sinon `redirect_to` est ignoré).
+
+Puis, le même soir : « ça bug ». Le code arrivait bien dans Outlook
+(22 h 01) mais n'avait pas servi. Rejoué de bout en bout dans un vrai
+navigateur sur le vrai Supabase, avec l'adresse du robot (le code lu par
+le connecteur Gmail) : demande, e-mail, saisie, vérification, compte RH
+ouvert — tout passe. **Erreur de ma part trouvée en route** (`nfdm-v910`) :
+depuis le matin, l'application montrait « Seules les adresses @biowanze.be
+et @cropenergies.com… » pour TOUT échec d'envoi d'une adresse hors des
+deux domaines, y compris un envoi trop rapproché (429, une minute entre
+deux codes). La règle des domaines ne s'affiche plus que si la base
+refuse l'adresse ; sinon le vrai motif (« attendez une minute… »).
