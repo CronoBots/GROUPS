@@ -5486,6 +5486,18 @@ html .hp-fab:hover{opacity:1}
     background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; font-weight:600; cursor:pointer; flex:0 0 auto}
   html .pl-panneau.dm-pp-pn .pn-x{width:44px; height:44px}
 }
+/* la feuille d'une demande au téléphone (le client, le 22/10/2026, « moyen
+   d'optimiser » sur sa capture) : en lecture, les lignes vides se replient
+   en « + N lignes libres » ; le titre de l'en-tête en blanc franc, sur un
+   fond opaque (il paraissait flou et pâle sur iPhone). La feuille entière
+   reste au PC et dans le formulaire, où les lignes servent. */
+.dm-pp-libres{display:none}
+@media (max-width:699px){
+  html .dm-pp-t tr.dm-pp-vide{display:none}
+  html .dm-pp-libres{display:block; margin:4px 0 0; font-size:12.5px; font-style:italic; color:#6b6b6b}
+  html .pl-panneau.dm-pp-pn .pn-tete{position:relative; z-index:2; background:var(--surface)}
+  html .pl-panneau.dm-pp-pn .pn-tete b{color:#fff; font-weight:650; -webkit-font-smoothing:antialiased; text-shadow:none}
+}
 </style>
 </head>
 <body>
@@ -14852,10 +14864,13 @@ function dmPpLecture(x){
     h.push('<div class="dm-pp-tw"><table class="dm-pp-t">'+dmPpThead(f,b)+'<tbody>');
     for(var i=0;i<n;i++){ var l=L[i]||{}, d=l.j?dmJour(l.j):null, pr=l.j?(l.prevue||dmPrevue(x.trigramme,l.j)):"";
       var ty=l.pause?'Modif. pause → '+esc(l.pause):l.code?esc(l.code):'';
-      if(f==="sans_solde") h.push('<tr><td class="dm-pp-n">'+(i+1)+'</td>'+(i===0?'<td rowspan="'+n+'" class="dm-pp-css">Congé sans solde</td>':'')+'<td>'+(d?dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td></tr>');
-      else h.push('<tr><td class="dm-pp-n">'+(i+1)+'</td><td>'+(d?JOURS_C[d.getDay()]+' '+dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+ty+'</td>'+(P.rp?'<td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td>':'')+'</tr>');
+      if(f==="sans_solde") h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td>'+(i===0?'<td rowspan="'+n+'" class="dm-pp-css">Congé sans solde</td>':'')+'<td>'+(d?dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td></tr>');
+      else h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td><td>'+(d?JOURS_C[d.getDay()]+' '+dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+ty+'</td>'+(P.rp?'<td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td>':'')+'</tr>');
     }
     h.push('</tbody></table></div>');
+    /* au téléphone, en lecture, les lignes vides se replient (le client, le
+       22/10/2026, « moyen d'optimiser » : neuf lignes vides pour un seul jour) */
+    if(n>L.length) h.push('<p class="dm-pp-libres">+ '+(n-L.length)+' ligne'+(n-L.length>1?'s':'')+' libre'+(n-L.length>1?'s':'')+'</p>');
   });
   var cree=x.cree_le?new Date(x.cree_le):null, rps={};
   dmLignes(x).forEach(function(l){ if(l.rp) rps[l.rp]=1; });
