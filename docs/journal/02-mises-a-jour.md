@@ -1357,3 +1357,44 @@ refuse l'adresse ; sinon le vrai motif (« attendez une minute… »).
 Le client, ensuite : « connexion OK, on améliorera par après ». La chaîne
 entière (adresse @cropenergies.com, code reçu dans Outlook, compte RH)
 est donc éprouvée chez lui aussi.
+
+### Modifier sa demande, son avancement, son historique (22/10/2026, `nfdm-v918`)
+
+Le client : « les demandes de congé doivent être accessibles aux
+opérateurs, modifiables, et voir l'avancement de la validation de
+celle-ci, avec un historique de leurs demandes ; tandis que la RH et la
+hiérarchie peuvent voir toutes les demandes et les accepter ou les
+refuser ».
+
+Ce qui existait, mesuré avant d'écrire : la base montrait déjà à chacun
+ses demandes et à la RH et à la hiérarchie toutes (`biowanze_liste_demandes`) ;
+les étapes (remplaçant, contremaître, RH) se lisaient sur chaque carte ;
+l'annulation existait ; le visa et la décision étaient réservés à la RH
+et à la hiérarchie. Manquaient la modification et un historique séparé.
+
+- **Modifier** (`base/13-modifier.sql`, appliqué) :
+  `biowanze_modifier_demande` refait la demande tant que ni le
+  contremaître ni la RH ne l'a visée. L'ancienne passe « annulée » avec
+  « Remplacée par la demande n° N » ; la nouvelle naît de
+  `biowanze_demander_formulaire`, avec toutes ses vérifications — aucune
+  règle recopiée, qui divergerait. Une seule transaction : si la
+  nouvelle est refusée, l'ancienne reste intacte. L'accord d'un
+  remplaçant ne passe pas : il signe à nouveau. Éprouvé sur la vraie base
+  dans un bloc annulé à la fin : ancienne « annulee / Remplacée par la
+  demande n° 8 », nouvelle en attente avec ses deux jours, et refus
+  après un visa (« déjà visée : elle ne se modifie plus »).
+- **À l'écran**, l'opérateur a « En cours » (ses demandes en attente,
+  avec Modifier et Annuler) et « Historique » (acceptées, refusées,
+  annulées, modifiées, la plus récente d'abord). « Modifier » rouvre la
+  feuille papier remplie (formulaire, lignes, remplaçants, message) ; le
+  bouton dit « Signer et envoyer la modification ». Une demande remplacée
+  se lit « Modifiée », sans étapes.
+- **La carte « Planning des équipes » quitte l'onglet Équipes** (le
+  client : « Planning des équipes ne doit pas apparaître dans Équipes ») :
+  il s'ouvre par le menu.
+
+Éprouvé au navigateur, opérateur à 390 et 1280 px (En cours, Historique,
+Modifier, feuille remplie, appel de modification) et RH (`dm3.js` :
+demande, accord du remplaçant, visa) ; `dm3.js` passait par la carte
+retirée pour ouvrir l'espace RH : il passe désormais par le menu, comme
+un utilisateur.
