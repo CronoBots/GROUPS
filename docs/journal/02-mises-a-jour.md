@@ -905,3 +905,15 @@ d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
 soit rouvert, a été refusé par Apple (400 « VapidPkHashMismatch » : abonné
 avec l'ancienne clé) ; après la réouverture, l'application s'est
 réabonnée seule et l'essai est passé (201), reçu sur le téléphone.
+
+**L'e-mail du code, mis en forme (21/10/2026).** Le client : « comment
+rendre le mail de code plus professionnel ». Modèle écrit dans
+`base/email-code.html` (le dépôt en garde la source ; Supabase n'en a
+qu'une copie collée) : bandeau aux couleurs de l'application avec
+l'icône, code dans un cadre, durée et usage unique, pied « message
+automatique ». Tableaux et styles en ligne pour Outlook pour Windows ;
+largeur 480 px au bureau et 100 % au téléphone. Aperçu rendu à 320, 390
+et 800 px, sans débordement (320 px débordait de 20 px avec un code de
+huit chiffres en 32 px : ramené à 28 px). La mention « expéditeur
+externe » d'Outlook vient de l'adresse Gmail du robot et ne disparaîtrait
+qu'avec un serveur d'envoi au nom de l'entreprise.
