@@ -10,14 +10,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BIOWANZE">
+<meta name="apple-mobile-web-app-title" content="BioWanze APP">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{color-scheme:dark}html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>BIOWANZE</title>
+<title>BioWanze APP</title>
 <!-- Polices auto-hébergées : plus aucun appel à Google. Le premier rendu ne
      dépend plus d'un aller-retour vers un tiers, et « rien ne quitte l'appareil »
      devient vrai dès la première ouverture. Archivo est une police variable
@@ -5232,6 +5232,30 @@ html #calCard .mc-j[data-s] .mc-t.long,html #calCard .mc-j.abs:not(.mal):not(.pr
 @media (max-width:380px){ html #calStats{grid-template-columns:repeat(2,minmax(0,1fr))} }
 html .eqleg-souris{display:none}
 @media (hover:hover) and (pointer:fine){ html .eqleg-souris{display:inline} html .eqleg-tact{display:none} }
+/* PC (21/10/2026, « optimiser la version PC ») : sous le poste en cours, la
+   colonne de gauche laissait « Mes pauses » seule face à un grand vide à
+   droite. Dès 1240 px, « Mes pauses » passe sous les progressions,
+   en deux colonnes (plus étroit, « dans 16 j » se coupait) : les deux côtés du héros finissent à la même hauteur. */
+@media (min-width:1240px){
+  html .pf-corps:not(:has(.pf-pv))>.pf-gauche{grid-row:1 / span 2}
+  html .pf-corps:not(:has(.pf-pv))>#ryAn{grid-row:1}
+  html .pf-corps>#ryPr{grid-column:2; grid-row:2; padding:0 12px 0 0}
+  html #ryPr .pf-pr{display:grid; grid-template-columns:1fr 1fr}
+  html #ryPr .pf-pr-c+.pf-pr-c{border-top:0}
+  html #ryPr .pf-pr-c:nth-child(n+3){border-top:1px solid rgba(255,255,255,.07)}
+  html #ryPr .pf-pr-c:nth-child(even){border-left:1px solid rgba(255,255,255,.07)}
+}
+/* Le logo sur toute la largeur du menu (le client, le 22/10/2026 : « sur PC,
+   le logo doit prendre toute la largeur de la colonne de menu et pas
+   besoin de réécrire BIOWANZE ») : le logo porte déjà le nom ; le titre
+   reste pour les lecteurs d'écran. L'ordre des blocs du menu est fixé par
+   la feuille, quel que soit l'ordre du document. */
+@media (min-width:1100px){
+  html .top>.top-in{order:0} html .top>.mnav{order:1} html .top>.tabs{order:2}
+  html .top>.side-gestion{order:3} html .top>.side-pied{order:4}
+  html .top .brand .blogo{flex:0 0 100%; width:100%; height:auto; max-height:none; margin:0 0 4px}
+  html .top .bmark h1{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+}
 </style>
 </head>
 <body>
@@ -8877,7 +8901,11 @@ function placerOnglets(){
     if(nav.parentNode!==cadre) cadre.appendChild(nav);
     cadre.hidden=false;
   } else {
-    if(nav.parentNode!==tete) tete.appendChild(nav);
+    /* Juste après la marque, et non à la fin de l'en-tête : une fenêtre
+       ouverte étroite puis agrandie remettait les onglets APRÈS la Gestion
+       et les Réglages du menu de gauche (le client, 22/10/2026). */
+    var apres=tete.querySelector(".top-in");
+    if(nav.parentNode!==tete||nav.previousElementSibling!==apres) tete.insertBefore(nav,apres?apres.nextSibling:null);
     cadre.hidden=true;
   }
 }

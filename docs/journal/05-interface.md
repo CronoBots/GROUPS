@@ -1705,3 +1705,33 @@ aucun défilement horizontal, aucune erreur ; une section puis « ‹
 Direction » ramène à l'accueil de la vue ; Salaire puis Direction la
 rouvre ; un opérateur dont la dernière vue était Direction retombe sur
 l'Accueil, sans onglet Direction.
+
+### « BioWanze APP », et l'Accueil du PC rééquilibré (21/10/2026, `nfdm-v914`)
+
+Le client : la fenêtre de l'application installée sur PC s'intitulait
+« BIOWANZE - Mon équipe - BIOWANZE » (le nom du manifeste, puis le titre
+de la page) ; elle doit dire « BioWanze APP ». Le nom et le nom court du
+manifeste, le `<title>` et le titre de l'écran d'accueil iOS le disent
+désormais tous. Une application déjà installée relit son manifeste au fil
+des jours (Chrome le revérifie de lui-même) ; le titre de la page, lui,
+change dès le rechargement.
+
+Le haut de l'Accueil, au PC : sous le poste en cours, « Mes pauses »
+laissait un grand vide à droite, sous les progressions. Dès 1240 px, elle
+y passe, en deux colonnes, et les deux côtés finissent à la même hauteur.
+Entre 1100 et 1240 px on garde l'ancienne place : en deux colonnes,
+« dans 16 j » se coupait, et en une seule, c'était la gauche qui restait
+vide (essayé, photographié, défait).
+
+Le même jour, sur une capture du client au PC, deux choses de plus. **Le
+logo prend toute la largeur du menu de gauche** (215 px), et le mot
+« BIOWANZE » n'est plus réécrit à côté : le logo le porte déjà (le titre
+reste pour les lecteurs d'écran). **Le menu était dans le désordre** :
+la Gestion, puis les Réglages, puis l’Accueil et le Planning `placerOnglets()` remettait
+la barre d'onglets à la FIN de l'en-tête (`appendChild`) quand la fenêtre
+passait d'étroite à large — ouverte petite puis agrandie, cas du client.
+Elle se replace désormais juste après la marque, et la feuille fixe en
+plus l'ordre des blocs (`order`). Éprouvé au navigateur, page ouverte à
+700 px puis agrandie à 1280 : la marque, les onglets, la Gestion et les Réglages (la
+cause a été lue dans le code, le désordre n'a pas été photographié avant
+le correctif).
