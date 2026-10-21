@@ -1169,6 +1169,19 @@ pas lequel des trois déclenche le filtre ; on revient donc au plus près de
 ce qui passait (`base/email-code.html` réécrit). Erreur de ma part :
 « plus professionnel » a été servi sans éprouver l'arrivée chez Microsoft,
 qui est la seule chose qui compte pour un code.
+Puis, le même matin : « pour VBN envoie le code sur mon mail du robot ».
+`base/11-adresses.sql` : une table `biowanze.adresses_autorisees` admet
+une adresse PRÉCISE hors des deux domaines ; elle vit dans la base seule
+(le fichier n'y inscrit rien). Le compte RH de VBN (le même compte, son
+rôle et sa validation gardés) a reçu l'adresse du robot dans `auth.users`,
+`auth.identities` et `biowanze.comptes`. L'application n'a plus de copie
+qui refuse AVANT l'envoi : elle tente, et ne dit la règle des domaines que
+si la base refuse (`nfdm-v898`). Éprouvé en vrai : demande pour l'adresse
+du robot, 200, le code arrivé dans sa boîte de réception à 05 h 02 UTC ;
+une autre adresse Gmail, 500 « adresse non autorisée », aucun compte créé.
+Au navigateur (Supabase simulé) : adresse admise → écran du code ; autre
+Gmail → la règle des domaines ; aucune erreur. L'adresse @biowanze.be ne
+reçoit plus de code pour ce compte ; elle se remet par la même requête.
 
 **Le planning dans le sens du classeur, et le téléphone d'abord
 (21/10/2026, `nfdm-v896`).** Le client : « le module RH doit être fait dans
