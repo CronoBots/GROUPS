@@ -1142,3 +1142,16 @@ téléphone qui ne montrait pas la section active. Éprouvé à 320, 390 et
 1280 px : les cinq sections, fiche, recherche, lien vers les effectifs,
 planning (trois jours posés), opérateur ; aucun débordement, aucune
 erreur ; connexion et saisie rejouées ; vérificateur identique.
+
+**L'e-mail du code n'arrivait plus (21/10/2026).** Après le collage du
+modèle sombre (rechargement de la configuration à 03 h 42 UTC), le client
+ne reçoit plus rien. Journal d'authentification de Supabase : chaque
+demande acceptée et transmise (200 à 03 h 43, 03 h 45, 03 h 53, et 03 h 54
+pour une adresse @cropenergies.com) ; l'envoi part donc, c'est l'arrivée
+qui bloque. Cause probable : la ligne d'aperçu CACHÉE du modèle
+(`display:none`, le code en aperçu), que les filtres de Microsoft tiennent
+pour un signe d'hameçonnage, d'un expéditeur Gmail qui parle de « code de
+connexion ». Retirée de `base/email-code.html` ; le client la retire dans
+Supabase. Erreur de ma part : ce texte caché avait été présenté comme un
+plus « professionnel ». Si rien n'arrive encore, la quarantaine Outlook
+et l'envoi depuis un domaine de l'entreprise.
