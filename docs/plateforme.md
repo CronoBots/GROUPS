@@ -183,6 +183,11 @@ se perd plus.
 
 ## 6 ter. L'espace RH (21/10/2026)
 
+**La disposition du classeur se garde** (le client, le 21/10/2026) : les
+dates à la verticale, les personnes à l'horizontale, parce que ceux qui
+l'utiliseront travaillent ainsi depuis toujours. Tout écran de saisie ou
+de lecture de l'horaire suit ce sens.
+
 La plateforme prend la forme des logiciels de gestion du personnel : menu,
 tableau de bord du jour (effectifs par pause, sous-effectif, absents,
 compteurs négatifs, sortie d'Excel, activité), planning (une ligne par
