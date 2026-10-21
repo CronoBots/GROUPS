@@ -68,6 +68,18 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
 
+## La plateforme (inventaire du 21/10/2026, `docs/plateforme.md`)
+
+1. **Un classeur de fonction** (par exemple Poly arrière) : le récapitulatif
+   ne reçoit que des VALEURS. Les formules du pied (prévisions VA, RTT…) et
+   d'éventuelles listes déroulantes vivent dans les 14 classeurs sources,
+   que nous n'avons pas. En recevoir un, même d'une ancienne année,
+   permettrait de reprendre les calculs tels quels.
+2. **« xxx »** (« congé accordé sous restriction – rappelable ») est dans
+   la légende mais dans aucune journée de 2026 : encore utilisé ?
+3. **Les bornes du flex time** diffèrent selon les personnes ([−8 ; 80],
+   [−8 ; 24], sous −9) : quelle règle les fixe ?
+
 ## Écarts connus — aucune question
 
 Ce que les fiches montrent et que le classeur n'écrit pas. Règle du
