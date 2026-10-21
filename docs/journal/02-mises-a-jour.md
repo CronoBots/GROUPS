@@ -702,6 +702,17 @@ dans les macros. Réponses du client :
 Tant que l'étape 3 n'est pas atteinte, la règle du 27/09 tient : le
 classeur reste la seule source de l'application.
 
+**Le but, précisé par le client (21/10/2026)** : « le but est, à terme, de
+ne plus travailler avec Excel. Actuellement je l'utilise pour construire
+l'app, car il contient tout le nécessaire et leur manière de travailler,
+pour que tu puisses t'en servir pour construire la plateforme. » Le
+classeur est donc le MODÈLE de la plateforme, pas une sortie à
+reproduire : chaque usage qu'il encode (macros, codes, commentaires,
+compteurs, polyvalences, contrats) doit avoir son équivalent structuré
+dans l'application, et l'export « identique » de l'étape 2 n'est plus
+qu'une passerelle de transition, tant que d'autres lisent encore le
+fichier — pas un but.
+
 **Étape 1, parité en lecture : l'inventaire (20/10/2026, `nfdm-v883`).**
 Mesuré sur le classeur du 19/10 à 13 h 22 (celui installé) :
 `verifier-integralite.py` retrouve les 103 colonnes-personnes et 27 575
