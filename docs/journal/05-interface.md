@@ -1824,3 +1824,35 @@ cibles à zéro partout, hors les cases du calendrier (connues).
 Le même jour, le client : « sur PC le logo peut être plus petit et centré
 horizontalement dans la colonne du menu ». 96 px de haut, centré
 (`object-fit:contain`), au lieu des 165 px de toute la largeur.
+
+### « Horaire production », au style de l'outil « Horaires » du client (22/10/2026, `nfdm-v919`)
+
+Le client : « j'aimerais que le "Planning par personne" devienne "Horaire
+production" et que celui-ci ressemble plus à ce que nous utilisons », puis,
+avec sa page `Horaires.html` (son outil, hors du dépôt) : « inspire-toi de
+ce style pour l'horaire ». La page et ses données (`operateurs-data.txt`,
+des noms réels) ne sont PAS entrées dans le dépôt : la page a été ouverte
+dans un navigateur isolé, réseau coupé, nourrie d'une liste faite de nos
+seuls trigrammes, pour en relever le style.
+
+- **Le nom** : « Horaire production » au menu, dans la feuille « Plus »,
+  dans l'espace RH et en titre.
+- **Le style relevé** et repris : la feuille claire ; la colonne du mois
+  en lettres verticales ; les mois alternés bleu (#C7DEF5) et jaune
+  (#FEF9C3) ; le gris des week-ends (#C7CCD4), l'orange des fériés
+  (#FFE2B3), le jaune d'aujourd'hui (#FDE68A) ; la ligne des postes
+  teintée (meunerie et gluten jaune, arrière vert, chaudières saumon,
+  STEP bleu) au-dessus de la ligne des personnes ; un trait épais entre
+  les personnes et entre les semaines ; les équipes en pilules sombres,
+  l'active en blanc (« Équipe 1 » à « Équipe 5 », « Contremaître »,
+  « Formation », « STEP ») ; la légende des codes, tirée du classeur, en
+  bas.
+- **Du classeur**, gardé : deux cases par personne, le prévu puis
+  l'annotation en rouge, et le triangle rouge des commentaires. La saisie
+  (RH, hiérarchie) se fait sur l'une ou l'autre case.
+- Au téléphone, la colonne des présents, absente du classeur, cède sa
+  place aux personnes.
+
+Une première version reprenait les couleurs du classeur Excel (bleu
+#B8CCE4, onglets des feuilles en bas) ; remplacée le même jour par le
+style de l'outil, que le client a désigné.
