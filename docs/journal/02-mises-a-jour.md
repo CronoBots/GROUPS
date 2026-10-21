@@ -982,3 +982,8 @@ l'option ; `mettre-a-jour.py` à blanc rend `data/horaire-2026.json` à
 l'octet ; première copie 78 personnes (69 complètes, 48 matricules à six
 chiffres, 9 en « Nom P. ») ; second envoi 0 changement ; mauvaise clé
 refusée ; fichiers temporaires effacés.
+Dans l'Espace BWZ RH (`nfdm-v891`), la liste des accès montre désormais le
+prénom, le nom et la fonction à côté du trigramme
+(`public.biowanze_comptes_rh`, réservée à la RH) : une demande « ABC »
+seule se validait mal. Éprouvé au navigateur, Supabase simulé, aucune
+erreur ; vérificateur identique.

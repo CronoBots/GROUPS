@@ -12854,15 +12854,22 @@ function baseVerifierCompte(acc){
 function baseComptes(moi){
   var hote=document.getElementById("baseComptes"); if(!hote) return;
   hote.innerHTML='<p class="base-etat">Chargement des comptes…</p>';
-  baseRpc("biowanze_comptes",{}).then(function(l){
+  /* avec le nom et la fonction (base/07-identites.sql) : une demande « ABC »
+     seule se valide mal */
+  baseRpc("biowanze_comptes_rh",{}).then(function(l){
     l=l||[];
     var att=l.filter(function(x){ return !x.valide; }), ok=l.filter(function(x){ return x.valide; });
+    function qui(x){
+      var n=[x.prenom,x.nom].filter(Boolean).join(" ");
+      return '<b>'+esc(x.trigramme||"—")+'</b>'+(n?' · '+esc(n):'')+' · '+esc(BASE_ROLES[x.role]||x.role);
+    }
+    function detail(x){ return [x.categorie,x.email].filter(Boolean).map(esc).join(" · "); }
     function ligne(x,attente){
       /* son propre compte se lit, ne se modifie pas (la base le refuse aussi) */
       if(x.email && x.email===(baseSession()||{}).email)
-        return '<div class="base-cpt"><span><b>'+esc(x.trigramme||"—")+'</b> · '+esc(BASE_ROLES[x.role]||x.role)+'<small>'+esc(x.email)+' — vous</small></span><div></div></div>';
+        return '<div class="base-cpt"><span>'+qui(x)+'<small>'+detail(x)+' — vous</small></span><div></div></div>';
       var choix=(moi.role==="rh")?'<select data-role>'+["operateur","hierarchie","rh"].map(function(r){ return '<option value="'+r+'"'+(r===x.role?' selected':'')+'>'+BASE_ROLES[r]+'</option>'; }).join("")+'</select>':'';
-      return '<div class="base-cpt" data-u="'+esc(x.user_id)+'"><span><b>'+esc(x.trigramme||"—")+'</b> · '+esc(BASE_ROLES[x.role]||x.role)+'<small>'+esc(x.email||"")+'</small></span>'
+      return '<div class="base-cpt" data-u="'+esc(x.user_id)+'"><span>'+qui(x)+'<small>'+detail(x)+'</small></span>'
         +'<div>'+choix+(attente?'<button type="button" class="btn sm" data-ok>Valider</button>'
           :(moi.role==="rh"?'<button type="button" class="btn sm" data-ok>Enregistrer</button><button type="button" class="btnlike" data-non>Retirer</button>':''))+'</div></div>';
     }
