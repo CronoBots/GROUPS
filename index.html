@@ -19801,7 +19801,7 @@ function gateVueEmail(){
   _gateAttente=false;
   gateSetTitre("Connexion","Un code vous est envoyé par e-mail");
   gateSetBody(''
-    +'<p class="gate-lede">Entrez votre adresse e-mail : vous recevrez un <b>code à six chiffres</b>. Pas de mot de passe à retenir.</p>'
+    +'<p class="gate-lede">Entrez votre adresse e-mail : vous recevrez un <b>code de connexion</b>. Pas de mot de passe à retenir.</p>'
     +'<div class="gate-f"><label for="gateEmail">Adresse e-mail</label>'
     +'<input id="gateEmail" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="prenom.nom@…"></div>'
     +'<div class="gate-err" id="gateErr"></div>'
@@ -19827,8 +19827,8 @@ function gateVueCode(email){
   gateSetTitre("Code reçu",email);
   gateSetBody(''
     +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir. Le code est valable une heure ; regardez aussi les courriers indésirables.</p>'
-    +'<div class="gate-f"><label for="gateCode">Code à six chiffres</label>'
-    +'<input id="gateCode" class="gate-confirm" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••"></div>'
+    +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
+    +'<input id="gateCode" class="gate-confirm" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="code"></div>'
     +'<div class="gate-err" id="gateErr"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateValider">Se connecter</button>'
@@ -19838,16 +19838,19 @@ function gateVueCode(email){
   var c=document.getElementById("gateCode"), err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false;
   function valider(){
     var v=String(c.value||"").replace(/\D/g,"");
-    if(v.length<6){ err.textContent="Le code a six chiffres."; return; }
+    if(v.length<6){ err.textContent="Tapez le code entier reçu par e-mail."; return; }
     if(enCours) return; enCours=true;
     err.textContent=""; btn.disabled=true; btn.textContent="Vérification…";
     baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
       var s=baseGarder(j); s.email=email; lsSet("base/session",s); gateBaseEtat();
-    }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter"; err.textContent="Code refusé : "+baseMsg(e)+"."; try{ c.select(); }catch(x){} });
+    }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter"; err.textContent="Code refusé : "+baseMsg(e)+"."; });
   }
   btn.onclick=valider;
-  /* six chiffres tapés ou collés : on n'attend pas le bouton */
-  c.oninput=function(){ err.textContent=""; if(String(c.value).replace(/\D/g,"").length===6) valider(); };
+  /* Pas d'envoi tout seul : le projet envoie des codes à HUIT chiffres, et
+     l'envoi à six partait au milieu de la frappe (le client, le 21/10/2026,
+     sur iPhone : le code refusé, puis tout sélectionné). On valide au
+     bouton ou par Entrée, quelle que soit la longueur réglée chez Supabase. */
+  c.oninput=function(){ err.textContent=""; };
   c.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); valider(); } };
   /* Supabase refuse un second code avant 60 s : le bouton attend avec lui
      au lieu de laisser croire à une panne. */

@@ -887,3 +887,14 @@ des liens de la messagerie d'entreprise — une raison de plus pour un code
 sans lien. Le « trop de demandes » de l'écran vient de la règle de
 Supabase : un code par minute et par adresse. L'écran le dit désormais et
 le bouton « Renvoyer un code » attend 60 s avec un compte à rebours.
+
+**Le code a huit chiffres (21/10/2026, `nfdm-v889`).** Capture du client
+sur iPhone : code refusé au milieu de la frappe, puis tout sélectionné. Ce
+projet Supabase envoie des codes à HUIT chiffres ; l'écran, écrit pour six
+(la valeur courante de la documentation, jamais mesurée ici — l'erreur),
+envoyait le code dès le sixième chiffre, se faisait refuser, et
+sélectionnait le champ, que la frappe suivante effaçait. L'envoi tout seul
+et la sélection sont retirés, les « six chiffres » des textes aussi : on
+valide au bouton ou par Entrée, quelle que soit la longueur. Éprouvé au
+navigateur avec un code de huit chiffres ; parcours entier rejoué, aucune
+erreur.
