@@ -50,6 +50,13 @@ begin
       where j.personne_id = pid and j.source = 'classeur'
         and j.jour between make_date(p_annee,1,1) and make_date(p_annee,12,31)
         and not (x->'d') ? to_char(j.jour,'MMDD');
+    -- (09-saisie.sql) sur une journée SAISIE, seul ce que dit le classeur
+    -- à côté (cl_*) suit le classeur
+    update biowanze.journees j set cl_cellule = null, cl_annotation = null, cl_commentaire = null
+      where j.personne_id = pid and j.source = 'saisie'
+        and j.jour between make_date(p_annee,1,1) and make_date(p_annee,12,31)
+        and not (x->'d') ? to_char(j.jour,'MMDD')
+        and (j.cl_cellule, j.cl_annotation, j.cl_commentaire) is distinct from (null::text, null::text, null::text);
     for k, v in select * from jsonb_each(coalesce(x->'d','{}'::jsonb)) loop
       begin
         jr := make_date(p_annee, substr(k,1,2)::int, substr(k,3,2)::int);
@@ -58,11 +65,19 @@ begin
       insert into biowanze.journees(personne_id, jour, cellule, annotation, commentaire, source)
         values (pid, jr, nullif(v->>0,''), nullif(v->>1,''), nullif(v->>2,''), 'classeur')
         on conflict (personne_id, jour) do update
-          set cellule = excluded.cellule, annotation = excluded.annotation,
-              commentaire = excluded.commentaire, maj_le = now()
-          where biowanze.journees.source = 'classeur'
-            and (biowanze.journees.cellule, biowanze.journees.annotation, biowanze.journees.commentaire)
-                is distinct from (excluded.cellule, excluded.annotation, excluded.commentaire);
+          set cellule = case when biowanze.journees.source = 'classeur' then excluded.cellule else biowanze.journees.cellule end,
+              annotation = case when biowanze.journees.source = 'classeur' then excluded.annotation else biowanze.journees.annotation end,
+              commentaire = case when biowanze.journees.source = 'classeur' then excluded.commentaire else biowanze.journees.commentaire end,
+              cl_cellule = case when biowanze.journees.source = 'saisie' then excluded.cellule else biowanze.journees.cl_cellule end,
+              cl_annotation = case when biowanze.journees.source = 'saisie' then excluded.annotation else biowanze.journees.cl_annotation end,
+              cl_commentaire = case when biowanze.journees.source = 'saisie' then excluded.commentaire else biowanze.journees.cl_commentaire end,
+              maj_le = case when biowanze.journees.source = 'classeur' then now() else biowanze.journees.maj_le end
+          where (biowanze.journees.source = 'classeur'
+                 and (biowanze.journees.cellule, biowanze.journees.annotation, biowanze.journees.commentaire)
+                     is distinct from (excluded.cellule, excluded.annotation, excluded.commentaire))
+             or (biowanze.journees.source = 'saisie'
+                 and (biowanze.journees.cl_cellule, biowanze.journees.cl_annotation, biowanze.journees.cl_commentaire)
+                     is distinct from (excluded.cellule, excluded.annotation, excluded.commentaire));
       n_j := n_j + 1;
     end loop;
   end loop;

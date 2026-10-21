@@ -183,7 +183,7 @@ se perd plus.
 
 ## 7. L'ordre de construction
 
-1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes.
+1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes. **Fait le 21/10/2026** (`base/09-saisie.sql`, feuille du jour) ; restent les droits par périmètre (équipe, fonction) et une saisie de plusieurs jours d'un coup.
 2. Remplacements, échanges et rappels en événements à deux personnes
    (≈ 75 % des commentaires ; alimentent la paie).
 3. Demandes de congé, opérateur → contremaître → RH, avec soldes.
