@@ -130,7 +130,9 @@ IGNORES = ("tools/formes-admises.txt",)
 # « formes » (des en-têtes de colonnes anglais) et ne peuvent contenir aucun nom
 # de Biowanze — personne ici ne l'a écrit. Lire ce dossier noierait la liste
 # des formes admises ; on l'écarte, LUI SEUL.
-TIERS = (".claude/skills/ui-ux-pro-max/",)
+# Le 22/10/2026, find-skills (vercel-labs/skills) : un fichier d'instructions
+# anglais, lu en entier avant d'entrer, mêmes en-têtes, même raison.
+TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/")
 
 
 def _tiers(chemin):
