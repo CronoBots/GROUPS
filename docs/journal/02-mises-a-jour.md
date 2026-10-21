@@ -1160,6 +1160,15 @@ le code part bien de Gmail, sans aucun retour d'erreur, mais le message
 porte TOUJOURS le `<div style="display:none…">` : Supabase garde l'ancien
 modèle, le dépôt seul avait été corrigé. Le client doit supprimer cette
 ligne dans « Magic Link » et dans « Confirm signup ».
+Le client, ensuite : « avant l'optimisation du mail cela fonctionnait très
+bien, maintenant plus ». Comparés dans la boîte d'envoi : les cinq codes
+qui arrivaient (00 h 17 à 00 h 49 UTC) étaient trois paragraphes, 1,1 Ko,
+objet « Votre code BIOWANZE » ; ceux qui n'arrivent plus, 6,7 Ko, un logo
+pris sur un autre site, le texte caché et le code dans l'objet. On ne sait
+pas lequel des trois déclenche le filtre ; on revient donc au plus près de
+ce qui passait (`base/email-code.html` réécrit). Erreur de ma part :
+« plus professionnel » a été servi sans éprouver l'arrivée chez Microsoft,
+qui est la seule chose qui compte pour un code.
 
 **Le planning dans le sens du classeur, et le téléphone d'abord
 (21/10/2026, `nfdm-v896`).** Le client : « le module RH doit être fait dans
