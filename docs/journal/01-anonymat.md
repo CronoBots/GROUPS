@@ -386,3 +386,24 @@ skill trouvé se lit avant d'entrer, comme celui-ci et UI UX Pro Max.
 `verifier-depot.py` y voyait 19 « formes » (ses titres anglais, « Find
 Skills » et d’autres titres anglais) ; le dossier rejoint `TIERS`, LUI SEUL,
 pour la même raison que UI UX Pro Max, et `.gitignore` le laisse entrer.
+
+### Un troisième : supabase-postgres-best-practices (22/10/2026)
+
+Le client : « quel skill serait le plus utile pour mon projet ? ».
+Cherché avec find-skills (`npx skills find`, huit requêtes : supabase,
+postgres, playwright, pwa, accessibilité, guides d'interface, javascript,
+sécurité). Retenu : les règles Postgres de Supabase (éditeur officiel,
+454 K installations), qui couvrent exactement `base/*.sql` — RLS,
+fonctions `security definer`, privilèges, index, verrous. Écartés :
+web-design-guidelines (Vercel), qui télécharge ses règles à chaque usage
+— un texte qui changerait sans relecture — et que UI UX Pro Max couvre
+déjà ; webapp-testing (Anthropic), en Python, quand nos essais Playwright
+existent déjà.
+
+Relu avant d'entrer, deux fois : un sous-agent a lu les 36 fichiers en
+entier (aucune consigne d'agir, de télécharger ni d'installer ; aucun
+script ; 87 liens de documentation), et une recherche des motifs à
+risque n'a rien trouvé. Ses exemples SQL destructifs (`drop table`,
+`alter system`, `pg_stat_statements_reset()`) sont des exemples ; la règle
+« pas de delete ni de drop par le connecteur » reste. Le dossier rejoint
+`TIERS` et `.gitignore` le laisse entrer.
