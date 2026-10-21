@@ -126,6 +126,61 @@ reprendre…) en commentaires du pied : déjà lus par l'application (`ct`).
 | barré | `annule_le`, `annule_par`, historique | |
 | mot de passe des feuilles | rôles, règles de la base, historique | toute la protection |
 
+## 6 bis. Les 14 classeurs de fonction (reçus le 21/10/2026)
+
+Le client a envoyé les 14 sources (02 à 13, A, B), hors du dépôt. Elles
+portent ce que le récapitulatif ne reçoit pas : les FORMULES. Mesuré :
+
+**Structure.** Une feuille par classeur, même disposition que le
+récapitulatif (l.11-375 les jours, l.377-435 le pied) ; 81 personnes ;
+3 834 formules, toutes dans le pied ; aucune protection, aucune liste
+déroulante (9 validations vestiges en ligne 207, toujours fausses), saisie
+entièrement libre (186 annotations différentes hors compteurs).
+
+**Le pied, en spécification** (`A` = colonne d'annotation de la personne) :
+
+| Ligne | Calcul |
+|---|---|
+| 377-394 prévisions | `NB.SI(A11:A375 ; code) × k` : VA 8, 1/2VA 4, « N h RTT » N (1 à 7), RTT 8, DTT 8, 1/2DTT 4, RJF 8, 1/2RJF 4 ; égalité de cellule entière. Un VA vaut 8 h même sur une pause de 12 h ; pas de ½RTT ni de « N h VA » |
+| 399-402 soldes au 01/01 | saisis à la main, l'arithmétique dans la cellule : VA 160 à temps plein (144 à 90 %, 128 à 80 %) + report ; RTT 64 opérateurs, 80 contremaîtres et adjoints, `64-(n*4)` ; DTT report + crédits (`24+16`…) ; RJF `80-(n*8)`, 10 fériés × 8 h moins les fériés perdus, listés en commentaire |
+| 405-408 restants | solde − prévisions (− report vers l'année suivante, écrit `-24+N("report 24h sur 2027")`) ; rouge si négatif |
+| 412-430 flex time | Σ « N h +FT » × N + Σ « N h −FT » × (−N), N de 1 à 8 ; Total = report 2025 écrit en constante dans la formule + les deux sommes ; rouge hors de [−8 ; 80] (70 personnes) ou [−8 ; 24] (11) |
+| 432-435 CP, TP, CT | jours posés (`NB.SI`) ; reste = droit écrit à la main d'après le commentaire de contrat (26, 52, 20, 40, 6, 9, 21, 31) − posés |
+
+**Ce que les formules ne comptent pas** : RHS (≈ 300 annotations, aucun
+compteur), HS, Abs, R-CM, SD26, F, DS, VM ; 44 annotations « de compteur »
+échappent au comptage (41 « RTT- » du 02 au 10/01, 3 fautes d'espace).
+
+**Erreurs de formule mesurées** (à signaler à la RH, à ne pas reproduire) :
+un Total flex qui lit une ligne vide (le +FT d'une personne n'est jamais
+compté), un DTT = VA + RTT (224 h fictives), un restant VA moins RTT, un
+flex décalé de 4 lignes (29-31/12 perdus), des CP comptés à partir du 02
+ou du 03/01, cinq formules absentes, un libellé « au 01/01/2025 ».
+
+**Ce qui n'arrive jamais au récapitulatif** : TROIS PERSONNES, au-delà des
+plages fixes que copient les macros (une 6e personne en Fermentation, une
+en Chaudières + renfort, un « CM Travaux » chez les contremaîtres) — 2 005
+cellules et 226 commentaires, donc absents de l'application aujourd'hui ;
+les 548 couleurs peintes à la main (jaune : jour déplacé ou à surveiller ;
+orange : arrêt SD26 ; lavande : une période, écolage ?) ; les formules
+(reports, retenues, CP découpés quand le contrat change). Le reste est
+identique (38 623 cellules, 7 714 commentaires, 7 077 valeurs du pied) ; les
+seuls écarts sont des saisies faites après la collecte du 19/10.
+
+**« xxx »** (congé rappelable) : dans la légende de 13 sources, employé
+dans AUCUNE journée ni aucun commentaire des 14. Il sort de la liste des
+codes ; « rappelable » sera un statut de la demande de congé.
+
+**Conséquences pour la plateforme** : liste fermée des codes de compteur
+(et un compteur RHS, qui manque) ; compteurs calculés sur toute l'année,
+sans plage ; solde au 01/01 = droit × taux de contrat au prorata + report −
+retenues DATÉES et motivées (le RJF se calcule : fériés tombés pendant une
+absence, un TP, avant l'engagement) ; report vers l'année suivante et
+report d'ouverture du flex en CHAMPS, jamais en constante ; bornes du flex
+portées par la personne ; couleurs devenues attributs (jour déplacé,
+période SD26, date d'entrée) ; aucune plage fixe : une personne de plus ne
+se perd plus.
+
 ## 7. L'ordre de construction
 
 1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes.
