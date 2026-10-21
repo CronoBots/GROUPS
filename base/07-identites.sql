@@ -29,3 +29,17 @@ begin
 end $$;
 revoke all on function public.biowanze_identites(text, jsonb) from public;
 grant execute on function public.biowanze_identites(text, jsonb) to anon;
+
+-- La liste des comptes de la RH, avec le nom : une demande « ABC » seule se
+-- valide mal (remplace biowanze_comptes dans l'application ; le type de
+-- retour change, d'où une fonction nouvelle plutôt qu'un remplacement).
+create or replace function public.biowanze_comptes_rh()
+returns table (user_id uuid, email text, trigramme text, nom text, prenom text, categorie text, role text, valide boolean, cree_le timestamptz)
+language sql stable security definer set search_path = '' as $$
+  select c.user_id, c.email, p.trigramme, p.nom, p.prenom, p.categorie, c.role::text, c.valide, c.cree_le
+  from biowanze.comptes c left join biowanze.personnes p on p.id = c.personne_id
+  where biowanze.role_courant() = 'rh'
+  order by c.valide, c.cree_le desc
+$$;
+revoke all on function public.biowanze_comptes_rh() from public, anon;
+grant execute on function public.biowanze_comptes_rh() to authenticated;
