@@ -1750,3 +1750,28 @@ plus l'ordre des blocs (`order`). Éprouvé au navigateur, page ouverte à
 700 px puis agrandie à 1280 : la marque, les onglets, la Gestion et les Réglages (la
 cause a été lue dans le code, le désordre n'a pas été photographié avant
 le correctif).
+
+### Le Planning au PC sans légende, un filet sous la barre de titre, « BioWanze.app » (22/10/2026, `nfdm-v915`)
+
+Trois demandes du client, captures à l'appui.
+
+- « Il ne faut pas de légende au planning sur PC et il faut optimiser son
+  affichage. » La légende ajoutée le 21/10 (`nfdm-v908`) se cache dès
+  1100 px ; elle reste sur tablette, dont le client n'a rien dit. Le
+  tableau prend toute la largeur à droite du menu (il flottait entre deux
+  marges, 1480 px au plus). Sur un écran d'au moins 1500 × 850, les
+  pastilles grossissent (trigramme à 15,5 px, horaire à côté) pour se lire
+  de loin. Mesuré : à 1920 × 1040, les dix lignes tiennent sans défiler ;
+  à 1280 × 720, les pastilles agrandies passaient à la ligne et la
+  dernière ligne sortait du cadre (essayé, photographié) : en dessous de
+  1500 × 850 elles gardent leur taille, et le tableau entier tient grâce à
+  la place que la légende a rendue.
+- « La même ligne qui sépare la colonne de gauche et droite pour séparer
+  la barre de titre de fenêtre et le contenu. » Un filet d'un pixel en
+  haut de la fenêtre, dès 1100 px, de la couleur pleine que prend le trait
+  vertical (#232937, mesurée sur la capture) : en semi-transparent comme
+  lui, il sortait plus foncé au-dessus du contenu, dont le fond est plus
+  sombre que celui du menu. Mesuré au pixel : même couleur au-dessus du
+  menu et du contenu que le trait vertical.
+- « BioWanze.app » remplace « BioWanze APP » (nom, nom court, titre,
+  écran d'accueil iOS).
