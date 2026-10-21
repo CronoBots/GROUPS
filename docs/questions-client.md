@@ -80,6 +80,14 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    Chaudières + renfort, un « CM Travaux ». Faut-il qu'elles soient dans
    l'application ?
 
+3. **Le jour du remplaçant, quand une demande est acceptée** (formulaire de
+   courte durée, 21/10/2026) : faut-il l'écrire tout seul, et avec quoi —
+   la pause du demandeur en cellule et « Remplace X » en commentaire, comme
+   le classeur ? Un remplacement peut valoir une prime de rappel : tant que
+   ce n'est pas dit, l'application ne l'écrit pas, il se pose au planning.
+4. **Le quatrième document du dossier** (« RECMA – Demande de congé,
+   déclaration », PDF) : à quoi sert-il, faut-il le reprendre ?
+
 ## À la RH (d'après les 14 classeurs de fonction)
 
 1. Le solde RTT `64-(n*4)` et le `-4` : que retranche-t-on ?

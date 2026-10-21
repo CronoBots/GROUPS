@@ -1240,3 +1240,53 @@ Supabase simulé : demande depuis la feuille du jour, aperçu exact, envoi,
 seconde demande annulée, pastille, validation, refus motivé ; aucune
 erreur ; planning, espace, saisie et connexion rejoués ; vérificateur
 identique.
+
+**Les trois formulaires officiels (21/10/2026, `nfdm-v901`).** Le client :
+« réfère-toi à une demande de congé officielle », puis les trois documents
+Word du dossier RH « Formulaires de demande de congé – tous
+départements » (le quatrième, une déclaration en PDF, n'a pas été envoyé).
+Ils ne demandent pas un code sur une période, comme le module de la
+veille, mais UN TABLEAU DE JOURS. Courte durée / remplacement /
+modification de pause : 10 lignes ; jour, date, pause prévue, type de
+congé OU modification de pause ; remplaçant et SA pause prévue ;
+signatures du demandeur et du remplaçant ; visa : approbation ou refus,
+motivation, cases « rappelable » et « à la demande de la ligne
+hiérarchique ». Longue durée (≥ 1 semaine) : 14 jours de pause et 8 de
+DAY, 2 périodes distinctes au plus, à remettre avant le 31 janvier pour
+le 15 juin – 15 septembre et au plus tard le 31 août pour les deux
+semaines de fin d'année ; signature du demandeur seule. Sans solde : seulement
+si le solde de congé et de récupération, planifié compris, est à 0 ;
+10 jours par an au plus ; visa avec « restriction ».
+
+`base/12-formulaires.sql` : la demande garde son formulaire, ses lignes
+(la base y écrit la pause prévue du demandeur et celle du remplaçant), le
+visa et l'accord des remplaçants. La base ne refuse que ce que le papier
+interdit sans appel (plus de lignes que de cases, un remplaçant sur la
+longue durée, une 11e journée sans solde dans l'année, une modification
+vers la pause déjà prévue ou un jour de repos) ; le délai de remise, les
+périodes et le solde non nul sont MONTRÉS au valideur, qui tranche comme
+sur le papier. Acceptée : un congé se pose en annotation ; une
+modification de pause change la cellule et s'écrit comme le classeur,
+« changement PM -> AM (demande n° N) ». Le jour du remplaçant n'est PAS
+écrit (question au client). Éprouvé dans un bloc annulé : demande à trois
+lignes (congé avec remplaçant, modification de pause, congé), doublon,
+remplaçant sur longue durée et onze jours sans solde refusés ; le
+remplaçant la voit et donne son accord ; contremaître (rappelable, à la
+demande) puis RH : les trois jours posés, la cellule changée pour la
+pause, le classeur gardé dans `cl_*`, rien chez le remplaçant.
+
+Dans l'application : le choix du formulaire, sa règle en clair, « Du / Au »
++ type puis « Ajouter » (seuls les jours de travail prévus entrent), une
+ligne par jour avec sa pause prévue, le type ou « Passer en AM/PM/N/D »
+(la pause prévue exclue), le remplaçant avec sa pause ce jour-là ; les
+compteurs du formulaire (6 / 10 ; pause 6 / 14, DAY 0 / 8, périodes 1 / 2),
+les heures et le solde après. La carte montre le tableau des jours, les
+règles hors cadre en jaune, le visa, et l'étape « Remplaçant » avant
+Contremaître et RH ; le remplaçant a un onglet « Je remplace » et son
+bouton d'accord. **Défaut trouvé en passant** : au téléphone, la règle qui
+réduit le bouton Semaine/Mois à une seule étiquette visait toute `.pl-seg` ;
+elle cachait les onglets des Demandes et les 7/14/31 jours des Absences
+(étiquettes vides). Restreinte à `#grVue`. Éprouvé au navigateur à 320,
+390 et 1280 px, Supabase simulé : opérateur, remplaçant, RH ; aucun
+débordement, aucune erreur ; connexion rejouée, hors ligne compris ;
+vérificateur identique à l'octet.
