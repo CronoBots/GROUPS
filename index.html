@@ -5476,6 +5476,16 @@ html .hp-fab:hover{opacity:1}
   html #wsAbs .ws-table{max-width:1100px}
   html #wsDem .dm-onglets{max-width:760px}
 }
+/* la feuille de demande en plein écran au téléphone : l'en-tête laisse la
+   place de la barre d'état (la croix y était inatteignable dans
+   l'application installée), et un « ‹ Retour » bien visible à gauche */
+.pn-retour{display:none}
+@media (max-width:699px){
+  html .ws .pl-panneau.dm-pp-pn .pn-tete{padding-top:calc(12px + env(safe-area-inset-top,0px)); align-items:center}
+  html .pl-panneau.dm-pp-pn .pn-retour{display:inline-flex; align-items:center; min-height:44px; padding:0 12px; margin-left:-4px; border:1px solid var(--line); border-radius:12px;
+    background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; font-weight:600; cursor:pointer; flex:0 0 auto}
+  html .pl-panneau.dm-pp-pn .pn-x{width:44px; height:44px}
+}
 </style>
 </head>
 <body>
@@ -14245,6 +14255,7 @@ function ouvrirGrille(section,formulaire){
   if(formulaire) GR.dmForm=formulaire;
   fetchHoraireDB().then(function(){
     grCaler(jourUsine());
+    if(g.hidden) navPousser("g");
     g.hidden=false; document.body.classList.add("sheet-on"); g.classList.toggle("edit",peutSaisir());
     if(!mqSide.matches) try{ inerteFond(true); }catch(e){}
     var a=compteBase()||{};
@@ -14262,22 +14273,45 @@ function ouvrirGrille(section,formulaire){
     }
   });
 }
-function fermerGrille(){
-  grFermerPanneau();
-  document.getElementById("grille").hidden=true;
+function fermerGrille(parRetour){
+  var g0=document.getElementById("grille"), ouvert=!g0.hidden;
+  grFermerPanneau(parRetour===true);
+  g0.hidden=true;
+  if(ouvert&&parRetour!==true) navRetirer("g");
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
   /* une case modifiée : toute l'application relit l'horaire */
   if(GR.modifie){ try{ localStorage.removeItem("base/saisies"); }catch(e){} location.reload(); }
 }
-function grFermerPanneau(){
-  var p=document.getElementById("grPanneau"); if(p) p.hidden=true;
+/* LE GESTE « RETOUR » DU TÉLÉPHONE (le client, le 22/10/2026 : « quand je
+   regarde une demande sur mobile, pas possible de revenir en arrière »).
+   Le bouton ou le glissé « retour » quittait l'application au lieu de
+   refermer ce qui était ouvert. Ouvrir une feuille (panneau) ou l'espace
+   RH pose une étape dans l'historique du navigateur ; « retour » la
+   referme, dans l'ordre. Refermer par un bouton retire l'étape, pour que
+   le retour suivant ne tombe pas dans le vide. Même procédé que le guide
+   d'installation. */
+var NAV={pile:[], ignore:0, aRetirer:0};
+function navPousser(k){ if(!history.pushState) return; try{ history.pushState({bwz:k},""); NAV.pile.push(k); }catch(e){} }
+function navRetirer(k){
+  var i=NAV.pile.lastIndexOf(k); if(i<0) return; NAV.pile.splice(i,1);
+  if(++NAV.aRetirer===1) setTimeout(function(){ var n=NAV.aRetirer; NAV.aRetirer=0; NAV.ignore++; try{ history.go(-n); }catch(e){ NAV.ignore--; } },0);
+}
+window.addEventListener("popstate",function(){
+  if(NAV.ignore){ NAV.ignore--; return; }
+  var k=NAV.pile.pop();
+  if(k==="p") grFermerPanneau(true); else if(k==="g") fermerGrille(true);
+});
+function grFermerPanneau(parRetour){
+  var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
   [].forEach.call(document.querySelectorAll("#grZone .pl-sel"),function(x){ x.classList.remove("pl-sel"); });
+  if(ouvert&&parRetour!==true) navRetirer("p");
 }
 function grOuvrirPanneau(html){
-  var p=document.getElementById("grPanneau"); p.className="pl-panneau"; p.innerHTML=html; p.hidden=false;
-  var x=p.querySelector(".pn-x"); if(x) x.onclick=grFermerPanneau;
+  var p=document.getElementById("grPanneau"); if(p.hidden) navPousser("p");
+  p.className="pl-panneau"; p.innerHTML=html; p.hidden=false;
+  [].forEach.call(p.querySelectorAll(".pn-x,.pn-retour"),function(x){ x.onclick=function(){ grFermerPanneau(); }; });
   return p;
 }
 /* LA FICHE D'UNE PERSONNE : ses compteurs de l'année, le contrat, ses postes */
@@ -14863,7 +14897,7 @@ function dmPpVisa(x,f){
   return h.join("");
 }
 function dmPpOuvrir(corps,pied){
-  var pn=grOuvrirPanneau('<div class="pn-tete"><div><b>Demande de congé</b><span>la feuille du dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
+  var pn=grOuvrirPanneau('<div class="pn-tete"><button type="button" class="pn-retour" aria-label="Retour">‹ Retour</button><div><b>Demande de congé</b><span>la feuille du dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
     +'<div class="pn-corps dm-pp-fond">'+corps+'</div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
   pn.classList.add("dm-pp-pn");
   return pn;
