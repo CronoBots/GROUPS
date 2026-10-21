@@ -1781,3 +1781,42 @@ Trois demandes du client, captures à l'appui.
   au pixel avec la `nfdm-v914` (quatre points, identiques).
 - « BioWanze.app » remplace « BioWanze APP » (nom, nom court, titre,
   écran d'accueil iOS).
+
+### Le menu rangé, et le Planning du PC à la forme du téléphone (22/10/2026, `nfdm-v917`)
+
+Le client : « comment organiserais-tu mieux les onglets et catégories du
+menu ? », puis, à la proposition : « optimise au maximum, et aussi j'aime
+beaucoup le planning sur mobile, mais j'ai du mal avec la version PC
+(tableau trop grand ?) ».
+
+- **Au PC, trois catégories** dans le menu de gauche : « Mon espace »
+  (Accueil · Salaire), « L'usine » (Planning · Équipes · Effectifs ·
+  Recherche), « Gestion » (Direction, puis l'espace RH). L'ordre se fait
+  par la feuille (`order`) : le document garde l'ordre du 10/10, que
+  suivent la tablette et les flèches du clavier. Direction quitte la
+  liste des onglets pour la Gestion, réservée à la RH comme elle.
+- **« Planning des équipes » devient « Planning par personne »** dans le
+  menu : à côté de « Planning », les deux noms se confondaient ; le
+  second est une ligne par personne. L'onglet « Planning », nommé avec
+  le client le 09/10, garde son nom.
+- **Au téléphone, cinq icônes** au lieu de sept pour la RH (six pour les
+  autres) : Accueil · Planning · Équipes · Salaire · Plus. « Plus » ouvre une
+  feuille au-dessus de la barre : Effectifs (et ses deux pastilles) ·
+  Recherche · Direction pour la RH, puis la Gestion ou « Mon équipe ». Le
+  bouton porte la pastille des absents du jour, et se teinte quand l'une
+  de ses sections est ouverte. Échap ou le fond la referment.
+- **Le Planning du PC** reprend la forme du téléphone : une carte de
+  1000 px au plus, centrée, à la hauteur de la fenêtre, au lieu d'un
+  tableau étiré sur toute la largeur où l'œil traversait des vides pour
+  lier un poste à ses trigrammes ; les pastilles agrandies de la v915 sont
+  retirées. À 1280 × 720, le tableau entier tient.
+- La flèche « › » des cartes de Direction passe de 2,9:1 à plus de
+  4,5:1 de contraste : la vue n'était pas contrôlée tant qu'elle était
+  une feuille à part.
+
+Éprouvé au navigateur : RH et opérateur à 320 et 390 px (cinq icônes,
+feuille, Effectifs ouvre l'onglet et teinte « Plus », la Gestion s'ouvre
+depuis la feuille) ; RH à 1280 (catégories, Direction depuis la Gestion
+et marquée, l'espace RH s'ouvre et se referme sur un onglet) ; 900 px
+inchangé. Aucun défilement horizontal, aucune erreur ; contraste et
+cibles à zéro partout, hors les cases du calendrier (connues).
