@@ -633,6 +633,10 @@ def synchro_base():
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
                        cwd=RACINE, capture_output=True, text=True)
     etat((r.stdout or "").strip() or "Base : non recopiée.")
+    # la sauvegarde du jour, au premier passage qui la trouve absente
+    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-sauvegarde.py")],
+                       cwd=RACINE, capture_output=True, text=True)
+    etat((r.stdout or "").strip() or "Sauvegarde : non faite.")
 
 
 def identites_base(source, annee):
