@@ -1856,3 +1856,48 @@ seuls trigrammes, pour en relever le style.
 Une première version reprenait les couleurs du classeur Excel (bleu
 #B8CCE4, onglets des feuilles en bas) ; remplacée le même jour par le
 style de l'outil, que le client a désigné.
+
+### L'Horaire production, exactement comme l'outil du client, en vue année (22/10/2026, `nfdm-v920`)
+
+Le client : « l'horaire doit être exactement présenté comme le fichier que
+je t'ai fourni et toujours en vue année, mais avec toutes les
+améliorations et fonctionnalités que nous avons ajoutées ». Sa page
+(`Horaires.html`, hors du dépôt) a été lue — feuille de style et rendu
+de la vue équipe, `buildPlanning` et `buildFooterTables` — et reproduite :
+
+- **Toujours l'année** : 365 lignes, du 1er janvier au 31 décembre,
+  ouvertes sur aujourd'hui au milieu de l'écran ; les flèches changent
+  d'année (2026, 2027), les boutons Semaine et Mois disparaissent.
+- **La barre de l'outil** : « Vue journée » (mène au Planning du jour),
+  Équipe 1 à 5 et Contremaître en pilules sombres, puis les postes dans
+  leur couleur — Meunerie · Gluten · Fermentation · Polyvalent Arrière ·
+  Distillation · Chaudière · Station d'Épuration · Formation. Un poste
+  montre ses gens des cinq équipes (« Éq. N » sous le nom).
+- **Le tableau** : colonne du mois en lettres verticales et colonne du
+  jour (44 px chacune), puis par personne pause (44), congé en rouge
+  (44) et commentaire (20, une bulle) ; le bouton des adjoints, ON/OFF, dans le coin
+  en vue équipe ; jours ouvrables jaunes, mois pairs bleus, week-ends
+  gris, fériés orange, aujourd'hui plus soutenu ; traits de 2 px entre
+  personnes, postes, semaines et mois ; ligne et colonne survolées.
+- **Le pied** de l'outil — et du classeur : « Soldes en heures au
+  01/01 », « Prévisions en heures » (VA, RTT, DTT, RJF, FT+, FT−), « Soldes
+  compte tenu des prévisions » (en bleu, négatifs en rouge). Réservé à
+  la RH et à la hiérarchie, et seulement pour une année aux compteurs
+  fiables, comme la fiche d'une personne : un opérateur ne lit pas les
+  compteurs d'un collègue. Les prévisions sont recomptées sur l'horaire
+  (saisies comprises), les soldes viennent du classeur.
+- **La légende des codes** en bas, tirée du classeur ; les trois boutons
+  ronds haut, aujourd'hui, bas.
+- **Gardé de l'application** : la saisie d'une case (RH, hiérarchie), le
+  nom qui ouvre les compteurs, la recherche, le liseré vert des saisies.
+
+Écarts voulus avec l'outil : la colonne du congé montre l'annotation du
+classeur (le réel), la pause celle du classeur (le prévu) — l'outil
+recalculait la pause par le cycle ; ici le classeur reste la source.
+La bulle de commentaire est dessinée, pas un émoji.
+
+Éprouvé : RH à 1280 et 390 px, opérateur à 1280 (365 lignes ; pied de 14
+lignes pour la RH, aucun pour l'opérateur ; le bouton des adjoints retire le
+groupe ; Gluten des cinq équipes ; survol ligne et colonne ; une case
+ouvre la saisie ; 2027 puis retour ; Vue journée) ; aucune erreur,
+aucun défilement horizontal de la page.
