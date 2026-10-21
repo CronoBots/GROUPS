@@ -1290,3 +1290,34 @@ elle cachait les onglets des Demandes et les 7/14/31 jours des Absences
 390 et 1280 px, Supabase simulé : opérateur, remplaçant, RH ; aucun
 débordement, aucune erreur ; connexion rejouée, hors ligne compris ;
 vérificateur identique à l'octet.
+
+**La feuille papier, à l'écran (21/10/2026, `nfdm-v904`).** Le client,
+en voyant le formulaire de la veille : « j'aimerais que la demande de
+congé ressemble plus à celle qui existe actuellement ; il ne faut pas
+traumatiser les utilisateurs, cela fait 20 ans qu'ils utilisent Excel et
+cette feuille ». Les trois documents Word ont été rendus en image (LibreOffice),
+puis reproduits tels qu'ils s'impriment : feuille blanche à l'encre
+quel que soit le thème, logo et cadre d'adresse, titre bleu souligné, les
+règles bleues de la longue durée, les cadres « Demande du membre du
+personnel » et « Visa du responsable hiérarchique », les tableaux aux
+mêmes colonnes et au même nombre de lignes numérotées (10 ; 14 jours de
+pause et 8 de DAY ; 4 pour le sans solde, qui a lui aussi ses colonnes
+Remplaçant — le rendu l'a montré, la lecture du XML ne l'avait pas dit),
+la cellule fusionnée « Congé sans solde », les cases jaunes « RAPPELABLE »
+et « A LA DEMANDE DE LA LIGNE HIERARCHIQUE », la remarque soulignée du
+sans solde. On écrit DANS le tableau : la date dans sa case (au
+téléphone, « Lu 28/10 », le calendrier s'ouvre au toucher), la pause
+prévue s'inscrit seule, le type et le remplaçant se choisissent dans leur
+case ; « Remplir une période d'un coup » range les jours de travail dans
+les lignes libres (les jours D dans « Jours de DAY »). La signature est un
+bouton : « Signer et envoyer » ; le remplaçant « Signer comme
+remplaçant » ; le responsable coche, écrit la motivation et « Approuver
+et signer » ou « Refuser » (motivation exigée), dans le cadre du visa de
+la même feuille. Les cartes de la liste ouvrent la feuille. Ce que le
+papier ne dit pas (heures, solde après) reste SOUS la feuille.
+Éprouvé à 320, 390 et 1280 px, Supabase simulé : feuille remplie depuis
+la feuille du jour, dates écrites à la main, modification de pause,
+remplaçant, passage aux trois formulaires, ligne ajoutée au sans solde,
+envoi ; signature du remplaçant ; refus sans motivation bloqué, visa
+avec RAPPELABLE ; aucun débordement, aucune erreur ; connexion et hors
+ligne rejoués ; vérificateur identique.
