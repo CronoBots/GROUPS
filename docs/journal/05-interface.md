@@ -1527,3 +1527,58 @@ simulé un écran visible plus haut de 300 px que la zone de mise en page,
 bouge pas quand le visible est plus court (clavier ouvert), revient à
 16 px du bas ensuite, et hors ligne. Seul l'iPhone du client dira si c'est
 guéri.
+
+### « Une vraie plateforme de gestion et de lecture, mobile et PC » (21/10/2026, `nfdm-v905` à `nfdm-v906`)
+
+Le client : « l'app doit être une vraie plateforme de gestion et de
+lecture sur mobile/PC ; il faut optimiser tout le contenu pour cela ».
+Méthode de CLAUDE.md (« optimise tout ») : un script a photographié
+chaque écran (sept onglets, Réglages, six sections de l'espace RH) à 320,
+390 et 1280 px, 83 captures, et mesuré lui-même le défilement horizontal,
+les débordements, les textes coupés, les cibles de moins de 30 px et les
+textes de moins de 10,5 px ; trois relecteurs ont lu les captures en
+parallèle (une centaine de constats), et chaque correction a été
+rephotographiée.
+
+Fait :
+- **Cibles du doigt** : petits boutons, vues du calendrier, flèches du
+  planning à 34-36 px au téléphone (`nfdm-v905`).
+- **Espace RH** : au téléphone, le menu des sections en icônes (titre
+  dans la page, pastille sur l'icône), fondu aux bords entre 560 et 900 px,
+  l'onglet actif centré ; le Personnel en cartes (la personne, puis VA ·
+  RTT · DTT · RJF · Flex étiquetés ; flex négatif en rouge) ; tableau de
+  bord : « Aujourd'hui », chiffres serrés, « Absents aujourd'hui · n
+  malades, n en congé », cartes alignées en haut, « Ouvrir le planning »
+  réservé au PC ; Demandes : « À viser » / « À signer » au lieu de « En
+  attente » pour qui doit agir, l'étape attendue cerclée, onglets sur une
+  ligne, cartes plus larges au PC ; Absences : vue **par personne et par
+  période** (« CDE · Abs · Me 21 → Ve 23 oct. ») par défaut, « Jour par
+  jour » gardé ; planning : textes des cases et des présents à 10,5-11 px,
+  légende complète au téléphone, commentaire et saisie légendés.
+- **Lisibilité** : un bloc final de styles relève les libellés porteurs
+  d'information (statistiques du mois, jours de la semaine, tuiles du
+  salaire, rubriques des Effectifs, polyvalences, relevé) à 10,5-11 px, du
+  gris pâle au gris lisible ; les pastilles du calendrier gagnent 2 px.
+  **Erreur rattrapée** : relevés à 10 px, les sous-libellés d'horaire de
+  l'Équipe du jour faisaient déborder les pastilles à 320 px ; ce tableau
+  tient sur un écran au pixel près, il garde ses tailles au téléphone.
+- **PC (≥ 1100 px)** : Salaire en deux colonnes (le net et « Du brut au
+  net » côte à côte, volets fermés par deux, un volet ouvert reprend la
+  largeur) ; Réglages en colonne de 880 px ; Effectifs, les journées en
+  grille ; Équipes, binômes et opérateurs en formation côte à côte ;
+  bannière de l'Accueil de 240 à 190 px.
+- **Anomalies** : « Lié le Invalid Date » dans Mon compte ; « +1 autres
+  rappels possibles » ; « pied de feuille » retiré ; les deux pastilles de
+  l'icône Effectifs ne se chevauchent plus.
+
+Mesuré après : aucun défilement horizontal, aucune erreur, aux trois
+largeurs ; textes de moins de 10,5 px de ~400 à 162 (les grilles denses
+calées au pixel : planning, Équipe du jour, polyvalences) ; vérificateur
+identique à l'octet ; connexion, demandes et hors ligne rejoués.
+
+Laissé, et pourquoi : le bouton de retour en haut reste visible dès 200 px
+(décision du client du 19/10) ; la date « mm/jj » du champ de la
+Recherche vient de la langue du navigateur de test, pas d'un téléphone
+français ; les redites de « Mes compteurs » et du « Prochain poste », la
+légende de l'Équipe du jour et le regroupement des cartes d'Effectifs par
+mois touchent à des choix faits avec le client et attendent son avis.
