@@ -181,6 +181,15 @@ portées par la personne ; couleurs devenues attributs (jour déplacé,
 période SD26, date d'entrée) ; aucune plage fixe : une personne de plus ne
 se perd plus.
 
+## 6 ter. L'espace RH (21/10/2026)
+
+La plateforme prend la forme des logiciels de gestion du personnel : menu,
+tableau de bord du jour (effectifs par pause, sous-effectif, absents,
+compteurs négatifs, sortie d'Excel, activité), planning (une ligne par
+personne, une pastille par jour, panneau de saisie, « jusqu'au »),
+personnel (annuaire et fiche), absences et congés, historique. Les modules
+qui suivent s'y ajoutent comme des sections.
+
 ## 7. L'ordre de construction
 
 1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes. **Fait le 21/10/2026** (`base/09-saisie.sql`, feuille du jour) ; restent les droits par périmètre (équipe, fonction) et une saisie de plusieurs jours d'un coup.

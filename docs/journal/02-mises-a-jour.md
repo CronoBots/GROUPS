@@ -1112,3 +1112,33 @@ présent : la personne se réduit à son trigramme au téléphone). Éprouvé à
 équipes, recherche, fiche, case, trois jours posés d'un coup, fermeture et
 relecture ; aucune erreur, aucun débordement. Vérificateur identique ;
 connexion et saisie rejouées.
+
+**L'espace RH (21/10/2026, `nfdm-v895`).** Le client : « inspire-toi des
+meilleures applications RH pour la gestion de personnel, adaptées à notre
+système, pour que cela ressemble vraiment à une application payante
+utilisée par de grandes entreprises ». La forme de ces outils (Quinyx,
+Planday, Personio, Factorial) : un MENU à gauche (en haut au téléphone)
+et des SECTIONS, sur nos données, lues par les fonctions qui servent déjà
+le reste de l'application.
+- **Tableau de bord** : au travail par pause aujourd'hui, malades, en
+  congé (`equipeDuJour`) ; sous-effectif des quatorze jours
+  (`mqJoursAVenir`, lien vers les effectifs et leurs remplaçants) ; absents
+  du jour ; compteurs négatifs ; « Sortie d'Excel » (journées tenues dans
+  l'application, divergences avec le classeur, écritures du classeur hors
+  liste ce mois-ci) ; activité récente.
+- **Planning** : celui du jour même, dans l'espace.
+- **Personnel** : l'annuaire, recherche et équipe, statut, polyvalences,
+  restants VA/RTT/DTT/RJF et flex de chacun ; une ligne ouvre la fiche.
+- **Absences et congés** : 7, 14 ou 31 jours, jour par jour.
+- **Historique** : qui a changé quelle journée, quand, avant → après
+  (`public.biowanze_historique`, `base/09-saisie.sql`, RH et hiérarchie).
+L'opérateur n'y voit que le planning, et ne lit les compteurs que dans sa
+propre fiche (ceux d'un collègue sont réservés à la RH et à la
+hiérarchie). Défauts relevés sur les captures et corrigés : le poste des
+contremaîtres affiché « 4 » (la ligne 9 écrit le numéro d'équipe :
+« Contremaître · Équipe 4 »), le trigramme répété quand le nom manque, un
+libellé de congés qui oubliait récupérations et formations, le menu du
+téléphone qui ne montrait pas la section active. Éprouvé à 320, 390 et
+1280 px : les cinq sections, fiche, recherche, lien vers les effectifs,
+planning (trois jours posés), opérateur ; aucun débordement, aucune
+erreur ; connexion et saisie rejouées ; vérificateur identique.
