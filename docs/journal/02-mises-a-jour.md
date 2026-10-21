@@ -1354,3 +1354,6 @@ et @cropenergies.com… » pour TOUT échec d'envoi d'une adresse hors des
 deux domaines, y compris un envoi trop rapproché (429, une minute entre
 deux codes). La règle des domaines ne s'affiche plus que si la base
 refuse l'adresse ; sinon le vrai motif (« attendez une minute… »).
+Le client, ensuite : « connexion OK, on améliorera par après ». La chaîne
+entière (adresse @cropenergies.com, code reçu dans Outlook, compte RH)
+est donc éprouvée chez lui aussi.
