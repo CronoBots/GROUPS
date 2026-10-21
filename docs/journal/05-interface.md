@@ -1772,6 +1772,12 @@ Trois demandes du client, captures à l'appui.
   vertical (#232937, mesurée sur la capture) : en semi-transparent comme
   lui, il sortait plus foncé au-dessus du contenu, dont le fond est plus
   sombre que celui du menu. Mesuré au pixel : même couleur au-dessus du
-  menu et du contenu que le trait vertical.
+  menu et du contenu que le trait vertical. **Erreur** : le filet était
+  posé sur `body::before`, qui porte déjà le fond dégradé de
+  l'application ; la v915 a donc remplacé tout le fond par le filet
+  (le client : « le background a changé, il ne fallait pas »). J'avais
+  mesuré la couleur du filet, pas le reste de la page. Corrigé en
+  `nfdm-v916` : le filet passe sur `html::before`, et le fond est comparé
+  au pixel avec la `nfdm-v914` (quatre points, identiques).
 - « BioWanze.app » remplace « BioWanze APP » (nom, nom court, titre,
   écran d'accueil iOS).
