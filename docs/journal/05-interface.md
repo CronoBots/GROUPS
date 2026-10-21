@@ -1622,6 +1622,21 @@ tous les compteurs et il ne double une ligne que lorsqu'un seul compteur
 a un solde ; **« Prochain poste »** : la date reste, le billet du 18/10
 est le dessin du client et l'en-tête du téléphone ne montre pas la date.
 
+### Notion suspendu tant qu'il demande une validation (22/10/2026)
+
+Le client : « arrête de pousser sur Notion si tu n'arrives pas à approuver
+tout seul ces modifications ». Les écritures par le connecteur Notion
+ouvraient une fenêtre d'autorisation chez lui, alors que tout Notion est
+autorisé dans `.claude/settings.json` : une session cloud ne s'y fie pas
+toujours, seul le mode « Auto », que lui seul peut choisir, les fait
+taire. **Décision : plus aucune écriture dans Notion** (ni ligne du
+journal des versions, ni page principale, ni décision, ni suivi) jusqu'à
+ce que le client dise que les fenêtres ont disparu. Le dépôt reste la
+source de vérité ; le dossier Notion s'arrête à `nfdm-v914`, et se
+rattrapera depuis le journal si le client le réactive. Cette décision
+l'emporte sur la consigne du 21/10 (« pousser sur Notion et GitHub »)
+et sur l'étape « reporter dans Notion » de CLAUDE.md.
+
 ### Le contrôle « UI UX Pro Max » (21/10/2026, `nfdm-v911`)
 
 Le client : « check avec le nouveau skill ». La liste de contrôle avant

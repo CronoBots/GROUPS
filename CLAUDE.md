@@ -48,7 +48,10 @@ ne fais pas attention que tu ne progresses pas tant que je n'ai pas
 validé ». **Ne jamais finir un tour sur une question de goût ou de
 choix** (« dites-moi lesquels appliquer ») : trancher selon la
 recommandation, l'appliquer, la vérifier, committer, pousser sur `main`,
-reporter dans Notion, puis DIRE ce qui a été choisi et pourquoi — le
+reporter dans Notion (SUSPENDU depuis le 22/10/2026 : « arrête de
+pousser sur Notion si tu n'arrives pas à approuver tout seul ces
+modifications » — aucune écriture Notion tant que le client ne dit pas
+que les fenêtres ont disparu), puis DIRE ce qui a été choisi et pourquoi — le
 client corrige après coup s'il le veut. Les fenêtres d'autorisation de
 la session ne s'effacent que par le mode « Auto » choisi par le client.
 
