@@ -1076,3 +1076,39 @@ l'application relit tout en fermant la grille. Éprouvé au navigateur à
 contremaîtres, aucun débordement de page, ouverture sur le jour) : envoi
 exact, annulation, rechargement ; aucune erreur ; parcours de connexion et
 de saisie rejoués. Vérificateur : quatre sorties identiques.
+
+**Le planning des équipes, à la place de la grille calquée (21/10/2026,
+`nfdm-v894`).** Le client, devant la grille copiée d'Excel : « il y a
+moyen de faire un classeur bien plus professionnel et intuitif ; le but,
+c'est de supprimer Excel, et que ce classeur donne envie d'être utilisé
+grâce à sa simplicité ». Erreur de lecture de ma part, la veille : « qui
+ressemble à ce qui existe » voulait dire le CONTENU du classeur, pas sa
+forme. Refait dans la forme des logiciels de planning : une ligne par
+personne (trigramme, nom pour un compte validé, poste tenu), une colonne
+par jour, en SEMAINE (par défaut au téléphone) ou en MOIS (au bureau) ;
+une pastille par journée — la couleur du poste (AM, PM, N, D, les mêmes que
+l'application) ou celle de ce qui s'est passé (congé, maladie, flex et
+récupération, formation, syndical, SD26, remplacement, atelier), le prévu
+en petit dessous ; les ateliers en trois lettres, le flottant en HF, les
+plages sans leurs « h » (« 6-18 »), le texte entier au survol ; un point
+bleu pour une case saisie dans l'application, le triangle pour un
+commentaire ; sous chaque date, les PRÉSENTS par pause (ce que la feuille
+cachée du classeur ébauchait). Équipes en pastilles, recherche, flèches
+(et ← → au clavier), « Aujourd'hui », légende. Toucher une case ouvre un
+panneau (à droite au bureau, en bas au téléphone) : le poste prévu en
+pastilles, ce qui se passe en un geste (Comme prévu, VA, ½VA, RTT, Abs,
+RJF, DTT, RHS, F) et toute la liste fermée à côté, le commentaire,
+« Jusqu'au » pour poser plusieurs jours d'un coup (chaque jour garde son
+poste du cycle), ce que dit le classeur, « Revenir au classeur ». Toucher
+une personne : ses compteurs de l'année (au 01/01, prévu, restant), le
+flex, ses polyvalences, son contrat. Défauts relevés sur les captures et
+corrigés avant de rendre la main : colonnes inégales en mois, présents en
+pied qui laissaient voir les lignes derrière (passés sous les dates),
+panneau qui cachait le bouton de fermeture au bureau, « Enregistrer » sans
+relief, « repos » écrit dans chaque case (un tiret), trigramme répété sans
+nom, codes coupés (« meun… »), deux jours seulement à 320 px (quatre à
+présent : la personne se réduit à son trigramme au téléphone). Éprouvé à
+320, 390 et 1280 px, RH et opérateur : semaine, mois, période suivante,
+équipes, recherche, fiche, case, trois jours posés d'un coup, fermeture et
+relecture ; aucune erreur, aucun débordement. Vérificateur identique ;
+connexion et saisie rejouées.
