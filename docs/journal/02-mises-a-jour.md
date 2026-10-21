@@ -917,3 +917,17 @@ et 800 px, sans débordement (320 px débordait de 20 px avec un code de
 huit chiffres en 32 px : ramené à 28 px). La mention « expéditeur
 externe » d'Outlook vient de l'adresse Gmail du robot et ne disparaîtrait
 qu'avec un serveur d'envoi au nom de l'entreprise.
+
+**L'e-mail du code, dans le thème de l'application (21/10/2026).** Le
+client, devant le premier modèle (bandeau bleu pétrole sur fond clair) :
+« ça doit être dans le thème de l'app et encore plus professionnel ».
+Refait sur le thème sombre de `index.html` (fond `--marque`, carte
+`--surface`, cadre `--surface2`, accent `--in`, liseré au dégradé du
+logo), le logo de l'écran d'accès au-dessus de la carte, le code dans un
+cadre à l'accent, validité et usage unique en deux colonnes, un encart
+de sécurité au liseré `--out`, un texte d'aperçu caché (le code lisible
+dans la liste des messages), et `color-scheme: dark` pour que les
+messageries n'inversent pas les couleurs. Le logo est en PNG
+(`logo-email.png`, 360 px, tiré de `logo.svg` au navigateur) : les
+messageries ne lisent pas le SVG. Aperçu à 320, 390 et 800 px, sans
+débordement.
