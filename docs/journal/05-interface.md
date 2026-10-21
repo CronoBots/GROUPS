@@ -2016,3 +2016,13 @@ fermé, toujours dans l'application ; « ‹ Retour » et la croix ferment la
 feuille ; un retour ensuite ferme l'espace sans quitter la page ; aucune
 erreur, et les parcours des demandes (`dm3.js`, `dmod.js`), du menu et de
 l'Horaire production passent.
+
+Le même jour, sur une capture du client (iPhone) : « moyen d'optimiser ».
+En lecture, au téléphone, les lignes vides de la feuille se replient en
+« + N lignes libres » : une demande d'un jour montrait neuf lignes vides,
+la moitié de l'écran ; la demande entière tient désormais sur un écran,
+visa compris (photographié à 390 px). La feuille complète reste au PC et
+dans le formulaire, où les lignes servent. Le titre de l'en-tête
+paraissait flou et pâle sur l'iPhone : aucune règle ne l'explique et
+Chromium ne le reproduit pas ; il est désormais blanc franc, en 650, sur
+un fond opaque — à revoir sur le téléphone du client (`nfdm-v925`).
