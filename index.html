@@ -2176,6 +2176,10 @@ body.sheet-on{overflow:hidden}
   background:radial-gradient(120% 90% at 50% 0%,#1d2a47 0%,#111727 60%); color:#E8ECF4;
   padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 .dirvue[hidden]{display:none}
+/* Un onglet depuis le 21/10/2026 : la carte sombre dans la page, plus de
+   feuille fixe par-dessus. */
+#v-direction .dirvue{position:static; inset:auto; z-index:auto; overflow:visible;
+  border-radius:18px; padding:16px 14px 22px}
 /* LE PLANNING DES ÉQUIPES (21/10/2026) : une ligne par personne, une
    colonne par jour, une pastille par journée */
 .grille{position:fixed; inset:0; z-index:95; display:flex; flex-direction:column; background:var(--paper); color:var(--ink);
@@ -5302,7 +5306,7 @@ html .eqleg-souris{display:none}
     <button type="button" role="tab" id="tab-recherche" data-v="recherche" aria-selected="false" aria-controls="v-recherche">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       Recherche</button>
-    <button type="button" id="tab-direction" aria-label="Direction">
+    <button type="button" role="tab" id="tab-direction" data-v="direction" aria-selected="false" aria-controls="v-direction">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.2"/><path d="M7.5 15v-3M12 15V9M16.5 15v-5"/></svg>
       Direction</button>
   </nav>
@@ -5795,7 +5799,7 @@ html .eqleg-souris{display:none}
       <details class="fold">
         <summary>Vue direction <span class="sub">l'usine en un écran</span></summary>
         <div class="pad notifreg">
-          <div><b>Présenter l'usine aujourd'hui</b><span>Effectifs du jour par pause, maladie, congés, sous-effectifs à venir et la semaine qui vient, en plein écran.</span></div>
+          <div><b>Présenter l'usine aujourd'hui</b><span>Effectifs du jour par pause, maladie, congés, sous-effectifs à venir et la semaine qui vient, dans l’onglet Direction.</span></div>
           <button type="button" class="btn sm" id="dirBtn">Ouvrir</button>
         </div>
       </details>
@@ -5848,6 +5852,21 @@ html .eqleg-souris{display:none}
           <label class="btnlike" for="fileImport">Importer<input type="file" id="fileImport" accept="application/json,.json" hidden></label>
         </div>
       </details>
+    </div>
+  </section>
+
+  <!-- LA VUE DIRECTION, UN ONGLET (le client, le 21/10/2026 : « Direction
+       doit s'afficher comme un onglet au lieu d'une feuille à part »). -->
+  <section class="panel" id="v-direction" role="tabpanel" aria-labelledby="tab-direction" tabindex="-1" hidden>
+    <div class="dirvue" id="dirVue">
+      <div class="dir-in">
+        <div class="dir-tete">
+          <img src="logo.svg" alt="" class="dir-logo">
+          <div class="dir-t"><b>Production · Direction</b><span id="dirDate"></span></div>
+          <span class="dir-h" id="dirHeure"></span>
+        </div>
+        <div id="dirCorps"></div>
+      </div>
     </div>
   </section>
 
@@ -5917,17 +5936,6 @@ html .eqleg-souris{display:none}
   <aside class="pl-panneau" id="grPanneau" aria-label="Détail" hidden></aside>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="dirvue" id="dirVue" role="dialog" aria-modal="true" aria-label="Vue direction" hidden>
-  <div class="dir-in">
-    <div class="dir-tete">
-      <img src="logo.svg" alt="" class="dir-logo">
-      <div class="dir-t"><b>Production · Direction</b><span id="dirDate"></span></div>
-      <span class="dir-h" id="dirHeure"></span>
-      <button type="button" class="dir-x" id="dirX" aria-label="Fermer">×</button>
-    </div>
-    <div id="dirCorps"></div>
-  </div>
-</div>
 <!-- GUIDE D'INSTALLATION, à la manière de Pino (le client, le 17/10/2026) :
      une démonstration plutôt qu'une notice. Un téléphone dessiné rejoue en
      boucle les gestes du navigateur ouvert, un doigt sur le bouton à
@@ -8940,7 +8948,7 @@ function deplierBarre(){
    au Résumé tous les appareils qui l'avaient. « salaire » est neuf, donc il
    n'a rien à casser ; « compteurs », « fiche » et « controle » disparaissent
    et MIGRENT vers leur nouvel hôte, plus bas. */
-var VIEWS=["horaire","jour","equipe","salaire","rh","recherche","reglages"];
+var VIEWS=["horaire","jour","equipe","salaire","rh","recherche","direction","reglages"];
 /* Les vues d'hier et leur remplaçante. Sans cette table, un appareil qui
    avait laissé « Fiche » — ou « Recyclage », fondu dans Équipe le
    30/09/2026 — ouvert retomberait sur le Résumé sans raison. */
@@ -8948,6 +8956,7 @@ var VUES_MIGREES={compteurs:"horaire", fiche:"salaire", controle:"salaire", poly
 function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
+  if(v==="direction"&&st.account&&st.account.role!=="rh") v="horaire";
   var change=(st.view!==v);
   var iA=VIEWS.indexOf(st.view), iN=VIEWS.indexOf(v),
       sens=(change && iA>=0 && st.view!=="reglages" && v!=="reglages")?(iN>iA?"de-d":"de-g"):"";
@@ -8999,6 +9008,7 @@ function setView(v,keepScroll){
   if(v==="horaire") renderRythme();
   if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
+  if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(!b) return;
@@ -13040,8 +13050,6 @@ function ouvrirDirection(){
     c.innerHTML=h;
     c.onclick=function(e){ var t=e.target; while(t&&t!==c){ if(t.getAttribute&&t.getAttribute("data-page")){ dirShowPage(t.getAttribute("data-page")); break; } t=t.parentNode; } };
     dirShowPage("hub");
-    v.hidden=false; document.documentElement.style.overflow="hidden";
-    document.getElementById("dirX").focus();
     function heure(){ var t=new Date(); document.getElementById("dirHeure").textContent=(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes(); }
     heure(); clearInterval(dirTic); dirTic=setInterval(heure,15000);
     /* Le plus lourd après le premier affichage : la semaine et les manques. */
@@ -13070,15 +13078,7 @@ function ouvrirDirection(){
     },60);
   });
 }
-function fermerDirection(){
-  var v=document.getElementById("dirVue"); if(v.hidden) return;
-  v.hidden=true; document.documentElement.style.overflow=""; clearInterval(dirTic);
-  var b=document.getElementById("dirBtn"); if(b) b.focus();
-}
-document.getElementById("dirBtn").addEventListener("click",ouvrirDirection);
-(function(){ var _td=document.getElementById("tab-direction"); if(_td) _td.addEventListener("click",ouvrirDirection); })();
-document.getElementById("dirX").addEventListener("click",fermerDirection);
-document.addEventListener("keydown",function(e){ if(e.key==="Escape") fermerDirection(); });
+document.getElementById("dirBtn").addEventListener("click",function(){ setView("direction"); });
 
 /* SUR L'ANNÉE — les tendances du site que ni « mon année » (le travailleur)
    ni le haut de la vue Direction (aujourd'hui + 7 jours) ne montrent. Tout
@@ -13459,7 +13459,7 @@ function dirRappRankHTML(rank, rappList){
 function dirShowPage(page){
   var corps=document.getElementById("dirCorps"); if(!corps) return;
   Array.prototype.forEach.call(corps.querySelectorAll(".dir-page"),function(p){ p.hidden=(p.getAttribute("data-page")!==page); });
-  var v=document.getElementById("dirVue"); if(v) v.scrollTop=0;
+  window.scrollTo(0,0);
 }
 /* Écran d'accueil de Direction : une carte par section, avec son chiffre clé.
    Taper une carte ouvre la section en plein écran (bouton Retour en haut). */
@@ -21897,6 +21897,7 @@ function gateFinaliser(partial){
 function appliquerCompte(acc){
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
+  if(!(acc&&acc.role==="rh")&&st.view==="direction") setView("horaire");
   if(acc&&acc.tri){
     lsSet("ui/prefillId",acc.tri); if(acc.cat) lsSet("ui/prefillCat",acc.cat);
     /* Feedback immédiat du trigramme dans l'en-tête, sans attendre le garnissage
