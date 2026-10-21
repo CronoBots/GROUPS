@@ -1632,7 +1632,7 @@ grand), cibles du doigt de 44 px, boutons à icône sans nom, champs sans
 libellé, images sans texte, émojis en guise d'icônes, défilement
 horizontal, zoom, mouvement réduit, focus visible.
 
-Avant : 90 textes sous le contraste minimal, 220 cibles de moins de
+Avant : 90 textes sous le contraste minimal, 169 cibles de moins de
 44 px ; aucun bouton sans nom, aucun champ sans libellé, aucune image
 sans texte, aucun émoji, pas de défilement horizontal, mouvement réduit
 et focus visible présents. **Erreur de mesure rattrapée** : le premier
