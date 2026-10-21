@@ -125,13 +125,23 @@ def _admises():
 # Sa propre liste n'est pas un texte à fouiller : elle EST la liste des
 # formes. La lire reviendrait à signaler chacune d'elles.
 IGNORES = ("tools/formes-admises.txt",)
+# Un skill tiers, copié tel quel et relu avant d'entrer (le 21/10/2026) :
+# ses tableaux anglais de styles, de couleurs et de polices donnent 180
+# « formes » (des en-têtes de colonnes anglais) et ne peuvent contenir aucun nom
+# de Biowanze — personne ici ne l'a écrit. Lire ce dossier noierait la liste
+# des formes admises ; on l'écarte, LUI SEUL.
+TIERS = (".claude/skills/ui-ux-pro-max/",)
+
+
+def _tiers(chemin):
+    return chemin.startswith(TIERS)
 
 
 def _fichiers():
     r = subprocess.run(["git", "-C", RACINE, "ls-files"],
                        capture_output=True, text=True)
     for nom in r.stdout.splitlines():
-        if (TEXTE.search(nom) or CLASSEUR.search(nom)) and nom not in IGNORES:
+        if (TEXTE.search(nom) or CLASSEUR.search(nom)) and nom not in IGNORES and not _tiers(nom):
             yield nom
 
 
@@ -193,7 +203,7 @@ def _blobs():
         if " " not in ligne:
             continue
         sha, chemin = ligne.split(" ", 1)
-        if (TEXTE.search(chemin) or CLASSEUR.search(chemin)) and chemin not in IGNORES:
+        if (TEXTE.search(chemin) or CLASSEUR.search(chemin)) and chemin not in IGNORES and not _tiers(chemin):
             yield sha, chemin
 
 

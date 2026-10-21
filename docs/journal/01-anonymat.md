@@ -348,3 +348,28 @@ suivait ; ici, deux espaces puis « Demandé » avec sa majuscule. Admis dans
 `tools/formes-admises.txt` avec sa raison, pour cette forme seule.
 Installé ensuite : les huit portes ouvertes, 63 journées modifiées chez
 25 personnes, 12 compteurs ; intégralité et garde-fou à 0.
+
+## Un skill tiers dans le dépôt, et le garde-fou (21/10/2026)
+
+Le client veut des skills pour optimiser l'application ; il cite « UI UX
+Pro Max » et « Impeccable », absents du catalogue d'Anthropic, publics
+sur GitHub. Relus par un sous-agent avant d'entrer :
+- **UI UX Pro Max** : une base de connaissances hors ligne (styles,
+  palettes, polices, règles d'ergonomie, en CSV) et un script de recherche
+  Python, bibliothèque standard seule, sans réseau ni commande, qui
+  n'écrit que sur demande (`--persist`). Installé dans
+  `.claude/skills/ui-ux-pro-max/`, sans ses tests, son outil de
+  maintenance ni quatre catalogues JSON que seul ce dernier lit (2 Mo) ;
+  les chemins de SKILL.md pointent sur le dépôt. `.gitignore` excluait
+  tout `.claude/skills/` (10/10, « outillage d'agent ») : ce seul skill
+  est admis, pour survivre au clone neuf de chaque session.
+- **Impeccable : refusé.** Son lanceur télécharge et exécute un binaire
+  non relu (contrôle sha256 pris à la même source), l'écrit dans `~/`,
+  installe des hooks dans la configuration de Claude et d'autres outils,
+  et une de ses références dit d'agir « sans demander la permission ».
+
+Le garde-fou du dépôt y voyait 180 « formes » — en-têtes de colonnes
+anglais, noms de polices. Plutôt que de les admettre une à une, le
+dossier du skill est écarté de `verifier-depot.py` (`TIERS`), lui seul,
+dans l'arbre comme dans l'historique. Contre-épreuve : un nom inventé
+posé dans `docs/` est toujours signalé.
