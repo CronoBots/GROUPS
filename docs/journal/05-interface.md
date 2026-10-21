@@ -1489,3 +1489,19 @@ troisième ligne ne reste que pour la formation (« En formation ·
 Chaudières »). Une ligne de moins pour qui n'est pas en formation : héros
 de VBN 745 → 726 px à 390. Mesuré pour sept profils à 320, 390 et
 1280 px : ni poste ni étiquette tronqués, aucune erreur, hors ligne compris.
+
+### L'Accueil vide à la première connexion (21/10/2026, `nfdm-v888`)
+
+Le client : « au premier chargement rien n'était affiché, j'ai dû
+recliquer sur Accueil ». Reproduit au navigateur, avec la nouvelle
+connexion ET avec l'ancienne (version d'avant le 21/10, même résultat :
+« Janvier 0 », tuiles à zéro) : le défaut n'est pas né de l'écran
+d'accès. Sur un appareil neuf, le sélecteur de la personne se garnit et
+appelle `suivre()` avant que `loadMonth` ait lu le mois ;
+`renderFields()` lisait alors `st.month`, encore nul (« Cannot read
+properties of null (reading 'primes') »), et l'erreur interrompait le
+premier rendu. `renderFields()` ne fait plus rien tant que le mois n'est
+pas lu ; `loadMonth` le rappelle ensuite. Après : Accueil complet dès
+l'entrée, aucune erreur. Piège du test : `pageerror` de Playwright ne
+remontait pas l'erreur ; il a fallu écouter `error` dans la page.
+Vérificateur : quatre sorties identiques à l'octet.
