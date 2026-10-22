@@ -2934,3 +2934,42 @@ Elle est vide à 0 h ou en négatif : le chiffre, rouge, le dit.
 
 Mesuré : +14 h donne 13 % de barre. Aucun débordement à 320, 390 et
 1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Le billet du prochain poste repensé (22/10/2026, v970)
+
+Le client : « pas satisfait du premier cadre, prochain poste, et de son
+contenu ».
+
+**Défauts relevés sur sa capture.**
+
+- « Aujourd'hui » en pastille et « Jeudi 22 octobre » en titre disaient
+  deux fois le jour.
+- Un trait gris vide reliait 21 h 30 et 6 h : hors du poste, il ne
+  mesurait rien.
+- « Contremaître » redisait la fonction écrite sous le trigramme.
+- On ne savait pas dans combien de temps le poste commence.
+
+**Le billet désormais.**
+
+- Le titre est en mots quand c'est aujourd'hui ou demain (« Ce matin »,
+  « Cet après-midi », « Ce soir », « Demain matin »…), la date en entier
+  sinon.
+- La pastille donne le compte à rebours jusqu'au début (« dans 7 h 10 »,
+  « dans 40 min », puis « Demain » ou « dans N j »), et « Encore … »
+  pendant le poste.
+- Sous le titre : les heures (« 21 h 30 – 6 h ») et la durée en pastille
+  (« 8 h 30 »). La date vient en dessous si le titre est en mots.
+- La barre de progression n'apparaît que pendant le poste.
+- L'atelier ne s'écrit que s'il diffère de la fonction sous le trigramme
+  (`role`). Un opérateur à son poste habituel ne lit plus que « CM GPS »
+  et ses collègues. Le marquage d'un changement de poste proposé
+  (`marquerTransfertsHeros`) remplit toujours cette ligne.
+
+**Erreur corrigée en cours de route.** `pf-sep` existait déjà, un filet
+vertical : mes séparateurs prenaient sa forme. Ils s'appellent `pf-ps`. Et
+la date, les heures et la durée sur une seule ligne coupaient « 21 h 30 –
+6 h » en deux à 320 px. Les heures tiennent maintenant leur propre ligne.
+
+Mesuré pour un contremaître avant sa nuit, et pour un opérateur en poste,
+à 320, 390 et 1280 px : aucun débordement. Les quatre sorties du
+vérificateur sont identiques à l'octet.
