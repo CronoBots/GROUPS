@@ -2376,7 +2376,7 @@ n'attendaient que 2. Le motif le tolère désormais.
 
 Mesuré avec `--manques` : deux places creuses de plus, chaudières N 2/3
 le 22/10 et le 23/10, rien d'autre sur l'année. Le Planning compte MGY
-(« opérateur en formation » aux chaudières) compte en plus, pas dans les
+(« opérateur en formation » aux chaudières) en plus, pas dans les
 trois. Le 22/10 en PM, KDN et PDF font 2/3, et un changement est proposé.
 Le 23/10 en PM, les relais de 12 h comblent : SPS de 14 à 02 h, JBS de 14
 à 18 h, KDN de 18 à 22 h.
