@@ -14756,7 +14756,16 @@ function dmPeriode(du,au){
 /* la pause prévue d'une personne un jour donné, selon l'horaire */
 function dmPrevue(tri,iso){
   var d=dmJour(iso), db=HORAIRES&&HORAIRES[d.getFullYear()], p=db&&db.people.filter(function(x){ return x.id===tri; })[0];
-  var e=p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())]; return String((e||[])[0]||"").trim();
+  var e=p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())];
+  /* LA PAUSE QU'ON FAIT VRAIMENT, pas celle du cycle (le client, le
+     22/10/2026 : « la pause qui s'indique dans ma colonne est la pause
+     normale du cycle et non celle que je fais vraiment »). La cellule dit
+     la pause PRÉVUE ; une annotation qui écrit une pause ou une plage
+     (« échange avec TCE », ["N","PM"] ; un rappel, ["-","AM"] ; « - »,
+     poste non presté) dit celle qui sera prestée, et elle prime. Un congé,
+     un atelier ou « R » en annotation laissent la pause de la cellule. */
+  var c=String((e||[])[0]||"").trim(), an=String((e||[])[1]||"").trim();
+  return an&&grFamille(an)==="poste"?an:c;
 }
 function dmTravail(c){ return !!c&&c!=="-"; }
 function dmPa(c,vide){ return c?'<span class="pl-pa '+(grFamille(c)==="poste"||!grFamille(c)?grPosteCls(c):"f-"+grFamille(c))+'" title="'+esc(c)+'">'+esc(grCourt(c))+'</span>':'<span class="pl-vide">'+(vide||"—")+'</span>'; }
@@ -16363,7 +16372,11 @@ function atelierDuRemplace(raw,parId,qui,ce){
      quelqu'un de l'horaire. La casse était déjà une perte de 568 mentions ;
      l'abréviation en coûtait 27 de plus. */
   var com=String((raw&&raw[2])||""),
-      rx=/\bremp\w*\.?\s+(?:(?:en|au|aux|le|la|les|de|du|des|a|\u00e0)\s+[\w\u00e0-\u00ff'-]+\s+){0,2}([A-Za-z]{3})\b/gi,
+      /* « remplaçait » : \w s'arrêtait au « ç » (JBI le 22/10, « Remplace
+         YBT qui remplaçait YRS », restait adjoint : le client, le
+         22/10/2026, « son commentaire indique bien remplace YRS pour
+         aller en meunerie ») */
+      rx=/\bremp[\w\u00e0-\u00ff]*\.?\s+(?:(?:en|au|aux|le|la|les|de|du|des|a|\u00e0)\s+[\w\u00e0-\u00ff'-]+\s+){0,2}([A-Za-z]{3})\b/gi,
       m, cible, k, i, P;
   while((m=rx.exec(com))){
     var trig=m[1].toUpperCase();
