@@ -150,6 +150,7 @@ const MORCEAUX=[
   ["function peutPrendreRemplace(","\n}"],
   ["function remplacesActifs(","\n}"],
   ["function recycRH(","\n}"],
+  ["var ARRIERE_POSTES=","\n"],
   ["var PF_DEB=","\n"],
   ["function pfDebut(","\n"],
   ["function pfFin(","\n"],

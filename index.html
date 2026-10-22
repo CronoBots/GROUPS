@@ -16864,7 +16864,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
      toujours vérifier, car souvent ces trois postes se comblent seuls avec
      les personnes disponibles au lieu d'aller chercher à un autre poste ».
      Un manque de l'un des trois se cherche d'abord dans les deux autres. */
-  var ARRIERE={ferm:1, terr:1, dist:1};
+  var ARRIERE=ARRIERE_POSTES;
   function ordreSources(P){
     if(!ARRIERE[P.k]) return POSTES_TRAVAIL;
     return POSTES_TRAVAIL.filter(function(Q){ return ARRIERE[Q.k]; })
@@ -18220,6 +18220,7 @@ function renderEquipe(){
     ["AM","PM","N"].forEach(function(gk){
       var v=vp[gk]&&vp[gk].vue; if(!v) return;
       function oDe(k){ return v.postes.filter(function(o){ return o.P.k===k; })[0]||null; }
+      function maj(o){ if(!o||o.P.cm||o.P.k==="adj") return; o.tenu=tenuDuPoste(o,jourCalc); o.manque=!!(o.attendu && o.tenu<o.attendu); }
       v.postes.slice().forEach(function(o){
         o.gens.slice().forEach(function(x){
           /* déplacé par le rééquilibrage : son poste d'avant, quel que soit
@@ -18264,23 +18265,27 @@ function renderEquipe(){
           if(y){
             o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
             o2.gens.splice(o2.gens.indexOf(y),1); o.gens.push(y);
-            if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
-            if(compteAuPoste(x,o2.P,jourCalc)) o2.tenu++;
-            if(compteAuPoste(y,o2.P,jourCalc)) o2.tenu--;
-            if(compteAuPoste(y,o.P,jourCalc)) o.tenu++;
+            maj(o); maj(o2);
             y.echange={x:x, de:o2.P.k, vers:o.P.k};
-            o.manque=!!(o.attendu && o.tenu<o.attendu); o2.manque=!!(o2.attendu && o2.tenu<o2.attendu);
             return;
           }
           /* … et seulement vers un poste qui, sans lui, manquerait (CDE le
              20/01 serait parti vers un terrain arrière déjà complet) */
+          var sansX=tenuDuPoste(o,jourCalc,x);
           var rw=tenuParRemplacant(x,o2,mmdd,jourCalc);
-          if(rw && o.attendu && o.tenu-(compteAuPoste(x,o.P,jourCalc)?1:0)<o.attendu){ x.surplus=rw; return; }
+          if(rw && o.attendu && sansX<o.attendu){ x.surplus=rw; return; }
+          /* D'OFFICE ENTRE LES TROIS POSTES ARRIÈRE (le
+             client, le 22/10/2026, sur le 11/11 PM : « pourquoi PAM n'est
+             pas en fermentation ? » — QBY tient la distillation, la
+             fermentation est vide ; « ces trois postes se comblent seuls
+             avec les personnes disponibles »). Quand le poste qu'il quitte
+             reste tenu sans lui et que celui où on le porte manquerait sans
+             lui, il y reste : rien n'est à confirmer. */
+          if(ARRIERE_POSTES[o.P.k] && ARRIERE_POSTES[o2.P.k] && o.attendu && sansX<o.attendu
+             && (!o2.attendu || o2.tenu>=o2.attendu)){ x.arriere={de:o2.P.k}; return; }
           o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
           x.propose=o.P.k; o.propose=true;
-          if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
-          if(compteAuPoste(x,o2.P,jourCalc)) o2.tenu++;
-          o.manque=!!(o.attendu && o.tenu<o.attendu); o2.manque=!!(o2.attendu && o2.tenu<o2.attendu);
+          maj(o); maj(o2);
         });
       });
       /* Une proposition n'a de sens que vers un poste qui, sans elle, reste
@@ -20427,6 +20432,24 @@ function tenuParRemplacant(x,oDe,mmdd,jour){
   });
   return r;
 }
+var ARRIERE_POSTES={ferm:1, terr:1, dist:1};
+/* « TENU », RECOMPTÉ COMME postesDePause() LE COMPTE (le client, le
+   22/10/2026, sur le terrain arrière du 11/11 AM : « complet, mais tu
+   cherches un remplaçant ? »). Au terrain arrière, tenu = les polyvalents
+   arrière, ou à défaut les renforts — pas une somme. Le Planning, qui remet
+   les propositions à leur place, retirait 1 à chaque départ : AAI, proposé
+   puis rendu à la distillation, faisait tomber SBZ et GKT à « 0/1 ». */
+function tenuDuPoste(o,jour,sans){
+  /* les copies venues du D comptent, comme dans postesDePause (la meunerie
+     du matin et son consignateur « 8-16 ») */
+  var g=(o.gens||[]).filter(function(x){ return x!==sans; }), t;
+  if(o.P.k==="terr"){
+    var titu=g.filter(function(x){ return roleDeFeuille(x.p)!=="ra"; }), ra=g.filter(function(x){ return roleDeFeuille(x.p)==="ra"; });
+    t=titu.length||ra.length;
+  } else t=effectif(g,o.P,jour);
+  if(o.attendu && t<o.attendu && o.relais && o.relais.length) t++;
+  return t;
+}
 function placeDOffice(x,k,oDe,v,jour,mmdd){
   if(!x||x.depuisD||!oDe||(oDe.attendu&&oDe.tenu<oDe.attendu)) return null;
   if(posteAttitre(x.p)!==k) return null;
@@ -20488,6 +20511,8 @@ function raisonTexte(r){
                       : r.note.charAt(0).toLowerCase()+r.note.slice(1);
 }
 function texteTransfert(x,t,raison){
+  if(x.arriere) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
+    +" ; le poste "+nomPosteApp(t.de)+" reste tenu sans lui (fermentation, terrain arrière et distillation se comblent entre eux).";
   if(x.surplus) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
     +" ; "+idLisible(x.surplus.p.id)+" (remplace "+x.surplus.z+") tient le poste "+nomPosteApp(t.de)+".";
   if(x.echange) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
@@ -20601,8 +20626,10 @@ function transfertsDuJour(db,annee,m,j){
         var oDe=vue.postes.filter(function(q){ return q.P.k===z[1].de; })[0];
         if(echangeHabituel(z[0],o,oDe,jc)) return;
         if(placeDOffice(z[0],o.P.k,oDe,vue,jc,mmdd)) return;
-        var sansX=o.tenu-(compteAuPoste(z[0],o.P,jc)?1:0);
+        var sansX=tenuDuPoste(o,jc,z[0]);
         if(tenuParRemplacant(z[0],oDe,mmdd,jc) && o.attendu && sansX<o.attendu) return;
+        if(oDe && ARRIERE_POSTES[o.P.k] && ARRIERE_POSTES[oDe.P.k] && o.attendu && sansX<o.attendu
+           && (!oDe.attendu || oDe.tenu>=oDe.attendu)) return;
         out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
       });
     });
