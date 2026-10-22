@@ -9518,6 +9518,17 @@ function setView(v,keepScroll){
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(!b) return;
   if(b.dataset.v!==st.view) vibrer();
+  /* L'ACCUEIL TOUCHÉ QUAND ON Y EST (le client, le 22/10/2026 : « si tu es
+     sur l'accueil et que tu appuies sur le bouton accueil, l'affichage
+     bugge une fraction de seconde, alors que sur les autres onglets non »).
+     setView reconstruisait tout le héros : « Ma semaine », l'année et les
+     pauses se remplissent en différé (plusTard), le bloc retombait vide un
+     instant puis se regonflait. Rien n'a changé : on remonte en haut, en
+     douceur, sans rien reconstruire. */
+  if(b.dataset.v==="horaire" && st.view==="horaire"){
+    try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(er){ window.scrollTo(0,0); }
+    deplierBarre(); return;
+  }
   setView(b.dataset.v);
 });
 document.querySelector(".tabs").addEventListener("keydown",function(e){
