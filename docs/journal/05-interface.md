@@ -3640,3 +3640,25 @@ Les réponses du client aux questions du matin (retirées de
   accepté.
 - Application : vérifiée à 320 et 1280 px — FT sans minutes, envoi
   `p_type` FT, visa avec restriction, enregistrement RH ; totaux.
+
+### Le responsable d'équipe : un contremaître ou un adjoint ; la feuille au téléphone (23/10/2026, v1000)
+
+Le client, capture de la feuille au téléphone : « moyen d'optimiser
+cela ? Et les responsables d'équipe ne peuvent être que les contremaîtres
+et/ou adjoints ». (La capture montrait encore la v998.)
+
+- La liste ne propose plus que la catégorie « Contremaîtres de
+  production » du classeur (`estCadre` ; onze personnes, six contremaîtres
+  et cinq adjoints, soi-même exclu), rangée en deux groupes. Le
+  contremaître de la pause ce jour-là reste proposé, avec la mention
+  « le contremaître de votre pause ce jour-là ». Le choix devient
+  obligatoire : « — la hiérarchie et la RH — » disparaît.
+- Base : `base/28-hs-responsable-cadre.sql`, `biowanze_demander_hs` refuse
+  un responsable hors de cette catégorie.
+- Au téléphone : le sélecteur sombre du thème, la date en pastille grise
+  et les cases de durée vides juraient sur la feuille blanche ; tous les
+  champs prennent le style du papier (fond crème, trait dessous, 16 px —
+  iOS ne zoome plus à la saisie), la durée tient sur une ligne.
+- Vérifié à 320 et 1280 px : sans responsable, la feuille le dit ; les
+  groupes (5 contremaîtres, 5 adjoints pour un contremaître) ; l'envoi
+  porte le trigramme choisi.
