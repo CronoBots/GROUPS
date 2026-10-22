@@ -3949,6 +3949,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .compop.cdp em{font-style:normal; font-size:11px; font-weight:600; white-space:nowrap}
 .compop.cdp .cdp-pr{color:#F2994A} .compop.cdp .cdp-su{color:var(--good)}
 .compop.cdp .cdp-vide{font-size:12px; color:var(--muted)}
+.compop.cdp .cdp-s{display:block; margin:8px 0 4px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
+.compop.cdp .cdp-t+.cdp-s{margin-top:2px}
+.compop.cdp .eqn.cdp-abs{border-color:var(--at-rouge); color:var(--at-rouge)}
+.compop.cdp .eqn.cdp-abs b{color:var(--at-rouge)}
+.compop.cdp .cdp-fo{font-style:normal; font-weight:600; color:var(--at-jaune)}
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
    place ; sur téléphone ils restent l'un sous l'autre (sa demande du
@@ -18400,7 +18405,7 @@ function renderEquipe(){
           var mq=(o.manque && !v.inconnus.length), aP=attenduAuPoste(P,g.k,renJ);
           /* comblable par un changement proposé : orange, pas rouge */
           if(mq) cl.push(o.propose?"propose":"manque");
-          var cdP=mq?candidatsPlace(v,P,g.k,jourCalc,o,aP):null;
+          var cdP=mq?candidatsPlace(v,P,g.k,jourCalc,o,aP,par):null;
           /* LES BADGES DANS UNE GRILLE (.eqc, le client, le 20/10/2026 : « il
              y a moyen de mieux disposer les badges trigramme non ? ») : deux
              colonnes au téléphone, alignées d'une ligne à l'autre, deux
@@ -20362,15 +20367,27 @@ function texteTransfert(x,t,raison){
    sont, si leur poste est en surnombre (on peut les prendre sans créer un
    autre trou), et la proposition de l'application s'il y en a une. La
    même polyvalence que le rééquilibrage, rien de plus. */
-function candidatsPlace(vue,P,gk,jour,oP,aP){
-  var c=[];
+/* Puis (le client, le 22/10/2026) : « quand on clique sur un absent, il
+   doit marquer les personnes qu'il faut remplacer en plus de ceux qui
+   peuvent prendre le poste, et ne pas proposer ceux qui sont à un poste
+   qui serait en sous-effectif sans eux (FPA, seul au gluten), mais
+   préciser en jaune ceux qui sont en formation, comme GST ». En tête, qui
+   manque et pourquoi (aRemplacer, la même lecture que les raisons d'un
+   changement) ; un candidat qui laisserait son poste sous l'effectif
+   n'est plus cité, sauf la proposition de l'application elle-même (le
+   pointillé du Planning) ; « en formation » s'écrit en jaune. */
+function candidatsPlace(vue,P,gk,jour,oP,aP,par){
+  var c=[], r=[];
+  try{ r=aRemplacer(par||{},gk,P,jour).map(function(y){ return {id:idLisible(y.p.id), m:y.motif}; }); }catch(e){}
   (vue.postes||[]).forEach(function(o){
     if(o.P.k===P.k) return;
-    var surn=o.attendu?effectif(o.gens,o.P,jour)>o.attendu:true;
+    var eff=effectif(o.gens,o.P,jour), surn=o.attendu?eff>o.attendu:true;
     o.gens.forEach(function(x){
       if(x.deD || x.depuisD) return;
       if(!peutTenir(x.p,P,jour) || !compteAuPoste(x,P,jour)) return;
-      c.push({id:idLisible(x.p.id), de:o.P.t, s:!!surn, pr:x.propose===P.k, f:enFormation(x.p,jour)});
+      var pr=x.propose===P.k;
+      if(!pr && o.attendu && eff-(compteAuPoste(x,o.P,jour)?1:0)<o.attendu) return;
+      c.push({id:idLisible(x.p.id), de:o.P.t, s:!!surn, pr:pr, f:enFormation(x.p,jour)});
     });
   });
   (vue.inconnus||[]).forEach(function(x){
@@ -20378,7 +20395,7 @@ function candidatsPlace(vue,P,gk,jour,oP,aP){
   });
   /* le proposé d'abord, puis qui est en surnombre, puis les autres */
   c.sort(function(a,b){ return (b.pr-a.pr) || (b.s-a.s) || (a.id<b.id?-1:1); });
-  return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c};
+  return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c, r:r};
 }
 /* LA BULLE D'UNE PLACE VIDE mise en forme (le client, le 20/10/2026 :
    « supprime les mots place vide et optimise le rendu des propositions »).
@@ -20388,10 +20405,12 @@ function candidatsPlace(vue,P,gk,jour,oP,aP){
    Plus de liste en phrase où le proposé revenait deux fois. */
 function bulleCandidatsHTML(d){
   var h='<b class="cdp-t">'+esc(d.t)+'</b>';
-  if(!d.l.length) return h+'<span class="cdp-vide">Personne de la pause n\'a cette polyvalence.</span>';
-  return h+'<ul class="cdp-l">'+d.l.map(function(x){
+  if(d.r&&d.r.length) h+='<span class="cdp-s">À remplacer</span><ul class="cdp-l">'+d.r.map(function(x){
+    return '<li><span class="eqn cdp-abs"><b>'+esc(x.id)+'</b></span><span class="cdp-de">'+esc(x.m)+'</span></li>'; }).join("")+'</ul>';
+  if(!d.l.length) return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<span class="cdp-vide">Personne de la pause ne peut le prendre sans laisser son poste en sous-effectif.</span>';
+  return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<ul class="cdp-l">'+d.l.map(function(x){
     return '<li><span class="eqn'+(x.pr?' app':'')+(x.f?' form':'')+'"><b>'+esc(x.id)+'</b></span>'
-      +'<span class="cdp-de">'+esc(x.de)+'</span>'
+      +'<span class="cdp-de">'+esc(x.de)+(x.f?' <i class="cdp-fo">en formation</i>':'')+'</span>'
       +(x.pr?'<em class="cdp-pr">proposé</em>':x.s?'<em class="cdp-su">en surnombre</em>':'')+'</li>';
   }).join("")+'</ul>';
 }
