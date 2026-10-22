@@ -4468,7 +4468,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cgc>em{font-style:normal; font-size:11px; color:rgba(255,255,255,.55); white-space:nowrap}
 .pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.4)}
 .pf-cgc.vide .pf-cgc-b>i{background:rgba(255,255,255,.25)}
-@media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 7px 8px} .pf-cgc>b{font-size:15.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
+.pf-cgc.ft>span{color:#9fc9da}
+.pf-cgc.ft .pf-cgc-b{visibility:hidden}
+.pf-cgc.neg>b{color:#ff8a7a}
+@media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
 /* les trois chiffres de l'année, sous sa barre */
 .pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
 .pf-kp>span{display:flex; flex-direction:column; gap:1px; padding:8px 10px; font-size:11.5px; line-height:1.25; color:var(--muted); min-width:0}
@@ -15789,16 +15792,35 @@ function mesCongesHTML(db,person){
   if(!db||!soldesSaisis(db)) return "";
   var p=db.people.filter(function(x){ return x.id===person.id; })[0]||person;
   var l=soldesConges(p.c); if(!l.length) return "";
+  /* En heures comme le classeur, et leur équivalent en jours (le client,
+     le 22/10/2026 : « sur 8,5 ? … indique l'équivalent en jour de congé
+     des congés restants ») : « 1,5 j sur 8,5 j » convertissait tout en
+     jours, le droit compris, et le « sur » ne se comprenait pas. Le reste
+     s'écrit en heures, en grand, et « ≈ 1,5 j » dessous, à la journée de
+     l'onglet Barèmes (8 h par défaut) ; le droit n'est plus écrit, la
+     barre suffit. */
+  var hj=Number(st.params&&st.params.hJour)||8, jr=function(h){ return num(R(h/hj,2)); };
   var tot=0, cases=l.map(function(o){
-    var rs=Math.max(0,o.rs), j=R(rs/8,2), sur=R(o.tot/8,2), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
+    var rs=Math.max(0,o.rs), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
     tot+=rs;
     var lib=libCompteur(db,o.k); if(lib===o.k && LIB_CPT_LONG[o.k]) lib=LIB_CPT_LONG[o.k];
-    return '<button type="button" class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(j)+' jour'+(j>1?'s':'')+' à placer sur '+num(sur))+'">'
-      +'<span>'+esc(o.k)+'</span><b>'+num(j)+'<small> j</small></b>'
+    return '<button type="button" class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(rs/hj>1?'s':'')+' sur '+num(o.tot)+' h')+'">'
+      +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
-      +'<em>'+(rs>0?'sur '+num(sur)+' j':'tout placé')+'</em></button>';
+      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></button>';
   });
-  return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot/8,2))+' j</b> à placer</span></div>'
+  /* Le solde du flex time, sans les bornes (le client, le 22/10/2026) : la
+     case « Total » du pied du classeur, comme « Mes compteurs », sans la
+     jauge −8 / 80 / 104 h. */
+  var f=p.c&&p.c.flex;
+  if(f && (f.total!==undefined || f.report!==undefined)){
+    var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
+    cases.push('<button type="button" class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour')+'">'
+      +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
+      +'<i class="pf-cgc-b" aria-hidden="true"></i>'
+      +'<em>≈ '+sg+jr(Math.abs(ft))+' j</em></button>');
+  }
+  return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
 }
 document.addEventListener("click",function(e){
