@@ -4453,6 +4453,22 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-bar.pf-pr-rep{background:none; border-radius:0; overflow:visible; height:10px; margin:0}
 .ry-an-bar.pf-pr-rep i{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px); border-radius:4px}
 .ry-an-bar.pf-pr-rep i i{background:var(--c); border-radius:0}
+/* mes congés : une case par compteur, le reste à placer en grand */
+.pf-cg-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
+.pf-cg-t .pf-pr-l b{color:#fff; font-weight:700}
+.pf-cgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; margin:4px 0 14px}
+.pf-cgc{display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
+  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left; cursor:pointer}
+@media (hover:hover){ .pf-cgc:hover{border-color:rgba(105,178,203,.55)} }
+.pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:#9fe0b8}
+.pf-cgc>b{font-size:18px; font-weight:700; line-height:1.1; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pf-cgc>b small{font-size:12px; font-weight:600; color:rgba(255,255,255,.62)}
+.pf-cgc-b{display:block; width:100%; height:4px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden}
+.pf-cgc-b>i{display:block; height:100%; border-radius:inherit; background:#5fbf86}
+.pf-cgc>em{font-style:normal; font-size:11px; color:rgba(255,255,255,.55); white-space:nowrap}
+.pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.4)}
+.pf-cgc.vide .pf-cgc-b>i{background:rgba(255,255,255,.25)}
+@media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 7px 8px} .pf-cgc>b{font-size:15.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
 /* les trois chiffres de l'année, sous sa barre */
 .pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
 .pf-kp>span{display:flex; flex-direction:column; gap:1px; padding:8px 10px; font-size:11.5px; line-height:1.25; color:var(--muted); min-width:0}
@@ -15761,6 +15777,34 @@ function ryAnneeHTML(p,y,db){
      conteneur depuis le 22/10/2026, #ryAn : voir renderRythme.) */
   return h;
 }
+/* MES CONGÉS DISPONIBLES (le client, le 22/10/2026 : « ajouter les
+   compteurs de congés disponibles de façon pro et intuitive dans le
+   héros »). Une case par compteur du classeur (VA, RTT, DTT, RJF — les
+   mêmes que « Mes compteurs », soldesConges) : ce qui reste à placer en
+   jours, en grand ; « sur N j » dessous ; une barre de ce qui reste
+   (pleine en début d'année, vide une fois tout placé). Un compteur tout placé reste, en gris : on voit qu'il est
+   épuisé. Rien si l'année n'a pas de soldes fiables (soldesSaisis). Une
+   case touchée mène au détail, « Mes compteurs ». */
+function mesCongesHTML(db,person){
+  if(!db||!soldesSaisis(db)) return "";
+  var p=db.people.filter(function(x){ return x.id===person.id; })[0]||person;
+  var l=soldesConges(p.c); if(!l.length) return "";
+  var tot=0, cases=l.map(function(o){
+    var rs=Math.max(0,o.rs), j=R(rs/8,2), sur=R(o.tot/8,2), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
+    tot+=rs;
+    var lib=libCompteur(db,o.k); if(lib===o.k && LIB_CPT_LONG[o.k]) lib=LIB_CPT_LONG[o.k];
+    return '<button type="button" class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(j)+' jour'+(j>1?'s':'')+' à placer sur '+num(sur))+'">'
+      +'<span>'+esc(o.k)+'</span><b>'+num(j)+'<small> j</small></b>'
+      +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
+      +'<em>'+(rs>0?'sur '+num(sur)+' j':'tout placé')+'</em></button>';
+  });
+  return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot/8,2))+' j</b> à placer</span></div>'
+    +'<div class="pf-cgs">'+cases.join("")+'</div>';
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".pf-cgc"):null; if(!b) return;
+  var c=document.getElementById("cptCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"});
+});
 /* TROIS CHIFFRES DE L'ANNÉE (le client, le 22/10/2026 : « quelles autres
    stats peuvent être présentes dans le héros ? ») : ce que la barre ne
    dit pas — les heures, les jours de week-end et les jours fériés
@@ -15816,7 +15860,8 @@ function renderRythme(){
   try{ renderCentre(db,person); }catch(e){}
   /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; } }
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; }
+      try{ a.innerHTML+=mesCongesHTML(db,person); }catch(e){} }
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y)+ryChiffresHTML(y);
     try{ recyclageHeros(db,person); }catch(e){}
   });

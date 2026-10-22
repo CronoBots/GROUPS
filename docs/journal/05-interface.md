@@ -2853,3 +2853,42 @@ colonne de gauche 467 px, droite 333 px pour un opérateur polyvalent. Dès
 
 Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### « Mes congés » dans le héros (22/10/2026, v967)
+
+Le client : « ajouter les compteurs de congés disponibles de façon pro et
+intuitive dans le héros ».
+
+**Où.** Sous « Ma semaine », donc à gauche au PC, sous le prochain poste.
+Le prochain congé est juste au-dessus.
+
+**Ce que le bloc montre.**
+
+- Un titre « Mes congés », et à droite le total à placer (« 1,5 j à
+  placer »).
+- Une case par compteur du classeur, les mêmes que « Mes compteurs »
+  (`soldesConges` : VA, RTT, DTT, RJF), avec :
+  - le code ;
+  - ce qui reste à placer, en jours et en grand ;
+  - une barre de ce qui reste, pleine en début d'année, vide une fois
+    tout placé ;
+  - « sur N j » en dessous.
+- Un compteur épuisé reste, en gris, avec « tout placé » : on voit qu'il
+  n'y a plus rien.
+- Rien ne s'affiche si l'année n'a pas de soldes fiables (`soldesSaisis`,
+  donc pas en 2027 tant que le client ne l'a pas dit).
+- Une case touchée mène au détail, la carte « Mes compteurs ».
+
+**Mesuré.**
+
+- Pour le client : VA, DTT et RJF tout placés, RTT 1,5 j sur 8,5.
+- Pour un opérateur : 11,5 sur 20, 5,25 sur 6,5, 72,13 sur 72,13, 10 sur
+  10. Ce sont les 577 h de DTT écrites dans son classeur. Ce n'est pas une
+  erreur de lecture : « Mes compteurs » dit la même chose.
+
+**Mise en page.**
+
+- Quatre cases sur une ligne, même à 320 px. Les chiffres sont réduits
+  sous 420 px : « 72,13 j » passait sur deux lignes.
+- Aucun débordement à 320, 390 et 1280 px.
+- Les quatre sorties du vérificateur sont identiques à l'octet.
