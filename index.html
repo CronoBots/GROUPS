@@ -4327,10 +4327,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pause{flex:0 0 auto; width:46px; height:46px; box-sizing:border-box; border-radius:12px; display:grid; place-items:center;
   background:var(--marque-vif); color:var(--marque); font-weight:750; font-size:16px; letter-spacing:.02em; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
 .pf-proch-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
-.pf-proch-t b{font-size:15.5px; font-weight:650; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-proch-h{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums}
+.pf-proch-t b{font-size:17px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-proch-h{display:flex; align-items:baseline; column-gap:6px; white-space:nowrap; font-size:13px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums}
+.pf-proch-t .pf-pd{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-proch-h .pf-ps{color:rgba(255,255,255,.4); font-weight:400}
+.pf-du{margin-left:4px; padding:1px 7px; border-radius:99px; font-size:11.5px; font-weight:600; color:rgba(255,255,255,.75); background:rgba(255,255,255,.08)}
 .pf-hd,.pf-hf{flex:0 0 auto; white-space:nowrap}
-.pf-trait{flex:1 1 auto; min-width:16px; height:3px; border-radius:2px; background:rgba(255,255,255,.18); overflow:hidden; position:relative}
+.pf-trait{display:block; width:100%; min-width:16px; height:3px; border-radius:2px; background:rgba(255,255,255,.18); overflow:hidden; position:relative}
 .pf-trait i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
 .pf-trait.en{height:4px}
 .pf-proch-at{font-size:12px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -12704,20 +12707,49 @@ function _pfHead(db,p){
         reste=Math.round((pr.fin-pr.deb)*(1-pr.pct/100)*12)/12,
         rel=pr.enCours?("Encore "+(reste>=1?Math.floor(reste)+'\u00a0<span class="unite">h</span>':"")+(reste%1?(reste>=1?"\u00a0":"")+Math.round((reste%1)*60)+'\u00a0<span class="unite">min</span>':"")):(pr.kc<=0?"Aujourd\u2019hui":(pr.kc===1?"Demain":'Dans '+pr.kc+' <span class="unite">j</span>'));
     var hh=String(pr.heures||"").split("-"), hD=hh[0]||"", hF=hh[1]||"";
+    /* LE BILLET REPENSÉ (le client, le 22/10/2026 : « pas satisfait du
+       premier cadre, prochain poste, et de son contenu »). Ce qui n'allait
+       pas : « Aujourd'hui » en pastille ET « Jeudi 22 octobre » en titre
+       disaient deux fois le jour ; un trait gris vide entre 21 h 30 et
+       6 h ne mesurait rien hors du poste ; « Contremaître » redisait la
+       fonction écrite sous le trigramme. Désormais :
+       - le titre en mots quand c'est aujourd'hui ou demain (« Ce soir »,
+         « Demain matin »), la date sinon ;
+       - la pastille donne le compte à rebours jusqu'au début (« dans
+         5 h 24 »), « Encore … » pendant le poste ;
+       - une ligne : la date (si le titre ne la dit pas), les heures et la
+         durée ; la barre de progression seulement pendant le poste ;
+       - l'atelier seulement s'il n'est pas celui écrit sous le
+         trigramme, puis le contremaître et les collègues. */
+    var MOTS0={AM:"Ce matin",PM:"Cet après-midi",N:"Ce soir",D:"Aujourd\u2019hui"},
+        MOTS1={AM:"Demain matin",PM:"Demain après-midi",N:"Demain soir",D:"Demain"};
+    var titre=(pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||dateL,
+        enMots=titre!==dateL;
+    var dure=function(x){ x=Math.round(x*60); var hh0=Math.floor(x/60), mm=x%60; return hh0+"\u00a0h"+(mm?"\u00a0"+(mm<10?"0":"")+mm:""); };
+    if(!pr.enCours){
+      var t0=new Date(pr.d.getFullYear(),pr.d.getMonth(),pr.d.getDate()).getTime()+pr.deb*36e5, dm=(t0-Date.now())/6e4;
+      rel=dm<60?"dans "+Math.max(1,Math.round(dm))+'\u00a0<span class="unite">min</span>'
+        :dm<24*60?"dans "+Math.floor(dm/60)+'\u00a0<span class="unite">h</span>'+(Math.round(dm%60)?"\u00a0"+Math.round(dm%60):"")
+        :(pr.kc===1?"Demain":"dans "+pr.kc+'\u00a0<span class="unite">j</span>');
+    }
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       +'<span class="pf-proch-tete"><small>'+lab+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
       +'<span class="pf-proch-corps"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
-      +'<span class="pf-proch-t"><b>'+esc(dateL)+'</b>'
-      +'<span class="pf-proch-h" aria-label="'+esc(pr.heures)+'"><span class="pf-hd">'+esc(hD)+'</span>'
-      +'<span class="pf-trait'+(pr.enCours?' en':'')+'"'+(pr.enCours?' role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"':'')+'><i style="width:'+(pr.enCours?pr.pct:0)+'%"></i></span>'
-      +'<span class="pf-hf">'+esc(hF)+'</span></span>'
+      +'<span class="pf-proch-t"><b>'+esc(titre)+'</b>'
+      +'<span class="pf-proch-h" aria-label="'+esc((enMots?dateL+", ":"")+pr.heures)+'">'
+      +'<span class="pf-hd">'+esc(hD)+'</span><span class="pf-ps">–</span><span class="pf-hf">'+esc(hF)+'</span>'
+      +(pr.fin>pr.deb?'<span class="pf-du">'+dure(pr.fin-pr.deb)+'</span>':'')+'</span>'
+      /* la date sous les heures, quand le titre est en mots */
+      +(enMots?'<span class="pf-pd">'+esc(dateL)+'</span>':'')
+      +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +(function(){
         /* AVEC QUI (le client, le 22/10/2026, « optimiser encore » le centre
            de contrôle) : le contremaître de la pause et les collègues du
-           même poste, sous l'atelier. Ils étaient dans « Ma prochaine
-           pause », un second billet du même poste, retiré. */
+           même poste, sous l'atelier. L'atelier ne s'écrit que s'il n'est
+           pas la fonction déjà sous le trigramme. */
         var e=null; try{ e=ctlPause(p); }catch(er){}
         var at=(e&&e.poste)||pr.atelier||"", av=[];
+        if(at && role && at.toLowerCase()===String(role).toLowerCase()) at="";
         if(e&&e.cm&&e.cm!==p.id) av.push('CM <b>'+esc(idLisible(e.cm))+'</b>');
         if(e&&e.avec.length) av.push('avec <b>'+e.avec.map(function(t){ return esc(idLisible(t)); }).join(" · ")+'</b>');
         return '<span class="pf-proch-at"'+(at||av.length?'':' hidden')+'>'+esc(at)+(av.length?'<span class="pf-avec">'+(at?' · ':'')+av.join(" · ")+'</span>':'')+'</span>';
