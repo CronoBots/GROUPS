@@ -1538,3 +1538,14 @@ reste celui du classeur RH, et la barre plafonne à 100 %.
 `verifier-calendrier.js` reprend `remplacesActifs` et `recycRH`, que
 `calculerPolyvalence` appelle désormais. Ses quatre sorties sont
 inchangées : il ne charge pas le classeur RH.
+
+### … et le poste écrit à côté de l'horaire (22/10/2026, `nfdm-v952`)
+
+Le client : « ce n'est pas toujours “remplace X”, des fois il est
+directement précisé le poste à côté de l'horaire ». La journée complète
+dont la case ÉCRIT le poste (`posteEcrit`, « meunerie », « distill. »)
+compte aussi, avec ou sans « remplace ». Mesuré, avec le classeur RH
+chargé : LDY passe de +30 à +32 en meunerie, SPS de +31 à +32 en
+distillation ; FPS, PAM et QBY gagnent 4 journées au gluten ; DWS +2 aux
+chaudières ; CDE +1 en fermentation ; FLN +1 aux chaudières ; PDF +1 à
+la STEP. Les quatre sorties du vérificateur sont inchangées.
