@@ -3019,3 +3019,25 @@ reste : le vérificateur (`--compteurs`) et la paie s'en servent.
 Mesuré : aucune erreur, aucun débordement à 320, 390 et 1280 px. Toucher
 « Accueil » sur l'Accueil ne modifie toujours rien (0 changement de la
 page). Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### « À portée de main » resserré (22/10/2026, v973)
+
+Le client, capture du cadre : « optimiser ? ». Les défauts relevés :
+
+- « tout est à jour » en titre, puis « ✓ Rien ne vous attend » dans une
+  case en pointillés, sous un titre « À faire » : trois fois la même
+  chose ;
+- quatre sous-titres de raccourci ne disaient rien de plus que le nom
+  (« formulaire RH », « aujourd'hui », « 2026 », « abonnement ») et
+  allongeaient la case d'une ligne.
+
+**Ce qui a été fait.**
+
+- La section « À faire » n'apparaît que s'il y a quelque chose à faire.
+- Ce qui est en route garde son titre (« En route »).
+- Sans compte, le cadre dit toujours de se connecter dans Réglages.
+- Un raccourci n'a plus de sous-titre que s'il apporte un état : « 1 en
+  cours », « 1 en route », le mois de la fiche de paie.
+
+Mesuré : aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.
