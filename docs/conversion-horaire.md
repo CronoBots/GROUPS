@@ -2364,3 +2364,32 @@ Mesuré sur l'année : une seule place change, celle du 23/10 en N
 L'agenda de LCI change d'une ligne (« N · Distillation » devient
 « N · Fermentation »). `--polyvalence`, `--compteurs` et les neuf règles
 sont identiques à l'octet.
+
+### « 3 opérateurs en pause(s) PM et N » : l'effectif des chaudières (22/10/2026)
+
+`RENFORT_MOTIF` lit dans les commentaires « N opérateurs / personnes … en
+AM et PM » et relève l'effectif attendu des chaudières ces pauses-là. Le
+classeur du 22/10 au soir écrit, pour le démarrage Stein et l'arrêt
+Vyncke : « 3 opérateurs en **pauses** PM et N ». Le mot « pause(s) » entre
+« en » et les pauses faisait échouer le motif : les 22 et 23/10
+n'attendaient que 2. Le motif le tolère désormais.
+
+Mesuré avec `--manques` : deux places creuses de plus, chaudières N 2/3
+le 22/10 et le 23/10, rien d'autre sur l'année. Le Planning compte MGY
+(« opérateur en formation » aux chaudières) compte en plus, pas dans les
+trois. Le 22/10 en PM, KDN et PDF font 2/3, et un changement est proposé.
+Le 23/10 en PM, les relais de 12 h comblent : SPS de 14 à 02 h, JBS de 14
+à 18 h, KDN de 18 à 22 h.
+
+## Corrections du client en attente d'un classeur (22/10/2026)
+
+`CORRECTIONS_CLIENT`, dans `index.html`, porte ce que le client a corrigé
+avant que le classeur le soit. Chaque correction donne la journée
+**exacte** que le classeur écrit à tort, et ne s'applique que tant qu'il
+l'écrit. Premier cas : CJD, « Abs » les 22 et 23/10 dans le classeur du
+22/10 au soir, alors qu'il n'est pas absent (le client : « le classeur
+sera modifié demain »). On reprend le classeur précédent : le 22,
+`["PM","N","échange avec DBE"]` ; le 23, `["N"]`.
+
+Les outils de `tools/` lisent le classeur tel quel, sans ces corrections.
+Une correction devenue inutile se retire de la liste.

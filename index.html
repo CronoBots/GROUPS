@@ -9977,6 +9977,28 @@ function corrigerAutoRemplacements(db){
   });
   return faits;
 }
+/* LES CORRECTIONS DU CLIENT EN ATTENDANT LE CLASSEUR (le client, le
+   22/10/2026 : « il est marqué que CJD est absent le 22 et 23/10, mais ce
+   n'est pas le cas ; le classeur sera modifié demain, mais tu peux
+   modifier l'app pour que cela soit déjà affiché »). Une correction ne
+   s'applique que si la journée vaut EXACTEMENT ce que le classeur écrit
+   à tort (« de ») : dès qu'un classeur corrigé (ou autrement modifié)
+   arrive, elle ne mord plus et le classeur reprend la main. Les valeurs
+   « en » sont celles du classeur précédent (21/10), qui le disait juste.
+   Les outils de tools/ lisent le classeur tel quel, sans elles. */
+var CORRECTIONS_CLIENT=[
+  {an:2026, id:"CJD", md:"1022", de:["N","Abs","échange avec DBE"], en:["PM","N","échange avec DBE"]},
+  {an:2026, id:"CJD", md:"1023", de:["N","Abs"], en:["N"]}
+];
+function corrigerSelonClient(db){
+  CORRECTIONS_CLIENT.forEach(function(c){
+    if(Number(db.year)!==c.an) return;
+    db.people.forEach(function(p){
+      if(p.id!==c.id||!p.d) return;
+      if(JSON.stringify(p.d[c.md]||null)===JSON.stringify(c.de)) p.d[c.md]=c.en.slice();
+    });
+  });
+}
 function fetchHoraireDB(){
   if(HORAIRE_DB) return Promise.resolve(HORAIRE_DB);
   if(horaireFetching) return horaireFetching;
@@ -9992,6 +10014,7 @@ function fetchHoraireDB(){
     }).then(function(db){
       if(!db || !db.people || !db.people.length || Number(db.year)!==an) return null;
       corrigerAutoRemplacements(db);
+      corrigerSelonClient(db);
       return db;
     },function(){ return null; });
   }
@@ -17031,7 +17054,11 @@ var RENFORT_TRANCHE={ "0713":{ chau:{AM:3} }, "0916":{ chau:{AM:3,PM:3} } };
    confondre avec celle du dessus ferait disparaître un renfort réel le jour
    où l'on s'y tromperait. */
 var RENFORT_CLOS={ "0929":true };
-var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
+/* « en pause(s) PM et N » (le client, le 22/10/2026, sur le commentaire
+   de PDF : « 3 opérateurs en pauses PM et N pour démarrage Stein, Arrêt
+   Vyncke ») : le mot « pause(s) » entre « en » et les pauses faisait
+   échouer le motif, et les chaudières n'attendaient que 2 les 22 et 23/10. */
+var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+(?:pauses?\s+)?((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
 var RENFORT_POSTE="chau";
 /* Entre les deux arrêts, on n'exige aucun effectif. Le classeur surligne
    en jaune, dans la colonne des jours de chaque feuille, deux fenêtres
