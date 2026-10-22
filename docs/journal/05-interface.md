@@ -2253,3 +2253,41 @@ conditions sont dans `docs/conversion-horaire.md`, « Remplacé à son tour ».
   06/07 N (FPS), toutes trois dans la forme que le client décrit. Le
   vérificateur (quatre sorties), les agendas et `comparer-fiches.py VBN`
   sont identiques à l'octet.
+
+### JBI le 22/10 : « remplaçait » n'était pas lu ; la vraie pause dans la demande de congé (22/10/2026, `nfdm-v936`)
+
+**1. « Remplace YBT qui remplaçait YRS ».** Le client : « pourquoi JBI
+n'est placé nulle part alors que son commentaire indique bien “remplace
+YRS” pour aller en meunerie ? ». `atelierDuRemplace()` lisait
+« remp\w* » : en JavaScript, `\w` ne connaît pas le « ç », et
+« remplaçait » s'arrêtait à « rempla ». On ne lisait que YBT (adjoint absent),
+lui qu'on lisait : JBI restait en ligne Adjoint, la meunerie en « ? ». Le motif prend
+désormais les lettres accentuées.
+
+Mesuré, avant et après :
+- **Planning** (365 jours) : cinq journées changent, toutes celles de
+  JBI. Le 22/10 AM, il passe en meunerie et le « ? » disparaît. Les
+  05/11 N, 24/11 AM, 25 et 26/11 PM, il tient le poste de contremaître :
+  « Remplace YBT qui remplaçait AFA », AFA absent et « Remplacé par
+  JBI ». C'est la règle du 13/10, un adjoint qui remplace un contremaître.
+- **Manques** : 22 places creuses deviennent 18 ; les quatre manques de
+  contremaître de novembre disparaissent.
+- **Polyvalence** : JBI passe à 5/5 en meunerie, SLT redescend à 4/10.
+- **Agendas** : seul `cal/JBI.ics` change, sur ces cinq journées.
+- **Vérificateur** : « motif trop étroit » passe de 47 à 46. Il le
+  signalait.
+- **Compteurs** et `comparer-fiches.py VBN` sont identiques à l'octet.
+
+**2. La pause de la demande de congé.** Le client : « la pause qui
+s'indique dans ma colonne est la pause normale du cycle et non celle que
+je fais vraiment ». `dmPrevue()`, à l'écran, et la base
+(`base/17-pause-du-jour.sql`, `biowanze.pause_du_jour`) lisaient la
+cellule. Désormais, une annotation qui écrit une pause ou une plage
+l'emporte : pour un échange, ["N","PM"] donne PM ; pour un rappel,
+["-","AM"] donne AM. Ce rappel était refusé jusqu'ici comme « un repos :
+rien à modifier ». Avant d'appliquer, la version en base a été comparée à
+`12-formulaires.sql` : identique à l'octet. Éprouvé : dans la base (une
+transaction annulée), BLR le 22/10 avec JBI remplaçant donne
+`prevue: PM` et `rp_prevue: AM` (avant : N et « - ») ; à l'écran, les
+cartes de BLR, de JBI et de SMA donnent PM, AM et AM (avant : N, « – »,
+AM).
