@@ -4426,15 +4426,25 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pr{display:flex; flex-direction:column; margin:4px 0 12px; border-radius:12px; overflow:hidden;
   background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
 .pf-pr-c{display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:10px; width:100%;
-  padding:9px 12px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+  padding:7px 12px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
 .pf-pr-c+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
 .pf-pr-c:disabled{cursor:default}
 @media (hover:hover){ .pf-pr-c:not(:disabled):hover{background:rgba(105,178,203,.08)} }
 .pf-pr-c .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 0; border-radius:99px; width:34px; height:auto; min-width:0; text-align:center}
-.pf-pr-d{display:flex; align-items:baseline; gap:8px; min-width:0; white-space:nowrap}
+/* la date, et le délai dessous : sur une ligne, « dans 8 j » se coupait à
+   320 px une fois le filet ajouté à droite (22/10/2026) */
+.pf-pr-d{display:flex; flex-direction:column; gap:1px; min-width:0; white-space:nowrap}
 .pf-pr-d b{font-size:14px; font-weight:650; color:#fff; font-variant-numeric:tabular-nums}
-.pf-pr-d span{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis}
-.pf-pr-n{display:flex; align-items:baseline; gap:6px; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pf-pr-d span{font-size:12px; line-height:1.25; color:var(--muted); overflow:hidden; text-overflow:ellipsis}
+.pf-pr-n{display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; column-gap:6px; row-gap:5px; width:62px; white-space:nowrap; font-variant-numeric:tabular-nums}
+/* la part faite de l'année, dans la couleur de la pause */
+.pf-pr-b{flex:0 0 100%; display:block; height:3px; border-radius:99px; background:rgba(255,255,255,.09); overflow:hidden}
+.pf-pr-b>i{display:block; height:100%; border-radius:inherit; background:var(--cal-am)}
+.pf-pr-b[data-p="PM"]>i{background:var(--cal-pm)}
+.pf-pr-b[data-p="N"]>i{background:var(--cal-n)}
+.pf-pr-b[data-p="D"]>i{background:var(--cal-d)}
+/* la prochaine pause : son délai en couleur */
+.pf-pr-1 .pf-pr-d span{color:var(--marque-vif); font-weight:600}
 .pf-pr-n b{font-size:14px; font-weight:700; color:var(--ink)}
 .pf-pr-n span{font-size:12px; color:var(--muted)}
 @media (min-width:761px){
@@ -15718,6 +15728,11 @@ function ryProchainesHTML(p,y){
   /* Le D seulement s'il en reste dans l'année ou s'il revient dans les
      60 jours : « 1 faite · +0, dans 126 j » n'apprenait rien (GBT). */
   var ks=["AM","PM","N","D"].filter(function(k){ return k!=="D" || (vu.D && vu.D.i<=60) || (o && o.A.D); });
+  /* DANS L'ORDRE OÙ ELLES REVIENNENT (le client, le 22/10/2026 : « moyen
+     d'optimiser la partie mes pauses ») : en AM, PM, N, D fixes, l'œil
+     cherchait la plus proche entre « dans 15 j » et « dans 9 j ». La
+     première est mise en avant ; une pause sans date ferme la liste. */
+  ks.sort(function(a,b){ return (vu[a]?vu[a].i:1e9)-(vu[b]?vu[b].i:1e9); });
   /* EN LISTE, ET NON PLUS EN TUILES (le client, le 20/10/2026 : « moyen
      d'optimiser 100 % pro ? ») : quatre tuiles de deux lignes prenaient
      270 px au téléphone pour quatre dates. Une ligne par pause, comme le
@@ -15728,12 +15743,15 @@ function ryProchainesHTML(p,y){
     +(o?'<span class="pf-pr-l">faites · à venir</span>':'')+'</div>'
     +'<div class="pf-pr">'+ks.map(function(k){
       var v=vu[k], quand=!v?"":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
-      return '<button type="button" class="pf-pr-c"'+(v?' data-y="'+v.d.getFullYear()+'" data-m="'+v.d.getMonth()+'" data-d="'+v.d.getDate()+'"':' disabled')
+      /* la part faite de l'année, en filet de la couleur de la pause, sous
+         les nombres : « 31 +7 » se lisait mal sans la légende */
+      var tot=o?o.F[k]+o.A[k]:0, pc=tot?Math.round(o.F[k]*100/tot):0;
+      return '<button type="button" class="pf-pr-c'+(v&&k===ks[0]?' pf-pr-1':'')+'"'+(v?' data-y="'+v.d.getFullYear()+'" data-m="'+v.d.getMonth()+'" data-d="'+v.d.getDate()+'"':' disabled')
         +' aria-label="'+k+(v?', prochaine '+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+v.d.getDate()+" "+MOIS[v.d.getMonth()].toLowerCase()):', rien de prévu')
         +(o?', '+o.F[k]+' faites et '+o.A[k]+' à venir en '+y:'')+'">'
         +'<i class="pf-pause" data-p="'+k+'">'+k+'</i>'
         +'<span class="pf-pr-d">'+(v?'<b>'+esc(JC[v.d.getDay()]+" "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</b><span>'+esc(quand)+'</span>':'<span>rien de prévu</span>')+'</span>'
-        +(o?'<span class="pf-pr-n"><b>'+o.F[k]+'</b><span>+'+o.A[k]+'</span></span>':'')+'</button>';
+        +(o?'<span class="pf-pr-n"><b>'+o.F[k]+'</b><span>+'+o.A[k]+'</span><i class="pf-pr-b" data-p="'+k+'"><i style="width:'+pc+'%"></i></i></span>':'')+'</button>';
     }).join("")+'</div>';
 }
 document.addEventListener("click",function(e){

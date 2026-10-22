@@ -2597,3 +2597,26 @@ postes, d'office ».
 - Effectifs : cette semaine, « Rien à signaler ».
 - Les quatre sorties du vérificateur sont identiques à l'octet :
   l'affichage seul a changé.
+
+### « Mes pauses » dans l'ordre où elles reviennent (22/10/2026, v956)
+
+Le client, avec une capture : « moyen d'optimiser la partie mes pauses ».
+Ce qui n'allait pas :
+
+- l'ordre était fixe (AM, PM, N, D) alors que les dates ne l'étaient pas :
+  l'œil cherchait la plus proche entre « dans 15 j », « dans 9 j » et
+  « dans 10 j » ;
+- « 31 +7 » ne se lisait qu'avec la légende de colonne, loin à droite.
+
+Ce qui a été fait :
+
+- les lignes sont triées par date de retour ; une pause sans date ferme la
+  liste ; la première a son délai en couleur ;
+- sous les nombres, un filet de la couleur de la pause donne la part faite
+  de l'année (faites ÷ faites + à venir) ;
+- le délai passe sous la date : sur une ligne, « dans 8 j » se coupait à
+  320 px une fois le filet ajouté (vu à la capture, corrigé avant le
+  commit). Padding réduit de 9 à 7 px : une ligne fait 51 px au lieu de 48.
+
+Mesuré à 320, 390 et 1280 px : aucun débordement, aucune erreur. Les
+quatre sorties du vérificateur sont identiques à l'octet.
