@@ -2632,6 +2632,7 @@ html .dm-circ small em{display:block; font-style:normal; font-weight:700; color:
 html .dm-circ .tour b, html .dm-circ .tour small{color:var(--at-jaune)}
 html .dm-circ .refus small{color:var(--at-rouge)}
 html .dm-circ .apres{opacity:.75}
+html .dm-nw{white-space:nowrap}
 html .dm-g-faire .dm-circ .tour .dm-pt{border-color:var(--in); color:var(--in); box-shadow:0 0 0 4px color-mix(in srgb,var(--in) 20%,transparent)}
 html .dm-g-faire .dm-circ .tour b, html .dm-g-faire .dm-circ .tour small{color:var(--in)}
 .dm-etapes i{color:var(--faint); font-style:normal}
@@ -3193,7 +3194,9 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .mqtog .mqtogn::before{content:""; width:7px; height:7px; border-right:1.6px solid currentColor; border-bottom:1.6px solid currentColor;
   transform:translateX(-2px) rotate(-45deg); transition:transform .18s}
 .mqmois.ouvert>.mqtog .mqtogn::before{transform:rotate(45deg) translate(-2px,-2px)}
-.mqmois:not(.ouvert)>.mqmc{display:none}
+/* replié prime toujours : la grille des colonnes au PC (#mqCorps :has(>.mqj))
+   l'emportait et les mois ne se repliaient plus (le client, le 22/10/2026) */
+html .mqmois:not(.ouvert)>.mqmc{display:none !important}
 .mqmois+.mqmois>.mqtog{border-top:1px solid var(--trait)}
 #mqCorps .mqmois+.mqmois{margin-top:12px}
 #mqCorps .mqmois:last-child:not(.ouvert){margin-bottom:-12px}
@@ -5447,7 +5450,10 @@ html .eqleg-souris{display:none}
    Sur html::before, et SURTOUT PAS body::before : c'est le fond dégradé de
    l'application (l.196), qu'il avait remplacé en v915. */
 @media (min-width:1100px){
-  html::before{content:""; position:fixed; top:0; left:0; right:0; height:1px; background:#232937; z-index:70; pointer-events:none}
+  /* au-dessus de TOUT (le client, le 22/10/2026 : « la barre de séparation
+     ne s'affiche pas sur tous les onglets ») : à 70, l'espace RH (95), les
+     fenêtres et les fonds la recouvraient ; c'est le bord de la fenêtre */
+  html::before{content:""; position:fixed; top:0; left:0; right:0; height:1px; background:#232937; z-index:2147483000; pointer-events:none}
 }
 /* LE MENU RANGÉ (le client, le 22/10/2026 : « comment organiserais-tu mieux
    les onglets et catégories du menu ? », puis « optimise au maximum »).
@@ -15277,7 +15283,10 @@ function dmCharger(){
 function dmAccordAttendu(x){ return x.statut==="en_attente"&&x.je_remplace&&!(x.accords&&x.accords[(compteBase()||{}).tri]); }
 function dmATraiter(x){
   var r=(compteBase()||{}).base;
-  return x.statut==="en_attente"&&!x.a_moi&&((r==="rh"&&x.attend_rh)||(r==="hierarchie"&&x.attend_cm)||dmAccordAttendu(x));
+  /* remplaçant → contremaître de pause → RH (le client, le 22/10/2026 ;
+     base/23) : l'étape du contremaître se signe par la hiérarchie ou par
+     un compte RH, la confirmation par la RH seule */
+  return x.statut==="en_attente"&&!x.a_moi&&(((r==="rh"||r==="hierarchie")&&x.attend_cm)||(r==="rh"&&x.attend_rh)||dmAccordAttendu(x));
 }
 function wsBadge(){
   var n=wsNbDemandes(), b=document.querySelector('#wsMenu button[data-s="demandes"]');
@@ -15310,7 +15319,7 @@ function dmSupprimer(id,btn,apres){
   });
 }
 function dmStatut(x){
-  if(dmATraiter(x)) return '<span class="dm-st dm-afaire">'+(dmAccordAttendu(x)?'À signer':'À viser')+'</span>';
+  if(dmATraiter(x)) return '<span class="dm-st dm-afaire">'+(dmAccordAttendu(x)?'À signer':x.attend_cm?'À accepter':'À confirmer')+'</span>';
   if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
   if(x.statut==="annulee") return '<span class="dm-st">'+(dmRemplacee(x)?'Modifiée':'Annulée')+'</span>';
@@ -15318,33 +15327,44 @@ function dmStatut(x){
      statuts ») : le remplaçant d'abord ; ensuite le contremaître et la
      RH, dans n'importe quel ordre — on nomme ceux qui n'ont pas encore visé */
   if(x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.rp&&!(x.accords&&x.accords[l.rp]); })) return '<span class="dm-st dm-att">Chez le remplaçant</span>';
-  var cmA=!!x.attend_cm&&!x.cm, rhA=!x.rh;
-  return '<span class="dm-st dm-att">'+(cmA&&rhA?'Chez le contremaître et la RH':cmA?'Chez le contremaître':rhA?'Chez la RH':'En attente')+'</span>';
+  return '<span class="dm-st dm-att">'+(!x.cm?'Chez le contremaître':!x.rh?'Chez la RH':'En attente')+'</span>';
 }
 /* LE CIRCUIT DES SIGNATURES (22/10/2026, le client : « on ne voit pas bien
    qui fait la demande, à qui est le tour de signer, et puis la RH ») : le
    demandeur d'abord, puis chaque signataire dans l'ordre, chacun avec son
    rôle, son nom et son état — signé, à son tour (« à vous » quand c'est le
    lecteur), ensuite, refusé */
+/* QUAND (le client, le 22/10/2026 : « il faut l'heure de signature aussi ») :
+   l'heure toujours ; le jour en mots s'il est proche, sinon en chiffres */
+function dmQuand(ts){
+  var d=ts?new Date(ts):null; if(!d||isNaN(d)) return "";
+  var a=jourUsine(), j=Math.round((new Date(a.getFullYear(),a.getMonth(),a.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
+  return (j===0?"aujourd'hui":j===1?"hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1))+" · "+d.getHours()+"\u00a0h\u00a0"+pad2(d.getMinutes());
+}
 function dmCircuit(x,et,enCours,refus,moi){
   var cours=enCours?et.map(function(z){ return z.ok; }).indexOf(false):-1;
   var rf=refus?et.map(function(z){ return z.ok; }).indexOf(false):-1;
-  var d=x.cree_le?new Date(x.cree_le):null;
-  var h=[{c:"fait",r:"Demandeur",q:x.a_moi?"Vous":idLisible(x.trigramme),e:d&&!isNaN(d)?"le "+pad2(d.getDate())+"/"+pad2(d.getMonth()+1):"envoyée"}];
+  var h=[{c:"fait",r:"Demandeur",q:x.a_moi?"Vous":idLisible(x.trigramme),e:dmQuand(x.cree_le)||"envoyée"}];
+  /* l'attente nommée par ce qu'on attend (le client, le 22/10/2026 : « en
+     attente de signature », et pour le contremaître « en attente
+     d'acceptation ») */
   et.forEach(function(z,i){
-    h.push(z.ok?{c:"fait",r:z.r,q:z.q,e:"signé"}:i===rf?{c:"refus",r:z.r,q:z.q,e:"refusé"}
-      :i===cours?{c:"tour",r:z.r,q:moi?"Vous":z.q,e:moi?"à vous de signer":"à son tour"}
+    h.push(z.ok?{c:"fait",r:z.r,q:z.q,e:dmQuand(z.t)||"signé"}:i===rf?{c:"refus",r:z.r,q:z.q,e:"refusé"+(z.t?" · "+dmQuand(z.t):"")}
+      :i===cours?{c:"tour",r:z.r,q:moi?"Vous":z.q,e:moi?(z.moi||"à vous de signer"):(z.w||"en attente de signature")}
       :{c:"apres",r:z.r,q:z.q,e:enCours?"ensuite":"—"});
   });
   return '<ol class="dm-circ" aria-label="Circuit des signatures">'+h.map(function(z){
-    return '<li class="'+z.c+'"><span class="dm-pt" aria-hidden="true">'+(z.c==="fait"?'✓':z.c==="refus"?'✕':z.c==="tour"?'●':'')+'</span><b>'+esc(z.r)+'</b><small>'+(z.q?'<em>'+esc(z.q)+'</em>':'')+esc(z.e)+'</small></li>'; }).join("")+'</ol>';
+    return '<li class="'+z.c+'"><span class="dm-pt" aria-hidden="true">'+(z.c==="fait"?'✓':z.c==="refus"?'✕':z.c==="tour"?'●':'')+'</span><b>'+esc(z.r)+'</b><small>'+(z.q?'<em>'+esc(z.q)+'</em>':'')+String(z.e).split(" · ").map(function(m){ return /\d/.test(m)?'<span class="dm-nw">'+esc(m)+'</span>':esc(m); }).join(" · ")+'</small></li>'; }).join("")+'</ol>';
 }
 function dmEtapes(x){
   var rps={}, et=[];
   dmLignes(x).forEach(function(l){ if(l.rp) rps[l.rp]=1; });
-  Object.keys(rps).forEach(function(t){ et.push({ok:!!(x.accords&&x.accords[t]),r:"Remplaçant",q:idLisible(t)}); });
-  if(x.cm||x.attend_cm) et.push({ok:!!x.cm,r:"Contremaître",q:x.cm||""});
-  et.push({ok:!!x.rh,r:"RH",q:x.rh||""});
+  Object.keys(rps).forEach(function(t){ var a=x.accords&&x.accords[t]; et.push({ok:!!a,t:typeof a==="string"?a:null,r:"Remplaçant",q:idLisible(t),w:"en attente de signature",moi:"à vous de signer"}); });
+  /* toujours le contremaître de pause, puis la RH (base/23) ; un refus
+     est porté à l'étape où il a été donné */
+  var refCm=x.statut==="refusee"&&x.cm&&!x.rh;
+  et.push({ok:!!x.cm&&!refCm,t:x.cm_le,r:"Contremaître",q:x.cm||"",w:"en attente d'acceptation",moi:"à vous d'accepter"});
+  et.push({ok:!!x.rh&&x.statut!=="refusee",t:x.rh_le,r:"RH",q:x.rh||"",w:"en attente de confirmation",moi:"à vous de confirmer"});
   return dmCircuit(x,et,x.statut==="en_attente",x.statut==="refusee",dmATraiter(x));
 }
 /* le tableau du formulaire, en lecture : jour, pause prévue, ce qui est demandé, remplaçant */
@@ -15390,7 +15410,7 @@ function dmCarte(x,valideur){
   var visa=[]; if(x.rappelable) visa.push("Rappelable"); if(x.a_la_demande) visa.push("À la demande de la ligne hiérarchique"); if(x.restriction) visa.push("Restriction : "+x.restriction); if(x.motivation) visa.push("Motivation : "+x.motivation);
   var act='';
   if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Signer</button></div>';
-  else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Viser</button></div>';
+  else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">'+(x.attend_cm?'Accepter':'Confirmer')+'</button></div>';
   else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>';
   var types=[]; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
   if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
@@ -15415,8 +15435,8 @@ function renderDemandes(){
      contremaître ou la RH vise) */
   var val=GR.section==="valider", hote=document.getElementById(val?"wsVal":"wsDem"), l=GR.demandes;
   var h=[dmTete(val?"valider":"demandes"),val
-    ?dmIntro(dmModule(true)+"Les demandes qui vous arrivent : le remplaçant signe d'abord, puis le contremaître et la RH visent. Acceptée, la demande se pose sur le planning.","")
-    :dmIntro(dmModule(false)+"Votre remplaçant signe, puis le contremaître et la RH visent. Vous suivez chaque étape ici.",
+    ?dmIntro(dmModule(true)+"Les demandes qui vous arrivent : le remplaçant signe, le contremaître de pause accepte, puis la RH confirme et la demande se pose sur le planning.","")
+    :dmIntro(dmModule(false)+"Votre remplaçant signe, le contremaître de pause accepte, puis la RH confirme et l'encode dans l'horaire. Vous suivez chaque étape ici.",
       '<button type="button" class="btn ss-ok" data-dm-nouvelle="1">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; }),
@@ -15539,7 +15559,7 @@ function dmPpVisa(x,f){
   var champ=function(t,v,k){ return '<p class="dm-pp-ch">'+t+' : '+(aViser&&k?'<input type="text" data-pv="'+k+'" value="'+esc(v||"")+'">':'<span>'+esc(v||"")+'</span>')+'</p>'; };
   var h=['<div class="dm-pp-cadre"><p class="dm-pp-sous">Visa du responsable hiérarchique</p>',
     '<p class="dm-pp-ch"><b>Nom '+(f==="sans_solde"?'&amp;':'et')+' prénom</b> : <span>'+(qui.join(" · ")||(aViser?esc(idLisible((compteBase()||{}).tri)):''))+'</span></p>',
-    '<p class="dm-pp-ch">Fonction : <span>'+(x.cm||x.rh?[x.cm?'Contremaître':'',x.rh?'RH':''].filter(Boolean).join(" · "):(aViser?((compteBase()||{}).base==="rh"?'RH':'Contremaître'):''))+'</span></p>'];
+    '<p class="dm-pp-ch">Fonction : <span>'+(x.cm||x.rh?[x.cm?'Contremaître':'',x.rh?'RH':''].filter(Boolean).join(" · "):(aViser?(x.attend_cm?'Contremaître':'RH'):''))+'</span></p>'];
   if(f==="sans_solde"){
     h.push('<p class="dm-pp-ch">⇒ <b>Approbation du congé sans solde</b>: <span>'+appr+'</span></p>');
     h.push(champ('⇒ <b>Restriction</b>',x.restriction,'res'));
@@ -15551,7 +15571,7 @@ function dmPpVisa(x,f){
     h.push('<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" data-pv="mot" value="'+esc(x.motivation||"")+'">':'<span>'+esc(x.motivation||x.motif_refus||"")+'</span>')+'</p>');
     h.push('<div class="dm-pp-cases">'+cb("rap",x.rappelable,"RAPPELABLE")+(f==="courte"?cb("dem",x.a_la_demande,"A LA DEMANDE DE LA LIGNE HIERARCHIQUE"):'')+'</div>');
   }
-  h.push('<p>Signature du Responsable :</p>'+(aViser?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-pp-viser="1">Approuver et signer</button><button type="button" class="dm-pp-refus" data-pp-viser="0">Refuser</button></div>'
+  h.push('<p>Signature du Responsable :</p>'+(aViser?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-pp-viser="1">'+(x.attend_cm?'Accepter et signer':'Confirmer et encoder')+'</button><button type="button" class="dm-pp-refus" data-pp-viser="0">Refuser</button></div>'
     :'<p class="dm-pp-sig">'+(qui.length?'✓ '+qui.join(" · "):'')+'</p>'));
   h.push('<p>Date: '+(x.rh_le||x.cm_le?dmDateFr(new Date(x.rh_le||x.cm_le)):'_____/_____/_____')+'</p></div>');
   return h.join("");
@@ -15570,7 +15590,7 @@ function dmFeuilleVoir(id){
   var pn=dmPpOuvrir((regles.length?'<ul class="dm-regles">'+regles.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')+'<div class="dm-papier">'+dmPpLecture(x)+'</div>',pied);
   pn.querySelector(".pn-corps").addEventListener("click",function(e){
     var b=e.target.closest("[data-pp-accord]");
-    if(b){ b.disabled=true; baseRpc("biowanze_accord_remplacant",{p_id:x.id}).then(function(){ flash("Signé : le contremaître et la RH le voient"); return dmCharger().then(function(){ renderDemandes(); dmFeuilleVoir(x.id); }); }).catch(function(er){ b.disabled=false; flash(baseMsg(er)); }); return; }
+    if(b){ b.disabled=true; baseRpc("biowanze_accord_remplacant",{p_id:x.id}).then(function(){ flash("Signé : la demande part chez le contremaître"); return dmCharger().then(function(){ renderDemandes(); dmFeuilleVoir(x.id); }); }).catch(function(er){ b.disabled=false; flash(baseMsg(er)); }); return; }
     b=e.target.closest("[data-pp-viser]"); if(!b) return;
     var ok=b.getAttribute("data-pp-viser")==="1", v=function(k){ var el=pn.querySelector('[data-pv="'+k+'"]'); return el?(el.type==="checkbox"?el.checked:el.value):null; };
     var mot=ok?v("mot"):(v("motr")||v("mot"));
@@ -15579,7 +15599,7 @@ function dmFeuilleVoir(id){
     baseRpc("biowanze_viser_demande",{p_id:x.id,p_accepte:ok,p_motivation:mot||null,p_rappelable:ok?v("rap"):null,p_a_la_demande:ok?v("dem"):null,p_restriction:ok?v("res")||null:null}).then(function(r){
       r=String(r||"");
       if(/^acceptee/.test(r)){ GR.modifie=true; try{ localStorage.removeItem("base/saisies"); }catch(e){} flash("Demande approuvée : "+(r.split(":")[1]||0)+" jour(s) posé(s) sur le planning"); }
-      else flash(r==="refusee"?"Demande refusée":"Signée de votre côté : elle attend l'autre visa");
+      else flash(r==="refusee"?"Demande refusée":"Acceptée : la demande part à la RH, qui confirme");
       return dmCharger().then(function(){ renderDemandes(); dmFeuilleVoir(x.id); });
     }).catch(function(er){ b.disabled=false; flash(baseMsg(er)); });
   });
@@ -16442,9 +16462,9 @@ function rcStatut(x){
   return '<span class="dm-st dm-att">'+(x.doublure&&!x.zone_le?'Chez le resp. de zone':'Chez la RH')+'</span>';
 }
 function rcEtapes(x){
-  var et=[{ok:!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),r:"Contremaître",q:x.cm_qui||x.cm?idLisible(x.cm_qui||x.cm):""}];
-  if(x.doublure) et.push({ok:!!x.zone_le,r:"Resp. de zone",q:x.zone_qui?idLisible(x.zone_qui):""});
-  et.push({ok:x.statut==="validee",r:"RH",q:x.rh_qui?idLisible(x.rh_qui):""});
+  var et=[{ok:!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),t:x.cm_le,r:"Contremaître",q:x.cm_qui||x.cm?idLisible(x.cm_qui||x.cm):"",w:"en attente de confirmation",moi:"à vous de confirmer"}];
+  if(x.doublure) et.push({ok:!!x.zone_le,t:x.zone_le,r:"Resp. de zone",q:x.zone_qui?idLisible(x.zone_qui):"",w:"en attente de contresignature",moi:"à vous de contresigner"});
+  et.push({ok:x.statut==="validee",t:x.rh_le,r:"RH",q:x.rh_qui?idLisible(x.rh_qui):"",w:"en attente d'enregistrement",moi:"à vous d'enregistrer"});
   return dmCircuit(x,et,rcEnCours(x),x.statut==="refusee",rcATraiter(x));
 }
 function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullYear()+' · '+(x.pause==="N"?"Nuit":x.pause); }

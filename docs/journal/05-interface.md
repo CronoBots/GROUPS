@@ -3460,3 +3460,61 @@ demande, à qui est le tour de signer, et puis la RH ».
 - Vérifié : 320, 390, 1280 px, contremaître simulé, aucune erreur ni
   débordement ; vérificateur, quatre sorties identiques à l'octet ; hors
   ligne.
+
+### Sous-effectifs repliables au PC, filet de la barre de titre partout (22/10/2026, v995)
+
+- Le client : « les onglets sous-effectif ne se replient plus ». Au PC
+  seulement : la grille en colonnes de « Postes en sous-effectif »
+  (`#mqCorps :has(> .mqj){display:grid}`, id + :has) l'emportait sur
+  `.mqmois:not(.ouvert)>.mqmc{display:none}`. Le repli prime désormais
+  (`!important`). Mesuré : les six intertitres repliables de l'onglet
+  Effectifs basculent, à 390 comme à 1280 px (avant : le premier mois de
+  #mqCorps restait en grille, replié ou non).
+- Le client : « la barre de séparation avec la barre de titre ne
+  s'affiche pas sur tous les onglets ». Le filet (`html::before`, z-index
+  70) passait sous l'espace RH (95), les feuilles et les panneaux. Mis
+  au-dessus de tout (il est inerte, `pointer-events:none`). Mesuré par la
+  couleur de la première ligne de pixels : 1280/1280 sur les six onglets,
+  les sept sections de l'espace RH, le formulaire et un panneau ouvert.
+
+### Remplaçant → contremaître de pause → RH, et l'heure des signatures (22/10/2026, v995)
+
+Le client : « il manque l'étape de signature du contremaître de pause,
+c'est lui qui valide la demande, puis la RH confirme et accepte pour que
+cela soit encodé dans l'horaire », puis « redondance de la date du
+demandeur ? Il faut l'heure de signature aussi ; au lieu de “à son tour”,
+“en attente de signature”, et pour le contremaître “en attente
+d'acceptation” ».
+
+- **Erreur de lecture corrigée** : le 21/10, « les contremaîtres et RH »
+  avait été lu « dans n'importe quel ordre », et « la demande d'un cadre
+  n'attend que la RH ». Rien de cela n'avait été dit. Base :
+  `base/23-contremaitre-puis-rh.sql` — toute demande passe par l'étape
+  du contremaître, puis la RH ; la RH n'accepte qu'après ; l'étape du
+  contremaître se signe par un compte hiérarchie ou un compte RH (les
+  seuls comptes validés aujourd'hui sont des comptes RH, dont celui du
+  client), la confirmation RH par un AUTRE compte ; un refus se porte à
+  l'étape où il est donné. Notifications dans l'ordre : contremaître du
+  jour (à défaut, hiérarchie et RH sauf le demandeur), puis la RH quand le
+  contremaître a validé, et le demandeur en est averti.
+- **Trou de sécurité fermé** (`base/24-role-vide.sql`), trouvé en
+  éprouvant : `role_courant()` est NULL pour un compte connecté non
+  validé, et `if NULL not in ('rh','hierarchie') then raise` ne levait
+  rien. Saisir, annuler une saisie, viser et décider étaient ouverts à
+  un tel compte. Les quatre gardes deviennent « rôle vide ou hors liste ».
+- Éprouvé dans un bloc annulé, avec quatre comptes fictifs : non validé
+  → « réservé aux contremaîtres et à la RH » ; RH n° 1 → étape du
+  contremaître (`validee_en_partie`, la liste passe de attend_cm à rien
+  pour lui) ; RH n° 1 encore → refusé (« un autre compte ») ;
+  contremaître après coup → refusé ; RH n° 2 voit attend_rh et accepte,
+  1 jour posé ; notifications dans l'ordre.
+- Application : le circuit montre toujours le contremaître. Chaque
+  signature porte son heure (« aujourd'hui · 21 h 54 », « hier · … »,
+  sinon « 22/10 · … ») ; l'attente est nommée : « en attente de
+  signature » (remplaçant), « en attente d'acceptation » (contremaître),
+  « en attente de confirmation » (RH) ; pour le lecteur « à vous de
+  signer / d'accepter / de confirmer ». Statuts : « Chez le
+  contremaître » puis « Chez la RH » ; à faire : « À accepter »,
+  « À confirmer » ; bouton et feuille « Accepter et signer » ou
+  « Confirmer et encoder ». Recyclage, même circuit : « en attente de
+  confirmation / de contresignature / d'enregistrement ».
