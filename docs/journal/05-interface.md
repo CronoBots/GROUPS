@@ -2973,3 +2973,27 @@ la date, les heures et la durée sur une seule ligne coupaient « 21 h 30 –
 Mesuré pour un contremaître avant sa nuit, et pour un opérateur en poste,
 à 320, 390 et 1280 px : aucun débordement. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### Toucher « Accueil » quand on y est (22/10/2026, v971)
+
+Le client : « si tu es sur l'accueil et que tu appuies sur le bouton
+accueil, l'affichage bugge une fraction de seconde, alors que sur les
+autres onglets non ».
+
+**Cause.** `setView` relançait `renderCompteurs` et `renderRythme`, qui
+reconstruisent tout le héros. « Ma semaine », l'année et les pauses se
+remplissent en différé (`plusTard`) : leurs blocs retombaient vides un
+instant, la page rétrécissait puis se regonflait.
+
+**Correctif.** Dans l'écouteur de la barre d'onglets, toucher Accueil
+quand on y est remonte en haut en douceur et ne reconstruit rien. Les
+autres appels à `setView` (connexion, données reçues) ne changent pas.
+
+**Mesuré.** Avec un observateur des changements de la page :
+
+- avant le correctif, 15 modifications de la page au toucher ;
+- après, 0, et la page est revenue en haut (`scrollY` 0) ;
+- le retour depuis un autre onglet reconstruit toujours l'Accueil (4
+  lignes de pauses), sans erreur.
+
+Les quatre sorties du vérificateur sont identiques à l'octet.
