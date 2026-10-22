@@ -5420,6 +5420,7 @@ html .hp-fab:hover{opacity:1}
 @media (min-width:1100px){
   html #v-horaire>#ctlCard{grid-column:1 / -1}
   html #v-horaire>#semCard{grid-column:1}
+  html #v-horaire:has(>#demCard[hidden])>#semCard{grid-column:1 / -1}
   html #v-horaire>#demCard{grid-column:2}
 }
 /* L'ACCUEIL SUR GRAND ÉCRAN (« optimise tout pour que ce soit vraiment
@@ -5579,7 +5580,11 @@ html .ctl-pa .pl-pa{flex:none}
 @media (hover:hover){ html .ctl-t:hover,html .ctl-i:hover{border-color:var(--in2)} }
 @media (max-width:360px){ html .ctl-t{font-size:11.5px; min-height:70px} }
 @media (min-width:1100px){
-  html .ctl{grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; gap:18px}
+  /* six raccourcis sur une rangée, « À faire » dessous : deux rangées
+     laissaient la moitié droite vide quand rien n'attend */
+  html .ctl{grid-template-columns:minmax(0,1fr); gap:14px}
+  html .ctl-rac{grid-template-columns:repeat(6,minmax(0,1fr))}
+  html .ctl-l{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:8px}
 }
 </style>
 </head>
@@ -15694,7 +15699,11 @@ function renderRythme(){
    la remplace : congé, maladie, formation), un toucher ouvre le jour. */
 function renderMaSemaine(db,person){
   var c=document.getElementById("semCard"), corps=document.getElementById("semCorps"); if(!c||!corps) return;
-  var j0=jourUsine(), j6=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+6), h=[];
+  /* LE JOUR DU CALENDRIER, comme le héros et le calendrier du mois (le
+     client, le 22/10/2026 : « tout est professionnel et optimisé ? ») : à
+     5 h, le jour de l'usine est encore la veille, et la semaine disait
+     « Auj. 21 » sous un héros qui annonçait jeudi 22. */
+  var nc=new Date(), j0=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate()), j6=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+6), h=[];
   for(var i=0;i<7;i++){
     var d=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+i), dbx=horaireDe(d.getFullYear())||db;
     var p=dbx&&dbx.people.filter(function(x){ return x.id===person.id; })[0], md=pad2(d.getMonth()+1)+pad2(d.getDate());
@@ -15768,7 +15777,7 @@ function renderCentre(db,person){
   if(cb) rac.push(["conge","Demander un congé","dmNv",nDem?nDem+" en cours":"formulaire RH"],["rec","Fiche de recyclage","rcNv",nRc?nRc+" en route":"polyvalence"]);
   rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq","aujourd'hui"]);
   if(cb) rac.push(["plan","Horaire production","plan",String(auj0.getFullYear())]);
-  rac.push(["ag","Mon agenda","ag","sur le téléphone"]);
+  rac.push(["ag","Mon agenda","ag","abonnement"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
   var dot=document.getElementById("notifDot");
@@ -16022,6 +16031,11 @@ function renderMesDemandes(){
     document.getElementById("demSub").textContent=l.length?l.length+" en cours":"";
     /* les remplacements à signer et les fiches à confirmer sont dans
        « À faire », en tête de l'Accueil : pas une seconde fois ici */
+    /* RIEN EN COURS NI TRAITÉ : le cadre ne disait que « Aucune demande
+       en cours », avec un « + Nouvelle » que le raccourci « Demander un
+       congé » offre déjà. Il se cache ; il revient dès la première
+       demande. */
+    if(!l.length&&!fait){ c.hidden=true; return; }
     corps.innerHTML=''
       +(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><div class="md-h"><b>'+esc(dmPeriode(x.du,x.au))+'</b>'+dmStatut(x)+'</div>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
