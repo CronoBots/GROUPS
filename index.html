@@ -16853,6 +16853,22 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
       return y!==x && !y.depuisD && nbPostesTenables(y.p,jour)===1; });
   }
   function parId(a,b){ return a.p.id<b.p.id?-1:1; }
+  /* QUI PART D'UN POSTE EN SURNOMBRE (le client, le 22/10/2026, sur la nuit
+     du 28/10 : « ce n'est pas GPO qui doit aller en fermentation vu que PAM
+     est disponible, car GKT remplace QBY »). D'abord celui que rien n'y
+     attache ; celui que le classeur y envoie (« remplace QBY », « remplacé
+     par » le nommant) reste. */
+  function aDeplacer(a,b){ return ((a.parRempl||a.fixe)?1:0)-((b.parRempl||b.fixe)?1:0) || parId(a,b); }
+  /* ET OÙ L'ON CHERCHE : « pour fermentation, terrain, distillation, il faut
+     toujours vérifier, car souvent ces trois postes se comblent seuls avec
+     les personnes disponibles au lieu d'aller chercher à un autre poste ».
+     Un manque de l'un des trois se cherche d'abord dans les deux autres. */
+  var ARRIERE={ferm:1, terr:1, dist:1};
+  function ordreSources(P){
+    if(!ARRIERE[P.k]) return POSTES_TRAVAIL;
+    return POSTES_TRAVAIL.filter(function(Q){ return ARRIERE[Q.k]; })
+      .concat(POSTES_TRAVAIL.filter(function(Q){ return !ARRIERE[Q.k]; }));
+  }
   /* Combien de postes EN MANQUE cette personne saurait-elle tenir ? Un seul,
      et le placer n'est pas une supposition : c'est la seule lecture possible.
      Deux, et c'est un choix que le classeur ne nous a pas donné à faire. */
@@ -16901,14 +16917,15 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
           inconnus.splice(inconnus.indexOf(pris),1);
         }
       }
-      for(j=0;j<POSTES_TRAVAIL.length && !pris;j++){
-        Q=POSTES_TRAVAIL[j];
+      var SRC=ordreSources(P);
+      for(j=0;j<SRC.length && !pris;j++){
+        Q=SRC[j];
         if(Q.k===P.k || Q.cm || !att(Q)) continue;
         liste=parPoste[Q.k]||[];
         if(effectif(liste,Q,jour)<=att(Q)) continue;
         cand=liste.filter(function(x){
           return liberable(x,liste) && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour);
-        }).sort(parId);
+        }).sort(aDeplacer);
         if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
       }
       /* En CASCADE, quand aucun poste en surnombre ne sait tenir P. Le
@@ -17639,6 +17656,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd])
        && !remplPartiel(x.p.d[mmdd]))
       k=atelierDuRemplace(x.p.d[mmdd],parId,x.p,{mmdd:mmdd,jour:jourCalc,presents:presents});
+    if(k) x.parRempl=true;
     /* … ET « REMPLACÉ PAR X » DANS LA CASE DE L'ABSENT (le client, le
        22/10/2026 : « il faut vérifier aussi, lorsqu'il y a des trous, si le
        remplaçant n'était pas nommé dans le commentaire de CKS cette pause
@@ -17648,7 +17666,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
        && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
-      { k=nommes[x.p.id].k; x.nomme=true; }
+      { k=nommes[x.p.id].k; x.nomme=true; x.parRempl=true; }
     if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);

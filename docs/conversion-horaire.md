@@ -1105,6 +1105,34 @@ PBL, autre pause, quelques heures), la bulle du « ? » montre, sous
 « À remplacer », ce que dit la case de l'absent, par exemple « remplacé
 par KDN et FLN ».
 
+### Fermentation, terrain arrière, distillation se comblent entre eux (22/10/2026)
+
+Le client, sur la nuit du 28/10 : « ce n'est pas GPO qui doit aller en
+fermentation, vu que PAM est disponible, car GKT remplace QBY ! Pour
+fermentation, terrain, distillation, il faut toujours vérifier, car
+souvent ces trois postes se comblent seuls avec les personnes disponibles,
+au lieu d'aller chercher à un autre poste ». Cette nuit-là, PAM a
+`["N"]`, GKT `["D","N","remplace QBY"]`, GPO `["N"]` : la distillation
+est en surnombre (PAM et GKT), la fermentation est vide.
+
+Deux règles dans `reequilibrer()` :
+1. **Où l'on cherche** (`ordreSources`) : un manque en fermentation, au
+   terrain arrière ou en distillation se comble d'abord par un surnombre
+   de l'un des deux autres postes, et ensuite seulement ailleurs. Avant,
+   l'ordre des postes (meunerie, gluten, …) faisait trouver GPO au gluten
+   en premier.
+2. **Qui part** (`aDeplacer`) : dans un poste en surnombre, d'abord celui
+   que rien n'y attache ; celui que le classeur y envoie (poste écrit,
+   « remplace X » — `x.parRempl` —, « remplacé par » le nommant) reste.
+   Avant, l'ordre alphabétique aurait pris GKT plutôt que PAM.
+
+Sur l'année : 50 journées changent au Planning, le plus souvent
+« GPO (gluten) → fermentation » devenu « PAM (distillation) →
+fermentation », d'octobre à décembre. Les manques et les compteurs sont
+identiques. Les recyclages changent pour FPA, FPS, PLZ et QBY : celui que
+son commentaire attache au poste n'est plus déplacé, et ses journées
+comptent.
+
 ### « Poly. Etoh » est un terrain arrière
 
 **Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et
