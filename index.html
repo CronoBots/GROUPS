@@ -2642,6 +2642,8 @@ html .hs-ju{display:inline; padding:0; border:0; background:none; font:inherit; 
 html .hs-ju[aria-pressed="true"]{font-weight:700}
 html .hs-case{display:inline-block; width:1.3em; font-size:15px}
 html .hs-n{width:58px}
+html .hs-tot{margin:0 0 12px; padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); font-size:12.5px; line-height:1.5; color:var(--muted)}
+html .hs-tot b{color:var(--ink)}
 html .hs-pt{color:#555; font-size:.92em}
 html .hs-prime{display:inline-block; margin-left:4px; padding:0 6px; border-radius:5px; background:#fff3c4; color:#6a4b00; font-weight:700; font-size:.88em}
 /* au téléphone, le circuit se lit de haut en bas : à 320 px, quatre étapes
@@ -15331,7 +15333,9 @@ function dmATraiter(x){
   /* remplaçant → contremaître de pause → RH (le client, le 22/10/2026 ;
      base/23) : l'étape du contremaître se signe par la hiérarchie ou par
      un compte RH, la confirmation par la RH seule */
-  return x.statut==="en_attente"&&!x.a_moi&&(((r==="rh"||r==="hierarchie")&&x.attend_cm)||(r==="rh"&&x.attend_rh)||dmAccordAttendu(x));
+  /* le remplaçant (un contremaître dans un changement de pause) ne vise
+     pas la feuille où il figure (le client, le 23/10/2026 ; base/27) */
+  return x.statut==="en_attente"&&!x.a_moi&&((!x.je_remplace&&(((r==="rh"||r==="hierarchie")&&x.attend_cm)||(r==="rh"&&x.attend_rh)))||dmAccordAttendu(x));
 }
 function wsBadge(){
   var n=wsNbDemandes(), b=document.querySelector('#wsMenu button[data-s="demandes"]');
@@ -16426,11 +16430,11 @@ function renderCentre(db,person){
     var nr=L.filter(dmAccordAttendu).length; if(nr) faire.push(["signer",nr+" remplacement"+(nr>1?"s":"")+" à signer","un collègue vous demande de le remplacer",nr]);
     var nv=val?L.filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); }).length:0; if(nv) faire.push(["viser",nv+" demande"+(nv>1?"s":"")+" de congé à viser","remplacement signé, en attente de votre visa",nv]);
     var rc=R.filter(rcATraiter); if(rc.length) faire.push(["rcfaire",rc.length+" fiche"+(rc.length>1?"s":"")+" de recyclage à "+(rc.every(function(x){ return x.je_confirme; })?"confirmer":"traiter"),"recyclage « polyvalence »",rc.length]);
-    var hv=(GR.hs||[]).filter(hsATraiter); if(hv.length) faire.push(["hsfaire",hv.length+" demande"+(hv.length>1?"s":"")+" d'heures supplémentaires à viser","approbation, restriction ou refus",hv.length]);
+    var hv=(GR.hs||[]).filter(hsATraiter); if(hv.length) faire.push(["hsfaire",hv.length+" demande"+(hv.length>1?"s":"")+" d'heures supplémentaires à "+(hv.every(function(x){ return x.j_enregistre; })?"enregistrer":"traiter"),"visa du responsable, puis enregistrement RH",hv.length]);
     /* ses demandes de congé en cours ont leur cadre, juste en dessous */
     R.filter(function(x){ return x.a_moi&&rcEnCours(x); }).forEach(function(x){
       var dj=dmJour(x.jour); route.push(["rcmoi","Recyclage "+x.fonction+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),rcStatut(x)]); });
-    (GR.hs||[]).filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).forEach(function(x){
+    (GR.hs||[]).filter(function(x){ return x.a_moi&&hsEnCours(x); }).forEach(function(x){
       var dj=dmJour(x.jour); route.push(["hsmoi","Heures sup. "+hsDuree(x.minutes)+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),hsStatut(x)]); });
   }
   var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>'];
@@ -16720,10 +16724,18 @@ var HS_JUSTIFS=[["demande","suite à une demande explicite du responsable"],
   ["rappel","suite à un rappel"]];
 function hsCharger(){
   if(!compteBase()) return Promise.resolve([]);
-  return baseRpc("biowanze_liste_hs",{}).then(function(l){ GR.hs=l||[]; wsBadge(); return GR.hs; });
+  return baseRpc("biowanze_liste_hs2",{}).then(function(l){ GR.hs=l||[]; wsBadge(); return GR.hs; });
 }
-function hsATraiter(x){ return !!x.je_vise&&!x.a_moi; }
-function hsGenre(x){ return hsATraiter(x)?"faire":x.statut==="approuvee"?"ok":x.statut==="refusee"?"non":"att"; }
+/* demandeur → responsable d'équipe (visa) → RH, qui enregistre (le client,
+   le 23/10/2026 : « oui, comme pour les congés » ; base/27) */
+function hsATraiter(x){ return !x.a_moi&&!!(x.je_vise||x.j_enregistre); }
+function hsEnregistree(x){ return x.statut==="approuvee"&&!!x.rh_le; }
+function hsEnCours(x){ return x.statut==="en_attente"||(x.statut==="approuvee"&&!x.rh_le); }
+function hsGenre(x){ return hsATraiter(x)?"faire":hsEnregistree(x)?"ok":x.statut==="refusee"?"non":"att"; }
+/* HS ou flex time (le client, le 23/10/2026 : « le flex time, c'est par
+   heure, tandis que les HS se prennent par quart d'heure ») */
+var HS_TYPES=[["HS","HS"],["FT","Flex time"]];
+function hsTag(x){ return '<span class="dm-type">'+(x.type==="FT"?"FT":"HS")+' · '+hsDuree(x.minutes)+'</span>'; }
 function hsDuree(m){ m=Number(m)||0; return Math.floor(m/60)+' h'+(m%60?' '+pad2(m%60):''); }
 function hsLib(liste,k){ var r=liste.filter(function(z){ return z[0]===k; })[0]; return r?r[1]:""; }
 /* l'horaire prévu ce jour-là, lu dans l'horaire : la pause, ou repos, ou congé */
@@ -16734,14 +16746,17 @@ function hsHorairePrevu(tri,iso){
   return grFamille(c)&&grFamille(c)!=="poste"?"conge":"";
 }
 function hsStatut(x){
-  if(hsATraiter(x)) return '<span class="dm-st dm-afaire">À viser</span>';
-  if(x.statut==="approuvee") return '<span class="dm-st dm-ok">'+(x.restriction?'Approuvée, restreinte':'Approuvée')+'</span>';
+  if(hsATraiter(x)) return '<span class="dm-st dm-afaire">'+(x.j_enregistre?'À enregistrer':'À viser')+'</span>';
+  if(hsEnregistree(x)) return '<span class="dm-st dm-ok">'+(x.restriction?'Enregistrée, restreinte':'Enregistrée')+'</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
-  return '<span class="dm-st dm-att">Chez le responsable</span>';
+  return '<span class="dm-st dm-att">'+(x.statut==="approuvee"?'Chez la RH':'Chez le responsable')+'</span>';
 }
 function hsEtapes(x){
-  return dmCircuit(x,[{ok:x.statut==="approuvee",t:x.visa_le,r:"Responsable",q:x.visa_qui||x.responsable?idLisible(x.visa_qui||x.responsable):"",w:"en attente de visa",moi:"à vous de viser"}],
-    x.statut==="en_attente",x.statut==="refusee",hsATraiter(x));
+  var refRh=x.statut==="refusee"&&!!x.rh_le;
+  return dmCircuit(x,[
+    {ok:!!x.visa_le&&(x.statut==="approuvee"||refRh),t:x.visa_le,r:"Responsable",q:x.visa_qui||x.responsable?idLisible(x.visa_qui||x.responsable):"",w:"en attente de visa",moi:"à vous de viser"},
+    {ok:hsEnregistree(x),t:x.rh_le,r:"RH",q:x.rh_qui?idLisible(x.rh_qui):"",w:"en attente d'enregistrement",moi:"à vous d'enregistrer"}],
+    hsEnCours(x),x.statut==="refusee",hsATraiter(x));
 }
 function hsQuoi(x){
   var j=x.justif==="rappel"&&x.rappel_de?'rappel de '+esc(x.rappel_de):esc({demande:"à la demande du responsable",necessaire:"travail nécessaire",prolongation:"prolongation de pause",rappel:"rappel"}[x.justif]||"");
@@ -16749,35 +16764,44 @@ function hsQuoi(x){
 }
 function hsCarte(x){
   var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
-  var tag='<span class="dm-type">'+hsDuree(x.minutes)+'</span>';
-  var act='<div class="dm-act"><button type="button" class="'+(hsATraiter(x)?'btn ss-ok':'btnlike')+'" data-hs-voir="'+x.id+'">'+(hsATraiter(x)?'Viser':'Voir la feuille')+'</button>'
+  var tag=hsTag(x);
+  var act='<div class="dm-act"><button type="button" class="'+(hsATraiter(x)?'btn ss-ok':'btnlike')+'" data-hs-voir="'+x.id+'">'+(x.j_enregistre&&!x.a_moi?'Enregistrer':hsATraiter(x)?'Viser':'Voir la feuille')+'</button>'
     +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-hs-suppr="'+x.id+'">Retirer</button>':'')+'</div>';
   return '<article class="dm-carte dm-g-'+hsGenre(x)+(hsATraiter(x)?' dm-a-faire':'')+'" data-hs="'+x.id+'">'
     +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>Heures sup.'+tag+'</b>'+hsQuoi(x)+'</span>'
       :'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+hsStatut(x)+'</header>'
     +(x.a_moi?'':'<div class="dm-quoi"><b>Heures supplémentaires</b>'+tag+hsQuoi(x)+'</div>')
-    +(x.statut==="refusee"&&x.motif_refus?'<p class="dm-texte dm-motif">Motif : '+esc(x.motif_refus)+'</p>':'')
+    +(x.statut==="refusee"&&(x.rh_motif||x.motif_refus)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.motif_refus)+'</p>':'')
     +hsEtapes(x)+act+'</article>';
 }
 function renderHs(){
   var val=GR.section==="valider-hs", hote=document.getElementById(val?"wsValHs":"wsHs"), l=GR.hs;
   var h=[dmTete(val?"valider-hs":"heures"),val
-    ?dmIntro(dmModule(true)+"Les heures supplémentaires qui vous arrivent : le responsable hiérarchique les approuve, avec ou sans restriction, ou les refuse.","")
-    :dmIntro(dmModule(false)+"Après une prestation au-delà de votre horaire : la demande part chez votre responsable d'équipe, qui la vise.",
+    ?dmIntro(dmModule(true)+"Les heures supplémentaires qui vous arrivent : le responsable d'équipe les vise (approbation, restriction ou refus), puis la RH les enregistre.","")
+    :dmIntro(dmModule(false)+"Après une prestation au-delà de votre horaire, en HS ou en flex time : votre responsable d'équipe la vise, puis la RH l'enregistre.",
       '<button type="button" class="btn ss-ok" data-hs-nouvelle="1">+ Nouvelle demande</button>')];
   if(l===null||l===undefined){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; hsBrancher(); hsCharger().then(renderHs,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; hsBrancher(); }); return; }
   var autres=l.filter(function(x){ return !x.a_moi; }), miennes=l.filter(function(x){ return x.a_moi; });
   var afaire=autres.filter(hsATraiter).length;
   if(!val&&GR.ongletAutoHs&&afaire){ GR.ongletAutoHs=false; GR.hsOngletV="traiter"; wsAller("valider-hs"); return; }
   var cle=val?"hsOngletV":"hsOnglet", onglets=val
-    ?[["traiter","À traiter",afaire],["cours","En cours",autres.filter(function(x){ return x.statut==="en_attente"&&!hsATraiter(x); }).length],["faites","Traitées",0]]
-    :[["miennes","En cours",miennes.filter(function(x){ return x.statut==="en_attente"; }).length],["histo","Historique",0]];
+    ?[["traiter","À traiter",afaire],["cours","En cours",autres.filter(function(x){ return hsEnCours(x)&&!hsATraiter(x); }).length],["faites","Traitées",0]]
+    :[["miennes","En cours",miennes.filter(hsEnCours).length],["histo","Historique",0]];
   if(!GR[cle]||GR.ongletAutoHs){ GR.ongletAutoHs=false; GR[cle]=val?(afaire?"traiter":"cours"):"miennes"; }
   if(!onglets.some(function(o){ return o[0]===GR[cle]; })) GR[cle]=onglets[0][0];
   h.push('<div class="pl-seg dm-onglets" data-hs-onglets="1">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR[cle]===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
   var o=GR[cle], f=val
-    ?autres.filter(function(x){ return o==="traiter"?hsATraiter(x):o==="cours"?x.statut==="en_attente"&&!hsATraiter(x):x.statut!=="en_attente"; })
-    :miennes.filter(function(x){ return o==="miennes"?x.statut==="en_attente":x.statut!=="en_attente"; });
+    ?autres.filter(function(x){ return o==="traiter"?hsATraiter(x):o==="cours"?hsEnCours(x)&&!hsATraiter(x):!hsEnCours(x); })
+    :miennes.filter(function(x){ return o==="miennes"?hsEnCours(x):!hsEnCours(x); });
+  /* LE SUIVI (le client, le 23/10/2026 : « cela permettra d'avoir toutes
+     les heures supplémentaires dont on n'avait pas de suivi avant ») : les
+     heures enregistrées de l'année, HS et flex time à part */
+  var an=jourUsine().getFullYear(), tot={HS:0,FT:0}, enc={HS:0,FT:0};
+  (val?autres:miennes).forEach(function(x){ if(Number(String(x.jour).slice(0,4))!==an) return; var t=x.type==="FT"?"FT":"HS";
+    if(hsEnregistree(x)) tot[t]+=x.minutes; else if(hsEnCours(x)) enc[t]+=x.minutes; });
+  function parts(o){ return [o.HS?'HS '+hsDuree(o.HS):'',o.FT?'flex time '+hsDuree(o.FT):''].filter(Boolean).join(' · '); }
+  if(tot.HS||tot.FT||enc.HS||enc.FT) h.push('<p class="hs-tot"><b>'+an+(val?', toutes les personnes':'')+'</b> · enregistrées : '+(parts(tot)||'aucune')
+    +(enc.HS||enc.FT?' · en cours : '+parts(enc):'')+'</p>');
   f=f.slice().sort(function(a,b){ return String(b.jour||"").localeCompare(String(a.jour||"")); });
   h.push(f.length?'<div class="dm-liste">'+dmGroupes(f,function(x){ return x.jour; },hsCarte)+'</div>'
     :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à viser : toutes les demandes ont reçu votre réponse.':o==="cours"?'Aucune demande en route chez quelqu\'un d\'autre.':o==="miennes"?'Aucune demande en cours. « Nouvelle demande » après des heures prestées au-delà de votre horaire.':'Aucune demande traitée pour l\'instant.')+'</p></div>');
@@ -16814,9 +16838,9 @@ function hsFeuille(x){
   var np=neuf?((p&&grNom(p))||idLisible(moi||"")):([x.prenom,x.nom].filter(Boolean).join(" ")||(p&&grNom(p))||idLisible(tri));
   var auj=new Date(jourUsine()), isoAuj=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
   function respDu(iso){ var c=rcContremaitre(iso,rcPauseDe(moi,iso)); return c&&c!==moi?c:""; }
-  var etat=neuf?{j:isoAuj,hor:hsHorairePrevu(moi,isoAuj),h:"",m:"",ju:"",jt:"",rd:"",resp:respDu(isoAuj)}
-    :{j:x.jour,hor:x.horaire,h:Math.floor(x.minutes/60),m:x.minutes%60,ju:x.justif,jt:x.justif_texte||"",rd:x.rappel_de||"",resp:x.responsable||""};
-  var aViser=!neuf&&hsATraiter(x);
+  var etat=neuf?{t:"HS",j:isoAuj,hor:hsHorairePrevu(moi,isoAuj),h:"",m:"0",ju:"",jt:"",rd:"",resp:respDu(isoAuj)}
+    :{t:x.type||"HS",j:x.jour,hor:x.horaire,h:Math.floor(x.minutes/60),m:x.minutes%60,ju:x.justif,jt:x.justif_texte||"",rd:x.rappel_de||"",resp:x.responsable||""};
+  var aViser=!neuf&&!x.a_moi&&!!x.je_vise, aEnr=!neuf&&!x.a_moi&&!!x.j_enregistre;
   var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(u,v){ return u.id<v.id?-1:1; });
   function choix(liste,val,cle,actif){
     return liste.map(function(z,i){ return (i?' / ':'')+(actif?'<button type="button" class="rc-mot" data-'+cle+'="'+esc(z[0])+'" aria-pressed="'+(z[0]===val)+'">'+esc(z[1])+'</button>':'<span class="rc-mot'+(z[0]===val?' rc-pris':'')+'">'+esc(z[1])+'</span>'); }).join("");
@@ -16833,7 +16857,11 @@ function hsFeuille(x){
       '<p>Prestation de temps supplémentaire :</p><ul class="hs-l">',
       '<li><b>date</b> : '+(ed?'<input type="date" id="hsJour" value="'+esc(etat.j)+'" max="'+isoAuj+'">':'<span>'+dmDateFr(dmJour(etat.j))+'</span>')+'</li>',
       '<li class="rc-choix"><b>horaire prévu</b> : '+choix(HS_HORAIRES,etat.hor,"hh",ed)+'</li>',
-      '<li><b>durée de prestations supplémentaires</b> : '+(ed?'<input type="number" id="hsH" class="hs-n" min="0" max="24" inputmode="numeric" value="'+esc(etat.h)+'"> h <input type="number" id="hsM" class="hs-n" min="0" max="59" step="5" inputmode="numeric" value="'+esc(etat.m)+'"> min':'<span>'+hsDuree(x.minutes)+'</span>')+'</li>',
+      /* HS ou flex time : l'option que le client a demandée, hors du papier */
+      '<li class="rc-choix"><b>à prendre en</b> : '+choix(HS_TYPES,etat.t,"ht",ed)+(ed?' <i class="hs-pt">'+(etat.t==="FT"?'(le flex time se prend par heure entière)':'(les HS se prennent par quart d\'heure)')+'</i>':'')+'</li>',
+      '<li><b>durée de prestations supplémentaires</b> : '+(ed?'<input type="number" id="hsH" class="hs-n" min="0" max="24" inputmode="numeric" value="'+esc(etat.h)+'"> h'
+        +(etat.t==="FT"?'':' <select id="hsM" class="hs-n">'+[0,15,30,45].map(function(v){ return '<option value="'+v+'"'+(Number(etat.m)===v?' selected':'')+'>'+pad2(v)+'</option>'; }).join("")+'</select> min')
+        :'<span>'+(x.type==="FT"?'Flex time':'HS')+' · '+hsDuree(x.minutes)+'</span>')+'</li>',
       '<li><b>justification :</b><ul class="hs-j">'+HS_JUSTIFS.map(function(z){
         var pris=etat.ju===z[0], boite='<span class="hs-case" aria-hidden="true">'+(pris?'☑':'☐')+'</span>';
         var plus=z[0]==="necessaire"?(ed&&pris?' : <input type="text" id="hsJt" value="'+esc(etat.jt)+'" placeholder="le travail fait">':(!ed&&pris&&etat.jt?' : <b>'+esc(etat.jt)+'</b>':''))
@@ -16853,7 +16881,12 @@ function hsFeuille(x){
       '<p class="dm-pp-ch">⇒ <b>Refus</b> : <span>'+(fait&&x.statut==="refusee"?'✗ refusée':'')+'</span></p>',
       '<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" id="hsMotR">':'<span>'+esc(fait&&x.motif_refus||"")+'</span>')+'</p>',
       '<p>Signature du responsable :</p>'+(aViser?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-hs-act="1">Approuver et signer</button><button type="button" class="dm-pp-refus" data-hs-act="0">Refuser</button></div>'
-        :(fait?'<p class="dm-pp-sig">'+(x.statut==="refusee"?'✗ ':'✓ ')+esc(idLisible(x.visa_qui||""))+(x.visa_le?', '+dmSigLe(new Date(x.visa_le)):'')+'</p>':'<p>&nbsp;</p>')),'</div>');
+        :(fait?'<p class="dm-pp-sig">'+(x.statut==="refusee"&&!x.rh_le?'✗ ':'✓ ')+esc(idLisible(x.visa_qui||""))+(x.visa_le?', '+dmSigLe(new Date(x.visa_le)):'')+'</p>':'<p>&nbsp;</p>')),'</div>');
+    /* puis la RH enregistre (le client, le 23/10/2026 : « comme pour les
+       congés ») : un cadre que le papier n'a pas, à la manière du recyclage */
+    h.push('<div class="dm-pp-cadre"><p class="dm-pp-sous">Validation et enregistrement par le Bureau RH :</p>'
+      +(aEnr?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-hs-rh="1">Enregistrer</button><button type="button" class="dm-pp-refus" data-hs-rh="0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="hsRhMot"></p>'
+        :(!neuf&&x.rh_le?(x.statut==="refusee"?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.rh_qui||""))+'</span>'+(x.rh_motif?'<p class="dm-pp-ch dm-pp-in"><i>Motif</i> : <span>'+esc(x.rh_motif)+'</span></p>':''):sig(x.rh_qui,x.rh_le)):'<p>&nbsp;</p>'))+'</div>');
     return h.join("");
   }
   var pied=neuf?'<button type="button" class="btn ss-ok" id="hsSigner">Signer et envoyer</button>'
@@ -16869,6 +16902,17 @@ function hsFeuille(x){
   pap.addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b) return;
     if(b.hasAttribute("data-hh")){ etat.hor=b.getAttribute("data-hh"); dessiner(); return; }
+    if(b.hasAttribute("data-ht")){ lire(); etat.t=b.getAttribute("data-ht"); if(etat.t==="FT") etat.m="0"; pap.innerHTML=corps(); return; }
+    var rh=b.getAttribute("data-hs-rh");
+    if(rh!==null){
+      var mo=((pap.querySelector("#hsRhMot")||{}).value||"").trim();
+      if(rh==="0"&&!mo){ err.textContent="Un refus se motive : écrivez le motif."; var mi=pap.querySelector("#hsRhMot"); if(mi) mi.focus(); return; }
+      b.disabled=true;
+      baseRpc("biowanze_enregistrer_hs",{p_id:x.id,p_ok:rh==="1",p_motif:mo||null})
+        .then(function(){ flash(rh==="1"?"Heures supplémentaires enregistrées":"Demande refusée"); return hsRelire(x.id); })
+        .catch(function(er){ b.disabled=false; err.textContent=baseMsg(er); });
+      return;
+    }
     if(b.hasAttribute("data-ju")){ etat.ju=b.getAttribute("data-ju"); dessiner(); var f=pap.querySelector(etat.ju==="necessaire"?"#hsJt":"#hsRd"); if(f) try{ f.focus(); }catch(er){} return; }
     var act=b.getAttribute("data-hs-act"); if(act===null) return;
     var ok=act==="1", v=function(i){ return ((pap.querySelector(i)||{}).value||"").trim(); };
@@ -16894,12 +16938,14 @@ function hsFeuille(x){
     if(!etat.j){ err.textContent="La date de la prestation manque."; return; }
     if(!etat.hor){ err.textContent="Choisissez l'horaire prévu ce jour-là."; return; }
     if(!(min>0)){ err.textContent="Donnez la durée des prestations supplémentaires."; return; }
+    if(etat.t==="HS"&&min%15){ err.textContent="Les HS se prennent par quart d'heure."; return; }
+    if(etat.t==="FT"&&min%60){ err.textContent="Le flex time se prend par heure entière."; return; }
     if(!etat.ju){ err.textContent="Cochez la justification."; return; }
     if(etat.ju==="necessaire"&&!String(etat.jt).trim()){ err.textContent="Dites en quelques mots le travail nécessaire."; return; }
     if(etat.ju==="rappel"&&!String(etat.rd).trim()){ err.textContent="Nommez le responsable qui vous a rappelé."; return; }
     bs.disabled=true;
-    baseRpc("biowanze_demander_hs",{p_jour:etat.j,p_horaire:etat.hor,p_minutes:min,p_justif:etat.ju,p_justif_texte:etat.ju==="necessaire"?etat.jt:null,p_rappel_de:etat.ju==="rappel"?etat.rd:null,p_responsable:etat.resp||null,p_texte:null})
-      .then(function(){ flash(etat.resp?"Envoyée : "+idLisible(etat.resp)+" la reçoit pour visa":"Envoyée : la hiérarchie et la RH la reçoivent"); grFermerPanneau(); GR.hsOnglet="miennes"; return hsRelire(); })
+    baseRpc("biowanze_demander_hs",{p_type:etat.t,p_jour:etat.j,p_horaire:etat.hor,p_minutes:min,p_justif:etat.ju,p_justif_texte:etat.ju==="necessaire"?etat.jt:null,p_rappel_de:etat.ju==="rappel"?etat.rd:null,p_responsable:etat.resp||null,p_texte:null})
+      .then(function(){ flash(etat.resp?"Envoyée : "+idLisible(etat.resp)+" la reçoit pour visa, puis la RH":"Envoyée : la hiérarchie et la RH la reçoivent"); grFermerPanneau(); GR.hsOnglet="miennes"; return hsRelire(); })
       .catch(function(er){ bs.disabled=false; err.textContent=baseMsg(er); });
   };
   var su=pn.querySelector("#hsSuppr"); if(su) su.onclick=function(){ hsSupprimer(x.id,su,function(){ grFermerPanneau(); }); };

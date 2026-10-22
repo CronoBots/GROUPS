@@ -3602,3 +3602,41 @@ chaque caractère décalé de 29 : décodé avant lecture).
 - Vérifié : 320 et 1280 px, remplir, envoyer (195 min, prolongation,
   prime affichée), viser avec restriction ; messages d'erreur ; aucune
   erreur ni débordement.
+
+### Heures supplémentaires : la RH enregistre, HS ou flex time ; les signataires impliqués (23/10/2026, v999)
+
+Les réponses du client aux questions du matin (retirées de
+`docs/questions-client.md`) :
+
+- « Après le visa du responsable, la RH doit-elle confirmer ou enregistrer
+  la demande, comme pour les congés ? — Oui. » Circuit : demandeur →
+  responsable d'équipe (« c'est bien le contremaître de la pause ce
+  jour-là ? — Oui ») → RH, qui enregistre ou refuse (motivé), jamais avec
+  le compte qui a visé. Sans toucher à la contrainte du statut (il
+  faudrait la supprimer) : « approuvee » sans `rh_le` = chez la RH, avec
+  `rh_le` = enregistrée.
+- « Il faut ajouter l'option HS ou Flex time ; le flex time c'est par
+  heure, les HS par quart d'heure. » Colonne `type` ; la base refuse une
+  durée HS hors du quart d'heure et une durée FT hors de l'heure entière
+  (contrainte `heures_sup_pas`) ; la feuille propose « à prendre en : HS /
+  Flex time », les minutes 00, 15, 30, 45 pour les HS, rien pour le FT.
+  « Cela permettra d'avoir toutes les heures supplémentaires dont on
+  n'avait pas de suivi avant » : chaque liste dit les heures de l'année,
+  enregistrées et en cours, HS et flex time à part (les siennes ; à la RH
+  et à la hiérarchie, celles de tous).
+- « Les 2 contremaîtres impliqués dans une demande de changement de pause
+  ne peuvent pas signer leurs feuilles » : celui qui figure comme
+  remplaçant sur une demande de congé ne signe ni l'étape du contremaître
+  ni celle de la RH (`biowanze_decider_demande`, et l'application ne la
+  lui propose plus) ; le demandeur ne signait déjà pas la sienne. « Pour
+  les heures supplémentaires de contremaître, le contremaître ne peut pas
+  non plus signer sa feuille » : déjà la règle, vérifiée.
+- Base : `base/27-hs-rh-et-type.sql` (colonnes, deux contraintes,
+  `biowanze_demander_hs` à neuf arguments, `biowanze_liste_hs2`,
+  `biowanze_enregistrer_hs`, notifications dans l'ordre ; aucune
+  suppression). Éprouvé dans un bloc annulé : HS 70 min et FT 90 min
+  refusés ; FT 120 min créé ; RH avant visa refusée ; visa puis
+  enregistrement ; le remplaçant contremaître refusé, un autre signataire
+  accepté.
+- Application : vérifiée à 320 et 1280 px — FT sans minutes, envoi
+  `p_type` FT, visa avec restriction, enregistrement RH ; totaux.
