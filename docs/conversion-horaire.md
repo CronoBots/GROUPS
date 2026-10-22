@@ -1133,6 +1133,23 @@ identiques. Les recyclages changent pour FPA, FPS, PLZ et QBY : celui que
 son commentaire attache au poste n'est plus déplacé, et ses journées
 comptent.
 
+### … et, entre ces trois postes, d'office (22/10/2026)
+
+Le client, sur le 11/11 PM : « pourquoi PAM n'est pas en fermentation ? ».
+QBY tient la distillation, PAM y est en trop, et la fermentation est
+vide. Le Planning se contentait de le proposer (règle du 20/10). Entre
+fermentation, terrain arrière et distillation, le déplacement se fait
+désormais d'office, aux mêmes conditions que les autres placements
+d'office :
+- le poste qu'il quitte reste tenu sans lui ;
+- celui où on le porte manquerait sans lui.
+
+Le badge garde le pointillé, et sa bulle dit « Placé par l'application :
+Distillation → Fermentation ; le poste Distillation reste tenu sans lui ».
+Ce déplacement n'est plus « à prévenir ». Un placement fait par
+l'application ne compte pas comme recyclage : rien dans le classeur
+n'écrit que la personne a tenu le poste.
+
 ### « Poly. Etoh » est un terrain arrière
 
 **Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et

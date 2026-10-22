@@ -2565,3 +2565,35 @@ quand personne n'est absent : le titulaire présent mais placé ailleurs
 place ». La première formule, « pas de titulaire à ce poste », était
 fausse au gluten du 22/01 PM : il y attend deux personnes et un titulaire
 est là. Vérifié le 28/10 N et le 22/01.
+
+### Le 11/11 : le terrain arrière « complet mais cherché », et PAM (22/10/2026, `nfdm-v955`)
+
+Le client : « terrain arrière complet, mais tu cherches un remplaçant ?
+Et pourquoi PAM n'est pas en fermentation ? »
+
+**Le faux « ? » du terrain arrière** (11/11 AM, SBZ et GKT présents,
+« 0/1 »). Au terrain arrière, `tenu` n'est pas une somme : c'est le
+nombre de polyvalents arrière, ou, à défaut, celui des renforts
+(`postesDePause`). Le Planning, en remettant les propositions à leur
+place (`renderEquipe`), faisait `tenu--` à chaque départ. AAI, porté au
+terrain arrière par le rééquilibrage puis rendu à la distillation, ôtait
+donc 1 à un compte auquel il n'avait rien ajouté. Trouvé par une trace
+dans le navigateur (`DBG terr 1111 0 1 1 SBZ GKT`). Désormais
+`tenuDuPoste()` recompte à chaque déplacement, avec la règle de
+`postesDePause`.
+
+**Erreurs de la première version**
+- `tenuDuPoste` écartait les copies venues du D. La meunerie du matin
+  compte pourtant son consignateur (« 8-16 ») : 4 journées gagnaient un
+  « ? ».
+- `verifier-calendrier.js` ne connaissait pas `ARRIERE_POSTES`.
+
+**PAM** : voir `docs/conversion-horaire.md`, « … et, entre ces trois
+postes, d'office ».
+
+**Mesuré** (`plan-an.js`, 365 jours)
+- Planning : 121 journées changent, 119 « ? » disparaissent, aucun
+  n'apparaît.
+- Effectifs : cette semaine, « Rien à signaler ».
+- Les quatre sorties du vérificateur sont identiques à l'octet :
+  l'affichage seul a changé.
