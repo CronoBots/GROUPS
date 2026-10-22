@@ -41,6 +41,19 @@ des questions au client ».
    la ligne Contremaître, à côté du titulaire, avec leurs heures ? La prime
    ne change pas.
 
+5. **Qui est le « responsable de zone » de la fiche de recyclage ?**
+   (posée le 22/10/2026) La fiche papier exige sa signature pour un
+   recyclage en doublure. En attendant, n'importe quel compte hiérarchie
+   ou RH peut contresigner (la base n'a aujourd'hui que des comptes RH).
+   Dites qui, et la base le réservera à ces personnes.
+6. **Le contremaître d'une demande de congé attend-il le remplaçant ?**
+   (posée le 22/10/2026) La RH ne reçoit la demande qu'une fois le
+   remplacement signé ; le contremaître, lui, peut viser tout de suite.
+7. **Bloquer dans la base la suppression d'une demande signée par le
+   remplaçant ?** (posée le 22/10/2026) L'écran ne propose plus
+   « Supprimer » après une signature ; la base, elle, ne refuse qu'après
+   le visa du contremaître ou de la RH.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
