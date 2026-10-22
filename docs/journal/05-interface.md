@@ -3152,3 +3152,35 @@ défilement.
 
 Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### « Demandes » repris en entier (22/10/2026, v979)
+
+Le client, captures des deux côtés : « optimise cela 100 % pro ».
+
+**Défauts relevés :**
+
+- deux paragraphes de trois lignes avant toute action ;
+- « + Nouvelle fiche » en bouton fantôme pleine largeur pour un
+  contremaître (`btnlike` quand `peutSaisir`) ;
+- une carte qui redisait l'onglet (« Ma fiche ») et le sélecteur
+  (« RECYCLAGE · FERMENTATION » en capitales) ;
+- la date coupée en deux lignes (« Me 21 oct. 2026 · / PM ») ;
+- des boutons longs (« Ouvrir la fiche pour confirmer ») ;
+- « Aucune demande. » collé au bord haut de sa carte.
+
+**Ce qui a été fait :**
+
+- une phrase par côté (« Le remplaçant signe, puis le contremaître et la
+  RH visent… », « Le contremaître de la pause confirme… ») ;
+- le bouton principal est plein, à la couleur du sélecteur, pour tous ;
+- la tête des cartes : à soi, le poste ou la période en gras, puis la date
+  en entier ou le formulaire dessous, l'état à droite ; d'un autre, la
+  personne puis cette ligne ;
+- les boutons d'action sont courts (« Signer » · « Viser » · « Confirmer »
+  · « Contresigner » · « Valider » · « Voir la fiche ») et alignés à
+  droite ;
+- une liste vide est centrée dans sa carte.
+
+Éprouvé à 320, 390 et 1280 px avec une fiche et une demande simulées :
+aucun débordement, aucune erreur. Les quatre sorties du vérificateur sont
+identiques à l'octet.

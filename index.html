@@ -2352,6 +2352,9 @@ body.sheet-on{overflow:hidden}
 .ws-qui .pl-tri{width:34px; height:34px}
 .ws-neg{color:var(--out); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 .ws-vide{margin:0; color:var(--muted); font-size:13px}
+/* une liste vide : au centre de sa carte, sans bord tassé en haut */
+html #grille .ws-carte:has(> .ws-vide:only-child){padding:18px 14px; text-align:center}
+html #grille .ws-carte>.ws-vide:only-child{margin:0}
 .ws-lien{margin-top:8px}
 .ws-carte header .ws-lien{margin-top:0}
 .ws-stats{margin:0; display:flex; flex-direction:column; gap:9px}
@@ -2558,6 +2561,8 @@ html #grille .ws-s:not(.ws-planning)>.ws-tete.dm-tete>.dm-bascule{display:grid; 
 html .dm-intro{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
 html .dm-intro p{margin:0; font-size:12px; line-height:1.4; color:var(--muted)}
 html .dm-intro>button{flex:none}
+/* le geste principal de la section, plein, à la couleur du sélecteur */
+html #grille .dm-intro>button{background:var(--in); border-color:var(--in); color:#fff; font-weight:650; min-height:40px; padding:0 16px}
 @media (max-width:560px){ html .dm-intro{flex-direction:column; align-items:stretch} html .dm-intro>button{min-height:44px} }
 html .dm-bascule{display:grid; grid-template-columns:1fr 1fr; gap:4px; max-width:460px; margin:0 auto 12px; padding:4px; border-radius:12px; border:1px solid var(--line); background:var(--surface2)}
 html .dm-bascule button{min-height:42px; border:0; border-radius:9px; background:none; color:var(--muted); font:inherit; font-size:15px; font-weight:650; cursor:pointer}
@@ -2573,7 +2578,12 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-st.dm-att{background:var(--at-jaune-soft); color:var(--at-jaune)}
 .dm-st.dm-ok{background:var(--good-soft); color:var(--good)}
 .dm-st.dm-non{background:var(--at-rouge-soft); color:var(--at-rouge)}
-.dm-quoi{display:flex; align-items:center; gap:10px; font-size:14.5px}
+.dm-quoi{display:flex; align-items:baseline; flex-wrap:wrap; column-gap:8px; row-gap:2px; font-size:14.5px}
+.dm-quoi>span{font-size:12.5px; color:var(--muted)}
+/* la tête d'une carte à soi : le quoi en gras, le quand dessous */
+.dm-tit{display:flex; flex-direction:column; gap:2px; min-width:0}
+.dm-tit b{font-size:15.5px; font-weight:700}
+.dm-tit small{font-size:12.5px; color:var(--muted)}
 .dm-info{margin:0; font-size:12.5px; color:var(--ink2)}
 .dm-info.dm-alerte{color:var(--out)}
 .dm-texte{margin:0; font-size:13px; color:var(--muted); font-style:italic}
@@ -2582,7 +2592,8 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-etapes i{color:var(--faint); font-style:normal}
 .dm-et{padding:3px 8px; border-radius:7px; border:1px dashed var(--line); color:var(--muted)}
 .dm-et.fait{border-style:solid; border-color:color-mix(in srgb,var(--good) 45%,transparent); background:var(--good-soft); color:var(--good)}
-.dm-act{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding-top:4px}
+.dm-act{display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-end; padding-top:4px}
+.dm-act>button{min-height:38px; padding:0 14px; font-size:13.5px}
 .dm-act .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650; padding:9px 18px}
 .dm-act .dm-refus{background:var(--at-rouge-soft); border-color:var(--at-rouge); color:var(--at-rouge); font-weight:650}
 .dm-motif-in{flex:1 1 180px; min-width:0; font:inherit; font-size:14px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink)}
@@ -15230,12 +15241,14 @@ function dmCarte(x,valideur){
   var alertes=valideur&&x.statut==="en_attente"?dmRegles(f,x.trigramme,l,x.cree_le,x.sans_solde_annee):[];
   var visa=[]; if(x.rappelable) visa.push("Rappelable"); if(x.a_la_demande) visa.push("À la demande de la ligne hiérarchique"); if(x.restriction) visa.push("Restriction : "+x.restriction); if(x.motivation) visa.push("Motivation : "+x.motivation);
   var act='';
-  if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour signer</button></div>';
-  else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour viser</button></div>';
+  if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Signer</button></div>';
+  else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Viser</button></div>';
   else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>';
   return '<article class="dm-carte'+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
-    +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<b class="dm-moi">Ma demande</b>')+dmStatut(x)+'</header>'
-    +'<div class="dm-quoi"><span class="dm-form">'+esc(DM_FORMS[f].t)+'</span><b>'+esc(dmPeriode(x.du,x.au))+'</b></div>'
+    /* même tête que la fiche de recyclage (22/10/2026) : la période en
+       gras, le formulaire dessous, l'état à droite */
+    +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(dmPeriode(x.du,x.au))+'</b><small>'+esc(DM_FORMS[f].t)+'</small></span>')+dmStatut(x)+'</header>'
+    +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(dmPeriode(x.du,x.au))+'</b><span>'+esc(DM_FORMS[f].t)+'</span></div>':'')
     +dmTableau(x)
     +'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>'
     +(alertes.length?'<ul class="dm-regles">'+alertes.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')
@@ -15249,8 +15262,8 @@ function renderDemandes(){
   var hote=document.getElementById("wsDem"), val=peutSaisir();
   if(!GR.onglet) GR.onglet=val?"traiter":"miennes";
   var l=GR.demandes;
-  var h=[dmTete("demandes"),dmIntro(val?"Les trois formulaires du dossier RH : le remplaçant donne son accord, le contremaître et la RH visent ; acceptée, la demande se pose sur le planning.":"Courte durée, longue durée ou sans solde, comme les formulaires papier : votre remplaçant, votre contremaître et la RH la reçoivent.",
-    '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="dmNouvelle">+ Nouvelle demande</button>')];
+  var h=[dmTete("demandes"),dmIntro("Le remplaçant signe, puis le contremaître et la RH visent. Acceptée, la demande se pose sur le planning.",
+    '<button type="button" class="btn ss-ok" id="dmNouvelle">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; });
   /* venu d'une notification : l'onglet de ce qu'il y a à faire */
@@ -16240,22 +16253,29 @@ function rcEtapes(x){
   return '<div class="dm-etapes">'+et.map(function(z,i){ return '<span class="dm-et'+(z[0]?' fait':i===cours?' encours':'')+'">'+(z[0]?'✓ ':'')+esc(z[1])+'</span>'; }).join('<i>→</i>')+'</div>';
 }
 function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullYear()+' · '+(x.pause==="N"?"Nuit":x.pause); }
+/* la date en entier, pour le titre d'une carte (22/10/2026) */
+function rcQuandLong(x){ var d=dmJour(x.jour); return JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' '+MOIS[d.getMonth()].toLowerCase()+(d.getFullYear()!==jourUsine().getFullYear()?' '+d.getFullYear():'')+' · '+(x.pause==="N"?"Nuit":x.pause); }
 function rcCarte(x){
   var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
   var info=[x.doublure?'En doublure'+(x.titulaire?' de '+idLisible(x.titulaire):''):'Seul au poste'];
-  var act='<div class="dm-act"><button type="button" class="'+(rcATraiter(x)?'btn ss-ok':'btnlike')+'" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Ouvrir la fiche pour confirmer':x.je_contresigne?'Ouvrir la fiche pour contresigner':x.je_valide?'Ouvrir la fiche pour valider':'Voir la fiche')+'</button>'
+  var act='<div class="dm-act"><button type="button" class="'+(rcATraiter(x)?'btn ss-ok':'btnlike')+'" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Confirmer':x.je_contresigne?'Contresigner':x.je_valide?'Valider':'Voir la fiche')+'</button>'
     +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button>':'')+'</div>';
   return '<article class="dm-carte'+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
-    +'<header>'+(x.a_moi?'<b class="dm-moi">Ma fiche</b>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
-    +'<div class="dm-quoi"><span class="dm-form">Recyclage · '+esc(x.fonction)+'</span><b>'+esc(rcQuand(x))+'</b></div>'
+    /* LA CARTE EN DEUX LIGNES DE TITRE (le client, le 22/10/2026 :
+       « optimise cela 100 % pro ») : le poste en gras, la date en entier
+       dessous, l'état à droite. « Ma fiche » et l'étiquette « RECYCLAGE · »
+       redisaient l'onglet et le sélecteur. Pour la fiche d'un autre, la
+       personne d'abord, le poste et la date ensuite. */
+    +'<header>'+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b><small>'+esc(rcQuandLong(x))+'</small></span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
+    +(x.a_moi?'':'<div class="dm-quoi"><b>'+esc(x.fonction)+'</b><span>'+esc(rcQuandLong(x))+'</span></div>')
     +'<p class="dm-info">'+info.map(esc).join(" · ")+'</p>'
     +(x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.cm_motif)+'</p>':'')
     +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
 }
 function renderRecyclages(){
   var hote=document.getElementById("wsRec"), val=peutSaisir(), l=GR.recyclages;
-  var h=[dmTete("recyclages"),dmIntro("Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
-    '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="rcNouvelle">+ Nouvelle fiche</button>')];
+  var h=[dmTete("recyclages"),dmIntro("Le contremaître de la pause confirme (le responsable de zone en doublure), puis la RH enregistre.",
+    '<button type="button" class="btn ss-ok" id="rcNouvelle">+ Nouvelle fiche</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Fiches indisponibles (pas de connexion).</p>'; rcBrancher(); }); return; }
   l=l.filter(function(x){ return x.statut!=="annulee"; });
   var afaire=l.filter(rcATraiter).length;
