@@ -2345,3 +2345,22 @@ la case AM · Meunerie du Planning reçoit, depuis la colonne D
 Les autres présents en D à la meunerie restent dans la colonne D et comptent
 s'ils y sont valides. Les places creuses se comptent sur ceux qui tiennent
 le poste, jamais sur les présents.
+
+### « remplace X en <poste> » : le poste écrit prime (22/10/2026)
+
+LCI le 23/10, `["PM","N","remplace GDT en fermenation-liq. …"]`. La lecture
+du remplacement (`atelierDuRemplace`) ne prenait que le trigramme, puis la
+place habituelle de la personne remplacée : GDT tient la distillation, que
+LCI n'a pas. LCI retombait sur sa ligne 9 (distillation, en formation), et
+la fermentation de nuit restait à « ? ».
+
+Désormais, le poste écrit juste après le trigramme (« en », « au », « aux »,
+« à », « à la », « le ») est lu d'abord, par les motifs des postes.
+« fermenation », avec sa faute de frappe, est lu comme fermentation. La
+polyvalence reste exigée, comme pour le reste de cette règle.
+
+Mesuré sur l'année : une seule place change, celle du 23/10 en N
+(fermentation 0/1 → 1/1, `--manques` passe de 20 à 19 places creuses).
+L'agenda de LCI change d'une ligne (« N · Distillation » devient
+« N · Fermentation »). `--polyvalence`, `--compteurs` et les neuf règles
+sont identiques à l'octet.

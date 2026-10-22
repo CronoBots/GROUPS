@@ -16828,6 +16828,19 @@ function atelierDuRemplace(raw,parId,qui,ce){
     cible=parId[trig];
     if(!cible || cible===qui) continue;
     if(ce && ce.presents[cible.id]) continue;
+    /* LE POSTE ÉCRIT APRÈS LE TRIGRAMME PRIME (le client, le 22/10/2026 :
+       LCI le 23/10, « remplace GDT en fermenation-liq. » — GDT tient
+       d'habitude la distillation, que LCI n'a pas ; LCI restait en
+       distillation par sa ligne 9, la fermentation à « ? »). Le classeur
+       dit où l'on va : « remplace X en/au/à la <poste> ». Le motif du
+       poste lit « fermenation », sa faute de frappe comprise ; la
+       polyvalence reste exigée. */
+    var apres=/^\s*(?:en|au|aux|\u00e0|a)\s+(?:la\s+|le\s+|l')?([\w\u00e0-\u00ff.'-]+)/i.exec(com.slice(rx.lastIndex)),
+        kn=apres?posteDepuisNom(apres[1]):null;
+    if(kn && kn!=="cm" && kn!=="adj"){
+      if(kn==="terr"){ if(tientTerrainArriere(qui)) return kn; }
+      else for(i=0;i<POSTES_TRAVAIL.length;i++){ P=POSTES_TRAVAIL[i]; if(P.k===kn && P.rx && aLAtelier(qui,P.rx)) return kn; }
+    }
     k=ce?posteAttitreLe(cible,ce.jour):posteHabituel(cible);
     /* UN ADJOINT QUI « REMPLACE » UN CONTREMAÎTRE TIENT LE POSTE DE
        CONTREMAÎTRE. Le client, le 13/10/2026, sur JBI le 23/10 (« Remplace
