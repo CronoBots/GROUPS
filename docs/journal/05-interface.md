@@ -3430,3 +3430,33 @@ parties pour les onglets demande de congé et recyclages ».
   Au téléphone, rien ne change (le panneau reste par-dessus).
 - Vérifié : 320, 390, 1280 px, contremaître simulé, aucune erreur ni
   débordement ; vérificateur, quatre sorties identiques à l'octet.
+
+### Des cartes qu'on distingue, et le circuit des signatures (22/10/2026, v994)
+
+Le client : « les listes des différentes fiches ne sont pas facilement
+différenciables et intuitives », puis « on ne voit pas bien qui fait la
+demande, à qui est le tour de signer, et puis la RH ».
+
+- Chaque carte porte à gauche une **tuile de date** (jour, numéro, mois ;
+  « 3 j » pour une période) et une **bande de couleur selon l'état** :
+  bleu à faire, ambre en route, vert acceptée ou enregistrée, rouge
+  refusée ; une demande retirée est estompée. Le type demandé (CA, FT,
+  « Changement de pause » ; pour un recyclage, la pause et « doublure »)
+  est une étiquette. Les cartes sont groupées par mois. Pour ses propres
+  demandes, le titre est le formulaire et la période passe dessous (la
+  tuile disait déjà la date).
+- La rangée d'étiquettes « Contremaître → RH » devient un **circuit** :
+  une pastille par personne, reliées par un trait, en commençant par le
+  **demandeur** (« Vous » ou son trigramme, et la date d'envoi), puis
+  remplaçant, contremaître, responsable de zone, RH. Chaque pastille dit
+  son état : signé ✓, « à son tour » (ambre), « à vous de signer » (bleu)
+  quand c'est le lecteur, « ensuite », ou refusé ✕.
+- Toute la carte ouvre sa fiche, pas seulement le bouton. Sur PC, en
+  liste et fiche côte à côte, le tableau des jours quitte la carte (il
+  est dans la fiche).
+- Au téléphone (≤ 520 px), l'étiquette d'état de la tête est masquée : le
+  circuit dit la même chose, et elle coupait le titre à 320 px. Elle
+  reste pour une demande retirée, qui n'a pas de circuit.
+- Vérifié : 320, 390, 1280 px, contremaître simulé, aucune erreur ni
+  débordement ; vérificateur, quatre sorties identiques à l'octet ; hors
+  ligne.
