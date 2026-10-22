@@ -3662,3 +3662,33 @@ et/ou adjoints ». (La capture montrait encore la v998.)
 - Vérifié à 320 et 1280 px : sans responsable, la feuille le dit ; les
   groupes (5 contremaîtres, 5 adjoints pour un contremaître) ; l'envoi
   porte le trigramme choisi.
+
+### « Optimise au max » : les cartes des trois sortes de demandes (23/10/2026, v1001)
+
+Le client, capture d'une demande de congé au téléphone : « optimise au
+max ». Passe entière, à 320, 390 et 1280 px, sur les six vues (Mes
+demandes et À valider × congé, recyclage, heures sup.), le script
+mesurant débordements et textes coupés (zéro partout).
+
+Défauts relevés et corrigés :
+- l'intro prenait trois lignes avant la première demande : au téléphone,
+  le nom du module et le bouton tiennent sur une ligne, l'explication ne
+  se lit qu'au PC ;
+- le tableau Jour/Prévu/Demandé/Remplaçant redisait, pour un seul jour,
+  le résumé sous le titre : il ne reste que pour plusieurs jours (la
+  feuille le garde toujours) ; « FLI – » disparaît avec lui ;
+- l'étape « Contremaître » disait « ensuite » sans nom : elle nomme le
+  contremaître de la pause que la demande a gardé ;
+- « Voir la feuille / la fiche » faisait doublon avec la carte, qui
+  s'ouvre d'un toucher (même sans bouton désormais) ; « Modifier »,
+  « Supprimer » et « Retirer » deviennent des liens discrets ; seul le
+  geste à faire (« Accepter », « Confirmer », « Viser », « Enregistrer »)
+  reste un bouton plein ;
+- la carte de recyclage disait le jour trois fois (tuile, « Mercredi 21
+  octobre · Nuit », « Nuit · doublure ») et « En doublure de … » une
+  quatrième : une ligne, « pause N · en doublure de LCI » ;
+- à 320 px, « Heures sup. 1 » débordait du sélecteur : le compteur passe
+  en pastille dans le coin du bouton.
+
+Ce qui reste : à 320 px, le circuit vertical renvoie l'heure du
+demandeur à la ligne (« aujourd'hui · » / « 10 h 00 ») ; lisible, laissé.
