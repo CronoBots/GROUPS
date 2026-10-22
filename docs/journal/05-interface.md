@@ -2997,3 +2997,25 @@ autres appels à `setView` (connexion, données reçues) ne changent pas.
   lignes de pauses), sans erreur.
 
 Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Moins de cadres sur l'Accueil (22/10/2026, v972)
+
+Le client : « les chiffres dans le bas du héros sont inutiles. Le cadre
+des compteurs inutile aussi vu que c'est repris dans le héros. Prochain
+week-end libre et congé doivent être séparés du poste actuel ».
+
+**Les trois chiffres** (heures, en week-end, fériés travaillés, v965)
+sont retirés, avec leur style (`ryChiffresHTML`, `.pf-kp`).
+
+**Le cadre « Mes compteurs »** est retiré de la page. `renderCompteurs`
+et ses deux appels sont supprimés aussi. « Mes congés » du héros le
+reprend : ses cases ne mènent plus nulle part et ne sont donc plus des
+boutons. Au PC, le calendrier prend toute la largeur. `compteursCalcules`
+reste : le vérificateur (`--compteurs`) et la paie s'en servent.
+
+**Le week-end libre et le prochain congé** ont leur propre cadre, neutre
+(gris, et non bleu comme le poste), sous celui du prochain poste.
+
+Mesuré : aucune erreur, aucun débordement à 320, 390 et 1280 px. Toucher
+« Accueil » sur l'Accueil ne modifie toujours rien (0 changement de la
+page). Les quatre sorties du vérificateur sont identiques à l'octet.
