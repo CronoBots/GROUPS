@@ -2643,7 +2643,22 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-pp-t input,.dm-pp-t select{width:100%; min-width:0; height:25px; border:0; background:transparent; color:#1d1d1d; font:inherit; font-size:12.5px; padding:0 2px; -webkit-appearance:none; appearance:none; border-radius:0}
 .dm-pp-t input:focus,.dm-pp-t select:focus{outline:2px solid #2F62D6; outline-offset:-2px; background:#fffde8}
 .dm-pp-t td.dm-pp-in-d{min-width:118px; position:relative}
-.dm-pp-dv{display:none}
+.dm-pp-jb{display:block; width:100%; min-height:30px; padding:2px 4px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; white-space:nowrap}
+.dm-pp-jb.vide{color:#8a94a6; font-style:italic}
+.dm-jp-fond{position:fixed; inset:0; z-index:400; background:rgba(5,10,20,.55)}
+.dm-jp{position:fixed; z-index:401; left:50%; top:50%; transform:translate(-50%,-50%); width:min(360px,calc(100vw - 24px)); padding:12px; border-radius:16px;
+  background:var(--surface); border:1px solid var(--cadre,var(--line)); box-shadow:0 18px 40px rgba(0,0,0,.45); color:var(--ink)}
+.dm-jp-t{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+.dm-jp-t b{font-size:16px}
+.dm-jp-t button{width:40px; height:40px; border-radius:10px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font-size:20px; cursor:pointer}
+.dm-jp-s,.dm-jp-g{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
+.dm-jp-s span{text-align:center; font-size:11px; font-weight:600; color:var(--muted)}
+.dm-jp-g button{display:flex; flex-direction:column; align-items:center; gap:1px; min-height:46px; padding:4px 0; border-radius:9px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; cursor:pointer}
+.dm-jp-g button b{font-size:14px} .dm-jp-g button small{font-size:10px; color:var(--muted); min-height:12px}
+.dm-jp-g button:disabled{opacity:.35; cursor:default; background:none}
+.dm-jp-g button.auj{border-color:var(--in)}
+.dm-jp-g button.choisi{background:var(--in); color:#fff} .dm-jp-g button.choisi small{color:#fff}
+.dm-jp-p{display:flex; justify-content:space-between; gap:8px; margin-top:10px}
 /* au téléphone : la date en court, le calendrier s'ouvre au toucher de la case */
 @media (max-width:699px){
   .dm-papier{padding:12px 10px 14px; font-size:13px}
@@ -2655,8 +2670,7 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
   .dm-pp-t .dm-pp-n{width:22px}
   .dm-pp-t td.dm-pp-pv{width:34px}
   .dm-pp-t td.dm-pp-in-d{min-width:58px}
-  .dm-pp-dv{display:block; font-size:11.5px; line-height:25px; pointer-events:none}
-  .dm-pp-t td.dm-pp-in-d input{position:absolute; inset:0; height:100%; opacity:0}
+  .dm-pp-jb{font-size:11.5px; line-height:25px; padding:0 2px}
   .dm-pp-t select{font-size:11.5px}
   .dm-pp-logo{height:34px}
 }
@@ -15021,6 +15035,42 @@ function dmPrevue(tri,iso){
   return an&&grFamille(an)==="poste"?an:c;
 }
 function dmTravail(c){ return !!c&&c!=="-"; }
+/* LE CALENDRIER DU CHOIX D'UN JOUR (22/10/2026) : un mois, la pause prévue
+   sous chaque date ; un repos, un jour déjà sur la feuille ou trop ancien
+   (plus de 31 jours, la base le refuse) ne se choisit pas. Rien n'est
+   écrit avant qu'un jour soit touché ; « Retirer la date » vide la ligne. */
+function dmChoisirJour(tri,courant,pris,fini){
+  var auj=jourUsine(), min=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()-31);
+  var d0=courant?dmJour(courant):auj, m={y:d0.getFullYear(), m:d0.getMonth()};
+  var fond=document.createElement("div"); fond.className="dm-jp-fond";
+  var box=document.createElement("div"); box.className="dm-jp"; box.setAttribute("role","dialog"); box.setAttribute("aria-label","Choisir le jour");
+  function fermer(){ fond.remove(); box.remove(); document.removeEventListener("keydown",clav,true); }
+  function clav(e){ if(e.key==="Escape"){ e.stopPropagation(); fermer(); } }
+  function dessiner(){
+    var prem=new Date(m.y,m.m,1), dec=(prem.getDay()+6)%7, n=new Date(m.y,m.m+1,0).getDate(), c=[];
+    for(var k=0;k<dec;k++) c.push('<span></span>');
+    for(var j=1;j<=n;j++){
+      var d=new Date(m.y,m.m,j), iso=dmIso(d), pv=dmPrevue(tri,iso), ok=dmTravail(pv)&&!pris[iso]&&d>=min;
+      c.push('<button type="button" data-j="'+iso+'"'+(ok?'':' disabled')+' class="'+(iso===courant?'choisi ':'')+(d.getTime()===new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime()?'auj':'')+'">'
+        +'<b>'+j+'</b><small>'+(pris[iso]?'pris':dmTravail(pv)?esc(grCourt(pv)):'')+'</small></button>');
+    }
+    box.innerHTML='<div class="dm-jp-t"><button type="button" data-nav="-1" aria-label="Mois précédent">‹</button><b>'+MOIS[m.m]+' '+m.y+'</b><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div>'
+      +'<div class="dm-jp-s">'+["Lu","Ma","Me","Je","Ve","Sa","Di"].map(function(x){ return '<span>'+x+'</span>'; }).join("")+'</div>'
+      +'<div class="dm-jp-g">'+c.join("")+'</div>'
+      +'<div class="dm-jp-p">'+(courant?'<button type="button" class="btnlike" data-vider="1">Retirer la date</button>':'<span></span>')+'<button type="button" class="btnlike" data-annuler="1">Annuler</button></div>';
+  }
+  box.addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b||b.disabled) return;
+    if(b.hasAttribute("data-nav")){ m.m+=Number(b.getAttribute("data-nav")); if(m.m<0){ m.m=11; m.y--; } if(m.m>11){ m.m=0; m.y++; } dessiner(); return; }
+    if(b.hasAttribute("data-annuler")){ fermer(); return; }
+    if(b.hasAttribute("data-vider")){ fermer(); fini(null); return; }
+    var j=b.getAttribute("data-j"); if(j){ fermer(); fini(j); }
+  });
+  fond.addEventListener("click",fermer);
+  document.addEventListener("keydown",clav,true);
+  dessiner(); document.body.appendChild(fond); document.body.appendChild(box);
+  var f=box.querySelector(".choisi")||box.querySelector(".dm-jp-g button:not([disabled])"); if(f) try{ f.focus({preventScroll:true}); }catch(er){}
+}
 function dmPa(c,vide){ return c?'<span class="pl-pa '+(grFamille(c)==="poste"||!grFamille(c)?grPosteCls(c):"f-"+grFamille(c))+'" title="'+esc(c)+'">'+esc(grCourt(c))+'</span>':'<span class="pl-vide">'+(vide||"—")+'</span>'; }
 function dmPersonne(tri){ var db=wsDb(); return db&&db.people.filter(function(x){ return x.id===tri; })[0]; }
 function dmRestant(p,cpt){ if(!p||!cpt) return null; var r=wsRestants(p).filter(function(x){ return x.t===cpt; })[0]; return r?r.v:null; }
@@ -15350,7 +15400,15 @@ function dmFormulaire(pre){
     function ligne(k,i){
       var L=etat.t[k], l=L[i]||{}, f=etat.f, P=DM_PAPIER[f], pv=l.j?dmPrevue(moi,l.j):"", rpv=l.rp&&l.j?dmPrevue(l.rp,l.j):"";
       var dv=l.j?dmJour(l.j):null;
-      var date='<td class="dm-pp-in-d"><span class="dm-pp-dv">'+(dv?JOURS_C[dv.getDay()]+' '+pad2(dv.getDate())+'/'+pad2(dv.getMonth()+1):'')+'</span><input type="date" data-c="j" value="'+esc(l.j||"")+'" aria-label="Date, ligne '+(i+1)+'"></td>';
+      /* Un bouton et notre calendrier au lieu du champ date du téléphone (le
+         client, le 22/10/2026 : « lors du choix du premier jour de congé,
+         cela met toujours aujourd'hui sans rien faire, il ne faut pas ») :
+         l'iPhone inscrit la date du jour dès que son sélecteur s'ouvre,
+         et la ligne partait remplie (VA, aujourd'hui) avant tout choix.
+         dmChoisirJour n'écrit rien tant qu'un jour n'est pas touché, et
+         montre la pause prévue de chaque jour. */
+      var date='<td class="dm-pp-in-d"><button type="button" class="dm-pp-jb'+(dv?'':' vide')+'" data-jpick="1" aria-label="Date, ligne '+(i+1)+(dv?' : '+esc(JOURS_LONGS[(dv.getDay()+6)%7]+' '+dv.getDate()+' '+MOIS[dv.getMonth()].toLowerCase()):', à choisir')+'">'
+        +(dv?JOURS_C[dv.getDay()]+' '+pad2(dv.getDate())+'/'+pad2(dv.getMonth()+1):'choisir')+'</button></td>';
       var pause='<td class="dm-pp-pv">'+dmPpPause(pv)+'</td>';
       var type=f==="sans_solde"?'':'<td><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select></td>';
       var rp=P.rp?'<td><select data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"")+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
@@ -15405,6 +15463,17 @@ function dmFormulaire(pre){
         var k=etat.f==="longue"&&dmPrevue(moi,l.j)==="D"?"day":"pause"; etat.t[k].push(l); });
       rendre(); });
     var fe=document.getElementById("ppFeuille");
+    fe.addEventListener("click",function(e){
+      var b=e.target.closest?e.target.closest("[data-jpick]"):null; if(!b) return;
+      var tr=b.closest("tr[data-k]"); if(!tr) return;
+      var k=tr.getAttribute("data-k"), i=Number(tr.getAttribute("data-i")), L=etat.t[k], l0=L[i]||{};
+      var pris={}; toutes().forEach(function(z){ if(z.l.j&&z.l.j!==l0.j) pris[z.l.j]=1; });
+      dmChoisirJour(moi,l0.j||null,pris,function(j){
+        var l=L[i]||(L[i]={});
+        if(j){ l.j=j; if(!l.code&&!l.pause) l.code=etat.f==="sans_solde"?"CSS":"VA"; } else L[i]={};
+        var t=fe.querySelector('tr[data-k="'+k+'"][data-i="'+i+'"]'); if(t) t.outerHTML=ligne(k,i); verifier();
+      });
+    });
     fe.addEventListener("change",function(e){ var s=e.target, tr=s.closest("tr[data-k]"); if(!tr) return;
       var k=tr.getAttribute("data-k"), i=Number(tr.getAttribute("data-i")), L=etat.t[k], l=L[i]||(L[i]={}), c=s.getAttribute("data-c");
       if(c==="j"){ l.j=s.value||null; if(l.j&&!l.code&&!l.pause) l.code=etat.f==="sans_solde"?"CSS":"VA"; if(!l.j){ L[i]={}; } }
