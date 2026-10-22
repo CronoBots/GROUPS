@@ -2620,3 +2620,25 @@ Ce qui a été fait :
 
 Mesuré à 320, 390 et 1280 px : aucun débordement, aucune erreur. Les
 quatre sorties du vérificateur sont identiques à l'octet.
+
+### « Ma semaine » à la place du « Cycle actuel », dans le héros (22/10/2026, v957)
+
+Le client, sur la capture de la v956 : « supprimer cycle actuel et
+remplacer par ma semaine ».
+
+- Dans le héros, sous l'année, les sept jours qui viennent remplacent le
+  cycle actuel. Pour la plage du titre, une seule fois le mois s'il ne
+  change pas (« 22 – 28 oct. »).
+- Le cadre « Ma semaine » placé sous le centre de contrôle disparaît : il
+  aurait redit le héros. Au PC, « Demande de congé » prend toute la
+  largeur.
+- Les cases prennent le fond sombre du héros, comme « Mes pauses ». Une
+  pause AM, PM, N ou D y porte la même pastille que le reste du héros ;
+  les autres codes gardent la leur. Le point d'un commentaire passe en
+  5 px dans le coin : à 320 px, il touchait les lettres « VE ».
+- Le cycle reste à un appui : vue Cycle du calendrier. `ryCycleHTML` sert
+  toujours là.
+
+Mesuré à 320, 390 et 1280 px (cases de 34, 44 et 73 px) : aucun
+débordement, aucune erreur. Les quatre sorties du vérificateur sont
+identiques à l'octet.

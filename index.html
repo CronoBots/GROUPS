@@ -5422,17 +5422,20 @@ html .hp-fab:hover{opacity:1}
 /* L'ACCUEIL RÉORGANISÉ (le client, le 22/10/2026, « go ») : la photo garde
    190 px au PC (à 100 ou 140, le logo du bandeau se coupait), Ma semaine et Mes demandes au-dessus du calendrier et des
    compteurs, dans leurs deux colonnes. */
-#semCard .ms-l{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; padding:12px}
-.ms-j{position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; min-height:84px; padding:8px 2px; border-radius:12px;
-  border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; cursor:pointer}
-.ms-j.auj{border-color:var(--in); background:var(--in-soft)}
+/* Ma semaine, dans le héros depuis le 22/10/2026 (à la place du cycle
+   actuel) : les cases au fond sombre du héros, comme « Mes pauses » */
+.pf-an .ms-l{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin:4px 0 12px}
+.ms-j{position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; min-height:76px; padding:8px 2px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:#fff; font:inherit; cursor:pointer}
+.ms-j.auj{border-color:rgba(105,178,203,.55); background:rgba(105,178,203,.12)}
 .ms-j small{font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
 .ms-j b{font-size:16px; font-variant-numeric:tabular-nums}
 .ms-j .pl-pa{max-width:100%}
 .ms-repos{font-size:11.5px; color:var(--muted)}
-.ms-com{position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:var(--at-jaune)}
-@media (hover:hover){ .ms-j:hover{border-color:var(--in2)} }
-@media (max-width:420px){ #semCard .ms-l{gap:4px; padding:10px 8px} .ms-j{min-height:76px; padding:6px 0} .ms-j b{font-size:15px} .ms-j .pl-pa{font-size:10.5px; padding:2px 4px} }
+.ms-com{position:absolute; top:4px; right:4px; width:5px; height:5px; border-radius:50%; background:var(--at-jaune)}
+.ms-j .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 0; border-radius:99px; width:calc(100% - 6px); max-width:34px; height:auto; min-width:0; text-align:center}
+@media (hover:hover){ .ms-j:hover{border-color:rgba(105,178,203,.55)} }
+@media (max-width:420px){ .pf-an .ms-l{gap:4px} .ms-j{min-height:70px; padding:6px 0} .ms-j b{font-size:15px} .ms-j .pl-pa{font-size:10.5px; padding:2px 4px} .ms-repos{font-size:10.5px} }
 .md-l{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:10px}
 .md-l li{display:flex; flex-direction:column; gap:4px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2)}
 .md-l li b{font-size:14px} .md-f{font-size:12px; color:var(--muted)}
@@ -5440,16 +5443,13 @@ html .hp-fab:hover{opacity:1}
 .md-act{display:flex; flex-wrap:wrap; gap:8px}
 @media (min-width:1100px){
   html #v-horaire>#ctlCard{grid-column:1 / -1}
-  html #v-horaire>#semCard{grid-column:1}
-  html #v-horaire:has(>#demCard[hidden])>#semCard{grid-column:1 / -1}
-  html #v-horaire>#demCard{grid-column:2}
+  html #v-horaire>#demCard{grid-column:1 / -1}
 }
 /* L'ACCUEIL SUR GRAND ÉCRAN (« optimise tout pour que ce soit vraiment
    adapté au PC », le 22/10/2026). Dès 1600 px, la fiche du haut passe en
    trois colonnes — le poste, l'année et le cycle, mes pauses — au lieu de
    laisser vide le bas de la colonne de gauche ; Ma semaine et Mes demandes,
    côte à côte, prennent la même hauteur. */
-@media (min-width:1100px){ html #v-horaire>#semCard,html #v-horaire>#demCard{align-self:stretch} }
 @media (min-width:1600px){
   html .pf-corps,html .pf-corps:has(.pf-pv){grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr); grid-template-rows:auto}
   html .pf-corps>.pf-gauche,html .pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
@@ -5822,10 +5822,6 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
          sept jours qui viennent, et les demandes en cours avec leur
          avancement. Au PC, côte à côte au-dessus du calendrier et des
          compteurs, dans leurs deux colonnes. -->
-    <div class="card" id="semCard" hidden>
-      <header><h2>Ma semaine</h2><span class="sub" id="semSub"></span></header>
-      <div class="ms-l" id="semCorps"></div>
-    </div>
     <div class="card" id="demCard" hidden>
       <header><h2>Demande de congé</h2><span class="sub" id="demSub"></span></header>
       <div class="pad" id="demCorps"></div>
@@ -15760,16 +15756,13 @@ document.addEventListener("click",function(e){
   if(m===st.m && y===st.y) ouvrirJour(d);
   else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
-function ryAnneeHTML(p,y){
+function ryAnneeHTML(p,y,db){
   var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
-  var c=null; try{ c=cycleActuel(p); }catch(e){ c=null; }
-  if(c){
-    /* sans « Mon » (le client, le 19/10/2026 : « retirer les mon du héros ») */
-    h+=ryCycleHTML(p,c,"Cycle actuel",false);
-    /* Plus de « Prochain cycle » (ajouté le 17/10/2026) : le client, le
-       20/10/2026, « prochain cycle est devenu inutile » — la vue Cycle du
-       calendrier le montre en un appui sur ›, avec l'équipe ou le binôme. */
-  }
+  /* MA SEMAINE À LA PLACE DU CYCLE ACTUEL (le client, le 22/10/2026 :
+     « supprimer cycle actuel et remplacer par ma semaine »). Le cadre
+     « Ma semaine » sous le centre de contrôle rejoint le héros ; le cycle
+     reste à un appui, dans la vue Cycle du calendrier. */
+  try{ h+=maSemaineHTML(db,p); }catch(e){}
   return h;
 }
 function renderRythme(){
@@ -15809,9 +15802,9 @@ function renderRythme(){
     + ryHeatmap(s);
   /* plus d'action au toucher d'un mois (le client, le 17/10/2026) */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
-  try{ renderMaSemaine(db,person); renderMesDemandes(); }catch(e){}
+  try{ renderMesDemandes(); }catch(e){}
   try{ renderCentre(db,person); }catch(e){}
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y,db);
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryProchainesHTML(person,y);
     try{ recyclageHeros(db,person); }catch(e){}
   });
@@ -15819,8 +15812,7 @@ function renderRythme(){
 
 /* MA SEMAINE : aujourd'hui et les six jours suivants, la pause (ou ce qui
    la remplace : congé, maladie, formation), un toucher ouvre le jour. */
-function renderMaSemaine(db,person){
-  var c=document.getElementById("semCard"), corps=document.getElementById("semCorps"); if(!c||!corps) return;
+function maSemaineHTML(db,person){
   /* LE JOUR DU CALENDRIER, comme le héros et le calendrier du mois (le
      client, le 22/10/2026 : « tout est professionnel et optimisé ? ») : à
      5 h, le jour de l'usine est encore la veille, et la semaine disait
@@ -15835,11 +15827,14 @@ function renderMaSemaine(db,person){
     var cls=fv==="poste"||!fv?grPosteCls(v):"f-"+fv;
     h.push('<button type="button" class="ms-j'+(i===0?' auj':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'" aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' : '+(v&&v!=="-"?grAffiche(v):'repos'))+'">'
       +'<small>'+(i===0?'Auj.':JOURS_C[d.getDay()])+'</small><b>'+d.getDate()+'</b>'
-      +(v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">repos</span>')
+      /* une pause prend la pastille des pauses du héros (AM, PM, N, D) */
+      +(/^(AM|PM|N|D)$/.test(v)?'<i class="pf-pause" data-p="'+v+'">'+v+'</i>'
+        :v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">repos</span>')
       +(e[2]?'<i class="ms-com" aria-hidden="true"></i>':'')+'</button>');
   }
-  corps.innerHTML=h.join(""); c.hidden=false;
-  document.getElementById("semSub").textContent="du "+j0.getDate()+" "+MOIS_C[j0.getMonth()]+" au "+j6.getDate()+" "+MOIS_C[j6.getMonth()];
+  return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2">Ma semaine</span><span class="pf-pr-l">'
+    +esc(j0.getDate()+(j0.getMonth()===j6.getMonth()?"":" "+MOIS_C[j0.getMonth()])+" – "+j6.getDate()+" "+MOIS_C[j6.getMonth()])+'</span></div>'
+    +'<div class="ms-l">'+h.join("")+'</div>';
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
