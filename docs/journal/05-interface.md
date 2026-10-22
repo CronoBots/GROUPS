@@ -3230,3 +3230,32 @@ de ses 4 px de trop.
 Remesuré : 28 px pour les huit vues. « Du jour » tient toujours sans
 défilement à 390 × 844, 375 × 667 et 320 × 568. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### Les règles du recyclage hors de la fiche (22/10/2026, v982)
+
+Le client : « l'explication des recyclages doit être en dehors de la
+demande de recyclage et ça doit faire professionnel ».
+
+**Avant.** Le haut de la fiche papier recopiait, en bleu, le paragraphe
+des règles et les quatre conditions de la doublure. Cela faisait une
+dizaine de lignes avant le premier champ.
+
+**Désormais.**
+
+- La fiche commence par « Membre du personnel de Production ».
+- Les règles sont dans un encadré de l'application, au-dessus de la
+  fiche (`rcReglesHTML`). Il est replié sur l'essentiel : « Règles du
+  recyclage · 10 jours de présence sur poste · du 1er février au 31
+  janvier ».
+- Déplié, il range les mots du dossier RH en quatre points (« Pourquoi » ·
+  « Combien » · « Comment » · « Fiche »), puis la liste des conditions cumulatives de
+  la doublure.
+- Le texte est celui du papier ; seul « doit être informé » devient « est
+  informé ».
+
+**Erreur corrigée en route.** Le panneau est une colonne flexible :
+l'encadré y rétrécissait jusqu'à un simple trait. `flex:none` le garde
+entier.
+
+Éprouvé à 390 et 1280 px : replié et déplié, aucun débordement, aucune
+erreur. Les quatre sorties du vérificateur sont identiques à l'octet.
