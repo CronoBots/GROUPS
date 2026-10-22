@@ -4413,6 +4413,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    prochain poste, chacune son libellé, sa date, son délai (22/10/2026) */
 .pf-wes{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(105,178,203,.2)}
 .pf-bloc:not(:has(.pf-proch)) .pf-wes{border-top:0}
+.pf-bloc-we{background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1)}
+.pf-bloc-we .pf-we+.pf-we{border-left-color:rgba(255,255,255,.1)}
 .pf-we{display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; column-gap:6px; row-gap:3px; padding:10px 12px 11px; min-width:0}
 .pf-we+.pf-we{border-left:1px solid rgba(105,178,203,.2)}
 .pf-we svg{color:var(--marque-vif)}
@@ -4461,8 +4463,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cg-t .pf-pr-l b{color:#fff; font-weight:700}
 .pf-cgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; margin:4px 0 14px}
 .pf-cgc{display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
-  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left; cursor:pointer}
-@media (hover:hover){ .pf-cgc:hover{border-color:rgba(105,178,203,.55)} }
+  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left}
 .pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:#9fe0b8}
 .pf-cgc>b{font-size:18px; font-weight:700; line-height:1.1; white-space:nowrap; font-variant-numeric:tabular-nums}
 .pf-cgc>b small{font-size:12px; font-weight:600; color:rgba(255,255,255,.62)}
@@ -4475,11 +4476,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
 .pf-cgc.neg>b{color:#ff8a7a}
 @media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
-/* les trois chiffres de l'année, sous sa barre */
-.pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
-.pf-kp>span{display:flex; flex-direction:column; gap:1px; padding:8px 10px; font-size:11.5px; line-height:1.25; color:var(--muted); min-width:0}
-.pf-kp>span+span{border-left:1px solid rgba(255,255,255,.08)}
-.pf-kp b{font-size:17px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums}
 .ry-an-cpt .pf-pr-lg-f,.ry-an-cpt .pf-pr-lg-r{display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:1px}
 .pf-pr-rep>i{display:block; min-width:6px; border-radius:4px; overflow:hidden;
   background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px)}
@@ -4610,8 +4606,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (min-width:1100px){
   #v-horaire{display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); align-items:start; column-gap:16px}
   #v-horaire>*{grid-column:1/-1}
-  #v-horaire>#calCard{grid-column:1}
-  #v-horaire>#cptCard{grid-column:2}
   #v-horaire #cptCard .cr-l{columns:1}
   #v-horaire #cptCard .cr-l>.cr:first-child,#v-horaire #cptCard .cr-tot+.cr-l>.cr:first-child{border-top:0}
 }
@@ -5518,7 +5512,7 @@ html .hp-fab:hover{opacity:1}
 @media (min-width:1100px){
   /* Accueil : calendrier et compteurs à la même hauteur ; « Mon rythme »
      prend la largeur, cases et repères lisibles */
-  html #v-horaire>#calCard,html #v-horaire>#cptCard{align-self:stretch}
+  html #v-horaire>#calCard{align-self:stretch}
   html .ry-hm-box{max-width:1200px}
   html .ry-hm-l>i{flex-basis:16px; font-size:11px}
   html .ry-hm-n{font-size:11px}
@@ -5915,13 +5909,8 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
     <!-- Mon rythme puis mes compteurs, chacun à découvert (le client, le
          16/10/2026 : « le rythme, nombre de nuits et graphique peuvent être
          visibles sans devoir passer par un bouton »). -->
-    <div class="card" id="cptCard">
-      <header>
-        <h2>Mes compteurs</h2>
-        <span class="sub" id="cptSub"></span>
-      </header>
-      <div class="pad" id="cptCorps"></div>
-    </div>
+    <!-- (« Mes compteurs » retiré le 22/10/2026, le client : « le cadre des
+         compteurs est inutile vu que c'est repris dans le héros ») -->
     <div class="card" id="rythmeCard" hidden>
       <header>
         <h2>Mon rythme</h2>
@@ -9502,7 +9491,6 @@ function setView(v,keepScroll){
   if(!keepScroll) window.scrollTo(0,0);
   deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
-  if(v==="horaire") renderCompteurs();
   /* RH porte désormais le tableau d'alertes (sous-effectif, rappels, hors-poste) :
      son ouverture rend l'équipe du jour (qui alimente #jourCorps caché PUIS
      renderManques/renderRappelsInutiles). L'Accueil, lui, ne montre que
@@ -10009,7 +9997,6 @@ function renderPrefillSelects(db){
     majCompteurs(); majBrandsub();
     prefillAuto();
     if(typeof renderRythme==="function") renderRythme();
-    if(st.view==="horaire") renderCompteurs();
     if(st.view==="equipe") renderEquipe();
     /* LE CONTENU EST RENDU → on retire l'écran d'intro SEULEMENT maintenant (et non
        dès que les données sont fetchées) : ainsi la transition « vide → plein » du
@@ -12839,7 +12826,11 @@ function _pfHead(db,p){
      il devient la seconde ligne du même cadre, sous un filet. Au bureau, ce
      bloc et l'identité tiennent la colonne de gauche, les progressions celle
      de droite. */
-  if(h.indexOf('pf-proch')>=0||we) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,'<div class="pf-bloc">$1'+we+'</div>$2');
+  /* LE WEEK-END LIBRE ET LE PROCHAIN CONGÉ À PART (le client, le
+     22/10/2026 : « prochain week-end libre et congé doivent être séparés
+     du poste actuel ») : leur propre cadre, neutre, sous celui du poste. */
+  if(h.indexOf('pf-proch')>=0||we) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,function(_,a,b){
+    return (h.indexOf('pf-proch')>=0?'<div class="pf-bloc">'+a+'</div>':a)+(we?'<div class="pf-bloc pf-bloc-we">'+we+'</div>':'')+b; });
   /* LES POLYVALENCES D'UN OPÉRATEUR OU D'UN ADJOINT (le client, le
      18/10/2026 : « pour les opérateurs/adjoints, dans le héros, indiquer les
      polyvalences »). Les ateliers acquis, un point à la couleur de leur zone ;
@@ -15829,8 +15820,8 @@ function ryAnneeHTML(p,y,db){
    mêmes que « Mes compteurs », soldesConges) : ce qui reste à placer en
    jours, en grand ; « sur N j » dessous ; une barre de ce qui reste
    (pleine en début d'année, vide une fois tout placé). Un compteur tout placé reste, en gris : on voit qu'il est
-   épuisé. Rien si l'année n'a pas de soldes fiables (soldesSaisis). Une
-   case touchée mène au détail, « Mes compteurs ». */
+   épuisé. Rien si l'année n'a pas de soldes fiables (soldesSaisis). (Le
+   cadre « Mes compteurs », où une case menait, est retiré le jour même.) */
 function mesCongesHTML(db,person){
   if(!db||!soldesSaisis(db)) return "";
   var p=db.people.filter(function(x){ return x.id===person.id; })[0]||person;
@@ -15847,10 +15838,10 @@ function mesCongesHTML(db,person){
     var rs=Math.max(0,o.rs), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
     tot+=rs;
     var lib=libCompteur(db,o.k); if(lib===o.k && LIB_CPT_LONG[o.k]) lib=LIB_CPT_LONG[o.k];
-    return '<button type="button" class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(rs/hj>1?'s':'')+' sur '+num(o.tot)+' h')+'">'
+    return '<div class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(rs/hj>1?'s':'')+' sur '+num(o.tot)+' h')+'">'
       +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
-      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></button>';
+      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
   });
   /* Le solde du flex time, sans les bornes (le client, le 22/10/2026) : la
      case « Total » du pied du classeur, comme « Mes compteurs », sans la
@@ -15858,33 +15849,15 @@ function mesCongesHTML(db,person){
   var f=p.c&&p.c.flex;
   if(f && (f.total!==undefined || f.report!==undefined)){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
-    cases.push('<button type="button" class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour')+'">'
+    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour')+'">'
       +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
       +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
-      +'<em>≈ '+sg+jr(Math.abs(ft))+' j</em></button>');
+      +'<em>≈ '+sg+jr(Math.abs(ft))+' j</em></div>');
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
-}
-document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest(".pf-cgc"):null; if(!b) return;
-  var c=document.getElementById("cptCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"});
-});
-/* TROIS CHIFFRES DE L'ANNÉE (le client, le 22/10/2026 : « quelles autres
-   stats peuvent être présentes dans le héros ? ») : ce que la barre ne
-   dit pas — les heures, les jours de week-end et les jours fériés
-   travaillés, sur toute l'année, journées à venir comprises (les mêmes
-   que la barre : statsRythme, pause tenue et heures > 0). Sous le tableau
-   des pauses, à la fin du bloc de l'année. */
-function ryChiffresHTML(y){
-  var s=_ryStats, h="";
-  if(s&&s.y===y&&s.prestes) h+='<div class="pf-kp" aria-label="Sur l\u2019année '+y+', à venir compris">'
-    +'<span><b>'+esc(Number(s.heures).toLocaleString("fr-BE"))+'</b> heures</span>'
-    +'<span title="Journées travaillées un samedi ou un dimanche"><b>'+s.we+'</b> en week-end</span>'
-    +'<span title="Jours fériés travaillés"><b>'+s.feriesT+'</b> férié'+(s.feriesT>1?'s':'')+' travaillé'+(s.feriesT>1?'s':'')+'</span></div>';
-  return h;
 }
 function renderRythme(){
   var corps=document.getElementById("rythmeCorps"),
@@ -15929,7 +15902,7 @@ function renderRythme(){
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; }
       try{ a.innerHTML+=mesCongesHTML(db,person); }catch(e){} }
-    var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y)+ryChiffresHTML(y);
+    var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y);
     try{ recyclageHeros(db,person); }catch(e){}
   });
 }
@@ -22331,212 +22304,8 @@ function compteursCalcules(person,annee,jusqua){
 /* Deux codes que la légende du classeur ne définit pas : on les écrit en
    toutes lettres, avec le code à côté. */
 var LIB_CPT_LONG={MAL:"Maladie",FORM:"Formation",DTT:"Congé d'ancienneté"};
-function renderCompteurs(){
-  var hote=document.getElementById("cptCorps"); if(!hote) return;
-  var catSel=document.getElementById("prefillCat"), idSel=document.getElementById("prefillId");
-  if(!catSel||!idSel||!idSel.value){
-    ensurePrefillUI();
-    hote.innerHTML='<p class="lede" style="padding:0">Choisissez qui vous êtes dans les Réglages pour afficher vos compteurs.</p>';
-    document.getElementById("cptSub").textContent="";
-    return;
-  }
-  var id=idSel.value;
-  fetchHoraireDB().then(function(db){
-    if(!db) return;
-    var person=db.people.filter(function(p){return p.id===id;})[0];
-    if(!person||!person.c){
-      hote.innerHTML='<p class="lede" style="padding:0">Aucun compteur pour '+esc(id)+' dans le classeur.</p>';
-      return;
-    }
-    var annee=Number(db.year), c=person.c, ju=jourUsine(),
-        jusqua=ju.getFullYear()===annee?(ju.getMonth()+1)*100+ju.getDate():(ju.getFullYear()>annee?1231:0),
-        calc=compteursCalcules(person,annee,jusqua);
-    /* Sans le trigramme, déjà en grand dans le héros (le client, le 10/10/2026). */
-    document.getElementById("cptSub").textContent=db.maj?"classeur du "+db.maj.slice(8,10)+"/"+db.maj.slice(5,7)+"/"+db.maj.slice(0,4):String(annee);
-    /* LE CLIENT, LE 09/10/2026 : « optimiser l'onglet calendrier avec le même
-       style que les onglets horaire/équipe, surtout ne pas devoir faire de
-       scroll horizontal dans les cadres, et que les compteurs soient
-       professionnels et intuitifs ». Les deux tableaux (congés, flex time)
-       débordaient de leur cadre à 390 px (430 px de large pour 322). Chaque
-       compteur se lit désormais en une rangée : son nom, ce qui RESTE en grand,
-       une barre de ce qui est posé sur le droit de l'année. Le flex time a sa
-       jauge entre les bornes de la note du 18/09/2024 (−8 h, 80 h, 104 h), et
-       la confrontation au classeur tient en une ligne — elle ne parle que
-       s'il y a un écart. */
-    var h=[];
-
-    /* --- congés ---
-       Le client, le 18/10/2026 : « il faut regrouper les types de congé
-       ensemble et les présenter de la même manière ». Une seule liste, dans
-       un ordre fixe (VA, RTT, DTT, RJF, flex time, récup. HS, temps réduit),
-       et une seule forme de rangée : le code et le nom, une ligne de
-       détail, la valeur en grand à droite avec ce qu'elle mesure dessous.
-       En tête, le total à placer (les trois chiffres demandés le 09/10
-       restent : placé et disponible en détail, le restant à droite). */
-    var MOINS=function(v){ return String(num(v)).replace("-","−"); };
-    function rangee(cls,k,lib,detail,val,unite,leg,extra,titre){
-      return '<div class="cr'+(cls?" "+cls:"")+'"'+(titre?' title="'+esc(titre)+'"':'')+'>'
-        +'<div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(lib)+'</span></div>'
-        +'<div class="cr-s">'+detail+'</div>'
-        +'<div class="cr-v">'+val+(unite?'<small>'+unite+'</small>':'')+(leg?'<em>'+leg+'</em>':'')+'</div>'
-        +(extra||'')+'</div>';
-    }
-    var lc=[], dejaVu={}, totRs=0, saisis=soldesSaisis(db), places=[];
-    soldesConges(c).forEach(function(o){
-      var k=o.k, tot=o.tot, pose=o.pose, rs=o.rs;
-      dejaVu[k]=1;
-      var lib=libCompteur(db,k); if(lib===k && LIB_CPT_LONG[k]) lib=LIB_CPT_LONG[k];
-      if(!saisis){
-        lc.push(rangee("",k,lib==k?k:lib,pose?'Solde '+annee+' pas encore saisi':'Rien de posé',
-          num(R(pose/8,2)),'j',num(pose)+' h posées'));
-        return;
-      }
-      if(rs>0) totRs+=rs;
-      /* TOUT PLACÉ, EN UNE LIGNE (le client, le 20/10/2026, proposition 3) :
-         trois rangées « Tout placé » sur quatre allongeaient la carte d'un
-         tiers au téléphone. Elles se regroupent sous la liste ; restent en
-         rangée ceux qui ont encore quelque chose à placer. */
-      if(rs===0){ places.push({k:k, lib:lib, tot:tot}); return; }
-      var pct=tot>0?Math.max(0,Math.min(100,pose/tot*100)):0;
-      var bar='<div class="cr-bar" role="img" aria-label="'+num(pose)+' h placées sur '+num(tot)+' h"><i style="width:'+R(pct,1)+'%"></i></div>';
-      lc.push(rangee(rs<0?"neg":"",k,lib==k?k:lib,'<b>'+num(pose)+' h</b> placées sur '+num(tot)+' h',
-            MOINS(R(rs/8,2)),'j',MOINS(rs)+' h '+(rs<0?'de trop':'restantes'),bar,lib+' : '+num(rs)+' h restantes'));
-    });
-
-    if(places.length===1){
-      var p1=places[0];
-      lc.push(rangee("vide",p1.k,p1.lib==p1.k?p1.k:p1.lib,'','Tout placé','','','',num(p1.tot)+' h placées sur '+num(p1.tot)+' h'));
-    } else if(places.length){
-      /* les codes dans la pastille, les noms dans l'infobulle : les noms
-         en toutes lettres prenaient quatre lignes à 320 px */
-      lc.push(rangee("vide",places.map(function(o){ return o.k; }).join(" · "),
-        "Congés",'','Tout placé','','','',
-        places.map(function(o){ return o.lib+" : "+num(o.tot)+" h placées"; }).join(" · ")));
-    }
-    /* --- flex time ---
-       LE SOLDE AU JOUR J ET SES BORNES. Note de service du 18/09/2024 :
-       minimum −8 h, maximum 104 h, au-delà de 80 h des −FT à planifier. Le
-       solde est la case « Total: » du classeur (soldeFTClasseur()). */
-    var f=c.flex||{};
-    var ecartP=(f["+FT"]!==undefined)?R(calc.ftPlus-f["+FT"],2):null;
-    var ecartM=(f["-FT"]!==undefined)?R(calc.ftMoins-(-f["-FT"]),2):null;
-    if(jusqua && !saisis){
-      lc.push(rangee("","FT","Flex time",
-        '<b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises',
-        '—','','report '+(annee-1)+' pas encore saisi','','Le classeur '+annee+' ne porte pas encore le report du flex time.'));
-    }else if(jusqua){
-      var soldeJ=soldeFTClasseur(f),
-          etat=soldeJ>104?["ko","Au-delà de 104 h"]
-              :soldeJ>80?["att","À redescendre"]
-              :soldeJ<-8?["ko","Sous −8 h"]
-              :["ok","Dans les bornes"];
-      var pos=function(v){ return R(Math.max(0,Math.min(100,(v+8)/112*100)),1); };
-      /* LE REPORT DE L'AN PASSÉ, DIT (le client, le 20/10/2026, proposition
-         4) : « 0 h » à côté de « +62 h portées · −55 h reprises » ne se
-         lisait pas — 62 − 55 = 7. Le total du classeur porte aussi ce qui
-         vient d'avant l'année : total − (+FT) − (−FT), les trois cases du
-         pied de feuille. Mesuré sur 2026 : de −8 h à +90 h selon les
-         personnes, 0 pour 22 sur 78. Dit seulement s'il n'est pas nul. */
-      var rep=(f.total!==undefined && f["+FT"]!==undefined && f["-FT"]!==undefined)
-        ? R(Number(f.total)-Number(f["+FT"])-Number(f["-FT"]),2) : 0;
-      lc.push(rangee("ft-"+etat[0],"FT","Flex time",
-        '<b>+'+num(calc.ftPlus)+' h</b> portées · <b>−'+num(calc.ftMoins)+' h</b> reprises'
-        +(rep?' · report '+(annee-1)+' <b>'+(rep>0?'+':'')+MOINS(rep)+' h</b>':''),
-        (soldeJ>0?"+":"")+MOINS(soldeJ),'h',etat[1],
-        '<div class="ft-jauge" role="img" aria-label="Solde '+num(soldeJ)+' h, bornes −8 h et 104 h, seuil 80 h">'
-        +'<div class="ft-piste"><i class="ft-z0"></i><i class="ft-z1"></i></div>'
-        +'<span class="ft-pt" style="left:'+pos(soldeJ)+'%"></span>'
-        +'<div class="ft-gr"><span>−8 h</span><span class="mid" style="left:'+pos(80)+'%">80 h</span><span>104 h</span></div></div>',
-        'Solde au '+String(ju.getDate()).padStart(2,"0")+'/'+String(ju.getMonth()+1).padStart(2,"0")+', bornes −8 h et 104 h'));
-    }
-    var ecarts=[];
-    if(ecartP) ecarts.push("portées "+(ecartP>0?"+":"")+num(ecartP)+" h");
-    if(ecartM) ecarts.push("reprises "+(ecartM>0?"+":"")+num(ecartM)+" h");
-    /* Récup. HS : le classeur ne note que les reprises, pas le solde (dit
-       dans l'infobulle). Journées entières et reprises partielles,
-       additionnées (passe du 17/10/2026). */
-    var rhsJ=calc.abs.RHS||0, rhsT=R(calc.rhs+rhsJ,2); dejaVu.RHS=1;
-    lc.push(rangee("","RHS","Récup. heures sup.",
-      (rhsJ&&calc.rhs?'<b>'+num(R(rhsJ/8,2))+' j</b> entières et <b>'+num(R(calc.rhs,2))+' h</b> en partie de journée'
-        :rhsJ?'En journées entières':calc.rhs?'En partie de journée':'Aucune reprise cette année'),
-      num(rhsT),'h','repris en '+annee,'','Le classeur note les reprises, pas le solde du compteur.'));
-
-    /* --- temps de travail réduit ---
-       Le compteur du pied de feuille compte les journées POSÉES, et
-       « à planifier » (ou « solde à planifier ») ce qui reste du droit de
-       l'année (audit du 26/09/2026). Une rangée par code, ses périodes
-       additionnées ; ce qui reste à planifier en valeur. */
-    var cg=c.conges||{}, parCode={}, ordre=[];
-    var NOM_REDUIT={CP:"Congé parental",TP:"Temps partiel",CT:"Crédit-temps"};
-    Object.keys(cg).sort().forEach(function(k){
-      var m=/^(CP|TP|CT)(\d*)$/.exec(k); if(!m) return;
-      if(!parCode[m[1]]){ parCode[m[1]]=[]; ordre.push(m[1]); }
-      parCode[m[1]].push(Number(cg[k])||0);
-    });
-    var aPlanifier=(cg["àplanifier"]!==undefined)?cg["àplanifier"]:cg["soldeàplanifier"];
-    ordre.forEach(function(k,i){
-      dejaVu[k]=1;
-      var l=parCode[k], tot=l.reduce(function(s,v){return s+v;},0);
-      var det='<b>'+num(tot)+' j</b> posés'+(l.length>1?' en '+l.length+' périodes':'');
-      lc.push((aPlanifier!==undefined && i===0)
-        ? (Number(aPlanifier)===0 ? rangee("fini",k,NOM_REDUIT[k],det,'Tout planifié','','')
-            : rangee("",k,NOM_REDUIT[k],det,num(aPlanifier),'j','à planifier'))
-        : rangee("",k,NOM_REDUIT[k],det,num(tot),'j','posés'));
-    });
-
-    if(lc.length){
-      var totJ=R(totRs/8,2);
-      h.push(bloc("Congés","1 jour = 8 h",
-        (saisis?'<div class="cr-tot" title="Soldes '+(annee-1)+' compris"><b>'+num(totJ)+'<small>'+(totJ>=2?'jours':'jour')+'</small></b><span>'+(totRs?(totJ>=2?'restants':'restant')+', soit '+num(R(totRs,2))+' h':'tout est placé')+'</span></div>'
-          :'<p class="cpt-chk">Les soldes '+annee+' ne sont pas encore saisis dans le classeur : seuls les congés déjà posés sont comptés.</p>')
-        +'<div class="cr-l">'+lc.join("")+'</div>'
-        +(ecarts.length?'<p class="cpt-chk ko">Écart flex time avec le pied du classeur : '+ecarts.join(", ")+'</p>':'')));
-    }
-
-    /* La polyvalence est montée dans le héros (le client, le 18/10/2026). */
-
-    /* --- congés et maladie de l'année --- */
-    /* Les codes déjà comptés plus haut (congés, temps réduit) ne se redisent
-       pas : il reste la maladie et le reste (audit du 10/10/2026). */
-    var cles=Object.keys(calc.abs).filter(function(k){ return !dejaVu[k] && !dejaVu[k.replace(/^1\/2\s*/,"")]; }).sort(function(x,y){ return calc.abs[y]-calc.abs[x]; });
-    if(cles.length){
-      h.push(bloc("Maladie et formation","",
-        '<div class="cr-l">'+cles.map(function(k){
-          var l=libCompteur(db,k); if(l===k && LIB_CPT_LONG[k]) l=LIB_CPT_LONG[k];
-          var per=(ABSMAP[k]&&ABSMAP[k].k==="SMG"&&calc.malPer)?'<div class="cr-s">en <b>'+calc.malPer+'</b> période'+(calc.malPer>1?'s':'')+'</div>':'';
-          return '<div class="cr'+(per?'':' sans-s')+'"><div class="cr-n"><span class="cr-c">'+esc(k)+'</span><span>'+esc(l===k?k:l)+'</span></div>'+per+hj(calc.abs[k])+'</div>'; }).join("")+'</div>'));
-    }
-    /* --- contrat et notes du classeur --- */
-    /* LE PIED DE FEUILLE EN CLAIR (le client, le 20/10/2026 : « tout ce qui
-       figure dans le fichier doit s'y retrouver », étape 1 du remplacement
-       du classeur). Les contrats réduits servaient au calcul sans jamais se
-       lire ; les autres notes (jours fériés à reprendre, heures retirées)
-       n'arrivaient pas. Le texte tel qu'écrit, une fois : un commentaire
-       découpé en périodes se montre entier. */
-    var ctN=[], touts=[];
-    (person.ct||[]).forEach(function(c){ if(c.tout) touts.push(c.tout); });
-    (person.ct||[]).forEach(function(c){
-      var t=String(c.tout||c.txt||"").replace(/\s+/g," ").trim();
-      if(!t || (!c.tout && touts.some(function(x){ return x.indexOf(c.txt)>=0 && x!==c.txt; }))) return;
-      if(ctN.indexOf(t)<0) ctN.push(t);
-    });
-    if(ctN.length){
-      h.push(bloc("Contrat et notes du classeur","",
-        '<ul class="cpt-notes">'+ctN.map(function(t){ return '<li>'+esc(t.charAt(0).toUpperCase()+t.slice(1))+'</li>'; }).join("")+'</ul>'));
-    }
-    hote.innerHTML=h.join("");
-
-    function bloc(t,sous,corps){
-      return '<section class="cpt-bloc"><h3 class="cpt-t">'+esc(t)+(sous?'<span>'+esc(sous)+'</span>':'')+'</h3>'+corps+'</section>';
-    }
-    /* Heures ET journées de 8 h (le client, le 09/10/2026) : le jour en
-       gras, ce qu'on compte d'habitude ; l'heure à côté, en plus discret. */
-    function hj(h){
-      var j=R(h/8,2);
-      return '<div class="cr-v">'+num(j)+'<small>j</small><em>'+num(R(h,2))+' h</em></div>';
-    }
-  });
-}
+/* (renderCompteurs, le cadre « Mes compteurs », retiré le 22/10/2026 :
+   « Mes congés » du héros le reprend.) */
 
 /* ===================== vue année ===================== */
 /* L'horaire d'équipe porte l'année entière ; la montrer mois par mois oblige à
