@@ -2797,3 +2797,30 @@ ne disaient pas quand, alors que « Mes pauses », dessous, écrit « dans
 Mesuré : aucun débordement à 320, 390 et 1280 px. À 320 px, les dates
 passent sur deux lignes dans leur case. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### La bande du haut, retirée une seconde fois ; trois chiffres de l'année (22/10/2026, v965)
+
+Le client : « de nouveau la barre bleue dans le dessus de l'écran est
+revenue ; quelles autres stats peuvent être présentes dans le héros ? ».
+
+**Erreur commise.** Le matin même (v929, avec la suppression des
+demandes), j'avais posé un fond opaque `#0d1220` derrière la barre d'état
+(`html::after`), pour que les titres ne passent plus flous dessous. Le
+client avait refusé exactement cette bande le 20/10 (v880, « retire la
+bande »). Je ne l'avais pas cherché dans le journal avant de la remettre.
+Elle est retirée ; à sa place, un commentaire le dit. **À retenir :** le
+flou de l'iPhone sous la barre d'état est accepté par le client ; on ne
+pose rien derrière elle.
+
+**Trois chiffres sous la barre de l'année**, ce qu'elle ne dit pas :
+
+- les heures ;
+- les journées travaillées un samedi ou un dimanche (« en week-end ») ;
+- les jours fériés travaillés.
+
+Ils couvrent toute l'année, journées à venir comprises, comme la barre
+(`statsRythme` : pause tenue et heures > 0). Pour le client : 1 380, 32,
+6.
+
+Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.

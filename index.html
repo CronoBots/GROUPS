@@ -4452,6 +4452,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-bar.pf-pr-rep{background:none; border-radius:0; overflow:visible; height:10px; margin:0}
 .ry-an-bar.pf-pr-rep i{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px); border-radius:4px}
 .ry-an-bar.pf-pr-rep i i{background:var(--c); border-radius:0}
+/* les trois chiffres de l'année, sous sa barre */
+.pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:-2px 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
+.pf-kp>span{display:flex; flex-direction:column; gap:1px; padding:8px 10px; font-size:11.5px; line-height:1.25; color:var(--muted); min-width:0}
+.pf-kp>span+span{border-left:1px solid rgba(255,255,255,.08)}
+.pf-kp b{font-size:17px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums}
 .ry-an-cpt .pf-pr-lg-f,.ry-an-cpt .pf-pr-lg-r{display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:1px}
 .pf-pr-rep>i{display:block; min-width:6px; border-radius:4px; overflow:hidden;
   background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px)}
@@ -5576,10 +5581,9 @@ html .hp-fab:hover{opacity:1}
 .md-lien{display:block; margin:8px 0 0; padding:6px 0; border:0; background:none; color:var(--in); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
 .md-signer{display:block; width:100%; margin:0 0 10px; padding:10px 12px; border:1px solid var(--at-jaune); border-radius:12px; background:rgba(242,180,90,.12); color:var(--ink); font:inherit; font-size:14px; font-weight:650; text-align:left; cursor:pointer}
 .btnlike.dm-suppr{color:#ff8a7a; border-color:rgba(255,138,122,.45)}
-/* iOS 26 floute ce qui passe sous la barre d'état (le titre de « Ma
-   semaine », celui de la demande, sur les captures du client) : au
-   téléphone, un fond opaque derrière elle, rien ne glisse dessous */
-@media (max-width:760px){ html::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px); background:#0d1220; z-index:96; pointer-events:none} }
+/* (Le fond opaque posé le 22/10/2026 derrière la barre d'état est retiré
+   le même jour : le client l'avait déjà refusé le 20/10, « retire la
+   bande », et l'a revu revenir en haut de l'écran.) */
 /* la fiche de recyclage : les mots du papier, entourés quand ils sont choisis */
 html .rc-regles{color:#2F62D6; font-size:12.5px; line-height:1.4}
 html .rc-regles p{margin:0 0 4px}
@@ -15758,6 +15762,16 @@ function ryAnneeHTML(p,y,db){
      « supprimer cycle actuel et remplacer par ma semaine »). Le cadre
      « Ma semaine » sous le centre de contrôle rejoint le héros ; le cycle
      reste à un appui, dans la vue Cycle du calendrier. */
+  /* TROIS CHIFFRES DE L'ANNÉE (le client, le 22/10/2026 : « quelles autres
+     stats peuvent être présentes dans le héros ? ») : ce que la barre ne
+     dit pas — les heures, les jours de week-end et les jours fériés
+     travaillés, sur toute l'année, journées à venir comprises (les
+     mêmes que la barre : statsRythme, pause tenue et heures > 0). */
+  var s=_ryStats;
+  if(s&&s.y===y&&s.prestes) h+='<div class="pf-kp" aria-label="Sur l\u2019année '+y+', à venir compris">'
+    +'<span><b>'+esc(Number(s.heures).toLocaleString("fr-BE"))+'</b> heures</span>'
+    +'<span title="Journées travaillées un samedi ou un dimanche"><b>'+s.we+'</b> en week-end</span>'
+    +'<span title="Jours fériés travaillés"><b>'+s.feriesT+'</b> férié'+(s.feriesT>1?'s':'')+' travaillé'+(s.feriesT>1?'s':'')+'</span></div>';
   try{ h+=maSemaineHTML(db,p); }catch(e){}
   return h;
 }
