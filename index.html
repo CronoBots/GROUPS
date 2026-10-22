@@ -2566,10 +2566,25 @@ html .dm-mod.val{color:var(--at-jaune); background:color-mix(in srgb,var(--at-ja
 html .dm-intro>button{flex:none}
 /* le geste principal de la section, plein, à la couleur du sélecteur */
 html #grille .dm-intro>button{background:var(--in); border-color:var(--in); color:#fff; font-weight:650; min-height:40px; padding:0 16px}
-@media (max-width:560px){ html .dm-intro{flex-direction:column; align-items:stretch} html .dm-intro>button{min-height:44px} }
+@media (max-width:560px){
+  html .dm-intro-t{display:none}
+  html .dm-intro{gap:10px; margin-bottom:12px}
+  html #grille .dm-intro>button{min-height:40px; padding:0 14px; font-size:14px}
+}
+/* les gestes discrets d'une carte : des liens, pas des boutons pleins */
+html .dm-act-s{gap:16px; padding-top:0}
+html .dm-lien{padding:6px 2px; border:0; background:none; font:inherit; font-size:13.5px; font-weight:600; color:var(--in); cursor:pointer}
+html .dm-lien.dm-suppr{color:var(--at-rouge)}
+@media (hover:hover){ html .dm-lien:hover{text-decoration:underline} }
 html .dm-bascule{display:grid; grid-template-columns:repeat(3,1fr); gap:4px; max-width:520px; margin:0 auto 12px; padding:4px; border-radius:12px; border:1px solid var(--line); background:var(--surface2)}
 html .dm-bascule button{min-height:42px; border:0; border-radius:9px; background:none; color:var(--muted); font:inherit; font-size:15px; font-weight:650; cursor:pointer}
-@media (max-width:400px){ html .dm-bascule button{font-size:13.5px; padding:0 2px; white-space:nowrap; letter-spacing:-.01em} }
+@media (max-width:400px){
+  html .dm-bascule button{position:relative; font-size:13.5px; padding:0 2px; white-space:nowrap; letter-spacing:-.01em}
+  /* le compteur en pastille dans le coin : à 320 px, « Heures sup. 1 »
+     débordait de son bouton */
+  html .dm-bascule .dm-n{position:absolute; top:3px; right:3px; margin:0; min-width:16px; padding:0 4px; font-size:10px; line-height:16px}
+}
+@media (max-width:360px){ html .dm-bascule button{font-size:12.5px; padding:0 10px 0 2px} }
 html .dm-bascule button[aria-selected="true"]{background:var(--in); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25)}
 html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,.25); color:#fff}
 .dm-onglets .dm-n,.dm-bascule .dm-n{display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:var(--surface3); font-size:11px}
@@ -14941,7 +14956,13 @@ function dmTete(actif){ return '<header class="ws-tete dm-tete">'+dmBasculeHTML(
 /* le nom du module, en tête de l'intro : on sait toujours où l'on est */
 function dmModule(val){ return '<b class="dm-mod'+(val?' val':'')+'">'+(val?'Réception et validation':'Mes demandes')+'</b> '; }
 /* sous le sélecteur, ce que fait le type choisi, et son bouton */
-function dmIntro(sous,act){ return '<div class="dm-intro"><p>'+sous+'</p>'+(act||'')+'</div>'; }
+function dmIntro(sous,act){
+  /* le texte après le nom du module se lit au PC ; au téléphone, le nom et
+     le bouton tiennent sur une ligne (le client, le 23/10/2026 : trois
+     lignes d'explication avant la première demande) */
+  var i=sous.indexOf('</b> '), t=i>=0?sous.slice(0,i+5)+'<span class="dm-intro-t">'+sous.slice(i+5)+'</span>':sous;
+  return '<div class="dm-intro'+(act?'':' dm-intro-seul')+'"><p>'+t+'</p>'+(act||'')+'</div>';
+}
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("[data-bascule]"):null; if(!b) return;
   var s=b.getAttribute("data-bascule"); if(s!==GR.section) wsAller(s);
@@ -14963,7 +14984,10 @@ function wsAller(s,garder){
     if(!gw.dataset.carte){ gw.dataset.carte="1"; gw.addEventListener("click",function(e){ GR.carteTouchee=e.target.closest(".dm-carte"); },true);
       /* toute la carte ouvre sa fiche, pas seulement le bouton */
       gw.addEventListener("click",function(e){ var c=e.target.closest(".dm-carte"); if(!c||e.target.closest("button,a,input,select,textarea,label")) return;
-        var b=c.querySelector("[data-dm-voir],[data-rc-voir]"); if(b) b.click(); }); } }
+        var b=c.querySelector("[data-dm-voir],[data-rc-voir],[data-hs-voir]"); if(b){ b.click(); return; }
+        if(c.hasAttribute("data-dm")) dmFeuilleVoir(c.getAttribute("data-dm"));
+        else if(c.hasAttribute("data-rc")) rcFeuille(rcTrouve(c.getAttribute("data-rc")));
+        else if(c.hasAttribute("data-hs")) hsFeuille(hsTrouve(c.getAttribute("data-hs"))); }); } }
   wsMenuMaj();
   wsBadge();
   try{ sideMaj(); }catch(e){}
@@ -15420,7 +15444,10 @@ function dmEtapes(x){
   /* toujours le contremaître de pause, puis la RH (base/23) ; un refus
      est porté à l'étape où il a été donné */
   var refCm=x.statut==="refusee"&&x.cm&&!x.rh;
-  et.push({ok:!!x.cm&&!refCm,t:x.cm_le,r:"Contremaître",q:x.cm||"",w:"en attente d'acceptation",moi:"à vous d'accepter"});
+  /* le contremaître attendu est nommé avant de signer : celui de la pause,
+     que la demande a gardé (base/18) */
+  var cmPrevu=dmLignes(x).map(function(l){ return l.cm; }).filter(Boolean)[0]||"";
+  et.push({ok:!!x.cm&&!refCm,t:x.cm_le,r:"Contremaître",q:x.cm||(cmPrevu?idLisible(cmPrevu):""),w:"en attente d'acceptation",moi:"à vous d'accepter"});
   et.push({ok:!!x.rh&&x.statut!=="refusee",t:x.rh_le,r:"RH",q:x.rh||"",w:"en attente de confirmation",moi:"à vous de confirmer"});
   return dmCircuit(x,et,x.statut==="en_attente",x.statut==="refusee",dmATraiter(x));
 }
@@ -15468,7 +15495,10 @@ function dmCarte(x,valideur){
   var act='';
   if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Signer</button></div>';
   else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">'+(x.attend_cm?'Accepter':'Confirmer')+'</button></div>';
-  else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>';
+  /* « Voir la feuille » retiré (le client, le 23/10/2026 : « optimise au
+     max ») : toute la carte ouvre la feuille ; restent, discrets, les
+     gestes qui changent la demande */
+  else act=dmModifiable(x)||dmSupprimable(x)?'<div class="dm-act dm-act-s">'+(dmModifiable(x)?'<button type="button" class="dm-lien" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="dm-lien dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>':'';
   var types=[]; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
   if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
   var tag=types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'';
@@ -15477,7 +15507,9 @@ function dmCarte(x,valideur){
        gras, le formulaire dessous, l'état à droite */
     +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
     +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(DM_FORMS[f].t)+'</b>'+tag+mdQuoi(x)+'</div>':'')
-    +dmTableau(x)
+    /* un seul jour : le résumé sous le titre dit déjà la pause, les heures
+       et le remplaçant ; la feuille garde le tableau */
+    +(l.length>1?dmTableau(x):'')
     /* « 1 jour · 8 h » redit le résumé sous le titre : seulement pour qui
        valide, avec les compteurs restants et les collègues absents */
     +(valideur?'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>':'')
@@ -16541,19 +16573,21 @@ function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullY
 function rcQuandLong(x){ var d=dmJour(x.jour); return JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' '+MOIS[d.getMonth()].toLowerCase()+(d.getFullYear()!==jourUsine().getFullYear()?' '+d.getFullYear():'')+' · '+(x.pause==="N"?"Nuit":x.pause); }
 function rcCarte(x){
   var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
-  var info=[x.doublure?'En doublure'+(x.titulaire?' de '+idLisible(x.titulaire):''):'Seul au poste'];
-  var act='<div class="dm-act"><button type="button" class="'+(rcATraiter(x)?'btn ss-ok':'btnlike')+'" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Confirmer':x.je_contresigne?'Contresigner':x.je_valide?'Valider':'Voir la fiche')+'</button>'
-    +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button>':'')+'</div>';
-  var tag='<span class="dm-type">'+(x.pause==="N"?"Nuit":esc(x.pause||""))+(x.doublure?' · doublure':'')+'</span>';
+  /* UNE SEULE FOIS CHAQUE CHOSE (le client, le 23/10/2026 : « optimise au
+     max ») : la tuile dit le jour ; dessous, la pause et seul ou en doublure
+     (et de qui) — la date en toutes lettres, l'étiquette « Nuit ·
+     doublure » et la ligne « En doublure de … » le redisaient */
+  var quoi='<small class="md-quoi">pause '+dmPa(x.pause)+' · '+(x.doublure?'en doublure'+(x.titulaire?' de <b class="md-rp">'+esc(idLisible(x.titulaire))+'</b>':''):'seul au poste')+'</small>';
+  var act=rcATraiter(x)?'<div class="dm-act"><button type="button" class="btn ss-ok" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Confirmer':x.je_contresigne?'Contresigner':'Valider')+'</button></div>'
+    :(x.a_moi&&x.statut==="en_attente"?'<div class="dm-act dm-act-s"><button type="button" class="dm-lien dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button></div>':'');
   return '<article class="dm-carte dm-g-'+rcGenre(x)+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
     /* LA CARTE EN DEUX LIGNES DE TITRE (le client, le 22/10/2026 :
        « optimise cela 100 % pro ») : le poste en gras, la date en entier
        dessous, l'état à droite. « Ma fiche » et l'étiquette « RECYCLAGE · »
        redisaient l'onglet et le sélecteur. Pour la fiche d'un autre, la
        personne d'abord, le poste et la date ensuite. */
-    +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b><small>'+esc(rcQuandLong(x))+tag+'</small></span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
-    +(x.a_moi?'':'<div class="dm-quoi"><b>'+esc(x.fonction)+'</b><span>'+esc(rcQuandLong(x))+'</span>'+tag+'</div>')
-    +'<p class="dm-info">'+info.map(esc).join(" · ")+'</p>'
+    +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b>'+quoi+'</span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
+    +(x.a_moi?'':'<div class="dm-quoi"><b>Recyclage '+esc(x.fonction)+'</b>'+quoi+'</div>')
     +(x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.cm_motif)+'</p>':'')
     +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
 }
@@ -16773,8 +16807,8 @@ function hsQuoi(x){
 function hsCarte(x){
   var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
   var tag=hsTag(x);
-  var act='<div class="dm-act"><button type="button" class="'+(hsATraiter(x)?'btn ss-ok':'btnlike')+'" data-hs-voir="'+x.id+'">'+(x.j_enregistre&&!x.a_moi?'Enregistrer':hsATraiter(x)?'Viser':'Voir la feuille')+'</button>'
-    +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-hs-suppr="'+x.id+'">Retirer</button>':'')+'</div>';
+  var act=hsATraiter(x)?'<div class="dm-act"><button type="button" class="btn ss-ok" data-hs-voir="'+x.id+'">'+(x.j_enregistre?'Enregistrer':'Viser')+'</button></div>'
+    :(x.a_moi&&x.statut==="en_attente"?'<div class="dm-act dm-act-s"><button type="button" class="dm-lien dm-suppr" data-hs-suppr="'+x.id+'">Retirer</button></div>':'');
   return '<article class="dm-carte dm-g-'+hsGenre(x)+(hsATraiter(x)?' dm-a-faire':'')+'" data-hs="'+x.id+'">'
     +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>Heures sup.'+tag+'</b>'+hsQuoi(x)+'</span>'
       :'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+hsStatut(x)+'</header>'
