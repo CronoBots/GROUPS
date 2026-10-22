@@ -2642,6 +2642,14 @@ html .hs-ju{display:inline; padding:0; border:0; background:none; font:inherit; 
 html .hs-ju[aria-pressed="true"]{font-weight:700}
 html .hs-case{display:inline-block; width:1.3em; font-size:15px}
 html .hs-n{width:58px}
+/* les champs de la feuille, au style du papier (le sélecteur sombre du
+   thème jurait sur la feuille blanche, au téléphone surtout) */
+html .hs-papier select,html .hs-papier input[type=number],html .hs-papier input[type=date],html .hs-papier input[type=text]{font:inherit; font-size:16px; color:#1d1d1d; background:#fffde8; border:0; border-bottom:1px solid #1d1d1d; border-radius:0; padding:4px 6px; min-height:34px; box-shadow:none; -webkit-appearance:none; appearance:none}
+html .hs-papier select{padding-right:22px; background-image:linear-gradient(45deg,transparent 50%,#1d1d1d 50%),linear-gradient(135deg,#1d1d1d 50%,transparent 50%); background-position:calc(100% - 12px) 55%,calc(100% - 7px) 55%; background-size:5px 5px; background-repeat:no-repeat}
+html .hs-resp select{display:block; width:100%; margin-top:4px}
+html .hs-aide{display:block; margin-top:2px; font-size:12px; font-style:italic; color:#555}
+html .hs-duree{display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
+html .hs-papier input[type=date]{width:auto}
 html .hs-tot{margin:0 0 12px; padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); font-size:12.5px; line-height:1.5; color:var(--muted)}
 html .hs-tot b{color:var(--ink)}
 html .hs-pt{color:#555; font-size:.92em}
@@ -16837,7 +16845,12 @@ function hsFeuille(x){
   var tri=neuf?moi:x.trigramme, p=dmPersonne(tri);
   var np=neuf?((p&&grNom(p))||idLisible(moi||"")):([x.prenom,x.nom].filter(Boolean).join(" ")||(p&&grNom(p))||idLisible(tri));
   var auj=new Date(jourUsine()), isoAuj=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
-  function respDu(iso){ var c=rcContremaitre(iso,rcPauseDe(moi,iso)); return c&&c!==moi?c:""; }
+  /* les responsables d'équipe : les contremaîtres et les adjoints, rien
+     d'autre (le client, le 23/10/2026) — la catégorie « Contremaîtres de
+     production » du classeur ; le contremaître de la pause est proposé */
+  var cadres=((wsDb()||{}).people||[]).filter(function(q){ return estCadre(q)&&q.id!==moi; }).sort(function(u,v){ return u.id<v.id?-1:1; });
+  function estResp(t){ return cadres.some(function(q){ return q.id===t; }); }
+  function respDu(iso){ var c=rcContremaitre(iso,rcPauseDe(moi,iso)); return c&&c!==moi&&estResp(c)?c:""; }
   var etat=neuf?{t:"HS",j:isoAuj,hor:hsHorairePrevu(moi,isoAuj),h:"",m:"0",ju:"",jt:"",rd:"",resp:respDu(isoAuj)}
     :{t:x.type||"HS",j:x.jour,hor:x.horaire,h:Math.floor(x.minutes/60),m:x.minutes%60,ju:x.justif,jt:x.justif_texte||"",rd:x.rappel_de||"",resp:x.responsable||""};
   var aViser=!neuf&&!x.a_moi&&!!x.je_vise, aEnr=!neuf&&!x.a_moi&&!!x.j_enregistre;
@@ -16853,14 +16866,18 @@ function hsFeuille(x){
       '<div class="dm-pp-cadre"><p class="dm-pp-sous">Demande du membre du personnel</p>',
       '<p class="dm-pp-ch"><b>Nom et Prénom</b> : <span>'+esc(np)+'</span></p>',
       '<p class="dm-pp-ch">Fonction : <span>'+esc(p?wsPoste(p):(x&&x.categorie)||"")+'</span></p>',
-      '<p class="dm-pp-ch">Responsable d\'équipe : '+(ed?'<select id="hsResp"><option value="">— la hiérarchie et la RH —</option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===etat.resp?' selected':'')+'>'+esc(idLisible(q.id))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join("")+'</select>':'<span>'+esc(etat.resp?idLisible(etat.resp):"")+'</span>')+'</p>',
+      '<p class="dm-pp-ch hs-resp">Responsable d\'équipe : '+(ed?'<select id="hsResp"><option value="">— à choisir —</option>'
+        +[["Contremaîtres",function(q){ return CONTREMAITRES.indexOf(q.id)>=0; }],["Adjoints",function(q){ return CONTREMAITRES.indexOf(q.id)<0; }]].map(function(g){
+          var l=cadres.filter(g[1]); return l.length?'<optgroup label="'+g[0]+'">'+l.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===etat.resp?' selected':'')+'>'+esc(idLisible(q.id))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join("")+'</optgroup>':''; }).join("")+'</select>'
+          +(etat.resp&&etat.resp===respDu(etat.j)?'<small class="hs-aide">le contremaître de votre pause ce jour-là</small>':'')
+        :'<span>'+esc(etat.resp?idLisible(etat.resp):"")+'</span>')+'</p>',
       '<p>Prestation de temps supplémentaire :</p><ul class="hs-l">',
       '<li><b>date</b> : '+(ed?'<input type="date" id="hsJour" value="'+esc(etat.j)+'" max="'+isoAuj+'">':'<span>'+dmDateFr(dmJour(etat.j))+'</span>')+'</li>',
       '<li class="rc-choix"><b>horaire prévu</b> : '+choix(HS_HORAIRES,etat.hor,"hh",ed)+'</li>',
       /* HS ou flex time : l'option que le client a demandée, hors du papier */
       '<li class="rc-choix"><b>à prendre en</b> : '+choix(HS_TYPES,etat.t,"ht",ed)+(ed?' <i class="hs-pt">'+(etat.t==="FT"?'(le flex time se prend par heure entière)':'(les HS se prennent par quart d\'heure)')+'</i>':'')+'</li>',
-      '<li><b>durée de prestations supplémentaires</b> : '+(ed?'<input type="number" id="hsH" class="hs-n" min="0" max="24" inputmode="numeric" value="'+esc(etat.h)+'"> h'
-        +(etat.t==="FT"?'':' <select id="hsM" class="hs-n">'+[0,15,30,45].map(function(v){ return '<option value="'+v+'"'+(Number(etat.m)===v?' selected':'')+'>'+pad2(v)+'</option>'; }).join("")+'</select> min')
+      '<li><b>durée de prestations supplémentaires</b> : '+(ed?'<span class="hs-duree"><input type="number" id="hsH" class="hs-n" min="0" max="24" inputmode="numeric" placeholder="0" value="'+esc(etat.h)+'"> h'
+        +(etat.t==="FT"?'':' <select id="hsM" class="hs-n">'+[0,15,30,45].map(function(v){ return '<option value="'+v+'"'+(Number(etat.m)===v?' selected':'')+'>'+pad2(v)+'</option>'; }).join("")+'</select> min')+'</span>'
         :'<span>'+(x.type==="FT"?'Flex time':'HS')+' · '+hsDuree(x.minutes)+'</span>')+'</li>',
       '<li><b>justification :</b><ul class="hs-j">'+HS_JUSTIFS.map(function(z){
         var pris=etat.ju===z[0], boite='<span class="hs-case" aria-hidden="true">'+(pris?'☑':'☐')+'</span>';
@@ -16941,6 +16958,7 @@ function hsFeuille(x){
     if(etat.t==="HS"&&min%15){ err.textContent="Les HS se prennent par quart d'heure."; return; }
     if(etat.t==="FT"&&min%60){ err.textContent="Le flex time se prend par heure entière."; return; }
     if(!etat.ju){ err.textContent="Cochez la justification."; return; }
+    if(!etat.resp){ err.textContent="Choisissez votre responsable d'équipe (contremaître ou adjoint)."; return; }
     if(etat.ju==="necessaire"&&!String(etat.jt).trim()){ err.textContent="Dites en quelques mots le travail nécessaire."; return; }
     if(etat.ju==="rappel"&&!String(etat.rd).trim()){ err.textContent="Nommez le responsable qui vous a rappelé."; return; }
     bs.disabled=true;
