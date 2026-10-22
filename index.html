@@ -5554,6 +5554,10 @@ html .ctl{display:grid; gap:14px; padding:12px 14px 14px}
 html .ctl-rac{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
 html .ctl-t{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:76px; padding:10px 6px; border:1px solid var(--line); border-radius:14px; background:var(--surface2); color:var(--ink); font:inherit; font-size:12.5px; font-weight:600; line-height:1.2; text-align:center; cursor:pointer}
 html .ctl-t svg{color:var(--in)}
+html .ctl-t small{font-size:11px; font-weight:500; color:var(--muted); margin-top:-3px}
+html .pf-avec{color:inherit; opacity:.85}
+html .pf-avec b{font-weight:700; font-size:inherit; line-height:inherit; color:inherit}
+@media (max-width:699px){ html .ctl-t{min-height:68px; padding:8px 4px; gap:4px} html .ctl-t svg{width:20px; height:20px} }
 html .ctl-bloc{display:flex; flex-direction:column; gap:8px; min-width:0}
 html .ctl-bloc h3{margin:0; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px}
 html .ctl-nb{display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11.5px; letter-spacing:0}
@@ -5575,7 +5579,7 @@ html .ctl-pa .pl-pa{flex:none}
 @media (hover:hover){ html .ctl-t:hover,html .ctl-i:hover{border-color:var(--in2)} }
 @media (max-width:360px){ html .ctl-t{font-size:11.5px; min-height:70px} }
 @media (min-width:1100px){
-  html .ctl{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr); align-items:start; gap:18px}
+  html .ctl{grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; gap:18px}
 }
 </style>
 </head>
@@ -12555,7 +12559,17 @@ function _pfHead(db,p){
       +'<span class="pf-proch-h" aria-label="'+esc(pr.heures)+'"><span class="pf-hd">'+esc(hD)+'</span>'
       +'<span class="pf-trait'+(pr.enCours?' en':'')+'"'+(pr.enCours?' role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"':'')+'><i style="width:'+(pr.enCours?pr.pct:0)+'%"></i></span>'
       +'<span class="pf-hf">'+esc(hF)+'</span></span>'
-      +'<span class="pf-proch-at"'+(pr.atelier?'':' hidden')+'>'+esc(pr.atelier||"")+'</span>'
+      +(function(){
+        /* AVEC QUI (le client, le 22/10/2026, « optimiser encore » le centre
+           de contrôle) : le contremaître de la pause et les collègues du
+           même poste, sous l'atelier. Ils étaient dans « Ma prochaine
+           pause », un second billet du même poste, retiré. */
+        var e=null; try{ e=ctlPause(p); }catch(er){}
+        var at=(e&&e.poste)||pr.atelier||"", av=[];
+        if(e&&e.cm&&e.cm!==p.id) av.push('CM <b>'+esc(idLisible(e.cm))+'</b>');
+        if(e&&e.avec.length) av.push('avec <b>'+e.avec.map(function(t){ return esc(idLisible(t)); }).join(" · ")+'</b>');
+        return '<span class="pf-proch-at"'+(at||av.length?'':' hidden')+'>'+esc(at)+(av.length?'<span class="pf-avec">'+(at?' · ':'')+av.join(" · ")+'</span>':'')+'</span>';
+      })()
       +'</span><span class="pf-fl" aria-hidden="true">›</span></span></button>';
   }
   /* PLUS DE BANDE DES SEPT JOURS (le client, le 16/10/2026 : « pas de
@@ -15712,8 +15726,9 @@ document.addEventListener("click",function(e){
      seul endroit (remplacement à signer, fiche à confirmer, demande à viser,
      horaire modifié), puis ce qui est en route (ses demandes et ses
      fiches) ; rien d'autre, « tout est à jour » sinon ;
-   - « MA PROCHAINE PAUSE » : le contremaître et les collègues du même
-     poste, lus dans l'horaire par les fonctions d'« Équipe du jour ». */
+   - (« MA PROCHAINE PAUSE », le contremaître et les collègues du même
+     poste, est passée le jour même dans le billet du héros : c'était un
+     second « prochain poste ».) */
 var CTL_ICO={
   conge:'<path d="M8 2v4M16 2v4"/><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 15l2 2 4-4"/>',
   rec:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>',
@@ -15746,11 +15761,14 @@ function renderCentre(db,person){
   renderCentre.p=person;
   var cb=!!compteBase(), val=cb&&peutSaisir();
   /* les raccourcis */
-  var rac=[];
-  if(cb) rac.push(["conge","Demander un congé","dmNv"],["rec","Fiche de recyclage","rcNv"]);
-  rac.push(["paie","Ma fiche de paie","paie"],["eq","Équipe du jour","eq"]);
-  if(cb) rac.push(["plan","Horaire production","plan"]);
-  rac.push(["ag","Mon agenda","ag"]);
+  /* chaque raccourci dit aussi son état : ce qui est en cours, le mois */
+  var rac=[], L0=GR.demandes||[], R0=GR.recyclages||[], auj0=jourUsine();
+  var nDem=L0.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length,
+      nRc=R0.filter(function(x){ return x.a_moi&&rcEnCours(x); }).length;
+  if(cb) rac.push(["conge","Demander un congé","dmNv",nDem?nDem+" en cours":"formulaire RH"],["rec","Fiche de recyclage","rcNv",nRc?nRc+" en route":"polyvalence"]);
+  rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq","aujourd'hui"]);
+  if(cb) rac.push(["plan","Horaire production","plan",String(auj0.getFullYear())]);
+  rac.push(["ag","Mon agenda","ag","sur le téléphone"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
   var dot=document.getElementById("notifDot");
@@ -15763,23 +15781,12 @@ function renderCentre(db,person){
     R.filter(function(x){ return x.a_moi&&rcEnCours(x); }).forEach(function(x){
       var dj=dmJour(x.jour); route.push(["rcmoi","Recyclage "+x.fonction+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),rcStatut(x)]); });
   }
-  var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span></button>'; }).join("")+'</div>'];
+  var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>'];
   var fa='<section class="ctl-bloc"><h3>À faire'+(faire.length?' <span class="ctl-nb">'+faire.reduce(function(s,f){ return s+(f[3]||1); },0)+'</span>':'')+'</h3>';
   if(faire.length) fa+='<div class="ctl-l">'+faire.map(function(f){ return '<button type="button" class="ctl-i ctl-urg" data-ctl="'+f[0]+'"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small></span><em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
   else fa+='<p class="ctl-ok">✓ Rien ne vous attend'+(cb?'':' — connectez-vous dans Réglages pour vos demandes')+'.</p>';
   if(route.length) fa+='<p class="ctl-sous">En route</p><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
   h.push(fa+'</section>');
-  /* ma prochaine pause */
-  var pa=ctlPause(person), ps='<section class="ctl-bloc"><h3>Ma prochaine pause</h3>';
-  if(pa){
-    var quand=pa.enCours?"en cours":pa.kc===0?"aujourd'hui":pa.kc===1?"demain":JOURS_LONGS[(pa.d.getDay()+6)%7].toLowerCase()+" "+pa.d.getDate()+" "+MOIS_C[pa.d.getMonth()];
-    ps+='<button type="button" class="ctl-i ctl-pa" data-ctl="pause" data-an="'+pa.d.getFullYear()+'" data-m="'+(pa.d.getMonth()+1)+'" data-j="'+pa.d.getDate()+'">'
-      +'<span class="pl-pa '+grPosteCls(pa.pv)+'">'+esc(pa.pv==="N"?"N":pa.pv)+'</span><span><b>'+esc(quand.charAt(0).toUpperCase()+quand.slice(1))+(pa.poste?' · '+esc(pa.poste):'')+'</b>'
-      +'<small>'+(pa.n?pa.n+' à la pause':'horaire variable')+'</small></span><em aria-hidden="true">›</em></button>'
-      +'<dl class="ctl-dl"><dt>Contremaître</dt><dd>'+(pa.cm?'<span class="pl-tri">'+esc(idLisible(pa.cm))+'</span>'+(pa.cm===person.id?' <small>vous</small>':''):'<small>—</small>')+'</dd>'
-      +(pa.cm===person.id?'':'<dt>Au même poste</dt><dd>'+(pa.avec.length?pa.avec.map(function(t){ return '<span class="pl-tri">'+esc(idLisible(t))+'</span>'; }).join(""):'<small>seul</small>')+'</dd>')+'</dl>';
-  } else ps+='<p class="ctl-ok">Aucune pause prévue dans les 60 jours.</p>';
-  h.push(ps+'</section>');
   corps.innerHTML=h.join("");
   var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0);
   document.getElementById("ctlSub").textContent=n?n+" à faire":"tout est à jour";
@@ -15801,7 +15808,6 @@ document.addEventListener("click",function(e){
   else if(k==="dem"){ GR.onglet="miennes"; ouvrirGrille("demandes"); }
   else if(k==="rcfaire"){ GR.rcOnglet="traiter"; ouvrirGrille("recyclages"); }
   else if(k==="rcmoi"){ GR.rcOnglet="miennes"; ouvrirGrille("recyclages"); }
-  else if(k==="pause"){ eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false; setView("jour"); }
 });
 /* MES DEMANDES : celles en cours, avec leurs étapes ; sinon un bouton */
 /* LES FICHES DE RECYCLAGE « POLYVALENCE » (le client, le 22/10/2026 : « il

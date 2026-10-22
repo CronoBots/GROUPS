@@ -2336,3 +2336,28 @@ les règles et en ajoutant deux conditions : sa place habituelle, et un
 poste d'arrivée qui manquerait sans lui. Les quatre sorties du
 vérificateur et les agendas sont inchangés ; l'alignement des badges
 reste à 0 décalage.
+
+### Le centre de contrôle, une seconde passe (22/10/2026, `nfdm-v939`)
+
+Le client : « top le centre de contrôle, mais il y a moyen d'optimiser
+cela encore plus ». Photographié à 390 et 1280 px, puis relu bloc par
+bloc :
+
+- **Une redite** : « Ma prochaine pause » était un second « Prochain
+  poste », juste sous celui du héros. Elle est retirée. Ce qu'elle
+  apportait, le contremaître de la pause et les collègues du même poste,
+  passe dans le billet du héros, sous l'atelier (« Fermentation · CM
+  GPS »). Le trigramme en gras y héritait la taille de la date (15,5 px) :
+  ramené à celle de la ligne.
+- **Des raccourcis qui disent leur état** : « 1 en cours » sous
+  « Demander un congé », « 1 en route » sous la fiche de recyclage, le
+  mois sous la fiche de paie ; sinon une ligne fixe, pour que les tuiles
+  aient toutes la même hauteur. « Équipe du jour » disait « 21 oct. »
+  pendant que le héros annonçait jeudi 22 (avant 6 h, le jour de l'usine
+  est encore la veille) : elle dit « aujourd'hui ».
+- **Plus compact** : au PC, deux colonnes (raccourcis, à faire) au lieu
+  de trois. Au téléphone, des tuiles de 68 px au lieu de 76. Le cadre
+  passe de 666 à 516 px de haut à 390 px, avec deux tâches.
+
+Mesuré : à 320, 390 et 1280 px, aucun débordement ; les huit raccourcis
+et lignes testés mènent au bon écran ; 0 erreur.
