@@ -20348,11 +20348,18 @@ function transfertsDuJour(db,annee,m,j){
       if(o.attendu && sans>=o.attendu) return;
       tr.forEach(function(z){
         /* l'échange des places habituelles : c'est l'autre qu'on prévient */
-        var oDe=vue.postes.filter(function(q){ return q.P.k===z[1].de; })[0], y=echangeHabituel(z[0],o,oDe,jc);
-        var rw=y?null:tenuParRemplacant(z[0],oDe,mmdd,jc);
-        if(y) out.push({p:y.p, pause:g, de:z[1].de, vers:z[1].vers, r:{qui:[], note:"Sa place habituelle : "+idLisible(z[0].p.id)+" garde la sienne"}});
-        else if(rw) out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:{qui:[], note:idLisible(rw.p.id)+" (remplace "+rw.z+") tient "+nomPosteApp(z[1].de)}});
-        else out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
+        /* LES PLACEMENTS D'OFFICE NE S'ANNONCENT PAS (le client, le
+           22/10/2026, devant AAI le 23 et PAM le 26 encore listés :
+           « toujours le cas ? »). La place habituelle (SMA), l'échange des
+           places habituelles (AAI), le poste tenu par un remplaçant écrit
+           (PAM) : le Planning les place, ils ne sont plus « à prévenir ».
+           Mêmes fonctions que renderEquipe(). */
+        var oDe=vue.postes.filter(function(q){ return q.P.k===z[1].de; })[0];
+        if(echangeHabituel(z[0],o,oDe,jc)) return;
+        if(placeDOffice(z[0],o.P.k,oDe,vue,jc,mmdd)) return;
+        var sansX=o.tenu-(compteAuPoste(z[0],o.P,jc)?1:0);
+        if(tenuParRemplacant(z[0],oDe,mmdd,jc) && o.attendu && sansX<o.attendu) return;
+        out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
       });
     });
   });

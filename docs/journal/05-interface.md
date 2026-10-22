@@ -2361,3 +2361,18 @@ bloc :
 
 Mesuré : à 320, 390 et 1280 px, aucun débordement ; les huit raccourcis
 et lignes testés mènent au bon écran ; 0 erreur.
+
+### Les placements d'office ne sont plus « à prévenir » (22/10/2026, `nfdm-v940`)
+
+Le client, capture des Effectifs à l'appui : « toujours le cas ? AAI et
+PAM ? ». Le Planning les plaçait bien, mais la liste « Changements de
+poste à prévenir » les annonçait encore, avec leur raison. Le choix,
+fait la veille sans le dire, était de prévenir quiconque change de poste
+par rapport à sa case. Or le client parle d'office : c'est leur place,
+rien à annoncer. `transfertsDuJour()` écarte désormais les trois
+placements d'office, par les mêmes fonctions que le Planning :
+`placeDOffice`, `echangeHabituel` et `tenuParRemplacant` (avec la même
+condition d'un poste d'arrivée en manque). Mesuré : la semaine du 22/10
+passe de 2 changements à « Rien à signaler » ; celle du 20/10 garde sa
+vraie proposition (JBI en distillation la nuit du 20) et ne liste plus
+SMA le 21. Les quatre sorties du vérificateur sont inchangées.
