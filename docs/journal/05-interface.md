@@ -2443,3 +2443,26 @@ Mesuré (`mq.js`, mois dépliés) : 2 rangées décalées de 10 px à 1280 et
 1920 px avant, 0 après. Puis tous les onglets à 1920 px (`grilles.js`) :
 il ne reste que les 4 px voulus du titre « Mes pauses » dans le héros en
 trois colonnes.
+
+### La gestion au style du Planning et des Équipes ; « Demande de congé » (22/10/2026, `nfdm-v943`)
+
+Le client : « Demande, dans le menu, doit être “Demande de congé”, et sur
+PC l'écran » ; puis « les onglets de gestion ne respectent pas vraiment le
+style des onglets Planning et Équipe ; il faudrait uniformiser les
+cadres ». Photographiés à 1440 px :
+- **Le Planning, les Équipes et les Effectifs** : chaque bloc est un cadre (bord
+  `--cadre`, coins `--rj`, ombre) avec une barre de titre interne : fond
+  `--surface2`, titre centré de 16 px, description de 11 px, filet bas.
+- **La gestion** : un grand titre de 22 px aligné à gauche, hors cadre ;
+  des cartes au bord léger ; des listes et des tableaux posés sur le fond.
+
+Corrigé en CSS seul, sans toucher aux rendus. Chaque section de gestion
+devient le cadre, et sa tête devient la barre centrée (les boutons à
+droite, dessous au téléphone). Les cartes intérieures reçoivent la barre
+des journées des Effectifs : titre à gauche, nombre ou bouton à droite.
+Une première version les centrait : « Sous-effectif (14 j) » se coupait
+sous sa pastille, et « Tout l'historique » passait sur deux lignes. L'Horaire
+production garde son style, comme le client l'a demandé. Le menu, la
+feuille « Plus » et le titre de l'écran disent « Demande de congé ».
+Vérifié à 1440 et 390 px, sur les six sections ; tests des demandes et
+des fiches : 0 erreur.
