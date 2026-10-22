@@ -2608,6 +2608,7 @@ html .dm-mois:first-child{margin-top:0}
 .dm-st.dm-non{background:var(--at-rouge-soft); color:var(--at-rouge)}
 .dm-quoi{display:flex; align-items:baseline; flex-wrap:wrap; column-gap:8px; row-gap:2px; font-size:14.5px}
 .dm-quoi>span{font-size:12.5px; color:var(--muted)}
+.dm-quoi .md-quoi{flex-basis:100%; margin-top:0}
 /* la tête d'une carte à soi : le quoi en gras, le quand dessous */
 .dm-tit{display:flex; flex-direction:column; gap:2px; min-width:0}
 .dm-tit b{font-size:15.5px; font-weight:700}
@@ -15444,10 +15445,12 @@ function dmCarte(x,valideur){
   return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
     /* même tête que la fiche de recyclage (22/10/2026) : la période en
        gras, le formulaire dessous, l'état à droite */
-    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b><small>'+esc(dmPeriode(x.du,x.au))+'</small></span>')+dmStatut(x)+'</header>'
-    +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(dmPeriode(x.du,x.au))+'</b><span>'+esc(DM_FORMS[f].t)+'</span>'+tag+'</div>':'')
+    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
+    +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(DM_FORMS[f].t)+'</b>'+tag+mdQuoi(x)+'</div>':'')
     +dmTableau(x)
-    +'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>'
+    /* « 1 jour · 8 h » redit le résumé sous le titre : seulement pour qui
+       valide, avec les compteurs restants et les collègues absents */
+    +(valideur?'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>':'')
     +(alertes.length?'<ul class="dm-regles">'+alertes.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')
     +(x.texte?'<p class="dm-texte">« '+esc(x.texte)+' »</p>':'')
     +(visa.length?'<p class="dm-visa">'+visa.map(esc).join(" · ")+'</p>':'')
@@ -15520,6 +15523,9 @@ var DM_PAPIER={
   longue:{titre:"Demande de congé de longue durée (≥ 1 semaine)", blocs:[{k:"pause",n:14,t:"JOURS DE PAUSE"},{k:"day",n:8,t:"JOURS DE DAY"}], rp:false},
   sans_solde:{titre:"Demande de congé sans solde", blocs:[{k:"pause",n:4,plus:10}], rp:true, css:true}};
 function dmDateFr(d){ return pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear(); }
+/* une signature dit son jour ET son heure (le client, le 23/10/2026 : « pas
+   d'heure de signature ») */
+function dmSigLe(d){ return 'le '+dmDateFr(d)+' à '+d.getHours()+'\u00a0h\u00a0'+pad2(d.getMinutes()); }
 function dmPpTete(f){
   return '<div class="dm-pp-tete"><img src="logo-email.png" alt="biowanze" class="dm-pp-logo"></div>'
     +'<p class="dm-pp-titre">'+esc(DM_PAPIER[f].titre)+'</p>'
@@ -15568,9 +15574,9 @@ function dmPpLecture(x){
   var cree=x.cree_le?new Date(x.cree_le):null, rps={};
   dmLignes(x).forEach(function(l){ if(l.rp) rps[l.rp]=1; });
   var sigRp=Object.keys(rps).map(function(t){ var a=x.accords&&x.accords[t];
-    return a?'<span class="dm-pp-sig">✓ '+esc(idLisible(t))+', le '+dmDateFr(new Date(a))+'</span>'
+    return a?'<span class="dm-pp-sig">✓ '+esc(idLisible(t))+', '+dmSigLe(new Date(a))+'</span>'
       :(dmAccordAttendu(x)&&idLisible(t)===idLisible((compteBase()||{}).tri)?'<button type="button" class="dm-pp-signer" data-pp-accord="'+x.id+'">Signer comme remplaçant</button>':'<span class="dm-pp-att">'+esc(idLisible(t))+' : pas encore signé</span>'); }).join(" ");
-  h.push('<div class="dm-pp-sigs"><p>Signatures :</p><div class="dm-pp-sig2"><div>'+(f==="longue"?'Signature du demandeur:':'Demandeur')+'<br><span class="dm-pp-sig">✓ '+esc(idLisible(x.trigramme))+(cree?', le '+dmDateFr(cree):'')+'</span></div>'
+  h.push('<div class="dm-pp-sigs"><p>Signatures :</p><div class="dm-pp-sig2"><div>'+(f==="longue"?'Signature du demandeur:':'Demandeur')+'<br><span class="dm-pp-sig">✓ '+esc(idLisible(x.trigramme))+(cree?', '+dmSigLe(cree):'')+'</span></div>'
     +(f!=="longue"?'<div>Remplaçant :<br>'+(sigRp||'<span class="dm-pp-att">—</span>')+'</div>':'')+'</div>'
     +'<p>Date: '+(cree?dmDateFr(cree):'_____/_____/_____')+'</p></div>');
   if(x.texte) h.push('<p class="dm-pp-ch">Message : <span>'+esc(x.texte)+'</span></p>');
@@ -15582,7 +15588,7 @@ function dmPpLecture(x){
 /* le cadre du visa : rempli par ce que la base a gardé ; modifiable par qui doit viser */
 function dmPpVisa(x,f){
   var aViser=peutSaisir()&&!x.a_moi&&dmATraiter(x)&&!dmAccordAttendu(x), cb=function(k,v,lib){ return '<label class="dm-pp-case"><input type="checkbox" data-pv="'+k+'"'+(v?' checked':'')+(aViser?'':' disabled')+'><span>'+lib+'</span></label>'; };
-  var qui=[]; if(x.cm) qui.push(esc(x.cm)+' (contremaître'+(x.cm_le?', le '+dmDateFr(new Date(x.cm_le)):'')+')'); if(x.rh) qui.push(esc(x.rh)+' (RH'+(x.rh_le?', le '+dmDateFr(new Date(x.rh_le)):'')+')');
+  var qui=[]; if(x.cm) qui.push(esc(x.cm)+' (contremaître'+(x.cm_le?', '+dmSigLe(new Date(x.cm_le)):'')+')'); if(x.rh) qui.push(esc(x.rh)+' (RH'+(x.rh_le?', '+dmSigLe(new Date(x.rh_le)):'')+')');
   var appr=x.statut==="acceptee"?'✓ approuvée':(x.statut==="en_attente"&&(x.cm||x.rh)?'visée en partie':''), ref=x.statut==="refusee"?'✗ refusée':'';
   var champ=function(t,v,k){ return '<p class="dm-pp-ch">'+t+' : '+(aViser&&k?'<input type="text" data-pv="'+k+'" value="'+esc(v||"")+'">':'<span>'+esc(v||"")+'</span>')+'</p>'; };
   var h=['<div class="dm-pp-cadre"><p class="dm-pp-sous">Visa du responsable hiérarchique</p>',
@@ -16601,7 +16607,7 @@ function rcFeuille(x){
     return liste.map(function(z,i){ var k=typeof z==="string"?z:z[0], t=typeof z==="string"?z:z[1];
       return (i?' / ':'')+(actif?'<button type="button" class="rc-mot" data-'+cle+'="'+esc(k)+'" aria-pressed="'+(k===val)+'">'+esc(t)+'</button>':'<span class="rc-mot'+(k===val?' rc-pris':'')+'">'+esc(t)+'</span>'); }).join("");
   }
-  function sig(qui,le){ return '<span class="dm-pp-sig">✓ '+esc(idLisible(qui))+(le?', le '+dmDateFr(new Date(le)):'')+'</span>'; }
+  function sig(qui,le){ return '<span class="dm-pp-sig">✓ '+esc(idLisible(qui))+(le?', '+dmSigLe(new Date(le)):'')+'</span>'; }
   function corps(){
     var c=cm(), ed=neuf;
     var h=['<div class="dm-pp-tete"><img src="logo-email.png" alt="biowanze" class="dm-pp-logo"></div>',
@@ -16682,24 +16688,29 @@ function rcFeuille(x){
    quelle pause c'est ») : la tuile de la date, le formulaire et le type
    demandé, puis la pause prévue, les heures et le remplaçant ; le circuit
    dessous. Toute la ligne ouvre la feuille. */
-function mdLigne(x){
-  var l=dmLignes(x), f=x.formulaire||"courte", types=[], ps=[], rps=[], h=0;
+function mdQuoi(x){
+  var l=dmLignes(x), ps=[], rps=[], h=0;
   l.forEach(function(z){
-    [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); });
     var pv=z.prevue||dmPrevue(x.trigramme,z.j); if(pv&&ps.indexOf(pv)<0) ps.push(pv);
     if(z.rp&&rps.indexOf(z.rp)<0) rps.push(z.rp);
     if(z.code) h+=dmHeures(z.code)+(z.code2?dmHeures(z.code2):0);
   });
-  if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
-  var quoi=[(l.length>1?l.length+' jours · ':'')+'pause '+ps.map(function(c){ return dmPa(c); }).join(" ")];
+  /* la tuile dit le premier jour : le dernier seulement, s'il diffère */
+  var quoi=[(x.au&&x.au!==x.du?'jusqu\'au '+esc(wsDateCourte(dmJour(x.au)))+' · ':'')+(l.length>1?l.length+' jours · ':'')+'pause '+ps.map(function(c){ return dmPa(c); }).join(" ")];
   if(l.length===1&&l[0].pause) quoi=['de '+dmPa(ps[0])+' à '+dmPa(l[0].pause)];
   if(h) quoi.push(h+' h');
   if(l.length===1&&l[0].part) quoi.push((l[0].part==="quitte"?'quitte à ':'arrive à ')+esc(String(l[0].heure||"").replace(':',' h ')));
   quoi.push(rps.length?'remplaçant '+rps.map(function(t){ return '<b class="md-rp">'+esc(idLisible(t))+'</b>'; }).join(", "):'sans remplaçant');
+  return '<small class="md-quoi">'+quoi.join(' · ')+'</small>';
+}
+function mdLigne(x){
+  var l=dmLignes(x), f=x.formulaire||"courte", types=[];
+  l.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
+  if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
   return '<li class="md-d dm-g-'+dmGenre(x)+'" data-md="ouvrir" data-id="'+x.id+'" tabindex="0" role="button" aria-label="Ouvrir la feuille de la demande">'
     +'<div class="md-h">'+dmTuile(x.du,x.au)
     +'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+(types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'')+'</b>'
-    +'<small class="md-quoi">'+quoi.join(' · ')+'</small></span>'+dmStatut(x)+'</div>'
+    +mdQuoi(x)+'</span>'+dmStatut(x)+'</div>'
     +dmEtapes(x)+'</li>';
 }
 function renderMesDemandes(){
