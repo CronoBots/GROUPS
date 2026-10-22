@@ -15991,10 +15991,14 @@ function renderCentre(db,person){
   var rac=[], L0=GR.demandes||[], R0=GR.recyclages||[], auj0=jourUsine();
   var nDem=L0.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length,
       nRc=R0.filter(function(x){ return x.a_moi&&rcEnCours(x); }).length;
-  if(cb) rac.push(["conge","Demander un congé","dmNv",nDem?nDem+" en cours":"formulaire RH"],["rec","Fiche de recyclage","rcNv",nRc?nRc+" en route":"polyvalence"]);
-  rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq","aujourd'hui"]);
-  if(cb) rac.push(["plan","Horaire production","plan",String(auj0.getFullYear())]);
-  rac.push(["ag","Mon agenda","ag","abonnement"]);
+  /* (22/10/2026, « optimiser ? ») Le sous-titre d'un raccourci ne dit plus
+     que ce qui change : ce qui est en cours, le mois de la fiche de paie.
+     « formulaire RH », « aujourd'hui », « 2026 », « abonnement » redisaient
+     le nom et allongeaient chaque case d'une ligne. */
+  if(cb) rac.push(["conge","Demander un congé","dmNv",nDem?nDem+" en cours":""],["rec","Fiche de recyclage","rcNv",nRc?nRc+" en route":""]);
+  rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq",""]);
+  if(cb) rac.push(["plan","Horaire production","plan",""]);
+  rac.push(["ag","Mon agenda","ag",""]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
   var dot=document.getElementById("notifDot");
@@ -16008,11 +16012,14 @@ function renderCentre(db,person){
       var dj=dmJour(x.jour); route.push(["rcmoi","Recyclage "+x.fonction+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),rcStatut(x)]); });
   }
   var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>'];
-  var fa='<section class="ctl-bloc"><h3>À faire'+(faire.length?' <span class="ctl-nb">'+faire.reduce(function(s,f){ return s+(f[3]||1); },0)+'</span>':'')+'</h3>';
+  /* « À faire » seulement s'il y a quelque chose à faire (22/10/2026) : le
+     titre du cadre dit déjà « tout est à jour », « ✓ Rien ne vous attend »
+     le redisait dans une case vide. Ce qui est en route garde son titre. */
+  var fa='<section class="ctl-bloc">'+(faire.length?'<h3>À faire <span class="ctl-nb">'+faire.reduce(function(s,f){ return s+(f[3]||1); },0)+'</span></h3>':'');
   if(faire.length) fa+='<div class="ctl-l">'+faire.map(function(f){ return '<button type="button" class="ctl-i ctl-urg" data-ctl="'+f[0]+'"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small></span><em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
-  else fa+='<p class="ctl-ok">✓ Rien ne vous attend'+(cb?'':' — connectez-vous dans Réglages pour vos demandes')+'.</p>';
-  if(route.length) fa+='<p class="ctl-sous">En route</p><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
-  h.push(fa+'</section>');
+  else if(!cb) fa+='<p class="ctl-ok">Connectez-vous dans Réglages pour vos demandes.</p>';
+  if(route.length) fa+=(faire.length?'<p class="ctl-sous">En route</p>':'<h3>En route</h3>')+'<div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
+  if(faire.length||route.length||!cb) h.push(fa+'</section>');
   corps.innerHTML=h.join("");
   var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0);
   document.getElementById("ctlSub").textContent=n?n+" à faire":"tout est à jour";
