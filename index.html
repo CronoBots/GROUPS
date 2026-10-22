@@ -2654,10 +2654,21 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-pp-t input,.dm-pp-t select{width:100%; min-width:0; height:25px; border:0; background:transparent; color:#1d1d1d; font:inherit; font-size:12.5px; padding:0 2px; -webkit-appearance:none; appearance:none; border-radius:0}
 .dm-pp-t td.dm-pp-ty,.dm-pp-t td.dm-pp-rp{text-align:center}
 .dm-pp-t td.dm-pp-rp select{text-align:center; text-align-last:center}
-.dm-pp-t tr.dm-pp-plus td{height:auto; padding:3px 6px; background:#f6f8fc; border-top:0}
-.dm-pp-pl{display:flex; flex-wrap:wrap; align-items:center; gap:4px 14px; font-size:11.5px; color:#333; white-space:normal}
-.dm-pp-pl label{display:inline-flex; align-items:center; gap:4px}
-.dm-pp-t .dm-pp-pl select{width:auto; height:24px; border:1px solid #c9d1de; border-radius:5px; background:#fff; padding:0 4px; font-size:11.5px}
+.dm-pp-prec{display:block; width:100%; margin:-2px 0 3px; padding:0; border:0; background:none; font:inherit; font-size:10.5px; line-height:1.3; color:#2F62D6; cursor:pointer; white-space:normal; text-align:center}
+.dm-pp-prec:not(.rempli){text-decoration:underline; text-decoration-color:rgba(47,98,214,.35); text-underline-offset:2px}
+.dm-pp-prec.rempli{color:#1d1d1d; font-weight:600}
+.dm-prec{width:min(380px,calc(100vw - 24px))}
+.dm-prec-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding-bottom:10px; margin-bottom:12px; border-bottom:1px solid var(--line)}
+.dm-prec-t b{font-size:16px} .dm-prec-t span{font-size:13px; font-weight:700; color:var(--in)}
+.dm-prec-c{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
+.dm-prec-c>span{font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
+.dm-prec-c select{min-height:42px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; font-size:14px}
+.dm-prec-seg{display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:3px; border-radius:11px; border:1px solid var(--line); background:var(--surface2)}
+.dm-prec-seg button{min-height:38px; border:0; border-radius:8px; background:none; color:var(--muted); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
+.dm-prec-seg button[aria-pressed="true"]{background:var(--in); color:#fff}
+html .dm-prec .dm-jp-p>button{min-height:42px; padding:0 18px; font-size:14px}
+html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff; font-weight:650}
+.dm-prec-e{margin:0 0 6px; min-height:16px; font-size:12.5px; color:var(--at-rouge,#d0574a)}
 .dm-t .dm-heure{display:block; font-size:11px; color:var(--muted)}
 .dm-t .dm-c{text-align:center}
 .dm-pp-t td.dm-pp-ty select{text-align:center; text-align-last:center}
@@ -15104,6 +15115,41 @@ function dmEtatJour(tri,iso){
   var att=(GR.demandes||[]).some(function(x){ return x.a_moi&&x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.j===iso; }); });
   return att?{code:"demandé", fam:"att"}:null;
 }
+/* LA PRÉCISION D'UN JOUR DE CONGÉ (22/10/2026) : un second type et l'heure
+   où l'on quitte ou arrive, dans une fenêtre de l'application ; l'heure au
+   quart d'heure, dans une liste (le champ heure du téléphone inscrirait
+   l'heure courante d'office). */
+function dmPreciser(l,dem,fini){
+  var fond=document.createElement("div"); fond.className="dm-jp-fond";
+  var box=document.createElement("div"); box.className="dm-jp dm-prec"; box.setAttribute("role","dialog"); box.setAttribute("aria-label","Préciser le jour");
+  var d=dmJour(l.j), hs='<option value="">—</option>';
+  for(var q=0;q<96;q++){ var hq=pad2(Math.floor(q/4))+':'+pad2((q%4)*15); hs+='<option value="'+hq+'"'+(hq===l.heure?' selected':'')+'>'+hq.replace(':',' h ')+'</option>'; }
+  box.innerHTML='<div class="dm-prec-t"><b>'+esc(JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' '+MOIS[d.getMonth()].toLowerCase())+'</b><span>'+esc(l.code)+'</span></div>'
+    +'<label class="dm-prec-c"><span>Second type de congé</span><select id="dpT2"><option value="">aucun</option>'
+    +dem.filter(function(c){ return c.code!==l.code; }).map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===l.code2?' selected':'')+'>'+esc(c.code)+(c.libelle?' — '+esc(c.libelle):'')+'</option>'; }).join("")+'</select></label>'
+    +'<div class="dm-prec-c"><span>Horaire</span><div class="dm-prec-seg" id="dpPart">'
+    +[["","Complet"],["quitte","Je quitte à"],["arrive","J'arrive à"]].map(function(o){ return '<button type="button" data-p="'+o[0]+'" aria-pressed="'+((l.part||"")===o[0])+'">'+o[1]+'</button>'; }).join("")+'</div>'
+    +'<select id="dpH"'+(l.part?'':' hidden')+' aria-label="Heure">'+hs+'</select></div>'
+    +'<p class="dm-prec-e" id="dpErr"></p>'
+    +'<div class="dm-jp-p"><button type="button" class="btnlike" data-x="1">Annuler</button><button type="button" class="btn ss-ok" data-ok="1">Valider</button></div>';
+  var part=l.part||"";
+  function fermer(){ fond.remove(); box.remove(); document.removeEventListener("keydown",clav,true); }
+  function clav(e){ if(e.key==="Escape"){ e.stopPropagation(); fermer(); } }
+  box.addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    if(b.hasAttribute("data-p")){ part=b.getAttribute("data-p"); [].forEach.call(box.querySelectorAll("#dpPart button"),function(x){ x.setAttribute("aria-pressed",String(x===b)); }); box.querySelector("#dpH").hidden=!part; return; }
+    if(b.hasAttribute("data-x")){ fermer(); return; }
+    if(b.hasAttribute("data-ok")){
+      var h=box.querySelector("#dpH").value, c2=box.querySelector("#dpT2").value;
+      if(part&&!h){ box.querySelector("#dpErr").textContent="Choisissez l'heure."; return; }
+      if(c2) l.code2=c2; else delete l.code2;
+      if(part){ l.part=part; l.heure=h; } else { delete l.part; delete l.heure; }
+      fermer(); fini();
+    }
+  });
+  fond.addEventListener("click",fermer); document.addEventListener("keydown",clav,true);
+  document.body.appendChild(fond); document.body.appendChild(box);
+}
 function dmChoisirJour(tri,courant,pris,fini){
   var auj=jourUsine(), min=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()-31);
   var d0=courant?dmJour(courant):auj, m={y:d0.getFullYear(), m:d0.getMonth()};
@@ -15488,24 +15534,18 @@ function dmFormulaire(pre){
       var date='<td class="dm-pp-in-d"><button type="button" class="dm-pp-jb'+(dv?'':' vide')+'" data-jpick="1" aria-label="Date, ligne '+(i+1)+(dv?' : '+esc(JOURS_LONGS[(dv.getDay()+6)%7]+' '+dv.getDate()+' '+MOIS[dv.getMonth()].toLowerCase()):', à choisir')+'">'
         +(dv?JOURS_C[dv.getDay()]+' '+pad2(dv.getDate())+'/'+pad2(dv.getMonth()+1):'choisir')+'</button></td>';
       var pause='<td class="dm-pp-pv">'+dmPpPause(pv)+'</td>';
-      var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select></td>';
-      var rp=P.rp?'<td class="dm-pp-rp"><select data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"")+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
-      var css=f==="sans_solde"&&i===0?'<td rowspan="'+(DM_PAPIER.sans_solde.blocs[0].n+etat.plus)+'" class="dm-pp-css">Congé sans solde</td>':'';
       /* DEUX TYPES ET L'HEURE (le client, le 22/10/2026 : « il faut pouvoir
          mettre deux sortes de congé, et si on quitte ou arrive plus tôt, le
-         préciser ») : sous un jour de congé de la courte durée, une rangée
-         de précision — un second type, « quitte à » ou « arrive à » et
-         l'heure (au quart d'heure). */
-      var plus='';
-      if(f==="courte"&&l.j&&l.code){
-        var o2='<option value="">—</option>'+dem.filter(function(c){ return c.code!==l.code; }).map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===l.code2?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
-        var hs='<option value="">—</option>'; for(var q=0;q<96;q++){ var hq=pad2(Math.floor(q/4))+':'+pad2((q%4)*15); hs+='<option value="'+hq+'"'+(hq===l.heure?' selected':'')+'>'+hq.replace(':',' h ')+'</option>'; }
-        plus='<tr class="dm-pp-plus" data-k="'+k+'" data-i="'+i+'"><td></td><td colspan="'+(P.rp?5:3)+'"><span class="dm-pp-pl">'
-          +'<label>+ autre type <select data-c="type2" aria-label="Second type de congé, ligne '+(i+1)+'">'+o2+'</select></label>'
-          +'<label><select data-c="part" aria-label="Départ ou arrivée, ligne '+(i+1)+'"><option value="">horaire complet</option><option value="quitte"'+(l.part==="quitte"?' selected':'')+'>quitte à</option><option value="arrive"'+(l.part==="arrive"?' selected':'')+'>arrive à</option></select>'
-          +(l.part?' <select data-c="heure" aria-label="Heure, ligne '+(i+1)+'">'+hs+'</select>':'')+'</label></span></td></tr>';
-      }
-      return '<tr data-k="'+k+'" data-i="'+i+'"><td class="dm-pp-n">'+(i+1)+'</td>'+(f==="sans_solde"?css+date+pause:date+pause+type)+rp+'</tr>'+plus;
+         préciser » ; puis « il y a moyen de faire bien plus professionnel »)
+         : sous le type, un lien discret « préciser » ouvre dmPreciser ;
+         rempli, il devient le résumé (« + 3h RTT · arrive à 02 h 00 »). La
+         feuille garde ses dix lignes, comme le papier. */
+      var prec=f==="courte"&&l.j&&l.code?'<button type="button" class="dm-pp-prec'+(l.code2||l.part?' rempli':'')+'" data-prec="1">'
+        +(l.code2||l.part?esc((l.code2?'+ '+l.code2:'')+(l.code2&&l.part?' · ':'')+(l.part?(l.part==="quitte"?'quitte à ':'arrive à ')+String(l.heure||"").replace(':',' h '):'')):'préciser')+'</button>':'';
+      var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select>'+prec+'</td>';
+      var rp=P.rp?'<td class="dm-pp-rp"><select data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"")+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
+      var css=f==="sans_solde"&&i===0?'<td rowspan="'+(DM_PAPIER.sans_solde.blocs[0].n+etat.plus)+'" class="dm-pp-css">Congé sans solde</td>':'';
+      return '<tr data-k="'+k+'" data-i="'+i+'"><td class="dm-pp-n">'+(i+1)+'</td>'+(f==="sans_solde"?css+date+pause:date+pause+type)+rp+'</tr>';
     }
     /* une ligne et sa rangée de précision, redessinées ensemble */
     function remettre(k,i){
@@ -15561,6 +15601,9 @@ function dmFormulaire(pre){
       rendre(); });
     var fe=document.getElementById("ppFeuille");
     fe.addEventListener("click",function(e){
+      var pb=e.target.closest?e.target.closest("[data-prec]"):null;
+      if(pb){ var tp=pb.closest("tr[data-k]"), kp=tp.getAttribute("data-k"), ip=Number(tp.getAttribute("data-i")), lp=etat.t[kp][ip];
+        dmPreciser(lp,dem,function(){ remettre(kp,ip); verifier(); }); return; }
       var b=e.target.closest?e.target.closest("[data-jpick]"):null; if(!b) return;
       var tr=b.closest("tr[data-k]"); if(!tr) return;
       var k=tr.getAttribute("data-k"), i=Number(tr.getAttribute("data-i")), L=etat.t[k], l0=L[i]||{};

@@ -3317,3 +3317,31 @@ préciser ».
 remplaçant. L'envoi part avec `code`, `code2`, `part`, `heure`, `rp` et
 `cm`. Aucune erreur. Les quatre sorties du vérificateur sont identiques à
 l'octet.
+
+### La précision d'un jour dans une fenêtre (22/10/2026, v985)
+
+Le client, capture de la rangée grise de la v984 : « il y a moyen de faire
+bien plus professionnel ».
+
+**Le défaut.** Une rangée grise s'insérait dans le tableau du formulaire,
+avec trois listes serrées (« + autre type », « arrive à », « 02 h 00 »).
+Le tableau perdait sa forme de papier.
+
+**Désormais.**
+
+- Le tableau garde ses dix lignes. Sous le type de congé, un lien discret
+  « préciser » apparaît.
+- Il ouvre `dmPreciser`, une fenêtre de l'application :
+  - le jour en titre et le premier type à droite ;
+  - « Second type de congé », une liste avec les libellés (« 4h -FT — Flex
+    time, 4 h de moins ») ;
+  - « Horaire », un sélecteur Complet · Je quitte à · J'arrive à, puis
+    l'heure au quart d'heure ;
+  - Annuler, et Valider en plein.
+- Une fois rempli, le lien devient le résumé, en gras dans la case :
+  « + 4h -FT · quitte à 18 h 00 ».
+- Rien ne change pour la base (`base/20`) ni pour l'envoi.
+
+Éprouvé au navigateur : fenêtre, choix, résumé dans la case. L'envoi part
+avec `code2`, `part` et `heure`. Aucune erreur. Les quatre sorties du
+vérificateur sont identiques à l'octet.
