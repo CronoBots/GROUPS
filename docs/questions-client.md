@@ -124,3 +124,11 @@ projet : on ne le corrige pas, on le note.
   chèques-repas d'avril (9 pour 12 journées, sans doute les 11 et 13/04
   payés en heures sup et une demi-journée) ; le 01/01, un week-end de
   2025 hors de l'horaire.
+
+## Deux types de congé le même jour (22/10/2026)
+
+Une demande peut désormais porter deux types de congé le même jour
+(« 4h RTT + 4h -FT »). Une fois acceptée, la journée garde le premier code
+en annotation ; le second va dans le commentaire. **Comment le classeur
+écrit-il un jour à deux codes ?** Une seule annotation, deux, une
+écriture combinée ? On aligne la base dès que c'est connu.
