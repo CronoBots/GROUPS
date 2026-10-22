@@ -2633,6 +2633,17 @@ html .dm-circ .tour b, html .dm-circ .tour small{color:var(--at-jaune)}
 html .dm-circ .refus small{color:var(--at-rouge)}
 html .dm-circ .apres{opacity:.75}
 html .dm-nw{white-space:nowrap}
+/* au téléphone, le circuit se lit de haut en bas : à 320 px, quatre étapes
+   côte à côte coupaient les rôles (« Demand… », « Rempl… ») */
+@media (max-width:440px){
+  html .dm-circ{grid-auto-flow:row; grid-auto-columns:auto; gap:0}
+  html .dm-circ li{flex-direction:row; align-items:center; text-align:left; gap:8px; padding:3px 0}
+  html .dm-circ li+li::before{top:-6px; bottom:auto; left:10px; right:auto; width:2px; height:12px}
+  html .dm-pt{flex:none; margin:0}
+  html .dm-circ b{flex:0 0 92px; white-space:normal}
+  html .dm-circ small{display:flex; flex-wrap:wrap; align-items:baseline; gap:0 6px; min-width:0}
+  html .dm-circ small em{display:inline}
+}
 html .dm-g-faire .dm-circ .tour .dm-pt{border-color:var(--in); color:var(--in); box-shadow:0 0 0 4px color-mix(in srgb,var(--in) 20%,transparent)}
 html .dm-g-faire .dm-circ .tour b, html .dm-g-faire .dm-circ .tour small{color:var(--in)}
 .dm-etapes i{color:var(--faint); font-style:normal}
@@ -5605,8 +5616,8 @@ html .hp-fab:hover{opacity:1}
 @media (hover:hover){ .ms-j:hover{border-color:rgba(105,178,203,.55)} }
 @media (max-width:420px){ .pf-an .ms-l{gap:4px} .ms-j{padding:6px 0 7px} .ms-j b{font-size:15px} .ms-j .pl-pa{font-size:10.5px; padding:2px 4px} .ms-repos{font-size:10.5px} }
 .md-l{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:10px}
-.md-l li{display:flex; flex-direction:column; gap:4px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2)}
-.md-l li b{font-size:14px} .md-f{font-size:12px; color:var(--muted)}
+.md-l>li{display:flex; flex-direction:column; gap:4px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2)}
+.md-l>li .dm-tit>b{font-size:14px} .md-f{font-size:12px; color:var(--muted)}
 .md-vide{margin:0 0 10px; color:var(--muted); font-size:13.5px}
 .md-act{display:flex; flex-wrap:wrap; gap:8px}
 @media (min-width:1100px){
@@ -5713,8 +5724,20 @@ html .hp-fab:hover{opacity:1}
 #demCard .pad{padding-top:10px; padding-bottom:12px}
 .md-vide{margin:0}
 .md-l{margin:0}
-.md-l li{gap:6px; padding:8px 10px}
-.md-h{display:flex; align-items:center; justify-content:space-between; gap:8px}
+/* « .md-l li » habillait aussi les étapes du circuit (des li) : chaque
+   étape devenait une case (le client, le 23/10/2026) */
+.md-l>li{gap:10px; padding:10px 12px 10px 14px; position:relative; overflow:hidden; cursor:pointer}
+.md-l>li::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--line2)}
+.md-l>li.dm-g-faire::before{background:var(--in)} .md-l>li.dm-g-att::before{background:var(--at-jaune)}
+@media (hover:hover){ .md-l>li:hover{border-color:color-mix(in srgb,var(--in) 45%,var(--line))} }
+.md-l .md-h>.dm-tit{flex:1 1 auto; min-width:0}
+.md-l .md-h>.dm-tit>b{display:flex; align-items:center; flex-wrap:wrap; gap:0 2px}
+.md-quoi{display:block; margin-top:2px; font-size:12.5px; line-height:1.6; color:var(--muted)}
+.md-quoi .pl-pa{display:inline-grid; place-items:center; min-width:26px; height:18px; padding:0 5px; border-radius:5px; font-size:11px; line-height:1; vertical-align:1px}
+.md-quoi .md-rp{font-family:var(--mono,ui-monospace,monospace); font-size:12px; color:var(--ink2)}
+.md-h{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.md-h>.dm-st{max-width:40%; white-space:normal; text-align:center; line-height:1.3}
+@media (max-width:520px){ .md-h>.dm-st{display:none} }
 .md-lien{display:block; margin:8px 0 0; padding:6px 0; border:0; background:none; color:var(--in); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
 .md-signer{display:block; width:100%; margin:0 0 10px; padding:10px 12px; border:1px solid var(--at-jaune); border-radius:12px; background:rgba(242,180,90,.12); color:var(--ink); font:inherit; font-size:14px; font-weight:650; text-align:left; cursor:pointer}
 .btnlike.dm-suppr{color:#ff8a7a; border-color:rgba(255,138,122,.45)}
@@ -14662,7 +14685,9 @@ function ouvrirGrille(section,formulaire){
     document.getElementById("wsMoi").innerHTML=a.tri?'<span class="pl-tri">'+esc(idLisible(a.tri))+'</span><span><b>'+esc(idLisible(a.tri))+'</b><small>'+esc(BASE_ROLES[a.base]||"")+'</small></span>':'';
     g.setAttribute("aria-label",peutSaisir()?"Espace RH":"Horaire production");
     wsAller(section||GR.section);
-    function relire(){ wsAller(GR.section); }
+    /* le second rendu (les noms arrivés) ne referme pas une feuille
+       ouverte entre-temps, celle que l'Accueil vient d'ouvrir par exemple */
+    function relire(){ wsAller(GR.section,true); }
     if(compteBase()){
       if(!GR.noms) baseRpc("biowanze_personnes",{}).then(function(l){
         GR.noms={}; (l||[]).forEach(function(x){ GR.noms[x.trigramme]=x; }); relire();
@@ -14899,9 +14924,10 @@ function wsMenuMaj(){
   document.getElementById("wsMenu").innerHTML=wsMenuSections().map(function(x){
     return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(wsActif(x,s)?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
 }
-function wsAller(s){
+function wsAller(s,garder){
   var l=wsSections(); if(!l.some(function(x){ return x.s===s; })) s=l[0].s;
-  GR.section=s; lsSet("ui/wsSection",s); grFermerPanneau();
+  if(!(garder&&GR.section===s)) grFermerPanneau();
+  GR.section=s; lsSet("ui/wsSection",s);
   /* SUR PC, LISTE ET FICHE CÔTE À CÔTE (22/10/2026, le client : « la partie
      de droite se divise en 2 parties pour les demandes de congé et les
      recyclages, afin de mieux voir et suivre les fiches ») */
@@ -15464,6 +15490,8 @@ function renderDemandes(){
   hote.innerHTML=h.join("");
   dmBrancher();
   if(GR.dmForm){ var pf=GR.dmForm; GR.dmForm=null; dmFormulaire(pf); }
+  /* venu de l'Accueil : la feuille de cette demande, ouverte */
+  else if(GR.dmVoir&&!val){ var dv=GR.dmVoir; GR.dmVoir=null; dmFeuilleVoir(dv); }
 }
 function dmBrancher(){
   ["wsDem","wsVal"].forEach(function(id){
@@ -16649,6 +16677,31 @@ function rcFeuille(x){
   };
   var su=pn.querySelector("#rcSuppr"); if(su) su.onclick=function(){ rcSupprimer(x.id,su,function(){ grFermerPanneau(); }); };
 }
+/* UNE DEMANDE EN COURS, SUR L'ACCUEIL (le client, le 23/10/2026 : « il
+   faut optimiser le cadre de la demande de congé, on ne voit même pas pour
+   quelle pause c'est ») : la tuile de la date, le formulaire et le type
+   demandé, puis la pause prévue, les heures et le remplaçant ; le circuit
+   dessous. Toute la ligne ouvre la feuille. */
+function mdLigne(x){
+  var l=dmLignes(x), f=x.formulaire||"courte", types=[], ps=[], rps=[], h=0;
+  l.forEach(function(z){
+    [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); });
+    var pv=z.prevue||dmPrevue(x.trigramme,z.j); if(pv&&ps.indexOf(pv)<0) ps.push(pv);
+    if(z.rp&&rps.indexOf(z.rp)<0) rps.push(z.rp);
+    if(z.code) h+=dmHeures(z.code)+(z.code2?dmHeures(z.code2):0);
+  });
+  if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
+  var quoi=[(l.length>1?l.length+' jours · ':'')+'pause '+ps.map(function(c){ return dmPa(c); }).join(" ")];
+  if(l.length===1&&l[0].pause) quoi=['de '+dmPa(ps[0])+' à '+dmPa(l[0].pause)];
+  if(h) quoi.push(h+' h');
+  if(l.length===1&&l[0].part) quoi.push((l[0].part==="quitte"?'quitte à ':'arrive à ')+esc(String(l[0].heure||"").replace(':',' h ')));
+  quoi.push(rps.length?'remplaçant '+rps.map(function(t){ return '<b class="md-rp">'+esc(idLisible(t))+'</b>'; }).join(", "):'sans remplaçant');
+  return '<li class="md-d dm-g-'+dmGenre(x)+'" data-md="ouvrir" data-id="'+x.id+'" tabindex="0" role="button" aria-label="Ouvrir la feuille de la demande">'
+    +'<div class="md-h">'+dmTuile(x.du,x.au)
+    +'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+(types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'')+'</b>'
+    +'<small class="md-quoi">'+quoi.join(' · ')+'</small></span>'+dmStatut(x)+'</div>'
+    +dmEtapes(x)+'</li>';
+}
 function renderMesDemandes(){
   var c=document.getElementById("demCard"), corps=document.getElementById("demCorps"); if(!c||!corps) return;
   if(!compteBase()){ c.hidden=true; return; }
@@ -16668,7 +16721,7 @@ function renderMesDemandes(){
        demande. */
     if(!l.length&&!fait){ c.hidden=true; return; }
     corps.innerHTML=''
-      +(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><div class="md-h"><b>'+esc(dmPeriode(x.du,x.au))+'</b>'+dmStatut(x)+'</div>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
+      +(l.length?'<ul class="md-l">'+l.map(mdLigne).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
       +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
     c.hidden=false;
@@ -16683,7 +16736,13 @@ document.addEventListener("click",function(e){
   var k=b.getAttribute("data-md");
   if(k==="recyclage"){ GR.ongletAutoRc=true; ouvrirGrille("recyclages"); return; }
   GR.onglet=k==="signer"?"remplace":"miennes";
+  if(k==="ouvrir") GR.dmVoir=b.getAttribute("data-id");
   if(k==="nouvelle") ouvrirGrille("demandes",{}); else ouvrirGrille("demandes");
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ") return;
+  var b=e.target.closest?e.target.closest('#demCard [data-md="ouvrir"]'):null; if(!b) return;
+  e.preventDefault(); b.click();
 });
 
 /* ===================== l'équipe ===================== */
