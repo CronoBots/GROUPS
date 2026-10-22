@@ -3567,3 +3567,38 @@ dépasse un jour. La ligne « 1 jour · 8 h » ne reste que pour qui valide
 dit son heure (`dmSigLe` : « le 23/10/2026 à 0 h 49 ») : demandeur,
 remplaçant, contremaître, RH, et la fiche de recyclage ; le champ
 « Date: » du formulaire papier garde la date seule.
+
+### Les heures supplémentaires, troisième sorte de demande (23/10/2026, v998)
+
+Le client : « et voici une nouvelle sorte de demande à implémenter
+aussi », avec le formulaire « Demande de validation d'heures
+supplémentaires » (07.12.2012 - V3 ; texte du PDF encodé par sa police,
+chaque caractère décalé de 29 : décodé avant lecture).
+
+- Base : `base/26-heures-sup.sql`, une table à part (`biowanze.heures_sup`)
+  et quatre fonctions (demander, liste, viser, retirer), sur le modèle des
+  recyclages (base/15). Le circuit est celui du papier : la personne
+  demande, le responsable hiérarchique vise. On ne valide que des heures
+  déjà prestées (pas de date future). « Travail nécessaire » exige ses
+  quelques mots ; « suite à un rappel » le nom du responsable, puis la
+  date du rappel au visa. Une restriction et un refus se motivent. Nul ne
+  vise sa propre demande. Retirer passe la demande « annulée » (aucune
+  suppression). Notifications : le responsable nommé (à défaut la
+  hiérarchie et la RH), puis le demandeur au visa ; le lien
+  `?vue=heures` ouvre la section.
+- Éprouvé dans un bloc annulé (comptes fictifs) : date future, texte
+  manquant, visa de soi, rappel sans date, refus sans motif → refusés ;
+  approbation avec restriction et refus → passent ; six notifications.
+- Application : le sélecteur devient Congé · Recyclage · Heures sup., dans
+  « Mes demandes » et « À valider » ; sections `heures` et `valider-hs`.
+  La feuille reprend le papier champ pour champ ; l'horaire prévu et le
+  responsable d'équipe (le contremaître de la pause ce jour-là) sont
+  préremplis depuis l'horaire ; la mention « prime de rappel » apparaît
+  dès 3 h en prolongation de pause. Cartes : tuile, durée en étiquette,
+  horaire et justification, circuit Demandeur → Responsable. Le centre
+  de l'Accueil dit les heures à viser et celles en route.
+- Ce que la RH fait ensuite n'est pas sur la feuille : question au client
+  (`docs/questions-client.md`). Rien n'est écrit dans l'horaire.
+- Vérifié : 320 et 1280 px, remplir, envoyer (195 min, prolongation,
+  prime affichée), viser avec restriction ; messages d'erreur ; aucune
+  erreur ni débordement.
