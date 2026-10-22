@@ -4443,6 +4443,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pr-tab,.pf-pr-h{grid-template-columns:34px minmax(0,1fr) 46px 46px}
 .pf-pr-h{display:grid; column-gap:10px; padding:8px 12px 6px; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
 .pf-pr-h span:nth-child(n+3){text-align:right}
+.pf-pr-hm{font-style:normal}
 .pf-pr-f,.pf-pr-r{text-align:right; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums}
 .pf-pr-f{color:#fff}
 .pf-pr-r{color:rgba(255,255,255,.62)}
@@ -4453,7 +4454,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .ry-an-bar.pf-pr-rep i{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px); border-radius:4px}
 .ry-an-bar.pf-pr-rep i i{background:var(--c); border-radius:0}
 /* les trois chiffres de l'année, sous sa barre */
-.pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:-2px 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
+.pf-kp{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.03)}
 .pf-kp>span{display:flex; flex-direction:column; gap:1px; padding:8px 10px; font-size:11.5px; line-height:1.25; color:var(--muted); min-width:0}
 .pf-kp>span+span{border-left:1px solid rgba(255,255,255,.08)}
 .pf-kp b{font-size:17px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums}
@@ -4468,7 +4469,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* au petit téléphone, la date tient sur une ligne */
 @media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10px}
   .pf-pr-tab,.pf-pr-h{grid-template-columns:28px minmax(0,1fr) 34px 32px} .pf-pr-d b{font-size:13px}
-  .pf-pr-h{letter-spacing:0; font-size:10px} .pf-pr-f,.pf-pr-r{font-size:14px} }
+  .pf-pr-h{letter-spacing:0; font-size:10px} .pf-pr-hm{display:none} .pf-pr-f,.pf-pr-r{font-size:14px} }
 @media (min-width:761px){
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
   .pf-gauche{min-width:0}
@@ -4476,22 +4477,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .pf-gauche .pf-pv{margin:12px 0 0 12px; width:calc(100% - 12px)}
   .pf-corps>.pf-an{padding:0 12px 0 0; margin-top:4px}
   .pf-corps>.pf-an .ry-an-t:first-child{padding-top:14px}
-  /* « Mes pauses » sous le prochain poste, à gauche : la colonne de gauche
-     restait vide sous lui, celle de droite descendait seule (20/10/2026) */
+  /* Depuis le 22/10/2026 (« combiner année et mes pauses ») : à gauche le
+     prochain poste puis « Ma semaine » (#ryAn), à droite l'année et ses
+     pauses d'un seul tenant (#ryPr) — polyvalences ou non, les deux
+     colonnes s'équilibrent. */
   .pf-corps{grid-template-rows:auto 1fr}
-  .pf-corps>#ryAn{grid-column:2; grid-row:1 / span 2}
-  .pf-corps>.pf-gauche{grid-column:1; grid-row:1}
-  .pf-corps>#ryPr{grid-column:1; grid-row:2; padding:0 0 0 12px; margin-top:0}
-  /* avec les polyvalences, la gauche est déjà la plus longue : « Mes
-     pauses » reste à droite, sous les progressions (JKS, 20/10/2026) */
-  .pf-corps:has(.pf-pv)>.pf-gauche{grid-row:1 / span 2}
-  .pf-corps:has(.pf-pv)>#ryAn{grid-row:1}
-  .pf-corps:has(.pf-pv)>#ryPr{grid-column:2; grid-row:2; padding:0 12px 0 0}
+  .pf-corps>.pf-gauche,.pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
+  .pf-corps>#ryAn,.pf-corps:has(.pf-pv)>#ryAn{grid-column:1; grid-row:2; padding:0 0 0 12px; margin-top:0}
+  .pf-corps>#ryPr,.pf-corps:has(.pf-pv)>#ryPr{grid-column:2; grid-row:1 / span 2; padding:0 12px 0 0}
 }
 /* au téléphone, un filet entre le cycle et « Mes pauses », comme entre
    l'année et le cycle */
 @media (max-width:760px){ .pf-prz .ry-an-t:first-child{border-top:1px solid rgba(255,255,255,.07); margin-top:2px} }
-#ryPr:empty{display:none}
+#ryPr:empty,#ryAn:empty{display:none}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
@@ -15735,10 +15733,11 @@ function ryProchainesHTML(p,y){
      - puis un tableau d'une ligne par pause : la pause, la prochaine date
        et son délai, « Faites » et « Reste » en colonnes titrées. Une ligne
        touchée ouvre ce jour dans le calendrier. */
-  return '<div class="ry-an-t pf-pr-t"><span class="ry-chart-t ry-h2">Mes pauses</span>'
-    +(o?'<span class="pf-pr-l">année '+y+'</span>':'')+'</div>'
-    +'<div class="pf-pr">'
-    +(o?'<div class="pf-pr-h" aria-hidden="true"><span></span><span>Prochaine</span><span>Faites</span><span>Reste</span></div>':'')
+  /* SANS TITRE DEPUIS LE 22/10/2026 (le client : « combiner année et mes
+     pauses ») : le tableau suit la barre de l'année, qu'il détaille pause
+     par pause ; « Mes pauses » devient l'en-tête de sa première colonne. */
+  return '<div class="pf-pr">'
+    +(o?'<div class="pf-pr-h" aria-hidden="true"><span></span><span><i class="pf-pr-hm">Mes pauses · </i>prochaine</span><span>Faites</span><span>Reste</span></div>':'')
     +ks.map(function(k){
       var v=vu[k], quand=!v?"":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
       return '<button type="button" class="pf-pr-c'+(o?' pf-pr-tab':'')+(v&&k===ks[0]?' pf-pr-1':'')+'"'+(v?' data-y="'+v.d.getFullYear()+'" data-m="'+v.d.getMonth()+'" data-d="'+v.d.getDate()+'"':' disabled')
@@ -15758,21 +15757,22 @@ document.addEventListener("click",function(e){
 });
 function ryAnneeHTML(p,y,db){
   var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
-  /* MA SEMAINE À LA PLACE DU CYCLE ACTUEL (le client, le 22/10/2026 :
-     « supprimer cycle actuel et remplacer par ma semaine »). Le cadre
-     « Ma semaine » sous le centre de contrôle rejoint le héros ; le cycle
-     reste à un appui, dans la vue Cycle du calendrier. */
-  /* TROIS CHIFFRES DE L'ANNÉE (le client, le 22/10/2026 : « quelles autres
-     stats peuvent être présentes dans le héros ? ») : ce que la barre ne
-     dit pas — les heures, les jours de week-end et les jours fériés
-     travaillés, sur toute l'année, journées à venir comprises (les
-     mêmes que la barre : statsRythme, pause tenue et heures > 0). */
-  var s=_ryStats;
+  /* (« Ma semaine », qui avait remplacé ici le cycle actuel, a son propre
+     conteneur depuis le 22/10/2026, #ryAn : voir renderRythme.) */
+  return h;
+}
+/* TROIS CHIFFRES DE L'ANNÉE (le client, le 22/10/2026 : « quelles autres
+   stats peuvent être présentes dans le héros ? ») : ce que la barre ne
+   dit pas — les heures, les jours de week-end et les jours fériés
+   travaillés, sur toute l'année, journées à venir comprises (les mêmes
+   que la barre : statsRythme, pause tenue et heures > 0). Sous le tableau
+   des pauses, à la fin du bloc de l'année. */
+function ryChiffresHTML(y){
+  var s=_ryStats, h="";
   if(s&&s.y===y&&s.prestes) h+='<div class="pf-kp" aria-label="Sur l\u2019année '+y+', à venir compris">'
     +'<span><b>'+esc(Number(s.heures).toLocaleString("fr-BE"))+'</b> heures</span>'
     +'<span title="Journées travaillées un samedi ou un dimanche"><b>'+s.we+'</b> en week-end</span>'
     +'<span title="Jours fériés travaillés"><b>'+s.feriesT+'</b> férié'+(s.feriesT>1?'s':'')+' travaillé'+(s.feriesT>1?'s':'')+'</span></div>';
-  try{ h+=maSemaineHTML(db,p); }catch(e){}
   return h;
 }
 function renderRythme(){
@@ -15814,8 +15814,10 @@ function renderRythme(){
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   try{ renderMesDemandes(); }catch(e){}
   try{ renderCentre(db,person); }catch(e){}
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y,db);
-    var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryProchainesHTML(person,y);
+  /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
+     (le client, le 22/10/2026 : « combiner année et mes pauses ») */
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; } }
+    var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y)+ryChiffresHTML(y);
     try{ recyclageHeros(db,person); }catch(e){}
   });
 }
