@@ -2717,3 +2717,34 @@ réelle de la semaine du client ne passe sur deux lignes. Le pire cas
 construit (« Mercredi 30 septembre », « dans 100 j ») passe proprement
 sur deux lignes, 90 px. Aucun débordement. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### « Mes pauses » en tableau, sous une barre de répartition (22/10/2026, v962)
+
+Le client, sur la capture de la v961 : « que penses-tu de mes pauses,
+c'est clair ou non ? Sinon trouve une autre présentation plus intuitive
+et professionnelle ». Ma réponse : non, pas assez clair.
+
+- Chaque pause prenait trois étages (la date, une barre, « 70 faites ·
+  reste 24 ») : 90 px par ligne, 360 px pour quatre pauses.
+- Le restant, en pâle à 32 % sur une piste sombre, ne se distinguait
+  presque pas de la piste.
+- Les nombres, en phrases sous la barre, ne se comparaient pas d'une
+  pause à l'autre.
+
+Ce qui l'a remplacé :
+
+- **une barre pour l'année**, au-dessus : un segment par pause, long de son
+  total. La part faite est en plein ; le restant est hachuré de la même
+  couleur et se voit même sombre. Une légende « faites / restantes » ;
+- **un tableau** : la pause, la prochaine date en entier et son délai,
+  puis deux colonnes de nombres titrées, « Faites » (blanc) et « Reste »
+  (gris), alignées à droite pour se comparer d'un coup d'œil. Une ligne
+  touchée ouvre toujours le jour.
+
+Mesuré :
+
+- une ligne fait 50 px à 390 px (90 avant) ;
+- à 320 px, colonnes et pastille resserrées : « Dimanche 1 novembre »
+  passe sur deux lignes, les autres dates tiennent ;
+- aucun débordement à 320, 390 et 1280 px ;
+- les quatre sorties du vérificateur sont identiques à l'octet.
