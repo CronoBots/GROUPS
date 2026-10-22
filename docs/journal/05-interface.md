@@ -2466,3 +2466,15 @@ production garde son style, comme le client l'a demandé. Le menu, la
 feuille « Plus » et le titre de l'écran disent « Demande de congé ».
 Vérifié à 1440 et 390 px, sur les six sections ; tests des demandes et
 des fiches : 0 erreur.
+
+### Les fonds de la gestion (22/10/2026, `nfdm-v944`)
+
+Le client : « surtout les backgrounds aussi ». Mesuré au pixel, à 1440 px,
+sur un coin vide de la page : l'onglet Équipes est à (14, 19, 32) et
+(17, 25, 42), le dégradé navy `--fond` de `body::before` ; la gestion
+était à (6, 10, 19), l'aplat `--paper` de `.grille`, posé par-dessus.
+Désormais `.grille.ws` prend `--fond` sur `--paper` : (15, 21, 35) et
+(18, 26, 44), le même dégradé à un point près. Les en-têtes de tableau
+(`--surface2`, gris, fin) prennent ceux des Équipes : le fond du cadre,
+le texte en clair et en gras, un filet `--cadre`. Vérifié à 1440 et
+390 px : 0 erreur.
