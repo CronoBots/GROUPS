@@ -2553,3 +2553,15 @@ Mesuré :
   puis GKT et GPO en surnombre.
 - **Le vérificateur** : `--manques` et `--compteurs` identiques ;
   `--polyvalence` change pour quatre personnes, d'une à quatre journées.
+
+### La bulle du « ? » dit toujours qui manque (22/10/2026, `nfdm-v954`)
+
+Le client, sur la fermentation de la nuit du 28/10 : « il n'est pas
+marqué qui il manque ? ». Personne n'y manque : l'équipe 4 n'a pas de
+titulaire de fermentation (APN, LAA, CKS et CHD sont des équipes 1, 2,
+3 et 5). La section « À remplacer » restait muette. Elle dit désormais,
+quand personne n'est absent : le titulaire présent mais placé ailleurs
+(« présent, en … »), sinon « Personne de l'équipe n'est prévu à cette
+place ». La première formule, « pas de titulaire à ce poste », était
+fausse au gluten du 22/01 PM : il y attend deux personnes et un titulaire
+est là. Vérifié le 28/10 N et le 22/01.

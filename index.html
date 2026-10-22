@@ -3955,6 +3955,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .compop.cdp .eqn.cdp-abs b{color:var(--at-rouge)}
 .compop.cdp .cdp-fo{color:var(--at-jaune)}
 .compop.cdp em+em{margin-left:-2px}
+.compop.cdp .cdp-sans{font-style:italic; color:var(--muted)}
 .compop.cdp .cdp-nm{display:block; font-size:11px; color:var(--muted); font-style:italic}
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
@@ -20535,6 +20536,15 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
   });
   /* le proposé d'abord, puis qui est en surnombre, puis les autres */
   c.sort(function(a,b){ return (b.pr-a.pr) || (b.s-a.s) || (a.id<b.id?-1:1); });
+  /* PERSONNE À REMPLACER (le client, le 22/10/2026, sur la fermentation de
+     la nuit du 28/10 : « il n'est pas marqué qui il manque ? ») : le
+     titulaire est là mais placé ailleurs, ou l'équipe n'en a pas — la
+     fermentation n'a de titulaire que dans les équipes 1, 2, 3 et 5. */
+  if(!r.length){
+    (vue.postes||[]).forEach(function(o){ if(o.P.k===P.k) return; o.gens.forEach(function(x){
+      if(!x.depuisD && posteAttitreLe(x.p,jour)===P.k) r.push({id:idLisible(x.p.id), m:"présent, en "+o.P.t}); }); });
+    if(!r.length) r.push({id:"", m:"Personne de l'équipe n'est prévu à cette place"});
+  }
   return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c, r:r};
 }
 /* LA BULLE D'UNE PLACE VIDE mise en forme (le client, le 20/10/2026 :
@@ -20546,6 +20556,7 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
 function bulleCandidatsHTML(d){
   var h='<b class="cdp-t">'+esc(d.t)+'</b>';
   if(d.r&&d.r.length) h+='<span class="cdp-s">À remplacer</span><ul class="cdp-l">'+d.r.map(function(x){
+    if(!x.id) return '<li><span class="cdp-de cdp-sans">'+esc(x.m)+'</span></li>';
     return '<li><span class="eqn cdp-abs"><b>'+esc(x.id)+'</b></span><span class="cdp-de">'+esc(x.m)+(x.n?'<small class="cdp-nm">« '+esc(x.n)+' »</small>':'')+'</span></li>'; }).join("")+'</ul>';
   if(!d.l.length) return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<span class="cdp-vide">Personne de la pause ne peut le prendre sans laisser son poste en sous-effectif.</span>';
   return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<ul class="cdp-l">'+d.l.map(function(x){
