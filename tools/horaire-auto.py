@@ -630,13 +630,22 @@ def synchro_base():
     recopié quand sa version diffère — à CHAQUE passage, e-mail ou non : la
     première version ne la recopiait qu'après une installation, et le
     passage sans e-mail s'arrêtait avant. Jamais d'échec pour elle."""
-    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
-                       cwd=RACINE, capture_output=True, text=True)
-    etat((r.stdout or "").strip() or "Base : non recopiée.")
+    try:
+        r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-synchro.py")],
+                           cwd=RACINE, capture_output=True, text=True, timeout=300)
+        etat((r.stdout or "").strip() or "Base : non recopiée.")
+    except subprocess.TimeoutExpired:
+        etat("Base : recopie abandonnée après 5 minutes.")
     # la sauvegarde du jour, au premier passage qui la trouve absente
-    r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-sauvegarde.py")],
-                       cwd=RACINE, capture_output=True, text=True)
-    etat((r.stdout or "").strip() or "Sauvegarde : non faite.")
+    # cinq minutes au plus : le 22/10/2026 au soir, une sauvegarde pendue a
+    # tenu la relève 20 minutes, et la suivante (le classeur du client)
+    # attendait derrière elle
+    try:
+        r = subprocess.run([sys.executable, os.path.join(OUTILS, "base-sauvegarde.py")],
+                           cwd=RACINE, capture_output=True, text=True, timeout=300)
+        etat((r.stdout or "").strip() or "Sauvegarde : non faite.")
+    except subprocess.TimeoutExpired:
+        etat("Sauvegarde : abandonnée après 5 minutes.")
 
 
 def identites_base(source, annee):

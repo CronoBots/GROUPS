@@ -43,14 +43,38 @@ SUJET = "Sauvegarde BWZ-base"
 GARDE = 30
 
 
-def lire_base(cle):
+def _rpc(nom, args):
     req = urllib.request.Request(
-        SUPABASE + "/rest/v1/rpc/biowanze_sauvegarde",
-        data=json.dumps({"p_cle": cle}).encode("utf-8"),
+        SUPABASE + "/rest/v1/rpc/" + nom,
+        data=json.dumps(args).encode("utf-8"),
         headers={"apikey": CLE_PUBLIQUE, "Content-Type": "application/json"},
         method="POST")
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return r.read()
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.loads(r.read())
+
+
+PAGE = 5000
+
+
+def lire_base(cle):
+    """PAR PAGES (22/10/2026) : biowanze_sauvegarde lisait toute la base en
+    une requête, qui dépasse depuis l'horaire 2027 la limite de 3 s des
+    appels publics (erreur 500, et une relève pendue 20 minutes). La liste
+    des tables, puis chaque table par pages de PAGE lignes (moins de 0,1 s
+    chacune) ; le document reconstruit est le même qu'avant, la
+    restauration ne change pas (base/22-sauvegarde-par-pages.sql)."""
+    doc = {"faite_le": datetime.datetime.now(datetime.timezone.utc).isoformat(), "version": 1}
+    for t in _rpc("biowanze_sauvegarde_tables", {"p_cle": cle}):
+        lignes, depuis = [], 0
+        while True:
+            page = _rpc("biowanze_sauvegarde_page",
+                        {"p_cle": cle, "p_table": t, "p_depuis": depuis, "p_n": PAGE})
+            lignes.extend(page)
+            if len(page) < PAGE:
+                break
+            depuis += PAGE
+        doc[t] = lignes
+    return json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
 
 def chiffrer(donnees, cle):
