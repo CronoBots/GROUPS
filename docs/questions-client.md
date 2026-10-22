@@ -46,9 +46,6 @@ des questions au client ».
    recyclage en doublure. En attendant, n'importe quel compte hiérarchie
    ou RH peut contresigner (la base n'a aujourd'hui que des comptes RH).
    Dites qui, et la base le réservera à ces personnes.
-6. **Le contremaître d'une demande de congé attend-il le remplaçant ?**
-   (posée le 22/10/2026) La RH ne reçoit la demande qu'une fois le
-   remplacement signé ; le contremaître, lui, peut viser tout de suite.
 7. **Effacer pour de bon les demandes supprimées** (posée le 22/10/2026) :
    le connecteur de la base demande votre confirmation pour toute
    instruction qui efface. Elles sont déjà invisibles ; l'effacement
