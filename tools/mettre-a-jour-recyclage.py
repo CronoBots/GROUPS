@@ -635,7 +635,10 @@ def main():
                   "dist": "distillation", "chau": "chaudi", "step": "step"}
         poly = {}
         for p in json.load(open(horaire, encoding="utf-8")).get("people", []):
-            at = " ".join((p.get("poly") or {}).get("ateliers") or []).lower()
+            # les polyvalences en cours ET celles terminées dans l'année
+            # (« fin au 30/09/2026 » : PAM, meunerie et gluten, le client)
+            pv = p.get("poly") or {}
+            at = " ".join(list(pv.get("ateliers") or []) + list((pv.get("dates") or {}).keys())).lower()
             poly[str(p.get("id", "")).split("-")[0]] = _sans_accent(at)
         douteux = ["%s · %s : %d recyclage(s), sans cette polyvalence dans l'horaire"
                    % (t, k, o[k]) for t, o in sorted(ops.items()) for k in cle_at
