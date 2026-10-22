@@ -5415,6 +5415,7 @@ html .hp-fab:hover{opacity:1}
 .md-vide{margin:0 0 10px; color:var(--muted); font-size:13.5px}
 .md-act{display:flex; flex-wrap:wrap; gap:8px}
 @media (min-width:1100px){
+  html #v-horaire>#ctlCard{grid-column:1 / -1}
   html #v-horaire>#semCard{grid-column:1}
   html #v-horaire>#demCard{grid-column:2}
 }
@@ -5545,6 +5546,34 @@ html .rc-papier select{font:inherit; color:#1d1d1d; background:#fffde8; border:0
 html .rc-papier .dm-pp-ch input[type=date]{width:auto}
 html .rc-att{margin:0; padding-left:28px}
 html .rc-papier small{font-size:11px; color:#555}
+/* le centre de contrôle de l'Accueil */
+html .ctl{display:grid; gap:14px; padding:12px 14px 14px}
+html .ctl-rac{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+html .ctl-t{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:76px; padding:10px 6px; border:1px solid var(--line); border-radius:14px; background:var(--surface2); color:var(--ink); font:inherit; font-size:12.5px; font-weight:600; line-height:1.2; text-align:center; cursor:pointer}
+html .ctl-t svg{color:var(--in)}
+html .ctl-bloc{display:flex; flex-direction:column; gap:8px; min-width:0}
+html .ctl-bloc h3{margin:0; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px}
+html .ctl-nb{display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11.5px; letter-spacing:0}
+html .ctl-l{display:flex; flex-direction:column; gap:6px}
+html .ctl-i{display:flex; align-items:center; gap:10px; width:100%; min-height:48px; padding:8px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--ink); font:inherit; text-align:left; cursor:pointer}
+html .ctl-i>span:not(.pl-pa):not(.dm-st){flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+html .ctl-i b{font-size:14px; font-weight:650}
+html .ctl-i small{font-size:12px; color:var(--muted)}
+html .ctl-i em{font-style:normal; color:var(--muted); font-size:18px}
+html .ctl-i .dm-st{flex:none}
+html .ctl-urg{border-color:color-mix(in srgb,var(--out) 45%,var(--line)); background:color-mix(in srgb,var(--out) 9%,var(--surface2))}
+html .ctl-pt{flex:none; width:8px; height:8px; border-radius:50%; background:var(--out)}
+html .ctl-sous{margin:4px 0 0; font-size:12px; color:var(--muted)}
+html .ctl-ok{margin:0; padding:10px 12px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); font-size:13.5px}
+html .ctl-dl{display:grid; grid-template-columns:auto 1fr; gap:6px 12px; margin:0; align-items:center; font-size:13px}
+html .ctl-dl dt{color:var(--muted)}
+html .ctl-dl dd{margin:0; display:flex; flex-wrap:wrap; gap:4px; align-items:center}
+html .ctl-pa .pl-pa{flex:none}
+@media (hover:hover){ html .ctl-t:hover,html .ctl-i:hover{border-color:var(--in2)} }
+@media (max-width:360px){ html .ctl-t{font-size:11.5px; min-height:70px} }
+@media (min-width:1100px){
+  html .ctl{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr); align-items:start; gap:18px}
+}
 </style>
 </head>
 <body>
@@ -5707,6 +5736,12 @@ html .rc-papier small{font-size:11px; color:#555}
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
+    <!-- LE CENTRE DE CONTRÔLE (le client, le 22/10/2026) : raccourcis, à
+         faire, ma prochaine pause. -->
+    <div class="card" id="ctlCard" hidden>
+      <header><h2>À portée de main</h2><span class="sub" id="ctlSub"></span></header>
+      <div class="ctl" id="ctlCorps"></div>
+    </div>
     <!-- MA SEMAINE ET MES DEMANDES (le client, le 22/10/2026, « go ») : les
          sept jours qui viennent, et les demandes en cours avec leur
          avancement. Au PC, côte à côte au-dessus du calendrier et des
@@ -14790,6 +14825,7 @@ function wsBadge(){
   [[b,n],[br,nr]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
     if(z[1]){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=z[1]; z[0].appendChild(s); } });
   try{ renderMesDemandes.rc&&renderMesDemandes.rc(); }catch(e){}
+  try{ renderCentre(); }catch(e){}
 }
 function dmRemplacee(x){ return x.statut==="annulee"&&/^Remplacée par la demande/.test(x.motif_refus||""); }
 /* modifiable par son auteur tant que ni le contremaître ni la RH ne l'a visée */
@@ -15621,6 +15657,7 @@ function renderRythme(){
   /* plus d'action au toucher d'un mois (le client, le 17/10/2026) */
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   try{ renderMaSemaine(db,person); renderMesDemandes(); }catch(e){}
+  try{ renderCentre(db,person); }catch(e){}
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a) a.innerHTML=ryAnneeHTML(person,y);
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryProchainesHTML(person,y);
     try{ recyclageHeros(db,person); }catch(e){}
@@ -15651,6 +15688,108 @@ document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
   var y=Number(b.dataset.y), m=Number(b.dataset.m), d=Number(b.dataset.d);
   if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
+});
+/* L'ACCUEIL EN CENTRE DE CONTRÔLE (le client, le 22/10/2026 : « l'accueil doit
+   être un vrai centre de contrôle pour l'utilisateur ; il doit avoir tout à
+   portée de main, intuitif, professionnel et complet »). Sous le héros, un
+   seul cadre en trois parties :
+   - les RACCOURCIS des gestes de tous les jours (demander un congé, une
+     fiche de recyclage, la fiche de paie, l'équipe du jour, l'horaire
+     production, l'agenda du téléphone) ;
+   - « À FAIRE » : ce qui attend une action de l'utilisateur, réuni en un
+     seul endroit (remplacement à signer, fiche à confirmer, demande à viser,
+     horaire modifié), puis ce qui est en route (ses demandes et ses
+     fiches) ; rien d'autre, « tout est à jour » sinon ;
+   - « MA PROCHAINE PAUSE » : le contremaître et les collègues du même
+     poste, lus dans l'horaire par les fonctions d'« Équipe du jour ». */
+var CTL_ICO={
+  conge:'<path d="M8 2v4M16 2v4"/><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 15l2 2 4-4"/>',
+  rec:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>',
+  paie:'<rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M6 15h4"/>',
+  eq:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  plan:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 4v17M13 4v17"/>',
+  ag:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M12 12v6M9 15h6"/>'};
+function ctlIco(k){ return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+CTL_ICO[k]+'</svg>'; }
+/* la prochaine pause : qui est contremaître, qui tient le même poste */
+function ctlPause(person){
+  var inf; try{ inf=_pfInfos(person); }catch(e){ return null; }
+  var pr=inf&&inf.prochain; if(!pr) return null;
+  var d=pr.d, db=horaireDe(d.getFullYear()), k=pr.pv, out={d:d, pv:k, kc:pr.kc, enCours:pr.enCours, cm:null, poste:"", avec:[], n:0};
+  if(!db||!/^(AM|PM|N)$/.test(k)) return out;
+  try{
+    var m=d.getMonth()+1, j=d.getDate(), par=equipeDuJour(db,d.getFullYear(),m,j), l=par[k]||[];
+    out.n=l.length;
+    var vue=postesDePause(db,l,k,pad2(m)+pad2(j),k==="AM"?par.D:null);
+    vue.postes.forEach(function(o){
+      var gens=o.gens.filter(function(z){ return !z.depuisD; });
+      if(o.P.cm&&gens[0]) out.cm=gens[0].p.id;
+      if(gens.some(function(z){ return z.p.id===person.id; })){ out.poste=o.P.t; out.avec=gens.map(function(z){ return z.p.id; }).filter(function(t){ return t!==person.id; }); }
+    });
+  }catch(e){}
+  return out;
+}
+function renderCentre(db,person){
+  var c=document.getElementById("ctlCard"), corps=document.getElementById("ctlCorps"); if(!c||!corps) return;
+  person=person||renderCentre.p; if(!person){ c.hidden=true; return; }
+  renderCentre.p=person;
+  var cb=!!compteBase(), val=cb&&peutSaisir();
+  /* les raccourcis */
+  var rac=[];
+  if(cb) rac.push(["conge","Demander un congé","dmNv"],["rec","Fiche de recyclage","rcNv"]);
+  rac.push(["paie","Ma fiche de paie","paie"],["eq","Équipe du jour","eq"]);
+  if(cb) rac.push(["plan","Horaire production","plan"]);
+  rac.push(["ag","Mon agenda","ag"]);
+  /* à faire : ce qui attend une action, puis ce qui est en route */
+  var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
+  var dot=document.getElementById("notifDot");
+  if(dot&&!dot.hidden) faire.push(["notif","Votre horaire a changé","voir ce qui a bougé",""]);
+  if(cb){
+    var nr=L.filter(dmAccordAttendu).length; if(nr) faire.push(["signer",nr+" remplacement"+(nr>1?"s":"")+" à signer","un collègue vous demande de le remplacer",nr]);
+    var nv=val?L.filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); }).length:0; if(nv) faire.push(["viser",nv+" demande"+(nv>1?"s":"")+" de congé à viser","remplacement signé, en attente de votre visa",nv]);
+    var rc=R.filter(rcATraiter); if(rc.length) faire.push(["rcfaire",rc.length+" fiche"+(rc.length>1?"s":"")+" de recyclage à "+(rc.every(function(x){ return x.je_confirme; })?"confirmer":"traiter"),"recyclage « polyvalence »",rc.length]);
+    /* ses demandes de congé en cours ont leur cadre, juste en dessous */
+    R.filter(function(x){ return x.a_moi&&rcEnCours(x); }).forEach(function(x){
+      var dj=dmJour(x.jour); route.push(["rcmoi","Recyclage "+x.fonction+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),rcStatut(x)]); });
+  }
+  var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span></button>'; }).join("")+'</div>'];
+  var fa='<section class="ctl-bloc"><h3>À faire'+(faire.length?' <span class="ctl-nb">'+faire.reduce(function(s,f){ return s+(f[3]||1); },0)+'</span>':'')+'</h3>';
+  if(faire.length) fa+='<div class="ctl-l">'+faire.map(function(f){ return '<button type="button" class="ctl-i ctl-urg" data-ctl="'+f[0]+'"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small></span><em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
+  else fa+='<p class="ctl-ok">✓ Rien ne vous attend'+(cb?'':' — connectez-vous dans Réglages pour vos demandes')+'.</p>';
+  if(route.length) fa+='<p class="ctl-sous">En route</p><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
+  h.push(fa+'</section>');
+  /* ma prochaine pause */
+  var pa=ctlPause(person), ps='<section class="ctl-bloc"><h3>Ma prochaine pause</h3>';
+  if(pa){
+    var quand=pa.enCours?"en cours":pa.kc===0?"aujourd'hui":pa.kc===1?"demain":JOURS_LONGS[(pa.d.getDay()+6)%7].toLowerCase()+" "+pa.d.getDate()+" "+MOIS_C[pa.d.getMonth()];
+    ps+='<button type="button" class="ctl-i ctl-pa" data-ctl="pause" data-an="'+pa.d.getFullYear()+'" data-m="'+(pa.d.getMonth()+1)+'" data-j="'+pa.d.getDate()+'">'
+      +'<span class="pl-pa '+grPosteCls(pa.pv)+'">'+esc(pa.pv==="N"?"N":pa.pv)+'</span><span><b>'+esc(quand.charAt(0).toUpperCase()+quand.slice(1))+(pa.poste?' · '+esc(pa.poste):'')+'</b>'
+      +'<small>'+(pa.n?pa.n+' à la pause':'horaire variable')+'</small></span><em aria-hidden="true">›</em></button>'
+      +'<dl class="ctl-dl"><dt>Contremaître</dt><dd>'+(pa.cm?'<span class="pl-tri">'+esc(idLisible(pa.cm))+'</span>'+(pa.cm===person.id?' <small>vous</small>':''):'<small>—</small>')+'</dd>'
+      +(pa.cm===person.id?'':'<dt>Au même poste</dt><dd>'+(pa.avec.length?pa.avec.map(function(t){ return '<span class="pl-tri">'+esc(idLisible(t))+'</span>'; }).join(""):'<small>seul</small>')+'</dd>')+'</dl>';
+  } else ps+='<p class="ctl-ok">Aucune pause prévue dans les 60 jours.</p>';
+  h.push(ps+'</section>');
+  corps.innerHTML=h.join("");
+  var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0);
+  document.getElementById("ctlSub").textContent=n?n+" à faire":"tout est à jour";
+  c.classList.toggle("ctl-alerte",!!n);
+  c.hidden=false;
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl]"):null; if(!b) return;
+  var k=b.getAttribute("data-ctl"), auj=jourUsine();
+  if(k==="dmNv") ouvrirGrille("demandes",{});
+  else if(k==="rcNv"){ GR.rcForm=true; ouvrirGrille("recyclages"); }
+  else if(k==="paie") setView("salaire");
+  else if(k==="eq"){ eqDate=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()); eqAuto=true; setView("jour"); }
+  else if(k==="plan") ouvrirGrille("planning");
+  else if(k==="ag") abonnerAgenda();
+  else if(k==="notif") ouvrirNotif();
+  else if(k==="signer"){ GR.onglet="remplace"; ouvrirGrille("demandes"); }
+  else if(k==="viser"){ GR.onglet="traiter"; ouvrirGrille("demandes"); }
+  else if(k==="dem"){ GR.onglet="miennes"; ouvrirGrille("demandes"); }
+  else if(k==="rcfaire"){ GR.rcOnglet="traiter"; ouvrirGrille("recyclages"); }
+  else if(k==="rcmoi"){ GR.rcOnglet="miennes"; ouvrirGrille("recyclages"); }
+  else if(k==="pause"){ eqDate=new Date(Number(b.dataset.an),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false; setView("jour"); }
 });
 /* MES DEMANDES : celles en cours, avec leurs étapes ; sinon un bouton */
 /* LES FICHES DE RECYCLAGE « POLYVALENCE » (le client, le 22/10/2026 : « il
@@ -15743,6 +15882,7 @@ function renderRecyclages(){
     :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à traiter.':o==="miennes"?'Aucune fiche en cours. « Nouvelle fiche » après une pause complète passée sur un autre poste.':o==="histo"?'Aucune fiche traitée pour l\'instant.':'Aucune fiche.')+'</p></div>');
   hote.innerHTML=h.join("");
   rcBrancher();
+  if(GR.rcForm){ GR.rcForm=false; rcFeuille(null); }
 }
 function rcBrancher(){
   var b=document.getElementById("rcNouvelle"); if(b) b.onclick=function(){ rcFeuille(null); };
@@ -15861,9 +16001,10 @@ function renderMesDemandes(){
   function rendre(){
     var L=GR.demandes||[], l=L.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; });
     var fait=L.filter(function(x){ return x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x); }).length;
-    var aSigner=L.filter(dmAccordAttendu).length, aRc=(GR.recyclages||[]).filter(rcATraiter).length;
     document.getElementById("demSub").textContent=l.length?l.length+" en cours":"";
-    corps.innerHTML=(aRc?'<button type="button" class="md-signer" data-md="recyclage">'+aRc+' fiche'+(aRc>1?'s':'')+' de recyclage à '+(peutSaisir()?'traiter':'confirmer')+' ›</button>':'')+(aSigner?'<button type="button" class="md-signer" data-md="signer">'+aSigner+' remplacement'+(aSigner>1?'s':'')+' à signer ›</button>':'')
+    /* les remplacements à signer et les fiches à confirmer sont dans
+       « À faire », en tête de l'Accueil : pas une seconde fois ici */
+    corps.innerHTML=''
       +(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><div class="md-h"><b>'+esc(dmPeriode(x.du,x.au))+'</b>'+dmStatut(x)+'</div>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
       +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
