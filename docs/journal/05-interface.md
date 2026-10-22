@@ -2061,3 +2061,11 @@ qu'au téléphone elle est déjà rangée en bas. Il la cherche partout.
 l'écran ; « ‹ Retour » puis l'onglet Accueil referment l'espace ; aucune
 erreur, et les parcours des demandes, du menu et de l'Horaire production
 passent.
+
+**Erreur de méthode trouvée le même jour** : `dm3.js` (le parcours d'une
+demande : envoi, signature du remplaçant, visa RH) lit la largeur dans son
+DEUXIÈME argument (`node dm3.js <dossier> <largeur>`) ; il était lancé
+`node dm3.js 1280`, si bien que toutes les passes « 1280 » des journaux
+du 21 et du 22/10 ont en réalité testé 390 px. Lancé correctement, il
+passe à 390 et à 1280 (après l'avoir fait passer par la barre du bas au
+téléphone, le menu du haut n'y étant plus).
