@@ -3284,3 +3284,36 @@ ajouter le FT au type de congé ».
 Éprouvé au navigateur : la liste des types vaut « VA · RTT · 8h -FT · AM ·
 PM · D », les remplaçants « BBZ · CJD · DWS… », alignement centré. Aucune
 erreur. Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Deux types de congé, l'heure de départ ou d'arrivée, remplaçant centré (22/10/2026, v984)
+
+Le client : « le trigramme du remplacement centré aussi, et il faut pouvoir
+mettre deux sortes de congé, et si on quitte ou arrive plus tôt, le
+préciser ».
+
+- **Remplaçant centré**, comme le type : dans la feuille à remplir, sur la
+  feuille en lecture et dans les cartes.
+- **Une rangée de précision** sous chaque jour de congé de la courte durée
+  (`ligne()`, redessinée avec sa ligne par `remettre()`) :
+  - « + autre type » : un second type demandable, différent du premier ;
+  - « horaire complet / quitte à / arrive à », puis l'heure, au quart
+    d'heure. Une liste et non le champ heure du téléphone, qui aurait
+    inscrit l'heure courante d'office, comme la date le faisait.
+- **Partout où la demande se lit** : « 4h RTT + 4h -FT » et « quitte à
+  18 h 00 » sur la feuille et dans les cartes. Les heures et les compteurs
+  de la carte comptent les deux types.
+- **Base** : `base/20-deux-types-heure.sql`, appliqué.
+  - `biowanze_demander_formulaire` accepte `code2` (demandable, différent du
+    premier, courte durée seulement), et `part` ('quitte' ou 'arrive')
+    avec `heure` (HH:MM).
+  - `biowanze_decider_demande`, à l'acceptation, garde le premier code en
+    annotation, celui que lisent le classeur et les compteurs. Le second
+    type et l'heure vont dans le commentaire : « Demande n° 12 · + 4h -FT ·
+    quitte à 18:00 ».
+  - **Écart à confirmer** : on ne connaît pas l'écriture d'une annotation à
+    deux codes dans le classeur, donc on ne l'invente pas.
+
+Éprouvé au navigateur : jour choisi, 4h RTT + 4h -FT, quitte à 18:00,
+remplaçant. L'envoi part avec `code`, `code2`, `part`, `heure`, `rp` et
+`cm`. Aucune erreur. Les quatre sorties du vérificateur sont identiques à
+l'octet.
