@@ -1451,3 +1451,34 @@ n'existant pas, un simple `create trigger` suffisait — et la règle
 Le vérificateur `--polyvalence` change d'empreinte ce jour (d4dffe62 →
 8c290e61) : la version d'AVANT ces changements donne la même, à l'octet ;
 c'est la date (le 22/10), pas le code.
+
+### PDR était PDF : l'homonyme du classeur RH (22/10/2026)
+
+Le client, devant le tableau « application / RH » des recyclages : « PDR
+(chaudière) est PDF ». Le classeur RH portait dix recyclages STEP sous
+PDR, et aucun sous PDF. Le trigramme se calcule d'après le nom
+(`_initiales`) ; le classeur RH écrit le nom de cette personne
+autrement que l'horaire, et il en sortait celui d'un AUTRE, opérateur de
+distillation sans la STEP. La porte 2 (« trigrammes connus et uniques »)
+ne pouvait pas le voir : PDR existe.
+
+- `tools/mettre-a-jour-recyclage.py` : `CORRECTIONS_TRI = {"PDR": "PDF"}`,
+  appliqué par `tri_rh()` aux DEUX endroits qui calculent le trigramme
+  (la lecture et l'anonymiseur de la copie). Les portes 9 et 11
+  confrontent ces deux chemins, et doivent donc lire la même chose.
+- Un contrôle de plus, signalé mais non bloquant : un recyclage à un
+  poste absent des polyvalences de la personne dans l'horaire.
+  Éprouvé sur le fichier installé : il nomme `PDR · step : 10`, et aussi
+  `PAM · meun : 7` et `PAM · glut : 5`. PAM est une question au client
+  (`docs/questions-client.md`), sans correction tant qu'il n'a pas
+  répondu. Sur le fichier corrigé, il ne nomme plus que PAM.
+- `data/recyclages-2026.json` est corrigé à la main, à l'identique de
+  ce que produirait l'outil (`json.dumps(indent=1)`, clés triées) : une
+  seule ligne change, la clé. Le classeur RH source n'est pas dans le
+  conteneur, et `mettre-a-jour-recyclage.py --installer` n'a donc pas pu
+  être rejoué. La prochaine installation devra reproduire ce fichier,
+  PDF compris.
+- Mesuré contre le classeur RH : les journées de l'application
+  confirmées par la RH passent de 137 à 147, les dix STEP de PDF.
+  `verifier-integralite.py` → 0 ; les quatre sorties du vérificateur
+  sont inchangées.
