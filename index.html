@@ -17910,6 +17910,7 @@ function renderEquipe(){
         if(x.comble && x.avant===posteCourant.k) tr=null;
         else tr=transfertApp(x,posteCourant.k,jourCalc);
         if(!tr && x.propose && x.propose!==posteCourant.k) tr={de:posteCourant.k, vers:x.propose};
+        if(x.echange) tr={de:x.echange.de, vers:x.echange.vers};
       }
       if(tr){
         var Pv=posteCourant;
@@ -18060,6 +18061,35 @@ function renderEquipe(){
              placeDOffice(). */
           var croise=placeDOffice(x,o.P.k,o2,v,jourCalc,mmdd);
           if(croise){ x.dOffice=croise; return; }
+          /* L'ÉCHANGE DES PLACES HABITUELLES (le client, le 22/10/2026 :
+             « AAI et SMA, on avait déjà dit que c'était AAI qui prenait la
+             place de SMA en distillation »). Le 23/10 PM, AAI écrit
+             « poly. Etoh, remplace SKS » et SMA rien : le rééquilibrage
+             portait SMA du terrain arrière à la distillation vide. C'est
+             l'inverse de la règle du 27/09 (POSTE_HABITUEL) : AAI va en
+             distillation, SMA garde le terrain arrière. */
+          /* LE POSTE QU'IL QUITTE EST TENU PAR UN REMPLAÇANT ÉCRIT (le client,
+             le 22/10/2026 : « et pareil pour PAM le 26, qui est en
+             fermentation vu que GPO remplace QBY »). PAM ["PM","F","projet
+             falling film en distillation"], GPO ["PM","disti","Remplace
+             QBY"] : GPO tient la distillation, PAM y est en trop, la
+             fermentation vide lui revient d'office. */
+          var y=echangeHabituel(x,o,o2,jourCalc);
+          if(y){
+            o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
+            o2.gens.splice(o2.gens.indexOf(y),1); o.gens.push(y);
+            if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
+            if(compteAuPoste(x,o2.P,jourCalc)) o2.tenu++;
+            if(compteAuPoste(y,o2.P,jourCalc)) o2.tenu--;
+            if(compteAuPoste(y,o.P,jourCalc)) o.tenu++;
+            y.echange={x:x, de:o2.P.k, vers:o.P.k};
+            o.manque=!!(o.attendu && o.tenu<o.attendu); o2.manque=!!(o2.attendu && o2.tenu<o2.attendu);
+            return;
+          }
+          /* … et seulement vers un poste qui, sans lui, manquerait (CDE le
+             20/01 serait parti vers un terrain arrière déjà complet) */
+          var rw=tenuParRemplacant(x,o2,mmdd,jourCalc);
+          if(rw && o.attendu && o.tenu-(compteAuPoste(x,o.P,jourCalc)?1:0)<o.attendu){ x.surplus=rw; return; }
           o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
           x.propose=o.P.k; o.propose=true;
           if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
@@ -20151,6 +20181,36 @@ function remplacesActifs(com){
   }
   return r;
 }
+/* L'échange des places habituelles : x, porté de oDe vers oVers, a oDe
+   pour place habituelle, et un collègue y, à oDe, a oVers pour place
+   habituelle selon le client (POSTE_HABITUEL) et sait la tenir : c'est y
+   qui part. Rend y, ou null. */
+function echangeHabituel(x,oVers,oDe,jour){
+  if(!x||x.depuisD||!oVers||!oDe||posteAttitre(x.p)!==oDe.P.k) return null;
+  var r=null;
+  oDe.gens.forEach(function(y){
+    if(r||y===x||y.depuisD) return;
+    if(POSTE_HABITUEL[idLisible(y.p.id)]===oVers.P.k && compteAuPoste(y,oVers.P,jour)) r=y;
+  });
+  return r;
+}
+/* Le poste oDe que x quitterait garde son effectif sans lui, et un
+   collègue y tient, que le classeur y envoie lui-même : un poste ÉCRIT
+   dans sa case (y.fixe) et un « remplace Z ». Rend {p, z} (y et le
+   remplacé), ou null. */
+function tenuParRemplacant(x,oDe,mmdd,jour){
+  if(!x||x.depuisD||!oDe||!oDe.attendu||oDe.tenu<oDe.attendu) return null;
+  /* il quitte SA place habituelle (PAM, la distillation) : c'est le
+     remplaçant écrit qui l'y rend surnuméraire */
+  if(posteAttitre(x.p)!==oDe.P.k) return null;
+  var r=null;
+  oDe.gens.forEach(function(y){
+    if(r||y===x||y.depuisD||!y.fixe) return;
+    var e=y.p.d&&y.p.d[mmdd], z=remplacesActifs(e&&e[2]);
+    if(z.length) r={p:y.p, z:z[0]};
+  });
+  return r;
+}
 function placeDOffice(x,k,oDe,v,jour,mmdd){
   if(!x||x.depuisD||!oDe||(oDe.attendu&&oDe.tenu<oDe.attendu)) return null;
   if(posteAttitre(x.p)!==k) return null;
@@ -20212,6 +20272,10 @@ function raisonTexte(r){
                       : r.note.charAt(0).toLowerCase()+r.note.slice(1);
 }
 function texteTransfert(x,t,raison){
+  if(x.surplus) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
+    +" ; "+idLisible(x.surplus.p.id)+" (remplace "+x.surplus.z+") tient le poste "+nomPosteApp(t.de)+".";
+  if(x.echange) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
+    +", sa place habituelle ; "+idLisible(x.echange.x.p.id)+" garde la sienne en "+nomPosteApp(t.de)+" (le client, le 27/09/2026).";
   return "Proposé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
     +(raison?", "+raison:"")+". À confirmer avec "+idLisible(x.p.id)+".";
 }
@@ -20277,7 +20341,12 @@ function transfertsDuJour(db,annee,m,j){
       var sans=o.tenu-tr.filter(function(z){ return compteAuPoste(z[0],o.P,jc); }).length;
       if(o.attendu && sans>=o.attendu) return;
       tr.forEach(function(z){
-        out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
+        /* l'échange des places habituelles : c'est l'autre qu'on prévient */
+        var oDe=vue.postes.filter(function(q){ return q.P.k===z[1].de; })[0], y=echangeHabituel(z[0],o,oDe,jc);
+        var rw=y?null:tenuParRemplacant(z[0],oDe,mmdd,jc);
+        if(y) out.push({p:y.p, pause:g, de:z[1].de, vers:z[1].vers, r:{qui:[], note:"Sa place habituelle : "+idLisible(z[0].p.id)+" garde la sienne"}});
+        else if(rw) out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:{qui:[], note:idLisible(rw.p.id)+" (remplace "+rw.z+") tient "+nomPosteApp(z[1].de)}});
+        else out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
       });
     });
   });
