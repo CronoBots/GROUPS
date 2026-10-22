@@ -2644,3 +2644,24 @@ remplacer par ma semaine ».
 Mesuré à 320, 390 et 1280 px (cases de 34, 44 et 73 px) : aucun
 débordement, aucune erreur. Les quatre sorties du vérificateur sont
 identiques à l'octet.
+
+### « Ma semaine » nomme le remplaçant au lieu d'un point (22/10/2026, v959)
+
+Le client, sur la capture de la v958 : « comment optimiser ». Sa semaine
+portait le point jaune du commentaire sur six cases sur sept : un signal
+partout ne signale plus rien. Ses commentaires disaient pourtant tout :
+« échange avec GPS », « remplacé par ATR » (trois jours), « remplacé par
+AFA ».
+
+`msNomme()` prend le premier trigramme connu, écrit en majuscules, après
+« remplacé par », « remplace », « remplaçait » ou « échange avec ». Il est
+écrit en jaune sous la pastille : sur un congé, c'est le remplaçant ; sur
+un poste, celui qu'on remplace ou avec qui l'on échange. Le point reste
+pour un commentaire qui ne nomme personne (« équipe au complet »). Un
+commentaire qui doute (« ou », « ? ») ne nomme personne, comme au
+Planning. Le commentaire entier est dans le titre et dans le libellé
+d'accessibilité.
+
+Mesuré sur la semaine du client : GPS, ATR, ATR, AFA, repos, repos, ATR.
+Les cases passent de 81 à 101 px. Aucun débordement à 320, 390 et
+1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.

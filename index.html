@@ -5432,6 +5432,7 @@ html .hp-fab:hover{opacity:1}
 .ms-j b{font-size:16px; font-variant-numeric:tabular-nums}
 .ms-j .pl-pa{max-width:100%}
 .ms-repos{font-size:11.5px; color:var(--muted)}
+.ms-j small.ms-qui{font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:none; color:#D4AA60; font-variant-numeric:tabular-nums}
 .ms-com{position:absolute; top:4px; right:4px; width:5px; height:5px; border-radius:50%; background:var(--at-jaune)}
 .ms-j .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 0; border-radius:99px; width:calc(100% - 6px); max-width:34px; height:auto; min-width:0; text-align:center}
 @media (hover:hover){ .ms-j:hover{border-color:rgba(105,178,203,.55)} }
@@ -15756,12 +15757,26 @@ function renderRythme(){
 
 /* MA SEMAINE : aujourd'hui et les six jours suivants, la pause (ou ce qui
    la remplace : congé, maladie, formation), un toucher ouvre le jour. */
+/* QUI LE COMMENTAIRE NOMME (le client, le 22/10/2026 : « comment
+   optimiser », sur une semaine où six cases sur sept portaient le point
+   jaune du commentaire, qui ne disait plus rien). Le premier trigramme
+   connu après « remplacé par », « remplace », « remplaçait » ou « échange
+   avec » : sur un congé, le remplaçant ; sur un poste, celui qu'on remplace
+   ou avec qui l'on échange. Un commentaire qui doute (« ou », « ? ») ne
+   nomme personne, comme dans le Planning. */
+function msNomme(com,ids,moi){
+  com=String(com||""); if(/\?|\bou\b/i.test(com)) return "";
+  var re=/(remplac[ée]e?s?\s+par|rempla[cç]ait|remplace|[ée]change\s+avec)\s*:?\s*([A-Za-z]{3})\b/gi, m;
+  while((m=re.exec(com))){ var t=m[2]; if(t===t.toUpperCase() && ids[t] && t!==moi) return t; }
+  return "";
+}
 function maSemaineHTML(db,person){
   /* LE JOUR DU CALENDRIER, comme le héros et le calendrier du mois (le
      client, le 22/10/2026 : « tout est professionnel et optimisé ? ») : à
      5 h, le jour de l'usine est encore la veille, et la semaine disait
      « Auj. 21 » sous un héros qui annonçait jeudi 22. */
-  var nc=new Date(), j0=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate()), j6=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+6), h=[];
+  var nc=new Date(), j0=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate()), j6=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+6), h=[], ids={};
+  (db&&db.people||[]).forEach(function(q){ ids[q.id]=1; });
   for(var i=0;i<7;i++){
     var d=new Date(j0.getFullYear(),j0.getMonth(),j0.getDate()+i), dbx=horaireDe(d.getFullYear())||db;
     var p=dbx&&dbx.people.filter(function(x){ return x.id===person.id; })[0], md=pad2(d.getMonth()+1)+pad2(d.getDate());
@@ -15769,12 +15784,15 @@ function maSemaineHTML(db,person){
     /* l'annotation l'emporte quand elle dit un poste ou une absence ; un atelier ou un remplacement laisse la pause */
     var v=an&&fa!=="atelier"&&fa!=="remplacement"&&fa!=="autre"?an:pv, fv=grFamille(v);
     var cls=fv==="poste"||!fv?grPosteCls(v):"f-"+fv;
-    h.push('<button type="button" class="ms-j'+(i===0?' auj':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'" aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' : '+(v&&v!=="-"?grAffiche(v):'repos'))+'">'
+    var qui=e[2]?msNomme(e[2],ids,person.id):"";
+    h.push('<button type="button" class="ms-j'+(i===0?' auj':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'+(e[2]?' title="'+esc(e[2])+'"':'')+' aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+' '+d.getDate()+' : '+(v&&v!=="-"?grAffiche(v):'repos')+(e[2]?' — '+e[2]:''))+'">'
       +'<small>'+(i===0?'Auj.':JOURS_C[d.getDay()])+'</small><b>'+d.getDate()+'</b>'
       /* une pause prend la pastille des pauses du héros (AM, PM, N, D) */
       +(/^(AM|PM|N|D)$/.test(v)?'<i class="pf-pause" data-p="'+v+'">'+v+'</i>'
         :v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">repos</span>')
-      +(e[2]?'<i class="ms-com" aria-hidden="true"></i>':'')+'</button>');
+      /* le trigramme nommé sous la pastille ; le point seulement quand le
+         commentaire ne nomme personne */
+      +(qui?'<small class="ms-qui" aria-hidden="true">'+esc(qui)+'</small>':e[2]?'<i class="ms-com" aria-hidden="true"></i>':'')+'</button>');
   }
   return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2">Ma semaine</span><span class="pf-pr-l">'
     +esc(j0.getDate()+(j0.getMonth()===j6.getMonth()?"":" "+MOIS_C[j0.getMonth()])+" – "+j6.getDate()+" "+MOIS_C[j6.getMonth()])+'</span></div>'
