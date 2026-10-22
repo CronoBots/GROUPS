@@ -1398,3 +1398,50 @@ Modifier, feuille remplie, appel de modification) et RH (`dm3.js` :
 demande, accord du remplaçant, visa) ; `dm3.js` passait par la carte
 retirée pour ouvrir l'espace RH : il passe désormais par le menu, comme
 un utilisateur.
+
+### Le remplaçant d'abord, la RH ensuite — et leur téléphone (22/10/2026, `nfdm-v926`)
+
+Le client : « si sur la demande de congé le travailleur sélectionne un
+remplaçant, ce même remplaçant doit recevoir la demande sur son téléphone
+pour signer le remplacement ; et la RH ne doit recevoir la demande qu'une
+fois le remplacement signé ».
+
+- **La file des notifications** (`base/14-remplacant-puis-rh.sql`) :
+  `biowanze.notifs`, fermée au public, remplie par un déclencheur sur les
+  demandes — à la création, chaque remplaçant (« Remplacement à signer ») ;
+  sans remplaçant, les comptes RH ; à la DERNIÈRE signature d'un
+  remplaçant, les comptes RH (« Demande de congé à viser ») et le
+  demandeur (« Remplacement signé »). Le déclencheur lance aussitôt
+  l'action GitHub `notifier.yml` (même jeton, même coffre que
+  `biowanze_lancer_horaire`) ; l'action repasse aussi à :11 et :41.
+  `tools/notifier-demandes.js` lit la file (`biowanze_notifs_a_envoyer`,
+  clé du robot) et la confie à `envoyer-push.js`, un message par
+  trigramme et rien aux autres abonnés. La clé privée reste un secret
+  GitHub.
+- **La RH ne la reçoit qu'après la signature** : `attend_rh` ne vaut vrai
+  qu'une fois tous les remplaçants signés (« À traiter » vide avant),
+  et une garde dans la base refuse à la RH d'accepter ou refuser avant
+  (« le remplaçant n'a pas encore signé »). L'écran dit « Attend le
+  remplaçant ». La hiérarchie (contremaître) garde son circuit : le client
+  n'en a rien dit.
+- **Toucher la notification** ouvre l'espace des demandes, sur « Je
+  remplace » pour le remplaçant, « À traiter » pour la RH — application
+  fermée (`?vue=demandes`) ou déjà ouverte (message du service worker).
+
+Éprouvé sur la vraie base, dans des blocs annulés : création → une
+notification au remplaçant, `attend_rh` faux ; signature → RH et demandeur
+prévenus, `attend_rh` vrai ; décision RH avant signature refusée, après
+acceptée ; la file revient à zéro. Au navigateur : le remplaçant arrive
+sur « Je remplace » avec « Ouvrir la feuille pour signer », la RH n'a rien
+« À traiter » et lit « Attend le remplaçant ».
+
+**Erreur commise** : les deux premiers envois de la migration contenaient
+un `drop trigger if exists` ; le connecteur Supabase demande une
+confirmation pour toute suppression, la demande restait sans réponse et
+l'envoi expirait (rien n'avait été appliqué). Les déclencheurs
+n'existant pas, un simple `create trigger` suffisait — et la règle
+« pas de drop par le connecteur » le disait déjà.
+
+Le vérificateur `--polyvalence` change d'empreinte ce jour (d4dffe62 →
+8c290e61) : la version d'AVANT ces changements donne la même, à l'octet ;
+c'est la date (le 22/10), pas le code.
