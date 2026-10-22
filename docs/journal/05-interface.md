@@ -2184,3 +2184,17 @@ et n'ont pas besoin d'être visibles » (`base/16-effacer.sql`).
   suspendu une minute, puis a expiré : vérifié ensuite, rien n'était
   appliqué. On ne contourne pas cette confirmation ; la partie est
   écrite, en commentaire, au bas du fichier.
+
+### « Durée » de la Recherche : les boutons débordaient (22/10/2026, `nfdm-v933`)
+
+Le client, capture d'iPhone à l'appui : « sur mobile les boutons buguent ».
+Le cadre « Jour / Période / Heures » est fixé à 44 px, marge intérieure de
+3 px comprise ; la règle du toucher (44 px minimum par bouton, au
+téléphone) faisait des boutons de 44 px, posés 4 px sous le haut du
+cadre : ils en sortaient de 4 px par le bas. Désormais, ils remplissent
+le cadre (36 px), et un `::after` invisible leur rend 44 px au doigt.
+Mesuré : tous les boutons des grilles et des barres, sur l'Accueil, la
+Recherche, les Effectifs, la Direction, le Planning, l'Équipe et le
+Salaire, à 390 px : aucun ne sort de son parent (`deb.js`). Le contrôle
+mord : sur la version d'avant, il nomme les trois boutons de « Durée »,
+4 px de chaque côté. Un toucher 2 px sous « Période » le sélectionne.
