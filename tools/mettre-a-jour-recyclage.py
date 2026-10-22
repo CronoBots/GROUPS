@@ -106,6 +106,20 @@ LIBELLES = {
 }
 CLES = ["meun", "glut", "ferm", "dist", "chau", "step", "cm"]
 
+# LES TRIGRAMMES QUE LE CLIENT A CORRIGÉS. Le trigramme se calcule d'après le
+# nom (convertir-horaire._initiales) ; quand le classeur RH écrit un nom
+# autrement que l'horaire, il en sort celui d'un AUTRE — un homonyme que la
+# porte 2 ne voit pas, puisqu'il existe. Le client, le 22/10/2026 : « PDR
+# (chaudière) est PDF » : les dix recyclages STEP du classeur RH allaient à
+# PDR, opérateur de distillation, sans la STEP dans ses polyvalences.
+CORRECTIONS_TRI = {"PDR": "PDF"}
+
+
+def tri_rh(cv, pre, nom):
+    """Le trigramme d'une ligne du classeur RH, corrections du client comprises."""
+    t = cv._initiales((pre + " " + nom).strip())
+    return CORRECTIONS_TRI.get(t, t) if t else t
+
 
 def _convert():
     spec = importlib.util.spec_from_file_location(
@@ -205,7 +219,7 @@ def extraire(cells, sections, cv, ids_horaire):
         couvert = set()
         for r in sec["data_rows"]:
             nom, pre = get(r, 1), get(r, 2)
-            tri = cv._initiales((pre + " " + nom).strip())
+            tri = tri_rh(cv, pre, nom)
             if not tri:
                 anomalies["tri"].append("ligne %d : « %s %s » → pas de trigramme" % (r, pre, nom))
                 continue
@@ -422,7 +436,7 @@ def anonymiser_recyclage(source, dst, sections, cells, cv):
     for sec in sections:
         for r in sec["data_rows"]:
             nom, pre = get(r, 1), get(r, 2)
-            lignes[r] = cv._initiales((pre + " " + nom).strip()) or ""
+            lignes[r] = tri_rh(cv, pre, nom) or ""
     z = zipfile.ZipFile(source)
     feuille = _cible_feuille(z)
     xml = z.read(feuille).decode("utf-8")
@@ -612,6 +626,23 @@ def main():
     ops, brut, noms, anom, comptees, remplies = extraire(cells, sections, cv, ids)
 
     porte(2, "trigrammes connus et uniques", not anom["tri"], anom["tri"])
+    # UN HOMONYME SE TRAHIT PAR SES POSTES : un recyclage à un poste que la
+    # personne n'a pas dans ses polyvalences de l'horaire (PDR et la STEP,
+    # 22/10/2026). Signalé, pas bloquant : une polyvalence neuve peut
+    # précéder sa mise à jour dans l'horaire. À LIRE à chaque installation.
+    if os.path.exists(horaire):
+        cle_at = {"meun": "meunerie", "glut": "gluten", "ferm": "fermentation",
+                  "dist": "distillation", "chau": "chaudi", "step": "step"}
+        poly = {}
+        for p in json.load(open(horaire, encoding="utf-8")).get("people", []):
+            at = " ".join((p.get("poly") or {}).get("ateliers") or []).lower()
+            poly[str(p.get("id", "")).split("-")[0]] = _sans_accent(at)
+        douteux = ["%s · %s : %d recyclage(s), sans cette polyvalence dans l'horaire"
+                   % (t, k, o[k]) for t, o in sorted(ops.items()) for k in cle_at
+                   if o.get(k) and t in poly and cle_at[k] not in poly[t]]
+        print("     à vérifier (homonyme ?) : %s" % ("aucun" if not douteux else ""))
+        for d in douteux:
+            print("       " + d)
     porte(3, "bornes (aucun compte > largeur de colonne)", not anom["bornes"], anom["bornes"])
     integ = []
     if comptees != remplies:

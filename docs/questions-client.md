@@ -52,6 +52,12 @@ des questions au client ».
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
 
+8. **PAM dans le dossier RH des recyclages** (posée le 22/10/2026) : il y
+   a 7 recyclages en meunerie et 5 au gluten, alors que dans l'horaire
+   PAM est opérateur de distillation, avec seulement la fermentation et la
+   distillation en polyvalence. Est-ce bien lui, ou un autre dont le nom
+   donne le même trigramme (comme PDR, qui était PDF) ?
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
