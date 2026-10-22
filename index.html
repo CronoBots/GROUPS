@@ -18920,12 +18920,14 @@ function calculerPolyvalence(db){
              « dates app / dates RH » au clic d'un opérateur. */
           if(!parIdDates[y.p.id]) parIdDates[y.p.id]={};
           (parIdDates[y.p.id][o.P.k]=parIdDates[y.p.id][o.P.k]||[]).push(mmdd);
-          /* le classeur dit qu'il REMPLACE quelqu'un à ce poste : « remplace
-             X » dans sa case, ou « remplacé par » le nommant dans celle de
-             l'absent (le client, le 22/10/2026 : « s'il est précisé qu'il
+          /* le classeur dit qu'il tient ce poste : « remplace X » dans sa
+             case, ou « remplacé par » le nommant dans celle de l'absent (le client, le 22/10/2026 : « s'il est précisé qu'il
              remplace quelqu'un à un poste, il faut le compter, oui ») */
           var eR=y.p.d&&y.p.d[mmdd];
-          if(y.nomme||remplacesActifs(eR&&eR[2]).length){
+          /* … ou le poste écrit à côté de l'horaire (le client, le
+             22/10/2026 : « ce n'est pas toujours “remplace X”, des fois il
+             est directement précisé le poste à côté de l'horaire ») */
+          if(y.nomme||remplacesActifs(eR&&eR[2]).length||posteEcrit(eR)===o.P.k){
             if(!parIdRempl[y.p.id]) parIdRempl[y.p.id]={};
             (parIdRempl[y.p.id][o.P.k]=parIdRempl[y.p.id][o.P.k]||[]).push(mmdd);
           }
