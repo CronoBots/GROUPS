@@ -156,3 +156,18 @@ Elle ne signale donc pas de manque. Deux questions :
 2. **Un renfort de 12 h compte-t-il dans les deux pauses qu'il couvre ?**
    06h-18h touche l'AM et le début du PM ; 18h-06h la fin du PM et la N ;
    14h-02h le PM et le début de la N.
+
+## Heures supplémentaires : après le visa du responsable (23/10/2026)
+
+Le formulaire « Demande de validation d'heures supplémentaires » (V3) n'a
+qu'un visa, celui du responsable hiérarchique. L'application suit le
+papier : la personne demande, le responsable d'équipe vise (approbation,
+restriction motivée, refus motivé ; la date du rappel s'il y en a un).
+La RH voit toutes les demandes, mais n'a rien à signer.
+
+1. La RH doit-elle ensuite confirmer ou enregistrer la demande dans
+   l'application, comme pour les congés ?
+2. Une demande approuvée doit-elle s'écrire quelque part dans l'horaire
+   (et avec quel code), ou seulement servir à la paie ?
+3. Qui est le « responsable d'équipe » : le contremaître de la pause ce
+   jour-là (c'est ce que l'application propose), ou un autre ?
