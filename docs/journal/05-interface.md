@@ -2748,3 +2748,27 @@ Mesuré :
   passe sur deux lignes, les autres dates tiennent ;
 - aucun débordement à 320, 390 et 1280 px ;
 - les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Une seule barre pour l'année, par pause (22/10/2026, v963)
+
+Le client, sur la capture de la v962 : « qu'en penses-tu ? ».
+
+**Le constat.** Le tableau était clair. Mais deux barres disaient la même
+chose, à trois blocs d'écart :
+
+- « Année 2026 », 130 prestées sur 170, en bleu ;
+- la répartition de « Mes pauses », les mêmes 130 et 40 découpés par
+  pause, avec sa propre légende.
+
+**Ce qui a été fait.**
+
+- La barre de l'année est la répartition elle-même (`ryBarre`, quand
+  `ryCompte` donne le détail par pause) : un segment par pause, la part
+  prestée en plein, le reste hachuré, et toujours « 76 % fait » au bout.
+- La légende entre dans le compte : une pastille pleine devant
+  « 130 prestées », une hachurée devant « 40 à venir ».
+- « Mes pauses » ne garde que le tableau : une barre et une ligne de
+  légende en moins.
+
+Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.

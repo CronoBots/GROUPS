@@ -4445,14 +4445,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* la répartition de l'année : un segment par pause, long de son total,
    la part faite en plein, le restant hachuré de la même couleur */
 .pf-pr-rep{display:flex; gap:3px; height:12px; margin:6px 0 6px}
+.ry-an-bar.pf-pr-rep{background:none; border-radius:0; overflow:visible; height:10px; margin:0}
+.ry-an-bar.pf-pr-rep i{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px); border-radius:4px}
+.ry-an-bar.pf-pr-rep i i{background:var(--c); border-radius:0}
+.ry-an-cpt .pf-pr-lg-f,.ry-an-cpt .pf-pr-lg-r{display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:1px}
 .pf-pr-rep>i{display:block; min-width:6px; border-radius:4px; overflow:hidden;
   background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px)}
 .pf-pr-rep>i>i{display:block; height:100%; background:var(--c)}
 .pf-pr-rep>[data-p="AM"]{--c:var(--cal-am)} .pf-pr-rep>[data-p="PM"]{--c:var(--cal-pm)}
 .pf-pr-rep>[data-p="N"]{--c:var(--cal-n)} .pf-pr-rep>[data-p="D"]{--c:var(--cal-d)}
-.pf-pr-lg{display:flex; gap:14px; margin:0 0 10px; font-size:11px; color:var(--muted)}
-.pf-pr-lg span{display:inline-flex; align-items:center; gap:5px}
-.pf-pr-lg i{display:inline-block; width:14px; height:8px; border-radius:2px}
 .pf-pr-lg-f{background:rgba(255,255,255,.75)}
 .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,rgba(255,255,255,.18) 3px 6px)}
 /* au petit téléphone, la date tient sur une ligne */
@@ -15577,9 +15578,18 @@ function ryBarre(titre,sous,o,lib){
   /* « n prestées · n à venir » à droite du titre, et plus sur une ligne à
      part : le titre restait seul sur la sienne (20/10/2026, « optimise
      encore »). */
+  /* L'ANNÉE PAR PAUSE (le client, le 22/10/2026 : « qu'en penses-tu ? ») :
+     la barre de l'année et celle de « Mes pauses » redisaient la même
+     chose l'une sous l'autre. Une seule : un segment par pause, long de
+     son total, la part prestée en plein, le reste hachuré ; la légende
+     tient dans « ▮ 130 prestées · ▨ 40 à venir ». */
+  var ks=o.F?["AM","PM","N","D"].filter(function(k){ return (o.F[k]||0)+(o.A[k]||0)>0; }):[];
+  var barre=ks.length?'<div class="ry-an-bar pf-pr-rep" role="img" aria-label="'+esc(lib+" : "+pct+" %, "+ks.map(function(k){ return k+" "+o.F[k]+" sur "+(o.F[k]+o.A[k]); }).join(", "))+'">'
+      +ks.map(function(k){ var t=o.F[k]+o.A[k]; return '<i data-p="'+k+'" style="flex-grow:'+t+'"><i style="width:'+(o.F[k]*100/t).toFixed(1)+'%"></i></i>'; }).join("")+'</div>'
+    :'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div>';
   return '<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+'</span>'
-    +'<span class="ry-an-cpt"><b>'+o.fait+'</b> prestée'+(o.fait>1?'s':'')+' · <b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
-    +'<div class="cy-prog ry-an-prog"><div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div><b>'+pct+'\u00a0%<small> fait</small></b></div>';
+    +'<span class="ry-an-cpt">'+(ks.length?'<i class="pf-pr-lg-f"></i>':'')+'<b>'+o.fait+'</b> prestée'+(o.fait>1?'s':'')+' · '+(ks.length?'<i class="pf-pr-lg-r"></i>':'')+'<b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
+    +'<div class="cy-prog ry-an-prog">'+barre+'<b>'+pct+'\u00a0%<small> fait</small></b></div>';
 }
 /* LE CYCLE EN COURS (le client, le 17/10/2026 : « sous mon année avec sa
    progression, la même chose pour mon cycle actuel avec l'état
@@ -15701,20 +15711,13 @@ function ryProchainesHTML(p,y){
      en pâle sur la piste, ne se voyait presque pas. Désormais :
      - UNE barre pour l'année, au-dessus : un segment par pause, long de son
        total (94 nuits contre 15 PM se voient d'un coup), la part faite en
-       plein, le restant hachuré ;
+       plein, le restant hachuré — depuis la v963, c'est la barre de
+       « Année » elle-même (ryBarre) ;
      - puis un tableau d'une ligne par pause : la pause, la prochaine date
        et son délai, « Faites » et « Reste » en colonnes titrées. Une ligne
        touchée ouvre ce jour dans le calendrier. */
-  var tous=ks.reduce(function(n,k){ return n+(o?o.F[k]+o.A[k]:0); },0);
-  var barre=o&&tous?'<div class="pf-pr-rep" role="img" aria-label="'+esc(ks.map(function(k){ return k+" : "+o.F[k]+" faites sur "+(o.F[k]+o.A[k]); }).join(", "))+'">'
-    +["AM","PM","N","D"].filter(function(k){ return ks.indexOf(k)>=0 && o.F[k]+o.A[k]>0; }).map(function(k){
-      var t=o.F[k]+o.A[k];
-      return '<i data-p="'+k+'" style="flex-grow:'+t+'"><i style="width:'+(o.F[k]*100/t).toFixed(1)+'%"></i></i>';
-    }).join("")+'</div>'
-    +'<div class="pf-pr-lg"><span><i class="pf-pr-lg-f"></i>faites</span><span><i class="pf-pr-lg-r"></i>restantes</span></div>':'';
   return '<div class="ry-an-t pf-pr-t"><span class="ry-chart-t ry-h2">Mes pauses</span>'
     +(o?'<span class="pf-pr-l">année '+y+'</span>':'')+'</div>'
-    +barre
     +'<div class="pf-pr">'
     +(o?'<div class="pf-pr-h" aria-hidden="true"><span></span><span>Prochaine</span><span>Faites</span><span>Reste</span></div>':'')
     +ks.map(function(k){
