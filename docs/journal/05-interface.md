@@ -3518,3 +3518,39 @@ d'acceptation” ».
   « À confirmer » ; bouton et feuille « Accepter et signer » ou
   « Confirmer et encoder ». Recyclage, même circuit : « en attente de
   confirmation / de contresignature / d'enregistrement ».
+
+### Le cadre « Demande de congé » de l'Accueil, et la règle de modification (23/10/2026, v996)
+
+Le client : « il faut optimiser le cadre de la demande de congé, on ne
+voit même pas pour quelle pause c'est. Et quelle est la règle pour la
+modification ? »
+
+- Chaque demande en cours : la tuile de la date, le formulaire et le type
+  demandé (VA, CA…), puis **la pause prévue** (la pastille du planning,
+  réduite), les heures, l'heure de départ ou d'arrivée, le remplaçant (ou
+  « sans remplaçant ») ; une modification de pause dit « de N à PM ». Le
+  circuit dessous. Toute la ligne ouvre la feuille (clavier compris).
+- **Erreur trouvée** : `.md-l li` habillait aussi les étapes du circuit
+  (des `li`) : chaque étape devenait une case grise (la capture du
+  client). Désormais `.md-l>li`.
+- La feuille ouverte depuis l'Accueil se refermait aussitôt : à
+  l'ouverture de l'espace, le second rendu (les noms arrivés, `relire`)
+  repassait par `wsAller`, qui ferme le panneau. `wsAller(s,garder)` ne
+  ferme plus rien quand la section ne change pas.
+- Au téléphone (≤ 440 px), le circuit se lit de haut en bas, une étape
+  par ligne : à 320 px, quatre étapes côte à côte coupaient les rôles.
+- **La règle de la modification** (base/13, puis base/16) : le demandeur
+  modifie sa demande tant que le contremaître de pause ne l'a pas
+  acceptée ; la modification fait une NOUVELLE feuille, que le remplaçant
+  signe à nouveau. La suppression, elle, n'est possible que tant
+  qu'aucune autre personne n'a signé. **Défaut trouvé** : depuis base/16,
+  modifier une feuille déjà signée par le remplaçant l'EFFAÇAIT, et la
+  signature disparaissait avec elle, alors que base/13 la gardait
+  « annulée, remplacée par la demande n° N ».
+  `base/25-modifier-garde-la-trace.sql` la garde ; elle n'est **pas
+  appliquée** : le connecteur Supabase demande une confirmation pour un
+  corps qui contient « delete » (deux essais, 60 s chacun, rien
+  d'appliqué), et la règle est de ne pas la contourner.
+- Vérifié : 320 et 1280 px, aucune erreur ni débordement, la feuille
+  s'ouvre depuis l'Accueil ; vérificateur, quatre sorties identiques ;
+  hors ligne.
