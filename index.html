@@ -2552,7 +2552,16 @@ html .mqinc{font-size:12px}
 .ws-pastille{margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11px; font-weight:700; display:inline-grid; place-items:center}
 .ws-tete .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650; padding:8px 14px}
 .dm-onglets{margin-bottom:14px}
-.dm-onglets .dm-n{display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:var(--surface3); font-size:11px}
+/* Congé · Recyclage : le choix du type de demande, en tête de la section */
+html .dm-intro{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+html .dm-intro p{margin:0; font-size:12px; line-height:1.4; color:var(--muted)}
+html .dm-intro>button{flex:none}
+@media (max-width:560px){ html .dm-intro{flex-direction:column; align-items:stretch} html .dm-intro>button{min-height:44px} }
+html .dm-bascule{display:grid; grid-template-columns:1fr 1fr; gap:4px; max-width:460px; margin:0 auto 12px; padding:4px; border-radius:12px; border:1px solid var(--line); background:var(--surface2)}
+html .dm-bascule button{min-height:42px; border:0; border-radius:9px; background:none; color:var(--muted); font:inherit; font-size:15px; font-weight:650; cursor:pointer}
+html .dm-bascule button[aria-selected="true"]{background:var(--in); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25)}
+html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,.25); color:#fff}
+.dm-onglets .dm-n,.dm-bascule .dm-n{display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:var(--surface3); font-size:11px}
 .dm-liste{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px}
 .dm-carte{border:1px solid var(--line2); border-radius:14px; background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:9px; min-width:0}
 .dm-carte.dm-a-faire{border-color:color-mix(in srgb,var(--in) 55%,var(--line2)); box-shadow:inset 3px 0 0 var(--in)}
@@ -14754,8 +14763,13 @@ function grEditer(td){
 var WS_SECTIONS=[
   {s:"tdb",t:"Tableau de bord",rh:1,i:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'},
   {s:"planning",t:"Horaire production",i:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'},
-  {s:"demandes",t:"Demande de congé",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
-  {s:"recyclages",t:"Recyclages",i:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>'},
+  /* CONGÉS ET RECYCLAGES DANS UN SEUL ONGLET (le client, le 22/10/2026 :
+     « demandes de congés et recyclage doivent être dans le même onglet et
+     on peut choisir l'un ou l'autre ») : « Demandes » au menu ; en tête de
+     la section, un sélecteur Congé · Recyclage (dmBasculeHTML). La section
+     « recyclages » reste, sans entrée de menu (sous:1). */
+  {s:"demandes",t:"Demandes",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
+  {s:"recyclages",t:"Recyclages",sous:1,i:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>'},
   {s:"personnel",t:"Personnel",rh:1,i:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>'},
   {s:"absences",t:"Absences et congés",rh:1,i:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'},
   {s:"historique",t:"Historique",rh:1,i:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'}];
@@ -14763,12 +14777,31 @@ GR.section=lsGet("ui/wsSection")||"tdb";
 GR.horizon=7;
 function wsIcone(i){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+i+'</svg>'; }
 function wsSections(){ var rh=peutSaisir(); return WS_SECTIONS.filter(function(x){ return rh||!x.rh; }); }
+/* les entrées des menus : sans les sous-sections */
+function wsMenuSections(){ return wsSections().filter(function(x){ return !x.sous; }); }
+function wsActif(x,s){ return x.s===s||(x.s==="demandes"&&s==="recyclages"); }
+/* le nombre à traiter de « Demandes » : congés et fiches de recyclage */
+function wsNbDemandes(){ return (GR.demandes||[]).filter(dmATraiter).length+(GR.recyclages||[]).filter(rcATraiter).length; }
+/* le sélecteur en tête de la section : Congé · Recyclage, chacun avec ce
+   qu'il a à traiter */
+function dmBasculeHTML(actif){
+  var nd=(GR.demandes||[]).filter(dmATraiter).length, nr=(GR.recyclages||[]).filter(rcATraiter).length;
+  return '<div class="dm-bascule" role="tablist" aria-label="Type de demande">'
+    +[["demandes","Congé",nd],["recyclages","Recyclage",nr]].map(function(o){
+      return '<button type="button" role="tab" data-bascule="'+o[0]+'" aria-selected="'+(actif===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>';
+}
+/* sous le sélecteur, ce que fait le type choisi, et son bouton */
+function dmIntro(sous,act){ return '<div class="dm-intro"><p>'+sous+'</p>'+(act||'')+'</div>'; }
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("[data-bascule]"):null; if(!b) return;
+  var s=b.getAttribute("data-bascule"); if(s!==GR.section) wsAller(s);
+});
 function wsDb(){ var a=jourUsine().getFullYear(); return (HORAIRES&&(HORAIRES[a]||HORAIRES[st.y]))||HORAIRE_DB; }
 function wsAller(s){
   var l=wsSections(); if(!l.some(function(x){ return x.s===s; })) s=l[0].s;
   GR.section=s; lsSet("ui/wsSection",s); grFermerPanneau();
-  document.getElementById("wsMenu").innerHTML=l.map(function(x){
-    return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(x.s===s?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
+  document.getElementById("wsMenu").innerHTML=wsMenuSections().map(function(x){
+    return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(wsActif(x,s)?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
   wsBadge();
   try{ sideMaj(); }catch(e){}
   [].forEach.call(document.querySelectorAll("#grille .ws-s"),function(el){ el.hidden=el.getAttribute("data-s")!==s; });
@@ -15041,11 +15074,11 @@ function dmATraiter(x){
   return x.statut==="en_attente"&&!x.a_moi&&((r==="rh"&&x.attend_rh)||(r==="hierarchie"&&x.attend_cm)||dmAccordAttendu(x));
 }
 function wsBadge(){
-  var n=(GR.demandes||[]).filter(dmATraiter).length, b=document.querySelector('#wsMenu button[data-s="demandes"]');
+  var n=wsNbDemandes(), b=document.querySelector('#wsMenu button[data-s="demandes"]');
   var sn=document.getElementById("sideDemNb"); if(sn){ sn.hidden=!n; sn.textContent=n; }
   var nr=(GR.recyclages||[]).filter(rcATraiter).length, br=document.querySelector('#wsMenu button[data-s="recyclages"]');
   var sr=document.getElementById("sideRecNb"); if(sr){ sr.hidden=!nr; sr.textContent=nr; }
-  [[b,n],[br,nr]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
+  [[b,n]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
     if(z[1]){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=z[1]; z[0].appendChild(s); } });
   try{ renderMesDemandes.rc&&renderMesDemandes.rc(); }catch(e){}
   try{ renderCentre(); }catch(e){}
@@ -15130,7 +15163,7 @@ function renderDemandes(){
   var hote=document.getElementById("wsDem"), val=peutSaisir();
   if(!GR.onglet) GR.onglet=val?"traiter":"miennes";
   var l=GR.demandes;
-  var h=[wsTete("Demande de congé",val?"Les trois formulaires du dossier RH : le remplaçant donne son accord, le contremaître et la RH visent ; acceptée, la demande se pose sur le planning.":"Courte durée, longue durée ou sans solde, comme les formulaires papier : votre remplaçant, votre contremaître et la RH la reçoivent.",
+  var h=[wsTete("Demandes"),dmBasculeHTML("demandes"),dmIntro(val?"Les trois formulaires du dossier RH : le remplaçant donne son accord, le contremaître et la RH visent ; acceptée, la demande se pose sur le planning.":"Courte durée, longue durée ou sans solde, comme les formulaires papier : votre remplaçant, votre contremaître et la RH la reçoivent.",
     '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="dmNouvelle">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; });
@@ -16116,7 +16149,7 @@ function rcCarte(x){
 }
 function renderRecyclages(){
   var hote=document.getElementById("wsRec"), val=peutSaisir(), l=GR.recyclages;
-  var h=[wsTete("Recyclages","Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
+  var h=[wsTete("Demandes"),dmBasculeHTML("recyclages"),dmIntro("Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
     '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="rcNouvelle">+ Nouvelle fiche</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Fiches indisponibles (pas de connexion).</p>'; rcBrancher(); }); return; }
   l=l.filter(function(x){ return x.statut!=="annulee"; });
@@ -23162,7 +23195,7 @@ function majQuiJeSuis(){
 var mqSide=window.matchMedia("(min-width:1100px)");
 function sideMaj(){
   var g=document.getElementById("sideGestion"); if(!g) return;
-  var l=compteBase()?wsSections():[];
+  var l=compteBase()?wsMenuSections():[];
   g.hidden=!l.length;
   var ouvert=!document.getElementById("grille").hidden;
   /* Direction rejoint la Gestion au PC (le client, le 22/10/2026) : elle
@@ -23171,9 +23204,9 @@ function sideMaj(){
   g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'
     +(estRH&&dir?'<button type="button" data-go="direction"'+(!ouvert&&st.view==="direction"?' aria-current="page"':'')+'>'+dir.querySelector("svg").outerHTML+'<span>Direction</span></button>':'')
     +l.map(function(x){
-    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':x.s==="recyclages"?'<span class="side-nb" id="sideRecNb" hidden></span>':'')+'</button>'; }).join(""):'';
+    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&wsActif(x,GR.section)?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':x.s==="recyclages"?'<span class="side-nb" id="sideRecNb" hidden></span>':'')+'</button>'; }).join(""):'';
   document.body.classList.toggle("ws-ouvert",ouvert);
-  var n=(GR.demandes||[]).filter(dmATraiter).length, nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
+  var n=wsNbDemandes(), nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
   var nr=(GR.recyclages||[]).filter(rcATraiter).length, nbr=document.getElementById("sideRecNb"); if(nbr){ nbr.hidden=!nr; nbr.textContent=nr; }
 }
 (function(){
@@ -23206,9 +23239,9 @@ function sideMaj(){
       +ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
       +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche")
       +(document.documentElement.getAttribute("data-rh")==="1"?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
-    var l=compteBase()?wsSections():[];
+    var l=compteBase()?wsMenuSections():[];
     if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
-      var dn=x.s==="demandes"?(GR.demandes||[]).filter(dmATraiter).length:x.s==="recyclages"?(GR.recyclages||[]).filter(rcATraiter).length:0;
+      var dn=x.s==="demandes"?wsNbDemandes():0;
       return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb">'+dn+'</span>':'');
     }).join("");
     f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
