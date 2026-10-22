@@ -2111,3 +2111,51 @@ formulaires. Vérifié à 390 px (`dmvoir.js`) : plus de cadre, 0 erreur ;
 Le client : « Mes demandes doit s'appeler “demande de congé” ». Le titre
 du cadre de l'Accueil change ; rien d'autre (l'onglet « Demandes » de
 l'espace RH garde son nom). `suppr.js` et `gate2.js` : 0 erreur.
+
+### Les fiches de recyclage « polyvalence » (22/10/2026, `nfdm-v932`)
+
+Le client : « il faut aussi ajouter, comme pour les demandes de congé, les
+demandes de polyvalence ; c'est la personne qui fait office de
+contremaître lors de la pause de la demande qui doit valider si la
+polyvalence a été faite complètement et confirmer », avec la fiche papier
+du dossier RH (juin 2021), puis « go recyclage ».
+
+- **La base** (`base/15-recyclages.sql`, appliqué avec `execute_sql`, sans
+  aucune suppression) : une table à part de `demandes` (la décision d'une
+  demande réécrit l'horaire ; une fiche ne doit rien y toucher), cinq
+  fonctions et le déclencheur des notifications. Le circuit du papier :
+  le travailleur signe → le contremaître de la pause confirme ou refuse
+  (motif obligatoire) → en doublure, le responsable de zone contresigne →
+  la RH valide et enregistre. Une fiche par pause, et on ne signe jamais
+  sa propre fiche, à aucune étape.
+- **Éprouvé dans une transaction annulée** (trois comptes, dont deux
+  prêtés pour l'essai puis remis en place par l'annulation) : doublon
+  refusé ; confirmer sa propre fiche refusé ; opérateur qui contresigne
+  refusé ; validation RH avant la contresignature refusée ; RH qui valide
+  sa propre fiche refusé ; anonyme refusé ; le circuit complet aboutit à
+  « validée », avec les bons signataires et les sept notifications à la
+  bonne personne. Défaut trouvé à l'essai et corrigé : un demandeur RH
+  recevait « à contresigner » et « à valider » pour sa propre fiche.
+- **Le contremaître attendu** se lit dans l'horaire, par les mêmes
+  fonctions qu'« Équipe du jour » (`equipeDuJour`, `postesDePause`, le
+  poste `P.cm`) ; la pause est préremplie là où l'horaire place la
+  personne. Introuvable (pause D, horaire absent), la fiche va à la RH.
+  L'application l'envoie avec la fiche : la base ne connaît pas l'horaire
+  des postes. La RH voit qui a confirmé.
+- **L'écran** : la section « Recyclages » (menu du PC, feuille « Plus » du
+  téléphone), avec ses onglets « À traiter », « Mes fiches », « Historique »
+  ou « Toutes » ; la fiche reproduit le papier, sans le cadre de l'adresse,
+  les mots choisis entourés comme au stylo ; une bannière sur l'Accueil
+  quand une fiche attend sa confirmation ; la notification ouvre la
+  section (`?vue=recyclages`). Les compteurs de recyclage restent ceux du
+  classeur RH : une fiche validée ne les change pas.
+- **Navigateur** (`rc.js`, base simulée) : à 390 px pour l'opérateur, puis
+  pour le contremaître, et à 1280 px pour la RH ; plus à 320 px pour
+  l'opérateur. Fonction absente, titulaire absent en doublure et refus
+  sans motif sont arrêtés à l'écran. Les appels partent avec les bons
+  paramètres. Aucun débordement, aucune erreur. Corrigé à l'essai : le
+  contremaître ne retrouvait plus la fiche qu'il venait de confirmer.
+  Elle est maintenant dans son « Historique ».
+- **Question ouverte** : qui est le responsable de zone
+  (`docs/questions-client.md`). D'ici là, tout compte hiérarchie ou RH
+  contresigne.

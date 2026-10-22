@@ -5522,6 +5522,23 @@ html .hp-fab:hover{opacity:1}
    semaine », celui de la demande, sur les captures du client) : au
    téléphone, un fond opaque derrière elle, rien ne glisse dessous */
 @media (max-width:760px){ html::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px); background:#0d1220; z-index:96; pointer-events:none} }
+/* la fiche de recyclage : les mots du papier, entourés quand ils sont choisis */
+html .rc-regles{color:#2F62D6; font-size:12.5px; line-height:1.4}
+html .rc-regles p{margin:0 0 4px}
+html .rc-regles .rc-cond{font-size:11.5px}
+html .rc-regles ol{margin:0 0 4px; padding-left:34px; font-size:11.5px}
+html .rc-pt{font-size:12px}
+html .rc-choix{line-height:2.1}
+html .rc-mot{font:inherit; color:#1d1d1d; background:none; border:1.5px solid transparent; border-radius:999px; padding:1px 6px}
+html button.rc-mot{cursor:pointer; border-color:#c9c9c9; background:#fafafa; min-height:30px}
+html button.rc-mot:hover{border-color:#2F62D6}
+html .rc-mot[aria-pressed="true"],html .rc-mot.rc-pris{border-color:#1d1d1d; background:#fffde8; font-weight:700}
+html .rc-doub{display:inline-flex; align-items:center; gap:5px; cursor:pointer}
+html .rc-doub input{width:16px; height:16px; margin:0; accent-color:#1d1d1d}
+html .rc-papier select{font:inherit; color:#1d1d1d; background:#fffde8; border:0; border-bottom:1px solid #1d1d1d; max-width:200px}
+html .rc-papier .dm-pp-ch input[type=date]{width:auto}
+html .rc-att{margin:0; padding-left:28px}
+html .rc-papier small{font-size:11px; color:#555}
 </style>
 </head>
 <body>
@@ -6247,6 +6264,7 @@ html .hp-fab:hover{opacity:1}
       <div class="pl-legende xl-legende" id="grLegende" aria-label="Légende des codes"></div>
     </section>
     <section class="ws-s" data-s="demandes" id="wsDem" hidden></section>
+    <section class="ws-s" data-s="recyclages" id="wsRec" hidden></section>
     <section class="ws-s" data-s="personnel" id="wsPers" hidden></section>
     <section class="ws-s" data-s="absences" id="wsAbs" hidden></section>
     <section class="ws-s" data-s="historique" id="wsHisto" hidden></section>
@@ -14313,6 +14331,7 @@ function ouvrirGrille(section,formulaire){
       }).catch(function(){});
       chargerCodes().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
       if(GR.section!=="demandes") dmCharger().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
+      if(GR.section!=="recyclages") rcCharger().catch(function(){});
     }
   });
 }
@@ -14481,6 +14500,7 @@ var WS_SECTIONS=[
   {s:"tdb",t:"Tableau de bord",rh:1,i:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'},
   {s:"planning",t:"Horaire production",i:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'},
   {s:"demandes",t:"Demandes",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
+  {s:"recyclages",t:"Recyclages",i:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>'},
   {s:"personnel",t:"Personnel",rh:1,i:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>'},
   {s:"absences",t:"Absences et congés",rh:1,i:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'},
   {s:"historique",t:"Historique",rh:1,i:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'}];
@@ -14505,6 +14525,7 @@ function wsAller(s){
   else if(s==="absences") renderAbsences();
   else if(s==="historique") renderHisto();
   else if(s==="demandes"){ GR.demandes=null; renderDemandes(); }
+  else if(s==="recyclages"){ GR.recyclages=null; renderRecyclages(); }
   var m=document.querySelector("#grille .ws-main"); if(m){ m.scrollTop=0; m.classList.toggle("ws-plein",s==="planning"); }
 }
 function wsTete(t,sous,actions){
@@ -14758,8 +14779,11 @@ function dmATraiter(x){
 function wsBadge(){
   var n=(GR.demandes||[]).filter(dmATraiter).length, b=document.querySelector('#wsMenu button[data-s="demandes"]');
   var sn=document.getElementById("sideDemNb"); if(sn){ sn.hidden=!n; sn.textContent=n; }
-  if(!b) return; var i=b.querySelector(".ws-pastille"); if(i) i.remove();
-  if(n){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=n; b.appendChild(s); }
+  var nr=(GR.recyclages||[]).filter(rcATraiter).length, br=document.querySelector('#wsMenu button[data-s="recyclages"]');
+  var sr=document.getElementById("sideRecNb"); if(sr){ sr.hidden=!nr; sr.textContent=nr; }
+  [[b,n],[br,nr]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
+    if(z[1]){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=z[1]; z[0].appendChild(s); } });
+  try{ renderMesDemandes.rc&&renderMesDemandes.rc(); }catch(e){}
 }
 function dmRemplacee(x){ return x.statut==="annulee"&&/^Remplacée par la demande/.test(x.motif_refus||""); }
 /* modifiable par son auteur tant que ni le contremaître ni la RH ne l'a visée */
@@ -15623,6 +15647,204 @@ document.addEventListener("click",function(e){
   if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
 /* MES DEMANDES : celles en cours, avec leurs étapes ; sinon un bouton */
+/* LES FICHES DE RECYCLAGE « POLYVALENCE » (le client, le 22/10/2026 : « il
+   faut aussi ajouter, comme pour les demandes de congé, les demandes de
+   polyvalence ; c'est la personne qui fait office de contremaître lors de
+   la pause de la demande qui doit valider si la polyvalence — le recyclage
+   à un autre poste — a été faite complètement et confirmer », avec la
+   fiche papier du dossier RH, juin 2021). Le circuit de la feuille :
+   le membre du personnel signe ; le contremaître DE CETTE PAUSE confirme ;
+   en doublure, le responsable de zone contresigne ; le bureau RH valide et
+   enregistre (base/15-recyclages.sql). Le contremaître attendu est lu dans
+   l'horaire, comme à « Équipe du jour » (equipeDuJour + postesDePause) ;
+   introuvable (D, horaire absent), la fiche va à la RH. Les compteurs de
+   recyclage restent ceux du classeur RH : une fiche ne les change pas. */
+var RC_FONCTIONS=["Meunerie","Gluten","Fermentation","Distillation","Chaudières","Contremaître"];
+var RC_PAUSES=[["AM","AM"],["PM","PM"],["N","Nuit"],["D","D"]];
+GR.recyclages=null;
+function rcCharger(){
+  if(!compteBase()) return Promise.resolve([]);
+  return baseRpc("biowanze_liste_recyclages",{}).then(function(l){ GR.recyclages=l||[]; wsBadge(); return GR.recyclages; });
+}
+function rcATraiter(x){ return !!(x.je_confirme||x.je_contresigne||x.je_valide); }
+function rcEnCours(x){ return x.statut==="en_attente"||x.statut==="confirmee"; }
+function rcEquipe(iso){
+  var d=dmJour(iso), db=HORAIRES&&HORAIRES[d.getFullYear()]; if(!db) return null;
+  try{ return {db:db, d:d, par:equipeDuJour(db,d.getFullYear(),d.getMonth()+1,d.getDate())}; }catch(e){ return null; }
+}
+/* la pause où l'horaire place la personne ce jour-là */
+function rcPauseDe(tri,iso){
+  var e=rcEquipe(iso), r=""; if(!e) return r;
+  RC_PAUSES.forEach(function(z){ if(!r&&(e.par[z[0]]||[]).some(function(x){ return x.p.id===tri; })) r=z[0]; });
+  return r;
+}
+/* le contremaître de la pause : celui qui tient le poste « Contremaître » */
+function rcContremaitre(iso,pause){
+  var e=rcEquipe(iso); if(!e||pause==="D") return null;
+  var l=e.par[pause]; if(!l||!l.length) return null;
+  try{
+    var m=e.d.getMonth()+1, j=e.d.getDate(), vue=postesDePause(e.db,l,pause,pad2(m)+pad2(j),pause==="AM"?e.par.D:null), q, g;
+    for(q=0;q<vue.postes.length;q++) if(vue.postes[q].P.cm){
+      g=vue.postes[q].gens.filter(function(z){ return !z.depuisD; })[0]; if(g) return g.p.id;
+    }
+  }catch(er){}
+  return null;
+}
+function rcStatut(x){
+  if(rcATraiter(x)) return '<span class="dm-st dm-afaire">'+(x.je_confirme?'À confirmer':x.je_contresigne?'À contresigner':'À valider')+'</span>';
+  if(x.statut==="validee") return '<span class="dm-st dm-ok">Enregistrée</span>';
+  if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
+  if(x.statut==="annulee") return '<span class="dm-st">Supprimée</span>';
+  if(x.statut==="en_attente") return '<span class="dm-st dm-att">Attend le contremaître</span>';
+  return '<span class="dm-st dm-att">'+(x.doublure&&!x.zone_le?'Attend le resp. de zone':'Attend la RH')+'</span>';
+}
+function rcEtapes(x){
+  var et=[[!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),'Contremaître'+(x.cm_qui||x.cm?' · '+idLisible(x.cm_qui||x.cm):'')]];
+  if(x.doublure) et.push([!!x.zone_le,'Resp. de zone'+(x.zone_qui?' · '+idLisible(x.zone_qui):'')]);
+  et.push([x.statut==="validee",'RH'+(x.rh_qui?' · '+idLisible(x.rh_qui):'')]);
+  var cours=rcEnCours(x)?et.map(function(z){ return z[0]; }).indexOf(false):-1;
+  return '<div class="dm-etapes">'+et.map(function(z,i){ return '<span class="dm-et'+(z[0]?' fait':i===cours?' encours':'')+'">'+(z[0]?'✓ ':'')+esc(z[1])+'</span>'; }).join('<i>→</i>')+'</div>';
+}
+function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullYear()+' · '+(x.pause==="N"?"Nuit":x.pause); }
+function rcCarte(x){
+  var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
+  var info=[x.doublure?'En doublure'+(x.titulaire?' de '+idLisible(x.titulaire):''):'Seul au poste'];
+  var act='<div class="dm-act"><button type="button" class="'+(rcATraiter(x)?'btn ss-ok':'btnlike')+'" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Ouvrir la fiche pour confirmer':x.je_contresigne?'Ouvrir la fiche pour contresigner':x.je_valide?'Ouvrir la fiche pour valider':'Voir la fiche')+'</button>'
+    +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button>':'')+'</div>';
+  return '<article class="dm-carte'+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
+    +'<header>'+(x.a_moi?'<b class="dm-moi">Ma fiche</b>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
+    +'<div class="dm-quoi"><span class="dm-form">Recyclage · '+esc(x.fonction)+'</span><b>'+esc(rcQuand(x))+'</b></div>'
+    +'<p class="dm-info">'+info.map(esc).join(" · ")+'</p>'
+    +(x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.cm_motif)+'</p>':'')
+    +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
+}
+function renderRecyclages(){
+  var hote=document.getElementById("wsRec"), val=peutSaisir(), l=GR.recyclages;
+  var h=[wsTete("Recyclages","Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
+    '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="rcNouvelle">+ Nouvelle fiche</button>')];
+  if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Fiches indisponibles (pas de connexion).</p>'; rcBrancher(); }); return; }
+  l=l.filter(function(x){ return x.statut!=="annulee"; });
+  var afaire=l.filter(rcATraiter).length;
+  if(!GR.rcOnglet||GR.ongletAutoRc){ GR.ongletAutoRc=false; GR.rcOnglet=afaire?"traiter":"miennes"; }
+  var onglets=[["traiter","À traiter",afaire],["miennes","Mes fiches",l.filter(function(x){ return x.a_moi&&rcEnCours(x); }).length]]
+    .concat(val?[["toutes","Toutes",0]]:[["histo","Historique",0]]);
+  if(!afaire&&!val) onglets.shift();
+  /* la dernière fiche traitée : on la retrouve dans l'historique (ou « Toutes ») */
+  if(!onglets.some(function(o){ return o[0]===GR.rcOnglet; })) GR.rcOnglet=GR.rcOnglet==="traiter"?onglets[onglets.length-1][0]:onglets[0][0];
+  h.push('<div class="pl-seg dm-onglets" id="rcOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.rcOnglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
+  var o=GR.rcOnglet, f=l.filter(function(x){ return o==="traiter"?rcATraiter(x):o==="miennes"?x.a_moi&&(rcEnCours(x)||val):o==="histo"?(x.a_moi?!rcEnCours(x):!rcATraiter(x)):true; });
+  h.push(f.length?'<div class="dm-liste">'+f.map(rcCarte).join("")+'</div>'
+    :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à traiter.':o==="miennes"?'Aucune fiche en cours. « Nouvelle fiche » après une pause complète passée sur un autre poste.':o==="histo"?'Aucune fiche traitée pour l\'instant.':'Aucune fiche.')+'</p></div>');
+  hote.innerHTML=h.join("");
+  rcBrancher();
+}
+function rcBrancher(){
+  var b=document.getElementById("rcNouvelle"); if(b) b.onclick=function(){ rcFeuille(null); };
+  var o=document.getElementById("rcOnglets");
+  if(o) o.onclick=function(e){ var x=e.target.closest("button[data-o]"); if(!x) return; GR.rcOnglet=x.getAttribute("data-o"); renderRecyclages(); };
+  var hote=document.getElementById("wsRec");
+  if(hote&&!hote.__rc){ hote.__rc=1; hote.addEventListener("click",function(e){
+    var v=e.target.closest("[data-rc-voir]"), s=e.target.closest("[data-rc-suppr]");
+    if(v) rcFeuille(rcTrouve(v.getAttribute("data-rc-voir")));
+    else if(s) rcSupprimer(s.getAttribute("data-rc-suppr"),s);
+  }); }
+}
+function rcTrouve(id){ return (GR.recyclages||[]).filter(function(x){ return String(x.id)===String(id); })[0]||null; }
+function rcRelire(id){ return rcCharger().then(function(){ renderRecyclages(); if(id) rcFeuille(rcTrouve(id)); }); }
+function rcSupprimer(id,btn,apres){
+  confirmerPro({titre:"Supprimer la fiche ?",texte:"Le contremaître ne l'a pas encore confirmée : elle disparaît, comme si elle n'avait pas été envoyée.",ok:"Supprimer",annuler:"Garder"},function(){
+    if(btn) btn.disabled=true;
+    baseRpc("biowanze_annuler_recyclage",{p_id:Number(id)}).then(function(){ if(apres) apres(); flash("Fiche supprimée"); return rcRelire(); })
+      .catch(function(er){ if(btn) btn.disabled=false; flash(baseMsg(er)); });
+  });
+}
+/* LA FICHE, comme le papier : la remplir (x nul) ou la lire, confirmer,
+   contresigner, valider */
+function rcFeuille(x){
+  var a=compteBase()||{}, moi=a.tri, neuf=!x;
+  var tri=neuf?moi:x.trigramme, p=dmPersonne(tri);
+  var np=neuf?((p&&grNom(p))||idLisible(moi||"")):([x.prenom,x.nom].filter(Boolean).join(" ")||(p&&grNom(p))||idLisible(tri));
+  var auj=new Date(jourUsine()), isoAuj=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
+  var etat=neuf?{f:"",j:isoAuj,pause:rcPauseDe(moi,isoAuj),doublure:false,tit:""}:{f:x.fonction,j:x.jour,pause:x.pause,doublure:x.doublure,tit:x.titulaire||""};
+  var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(u,v){ return u.id<v.id?-1:1; });
+  function cm(){ var c=neuf?rcContremaitre(etat.j,etat.pause):(x.cm||null); return c===moi&&neuf?null:c; }
+  function choix(liste,val,cle,actif){
+    return liste.map(function(z,i){ var k=typeof z==="string"?z:z[0], t=typeof z==="string"?z:z[1];
+      return (i?' / ':'')+(actif?'<button type="button" class="rc-mot" data-'+cle+'="'+esc(k)+'" aria-pressed="'+(k===val)+'">'+esc(t)+'</button>':'<span class="rc-mot'+(k===val?' rc-pris':'')+'">'+esc(t)+'</span>'); }).join("");
+  }
+  function sig(qui,le){ return '<span class="dm-pp-sig">✓ '+esc(idLisible(qui))+(le?', le '+dmDateFr(new Date(le)):'')+'</span>'; }
+  function corps(){
+    var c=cm(), ed=neuf;
+    var h=['<div class="dm-pp-tete"><img src="logo-email.png" alt="biowanze" class="dm-pp-logo"></div>',
+      '<p class="dm-pp-titre">Fiche de suivi des recyclages « polyvalence »</p>',
+      '<div class="rc-regles"><p>Un recyclage sur poste est obligatoire afin de garder les bons réflexes pratiques liés à une fonction. Il consiste en une présence sur poste <b>au moins 10 jours (5 jours pour les Assistants Usine et les Adjoints CM)</b>, seul ou en doublure (moyennant conditions *) <b>entre le 1<sup>er</sup> février et le 31 janvier de l\'année suivante.</b> Le recyclage peut avoir lieu via des remplacements sur les postes concernés (absences, congés, changement avec un autre polyvalent).</p>',
+      '<p class="rc-cond">* Conditions cumulatives de validité pour recyclage <u>en doublure</u> :</p><ol><li>Le travailleur en recyclage pilote l\'installation sous la surveillance et le conseil de l\'opérateur attitré.</li><li>L\'opérateur attitré donne une formation de rappel, informe des dernières évolutions ou événements au poste.</li><li>Le contremaître de la pause concernée doit être informé <u>au plus tard en début de pause</u> de l\'organisation du recyclage.</li><li>Le responsable de zone contresigne la fiche de suivi des recyclages polyvalence.</li></ol></div>',
+      '<div class="dm-pp-cadre"><p class="dm-pp-sous">Membre du personnel de Production</p>',
+      '<p class="dm-pp-ch"><b>Nom et Prénom</b> : <span>'+esc(np)+'</span></p>',
+      '<p>Recyclage relatif à la fonction <i class="rc-pt">(1 recyclage par pause prestée)</i> :</p>',
+      '<p class="rc-choix">'+choix(RC_FONCTIONS,etat.f,"rf",ed)+'</p>',
+      '<p class="dm-pp-ch">Date du recyclage : '+(ed?'<input type="date" id="rcJour" value="'+esc(etat.j)+'" max="'+isoAuj+'">':'<span>'+dmDateFr(dmJour(etat.j))+'</span>')+'</p>',
+      '<p class="rc-choix">Pause effectuée : '+choix(RC_PAUSES,etat.pause,"rp",ed)+' - '
+        +(ed?'<label class="rc-doub"><input type="checkbox" id="rcDoub"'+(etat.doublure?' checked':'')+'> En doublure</label>':'<span class="rc-mot'+(etat.doublure?' rc-pris':'')+'">En doublure</span>')
+        +(etat.doublure?' (titulaire du poste : '+(ed?'<select id="rcTit"><option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===etat.tit?' selected':'')+'>'+esc(idLisible(q.id))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join("")+'</select>':'<b>'+esc(idLisible(etat.tit))+'</b>')+')':'')+'</p>',
+      '<p><i>Seules les pauses complètes (8h de prestations d\'affilée) sont prises en compte.</i></p>',
+      '<p>Signature : '+(neuf?'<span class="dm-pp-att">au bouton « Signer et envoyer »</span>':sig(x.trigramme,x.cree_le))+'</p></div>'];
+    /* l'attestation du contremaître et du responsable de zone */
+    var aConf=!neuf&&x.je_confirme, aZone=!neuf&&x.je_contresigne, aVal=!neuf&&x.je_valide;
+    var cmNom=neuf?(c?idLisible(c):''):(x.cm_qui||x.cm?idLisible(x.cm_qui||x.cm):'');
+    h.push('<div class="dm-pp-cadre"><p class="dm-pp-sous">Attestation du Contremaître de la pause concernée / du responsable de zone :</p>',
+      '<p class="dm-pp-ch">Nom et Prénom du Contremaître : <span>'+esc(cmNom)+'</span> confirme</p>',
+      '<ul class="rc-att"><li>avoir été averti au plus tard en début de pause de l\'organisation du recyclage</li><li>que le travailleur a effectué un recyclage sur le poste susmentionné.</li></ul>',
+      neuf?'<p class="dm-pp-att">'+(c?'La fiche lui sera envoyée : '+esc(idLisible(c))+' tient le poste de contremaître à cette pause dans l\'horaire.':(etat.pause?'Contremaître de cette pause introuvable dans l\'horaire : la fiche ira à la RH.':'Choisissez la pause.'))+'</p>':'',
+      '<div class="dm-pp-sig2"><div><p>Signature :</p>'+(aConf?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="conf1">Confirmer et signer</button><button type="button" class="dm-pp-refus" data-rc-act="conf0">Refuser</button></div>'
+        :(!neuf&&x.cm_le?(x.statut==="refusee"&&!x.rh_le?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.cm_qui||""))+'</span>':sig(x.cm_qui,x.cm_le)):''))+'</div>',
+      '<div><p>Signature du responsable de zone :<br><small>(obligatoire si recyclage en doublure)</small></p>'+(aZone?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="zone">Contresigner</button></div>':(!neuf&&x.zone_le?sig(x.zone_qui,x.zone_le):''))+'</div></div>',
+      (aConf?'<p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif"></p>':''),'</div>');
+    h.push('<div class="dm-pp-cadre"><p class="dm-pp-sous">Validation et enregistrement par le Bureau RH :</p>'
+      +(aVal?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="val1">Valider et enregistrer</button><button type="button" class="dm-pp-refus" data-rc-act="val0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif"></p>'
+        :(!neuf&&x.rh_le?(x.statut==="refusee"?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.rh_qui||""))+'</span>':sig(x.rh_qui,x.rh_le)):'<p>&nbsp;</p>'))
+      +(!neuf&&x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-pp-ch dm-pp-in"><i>Motif</i> : <span>'+esc(x.rh_motif||x.cm_motif)+'</span></p>':'')+'</div>');
+    return h.join("");
+  }
+  var pied=neuf?'<button type="button" class="btn ss-ok" id="rcSigner">Signer et envoyer</button>'
+    :(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" id="rcSuppr">Supprimer ma fiche</button>':'');
+  var pn=grOuvrirPanneau('<div class="pn-tete"><button type="button" class="pn-retour" aria-label="Retour">‹ Retour</button><div><b>Fiche de recyclage</b><span>polyvalence · dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
+    +'<div class="pn-corps dm-pp-fond"><div class="dm-papier rc-papier" id="rcPapier"></div><p class="pn-note" id="rcErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
+  pn.classList.add("dm-pp-pn");
+  var pap=pn.querySelector("#rcPapier"), err=pn.querySelector("#rcErr");
+  function dessiner(){ pap.innerHTML=corps(); }
+  dessiner();
+  pap.addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    if(b.hasAttribute("data-rf")){ etat.f=b.getAttribute("data-rf"); dessiner(); return; }
+    if(b.hasAttribute("data-rp")){ etat.pause=b.getAttribute("data-rp"); dessiner(); return; }
+    var act=b.getAttribute("data-rc-act"); if(!act) return;
+    var mo=(pap.querySelector("#rcMotif")||{}).value||"", ok=act.slice(-1)==="1";
+    if((act==="conf0"||act==="val0")&&!mo.trim()){ err.textContent="Un refus se motive : écrivez le motif."; var mi=pap.querySelector("#rcMotif"); if(mi) mi.focus(); return; }
+    var rpc=act==="zone"?["biowanze_contresigner_recyclage",{p_id:x.id}]:act.indexOf("conf")===0?["biowanze_confirmer_recyclage",{p_id:x.id,p_ok:ok,p_motif:mo||null}]:["biowanze_valider_recyclage",{p_id:x.id,p_ok:ok,p_motif:mo||null}];
+    b.disabled=true;
+    baseRpc(rpc[0],rpc[1]).then(function(){ flash(act==="zone"?"Contresignée : la RH la reçoit":act==="conf1"?"Confirmée : la fiche poursuit son circuit":act==="val1"?"Fiche validée et enregistrée":"Fiche refusée"); return rcRelire(x.id); })
+      .catch(function(er){ b.disabled=false; err.textContent=baseMsg(er); });
+  });
+  pap.addEventListener("change",function(e){
+    if(e.target.id==="rcJour"){ etat.j=e.target.value; if(etat.j) etat.pause=rcPauseDe(moi,etat.j)||etat.pause; dessiner(); }
+    else if(e.target.id==="rcDoub"){ etat.doublure=e.target.checked; dessiner(); }
+    else if(e.target.id==="rcTit"){ etat.tit=e.target.value; }
+  });
+  var bs=pn.querySelector("#rcSigner");
+  if(bs) bs.onclick=function(){
+    err.textContent="";
+    if(!etat.f){ err.textContent="Choisissez la fonction du recyclage."; return; }
+    if(!etat.j){ err.textContent="La date du recyclage manque."; return; }
+    if(!etat.pause){ err.textContent="Choisissez la pause effectuée."; return; }
+    if(etat.doublure&&!etat.tit){ err.textContent="En doublure, nommez le titulaire du poste."; return; }
+    bs.disabled=true;
+    baseRpc("biowanze_demander_recyclage",{p_fonction:etat.f,p_jour:etat.j,p_pause:etat.pause,p_doublure:etat.doublure,p_titulaire:etat.doublure?etat.tit:null,p_cm:cm(),p_texte:null})
+      .then(function(){ flash(cm()?"Envoyée : le contremaître de la pause la reçoit":"Envoyée : la RH la reçoit"); grFermerPanneau(); GR.rcOnglet="miennes"; return rcRelire(); })
+      .catch(function(er){ bs.disabled=false; err.textContent=baseMsg(er); });
+  };
+  var su=pn.querySelector("#rcSuppr"); if(su) su.onclick=function(){ rcSupprimer(x.id,su,function(){ grFermerPanneau(); }); };
+}
 function renderMesDemandes(){
   var c=document.getElementById("demCard"), corps=document.getElementById("demCorps"); if(!c||!corps) return;
   if(!compteBase()){ c.hidden=true; return; }
@@ -15633,21 +15855,23 @@ function renderMesDemandes(){
   function rendre(){
     var L=GR.demandes||[], l=L.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; });
     var fait=L.filter(function(x){ return x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x); }).length;
-    var aSigner=L.filter(dmAccordAttendu).length;
+    var aSigner=L.filter(dmAccordAttendu).length, aRc=(GR.recyclages||[]).filter(rcATraiter).length;
     document.getElementById("demSub").textContent=l.length?l.length+" en cours":"";
-    corps.innerHTML=(aSigner?'<button type="button" class="md-signer" data-md="signer">'+aSigner+' remplacement'+(aSigner>1?'s':'')+' à signer ›</button>':'')
+    corps.innerHTML=(aRc?'<button type="button" class="md-signer" data-md="recyclage">'+aRc+' fiche'+(aRc>1?'s':'')+' de recyclage à '+(peutSaisir()?'traiter':'confirmer')+' ›</button>':'')+(aSigner?'<button type="button" class="md-signer" data-md="signer">'+aSigner+' remplacement'+(aSigner>1?'s':'')+' à signer ›</button>':'')
       +(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><div class="md-h"><b>'+esc(dmPeriode(x.du,x.au))+'</b>'+dmStatut(x)+'</div>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
       +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
     c.hidden=false;
   }
   var h=c.querySelector("header"); if(h&&!h.querySelector("[data-md]")) h.insertAdjacentHTML("beforeend",'<button type="button" class="btn ss-ok md-nv" data-md="nouvelle">+ Nouvelle</button>');
-  rendre();
+  rendre(); renderMesDemandes.rc=rendre;
   dmCharger().then(rendre,function(){});
+  rcCharger().then(rendre,function(){});
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("#demCard [data-md]"):null; if(!b) return;
   var k=b.getAttribute("data-md");
+  if(k==="recyclage"){ GR.ongletAutoRc=true; ouvrirGrille("recyclages"); return; }
   GR.onglet=k==="signer"?"remplace":"miennes";
   if(k==="nouvelle") ouvrirGrille("demandes",{}); else ouvrirGrille("demandes");
 });
@@ -22462,9 +22686,10 @@ function sideMaj(){
   g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'
     +(estRH&&dir?'<button type="button" data-go="direction"'+(!ouvert&&st.view==="direction"?' aria-current="page"':'')+'>'+dir.querySelector("svg").outerHTML+'<span>Direction</span></button>':'')
     +l.map(function(x){
-    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':'')+'</button>'; }).join(""):'';
+    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&GR.section===x.s?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':x.s==="recyclages"?'<span class="side-nb" id="sideRecNb" hidden></span>':'')+'</button>'; }).join(""):'';
   document.body.classList.toggle("ws-ouvert",ouvert);
   var n=(GR.demandes||[]).filter(dmATraiter).length, nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
+  var nr=(GR.recyclages||[]).filter(rcATraiter).length, nbr=document.getElementById("sideRecNb"); if(nbr){ nbr.hidden=!nr; nbr.textContent=nr; }
 }
 (function(){
   var g=document.getElementById("sideGestion");
@@ -22498,7 +22723,7 @@ function sideMaj(){
       +(document.documentElement.getAttribute("data-rh")==="1"?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
     var l=compteBase()?wsSections():[];
     if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
-      var dn=x.s==="demandes"?(GR.demandes||[]).filter(dmATraiter).length:0;
+      var dn=x.s==="demandes"?(GR.demandes||[]).filter(dmATraiter).length:x.s==="recyclages"?(GR.recyclages||[]).filter(rcATraiter).length:0;
       return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb">'+dn+'</span>':'');
     }).join("");
     f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
@@ -22630,13 +22855,13 @@ function boot(){
       if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
       /* « ?vue=demandes » : la notification d'une demande de congé (à signer
          comme remplaçant, à viser pour la RH) ouvre l'espace des demandes */
-      var versDem=vueUrl==="demandes"; if(versDem) vueUrl=null;
+      var versDem=vueUrl==="demandes"||vueUrl==="recyclages"?vueUrl:null; if(versDem) vueUrl=null;
       setView(vueUrl||lsGet("ui/view")||"horaire",true);
-      if(versDem) setTimeout(function(){ try{ GR.ongletAuto=true; ouvrirGrille("demandes"); }catch(e){} },900);
+      if(versDem) setTimeout(function(){ try{ GR.ongletAuto=true; GR.ongletAutoRc=true; ouvrirGrille(versDem); }catch(e){} },900);
       /* Une notification touchée alors que l'application est déjà ouverte :
          le service worker ne recharge pas la page, il lui dit l'onglet. */
       if(navigator.serviceWorker) navigator.serviceWorker.addEventListener("message",function(e){
-        var d=e.data||{}; if(d.type==="vue"&&d.vue==="demandes"){ try{ GR.ongletAuto=true; ouvrirGrille("demandes"); }catch(er){} } else if(d.type==="vue"&&VIEWS.indexOf(d.vue)>=0) setView(d.vue);
+        var d=e.data||{}; if(d.type==="vue"&&(d.vue==="demandes"||d.vue==="recyclages")){ try{ GR.ongletAuto=true; GR.ongletAutoRc=true; ouvrirGrille(d.vue); }catch(er){} } else if(d.type==="vue"&&VIEWS.indexOf(d.vue)>=0) setView(d.vue);
       });
       /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
          garnis dès le démarrage, quel que soit l'onglet ouvert */
