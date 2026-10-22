@@ -2923,3 +2923,14 @@ jours. La case disait « 1,5 j / sur 8,5 j » : on ne savait pas de quoi
 - Cinq cases sur une ligne à 320 px, les chiffres réduits sous 420 px.
   Aucun débordement à 320, 390 et 1280 px.
 - Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### La barre du flex time (22/10/2026, v969)
+
+Le client : « efficace, barre dans FT aussi ». La case FT avait sa place
+de barre, cachée. Elle se remplit désormais du solde rapporté au plafond de
+104 h de la note de service. Les bornes ne sont pas écrites, comme demandé
+la veille. La barre est en bleu, pour la distinguer des congés (vert).
+Elle est vide à 0 h ou en négatif : le chiffre, rouge, le dit.
+
+Mesuré : +14 h donne 13 % de barre. Aucun débordement à 320, 390 et
+1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.
