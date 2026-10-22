@@ -2376,3 +2376,27 @@ condition d'un poste d'arrivée en manque). Mesuré : la semaine du 22/10
 passe de 2 changements à « Rien à signaler » ; celle du 20/10 garde sa
 vraie proposition (JBI en distillation la nuit du 20) et ne liste plus
 SMA le 21. Les quatre sorties du vérificateur sont inchangées.
+
+### L'Accueil relu en entier : quatre défauts (22/10/2026, `nfdm-v941`)
+
+Le client : « tout est professionnel et optimisé pour l'accueil ? ».
+Photographié à 320 et 1280 px, bloc par bloc ; quatre défauts, tous
+corrigés :
+
+1. **« Demande de congé » vide** : sans demande en cours ni traitée, le
+   cadre ne disait que « Aucune demande en cours », et son
+   « + Nouvelle » répétait le raccourci « Demander un congé ». Il se
+   cache ; au PC, « Ma semaine » prend alors toute la largeur.
+2. **« Ma semaine » contredisait le héros** : avant 6 h, elle partait du
+   jour de l'usine (« Auj. 21 ») sous un héros et un calendrier qui
+   disaient le 22. Elle part du jour du calendrier.
+3. **Au PC, le centre de contrôle** : six raccourcis sur une rangée et
+   « À faire » dessous, au lieu de deux rangées et d'une moitié droite
+   vide. 237 px de haut au lieu de 310.
+4. **À 320 px**, « sur le téléphone » passait sur trois lignes et
+   déformait la grille : « abonnement ».
+
+Ce qui reste, et pourquoi : le mois d'octobre de l'opérateur d'essai est
+tout en maladie, et ses compteurs font 815 px au téléphone. Ce sont ses
+données : on ne les touche pas. Mesuré : aucun débordement à 320 et
+1280 px ; les raccourcis mènent au bon écran ; 0 erreur.
