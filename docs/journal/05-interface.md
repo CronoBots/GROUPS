@@ -2105,3 +2105,9 @@ demande de congé ». Le cadre (`dm-pp-adr`) et ses deux règles CSS sont
 retirés ; le logo reste seul en tête de la feuille, pour les trois
 formulaires. Vérifié à 390 px (`dmvoir.js`) : plus de cadre, 0 erreur ;
 `dmod.js` et `gate2.js` inchangés.
+
+### « Mes demandes » devient « Demande de congé » (22/10/2026, `nfdm-v931`)
+
+Le client : « Mes demandes doit s'appeler “demande de congé” ». Le titre
+du cadre de l'Accueil change ; rien d'autre (l'onglet « Demandes » de
+l'espace RH garde son nom). `suppr.js` et `gate2.js` : 0 erreur.
