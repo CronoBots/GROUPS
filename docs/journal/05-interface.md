@@ -3184,3 +3184,29 @@ Le client, captures des deux côtés : « optimise cela 100 % pro ».
 Éprouvé à 320, 390 et 1280 px avec une fiche et une demande simulées :
 aucun débordement, aucune erreur. Les quatre sorties du vérificateur sont
 identiques à l'octet.
+
+### Le premier cadre de chaque onglet à la même hauteur (22/10/2026, v980)
+
+Le client : « sur mobile, tous les premiers cadres des onglets doivent
+être à la même distance du bord haut que pour l'onglet planning du
+jour ».
+
+**Mesuré à 390 px, du haut de l'écran sous l'encoche au premier cadre :**
+
+- Du jour : 16 px ;
+- l'Accueil, les Équipes, le Salaire et la Recherche : 28 px (la marge de
+  la v978) ;
+- Effectifs : 32 px (`.eqcorps` ajoutait 4 px) ;
+- la gestion (Demandes…) : 12 px.
+
+**Correctif.** Partout « encoche + 16 px », comme « Du jour » :
+
+- la marge du haut de page revient à 16 px ;
+- le premier bloc d'Effectifs perd ses 4 px ;
+- une section de la gestion prend 16 px au lieu de 12.
+
+La v978 (+28 px, pour sortir du flou de la barre d'état) est donc
+défaite : la référence choisie par le client est « Du jour ».
+
+Remesuré : 16 px pour les huit vues. Aucun débordement à 320, 390 et
+1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.
