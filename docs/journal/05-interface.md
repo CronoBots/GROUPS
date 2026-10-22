@@ -3210,3 +3210,23 @@ défaite : la référence choisie par le client est « Du jour ».
 
 Remesuré : 16 px pour les huit vues. Aucun débordement à 320, 390 et
 1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Tous les premiers cadres à « encoche + 28 px » (22/10/2026, v981)
+
+Le client, deux captures (la v979 encore installée) : « l'écart est bon
+sur les Équipes, un peu trop haut dans le planning. Adapter pour tous les
+premiers cadres sur mobile ».
+
+**Erreur commise.** À la v980, j'avais pris « Du jour » (16 px) pour
+référence, parce que le client l'avait nommé. Ce qu'il voulait, c'était
+la même distance partout, et la bonne était celle des Équipes (28 px). Sur
+ses captures, le premier cadre de « Du jour » est 12,5 points plus haut
+que celui des Équipes. Ce sont les 12 px qui séparent 16 de 28.
+
+**Correctif.** « Encoche + 28 px » partout : la page (`.wrap`), la vue
+fixe « Du jour », les sections de la gestion. Effectifs garde le retrait
+de ses 4 px de trop.
+
+Remesuré : 28 px pour les huit vues. « Du jour » tient toujours sans
+défilement à 390 × 844, 375 × 667 et 320 × 568. Les quatre sorties du
+vérificateur sont identiques à l'octet.
