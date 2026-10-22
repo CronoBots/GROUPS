@@ -3041,3 +3041,29 @@ Le client, capture du cadre : « optimiser ? ». Les défauts relevés :
 
 Mesuré : aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### Congés et recyclages dans un seul onglet « Demandes » (22/10/2026, v974)
+
+Le client : « demandes de congés et recyclage doivent être dans le même
+onglet et on peut choisir l'un ou l'autre ».
+
+**Les menus** (barre de gauche au PC, « Plus » au téléphone, menu de
+l'espace) n'ont plus qu'une entrée, « Demandes ». Son nombre à traiter
+additionne les congés et les fiches de recyclage (`wsNbDemandes`).
+
+**La section** garde ses deux contenus (`demandes`, `recyclages`, marquée
+`sous:1` et absente des menus). En tête, dans l'ordre :
+
+1. le titre « Demandes » ;
+2. un sélecteur Congé · Recyclage, chacun avec ce qu'il a à traiter
+   (`dmBasculeHTML`) ;
+3. la phrase qui dit ce que fait le type choisi, et son bouton
+   (« + Nouvelle demande », « + Nouvelle fiche », `dmIntro`).
+
+« Demandes » reste en surbrillance dans le menu quand on est sur
+Recyclage (`wsActif`). Les raccourcis de l'Accueil (« Demander un congé »,
+« Fiche de recyclage ») et les notifications ouvrent toujours le bon type.
+
+Éprouvé au navigateur à 390 et 1280 px : bascule dans un sens puis dans
+l'autre, sélection et menu justes, aucun débordement ni erreur. Les quatre
+sorties du vérificateur sont identiques à l'octet.
