@@ -2892,3 +2892,34 @@ Le prochain congé est juste au-dessus.
   sous 420 px : « 72,13 j » passait sur deux lignes.
 - Aucun débordement à 320, 390 et 1280 px.
 - Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### « Mes congés » en heures, l'équivalent en jours, et le flex time (22/10/2026, v968)
+
+Le client, sur la v967 : « sur 8,5 ? Et il faut afficher le solde des FT
+(sans les bornes) et indiquer l'équivalent en jour de congé des congés
+restants ».
+
+**« Sur 8,5 ».** C'était son droit RTT de l'année, 68 h, converti en
+jours. La case disait « 1,5 j / sur 8,5 j » : on ne savait pas de quoi
+était fait ce « sur ».
+
+**Ce qui change.**
+
+- Chaque case donne le reste en heures, comme le classeur (« 12 h »), et
+  dessous l'équivalent en jours, « ≈ 1,5 j ». La journée est celle de
+  l'onglet Barèmes (`hJour`, 8 h par défaut).
+- Le droit n'est plus écrit : la barre du reste suffit, et le détail est
+  dans « Mes compteurs ».
+- Le titre dit « 12 h à placer · ≈ 1,5 j ».
+- **Flex time** : une cinquième case donne le solde de la case « Total »
+  du classeur (`soldeFTClasseur`, comme « Mes compteurs »), signé, avec son
+  équivalent en jours. Elle n'a ni jauge ni bornes, comme demandé, et n'entre
+  pas dans le total à placer. Un solde négatif s'écrit en rouge.
+
+**Mesuré.**
+
+- Le client : VA 0 h, RTT 12 h ≈ 1,5 j, DTT 0, RJF 0, FT 0 h.
+- Un opérateur : 92, 42, 577, 80 h, et FT +14 h ≈ +1,75 j.
+- Cinq cases sur une ligne à 320 px, les chiffres réduits sous 420 px.
+  Aucun débordement à 320, 390 et 1280 px.
+- Les quatre sorties du vérificateur sont identiques à l'octet.
