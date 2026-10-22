@@ -78,13 +78,6 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 10. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
-11. **SPS et LDY : 0 recyclage au dossier RH** (posée le 22/10/2026). Le
-   classeur d'horaire les écrit au poste en toutes lettres. SPS : « distill. »,
-   souvent avec « remplace SMA », 30 journées depuis le 01/02 (polyvalence
-   depuis le 11/12/2025). LDY : « meunerie », souvent avec « remplace
-   CDE », 31 journées. Le dossier RH : 0 et 10 restants pour chacun. La RH
-   ne compte-t-elle que les recyclages déclarés sur fiche ? Si oui, ces
-   journées doivent-elles compter dans l'application ?
 
 ## La plateforme (inventaire du 21/10/2026, `docs/plateforme.md`)
 

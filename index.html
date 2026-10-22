@@ -9711,6 +9711,21 @@ var RECYC_POSTES=["meun","glut","ferm","dist","chau","step"];
    même ligne aux deux. Une ligne d'un trigramme partagé ne va qu'à celui
    dont les polyvalences — en cours ou terminées dans l'année — couvrent
    tous les postes qu'elle recycle ; à personne s'il n'y en a pas un seul. */
+/* la ligne RH « effective » : ses recyclages, plus les remplacements écrits
+   au classeur d'horaire qu'elle n'a pas, et son « restant » diminué d'autant */
+function recycRHEffectif(db,p){
+  var o=recycRH(p); if(!o||!db) return o;
+  var ex=null; try{ ex=calculerPolyvalence(db).extra[p.id]; }catch(e){}
+  if(!ex) return o;
+  var c={}, n=0; Object.keys(o).forEach(function(k){ c[k]=o[k]; });
+  RECYC_POSTES.forEach(function(k){ if(ex[k]){ c[k]=(Number(c[k])||0)+ex[k]; n+=ex[k]; } });
+  /* l'objectif reste celui du classeur RH (faits + restants) : le
+     dépasser ne l'agrandit pas */
+  var fRH=Number(o.cm)||0; RECYC_POSTES.forEach(function(k){ fRH+=Number(o[k])||0; });
+  c.objectif=fRH+(Number(o.restant)||0);
+  c.restant=Math.max(0,(Number(o.restant)||0)-n); c.enPlus=n;
+  return c;
+}
 function recycRH(p){
   if(!RECYC_OFF||!p) return null;
   if(RECYC_OFF[p.id]) return RECYC_OFF[p.id];
@@ -12726,7 +12741,7 @@ function _pfHead(db,p){
   /* Les recyclages restants du classeur RH : les compteurs viennent se
      poser sur ces puces juste après le premier affichage (recyclageHeros). */
   var pl=(p.poly&&p.poly.ateliers)||[], cmH=(typeof estContremaitre==="function")&&estContremaitre(p),
-      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRH(p):null, aRec=!!(roH&&roH.restant>0);
+      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRHEffectif(db,p):null, aRec=!!(roH&&(roH.restant>0||roH.enPlus));
   if(!cmH && (pl.length||aRec)){
     h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
       +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
@@ -12764,7 +12779,7 @@ function _pfHead(db,p){
    rejoue l'année. */
 function recyclageHeros(db,p){
   var hote=document.getElementById("pfRecyc"); if(!hote||!db||!p) return;
-  var ro=recycRH(p); if(!ro||!(ro.restant>0)) return;
+  var ro=recycRHEffectif(db,p); if(!ro||!(ro.restant>0||ro.enPlus)) return;
   var pv=hote.parentNode, l=pv.querySelector(".pf-pv-l"), q;
   (polyvalenceDe(db,p)||[]).forEach(function(o){
     if(o.forme||!l) return;
@@ -12779,7 +12794,7 @@ function recyclageHeros(db,p){
     l.insertAdjacentHTML("beforeend",'<span data-z="gris" data-k="cm" title="Contremaître"><i></i><em data-c="Contrem.">Contremaître</em><b class="pf-pv-n'+((ro.cm||0)>=q?' ok':'')+'">'+(ro.cm||0)+'/'+q+'</b></span>');
   }
   var fait=(ro.cm||0); RECYC_POSTES.forEach(function(k){ fait+=Number(ro[k])||0; });
-  var tot=fait+ro.restant, pct=tot?Math.round(fait/tot*100):0;
+  var tot=ro.objectif||(fait+ro.restant), pct=tot?Math.min(100,Math.round(fait/tot*100)):0;
   hote.innerHTML='<span class="pf-rc-t">Recyclages <b>'+fait+'</b> / '+tot+'</span>'
     +'<span class="pf-rc-r"><b>'+ro.restant+'</b> à faire</span>'
     +'<span class="pf-rc-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Recyclages faits : '+fait+' sur '+tot+'"><i style="width:'+pct+'%"></i></span>';
@@ -17633,7 +17648,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
        && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
-      k=nommes[x.p.id].k;
+      { k=nommes[x.p.id].k; x.nomme=true; }
     if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
@@ -18867,7 +18882,7 @@ function calculerPolyvalence(db){
   var debut=(fin>="0201")?"0201":"0101";
   var cle=annee+"/"+debut+"/"+fin+"/"+st.params.hJour;
   if(_poly && _polyCle===cle) return _poly;
-  var parId={}, parIdDates={}, lieux={}, m, j, mmdd;
+  var parId={}, parIdDates={}, parIdRempl={}, extra={}, lieux={}, m, j, mmdd;
   /* OÙ chacun a été placé chaque jour, compté ou non : le tableau des dates
      au clic d'un opérateur s'en sert pour dire pourquoi une date du classeur
      RH n'est pas comptée (le client, le 12/10/2026, « ABC »). */
@@ -18905,6 +18920,15 @@ function calculerPolyvalence(db){
              « dates app / dates RH » au clic d'un opérateur. */
           if(!parIdDates[y.p.id]) parIdDates[y.p.id]={};
           (parIdDates[y.p.id][o.P.k]=parIdDates[y.p.id][o.P.k]||[]).push(mmdd);
+          /* le classeur dit qu'il REMPLACE quelqu'un à ce poste : « remplace
+             X » dans sa case, ou « remplacé par » le nommant dans celle de
+             l'absent (le client, le 22/10/2026 : « s'il est précisé qu'il
+             remplace quelqu'un à un poste, il faut le compter, oui ») */
+          var eR=y.p.d&&y.p.d[mmdd];
+          if(y.nomme||remplacesActifs(eR&&eR[2]).length){
+            if(!parIdRempl[y.p.id]) parIdRempl[y.p.id]={};
+            (parIdRempl[y.p.id][o.P.k]=parIdRempl[y.p.id][o.P.k]||[]).push(mmdd);
+          }
         });
       });
     });
@@ -18938,12 +18962,23 @@ function calculerPolyvalence(db){
      RH : le tableau recyclage affiche « app / RH » côte à côte pour voir les
      écarts réels, tandis que le profil, lui, garde la valeur officielle RH. */
   var parIdApp={}; for(var _pid in parId){ parIdApp[_pid]=Object.assign({}, parId[_pid]); }
+  /* … PLUS les journées où le classeur écrit qu'il remplace quelqu'un à ce
+     poste et que le classeur RH n'a pas (SPS « distill., remplace SMA »,
+     LDY « meunerie, remplace CDE » : 0 au classeur RH). Une date des deux
+     côtés ne compte qu'une fois. */
   if(RECYC_OFF) db.people.forEach(function(p){
     var o=recycRH(p); if(!o) return;
-    var pr=parId[p.id]||(parId[p.id]={});
-    RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
+    var pr=parId[p.id]||(parId[p.id]={}), rd=(o.dates)||{}, ap=parIdRempl[p.id]||{}, pf=null;
+    try{ pf=posteDeFormation(p); }catch(e){}
+    RECYC_POSTES.forEach(function(k){
+      if(k===pf){ if(typeof o[k]==="number") pr[k]=o[k]; return; }  /* son poste de formation : pas un recyclage */
+      var rh={}; (rd[k]||[]).forEach(function(d){ rh[d.slice(3,5)+d.slice(0,2)]=1; });
+      var en=(ap[k]||[]).filter(function(d){ return !rh[d]; }).length;
+      if(en){ (extra[p.id]=extra[p.id]||{})[k]=en; }
+      if(typeof o[k]==="number") pr[k]=o[k]+en;
+    });
   });
-  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, parIdDates:parIdDates, lieux:lieux, debut:debut, fin:fin};
+  _polyCle=cle; _poly={parId:parId, parIdApp:parIdApp, parIdDates:parIdDates, parIdRempl:parIdRempl, extra:extra, lieux:lieux, debut:debut, fin:fin};
   return _poly;
 }
 /* COMBIEN DE FOIS A-T-IL REMPLACÉ COMME CONTREMAÎTRE. Le client, le 07/10/2026 :
