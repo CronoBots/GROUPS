@@ -2159,3 +2159,28 @@ du dossier RH (juin 2021), puis « go recyclage ».
 - **Question ouverte** : qui est le responsable de zone
   (`docs/questions-client.md`). D'ici là, tout compte hiérarchie ou RH
   contresigne.
+
+### Les demandes supprimées ne se voient plus nulle part (22/10/2026)
+
+Le client : « les demandes supprimées, donc annulées, peuvent être effacées
+et n'ont pas besoin d'être visibles » (`base/16-effacer.sql`).
+
+- **Appliqué** : les listes de la base (`biowanze_liste_demandes`,
+  `biowanze_liste_recyclages`) ne rendent plus rien d'annulé, ni chez
+  l'opérateur, ni chez la RH. Cela vaut aussi pour l'ancienne version
+  d'une demande modifiée. Et la base fait maintenant respecter la règle
+  du client : une demande déjà signée par une autre personne (remplaçant,
+  contremaître ou RH) ne se supprime plus. Jusqu'ici, c'était l'écran
+  seul qui retenait la signature du remplaçant. Les notifications pas
+  encore parties d'une demande supprimée ne partent pas.
+- **Éprouvé** dans une transaction annulée : suppression d'une demande
+  signée par le remplaçant refusée ; demande libre supprimée, sa
+  notification retenue, invisible dans la liste ; la demande signée,
+  elle, reste visible.
+- **En attente** : l'effacement réel, c'est-à-dire des fonctions qui
+  effacent la ligne au lieu de la marquer « annulée », et la purge des
+  demandes déjà annulées. Le connecteur Supabase demande une
+  confirmation pour toute instruction qui efface. L'envoi est resté
+  suspendu une minute, puis a expiré : vérifié ensuite, rien n'était
+  appliqué. On ne contourne pas cette confirmation ; la partie est
+  écrite, en commentaire, au bas du fichier.

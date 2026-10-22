@@ -49,10 +49,11 @@ des questions au client ».
 6. **Le contremaître d'une demande de congé attend-il le remplaçant ?**
    (posée le 22/10/2026) La RH ne reçoit la demande qu'une fois le
    remplacement signé ; le contremaître, lui, peut viser tout de suite.
-7. **Bloquer dans la base la suppression d'une demande signée par le
-   remplaçant ?** (posée le 22/10/2026) L'écran ne propose plus
-   « Supprimer » après une signature ; la base, elle, ne refuse qu'après
-   le visa du contremaître ou de la RH.
+7. **Effacer pour de bon les demandes supprimées** (posée le 22/10/2026) :
+   le connecteur de la base demande votre confirmation pour toute
+   instruction qui efface. Elles sont déjà invisibles ; l'effacement
+   réel (`base/16-effacer.sql`, la partie en attente) se fera quand
+   vous accepterez la fenêtre de confirmation.
 
 ## À la RH
 
