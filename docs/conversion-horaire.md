@@ -990,6 +990,39 @@ la règle « le commentaire prime sur le cycle » était morte, et
 découpe `index.html` avec `indexOf`, donc il rejouait la PREMIÈRE des deux.
 Il refuse désormais de travailler sur un nom déclaré deux fois.
 
+### Remplacé à son tour : sa place habituelle lui revient d'office
+
+Le client, le 22/10/2026, sur le Planning du 21/10 en AM : « ce genre de
+changement devrait être comblé d'office, car CHD est en fermentation et AAI
+remplace SMA en distillation : la place terrain arrière lui revient
+d'office, malgré le commentaire “remplace LCI” qui porte à confusion ». Les
+cellules : SMA `["AM","Ferm. Liq","remplace LCI remplacé par AAI"]`, AAI
+`["AM","distillation","remplace SMA"]`, CHD `["AM"]`. Et le client, le
+27/09/2026 : « dans l'équipe 5, par défaut c'est toujours AAI qui tient le
+poste distillation et SMA le terrain » (`POSTE_HABITUEL`).
+
+Le 20/10/2026, le client avait demandé de ne plus déplacer les changements
+proposés par l'application : SMA, que le rééquilibrage portait au terrain
+arrière, était donc rendu à la fermentation que nomme son annotation, en
+pointillé, et le terrain arrière restait « ? ». La règle d'office passe
+avant, à trois conditions, toutes lues dans le classeur :
+
+1. le poste vers lequel on le porte est sa place **habituelle**
+   (`posteAttitre`) ;
+2. le poste que nomme son annotation **garde son effectif sans lui** (CHD
+   tient la fermentation) ;
+3. un collègue de la même pause écrit « remplace » **suivi de son nom**
+   (le remplacement actif, comme `posteDuRemplace`).
+
+Alors il est placé à sa place, sans pointillé ni « à confirmer »
+(`placeDOffice()`, dans `renderEquipe()`). Sur l'année, trois journées
+changent au Planning : le 21/10 AM (SMA), le 31/01 PM (ALZ, qui remplaçait
+CKS en fermentation et qu'APN « remplace » : il revient au terrain arrière)
+et le 06/07 N (FPS, annoté « gluten », que PAM « remplace » : il revient au
+terrain arrière, vide sans lui). Les sorties de `verifier-calendrier.js`
+(les quatre), les agendas et `comparer-fiches.py VBN` sont identiques à
+l'octet : seul l'affichage du Planning change.
+
 ### « Poly. Etoh » est un terrain arrière
 
 **Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et
