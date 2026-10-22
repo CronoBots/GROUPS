@@ -2652,6 +2652,9 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-pp-t td i{font-weight:400; color:#888}
 .dm-pp-t td.dm-pp-css{text-align:center; font-weight:700; white-space:normal; width:80px}
 .dm-pp-t input,.dm-pp-t select{width:100%; min-width:0; height:25px; border:0; background:transparent; color:#1d1d1d; font:inherit; font-size:12.5px; padding:0 2px; -webkit-appearance:none; appearance:none; border-radius:0}
+.dm-pp-t td.dm-pp-ty{text-align:center}
+.dm-t .dm-c{text-align:center}
+.dm-pp-t td.dm-pp-ty select{text-align:center; text-align-last:center}
 .dm-pp-t input:focus,.dm-pp-t select:focus{outline:2px solid #2F62D6; outline-offset:-2px; background:#fffde8}
 .dm-pp-t td.dm-pp-in-d{min-width:118px; position:relative}
 .dm-pp-jb{display:block; width:100%; min-height:30px; padding:2px 4px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; white-space:nowrap}
@@ -15054,7 +15057,7 @@ var DM_FORMS={
   sans_solde:{t:"Sans solde",l:"Quand le solde de congé et de récupération est à zéro",max:10}};
 var DM_PAUSES=["AM","PM","N","D"];
 var DM_COMPTEUR={"VA":"VA","1/2VA":"VA","RTT":"RTT","DTT":"DTT","1/2DTT":"DTT","RJF":"RJF","1/2RJF":"RJF"};
-function dmCompteur(code){ return DM_COMPTEUR[code]||(/^\d+h\s*RTT$/i.test(code)?"RTT":""); }
+function dmCompteur(code){ return DM_COMPTEUR[code]||(/^\d+h\s*RTT$/i.test(code)?"RTT":/-FT$/i.test(code)?"FT":""); }
 function dmHeures(code){ var c=(lsGet("base/codes")||[]).filter(function(x){ return x.code===code; })[0]; return c&&c.unite==="h"?Number(c.heures)||0:0; }
 function dmJour(s){ var p=String(s).split("-"); return new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); }
 function dmIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
@@ -15241,10 +15244,11 @@ function dmEtapes(x){
 /* le tableau du formulaire, en lecture : jour, pause prévue, ce qui est demandé, remplaçant */
 function dmTableau(x){
   var l=dmLignes(x), rp=l.some(function(z){ return z.rp; });
-  return '<table class="dm-t"><thead><tr><th>Jour</th><th>Prévu</th><th>Demandé</th>'+(rp?'<th>Remplaçant</th>':'')+'</tr></thead><tbody>'
+  return '<table class="dm-t"><thead><tr><th>Jour</th><th>Prévu</th><th class="dm-c">Demandé</th>'+(rp?'<th>Remplaçant</th>':'')+'</tr></thead><tbody>'
     +l.map(function(z){ var d=dmJour(z.j);
       return '<tr><td>'+esc(wsDateCourte(d))+'</td><td>'+dmPa(z.prevue||dmPrevue(x.trigramme,z.j),"repos")+'</td>'
-        +'<td>'+(z.pause?'<span class="dm-pause">→ '+dmPa(z.pause)+'</span>':dmPa(z.code))+'</td>'
+        /* centré, et la pause demandée sans flèche (le client, le 22/10/2026) */
+        +'<td class="dm-c">'+(z.pause?'<span class="dm-pause">'+dmPa(z.pause)+'</span>':dmPa(z.code))+'</td>'
         +(rp?'<td>'+(z.rp?'<span class="dm-rp">'+esc(idLisible(z.rp))+' '+dmPa(z.rp_prevue||dmPrevue(z.rp,z.j),"repos")+'</span>':'')+'</td>':'')+'</tr>'; }).join("")
     +'</tbody></table>';
 }
@@ -15357,9 +15361,11 @@ function dmPpLecture(x){
     var L=r[b.k], n=Math.max(b.n,L.length);
     h.push('<div class="dm-pp-tw"><table class="dm-pp-t">'+dmPpThead(f,b)+'<tbody>');
     for(var i=0;i<n;i++){ var l=L[i]||{}, d=l.j?dmJour(l.j):null, pr=l.j?(l.prevue||dmPrevue(x.trigramme,l.j)):"";
-      var ty=l.pause?'Modif. pause → '+esc(l.pause):l.code?esc(l.code):'';
+      /* la pause demandée seule, sans flèche : la colonne dit déjà « Type de
+         congé ou Modification pause » (le client, le 22/10/2026) */
+      var ty=l.pause?esc(l.pause):l.code?esc(l.code):'';
       if(f==="sans_solde") h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td>'+(i===0?'<td rowspan="'+n+'" class="dm-pp-css">Congé sans solde</td>':'')+'<td>'+(d?dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td></tr>');
-      else h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td><td>'+(d?JOURS_C[d.getDay()]+' '+dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+ty+'</td>'+(P.rp?'<td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td>':'')+'</tr>');
+      else h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td><td>'+(d?JOURS_C[d.getDay()]+' '+dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td class="dm-pp-ty">'+ty+'</td>'+(P.rp?'<td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td>':'')+'</tr>');
     }
     h.push('</tbody></table></div>');
     /* au téléphone, en lecture, les lignes vides se replient (le client, le
@@ -15439,7 +15445,10 @@ function dmFeuilleVoir(id){
 function dmFormulaire(pre){
   var a=compteBase()||{}, moi=a.tri, p=dmPersonne(moi);
   chargerCodes().then(function(codes){
-    var dem=codes.filter(function(c){ return (c.famille==="conge"||c.famille==="recup")&&c.code!=="CSS"; });
+    /* les reprises de flex time (« 8h -FT »…) se demandent aussi (le client,
+       le 22/10/2026 : « il faut aussi ajouter le FT au type de congé ») ;
+       base/19-flex-demandable.sql les accepte */
+    var dem=codes.filter(function(c){ return ((c.famille==="conge"||c.famille==="recup")&&c.code!=="CSS")||(c.famille==="flex"&&/-FT$/i.test(c.code)); });
     var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(x,y){ return (x.cat===(p&&p.cat)?0:1)-(y.cat===(p&&p.cat)?0:1)||(x.id<y.id?-1:1); });
     var mod=pre.modifier||null;
     var etat={f:(mod&&mod.formulaire)||pre.f||"courte", t:{pause:[],day:[]}, plus:0, texte:mod?(mod.texte||""):""};
@@ -15455,10 +15464,11 @@ function dmFormulaire(pre){
       '<button type="button" class="btn ss-ok" id="ppSigner">'+(mod?'Signer et envoyer la modification':'Signer et envoyer')+'</button>');
     function optsType(sel,pv){
       var o='<option value=""></option>'+dem.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===sel?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
-      if(DM_PAPIER[etat.f].pause) o+='<optgroup label="Modification pause">'+DM_PAUSES.filter(function(k){ return k!==pv; }).map(function(k){ return '<option value="pause:'+k+'"'+(sel==="pause:"+k?' selected':'')+'>→ '+k+'</option>'; }).join("")+'</optgroup>';
+      if(DM_PAPIER[etat.f].pause) o+='<optgroup label="Modification pause">'+DM_PAUSES.filter(function(k){ return k!==pv; }).map(function(k){ return '<option value="pause:'+k+'"'+(sel==="pause:"+k?' selected':'')+'>'+k+'</option>'; }).join("")+'</optgroup>';
       return o;
     }
-    function optsRp(sel){ return '<option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===sel?' selected':'')+'>'+esc(idLisible(q.id))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join(""); }
+    /* le remplaçant en initiales seules (le client, le 22/10/2026) */
+    function optsRp(sel){ return '<option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===sel?' selected':'')+'>'+esc(idLisible(q.id))+'</option>'; }).join(""); }
     function ligne(k,i){
       var L=etat.t[k], l=L[i]||{}, f=etat.f, P=DM_PAPIER[f], pv=l.j?dmPrevue(moi,l.j):"", rpv=l.rp&&l.j?dmPrevue(l.rp,l.j):"";
       var dv=l.j?dmJour(l.j):null;
@@ -15472,7 +15482,7 @@ function dmFormulaire(pre){
       var date='<td class="dm-pp-in-d"><button type="button" class="dm-pp-jb'+(dv?'':' vide')+'" data-jpick="1" aria-label="Date, ligne '+(i+1)+(dv?' : '+esc(JOURS_LONGS[(dv.getDay()+6)%7]+' '+dv.getDate()+' '+MOIS[dv.getMonth()].toLowerCase()):', à choisir')+'">'
         +(dv?JOURS_C[dv.getDay()]+' '+pad2(dv.getDate())+'/'+pad2(dv.getMonth()+1):'choisir')+'</button></td>';
       var pause='<td class="dm-pp-pv">'+dmPpPause(pv)+'</td>';
-      var type=f==="sans_solde"?'':'<td><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select></td>';
+      var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select></td>';
       var rp=P.rp?'<td><select data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"")+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
       var css=f==="sans_solde"&&i===0?'<td rowspan="'+(DM_PAPIER.sans_solde.blocs[0].n+etat.plus)+'" class="dm-pp-css">Congé sans solde</td>':'';
       return '<tr data-k="'+k+'" data-i="'+i+'"><td class="dm-pp-n">'+(i+1)+'</td>'+(f==="sans_solde"?css+date+pause:date+pause+type)+rp+'</tr>';
