@@ -3113,3 +3113,29 @@ les lignes ».
 disent « choisir ». Le calendrier d'octobre a 21 jours choisissables sur
 31. Un jour touché donne « Lu 05/10 · PM · VA ». Aucune erreur. Les quatre
 sorties du vérificateur sont identiques à l'octet.
+
+### Le calendrier du choix montre l'état des journées (22/10/2026, v977)
+
+Le client, sur la v976 : « le calendrier ne montre pas l'état actuel des
+journées (si on est déjà en congé ou pas) et les journées de repos peuvent
+être sélectionnables ».
+
+**L'état réel des journées** (`dmEtatJour`) :
+
+- un congé ou une récupération écrits dans le classeur (CP, RJF, VA…)
+  s'affichent en vert, avec leur code ;
+- une absence ou un arrêt, en rouge ;
+- un jour déjà dans une demande en attente, en jaune pointillé
+  (« demandé ») ;
+- ces jours-là ne se choisissent plus ;
+- une partie de journée (« 2h RHS », « 1/2 VA ») se montre aussi, mais le
+  reste de la journée se demande encore ;
+- une légende sous le mois les nomme.
+
+**Les repos** se choisissent désormais : « repos » sous la date, cadre en
+pointillés.
+
+Mesuré sur la feuille du client, en octobre : CP les 5-7, 2h RHS le 14
+(choisissable), RJF les 23-25 et 28-29, VA le 30, tous en vert ; les
+repos choisissables. Aucune erreur. Les quatre sorties du vérificateur sont
+identiques à l'octet.
