@@ -2560,6 +2560,9 @@ html #grille .ws-s:not(.ws-planning)>.ws-tete.dm-tete{padding:8px 14px}
 html #grille .ws-s:not(.ws-planning)>.ws-tete.dm-tete>.dm-bascule{display:grid; grid-template-columns:1fr 1fr; align-items:stretch; grid-column:1 / -1; justify-self:center; width:min(460px,100%); max-width:none; margin:0}
 html .dm-intro{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
 html .dm-intro p{margin:0; font-size:12px; line-height:1.4; color:var(--muted)}
+/* le nom du module, en tête de l'intro */
+html .dm-mod{display:inline-block; margin-right:4px; padding:1px 8px; border-radius:99px; font-size:11px; font-weight:700; letter-spacing:.03em; color:var(--in); background:color-mix(in srgb,var(--in) 14%,transparent)}
+html .dm-mod.val{color:var(--at-jaune); background:color-mix(in srgb,var(--at-jaune) 16%,transparent)}
 html .dm-intro>button{flex:none}
 /* le geste principal de la section, plein, à la couleur du sélecteur */
 html #grille .dm-intro>button{background:var(--in); border-color:var(--in); color:#fff; font-weight:650; min-height:40px; padding:0 16px}
@@ -2618,6 +2621,16 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-neg{color:var(--out)}
 /* la feuille papier du dossier RH : blanche, à l'encre, quel que soit le thème */
 .pl-panneau.dm-pp-pn{width:min(780px,100%)}
+/* liste et fiche côté à côte, sur PC, dans les demandes et les recyclages */
+.ws-deux-vide{display:none}
+@media (min-width:1100px){
+  html .ws.ws-deux .pl-panneau{position:relative; top:auto; right:auto; bottom:auto; flex:0 0 clamp(460px,48%,780px); width:auto; box-shadow:none; border-left:1px solid var(--line); z-index:1}
+  html .ws.ws-deux .pl-panneau[hidden]{display:none}
+  html .ws.ws-deux .pl-panneau[hidden]+.ws-deux-vide{display:flex; flex:0 0 clamp(460px,48%,780px); flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:24px; text-align:center; border-left:1px solid var(--line); color:var(--muted); font-size:13px}
+  html .ws.ws-deux .ws-deux-vide b{color:var(--ink,inherit); font-size:14px}
+  html .ws.ws-deux .ws-deux-vide span{max-width:280px; line-height:1.45}
+  html .ws.ws-deux .dm-carte.dm-sel{border-color:var(--in); box-shadow:0 0 0 1px var(--in), 0 0 0 5px color-mix(in srgb,var(--in) 18%,transparent)}
+}
 @media (max-width:699px){ .ws .pl-panneau.dm-pp-pn{top:0; max-height:none; border-radius:0} }
 .dm-pp-fond{background:var(--surface2)}
 .dm-pp-choix{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px}
@@ -6493,11 +6506,14 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
     </section>
     <section class="ws-s" data-s="demandes" id="wsDem" hidden></section>
     <section class="ws-s" data-s="recyclages" id="wsRec" hidden></section>
+    <section class="ws-s" data-s="valider" id="wsVal" hidden></section>
+    <section class="ws-s" data-s="valider-rc" id="wsValRc" hidden></section>
     <section class="ws-s" data-s="personnel" id="wsPers" hidden></section>
     <section class="ws-s" data-s="absences" id="wsAbs" hidden></section>
     <section class="ws-s" data-s="historique" id="wsHisto" hidden></section>
   </main>
   <aside class="pl-panneau" id="grPanneau" aria-label="Détail" hidden></aside>
+  <div class="ws-deux-vide" aria-hidden="true"><b>Aucune fiche ouverte</b><span>Touchez une demande de la liste : elle s'ouvre ici, la liste reste visible.</span></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <!-- GUIDE D'INSTALLATION, à la manière de Pino (le client, le 17/10/2026) :
@@ -14640,13 +14656,16 @@ window.addEventListener("popstate",function(){
 function grFermerPanneau(parRetour){
   var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
   document.body.classList.remove("pn-ouvert");
-  [].forEach.call(document.querySelectorAll("#grZone .pl-sel"),function(x){ x.classList.remove("pl-sel"); });
+  [].forEach.call(document.querySelectorAll("#grZone .pl-sel,#grille .dm-carte.dm-sel"),function(x){ x.classList.remove("pl-sel","dm-sel"); });
   if(ouvert&&parRetour!==true) navRetirer("p");
 }
 function grOuvrirPanneau(html){
   var p=document.getElementById("grPanneau"); if(p.hidden) navPousser("p");
   p.className="pl-panneau"; p.innerHTML=html; p.hidden=false;
   document.body.classList.add("pn-ouvert");
+  /* liste et fiche côte à côte : la carte dont la fiche est ouverte se marque */
+  [].forEach.call(document.querySelectorAll("#grille .dm-carte.dm-sel"),function(x){ x.classList.remove("dm-sel"); });
+  if(GR.carteTouchee&&document.body.contains(GR.carteTouchee)) GR.carteTouchee.classList.add("dm-sel");
   [].forEach.call(p.querySelectorAll(".pn-x,.pn-retour"),function(x){ x.onclick=function(){ grFermerPanneau(); }; });
   return p;
 }
@@ -14775,32 +14794,48 @@ var WS_SECTIONS=[
      on peut choisir l'un ou l'autre ») : « Demandes » au menu ; en tête de
      la section, un sélecteur Congé · Recyclage (dmBasculeHTML). La section
      « recyclages » reste, sans entrée de menu (sous:1). */
-  {s:"demandes",t:"Demandes",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
+  {s:"demandes",t:"Mes demandes",i:'<path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'},
   {s:"recyclages",t:"Recyclages",sous:1,i:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>'},
+  /* DEUX MODULES (le client, le 22/10/2026 : « il faut bien faire une
+     différence entre le module de demande et de suivi des opérateurs, et
+     le module de réception et confirmation du contremaître et RH ») :
+     « Mes demandes » (les siennes : faire, suivre, signer comme remplaçant)
+     et « À valider » (celles des autres, que l'on vise ou confirme), chacun
+     avec son sélecteur Congé · Recyclage. « À valider » n'apparaît qu'aux
+     contremaîtres et à la RH, ou à qui a une fiche à confirmer. */
+  {s:"valider",t:"À valider",val:1,i:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
+  {s:"valider-rc",t:"À valider",sous:1,val:1,i:'<path d="M9 11l3 3 8-8"/>'},
   {s:"personnel",t:"Personnel",rh:1,i:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>'},
   {s:"absences",t:"Absences et congés",rh:1,i:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'},
   {s:"historique",t:"Historique",rh:1,i:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'}];
 GR.section=lsGet("ui/wsSection")||"tdb";
 GR.horizon=7;
 function wsIcone(i){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+i+'</svg>'; }
-function wsSections(){ var rh=peutSaisir(); return WS_SECTIONS.filter(function(x){ return rh||!x.rh; }); }
+function wsSections(){ var rh=peutSaisir(), va=rh||wsNbValider()>0; return WS_SECTIONS.filter(function(x){ return (rh||!x.rh)&&(va||!x.val); }); }
 /* les entrées des menus : sans les sous-sections */
 function wsMenuSections(){ return wsSections().filter(function(x){ return !x.sous; }); }
-function wsActif(x,s){ return x.s===s||(x.s==="demandes"&&s==="recyclages"); }
-/* le nombre à traiter de « Demandes » : congés et fiches de recyclage */
-function wsNbDemandes(){ return (GR.demandes||[]).filter(dmATraiter).length+(GR.recyclages||[]).filter(rcATraiter).length; }
+function wsActif(x,s){ return x.s===s||(x.s==="demandes"&&s==="recyclages")||(x.s==="valider"&&s==="valider-rc"); }
+/* ce qui attend un geste : dans « Mes demandes », un remplacement à signer ;
+   dans « À valider », une demande à viser ou une fiche à confirmer */
+function wsNbDemandes(){ return (GR.demandes||[]).filter(dmAccordAttendu).length; }
+function wsNbValider(){ return (GR.demandes||[]).filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); }).length+(GR.recyclages||[]).filter(function(x){ return rcATraiter(x)&&!x.a_moi; }).length; }
+function dmModeVal(){ return GR.section==="valider"||GR.section==="valider-rc"; }
 /* le sélecteur en tête de la section : Congé · Recyclage, chacun avec ce
    qu'il a à traiter */
 function dmBasculeHTML(actif){
-  var nd=(GR.demandes||[]).filter(dmATraiter).length, nr=(GR.recyclages||[]).filter(rcATraiter).length;
+  var val=actif==="valider"||actif==="valider-rc";
+  var nd=val?(GR.demandes||[]).filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); }).length:(GR.demandes||[]).filter(dmAccordAttendu).length,
+      nr=val?(GR.recyclages||[]).filter(function(x){ return rcATraiter(x)&&!x.a_moi; }).length:0;
   return '<div class="dm-bascule" role="tablist" aria-label="Type de demande">'
-    +[["demandes","Congé",nd],["recyclages","Recyclage",nr]].map(function(o){
+    +[[val?"valider":"demandes","Congé",nd],[val?"valider-rc":"recyclages","Recyclage",nr]].map(function(o){
       return '<button type="button" role="tab" data-bascule="'+o[0]+'" aria-selected="'+(actif===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>';
 }
 /* LE SÉLECTEUR TOUT EN HAUT (le client, le 22/10/2026 : « le sélecteur
    doit être au-dessus des demandes ») : il prend la barre de titre de la
    section, à la place de « Demandes », que le menu dit déjà. */
 function dmTete(actif){ return '<header class="ws-tete dm-tete">'+dmBasculeHTML(actif)+'</header>'; }
+/* le nom du module, en tête de l'intro : on sait toujours où l'on est */
+function dmModule(val){ return '<b class="dm-mod'+(val?' val':'')+'">'+(val?'Réception et validation':'Mes demandes')+'</b> '; }
 /* sous le sélecteur, ce que fait le type choisi, et son bouton */
 function dmIntro(sous,act){ return '<div class="dm-intro"><p>'+sous+'</p>'+(act||'')+'</div>'; }
 document.addEventListener("click",function(e){
@@ -14808,11 +14843,20 @@ document.addEventListener("click",function(e){
   var s=b.getAttribute("data-bascule"); if(s!==GR.section) wsAller(s);
 });
 function wsDb(){ var a=jourUsine().getFullYear(); return (HORAIRES&&(HORAIRES[a]||HORAIRES[st.y]))||HORAIRE_DB; }
+function wsMenuMaj(){
+  var s=GR.section;
+  document.getElementById("wsMenu").innerHTML=wsMenuSections().map(function(x){
+    return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(wsActif(x,s)?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
+}
 function wsAller(s){
   var l=wsSections(); if(!l.some(function(x){ return x.s===s; })) s=l[0].s;
   GR.section=s; lsSet("ui/wsSection",s); grFermerPanneau();
-  document.getElementById("wsMenu").innerHTML=wsMenuSections().map(function(x){
-    return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(wsActif(x,s)?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
+  /* SUR PC, LISTE ET FICHE CÔTE À CÔTE (22/10/2026, le client : « la partie
+     de droite se divise en 2 parties pour les demandes de congé et les
+     recyclages, afin de mieux voir et suivre les fiches ») */
+  var gw=document.getElementById("grille"); if(gw){ gw.classList.toggle("ws-deux",/^(demandes|recyclages|valider|valider-rc)$/.test(s));
+    if(!gw.dataset.carte){ gw.dataset.carte="1"; gw.addEventListener("click",function(e){ GR.carteTouchee=e.target.closest(".dm-carte"); },true); } }
+  wsMenuMaj();
   wsBadge();
   try{ sideMaj(); }catch(e){}
   [].forEach.call(document.querySelectorAll("#grille .ws-s"),function(el){ el.hidden=el.getAttribute("data-s")!==s; });
@@ -14825,6 +14869,8 @@ function wsAller(s){
   else if(s==="historique") renderHisto();
   else if(s==="demandes"){ GR.demandes=null; renderDemandes(); }
   else if(s==="recyclages"){ GR.recyclages=null; renderRecyclages(); }
+  else if(s==="valider"){ GR.demandes=null; renderDemandes(); }
+  else if(s==="valider-rc"){ GR.recyclages=null; renderRecyclages(); }
   var m=document.querySelector("#grille .ws-main"); if(m){ m.scrollTop=0; m.classList.toggle("ws-plein",s==="planning"); }
 }
 function wsTete(t,sous,actions){
@@ -15188,9 +15234,11 @@ function dmATraiter(x){
 function wsBadge(){
   var n=wsNbDemandes(), b=document.querySelector('#wsMenu button[data-s="demandes"]');
   var sn=document.getElementById("sideDemNb"); if(sn){ sn.hidden=!n; sn.textContent=n; }
-  var nr=(GR.recyclages||[]).filter(rcATraiter).length, br=document.querySelector('#wsMenu button[data-s="recyclages"]');
-  var sr=document.getElementById("sideRecNb"); if(sr){ sr.hidden=!nr; sr.textContent=nr; }
-  [[b,n]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
+  var nv=wsNbValider(), bv=document.querySelector('#wsMenu button[data-s="valider"]');
+  var sv=document.getElementById("sideValNb"); if(sv){ sv.hidden=!nv; sv.textContent=nv; }
+  /* « À valider » apparaît dès qu'une fiche attend une confirmation */
+  if(nv&&!bv){ wsMenuMaj(); bv=document.querySelector('#wsMenu button[data-s="valider"]'); b=document.querySelector('#wsMenu button[data-s="demandes"]'); try{ sideMaj(); }catch(e){} }
+  [[b,n],[bv,nv]].forEach(function(z){ if(!z[0]) return; var i=z[0].querySelector(".ws-pastille"); if(i) i.remove();
     if(z[1]){ var s=document.createElement("span"); s.className="ws-pastille"; s.textContent=z[1]; z[0].appendChild(s); } });
   try{ renderMesDemandes.rc&&renderMesDemandes.rc(); }catch(e){}
   try{ renderCentre(); }catch(e){}
@@ -15218,9 +15266,12 @@ function dmStatut(x){
   if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
   if(x.statut==="annulee") return '<span class="dm-st">'+(dmRemplacee(x)?'Modifiée':'Annulée')+'</span>';
-  /* le remplaçant n'a pas encore signé : la RH ne la reçoit qu'ensuite (22/10/2026) */
-  if(x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.rp&&!(x.accords&&x.accords[l.rp]); })) return '<span class="dm-st dm-att">Attend le remplaçant</span>';
-  return '<span class="dm-st dm-att">En attente</span>';
+  /* CHEZ QUI ELLE EST (22/10/2026, « optimiser l'affichage et les
+     statuts ») : le remplaçant d'abord ; ensuite le contremaître et la
+     RH, dans n'importe quel ordre — on nomme ceux qui n'ont pas encore visé */
+  if(x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.rp&&!(x.accords&&x.accords[l.rp]); })) return '<span class="dm-st dm-att">Chez le remplaçant</span>';
+  var cmA=!!x.attend_cm&&!x.cm, rhA=!x.rh;
+  return '<span class="dm-st dm-att">'+(cmA&&rhA?'Chez le contremaître et la RH':cmA?'Chez le contremaître':rhA?'Chez la RH':'En attente')+'</span>';
 }
 function dmEtapes(x){
   var e=[], rps={};
@@ -15275,33 +15326,50 @@ function dmCarte(x,valideur){
     +(x.statut==='annulee'?'':dmEtapes(x))+act+'</article>';
 }
 function renderDemandes(){
-  var hote=document.getElementById("wsDem"), val=peutSaisir();
-  if(!GR.onglet) GR.onglet=val?"traiter":"miennes";
-  var l=GR.demandes;
-  var h=[dmTete("demandes"),dmIntro("Le remplaçant signe, puis le contremaître et la RH visent. Acceptée, la demande se pose sur le planning.",
-    '<button type="button" class="btn ss-ok" id="dmNouvelle">+ Nouvelle demande</button>')];
+  /* deux modules (22/10/2026) : « Mes demandes » (les siennes, et les
+     remplacements à signer) et « À valider » (celles des autres, que le
+     contremaître ou la RH vise) */
+  var val=GR.section==="valider", hote=document.getElementById(val?"wsVal":"wsDem"), l=GR.demandes;
+  var h=[dmTete(val?"valider":"demandes"),val
+    ?dmIntro(dmModule(true)+"Les demandes qui vous arrivent : le remplaçant signe d'abord, puis le contremaître et la RH visent. Acceptée, la demande se pose sur le planning.","")
+    :dmIntro(dmModule(false)+"Votre remplaçant signe, puis le contremaître et la RH visent. Vous suivez chaque étape ici.",
+      '<button type="button" class="btn ss-ok" data-dm-nouvelle="1">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
-  var rempl=l.filter(function(x){ return x.je_remplace; });
-  /* venu d'une notification : l'onglet de ce qu'il y a à faire */
-  if(GR.ongletAuto){ GR.ongletAuto=false; if(val) GR.onglet="traiter"; else if(rempl.some(dmAccordAttendu)) GR.onglet="remplace"; }
-  var onglets=val?[["traiter","À traiter",l.filter(dmATraiter).length],["attente","En attente",l.filter(function(x){ return x.statut==="en_attente"; }).length],["toutes","Toutes",0],["miennes","Les miennes",l.filter(function(x){ return x.a_moi; }).length]]
-    :[["miennes","En cours",l.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length],["histo","Historique",0]].concat(rempl.length?[["remplace","Je remplace",rempl.filter(dmAccordAttendu).length]]:[]);
-  if(onglets.length>1) h.push('<div class="pl-seg dm-onglets" id="dmOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.onglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
-  /* l'opérateur : « En cours » (ses demandes en attente) et « Historique »
-     (acceptées, refusées, annulées, modifiées), les plus récentes d'abord */
-  var miennesEnCours=!val&&GR.onglet==="miennes";
-  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi&&(val||x.statut==="en_attente"):GR.onglet==="histo"?x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x):GR.onglet==="remplace"?x.je_remplace:true; });
-  if(GR.onglet==="histo") f=f.slice().sort(function(a,b){ return String(b.cree_le||"").localeCompare(String(a.cree_le||"")); });
-  h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val&&!x.a_moi); }).join("")+'</div>'
-    :'<div class="ws-carte"><p class="ws-vide">'+(GR.onglet==="traiter"?'Rien à traiter : toutes les demandes ont reçu votre réponse.':GR.onglet==="miennes"?(miennesEnCours?'Aucune demande en cours. « Nouvelle demande » pour poser un congé ; les demandes traitées sont dans l\'historique.':'Aucune demande pour l\'instant. « Nouvelle demande » pour poser un congé.'):GR.onglet==="histo"?'Aucune demande traitée pour l\'instant.':'Aucune demande.')+'</p></div>');
+  var rempl=l.filter(function(x){ return x.je_remplace; }),
+      aViser=l.filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); });
+  /* venu d'une notification : ce qu'il y a à faire, dans le bon module */
+  if(GR.ongletAuto){
+    if(!val&&aViser.length&&!rempl.some(dmAccordAttendu)){ GR.ongletAuto=false; GR.ongletV="traiter"; wsAller("valider"); return; }
+    GR.ongletAuto=false;
+    if(val) GR.ongletV="traiter"; else if(rempl.some(dmAccordAttendu)) GR.onglet="remplace";
+  }
+  var cle=val?"ongletV":"onglet", onglets;
+  if(val) onglets=[["traiter","À traiter",aViser.length],
+    ["attente","En cours",l.filter(function(x){ return !x.a_moi&&x.statut==="en_attente"&&!dmATraiter(x)&&!x.je_remplace; }).length],
+    ["faites","Traitées",0]];
+  else onglets=[["miennes","En cours",l.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length],["histo","Historique",0]]
+    .concat(rempl.length?[["remplace","Je remplace",rempl.filter(dmAccordAttendu).length]]:[]);
+  if(!GR[cle]||!onglets.some(function(o){ return o[0]===GR[cle]; })) GR[cle]=val?(aViser.length?"traiter":"attente"):"miennes";
+  h.push('<div class="pl-seg dm-onglets" data-dm-onglets="1">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR[cle]===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
+  var o=GR[cle], f=l.filter(function(x){
+    if(val) return !x.a_moi&&!x.je_remplace&&(o==="traiter"?dmATraiter(x):o==="attente"?x.statut==="en_attente"&&!dmATraiter(x):(x.statut==="acceptee"||x.statut==="refusee"));
+    return o==="miennes"?x.a_moi&&x.statut==="en_attente":o==="histo"?x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x):x.je_remplace; });
+  if(o==="histo"||o==="faites") f=f.slice().sort(function(a,b){ return String(b.cree_le||"").localeCompare(String(a.cree_le||"")); });
+  h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val); }).join("")+'</div>'
+    :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à viser : toutes les demandes ont reçu votre réponse.':o==="attente"?'Aucune demande en route chez quelqu\'un d\'autre.':o==="faites"?'Aucune demande traitée pour l\'instant.':o==="miennes"?'Aucune demande en cours. « Nouvelle demande » pour poser un congé ; les demandes traitées sont dans l\'historique.':o==="histo"?'Aucune demande traitée pour l\'instant.':'Aucun remplacement à signer.')+'</p></div>');
   hote.innerHTML=h.join("");
   dmBrancher();
   if(GR.dmForm){ var pf=GR.dmForm; GR.dmForm=null; dmFormulaire(pf); }
 }
 function dmBrancher(){
-  var b=document.getElementById("dmNouvelle"); if(b) b.onclick=function(){ dmFormulaire({}); };
-  var o=document.getElementById("dmOnglets");
-  if(o) o.onclick=function(e){ var x=e.target.closest("button[data-o]"); if(!x) return; GR.onglet=x.getAttribute("data-o"); renderDemandes(); };
+  ["wsDem","wsVal"].forEach(function(id){
+    var hote=document.getElementById(id); if(!hote||hote.__dm) return; hote.__dm=1;
+    hote.addEventListener("click",function(e){
+      if(e.target.closest("[data-dm-nouvelle]")){ dmFormulaire({}); return; }
+      var og=e.target.closest("[data-dm-onglets] button[data-o]");
+      if(og){ GR[id==="wsVal"?"ongletV":"onglet"]=og.getAttribute("data-o"); renderDemandes(); }
+    });
+  });
 }
 /* LA FEUILLE PAPIER, À L'ÉCRAN (le client, le 21/10/2026 : « que la demande
    de congé ressemble plus à celle qui existe actuellement ; il ne faut pas
@@ -16232,9 +16300,9 @@ document.addEventListener("click",function(e){
   else if(k==="ag") abonnerAgenda();
   else if(k==="notif") ouvrirNotif();
   else if(k==="signer"){ GR.onglet="remplace"; ouvrirGrille("demandes"); }
-  else if(k==="viser"){ GR.onglet="traiter"; ouvrirGrille("demandes"); }
+  else if(k==="viser"){ GR.ongletV="traiter"; ouvrirGrille("valider"); }
   else if(k==="dem"){ GR.onglet="miennes"; ouvrirGrille("demandes"); }
-  else if(k==="rcfaire"){ GR.rcOnglet="traiter"; ouvrirGrille("recyclages"); }
+  else if(k==="rcfaire"){ GR.rcOngletV="traiter"; ouvrirGrille("valider-rc"); }
   else if(k==="rcmoi"){ GR.rcOnglet="miennes"; ouvrirGrille("recyclages"); }
 });
 /* MES DEMANDES : celles en cours, avec leurs étapes ; sinon un bouton */
@@ -16286,8 +16354,8 @@ function rcStatut(x){
   if(x.statut==="validee") return '<span class="dm-st dm-ok">Enregistrée</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
   if(x.statut==="annulee") return '<span class="dm-st">Supprimée</span>';
-  if(x.statut==="en_attente") return '<span class="dm-st dm-att">Attend le contremaître</span>';
-  return '<span class="dm-st dm-att">'+(x.doublure&&!x.zone_le?'Attend le resp. de zone':'Attend la RH')+'</span>';
+  if(x.statut==="en_attente") return '<span class="dm-st dm-att">Chez le contremaître</span>';
+  return '<span class="dm-st dm-att">'+(x.doublure&&!x.zone_le?'Chez le resp. de zone':'Chez la RH')+'</span>';
 }
 function rcEtapes(x){
   var et=[[!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),'Contremaître'+(x.cm_qui||x.cm?' · '+idLisible(x.cm_qui||x.cm):'')]];
@@ -16317,36 +16385,51 @@ function rcCarte(x){
     +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
 }
 function renderRecyclages(){
-  var hote=document.getElementById("wsRec"), val=peutSaisir(), l=GR.recyclages;
-  var h=[dmTete("recyclages"),dmIntro("Le contremaître de la pause confirme (le responsable de zone en doublure), puis la RH enregistre.",
-    '<button type="button" class="btn ss-ok" id="rcNouvelle">+ Nouvelle fiche</button>')];
+  /* deux modules (22/10/2026) : « Mes demandes » (ses fiches, à suivre) et
+     « À valider » (celles des autres, à confirmer, contresigner, valider) */
+  var val=GR.section==="valider-rc", hote=document.getElementById(val?"wsValRc":"wsRec"), l=GR.recyclages;
+  var h=[dmTete(val?"valider-rc":"recyclages"),val
+    ?dmIntro(dmModule(true)+"Les fiches qui vous arrivent : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH enregistre.","")
+    :dmIntro(dmModule(false)+"Après une pause complète sur un autre poste : la fiche part chez le contremaître de la pause, puis à la RH.",
+      '<button type="button" class="btn ss-ok" data-rc-nouvelle="1">+ Nouvelle fiche</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Fiches indisponibles (pas de connexion).</p>'; rcBrancher(); }); return; }
   l=l.filter(function(x){ return x.statut!=="annulee"; });
-  var afaire=l.filter(rcATraiter).length;
-  if(!GR.rcOnglet||GR.ongletAutoRc){ GR.ongletAutoRc=false; GR.rcOnglet=afaire?"traiter":"miennes"; }
-  var onglets=[["traiter","À traiter",afaire],["miennes","Mes fiches",l.filter(function(x){ return x.a_moi&&rcEnCours(x); }).length]]
-    .concat(val?[["toutes","Toutes",0]]:[["histo","Historique",0]]);
-  if(!afaire&&!val) onglets.shift();
-  /* la dernière fiche traitée : on la retrouve dans l'historique (ou « Toutes ») */
-  if(!onglets.some(function(o){ return o[0]===GR.rcOnglet; })) GR.rcOnglet=GR.rcOnglet==="traiter"?onglets[onglets.length-1][0]:onglets[0][0];
-  h.push('<div class="pl-seg dm-onglets" id="rcOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.rcOnglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
-  var o=GR.rcOnglet, f=l.filter(function(x){ return o==="traiter"?rcATraiter(x):o==="miennes"?x.a_moi&&(rcEnCours(x)||val):o==="histo"?(x.a_moi?!rcEnCours(x):!rcATraiter(x)):true; });
+  var autres=l.filter(function(x){ return !x.a_moi; }), miennes=l.filter(function(x){ return x.a_moi; });
+  var afaire=autres.filter(rcATraiter).length;
+  /* venu d'une notification : une fiche à confirmer mène à « À valider » */
+  if(!val&&GR.ongletAutoRc&&afaire){ GR.ongletAutoRc=false; GR.rcOngletV="traiter"; wsAller("valider-rc"); return; }
+  var onglets, cle=val?"rcOngletV":"rcOnglet";
+  if(val){
+    onglets=[["traiter","À traiter",afaire],["cours","En cours",autres.filter(function(x){ return rcEnCours(x)&&!rcATraiter(x); }).length],["faites","Traitées",0]];
+    if(!GR[cle]||GR.ongletAutoRc){ GR.ongletAutoRc=false; GR[cle]=afaire?"traiter":"cours"; }
+  } else {
+    onglets=[["miennes","En cours",miennes.filter(rcEnCours).length],["histo","Historique",0]];
+    if(!GR[cle]||GR.ongletAutoRc){ GR.ongletAutoRc=false; GR[cle]="miennes"; }
+  }
+  if(!onglets.some(function(o){ return o[0]===GR[cle]; })) GR[cle]=onglets[0][0];
+  h.push('<div class="pl-seg dm-onglets" data-rc-onglets="1">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR[cle]===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
+  var o=GR[cle], f=val
+    ?autres.filter(function(x){ return o==="traiter"?rcATraiter(x):o==="cours"?rcEnCours(x)&&!rcATraiter(x):!rcEnCours(x); })
+    :miennes.filter(function(x){ return o==="miennes"?rcEnCours(x):!rcEnCours(x); });
+  if(o==="faites"||o==="histo") f=f.slice().sort(function(a,b){ return String(b.jour||"").localeCompare(String(a.jour||"")); });
   h.push(f.length?'<div class="dm-liste">'+f.map(rcCarte).join("")+'</div>'
-    :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à traiter.':o==="miennes"?'Aucune fiche en cours. « Nouvelle fiche » après une pause complète passée sur un autre poste.':o==="histo"?'Aucune fiche traitée pour l\'instant.':'Aucune fiche.')+'</p></div>');
+    :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à confirmer : toutes les fiches ont reçu votre réponse.':o==="cours"?'Aucune fiche en route chez quelqu\'un d\'autre.':o==="faites"?'Aucune fiche traitée pour l\'instant.':o==="miennes"?'Aucune fiche en cours. « Nouvelle fiche » après une pause complète passée sur un autre poste.':'Aucune fiche traitée pour l\'instant.')+'</p></div>');
   hote.innerHTML=h.join("");
   rcBrancher();
   if(GR.rcForm){ GR.rcForm=false; rcFeuille(null); }
 }
 function rcBrancher(){
-  var b=document.getElementById("rcNouvelle"); if(b) b.onclick=function(){ rcFeuille(null); };
-  var o=document.getElementById("rcOnglets");
-  if(o) o.onclick=function(e){ var x=e.target.closest("button[data-o]"); if(!x) return; GR.rcOnglet=x.getAttribute("data-o"); renderRecyclages(); };
-  var hote=document.getElementById("wsRec");
-  if(hote&&!hote.__rc){ hote.__rc=1; hote.addEventListener("click",function(e){
-    var v=e.target.closest("[data-rc-voir]"), s=e.target.closest("[data-rc-suppr]");
-    if(v) rcFeuille(rcTrouve(v.getAttribute("data-rc-voir")));
-    else if(s) rcSupprimer(s.getAttribute("data-rc-suppr"),s);
-  }); }
+  ["wsRec","wsValRc"].forEach(function(id){
+    var hote=document.getElementById(id); if(!hote||hote.__rc) return; hote.__rc=1;
+    hote.addEventListener("click",function(e){
+      var n=e.target.closest("[data-rc-nouvelle]"); if(n){ rcFeuille(null); return; }
+      var og=e.target.closest("[data-rc-onglets] button[data-o]");
+      if(og){ GR[id==="wsValRc"?"rcOngletV":"rcOnglet"]=og.getAttribute("data-o"); renderRecyclages(); return; }
+      var v=e.target.closest("[data-rc-voir]"), s=e.target.closest("[data-rc-suppr]");
+      if(v) rcFeuille(rcTrouve(v.getAttribute("data-rc-voir")));
+      else if(s) rcSupprimer(s.getAttribute("data-rc-suppr"),s);
+    });
+  });
 }
 function rcTrouve(id){ return (GR.recyclages||[]).filter(function(x){ return String(x.id)===String(id); })[0]||null; }
 function rcRelire(id){ return rcCharger().then(function(){ renderRecyclages(); if(id) rcFeuille(rcTrouve(id)); }); }
@@ -23408,9 +23491,10 @@ function sideMaj(){
   g.innerHTML=l.length?'<p class="side-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'
     +(estRH&&dir?'<button type="button" data-go="direction"'+(!ouvert&&st.view==="direction"?' aria-current="page"':'')+'>'+dir.querySelector("svg").outerHTML+'<span>Direction</span></button>':'')
     +l.map(function(x){
-    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&wsActif(x,GR.section)?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':x.s==="recyclages"?'<span class="side-nb" id="sideRecNb" hidden></span>':'')+'</button>'; }).join(""):'';
+    return '<button type="button" data-side-ws="'+x.s+'"'+(ouvert&&wsActif(x,GR.section)?' aria-current="page"':'')+'>'+wsIcone(x.i).replace('width="18" height="18"','width="20" height="20"')+'<span>'+esc(x.s==="planning"?"Horaire production":x.t)+'</span>'+(x.s==="demandes"?'<span class="side-nb" id="sideDemNb" hidden></span>':x.s==="valider"?'<span class="side-nb" id="sideValNb" hidden></span>':'')+'</button>'; }).join(""):'';
   document.body.classList.toggle("ws-ouvert",ouvert);
   var n=wsNbDemandes(), nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
+  var nv=wsNbValider(), nbv=document.getElementById("sideValNb"); if(nbv){ nbv.hidden=!nv; nbv.textContent=nv; }
   var nr=(GR.recyclages||[]).filter(rcATraiter).length, nbr=document.getElementById("sideRecNb"); if(nbr){ nbr.hidden=!nr; nbr.textContent=nr; }
 }
 (function(){
@@ -23445,7 +23529,7 @@ function sideMaj(){
       +(document.documentElement.getAttribute("data-rh")==="1"?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
     var l=compteBase()?wsMenuSections():[];
     if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
-      var dn=x.s==="demandes"?wsNbDemandes():0;
+      var dn=x.s==="demandes"?wsNbDemandes():x.s==="valider"?wsNbValider():0;
       return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb">'+dn+'</span>':'');
     }).join("");
     f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
