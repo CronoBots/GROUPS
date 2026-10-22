@@ -2260,8 +2260,8 @@ conditions sont dans `docs/conversion-horaire.md`, « Remplacé à son tour ».
 n'est placé nulle part alors que son commentaire indique bien “remplace
 YRS” pour aller en meunerie ? ». `atelierDuRemplace()` lisait
 « remp\w* » : en JavaScript, `\w` ne connaît pas le « ç », et
-« remplaçait » s'arrêtait à « rempla ». On ne lisait que YBT (adjoint absent),
-lui qu'on lisait : JBI restait en ligne Adjoint, la meunerie en « ? ». Le motif prend
+« remplaçait » s'arrêtait à « rempla ». On ne lisait que YBT (adjoint absent) :
+JBI restait en ligne Adjoint, la meunerie en « ? ». Le motif prend
 désormais les lettres accentuées.
 
 Mesuré, avant et après :
