@@ -2529,3 +2529,13 @@ l'absent ».
 - La bulle du « ? » montre ce que dit la case de l'absent quand
   l'application n'a pas pu placer le remplaçant (LAX le 22/01 :
   « remplacé par KDN et FLN »).
+
+### La bulle du « ? » : les mentions de couleur à droite, de même taille (22/10/2026, `nfdm-v947`)
+
+Le client : « uniformiser la taille des explications de couleur
+(formation, proposé, surnombre) ainsi que l'alignement à droite (comme
+pour proposé et surnombre) ». « en formation » était écrit dans le
+texte du poste, à 12 px ; il devient une mention `em` comme les deux
+autres : 11 px, gras 600, alignée à droite, en jaune. Si un candidat
+est à la fois en formation et proposé, les deux mentions se suivent.
+Vérifié au navigateur le 28/10 PM.
