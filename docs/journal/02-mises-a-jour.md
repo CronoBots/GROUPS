@@ -1435,6 +1435,12 @@ acceptée ; la file revient à zéro. Au navigateur : le remplaçant arrive
 sur « Je remplace » avec « Ouvrir la feuille pour signer », la RH n'a rien
 « À traiter » et lit « Attend le remplaçant ».
 
+La chaîne réelle, après la poussée : `biowanze.lancer_notifs()` → GitHub
+répond 204 → l'action « Notifications des demandes » part dans la seconde
+(run n° 1, 00:11:35), lit la file avec les secrets et écrit « Demandes :
+aucune notification en attente. » — succès en 15 s. Seul l'envoi à un vrai
+téléphone reste à voir, à la première vraie demande avec remplaçant.
+
 **Erreur commise** : les deux premiers envois de la migration contenaient
 un `drop trigger if exists` ; le connecteur Supabase demande une
 confirmation pour toute suppression, la demande restait sans réponse et
