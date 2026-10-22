@@ -3554,3 +3554,16 @@ modification ? »
 - Vérifié : 320 et 1280 px, aucune erreur ni débordement, la feuille
   s'ouvre depuis l'Accueil ; vérificateur, quatre sorties identiques ;
   hors ligne.
+
+### Une seule date par demande, et l'heure de chaque signature sur la feuille (23/10/2026, v997)
+
+Le client : « toujours 2 dates pour la demande et pas d'heure de
+signature ». La carte disait « Je 22 oct. 2026 » sous une tuile qui dit
+déjà 22 oct. : le résumé de l'Accueil (`mdQuoi`, partagé) remplace la
+période sur les cartes de « Mes demandes » et de « À valider » — pause
+prévue, heures, remplaçant ; « jusqu'au … » seulement si la période
+dépasse un jour. La ligne « 1 jour · 8 h » ne reste que pour qui valide
+(elle y porte les compteurs restants). Sur la feuille, chaque signature
+dit son heure (`dmSigLe` : « le 23/10/2026 à 0 h 49 ») : demandeur,
+remplaçant, contremaître, RH, et la fiche de recyclage ; le champ
+« Date: » du formulaire papier garde la date seule.
