@@ -3381,3 +3381,24 @@ Au navigateur : 4+4, horaire caché et note visible ; 4+2, horaire
 visible, envoyé avec « quitte à 18:00 » ; VA, plus de lien, envoyé sans
 précision. Aucune erreur. Les quatre sorties du vérificateur sont
 identiques à l'octet.
+
+### Le week-end libre et le prochain congé retirés (22/10/2026, v987)
+
+Le client : « on peut supprimer prochain week-end libre et prochain
+congé ». Le cadre gris sous le prochain poste est retiré, avec tout ce qui
+ne servait qu'à lui :
+
+- `prochainConge` et `RX_CONGE_PROCHAIN` ;
+- `weekendLibreApres` et `dateLigneHeros` ;
+- le calcul du week-end dans `_pfInfos` ;
+- les styles `.pf-wes`, `.pf-we` et `.pf-bloc-we`.
+
+« Ma semaine » et « Mes congés », juste dessous, montrent déjà les jours de
+congé à venir.
+
+Au passage, le compte à rebours écrit ses minutes sur deux chiffres :
+« dans 2 h 05 », et non « dans 2 h 5 », vu sur la capture de contrôle.
+
+Aucune erreur, aucun débordement à 320, 390 et 1280 px. Toucher « Accueil »
+sur l'Accueil ne change toujours rien. Les quatre sorties du vérificateur
+sont identiques à l'octet.

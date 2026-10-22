@@ -4481,19 +4481,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
 .pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:12px 12px 13px}
 @media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
-/* le week-end libre et le prochain congé : deux cases côte à côte sous le
-   prochain poste, chacune son libellé, sa date, son délai (22/10/2026) */
-.pf-wes{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(105,178,203,.2)}
-.pf-bloc:not(:has(.pf-proch)) .pf-wes{border-top:0}
-.pf-bloc-we{background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1)}
-.pf-bloc-we .pf-we+.pf-we{border-left-color:rgba(255,255,255,.1)}
-.pf-we{display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; column-gap:6px; row-gap:3px; padding:10px 12px 11px; min-width:0}
-.pf-we+.pf-we{border-left:1px solid rgba(105,178,203,.2)}
-.pf-we svg{color:var(--marque-vif)}
-.pf-we span{font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.62); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-we b{grid-column:1 / -1; font-size:14px; font-weight:650; line-height:1.25; color:#fff}
-.pf-we small{grid-column:1 / -1; font-size:12px; color:rgba(255,255,255,.62)}
-@media (max-width:380px){ .pf-we{padding:9px 10px 10px} .pf-we span{text-transform:none; letter-spacing:0; font-size:11.5px} .pf-we b{font-size:13.5px} }
 .pf-st2 i{font-style:normal}
 .pf-fo{color:var(--at-jaune)}
 /* Les progressions : un filet entre l'année et chaque cycle, et la semaine
@@ -12564,41 +12551,9 @@ function _pfDateCourte(d){
   var mo=MOIS[d.getMonth()].toLowerCase();
   return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+".\u00a0"+d.getDate()+"\u00a0"+(mo.length>4?mo.slice(0,mo==="juillet"?4:3)+".":mo);
 }
-var RX_CONGE_PROCHAIN=/^(1\/2\s*)?(VA|RTT|RJF|DTT|RHS|CP|CPAR)$/i;
-function prochainConge(p){
-  var ja=jourPerso(p), i, d, x, deb=null, fin=null, n=0, codes=[];
-  for(i=1;i<=120;i++){
-    d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
-    try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
-    if(!deb){ if(x && !x.presente && RX_CONGE_PROCHAIN.test(String(x.ab||"").trim())) deb=d; else continue; }
-    if(!x || x.presente) break;
-    var ab=String(x.ab||"").trim();
-    if(RX_CONGE_PROCHAIN.test(ab)){
-      n+=/^1\/2/.test(ab)?0.5:1; fin=d;
-      var c=ab.replace(/^1\/2\s*/,"").toUpperCase(); if(c==="CPAR") c="CP";
-      if(codes.indexOf(c)<0) codes.push(c);
-    }
-  }
-  return deb?{d:deb, fin:fin, n:n, codes:codes}:null;
-}
-/* le premier samedi après d dont le samedi et le dimanche sont sans
-   prestation, dans les 75 jours (la lecture de _pfInfos) */
-/* « Vendredi 13 novembre », abrégé en « ven. 13 nov. » sous 360 px, où
-   « Prochain congé » et la date ne tenaient plus sur une ligne (JBS,
-   20/10/2026) */
-function dateLigneHeros(d){
-  if(window.innerWidth<360) return ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][d.getDay()]+" "+d.getDate()+" "+MOIS_BREF[d.getMonth()];
-  return JOURS_LONGS[(d.getDay()+6)%7]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase();
-}
-function weekendLibreApres(p,d0){
-  for(var k=1;k<=75;k++){
-    var sam=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+k); if(sam.getDay()!==6) continue;
-    var dim=new Date(sam.getFullYear(),sam.getMonth(),sam.getDate()+1), a, b;
-    try{ a=_pfJour(p.id,sam); b=_pfJour(p.id,dim); }catch(e){ a=b=null; }
-    if(a && b && !a.presente && !b.presente) return sam;
-  }
-  return null;
-}
+/* (Le prochain congé et le prochain week-end libre, leurs fonctions et
+   leur cadre, retirés le 22/10/2026 : le client, « on peut supprimer
+   prochain week-end libre et prochain congé ».) */
 function _pfInfos(p){
   var ju=jourPerso(p), base=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()), out={};
   var d, k, x;
@@ -12626,21 +12581,8 @@ function _pfInfos(p){
       break;
     }
   }
-  /* le prochain week-end libre : samedi et dimanche sans prestation — pas
-     pour qui est malade aujourd'hui, à qui il ne dirait rien */
   var auj=_pfJour(p.id,base);
   out.auj=auj;
-  for(k=0;k<75 && !(auj && auj.ab==="MAL");k++){
-    d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+k);
-    /* le samedi seulement : un dimanche, le week-end est à moitié passé, et
-       « 17 oct. » s'affichait le 18 (le client, 18/10/2026) */
-    if(d.getDay()!==6) continue;
-    var sam=d.getDay()===6?d:new Date(d.getFullYear(),d.getMonth(),d.getDate()-1),
-        dim=new Date(sam.getFullYear(),sam.getMonth(),sam.getDate()+1),
-        a=_pfJour(p.id,sam), b=_pfJour(p.id,dim);
-    if(!a||!b) continue;
-    if(!a.presente && !b.presente){ out.weekend={d:sam, ce:(k===0)}; break; }
-  }
   /* les sept jours qui viennent, aujourd'hui compris */
   out.sem=[];
   for(k=0;k<7;k++){
@@ -12816,7 +12758,7 @@ function _pfHead(db,p){
     if(!pr.enCours){
       var t0=new Date(pr.d.getFullYear(),pr.d.getMonth(),pr.d.getDate()).getTime()+pr.deb*36e5, dm=(t0-Date.now())/6e4;
       rel=dm<60?"dans "+Math.max(1,Math.round(dm))+'\u00a0<span class="unite">min</span>'
-        :dm<24*60?"dans "+Math.floor(dm/60)+'\u00a0<span class="unite">h</span>'+(Math.round(dm%60)?"\u00a0"+Math.round(dm%60):"")
+        :dm<24*60?"dans "+Math.floor(dm/60)+'\u00a0<span class="unite">h</span>'+(Math.floor(dm%60)?"\u00a0"+pad2(Math.floor(dm%60)):"")
         :(pr.kc===1?"Demain":"dans "+pr.kc+'\u00a0<span class="unite">j</span>');
     }
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
@@ -12873,53 +12815,15 @@ function _pfHead(db,p){
     var eqn=String(eq).replace(/^Équipe\s*/i,""), bq=_pfBinomeEquipe(p,eq);
     rg='Équipe '+esc(eqn)+(bq&&bq.tri.length?' · <b>'+esc(bq.tri.join(" · "))+'</b>':'');
   }
-  /* Sans week-end libre à venir (malade jusqu'à la fin de l'horaire), pas de
-     ligne : la lire sans garde faisait planter tout le héros (YBT, 17/10/2026). */
-  var we="", pcg=prochainConge(p);
-  /* UN WEEK-END PRIS DANS LE PROCHAIN CONGÉ NE DIT RIEN (le client, le
-     20/10/2026) : c'est alors le premier week-end libre après la reprise. */
-  if(inf.weekend && pcg && inf.weekend.d>=pcg.d && inf.weekend.d<=pcg.fin){
-    var wa=weekendLibreApres(p,pcg.fin); inf.weekend=wa?{d:wa, ce:false}:null;
-  }
-  /* EN DEUX CASES CÔTE À CÔTE (le client, le 22/10/2026 : « les lignes
-     prochain week-end et congé, présenterais-tu cela autrement ? ») : deux
-     lignes « libellé … date » se lisaient comme un tableau sans délai,
-     quand « Mes pauses », juste dessous, dit « dans 9 j ». Chaque case : le
-     libellé, la date en entier, puis le délai ; le week-end se donne en
-     entier, samedi et dimanche (« 14 – 15 novembre »). */
-  var nj=new Date(), n0=new Date(nj.getFullYear(),nj.getMonth(),nj.getDate());
-  var delai=function(d){ var n=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-n0)/864e5);
-    return n<=0?"aujourd’hui":(n===1?"demain":"dans "+n+" j"); };
-  if(inf.weekend){ var wd=inf.weekend.d, wf=new Date(wd.getFullYear(),wd.getMonth(),wd.getDate()+1);
-    var weT=inf.weekend.ce?"Ce week-end":(wd.getMonth()===wf.getMonth()?wd.getDate()+" – "+wf.getDate()+" "+MOIS[wf.getMonth()].toLowerCase()
-      :wd.getDate()+" "+MOIS[wd.getMonth()].toLowerCase()+" – "+wf.getDate()+" "+MOIS[wf.getMonth()].toLowerCase());
-    we='<div class="pf-we"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><span>Week-end libre</span><b>'+esc(weT)+'</b>'+(inf.weekend.ce?'':'<small>'+esc(delai(wd))+'</small>')+'</div>'; }
-  /* LE PROCHAIN CONGÉ, sous le week-end libre (le client, le 20/10/2026 :
-     « faire un check complet de l'accueil… qu'est-ce qui serait bien
-     d'ajouter »). Le premier jour de congé posé dans les 120 jours qui
-     viennent, et combien de jours de congé avant la reprise : les repos du
-     milieu ne comptent pas, la période s'arrête au premier jour presté. Ni
-     maladie, ni formation, ni crédit-temps (une journée par semaine). */
-  if(pcg){
-    var pcT=JOURS_LONGS[(pcg.d.getDay()+6)%7]+" "+pcg.d.getDate()+" "+MOIS[pcg.d.getMonth()].toLowerCase();
-    we+='<div class="pf-we pf-cg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/><circle cx="12" cy="12" r="3.5"/></svg>'
-      /* sans les codes (le client, le 20/10/2026 : « les types de congé
-         des prochains congés ne sont pas utiles ») */
-      /* « Prochain congé », sans durée (le client, le 20/10/2026) */
-      +'<span>Prochain congé</span><b>'+esc(pcT)+'</b><small>'+esc(delai(pcg.d))+'</small></div>';
-  }
-  if(we) we='<div class="pf-wes">'+we+'</div>';
   /* LE PROCHAIN POSTE ET LE WEEK-END LIBRE DANS UN SEUL BLOC (le client, le
      18/10/2026 : « il y a moyen de faire bien mieux pour le héros, je veux
      du 100 % »). Le week-end flottait seul entre le bloc et « Mon année » :
      il devient la seconde ligne du même cadre, sous un filet. Au bureau, ce
      bloc et l'identité tiennent la colonne de gauche, les progressions celle
      de droite. */
-  /* LE WEEK-END LIBRE ET LE PROCHAIN CONGÉ À PART (le client, le
-     22/10/2026 : « prochain week-end libre et congé doivent être séparés
-     du poste actuel ») : leur propre cadre, neutre, sous celui du poste. */
-  if(h.indexOf('pf-proch')>=0||we) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,function(_,a,b){
-    return (h.indexOf('pf-proch')>=0?'<div class="pf-bloc">'+a+'</div>':a)+(we?'<div class="pf-bloc pf-bloc-we">'+we+'</div>':'')+b; });
+  /* (Le week-end libre et le prochain congé, qui avaient pris leur propre
+     cadre sous celui-ci, sont retirés le 22/10/2026.) */
+  if(h.indexOf('pf-proch')>=0) h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,'<div class="pf-bloc">$1</div>$2');
   /* LES POLYVALENCES D'UN OPÉRATEUR OU D'UN ADJOINT (le client, le
      18/10/2026 : « pour les opérateurs/adjoints, dans le héros, indiquer les
      polyvalences »). Les ateliers acquis, un point à la couleur de leur zone ;
