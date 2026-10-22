@@ -2097,3 +2097,11 @@ demandes de congé ».
   que le système pose sous la barre d'état quand le contenu y défile ; un
   voile opaque (`html::after`, hauteur `env(safe-area-inset-top)`) le
   masque au téléphone.
+
+### Le cadre de l'adresse retiré de la demande de congé (22/10/2026, `nfdm-v930`)
+
+Le client : « supprimer le cadre en haut à droite avec l'adresse sur la
+demande de congé ». Le cadre (`dm-pp-adr`) et ses deux règles CSS sont
+retirés ; le logo reste seul en tête de la feuille, pour les trois
+formulaires. Vérifié à 390 px (`dmvoir.js`) : plus de cadre, 0 erreur ;
+`dmod.js` et `gate2.js` inchangés.
