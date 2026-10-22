@@ -2656,6 +2656,14 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-jp-g button{display:flex; flex-direction:column; align-items:center; gap:1px; min-height:46px; padding:4px 0; border-radius:9px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; cursor:pointer}
 .dm-jp-g button b{font-size:14px} .dm-jp-g button small{font-size:10px; color:var(--muted); min-height:12px}
 .dm-jp-g button:disabled{opacity:.35; cursor:default; background:none}
+.dm-jp-g button.rep{background:none; border-style:dashed} .dm-jp-g button.rep b{color:var(--muted)}
+/* déjà en congé, absent ou demandé : visible, pas choisissable */
+.dm-jp-g button.et-cg:disabled,.dm-jp-g button.et-abs:disabled,.dm-jp-g button.et-att:disabled{opacity:1}
+.dm-jp-g button.et-cg{background:color-mix(in srgb,#2e9e5b 22%,transparent); border-color:color-mix(in srgb,#2e9e5b 55%,transparent)} .dm-jp-g button.et-cg small{color:#7fd6a0; font-weight:700}
+.dm-jp-g button.et-abs{background:color-mix(in srgb,#d0574a 20%,transparent); border-color:color-mix(in srgb,#d0574a 50%,transparent)} .dm-jp-g button.et-abs small{color:#ff9a8c; font-weight:700}
+.dm-jp-g button.et-att{border-color:var(--at-jaune); border-style:dashed} .dm-jp-g button.et-att small{color:var(--at-jaune); font-weight:700}
+.dm-jp-l{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:11px; color:var(--muted)}
+.dm-jp-l i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px}
 .dm-jp-g button.auj{border-color:var(--in)}
 .dm-jp-g button.choisi{background:var(--in); color:#fff} .dm-jp-g button.choisi small{color:#fff}
 .dm-jp-p{display:flex; justify-content:space-between; gap:8px; margin-top:10px}
@@ -15039,6 +15047,20 @@ function dmTravail(c){ return !!c&&c!=="-"; }
    sous chaque date ; un repos, un jour déjà sur la feuille ou trop ancien
    (plus de 31 jours, la base le refuse) ne se choisit pas. Rien n'est
    écrit avant qu'un jour soit touché ; « Retirer la date » vide la ligne. */
+/* L'ÉTAT RÉEL D'UNE JOURNÉE (le client, le 22/10/2026 : « le calendrier ne
+   montre pas l'état actuel des journées, si on est déjà en congé ou pas »)
+   : l'annotation du classeur quand elle dit un congé, une absence ou un
+   arrêt (RJF, VA, MAL…), ou une demande de congé déjà en attente. Ces
+   jours-là ne se redemandent pas. */
+function dmEtatJour(tri,iso){
+  var d=dmJour(iso), db=HORAIRES&&HORAIRES[d.getFullYear()], p=db&&db.people.filter(function(x){ return x.id===tri; })[0];
+  var e=(p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())])||[], an=String(e[1]||"").trim(), fa=an?grFamille(an):"";
+  /* une partie de journée (« 2h RHS », « 1/2 VA ») se montre, mais le reste
+     de la journée se demande encore */
+  if(fa==="conge"||fa==="absence"||fa==="arret"||fa==="recup") return {code:grCourt(an), fam:fa==="conge"||fa==="recup"?"cg":"abs", part:/^\s*(\d+(?:[.,]\d+)?\s*h|1\/2)/i.test(an)};
+  var att=(GR.demandes||[]).some(function(x){ return x.a_moi&&x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.j===iso; }); });
+  return att?{code:"demandé", fam:"att"}:null;
+}
 function dmChoisirJour(tri,courant,pris,fini){
   var auj=jourUsine(), min=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()-31);
   var d0=courant?dmJour(courant):auj, m={y:d0.getFullYear(), m:d0.getMonth()};
@@ -15050,13 +15072,17 @@ function dmChoisirJour(tri,courant,pris,fini){
     var prem=new Date(m.y,m.m,1), dec=(prem.getDay()+6)%7, n=new Date(m.y,m.m+1,0).getDate(), c=[];
     for(var k=0;k<dec;k++) c.push('<span></span>');
     for(var j=1;j<=n;j++){
-      var d=new Date(m.y,m.m,j), iso=dmIso(d), pv=dmPrevue(tri,iso), ok=dmTravail(pv)&&!pris[iso]&&d>=min;
-      c.push('<button type="button" data-j="'+iso+'"'+(ok?'':' disabled')+' class="'+(iso===courant?'choisi ':'')+(d.getTime()===new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime()?'auj':'')+'">'
-        +'<b>'+j+'</b><small>'+(pris[iso]?'pris':dmTravail(pv)?esc(grCourt(pv)):'')+'</small></button>');
+      /* un repos se choisit aussi (le client, le 22/10/2026) ; un jour déjà
+         en congé, absent ou demandé, non */
+      var d=new Date(m.y,m.m,j), iso=dmIso(d), pv=dmPrevue(tri,iso), et=iso===courant?null:dmEtatJour(tri,iso), ok=!pris[iso]&&(!et||et.part)&&d>=min;
+      c.push('<button type="button" data-j="'+iso+'"'+(ok?'':' disabled')+' class="'+(iso===courant?'choisi ':'')+(et?'et-'+et.fam+' ':'')+(dmTravail(pv)?'':'rep ')+(d.getTime()===new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime()?'auj':'')+'"'
+        +(et?' title="'+esc(et.fam==="att"?"Demande de congé déjà en attente":"Déjà "+et.code)+'"':'')+'>'
+        +'<b>'+j+'</b><small>'+(pris[iso]?'pris':et?esc(et.code):dmTravail(pv)?esc(grCourt(pv)):'repos')+'</small></button>');
     }
     box.innerHTML='<div class="dm-jp-t"><button type="button" data-nav="-1" aria-label="Mois précédent">‹</button><b>'+MOIS[m.m]+' '+m.y+'</b><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div>'
       +'<div class="dm-jp-s">'+["Lu","Ma","Me","Je","Ve","Sa","Di"].map(function(x){ return '<span>'+x+'</span>'; }).join("")+'</div>'
       +'<div class="dm-jp-g">'+c.join("")+'</div>'
+      +'<div class="dm-jp-l"><span><i style="background:color-mix(in srgb,#2e9e5b 45%,transparent)"></i>déjà en congé</span><span><i style="background:color-mix(in srgb,#d0574a 45%,transparent)"></i>absent</span><span><i style="border:1px dashed var(--at-jaune)"></i>déjà demandé</span><span><i style="border:1px dashed var(--line)"></i>repos</span></div>'
       +'<div class="dm-jp-p">'+(courant?'<button type="button" class="btnlike" data-vider="1">Retirer la date</button>':'<span></span>')+'<button type="button" class="btnlike" data-annuler="1">Annuler</button></div>';
   }
   box.addEventListener("click",function(e){
