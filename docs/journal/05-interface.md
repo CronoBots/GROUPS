@@ -2026,3 +2026,17 @@ dans le formulaire, où les lignes servent. Le titre de l'en-tête
 paraissait flou et pâle sur l'iPhone : aucune règle ne l'explique et
 Chromium ne le reproduit pas ; il est désormais blanc franc, en 650, sur
 un fond opaque — à revoir sur le téléphone du client (`nfdm-v925`).
+
+### La vue Semaine cassée par « Ma semaine » (22/10/2026, `nfdm-v927`)
+
+Le client : « la vue semaine de l'Accueil ne va pas ». **Erreur commise
+le 22/10 (`nfdm-v921`)** : la carte « Ma semaine » a reçu une fonction
+nommée `renderSemaine` — le nom de celle, plus ancienne, qui dessine la
+vue Semaine du calendrier. Dans un même script, la seconde déclaration
+remplace la première : le calendrier appelait la fonction de la carte
+avec un mauvais argument (« Cannot read properties of undefined (reading
+'id') »), et la vue Semaine restait vide. Aucun test ne cliquait
+« Semaine » ; `audit.js` ne relevait que les erreurs du chargement.
+Renommée `renderMaSemaine` ; vérifié qu'aucune autre fonction de premier
+niveau n'est déclarée deux fois (`grep … | uniq -d` → aucune). Éprouvé à
+390 et 1280 px : la semaine s'affiche, aucune erreur, Ma semaine aussi.
