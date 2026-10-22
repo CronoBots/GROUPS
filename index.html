@@ -2553,6 +2553,8 @@ html .mqinc{font-size:12px}
 .ws-tete .ss-ok{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650; padding:8px 14px}
 .dm-onglets{margin-bottom:14px}
 /* Congé · Recyclage : le choix du type de demande, en tête de la section */
+html #grille .ws-s:not(.ws-planning)>.ws-tete.dm-tete{padding:8px 14px}
+html #grille .ws-s:not(.ws-planning)>.ws-tete.dm-tete>.dm-bascule{display:grid; grid-template-columns:1fr 1fr; align-items:stretch; grid-column:1 / -1; justify-self:center; width:min(460px,100%); max-width:none; margin:0}
 html .dm-intro{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
 html .dm-intro p{margin:0; font-size:12px; line-height:1.4; color:var(--muted)}
 html .dm-intro>button{flex:none}
@@ -14790,6 +14792,10 @@ function dmBasculeHTML(actif){
     +[["demandes","Congé",nd],["recyclages","Recyclage",nr]].map(function(o){
       return '<button type="button" role="tab" data-bascule="'+o[0]+'" aria-selected="'+(actif===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>';
 }
+/* LE SÉLECTEUR TOUT EN HAUT (le client, le 22/10/2026 : « le sélecteur
+   doit être au-dessus des demandes ») : il prend la barre de titre de la
+   section, à la place de « Demandes », que le menu dit déjà. */
+function dmTete(actif){ return '<header class="ws-tete dm-tete">'+dmBasculeHTML(actif)+'</header>'; }
 /* sous le sélecteur, ce que fait le type choisi, et son bouton */
 function dmIntro(sous,act){ return '<div class="dm-intro"><p>'+sous+'</p>'+(act||'')+'</div>'; }
 document.addEventListener("click",function(e){
@@ -15163,7 +15169,7 @@ function renderDemandes(){
   var hote=document.getElementById("wsDem"), val=peutSaisir();
   if(!GR.onglet) GR.onglet=val?"traiter":"miennes";
   var l=GR.demandes;
-  var h=[wsTete("Demandes"),dmBasculeHTML("demandes"),dmIntro(val?"Les trois formulaires du dossier RH : le remplaçant donne son accord, le contremaître et la RH visent ; acceptée, la demande se pose sur le planning.":"Courte durée, longue durée ou sans solde, comme les formulaires papier : votre remplaçant, votre contremaître et la RH la reçoivent.",
+  var h=[dmTete("demandes"),dmIntro(val?"Les trois formulaires du dossier RH : le remplaçant donne son accord, le contremaître et la RH visent ; acceptée, la demande se pose sur le planning.":"Courte durée, longue durée ou sans solde, comme les formulaires papier : votre remplaçant, votre contremaître et la RH la reçoivent.",
     '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="dmNouvelle">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; });
@@ -16149,7 +16155,7 @@ function rcCarte(x){
 }
 function renderRecyclages(){
   var hote=document.getElementById("wsRec"), val=peutSaisir(), l=GR.recyclages;
-  var h=[wsTete("Demandes"),dmBasculeHTML("recyclages"),dmIntro("Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
+  var h=[dmTete("recyclages"),dmIntro("Fiche de suivi des recyclages « polyvalence » : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH valide et enregistre.",
     '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="rcNouvelle">+ Nouvelle fiche</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Fiches indisponibles (pas de connexion).</p>'; rcBrancher(); }); return; }
   l=l.filter(function(x){ return x.statut!=="annulee"; });

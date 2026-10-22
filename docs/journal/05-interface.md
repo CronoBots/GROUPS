@@ -3067,3 +3067,19 @@ Recyclage (`wsActif`). Les raccourcis de l'Accueil (« Demander un congé »,
 Éprouvé au navigateur à 390 et 1280 px : bascule dans un sens puis dans
 l'autre, sélection et menu justes, aucun débordement ni erreur. Les quatre
 sorties du vérificateur sont identiques à l'octet.
+
+### Le sélecteur dans la barre de titre (22/10/2026, v975)
+
+Le client : « le sélecteur doit être au-dessus des demandes ». Le
+sélecteur Congé · Recyclage prend la barre de titre de la section
+(`dmTete`), à la place du titre « Demandes », que le menu dit déjà. Tout
+le reste vient dessous.
+
+**Erreur corrigée en route.** Au téléphone, la règle de la barre
+(`.ws-tete>div` : colonne flex centrée) empilait les deux boutons l'un
+sur l'autre. Le sélecteur y retrouve sa grille à deux colonnes, avec une
+règle plus précise.
+
+Éprouvé à 390 et 1280 px : bascule dans les deux sens, aucun débordement,
+aucune erreur. Les quatre sorties du vérificateur sont identiques à
+l'octet.
