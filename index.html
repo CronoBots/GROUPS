@@ -5649,6 +5649,23 @@ html .hp-fab:hover{opacity:1}
    le même jour : le client l'avait déjà refusé le 20/10, « retire la
    bande », et l'a revu revenir en haut de l'écran.) */
 /* la fiche de recyclage : les mots du papier, entourés quand ils sont choisis */
+/* les règles du recyclage, au-dessus de la fiche (22/10/2026) */
+html .rc-info{flex:none; margin:0 0 12px; border:1px solid var(--cadre,var(--line)); border-radius:14px; background:var(--surface); color:var(--ink); overflow:hidden}
+html .rc-info>summary{display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; list-style:none}
+html .rc-info>summary::-webkit-details-marker{display:none}
+html .rc-info>summary::after{content:"›"; margin-left:auto; font-size:20px; color:var(--muted); transition:transform .2s}
+html .rc-info[open]>summary::after{transform:rotate(90deg)}
+html .rc-info>summary svg{flex:none; color:var(--in)}
+html .rc-info>summary span{display:flex; flex-direction:column; gap:2px; min-width:0}
+html .rc-info>summary b{font-size:14.5px}
+html .rc-info>summary small{font-size:12px; color:var(--muted)}
+html .rc-info-l{margin:0; padding:2px 14px 4px; border-top:1px solid var(--line)}
+html .rc-info-l>div{display:grid; grid-template-columns:84px minmax(0,1fr); gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+html .rc-info-l dt{font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); padding-top:2px}
+html .rc-info-l dd{margin:0; font-size:13px; line-height:1.45}
+html .rc-info-t{margin:10px 14px 4px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
+html .rc-info-o{margin:0 0 12px; padding:0 14px 0 34px; font-size:13px; line-height:1.45}
+html .rc-info-o li{margin:0 0 5px}
 html .rc-regles{color:#2F62D6; font-size:12.5px; line-height:1.4}
 html .rc-regles p{margin:0 0 4px}
 html .rc-regles .rc-cond{font-size:11.5px}
@@ -16317,6 +16334,21 @@ function rcSupprimer(id,btn,apres){
 }
 /* LA FICHE, comme le papier : la remplir (x nul) ou la lire, confirmer,
    contresigner, valider */
+function rcReglesHTML(){
+  var ico='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>';
+  return '<details class="rc-info"><summary>'+ico+'<span><b>Règles du recyclage</b><small>10 jours de présence sur poste · du 1<sup>er</sup> février au 31 janvier</small></span></summary>'
+    +'<dl class="rc-info-l">'
+    +'<div><dt>Pourquoi</dt><dd>Obligatoire afin de garder les bons réflexes pratiques liés à une fonction.</dd></div>'
+    +'<div><dt>Combien</dt><dd>Une présence sur poste d\'au moins <b>10 jours</b> (<b>5 jours</b> pour les Assistants Usine et les Adjoints CM), entre le 1<sup>er</sup> février et le 31 janvier de l\'année suivante.</dd></div>'
+    +'<div><dt>Comment</dt><dd>Seul ou en doublure. Le recyclage peut avoir lieu via des remplacements sur les postes concernés : absences, congés, changement avec un autre polyvalent.</dd></div>'
+    +'<div><dt>Fiche</dt><dd>Une fiche par pause prestée ; seules les pauses complètes (8 h de prestations d\'affilée) sont prises en compte.</dd></div>'
+    +'</dl>'
+    +'<p class="rc-info-t">En doublure : conditions cumulatives</p><ol class="rc-info-o">'
+    +'<li>Le travailleur en recyclage pilote l\'installation sous la surveillance et le conseil de l\'opérateur attitré.</li>'
+    +'<li>L\'opérateur attitré donne une formation de rappel, informe des dernières évolutions ou événements au poste.</li>'
+    +'<li>Le contremaître de la pause concernée est informé <b>au plus tard en début de pause</b> de l\'organisation du recyclage.</li>'
+    +'<li>Le responsable de zone contresigne la fiche de suivi.</li></ol></details>';
+}
 function rcFeuille(x){
   var a=compteBase()||{}, moi=a.tri, neuf=!x;
   var tri=neuf?moi:x.trigramme, p=dmPersonne(tri);
@@ -16334,8 +16366,6 @@ function rcFeuille(x){
     var c=cm(), ed=neuf;
     var h=['<div class="dm-pp-tete"><img src="logo-email.png" alt="biowanze" class="dm-pp-logo"></div>',
       '<p class="dm-pp-titre">Fiche de suivi des recyclages « polyvalence »</p>',
-      '<div class="rc-regles"><p>Un recyclage sur poste est obligatoire afin de garder les bons réflexes pratiques liés à une fonction. Il consiste en une présence sur poste <b>au moins 10 jours (5 jours pour les Assistants Usine et les Adjoints CM)</b>, seul ou en doublure (moyennant conditions *) <b>entre le 1<sup>er</sup> février et le 31 janvier de l\'année suivante.</b> Le recyclage peut avoir lieu via des remplacements sur les postes concernés (absences, congés, changement avec un autre polyvalent).</p>',
-      '<p class="rc-cond">* Conditions cumulatives de validité pour recyclage <u>en doublure</u> :</p><ol><li>Le travailleur en recyclage pilote l\'installation sous la surveillance et le conseil de l\'opérateur attitré.</li><li>L\'opérateur attitré donne une formation de rappel, informe des dernières évolutions ou événements au poste.</li><li>Le contremaître de la pause concernée doit être informé <u>au plus tard en début de pause</u> de l\'organisation du recyclage.</li><li>Le responsable de zone contresigne la fiche de suivi des recyclages polyvalence.</li></ol></div>',
       '<div class="dm-pp-cadre"><p class="dm-pp-sous">Membre du personnel de Production</p>',
       '<p class="dm-pp-ch"><b>Nom et Prénom</b> : <span>'+esc(np)+'</span></p>',
       '<p>Recyclage relatif à la fonction <i class="rc-pt">(1 recyclage par pause prestée)</i> :</p>',
@@ -16366,7 +16396,12 @@ function rcFeuille(x){
   var pied=neuf?'<button type="button" class="btn ss-ok" id="rcSigner">Signer et envoyer</button>'
     :(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" id="rcSuppr">Supprimer ma fiche</button>':'');
   var pn=grOuvrirPanneau('<div class="pn-tete"><button type="button" class="pn-retour" aria-label="Retour">‹ Retour</button><div><b>Fiche de recyclage</b><span>polyvalence · dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
-    +'<div class="pn-corps dm-pp-fond"><div class="dm-papier rc-papier" id="rcPapier"></div><p class="pn-note" id="rcErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
+    /* LES RÈGLES HORS DE LA FICHE (le client, le 22/10/2026 : « l'explication
+       des recyclages doit être en dehors de la demande de recyclage et ça
+       doit faire professionnel ») : le texte bleu du haut du papier devient
+       un encadré de l'application, au-dessus de la fiche, replié sur
+       l'essentiel ; les mots du dossier RH sont gardés, rangés en points. */
+    +'<div class="pn-corps dm-pp-fond">'+rcReglesHTML()+'<div class="dm-papier rc-papier" id="rcPapier"></div><p class="pn-note" id="rcErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
   pn.classList.add("dm-pp-pn");
   var pap=pn.querySelector("#rcPapier"), err=pn.querySelector("#rcErr");
   function dessiner(){ pap.innerHTML=corps(); }
