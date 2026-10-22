@@ -1482,3 +1482,31 @@ ne pouvait pas le voir : PDR existe.
   confirmées par la RH passent de 137 à 147, les dix STEP de PDF.
   `verifier-integralite.py` → 0 ; les quatre sorties du vérificateur
   sont inchangées.
+
+### Les deux GBT, PAM, SPS et LDY (22/10/2026, `nfdm-v950`)
+
+Le client : « et pourquoi SPS et LDY ? cela doit faire la différence pour
+les GBT aussi ; PAM a perdu ses polyvalences le 01/10 au gluten et
+meunerie ».
+
+- **PAM** : l'horaire le dit déjà (`poly.dates`, « fin au 30/09/2026 »
+  pour la meunerie et le gluten). Le contrôle « à vérifier (homonyme ?) »
+  ne lisait que les polyvalences EN COURS : c'était une fausse alerte. Il
+  lit désormais aussi les polyvalences terminées. Sur le fichier
+  installé, il ne nomme plus personne. La question est retirée.
+- **Les GBT** : l'horaire en a deux, GBT (gluten, équipe 5) et GBT-1
+  (chaudières, équipe 4). L'application lisait le classeur RH par
+  trigramme (`RECYC_OFF[idLisible(p.id)]`, six endroits) : une ligne GBT
+  serait allée aux deux. `recycRH(p)` la donne au seul homonyme dont les
+  polyvalences, en cours ou terminées, couvrent tous les postes qu'elle
+  recycle ; si aucun ou plusieurs le font, elle ne va à personne. Le
+  classeur RH actuel n'a aucune ligne GBT. Éprouvé au navigateur avec une
+  ligne GBT fictive (gluten, 3 recyclages) : le héros de GBT affiche
+  « 3 / 10 », celui de GBT-1 n'affiche rien. Sur la version d'avant, GBT-1
+  affichait lui aussi « 3 / 10 » : le contrôle mord.
+- **SPS et LDY** : ce ne sont pas des déductions de l'application. Le
+  classeur d'horaire les écrit au poste, « distill. » (30 journées, souvent
+  « remplace SMA ») et « meunerie » (31 journées, souvent « remplace
+  CDE »), alors que le classeur RH leur compte 0. C'est une question à la
+  RH (`docs/questions-client.md`, 11) : ne compte-t-elle que les
+  recyclages déclarés sur fiche ?

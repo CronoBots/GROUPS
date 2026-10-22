@@ -9704,6 +9704,31 @@ var RECYC_OFF=null;
 var RECYC_MAJ=null;
 var RECYC_URL="./data/recyclages-2026.json";
 var RECYC_POSTES=["meun","glut","ferm","dist","chau","step"];
+/* LA LIGNE DU CLASSEUR RH D'UNE PERSONNE, homonymes départagés (le client,
+   le 22/10/2026 : « cela doit faire la différence pour les GBT aussi »).
+   Le classeur RH ne connaît que le trigramme ; l'horaire a deux GBT (GBT au
+   gluten, GBT-1 aux chaudières). Lire RECYC_OFF par trigramme donnait la
+   même ligne aux deux. Une ligne d'un trigramme partagé ne va qu'à celui
+   dont les polyvalences — en cours ou terminées dans l'année — couvrent
+   tous les postes qu'elle recycle ; à personne s'il n'y en a pas un seul. */
+function recycRH(p){
+  if(!RECYC_OFF||!p) return null;
+  if(RECYC_OFF[p.id]) return RECYC_OFF[p.id];
+  var t=idLisible(p.id), o=RECYC_OFF[t]; if(!o) return null;
+  var vus={}, hom=[];
+  Object.keys(HORAIRES||{}).forEach(function(a){ ((HORAIRES[a]&&HORAIRES[a].people)||[]).forEach(function(q){
+    if(idLisible(q.id)===t&&!vus[q.id]){ vus[q.id]=1; hom.push(q); } }); });
+  if(hom.length<=1) return o;
+  var cand=hom.filter(function(q){
+    var at=((q.poly&&q.poly.ateliers)||[]).concat(Object.keys((q.poly&&q.poly.dates)||{}));
+    return RECYC_POSTES.every(function(k){
+      if(!(o[k]>0)) return true;
+      var P=POSTES_TRAVAIL.filter(function(x){ return x.k===k; })[0];
+      return !!(P&&P.rx&&at.some(function(n){ return P.rx.test(n); }));
+    });
+  });
+  return cand.length===1&&cand[0].id===p.id?o:null;
+}
 function lireRecyclages(){
   if(RECYC_OFF) return Promise.resolve();
   return fetch(RECYC_URL).then(function(r){ return r.ok?r.json():null; })
@@ -12701,7 +12726,7 @@ function _pfHead(db,p){
   /* Les recyclages restants du classeur RH : les compteurs viennent se
      poser sur ces puces juste après le premier affichage (recyclageHeros). */
   var pl=(p.poly&&p.poly.ateliers)||[], cmH=(typeof estContremaitre==="function")&&estContremaitre(p),
-      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?RECYC_OFF[idLisible(p.id)]:null, aRec=!!(roH&&roH.restant>0);
+      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRH(p):null, aRec=!!(roH&&roH.restant>0);
   if(!cmH && (pl.length||aRec)){
     h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
       +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
@@ -12739,7 +12764,7 @@ function _pfHead(db,p){
    rejoue l'année. */
 function recyclageHeros(db,p){
   var hote=document.getElementById("pfRecyc"); if(!hote||!db||!p) return;
-  var ro=RECYC_OFF&&RECYC_OFF[idLisible(p.id)]; if(!ro||!(ro.restant>0)) return;
+  var ro=recycRH(p); if(!ro||!(ro.restant>0)) return;
   var pv=hote.parentNode, l=pv.querySelector(".pf-pv-l"), q;
   (polyvalenceDe(db,p)||[]).forEach(function(o){
     if(o.forme||!l) return;
@@ -18914,7 +18939,7 @@ function calculerPolyvalence(db){
      écarts réels, tandis que le profil, lui, garde la valeur officielle RH. */
   var parIdApp={}; for(var _pid in parId){ parIdApp[_pid]=Object.assign({}, parId[_pid]); }
   if(RECYC_OFF) db.people.forEach(function(p){
-    var o=RECYC_OFF[idLisible(p.id)]; if(!o) return;
+    var o=recycRH(p); if(!o) return;
     var pr=parId[p.id]||(parId[p.id]={});
     RECYC_POSTES.forEach(function(k){ if(typeof o[k]==="number") pr[k]=o[k]; });
   });
@@ -19209,7 +19234,7 @@ function renderPolyvalence(){
       .sort(function(a,b){
         var A=idLisible(a.p.id), B=idLisible(b.p.id);
         return A<B?-1:(A>B?1:0); });
-    function dansClasseur(p){ return !!(RECYC_OFF && RECYC_OFF[idLisible(p.id)]); }
+    function dansClasseur(p){ return !!recycRH(p); }
     /* TROIS GROUPES : (1) opérateurs suivis par le classeur RH ; (2) opérateurs
        absents du classeur (pas de suivi RH, on indique /0) ; (3) adjoints
        (objectif 5, non 10 ; dernière colonne = recyclages contremaître). */
@@ -19256,7 +19281,7 @@ function renderPolyvalence(){
             +esc(ditLaDate(dateDeLaPolyvalence(p,P.t)))+'">●</td>');
           return; }
         if(P.k==="step" && adjoint){
-          var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], cm=(ro&&ro.cm)||0;
+          var ro=recycRH(p), cm=(ro&&ro.cm)||0;
           h.push(cellAppRh(compteRemplacementsCM(db,p), cm, POLY_QUOTA.adjoint, "gris", "Recyclages contremaître"));
           return; }
         var o=par[P.t], dt=dateDeLaPolyvalence(p,P.t);
@@ -19385,7 +19410,7 @@ function fermerDatesRecyclage(){ var o=document.getElementById("rdpOv"); if(o) o
 function ouvrirDatesRecyclage(db,p){
   fermerDatesRecyclage();
   var t=calculerPolyvalence(db), appD=(t.parIdDates&&t.parIdDates[p.id])||{};
-  var ro=RECYC_OFF && RECYC_OFF[idLisible(p.id)], rhD=(ro&&ro.dates)||{};
+  var ro=recycRH(p), rhD=(ro&&ro.dates)||{};
   var jm=function(x){ return x.slice(2)+"/"+x.slice(0,2); };
   var blocs=[];
   (polyvalenceDe(db,p)||[]).forEach(function(o){
