@@ -2824,3 +2824,32 @@ Ils couvrent toute l'année, journées à venir comprises, comme la barre
 
 Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### L'année et ses pauses d'un seul tenant (22/10/2026, v966)
+
+Le client, sur la capture de la v965 : « combiner année et mes pauses ».
+
+**L'ordre du héros devient :**
+
+1. le prochain poste, avec le week-end libre et le prochain congé ;
+2. « Ma semaine » ;
+3. un seul bloc pour l'année : son titre et « 130 prestées · 40 à
+   venir », la barre par pause, le tableau des pauses, puis les trois
+   chiffres (heures, en week-end, fériés travaillés).
+
+**Pour le tableau** : il perd son titre « Mes pauses » et sa légende
+« année 2026 », qui redisaient le titre du bloc. « Mes pauses » devient
+l'en-tête de sa colonne : « Mes pauses · prochaine ». Sous 360 px, il ne
+reste que « prochaine » : il passait sur deux lignes à 320 px.
+
+**Pour le code** : « Ma semaine » a son propre conteneur (`#ryAn`), et
+l'année, le tableau et les chiffres le second (`#ryPr` : `ryAnneeHTML`,
+`ryProchainesHTML`, puis `ryChiffresHTML`, tirée de `ryAnneeHTML`).
+
+**Au PC**, de 761 à 1599 px, le prochain poste et « Ma semaine » sont à
+gauche, le bloc de l'année à droite, avec ou sans polyvalences. Mesuré :
+colonne de gauche 467 px, droite 333 px pour un opérateur polyvalent. Dès
+1600 px, les trois colonnes restent celles d'avant.
+
+Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.
