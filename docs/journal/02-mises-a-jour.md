@@ -1510,3 +1510,31 @@ meunerie ».
   CDE »), alors que le classeur RH leur compte 0. C'est une question à la
   RH (`docs/questions-client.md`, 11) : ne compte-t-elle que les
   recyclages déclarés sur fiche ?
+
+### Un remplacement écrit au classeur d'horaire compte comme recyclage (22/10/2026, `nfdm-v951`)
+
+Le client, sur SPS et LDY : « s'il est précisé qu'il remplace quelqu'un à
+un poste (CDE en meunerie ou SMA en distillation), il faut leur compter,
+oui ». Pour une personne suivie par le classeur RH, l'application
+affichait le seul chiffre RH. Désormais :
+- **Le compte de chaque poste** = le chiffre RH, plus les journées
+  complètes où le classeur d'horaire écrit qu'elle REMPLACE quelqu'un à
+  ce poste : « remplace X » dans sa case, ou « remplacé par » la nommant
+  dans la case de l'absent (`x.nomme`). Les dates présentes des deux
+  côtés ne comptent qu'une fois, et le poste de formation n'ajoute
+  rien.
+- **Le « restant »** baisse d'autant ; l'objectif reste celui du
+  classeur RH.
+- Une journée au poste écrit SANS « remplace » ne s'ajoute pas : la
+  règle du client nomme le remplacement.
+
+Mesuré (le vérificateur, avec le classeur RH chargé) : 22 personnes
+gagnent des journées. Les plus fortes : SPS +31 en distillation, LDY +30
+en meunerie, JKS +15 et HKB +12 en meunerie, FPA +8 en fermentation.
+Héros de l'Accueil : SPS « Recyclages 31 / 10, 0 à faire » (avant : 0 /
+10, 10 à faire) ; FLN, aux chaudières, passe de 5 à 9. Corrigé en
+cours de route : l'objectif grossissait avec l'ajout (« 31 / 31 ») ; il
+reste celui du classeur RH, et la barre plafonne à 100 %.
+`verifier-calendrier.js` reprend `remplacesActifs` et `recycRH`, que
+`calculerPolyvalence` appelle désormais. Ses quatre sorties sont
+inchangées : il ne charge pas le classeur RH.
