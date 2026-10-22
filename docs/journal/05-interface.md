@@ -2232,3 +2232,24 @@ Mesuré (`ctl.js`, base simulée) : à 390 et 1280 px, chacune des neuf
 cibles mène au bon écran ou au bon onglet ; aucun débordement à 320 px ;
 0 erreur. `deb.js` : aucun bouton ne sort de son cadre dans les sept
 écrans parcourus.
+
+### Planning : sa place habituelle revient d'office au remplacé (22/10/2026, `nfdm-v935`)
+
+Le client, capture du 21/10 AM : SMA proposé de la fermentation vers le
+terrain arrière, et le terrain arrière laissé en « ? ». « Ce genre de
+changement devrait être comblé d'office. » La règle et ses trois
+conditions sont dans `docs/conversion-horaire.md`, « Remplacé à son tour ».
+
+- **Deux erreurs de la première version**, trouvées par une trace dans le
+  navigateur : `posteAttitreLe()` rend le poste DU JOUR (AAI écrit
+  « distillation » ce jour-là), pas la place habituelle ; et la lecture de
+  « remplace X » courait jusqu'au bout du commentaire (« remplace LCI
+  remplacé par AAI » donnait LCI, PAR, AAI). On lit `posteAttitre()`, et
+  la lecture s'arrête au « remplac » suivant. La première hypothèse (un
+  chassé-croisé : AAI laisserait vide SA place) était fausse : le terrain
+  arrière est la place de SMA, pas celle d'AAI (POSTE_HABITUEL, 27/09).
+- **Mesuré sur l'année** (`plan-an.js`, le Planning des 365 jours avant et
+  après) : trois journées changent, le 21/10 AM, le 31/01 PM (ALZ) et le
+  06/07 N (FPS), toutes trois dans la forme que le client décrit. Le
+  vérificateur (quatre sorties), les agendas et `comparer-fiches.py VBN`
+  sont identiques à l'octet.

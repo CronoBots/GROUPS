@@ -18033,6 +18033,17 @@ function renderEquipe(){
             if(o2) v.postes.push(o2);
           }
           if(!o2) return;
+          /* COMBLÉ D'OFFICE (le client, le 22/10/2026 :
+             « ce genre de changement devrait être comblé d'office, car CHD
+             est en fermentation et AAI remplace SMA en distillation : la
+             place terrain arrière lui revient d'office, malgré le
+             commentaire “remplace LCI” qui porte à confusion »). SMA le
+             21/10 AM, ["AM","Ferm. Liq","remplace LCI remplacé par AAI"],
+             AAI ["AM","distillation","remplace SMA"]. Le terrain arrière
+             est la place habituelle de SMA (27/09/2026) : voir
+             placeDOffice(). */
+          var croise=placeDOffice(x,o.P.k,o2,v,jourCalc,mmdd);
+          if(croise){ x.dOffice=croise; return; }
           o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
           x.propose=o.P.k; o.propose=true;
           if(compteAuPoste(x,o.P,jourCalc)) o.tenu--;
@@ -20107,6 +20118,36 @@ function mqPauses(x){
    placé (comble, ou déduit de sa polyvalence) à un autre poste que son poste
    habituel du jour — jamais ce que la cellule ou un commentaire écrit, ni
    la consignation venue du D ; rend {de, vers} ou null. */
+/* SA PLACE LUI REVIENT D'OFFICE (le client, le 22/10/2026). On porte x
+   vers k sans rien laisser « à confirmer » quand : k est sa place
+   habituelle (posteAttitre : POSTE_HABITUEL, « SMA le terrain », le
+   27/09/2026) ; le poste oDe que nomme son annotation garde son effectif
+   sans lui (CHD tient la fermentation) ; et un collègue de la pause écrit
+   « remplace x » (AAI, « remplace SMA », en distillation) — le
+   remplacement qui a brouillé la lecture. Rend {p, k} (ce collègue et le
+   poste où il est), ou null. */
+function remplacesActifs(com){
+  var r=[], rx=/remplac(e|es|\u00e9|\u00e9e|\u00e9s|\u00e9es)\b\s*(par\b)?([^.;]*)/gi, m;
+  while((m=rx.exec(String(com||"")))){
+    if(m[1].charAt(0)!=="e" || m[1].length>2 || m[2]) continue;
+    /* « remplace LCI remplacé par AAI » : la suite appartient au mot suivant */
+    (m[3].split(/remplac/i)[0].toUpperCase().match(/\b[A-Z]{3}\b/g)||[]).forEach(function(t){ r.push(t); });
+  }
+  return r;
+}
+function placeDOffice(x,k,oDe,v,jour,mmdd){
+  if(!x||x.depuisD||!oDe||(oDe.attendu&&oDe.tenu<oDe.attendu)) return null;
+  if(posteAttitre(x.p)!==k) return null;
+  var moi=idLisible(x.p.id), res=null;
+  v.postes.forEach(function(o){
+    o.gens.forEach(function(y){
+      if(res||y.p.id===x.p.id||y.depuisD) return;
+      var e=y.p.d&&y.p.d[mmdd];
+      if(remplacesActifs(e&&e[2]).indexOf(moi)>=0) res={p:y.p, k:o.P.k};
+    });
+  });
+  return res;
+}
 function transfertApp(x,k,jour){
   if(!x || x.depuisD || !(x.comble||x.deduit)) return null;
   var de=posteAttitreLe(x.p,jour)||(enFormation(x.p,jour)?posteDeFormation(x.p):null)||null;
