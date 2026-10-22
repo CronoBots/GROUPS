@@ -1549,3 +1549,38 @@ chargé : LDY passe de +30 à +32 en meunerie, SPS de +31 à +32 en
 distillation ; FPS, PAM et QBY gagnent 4 journées au gluten ; DWS +2 aux
 chaudières ; CDE +1 en fermentation ; FLN +1 aux chaudières ; PDF +1 à
 la STEP. Les quatre sorties du vérificateur sont inchangées.
+
+## Le classeur du 22/10 au soir : la porte 8 et la relève bloquée (22/10/2026)
+
+Le client a envoyé son classeur à 22 h 01. Il n'a été en ligne qu'à
+22 h 55, installé à la main. Le client : « comment ça se fait qu'il faut
+autant de temps ? ». Ce qui s'est enchaîné :
+
+1. **La relève de 22 h 00 a duré 20 minutes**, sa limite, au lieu de 25 s.
+   Les journaux de la base montrent « canceling statement due to statement
+   timeout » à chaque passage depuis 21 h 30 : c'est la sauvegarde
+   quotidienne (`biowanze_sauvegarde`) qui dépasse le temps permis. Les
+   autres passages s'en tiraient par une erreur 500 en quelques secondes ;
+   celui-ci est resté pendu. Comme elle avait démarré avant l'e-mail, elle
+   ne pouvait de toute façon pas le prendre, et la suivante attendait
+   derrière elle (`concurrency`).
+2. **La relève de 22 h 20 a trouvé l'e-mail.** Le classeur des recyclages
+   s'est installé, mais l'horaire a été refusé à la porte 8 sur trois
+   formes nouvelles : « Arrêt Vyncke », « Stein, Arrêt » (des
+   installations) et « Cohezio Huy » (le service de médecine du travail).
+   Elles ont été lues et admises. Après un refus, la relève met l'e-mail à
+   la corbeille.
+3. **Le retirer de la corbeille ne suffit pas :** il revient sans le
+   libellé « Boîte de réception », que la relève est seule à lire. Celle de
+   22 h 30 ne l'a pas vu. Le libellé a été remis à la main. Relancer la
+   relève depuis la session est refusé (403).
+4. **Le client a envoyé le fichier dans la session** : `mettre-a-jour.py`,
+   12 s à blanc et 13 s pour `--installer`, huit portes ouvertes, 107
+   journées changées chez 28 personnes.
+
+**À faire (chantier)** :
+
+- la sauvegarde ne doit plus pouvoir bloquer la relève : la lancer après
+  l'installation, avec une limite de temps, et alléger la requête ;
+- garder l'e-mail refusé dans la boîte avec un libellé, au lieu de la
+  corbeille, pour qu'une relance après correction le retrouve.
