@@ -3259,3 +3259,28 @@ entier.
 
 Éprouvé à 390 et 1280 px : replié et déplié, aucun débordement, aucune
 erreur. Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### La feuille de demande : type centré, pause sans flèche, initiales, flex time (22/10/2026, v983)
+
+Le client : « dans les demandes, le type de congé pris doit être centré,
+et pour les changements de pause il ne faut pas la flèche devant la
+pause. Pour les remplaçants il faut juste les initiales. Il faut aussi
+ajouter le FT au type de congé ».
+
+- **Centré.** La colonne « Type de congé ou Modification pause » est
+  centrée : la liste à remplir, la feuille en lecture, et la colonne
+  « Demandé » des cartes.
+- **Sans flèche.** « → AM » devient « AM » dans la liste, et « Modif.
+  pause → N » devient « N » sur la feuille en lecture : l'en-tête de la
+  colonne dit déjà ce que c'est.
+- **Initiales.** La liste des remplaçants ne montre que le trigramme ; le
+  nom ne s'ajoute plus.
+- **Flex time.** Les reprises (« 1h -FT » à « 8h -FT ») s'ajoutent aux
+  types demandables. Côté base, `base/19-flex-demandable.sql` (appliqué)
+  élargit `code_demandable`. Contrôlé : « 8h -FT » est accepté, « 8h +FT »
+  (heures prestées en plus) et « MAL » sont refusés. `dmCompteur` range
+  ces codes sous « FT ».
+
+Éprouvé au navigateur : la liste des types vaut « VA · RTT · 8h -FT · AM ·
+PM · D », les remplaçants « BBZ · CJD · DWS… », alignement centré. Aucune
+erreur. Les quatre sorties du vérificateur sont identiques à l'octet.
