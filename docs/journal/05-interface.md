@@ -2685,3 +2685,35 @@ Les cases :
 
 Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### Dates en entier, et des compteurs de pauses à l'échelle (22/10/2026, v961)
+
+Le client : « jour avec majuscule dans la semaine, jour écrit en entier,
+et le mois aussi. Concernant les compteurs de pauses, il faut que cela
+soit mieux représentatif par rapport à la quantité et le restant ».
+
+- **Ma semaine** : « Ve », « Sa », « Auj. », l'initiale seule en
+  majuscule, au lieu de « VE » ; la plage du titre a le mois en entier
+  (« 22 – 28 octobre »). Le nom du jour en entier ne tient pas dans une
+  case de 34 px (320 px) : il reste en deux lettres.
+- **Mes pauses**, date en entier comme le prochain poste (« Samedi 31
+  octobre »), le délai au bout de la même ligne.
+- **Les compteurs** :
+  - avant, un filet de 62 px par pause donnait la seule part faite : 11 PM
+    sur 15 et 70 nuits sur 94 se ressemblaient ;
+  - chaque barre court maintenant sous toute la ligne, longue du total
+    de l'année de sa pause rapporté à la pause la plus fréquente, la part
+    faite en plein et le restant en pâle ;
+  - dessous, « 70 faites » à gauche et « reste 24 » à droite, en toutes
+    lettres ;
+  - la légende « faites · à venir » devient « année 2026 ».
+- **Erreur évitée** : avec les nombres à droite de la date, « Dimanche 1
+  novembre » passait sur deux lignes à 320 px. Les nombres sont passés
+  sous la barre. Sous 360 px, la pastille se resserre (30 px) et la date
+  passe à 13,5 px.
+
+Mesuré à 390 et 1280 px : une ligne fait 77 px. À 320 px, aucune date
+réelle de la semaine du client ne passe sur deux lignes. Le pire cas
+construit (« Mercredi 30 septembre », « dans 100 j ») passe proprement
+sur deux lignes, 90 px. Aucun débordement. Les quatre sorties du
+vérificateur sont identiques à l'octet.
