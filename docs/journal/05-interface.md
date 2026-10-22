@@ -2198,3 +2198,37 @@ Recherche, les Effectifs, la Direction, le Planning, l'Équipe et le
 Salaire, à 390 px : aucun ne sort de son parent (`deb.js`). Le contrôle
 mord : sur la version d'avant, il nomme les trois boutons de « Durée »,
 4 px de chaque côté. Un toucher 2 px sous « Période » le sélectionne.
+
+### L'Accueil devient un centre de contrôle (22/10/2026, `nfdm-v934`)
+
+Le client : « l'accueil doit être un vrai centre de contrôle pour
+l'utilisateur ; il doit avoir tout à portée de main, intuitif,
+professionnel et complet ». Photographié d'abord à 390 et 1280 px :
+l'Accueil avait le héros, Ma semaine, la demande de congé, le calendrier,
+les compteurs et le rythme. Ce qui manquait, c'étaient les gestes
+eux-mêmes, et un endroit qui dise ce qui attend une action ; les
+remplacements à signer et les fiches à confirmer n'étaient que des
+bannières dans le cadre des congés.
+
+Un cadre « À portée de main », juste sous le héros (pleine largeur au
+PC, en trois colonnes), réunit trois choses :
+
+- **Six raccourcis** : demander un congé, une fiche de recyclage (la
+  feuille s'ouvre directement), ma fiche de paie, l'équipe du jour,
+  l'horaire production et mon agenda (l'abonnement). Sans compte relié à
+  la base, il en reste quatre.
+- **« À faire »** : seulement ce qui attend une action (horaire modifié,
+  remplacements à signer, demandes à viser pour la RH, fiches de
+  recyclage à confirmer), avec leur nombre en pastille ; puis, « En
+  route », ses fiches de recyclage en cours. Les demandes de congé en
+  cours restent dans leur cadre, juste en dessous ; ses bannières sont
+  retirées, pour qu'elles ne s'affichent pas deux fois. Si rien
+  n'attend : « Rien ne vous attend ».
+- **« Ma prochaine pause »** : la pause, le poste, l'effectif, le
+  contremaître et les collègues du même poste, lus par `equipeDuJour` et
+  `postesDePause` ; toucher la ligne ouvre le Planning de ce jour.
+
+Mesuré (`ctl.js`, base simulée) : à 390 et 1280 px, chacune des neuf
+cibles mène au bon écran ou au bon onglet ; aucun débordement à 320 px ;
+0 erreur. `deb.js` : aucun bouton ne sort de son cadre dans les sept
+écrans parcourus.
