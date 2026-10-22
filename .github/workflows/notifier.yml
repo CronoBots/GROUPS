@@ -1,0 +1,30 @@
+# Les notifications des demandes de congé (le remplaçant à la création, la
+# RH une fois le remplacement signé) : lancée aussitôt par la base Supabase
+# (biowanze.lancer_notifs), et toutes les 30 minutes en secours.
+name: Notifications des demandes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "11,41 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notifier
+  cancel-in-progress: false
+
+jobs:
+  envoyer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Outil des notifications
+        run: npm install --no-save --no-audit --no-fund web-push@3.6.7
+      - name: Envoyer
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_CLE: ${{ secrets.PUSH_CLE }}
+        run: node tools/notifier-demandes.js

@@ -14735,6 +14735,8 @@ function dmStatut(x){
   if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
   if(x.statut==="refusee") return '<span class="dm-st dm-non">Refusée</span>';
   if(x.statut==="annulee") return '<span class="dm-st">'+(dmRemplacee(x)?'Modifiée':'Annulée')+'</span>';
+  /* le remplaçant n'a pas encore signé : la RH ne la reçoit qu'ensuite (22/10/2026) */
+  if(x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.rp&&!(x.accords&&x.accords[l.rp]); })) return '<span class="dm-st dm-att">Attend le remplaçant</span>';
   return '<span class="dm-st dm-att">En attente</span>';
 }
 function dmEtapes(x){
@@ -14794,6 +14796,8 @@ function renderDemandes(){
     '<button type="button" class="'+(val?'btnlike':'btn ss-ok')+'" id="dmNouvelle">+ Nouvelle demande</button>')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; dmCharger().then(renderDemandes,function(){ hote.innerHTML=h.join("")+'<p class="ws-vide">Demandes indisponibles (pas de connexion).</p>'; dmBrancher(); }); dmBrancher(); return; }
   var rempl=l.filter(function(x){ return x.je_remplace; });
+  /* venu d'une notification : l'onglet de ce qu'il y a à faire */
+  if(GR.ongletAuto){ GR.ongletAuto=false; if(val) GR.onglet="traiter"; else if(rempl.some(dmAccordAttendu)) GR.onglet="remplace"; }
   var onglets=val?[["traiter","À traiter",l.filter(dmATraiter).length],["attente","En attente",l.filter(function(x){ return x.statut==="en_attente"; }).length],["toutes","Toutes",0],["miennes","Les miennes",l.filter(function(x){ return x.a_moi; }).length]]
     :[["miennes","En cours",l.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length],["histo","Historique",0]].concat(rempl.length?[["remplace","Je remplace",rempl.filter(dmAccordAttendu).length]]:[]);
   if(onglets.length>1) h.push('<div class="pl-seg dm-onglets" id="dmOnglets">'+onglets.map(function(o){ return '<button type="button" data-o="'+o[0]+'" aria-pressed="'+(GR.onglet===o[0])+'">'+o[1]+(o[2]?' <span class="dm-n">'+o[2]+'</span>':'')+'</button>'; }).join("")+'</div>');
@@ -22563,11 +22567,15 @@ function boot(){
          nettoyée pour qu'un rechargement ne le rouvre pas. */
       var vueUrl=(location.search.match(/[?&]vue=([a-z]+)/)||[])[1];
       if(vueUrl&&history.replaceState) history.replaceState(null,"",location.pathname);
+      /* « ?vue=demandes » : la notification d'une demande de congé (à signer
+         comme remplaçant, à viser pour la RH) ouvre l'espace des demandes */
+      var versDem=vueUrl==="demandes"; if(versDem) vueUrl=null;
       setView(vueUrl||lsGet("ui/view")||"horaire",true);
+      if(versDem) setTimeout(function(){ try{ GR.ongletAuto=true; ouvrirGrille("demandes"); }catch(e){} },900);
       /* Une notification touchée alors que l'application est déjà ouverte :
          le service worker ne recharge pas la page, il lui dit l'onglet. */
       if(navigator.serviceWorker) navigator.serviceWorker.addEventListener("message",function(e){
-        var d=e.data||{}; if(d.type==="vue"&&VIEWS.indexOf(d.vue)>=0) setView(d.vue);
+        var d=e.data||{}; if(d.type==="vue"&&d.vue==="demandes"){ try{ GR.ongletAuto=true; ouvrirGrille("demandes"); }catch(er){} } else if(d.type==="vue"&&VIEWS.indexOf(d.vue)>=0) setView(d.vue);
       });
       /* les sélecteurs vivent maintenant dans l'en-tête : ils doivent être
          garnis dès le démarrage, quel que soit l'onglet ouvert */
