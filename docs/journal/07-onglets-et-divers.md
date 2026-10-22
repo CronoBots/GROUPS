@@ -85,12 +85,20 @@ def icone(nom, taille, marge=0.0):
 
 icone("favicon.png", 64);          icone("apple-touch-icon.png", 180)
 icone("icon-192.png", 192);        icone("icon-512.png", 512)
-icone("icon-maskable-512.png", 512, 0.10)
+icone("icon-maskable-512.png", 512, 0.14)
 ```
 
 La marge de 10 % de la dernière n'est pas cosmétique : Android rogne l'icône
 *maskable* dans un masque, et seuls les 80 % centraux sont garantis visibles.
 Sans elle, le mot « biowanze » se ferait couper.
+
+**Nouveau logo (22/10/2026, `nfdm-v988`).** Le client a déposé sur GitHub
+le logo « biowanze.app » : le « ce » en dégradé vert-bleu, le mot dessous,
+sur fond marine `#182032`, en 1254 × 1254 px. Il devient `logo.png`, et les
+cinq icônes sont régénérées par le code ci-dessus. La marge de l'icône
+*maskable* passe de 10 à **14 %** : le mot « biowanze.app » est plus large
+que l'ancien. Mesuré : aucun pixel du dessin hors du cercle central de
+80 %.
 
 ## Les deux versements du mois
 
