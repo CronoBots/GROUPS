@@ -3345,3 +3345,39 @@ Le tableau perdait sa forme de papier.
 Éprouvé au navigateur : fenêtre, choix, résumé dans la case. L'envoi part
 avec `code2`, `part` et `heure`. Aucune erreur. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### L'heure de départ ou d'arrivée seulement pour une journée incomplète (22/10/2026, v986)
+
+Le client : « attention que la justification arrivée ou départ plus tôt
+ou plus tard n'est logique que si la personne ne prend pas une journée
+complète, c'est-à-dire 8 heures ».
+
+**La durée d'un code** : ses heures quand il se compte en heures, en
+valeur absolue (« 4h -FT » s'écrit -4 dans la base), sinon une journée,
+8 h. Dans l'application, c'est `dmDuree` ; dans la base, `duree_code`.
+Mesuré : VA 8, 4h RTT 4, 4h -FT 4, CP 8, RHS 8, un code inconnu 8.
+
+**Ce que la feuille fait :**
+
+- « préciser » n'apparaît que si le premier type fait moins de 8 h. Pour
+  VA, RTT, RJF ou DTT, plus rien à préciser.
+- Dans la fenêtre, le second type ne propose que les codes qui tiennent
+  dans la journée (total ≤ 8 h).
+- Si le total atteint 8 h (4h RTT + 4h -FT), l'horaire disparaît. Une note
+  le dit : « Journée complète (8 h) : pas d'heure de départ ni d'arrivée à
+  préciser ».
+- Un type changé pour une journée complète efface le second type et
+  l'heure.
+
+**La base** (`base/21-journee-complete.sql`, appliqué) : le déclencheur
+`demande_ligne_garde` refuse un second type si le premier fait déjà 8 h,
+et une heure si le total fait 8 h. Éprouvé dans un bloc annulé à la fin :
+
+- 4h RTT + 2h rhs avec une heure : accepté ;
+- 4h RTT + 4h -FT avec une heure : refusé (« journée complète ») ;
+- VA avec un second type : refusé.
+
+Au navigateur : 4+4, horaire caché et note visible ; 4+2, horaire
+visible, envoyé avec « quitte à 18:00 » ; VA, plus de lien, envoyé sans
+précision. Aucune erreur. Les quatre sorties du vérificateur sont
+identiques à l'octet.
