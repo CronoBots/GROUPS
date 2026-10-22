@@ -2665,3 +2665,23 @@ d'accessibilité.
 Mesuré sur la semaine du client : GPS, ATR, ATR, AFA, repos, repos, ATR.
 Les cases passent de 81 à 101 px. Aucun débordement à 320, 390 et
 1280 px. Les quatre sorties du vérificateur sont identiques à l'octet.
+
+### Les cases de « Ma semaine » resserrées, sans trigramme ni point (22/10/2026, v960)
+
+Le client, à la v959 : « inutile les trigrammes et c'est tous les jours
+que je te demandais d'optimiser ». **Erreur commise** : sa question
+« comment optimiser » visait les cases elles-mêmes, et j'avais répondu
+par un détail du commentaire. Les trigrammes sont retirés (`msNomme`
+supprimé), le point de commentaire aussi : il marquait six cases sur
+sept, et le commentaire se lit en touchant le jour.
+
+Les cases :
+
+- le jour et la date serrés, la pastille dessous : 76 px au lieu de 81 (au
+  PC, 81 au lieu de 89) ;
+- un repos s'efface : sans cadre, la date et « repos » en gris, pour que
+  les jours travaillés et les congés ressortent ;
+- le samedi et le dimanche ont leur libellé en bleu clair.
+
+Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.
