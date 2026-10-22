@@ -2040,3 +2040,24 @@ avec un mauvais argument (« Cannot read properties of undefined (reading
 Renommée `renderMaSemaine` ; vérifié qu'aucune autre fonction de premier
 niveau n'est déclarée deux fois (`grep … | uniq -d` → aucune). Éprouvé à
 390 et 1280 px : la semaine s'affiche, aucune erreur, Ma semaine aussi.
+
+### Au téléphone, plus de menu en haut de l'espace (22/10/2026, `nfdm-v928`)
+
+Le client : « il ne faut pas le menu en haut de page quand on veut faire
+une demande de congé (ni nulle part ailleurs sur mobile) ». Au téléphone,
+la rangée d'icônes de l'espace (`.ws-nav`) disparaît ; la barre du bas de
+l'application reste active au-dessus de l'espace (elle était rendue
+inerte à l'ouverture) : ses onglets le referment, « Plus » mène à ses
+sections et se teinte tant que l'espace est ouvert. Une feuille ouverte
+en plein écran (demande, signature) efface la barre du bas : restent
+« ‹ Retour » et « Signer et envoyer ».
+
+Trouvé en l'éprouvant : toucher un onglet ne refermait pas l'espace —
+l'écouteur cherchait la barre dans l'en-tête (`header.top .tabs`), alors
+qu'au téléphone elle est déjà rangée en bas. Il la cherche partout.
+
+Éprouvé à 390 px (tactile) : menu du haut caché, barre du bas active et
+« Plus » teinté ; formulaire en plein écran sans la barre, « Signer » dans
+l'écran ; « ‹ Retour » puis l'onglet Accueil referment l'espace ; aucune
+erreur, et les parcours des demandes, du menu et de l'Horaire production
+passent.

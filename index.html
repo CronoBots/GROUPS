@@ -5498,6 +5498,17 @@ html .hp-fab:hover{opacity:1}
   html .pl-panneau.dm-pp-pn .pn-tete{position:relative; z-index:2; background:var(--surface)}
   html .pl-panneau.dm-pp-pn .pn-tete b{color:#fff; font-weight:650; -webkit-font-smoothing:antialiased; text-shadow:none}
 }
+/* le téléphone : l'espace RH sans menu en haut, la barre du bas de
+   l'application au-dessus (22/10/2026) ; une feuille ouverte en plein
+   écran l'efface, pour laisser « Signer » et « Retour » seuls */
+@media (max-width:760px){
+  html .grille.ws .ws-nav{display:none}
+  html body.sheet-on .navwrap{z-index:97}
+  html body.sheet-on.pn-ouvert .navwrap{display:none}
+  html .grille.ws .ws-main{padding-bottom:calc(84px + var(--navbas,0px) + env(safe-area-inset-bottom,0px))}
+  html body.sheet-on .navwrap>.tabs button[aria-selected="true"]:not(#tab-plus){background:none; box-shadow:none; color:inherit}
+  html .plusfond:not([hidden]){z-index:98} html .plusfeuille:not([hidden]){z-index:99}
+}
 </style>
 </head>
 <body>
@@ -14270,6 +14281,13 @@ function ouvrirGrille(section,formulaire){
     if(g.hidden) navPousser("g");
     g.hidden=false; document.body.classList.add("sheet-on"); g.classList.toggle("edit",peutSaisir());
     if(!mqSide.matches) try{ inerteFond(true); }catch(e){}
+    /* AU TÉLÉPHONE, PAS DE MENU EN HAUT (le client, le 22/10/2026 : « il ne
+       faut pas le menu en haut de page quand on veut faire une demande de
+       congé, ni nulle part ailleurs sur mobile ») : la barre du bas de
+       l'application reste active au-dessus de l'espace ; ses onglets le
+       referment, « Plus » mène à ses sections. */
+    if(mqNav.matches){ var nw=document.getElementById("navwrap"); if(nw){ nw.removeAttribute("inert"); nw.removeAttribute("aria-hidden"); } }
+    var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.add("actif");
     var a=compteBase()||{};
     document.getElementById("wsRole").textContent=peutSaisir()?(a.base==="rh"?"Espace RH":"Espace hiérarchie"):"Planning";
     document.getElementById("wsMoi").innerHTML=a.tri?'<span class="pl-tri">'+esc(idLisible(a.tri))+'</span><span><b>'+esc(idLisible(a.tri))+'</b><small>'+esc(BASE_ROLES[a.base]||"")+'</small></span>':'';
@@ -14290,6 +14308,7 @@ function fermerGrille(parRetour){
   grFermerPanneau(parRetour===true);
   g0.hidden=true;
   if(ouvert&&parRetour!==true) navRetirer("g");
+  var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="rh"||st.view==="recherche"||st.view==="direction");
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
@@ -14317,12 +14336,14 @@ window.addEventListener("popstate",function(){
 });
 function grFermerPanneau(parRetour){
   var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
+  document.body.classList.remove("pn-ouvert");
   [].forEach.call(document.querySelectorAll("#grZone .pl-sel"),function(x){ x.classList.remove("pl-sel"); });
   if(ouvert&&parRetour!==true) navRetirer("p");
 }
 function grOuvrirPanneau(html){
   var p=document.getElementById("grPanneau"); if(p.hidden) navPousser("p");
   p.className="pl-panneau"; p.innerHTML=html; p.hidden=false;
+  document.body.classList.add("pn-ouvert");
   [].forEach.call(p.querySelectorAll(".pn-x,.pn-retour"),function(x){ x.onclick=function(){ grFermerPanneau(); }; });
   return p;
 }
@@ -22415,8 +22436,11 @@ function sideMaj(){
     var b=e.target.closest("[data-side-ws]"); if(!b) return;
     var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); });
   /* au PC, un onglet de l'application referme l'espace qui est à droite du menu */
-  var t=document.querySelector("header.top .tabs");
-  if(t) t.addEventListener("click",function(){ if(!document.getElementById("grille").hidden) fermerGrille(); },true);
+  /* « .tabs » et non « header.top .tabs » : au téléphone la barre est déjà
+     rangée en bas (navwrap), et l'écouteur manquait — un onglet ne
+     refermait pas l'espace (22/10/2026) */
+  var t=document.querySelector(".tabs");
+  if(t) t.addEventListener("click",function(e){ if(e.target.closest&&e.target.closest("#tab-plus")) return; if(!document.getElementById("grille").hidden) fermerGrille(); },true);
   var p=document.getElementById("sidePied");
   if(p) p.addEventListener("click",function(e){ if(e.target.closest("[data-go]")&&!document.getElementById("grille").hidden) fermerGrille(); },true);
   setTimeout(function(){ try{ sideMaj(); }catch(e){} },0);
