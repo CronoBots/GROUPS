@@ -2501,3 +2501,31 @@ Mesuré le 28/10 : la fermentation PM affiche « À remplacer : CKS RJF »,
 puis ALZ (proposé), FLN (en surnombre) et GST (Chaudières, en
 formation) ; FPA n'y est plus. Le vérificateur (quatre sorties) et
 l'alignement des badges sont inchangés.
+
+### « Remplacé par X » dans la case de l'absent (22/10/2026, `nfdm-v946`)
+
+Le client : « il faut vérifier aussi, lorsqu'il y a des trous comme cela,
+si le remplaçant n'était pas nommé dans le commentaire de CKS cette
+pause là ». CKS le 28/10 n'a pas de commentaire (`["PM","RJF"]`), et
+personne ne le nomme : rien à trouver ce jour-là. Mais sur l'année, un
+balayage des 502 places vides du Planning (`trous.js`) en a trouvé 128
+dont l'absent nomme un remplaçant. La règle et ses conditions sont dans
+`docs/conversion-horaire.md`, « “Remplacé par X” dans la case de
+l'absent ».
+
+**Erreurs de la première version**
+- `verifier-calendrier.js` s'arrêtait (« nommesParAbsents is not
+  defined ») : il reprend une liste NOMMÉE de fonctions d'`index.html`,
+  il fallait lui ajouter les deux nouvelles.
+- « Remplacé par JKS ou HKB » (YRS, le 30/04) déplaçait JKS et creusait
+  le gluten. Un nom suivi de « ou » ou de « ? » est désormais écarté.
+
+**Mesuré**
+- Planning (365 jours) : 13 journées changent, toutes fidèles au
+  classeur.
+- `--manques` (depuis le 26/09) et `--compteurs` sont identiques ;
+  `--polyvalence` change, une journée de recyclage pour six personnes ;
+  les agendas sont identiques.
+- La bulle du « ? » montre ce que dit la case de l'absent quand
+  l'application n'a pas pu placer le remplaçant (LAX le 22/01 :
+  « remplacé par KDN et FLN »).

@@ -146,6 +146,8 @@ const MORCEAUX=[
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
   ["function remplPartiel(","\n}"],
+  ["function nommesParAbsents(","\n}"],
+  ["function peutPrendreRemplace(","\n}"],
   ["var PF_DEB=","\n"],
   ["function pfDebut(","\n"],
   ["function pfFin(","\n"],

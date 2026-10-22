@@ -1066,6 +1066,45 @@ poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
 quatre sorties de `verifier-calendrier.js` et les agendas sont
 identiques à l'octet.
 
+### « Remplacé par X » dans la case de l'absent (22/10/2026)
+
+Le client : « il faut vérifier aussi, lorsqu'il y a des trous, si le
+remplaçant n'était pas nommé dans le commentaire de CKS cette pause là ».
+La lecture de « remplace X » (ci-dessus) ne regardait que la case du
+REMPLAÇANT. Or le classeur écrit souvent l'inverse, et seulement dans la
+case de l'ABSENT. Par exemple, le 23/05 AM, CKS a « Remplacé par ALZ »
+et ALZ seulement `["AM"]` : ALZ restait au terrain arrière, et la
+fermentation était vide.
+
+Sur les 502 places vides de l'année au Planning, 128 étaient celles d'un
+absent dont le commentaire nomme un remplaçant.
+
+`nommesParAbsents()` lit, pour chaque personne prévue à la pause (sa
+cellule) et absente, le premier trigramme après « remplacé par ». Ce
+remplaçant prend alors le poste de l'absent, aux mêmes conditions que la
+lecture active (`peutPrendreRemplace`) :
+- il en a la polyvalence ; un adjoint peut prendre le poste de
+  contremaître ;
+- sa case n'écrit pas de poste ;
+- ce n'est pas un remplacement de quelques heures.
+
+Elle s'arrête aussi devant :
+- « remplacé au CPPT par » ;
+- un remplacement de quelques heures, dans la case de l'absent ;
+- un nom suivi de « ou » ou de « ? ». YRS le 30/04 écrit « Remplacé par
+  JKS ou HKB » : déplacer JKS creusait le gluten.
+
+Effet sur l'année : 13 journées changent au Planning. GST (10/02), GDT
+(01/03), PAM (18/05), ALZ (du 23 au 28/05), CWN à la STEP (27 et 28/06,
+02/07) et SMA (12/07) prennent la place de l'absent qui les nomme. Les
+recyclages comptés changent pour six personnes, d'une journée chacune.
+Les manques depuis le 26/09 et les compteurs sont identiques.
+
+Quand le remplaçant ne peut pas être placé (absent de l'horaire comme
+PBL, autre pause, quelques heures), la bulle du « ? » montre, sous
+« À remplacer », ce que dit la case de l'absent, par exemple « remplacé
+par KDN et FLN ».
+
 ### « Poly. Etoh » est un terrain arrière
 
 **Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et
