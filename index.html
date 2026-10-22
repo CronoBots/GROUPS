@@ -5509,6 +5509,21 @@ html .hp-fab:hover{opacity:1}
   html body.sheet-on .navwrap>.tabs button[aria-selected="true"]:not(#tab-plus){background:none; box-shadow:none; color:inherit}
   html .plusfond:not([hidden]){z-index:98} html .plusfeuille:not([hidden]){z-index:99}
 }
+/* « Mes demandes » resserré, et « Supprimer » discret mais rouge */
+#demCard header{display:flex; align-items:center; gap:10px}
+#demCard header .md-nv{margin-left:auto; min-height:36px; padding:0 14px; font-size:13.5px}
+#demCard .pad{padding-top:10px; padding-bottom:12px}
+.md-vide{margin:0}
+.md-l{margin:0}
+.md-l li{gap:6px; padding:8px 10px}
+.md-h{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.md-lien{display:block; margin:8px 0 0; padding:6px 0; border:0; background:none; color:var(--in); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.md-signer{display:block; width:100%; margin:0 0 10px; padding:10px 12px; border:1px solid var(--at-jaune); border-radius:12px; background:rgba(242,180,90,.12); color:var(--ink); font:inherit; font-size:14px; font-weight:650; text-align:left; cursor:pointer}
+.btnlike.dm-suppr{color:#ff8a7a; border-color:rgba(255,138,122,.45)}
+/* iOS 26 floute ce qui passe sous la barre d'état (le titre de « Ma
+   semaine », celui de la demande, sur les captures du client) : au
+   téléphone, un fond opaque derrière elle, rien ne glisse dessous */
+@media (max-width:760px){ html::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px); background:#0d1220; z-index:96; pointer-events:none} }
 </style>
 </head>
 <body>
@@ -14751,6 +14766,21 @@ function wsBadge(){
 function dmRemplacee(x){ return x.statut==="annulee"&&/^Remplacée par la demande/.test(x.motif_refus||""); }
 /* modifiable par son auteur tant que ni le contremaître ni la RH ne l'a visée */
 function dmModifiable(x){ return x.a_moi&&x.statut==="en_attente"&&!x.cm&&!x.rh; }
+/* SUPPRIMER SA DEMANDE (le client, le 22/10/2026 : « une demande peut être
+   supprimée tant qu'elle n'a été signée par aucune autre personne que
+   soi ») : ni remplaçant, ni contremaître, ni RH. Après une signature, elle
+   ne se retire plus de soi-même. Une demande supprimée quitte aussi
+   l'historique ; une demande MODIFIÉE y reste. */
+function dmSignesAutres(x){ return !!(x.cm||x.rh||(x.accords&&Object.keys(x.accords).length)); }
+function dmSupprimable(x){ return x.a_moi&&x.statut==="en_attente"&&!dmSignesAutres(x); }
+function dmSupprimee(x){ return x.statut==="annulee"&&!dmRemplacee(x)&&!dmSignesAutres(x); }
+function dmSupprimer(id,btn,apres){
+  confirmerPro({titre:"Supprimer la demande ?",texte:"Personne d'autre ne l'a encore signée : elle disparaît, comme si elle n'avait pas été envoyée.",ok:"Supprimer",annuler:"Garder"},function(){
+    if(btn) btn.disabled=true;
+    baseRpc("biowanze_annuler_demande",{p_id:Number(id)}).then(function(){ if(apres) apres(); flash("Demande supprimée"); return dmCharger().then(function(){ renderDemandes(); try{ renderMesDemandes(); }catch(e){} }); })
+      .catch(function(er){ if(btn) btn.disabled=false; flash(baseMsg(er)); });
+  });
+}
 function dmStatut(x){
   if(dmATraiter(x)) return '<span class="dm-st dm-afaire">'+(dmAccordAttendu(x)?'À signer':'À viser')+'</span>';
   if(x.statut==="acceptee") return '<span class="dm-st dm-ok">Acceptée</span>';
@@ -14796,7 +14826,7 @@ function dmCarte(x,valideur){
   var act='';
   if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour signer</button></div>';
   else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Ouvrir la feuille pour viser</button></div>';
-  else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike" data-dm-annuler="'+x.id+'">Annuler ma demande</button>':'')+'</div>';
+  else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>';
   return '<article class="dm-carte'+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
     +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<b class="dm-moi">Ma demande</b>')+dmStatut(x)+'</header>'
     +'<div class="dm-quoi"><span class="dm-form">'+esc(DM_FORMS[f].t)+'</span><b>'+esc(dmPeriode(x.du,x.au))+'</b></div>'
@@ -14825,7 +14855,7 @@ function renderDemandes(){
   /* l'opérateur : « En cours » (ses demandes en attente) et « Historique »
      (acceptées, refusées, annulées, modifiées), les plus récentes d'abord */
   var miennesEnCours=!val&&GR.onglet==="miennes";
-  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi&&(val||x.statut==="en_attente"):GR.onglet==="histo"?x.a_moi&&x.statut!=="en_attente":GR.onglet==="remplace"?x.je_remplace:true; });
+  var f=l.filter(function(x){ return GR.onglet==="traiter"?dmATraiter(x):GR.onglet==="attente"?x.statut==="en_attente":GR.onglet==="miennes"?x.a_moi&&(val||x.statut==="en_attente"):GR.onglet==="histo"?x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x):GR.onglet==="remplace"?x.je_remplace:true; });
   if(GR.onglet==="histo") f=f.slice().sort(function(a,b){ return String(b.cree_le||"").localeCompare(String(a.cree_le||"")); });
   h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val&&!x.a_moi); }).join("")+'</div>'
     :'<div class="ws-carte"><p class="ws-vide">'+(GR.onglet==="traiter"?'Rien à traiter : toutes les demandes ont reçu votre réponse.':GR.onglet==="miennes"?(miennesEnCours?'Aucune demande en cours. « Nouvelle demande » pour poser un congé ; les demandes traitées sont dans l\'historique.':'Aucune demande pour l\'instant. « Nouvelle demande » pour poser un congé.'):GR.onglet==="histo"?'Aucune demande traitée pour l\'instant.':'Aucune demande.')+'</p></div>');
@@ -14946,7 +14976,7 @@ function dmPpOuvrir(corps,pied){
 function dmFeuilleVoir(id){
   var x=(GR.demandes||[]).filter(function(d){ return String(d.id)===String(id); })[0]; if(!x) return;
   var regles=peutSaisir()&&!x.a_moi&&x.statut==="en_attente"?dmRegles(x.formulaire||"courte",x.trigramme,dmLignes(x),x.cree_le,x.sans_solde_annee):[];
-  var pied=x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike" data-pp-annuler="'+x.id+'">Annuler ma demande</button>':'';
+  var pied=dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-pp-annuler="'+x.id+'">Supprimer ma demande</button>':'';
   var pn=dmPpOuvrir((regles.length?'<ul class="dm-regles">'+regles.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')+'<div class="dm-papier">'+dmPpLecture(x)+'</div>',pied);
   pn.querySelector(".pn-corps").addEventListener("click",function(e){
     var b=e.target.closest("[data-pp-accord]");
@@ -14964,7 +14994,7 @@ function dmFeuilleVoir(id){
     }).catch(function(er){ b.disabled=false; flash(baseMsg(er)); });
   });
   var an=pn.querySelector("[data-pp-annuler]");
-  if(an) an.onclick=function(){ an.disabled=true; baseRpc("biowanze_annuler_demande",{p_id:x.id}).then(function(){ grFermerPanneau(); flash("Demande annulée"); return dmCharger().then(renderDemandes); }).catch(function(er){ an.disabled=false; flash(baseMsg(er)); }); };
+  if(an) an.onclick=function(){ dmSupprimer(x.id,an,grFermerPanneau); };
 }
 /* la feuille à remplir */
 function dmFormulaire(pre){
@@ -15114,7 +15144,7 @@ function renderHisto(){
     x=e.target.closest("[data-dm-modifier]");
     if(x){ var dx=(GR.demandes||[]).filter(function(z){ return String(z.id)===x.getAttribute("data-dm-modifier"); })[0]; if(dx) dmFormulaire({modifier:dx}); return; }
     x=e.target.closest("[data-dm-annuler]");
-    if(x){ x.disabled=true; baseRpc("biowanze_annuler_demande",{p_id:Number(x.getAttribute("data-dm-annuler"))}).then(function(){ flash("Demande annulée"); return dmCharger().then(renderDemandes); }).catch(function(er){ x.disabled=false; flash(baseMsg(er)); }); return; }
+    if(x){ dmSupprimer(x.getAttribute("data-dm-annuler"),x); return; }
     x=e.target.closest("[data-pers]"); if(x){ grPersonne(x.getAttribute("data-pers")); return; }
     x=e.target.closest("[data-ws]"); if(x){ wsAller(x.getAttribute("data-ws")); return; }
     x=e.target.closest("[data-vue]"); if(x){ var v=x.getAttribute("data-vue"); fermerGrille(); setView(v); }
@@ -15597,22 +15627,30 @@ document.addEventListener("click",function(e){
 function renderMesDemandes(){
   var c=document.getElementById("demCard"), corps=document.getElementById("demCorps"); if(!c||!corps) return;
   if(!compteBase()){ c.hidden=true; return; }
+  /* LE CADRE RESSERRÉ (le client, le 22/10/2026 : « il faut optimiser le
+     cadre des demandes de congé ») : « + Nouvelle » dans l'en-tête ; en
+     cours, une ligne par demande et ses étapes ; sinon une seule ligne, et
+     le lien vers l'historique. */
   function rendre(){
-    var l=(GR.demandes||[]).filter(function(x){ return x.a_moi&&x.statut==="en_attente"; });
-    var fait=(GR.demandes||[]).filter(function(x){ return x.a_moi&&x.statut!=="en_attente"; }).length;
-    document.getElementById("demSub").textContent=l.length?l.length+" en cours":(fait?fait+" traitée"+(fait>1?"s":""):"");
-    corps.innerHTML=(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><b>'+esc(dmPeriode(x.du,x.au))+'</b><span class="md-f">'+esc(DM_FORMS[x.formulaire||"courte"].t)+'</span>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
-      :'<p class="md-vide">Aucune demande en cours.</p>')
-      +'<div class="md-act"><button type="button" class="btn ss-ok" data-md="nouvelle">Nouvelle demande</button><button type="button" class="btnlike" data-md="voir">Mes demandes</button></div>';
+    var L=GR.demandes||[], l=L.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; });
+    var fait=L.filter(function(x){ return x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x); }).length;
+    var aSigner=L.filter(dmAccordAttendu).length;
+    document.getElementById("demSub").textContent=l.length?l.length+" en cours":"";
+    corps.innerHTML=(aSigner?'<button type="button" class="md-signer" data-md="signer">'+aSigner+' remplacement'+(aSigner>1?'s':'')+' à signer ›</button>':'')
+      +(l.length?'<ul class="md-l">'+l.map(function(x){ return '<li><div class="md-h"><b>'+esc(dmPeriode(x.du,x.au))+'</b>'+dmStatut(x)+'</div>'+dmEtapes(x)+'</li>'; }).join("")+'</ul>'
+        :'<p class="md-vide">Aucune demande en cours.</p>')
+      +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
     c.hidden=false;
   }
+  var h=c.querySelector("header"); if(h&&!h.querySelector("[data-md]")) h.insertAdjacentHTML("beforeend",'<button type="button" class="btn ss-ok md-nv" data-md="nouvelle">+ Nouvelle</button>');
   rendre();
   dmCharger().then(rendre,function(){});
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("#demCard [data-md]"):null; if(!b) return;
-  GR.onglet="miennes";
-  if(b.getAttribute("data-md")==="nouvelle") ouvrirGrille("demandes",{}); else ouvrirGrille("demandes");
+  var k=b.getAttribute("data-md");
+  GR.onglet=k==="signer"?"remplace":"miennes";
+  if(k==="nouvelle") ouvrirGrille("demandes",{}); else ouvrirGrille("demandes");
 });
 
 /* ===================== l'équipe ===================== */
