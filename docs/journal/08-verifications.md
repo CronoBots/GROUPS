@@ -2757,3 +2757,37 @@ ne se compte plus deux fois (voir « Le cadre du mois, repris case par
 case »). Une divergence revenue est donc une faute de lecture à chercher,
 pas un écart connu.
 
+
+### Un recyclage se confirme dans le classeur (22/10/2026, `nfdm-v948`)
+
+Le client, devant « six personnes gagnent ou perdent une journée de
+recyclage » : « il faut bien vérifier pour les recyclages, car attribuer
+des recyclages sans confirmation qu'il tenait bien le poste est donc
+faux ». `calculerPolyvalence()` comptait toute journée complète passée à
+un autre poste que le sien. Cela incluait celles où c'est l'APPLICATION
+qui y avait porté la personne : le rééquilibrage (`comble`) ou une
+déduction (`deduit`). Elles ne comptent plus. Restent, parce que le
+classeur les écrit : le poste écrit dans la case, « remplace X », « remplacé
+par » qui le nomme, un jour tranché par le client.
+
+**Mesuré contre le classeur RH des recyclages**
+(`data/recyclages-2026.json`, ses dates par personne et par poste), un
+script jetable du bloc-notes :
+
+| | avant | après |
+|---|---|---|
+| journées comptées par l'application et confirmées par la RH | 143 | 137 |
+| journées comptées par l'application, absentes du classeur RH | 402 | 302 |
+| journées du classeur RH que l'application ne compte pas | 66 | 72 |
+
+Sur les 106 journées retirées, 100 n'étaient pas dans le classeur RH. Au
+quota (`--polyvalence`), 26 couples personne-poste deviennent 20. Les
+plus fortes baisses : DWS aux chaudières (16 → 3), GPO en fermentation
+(12 → 4), SKS en distillation (13 → 1). Les manques, les compteurs et les
+agendas sont identiques. Le profil d'un opérateur suivi par la RH garde
+la valeur du classeur RH (RECYC_OFF) : ce sont les « jours planifiés »
+de l'application qui changent.
+
+Il reste 302 journées que l'application compte et que le classeur RH
+n'a pas. Ce peut être un remplacement réel que la RH n'a pas enregistré,
+ou une lecture trop large. Elles ne se tranchent qu'avec la RH.

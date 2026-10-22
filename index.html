@@ -18866,6 +18866,14 @@ function calculerPolyvalence(db){
           if(o.P.cm||o.P.k==="adj") return;
           if(Math.abs(h-st.params.hJour)>0.01) return;
           if(o.P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
+          /* UN RECYCLAGE SE CONFIRME DANS LE CLASSEUR (le client, le
+             22/10/2026 : « attribuer des recyclages sans confirmation qu'il
+             tenait bien le poste est donc faux »). Une journée que
+             l'APPLICATION a portée à ce poste — le rééquilibrage (comble),
+             une déduction (deduit) — n'en est pas un : rien n'écrit qu'il
+             l'a tenu. Comptent le poste écrit, « remplace X », « remplacé
+             par » le nommant, un jour tranché par le client. */
+          if(y.comble||y.deduit) return;
           if(!parId[y.p.id]) parId[y.p.id]={};
           parId[y.p.id][o.P.k]=(parId[y.p.id][o.P.k]||0)+1;
           /* On garde AUSSI les dates (jours planifiés comptés), pour le tableau
