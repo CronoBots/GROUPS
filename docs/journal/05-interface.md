@@ -2478,3 +2478,26 @@ Désormais `.grille.ws` prend `--fond` sur `--paper` : (15, 21, 35) et
 (`--surface2`, gris, fin) prennent ceux des Équipes : le fond du cadre,
 le texte en clair et en gras, un filet `--cadre`. Vérifié à 1440 et
 390 px : 0 erreur.
+
+### La bulle du « ? » : qui remplacer, et seulement ceux qu'on peut prendre (22/10/2026, `nfdm-v945`)
+
+Le client, capture du Planning du 28/10 à l'appui : « quand on clique sur
+un absent, il doit marquer les personnes qu'il faut remplacer en plus de
+ceux qui peuvent prendre le poste, et ne pas proposer ceux qui sont à un
+poste qui serait en sous-effectif sans eux (exemple FPA), mais préciser
+en jaune ceux qui sont en formation, comme pour GST ».
+
+`candidatsPlace()` et `bulleCandidatsHTML()` :
+- **« À remplacer »** en tête : le titulaire absent et son motif, par
+  `aRemplacer()`, la même lecture que les raisons d'un changement.
+- **« Peut prendre le poste »** dessous. Un candidat dont le poste
+  tomberait sous son effectif sans lui n'est plus cité (FPA, seul au
+  gluten l'après-midi). On garde la proposition de l'application
+  elle-même, pour que la bulle ne contredise pas le pointillé du
+  Planning.
+- **« en formation »** écrit en jaune à côté du badge jaune.
+
+Mesuré le 28/10 : la fermentation PM affiche « À remplacer : CKS RJF »,
+puis ALZ (proposé), FLN (en surnombre) et GST (Chaudières, en
+formation) ; FPA n'y est plus. Le vérificateur (quatre sorties) et
+l'alignement des badges sont inchangés.
