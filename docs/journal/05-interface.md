@@ -3139,3 +3139,16 @@ Mesuré sur la feuille du client, en octobre : CP les 5-7, 2h RHS le 14
 (choisissable), RJF les 23-25 et 28-29, VA le 30, tous en vert ; les
 repos choisissables. Aucune erreur. Les quatre sorties du vérificateur sont
 identiques à l'octet.
+
+### Le haut de page descendu de 12 px au téléphone (22/10/2026, v978)
+
+Le client, capture de l'Accueil : « sur mobile les cadres du haut sont un
+peu dans le flou, il faut les descendre très légèrement ». Le haut du
+héros tombait dans le flou que l'iPhone pose sous la barre d'état. La
+marge du haut de page (`.wrap`, ≤ 760 px) passe de « encoche + 16 px » à
+« encoche + 28 px ». La bande opaque reste écartée, comme le client l'a
+demandé le 20/10. « Du jour » garde sa marge : la vue doit tenir sans
+défilement.
+
+Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
+vérificateur sont identiques à l'octet.
