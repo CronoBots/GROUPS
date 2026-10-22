@@ -2576,6 +2576,31 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-carte{border:1px solid var(--line2); border-radius:14px; background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:9px; min-width:0}
 .dm-carte.dm-a-faire{border-color:color-mix(in srgb,var(--in) 55%,var(--line2)); box-shadow:inset 3px 0 0 var(--in)}
 .dm-carte header{display:flex; align-items:center; justify-content:space-between; gap:10px}
+/* l'état en bande de couleur, la date en tuile, le type en étiquette */
+html .dm-carte{position:relative; overflow:hidden; cursor:pointer; transition:border-color .15s, box-shadow .15s}
+html .dm-carte::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--line2)}
+html .dm-carte.dm-g-faire::before{background:var(--in)}
+html .dm-carte.dm-g-att::before{background:var(--at-jaune)}
+html .dm-carte.dm-g-ok::before{background:var(--good)}
+html .dm-carte.dm-g-non::before{background:var(--at-rouge)}
+html .dm-carte.dm-g-off{opacity:.72}
+html .dm-carte.dm-a-faire{box-shadow:none}
+@media (hover:hover){ html .dm-carte:hover{border-color:color-mix(in srgb,var(--in) 45%,var(--line2))} }
+html .dm-carte header>.dm-tit, html .dm-carte header>.ws-qui{flex:1 1 auto; min-width:0}
+html .dm-dt{flex:0 0 46px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:5px 0 4px; border-radius:10px; background:var(--surface2); line-height:1.05}
+html .dm-dt small{font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+html .dm-dt b{font-size:19px; font-weight:750; font-variant-numeric:tabular-nums}
+html .dm-dt i{margin-top:2px; font-style:normal; font-size:10.5px; font-weight:700; color:var(--in)}
+html .dm-g-faire .dm-dt{background:var(--in-soft)}
+html .dm-type{display:inline-block; margin-left:6px; padding:0 7px; border-radius:6px; font-size:11px; font-weight:700; line-height:18px; color:var(--ink2); background:var(--surface2); border:1px solid var(--line2); vertical-align:1px}
+html .dm-quoi .dm-type{margin-left:0}
+html .dm-carte header>.dm-tit b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+html .dm-carte header>.dm-st{max-width:44%; white-space:normal; text-align:center; line-height:1.3}
+/* au téléphone, le circuit des signatures dit déjà l'état : l'étiquette
+   ne prend plus la place du titre (sauf une demande retirée, sans circuit) */
+@media (max-width:520px){ html .dm-carte:not(.dm-g-off) header>.dm-st{display:none} }
+html .dm-mois{grid-column:1/-1; margin:6px 2px -2px; font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+html .dm-mois:first-child{margin-top:0}
 .dm-moi{font-size:14px}
 .dm-st{flex:0 0 auto; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--surface2); color:var(--muted)}
 .dm-st.dm-att{background:var(--at-jaune-soft); color:var(--at-jaune)}
@@ -2592,6 +2617,23 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-texte{margin:0; font-size:13px; color:var(--muted); font-style:italic}
 .dm-motif{color:var(--at-rouge); font-style:normal}
 .dm-etapes{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px}
+/* le circuit : une pastille par signataire, reliées par un trait */
+html .dm-circ{list-style:none; margin:2px 0 0; padding:0; display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:4px}
+html .dm-circ li{position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; gap:1px; min-width:0; padding:0 2px}
+html .dm-circ li+li::before{content:""; position:absolute; top:10px; right:calc(50% + 13px); left:calc(-50% + 13px); height:2px; border-radius:2px; background:var(--line2)}
+html .dm-circ li.fait+li::before{background:var(--good)}
+html .dm-pt{width:22px; height:22px; margin-bottom:3px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:800; border:2px solid var(--line2); background:var(--surface); color:var(--muted)}
+html .dm-circ .fait .dm-pt{border-color:var(--good); background:var(--good); color:#fff}
+html .dm-circ .tour .dm-pt{border-color:var(--at-jaune); color:var(--at-jaune); box-shadow:0 0 0 4px color-mix(in srgb,var(--at-jaune) 20%,transparent)}
+html .dm-circ .refus .dm-pt{border-color:var(--at-rouge); background:var(--at-rouge); color:#fff}
+html .dm-circ b{font-size:11.5px; font-weight:700; line-height:1.2; color:var(--ink); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+html .dm-circ small{font-size:11px; line-height:1.25; color:var(--muted); max-width:100%}
+html .dm-circ small em{display:block; font-style:normal; font-weight:700; color:var(--ink2); font-family:var(--mono,ui-monospace,monospace); letter-spacing:.02em}
+html .dm-circ .tour b, html .dm-circ .tour small{color:var(--at-jaune)}
+html .dm-circ .refus small{color:var(--at-rouge)}
+html .dm-circ .apres{opacity:.75}
+html .dm-g-faire .dm-circ .tour .dm-pt{border-color:var(--in); color:var(--in); box-shadow:0 0 0 4px color-mix(in srgb,var(--in) 20%,transparent)}
+html .dm-g-faire .dm-circ .tour b, html .dm-g-faire .dm-circ .tour small{color:var(--in)}
 .dm-etapes i{color:var(--faint); font-style:normal}
 .dm-et{padding:3px 8px; border-radius:7px; border:1px dashed var(--line); color:var(--muted)}
 .dm-et.fait{border-style:solid; border-color:color-mix(in srgb,var(--good) 45%,transparent); background:var(--good-soft); color:var(--good)}
@@ -2629,6 +2671,9 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
   html .ws.ws-deux .pl-panneau[hidden]+.ws-deux-vide{display:flex; flex:0 0 clamp(460px,48%,780px); flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:24px; text-align:center; border-left:1px solid var(--line); color:var(--muted); font-size:13px}
   html .ws.ws-deux .ws-deux-vide b{color:var(--ink,inherit); font-size:14px}
   html .ws.ws-deux .ws-deux-vide span{max-width:280px; line-height:1.45}
+  /* liste à gauche, fiche à droite : le tableau des jours est dans la fiche */
+  html .ws.ws-deux .dm-liste{grid-template-columns:1fr}
+  html .ws.ws-deux .dm-carte .dm-t{display:none}
   html .ws.ws-deux .dm-carte.dm-sel{border-color:var(--in); box-shadow:0 0 0 1px var(--in), 0 0 0 5px color-mix(in srgb,var(--in) 18%,transparent)}
 }
 @media (max-width:699px){ .ws .pl-panneau.dm-pp-pn{top:0; max-height:none; border-radius:0} }
@@ -14855,7 +14900,10 @@ function wsAller(s){
      de droite se divise en 2 parties pour les demandes de congé et les
      recyclages, afin de mieux voir et suivre les fiches ») */
   var gw=document.getElementById("grille"); if(gw){ gw.classList.toggle("ws-deux",/^(demandes|recyclages|valider|valider-rc)$/.test(s));
-    if(!gw.dataset.carte){ gw.dataset.carte="1"; gw.addEventListener("click",function(e){ GR.carteTouchee=e.target.closest(".dm-carte"); },true); } }
+    if(!gw.dataset.carte){ gw.dataset.carte="1"; gw.addEventListener("click",function(e){ GR.carteTouchee=e.target.closest(".dm-carte"); },true);
+      /* toute la carte ouvre sa fiche, pas seulement le bouton */
+      gw.addEventListener("click",function(e){ var c=e.target.closest(".dm-carte"); if(!c||e.target.closest("button,a,input,select,textarea,label")) return;
+        var b=c.querySelector("[data-dm-voir],[data-rc-voir]"); if(b) b.click(); }); } }
   wsMenuMaj();
   wsBadge();
   try{ sideMaj(); }catch(e){}
@@ -15273,17 +15321,31 @@ function dmStatut(x){
   var cmA=!!x.attend_cm&&!x.cm, rhA=!x.rh;
   return '<span class="dm-st dm-att">'+(cmA&&rhA?'Chez le contremaître et la RH':cmA?'Chez le contremaître':rhA?'Chez la RH':'En attente')+'</span>';
 }
+/* LE CIRCUIT DES SIGNATURES (22/10/2026, le client : « on ne voit pas bien
+   qui fait la demande, à qui est le tour de signer, et puis la RH ») : le
+   demandeur d'abord, puis chaque signataire dans l'ordre, chacun avec son
+   rôle, son nom et son état — signé, à son tour (« à vous » quand c'est le
+   lecteur), ensuite, refusé */
+function dmCircuit(x,et,enCours,refus,moi){
+  var cours=enCours?et.map(function(z){ return z.ok; }).indexOf(false):-1;
+  var rf=refus?et.map(function(z){ return z.ok; }).indexOf(false):-1;
+  var d=x.cree_le?new Date(x.cree_le):null;
+  var h=[{c:"fait",r:"Demandeur",q:x.a_moi?"Vous":idLisible(x.trigramme),e:d&&!isNaN(d)?"le "+pad2(d.getDate())+"/"+pad2(d.getMonth()+1):"envoyée"}];
+  et.forEach(function(z,i){
+    h.push(z.ok?{c:"fait",r:z.r,q:z.q,e:"signé"}:i===rf?{c:"refus",r:z.r,q:z.q,e:"refusé"}
+      :i===cours?{c:"tour",r:z.r,q:moi?"Vous":z.q,e:moi?"à vous de signer":"à son tour"}
+      :{c:"apres",r:z.r,q:z.q,e:enCours?"ensuite":"—"});
+  });
+  return '<ol class="dm-circ" aria-label="Circuit des signatures">'+h.map(function(z){
+    return '<li class="'+z.c+'"><span class="dm-pt" aria-hidden="true">'+(z.c==="fait"?'✓':z.c==="refus"?'✕':z.c==="tour"?'●':'')+'</span><b>'+esc(z.r)+'</b><small>'+(z.q?'<em>'+esc(z.q)+'</em>':'')+esc(z.e)+'</small></li>'; }).join("")+'</ol>';
+}
 function dmEtapes(x){
-  var e=[], rps={};
+  var rps={}, et=[];
   dmLignes(x).forEach(function(l){ if(l.rp) rps[l.rp]=1; });
-  var et=[];
-  Object.keys(rps).forEach(function(t){ et.push([!!(x.accords&&x.accords[t]),'Remplaçant · '+idLisible(t)]); });
-  if(x.cm||x.attend_cm) et.push([!!x.cm,'Contremaître'+(x.cm?' · '+x.cm:'')]);
-  et.push([!!x.rh,'RH'+(x.rh?' · '+x.rh:'')]);
-  /* l'étape attendue se voit : la première qui n'est pas faite, tant que la demande attend */
-  var cours=x.statut==="en_attente"?et.map(function(z){ return z[0]; }).indexOf(false):-1;
-  et.forEach(function(z,i){ e.push('<span class="dm-et'+(z[0]?' fait':i===cours?' encours':'')+'">'+(z[0]?'✓ ':'')+esc(z[1])+'</span>'); });
-  return '<div class="dm-etapes">'+e.join('<i>→</i>')+'</div>';
+  Object.keys(rps).forEach(function(t){ et.push({ok:!!(x.accords&&x.accords[t]),r:"Remplaçant",q:idLisible(t)}); });
+  if(x.cm||x.attend_cm) et.push({ok:!!x.cm,r:"Contremaître",q:x.cm||""});
+  et.push({ok:!!x.rh,r:"RH",q:x.rh||""});
+  return dmCircuit(x,et,x.statut==="en_attente",x.statut==="refusee",dmATraiter(x));
 }
 /* le tableau du formulaire, en lecture : jour, pause prévue, ce qui est demandé, remplaçant */
 function dmTableau(x){
@@ -15295,6 +15357,25 @@ function dmTableau(x){
         +'<td class="dm-c">'+(z.pause?'<span class="dm-pause">'+dmPa(z.pause)+'</span>':dmPa(z.code)+(z.code2?' '+dmPa(z.code2):'')+(z.part?'<small class="dm-heure">'+(z.part==="quitte"?'quitte à ':'arrive à ')+esc(String(z.heure||"").replace(':',' h '))+'</small>':''))+'</td>'
         +(rp?'<td class="dm-c">'+(z.rp?'<span class="dm-rp">'+esc(idLisible(z.rp))+' '+dmPa(z.rp_prevue||dmPrevue(z.rp,z.j),"repos")+'</span>':'')+'</td>':'')+'</tr>'; }).join("")
     +'</tbody></table>';
+}
+/* LA LISTE QU'ON PARCOURT D'UN COUP D'ŒIL (22/10/2026, le client : « les
+   listes des différentes fiches ne sont pas facilement différenciables et
+   intuitives ») : une tuile de date à gauche, une bande de couleur selon
+   l'état (à faire, en route, acceptée, refusée, retirée), le type en
+   étiquette, et les cartes groupées par mois */
+function dmTuile(iso,iso2){
+  var d=dmJour(iso), m=MOIS_C[d.getMonth()].replace(/\.$/,"");
+  var n=iso2&&iso2!==iso?Math.round((dmJour(iso2)-d)/864e5)+1:0;
+  return '<span class="dm-dt" aria-hidden="true"><small>'+JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+'</small><b>'+d.getDate()+'</b><small>'+m+'</small>'+(n?'<i>'+n+' j</i>':'')+'</span>';
+}
+function dmGenre(x){ return dmATraiter(x)?"faire":x.statut==="acceptee"?"ok":x.statut==="refusee"?"non":x.statut==="annulee"?"off":"att"; }
+function rcGenre(x){ return rcATraiter(x)?"faire":x.statut==="validee"?"ok":x.statut==="refusee"?"non":x.statut==="annulee"?"off":"att"; }
+function dmGroupes(f,date,carte){
+  var mois=null, h=[];
+  f.forEach(function(x){ var d=dmJour(date(x)), k=d.getFullYear()*12+d.getMonth();
+    if(k!==mois){ mois=k; h.push('<h4 class="dm-mois">'+MOIS[d.getMonth()]+' '+d.getFullYear()+'</h4>'); }
+    h.push(carte(x)); });
+  return h.join("");
 }
 function dmCarte(x,valideur){
   var p=dmPersonne(x.trigramme), n=[x.prenom,x.nom].filter(Boolean).join(" ")||(p?grNom(p):"");
@@ -15311,11 +15392,14 @@ function dmCarte(x,valideur){
   if(dmAccordAttendu(x)&&!x.a_moi) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Signer</button></div>';
   else if(valideur&&dmATraiter(x)) act='<div class="dm-act"><button type="button" class="btn ss-ok" data-dm-voir="'+x.id+'">Viser</button></div>';
   else act='<div class="dm-act"><button type="button" class="btnlike" data-dm-voir="'+x.id+'">Voir la feuille</button>'+(dmModifiable(x)?'<button type="button" class="btnlike" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>';
-  return '<article class="dm-carte'+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
+  var types=[]; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
+  if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
+  var tag=types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'';
+  return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
     /* même tête que la fiche de recyclage (22/10/2026) : la période en
        gras, le formulaire dessous, l'état à droite */
-    +'<header>'+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(dmPeriode(x.du,x.au))+'</b><small>'+esc(DM_FORMS[f].t)+'</small></span>')+dmStatut(x)+'</header>'
-    +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(dmPeriode(x.du,x.au))+'</b><span>'+esc(DM_FORMS[f].t)+'</span></div>':'')
+    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b><small>'+esc(dmPeriode(x.du,x.au))+'</small></span>')+dmStatut(x)+'</header>'
+    +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(dmPeriode(x.du,x.au))+'</b><span>'+esc(DM_FORMS[f].t)+'</span>'+tag+'</div>':'')
     +dmTableau(x)
     +'<p class="dm-info'+(neg?' dm-alerte':'')+'">'+info.map(esc).join(" · ")+'</p>'
     +(alertes.length?'<ul class="dm-regles">'+alertes.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')
@@ -15355,7 +15439,7 @@ function renderDemandes(){
     if(val) return !x.a_moi&&!x.je_remplace&&(o==="traiter"?dmATraiter(x):o==="attente"?x.statut==="en_attente"&&!dmATraiter(x):(x.statut==="acceptee"||x.statut==="refusee"));
     return o==="miennes"?x.a_moi&&x.statut==="en_attente":o==="histo"?x.a_moi&&x.statut!=="en_attente"&&!dmSupprimee(x):x.je_remplace; });
   if(o==="histo"||o==="faites") f=f.slice().sort(function(a,b){ return String(b.cree_le||"").localeCompare(String(a.cree_le||"")); });
-  h.push(f.length?'<div class="dm-liste">'+f.map(function(x){ return dmCarte(x,val); }).join("")+'</div>'
+  h.push(f.length?'<div class="dm-liste">'+dmGroupes(f,function(x){ return x.du; },function(x){ return dmCarte(x,val); })+'</div>'
     :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à viser : toutes les demandes ont reçu votre réponse.':o==="attente"?'Aucune demande en route chez quelqu\'un d\'autre.':o==="faites"?'Aucune demande traitée pour l\'instant.':o==="miennes"?'Aucune demande en cours. « Nouvelle demande » pour poser un congé ; les demandes traitées sont dans l\'historique.':o==="histo"?'Aucune demande traitée pour l\'instant.':'Aucun remplacement à signer.')+'</p></div>');
   hote.innerHTML=h.join("");
   dmBrancher();
@@ -16358,11 +16442,10 @@ function rcStatut(x){
   return '<span class="dm-st dm-att">'+(x.doublure&&!x.zone_le?'Chez le resp. de zone':'Chez la RH')+'</span>';
 }
 function rcEtapes(x){
-  var et=[[!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),'Contremaître'+(x.cm_qui||x.cm?' · '+idLisible(x.cm_qui||x.cm):'')]];
-  if(x.doublure) et.push([!!x.zone_le,'Resp. de zone'+(x.zone_qui?' · '+idLisible(x.zone_qui):'')]);
-  et.push([x.statut==="validee",'RH'+(x.rh_qui?' · '+idLisible(x.rh_qui):'')]);
-  var cours=rcEnCours(x)?et.map(function(z){ return z[0]; }).indexOf(false):-1;
-  return '<div class="dm-etapes">'+et.map(function(z,i){ return '<span class="dm-et'+(z[0]?' fait':i===cours?' encours':'')+'">'+(z[0]?'✓ ':'')+esc(z[1])+'</span>'; }).join('<i>→</i>')+'</div>';
+  var et=[{ok:!!x.cm_le&&!(x.statut==="refusee"&&!x.rh_le),r:"Contremaître",q:x.cm_qui||x.cm?idLisible(x.cm_qui||x.cm):""}];
+  if(x.doublure) et.push({ok:!!x.zone_le,r:"Resp. de zone",q:x.zone_qui?idLisible(x.zone_qui):""});
+  et.push({ok:x.statut==="validee",r:"RH",q:x.rh_qui?idLisible(x.rh_qui):""});
+  return dmCircuit(x,et,rcEnCours(x),x.statut==="refusee",rcATraiter(x));
 }
 function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullYear()+' · '+(x.pause==="N"?"Nuit":x.pause); }
 /* la date en entier, pour le titre d'une carte (22/10/2026) */
@@ -16372,14 +16455,15 @@ function rcCarte(x){
   var info=[x.doublure?'En doublure'+(x.titulaire?' de '+idLisible(x.titulaire):''):'Seul au poste'];
   var act='<div class="dm-act"><button type="button" class="'+(rcATraiter(x)?'btn ss-ok':'btnlike')+'" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Confirmer':x.je_contresigne?'Contresigner':x.je_valide?'Valider':'Voir la fiche')+'</button>'
     +(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button>':'')+'</div>';
-  return '<article class="dm-carte'+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
+  var tag='<span class="dm-type">'+(x.pause==="N"?"Nuit":esc(x.pause||""))+(x.doublure?' · doublure':'')+'</span>';
+  return '<article class="dm-carte dm-g-'+rcGenre(x)+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
     /* LA CARTE EN DEUX LIGNES DE TITRE (le client, le 22/10/2026 :
        « optimise cela 100 % pro ») : le poste en gras, la date en entier
        dessous, l'état à droite. « Ma fiche » et l'étiquette « RECYCLAGE · »
        redisaient l'onglet et le sélecteur. Pour la fiche d'un autre, la
        personne d'abord, le poste et la date ensuite. */
-    +'<header>'+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b><small>'+esc(rcQuandLong(x))+'</small></span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
-    +(x.a_moi?'':'<div class="dm-quoi"><b>'+esc(x.fonction)+'</b><span>'+esc(rcQuandLong(x))+'</span></div>')
+    +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b><small>'+esc(rcQuandLong(x))+tag+'</small></span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
+    +(x.a_moi?'':'<div class="dm-quoi"><b>'+esc(x.fonction)+'</b><span>'+esc(rcQuandLong(x))+'</span>'+tag+'</div>')
     +'<p class="dm-info">'+info.map(esc).join(" · ")+'</p>'
     +(x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.cm_motif)+'</p>':'')
     +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
@@ -16412,7 +16496,7 @@ function renderRecyclages(){
     ?autres.filter(function(x){ return o==="traiter"?rcATraiter(x):o==="cours"?rcEnCours(x)&&!rcATraiter(x):!rcEnCours(x); })
     :miennes.filter(function(x){ return o==="miennes"?rcEnCours(x):!rcEnCours(x); });
   if(o==="faites"||o==="histo") f=f.slice().sort(function(a,b){ return String(b.jour||"").localeCompare(String(a.jour||"")); });
-  h.push(f.length?'<div class="dm-liste">'+f.map(rcCarte).join("")+'</div>'
+  h.push(f.length?'<div class="dm-liste">'+dmGroupes(f,function(x){ return x.jour; },rcCarte)+'</div>'
     :'<div class="ws-carte"><p class="ws-vide">'+(o==="traiter"?'Rien à confirmer : toutes les fiches ont reçu votre réponse.':o==="cours"?'Aucune fiche en route chez quelqu\'un d\'autre.':o==="faites"?'Aucune fiche traitée pour l\'instant.':o==="miennes"?'Aucune fiche en cours. « Nouvelle fiche » après une pause complète passée sur un autre poste.':'Aucune fiche traitée pour l\'instant.')+'</p></div>');
   hote.innerHTML=h.join("");
   rcBrancher();
