@@ -4469,7 +4469,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.4)}
 .pf-cgc.vide .pf-cgc-b>i{background:rgba(255,255,255,.25)}
 .pf-cgc.ft>span{color:#9fc9da}
-.pf-cgc.ft .pf-cgc-b{visibility:hidden}
+.pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
 .pf-cgc.neg>b{color:#ff8a7a}
 @media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
 /* les trois chiffres de l'année, sous sa barre */
@@ -15817,7 +15817,9 @@ function mesCongesHTML(db,person){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
     cases.push('<button type="button" class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour')+'">'
       +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
-      +'<i class="pf-cgc-b" aria-hidden="true"></i>'
+      /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
+         plafond de 104 h de la note de service, sans écrire les bornes */
+      +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
       +'<em>≈ '+sg+jr(Math.abs(ft))+' j</em></button>');
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
