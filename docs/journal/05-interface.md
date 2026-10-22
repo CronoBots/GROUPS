@@ -2069,3 +2069,31 @@ DEUXIÈME argument (`node dm3.js <dossier> <largeur>`) ; il était lancé
 du 21 et du 22/10 ont en réalité testé 390 px. Lancé correctement, il
 passe à 390 et à 1280 (après l'avoir fait passer par la barre du bas au
 téléphone, le menu du haut n'y étant plus).
+
+### Supprimer une demande, et le cadre « Mes demandes » resserré (22/10/2026, `nfdm-v929`)
+
+Le client : « une demande peut être supprimée tant qu'elle n'a été signée
+par aucune autre personne que soit ; il faut optimiser le cadre des
+demandes de congé ».
+
+- **Supprimer** : le bouton n'apparaît que si personne d'autre que le
+  demandeur n'a signé (ni remplaçant, ni contremaître, ni RH :
+  `dmSignesAutres`). Il remplace « Annuler ma demande », sur la carte et
+  dans le pied de la feuille, passe par une confirmation (« Supprimer la
+  demande ? » / « Garder ») et appelle `biowanze_annuler_demande`. Une
+  demande supprimée disparaît de l'historique. Mesuré (`suppr.js`,
+  390 px) : demande non signée → [Voir la feuille · Modifier · Supprimer] ;
+  signée par le remplaçant → sans Supprimer ; l'appel part bien sur le
+  bon numéro ; 0 erreur.
+- **La garde n'est qu'à l'écran** : la base accepte encore l'annulation
+  d'une demande signée par un remplaçant (elle ne refuse qu'après un visa
+  du contremaître ou de la RH). La fermer demande un changement de base,
+  soumis au client.
+- **Le cadre** : « + Nouvelle » dans l'en-tête, une ligne par demande en
+  cours (date, statut, étapes), une bannière « N remplacement(s) à
+  signer », et l'historique replié derrière un lien. 280 px de haut à
+  390 px de large.
+- **Le titre flou sous la barre d'état d'iOS 26** : c'est l'effet de verre
+  que le système pose sous la barre d'état quand le contenu y défile ; un
+  voile opaque (`html::after`, hauteur `env(safe-area-inset-top)`) le
+  masque au téléphone.
