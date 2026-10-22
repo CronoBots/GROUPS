@@ -2539,3 +2539,17 @@ texte du poste, à 12 px ; il devient une mention `em` comme les deux
 autres : 11 px, gras 600, alignée à droite, en jaune. Si un candidat
 est à la fois en formation et proposé, les deux mentions se suivent.
 Vérifié au navigateur le 28/10 PM.
+
+### Le 28/10 : PAM, pas GPO (22/10/2026, `nfdm-v953`)
+
+Les deux règles du client (les trois postes arrière se comblent entre
+eux ; on déplace d'abord celui que rien n'attache) sont dans
+`docs/conversion-horaire.md`, « Fermentation, terrain arrière,
+distillation se comblent entre eux ».
+
+Mesuré :
+- **Planning** (`plan-an.js`, 365 jours) : 50 journées changent.
+- **La bulle du 28/10 N** : « PAM · Distillation · proposé » en tête,
+  puis GKT et GPO en surnombre.
+- **Le vérificateur** : `--manques` et `--compteurs` identiques ;
+  `--polyvalence` change pour quatre personnes, d'une à quatre journées.
