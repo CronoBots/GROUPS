@@ -3954,6 +3954,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .compop.cdp .eqn.cdp-abs{border-color:var(--at-rouge); color:var(--at-rouge)}
 .compop.cdp .eqn.cdp-abs b{color:var(--at-rouge)}
 .compop.cdp .cdp-fo{font-style:normal; font-weight:600; color:var(--at-jaune)}
+.compop.cdp .cdp-nm{display:block; font-size:11px; color:var(--muted); font-style:italic}
 /* SUR PC, CÔTE À CÔTE. Le client, le 30/09/2026 : « sur PC les badges de
    trigramme doivent être l'un à côté de l'autre ». Les colonnes y ont la
    place ; sur téléphone ils restent l'un sous l'autre (sa demande du
@@ -17525,6 +17526,39 @@ function meunDepuisD(db,listeD,mmdd){
   });
   return out;
 }
+/* Les « remplacé par X » des ABSENTS d'une pause : la case de la personne
+   prévue à cette pause (sa cellule dit gk) et qui n'y est pas, dont le
+   commentaire nomme son remplaçant. Le premier trigramme après « par »
+   seulement (« remplacé par SMA et CKS » : le second vient souvent en
+   renfort, ou pour quelques heures) ; pas « remplacé au CPPT par » (il
+   reste à son poste) ; pas un remplacement de quelques heures
+   (remplPartiel : « de 14h à 18h », « jusque 20h ») ; pas un nom suivi de
+   « ou » ou de « ? ». Rend {X: {y, k}}. */
+function nommesParAbsents(db,presents,gk,mmdd,jour){
+  var r={};
+  db.people.forEach(function(q){
+    if(presents[q.id]) return;
+    var e=q.d&&q.d[mmdd]; if(!e||String(e[0]||"").trim()!==gk) return;
+    var c=String(e[2]||""); if(remplPartiel(e)) return;
+    var m=/rempla\S*\s+par\s+([A-Za-z]{3})\b/i.exec(c); if(!m) return;
+    if(/au\s+(cppt|ce|ds)\s+par/i.test(c.slice(Math.max(0,m.index-2),m.index+m[0].length+12))) return;
+    /* un commentaire qui doute ne décide rien : « Remplacé par JKS ou
+       HKB » (YRS le 30/04) déplaçait JKS et creusait le gluten */
+    if(/^\s*(\?|ou\b)/i.test(c.slice(m.index+m[0].length))) return;
+    var x=m[1].toUpperCase(); if(x==="PAR"||r[x]) return;
+    var k=null; try{ k=posteAttitreLe(q,jour); }catch(er){}
+    if(k && k!=="adj") r[x]={y:q, k:k};
+  });
+  return r;
+}
+/* qui peut prendre le poste k d'un remplacé : la polyvalence, comme
+   atelierDuRemplace ; le poste de contremaître, un adjoint */
+function peutPrendreRemplace(qui,k,jour){
+  if(k==="cm") return estCadre(qui)&&!estContremaitre(qui);
+  if(k==="terr") return tientTerrainArriere(qui,jour);
+  for(var i=0;i<POSTES_TRAVAIL.length;i++){ var P=POSTES_TRAVAIL[i]; if(P.k===k && P.rx && aLAtelier(qui,P.rx,jour)) return true; }
+  return false;
+}
 function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
   var parPoste={}, inconnus=[], formation=[], parId={}, sortie=[];
   var ren=renfortDuJour(db,mmdd);
@@ -17534,6 +17568,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
   var jourCalc=Number(db.year)*10000+Number(mmdd);
   db.people.forEach(function(q){ parId[q.id]=q; });
   var presents={}; liste.forEach(function(x){ presents[x.p.id]=1; });
+  var nommes=nommesParAbsents(db,presents,gk,mmdd,jourCalc);
   liste.forEach(function(x){
     if(x.r && EST_FORMATION.test(x.r.jourCode||"")
        && !surSonPosteMalgreF(x.p.d[mmdd])){ formation.push(x); return; }
@@ -17563,6 +17598,16 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd])
        && !remplPartiel(x.p.d[mmdd]))
       k=atelierDuRemplace(x.p.d[mmdd],parId,x.p,{mmdd:mmdd,jour:jourCalc,presents:presents});
+    /* … ET « REMPLACÉ PAR X » DANS LA CASE DE L'ABSENT (le client, le
+       22/10/2026 : « il faut vérifier aussi, lorsqu'il y a des trous, si le
+       remplaçant n'était pas nommé dans le commentaire de CKS cette pause
+       là »). CKS le 23/05 AM, ["AM","…","Remplacé par ALZ"], ALZ ["AM"] :
+       ALZ restait au terrain arrière et la fermentation vide. Mêmes
+       conditions que la lecture active ci-dessus. */
+    if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
+       && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
+       && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
+      k=nommes[x.p.id].k;
     if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
@@ -20378,7 +20423,13 @@ function texteTransfert(x,t,raison){
    pointillé du Planning) ; « en formation » s'écrit en jaune. */
 function candidatsPlace(vue,P,gk,jour,oP,aP,par){
   var c=[], r=[];
-  try{ r=aRemplacer(par||{},gk,P,jour).map(function(y){ return {id:idLisible(y.p.id), m:y.motif}; }); }catch(e){}
+  /* … et ce que la case de l'absent dit de son remplaçant (« remplacé par
+     KDN et FLN », « remplacé par PBL », « de 14h à 18h ») : quand
+     l'application n'a pas pu le placer, la bulle le montre */
+  var md=String(jour).slice(4);
+  try{ r=aRemplacer(par||{},gk,P,jour).map(function(y){
+    var e=y.p.d&&y.p.d[md], c=String((e&&e[2])||""), m=/rempla\S*\s+par\s+[^.;\n]*/i.exec(c);
+    return {id:idLisible(y.p.id), m:y.motif, n:m?m[0].trim():""}; }); }catch(e){}
   (vue.postes||[]).forEach(function(o){
     if(o.P.k===P.k) return;
     var eff=effectif(o.gens,o.P,jour), surn=o.attendu?eff>o.attendu:true;
@@ -20406,7 +20457,7 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
 function bulleCandidatsHTML(d){
   var h='<b class="cdp-t">'+esc(d.t)+'</b>';
   if(d.r&&d.r.length) h+='<span class="cdp-s">À remplacer</span><ul class="cdp-l">'+d.r.map(function(x){
-    return '<li><span class="eqn cdp-abs"><b>'+esc(x.id)+'</b></span><span class="cdp-de">'+esc(x.m)+'</span></li>'; }).join("")+'</ul>';
+    return '<li><span class="eqn cdp-abs"><b>'+esc(x.id)+'</b></span><span class="cdp-de">'+esc(x.m)+(x.n?'<small class="cdp-nm">« '+esc(x.n)+' »</small>':'')+'</span></li>'; }).join("")+'</ul>';
   if(!d.l.length) return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<span class="cdp-vide">Personne de la pause ne peut le prendre sans laisser son poste en sous-effectif.</span>';
   return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<ul class="cdp-l">'+d.l.map(function(x){
     return '<li><span class="eqn'+(x.pr?' app':'')+(x.f?' form':'')+'"><b>'+esc(x.id)+'</b></span>'
