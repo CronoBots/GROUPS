@@ -2772,3 +2772,28 @@ chose, à trois blocs d'écart :
 
 Aucun débordement à 320, 390 et 1280 px. Les quatre sorties du
 vérificateur sont identiques à l'octet.
+
+### Week-end libre et prochain congé en deux cases (22/10/2026, v964)
+
+Le client, sur la capture de la v963 : « qu'en penses-tu ? Et les lignes
+prochain week-end et congé, présenterais-tu cela autrement ? ».
+
+**Avis.** Le haut est cohérent. Mais les deux lignes « libellé … date »
+ne disaient pas quand, alors que « Mes pauses », dessous, écrit « dans
+9 j ». Et le week-end ne donnait que le samedi.
+
+**Ce qui a été fait.**
+
+- Deux cases côte à côte sous le prochain poste, séparées par un filet.
+  Chacune donne le libellé (petites capitales), la date en entier, puis le
+  délai (« dans 23 j », « demain »).
+- Le week-end donne les deux jours : « 14 – 15 novembre », ou les deux
+  mois s'il est à cheval.
+- « Ce week-end » reste tel quel, sans délai.
+- S'il n'y a qu'une des deux, elle prend toute la largeur.
+- Sous 380 px, les libellés perdent les capitales : « WEEK-END LI… » se
+  coupait à 320 px.
+
+Mesuré : aucun débordement à 320, 390 et 1280 px. À 320 px, les dates
+passent sur deux lignes dans leur case. Les quatre sorties du
+vérificateur sont identiques à l'octet.
