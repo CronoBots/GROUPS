@@ -3083,3 +3083,33 @@ règle plus précise.
 Éprouvé à 390 et 1280 px : bascule dans les deux sens, aucun débordement,
 aucune erreur. Les quatre sorties du vérificateur sont identiques à
 l'octet.
+
+### Le jour d'une demande se choisit dans notre calendrier (22/10/2026, v976)
+
+Le client, capture de la feuille : « lors du choix du premier jour de
+congé, cela met toujours aujourd'hui sans rien faire, il ne faut pas ».
+
+**Cause.** La cellule de date était un `<input type="date">` invisible
+posé sur la case. L'iPhone y inscrit la date du jour dès que son
+sélecteur s'ouvre ; l'évènement `change` remplissait alors la ligne
+(aujourd'hui, VA) avant tout choix.
+
+**Correctif.** La cellule est un bouton (« choisir », en italique, tant
+qu'elle est vide). Il ouvre `dmChoisirJour`, un mois de calendrier :
+
+- la pause prévue est écrite sous chaque date ;
+- un repos ne se choisit pas, ni un jour déjà sur la feuille (« pris »),
+  ni un jour de plus de 31 jours (la base le refuse) ;
+- ‹ › changent de mois ;
+- « Retirer la date » vide la ligne ; « Annuler », Échap ou un toucher à
+  côté ne changent rien.
+
+Rien n'est écrit tant qu'un jour n'est pas touché. Ensuite, la ligne se
+remplit comme avant (pause prévue, VA par défaut). La période « Du … Au »
+garde ses champs date : on la remplit exprès, avec le bouton « Remplir
+les lignes ».
+
+Éprouvé à 390 et 1280 px. À l'ouverture de la feuille, les lignes
+disent « choisir ». Le calendrier d'octobre a 21 jours choisissables sur
+31. Un jour touché donne « Lu 05/10 · PM · VA ». Aucune erreur. Les quatre
+sorties du vérificateur sont identiques à l'octet.
