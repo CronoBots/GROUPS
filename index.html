@@ -5105,7 +5105,10 @@ html .pvt thead th,html .pvt thead th.pvqui{font-size:10.5px}
   #v-reglages > *{width:100%; max-width:880px; margin-left:auto; margin-right:auto}
   /* Effectifs : les journées en grille */
   #apCorps,#mqCorps :has(> .mqj){display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:10px; align-items:start}
-  html #apCorps .mqj,html #mqCorps .mqj{max-width:none; margin-top:0}
+  /* la première carte (« :first-child », « .eqsem+.mqj », plus lourds)
+     gardait ses 10 px du haut et descendait sous ses voisines (le client,
+     le 22/10/2026 : « décalage des cadres sous-effectifs ? ») */
+  html #apCorps .mqj,html #mqCorps .mqj,html #apCorps .mqj:first-child,html #mqCorps .mqj:first-child,html #mqCorps .eqsem+.mqj,html #apCorps .eqsem+.mqj{max-width:none; margin-top:0}
   html .mql{max-width:none}
   /* Équipes : binômes et opérateurs en formation côte à côte, sous la composition */
   #orgCorps{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:16px}
@@ -15200,7 +15203,17 @@ function dmFormulaire(pre){
       if(!L.length){ err.textContent="Inscrivez au moins une date dans le tableau."; return; }
       var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre/.test(m); });
       if(bloquant.length) return;
-      var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp; return o; });
+      var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp;
+        /* LE CONTREMAÎTRE DU JOUR (le client, le 22/10/2026 : « c'est le
+           contremaître qui a la fonction ce jour-là qui doit être notifié de
+           la demande faite durant sa pause ») : celui que l'horaire place au
+           poste de contremaître, à la pause du demandeur ce jour-là — la
+           même lecture que la fiche de recyclage. La base le notifie une fois
+           le remplaçant signé ; introuvable (D, horaire absent), les autres
+           contremaîtres et adjoints la voient dans leur liste. */
+        var cm=null; try{ cm=rcContremaitre(l.j,rcPauseDe(moi,l.j)); }catch(er){}
+        if(cm&&cm!==moi) o.cm=cm;
+        return o; });
       b.disabled=true; err.textContent="Envoi…";
       (mod?baseRpc("biowanze_modifier_demande",{p_id:mod.id,p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""})
            :baseRpc("biowanze_demander_formulaire",{p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""}))

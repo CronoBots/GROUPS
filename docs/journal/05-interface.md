@@ -2400,3 +2400,46 @@ Ce qui reste, et pourquoi : le mois d'octobre de l'opérateur d'essai est
 tout en maladie, et ses compteurs font 815 px au téléphone. Ce sont ses
 données : on ne les touche pas. Mesuré : aucun débordement à 320 et
 1280 px ; les raccourcis mènent au bon écran ; 0 erreur.
+
+### Le contremaître du jour, après le remplaçant ; les cartes de sous-effectif alignées (22/10/2026, `nfdm-v942`)
+
+**Les réponses du client.**
+- « C'est le contremaître qui a la fonction ce jour-là qui doit être
+  notifié de la demande faite durant sa pause ; sinon cela doit bien
+  apparaître pour tous les autres contremaîtres et adjoints. »
+- « Non, toujours le remplaçant avant le contremaître. »
+- Le responsable de zone reste, en attendant, tout compte hiérarchie ou
+  RH.
+
+**Ce qui est fait** (`base/18-contremaitre-du-jour.sql`). Les quatre
+fonctions remplacées avaient été comparées à l'octet à celles du dépôt
+avant d'être appliquées.
+- À l'envoi, chaque ligne porte `cm` : le contremaître de la pause du
+  demandeur ce jour-là, lu dans l'horaire (`rcContremaitre`, comme la
+  fiche de recyclage).
+- Il est notifié en même temps que la RH, une fois la demande complète
+  (sans remplaçant, ou à la dernière signature).
+- `attend_cm` attend les remplaçants, et la garde de la base refuse le
+  visa de la hiérarchie avant leur signature.
+- Les autres comptes hiérarchie voient toujours toutes les demandes.
+
+**Éprouvé dans une transaction annulée** :
+- la ligne garde `cm: GPS` ;
+- avant la signature, GPS ne voit rien à viser et son visa est refusé ;
+- après, il voit la demande, la vise (« validée en partie »), et les
+  notifications vont à JBI (remplaçant), GPS (« pendant votre pause »)
+  et au demandeur.
+- Au navigateur (`dmod.js`), l'envoi porte `cm: ATR` les trois jours,
+  c'est-à-dire le contremaître que le Planning montre à ces pauses.
+
+**Limite.** Quand deux personnes sont sur la ligne Contremaître (ATR et
+YPE le 28/10 AM), c'est la première qui est notifiée.
+
+**« Décalage des cadres sous-effectifs ? »** Au PC, la première carte
+d'une rangée descendait de 10 px : `:first-child` et `.eqsem+.mqj`,
+plus lourds, gardaient la marge du téléphone que `html #mqCorps .mqj`
+devait annuler. C'est le même défaut que les badges du Planning.
+Mesuré (`mq.js`, mois dépliés) : 2 rangées décalées de 10 px à 1280 et
+1920 px avant, 0 après. Puis tous les onglets à 1920 px (`grilles.js`) :
+il ne reste que les 4 px voulus du titre « Mes pauses » dans le héros en
+trois colonnes.
