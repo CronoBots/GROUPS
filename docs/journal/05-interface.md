@@ -2636,8 +2636,10 @@ remplacer par ma semaine ».
   pause AM, PM, N ou D y porte la même pastille que le reste du héros ;
   les autres codes gardent la leur. Le point d'un commentaire passe en
   5 px dans le coin : à 320 px, il touchait les lettres « VE ».
-- Le cycle reste à un appui : vue Cycle du calendrier. `ryCycleHTML` sert
-  toujours là.
+- Le cycle reste à un appui : vue Cycle du calendrier. `ryCycleHTML`,
+  `ouvrirCycle` et leurs deux écouteurs ne servaient plus qu'au héros :
+  retirés (le premier état de cette note disait à tort que `ryCycleHTML`
+  servait encore au calendrier ; un `grep` l'a démenti).
 
 Mesuré à 320, 390 et 1280 px (cases de 34, 44 et 73 px) : aucun
 débordement, aucune erreur. Les quatre sorties du vérificateur sont

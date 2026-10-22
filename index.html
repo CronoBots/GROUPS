@@ -15640,62 +15640,6 @@ function cycleAvec(p,c){
     return tous.map(function(q){ return idLisible(q.id); }).join(" · ");
   }).join(" → ");
 }
-function ryCycleHTML(p,c,titre,prochain){
-  var ju=jourPerso(p), t0=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()).getTime();
-  var sem="", cases="", fait=0, avenir=0, i, d, x, cl, ti;
-  for(i=0;i<c.L;i++){
-    d=new Date(c.deb.getFullYear(),c.deb.getMonth(),c.deb.getDate()+i);
-    x=_pfJour(p.id,d);
-    var pres=!!(x && x.presente && PF_HEURES[x.pv]);
-    if(pres){ cl="s-"+x.pv.toLowerCase(); ti=x.pv; }
-    else if(x && x.ab==="MAL"){ cl="s-mal"; ti="Maladie"; }
-    else if(x && x.ab){ cl="s-cg"; ti=x.ab; }
-    else { cl="s-rep"; ti="Repos"; }
-    var t=d.getTime();
-    if(pres){ if(t<t0) fait++; else avenir++; }
-    /* PLUS DE JOURS À VENIR ESTOMPÉS (le client, le 19/10/2026 : « le cycle
-       actuel n'est pas bien visible comme le prochain cycle ») : au premier
-       jour d'un cycle, tout était pâle. Les deux cycles se lisent en pleine
-       couleur ; le jour cerclé et la semaine encadrée disent où l'on en est. */
-    cases+='<span class="cy-c '+cl+(t===t0?' auj':'')+'" title="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+d.getDate()+" "+MOIS[d.getMonth()].toLowerCase()+" · "+ti)+'"></span>';
-    if(i%7===6||i===c.L-1){ sem+='<span class="cy-s'+(!prochain&&Math.floor(i/7)===Math.floor(c.pos/7)?' cour':'')+'">'+cases+'</span>'; cases=""; }
-  }
-  var dm=function(d){ return d.getDate()+" "+MOIS_BREF[d.getMonth()]; };
-  var ou=prochain?(c.L%7===0?(c.L/7)+" semaines":c.L+" jours")
-                 :(c.L%7===0?"semaine "+(Math.floor(c.pos/7)+1)+" / "+(c.L/7):"jour "+(c.pos+1)+" / "+c.L);
-  var av=""; try{ av=cycleAvec(p,c); }catch(e){ av=""; }
-  var pct=(fait+avenir)?Math.round(fait/(fait+avenir)*100):0;
-  /* Un cadre dans sa seconde semaine de D (la 6e du cycle) ne tourne plus
-     avec cette équipe : elle a repris son cycle de 5 semaines sans lui (le
-     client, le 17/10/2026). L'équipe actuelle ne s'écrit donc plus. */
-  if(!prochain && estCadre(p) && c.L===42 && Math.floor(c.pos/7)===5) av="";
-  /* UN APPUI OUVRE CE CYCLE DANS LE CALENDRIER (le client, le 20/10/2026 :
-     « j'aime vraiment beaucoup la vue par cycle ») */
-  var iso=c.deb.getFullYear()+"-"+pad2(c.deb.getMonth()+1)+"-"+pad2(c.deb.getDate());
-  return '<div class="cy-bloc" data-cyc="'+iso+'" role="button" tabindex="0" aria-label="Voir ce cycle dans le calendrier">'
-    +'<div class="ry-an-t"><span class="ry-chart-t ry-h2">'+titre+' <span class="ry-hint">'+ou+'</span></span>'
-    +(av?'<b class="cy-avec" title="'+(estCadre(p)?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')+'</div>'
-    /* LA BARRE DE PROGRESSION DU CYCLE (le client, le 20/10/2026 : « et si
-       on ajoute une barre de progression du cycle actuel ? ») : la même que
-       celle de l'année, journées prestées sur journées du cycle ; le
-       pourcentage s'écrit au bout, la frise garde le détail jour par jour. */
-    +(!prochain&&(fait+avenir)?'<div class="cy-prog"><div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Journées prestées du cycle"><i style="width:'+pct+'%"></i></div><b>'+pct+'\u00a0%<small> fait</small></b></div>':'')
-    +'<div class="cy-fr'+(c.L>42?' long':'')+'" role="img" aria-label="'+titre+' du '+dm(c.deb)+' au '+dm(c.fin)+(av?', avec '+esc(av):'')+'">'+sem+'</div>'
-    +'<div class="ry-an-leg"><span>'+(prochain?'<b>'+avenir+'</b> journée'+(avenir>1?'s':'')+' à prester':'<b>'+fait+'</b> prestée'+(fait>1?'s':'')+' · <b>'+avenir+'</b> à venir')+'</span><span>'+dm(c.deb)+' – '+dm(c.fin)+' ›</span></div></div>';
-}
-function ouvrirCycle(el){
-  var q=String(el.dataset.cyc||"").split("-"); if(q.length<3) return;
-  var d0=new Date(Number(q[0]),Number(q[1])-1,Number(q[2]));
-  if(calVue!=="cycle") choisirVue("cycle");
-  allerCycle(d0);
-  var c=document.getElementById("calCard"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"});
-}
-document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest(".cy-bloc[data-cyc]"):null; if(b) ouvrirCycle(b);
-});
-document.addEventListener("keydown",function(e){
-  if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("cy-bloc")){ e.preventDefault(); ouvrirCycle(e.target); }
-});
 /* LE PROCHAIN MATIN, LE PROCHAIN PM, LA PROCHAINE NUIT (le client, le
    20/10/2026 : « ajouter une stat prochain matin, prochain PM et prochaine
    nuit pour savoir quand cela arrivera »). La première journée prestée à
