@@ -3402,3 +3402,31 @@ Au passage, le compte à rebours écrit ses minutes sur deux chiffres :
 Aucune erreur, aucun débordement à 320, 390 et 1280 px. Toucher « Accueil »
 sur l'Accueil ne change toujours rien. Les quatre sorties du vérificateur
 sont identiques à l'octet.
+
+### Deux modules : « Mes demandes » et « À valider » ; liste et fiche côte à côte sur PC (22/10/2026, v993)
+
+Le client : « il faut bien faire une différence entre le module de demande
+et de suivi des opérateurs, et le module de réception et confirmation du
+contremaître et RH », puis « sur PC, la partie de droite se divise en 2
+parties pour les onglets demande de congé et recyclages ».
+
+- Deux entrées de menu. **Mes demandes** (sections `demandes`,
+  `recyclages`) : ses propres congés et fiches, onglets En cours ·
+  Historique (· Je remplace), badge = remplacements à signer.
+  **À valider** (`valider`, `valider-rc`), seulement pour qui peut
+  saisir ou a quelque chose à viser : onglets À traiter · En cours ·
+  Traitées, badge = ce qui attend sa signature. Une étiquette en tête
+  (« Mes demandes » bleue, « Réception et validation » ambre) dit dans
+  quel module on est. Les raccourcis « viser » et « recyclage à faire »
+  du centre de contrôle ouvrent À valider.
+- Statuts : une demande en attente dit CHEZ QUI elle est (« Chez le
+  remplaçant », « Chez le contremaître et la RH », « Chez la RH », « Chez
+  le resp. de zone ») au lieu de « En attente ».
+- À 1100 px et plus, dans ces quatre sections, le panneau de la fiche
+  n'est plus posé par-dessus : il prend la moitié droite
+  (`clamp(460px,48%,780px)`), la liste reste visible à gauche, la carte
+  ouverte s'entoure de bleu ; sans fiche ouverte, la moitié droite le dit.
+  Mesuré à 1280 : liste 248–784, fiche 784–1280, position `relative`.
+  Au téléphone, rien ne change (le panneau reste par-dessus).
+- Vérifié : 320, 390, 1280 px, contremaître simulé, aucune erreur ni
+  débordement ; vérificateur, quatre sorties identiques à l'octet.
