@@ -2317,3 +2317,22 @@ sept jours à venir : 5 changements avant, 2 après. Les trois retirés
 (PLZ le 22, GDT les nuits des 24 et 25) ne sont pas proposés au
 Planning ; les deux restants (SMA le 23, PAM le 26) le sont. Les quatre
 sorties du vérificateur sont inchangées.
+
+### AAI à la distillation, PAM à la fermentation : d'office (22/10/2026, `nfdm-v938`)
+
+Deux demandes du client, à la suite : « AAI et SMA, on avait déjà dit
+que c'était AAI qui prenait la place de SMA en distillation », puis « et
+pareil pour PAM le 26, qui est en fermentation vu que GPO remplace QBY ».
+Les règles, leurs conditions et les 27 journées qu'elles changent sont
+dans `docs/conversion-horaire.md`, « Deux autres changements que
+l'application fait d'office ».
+
+**Erreurs de la première version, mesurées avant le commit**
+(`plan-an.js`, le Planning des 365 jours) : 35 journées changeaient ;
+la règle du remplaçant écrit passait avant l'échange AAI / SMA et le
+défaisait (le 23/10 remontrait SMA en distillation) ; et elle déplaçait
+vers des postes déjà complets (CDE le 20/01). Corrigées en réordonnant
+les règles et en ajoutant deux conditions : sa place habituelle, et un
+poste d'arrivée qui manquerait sans lui. Les quatre sorties du
+vérificateur et les agendas sont inchangés ; l'alignement des badges
+reste à 0 décalage.

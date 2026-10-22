@@ -1023,6 +1023,49 @@ terrain arrière, vide sans lui). Les sorties de `verifier-calendrier.js`
 (les quatre), les agendas et `comparer-fiches.py VBN` sont identiques à
 l'octet : seul l'affichage du Planning change.
 
+### Deux autres changements que l'application fait d'office (22/10/2026)
+
+Le même jour, le client a ajouté deux cas, tous deux tranchés par le
+rééquilibrage et que le Planning, depuis le 20/10, se contentait de
+proposer :
+
+**L'échange des places habituelles.** Le client : « AAI et SMA, on avait
+déjà dit que c'était AAI qui prenait la place de SMA en distillation ».
+Le 23/10 PM, AAI écrit `["PM","poly. Etoh","remplace SKS"]`, SMA `["PM"]`,
+et la distillation est vide. L'application portait SMA du terrain arrière
+vers la distillation. La règle du 27/09 (`POSTE_HABITUEL`, AAI à la
+distillation, SMA au terrain) dit l'inverse : c'est AAI qui y va, et SMA
+garde le terrain arrière (`echangeHabituel()`). Quatre journées : les 22
+et 23/07 N, le 23/10 PM et le 04/11 N.
+
+**Le poste qu'il quitte est tenu par un remplaçant écrit.** Le client :
+« et pareil pour PAM le 26, qui est en fermentation vu que GPO remplace
+QBY ». PAM a `["PM","F","projet falling film en distillation"]` et GPO
+`["PM","disti","Remplace QBY"]`. La fermentation est vide. GPO, que le
+classeur envoie lui-même en distillation, la tient : PAM, à sa place
+habituelle, y est en trop, et la fermentation lui revient
+(`tenuParRemplacant()`). Trois conditions :
+1. il quitte sa place habituelle ;
+2. un collègue y est écrit dans sa case avec un « remplace Z », et le
+   poste garde son effectif sans lui ;
+3. le poste d'arrivée resterait sous son effectif sans lui.
+
+La première version, sans les conditions 1 et 3, changeait 35 journées,
+et défaisait l'échange AAI / SMA, qu'elle précédait. La troisième
+condition est venue de CDE le 20/01 : il serait parti vers un terrain
+arrière déjà complet.
+
+Sur l'année, les deux règles changent 27 journées au Planning : AAI en
+janvier, le 11/09 et le 15/10 (SPS tient la distillation) ; ALZ huit
+fois de mai à septembre (GKT tient le terrain arrière, il comble la
+fermentation) ; SKS, GDT, GPO, HKB, CDE, DWS une ou deux fois ; et
+PAM le 26/10. Le badge garde le pointillé orange, avec, dans sa bulle,
+« Placé par l'application » et la raison, sans « à confirmer ». La liste
+« Changements de poste à prévenir » nomme la personne qui change de
+poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
+quatre sorties de `verifier-calendrier.js` et les agendas sont
+identiques à l'octet.
+
 ### « Poly. Etoh » est un terrain arrière
 
 **Confirmé par le client le 21/09/2026.** L'éthanol, c'est la fermentation et
