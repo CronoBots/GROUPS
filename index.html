@@ -5051,7 +5051,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (min-width:761px){
   #jourCorps .eqp2 td .eqc{display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:6px}
   #jourCorps .eqp2 td .eqc .eqtrou{display:none}
-  #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn,#jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin:0}
+  /* « .eqn.eqn » : le premier badge d'une case perdait contre la règle des
+     états (:is(.coment…), même poids) et descendait de 2 px (le client, le
+     22/10/2026 : « badge non aligné ? », LDY sous JBI) */
+  #jourCorps.eqhote .eqp2 tbody td .eqc>.eqn.eqn,#jourCorps.eqhote .eqp2 tbody td .eqc>.eqn+.eqn{margin:0}
 }
 @media (min-width:761px){
   #jourCorps.eqhote .eqp2 tbody td .eqn{min-width:calc(3ch + 18px); height:43px; margin:2px 3px; padding:2px 4px; border-radius:7px; font-size:13.5px}
@@ -20260,9 +20263,21 @@ function transfertsDuJour(db,annee,m,j){
     var l=par[g]; if(!l||!l.length) return;
     var vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
     vue.postes.forEach(function(o){
+      var tr=[];
       o.gens.forEach(function(x){
-        var t=transfertApp(x,o.P.k,jc); if(!t) return;
-        out.push({p:x.p, pause:g, de:t.de, vers:t.vers, r:raisonsTransfert(par,g,o.P,jc,x,vue,t.de)});
+        var t=transfertApp(x,o.P.k,jc); if(t) tr.push([x,t]);
+      });
+      /* LA MÊME RÈGLE QUE LE PLANNING (renderEquipe, le 20/10/2026) : un
+         changement n'a de sens que vers un poste qui, sans lui, resterait
+         sous son effectif. Le client, le 22/10/2026 : « et pourquoi PLZ ? »
+         — Gluten → Terrain arrière l'après-midi du 22/10, où GDT (« poly.
+         Etoh », remplace DWS) puis ATR (« Poly.Ethol », de 20 h à 22 h)
+         tiennent le poste. Le Planning ne le proposait plus ; cette liste,
+         calculée à part, l'annonçait encore. */
+      var sans=o.tenu-tr.filter(function(z){ return compteAuPoste(z[0],o.P,jc); }).length;
+      if(o.attendu && sans>=o.attendu) return;
+      tr.forEach(function(z){
+        out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
       });
     });
   });

@@ -2291,3 +2291,29 @@ transaction annulée), BLR le 22/10 avec JBI remplaçant donne
 `prevue: PM` et `rp_prevue: AM` (avant : N et « - ») ; à l'écran, les
 cartes de BLR, de JBI et de SMA donnent PM, AM et AM (avant : N, « – »,
 AM).
+
+### Des badges décalés de 2 px, et PLZ annoncé pour rien (22/10/2026, `nfdm-v937`)
+
+**« Badge non aligné ? »** (capture du Planning du 22/10, au PC) : LDY
+2 px sous JBI, CHD sous CKS, ATR sous GDT. Le premier badge d'une case
+ne recevait que `.eqc>.eqn{margin:0}`, du même poids que la règle des
+états `.eqn:is(.coment, .form…){margin:2px 3px}`, posée plus loin : elle
+gagnait. Les badges suivants, eux, avaient `.eqn+.eqn`, plus lourde. Le
+remède : `.eqn.eqn`. Mesuré sur 30 jours de Planning (`alig.js`), en
+comptant les rangées de badges d'une même case dont les hauts diffèrent :
+109 sur 1 392 au PC avant, 0 sur 1 380 après ; 0 au téléphone, avant
+comme après (la grille du téléphone n'avait pas le défaut).
+
+**« Et pourquoi PLZ ? »** L'onglet des effectifs annonçait « PLZ · Gluten →
+Terrain arrière » pour l'après-midi du 22/10, alors que GDT (« poly.
+Etoh », remplace DWS) puis ATR (de 20 h à 22 h) tiennent le poste. Le
+Planning ne le proposait plus depuis le 20/10 : un changement n'y a de
+sens que vers un poste qui resterait sous son effectif. Mais la liste
+« Changements de poste à prévenir » (`transfertsDuJour`, lue aussi par
+le héros de l'Accueil), calculée à part, reprenait le rééquilibrage
+brut : c'était la seconde copie d'une règle, celle qui était restée en
+arrière. Elle applique désormais la même condition. Mesuré sur les
+sept jours à venir : 5 changements avant, 2 après. Les trois retirés
+(PLZ le 22, GDT les nuits des 24 et 25) ne sont pas proposés au
+Planning ; les deux restants (SMA le 23, PAM le 26) le sont. Les quatre
+sorties du vérificateur sont inchangées.
