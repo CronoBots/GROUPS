@@ -14778,7 +14778,12 @@ function icsCongesScolaires(premiere,nAns,stamp){
     var x=fwbAn(A), suiv=fwbAn(A+1);
     ev("rentree",x.rentree,plus(x.rentree,1),"Rentrée scolaire"+(x.sure?"":" (à confirmer)"),
       x.sure?"Décret du 31 mars 2022 : le dernier lundi d'août, ou l'avant-dernier s'il le faut pour 180 jours de classe.":"Le 30 ou le 31 août, ou le lundi d'avant : cela dépend des vacances que l'arrêté fixera.");
-    x.periodes.forEach(function(q){ ev(q.k,q.d,plus(q.d,14),q.t,"Du lundi au dimanche de la semaine suivante ("+q.src+")."); });
+    /* le week-end qui précède en fait partie (le client, le 23/10/2026 :
+       « le premier week-end juste avant le congé doit être compris dans
+       ce congé ») : du samedi au dimanche de la seconde semaine. La date
+       de début fait l'identifiant : un agenda abonné remplace l'ancien
+       événement (du lundi) au lieu de le garder. */
+    x.periodes.forEach(function(q){ ev(q.k,plus(q.d,-2),plus(q.d,14),q.t,"Du samedi qui précède au dimanche de la semaine suivante ; les cours s'arrêtent le vendredi d'avant ("+q.src+")."); });
     x.conges.forEach(function(z){ ev("conge",z[0],plus(z[0],1),"Congé scolaire : "+z[1],""); });
     if(x.mardiGras) ev("conge",x.mardiGras,plus(x.mardiGras,1),"Congé scolaire : Mardi gras","");
     ev("ete",plus(x.fin,1),suiv.rentree,"Vacances d'été","Du lendemain du dernier jour de classe (vendredi "+x.fin.getDate()+" juillet) à la veille de la rentrée.");

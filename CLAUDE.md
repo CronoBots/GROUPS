@@ -278,7 +278,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/extraire-fiches.py` | recopie toute une fiche de paie en JSON, sans rien d'identifiant — sortie hors du dépôt |
 | `cal/<id>.ics` | l'abonnement agenda de chacun, écrit par `verifier-calendrier.js --agendas` ; avec lui `cal/conges-scolaires.ics`, les congés scolaires de la Fédération Wallonie-Bruxelles |
 | `tools/verifier-conges-scolaires.js` | confronte le calcul des congés scolaires (décret du 31/03/2022) aux arrêtés publiés |
-| `tools/conges-auto.js` | relit chaque jour enseignement.be (`conges-scolaires.yml`) ; une année nouvelle n'entre que recoupée avec le décret |
+| `tools/conges-auto.js` | relit enseignement.be le 1er de chaque mois (`conges-scolaires.yml`) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `tools/qr-installer.py` | écrit `qr-installer.svg`, le QR code du guide d'installation (`#installer`) |
