@@ -4188,4 +4188,4 @@ Zone design et contenu :
 - **Reste** :
   - une saisie de case en cours se perd si l'on touche une autre case : non demandé, à confirmer avant de bloquer la grille ;
   - laissé à la Direction : le champ de date qui s'allume au clic de souris ;
-  - laissé à l'Accueil : les tuiles `role="listitem"` qui ne s'annoncent pas comme boutons.
+  - les tuiles de l'Accueil, des `<button role="listitem">` qui ne s'annonçaient pas comme boutons : corrigé ensuite (v1014). Elles sont devenues des boutons dans un groupe « À portée de main ». Vérifié : 6 boutons, pour un opérateur comme pour la hiérarchie.
