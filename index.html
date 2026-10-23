@@ -2390,7 +2390,6 @@ body.sheet-on{overflow:hidden}
 .ws-qui .pl-tri{width:34px; height:34px}
 .ws-neg{color:var(--out); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 .ws-vide{margin:0; color:var(--muted); font-size:13px}
-.ws-rep{margin:-2px 0 6px; color:var(--ink2); font-size:12.5px}
 /* une liste vide : au centre de sa carte, sans bord tassé en haut */
 html #grille .ws-carte:has(> .ws-vide:only-child){padding:18px 14px; text-align:center}
 html #grille .ws-carte>.ws-vide:only-child{margin:0}
@@ -14780,19 +14779,20 @@ function dirCouvre(p,k){
   var poly=[]; try{ poly=polyvalenceDe(_dirAnCache?_dirAnCache.db:HORAIRE_DB,p)||[]; }catch(e){}
   return poly.some(function(e){ return e.k===k && (e.acquis||e.exempt); });
 }
-/* QUI EST ABSENT CETTE SEMAINE (le client, le 23/10/2026 : « les gens
-   absents ») : malade ou en congé au moins un des 7 jours à partir du jour
-   choisi, avec son premier jour d'absence ; relu jour par jour dans
-   dirCentre, que « Les 7 prochains jours » a déjà calculé */
+/* QUI SERA MALADE, QUI SERA EN CONGÉ CETTE SEMAINE : au moins un des 7
+   jours à partir du jour choisi, avec le premier jour de chacun ; relu
+   jour par jour dans dirCentre, que « Les 7 prochains jours » a déjà
+   calculé. Les deux À PART (le client, le 23/10/2026 : « il faut séparer
+   les 2 ») : { malade:{id:…}, conge:{id:…} } */
 function dirAbs7(){
   var d0=DIR.jour, cle=dirIso(d0);
   if(DIR.abs7C && DIR.abs7C.cle===cle) return DIR.abs7C.par;
-  var par={}, b=dirBornes();
+  var par={malade:{}, conge:{}}, b=dirBornes();
   for(var k=0;k<7;k++){
     var d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+k), dbk=horaireDe(d.getFullYear());
     if(!dbk || d>b.max) continue;
     dirCentre(dbk,d.getFullYear(),d.getMonth()+1,d.getDate()).L.forEach(function(l){
-      if((l.etat==="malade"||l.etat==="conge") && !par[l.id]) par[l.id]={k:k, j:l.jour, etat:l.etat, motif:l.motif}; });
+      if((l.etat==="malade"||l.etat==="conge") && !par[l.etat][l.id]) par[l.etat][l.id]={k:k, j:l.jour, etat:l.etat, motif:l.motif}; });
   }
   DIR.abs7C={cle:cle, par:par}; return par;
 }
@@ -14802,8 +14802,9 @@ function dirFiltrer(lignes,f,sauf){
   var q=dirNorm(f.q||"").trim();
   return lignes.filter(function(l){
     var I=l.I, A;
-    if(f.etat && sauf!=="etat"){ if(f.etat==="formation"){ if(!l.formJour) return false; } else if(f.etat==="absent"){ if(l.etat!=="malade"&&l.etat!=="conge") return false; } else if(l.etat!==f.etat) return false; }
-    if(f.abs7 && !dirAbs7()[l.id]) return false;
+    if(f.etat && sauf!=="etat"){ if(f.etat==="formation"){ if(!l.formJour) return false; } else if(l.etat!==f.etat) return false; }
+    if(f.mal7 && !dirAbs7().malade[l.id]) return false;
+    if(f.cong7 && !dirAbs7().conge[l.id]) return false;
     if(f.pause && l.pause!==f.pause) return false;
     if(f.groupe && I.groupe!==f.groupe) return false;
     if(f.fonction && I.fonction!==f.fonction) return false;
@@ -14845,8 +14846,9 @@ function dirTrier(lignes,cle){
 }
 /* une valeur de filtre lisible, pour les puces actives et l'annonce */
 function dirFiltreTxt(k,v){
-  if(k==="etat") return v==="formation"?"En formation ce jour":({present:"Présents",absent:"Absents (malades et congés)",malade:"Malades",conge:"En congé",repos:"Repos"})[v]||v;
-  if(k==="abs7") return "Absents sur les 7 jours";
+  if(k==="etat") return v==="formation"?"En formation ce jour":({present:"Présents",malade:"Malades",conge:"En congé",repos:"Repos"})[v]||v;
+  if(k==="mal7") return "Malades sur les 7 jours";
+  if(k==="cong7") return "En congé sur les 7 jours";
   if(k==="pause") return "Pause "+v;
   if(k==="groupe") return dirTeamLabel(v);
   if(k==="poste") return v==="form"?"En formation":(titrePoste(v)||v);
@@ -14859,7 +14861,7 @@ function dirFiltreTxt(k,v){
   if(k==="statut") return v==="Intérimaire"?"Intérimaires":v==="Employé"?"Employés":v==="Ouvrier"?"Ouvriers":v;
   return v;
 }
-var DIR_FCLES=["etat","pause","groupe","fonction","poste","statut","cat","couvre","longue","sansAbs","abs7","retour","q"];
+var DIR_FCLES=["etat","pause","groupe","fonction","poste","statut","cat","couvre","longue","sansAbs","mal7","cong7","retour","q"];
 function dirLireFiltre(s){
   var f={}; String(s||"").split("&").forEach(function(x){ var i=x.indexOf("="); if(i<1) return; var k=decodeURIComponent(x.slice(0,i)), v=decodeURIComponent(x.slice(i+1)); if(DIR_FCLES.indexOf(k)>=0 && v!=="") f[k]=v; });
   return f;
@@ -14886,7 +14888,7 @@ function dirPuce(l){
 function dirQuand(l){
   if(l.etat==="malade"||l.etat==="conge"){ var d=dirDebut(l);
     return !d?"jusqu'au "+dirJJMM(l.fin):dirJJMM(d)===dirJJMM(l.fin)?"ce jour seulement":dirJJMM(d)+" → "+dirJJMM(l.fin); }
-  var x=DIR.f.abs7?dirAbs7()[l.id]:null;
+  var x=DIR.f.mal7?dirAbs7().malade[l.id]:DIR.f.cong7?dirAbs7().conge[l.id]:null;
   if(x && x.k>0) return (x.etat==="malade"?"malade":x.motif==="Payé, non presté"?"-FT":x.motif)+" dès le "+dirJJMM(x.j);
   if(l.etat==="repos") return l.sousRepos==="prevu"?"prévu non presté":l.sousRepos==="vide"?"sans entrée":"";
   return "";
@@ -15135,18 +15137,19 @@ function dirSurveillerHTML(C){
     "s:retourC",simple({etat:"conge",retour:"7"},function(l){ return dirDetail(l,C); })));
   /* qui sera absent cette semaine : après les sept jours calculés ; la
      liste se range par premier jour d'absence */
-  if(DIR.semPret){ var n7=dirFiltrer(C.L,{abs7:"1"}).length;
-    if(n7) rows.push(dirSurvRow({abs7:"1"},n7,"Absents sur ces 7 jours",dirPl(n7,"personne")+" malade"+(n7>1?"s":"")+" ou en congé au moins un jour",
-      "s:abs7",function(){
-        var par=dirAbs7();
-        return dirGrouper(dirTrier(dirFiltrer(C.L,{abs7:"1"}),"nom").map(function(l){
+  if(DIR.semPret) [["malade","mal7","Malades sur ces 7 jours"," malade au moins un jour"],["conge","cong7","En congé sur ces 7 jours"," en congé au moins un jour"]].forEach(function(z){
+    var fz={}; fz[z[1]]="1"; var n7=dirFiltrer(C.L,fz).length;
+    if(n7) rows.push(dirSurvRow(fz,n7,z[2],dirPl(n7,"personne")+(z[0]==="malade"?z[3].replace(" malade"," malade"+(n7>1?"s":"")):z[3]),
+      "s:"+z[1],function(){
+        var par=dirAbs7()[z[0]];
+        return dirGrouper(dirTrier(dirFiltrer(C.L,fz),"nom").map(function(l){
           var x=par[l.id], lk=l;
           if(x.k>0){ var dbk=horaireDe(x.j[0]); lk=dbk?(dirCentre(dbk,x.j[0],x.j[1],x.j[2]).parId[l.id]||l):l; }
           return {l:l, k:x.k, det:(x.etat==="malade"?"malade":dirMotifTxt(x))+(lk.fin?" · jusqu'au "+dirJJMM(lk.fin):"")};
-        }),function(l){ var x=par[l.id], d=new Date(x.j[0],x.j[1]-1,x.j[2]);
-          return [String(x.k),x.k===0?(auj?"Déjà absents ce jour":"Absents le "+esc(dirJJMM(x.j))):"À partir du "+esc(JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase())+". "+esc(dirJJMM(x.j))]; },
+        }),function(l){ var x=par[l.id], d=new Date(x.j[0],x.j[1]-1,x.j[2]), mot=z[0]==="malade"?"Malades":"En congé";
+          return [String(x.k),x.k===0?(auj?mot+" ce jour":mot+" le "+esc(dirJJMM(x.j))):"À partir du "+esc(JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase())+". "+esc(dirJJMM(x.j))]; },
           function(k){ return Number(k); });
-      })); }
+      })); });
   if(GR.demandes){
     var nd=GR.demandes.filter(dmATraiter).length+(GR.hs?GR.hs.filter(hsATraiter).length:0);
     if(nd) rows.push('<button type="button" class="dc-surv" data-ws="valider"><span class="dc-sv-n">'+nd+'</span><span class="dc-sv-t"><b>Demandes à traiter</b><small>dans l\'espace RH</small></span></button>');
@@ -15514,7 +15517,8 @@ function dirEffectifHTML(C){
     +'<div class="dc-eff dir-large">'
     +'<aside class="dc-filtres" id="dcFiltres"'+(!mqDirPC.matches&&!DIR.voirFiltres?' hidden':'')+' aria-label="Plus de filtres">'
     +sel("groupe","Groupe")+sel("fonction","Fonction")+sel("poste","Poste attitré")+sel("statut","Statut")+sel("pause","Pause du jour")
-    +'<label class="dc-case"><input type="checkbox" data-fcase="abs7"'+(f.abs7?' checked':'')+'><span>Absents sur les 7 jours</span></label>'
+    +'<label class="dc-case"><input type="checkbox" data-fcase="mal7"'+(f.mal7?' checked':'')+'><span>Malades sur les 7 jours</span></label>'
+    +'<label class="dc-case"><input type="checkbox" data-fcase="cong7"'+(f.cong7?' checked':'')+'><span>En congé sur les 7 jours</span></label>'
     +'<label class="dc-case"><input type="checkbox" data-fcase="longue"'+(f.longue?' checked':'')+'><span>Longue maladie</span></label>'
     +'<label class="dc-case"><input type="checkbox" data-fcase="sansAbs"'+(f.sansAbs?' checked':'')+'><span>Aucune maladie à ce jour</span></label>'
     +'</aside>'
@@ -15531,21 +15535,20 @@ function dirEffectifHTML(C){
     +'<div class="dc-pied" id="dcPied"></div>'
     +'</div></div>';
 }
-function dirNbFiltres(){ var n=0; ["groupe","fonction","poste","statut","pause","cat","couvre","longue","sansAbs","abs7","retour"].forEach(function(k){ if(DIR.f[k]) n++; }); return n; }
+function dirNbFiltres(){ var n=0; ["groupe","fonction","poste","statut","pause","cat","couvre","longue","sansAbs","mal7","cong7","retour"].forEach(function(k){ if(DIR.f[k]) n++; }); return n; }
 function dirEffMaj(){
   var C=DIR.C; if(!C || !document.getElementById("dcListe")) return;
   var f=DIR.f, liste=dirTrier(dirFiltrer(C.L,f),DIR.tri), sans=dirFiltrer(C.L,f,"etat"), A=_dirAnCache, pc=mqDirPC.matches;
   DIR.liste=liste.map(function(l){ return l.id; });
   /* les puces d'état, recomptées avec les autres filtres */
-  var cpt={tous:sans.length, present:0, absent:0, malade:0, conge:0, repos:0, formation:0};
-  sans.forEach(function(l){ cpt[l.etat]++; if(l.formJour) cpt.formation++; if(l.etat==="malade"||l.etat==="conge") cpt.absent++; });
-  /* « Absents » réunit malades et congés, comme la carte « Absents
-     aujourd'hui » de l'Accueil (le client, le 23/10/2026 : « les gens
-     présents, les gens malades, les gens absents ») */
-  document.getElementById("dcPuces").innerHTML=[["","Tous","tous"],["present","Présents","present"],["absent","Absents","absent"],["malade","Malades","malade"],["conge","En congé","conge"],["repos","Repos","repos"],["formation","Formation","formation"]].map(function(x){
+  var cpt={tous:sans.length, present:0, malade:0, conge:0, repos:0, formation:0};
+  sans.forEach(function(l){ cpt[l.etat]++; if(l.formJour) cpt.formation++; });
+  /* malades et congés, chacun sa puce, jamais réunis sous « Absents » (le
+     client, le 23/10/2026 : « il faut séparer les 2 ») */
+  document.getElementById("dcPuces").innerHTML=[["","Tous","tous"],["present","Présents","present"],["malade","Malades","malade"],["conge","En congé","conge"],["repos","Repos","repos"],["formation","Formation","formation"]].map(function(x){
     if(x[0]==="formation" && !cpt.formation && f.etat!=="formation") return "";
     var on=(f.etat||"")===x[0];
-    return '<button type="button" class="dc-puce'+(on?' on':'')+'" data-etat="'+x[0]+'" aria-pressed="'+on+'"'+(x[0]==="absent"?' title="Malades et en congé"':'')+'>'+x[1]+' <b>'+cpt[x[2]]+'</b></button>';
+    return '<button type="button" class="dc-puce'+(on?' on':'')+'" data-etat="'+x[0]+'" aria-pressed="'+on+'"'+'>'+x[1]+' <b>'+cpt[x[2]]+'</b></button>';
   }).join("");
   var pon=document.querySelector('#dcPuces .dc-puce.on'); if(pon && pon.scrollIntoView && !mqDirPC.matches) try{ var pp=pon.parentNode; pp.scrollLeft=Math.max(0,pon.offsetLeft-pp.offsetLeft-16); }catch(e){}
   /* l'état pressé ne se redit pas en puce de filtre : la puce d'état suffit */
@@ -15556,7 +15559,7 @@ function dirEffMaj(){
   document.getElementById("dcLive").textContent=dirPl(liste.length,"personne")+" sur "+C.total+(act.length?" · "+act.map(function(k){ return dirFiltreTxt(k,f[k]); }).join(" · "):"");
   var b=document.querySelector('#dirCorps [data-voirf]'); if(b){ var nf=dirNbFiltres(); b.textContent="Filtres"+(nf?" ("+nf+")":""); }
   ["groupe","fonction","poste","statut","pause"].forEach(function(k){ var s=document.querySelector('#dirCorps [data-fsel="'+k+'"]'); if(s) s.value=f[k]||""; });
-  ["longue","sansAbs","abs7"].forEach(function(k){ var s=document.querySelector('#dirCorps [data-fcase="'+k+'"]'); if(s) s.checked=!!f[k]; });
+  ["longue","sansAbs","mal7","cong7"].forEach(function(k){ var s=document.querySelector('#dirCorps [data-fcase="'+k+'"]'); if(s) s.checked=!!f[k]; });
   /* l'en-tête du tableau se colle sous la barre du haut, quand elle est
      collante (de 761 à 1 099 px) */
   var tp=document.querySelector(".top"), cs=tp&&getComputedStyle(tp), ht=(cs&&cs.position==="sticky"&&cs.display!=="none")?tp.offsetHeight:0;
@@ -15567,7 +15570,7 @@ function dirEffMaj(){
     h='<div class="dc-vide">'+(f.q?'<p>Aucun résultat pour « '+esc(f.q)+' ».</p>'
       :f.etat==="malade"?'<p>Personne n\'est malade le '+jj+'.</p>':f.etat==="conge"?'<p>Personne n\'est en congé le '+jj+'.</p>'
       :f.etat==="present"?'<p>Personne n\'est présent le '+jj+'.</p>':f.etat==="repos"?'<p>Personne n\'est en repos le '+jj+'.</p>'
-      :f.etat==="formation"?'<p>Personne n\'est en formation le '+jj+'.</p>':f.etat==="absent"?'<p>Personne n\'est absent le '+jj+'.</p>':'<p>Personne ne correspond à ces filtres.</p>')
+      :f.etat==="formation"?'<p>Personne n\'est en formation le '+jj+'.</p>':'<p>Personne ne correspond à ces filtres.</p>')
       +'<button type="button" class="dc-efface" data-fx="*">Tout effacer</button></div>';
   } else if(pc) h=dirTableHTML(liste);
   else h='<div class="dc-cartes">'+liste.map(dirCarteHTML).join("")+'</div>';
@@ -17618,16 +17621,18 @@ function renderTdb(){
         return '<li><span class="ws-date">'+wsDateCourte(dt)+'</span><span class="ws-l">'+x.l.map(function(m){ return '<span class="pl-pa p-'+String(m.pause).toLowerCase()+'">'+esc(m.pause)+'</span> '+esc(m.t||m.k); }).join(" · ")+'</span></li>'; }).join("")+'</ul>'
       +'<button type="button" class="btnlike ws-lien" data-vue="rh">Voir les effectifs et les remplaçants</button>'
       :'<p class="ws-vide">Toutes les pauses des 14 prochains jours sont couvertes.</p>')+'</section>');
-  /* les absents du jour */
-  var abs=(par.abs||[]).concat(par.cong||[]), nAb=(par.abs||[]).length, nCg=(par.cong||[]).length;
-  /* « n malades, n en congé » (journal 05) : le seul 17 se lisait contre les
-     « Absents 6 » des Effectifs, qui ne comptent pas les congés (audit du 23/10/2026) */
-  h.push('<section class="ws-carte"><header><h3>Absents '+ceJour+'</h3><span class="ws-badge">'+abs.length+'</span></header>'
-    +(abs.length?'<p class="ws-rep">'+nAb+' malade'+(nAb>1?'s':'')+', '+nCg+' en congé</p><ul class="ws-liste">'+abs.slice(0,8).map(function(y){
-        var e=(y.p.d||{})[pad2(auj.getMonth()+1)+pad2(auj.getDate())]||[], c=e[1]||e[0]||"";
-        return '<li data-pers="'+esc(y.p.id)+'" tabindex="0" role="button">'+wsQui(y.p)+'<span class="pl-pa f-'+grFamille(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>'
-      +(abs.length>8?'<button type="button" class="btnlike ws-lien" data-ws="absences">Voir les '+abs.length+' personnes</button>':'')
-      :'<p class="ws-vide">Personne n\'est absent ni en congé '+ceJour+'.</p>')+'</section>');
+  /* les malades et les congés du jour, CHACUN SA CARTE (le client, le
+     23/10/2026 : « il faut séparer les 2 ») : « Absents » dit les seuls
+     malades, comme l'onglet Effectifs (décision du 10/10/2026) */
+  [["abs","Absents","Personne n\'est absent "],["cong","En congé","Personne n\'est en congé "]].forEach(function(z){
+    var l=par[z[0]]||[];
+    h.push('<section class="ws-carte"><header><h3>'+z[1]+' '+ceJour+'</h3><span class="ws-badge">'+l.length+'</span></header>'
+      +(l.length?'<ul class="ws-liste">'+l.slice(0,8).map(function(y){
+          var e=(y.p.d||{})[pad2(auj.getMonth()+1)+pad2(auj.getDate())]||[], c=e[1]||e[0]||"";
+          return '<li data-pers="'+esc(y.p.id)+'" tabindex="0" role="button">'+wsQui(y.p)+'<span class="pl-pa f-'+grFamille(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>'
+        +(l.length>8?'<button type="button" class="btnlike ws-lien" data-ws="absences">Voir les '+l.length+' personnes</button>':'')
+        :'<p class="ws-vide">'+z[2]+ceJour+'.</p>')+'</section>');
+  });
   /* les compteurs à surveiller */
   var neg=[]; db.people.forEach(function(p){ wsRestants(p).forEach(function(r){ if(r.v!==null&&r.v<0) neg.push({p:p,r:r}); }); });
   neg.sort(function(a,b){ return a.r.v-b.r.v; });

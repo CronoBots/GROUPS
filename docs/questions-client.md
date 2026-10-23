@@ -51,14 +51,6 @@ des questions au client ».
    instruction qui efface. Elles sont déjà invisibles ; l'effacement
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
-8. **« Absents » : les malades seuls, ou malades et congés ?** (posée le
-   23/10/2026) Depuis votre décision du 10/10/2026, la page Effectifs
-   appelle « Absents » les seuls malades (6 au 22/10). Le centre de
-   contrôle de la Direction et la carte « Absents aujourd'hui » du
-   tableau de bord RH comptent malades ET congés (17 au 22/10). Les deux
-   chiffres sont justes, chacun avec son libellé ; dites si l'un des
-   deux mots doit changer pour que la page Effectifs et la Direction
-   parlent la même langue.
 
 ## À la RH
 
