@@ -4351,6 +4351,49 @@ Le client, après v1025 : « le tableau des personnes présentes n'est pas profe
   - quatre moments éprouvés (5 h 45, 1 h 30, 13 h 40, 18 h 17), le contremaître toujours en tête ;
   - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
 
+### L'Accueil, centre de contrôle des travailleurs (23/10/2026, v1027)
+
+Le client : « faire de l'Accueil un vrai centre de contrôle pour les travailleurs qui utilisent l'app : 100 % professionnel, une application digne des grandes entreprises ». C'était sa deuxième demande dans ce sens, après celle du 22/10 (v934). Comme le veut « Optimise tout », la page a d'abord été photographiée entière à 320, 390 et 1280 px (VBN, 18 h 17), puis chaque défaut relevé, carte par carte :
+
+- **Au PC, aucune mise en page** : six cartes en pleine largeur l'une sous l'autre, 3 107 px à 1280. Un calendrier de 1 000 px aux cases de 80 px, un tableau « Sur site » étiré, des raccourcis isolés sur une rangée.
+- **« À portée de main » mêlait deux métiers** : les gestes (six raccourcis) et le suivi (à faire, en route). Son « À faire » intérieur portait un titre et une pastille sous un titre de carte.
+- **Redites** :
+  - « Demander un congé · 2 en cours » sous le raccourci, alors que « Demande de congé · 2 en cours » se lisait juste en dessous ;
+  - « Fiche de recyclage · 1 en route » doublait la ligne « En route » ;
+  - « En route » ne se disait nulle part ailleurs, quand tout le reste de l'application dit « en cours ».
+- **Échelle de texte disparate** : une vingtaine de sortes de libellés entre 9,5 et 10,5 px sur l'Accueil (« REPRISE », « MA SEMAINE », « MES CONGÉS », « FAITES / RESTE », les dates des demandes, la légende et les chiffres du calendrier) sous des titres de 14 px.
+- **En-têtes hétérogènes** : un titre seul, un titre avec un point vert, un titre sans rien, et le calendrier sans titre.
+
+Ce qui a été fait :
+
+- **Un tableau de bord au PC** (≥ 1100 px) : sous la fiche, deux colonnes indépendantes. À gauche, le principal : « Demandes de congé », puis le calendrier. À droite, le suivi : « À faire », « Accès rapides », « Sur site en ce moment ». « Mon rythme » reprend toute la largeur dessous.
+  - Les deux enveloppes (`#accMain`, `#accCote`) s'effacent au téléphone (`display:contents`) : une seule colonne, et l'ordre de lecture est celui de la page, clavier compris.
+  - Sans carte à droite, le calendrier reprend la largeur.
+  - **1280 px : 3 107 → 2 450 px.** À 1920 px, 870 px à gauche et 562 px à droite.
+- **Deux cartes au lieu d'une** :
+  - « À faire » liste ce qui attend une action, puis « En cours » (ses fiches de recyclage et ses heures). Quand rien n'attend, une seule phrase : « Aucune action ne vous attend. » Le titre ne le redit pas, et le compte est dans l'en-tête (« 2 actions »).
+  - « Accès rapides » garde les six gestes, sans les comptes redits ; la fiche de paie garde son mois.
+  - Chaque raccourci et chaque action mènent toujours au même écran : neuf éprouvés (équipe du jour, salaire, planning, demandes, recyclage, à valider, mes demandes).
+- **En-têtes homogènes** : une icône de 18 px à la couleur de l'application devant chaque titre (à faire, accès rapides, demandes de congé, mon rythme ; le point vert « en direct » pour Sur site). « Demande de congé » devient « Demandes de congé », puisque c'est une liste.
+- **11 px au moins** pour tous les libellés de l'Accueil. Trois défauts que ce changement a fait apparaître ont été corrigés :
+  - « FAITES » et « RESTE » se touchaient à 320 px : les colonnes passent à 44 et 40 px, et 11 px les séparent maintenant ;
+  - « tout placé » sortait de 3,8 px de sa case à 320 px : sous 361 px, les cinq cases des congés passent sur deux rangées ;
+  - « D-CPPT » de Ma semaine perdait 2 px : marges resserrées sous 361 px.
+- **Trois défauts antérieurs**, trouvés en passant huit profils (VBN, GBT, JKS, KDN, ATR, AFA, SKS, LCI) aux trois largeurs :
+  - « FORM » débordait de sa pastille de 32 px dans le calendrier : un code long s'élargit désormais à son texte ;
+  - « Mercredi 28 octobre » se coupait sous le prochain poste à 320 px : 16 px au lieu de 17 sous 361 px ;
+  - « ▲ 17,75 h vs sept. » sortait de la carte à 390 px : la ligne se plie entre « ▲ 17,75 h » et « vs sept. », deux blocs insécables.
+- **Mesuré** :
+  - aucun texte hors de sa boîte ni de sa carte pour les huit profils à 320, 390 et 1280 px. Seuls restent signalés les boutons du mois et de la vue, dont le texte tient dans le bouton (vérifié au pixel : la mesure compte leur marge) ;
+  - aucun texte sous 11 px, hors les repères de « Jour par jour » au téléphone ;
+  - en profil hiérarchie, « 3 actions » dont la demande de congé à accepter ; aucune erreur ;
+  - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+- **Hauteur au téléphone** : 3 394 → 3 436 px à 390, 3 654 → 3 842 px à 320. Le coût vient d'un en-tête de carte de plus, des libellés plus grands et des congés sur deux rangées à 320 px.
+- **Laissé tel quel, et pourquoi** :
+  - la bannière de la fiche, avec son logo (que le PC montre aussi dans le menu), reste : c'est la couverture choisie par le client ;
+  - les repères de « Jour par jour » au téléphone (8,5 et 9 px) sont l'axe d'un graphique de 31 colonnes ;
+  - au téléphone, la fiche reste longue (850 px) : tout ce qu'elle contient y a été demandé, cas par cas, entre le 09 et le 22/10.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
