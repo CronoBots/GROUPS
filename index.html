@@ -4452,10 +4452,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    texte : au téléphone, il partait seul à la ligne et ajoutait une ligne
    vide (8 lignes sur 41 à 390 px). À .7 et non .4, il se voit aussi à la
    souris, comme au tactile (audit du 23/10/2026). */
-.slip tr.why-able td:nth-child(2){position:relative; padding-right:24px}
-.slip tr.why-able td:nth-child(2)::after{content:"?"; display:grid; place-items:center; position:absolute; right:5px; top:calc(50% - 8px); width:15px; height:15px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; opacity:.7}
-.slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-able:focus-visible td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{opacity:1}
-.slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{border-color:var(--in); color:var(--in)}
+/* le « ? » se pose dans le vide à gauche du montant (aligné à droite) : les
+   24 px réservés à droite du libellé lui faisaient prendre une ligne de plus
+   au téléphone (contrôle de non-régression du 23/10/2026) */
+.slip tr.why-able td:last-child,.slip tr.why-able td.q:empty{position:relative}
+/* la colonne des quantités est vide pour la plupart des lignes : le « ? » s'y
+   pose ; sinon, à gauche du montant */
+.slip tr.why-able td.q:empty::before{content:"?"; display:grid; place-items:center; position:absolute; left:calc(50% - 8px); top:calc(50% - 8px); width:15px; height:15px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; opacity:.7}
+.slip tr.why-able td.q:empty+td+td::before{content:none}
+.slip tr.why-able td:last-child::before{content:"?"; display:grid; place-items:center; position:absolute; left:4px; top:calc(50% - 8px); width:15px; height:15px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; opacity:.7}
+.slip tr.why-able:hover td:last-child::before,.slip tr.why-able:focus-visible td:last-child::before,.slip tr.why-open td:last-child::before,
+.slip tr.why-able:hover td.q:empty::before,.slip tr.why-able:focus-visible td.q:empty::before,.slip tr.why-open td.q:empty::before{opacity:1}
+.slip tr.why-able:hover td:last-child::before,.slip tr.why-open td:last-child::before,
+.slip tr.why-able:hover td.q:empty::before,.slip tr.why-open td.q:empty::before{border-color:var(--in); color:var(--in)}
 .slip tr.why-open td{background:var(--surface2)}
 .slip tr.whytext td{padding:0 16px 11px 86px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
 .slip tr.whytext p{margin:0; max-width:62ch}
@@ -4803,7 +4812,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,rgba(255,255,255,.18) 3px 6px)}
 /* au petit téléphone, la date tient sur une ligne */
 @media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10.5px}
+  /* les colonnes gardent 34 et 32 px (plus larges, elles faisaient passer la
+     date sur deux lignes) ; « FAITES » et « RESTE » à 10,5 px débordent
+     dans l'écart entre colonnes au lieu d'être coupés (contrôle de
+     non-régression du 23/10/2026) */
   .pf-pr-tab,.pf-pr-h{grid-template-columns:28px minmax(0,1fr) 34px 32px} .pf-pr-d b{font-size:13px}
+  .pf-pr-h>*{overflow:visible; text-overflow:clip; white-space:nowrap; justify-self:center}
   .pf-pr-h{letter-spacing:0; font-size:10.5px} .pf-pr-hm{display:none} .pf-pr-f,.pf-pr-r{font-size:14px} }
 @media (min-width:761px){
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
@@ -5599,10 +5613,10 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   html .ws-grille{display:block; columns:3 300px; column-gap:14px}
   html .ws-grille>.ws-carte{break-inside:avoid; margin:0 0 14px; display:block}
 }
-/* un écran bas : les entrées du menu se resserrent pour tenir sans défiler
-   (audit du 23/10/2026) */
+/* un écran bas : seuls les intertitres se resserrent. Les entrées gardent
+   leurs 41 px : les ramener à 35 px était une régression (contrôle de
+   non-régression du 23/10/2026) ; Réglages reste en vue par le pied collant */
 @media (min-width:1100px) and (max-height:900px){
-  html .top>.tabs button,.side-gestion button,.side-lien{padding-top:7px; padding-bottom:7px}
   html .top>.tabs .side-cat{margin:10px 12px 4px}
 }
 .eqleg{display:none}

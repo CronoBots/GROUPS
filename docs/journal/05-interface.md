@@ -3924,3 +3924,32 @@ refonte), finition.
 - Laissé : « Hors longues maladies » ne s'affiche que sur Absences (comme
   avant) ; entre 761 et 1099 px la page reste sur une colonne ; les plis
   ouverts des rappels allongent la page (rangées de 44 px).
+
+### Contrôle de non-régression : ce que le grand audit avait abîmé (23/10/2026, v1006)
+
+Le client, la nuit de l'audit : « attention aux régressions, ça ne doit
+jamais arriver », puis « contrôler la non-régression, surtout depuis le
+grand audit ». Un outil de contrôle (hors dépôt, banc commun) relève
+60 vues (20 vues ou sections × 320, 390, 1280 px, horloge fixée, base
+simulée) : pour chaque texte, ses lignes, sa taille, s'il est coupé ou
+hors de l'écran ; chaque cible ; débordement ; erreurs. Comparé entre la
+version d'avant l'audit (6f7bf57) et celle d'après (c64ca8c) : 356 alertes,
+cinq causes.
+
+- **Menu latéral du PC** : entrées ramenées de 41 à 35 px sous 900 px de
+  haut (un correctif voulait garder Réglages en vue) — rendu à 41 px ; le
+  pied collant suffit à garder Réglages visible.
+- **Mes pauses à 320 px** : « FAITES » et « RESTE » coupés depuis le
+  passage de l'en-tête à 10,5 px — ils débordent maintenant dans l'écart
+  entre colonnes (un premier essai, colonnes élargies, faisait passer
+  « Vendredi 6 novembre » sur deux lignes : le contrôle l'a vu, annulé).
+- **Fiche simulée** : 24 px réservés au « ? » à droite de chaque libellé
+  lui faisaient prendre une ligne de plus — le « ? » se pose dans la
+  colonne des quantités quand elle est vide, sinon à gauche du montant
+  (marge mesurée : 4 px au moins à 320, aucun chevauchement).
+- **Acceptés, voulus** : la rangée de filtres de l'Horaire production qui
+  défile (la grille a retrouvé sa hauteur) ; les notes du Salaire plus
+  longues (elles disent la valeur prise) ; les saisies regroupées ; des
+  lignes de la fiche qui tiennent désormais sur une ligne au PC.
+- Reste : « Dimanche 1er novembre » sur deux lignes à 390 px, corrigé par
+  la seconde ronde (constat de l'Accueil n° 3).
