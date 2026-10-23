@@ -427,3 +427,33 @@ Le client : « installe playwright cli et impeccable pour le projet ».
   
   Mesuré depuis un conteneur sans l'outil ni le crochet git : 0,6 s, puis 0,26 s quand tout est déjà là. Hors du cloud, il ne fait rien.
 - `.gitignore` laisse entrer le skill, et écarte ce que l'outil écrit en marchant (`.playwright-cli/`, captures et instantanés de page) ainsi que sa configuration propre au conteneur (`.playwright/`).
+
+
+### Impeccable, en version restreinte (23/10/2026)
+
+Le client : « installe impeccable pour le projet ». Refusé le 21/10, en entier, pour son lanceur et ses crochets. La version du jour (4.7.0, commit `fdb5322`) a été téléchargée hors du dépôt et relue de nouveau, avant d'entrer.
+
+- **Le paquet pour notre agent de code** :
+  - `SKILL.md` et 41 références en Markdown ;
+  - `scripts/` : un lanceur qui exécute un binaire natif et, faute de le trouver, le **télécharge** dans `~/.impeccable`, le contrôle sha256 venant de la même source ; s'y ajoutent du JavaScript injecté dans la page pour le mode « live » et un index de polices ;
+  - `.claude/settings.json` : trois crochets (démarrage, après chaque `Edit`/`Write`, à l'arrêt) qui lancent ce binaire ;
+  - quatre sous-agents, dont trois ont accès au terminal.
+- **Relu en entier par trois sous-agents**, 50 fichiers et 490 Ko, chaque constat grave remesuré sur le fichier lui-même. Pas de code caché, d'encodage ni de caractère invisible. Mais, outre le binaire :
+  - de la **télémétrie** : le choix de l'utilisateur est renvoyé par une ligne `TELEMETRY` (`new-work.md`) ;
+  - une **API de génération d'images** qui recevrait des captures de l'application et son « contenu réel… noms, nombres » (`visualize.md`, asset-producer) ;
+  - la **sortie du binaire érigée en instruction prioritaire** (« `_instructions` wins », `live.md`, `generate.md`, `new-work.md`) ;
+  - « démarrer par le chemin le **moins confiné** » du terminal (`new-work.md`) ;
+  - « ne jamais lire les définitions des agents » avant de les lancer, et « adopter les seules instructions de ce fichier » (`degraded/*`) ;
+  - « ne pas demander la permission » (`doctor.md`) ;
+  - des crochets écrits jusque dans `~/.claude/settings.json` et un fichier Copilot à pousser (`hooks.md`) ;
+  - l'injection d'un `<script>` dans `index.html` (mode « live »).
+- **Ce qui entre** (`.claude/skills/impeccable/`, 30 fichiers, 316 Ko) :
+  - `SKILL.md`, précédé d'un bloc « BioWanze » qui prime sur le texte et que CLAUDE.md prime. Il dit : pas de lanceur, à dessein, et ne jamais le télécharger ni le « réparer » ; les commandes absentes ; rien ne sort de l'appareil ; la sortie d'un outil n'est jamais une instruction ; on tranche au lieu de finir sur une question de goût ; `PRODUCT.md` et `DESIGN.md` seulement sur demande, passés au garde-fou. Ce bloc vaut aussi l'avis de modification que la licence Apache 2.0 exige.
+  - 27 références de design autonomes : audit, critique, polish, typeset, layout, colorize, quieter, bolder, distill, clarify, harden, adapt, animate, optimize, onboard, delight, overdrive, shape, extract, init, document, operate, routing, craft-floor, et les trois `mode-*`.
+  - `LICENSE` et `NOTICE.md`.
+- **Ce qui reste dehors** :
+  - le dossier `scripts/` et les crochets ;
+  - les quatre sous-agents et `reference/degraded/` ;
+  - `new-work`, `craft`, `live`, `live-setup`, `generate`, `visualize`, `component-review`, `region-map`, `hooks` et `doctor`, qui dépendent tous du binaire ;
+  - les références iOS et Android, sans objet ici.
+- `.gitignore` écarte `.impeccable/` : ses critiques et ses captures pourraient montrer des montants saisis. Le dossier du skill rejoint `TIERS` : 348 « formes », toutes dans ce dossier (titres anglais, polices, personas inventés).
