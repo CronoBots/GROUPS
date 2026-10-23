@@ -6345,10 +6345,19 @@ html .hp-fab:hover{opacity:1}
 .md-l>li .dm-tit>b{font-size:14px} .md-f{font-size:12px; color:var(--muted)}
 .md-vide{margin:0 0 10px; color:var(--muted); font-size:13.5px}
 .md-act{display:flex; flex-wrap:wrap; gap:8px}
+/* LE TABLEAU DE BORD DE L'ACCUEIL (le client, le 23/10/2026 : « un vrai
+   centre de contrôle, digne des grandes entreprises »). Au téléphone, les
+   enveloppes s'effacent : une colonne, dans l'ordre de la page. Au PC, deux
+   colonnes indépendantes sous la fiche (chacune empile ses cartes sans
+   attendre l'autre) : le principal à gauche, le suivi à droite. La page
+   faisait 3 100 px à 1280 px, toutes les cartes en pleine largeur. */
+.acc-grille,.acc-cote,.acc-main{display:contents}
 @media (min-width:1100px){
-  html #v-horaire>#ctlCard{grid-column:1 / -1}
-  html #v-horaire>#demCard{grid-column:1 / -1}
-  html #v-horaire>#siteCard{grid-column:1 / -1}
+  html .acc-grille{display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:16px; align-items:start}
+  html .acc-main,html .acc-cote{display:flex; flex-direction:column; gap:16px; min-width:0; grid-row:1}
+  html .acc-main{grid-column:1} html .acc-cote{grid-column:2}
+  /* sans rien à droite (personne choisie), le calendrier reprend la largeur */
+  html .acc-grille:not(:has(.acc-cote>.card:not([hidden]))){grid-template-columns:minmax(0,1fr)}
 }
 /* L'ACCUEIL SUR GRAND ÉCRAN (« optimise tout pour que ce soit vraiment
    adapté au PC », le 22/10/2026). Dès 1600 px, la fiche du haut passe en
@@ -6375,7 +6384,6 @@ html .hp-fab:hover{opacity:1}
 @media (min-width:1100px){
   /* Accueil : calendrier et compteurs à la même hauteur ; « Mon rythme »
      prend la largeur, cases et repères lisibles */
-  html #v-horaire>#calCard{align-self:stretch}
   html .ry-hm-box{max-width:1200px}
   html .ry-hm-l>i{flex-basis:16px; font-size:11px}
   html .ry-hm-n{font-size:11px}
@@ -6542,20 +6550,22 @@ html .ctl-i .dm-st{flex:none}
 html .ctl-urg{border-color:color-mix(in srgb,var(--out) 45%,var(--line)); background:color-mix(in srgb,var(--out) 9%,var(--surface2))}
 html .ctl-pt{flex:none; width:8px; height:8px; border-radius:50%; background:var(--out)}
 html .ctl-sous{margin:4px 0 0; font-size:12px; color:var(--muted)}
-html .ctl-ok{margin:0; padding:10px 12px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); font-size:13.5px}
 html .ctl-dl{display:grid; grid-template-columns:auto 1fr; gap:6px 12px; margin:0; align-items:center; font-size:13px}
 html .ctl-dl dt{color:var(--muted)}
 html .ctl-dl dd{margin:0; display:flex; flex-wrap:wrap; gap:4px; align-items:center}
 html .ctl-pa .pl-pa{flex:none}
 @media (hover:hover){ html .ctl-t:hover,html .ctl-i:hover{border-color:var(--in2)} }
 @media (max-width:360px){ html .ctl-t{font-size:11.5px; min-height:70px} }
-@media (min-width:1100px){
-  /* six raccourcis sur une rangée, « À faire » dessous : deux rangées
-     laissaient la moitié droite vide quand rien n'attend */
-  html .ctl{grid-template-columns:minmax(0,1fr); gap:14px}
-  html .ctl-rac{grid-template-columns:repeat(6,minmax(0,1fr))}
-  html .ctl-l{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:8px}
-}
+/* « À faire » et « Accès rapides », chacun sa carte (23/10/2026) : au PC,
+   dans la colonne de droite, trois raccourcis par rangée comme au
+   téléphone, une action par ligne */
+html .ctl-ok{display:flex; align-items:center; gap:8px; margin:0; padding:2px 0; border:0; border-radius:0; color:var(--muted); font-size:13.5px}
+html .ctl-rien svg{flex:none; color:var(--good)}
+html .ctl-bloc h3{font-size:11px}
+/* L'EN-TÊTE DES CARTES DE L'ACCUEIL : une icône, le titre, son compte */
+html #v-horaire .card>header h2{display:flex; align-items:center; gap:8px}
+html .cc-ico{flex:none; color:var(--in)}
+html #v-horaire .card>header h2 .site-live{margin-right:0; flex:none}
 /* LA GESTION AU STYLE DU PLANNING ET DES ÉQUIPES (le client, le 22/10/2026 :
    « les onglets de gestion ne respectent pas vraiment le style des onglets
    Planning et Équipe ; il faudrait uniformiser les cadres »). La grammaire
@@ -6626,6 +6636,35 @@ html #grille #wsTdb .ws-pc{white-space:nowrap}
    cadre du tableau et les cases voisines ne le coupent pas (audit du 23/10/2026) */
 html #grille tr[data-pers]:focus-visible,html #grille li[data-pers]:focus-visible,html #grille li[data-ws]:focus-visible,
 html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
+/* L'ACCUEIL SANS TEXTE SOUS 11 PX (le client, le 23/10/2026 : « un vrai
+   centre de contrôle, 100 % professionnel »). Les libellés de la fiche, de
+   Ma semaine, de Mes congés, de Mes pauses, des demandes et du calendrier
+   étaient en 10 à 10,5 px, quand les titres de carte font 14 px : une
+   seule échelle, 11 px au moins. Restent plus petits, et voulus : les
+   repères de « Jour par jour » au téléphone (un graphique de 31 colonnes
+   où « 10 » ne tient pas à 11 px) et les codes longs du calendrier (.long). */
+html body #v-horaire .pf-proch-tete small,
+html body #v-horaire .ry-an-t .ry-chart-t,html body #v-horaire #rythmeCorps .ry-chart-t,
+html body #v-horaire .ry-an-t .pf-pr-l,html body #v-horaire .ry-an-t .pf-pr-l b,
+html body #v-horaire .pf-cgc em,html body #v-horaire .pf-pr-h span,html body #v-horaire .pf-pr .pf-pause,
+html body #v-horaire .ms-j .pl-pa,html body #v-horaire .ms-repos,html body #v-horaire .ms-j .pf-pause,
+html body #v-horaire .md-h .dm-dt small,html body #v-horaire .md-h .dm-dt i,
+html body #v-horaire #calCard .mc-leg,html body #v-horaire #calCard .mc-leg>span,
+html body #v-horaire #calStats .cstat-v i,html body #v-horaire #calStats .cstat-k,
+html body #v-horaire #calCard .csec-k,html body #v-horaire #calCard .cstat-m{font-size:11px}
+html body #v-horaire #calCard .mc-j .mc-t:not(.long){font-size:11px}
+/* à 11 px, « FAITES » et « RESTE » se touchaient à 320 px, et « tout
+   placé » sortait de sa case de 3,8 px : les deux colonnes s'élargissent,
+   et les cinq cases des congés passent sur deux rangées sous 361 px */
+@media (max-width:400px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:28px minmax(0,1fr) 44px 40px} }
+@media (max-width:360px){ html body #v-horaire .pf-cgs{grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px} html body #v-horaire .pf-cgc{padding-left:7px; padding-right:7px} }
+/* trois coupures trouvées en passant cinq profils à 320 et 390 px : un code
+   de quatre lettres (« FORM ») débordait de sa pastille de 32 px dans le
+   calendrier, qui s'élargit à son texte ; « D-CPPT » de Ma semaine perdait
+   2 px à 11 px ; « Mercredi 28 octobre » se coupait sous le prochain poste */
+html body #v-horaire #calStats .cstat-d{white-space:normal; text-align:center}
+html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-width:100%; padding:0 2px; letter-spacing:-.02em}
+@media (max-width:360px){ html body #v-horaire .ms-j .pl-pa{padding-left:2px; padding-right:2px; letter-spacing:-.02em} html body #v-horaire .pf-proch-t b{font-size:16px} }
 </style>
 </head>
 <body>
@@ -6789,25 +6828,36 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
     <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
-    <!-- LE CENTRE DE CONTRÔLE (le client, le 22/10/2026) : raccourcis, à
-         faire, ma prochaine pause. -->
+    <!-- LE CENTRE DE CONTRÔLE (le client, le 22/10/2026, puis le 23/10/2026 :
+         « faire de l'Accueil un vrai centre de contrôle pour les travailleurs,
+         100 % professionnel, digne des grandes entreprises »). Sous la fiche,
+         un tableau de bord : au PC, deux colonnes, le principal à gauche
+         (demandes, calendrier), le suivi à droite (à faire, accès rapides,
+         sur site) ; au téléphone, une seule colonne dans l'ordre de la page,
+         les enveloppes s'effaçant (display:contents). -->
+    <div class="acc-grille" id="accGrille">
+    <div class="acc-cote" id="accCote">
     <div class="card" id="ctlCard" hidden>
-      <header><h2>À portée de main</h2><span class="sub" id="ctlSub"></span></header>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>À faire</h2><span class="sub" id="ctlSub"></span></header>
       <div class="ctl" id="ctlCorps"></div>
     </div>
-    <!-- MA SEMAINE ET MES DEMANDES (le client, le 22/10/2026, « go ») : les
-         sept jours qui viennent, et les demandes en cours avec leur
-         avancement. Au PC, côte à côte au-dessus du calendrier et des
-         compteurs, dans leurs deux colonnes. -->
-    <div class="card" id="demCard" hidden>
-      <header><h2>Demande de congé</h2><span class="sub" id="demSub"></span></header>
-      <div class="pad" id="demCorps"></div>
+    <div class="card" id="racCard" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Accès rapides</h2></header>
+      <div class="ctl" id="racCorps"></div>
     </div>
     <!-- SUR SITE EN CE MOMENT (le client, le 23/10/2026) : la carte du
          tableau de bord de l'espace RH, pour tout le monde -->
     <div class="card" id="siteCard" hidden>
       <header><h2><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
+    </div>
+    </div>
+    <div class="acc-main" id="accMain">
+    <!-- MES DEMANDES (le client, le 22/10/2026, « go ») : les demandes de
+         congé en cours avec leur avancement. -->
+    <div class="card" id="demCard" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>Demandes de congé</h2><span class="sub" id="demSub"></span></header>
+      <div class="pad" id="demCorps"></div>
     </div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
@@ -6844,6 +6894,8 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
       </div>
 
     </div>
+    </div>
+    </div>
 
     <!-- Mon rythme puis mes compteurs, chacun à découvert (le client, le
          16/10/2026 : « le rythme, nombre de nuits et graphique peuvent être
@@ -6852,7 +6904,7 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
          compteurs est inutile vu que c'est repris dans le héros ») -->
     <div class="card" id="rythmeCard" hidden>
       <header>
-        <h2>Mon rythme</h2>
+        <h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Mon rythme</h2>
         <span class="sub" id="rythmeSub"></span>
       </header>
       <div id="rythmeCorps"></div>
@@ -9855,7 +9907,10 @@ function renderTotals(C){
       var el=document.getElementById(t[0]); if(!el) return;
       var d=pa?R(Number(t[1]||0)-Number(t[2]||0)):0;
       el.className="cstat-d"+(d>0?" plus":(d<0?" moins":""));
-      el.textContent=(pa&&Math.abs(d)>=0.01)?(d>0?"\u25B2 ":"\u25BC ")+num(Math.abs(d))+t[3]+" vs "+ab:"";
+      /* « ▲ 17,75 h » et « vs sept. » restent chacun d'un tenant : à 390 px,
+         une case de 89 px ne tient pas les deux sur une ligne (audit du
+         23/10/2026), et la ligne se plie entre eux */
+      el.textContent=(pa&&Math.abs(d)>=0.01)?(d>0?"\u25B2\u00a0":"\u25BC\u00a0")+num(Math.abs(d))+t[3].replace(" ","\u00a0")+" vs\u00a0"+ab:"";
       el.title=pa?"Par rapport à "+PREC.mois:"";
     });
   })();
@@ -19420,19 +19475,17 @@ function ctlPause(person){
 }
 function renderCentre(db,person){
   var c=document.getElementById("ctlCard"), corps=document.getElementById("ctlCorps"); if(!c||!corps) return;
-  person=person||renderCentre.p; if(!person){ c.hidden=true; return; }
+  person=person||renderCentre.p; if(!person){ c.hidden=true; var rq=document.getElementById("racCard"); if(rq) rq.hidden=true; return; }
   renderCentre.p=person;
   var cb=!!compteBase(), val=cb&&peutSaisir();
   /* les raccourcis */
-  /* chaque raccourci dit aussi son état : ce qui est en cours, le mois */
-  var rac=[], L0=GR.demandes||[], R0=GR.recyclages||[], auj0=jourUsine();
-  var nDem=L0.filter(function(x){ return x.a_moi&&x.statut==="en_attente"; }).length,
-      nRc=R0.filter(function(x){ return x.a_moi&&rcEnCours(x); }).length;
+  var rac=[], auj0=jourUsine();
   /* (22/10/2026, « optimiser ? ») Le sous-titre d'un raccourci ne dit plus
-     que ce qui change : ce qui est en cours, le mois de la fiche de paie.
-     « formulaire RH », « aujourd'hui », « 2026 », « abonnement » redisaient
-     le nom et allongeaient chaque case d'une ligne. */
-  if(cb) rac.push(["conge","Demander un congé","dmNv",nDem?nDem+" en cours":""],["rec","Fiche de recyclage","rcNv",nRc?nRc+" en route":""]);
+     que ce qui change : le mois de la fiche de paie. « formulaire RH »,
+     « aujourd'hui », « 2026 », « abonnement » redisaient le nom ; « 2 en
+     cours » et « 1 en route » aussi, depuis que « À faire » liste ce qui est
+     en cours et que « Demandes de congé » le compte (23/10/2026). */
+  if(cb) rac.push(["conge","Demander un congé","dmNv",""],["rec","Fiche de recyclage","rcNv",""]);
   rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq",""]);
   if(cb) rac.push(["plan","Horaire production","plan",""]);
   rac.push(["ag","Mon agenda","ag",""]);
@@ -19459,25 +19512,34 @@ function renderCentre(db,person){
     (GR.hs||[]).filter(function(x){ return x.a_moi&&hsEnCours(x); }).forEach(function(x){
       var dj=dmJour(x.jour); route.push(["hsmoi",(x.type==="FT"?"Flex time ":"Heures sup. ")+hsDuree(x.minutes)+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),hsStatut(x)]); });
   }
-  /* des boutons, annoncés comme tels : role="listitem" sur un <button>
-     effaçait son rôle au lecteur d'écran (audit du 23/10/2026) */
-  var h=['<div class="ctl-rac" role="group" aria-label="À portée de main">'+rac.map(function(r){ return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>'];
-  /* « À faire » seulement s'il y a quelque chose à faire (22/10/2026) : le
-     titre du cadre dit déjà « tout est à jour », « ✓ Rien ne vous attend »
-     le redisait dans une case vide. Ce qui est en route garde son titre. */
-  var fa='<section class="ctl-bloc">'+(faire.length?'<h3>À faire <span class="ctl-nb">'+faire.reduce(function(s,f){ return s+(f[3]||1); },0)+'</span></h3>':'');
+  /* DEUX CARTES (le client, le 23/10/2026 : « un vrai centre de contrôle,
+     100 % professionnel ») : les accès rapides d'un côté ; de l'autre
+     « À faire », ce qui attend une action, puis ce qui est en cours. Le
+     cadre unique « À portée de main » mêlait les deux, et son « À faire »
+     intérieur redisait le titre. Des boutons, annoncés comme tels :
+     role="listitem" sur un <button> effaçait son rôle au lecteur d'écran
+     (audit du 23/10/2026). */
+  var rc=document.getElementById("racCard"), rcc=document.getElementById("racCorps");
+  if(rc&&rcc){
+    rcc.innerHTML='<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>';
+    rc.hidden=false;
+  }
+  var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0), fa="";
   if(faire.length) fa+='<div class="ctl-l">'+faire.map(function(f){ return '<button type="button" class="ctl-i ctl-urg" data-ctl="'+f[0]+'"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small></span><em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
   else if(!cb) fa+='<p class="ctl-ok">Connectez-vous dans Réglages pour vos demandes.</p>';
-  if(route.length) fa+=(faire.length?'<p class="ctl-sous">En route</p>':'<h3>En route</h3>')+'<div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div>';
-  if(faire.length||route.length||!cb) h.push(fa+'</section>');
-  corps.innerHTML=h.join("");
-  var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0);
-  document.getElementById("ctlSub").textContent=n?n+" à faire":"tout est à jour";
+  /* rien n'attend : une seule phrase, une seule fois (le titre ne le
+     redit pas) */
+  else fa+='<p class="ctl-ok ctl-rien"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Aucune action ne vous attend.</p>';
+  /* « En cours », comme « 2 en cours » des demandes de congé (« En route »
+     ne se disait nulle part ailleurs) */
+  if(route.length) fa+='<section class="ctl-bloc"><h3>En cours</h3><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div></section>';
+  corps.innerHTML=fa;
+  document.getElementById("ctlSub").textContent=n?n+" action"+(n>1?"s":""):"";
   c.classList.toggle("ctl-alerte",!!n);
   c.hidden=false;
 }
 document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl]"):null; if(!b) return;
+  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl]"):null; if(!b) return;
   var k=b.getAttribute("data-ctl"), auj=jourUsine();
   if(k==="dmNv") ouvrirGrille("demandes",{});
   else if(k==="rcNv"){ GR.rcForm=true; ouvrirGrille("recyclages"); }
