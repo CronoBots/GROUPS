@@ -4147,3 +4147,19 @@ Zone design et contenu :
 - Déjà réglé par la vague A : « Dimanche 1er novembre » sur une ligne de 361 à 400 px. À 320 px, la date reste sur deux lignes, selon la décision du 22/10/2026 ; le commentaire du CSS qui disait le contraire est corrigé.
 - Laissé à la Direction, en cours de complément : le « 1er » de sa date et les « & » de ses titres (« Absences et santé », « Rythme et charge »…).
 - Non-régression : une alerte, fausse, dans le Salaire. L'outil divise la hauteur de tout l'encadré par l'interligne, et le bouton y a gagné 1 px. Le texte lui-même garde ses 2 lignes à 1280 px.
+
+### Vague B, sélecteurs (23/10/2026, v1012)
+
+- **Effectifs** : l'onglet « Congés et repos » s'atteint au clavier. Une fonction commune, `ongletVise()`, gère ←, →, Origine et Fin en boucle ; le focus et la sélection suivent.
+- **« En cours / Historique »** : l'anneau de focus n'est plus rogné sur trois côtés (il se trace à l'intérieur du bouton).
+- **La bascule Congé · Recyclage · Heures sup.** :
+  - tabindex itinérant et flèches ;
+  - le focus suit l'onglet malgré les deux rendus de la section (« Chargement… », puis la liste) ;
+  - la flèche ne fait plus avancer d'un an la grille du Planning cachée derrière.
+- **Cibles** : la bascule (42 px) et le choix de « préciser » (38 px) passent à 44 px au téléphone.
+- **État retenu en sombre** : la pastille ne se détachait du rail qu'à 1,03:1 à 1,20:1. Un liseré au jeton `--in` la porte à plus de 5:1 (`.pl-seg`, `.calvue`, `.caseg`).
+- **Code mort** : la recette `.seg` ne servait plus et touchait les barres de la cascade du Salaire. Retirée : la plus petite barre retrouve sa vraie largeur (1,31 % du brut).
+- **Fusion** : la zone des demandes avait aussi mis les flèches sur la bascule. Deux écouteurs auraient avancé de deux onglets, on garde celui des sélecteurs. Éprouvé à 390 et 1280 px : une flèche, un onglet, Fin et Origine justes, aucune erreur.
+- **Laissé à la Direction**, en cours de complément :
+  - la barre Aujourd'hui · Effectif · Analyses et les choix « Répartir par » et « Comparer » ne s'atteignent pas aux flèches ;
+  - la pastille retenue y est à 1,15:1.
