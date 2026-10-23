@@ -3543,14 +3543,16 @@ modification ? »
   modifie sa demande tant que le contremaître de pause ne l'a pas
   acceptée ; la modification fait une NOUVELLE feuille, que le remplaçant
   signe à nouveau. La suppression, elle, n'est possible que tant
-  qu'aucune autre personne n'a signé. **Défaut trouvé** : depuis base/16,
-  modifier une feuille déjà signée par le remplaçant l'EFFAÇAIT, et la
-  signature disparaissait avec elle, alors que base/13 la gardait
-  « annulée, remplacée par la demande n° N ».
-  `base/25-modifier-garde-la-trace.sql` la garde ; elle n'est **pas
-  appliquée** : le connecteur Supabase demande une confirmation pour un
-  corps qui contient « delete » (deux essais, 60 s chacun, rien
-  d'appliqué), et la règle est de ne pas la contourner.
+  qu'aucune autre personne n'a signé. **Défaut annoncé, et FAUX** (corrigé
+  le 23/10/2026 à 12 h 40) : il était écrit ici que, depuis base/16,
+  modifier une feuille signée par le remplaçant l'effaçait. Mesuré dans la
+  base (`pg_get_functiondef`) : la fonction en service est celle de
+  base/13, qui garde toujours l'ancienne feuille « annulée, remplacée par
+  la demande n° N ». La version qui efface n'est que dans la partie de
+  base/16 restée en commentaire, en attente de l'accord du client
+  (question n° 7) ; c'est elle que corrige `base/25`, désormais reprise
+  dans cette partie. L'erreur : avoir lu le fichier sans voir qu'il était
+  commenté, au lieu de lire la base. Rien à appliquer.
 - Vérifié : 320 et 1280 px, aucune erreur ni débordement, la feuille
   s'ouvre depuis l'Accueil ; vérificateur, quatre sorties identiques ;
   hors ligne.
@@ -4037,7 +4039,7 @@ la finition de ses huit défauts graves et moyens.
   plus longue série de l'année entière, comme dans les Analyses ; les
   périodes de maladie et les RHS de la fiche couvrent l'année, écrites à
   part. Le mot « Absents » diffère entre les Effectifs (malades) et la
-  Direction (malades et congés) : question au client n° 9.
+  Direction (malades et congés) : question au client n° 8 (n° 9 à l'origine, renumérotée quand la n° 8 sur base/25 est tombée).
 - Vérifié : vérificateur, quatre sorties identiques à l'octet ; hors
   ligne, 78 lignes en trigrammes et la note « Noms indisponibles hors
   ligne » ; 320, 390, 761, 900 et 1280 px, 0 débordement, 0 texte sous

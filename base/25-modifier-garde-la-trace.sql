@@ -1,5 +1,10 @@
--- À APPLIQUER : le connecteur demande une confirmation (le corps contient « delete ») ;
--- pas appliquée le 23/10/2026, en attente de l'accord du client.
+-- NE S'APPLIQUE PAS SEULE (relu le 23/10/2026, 12 h 40). La base tourne avec
+-- la version de base/13 (pg_get_functiondef, mesuré) : modifier garde TOUJOURS
+-- l'ancienne feuille, « annulée, remplacée par la demande n° N ». La version
+-- qui efface est dans la partie de base/16 restée en commentaire, en attente
+-- de l'accord du client (questions-client.md, n° 7) ; c'est elle que corrige
+-- ce fichier, et la correction y est reprise. Appliquer ce fichier seul
+-- effacerait les feuilles non signées sans que le client l'ait accepté.
 -- MODIFIER UNE DEMANDE DÉJÀ SIGNÉE PAR LE REMPLAÇANT (23/10/2026, en
 -- répondant au client : « quelle est la règle pour la modification ? »).
 --

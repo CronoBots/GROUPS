@@ -114,7 +114,15 @@ begin
   if d.valide_cm is not null or d.valide_rh is not null then
     raise exception 'déjà visée : elle ne se modifie plus ; annulez-la et faites-en une nouvelle';
   end if;
+  -- signée par le remplaçant, elle ne s'efface pas : elle reste annulée,
+  -- remplacée par la nouvelle, comme base/13 (base/25, 23/10/2026)
   delete from biowanze.notifs where demande_id = p_id and envoye_le is null;
+  if coalesce(d.accords,'{}'::jsonb) <> '{}'::jsonb then
+    update biowanze.demandes set statut = 'annulee' where id = p_id;
+    nid := public.biowanze_demander_formulaire(p_formulaire, p_lignes, p_texte);
+    update biowanze.demandes set motif_refus = 'Remplacée par la demande n° '||nid where id = p_id;
+    return nid;
+  end if;
   delete from biowanze.demandes where id = p_id;
   nid := public.biowanze_demander_formulaire(p_formulaire, p_lignes, p_texte);
   return nid;
@@ -131,6 +139,7 @@ end $$;
 
 -- et les demandes et fiches déjà annulées
 delete from biowanze.notifs where envoye_le is null and demande_id in (select id from biowanze.demandes where statut = 'annulee');
-delete from biowanze.demandes where statut = 'annulee';
+-- (sauf celles qu'une nouvelle remplace après une signature : base/25)
+delete from biowanze.demandes where statut = 'annulee' and coalesce(motif_refus,'') not like 'Remplacée par la demande n° %';
 delete from biowanze.recyclages_fiches where statut = 'annulee';
 */
