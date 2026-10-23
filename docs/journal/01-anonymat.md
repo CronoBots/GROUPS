@@ -407,3 +407,23 @@ risque n'a rien trouvé. Ses exemples SQL destructifs (`drop table`,
 `alter system`, `pg_stat_statements_reset()`) sont des exemples ; la règle
 « pas de delete ni de drop par le connecteur » reste. Le dossier rejoint
 `TIERS` et `.gitignore` le laisse entrer.
+
+
+### playwright-cli et son skill, avec un crochet de démarrage (23/10/2026)
+
+Le client : « installe playwright cli et impeccable pour le projet ».
+
+- **L'outil** : `@playwright/cli` (Microsoft), épinglé à la version 0.1.22. Il pilote un navigateur en ligne de commande, et chaque commande rend l'état de la page en quelques lignes, ce qui coûte moins de contexte que nos scripts Playwright.
+  - Il embarque un Playwright qui attend le Chromium de révision 1247 ; le conteneur a la révision 1194, dans `/opt/pw-browsers`, et la règle de l'environnement est de ne jamais lancer « playwright install ». La configuration `.playwright/cli.config.json` le fait donc démarrer sur `/opt/pw-browsers/chromium` (`executablePath`).
+  - Éprouvé sur l'application servie en local : ouverture, taille 390 × 844, recherche dans la page, passage hors ligne puis rechargement, aucune erreur de console.
+- **Le skill** (`.claude/skills/playwright-cli/`), écrit par `playwright-cli install --skills` hors du dépôt puis relu : 11 fichiers Markdown (2 233 lignes), sans script.
+  - Les exemples de `gh pr …` (pièces jointes de pull request) et de `npm init playwright` sont des exemples ; ils ne lient pas. Les règles du projet restent : aucune pull request sans demande, aucune dépendance.
+  - Le garde-fou y voyait 113 « formes » (titres anglais, noms inventés d'exemples) : le dossier rejoint `TIERS`, lui seul. Contre-épreuve : une forme « Nom, Prénom » posée dans `docs/` est toujours signalée (code 1).
+  - **Erreur rattrapée** : le commentaire ajouté à `verifier-depot.py` citait deux de ces noms d'exemple, et le garde-fou l'a refusé. Le commentaire est reformulé sans eux.
+- **Le crochet de démarrage** (`.claude/hooks/session-start.sh`, déclaré dans `.claude/settings.json`) ne s'exécute qu'en session cloud, où le conteneur est neuf à chaque fois. Un échec n'empêche pas la session de démarrer, et il est signalé. Le crochet :
+  1. règle `core.hooksPath` sur `.githooks`. C'est la règle de CLAUDE.md, qui se faisait à la main ;
+  2. installe `playwright-cli` 0.1.22 s'il manque ou n'est pas à cette version ;
+  3. écrit la configuration vers le Chromium du conteneur.
+  
+  Mesuré depuis un conteneur sans l'outil ni le crochet git : 0,6 s, puis 0,26 s quand tout est déjà là. Hors du cloud, il ne fait rien.
+- `.gitignore` laisse entrer le skill, et écarte ce que l'outil écrit en marchant (`.playwright-cli/`, captures et instantanés de page) ainsi que sa configuration propre au conteneur (`.playwright/`).

@@ -27,7 +27,8 @@ l'interface, les commentaires de code et les messages de commit.
 **Dans un conteneur neuf, `git config core.hooksPath .githooks` d'abord** :
 le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
 le crochet n'était pas installé — lire le code de retour ne suffit pas si
-la commande est enchaînée avec `;` au lieu de `&&`.
+la commande est enchaînée avec `;` au lieu de `&&`. En session cloud,
+`.claude/hooks/session-start.sh` le fait seul (et installe `playwright-cli`).
 
 **Aucune demande d'autorisation.** Le client, le 18/10/2026 : « il faut
 que tu acceptes tout tout seul ». `.claude/settings.json` autorise donc
@@ -285,6 +286,8 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/conges-auto.js` | relit enseignement.be le 1er de chaque mois (`conges-scolaires.yml`) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
+| `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration |
+| `.claude/skills/` | skills tiers relus avant d'entrer (journal 01), hors du garde-fou (`TIERS`) |
 | `tools/qr-installer.py` | écrit `qr-installer.svg`, le QR code du guide d'installation (`#installer`) |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |
 | `docs/conversion-horaire.md` | les règles de lecture de l'horaire |

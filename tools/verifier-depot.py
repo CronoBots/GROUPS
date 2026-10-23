@@ -134,8 +134,12 @@ IGNORES = ("tools/formes-admises.txt",)
 # anglais, lu en entier avant d'entrer, mêmes en-têtes, même raison.
 # Le même jour, supabase-postgres-best-practices (Supabase) : 36 fichiers
 # Markdown anglais de règles Postgres, lus en entier, même raison.
+# Le 23/10/2026, playwright-cli (Microsoft) : 11 fichiers Markdown, le mode
+# d'emploi de l'outil, lus avant d'entrer ; 113 « formes », ses titres
+# anglais et les noms inventés de ses exemples, même raison.
 TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/",
-         ".claude/skills/supabase-postgres-best-practices/")
+         ".claude/skills/supabase-postgres-best-practices/",
+         ".claude/skills/playwright-cli/")
 
 
 def _tiers(chemin):
