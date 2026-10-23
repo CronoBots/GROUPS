@@ -4042,3 +4042,64 @@ la finition de ses huit défauts graves et moyens.
   ligne, 78 lignes en trigrammes et la note « Noms indisponibles hors
   ligne » ; 320, 390, 761, 900 et 1280 px, 0 débordement, 0 texte sous
   11 px, 0 cible sous 44 px.
+
+### Seconde ronde d'audit, vague A : cinq zones sur sept (23/10/2026, v1009)
+
+La seconde ronde (« optimise tout ») avait retenu 68 constats, dont
+25 régressions laissées par la première. Sept agents, un par zone, chacun
+dans sa copie ; un patch par zone, appliqué ici par fusion à trois voies.
+Cinq zones sont rendues :
+
+- **Performance** : une lettre tapée dans la recherche du planning de l'espace RH
+  gelait l'écran ; les rappels évitables passaient l'équipe du jour sur
+  435 journées (le mot « rappel » est maintenant cherché avant) ; la bulle
+  des sous-effectifs du démarrage faisait une tâche de 1,4 s (téléphone
+  simulé, CPU ×4), elle avance au repos, une journée à la fois, et passe
+  son résultat aux Effectifs ; la grille de l'année n'est plus refaite à
+  chaque retour. Non atteint : la seconde ouverture du planning de l'espace RH reste
+  vers 900 ms ×4, c'est la mise en page de 18 000 cellules et non plus
+  du JavaScript.
+- **Équipes et effectifs** : une date de 2027 dans la Recherche ouvre le
+  bon jour ; une seule section « Janvier 2027 » dans Congés et repos ;
+  l'anneau de focus des en-têtes de fiche entier ; le focus suit le
+  Planning au lieu de tomber sur la page ; la bulle de commentaire est
+  annoncée au lecteur d'écran ; les rappels évitables se calculent en
+  tranches.
+- **Salaire et recherche** : un montant écrit à la belge, « 1.234,50 »,
+  était refusé sans un mot et le calcul gardait l'ancienne valeur ; la
+  Recherche propose aussi les personnes qui ne sont que dans l'horaire
+  2027. Les trois constats de la Direction sont passés au complément du
+  centre de contrôle, refondu entre-temps.
+- **Accueil** : « Cette nuit » au lieu de « Ce soir » après minuit en
+  poste de nuit ; les boutons de la feuille du jour à 44 px ; « Dimanche
+  1er novembre » sur une ligne à 390 px (le reste du contrôle de la
+  v1006) ; un seul « aujourd'hui » dans la vue Semaine entre 0 h et 6 h ;
+  la tuile de la carte de demande dit le même nombre de jours que son
+  texte ; « + Nouvelle » reste sur la première rangée à 320 px.
+  **Régression rattrapée à la fusion** : pour faire tenir la date, ce
+  patch, écrit avant le correctif de la v1006, ramenait sous 400 px les
+  colonnes à 34 et 32 px et les dates à 13 px ; le contrôle de
+  non-régression a vu « FAITES » et « RESTE » de nouveau coupés à 390 px
+  et quatre dates rapetissées. Seize variantes mesurées de 361 à 400 px :
+  une seule tient partout, colonnes de 38 et 36 px, écart de 6 px, marges
+  de 10 px — la date reste à 14 px et sur une ligne, rien n'est coupé.
+- **Coquille** : « Plus » au téléphone ne quitte plus l'espace ouvert ; le
+  geste retour des Réglages ne quitte plus l'application ; Échap ferme la
+  feuille, puis l'espace, et non les deux d'un coup ; le retour du réseau
+  attend que rien ne soit en cours de saisie avant de recharger ; la
+  feuille « Plus » ne se fige plus après une rotation.
+
+**La fusion, et l'erreur qu'elle a failli laisser passer.** Deux zones
+avaient réécrit `mqJoursAVenir`, chacune à sa façon, pour la même lenteur :
+l'une en parcours pas à pas (`mqParcours`), l'autre en mémoire et en
+tranches (`mqJoursAVenirTranches`), avec deux fonctions `mqCle` de
+signatures différentes. On ne pouvait garder que l'une : la première,
+déjà fusionnée et qui alimente la bulle. La fusion avait pourtant glissé
+dans la version retenue une ligne de l'autre (`st.premier`, une variable
+qui n'y existe pas, une erreur à la première journée) et une accolade de
+trop dans `renderManques` : `node --check` a vu la seconde, la relecture
+la première. Preuve que rien d'autre n'a glissé : la zone, de
+`mqJoursAVenir` aux rappels, est identique à l'octet à celle du patch de
+la performance appliqué seul sur la version d'avant. Les deux patchs qui
+corrigeaient encore l'ancienne Direction n'ont pas été repris : le
+centre de contrôle a son propre cache, calculé une fois par jour.
