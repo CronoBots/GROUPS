@@ -3953,3 +3953,27 @@ cinq causes.
   lignes de la fiche qui tiennent désormais sur une ligne au PC.
 - Reste : « Dimanche 1er novembre » sur deux lignes à 390 px, corrigé par
   la seconde ronde (constat de l'Accueil n° 3).
+
+### Le nom « BioWanze » et le nouveau logo (23/10/2026, v1007)
+
+Le client : « j'ai poussé le nouveau logo de l'app. Et le nom doit être
+“BioWanze” ». Le nom affiché passe de « BIOWANZE » à « BioWanze » partout
+où l'utilisateur le lit : titre de l'onglet et de chaque vue
+(« … · BioWanze »), nom de l'application installée (`manifest`, `name` et
+`short_name`, et le titre de l'écran d'accueil d'iOS), marque de la barre
+du haut et de l'écran de connexion, guide d'installation, nom des agendas
+abonnés (`X-WR-CALNAME`, les 79 fichiers de `cal/` régénérés : une ligne
+change dans chacun, rien d'autre).
+
+Gardés tels quels, volontairement : l'objet de l'e-mail du code de
+connexion (« Votre code BIOWANZE », c'est le texte que l'utilisateur
+reçoit réellement, il se change dans Supabase et non ici), le sujet des
+e-mails du robot de l'horaire (filtres de la boîte), l'identifiant
+`PRODID` des agendas (le changer ferait voir aux agendas un autre
+producteur), la fausse barre d'adresse du guide (`BioWanze.app`, déjà
+écrite ainsi) et le nom de la société.
+
+Contrôle de non-régression (60 vues, référence v1006) : **0 alerte** ;
+un seul texte change par vue au PC, le nom de la marque ; hors ligne
+correct, aucune erreur. Le vérificateur du calendrier rend ses quatre
+sorties à l'octet.
