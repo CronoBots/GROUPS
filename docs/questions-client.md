@@ -156,15 +156,3 @@ Elle ne signale donc pas de manque. Deux questions :
 2. **Un renfort de 12 h compte-t-il dans les deux pauses qu'il couvre ?**
    06h-18h touche l'AM et le début du PM ; 18h-06h la fin du PM et la N ;
    14h-02h le PM et le début de la N.
-
-## Audit du 23/10/2026 : deux chiffres à définir
-
-1. **Le taux d'absentéisme de la Direction** (et « Maladie par mois ») :
-   se calcule-t-il du 1er janvier à aujourd'hui, ou sur toute l'année
-   planifiée ? Aujourd'hui, les jours de novembre et décembre, qui n'ont
-   pas encore eu lieu, entrent dans le calcul ; en attendant, les mois à
-   venir sont grisés.
-2. **Les sous-effectifs et les rappels évitables de 2027** : ils
-   s'arrêtent au 31/12, parce que les compteurs de 2027 n'ont pas été
-   déclarés fiables (`COMPTEURS_FIABLES`). Faut-il les étendre au
-   classeur 2027 dès maintenant ?

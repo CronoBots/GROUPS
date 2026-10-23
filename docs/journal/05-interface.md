@@ -3810,3 +3810,71 @@ polyvalence dépend du jour), tous les essais de la session.
 - Même tête de carte pour les trois sortes de demandes
 - NON FAIT — Remplacer les listes Type et Remplaçant par un bouton qui ouvre une liste en fenêtre : C'était l'option forte de l'audit, notée « moyen ». Le correctif minimal (hauteur de 36 px, largeur de 38 px) suffit à 320 px sans débordement, et un changement plus profond du tableau papier toucherait à la forme voulue par le client (v904).
 
+
+### Audit, vague 2 (design · accessibilité · contenu) et deux réponses du client (23/10/2026, v1003)
+
+Trois agents l'un après l'autre sur main (styles communs), chacun vérifiant
+d'abord si la vague 1 avait déjà réglé son constat.
+
+**design** :
+- Texte blanc sur le cyan d'accent dans Demandes
+- #apCard sans la recette des cadres des Effectifs
+- Jetons --cal-am et --cal-pm définis deux fois
+- Ombre des cadres recopiée en dur
+- Pastille de pause des listes du tableau de bord sous 10,5 px
+- Pastilles de nombre du menu latéral : deux typographies
+- déjà fait par la vague 1 — « Rien à signaler » décentré dans #apCard au bureau : déjà corrigé par la vague 1. #apCorps ne passe en grille que s'il contient des .mqj (#apCorps:has(> .mqj)). Mesuré à 1280 px : écart des centres d
+- NON FAIT — Sélecteurs segmentés : unifier trois recettes : Le défaut est seulement esthétique, et aucun sélecteur n'est illisible depuis que .dm-bascule a l'encre --sur-in. Aligner .seg, .pl-seg et .dm-prec-seg sur .caseg changerait le rendu de quatre composants sur plusieurs écrans, alors que .caseg passe en grille à 320 px. Il faudrait photographier chaqu
+- NON FAIT — Couleur des boutons principaux portée par une seule règle .btn.primary : Le défaut visible (#fff sur l'accent) est corrigé : toutes les copies portent maintenant var(--sur-in). Retirer les trois propriétés de 7 règles de spécificités différentes (html #grille .dm-intro>button, .pn-pied .ss-ok…) risque de laisser une règle intermédiaire gagner la cascade, sans gain visibl
+- NON FAIT — Horaire des badges du Jour (.eqhd) à 10,5 px au téléphone : Le correctif proposé (l. « .eqhote … .eqhd{font-size:9px} », ≤ 760 px) ne touche pas le Jour : la règle #jourCorps, plus forte, y fixe 9 px (8,5 px sous 361 px). Je l'ai mesuré : 8,5 px à 320, 9 px à 390, 10,5 px à 1280. Dans le Jour, le badge a une hauteur fixe de 30 px (28 px sous 361 px), une déc
+
+**accessibilite** :
+- Thème sombre : texte blanc sur les accents clairs (coches .dm-pt, pastille « À faire » .ctl-nb)
+- Panneau d'une demande ou d'une fiche : rôle dialog, focus et inert au téléphone
+- Cibles de 44 px : « + Nouvelle » et « Historique » (carte Mes demandes), « Modifier », « Supprimer » et « Retirer » (cartes de l'espace)
+- Barre du bas au téléphone : anneau de focus
+- Espace RH non modal au téléphone
+- Annotations rouges de l'Horaire production
+- Invites « choisir » de la feuille papier
+- Demandes de l'Accueil : une étiquette propre à chaque ligne
+- Un seul <main> quand l'espace est ouvert
+- Paysage : bords protégés de l'encoche
+- Deux défilements doux ignoraient « mouvement réduit »
+- déjà fait par la vague 1 — Thème sombre, bascule Congé/Recyclage/Heures sup. et « + Nouvelle demande » : déjà en var(--sur-in) avant mon passage (première vague) ; le balayage au navigateur ne les relève plus.
+- déjà fait par la vague 1 — Barre du bas, flèches : le gestionnaire ne garde déjà que les onglets visibles et passe par #tab-plus (première vague). Mesuré : Accueil → Jour → Équipe → Salaire → Plus → Accueil à 320 et 390 px. Seu
+
+**contenu** :
+- Barre de gauche entre minuit et 6 h : jour du calendrier au lieu de la nuit en cours
+- Carte « Absents aujourd'hui » : répartition « n malades, n en congé »
+- « À faire » : sous-titre tiré de la demande au lieu de « remplacement signé » écrit en dur
+- Verbes du congé alignés sur les boutons (Accepter / Confirmer)
+- Durée des messages flash
+- Erreurs de la plateforme traduites dans baseMsg, et la validation des comptes passe par baseMsg
+- Sous-effectif : « quinze prochains jours » remplacé par « 14 prochains jours »
+- La case FT à zéro pâlit comme un congé tout placé
+- « 1er » pour le premier du mois dans les dates longues
+- Alerte « Montant d'exemple » du Salaire : ni taux à 4 décimales, ni chemin Réglages
+- « Cliquez » au PC, « Touchez » au doigt
+- déjà fait par la vague 1 — Mes congés, case FT « ≈ 0 j » : le texte était déjà corrigé dans 53f3c9d (« à zéro ») ; seule la pâleur de la case manquait, je l'ai ajoutée (voir faits).
+- déjà fait par la vague 1 — Barre de gauche avant 6 h : correction partielle déjà présente (le poste de la nuit, « N · jusqu'à 6 h ») ; la date restait celle du lendemain, je l'ai complétée (voir faits).
+
+**Les réponses du client** aux deux questions de la vague 1 :
+- « Le taux d'absentéisme : c'est sur toute l'année, mais le taux est celui
+  de janvier à maintenant. » `dirRH()` compte à part les jours programmés et
+  la maladie jusqu'au jour de l'usine (`schedA`, `malA`) : le taux (par
+  personne, par équipe, global) en est tiré ; les jours de maladie et la
+  maladie par mois restent ceux de l'année planifiée. Mesuré : 7,5 % → 8,5 %
+  au 23/10 (l'auditeur l'avait estimé à 8,6 %), 1 463 jours inchangés.
+- « Oui » pour étendre les sous-effectifs et les rappels évitables à 2027,
+  « mais pas se fier aux compteurs tant que maintenant ». `horaireSuivant()`
+  ne prend que le classeur installé ; `mqJoursAVenir`, `rappelsInutiles` et
+  `transfertsAVenir` y passent au 1er janvier, chaque jour portant son année
+  et son classeur ; les mois se repèrent avec leur année (octobre 2026 et
+  octobre 2027 ne se mêlent pas), le nom du mois la dit hors de l'année en
+  cours, et un clic ouvre le bon jour. Les compteurs de 2027 restent tenus à
+  l'écart par `soldesSaisis()` (COMPTEURS_FIABLES = 2026). Mesuré au 20/12/2026
+  (horloge fixée) : 377 jours examinés jusqu'au 31/12/2027 ; le classeur 2027
+  n'a aujourd'hui aucun sous-effectif ni rappel évitable (même résultat en
+  partant du 10/01/2027). Le vérificateur n'utilise pas ces fonctions : ses
+  quatre sorties sont inchangées.
+
