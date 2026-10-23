@@ -4255,3 +4255,13 @@ Le client, après le compte rendu du matin : « go ». La question restée ouver
   - « Abandonner » ouvre l'autre case ;
   - aucune erreur.
 - Non couvert : les flèches de la bascule au clavier changent encore de section sans demander.
+
+### Malades et congés, jamais réunis sous « Absents » (23/10/2026, v1017)
+
+La question au client n° 8 : la page Effectifs appelle « Absents » les seuls malades (décision du 10/10/2026), alors que la Direction et le tableau de bord de l'espace RH comptaient malades ET congés sous ce même mot. Le client : **« il faut séparer les 2 »**.
+
+- **Direction, écran Effectif** : la puce « Absents (malades et congés) » disparaît. Il reste les puces des présents, des malades, des congés, des repos et de la formation, chacune avec son compte.
+- **Direction, « À surveiller » et filtres** : « Absents sur ces 7 jours, malades ou en congé » devient deux rangées et deux cases, « Malades sur ces 7 jours » et « En congé sur ces 7 jours ». `dirAbs7()` rend les deux à part. Au 23/10 : 5 et 38 personnes, et chaque case ouvre autant de lignes que sa rangée l'annonce.
+- **Tableau de bord de l'espace RH** : la carte « Absents ce jour » (17 = 6 + 11) devient deux cartes. « Absents » ne compte plus que les malades, comme les Effectifs ; « En congé » a la sienne. Les tuiles du haut séparaient déjà « Abs » et « Congé ».
+- **Règle, pour la suite** : « Absents » veut dire malades ; un congé n'est jamais compté dedans, ni réuni avec la maladie sous un seul chiffre.
+- Vérifié à 390, 900, 1100 et 1280 px ; aucune erreur. Non-régression : trois alertes, fausses — « 43 », le compte de la rangée réunie (17 px), a disparu, et l'outil l'a apparié à un autre « 43 » de la page, de 13,5 px et inchangé.
