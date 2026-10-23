@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v1001";
+var V = "nfdm-v1002";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./banniere.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -78,15 +78,30 @@ function cacheSiBon(req, res) {
    tout avec « max-age=600 » : le « réseau d'abord » pouvait rendre, dix
    minutes durant, la page que le navigateur gardait déjà. « no-cache »
    oblige à redemander au serveur (réponse 304 si rien n'a changé). */
+/* Le réseau reste prioritaire, mais pas sans fin : un réseau qui accepte
+   sans répondre (signal faible dans l'usine) laissait l'écran vide plus de
+   90 s. Au-delà de quatre secondes le cache répond, comme pour l'horaire
+   (jsonFrais) ; si le réseau finit par répondre, le cache est quand même
+   mis à jour. Audit du 23/10/2026. */
 function reseauPuisCache(req) {
-  return fetch(req, { cache: "no-cache" }).then(function (res) {
+  var reseau = fetch(req, { cache: "no-cache" }).then(function (res) {
     cacheSiBon(req, res);
     return res;
-  }).catch(function () {
+  });
+  function deCache() {
     return caches.match(req).then(function (hit) {
-      return hit || caches.match("./index.html").then(function (h2) {
-        return h2 || Response.error();
-      });
+      return hit || caches.match("./index.html");
+    });
+  }
+  return new Promise(function (resolve) {
+    var fini = false;
+    function rendre(r) { if (!fini) { fini = true; resolve(r); } }
+    var t = setTimeout(function () {
+      deCache().then(function (h) { if (h) rendre(h); });
+    }, 4000);
+    reseau.then(function (res) { clearTimeout(t); rendre(res); }, function () {
+      clearTimeout(t);
+      deCache().then(function (h) { rendre(h || Response.error()); });
     });
   });
 }
