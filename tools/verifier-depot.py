@@ -137,9 +137,12 @@ IGNORES = ("tools/formes-admises.txt",)
 # Le 23/10/2026, playwright-cli (Microsoft) : 11 fichiers Markdown, le mode
 # d'emploi de l'outil, lus avant d'entrer ; 113 « formes », ses titres
 # anglais et les noms inventés de ses exemples, même raison.
+# Le même jour, impeccable, en version restreinte (30 fichiers Markdown de
+# design) : 348 « formes », titres anglais, polices et personas
+# inventés de ses exemples, même raison.
 TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/",
          ".claude/skills/supabase-postgres-best-practices/",
-         ".claude/skills/playwright-cli/")
+         ".claude/skills/playwright-cli/", ".claude/skills/impeccable/")
 
 
 def _tiers(chemin):
