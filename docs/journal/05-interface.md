@@ -4288,3 +4288,14 @@ Le client : « pour le tableau de bord, il faudrait aussi afficher les personnes
   À 10 h, 14 = 12 + 1 + 1, comme les tuiles. Largeurs : 320 px (tuiles empilées, avatar au-dessus du nom), 390 px (deux colonnes), 1280 px ; rien ne déborde, rien n'est coupé.
 - Non-régression : seule la section du tableau de bord change (52 textes nouveaux). Six alertes, toutes fausses : l'outil numérote les textes identiques dans leur ordre, et les « AM » et « Chaudières » de la carte décalent ceux qui suivent. Listes complètes comparées : aucun élément existant n'a changé de taille ni de nombre de lignes.
 - **Fausse piste, notée pour la prochaine fois** : la nuit, le banc d'essai perdait les droits RH, et j'ai cru d'abord à un défaut de l'application (« Tableau de bord » ouvrait le planning). C'était la session simulée du banc, qui expirait quelques heures après l'heure réelle, alors que l'horloge du test était fixée la nuit. Une session de test se date sur l'horloge du test.
+
+### « Sur site en ce moment » aussi sur l'Accueil (23/10/2026, v1019)
+
+Le client : « sur site en ce moment peut être dans le tableau de bord de l'accueil, ça peut être sympa pour les travailleurs de voir cela ».
+
+- **La même carte, pour tout le monde**, entre « Ma semaine » et le calendrier ; au PC, elle prend toute la largeur, comme ses voisines. Les salons, les membres et la relève sont maintenant faits par des fonctions communes (`siteSalonsHTML`, `siteReleveHTML`) : l'espace RH et l'Accueil ne peuvent pas diverger.
+- **Lecture seule sur l'Accueil** : un membre n'y ouvre pas de fiche (c'est un outil de l'espace RH) ; ni curseur de lien, ni survol.
+- **« vous »** : la personne de l'appareil a un anneau vert à son avatar et « vous » devant ses heures. Un premier essai mettait « vous » à côté du nom, qui se faisait couper à 390 px (« Contremaître… ») : il est passé à la seconde ligne.
+- **Coût** : calculée au repos, après le reste de l'Accueil, puis chaque minute tant que l'Accueil est à l'écran. Mesuré : 2 ms, et 10 ms au téléphone simulé (CPU ×4).
+- Éprouvé le 31/10 à 15 h avec le compte VBN, d'après-midi ce jour-là : salon de l'après-midi, 11 présents, VBN « vous · 13 h 30 – 22 h » (remise de pause). À 390 et 1280 px, rien ne déborde, rien n'est coupé ; aucune erreur.
+- **Non-régression, et comment la prouver quand l'outil sature.** La comparaison directe donnait 548 alertes. L'Accueil reste dans la page derrière toutes les vues, et l'outil numérote les textes identiques dans leur ordre : les « AM », « Matin » et postes de la nouvelle carte décalent tous les numéros, et chaque vue « change ». La preuve s'est faite autrement. On capture une copie identique où seule la carte de l'Accueil reste cachée, puis on la compare à la référence d'avant : **0 alerte, 0 texte changé**. Tout le reste, carte du tableau de bord comprise malgré son découpage en fonctions communes, est donc à l'identique. La carte elle-même est mesurée à part (ci-dessus).

@@ -2407,6 +2407,10 @@ html #grille .ws-site{margin-bottom:14px}
 .site-id{display:flex; flex-direction:column; min-width:0}
 .site-id b{font-size:13.5px; font-weight:650; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .site-id small{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+#siteCorps{padding-top:10px; padding-bottom:12px}
+#siteCorps .site-membres li{cursor:default} #siteCorps .site-membres li:hover{background:none}
+.site-vous{color:var(--good); font-weight:700}
+.site-moi .site-av .pl-tri{box-shadow:0 0 0 2px var(--good)}
 .site-rel{margin:12px 0 0; padding-top:8px; border-top:1px solid var(--line2); font-size:12.5px; color:var(--ink2)}
 @media (max-width:560px){ .site-membres{grid-template-columns:repeat(2,minmax(0,1fr))} }
 /* au petit téléphone, la tuile d'un salon vocal : l'avatar au-dessus du
@@ -6333,6 +6337,7 @@ html .hp-fab:hover{opacity:1}
 @media (min-width:1100px){
   html #v-horaire>#ctlCard{grid-column:1 / -1}
   html #v-horaire>#demCard{grid-column:1 / -1}
+  html #v-horaire>#siteCard{grid-column:1 / -1}
 }
 /* L'ACCUEIL SUR GRAND ÉCRAN (« optimise tout pour que ce soit vraiment
    adapté au PC », le 22/10/2026). Dès 1600 px, la fiche du haut passe en
@@ -6786,6 +6791,12 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
     <div class="card" id="demCard" hidden>
       <header><h2>Demande de congé</h2><span class="sub" id="demSub"></span></header>
       <div class="pad" id="demCorps"></div>
+    </div>
+    <!-- SUR SITE EN CE MOMENT (le client, le 23/10/2026) : la carte du
+         tableau de bord de l'espace RH, pour tout le monde -->
+    <div class="card" id="siteCard" hidden>
+      <header><h2><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h2><span class="sub" id="siteSub"></span></header>
+      <div class="pad" id="siteCorps"></div>
     </div>
     <div class="card calframe" id="calCard">
       <div class="toolbar eqnav calnav">
@@ -17642,42 +17653,66 @@ function siteSalon(o){
 }
 /* 6 → « 6 h », 21.5 → « 21 h 30 », 30 → « 6 h » */
 function siteH(v){ v=((v%24)+24)%24; var hh=Math.floor(v+1e-6), mm=Math.round((v-hh)*60); if(mm>=60){ hh=(hh+1)%24; mm=0; } return hh+" h"+(mm?" "+pad2(mm):""); }
-function wsSiteHTML(){
-  var t=new Date(), s=surSite(t), groupes={}, ordre={};
+/* les salons, partagés par le tableau de bord de l'espace RH (lien : un
+   membre ouvre sa fiche) et l'Accueil (moi : la personne de l'appareil,
+   repérée « vous ») */
+function siteSalonsHTML(s,o){
+  o=o||{};
+  var groupes={}, ordre={};
   POSTES_TRAVAIL.forEach(function(P,i){ ordre[P.k]=i; });
-  function k(o){ return o.x.ka||o.x.k; }
-  function rang(o){ return (k(o) in ordre)?ordre[k(o)]:999; }
-  function poste(o){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(o)) q=P.t; }); return q; }
-  s.sur.forEach(function(o){ var g=siteSalon(o); (groupes[g]=groupes[g]||[]).push(o); });
-  var salons=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
+  function k(x){ return x.x.ka||x.x.k; }
+  function rang(x){ return (k(x) in ordre)?ordre[k(x)]:999; }
+  function poste(x){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(x)) q=P.t; }); return q; }
+  s.sur.forEach(function(x){ var g=siteSalon(x); (groupes[g]=groupes[g]||[]).push(x); });
+  return SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
     var L=groupes[z[0]].sort(function(a,b){ return rang(a)-rang(b)||String(a.p.id).localeCompare(String(b.p.id)); });
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
       +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<b>'+z[1]+'</b>'+(z[0]==="X"?'':'<span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+siteH(PF_DEB[z[0]])+' – '+siteH(PF_FIN[z[0]])+'</span>')+'<em>'+L.length+'</em></p>'
-      +'<ul class="site-membres">'+L.map(function(o){
+      +'<ul class="site-membres">'+L.map(function(x){
         /* sans nom chargé, le poste prend la première ligne : le
            trigramme est déjà dans la pastille (comme wsQui) */
-        var n=grNom(o.p), pt=poste(o), qui=n||pt||wsPosteEq(o.p)[0]||idLisible(o.p.id),
-            plage=(o.deb===PF_DEB[z[0]]&&o.fin===PF_FIN[z[0]])?"":siteH(o.deb)+" – "+siteH(o.fin), sous=[n?pt:"",plage].filter(Boolean).join(" · ");
-        return '<li data-pers="'+esc(o.p.id)+'" tabindex="0" role="button" aria-label="'+esc((n||idLisible(o.p.id))+", sur site jusqu'à "+siteH(o.fin)+(pt?", "+pt:""))+'">'
-          +'<span class="site-av">'+wsPuce(o.p)+'<i class="site-pt" aria-hidden="true"></i></span>'
-          +'<span class="site-id"><b>'+esc(qui)+'</b><small>'+esc(sous||"jusqu'à "+siteH(o.fin))+'</small></span></li>';
+        var n=grNom(x.p), pt=poste(x), qui=n||pt||wsPosteEq(x.p)[0]||idLisible(x.p.id), moi=!!o.moi&&x.p.id===o.moi,
+            plage=(x.deb===PF_DEB[z[0]]&&x.fin===PF_FIN[z[0]])?"":siteH(x.deb)+" – "+siteH(x.fin), sous=[n?pt:"",plage].filter(Boolean).join(" · "),
+            dit=(n||idLisible(x.p.id))+(moi?" (vous)":"")+", sur site jusqu'à "+siteH(x.fin)+(pt?", "+pt:"");
+        return '<li'+(moi?' class="site-moi"':'')+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':' aria-label="'+esc(dit)+'"')+'>'
+          +'<span class="site-av">'+wsPuce(x.p)+'<i class="site-pt" aria-hidden="true"></i></span>'
+          +'<span class="site-id"><b>'+esc(qui)+'</b><small>'+(moi?'<span class="site-vous">vous</span> · ':'')+esc(sous||"jusqu'à "+siteH(x.fin))+'</small></span></li>';
       }).join("")+'</ul></div>';
   }).join("");
-  var rel="";
-  /* la prochaine relève, par salon : celle du matin compte aussi ceux
-     qui arrivent à 5 h 30 pour la remise de pause */
-  if(s.arrivent.length){
-    var gA={}, best=null;
-    s.arrivent.forEach(function(o){ var g=siteSalon(o); (gA[g]=gA[g]||[]).push(o); });
-    Object.keys(gA).forEach(function(g){ var tg=g==="X"?Math.min.apply(null,gA[g].map(function(o){ return o.deb; })):PF_DEB[g];
-      if(!best||tg<best.t) best={g:g, t:tg, n:gA[g].length}; });
-    rel='<p class="site-rel">'+(best.g==="X"?'Arrivée':'Relève '+{AM:"du matin",PM:"de l'après-midi",N:"de nuit",D:"de jour"}[best.g])
-      +' à '+siteH(best.t)+' : '+best.n+' arrivée'+(best.n>1?'s':'')+' prévue'+(best.n>1?'s':'')+'.</p>';
-  }
+}
+/* la prochaine relève, par salon : celle du matin compte aussi ceux qui
+   arrivent à 5 h 30 pour la remise de pause */
+function siteReleveHTML(s){
+  if(!s.arrivent.length) return "";
+  var gA={}, best=null;
+  s.arrivent.forEach(function(o){ var g=siteSalon(o); (gA[g]=gA[g]||[]).push(o); });
+  Object.keys(gA).forEach(function(g){ var tg=g==="X"?Math.min.apply(null,gA[g].map(function(o){ return o.deb; })):PF_DEB[g];
+    if(!best||tg<best.t) best={g:g, t:tg, n:gA[g].length}; });
+  return '<p class="site-rel">'+(best.g==="X"?'Arrivée':'Relève '+{AM:"du matin",PM:"de l'après-midi",N:"de nuit",D:"de jour"}[best.g])
+    +' à '+siteH(best.t)+' : '+best.n+' arrivée'+(best.n>1?'s':'')+' prévue'+(best.n>1?'s':'')+'.</p>';
+}
+var SITE_VIDE='<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>';
+function wsSiteHTML(){
+  var t=new Date(), s=surSite(t);
   return '<section class="ws-carte ws-site" id="wsSite">'
     +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
     +'<p class="site-maj">En direct, d\'après l\'horaire · '+siteH(t.getHours()+t.getMinutes()/60)+'</p>'
-    +(salons||'<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>')+rel+'</section>';
+    +(siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s)+'</section>';
+}
+/* SUR SITE, SUR L'ACCUEIL (le client, le 23/10/2026 : « ça peut être sympa
+   pour les travailleurs de voir cela ») : la même carte, pour tout le
+   monde, sans ouvrir de fiche (c'est un outil de l'espace RH) ; la personne
+   de l'appareil est repérée « vous ». Calculée au repos, après le reste de
+   l'Accueil, puis chaque minute tant que l'Accueil est à l'écran. */
+var SITE_TIC=null;
+function renderSiteAccueil(){
+  var c=document.getElementById("siteCard"), corps=document.getElementById("siteCorps"); if(!c||!corps) return;
+  if(!horaireDe(new Date().getFullYear())&&!horaireDe(new Date().getFullYear()-1)){ c.hidden=true; return; }
+  var t=new Date(), s=surSite(t);
+  document.getElementById("siteSub").textContent=s.sur.length+" présent"+(s.sur.length>1?"s":"")+" · "+siteH(t.getHours()+t.getMinutes()/60);
+  corps.innerHTML=(siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s);
+  c.hidden=false;
+  if(!SITE_TIC) SITE_TIC=setInterval(function(){ if(st.view==="horaire"&&!document.hidden) try{ renderSiteAccueil(); }catch(e){} },60000);
 }
 function renderTdb(){
   var hote=document.getElementById("wsTdb"), db=wsDb(); if(!db){ hote.innerHTML=wsTete("Tableau de bord","Horaire indisponible."); return; }
@@ -19137,6 +19172,7 @@ function renderRythme(){
   var plusTard=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:1500}); }:function(f){ setTimeout(f,40); };
   try{ renderMesDemandes(); }catch(e){}
   try{ renderCentre(db,person); }catch(e){}
+  plusTard(function(){ try{ renderSiteAccueil(); }catch(e){} });
   /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
   plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; } }
