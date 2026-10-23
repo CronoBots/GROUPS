@@ -17208,6 +17208,10 @@ function grOuvrirPanneau(html,nonModal){
    choisies), ses champs et ses cases pressées ; pas le dessin, qu'un style
    posé en passant changerait */
 function pnEmpreinte(p){
+  /* la feuille d'une case n'a pas de papier : ses champs et ses puces
+     pressées, sans son texte, qu'un chargement change (le 23/10/2026) */
+  if(!p.querySelector(".dm-papier")) return [].map.call(p.querySelectorAll(".pn-corps input,.pn-corps select,.pn-corps textarea"),function(x){ return x.type==="checkbox"?x.checked:x.value; }).join("|")
+    +[].map.call(p.querySelectorAll(".pn-corps [aria-pressed]"),function(x){ return x.getAttribute("aria-pressed"); }).join("");
   return [].map.call(p.querySelectorAll(".dm-papier"),function(c){ return c.textContent
     +[].map.call(c.querySelectorAll("input,select,textarea"),function(x){ return x.type==="checkbox"?x.checked:x.value; }).join("|")
     +[].map.call(c.querySelectorAll("[aria-pressed]"),function(x){ return x.getAttribute("aria-pressed"); }).join(""); }).join("§");
@@ -17221,6 +17225,26 @@ function grQuitterPanneau(parRetour){
   if(parRetour===true) navPousser("p");
   confirmerPro({titre:"Abandonner la feuille ?",texte:"Ce que vous y avez inscrit sera perdu.",ok:"Abandonner",annuler:"Continuer"},function(){ grFermerPanneau(); });
 }
+/* UNE AUTRE CASE, UNE AUTRE CARTE, UNE AUTRE SECTION touchées pendant
+   qu'une feuille où l'on a écrit est ouverte : la saisie était jetée sans
+   un mot, la nouvelle feuille prenant sa place. La même question qu'à
+   Échap, plutôt que de bloquer la grille (le client, le 23/10/2026,
+   « go ») ; « Abandonner » refait le geste. Rien d'écrit, rien ne change. */
+function pnSaisieEnCours(){
+  var p=document.getElementById("grPanneau");
+  return !!(p&&!p.hidden&&GR.panEmpreinte!=null&&pnEmpreinte(p)!==GR.panEmpreinte);
+}
+(function(){
+  var g=document.getElementById("grille"); if(!g) return;
+  g.addEventListener("click",function(e){
+    var p=document.getElementById("grPanneau"), t=e.target;
+    if(!t||!t.closest||(p&&p.contains(t))||!pnSaisieEnCours()) return;
+    var x=t.closest('td[data-p],[data-pers],[data-dm],[data-rc],[data-hs],.dm-carte,[data-ws],[data-bascule],[data-dm-voir],[data-dm-modifier],[data-dm-annuler],.ws-nav button');
+    if(!x) return;
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    confirmerPro({titre:"Abandonner la feuille ?",texte:"Ce que vous y avez inscrit sera perdu.",ok:"Abandonner",annuler:"Continuer"},function(){ GR.panEmpreinte=null; x.click(); });
+  },true);
+})();
 /* L'ERREUR D'UNE FEUILLE s'écrivait sous le papier, hors de la vue : le
    bouton du bas semblait ne rien faire. Elle s'affiche aussi en message, le
    champ fautif prend le focus (audit du 23/10/2026). Sans msg, celle déjà
