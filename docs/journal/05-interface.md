@@ -3878,3 +3878,16 @@ d'abord si la vague 1 avait déjà réglé son constat.
   partant du 10/01/2027). Le vérificateur n'utilise pas ces fonctions : ses
   quatre sorties sont inchangées.
 
+
+### Direction : aussi ceux qui n'ont pas été absents (23/10/2026, v1004)
+
+Le client, capture du classeur et de la Direction : « GKT n'est pas dans
+l'application ? pas d'absence ? », puis « il faut quand même indiquer les
+travailleurs qui n'ont pas été absents ». GKT y était (Shift 2, renfort
+arrière, 2026 et 2027) mais sans aucun jour « Abs » ni maladie dans le
+classeur 2026 ; `dirOpsSub()` ne montrait que les personnes ayant au
+moins un jour de maladie. Désormais les absents d'abord (taux
+décroissant), puis les autres par trigramme, « 0 % · aucun jour », en vert
+discret, dans les listes par équipe et par poste. Mesuré : équipe 2, 13
+personnes dont 2 sans absence (avant : 11) ; résumé inchangé (7,1 %,
+255 j) ; 390 et 1280 px sans débordement.
