@@ -5135,6 +5135,17 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   background:rgba(242,153,74,.12); border:1px dashed rgba(242,153,74,.55); font-size:12px; color:#fff; line-height:1.35}
 .pf-app small{color:rgba(255,255,255,.65); font-size:11px}
 .pf-app[hidden]{display:none}
+.pf-afaire[hidden]{display:none}
+.pf-af{display:flex; align-items:center; gap:10px; width:calc(100% - 24px); min-height:48px; margin:8px 12px 0; padding:8px 12px; border-radius:12px;
+  background:rgba(221,152,119,.13); border:1px solid rgba(221,152,119,.5); color:#fff; font:inherit; text-align:left; cursor:pointer}
+.pf-af>span{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+.pf-af b{font-size:14px; font-weight:700}
+.pf-af small{font-size:12px; line-height:1.3; color:rgba(255,255,255,.72)}
+.pf-af em{font-style:normal; font-size:18px; color:rgba(255,255,255,.6)}
+.pf-af .ctl-pt{flex:none; width:8px; height:8px; border-radius:50%; background:#DD9877}
+@media (hover:hover){ .pf-af:hover{border-color:#DD9877} }
+.pf-af:focus-visible{outline:2px solid #fff; outline-offset:2px}
+#ctlCard{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 12px)}
 .pf-kpis{margin-top:12px}
 .pf-bas{height:12px}
 .pf-role2{font-size:12px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -5281,6 +5292,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .pf-gauche{min-width:0}
   .pf-gauche .pf-bloc{margin:12px 0 0 12px}
   .pf-gauche .pf-pv{margin:12px 0 0 12px; width:calc(100% - 12px)}
+  .pf-gauche .pf-af{margin:10px 0 0 12px; width:calc(100% - 12px)}
   .pf-corps>.pf-an{padding:0 12px 0 0; margin-top:4px}
   .pf-corps>.pf-an .ry-an-t:first-child{padding-top:14px}
   /* Depuis le 22/10/2026 (« combiner année et mes pauses ») : à gauche le
@@ -13945,6 +13957,10 @@ function _pfHead(db,p){
      redondance ») : le calendrier du mois, soudé au héros juste dessous, les
      montre déjà. Reste la ligne des changements de poste proposés. */
   h+='<div class="pf-app" id="pfApp" hidden></div>';
+  /* ce qui attend une action, dès le premier écran : renderCentre le
+     remplit (le client, le 23/10/2026 : « comment optimiser l'accueil »).
+     Après pf-app, donc hors du cadre du prochain poste (pf-bloc) */
+  h+='<div class="pf-afaire" id="pfAfaire" hidden></div>';
   /* LES CONGÉS RESTANTS ne sont plus dans le héros (le client, le
      17/10/2026 : « il faut regrouper tout au même endroit ») : ils vivent
      dans « Mes compteurs », en tuiles, avec le solde flex time. */
@@ -19475,7 +19491,7 @@ function ctlPause(person){
 }
 function renderCentre(db,person){
   var c=document.getElementById("ctlCard"), corps=document.getElementById("ctlCorps"); if(!c||!corps) return;
-  person=person||renderCentre.p; if(!person){ c.hidden=true; var rq=document.getElementById("racCard"); if(rq) rq.hidden=true; return; }
+  person=person||renderCentre.p; if(!person){ c.hidden=true; var rq=document.getElementById("racCard"); if(rq) rq.hidden=true; var pq=document.getElementById("pfAfaire"); if(pq) pq.hidden=true; return; }
   renderCentre.p=person;
   var cb=!!compteBase(), val=cb&&peutSaisir();
   /* les raccourcis */
@@ -19535,10 +19551,25 @@ function renderCentre(db,person){
   if(route.length) fa+='<section class="ctl-bloc"><h3>En cours</h3><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div></section>';
   corps.innerHTML=fa;
   document.getElementById("ctlSub").textContent=n?n+" action"+(n>1?"s":""):"";
+  /* L'APPEL DU HÉROS (le client, le 23/10/2026 : « comment optimiser
+     l'accueil ? ») : au téléphone, la carte « À faire » commençait à 900 px,
+     sous tout le héros, et le premier écran ne disait pas qu'une action
+     attendait. Une ligne sous le prochain poste le dit, nomme la première
+     action et mène à la carte ; rien quand rien n'attend. */
+  var pa=document.getElementById("pfAfaire");
+  if(pa){
+    if(n){
+      var autres=faire.length-1;
+      pa.innerHTML='<button type="button" class="pf-af"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+n+' action'+(n>1?'s':'')+' à faire</b><small>'+esc(faire[0][1])+(autres?' · et '+autres+' autre'+(autres>1?'s':''):'')+'</small></span><em aria-hidden="true">›</em></button>';
+      pa.hidden=false;
+    } else { pa.innerHTML=""; pa.hidden=true; }
+  }
   c.classList.toggle("ctl-alerte",!!n);
   c.hidden=false;
 }
 document.addEventListener("click",function(e){
+  var af=e.target.closest?e.target.closest(".pf-af"):null;
+  if(af){ var cc=document.getElementById("ctlCard"); if(cc){ cc.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); var i0=cc.querySelector(".ctl-i"); if(i0) try{ i0.focus({preventScroll:true}); }catch(er){} } return; }
   var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl]"):null; if(!b) return;
   var k=b.getAttribute("data-ctl"), auj=jourUsine();
   if(k==="dmNv") ouvrirGrille("demandes",{});
