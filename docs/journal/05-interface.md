@@ -4394,6 +4394,27 @@ Ce qui a été fait :
   - les repères de « Jour par jour » au téléphone (8,5 et 9 px) sont l'axe d'un graphique de 31 colonnes ;
   - au téléphone, la fiche reste longue (850 px) : tout ce qu'elle contient y a été demandé, cas par cas, entre le 09 et le 22/10.
 
+### Ce qui attend une action, dès le premier écran (23/10/2026, v1028)
+
+Le client, après v1027 : « comment optimiser l'accueil ? ». Mesuré d'abord sur un téléphone de 393 × 852 px :
+
+- **Premier écran** : rien que le héros. La barre du bas commence à 775 px, et la carte « À faire », avec ses deux actions, commençait à 897 px. Un centre de contrôle qui ne dit pas, sans défiler, qu'une action attend, c'est le défaut principal.
+- **Vitesse** (processeur divisé par quatre) : héros affiché à 1,4 s, toutes les cartes à 1,8 s. La plus longue tâche dure 325 ms, c'est la lecture du script. Rien d'urgent de ce côté.
+
+Ce qui est fait : une ligne sous le prochain poste, dans le héros. Elle donne le nombre (« 2 actions à faire »), nomme la première action (« 1 fiche de recyclage à confirmer · et 1 autre ») et mène à la carte, où le focus se pose sur la première action.
+
+- Elle est hors du cadre du prochain poste, qui l'avalait au premier essai : `_pfHead` enveloppe dans `pf-bloc` tout ce qui précède `pf-app`, et la ligne est donc placée après.
+- À l'orange des actions, comme la carte. Rien quand rien n'attend.
+- À 320 px, son texte passe sur deux lignes au lieu d'être coupé par des points de suspension.
+- **Mesuré** :
+  - ligne à 297 px au téléphone, donc au premier écran ;
+  - au toucher, la carte arrive à 12 px du haut, le focus sur « 1 fiche de recyclage à confirmer » ; de même au PC ;
+  - aucune ligne quand la base ne rend rien ;
+  - trois profils sans débordement à 320, 390 et 1280 px ;
+  - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+
+**Laissé au client** : raccourcir le héros au téléphone (920 px) en sortant « Mes congés », « Année » et « Mes pauses » dans une carte placée après « À faire ». Ce serait revenir sur ses choix du 17 au 22/10, qui les a voulus dans le héros.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
