@@ -4300,6 +4300,30 @@ Le client : « sur site en ce moment peut être dans le tableau de bord de l'acc
 - Éprouvé le 31/10 à 15 h avec le compte VBN, d'après-midi ce jour-là : salon de l'après-midi, 11 présents, VBN « vous · 13 h 30 – 22 h » (remise de pause). À 390 et 1280 px, rien ne déborde, rien n'est coupé ; aucune erreur.
 - **Non-régression, et comment la prouver quand l'outil sature.** La comparaison directe donnait 548 alertes. L'Accueil reste dans la page derrière toutes les vues, et l'outil numérote les textes identiques dans leur ordre : les « AM », « Matin » et postes de la nouvelle carte décalent tous les numéros, et chaque vue « change ». La preuve s'est faite autrement. On capture une copie identique où seule la carte de l'Accueil reste cachée, puis on la compare à la référence d'avant : **0 alerte, 0 texte changé**. Tout le reste, carte du tableau de bord comprise malgré son découpage en fonctions communes, est donc à l'identique. La carte elle-même est mesurée à part (ci-dessus).
 
+### « Sur site en ce moment » optimisé (23/10/2026, v1025)
+
+Le client envoie une capture de la carte sur l'Accueil, à 18 h 17, avec ce seul mot : « optimise ». La capture est reproduite au banc à l'identique (même heure, même liste, 393 px), puis photographiée à 320, 390 et 1280 px, avec la version de l'espace RH. Les défauts relevés, bloc par bloc :
+
+- **Redite** : « jusqu'à 22 h » sous 9 des 10 membres de l'après-midi, alors que la tête du salon dit déjà « 14 h – 22 h ». Une tuile ne porte plus d'heures que si elles s'écartent de celles du salon, et seulement ce qui s'en écarte : « jusqu'à 2 h » (au lieu de « 14 h – 2 h »), « dès 5 h 30 » pour une remise de pause, la plage entière si les deux bouts diffèrent, et toujours dans « Horaires particuliers », qui n'a pas d'heures communes.
+- **Avatars ovales** : au téléphone (moins de 700 px), le planning met ses trigrammes en 38 × 30 px à 10,5 px ; arrondis à 50 %, ils faisaient ici des ovales, avec un texte sous les 11 px de la règle de lisibilité. La pastille est désormais ronde, 36 × 36 px, en 11,5 px, à toutes les largeurs. Au téléphone, le contrôle des textes de moins de 11 px passe de 11 trigrammes (un par présent) à 0.
+- **Tête du salon coupée à 320 px** : « Après-/midi » sur deux lignes, et « 22 » séparé de « h ». Le titre et « Équipe 5 · 14 h – 22 h » sont deux blocs insécables qui passent l'un sous l'autre quand la place manque. Les heures (`siteH`) s'écrivent avec des espaces insécables, la relève aussi.
+- **Ordre** : un contremaître en remise de pause (aucun poste lu ce jour-là) passait en dernier, après les chaudières, parce que son rang se cherchait sur le poste du jour. Il prend désormais le rang de son poste habituel, celui qu'affiche sa tuile. Mesuré à 5 h 45 et à 13 h 40 : premier de son salon.
+- **Hauteur** : sur l'Accueil, où les tuiles ne s'ouvrent pas, une rangée passe de 44 à 40 px. Ce n'est pas le cas dans l'espace RH, où elles restent des boutons de 44 px.
+- **Mesuré** :
+
+  | Largeur | Avant | Après |
+  |---|---|---|
+  | 320 px | 697 px | 612 px |
+  | 390 px | 424 px | 391 px |
+  | 1280 px | 328 px | 307 px |
+  | Espace RH, 390 px | 445 px | 436 px |
+
+  À chaque largeur : ni débordement, ni texte coupé, ni erreur. Quatre moments éprouvés (5 h 45, 1 h 30, 13 h 40, 18 h 17) ; « vous · jusqu'à 2 h » pour la personne de l'appareil. Les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+- **Laissé tel quel** :
+  - à 320 px, la tuile garde l'avatar au-dessus du poste : côte à côte, il resterait 66 px pour « Contremaître », qui en demande 85 ;
+  - « Horaires particuliers » n'a pas de pastille de pause, puisque ce n'en est pas une ;
+  - le point vert de chaque avatar reste, puisque c'est l'image du salon vocal demandée par le client.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
