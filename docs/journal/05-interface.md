@@ -3977,3 +3977,68 @@ Contrôle de non-régression (60 vues, référence v1006) : **0 alerte** ;
 un seul texte change par vue au PC, le nom de la marque ; hors ligne
 correct, aucune erreur. Le vérificateur du calendrier rend ses quatre
 sorties à l'octet.
+
+### La Direction devient un centre de contrôle RH (23/10/2026, v1008)
+
+Le client : « la vue Direction doit être un vrai centre de contrôle
+ressources humaines […] un statut complet et des statistiques sur tous
+les opérateurs et travailleurs, pour leurs fonctions, leur poste, leur
+statut, leur absence, leur congé, les gens présents, les gens malades,
+les gens absents […] professionnel et premium ». Démarche : une carte de
+ce que l'application sait déjà lire, deux conceptions indépendantes (le
+geste de la RH, la lecture des données) notées par un juge (50 contre
+48 : la première retenue, six idées de la seconde greffées), la
+réalisation, une critique qui a mesuré les tâches réelles de la RH, puis
+la finition de ses huit défauts graves et moyens.
+
+- **Trois écrans** sous une barre segmentée : *Aujourd'hui* (choix du
+  jour, présents, malades, congé, repos, absentéisme, les quatre pauses
+  avec qui manque, « À surveiller » sur sept jours, la répartition sur
+  quatre axes, les sept prochains jours), *Effectif* (une ligne par
+  personne, recherche sans accents, puces d'état, filtres, sept tris,
+  pied de synthèse ; tableau à six colonnes au PC, cartes au téléphone),
+  *Analyses* (les six sous-pages d'avant, texte identique à l'octet,
+  plus un Comparatif « Par équipe »). Une **fiche par personne** s'ouvre
+  par-dessus tout, avec ‹ › pour passer à la suivante dans la liste
+  filtrée.
+- **Chaque chiffre est un bouton qui ouvre la liste qu'il compte**, et le
+  nombre affiché égale toujours le nombre de lignes ouvertes : 830
+  boutons parcourus à 390 et 1280 px, aucun écart. Le Retour du
+  téléphone ferme la fiche, puis retire le filtre, puis revient à
+  Aujourd'hui.
+- **Le contrôle des effectifs** : présents + malades + congés + repos =
+  tout l'horaire, sinon une erreur et un bandeau. Il mord : une personne
+  retirée des repos sur une copie, il crie « 77 personnes rangées sur
+  78 ». La lecture du code règle « 14 personnes inexpliquées » d'une
+  ancienne carte : chacun tombe dans une seule liste, et le « 7 » de repos
+  était faux. **Mesuré** au 22/10 : 40 + 6 + 11 + 21 = 78, et les 21
+  repos sont 20 repos lus, 1 poste prévu non presté, 0 journée sans
+  entrée.
+- **Erreur trouvée par la critique, corrigée** : la fiche titrée « du
+  1er janvier au 22/10 » comptait les jours de maladie et les congés de
+  TOUTE l'année, jours à venir compris (153 jours pour une personne en
+  longue maladie, dont les barres de novembre et décembre). `dirRH`
+  calcule désormais, dans la même boucle, les mêmes grandeurs bornées au
+  jour de l'usine, sans toucher aux totaux existants : 109 jours à ce
+  jour et 44 prévus d'ici le 31/12 font bien les 153 d'avant ; au pied de
+  l'Effectif, 1 337 + 126 = les 1 463 jours des Analyses.
+- **Tableau du PC sans défilement imbriqué** : il débordait de son cadre
+  (1 089 px pour 998) et défilait dans la page. Six colonnes fixes, en-tête
+  collé sous la barre : table et cadre égaux de 761 à 1 600 px. Épreuve :
+  sur une copie sabotée, le contrôle crie.
+- **Les soldes restants** ne se lisent que dans le classeur et seulement
+  si `soldesSaisis()` : sur 304 comparaisons, 16 écarts entre la colonne
+  du classeur et le calcul de l'espace RH. Avec l'horloge en 2027, la
+  colonne disparaît et la page dit « Soldes 2027 non confirmés ».
+- Par personne, les congés sont en heures, comme le classeur (« VA 44 h »
+  et non « 5,5 j »). Le Comparatif par équipe, lui, garde ses jours,
+  comme le tableau des Analyses qu'il prolonge.
+- Reste, dit tel quel : le statut « longue maladie » se calcule sur la
+  plus longue série de l'année entière, comme dans les Analyses ; les
+  périodes de maladie et les RHS de la fiche couvrent l'année, écrites à
+  part. Le mot « Absents » diffère entre les Effectifs (malades) et la
+  Direction (malades et congés) : question au client n° 9.
+- Vérifié : vérificateur, quatre sorties identiques à l'octet ; hors
+  ligne, 78 lignes en trigrammes et la note « Noms indisponibles hors
+  ligne » ; 320, 390, 761, 900 et 1280 px, 0 débordement, 0 texte sous
+  11 px, 0 cible sous 44 px.
