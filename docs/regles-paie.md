@@ -2238,6 +2238,14 @@ au 30/10/2027 : AFA, de nuit ce samedi-là, « U43 1,00 », et rien le
 dimanche 31. L'agenda n'a rien à faire : ses heures sont écrites à l'heure
 de Bruxelles, et le téléphone allonge ou raccourcit la nuit de lui-même.
 
+**Remesuré le 23/10/2026** (classeur du 22/10) : le 24/10/2026, la paie
+compte **11** personnes de nuit avec l'heure sup, et non plus 13. Le
+classeur a changé depuis le 14/10 : AFA fait la nuit en échange avec ATR,
+qui passe l'après-midi. L'agenda en annote autant, les mêmes
+(`--journee <id> 1024`, une par une). Les deux lectures sont d'accord. Les
+agendas portent désormais la note de cette nuit (journal 05,
+« Les changements d'heure dans les agendas »).
+
 ## Un remplacement qui finit à 22 h, épargné en flex time
 
 Le client, le 14/10/2026, sur l'état de présence SAP d'un contremaître :
