@@ -99,7 +99,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
-| congés scolaires (`FWB_ARRETES`, `fwbAn`) | `node tools/verifier-conges-scolaires.js` → 0 ; un arrêté paru : sa ligne dans `FWB_ARRETES`, ses dates dans l'outil |
+| congés scolaires (`FWB_ARRETES`, `fwbAn`) | `node tools/verifier-conges-scolaires.js` → 0 ; une année parue, le robot l'ajoute seul (`conges-auto.js`) |
 | lecture de l'horaire dans `index.html`, `data/` | `node tools/verifier-calendrier.js --agendas cal` : ne doit changer que ce qui est voulu |
 
 **Mesurer avant, mesurer après, et prouver que rien d'autre n'a bougé.** Un
@@ -278,6 +278,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/extraire-fiches.py` | recopie toute une fiche de paie en JSON, sans rien d'identifiant — sortie hors du dépôt |
 | `cal/<id>.ics` | l'abonnement agenda de chacun, écrit par `verifier-calendrier.js --agendas` ; avec lui `cal/conges-scolaires.ics`, les congés scolaires de la Fédération Wallonie-Bruxelles |
 | `tools/verifier-conges-scolaires.js` | confronte le calcul des congés scolaires (décret du 31/03/2022) aux arrêtés publiés |
+| `tools/conges-auto.js` | relit chaque jour enseignement.be (`conges-scolaires.yml`) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `tools/qr-installer.py` | écrit `qr-installer.svg`, le QR code du guide d'installation (`#installer`) |

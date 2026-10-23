@@ -387,7 +387,11 @@ if(ARGS.indexOf("--agendas")>=0){
   const nJ=Math.round((fin-debut)/864e5)+1;
   fs.mkdirSync(dir,{recursive:true});
   const ecrits=new Set(); let total=0, gens={};
-  annees.filter(a=>a>=premiere).forEach(a=>HORAIRES[a].people.forEach(p=>{ gens[p.id]=1; }));
+  /* --conges-seulement : le seul agenda des congés scolaires, pour le
+     robot qui relit enseignement.be (tools/conges-auto.js) ; les agendas
+     des personnes ne sont ni réécrits ni retirés */
+  const seul=ARGS.indexOf("--conges-seulement")>=0;
+  if(!seul) annees.filter(a=>a>=premiere).forEach(a=>HORAIRES[a].people.forEach(p=>{ gens[p.id]=1; }));
   Object.keys(gens).sort().map(id=>({id:id})).forEach(p=>{
     const r=icsAgenda(p.id,debut,nJ,stamp);
     const f=path.join(dir,p.id+".ics");
@@ -401,7 +405,7 @@ if(ARGS.indexOf("--agendas")>=0){
   const ecole=icsCongesScolaires(anCourant-1,6,stamp), fe=path.join(dir,"conges-scolaires.ics");
   if(!fs.existsSync(fe) || fs.readFileSync(fe,"utf8")!==ecole.texte) fs.writeFileSync(fe,ecole.texte);
   ecrits.add("conges-scolaires.ics");
-  const partis=fs.readdirSync(dir).filter(f=>/\.ics$/.test(f) && !ecrits.has(f));
+  const partis=seul?[]:fs.readdirSync(dir).filter(f=>/\.ics$/.test(f) && !ecrits.has(f));
   partis.forEach(f=>fs.unlinkSync(path.join(dir,f)));
   console.log((ecrits.size-1)+" agendas, "+total+" événements"+(partis.length?", "+partis.length+" retiré(s)":"")+", congés scolaires : "+ecole.n+" événements → "+dir);
   process.exit(0);

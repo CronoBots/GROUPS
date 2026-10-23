@@ -1,0 +1,37 @@
+# Les congés scolaires de la Fédération Wallonie-Bruxelles, relus chaque jour
+# sur enseignement.be/calendrier-scolaire (le client, le 23/10/2026). Une année
+# nouvelle (automne, détente, printemps) n'entre dans l'agenda qu'après avoir
+# été recoupée avec le décret du 31 mars 2022 ; un écart fait échouer le flux,
+# et GitHub prévient. Voir tools/conges-auto.js. Lançable à la main : onglet
+# Actions, « Congés scolaires », Run workflow.
+name: Congés scolaires
+
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# le même groupe que l'horaire automatique : deux robots ne poussent pas en même temps
+concurrency:
+  group: horaire-auto
+  cancel-in-progress: false
+
+jobs:
+  conges:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Identité git
+        run: |
+          git config user.name "BIOWANZE congés scolaires"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config core.hooksPath .githooks
+      - name: Relire enseignement.be, recouper, installer
+        run: node tools/conges-auto.js --pousser
