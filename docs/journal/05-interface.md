@@ -4189,3 +4189,41 @@ Zone design et contenu :
   - une saisie de case en cours se perd si l'on touche une autre case : non demandé, à confirmer avant de bloquer la grille ;
   - laissé à la Direction : le champ de date qui s'allume au clic de souris ;
   - les tuiles de l'Accueil, des `<button role="listitem">` qui ne s'annonçaient pas comme boutons : corrigé ensuite (v1014). Elles sont devenues des boutons dans un groupe « À portée de main ». Vérifié : 6 boutons, pour un opérateur comme pour la hiérarchie.
+
+### Le centre de contrôle RH, complément : listes déroulées, observations, Synthèse RH (23/10/2026, v1015)
+
+Le client, après l'aperçu : « ok pour les présents par pause, développer la liste, et pareil pour autre bouton s'il y en a. Il faut des stats et des conclusions et observations qui peuvent être intéressantes pour un RH ».
+
+- **Les listes se déroulent sur place.** Toutes ouvrent les noms quand ils sont chargés, sinon les trigrammes, et chaque ligne ouvre la fiche. Le lien « Voir dans l'Effectif › » garde l'ancien chemin.
+  - « N présents » de chaque pause : par poste du jour.
+  - Les tuiles des présents, des malades (« depuis → jusqu'au », longue maladie), des congés (par motif) et des repos : une seule ouverte à la fois.
+  - Les rangées de « À surveiller » qui comptent des personnes.
+  - Chaque nombre de la Répartition.
+  - Mesure : 140 boutons parcourus, 874 lignes déroulées, le nombre affiché égale toujours les lignes. Sur une copie sabotée, le parcours crie (15 fautes).
+- **Observations**, chiffrées et comparées, chacune avec son niveau (une icône et un mot : alerte, attention ou information) et la liste concernée. Les quatre à six plus saillantes sur Aujourd'hui ; toutes dans une sous-page « Synthèse RH », en tête des Analyses, avec neuf chiffres clés.
+  - Les douze, au 23/10 :
+    - le taux à date et le mois en cours comparé aux précédents ;
+    - le groupe le plus touché, et l'équipe de shift la plus touchée, avec et sans leurs longues maladies ;
+    - la part des longues maladies (8 personnes, 50,9 % des jours ; 4,7 % de taux sans elles) ;
+    - les périodes de maladie (209, 6,4 jours en moyenne) ;
+    - la concentration des rappels ;
+    - les sous-effectifs à venir ;
+    - les recyclages dépassés ;
+    - les postes fragiles (seuil du client) ;
+    - les intérimaires ;
+    - la VA à poser, seulement si les soldes sont confirmés ;
+    - les heures sup et le flex à date.
+  - Écartée : « la fonction la plus touchée », qui redoublait les groupes.
+  - **Contre-épreuve** : un second calcul, indépendant de la page, refait les agrégations à partir de la seule lecture des journées. 31 chiffres confrontés, 0 écart ; saboté, il crie.
+- **Trois constats de la seconde ronde**, sur la Direction :
+  - (a) le taux restait figé au jour du premier calcul : la clé des caches porte maintenant le jour de l'usine, couverture des postes comprise. Page ouverte le 23/10, horloge passée au 20/11 sans recharger : les chiffres égalent ceux d'une page neuve ;
+  - (b) la note d'« Absences et santé » dit maintenant ce qu'elle compte : l'année entière, à venir compris, dont tant au jour de l'usine ;
+  - (c) le commentaire de `dirBarsMois` cite la définition du client.
+- **Les restes de la vague B, faits à la fusion** :
+  - le « 1er » de la date ;
+  - « et » au lieu de « & » dans les titres ;
+  - les flèches, Origine et Fin dans les trois rangées d'onglets, avec tabindex itinérant ;
+  - le liseré de l'onglet retenu, à plus de 5:1 ;
+  - l'anneau du champ de date au clavier seulement.
+  - Éprouvé à 390 et 1280 px, aucune erreur.
+- **Reste à examiner, hors de la Direction** : sur une journée, le 13/04, pour une seule personne, la page lit 12 h d'heures sup quand la découpe du vérificateur en lit 4 (1 955 h contre 1 947 h au total). Voir l'entrée suivante.

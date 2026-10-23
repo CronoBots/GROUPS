@@ -3027,7 +3027,9 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dir-tgl{display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:3px; background:var(--surface2); border:1px solid var(--line); border-radius:12px}
 .dir-tg{font:inherit; font-size:13px; font-weight:600; min-height:44px; padding:6px 10px; border:0; border-radius:9px; background:none; color:var(--muted); cursor:pointer; transition:background-color .18s ease, color .18s ease}
 .dir-tg:hover{color:var(--ink)}
-.dir-tg.on{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
+/* liseré au jeton --in : la pastille retenue ne se détachait du rail qu'à
+   1,15:1 (audit du 23/10/2026) */
+.dir-tg.on{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 1px var(--in)}
 .dir-tg:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 /* LES TABLEAUX : une ligne par équipe, des filets, les nombres à droite */
 .dir-subh{font-size:12.5px; font-weight:700; color:var(--ink2); margin:2px 0 6px}
@@ -3103,7 +3105,7 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dc-seg{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:4px; padding:3px; background:var(--surface2); border:1px solid var(--line); border-radius:12px; min-width:0}
 .dc-seg button{font:inherit; font-size:13.5px; font-weight:650; min-height:44px; padding:6px 8px; border:0; border-radius:9px; background:none; color:var(--muted); cursor:pointer; transition:background-color .18s ease, color .18s ease; min-width:0}
 .dc-seg button:hover{color:var(--ink)}
-.dc-seg button[aria-selected="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.dc-seg button[aria-selected="true"]{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 1px var(--in)}
 .dc-seg button:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 .dc-seg-v{margin-bottom:16px}
 .dc-seg-v button{font-size:14px}
@@ -3121,7 +3123,9 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dc-date b{font-size:16px; font-weight:700; color:var(--ink); letter-spacing:-.01em; text-transform:capitalize}
 .dc-date small{font-size:11.5px; color:var(--muted)}
 .dc-date input{position:absolute; inset:0; width:100%; height:100%; opacity:0; border:0; cursor:pointer; font-size:16px}
-.dc-date:focus-within{outline:2px solid var(--in); outline-offset:2px}
+/* l'anneau au clavier seulement : :focus-within l'allumait aussi au clic
+   de souris (audit du 23/10/2026) */
+.dc-date.au-clavier{outline:2px solid var(--in); outline-offset:2px}
 .dc-auj,.dc-autrej{flex:0 0 auto; min-height:44px; padding:0 14px; border-radius:12px; border:1px solid var(--in); background:var(--in-soft); color:var(--in); font-weight:650; font-size:13px}
 .dc-autrej{border-color:var(--line); background:var(--surface2); color:var(--ink); margin-left:auto}
 .dc-autrej{width:44px; padding:0; display:inline-flex; align-items:center; justify-content:center}
@@ -3356,6 +3360,88 @@ button.dir-sb{min-height:44px; align-items:center; text-align:left; transition:b
 .dc-poly .pf-sec:first-child{display:none}
 .dc-fpied{margin:18px 0 6px; display:flex}
 .dc-fpied .btn{min-height:44px; width:100%}
+/* LES LISTES QUI SE DÉROULENT (le client, le 23/10/2026) : la flèche
+   tourne d'un quart de tour, sans mouvement si l'appareil le demande */
+.dc-chev{display:inline-block; flex:0 0 auto; width:14px; text-align:center; color:var(--faint); font-size:18px; font-weight:400; line-height:1; transition:transform .18s ease}
+.dc-chev::before{content:"\203A"}
+[aria-expanded="true"]>.dc-chev{transform:rotate(90deg); color:var(--ink2)}
+.dc-k::after,.dc-surv::after{transition:transform .18s ease}
+.dc-k[aria-expanded="true"]::after{transform:rotate(90deg); color:var(--ink2)}
+.dc-surv[aria-expanded="true"]::after{transform:translateY(-50%) rotate(90deg); color:var(--ink2)}
+.dc-k[aria-expanded="true"],.dc-surv[aria-expanded="true"]{border-color:var(--trait-fort); background:var(--surface3)}
+@media (prefers-reduced-motion:reduce){ .dc-chev,.dc-k::after,.dc-surv::after{transition:none} }
+.dc-kbloc{display:flex; flex-direction:column; gap:10px; min-width:0}
+.dc-dl{padding:10px; border:1px solid var(--line2); border-radius:14px; background:var(--surface2); min-width:0}
+.dc-dl[hidden]{display:none}
+.dc-kbloc>.dc-dl{border-color:var(--trait-fort); background:var(--surface); box-shadow:var(--shadow)}
+.dc-dl-t{margin:0 2px 8px; font-size:12.5px; font-weight:650; color:var(--ink2)}
+.dc-dg+.dc-dg{margin-top:10px}
+.dc-dgt{margin:0 2px 6px; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--muted)}
+.dc-dgt>span{font-variant-numeric:tabular-nums; color:var(--faint); font-weight:600}
+.dc-dgt .pl-pa{font-size:11px; padding:2px 6px}
+.dc-dlst{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:6px}
+@media (min-width:761px){ .dc-dlst{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))} }
+.dc-li{display:flex; flex-direction:column; justify-content:center; gap:1px; width:100%; height:100%; min-height:44px; padding:5px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface); text-align:left; cursor:pointer; font:inherit; color:inherit; min-width:0; -webkit-tap-highlight-color:transparent}
+.dc-kbloc>.dc-dl .dc-li{background:var(--surface2)}
+/* le trigramme et le nom dans une même ligne de texte : un nom long revient
+   à la ligne sous lui, au lieu de laisser le trigramme seul sur la sienne */
+.dc-li-a{display:block; min-width:0; overflow-wrap:anywhere}
+.dc-li-a>.dc-tri{margin-right:6px}
+.dc-li .dc-tri{font-size:12.5px; color:var(--ink)}
+.dc-li-nom{font-size:13px; color:var(--ink)}
+.dc-li-a .pl-pa{float:right; margin-left:6px; font-size:11px; padding:2px 6px}
+.dc-li small{font-size:11.5px; color:var(--muted); line-height:1.3; overflow-wrap:anywhere}
+.dc-li:focus-visible,.dc-ob-b:focus-visible{outline:2px solid var(--in); outline-offset:2px}
+.dc-li:active,.dc-ob-b:active{transform:scale(.98)}
+@media (hover:hover){ .dc-li:hover,.dc-ob-b:hover{border-color:var(--trait-fort)} }
+.dc-dl-pied{margin-top:10px; display:flex; justify-content:flex-end; flex-wrap:wrap; gap:6px}
+.dc-dl-vide{margin:0; font-size:13px; color:var(--muted)}
+/* une pause ouverte prend toute la rangée : sa liste a la place de deux colonnes */
+.dc-pause.ouv{grid-column:1 / -1}
+.dc-pn .dc-chev{margin-left:auto; align-self:center}
+/* à 320 px, la carte d'une pause n'a que 100 px de bouton : la flèche
+   passe dans le coin du haut, hors de la ligne, et le nombre comme
+   « présents » gardent leur taille */
+@media (max-width:360px){
+  .dc-pn{position:relative}
+  .dc-pn .dc-chev{position:absolute; right:3px; top:2px; width:10px; font-size:15px}
+}
+.dc-pn[aria-expanded="true"]{border-color:var(--trait-fort)}
+.dc-pause>.dc-dl{background:var(--surface); padding:8px}
+.dc-survs>.dc-dl{margin:-2px 0 2px}
+/* la Répartition : le nombre ouvert se marque, sa liste vient sous la rangée */
+.dc-nums .dc-nb[aria-expanded="true"],.dc-rt td .dc-nb[aria-expanded="true"]{background:var(--surface2); border-color:var(--c,var(--line)); box-shadow:inset 0 0 0 2px var(--c,var(--in))}
+.dc-rlib{justify-content:flex-start}
+.dc-rlib>span:first-child{margin-right:auto}
+.dc-rlib .dc-chev{margin-left:-2px}
+.dc-rlib[aria-expanded="true"]{background:var(--surface2); border-color:var(--line)}
+.dc-rr>.dc-dl{margin-top:2px}
+.dc-rt tr.dc-rdet>td{padding:2px 0 12px; white-space:normal; text-align:left; border-bottom:1px solid var(--line2)}
+.dc-rt tr.dc-rouv>*{border-bottom-color:transparent}
+.dc-rt .dc-dl .dc-nb{display:inline-flex}
+/* LES OBSERVATIONS : le niveau dit par une icône ET un mot */
+.dc-obs{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:minmax(0,1fr); gap:8px; align-items:start}
+.dc-ob{--c:var(--in); display:flex; flex-direction:column; gap:6px; padding:10px 12px 12px; border:1px solid var(--line2); border-left:4px solid var(--c); border-radius:12px; background:var(--surface); min-width:0}
+.dc-ob[data-niv="alerte"]{--c:var(--at-rouge)} .dc-ob[data-niv="attention"]{--c:var(--at-jaune)}
+.dc-ob-niv{margin:0; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; letter-spacing:.02em; color:var(--c)}
+.dc-ob-niv svg{flex:0 0 auto}
+.dc-ob-t{margin:0; font-size:13.5px; line-height:1.5; color:var(--ink2)}
+.dc-ob-t b{color:var(--ink); font-variant-numeric:tabular-nums}
+.dc-ob-t sup{font-size:11px; line-height:0}
+.dc-ob-act{display:flex; flex-wrap:wrap; gap:6px}
+.dc-ob-b{display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface2); font:inherit; font-size:13px; font-weight:600; color:var(--in); cursor:pointer; -webkit-tap-highlight-color:transparent}
+.dc-ob>.dc-dl{margin-top:2px}
+.dc-ob-puces{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:6px; margin-bottom:10px}
+.dc-ob-puces .dc-couvc{padding:0 8px; text-align:center}
+.dc-ob-pied{margin-top:10px; display:flex; justify-content:flex-end}
+.dc-stats{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px}
+.dc-stat{display:flex; flex-direction:column; gap:2px; padding:10px 12px; border:1px solid var(--line2); border-radius:12px; background:var(--surface2); min-width:0}
+.dc-stat b{font-size:22px; font-weight:700; line-height:1.1; letter-spacing:-.02em; color:var(--ink); font-variant-numeric:tabular-nums}
+.dc-stat span{font-size:12.5px; font-weight:600; color:var(--ink2)}
+.dc-stat small{font-size:11.5px; color:var(--muted)}
+html #v-direction .dir-cards>.dc-card-syn{grid-column:1 / -1; border-color:color-mix(in srgb,var(--in) 45%,var(--cadre))}
+/* au PC, deux colonnes ; une observation ouverte prend la rangée entière */
+@media (min-width:900px){ .dc-cadre-obs .dc-obs{grid-template-columns:repeat(2,minmax(0,1fr))} .dc-cadre-obs .dc-ob.ouv{grid-column:1 / -1} }
 /* DISPOSITION AU PC (761 px et plus) : les cinq tuiles sur une rangée, les
    pauses et « À surveiller » côte à côte ; l'Effectif garde ses filtres
    dans une colonne collante de 240 px */
@@ -14592,7 +14678,9 @@ function dirPresents(par){ var vu={}, n=0; ["AM","PM","N","D"].forEach(function(
    ouvre la liste qu'il compte : le nombre affiché est celui des lignes.
    Tout est relu par equipeDuJour, dirRH et dirAnnee, rien n'est calculé à
    part. L'état se garde en mémoire : rouvrir Direction rend le même écran. */
-var DIR={vue:"jour", page:"", jour:null, choisi:false, f:{}, tri:"situation", axe:"groupe", hist:[], voirFiltres:false, cmp:"statut"};
+var DIR={vue:"jour", page:"", jour:null, choisi:false, f:{}, tri:"situation", axe:"groupe", hist:[], voirFiltres:false, cmp:"statut",
+  /* les listes déroulées, une clé par zone (voir dirOuvert) */
+  ouv:{k:"", p:{}, s:"", r:"", o:"", y:""}};
 try{ var _dirAxe=localStorage.getItem("ui/dirAxe"); if(_dirAxe && /^(fonction|groupe|poste|statut)$/.test(_dirAxe)) DIR.axe=_dirAxe; }catch(e){}
 var mqDirPC=window.matchMedia("(min-width:761px)");
 var _dirCentreCache={}, _dirAnCache=null, _dirMqC=null, _dirCovN=null;
@@ -14670,7 +14758,7 @@ function dirDebut(l){
 function dirAnnuel(){
   var ju=jourUsine(), db=horaireDe(ju.getFullYear())||HORAIRE_DB;
   if(!db) return null;
-  if(_dirAnCache && _dirAnCache.db===db) return _dirAnCache;
+  if(_dirAnCache && _dirAnCache.db===db && _dirAnCache.juC===dirIso(ju)) return _dirAnCache;
   var rh=dirRH(db), an=dirAnnee(db), par={}, sai=soldesSaisis(db);
   (rh.allOps||[]).forEach(function(o){ par[o.id]={o:o, rapp:0, rappA:0, restant:null, p:null}; });
   (an.rapp||[]).forEach(function(r){ if(par[r.id]) par[r.id].rapp=r.n; });
@@ -14678,7 +14766,7 @@ function dirAnnuel(){
   var yd=Number(db.year), auMD=yd===ju.getFullYear()?pad2(ju.getMonth()+1)+pad2(ju.getDate()):yd<ju.getFullYear()?"1231":"0000";
   (an.rappList||[]).forEach(function(r){ if(par[r.id] && r.j<=auMD) par[r.id].rappA++; });
   db.people.forEach(function(p){ var x=par[p.id]; if(!x) return; x.p=p; if(sai) x.restant=(p.c&&p.c.restant)||{}; });
-  _dirAnCache={db:db, rh:rh, an:an, par:par, saisis:sai, y:Number(db.year), ju:ju, auMD:auMD};
+  _dirAnCache={db:db, rh:rh, an:an, par:par, saisis:sai, y:Number(db.year), ju:ju, juC:dirIso(ju), auMD:auMD};
   return _dirAnCache;
 }
 function dirA(l){ return _dirAnCache?(_dirAnCache.par[l.id]||null):null; }
@@ -14810,6 +14898,124 @@ function dirQuandLong(l){
 /* le poste attitré, sauf s'il redit la fonction (« Adjoints · Adjoint ») */
 function dirPosteTxt(I){ return I.posteT===I.fonction?"":I.posteT; }
 
+/* ── LES LISTES QUI SE DÉROULENT SUR PLACE ────────────────────────────────
+   Le client, le 23/10/2026, devant l'aperçu : « Ok pour les présents par
+   pause, développer la liste, et pareil pour autre bouton si il y en a ».
+   Un chiffre qui compte des personnes déroule leur liste là où il est : les
+   présents d'une pause dans sa carte, les quatre tuiles sous leur rangée
+   (une seule ouverte), les rangées d'« À surveiller », les nombres de la
+   Répartition. Chaque nom ouvre sa fiche (‹ › passent au suivant de la
+   liste) ; « Voir dans l'Effectif » garde le chemin d'avant. Le nombre du
+   bouton (data-n) est celui des lignes déroulées : la liste est celle que
+   l'Effectif filtré montrerait. L'état se garde dans DIR.ouv, une clé par
+   zone : k (tuiles), p (pauses, plusieurs à la fois), s (À surveiller),
+   r (Répartition), o (observations d'Aujourd'hui), y (celles de la
+   synthèse de la RH). */
+function dirOuvert(cle){ var z=cle.charAt(0); return z==="p"?!!DIR.ouv.p[cle]:DIR.ouv[z]===cle; }
+function dirIdL(cle){ return "dcL-"+encodeURIComponent(cle).replace(/[%'()*!~.]/g,"_"); }
+function dirOuvreAttr(cle){ return ' data-ouvre="'+esc(cle)+'" aria-expanded="'+dirOuvert(cle)+'" aria-controls="'+dirIdL(cle)+'"'; }
+/* la flèche qui tourne d'un quart de tour quand la liste est ouverte */
+var DIR_CHEV='<span class="dc-chev" aria-hidden="true"></span>';
+/* un nombre qui déroule sa liste ; zéro reste un simple texte */
+function dirNbOuvre(n,cle,label,cls,contenu){
+  if(!n) return '<span class="dc-zero'+(cls?' '+cls:'')+'">'+(contenu||"0")+'</span>';
+  return '<button type="button" class="dc-nb'+(cls?' '+cls:'')+'"'+dirOuvreAttr(cle)+' data-n="'+n+'" aria-label="'+esc(label)+', liste des personnes">'+(contenu||n)+'</button>';
+}
+/* le chemin d'avant, au pied de la liste : l'Effectif filtré, même compte */
+function dirLienEff(n,f,label,tri){
+  if(!n) return '';
+  return '<div class="dc-dl-pied"><button type="button" class="dc-lien" data-filtre="'+esc(dirFiltreAttr(f))+'" data-n="'+n+'"'+(tri?' data-tri="'+tri+'"':'')+' aria-label="'+esc(label)+' : ouvrir dans l\'Effectif">Voir dans l\'Effectif ›</button></div>';
+}
+/* une ligne : le trigramme, le nom quand la base l'a donné, et ce que la
+   liste ajoute (poste du jour, depuis → jusqu'au, motif et fin) */
+function dirLiHTML(x){
+  var l=x.l, nom=dirNom(l), I=l.I;
+  return '<li><button type="button" class="dc-li" data-pers="'+esc(l.id)+'" aria-label="'+esc((nom?nom+", ":"")+I.tri+(x.det?", "+x.det:"")+", voir la fiche")+'">'
+    +'<span class="dc-li-a"><b class="dc-tri">'+esc(I.tri)+'</b>'+(nom?'<span class="dc-li-nom">'+esc(nom)+'</span>':'')+(x.puce?dirPuce(l):'')+'</span>'
+    +(x.det?'<small>'+esc(x.det)+'</small>':'')+'</button></li>';
+}
+/* le panneau : des groupes de lignes, puis le chemin vers l'Effectif.
+   Fermé, il reste dans la page, vide et caché : aria-controls désigne
+   toujours un élément. Son contenu (fn) ne se calcule qu'ouvert. */
+function dirPanneau(cle,fn){
+  var id=dirIdL(cle);
+  if(!dirOuvert(cle)) return '<div class="dc-dl" id="'+id+'" hidden></div>';
+  var o=fn(), n=0; (o.groupes||[]).forEach(function(g){ n+=g.L.length; });
+  return '<div class="dc-dl'+(o.cls?' '+o.cls:'')+'" id="'+id+'" role="region" aria-label="'+esc(o.titre)+'">'
+    +(o.tete?'<p class="dc-dl-t">'+o.tete+'</p>':'')
+    +(o.corps!==undefined?o.corps:n?o.groupes.map(function(g){
+        return '<div class="dc-dg">'+(g.t?'<h4 class="dc-dgt">'+g.t+' <span>'+g.L.length+'</span></h4>':'')+'<ul class="dc-dlst">'+g.L.map(dirLiHTML).join("")+'</ul></div>';
+      }).join(""):'<p class="dc-dl-vide">'+esc(o.vide||"Personne.")+'</p>')
+    +(o.lien||"")+'</div>';
+}
+/* LE POSTE DU JOUR de chaque présent, celui du Planning : postesDePause
+   rejoué sur une lecture fraîche du jour (ses drapeaux ne touchent pas la
+   liste du centre), une fois par jour et seulement quand une liste le
+   demande. Qui vient de la colonne D en meunerie le matin reste en D. */
+function dirPostesJour(C){
+  if(C.postes) return C.postes;
+  var out={}, mmdd=pad2(C.m)+pad2(C.j), par=null;
+  try{ par=equipeDuJour(C.db,C.a,C.m,C.j); }catch(e){}
+  if(par) ["AM","PM","N"].forEach(function(g){
+    var l=par[g]||[], vue=null; if(!l.length) return;
+    try{ vue=postesDePause(C.db,l,g,mmdd,g==="AM"?par.D:null); }catch(e){ return; }
+    vue.postes.forEach(function(q){ q.gens.forEach(function(x){ if(!x.depuisD && !out[x.p.id]) out[x.p.id]={k:q.P.k, t:q.P.t}; }); });
+    (vue.formation||[]).forEach(function(x){ if(!out[x.p.id]) out[x.p.id]={k:"form", t:"En formation"}; });
+  });
+  C.postes=out; return out;
+}
+function dirEqP(C){ if(!C.eqP){ try{ C.eqP=equipeALaPause(C.db,C.a,C.m,C.j)||{}; }catch(e){ C.eqP={}; } } return C.eqP; }
+/* ce qu'une ligne ajoute selon l'état du jour (le client, le 23/10/2026 :
+   le malade depuis quand et jusqu'à quand, le congé son motif et sa fin) */
+function dirFinTxt(l){ var d=dirDebut(l); return d&&dirJJMM(d)===dirJJMM(l.fin)?"ce jour seulement":"jusqu'au "+dirJJMM(l.fin); }
+function dirMotifTxt(l){ return l.motif==="Payé, non presté"?"-FT, payé non presté":l.motif; }
+function dirDetail(l,C,sans){
+  if(l.etat==="present"){ if(l.formJour) return (sans==="pause"?"":"D · ")+"en formation"; var pj=dirPostesJour(C)[l.id];
+    return (sans==="pause"?"":l.pause+(pj?" · ":""))+(pj?pj.t:""); }
+  if(l.etat==="malade"){ var A=dirA(l); return dirQuand(l)+(A&&A.o.longue&&sans!=="longue"?" · longue maladie":""); }
+  if(l.etat==="conge") return (sans==="motif"?"":dirMotifTxt(l)+" · ")+dirFinTxt(l);
+  return l.sousRepos==="prevu"?"poste prévu non presté":l.sousRepos==="vide"?"aucune entrée ce jour":"";
+}
+/* des groupes ordonnés, à partir d'une clé et d'un libellé par ligne */
+function dirGrouper(L,cleDe,rang){
+  var g={}, ordre=[];
+  L.forEach(function(x){ var k=cleDe(x.l); if(!g[k[0]]){ g[k[0]]={k:k[0], t:k[1], L:[]}; ordre.push(k[0]); } g[k[0]].L.push(x); });
+  if(rang) ordre.sort(function(a,b){ return rang(a,g[a])-rang(b,g[b])||(a<b?-1:a>b?1:0); });
+  return ordre.map(function(k){ return g[k]; });
+}
+/* les présents d'une pause, rangés par poste du jour, ou à défaut par
+   fonction ; l'ordre des postes est celui du Planning */
+function dirGroupesPoste(C,L){
+  var pj=dirPostesJour(C), ordreP=POSTES_TRAVAIL.map(function(P){ return P.k; });
+  return dirGrouper(dirTrier(L,"nom").map(function(l){ return {l:l, det:l.I.statut==="Intérimaire"?"intérimaire":""}; }),function(l){
+    var p=pj[l.id];
+    if(l.formJour || (p&&p.k==="form")) return ["~form","En formation"];
+    if(p) return [p.k,esc(p.t)];
+    return ["~f:"+l.I.fonction,esc(l.I.fonction)];
+  },function(k){ var i=ordreP.indexOf(k); return i>=0?i:k==="~form"?200:100; });
+}
+/* les lignes d'un état du jour, pour les tuiles et la Répartition */
+function dirGroupesEtat(C,L,etat,sansTitre){
+  var t=dirTrier(L,"situation");
+  if(etat==="present") return dirGrouper(t.map(function(l){ return {l:l, det:dirDetail(l,C,"pause")}; }),function(l){
+      var eq=dirEqP(C)[l.pause]; return [l.pause,dirPause(l.pause)+(eq&&l.pause!=="D"?' Équipe '+esc(eq):l.pause==="D"?' journée':'')]; },
+    function(k){ return DIR_PAUSES.indexOf(k); });
+  if(etat==="malade") return [{t:sansTitre?"":"Malades", L:t.map(function(l){ return {l:l, det:dirDetail(l,C)}; })}];
+  if(etat==="conge") return dirGrouper(t.map(function(l){ return {l:l, det:dirFinTxt(l)}; }),function(l){ return [l.motif,esc(dirMotifTxt(l))]; },
+    function(k,g){ return -g.L.length; });
+  return dirGrouper(t.map(function(l){ return {l:l, det:dirDetail(l,C)}; }),function(l){ return [l.I.groupe,esc(l.I.groupeT)]; },
+    function(k){ return dirTeamRank(k); });
+}
+/* toutes les lignes d'un groupe de la Répartition : par état du jour */
+function dirGroupesTous(C,L){
+  var out=[];
+  DIR_ETATS.forEach(function(e){
+    var Le=L.filter(function(l){ return l.etat===e[0]; }); if(!Le.length) return;
+    out.push({t:esc(e[1]), L:dirTrier(Le,"situation").map(function(l){ return {l:l, det:dirDetail(l,C)}; })});
+  });
+  return out;
+}
+
 /* ── L'ÉCRAN « AUJOURD'HUI » ── */
 function dirBornes(){
   var ans=HORAIRE_ANNEES.slice().sort(), mx=ans[0];
@@ -14839,11 +15045,28 @@ function dirKpisHTML(C){
   var motifs=mk.slice(0,3).map(function(k){ return esc(k)+' '+mo[k]; }).join(" · ")+(mk.length>3?' · +'+dirPl(mk.length-3,"autre motif","autres motifs"):"");
   var prevus=0; C.L.forEach(function(l){ if(l.etat==="repos"&&l.sousRepos==="prevu") prevus++; });
   var ag=A?dirAbsAgg(A.rh.allOps||[]):null, ju=jourUsine();
+  /* les quatre tuiles d'état déroulent leur liste sous la rangée, une seule
+     à la fois (le client, le 23/10/2026) ; l'absentéisme mène à l'Effectif
+     trié par taux, comme avant */
   function tuile(cls,filtre,nb,label,titre,chiffre,legende,tri){
-    return '<button type="button" class="dc-k'+(cls?' '+cls:'')+'" data-filtre="'+esc(dirFiltreAttr(filtre))+'" data-n="'+nb+'"'+(tri?' data-tri="'+tri+'"':'')+' aria-label="'+esc(label)+', voir la liste">'
+    var dl=filtre.etat?"k:"+filtre.etat:"";
+    return '<button type="button" class="dc-k'+(cls?' '+cls:'')+'"'+(dl?dirOuvreAttr(dl):' data-filtre="'+esc(dirFiltreAttr(filtre))+'"')+' data-n="'+nb+'"'+(tri?' data-tri="'+tri+'"':'')+' aria-label="'+esc(label)+(dl?', liste des personnes':', voir la liste')+'">'
       +'<span class="dc-kt">'+titre+'</span><b>'+chiffre+'</b>'+legende+'</button>';
   }
-  return '<div class="dc-kpis dir-large">'
+  var jj=pad2(C.j)+"/"+pad2(C.m), pans=DIR_ETATS.map(function(e){
+    var cle="k:"+e[0], nb=n[e[0]];
+    return dirPanneau(cle,function(){
+      var L=C.L.filter(function(l){ return l.etat===e[0]; });
+      var tete=e[0]==="present"?nb+" présent"+(nb>1?"s":"")+" le "+jj+", par pause"
+        :e[0]==="malade"?dirPl(nb,"malade")+" le "+jj+", du premier au dernier jour d'absence"
+        :e[0]==="conge"?nb+" en congé le "+jj+", par motif"
+        :nb+" en repos le "+jj+", par groupe";
+      return {titre:tete, tete:esc(tete), groupes:dirGroupesEtat(C,L,e[0],true),
+        vide:"Personne "+(e[0]==="present"?"n'est présent":e[0]==="malade"?"n'est malade":e[0]==="conge"?"n'est en congé":"n'est en repos")+" le "+jj+".",
+        lien:dirLienEff(nb,{etat:e[0]},nb+" "+e[2]+(nb>1&&e[0]!=="conge"&&e[0]!=="repos"?"s":"")+" le "+jj)};
+    });
+  }).join("");
+  return '<div class="dc-kbloc dir-large"><div class="dc-kpis">'
     +tuile("ac",{etat:"present"},pres,pres+" présents sur "+tot,"Présents",pres+'<small>/'+tot+'</small>',
       '<span class="dc-kp">'+DIR_PAUSES.map(function(g){ return '<span class="pl-pa p-'+g.toLowerCase()+'">'+g+' '+C.pauses[g]+'</span>'; }).join("")+'</span>'
       +(n.formation?'<em>dont '+n.formation+' en formation</em>':''))
@@ -14854,17 +15077,28 @@ function dirKpisHTML(C){
     +tuile("",{etat:"repos"},n.repos,n.repos+" en repos","Repos",String(n.repos),prevus?'<em>dont '+dirPl(prevus,"prévu non presté","prévus non prestés")+'</em>':'<em>hors poste ce jour</em>')
     +tuile("dc-k5",{},tot,"Absentéisme "+(ag?dirUn(ag.taux)+" %":"")+" sur "+tot+" personnes","Absentéisme",'<span id="dcKAbs">'+(ag?dirUn(ag.taux)+' %':'…')+'</span>',
       '<em>du 1<sup>er</sup> janvier au '+pad2(ju.getDate())+'/'+pad2(ju.getMonth()+1)+'</em>',"taux")
-    +'</div>'
-    +(C.ok?'':'<p class="dc-defaut dir-large" role="alert">Contrôle des effectifs en défaut : '+(n.present+n.malade+n.conge+n.repos)+' personnes rangées sur '+C.total+'.</p>');
+    +'</div>'+pans
+    +(C.ok?'':'<p class="dc-defaut" role="alert">Contrôle des effectifs en défaut : '+(n.present+n.malade+n.conge+n.repos)+' personnes rangées sur '+C.total+'.</p>')
+    +'</div>';
 }
 function dirPausesHTML(C,eqP){
   return dirCadre("Pauses du jour","l'équipe à la pause et qui y manque",'<div class="dc-pauses">'+DIR_PAUSES.map(function(g){
     var eq=eqP[g]||"", man=[];
     if(eq && g!=="D") C.L.forEach(function(l){ if((l.etat==="malade"||l.etat==="conge") && dirEqNum(l.p)===String(eq)) man.push(l); });
     man=dirTrier(man,"situation");
-    return '<div class="dc-pause">'
+    /* « N présents » déroule, dans la carte même, qui est là, par poste du
+       jour (le client, le 23/10/2026 : « Ok pour les présents par pause,
+       développer la liste ») */
+    var cle="p:"+g, nb=C.pauses[g], jj=pad2(C.j)+"/"+pad2(C.m);
+    var pan=dirPanneau(cle,function(){
+      var L=C.L.filter(function(l){ return l.etat==="present" && l.pause===g; });
+      return {titre:nb+" présents en "+g+" le "+jj, groupes:g==="D"?dirGrouper(dirTrier(L,"nom").map(function(l){ return {l:l, det:l.formJour?"en formation":(l.I.statut==="Intérimaire"?"intérimaire":"")}; }),function(l){ return l.formJour?["~form","En formation"]:[l.I.fonction,esc(l.I.fonction)]; },function(k){ return k==="~form"?1:0; }):dirGroupesPoste(C,L),
+        lien:dirLienEff(nb,{pause:g},nb+" présents en "+g+" le "+jj)};
+    });
+    return '<div class="dc-pause'+(dirOuvert(cle)?' ouv':'')+'">'
       +'<div class="dc-pt">'+dirPause(g)+'<span>'+(eq?"Équipe "+esc(eq):g==="D"?"journée":"&nbsp;")+'</span>'
-      +dirNb(C.pauses[g],{pause:g},C.pauses[g]+" présents en "+g,"dc-pn",C.pauses[g]+'<small>présent'+(C.pauses[g]>1?"s":"")+'</small>')+'</div>'
+      +dirNbOuvre(nb,cle,nb+" présents en "+g,"dc-pn",nb+'<small>présent'+(nb>1?"s":"")+'</small>'+DIR_CHEV)+'</div>'
+      +pan
       +(g==="D"?'':man.length?'<div class="dc-man">'+man.map(function(l){
         return '<button type="button" class="dc-pers" data-pers="'+esc(l.id)+'" aria-label="'+esc(l.I.tri+", "+(l.etat==="malade"?"malade":l.motif)+", voir la fiche")+'"><em>'+esc(l.I.tri)+'</em> · '+esc(l.etat==="malade"?"Malade":l.motif==="Payé, non presté"?"-FT":l.motif)+'</button>';
       }).join("")+'</div>':(eq?'<p class="dc-complet">Équipe au complet</p>':''))
@@ -14886,16 +15120,33 @@ function dirSurveillerHTML(C){
         rows.push('<button type="button" class="dc-surv al" data-mq="'+dirIso(d)+'" data-mqp="'+g+'"><span class="dc-sv-i">'+dirPause(g)+'</span><span class="dc-sv-t"><b>'+esc(JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase())+'. '+pad2(z.jour)+'/'+pad2(z.mois)+' · '+g+(q.eq?' · Équipe '+esc(q.eq):'')+'</b><small>pause en sous-effectif · manque '+q.n+'</small></span></button>'); });
     });
   }
+  /* les rangées qui comptent des personnes déroulent leur liste sous elles
+     (le client, le 23/10/2026) ; la liste est celle du filtre de l'Effectif */
+  function simple(f,det){ return function(){ return [{t:"", L:dirTrier(dirFiltrer(C.L,f),"situation").map(function(l){ return {l:l, det:det(l)}; })}]; }; }
   if(A){
     var lg=C.L.filter(function(l){ var x=dirA(l); return l.etat==="malade"&&x&&x.o.longue; }).length;
-    if(lg) rows.push(dirSurvRow({etat:"malade",longue:"1"},lg,"Longues maladies en cours",dirPl(lg,"personne")+", au moins "+SEUIL_LONGUE+" jours de travail d'affilée"));
+    if(lg) rows.push(dirSurvRow({etat:"malade",longue:"1"},lg,"Longues maladies en cours",dirPl(lg,"personne")+", au moins "+SEUIL_LONGUE+" jours de travail d'affilée",
+      "s:longue",simple({etat:"malade",longue:"1"},function(l){ return dirDetail(l,C,"longue"); })));
   }
   var rm=dirFiltrer(C.L,{etat:"malade",retour:"7"}).length, rc=dirFiltrer(C.L,{etat:"conge",retour:"7"}).length;
-  if(rm) rows.push(dirSurvRow({etat:"malade",retour:"7"},rm,"Retours de maladie dans les 7 jours",dirPl(rm,"personne")));
-  if(rc) rows.push(dirSurvRow({etat:"conge",retour:"7"},rc,"Reprises de congé dans les 7 jours",dirPl(rc,"personne")));
-  /* qui sera absent cette semaine : après les sept jours calculés */
+  if(rm) rows.push(dirSurvRow({etat:"malade",retour:"7"},rm,"Retours de maladie dans les 7 jours",dirPl(rm,"personne"),
+    "s:retourM",simple({etat:"malade",retour:"7"},function(l){ return dirDetail(l,C,"longue"); })));
+  if(rc) rows.push(dirSurvRow({etat:"conge",retour:"7"},rc,"Reprises de congé dans les 7 jours",dirPl(rc,"personne"),
+    "s:retourC",simple({etat:"conge",retour:"7"},function(l){ return dirDetail(l,C); })));
+  /* qui sera absent cette semaine : après les sept jours calculés ; la
+     liste se range par premier jour d'absence */
   if(DIR.semPret){ var n7=dirFiltrer(C.L,{abs7:"1"}).length;
-    if(n7) rows.push(dirSurvRow({abs7:"1"},n7,"Absents sur ces 7 jours",dirPl(n7,"personne")+" malade"+(n7>1?"s":"")+" ou en congé au moins un jour")); }
+    if(n7) rows.push(dirSurvRow({abs7:"1"},n7,"Absents sur ces 7 jours",dirPl(n7,"personne")+" malade"+(n7>1?"s":"")+" ou en congé au moins un jour",
+      "s:abs7",function(){
+        var par=dirAbs7();
+        return dirGrouper(dirTrier(dirFiltrer(C.L,{abs7:"1"}),"nom").map(function(l){
+          var x=par[l.id], lk=l;
+          if(x.k>0){ var dbk=horaireDe(x.j[0]); lk=dbk?(dirCentre(dbk,x.j[0],x.j[1],x.j[2]).parId[l.id]||l):l; }
+          return {l:l, k:x.k, det:(x.etat==="malade"?"malade":dirMotifTxt(x))+(lk.fin?" · jusqu'au "+dirJJMM(lk.fin):"")};
+        }),function(l){ var x=par[l.id], d=new Date(x.j[0],x.j[1]-1,x.j[2]);
+          return [String(x.k),x.k===0?(auj?"Déjà absents ce jour":"Absents le "+esc(dirJJMM(x.j))):"À partir du "+esc(JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase())+". "+esc(dirJJMM(x.j))]; },
+          function(k){ return Number(k); });
+      })); }
   if(GR.demandes){
     var nd=GR.demandes.filter(dmATraiter).length+(GR.hs?GR.hs.filter(hsATraiter).length:0);
     if(nd) rows.push('<button type="button" class="dc-surv" data-ws="valider"><span class="dc-sv-n">'+nd+'</span><span class="dc-sv-t"><b>Demandes à traiter</b><small>dans l\'espace RH</small></span></button>');
@@ -14908,8 +15159,10 @@ function dirSurveillerHTML(C){
   var avant=_dirMqC && deb<Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate());
   return dirCadre("À surveiller",periode,corps+(rows.length&&attente?'<p class="dir-note">…</p>':'')+(avant?'<p class="dir-note">Sous-effectifs comptés à partir du jour de l\'usine.</p>':''),"dc-cadre-surv");
 }
-function dirSurvRow(f,n,titre,sous){
-  return '<button type="button" class="dc-surv" data-filtre="'+esc(dirFiltreAttr(f))+'" data-n="'+n+'" aria-label="'+esc(titre+" : "+sous+", voir la liste")+'"><span class="dc-sv-n">'+n+'</span><span class="dc-sv-t"><b>'+esc(titre)+'</b><small>'+esc(sous)+'</small></span></button>';
+function dirSurvRow(f,n,titre,sous,cle,groupes){
+  if(!cle) return '<button type="button" class="dc-surv" data-filtre="'+esc(dirFiltreAttr(f))+'" data-n="'+n+'" aria-label="'+esc(titre+" : "+sous+", voir la liste")+'"><span class="dc-sv-n">'+n+'</span><span class="dc-sv-t"><b>'+esc(titre)+'</b><small>'+esc(sous)+'</small></span></button>';
+  return '<button type="button" class="dc-surv"'+dirOuvreAttr(cle)+' data-n="'+n+'" aria-label="'+esc(titre+" : "+sous+", liste des personnes")+'"><span class="dc-sv-n">'+n+'</span><span class="dc-sv-t"><b>'+esc(titre)+'</b><small>'+esc(sous)+'</small></span></button>'
+    +dirPanneau(cle,function(){ return {titre:titre, groupes:groupes(), lien:dirLienEff(n,f,titre+", "+dirPl(n,"personne"))}; });
 }
 var DIR_AXES=[["fonction","Fonction"],["groupe","Groupe"],["poste","Poste"],["statut","Statut"]];
 function dirValAxe(l,axe){ var I=l.I; return axe==="fonction"?I.fonction:axe==="groupe"?I.groupe:axe==="poste"?I.posteK:I.statut; }
@@ -14920,19 +15173,38 @@ function dirRepartHTML(C){
   var rang=function(v){ if(axe==="groupe") return dirTeamRank(v); if(axe==="poste"){ var i=POSTES_TRAVAIL.map(function(P){ return P.k; }).indexOf(v); return i<0?99:i; }
     if(axe==="statut") return ["Employé","Ouvrier","Intérimaire"].indexOf(v); return ["Contremaître","Adjoint","Opérateur","Opérateur de la STEP"].indexOf(v)<0?50:["Contremaître","Adjoint","Opérateur","Opérateur de la STEP"].indexOf(v); };
   ordre.sort(function(a,b){ return rang(a)-rang(b)||(a<b?-1:1); });
-  var pc=mqDirPC.matches, seg='<div class="dc-seg" role="tablist" aria-label="Répartir par">'+DIR_AXES.map(function(x){ return '<button type="button" role="tab" data-axe="'+x[0]+'" aria-selected="'+(x[0]===axe)+'">'+x[1]+'</button>'; }).join("")+'</div>';
+  var pc=mqDirPC.matches, seg='<div class="dc-seg" role="tablist" aria-label="Répartir par">'+DIR_AXES.map(function(x){ return '<button type="button" role="tab" data-axe="'+x[0]+'" aria-selected="'+(x[0]===axe)+'" tabindex="'+(x[0]===axe?0:-1)+'">'+x[1]+'</button>'; }).join("")+'</div>';
   var leg='<p class="dc-leg"><i class="dc-c-present"></i>Présents <i class="dc-c-malade"></i>Malades <i class="dc-c-conge"></i>Congé <i class="dc-c-repos"></i>Repos</p>';
   var corps=ordre.map(function(v){
     var o=g[v], c={present:0,malade:0,conge:0,repos:0}, f={}; f[axe]=v;
     o.L.forEach(function(l){ c[l.etat]++; });
     var lib=dirLibAxe(v,axe), tot=o.L.length, ag=null;
     if(_dirAnCache){ var ops=[]; o.L.forEach(function(l){ var x=dirA(l); if(x) ops.push(x.o); }); ag=dirAbsAgg(ops); }
-    var cell=function(e){ var ff=dirCopie(f); ff.etat=e; return dirNb(c[e],ff,c[e]+" "+DIR_ETATS.filter(function(x){ return x[0]===e; })[0][2]+" · "+lib,"dc-c-"+e); };
-    var tete=dirNb(tot,f,tot+" personnes · "+lib,"dc-rlib",'<span>'+esc(lib)+'</span><b>'+tot+'</b>');
-    if(pc) return '<tr><th scope="row">'+tete+'</th>'+["present","malade","conge","repos"].map(function(e){ return '<td>'+cell(e)+'</td>'; }).join("")+'<td class="dc-tx">'+(ag?dirUn(ag.taux)+' %':'…')+'</td></tr>';
+    /* CHAQUE NOMBRE DÉROULE SA LISTE sous la rangée, une seule ouverte dans
+       la Répartition (le client, le 23/10/2026) ; les cinq boutons d'une
+       rangée commandent le même panneau */
+    var pre="r:"+axe+"|"+v+"|", rid=dirIdL("r:"+axe+"|"+v), ouv=DIR.ouv.r, ouvE=(ouv&&ouv.indexOf(pre)===0)?ouv.slice(pre.length):null;
+    var bt=function(nb,e,label,cls,contenu){
+      if(!nb) return '<span class="dc-zero '+cls+'">'+(contenu||"0")+'</span>';
+      return '<button type="button" class="dc-nb '+cls+'" data-ouvre="'+esc(pre+e)+'" aria-expanded="'+(ouv===pre+e)+'" aria-controls="'+rid+'" data-n="'+nb+'" aria-label="'+esc(label)+', liste des personnes">'+(contenu||nb)+'</button>';
+    };
+    var etTxt=function(e){ return DIR_ETATS.filter(function(x){ return x[0]===e; })[0]; };
+    var cell=function(e){ return bt(c[e],e,c[e]+" "+etTxt(e)[2]+" · "+lib,"dc-c-"+e); };
+    var tete=bt(tot,"",tot+" personnes · "+lib,"dc-rlib",'<span>'+esc(lib)+'</span><b>'+tot+'</b>'+DIR_CHEV);
+    var pan='<div class="dc-dl" id="'+rid+'" hidden></div>';
+    if(ouvE!==null){
+      var Lp=ouvE?o.L.filter(function(l){ return l.etat===ouvE; }):o.L, np=Lp.length, ff=dirCopie(f); if(ouvE) ff.etat=ouvE;
+      var tp=lib+" · "+(ouvE?etTxt(ouvE)[1]:"tout l'effectif")+" le "+pad2(C.j)+"/"+pad2(C.m);
+      pan='<div class="dc-dl dc-dl-rep" id="'+rid+'" role="region" aria-label="'+esc(tp)+'"><p class="dc-dl-t">'+esc(tp)+' · '+np+'</p>'
+        +(ouvE?dirGroupesEtat(C,Lp,ouvE,true):dirGroupesTous(C,Lp)).map(function(gr){
+          return '<div class="dc-dg">'+(gr.t?'<h4 class="dc-dgt">'+gr.t+' <span>'+gr.L.length+'</span></h4>':'')+'<ul class="dc-dlst">'+gr.L.map(dirLiHTML).join("")+'</ul></div>'; }).join("")
+        +dirLienEff(np,ff,tp)+'</div>';
+    }
+    if(pc) return '<tr'+(ouvE!==null?' class="dc-rouv"':'')+'><th scope="row">'+tete+'</th>'+["present","malade","conge","repos"].map(function(e){ return '<td>'+cell(e)+'</td>'; }).join("")+'<td class="dc-tx">'+(ag?dirUn(ag.taux)+' %':'…')+'</td></tr>'
+      +'<tr class="dc-rdet"'+(ouvE!==null?'':' hidden')+'><td colspan="6">'+pan+'</td></tr>';
     return '<div class="dc-rr">'+tete
       +'<div class="dc-bar" aria-hidden="true">'+["present","malade","conge","repos"].map(function(e){ return c[e]?'<i class="dc-c-'+e+'" style="flex:'+c[e]+'"></i>':''; }).join("")+'</div>'
-      +'<div class="dc-nums">'+["present","malade","conge","repos"].map(cell).join('<span class="dc-sep" aria-hidden="true">·</span>')+'<span class="dc-tx">'+(ag?dirUn(ag.taux)+' %':'…')+'</span></div></div>';
+      +'<div class="dc-nums">'+["present","malade","conge","repos"].map(cell).join('<span class="dc-sep" aria-hidden="true">·</span>')+'<span class="dc-tx">'+(ag?dirUn(ag.taux)+' %':'…')+'</span></div>'+pan+'</div>';
   }).join("");
   /* « Formation » n'a pas le même compte selon l'axe : le dire (le client,
      le 23/10/2026) — la fonction suit le bloc de l'horaire, le groupe
@@ -14970,9 +15242,251 @@ function dirSemHTML(){
     }).join("")+'</div>'
     +'<p class="dir-note" id="dcMqTot">'+(_dirMqC?'<b>'+_dirMqC.nb+'</b> pause'+(_dirMqC.nb>1?'s':'')+' en sous-effectif d\'ici le 31/12 (depuis le jour de l\'usine).':'…')+'</p>',"dir-large");
 }
+/* ── LES OBSERVATIONS POUR LA RH ──────────────────────────────────────────
+   Le client, le 23/10/2026 : « Il faut des stats et des conclusions et
+   observations qui peuvent être intéressantes pour un RH ». Des constats
+   tirés de ce que la page lit déjà (dirRH, dirAnnee, les sous-effectifs à
+   venir, la couverture des postes), chacun avec son chiffre et sa
+   comparaison ; jamais un jugement sur une personne ni une lecture
+   médicale. Tout s'arrête au jour de l'usine, et le libellé le dit. Les
+   taux comptent TOUTES les maladies (la bascule « Hors longues maladies »
+   des Analyses ne joue pas ici) : chaque observation dit à part ce que
+   pèsent les longues maladies. Les niveaux, fixés ici une fois :
+   - alerte : un écart d'au moins 5 points ET d'une fois et demie la
+     moyenne, 3 points de plus pour le mois en cours, un poste à renforcer
+     (moins de personnes capables que le seuil du client), un sous-effectif
+     dans les 2 jours ;
+   - attention : un écart de 2 points (1 point pour le mois en cours), un
+     sous-effectif dans les 7 jours, un recyclage dépassé, un poste tenu par
+     2 personnes seulement, des rappels concentrés (les 5 premiers à 30 %
+     ou plus, un groupe à une fois et demie la moyenne), des VA à poser ;
+   - information : le reste, qui éclaire sans appeler d'action.
+   Une observation dont les données manquent ne s'écrit pas. */
+var DIR_NIV={alerte:[3,"Alerte"], attention:[2,"Attention"], info:[1,"Information"]};
+var DIR_NIV_ICO={
+  alerte:'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>',
+  attention:'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5h.01"/></svg>',
+  info:'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/></svg>'};
+/* le taux à date d'une liste, toutes maladies comprises (ou sans les
+   longues, pour le dire à part) */
+function dirObsAgg(ops,sansLongues){ var m=0, s=0; (ops||[]).forEach(function(o){ if(sansLongues && o.longue) return; m+=o.malA||0; s+=o.schedA||0; }); return {malA:m, schedA:s, taux:s?m/s*100:0}; }
+function dirPts(x){ var a=Math.round(Math.abs(x)*10)/10; return dirUn(a)+" point"+(a>=2?"s":""); }
+function dirPc(x){ return dirUn(x)+"\u00a0%"; }
+function dirEcartTxt(t,m){ var d=t-m; return Math.abs(d)<0.05?"au niveau de la moyenne ("+dirPc(m)+")":dirPts(d)+(d>0?" au-dessus":" en dessous")+" de la moyenne ("+dirPc(m)+")"; }
+/* la couverture des postes, si elle est déjà calculée pour ce jour */
+function dirCovFrais(){ return (_dirCovCache && _dirCovN!==null && _dirCovCache.ju===dirIso(jourUsine()))?_dirCovCache:null; }
+function dirObservations(){
+  var A=_dirAnCache, C=DIR.C, cov=dirCovFrais();
+  /* on attend tout (l'année, les sous-effectifs, la couverture) : une
+     liste qui se complète en trois temps ferait sauter la page */
+  if(!A || !C || !_dirMqC || !cov) return null;
+  var rh=A.rh, ju=A.ju, au=pad2(ju.getDate())+"/"+pad2(ju.getMonth()+1), jj=pad2(C.j)+"/"+pad2(C.m), ops=rh.allOps||[], out=[], st0={};
+  var tot=dirObsAgg(ops), moy=tot.taux, N=ops.length;
+  function obs(id,niv,rang,texte,act){ out.push({id:id, niv:niv, rang:rang, texte:texte, act:act}); }
+  function nivEcart(t,m){ var d=t-m; return (d>=5 && t>=1.5*m)?"alerte":d>=2?"attention":"info"; }
+  function lignes(L,det){ return L.map(function(l){ return {l:l, det:det(l)}; }); }
+  st0.effectif=N; st0.taux=moy; st0.malA=tot.malA;
+  /* 1. LE TAUX À DATE, et le mois en cours face aux mois d'avant */
+  var cm=A.y===ju.getFullYear()?ju.getMonth():A.y<ju.getFullYear()?11:-1, mM=z12(), sM=z12();
+  ops.forEach(function(o){ for(var m=0;m<12;m++){ mM[m]+=(o.malMoisA||z12())[m]; sM[m]+=(o.schedMoisA||z12())[m]; } });
+  function tm(a,b){ var x=0, y=0; for(var m=a;m<=b;m++){ x+=mM[m]; y+=sM[m]; } return y?x/y*100:0; }
+  if(tot.schedA){
+    var txt='Absentéisme à date : <b>'+dirPc(moy)+'</b> des jours programmés du 1<sup>er</sup> janvier au '+au+'.', nv="info";
+    if(cm>=1 && sM[cm]){
+      var tc=tm(cm,cm), tp=tm(0,cm-1), d=tc-tp; nv=d>=3?"alerte":d>=1?"attention":"info";
+      st0.tauxMois=tc; st0.tauxAvant=tp; st0.moisC=cm;
+      txt+=' '+MOIS[cm]+(A.y===ju.getFullYear()?' (jusqu\'au '+au+')':'')+' : <b>'+dirPc(tc)+'</b>, '+(Math.abs(d)<0.05?'au niveau de':dirPts(d)+(d>0?' au-dessus de':' en dessous de'))+' janvier à '+MOIS[cm-1].toLowerCase()+' ('+dirPc(tp)+').';
+    }
+    obs("mois",nv,1,txt,{ouvre:true, lib:"Le taux mois par mois", corps:function(){
+      var t=[], mx=0.1; for(var m=0;m<=cm;m++){ t.push(tm(m,m)); if(t[m]>mx) mx=t[m]; }
+      return '<div class="dir-rank">'+t.map(function(v,m){ return '<div class="dir-rk"><em>'+esc(MOIS[m])+'</em>'+dirRail(v,mx,"var(--at-rouge)")+'<b>'+dirPc(v)+'</b></div>'; }).join("")+'</div>'
+        +'<p class="dir-note">Jours de maladie sur jours programmés, mois par mois'+(A.y===ju.getFullYear()?' ; '+MOIS[cm].toLowerCase()+' jusqu\'au '+au:'')+'.</p>'; }});
+  }
+  /* 2 et 3. LE GROUPE LE PLUS TOUCHÉ, et l'équipe de shift la plus touchée
+     quand ce n'est pas la même ; chacun dit ce qu'il vaut sans ses
+     longues maladies */
+  var teams=dirTeams(rh.team).filter(function(k){ return k!=="Intérimaires"; }).map(function(k){
+    var o=rh.team[k], ag=dirObsAgg(o.ops), lg=0; o.ops.forEach(function(x){ if(x.longue) lg++; });
+    return {k:k, head:o.ops.length, taux:ag.taux, hors:dirObsAgg(o.ops,true).taux, lg:lg, schedA:ag.schedA};
+  }).filter(function(t){ return t.schedA>0; });
+  function grpObs(id,t,qui,rang){
+    var f={groupe:t.k}, L=dirFiltrer(C.L,f), lib=dirTeamLabel(t.k);
+    obs(id,nivEcart(t.taux,moy),rang,
+      '<b>'+esc(lib)+'</b> ('+dirPl(t.head,"personne")+'), '+qui+' : <b>'+dirPc(t.taux)+'</b> d\'absentéisme à date, '+dirEcartTxt(t.taux,moy)
+        +(t.lg?' ; '+dirPc(t.hors)+' sans '+(t.lg>1?'ses '+t.lg+' longues maladies':'sa longue maladie'):'')+'.',
+      {ouvre:true, n:L.length, lib:"Voir les "+dirPl(L.length,"personne"), groupes:function(){
+        return [{t:"", L:lignes(dirTrier(L,"taux"),function(l){ var x=dirA(l); return !x?"":x.o.malA>0?dirPc(x.o.taux)+" · "+dirPl(x.o.malA,"jour")+(x.o.longue?" · longue maladie":""):"aucun jour de maladie"; })}]; },
+       lien:dirLienEff(L.length,f,lib,"taux")});
+    return t;
+  }
+  if(teams.length>1){
+    var maxT=teams.slice().sort(function(a,b){ return b.taux-a.taux; })[0];
+    grpObs("groupe",maxT,"le groupe le plus touché",2);
+    st0.groupe=maxT;
+    var sh=teams.filter(function(t){ return /^Shift\s*\d/i.test(t.k); }).sort(function(a,b){ return b.taux-a.taux; });
+    if(sh.length>1 && sh[0].k!==maxT.k){ grpObs("shift",sh[0],"la plus touchée des "+sh.length+" équipes de shift",3); st0.shift=sh[0]; }
+  }
+  /* 4. LA PART DES LONGUES MALADIES dans les jours de maladie à date */
+  var lgOps=ops.filter(function(o){ return o.longue; });
+  if(tot.malA && lgOps.length){
+    var jl=0, sl=0; lgOps.forEach(function(o){ jl+=o.malA||0; sl+=o.schedA||0; });
+    var part=jl/tot.malA*100, hors=(tot.schedA-sl)?(tot.malA-jl)/(tot.schedA-sl)*100:0, Ll=dirFiltrer(C.L,{longue:"1"});
+    st0.longues={n:lgOps.length, jours:jl, part:part, hors:hors};
+    obs("longues","info",4,
+      '<b>'+dirPl(lgOps.length,"personne")+'</b> en longue maladie (au moins '+SEUIL_LONGUE+' jours de travail d\'affilée) comptent <b>'+dirPc(part)+'</b> des jours de maladie à date, '+dirNbFr(jl)+' sur '+dirNbFr(tot.malA)+' ; les absences plus courtes en font '+dirNbFr(tot.malA-jl)+'. Sans les longues maladies, le taux serait de <b>'+dirPc(hors)+'</b>.',
+      {ouvre:true, n:Ll.length, lib:"Voir les "+dirPl(Ll.length,"personne"), groupes:function(){
+        return [{t:"", L:lignes(dirTrier(Ll,"maladie"),function(l){ var x=dirA(l); return (x?dirPl(x.o.malA,"jour")+" à date":"")+(l.etat==="malade"?" · malade le "+jj:""); })}]; },
+       lien:dirLienEff(Ll.length,{longue:"1"},"Longues maladies","maladie")});
+  }
+  /* 5. LES PÉRIODES DE MALADIE : combien, combien de temps */
+  var nP=0, courtes=0, touches=0; ops.forEach(function(o){ nP+=o.perA||0; if(o.perA) touches++; (o.perL||[]).forEach(function(x){ if(x<=3) courtes++; }); });
+  st0.periodes=nP;
+  if(nP) obs("periodes","info",6,
+    '<b>'+dirNbFr(nP)+'</b> périodes de maladie du 1<sup>er</sup> janvier au '+au+', chez '+touches+' personnes sur '+N+', de <b>'+dirUn(tot.malA/nP)+'</b> jours de travail en moyenne ; '+dirNbFr(courtes)+' ('+dirPc(courtes/nP*100)+') n\'ont pas dépassé 3 jours.',
+    {filtre:{}, n:C.L.length, tri:"maladie", lib:"L'Effectif par jours de maladie ›"});
+  /* 6. LA CONCENTRATION DES RAPPELS, à date */
+  var rp=[], R=0, parG={}, headG={};
+  Object.keys(A.par).forEach(function(id){ var x=A.par[id]; R+=x.rappA; if(x.rappA>0) rp.push({id:id, n:x.rappA});
+    if(x.p){ var g=dirMalTeam(x.p); headG[g]=(headG[g]||0)+1; parG[g]=(parG[g]||0)+x.rappA; } });
+  if(R){
+    rp.sort(function(a,b){ return b.n-a.n||(a.id<b.id?-1:a.id>b.id?1:0); });
+    var t5=rp.slice(0,5), s5=0; t5.forEach(function(x){ s5+=x.n; });
+    var nPar=Object.keys(A.par).length, moyR=R/nPar, gM=null;
+    Object.keys(parG).forEach(function(g){ var r=parG[g]/headG[g]; if(!gM || r>gM.r) gM={g:g, r:r, n:parG[g], head:headG[g]}; });
+    var part5=s5/R*100;
+    st0.rappels={total:R, top5:s5, part5:part5, groupe:gM};
+    obs("rappels",(part5>=30 || (gM && gM.r>=1.5*moyR))?"attention":"info",5,
+      '<b>'+dirNbFr(R)+'</b> jours avec rappel du 1<sup>er</sup> janvier au '+au+' ; les 5 personnes les plus rappelées en comptent '+s5+', soit <b>'+dirPc(part5)+'</b>.'
+        +(gM?' Le groupe le plus rappelé : <b>'+esc(dirTeamLabel(gM.g))+'</b>, '+dirUn(gM.r)+' par personne ('+gM.n+' pour '+gM.head+'), contre '+dirUn(moyR)+' en moyenne.':''),
+      {ouvre:true, n:t5.filter(function(x){ return C.parId[x.id]; }).length, lib:"Les 5 plus rappelés", groupes:function(){
+        return [{t:"", L:t5.filter(function(x){ return C.parId[x.id]; }).map(function(x){ return {l:C.parId[x.id], det:dirPl(x.n,"jour")+" avec rappel"}; })}]; },
+       lien:'<div class="dc-dl-pied"><button type="button" class="dc-lien" data-page="rappels">Tous les rappels ›</button></div>'});
+  }
+  /* 7. LES SOUS-EFFECTIFS À VENIR : le prochain, et combien d'ici le 31/12 */
+  var yj=ju.getFullYear(), nbA=0, nbS=0;
+  _dirMqC.jours.forEach(function(z){ if(z.an===yj) nbA+=mqPauses(z); else if(z.an>yj) nbS+=mqPauses(z); });
+  st0.sousEff=nbA;
+  if(_dirMqC.jours.length){
+    var z=_dirMqC.jours[0], dz=new Date(z.an,z.mois-1,z.jour), dj=dirJoursEntre([ju.getFullYear(),ju.getMonth()+1,ju.getDate()],[z.an,z.mois,z.jour]), parP={};
+    z.l.forEach(function(o){ var q=parP[o.pause]||(parP[o.pause]={n:0,eq:o.eq}); q.n+=Math.max(1,(o.attendu||0)-(o.tenu||0)); });
+    var gs=DIR_PAUSES.filter(function(g){ return parP[g]; }), g0=gs[0], q0=parP[g0], lj=JOURS_LONGS[(dz.getDay()+6)%7].toLowerCase()+" "+pad2(z.jour)+"/"+pad2(z.mois);
+    obs("sousEff",dj<=2?"alerte":dj<=7?"attention":"info",dj<=7?0:7,
+      'Prochain sous-effectif : <b>'+esc(lj)+', pause '+g0+(q0.eq?' (équipe '+esc(q0.eq)+')':'')+'</b>, il manque '+dirPl(q0.n,"personne")+(gs.length>1?' ; '+(gs.length-1)+' autre'+(gs.length>2?'s':'')+' pause'+(gs.length>2?'s':'')+' ce jour-là':'')+'. '
+        +'<b>'+dirPl(nbA,"pause")+'</b> en sous-effectif d\'ici le 31/12'+(nbS?', et '+nbS+' en '+(yj+1)+' dans le classeur déjà reçu':'')+'.',
+      {mq:dirIso(dz), mqp:g0, lib:"Qui est là ce jour-là ›"});
+  } else obs("sousEff","info",7,'Aucune pause en sous-effectif d\'ici le 31/12, à lire l\'horaire d\'aujourd\'hui.',{page:"rythme", lib:"Rythme et charge ›"});
+  /* 8. LES RECYCLAGES DÉPASSÉS */
+  var sR=0, topR=null; cov.POSTS.forEach(function(k){ var v=cov.overdue[k]||0; sR+=v; if(v && (!topR || v>cov.overdue[topR])) topR=k; });
+  st0.recyc=sR;
+  obs("recyc",sR?"attention":"info",8,sR?'<b>'+dirPl(sR,"polyvalence")+'</b> au recyclage dépassé'+(topR?', dont '+cov.overdue[topR]+' en '+esc(cov.PT[topR]||topR):'')+'.':'Aucune polyvalence au recyclage dépassé.',
+    {page:"competences", lib:"Les recyclages par poste ›"});
+  /* 9. LES POSTES FRAGILES, équipe par équipe : à renforcer sous le seuil
+     du client (2, 1 pour la STEP), fragiles à 2 tout juste */
+  var ren=[], fra=[], tms=Object.keys(cov.teams).sort();
+  tms.forEach(function(tmm){ cov.POSTS.forEach(function(k){ var v=cov.teams[tmm].cov[k]||0, seuil=DIR_SEUIL[k]||2; if(v<seuil) ren.push({tm:tmm,k:k,v:v}); else if(v<=2 && seuil>1) fra.push({tm:tmm,k:k,v:v}); }); });
+  if(tms.length){
+    st0.renforcer=ren.length; st0.fragiles=fra.length;
+    obs("fragile",ren.length?"alerte":fra.length?"attention":"info",ren.length?1:9,
+      (ren.length?'<b>'+dirPl(ren.length,"poste")+'</b> à renforcer dans les équipes de shift (moins de 2 personnes capables, aucune pour la STEP)':'Aucun poste à renforcer dans les équipes de shift')
+        +(fra.length?' ; <b>'+fra.length+'</b> autre'+(fra.length>1?'s':'')+' ne tien'+(fra.length>1?'nent':'t')+' qu\'à 2 personnes':'')+'.',
+      {ouvre:true, lib:"Voir les postes", corps:function(){
+        function puce(x){ var lib=esc(x.tm.replace(/^Shift\s*/i,"Équipe "))+' · '+esc(cov.PT[x.k]||x.k)+' <b>'+x.v+'</b>';
+          return x.v?'<button type="button" class="dc-couvc'+(x.v<(DIR_SEUIL[x.k]||2)?' lo':'')+'" data-filtre="'+esc(dirFiltreAttr({cat:x.tm,couvre:x.k}))+'" data-n="'+x.v+'" aria-label="'+x.v+' capables de tenir '+esc(cov.PT[x.k]||x.k)+' · '+esc(x.tm.replace(/^Shift\s*/i,"Équipe "))+', voir la liste">'+lib+'</button>'
+            :'<span class="dc-couvc lo">'+lib+'</span>'; }
+        return (ren.length?'<h4 class="dc-dgt">À renforcer <span>'+ren.length+'</span></h4><div class="dc-ob-puces">'+ren.map(puce).join("")+'</div>':'')
+          +(fra.length?'<h4 class="dc-dgt">Deux personnes capables <span>'+fra.length+'</span></h4><div class="dc-ob-puces">'+fra.map(puce).join("")+'</div>':'')
+          +'<div class="dc-dl-pied"><button type="button" class="dc-lien" data-page="competences">Toute la matrice ›</button></div>'; }});
+  }
+  /* 10. LES INTÉRIMAIRES : leur part, le jour choisi et à date */
+  var It=rh.team["Intérimaires"];
+  if(It && It.head){
+    var Li=dirFiltrer(C.L,{statut:"Intérimaire"}), pres=Li.filter(function(l){ return l.etat==="present"; }).length, agI=dirObsAgg(It.ops);
+    st0.interim=It.head;
+    obs("interim","info",10,
+      '<b>'+dirPl(It.head,"intérimaire")+'</b>, '+dirPc(It.head/N*100)+' de l\'effectif ; le '+jj+', '+pres+' présent'+(pres>1?'s':'')+(C.n.present?', '+dirPc(pres/C.n.present*100)+' des présents':'')+'. Leur absentéisme à date : '+dirPc(agI.taux)+', '+dirEcartTxt(agI.taux,moy)+'.',
+      {ouvre:true, n:Li.length, lib:"Voir les "+dirPl(Li.length,"intérimaire"), groupes:function(){ return dirGroupesTous(C,Li); },
+       lien:dirLienEff(Li.length,{statut:"Intérimaire"},"Intérimaires")});
+  }
+  /* 11. LES VA À POSER, seulement si le client a dit les soldes fiables */
+  if(A.saisis){
+    var vaT=0, Lva=[], vaG=0;
+    Object.keys(A.par).forEach(function(id){ var x=A.par[id], v=x.restant&&typeof x.restant.VA==="number"?x.restant.VA:0; if(v>0) vaT+=v; });
+    C.L.forEach(function(l){ var x=dirA(l), v=x&&x.restant&&typeof x.restant.VA==="number"?x.restant.VA:0; if(v>=80){ Lva.push(l); vaG+=v; } });
+    Lva.sort(function(a,b){ return dirA(b).restant.VA-dirA(a).restant.VA; });
+    if(vaT>0) obs("va",Lva.length?"attention":"info",11,
+      '<b>'+dirNbFr(Math.round(vaT/8))+'</b> jours de VA restent à poser au classeur (solde moins les congés posés)'+(Lva.length?' ; <b>'+dirPl(Lva.length,"personne")+'</b> en '+(Lva.length>1?'ont':'a')+' encore 10 ou plus, '+dirPc(vaG/vaT*100)+' du total':'')+'.',
+      Lva.length?{ouvre:true, n:Lva.length, lib:"Voir les "+dirPl(Lva.length,"personne"), groupes:function(){
+        return [{t:"", L:lignes(Lva,function(l){ var v=dirA(l).restant.VA; return "VA "+dirNbFr(Math.round(v*10)/10)+" h à poser ("+dirUn(v/8)+" j)"; })}]; }}
+        :{filtre:{}, n:C.L.length, tri:"va", lib:"L'Effectif par VA restant ›"});
+  }
+  /* 12. LES HEURES SUP ET LE FLEX TIME À DATE */
+  var hs=0, ft=0, gH=null; ops.forEach(function(o){ hs+=o.hsA||0; ft+=o.ftA||0; });
+  teams.forEach(function(t){ var h=0; rh.team[t.k].ops.forEach(function(o){ h+=o.hsA||0; }); var r=t.head?h/t.head:0; if(!gH || r>gH.r) gH={k:t.k, r:r, h:h, head:t.head}; });
+  st0.hs=hs; st0.ft=ft;
+  if(hs || ft) obs("hs","info",12,
+    '<b>'+dirNbFr(Math.round(hs))+' h</b> d\'heures sup du 1<sup>er</sup> janvier au '+au+', '+dirUn(N?hs/N:0)+' h par personne'
+      +(gH&&gH.h?' ; le plus par personne : <b>'+esc(dirTeamLabel(gH.k))+'</b>, '+dirUn(gH.r)+' h ('+dirNbFr(Math.round(gH.h))+' h pour '+gH.head+')':'')+'. Flex time net à date : '+(ft>0?'+':'')+dirNbFr(Math.round(ft))+' h.',
+    {ouvre:true, lib:"Par groupe", corps:function(){
+      var mx=0.1, rows=teams.map(function(t){ var h=0, f=0; rh.team[t.k].ops.forEach(function(o){ h+=o.hsA||0; f+=o.ftA||0; }); if(h>mx) mx=h; return {t:t, h:h, f:f}; });
+      return '<div class="dir-rank">'+rows.map(function(r){ return '<div class="dir-rk"><em>'+esc(dirTeamLabel(r.t.k))+'</em>'+dirRail(r.h,mx,"var(--in2)")+'<b>'+dirNbFr(Math.round(r.h))+' h <small>· flex '+(r.f>0?'+':'')+dirNbFr(Math.round(r.f))+' h</small></b></div>'; }).join("")+'</div>'
+        +'<p class="dir-note">Du 1<sup>er</sup> janvier au '+au+', heures sup et flex time écrits dans l\'horaire.</p>'; }});
+  /* du plus grave au plus doux, puis dans l'ordre ci-dessus */
+  out.sort(function(a,b){ return DIR_NIV[b.niv][0]-DIR_NIV[a.niv][0] || a.rang-b.rang; });
+  out.stats=st0; out.au=au;
+  return out;
+}
+/* sur Aujourd'hui : les alertes et points d'attention, six au plus, et au
+   moins quatre observations en tout. Le prochain sous-effectif et les
+   recyclages ont déjà leur rangée dans « À surveiller » juste au-dessus :
+   ils ne se redisent que dans la Synthèse. */
+function dirObsChoix(ob){
+  var ici=ob.filter(function(o){ return o.id!=="sousEff" && o.id!=="recyc"; });
+  var fort=ici.filter(function(o){ return o.niv!=="info"; }).slice(0,6);
+  return fort.length>=4?fort:fort.concat(ici.filter(function(o){ return o.niv==="info"; }).slice(0,4-fort.length));
+}
+function dirObsItemHTML(o,z){
+  var a=o.act||{}, cle=z+":"+o.id, nv=DIR_NIV[o.niv], b="", pan="";
+  if(a.ouvre){
+    b='<button type="button" class="dc-ob-b"'+dirOuvreAttr(cle)+(a.n!==undefined?' data-n="'+a.n+'"':'')+'>'+esc(a.lib)+DIR_CHEV+'</button>';
+    pan=dirPanneau(cle,function(){ return {titre:a.lib, groupes:a.groupes?a.groupes():[], corps:a.corps?a.corps():undefined, lien:a.lien||""}; });
+  } else if(a.mq) b='<button type="button" class="dc-ob-b" data-mq="'+a.mq+'" data-mqp="'+a.mqp+'">'+esc(a.lib)+'</button>';
+  else if(a.page) b='<button type="button" class="dc-ob-b" data-page="'+a.page+'">'+esc(a.lib)+'</button>';
+  else if(a.filtre) b='<button type="button" class="dc-ob-b" data-filtre="'+esc(dirFiltreAttr(a.filtre))+'" data-n="'+a.n+'"'+(a.tri?' data-tri="'+a.tri+'"':'')+'>'+esc(a.lib)+'</button>';
+  return '<li class="dc-ob'+(a.ouvre&&dirOuvert(cle)?' ouv':'')+'" data-obs="'+o.id+'" data-niv="'+o.niv+'"><p class="dc-ob-niv">'+DIR_NIV_ICO[o.niv]+'<span>'+nv[1]+'</span></p>'
+    +'<p class="dc-ob-t">'+o.texte+'</p>'+(b?'<div class="dc-ob-act">'+b+'</div>':'')+pan+'</li>';
+}
+function dirObsCadreHTML(C){
+  var ob=dirObservations(), ju=jourUsine(), au=pad2(ju.getDate())+"/"+pad2(ju.getMonth()+1);
+  var corps=!ob?'<div class="dir-anb dir-anb-wait dc-wait">…</div>'
+    :'<ul class="dc-obs">'+dirObsChoix(ob).map(function(o){ return dirObsItemHTML(o,"o"); }).join("")+'</ul>'
+      +'<div class="dc-ob-pied"><button type="button" class="dc-lien" data-page="synthese">Toute la synthèse\u00a0RH · '+dirPl(ob.length,"observation")+' ›</button></div>';
+  return dirCadre("Observations","les plus marquantes, du 1<sup>er</sup> janvier au "+au,corps,"dir-large dc-cadre-obs");
+}
+/* LA SYNTHÈSE RH, en tête des Analyses : les chiffres clés, puis toutes
+   les observations */
+function dirSyntheseRemplir(){
+  var h=document.getElementById("dcSynth"); if(!h) return;
+  var ob=dirObservations();
+  if(!ob){ h.innerHTML=dirCadre("Chiffres clés","",'<div class="dir-anb dir-anb-wait">…</div>',"dir-large"); return; }
+  var s=ob.stats, au=ob.au, k=function(v,t,sous){ return '<div class="dc-stat"><b>'+v+'</b><span>'+t+'</span>'+(sous?'<small>'+sous+'</small>':'')+'</div>'; };
+  var na=ob.filter(function(o){ return o.niv==="alerte"; }).length, nt=ob.filter(function(o){ return o.niv==="attention"; }).length;
+  h.innerHTML=dirCadre("Chiffres clés","du 1<sup>er</sup> janvier au "+au+" ; sous-effectifs d'aujourd'hui au 31/12",'<div class="dc-stats">'
+      +k(String(s.effectif),"personnes à l'horaire",s.interim?"dont "+dirPl(s.interim,"intérimaire"):"")
+      +k(dirPc(s.taux),"d'absentéisme à date",s.tauxMois!==undefined?MOIS[s.moisC].toLowerCase()+" : "+dirPc(s.tauxMois):"")
+      +k(dirNbFr(s.malA),"jours de maladie",s.periodes?dirPl(s.periodes,"période"):"")
+      +k(s.longues?String(s.longues.n):"0","longues maladies",s.longues?dirPc(s.longues.part)+" des jours":"")
+      +k(s.rappels?dirNbFr(s.rappels.total):"0","jours avec rappel",s.rappels?"5 premiers : "+dirPc(s.rappels.part5):"")
+      +k(String(s.sousEff),"pauses en sous-effectif","d'ici le 31/12")
+      +k(String(s.recyc),"recyclages dépassés","")
+      +k(String(s.renforcer||0),"postes à renforcer",s.fragiles?s.fragiles+" à 2 personnes":"")
+      +k(dirNbFr(Math.round(s.hs||0))+" h","heures sup","flex "+((s.ft||0)>0?"+":"")+dirNbFr(Math.round(s.ft||0))+" h")
+      +'</div>',"dir-large dc-cadre-stats")
+    +dirCadre("Observations",(na?dirPl(na,"alerte"):"aucune alerte")+" · "+dirPl(nt,"point")+" d'attention · "+dirPl(ob.length-na-nt,"information","informations"),
+      '<ul class="dc-obs">'+ob.map(function(o){ return dirObsItemHTML(o,"y"); }).join("")+'</ul>'
+      +'<p class="dir-note">Niveaux. Alerte : un écart d\'au moins 5 points et d\'une fois et demie la moyenne, 3 points de plus pour le mois en cours, un poste à renforcer, un sous-effectif dans les 2 jours. Attention : un écart de 2 points (1 pour le mois en cours), un sous-effectif dans les 7 jours, un recyclage dépassé, un poste tenu par 2 personnes, des rappels concentrés, des VA à poser. Les taux comptent toutes les maladies, longues comprises.</p>',"dir-large dc-cadre-obs");
+}
 function dirJourHTML(C){
-  var eqP={}; try{ eqP=equipeALaPause(C.db,C.a,C.m,C.j)||{}; }catch(e){}
-  return dirSelJourHTML()+dirKpisHTML(C)+dirPausesHTML(C,eqP)+dirSurveillerHTML(C)+dirRepartHTML(C)+dirSemHTML();
+  return dirSelJourHTML()+dirKpisHTML(C)+dirPausesHTML(C,dirEqP(C))+dirSurveillerHTML(C)+dirObsCadreHTML(C)+dirRepartHTML(C)+dirSemHTML();
 }
 
 /* ── L'ÉCRAN « EFFECTIF » ── */
@@ -15251,7 +15765,7 @@ function dirFicheNav(sens){
   dirFicheRemplir(L[i]);
   /* Échap rendra le focus à la ligne de la personne affichée, et non à
      celle d'où la fiche s'est ouverte */
-  var el=null; Array.prototype.forEach.call(document.querySelectorAll('#dcListe [data-pers],#dirCorps .dc-pers[data-pers]'),function(x){ if(!el && x.offsetParent!==null && x.getAttribute("data-pers")===L[i]) el=x.querySelector(".dc-tnom")||x; });
+  var el=null; Array.prototype.forEach.call(document.querySelectorAll('#dcListe [data-pers],#dirCorps .dc-pers[data-pers],#dirCorps .dc-li[data-pers]'),function(x){ if(!el && x.offsetParent!==null && x.getAttribute("data-pers")===L[i]) el=x.querySelector(".dc-tnom")||x; });
   if(el) persRetour=el;
   var b=document.querySelector('#persBody [data-fnav="'+sens+'"]'); if(b&&!b.disabled) try{ b.focus(); }catch(e){}
 }
@@ -15304,7 +15818,7 @@ function dirAfficher(){
   Array.prototype.forEach.call(c.querySelectorAll(".dir-page"),function(p){ p.hidden=(p.getAttribute("data-page")!==page); });
   if(DIR.vue==="jour"){ var pj=c.querySelector('.dir-page[data-page="jour"]'); if(pj) pj.innerHTML=dirJourHTML(DIR.C); }
   else if(DIR.vue==="effectif"){ var pe=c.querySelector('.dir-page[data-page="effectif"]'); if(pe){ pe.innerHTML=dirEffectifHTML(DIR.C); dirEffMaj(); } }
-  else dirAnalysesPrete();
+  else { dirAnalysesPrete(); if(page==="synthese") dirSyntheseRemplir(); }
 }
 /* les sections d'Analyses ne se calculent qu'à leur première ouverture */
 function dirAnalysesPrete(){
@@ -15312,12 +15826,47 @@ function dirAnalysesPrete(){
   var db=_dirAnCache?_dirAnCache.db:horaireDe(jourUsine().getFullYear());
   try{ dirAnneeRender(db); }catch(e){}
 }
+/* OUVRIR OU FERMER UNE LISTE : l'état change, le seul bloc qui la porte se
+   redessine, la page ne bouge pas et le focus reste sur le bouton */
+function dirBasculer(cle){
+  var z=cle.charAt(0), c=document.getElementById("dirCorps"), y=window.scrollY, C=DIR.C;
+  if(z==="p") DIR.ouv.p[cle]=!DIR.ouv.p[cle]; else DIR.ouv[z]=(DIR.ouv[z]===cle?"":cle);
+  if(z==="y") dirSyntheseRemplir();
+  else if(C && c){
+    var sel={k:".dc-kbloc",p:".dc-cadre-pauses",s:".dc-cadre-surv",r:".dc-cadre-rep",o:".dc-cadre-obs"}[z], el=sel&&c.querySelector('.dir-page[data-page="jour"] '+sel);
+    if(el) el.outerHTML=z==="k"?dirKpisHTML(C):z==="p"?dirPausesHTML(C,dirEqP(C)):z==="s"?dirSurveillerHTML(C):z==="r"?dirRepartHTML(C):dirObsCadreHTML(C);
+  }
+  window.scrollTo(0,y);
+  var b=dirFocusOuvre(cle);
+  /* une liste qui s'ouvre sous le bas de l'écran vient s'y montrer */
+  if(b && dirOuvert(cle)){ var pn=document.getElementById(b.getAttribute("aria-controls")); if(pn && pn.getBoundingClientRect && pn.getBoundingClientRect().top>window.innerHeight-60) try{ pn.scrollIntoView({block:"nearest"}); }catch(x){} }
+}
+function dirFocusOuvre(cle){
+  var bs=document.querySelectorAll("#dirCorps [data-ouvre]");
+  for(var i=0;i<bs.length;i++) if(bs[i].getAttribute("data-ouvre")===cle && bs[i].offsetParent!==null){ try{ bs[i].focus({preventScroll:true}); }catch(e){} return bs[i]; }
+  return null;
+}
+/* la carte de la synthèse, en tête des Analyses : combien d'observations, et
+   combien demandent de l'attention */
+function dirCarteSynthese(){
+  var v=document.getElementById("dcCardSyn"), d=document.getElementById("dcCardSynD"); if(!v) return;
+  var ob=null; try{ ob=dirObservations(); }catch(e){}
+  if(!ob) return;
+  var na=ob.filter(function(o){ return o.niv==="alerte"; }).length, nt=ob.filter(function(o){ return o.niv==="attention"; }).length;
+  v.textContent=String(ob.length);
+  if(d) d.textContent="observations : "+(na?dirPl(na,"alerte"):"aucune alerte")+", "+dirPl(nt,"point")+" d'attention";
+}
 function dirClic(e){
   var c=document.getElementById("dirCorps"), t=e.target, a;
   while(t && t!==c){
     if(t.getAttribute){
+      if((a=t.getAttribute("data-ouvre"))){ dirBasculer(a); return; }
       if((a=t.getAttribute("data-filtre"))!==null){ dirOuvrirFiltre(dirLireFiltre(a),t.getAttribute("data-tri")); return; }
-      if((a=t.getAttribute("data-pers"))){ e.preventDefault(); ouvrirPersonne(a,{direction:true, liste:(DIR.vue==="effectif"&&DIR.liste&&DIR.liste.indexOf(a)>=0)?DIR.liste:[a]}); return; }
+      if((a=t.getAttribute("data-pers"))){ e.preventDefault();
+        /* depuis une liste déroulée, ‹ › passent au suivant de cette liste */
+        var dl=t.closest?t.closest(".dc-dl"):null, li=null;
+        if(dl){ li=[]; Array.prototype.forEach.call(dl.querySelectorAll("[data-pers]"),function(x){ var v=x.getAttribute("data-pers"); if(li.indexOf(v)<0) li.push(v); }); }
+        ouvrirPersonne(a,{direction:true, liste:li||((DIR.vue==="effectif"&&DIR.liste&&DIR.liste.indexOf(a)>=0)?DIR.liste:[a])}); return; }
       if((a=t.getAttribute("data-vue"))){ if(a!==DIR.vue||DIR.page){ dirPousser(); DIR.vue=a; DIR.page=""; dirAfficher(); window.scrollTo(0,0); } return; }
       if((a=t.getAttribute("data-page"))){
         if(a==="analyses"||a==="hub"){ if(DIR.hist.length && DIR.hist[DIR.hist.length-1].vue==="analyses" && !DIR.hist[DIR.hist.length-1].page) dirRetour(); else { DIR.vue="analyses"; DIR.page=""; dirAfficher(); } window.scrollTo(0,0); return; }
@@ -15347,6 +15896,19 @@ function dirSaisie(e){
   k=t.getAttribute("data-fcase"); if(k){ if(t.checked) DIR.f[k]="1"; else delete DIR.f[k]; dirEffMaj(); }
 }
 function dirClavier(e){
+  /* LES RANGÉES D'ONGLETS (Aujourd'hui · Effectif · Analyses ; Répartir
+     par ; Comparer) : un seul onglet dans l'ordre de Tab, les flèches,
+     Origine et Fin passent aux autres ; l'onglet visé reçoit le clic, et
+     le focus le suit dans la rangée redessinée (audit du 23/10/2026) */
+  var tl=e.target&&e.target.closest?e.target.closest('[role="tablist"]'):null;
+  if(tl){
+    var c=ongletVise(e,[].slice.call(tl.querySelectorAll('[role="tab"]'))); if(!c) return;
+    var at=["data-vue","data-axe","data-cmp"].filter(function(a){ return c.hasAttribute(a); })[0];
+    var sel=at?'#dirCorps ['+at+'="'+c.getAttribute(at)+'"]':null;
+    c.click();
+    var n=sel&&document.querySelector(sel)||c; try{ n.focus(); }catch(er){}
+    return;
+  }
   if(e.key!=="Enter" && e.key!==" ") return;
   var t=e.target; if(!t || !t.getAttribute || !t.getAttribute("data-pers") || /BUTTON|A/.test(t.tagName)) return;
   e.preventDefault(); dirClic(e);
@@ -15357,7 +15919,7 @@ function dirClavier(e){
 function dirCmp(v){
   DIR.cmp=v;
   var s=document.getElementById("dcCmpStatut"), q=document.getElementById("dcCmpEq"), qh=document.getElementById("dcCmpEqH");
-  Array.prototype.forEach.call(document.querySelectorAll('#dirCorps [data-cmp]'),function(b){ b.setAttribute("aria-selected",String(b.getAttribute("data-cmp")===v)); });
+  Array.prototype.forEach.call(document.querySelectorAll('#dirCorps [data-cmp]'),function(b){ var on=b.getAttribute("data-cmp")===v; b.setAttribute("aria-selected",String(on)); b.tabIndex=on?0:-1; });
   if(s) s.hidden=(v!=="statut"); if(qh) qh.hidden=(v!=="equipe"); if(q && v==="equipe") q.innerHTML=dirCompEquipesHTML();
 }
 function dirCompEquipesHTML(){
@@ -15404,17 +15966,21 @@ function ouvrirDirection(){
     if(!db0){ flash("Horaire indisponible."); return; }
     var ju=jourUsine(), an=ju.getFullYear();
     if(!DIR.jour || !DIR.choisi) DIR.jour=ju;
-    document.getElementById("dirDate").textContent=JOURS_LONGS[(ju.getDay()+6)%7]+" "+ju.getDate()+" "+MOIS[ju.getMonth()].toLowerCase()+" "+an;
+    document.getElementById("dirDate").textContent=JOURS_LONGS[(ju.getDay()+6)%7]+" "+numJour(ju.getDate())+" "+MOIS[ju.getMonth()].toLowerCase()+" "+an;
     var inter=0; (horaireDe(an)||db0).people.forEach(function(p){ if(estInterim(p)) inter++; });
     DIR.anFait=false; DIR.semPret=false;
     c.innerHTML='<div class="dc-seg dc-seg-v" role="tablist" aria-label="Direction">'
       +[["jour","Aujourd'hui"],["effectif","Effectif"],["analyses","Analyses"]].map(function(x){ return '<button type="button" role="tab" data-vue="'+x[0]+'" aria-selected="false">'+x[1]+'</button>'; }).join("")+'</div>'
       +'<div class="dir-page" data-page="jour" hidden></div>'
       +'<div class="dir-page" data-page="effectif" hidden></div>'
+      +'<div class="dir-page" data-page="synthese" hidden>'+dirNav("Synthèse\u00a0RH")+'<div class="dir-hote" id="dcSynth"></div></div>'
       +'<div class="dir-page" data-page="analyses" hidden>'+dirHubHTML(inter)
       +'<p class="dir-note">Horaire '+(db0.maj?"du classeur du "+esc(dateFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p></div>'
       +'<div id="dirAnnee"></div>';
     c.onclick=dirClic; c.oninput=dirSaisie; c.onchange=dirSaisie; c.onkeydown=dirClavier;
+    if(!c._dcDate){ c._dcDate=true;
+      c.addEventListener("focusin",function(e){ var l=e.target.closest&&e.target.closest(".dc-date"); if(l) l.classList.toggle("au-clavier",!parPointeur()); });
+      c.addEventListener("focusout",function(e){ var l=e.target.closest&&e.target.closest(".dc-date"); if(l) l.classList.remove("au-clavier"); }); }
     dirAfficher();
     function heure(){ var t=new Date(); document.getElementById("dirHeure").textContent=(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes(); }
     heure(); clearInterval(dirTic); dirTic=setInterval(heure,15000);
@@ -15437,7 +16003,9 @@ function ouvrirDirection(){
         }
         dirRafraichir();
         setTimeout(function(){
-          if(_dirCovN===null){ try{ var dbc=horaireDe(jourUsine().getFullYear())||db0; caInit(dbc); var cov=dirCouverture(dbc), s=0; cov.POSTS.forEach(function(k){ s+=cov.overdue[k]||0; }); _dirCovN=s; }catch(e){ _dirCovN=0; } }
+          /* à chaque ouverture : dirCouverture garde son calcul pour le jour
+             de l'usine, et le refait le lendemain */
+          try{ var dbc=horaireDe(jourUsine().getFullYear())||db0; caInit(dbc); var cov=dirCouverture(dbc), s=0; cov.POSTS.forEach(function(k){ s+=cov.overdue[k]||0; }); _dirCovN=s; }catch(e){ _dirCovN=0; }
           dirRafraichir();
         },30);
       },30);
@@ -15449,9 +16017,11 @@ function ouvrirDirection(){
 function dirRafraichir(){
   var c=document.getElementById("dirCorps"); if(!c || !DIR.C || st.view!=="direction") return;
   if(DIR.vue==="jour"){
-    var pj=c.querySelector('.dir-page[data-page="jour"]'), y=window.scrollY, act=document.activeElement, sel=act&&act.getAttribute&&(act.getAttribute("data-filtre")||act.getAttribute("data-axe"));
-    if(pj){ pj.innerHTML=dirJourHTML(DIR.C); window.scrollTo(0,y); if(sel){ var b=pj.querySelector('[data-filtre="'+sel.replace(/"/g,'\\"')+'"],[data-axe="'+sel+'"]'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} } }
+    var pj=c.querySelector('.dir-page[data-page="jour"]'), y=window.scrollY, act=document.activeElement, sel=act&&act.getAttribute&&(act.getAttribute("data-filtre")||act.getAttribute("data-axe")), ouv=act&&act.getAttribute&&act.getAttribute("data-ouvre");
+    if(pj){ pj.innerHTML=dirJourHTML(DIR.C); window.scrollTo(0,y); if(ouv) dirFocusOuvre(ouv); else if(sel){ var b=pj.querySelector('[data-filtre="'+sel.replace(/"/g,'\\"')+'"],[data-axe="'+sel+'"]'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} } }
   } else if(DIR.vue==="effectif") dirEffMaj();
+  else if(DIR.vue==="analyses" && DIR.page==="synthese"){ var y2=window.scrollY, ac2=document.activeElement, ov2=ac2&&ac2.getAttribute&&ac2.getAttribute("data-ouvre"); dirSyntheseRemplir(); window.scrollTo(0,y2); if(ov2) dirFocusOuvre(ov2); }
+  dirCarteSynthese();
   if(document.getElementById("dcCmpEq") && DIR.cmp==="equipe") dirCmp("equipe");
 }
 mqDirPC.addListener && mqDirPC.addListener(function(){ if(st.view!=="direction") return; if(DIR.vue==="effectif"){ var fl=document.getElementById("dcFiltres"); if(fl) fl.hidden=!mqDirPC.matches&&!DIR.voirFiltres; } dirRafraichir(); });
@@ -15496,9 +16066,10 @@ function dirAnnee(db){
    lecture que les sous-effectifs à venir (equipeDuJour + postesDePause), mais
    du 1er janvier au jour de l'usine, et on ne retient que le compte. */
 function dirMqEcoules(db){
-  var annee=Number(db.year);
-  if(_dirMqCache && _dirMqCache.y===annee) return _dirMqCache.mois;
-  var au=jourUsine();
+  /* gardé par année ET par jour de l'usine : les journées écoulées
+     s'allongent d'un jour chaque matin (audit du 23/10/2026) */
+  var annee=Number(db.year), au=jourUsine(), juC=dirIso(au);
+  if(_dirMqCache && _dirMqCache.y===annee && _dirMqCache.ju===juC) return _dirMqCache.mois;
   var fin=(au.getFullYear()===annee)?new Date(au.getFullYear(),au.getMonth(),au.getDate()):new Date(annee,11,31);
   var mois=z12(), d=new Date(annee,0,1), garde;
   for(garde=0; garde<400 && d.getFullYear()===annee && d.getTime()<=fin.getTime(); garde++, d.setDate(d.getDate()+1)){
@@ -15513,7 +16084,7 @@ function dirMqEcoules(db){
     });
     mois[d.getMonth()]+=Object.keys(vu).length;
   }
-  _dirMqCache={y:annee, mois:mois}; return mois;
+  _dirMqCache={y:annee, ju:juC, mois:mois}; return mois;
 }
 function dirAnneeRender(db){
   var host=document.getElementById("dirAnnee"); if(!host) return;
@@ -15571,8 +16142,11 @@ var _dirRHcache=null;
    taux d'absentéisme pour laisser voir l'absentéisme courant. */
 var SEUIL_LONGUE=20, _dirHorsLongue=false;
 function dirRH(db){
-  var y=Number(db.year);
-  if(_dirRHcache && _dirRHcache.y===y) return _dirRHcache;
+  /* LA CLÉ PORTE LE JOUR DE L'USINE (audit du 23/10/2026) : gardé par
+     année seulement, le taux « à aujourd'hui » restait celui du premier
+     calcul quand l'application restait ouverte d'un jour à l'autre */
+  var y=Number(db.year), juC=dirIso(jourUsine());
+  if(_dirRHcache && _dirRHcache.y===y && _dirRHcache.ju===juC && _dirRHcache.db===db) return _dirRHcache;
   var F=(typeof feries==="function")?feries(y):{}, hJ=(typeof st!=="undefined"&&st.params&&st.params.hJour)||8;
   var T={}, S={}, allOps=[], total=0, schedTot=0;
   function tg(tm){ if(!T[tm]) T[tm]={head:0,interim:0,sched:0,mal:0,nuit:0,we:0,fer:0,hs:0,ft:0,conges:{},restant:{VA:0,RTT:0,RJF:0},malPoste:{},ops:[]}; return T[tm]; }
@@ -15593,6 +16167,10 @@ function dirRH(db){
        23/10/2026) : la maladie et les congés déjà écrits pour novembre n'y
        ont pas encore eu lieu ; les congés en heures, comme le classeur */
     var malMoisA=z12(), maxRunA=0, congesHA={}, hsA=0;
+    /* pour les observations (le client, le 23/10/2026) : les jours
+       programmés de chaque mois, les périodes de maladie et leur longueur,
+       le flex time, tous arrêtés au jour de l'usine */
+    var schedMoisA=z12(), perA=0, perL=[], ftA=0;
     for(var m=0;m<12;m++){
       var M={days:{}}; try{ remplirMois(db,p,y,m,M); }catch(e){ continue; }
       var nd=daysInMonth(y,m);
@@ -15602,10 +16180,10 @@ function dirRH(db){
         var jA=new Date(y,m,day)<=finA;
         if(cj && RY_CONGES.indexOf(cj.k)>=0){ P.conges[cj.k]=(P.conges[cj.k]||0)+(cj.h||8)/8; if(jA) congesHA[cj.k]=(congesHA[cj.k]||0)+(cj.h||8); }
         var codes=(rec.a?[rec.a]:[]).concat(rec.ax||[]), ci, X;
-        for(ci=0;ci<codes.length;ci++){ X=ABSMAP[codes[ci]]; if(X){ if(X.hs){ P.hs+=X.hs; if(jA) hsA+=X.hs; } if(X.ft) P.ft+=X.ft; } }
+        for(ci=0;ci<codes.length;ci++){ X=ABSMAP[codes[ci]]; if(X){ if(X.hs){ P.hs+=X.hs; if(jA) hsA+=X.hs; } if(X.ft){ P.ft+=X.ft; if(jA) ftA+=X.ft; } } }
         if(!rec.s) continue;
         P.sched++; schedTot++;
-        var aDate=new Date(y,m,day)<=finA; if(aDate) P.schedA++;
+        var aDate=new Date(y,m,day)<=finA; if(aDate){ P.schedA++; schedMoisA[m]++; }
         var hh=(rec.h===undefined||rec.h===null||rec.h==="")?hJ:Number(rec.h), pv=postePeint(rec);
         if(hh>0 && (pv==="N"||pv==="AM"||pv==="PM"||pv==="D")){
           if(pv==="N") P.nuit++;
@@ -15613,7 +16191,7 @@ function dirRH(db){
           if(F[y+"-"+pad2(m+1)+"-"+pad2(day)]) P.fer++;
           run=0;
         } else if(rec.a && dirMalEstMal(rec.a)){
-          P.mal++; malMois[m]++; run++; if(run>maxRun) maxRun=run; if(aDate){ P.malA++; malMoisA[m]++; if(run>maxRunA) maxRunA=run; }
+          P.mal++; malMois[m]++; run++; if(run>maxRun) maxRun=run; if(aDate){ P.malA++; malMoisA[m]++; if(run>maxRunA) maxRunA=run; if(run===1){ perA++; perL.push(0); } perL[perL.length-1]++; }
         } else { run=0; }
       }
     }
@@ -15622,7 +16200,8 @@ function dirRH(db){
     /* id, congés pris (jours), HS et flex par personne : la jointure du
        centre de contrôle (le client, le 23/10/2026) ; les totaux ne changent pas */
     var opRec={id:p.id, congesPris:P.conges, hs:P.hs, ft:P.ft, tri:tri, mal:P.mal, sched:P.sched, malA:P.malA, schedA:P.schedA, taux:P.schedA?P.malA/P.schedA*100:0, post:post,
-               longue:(maxRun>=SEUIL_LONGUE), maxRun:maxRun, malMois:malMois, malMoisA:malMoisA, maxRunA:maxRunA, congesHA:congesHA, hsA:hsA};
+               longue:(maxRun>=SEUIL_LONGUE), maxRun:maxRun, malMois:malMois, malMoisA:malMoisA, maxRunA:maxRunA, congesHA:congesHA, hsA:hsA,
+               schedMoisA:schedMoisA, perA:perA, perL:perL, ftA:ftA};
     allOps.push(opRec);
     var cR=(p.c&&p.c.restant)||{};
     targets.forEach(function(tm){
@@ -15638,7 +16217,7 @@ function dirRH(db){
     Object.keys(P.conges).forEach(function(k){ so.conges[k]=(so.conges[k]||0)+P.conges[k]; });
     so.ops.push(opRec);
   });
-  _dirRHcache={y:y, team:T, status:S, allOps:allOps, total:total, sched:schedTot, saisis:soldesSaisis(db)};
+  _dirRHcache={y:y, ju:juC, db:db, team:T, status:S, allOps:allOps, total:total, sched:schedTot, saisis:soldesSaisis(db)};
   return _dirRHcache;
 }
 function dirTeamLabel(k){ return ({"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"})[k]||k.replace(/^Shift\s*/i,"Équipe "); }
@@ -15651,7 +16230,7 @@ function dirAbsAgg(ops){
   var mal=0, sched=0, malA=0, schedA=0;
   (ops||[]).forEach(function(o){ if(_dirHorsLongue && o.longue) return; mal+=o.mal; sched+=o.sched; malA+=o.malA||0; schedA+=o.schedA||0; });
   /* les jours sur l'année, le taux du 1er janvier à aujourd'hui (23/10/2026) */
-  return {mal:mal, sched:sched, taux:schedA?malA/schedA*100:0};
+  return {mal:mal, sched:sched, malA:malA, schedA:schedA, taux:schedA?malA/schedA*100:0};
 }
 function dirMalMoisOps(ops){ var a=z12(); (ops||[]).forEach(function(o){ if(_dirHorsLongue && o.longue) return; for(var m=0;m<12;m++) a[m]+=(o.malMois?o.malMois[m]:0); }); return a; }
 function dirLongCount(rh){ var n=0; (rh.allOps||[]).forEach(function(o){ if(o.longue) n++; }); return n; }
@@ -15691,12 +16270,16 @@ function dirMalHTML(rh){
   var teams=dirTeams(rh.team);
   var rows=teams.map(function(k){ var ag=dirAbsAgg(rh.team[k].ops); return {k:k, o:rh.team[k], n:ag.mal, taux:ag.taux}; }).sort(function(a,b){ return b.taux-a.taux; });
   var mx=rows.reduce(function(m,o){ return Math.max(m,o.taux); },0.1);
-  var g=dirAbsAgg(rh.allOps), mois=dirMalMoisOps(rh.allOps);
+  var g=dirAbsAgg(rh.allOps), mois=dirMalMoisOps(rh.allOps), ju=jourUsine(), au=pad2(ju.getDate())+"/"+pad2(ju.getMonth()+1), anCour=rh.y===ju.getFullYear();
+  /* CE QUI EST COMPTÉ, DIT TEL QUEL (audit du 23/10/2026) : les jours sont
+     ceux de l'année entière, maladie déjà écrite pour les mois à venir
+     comprise ; le taux s'arrête au jour de l'usine. Les chiffres ne
+     changent pas, le libellé ne laisse plus croire qu'ils se comparent. */
   return ''
    +dirToggleHTML(rh)
    +dirCadre("Maladie par mois","",dirBarsMois(mois,'var(--at-rouge)',rh.y)
-   +'<p class="dir-note"><b>'+g.mal+'</b> jour'+(g.mal>1?"s":"")+' de maladie (jours prévus au cycle'+(_dirHorsLongue?', hors longues maladies':'')+'). Taux d\'absentéisme : <b>'+dirUn(g.taux)+' %</b> des jours programmés du 1<sup>er</sup> janvier à aujourd\'hui.</p>',"dir-large")
-   +dirCadre("Absentéisme par équipe","dépliez pour les trigrammes",rows.map(function(o){
+   +'<p class="dir-note"><b>'+g.mal+'</b> jour'+(g.mal>1?"s":"")+' de maladie sur toute l\'année '+rh.y+(anCour?', à venir compris':'')+' (jours prévus au cycle'+(_dirHorsLongue?', hors longues maladies':'')+')'+(anCour?', dont '+g.malA+' du 1<sup>er</sup> janvier au '+au:'')+'. Taux d\'absentéisme : <b>'+dirUn(g.taux)+' %</b> des jours programmés du 1<sup>er</sup> janvier au '+(anCour?au:'31/12')+'.</p>',"dir-large")
+   +dirCadre("Absentéisme par équipe",(anCour?"taux au "+au+", jours sur toute l'année · ":"")+"dépliez pour les trigrammes",rows.map(function(o){
        return '<details class="dir-exp"><summary><div class="dir-rk"><em>'+esc(dirTeamLabel(o.k))+'</em>'
          +dirRail(o.taux,mx,"var(--at-rouge)")
          +'<b>'+dirUn(o.taux)+' % <small>('+o.n+' j)</small></b></div></summary>'+dirOpsSub(o.o.ops,false)
@@ -15776,8 +16359,10 @@ function dirSetLongue(v){
    posteAttitre(), donc aucun fetch de plus — tout vient de l'horaire. */
 var _dirCovCache=null;
 function dirCouverture(db){
-  var y=Number(db.year);
-  if(_dirCovCache && _dirCovCache.y===y) return _dirCovCache;
+  /* la polyvalence se compte jusqu'à aujourd'hui (calculerPolyvalence) :
+     la clé porte donc aussi le jour de l'usine (audit du 23/10/2026) */
+  var y=Number(db.year), juC=dirIso(jourUsine());
+  if(_dirCovCache && _dirCovCache.y===y && _dirCovCache.ju===juC) return _dirCovCache;
   var POSTS=["meun","glut","ferm","dist","chau","step"], PT={};
   (typeof POSTES_TRAVAIL!=="undefined"?POSTES_TRAVAIL:[]).forEach(function(P){ PT[P.k]=P.t; });
   var teams={}, overdue={}; POSTS.forEach(function(k){ overdue[k]=0; });
@@ -15804,7 +16389,7 @@ function dirCouverture(db){
       POSTS.forEach(function(k){ if(covered[k]) teams[team].cov[k]=(teams[team].cov[k]||0)+1; });
     }
   });
-  _dirCovCache={y:y, POSTS:POSTS, PT:PT, teams:teams, overdue:overdue};
+  _dirCovCache={y:y, ju:juC, POSTS:POSTS, PT:PT, teams:teams, overdue:overdue};
   return _dirCovCache;
 }
 function dirRecycHTML(cov){
@@ -15847,8 +16432,9 @@ function dirBarsMois(arr,grad,y){
   var mx=Math.max.apply(null,arr.concat([1])), au=jourUsine();
   var cm=(au.getFullYear()===y)?au.getMonth():-1;
   /* Les mois à venir sont grisés : la maladie déjà écrite d'avance y compte,
-     mais ils n'ont pas eu lieu (audit du 23/10/2026 ; le taux lui-même
-     attend la définition du client) */
+     mais ils n'ont pas eu lieu (audit du 23/10/2026). Le taux, lui, est
+     défini par le client le 23/10/2026 : du 1er janvier au jour de l'usine,
+     sur toute l'année (dirRH, malA/schedA) ; ces barres restent des jours. */
   var fm=au.getFullYear()<y?-1:au.getFullYear()>y?12:cm;
   return '<div class="dir-anb">'+arr.map(function(v,m){
     return '<div class="dir-anj'+(m===cm?' cur':'')+(m>fm?' fut':'')+'" title="'+esc(MOIS[m])+' : '+v+(m>fm?' (à venir)':'')+'">'
@@ -15886,14 +16472,19 @@ function dirShowPage(page){
 /* La Vue du jour est passée dans « Aujourd'hui » (le client, le 23/10/2026). */
 function dirHubHTML(inter){
   var cards=[
-    {k:"absences", t:"Absences & santé", v:'<span id="dirCardAbs">…</span>', d:"taux d'absentéisme"},
-    {k:"rappels", t:"Rappels", v:'<span id="dirCardRapp">…</span>', d:"jours avec rappel"},
-    {k:"rythme", t:"Rythme & charge", v:'<span id="dirCardMq">…</span>', d:"pauses en sous-effectif, écoulé"},
+    {k:"absences", t:"Absences et santé", v:'<span id="dirCardAbs">…</span>', d:"taux d'absentéisme"},
+    {k:"rappels", t:"Rappels", v:'<span id="dirCardRapp">…</span>', d:"jours avec rappel, sur l'année"},
+    {k:"rythme", t:"Rythme et charge", v:'<span id="dirCardMq">…</span>', d:"pauses en sous-effectif, écoulé"},
     {k:"competences", t:"Compétences", v:'<span id="dirCardRecyc">…</span>', d:"recyclages à faire"},
     {k:"interim", t:"Intérimaires", v:String(inter), d:"dans l'effectif"},
     {k:"statut", t:"Comparatif", v:"", d:"employé · ouvrier · intérimaire"}
   ];
-  return '<div class="dir-cards">'+cards.map(function(c){
+  /* LA SYNTHÈSE RH EN TÊTE (le client, le 23/10/2026 : « il faut des stats
+     et des conclusions et observations ») : une carte sur toute la largeur */
+  return '<div class="dir-cards">'
+    +'<button type="button" class="dir-card dc-card-syn" data-page="synthese"><span class="dir-card-t">Synthèse\u00a0RH</span>'
+    +'<span class="dir-card-v"><span id="dcCardSyn">…</span></span><span class="dir-card-d" id="dcCardSynD">observations et chiffres clés</span></button>'
+    +cards.map(function(c){
     return '<button type="button" class="dir-card" data-page="'+c.k+'">'
       +'<span class="dir-card-t">'+esc(c.t)+'</span>'
       +(c.v?'<span class="dir-card-v">'+c.v+'</span>':'')
@@ -15907,10 +16498,10 @@ function dirAnneeHTML(a){
   /* chaque section est un cadre des Effectifs ; le retour et le titre de la
      page en tête, hors cadre (le client, le 23/10/2026) */
   return ''
-   +'<div class="dir-page" data-page="absences" hidden>'+dirNav("Absences &amp; santé")
+   +'<div class="dir-page" data-page="absences" hidden>'+dirNav("Absences et santé")
    +'<div class="dir-hote" id="dirMal">'+wait+'</div>'
-   +dirCadre("Absents (maladie) par poste","dépliez pour les trigrammes",'<div id="dirAbsP">'+wait+'</div>')
-   +dirCadre("Congés &amp; récupérations par équipe","",'<div id="dirConges">'+wait+'</div>',"dir-large")
+   +dirCadre("Absents (maladie) par poste","jours sur toute l'année, à venir compris · dépliez pour les trigrammes",'<div id="dirAbsP">'+wait+'</div>')
+   +dirCadre("Congés et récupérations par équipe","",'<div id="dirConges">'+wait+'</div>',"dir-large")
    +'</div>'
 
    +'<div class="dir-page" data-page="rappels" hidden>'+dirNav("Rappels")
@@ -15920,7 +16511,7 @@ function dirAnneeHTML(a){
      +'<p class="dir-note">'+a.rapp.length+' personnes rappelées au moins une fois sur l\'année.</p>',"dir-large")
    +'</div>'
 
-   +'<div class="dir-page" data-page="rythme" hidden>'+dirNav("Rythme &amp; charge")
+   +'<div class="dir-page" data-page="rythme" hidden>'+dirNav("Rythme et charge")
    +dirCadre("Pauses en sous-effectif par mois · écoulé","",'<div id="dirMqBars">'+wait+'</div>'
      +'<p class="dir-note">Compté comme les sous-effectifs à venir, mais sur les journées déjà passées.</p>')
    +dirCadre("Nuits par équipe · moyenne par personne","",'<div class="dir-rank">'+a.nuit.map(function(o){
@@ -15931,8 +16522,8 @@ function dirAnneeHTML(a){
          +'<b>'+Math.round(o.moy)+' <small>('+o.tot+')</small></b></div>';
      }).join("")+'</div>'
      +'<p class="dir-note">Nuits planifiées sur l\'année ; moyenne par personne, total de l\'équipe entre parenthèses.</p>')
-   +dirCadre("Fériés &amp; week-ends travaillés par équipe","",'<div id="dirFerWe">'+wait+'</div>')
-   +dirCadre("Heures sup &amp; flex time par équipe","",'<div id="dirHsFt">'+wait+'</div>')
+   +dirCadre("Fériés et week-ends travaillés par équipe","",'<div id="dirFerWe">'+wait+'</div>')
+   +dirCadre("Heures sup et flex time par équipe","",'<div id="dirHsFt">'+wait+'</div>')
    +'</div>'
 
    +'<div class="dir-page" data-page="competences" hidden>'+dirNav("Compétences")
@@ -15948,7 +16539,7 @@ function dirAnneeHTML(a){
 
    +'<div class="dir-page" data-page="statut" hidden>'+dirNav("Comparatif")
    /* « Par équipe » à côté de « Par statut » (le client, le 23/10/2026) */
-   +'<div class="dc-ajout dc-seg dc-seg2 dir-large" role="tablist" aria-label="Comparer"><button type="button" role="tab" data-cmp="statut" aria-selected="'+(DIR.cmp!=="equipe")+'">Par statut</button><button type="button" role="tab" data-cmp="equipe" aria-selected="'+(DIR.cmp==="equipe")+'">Par équipe</button></div>'
+   +'<div class="dc-ajout dc-seg dc-seg2 dir-large" role="tablist" aria-label="Comparer"><button type="button" role="tab" data-cmp="statut" aria-selected="'+(DIR.cmp!=="equipe")+'" tabindex="'+(DIR.cmp!=="equipe"?0:-1)+'">Par statut</button><button type="button" role="tab" data-cmp="equipe" aria-selected="'+(DIR.cmp==="equipe")+'" tabindex="'+(DIR.cmp==="equipe"?0:-1)+'">Par équipe</button></div>'
    +'<div id="dcCmpStatut" class="dir-hote"'+(DIR.cmp==="equipe"?' hidden':'')+'>'
    +dirCadre("Employé · Ouvrier · Intérimaire","par personne sauf absentéisme et HS",'<div id="dirStatut">'+wait+'</div>',"dir-large")
    +'</div>'
