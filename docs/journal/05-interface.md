@@ -4240,3 +4240,18 @@ Il était écrit ici « à examiner, la personne n'a pas été consignée ». **
 - **Ce qui tranche.** `docs/regles-paie.md` (« Et ce lundi-là est un repos pour un rappel ») : le cycle met un D ce jour-là, la cellule une nuit. La fiche de paie d'avril paie 12 h d'heures sup à compenser, rien en heures normales. Le client, le 14/10/2026 : « tu ne sais pas vérifier ça par rapport au cycle et au commentaire ?! ».
 
 **La page a raison**, comme la fiche. C'est le second calcul, une découpe de `lireJournee` sans la règle du rappel sur un repos de cycle, qui lisait 4 h. Rien à corriger dans l'application ni dans la paie. **Erreur commise** : avoir écrit que l'écart « touche aussi la fiche de paie » avant d'avoir relu `regles-paie.md`, où la réponse était.
+
+### Une saisie de case ne se perd plus sans le demander (23/10/2026, v1016)
+
+Le client, après le compte rendu du matin : « go ». La question restée ouverte était celle-ci : toucher une autre case pendant une saisie la jetait sans prévenir ; fallait-il bloquer la grille ? Tranché selon la recommandation : ne pas la bloquer (la vague B et l'espace RH la voulaient touchable), mais poser la même question qu'à Échap.
+
+- **Une garde, en capture sur l'espace.** Un clic sur une autre case, une ligne, une carte, une section, la bascule ou le menu, pendant qu'une feuille où l'on a écrit est ouverte, demande « Abandonner la feuille ? ». « Continuer » garde la saisie ; « Abandonner » refait le geste. Sans rien d'écrit, rien ne change.
+- **Défaut trouvé en l'éprouvant.** L'empreinte de la feuille, qui sert aussi à Échap et au retour depuis la vague A, ne lisait que le papier des demandes (`.dm-papier`). Sur la feuille d'une case, une saisie n'était donc jamais vue, et Échap la jetait encore sans rien demander. L'empreinte lit maintenant les champs et les puces pressées de la feuille d'une case, sans son texte, qu'un chargement change.
+- Éprouvé à 390 et 1280 px :
+  - sans saisie, l'autre case s'ouvre ;
+  - après une saisie, l'autre case pose la question ;
+  - « Continuer » garde la même feuille ;
+  - Échap pose la question ;
+  - « Abandonner » ouvre l'autre case ;
+  - aucune erreur.
+- Non couvert : les flèches de la bascule au clavier changent encore de section sans demander.
