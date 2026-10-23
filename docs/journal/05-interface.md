@@ -4324,6 +4324,33 @@ Le client envoie une capture de la carte sur l'Accueil, à 18 h 17, avec ce seul
   - « Horaires particuliers » n'a pas de pastille de pause, puisque ce n'en est pas une ;
   - le point vert de chaque avatar reste, puisque c'est l'image du salon vocal demandée par le client.
 
+### « Sur site en ce moment » devient un tableau d'effectif (23/10/2026, v1026)
+
+Le client, après v1025 : « le tableau des personnes présentes n'est pas professionnel à 100 % ». La v1025 avait retiré les redites, mais gardé la forme d'un salon vocal : des tuiles avec un avatar rond, un point vert sur chacune et le poste dessous. On y lisait les gens un à un, « Gluten » trois fois, « Chaudières » deux fois, et le point vert, le même partout, ne disait rien.
+
+- **La forme** : un bloc par pause en cours (tête inchangée : pastille, nom, équipe, heures, nombre), puis un vrai tableau (`<table>`, poste en `<th scope="row">`) avec une ligne par poste, dans l'ordre des postes de travail. Les présents y sont des étiquettes : trigramme en chasse fixe, puis le nom court (« Nom P. ») quand la base l'a donné, « vous » pour la personne de l'appareil (étiquette verte), et les heures seulement si elles s'écartent de la pause (règle de v1025). Le point vert ne reste qu'une fois, en tête de carte, pour dire « en direct ».
+- **Au PC**, les pauses se rangent côte à côte (grille de colonnes de 340 px au moins) au lieu de laisser les étiquettes seules sur 1000 px.
+- **Alignements mesurés** :
+  - le poste et la première rangée d'étiquettes ont le même centre, à 0 px près, sur l'Accueil (étiquettes de 26 px) comme dans l'espace RH (40 px) ;
+  - les têtes « Après-midi » et « Horaires particuliers » finissent à la même hauteur au PC (même hauteur minimale, avec ou sans pastille).
+- **Défauts trouvés en chemin** :
+  - `small` prenait 10 px par défaut, sous la règle de lisibilité : fixé à 12 px ;
+  - une étiquette « nom long + heures » aurait pu dépasser la carte à 320 px : elle passe à la ligne par morceaux entiers. Éprouvé avec des noms fictifs longs : aucune étiquette hors de la carte ;
+  - dans l'espace RH, la touche Entrée n'ouvrait pas la fiche, parce que l'écouteur clavier ne connaissait que `li[data-pers]`. Il connaît `.site-p[data-pers]`. Éprouvé : clic et Entrée ouvrent la fiche.
+- **Hauteur de la carte** (18 h 17, 11 présents) :
+
+  | Version | 320 px | 390 px | 1280 px |
+  |---|---|---|---|
+  | v1024 | 697 px | 424 px | 328 px |
+  | v1025 | 612 px | 391 px | 307 px |
+  | v1026 | 469 px | 395 px | 313 px |
+
+  Dans l'espace RH, la carte grandit : 445 → 511 px à 390, 348 → 415 px au PC. Ses étiquettes sont des boutons de 40 px, et un poste à trois présents prend trois rangées quand les noms sont chargés. C'est le prix de cibles tactiles réglementaires et des noms lisibles.
+- **Vérifié** :
+  - aucun débordement, aucun texte coupé ni sous 11 px, aux trois largeurs et dans les deux espaces ;
+  - quatre moments éprouvés (5 h 45, 1 h 30, 13 h 40, 18 h 17), le contremaître toujours en tête ;
+  - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
