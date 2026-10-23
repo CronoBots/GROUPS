@@ -14643,7 +14643,23 @@ function icsAgenda(id,debut,nJours,stamp){
     /* Le commentaire de la journée dans la note de l'événement (le client,
        le 14/10/2026), majuscule en tête comme sur l'Accueil. */
     var com=comAffiche(x.raw).replace(/[ \t]+/g," ").trim();
-    if(com) ev.push("DESCRIPTION:"+icsTexte(com.charAt(0).toUpperCase()+com.slice(1)));
+    /* LE CHANGEMENT D'HEURE (le client, le 23/10/2026 : « intégrer les
+       changements d'heure d'été et d'hiver ») : qui est au poste entre 2 h
+       et 3 h la nuit du samedi au dernier dimanche de mars ou d'octobre le
+       lit dans la note et le titre, avec la règle de paie du 14/10/2026
+       (lireJournee : une heure sup en octobre pour la nuit N ; en mars, la
+       nuit reste payée 8 h). Le téléphone, lui, allonge ou raccourcit déjà
+       la nuit : ses heures sont écrites à l'heure de Bruxelles. */
+    var chg="";
+    if(x.pv && PF_DEB[x.pv]!=null && (d.getMonth()===2||d.getMonth()===9)){
+      var f31=new Date(d.getFullYear(),d.getMonth(),31), dimH=new Date(d.getFullYear(),d.getMonth(),31-f31.getDay());
+      if(+new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)===+dimH && pfDebut(x)<=26 && pfFin(x)>=27)
+        chg=d.getMonth()===9?"Nuit du passage à l'heure d'hiver : à 3 h, il est 2 h. Une heure de plus au poste"+(x.pv==="N"?", comptée en heure sup.":".")
+          :"Nuit du passage à l'heure d'été : à 2 h, il est 3 h. Une heure de moins au poste ; la nuit reste payée comme d'habitude.";
+    }
+    if(chg) ev[2]+=" · changement d'heure";
+    var note=[com?com.charAt(0).toUpperCase()+com.slice(1):"",chg].filter(Boolean).join("\n\n");
+    if(note) ev.push("DESCRIPTION:"+icsTexte(note));
     /* UN NUMÉRO DE RÉVISION (le client, le 20/10/2026 : « sur l'agenda de
        mon ami sur Android, il n'a toujours pas le commentaire pour le
        falling film »). Le fichier publié portait la note depuis le 19/10 ;
@@ -14653,7 +14669,10 @@ function icsAgenda(id,debut,nJours,stamp){
        l'horodatage du classeur, donc croissant d'un classeur à l'autre et
        identique pour un même classeur — un horaire inchangé donne toujours
        les mêmes fichiers à l'octet. */
-    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+icsSequence(stamp));
+    /* une nuit annotée du changement d'heure a une révision de plus : le
+       téléphone qui l'a déjà prend la note sans attendre le classeur
+       suivant, dont la révision (en minutes) reste plus grande */
+    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+(icsSequence(stamp)+(chg?1:0)));
     L=L.concat(ev.map(icsPlier)); L.push("END:VEVENT"); n++;
   }
   L.push("END:VCALENDAR");
