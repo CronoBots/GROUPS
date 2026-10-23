@@ -4230,6 +4230,13 @@ Le client, après l'aperçu : « ok pour les présents par pause, développer la
   - Éprouvé à 390 et 1280 px, aucune erreur.
 - **Reste à examiner, hors de la Direction** : sur une journée, le 13/04, pour une seule personne, la page lit 12 h d'heures sup quand la découpe du vérificateur en lit 4 (1 955 h contre 1 947 h au total). Voir l'entrée suivante.
 
-### À examiner : 8 h d'heures sup d'écart le 13/04 (relevé le 23/10/2026)
+### 8 h d'heures sup d'écart le 13/04 : la page avait raison (relevé et tranché le 23/10/2026)
 
-En vérifiant les observations de la Direction par un second calcul, l'agent du complément a trouvé une seule différence. Elle porte sur les heures sup de l'année au 23/10 : la page en compte 1 955 h, la découpe du vérificateur 1 947 h. Toute la différence tient en une journée, le 13/04, pour une seule personne. La page y lit 12 h, la découpe 4 h. La découpe de `remplirMois` lit aussi 4 h. **Non tranché** : c'est la lecture de l'horaire, et la personne en cause n'a pas été consignée. Le 13/04 porte plusieurs journées à « +FT » (ATR, VGG, SKS, DWS, BLR, GJR, JBS) et plusieurs rappels de 12 h (FPA, GST, LCI, JKS, MHI, QBY). À refaire : la somme par personne au navigateur et dans la découpe, puis comparer. Si la page lit 12 h là où la règle de `docs/conversion-horaire.md` dit 4, l'écart touche aussi la fiche de paie de cette personne.
+En vérifiant les observations de la Direction par un second calcul, l'agent du complément a trouvé une seule différence. La page compte 1 955 h d'heures sup au 23/10, sa découpe 1 947 h. Toute la différence tient en une journée, le 13/04.
+
+Il était écrit ici « à examiner, la personne n'a pas été consignée ». **Mesuré ensuite** :
+- **La personne.** Les 78 fiches de la Direction ont été ouvertes au navigateur et confrontées au second calcul : une seule diffère, LCI (24 h contre 16 h).
+- **La journée.** Sur une copie de test qui expose `remplirMois`, le 13/04 de LCI, `["N","22h-10h","Rappel le 07/04 + rappel le 13/04"]`, sort en rappel sur un repos (`rs`), « 12H HS ».
+- **Ce qui tranche.** `docs/regles-paie.md` (« Et ce lundi-là est un repos pour un rappel ») : le cycle met un D ce jour-là, la cellule une nuit. La fiche de paie d'avril paie 12 h d'heures sup à compenser, rien en heures normales. Le client, le 14/10/2026 : « tu ne sais pas vérifier ça par rapport au cycle et au commentaire ?! ».
+
+**La page a raison**, comme la fiche. C'est le second calcul, une découpe de `lireJournee` sans la règle du rappel sur un repos de cycle, qui lisait 4 h. Rien à corriger dans l'application ni dans la paie. **Erreur commise** : avoir écrit que l'écart « touche aussi la fiche de paie » avant d'avoir relu `regles-paie.md`, où la réponse était.
