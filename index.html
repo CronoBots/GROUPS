@@ -837,6 +837,11 @@ body{overflow-x:clip}
   text-decoration-thickness:1px; text-underline-offset:4px}
 .moisdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
   border:0; background:transparent; opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none}
+/* le champ étant invisible, l'anneau du clavier se dessine sur l'étiquette
+   qu'il couvre, dans les vues du mois, de la semaine et de l'année : trois
+   arrêts de Tab sans rien à l'écran ; ni au toucher ni à la souris, la
+   classe est posée au focus venu du clavier (audit du 23/10/2026) */
+.calmois .mlabelwrap.au-clavier .mlabel{outline:2px solid var(--in); outline-offset:3px; border-radius:6px}
 /* LA BANDE DE STATS DU MOIS : des tuiles séparées par des filets --cadre (gap
    1 px sur fond --cadre → hairlines nettes dans les deux sens, sans case vide
    car les tuiles s'étirent par flex). Grande valeur mono + étiquette discrète. */
@@ -1176,6 +1181,11 @@ body{overflow-x:clip}
 #calCard .mc-j.prevu{background:none; border-color:transparent}
 #calCard .mc-j.prevu .mc-n{color:var(--faint)}
 #calCard .mc-j.prevu .mc-t{visibility:hidden}
+/* aujourd'hui garde un chiffre lisible sur sa pastille : un jour de congé
+   ou de poste prévu, les deux règles ci-dessus le repeignaient en gris
+   sur le cyan, 1,38:1 ; le petit mois du 1er aussi (audit du 23/10/2026) */
+#calCard .mc-j.auj.abs:not(.mal):not(.prevu) .mc-n,#calCard .mc-j.auj.prevu .mc-n{color:var(--sur-in)}
+#calCard .mc-j.auj .mc-n small{color:inherit}
 #calCard .mc-leg .lg-abs{background:#D3DAE6; border:0; box-shadow:none; border-radius:99px}
 #calCard .mc-leg .lg-prevu{background:none; border:1px dashed var(--muted); box-shadow:none}
 #calCard .mc-leg s{color:var(--muted)}
@@ -2282,6 +2292,9 @@ body.sheet-on{overflow:hidden}
 /* le panneau : à droite au bureau, en bas au téléphone */
 .pl-panneau{position:absolute; right:0; top:var(--pl-haut,64px); bottom:0; width:min(400px,100%); display:flex; flex-direction:column; background:var(--surface); border-left:1px solid var(--line); box-shadow:-16px 0 40px rgba(0,0,0,.25); z-index:6}
 .pl-panneau[hidden]{display:none}
+/* l'espace et son panneau prennent le focus sur eux-mêmes quand on les
+   ouvre au doigt : pas d'anneau sur un conteneur (audit du 23/10/2026) */
+#grille:focus,#grPanneau:focus{outline:none}
 @media (max-width:699px){
   .pl-panneau{top:auto; width:100%; max-height:86vh; border-left:0; border-top:1px solid var(--line); border-radius:18px 18px 0 0; box-shadow:0 -16px 40px rgba(0,0,0,.3); padding-bottom:env(safe-area-inset-bottom,0px)}
           .pl-tri{width:38px; height:30px; font-size:10.5px}
@@ -5100,7 +5113,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cgc-b{display:block; width:100%; height:4px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden}
 .pf-cgc-b>i{display:block; height:100%; border-radius:inherit; background:#5fbf86}
 .pf-cgc>em{font-style:normal; font-size:11px; color:rgba(255,255,255,.55); white-space:nowrap}
-.pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.4)}
+/* pâle, mais lisible : 3,5:1 à .4, 6,3:1 au blanc des « h » de la case
+   (audit du 23/10/2026) */
+.pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.62)}
 .pf-cgc.vide .pf-cgc-b>i{background:rgba(255,255,255,.25)}
 .pf-cgc.ft>span{color:#9fc9da}
 .pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
@@ -6036,6 +6051,9 @@ html .eqleg-souris{display:none}
   html .navwrap>.tabs #tab-rh,html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction{display:none}
   html .navwrap>.tabs #tab-plus{display:flex; position:relative}
   html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
+  /* « Plus » courant garde l'anneau du clavier : la règle ci-dessus, d'un
+     identifiant, l'effaçait (audit du 23/10/2026) */
+  html .navwrap>.tabs #tab-plus:focus-visible{box-shadow:inset 0 0 0 2px var(--marque-vif)}
   html .plusfond:not([hidden]){display:block; position:fixed; inset:0; z-index:79; background:rgba(4,7,14,.55)}
   html .plusfeuille:not([hidden]){display:block; position:fixed; z-index:80; left:16px; right:16px;
     bottom:calc(var(--navbas,0px) + 84px + env(safe-area-inset-bottom,0px)); max-height:calc(100vh - 160px); overflow-y:auto;
@@ -9138,6 +9156,38 @@ function focusablesDe(root){
 }
 function focusPremier(root){
   var f=focusablesDe(root); if(f.length) f[0].focus(); else if(root.focus) root.focus();
+}
+/* LE DERNIER GESTE, pointeur ou clavier. Une case du planning ne prend pas
+   le focus : donné ensuite à « × » par le programme, il passait pour un
+   focus du clavier, et l'anneau s'affichait à chaque toucher. Ouvert au
+   doigt ou à la souris, un panneau prend le focus sur lui-même, sans
+   anneau ; au clavier, sur sa première commande (audit du 23/10/2026). */
+var _geste={pointeur:0, clavier:0};
+["pointerdown","mousedown","touchstart"].forEach(function(t){
+  document.addEventListener(t,function(){ _geste.pointeur=Date.now(); },{capture:true, passive:true});
+});
+document.addEventListener("keydown",function(){ _geste.clavier=Date.now(); },true);
+function parPointeur(){ return _geste.pointeur>_geste.clavier; }
+function focusConteneur(el){
+  if(!el) return;
+  if(!el.hasAttribute("tabindex")) el.setAttribute("tabindex","-1");
+  try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+}
+/* une commande redessinée entre-temps (les tuiles de l'Accueil le sont
+   pendant que l'espace est ouvert) se retrouve par son id ou ses
+   attributs data-*, sous l'ancêtre à id le plus proche (audit du
+   23/10/2026) */
+function reperer(el){
+  if(!el||!el.getAttribute) return null;
+  if(el.id) return "#"+el.id;
+  var a=[].filter.call(el.attributes,function(x){ return /^data-/.test(x.name); }).map(function(x){ return '['+x.name+'="'+x.value.replace(/["\\]/g,"\\$&")+'"]'; }).join("");
+  if(!a) return null;
+  var h=el.parentNode; while(h&&h!==document&&!h.id) h=h.parentNode;
+  return (h&&h.id?"#"+h.id+" ":"")+el.tagName.toLowerCase()+a;
+}
+function retrouver(el,sel){
+  if(el&&document.body.contains(el)) return el;
+  try{ return sel?document.querySelector(sel):null; }catch(e){ return null; }
 }
 function piegeTab(boite){
   return function(e){
@@ -13676,7 +13726,9 @@ function _pfHead(db,p){
       +'<span class="pf-proch-tete"><small>'+lab+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
       +'<span class="pf-proch-corps"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><b>'+esc(titre)+'</b>'
-      +'<span class="pf-proch-h" aria-label="'+esc((enMots?dateL+", ":"")+pr.heures)+'">'
+      /* un rôle, sans quoi l'aria-label d'un span n'est pas exposé (audit
+         du 23/10/2026) */
+      +'<span class="pf-proch-h" role="img" aria-label="'+esc((enMots?dateL+", ":"")+pr.heures)+'">'
       +'<span class="pf-hd">'+esc(hD)+'</span><span class="pf-ps">–</span><span class="pf-hf">'+esc(hF)+'</span>'
       +(pr.fin>pr.deb?'<span class="pf-du">'+dure(pr.fin-pr.deb)+'</span>':'')+'</span>'
       /* la date sous les heures, quand le titre est en mots */
@@ -16376,20 +16428,22 @@ function ouvrirGrille(section,formulaire){
   var g=document.getElementById("grille");
   if(typeof section!=="string") section=null;
   if(formulaire) GR.dmForm=formulaire;
+  /* ce qui ouvre l'espace reprend le focus à sa fermeture (audit du
+     23/10/2026) */
+  if(g.hidden){ var a0=document.activeElement; GR.wsOrigine=(a0&&a0!==document.body&&!g.contains(a0))?a0:null; GR.wsOrigineSel=reperer(GR.wsOrigine); }
   fetchHoraireDB().then(function(){
     grCaler(jourUsine());
+    var neuf=g.hidden;
     if(g.hidden&&NAV.pile[NAV.pile.length-1]!=="g") navPousser("g");
     g.hidden=false; document.body.classList.add("sheet-on"); g.classList.toggle("edit",peutSaisir());
-    if(!mqSide.matches) try{ inerteFond(true); }catch(e){}
     /* AU TÉLÉPHONE, PAS DE MENU EN HAUT (le client, le 22/10/2026 : « il ne
        faut pas le menu en haut de page quand on veut faire une demande de
        congé, ni nulle part ailleurs sur mobile ») : la barre du bas de
        l'application reste active au-dessus de l'espace ; ses onglets le
-       referment, « Plus » mène à ses sections. */
-    if(mqNav.matches){ var nw=document.getElementById("navwrap"); if(nw){ nw.removeAttribute("inert"); nw.removeAttribute("aria-hidden"); } }
-    /* la barre du bas restant la sortie au téléphone, l'espace n'y est
-       plus un dialogue modal : aria-modal la cachait au lecteur d'écran
-       (audit du 23/10/2026) */
+       referment, « Plus » mène à ses sections. La barre du bas restant la
+       sortie au téléphone, l'espace n'y est plus un dialogue modal :
+       aria-modal la cachait au lecteur d'écran (audit du 23/10/2026).
+       wsAppliquerMode pose le fond inerte selon la largeur. */
     wsAppliquerMode();
     var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.add("actif");
     var a=compteBase()||{};
@@ -16397,6 +16451,9 @@ function ouvrirGrille(section,formulaire){
     document.getElementById("wsMoi").innerHTML=a.tri?'<span class="pl-tri">'+esc(idLisible(a.tri))+'</span><span><b>'+esc(idLisible(a.tri))+'</b><small>'+esc(BASE_ROLES[a.base]||"")+'</small></span>':'';
     g.setAttribute("aria-label",peutSaisir()?"Espace RH":"Horaire production");
     wsAller(section||GR.section);
+    /* le focus entre dans l'espace : il restait sur la tuile, dessous ; une
+       feuille que wsAller vient d'ouvrir l'a déjà pris (audit du 23/10/2026) */
+    if(neuf&&!g.contains(document.activeElement)) wsFocusEntree();
     /* le second rendu (les noms arrivés) ne referme pas une feuille
        ouverte entre-temps, celle que l'Accueil vient d'ouvrir par exemple */
     function relire(){ wsAller(GR.section,true); }
@@ -16411,7 +16468,7 @@ function ouvrirGrille(section,formulaire){
   });
 }
 function fermerGrille(parRetour){
-  var g0=document.getElementById("grille"), ouvert=!g0.hidden;
+  var g0=document.getElementById("grille"), ouvert=!g0.hidden, a=document.activeElement, dedans=ouvert&&(!a||a===document.body||g0.contains(a));
   grFermerPanneau(parRetour===true);
   g0.hidden=true;
   if(ouvert&&parRetour!==true) navRetirer("g");
@@ -16420,6 +16477,11 @@ function fermerGrille(parRetour){
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
   try{ titreVue(); }catch(e){}
+  /* le focus revient à ce qui a ouvert l'espace, s'il est encore affiché ;
+     quitté par un onglet ou le menu, le focus reste sur eux (audit du
+     23/10/2026) */
+  var o=GR.wsOrigine&&retrouver(GR.wsOrigine,GR.wsOrigineSel); GR.wsOrigine=GR.wsOrigineSel=null;
+  if(dedans&&o&&o.offsetParent!==null&&!o.closest("[inert]")) try{ o.focus({preventScroll:true}); }catch(e){ o.focus(); }
   /* une case modifiée : toute l'application relit l'horaire */
   if(GR.modifie){ try{ localStorage.removeItem("base/saisies"); }catch(e){} location.reload(); }
 }
@@ -16461,13 +16523,43 @@ window.addEventListener("popstate",function(){
    du bas reste la sortie) dont la liste est inerte sous un panneau ouvert ;
    au-delà, un dialogue modal, liste et fiche côte à côte. Relu quand la
    largeur passe le seuil : une rotation laissait la liste morte (audit du
-   23/10/2026). */
+   23/10/2026).
+   Seule la feuille plein écran des demandes (dm-pp-pn) couvre la liste :
+   la fiche d'une personne ou d'une case la laisse visible au-dessus (sous
+   700 px) ou à gauche (de 700 à 760 px), et inert y bloquait aussi le
+   toucher, sans fond sombre pour l'expliquer. Dès 1100 px, le menu de
+   gauche reste actif à côté de l'espace (le client, le 21/10/2026) :
+   l'espace y est une région, et seul l'écran qu'il couvre (#contenu, et
+   « Aller au contenu ») devient inerte — le Tab y traversait 66 commandes
+   cachées (audit du 23/10/2026). */
 function wsAppliquerMode(){
   var g=document.getElementById("grille"), p=document.getElementById("grPanneau"); if(!g||g.hidden) return;
-  var tel=mqNav.matches, couvre=tel&&!!p&&!p.hidden&&!GR.panNonModal;
-  if(tel){ g.removeAttribute("aria-modal"); g.setAttribute("role","region"); }
+  /* au téléphone, la liste ne passe en inert que sous la feuille plein
+     écran des demandes (dm-pp-pn) ; la fiche d'une personne et la feuille
+     d'une case (nonModal) ne couvrent pas tout et la laissent touchable
+     (audit du 23/10/2026) */
+  var tel=mqNav.matches, cote=!tel&&typeof mqSide!=="undefined"&&mqSide.matches,
+      couvre=tel&&!!p&&!p.hidden&&!GR.panNonModal&&p.classList.contains("dm-pp-pn");
+  if(tel||cote){ g.removeAttribute("aria-modal"); g.setAttribute("role","region"); }
   else{ g.setAttribute("role","dialog"); g.setAttribute("aria-modal","true"); }
+  /* chaque bloc reçoit son état d'un coup : inerte un instant, l'en-tête
+     perdait le focus de son menu */
+  var libres=tel?["#navwrap"]:cote?["header.top","#navwrap"]:[];
+  _fondInert.forEach(function(sel){ var el=document.querySelector(sel); if(!el) return;
+    if(libres.indexOf(sel)<0){ el.setAttribute("inert",""); el.setAttribute("aria-hidden","true"); }
+    else { el.removeAttribute("inert"); el.removeAttribute("aria-hidden"); } });
   [].forEach.call(document.querySelectorAll("#grille .ws-main,#grille .ws-nav"),function(x){ x.inert=couvre; if(couvre) x.setAttribute("inert",""); else x.removeAttribute("inert"); });
+}
+/* le focus à l'entrée de l'espace : au clavier, la section ouverte de son
+   menu, sinon sa première commande ; au doigt, l'espace lui-même, sans
+   anneau (audit du 23/10/2026) */
+function wsFocusEntree(){
+  var g=document.getElementById("grille"); if(!g||g.hidden) return;
+  if(parPointeur()){ focusConteneur(g); return; }
+  var m=document.querySelector('#wsMenu button[aria-current="page"]');
+  if(m&&m.offsetParent!==null&&!m.closest("[inert]")){ m.focus(); return; }
+  var f=focusablesDe(g).filter(function(x){ return !x.closest("[inert]"); });
+  if(f.length) f[0].focus(); else focusConteneur(g);
 }
 if(mqNav.addEventListener) mqNav.addEventListener("change",wsAppliquerMode);
 else if(mqNav.addListener) mqNav.addListener(wsAppliquerMode);
@@ -16478,7 +16570,12 @@ function grFermerPanneau(parRetour){
   /* la liste redevient atteignable et le focus revient à ce qui a ouvert
      le panneau (audit du 23/10/2026) */
   [].forEach.call(document.querySelectorAll("#grille .ws-main,#grille .ws-nav"),function(x){ x.inert=false; x.removeAttribute("inert"); });
-  if(ouvert&&GR.panOrigine&&document.body.contains(GR.panOrigine)&&GR.panOrigine.offsetParent!==null) GR.panOrigine.focus();
+  /* une origine restée sous l'espace (la tuile de l'Accueil, inerte) ne
+     peut plus le prendre : le focus va à l'entrée de l'espace, et non sur
+     body (audit du 23/10/2026) */
+  var o=GR.panOrigine, g=document.getElementById("grille"), a=document.activeElement, perdu=!a||a===document.body||(p&&p.contains(a));
+  if(ouvert&&o&&document.body.contains(o)&&o.offsetParent!==null&&!o.closest("[inert]")) o.focus();
+  else if(ouvert&&perdu&&g&&!g.hidden) wsFocusEntree();
   if(ouvert) GR.panOrigine=null;
   [].forEach.call(document.querySelectorAll("#grZone .pl-sel,#grille .dm-carte.dm-sel"),function(x){ x.classList.remove("pl-sel","dm-sel"); });
   if(ouvert&&parRetour!==true) navRetirer("p");
@@ -16503,7 +16600,12 @@ function grOuvrirPanneau(html,nonModal){
   p.setAttribute("role","dialog"); p.setAttribute("aria-label",nom.replace(/\s+/g," ").trim()||"Détail");
   GR.panNonModal=!!nonModal;
   wsAppliquerMode();
-  if(nouveau){ var a=document.activeElement; GR.panOrigine=(a&&a!==document.body&&!p.contains(a))?a:(GR.carteTouchee||null); focusPremier(p); }
+  /* relu une fois l'appelant fini : la feuille plein écran des demandes ne
+     reçoit sa classe (dm-pp-pn) qu'au retour d'ici (audit du 23/10/2026) */
+  if(window.Promise) Promise.resolve().then(wsAppliquerMode);
+  /* au doigt, le panneau lui-même prend le focus, sans anneau sur « × »
+     (audit du 23/10/2026) */
+  if(nouveau){ var a=document.activeElement; GR.panOrigine=(a&&a!==document.body&&!p.contains(a))?a:(GR.carteTouchee||null); if(parPointeur()) focusConteneur(p); else focusPremier(p); }
   /* redessiné après un visa, le bouton pressé n'existe plus : le focus va au
      titre, et non plus à <body> (audit du 23/10/2026) */
   else if(perdu&&t){ t.setAttribute("tabindex","-1"); try{ t.focus({preventScroll:true}); }catch(e){} }
@@ -16774,9 +16876,14 @@ document.addEventListener("click",function(e){
 })();
 function wsDb(){ var a=jourUsine().getFullYear(); return (HORAIRES&&(HORAIRES[a]||HORAIRES[st.y]))||HORAIRE_DB; }
 function wsMenuMaj(){
-  var s=GR.section;
-  document.getElementById("wsMenu").innerHTML=wsMenuSections().map(function(x){
+  var s=GR.section, mn=document.getElementById("wsMenu"), a=document.activeElement, dans=a&&a!==mn&&mn.contains(a),
+      garde=dans?(a.getAttribute("aria-current")==="page"?'[aria-current="page"]':'[data-s="'+a.getAttribute("data-s")+'"]'):null;
+  mn.innerHTML=wsMenuSections().map(function(x){
     return '<button type="button" data-s="'+x.s+'" title="'+esc(x.t)+'" aria-label="'+esc(x.t)+'" aria-current="'+(wsActif(x,s)?'page':'false')+'">'+wsIcone(x.i)+'<span>'+esc(x.t)+'</span></button>'; }).join("");
+  /* le menu redessiné rend le focus à son bouton, ou à la section devenue
+     courante : changer de section au clavier, ou l'arrivée des noms, le
+     jetait sur body (audit du 23/10/2026) */
+  if(garde){ var b=mn.querySelector("button"+garde); if(b) try{ b.focus({preventScroll:true}); }catch(e){ b.focus(); } }
 }
 function wsAller(s,garder){
   var l=wsSections(); if(!l.some(function(x){ return x.s===s; })) s=l[0].s;
@@ -18234,9 +18341,10 @@ function mesCongesHTML(db,person){
     var rs=Math.max(0,o.rs), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
     tot+=rs;
     var lib=libCompteur(db,o.k); if(lib===o.k && LIB_CPT_LONG[o.k]) lib=LIB_CPT_LONG[o.k];
-    /* « soit 1,5 jour » : le pluriel à partir de deux, sur le nombre lu
-       (audit du 23/10/2026) */
-    return '<div class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
+    /* « soit 1,5 jour » : le pluriel à partir de deux, sur le nombre lu ;
+       role="group" : l'aria-label d'un div sans rôle n'est pas lu (audit
+       du 23/10/2026) ; de même pour le flex time */
+    return '<div class="pf-cgc'+(rs>0?'':' vide')+'" role="group" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
       +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
       +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
@@ -18248,7 +18356,7 @@ function mesCongesHTML(db,person){
   if(f && (f.total!==undefined || f.report!==undefined)){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
     /* à zéro, la case pâlit comme un congé tout placé (audit du 23/10/2026) */
-    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(R(ft/hj,1))>=2?'s':''))+'">'
+    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" role="group" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(R(ft/hj,1))>=2?'s':''))+'">'
       +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
@@ -25324,6 +25432,12 @@ function vueHoraire(){
     var y=Number(ap.value); if(!y||y<AN_MIN||y===st.y) return;
     loadMonth(y,st.m);
   });
+  /* l'anneau du clavier sur l'étiquette que couvrent les trois champs
+     invisibles, posé au focus venu du clavier ; :focus-visible manquait le
+     bouton du calendrier et s'allumait aussi au clic (audit du 23/10/2026) */
+  var mw=document.querySelector(".mlabelwrap");
+  if(mw){ mw.addEventListener("focusin",function(){ mw.classList.toggle("au-clavier",!parPointeur()); });
+    mw.addEventListener("focusout",function(){ mw.classList.remove("au-clavier"); }); }
 })();
 /* Choisir un mois au sélecteur (champ « month » natif, comme la date du jour de
    l'onglet Horaire) : on va directement à ce mois-là. */
@@ -26100,6 +26214,11 @@ function majQuiJeSuis(){
 }
 /* le menu de contrôle du PC : le groupe Gestion suit le compte */
 var mqSide=window.matchMedia("(min-width:1100px)");
+/* l'espace ouvert suit aussi ce seuil : fond inerte ou menu actif, région
+   ou dialogue ; agrandir ou réduire la fenêtre le laissait dans l'état de
+   son ouverture (audit du 23/10/2026) */
+if(mqSide.addEventListener) mqSide.addEventListener("change",wsAppliquerMode);
+else if(mqSide.addListener) mqSide.addListener(wsAppliquerMode);
 function sideMaj(){
   var g=document.getElementById("sideGestion"); if(!g) return;
   var l=compteBase()?wsMenuSections():[];

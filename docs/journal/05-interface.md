@@ -4163,3 +4163,29 @@ Zone design et contenu :
 - **Laissé à la Direction**, en cours de complément :
   - la barre Aujourd'hui · Effectif · Analyses et les choix « Répartir par » et « Comparer » ne s'atteignent pas aux flèches ;
   - la pastille retenue y est à 1,15:1.
+
+### Vague B, accessibilité (23/10/2026, v1013)
+
+- **Panneau ouvert au téléphone.** Remesuré : la fiche d'une personne rendait encore la liste inerte à 390 et 730 px. La liste ne passe plus en inert que sous la feuille plein écran des demandes. La fiche d'une personne et la feuille d'une case, en lecture comme en saisie, laissent la liste touchable.
+- **Au PC, dès 1100 px, l'espace n'est plus un dialogue modal** à côté d'un menu actif. C'est une région ; seuls le contenu caché dessous et « Aller au contenu » deviennent inertes. Mesure sur 60 Tab : avant, 48 dans l'Accueil caché et aucun dans l'espace ; après, 30 dans l'espace, 27 dans l'en-tête, 0 dans l'Accueil. Le fond se relit au passage du seuil.
+- **Le focus ne se perd plus** à l'ouverture ni à la fermeture de l'espace au clavier : il va à l'entrée de l'espace, puis revient à la tuile qui l'a ouvert. Au menu de la tablette, il reste sur l'entrée choisie.
+- **Mon mois** : le chiffre d'aujourd'hui sur un congé ou un prévu passe de 1,38:1 à 8,27:1.
+- **Choix du mois** : un anneau aux trois arrêts du clavier, aucun au clic ni au toucher (classe posée au focus venu du clavier).
+- **« Plus » courant** : un anneau de 2 px au focus.
+- **Case touchée** : le panneau prend le focus sur lui-même, sans anneau sur « × » ; au clavier, « × » comme avant.
+- **Mes congés** : sigle et « 0 h » de 3,5:1 à 6,3:1. Les compteurs prennent `role="group"`, faute de quoi leur aria-label n'était pas lu.
+- **Fusion** : cinq conflits, chacun résolu en gardant les deux apports.
+  - Titre et retour du focus à la fermeture.
+  - Focus du panneau : au doigt, de l'accessibilité ; après un visa, des demandes ; empreinte de la feuille, des demandes.
+  - Pluriel « à partir de deux » du contenu et `role="group"` sur les compteurs.
+  - L'inertie : la feuille de case est non modale pour l'espace RH comme pour l'accessibilité ; une condition de plus que j'avais ajoutée pour la saisie d'une case ne pouvait jamais jouer, elle est retirée.
+- **Éprouvé au navigateur** :
+  - case à 390 px, liste non inerte ;
+  - demande à 390 px inerte, en région ;
+  - à 900 px, dialogue modal ;
+  - à 1280 px, région, contenu caché inerte ;
+  - aucune erreur.
+- **Reste** :
+  - une saisie de case en cours se perd si l'on touche une autre case : non demandé, à confirmer avant de bloquer la grille ;
+  - laissé à la Direction : le champ de date qui s'allume au clic de souris ;
+  - laissé à l'Accueil : les tuiles `role="listitem"` qui ne s'annoncent pas comme boutons.
