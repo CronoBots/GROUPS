@@ -4343,3 +4343,11 @@ Le client a partagé l'abonnement à un collègue, qui demande si l'agenda « va
   - une page vide : code 1 ;
   - une année 2029-2030 ajoutée : annoncée à blanc sans rien écrire ; avec `--installer`, sur une copie du dépôt, la ligne s'ajoute, `V` monte, l'agenda passe à 63 événements (le 1er et le 2 novembre 2029 rentrent dans les vacances d'automne) et le contrôle des arrêtés reste à 0.
 - La vérification de chaque `push` (`verification.yml`) relance aussi `verifier-conges-scolaires.js`.
+
+### Les vacances scolaires prennent le week-end d'avant ; le robot passe une fois par mois (23/10/2026, v1021)
+
+Le client : « pour les congés scolaires, le premier week-end juste avant le congé doit être compris dans ce congé », puis « est-ce réellement utile de vérifier trop souvent ? ».
+
+- **Le week-end d'avant** : l'automne, l'hiver, la détente et le printemps vont dans l'agenda du samedi qui précède au dimanche de la seconde semaine, soit 16 jours (Toussaint 2026 : du samedi 17 octobre au dimanche 1er novembre ; Noël 2026 : du samedi 19 décembre au dimanche 3 janvier). L'été commençait déjà le samedi. `FWB_ARRETES` et `fwbAn` gardent le lundi, celui des arrêtés : seul l'agenda s'élargit. Les jours de congé isolés ne bougent pas. La date de début faisant l'identifiant de l'événement, chaque vacance a changé d'identifiant : un agenda abonné remplace l'ancien événement au lieu de garder le lundi. Google, lui, garde un événement qu'il croit inchangé (journal, « SEQUENCE et LAST-MODIFIED »).
+- **Une fois par mois** : non, vérifier chaque jour n'était pas utile. Les calendriers paraissent deux à trois ans à l'avance (2028-2029 l'est déjà), un mois de retard est sans effet. Le robot passe désormais le 1er de chaque mois à 5 h 23 (UTC) ; le 1er janvier, l'agenda avance aussi d'une année. Un site injoignable attend le mois suivant.
+- Vérifié : 62 événements, lignes de 75 octets au plus ; contrôle des arrêtés à 0 ; vérificateur, quatre sorties identiques ; robot sur la vraie page, « rien de neuf » ; hors ligne correct.

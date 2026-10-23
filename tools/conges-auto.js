@@ -27,7 +27,9 @@
  *   node tools/conges-auto.js --pousser       et committe, pousse sur main
  *   --page=FICHIER                            une page enregistrée au lieu du site
  *
- * Lancé chaque jour par .github/workflows/conges-scolaires.yml.
+ * Lancé le 1er de chaque mois par .github/workflows/conges-scolaires.yml
+ * (le client : « est-ce réellement utile de vérifier trop souvent ? » ; les
+ * calendriers paraissent deux à trois ans à l'avance).
  */
 const fs=require("fs"), path=require("path"), {execFileSync}=require("child_process");
 const RACINE=path.join(__dirname,".."), PAGE=path.join(RACINE,"index.html"), SW=path.join(RACINE,"sw.js");
@@ -117,7 +119,7 @@ async function page(){
 (async()=>{
   let html;
   try{ html=await page(); }
-  catch(e){ console.log("enseignement.be injoignable ("+e.message+") : rien de changé, on réessaiera."); process.exit(0); }
+  catch(e){ console.log("enseignement.be injoignable ("+e.message+") : rien de changé, on réessaiera le mois prochain."); process.exit(0); }
   const S=sections(texte(html));
   if(!S.length){ console.log("ÉCART  aucune section « Calendrier de l'enseignement obligatoire » lue : la page a changé de forme."); process.exit(1); }
   const auj=new Date(), releve=String(auj.getDate()).padStart(2,"0")+"/"+String(auj.getMonth()+1).padStart(2,"0")+"/"+auj.getFullYear();
