@@ -2972,6 +2972,10 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dir-tg.on{background:rgba(255,138,122,.14); border-color:rgba(255,138,122,.45); color:#FF8A7A}
 .dir-subh{font-size:11px; color:#9AA5BC; font-weight:600; margin:12px 2px 6px}
 .dir-sb.lg b{color:#E0A24A}
+/* sans aucun jour de maladie : en vert, sans insister */
+.dir-sb.zero{background:rgba(110,201,151,.08)}
+.dir-sb.zero b{color:#6EC997}
+.dir-sb.zero span{color:#7E8AA3}
 .dir-sb.lg span{color:#C98A5A}
 .dir-chips{display:flex; gap:7px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:4px 0 11px; margin:0 0 4px; position:sticky; top:0; z-index:3; background:#0B1018; scrollbar-width:none}
 .dir-chips::-webkit-scrollbar{display:none}
@@ -14316,10 +14320,18 @@ function dirTblHTML(cols,rows){
   return h+'</div>';
 }
 function dirOpsSub(ops,withTeam){
-  var list=(ops||[]).filter(function(o){ return o.mal>0; }).sort(function(a,b){ return b.taux-a.taux; });
-  if(!list.length) return '<div class="dir-sub"><span class="dir-sub-e">Aucune maladie sur l\'année.</span></div>';
-  return '<div class="dir-sub">'+list.map(function(o){
-    return '<div class="dir-sb'+(o.longue?' lg':'')+'"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j'+(o.longue?' · longue':'')+(withTeam&&o.team?' · '+esc(dirTeamLabel(o.team)):'')+'</span></div>';
+  /* AUSSI CEUX QUI N'ONT PAS ÉTÉ ABSENTS (le client, le 23/10/2026 : « il
+     faut quand même indiquer les travailleurs qui n'ont pas été absents ») :
+     les absents d'abord, du plus haut taux au plus bas, puis les autres par
+     trigramme, « 0 % · aucun jour », en vert discret */
+  var tous=ops||[], mal=tous.filter(function(o){ return o.mal>0; }).sort(function(a,b){ return b.taux-a.taux; }),
+      zero=tous.filter(function(o){ return !(o.mal>0); }).sort(function(a,b){ return a.tri<b.tri?-1:a.tri>b.tri?1:0; });
+  if(!tous.length) return '<div class="dir-sub"><span class="dir-sub-e">Personne à ce poste.</span></div>';
+  var suite=function(o){ return (withTeam&&o.team?' · '+esc(dirTeamLabel(o.team)):''); };
+  return '<div class="dir-sub">'+mal.map(function(o){
+    return '<div class="dir-sb'+(o.longue?' lg':'')+'"><em>'+esc(o.tri)+'</em><b>'+dirUn(o.taux)+' %</b><span>'+o.mal+' j'+(o.longue?' · longue':'')+suite(o)+'</span></div>';
+  }).join("")+zero.map(function(o){
+    return '<div class="dir-sb zero"><em>'+esc(o.tri)+'</em><b>0 %</b><span>aucun jour'+suite(o)+'</span></div>';
   }).join("")+'</div>';
 }
 function dirToggleHTML(rh){
