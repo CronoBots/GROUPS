@@ -4322,3 +4322,24 @@ Le client : « j'aimerais que tu crées également un agenda avec les congés sc
   - Le contrôle mord : sans l'exception du 30-31 août, la rentrée 2026 et le mardi gras 2027 crient ; une règle de Noël faussée fait crier l'hiver 2027.
   - Quand le 30 ou le 31 août tombe sans arrêté (2032, 2037), la rentrée est écrite « à confirmer ».
 - Vérifié : 62 événements, 62 identifiants uniques, lignes de 75 octets au plus, fins CRLF ; les 79 agendas personnels inchangés à l'octet. Au navigateur, le bouton ouvre l'abonnement à `…/cal/conges-scolaires.ics` à 320, 390 et 1280 px ; rien ne déborde ; aucune erreur.
+
+### Les congés scolaires se relisent seuls sur enseignement.be (23/10/2026, v1020)
+
+Le client a partagé l'abonnement à un collègue, qui demande si l'agenda « va vérifier tous les x sur le site enseignement.be ». Le client a répondu « yes ». Jusqu'ici, ce n'était pas le cas : l'automne, la détente et le printemps d'une année nouvelle attendaient qu'on ajoute leur ligne à la main.
+
+- **La source officielle** : `https://www.enseignement.be/calendrier-scolaire` publie les années en cours et à venir (le 23/10/2026 : 2026-2027 à 2028-2029), chacune sous « Calendrier de l'enseignement obligatoire AAAA-AAAA ». Ses dates sont celles de `FWB_ARRETES`.
+- **Le robot** : `tools/conges-auto.js`, lancé chaque jour à 5 h 23 (UTC) par `.github/workflows/conges-scolaires.yml`, dans le même groupe de concurrence que l'horaire automatique. Il ne prend sur la page QUE les trois périodes que le décret ne fixe pas. Pour une année nouvelle ou changée, il réécrit `FWB_ARRETES` dans `index.html`, monte `V` et réécrit le seul `cal/conges-scolaires.ics` (nouvelle option `--conges-seulement` de `verifier-calendrier.js`, qui ne touche pas aux agendas des personnes). Puis il committe et pousse sur `main`. Une année que la page ne montre plus reste dans le tableau.
+- **Rien n'entre sans recoupement** :
+  - chaque période commence un lundi, dure deux semaines et tombe dans sa saison ;
+  - la rentrée et le début de l'été lus sur la page doivent être ceux que donne le décret (`fwbAn`, avec les trois périodes lues) ;
+  - les vacances d'hiver sont recoupées sur le jour et le mois.
+  L'année de l'hiver n'est pas recoupée : la page écrit, pour 2028-2029, « du lundi 25 décembre 2029 au dimanche 7 janvier 2029 », une coquille du site.
+  Une année qui ne passe pas est laissée de côté et dite, et le flux échoue (code 1) : GitHub prévient. Un site injoignable n'est pas une faute : on réessaie le lendemain.
+- **Erreur trouvée en l'éprouvant** : la page écrit `1<sup>er</sup>&nbsp;novembre`. Les balises retirées laissaient « 1 er novembre », et la Toussaint 2026 était illisible. L'exposant est maintenant recollé au chiffre.
+- **Éprouvé sur des pages modifiées** :
+  - la vraie page : « rien de neuf, 3 années lues », code 0 ;
+  - une détente qui commence un mardi : refusée, code 1 ;
+  - une rentrée 2028 au 4 septembre : refusée (« le décret donne 2028-08-28 »), code 1 ;
+  - une page vide : code 1 ;
+  - une année 2029-2030 ajoutée : annoncée à blanc sans rien écrire ; avec `--installer`, sur une copie du dépôt, la ligne s'ajoute, `V` monte, l'agenda passe à 63 événements (le 1er et le 2 novembre 2029 rentrent dans les vacances d'automne) et le contrôle des arrêtés reste à 0.
+- La vérification de chaque `push` (`verification.yml`) relance aussi `verifier-conges-scolaires.js`.
