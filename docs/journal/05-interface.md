@@ -3891,3 +3891,36 @@ décroissant), puis les autres par trigramme, « 0 % · aucun jour », en vert
 discret, dans les listes par équipe et par poste. Mesuré : équipe 2, 13
 personnes dont 2 sans absence (avant : 11) ; résumé inchangé (7,1 %,
 255 j) ; 390 et 1280 px sans débordement.
+
+### La Direction au style du site (23/10/2026, v1005)
+
+Le client : « la page Direction n'est pas du tout dans le style du site,
+j'aimerais qu'elle soit 100 % optimisée ». Workflow en trois temps, dans une
+copie isolée : refonte, critique indépendante (12 défauts relevés sur la
+refonte), finition.
+
+- Écarts relevés avant : carte sombre à dégradé en dur au lieu de la page et
+  de ses cadres ; couleurs en dur (#FF8A7A, #C9D1E0, #6FD6F2…) et barres en
+  dégradé ; la mono partout ; titres en capitales grises sans cadre ; tuiles
+  hors du style du tableau de bord ; pastilles de pause hors de celles du
+  Planning ; bascule en pilules corail ; tableaux en cellules-pilules ;
+  « ‹ Direction » en lien de 32 px ; textes à 10 et 10,5 px ; au PC une
+  seule colonne étirée.
+- Après : chaque section est un cadre des Effectifs (bord, rayon,
+  --ombre-cadre, barre de titre centrée) ; tuiles .ws-kpi ; pastilles de
+  pause du Planning ; bascule au segmenté .caseg (44 px) ; barres pleines
+  aux jetons ; tableaux à filets, nombres à droite en chiffres tabulaires ;
+  mono sur les seuls trigrammes ; au PC, deux colonnes, les grands cadres
+  sur toute la rangée ; « Vue du jour » a son titre comme les autres
+  sous-pages ; jours de la semaine sur deux lignes au téléphone. Seul le
+  balisage (dirCadre, dirNav) et le CSS changent : aucun calcul touché.
+- Chiffres prouvés identiques : texte des 11 sous-vues à 390 px (hub, jour,
+  absences, rappels, rythme, compétences, intérim, statut, et les trois
+  « Hors longues maladies ») ; la suite des nombres a la même empreinte
+  avant et après (8,5 %, 1 463 j, 515 rappels, équipe 2 à 7,1 %…).
+- Mesuré : 320, 390 et 1280 px sans débordement, aucun texte coupé ni sous
+  11 px, aucune cible sous 40 px (avant : 8 cibles de 31-32 px, 8 textes à
+  10-10,5 px) ; aucune erreur de page ; hors ligne inchangé.
+- Laissé : « Hors longues maladies » ne s'affiche que sur Absences (comme
+  avant) ; entre 761 et 1099 px la page reste sur une colonne ; les plis
+  ouverts des rappels allongent la page (rangées de 44 px).
