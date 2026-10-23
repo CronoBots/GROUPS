@@ -4351,3 +4351,18 @@ Le client : « pour les congés scolaires, le premier week-end juste avant le co
 - **Le week-end d'avant** : l'automne, l'hiver, la détente et le printemps vont dans l'agenda du samedi qui précède au dimanche de la seconde semaine, soit 16 jours (Toussaint 2026 : du samedi 17 octobre au dimanche 1er novembre ; Noël 2026 : du samedi 19 décembre au dimanche 3 janvier). L'été commençait déjà le samedi. `FWB_ARRETES` et `fwbAn` gardent le lundi, celui des arrêtés : seul l'agenda s'élargit. Les jours de congé isolés ne bougent pas. La date de début faisant l'identifiant de l'événement, chaque vacance a changé d'identifiant : un agenda abonné remplace l'ancien événement au lieu de garder le lundi. Google, lui, garde un événement qu'il croit inchangé (journal, « SEQUENCE et LAST-MODIFIED »).
 - **Une fois par mois** : non, vérifier chaque jour n'était pas utile. Les calendriers paraissent deux à trois ans à l'avance (2028-2029 l'est déjà), un mois de retard est sans effet. Le robot passe désormais le 1er de chaque mois à 5 h 23 (UTC) ; le 1er janvier, l'agenda avance aussi d'une année. Un site injoignable attend le mois suivant.
 - Vérifié : 62 événements, lignes de 75 octets au plus ; contrôle des arrêtés à 0 ; vérificateur, quatre sorties identiques ; robot sur la vraie page, « rien de neuf » ; hors ligne correct.
+
+### Les changements d'heure dans les agendas (23/10/2026, v1022)
+
+Le client : « intégrer les changements d'heure d'été et d'hiver ». La paie les connaît depuis le 14/10/2026 (`docs/regles-paie.md`, « Le changement d'heure ») ; il manquait les agendas.
+
+- **L'agenda des congés scolaires** reçoit les deux passages de chaque année, en journées « libres », le dernier dimanche de mars (« à 2 h, il sera 3 h ») et d'octobre (« à 3 h, il sera 2 h »). Cela fait 14 événements de 2025 à 2031, tous vérifiés comme derniers dimanches du mois. Sa description et la rangée de Réglages le disent.
+- **L'agenda personnel** : aucun événement de plus, puisqu'il ne montre que les jours de travail (le client, le 14/10/2026). Qui est au poste entre 2 h et 3 h la nuit du changement reçoit « · changement d'heure » au titre et une note sous son commentaire :
+  - en octobre, « une heure de plus au poste, comptée en heure sup » (pour une nuit N, comme `lireJournee`) ;
+  - en mars, « une heure de moins au poste ; la nuit reste payée comme d'habitude ».
+  Les heures de l'événement ne changent pas : elles sont écrites à l'heure de Bruxelles, et le téléphone allonge ou raccourcit déjà la nuit.
+- **La révision** : une nuit annotée a une révision de plus (`SEQUENCE`), sans quoi Google garde l'événement déjà importé jusqu'au classeur suivant. La nuit du 24/10 étant le lendemain, il fallait que la note arrive avant. La révision d'un classeur suivant, comptée en minutes, reste plus grande.
+- **Mesuré** :
+  - nuits annotées : 3 le 28/03/2026 (la plupart des gens de nuit étaient passés en AM ou PM, « maintien prime N »), 11 le 24/10/2026, 14 le 27/03/2027 et 14 le 30/10/2027 ;
+  - 39 agendas personnels changent, et seulement à ces nuits ; les quatre sorties du vérificateur sont identiques.
+- **Fausse alerte corrigée** : la paie comptait « 13 personnes » le 24/10/2026 dans `regles-paie.md`, et l'agenda 11. Les deux lectures, interrogées personne par personne (`--journee`), donnent les mêmes 11. Les 13 dataient du classeur du 14/10, avant l'échange qui fait faire la nuit à AFA et l'après-midi à ATR. La note est corrigée sur place.

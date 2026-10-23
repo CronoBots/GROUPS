@@ -7202,7 +7202,7 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
         <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
       <!-- les congés scolaires de la Fédération Wallonie-Bruxelles (le
            client, le 23/10/2026), au même endroit que l'abonnement personnel -->
-      <div class="ag-ecole"><div><b>Congés scolaires</b><small>Fédération Wallonie-Bruxelles · les années à venir, mis à jour seul</small></div>
+      <div class="ag-ecole"><div><b>Congés scolaires</b><small>Fédération Wallonie-Bruxelles et changements d'heure · les années à venir, mis à jour seul</small></div>
         <button type="button" class="btn-agenda sec" id="icsEcole"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>S'abonner</button></div>
     </div>
     <!-- L'invitation à installer, au bas de l'Accueil depuis le 17/10/2026 (le
@@ -14643,7 +14643,23 @@ function icsAgenda(id,debut,nJours,stamp){
     /* Le commentaire de la journée dans la note de l'événement (le client,
        le 14/10/2026), majuscule en tête comme sur l'Accueil. */
     var com=comAffiche(x.raw).replace(/[ \t]+/g," ").trim();
-    if(com) ev.push("DESCRIPTION:"+icsTexte(com.charAt(0).toUpperCase()+com.slice(1)));
+    /* LE CHANGEMENT D'HEURE (le client, le 23/10/2026 : « intégrer les
+       changements d'heure d'été et d'hiver ») : qui est au poste entre 2 h
+       et 3 h la nuit du samedi au dernier dimanche de mars ou d'octobre le
+       lit dans la note et le titre, avec la règle de paie du 14/10/2026
+       (lireJournee : une heure sup en octobre pour la nuit N ; en mars, la
+       nuit reste payée 8 h). Le téléphone, lui, allonge ou raccourcit déjà
+       la nuit : ses heures sont écrites à l'heure de Bruxelles. */
+    var chg="";
+    if(x.pv && PF_DEB[x.pv]!=null && (d.getMonth()===2||d.getMonth()===9)){
+      var f31=new Date(d.getFullYear(),d.getMonth(),31), dimH=new Date(d.getFullYear(),d.getMonth(),31-f31.getDay());
+      if(+new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)===+dimH && pfDebut(x)<=26 && pfFin(x)>=27)
+        chg=d.getMonth()===9?"Nuit du passage à l'heure d'hiver : à 3 h, il est 2 h. Une heure de plus au poste"+(x.pv==="N"?", comptée en heure sup.":".")
+          :"Nuit du passage à l'heure d'été : à 2 h, il est 3 h. Une heure de moins au poste ; la nuit reste payée comme d'habitude.";
+    }
+    if(chg) ev[2]+=" · changement d'heure";
+    var note=[com?com.charAt(0).toUpperCase()+com.slice(1):"",chg].filter(Boolean).join("\n\n");
+    if(note) ev.push("DESCRIPTION:"+icsTexte(note));
     /* UN NUMÉRO DE RÉVISION (le client, le 20/10/2026 : « sur l'agenda de
        mon ami sur Android, il n'a toujours pas le commentaire pour le
        falling film »). Le fichier publié portait la note depuis le 19/10 ;
@@ -14653,7 +14669,10 @@ function icsAgenda(id,debut,nJours,stamp){
        l'horodatage du classeur, donc croissant d'un classeur à l'autre et
        identique pour un même classeur — un horaire inchangé donne toujours
        les mêmes fichiers à l'octet. */
-    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+icsSequence(stamp));
+    /* une nuit annotée du changement d'heure a une révision de plus : le
+       téléphone qui l'a déjà prend la note sans attendre le classeur
+       suivant, dont la révision (en minutes) reste plus grande */
+    L.push("BEGIN:VEVENT","UID:"+nom+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+(icsSequence(stamp)+(chg?1:0)));
     L=L.concat(ev.map(icsPlier)); L.push("END:VEVENT"); n++;
   }
   L.push("END:VCALENDAR");
@@ -14766,7 +14785,7 @@ function icsCongesScolaires(premiere,nAns,stamp){
   function plus(x,n){ return new Date(x.getFullYear(),x.getMonth(),x.getDate()+n); }
   var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biowanze//Conges scolaires//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
     "X-WR-CALNAME:Congés scolaires · Fédération Wallonie-Bruxelles","X-WR-TIMEZONE:Europe/Brussels",
-    icsPlier("X-WR-CALDESC:"+icsTexte("Rentrées, vacances et jours de congé de l'enseignement fondamental et secondaire en Fédération Wallonie-Bruxelles. Calculés selon le décret du 31 mars 2022 ; l'automne, la détente et le printemps viennent des arrêtés du Gouvernement, ajoutés à leur parution.")),
+    icsPlier("X-WR-CALDESC:"+icsTexte("Rentrées, vacances et jours de congé de l'enseignement fondamental et secondaire en Fédération Wallonie-Bruxelles, et les changements d'heure. Calculés selon le décret du 31 mars 2022 ; l'automne, la détente et le printemps viennent des arrêtés du Gouvernement, ajoutés à leur parution.")),
     "REFRESH-INTERVAL;VALUE=DURATION:P1D","X-PUBLISHED-TTL:P1D"], n=0;
   function ev(k,d,fin,titre,note){
     L.push("BEGIN:VEVENT","UID:fwb-"+k+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+icsSequence(stamp),
@@ -14788,6 +14807,13 @@ function icsCongesScolaires(premiere,nAns,stamp){
     if(x.mardiGras) ev("conge",x.mardiGras,plus(x.mardiGras,1),"Congé scolaire : Mardi gras","");
     ev("ete",plus(x.fin,1),suiv.rentree,"Vacances d'été","Du lendemain du dernier jour de classe (vendredi "+x.fin.getDate()+" juillet) à la veille de la rentrée.");
   }
+  /* LES CHANGEMENTS D'HEURE (le client, le 23/10/2026), le dernier
+     dimanche de mars et d'octobre, de la première année civile couverte à
+     la dernière */
+  for(var y=premiere; y<=premiere+nAns; y++) [[2,"Passage à l'heure d'été : à 2 h, il sera 3 h","Dans la nuit du samedi au dimanche, on avance d'une heure : une heure de sommeil en moins."],
+    [9,"Passage à l'heure d'hiver : à 3 h, il sera 2 h","Dans la nuit du samedi au dimanche, on recule d'une heure : une heure de sommeil en plus."]].forEach(function(z){
+    var f=new Date(y,z[0],31), dim=plus(f,-f.getDay()); ev("heure",dim,plus(dim,1),z[1],z[2]);
+  });
   L.push("END:VCALENDAR");
   return {texte:L.join("\r\n")+"\r\n", n:n};
 }
