@@ -6675,6 +6675,27 @@ html body #v-horaire #calCard .mc-j .mc-t:not(.long){font-size:11px}
    calendrier, qui s'élargit à son texte ; « D-CPPT » de Ma semaine perdait
    2 px à 11 px ; « Mercredi 28 octobre » se coupait sous le prochain poste */
 html body #v-horaire #calStats .cstat-d{white-space:normal; text-align:center}
+/* LE HÉROS ALLÉGÉ (le client, le 23/10/2026, « go ») : il ne garde que la
+   personne, son prochain poste et Ma semaine ; au-delà de 760 px, le
+   prochain poste à gauche, Ma semaine à droite. Les congés, l'avancement
+   et les pauses vivent dans « Mon année », sous « À faire ». */
+@media (min-width:761px){
+  html body .pf-corps,html body .pf-corps:has(.pf-pv){grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-rows:auto auto}
+  html body .pf-corps>.pf-gauche,html body .pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
+  html body .pf-corps>#ryAn{grid-column:2; grid-row:1; padding:0 12px 0 0; margin-top:4px}
+  /* avec des polyvalences : le prochain poste puis Ma semaine à gauche,
+     les polyvalences à droite (les deux colonnes à 90 px près, au lieu de
+     190 ou 250) */
+  html body .pf-corps:has(.pf-pv)>#ryAn{grid-column:1; grid-row:2; padding:0 0 0 12px; margin-top:0}
+  html body .pf-corps>.pf-pv{grid-column:2; grid-row:1 / span 2; align-self:start; margin:12px 12px 0 0; width:calc(100% - 12px)}
+}
+/* « Mon année » : le contenu du héros, dans une carte ordinaire */
+html body #anCard .pf-an{padding:0; margin:0}
+html body #anCard #ryCg .pf-cg-t{border-top:0; margin-top:0}
+html body #anCard #ryCg .ry-h2{padding-top:0}
+html body #anCard #ryCg:not(:empty)+#ryPr{border-top:1px solid var(--line2)}
+html body #anCard .pf-cgs{margin-bottom:12px}
+html body #anCard .pf-pr{margin-bottom:0}
 html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-width:100%; padding:0 2px; letter-spacing:-.02em}
 @media (max-width:360px){ html body #v-horaire .ms-j .pl-pa{padding-left:2px; padding-right:2px; letter-spacing:-.02em} html body #v-horaire .pf-proch-t b{font-size:16px} }
 </style>
@@ -6853,6 +6874,13 @@ html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-w
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>À faire</h2><span class="sub" id="ctlSub"></span></header>
       <div class="ctl" id="ctlCorps"></div>
     </div>
+    <!-- MON ANNÉE (le client, le 23/10/2026, « go ») : les congés à placer,
+         l'avancement de l'année et mes pauses, sortis du héros pour que le
+         premier écran du téléphone aille jusqu'aux actions -->
+    <div class="card" id="anCard" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Mon année</h2><span class="sub" id="anSub"></span></header>
+      <div class="pad an-corps"><div class="ry-an pf-an" id="ryCg"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div>
+    </div>
     <div class="card" id="racCard" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Accès rapides</h2></header>
       <div class="ctl" id="racCorps"></div>
@@ -6906,9 +6934,6 @@ html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-w
       </div>
 
     </div>
-    </div>
-    </div>
-
     <!-- Mon rythme puis mes compteurs, chacun à découvert (le client, le
          16/10/2026 : « le rythme, nombre de nuits et graphique peuvent être
          visibles sans devoir passer par un bouton »). -->
@@ -6921,6 +6946,9 @@ html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-w
       </header>
       <div id="rythmeCorps"></div>
     </div>
+    </div>
+    </div>
+
     <div class="card installcard" id="installCard" hidden>
       <div class="in-l">
         <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
@@ -14001,20 +14029,24 @@ function _pfHead(db,p){
      polyvalences »). Les ateliers acquis, un point à la couleur de leur zone ;
      le bloc « Polyvalence » de « Mes compteurs » les disait déjà et s'en va.
      Pas pour un contremaître, qui ne tient pas d'atelier. Un toucher mène au
-     recyclage, comme le lien qu'avait le bloc. */
+     recyclage, comme le lien qu'avait le bloc. SOUS Ma semaine depuis le
+     23/10/2026 (« Mon année », « go ») : au-dessus du prochain poste, ses
+     200 px poussaient le poste et les actions hors du premier écran ; au
+     PC, à droite sous Ma semaine, les deux colonnes s'équilibrent. */
   /* Les recyclages restants du classeur RH : les compteurs viennent se
      poser sur ces puces juste après le premier affichage (recyclageHeros). */
   var pl=(p.poly&&p.poly.ateliers)||[], cmH=(typeof estContremaitre==="function")&&estContremaitre(p),
       /* !cmH d'abord : recycRHEffectif rejoue toute la polyvalence (≈310 ms)
          pour un bloc jamais rendu chez un contremaître (audit du 23/10/2026). */
       roH=(!cmH&&typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRHEffectif(db,p):null, aRec=!!(roH&&(roH.restant>0||roH.enPlus));
+  var pvH="";
   if(!cmH && (pl.length||aRec)){
-    h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
+    pvH='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
       +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
       +'<span class="pf-fl" aria-hidden="true">›</span>'
       +(pl.length?'<span class="pf-pv-l">'+pl.map(function(a){ var z="", k=""; POSTES_TRAVAIL.forEach(function(P){ if(!z && P.rx && P.rx.test(a)){ z=P.z; k=P.k; } });
         return '<span data-z="'+z+'" data-k="'+k+'" title="'+esc(a)+'"><i></i><em data-c="'+esc((typeof PV_COURT!=="undefined"&&PV_COURT[k])||a)+'">'+esc(a)+'</em></span>'; }).join("")+'</span>':'')
-      +(aRec?'<span class="pf-rc" id="pfRecyc" hidden></span>':'')+'</button>'+h;
+      +(aRec?'<span class="pf-rc" id="pfRecyc" hidden></span>':'')+'</button>';
   }
   var bio=esc(role);
   return '<div class="pf-hero">'
@@ -14032,7 +14064,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div>'
-    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div><div class="ry-an pf-an" id="ryCg"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div><div class="pf-bas"></div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -19310,7 +19342,8 @@ document.addEventListener("click",function(e){
   else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
 function ryAnneeHTML(p,y,db){
-  var h=ryBarre("Année "+y,"",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
+  /* « Avancement » : la carte s'appelle déjà « Mon année · 2026 » */
+  var h=ryBarre("Avancement","",ryCompte(p,new Date(y,0,1),new Date(y,11,31)),"Journées prestées de l'année");
   /* (« Ma semaine », qui avait remplacé ici le cycle actuel, a son propre
      conteneur depuis le 22/10/2026, #ryAn : voir renderRythme.) */
   return h;
@@ -19372,7 +19405,7 @@ function renderRythme(){
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
   var ag=document.getElementById("agendaCard");
-  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; renderNotif(null,null); return; }
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete) tete.innerHTML=_pfHead(db,person);
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
@@ -19411,7 +19444,13 @@ function renderRythme(){
        colonnes au lieu d'allonger la gauche (audit du 23/10/2026) */
     var cg=document.getElementById("ryCg"); if(cg){ try{ cg.innerHTML=mesCongesHTML(db,person); }catch(e){ cg.innerHTML=""; } }
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y);
+    /* « Mon année » (23/10/2026) : visible dès qu'elle a quelque chose à dire */
+    var an=document.getElementById("anCard"), ans=document.getElementById("anSub");
+    if(ans) ans.textContent=String(y);
+    if(an) an.hidden=!((cg&&cg.innerHTML)||(pz&&pz.innerHTML));
     try{ recyclageHeros(db,person); }catch(e){}
+    /* le héros a sa hauteur finale : la ligne « à faire » se remesure */
+    try{ pfAfaireVoir(); }catch(e){}
   });
 }
 
@@ -19563,10 +19602,28 @@ function renderCentre(db,person){
       pa.innerHTML='<button type="button" class="pf-af"><i class="ctl-pt" aria-hidden="true"></i><span><b>'+n+' action'+(n>1?'s':'')+' à faire</b><small>'+esc(faire[0][1])+(autres?' · et '+autres+' autre'+(autres>1?'s':''):'')+'</small></span><em aria-hidden="true">›</em></button>';
       pa.hidden=false;
     } else { pa.innerHTML=""; pa.hidden=true; }
+    pfAfaireVoir();
   }
   c.classList.toggle("ctl-alerte",!!n);
   c.hidden=false;
 }
+/* La ligne « N actions à faire » du héros ne se montre que si la première
+   action de la carte n'atteint pas le premier écran : mesuré, et non
+   supposé, le héros allant de 400 à 660 px selon la personne et l'écran
+   de 568 à 1 000 px. Refait après chaque rendu et à chaque changement de
+   taille ; la ligne cachée pendant la mesure, pour ne pas se compter. */
+function pfAfaireVoir(){
+  var pa=document.getElementById("pfAfaire"), c=document.getElementById("ctlCard"); if(!pa) return;
+  if(!pa.firstChild||!c||c.hidden||!c.offsetParent){ if(!pa.firstChild) pa.hidden=true; return; }
+  /* la barre du bas du téléphone (nav.tabs, dans #navwrap, fixe) couvre
+     le bas de l'écran ; au PC, la même barre est le menu de gauche */
+  var i=c.querySelector(".ctl-i")||c, nav=document.querySelector("nav.tabs"), bas=window.innerHeight;
+  if(nav&&nav.getClientRects().length){ var nt=nav.getBoundingClientRect().top; if(nt>bas/2&&nt<bas) bas=nt; }
+  pa.hidden=true;
+  pa.hidden=i.getBoundingClientRect().bottom+(window.pageYOffset||0)<=bas;
+}
+var _pfAfT=null;
+window.addEventListener("resize",function(){ clearTimeout(_pfAfT); _pfAfT=setTimeout(pfAfaireVoir,200); });
 document.addEventListener("click",function(e){
   var af=e.target.closest?e.target.closest(".pf-af"):null;
   if(af){ var cc=document.getElementById("ctlCard"); if(cc){ cc.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); var i0=cc.querySelector(".ctl-i"); if(i0) try{ i0.focus({preventScroll:true}); }catch(er){} } return; }
