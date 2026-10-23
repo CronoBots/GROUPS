@@ -484,7 +484,9 @@ body{overflow-x:clip}
 .lede.haut{padding-top:14px; padding-bottom:0}
 
 .btn{padding:6px 12px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:12.5px; color:var(--ink2)}
-.btn.primary{background:var(--in); border-color:var(--in); color:var(--sur-in)}
+/* le bouton d'accent pèse comme son libellé l'exige : « Renseigner mon
+   contrat » était en graisse 400, « Vérifier » en 650 (audit du 23/10/2026) */
+.btn.primary{background:var(--in); border-color:var(--in); color:var(--sur-in); font-weight:650}
 /* LE HOVER SEULEMENT LÀ OÙ IL EXISTE. Le client, le 02/10/2026 : « le bouton
    Aujourd'hui reste bleu après un swipe ». Sur un écran tactile, « :hover » se
    FIGE après un tap (il n'y a pas de curseur pour le défaire), et un swipe sur
@@ -890,7 +892,7 @@ body{overflow-x:clip}
 #salCard .vsprec{align-items:center; text-align:center}
 #salCard.exemple .hero .big{color:var(--faint)}
 #salCard.exemple .vsprec{display:none}
-#alerteDefaut .btn{margin-top:8px}
+#alerteDefaut .btn{margin-top:8px; font-size:13.5px} /* 12,5 px rapetissait le seul appel du Salaire (audit du 23/10/2026) */
 #salCard .hero{border-bottom:1px solid var(--cadre); background:none; flex-direction:column; align-items:center;
   text-align:center; gap:10px; padding:18px 16px 16px}
 #salCard .hero .lbl{font-size:10.5px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
@@ -5121,7 +5123,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    dates) */
 @media (max-width:400px){ .pf-pr-tab,.pf-pr-h{grid-template-columns:28px minmax(0,1fr) 38px 36px} .pf-pr-c .pf-pause{width:28px}
   .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:10px; padding-right:10px} .pf-pr-h{letter-spacing:0} }
-/* au petit téléphone, la date tient sur une ligne */
+/* au petit téléphone, colonnes et écarts au plus serré ; une date longue
+   (« Dimanche 1er novembre ») y passe sur deux lignes (décision du
+   22/10/2026) */
 @media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10.5px}
   /* les colonnes gardent 34 et 32 px (plus larges, elles faisaient passer la
      date sur deux lignes) ; « FAITES » et « RESTE » à 10,5 px débordent
@@ -7695,8 +7699,9 @@ function versementsDuMois(y,m){
   var fin=new Date(Date.UTC(y,m,daysInMonth(y,m)));
   return {avance:ouvresDepuis(fin,4,-1), solde:ouvresDepuis(fin,4,1)};
 }
+/* « dimanche 1er novembre » : numJour(), plus bas (audit du 23/10/2026) */
 function dateLongue(d){
-  return JOURS_LONGS[(d.getUTCDay()+6)%7].toLowerCase()+" "+d.getUTCDate()
+  return JOURS_LONGS[(d.getUTCDay()+6)%7].toLowerCase()+" "+numJour(d.getUTCDate())
     +" "+MOIS[d.getUTCMonth()].toLowerCase();
 }
 function dayType(y,m,d){var w=new Date(Date.UTC(y,m,d)).getUTCDay(); return w===0?"Dimanche":(w===6?"Samedi":"Semaine");}
@@ -8679,7 +8684,7 @@ function caseJour(d){
     marques+='<i class="mc-part" title="'+esc([preste&&rec.a?rec.a:""].concat(rec.rvD||[]).filter(Boolean).join(" ; "))+'"></i>';
   return '<button type="button" class="'+cls.join(" ")+'" data-d="'+d+'"'+pr
     +(preste?' data-s="'+esc(postePeint(rec))+'"':"")
-    +' aria-label="'+d+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
+    +' aria-label="'+numJour(d)+" "+MOIS[m].toLowerCase()+" — "+esc(lib)+', modifier">'
     +'<span class="mc-n">'+d+'</span>'
     +(tag?'<span class="mc-t'+(String(tag).length>3?" long":"")+'">'+esc(tag)+'</span>':"")
     +(marques?'<span class="mc-m">'+marques+'</span>':"")
@@ -8765,8 +8770,9 @@ function semDepuisMois(){
 }
 function libSemaine(d0){
   var d6=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+6);
-  /* le mois en entier (le client, le 19/10/2026 : « nom du mois complet ») */
-  return d0.getDate()+(d0.getMonth()!==d6.getMonth()?" "+MOIS[d0.getMonth()].toLowerCase():"")+" – "+d6.getDate()+" "+MOIS[d6.getMonth()].toLowerCase();
+  /* le mois en entier (le client, le 19/10/2026 : « nom du mois complet ») ;
+     « 26 octobre – 1er novembre » (audit du 23/10/2026) */
+  return numJour(d0.getDate())+(d0.getMonth()!==d6.getMonth()?" "+MOIS[d0.getMonth()].toLowerCase():"")+" – "+numJour(d6.getDate())+" "+MOIS[d6.getMonth()].toLowerCase();
 }
 /* la semaine bouge : le mois de son jeudi (la règle des semaines ISO)
    devient le mois de l'application, comme si on l'avait choisi */
@@ -8870,11 +8876,13 @@ function libCycle(d0){
   var dn=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+cycleRef().L-1);
   /* à cheval sur deux années, l'année nouvelle à la fin : « 30 novembre –
      10 janvier 2027 » */
-  function lib(nom){ return d0.getDate()+(d0.getMonth()!==dn.getMonth()||d0.getFullYear()!==dn.getFullYear()?" "+nom(d0.getMonth()):"")
-    +" – "+dn.getDate()+" "+nom(dn.getMonth())+(d0.getFullYear()!==dn.getFullYear()?" "+dn.getFullYear():""); }
+  /* « 1er novembre » avec le mois en entier, « 1 nov. » avec le mois
+     abrégé (audit du 23/10/2026) */
+  function lib(nom,nj){ return nj(d0.getDate())+(d0.getMonth()!==dn.getMonth()||d0.getFullYear()!==dn.getFullYear()?" "+nom(d0.getMonth()):"")
+    +" – "+nj(dn.getDate())+" "+nom(dn.getMonth())+(d0.getFullYear()!==dn.getFullYear()?" "+dn.getFullYear():""); }
   /* au téléphone étroit, les mois abrégés si le titre ne tient pas */
-  var l=lib(function(m){ return MOIS[m].toLowerCase(); });
-  return (l.length>22 && window.innerWidth<380)?lib(function(m){ return MOIS_BREF[m]; }):l;
+  var l=lib(function(m){ return MOIS[m].toLowerCase(); },numJour);
+  return (l.length>22 && window.innerWidth<380)?lib(function(m){ return MOIS_BREF[m]; },String):l;
 }
 /* le cycle bouge : le mois de son jour du milieu devient celui de
    l'application, comme pour la semaine */
@@ -9053,7 +9061,7 @@ function majFeuille(){
   hote.innerHTML=""; hote.appendChild(ligneJour(d));
   var dt=new Date(Date.UTC(st.y,st.m,d));
   document.getElementById("sheetTitre").textContent=
-    JOURS_LONGS[(dt.getUTCDay()+6)%7]+" "+d+" "+MOIS[st.m].toLowerCase();
+    JOURS_LONGS[(dt.getUTCDay()+6)%7]+" "+numJour(d)+" "+MOIS[st.m].toLowerCase();
   document.getElementById("sheetSemaine").textContent="Semaine "+isoWeek(dt);
   /* Ce que le classeur d'équipe dit de cette journée : la cellule, son
      annotation, le commentaire. C'est la seule source, et c'est elle qu'on
@@ -9431,8 +9439,8 @@ function renderChk(C){
   else s.innerHTML='<span class="pill ko">'+nKo+" écart"+(nKo>1?"s":"")+'</span>';
   document.getElementById("ctrlDot").hidden=!nKo;
   var hint=document.getElementById("ctrlHint");
-  if(!nOk&&!nKo) hint.textContent="La fiche de "+MOIS[st.m].toLowerCase()+" n'est pas encore arrivée, ou vous ne l'avez pas encore recopiée.";
-  else if(!nKo) hint.textContent="Tout concorde : le calcul reproduit la fiche de "+MOIS[st.m].toLowerCase()+" au centime.";
+  if(!nOk&&!nKo) hint.textContent="La fiche "+deMois(MOIS[st.m].toLowerCase())+" n'est pas encore arrivée, ou vous ne l'avez pas encore recopiée.";
+  else if(!nKo) hint.textContent="Tout concorde : le calcul reproduit la fiche "+deMois(MOIS[st.m].toLowerCase())+" au centime.";
   else hint.textContent="Commencez par la première ligne rouge en partant du haut : un écart sur les heures ou sur le brut explique presque toujours ceux qui suivent.";
 
   var rp=real.pp;
@@ -9594,7 +9602,7 @@ function renderResume(C){
     cells+='<button type="button" data-d="'+dd+'"'+pr
       +(preste?' data-s="'+esc(postePeint(rec))+'"':"")+
       (cls.length?' class="'+cls.join(" ")+'"':"")+(fer?" data-fer=1":"")+
-      ' aria-label="'+dd+" "+MOIS[st.m].toLowerCase()+
+      ' aria-label="'+numJour(dd)+" "+MOIS[st.m].toLowerCase()+
         (preste?(rec.j?" — journée de jour ("+esc(rec.j)+"), prime "+esc(rec.s)+" conservée"
                       :" — poste "+esc(postePeint(rec))
                         +(gardePrime(rec)?", prime "+esc(rec.s)+" conservée":""))
@@ -10108,6 +10116,9 @@ function posteDuJourDe(db,id,au){
 /* « Dimanche 1er novembre » : le premier du mois s'écrit en ordinal, comme
    ailleurs dans l'application (audit du 23/10/2026) */
 function numJour(n){ return n===1?"1er":String(n); }
+/* « la fiche d'octobre », « horaire d'avril » : « de » s'élide devant
+   avril, août et octobre (audit du 23/10/2026) */
+function deMois(nom){ return (/^[aeiouàâéèêîôû]/i.test(nom)?"d'":"de ")+nom; }
 function dateDuJourLisible(d){
   d=d||new Date();
   return JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate())
@@ -10192,7 +10203,7 @@ function majMoisLabel(m,y){
 }
 function dateFr(iso){
   var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||"")); if(!m) return String(iso||"");
-  return Number(m[3])+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
+  return numJour(Number(m[3]))+" "+MOIS[Number(m[2])-1].toLowerCase()+" "+m[1];
 }
 /* Le suffixe des trigrammes partagés ne se montre JAMAIS. Le client, le
    21/09/2026 : « tu peux garder en mémoire pour toi GBT-1 pour t'y
@@ -10656,7 +10667,7 @@ function allerMois(step){
 function viderMois(){
   st.month.days={}; st.month.rhsMois=0; st.month.rcmJours=null;
   persistMonth(); renderRota(); renderFields(); refresh();
-  flash("Horaire de "+MOIS[st.m].toLowerCase()+" "+st.y+" vidé");
+  flash("Horaire "+deMois(MOIS[st.m].toLowerCase())+" "+st.y+" vidé");
 }
 
 /* ===================== horaire d'équipe (pré-remplissage) ===================== */
@@ -13163,7 +13174,8 @@ function ryHeatmap(s){
       var we=(dt.getDay()===0||dt.getDay()===6)?" we":"";
       /* les jours à venir pâlis, comme sur la frise du cycle (audit du 23/10/2026) */
       var fut=dt>ju?" fut":"";
-      cells+='<span class="ry-hm-c '+cls+auj+we+fut+'" title="'+esc(d+" "+MOIS[m]+" — "+ryTypeLabel(t))+'"></span>';
+      /* « 1er août — Nuit », le mois en minuscule comme partout (audit du 23/10/2026) */
+      cells+='<span class="ry-hm-c '+cls+auj+we+fut+'" title="'+esc(numJour(d)+" "+MOIS[m].toLowerCase()+" — "+ryTypeLabel(t))+'"></span>';
     }
     rows+='<div class="ry-hm-l"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
   }
@@ -16997,9 +17009,13 @@ function dmDuree(code){ var c=(lsGet("base/codes")||[]).filter(function(x){ retu
 function dmHeures(code){ var c=(lsGet("base/codes")||[]).filter(function(x){ return x.code===code; })[0]; return c&&c.unite==="h"?Number(c.heures)||0:0; }
 function dmJour(s){ var p=String(s).split("-"); return new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); }
 function dmIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+/* l'année seulement hors de l'année en cours, comme rcQuandLong() et la
+   carte de sous-effectif voisine : « Ma 27 oct. », mais « Lu 4 janv. 2027 »
+   (audit du 23/10/2026) */
+function dmAnSiAutre(d){ return d.getFullYear()!==jourUsine().getFullYear()?" "+d.getFullYear():""; }
 function dmPeriode(du,au){
   var a=dmJour(du), b=dmJour(au);
-  return du===au?wsDateCourte(a)+" "+a.getFullYear():wsDateCourte(a)+" → "+wsDateCourte(b)+" "+b.getFullYear();
+  return du===au?wsDateCourte(a)+dmAnSiAutre(a):wsDateCourte(a)+(a.getFullYear()!==b.getFullYear()?dmAnSiAutre(a):"")+" → "+wsDateCourte(b)+dmAnSiAutre(b);
 }
 /* la pause prévue d'une personne un jour donné, selon l'horaire */
 function dmPrevue(tri,iso){
@@ -18190,7 +18206,9 @@ function mesCongesHTML(db,person){
     var rs=Math.max(0,o.rs), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
     tot+=rs;
     var lib=libCompteur(db,o.k); if(lib===o.k && LIB_CPT_LONG[o.k]) lib=LIB_CPT_LONG[o.k];
-    return '<div class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(rs/hj>1?'s':'')+' sur '+num(o.tot)+' h')+'">'
+    /* « soit 1,5 jour » : le pluriel à partir de deux, sur le nombre lu
+       (audit du 23/10/2026) */
+    return '<div class="pf-cgc'+(rs>0?'':' vide')+'" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
       +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
       +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
@@ -18202,7 +18220,7 @@ function mesCongesHTML(db,person){
   if(f && (f.total!==undefined || f.report!==undefined)){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
     /* à zéro, la case pâlit comme un congé tout placé (audit du 23/10/2026) */
-    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(ft)/hj>1?'s':''))+'">'
+    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(R(ft/hj,1))>=2?'s':''))+'">'
       +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
@@ -18288,7 +18306,7 @@ function maSemaineHTML(db,person){
       +'</button>');
   }
   return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2">Ma semaine</span><span class="pf-pr-l">'
-    +esc(j0.getDate()+(j0.getMonth()===j6.getMonth()?"":" "+MOIS[j0.getMonth()].toLowerCase())+" – "+j6.getDate()+" "+MOIS[j6.getMonth()].toLowerCase())+'</span></div>'
+    +esc(numJour(j0.getDate())+(j0.getMonth()===j6.getMonth()?"":" "+MOIS[j0.getMonth()].toLowerCase())+" – "+numJour(j6.getDate())+" "+MOIS[j6.getMonth()].toLowerCase())+'</span></div>'
     +'<div class="ms-l">'+h.join("")+'</div>';
 }
 document.addEventListener("click",function(e){
@@ -18468,7 +18486,7 @@ function rcEtapes(x){
   et.push({ok:x.statut==="validee",t:x.rh_le,r:"RH",q:x.rh_qui?idLisible(x.rh_qui):"",w:"en attente d'enregistrement",moi:"à vous d'enregistrer"});
   return dmCircuit(x,et,rcEnCours(x),x.statut==="refusee",rcATraiter(x));
 }
-function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+' '+d.getFullYear()+' · '+(x.pause==="N"?"Nuit":x.pause); }
+function rcQuand(x){ var d=dmJour(x.jour); return wsDateCourte(d)+dmAnSiAutre(d)+' · '+(x.pause==="N"?"Nuit":x.pause); }
 /* la date en entier, pour le titre d'une carte (22/10/2026) */
 function rcQuandLong(x){ var d=dmJour(x.jour); return JOURS_LONGS[(d.getDay()+6)%7]+' '+numJour(d.getDate())+' '+MOIS[d.getMonth()].toLowerCase()+(d.getFullYear()!==jourUsine().getFullYear()?' '+d.getFullYear():'')+' · '+(x.pause==="N"?"Nuit":x.pause); }
 function rcCarte(x){
@@ -20752,8 +20770,10 @@ function renderEquipe(){
     /* Le libellé du jour (« Mardi 22 octobre ») : calculé une fois, servi au
        libellé de l'onglet Horaire (#jourLabel). #eqJour n'existe plus dans RH
        (sélecteur retiré) ; on le garnit encore s'il est présent, par sûreté. */
+    /* « Dimanche 1er novembre » (audit du 23/10/2026) ; la forme courte
+       de #jourLabel garde « Dim. 1 nov. » */
     var labelJour=JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]
-      +" "+jour+" "+MOIS[mois-1].toLowerCase();
+      +" "+numJour(jour)+" "+MOIS[mois-1].toLowerCase();
     var ejLbl=document.getElementById("eqJour"); if(ejLbl) ejLbl.textContent=labelJour;
     /* ÉTAT DU BOUTON « AUJOURD'HUI ». Le client, le 02/10/2026 : « ok pour tes
        optimisations ». Sur le jour courant il n'a rien à faire : il se calme.
@@ -20910,7 +20930,8 @@ function renderEquipe(){
          indiquer Absent jusqu'au 27 Septembre ». Chez nous, absent veut dire
          malade : le code n'ajoute rien, le mois entier se lit mieux. Les
          congés gardent leur code, qui dit lequel. */
-      var det=(g.k==="abs")?(x.fin?"Absent jusqu'au "+x.fin[2]+"\u00a0"+MOIS[x.fin[1]-1]
+      /* « jusqu'au 1er Novembre » (audit du 23/10/2026) */
+      var det=(g.k==="abs")?(x.fin?"Absent jusqu'au "+numJour(Number(x.fin[2]))+"\u00a0"+MOIS[x.fin[1]-1]
                 :"Absent jusqu'à aujourd'hui")
              :(g.k==="cong")?(x.prevu?esc(x.r.s)+" prévu"
                 :(x.repos?(x.r&&x.r.jourCode?esc(etiqJour(x.r.jourCode)):"Repos"):esc(x.r.a))
@@ -21253,7 +21274,7 @@ function renderEquipe(){
            à l'œil (.sr-only). La date est reconstruite depuis les variables déjà en
            portée — pas de lecture DOM, donc jamais de null pendant le feuilletage. */
         +'<caption class="sr-only">Équipe du jour — '
-        +esc(JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]+" "+jour+" "+MOIS[mois-1].toLowerCase())
+        +esc(JOURS_LONGS[(new Date(Date.UTC(annee,mois-1,jour)).getUTCDay()+6)%7]+" "+numJour(jour)+" "+MOIS[mois-1].toLowerCase())
         +'</caption>'];
       tp.push('<thead><tr><th class="eqposte">'
         +'<button type="button" class="posteauj'+(surAuj?" estauj":"")+'" aria-label="Revenir à aujourd’hui" title="Revenir à aujourd’hui">Auj.</button></th>');
@@ -22265,8 +22286,9 @@ function renderPolyvalence(){
     var jj=Number(t.debut.slice(2)), mm=Number(t.debut.slice(0,2));
     var ps1=document.getElementById("pvSub");
     if(ps1) ps1.textContent=
-      "du "+(jj===1?"1er":jj)+" "+MOIS[mm-1].toLowerCase()
-      +" au "+Number(t.fin.slice(2))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase()
+      "du "+numJour(jj)+" "+MOIS[mm-1].toLowerCase()
+      /* « au 1er » aussi, pas seulement « du 1er » (audit du 23/10/2026) */
+      +" au "+numJour(Number(t.fin.slice(2)))+" "+MOIS[Number(t.fin.slice(0,2))-1].toLowerCase()
       +" "+db.year;
     /* TROIS entrées, et pas une de plus. Le client, le 22/09/2026 : « le
        point doit être "Poste actuel", le petit point "Poste non acquis", F
@@ -22919,9 +22941,10 @@ function dateEnMots(y,m,j,t0){
   /* l'année de la date normalisée : la reprise du « 32 décembre » tombe en
      janvier de l'année suivante (audit du 23/10/2026) */
   return {sem:sem, mois:d.getUTCFullYear()*12+d.getUTCMonth(), an:d.getUTCFullYear(), moisNom:MOIS[d.getUTCMonth()],
-    titre:jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase(),
+    /* « 1er novembre » (audit du 23/10/2026) */
+    titre:jl+" "+numJour(d.getUTCDate())+" "+MOIS[d.getUTCMonth()].toLowerCase(),
     html:'<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"
-      +esc(d.getUTCDate()+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase())+"</small></span>"};
+      +esc(numJour(d.getUTCDate())+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase())+"</small></span>"};
 }
 /* ===================== les manques à venir ===================== */
 /* Le client, le 21/09/2026 : « un module qui indique quand il manque
@@ -26102,12 +26125,15 @@ function sideMaj(){
     /* à la tablette, Effectifs et Recherche sont déjà dans la barre : seule
        Direction les rejoint ici (audit du 23/10/2026) */
     var tel=mqNav.matches, dirOk=document.documentElement.getAttribute("data-rh")==="1";
-    var h=(tel||dirOk?'<p class="plus-titre">Sections</p>':'')
-      +(tel?ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
-      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
-      +(dirOk?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
+    var dirL=dirOk?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"";
+    /* à la tablette, Direction ouvre la liste sous le titre « Gestion »,
+       comme au PC : plus de titre « Sections » d'une seule ligne au-dessus
+       (audit du 23/10/2026) ; le téléphone ne change pas */
+    var h=tel?'<p class="plus-titre">Sections</p>'
+      +ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
+      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche")+dirL:"";
     var l=compteBase()?wsMenuSections():[];
-    if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
+    if(l.length||(!tel&&dirL)) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+(tel?"":dirL)+l.map(function(x){
       var dn=x.s==="demandes"?wsNbDemandes():x.s==="valider"?wsNbValider():0;
       return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb app">'+dn+'</span>':''); /* orange : une tâche, pas une alarme, comme au PC (audit du 23/10/2026) */
     }).join("");

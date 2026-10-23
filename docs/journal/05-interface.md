@@ -4133,3 +4133,17 @@ centre de contrôle a son propre cache, calculé une fois par jour.
     - feuille de demande, liste inerte à 390 px, plus à 1280 px, de nouveau à 390 px ;
     - flèche hors du Planning, feuille toujours ouverte ;
     - aucune erreur.
+
+### Vague B, design et contenu (23/10/2026, v1011)
+
+Trois agents, avec la compétence ui-ux-pro-max (le client : « et ui ux pour le design ! »), chacun sur sa zone et dans sa copie.
+
+Zone design et contenu :
+- **« 1er »** partout où le mois s'écrit en entier : `dateLongue()`, `dateFr()` (donc « classeur du 1er … »), le Planning du jour, la feuille du jour, la vue Semaine (« 26 octobre – 1er novembre »), Ma semaine, Mon rythme, la légende du tableau du jour, les sous-effectifs à venir, les aria-label des cases. Les formes abrégées gardent « 1 nov. ». Mesuré avec l'horloge au 01/11/2026, avant puis après.
+- **Élision** : « la fiche d'octobre », et non « de octobre » (`deMois()`, éprouvée sur avril, août, octobre, janvier, mai).
+- **Tablette** : « Gestion » ouvre la feuille sous son titre, sans le faux titre « Sections » au-dessus de la seule Direction.
+- **Boutons d'accent** à 650 de graisse ; « Renseigner mon contrat » passe de 12,5 px maigre à 13,5 px.
+- **Tableau de bord** : l'année n'est écrite que si elle diffère de l'année en cours (« Ma 27 oct. », mais « Lu 4 janv. → Ma 5 janv. 2027 »).
+- Déjà réglé par la vague A : « Dimanche 1er novembre » sur une ligne de 361 à 400 px. À 320 px, la date reste sur deux lignes, selon la décision du 22/10/2026 ; le commentaire du CSS qui disait le contraire est corrigé.
+- Laissé à la Direction, en cours de complément : le « 1er » de sa date et les « & » de ses titres (« Absences et santé », « Rythme et charge »…).
+- Non-régression : une alerte, fausse, dans le Salaire. L'outil divise la hauteur de tout l'encadré par l'interligne, et le bouton y a gagné 1 px. Le texte lui-même garde ses 2 lignes à 1280 px.
