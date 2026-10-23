@@ -4299,3 +4299,26 @@ Le client : « sur site en ce moment peut être dans le tableau de bord de l'acc
 - **Coût** : calculée au repos, après le reste de l'Accueil, puis chaque minute tant que l'Accueil est à l'écran. Mesuré : 2 ms, et 10 ms au téléphone simulé (CPU ×4).
 - Éprouvé le 31/10 à 15 h avec le compte VBN, d'après-midi ce jour-là : salon de l'après-midi, 11 présents, VBN « vous · 13 h 30 – 22 h » (remise de pause). À 390 et 1280 px, rien ne déborde, rien n'est coupé ; aucune erreur.
 - **Non-régression, et comment la prouver quand l'outil sature.** La comparaison directe donnait 548 alertes. L'Accueil reste dans la page derrière toutes les vues, et l'outil numérote les textes identiques dans leur ordre : les « AM », « Matin » et postes de la nouvelle carte décalent tous les numéros, et chaque vue « change ». La preuve s'est faite autrement. On capture une copie identique où seule la carte de l'Accueil reste cachée, puis on la compare à la référence d'avant : **0 alerte, 0 texte changé**. Tout le reste, carte du tableau de bord comprise malgré son découpage en fonctions communes, est donc à l'identique. La carte elle-même est mesurée à part (ci-dessus).
+
+### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
+
+Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
+
+- **Où** : dans Réglages, carte « Agenda du téléphone », sous « S'abonner à mon horaire » : une rangée « Congés scolaires · Fédération Wallonie-Bruxelles », et son bouton « S'abonner ». Même méthode que l'abonnement personnel : `webcal://` sur iPhone et Mac, l'adresse d'ajout de Google ailleurs.
+- **Le fichier** : `cal/conges-scolaires.ics`, écrit par `verifier-calendrier.js --agendas`, donc à chaque classeur installé. C'est aussi la routine qui retire de `cal/` ce qu'elle n'a pas écrit : écrit ailleurs, le fichier aurait disparu au classeur suivant. Il couvre l'année scolaire passée et les quatre qui suivent l'actuelle, et avance d'année en année. Toutes ses journées sont « libres » dans l'agenda : il ne bloque rien.
+- **Les règles, lues dans le texte** (décret du 31 mars 2022, Code de l'enseignement, art. 1.9.1-1, Gallilex), et non dans la presse, qui les résume mal (« la rentrée le dernier lundi d'août », alors que 2026 rentre le 24) :
+  - la rentrée : le dernier lundi d'août, l'avant-dernier si c'est un 30 ou un 31 et qu'il le faut pour 180 jours de classe ;
+  - la fin : le premier vendredi de juillet ; l'été commence le lendemain ;
+  - l'hiver : deux semaines à partir du lundi de la semaine du 25 décembre, ou du lundi suivant si Noël tombe un samedi ou un dimanche ;
+  - les jours de congé en semaine hors vacances : 27 septembre, 1er, 2 et 11 novembre, lundi de Pâques, 1er mai, Ascension, lundi de Pentecôte ; le mardi gras seulement si les 180 jours le permettent.
+- **Ce que le décret ne fixe pas** : l'automne, la détente et le printemps sont fixés chaque année par arrêté du Gouvernement. Ils viennent de `FWB_ARRETES`, publiés jusqu'en 2028-2029 :
+  - arrêté du 28/02/2025 (lu sur Gallilex) ;
+  - arrêté pour 2026-2027 (refli.be) ;
+  - calendriers 2027-2028 et 2028-2029 adoptés en septembre 2026 (RTBF).
+  Une année sans arrêté n'a que ce que fixe le décret : rien n'est deviné. Quand un arrêté paraît, une ligne s'ajoute dans `FWB_ARRETES`, et ses dates dans l'outil de contrôle.
+- **Contrôle** : `tools/verifier-conges-scolaires.js` confronte le calcul aux dates publiées.
+  - Les quatre arrêtés (rentrées, fins, hivers, jours de congé, mardis gras) et les rentrées et fins annoncées jusqu'en 2032 : 0 écart.
+  - Le compte des jours de classe explique les choix du Gouvernement. Avec une rentrée le 31 août 2026, il n'y aurait eu que 176 jours, d'où le 24 août ; le mardi gras 2027 est accordé parce qu'il reste 180 jours, et celui de 2029 parce qu'il en reste 181, comme l'annonce la RTBF.
+  - Le contrôle mord : sans l'exception du 30-31 août, la rentrée 2026 et le mardi gras 2027 crient ; une règle de Noël faussée fait crier l'hiver 2027.
+  - Quand le 30 ou le 31 août tombe sans arrêté (2032, 2037), la rentrée est écrite « à confirmer ».
+- Vérifié : 62 événements, 62 identifiants uniques, lignes de 75 octets au plus, fins CRLF ; les 79 agendas personnels inchangés à l'octet. Au navigateur, le bouton ouvre l'abonnement à `…/cal/conges-scolaires.ics` à 320, 390 et 1280 px ; rien ne déborde ; aucune erreur.

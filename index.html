@@ -2201,6 +2201,10 @@ body.sheet-on{overflow:hidden}
   color:var(--ink); font:600 13px/1 inherit; font-family:inherit; cursor:pointer}
 .btn-agenda svg{color:var(--marque-vif)}
 .btn-agenda.sec{min-height:34px; font-size:13px; background:transparent; border-color:var(--cadre)}
+.ag-ecole{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px solid var(--line2)}
+.ag-ecole b{display:block; font-size:14px; font-weight:650; color:var(--ink)}
+.ag-ecole small{display:block; font-size:12px; color:var(--muted)}
+.ag-ecole .btn-agenda{flex:none; min-height:44px}
 .cal-act{flex-direction:column; align-items:center; gap:6px}
 .cal-act-s{margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); text-align:center}
 .cal-act{flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px}
@@ -7196,6 +7200,10 @@ html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-
       <header><h2>Agenda du téléphone</h2><span class="sub">mon horaire, mis à jour seul</span></header>
       <div class="cal-act"><button type="button" class="btn-agenda" id="icsBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>S'abonner à mon horaire</button>
         <button type="button" class="btn-agenda sec" id="icsPartager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Partager</button></div>
+      <!-- les congés scolaires de la Fédération Wallonie-Bruxelles (le
+           client, le 23/10/2026), au même endroit que l'abonnement personnel -->
+      <div class="ag-ecole"><div><b>Congés scolaires</b><small>Fédération Wallonie-Bruxelles · les années à venir, mis à jour seul</small></div>
+        <button type="button" class="btn-agenda sec" id="icsEcole"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>S'abonner</button></div>
     </div>
     <!-- L'invitation à installer, au bas de l'Accueil depuis le 17/10/2026 (le
          client : « dans le bas de l'accueil, on ne sait pas tout lire ») :
@@ -14687,6 +14695,103 @@ function partagerAgenda(){
   else window.prompt("Lien à partager :",url);
 }
 document.getElementById("icsPartager").addEventListener("click",partagerAgenda);
+/* LES CONGÉS SCOLAIRES DE LA FÉDÉRATION WALLONIE-BRUXELLES (le client, le
+   23/10/2026 : « un agenda avec les congés scolaires belges, ajusté
+   automatiquement pour la Wallonie les années qui viennent ; on peut s'y
+   abonner au même endroit que l'abonnement personnel »).
+   Ce que fixe le décret du 31 mars 2022 (Code de l'enseignement, article
+   1.9.1-1) se calcule pour toute année :
+   - l'année commence le dernier lundi d'août, l'avant-dernier si c'est un
+     30 ou un 31 et qu'il le faut pour 180 jours de classe, et finit le
+     premier vendredi de juillet ; l'été commence le lendemain ;
+   - l'hiver : deux semaines, du lundi de la semaine du 25 décembre (du
+     lundi qui suit si le 25 est un samedi ou un dimanche) ;
+   - les jours de congé, quand ils tombent en semaine hors des vacances :
+     27 septembre, 1er, 2 et 11 novembre, lundi de Pâques, 1er mai, jeudi
+     de l'Ascension, lundi de Pentecôte ; le mardi gras seulement si les
+     180 jours le permettent.
+   L'automne, la détente et le printemps (deux semaines chacun) sont fixés
+   chaque année par arrêté du Gouvernement : ils viennent de FWB_ARRETES
+   (le lundi qui les ouvre, par année de rentrée). Une année qui n'y est
+   pas encore n'en a pas : rien n'est deviné ; une ligne s'ajoute quand
+   l'arrêté paraît. Vérifié : le calcul retrouve les rentrées, fins,
+   hivers, jours de congé et mardis gras des arrêtés 2025-2026 à 2028-2029. */
+var FWB_ARRETES={
+  2025:{automne:"2025-10-20", detente:"2026-02-16", printemps:"2026-04-27", src:"arrêté du 28 février 2025"},
+  2026:{automne:"2026-10-19", detente:"2027-02-22", printemps:"2027-04-26", src:"arrêté de 2025 pour 2026-2027"},
+  2027:{automne:"2027-10-25", detente:"2028-02-28", printemps:"2028-05-01", src:"calendrier adopté en septembre 2026"},
+  2028:{automne:"2028-10-23", detente:"2029-02-26", printemps:"2029-04-30", src:"calendrier adopté en septembre 2026"}
+};
+/* l'année scolaire qui commence en août de l'année A */
+function fwbAn(A){
+  function j(y,m,d){ return new Date(y,m-1,d); }
+  function plus(x,n){ return new Date(x.getFullYear(),x.getMonth(),x.getDate()+n); }
+  function semaine(x){ return x.getDay()>0&&x.getDay()<6; }
+  function de(t){ var q=t.split("-"); return j(+q[0],+q[1],+q[2]); }
+  var ar=FWB_ARRETES[A]||null, j1=j(A+1,7,1), fin=plus(j1,(5-j1.getDay()+7)%7);
+  var n25=j(A,12,25), dn=n25.getDay();
+  var per=[{k:"hiver", t:"Vacances d'hiver (Noël)", d:dn===6?plus(n25,2):dn===0?plus(n25,1):plus(n25,-((dn+6)%7)), src:"décret du 31 mars 2022"}];
+  if(ar) per.push({k:"automne", t:"Vacances d'automne (Toussaint)", d:de(ar.automne), src:ar.src},
+                  {k:"detente", t:"Vacances de détente (Carnaval)", d:de(ar.detente), src:ar.src},
+                  {k:"printemps", t:"Vacances de printemps (Pâques)", d:de(ar.printemps), src:ar.src});
+  function vac(x){ return per.some(function(q){ return x>=q.d&&x<plus(q.d,14); }); }
+  var e=easter(A+1), pq=j(e.getUTCFullYear(),e.getUTCMonth()+1,e.getUTCDate()), mg=plus(pq,-47);
+  var conges=[[j(A,9,27),"Fête de la Communauté française"],[j(A,11,1),"Toussaint"],[j(A,11,2),"Fête des morts"],
+    [j(A,11,11),"Commémoration du 11 novembre"],[plus(pq,1),"Lundi de Pâques"],[j(A+1,5,1),"Fête du travail"],
+    [plus(pq,39),"Jeudi de l'Ascension"],[plus(pq,50),"Lundi de Pentecôte"]].filter(function(z){ return semaine(z[0])&&!vac(z[0]); });
+  /* les jours de classe de r à la fin ; sans arrêté, les trois périodes
+     inconnues retirent 30 jours, et un jour de congé peut y tomber : le
+     compte va alors de cl à cl + le nombre de ces jours */
+  function compte(r,mardi){
+    var n=0, x;
+    for(x=r; x<=fin; x=plus(x,1)) if(semaine(x)&&!vac(x)&&!(mardi&&+x===+mg)&&!conges.some(function(z){ return +z[0]===+x; })) n++;
+    return ar?n:n-30;
+  }
+  var a31=j(A,8,31), rentree=plus(a31,-((a31.getDay()+6)%7)), sure=true;
+  if(rentree.getDate()>=30){
+    var c=compte(rentree,false);
+    if(ar){ if(c<180) rentree=plus(rentree,-7); }
+    else if(c+conges.length<180) rentree=plus(rentree,-7);
+    else if(c<180) sure=false;
+  }
+  var mardi=ar&&semaine(mg)&&!vac(mg)&&compte(rentree,true)>=180;
+  return {an:A, rentree:rentree, sure:sure, fin:fin, periodes:per, conges:conges, mardiGras:mardi?mg:null, arrete:!!ar};
+}
+/* cal/conges-scolaires.ics, écrit avec les agendas par
+   tools/verifier-calendrier.js --agendas : de l'année scolaire premiere à
+   premiere+nAns-1 ; des journées entières, « libre » dans l'agenda */
+function icsCongesScolaires(premiere,nAns,stamp){
+  function f2(n){ return (n<10?"0":"")+n; }
+  function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
+  function plus(x,n){ return new Date(x.getFullYear(),x.getMonth(),x.getDate()+n); }
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biowanze//Conges scolaires//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "X-WR-CALNAME:Congés scolaires · Fédération Wallonie-Bruxelles","X-WR-TIMEZONE:Europe/Brussels",
+    icsPlier("X-WR-CALDESC:"+icsTexte("Rentrées, vacances et jours de congé de l'enseignement fondamental et secondaire en Fédération Wallonie-Bruxelles. Calculés selon le décret du 31 mars 2022 ; l'automne, la détente et le printemps viennent des arrêtés du Gouvernement, ajoutés à leur parution.")),
+    "REFRESH-INTERVAL;VALUE=DURATION:P1D","X-PUBLISHED-TTL:P1D"], n=0;
+  function ev(k,d,fin,titre,note){
+    L.push("BEGIN:VEVENT","UID:fwb-"+k+"-"+jj(d)+"@biowanze","DTSTAMP:"+stamp,"LAST-MODIFIED:"+stamp,"SEQUENCE:"+icsSequence(stamp),
+      "DTSTART;VALUE=DATE:"+jj(d),"DTEND;VALUE=DATE:"+jj(fin),icsPlier("SUMMARY:"+icsTexte(titre)),"TRANSP:TRANSPARENT");
+    if(note) L.push(icsPlier("DESCRIPTION:"+icsTexte(note)));
+    L.push("END:VEVENT"); n++;
+  }
+  for(var A=premiere; A<premiere+nAns; A++){
+    var x=fwbAn(A), suiv=fwbAn(A+1);
+    ev("rentree",x.rentree,plus(x.rentree,1),"Rentrée scolaire"+(x.sure?"":" (à confirmer)"),
+      x.sure?"Décret du 31 mars 2022 : le dernier lundi d'août, ou l'avant-dernier s'il le faut pour 180 jours de classe.":"Le 30 ou le 31 août, ou le lundi d'avant : cela dépend des vacances que l'arrêté fixera.");
+    x.periodes.forEach(function(q){ ev(q.k,q.d,plus(q.d,14),q.t,"Du lundi au dimanche de la semaine suivante ("+q.src+")."); });
+    x.conges.forEach(function(z){ ev("conge",z[0],plus(z[0],1),"Congé scolaire : "+z[1],""); });
+    if(x.mardiGras) ev("conge",x.mardiGras,plus(x.mardiGras,1),"Congé scolaire : Mardi gras","");
+    ev("ete",plus(x.fin,1),suiv.rentree,"Vacances d'été","Du lendemain du dernier jour de classe (vendredi "+x.fin.getDate()+" juillet) à la veille de la rentrée.");
+  }
+  L.push("END:VCALENDAR");
+  return {texte:L.join("\r\n")+"\r\n", n:n};
+}
+function abonnerCongesScolaires(){
+  var https=adresseAgenda("conges-scolaires"), webcal=https.replace(/^https?:/,"webcal:");
+  if(/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)) location.href=webcal;
+  else window.open("https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal),"_blank","noopener");
+}
+document.getElementById("icsEcole").addEventListener("click",abonnerCongesScolaires);
 
 /* ── LA VUE DIRECTION ─────────────────────────────────────────────────────
    Le client, le 10/10/2026 : « il faut un vrai wow de la direction quand je

@@ -218,7 +218,11 @@ const MORCEAUX=[
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
   ["function icsSequence(","\n}"],
-  ["function icsAgenda(","\n}"]
+  ["function icsAgenda(","\n}"],
+  /* l'agenda des congés scolaires de la Fédération Wallonie-Bruxelles */
+  ["var FWB_ARRETES=","\n};"],
+  ["function fwbAn(","\n}"],
+  ["function icsCongesScolaires(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil
    n'en a qu'un besoin, la journée contractuelle. */
@@ -390,9 +394,16 @@ if(ARGS.indexOf("--agendas")>=0){
     if(!fs.existsSync(f) || fs.readFileSync(f,"utf8")!==r.texte) fs.writeFileSync(f,r.texte);
     ecrits.add(p.id+".ics"); total+=r.n;
   });
+  /* les congés scolaires de la Fédération Wallonie-Bruxelles (le client, le
+     23/10/2026), avec les agendas : de l'année scolaire passée aux quatre
+     qui suivent l'actuelle. Écrit ici, il n'est pas retiré comme un agenda
+     sans personne ; refait à chaque classeur, il avance d'année en année. */
+  const ecole=icsCongesScolaires(anCourant-1,6,stamp), fe=path.join(dir,"conges-scolaires.ics");
+  if(!fs.existsSync(fe) || fs.readFileSync(fe,"utf8")!==ecole.texte) fs.writeFileSync(fe,ecole.texte);
+  ecrits.add("conges-scolaires.ics");
   const partis=fs.readdirSync(dir).filter(f=>/\.ics$/.test(f) && !ecrits.has(f));
   partis.forEach(f=>fs.unlinkSync(path.join(dir,f)));
-  console.log(ecrits.size+" agendas, "+total+" événements"+(partis.length?", "+partis.length+" retiré(s)":"")+" → "+dir);
+  console.log((ecrits.size-1)+" agendas, "+total+" événements"+(partis.length?", "+partis.length+" retiré(s)":"")+", congés scolaires : "+ecole.n+" événements → "+dir);
   process.exit(0);
 }
 
