@@ -3692,3 +3692,121 @@ Défauts relevés et corrigés :
 
 Ce qui reste : à 320 px, le circuit vertical renvoie l'heure du
 demandeur à la ligne (« aujourd'hui · » / « 10 h 00 ») ; lisible, laissé.
+
+### Audit complet multi-agents, vague 1 : 77 correctifs (23/10/2026, v1002)
+
+Le client : « fais un audit complet multi-agents et multi-skills pour optimiser
+tout au maximum, mobile, PC, contenu, design ; je veux la passe la plus
+complète ». Douze auditeurs (Accueil · planning du jour et Équipes · Effectifs ·
+Salaire · Recherche et Direction · espace RH · demandes · coquille · design avec le
+skill ui-ux-pro-max · contenu · accessibilité · performance), chacun à 320, 390 et
+1280 px sur un banc commun (base simulée), puis un sceptique par zone qui a
+reproduit chaque constat : 108 retenus, 34 rejetés. Vague 1 : neuf agents,
+chacun dans une copie isolée du dépôt (worktree) avec son serveur, mesure
+avant/après de chaque correctif ; neuf patchs appliqués sans conflit sur main.
+Vérifié après fusion : syntaxe, vérificateur (quatre sorties identiques à
+l'octet aux références prises le même jour sur la version d'avant — la
+polyvalence dépend du jour), tous les essais de la session.
+
+**performance** :
+- Réseau qui accepte sans répondre : la page installée ne s'affiche jamais
+- Premier passage hors ligne après l'installation : aucun horaire en cache
+- Le héros d'un contremaître calculait toute la polyvalence sans l'afficher
+- L'onglet Équipe : gel de 1,4 s à la première ouverture
+- Retour du réseau : le bandeau « Horaire indisponible » restait affiché
+- Rien d'autre de cassé autour
+
+**coquille** :
+- Le geste « retour » referme la feuille du jour, la fiche personne, la feuille « Plus » et les notifications
+- Tablette (761 à 1099 px) : une entrée Gestion et Direction dedans, plus aucun débordement
+- Menu latéral du PC : Réglages toujours en vue
+- Bandeau du menu la nuit : le poste de la nuit en cours avant 6 h
+- Pastille « Hors ligne » centrée sur le contenu au PC
+- Clavier : les flèches passent par « Plus » et sautent les onglets cachés ; la feuille Plus garde le focus
+- Pastille « À valider » et « Demandes » en orange dans la feuille Plus
+- « Aller au contenu » inerte sous l'écran de connexion et les feuilles
+- Titre de l'onglet du navigateur selon la vue, et titre h2 caché dans le Planning
+- Notifications refusées : le message ne parle plus du téléphone au PC
+- NON FAIT — Vérification sur un vrai téléphone (pointeur tactile) du message des notifications : Playwright émule un pointeur fin à toutes les largeurs. Seule la branche « navigateur » a été vue au navigateur ; la branche « téléphone » est le texte d'origine, inchangé.
+
+**accueil** :
+- « Revenir en haut » et « Aujourd'hui » (vue Année) ne s'arrêtent plus net
+- Bilan du mois : l'écart « Week-end » est maintenant en heures
+- « En route » : une demande de flex time n'est plus affichée comme « Heures sup. »
+- La vue Année s'ouvre sur le mois affiché
+- « Jour par jour » : les jours à venir sont pâlis
+- Mes congés : équivalent en jours au dixième, et « à zéro » pour un solde FT nul
+- Petit téléphone : l'en-tête et la pastille des prochaines pauses ne descendent plus sous 10,5 px
+- Au PC, plus de vide sous « Mes pauses » dans le héros
+- Demande de congé : les deux cibles tactiles font maintenant 40 px
+- NON FAIT — Petit téléphone : abréger le jour de la date des prochaines pauses (« Dim. 1 novembre ») : Ce serait revenir sur une décision du client. Il a demandé le jour écrit en entier (« jour écrit en entier, et le mois aussi », journal 05-interface.md l. 2690-2699 ; commentaire « la date en entier, comme le prochain poste (le client, le 22/10/2026) » dans ryProchainesHTML). À 320 px, « Dimanche 1 
+
+**jour-equipes** :
+- Planning du jour : la ligne AM / PM / N et « Auj. » restent collées en haut quand le jour défile
+- Équipes : l'en-tête des polyvalences colle, et celui des adjoints (CM) prend sa place
+- PC : les flèches ← → changent de jour au Planning
+- Les badges commentés et les « ? » se prennent au clavier
+- Bouton « Auj. » : zone de toucher agrandie sans changer le dessin
+- Date du Planning : le sélecteur couvre toute la barre
+- Équipes au PC : les cartes des binômes et de la formation ont la même hauteur
+- NON FAIT — Polyvalences à 320 px : l'en-tête « CHAUD. » est coupé : Le correctif retenu ne change rien. À 320 px, la règle existante `@media (max-width:360px){ html .pvt thead th{letter-spacing:0} }` met déjà l'espacement à normal, et .pvt th a déjà 2 px de marge intérieure. Les styles calculés le montrent : letter-spacing normal, padding 2px, 44/40. J'ai essayé plu
+
+**effectifs** :
+- Au PC, « Rien à signaler » des changements de poste est maintenant centré
+- L'en-tête d'une journée s'atteint au clavier et ouvre le Planning du jour
+- Absents et congés au PC : plus de filet de 1 px au-dessus de la 3e (et 4e) case
+- Jamais « +1 autre rappel possible » : le 9e rappel s'affiche
+- États vides : « d'ici la fin de l'année » au lieu de « d'ici la fin de l'horaire »
+- NON FAIT — Étendre l'horizon des sous-effectifs et des rappels évitables à 2027 : Cela touche aux compteurs et aux places annoncées, et COMPTEURS_FIABLES ne contient que 2026. Le correctif retenu demande d'abord d'écrire la question dans docs/questions-client.md, et la consigne interdit de toucher à docs/. Je n'ai donc changé que le texte des états vides. La question est à poser 
+
+**salaire** :
+- Comparer avec ma fiche : l'écart signé se lit au téléphone
+- Saisies du mois rangées en groupes, réglages des heures sup. masqués sans heures
+- Au PC, la molette ne change plus la valeur d'un champ numérique actif
+- Virgule décimale lue quelle que soit la langue du navigateur
+- Relevé de prestations : l'en-tête « HORAIRE » tient dans sa colonne
+- Fiche simulée : le « ? » ne part plus seul à la ligne
+- Le « ? » de la fiche simulée se voit aussi à la souris
+- Champs vides des Saisies du mois : la valeur que le calcul prendra est montrée en grisé
+
+**recherche-direction** :
+- La Recherche lit l'horaire 2027 (et le dit pour une année sans classeur)
+- Période de plus de 62 jours : un avis
+- Comparatif par statut et Intérimaires à 320 px
+- Polices de Direction : de 9,5 et 10 px à 11 px
+- « Équipe 5 » au lieu de « Shift 5 » dans « Nuits par équipe »
+- Pas de filet ni de vide de 30 px sous « ‹ Direction »
+- En-tête de la Recherche en colonne
+- Cibles de 44 px pour « ‹ Direction » et la bascule Toutes / Hors longues maladies
+- Accueil de Direction : des rangées pleines
+- Pli « Vue direction » caché aux comptes non RH, gardé sans compte
+- Graphiques par mois de Direction : les mois à venir sont grisés (mesure d'attente)
+- NON FAIT — Définition du taux d'absentéisme (à date ou sur l'année planifiée) : L'audit lui-même demande de ne pas trancher : c'est un chiffre montré à la RH. La question doit être écrite dans docs/questions-client.md (« taux d'absentéisme du 1/01 à aujourd'hui, ou sur l'année planifiée ? »), et la consigne m'interdit de toucher à docs/. Seule la mesure d'attente est faite : gr
+- NON FAIT — Repli des journées « Remplaçable » dans un <details> sur une période (page de 4 135 px) : L'audit le donne comme facultatif. Le style des journées et du bilan de la Recherche fait l'objet de décisions du client (06-effectifs-et-recherche.md) : replier par défaut ce qu'il a voulu voir en clair reviendrait sur sa manière de lire. Seul l'avis de coupure à 62 jours, la priorité, est fait. La
+
+**espace-rh** :
+- Horaire production au téléphone : une seule rangée de pilules qui défile
+- La feuille de saisie passe au-dessus de « Adjoints » et des boutons ronds
+- La recherche de l'Horaire production parcourt toutes les feuilles
+- Tableau de bord : la carte « Demandes à traiter » compte la même chose que « À valider »
+- Personnel et Absences au PC : l'en-tête des colonnes reste à l'écran
+- Au téléphone, la case touchée reste au-dessus de la feuille
+- Absences : l'horizon passe le 31 décembre
+- Tableau de bord avant 6 h : le libellé dit la nuit
+- Historique au PC : la carte est centrée
+- Menu latéral au PC : l'entrée active reste visible
+
+**demandes** :
+- Zoom de l'iPhone à la saisie (feuille de congé, recyclage, visa, « Remplir une période »)
+- Cibles du tableau de congé au téléphone
+- Les deux GBT se distinguent dans les listes de choix
+- « aujourd'hui » et « hier » faux entre 0 h et 6 h
+- La case Remplaçant invite au choix
+- Liste des remplaçants en deux groupes
+- Cartes ouvrables au clavier
+- Décision du visa aussi dans la barre du bas (congé et heures sup.)
+- « Complet » devient « Habituel » dans la fenêtre « préciser »
+- Deux textes remontés au plancher de 10,5 px
+- Même tête de carte pour les trois sortes de demandes
+- NON FAIT — Remplacer les listes Type et Remplaçant par un bouton qui ouvre une liste en fenêtre : C'était l'option forte de l'audit, notée « moyen ». Le correctif minimal (hauteur de 36 px, largeur de 38 px) suffit à 320 px sans débordement, et un changement plus profond du tableau papier toucherait à la forme voulue par le client (v904).
+

@@ -209,6 +209,10 @@ body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none
    grossir les champs partout ailleurs. */
 @supports (-webkit-touch-callout: none){
   input,select,textarea{font-size:16px}
+  /* les feuilles papier (congé, recyclage, visa) et « Remplir une période »
+     ont des règles plus précises qui battaient celle-ci : l'iPhone zoomait
+     à chaque saisie (audit du 23/10/2026) */
+  html .dm-papier input,html .dm-papier select,html .dm-papier textarea,html .dm-dates input{font-size:16px}
 }
 .num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
 h1,h2,h3{margin:0; font-weight:600; text-wrap:balance}
@@ -583,7 +587,7 @@ body{overflow-x:clip}
 .rel-tab th{font-size:9.5px; font-weight:650; text-transform:uppercase; letter-spacing:.05em; color:var(--faint);
   text-align:left; padding:8px 6px; border-bottom:1px solid var(--cadre); background:var(--surface2)}
 .rel-tab th:first-child,.rel-tab td:first-child{padding-left:16px; width:74px}
-.rel-tab th:nth-child(2){width:50px} .rel-tab th:last-child{width:40px; text-align:center; padding-right:12px}
+.rel-tab th:nth-child(2){width:64px} .rel-tab th:last-child{width:40px; text-align:center; padding-right:12px}
 .rel-tab td{padding:6px; border-bottom:1px solid var(--trait); vertical-align:top; font-size:12px; color:var(--ink2)}
 .rel-tab tr.rel-we td{background:rgba(255,255,255,.025)}
 .rel-j{white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-size:11.5px}
@@ -1533,6 +1537,15 @@ body.sheet-on{overflow:hidden}
 /* CM = la couleur GRISE du contremaître de l'onglet horaire (POSTES_TRAVAIL,
    z:"gris" → --bordg), le client du 07/10/2026. */
 .pvt thead th[data-z="gris"], .pvt tbody tr.pvhead th[data-z="gris"]{border-bottom-color:var(--bordg)}
+/* L'en-tête collant ne collait pas : .card (overflow:hidden) et .eqgrille
+   (overflow-x:auto) faisaient chacun un cadre de défilement, et sur un tableau
+   de 1 200 à 1 440 px on perdait quelle colonne est quel poste. clip ne crée
+   pas de cadre (le tableau tient en largeur, rien à faire défiler) et garde
+   les coins arrondis ; les en-têtes répétées collent aussi, et celle des
+   adjoints (CM) prend la place du haut (audit du 23/10/2026). */
+#v-equipe .card:has(.pvt){overflow:clip}
+#v-equipe .eqgrille:has(.pvt){overflow-x:clip}
+.pvt tbody tr.pvhead th{position:sticky; top:0; z-index:3}
 /* ⚠ LES TROIS RÈGLES SUIVANTES PORTENT « tbody tr » SANS EN AVOIR BESOIN,
    et ce n'est pas du bavardage : la zébrure une ligne sur deux s'écrit
    « .pvt tbody tr:nth-child(odd) td », ce qui pèse deux classes et TROIS
@@ -2004,6 +2017,7 @@ body.sheet-on{overflow:hidden}
    jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
 .mqj{cursor:default}
 .mqj .mqd,.mqj .mqjt{cursor:pointer}
+.mqj .mqjt:focus-visible,.mqj .mqd[role=button]:focus-visible{outline:2px solid var(--in); outline-offset:2px; border-radius:6px}
 /* Plus de soulignement sous le jour : le chevron au bout de la ligne dit
    déjà qu'elle s'ouvre (le client, le 10/10/2026). */
 .mqvoir{display:inline-flex; align-self:flex-start; margin-top:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
@@ -2397,7 +2411,10 @@ html #grille .ws-carte>.ws-vide:only-child{margin:0}
 .capaire.plein:last-child{border-bottom:0; padding-bottom:0}
 html .mqch{font-size:11.5px}
 html .mqinc{font-size:12px}
-#caCard .rhtitle{gap:2px}
+/* au PC, titre et sous-titre se collaient sur une ligne ; en colonne comme
+   #v-rh .rhtitle, sans la marge de 14 px du sous-titre (audit du 23/10/2026) */
+#caCard .rhtitle{flex-direction:column; align-items:flex-start; gap:2px}
+#caCard .rhtitle .sub{margin:0}
 @media (min-width:1100px){
   html #apCorps .mqj,html #apCorps .mqj:first-child{margin:0}
   #v-salaire .fall .row{grid-template-columns:minmax(0,1fr) minmax(80px,140px) 112px}
@@ -2582,7 +2599,8 @@ html .dm-bascule button{min-height:42px; border:0; border-radius:9px; background
   html .dm-bascule button{position:relative; font-size:13.5px; padding:0 2px; white-space:nowrap; letter-spacing:-.01em}
   /* le compteur en pastille dans le coin : à 320 px, « Heures sup. 1 »
      débordait de son bouton */
-  html .dm-bascule .dm-n{position:absolute; top:3px; right:3px; margin:0; min-width:16px; padding:0 4px; font-size:10px; line-height:16px}
+  /* 10,5 px : le plancher du projet (audit du 23/10/2026) */
+  html .dm-bascule .dm-n{position:absolute; top:3px; right:3px; margin:0; min-width:17px; padding:0 4px; font-size:10.5px; line-height:17px}
 }
 @media (max-width:360px){ html .dm-bascule button{font-size:12.5px; padding:0 10px 0 2px} }
 html .dm-bascule button[aria-selected="true"]{background:var(--in); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25)}
@@ -2594,6 +2612,7 @@ html .dm-bascule button[aria-selected="true"] .dm-n{background:rgba(255,255,255,
 .dm-carte header{display:flex; align-items:center; justify-content:space-between; gap:10px}
 /* l'état en bande de couleur, la date en tuile, le type en étiquette */
 html .dm-carte{position:relative; overflow:hidden; cursor:pointer; transition:border-color .15s, box-shadow .15s}
+html .dm-carte:focus-visible{outline:2px solid var(--in); outline-offset:2px}
 html .dm-carte::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--line2)}
 html .dm-carte.dm-g-faire::before{background:var(--in)}
 html .dm-carte.dm-g-att::before{background:var(--at-jaune)}
@@ -2783,7 +2802,8 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dm-pp-t input:focus,.dm-pp-t select:focus{outline:2px solid #2F62D6; outline-offset:-2px; background:#fffde8}
 .dm-pp-t td.dm-pp-in-d{min-width:118px; position:relative}
 .dm-pp-jb{display:block; width:100%; min-height:30px; padding:2px 4px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; white-space:nowrap}
-.dm-pp-jb.vide{color:#8a94a6; font-style:italic}
+.dm-pp-jb.vide,.dm-pp-t select.vide{color:#8a94a6; font-style:italic}
+.dm-pp-t select.vide option,.dm-pp-t select.vide optgroup{color:#1d1d1d; font-style:normal}
 .dm-jp-fond{position:fixed; inset:0; z-index:400; background:rgba(5,10,20,.55)}
 .dm-jp{position:fixed; z-index:401; left:50%; top:50%; transform:translate(-50%,-50%); width:min(360px,calc(100vw - 24px)); padding:12px; border-radius:16px;
   background:var(--surface); border:1px solid var(--cadre,var(--line)); box-shadow:0 18px 40px rgba(0,0,0,.45); color:var(--ink)}
@@ -2793,7 +2813,7 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dm-jp-s,.dm-jp-g{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
 .dm-jp-s span{text-align:center; font-size:11px; font-weight:600; color:var(--muted)}
 .dm-jp-g button{display:flex; flex-direction:column; align-items:center; gap:1px; min-height:46px; padding:4px 0; border-radius:9px; border:1px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; cursor:pointer}
-.dm-jp-g button b{font-size:14px} .dm-jp-g button small{font-size:10px; color:var(--muted); min-height:12px}
+.dm-jp-g button b{font-size:14px} .dm-jp-g button small{font-size:10.5px; color:var(--muted); min-height:12px}
 .dm-jp-g button:disabled{opacity:.35; cursor:default; background:none}
 .dm-jp-g button.rep{background:none; border-style:dashed} .dm-jp-g button.rep b{color:var(--muted)}
 /* déjà en congé, absent ou demandé : visible, pas choisissable */
@@ -2819,6 +2839,12 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
   .dm-pp-t td.dm-pp-in-d{min-width:58px}
   .dm-pp-jb{font-size:11.5px; line-height:25px; padding:0 2px}
   .dm-pp-t select{font-size:11.5px}
+  /* des cibles d'un doigt : le remplaçant faisait 24 × 25 px à 320 px et
+     « préciser » 14 px de haut (audit du 23/10/2026) */
+  .dm-pp-t td.dm-pp-ty select,.dm-pp-t td.dm-pp-rp select,.dm-pp-jb{height:auto; min-height:36px}
+  /* 38 px : à 44, le tableau débordait de 6 px à 320 px */
+  .dm-pp-t td.dm-pp-rp{min-width:38px}
+  .dm-pp-prec{padding:6px 0; font-size:11.5px}
   .dm-pp-logo{height:34px}
 }
 .dm-pp-plus{align-self:flex-start; border:1px dashed #888; background:none; color:#333; font:inherit; font-size:12px; padding:3px 10px; border-radius:6px; cursor:pointer}
@@ -2878,9 +2904,11 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dir-anj{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:4px; padding-bottom:6px}
 .dir-anj u{display:block; width:100%; max-width:22px; border-radius:5px 5px 2px 2px; text-decoration:none}
 .dir-anj b{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:650; font-variant-numeric:tabular-nums}
-.dir-anj span{font-size:10px; color:#9AA5BC}
+.dir-anj span{font-size:11px; color:#9AA5BC}
 .dir-anj.cur b{color:#6FD6F2}
 .dir-anj.cur u{outline:1.5px solid rgba(111,214,242,.55); outline-offset:1px}
+.dir-anj.fut u{opacity:.35}
+.dir-anj.fut b{opacity:.55}
 .dir-anb-wait{align-items:center; justify-content:center; color:#9AA5BC; font-size:20px}
 .dir-rank{display:flex; flex-direction:column; gap:7px; margin-top:2px}
 .dir-rk{display:grid; grid-template-columns:96px 1fr auto; align-items:center; gap:9px}
@@ -2889,16 +2917,26 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dir-rk b{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap}
 .dir-rk b small{color:#9AA5BC; font-weight:500; font-size:11px}
 .dir-mx{display:grid; grid-template-columns:auto repeat(6,1fr); gap:4px; align-items:center}
-.dir-mx .mh{font-size:9.5px; color:#9AA5BC; text-align:center; text-transform:uppercase; letter-spacing:.02em; font-weight:650; padding:2px 0}
+.dir-mx .mh{font-size:11px; color:#9AA5BC; text-align:center; text-transform:uppercase; letter-spacing:0; font-weight:650; padding:2px 0}
 .dir-mx .rh{font-size:11px; color:#C9D1E0; white-space:nowrap; padding-right:6px; font-family:"IBM Plex Mono",monospace}
 .dir-mx .mc{text-align:center; padding:8px 0; border-radius:7px; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; background:rgba(255,255,255,.05); color:#8FA0B8}
 .dir-mx .mc.lo{background:rgba(255,138,122,.16); color:#FF8A7A; box-shadow:inset 0 0 0 1px rgba(255,138,122,.35)}
 .dir-grp{margin:30px 0 6px; padding-top:14px; border-top:2px solid rgba(255,255,255,.13); font-size:13.5px; font-weight:700; letter-spacing:.01em; color:#E8ECF4}
 .dir-hint{font-weight:500; text-transform:none; letter-spacing:0; color:#7E8AA3; font-size:10.5px}
 .dir-tbl{display:grid; gap:4px; align-items:center; margin-top:2px}
-.dir-tbl .th{font-size:9.5px; color:#9AA5BC; text-transform:uppercase; letter-spacing:.02em; font-weight:650; text-align:center; padding:2px 0}
+.dir-tbl .th{font-size:11px; color:#9AA5BC; text-transform:uppercase; letter-spacing:0; font-weight:650; text-align:center; padding:2px 0}
 .dir-tbl .tr{font-size:11px; color:#C9D1E0; font-family:"IBM Plex Mono",monospace; white-space:nowrap; padding-right:6px}
 .dir-tbl .td{text-align:center; padding:7px 0; border-radius:6px; background:rgba(255,255,255,.05); font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:650; font-variant-numeric:tabular-nums}
+/* à 320 px le tableau à six colonnes demandait 311 px pour 260 et le libellé
+   se posait sur la première valeur : il prend sa propre ligne au-dessus des
+   valeurs, qui ont alors toute la largeur (audit du 23/10/2026) */
+@media (max-width:420px){
+  .dir-tbl.lg{grid-template-columns:repeat(var(--n),minmax(0,1fr))!important; gap:2px}
+  .dir-tbl.lg>.th:first-child{display:none}
+  .dir-tbl.lg .th{overflow-wrap:anywhere}
+  .dir-tbl.lg .tr{grid-column:1/-1; white-space:normal; padding:8px 0 0}
+  .dir-tbl.lg .td{font-size:11px; padding:7px 0; white-space:nowrap}
+}
 .dir-exp{border-radius:10px}
 .dir-exp>summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; outline:none; padding:1px 0}
 .dir-exp>summary::-webkit-details-marker{display:none}
@@ -2909,7 +2947,7 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dir-sb{display:flex; align-items:baseline; gap:5px; background:rgba(255,255,255,.05); border-radius:99px; padding:3px 9px}
 .dir-sb em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; color:#C9D1E0}
 .dir-sb b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:#FF8A7A}
-.dir-sb span{font-size:10px; color:#8B96AD}
+.dir-sb span{font-size:11px; color:#8B96AD}
 .dir-sub-e{font-size:11px; color:#7E8AA3}
 .dir-sub2{padding:3px 2px 9px 76px}
 .dir-tgl{display:flex; gap:6px; margin:2px 0 12px}
@@ -2922,8 +2960,13 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dir-chips::-webkit-scrollbar{display:none}
 .dir-chip{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:99px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#9AA5BC; cursor:pointer; white-space:nowrap}
 .dir-chip.on{background:#6FD6F2; color:#0B1018; border-color:#6FD6F2}
-.dir-page>.dir-grp:first-child{margin-top:4px; padding-top:0; border-top:none}
+/* le premier enfant d'une page est « ‹ Direction » : sans la seconde forme,
+   le titre gardait 30 px et un filet sous le retour (audit du 23/10/2026) */
+.dir-page>.dir-grp:first-child,.dir-page>.dir-back+.dir-grp{margin-top:4px; padding-top:0; border-top:none}
 .dir-cards{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px}
+/* sept tuiles : celle du jour, la première, sur toute la largeur, et les
+   rangées restent pleines (audit du 23/10/2026) */
+.dir-card[data-page="jour"]{grid-column:span 2}
 .dir-card{text-align:left; display:flex; flex-direction:column; gap:2px; padding:15px 14px 13px; border-radius:16px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#E8ECF4; cursor:pointer; min-height:96px}
 .dir-card:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.16)}
 .dir-card:active{transform:scale(.985)}
@@ -2932,7 +2975,11 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:#fff
 .dir-card-v small{font-size:14px; color:#9AA5BC; font-weight:500}
 .dir-card-v.dir-card-go{color:#8592AB; font-size:22px}
 .dir-card-d{font-size:11px; color:#9AA5BC; margin-top:auto; padding-top:4px}
-.dir-back{font:inherit; font-size:13px; font-weight:600; color:#6FD6F2; background:none; border:0; cursor:pointer; padding:2px 0 12px}
+.dir-back{font:inherit; font-size:13px; font-weight:600; color:#6FD6F2; background:none; border:0; cursor:pointer; padding:6px 12px 6px 0}
+/* 44 px au doigt par un ::after invisible, comme ailleurs (v933) : le retour
+   faisait 34 px, la bascule 31 (audit du 23/10/2026) */
+.dir-back,.dir-tg{position:relative}
+.dir-back::after,.dir-tg::after{content:""; position:absolute; left:0; right:0; top:50%; height:44px; transform:translateY(-50%)}
 .dir-back:hover{color:#8FE0F5}
 .dir-det{margin-top:8px}
 .dir-det>summary{cursor:pointer; font-size:12px; color:#6FD6F2; font-weight:600; list-style:none; padding:6px 0}
@@ -3137,6 +3184,9 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   .horsligne{top:auto; bottom:calc(var(--navbas,16px) + 76px + var(--vvbas,0px))}
 }
 @media (max-width:380px){ .horsligne{font-size:11px; padding:5px 10px} }
+/* au PC, centrée sur le contenu et non sur la fenêtre : le menu de gauche
+   la décalait de 124 px, sur la photo du héros (audit du 23/10/2026) */
+@media (min-width:1100px){ .horsligne{left:calc(50% + var(--side,0px) / 2)} }
 /* UNE APPLICATION, PAS UNE PAGE. Installée, l'interface ne se sélectionne
    plus au doigt ni ne fait surgir le menu « copier / ouvrir le lien » sur un
    appui long ; les champs et les textes de saisie restent sélectionnables.
@@ -3568,6 +3618,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .posteauj.estauj{visibility:hidden}
 @media (hover:hover){ .posteauj:not(.estauj):hover{filter:brightness(1.12)} }
 #eqCorps .posteauj{display:none}
+/* Le dessin reste petit, mais la zone de toucher passe de 24 à 44 px de haut :
+   c'est le seul geste qui ramène à aujourd'hui (audit du 23/10/2026). -6 px
+   sur les côtés : la zone tient dans sa case, même à 320 px. */
+#jourCorps .posteauj{position:relative}
+#jourCorps .posteauj::after{content:""; position:absolute; inset:-10px -6px}
 /* La barre de date vit À L'INTÉRIEUR du cadre, qui est désormais porté par la
    CARTE seule (cf. « CADRE PRO » juste en dessous). Elle n'a donc plus aucune
    bordure de cadre ni coin : seulement un SÉPARATEUR interne sous elle. Celui-ci
@@ -3666,7 +3721,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    la date du jour doit pouvoir sélectionner la date que l'on veut ». Un champ
    date natif, transparent, couvre le libellé : le toucher ouvre le calendrier
    du système ; le pointillé sous la date dit qu'elle se touche. */
-.jourdatewrap{position:relative}
+/* Le champ couvre toute la hauteur de la barre (44 px) et non plus le seul
+   texte (26 px) : toucher juste au-dessus de la date ne faisait rien (audit
+   du 23/10/2026). Le libellé, seul enfant en flux, garde son ellipse. */
+.jourdatewrap{position:relative; min-height:44px; display:flex; align-items:center; justify-content:center}
+.jourdatewrap #jourLabel{min-width:0; overflow:hidden; text-overflow:ellipsis}
 .jourdatewrap #jourLabel{cursor:pointer; text-decoration:underline solid var(--trait);
   text-decoration-thickness:1px; text-underline-offset:4px}
 .jourdateinput{position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0;
@@ -3836,7 +3895,12 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   top:0; bottom:0; width:3px; background:#7C8699; pointer-events:none}
 #jourCorps .eqp2 thead th:first-child::before{left:0}
 #jourCorps .eqp2 thead th:last-child::after{right:0}
-#jourCorps .eqp2 thead th:first-child,#jourCorps .eqp2 thead th:last-child{position:relative}
+/* La ligne des pauses COLLE en haut du cadre quand un jour chargé défile :
+   sans elle, le bas du tableau se lisait sans savoir quelle colonne est AM,
+   PM ou N, ni le bouton « Auj. » (audit du 23/10/2026). Une case collante
+   sert aussi de référence aux filets ::before/::after ; th.eqposte est nommé
+   pour battre son position:relative plus haut. Fond opaque : .eqhote. */
+#jourCorps .eqp2 thead th,#jourCorps .eqp2 thead th.eqposte{position:sticky; top:0; z-index:3}
 /* Le nom du poste est CENTRÉ dans la cellule (le client, le 05/10/2026 : « le texte
    toujours centré dans la cellule »). La barre d'accent est en position:absolute
    (hors flux) tout à gauche, donc elle ne décale pas le texte : padding symétrique
@@ -4115,6 +4179,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqn.coment-actif,
 .eqhote .eqp2 tbody td .eqn.coment-actif{border-color:var(--ink); color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
 .eqhote .eqp2 tbody td .eqn.coment-actif b{color:var(--ink)}
+/* Le badge qui a le focus du clavier se voit, au-dedans de sa case (audit du
+   23/10/2026) : .coment-actif ne marque que la bulle ouverte. */
+.eqn[data-com]:focus-visible,.eqseg[data-com]:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 @media (prefers-reduced-motion:reduce){ .compop{transition:none} }
 /* la bulle des candidats d'une place vide (bulleCandidatsHTML) */
 .compop.cdp{white-space:normal; min-width:200px}
@@ -4303,12 +4370,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .slip .neg{color:var(--out)}
 .slip tr.why-able{cursor:pointer}
 .slip tr.why-able:hover td{background:var(--surface2)}
-.slip tr.why-able td:nth-child(2)::after{content:"?"; display:inline-grid; place-items:center; width:15px; height:15px; margin-left:7px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; vertical-align:1px; opacity:.4}
+/* Le « ? » est posé dans la marge droite du libellé et non à la suite du
+   texte : au téléphone, il partait seul à la ligne et ajoutait une ligne
+   vide (8 lignes sur 41 à 390 px). À .7 et non .4, il se voit aussi à la
+   souris, comme au tactile (audit du 23/10/2026). */
+.slip tr.why-able td:nth-child(2){position:relative; padding-right:24px}
+.slip tr.why-able td:nth-child(2)::after{content:"?"; display:grid; place-items:center; position:absolute; right:5px; top:calc(50% - 8px); width:15px; height:15px; border-radius:50%; border:1px solid var(--line2); color:var(--faint); font-size:10px; font-weight:600; opacity:.7}
 .slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-able:focus-visible td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{opacity:1}
 .slip tr.why-able:hover td:nth-child(2)::after,.slip tr.why-open td:nth-child(2)::after{border-color:var(--in); color:var(--in)}
-/* Sans survol (tactile), le « ? » est le seul indice qu'une ligne s'explique :
-   on le montre un peu plus franchement puisqu'il ne s'éclairera pas au passage. */
-@media (hover:none){.slip tr.why-able td:nth-child(2)::after{opacity:.7}}
 .slip tr.why-open td{background:var(--surface2)}
 .slip tr.whytext td{padding:0 16px 11px 86px; font-size:12px; color:var(--muted); background:var(--surface2); border-bottom:1px solid var(--line2)}
 .slip tr.whytext p{margin:0; max-width:62ch}
@@ -4328,7 +4397,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .f input:focus,.f select:focus,.f textarea:focus{background:var(--surface)}
 .f textarea{font:inherit; font-size:13px; font-family:var(--mono,ui-monospace,monospace); color:var(--ink); resize:vertical; line-height:1.5}
 .f.f-texte{grid-column:1/-1}
-.f input[type=number]{font-family:"IBM Plex Mono",monospace; text-align:right}
+.f input[type=number],.f input[inputmode=decimal]{font-family:"IBM Plex Mono",monospace; text-align:right}
+.f input[aria-invalid=true],.chk input[aria-invalid=true]{border-color:var(--out); box-shadow:0 0 0 1px var(--out)}
 .f .hint{font-size:10.5px; color:var(--faint)}
 /* Une valeur commune se lit, elle ne se remplit pas : pas de cadre de
    saisie, pas de fond clair qui appelle le doigt. Le cadenas dit pourquoi,
@@ -4365,8 +4435,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (max-width:560px){
   .chk th,.chk td{padding-left:11px; padding-right:11px}
   .chk input{width:84px}
-  .chk th:nth-child(4),.chk td:nth-child(4){display:none}
+  .chk th:nth-child(4),.chk td:nth-child(4),.chk th:nth-child(5),.chk td:nth-child(5){display:none}
+  .chk .ec-mob{display:table; margin:4px 0 0 auto; padding:1px 7px; font-size:11px; font-family:inherit}
 }
+@media (min-width:561px){.chk .ec-mob{display:none}}
 /* À 320 px le tableau dépassait sa carte de 45 px (relevé le 09/10/2026) :
    marges, champ et pastille se resserrent sous 380 px. */
 @media (max-width:380px){
@@ -4652,9 +4724,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pr-lg-f{background:rgba(255,255,255,.75)}
 .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,rgba(255,255,255,.18) 3px 6px)}
 /* au petit téléphone, la date tient sur une ligne */
-@media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10px}
+@media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10.5px}
   .pf-pr-tab,.pf-pr-h{grid-template-columns:28px minmax(0,1fr) 34px 32px} .pf-pr-d b{font-size:13px}
-  .pf-pr-h{letter-spacing:0; font-size:10px} .pf-pr-hm{display:none} .pf-pr-f,.pf-pr-r{font-size:14px} }
+  .pf-pr-h{letter-spacing:0; font-size:10.5px} .pf-pr-hm{display:none} .pf-pr-f,.pf-pr-r{font-size:14px} }
 @media (min-width:761px){
   .pf-corps{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:start; padding:4px 8px 0}
   .pf-gauche{min-width:0}
@@ -4670,11 +4742,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   .pf-corps>.pf-gauche,.pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
   .pf-corps>#ryAn,.pf-corps:has(.pf-pv)>#ryAn{grid-column:1; grid-row:2; padding:0 0 0 12px; margin-top:0}
   .pf-corps>#ryPr,.pf-corps:has(.pf-pv)>#ryPr{grid-column:2; grid-row:1 / span 2; padding:0 12px 0 0}
+  /* « Mes congés » en pleine largeur dessous : il laissait 128 px de vide
+     sous les pauses à droite (audit du 23/10/2026) */
+  .pf-corps>#ryCg{grid-column:1 / -1; grid-row:3; padding:0 12px; margin-top:0}
 }
 /* au téléphone, un filet entre le cycle et « Mes pauses », comme entre
    l'année et le cycle */
 @media (max-width:760px){ .pf-prz .ry-an-t:first-child{border-top:1px solid rgba(255,255,255,.07); margin-top:2px} }
-#ryPr:empty,#ryAn:empty{display:none}
+#ryPr:empty,#ryAn:empty,#ryCg:empty{display:none}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
@@ -4831,6 +4906,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    les congés et maladies de la même manière ») : contour et hachures rouges. */
 .ry-hm-c.s-mal,.ry-dot.mal{background:repeating-linear-gradient(135deg,rgba(214,58,48,.55) 0 2px,transparent 2px 4px)!important; box-shadow:inset 0 0 0 1.5px #E5574D}
 @media (min-width:761px){ .ry-hm-box{max-width:900px} .ry-hm-c{max-height:22px} .ry-bar>span{max-width:34px} } .ry-hm-c.s-rep{background:var(--surface3)}
+.ry-hm-c.fut{opacity:.45} /* à venir pâli, après .s-rep (audit du 23/10/2026) */
 .ry-bloc{padding:0 16px}
 .ry-bloc .ry-h2{padding:16px 0 4px}
 .ry-legs-l{justify-content:center; max-width:none; margin:10px auto 2px; gap:6px 16px}
@@ -5195,7 +5271,6 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      Deux colonnes, lues ligne par ligne de gauche à droite ; le filet de la
      deuxième rangée de chaque colonne reste, celui du haut part. */
   #eqAbsCard .mqmois.ouvert>.mqmc{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:32px}
-  #eqAbsCard .mqmc>.eqrow:nth-child(2){border-top:0}
 }
 /* Au-delà de 1600 px, le contenu prend 1480 px : sur un écran de 1920, le
    Planning et les fiches s'étalent au lieu de flotter entre deux marges de
@@ -5325,14 +5400,22 @@ html .pvt thead th,html .pvt thead th.pvqui{font-size:10.5px}
   /* Réglages : une colonne de lecture, centrée */
   #v-reglages > *{width:100%; max-width:880px; margin-left:auto; margin-right:auto}
   /* Effectifs : les journées en grille */
-  #apCorps,#mqCorps :has(> .mqj){display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:10px; align-items:start}
+  /* #apCorps en grille seulement s'il a des fiches : vide, « Rien à signaler »
+     tombait dans la première colonne (audit du 23/10/2026) */
+  #apCorps:has(> .mqj),#mqCorps :has(> .mqj){display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:10px; align-items:start}
   /* la première carte (« :first-child », « .eqsem+.mqj », plus lourds)
      gardait ses 10 px du haut et descendait sous ses voisines (le client,
      le 22/10/2026 : « décalage des cadres sous-effectifs ? ») */
   html #apCorps .mqj,html #mqCorps .mqj,html #apCorps .mqj:first-child,html #mqCorps .mqj:first-child,html #mqCorps .eqsem+.mqj,html #apCorps .eqsem+.mqj{max-width:none; margin-top:0}
   html .mql{max-width:none}
   /* Équipes : binômes et opérateurs en formation côte à côte, sous la composition */
-  #orgCorps{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:16px}
+  /* Les deux cartes côte à côte prennent la même hauteur, comme Ma semaine et
+     Mes demandes : la carte des binômes laissait 136 px vides sous elle ; ses
+     rangées se répartissent la hauteur (audit du 23/10/2026). */
+  #orgCorps{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:16px}
+  #orgCorps>.card{display:flex; flex-direction:column}
+  #orgCorps>.card>.eqgrille{flex:1}
+  #orgCorps .orgt{height:100%}
   #orgCorps > *{min-width:0; margin:0}
   #orgCorps > :first-child,#orgCorps > :only-child{grid-column:1 / -1}
   /* la bannière de l'Accueil n'occupe plus le tiers de l'écran */
@@ -5345,7 +5428,7 @@ html .pvt thead th,html .pvt thead th.pvqui{font-size:10.5px}
    foncée. Les pastilles de nombre orange de même (2,4 à 3:1). */
 :root[data-theme="dark"] .p-am,:root[data-theme="dark"] .p-pm,:root[data-theme="dark"] .p-n,:root[data-theme="dark"] .p-d,
 :root[data-theme="dark"] .pl-cv .c-am,:root[data-theme="dark"] .pl-cv .c-pm,:root[data-theme="dark"] .pl-cv .c-n{color:#151E2F}
-:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb{color:#1A1006}
+:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb,:root[data-theme="dark"] .plus-nb.app{color:#1A1006}
 /* l'orange et le sarcelle du calendrier, un ton plus soutenus : le blanc y
    passe de 3,9 et 4,1:1 à plus de 4,5:1 */
 :root[data-theme="dark"]{--cal-am:#A3631A; --cal-pm:#1A7C78}
@@ -5421,7 +5504,11 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .side-gestion svg,.side-lien svg{flex:0 0 auto}
   .side-nb{margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--out); color:#fff; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
   .side-nb[hidden]{display:none}
-  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid rgba(255,255,255,.08)}
+  /* Réglages reste en vue au bas du menu même quand celui-ci défile : il
+     sortait de l'écran jusqu'à 1366×768, et à 1280×900 pour la RH. Le -14px
+     reprend le padding du bas de .top (audit du 23/10/2026). */
+  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid rgba(255,255,255,.08);
+    position:sticky; bottom:-14px; padding-bottom:14px; background:var(--marque); z-index:1}
   body[data-view="reglages"] .side-lien[data-go="reglages"]{background:var(--in-soft); color:var(--ink)}
   /* l'espace RH à droite du menu, sans son propre menu */
   html .grille.ws{left:var(--side)}
@@ -5430,6 +5517,12 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
      (les absents) ne creuse plus de trou sous les autres */
   html .ws-grille{display:block; columns:3 300px; column-gap:14px}
   html .ws-grille>.ws-carte{break-inside:avoid; margin:0 0 14px; display:block}
+}
+/* un écran bas : les entrées du menu se resserrent pour tenir sans défiler
+   (audit du 23/10/2026) */
+@media (min-width:1100px) and (max-height:900px){
+  html .top>.tabs button,.side-gestion button,.side-lien{padding-top:7px; padding-bottom:7px}
+  html .top>.tabs .side-cat{margin:10px 12px 4px}
 }
 .eqleg{display:none}
 @media (min-width:700px){
@@ -5543,6 +5636,35 @@ html .eqleg-souris{display:none}
   .plus-nb.app{background:#E07B24; color:#fff}
   .plus-nb+.plus-nb{margin-left:6px}
 }
+/* LA GESTION DE LA TABLETTE (audit du 23/10/2026). Entre 761 et 1099 px,
+   ni « Plus » (téléphone) ni la colonne de Gestion (PC) : six sections de
+   l'espace n'avaient aucune entrée, et les sept onglets de la RH
+   débordaient de 30 px à 768 px. Direction passe dans la Gestion comme au
+   PC (le client, le 22/10/2026), « Plus » devient « Gestion » et ouvre sa
+   feuille en menu déroulant ; les onglets se resserrent pour tenir. */
+.plus-t{display:none}
+@media (min-width:761px) and (max-width:1099px){
+  html .top .tabs #tab-direction{display:none}
+  html .top .tabs button{padding-left:9px; padding-right:9px}
+  html .top .tabs #tab-plus.a-gestion{display:inline-flex; position:relative; white-space:nowrap}
+  html .top .tabs #tab-plus .plus-m{display:none}
+  html .top .tabs #tab-plus .plus-t{display:inline}
+  html .top .tabs #tab-plus .tabnb{display:none} /* les absents sont déjà sur Effectifs, à côté */
+  html .top .tabs #tab-plus[aria-expanded="true"]{color:#fff}
+  html .plusfond:not([hidden]){display:block; position:fixed; inset:0; z-index:79; background:transparent}
+  html .plusfeuille:not([hidden]){display:block; position:fixed; z-index:80; width:320px; max-height:calc(100vh - 120px); overflow-y:auto;
+    padding:8px; border-radius:16px; background:#181b24; border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
+  .plus-titre{margin:8px 12px 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .plusfeuille button{display:flex; align-items:center; gap:14px; width:100%; min-height:44px; padding:10px 12px; border:0; border-radius:12px;
+    background:none; color:var(--ink); font:inherit; font-size:15px; font-weight:550; text-align:left; cursor:pointer}
+  .plusfeuille button:hover{background:rgba(255,255,255,.05)}
+  .plusfeuille button svg{flex:0 0 auto; width:22px; height:22px; color:var(--muted)}
+  .plusfeuille button[aria-current="page"]{background:var(--in-soft)}
+  .plusfeuille button[aria-current="page"] svg{color:var(--in)}
+  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#D63A30; color:#fff; font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
+  .plus-nb.app{background:#E07B24; color:#fff}
+  .plus-nb+.plus-nb{margin-left:6px}
+}
 /* L'HORAIRE PRODUCTION présenté exactement comme L'OUTIL « HORAIRES » DU
    CLIENT (le 22/10/2026 : « l'horaire doit être exactement présenté comme le
    fichier que je t'ai fourni et toujours en vue année »). Valeurs relevées
@@ -5552,7 +5674,10 @@ html .eqleg-souris{display:none}
    entre personnes, postes, semaines et mois ; jours ouvrables #fef9c3, mois
    pairs #C7DEF5, week-ends #c7ccd4, fériés #ffe2b3, aujourd'hui #fde68a ;
    la ligne et la colonne survolées ; le pied des soldes et prévisions. */
-html .ws-planning{background:#f5f5f5; color:#111827; position:relative}
+html .ws-planning{background:#f5f5f5; color:#111827; position:relative; isolation:isolate}
+/* isolation (audit du 23/10/2026) : la feuille de saisie (#grPanneau, z-index 6)
+   est hors de .ws-planning ; sans ce contexte, le coin « Adjoints » (9) et les
+   boutons ronds (20) se dessinaient par-dessus elle au téléphone */
 html .ws-planning .pl-tete{background:#f5f5f5}
 html .ws-planning .pl-titre b{color:#111827} html .ws-planning .pl-titre span{color:#6b7280}
 html .ws-planning .pl-barre{background:#f5f5f5}
@@ -5625,6 +5750,10 @@ html .hp-fabs{position:absolute; right:40px; bottom:56px; display:flex; flex-dir
 html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(17,24,39,.35); background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; opacity:.65; cursor:pointer}
 html .hp-fab:hover{opacity:1}
 @media (max-width:699px){ html .xl-pilules,html .ws-planning .gr-zone,html .ws-planning .xl-legende{margin-left:8px; margin-right:8px} html .hp-fabs{right:18px} }
+/* au téléphone, une seule rangée de pilules qui défile (audit du 23/10/2026) :
+   passées à la ligne (voulu pour le PC, v922), elles prenaient 390 à 498 px
+   et ne laissaient que 77 à 185 px à la grille */
+@media (max-width:699px){ html .xl-pilules{flex-wrap:nowrap; justify-content:flex-start; padding:8px 10px} }
 /* L'ACCUEIL RÉORGANISÉ (le client, le 22/10/2026, « go ») : la photo garde
    190 px au PC (à 100 ou 140, le logo du bandeau se coupait), Ma semaine et Mes demandes au-dessus du calendrier et des
    compteurs, dans leurs deux colonnes. */
@@ -5666,10 +5795,13 @@ html .hp-fab:hover{opacity:1}
    laisser vide le bas de la colonne de gauche ; Ma semaine et Mes demandes,
    côte à côte, prennent la même hauteur. */
 @media (min-width:1600px){
-  html .pf-corps,html .pf-corps:has(.pf-pv){grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr); grid-template-rows:auto}
-  html .pf-corps>.pf-gauche,html .pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1}
+  html .pf-corps,html .pf-corps:has(.pf-pv){grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr); grid-template-rows:auto 1fr}
+  html .pf-corps>.pf-gauche,html .pf-corps:has(.pf-pv)>.pf-gauche{grid-column:1; grid-row:1 / span 2}
   html .pf-corps>#ryAn,html .pf-corps:has(.pf-pv)>#ryAn{grid-column:2; grid-row:1}
-  html .pf-corps>#ryPr,html .pf-corps:has(.pf-pv)>#ryPr{grid-column:3; grid-row:1; padding:0 12px 0 0; margin-top:4px}
+  html .pf-corps>#ryPr,html .pf-corps:has(.pf-pv)>#ryPr{grid-column:3; grid-row:1 / span 2; padding:0 12px 0 0; margin-top:4px}
+  /* ici « Mes congés » reste sous « Ma semaine », au milieu : les trois
+     colonnes s'équilibrent déjà (audit du 23/10/2026) */
+  html .pf-corps>#ryCg{grid-column:2; grid-row:2; padding:0 0 0 12px}
   html #ryPr .pf-pr{display:flex; flex-direction:column}
   html #ryPr .pf-pr-c:nth-child(n){border-left:0}
   html #ryPr .pf-pr-c+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
@@ -5703,16 +5835,25 @@ html .hp-fab:hover{opacity:1}
   html #wsTdb .ws-etatvide .btnlike{display:none}
   html #wsTdb .ws-kpi .pl-pa{font-size:11.5px; padding:3px 7px}
   html #wsHisto .ws-carte{max-width:900px}
+  /* centrée sous le titre centré (audit du 23/10/2026) ; deux id pour passer
+     devant les marges de « .ws-s>:not(.ws-tete) » */
+  html #grille #wsHisto>.ws-carte{margin-left:auto; margin-right:auto}
   /* Direction : la largeur de la carte, des tuiles en rangées pleines, sans
      redire le logo du menu */
   html #v-direction .dir-in{max-width:none}
-  html #v-direction .dir-cards{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  html #v-direction .dir-cards{grid-template-columns:repeat(4,1fr)}
   html #v-direction .dir-logo{display:none}
   /* Recherche : un formulaire à taille de formulaire */
   html #v-recherche>.card{max-width:1100px; margin-left:auto; margin-right:auto; width:100%}
   /* Effectifs : des fiches de jour au même rythme partout */
   html #mqCorps .mqmois.ouvert>.mqmc{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
   html #eqAbsCard .mqmois.ouvert>.mqmc{grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); column-gap:24px}
+  /* Toutes les cases ont leur filet, celui de la première rangée est rogné :
+     ôter le 1er et le 2e ne valait que pour deux colonnes, à 3 ou 4 le
+     troisième gardait un trait (audit du 23/10/2026). Les 3 px du haut
+     passent du remplissage, qui ne rognerait rien, à une bordure vide. */
+  html #eqAbsCard .mqmois.ouvert>.mqmc{padding-top:0; border-top:3px solid transparent; overflow:hidden}
+  html #eqAbsCard .mqmois.ouvert>.mqmc>.eqrow,html #eqAbsCard .mqmois.ouvert>.mqmc>.eqrow:first-child,html #eqAbsCard .mqmois.ouvert>.mqmc>.eqrow:nth-child(2){border-top:1px solid var(--trait); margin-top:-1px}
   /* Salaire */
   html #alerteDefaut .btn{display:table; margin-top:10px}
   html .rel-bas i{font-size:11.5px}
@@ -5756,7 +5897,7 @@ html .hp-fab:hover{opacity:1}
 }
 /* « Mes demandes » resserré, et « Supprimer » discret mais rouge */
 #demCard header{display:flex; align-items:center; gap:10px}
-#demCard header .md-nv{margin-left:auto; min-height:36px; padding:0 14px; font-size:13.5px}
+#demCard header .md-nv{margin-left:auto; min-height:40px; padding:0 14px; font-size:13.5px}
 #demCard .pad{padding-top:10px; padding-bottom:12px}
 .md-vide{margin:0}
 .md-l{margin:0}
@@ -5774,7 +5915,7 @@ html .hp-fab:hover{opacity:1}
 .md-h{display:flex; align-items:center; justify-content:space-between; gap:10px}
 .md-h>.dm-st{max-width:40%; white-space:normal; text-align:center; line-height:1.3}
 @media (max-width:520px){ .md-h>.dm-st{display:none} }
-.md-lien{display:block; margin:8px 0 0; padding:6px 0; border:0; background:none; color:var(--in); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.md-lien{display:block; margin:8px 0 0; padding:10px 0; border:0; background:none; color:var(--in); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
 .md-signer{display:block; width:100%; margin:0 0 10px; padding:10px 12px; border:1px solid var(--at-jaune); border-radius:12px; background:rgba(242,180,90,.12); color:var(--ink); font:inherit; font-size:14px; font-weight:650; text-align:left; cursor:pointer}
 .btnlike.dm-suppr{color:#ff8a7a; border-color:rgba(255,138,122,.45)}
 /* (Le fond opaque posé le 22/10/2026 derrière la barre d'état est retiré
@@ -5893,6 +6034,11 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
   html #grille .ws-s:not(.ws-planning)>.ws-tete>:not(div){grid-column:1; justify-self:center; margin-top:6px}
   html #grille .ws-s:not(.ws-planning)>:not(.ws-tete){margin-left:10px; margin-right:10px}
 }
+/* l'en-tête des colonnes reste à l'écran (audit du 23/10/2026) : le th collait
+   à .ws-table, qui ne défile pas ; c'est .ws-main qui défile. clip coupe
+   l'arrondi sans créer de conteneur de défilement. Limité au Personnel et
+   aux Absences, dont les tableaux tiennent en largeur dès 1100 px. */
+@media (min-width:1100px){ html #grille #wsPers,html #grille #wsAbs{overflow:clip} html #grille #wsPers .ws-table,html #grille #wsAbs .ws-table{overflow:visible} }
 </style>
 </head>
 <body>
@@ -5978,7 +6124,7 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
          feuille. Caché au-delà de 760 px. -->
     <button type="button" id="tab-plus" aria-haspopup="dialog" aria-expanded="false" aria-controls="plusFeuille">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
-      Plus<span class="tabnb" id="plusNb" hidden></span></button>
+      <span class="plus-m">Plus</span><span class="plus-t" id="plusLib">Gestion</span><span class="tabnb" id="plusNb" hidden></span></button>
   </nav>
   <!-- LE MENU DE CONTRÔLE DU PC (le client, le 21/10/2026 : « sur PC cela peut
        être une plateforme avec menu de contrôle complet sur la gauche »).
@@ -6013,6 +6159,7 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
        peuple #jourCorps), avec sa barre de date — rien d'autre, pas de
        sous-effectif ni de mise à l'échelle. -->
   <section class="panel stack" id="v-jour" role="tabpanel" aria-labelledby="tab-jour" tabindex="-1" hidden>
+    <h2 class="sr-only">Planning du jour</h2><!-- un titre pour le lecteur d'écran, comme Équipes et Effectifs (audit du 23/10/2026) -->
     <!-- LA BARRE DE DATE EST DANS LA CARTE, pas au-dessus (le client, le
          04/10/2026 : « la ligne de date doit faire partie du tableau »).
          Un seul élément encadré contient la barre de date PUIS le tableau :
@@ -6247,7 +6394,7 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
     <div class="card">
       <details class="fold" id="foldMonth">
         <summary>Saisies du mois <span class="sub" id="monthSub">primes, avance, pécule, heures sup.</span></summary>
-        <div class="pad grid" id="monthFields"></div>
+        <div class="pad" id="monthFields"></div>
         <p class="lede">Le nombre de chèques-repas, les jours d'indemnité de déplacement et les km vélo ne suivent pas toujours le nombre de jours prestés du mois. Laissez-les vides pour une estimation d'après l'horaire, ou recopiez les chiffres exacts de la fiche.</p>
       </details>
     </div>
@@ -6401,7 +6548,7 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
         <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
         <p class="lede" id="paramNote"></p>
       </details>
-      <details class="fold">
+      <details class="fold" id="dirFold">
         <summary>Vue direction <span class="sub">l'usine en un écran</span></summary>
         <div class="pad notifreg">
           <div><b>Présenter l'usine aujourd'hui</b><span>Effectifs du jour par pause, maladie, congés, sous-effectifs à venir et la semaine qui vient, dans l’onglet Direction.</span></div>
@@ -6986,7 +7133,12 @@ function cyclePoste(idx,cycle,decal,ts){
   document.addEventListener(t,function(e){ e.preventDefault(); },{passive:false});
 });
 document.addEventListener("wheel",function(e){
-  if(e.ctrlKey||e.metaKey) e.preventDefault();
+  if(e.ctrlKey||e.metaKey){ e.preventDefault(); return; }
+  /* Au PC, la molette sur un champ numérique actif changeait sa valeur
+     d'un pas par cran (0,01 € ou un jour) sans faire défiler la page
+     (audit du 23/10/2026) : on quitte le champ, la molette défile. */
+  var t=e.target;
+  if(t&&t.type==="number"&&t===document.activeElement) t.blur();
 },{passive:false});
 document.addEventListener("touchmove",function(e){
   if(e.touches&&e.touches.length>1) e.preventDefault();
@@ -7826,7 +7978,7 @@ function compute(){
   var net=R(E+Fp-G);
 
   return {
-    acc:acc, txh:txh, crNb:crNb, crPatr:crPatr,
+    acc:acc, txh:txh, crNb:crNb, crPatr:crPatr, remFixe:remFixe, pRem:pRem, hsTx:hsTx,
     head:lines, brutLines:brutLines, retenues:retenues,
     brut100:brut100, bonus:bonus, onss:onss, solid:solid,
     dPec:dPec, cDPV:cDPV, treize:treize, onssExc:onssExc, ppExc:ppExc, excBasePP:excBasePP,
@@ -8389,6 +8541,9 @@ function choisirVue(v){
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
     b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
   });
+  /* l'année s'ouvre sur le mois affiché, et non sur janvier 3 000 px plus
+     haut au téléphone ; au clic seulement, pas au chargement (audit du 23/10/2026) */
+  if(calVue==="annee") _anMontrer=st.m;
   majMoisLabel(st.m,st.y); renderRota();
 }
 (function(){
@@ -8496,7 +8651,7 @@ function majFeuille(){
     ss.hidden=false;
     var jd=st.y+"-"+md.slice(0,2)+"-"+md.slice(2);
     ss.innerHTML='<div class="ss-ouvrir"><span>Un congé ce jour-là ?</span><button type="button" class="btn" id="ssDemander">Demander un congé</button></div>';
-    document.getElementById("ssDemander").onclick=function(){ fermerJour(); ouvrirGrille("demandes",{du:jd,au:jd}); };
+    document.getElementById("ssDemander").onclick=function(){ navCeder("j","g"); fermerJour(); ouvrirGrille("demandes",{du:jd,au:jd}); };
   } else if(ss){
     ss.hidden=!(peutSaisir()&&pid);
     if(!ss.hidden){
@@ -8514,7 +8669,9 @@ function majFeuille(){
    alors dedans (piège de Tab), et le focus revient à sa place en refermant.
    « inert » est ignoré par les très vieux moteurs : Échap et le clic sur le
    fond continuent d'y fermer, rien n'est perdu. */
-var _fondInert=["header.top","#contenu","#navwrap"];
+/* « Aller au contenu » est hors de ces blocs : il restait un arrêt de Tab
+   vers une page inerte, sous l'écran de connexion (audit du 23/10/2026) */
+var _fondInert=["a.skip","header.top","#contenu","#navwrap"];
 function inerteFond(on){
   _fondInert.forEach(function(sel){
     var el=document.querySelector(sel); if(!el) return;
@@ -8551,11 +8708,15 @@ function ouvrirJour(d){
     sheetRetour=document.activeElement;
     focusPremier(f.querySelector(".sheet-boite"));
     inerteFond(true);
+    /* « retour » referme la feuille au lieu de quitter l'application,
+       comme l'espace et son panneau (audit du 23/10/2026) */
+    navPousser("j");
   }
 }
-function fermerJour(){
+function fermerJour(parRetour){
   if(!jourOuvert) return;
   jourOuvert=0;
+  if(parRetour!==true) navRetirer("j");
   document.getElementById("jourSheet").hidden=true;
   document.body.classList.remove("sheet-on");
   inerteFond(false);
@@ -8798,6 +8959,15 @@ var CHK=[
  ["Net à recevoir","net",function(C){return C.net;}]
 ];
 var chkState={ok:0,ko:0};
+/* AU TÉLÉPHONE, L'ÉCART SE LIT SOUS LE CHAMP (audit du 23/10/2026) : sous
+   560 px la colonne « Écart » est masquée, et « à vérifier » laissait
+   soustraire de tête 2 236,88 de 2 224,48. La pastille, elle, poussait le
+   tableau 47 px hors de sa carte. Sous 560 px, elle quitte sa colonne et
+   vient sous le champ, avec l'écart signé à la place de « à vérifier ». */
+function ecMobile(has,ok,ec,heures){
+  if(!has) return "";
+  return '<span class="pill ec-mob '+(ok?"ok":"ko")+'">'+(ok?"OK":(ec>0?"+":"")+(heures?num(ec):nf.format(ec)))+"</span>";
+}
 function renderChk(C){
   var real=st.month.real||{}, h="", nOk=0, nKo=0;
   CHK.forEach(function(r){
@@ -8807,7 +8977,7 @@ function renderChk(C){
     var ok=has&&Math.abs(ec)<0.011;
     if(has){ ok?nOk++:nKo++; }
     h+='<tr class="'+(has?(ok?"ok":"ko"):"")+'"><td>'+r[0]+'</td><td class="n">'+(r[3]?num(calc):eur(calc))+'</td>'+
-       '<td class="n"><input type="number" inputmode="decimal" step="0.01" data-k="'+r[1]+'" value="'+(has?esc(v):"")+'" aria-label="'+r[0]+' sur ma fiche"></td>'+
+       '<td class="n"><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-k="'+r[1]+'" value="'+(has?esc(valFr(v)):"")+'" aria-label="'+r[0]+' sur ma fiche">'+ecMobile(has,ok,ec,r[3])+'</td>'+
        '<td class="n ec">'+(has?(r[3]?num(ec):eur(ec)):"—")+'</td>'+
        '<td class="n"><span class="pill '+(has?(ok?"ok":"ko"):"na")+'">'+(has?(ok?"OK":"à vérifier"):"—")+'</span></td></tr>';
   });
@@ -9042,7 +9212,7 @@ function renderTotals(C){
   (function(){
     var PREC=precDe(C), pa=PREC&&PREC.acc, ab=PREC?({janvier:"janv.",février:"févr.",mars:"mars",avril:"avr.",mai:"mai",juin:"juin",juillet:"juil.",août:"août",septembre:"sept.",octobre:"oct.",novembre:"nov.",décembre:"déc."}[PREC.mois]||PREC.mois):"";
     [["dHeures",C.acc.hTot,pa&&pa.hTot," h"],["dJours",C.acc.jours,pa&&pa.jours," j"],
-     ["dWe",C.acc.sam+C.acc.dim,pa&&(pa.sam+pa.dim)," j"],["dHs",C.acc.hsHrs,pa&&pa.hsHrs," h"]].forEach(function(t){
+     ["dWe",C.acc.sam+C.acc.dim,pa&&(pa.sam+pa.dim)," h"],["dHs",C.acc.hsHrs,pa&&pa.hsHrs," h"]].forEach(function(t){
       var el=document.getElementById(t[0]); if(!el) return;
       var d=pa?R(Number(t[1]||0)-Number(t[2]||0)):0;
       el.className="cstat-d"+(d>0?" plus":(d<0?" moins":""));
@@ -9091,6 +9261,7 @@ function refresh(){
      était. */
   renderRota();
   renderTotals(C); renderSlip(C); renderChk(C); renderResume(C); renderReleve(C);
+  dernierCalc=C; poserIndices();
 }
 
 /* ===================== champs ===================== */
@@ -9119,7 +9290,11 @@ function fieldHTML(f,val,opt){
     var o=""; f.opts.forEach(function(x){o+='<option value="'+x+'"'+(x===val?" selected":"")+">"+(x||"—")+"</option>";});
     return '<div class="f"><label for="'+id+'">'+f.l+'</label><select id="'+id+'"'+attrs+">"+o+"</select>"+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
   }
-  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="number" inputmode="decimal" step="'+(f.step||"0.01")+'"'+attrs+' value="'+esc(valAffichee(val,f.step))+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
+  /* Champ texte et non « number » (audit du 23/10/2026) : un navigateur en
+     anglais prend la virgule d'un champ numérique pour un séparateur de
+     milliers, et « 100,50 » devenait 10050 sans rien dire. lireNombre()
+     accepte la virgule comme le point, partout. */
+  return '<div class="f"><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"'+attrs+' value="'+esc(valFr(valAffichee(val,f.step)))+'">'+(hint?'<span class="hint">'+hint+"</span>":"")+"</div>";
 }
 /* « 38.666666666666664 » est un artefact de division binaire, pas une
    donnée : à l'écran il fait passer un réglage juste pour un bug. On
@@ -9138,6 +9313,19 @@ function valFige(f,val){
 }
 /* une virgule, comme partout ailleurs dans l'application */
 function valFr(v){ return String(v).replace(".",","); }
+/* Lit un montant tapé à la virgule ou au point, espaces et « € » ignorés :
+   null si vide, NaN si ce n'est pas un nombre (audit du 23/10/2026). */
+function lireNombre(s){
+  s=String(s).replace(/[\s\u00a0\u202f€]/g,"").replace(",",".");
+  return s===""?null:(/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)?Number(s):NaN);
+}
+/* Un nombre illisible n'est pas enregistré : le champ se marque en rouge. */
+function nombreSaisi(t){
+  var v=lireNombre(t.value);
+  if(v!==v){ t.setAttribute("aria-invalid","true"); return; }
+  t.removeAttribute("aria-invalid");
+  return v;
+}
 function valAffichee(v,step){
   if(v===null||v===undefined||v==="") return "";
   var n=Number(v); if(!isFinite(n)) return v;
@@ -9178,6 +9366,40 @@ var MONTH_FIELDS=[
  {k:"joursInd",l:"Jours indemnité déplacement",scope:"month",step:"1",hint:"vide = jours prestés sans vélo"},
  {k:"kmVelo",l:"Km vélo",scope:"month",step:"1",hint:"vide = jours vélo × 2 × distance"}
 ];
+/* SAISIES DU MOIS RANGÉES COMME « MON CONTRAT » (audit du 23/10/2026) :
+   vingt-neuf champs en file mêlaient primes, montants qui remplacent le
+   contrat, heures sup. et reports ; titrés, on va droit au bon. */
+var MONTH_GROUPES=[
+ {t:"Primes et pécules",                  f:["primes","bonus","simplePecule","doublePecule","complDPV","treizieme"]},
+ {t:"Ce mois-ci autrement que le contrat", f:["remFixeMois","primeRemiseMois","indJourMois","csssMois","assurance"]},
+ {t:"Avance et autres montants",          f:["avance","autreBrut","autreRet","autreF"]},
+ {t:"Heures supplémentaires",             f:["hsHeures","hsJour","hsPoste","hsTaux","redPP"]},
+ {t:"Déplacements et chèques-repas",      f:["hDeplacement","joursInd","kmVelo","crNb"]},
+ {t:"Reports au 1er du mois",             f:["crRepRTT","crRepFT","crRepRHS"]},
+ {t:"Lus dans l'horaire",                 f:["rhsMois","rcmJours"]}
+];
+/* Jour, poste et taux des heures sup. n'agissent que s'il y a des heures
+   (calcul : if(hsH>0)) : sans heures, ils se taisent. */
+function masquerHS(){
+  var sans=!(Number(st.month&&st.month.hsHeures||0)>0);
+  ["hsJour","hsPoste","hsTaux"].forEach(function(k){
+    var el=document.querySelector('#monthFields [data-k="'+k+'"]');
+    if(el) el.closest(".f").hidden=sans;
+  });
+}
+/* « Vide = valeur des paramètres » ne disait pas laquelle : le champ vide
+   montre en grisé la valeur que le calcul prendra (≈ : une estimation). */
+var dernierCalc=null;
+function poserIndices(){
+  var C=dernierCalc; if(!C) return;
+  var ind={remFixeMois:nf.format(C.remFixe), primeRemiseMois:nf.format(C.pRem), indJourMois:nf.format(C.indJour),
+    assurance:nf.format(C.assGr), hsTaux:num(C.hsTx), csssMois:"≈ "+nf.format(C.csss),
+    crNb:"≈ "+num(C.crNb), joursInd:"≈ "+num(C.joursInd), kmVelo:"≈ "+num(C.kmVelo)};
+  Object.keys(ind).forEach(function(k){
+    var el=document.querySelector('#monthFields input[data-k="'+k+'"]');
+    if(el) el.placeholder=ind[k];
+  });
+}
 var PARAM_FIELDS=[
  {k:"statut",l:"Statut",scope:"params",type:"select",opts:["Employé","Ouvrier"],personal:true,
   onb:"Votre statut au contrat de travail. Il influence certains taux de cotisation et le calcul du précompte."},
@@ -9352,7 +9574,8 @@ function renderFields(){
     var h=""; list.forEach(function(f){h+=fieldHTML(f,src[f.k]);});
     document.getElementById(host).innerHTML=h;
   }
-  fill("monthFields",MONTH_FIELDS,st.month);
+  remplirGroupes("monthFields",MONTH_GROUPES,MONTH_FIELDS,st.month);
+  masquerHS(); poserIndices();
   remplirGroupes("paramFields",PARAM_GROUPES,PARAM_FIELDS,st.params);
   /* Binôme, cycle et décalage ne servent qu'à la règle des primes de
      rappel ; quand l'horaire cale le cycle de la personne liée, c'est lui
@@ -9389,8 +9612,8 @@ function renderFields(){
 /* Les consignateurs : en D, ils font 7h30-16h et consignent (le client,
    le 26/09/2026). Le tableau du jour écrit (C) à côté d'eux. */
 var CONSIGNATEURS=["YRS","BLR"];
-function posteDuJourDe(db,id){
-  var au=new Date();
+function posteDuJourDe(db,id,au){
+  au=au||new Date();
   db=horaireDe(au.getFullYear()); if(!db) return null;
   var annee=Number(db.year);
   var m=au.getMonth()+1, j=au.getDate(), mmdd=pad2(m)+pad2(j);
@@ -9461,6 +9684,14 @@ function majBrandsub(){
     var sel=document.getElementById("prefillId");
     if(((sel&&sel.value)||"")!==id) return;   /* la personne a changé entre-temps */
     var poste=null;
+    /* Entre minuit et 6 h, la nuit en cours est celle de la veille (jour de
+       l'usine) : le menu disait « Congé » pendant que le héros, à côté,
+       disait « EN POSTE » (audit du 23/10/2026). */
+    if(new Date().getHours()<6){
+      try{ poste=posteDuJourDe(db,id,jourUsine()); }catch(e){ poste=null; }
+      if(poste&&/(^| \u00b7 )N$/.test(poste)){ ecrire(poste+" \u00b7 jusqu'à 6 h"); return; }
+      poste=null;
+    }
     try{ poste=posteDuJourDe(db,id); }catch(e){ poste=null; }
     if(poste) ecrire(poste);
   }, function(){});
@@ -9688,6 +9919,11 @@ function setView(v,keepScroll){
        le motif ARIA « tablist », au lieu de tabuler à travers les six. */
     b.tabIndex=sel?0:-1;
   });
+  /* l'onglet de la vue caché (Effectifs au téléphone, Direction à la
+     tablette) : « Plus » prend sa place dans la tabulation, sinon la barre
+     n'avait plus aucun arrêt (audit du 23/10/2026) */
+  var tSel=document.querySelector('.tabs button[data-v="'+v+'"]'), tPlus=document.getElementById("tab-plus");
+  if(tPlus && tPlus.offsetParent!==null && (!tSel || tSel.offsetParent===null)) tPlus.tabIndex=0;
   placerMnav(v);
   majMoisLabel(st.m,st.y);
   document.body.setAttribute("data-view",v);
@@ -9701,11 +9937,17 @@ function setView(v,keepScroll){
      « Mon rythme ». */
   if(v==="jour"||v==="rh") renderEquipe();
   if(v==="horaire") renderRythme();
-  if(v==="equipe"){ renderOrganisation(); renderPolyvalence(); appliquerEqSub(); }
+  /* Les équipes se peignent d'abord ; la polyvalence (premier calcul ≈1,4 s
+     au téléphone) suit à l'image d'après (audit du 23/10/2026). */
+  if(v==="equipe"){ renderOrganisation(); appliquerEqSub(); requestAnimationFrame(function(){ setTimeout(renderPolyvalence,0); }); }
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
   if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
   var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="rh"||v==="recherche"||v==="direction");
   try{ sideMaj(); }catch(e){}
+  /* le titre de l'onglet du navigateur dit la vue : plusieurs fenêtres se
+     distinguent ; le nom choisi par le client reste (audit du 23/10/2026) */
+  var _t={horaire:"Accueil",jour:"Planning",equipe:"Équipes",salaire:"Salaire",rh:"Effectifs",recherche:"Recherche",direction:"Direction",reglages:"Réglages"}[v];
+  document.title=_t?_t+" · BioWanze.app":"BioWanze.app";
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
   var b=e.target.closest("button[data-v]"); if(!b) return;
@@ -9726,7 +9968,9 @@ document.querySelector(".tabs").addEventListener("click",function(e){
 document.querySelector(".tabs").addEventListener("keydown",function(e){
   var k=e.key;
   if(k!=="ArrowLeft"&&k!=="ArrowRight"&&k!=="ArrowUp"&&k!=="ArrowDown"&&k!=="Home"&&k!=="End") return;
-  var tabs=Array.prototype.slice.call(document.querySelectorAll(".tabs button[data-v]"));
+  /* les flèches sautent les onglets cachés et passent par « Plus » : elles
+     butaient sur Effectifs, caché au téléphone (audit du 23/10/2026) */
+  var tabs=Array.prototype.slice.call(document.querySelectorAll(".tabs button[data-v], .tabs #tab-plus")).filter(function(b){ return b.offsetParent!==null; });
   var i=tabs.indexOf(document.activeElement); if(i<0) return;
   e.preventDefault();
   var n=tabs.length, j;
@@ -9734,6 +9978,9 @@ document.querySelector(".tabs").addEventListener("keydown",function(e){
   else if(k==="End") j=n-1;
   else if(k==="ArrowLeft"||k==="ArrowUp") j=(i-1+n)%n;
   else j=(i+1)%n;
+  if(tabs[j].id==="tab-plus"){
+    tabs.forEach(function(b){ b.tabIndex=-1; }); tabs[j].tabIndex=0; tabs[j].focus(); return;
+  }
   setView(tabs[j].dataset.v,true);
   tabs[j].focus();
 });
@@ -9831,8 +10078,9 @@ document.addEventListener("change",function(e){
     /* ceinture : aucun champ figé n'est rendu comme un champ, mais un
        évènement forgé ou un champ oublié ne doit pas pouvoir passer */
     if(estFigee(t.dataset.k)) return;
-    var v=(t.tagName==="SELECT"||t.tagName==="TEXTAREA")?t.value:(t.value===""?null:Number(t.value));
-    if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); }
+    var v=(t.tagName==="SELECT"||t.tagName==="TEXTAREA")?t.value:nombreSaisi(t);
+    if(v===undefined) return;
+    if(t.dataset.scope==="month"){ st.month[t.dataset.k]=v; persistMonth(); if(t.dataset.k==="hsHeures") masquerHS(); }
     else if(t.dataset.scope==="params"){
       /* Une hausse ne réécrit pas le passé. Le client, le 22/09/2026 :
          « attention que ce sera à partir du mois prochain, pas avant ;
@@ -9859,8 +10107,9 @@ document.addEventListener("change",function(e){
     refresh(); return;
   }
   if(t.dataset.k&&t.closest("#chk")){
+    var vr=nombreSaisi(t); if(vr===undefined) return;
     st.month.real=st.month.real||{};
-    st.month.real[t.dataset.k]=t.value===""?null:Number(t.value);
+    st.month.real[t.dataset.k]=vr;
     persistMonth(); refresh(); return;
   }
 });
@@ -10146,7 +10395,9 @@ function fetchHoraireDB(){
       return db;
     },function(){ return null; });
   }
-  horaireFetching=Promise.all([Promise.all(HORAIRE_ANNEES.map(lireAnnee)),chargerSaisies()]).then(function(r){
+  /* Les recyclages se lisent EN MÊME TEMPS que les horaires, et non après :
+     réseau lent, deux attentes de 4 s en série (audit du 23/10/2026). */
+  horaireFetching=Promise.all([Promise.all(HORAIRE_ANNEES.map(lireAnnee)),chargerSaisies(),lireRecyclages().catch(function(){})]).then(function(r){
     var l=r[0], sa=r[1]||{};
     l.forEach(function(x){ if(x) appliquerSaisies(x,sa[x.year]||sa[String(x.year)]); });
     var ju=jourUsine().getFullYear(), db=null;
@@ -10159,13 +10410,25 @@ function fetchHoraireDB(){
     });
     if(!db) throw new Error("horaire vide");
     HORAIRE_DB=db; alerteHoraire(false);
-    /* On attend les recyclages officiels avant de rendre la main : ainsi le
-       premier calcul de polyvalence les a déjà, et son résultat mémoïsé n'est
-       jamais le mauvais. Leur absence n'empêche pas l'horaire de vivre. */
-    return lireRecyclages().then(function(){ return db; });
-  }).catch(function(){ alerteHoraire(true); return null; });
+    /* Les recyclages officiels sont déjà lus (Promise.all ci-dessus) avant
+       de rendre la main : le premier calcul de polyvalence les a, et son
+       résultat mémoïsé n'est jamais le mauvais. Leur absence n'empêche pas
+       l'horaire de vivre. */
+    return db;
+  }).catch(function(){
+    /* Oublier l'échec : sinon tout appel suivant rendait null, même le
+       réseau revenu (audit du 23/10/2026). */
+    horaireFetching=null; alerteHoraire(true); return null;
+  });
   return horaireFetching;
 }
+/* Le réseau revient après une ouverture sans horaire : on relit, et une
+   seule recharge fait repartir tous les rendus d'un horaire lu : sur
+   l'écran d'accueil, aucun bouton pour recharger (audit du 23/10/2026). */
+window.addEventListener("online",function(){
+  if(HORAIRE_DB) return;
+  fetchHoraireDB().then(function(db){ if(db) location.reload(); });
+});
 /* Sans horaire, les compteurs affichent des zéros qui ont l'air justes. Le
    dire une bonne fois, et en haut de la page, vaut mieux qu'une bulle de
    deux secondes que personne n'a vue passer. */
@@ -12419,7 +12682,9 @@ function ryHeatmap(s){
       var cls=(t==="N"||t==="AM"||t==="PM"||t==="D")?("s-"+t.toLowerCase()):(t==="A"?"s-abs":(t==="M"?"s-mal":"s-rep"));
       var auj=(ju.getFullYear()===y&&ju.getMonth()===m&&ju.getDate()===d)?" auj":"";
       var we=(dt.getDay()===0||dt.getDay()===6)?" we":"";
-      cells+='<span class="ry-hm-c '+cls+auj+we+'" title="'+esc(d+" "+MOIS[m]+" — "+ryTypeLabel(t))+'"></span>';
+      /* les jours à venir pâlis, comme sur la frise du cycle (audit du 23/10/2026) */
+      var fut=dt>ju?" fut":"";
+      cells+='<span class="ry-hm-c '+cls+auj+we+fut+'" title="'+esc(d+" "+MOIS[m]+" — "+ryTypeLabel(t))+'"></span>';
     }
     rows+='<div class="ry-hm-l"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
   }
@@ -12984,7 +13249,9 @@ function _pfHead(db,p){
   /* Les recyclages restants du classeur RH : les compteurs viennent se
      poser sur ces puces juste après le premier affichage (recyclageHeros). */
   var pl=(p.poly&&p.poly.ateliers)||[], cmH=(typeof estContremaitre==="function")&&estContremaitre(p),
-      roH=(typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRHEffectif(db,p):null, aRec=!!(roH&&(roH.restant>0||roH.enPlus));
+      /* !cmH d'abord : recycRHEffectif rejoue toute la polyvalence (≈310 ms)
+         pour un bloc jamais rendu chez un contremaître (audit du 23/10/2026). */
+      roH=(!cmH&&typeof RECYC_OFF!=="undefined"&&RECYC_OFF)?recycRHEffectif(db,p):null, aRec=!!(roH&&(roH.restant>0||roH.enPlus));
   if(!cmH && (pl.length||aRec)){
     h='<button type="button" class="pf-pv" data-go="equipe" aria-label="Mes polyvalences : '+esc(pl.join(", ")||"aucune")+'. Voir mon recyclage">'
       +'<span class="pf-pv-t">'+(pl.length?'Polyvalences':'Recyclages')+(p.poly&&p.poly.degre?'<em>degré '+esc(p.poly.degre)+'</em>':'')+'</span>'
@@ -13009,7 +13276,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div>'
-    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div><div class="pf-bas"></div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div><div class="ry-an pf-an" id="ryCg"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div><div class="pf-bas"></div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -13199,12 +13466,14 @@ function majBadgeNotif(){
 var notifRetour=null;
 function ouvrirNotif(){
   var ov=document.getElementById("notifOv"); if(!ov||!NOTIF_NB) return;
+  if(ov.hidden) navPousser("n"); /* « retour » la referme (audit du 23/10/2026) */
   notifRetour=document.activeElement; ov.hidden=false; document.documentElement.classList.add("nt-ouverte");
   requestAnimationFrame(function(){ ov.classList.add("vis"); });
   var x=document.getElementById("notifX"); if(x) try{ x.focus({preventScroll:true}); }catch(e){}
 }
-function fermerNotif(){
+function fermerNotif(parRetour){
   var ov=document.getElementById("notifOv"); if(!ov||ov.hidden) return;
+  if(parRetour!==true) navRetirer("n");
   ov.classList.remove("vis"); document.documentElement.classList.remove("nt-ouverte"); ov.hidden=true;
   if(notifRetour&&notifRetour.focus) try{ notifRetour.focus({preventScroll:true}); }catch(e){}
 }
@@ -14003,7 +14272,9 @@ function dirAbsAgg(ops){
 function dirMalMoisOps(ops){ var a=z12(); (ops||[]).forEach(function(o){ if(_dirHorsLongue && o.longue) return; for(var m=0;m<12;m++) a[m]+=(o.malMois?o.malMois[m]:0); }); return a; }
 function dirLongCount(rh){ var n=0; (rh.allOps||[]).forEach(function(o){ if(o.longue) n++; }); return n; }
 function dirTblHTML(cols,rows){
-  var h='<div class="dir-tbl" style="grid-template-columns:minmax(72px,auto) repeat('+cols.length+',1fr)">';
+  /* « lg » : six colonnes ne tiennent pas à côté du libellé au téléphone,
+     le libellé y passe au-dessus de ses valeurs (audit du 23/10/2026) */
+  var h='<div class="dir-tbl'+(cols.length>=5?' lg':'')+'" style="--n:'+cols.length+'; grid-template-columns:minmax(72px,auto) repeat('+cols.length+',1fr)">';
   h+='<div class="th"></div>'+cols.map(function(c){ return '<div class="th">'+esc(c)+'</div>'; }).join("");
   rows.forEach(function(r){ h+='<div class="tr">'+esc(r.label)+'</div>'+r.cells.map(function(v){ return '<div class="td">'+v+'</div>'; }).join(""); });
   return h+'</div>';
@@ -14171,8 +14442,12 @@ function dirCouvHTML(cov){
 function dirBarsMois(arr,grad,y){
   var mx=Math.max.apply(null,arr.concat([1])), au=jourUsine();
   var cm=(au.getFullYear()===y)?au.getMonth():-1;
+  /* Les mois à venir sont grisés : la maladie déjà écrite d'avance y compte,
+     mais ils n'ont pas eu lieu (audit du 23/10/2026 ; le taux lui-même
+     attend la définition du client) */
+  var fm=au.getFullYear()<y?-1:au.getFullYear()>y?12:cm;
   return '<div class="dir-anb">'+arr.map(function(v,m){
-    return '<div class="dir-anj'+(m===cm?' cur':'')+'" title="'+esc(MOIS[m])+' : '+v+'">'
+    return '<div class="dir-anj'+(m===cm?' cur':'')+(m>fm?' fut':'')+'" title="'+esc(MOIS[m])+' : '+v+(m>fm?' (à venir)':'')+'">'
       +'<b>'+v+'</b><u style="height:'+Math.max(4,Math.round(v/mx*90))+'px;background:'+grad+'"></u>'
       +'<span>'+RY_MC[m]+'</span></div>';
   }).join("")+'</div>';
@@ -14223,7 +14498,6 @@ function dirHubHTML(pres, total, inter){
 }
 function dirAnneeHTML(a){
   var rappTot=a.rappMois.reduce(function(x,y){ return x+y; },0);
-  var CATC={"Contremaîtres de production":"Contremaîtres","Opérateurs en formation":"Formation","Opérateurs STEP":"STEP"};
   var nuitMx=Math.max.apply(null,a.nuit.map(function(o){ return o.moy; }).concat([1]));
   var wait='<div class="dir-anb dir-anb-wait">…</div>';
   var back='<button type="button" class="dir-back" data-page="hub">‹ Direction</button>';
@@ -14254,7 +14528,8 @@ function dirAnneeHTML(a){
    +'<p class="dir-note">Compté comme les sous-effectifs à venir, mais sur les journées déjà passées.</p>'
    +'<div class="dir-sec">Nuits par équipe · moyenne par personne</div>'
    +'<div class="dir-rank">'+a.nuit.map(function(o){
-       var lbl=CATC[o.cat]||o.cat;
+       /* « Équipe 5 » comme ailleurs sur la page, plus « Shift 5 » (audit du 23/10/2026) */
+       var lbl=dirTeamLabel(o.cat);
        return '<div class="dir-rk"><em>'+esc(lbl)+'</em>'
          +'<i style="width:'+Math.max(4,Math.round(o.moy/nuitMx*100))+'%;background:linear-gradient(90deg,#7B7BD0,#5455A8)"></i>'
          +'<b>'+Math.round(o.moy)+' <small>('+o.tot+')</small></b></div>';
@@ -14609,6 +14884,12 @@ function grColonnes(db){
   if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(m[2].test(c.po)&&!/adjoint/i.test(c.po)) cols.push(c); }); });
   else cols=de(m[0]);
   if(/^Shift/.test(m[0])&&!GR.adj) cols=cols.filter(function(c){ return !/adjoint/i.test(c.po); });
+  /* une recherche parcourt toutes les feuilles, et non la seule pilule
+     active (audit du 23/10/2026) : « Personne ne correspond » faisait croire
+     qu'une personne d'une autre équipe n'existait pas */
+  if(GR.cherche){ var vu={}; cols=[]; m=["?","Recherche",null,"pt-cm"];
+    GR_MODES.forEach(function(x){ if(x[2]||/^p:/.test(x[0])) return;
+      de(x[0]).forEach(function(c){ if(!vu[c.p.id]){ vu[c.p.id]=1; cols.push(c); } }); }); }
   return {mode:m, cols:cols};
 }
 function renderGrille(){
@@ -14619,7 +14900,12 @@ function renderGrille(){
   if(!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
   document.getElementById("grEquipes").innerHTML='<button type="button" class="hp-pill hp-jour" data-vue="jour">Vue journée</button>'
     +GR_MODES.map(function(x){ var poste=!!x[3];
-      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille)+'">'+esc(x[1])+'</button>'; }).join("");
+      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!GR.cherche)+'">'+esc(x[1])+'</button>'; }).join("");
+  /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
+     scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
+     recherche (audit du 23/10/2026) */
+  var ge=document.getElementById("grEquipes"), pa=ge.querySelector('[aria-pressed="true"]');
+  if(pa&&ge.scrollWidth>ge.clientWidth) ge.scrollLeft+=pa.getBoundingClientRect().left-ge.getBoundingClientRect().left-(ge.clientWidth-pa.offsetWidth)/2;
   var zone=document.getElementById("grZone"), tete=g.querySelector(".pl-tete");
   if(tete) g.style.setProperty("--pl-haut",tete.offsetHeight+"px");
   if(!db){ zone.innerHTML='<p class="pl-msg">Pas encore d\'horaire pour '+an+'.</p>'; document.getElementById("grLegende").innerHTML=""; return; }
@@ -14708,7 +14994,7 @@ function ouvrirGrille(section,formulaire){
   if(formulaire) GR.dmForm=formulaire;
   fetchHoraireDB().then(function(){
     grCaler(jourUsine());
-    if(g.hidden) navPousser("g");
+    if(g.hidden&&NAV.pile[NAV.pile.length-1]!=="g") navPousser("g");
     g.hidden=false; document.body.classList.add("sheet-on"); g.classList.toggle("edit",peutSaisir());
     if(!mqSide.matches) try{ inerteFond(true); }catch(e){}
     /* AU TÉLÉPHONE, PAS DE MENU EN HAUT (le client, le 22/10/2026 : « il ne
@@ -14732,8 +15018,9 @@ function ouvrirGrille(section,formulaire){
       }).catch(function(){});
       chargerCodes().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
       if(GR.section!=="demandes") dmCharger().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
-      if(GR.section!=="recyclages") rcCharger().catch(function(){});
-      if(GR.section!=="heures"&&GR.section!=="valider-hs") hsCharger().catch(function(){});
+      /* le tableau de bord les compte aussi (audit du 23/10/2026) */
+      if(GR.section!=="recyclages") rcCharger().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
+      if(GR.section!=="heures"&&GR.section!=="valider-hs") hsCharger().then(function(){ if(GR.section==="tdb") relire(); }).catch(function(){});
     }
   });
 }
@@ -14759,6 +15046,10 @@ function fermerGrille(parRetour){
    d'installation. */
 var NAV={pile:[], ignore:0, aRetirer:0};
 function navPousser(k){ if(!history.pushState) return; try{ history.pushState({bwz:k},""); NAV.pile.push(k); }catch(e){} }
+/* Une feuille qui s'efface devant l'espace lui CÈDE son étape : la retirer
+   puis en poser une autre laissait une étape vide, le history.go(-1) étant
+   annulé par le pushState qui le suit (audit du 23/10/2026). */
+function navCeder(de,a){ var i=NAV.pile.lastIndexOf(de); if(i>=0) NAV.pile[i]=a; }
 function navRetirer(k){
   var i=NAV.pile.lastIndexOf(k); if(i<0) return; NAV.pile.splice(i,1);
   if(++NAV.aRetirer===1) setTimeout(function(){ var n=NAV.aRetirer; NAV.aRetirer=0; NAV.ignore++; try{ history.go(-n); }catch(e){ NAV.ignore--; } },0);
@@ -14767,6 +15058,10 @@ window.addEventListener("popstate",function(){
   if(NAV.ignore){ NAV.ignore--; return; }
   var k=NAV.pile.pop();
   if(k==="p") grFermerPanneau(true); else if(k==="g") fermerGrille(true);
+  /* les feuilles du jour, de la personne, « Plus » et des notifications
+     (audit du 23/10/2026) */
+  else if(k==="j") fermerJour(true); else if(k==="s") fermerPersonne(true);
+  else if(k==="n") fermerNotif(true); else if(k==="plus") document.getElementById("plusFond").click();
 });
 function grFermerPanneau(parRetour){
   var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
@@ -14803,6 +15098,13 @@ function grPersonne(id){
     +(p.ct&&p.ct.length?'<p class="pn-t">Contrat et notes</p>'+p.ct.map(function(c){ return '<p class="pn-txt">'+esc(c.tout||c.txt||"")+'</p>'; }).join(""):'')
     +(voit?'<p class="pn-aide">Le solde au 01/01 vient du classeur ; le prévu compte les codes posés sur l\'année, comme ses formules.</p>':'')+'</div>');
 }
+/* au téléphone, la feuille monte jusqu'au tiers de l'écran : la grille
+   défile pour garder la case touchée au-dessus (audit du 23/10/2026) */
+function grDegager(td,pn){
+  if(!pn||!td||!document.body.contains(td)||window.innerWidth>=700) return;
+  var z=document.getElementById("grZone"), pt=pn.getBoundingClientRect().top, tb=td.getBoundingClientRect().bottom;
+  if(tb>pt-8) z.scrollTop+=tb-(pt-8);
+}
 /* LE PANNEAU D'UNE JOURNÉE */
 function grEditer(td){
   var id=td.getAttribute("data-p"), jk=td.getAttribute("data-j"), an=Number(jk.slice(0,4)), md=jk.slice(4);
@@ -14813,10 +15115,11 @@ function grEditer(td){
   var titre='<div class="pn-tete"><div><b>'+esc(grNom(p)||idLisible(id))+'</b><span>'+JOURS_LONGS[(dt.getDay()+6)%7]+' '+dt.getDate()+' '+MOIS[dt.getMonth()].toLowerCase()+' '+an+'</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>';
   var src=sai?'<p class="pn-src"><b>Saisi dans l\'application</b>'+(sai.auteur?' par '+esc(sai.auteur):'')+' · le classeur dit '+esc([sai.cl_cellule,sai.cl_annotation].filter(Boolean).map(grAffiche).join(" · ")||"rien")+'</p>':'';
   if(!edit){
-    grOuvrirPanneau(titre+'<div class="pn-corps">'+src
+    var pn0=grOuvrirPanneau(titre+'<div class="pn-corps">'+src
       +'<p class="pn-t">Prévu</p><p class="pn-txt">'+esc(grAffiche(e[0])||"—")+'</p>'
       +(e[1]?'<p class="pn-t">Ce qui s\'est passé</p><p class="pn-txt">'+esc(grAffiche(e[1]))+'</p>':'')
       +(e[2]?'<p class="pn-t">Commentaire</p><p class="pn-txt">'+esc(nettoyerAffichage(e[2]))+'</p>':'')+'</div>');
+    grDegager(td,pn0);
     return;
   }
   chargerCodes().then(function(codes){
@@ -14843,6 +15146,7 @@ function grEditer(td){
       +'<p class="pn-note" id="pnErr"></p>'
       +'</div><div class="pn-pied"><button type="button" class="btn ss-ok" id="pnOk">Enregistrer</button>'
       +(sai?'<button type="button" class="btnlike" id="pnCl">Revenir au classeur</button>':'')+'</div>');
+    grDegager(td,pn);
     function maj(){
       [].forEach.call(pn.querySelectorAll("#pnPrevu button"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-v")===etat.prevu)); });
       [].forEach.call(pn.querySelectorAll("#pnAnn button"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-v")===etat.ann)); });
@@ -14987,7 +15291,10 @@ function wsAller(s,garder){
         var b=c.querySelector("[data-dm-voir],[data-rc-voir],[data-hs-voir]"); if(b){ b.click(); return; }
         if(c.hasAttribute("data-dm")) dmFeuilleVoir(c.getAttribute("data-dm"));
         else if(c.hasAttribute("data-rc")) rcFeuille(rcTrouve(c.getAttribute("data-rc")));
-        else if(c.hasAttribute("data-hs")) hsFeuille(hsTrouve(c.getAttribute("data-hs"))); }); } }
+        else if(c.hasAttribute("data-hs")) hsFeuille(hsTrouve(c.getAttribute("data-hs"))); });
+      /* au clavier aussi : une carte sans bouton n'était pas atteignable
+         (audit du 23/10/2026) ; tabindex="0" la met dans l'ordre de Tab */
+      gw.addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("dm-carte")){ e.preventDefault(); e.target.click(); } }); } }
   wsMenuMaj();
   wsBadge();
   try{ sideMaj(); }catch(e){}
@@ -15009,6 +15316,10 @@ function wsAller(s,garder){
 function wsTete(t,sous,actions){
   return '<header class="ws-tete"><div><h2>'+esc(t)+'</h2>'+(sous?'<p>'+sous+'</p>':'')+'</div>'+(actions||'')+'</header>';
 }
+/* LA TÊTE D'UNE CARTE pour la personne d'un autre, une seule copie pour les
+   trois sortes : celles du recyclage et des heures sup. avaient perdu la
+   branche wsQui et redisaient le trigramme (audit du 23/10/2026) */
+function dmQui(x,p,n){ return p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'; }
 function wsPuce(p){ return '<span class="pl-tri">'+esc(idLisible(p.id))+'</span>'; }
 /* sans nom (compte non validé, ou personne absente de la base), le poste
    prend la première ligne : le trigramme est déjà dans la pastille */
@@ -15035,19 +15346,30 @@ function renderTdb(){
   var auj=jourUsine(), an=Number(db.year), h=[];
   var par=auj.getFullYear()===an?equipeDuJour(db,an,auj.getMonth()+1,auj.getDate()):{};
   function n(k){ return (par[k]||[]).length; }
-  h.push(wsTete("Tableau de bord",JOURS_LONGS[(auj.getDay()+6)%7]+" "+auj.getDate()+" "+MOIS[auj.getMonth()].toLowerCase()+" "+auj.getFullYear()+" · "+db.people.length+" personnes · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?"),
+  /* avant 6 h, le jour de l'usine est la veille : le libellé dit la nuit,
+     comme l'Accueil, au lieu de contredire le menu (audit du 23/10/2026) */
+  var civ=new Date(), nuit=civ.getHours()<6;
+  function jl(d){ return JOURS_LONGS[(d.getDay()+6)%7]+" "+d.getDate(); }
+  var quand=nuit?"Nuit du "+jl(auj).toLowerCase()+(auj.getMonth()!==civ.getMonth()?" "+MOIS[auj.getMonth()].toLowerCase():"")+(auj.getFullYear()!==civ.getFullYear()?" "+auj.getFullYear():"")+" au "+jl(civ).toLowerCase()+" "+MOIS[civ.getMonth()].toLowerCase()+" "+civ.getFullYear()
+    :jl(auj)+" "+MOIS[auj.getMonth()].toLowerCase()+" "+auj.getFullYear();
+  h.push(wsTete("Tableau de bord",quand+" · "+db.people.length+" personnes · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?"),
     '<button type="button" class="btn ss-ok ws-pc" data-ws="planning">Ouvrir le planning</button>'));
-  h.push('<p class="ws-sec">Aujourd\'hui</p><div class="ws-kpis">'
+  h.push('<p class="ws-sec">'+(nuit?'Cette nuit':'Aujourd\'hui')+'</p><div class="ws-kpis">'
     +[["AM","Matin","p-am"],["PM","Après-midi","p-pm"],["N","Nuit","p-n"],["D","Jour","p-d"]].map(function(z){
       return '<div class="ws-kpi"><span class="pl-pa '+z[2]+'">'+z[0]+'</span><b>'+n(z[0])+'</b><small>'+z[1]+'</small></div>'; }).join("")
     +'<div class="ws-kpi"><span class="pl-pa f-absence">Abs</span><b>'+n("abs")+'</b><small>Malades</small></div>'
     +'<div class="ws-kpi"><span class="pl-pa f-conge">Congé</span><b>'+n("cong")+'</b><small>En congé ou en récupération</small></div></div>');
   h.push('<div class="ws-grille">');
-  var dmT=(GR.demandes||[]).filter(dmATraiter);
+  /* les mêmes trois filtres que wsNbValider (audit du 23/10/2026) : la carte
+     ne comptait que les congés, et les remplacements à signer en plus, et
+     disait 1 quand le menu « À valider » disait 3 */
+  var dmT=(GR.demandes||[]).filter(function(x){ return dmATraiter(x)&&!dmAccordAttendu(x); }).map(function(x){ return {x:x,ws:"valider",per:dmPeriode(x.du,x.au),pa:grFamille(x.code)||"conge",c:x.code}; })
+    .concat((GR.recyclages||[]).filter(function(x){ return rcATraiter(x)&&!x.a_moi; }).map(function(x){ return {x:x,ws:"valider-rc",per:dmPeriode(x.jour,x.jour)+(x.fonction?' · '+x.fonction:''),pa:"formation",c:"Recyclage"}; }))
+    .concat((GR.hs||[]).filter(hsATraiter).map(function(x){ return {x:x,ws:"valider-hs",per:dmPeriode(x.jour,x.jour)+' · '+hsDuree(x.minutes),pa:"remplacement",c:x.type||"HS"}; }));
   h.push('<section class="ws-carte"><header><h3>Demandes à traiter</h3><span class="ws-badge'+(dmT.length?' ws-alerte':' ws-ok')+'">'+(dmT.length||'aucune')+'</span></header>'
-    +(dmT.length?'<ul class="ws-liste">'+dmT.slice(0,5).map(function(x){ var p=dmPersonne(x.trigramme);
-        return '<li data-ws="demandes"><span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc([x.prenom,x.nom].filter(Boolean).join(" ")||(p?wsPosteEq(p)[0]:x.trigramme))+'</b><small>'+esc(dmPeriode(x.du,x.au))+'</small></span></span><span class="pl-pa f-'+esc(grFamille(x.code)||"conge")+'">'+esc(x.code)+'</span></li>'; }).join("")+'</ul>'
-      +'<button type="button" class="btnlike ws-lien" data-ws="demandes">Ouvrir les demandes</button>'
+    +(dmT.length?'<ul class="ws-liste">'+dmT.slice(0,5).map(function(z){ var x=z.x, p=dmPersonne(x.trigramme);
+        return '<li data-ws="'+z.ws+'"><span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc([x.prenom,x.nom].filter(Boolean).join(" ")||(p?wsPosteEq(p)[0]:x.trigramme))+'</b><small>'+esc(z.per)+'</small></span></span><span class="pl-pa f-'+esc(z.pa)+'">'+esc(z.c)+'</span></li>'; }).join("")+'</ul>'
+      +'<button type="button" class="btnlike ws-lien" data-ws="valider">Ouvrir À valider</button>'
       :'<p class="ws-vide">'+(GR.demandes===null?'Chargement…':'Aucune demande n\'attend votre réponse.')+'</p>')+'</section>');
   /* le sous-effectif des quinze jours */
   var mq=[]; try{ caInit(db); mq=mqJoursAVenir(db,14).jours; }catch(e){ mq=[]; }
@@ -15120,8 +15442,10 @@ function renderAbsences(){
   var hote=document.getElementById("wsAbs"), db=wsDb(); if(!db) return;
   var an=Number(db.year), d0=jourUsine(), jours=[], tot={abs:0,cong:0};
   for(var i=0;i<GR.horizon;i++){
-    var dt=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i); if(dt.getFullYear()!==an) break;
-    var par=equipeDuJour(db,an,dt.getMonth()+1,dt.getDate()), l=[];
+    /* l'horizon passe le 31 décembre quand l'année suivante est chargée
+       (audit du 23/10/2026) : « 31 jours » s'arrêtait là sans le dire */
+    var dt=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i), dbj=HORAIRES&&HORAIRES[dt.getFullYear()]; if(!dbj) break;
+    var par=equipeDuJour(dbj,dt.getFullYear(),dt.getMonth()+1,dt.getDate()), l=[];
     ["abs","cong"].forEach(function(k){ (par[k]||[]).forEach(function(y){ tot[k]++; l.push({k:k,p:y.p}); }); });
     jours.push({dt:dt,l:l});
   }
@@ -15243,7 +15567,10 @@ function dmPreciser(l,dem,fini){
     +'<label class="dm-prec-c"><span>Second type de congé</span><select id="dpT2"><option value="">aucun</option>'
     +dem.filter(function(c){ return c.code!==l.code&&d1+dmDuree(c.code)<=8; }).map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===l.code2?' selected':'')+'>'+esc(c.code)+(c.libelle?' — '+esc(c.libelle):'')+'</option>'; }).join("")+'</select></label>'
     +'<div class="dm-prec-c" id="dpHor"><span>Horaire</span><div class="dm-prec-seg" id="dpPart">'
-    +[["","Complet"],["quitte","Je quitte à"],["arrive","J'arrive à"]].map(function(o){ return '<button type="button" data-p="'+o[0]+'" aria-pressed="'+((l.part||"")===o[0])+'">'+o[1]+'</button>'; }).join("")+'</div>'
+    /* « Complet », à côté de « 4h RTT », se lisait « toute la journée » ;
+       « Habituel » sous l'intitulé « Horaire » tient sur une ligne à 320 px.
+       La valeur "" ne change pas (audit du 23/10/2026) */
+    +[["","Habituel"],["quitte","Je quitte à"],["arrive","J'arrive à"]].map(function(o){ return '<button type="button" data-p="'+o[0]+'" aria-pressed="'+((l.part||"")===o[0])+'">'+o[1]+'</button>'; }).join("")+'</div>'
     +'<select id="dpH"'+(l.part?'':' hidden')+' aria-label="Heure">'+hs+'</select></div>'
     +'<p class="dm-prec-n" id="dpPlein" hidden>Journée complète (8 h) : pas d\'heure de départ ni d\'arrivée à préciser.</p>'
     +'<p class="dm-prec-e" id="dpErr"></p>'
@@ -15419,7 +15746,9 @@ function dmStatut(x){
    l'heure toujours ; le jour en mots s'il est proche, sinon en chiffres */
 function dmQuand(ts){
   var d=ts?new Date(ts):null; if(!d||isNaN(d)) return "";
-  var a=jourUsine(), j=Math.round((new Date(a.getFullYear(),a.getMonth(),a.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
+  /* un horodatage se compte en jour civil : avec le jour d'usine, entre 0 h
+     et 6 h, « hier » s'écrivait « aujourd'hui » (audit du 23/10/2026) */
+  var a=new Date(), j=Math.round((new Date(a.getFullYear(),a.getMonth(),a.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
   return (j===0?"aujourd'hui":j===1?"hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1))+" · "+d.getHours()+"\u00a0h\u00a0"+pad2(d.getMinutes());
 }
 function dmCircuit(x,et,enCours,refus,moi){
@@ -15502,10 +15831,10 @@ function dmCarte(x,valideur){
   var types=[]; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
   if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
   var tag=types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'';
-  return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'">'
+  return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'" tabindex="0">'
     /* même tête que la fiche de recyclage (22/10/2026) : la période en
        gras, le formulaire dessous, l'état à droite */
-    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?(p&&!n?wsQui(p):'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>'):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
+    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?dmQui(x,p,n):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
     +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(DM_FORMS[f].t)+'</b>'+tag+mdQuoi(x)+'</div>':'')
     /* un seul jour : le résumé sous le titre dit déjà la pause, les heures
        et le remplaçant ; la feuille garde le tableau */
@@ -15683,7 +16012,14 @@ function dmFeuilleVoir(id){
   var x=(GR.demandes||[]).filter(function(d){ return String(d.id)===String(id); })[0]; if(!x) return;
   var regles=peutSaisir()&&!x.a_moi&&x.statut==="en_attente"?dmRegles(x.formulaire||"courte",x.trigramme,dmLignes(x),x.cree_le,x.sans_solde_annee):[];
   var pied=dmSupprimable(x)?'<button type="button" class="btnlike dm-suppr" data-pp-annuler="'+x.id+'">Supprimer ma demande</button>':'';
+  /* LA DÉCISION AUSSI DANS LA BARRE DU BAS (audit du 23/10/2026) : au PC,
+     les boutons du visa tombaient sous l'écran. Ceux du papier restent, dans
+     le cadre du visa (v904) ; la barre ne fait que les toucher, pour garder
+     un seul chemin (motivation exigée, bouton désactivé pendant l'envoi). */
+  if(!pied&&peutSaisir()&&!x.a_moi&&dmATraiter(x)&&!dmAccordAttendu(x)) pied='<button type="button" class="btn ss-ok" data-pp-relais="1">'+(x.attend_cm?'Accepter et signer':'Confirmer et encoder')+'</button><button type="button" class="btnlike" data-pp-relais="0">Refuser</button>';
   var pn=dmPpOuvrir((regles.length?'<ul class="dm-regles">'+regles.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')+'<div class="dm-papier">'+dmPpLecture(x)+'</div>',pied);
+  var rl=pn.querySelector(".pn-pied"); if(rl) rl.addEventListener("click",function(e){ var b=e.target.closest("[data-pp-relais]"); if(!b) return;
+    var c=pn.querySelector('.pn-corps [data-pp-viser="'+b.getAttribute("data-pp-relais")+'"]'); if(c) c.click(); });
   pn.querySelector(".pn-corps").addEventListener("click",function(e){
     var b=e.target.closest("[data-pp-accord]");
     if(b){ b.disabled=true; baseRpc("biowanze_accord_remplacant",{p_id:x.id}).then(function(){ flash("Signé : la demande part chez le contremaître"); return dmCharger().then(function(){ renderDemandes(); dmFeuilleVoir(x.id); }); }).catch(function(er){ b.disabled=false; flash(baseMsg(er)); }); return; }
@@ -15729,7 +16065,17 @@ function dmFormulaire(pre){
       return o;
     }
     /* le remplaçant en initiales seules (le client, le 22/10/2026) */
-    function optsRp(sel){ return '<option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===sel?' selected':'')+'>'+esc(idLisible(q.id))+'</option>'; }).join(""); }
+    /* (audit du 23/10/2026) les deux GBT se départagent par leur poste, comme
+       dans toute liste de choix (libelleChoix) ; « choisir » sur une ligne
+       datée, comme la date ; et la même fonction séparée des autres, sans
+       quoi la liste se lisait « … YBT YPE AAI ADK … » */
+    var vus={}; autres.forEach(function(q){ var b=idLisible(q.id); vus[b]=(vus[b]||0)+1; });
+    function optsRp(sel,j){
+      var o=function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===sel?' selected':'')+'>'+esc(libelleChoix(q,vus))+'</option>'; };
+      var meme=autres.filter(function(q){ return p&&q.cat===p.cat; }), aut=autres.filter(function(q){ return !(p&&q.cat===p.cat); });
+      return '<option value="">'+(j?'choisir':'')+'</option>'
+        +(meme.length&&aut.length?'<optgroup label="Même fonction">'+meme.map(o).join("")+'</optgroup><optgroup label="Autres">'+aut.map(o).join("")+'</optgroup>':autres.map(o).join(""));
+    }
     function ligne(k,i){
       var L=etat.t[k], l=L[i]||{}, f=etat.f, P=DM_PAPIER[f], pv=l.j?dmPrevue(moi,l.j):"", rpv=l.rp&&l.j?dmPrevue(l.rp,l.j):"";
       var dv=l.j?dmJour(l.j):null;
@@ -15752,7 +16098,7 @@ function dmFormulaire(pre){
       var prec=f==="courte"&&l.j&&l.code&&dmDuree(l.code)<8?'<button type="button" class="dm-pp-prec'+(l.code2||l.part?' rempli':'')+'" data-prec="1">'
         +(l.code2||l.part?esc((l.code2?'+ '+l.code2:'')+(l.code2&&l.part?' · ':'')+(l.part?(l.part==="quitte"?'quitte à ':'arrive à ')+String(l.heure||"").replace(':',' h '):'')):'préciser')+'</button>':'';
       var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select>'+prec+'</td>';
-      var rp=P.rp?'<td class="dm-pp-rp"><select data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"")+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
+      var rp=P.rp?'<td class="dm-pp-rp"><select'+(l.j&&!l.rp?' class="vide"':'')+' data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"",l.j)+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
       var css=f==="sans_solde"&&i===0?'<td rowspan="'+(DM_PAPIER.sans_solde.blocs[0].n+etat.plus)+'" class="dm-pp-css">Congé sans solde</td>':'';
       return '<tr data-k="'+k+'" data-i="'+i+'"><td class="dm-pp-n">'+(i+1)+'</td>'+(f==="sans_solde"?css+date+pause:date+pause+type)+rp+'</tr>';
     }
@@ -15923,7 +16269,11 @@ function renderHisto(){
   });
   document.getElementById("grEquipes").addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("button[data-f]"); if(!b) return;
-    GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau(); renderGrille();
+    GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau();
+    /* une pilule touchée pendant une recherche (qui parcourt tout) l'efface :
+       sinon la pilule ne changerait rien (audit du 23/10/2026) */
+    if(GR.cherche){ GR.cherche=""; document.getElementById("grCherche").value=""; }
+    renderGrille();
   });
   document.getElementById("grCherche").oninput=function(){ GR.cherche=this.value.trim(); renderGrille(); };
   /* LA LIGNE ET LA COLONNE SURVOLÉES, comme l'outil du client */
@@ -16062,7 +16412,8 @@ function majNotifReglage(){
       ?"Sur iPhone, installez d'abord l'application sur l'écran d'accueil (Partager → Sur l'écran d'accueil)."
       :"Ce navigateur ne permet pas les notifications."; b.hidden=true; return; }
   b.hidden=false;
-  if(Notification.permission==="denied"){ el.textContent="Refusées dans les réglages du téléphone. Autorisez-les pour cette application, puis revenez ici."; b.hidden=true; return; }
+  if(Notification.permission==="denied"){ /* au PC, pas de « réglages du téléphone » (audit du 23/10/2026) */
+    el.textContent="Refusées dans les réglages "+(matchMedia("(pointer:coarse)").matches?"du téléphone":"du navigateur (cadenas à gauche de l'adresse)")+". Autorisez-les pour cette application, puis revenez ici."; b.hidden=true; return; }
   var on=notifActive();
   el.textContent=on?(pushPossible()
       ?"Activées : vous êtes prévenu à chaque mise à jour du classeur, même application fermée, et l'application résume vos journées modifiées à l'ouverture."
@@ -16296,7 +16647,7 @@ function mesCongesHTML(db,person){
      s'écrit en heures, en grand, et « ≈ 1,5 j » dessous, à la journée de
      l'onglet Barèmes (8 h par défaut) ; le droit n'est plus écrit, la
      barre suffit. */
-  var hj=Number(st.params&&st.params.hJour)||8, jr=function(h){ return num(R(h/hj,2)); };
+  var hj=Number(st.params&&st.params.hJour)||8, jr=function(h){ return num(R(h/hj,1)); }; /* au dixième derrière un « ≈ » (audit du 23/10/2026) */
   var tot=0, cases=l.map(function(o){
     var rs=Math.max(0,o.rs), pct=o.tot>0?Math.max(0,Math.min(100,rs/o.tot*100)):0;
     tot+=rs;
@@ -16312,12 +16663,12 @@ function mesCongesHTML(db,person){
   var f=p.c&&p.c.flex;
   if(f && (f.total!==undefined || f.report!==undefined)){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
-    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour')+'">'
+    cases.push('<div class="pf-cgc ft'+(ft<0?' neg':'')+'" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(ft)/hj>1?'s':''))+'">'
       +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
       +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
-      +'<em>≈ '+sg+jr(Math.abs(ft))+' j</em></div>');
+      +'<em>'+(ft?'≈ '+sg+jr(Math.abs(ft))+' j':'à zéro')+'</em></div>');
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
@@ -16363,8 +16714,10 @@ function renderRythme(){
   try{ renderCentre(db,person); }catch(e){}
   /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; }
-      try{ a.innerHTML+=mesCongesHTML(db,person); }catch(e){} }
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; } }
+    /* « Mes congés » dans son conteneur : au PC, il passe sous les deux
+       colonnes au lieu d'allonger la gauche (audit du 23/10/2026) */
+    var cg=document.getElementById("ryCg"); if(cg){ try{ cg.innerHTML=mesCongesHTML(db,person); }catch(e){ cg.innerHTML=""; } }
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y);
     try{ recyclageHeros(db,person); }catch(e){}
   });
@@ -16475,7 +16828,7 @@ function renderCentre(db,person){
     R.filter(function(x){ return x.a_moi&&rcEnCours(x); }).forEach(function(x){
       var dj=dmJour(x.jour); route.push(["rcmoi","Recyclage "+x.fonction+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),rcStatut(x)]); });
     (GR.hs||[]).filter(function(x){ return x.a_moi&&hsEnCours(x); }).forEach(function(x){
-      var dj=dmJour(x.jour); route.push(["hsmoi","Heures sup. "+hsDuree(x.minutes)+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),hsStatut(x)]); });
+      var dj=dmJour(x.jour); route.push(["hsmoi",(x.type==="FT"?"Flex time ":"Heures sup. ")+hsDuree(x.minutes)+" · "+pad2(dj.getDate())+"/"+pad2(dj.getMonth()+1),hsStatut(x)]); });
   }
   var h=['<div class="ctl-rac" role="list">'+rac.map(function(r){ return '<button type="button" role="listitem" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>'];
   /* « À faire » seulement s'il y a quelque chose à faire (22/10/2026) : le
@@ -16580,13 +16933,13 @@ function rcCarte(x){
   var quoi='<small class="md-quoi">pause '+dmPa(x.pause)+' · '+(x.doublure?'en doublure'+(x.titulaire?' de <b class="md-rp">'+esc(idLisible(x.titulaire))+'</b>':''):'seul au poste')+'</small>';
   var act=rcATraiter(x)?'<div class="dm-act"><button type="button" class="btn ss-ok" data-rc-voir="'+x.id+'">'+(x.je_confirme?'Confirmer':x.je_contresigne?'Contresigner':'Valider')+'</button></div>'
     :(x.a_moi&&x.statut==="en_attente"?'<div class="dm-act dm-act-s"><button type="button" class="dm-lien dm-suppr" data-rc-suppr="'+x.id+'">Supprimer</button></div>':'');
-  return '<article class="dm-carte dm-g-'+rcGenre(x)+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'">'
+  return '<article class="dm-carte dm-g-'+rcGenre(x)+(rcATraiter(x)?' dm-a-faire':'')+'" data-rc="'+x.id+'" tabindex="0">'
     /* LA CARTE EN DEUX LIGNES DE TITRE (le client, le 22/10/2026 :
        « optimise cela 100 % pro ») : le poste en gras, la date en entier
        dessous, l'état à droite. « Ma fiche » et l'étiquette « RECYCLAGE · »
        redisaient l'onglet et le sélecteur. Pour la fiche d'un autre, la
        personne d'abord, le poste et la date ensuite. */
-    +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b>'+quoi+'</span>':'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+rcStatut(x)+'</header>'
+    +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>'+esc(x.fonction)+'</b>'+quoi+'</span>':dmQui(x,p,n))+rcStatut(x)+'</header>'
     +(x.a_moi?'':'<div class="dm-quoi"><b>Recyclage '+esc(x.fonction)+'</b>'+quoi+'</div>')
     +(x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.cm_motif)+'</p>':'')
     +(x.statut==="annulee"?'':rcEtapes(x))+act+'</article>';
@@ -16671,6 +17024,8 @@ function rcFeuille(x){
   var auj=new Date(jourUsine()), isoAuj=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
   var etat=neuf?{f:"",j:isoAuj,pause:rcPauseDe(moi,isoAuj),doublure:false,tit:""}:{f:x.fonction,j:x.jour,pause:x.pause,doublure:x.doublure,tit:x.titulaire||""};
   var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(u,v){ return u.id<v.id?-1:1; });
+  /* les deux GBT se départagent par leur poste (audit du 23/10/2026) */
+  var vus={}; autres.forEach(function(q){ var b=idLisible(q.id); vus[b]=(vus[b]||0)+1; });
   function cm(){ var c=neuf?rcContremaitre(etat.j,etat.pause):(x.cm||null); return c===moi&&neuf?null:c; }
   function choix(liste,val,cle,actif){
     return liste.map(function(z,i){ var k=typeof z==="string"?z:z[0], t=typeof z==="string"?z:z[1];
@@ -16688,7 +17043,7 @@ function rcFeuille(x){
       '<p class="dm-pp-ch">Date du recyclage : '+(ed?'<input type="date" id="rcJour" value="'+esc(etat.j)+'" max="'+isoAuj+'">':'<span>'+dmDateFr(dmJour(etat.j))+'</span>')+'</p>',
       '<p class="rc-choix">Pause effectuée : '+choix(RC_PAUSES,etat.pause,"rp",ed)+' - '
         +(ed?'<label class="rc-doub"><input type="checkbox" id="rcDoub"'+(etat.doublure?' checked':'')+'> En doublure</label>':'<span class="rc-mot'+(etat.doublure?' rc-pris':'')+'">En doublure</span>')
-        +(etat.doublure?' (titulaire du poste : '+(ed?'<select id="rcTit"><option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===etat.tit?' selected':'')+'>'+esc(idLisible(q.id))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join("")+'</select>':'<b>'+esc(idLisible(etat.tit))+'</b>')+')':'')+'</p>',
+        +(etat.doublure?' (titulaire du poste : '+(ed?'<select id="rcTit"><option value=""></option>'+autres.map(function(q){ return '<option value="'+esc(q.id)+'"'+(q.id===etat.tit?' selected':'')+'>'+esc(libelleChoix(q,vus))+(grNom(q)?' · '+esc(grNom(q)):'')+'</option>'; }).join("")+'</select>':'<b>'+esc(idLisible(etat.tit))+'</b>')+')':'')+'</p>',
       '<p><i>Seules les pauses complètes (8h de prestations d\'affilée) sont prises en compte.</i></p>',
       '<p>Signature : '+(neuf?'<span class="dm-pp-att">au bouton « Signer et envoyer »</span>':sig(x.trigramme,x.cree_le))+'</p></div>'];
     /* l'attestation du contremaître et du responsable de zone */
@@ -16809,9 +17164,9 @@ function hsCarte(x){
   var tag=hsTag(x);
   var act=hsATraiter(x)?'<div class="dm-act"><button type="button" class="btn ss-ok" data-hs-voir="'+x.id+'">'+(x.j_enregistre?'Enregistrer':'Viser')+'</button></div>'
     :(x.a_moi&&x.statut==="en_attente"?'<div class="dm-act dm-act-s"><button type="button" class="dm-lien dm-suppr" data-hs-suppr="'+x.id+'">Retirer</button></div>':'');
-  return '<article class="dm-carte dm-g-'+hsGenre(x)+(hsATraiter(x)?' dm-a-faire':'')+'" data-hs="'+x.id+'">'
+  return '<article class="dm-carte dm-g-'+hsGenre(x)+(hsATraiter(x)?' dm-a-faire':'')+'" data-hs="'+x.id+'" tabindex="0">'
     +'<header>'+dmTuile(x.jour)+(x.a_moi?'<span class="dm-tit"><b>Heures sup.'+tag+'</b>'+hsQuoi(x)+'</span>'
-      :'<span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc(n||idLisible(x.trigramme))+'</b><small>'+esc(p?wsPoste(p):(x.categorie||""))+'</small></span></span>')+hsStatut(x)+'</header>'
+      :dmQui(x,p,n))+hsStatut(x)+'</header>'
     +(x.a_moi?'':'<div class="dm-quoi"><b>Heures supplémentaires</b>'+tag+hsQuoi(x)+'</div>')
     +(x.statut==="refusee"&&(x.rh_motif||x.motif_refus)?'<p class="dm-texte dm-motif">Motif : '+esc(x.rh_motif||x.motif_refus)+'</p>':'')
     +hsEtapes(x)+act+'</article>';
@@ -16941,11 +17296,17 @@ function hsFeuille(x){
     return h.join("");
   }
   var pied=neuf?'<button type="button" class="btn ss-ok" id="hsSigner">Signer et envoyer</button>'
-    :(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" id="hsSuppr">Retirer ma demande</button>':'');
+    :(x.a_moi&&x.statut==="en_attente"?'<button type="button" class="btnlike dm-suppr" id="hsSuppr">Retirer ma demande</button>'
+    /* la décision aussi dans la barre du bas : la feuille la plus longue
+       (audit du 23/10/2026) ; elle touche les boutons du papier */
+    :aViser?'<button type="button" class="btn ss-ok" data-hs-relais="data-hs-act=1">Approuver et signer</button><button type="button" class="btnlike" data-hs-relais="data-hs-act=0">Refuser</button>'
+    :aEnr?'<button type="button" class="btn ss-ok" data-hs-relais="data-hs-rh=1">Enregistrer</button><button type="button" class="btnlike" data-hs-relais="data-hs-rh=0">Refuser</button>':'');
   var pn=grOuvrirPanneau('<div class="pn-tete"><button type="button" class="pn-retour" aria-label="Retour">‹ Retour</button><div><b>Heures supplémentaires</b><span>demande de validation · dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
     +'<div class="pn-corps dm-pp-fond"><div class="dm-papier hs-papier" id="hsPapier"></div><p class="pn-note" id="hsErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
   pn.classList.add("dm-pp-pn");
   var pap=pn.querySelector("#hsPapier"), err=pn.querySelector("#hsErr");
+  var rl=pn.querySelector(".pn-pied"); if(rl) rl.addEventListener("click",function(e){ var b=e.target.closest("[data-hs-relais]"); if(!b) return;
+    var z=b.getAttribute("data-hs-relais").split("="), c=pap.querySelector('['+z[0]+'="'+z[1]+'"]'); if(c) c.click(); });
   function lire(){ var g=function(i){ var el=pap.querySelector(i); return el?el.value:null; };
     if(g("#hsH")!==null) etat.h=g("#hsH"); if(g("#hsM")!==null) etat.m=g("#hsM"); if(g("#hsJt")!==null) etat.jt=g("#hsJt"); if(g("#hsRd")!==null) etat.rd=g("#hsRd"); }
   function dessiner(){ lire(); pap.innerHTML=corps(); }
@@ -19041,7 +19402,7 @@ function renderEquipe(){
       }
       return '<span class="eqn'+(x.p.id===moi?" moi":"")+(tr?" app":"")
         +(formIci?" form":"")+(com?" coment":"")+'"'
-        +(com?' data-com="'+esc(com)+'"':"")
+        +(com?' data-com="'+esc(com)+'" tabindex="0" role="button"':"")
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
         +'<b>'+esc(idLisible(x.p.id))+"</b>"
@@ -19399,7 +19760,7 @@ function renderEquipe(){
         var S=PF_DEB[grp[0]], E=PF_FIN[grp[grp.length-1]];
         var segs=rels.slice().sort(function(a,b){ return a.A-b.A; }).map(function(rl){
           var a=Math.max(rl.A,S), b=Math.min(rl.B,E), hor=hhF(a)+"-"+hhF(b);
-          return '<span class="eqseg'+(rl.p.id===moi?" moi":"")+(rl.com?' coment" data-com="'+esc(rl.com)+'"':'"')
+          return '<span class="eqseg'+(rl.p.id===moi?" moi":"")+(rl.com?' coment" data-com="'+esc(rl.com)+'" tabindex="0" role="button"':'"')
             +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
             +' title="'+esc(fonctionPersonne(rl.p))+" · tient le poste de "+esc(hhF(a)+" à "+hhF(b))+" (sa journée : "+esc(hhF(rl.A)+"-"+hhF(rl.B))+')">'
             +'<b>'+esc(idLisible(rl.p.id))+'</b><small>'+esc(hor)+'</small></span>';
@@ -19483,11 +19844,11 @@ function renderEquipe(){
           var relH=(o.relais||[]).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
-              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'"':'"')+' title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
+              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
                 +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("");
           /* Une étiquette « ? » par place vide, au lieu du compte « 1 / 2 »
              (le client, le 29/09/2026). */
-          var mqH=mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"";
+          var mqH=mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" tabindex="0" role="button" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"";
           /* Puis, le même jour : « celui en formation doit être mis en bas à
              droite ; s'ils sont 4, il faut qu'il y en ait un en poste
              au-dessus de lui ». La grille se remplit ligne par ligne, ceux
@@ -21149,7 +21510,7 @@ function renderTransferts(force){
       var lt=parJ[k], t1=lt[0], q=dateEnMots(t1.an,t1.m,t1.j,t0), eqc={};
       try{ eqc=equipeALaPause(db,t1.an,t1.m,t1.j)||{}; }catch(e){}
       h.push('<div class="mqj" data-m="'+t1.m+'" data-j="'+t1.j+'" title="'+esc(q.titre)+'">'
-        +'<span class="mqjt">'+q.html+'<span class="mqjn apn">'+lt.length+" changement"+(lt.length>1?"s":"")+"</span></span>"
+        +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn apn">'+lt.length+" changement"+(lt.length>1?"s":"")+"</span></span>"
         +'<span class="mqls">');
       lt.forEach(function(t){
         var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
@@ -21179,6 +21540,7 @@ function renderTransferts(force){
     var nb=document.getElementById("rhApp");
     if(nb){ nb.textContent=n>99?"99+":String(n); nb.hidden=!n;
       nb.setAttribute("aria-label",n+" changement"+(n>1?"s":"")+" de poste à prévenir"); }
+    hote.onkeydown=mqClavier;
     hote.onclick=function(e){
       var b=mqCible(e); if(!b) return;
       eqDate=new Date(Number(db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
@@ -21203,8 +21565,10 @@ function renderRappelsInutiles(force){
         var nm=0; jours.forEach(function(z){ if(z.mois===x.mois) nm+=z.l.length; });
         if(semPrec!==-1) h.push("</div></section>");
         h.push(mqMoisTete("rn",x.mois,q.moisNom,nm+" rappel"+(nm>1?"s":""),semPrec===-1)); semPrec=q.mois; }
+      /* la date, seul accès au Planning du jour, doit s'atteindre au
+         clavier (audit du 23/10/2026) */
       h.push('<div class="mqj" data-m="'+x.mois+'" data-j="'+x.jour+'" title="'+esc(q.titre)+'">'
-        +q.html+'<span class="mqls">');
+        +q.html.replace('<span class="mqd','<span role="button" tabindex="0" class="mqd')+'<span class="mqls">');
       x.l.forEach(function(o){
         n++;
         var mv=o.moves.map(function(v){
@@ -21223,13 +21587,14 @@ function renderRappelsInutiles(force){
     });
     if(semPrec!==-1) h.push("</div></section>");
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Rien à signaler</b>'
-      +"<span>Aucun rappel évitable d'ici la fin de l'horaire.</span></p>";
+      +"<span>Aucun rappel évitable d'ici la fin de l'année.</span></p>";
     /* Plus de description sous le titre (le client, le 10/10/2026). */
     document.getElementById("rnSub").textContent="";
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un rappel non nécessaire doit aller sur la
        vue horaire de ce jour-là »). setView("jour") bascule la vue et rend
        #jourCorps pour eqDate. */
+    hote.onkeydown=mqClavier;
     hote.onclick=function(e){
       if(mqBascule(e)) return;
       var b=mqCible(e); if(!b) return;
@@ -21242,6 +21607,14 @@ function renderRappelsInutiles(force){
    <button> : toucher un trigramme ou commencer un défilement dessus changeait
    d'onglet (audit du 10/10/2026). Seuls l'en-tête de date et le bouton
    « Voir le planning » y mènent désormais. */
+/* Entrée ou Espace sur un en-tête de journée vaut un clic : sans cela,
+   le Planning du jour ne s'ouvrait qu'à la souris (audit du 23/10/2026). */
+function mqClavier(e){
+  var t=e.target;
+  if((e.key==="Enter"||e.key===" ")&&t.getAttribute&&t.getAttribute("role")==="button"
+     &&t.classList&&(t.classList.contains("mqjt")||t.classList.contains("mqd"))){
+    e.preventDefault(); t.click(); }
+}
 function mqCible(e){
   var t=e.target; if(!t.closest) return null;
   if(!t.closest(".mqd,.mqjt,.mqvoir")) return null;
@@ -21679,7 +22052,7 @@ function renderManques(force){
         /* L'effectif en tête du jour, « 0/1 », au lieu de « 1 personne
            manquante » (le client, le 10/10/2026) ; un par manque s'il y en
            a plusieurs, et le cadre « En poste » ne le répète plus. */
-        +'<span class="mqjt">'+q.html+'<span class="mqjn">'+x.l.map(function(o){
+        +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn">'+x.l.map(function(o){
           return (x.l.length>1?'<small>'+esc(o.pause)+" "+esc(PV_COURT[o.k]||o.t)+"</small> ":"")+o.tenu+"/"+o.attendu; }).join(" · ")+"</span></span>"
         +'<span class="mqls">');
       x.l.forEach(function(o){
@@ -21733,7 +22106,7 @@ function renderManques(force){
       });
     };
     hote.innerHTML=h.join("")||'<p class="mqok-vide"><b><span class="mqok-v">✓</span> Tous les postes sont couverts</b>'
-      +"<span>Aucun sous-effectif d'ici la fin de l'horaire.</span></p>";
+      +"<span>Aucun sous-effectif d'ici la fin de l'année.</span></p>";
     /* EN PAUSES, ET NON EN JOURS (le client, le 10/10/2026 : « 25 pauses en
        sous-effectif ; bien parler en pause et non en jour ») : une journée
        qui manque de monde le matin et la nuit compte deux pauses. */
@@ -21758,6 +22131,7 @@ function renderManques(force){
        le 04/10/2026 : « cliquer sur un effectif minimum doit aller sur la vue
        horaire de ce jour-là »). setView("jour") bascule la vue et rend
        #jourCorps pour eqDate. */
+    hote.onkeydown=mqClavier;
     hote.onclick=function(e){
       if(mqBascule(e)) return;
       var b=mqCible(e); if(!b) return;
@@ -21952,6 +22326,15 @@ function eqBouge(n){
     var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com]"):null;
     if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
   });
+  /* Au clavier aussi : Tab atteint chaque badge commenté (tabindex posé au
+     rendu), Entrée ou Espace ouvre la bulle, Échap la referme. Le « remplace
+     X » d'un badge n'était lisible qu'à la souris (audit du 23/10/2026). */
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){ fermer(); return; }
+    if(e.key!=="Enter"&&e.key!==" ") return;
+    var c=e.target.closest&&e.target.closest(".eqn[data-com],.eqseg[data-com]");
+    if(c){ e.preventDefault(); ouvrir(c); }
+  });
   window.addEventListener("scroll",fermer,true);
   window.addEventListener("resize",fermer);
 })();
@@ -21980,6 +22363,18 @@ function eqBouge(n){
     var old=n?snapJour():null;
     eqDate=nd; eqAuto=false;
     renderEquipe().then(function(){ glisseCorps(n); pageJour(old,n); });
+  });
+  /* Au PC, les flèches ← → changent de jour, comme dans la feuille de jour du
+     calendrier et la grille de l'Espace RH (audit du 23/10/2026). Jamais quand
+     une feuille, un dialogue, un champ ou une rangée d'onglets les utilise. */
+  document.addEventListener("keydown",function(e){
+    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight") return;
+    if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||jourOuvert) return;
+    var v=document.getElementById("v-jour"); if(!v||v.hidden) return;
+    var g=document.getElementById("grille"); if(g&&!g.hidden) return;
+    if([].some.call(document.querySelectorAll('[aria-modal="true"]'),function(d){ return d.getClientRects().length>0; })) return;
+    if(e.target.closest&&e.target.closest('input,select,textarea,[contenteditable],[role=tablist],[role=radiogroup],.tabs')) return;
+    e.preventDefault(); eqBouge(e.key==="ArrowRight"?1:-1);
   });
 })();
 /* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
@@ -22011,7 +22406,11 @@ function eqBouge(n){
   function recaler(){ caler(); setTimeout(function(){ try{ window.scrollTo(window.pageXOffset,window.pageYOffset); }catch(e){} caler(); },120); }
   vv.addEventListener("resize",caler); vv.addEventListener("scroll",caler);
   window.addEventListener("resize",caler);
-  window.addEventListener("focusout",recaler);
+  /* à la sortie d'un CHAMP seulement : seul un champ ouvre le clavier ; le
+     scrollTo sur place coupait le défilement doux lancé par un bouton
+     (« Revenir en haut », « Aujourd'hui ») qui perd le focus (audit du 23/10/2026) */
+  window.addEventListener("focusout",function(e){ var t=e.target;
+    if(t&&t.matches&&t.matches('input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),textarea,select,[contenteditable="true"]')) recaler(); });
   window.addEventListener("pageshow",recaler);
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) recaler(); });
   caler();
@@ -22762,9 +23161,11 @@ function caGroupes(t,large,sansUrgence){
      moitié seule n'est donc pas une solution : elle ne se montre pas. */
   if(caDouble(t) && !sansUrgence && !prolPP) g.push(prolongation());
   /* Les rappels, par ce qui précède : les reposés d'abord, puis par pause
-     de la veille. Huit au plus en tout. */
+     de la veille. Huit au plus en tout, neuf s'il n'y en a que neuf : « +1 autre
+     rappel » cachait un seul trigramme derrière une phrase plus longue que
+     lui (audit du 23/10/2026). */
   if(t.rappels.length && !sansUrgence){
-    var parV={}, ordre=[], reste=8;
+    var max=t.rappels.length<=9?9:8, parV={}, ordre=[], reste=max;
     t.rappels.forEach(function(o){ var k=(o.interim?"I":"")+"|"+(o.veille||""); if(!parV[k]){ parV[k]=[]; ordre.push(k); } parV[k].push(o); });
     ordre.forEach(function(k){
       if(reste<=0) return;
@@ -22773,7 +23174,7 @@ function caGroupes(t,large,sansUrgence){
       g.push(caCadre("Rappel - "+qui+(v?"Veille "+esc(v):"Repos"),
         l.map(function(o){ return caChip(o.p.id,""); }).join("")));
     });
-    if(t.rappels.length>8){ var nr=t.rappels.length-8; g.push('<span class="mqinc">+'+nr+(nr>1?" autres rappels possibles":" autre rappel possible")+"</span>"); }
+    if(t.rappels.length>max){ var nr=t.rappels.length-max; g.push('<span class="mqinc">+'+nr+(nr>1?" autres rappels possibles":" autre rappel possible")+"</span>"); }
   }
   if(t.ecartes) g.push('<span class="mqinc mqinc-ecart">'+t.ecartes+" écarté"+(t.ecartes>1?"s":"")
     +" : moins de 8 h de repos</span>");
@@ -22813,15 +23214,19 @@ function caForme(){
     var on=b.dataset.du===de; b.setAttribute("aria-checked",String(on)); b.tabIndex=on?0:-1; });
 }
 function caIso(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function caJM(d){ return d.getDate()+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear(); }
 function caDates(){
   if(!caDB) return;
-  var an=Number(caDB.year), d=jourUsine();
+  var an=Number(caDB.year), d=jourUsine(), a0=an, a1=an, k0;
+  /* les dates vont de la première à la dernière année reçue (audit du
+     23/10/2026) : un congé de janvier se pose dès l'automne */
+  for(k0 in HORAIRES) if(HORAIRES.hasOwnProperty(k0) && HORAIRES[k0]){ a0=Math.min(a0,Number(k0)); a1=Math.max(a1,Number(k0)); }
   if(caMode==="conge") d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
   caForme();
-  if(d.getFullYear()!==an) d=new Date(an,d.getFullYear()<an?0:11,d.getFullYear()<an?1:31);
+  if(d.getFullYear()<a0||d.getFullYear()>a1) d=new Date(an,d.getFullYear()<an?0:11,d.getFullYear()<an?1:31);
   ["caDu","caAu"].forEach(function(k){
     var el=document.getElementById(k);
-    el.min=an+"-01-01"; el.max=an+"-12-31"; el.value=caIso(d);
+    el.min=a0+"-01-01"; el.max=a1+"-12-31"; el.value=caIso(d);
   });
 }
 function caLire(k){
@@ -22872,14 +23277,31 @@ function caCalculer(){
   var du=caLire("caDu"), au=(caDureeEff()!=="periode")?du:(caLire("caAu")||du), an=Number(db.year);
   if(!du){ hote.innerHTML='<p class="mqrien">Choisissez une date.</p>'; return; }
   if(au<du){ var x=du; du=au; au=x; }
-  var jours=[], d=new Date(du);
-  while(d<=au && jours.length<62){ if(d.getFullYear()===an) jours.push(new Date(d)); d.setDate(d.getDate()+1); }
+  /* CHAQUE JOUR DANS L'HORAIRE DE SON ANNÉE (audit du 23/10/2026) : la
+     recherche ne gardait que les jours de caDB, et un congé de janvier 2027
+     répondait « Aucune journée de 2026 ». Seul un classeur reçu (HORAIRES)
+     fait foi : une année prolongée par les cycles n'est qu'une supposition,
+     ses jours sont dits non vérifiés. */
+  function dbDe(y){ return y===an?db:((typeof HORAIRES!=="undefined"&&HORAIRES[y])||null); }
+  var jours=[], d=new Date(du), sansH={}, presents={};
+  while(d<=au && jours.length<62){ jours.push(new Date(d)); d.setDate(d.getDate()+1); }
+  /* coupé à 62 jours : on le dit, sinon on croit voir toute la période */
+  var coupe=d<=au;
+  jours=jours.filter(function(dt){
+    var y=dt.getFullYear(), dy=dbDe(y), ok=!!dy;
+    if(ok && !rech){
+      if(presents[y]==null) presents[y]=dy.people.some(function(p){ return p.id===id; });
+      ok=presents[y];
+    }
+    if(!ok) (sansH[y]=sansH[y]||[]).push(dt);
+    return ok;
+  });
   var memo={};
   function pausesLe(dt){
     var k=caIso(dt); if(memo[k]) return memo[k];
-    var out={};
-    if(dt.getFullYear()===an){
-      var par=equipeDuJour(db,an,dt.getMonth()+1,dt.getDate());
+    var out={}, yL=dt.getFullYear(), dbL=dbDe(yL);
+    if(dbL){
+      var par=equipeDuJour(dbL,yL,dt.getMonth()+1,dt.getDate());
       ["AM","PM","N","D"].forEach(function(g){ (par[g]||[]).forEach(function(x){ out[x.p.id]=g; }); });
       Object.defineProperty(out,"_par",{value:par});
     }
@@ -22888,7 +23310,7 @@ function caCalculer(){
   var t0=Date.UTC(jourUsine().getFullYear(),jourUsine().getMonth(),jourUsine().getDate());
   var h=[], semPrec=-1, n={ok:0,chg:0,non:0,hors:0}, compact={};
   jours.forEach(function(dt){
-    var m=dt.getMonth()+1, j=dt.getDate();
+    var m=dt.getMonth()+1, j=dt.getDate(), an=dt.getFullYear(), db=dbDe(an);
     if(rech){
       /* une seule date : ni intertitre de semaine, ni bloc de date */
       var rr=caRechercher(db,an,m,j,rg,rk,function(dec){
@@ -22999,8 +23421,13 @@ function caCalculer(){
   }
   var compacts=ligneCompacte(compact.ok,cg?"Possible, rien à changer":"Rien à remplacer","ok")
     +ligneCompacte(compact.hors,cg?"Déjà en repos ou en congé":"Pas prévu ce jour-là","hors");
-  hote.innerHTML=(jours.length>1?'<div class="cabilan">'+bil.join("")+"</div>"+compacts:"")
-    +(h.join("")||(compacts?"":'<p class="mqrien">Aucune journée de '+an+" dans cette période.</p>"));
+  var avis=(coupe?'<p class="mqrien">Limité aux 62 premiers jours (jusqu\'au '
+    +caJM(jours.length?jours[jours.length-1]:au)+") : raccourcissez la période pour voir la suite.</p>":"")
+    +Object.keys(sansH).map(function(y){ var l=sansH[y];
+      return '<p class="mqrien">'+(dbDe(Number(y))?"Absent de l'horaire "+y:"Pas d'horaire pour "+y)+" : "
+        +(l.length>1?caJM(l[0])+" → "+caJM(l[l.length-1])+", "+l.length+" jours non vérifiés":caJM(l[0])+" non vérifié")+".</p>"; }).join("");
+  hote.innerHTML=avis+(jours.length>1?'<div class="cabilan">'+bil.join("")+"</div>"+compacts:"")
+    +(h.join("")||(compacts||avis?"":'<p class="mqrien">Aucune journée avec un horaire dans cette période.</p>'));
 }
 (function(){
   var seg=document.querySelector(".caseg"); if(!seg) return;
@@ -23694,14 +24121,16 @@ function ouvrirPersonne(id){
     }
     var f=document.getElementById("persSheet"); f.hidden=false;
     document.body.classList.add("sheet-on");
+    if(!persOuvert) navPousser("s"); /* « retour » la referme (audit du 23/10/2026) */
     persRetour=document.activeElement; persOuvert=true;
     try{ inerteFond(true); }catch(e){}
     var fb=f.querySelector(".sheet-fermer"); if(fb&&fb.focus) try{ fb.focus(); }catch(e){}
   });
 }
-function fermerPersonne(){
+function fermerPersonne(parRetour){
   if(!persOuvert) return;
   persOuvert=false;
+  if(parRetour!==true) navRetirer("s");
   var f=document.getElementById("persSheet"); if(f) f.hidden=true;
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
@@ -23944,6 +24373,9 @@ function gateFinaliser(partial){
 function appliquerCompte(acc){
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
+  /* Le pli « Vue direction » se cache là où setView le refuse — un compte
+     non RH — et reste le seul accès sans compte (audit du 23/10/2026) */
+  var df=document.getElementById("dirFold"); if(df) df.hidden=!!(acc&&acc.role!=="rh");
   if(!(acc&&acc.role==="rh")&&st.view==="direction") setView("horaire");
   if(acc&&acc.tri){
     lsSet("ui/prefillId",acc.tri); if(acc.cat) lsSet("ui/prefillCat",acc.cat);
@@ -23979,6 +24411,11 @@ function sideMaj(){
   var g=document.getElementById("sideGestion"); if(!g) return;
   var l=compteBase()?wsMenuSections():[];
   g.hidden=!l.length;
+  /* la Gestion de la tablette n'apparaît que s'il y a une section à ouvrir
+     (audit du 23/10/2026) */
+  var tpg=document.getElementById("tab-plus"), lib=document.getElementById("plusLib");
+  if(tpg) tpg.classList.toggle("a-gestion",!!l.length);
+  if(lib) lib.textContent=peutSaisir()?"Gestion":"Mon équipe";
   var ouvert=!document.getElementById("grille").hidden;
   /* Direction rejoint la Gestion au PC (le client, le 22/10/2026) : elle
      n'est qu'à la RH, comme le reste de la colonne. */
@@ -23991,6 +24428,13 @@ function sideMaj(){
   var n=wsNbDemandes(), nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
   var nv=wsNbValider(), nbv=document.getElementById("sideValNb"); if(nbv){ nbv.hidden=!nv; nbv.textContent=nv; }
   var nr=(GR.recyclages||[]).filter(rcATraiter).length, nbr=document.getElementById("sideRecNb"); if(nbr){ nbr.hidden=!nr; nbr.textContent=nr; }
+  /* l'entrée active reste visible quand le menu dépasse l'écran : celle de
+     l'Historique tombait sous le bas à 900 px. Le seul conteneur du menu
+     défile, pas la page (audit du 23/10/2026) */
+  var a=g.querySelector('[aria-current="page"]'), sc=a&&a.parentElement;
+  while(sc&&sc!==document.body&&!(sc.scrollHeight>sc.clientHeight+1&&/auto|scroll/.test(getComputedStyle(sc).overflowY))) sc=sc.parentElement;
+  if(a&&sc&&sc!==document.body){ var ra=a.getBoundingClientRect(), rs=sc.getBoundingClientRect();
+    if(ra.bottom>rs.bottom) sc.scrollTop+=ra.bottom-rs.bottom+8; else if(ra.top<rs.top) sc.scrollTop-=rs.top-ra.top+8; }
 }
 (function(){
   var g=document.getElementById("sideGestion");
@@ -24018,25 +24462,36 @@ function sideMaj(){
   function ligne(attr,ic,txt,extra,cur){ return '<button type="button" '+attr+(cur?' aria-current="page"':'')+'>'+ic+'<span>'+esc(txt)+'</span>'+(extra||"")+'</button>'; }
   function svgDe(id){ var t=document.getElementById(id); return t?t.querySelector("svg").outerHTML:""; }
   function ouvrir(){
-    var h='<p class="plus-titre">Sections</p>'
-      +ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
-      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche")
-      +(document.documentElement.getAttribute("data-rh")==="1"?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
+    /* à la tablette, Effectifs et Recherche sont déjà dans la barre : seule
+       Direction les rejoint ici (audit du 23/10/2026) */
+    var tel=mqNav.matches, dirOk=document.documentElement.getAttribute("data-rh")==="1";
+    var h=(tel||dirOk?'<p class="plus-titre">Sections</p>':'')
+      +(tel?ligne('data-go="rh"',svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
+      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
+      +(dirOk?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"");
     var l=compteBase()?wsMenuSections():[];
     if(l.length) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+l.map(function(x){
       var dn=x.s==="demandes"?wsNbDemandes():x.s==="valider"?wsNbValider():0;
-      return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb">'+dn+'</span>':'');
+      return ligne('data-side-ws="'+x.s+'"',wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb app">'+dn+'</span>':''); /* orange : une tâche, pas une alarme, comme au PC (audit du 23/10/2026) */
     }).join("");
+    if(f.hidden) navPousser("plus"); /* « retour » la referme (audit du 23/10/2026) */
     f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
+    /* à la tablette, un menu déroulant sous son bouton, tenu dans l'écran */
+    if(!tel){ var r=bt.getBoundingClientRect(); f.style.top=Math.round(r.bottom+6)+"px"; f.style.right=Math.max(16,Math.round(innerWidth-r.right))+"px"; f.style.left="auto"; f.style.bottom="auto"; }
+    else { f.style.top=f.style.right=f.style.left=f.style.bottom=""; }
     var p=f.querySelector("button"); if(p) p.focus();
   }
-  function fermer(){ if(f.hidden) return; f.hidden=true; fond.hidden=true; bt.setAttribute("aria-expanded","false"); }
+  function fermer(){ if(f.hidden) return; navRetirer("plus"); f.hidden=true; fond.hidden=true; bt.setAttribute("aria-expanded","false"); }
   bt.addEventListener("click",function(){ if(f.hidden){ vibrer(); ouvrir(); } else fermer(); });
   fond.addEventListener("click",fermer);
+  /* Tab reste dans la feuille ouverte, comme dans celle du jour (audit du
+     23/10/2026) */
+  f.addEventListener("keydown",piegeTab(f));
   document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!f.hidden){ fermer(); bt.focus(); } });
   f.addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b) return;
     var ws=b.getAttribute("data-side-ws");
+    if(ws&&document.getElementById("grille").hidden) navCeder("plus","g");
     fermer();
     if(ws){ if(document.getElementById("grille").hidden) ouvrirGrille(ws); else wsAller(ws); }
     /* data-go : setView par l'écouteur commun du document */
@@ -24233,7 +24688,20 @@ if("serviceWorker" in navigator){
   var swAvait=!!navigator.serviceWorker.controller, swRecharge=false,
       swNe=Date.now(), swHorsLigne=!navigator.onLine, swAncienne=false;
   navigator.serviceWorker.addEventListener("controllerchange",function(){
-    if(!swAvait || swRecharge) return;
+    /* Première visite : l'horaire a été lu AVANT que le service worker ne
+       prenne la main, il n'est donc pas en cache et l'ouverture suivante
+       hors ligne restait vide. On le redemande, par jsonFrais cette fois
+       (un 304 par année ; « ?reprise= » retiré pour garder la même clé).
+       Audit du 23/10/2026. */
+    if(!swAvait){
+      try{
+        [].forEach.call(performance.getEntriesByType("resource"),function(e){
+          if(/\/data\/horaire-\d{4}\.json/.test(e.name)) fetch(e.name.split("?")[0],{cache:"no-cache"}).catch(function(){});
+        });
+      }catch(e){}
+      return;
+    }
+    if(swRecharge) return;
     if(!swHorsLigne && !swAncienne) return;
     swRecharge=true; location.reload();
   });
