@@ -4227,3 +4227,7 @@ Le client, après l'aperçu : « ok pour les présents par pause, développer la
   - l'anneau du champ de date au clavier seulement.
   - Éprouvé à 390 et 1280 px, aucune erreur.
 - **Reste à examiner, hors de la Direction** : sur une journée, le 13/04, pour une seule personne, la page lit 12 h d'heures sup quand la découpe du vérificateur en lit 4 (1 955 h contre 1 947 h au total). Voir l'entrée suivante.
+
+### À examiner : 8 h d'heures sup d'écart le 13/04 (relevé le 23/10/2026)
+
+En vérifiant les observations de la Direction par un second calcul, l'agent du complément a trouvé une seule différence. Elle porte sur les heures sup de l'année au 23/10 : la page en compte 1 955 h, la découpe du vérificateur 1 947 h. Toute la différence tient en une journée, le 13/04, pour une seule personne. La page y lit 12 h, la découpe 4 h. La découpe de `remplirMois` lit aussi 4 h. **Non tranché** : c'est la lecture de l'horaire, et la personne en cause n'a pas été consignée. Le 13/04 porte plusieurs journées à « +FT » (ATR, VGG, SKS, DWS, BLR, GJR, JBS) et plusieurs rappels de 12 h (FPA, GST, LCI, JKS, MHI, QBY). À refaire : la somme par personne au navigateur et dans la découpe, puis comparer. Si la page lit 12 h là où la règle de `docs/conversion-horaire.md` dit 4, l'écart touche aussi la fiche de paie de cette personne.
