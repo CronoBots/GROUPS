@@ -4415,6 +4415,32 @@ Ce qui est fait : une ligne sous le prochain poste, dans le héros. Elle donne l
 
 **Laissé au client** : raccourcir le héros au téléphone (920 px) en sortant « Mes congés », « Année » et « Mes pauses » dans une carte placée après « À faire ». Ce serait revenir sur ses choix du 17 au 22/10, qui les a voulus dans le héros.
 
+### « Mon année » : le héros allégé, les actions au premier écran (23/10/2026, v1029)
+
+Le client, à la proposition de v1028 (sortir « Mes congés », « Année » et « Mes pauses » du héros, dans une carte placée après « À faire ») : « go ».
+
+- **La carte « Mon année »** (`#anCard`, sous-titre l'année) réunit, sans rien retirer :
+  - « Mes congés », les cinq cases ;
+  - « Avancement » (prestées, à venir, pourcentage) : l'ancien « Année 2026 », puisque la carte dit déjà l'année ;
+  - « Mes pauses ».
+  
+  Les conteneurs `#ryCg` et `#ryPr` sont les mêmes, remplis par les mêmes fonctions. La carte ne se montre qu'une fois remplie. Au téléphone, elle vient juste après « À faire » ; au PC, dans la colonne de droite, sous « À faire ».
+- **Le héros** ne garde que la personne, son prochain poste (et la ligne « à faire », voir plus bas) et Ma semaine. Au PC, le prochain poste est à gauche et Ma semaine à droite.
+- **Les polyvalences** (opérateurs et adjoints) passent après le prochain poste. Elles étaient au-dessus depuis le 18/10 (`nfdm-v823`), un choix de placement fait alors, et non une demande du client, qui les voulait « dans le héros », où elles restent.
+  - Au téléphone : prochain poste, actions, Ma semaine, polyvalences.
+  - Au PC : le prochain poste et Ma semaine à gauche, les polyvalences à droite. Les deux colonnes ont 90 px d'écart, contre 190 à 250 dans les deux essais précédents ; le premier essai laissait un vide sous Ma semaine.
+- **« Mon rythme »** passe dans la colonne principale du PC, sous le calendrier : 1 620 px à gauche et 1 563 px à droite, au lieu d'une colonne de droite plus courte de 300 px.
+- **La ligne « N actions à faire »** de v1028 ne se montre plus que si la première action de la carte n'atteint pas le premier écran. C'est mesuré, et non supposé (`pfAfaireVoir`, après chaque rendu et à chaque changement de taille), car le héros va de 380 à 660 px selon la personne. Visible au-dessus de la carte, elle la redirait.
+  - **Erreur de la première mesure** : la barre du bas n'est pas fixe elle-même. C'est son parent `#navwrap` qui l'est, et le test `position==="fixed"` sur `nav.tabs` échouait. La ligne était donc cachée pour ATR à 393 × 852 alors que sa première action tombait sous la barre (889 px pour un pli à 775). On lit désormais le haut de `nav.tabs` quand il est dans la moitié basse de l'écran ; au PC, c'est le menu de gauche.
+  - Une première règle CSS (`min-height:700px`) aurait fait la même erreur pour tous les profils à polyvalences : retirée.
+- **Une accolade en trop**, laissée par un remplacement, a été trouvée et retirée avant le commit. Mesuré : la feuille principale compte 4 212 accolades ouvrantes et 4 212 fermantes.
+- **Mesuré** :
+  - **premier écran** : la première action est visible, ou la ligne « à faire » l'est, pour 5 personnes (VBN, ATR, JKS, SKS, GBT) à 393 × 852, 320 × 568 et 1280 × 800, soit 15 cas sur 15 ;
+  - **VBN à 390 px** : héros 849 → 404 px, « À faire » à 448 px au lieu de 893 ;
+  - **page entière** : 3 436 → 3 520 px à 390 (la carte a son en-tête), 3 842 → 3 951 px à 320, 2 450 → 2 060 px à 1280 ;
+  - aucun débordement pour huit profils aux trois largeurs, aucune erreur ;
+  - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
