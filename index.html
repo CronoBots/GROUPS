@@ -1253,7 +1253,7 @@ body{overflow-x:clip}
 .sheet-quoi h2{margin:0; font-size:15.5px; font-weight:650; letter-spacing:-.01em}
 .sheet-quoi span{display:block; font-size:11px; color:var(--faint)}
 .sheet-nav,.sheet-fermer{
-  width:34px; height:34px; flex:0 0 auto; display:grid; place-items:center; border-radius:9px;
+  width:40px; height:40px; flex:0 0 auto; display:grid; place-items:center; border-radius:9px;
   border:1px solid var(--line); background:var(--surface2); color:var(--muted); font-size:18px; line-height:1;
 }
 .sheet-nav:hover,.sheet-fermer:hover{color:var(--ink); border-color:var(--in2)}
@@ -1288,7 +1288,7 @@ body{overflow-x:clip}
 .sheet-boite.jour-g>:not(.sheet-tete){animation:jourGauche .2s ease-out}
 .sheet-boite.jour-d>:not(.sheet-tete){animation:jourDroite .2s ease-out}
 .sheet-boite .aide[hidden]{display:none}
-.sheet-src .src-t{display:inline-block; margin-right:8px; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
+.sheet-src .src-t{display:inline-block; margin-right:8px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
 .sheet-src .com{font-style:normal; color:var(--ink2); margin-top:6px; padding-left:8px; border-left:2px solid var(--line)}
 .jl-tete{display:flex; align-items:center; gap:12px}
 .jl-p{flex:0 0 auto; min-width:48px; height:48px; padding:0 8px; box-sizing:border-box; display:grid; place-items:center; border-radius:12px;
@@ -1337,7 +1337,7 @@ body.sheet-on{overflow:hidden}
    l'en-tête (trigramme en mono), puis statut, poste attitré et polyvalences.
    Couleurs d'atelier en POINTS (pas de liseré épais), quotas en chiffres
    tabulaires mono, barre de progression plate. */
-.sheet-spacer{width:34px; flex:0 0 auto}
+.sheet-spacer{width:40px; flex:0 0 auto}
 #persTitre{font-family:"IBM Plex Mono",monospace; font-size:19px; letter-spacing:.06em}
 .persbody{padding:16px 16px 8px}
 .pf-facts{display:flex; gap:26px; padding-bottom:2px}
@@ -2027,7 +2027,11 @@ body.sheet-on{overflow:hidden}
    jour) — un léger éclaircissement au tap le confirme (le client, 02/10/2026). */
 .mqj{cursor:default}
 .mqj .mqd,.mqj .mqjt{cursor:pointer}
-.mqj .mqjt:focus-visible,.mqj .mqd[role=button]:focus-visible{outline:2px solid var(--in); outline-offset:2px; border-radius:6px}
+/* l'anneau se dessine dedans : la fiche est en overflow:hidden et en
+   rognait trois côtés (audit du 23/10/2026) */
+.mqj .mqjt:focus-visible,.mqj .mqd[role=button]:focus-visible{outline:2px solid var(--in); outline-offset:-2px; border-radius:6px}
+/* l'onglet reçoit le focus quand on y arrive au clavier : pas de cadre autour de tout l'écran */
+#v-jour:focus{outline:none}
 /* Plus de soulignement sous le jour : le chevron au bout de la ligne dit
    déjà qu'elle s'ouvre (le client, le 10/10/2026). */
 .mqvoir{display:inline-flex; align-self:flex-start; margin-top:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line);
@@ -4782,6 +4786,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .f.f-texte{grid-column:1/-1}
 .f input[type=number],.f input[inputmode=decimal]{font-family:"IBM Plex Mono",monospace; text-align:right}
 .f input[aria-invalid=true],.chk input[aria-invalid=true]{border-color:var(--out); box-shadow:0 0 0 1px var(--out)}
+.illisible{display:block; font-size:11px; line-height:1.3; color:var(--out); text-align:left; white-space:normal}
+.chk .illisible{margin-top:3px; text-align:right; font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .f .hint{font-size:10.5px; color:var(--faint)}
 /* Une valeur commune se lit, elle ne se remplit pas : pas de cadre de
    saisie, pas de fond clair qui appelle le doigt. Le cadenas dit pourquoi,
@@ -5098,6 +5104,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
 .pf-cgc.neg>b{color:#ff8a7a}
 @media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
+/* à 320 px, « tout placé » sortait de 3 px de sa case (audit du 23/10/2026) */
+@media (max-width:360px){ .pf-cgs{gap:2px} .pf-cgc{padding-left:3px; padding-right:3px} .pf-cgc>em{letter-spacing:-.01em} }
 .ry-an-cpt .pf-pr-lg-f,.ry-an-cpt .pf-pr-lg-r{display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:1px}
 .pf-pr-rep>i{display:block; min-width:6px; border-radius:4px; overflow:hidden;
   background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px)}
@@ -5106,6 +5114,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .pf-pr-rep>[data-p="N"]{--c:var(--cal-n)} .pf-pr-rep>[data-p="D"]{--c:var(--cal-d)}
 .pf-pr-lg-f{background:rgba(255,255,255,.75)}
 .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,rgba(255,255,255,.18) 3px 6px)}
+/* jusqu'à 400 px, des colonnes de nombres plus étroites et des écarts
+   resserrés : « Dimanche 1er novembre » tient sur une ligne, à 14 px, de 361
+   à 400 px, et « FAITES » et « RESTE » tiennent dans leur colonne (audit du
+   23/10/2026 ; mesuré : 34 et 32 px les coupaient, 13 px rapetissait les
+   dates) */
+@media (max-width:400px){ .pf-pr-tab,.pf-pr-h{grid-template-columns:28px minmax(0,1fr) 38px 36px} .pf-pr-c .pf-pause{width:28px}
+  .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:10px; padding-right:10px} .pf-pr-h{letter-spacing:0} }
 /* au petit téléphone, la date tient sur une ligne */
 @media (max-width:360px){ .pf-pr-c,.pf-pr-h{column-gap:6px; padding-left:9px; padding-right:10px} .pf-pr-c .pf-pause{width:28px; font-size:10.5px}
   /* les colonnes gardent 34 et 32 px (plus larges, elles faisaient passer la
@@ -6291,6 +6306,10 @@ html .hp-fab:hover{opacity:1}
 #demCard header{display:flex; align-items:center; gap:10px}
 #demCard header .md-nv{margin-left:auto; min-height:44px; padding:0 14px; font-size:13.5px}
 #demCard .pad{padding-top:10px; padding-bottom:12px}
+/* à 320 px, « 2 en cours » sous le titre : « + Nouvelle » reste sur la
+   première rangée au lieu de tomber seul sur une seconde (audit du 23/10/2026) */
+@media (max-width:360px){ #demCard header{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:10px; row-gap:1px}
+  #demCard header .sub{grid-column:1; grid-row:2} #demCard header .md-nv{grid-column:2; grid-row:1 / span 2; margin-left:0} }
 .md-vide{margin:0}
 .md-l{margin:0}
 /* « .md-l li » habillait aussi les étapes du circuit (des li) : chaque
@@ -8753,7 +8772,9 @@ function renderSemaine(hote){
     return pending[ch] ? Promise.resolve(DERNIER_ECRIT[ch]) : readMonth(k);
   })).then(function(docs){
     if(jeton!==_semJeton || calVue!=="semaine") return;
-    var parK={}, h="", tot=0, nbj=0, dr=null, auj=jourPerso(st.personObj), aujT=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
+    /* le jour du calendrier, comme la pastille de la case et « Ma semaine » :
+       jourPerso donnait la veille pendant une nuit (audit du 23/10/2026) */
+    var parK={}, h="", tot=0, nbj=0, dr=null, auj=new Date(), aujT=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
     ks.forEach(function(k,i){ var ym=cles[k], M;
       if(ym[0]===st.y && ym[1]===st.m) M=st.month;
       else { M=docs[i]||{}; migreMois(M); M=mergeDefaults(M,DEF_M); if(!M.days) M.days={}; }
@@ -9712,14 +9733,31 @@ function valFr(v){ return String(v).replace(".",","); }
 /* Lit un montant tapé à la virgule ou au point, espaces et « € » ignorés :
    null si vide, NaN si ce n'est pas un nombre (audit du 23/10/2026). */
 function lireNombre(s){
-  s=String(s).replace(/[\s\u00a0\u202f€]/g,"").replace(",",".");
+  s=String(s).replace(/[\s\u00a0\u202f€]/g,"");
+  /* « 1.234,50 », recopié d'une fiche : devant une virgule, le point groupe
+     les milliers (audit du 23/10/2026). « 1.234 » seul reste ambigu. */
+  if(/^[-+]?\d{1,3}(\.\d{3})+,\d*$/.test(s)) s=s.replace(/\./g,"");
+  s=s.replace(",",".");
   return s===""?null:(/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)?Number(s):NaN);
 }
-/* Un nombre illisible n'est pas enregistré : le champ se marque en rouge. */
+/* Un nombre illisible n'est pas enregistré : le champ se marque en rouge,
+   et une ligne sous lui dit que le calcul ne le prend pas (audit du
+   23/10/2026 : le filet seul taisait que l'ancienne valeur restait). */
 function nombreSaisi(t){
-  var v=lireNombre(t.value);
-  if(v!==v){ t.setAttribute("aria-invalid","true"); return; }
-  t.removeAttribute("aria-invalid");
+  var v=lireNombre(t.value), m=t.parentNode.querySelector(".illisible");
+  if(v!==v){
+    t.setAttribute("aria-invalid","true");
+    if(!m){
+      m=document.createElement("span"); m.className="illisible";
+      m.id="ill_"+(t.id||("chk_"+t.dataset.k));
+      m.textContent="Nombre illisible : non pris en compte";
+      t.parentNode.insertBefore(m,t.nextSibling);
+    }
+    t.setAttribute("aria-describedby",m.id);
+    return;
+  }
+  t.removeAttribute("aria-invalid"); t.removeAttribute("aria-describedby");
+  if(m) m.parentNode.removeChild(m);
   return v;
 }
 function valAffichee(v,step){
@@ -10283,6 +10321,11 @@ function setView(v,keepScroll){
   if(VIEWS.indexOf(v)<0) v="horaire";
   if(v==="direction"&&st.account&&st.account.role!=="rh") v="horaire";
   var change=(st.view!==v);
+  /* Réglages s'ouvre en sous-page « ‹ Accueil » : « retour » y ramène au
+     lieu de quitter l'application ; la quitter autrement retire l'étape
+     (audit du 23/10/2026) */
+  if(change&&v==="reglages"&&NAV) navPousser("r");
+  else if(change&&st.view==="reglages"&&NAV) navRetirer("r");
   var iA=VIEWS.indexOf(st.view), iN=VIEWS.indexOf(v),
       sens=(change && iA>=0 && st.view!=="reglages" && v!=="reglages")?(iN>iA?"de-d":"de-g"):"";
   st.view=v;
@@ -10344,6 +10387,9 @@ function setView(v,keepScroll){
   try{ sideMaj(); }catch(e){}
   /* le titre de l'onglet du navigateur dit la vue : plusieurs fenêtres se
      distinguent ; le nom choisi par le client reste (audit du 23/10/2026) */
+  titreVue(v);
+}
+function titreVue(v){
   var _t={horaire:"Accueil",jour:"Planning",equipe:"Équipes",salaire:"Salaire",rh:"Effectifs",recherche:"Recherche",direction:"Direction",reglages:"Réglages"}[v];
   document.title=_t?_t+" · BioWanze":"BioWanze";
 }
@@ -10826,8 +10872,16 @@ function fetchHoraireDB(){
    l'écran d'accueil, aucun bouton pour recharger (audit du 23/10/2026). */
 window.addEventListener("online",function(){
   if(HORAIRE_DB) return;
-  fetchHoraireDB().then(function(db){ if(db) location.reload(); });
+  fetchHoraireDB().then(function(db){ if(db) rechargerQuandLibre(); });
 });
+/* L'espace, un panneau, une feuille ou une saisie en cours : la recharge
+   attend qu'ils soient refermés, sinon un brouillon se perdait sans un mot
+   (audit du 23/10/2026). */
+function rechargerQuandLibre(){
+  var ouvert=["grille","grPanneau","jourSheet","plusFeuille"].some(function(id){ var e=document.getElementById(id); return e&&!e.hidden; })
+    ||(typeof persOuvert!=="undefined"&&persOuvert)||/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"");
+  if(ouvert) setTimeout(rechargerQuandLibre,1500); else location.reload();
+}
 /* Sans horaire, les compteurs affichent des zéros qui ont l'air justes. Le
    dire une bonne fois, et en haut de la page, vaut mieux qu'une bulle de
    deux secondes que personne n'a vue passer. */
@@ -13567,7 +13621,9 @@ function _pfHead(db,p){
          trigramme, puis le contremaître et les collègues. */
     var MOTS0={AM:"Ce matin",PM:"Cet après-midi",N:"Ce soir",D:"Aujourd\u2019hui"},
         MOTS1={AM:"Demain matin",PM:"Demain après-midi",N:"Demain soir",D:"Demain"};
-    var titre=(pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||dateL,
+    /* une nuit déjà commencée se dit « Cette nuit » : à 3 h, « Ce soir »
+       désignait la nuit suivante (audit du 23/10/2026) */
+    var titre=(pr.enCours&&pr.pv==="N"&&pr.kc<=0&&"Cette nuit")||(pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||dateL,
         enMots=titre!==dateL;
     var dure=function(x){ x=Math.round(x*60); var hh0=Math.floor(x/60), mm=x%60; return hh0+"\u00a0h"+(mm?"\u00a0"+(mm<10?"0":"")+mm:""); };
     if(!pr.enCours){
@@ -16138,8 +16194,10 @@ function grColonnes(db){
   if(/^Shift/.test(m[0])&&!GR.adj) cols=cols.filter(function(c){ return !/adjoint/i.test(c.po); });
   /* une recherche parcourt toutes les feuilles, et non la seule pilule
      active (audit du 23/10/2026) : « Personne ne correspond » faisait croire
-     qu'une personne d'une autre équipe n'existait pas */
-  if(GR.cherche){ var vu={}; cols=[]; m=["?","Recherche",null,"pt-cm"];
+     qu'une personne d'une autre équipe n'existait pas ; à partir de deux
+     lettres seulement : une seule en retenait 61 colonnes, 1 s de gel par
+     frappe (audit du 23/10/2026) */
+  if(GR.cherche.length>=2){ var vu={}; cols=[]; m=["?","Recherche",null,"pt-cm"];
     GR_MODES.forEach(function(x){ if(x[2]||/^p:/.test(x[0])) return;
       de(x[0]).forEach(function(c){ if(!vu[c.p.id]){ vu[c.p.id]=1; cols.push(c); } }); }); }
   return {mode:m, cols:cols};
@@ -16152,7 +16210,7 @@ function renderGrille(){
   if(!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
   document.getElementById("grEquipes").innerHTML='<button type="button" class="hp-pill hp-jour" data-vue="jour">Vue journée</button>'
     +GR_MODES.map(function(x){ var poste=!!x[3];
-      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!GR.cherche)+'">'+esc(x[1])+'</button>'; }).join("");
+      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'; }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
      scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
      recherche (audit du 23/10/2026) */
@@ -16221,7 +16279,7 @@ function renderGrille(){
   }
   h.push('</table>');
   zone.innerHTML=h.join("");
-  GR.colCache={};
+  GR.colCache={}; GR.sig=grSignature(db);
   if(garde){ zone.scrollTop=garde.t; zone.scrollLeft=garde.l; }
   var lg=document.getElementById("grLegende"), L=db.legende||{};
   if(lg) lg.innerHTML=Object.keys(L).filter(function(c){ return c!=="xxx"; }).map(function(c){ return '<span><b>'+esc(c)+'</b> : '+esc(L[c])+'</span>'; }).join("");
@@ -16229,6 +16287,20 @@ function renderGrille(){
   var vb=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?"Cliquez":"Touchez";
   sous.textContent=(peutSaisir()?vb+" une case pour la modifier, un nom pour ses compteurs":vb+" un nom pour ses compteurs")
     +" · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?");
+}
+/* CE DONT LA GRILLE DÉPEND : revenir au Planning ne la refait que si l'un
+   a changé (18 000 nœuds, 2,3 s au téléphone ; audit du 23/10/2026). Le
+   classeur compte par son objet (un horaire relu en est un neuf) ; les
+   saisies, qui le modifient en place, appellent renderGrille() elles-mêmes. */
+function grSignature(db){
+  return [GR.feuille, GR.debut?GR.debut.getFullYear():0, GR.cherche, GR.adj, jourUsine().toDateString(),
+          db, db&&db.maj, GR.noms, peutSaisir(), soldesSaisis(db), window.innerWidth];
+}
+function grAJour(){
+  var g=GR.sig, z=document.getElementById("grZone"); if(!g||!z||!z.querySelector("table")) return false;
+  var an=grJours()[0].getFullYear(), s=grSignature(HORAIRES&&HORAIRES[an]);
+  for(var i=0;i<s.length;i++) if(s[i]!==g[i]) return false;
+  return true;
 }
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
 function grCentrer(){
@@ -16273,8 +16345,7 @@ function ouvrirGrille(section,formulaire){
     /* la barre du bas restant la sortie au téléphone, l'espace n'y est
        plus un dialogue modal : aria-modal la cachait au lecteur d'écran
        (audit du 23/10/2026) */
-    if(mqNav.matches){ g.removeAttribute("aria-modal"); g.setAttribute("role","region"); }
-    else{ g.setAttribute("role","dialog"); g.setAttribute("aria-modal","true"); }
+    wsAppliquerMode();
     var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.add("actif");
     var a=compteBase()||{};
     document.getElementById("wsRole").textContent=peutSaisir()?(a.base==="rh"?"Espace RH":"Espace hiérarchie"):"Planning";
@@ -16303,6 +16374,7 @@ function fermerGrille(parRetour){
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
+  titreVue(st.view);
   /* une case modifiée : toute l'application relit l'horaire */
   if(GR.modifie){ try{ localStorage.removeItem("base/saisies"); }catch(e){} location.reload(); }
 }
@@ -16334,7 +16406,22 @@ window.addEventListener("popstate",function(){
   /* la Direction : le filtre puis l'écran d'avant (le client, le 23/10/2026) */
   else if(k==="d") dirRetour(true);
   else if(k==="n") fermerNotif(true); else if(k==="plus") document.getElementById("plusFond").click();
+  else if(k==="r"&&st.view==="reglages") setView("horaire");
 });
+/* Le mode de l'espace selon la largeur : au téléphone une région (la barre
+   du bas reste la sortie) dont la liste est inerte sous un panneau ouvert ;
+   au-delà, un dialogue modal, liste et fiche côte à côte. Relu quand la
+   largeur passe le seuil : une rotation laissait la liste morte (audit du
+   23/10/2026). */
+function wsAppliquerMode(){
+  var g=document.getElementById("grille"), p=document.getElementById("grPanneau"); if(!g||g.hidden) return;
+  var tel=mqNav.matches, couvre=tel&&!!p&&!p.hidden;
+  if(tel){ g.removeAttribute("aria-modal"); g.setAttribute("role","region"); }
+  else{ g.setAttribute("role","dialog"); g.setAttribute("aria-modal","true"); }
+  [].forEach.call(document.querySelectorAll("#grille .ws-main,#grille .ws-nav"),function(x){ x.inert=couvre; if(couvre) x.setAttribute("inert",""); else x.removeAttribute("inert"); });
+}
+if(mqNav.addEventListener) mqNav.addEventListener("change",wsAppliquerMode);
+else if(mqNav.addListener) mqNav.addListener(wsAppliquerMode);
 function grFermerPanneau(parRetour){
   var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
   document.body.classList.remove("pn-ouvert");
@@ -16360,7 +16447,7 @@ function grOuvrirPanneau(html){
      le focus où il est. */
   var t=p.querySelector(".pn-tete b,h2,h3");
   p.setAttribute("role","dialog"); p.setAttribute("aria-label",t&&t.textContent.trim()||"Détail");
-  [].forEach.call(document.querySelectorAll("#grille .ws-main,#grille .ws-nav"),function(x){ x.inert=mqNav.matches; if(mqNav.matches) x.setAttribute("inert",""); else x.removeAttribute("inert"); });
+  wsAppliquerMode();
   if(nouveau){ var a=document.activeElement; GR.panOrigine=(a&&a!==document.body&&!p.contains(a))?a:(GR.carteTouchee||null); focusPremier(p); }
   return p;
 }
@@ -16566,6 +16653,10 @@ function wsAller(s,garder){
   var l=wsSections(); if(!l.some(function(x){ return x.s===s; })) s=l[0].s;
   if(!(garder&&GR.section===s)) grFermerPanneau();
   GR.section=s; lsSet("ui/wsSection",s);
+  /* le titre de l'onglet du navigateur suit la section ouverte (audit du
+     23/10/2026) */
+  var gt=document.getElementById("grille"), xs=l.filter(function(x){ return x.s===s; })[0];
+  if(gt&&!gt.hidden&&xs) document.title=xs.t+" · BioWanze";
   /* SUR PC, LISTE ET FICHE CÔTE À CÔTE (22/10/2026, le client : « la partie
      de droite se divise en 2 parties pour les demandes de congé et les
      recyclages, afin de mieux voir et suivre les fiches ») */
@@ -16586,7 +16677,7 @@ function wsAller(s,garder){
   [].forEach.call(document.querySelectorAll("#grille .ws-s"),function(el){ el.hidden=el.getAttribute("data-s")!==s; });
   var act=document.querySelector('#wsMenu button[aria-current="page"]');
   if(act&&act.scrollIntoView) try{ act.scrollIntoView({block:"nearest",inline:"center"}); }catch(e){}
-  if(s==="planning"){ renderGrille(); setTimeout(grCentrer,30); }
+  if(s==="planning"){ if(!grAJour()) renderGrille(); setTimeout(grCentrer,30); }
   else if(s==="tdb") renderTdb();
   else if(s==="personnel") renderPersonnel();
   else if(s==="absences") renderAbsences();
@@ -17083,9 +17174,12 @@ function dmTableau(x){
    intuitives ») : une tuile de date à gauche, une bande de couleur selon
    l'état (à faire, en route, acceptée, refusée, retirée), le type en
    étiquette, et les cartes groupées par mois */
-function dmTuile(iso,iso2){
+function dmTuile(iso,iso2,nb){
   var d=dmJour(iso), m=MOIS_C[d.getMonth()].replace(/\.$/,"");
   var n=iso2&&iso2!==iso?Math.round((dmJour(iso2)-d)/864e5)+1:0;
+  /* une demande de congé : le nombre de journées demandées, celui que dit
+     le texte de la carte, et non l'étendue de la période (audit du 23/10/2026) */
+  if(nb!=null) n=nb>1?nb:0;
   return '<span class="dm-dt" aria-hidden="true"><small>'+JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+'</small><b>'+d.getDate()+'</b><small>'+m+'</small>'+(n?'<i>'+n+' j</i>':'')+'</span>';
 }
 function dmGenre(x){ return dmATraiter(x)?"faire":x.statut==="acceptee"?"ok":x.statut==="refusee"?"non":x.statut==="annulee"?"off":"att"; }
@@ -17121,7 +17215,7 @@ function dmCarte(x,valideur){
   return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'" tabindex="0">'
     /* même tête que la fiche de recyclage (22/10/2026) : la période en
        gras, le formulaire dessous, l'état à droite */
-    +'<header>'+dmTuile(x.du,x.au)+(valideur||!x.a_moi?dmQui(x,p,n):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
+    +'<header>'+dmTuile(x.du,x.au,dmLignes(x).length)+(valideur||!x.a_moi?dmQui(x,p,n):'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+tag+'</b>'+mdQuoi(x)+'</span>')+dmStatut(x)+'</header>'
     +(valideur||!x.a_moi?'<div class="dm-quoi"><b>'+esc(DM_FORMS[f].t)+'</b>'+tag+mdQuoi(x)+'</div>':'')
     /* un seul jour : le résumé sous le titre dit déjà la pause, les heures
        et le remplaçant ; la feuille garde le tableau */
@@ -17562,7 +17656,12 @@ function renderHisto(){
     if(GR.cherche){ GR.cherche=""; document.getElementById("grCherche").value=""; }
     renderGrille();
   });
-  document.getElementById("grCherche").oninput=function(){ GR.cherche=this.value.trim(); renderGrille(); };
+  /* la grille se refait à la fin de la frappe, et non à chaque lettre
+     (audit du 23/10/2026) ; le champ est relu au moment du rendu, qu'une
+     pilule ou la loupe a pu vider entre-temps */
+  var grT=null;
+  document.getElementById("grCherche").oninput=function(){ var c=this; clearTimeout(grT);
+    grT=setTimeout(function(){ var v=c.value.trim(); if(v!==GR.cherche){ GR.cherche=v; renderGrille(); } },180); };
   /* LA LIGNE ET LA COLONNE SURVOLÉES, comme l'outil du client */
   (function(){ var z=document.getElementById("grZone"), lt=null, lc=[];
     function nettoyer(){ if(lt) lt.classList.remove("hp-hr"); lc.forEach(function(x){ x.classList.remove("hp-hc"); }); lt=null; lc=[]; }
@@ -17587,7 +17686,9 @@ function renderHisto(){
   });
   document.addEventListener("keydown",function(e){
     if(g.hidden) return;
-    if(e.key==="Escape"){ var p=document.getElementById("grPanneau"); if(!p.hidden) grFermerPanneau(); else fermerGrille(); }
+    /* la feuille « Plus » posée sur l'espace se ferme seule d'abord, dans
+       quelque ordre que tournent les deux écouteurs (audit du 23/10/2026) */
+    if(e.key==="Escape"){ var pf=document.getElementById("plusFeuille"); if(e.bwzPlus||(pf&&!pf.hidden)) return; var p=document.getElementById("grPanneau"); if(!p.hidden) grFermerPanneau(); else fermerGrille(); }
     else if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")) grDecaler(e.key==="ArrowLeft"?-1:1);
   });
   [].forEach.call(document.querySelectorAll("[data-ouvrir-grille]"),function(b){ b.addEventListener("click",function(){ ouvrirGrille(b.getAttribute("data-ouvrir-grille")||null); }); });
@@ -18689,7 +18790,7 @@ function mdLigne(x){
   var tmp=document.createElement("div"); tmp.innerHTML=dmStatut(x);
   var nom=DM_FORMS[f].t+(types.length?' '+types.join(" + "):'')+', '+(x.au&&x.au!==x.du?'du '+wsDateCourte(dmJour(x.du))+' au '+wsDateCourte(dmJour(x.au)):'le '+wsDateCourte(dmJour(x.du)))+', '+tmp.textContent.trim()+'. Ouvrir la feuille';
   return '<li class="md-d dm-g-'+dmGenre(x)+'" data-md="ouvrir" data-id="'+x.id+'" tabindex="0" role="button" aria-label="'+esc(nom)+'">'
-    +'<div class="md-h">'+dmTuile(x.du,x.au)
+    +'<div class="md-h">'+dmTuile(x.du,x.au,l.length)
     +'<span class="dm-tit"><b>'+esc(DM_FORMS[f].t)+(types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'')+'</b>'
     +mdQuoi(x)+'</span>'+dmStatut(x)+'</div>'
     +dmEtapes(x)+'</li>';
@@ -21401,7 +21502,8 @@ function renderEquipe(){
         if(R.q.mois!==semPrec){
           if(semPrec!==-1) h2+="</div></section>";
           var n=nParMois[R.q.mois];
-          h2+=mqMoisTete("eq"+k,R.q.mois,R.q.moisNom,n+" personne"+(n>1?"s":""),semPrec===-1);
+          /* l'année hors de celle du jour, comme les sous-effectifs (audit du 23/10/2026) */
+          h2+=mqMoisTete("eq"+k,R.q.mois,R.q.moisNom+(R.q.an!==aA?" "+R.q.an:""),n+" personne"+(n>1?"s":""),semPrec===-1);
           semPrec=R.q.mois;
         }
         h2+=R.html;
@@ -22662,7 +22764,9 @@ function dateEnMots(y,m,j,t0){
   /* On regroupe d\u00e9sormais les journ\u00e9es PAR MOIS (le client, le 02/10/2026 :
      \u00ab au lieu de "plus tard", trier par mois \u00bb). L'intertitre devient le nom
      du mois ; mois = y*12+index pour ne jamais confondre deux ann\u00e9es. */
-  return {sem:sem, mois:y*12+d.getUTCMonth(), moisNom:MOIS[d.getUTCMonth()],
+  /* l'année de la date normalisée : la reprise du « 32 décembre » tombe en
+     janvier de l'année suivante (audit du 23/10/2026) */
+  return {sem:sem, mois:d.getUTCFullYear()*12+d.getUTCMonth(), an:d.getUTCFullYear(), moisNom:MOIS[d.getUTCMonth()],
     titre:jl+" "+d.getUTCDate()+" "+MOIS[d.getUTCMonth()].toLowerCase(),
     html:'<span class="mqd eqproche"><b>'+esc(mot)+"</b><small>"
       +esc(d.getUTCDate()+"\u00a0"+MOIS[d.getUTCMonth()].toLowerCase())+"</small></span>"};
@@ -22699,14 +22803,21 @@ function pausesFinies(){
    classeur (db). */
 function horaireSuivant(annee){ var nx=HORAIRES&&HORAIRES[annee]; return nx&&nx.people&&Number(nx.year)===annee?nx:null; }
 function mqJoursAVenir(db,horizon){
-  var au=jourUsine(), sortie=[], vus=0, finies=pausesFinies(), premier=true;
+  var p=mqParcours(db,horizon); while(p.pas()){} return p.res();
+}
+/* LE MÊME PARCOURS, UNE JOURNÉE À LA FOIS : pas() rend faux quand il n'y a
+   plus rien à regarder. La bulle du démarrage le fait en tranches, au repos,
+   au lieu d'une tâche de 1,4 s au téléphone (audit du 23/10/2026). */
+function mqParcours(db,horizon){
+  var au=jourUsine(), sortie=[], vus=0, finies=pausesFinies(), premier=true, fini=false, garde=0;
   /* l'horaire ne couvre qu'une année : au-delà, il n'y a rien à annoncer */
   var annee=Number(db.year);
   var d=new Date(au.getFullYear(),au.getMonth(),au.getDate());
   if(d.getFullYear()<annee) d=new Date(annee,0,1);
-  for(var garde=0; garde<800; garde++){
-    if(d.getFullYear()!==annee){ var nx=horaireSuivant(d.getFullYear()); if(!nx) break; db=nx; annee=d.getFullYear(); }
-    if(horizon && vus>=horizon) break;
+  function pas(){
+    if(fini||garde>=800){ fini=true; return false; }
+    if(d.getFullYear()!==annee){ var nx=horaireSuivant(d.getFullYear()); if(!nx){ fini=true; return false; } db=nx; annee=d.getFullYear(); }
+    if(horizon && vus>=horizon){ fini=true; return false; }
     var m=d.getMonth()+1, j=d.getDate(), mmdd=pad2(m)+pad2(j);
     var par=equipeDuJour(db,annee,m,j), manques=[], inconnus=0, personne=false;
     var eqc=equipeALaPause(db,annee,m,j), jourCalc=annee*10000+Number(mmdd);
@@ -22729,9 +22840,10 @@ function mqJoursAVenir(db,horizon){
     if(personne){ vus++; if(manques.length)
       sortie.push({an:annee, db:db, mois:m, jour:j, mmdd:mmdd, l:manques, inc:inconnus, par:par}); }
     premier=false;
-    d.setDate(d.getDate()+1);
+    d.setDate(d.getDate()+1); garde++;
+    return true;
   }
-  return {jours:sortie, examines:vus};
+  return {pas:pas, res:function(){ return {jours:sortie, examines:vus}; }};
 }
 /* LES RAPPELS QUE L'EFFECTIF NE DEMANDAIT PAS. Le client, le 30/09/2026 :
    « un cadre reprenant les erreurs du fichier Excel : un rappel d'un
@@ -22751,13 +22863,23 @@ function mqJoursAVenir(db,horizon){
    journées sans effectif exigé (SANS_EFFECTIF). Comme les sous-effectifs,
    le cadre part du jour de l'usine et ne regarde pas en arrière. */
 var RX_RAPPEL_TACHE=/renfort|intervention/i;
-function rappelsInutiles(db){
-  var annee=Number(db.year), d0=jourUsine(), sortie=[];
+/* Avec fin, le calcul rend la main tous les 30 jours et rend son résultat
+   à fin : jusqu'à la fin de 2027, il figeait l'ouverture des Effectifs
+   (audit du 23/10/2026). Sans fin, il se fait d'un trait, comme avant. */
+function rappelsInutiles(db,fin){
+  var annee=Number(db.year), d0=jourUsine(), sortie=[], garde=0;
   var d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate());
   if(d.getFullYear()<annee) d=new Date(annee,0,1);
-  for(var garde=0; garde<800; garde++, d.setDate(d.getDate()+1)){
-    if(d.getFullYear()!==annee){ var nx=horaireSuivant(d.getFullYear()); if(!nx) break; db=nx; annee=d.getFullYear(); }
+  if(!fin){ avance(1e9); return sortie; }
+  (function tranche(){ var f; try{ f=avance(30); }catch(e){ return; } if(!f){ setTimeout(tranche,0); return; } fin(sortie); })();
+  /* n journées de plus ; vrai au bout de l'horaire */
+  function avance(n){
+  for(var pas=0; pas<n && garde<800; pas++, garde++, d.setDate(d.getDate()+1)){
+    if(d.getFullYear()!==annee){ var nx=horaireSuivant(d.getFullYear()); if(!nx) return true; db=nx; annee=d.getFullYear(); }
     var m=d.getMonth()+1, j=d.getDate(), mmdd=pad2(m)+pad2(j);
+    /* le test du mot « rappel » plus bas, avancé : sans lui ce jour-là,
+       inutile de calculer l'équipe du jour (audit du 23/10/2026) */
+    if(!db.people.some(function(p){ return /rappe[lk]/i.test(((p.d[mmdd]||[])[2])||""); })) continue;
     var ren=renfortDuJour(db,mmdd); if(ren && ren._libre) continue;
     var par=equipeDuJour(db,annee,m,j), l=[];
     ["AM","PM","N"].forEach(function(g){
@@ -22777,7 +22899,8 @@ function rappelsInutiles(db){
     });
     if(l.length) sortie.push({an:annee, db:db, mois:m, jour:j, l:l});
   }
-  return sortie;
+  return garde>=800;
+  }
 }
 var rnFait="";
 /* UN MOIS OUVERT, LES AUTRES REPLIÉS. Le client, le 09/10/2026, « optimise
@@ -22870,7 +22993,7 @@ function renderRappelsInutiles(force){
   fetchHoraireDB().then(function(db){
     if(!db) return;
     rnFait=cle;
-    var jours=rappelsInutiles(db), h=[], semPrec=-1, n=0;
+    rappelsInutiles(db,function(jours){ var h=[], semPrec=-1, n=0;
     var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate());
     var COURT={cm:"CM",adj:"Adj."};
     var sel=document.getElementById("prefillId"), moi=(sel&&sel.value)||lsGet("ui/prefillId")||"";
@@ -22918,6 +23041,7 @@ function renderRappelsInutiles(force){
       eqDate=new Date(Number(b.dataset.a||db.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
       setView("jour");
     };
+    });
   });
 }
 /* QUI OUVRE LE PLANNING DANS UNE FICHE DE JOURNÉE. Une fiche entière était un
@@ -22930,7 +23054,13 @@ function mqClavier(e){
   var t=e.target;
   if((e.key==="Enter"||e.key===" ")&&t.getAttribute&&t.getAttribute("role")==="button"
      &&t.classList&&(t.classList.contains("mqjt")||t.classList.contains("mqd"))){
-    e.preventDefault(); t.click(); }
+    e.preventDefault(); t.click(); focusJour(t); }
+}
+/* LE FOCUS SUIT LE PLANNING (audit du 23/10/2026) : l'élément qui l'avait
+   part avec l'onglet caché, et le focus retombait sur <body>. */
+function focusJour(t){
+  var v=document.getElementById("v-jour");
+  if(v&&!v.hidden&&!(t&&v.contains(t))) try{ v.focus({preventScroll:true}); }catch(e){}
 }
 function mqCible(e){
   var t=e.target; if(!t.closest) return null;
@@ -22988,7 +23118,7 @@ function pistesDeRemplacement(vue,P,gk,listeD,jour){
 }
 /* Recalculer cent journées à chaque flèche de l'onglet Équipe serait du
    gaspillage : le tableau ne dépend QUE de la date du jour et de l'horizon. */
-var mqFait="", MQ_NB=null;
+var mqFait="", MQ_NB=null, mqNbCle="";
 /* Le nombre de PAUSES d'une journée de sous-effectif : ses manques, chacun
    rangé dans sa pause, une pause comptée une fois même s'il y manque
    quelqu'un à deux postes. */
@@ -23304,15 +23434,18 @@ function aRemplacer(par,g,P,jour){
     return EST_FORMATION.test(x.r.jourCode)?"Formation":etiqJour(x.r.jourCode); });
   return out;
 }
-function renderManques(force){
+function mqCle(){ return jourUsine().toDateString()+"/"+mqHorizon+"/"+Object.keys(pausesFinies()).join(""); }
+/* pre : {cle, db, r}, le parcours fait en tranches par mqAuRepos() ; il ne
+   sert que s'il vaut pour la même clé et le même horaire */
+function renderManques(force,pre){
   var hote=document.getElementById("mqCorps"); if(!hote) return;
-  var au=jourUsine(), cle=au.toDateString()+"/"+mqHorizon+"/"+Object.keys(pausesFinies()).join("");
+  var au=jourUsine(), cle=mqCle();
   if(!force && cle===mqFait) return;
   fetchHoraireDB().then(function(db){
     if(!db) return;
     caInit(db);
     mqFait=cle;
-    var r=mqJoursAVenir(db,mqHorizon), h=[];
+    var r=pre&&pre.cle===cle&&pre.db===db?pre.r:mqJoursAVenir(db,mqHorizon), h=[];
     /* UNE FICHE PAR JOURNÉE, UNE LIGNE PAR MANQUE. Le client, le 28/09/2026,
        capture à l'appui : « il y a certainement moyen d'optimiser bien mieux
        ce tableau-là et de faire ça 100 % professionnel ». Les pastilles
@@ -23434,7 +23567,7 @@ function renderManques(force){
        sous-effectif ; bien parler en pause et non en jour ») : une journée
        qui manque de monde le matin et la nuit compte deux pauses. */
     var n=0; r.jours.forEach(function(z){ n+=mqPauses(z); });
-    MQ_NB=n;
+    MQ_NB=n; mqNbCle=cle;
     /* « 9 journées à surveiller · 30 journées regardées » faisait 240 px et
        renvoyait le titre à la ligne. Le mot « journées » deux fois dans la
        même phrase ne disait rien de plus la seconde. */
@@ -23617,10 +23750,13 @@ function eqBouge(n){
    n'est pas un swipe (celui-ci exige 60 px), les deux ne se gênent pas. */
 (function(){
   var pop=null;
-  function bulle(){ if(!pop){ pop=document.createElement("div"); pop.className="compop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop); } return pop; }
+  /* La bulle est reliée à son badge (aria-describedby, aria-expanded) : le
+     lecteur d'écran la lit à l'ouverture (audit du 23/10/2026). */
+  function bulle(){ if(!pop){ pop=document.createElement("div"); pop.className="compop"; pop.id="compop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop); } return pop; }
   function fermer(){
     if(pop) pop.classList.remove("on");
-    [].forEach.call(document.querySelectorAll(".eqn.coment-actif"),function(c){ c.classList.remove("coment-actif"); });
+    [].forEach.call(document.querySelectorAll(".coment-actif"),function(c){ c.classList.remove("coment-actif");
+      c.removeAttribute("aria-describedby"); c.removeAttribute("aria-expanded"); });
   }
   function ouvrir(chip){
     var com=chip.getAttribute("data-com"); if(!com) return;
@@ -23643,6 +23779,7 @@ function eqBouge(n){
     p.style.setProperty("--cx", Math.round(cx)+"px");
     p.style.left=Math.round(left)+"px"; p.style.top=Math.round(top)+"px"; p.style.visibility="";
     chip.classList.add("coment-actif");
+    chip.setAttribute("aria-describedby","compop"); chip.setAttribute("aria-expanded","true");
   }
   fermerCompop=fermer;                           /* exposé : renderEquipe ferme au changement de jour */
   document.addEventListener("click",function(e){
@@ -23697,7 +23834,11 @@ function eqBouge(n){
     var g=document.getElementById("grille"); if(g&&!g.hidden) return;
     if([].some.call(document.querySelectorAll('[aria-modal="true"]'),function(d){ return d.getClientRects().length>0; })) return;
     if(e.target.closest&&e.target.closest('input,select,textarea,[contenteditable],[role=tablist],[role=radiogroup],.tabs')) return;
-    e.preventDefault(); eqBouge(e.key==="ArrowRight"?1:-1);
+    e.preventDefault();
+    /* un badge qui avait le focus disparaît avec le tableau refait : le
+       focus passe à l'onglet (audit du 23/10/2026) */
+    var a=document.activeElement; if(a&&a!==v&&v.contains(a)) try{ v.focus({preventScroll:true}); }catch(er){}
+    eqBouge(e.key==="ArrowRight"?1:-1);
   });
 })();
 /* PLUS DE HAUTEUR CALCULÉE : on fournit seulement au CSS la hauteur de la barre
@@ -24507,9 +24648,15 @@ var caDB=null;
 function caInit(db){
   caDB=db;
   var sel=document.getElementById("caQui"); if(!sel || sel.options.length) return;
-  var vus={};
-  db.people.forEach(function(p){ var l=idLisible(p.id); vus[l]=(vus[l]||0)+1; });
-  var gens=db.people.slice().sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
+  /* QUI : LES GENS DE TOUTES LES ANNÉES REÇUES (audit du 23/10/2026) : qui
+     n'est que dans le classeur 2027 manquait à la liste. Pour les jours d'une
+     année où il n'est pas, caCalculer dit « Absent de l'horaire ». */
+  var vus={}, deja={}, gens=db.people.slice();
+  gens.forEach(function(p){ deja[p.id]=1; });
+  Object.keys(HORAIRES||{}).forEach(function(a){ ((HORAIRES[a]&&HORAIRES[a].people)||[]).forEach(function(p){
+    if(!deja[p.id]){ deja[p.id]=1; gens.push(p); } }); });
+  gens.forEach(function(p){ var l=idLisible(p.id); vus[l]=(vus[l]||0)+1; });
+  gens.sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
   sel.innerHTML=gens.map(function(p){
     return '<option value="'+esc(p.id)+'">'+esc(libelleChoix(p,vus))+"</option>";
   }).join("");
@@ -24634,12 +24781,16 @@ function caCalculer(){
   var h=[], semPrec=-1, n={ok:0,chg:0,non:0,hors:0}, compact={};
   jours.forEach(function(dt){
     var m=dt.getMonth()+1, j=dt.getDate(), an=dt.getFullYear(), db=dbDe(an);
+    /* chaque journée porte son année (data-a), et l'intertitre la dit hors
+       de l'année du jour : 2027 n'ouvre plus le même jour de 2026 (audit du
+       23/10/2026) */
+    var anTete=an!==jourUsine().getFullYear()?" "+an:"";
     if(rech){
       /* une seule date : ni intertitre de semaine, ni bloc de date */
       var rr=caRechercher(db,an,m,j,rg,rk,function(dec){
         return pausesLe(new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+dec)); });
       n[rr.v]++;
-      h.push('<div class="mqj carech" data-m="'+m+'" data-j="'+j+'">'
+      h.push('<div class="mqj carech" data-a="'+an+'" data-m="'+m+'" data-j="'+j+'">'
         +'<span class="mqls">'+rr.html+'<button type="button" class="mqvoir">Voir le planning de ce jour ›</button></span></div>');
       return;
     }
@@ -24650,8 +24801,8 @@ function caCalculer(){
         Math.round((Date.UTC(an,m-1,j)-t0)/86400000));
       n[rh.v]++;
       var qh=dateEnMots(an,m,j,t0);
-      h.push('<div class="eqsem">'+esc(qh.moisNom)+"</div>"
-        +'<div class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(qh.titre)+'">'
+      h.push('<div class="eqsem">'+esc(qh.moisNom+anTete)+"</div>"
+        +'<div class="mqj" data-a="'+an+'" data-m="'+m+'" data-j="'+j+'" title="'+esc(qh.titre)+'">'
         +qh.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+rh.v+'">'
         +esc(rh.t)+"</span></span>"+rh.html+"</span></div>");
       return;
@@ -24665,11 +24816,11 @@ function caCalculer(){
     if(jours.length>1 && (v.v==="hors" || v.v==="ok")){
       (compact[v.v]=compact[v.v]||[]).push({m:m,j:j,t:v.t}); return; }
     var q=dateEnMots(an,m,j,t0);
-    if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom)+"</div>"); semPrec=q.mois; }
+    if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom+anTete)+"</div>"); semPrec=q.mois; }
     /* LA DATE SEULE en tête (le client, le 02/10/2026 : la ligne du jour le
        gênait). La pause et l'équipe — le créneau — descendent avec le poste. */
     var caMeta=r.hors?"":caCreneau(r.pause,r.eq);
-    h.push('<div class="mqj" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
+    h.push('<div class="mqj" data-a="'+an+'" data-m="'+m+'" data-j="'+j+'" title="'+esc(q.titre)+'">'
       +q.html+'<span class="mqls"><span class="catete"><span class="caverd" data-v="'+v.v+'">'
       +esc(v.t)+"</span></span>");
     if(!r.hors){
@@ -24809,8 +24960,8 @@ function caCalculer(){
      quitté RH ; il n'y a plus de barre vers laquelle défiler). */
   document.getElementById("caCorps").addEventListener("click",function(e){
     var b=mqCible(e); if(!b||!caDB) return;
-    eqDate=new Date(Number(caDB.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
-    setView("jour");
+    eqDate=new Date(Number(b.dataset.a||caDB.year),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
+    setView("jour"); focusJour(b);
   });
 })();
 
@@ -25818,14 +25969,23 @@ function sideMaj(){
   /* Tab reste dans la feuille ouverte, comme dans celle du jour (audit du
      23/10/2026) */
   f.addEventListener("keydown",piegeTab(f));
-  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!f.hidden){ fermer(); bt.focus(); } });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!f.hidden){ e.bwzPlus=true; fermer(); bt.focus(); } });
+  /* une rotation ou un redimensionnement détache la feuille de son bouton
+     (ou la cache au CSS en la laissant « ouverte ») : elle se referme ; la
+     seule hauteur (barre d'adresse) ne compte pas (audit du 23/10/2026) */
+  var larg=innerWidth;
+  function taille(){ if(!f.hidden&&innerWidth!==larg) fermer(); larg=innerWidth; }
+  window.addEventListener("resize",taille); window.addEventListener("orientationchange",taille);
   f.addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b) return;
     var ws=b.getAttribute("data-side-ws");
     if(ws&&document.getElementById("grille").hidden) navCeder("plus","g");
     fermer();
     if(ws){ if(document.getElementById("grille").hidden) ouvrirGrille(ws); else wsAller(ws); }
-    /* data-go : setView par l'écouteur commun du document */
+    /* data-go : setView par l'écouteur commun du document, qui passe après
+       celui-ci ; l'espace se referme d'abord, sinon la vue changeait sous
+       lui (audit du 23/10/2026) */
+    else if(b.hasAttribute("data-go")&&!document.getElementById("grille").hidden) fermerGrille();
   });
   /* la pastille du bouton : celle d'Effectifs (absents du jour), recopiée */
   function pastille(){ var n=document.getElementById("plusNb"), a=nb("rhNb")||nb("rhApp"); n.hidden=!a; n.textContent=a; n.classList.toggle("app",!nb("rhNb")&&!!nb("rhApp")); }
@@ -25905,7 +26065,21 @@ function boot(){
      l'onglet, mais au repos : le calcul balaie toutes les journées à venir. */
   fetchHoraireDB().then(function(db){ if(!db) return;
     var auRepos=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:4000}); }:function(f){ setTimeout(f,1500); };
-    auRepos(function(){ try{ renderManques(); }catch(e){} try{ renderTransferts(); }catch(e){} });
+    /* en tranches de 40 ms au plus, rendues au repos : la page reste
+       sensible au toucher pendant le parcours (audit du 23/10/2026) */
+    var cle0=mqCle(), p=null;
+    function tranche(dl){
+      try{
+        if(mqFait===cle0 || mqCle()!==cle0){ renderManques(); auRepos(function(){ try{ renderTransferts(); }catch(e){} }); return; }
+        caInit(db); if(!p) p=mqParcours(db,mqHorizon);
+        var fin=performance.now()+Math.max(dl&&!dl.didTimeout&&dl.timeRemaining?dl.timeRemaining()-5:0,40), n=0, encore=true;
+        while(encore && n<200 && performance.now()<fin){ encore=p.pas(); n++; }
+        if(encore){ auRepos(tranche); return; }
+        renderManques(false,{cle:cle0, db:db, r:p.res()});
+      }catch(e){ try{ renderManques(); }catch(e2){} }
+      auRepos(function(){ try{ renderTransferts(); }catch(e){} });
+    }
+    auRepos(tranche);
   },function(){});
   document.getElementById("storeinfo").textContent = st.db
     ? "Enregistré dans votre espace Claude : vos mois vous suivent d'un appareil à l'autre."
