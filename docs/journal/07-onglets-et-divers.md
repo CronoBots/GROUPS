@@ -100,6 +100,15 @@ cinq icônes sont régénérées par le code ci-dessus. La marge de l'icône
 que l'ancien. Mesuré : aucun pixel du dessin hors du cercle central de
 80 %.
 
+**Deuxième logo (23/10/2026, `nfdm-v1007`).** Le client a poussé un
+nouveau logo (1254 × 1254 px, fond marine `#131C2D`) sous un nom de
+fichier technique ; il est renommé `logo.png` (`git mv`) et les cinq
+icônes sont régénérées par le même code. Mesuré sur ce dessin : la plus
+petite marge qui garde tout le dessin dans le cercle central de 80 % est
+**3,7 %** ; la marge de l'icône *maskable* est prise à **8 %** (aucun pixel
+hors du cercle). Le dessin étant plus compact que le précédent, 14 % le
+rapetissait pour rien.
+
 ## Les deux versements du mois
 
 Le client, le 22/09/2026 : « pour les employés, il faut ajouter un paramètre
