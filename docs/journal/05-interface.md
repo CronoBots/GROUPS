@@ -4265,3 +4265,26 @@ La question au client n° 8 : la page Effectifs appelle « Absents » les seuls 
 - **Tableau de bord de l'espace RH** : la carte « Absents ce jour » (17 = 6 + 11) devient deux cartes. « Absents » ne compte plus que les malades, comme les Effectifs ; « En congé » a la sienne. Les tuiles du haut séparaient déjà « Abs » et « Congé ».
 - **Règle, pour la suite** : « Absents » veut dire malades ; un congé n'est jamais compté dedans, ni réuni avec la maladie sous un seul chiffre.
 - Vérifié à 390, 900, 1100 et 1280 px ; aucune erreur. Non-régression : trois alertes, fausses — « 43 », le compte de la rangée réunie (17 px), a disparu, et l'outil l'a apparié à un autre « 43 » de la page, de 13,5 px et inchangé.
+
+### « Sur site en ce moment » : le tableau de bord comme un salon vocal (23/10/2026, v1018)
+
+Le client : « pour le tableau de bord, il faudrait aussi afficher les personnes présentes en ce moment, comme si c'étaient des membres en ligne dans un chat vocal, mais dans le sens où ils sont présents sur site en ce moment ».
+
+- **Une carte sur toute la largeur**, sous les tuiles du jour : un point vert qui pulse (immobile si l'appareil demande moins d'animation), « En direct, d'après l'horaire · 12 h », et le nombre de présents. Chaque pause en cours est un **salon** : pastille de la pause, nom, équipe, heures, compte. Ses présents en sont les **membres** : avatar rond au trigramme, point vert, nom et poste du jour. Toucher un membre ouvre sa fiche. Au pied, la prochaine relève : « Relève de l'après-midi à 14 h : 10 arrivées prévues », dans les trois heures.
+- **Aucune règle nouvelle** : les heures sont celles de l'agenda abonné (`lectureAgenda`, `pfDebut`, `pfFin`) :
+  - la plage écrite dans la cellule si elle y est, sinon celle de la pause ;
+  - la remise de pause (5 h 30, 13 h 30, 21 h 30) ;
+  - le flex time presté ;
+  - la nuit de la veille, jusqu'à 6 h.
+- Une formation n'y figure pas : l'horaire ne dit pas si elle se donne sur le site.
+- **Les salons** : une plage égale aux heures d'une pause va dans ce salon (5 h 30 – 14 h est le Matin) ; une plage qui commence avec sa pause y reste (6 h – 18 h, au Matin, ses heures à côté du nom). Les autres vont dans « Horaires particuliers » : au premier essai, une journée « 10h-18h » lue N tombait dans le salon de nuit en plein jour.
+- La carte se refait chaque minute tant que le tableau de bord est à l'écran, le focus restant sur la personne qui l'avait.
+- **Éprouvé à cinq heures** (horloge fixée) :
+  - 10 h : Matin 12, Jour 1, particuliers 1 ;
+  - 12 h : idem, et la relève de 14 h annoncée ;
+  - 23 h : Nuit 9, l'après-midi prolongé jusqu'à 2 h, un 18 h – 6 h ;
+  - 3 h : la nuit de la veille, et « Relève du matin à 6 h : 13 arrivées » (la remise de 5 h 30 comptée avec, et non annoncée seule) ;
+  - 6 h 20 : Matin 13.
+  À 10 h, 14 = 12 + 1 + 1, comme les tuiles. Largeurs : 320 px (tuiles empilées, avatar au-dessus du nom), 390 px (deux colonnes), 1280 px ; rien ne déborde, rien n'est coupé.
+- Non-régression : seule la section du tableau de bord change (52 textes nouveaux). Six alertes, toutes fausses : l'outil numérote les textes identiques dans leur ordre, et les « AM » et « Chaudières » de la carte décalent ceux qui suivent. Listes complètes comparées : aucun élément existant n'a changé de taille ni de nombre de lignes.
+- **Fausse piste, notée pour la prochaine fois** : la nuit, le banc d'essai perdait les droits RH, et j'ai cru d'abord à un défaut de l'application (« Tableau de bord » ouvrait le planning). C'était la session simulée du banc, qui expirait quelques heures après l'heure réelle, alors que l'horloge du test était fixée la nuit. Une session de test se date sur l'horloge du test.

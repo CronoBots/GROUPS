@@ -2386,6 +2386,33 @@ body.sheet-on{overflow:hidden}
 .ws-l{flex:1; font-size:12.5px; color:var(--ink2); text-align:right}
 /* 11 px : le bureau y passait déjà, le téléphone restait à 10 (audit du 23/10/2026) */
 .ws-l .pl-pa{min-width:0; padding:2px 5px; font-size:11px}
+/* SUR SITE EN CE MOMENT (23/10/2026) : les pauses en cours comme les
+   salons d'un chat vocal, leurs présents comme les membres en ligne */
+html #grille .ws-site{margin-bottom:14px}
+.site-live{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--good); margin-right:8px; vertical-align:1px; animation:sitePouls 2s ease-out infinite}
+@keyframes sitePouls{0%{box-shadow:0 0 0 0 var(--good)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){ .site-live{animation:none} }
+.site-maj{margin:-2px 0 10px; color:var(--muted); font-size:12px}
+.site-salon+.site-salon{margin-top:14px}
+.site-st{display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:12.5px; color:var(--muted)}
+.site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
+.site-st em{margin-left:auto; font-style:normal; font-weight:700; font-size:13.5px; font-variant-numeric:tabular-nums; color:var(--ink)}
+.site-membres{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:2px 10px}
+.site-membres li{display:flex; align-items:center; gap:10px; min-height:44px; padding:4px 6px; border-radius:10px; cursor:pointer; min-width:0}
+.site-membres li:hover{background:var(--surface2)}
+.site-membres li:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
+.site-av{position:relative; flex:none; display:block}
+.site-av .pl-tri{border-radius:50%}
+.site-pt{position:absolute; right:-1px; bottom:-1px; width:11px; height:11px; border-radius:50%; background:var(--good); box-shadow:0 0 0 2px var(--surface)}
+.site-id{display:flex; flex-direction:column; min-width:0}
+.site-id b{font-size:13.5px; font-weight:650; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.site-id small{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.site-rel{margin:12px 0 0; padding-top:8px; border-top:1px solid var(--line2); font-size:12.5px; color:var(--ink2)}
+@media (max-width:560px){ .site-membres{grid-template-columns:repeat(2,minmax(0,1fr))} }
+/* au petit téléphone, la tuile d'un salon vocal : l'avatar au-dessus du
+   nom, qui garde ainsi toute la largeur de sa colonne */
+@media (max-width:360px){ .site-membres li{flex-direction:column; justify-content:center; gap:4px; padding:6px 4px; text-align:center}
+  .site-id{align-items:center; max-width:100%} }
 .ws-qui{display:flex; align-items:center; gap:10px; min-width:0}
 .ws-qui .pl-tri{width:34px; height:34px}
 .ws-neg{color:var(--out); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
@@ -17578,6 +17605,80 @@ function wsRestants(p){
 }
 function wsDateCourte(dt){ return JOURS_C[dt.getDay()]+" "+dt.getDate()+" "+MOIS_C[dt.getMonth()]; }
 /* ── le tableau de bord ── */
+/* SUR SITE EN CE MOMENT (le client, le 23/10/2026 : « afficher les
+   personnes présentes en ce moment, comme si c'étaient des membres en ligne
+   dans un chat vocal, dans le sens où ils sont présents sur site en ce
+   moment »). Chaque pause en cours est un « salon », ses présents en sont
+   les membres, pastille verte. Les heures sont celles de l'agenda abonné
+   (lectureAgenda, pfDebut, pfFin) : la plage écrite dans la cellule si elle
+   y est, sinon celle de la pause, remise de pause comprise ; la nuit
+   commencée la veille compte jusqu'à 6 h. Une formation n'y est pas :
+   l'horaire ne dit pas si elle se donne sur le site. */
+var SITE_PAUSES=[["N","Nuit","p-n"],["AM","Matin","p-am"],["D","Jour","p-d"],["PM","Après-midi","p-pm"],["X","Horaires particuliers","f-autre"]];
+function surSite(t){
+  var h=t.getHours()+t.getMinutes()/60, sur=[], arrivent=[], vus={};
+  [-1,0].forEach(function(dj){
+    var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+dj), y=d.getFullYear(), m=d.getMonth()+1, j=d.getDate(), db=horaireDe(y);
+    if(!db) return;
+    var r=h-dj*24, eq={}; try{ eq=equipeALaPause(db,y,m,j)||{}; }catch(e){}
+    db.people.forEach(function(p){
+      if(vus[p.id]) return;
+      var x=null; try{ x=lectureAgenda(db,p,y,m,j); }catch(e){}
+      if(!x || !(x.presente||(x.ab&&/\+FT/.test(x.ab))) || PF_DEB[x.pv]==null) return;
+      var o={p:p, x:x, deb:pfDebut(x), fin:pfFin(x), eq:eq[x.pv]||""};
+      if(r>=o.deb && r<o.fin){ vus[p.id]=1; sur.push(o); }
+      else if(dj===0 && o.deb>r && o.deb-r<=3) arrivent.push(o);
+    });
+  });
+  return {sur:sur, arrivent:arrivent};
+}
+/* le salon d'une présence : la pause dont elle a les heures (remise de
+   pause comprise : 5 h 30 – 14 h est le Matin), sinon sa propre pause si
+   elle commence avec elle (6 h – 18 h reste au Matin), sinon « X », les
+   horaires particuliers (10 h – 18 h d'une journée lue N) */
+function siteSalon(o){
+  var z=["AM","PM","N","D"].filter(function(k){ return (o.deb===PF_DEB[k]||o.deb===PF_DEB[k]-0.5)&&o.fin===PF_FIN[k]; })[0];
+  return z||((o.deb===PF_DEB[o.x.pv]||o.deb===PF_DEB[o.x.pv]-0.5)?o.x.pv:"X");
+}
+/* 6 → « 6 h », 21.5 → « 21 h 30 », 30 → « 6 h » */
+function siteH(v){ v=((v%24)+24)%24; var hh=Math.floor(v+1e-6), mm=Math.round((v-hh)*60); if(mm>=60){ hh=(hh+1)%24; mm=0; } return hh+" h"+(mm?" "+pad2(mm):""); }
+function wsSiteHTML(){
+  var t=new Date(), s=surSite(t), groupes={}, ordre={};
+  POSTES_TRAVAIL.forEach(function(P,i){ ordre[P.k]=i; });
+  function k(o){ return o.x.ka||o.x.k; }
+  function rang(o){ return (k(o) in ordre)?ordre[k(o)]:999; }
+  function poste(o){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(o)) q=P.t; }); return q; }
+  s.sur.forEach(function(o){ var g=siteSalon(o); (groupes[g]=groupes[g]||[]).push(o); });
+  var salons=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
+    var L=groupes[z[0]].sort(function(a,b){ return rang(a)-rang(b)||String(a.p.id).localeCompare(String(b.p.id)); });
+    return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
+      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<b>'+z[1]+'</b>'+(z[0]==="X"?'':'<span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+siteH(PF_DEB[z[0]])+' – '+siteH(PF_FIN[z[0]])+'</span>')+'<em>'+L.length+'</em></p>'
+      +'<ul class="site-membres">'+L.map(function(o){
+        /* sans nom chargé, le poste prend la première ligne : le
+           trigramme est déjà dans la pastille (comme wsQui) */
+        var n=grNom(o.p), pt=poste(o), qui=n||pt||wsPosteEq(o.p)[0]||idLisible(o.p.id),
+            plage=(o.deb===PF_DEB[z[0]]&&o.fin===PF_FIN[z[0]])?"":siteH(o.deb)+" – "+siteH(o.fin), sous=[n?pt:"",plage].filter(Boolean).join(" · ");
+        return '<li data-pers="'+esc(o.p.id)+'" tabindex="0" role="button" aria-label="'+esc((n||idLisible(o.p.id))+", sur site jusqu'à "+siteH(o.fin)+(pt?", "+pt:""))+'">'
+          +'<span class="site-av">'+wsPuce(o.p)+'<i class="site-pt" aria-hidden="true"></i></span>'
+          +'<span class="site-id"><b>'+esc(qui)+'</b><small>'+esc(sous||"jusqu'à "+siteH(o.fin))+'</small></span></li>';
+      }).join("")+'</ul></div>';
+  }).join("");
+  var rel="";
+  /* la prochaine relève, par salon : celle du matin compte aussi ceux
+     qui arrivent à 5 h 30 pour la remise de pause */
+  if(s.arrivent.length){
+    var gA={}, best=null;
+    s.arrivent.forEach(function(o){ var g=siteSalon(o); (gA[g]=gA[g]||[]).push(o); });
+    Object.keys(gA).forEach(function(g){ var tg=g==="X"?Math.min.apply(null,gA[g].map(function(o){ return o.deb; })):PF_DEB[g];
+      if(!best||tg<best.t) best={g:g, t:tg, n:gA[g].length}; });
+    rel='<p class="site-rel">'+(best.g==="X"?'Arrivée':'Relève '+{AM:"du matin",PM:"de l'après-midi",N:"de nuit",D:"de jour"}[best.g])
+      +' à '+siteH(best.t)+' : '+best.n+' arrivée'+(best.n>1?'s':'')+' prévue'+(best.n>1?'s':'')+'.</p>';
+  }
+  return '<section class="ws-carte ws-site" id="wsSite">'
+    +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
+    +'<p class="site-maj">En direct, d\'après l\'horaire · '+siteH(t.getHours()+t.getMinutes()/60)+'</p>'
+    +(salons||'<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>')+rel+'</section>';
+}
 function renderTdb(){
   var hote=document.getElementById("wsTdb"), db=wsDb(); if(!db){ hote.innerHTML=wsTete("Tableau de bord","Horaire indisponible."); return; }
   var auj=jourUsine(), an=Number(db.year), h=[];
@@ -17600,6 +17701,7 @@ function renderTdb(){
       return '<div class="ws-kpi"><span class="pl-pa '+z[2]+'">'+z[0]+'</span><b>'+n(z[0])+'</b><small>'+z[1]+'</small></div>'; }).join("")
     +'<div class="ws-kpi"><span class="pl-pa f-absence">Abs</span><b>'+n("abs")+'</b><small>Malades</small></div>'
     +'<div class="ws-kpi"><span class="pl-pa f-conge">Congé</span><b>'+n("cong")+'</b><small>En congé ou en récupération</small></div></div>');
+  h.push(wsSiteHTML());
   h.push('<div class="ws-grille">');
   /* les mêmes trois filtres que wsNbValider (audit du 23/10/2026) : la carte
      ne comptait que les congés, et les remplacements à signer en plus, et
@@ -17655,6 +17757,16 @@ function renderTdb(){
   h.push('<section class="ws-carte ws-large"><header><h3>Activité récente</h3><button type="button" class="btnlike ws-lien" data-ws="historique">Tout l\'historique</button></header><div id="wsRecent"><p class="ws-vide">Chargement…</p></div></section>');
   h.push('</div>');
   hote.innerHTML=h.join("");
+  /* la carte « Sur site » se refait chaque minute tant que le tableau de
+     bord est à l'écran ; le focus reste sur la personne qui l'avait */
+  clearInterval(GR.siteTic);
+  GR.siteTic=setInterval(function(){
+    var el=document.getElementById("wsSite"), g=document.getElementById("grille");
+    if(!el||!g||g.hidden||GR.section!=="tdb"){ clearInterval(GR.siteTic); return; }
+    var a=document.activeElement, id=a&&el.contains(a)?a.getAttribute("data-pers"):null;
+    el.outerHTML=wsSiteHTML();
+    if(id){ var b=document.querySelector('#wsSite [data-pers="'+id+'"]'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
+  },60000);
   wsChargerHisto(6).then(function(l){ var el=document.getElementById("wsRecent"); if(el) el.innerHTML=wsHistoListe(l); });
 }
 /* ── le personnel ── */
