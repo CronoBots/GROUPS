@@ -5323,8 +5323,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 @media (prefers-reduced-motion:reduce){.gate-btn{transition:none}}
 
 /* ---------- toast ---------- */
+/* au-dessus de l'espace RH (95) et des feuilles (100) : il s'y écrivait
+   dessous, invisible (audit du 23/10/2026) ; sous les boîtes de dialogue */
 .toast{
-  position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:60;
+  position:fixed; left:50%; transform:translateX(-50%) translateY(8px); z-index:130;
   bottom:calc(16px + env(safe-area-inset-bottom,0px));
   padding:8px 15px; border-radius:99px; background:var(--ink); color:var(--paper);
   font-size:12.5px; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s;
@@ -6448,8 +6450,30 @@ html #grille .ws-s:not(.ws-planning) table thead th{background:var(--surface); c
 /* l'en-tête des colonnes reste à l'écran (audit du 23/10/2026) : le th collait
    à .ws-table, qui ne défile pas ; c'est .ws-main qui défile. clip coupe
    l'arrondi sans créer de conteneur de défilement. Limité au Personnel et
-   aux Absences, dont les tableaux tiennent en largeur dès 1100 px. */
-@media (min-width:1100px){ html #grille #wsPers,html #grille #wsAbs{overflow:clip} html #grille #wsPers .ws-table,html #grille #wsAbs .ws-table{overflow:visible} }
+   aux Absences, dont les tableaux tiennent en largeur dès 1100 px.
+   Dès 761 px aussi (audit du 23/10/2026) : entre 761 et 1099 px, le
+   Personnel défilait en largeur sans le dire, RJF et Flex hors du cadre, et
+   l'en-tête partait avec la page. Il y tient sans les Polyvalences (dans la
+   fiche), avec des colonnes de chiffres plus serrées, et la personne peut
+   passer à la ligne : clip ne coupe donc rien. */
+@media (min-width:761px){ html #grille #wsPers,html #grille #wsAbs{overflow:clip} html #grille #wsPers .ws-table,html #grille #wsAbs .ws-table{overflow:visible} }
+@media (min-width:761px) and (max-width:1099px){
+  html #grille #wsPers .ws-table tr>:nth-child(3){display:none}
+  html #grille #wsPers .ws-table .ws-n{padding-left:8px; padding-right:8px}
+  html #grille #wsPers .ws-table td:first-child,html #grille #wsAbs .ws-table td:first-child{white-space:normal}
+}
+/* les six tuiles du tableau de bord en rangées pleines : 3 + 3 sous 1280 px,
+   6 au-delà, au lieu de 5 + 1 ou 4 + 2 ; le téléphone garde ses 2 colonnes.
+   « Ouvrir le planning » sur une ligne : les colonnes de côté de la tête lui
+   gardent sa place, le sous-titre passe à la ligne (audit du 23/10/2026) */
+html #grille #wsTdb .ws-pc{white-space:nowrap}
+@media (min-width:700px){ html #grille #wsTdb .ws-kpis{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (min-width:1280px){ html #grille #wsTdb .ws-kpis{grid-template-columns:repeat(6,minmax(0,1fr))} }
+@media (min-width:761px) and (max-width:1279px){ html #grille #wsTdb>.ws-tete{grid-template-columns:minmax(140px,1fr) minmax(0,auto) minmax(140px,1fr)} }
+/* au clavier, le contour d'une ligne ou d'une case se trace en dedans : le
+   cadre du tableau et les cases voisines ne le coupent pas (audit du 23/10/2026) */
+html #grille tr[data-pers]:focus-visible,html #grille li[data-pers]:focus-visible,html #grille li[data-ws]:focus-visible,
+html #grille .hp-t td.hp-s:focus-visible,html #grille .hp-t th[data-pers]:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
 </style>
 </head>
 <body>
@@ -10389,8 +10413,10 @@ function setView(v,keepScroll){
      distinguent ; le nom choisi par le client reste (audit du 23/10/2026) */
   titreVue(v);
 }
+/* sans argument, la vue restée derrière : l'espace RH refermé lui rend le
+   titre (audit du 23/10/2026) */
 function titreVue(v){
-  var _t={horaire:"Accueil",jour:"Planning",equipe:"Équipes",salaire:"Salaire",rh:"Effectifs",recherche:"Recherche",direction:"Direction",reglages:"Réglages"}[v];
+  var _t={horaire:"Accueil",jour:"Planning",equipe:"Équipes",salaire:"Salaire",rh:"Effectifs",recherche:"Recherche",direction:"Direction",reglages:"Réglages"}[v||st.view];
   document.title=_t?_t+" · BioWanze":"BioWanze";
 }
 document.querySelector(".tabs").addEventListener("click",function(e){
@@ -16235,8 +16261,10 @@ function renderGrille(){
   } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(3*cols.length)+'">'+esc(mode[1])+'</th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
-    var n=grNom(c.p), eq=equipe?"":(/^Shift(\d)/.exec(c.f)||[])[1];
-    h.push('<th class="'+grTeinte(c.po)+'" colspan="3" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" title="'+esc((n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po)+'">'+esc(grNomCourt(c.p))+(eq?'<small>Éq. '+eq+'</small>':'')+'</th>');
+    /* pas d'« Éq. 1 » pour un adjoint : son Shift1 est l'en-tête de sa
+       colonne au classeur, pas son équipe (audit du 23/10/2026) */
+    var n=grNom(c.p), eq=equipe||/adjoint/i.test(c.po)?"":(/^Shift(\d)/.exec(c.f)||[])[1];
+    h.push('<th class="'+grTeinte(c.po)+'" colspan="3" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc((n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po)+'">'+esc(grNomCourt(c.p))+(eq?'<small>Éq. '+eq+'</small>':'')+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -16280,6 +16308,9 @@ function renderGrille(){
   h.push('</table>');
   zone.innerHTML=h.join("");
   GR.colCache={}; GR.sig=grSignature(db);
+  /* au clavier, une seule case dans l'ordre de Tab : celle du jour, sinon
+     la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
+  var c0=zone.querySelector("tbody tr.hp-auj td.hp-s")||zone.querySelector("tbody td.hp-s"); if(c0) c0.tabIndex=0;
   if(garde){ zone.scrollTop=garde.t; zone.scrollLeft=garde.l; }
   var lg=document.getElementById("grLegende"), L=db.legende||{};
   if(lg) lg.innerHTML=Object.keys(L).filter(function(c){ return c!=="xxx"; }).map(function(c){ return '<span><b>'+esc(c)+'</b> : '+esc(L[c])+'</span>'; }).join("");
@@ -16374,7 +16405,7 @@ function fermerGrille(parRetour){
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
-  titreVue(st.view);
+  try{ titreVue(); }catch(e){}
   /* une case modifiée : toute l'application relit l'horaire */
   if(GR.modifie){ try{ localStorage.removeItem("base/saisies"); }catch(e){} location.reload(); }
 }
@@ -16399,7 +16430,11 @@ function navRetirer(k){
 window.addEventListener("popstate",function(){
   if(NAV.ignore){ NAV.ignore--; return; }
   var k=NAV.pile.pop();
-  if(k==="p") grFermerPanneau(true); else if(k==="g") fermerGrille(true);
+  /* le sélecteur de jour et « préciser » ont leur étape : le retour les
+     referme, eux seuls ; une feuille où l'on a écrit demande avant de se
+     fermer (audit du 23/10/2026) */
+  if(k==="jp"){ if(GR.jpFermer) GR.jpFermer(true); }
+  else if(k==="p") grQuitterPanneau(true); else if(k==="g") fermerGrille(true);
   /* les feuilles du jour, de la personne, « Plus » et des notifications
      (audit du 23/10/2026) */
   else if(k==="j") fermerJour(true); else if(k==="s") fermerPersonne(true);
@@ -16415,7 +16450,7 @@ window.addEventListener("popstate",function(){
    23/10/2026). */
 function wsAppliquerMode(){
   var g=document.getElementById("grille"), p=document.getElementById("grPanneau"); if(!g||g.hidden) return;
-  var tel=mqNav.matches, couvre=tel&&!!p&&!p.hidden;
+  var tel=mqNav.matches, couvre=tel&&!!p&&!p.hidden&&!GR.panNonModal;
   if(tel){ g.removeAttribute("aria-modal"); g.setAttribute("role","region"); }
   else{ g.setAttribute("role","dialog"); g.setAttribute("aria-modal","true"); }
   [].forEach.call(document.querySelectorAll("#grille .ws-main,#grille .ws-nav"),function(x){ x.inert=couvre; if(couvre) x.setAttribute("inert",""); else x.removeAttribute("inert"); });
@@ -16424,6 +16459,7 @@ if(mqNav.addEventListener) mqNav.addEventListener("change",wsAppliquerMode);
 else if(mqNav.addListener) mqNav.addListener(wsAppliquerMode);
 function grFermerPanneau(parRetour){
   var p=document.getElementById("grPanneau"), ouvert=p&&!p.hidden; if(p) p.hidden=true;
+  if(GR.jpFermer) GR.jpFermer();
   document.body.classList.remove("pn-ouvert");
   /* la liste redevient atteignable et le focus revient à ce qui a ouvert
      le panneau (audit du 23/10/2026) */
@@ -16433,23 +16469,62 @@ function grFermerPanneau(parRetour){
   [].forEach.call(document.querySelectorAll("#grZone .pl-sel,#grille .dm-carte.dm-sel"),function(x){ x.classList.remove("pl-sel","dm-sel"); });
   if(ouvert&&parRetour!==true) navRetirer("p");
 }
-function grOuvrirPanneau(html){
+function grOuvrirPanneau(html,nonModal){
   var p=document.getElementById("grPanneau"), nouveau=p.hidden; if(nouveau) navPousser("p");
+  var avant=document.activeElement, perdu=!nouveau&&avant&&avant!==document.body&&p.contains(avant);
   p.className="pl-panneau"; p.innerHTML=html; p.hidden=false;
   document.body.classList.add("pn-ouvert");
   /* liste et fiche côte à côte : la carte dont la fiche est ouverte se marque */
   [].forEach.call(document.querySelectorAll("#grille .dm-carte.dm-sel"),function(x){ x.classList.remove("dm-sel"); });
   if(GR.carteTouchee&&document.body.contains(GR.carteTouchee)) GR.carteTouchee.classList.add("dm-sel");
-  [].forEach.call(p.querySelectorAll(".pn-x,.pn-retour"),function(x){ x.onclick=function(){ grFermerPanneau(); }; });
+  [].forEach.call(p.querySelectorAll(".pn-x,.pn-retour"),function(x){ x.onclick=function(){ grQuitterPanneau(); }; });
   /* un dialogue : il s'annonce par son titre et prend le focus ; au
      téléphone, la feuille couvre la liste, que le Tab ne parcourt plus
      (audit du 23/10/2026). Un panneau déjà ouvert qui se redessine garde
-     le focus où il est. */
-  var t=p.querySelector(".pn-tete b,h2,h3");
-  p.setAttribute("role","dialog"); p.setAttribute("aria-label",t&&t.textContent.trim()||"Détail");
+     le focus où il est. Le nom réunit le titre et sa ligne : le trigramme
+     puis la date de la case, et non le trigramme seul. La feuille d'une case
+     (nonModal) ne couvre que le bas : la grille au-dessus reste touchable
+     et défile, elle ne passe pas en inert (audit du 23/10/2026). */
+  var t=p.querySelector(".pn-tete>div")||p.querySelector("h2,h3"), nom=t?(t.children.length?[].map.call(t.children,function(c){ return c.textContent.trim(); }).filter(Boolean).join(", "):t.textContent):"";
+  p.setAttribute("role","dialog"); p.setAttribute("aria-label",nom.replace(/\s+/g," ").trim()||"Détail");
+  GR.panNonModal=!!nonModal;
   wsAppliquerMode();
   if(nouveau){ var a=document.activeElement; GR.panOrigine=(a&&a!==document.body&&!p.contains(a))?a:(GR.carteTouchee||null); focusPremier(p); }
+  /* redessiné après un visa, le bouton pressé n'existe plus : le focus va au
+     titre, et non plus à <body> (audit du 23/10/2026) */
+  else if(perdu&&t){ t.setAttribute("tabindex","-1"); try{ t.focus({preventScroll:true}); }catch(e){} }
+  /* la feuille telle que l'appelant l'a remplie : y a-t-on écrit depuis ? */
+  GR.panEmpreinte=null; setTimeout(function(){ if(!p.hidden) GR.panEmpreinte=pnEmpreinte(p); },0);
   return p;
+}
+/* ce qu'on a écrit sur le papier d'une feuille : son texte (dates
+   choisies), ses champs et ses cases pressées ; pas le dessin, qu'un style
+   posé en passant changerait */
+function pnEmpreinte(p){
+  return [].map.call(p.querySelectorAll(".dm-papier"),function(c){ return c.textContent
+    +[].map.call(c.querySelectorAll("input,select,textarea"),function(x){ return x.type==="checkbox"?x.checked:x.value; }).join("|")
+    +[].map.call(c.querySelectorAll("[aria-pressed]"),function(x){ return x.getAttribute("aria-pressed"); }).join(""); }).join("§");
+}
+/* UNE FEUILLE OÙ L'ON A ÉCRIT ne se ferme plus sans le demander, ni par
+   Échap, ni par le retour, ni par la croix ; « Continuer » garde la
+   saisie (audit du 23/10/2026) */
+function grQuitterPanneau(parRetour){
+  var p=document.getElementById("grPanneau");
+  if(!p||p.hidden||GR.panEmpreinte==null||pnEmpreinte(p)===GR.panEmpreinte){ grFermerPanneau(parRetour); return; }
+  if(parRetour===true) navPousser("p");
+  confirmerPro({titre:"Abandonner la feuille ?",texte:"Ce que vous y avez inscrit sera perdu.",ok:"Abandonner",annuler:"Continuer"},function(){ grFermerPanneau(); });
+}
+/* L'ERREUR D'UNE FEUILLE s'écrivait sous le papier, hors de la vue : le
+   bouton du bas semblait ne rien faire. Elle s'affiche aussi en message, le
+   champ fautif prend le focus (audit du 23/10/2026). Sans msg, celle déjà
+   écrite. */
+function pnErreur(err,msg,champ){
+  if(typeof msg==="string") err.textContent=msg;
+  else msg=[].map.call(err.childNodes,function(n){ return n.textContent; }).filter(Boolean).join(" · ");
+  if(!msg) return;
+  if(champ) try{ champ.focus(); }catch(e){}
+  else try{ err.scrollIntoView({block:"nearest"}); }catch(e){}
+  flash(msg,true);
 }
 /* LA FICHE D'UNE PERSONNE : ses compteurs de l'année, le contrat, ses postes */
 function grPersonne(id){
@@ -16490,7 +16565,7 @@ function grEditer(td){
     var pn0=grOuvrirPanneau(titre+'<div class="pn-corps">'+src
       +'<p class="pn-t">Prévu</p><p class="pn-txt">'+esc(grAffiche(e[0])||"—")+'</p>'
       +(e[1]?'<p class="pn-t">Ce qui s\'est passé</p><p class="pn-txt">'+esc(grAffiche(e[1]))+'</p>':'')
-      +(e[2]?'<p class="pn-t">Commentaire</p><p class="pn-txt">'+esc(nettoyerAffichage(e[2]))+'</p>':'')+'</div>');
+      +(e[2]?'<p class="pn-t">Commentaire</p><p class="pn-txt">'+esc(nettoyerAffichage(e[2]))+'</p>':'')+'</div>',true);
     grDegager(td,pn0);
     return;
   }
@@ -16517,7 +16592,7 @@ function grEditer(td){
       +(notes.length?'<p class="pn-note">Le classeur écrit '+notes.map(esc).join(" et ")+', hors de la liste : choisissez le code.</p>':'')
       +'<p class="pn-note" id="pnErr"></p>'
       +'</div><div class="pn-pied"><button type="button" class="btn ss-ok" id="pnOk">Enregistrer</button>'
-      +(sai?'<button type="button" class="btnlike" id="pnCl">Revenir au classeur</button>':'')+'</div>');
+      +(sai?'<button type="button" class="btnlike" id="pnCl">Revenir au classeur</button>':'')+'</div>',true);
     grDegager(td,pn);
     function maj(){
       [].forEach.call(pn.querySelectorAll("#pnPrevu button"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-v")===etat.prevu)); });
@@ -16566,7 +16641,7 @@ function grEditer(td){
         .then(function(){ memo(md,[sai.cl_cellule||"",sai.cl_annotation||"",sai.cl_commentaire||""],null); GR.modifie=true; grFermerPanneau(); renderGrille(); flash("La journée reprend le classeur"); })
         .catch(function(x){ cl.disabled=false; err.textContent=baseMsg(x); });
     };
-  }).catch(function(x){ grOuvrirPanneau(titre+'<div class="pn-corps"><p class="pn-note">Codes indisponibles : '+esc(baseMsg(x))+'.</p></div>'); });
+  }).catch(function(x){ grOuvrirPanneau(titre+'<div class="pn-corps"><p class="pn-note">Codes indisponibles : '+esc(baseMsg(x))+'.</p></div>',true); });
 }
 /* L'ESPACE RH (le client, le 21/10/2026 : « inspire-toi des meilleures
    applications RH pour la gestion de personnel, adaptées à notre système,
@@ -16643,6 +16718,20 @@ document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("[data-bascule]"):null; if(!b) return;
   var s=b.getAttribute("data-bascule"); if(s!==GR.section) wsAller(s);
 });
+/* les flèches passent d'un onglet à l'autre, comme la barre du bas : le
+   rôle « tablist » le promet. La section se redessine (deux fois, la liste
+   arrivée) : le focus suit le nouvel onglet (audit du 23/10/2026) */
+document.addEventListener("keydown",function(e){
+  var b=e.target.closest?e.target.closest(".dm-bascule [data-bascule]"):null; if(!b) return;
+  if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="Home"&&e.key!=="End") return;
+  var bs=[].slice.call(b.parentNode.querySelectorAll("[data-bascule]")), i=bs.indexOf(b), n=bs.length;
+  e.preventDefault();
+  var s=bs[e.key==="Home"?0:e.key==="End"?n-1:(i+(e.key==="ArrowRight"?1:n-1))%n].getAttribute("data-bascule"), k=0;
+  if(s!==GR.section) wsAller(s);
+  (function suivre(){ if(GR.section!==s) return; var c=document.querySelector('#grille .ws-s:not([hidden]) .dm-bascule [data-bascule="'+s+'"]'), a=document.activeElement;
+    if(c&&c!==a&&(!k||!a||a===document.body)) try{ c.focus(); }catch(er){}
+    if(++k<10) setTimeout(suivre,250); })();
+});
 function wsDb(){ var a=jourUsine().getFullYear(); return (HORAIRES&&(HORAIRES[a]||HORAIRES[st.y]))||HORAIRE_DB; }
 function wsMenuMaj(){
   var s=GR.section;
@@ -16670,7 +16759,9 @@ function wsAller(s,garder){
         else if(c.hasAttribute("data-hs")) hsFeuille(hsTrouve(c.getAttribute("data-hs"))); });
       /* au clavier aussi : une carte sans bouton n'était pas atteignable
          (audit du 23/10/2026) ; tabindex="0" la met dans l'ordre de Tab */
-      gw.addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("dm-carte")){ e.preventDefault(); e.target.click(); } }); } }
+      /* les lignes du Personnel, des Absences et du tableau de bord aussi
+         (audit du 23/10/2026) */
+      gw.addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches(".dm-carte,tr[data-pers],li[data-pers],li[data-ws]")&&!e.target.closest("#grZone")){ e.preventDefault(); e.target.click(); } }); } }
   wsMenuMaj();
   wsBadge();
   try{ sideMaj(); }catch(e){}
@@ -16701,10 +16792,15 @@ function wsPuce(p){ return '<span class="pl-tri">'+esc(idLisible(p.id))+'</span>
    prend la première ligne : le trigramme est déjà dans la pastille */
 function wsQui(p){ var n=grNom(p), q=wsPosteEq(p);
   return '<span class="ws-qui">'+wsPuce(p)+'<span class="pl-id"><b>'+esc(n||q[0]||idLisible(p.id))+'</b><small>'+esc(n?q.filter(Boolean).join(" · "):q[1]||"")+'</small></span></span>'; }
-/* le poste tenu et l'équipe ; chez les contremaîtres, la ligne 9 du classeur
-   écrit le numéro de l'équipe */
+/* le poste tenu et l'équipe. Un cadre porte « Contremaître → 5 » : 5 est
+   son BINÔME, et le Shift1 « Adjoints Contremaître » d'un adjoint n'est que
+   l'en-tête de la colonne où il a été lu, pas son équipe (journal 07) ; le
+   binôme se lit donc avant les Shift : « Adjoint · Binôme 5 », et non
+   « Équipe 1 » ni « Équipe 6 » (audit du 23/10/2026) */
+function wsAdjoint(p){ return !!p.postes&&Object.keys(p.postes).some(function(k){ return /adjoint/i.test(String(p.postes[k].p||"")); }); }
 function wsPosteEq(p){
   var k=p.postes?Object.keys(p.postes):[], f=GR_FEUILLES.filter(function(x){ return k.indexOf(x[0])>=0; })[0];
+  if(k.indexOf("Contremaître")>=0) return [wsAdjoint(p)?"Adjoint":"Contremaître",_pfBinome(p)];
   /* la catégorie telle que le classeur l'écrit, avec sa majuscule à l'affichage (« chaudières éq. 5 ») */
   if(!f){ var c=String(p.cat||""); return [c.charAt(0).toUpperCase()+c.slice(1),""]; }
   var v=String(p.postes[f[0]].p||"");
@@ -16723,14 +16819,18 @@ function renderTdb(){
   var par=auj.getFullYear()===an?equipeDuJour(db,an,auj.getMonth()+1,auj.getDate()):{};
   function n(k){ return (par[k]||[]).length; }
   /* avant 6 h, le jour de l'usine est la veille : le libellé dit la nuit,
-     comme l'Accueil, au lieu de contredire le menu (audit du 23/10/2026) */
+     comme l'Accueil, au lieu de contredire le menu (audit du 23/10/2026).
+     Les tuiles et les absents comptent tout ce jour-là, AM et PM finis
+     compris : ils le nomment (« Jeudi 22 · jusqu'à 6 h », « Absents jeudi
+     22 ») plutôt que « Cette nuit » à côté d'« aujourd'hui ». */
   var civ=new Date(), nuit=civ.getHours()<6;
   function jl(d){ return JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate()); }
+  var ceJour=nuit?jl(auj).toLowerCase():"aujourd'hui";
   var quand=nuit?"Nuit du "+jl(auj).toLowerCase()+(auj.getMonth()!==civ.getMonth()?" "+MOIS[auj.getMonth()].toLowerCase():"")+(auj.getFullYear()!==civ.getFullYear()?" "+auj.getFullYear():"")+" au "+jl(civ).toLowerCase()+" "+MOIS[civ.getMonth()].toLowerCase()+" "+civ.getFullYear()
     :jl(auj)+" "+MOIS[auj.getMonth()].toLowerCase()+" "+auj.getFullYear();
   h.push(wsTete("Tableau de bord",quand+" · "+db.people.length+" personnes · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?"),
     '<button type="button" class="btn ss-ok ws-pc" data-ws="planning">Ouvrir le planning</button>'));
-  h.push('<p class="ws-sec">'+(nuit?'Cette nuit':'Aujourd\'hui')+'</p><div class="ws-kpis">'
+  h.push('<p class="ws-sec">'+(nuit?jl(auj)+' · jusqu\'à 6 h':'Aujourd\'hui')+'</p><div class="ws-kpis">'
     +[["AM","Matin","p-am"],["PM","Après-midi","p-pm"],["N","Nuit","p-n"],["D","Jour","p-d"]].map(function(z){
       return '<div class="ws-kpi"><span class="pl-pa '+z[2]+'">'+z[0]+'</span><b>'+n(z[0])+'</b><small>'+z[1]+'</small></div>'; }).join("")
     +'<div class="ws-kpi"><span class="pl-pa f-absence">Abs</span><b>'+n("abs")+'</b><small>Malades</small></div>'
@@ -16744,7 +16844,7 @@ function renderTdb(){
     .concat((GR.hs||[]).filter(hsATraiter).map(function(x){ return {x:x,ws:"valider-hs",per:dmPeriode(x.jour,x.jour)+' · '+hsDuree(x.minutes),pa:"remplacement",c:x.type||"HS"}; }));
   h.push('<section class="ws-carte"><header><h3>Demandes à traiter</h3><span class="ws-badge'+(dmT.length?' ws-alerte':' ws-ok')+'">'+(dmT.length||'aucune')+'</span></header>'
     +(dmT.length?'<ul class="ws-liste">'+dmT.slice(0,5).map(function(z){ var x=z.x, p=dmPersonne(x.trigramme);
-        return '<li data-ws="'+z.ws+'"><span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc([x.prenom,x.nom].filter(Boolean).join(" ")||(p?wsPosteEq(p)[0]:x.trigramme))+'</b><small>'+esc(z.per)+'</small></span></span><span class="pl-pa f-'+esc(z.pa)+'">'+esc(z.c)+'</span></li>'; }).join("")+'</ul>'
+        return '<li data-ws="'+z.ws+'" tabindex="0" role="button"><span class="ws-qui"><span class="pl-tri">'+esc(idLisible(x.trigramme))+'</span><span class="pl-id"><b>'+esc([x.prenom,x.nom].filter(Boolean).join(" ")||(p?wsPosteEq(p)[0]:x.trigramme))+'</b><small>'+esc(z.per)+'</small></span></span><span class="pl-pa f-'+esc(z.pa)+'">'+esc(z.c)+'</span></li>'; }).join("")+'</ul>'
       +'<button type="button" class="btnlike ws-lien" data-ws="valider">Ouvrir À valider</button>'
       :'<p class="ws-vide">'+(GR.demandes===null?'Chargement…':'Aucune demande n\'attend votre réponse.')+'</p>')+'</section>');
   /* le sous-effectif des 14 prochains jours */
@@ -16760,18 +16860,18 @@ function renderTdb(){
   var abs=(par.abs||[]).concat(par.cong||[]), nAb=(par.abs||[]).length, nCg=(par.cong||[]).length;
   /* « n malades, n en congé » (journal 05) : le seul 17 se lisait contre les
      « Absents 6 » des Effectifs, qui ne comptent pas les congés (audit du 23/10/2026) */
-  h.push('<section class="ws-carte"><header><h3>Absents aujourd\'hui</h3><span class="ws-badge">'+abs.length+'</span></header>'
+  h.push('<section class="ws-carte"><header><h3>Absents '+ceJour+'</h3><span class="ws-badge">'+abs.length+'</span></header>'
     +(abs.length?'<p class="ws-rep">'+nAb+' malade'+(nAb>1?'s':'')+', '+nCg+' en congé</p><ul class="ws-liste">'+abs.slice(0,8).map(function(y){
         var e=(y.p.d||{})[pad2(auj.getMonth()+1)+pad2(auj.getDate())]||[], c=e[1]||e[0]||"";
-        return '<li data-pers="'+esc(y.p.id)+'">'+wsQui(y.p)+'<span class="pl-pa f-'+grFamille(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>'
+        return '<li data-pers="'+esc(y.p.id)+'" tabindex="0" role="button">'+wsQui(y.p)+'<span class="pl-pa f-'+grFamille(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>'
       +(abs.length>8?'<button type="button" class="btnlike ws-lien" data-ws="absences">Voir les '+abs.length+' personnes</button>':'')
-      :'<p class="ws-vide">Personne n\'est absent ni en congé aujourd\'hui.</p>')+'</section>');
+      :'<p class="ws-vide">Personne n\'est absent ni en congé '+ceJour+'.</p>')+'</section>');
   /* les compteurs à surveiller */
   var neg=[]; db.people.forEach(function(p){ wsRestants(p).forEach(function(r){ if(r.v!==null&&r.v<0) neg.push({p:p,r:r}); }); });
   neg.sort(function(a,b){ return a.r.v-b.r.v; });
   h.push('<section class="ws-carte"><header><h3>Compteurs à surveiller</h3><span class="ws-badge'+(neg.length?' ws-alerte':' ws-ok')+'">'+(neg.length||'aucun')+'</span></header>'
     +(neg.length?'<ul class="ws-liste">'+neg.slice(0,6).map(function(x){
-        return '<li data-pers="'+esc(x.p.id)+'">'+wsQui(x.p)+'<span class="ws-neg">'+x.r.t+' '+x.r.v+' h</span></li>'; }).join("")+'</ul>'
+        return '<li data-pers="'+esc(x.p.id)+'" tabindex="0" role="button">'+wsQui(x.p)+'<span class="ws-neg">'+x.r.t+' '+x.r.v+' h</span></li>'; }).join("")+'</ul>'
       :'<p class="ws-vide">Aucun solde négatif : VA, RTT, DTT et RJF tiennent pour tout le monde.</p>')+'</section>');
   /* la transition : ce qui est déjà tenu dans l'application */
   var sai=db._saisies?Object.keys(db._saisies).map(function(k){ return db._saisies[k]; }):[];
@@ -16795,7 +16895,9 @@ function renderPersonnel(){
   var hote=document.getElementById("wsPers"), db=wsDb(); if(!db) return;
   var q=String(GR.chercheP||"").toLowerCase(), eq=GR.equipeP||"";
   var gens=db.people.slice().sort(function(a,b){ var x=idLisible(a.id), y=idLisible(b.id); return x<y?-1:x>y?1:0; })
-    .filter(function(p){ return (!eq||(p.postes&&p.postes[eq]))&&(!q||(idLisible(p.id)+" "+grNom(p)+" "+wsPoste(p)+" "+statutAffiche(p)).toLowerCase().indexOf(q)>=0); });
+    /* un adjoint n'est d'aucune équipe : son « Adjoints Contremaître » des
+       cinq Shift ne le range pas dans chacune (audit du 23/10/2026) */
+    .filter(function(p){ return (!eq||(p.postes&&p.postes[eq]&&!(/^Shift/.test(eq)&&/adjoint/i.test(String(p.postes[eq].p||"")))))&&(!q||(idLisible(p.id)+" "+grNom(p)+" "+wsPoste(p)+" "+statutAffiche(p)).toLowerCase().indexOf(q)>=0); });
   var h=[wsTete("Personnel",db.people.length+" personnes · compteurs "+db.year+" calculés sur l'horaire")];
   h.push('<div class="ws-filtres"><input type="search" id="wsChP" placeholder="Nom, trigramme ou poste" value="'+esc(GR.chercheP||"")+'" aria-label="Rechercher">'
     +'<select id="wsEqP" aria-label="Équipe"><option value="">Toutes les équipes</option>'+GR_FEUILLES.map(function(f){ return '<option value="'+esc(f[0])+'"'+(f[0]===eq?' selected':'')+'>'+esc(f[1])+'</option>'; }).join("")+'</select></div>');
@@ -16803,7 +16905,7 @@ function renderPersonnel(){
     +GR_PIED.map(function(r){ return '<th class="ws-n">'+r.t+' (h)</th>'; }).join("")+'<th class="ws-n">Flex (h)</th></tr></thead><tbody>');
   gens.forEach(function(p){
     var poly=p.poly&&p.poly.ateliers?p.poly.ateliers.length:0, fx=grFlex(p);
-    h.push('<tr data-pers="'+esc(p.id)+'"><td>'+wsQui(p)+'</td><td class="ws-c-md">'+esc(statutAffiche(p)||"—")+'</td>'
+    h.push('<tr data-pers="'+esc(p.id)+'" tabindex="0"><td>'+wsQui(p)+'</td><td class="ws-c-md">'+esc(statutAffiche(p)||"—")+'</td>'
       +'<td class="ws-c-md">'+(poly?poly+' atelier'+(poly>1?'s':'')+(p.poly.degre?' · '+esc(p.poly.degre):''):'—')+'</td>'
       +wsRestants(p).map(function(r){ return '<td class="ws-n'+(r.v!==null&&r.v<0?' ws-neg':'')+'" data-l="'+r.t+' (h)">'+(r.v===null?'—':r.v)+'</td>'; }).join("")
       +'<td class="ws-n'+(fx<0?' ws-neg':'')+'" data-l="Flex (h)">'+(fx>0?'+':'')+fx+'</td></tr>');
@@ -16847,7 +16949,7 @@ function renderAbsences(){
     +'<div class="ws-kpi"><span class="pl-pa p-repos">Pers.</span><b>'+ordre.length+'</b><small>personnes concernées</small></div></div>');
   if(GR.absVue==="personne"){
     h.push(periodes.length?'<div class="ws-table ws-per"><table><thead><tr><th>Personne</th><th>Code</th><th>Période</th><th class="ws-n">Jours</th></tr></thead><tbody>'
-      +periodes.map(function(x){ return '<tr data-pers="'+esc(x.p.id)+'"><td>'+wsQui(x.p)+'</td><td><span class="pl-pa f-'+(x.k==="abs"?"absence":grFamille(x.c)||"conge")+'" title="'+esc(x.c)+'">'+esc(grCourt(x.c))+'</span></td>'
+      +periodes.map(function(x){ return '<tr data-pers="'+esc(x.p.id)+'" tabindex="0"><td>'+wsQui(x.p)+'</td><td><span class="pl-pa f-'+(x.k==="abs"?"absence":grFamille(x.c)||"conge")+'" title="'+esc(x.c)+'">'+esc(grCourt(x.c))+'</span></td>'
         +'<td>'+esc(x.n>1?wsDateCourte(x.du)+' → '+wsDateCourte(x.au):wsDateCourte(x.du))+'</td><td class="ws-n">'+x.n+'</td></tr>'; }).join("")+'</tbody></table></div>'
       :'<div class="ws-carte"><p class="ws-vide">Personne n\'est absent sur cette période.</p></div>');
   }
@@ -16856,7 +16958,7 @@ function renderAbsences(){
     var md=pad2(j.dt.getMonth()+1)+pad2(j.dt.getDate());
     h.push('<section class="ws-jour"><header><b>'+wsDateCourte(j.dt)+'</b><span>'+(j.l.length?j.l.length+' absent'+(j.l.length>1?'s':''):'au complet')+'</span></header>'
       +(j.l.length?'<ul>'+j.l.map(function(x){ var e=(x.p.d||{})[md]||[], c=e[1]||e[0]||"";
-        return '<li data-pers="'+esc(x.p.id)+'">'+wsQui(x.p)+'<span class="pl-pa f-'+(x.k==="abs"?"absence":grFamille(c)||"conge")+'" title="'+esc(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>':'')+'</section>');
+        return '<li data-pers="'+esc(x.p.id)+'" tabindex="0" role="button">'+wsQui(x.p)+'<span class="pl-pa f-'+(x.k==="abs"?"absence":grFamille(c)||"conge")+'" title="'+esc(c)+'">'+esc(grCourt(c))+'</span></li>'; }).join("")+'</ul>':'')+'</section>');
   });
   h.push('</div>');
   hote.innerHTML=h.join("");
@@ -16932,6 +17034,31 @@ function dmEtatJour(tri,iso){
   var att=(GR.demandes||[]).some(function(x){ return x.a_moi&&x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.j===iso; }); });
   return att?{code:"demandé", fam:"att"}:null;
 }
+/* LES DEUX PETITES BOÎTES de la feuille de congé (le jour, « préciser ») :
+   une étape dans l'historique, que le retour referme sans fermer la
+   feuille dessous ; le focus revient au bouton de la ligne, retrouvé s'il
+   a été redessiné (audit du 23/10/2026). Rend fermer(parRetour), avec
+   fermer.clav (Échap) et fermer.rendre() (le focus, après fini). */
+function dmBoite(fond,box){
+  var avant=document.activeElement, tr=avant&&avant.closest?avant.closest("tr[data-k]"):null;
+  var cle=tr?'#grPanneau tr[data-k="'+tr.getAttribute("data-k")+'"][data-i="'+tr.getAttribute("data-i")+'"] '+(avant.hasAttribute("data-prec")?"[data-prec]":"[data-jpick]"):null;
+  function fermer(parRetour){
+    if(!box.parentNode) return;
+    fond.remove(); box.remove(); document.removeEventListener("keydown",clav,true);
+    if(GR.jpFermer===fermer) GR.jpFermer=null;
+    if(parRetour!==true) navRetirer("jp");
+    rendre();
+  }
+  function rendre(){
+    var b=avant&&document.body.contains(avant)?avant:(cle?document.querySelector(cle)||document.querySelector(cle.replace(/ \[data-prec\]$/," [data-jpick]")):null);
+    if(b&&b!==document.activeElement) try{ b.focus({preventScroll:true}); }catch(e){}
+  }
+  function clav(e){ if(e.key==="Escape"){ e.stopPropagation(); fermer(); } }
+  if(GR.jpFermer) GR.jpFermer();
+  GR.jpFermer=fermer; navPousser("jp");
+  fermer.clav=clav; fermer.rendre=rendre;
+  return fermer;
+}
 /* LA PRÉCISION D'UN JOUR DE CONGÉ (22/10/2026) : un second type et l'heure
    où l'on quitte ou arrive, dans une fenêtre de l'application ; l'heure au
    quart d'heure, dans une liste (le champ heure du téléphone inscrirait
@@ -16957,8 +17084,7 @@ function dmPreciser(l,dem,fini){
   /* l'horaire n'a de sens que si la journée n'est pas complète */
   function plein(){ var c2=box.querySelector("#dpT2").value, p=d1+(c2?dmDuree(c2):0)>=8;
     box.querySelector("#dpHor").hidden=p; box.querySelector("#dpPlein").hidden=!p; return p; }
-  function fermer(){ fond.remove(); box.remove(); document.removeEventListener("keydown",clav,true); }
-  function clav(e){ if(e.key==="Escape"){ e.stopPropagation(); fermer(); } }
+  var fermer=dmBoite(fond,box), clav=fermer.clav;
   box.addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b) return;
     if(b.hasAttribute("data-p")){ part=b.getAttribute("data-p"); [].forEach.call(box.querySelectorAll("#dpPart button"),function(x){ x.setAttribute("aria-pressed",String(x===b)); }); box.querySelector("#dpH").hidden=!part; return; }
@@ -16968,7 +17094,7 @@ function dmPreciser(l,dem,fini){
       if(part&&!h){ box.querySelector("#dpErr").textContent="Choisissez l'heure."; return; }
       if(c2) l.code2=c2; else delete l.code2;
       if(part){ l.part=part; l.heure=h; } else { delete l.part; delete l.heure; }
-      fermer(); fini();
+      fermer(); fini(); fermer.rendre();
     }
   });
   box.querySelector("#dpT2").addEventListener("change",plein);
@@ -16980,8 +17106,7 @@ function dmChoisirJour(tri,courant,pris,fini){
   var d0=courant?dmJour(courant):auj, m={y:d0.getFullYear(), m:d0.getMonth()};
   var fond=document.createElement("div"); fond.className="dm-jp-fond";
   var box=document.createElement("div"); box.className="dm-jp"; box.setAttribute("role","dialog"); box.setAttribute("aria-label","Choisir le jour");
-  function fermer(){ fond.remove(); box.remove(); document.removeEventListener("keydown",clav,true); }
-  function clav(e){ if(e.key==="Escape"){ e.stopPropagation(); fermer(); } }
+  var fermer=dmBoite(fond,box), clav=fermer.clav;
   function dessiner(){
     var prem=new Date(m.y,m.m,1), dec=(prem.getDay()+6)%7, n=new Date(m.y,m.m+1,0).getDate(), c=[];
     for(var k=0;k<dec;k++) c.push('<span></span>');
@@ -17003,8 +17128,8 @@ function dmChoisirJour(tri,courant,pris,fini){
     var b=e.target.closest("button"); if(!b||b.disabled) return;
     if(b.hasAttribute("data-nav")){ m.m+=Number(b.getAttribute("data-nav")); if(m.m<0){ m.m=11; m.y--; } if(m.m>11){ m.m=0; m.y++; } dessiner(); return; }
     if(b.hasAttribute("data-annuler")){ fermer(); return; }
-    if(b.hasAttribute("data-vider")){ fermer(); fini(null); return; }
-    var j=b.getAttribute("data-j"); if(j){ fermer(); fini(j); }
+    if(b.hasAttribute("data-vider")){ fermer(); fini(null); fermer.rendre(); return; }
+    var j=b.getAttribute("data-j"); if(j){ fermer(); fini(j); fermer.rendre(); }
   });
   fond.addEventListener("click",fermer);
   document.addEventListener("keydown",clav,true);
@@ -17362,19 +17487,19 @@ function dmPpVisa(x,f){
   var aViser=peutSaisir()&&!x.a_moi&&dmATraiter(x)&&!dmAccordAttendu(x), cb=function(k,v,lib){ return '<label class="dm-pp-case"><input type="checkbox" data-pv="'+k+'"'+(v?' checked':'')+(aViser?'':' disabled')+'><span>'+lib+'</span></label>'; };
   var qui=[]; if(x.cm) qui.push(esc(x.cm)+' (contremaître'+(x.cm_le?', '+dmSigLe(new Date(x.cm_le)):'')+')'); if(x.rh) qui.push(esc(x.rh)+' (RH'+(x.rh_le?', '+dmSigLe(new Date(x.rh_le)):'')+')');
   var appr=x.statut==="acceptee"?'✓ approuvée':(x.statut==="en_attente"&&(x.cm||x.rh)?'visée en partie':''), ref=x.statut==="refusee"?'✗ refusée':'';
-  var champ=function(t,v,k){ return '<p class="dm-pp-ch">'+t+' : '+(aViser&&k?'<input type="text" data-pv="'+k+'" value="'+esc(v||"")+'">':'<span>'+esc(v||"")+'</span>')+'</p>'; };
+  var champ=function(t,v,k){ return '<p class="dm-pp-ch">'+t+' : '+(aViser&&k?'<input type="text" data-pv="'+k+'" aria-label="'+esc(t.replace(/<[^>]*>|⇒/g,"").trim())+'" value="'+esc(v||"")+'">':'<span>'+esc(v||"")+'</span>')+'</p>'; };
   var h=['<div class="dm-pp-cadre"><p class="dm-pp-sous">Visa du responsable hiérarchique</p>',
     '<p class="dm-pp-ch"><b>Nom '+(f==="sans_solde"?'&amp;':'et')+' prénom</b> : <span>'+(qui.join(" · ")||(aViser?esc(idLisible((compteBase()||{}).tri)):''))+'</span></p>',
     '<p class="dm-pp-ch">Fonction : <span>'+(x.cm||x.rh?[x.cm?'Contremaître':'',x.rh?'RH':''].filter(Boolean).join(" · "):(aViser?(x.attend_cm?'Contremaître':'RH'):''))+'</span></p>'];
   if(f==="sans_solde"){
     h.push('<p class="dm-pp-ch">⇒ <b>Approbation du congé sans solde</b>: <span>'+appr+'</span></p>');
     h.push(champ('⇒ <b>Restriction</b>',x.restriction,'res'));
-    h.push('<p class="dm-pp-ch dm-pp-in">'+'<i>Motivation</i> : '+(aViser?'<input type="text" data-pv="mot" value="'+esc(x.motivation||"")+'">':'<span>'+esc(x.motivation||"")+'</span>')+'</p>');
+    h.push('<p class="dm-pp-ch dm-pp-in">'+'<i>Motivation</i> : '+(aViser?'<input type="text" data-pv="mot" aria-label="Motivation de l\'approbation" value="'+esc(x.motivation||"")+'">':'<span>'+esc(x.motivation||"")+'</span>')+'</p>');
     h.push('<div class="dm-pp-cases">'+cb("rap",x.rappelable,"RAPPELABLE")+'</div>');
-    h.push('<p class="dm-pp-ch">⇒ <b>Refus</b> : <span>'+ref+'</span></p><p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" data-pv="motr">':'<span>'+esc(x.motif_refus||"")+'</span>')+'</p>');
+    h.push('<p class="dm-pp-ch">⇒ <b>Refus</b> : <span>'+ref+'</span></p><p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" data-pv="motr" aria-label="Motivation du refus">':'<span>'+esc(x.motif_refus||"")+'</span>')+'</p>');
   } else {
     h.push('<p class="dm-pp-ch">⇒ <b>Approbation</b> : <span>'+appr+'</span></p><p class="dm-pp-ch">⇒ <b>Refus</b> : <span>'+ref+'</span></p>');
-    h.push('<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" data-pv="mot" value="'+esc(x.motivation||"")+'">':'<span>'+esc(x.motivation||x.motif_refus||"")+'</span>')+'</p>');
+    h.push('<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" data-pv="mot" aria-label="Motivation" value="'+esc(x.motivation||"")+'">':'<span>'+esc(x.motivation||x.motif_refus||"")+'</span>')+'</p>');
     h.push('<div class="dm-pp-cases">'+cb("rap",x.rappelable,"RAPPELABLE")+(f==="courte"?cb("dem",x.a_la_demande,"A LA DEMANDE DE LA LIGNE HIERARCHIQUE"):'')+'</div>');
   }
   h.push('<p>Signature du Responsable :</p>'+(aViser?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-pp-viser="1">'+(x.attend_cm?'Accepter et signer':'Confirmer et encoder')+'</button><button type="button" class="dm-pp-refus" data-pp-viser="0">Refuser</button></div>'
@@ -17435,10 +17560,10 @@ function dmFormulaire(pre){
       var k=etat.f==="longue"&&(z.prevue||dmPrevue(moi,z.j))==="D"?"day":"pause"; etat.t[k].push(l); });
     if(mod&&etat.f==="sans_solde") etat.plus=Math.max(0,etat.t.pause.length-DM_PAPIER.sans_solde.blocs[0].n);
     var np=(p&&grNom(p))||idLisible(moi||""), poste=p?(wsPosteEq(p).filter(Boolean)[0]||wsPoste(p)):"";
-    var pn=dmPpOuvrir('<div class="dm-pp-choix" id="ppChoix" role="tablist">'
+    var pn=dmPpOuvrir('<div class="dm-pp-choix" id="ppChoix" role="group" aria-label="Type de feuille">'
         +[["courte","Courte durée","remplacement, modif. de pause"],["longue","Longue durée","≥ 1 semaine"],["sans_solde","Sans solde",""]].map(function(z){ return '<button type="button" data-f="'+z[0]+'"><b>'+z[1]+'</b>'+(z[2]?'<small>'+z[2]+'</small>':'')+'</button>'; }).join("")+'</div>'
         +'<details class="dm-pp-aide"><summary>Remplir une période d\'un coup</summary><div class="dm-dates"><label>Du<input type="date" id="ppDu"></label><label>Au<input type="date" id="ppAu"></label></div><button type="button" class="btn" id="ppRemplir">Remplir les lignes</button><p class="pn-note">Seuls les jours de travail prévus s\'inscrivent, dans les lignes libres.</p></details>'
-        +'<div class="dm-papier" id="ppFeuille"></div><div class="dm-apercu" id="ppInfo" hidden></div><p class="pn-note" id="ppErr"></p>',
+        +'<div class="dm-papier" id="ppFeuille"></div><div class="dm-apercu" id="ppInfo" hidden></div><p class="pn-note" id="ppErr" role="alert"></p>',
       '<button type="button" class="btn ss-ok" id="ppSigner">'+(mod?'Signer et envoyer la modification':'Signer et envoyer')+'</button>');
     function optsType(sel,pv){
       var o='<option value=""></option>'+dem.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===sel?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
@@ -17500,7 +17625,7 @@ function dmFormulaire(pre){
       });
       var auj=jourUsine();
       h.push('<div class="dm-pp-sigs"><p>Signatures :</p><div class="dm-pp-sig2"><div>'+(f==="longue"?'Signature du demandeur:':'Demandeur')+'<br><span class="dm-pp-att">au bouton « Signer et envoyer »</span></div>'+(f!=="longue"?'<div>Remplaçant :<br><span class="dm-pp-att">signera dans l\'application</span></div>':'')+'</div><p>Date: '+dmDateFr(auj)+'</p></div>');
-      h.push('<p class="dm-pp-ch dm-pp-msg">Message (facultatif) : <input type="text" id="ppTexte" value="'+esc(etat.texte||"")+'" placeholder="mariage, déménagement…"></p>');
+      h.push('<p class="dm-pp-ch dm-pp-msg">Message (facultatif) : <input type="text" id="ppTexte" aria-label="Message" value="'+esc(etat.texte||"")+'" placeholder="mariage, déménagement…"></p>');
       if(f==="sans_solde"){ var so=dmSolde(p); h.push('<p class="dm-pp-rq"><b><u>Remarque</u></b> : Les congés sans solde sont des <u>absences justifiées</u> qui ne sont pas assimilées pour le calcul du nombre de jours de vacances annuelles. Ils ne peuvent être demandés et ne seront pointés que dans le cas où <u>le solde des heures de congé/de récupération (y compris ceux déjà planifiés) est à 0</u>. <u>Un maximum de 10 jours de congé sans soldes par an</u> est accepté avec l\'autorisation explicite du responsable hiérarchique.</p>'+(so?'<p class="dm-pp-alerte">Votre solde n\'est pas à zéro : '+so+' h de congé ou de récupération restent.</p>':'')); }
       h.push('</div>');
       h.push('<div class="dm-pp-cadre dm-pp-gris"><p class="dm-pp-sous">Visa du responsable hiérarchique</p><p class="dm-pp-att">Rempli par votre contremaître et la RH quand ils reçoivent la demande.</p></div>');
@@ -17520,7 +17645,8 @@ function dmFormulaire(pre){
         if(f!=="sans_solde"&&!l.code&&!l.pause) e.push(d+" : type de congé à choisir"); });
       var L=toutes().map(function(z){ return z.l; });
       if(L.length) dmRegles(f,moi,L.map(function(l){ return {j:l.j,code:f==="sans_solde"?"CSS":l.code,pause:l.pause}; }),null,0).forEach(function(r){ if(!/^solde/.test(r)) e.push(r); });
-      document.getElementById("ppErr").innerHTML=e.map(esc).join("<br>");
+      /* role="alert" : réécrite à l'identique, elle se réannoncerait à chaque champ */
+      var pe=document.getElementById("ppErr"); if(pe.textContent!==e.join("")) pe.innerHTML=e.map(esc).join("<br>");
       /* hors de la feuille : ce que la demande coûte au compteur */
       var cpts={}, h=0, inf=document.getElementById("ppInfo"), z=[];
       L.forEach(function(l){ var c=f==="sans_solde"?"CSS":l.code; if(!c) return; var x=dmHeures(c); h+=x; var k=dmCompteur(c); if(k) cpts[k]=(cpts[k]||0)+x; });
@@ -17561,9 +17687,9 @@ function dmFormulaire(pre){
       if(c==="part"){ l.part=s.value||null; if(!l.part) delete l.heure; }
       if(c==="heure") l.heure=s.value||null;
       remettre(k,i); verifier(); });
-    document.getElementById("ppRemplir").onclick=function(){
+    document.getElementById("ppRemplir").onclick=function(ev){
       var du=document.getElementById("ppDu").value, au=document.getElementById("ppAu").value||du, n=0;
-      if(!du||au<du){ document.getElementById("ppErr").textContent="La fin doit suivre le début."; return; }
+      if(!du||au<du){ pnErreur(document.getElementById("ppErr"),"La fin doit suivre le début.",document.getElementById(du?"ppAu":"ppDu")); return; }
       for(var d=dmJour(du); d<=dmJour(au); d.setDate(d.getDate()+1)){
         var j=dmIso(d), pv=dmPrevue(moi,j); if(!dmTravail(pv)||toutes().some(function(z){ return z.l.j===j; })) continue;
         var k=etat.f==="longue"&&pv==="D"?"day":"pause", B=DM_PAPIER[etat.f].blocs.filter(function(b){ return b.k===k; })[0]; if(!B) continue;
@@ -17571,16 +17697,17 @@ function dmFormulaire(pre){
         if(i>=max) break; if(B.plus&&i>=B.n+etat.plus) etat.plus=i-B.n+1;
         L[i]={j:j, code:etat.f==="sans_solde"?"CSS":"VA"}; n++;
       }
-      rendre(); if(!n) document.getElementById("ppErr").textContent="Aucun jour de travail prévu libre sur cette période.";
+      /* au clic seulement : la feuille ouverte depuis l'Accueil ne saute pas en bas */
+      rendre(); if(!n){ var m="Aucun jour de travail prévu libre sur cette période."; if(ev) pnErreur(document.getElementById("ppErr"),m,document.getElementById("ppDu")); else document.getElementById("ppErr").textContent=m; }
     };
     if(pre.du){ document.getElementById("ppDu").value=pre.du; document.getElementById("ppAu").value=pre.au||pre.du; }
     rendre();
     if(pre.du) document.getElementById("ppRemplir").onclick();
     document.getElementById("ppSigner").onclick=function(){
       var b=this, err=document.getElementById("ppErr"), L=toutes();
-      if(!L.length){ err.textContent="Inscrivez au moins une date dans le tableau."; return; }
+      if(!L.length){ pnErreur(err,"Inscrivez au moins une date dans le tableau.",document.querySelector("#ppFeuille [data-jpick]")); return; }
       var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre/.test(m); });
-      if(bloquant.length) return;
+      if(bloquant.length){ pnErreur(err,null,null); return; }
       var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp;
         if(etat.f==="courte"&&!l.pause){ if(l.code2) o.code2=l.code2; if(l.part&&l.heure){ o.part=l.part; o.heure=l.heure; } }
         /* LE CONTREMAÎTRE DU JOUR (le client, le 22/10/2026 : « c'est le
@@ -17597,7 +17724,7 @@ function dmFormulaire(pre){
       (mod?baseRpc("biowanze_modifier_demande",{p_id:mod.id,p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""})
            :baseRpc("biowanze_demander_formulaire",{p_formulaire:etat.f,p_lignes:lignes,p_texte:etat.texte||""}))
         .then(function(){ grFermerPanneau(); flash((mod?"Demande modifiée":"Demande signée et envoyée")+(lignes.some(function(l){ return l.rp; })?" : votre remplaçant, votre contremaître et la RH la recevront":" : votre contremaître et la RH la recevront")); GR.onglet="miennes"; return dmCharger().then(renderDemandes); })
-        .catch(function(e){ b.disabled=false; err.textContent=baseMsg(e); });
+        .catch(function(e){ b.disabled=false; pnErreur(err,baseMsg(e)); });
     };
   }).catch(function(e){ flash("Demandes indisponibles : "+baseMsg(e),true); });
 }
@@ -17679,17 +17806,40 @@ function renderHisto(){
     var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));
     var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; GR.cherche=""; renderGrille(); }
   };
+  /* LA GRILLE AU CLAVIER (audit du 23/10/2026) : les flèches vont de case
+     en case (le premier jour remonte au nom), Entrée ouvre la feuille de la
+     case ou la fiche du nom. Elles ne changent plus d'année depuis une case. */
+  document.getElementById("grZone").addEventListener("keydown",function(e){
+    var t=e.target, k=e.key, z=this;
+    if(!t.matches||!t.matches("td.hp-s,th[data-pers]")) return;
+    if(k==="Enter"||k===" "){ e.preventDefault(); t.click(); return; }
+    var ci=Number(t.getAttribute("data-ci")), n=null, enTete=t.tagName==="TH";
+    function caseDe(r){ return r&&r.querySelector('td.hp-s[data-ci="'+ci+'"]'); }
+    if(k==="ArrowLeft"||k==="ArrowRight"){ var c2=ci+(k==="ArrowLeft"?-1:1);
+      n=enTete?z.querySelector('thead th[data-pers][data-ci="'+c2+'"]'):t.parentNode.querySelector('td.hp-s[data-ci="'+c2+'"]'); }
+    else if(k==="ArrowDown") n=enTete?caseDe(z.querySelector("tbody tr")):caseDe(t.parentNode.nextElementSibling);
+    else if(k==="ArrowUp"&&!enTete) n=caseDe(t.parentNode.previousElementSibling)||z.querySelector('thead th[data-pers][data-ci="'+ci+'"]');
+    else return;
+    e.preventDefault(); e.stopPropagation();
+    if(n){ t.tabIndex=-1; n.tabIndex=0; n.focus(); }
+  });
   document.getElementById("grZone").addEventListener("click",function(e){
     if(e.target.closest&&e.target.closest("#grAdj")){ GR.adj=!GR.adj; lsSet("ui/grAdj",GR.adj); renderGrille(); return; }
     var td=e.target.closest&&e.target.closest("td[data-p]"); if(td){ grEditer(td); return; }
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
   document.addEventListener("keydown",function(e){
-    if(g.hidden) return;
+    /* une touche déjà prise (Échap d'une confirmation) ne ferme rien de plus */
+    if(g.hidden||e.defaultPrevented) return;
+    var p=document.getElementById("grPanneau");
     /* la feuille « Plus » posée sur l'espace se ferme seule d'abord, dans
        quelque ordre que tournent les deux écouteurs (audit du 23/10/2026) */
-    if(e.key==="Escape"){ var pf=document.getElementById("plusFeuille"); if(e.bwzPlus||(pf&&!pf.hidden)) return; var p=document.getElementById("grPanneau"); if(!p.hidden) grFermerPanneau(); else fermerGrille(); }
-    else if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")) grDecaler(e.key==="ArrowLeft"?-1:1);
+    if(e.key==="Escape"){ var pf=document.getElementById("plusFeuille"); if(e.bwzPlus||(pf&&!pf.hidden)) return; if(!p.hidden) grQuitterPanneau(); else fermerGrille(); }
+    /* les flèches ne changent d'année qu'au Planning, et pas depuis une fiche
+       ouverte : ailleurs, elles fermaient la feuille en cours (audit du
+       23/10/2026) */
+    else if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&GR.section==="planning"&&!(e.target.closest&&e.target.closest("#grPanneau,[role=tablist]"))
+      &&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")) grDecaler(e.key==="ArrowLeft"?-1:1);
   });
   [].forEach.call(document.querySelectorAll("[data-ouvrir-grille]"),function(b){ b.addEventListener("click",function(){ ouvrirGrille(b.getAttribute("data-ouvrir-grille")||null); }); });
 })();
@@ -18453,9 +18603,9 @@ function rcFeuille(x){
       '<div class="dm-pp-sig2"><div><p>Signature :</p>'+(aConf?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="conf1">Confirmer et signer</button><button type="button" class="dm-pp-refus" data-rc-act="conf0">Refuser</button></div>'
         :(!neuf&&x.cm_le?(x.statut==="refusee"&&!x.rh_le?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.cm_qui||""))+'</span>':sig(x.cm_qui,x.cm_le)):''))+'</div>',
       '<div><p>Signature du responsable de zone :<br><small>(obligatoire si recyclage en doublure)</small></p>'+(aZone?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="zone">Contresigner</button></div>':(!neuf&&x.zone_le?sig(x.zone_qui,x.zone_le):''))+'</div></div>',
-      (aConf?'<p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif"></p>':''),'</div>');
+      (aConf?'<p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif" aria-label="Motif du refus"></p>':''),'</div>');
     h.push('<div class="dm-pp-cadre"><p class="dm-pp-sous">Validation et enregistrement par le Bureau RH :</p>'
-      +(aVal?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="val1">Valider et enregistrer</button><button type="button" class="dm-pp-refus" data-rc-act="val0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif"></p>'
+      +(aVal?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-rc-act="val1">Valider et enregistrer</button><button type="button" class="dm-pp-refus" data-rc-act="val0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="rcMotif" aria-label="Motif du refus"></p>'
         :(!neuf&&x.rh_le?(x.statut==="refusee"?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.rh_qui||""))+'</span>':sig(x.rh_qui,x.rh_le)):'<p>&nbsp;</p>'))
       +(!neuf&&x.statut==="refusee"&&(x.rh_motif||x.cm_motif)?'<p class="dm-pp-ch dm-pp-in"><i>Motif</i> : <span>'+esc(x.rh_motif||x.cm_motif)+'</span></p>':'')+'</div>');
     return h.join("");
@@ -18468,7 +18618,7 @@ function rcFeuille(x){
        doit faire professionnel ») : le texte bleu du haut du papier devient
        un encadré de l'application, au-dessus de la fiche, replié sur
        l'essentiel ; les mots du dossier RH sont gardés, rangés en points. */
-    +'<div class="pn-corps dm-pp-fond">'+rcReglesHTML()+'<div class="dm-papier rc-papier" id="rcPapier"></div><p class="pn-note" id="rcErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
+    +'<div class="pn-corps dm-pp-fond">'+rcReglesHTML()+'<div class="dm-papier rc-papier" id="rcPapier"></div><p class="pn-note" id="rcErr" role="alert"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
   pn.classList.add("dm-pp-pn");
   var pap=pn.querySelector("#rcPapier"), err=pn.querySelector("#rcErr");
   function dessiner(){ pap.innerHTML=corps(); }
@@ -18479,11 +18629,11 @@ function rcFeuille(x){
     if(b.hasAttribute("data-rp")){ etat.pause=b.getAttribute("data-rp"); dessiner(); return; }
     var act=b.getAttribute("data-rc-act"); if(!act) return;
     var mo=(pap.querySelector("#rcMotif")||{}).value||"", ok=act.slice(-1)==="1";
-    if((act==="conf0"||act==="val0")&&!mo.trim()){ err.textContent="Un refus se motive : écrivez le motif."; var mi=pap.querySelector("#rcMotif"); if(mi) mi.focus(); return; }
+    if((act==="conf0"||act==="val0")&&!mo.trim()){ pnErreur(err,"Un refus se motive : écrivez le motif.",pap.querySelector("#rcMotif")); return; }
     var rpc=act==="zone"?["biowanze_contresigner_recyclage",{p_id:x.id}]:act.indexOf("conf")===0?["biowanze_confirmer_recyclage",{p_id:x.id,p_ok:ok,p_motif:mo||null}]:["biowanze_valider_recyclage",{p_id:x.id,p_ok:ok,p_motif:mo||null}];
     b.disabled=true;
     baseRpc(rpc[0],rpc[1]).then(function(){ flash(act==="zone"?"Contresignée : la RH la reçoit":act==="conf1"?"Confirmée : la fiche poursuit son circuit":act==="val1"?"Fiche validée et enregistrée":"Fiche refusée"); return rcRelire(x.id); })
-      .catch(function(er){ b.disabled=false; err.textContent=baseMsg(er); });
+      .catch(function(er){ b.disabled=false; pnErreur(err,baseMsg(er)); });
   });
   pap.addEventListener("change",function(e){
     if(e.target.id==="rcJour"){ etat.j=e.target.value; if(etat.j) etat.pause=rcPauseDe(moi,etat.j)||etat.pause; dessiner(); }
@@ -18493,14 +18643,15 @@ function rcFeuille(x){
   var bs=pn.querySelector("#rcSigner");
   if(bs) bs.onclick=function(){
     err.textContent="";
-    if(!etat.f){ err.textContent="Choisissez la fonction du recyclage."; return; }
-    if(!etat.j){ err.textContent="La date du recyclage manque."; return; }
-    if(!etat.pause){ err.textContent="Choisissez la pause effectuée."; return; }
-    if(etat.doublure&&!etat.tit){ err.textContent="En doublure, nommez le titulaire du poste."; return; }
+    var q=function(c){ return pap.querySelector(c); };
+    if(!etat.f){ pnErreur(err,"Choisissez la fonction du recyclage.",q("[data-rf]")); return; }
+    if(!etat.j){ pnErreur(err,"La date du recyclage manque.",q("#rcJour")); return; }
+    if(!etat.pause){ pnErreur(err,"Choisissez la pause effectuée.",q("[data-rp]")); return; }
+    if(etat.doublure&&!etat.tit){ pnErreur(err,"En doublure, nommez le titulaire du poste.",q("#rcTit")); return; }
     bs.disabled=true;
     baseRpc("biowanze_demander_recyclage",{p_fonction:etat.f,p_jour:etat.j,p_pause:etat.pause,p_doublure:etat.doublure,p_titulaire:etat.doublure?etat.tit:null,p_cm:cm(),p_texte:null})
       .then(function(){ flash(cm()?"Envoyée : le contremaître de la pause la reçoit":"Envoyée : la RH la reçoit"); grFermerPanneau(); GR.rcOnglet="miennes"; return rcRelire(); })
-      .catch(function(er){ bs.disabled=false; err.textContent=baseMsg(er); });
+      .catch(function(er){ bs.disabled=false; pnErreur(err,baseMsg(er)); });
   };
   var su=pn.querySelector("#rcSuppr"); if(su) su.onclick=function(){ rcSupprimer(x.id,su,function(){ grFermerPanneau(); }); };
 }
@@ -18678,17 +18829,17 @@ function hsFeuille(x){
       '<p class="dm-pp-ch"><b>Nom &amp; prénom</b> : <span>'+(fait?esc(idLisible(x.visa_qui||"")):(aViser?esc(idLisible(moi)):''))+'</span></p>',
       '<p class="dm-pp-ch">Fonction : <span>'+(fait||aViser?esc(BASE_ROLES[(aViser?a.base:"")]||(fait?"Responsable hiérarchique":"")):'')+'</span></p>',
       '<p class="dm-pp-ch">⇒ <b>Approbation</b> : <span>'+(fait&&x.statut==="approuvee"?'✓ approuvée':'')+'</span></p>',
-      '<p class="dm-pp-ch dm-pp-in"><b>En cas de rappel</b>, date à laquelle le rappel a été effectué : '+(aViser&&x.justif==="rappel"?'<input type="date" id="hsRl" value="'+esc(x.jour)+'">':'<span>'+(fait&&x.rappel_le?dmDateFr(dmJour(x.rappel_le)):'')+'</span>')+'</p>',
-      '<p class="dm-pp-ch">⇒ <b>Restriction</b> : '+(aViser?'<input type="text" id="hsRes" placeholder="si les heures ne sont approuvées qu\'en partie">':'<span>'+esc(fait&&x.restriction||"")+'</span>')+'</p>',
-      '<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" id="hsMot">':'<span>'+esc(fait&&x.motivation||"")+'</span>')+'</p>',
+      '<p class="dm-pp-ch dm-pp-in"><b>En cas de rappel</b>, date à laquelle le rappel a été effectué : '+(aViser&&x.justif==="rappel"?'<input type="date" id="hsRl" aria-label="Date du rappel" value="'+esc(x.jour)+'">':'<span>'+(fait&&x.rappel_le?dmDateFr(dmJour(x.rappel_le)):'')+'</span>')+'</p>',
+      '<p class="dm-pp-ch">⇒ <b>Restriction</b> : '+(aViser?'<input type="text" id="hsRes" aria-label="Restriction" placeholder="si les heures ne sont approuvées qu\'en partie">':'<span>'+esc(fait&&x.restriction||"")+'</span>')+'</p>',
+      '<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" id="hsMot" aria-label="Motivation de l\'approbation">':'<span>'+esc(fait&&x.motivation||"")+'</span>')+'</p>',
       '<p class="dm-pp-ch">⇒ <b>Refus</b> : <span>'+(fait&&x.statut==="refusee"?'✗ refusée':'')+'</span></p>',
-      '<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" id="hsMotR">':'<span>'+esc(fait&&x.motif_refus||"")+'</span>')+'</p>',
+      '<p class="dm-pp-ch dm-pp-in"><i>Motivation</i> : '+(aViser?'<input type="text" id="hsMotR" aria-label="Motivation du refus">':'<span>'+esc(fait&&x.motif_refus||"")+'</span>')+'</p>',
       '<p>Signature du responsable :</p>'+(aViser?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-hs-act="1">Approuver et signer</button><button type="button" class="dm-pp-refus" data-hs-act="0">Refuser</button></div>'
         :(fait?'<p class="dm-pp-sig">'+(x.statut==="refusee"&&!x.rh_le?'✗ ':'✓ ')+esc(idLisible(x.visa_qui||""))+(x.visa_le?', '+dmSigLe(new Date(x.visa_le)):'')+'</p>':'<p>&nbsp;</p>')),'</div>');
     /* puis la RH enregistre (le client, le 23/10/2026 : « comme pour les
        congés ») : un cadre que le papier n'a pas, à la manière du recyclage */
     h.push('<div class="dm-pp-cadre"><p class="dm-pp-sous">Validation et enregistrement par le Bureau RH :</p>'
-      +(aEnr?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-hs-rh="1">Enregistrer</button><button type="button" class="dm-pp-refus" data-hs-rh="0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="hsRhMot"></p>'
+      +(aEnr?'<div class="dm-pp-viser"><button type="button" class="dm-pp-signer" data-hs-rh="1">Enregistrer</button><button type="button" class="dm-pp-refus" data-hs-rh="0">Refuser</button></div><p class="dm-pp-ch dm-pp-in"><i>Motif d\'un refus</i> : <input type="text" id="hsRhMot" aria-label="Motif du refus"></p>'
         :(!neuf&&x.rh_le?(x.statut==="refusee"?'<span class="dm-pp-alerte">✗ refusée par '+esc(idLisible(x.rh_qui||""))+'</span>'+(x.rh_motif?'<p class="dm-pp-ch dm-pp-in"><i>Motif</i> : <span>'+esc(x.rh_motif)+'</span></p>':''):sig(x.rh_qui,x.rh_le)):'<p>&nbsp;</p>'))+'</div>');
     return h.join("");
   }
@@ -18699,7 +18850,7 @@ function hsFeuille(x){
     :aViser?'<button type="button" class="btn ss-ok" data-hs-relais="data-hs-act=1">Approuver et signer</button><button type="button" class="btnlike" data-hs-relais="data-hs-act=0">Refuser</button>'
     :aEnr?'<button type="button" class="btn ss-ok" data-hs-relais="data-hs-rh=1">Enregistrer</button><button type="button" class="btnlike" data-hs-relais="data-hs-rh=0">Refuser</button>':'');
   var pn=grOuvrirPanneau('<div class="pn-tete"><button type="button" class="pn-retour" aria-label="Retour">‹ Retour</button><div><b>Heures supplémentaires</b><span>demande de validation · dossier RH</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
-    +'<div class="pn-corps dm-pp-fond"><div class="dm-papier hs-papier" id="hsPapier"></div><p class="pn-note" id="hsErr"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
+    +'<div class="pn-corps dm-pp-fond"><div class="dm-papier hs-papier" id="hsPapier"></div><p class="pn-note" id="hsErr" role="alert"></p></div>'+(pied?'<div class="pn-pied">'+pied+'</div>':''));
   pn.classList.add("dm-pp-pn");
   var pap=pn.querySelector("#hsPapier"), err=pn.querySelector("#hsErr");
   var rl=pn.querySelector(".pn-pied"); if(rl) rl.addEventListener("click",function(e){ var b=e.target.closest("[data-hs-relais]"); if(!b) return;
@@ -18715,24 +18866,24 @@ function hsFeuille(x){
     var rh=b.getAttribute("data-hs-rh");
     if(rh!==null){
       var mo=((pap.querySelector("#hsRhMot")||{}).value||"").trim();
-      if(rh==="0"&&!mo){ err.textContent="Un refus se motive : écrivez le motif."; var mi=pap.querySelector("#hsRhMot"); if(mi) mi.focus(); return; }
+      if(rh==="0"&&!mo){ pnErreur(err,"Un refus se motive : écrivez le motif.",pap.querySelector("#hsRhMot")); return; }
       b.disabled=true;
       baseRpc("biowanze_enregistrer_hs",{p_id:x.id,p_ok:rh==="1",p_motif:mo||null})
         .then(function(){ flash(rh==="1"?"Heures supplémentaires enregistrées":"Demande refusée"); return hsRelire(x.id); })
-        .catch(function(er){ b.disabled=false; err.textContent=baseMsg(er); });
+        .catch(function(er){ b.disabled=false; pnErreur(err,baseMsg(er)); });
       return;
     }
     if(b.hasAttribute("data-ju")){ etat.ju=b.getAttribute("data-ju"); dessiner(); var f=pap.querySelector(etat.ju==="necessaire"?"#hsJt":"#hsRd"); if(f) try{ f.focus(); }catch(er){} return; }
     var act=b.getAttribute("data-hs-act"); if(act===null) return;
     var ok=act==="1", v=function(i){ return ((pap.querySelector(i)||{}).value||"").trim(); };
     var res=v("#hsRes"), mot=v("#hsMot"), motr=v("#hsMotR"), rl=v("#hsRl");
-    if(!ok&&!motr){ err.textContent="Un refus se motive : écrivez la motivation du refus."; var m=pap.querySelector("#hsMotR"); if(m) m.focus(); return; }
-    if(ok&&res&&!mot){ err.textContent="Une restriction se motive : écrivez sa motivation."; var m2=pap.querySelector("#hsMot"); if(m2) m2.focus(); return; }
-    if(ok&&x.justif==="rappel"&&!rl){ err.textContent="En cas de rappel, donnez la date du rappel."; return; }
+    if(!ok&&!motr){ pnErreur(err,"Un refus se motive : écrivez la motivation du refus.",pap.querySelector("#hsMotR")); return; }
+    if(ok&&res&&!mot){ pnErreur(err,"Une restriction se motive : écrivez sa motivation.",pap.querySelector("#hsMot")); return; }
+    if(ok&&x.justif==="rappel"&&!rl){ pnErreur(err,"En cas de rappel, donnez la date du rappel.",pap.querySelector("#hsRl")); return; }
     b.disabled=true;
     baseRpc("biowanze_viser_hs",{p_id:x.id,p_ok:ok,p_restriction:ok?res||null:null,p_motivation:ok?mot||null:motr,p_rappel_le:ok&&x.justif==="rappel"?rl:null})
       .then(function(){ flash(ok?(res?"Approuvée avec restriction":"Heures supplémentaires approuvées"):"Demande refusée"); return hsRelire(x.id); })
-      .catch(function(er){ b.disabled=false; err.textContent=baseMsg(er); });
+      .catch(function(er){ b.disabled=false; pnErreur(err,baseMsg(er)); });
   });
   pap.addEventListener("input",function(e){ if(e.target.id==="hsH"||e.target.id==="hsM"){ lire(); var pr=pap.querySelector(".hs-prime"), min=(Number(etat.h)||0)*60+(Number(etat.m)||0);
     if(etat.ju==="prolongation"&&(!!pr)!==(min>=180)) dessiner(); } });
@@ -18744,19 +18895,20 @@ function hsFeuille(x){
   if(bs) bs.onclick=function(){
     lire(); err.textContent="";
     var min=(Number(etat.h)||0)*60+(Number(etat.m)||0);
-    if(!etat.j){ err.textContent="La date de la prestation manque."; return; }
-    if(!etat.hor){ err.textContent="Choisissez l'horaire prévu ce jour-là."; return; }
-    if(!(min>0)){ err.textContent="Donnez la durée des prestations supplémentaires."; return; }
-    if(etat.t==="HS"&&min%15){ err.textContent="Les HS se prennent par quart d'heure."; return; }
-    if(etat.t==="FT"&&min%60){ err.textContent="Le flex time se prend par heure entière."; return; }
-    if(!etat.ju){ err.textContent="Cochez la justification."; return; }
-    if(!etat.resp){ err.textContent="Choisissez votre responsable d'équipe (contremaître ou adjoint)."; return; }
-    if(etat.ju==="necessaire"&&!String(etat.jt).trim()){ err.textContent="Dites en quelques mots le travail nécessaire."; return; }
-    if(etat.ju==="rappel"&&!String(etat.rd).trim()){ err.textContent="Nommez le responsable qui vous a rappelé."; return; }
+    var q=function(c){ return pap.querySelector(c); };
+    if(!etat.j){ pnErreur(err,"La date de la prestation manque.",q("#hsJour")); return; }
+    if(!etat.hor){ pnErreur(err,"Choisissez l'horaire prévu ce jour-là.",q("[data-hh]")); return; }
+    if(!(min>0)){ pnErreur(err,"Donnez la durée des prestations supplémentaires.",q("#hsH")); return; }
+    if(etat.t==="HS"&&min%15){ pnErreur(err,"Les HS se prennent par quart d'heure.",q("#hsM")); return; }
+    if(etat.t==="FT"&&min%60){ pnErreur(err,"Le flex time se prend par heure entière.",q("#hsH")); return; }
+    if(!etat.ju){ pnErreur(err,"Cochez la justification.",q("[data-ju]")); return; }
+    if(!etat.resp){ pnErreur(err,"Choisissez votre responsable d'équipe (contremaître ou adjoint).",q("#hsResp")); return; }
+    if(etat.ju==="necessaire"&&!String(etat.jt).trim()){ pnErreur(err,"Dites en quelques mots le travail nécessaire.",q("#hsJt")); return; }
+    if(etat.ju==="rappel"&&!String(etat.rd).trim()){ pnErreur(err,"Nommez le responsable qui vous a rappelé.",q("#hsRd")); return; }
     bs.disabled=true;
     baseRpc("biowanze_demander_hs",{p_type:etat.t,p_jour:etat.j,p_horaire:etat.hor,p_minutes:min,p_justif:etat.ju,p_justif_texte:etat.ju==="necessaire"?etat.jt:null,p_rappel_de:etat.ju==="rappel"?etat.rd:null,p_responsable:etat.resp||null,p_texte:null})
       .then(function(){ flash(etat.resp?"Envoyée : "+idLisible(etat.resp)+" la reçoit pour visa, puis la RH":"Envoyée : la hiérarchie et la RH la reçoivent"); grFermerPanneau(); GR.hsOnglet="miennes"; return hsRelire(); })
-      .catch(function(er){ bs.disabled=false; err.textContent=baseMsg(er); });
+      .catch(function(er){ bs.disabled=false; pnErreur(err,baseMsg(er)); });
   };
   var su=pn.querySelector("#hsSuppr"); if(su) su.onclick=function(){ hsSupprimer(x.id,su,function(){ grFermerPanneau(); }); };
 }
@@ -25915,8 +26067,11 @@ function sideMaj(){
      défile, pas la page (audit du 23/10/2026) */
   var a=g.querySelector('[aria-current="page"]'), sc=a&&a.parentElement;
   while(sc&&sc!==document.body&&!(sc.scrollHeight>sc.clientHeight+1&&/auto|scroll/.test(getComputedStyle(sc).overflowY))) sc=sc.parentElement;
-  if(a&&sc&&sc!==document.body){ var ra=a.getBoundingClientRect(), rs=sc.getBoundingClientRect();
-    if(ra.bottom>rs.bottom) sc.scrollTop+=ra.bottom-rs.bottom+8; else if(ra.top<rs.top) sc.scrollTop-=rs.top-ra.top+8; }
+  /* le bas utile s'arrête au pied « Réglages », collé en bas du conteneur :
+     l'Historique actif passait dessous à 1366×768 (audit du 23/10/2026) */
+  if(a&&sc&&sc!==document.body){ var ra=a.getBoundingClientRect(), rs=sc.getBoundingClientRect(), pd=document.getElementById("sidePied"),
+      bas=pd&&sc.contains(pd)&&pd.offsetParent!==null?Math.min(rs.bottom,pd.getBoundingClientRect().top):rs.bottom;
+    if(ra.bottom>bas) sc.scrollTop+=ra.bottom-bas+8; else if(ra.top<rs.top) sc.scrollTop-=rs.top-ra.top+8; }
 }
 (function(){
   var g=document.getElementById("sideGestion");

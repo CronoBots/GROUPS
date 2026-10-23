@@ -4103,3 +4103,33 @@ la première. Preuve que rien d'autre n'a glissé : la zone, de
 la performance appliqué seul sur la version d'avant. Les deux patchs qui
 corrigeaient encore l'ancienne Direction n'ont pas été repris : le
 centre de contrôle a son propre cache, calculé une fois par jour.
+
+### Vague A, les deux dernières zones : espace RH et demandes (23/10/2026, v1010)
+
+- **Espace RH** :
+  - au téléphone, la feuille de lecture d'une case ne rend plus toute la grille inerte : elle ne couvre que le bas, la grille reste touchable ;
+  - le panneau s'annonce par le trigramme ET la date de la case ;
+  - l'entrée « Historique » active n'est plus cachée sous le pied « Réglages » ;
+  - adjoints et contremaîtres ne sont plus rangés en « Équipe 1 » ou dans l'équipe de leur binôme ;
+  - lignes et cases s'atteignent au clavier : une seule case dans l'ordre de Tab, celle du jour, puis les flèches. Les lignes de tableau prennent le focus sans `role="button"`, qui aurait effacé leurs en-têtes au lecteur d'écran ;
+  - le tableau du Personnel n'est plus coupé entre 761 et 1099 px ;
+  - « Cette nuit » ne coiffe plus, avant 6 h, des quarts finis ;
+  - plus de tuile seule sur la seconde rangée du tableau de bord.
+- **Demandes** :
+  - « Signer et envoyer » sur une feuille incomplète montre l'erreur en vue ;
+  - les flèches ← → ne changent d'année qu'au Planning : ailleurs, elles fermaient la feuille ouverte ;
+  - le geste retour ferme d'abord le sélecteur de jour ou « préciser » ;
+  - Échap, retour ou × sur une feuille en cours de saisie demandent confirmation ;
+  - le focus revient où il était après un sélecteur ou un visa ;
+  - les champs du visa et du message ont un nom accessible ;
+  - `#ppChoix` n'est plus un faux groupe d'onglets.
+  Reste, dit par l'agent : changer de section ou toucher une autre carte ferme encore une feuille remplie sans rien demander.
+- **Fusion** : six conflits avec la coquille, qui avait corrigé les mêmes endroits.
+  - Le titre de l'onglet : un seul `titreVue(v)`, avec la vue restée derrière quand on ne la donne pas.
+  - L'inertie : la coquille la règle par `wsAppliquerMode()` (passage du téléphone au PC), l'espace RH par une feuille non modale. Les deux sont gardées : `GR.panNonModal` est lu par `wsAppliquerMode()`.
+  - Le clavier : la feuille « Plus » se ferme d'abord, une touche déjà prise ne ferme rien de plus, la confirmation précède la fermeture d'une feuille remplie.
+  - Éprouvé au navigateur :
+    - case en lecture à 390 px, grille non inerte ;
+    - feuille de demande, liste inerte à 390 px, plus à 1280 px, de nouveau à 390 px ;
+    - flèche hors du Planning, feuille toujours ouverte ;
+    - aucune erreur.
