@@ -54,6 +54,10 @@ modifications » — aucune écriture Notion tant que le client ne dit pas
 que les fenêtres ont disparu), puis DIRE ce qui a été choisi et pourquoi — le
 client corrige après coup s'il le veut. Les fenêtres d'autorisation de
 la session ne s'effacent que par le mode « Auto » choisi par le client.
+**Une question n'est pas un ordre.** Le 23/10/2026, « c'est bien pour
+l'agenda scolaire, on est d'accord ? » a été lu comme une demande de
+retrait, et le client voulait garder. On répond, on dit ce qui dépasse
+la demande, et on ne défait rien qu'il n'ait demandé de défaire.
 
 **Un nouveau classeur arrive.** Une seule commande, jamais les étapes à la
 main :

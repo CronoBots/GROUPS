@@ -4357,7 +4357,7 @@ Le client : « pour les congés scolaires, le premier week-end juste avant le co
 Le client : « intégrer les changements d'heure d'été et d'hiver ». La paie les connaît depuis le 14/10/2026 (`docs/regles-paie.md`, « Le changement d'heure ») ; il manquait les agendas.
 
 - **L'agenda des congés scolaires** reçoit les deux passages de chaque année, en journées « libres », le dernier dimanche de mars (« à 2 h, il sera 3 h ») et d'octobre (« à 3 h, il sera 2 h »). Cela fait 14 événements de 2025 à 2031, tous vérifiés comme derniers dimanches du mois. Sa description et la rangée de Réglages le disent.
-- **L'agenda personnel** (RETIRÉ le jour même, v1023, voir la section suivante : le client ne l'avait pas demandé) : aucun événement de plus, puisqu'il ne montre que les jours de travail (le client, le 14/10/2026). Qui est au poste entre 2 h et 3 h la nuit du changement reçoit « · changement d'heure » au titre et une note sous son commentaire :
+- **L'agenda personnel** (retiré en v1023, puis remis tel quel en v1024 à la demande du client, voir la section suivante) : aucun événement de plus, puisqu'il ne montre que les jours de travail (le client, le 14/10/2026). Qui est au poste entre 2 h et 3 h la nuit du changement reçoit « · changement d'heure » au titre et une note sous son commentaire :
   - en octobre, « une heure de plus au poste, comptée en heure sup » (pour une nuit N, comme `lireJournee`) ;
   - en mars, « une heure de moins au poste ; la nuit reste payée comme d'habitude ».
   Les heures de l'événement ne changent pas : elles sont écrites à l'heure de Bruxelles, et le téléphone allonge ou raccourcit déjà la nuit.
@@ -4367,10 +4367,15 @@ Le client : « intégrer les changements d'heure d'été et d'hiver ». La paie 
   - 39 agendas personnels changent, et seulement à ces nuits ; les quatre sorties du vérificateur sont identiques.
 - **Fausse alerte corrigée** : la paie comptait « 13 personnes » le 24/10/2026 dans `regles-paie.md`, et l'agenda 11. Les deux lectures, interrogées personne par personne (`--journee`), donnent les mêmes 11. Les 13 dataient du classeur du 14/10, avant l'échange qui fait faire la nuit à AFA et l'après-midi à ATR. La note est corrigée sur place.
 
-### Les changements d'heure, dans l'agenda scolaire seulement (23/10/2026, v1023)
+### La note du changement d'heure, retirée puis remise (23/10/2026, v1023 et v1024)
 
-Le client : « ces demandes sont bien pour l'agenda scolaire, on est d'accord ? ». Oui pour les deux : le week-end d'avant (v1021) ne touchait déjà que l'agenda scolaire, mais v1022 avait AUSSI annoté les nuits des agendas personnels, ce qui n'était pas demandé. Erreur : une demande portant sur un agenda a été étendue à un autre sans le dire avant de le faire.
+Le client : « ces demandes sont bien pour l'agenda scolaire, on est d'accord ? ». Les deux y étaient (le week-end d'avant ne touche que l'agenda scolaire), mais v1022 avait AUSSI annoté les nuits des agendas personnels sans que ce soit demandé. La v1023 a donc retiré cette annotation : les 79 agendas personnels sont redevenus identiques à l'octet à ceux d'avant v1022.
 
-- `icsAgenda` revient au code d'avant v1022 : ni « · changement d'heure » au titre, ni note, ni révision de plus.
-- **Mesuré** : `--agendas cal` rend les 79 agendas personnels identiques à l'octet à ceux d'avant v1022 (`git diff 6267c0d~1 -- cal` ne montre plus que `cal/conges-scolaires.ics`, avec ses 14 changements d'heure) ; quatre sorties du vérificateur identiques ; contrôle des arrêtés à 0 ; hors ligne correct.
-- **Ce qui reste** : un agenda Google qui aurait relu la nuit annotée pendant l'heure où elle a été en ligne la garde jusqu'au classeur suivant, dont la révision, plus grande, la remplace (révision rendue plus petite, voir « SEQUENCE et LAST-MODIFIED »). Ajouter une révision de plus à ces seules nuits aurait demandé de garder tout le repérage des nuits dans le code ; pour une note d'une heure, ce n'était pas proportionné.
+Le client, aussitôt : « non, tu pouvais le mettre dans la note du personnel, c'est pas bête ». La v1024 remet `index.html` tel qu'en v1022 (`git checkout 6267c0d -- index.html`, la v1023 n'ayant touché que `icsAgenda`), avec le titre « · changement d'heure », la note et la révision de plus.
+
+- **Leçon** : une question de vérification (« on est d'accord ? ») n'est pas une demande de retrait. Il fallait répondre et dire ce qui allait au-delà, puis laisser le client trancher sur ce point. Le retrait a coûté un aller-retour.
+- **Mesuré** :
+  - `--agendas cal` redonne `cal/` identique à l'octet à v1022 (`git diff 6267c0d -- cal` vide) : 42 nuits annotées dans 39 agendas ;
+  - les quatre sorties du vérificateur sont identiques ;
+  - le fonctionnement hors ligne est correct.
+- **Les révisions se tiennent** : un agenda Google qui a lu v1022 (révision de base + 1) puis v1023 (révision de base) a gardé la note, la révision étant plus petite. Celui qui n'a lu que v1023 a la révision de base et prend la v1024, plus grande.
