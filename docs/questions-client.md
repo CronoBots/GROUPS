@@ -51,6 +51,13 @@ des questions au client ».
    instruction qui efface. Elles sont déjà invisibles ; l'effacement
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
+8. **Une demande de congé peut-elle contenir un jour de repos ?**
+   (posée le 23/10/2026, audit de l'application) Le calendrier du choix
+   montre les repos et les laisse choisir (décision du 22/10/2026, v977) ;
+   la demande part alors avec ce jour, et la base ne refuse un repos que
+   pour une modification de pause (`base/17-pause-du-jour.sql`). Faut-il
+   refuser l'envoi, retirer les repos de la demande, ou les laisser comme
+   aujourd'hui ? En attendant, rien ne change.
 
 ## À la RH
 
