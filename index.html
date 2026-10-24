@@ -22857,6 +22857,28 @@ window.__auditRegles=function(){
     return sum;
   });
 };
+function pauseDesHeures(raw,pv){
+  if(!raw || (pv!=="AM" && pv!=="PM" && pv!=="N")) return pv;
+  /* l'annotation dit ce qui a été fait, la cellule ce qui était prévu :
+     VBN le 09/11, ["7h-15h","N","échange avec FLI"], a fait la nuit. Seule
+     une plage écrite dans l'annotation déplace la journée. */
+  var an=String(raw[1]||"").trim();
+  if(!an || SHIFT_CODES.indexOf(an.toUpperCase())>=0) return pv;
+  var pl=plageMention(an);
+  if(!pl) return pv;
+  pl=[pl[0], pl[1]<=pl[0]?pl[1]+24:pl[1]];
+  function rec(g,a,b){ var m=0, k; for(k=-24;k<=24;k+=24) m=Math.max(m,Math.min(b+k,PF_FIN[g])-Math.max(a+k,PF_DEB[g])); return m; }
+  if(rec(pv,pl[0],pl[1])>0.01) return pv;
+  /* contenue dans une pause : celle-là (JBI le 31/01, N « 19h-22h » : PM) ;
+     une journée de jour à cheval sur deux pauses : D, comme les « 7h-15h »
+     de formation à prime gardée (SVE le 29/09) ; sinon la pause la plus
+     couverte (GPS le 29/01, AM « 18h-06h » : N) */
+  var dans=["AM","PM","N"].filter(function(g){ return rec(g,pl[0],pl[1])>=pl[1]-pl[0]-0.01; })[0];
+  if(dans) return dans;
+  if(pl[0]>=6-0.01 && pl[1]<=22+0.01) return "D";
+  var best=pv, bm=0; ["AM","PM","N"].forEach(function(g){ var m=rec(g,pl[0],pl[1]); if(m>bm+0.01){ bm=m; best=g; } });
+  return best;
+}
 /* Qui travaille ce jour-là, rangé par pause. Extrait de renderEquipe()
    parce que le tableau des manques à venir en a besoin lui aussi : deux
    vues d'une même journée qui se contrediraient seraient pires qu'une. */
@@ -22888,6 +22910,14 @@ function equipeDuJour(db,annee,mois,jour){
        surSonPosteMalgreF() les connaît, et c'est la même garde que celle de
        postesDePause() deux fonctions plus bas. */
     var pv=r.sp||((r.jourCode && !surSonPosteMalgreF(raw))?"D":r.s);
+    /* DES HEURES QUI NE TOUCHENT PAS SA PAUSE (le client, le 24/10/2026 :
+       « SVE n'a rien à faire en nuit distillation si elle fait 10-18
+       là-bas »). SVE le 23/10, ["N","10h-22h","pour formation distillation;
+       conserver prime de nuit …"] : N est la prime gardée, pas le travail ;
+       ses heures ne croisent pas la nuit. Une plage écrite qui ne touche
+       pas du tout la pause range la journée dans celle qu'elle couvre le
+       plus. La paie, elle, garde sa prime. */
+    pv=pauseDesHeures(raw,pv);
     /* PAYÉ N'EST PAS PRÉSENT. Le client, le 26/09/2026, devant deux
        contremaîtres de nuit : YPE porte ["N","8h -FT","Remplacé par VGG"],
        une journée entière de flex time repris. Ses heures sont payées
@@ -23420,7 +23450,13 @@ function renderEquipe(){
         /* Avec un code de jour (F, D-F, DS-CE…), une plage de pause n'est
            que le poste prévu : seule une plage de journée dit l'horaire. */
         if(codeJour && posteDepuisPlage(pl)!=="D") return false;
-        lib=hh(pl[0])+"-"+hh(pl[1]); return true;
+        /* la part tenue en relais ailleurs sort de l'étiquette, comme
+           pour les pauses (relaisCoupe) : SVE le 23/10, 10-22 → 10-18 */
+        var a0=pl[0], b0=pl[1]<=pl[0]?pl[1]+24:pl[1];
+        (relaisCoupe[x.p.id]||[]).forEach(function(r){
+          if(Math.abs(r.b-b0)<0.01 && r.a>a0+0.01) b0=r.a;
+          else if(Math.abs(r.a-a0)<0.01 && r.b<b0-0.01) a0=r.b; });
+        lib=hh(a0)+"-"+hh(b0); return true;
       });
       /* Sinon le commentaire, quand il écrit la plage avec un tiret :
          « Formation STEP 08h30'-16h30' ». « de 10h à 14h » dit un
