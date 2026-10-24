@@ -19127,6 +19127,10 @@ function dmTravail(c){ return !!c&&c!=="-"; }
    : l'annotation du classeur quand elle dit un congé, une absence ou un
    arrêt (RJF, VA, MAL…), ou une demande de congé déjà en attente. Ces
    jours-là ne se redemandent pas. */
+/* UN CONGÉ DÉJÀ POSÉ ce jour-là, journée entière : il se choisit pour
+   l'annuler ou en changer le type (le client, le 24/10/2026 : « Un congé
+   peut être choisi également pour annuler ou modifier son type ») */
+function dmCongePose(tri,iso){ var et=dmEtatJour(tri,iso); return et&&et.fam==="cg"&&!et.part?et:null; }
 function dmEtatJour(tri,iso){
   var d=dmJour(iso), db=HORAIRES&&HORAIRES[d.getFullYear()], p=db&&db.people.filter(function(x){ return x.id===tri; })[0];
   var e=(p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())])||[], an=String(e[1]||"").trim(), fa=an?grFamille(an):"";
@@ -19228,11 +19232,11 @@ function dmChoisirJour(tri,courant,pris,fini){
     for(var j=1;j<=n;j++){
       /* un repos se choisit aussi (le client, le 22/10/2026) ; un jour déjà
          en congé, absent ou demandé, non */
-      var d=new Date(m.y,m.m,j), iso=dmIso(d), pv=dmPrevue(tri,iso), et=iso===courant?null:dmEtatJour(tri,iso), ok=!pris[iso]&&(!et||et.part)&&d>=min;
+      var d=new Date(m.y,m.m,j), iso=dmIso(d), pv=dmPrevue(tri,iso), et=iso===courant?null:dmEtatJour(tri,iso), ok=!pris[iso]&&(!et||et.part||et.fam==="cg")&&d>=min;
       var estAuj=d.getTime()===new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()).getTime();
       /* le nom entier du jour, et ce qui le rend (in)choisissable : « 1 AM »,
          « 3 repos » ne disaient ni le mois ni le jour (audit du 23/10/2026) */
-      var nomJ=JOURS_LONGS[(d.getDay()+6)%7]+' '+numJour(j)+' '+MOIS[m.m].toLowerCase()+', '+(pris[iso]?'déjà sur la feuille':et?(et.fam==="att"?'demande de congé déjà en attente':'déjà '+et.code):dmTravail(pv)?'pause '+grCourt(pv):'repos')+(d<min?', trop ancien':'')+(iso===courant?', date choisie':'');
+      var nomJ=JOURS_LONGS[(d.getDay()+6)%7]+' '+numJour(j)+' '+MOIS[m.m].toLowerCase()+', '+(pris[iso]?'déjà sur la feuille':et?(et.fam==="att"?'demande de congé déjà en attente':'déjà '+et.code+(et.fam==="cg"&&!et.part?', à annuler ou à changer':'')):dmTravail(pv)?'pause '+grCourt(pv):'repos')+(d<min?', trop ancien':'')+(iso===courant?', date choisie':'');
       c.push('<button type="button" data-j="'+iso+'"'+(ok?'':' disabled')+' class="'+(iso===courant?'choisi ':'')+(et?'et-'+et.fam+' ':'')+(dmTravail(pv)?'':'rep ')+(estAuj?'auj':'')+'"'
         +' aria-label="'+esc(nomJ)+'"'+(estAuj?' aria-current="date"':'')
         +(et?' title="'+esc(et.fam==="att"?"Demande de congé déjà en attente":"Déjà "+et.code)+'"':'')+'>'
@@ -19424,7 +19428,8 @@ function dmTableau(x){
     +l.map(function(z){ var d=dmJour(z.j);
       return '<tr><td>'+esc(wsDateCourte(d))+'</td><td>'+dmPa(z.prevue||dmPrevue(x.trigramme,z.j),"repos")+'</td>'
         /* centré, et la pause demandée sans flèche (le client, le 22/10/2026) */
-        +'<td class="dm-c">'+(z.pause?'<span class="dm-pause">'+dmPa(z.pause)+'</span>':dmPa(z.code)+(z.code2?' '+dmPa(z.code2):'')+(z.part?'<small class="dm-heure">'+(z.part==="quitte"?'quitte à ':'arrive à ')+esc(String(z.heure||"").replace(':',' h '))+'</small>':''))+'</td>'
+        /* un congé annulé ou changé dit ce qu'il était (le client, le 24/10/2026) */
+        +'<td class="dm-c">'+(z.annule?'<span class="dm-annule">'+(z.avant?dmPa(z.avant)+' ':'')+'annulé</span>':z.pause?'<span class="dm-pause">'+dmPa(z.pause)+'</span>':(z.avant?dmPa(z.avant)+' → ':'')+dmPa(z.code)+(z.code2?' '+dmPa(z.code2):'')+(z.part?'<small class="dm-heure">'+(z.part==="quitte"?'quitte à ':'arrive à ')+esc(String(z.heure||"").replace(':',' h '))+'</small>':''))+'</td>'
         +(rp?'<td class="dm-c">'+(z.rp?'<span class="dm-rp">'+esc(idLisible(z.rp))+' '+dmPa(z.rp_prevue||dmPrevue(z.rp,z.j),"repos")+'</span>':'')+'</td>':'')+'</tr>'; }).join("")
     +'</tbody></table>';
 }
@@ -19473,6 +19478,7 @@ function dmCarte(x,valideur){
   else act=dmModifiable(x)||dmSupprimable(x)?'<div class="dm-act dm-act-s">'+(dmModifiable(x)?'<button type="button" class="dm-lien" data-dm-modifier="'+x.id+'">Modifier</button>':'')+(dmSupprimable(x)?'<button type="button" class="dm-lien dm-suppr" data-dm-annuler="'+x.id+'">Supprimer</button>':'')+'</div>':'';
   var types=[]; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
   if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
+  if(l.some(function(z){ return z.annule; })) types.push("Annulation de congé");
   var tag=types.length?'<span class="dm-type">'+types.map(esc).join(" + ")+'</span>':'';
   return '<article class="dm-carte dm-g-'+dmGenre(x)+(dmATraiter(x)?' dm-a-faire':'')+'" data-dm="'+x.id+'" tabindex="0">'
     /* même tête que la fiche de recyclage (22/10/2026) : la période en
@@ -19604,7 +19610,7 @@ function dmPpLecture(x){
     for(var i=0;i<n;i++){ var l=L[i]||{}, d=l.j?dmJour(l.j):null, pr=l.j?(l.prevue||dmPrevue(x.trigramme,l.j)):"";
       /* la pause demandée seule, sans flèche : la colonne dit déjà « Type de
          congé ou Modification pause » (le client, le 22/10/2026) */
-      var ty=l.pause?esc(l.pause):l.code?esc(l.code)+(l.code2?' + '+esc(l.code2):'')+(l.part?'<br><small>'+(l.part==="quitte"?'quitte à ':'arrive à ')+esc(String(l.heure||"").replace(':',' h '))+'</small>':''):'';
+      var ty=l.annule?'Annuler '+esc(l.avant||'le congé'):l.pause?esc(l.pause):l.code?(l.avant?esc(l.avant)+' → ':'')+esc(l.code)+(l.code2?' + '+esc(l.code2):'')+(l.part?'<br><small>'+(l.part==="quitte"?'quitte à ':'arrive à ')+esc(String(l.heure||"").replace(':',' h '))+'</small>':''):'';
       if(f==="sans_solde") h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td>'+(i===0?'<td rowspan="'+n+'" class="dm-pp-css">Congé sans solde</td>':'')+'<td>'+(d?dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td>'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td></tr>');
       else h.push('<tr'+(l.j?'':' class="dm-pp-vide"')+'><td class="dm-pp-n">'+(i+1)+'</td><td>'+(d?JOURS_C[d.getDay()]+' '+dmDateFr(d):'')+'</td><td>'+dmPpPause(pr)+'</td><td class="dm-pp-ty">'+ty+'</td>'+(P.rp?'<td class="dm-pp-rp">'+esc(l.rp?idLisible(l.rp):'')+'</td><td>'+(l.rp?dmPpPause(l.rp_prevue||dmPrevue(l.rp,l.j)):'')+'</td>':'')+'</tr>');
     }
@@ -19723,8 +19729,8 @@ function dmFormulaire(pre){
         +'<details class="dm-pp-aide"><summary>Remplir une période d\'un coup</summary><div class="dm-dates"><label>Du<input type="date" id="ppDu"></label><label>Au<input type="date" id="ppAu"></label></div><button type="button" class="btn" id="ppRemplir">Remplir les lignes</button><p class="pn-note">Seuls les jours de travail prévus s\'inscrivent, dans les lignes libres ; un jour déjà en congé ou déjà demandé est passé.</p></details>'
         +'<div class="dm-papier" id="ppFeuille"></div><div class="dm-apercu" id="ppInfo" hidden></div><p class="pn-note" id="ppErr" role="alert"></p>',
       '<button type="button" class="btn ss-ok" id="ppSigner">'+(mod?'Signer et envoyer la modification':'Signer et envoyer')+'</button>');
-    function optsType(sel,pv){
-      var o='<option value=""></option>'+dem.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===sel?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
+    function optsType(sel,pv,cg){
+      var o='<option value=""></option>'+(cg?'<optgroup label="Congé déjà posé : '+esc(cg.code)+'"><option value="annule"'+(sel==="annule"?' selected':'')+'>Annuler le congé</option></optgroup>':'')+dem.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===sel?' selected':'')+'>'+esc(c.code)+'</option>'; }).join("");
       if(DM_PAPIER[etat.f].pause) o+='<optgroup label="Modification pause">'+DM_PAUSES.filter(function(k){ return k!==pv; }).map(function(k){ return '<option value="pause:'+k+'"'+(sel==="pause:"+k?' selected':'')+'>'+k+'</option>'; }).join("")+'</optgroup>';
       return o;
     }
@@ -19764,7 +19770,7 @@ function dmFormulaire(pre){
       var precTxt=l.code2||l.part?(l.code2?'+ '+l.code2:'')+(l.code2&&l.part?' · ':'')+(l.part?(l.part==="quitte"?'quitte à ':'arrive à ')+String(l.heure||"").replace(':',' h '):''):'préciser';
       var prec=f==="courte"&&l.j&&l.code&&dmDuree(l.code)<8?'<button type="button" class="dm-pp-prec'+(l.code2||l.part?' rempli':'')+'" data-prec="1" aria-label="'+esc((l.code2||l.part?'Précision du ':'Préciser le ')+JOURS_LONGS[(dv.getDay()+6)%7].toLowerCase()+' '+numJour(dv.getDate())+' '+MOIS[dv.getMonth()].toLowerCase()+(l.code2||l.part?' : '+precTxt:''))+'">'
         +esc(precTxt)+'</button>':'';
-      var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.pause?"pause:"+l.pause:(l.code||""),pv)+'</select>'+prec+'</td>';
+      var type=f==="sans_solde"?'':'<td class="dm-pp-ty"><select data-c="type" aria-label="Type de congé, ligne '+(i+1)+'">'+optsType(l.annule?"annule":l.pause?"pause:"+l.pause:(l.code||""),pv,l.j?dmCongePose(moi,l.j):null)+'</select>'+prec+'</td>';
       var rp=P.rp?'<td class="dm-pp-rp"><select'+(l.j&&!l.rp?' class="vide"':'')+' data-c="rp" aria-label="Remplaçant, ligne '+(i+1)+'">'+optsRp(l.rp||"",l.j)+'</select></td><td class="dm-pp-pv">'+dmPpPause(rpv)+'</td>':'';
       var css=f==="sans_solde"&&i===0?'<td rowspan="'+(DM_PAPIER.sans_solde.blocs[0].n+etat.plus)+'" class="dm-pp-css">Congé sans solde</td>':'';
       return '<tr data-k="'+k+'" data-i="'+i+'"><td class="dm-pp-n">'+(i+1)+'</td>'+(f==="sans_solde"?css+date+pause:date+pause+type)+rp+'</tr>';
@@ -19804,7 +19810,7 @@ function dmFormulaire(pre){
        qu'on modifie. « Remplir une période » les inscrivait et la demande
        partait (audit du 23/10/2026) */
     function dejaPris(j){
-      var et=dmEtatJour(moi,j); if(!et||et.part) return null;
+      var et=dmEtatJour(moi,j); if(!et||et.part||et.fam==="cg") return null;
       if(et.fam==="att"&&mod&&!(GR.demandes||[]).some(function(x){ return x.id!==mod.id&&x.a_moi&&x.statut==="en_attente"&&dmLignes(x).some(function(l){ return l.j===j; }); })) return null;
       return et;
     }
@@ -19819,7 +19825,10 @@ function dmFormulaire(pre){
         if(dp) e.push(d+" : "+(dp.fam==="att"?"une demande déjà en attente couvre ce jour":"déjà "+dp.code)+", retirez la date");
         if(f==="longue"&&z.k==="pause"&&pv==="D") e.push(d+" : jour de DAY, à mettre dans « Jours de DAY »");
         if(f==="longue"&&z.k==="day"&&pv&&pv!=="D"&&pv!=="-") e.push(d+" : jour de pause, à mettre dans « Jours de pause »");
-        if(f!=="sans_solde"&&!l.code&&!l.pause) e.push(d+" : type de congé à choisir"); });
+        var cg=dmCongePose(moi,l.j);
+        if(l.annule&&!cg) e.push(d+" : aucun congé posé à annuler, retirez la date");
+        if(cg&&!l.annule&&!l.pause&&l.code===cg.code) e.push(d+" : déjà "+cg.code+", choisissez un autre type ou « Annuler le congé »");
+        if(f!=="sans_solde"&&!l.code&&!l.pause&&!l.annule) e.push(d+" : type de congé à choisir"); });
       var L=toutes().map(function(z){ return z.l; });
       if(L.length) dmRegles(f,moi,L.map(function(l){ return {j:l.j,code:f==="sans_solde"?"CSS":l.code,pause:l.pause}; }),null,0).forEach(function(r){ if(!/^solde/.test(r)) e.push(r); });
       /* role="alert" : réécrite à l'identique, elle se réannoncerait à chaque champ */
@@ -19865,7 +19874,7 @@ function dmFormulaire(pre){
       var k=tr.getAttribute("data-k"), i=Number(tr.getAttribute("data-i")), L=etat.t[k], l=L[i]||(L[i]={}), c=s.getAttribute("data-c");
       if(c==="type"||c==="rp") delete l._garde;
       if(c==="j"){ l.j=s.value||null; if(l.j&&!l.code&&!l.pause) l.code=etat.f==="sans_solde"?"CSS":"VA"; if(!l.j){ L[i]={}; } }
-      if(c==="type"){ if(/^pause:/.test(s.value)){ l.pause=s.value.slice(6); delete l.code; } else { l.code=s.value||null; delete l.pause; } }
+      if(c==="type"){ if(s.value==="annule"){ l.annule=true; delete l.code; delete l.pause; delete l.code2; delete l.part; delete l.heure; } else if(/^pause:/.test(s.value)){ l.pause=s.value.slice(6); delete l.code; delete l.annule; } else { l.code=s.value||null; delete l.pause; delete l.annule; } }
       if(c==="rp") l.rp=s.value||null;
       if(c==="type"&&(!l.code||l.code===l.code2||dmDuree(l.code)>=8)) delete l.code2;
       if(l.code&&dmDuree(l.code)+(l.code2?dmDuree(l.code2):0)>=8){ delete l.part; delete l.heure; }
@@ -19877,7 +19886,7 @@ function dmFormulaire(pre){
       var du=document.getElementById("ppDu").value, au=document.getElementById("ppAu").value||du, n=0;
       if(!du||au<du){ pnErreur(document.getElementById("ppErr"),"La fin doit suivre le début.",document.getElementById(du?"ppAu":"ppDu")); return; }
       for(var d=dmJour(du); d<=dmJour(au); d.setDate(d.getDate()+1)){
-        var j=dmIso(d), pv=dmPrevue(moi,j); if(!dmTravail(pv)||dejaPris(j)||toutes().some(function(z){ return z.l.j===j; })) continue;
+        var j=dmIso(d), pv=dmPrevue(moi,j); if(!dmTravail(pv)||dejaPris(j)||dmCongePose(moi,j)||toutes().some(function(z){ return z.l.j===j; })) continue;
         var k=etat.f==="longue"&&pv==="D"?"day":"pause", B=DM_PAPIER[etat.f].blocs.filter(function(b){ return b.k===k; })[0]; if(!B) continue;
         var max=B.n+(B.plus?Math.max(0,B.plus-B.n):0), L=etat.t[k], i=0; while(L[i]&&L[i].j) i++;
         if(i>=max) break; if(B.plus&&i>=B.n+etat.plus) etat.plus=i-B.n+1;
@@ -19892,10 +19901,10 @@ function dmFormulaire(pre){
     document.getElementById("ppSigner").onclick=function(){
       var b=this, err=document.getElementById("ppErr"), L=toutes();
       if(!L.length){ pnErreur(err,"Inscrivez au moins une date dans le tableau.",document.querySelector("#ppFeuille [data-jpick]")); return; }
-      var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre|retirez la date/.test(m); });
+      var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre|retirez la date|un autre type/.test(m); });
       if(bloquant.length){ pnErreur(err,null,null); return; }
-      var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp;
-        if(etat.f==="courte"&&!l.pause){ if(l.code2) o.code2=l.code2; if(l.part&&l.heure){ o.part=l.part; o.heure=l.heure; } }
+      var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.annule) o.annule=true; else if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp;
+        if(etat.f==="courte"&&!l.pause&&!l.annule){ if(l.code2) o.code2=l.code2; if(l.part&&l.heure){ o.part=l.part; o.heure=l.heure; } }
         /* LE CONTREMAÎTRE DU JOUR (le client, le 22/10/2026 : « c'est le
            contremaître qui a la fonction ce jour-là qui doit être notifié de
            la demande faite durant sa pause ») : celui que l'horaire place au
@@ -19905,7 +19914,8 @@ function dmFormulaire(pre){
            contremaîtres et adjoints la voient dans leur liste. */
         /* un repos où l'on vient travailler : le contremaître de la pause
            demandée (le client, le 24/10/2026) */
-        var cm=null; try{ var pz=rcPauseDe(moi,l.j); cm=rcContremaitre(l.j,dmTravail(pz)?pz:(l.pause||pz)); }catch(er){}
+        /* un jour déjà en congé : celui de la pause prévue (le client, le 24/10/2026) */
+        var cm=null; try{ var pz=rcPauseDe(moi,l.j), pp=dmPrevue(moi,l.j); cm=rcContremaitre(l.j,dmTravail(pz)?pz:(l.pause||(dmTravail(pp)?pp:pz))); }catch(er){}
         if(cm&&cm!==moi) o.cm=cm;
         return o; });
       b.disabled=true; err.textContent="Envoi…";
@@ -21297,6 +21307,7 @@ function mdLigne(x){
   var l=dmLignes(x), f=x.formulaire||"courte", types=[];
   l.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
   if(l.some(function(z){ return z.pause; })) types.push("Changement de pause");
+  if(l.some(function(z){ return z.annule; })) types.push("Annulation de congé");
   /* chaque ligne s'annonce par ce qu'elle est (formulaire, codes, dates,
      statut) : l'étiquette commune les rendait toutes identiques au lecteur
      d'écran (audit du 23/10/2026) */
