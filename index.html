@@ -11763,6 +11763,14 @@ function majClasseurs(){
     +ligne("Suivi des recyclages", rm?"Classeur enregistré le "+esc(dateHeureFr(rm)):"Date inconnue");
   function court(iso){ var m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?m[2]+"/"+m[1]:"?"; }
   if(sub) sub.textContent="horaire du "+court(hm)+" · recyclages du "+court(rm);
+  /* LA VERSION DE L'APPLICATION (le client, le 24/10/2026 : l'application
+     installée « pas encore à jour ») : le nom du cache du service worker
+     (nfdm-vNNNN) dit quelle version tourne sur l'appareil ; avec la date du
+     classeur au-dessus, on voit d'un coup d'œil ce qui est en retard. */
+  if(window.caches&&caches.keys) caches.keys().then(function(ks){
+    var v=ks.map(function(k){ return (/^nfdm-v(\d+)$/.exec(k)||[])[1]; }).filter(Boolean).sort(function(a,b){ return b-a; })[0];
+    if(v&&document.body.contains(hote)) hote.insertAdjacentHTML("beforeend",ligne("Application","Version "+esc(v)));
+  }).catch(function(){});
 }
 /* L'HORAIRE NE SE LIT PAS : ON PURGE ET ON RECOMMENCE, UNE FOIS.
 

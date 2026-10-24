@@ -4675,6 +4675,21 @@ toutes les tuiles ont la même hauteur (98 px à 390, 91 à 320). « Horaire
 du jour » prend une icône de calendrier du jour. Rien de coupé à 320, 390
 et 1280.
 
+### La version de l'application dans Réglages (24/10/2026, v1038)
+
+Le client, après l'installation du classeur du 24/10 : « Pas encore à
+jour sur l'app », puis « Pas la pwa ». Mesuré : le site servait v1037 et
+l'horaire neuf ; la base était recopiée ; une application installée
+simulée (v1036 → v1037, serveur à la GitHub Pages, max-age 600 et ETag)
+passait bien à v1037 à la réouverture. Mais le classeur envoyé avait été
+**enregistré le 23/10 à 11 h 27 UTC** (propriétés du fichier) : ce qu'il
+a changé le 24/10, s'il l'a fait, n'y est pas.
+
+**Erreur commise** : j'ai dit au client de vérifier « la version v1037
+dans Réglages » ; l'application ne l'affichait nulle part. Réglages ›
+Classeurs dit désormais, sous les dates des deux classeurs, « Application
+· numéro de version », lu dans le nom du cache du service worker.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
