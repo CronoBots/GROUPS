@@ -7181,6 +7181,14 @@ html body #racCard .ctl-cm em{display:grid; place-items:center; width:44px; heig
 html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 @media (max-width:360px){ html body #racCard .ctl-ti{width:42px; height:42px; border-radius:12px} html body #racCard .ctl-t{font-size:11.5px}
   html body #racCard .ctl-cm small{white-space:normal} }
+/* la rangée des relais : pleine largeur, les morceaux côte à côte */
+#jourCorps .eqp2 td .eqc>.eqrel{grid-column:1 / -1; flex-basis:100%; display:flex; justify-content:center; flex-wrap:nowrap; gap:4px}
+#jourCorps.eqhote .eqp2 tbody td .eqc>.eqrel>.eqn{margin:0}
+@media (max-width:760px){
+  #jourCorps.eqhote .eqp2 tbody td .eqc>:nth-child(odd):has(+ .eqrel){grid-column:1 / -1; justify-self:center}
+  #jourCorps .eqp2 td .eqc:has(> :only-child.eqrel){grid-template-columns:1fr}
+}
+@media (min-width:761px){ #jourCorps .eqp2 td .eqc>.eqrel{gap:6px} }
 </style>
 </head>
 <body>
@@ -24006,10 +24014,17 @@ function renderEquipe(){
              gauche aussi ; il ne faut jamais laisser de trou en bas à gauche
              s'il y a d'autres opérateurs hors formation »). La case vide se
              pose juste après le premier titulaire : TCE · / VGG SLI. */
+          /* CEUX QUI SE PARTAGENT LA PAUSE SONT CÔTE À CÔTE (le client, le
+             24/10/2026 : « quand 2 opérateurs partagent une pause, ils
+             doivent être côte à côte pour comprendre le partage ») : les
+             relais forment leur propre rangée, sous les autres, dans
+             l'ordre des heures — GBT NPI / SLT 14-18 SVE 18-22. Dans la
+             grille de deux colonnes, SLT finissait la première rangée et
+             SVE commençait la seconde. Le reste de la case garde sa règle
+             (apprenti en haut ou en bas à droite) sans eux. */
           var gaucheA=tientH.slice(), plein=!!(o.gens.length||mq||(o.relais&&o.relais.length));
-          if(relH) gaucheA.push(relH);
           if(mqH) gaucheA.push(mqH);
-          var nG=tientH.length+(o.relais||[]).length+(mq?Math.max(1,aP-o.tenu):0);
+          var nG=tientH.length+(mq?Math.max(1,aP-o.tenu):0);
           /* Puis : « si un seul en formation, il doit être au-dessus à
              droite au lieu d'en dessous ». Un seul apprenti et un compte
              impair : il prend la place du trou, en haut à droite, et les
@@ -24022,7 +24037,8 @@ function renderEquipe(){
           }
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
             +(!plein ? '<span class="eqvide">\u2014</span>'
-              : '<div class="eqc'+(formH.length?' aform':'')+'">'+gaucheA.join("")+formA.join("")+'</div>')
+              : '<div class="eqc'+(formH.length?' aform':'')+'">'+gaucheA.join("")+formA.join("")
+                +(relH?'<span class="eqrel" role="group" aria-label="Pause partagée">'+relH+'</span>':'')+'</div>')
             +"</td>");
         }));
         tp.push("</tr>");
