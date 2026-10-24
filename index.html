@@ -7160,6 +7160,27 @@ html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-w
   .pf-pv:has(.pf-pv-l>span:only-child) .pf-pv-t em{margin-left:5px}
   .pf-pv-l>span:only-child{padding:4px 7px}
 }
+/* ACCÈS RAPIDES « 100 % PRO » (le client, le 24/10/2026) : une grille
+   d'icônes de quatre colonnes, même hauteur partout, un mot sous chaque
+   icône, l'icône dans un carré teinté ; le contremaître de pause en une
+   rangée sobre, le bouton d'appel rond à droite. */
+html body #racCard .ctl-rac{grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px 6px}
+html body #racCard .ctl-rac>:last-child:nth-child(3n+1){grid-column:auto; flex-direction:column; min-height:0}
+html body #racCard .ctl-t{flex-direction:column; justify-content:flex-start; gap:7px; min-height:0; padding:8px 2px 6px; border:0; border-radius:12px; background:none; font-size:12px; font-weight:600; line-height:1.2; color:var(--ink)}
+html body #racCard .ctl-t>span{display:block; max-width:100%; overflow-wrap:anywhere; hyphens:auto}
+html body #racCard .ctl-ti{display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:color-mix(in srgb,var(--in) 13%,var(--surface2)); border:1px solid color-mix(in srgb,var(--in) 22%,transparent); font-style:normal}
+html body #racCard .ctl-ti svg{width:22px; height:22px; color:var(--in)}
+@media (hover:hover){ html body #racCard .ctl-t:hover .ctl-ti{background:color-mix(in srgb,var(--in) 22%,var(--surface2))} }
+html body #racCard .ctl-t:active .ctl-ti{transform:scale(.96)}
+html body #racCard .ctl-t:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
+html body #racCard .ctl-cm .ctl-cm-ico{display:none}
+html body #racCard .ctl-cm{min-height:0; margin-bottom:12px; padding:10px 10px 10px 12px}
+html body #racCard .ctl-cm>span>b{font-size:14px}
+html body #racCard .ctl-cm small{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+html body #racCard .ctl-cm em{display:grid; place-items:center; width:44px; height:44px; padding:0; border-radius:50%}
+html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
+@media (max-width:360px){ html body #racCard .ctl-ti{width:42px; height:42px; border-radius:12px} html body #racCard .ctl-t{font-size:11.5px}
+  html body #racCard .ctl-cm small{white-space:normal} }
 </style>
 </head>
 <body>
@@ -20650,7 +20671,7 @@ function cmDePause(){
 function cmLigneHTML(){
   var c=cmDePause(), lu=(c.tri?c.tri.split("").join(" ")+", ":"")+({AM:"pause du matin",PM:"pause de l'après-midi",N:"pause de nuit"})[c.pz];
   return '<a class="ctl-cm" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'">'
-    +'<i class="ctl-cm-ico">'+ctlIco("tel")+'</i><span><b>Contremaître de pause</b><small>'+(c.tri?'<b>'+esc(idLisible(c.tri))+'</b> · ':'')+esc(c.nom)+'</small><small>'+CM_TEL_VU+'</small></span><em>Appeler</em></a>';
+    +'<i class="ctl-cm-ico">'+ctlIco("tel")+'</i><span><b>Contremaître de pause</b><small>'+(c.tri?'<b>'+esc(idLisible(c.tri))+'</b> · ':'')+esc(c.nom)+' · '+CM_TEL_VU+'</small></span><em aria-hidden="true">'+ctlIco("tel")+'</em></a>';
 }
 /* son certificat à la RH, par l'application de messagerie de l'appareil
    (le client, le 24/10/2026) : le destinataire et l'objet sont remplis ;
@@ -20693,15 +20714,21 @@ function renderCentre(db,person){
      « aujourd'hui », « 2026 », « abonnement » redisaient le nom ; « 2 en
      cours » et « 1 en route » aussi, depuis que « À faire » liste ce qui est
      en cours et que « Demandes de congé » le compte (23/10/2026). */
-  if(cb) rac.push(["conge","Demander un congé","dmNv",""]);
-  rac.push(["certif","Certificat médical","certif","à la RH"]);
-  if(cb) rac.push(["rec","Fiche de recyclage","rcNv",""]);
-  rac.push(["paie","Ma fiche de paie","paie",MOIS[auj0.getMonth()].toLowerCase()],["eq","Équipe du jour","eq",""]);
-  if(cb) rac.push(["plan","Horaire production","plan",""]);
-  /* « S'abonner à mon horaire », comme dans Réglages : « Mon agenda »
-     promettait d'ouvrir un agenda, et chaque toucher rouvrait la page
-     d'abonnement (audit du 23/10/2026) */
-  rac.push(["ag","S’abonner à mon horaire","ag",""]);
+  /* UNE GRILLE D'ICÔNES, comme les applications de banque (le client, le
+     24/10/2026 : « comment optimiser l'accès rapide, 100 % pro ») : quatre
+     colonnes, un mot sous chaque icône, rangées par usage ; le nom entier
+     reste au lecteur d'écran et à l'infobulle (5e champ). Les tuiles à
+     deux ou trois lignes, de hauteurs inégales, et la dernière étalée sur
+     toute la rangée faisaient bricolé. « S'abonner », comme dans
+     Réglages : « Mon agenda » promettait d'ouvrir un agenda (audit du
+     23/10/2026). */
+  if(cb) rac.push(["conge","Congé","dmNv","","Demander un congé"]);
+  rac.push(["certif","Certificat","certif","","Envoyer un certificat médical à la RH"]);
+  rac.push(["paie","Salaire","paie","","Ma fiche de paie d’"+MOIS[auj0.getMonth()].toLowerCase()]);
+  rac.push(["eq","Équipe","eq","","Équipe du jour"]);
+  if(cb) rac.push(["plan","Horaire","plan","","Horaire production"]);
+  if(cb) rac.push(["rec","Recyclage","rcNv","","Remplir une fiche de recyclage"]);
+  rac.push(["ag","S’abonner","ag","","S’abonner à mon horaire dans l’agenda du téléphone"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
   var dot=document.getElementById("notifDot");
@@ -20739,7 +20766,7 @@ function renderCentre(db,person){
      (audit du 23/10/2026). */
   var rc=document.getElementById("racCard"), rcc=document.getElementById("racCorps");
   if(rc&&rcc){
-    rcc.innerHTML=cmLigneHTML()+'<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'">'+ctlIco("certif")+'<span>'+esc(r[1])+'</span><small>'+esc(r[3])+'</small></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'">'+ctlIco(r[0])+'<span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>';
+    rcc.innerHTML=cmLigneHTML()+'<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ var nom=r[4]?' aria-label="'+esc(r[4])+'" title="'+esc(r[4])+'"':''; if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+esc(r[1])+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>';
     rc.hidden=false;
   }
   var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0), fa="";
