@@ -4591,6 +4591,30 @@ même bloqué dans « Remplir une période ».
   vérificateur sont inchangées. Les compteurs prévus d'une carte comptent
   le nouveau type sans rendre l'ancien : un aperçu, la base fait foi.
 
+### Le contremaître de pause en direct, et le certificat à la RH (24/10/2026, v1033)
+
+Le client : « le numéro direct du contremaître de pause actuellement avec
+son trigramme et le numéro +32476951086. Et aussi un bouton pour envoyer
+son certificat par mail au RH sur pointagebwz@biowanze.be ».
+
+- **Contremaître de pause** : une ligne pleine largeur en tête des
+  « Accès rapides » de l'Accueil : « Contremaître de pause · JBI ·
+  Après-midi · +32 476 95 10 86 », et « Appeler » (lien `tel:`). Le
+  numéro est le seul, celui du poste ; le trigramme est celui que
+  l'horaire place au poste de contremaître à la pause en cours
+  (`rcContremaitre`, la même lecture que la fiche de recyclage), la nuit
+  rattachée au jour où elle commence. La ligne se refait au tic de
+  l'Accueil quand la pause change (6 h, 14 h, 22 h).
+- **Envoyer un certificat** : une tuile après « Demander un congé », un
+  lien `mailto:` vers la RH, objet « Certificat médical – TRI » et un
+  court message ; la photo ou le PDF se joint dans la messagerie (un lien
+  `mailto` ne porte pas de pièce jointe). Rien ne passe par l'application.
+- Une tuile seule en fin de grille prend désormais la rangée.
+- Mesuré à 320, 390 et 1280 px (opérateur, hiérarchie ; 18 h 17, 2 h 30,
+  10 h) : JBI l'après-midi, ATR la nuit, ATA le matin ; aucun débordement,
+  aucun texte coupé, aucune erreur ; vérificateur inchangé. Sans compte
+  connecté, les « Accès rapides » restent cachés, comme avant.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
