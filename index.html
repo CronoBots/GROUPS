@@ -23153,6 +23153,15 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
     db.people.forEach(function(p){
       var raw=p.d[md]; if(!raw) return;
       if(/abs|mal/i.test(String(raw[1]||""))) return;
+      /* « REMPLACE PLZ DE 14H À 18H », écrit chez quelqu'un d'une autre
+         pause (le client, le 24/10/2026, sur le 23/10 : PLZ absent en PM,
+         SLT « remplace PYL de 14h à 18h » en 6h-18h, SVE « remplace PLZ de
+         18h à 22h » en 10h-22h ; « la solution est sous nos yeux et ça
+         affiche toujours ? ») : la part nommée de la pause, au poste de
+         l'absent qu'il remplace, quel que soit le poste qu'il tient le
+         reste du temps. L'absent doit l'être à cette pause (« Abs », « Mal »)
+         ou nommer son remplaçant. PYL se lit PLZ (ALIAS_TRI_AFFICHAGE). */
+      if(dec===0 && remplaceNomme(p,raw,md)) return;
       var pl=null, i;
       for(i=0;i<2 && !pl;i++) pl=plageMention(String(raw[i]||""));
       if(!pl || pl[1]-pl[0]<=8.01) return;
@@ -23172,6 +23181,23 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
       cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim()});
     });
   });
+  function remplaceNomme(p,raw,md){
+    var c=String(raw[2]||""), rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, m, vu=false;
+    while((m=rx.exec(c))){
+      var t=m[1].toUpperCase(); t=(typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t;
+      var q=db.people.filter(function(z){ return idLisible(z.id)===t; })[0]; if(!q||q===p) continue;
+      var rq=q.d[md]; if(!rq||String(rq[0]||"").trim()!==gk) continue;
+      var absent=/abs|mal/i.test(String(rq[1]||""))||new RegExp("remplac[ée]e?\\s+par\\b[^.]*\\b"+idLisible(p.id)+"\\b","i").test(String(rq[2]||""));
+      if(!absent) continue;
+      var kq=null; try{ kq=posteAttitreLe(q,jourCalc)||posteParDefaut(q); }catch(e){}
+      if(kq!==k) continue;
+      var a=Number(m[2])+Number(m[3]||0)/60, b=Number(m[4])+Number(m[5]||0)/60;
+      if(b<=a) b+=24; if(a<W0-12){ a+=24; b+=24; }
+      var x0=Math.max(a,W0), x1=Math.min(b,W1); if(x1-x0<0.5) continue;
+      cand.push({p:p, a:x0, b:x1, plage:[a,b], A:a, B:b, com:c.trim(), remp:t}); vu=true;
+    }
+    return vu;
+  }
   cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
   var fin=W0, pris=[];
   cand.forEach(function(c){
@@ -23924,7 +23950,7 @@ function renderEquipe(){
           var relH=(o.relais||[]).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
-              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")"
+              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+(r.remp?" · remplace "+esc(r.remp)+" de "+esc(r.hor.replace("-"," à ")):" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")")
                 +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("");
           /* Une étiquette « ? » par place vide, au lieu du compte « 1 / 2 »
              (le client, le 29/09/2026). */

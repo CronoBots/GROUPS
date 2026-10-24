@@ -1105,6 +1105,21 @@ PBL, autre pause, quelques heures), la bulle du « ? » montre, sous
 « À remplacer », ce que dit la case de l'absent, par exemple « remplacé
 par KDN et FLN ».
 
+**Un remplacement nommé, heure par heure, tient la place** (le client, le
+24/10/2026, sur PLZ absent le 23/10 en PM : « la solution est sous nos
+yeux et ça affiche toujours ? »). Quand quelqu'un d'une autre pause écrit
+« remplace X de 14h à 18h » — SLT `["AM","06h-18h","remplace YRS
+remplace PYL de 14h à 18h …"]`, SVE `["N","10h-22h","… remplace PLZ de 18h
+à 22h …"]` —, que X est absent à cette pause (« Abs », « Mal ») ou nomme
+son remplaçant, et que les morceaux couvrent TOUTE la pause, ils tiennent
+la place de X à son poste : au Planning, « SLT 14-18 » et « SVE 18-22 » en
+relais (pointillé bleu), et plus de « ? ». Même règle que les deux 12 h du
+13/10 (`relaisDouze`), dont c'est le prolongement : le poste n'est pas
+celui qu'il tient le reste du temps, c'est celui de l'absent nommé. PYL se
+lit PLZ (le client). Effet sur l'année : deux places creuses de moins depuis
+le 26/09, le gluten de l’après-midi du 23/10 et le contremaître de l’après-midi du 16/10 (GPS, ATR
+« de 14h à 18h » puis YPE « de 18h à 22h »).
+
 ### Fermentation, terrain arrière, distillation se comblent entre eux (22/10/2026)
 
 Le client, sur la nuit du 28/10 : « ce n'est pas GPO qui doit aller en

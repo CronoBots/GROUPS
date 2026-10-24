@@ -2965,3 +2965,33 @@ Les agendas suivaient donc l'année du dernier classeur reçu, et l'affirmation
 mesuré, les agendas écrits avec 2026 et avec 2027 en argument sont
 identiques à l'octet. Vérificateur, manques, polyvalences, compteurs
 identiques.
+
+## Un remplacement nommé heure par heure tient la place (24/10/2026, v1039)
+
+Le client, sur deux captures du Planning du 23/10 : « PLZ absent ? »,
+puis « il faut trouver un moyen pro de l'afficher sans porter à confusion
+vu que la solution est sous nos yeux et que ça affiche toujours ? ». PLZ
+(PM, « Abs », « Remplacé par SLT et SVE ») laissait un « ? » rouge en PM
+Gluten, alors que SLT (« remplace PYL de 14h à 18h », en 6h-18h) et SVE
+(« remplace PLZ de 18h à 22h », en 10h-22h) couvraient toute la pause.
+
+**Pourquoi** : `relaisDouze` (le 13/10) n'accepte un relais d'une autre
+pause qu'au poste qu'il tient lui-même ce jour-là ; SLT était rattaché à la
+Meunerie (par YRS qu'il remplace), SVE à la Distillation (sa formation).
+Et le placement lit « PYL » brut : l'équivalence PYL = PLZ n'était qu'à
+l'affichage.
+
+**Corrigé** : un commentaire « remplace X de A à B » d'une autre pause
+compte comme relais AU POSTE DE X (`posteAttitreLe`), pour la part nommée
+de la pause, quand X y est absent ou nomme son remplaçant ; PYL se lit PLZ
+pour cette lecture (`ALIAS_TRI_AFFICHAGE`, repris par le vérificateur).
+Affichage existant des relais : « SLT 14-18 », « SVE 18-22 » en pointillé
+bleu, bulle « remplace PLZ de 14 à 18 ». Règle écrite dans
+`docs/conversion-horaire.md`.
+
+**Mesuré** : `--manques 0926` passe de 22 à 20 places creuses — le Gluten
+PM du 23/10 et le contremaître PM du 16/10 (GPS, ATR puis YPE), relus et
+justes ; les trois autres sorties du vérificateur sont identiques à
+l'octet. Au navigateur, le 23/10 à 390 px : plus de « ? » en PM Gluten,
+aucune erreur.
+
