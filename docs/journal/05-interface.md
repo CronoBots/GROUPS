@@ -4663,6 +4663,18 @@ téléphone.
   390 et 1280 ; vérificateur inchangé. « Fiche de paie » passait sur deux
   lignes à 320 : « Salaire », le nom de l'onglet.
 
+### Les intitulés des accès rapides, dictés par le client (24/10/2026, v1036)
+
+Le client donne les six intitulés, dans l'ordre : « Demande de congé »
+« Validation recyclage » « Fiche de paie » « Horaire 2026 » « Horaire du
+jour » « Certificat médical ». Appliqués tels quels (l'année d'« Horaire »
+suit l'année en cours) ; « S'abonner » sort des accès rapides et reste
+dans Réglages, puisqu'il n'est pas dans la liste. Deux mots par tuile :
+la grille passe à trois colonnes, chaque intitulé réserve deux lignes,
+toutes les tuiles ont la même hauteur (98 px à 390, 91 à 320). « Horaire
+du jour » prend une icône de calendrier du jour. Rien de coupé à 320, 390
+et 1280.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
