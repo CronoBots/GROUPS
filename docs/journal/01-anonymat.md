@@ -329,6 +329,35 @@ corbeille après l'avoir lu, et l'outil Gmail de la session ne télécharge
 pas les pièces jointes ; le client a déposé le classeur dans la
 conversation.
 
+**Le même, entré dans la ligne des noms (24/10/2026).** Le robot a
+refusé le classeur du 24/10 : **porte 6 fermée**, une seule différence,
+le même commentaire de GPS le 26/10. L'intérimaire figure désormais dans
+le tableau : le registre du convertisseur, qui passait AVANT la règle de
+l'intérimaire, a remplacé son nom de famille par son trigramme, et
+« Prénom TRI (intérimaire » ne répondait plus au motif — le prénom restait
+dans l'horaire, alors que l'anonymiseur (qui applique sa règle d'abord)
+l'avait retiré de l'export brut. C'est la porte 6, l'horaire confronté au
+classeur entier, qui l'a vu : deux outils qui ne s'empruntent rien se
+sont contredits, comme voulu. Rien n'a été installé, rien n'a fui.
+
+- **Corrigé** : dans le convertisseur, la règle de l'intérimaire passe
+  avant le registre, et prend le trigramme du registre quand la ligne des
+  noms connaît le nom (sinon `_initiales()`).
+- **Erreur commise en cherchant** : j'ai d'abord élargi le motif à
+  « mot à majuscule + trigramme en capitales (intérimaire » ; l'épreuve
+  sur exemples fictifs a montré que « Remplace GPS (intérimaire) »
+  perdait son « Remplace ». Retiré avant toute installation.
+- **Mesuré** : à blanc, la porte 6 s'ouvre ; la porte 8 s'arrête ensuite
+  sur « Falling Film » (« démarrage Falling Film », l'évaporateur déjà
+  admis sous « Falling »), admis à son tour. Le prénom et le nom, lus
+  dans la source, sont à 0 dans les sept sorties ; le commentaire donne
+  « Visite du site avec LCO (intérimaire chaudières) ». Installé : 48
+  journées modifiées chez 14 personnes, compteurs chez 7 ; intégralité,
+  anonymat, neuf règles et garde-fou à 0.
+- Le classeur a pu être relu grâce au client : l'outil Gmail ne
+  télécharge toujours pas les pièces jointes ; l'e-mail lui a été
+  transféré, et il l'a déposé dans la conversation.
+
 
 ## Une chaudière prise pour un nom (21/10/2026)
 
