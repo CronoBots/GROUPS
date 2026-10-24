@@ -185,6 +185,7 @@ const MORCEAUX=[
   ["var EQ_GROUPES=","\n];"],
   /* son mémo, déclaré juste au-dessus d'elle : la découpe prend les deux */
   ["var _finCache=","\n}"],
+  ["function pauseDesHeures(","\n}"],
   ["function equipeDuJour(","\n}"],
   ["function remplacementCM(","\n}"],
   ["function aLAtelier(","\n}"],

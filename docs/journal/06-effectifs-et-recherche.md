@@ -3062,3 +3062,35 @@ de l'apprenti (en haut ou en bas à droite) se calcule sans eux. Mesuré à
 320, 390 et 1280 px : chaque paire sur une même ligne, rien ne déborde,
 aucune erreur ; affichage seul, sous-effectifs identiques.
 
+## Des heures qui ne touchent pas sa pause : rangée par ses heures (24/10/2026, v1043)
+
+Le client : « SVE n'a rien à faire en nuit distillation si elle fait
+10-18 là-bas ». SVE le 23/10, `["N","10h-22h","pour formation
+distillation; conserver prime de nuit …"]` : N est la prime gardée ; ses
+heures ne croisent pas la nuit, et le Planning la montrait pourtant dans
+la colonne N.
+
+**Règle** (`pauseDesHeures`, dans `equipeDuJour`, reprise par le
+vérificateur) : quand l'ANNOTATION écrit une plage qui ne touche pas du
+tout la pause, la journée se range selon ses heures — contenue dans une
+pause, celle-là (JBI le 31/01, N « 19h-22h » : PM ; MMS le 02/06, AM
+« 14h-17h » : PM) ; une journée de jour à cheval sur deux pauses, D,
+comme les « 7h-15h » de formation à prime gardée déjà rangés ainsi (SVE
+le 29/09) ; sinon la pause la plus couverte (GPS le 29/01, AM « 18h-06h » :
+N). La cellule, elle, est le prévu : VBN le 09/11, `["7h-15h","N","échange
+avec FLI"]`, a fait la nuit et n'est pas touché. La paie garde sa prime.
+
+**Erreurs commises en cherchant** : la première version lisait aussi la
+plage de la CELLULE et sortait VBN, GBT, BBZ de leur nuit — six places
+creuses de plus au vérificateur ; la deuxième rangeait SVE en PM selon le
+plus grand recouvrement, où elle prenait la place du gluten et son relais
+18-22 disparaissait. L'étiquette d'une journée D coupe aussi la part tenue
+en relais (10-22 → 10-18).
+
+**Mesuré** : sous-effectifs, compteurs, calendrier et agendas identiques
+à l'octet ; polyvalences : VGG gluten 3 → 2 (le 02/06, MMS désormais
+compté au gluten de l'après-midi, ses heures réelles). Au Planning du
+23/10 : SVE 10-18 en distillation (colonne du matin, comme toute journée
+D), SLT 14-18 et SVE 18-22 côte à côte au gluten de l'après-midi ; plus de
+SVE dans la colonne N.
+
