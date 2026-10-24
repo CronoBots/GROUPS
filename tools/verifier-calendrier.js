@@ -221,6 +221,7 @@ const MORCEAUX=[
   ["function icsTexte(","\n"],
   ["function icsPlier(","\n}"],
   ["function icsSequence(","\n}"],
+  ["function partageJournee(","\n}"],
   ["function icsAgenda(","\n}"],
   /* l'agenda des congés scolaires de la Fédération Wallonie-Bruxelles */
   ["var FWB_ARRETES=","\n};"],
