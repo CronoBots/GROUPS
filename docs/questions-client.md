@@ -53,11 +53,12 @@ des questions au client ».
    vous accepterez la fenêtre de confirmation.
 8. **Une demande de congé peut-elle contenir un jour de repos ?**
    (posée le 23/10/2026, audit de l'application) Le calendrier du choix
-   montre les repos et les laisse choisir (décision du 22/10/2026, v977) ;
-   la demande part alors avec ce jour, et la base ne refuse un repos que
-   pour une modification de pause (`base/17-pause-du-jour.sql`). Faut-il
-   refuser l'envoi, retirer les repos de la demande, ou les laisser comme
-   aujourd'hui ? En attendant, rien ne change.
+   montre les repos et les laisse choisir (décision du 22/10/2026, v977),
+   mais la feuille en refuse ensuite l'envoi (« jour de repos ») ; la
+   base, elle, ne refuse un repos que pour une modification de pause
+   (`base/17-pause-du-jour.sql`). Faut-il accepter un congé posé sur un
+   repos, ou ne plus laisser choisir les repos ? En attendant, rien ne
+   change : le repos se choisit, et l'envoi le refuse.
 
 ## À la RH
 
