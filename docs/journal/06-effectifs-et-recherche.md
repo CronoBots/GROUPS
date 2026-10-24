@@ -3050,3 +3050,15 @@ AM et 14-18 en PM ? »
   « Remplace TCE de 18h à 22h » en 18h-06h : le cas de SVE). Au Planning
   du 23/10 à 390 px, aucune erreur.
 
+## Ceux qui se partagent une pause, côte à côte (24/10/2026, v1042)
+
+Le client : « quand 2 opérateurs partagent une pause, ils doivent être
+côte à côte pour comprendre le partage ». Au téléphone, la case se remplit
+en deux colonnes : GBT, SLT 14-18 / SVE 18-22, NPI — le partage était
+coupé en deux rangées. Les relais forment désormais leur propre rangée
+(`.eqrel`), pleine largeur, sous les autres, dans l'ordre des heures :
+GBT NPI / SLT 14-18 SVE 18-22 ; RCO SPS / JBS 14-18 KDN 18-22. La règle
+de l'apprenti (en haut ou en bas à droite) se calcule sans eux. Mesuré à
+320, 390 et 1280 px : chaque paire sur une même ligne, rien ne déborde,
+aucune erreur ; affichage seul, sous-effectifs identiques.
+
