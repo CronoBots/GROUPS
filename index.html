@@ -23503,6 +23503,8 @@ function renderEquipe(){
        arrivée, départ, plage collée à la pause) ; rien quand la personne
        fait sa pause telle quelle. */
     function horaireModifie(x,k){
+      if(x.horPart){ var hq=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
+        return '<small class="eqhd">'+hq(x.horPart[0])+"-"+hq(x.horPart[1])+"</small>"; }
       if(x.relais || !PF_DEB[k] || k==="D") return "";
       var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return ""; }
       if(!L || L.pv!==k || (L.hd==null && L.hf==null)) return "";
@@ -23861,6 +23863,34 @@ function renderEquipe(){
       dsAff=(vp.D.ds||[]).map(function(x){ x.deD=true; return x; });
       vp.D=null;
     }
+    /* UNE PAUSE PROLONGÉE SUR LA SUIVANTE (le client, le 24/10/2026 :
+       « pareil pour SPS, 14-22 en PM et 22-02 en N ? ») : SPS le 23/10,
+       PM prolongé jusqu'à 2 h, s'affiche 14-22 en PM et 22-2 en N, au même
+       poste ; FLI le 26/10, AM « 6h-18h » : 6-14 et 14-18. Au moins 3 h
+       dans la pause voisine, la part tenue en relais déjà retirée.
+       Affichage seul : les comptes des cases ne changent pas. */
+    var ORD=["AM","PM","N"];
+    ORD.forEach(function(gk,ig){
+      if(!vp[gk]) return;
+      vp[gk].vue.postes.forEach(function(o){
+        o.gens.slice().forEach(function(x){
+          if(x.partage || x.deD || x.horPart || x.depuisD) return;
+          var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return; }
+          if(!L || L.pv!==gk || (L.hd==null && L.hf==null)) return;
+          var d=(L.hd!=null?L.hd:PF_DEB[gk]), f=(L.hf!=null?L.hf:PF_FIN[gk]);
+          (relaisCoupe[x.p.id]||[]).forEach(function(r){
+            if(Math.abs(r.b-f)<0.01 && r.a>d+0.01) f=r.a;
+            else if(Math.abs(r.a-d)<0.01 && r.b<f-0.01) d=r.b; });
+          var vers=null, part=null;
+          if(f-PF_FIN[gk]>=3-0.01 && ig<2 && d>=PF_DEB[gk]-0.01){ vers=ORD[ig+1]; part=[PF_FIN[gk],f]; x.horPart=[d,PF_FIN[gk]]; }
+          else if(PF_DEB[gk]-d>=3-0.01 && ig>0 && f<=PF_FIN[gk]+0.01){ vers=ORD[ig-1]; part=[d,PF_DEB[gk]]; x.horPart=[PF_DEB[gk],f]; }
+          if(!vers || !vp[vers]) { delete x.horPart; return; }
+          var oV=null; vp[vers].vue.postes.forEach(function(q){ if(q.P.k===o.P.k) oV=q; });
+          if(!oV){ oV={P:o.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[vers].vue.postes.push(oV); }
+          oV.gens.push({p:x.p, r:x.r, horPart:part, partage:true});
+        });
+      });
+    });
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes

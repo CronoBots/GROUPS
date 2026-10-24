@@ -3106,3 +3106,14 @@ l'après-midi) reste au matin. Affichage seul : les comptes et manques des
 cases ne changent pas (`--manques` identique à l'octet). Mesuré à 320 px
 les 22 et 23/10 : rien ne déborde, aucune erreur.
 
+## Une pause prolongée sur la suivante, partagée aussi (24/10/2026, v1045)
+
+Le client : « pareil pour SPS, 14-22 en PM et 22-02 en N ? ». Une
+journée d'une pause dont l'horaire déborde d'au moins 3 h sur la pause
+voisine (après retrait de la part tenue en relais) s'affiche dans chaque
+colonne avec sa part, au même poste : SPS le 23/10, 14-22 en PM et 22-2
+en N ; ATR le 31/10, 14-22 et 22-1 ; FLI le 26/10, 6-14 au matin, sa part
+14-18 étant déjà dans la case fusionnée du contremaître (FLI 14-18, JBI
+18-6). Affichage seul (`--manques` identique à l'octet) ; à 320 px les
+23, 26 et 31/10 : rien ne déborde, aucune erreur.
+
