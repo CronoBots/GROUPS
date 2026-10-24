@@ -518,8 +518,13 @@ class Classeur:
                 # noms le connaît. Son nom part remplacé par son trigramme,
                 # et non effacé : « changement d'équipe de MMS » se lit
                 # encore, « changement d'équipe de » ne dit plus rien.
+                # L'intérimaire d'abord (24/10/2026) : entré dans la ligne
+                # des noms, son nom de famille devenait d'abord son trigramme,
+                # et « Prénom TRI (intérimaire » ne répondait plus au motif —
+                # le prénom restait dans l'horaire (porte 6). Il prend le
+                # trigramme du registre s'il le connaît.
+                t.remplacer(_coupes_interimaire(t.s, self.registre))
                 t.remplacer(_coupes_registre(t.s, self.registre))
-                t.remplacer(_coupes_interimaire(t.s))
                 t.sub(AUTEUR, " ")
                 t.elaguer(" .;:")
                 t.resserrer()
@@ -835,11 +840,21 @@ _INTERIM = re.compile(r"([A-ZÀ-Ý][a-zß-ÿ'’-]+)[ \t]+((?:[A-ZÀ-Ý][a-zß-�
                       r"(?=[ \t]*\([ \t]*(?:intérim|interim))")
 
 
-def _coupes_interimaire(txt):
-    """[(début, fin, trigramme)] des noms suivis de « (intérimaire »."""
+def _coupes_interimaire(txt, registre=None):
+    """[(début, fin, trigramme)] des noms suivis de « (intérimaire ». Le
+    trigramme est celui du registre quand la ligne des noms le connaît
+    (le nom de famille, ou le nom entier), sinon celui de _initiales()."""
     out = []
     for m in _INTERIM.finditer(txt):
-        tri = _initiales(m.group(1) + " " + m.group(2).strip())
+        tri = None
+        if registre and registre[0]:
+            motif, tris = registre
+            for k in (2, 1):
+                r = motif.search(_plier(m.group(k)))
+                if r and m.group(k)[r.start()].isupper():
+                    tri = tris[r.group(0)]
+                    break
+        tri = tri or _initiales(m.group(1) + " " + m.group(2).strip())
         if tri:
             out.append((m.start(), m.start(2) + len(m.group(2).rstrip()), tri))
     return out
