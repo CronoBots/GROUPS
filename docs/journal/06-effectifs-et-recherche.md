@@ -2995,3 +2995,30 @@ justes ; les trois autres sorties du vérificateur sont identiques à
 l'octet. Au navigateur, le 23/10 à 390 px : plus de « ? » en PM Gluten,
 aucune erreur.
 
+## Deux remplacements dans un commentaire : chacun ses heures (24/10/2026, v1040)
+
+Le client, juste après : « surtout que sur les screens SLT n'est même pas
+en meunerie pour remplacer YRS alors qu'il y a le trou ». SLT le 23/10,
+`["AM","06h-18h","remplace YRS remplace PYL de 14h à 18h …"]` : la
+lecture active de « remplace X » (13/10) l'aurait mis à la place de YRS,
+mais `remplPartiel()` voyait « de 14h à 18h » n'importe où dans le
+commentaire et jugeait le tout « quelques heures » — l'heure était celle
+du second remplacement. L'application se contentait de proposer
+« Gluten → Meunerie », et la meunerie du matin restait un « ? ».
+
+**Corrigé** : les clauses « remplace TRI de A à B » portent leurs propres
+heures et sont retirées avant le test, s'il reste un autre « remplace
+TRI » ; sinon rien ne change. Une première version coupait le commentaire
+à chaque « remplac » : elle rendait entier JKS le 17/09 (« Remplace GDT
+qui devait remplacer APN Arrivée à 16h »), dont l'heure vaut pour la
+journée ; resserrée avant tout commit.
+
+**Mesuré** : sous-effectifs depuis le 26/09 identiques ; polyvalences :
+DWS, FPA, JKS, SLT +1 jour chacun ; agendas : neuf journées changent de
+poste, relues une à une — CDE 15/01 (remplace SBZ en N), DWS 25-26/07 et
+29/08, FLN 17/05 (remplace SPT), FPA 23/09 et DWS 29/08 (remplace APN),
+JKS 23/05 (remplace BLR), QBY 22/06 (remplace RDT, puis TCE de 14h à
+18h), SLT 23/10 (remplace YRS). Au Planning du 23/10 : SLT en meunerie
+(6-18) avec SMK et SLI, plus de « ? » le matin ; le gluten du matin
+garde RDT et MMS.
+
