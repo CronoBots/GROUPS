@@ -3792,7 +3792,7 @@ polyvalence dépend du jour), tous les essais de la session.
 - La recherche de l'Horaire production parcourt toutes les feuilles
 - Tableau de bord : la carte « Demandes à traiter » compte la même chose que « À valider »
 - Personnel et Absences au PC : l'en-tête des colonnes reste à l'écran
-- Au téléphone, la case touchée reste au-dessus de la feuille
+- Au téléphone, la case touchée reste au-dessus de la feuille [FAUX, mesuré le 23/10/2026 : elle passait sous l'en-tête collé ou sous la feuille ; corrigé en v1030]
 - Absences : l'horizon passe le 31 décembre
 - Tableau de bord avant 6 h : le libellé dit la nuit
 - Historique au PC : la carte est centrée
@@ -4059,7 +4059,7 @@ Cinq zones sont rendues :
   simulé, CPU ×4), elle avance au repos, une journée à la fois, et passe
   son résultat aux Effectifs ; la grille de l'année n'est plus refaite à
   chaque retour. Non atteint : la seconde ouverture du planning de l'espace RH reste
-  vers 900 ms ×4, c'est la mise en page de 18 000 cellules et non plus
+  vers 900 ms ×4 [FAUX, mesuré le 23/10/2026 : 1,9 à 3,5 s ×4 ; voir v1030], c'est la mise en page de 18 000 cellules et non plus
   du JavaScript.
 - **Équipes et effectifs** : une date de 2027 dans la Recherche ouvre le
   bon jour ; une seule section « Janvier 2027 » dans Congés et repos ;
@@ -4440,6 +4440,97 @@ Le client, à la proposition de v1028 (sortir « Mes congés », « Année » et
   - **page entière** : 3 436 → 3 520 px à 390 (la carte a son en-tête), 3 842 → 3 951 px à 320, 2 450 → 2 060 px à 1280 ;
   - aucun débordement pour huit profils aux trois largeurs, aucune erreur ;
   - les quatre sorties du vérificateur sont identiques, les agendas inchangés, le fonctionnement hors ligne correct.
+
+### Audit des sept zones, Impeccable et playwright-cli (23-24/10/2026, v1030)
+
+Le client : « utilise les nouveaux skills pour tout optimiser ». Sept
+auditeurs en parallèle (la coquille ; l'Accueil ; le Planning et les Équipes ; le
+Salaire ; les Effectifs et la Recherche ; l'espace RH et la Direction ;
+les demandes), chacun avec
+Impeccable (version restreinte, sans lanceur) et playwright-cli, de 320 à
+1920 px, rôles opérateur, hiérarchie, RH et non connecté. Puis un
+correcteur par zone, dans une copie isolée, qui remesure chaque constat
+avant d'y toucher (sceptique d'abord) ; les sept correctifs fusionnés ici
+(`git apply --3way`, deux conflits résolus en gardant les deux côtés).
+Aucune règle de lecture de l'horaire, de placement ni de paie n'a changé :
+les quatre sorties du vérificateur sont identiques à l'octet à celles de
+`main` à la même date, `--agendas` ne change rien, `comparer-fiches.py`
+idem (Salaire).
+
+Ce qui a changé, par zone (avant → après, mesuré) :
+
+- **Coquille.** Le guide d'installation ouvert par l'historique ne se
+  fermait plus (ni la croix, ni « Continuer », ni Échap) : il passe par la pile commune
+  (`inst`) et piège le Tab. « Aller au contenu » visible au PC ; erreurs de
+  connexion annoncées (`role=alert`, `aria-invalid`) ; « Importer » est un
+  bouton ; feuille « Horaire modifié » et feuille Plus piègent le Tab ; la feuille Plus
+  a une ligne Réglages et un fondu quand elle déborde ; menu du PC : fondu
+  au-dessus du pied et logo resserré sous 860 px de haut (entrées gardées à
+  41 px, v1006) ; noms accessibles des pastilles ; un h1 caché.
+- **Accueil.** Le jour du changement d'heure, le héros se trompait d'une
+  heure (SKS à 5 h 15 le 25/10 « en poste, encore 7 h 45 ») : les heures se
+  comparent en heure murale (`pfInstant`), éprouvé le 25/10/2026 et le
+  28/03/2027 ; la même faute dans `pausesFinies` (Effectifs) corrigée à la
+  fusion. L'Accueil se refait à la minute, au retour au premier plan et au
+  changement de jour (avant : « Auj. 23 » le samedi). Base injoignable :
+  « Impossible de vérifier vos demandes » avec « Réessayer », jamais plus la
+  coche verte. Le geste retour après le prochain poste, la paie, l'équipe ou
+  les polyvalences revient à l'Accueil au lieu de quitter l'application.
+  Relève annoncée une demi-heure trop tôt (« 1 arrivée prévue ») : l'heure de
+  la pause, et non celle de la remise. « Encore » vide en fin de poste ;
+  « Prestées » d'un mois à venir devient « Prévues » / « Au planning » ;
+  calendrier au clavier par flèches (31 arrêts de Tab → 1) ; héros au PC :
+  Ma semaine à droite pour tous, vide réduit de moitié. La reprise du
+  dernier mois au démarrage est GARDÉE (bouton « revenir à aujourd'hui »
+  voulu par le client le 19/10, v825) ; seul le raccourci paie ouvre le mois
+  du jour.
+- **Planning et Équipes.** Polyvalences exemptées : « Exempté » au lieu de
+  « 0/10 » ; 163 trigrammes atteignables au clavier (0 avant) ; le second
+  GBT ouvrait les dates du premier ; date coupée de 381 à 441 px ; glissé
+  depuis le bord qui quittait l'application (`overscroll-behavior-x`) ;
+  feuille des dates vraiment modale, avec retour ; « app 20 · RH 22 »
+  expliqué. Légende de tablette gardée (décision du 21/10, v908).
+- **Salaire.** Focus perdu à chaque frappe dans « Comparer avec ma fiche » ;
+  impression : jetons de couleur pour le papier (contraste 1,2 → 18,9:1),
+  un en-tête mois et personne, 6 → 4 pages ; « Tout concorde » dès une ligne
+  sur dix ; « surtout » à contresens (1 mois sur 24) ; « −0,00 € » ; zoom
+  iOS sous 16 px ; signe moins au clavier iOS. `#enHaut` sur les champs :
+  gardé (choix du client du 30/09 et du 19/10).
+- **Effectifs et Recherche.** En-têtes de journée rognés (27 → 0 à 320 px) ;
+  libellés uniques par catégorie ; résultat annoncé (`role=status`) ;
+  « Vérifier » répond en 21 ms au lieu de 430 (calcul inchangé) ; rappels
+  évitables en cartes, 3 291 → 2 307 px ; « Cette nuit » avant 6 h. Le
+  motif du congé à côté du trigramme : refusé (décision du 26/09).
+- **Espace RH et Direction.** Un clic sur un texte inerte de la Direction
+  passait à « Analyses » et remontait en haut : la remontée s'arrête à
+  `.dir-page`. Horaire production : la grille se bâtissait DEUX fois à la
+  première ouverture (les noms arrivant de la base) — les noms s'écrivent
+  désormais en place, à l'octet près ; `scrollIntoView` sur un menu caché
+  retiré. Le rendu par morceaux n'est PAS fait : l'équivalence (cellules du
+  mois sur plusieurs lignes, défilement, aller à une date) n'était pas
+  garantie. Contrastes de la Direction (2,38:1 → 8,27:1) ; « Demandes à
+  traiter » 2 contre 3 (la seconde copie de la règle, `wsNbValider`) ; la
+  case touchée au téléphone passait sous la feuille ; saisie d'une case
+  avec étiquettes et cibles de 44 px ; recherche sans résultat propre.
+- **Demandes.** « + Nouvelle » effaçait une feuille remplie sans demander ;
+  « Remplir une période » inscrivait des jours déjà en congé ; focus rendu
+  après chaque envoi ; calendrier du choix au clavier ; « Modifier » dans la
+  feuille ; une liste en panne dit « Réessayer » (drapeaux `GR.demandesErr`,
+  `GR.rcErr`, `GR.hsErr`, lus par l'Accueil). Le repos refusé à l'envoi est
+  gardé, la question est au client (`docs/questions-client.md`, n° 8).
+
+Fusion : la pastille des onglets « À valider », montée de 4 px au
+téléphone par la zone des demandes, était rognée par le bord de la carte —
+vu sur la capture, la bascule s'ouvre de 4 px en haut. Non-régression
+(60 vues, `main` et fusion capturés le même jour) : tous les textes changés
+sont voulus ; les reculs restants sont des éléments derrière l'espace
+(hauteur nulle) ou le bouton « + Nouvelle » compacté (zone de 44 px par
+`::after`). Hors ligne et connexion (gate2) : sans erreur.
+
+Erreur commise : la question 8 (repos dans une demande) a d'abord dit que
+la demande partait avec le repos ; la feuille le refuse à l'envoi. Corrigée
+le lendemain. Un correcteur a lancé `playwright-cli close-all`, qui ferme
+les sessions des AUTRES : en parallèle, on ferme ses sessions par leur nom.
 
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
