@@ -15546,6 +15546,60 @@ function icsSequence(stamp){
   if(!m) return 0;
   return Math.max(0,Math.round((Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-Date.UTC(2026,0,1))/60000));
 }
+/* LE PARTAGE D'UNE JOURNÉE ÉCRIT DANS LA NOTE DE SON ÉVÉNEMENT (le client, le
+   24/10/2026 : « pour les agendas, il ne faut pas diviser en 2 événements
+   mais l'indiquer en commentaire d'un seul événement avec l'horaire
+   complet »). Un seul événement, de pfDebut à pfFin ; la note dit les
+   morceaux, comme le Planning : SPS le 23/10, « Après-midi 14 h – 22 h ·
+   Chaudières ; nuit 22 h – 2 h · Chaudières » ; SLT, « Matin 6 h – 14 h ·
+   Meunerie ; après-midi 14 h – 18 h · Gluten, remplace PLZ ». Rien quand la
+   journée tient dans une pause, ou n'en déborde que de moins de 3 h sans
+   « remplace X de A à B ». */
+function partageJournee(db,p,x,jour){
+  if(!x || PF_DEB[x.pv]==null) return "";
+  var a=pfDebut(x), b=pfFin(x); if(!(b>a)) return "";
+  var B=[6,14,22,30,38], NOM={6:"matin",14:"après-midi",22:"nuit",30:"matin"};
+  var POS={}; POSTES_TRAVAIL.forEach(function(P){ POS[P.k]=P.t; });
+  var propre=POS[x.ka||x.k]||"";
+  /* les clauses « remplace X de A à B » : le poste de X pour ces heures */
+  var cl=[], c=String((x.raw&&x.raw[2])||""), rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?'?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, m;
+  while((m=rx.exec(c))){
+    var t=m[1].toUpperCase(); t=(typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t;
+    var q=db.people.filter(function(z){ return idLisible(z.id)===t; })[0]; if(!q) continue;
+    var u=Number(m[2])+Number(m[3]||0)/60, v=Number(m[4])+Number(m[5]||0)/60; if(v<=u) v+=24; if(u<a-12){ u+=24; v+=24; }
+    var kq=null; try{ kq=posteAttitreLe(q,jour)||posteParDefaut(q); }catch(e){}
+    cl.push({a:u, b:v, t:t, poste:POS[kq]||""});
+  }
+  var bornes=[a,b]; B.forEach(function(h){ if(h>a+0.01 && h<b-0.01) bornes.push(h); });
+  cl.forEach(function(r){ [r.a,r.b].forEach(function(h){ if(h>a+0.01 && h<b-0.01) bornes.push(h); }); });
+  bornes.sort(function(u,v){ return u-v; });
+  var seg=[];
+  for(var i=0;i+1<bornes.length;i++){
+    var u=bornes[i], v=bornes[i+1]; if(v-u<0.01) continue;
+    var r=cl.filter(function(z){ return u>=z.a-0.01 && v<=z.b+0.01; })[0];
+    var pz=B.filter(function(h){ return h<=u+0.01; }).pop(); if(pz===undefined) pz=u<6?-2:6;
+    var cle=(NOM[pz]||"nuit")+"|"+(r?r.poste+"|"+r.t:propre+"|");
+    var der=seg[seg.length-1];
+    if(der && der.cle===cle) der.b=v; else seg.push({cle:cle, a:u, b:v, nom:NOM[pz]||"nuit", poste:r?r.poste:propre, remp:r?r.t:""});
+  }
+  /* la remise de pause (5 h 30 – 6 h), un bout de moins d'une heure sans
+     remplacement : il rejoint son voisin, il ne fait pas un morceau */
+  for(var k=0;k<seg.length;k++){
+    if(seg.length<2) break;
+    if(seg[k].b-seg[k].a<1-0.01 && !seg[k].remp){
+      var v2=k+1<seg.length?seg[k+1]:seg[k-1];
+      v2.a=Math.min(v2.a,seg[k].a); v2.b=Math.max(v2.b,seg[k].b); seg.splice(k,1); k--;
+    }
+  }
+  if(seg.length<2) return "";
+  /* hors de la pause la plus longue : au moins 3 h, ou un remplacement nommé */
+  var parNom={}, tot=0; seg.forEach(function(s0){ parNom[s0.nom]=(parNom[s0.nom]||0)+s0.b-s0.a; tot+=s0.b-s0.a; });
+  var hors=tot-Math.max.apply(null,Object.keys(parNom).map(function(k2){ return parNom[k2]; }));
+  if(!cl.length && hors<3-0.01) return "";
+  function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return e+"\u00a0h"+(mn?"\u00a0"+pad2(mn):""); }
+  var t=seg.map(function(s0){ return s0.nom+" "+hh(s0.a)+" – "+hh(s0.b)+(s0.poste?" · "+s0.poste:"")+(s0.remp?", remplace "+s0.remp:""); }).join(" ; ");
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
 function icsAgenda(id,debut,nJours,stamp){
   function f2(n){ return (n<10?"0":"")+n; }
   function jj(d){ return d.getFullYear()+f2(d.getMonth()+1)+f2(d.getDate()); }
@@ -15600,7 +15654,8 @@ function icsAgenda(id,debut,nJours,stamp){
           :"Nuit du passage à l'heure d'été : à 2 h, il est 3 h. Une heure de moins au poste ; la nuit reste payée comme d'habitude.";
     }
     if(chg) ev[2]+=" · changement d'heure";
-    var note=[com?com.charAt(0).toUpperCase()+com.slice(1):"",chg].filter(Boolean).join("\n\n");
+    var part=""; try{ part=x.presente?partageJournee(db,p,x,d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()):""; }catch(e){ part=""; }
+    var note=[part,com?com.charAt(0).toUpperCase()+com.slice(1):"",chg].filter(Boolean).join("\n\n");
     if(note) ev.push("DESCRIPTION:"+icsTexte(note));
     /* UN NUMÉRO DE RÉVISION (le client, le 20/10/2026 : « sur l'agenda de
        mon ami sur Android, il n'a toujours pas le commentaire pour le

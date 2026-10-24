@@ -3117,3 +3117,34 @@ en N ; ATR le 31/10, 14-22 et 22-1 ; FLI le 26/10, 6-14 au matin, sa part
 18-6). Affichage seul (`--manques` identique à l'octet) ; à 320 px les
 23, 26 et 31/10 : rien ne déborde, aucune erreur.
 
+## Les primes de pause, et le partage dans la note de l'agenda (24/10/2026, v1046)
+
+Le client : « mais faire attention à cela pour les primes de pauses. Et
+par contre pour les agendas, il ne faut pas diviser en 2 événements mais
+l'indiquer en commentaire d'un seul événement avec l'horaire complet ».
+
+**Primes** : rien de ce qui a été fait ce soir au Planning (relais nommés,
+remplacements à plusieurs clauses, formation pour quelques heures, rangement
+par les heures, parts par colonne) ne passe par la paie, qui lit la case
+(`lireJournee`) : la prime reste celle de la case — PM pour SPS le 23/10,
+N pour SVE. **Mesuré** : `comparer-fiches.py VBN` et `--compteurs`
+identiques à l'octet entre la version d'avant ces changements (f7ef817,
+même horaire) et celle-ci.
+
+**Agendas** : toujours un seul événement, de l'heure d'arrivée à l'heure
+de départ ; sa note commence désormais par le partage de la journée
+(`partageJournee`, reprise par le vérificateur), puis le commentaire :
+SPS « Après-midi 14 h – 22 h · Chaudières ; nuit 22 h – 2 h · Chaudières » ;
+SLT « Matin 6 h – 14 h · Meunerie ; après-midi 14 h – 18 h · Gluten,
+remplace PLZ » ; SVE « Matin 10 h – 14 h · Distillation ; après-midi
+14 h – 18 h · Distillation ; après-midi 18 h – 22 h · Gluten, remplace
+PLZ ». Seulement quand la journée sort de sa pause la plus longue d'au
+moins 3 h, ou nomme un remplacement de quelques heures. **Erreur commise** :
+la première version comptait la remise de pause (5 h 30 – 6 h) comme un
+morceau et mesurait le seuil depuis le premier morceau — « Nuit 5 h 30 –
+6 h ; matin 6 h – 14 h » chez FLI ; un bout de moins d'une heure rejoint
+désormais son voisin. 487 événements de l'année reçoivent leur partage
+(surtout des journées de 12 h) ; aucun titre ni horaire d'événement ne
+change ; les notifications, qui comparent pause, poste et heures, ne
+s'en émeuvent pas. Vérificateur identique à l'octet.
+
