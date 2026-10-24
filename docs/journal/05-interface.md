@@ -4557,6 +4557,37 @@ on peut décider de venir travailler ou modifier son jour de congé ».
   prévue, donc sans prime de rappel ; le classeur écrit un rappel
   `["-","AM"]`, avec la prime. Question au client (n° 8 nouvelle).
 
+### Un congé déjà posé se choisit, pour l'annuler ou en changer le type (24/10/2026, v1032)
+
+Le client, le 24/10/2026, à la suite : « Un congé peut être choisi
+également pour annuler ou modifier son type ». Jusque-là, un jour déjà en
+congé était grisé au calendrier du choix, et l'audit de la veille l'avait
+même bloqué dans « Remplir une période ».
+
+- **Calendrier du choix** : un jour en congé ou en récupération, journée
+  entière, se choisit (« déjà CP, à annuler ou à changer »). Restent
+  bloqués : une partie de journée (déjà choisissable), une absence ou une
+  maladie (le client parle d'un congé), un jour couvert par une demande
+  encore en attente (on modifie cette demande). « Remplir une période »
+  continue de sauter ces jours.
+- **Feuille** : sur un tel jour, le type propose en tête « Congé déjà
+  posé : CP › Annuler le congé » ; un autre type le change ; le même type
+  est refusé (« déjà CP, choisissez un autre type ou « Annuler le congé » »).
+- **Affichage** : « CP annulé » et « CP → VA » dans le tableau de la carte,
+  la ligne « annulation du CP » et « CP → VA » sur la feuille papier, « Annulation de
+  congé » dans les étiquettes (carte, Accueil).
+- **Base** (`base/30-annuler-ou-changer-un-conge.sql`, appliquée) : la
+  base lit elle-même le congé posé (« avant », un code demandable) ;
+  acceptée, l'annulation retire l'annotation (la journée retrouve sa
+  pause, « congé CP annulé (demande n° N) »), le changement la remplace
+  (« Demande n° N · remplace CP »). Une demande faite seulement
+  d'annulations porte le code « annulation ».
+- **Épreuve** (VBN, CP du 05/10) : envoi `{"j":"2026-10-05","annule":true}`,
+  puis `{"j":"2026-10-05","code":"VA"}` ; CP sur CP bloqué ; cartes,
+  feuille et liste « À valider » rendues sans erreur. Les quatre sorties du
+  vérificateur sont inchangées. Les compteurs prévus d'une carte comptent
+  le nouveau type sans rendre l'ancien : un aperçu, la base fait foi.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
