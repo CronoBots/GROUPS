@@ -21883,6 +21883,18 @@ function atelierDuRemplace(raw,parId,qui,ce){
 /* Un remplacement de quelques heures : une heure écrite dans le
    commentaire (« de 14h à 18h », « jusque 10h », « 12:30 »), ou une plage
    de moins de 8 h dans la cellule ou l'annotation (GST le 30/04, 06h-11h). */
+/* Le seul remplacement écrit est une clause « remplace X de A à B » :
+   quelques heures chez X, et rien d'autre (SVE le 23/10). « Remplace SPT …
+   6h HS » (LHR le 02/10) n'en est pas une : des heures en plus, pas une
+   plage. */
+function rempSeulementHoraire(raw){
+  var c=String((raw&&raw[2])||"");
+  var rxCl=/\bremplac\w*\s+[A-Z]{3}\s+de\s+\d{1,2}\s*h\s*\d{0,2}'?\s*(?:a|\u00e0)\s*\d{1,2}\s*h\s*\d{0,2}'?/gi;
+  var reste=c.replace(rxCl," ");
+  /* « échange avec JKS, remplace JKS de 20h à 22h » (LHR le 17/05) :
+     l'échange donne toute la pause, les deux heures viennent en plus */
+  return reste!==c && !/\bremplac\w*\s+[A-Z]{3}\b|[ée]change/i.test(reste);
+}
 function remplPartiel(raw){
   var c=String((raw&&raw[2])||""), i, pl;
   /* DEUX REMPLACEMENTS DANS UN COMMENTAIRE : chacun ses heures (le client,
@@ -23018,7 +23030,11 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        condition qu'il ait la polyvalence du poste (atelierDuRemplace). Une
        cellule qui écrit l'atelier garde le dernier mot. */
     var k=null;
-    if(enFormation(x.p,jourCalc) && !posteEcrit(x.p.d[mmdd]))
+    /* … sauf pour quelques heures (le client, le 24/10/2026 : « SVE doit
+       être marquée 10-18 en distillation ») : SVE le 23/10, « pour
+       formation distillation … remplace PLZ de 18h à 22h », partait au
+       gluten de PLZ ; ses quatre heures sont un relais (relaisDouze). */
+    if(enFormation(x.p,jourCalc) && !posteEcrit(x.p.d[mmdd]) && !rempSeulementHoraire(x.p.d[mmdd]))
       k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
     /* « REMPLACE X » PRIME SUR LE POSTE ATTITRÉ, pour tout le monde. Le
        client, le 13/10/2026, sur SLT le 28/09 (["PM","","remplace CDE"],
@@ -23189,7 +23205,7 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
       if(kp!==k) return;
-      cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim()});
+      cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim(), dec:dec});
     });
   });
   function remplaceNomme(p,raw,md){
@@ -23205,7 +23221,7 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
       var a=Number(m[2])+Number(m[3]||0)/60, b=Number(m[4])+Number(m[5]||0)/60;
       if(b<=a) b+=24; if(a<W0-12){ a+=24; b+=24; }
       var x0=Math.max(a,W0), x1=Math.min(b,W1); if(x1-x0<0.5) continue;
-      cand.push({p:p, a:x0, b:x1, plage:[a,b], A:a, B:b, com:c.trim(), remp:t}); vu=true;
+      cand.push({p:p, a:x0, b:x1, plage:[a,b], A:a, B:b, com:c.trim(), remp:t, dec:0}); vu=true;
     }
     return vu;
   }
@@ -23442,8 +23458,11 @@ function renderEquipe(){
       if(x.relais || !PF_DEB[k] || k==="D") return "";
       var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return ""; }
       if(!L || L.pv!==k || (L.hd==null && L.hf==null)) return "";
-      var d=(L.hd!=null?L.hd:PF_DEB[k]), f=(L.hf!=null?L.hf:PF_FIN[k]);
-      if(Math.abs(d-PF_DEB[k])<0.01 && Math.abs(f-PF_FIN[k])<0.01) return "";
+      var d=(L.hd!=null?L.hd:PF_DEB[k]), f=(L.hf!=null?L.hf:PF_FIN[k]), coupe=false;
+      (relaisCoupe[x.p.id]||[]).forEach(function(r){
+        if(Math.abs(r.b-f)<0.01 && r.a>d+0.01){ f=r.a; coupe=true; }
+        else if(Math.abs(r.a-d)<0.01 && r.b<f-0.01){ d=r.b; coupe=true; } });
+      if(!coupe && Math.abs(d-PF_DEB[k])<0.01 && Math.abs(f-PF_FIN[k])<0.01) return "";
       function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
         return mn?e+"h"+pad2(mn):String(e); }
       return '<small class="eqhd">'+hh(d)+"-"+hh(f)+"</small>";
@@ -23587,6 +23606,13 @@ function renderEquipe(){
                           : (a.p.cat<b.p.cat?-1:1); });
       vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null)};
     });
+    /* CHACUN SES HEURES DANS CHAQUE PAUSE (le client, le 24/10/2026 :
+       « JBS 6-14 en AM et 14-18 en PM, c'est pas mieux d'écrire comme ça que
+       JBS 6-18 en AM et 14-18 en PM ? ») : la part tenue en relais dans
+       une autre pause, le même jour, sort du badge de sa propre pause. */
+    var relaisCoupe={};
+    Object.keys(vp).forEach(function(k){ ((vp[k].vue||{}).postes||[]).forEach(function(o){
+      (o.relais||[]).forEach(function(r){ if(!r.dec) (relaisCoupe[r.p.id]=relaisCoupe[r.p.id]||[]).push(r); }); }); });
     /* BLR ET YRS EN D VONT DANS LA COLONNE AM, À LA MEUNERIE. Le client,
        le 28/09/2026 : « si BLR ou YRS est en D il faut les mettre dans la
        colonne AM mais avec leurs horaires 7h30-16 en dessous ; ils sont en
