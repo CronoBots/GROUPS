@@ -3094,3 +3094,15 @@ compté au gluten de l'après-midi, ses heures réelles). Au Planning du
 D), SLT 14-18 et SVE 18-22 côte à côte au gluten de l'après-midi ; plus de
 SVE dans la colonne N.
 
+## Une journée de jour partagée entre le matin et l'après-midi (24/10/2026, v1044)
+
+Le client : « SVE ne doit pas être affichée 10-14 en AM et 14-18 en PM ? »
+Comme les relais (JBS 6-14 / 14-18) : une journée rangée en D qui porte
+au moins 3 h sur l'après-midi, sans dépasser 22 h, s'affiche dans chaque
+colonne avec sa part, au même poste — SVE le 23/10 : 10-14 (distillation,
+matin), 14-18 (distillation, après-midi), puis 18-22 en relais au gluten ;
+CDT le 22/10 (formation, 10h-18h) : 10-14 et 14-18. Un « 7-15 » (une heure
+l'après-midi) reste au matin. Affichage seul : les comptes et manques des
+cases ne changent pas (`--manques` identique à l'octet). Mesuré à 320 px
+les 22 et 23/10 : rien ne déborde, aucune erreur.
+

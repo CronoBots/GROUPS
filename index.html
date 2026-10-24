@@ -23417,6 +23417,10 @@ function renderEquipe(){
       return !!r && /^d$/i.test(String(r[0]||"").trim()) && /\d\s*h?\s*\d*\s*-\s*\d/.test(String(r[1]||""));
     }
     function horaireEcritD(x){
+      /* une journée de jour partagée entre le matin et l'après-midi : la
+         part de la colonne (SVE le 23/10 : 10-14, puis 14-18) */
+      if(x.horPart){ var hp=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
+        return '<small class="eqhd">'+hp(x.horPart[0])+"-"+hp(x.horPart[1])+"</small>"; }
       /* « 8-16 » et non plus « 7h30-16 », puis « Cons. ». Le client, le
          28/09/2026 : « 7h30-16 » passait à la ligne dans toutes les cases
          de téléphone, puis « écrire 8-16, ça ira mieux ». BLR ou YRS rangé
@@ -23832,7 +23836,25 @@ function renderEquipe(){
         if(!oD.gens.length) return;
         var oA=null; vA.postes.forEach(function(o){ if(o.P.k===oD.P.k) oA=o; });
         if(!oA){ oA={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
-        oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x); });
+        oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x);
+          /* UNE JOURNÉE DE JOUR À CHEVAL SUR LE MATIN ET L'APRÈS-MIDI (le
+             client, le 24/10/2026 : « SVE ne doit pas être affichée 10-14 en
+             AM et 14-18 en PM ? »), comme les relais : chaque colonne sa part,
+             au même poste. Seulement quand l'après-midi en porte au moins
+             3 h : un « 7-15 » reste au matin. Affichage seul : les comptes
+             de la case AM ne changent pas, ni ceux de l'après-midi. */
+          var raw=x.p.d&&x.p.d[mmdd]||[], pl=plageMention(String(raw[1]||""))||plageMention(String(raw[0]||""));
+          if(!pl || !vp.PM) return;
+          var a0=pl[0], b0=pl[1]<=pl[0]?pl[1]+24:pl[1];
+          (relaisCoupe[x.p.id]||[]).forEach(function(r){
+            if(Math.abs(r.b-b0)<0.01 && r.a>a0+0.01) b0=r.a;
+            else if(Math.abs(r.a-a0)<0.01 && r.b<b0-0.01) a0=r.b; });
+          if(!(a0<PF_DEB.PM-0.01 && b0-PF_DEB.PM>=3-0.01 && b0<=PF_FIN.PM+0.01)) return;
+          x.horPart=[a0,PF_DEB.PM];
+          var oP=null; vp.PM.vue.postes.forEach(function(o){ if(o.P.k===oD.P.k) oP=o; });
+          if(!oP){ oP={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp.PM.vue.postes.push(oP); }
+          oP.gens.push({p:x.p, r:x.r, deD:true, horPart:[PF_DEB.PM,b0], partage:true});
+        });
       });
       vA.formation=(vA.formation||[]).concat((vp.D.vue.formation||[]).map(function(x){ x.deD=true; return x; }));
       incD=(vp.D.vue.inconnus||[]).map(function(x){ x.deD=true; return x; });
