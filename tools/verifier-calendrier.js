@@ -145,6 +145,7 @@ const MORCEAUX=[
   ["function roleDeFeuille(","\n}"],
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
+  ["function rempSeulementHoraire(","\n}"],
   ["function remplPartiel(","\n}"],
   ["function nommesParAbsents(","\n}"],
   ["function peutPrendreRemplace(","\n}"],

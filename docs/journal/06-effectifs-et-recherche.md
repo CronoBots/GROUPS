@@ -3022,3 +3022,31 @@ JKS 23/05 (remplace BLR), QBY 22/06 (remplace RDT, puis TCE de 14h à
 (6-18) avec SMK et SLI, plus de « ? » le matin ; le gluten du matin
 garde RDT et MMS.
 
+## Chacun ses heures dans chaque pause, et SVE en distillation (24/10/2026, v1041)
+
+Le client : « Et SVE doit être marquée 10-18 en distillation ? JBS 6-14
+en AM et 14-18 en PM, c'est pas mieux d'écrire comme ça que JBS 6-18 en
+AM et 14-18 en PM ? »
+
+- **Le badge de sa propre pause perd la part tenue en relais**, le même
+  jour, dans une autre pause (`relaisCoupe`, dans `renderEquipe`) ; quand
+  il y a eu coupe, l'horaire s'écrit même s'il redevient celui de la
+  pause, pour que les deux morceaux se lisent ensemble. Le 23/10 : SLT
+  6-14 (meunerie AM) et 14-18 (gluten PM) ; SVE 10-18 et 18-22 ; JBS 6-14
+  et 14-18 ; KDN 22-6 et 18-22.
+- **SVE en distillation** : « pour formation distillation … remplace PLZ
+  de 18h à 22h » ; la règle des personnes en formation (« remplace X »
+  envoie au poste de X, le 29/09) l'envoyait au gluten de PLZ pour ses
+  quatre heures. Elle ne vaut plus quand le seul remplacement écrit est
+  une clause « remplace X de A à B » (`rempSeulementHoraire`, repris par
+  le vérificateur), sauf « échange avec ».
+- **Erreurs commises en cherchant** : d'abord avec `remplPartiel()`, qui
+  aurait sorti LHR le 02/10 de la meunerie de SPT (« Remplace SPT … 6h
+  HS » : des heures en plus, pas une plage) ; puis sans l'exception de
+  l'échange, qui sortait LHR le 17/05 (« échange avec JKS, remplace JKS de
+  20h à 22h »). Le vérificateur les a montrés tous deux.
+- **Mesuré** : sous-effectifs, compteurs, calendrier et agendas identiques
+  à l'octet ; polyvalences : LHR meunerie 12 → 11, le 23/06 (en formation,
+  « Remplace TCE de 18h à 22h » en 18h-06h : le cas de SVE). Au Planning
+  du 23/10 à 390 px, aucune erreur.
+
