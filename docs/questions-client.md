@@ -51,14 +51,13 @@ des questions au client ».
    instruction qui efface. Elles sont déjà invisibles ; l'effacement
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
-8. **Une demande de congé peut-elle contenir un jour de repos ?**
-   (posée le 23/10/2026, audit de l'application) Le calendrier du choix
-   montre les repos et les laisse choisir (décision du 22/10/2026, v977),
-   mais la feuille en refuse ensuite l'envoi (« jour de repos ») ; la
-   base, elle, ne refuse un repos que pour une modification de pause
-   (`base/17-pause-du-jour.sql`). Faut-il accepter un congé posé sur un
-   repos, ou ne plus laisser choisir les repos ? En attendant, rien ne
-   change : le repos se choisit, et l'envoi le refuse.
+8. **Venir travailler un jour de repos, à sa demande : prime de rappel ?**
+   (posée le 24/10/2026) Depuis votre réponse du 24/10, un repos se
+   demande pour y venir travailler ; acceptée, la journée s'inscrit au
+   planning comme la pause choisie (« changement - -> AM »), et
+   l'application la lit comme une pause prévue, SANS prime de rappel.
+   Le classeur écrit un rappel sur un repos `["-","AM"]`, avec la prime.
+   Une venue demandée par la personne est-elle un rappel ?
 
 ## À la RH
 

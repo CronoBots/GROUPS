@@ -4532,6 +4532,31 @@ la demande partait avec le repos ; la feuille le refuse à l'envoi. Corrigée
 le lendemain. Un correcteur a lancé `playwright-cli close-all`, qui ferme
 les sessions des AUTRES : en parallèle, on ferme ses sessions par leur nom.
 
+### Un repos se demande : venir travailler, ou un congé (24/10/2026, v1031)
+
+Question n° 8 : le calendrier du choix laissait choisir un repos (v977),
+mais la feuille en refusait l'envoi (« jour de repos »), et la base
+refusait une modification de pause un jour de repos (« rien à
+modifier »). Le client, le 24/10/2026 : « Oui car en choisissant un repos
+on peut décider de venir travailler ou modifier son jour de congé ».
+
+- **Feuille** : le refus est retiré. Sur un repos, la ligne propose déjà
+  « Modification pause » (AM, PM, N, D) et les types de congé.
+- **Contremaître notifié** : un repos n'a pas de pause ; c'est donc le
+  contremaître de la pause DEMANDÉE qui est désigné (avant : personne).
+- **Base** (`base/29-repos-dans-une-demande.sql`, appliquée) : la demande
+  accepte une pause sur un repos ; acceptée, elle s'inscrit au planning
+  (« changement - -> AM (demande n° N) »). Un type de congé sur un repos
+  est accepté et ne retire rien : la journée reste un repos, comme avant.
+  Droits d'exécution vérifiés après coup (authentifié oui, anonyme non).
+- **Épreuve** au navigateur (VBN, samedi 03/10, repos) : la version
+  d'avant bloque (« Sa 3 oct. : jour de repos… », rien n'est envoyé) ;
+  la nouvelle envoie `{"j":"2026-10-03","pause":"AM","cm":…}`, et avec
+  VA `{"j":"2026-10-03","code":"VA"}`. Aucune erreur.
+- **Ouvert** : une venue demandée sur un repos s'inscrit comme une pause
+  prévue, donc sans prime de rappel ; le classeur écrit un rappel
+  `["-","AM"]`, avec la prime. Question au client (n° 8 nouvelle).
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».

@@ -19812,9 +19812,10 @@ function dmFormulaire(pre){
       var e=[], vus={}, f=etat.f;
       toutes().forEach(function(z){ var l=z.l, pv=dmPrevue(moi,l.j), d=wsDateCourte(dmJour(l.j)), dp=dejaPris(l.j);
         if(vus[l.j]) e.push(d+" : deux fois"); vus[l.j]=1;
-        /* la règle ne change pas (question au client, défaut 13) : le
-           message dit seulement quoi faire (audit du 23/10/2026) */
-        if(!dmTravail(pv)) e.push(d+" : jour de repos, choisissez un jour de travail ou retirez la date");
+        /* un repos se demande (le client, le 24/10/2026 : « en choisissant
+           un repos on peut décider de venir travailler ou modifier son jour
+           de congé ») : une pause pour y venir travailler, ou un type de
+           congé, qui n'y retire rien (base/29) */
         if(dp) e.push(d+" : "+(dp.fam==="att"?"une demande déjà en attente couvre ce jour":"déjà "+dp.code)+", retirez la date");
         if(f==="longue"&&z.k==="pause"&&pv==="D") e.push(d+" : jour de DAY, à mettre dans « Jours de DAY »");
         if(f==="longue"&&z.k==="day"&&pv&&pv!=="D"&&pv!=="-") e.push(d+" : jour de pause, à mettre dans « Jours de pause »");
@@ -19902,7 +19903,9 @@ function dmFormulaire(pre){
            même lecture que la fiche de recyclage. La base le notifie une fois
            le remplaçant signé ; introuvable (D, horaire absent), les autres
            contremaîtres et adjoints la voient dans leur liste. */
-        var cm=null; try{ cm=rcContremaitre(l.j,rcPauseDe(moi,l.j)); }catch(er){}
+        /* un repos où l'on vient travailler : le contremaître de la pause
+           demandée (le client, le 24/10/2026) */
+        var cm=null; try{ var pz=rcPauseDe(moi,l.j); cm=rcContremaitre(l.j,dmTravail(pz)?pz:(l.pause||pz)); }catch(er){}
         if(cm&&cm!==moi) o.cm=cm;
         return o; });
       b.disabled=true; err.textContent="Envoi…";
