@@ -137,6 +137,14 @@ Prime de rappel, à la demande de la ligne hiérarchique :
   prolongation pour panne : la prime n'est due qu'à partir de **3 h** de
   prestation ; en deçà, rien.
 
+**Venir travailler un repos à sa propre demande n'est pas un rappel** (le
+client, le 24/10/2026 : « Pas de rappel si non demandé par la
+hiérarchie »). Une demande de congé dont une ligne change un repos en
+pause s'inscrit comme cette pause, sans prime. Seul le visa « À la
+demande de la ligne hiérarchique » en fait un rappel : la base ajoute
+alors au commentaire « Rappel le JJ/MM » (date de la demande), lu comme
+tout rappel du classeur (`base/31-rappel-a-la-demande.sql`).
+
 ### Le seuil de trois heures ne vaut que pour l'après-pause
 
 La procédure énonce le seuil au point 6.2, pour une « prestation avant ou

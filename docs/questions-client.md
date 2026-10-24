@@ -51,13 +51,6 @@ des questions au client ».
    instruction qui efface. Elles sont déjà invisibles ; l'effacement
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
-8. **Venir travailler un jour de repos, à sa demande : prime de rappel ?**
-   (posée le 24/10/2026) Depuis votre réponse du 24/10, un repos se
-   demande pour y venir travailler ; acceptée, la journée s'inscrit au
-   planning comme la pause choisie (« changement - -> AM »), et
-   l'application la lit comme une pause prévue, SANS prime de rappel.
-   Le classeur écrit un rappel sur un repos `["-","AM"]`, avec la prime.
-   Une venue demandée par la personne est-elle un rappel ?
 
 ## À la RH
 

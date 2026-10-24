@@ -4553,9 +4553,12 @@ on peut décider de venir travailler ou modifier son jour de congé ».
   d'avant bloque (« Sa 3 oct. : jour de repos… », rien n'est envoyé) ;
   la nouvelle envoie `{"j":"2026-10-03","pause":"AM","cm":…}`, et avec
   VA `{"j":"2026-10-03","code":"VA"}`. Aucune erreur.
-- **Ouvert** : une venue demandée sur un repos s'inscrit comme une pause
-  prévue, donc sans prime de rappel ; le classeur écrit un rappel
-  `["-","AM"]`, avec la prime. Question au client (n° 8 nouvelle).
+- **Tranché le jour même** : une venue demandée sur un repos s'inscrit
+  comme une pause prévue, sans prime de rappel, sauf visa « À la demande de
+  la ligne hiérarchique » (le client : « Pas de rappel si non demandé par la
+  hiérarchie ») ; la base ajoute alors « Rappel le JJ/MM »
+  (`base/31-rappel-a-la-demande.sql`, appliquée ; règle dans
+  `docs/regles-paie.md`, « Octroi »). Question n° 8 retirée.
 
 ### Un congé déjà posé se choisit, pour l'annuler ou en changer le type (24/10/2026, v1032)
 
