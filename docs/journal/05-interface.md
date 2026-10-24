@@ -4640,6 +4640,29 @@ vérificateur inchangé. **Erreur commise et corrigée** : une première
 colonne de 84 px mettait « Terrain arrière » sur trois lignes, vue par la
 comparaison des 60 vues.
 
+### Les accès rapides en grille d'icônes (24/10/2026, v1035)
+
+Le client, sur une capture de son téléphone : « Comment optimiser l'accès
+rapide, 100 % pro ». Ce qui faisait bricolé : des tuiles à cadre de une à
+trois lignes, de hauteurs inégales (68 à 100 px), des sous-titres sur
+certaines seulement (« octobre », « à la RH »), la dernière étalée sur
+toute la rangée, et la ligne du contremaître avec deux icônes de
+téléphone.
+
+- **Grille d'icônes**, comme les applications de banque : quatre
+  colonnes, l'icône dans un carré teinté de 48 px, un mot dessous, sans
+  cadre de tuile ; toutes à la même hauteur (83 px à 390, 77 à 320).
+  Rangées par usage : « Congé » ; « Certificat » ; « Salaire » ;
+  « Équipe » ; « Horaire » ; « Recyclage » ; « S'abonner ». Le nom entier (« Demander un congé », « Ma fiche
+  de paie d'octobre », « S'abonner à mon horaire dans l'agenda du
+  téléphone »…) reste au lecteur d'écran et en infobulle.
+- **Contremaître de pause** sur une rangée : le titre, puis « JBI ·
+  Après-midi · +32 476 95 10 86 », et un bouton d'appel rond de 44 px à
+  droite (l'icône de gauche, en double, est retirée).
+- Carte : 404 → 337 px à 390 ; aucun débordement, aucun texte coupé à 320,
+  390 et 1280 ; vérificateur inchangé. « Fiche de paie » passait sur deux
+  lignes à 320 : « Salaire », le nom de l'onglet.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
