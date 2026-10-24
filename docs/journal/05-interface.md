@@ -4615,6 +4615,31 @@ son certificat par mail au RH sur pointagebwz@biowanze.be ».
   aucun texte coupé, aucune erreur ; vérificateur inchangé. Sans compte
   connecté, les « Accès rapides » restent cachés, comme avant.
 
+### L'Accueil du téléphone, optimisé en une passe (24/10/2026, v1034)
+
+Le client : « Optimise au maximum l'accueil de la version mobile ».
+Méthode de la règle « optimise tout » : page entière photographiée à 320
+et 390 px (opérateur GBT, contremaître VBN), défauts listés bloc par bloc,
+tous corrigés, puis remesurés.
+
+| Défaut | Correction | Mesure |
+|---|---|---|
+| L'appel du contremaître et les formulaires arrivaient après « Mon année » (470 à 600 px) | « Accès rapides » passe avant « Mon année » (téléphone ; au PC, même colonne) | la ligne du contremaître remonte de 1 700 à 990 px à 320 |
+| Héros : une seule polyvalence dans un cadre de 80 px, « Glut. » abrégé | sur la ligne du titre, nom entier | héros 520 → 488 px à 320, 536 → 505 à 390 |
+| « Mes pauses » : « Samedi 24 / octobre » sur deux lignes à 320 | « Sam. 24 oct. » sous 400 px | « Mon année » 602 → 570 px à 320 |
+| « Contremaître de pause » coupé à 320, tuile du certificat sur quatre lignes | rond du téléphone retiré sous 360 px ; « Certificat médical · à la RH » | une ligne ; tuile alignée sur les autres |
+| Sur site : colonne des postes de 104 px, étiquettes repoussées à la ligne | 96 px sous 400, 92 sous 360 | carte 501 → 469 px à 320, plus aucun poste sur deux lignes |
+| Circuit des signatures serré à 320 | colonne des rôles 92 → 78 px | — |
+
+Page entière à 320 px : 4 284 → 4 166 px. Gardé, et pourquoi : le
+circuit des signatures étape par étape (le client, le 22/10 : « on ne
+voit pas bien … à qui est le tour de signer »), le calendrier et « Sur
+site » entiers. Aucun texte coupé (cinq profils, 320, 360 et 390 px ; les
+11 boutons signalés par l'outil l'étaient déjà avant), aucune erreur,
+vérificateur inchangé. **Erreur commise et corrigée** : une première
+colonne de 84 px mettait « Terrain arrière » sur trois lignes, vue par la
+comparaison des 60 vues.
+
 ### L'agenda des congés scolaires de la Fédération Wallonie-Bruxelles (23/10/2026, v1020)
 
 Le client : « j'aimerais que tu crées également un agenda avec les congés scolaires belges, qui serait automatiquement ajusté pour la Wallonie les années qui viennent ; on peut s'y abonner au même endroit que l'abonnement personnel ».
