@@ -5016,3 +5016,9 @@ case de deux badges la plus serrée du jour, et variait au PC de 27,5 à
 57 px d'un jour à l'autre : il vaut maintenant celui, le plus fréquent,
 d'une ligne de deux badges — 3,5 / 14 / 86 px, stable. Après : mêmes
 écarts partout aux trois largeurs. Vérificateur et manques identiques.
+
+**Puis (v1072).** Le client : « vert au lieu de mauve ». `--rel` passe au
+vert : #6FD39A au thème sombre, #1E7A46 au clair — plus vif que le vert
+des barres d'atelier (fermentation, terrain arrière, distillation), qui ne
+colore que le bord gauche de la ligne. Vérifié le 23/10 dans les deux
+thèmes.
