@@ -5295,3 +5295,19 @@ poste à 390 px, « Cet après-midi 13 h 30 – 22 h » tient sur une ligne,
 107 → 91 px ; un titre plus long (« Demain après-midi », « Samedi 31
 octobre ») passe encore à la ligne à 390 et 320 px (98 et 97 px) ; au PC,
 91 px partout. Aucun débordement, aucune erreur.
+
+### Le statut calé à droite ; la bannière mesurée (25/10/2026, `nfdm-v1098`)
+
+Le client : « la taille de la bannière est-elle optimale ? Le statut doit
+être aligné à droite du poste ». La pastille du statut (« Employé »…) se
+range contre le bord droit de la ligne du poste : la colonne du profil
+prend toute la largeur (`flex:1`), la pastille `margin-left:auto`.
+Mesuré : à 16 px du bord à 390 (12 à 320, 20 au PC, la marge du profil),
+sur la ligne du poste, poste jamais tronqué.
+
+Bannière : essayée à 150 px au PC au lieu de 190 ; le symbole du logo,
+calé en bas à droite, perdait son haut — l'image (1600 × 398) occupe
+248 px à 998 de large, et le logo en prend l'essentiel. 190 px est donc le
+minimum qui le garde entier : remis. Au téléphone, l'image entière
+(rapport 2170/540, 89 px à 390). Rien d'autre à gagner sans recadrer
+l'image elle-même.
