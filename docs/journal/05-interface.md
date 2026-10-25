@@ -5478,3 +5478,24 @@ téléphone, 30 de 700 à 1099 px, 36 au-delà).
 
 Mesuré sur huit largeurs (320, 390, 699, 700, 800, 1099, 1100, 1280) :
 haut = côté partout (8, 8, 8, 15, 15, 15, 12, 12), des deux côtés.
+
+### Les flèches du Planning taillées sur le tableau (25/10/2026, `nfdm-v1107`)
+
+Le client, capture à l'appui : « optimise ces boutons gauche droite pour
+que leur style fonctionne à 100 % avec le tableau ». Trois choses ne
+répondaient pas au tableau :
+- l'arrondi (9 px) ne suivait pas celui de la carte, 8 px plus loin : il
+  devient concentrique, rayon de la carte moins le retrait (14 px au
+  téléphone, 7 de 700 à 1099 px, 10 au-delà) ;
+- le fond et le trait : ceux des en-têtes de pause et des colonnes
+  (`--surface`, `--trait`) au lieu d'un gris à part ;
+- au téléphone, la flèche de gauche flottait à côté de la colonne des
+  postes (64 px) : elle en prend la largeur moins les deux retraits
+  (50 × 44), son axe tombe sur celui de la colonne, au-dessus de
+  « Auj. » ; celle de droite lui répond.
+
+Mesuré : à 320 et 390 px, axe de la flèche = axe de la colonne (49 = 49),
+haut = côté = 8 ; à 800 et 1280, haut = côté (15, 12) ; aucun
+débordement, aucune erreur. Au PC, la colonne des postes fait 150 px : une
+flèche de cette largeur ne se lirait plus comme une flèche, elle garde
+36 px.
