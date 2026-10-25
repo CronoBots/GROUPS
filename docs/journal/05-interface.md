@@ -4840,3 +4840,14 @@ badges comme marge extérieure des segments. **Après** : 28 / 30 / 43 px,
 écart 14 et 28 px à 390 et 1280 px ; à 320 px, 4 px au lieu de 3 (le
 retrait de la case, en dessous duquel on ne descend pas). Pas de
 débordement ; vérificateur et manques identiques.
+
+**Revu le même soir (v1058).** Le client : « l'heure doit toujours être
+indiquée en gris comme avant, mais ceux en D peuvent avoir le bord vert en
+pointillé ; et ceux actuellement en pointillé bleu, en trait normal ». Le
+violet est retiré (jeton `--hj` supprimé) : un badge de jour garde son fond
+et son heure grise, sa bordure seule passe en vert (`--good`) pointillé. Les
+relais (`.eqn.relais`) et les segments de fusion (`.eqseg`) passent du
+pointillé bleu au trait plein bleu — le pointillé ne dit plus qu'une chose,
+l'horaire de jour. Les deux légendes du PC suivent. Le séparateur de
+colonnes d'une case fusionnée reste en pointillé : ce n'est pas un badge.
+Vérifié en sombre et en clair le 27/10.
