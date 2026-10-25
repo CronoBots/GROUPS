@@ -5204,3 +5204,20 @@ pauses — prend l'habit d'un trigramme d'Équipes : trait fin `--line`, fond
 `--surface`, encre `--ink2`. Relevé le 27/10 : GPS et YPE identiques au
 jeton d'Équipes (bord, fond, encre) ; les apprentis en D gardent le gris
 marqué de la formation. Légende du PC à jour.
+
+## « Mon cycle » à la place de « Ma semaine » (25/10/2026, v1092)
+
+Le client : « dans l'Accueil, supprimer ma semaine de 7 jours, et toujours
+afficher la vue du cycle actuel comme pour le calendrier ». **Lu d'abord de
+travers** (v1091, non livré tel quel) : « Ma semaine » retirée et le
+calendrier forcé sur sa vue Cycle — l'en-tête restait vide à droite, et
+l'historique rappelait que « Ma semaine » avait REMPLACÉ le cycle en cours
+dans l'en-tête le 22/10 (commit 81520fc). Le calendrier retrouve donc sa
+vue retenue, et l'en-tête montre **Mon cycle** : le cycle en cours tout
+entier (`cycleActuel`, cinq ou six semaines), présenté comme la vue Cycle du
+calendrier — une rangée par semaine, du lundi où il commence ; les jours de
+la semaine une fois en tête de colonne ; les cases de « Ma semaine »
+resserrées (le jour, sa pause ou son code) ; aujourd'hui entouré, les jours
+passés atténués ; « 19 octobre – 29 novembre · semaine 1/6 ». Toucher un
+jour l'ouvre. Vérifié à 320, 390 et 1280 px : 42 cases, sans débordement
+(≈ 390 px de haut).

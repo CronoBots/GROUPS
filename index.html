@@ -6846,6 +6846,13 @@ html .hp-fab:hover{opacity:1}
 /* Ma semaine, dans le héros depuis le 22/10/2026 (à la place du cycle
    actuel) : les cases au fond sombre du héros, comme « Mes pauses » */
 .pf-an .ms-l{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin:4px 0 12px}
+/* Mon cycle : la même case, resserrée, cinq ou six rangées */
+.pf-an .mc-l{gap:4px}
+.mc-jt{text-align:center; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.04em}
+.ms-j.mc-c{padding:4px 1px 5px; gap:1px; border-radius:9px}
+.ms-j.mc-c b{font-size:13px; margin-bottom:1px}
+.ms-j.mc-c .pf-pause,.ms-j.mc-c .pl-pa{transform:scale(.88)}
+.ms-j.mc-c.passe{opacity:.45}
 /* LES CASES RESSERRÉES (le client, le 22/10/2026 : « c'est tous les jours
    que je te demandais d'optimiser ») : 81 px de haut pour trois lignes,
    un « repos » aussi appuyé qu'un poste. Le jour et sa date serrés, la
@@ -20772,7 +20779,10 @@ function renderRythme(){
   plusTard(function(){ try{ renderSiteAccueil(); }catch(e){} });
   /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
-  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=maSemaineHTML(db,person); }catch(e){ a.innerHTML=""; } }
+  /* « Ma semaine » remplacée par le cycle en cours (le client, le
+     25/10/2026 : « supprimer ma semaine de 7 jours, et toujours afficher la
+     vue du cycle actuel comme pour le calendrier ») */
+  plusTard(function(){ var a=document.getElementById("ryAn"); if(a){ try{ a.innerHTML=monCycleHTML(db,person); }catch(e){ a.innerHTML=""; } }
     /* « Mes congés » dans son conteneur : au PC, il passe sous les deux
        colonnes au lieu d'allonger la gauche (audit du 23/10/2026) */
     var cg=document.getElementById("ryCg"); if(cg){ try{ cg.innerHTML=mesCongesHTML(db,person); }catch(e){ cg.innerHTML=""; } }
@@ -20863,6 +20873,38 @@ function maSemaineHTML(db,person){
   return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Ma semaine</span><span class="pf-pr-l">'
     +esc(numJour(j0.getDate())+(j0.getMonth()===j6.getMonth()?"":" "+MOIS[j0.getMonth()].toLowerCase())+" – "+numJour(j6.getDate())+" "+MOIS[j6.getMonth()].toLowerCase())+'</span></div>'
     +'<div class="ms-l">'+h.join("")+'</div>';
+}
+/* MON CYCLE (le client, le 25/10/2026) : à la place de « Ma semaine », le
+   cycle en cours tout entier, présenté comme la vue Cycle du calendrier —
+   une rangée par semaine, du lundi où il commence à son dernier jour
+   (cycleActuel, 5 ou 6 semaines) ; les jours de la semaine en tête de
+   colonne, une fois ; aujourd'hui entouré, les jours passés atténués. Les
+   cases sont celles de « Ma semaine », resserrées. */
+function monCycleHTML(db,person){
+  var c=null; try{ c=cycleActuel(person); }catch(e){ c=null; }
+  var nc=new Date(), auj=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate());
+  var deb=c?c.deb:lundiDe(auj), L=c?c.L:35, h=[];
+  ["L","M","M","J","V","S","D"].forEach(function(x){ h.push('<span class="mc-jt" aria-hidden="true">'+x+'</span>'); });
+  for(var i=0;i<L;i++){
+    var d=new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+i), dbx=horaireDe(d.getFullYear())||db;
+    var p=dbx&&dbx.people.filter(function(x){ return x.id===person.id; })[0], md=pad2(d.getMonth()+1)+pad2(d.getDate());
+    var e=(p&&p.d&&p.d[md])||[], pv=String(e[0]||"").trim(), an=String(e[1]||"").trim(), fa=grFamille(an);
+    var v=an&&fa!=="atelier"&&fa!=="remplacement"&&fa!=="autre"?an:pv, fv=grFamille(v);
+    var cls=fv==="poste"||!fv?grPosteCls(v):"f-"+fv, t=d.getTime(), a0=auj.getTime();
+    h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
+      +' aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" : "+(v&&v!=="-"?v:"repos"))+'"'+(e[2]?' title="'+esc(e[2])+'"':'')+'>'
+      +'<b>'+d.getDate()+'</b>'
+      +(/^(AM|PM|N|D)$/.test(v)?'<i class="pf-pause" data-p="'+v+'">'+v+'</i>'
+        :v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">–</span>')
+      +'</button>');
+  }
+  var fin=new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1);
+  var sem=c?Math.floor(c.pos/7)+1:Math.floor((a0Num()-deb.getTime())/604800000)+1;
+  function a0Num(){ return auj.getTime(); }
+  return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span><span class="pf-pr-l">'
+    +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MOIS[deb.getMonth()].toLowerCase())+" – "+numJour(fin.getDate())+" "+MOIS[fin.getMonth()].toLowerCase()
+      +" · semaine "+sem+"/"+Math.round(L/7))+'</span></div>'
+    +'<div class="ms-l mc-l">'+h.join("")+'</div>';
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
