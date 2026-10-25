@@ -4873,3 +4873,31 @@ apprenti validé ailleurs mais pas ici — prend le pointillé de `--bord-jour`,
 le nom restant jaune. Le 27/10 en pointillé : GPS, YPE, BLR, YRS (jour) ;
 SLI, LCI, SVE, LCO (jour et formation) ; NPI, GST (formation, en pause).
 Légende « en formation » en pointillé elle aussi.
+
+## Un seul cadre pour une journée sur deux pauses (25/10/2026, v1061)
+
+Le client : « faut-il un cadre bleu allongé sur 2 pauses pour JBS, KDN,
+SPS au lieu de les mettre 2 fois ? ». Oui : aux chaudières du 23/10,
+trois personnes étaient écrites six fois — JBS « 06-14 » au matin et
+« 14-18 » en relais, KDN « 18-22 » puis « 22-06 », SPS « 14-22 » puis
+« 22-02 ». La fusion de FLI et JBI (une case par colspan) ne s'applique
+que si le relais tient la case seul ; ici d'autres y travaillent.
+
+**Fait** : sous la ligne du poste, une rangée sur toute la largeur
+(`bandesLigne`, `caseBandes`, intitulé en `rowspan`) porte un cadre par
+personne dont la journée couvre au moins deux pauses du poste, de son
+arrivée à son départ, placé à ses heures et rangé en voies sans
+chevauchement : JBS 06-18 puis KDN 18-06 sur la première, SPS 14-02 sur
+la seconde. Les morceaux viennent des journées partagées (`horPart`) et
+des relais ; la part d'un relais tenue « en pause » (JBS au matin), sans
+heures dans son badge, se tire de la journée entière du relais. Le cadre
+est bleu plein, en pointillé blanc pour un horaire de jour (SVE 10-18 en
+distillation). La ligne du poste ne garde que ceux d'une seule pause.
+
+Affichage seul : les comptes et les « ? » de chaque case se calculent
+avec tout le monde (`enBande` ne cache que le badge) — le « ? 02-06 » des
+chaudières de nuit reste. Pas de rangée quand la ligne a déjà sa fusion
+(27/10). La rangée garde sa hauteur naturelle, le supplément va aux
+lignes de poste. **Mesuré** : 22/10 (SPS 06-18, GJR 18-06 ; CDT 10-18),
+23/10, 01/09 (AFA 06-18) ; 320, 390 et 1280 px sans débordement ni
+erreur ; vérificateur, manques et agendas identiques.
