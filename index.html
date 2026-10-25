@@ -27113,6 +27113,49 @@ function ajusterDateJour(){
   if(l.scrollWidth>l.clientWidth) l.classList.add("court");
 }
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ ajusterDateJour(); });
+/* LES SEGMENTS D'UNE FUSION AUX MESURES DES BADGES (le client, le
+   25/10/2026 : « les badges de partage de pause, en pointillé bleu, doivent
+   avoir la même hauteur et le même écart à gauche ou à droite, selon quel
+   bord est contre une bordure, que les trigrammes normaux — donc pas collés
+   comme c'est le cas actuellement »). Mesuré le 27/10 : 33 px de haut à
+   toute largeur et 4 px du bord, contre 28 / 30 / 43 px et 3 / 14 / 28 px
+   aux badges d'une case pleine (320 / 390 / 1280 px). Ces valeurs suivent la
+   feuille de style de chaque largeur : on les relit sur les badges du
+   tableau, à chaque rendu et redimensionnement. Le plus petit écart au bord
+   d'une case de deux badges devient la marge des segments ; la hauteur et
+   les tailles de texte d'un badge à horaire deviennent les leurs. */
+function alignerFusions(tbl){
+  var tds=tbl.querySelectorAll("td.fusion"); if(!tds.length) return;
+  var segs=tbl.querySelectorAll("td.fusion .eqseg");
+  Array.prototype.forEach.call(segs,function(e){ e.style.height=""; e.style.paddingTop=""; e.style.paddingBottom="";
+    var b=e.querySelector("b"), sm=e.querySelector("small"); if(b){ b.style.fontSize=""; b.style.lineHeight=""; } if(sm){ sm.style.fontSize=""; sm.style.lineHeight=""; } });
+  Array.prototype.forEach.call(tds,function(td){ var f=td.querySelector(".eqfus"); if(f){ f.style.marginLeft=""; f.style.marginRight=""; } });
+  var ref=tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn .eqhd");
+  ref=ref?ref.parentNode:tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn");
+  if(!ref) return;
+  var hR=ref.getBoundingClientRect().height, bR=ref.querySelector("b"), sR=ref.querySelector(".eqhd");
+  var bCs=bR&&getComputedStyle(bR), sCs=sR&&getComputedStyle(sR);
+  var ecart=1e9;
+  Array.prototype.forEach.call(tbl.querySelectorAll("tbody td:not(.fusion)"),function(td){
+    var es=td.querySelectorAll(":scope > .eqc > .eqn"); if(es.length<2) return;
+    var rt=td.getBoundingClientRect();
+    Array.prototype.forEach.call(es,function(e){ var r=e.getBoundingClientRect();
+      ecart=Math.min(ecart,r.left-rt.left,rt.right-r.right); });
+  });
+  Array.prototype.forEach.call(segs,function(e){
+    e.style.boxSizing="border-box"; e.style.height=hR+"px"; e.style.paddingTop="0"; e.style.paddingBottom="0";
+    e.style.borderRadius=getComputedStyle(ref).borderRadius;
+    var b=e.querySelector("b"), sm=e.querySelector("small");
+    if(b&&bCs){ b.style.fontSize=bCs.fontSize; b.style.lineHeight=bCs.lineHeight; }
+    if(sm&&sCs){ sm.style.fontSize=sCs.fontSize; sm.style.lineHeight=sCs.lineHeight; }
+  });
+  if(ecart<1e9) Array.prototype.forEach.call(tds,function(td){
+    var f=td.querySelector(".eqfus"); if(!f) return;
+    var rt=td.getBoundingClientRect(), rf=f.getBoundingClientRect();
+    f.style.marginLeft=Math.max(0,ecart-(rf.left-rt.left))+"px";
+    f.style.marginRight=Math.max(0,ecart-(rt.right-rf.right))+"px";
+  });
+}
 function ajusterLignesJour(){
   var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
   ajusterDateJour();
@@ -27121,6 +27164,7 @@ function ajusterLignesJour(){
   var rows=Array.prototype.slice.call(tbl.querySelectorAll("tbody tr"));
   if(!rows.length) return;
   rows.forEach(function(r){ r.style.height=""; });
+  alignerFusions(tbl);
   var thead=tbl.querySelector("thead");
   var theadH=thead?thead.getBoundingClientRect().height:0;
   var nat=rows.map(function(r){ return r.getBoundingClientRect().height; });
