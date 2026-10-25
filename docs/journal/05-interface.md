@@ -5178,3 +5178,15 @@ sous la fusion, prise sur la largeur intérieure de la case, le décalait
 de 5 px : 32 / 32 px le 26/10. La colonne de la pause en cours ne respire
 plus : teinte fixe (`--maint-fort`) entre ses deux liserés ; aucune
 animation relevée sur la page.
+
+**Corrigé (v1088) : « il n'est pas centré du tout ».** Sur l'iPhone du
+client, GPS restait décalé d'environ 8 px vers la droite, alors que le
+navigateur de test mesurait 32 / 32. La v1087 le centrait par un décalage
+en pixels, calculé avant l'arrivée de la police des trigrammes : la police
+chargée élargissait le badge, et le décalage ne valait plus. **L'erreur** :
+une mesure faite avec la police déjà en cache ne prouvait rien pour un
+premier affichage. Désormais la zone sous la relève prend la largeur exacte
+de la colonne et centre son badge elle-même (`justify-content:center`) ; et
+les mesures du tableau se refont quand la police arrive
+(`document.fonts.ready`). Éprouvé en élargissant la police APRÈS le
+rendu : 33 / 33 → 32 / 32 à 393 px, 115 / 115 au PC.
