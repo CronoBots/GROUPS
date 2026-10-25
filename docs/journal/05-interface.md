@@ -5461,19 +5461,3 @@ Mesuré (Playwright) : 62 px de haut à 390 et 1280 (144 avant), 74 à 320 ;
 aucun texte coupé ; le choix « Longue durée » change bien la feuille ;
 aucune erreur. Non reproduit : le « flou » de l'en-tête sur l'iPhone
 (au navigateur, le titre est au premier plan, opacité 1, sans filtre).
-
-### Le Planning au fond du héros (25/10/2026, `nfdm-v1105`)
-
-Le client : « background du planning comme le héros ». Le dégradé du
-héros (bleu nuit, éclairé en haut à gauche) devient une variable,
-`--fond-hero`, que `.pf-hero` et la carte du Planning (`#v-jour .card`)
-emploient : un seul endroit où le changer. Pour qu'il se voie, ce qui
-était peint à plat (`--surface2`) devient voile dans le Planning : barre
-de date transparente, rangées zébrées et cases vides en noir à 28 %,
-titres de poste des rangées claires transparents. L'en-tête des pauses
-est collant : il reste presque opaque (96 %, teinte du milieu du
-dégradé), sans quoi les badges passeraient dessous en transparence au
-défilement. Les autres onglets et tableaux ne changent pas.
-
-Mesuré : même `background-image` calculé pour le héros et le Planning ;
-aucun débordement, aucune erreur, à 390 et 1280 px.
