@@ -93,12 +93,6 @@
   /* le bord des badges du Planning : trait fin pour la pause, pointillé
      pour l'horaire de jour (le client, le 25/10/2026) */
   --bord-pause:color-mix(in srgb,var(--ink) 45%,transparent);
-  /* les relèves de 12 h (relais, cadres sur deux pauses) : le cyan reste
-     à « vous » (le client, le 25/10/2026 : « faut-il changer la couleur
-     des 12 h ou la personnelle, car elles sont de même couleur ? »), puis
-     « vert au lieu de mauve », puis « le vert est trop flash » : un
-     vert désaturé */
-  --rel:#3D7656;
   --bord-jour:color-mix(in srgb,var(--ink) 75%,transparent);
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
@@ -156,7 +150,6 @@
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
   --bord-pause:rgba(255,255,255,.55); --bord-jour:rgba(255,255,255,.85);
-  --rel:#79AF8F;
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -4831,8 +4824,8 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.form b,.eqhote .eqp2 tbody td .eqn.relais.form b{color:var(--at-jaune)}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--rel); background:color-mix(in srgb,var(--rel) 12%,var(--surface3))}
-.eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--rel); line-height:13px}
+  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--bord-pause); background:var(--surface3)}
+.eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--ink); line-height:13px}
 .eqfus>.eqseg small{font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--ink); line-height:11px}
 .eqfus>.eqseg.moi{border-style:solid; border-color:var(--in); background:var(--in-soft)}
 .eqfus>.eqseg.moi b{color:var(--in)}
@@ -4929,8 +4922,11 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqhote .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 /* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
-.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--rel)}
-.eqhote .eqp2 tbody td .eqn.relais b{color:var(--rel)}
+/* les relèves de 12 h comme les autres badges en poste (le client, le
+   25/10/2026 : « même les 12 heures peuvent être blanches ») : leurs heures
+   et leur cadre sur deux pauses les distinguent */
+.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--bord-pause)}
+.eqhote .eqp2 tbody td .eqn.relais b{color:var(--ink)}
 /* Le changement de poste fait par l'application : bord orange en pointillé
    sans flèche (le client, le 13/10/2026). */
 .eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
@@ -6249,13 +6245,13 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 /* (25/10/2026, puis le même jour) « finalement : bordures blanches aux
    personnes en poste, bordure grise aux opérateurs en formation, et un
    petit coin rouge aux opérateurs avec commentaire ». L'apprenti non
-   validé au poste montré reprend le gris --trait (pointillé s'il est en
+   validé au poste montré prend le gris marqué --trait-fort (pointillé s'il est en
    horaire de jour) ; son nom reste jaune. */
 .eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app),
-#jourCorps.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:solid; border-color:var(--trait)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:solid; border-color:var(--trait-fort)}
 .eqhote .eqp2 tbody td .eqn.form.jour:not(.moi):not(.app),
-#jourCorps.eqhote .eqp2 tbody td .eqn.form.jour:not(.moi):not(.app){border-style:dashed; border-color:var(--trait)}
-.eqfus>.eqseg.form{border-style:solid; border-color:var(--trait)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.form.jour:not(.moi):not(.app){border-style:dashed; border-color:var(--trait-fort)}
+.eqfus>.eqseg.form{border-style:solid; border-color:var(--trait-fort)}
 .eqfus>.eqseg.form.jour{border-style:dashed}
 /* LE COMMENTAIRE : un petit coin rouge en haut à droite du badge, au lieu
    du soulignement du 04/10 (le client, le 25/10/2026). Le badge reste
@@ -6268,7 +6264,7 @@ td.fusion:not(.bande)>.eqfus>.eqseg.coment{position:relative}
 /* les relais en trait plein (le client, le 25/10/2026 : « ceux
    actuellement en pointillé bleu, en trait normal ») : le pointillé est
    désormais l'horaire de jour */
-#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--rel)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--bord-pause)}
 /* L'HORAIRE DE JOUR (le client, le 25/10/2026 : « il faut un code couleur
    pour les gens en horaire de D, pas en pause », puis, le même soir :
    « l'heure doit toujours être indiquée en gris comme avant, mais ceux en D
@@ -6542,11 +6538,10 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg span{display:inline-flex; align-items:center; gap:6px}
   .eqleg-b{font:700 11px/1 "IBM Plex Mono",monospace; font-style:normal; padding:3px 5px; border-radius:5px; background:var(--surface3); border:1px solid var(--bord-pause); color:var(--ink)}
   .eqleg-b.moi{border-color:var(--in); background:var(--in-soft)}
-  .eqleg-b.form{color:var(--at-jaune); border-color:var(--trait)}
+  .eqleg-b.form{color:var(--at-jaune); border-color:var(--trait-fort)}
   .eqleg-b.com{position:relative}
   .eqleg-b.com::after{content:""; position:absolute; top:-1px; right:-1px; border-top:6px solid var(--at-rouge); border-left:6px solid transparent; border-top-right-radius:5px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
-  .eqleg-b.relais{border-color:var(--rel); color:var(--rel)}
   .eqleg-b.jour{border-style:dashed; border-color:var(--bord-jour)}
   .eqleg-b.vide{border-color:var(--at-rouge)}
 }
@@ -7423,7 +7418,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
       <p class="eqleg" aria-label="Légende">
         <span><i class="eqleg-b moi">ABC</i>vous</span><span><i class="eqleg-b form">ABC</i>en formation</span>
         <span><i class="eqleg-b com">ABC</i>commentaire <span class="eqleg-tact">(touchez)</span><span class="eqleg-souris">(cliquez)</span></span><span><i class="eqleg-b app">ABC</i>changement de poste proposé</span>
-        <span><i class="eqleg-b jour">ABC</i>horaire de jour</span><span><i class="eqleg-b relais">ABC</i>relais 12 h</span><span><i class="eqleg-b vide">?</i>place vide</span>
+        <span><i class="eqleg-b jour">ABC</i>horaire de jour</span><span><i class="eqleg-b vide">?</i>place vide</span>
       </p>
     </div>
   </section>
