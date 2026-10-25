@@ -5487,10 +5487,18 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .pf-proch-tete em{font-style:normal; font-size:12px; font-weight:650; color:#fff; white-space:nowrap; padding:2px 8px; border-radius:999px;
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14)}
 .pf-proch-tete em.vif{color:var(--marque-vif); border-color:rgba(105,178,203,.45); background:rgba(105,178,203,.12)}
-.pf-proch-corps{display:flex; align-items:center; gap:12px; min-width:0}
+.pf-proch-corps{display:flex; align-items:center; gap:10px; min-width:0}
+.pf-proch{gap:6px; padding-top:9px; padding-bottom:10px}
+.pf-proch-corps .pf-pause{width:40px; height:40px; border-radius:11px; font-size:15px}
+.pf-proch-l{display:flex; flex-wrap:wrap; align-items:baseline; column-gap:10px; row-gap:2px; min-width:0}
+.pf-proch-l b{min-width:0; max-width:100%}
+/* l'en-tête ne passe jamais sur deux lignes (320 px : 37 px de haut) */
+.pf-proch-tete small{min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+@media (max-width:360px){ .pf-proch-tete small{letter-spacing:.03em} .pf-proch-tete{gap:6px} .pf-proch-tete em{padding:2px 6px} .pf-proch-tete .pf-mot{display:none} }
+/* à 320 px, « Prochain poste · sam. 7 nov. » se coupait : « Prochain · sam. 7 nov. » */
 .pf-pause{flex:0 0 auto; width:46px; height:46px; box-sizing:border-box; border-radius:12px; display:grid; place-items:center;
   background:var(--marque-vif); color:var(--marque); font-weight:750; font-size:16px; letter-spacing:.02em; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
-.pf-proch-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
+.pf-proch-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px}
 .pf-proch-t b{font-size:17px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-h{display:flex; align-items:baseline; column-gap:6px; white-space:nowrap; font-size:13px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums}
 .pf-proch-t .pf-pd{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -5582,7 +5590,7 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .pf-rc-bar{grid-column:1 / -1; height:6px; border-radius:3px; background:rgba(255,255,255,.10); overflow:hidden}
 .pf-rc-bar i{display:block; height:100%; border-radius:3px; background:var(--marque-vif)}
 .pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
-.pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:12px 12px 13px}
+.pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:10px 12px 11px}
 @media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
 .pf-st2 i{font-style:normal}
 .pf-fo{color:var(--at-jaune)}
@@ -14908,16 +14916,20 @@ function _pfHead(db,p){
         enMots=titre!==dateL;
     var dure=function(x){ x=Math.round(x*60); var hh0=Math.floor(x/60), mm=x%60; return hh0+"\u00a0h"+(mm?"\u00a0"+(mm<10?"0":"")+mm:""); };
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
-      +'<span class="pf-proch-tete"><small>'+lab+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
+      /* PLUS COMPACT (le client, le 25/10/2026 : « optimise la partie
+         prochain poste, prend beaucoup de place ») : la date, quand le
+         titre est en mots, rejoint l'en-tête en abrégé (« En poste ·
+         sam. 31 oct. ») au lieu d'une ligne à elle ; le titre et les
+         heures se suivent sur une ligne quand la largeur le permet ;
+         pastille de pause plus petite. 137 px en poste avant. */
+      +'<span class="pf-proch-tete"><small>'+(enMots?lab.replace(" poste",'<span class="pf-mot"> poste</span>'):lab)+(enMots?' · '+esc(["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][pr.d.getDay()]+" "+pr.d.getDate()+" "+["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][pr.d.getMonth()]):'')+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
       +'<span class="pf-proch-corps"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
-      +'<span class="pf-proch-t"><b>'+esc(titre)+'</b>'
+      +'<span class="pf-proch-t"><span class="pf-proch-l"><b>'+esc(titre)+'</b>'
       /* un rôle, sans quoi l'aria-label d'un span n'est pas exposé (audit
          du 23/10/2026) */
       +'<span class="pf-proch-h" role="img" aria-label="'+esc((enMots?dateL+", ":"")+pr.heures)+'">'
       +'<span class="pf-hd">'+esc(hD)+'</span><span class="pf-ps">–</span><span class="pf-hf">'+esc(hF)+'</span>'
-      +(pr.fin>pr.deb?'<span class="pf-du">'+dure(pr.fin-pr.deb)+'</span>':'')+'</span>'
-      /* la date sous les heures, quand le titre est en mots */
-      +(enMots?'<span class="pf-pd">'+esc(dateL)+'</span>':'')
+      +(pr.fin>pr.deb?'<span class="pf-du">'+dure(pr.fin-pr.deb)+'</span>':'')+'</span></span>'
       +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +(function(){
         /* AVEC QUI (le client, le 22/10/2026, « optimiser encore » le centre
@@ -20919,12 +20931,6 @@ function monCycleHTML(db,person){
        faut aussi les commentaires, affichés de la même manière que dans le
        Planning ») : le coin rouge, et la bulle au toucher */
     var com=String(e[2]||"").trim();
-    /* SEULS LES COMMENTAIRES QUI CHANGENT LE POSTE (le client, le
-       25/10/2026 : « oui, seulement ceux qui changent le poste ») :
-       remplacement, échange, rappel, renfort. « Départ à 2h », « équipe
-       au complet », « maintien prime N »… restent dans la journée ouverte,
-       sans coin rouge : presque chaque case en portait un. */
-    if(!/rempla|rempl\.? par|[ée]change|rappel|renfort/i.test(com)) com="";
     var semI=Math.floor(i/7), cache=plie&&(semI<sem0||semI>sem0+1);
     var lib=v&&v!=="-"?grCourt(v):"";
     h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+(com?' coment':'')+(d.getDay()%6===0?' we':'')+(cache?' mc-hors':'')+'"'+(cache?' hidden':'')+' data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
