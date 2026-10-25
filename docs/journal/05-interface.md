@@ -4784,3 +4784,22 @@ sur sa ligne. Le 27/10 : PDR LCI / SVE ; ADK JBA / LAX GST / LCO ;
 GBT IME / NPI. Les relais gardent leur propre rangée, sous les autres
 (règle du 24/10). Affichage seul : vérificateur, manques, polyvalences,
 compteurs et agendas identiques.
+
+## La fusion de 12 h garde les gens de jour en dessous (25/10/2026, v1055)
+
+Le client, devant le Planning du 27/10 : « FLI tient le poste de CM de
+06 à 18 puis JBI 18-06. Il faut que le badge de FLI soit présenté comme
+pour JBI, de 06-18 sur une ligne, et les deux autres contremaîtres à la
+ligne en dessous en AM pour leurs 7-15 ». La fusion des cases (relais de
+12 h, 24/10) s'arrêtait au matin : `fusionsLigne` exigeait que le relais
+y soit SEUL, et GPS et YPE, venus de la colonne D en 07-15, y étaient
+aussi. On voyait « FLI 06-14 GPS / YPE » au matin, puis une fusion
+« FLI 14-18 + JBI 18-06 » sur l'après-midi et la nuit.
+
+**Fait** : des gens de jour (`deD`, hors journée partagée) ne rompent
+plus la fusion ; elle couvre les trois pauses (FLI 06-18, JBI 18-06), et
+ils s'affichent dessous, dans la part de leur pause (`.eqfus-sous`).
+**Mesuré** au navigateur de septembre à novembre : seuls les 26 et 27/10
+changent ; les deux autres fusions de la période (CM et terrain arrière)
+sont identiques ; 320 et 390 px sans débordement ; vérificateur, manques,
+polyvalences, compteurs et agendas identiques (affichage seul).

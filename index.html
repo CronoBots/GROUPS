@@ -4782,6 +4782,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqfus-sep{position:absolute; top:0; bottom:0; width:0; border-left:1px dashed var(--trait-fort); pointer-events:none}
 .eqfus-maint{position:absolute; top:0; bottom:0; background:var(--maint); pointer-events:none}
 .eqfus{position:relative; z-index:1}
+.eqfus-sous{position:relative; z-index:1; margin-top:4px; box-sizing:border-box; padding:0 2px}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:1px; padding:3px 4px; border-radius:6px; border:1px dashed var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
@@ -24090,7 +24091,7 @@ function renderEquipe(){
          le même poste sur toute la pause voisine fait fusionner les deux
          cases. Rend {debut:{k:[clés]}, saute:{k:1}, rel:{premièreClé:[relais]}}. */
       function fusionsLigne(P){
-        var f={debut:{}, saute:{}, rel:{}};
+        var f={debut:{}, saute:{}, rel:{}, extra:{}};
         ORDRE3.forEach(function(X,ix){
           if(!vp[X]) return;
           var oX=poste(X,P.k); if(!oX || !oX.relais || !oX.relais.length || oX.gens.length) return;
@@ -24103,18 +24104,31 @@ function renderEquipe(){
             if(!vp[Y] || f.saute[Y] || f.debut[Y]) return;
             if(!(rl.A<=PF_DEB[Y]+0.01 && rl.B>=PF_FIN[Y]-0.01)) return;
             var oY=poste(Y,P.k);
-            if(!oY || oY.manque || (oY.relais&&oY.relais.length) || oY.gens.length!==1 || oY.gens[0].p.id!==rl.p.id) return;
+            if(!oY || oY.manque || (oY.relais&&oY.relais.length)) return;
+            /* LES GENS DE JOUR NE ROMPENT PAS LA FUSION (le client, le
+               25/10/2026, sur le 27/10 : « FLI tient le poste de CM de 06 à
+               18 puis JBI 18-06 ; il faut que le badge de FLI soit présenté
+               comme pour JBI, de 06-18 sur une ligne, et les 2 autres
+               contremaîtres à la ligne en dessous en AM pour leurs 7-15 »).
+               Seul le relais tient la pause voisine ; ceux venus de la
+               colonne D (GPS, YPE en 07-15) passent sous la fusion, dans la
+               part de leur pause. */
+            var seuls=oY.gens.filter(function(x){ return x.p.id===rl.p.id; }),
+                autres=oY.gens.filter(function(x){ return x.p.id!==rl.p.id; });
+            if(seuls.length!==1 || autres.some(function(x){ return !x.deD || x.partage; })) return;
+            if(autres.length) f.extra[Y]=autres;
             if(grp.indexOf(Y)<0) grp.push(Y);
           });
           if(grp.length<2) return;
           grp.sort(function(a,b){ return ORDRE3.indexOf(a)-ORDRE3.indexOf(b); });
           f.debut[grp[0]]=grp; f.rel[grp[0]]=oX.relais;
+          Object.keys(f.extra).forEach(function(k){ if(grp.indexOf(k)<0) delete f.extra[k]; });
           grp.slice(1).forEach(function(k){ f.saute[k]=1; });
         });
         return f;
       }
       function hhF(v){ v=((v%24)+24)%24; var h=Math.floor(v), m=Math.round((v-h)*60); return pad2(h)+(m?"h"+pad2(m):""); }
-      function caseFusion(grp,rels){
+      function caseFusion(grp,rels,extra,P){
         var S=PF_DEB[grp[0]], E=PF_FIN[grp[grp.length-1]];
         var segs=rels.slice().sort(function(a,b){ return a.A-b.A; }).map(function(rl){
           var a=Math.max(rl.A,S), b=Math.min(rl.B,E), hor=hhF(a)+"-"+hhF(b);
@@ -24128,7 +24142,14 @@ function renderEquipe(){
           if(i) fond+='<i class="eqfus-sep" style="left:'+(100*i/n)+'%"></i>';
           if(k===mck) fond+='<i class="eqfus-maint" style="left:'+(100*i/n)+'%;width:'+(100/n)+'%"></i>';
         });
-        return '<td class="fusion" colspan="'+n+'" data-k="'+grp.join(" ")+'">'+fond+'<div class="eqfus">'+segs+'</div></td>';
+        var sous="";
+        grp.forEach(function(k,i){
+          var ex=extra&&extra[k]; if(!ex||!ex.length) return;
+          var g=PAUSES.filter(function(q){ return q.k===k; })[0];
+          sous+='<div class="eqfus-sous" style="margin-left:'+(100*i/n)+'%;width:'+(100/n)+'%"><div class="eqc">'
+            +ex.map(function(x){ return chip(x,g,P,true); }).join("")+'</div></div>';
+        });
+        return '<td class="fusion" colspan="'+n+'" data-k="'+grp.join(" ")+'">'+fond+'<div class="eqfus">'+segs+'</div>'+sous+'</td>';
       }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
@@ -24150,7 +24171,7 @@ function renderEquipe(){
         PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           if(fus.saute[g.k]) return;
-          if(fus.debut[g.k]){ tp.push(caseFusion(fus.debut[g.k],fus.rel[g.k])); return; }
+          if(fus.debut[g.k]){ tp.push(caseFusion(fus.debut[g.k],fus.rel[g.k],fus.extra,P)); return; }
           var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
           /* Le client : « on peut également mettre "-" pour la STEP PM et
              N ». Une case grise et muette laissait croire à un oubli ; le
