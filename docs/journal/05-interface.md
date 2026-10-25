@@ -4912,3 +4912,14 @@ au toucher (« Chaudières · N · 2/3 · de 2 h à 6 h »). La rangée n'a plus
 de trait au-dessus, et le fond rouge d'un poste incomplet continue sous les
 cadres de sa colonne : une seule case. Un « ? » de toute la pause reste
 dans la case (le 22/10). Vérificateur et manques identiques.
+
+**Puis (v1063).** Le client : « ça doit respecter les écarts des bordures
+gauche ou droite si au bord, et le fond rouge doit être derrière les badges
+qui se prolongent sur 2 pauses ». **Mesuré** le 23/10 : `alignerFusions` ne
+posait la marge qu'à la PREMIÈRE ligne de cadres d'une case ; sur la
+seconde, « ? 02-06 » était à 4 px du bord (badges : 14 px à 390, 57 px à
+1280). Toutes les lignes d'une case reçoivent maintenant la même marge (les
+heures restent alignées d'une ligne à l'autre) : 14 et 57 px. Et le fond
+des cadres était translucide — le rouge de la nuit teintait la moitié de
+KDN et de SPS : il est opaque (bleu à 10 % sur `--surface3`, comme le fond
+d'un badge), le rouge reste derrière.
