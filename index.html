@@ -27309,13 +27309,26 @@ function alignerFusions(tbl){
   if(!ref) return;
   var hR=ref.getBoundingClientRect().height, bR=ref.querySelector("b"), sR=ref.querySelector(".eqhd");
   var bCs=bR&&getComputedStyle(bR), sCs=sR&&getComputedStyle(sR);
-  var ecart=1e9;
+  /* L'ÉCART AU BORD : celui d'une ligne de DEUX badges, le plus fréquent
+     (relevé du 25/10/2026 : 3,5 / 14 / 86 px à 320 / 390 / 1280, stable
+     d'un jour à l'autre). Le plus petit de toutes les cases, pris avant,
+     variait au PC de 27,5 à 57 px selon les badges à heure du jour. */
+  var ecart=1e9, freq={};
   Array.prototype.forEach.call(tbl.querySelectorAll("tbody td:not(.fusion)"),function(td){
     var es=td.querySelectorAll(":scope > .eqc > .eqn"); if(es.length<2) return;
-    var rt=td.getBoundingClientRect();
-    Array.prototype.forEach.call(es,function(e){ var r=e.getBoundingClientRect();
-      ecart=Math.min(ecart,r.left-rt.left,rt.right-r.right); });
+    var rt=td.getBoundingClientRect(), lig={};
+    Array.prototype.forEach.call(es,function(e){ var r=e.getBoundingClientRect(), y=Math.round(r.top); (lig[y]=lig[y]||[]).push(r); });
+    Object.keys(lig).forEach(function(y){ var l=lig[y]; if(l.length!==2) return;
+      var g=Math.round(Math.min(l[0].left,l[1].left)-rt.left); freq[g]=(freq[g]||0)+1; });
   });
+  var fmax=0; Object.keys(freq).forEach(function(g){ if(freq[g]>fmax||(freq[g]===fmax&&Number(g)<ecart)){ fmax=freq[g]; ecart=Number(g); } });
+  /* et les écarts de la grille des badges, entre deux badges et entre deux
+     lignes : 4 px au téléphone, 6 au PC */
+  var eqcG=tbl.querySelector("tbody td:not(.fusion) .eqc"), csG=eqcG&&getComputedStyle(eqcG);
+  var gapH=csG?(parseFloat(csG.columnGap)||4):4, gapV=csG?(parseFloat(csG.rowGap)||4):4;
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.fusion:not(.bande) > .eqfus"),function(f){ f.style.gap=gapH+"px"; });
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.fusion .eqfus-sous"),function(so){ so.style.marginTop=gapV+"px"; });
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.bande > .eqfus + .eqfus"),function(f){ f.style.marginTop=gapV+"px"; });
   Array.prototype.forEach.call(segs,function(e){
     e.style.boxSizing="border-box"; e.style.height=hR+"px"; e.style.paddingTop="0"; e.style.paddingBottom="0";
     e.style.borderRadius=getComputedStyle(ref).borderRadius;
@@ -27365,7 +27378,7 @@ function alignerFusions(tbl){
     var cols=Array.prototype.filter.call(haut.children,function(c){ return c.tagName==="TD"; }).map(function(c){ return c.getBoundingClientRect(); });
     var S=Number(td.getAttribute("data-s")), E=Number(td.getAttribute("data-e")), n=cols.length;
     if(!n || Math.abs((E-S)/8-n)>0.01) return;
-    var marge=ecart<1e9?ecart:6, jeu=2;
+    var marge=ecart<1e9?ecart:6, jeu=gapH/2;
     function x(v){ var i=Math.min(n-1,Math.max(0,Math.floor((v-S)/8+1e-6))); if(v>=E-0.01) i=n-1;
       var r=cols[i]; return r.left+(v-(S+8*i))/8*r.width; }
     function bord(v){ return Math.abs(((v-S)%8+8)%8)<0.01 || v<=S+0.01 || v>=E-0.01; }
