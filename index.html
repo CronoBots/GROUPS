@@ -4810,6 +4810,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:var(--surface3)}
 .eqfus>.eqseg.jour b{color:var(--ink)}
+.eqfus>.eqseg.form{border-style:dashed; border-color:var(--bord-jour)}
+.eqfus>.eqseg.form b,.eqhote .eqp2 tbody td .eqn.relais.form b{color:var(--at-jaune)}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,var(--surface3))}
@@ -24262,7 +24264,11 @@ function renderEquipe(){
           var pp=(x0||m[0].r).p;
           if(!com) com=String(((pp.d||{})[mmdd]||[])[2]||"").trim();
           m.forEach(function(q){ if(q.x) q.x.enBande=true; if(q.r) q.r.enBande=true; });
-          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD});
+          /* en formation et non validé à CE poste : nom jaune, comme son
+             badge (le client, le 25/10/2026 : « attention que SVE est en
+             formation distillation et n'apparaît pas en jaune ») */
+          var fo=false; try{ fo=enFormation(pp,jourCalc) && !compteAuPoste(x0||{p:pp},P,jourCalc); }catch(eF){}
+          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD, form:fo});
         });
         return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
       }
@@ -24292,7 +24298,7 @@ function renderEquipe(){
               if(qa-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((qa-pos)*10)/10)+'"></i>';
               seg+=bd.trou.html; pos=a; }
             if(a-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((a-pos)*10)/10)+'"></i>';
-            seg+='<span data-h="'+a+' '+b+'" class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
+            seg+='<span data-h="'+a+' '+b+'" class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.form?" form":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
               +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
               +' title="'+esc(fonctionPersonne(bd.p))+" · de "+esc(hhF(a)+" à "+hhF(b))+'">'
               +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))+'</small></span>';
@@ -24377,7 +24383,8 @@ function renderEquipe(){
           var relH=(o.relais||[]).filter(function(r){ return !r.enBande; }).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
-              return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+(r.remp?" · remplace "+esc(r.remp)+" de "+esc(r.hor.replace("-"," à ")):" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")")
+              var foR=false; try{ foR=enFormation(r.p,jourCalc) && !compteAuPoste({p:r.p},o.P,jourCalc); }catch(eF){}
+              return '<span class="eqn relais'+(foR?' form':'')+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+(r.remp?" · remplace "+esc(r.remp)+" de "+esc(r.hor.replace("-"," à ")):" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")")
                 +'"><b>'+esc(idLisible(r.p.id))+'</b><small class="eqhd">'+esc(r.hor)+"</small></span>"; }).join("");
           /* Une étiquette « ? » par place vide, au lieu du compte « 1 / 2 »
              (le client, le 29/09/2026). */

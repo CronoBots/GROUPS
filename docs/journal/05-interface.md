@@ -4963,3 +4963,11 @@ thème clair). Vérifié les 22/10, 23/10, 01/09 et 27/10 à 320, 390 et
 L'heure des badges (`.eqhd`) et des cadres (`.eqseg small`) passe du gris
 `--muted` à `--ink`, la couleur du trigramme : blanc au thème sombre, foncé
 au clair. Une seule teinte relevée sur tout le tableau du 23/10.
+
+**Puis (v1068).** Le client : « attention que SVE est en formation
+distillation et n'apparaît pas en jaune ». Le jaune de la formation (et
+son pointillé blanc) n'était posé que par `chip()` ; ni les cadres sur
+deux pauses ni les relais ne le recevaient. Ils le reçoivent, par la même
+règle — en formation ET non validé au poste montré (`compteAuPoste`) : le
+23/10, SVE 10-18 en distillation devient jaune, alors que son relais
+18-22 au gluten, où elle est validée, reste bleu.
