@@ -6246,7 +6246,25 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 /* l'apprenti non validé au poste montré : pointillé blanc, comme l'horaire
    de jour (le client, le 25/10/2026 : « pointillé blanc aussi ceux en
    formation et non validés au poste qu'ils sont ce jour-là ») */
-#jourCorps.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:dashed; border-color:var(--bord-jour)}
+/* (25/10/2026, puis le même jour) « finalement : bordures blanches aux
+   personnes en poste, bordure grise aux opérateurs en formation, et un
+   petit coin rouge aux opérateurs avec commentaire ». L'apprenti non
+   validé au poste montré reprend le gris --trait (pointillé s'il est en
+   horaire de jour) ; son nom reste jaune. */
+.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app),
+#jourCorps.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:solid; border-color:var(--trait)}
+.eqhote .eqp2 tbody td .eqn.form.jour:not(.moi):not(.app),
+#jourCorps.eqhote .eqp2 tbody td .eqn.form.jour:not(.moi):not(.app){border-style:dashed; border-color:var(--trait)}
+.eqfus>.eqseg.form{border-style:solid; border-color:var(--trait)}
+.eqfus>.eqseg.form.jour{border-style:dashed}
+/* LE COMMENTAIRE : un petit coin rouge en haut à droite du badge, au lieu
+   du soulignement du 04/10 (le client, le 25/10/2026). Le badge reste
+   cliquable, le clic ouvre le mot du classeur. */
+.eqhote .eqp2 tbody td .eqn.coment b,.eqfus>.eqseg.coment b{text-decoration:none}
+.eqhote .eqp2 tbody td .eqn.coment{position:relative}
+td.fusion:not(.bande)>.eqfus>.eqseg.coment{position:relative}
+.eqhote .eqp2 tbody td .eqn.coment::after,.eqfus>.eqseg.coment::after{content:""; position:absolute; top:-1px; right:-1px; width:0; height:0;
+  border-top:7px solid var(--at-rouge); border-left:7px solid transparent; border-top-right-radius:6px; pointer-events:none}
 /* les relais en trait plein (le client, le 25/10/2026 : « ceux
    actuellement en pointillé bleu, en trait normal ») : le pointillé est
    désormais l'horaire de jour */
@@ -6524,8 +6542,9 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg span{display:inline-flex; align-items:center; gap:6px}
   .eqleg-b{font:700 11px/1 "IBM Plex Mono",monospace; font-style:normal; padding:3px 5px; border-radius:5px; background:var(--surface3); border:1px solid var(--bord-pause); color:var(--ink)}
   .eqleg-b.moi{border-color:var(--in); background:var(--in-soft)}
-  .eqleg-b.form{color:var(--at-jaune); border-style:dashed; border-color:var(--bord-jour)}
-  .eqleg-b.com{text-decoration:underline solid var(--muted); text-underline-offset:2px}
+  .eqleg-b.form{color:var(--at-jaune); border-color:var(--trait)}
+  .eqleg-b.com{position:relative}
+  .eqleg-b.com::after{content:""; position:absolute; top:-1px; right:-1px; border-top:6px solid var(--at-rouge); border-left:6px solid transparent; border-top-right-radius:5px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
   .eqleg-b.relais{border-color:var(--rel); color:var(--rel)}
   .eqleg-b.jour{border-style:dashed; border-color:var(--bord-jour)}
