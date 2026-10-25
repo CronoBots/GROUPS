@@ -5048,3 +5048,13 @@ poste montré : gris `--trait`, en pointillé si horaire de jour, nom jaune
 soulignement du 04/10 ; le badge reste cliquable. Légende du PC à jour.
 Relevé des styles du 23/10 : chaque cas a sa bordure, le coin est posé sur
 tous les badges commentés, aucun soulignement ne reste.
+
+**Puis (v1076).** Le client : « même les 12 heures peuvent être blanches ;
+les bordures grises peuvent être un peu plus marquées ». Relais et cadres
+sur deux pauses prennent l'habit des badges en poste (trait blanc, nom
+blanc, fond ordinaire) — leurs heures et leur cadre allongé les
+distinguent ; le jeton `--rel` et l'entrée « relais 12 h » de la légende
+sont retirés. « Vous » reste cyan. La formation passe de `--trait` à
+`--trait-fort` (#6B7488 au sombre, #9DA2AE au clair). Relevé du 23/10 :
+blanc pour tout ce qui est en poste, gris marqué pour les apprentis, coin
+rouge sur les badges commentés.
