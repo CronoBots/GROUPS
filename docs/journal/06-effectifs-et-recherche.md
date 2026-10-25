@@ -3282,3 +3282,13 @@ Reste, et pas corrigé ici : le 06/09, ATA fait 6 h-18 h sous le code
 0/1 avec un « ? ». C'est un comptage, pas un affichage ; jour passé, hors
 de la liste des manques à venir.
 
+
+**Retiré le même soir (v1052).** Le client : « ah non désolé, il se peut
+d'avoir 2 CM en pause ». Les deux règles d'AFFICHAGE nées de « un seul CM
+par pause » sont retirées : le cadre en journée retourne dans la case CM
+du matin (GPS 07-15 à côté d'ATA le 25/10), et une case CM peut de
+nouveau montrer plusieurs cadres (02/09). La LECTURE du 07/10 (JBI au
+matin, « Un remplacement échangé ») reste : elle ne dépendait pas de
+cette règle, le classeur la prouve par le départ à 13 h et par AFA
+« remplace JBI de 13h à 14h ». Vérificateur, manques, polyvalences,
+compteurs et agendas identiques à la version précédente.
