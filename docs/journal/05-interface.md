@@ -5444,3 +5444,20 @@ réduire après un rechargement.
 
 Mesuré, même parcours (départ, déplier, recharger, réduire, recharger) :
 `v1102` 2 · 6 · 6 · **6** · 2 ; `v1103` 2 · 6 · 6 · **2** · 2.
+
+### Le type de feuille de congé en sélecteur (25/10/2026, `nfdm-v1104`)
+
+Le client, capture de la feuille au téléphone : « meilleurs boutons de
+choix de type de congé, et plus bas sur mobile car dans le flou ». Les
+trois types s'empilaient en trois cadres (144 px), le premier collé sous
+l'en-tête. Désormais un sélecteur à trois segments sur une rangée : le
+type choisi rempli de la couleur d'action, une aide courte sous chacun
+(« remplacement · pause », « ≥ 1 semaine », « non payé ») ; 20 px sous
+l'en-tête au téléphone (6 avant). À 320 px, l'aide passe sur deux lignes
+(« remplacement · pause » ne tient pas dans 90 px), les segments gardent la
+même hauteur.
+
+Mesuré (Playwright) : 62 px de haut à 390 et 1280 (144 avant), 74 à 320 ;
+aucun texte coupé ; le choix « Longue durée » change bien la feuille ;
+aucune erreur. Non reproduit : le « flou » de l'en-tête sur l'iPhone
+(au navigateur, le titre est au premier plan, opacité 1, sans filtre).
