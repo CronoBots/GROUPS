@@ -5108,3 +5108,17 @@ mouvement. Vérifié aux deux temps de l'animation, à 320, 390 et 1280 px.
 **Puis (v1083).** Le client : « un peu plus discret ». Teinte au plus fort
 0,24 → 0,17 (sombre) et 0,18 → 0,14 (clair) ; liserés 0,6 → 0,35 et
 0,55 → 0,32 ; respiration ralentie de 2,4 à 3,2 s.
+
+## Le Salaire quitte la barre (25/10/2026, v1084)
+
+Le client : « mettre la fonction de calcul de salaire en onglet du menu, car
+ce n'est plus une fonctionnalité principale ». **Téléphone** : la barre du
+bas passe à quatre entrées (l’Accueil, le Planning, les Équipes et « Plus ») ; « Salaire »
+s'ouvre depuis la feuille « Plus », sous Effectifs et Recherche, avec son
+repère « écart à vérifier » quand il y en a un ; « Plus » s'allume quand le
+Salaire est ouvert. **Tablette** : il rejoint le menu « Gestion » / « Mon
+équipe » — un bouton qui s'affiche désormais toujours, et s'appelle « Plus »
+s'il n'a pas d'autre section. **PC** : il reste au menu de gauche, mais en
+dernier. Vérifié pour la hiérarchie et un opérateur, à 390, 900 et 1280 px.
+Les liens vers le Salaire ailleurs (accès rapides de l'Accueil) ne
+changent pas.

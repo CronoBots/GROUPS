@@ -6648,7 +6648,7 @@ html .eqleg-souris{display:none}
   html .top>.tabs .side-cat{display:block; margin:14px 12px 6px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   html .top>.tabs .side-cat[data-cat="moi"]{order:0; margin-top:4px}
   html .top>.tabs #tab-horaire{order:1}
-  html .top>.tabs #tab-salaire{order:2}
+  html .top>.tabs #tab-salaire{order:8} /* plus en tête : une fonction d'appoint (25/10/2026) */
   html .top>.tabs .side-cat[data-cat="usine"]{order:3}
   html .top>.tabs #tab-jour{order:4}
   html .top>.tabs #tab-equipe{order:5}
@@ -6657,7 +6657,9 @@ html .eqleg-souris{display:none}
   html .top>.tabs #tab-direction{display:none}
 }
 @media (max-width:760px){
-  html .navwrap>.tabs #tab-rh,html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction{display:none}
+  /* le Salaire rejoint la feuille « Plus » (le client, le 25/10/2026 : « ce
+     n'est plus une fonctionnalité principale ») */
+  html .navwrap>.tabs #tab-rh,html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction,html .navwrap>.tabs #tab-salaire{display:none}
   html .navwrap>.tabs #tab-plus{display:flex; position:relative}
   html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
   /* « Plus » courant garde l'anneau du clavier : la règle ci-dessus, d'un
@@ -6696,7 +6698,7 @@ html .eqleg-souris{display:none}
    feuille en menu déroulant ; les onglets se resserrent pour tenir. */
 .plus-t{display:none}
 @media (min-width:761px) and (max-width:1099px){
-  html .top .tabs #tab-direction{display:none}
+  html .top .tabs #tab-direction,html .top .tabs #tab-salaire{display:none}
   html .top .tabs button{padding-left:9px; padding-right:9px}
   html .top .tabs #tab-plus.a-gestion{display:inline-flex; position:relative; white-space:nowrap}
   html .top .tabs #tab-plus .plus-m{display:none}
@@ -11490,7 +11492,7 @@ function setView(v,keepScroll){
   if(v==="equipe"){ renderOrganisation(); appliquerEqSub(); requestAnimationFrame(function(){ setTimeout(renderPolyvalence,0); }); }
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
   if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
-  var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="rh"||v==="recherche"||v==="direction");
+  var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="rh"||v==="recherche"||v==="direction"||v==="salaire");
   try{ sideMaj(); }catch(e){}
   /* le titre de l'onglet du navigateur dit la vue : plusieurs fenêtres se
      distinguent ; le nom choisi par le client reste (audit du 23/10/2026) */
@@ -18433,7 +18435,7 @@ function fermerGrille(parRetour){
   g0.hidden=true;
   wsBarreMarque();
   if(ouvert&&parRetour!==true) navRetirer("g");
-  var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="rh"||st.view==="recherche"||st.view==="direction");
+  var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="rh"||st.view==="recherche"||st.view==="direction"||st.view==="salaire");
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
@@ -29623,8 +29625,10 @@ function sideMaj(){
   /* la Gestion de la tablette n'apparaît que s'il y a une section à ouvrir
      (audit du 23/10/2026) */
   var tpg=document.getElementById("tab-plus"), lib=document.getElementById("plusLib");
-  if(tpg) tpg.classList.toggle("a-gestion",!!l.length);
-  if(lib) lib.textContent=peutSaisir()?"Gestion":"Mon équipe";
+  /* il y a toujours le Salaire à y ouvrir (25/10/2026) : sans section de
+     gestion, le bouton s'appelle « Plus » */
+  if(tpg) tpg.classList.add("a-gestion");
+  if(lib) lib.textContent=!l.length?"Plus":peutSaisir()?"Gestion":"Mon équipe";
   var ouvert=!document.getElementById("grille").hidden;
   /* Direction rejoint la Gestion au PC (le client, le 22/10/2026) : elle
      n'est qu'à la RH, comme le reste de la colonne. */
@@ -29700,6 +29704,10 @@ function sideMaj(){
     var h=tel?'<p class="plus-titre">Sections</p>'
       +ligne('data-go="rh"'+(dE.length?' aria-label="'+esc("Effectifs · "+dE.join(" · "))+'"':''),svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb" title="'+esc(tA)+'">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app" title="'+esc(tB)+'">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
       +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche")+dirL:"";
+    /* le Salaire, hors de la barre au téléphone et à la tablette (le client,
+       le 25/10/2026) ; son point « écart à vérifier » le suit */
+    var ecS=document.getElementById("ctrlDot"), ecV=ecS&&!ecS.hidden;
+    h+=ligne('data-go="salaire"'+(ecV?' aria-label="Salaire · écart à vérifier"':''),svgDe("tab-salaire"),"Salaire",ecV?'<span class="plus-nb app" title="écart à vérifier">!</span>':'',st.view==="salaire");
     var l=compteBase()?wsMenuSections():[];
     if(l.length||(!tel&&dirL)) h+='<p class="plus-titre">'+(peutSaisir()?'Gestion':'Mon équipe')+'</p>'+(tel?"":dirL)+l.map(function(x){
       var dn=x.s==="demandes"?wsNbDemandes():x.s==="valider"?wsNbValider():0, dd=dn?descCompte(x.s,dn):"";
