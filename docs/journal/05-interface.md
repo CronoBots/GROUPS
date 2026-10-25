@@ -5037,3 +5037,14 @@ colonne N décentrés d'autant. Au navigateur de test, la barre ne se voit
 pas, d'où les 14 / 14 px relevés. **Corrigé** : plus de barre sur la grille
 du Planning (`scrollbar-width:none`, `::-webkit-scrollbar`) ; le défilement
 reste, et le fondu du bas le signale (vérifié à 390 × 720).
+
+**Puis (v1075).** Le client : « finalement : bordures blanches aux
+personnes en poste, bordure grise aux opérateurs en formation, et un petit
+coin rouge aux opérateurs avec commentaire ». En poste : trait blanc fin
+(inchangé), pointillé blanc en horaire de jour. Formation non validée au
+poste montré : gris `--trait`, en pointillé si horaire de jour, nom jaune
+— badges, relais et cadres. Commentaire : un coin rouge (triangle de 7 px,
+`--at-rouge`) en haut à droite du badge ou du cadre, au lieu du
+soulignement du 04/10 ; le badge reste cliquable. Légende du PC à jour.
+Relevé des styles du 23/10 : chaque cas a sa bordure, le coin est posé sur
+tous les badges commentés, aucun soulignement ne reste.
