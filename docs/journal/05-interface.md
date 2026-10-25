@@ -5255,6 +5255,10 @@ ne se filtre pas sans une règle du client.
 
 ### « Mon cycle » : seuls les commentaires qui changent le poste (25/10/2026, `nfdm-v1095`)
 
+**RETIRÉ le même jour (`nfdm-v1096`).** Le client : « non, il faut laisser
+tous les commentaires finalement ». Tous les coins rouges reviennent ; ce
+qui suit ne vaut plus que comme trace.
+
 Le client : « oui, seulement ceux qui changent le poste ». Le coin rouge
 de « Mon cycle » ne marque plus que les commentaires de remplacement,
 d'échange, de rappel ou de renfort (`/rempla|rempl.? par|[ée]change|rappel|renfort/i`).
@@ -5266,3 +5270,19 @@ Mesuré : sur tout l'horaire 2026, 5 050 des 7 015 commentaires gardent
 leur coin (28 % retirés). Au navigateur, cycle de la personne de test au
 20/12/2026 : 9 coins ; filtre neutralisé sur une copie, 10 — le coin
 retiré est bien « cf 18/12 ». Aucune erreur.
+
+### Le prochain poste, plus compact (25/10/2026, `nfdm-v1096`)
+
+Le client : « optimise la partie prochain poste ou poste en cours, car
+prend beaucoup de place ». Le billet empilait cinq étages : en-tête
+(« En poste » / « Encore 6 h »), titre, heures, date en toutes lettres,
+barre. La date, quand le titre est en mots (« Cet après-midi »), rejoint
+l'en-tête en abrégé (« En poste · sam. 31 oct. ») ; le titre et les
+heures se suivent sur une ligne si la largeur le permet (PC) ; pastille
+de pause 40 px au lieu de 46 ; marges resserrées. L'en-tête ne passe
+jamais à la ligne : sous 360 px, « Prochain poste » devient « Prochain »
+(mesuré : « Prochain poste · sam. 7 nov. » faisait 182 px pour 153).
+
+Mesuré (Playwright, 320/390/1280) : en poste 135/137/137 → 106/107/91 px ;
+la veille 127/129/129 → 97/98/91 ; date en titre 105/106/106 → 97/98/91.
+Aucun débordement, aucune erreur.
