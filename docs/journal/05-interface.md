@@ -4992,3 +4992,27 @@ les relèves qui changent — relais et cadres sur deux pauses prennent
 `--rel`, un violet que ni une pause, ni un atelier, ni un autre repère ne
 porte (#B9A2F2 au sombre, #6A47B8 au clair). Votre propre cadre de relève
 reste cyan. Légende du PC à jour.
+
+## Relevé de tous les écarts du Planning (25/10/2026, v1071)
+
+Le client : « vérifie tous les alignements et écarts par rapport aux
+bordures ». Relevé au navigateur (script, pas à l'œil) sur les 22, 23, 26
+et 27/10 à 320, 390 et 1280 px : centrage horizontal et vertical de
+chaque ligne de badges, écarts entre badges et entre lignes, écart des
+cadres aux bords et aux séparations, hauteurs, espace cadre → badges.
+
+**Juste** : badges centrés dans toutes les cases ; 4 px entre deux
+badges et entre deux lignes au téléphone, 6 px au PC ; cadres de la
+hauteur des badges (28 / 30 / 43 px). **Faux positif** : la première
+ligne de chaque zone d'atelier semblait décentrée de 2 px vers le bas —
+c'est son trait du haut, de 2 px au lieu d'1 ; le badge est centré entre
+les deux traits.
+
+**Corrigé** : (1) deux cadres côte à côte étaient à 3 px (fusion) ou 4 px
+(rangée), au lieu de l'écart des badges — 4 px au téléphone, 6 au PC ;
+(2) au PC, 4 px entre un cadre et les badges du dessous ou entre deux
+lignes de cadres, au lieu de 6 ; (3) l'écart au bord se prenait sur la
+case de deux badges la plus serrée du jour, et variait au PC de 27,5 à
+57 px d'un jour à l'autre : il vaut maintenant celui, le plus fréquent,
+d'une ligne de deux badges — 3,5 / 14 / 86 px, stable. Après : mêmes
+écarts partout aux trois largeurs. Vérificateur et manques identiques.
