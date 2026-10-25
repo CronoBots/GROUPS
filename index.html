@@ -4788,6 +4788,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqfus-maint{position:absolute; top:0; bottom:0; background:var(--maint); pointer-events:none}
 .eqfus{position:relative; z-index:1}
 .eqfus-sous{position:relative; z-index:1; margin-top:4px; box-sizing:border-box; padding:0 2px}
+.eqfus>.eqvide-sp{flex-basis:0; min-width:0}
+td.fusion.bande .eqfus+.eqfus{margin-top:4px}
+.eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:none}
+.eqfus>.eqseg.jour b{color:var(--ink)}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
@@ -24175,6 +24179,88 @@ function renderEquipe(){
         });
         return '<td class="fusion" colspan="'+n+'" data-k="'+grp.join(" ")+'">'+fond+'<div class="eqfus">'+segs+'</div>'+sous+'</td>';
       }
+      /* UN SEUL CADRE POUR UNE JOURNÉE SUR DEUX PAUSES (le client, le
+         25/10/2026 : « faut-il un cadre bleu allongé sur 2 pauses pour JBS,
+         KDN, SPS au lieu de les mettre 2 fois ? »). Chaudières le 23/10 :
+         JBS « 06-14 » au matin et « 14-18 » en relais l'après-midi, KDN
+         « 18-22 » puis « 22-06 », SPS « 14-22 » puis « 22-02 » — trois
+         personnes écrites six fois. Comme la fusion de FLI et JBI, mais dans
+         une case où d'autres travaillent : la ligne du poste garde ceux qui
+         ne tiennent qu'une pause, et une rangée dessous, sur toute la
+         largeur, porte un cadre par personne, de son arrivée à son départ,
+         placé à ses heures. Affichage seul : les comptes et les « ? » de
+         chaque case se font avec tout le monde (enBande ne cache que le
+         badge). Pas de rangée quand la ligne a déjà sa fusion. */
+      function bandesLigne(P,fus){
+        if(Object.keys(fus.debut).length) return [];
+        var vis=ORDRE3.filter(function(k){ return vp[k]; }); if(vis.length<2) return [];
+        var S=PF_DEB[vis[0]];
+        function ax(v){ while(v<S-0.01) v+=24; while(v>=S+24-0.01) v-=24; return v; }
+        var parId={};
+        vis.forEach(function(gk){
+          var o=poste(gk,P.k); if(!o) return;
+          o.gens.forEach(function(x){ if(!x.horPart) return; var a=ax(x.horPart[0]), l=(((x.horPart[1]-x.horPart[0])%24)+24)%24||24;
+            (parId[x.p.id]=parId[x.p.id]||[]).push({gk:gk, a:a, b:a+l, x:x}); });
+          (o.relais||[]).forEach(function(r){ if(r.dec) return; var a=ax(r.de!=null?r.de:r.a), l=(((r.b-(r.de!=null?r.de:r.a))%24)+24)%24||24;
+            (parId[r.p.id]=parId[r.p.id]||[]).push({gk:gk, a:a, b:a+l, r:r}); });
+        });
+        /* le reste de la journée d'un relais : son badge de pause n'a pas
+           d'heures à lui (JBS « 6h-18h » au matin, relais 14-18 l'après-
+           midi) ; on les tire de la journée entière du relais (A-B) */
+        vis.forEach(function(gk){
+          var o=poste(gk,P.k); if(!o) return;
+          o.gens.forEach(function(x){
+            if(x.horPart || !parId[x.p.id]) return;
+            var rq=parId[x.p.id].filter(function(q){ return q.r; })[0]; if(!rq || rq.gk===gk) return;
+            var A=ax(rq.r.A), B=A+((((rq.r.B-rq.r.A)%24)+24)%24||24);
+            var a=Math.max(A,ax(PF_DEB[gk])), b=Math.min(B,ax(PF_DEB[gk])+(PF_FIN[gk]-PF_DEB[gk]));
+            if(b-a<0.5) return;
+            parId[x.p.id].push({gk:gk, a:a, b:b, x:x});
+          });
+        });
+        var out=[];
+        Object.keys(parId).forEach(function(id){
+          var m=parId[id].sort(function(u,v){ return u.a-v.a; }), gks={};
+          m.forEach(function(q){ gks[q.gk]=1; });
+          if(Object.keys(gks).length<2) return;
+          for(var i=1;i<m.length;i++) if(Math.abs(m[i].a-m[i-1].b)>0.01) return;
+          var x0=null, com="", deD=false;
+          m.forEach(function(q){ if(q.x){ x0=x0||q.x; deD=deD||!!q.x.deD; } if(q.r&&q.r.com) com=com||q.r.com; });
+          var pp=(x0||m[0].r).p;
+          if(!com) com=String(((pp.d||{})[mmdd]||[])[2]||"").trim();
+          m.forEach(function(q){ if(q.x) q.x.enBande=true; if(q.r) q.r.enBande=true; });
+          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD});
+        });
+        return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
+      }
+      function caseBandes(bandes){
+        var vis=ORDRE3.filter(function(k){ return vp[k]; }), n=vis.length;
+        var S=PF_DEB[vis[0]], E=PF_FIN[vis[n-1]], L=E-S, voies=[];
+        bandes.forEach(function(bd){
+          for(var i=0;i<voies.length;i++){ if(voies[i].fin<=bd.a+0.01){ voies[i].fin=bd.b; voies[i].l.push(bd); return; } }
+          voies.push({fin:bd.b, l:[bd]});
+        });
+        var fond="";
+        vis.forEach(function(k,i){
+          if(i) fond+='<i class="eqfus-sep" style="left:'+(100*i/n)+'%"></i>';
+          if(k===mck) fond+='<i class="eqfus-maint" style="left:'+(100*i/n)+'%;width:'+(100/n)+'%"></i>';
+        });
+        var h=voies.map(function(v){
+          var pos=S, seg="";
+          v.l.forEach(function(bd){
+            var a=Math.max(bd.a,S), b=Math.min(bd.b,E);
+            if(a-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((a-pos)*10)/10)+'"></i>';
+            seg+='<span class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
+              +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
+              +' title="'+esc(fonctionPersonne(bd.p))+" · de "+esc(hhF(a)+" à "+hhF(b))+'">'
+              +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))+'</small></span>';
+            pos=b;
+          });
+          if(E-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((E-pos)*10)/10)+'"></i>';
+          return '<div class="eqfus">'+seg+'</div>';
+        }).join("");
+        return '<td class="fusion bande" colspan="'+n+'" data-k="'+vis.join(" ")+'">'+fond+h+'</td>';
+      }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
         PAUSES.forEach(function(g){
@@ -24184,14 +24270,14 @@ function renderEquipe(){
         });
         if(!att && !sert) return;
         var debut=(P.z!==zPrec); zPrec=P.z;
+        var fus=fusionsLigne(P), bandes=bandesLigne(P,fus);
         tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
           /* Les deux intitulés, et la feuille choisit : le court sur un
              téléphone, l'entier au-delà de 760 px — comme l'onglet Équipe.
              Le client, le 26/09/2026, a choisi cette option pour rendre
              aux trois pauses la largeur que prenait l'intitulé. */
-          +'<th class="eqposte" scope="row"><b><span class="orgl1">'+esc(P.t)
+          +'<th class="eqposte" scope="row"'+(bandes.length?' rowspan="2"':'')+'><b><span class="orgl1">'+esc(P.t)
           +'</span><span class="orgl2">'+esc(EQ_COURT[P.k]||P.t)+"</span></b></th>");
-        var fus=fusionsLigne(P);
         PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           if(fus.saute[g.k]) return;
@@ -24236,6 +24322,7 @@ function renderEquipe(){
              rang égal. */
           var tientR=[], formH=[], eqP=String(eqCycle[g.k]||"").split("/");
           o.gens.forEach(function(x,ix){
+            if(x.enBande) return;
             var h=chip(x,g,o.P||null,true);
             if(enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc)){ formH.push(h); return; }
             var m=/shift\s*(\d+)/i.exec(String(x.p.cat||"")), sienne=!!(m && eqP.indexOf(m[1])>=0);
@@ -24244,7 +24331,7 @@ function renderEquipe(){
           });
           tientR.sort(function(a,b){ return a.r-b.r || a.i-b.i; });
           var tientH=tientR.map(function(t){ return t.h; });
-          var relH=(o.relais||[]).map(function(r){
+          var relH=(o.relais||[]).filter(function(r){ return !r.enBande; }).map(function(r){
               /* son commentaire du jour, comme tout badge (contour blanc, le
                  clic l'affiche) : c'est lui qui justifie le relais */
               return '<span class="eqn relais'+(r.com?' coment" data-com="'+esc(r.com)+'" tabindex="0" role="button"':'"')+' title="'+esc(fonctionPersonne(r.p))+(r.remp?" · remplace "+esc(r.remp)+" de "+esc(r.hor.replace("-"," à ")):" · relais 12 h, tient le poste de "+esc(r.hor.replace("-"," à "))+" (sa journée : "+pad2(Math.floor(r.plage[0])%24)+"-"+pad2(Math.floor(r.plage[1])%24)+")")
@@ -24332,6 +24419,7 @@ function renderEquipe(){
             +"</td>");
         }));
         tp.push("</tr>");
+        if(bandes.length) tp.push('<tr class="eqbande" data-z="'+esc(P.z||"")+'">'+caseBandes(bandes)+"</tr>");
       });
       /* L'opérateur dont le poste reste indéterminé se lisait dans la
          carte « Hors poste », loin du tableau — donc loin de la question
@@ -27194,9 +27282,12 @@ function ajusterLignesJour(){
        hauteurs entières vaut exactement « avail », donc le tableau atteint le
        bas sans laisser un filet qui n'irait pas toucher la bordure (le client,
        le 03/10/2026 : « des fois les séparations ne vont pas jusqu'en bas »). */
-    var sup=(avail-sum)/rows.length, acc=0;
+    /* la rangée des cadres sur deux pauses garde sa hauteur : le
+       supplément va aux lignes de poste */
+    var nPl=rows.filter(function(r){ return !r.classList.contains("eqbande"); }).length||rows.length;
+    var sup=(avail-sum)/nPl, acc=0;
     rows.forEach(function(r,i){
-      var suiv=acc+nat[i]+sup;
+      var suiv=acc+nat[i]+(r.classList.contains("eqbande")?0:sup);
       r.style.height=(Math.round(suiv)-Math.round(acc))+"px";
       acc=suiv;
     });
