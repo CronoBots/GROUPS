@@ -566,3 +566,13 @@ des polyvalences du héros. Aucune erreur.
 **Reste à confirmer** : le papier ne porte pas STEP ; un opérateur STEP
 (10 recyclages STEP au classeur RH) n'a donc pas de fonction à choisir,
 comme avant. Question écrite dans `docs/questions-client.md`.
+
+**Réponse du client, le même jour** : « oui, la STEP est un recyclage pour
+certains opérateurs ». STEP rejoint les fonctions de la fiche
+(`nfdm-v1110`), entre Chaudières et Contremaître ; la base l'accepte
+(`base/32-recyclage-step.sql`, la contrainte de `recyclages_fiches.fonction`
+élargie, appliquée au projet). Comme les ateliers, elle n'est proposée
+qu'à qui l'a en polyvalence validée. Mesuré : les deux opérateurs que le
+client nommait ont « STEP » en plus de leur atelier, à l'identique de leur
+héros ; adjoint, opérateur et contremaître inchangés. Question retirée de
+`docs/questions-client.md`.

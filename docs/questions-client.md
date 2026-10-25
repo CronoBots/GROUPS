@@ -156,8 +156,3 @@ Elle ne signale donc pas de manque. Deux questions :
 2. **Un renfort de 12 h compte-t-il dans les deux pauses qu'il couvre ?**
    06h-18h touche l'AM et le début du PM ; 18h-06h la fin du PM et la N ;
    14h-02h le PM et le début de la N.
-
-- **Le recyclage de la STEP** (25/10/2026) : la fiche papier de recyclage ne porte
-  pas STEP parmi les fonctions, alors que le classeur RH compte des
-  recyclages STEP. Faut-il ajouter STEP à la fiche pour les opérateurs
-  STEP ?
