@@ -5122,3 +5122,34 @@ s'il n'a pas d'autre section. **PC** : il reste au menu de gauche, mais en
 dernier. Vérifié pour la hiérarchie et un opérateur, à 390, 900 et 1280 px.
 Les liens vers le Salaire ailleurs (accès rapides de l'Accueil) ne
 changent pas.
+
+## Le menu rangé par contenu et par accès (25/10/2026, v1085)
+
+Le client : « réorganise le menu, les catégories et les onglets, sections
+selon le contenu et les accès ». Trois menus se construisaient chacun de
+son côté — les onglets (Accueil, Planning, Équipes, Salaire, Effectifs,
+Recherche, Direction), la colonne « Gestion » du PC (toutes les sections
+de l'espace de gestion, y compris Mes demandes et Horaire production) et la
+feuille « Plus » (une liste « Sections » puis « Gestion ») — et le dernier
+changement avait fait tomber le Salaire sous « L'usine » au PC.
+
+Partout maintenant, les mêmes groupes :
+
+- **Mon espace** — ce qui est à soi : Accueil, Mes demandes, Salaire ; et
+  À valider pour qui n'a pas de rôle de gestion mais une fiche à confirmer.
+- **L'usine** — ce que tout le monde consulte : Planning, Équipes,
+  Effectifs, Recherche, Horaire production.
+- **Gestion** — hiérarchie et RH seules : À valider en tête (ce qui attend
+  un geste), Tableau de bord, Personnel, Absences et congés, Historique,
+  Direction (RH).
+- **Réglages**, en pied.
+
+Au PC, Mes demandes et Horaire production, sections de l'espace de
+gestion, prennent leur place parmi les onglets (`.side-ws-inj`, posés par
+`sideMaj`, ordonnés par la feuille) ; la colonne garde la Gestion seule. La
+feuille « Plus » (téléphone) et le menu de la tablette suivent les mêmes
+titres, sans répéter ce que la barre montre déjà. Le bouton de la tablette
+s'appelle « Plus » pour tous. **Vérifié** pour la RH, la hiérarchie et un
+opérateur, à 390, 900 et 1280 px, ordre relevé à l'écran ; clics : Mes
+demandes et Horaire production ouvrent l'espace et s'allument, Planning le
+referme ; 320, 390, 1280 px sans débordement ni erreur.
