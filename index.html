@@ -90,9 +90,6 @@
      verts et non un seul : les trois postes se retrouvent côte à côte sur
      la même ligne, et une couleur qui ne distingue pas ne sert à rien. */
   --at-jaune:#7F5400; --at-jaune-soft:#F6E6CB;
-  /* l'horaire de jour (D) au Planning : un violet qu'aucune pause ni
-     aucun atelier ne porte (le client, le 25/10/2026) */
-  --hj:#7B3FA0; --hj-soft:#F0E3F8;
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
   --at-bleu:#23609C;  --at-bleu-soft:#D5EAFF;
@@ -148,7 +145,6 @@
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
-  --hj:#C8A2EC; --hj-soft:#33244A;
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -4789,7 +4785,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqfus-sous{position:relative; z-index:1; margin-top:4px; box-sizing:border-box; padding:0 2px}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:1px; padding:3px 4px; border-radius:6px; border:1px dashed var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
+  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
 .eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--in); line-height:13px}
 .eqfus>.eqseg small{font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--muted); line-height:11px}
 .eqfus>.eqseg.moi{border-style:solid; background:var(--in-soft)}
@@ -4886,7 +4882,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 /* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
-.eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
+.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--in)}
 .eqhote .eqp2 tbody td .eqn.relais b{color:var(--in)}
 /* Le changement de poste fait par l'application : bord orange en pointillé
    sans flèche (le client, le 13/10/2026). */
@@ -6201,15 +6197,19 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps.eqhote .eqp2 td .eqn .eqhd{display:block; margin:0; font-size:8.5px; line-height:9px; font-weight:500; letter-spacing:-.02em; padding-bottom:1px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in); background:var(--in-soft)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.form{border-color:var(--trait)}
-#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
+/* les relais en trait plein (le client, le 25/10/2026 : « ceux
+   actuellement en pointillé bleu, en trait normal ») : le pointillé est
+   désormais l'horaire de jour */
+#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--in)}
 /* L'HORAIRE DE JOUR (le client, le 25/10/2026 : « il faut un code couleur
-   pour les gens en horaire de D, pas en pause »). Bordure et fond violets,
-   l'heure en violet ; le nom garde sa couleur (jaune en formation). « Vous »
-   et la proposition gardent la leur. */
+   pour les gens en horaire de D, pas en pause », puis, le même soir :
+   « l'heure doit toujours être indiquée en gris comme avant, mais ceux en D
+   peuvent avoir le bord vert en pointillé »). Le violet du premier essai
+   est retiré : seule la bordure change, verte en pointillé ; l'heure reste
+   grise, le nom garde sa couleur (jaune en formation). « Vous » et la
+   proposition gardent la leur. */
 .eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app),
-#jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app){border-color:var(--hj); background:var(--hj-soft)}
-.eqhote .eqp2 tbody td .eqn.jour .eqhd,
-#jourCorps.eqhote .eqp2 td .eqn.jour .eqhd{color:var(--hj)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app){border-style:dashed; border-color:var(--good)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque.propose{border-color:#F2994A}
@@ -6474,8 +6474,8 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg-b.form{color:var(--at-jaune)}
   .eqleg-b.com{text-decoration:underline solid var(--muted); text-underline-offset:2px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
-  .eqleg-b.relais{border-style:dashed; border-color:var(--in); color:var(--in)}
-  .eqleg-b.jour{border-color:var(--hj); background:var(--hj-soft)}
+  .eqleg-b.relais{border-color:var(--in); color:var(--in)}
+  .eqleg-b.jour{border-style:dashed; border-color:var(--good)}
   .eqleg-b.vide{border-color:var(--at-rouge)}
 }
 html .pvt td.pvsien{font-size:10.5px}
