@@ -5080,3 +5080,32 @@ en gris ; BLR 07-15 et YRS 08-16 en blanc.
 **Puis (v1079).** Le client : « marqueur de commentaire un rien plus
 visible ». Le coin rouge passe de 7 à 9 px (8 px dans la légende du PC) ;
 vérifié agrandi le 27/10 : il ne touche pas le trigramme.
+
+## Légende, absents, pause en cours, surnombre (25/10/2026, v1080)
+
+Le client, parmi sept propositions faites sans rien modifier : « 1 et 4
+et 5 6 ».
+
+1. **Légende sur téléphone.** Sous la date, « ⓘ Légende » ouvre une
+   feuille (celle de la fiche personne, `ouvrirInfo`) qui montre chaque
+   repère avec un vrai badge du Planning : en poste, vous, horaire de jour,
+   formation, proposition, commentaire, journée sur deux pauses, place
+   vide, sous-effectif, surnombre, pause en cours. La barre de date ne
+   grandit pas (59 px) : la date ne réserve plus que 28 px de haut, et la
+   ligne du dessous en prend 15.
+4. **La pause en cours.** Sa colonne est un peu plus teintée (`--maint`
+   0,10 → 0,15 au sombre, 0,08 → 0,12 au clair) et son en-tête porte un
+   trait cyan dessous, son nom en cyan.
+5. **Le surnombre.** « +1 » discret en haut à gauche d'une case qui a plus
+   de monde que de places (titre : « 3 pour 2 places : 1 en plus ») — il
+   tient dans l'écart de 14 px avant le premier badge ; masqué sous 340 px,
+   où cet écart n'est que de 3 px. Un premier essai « 2/1 » en bas à droite
+   chevauchait les badges. Le 26/10 : terrain arrière et distillation du
+   matin, +1.
+6. **Les absents.** « 5 absents · 33 en congé » sous la date, d'après la
+   carte de l'onglet RH — donc AUJOURD'HUI, quel que soit le jour affiché
+   (règle du 28/09/2026) ; touché, la même liste dans la feuille, ses deux
+   onglets et ses mois repliables, sans le titre en double.
+
+Vérifié à 320, 390 et 1280 px : ni débordement ni erreur ; vérificateur et
+manques identiques.
