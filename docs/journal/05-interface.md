@@ -4901,3 +4901,14 @@ chaudières de nuit reste. Pas de rangée quand la ligne a déjà sa fusion
 lignes de poste. **Mesuré** : 22/10 (SPS 06-18, GJR 18-06 ; CDT 10-18),
 23/10, 01/09 (AFA 06-18) ; 320, 390 et 1280 px sans débordement ni
 erreur ; vérificateur, manques et agendas identiques.
+
+**Puis (v1062).** Le client : « le ? doit être à côté de l'opérateur qui ne
+comble pas toute la pause, donc ici SPS, car le trou est là ; et il ne faut
+pas de barre de séparation horizontale dans une même cellule de poste ».
+Un trou partiel qui commence où finit un cadre de la rangée (ou finit où il
+commence) quitte la case : son « ? » se pose dans la voie du cadre, à ses
+heures (`bd.trou`) — le 23/10, « SPS 14-02 » puis « ? 02-06 ». Même fenêtre
+au toucher (« Chaudières · N · 2/3 · de 2 h à 6 h »). La rangée n'a plus
+de trait au-dessus, et le fond rouge d'un poste incomplet continue sous les
+cadres de sa colonne : une seule case. Un « ? » de toute la pause reste
+dans la case (le 22/10). Vérificateur et manques identiques.

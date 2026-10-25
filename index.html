@@ -4789,6 +4789,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqfus{position:relative; z-index:1}
 .eqfus-sous{position:relative; z-index:1; margin-top:4px; box-sizing:border-box; padding:0 2px}
 .eqfus>.eqvide-sp{flex-basis:0; min-width:0}
+.eqfus-mq{position:absolute; top:0; bottom:0; background:var(--manque-fond); pointer-events:none}
+.eqfus-mq.propose{background:var(--propose-fond)}
+.eqfus>.eqseg.manque{border:1px solid var(--at-rouge); background:var(--manque-fond)}
+.eqfus>.eqseg.manque.propose{border-color:#F2994A; background:var(--propose-fond)}
+.eqfus>.eqseg.manque b{color:var(--at-rouge)}
+/* une seule case de poste : pas de trait entre la ligne et sa rangée de
+   cadres (le client, le 25/10/2026 : « il ne faut pas de barre de
+   séparation horizontale dans une même cellule de poste ») */
+.eqhote .eqp2 tr.eqbande>td{border-top:0}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:none}
 .eqfus>.eqseg.jour b{color:var(--ink)}
@@ -24233,28 +24242,38 @@ function renderEquipe(){
         });
         return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
       }
-      function caseBandes(bandes){
+      function caseBandes(bandes,P){
         var vis=ORDRE3.filter(function(k){ return vp[k]; }), n=vis.length;
         var S=PF_DEB[vis[0]], E=PF_FIN[vis[n-1]], L=E-S, voies=[];
         bandes.forEach(function(bd){
-          for(var i=0;i<voies.length;i++){ if(voies[i].fin<=bd.a+0.01){ voies[i].fin=bd.b; voies[i].l.push(bd); return; } }
-          voies.push({fin:bd.b, l:[bd]});
+          var a0=(bd.trou&&!bd.trou.apres)?bd.trou.tr.na:bd.a, b0=(bd.trou&&bd.trou.apres)?bd.trou.tr.nb:bd.b;
+          for(var i=0;i<voies.length;i++){ if(voies[i].fin<=a0+0.01){ voies[i].fin=b0; voies[i].l.push(bd); return; } }
+          voies.push({fin:b0, l:[bd]});
         });
         var fond="";
         vis.forEach(function(k,i){
           if(i) fond+='<i class="eqfus-sep" style="left:'+(100*i/n)+'%"></i>';
           if(k===mck) fond+='<i class="eqfus-maint" style="left:'+(100*i/n)+'%;width:'+(100/n)+'%"></i>';
+          /* le fond d'un poste incomplet continue sous ses cadres : une
+             seule case */
+          var oK=P&&poste(k,P.k);
+          if(oK && oK.manque) fond+='<i class="eqfus-mq'+(oK.propose?' propose':'')+'" style="left:'+(100*i/n)+'%;width:'+(100/n)+'%"></i>';
         });
         var h=voies.map(function(v){
           var pos=S, seg="";
           v.l.forEach(function(bd){
             var a=Math.max(bd.a,S), b=Math.min(bd.b,E);
+            if(bd.trou && !bd.trou.apres){
+              var qa=Math.max(bd.trou.tr.na,S);
+              if(qa-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((qa-pos)*10)/10)+'"></i>';
+              seg+=bd.trou.html; pos=a; }
             if(a-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((a-pos)*10)/10)+'"></i>';
             seg+='<span class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
               +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
               +' title="'+esc(fonctionPersonne(bd.p))+" · de "+esc(hhF(a)+" à "+hhF(b))+'">'
               +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))+'</small></span>';
             pos=b;
+            if(bd.trou && bd.trou.apres){ seg+=bd.trou.html; pos=Math.min(bd.trou.tr.nb,E); }
           });
           if(E-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((E-pos)*10)/10)+'"></i>';
           return '<div class="eqfus">'+seg+'</div>';
@@ -24369,11 +24388,26 @@ function renderEquipe(){
               /* un seul morceau, et pas toute la pause : sinon « ? » seul */
               trous.push(nb && nb<pas.length && (fin-deb)/0.5===nb ? [deb,fin] : null);
             }
-            trous=trous.map(function(tr){ return tr?{a:hT(tr[0]),b:hT(tr[1])}:null; });
+            trous=trous.map(function(tr){ return tr?{a:hT(tr[0]),b:hT(tr[1]),na:tr[0],nb:tr[1]}:null; });
           }
-          var mqH=mq?trous.map(function(tr){
+          /* LE « ? » À CÔTÉ DE CELUI QUI NE COMBLE PAS TOUTE LA PAUSE (le
+             client, le 25/10/2026, sur le 23/10 : « le ? doit être à côté de
+             l'opérateur qui ne comble pas toute la pause, donc ici SPS, car
+             le trou est là »). SPS tient les chaudières de 14 h à 2 h ; le
+             trou de la nuit commence à 2 h. Quand un trou commence où finit
+             un cadre de la rangée du dessous (ou finit où il commence), son
+             « ? » quitte la case et s'y pose, à ses heures. */
+          var mqTr=mq?trous.filter(function(tr){
+            if(!tr || !bandes.length) return true;
+            for(var ib=0;ib<bandes.length;ib++){ var bd=bandes[ib];
+              if(!bd.trou && Math.abs(bd.b-tr.na)<0.01){ bd.trou={tr:tr, apres:true, html:qHtml(tr,true)}; return false; }
+              if(!bd.trou && Math.abs(bd.a-tr.nb)<0.01){ bd.trou={tr:tr, apres:false, html:qHtml(tr,true)}; return false; } }
+            return true; }):[];
+          function qHtml(tr,enBande){
             var cd=cdP; if(tr){ cd={}; for(var kc in cdP) cd[kc]=cdP[kc]; cd.t=cdP.t+" · de "+tr.a+" h à "+tr.b+" h"; }
-            return '<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+(tr?", de "+tr.a+" h à "+tr.b+" h":"")+" : "+o.tenu+" sur "+aP+(o.propose?", un changement est proposé":""))+'" title="Place vide'+(tr?' de '+tr.a+' h à '+tr.b+' h':'')+' ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b>'+(tr?'<small class="eqhd">'+tr.a+'-'+tr.b+'</small>':'')+'</span>'; }).join(""):"";
+            if(enBande) return '<span class="eqseg manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+", de "+tr.a+" h à "+tr.b+" h : "+o.tenu+" sur "+aP)+'" title="Place vide de '+tr.a+' h à '+tr.b+' h ('+o.tenu+" / "+aP+')" style="flex-grow:'+Math.max(1,Math.round((tr.nb-tr.na)*10)/10)+'"><b>?</b><small>'+hhF(tr.na)+'-'+hhF(tr.nb)+'</small></span>';
+            return '<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+(tr?", de "+tr.a+" h à "+tr.b+" h":"")+" : "+o.tenu+" sur "+aP+(o.propose?", un changement est proposé":""))+'" title="Place vide'+(tr?' de '+tr.a+' h à '+tr.b+' h':'')+' ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b>'+(tr?'<small class="eqhd">'+tr.a+'-'+tr.b+'</small>':'')+'</span>'; }
+          var mqH=mq?mqTr.map(function(tr){ return qHtml(tr,false); }).join(""):"";
           /* Puis, le même jour : « celui en formation doit être mis en bas à
              droite ; s'ils sont 4, il faut qu'il y en ait un en poste
              au-dessus de lui ». La grille se remplit ligne par ligne, ceux
@@ -24419,7 +24453,7 @@ function renderEquipe(){
             +"</td>");
         }));
         tp.push("</tr>");
-        if(bandes.length) tp.push('<tr class="eqbande" data-z="'+esc(P.z||"")+'">'+caseBandes(bandes)+"</tr>");
+        if(bandes.length) tp.push('<tr class="eqbande" data-z="'+esc(P.z||"")+'">'+caseBandes(bandes,P)+"</tr>");
       });
       /* L'opérateur dont le poste reste indéterminé se lisait dans la
          carte « Hors poste », loin du tableau — donc loin de la question
