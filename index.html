@@ -21190,7 +21190,7 @@ function renderCentre(db,person){
      « Horaire du jour », « Certificat médical » ; l'abonnement à l'agenda
      reste dans Réglages */
   if(cb) rac.push(["conge","Demande de congé","dmNv","","Demande de congé"]);
-  if(cb) rac.push(["rec","Validation recyclage","rcNv","","Validation recyclage : remplir une fiche de recyclage"]);
+  if(cb&&rcFonctionsDe(person).length) rac.push(["rec","Validation recyclage","rcNv","","Validation recyclage : remplir une fiche de recyclage"]);
   rac.push(["paie","Fiche de paie","paie","","Fiche de paie d’"+MOIS[auj0.getMonth()].toLowerCase()]);
   if(cb) rac.push(["plan","Horaire "+auj0.getFullYear(),"plan","","Horaire "+auj0.getFullYear()+" : l'horaire de production"]);
   rac.push(["jour","Horaire du jour","eq","","Horaire du jour : l'équipe au planning"]);
@@ -21372,6 +21372,25 @@ document.addEventListener("click",function(e){
    introuvable (D, horaire absent), la fiche va à la RH. Les compteurs de
    recyclage restent ceux du classeur RH : une fiche ne les change pas. */
 var RC_FONCTIONS=["Meunerie","Gluten","Fermentation","Distillation","Chaudières","Contremaître"];
+/* LES RECYCLAGES QUE LA PERSONNE POSSÈDE (le client, le 25/10/2026 : « pour
+   les contremaîtres, il ne doit pas y avoir de demande de recyclage, mais
+   les adjoints oui ; les demandes doivent être adaptées aux recyclages que
+   le travailleur possède »). Un recyclage entretient une polyvalence : la
+   fiche ne propose que les ateliers VALIDÉS de la personne (competencesDe,
+   la lecture du héros et de la fiche du personnel ; un poste « en
+   formation » n'en est pas un), dans l'ordre du papier, et « Contremaître »
+   à un adjoint (la colonne des recyclages contremaître du classeur RH est
+   celle des adjoints). Un contremaître n'en a aucun. Personne inconnue de
+   l'horaire : le papier entier, rien n'est retiré à l'aveugle. */
+var RC_K={Meunerie:"meun", Gluten:"glut", Fermentation:"ferm", Distillation:"dist", "Chaudières":"chau"};
+function rcFonctionsDe(p){
+  if(!p) return RC_FONCTIONS.slice();
+  if(estContremaitre(p)) return [];
+  var tenus={};
+  (competencesDe(p)||[]).forEach(function(t){ if(/en formation/i.test(t)) return;
+    POSTES_TRAVAIL.forEach(function(P){ if(P.t===t||(P.rx&&P.rx.test(t))) tenus[P.k]=1; }); });
+  return RC_FONCTIONS.filter(function(f){ return f==="Contremaître"?estCadre(p):!!tenus[RC_K[f]]; });
+}
 var RC_PAUSES=[["AM","AM"],["PM","PM"],["N","Nuit"],["D","D"]];
 GR.recyclages=null;
 function rcCharger(){
@@ -21446,7 +21465,7 @@ function renderRecyclages(){
   var h=[dmTete(val?"valider-rc":"recyclages"),val
     ?dmIntro(dmModule(true)+"Les fiches qui vous arrivent : le contremaître de la pause confirme, le responsable de zone contresigne en doublure, la RH enregistre.","")
     :dmIntro(dmModule(false)+"Après une pause complète sur un autre poste : la fiche part chez le contremaître de la pause, puis à la RH.",
-      '<button type="button" class="btn ss-ok" data-rc-nouvelle="1">+ Nouvelle fiche</button>')];
+      rcFonctionsDe(dmPersonne((compteBase()||{}).tri)).length?'<button type="button" class="btn ss-ok" data-rc-nouvelle="1">+ Nouvelle fiche</button>':'')];
   if(l===null){ hote.innerHTML=h.join("")+'<p class="ws-vide">Chargement…</p>'; rcBrancher(); rcCharger().then(renderRecyclages,function(e){ hote.innerHTML=h.join("")+wsPanne("Fiches indisponibles",e); rcBrancher(); wsRefocus(hote.querySelector(".ws-panne button"));
     if(GR.rcForm&&!val){ GR.rcForm=false; rcFeuille(null); } }); return; }
   l=l.filter(function(x){ return x.statut!=="annulee"; });
@@ -21518,7 +21537,8 @@ function rcFeuille(x){
   var tri=neuf?moi:x.trigramme, p=dmPersonne(tri);
   var np=neuf?((p&&grNom(p))||idLisible(moi||"")):([x.prenom,x.nom].filter(Boolean).join(" ")||(p&&grNom(p))||idLisible(tri));
   var auj=new Date(jourUsine()), isoAuj=auj.getFullYear()+"-"+pad2(auj.getMonth()+1)+"-"+pad2(auj.getDate());
-  var etat=neuf?{f:"",j:isoAuj,pause:rcPauseDe(moi,isoAuj),doublure:false,tit:""}:{f:x.fonction,j:x.jour,pause:x.pause,doublure:x.doublure,tit:x.titulaire||""};
+  var fonctions=neuf?rcFonctionsDe(p):RC_FONCTIONS;
+  var etat=neuf?{f:fonctions.length===1?fonctions[0]:"",j:isoAuj,pause:rcPauseDe(moi,isoAuj),doublure:false,tit:""}:{f:x.fonction,j:x.jour,pause:x.pause,doublure:x.doublure,tit:x.titulaire||""};
   var db=wsDb(), autres=((db&&db.people)||[]).filter(function(q){ return q.id!==moi; }).sort(function(u,v){ return u.id<v.id?-1:1; });
   /* les deux GBT se départagent par leur poste (audit du 23/10/2026) */
   var vus={}; autres.forEach(function(q){ var b=idLisible(q.id); vus[b]=(vus[b]||0)+1; });
@@ -21535,7 +21555,7 @@ function rcFeuille(x){
       '<div class="dm-pp-cadre"><p class="dm-pp-sous">Membre du personnel de Production</p>',
       '<p class="dm-pp-ch"><b>Nom et Prénom</b> : <span>'+esc(np)+'</span></p>',
       '<p>Recyclage relatif à la fonction <i class="rc-pt">(1 recyclage par pause prestée)</i> :</p>',
-      '<p class="rc-choix">'+choix(RC_FONCTIONS,etat.f,"rf",ed)+'</p>',
+      '<p class="rc-choix">'+(fonctions.length?choix(fonctions,etat.f,"rf",ed):'<span class="dm-pp-att">aucune polyvalence validée à recycler</span>')+'</p>',
       '<p class="dm-pp-ch">Date du recyclage : '+(ed?'<input type="date" id="rcJour" aria-label="Date du recyclage" value="'+esc(etat.j)+'" max="'+isoAuj+'">':'<span>'+dmDateFr(dmJour(etat.j))+'</span>')+'</p>',
       '<p class="rc-choix">Pause effectuée : '+choix(RC_PAUSES,etat.pause,"rp",ed)+' - '
         +(ed?'<label class="rc-doub"><input type="checkbox" id="rcDoub"'+(etat.doublure?' checked':'')+'> En doublure</label>':'<span class="rc-mot'+(etat.doublure?' rc-pris':'')+'">En doublure</span>')
@@ -21595,7 +21615,8 @@ function rcFeuille(x){
   if(bs) bs.onclick=function(){
     err.textContent="";
     var q=function(c){ return pap.querySelector(c); };
-    if(!etat.f){ pnErreur(err,"Choisissez la fonction du recyclage.",q("[data-rf]")); return; }
+    if(!fonctions.length){ pnErreur(err,"Aucun recyclage à demander : "+(p&&estContremaitre(p)?"un contremaître n'en a pas.":"aucune polyvalence validée."),bs); return; }
+    if(!etat.f||fonctions.indexOf(etat.f)<0){ pnErreur(err,"Choisissez la fonction du recyclage.",q("[data-rf]")); return; }
     if(!etat.j){ pnErreur(err,"La date du recyclage manque.",q("#rcJour")); return; }
     if(!etat.pause){ pnErreur(err,"Choisissez la pause effectuée.",q("[data-rp]")); return; }
     if(etat.doublure&&!etat.tit){ pnErreur(err,"En doublure, nommez le titulaire du poste.",q("#rcTit")); return; }

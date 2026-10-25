@@ -538,3 +538,31 @@ d'office au tableau de formation ; DCI reste au statut seulement
 dans aucun classeur — un seul commentaire le nomme, le 26/10 (« Visite du
 site avec LCO (intérimaire chaudières) ») : il viendra avec sa colonne.
 L'effectif n'en dépend pas (vérificateur et polyvalence identiques).
+
+### Les recyclages que l'on possède (25/10/2026, `nfdm-v1109`)
+
+Le client : « pour les contremaîtres, il ne doit pas y avoir de demande de
+recyclage, mais les adjoints oui. Les demandes de recyclage doivent être
+adaptées aux recyclages que le travailleur possède. »
+
+La fiche proposait les six fonctions du papier à tout le monde.
+`rcFonctionsDe(p)` les réduit à ce que la personne possède : ses ateliers
+VALIDÉS, lus par `competencesDe` (la lecture du héros et de la fiche du
+personnel ; un poste « en formation » n'est pas retenu), dans l'ordre du
+papier, et « Contremaître » pour un adjoint (la colonne des recyclages
+contremaître du classeur RH est celle des adjoints). Un contremaître n'en
+a aucun : ni tuile « Recyclage » à l'Accueil, ni « + Nouvelle fiche »,
+et l'envoi refuse s'il y arrivait autrement. Une seule fonction possédée
+est cochée d'office. Les fiches déjà envoyées gardent le papier entier.
+Le classeur RH ne dit pas qui possède quoi (il compte 0 partout pour
+tous) : c'est la polyvalence de l'horaire qui le dit.
+
+Mesuré au navigateur : contremaître, aucune tuile, aucun « + Nouvelle
+fiche » ; adjoint, cinq ateliers + Contremaître ; opérateur en formation
+en meunerie, ses trois ateliers validés (la meunerie
+exclue) ; terrain arrière, ses trois ateliers — à chaque fois la liste
+des polyvalences du héros. Aucune erreur.
+
+**Reste à confirmer** : le papier ne porte pas STEP ; un opérateur STEP
+(10 recyclages STEP au classeur RH) n'a donc pas de fonction à choisir,
+comme avant. Question écrite dans `docs/questions-client.md`.
