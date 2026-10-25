@@ -92,7 +92,7 @@
   --at-jaune:#7F5400; --at-jaune-soft:#F6E6CB;
   /* le bord des badges du Planning : trait fin pour la pause, pointillé
      pour l'horaire de jour (le client, le 25/10/2026) */
-  --bord-pause:var(--trait);
+  --bord-pause:color-mix(in srgb,var(--ink) 45%,transparent);
   --bord-jour:color-mix(in srgb,var(--ink) 75%,transparent);
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
@@ -149,7 +149,7 @@
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
-  --bord-pause:var(--trait); --bord-jour:rgba(255,255,255,.85);
+  --bord-pause:rgba(255,255,255,.55); --bord-jour:rgba(255,255,255,.85);
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -4797,7 +4797,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* une seule case de poste : pas de trait entre la ligne et sa rangée de
    cadres (le client, le 25/10/2026 : « il ne faut pas de barre de
    séparation horizontale dans une même cellule de poste ») */
-.eqhote .eqp2 tr.eqbande>td{border-top:0; border-left:0}
+.eqhote .eqp2 tr.eqbande>td{border-top:0; border-left:0; vertical-align:top}
+.eqhote .eqp2 td.bande>.eqfus{display:block; position:relative}
+.eqhote .eqp2 td.bande>.eqfus>.eqseg{position:absolute; top:0; min-width:0}
+.eqhote .eqp2 td.bande>.eqfus>.eqvide-sp{display:none}
+.eqhote .eqp2 tbody tr:has(+tr.eqbande)>td{vertical-align:bottom; padding-bottom:0}
 .eqhote .eqp2 tr.eqbande .eqfus-sep{border-left-style:solid; border-left-color:var(--trait)}
 .eqhote .eqp2 tr.eqbande .eqfus-maint,.eqhote .eqp2 tr.eqbande .eqfus-mq,.eqhote .eqp2 tr.eqbande .eqfus-sep{top:-1px}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
@@ -24285,7 +24289,7 @@ function renderEquipe(){
               if(qa-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((qa-pos)*10)/10)+'"></i>';
               seg+=bd.trou.html; pos=a; }
             if(a-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((a-pos)*10)/10)+'"></i>';
-            seg+='<span class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
+            seg+='<span data-h="'+a+' '+b+'" class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
               +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
               +' title="'+esc(fonctionPersonne(bd.p))+" · de "+esc(hhF(a)+" à "+hhF(b))+'">'
               +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))+'</small></span>';
@@ -24295,7 +24299,7 @@ function renderEquipe(){
           if(E-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((E-pos)*10)/10)+'"></i>';
           return '<div class="eqfus">'+seg+'</div>';
         }).join("");
-        return '<td class="fusion bande" colspan="'+n+'" data-k="'+vis.join(" ")+'">'+fond+h+'</td>';
+        return '<td class="fusion bande" colspan="'+n+'" data-k="'+vis.join(" ")+'" data-s="'+S+'" data-e="'+E+'">'+fond+h+'</td>';
       }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
@@ -24422,7 +24426,7 @@ function renderEquipe(){
             return true; }):[];
           function qHtml(tr,enBande){
             var cd=cdP; if(tr){ cd={}; for(var kc in cdP) cd[kc]=cdP[kc]; cd.t=cdP.t+" · de "+tr.a+" h à "+tr.b+" h"; }
-            if(enBande) return '<span class="eqseg manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+", de "+tr.a+" h à "+tr.b+" h : "+o.tenu+" sur "+aP)+'" title="Place vide de '+tr.a+' h à '+tr.b+' h ('+o.tenu+" / "+aP+')" style="flex-grow:'+Math.max(1,Math.round((tr.nb-tr.na)*10)/10)+'"><b>?</b><small>'+hhF(tr.na)+'-'+hhF(tr.nb)+'</small></span>';
+            if(enBande) return '<span data-h="'+tr.na+' '+tr.nb+'" class="eqseg manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+", de "+tr.a+" h à "+tr.b+" h : "+o.tenu+" sur "+aP)+'" title="Place vide de '+tr.a+' h à '+tr.b+' h ('+o.tenu+" / "+aP+')" style="flex-grow:'+Math.max(1,Math.round((tr.nb-tr.na)*10)/10)+'"><b>?</b><small>'+hhF(tr.na)+'-'+hhF(tr.nb)+'</small></span>';
             return '<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+(tr?", de "+tr.a+" h à "+tr.b+" h":"")+" : "+o.tenu+" sur "+aP+(o.propose?", un changement est proposé":""))+'" title="Place vide'+(tr?' de '+tr.a+' h à '+tr.b+' h':'')+' ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b>'+(tr?'<small class="eqhd">'+tr.a+'-'+tr.b+'</small>':'')+'</span>'; }
           var mqH=mq?mqTr.map(function(tr){ return qHtml(tr,false); }).join(""):"";
           /* Puis, le même jour : « celui en formation doit être mis en bas à
@@ -27280,6 +27284,7 @@ function alignerFusions(tbl){
   Array.prototype.forEach.call(segs,function(e){ e.style.height=""; e.style.paddingTop=""; e.style.paddingBottom="";
     var b=e.querySelector("b"), sm=e.querySelector("small"); if(b){ b.style.fontSize=""; b.style.lineHeight=""; } if(sm){ sm.style.fontSize=""; sm.style.lineHeight=""; } });
   Array.prototype.forEach.call(tbl.querySelectorAll("td.fusion .eqfus"),function(f){ f.style.marginLeft=""; f.style.marginRight=""; });
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.bande .eqseg"),function(e){ e.style.marginLeft=""; e.style.marginRight=""; });
   var ref=tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn .eqhd");
   ref=ref?ref.parentNode:tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn");
   if(!ref) return;
@@ -27309,6 +27314,48 @@ function alignerFusions(tbl){
     var mg=Math.max(0,ecart-(rf.left-rt.left)), md=Math.max(0,ecart-(rt.right-rf.right));
     Array.prototype.forEach.call(fs,function(f){ f.style.marginLeft=mg+"px"; f.style.marginRight=md+"px"; });
   });
+  /* LA RANGÉE DES CADRES, AU PIXEL (le client, le 25/10/2026 : « la
+     bordure de SPS doit démarrer au même niveau que le cadre d'un
+     opérateur qui a une cellule à côté d'une autre »). La répartition
+     proportionnelle (flex-grow) mettait SPS à 8 px du trait de 14 h
+     quand un badge en est à 14. Chaque cadre se place donc d'après les
+     colonnes réelles de la ligne du poste : une heure tombe dans sa
+     colonne au prorata ; à une séparation de pauses ou au bord, le cadre
+     s'écarte comme un badge (ecart) ; entre deux cadres qui se touchent,
+     l'espace de deux badges voisins. */
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.bande"),function(td){
+    var tr=td.parentNode, haut=tr.previousElementSibling; if(!haut) return;
+    var cols=Array.prototype.filter.call(haut.children,function(c){ return c.tagName==="TD"; }).map(function(c){ return c.getBoundingClientRect(); });
+    var S=Number(td.getAttribute("data-s")), E=Number(td.getAttribute("data-e")), n=cols.length;
+    if(!n || Math.abs((E-S)/8-n)>0.01) return;
+    var marge=ecart<1e9?ecart:6, jeu=2;
+    function x(v){ var i=Math.min(n-1,Math.max(0,Math.floor((v-S)/8+1e-6))); if(v>=E-0.01) i=n-1;
+      var r=cols[i]; return r.left+(v-(S+8*i))/8*r.width; }
+    function bord(v){ return Math.abs(((v-S)%8+8)%8)<0.01 || v<=S+0.01 || v>=E-0.01; }
+    Array.prototype.forEach.call(td.querySelectorAll(":scope > .eqfus"),function(f){
+      f.style.marginLeft="0px"; f.style.marginRight="0px"; f.style.height=hR+"px";
+      var rf=f.getBoundingClientRect();
+      var segs=Array.prototype.filter.call(f.children,function(e){ return e.hasAttribute&&e.hasAttribute("data-h"); });
+      var pl=segs.map(function(e){
+        var h=e.getAttribute("data-h").split(" "), a=Number(h[0]), b=Number(h[1]);
+        e.style.width=""; e.style.left="0px";
+        return {e:e, g:x(a)+(bord(a)?marge:jeu), d:x(b)-(bord(b)?marge:jeu), nat:Math.ceil(e.getBoundingClientRect().width), bb:bord(b)};
+      });
+      /* un cadre plus étroit que son texte (« ? 02-06 », 4 h dans une
+         demi-colonne) prend sa largeur naturelle : vers la gauche s'il est
+         collé à un trait, vers la droite sinon ; son voisin recule d'autant */
+      for(var k=pl.length-1;k>=0;k--){ var q=pl[k];
+        if(q.d-q.g<q.nat){ if(q.bb) q.g=q.d-q.nat; else q.d=q.g+q.nat; }
+        if(k>0 && pl[k-1].d>q.g-2*jeu) pl[k-1].d=q.g-2*jeu; }
+      pl.forEach(function(q){ q.e.style.left=(q.g-rf.left)+"px"; q.e.style.width=Math.max(10,q.d-q.g)+"px"; });
+    });
+  });
+  /* la ligne du poste et sa rangée de cadres : l'écart entre elles est
+     celui de deux lignes de badges (le client, le 25/10/2026 : « pourquoi
+     un espace plus grand entre la première ligne des opérateurs et les
+     autres ? ») */
+  var eqcR=tbl.querySelector("tbody td:not(.fusion) .eqc"), gapR=eqcR?parseFloat(getComputedStyle(eqcR).rowGap)||4:4;
+  Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqbande>td"),function(td){ td.style.paddingTop=gapR+"px"; });
 }
 function ajusterLignesJour(){
   var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
@@ -27342,7 +27389,10 @@ function ajusterLignesJour(){
     var nPl=rows.filter(function(r){ return !r.classList.contains("eqbande"); }).length||rows.length;
     var sup=(avail-sum)/nPl, acc=0;
     rows.forEach(function(r,i){
-      var suiv=acc+nat[i]+(r.classList.contains("eqbande")?0:sup);
+      /* un poste suivi de sa rangée de cadres partage son supplément avec
+         elle : moitié au-dessus des badges, moitié sous les cadres */
+      var avecB=r.nextElementSibling&&r.nextElementSibling.classList.contains("eqbande");
+      var suiv=acc+nat[i]+(r.classList.contains("eqbande")||avecB?sup/2:sup);
       r.style.height=(Math.round(suiv)-Math.round(acc))+"px";
       acc=suiv;
     });

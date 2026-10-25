@@ -4938,3 +4938,23 @@ prenant la parité de son poste ; plus de trait gauche ; séparateurs pleins
 à la couleur des cases ; fonds remontés d'1 px. Relu pixel par pixel : la
 case se lit d'un seul tenant, et le 27/10 (sans rangée) garde son
 alternance.
+
+**Puis (v1066).** Le client : « pourquoi un espace plus grand entre la
+première ligne des opérateurs chaudière et les autres ? Et la bordure de
+SPS doit démarrer au même niveau que le cadre d'un opérateur qui a une
+cellule à côté d'une autre. On peut remettre les bordures blanches aux
+opérateurs en pause ». **Mesuré** le 23/10 à 390 px : 15,5 px entre les
+badges du poste et les cadres, contre 4 px entre deux lignes de badges —
+la ligne du poste recevait seule le supplément de hauteur et centrait ses
+badges ; SPS démarrait à 8 px du trait de 14 h, un badge en est à 14.
+
+**Corrigé** : les badges de la ligne du poste se posent en bas, les cadres
+en haut, l'écart entre eux vaut celui de la grille (4 px, 6 px au PC) et le
+supplément se partage moitié au-dessus, moitié dessous. Les cadres de la
+rangée se placent au pixel d'après les colonnes réelles de la ligne du
+poste : à une séparation de pauses ou au bord, l'écart d'un badge (14 px
+à 390, 3 à 320, 57 au PC) ; entre deux cadres qui se touchent, 4 px. Un
+cadre plus étroit que son texte (« ? 02-06 ») prend sa largeur naturelle,
+son voisin recule. `--bord-pause` revaut le blanc (la couleur du texte au
+thème clair). Vérifié les 22/10, 23/10, 01/09 et 27/10 à 320, 390 et
+1280 px : ni débordement ni erreur.
