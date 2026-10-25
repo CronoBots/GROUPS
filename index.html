@@ -6873,6 +6873,14 @@ html .hp-fab:hover{opacity:1}
 .mc-jt.we{color:var(--ink2)}
 .ms-j.mc-c.we{background:rgba(128,128,128,.12)}
 .ms-j.mc-c.we.rep{background:rgba(128,128,128,.07)}
+/* LE REPOS PLUS DISCRET (le client, le 25/10/2026) : ni cadre ni fond,
+   le chiffre pâli ; le tiret seul dit le repos */
+.ms-j.mc-c.rep,.ms-j.mc-c.we.rep{background:none; border-color:transparent}
+.ms-j.mc-c.rep b{color:var(--faint,rgba(255,255,255,.45)); font-weight:600}
+.ms-j.mc-c.rep .ms-repos{opacity:.5}
+.ms-j.mc-c.rep.auj{border-color:rgba(105,178,203,.55)}
+.mc-tt{display:inline-flex; align-items:baseline; gap:8px; min-width:0}
+.mc-avec{font-size:12px; font-weight:600; color:var(--marque-vif); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 /* un code long (« D-CPPT ») tient sur une ligne : la rangée garde sa hauteur */
 .ms-j.mc-c .pl-pa{white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis}
 .ms-j.mc-c .pl-pa.mc-long{font-size:8.5px; letter-spacing:-.02em; padding-left:3px; padding-right:3px}
@@ -7336,6 +7344,24 @@ html body #v-horaire #calCard .mc-j .mc-t.long{width:auto; min-width:30px; max-w
    d'icônes de quatre colonnes, même hauteur partout, un mot sous chaque
    icône, l'icône dans un carré teinté ; le contremaître de pause en une
    rangée sobre, le bouton d'appel rond à droite. */
+/* la rangée des accès dans le héros : une ligne, qui défile au doigt si
+   elle dépasse ; les tuiles de « Accès rapides », plus serrées */
+html body .pf-rac{margin:10px 12px 0}
+html body .pf-gauche .pf-rac{margin:10px 0 0 12px}
+html body .pf-rac-l{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(70px,1fr); gap:4px; overflow-x:auto; scrollbar-width:none; scroll-snap-type:x proximity; padding-bottom:2px}
+html body .pf-rac-l::-webkit-scrollbar{display:none}
+/* au PC, toutes les tuiles se voient : pas de défilement */
+@media (min-width:761px){ html body .pf-rac-l{grid-auto-columns:minmax(0,1fr); overflow:visible} }
+html body .pf-rac .ctl-t{flex-direction:column; justify-content:flex-start; gap:6px; min-height:0; padding:6px 2px 4px; border:0; border-radius:12px; background:none; font-size:11.5px; font-weight:600; line-height:1.2; color:var(--ink); text-decoration:none; scroll-snap-align:start}
+html body .pf-rac .ctl-t>span{display:block; min-height:2.4em; max-width:100%; text-align:center; overflow-wrap:anywhere}
+html body .pf-rac .ctl-t>span b{font-weight:700}
+html body .pf-rac .ctl-ti{display:grid; place-items:center; width:44px; height:44px; border-radius:13px; background:color-mix(in srgb,var(--in) 13%,var(--surface2)); border:1px solid color-mix(in srgb,var(--in) 22%,transparent); font-style:normal}
+html body .pf-rac .ctl-ti svg{width:21px; height:21px; color:var(--in)}
+html body .pf-rac .ctl-cm-t .ctl-ti{background:color-mix(in srgb,#27ae60 20%,var(--surface2)); border-color:color-mix(in srgb,#27ae60 40%,transparent)}
+html body .pf-rac .ctl-cm-t .ctl-ti svg{color:#6fcf97}
+@media (hover:hover){ html body .pf-rac .ctl-t:hover .ctl-ti{background:color-mix(in srgb,var(--in) 22%,var(--surface2))} }
+html body .pf-rac .ctl-t:active .ctl-ti{transform:scale(.96)}
+html body .pf-rac .ctl-t:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
 html body #racCard .ctl-rac{grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 8px}
 html body #racCard .ctl-rac>:last-child:nth-child(3n+1){grid-column:auto; flex-direction:column; min-height:0}
 html body #racCard .ctl-t{flex-direction:column; justify-content:flex-start; gap:7px; min-height:0; padding:8px 2px 6px; border:0; border-radius:12px; background:none; font-size:12px; font-weight:600; line-height:1.2; color:var(--ink)}
@@ -15039,7 +15065,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div>'
-    +'<div class="pf-corps"><div class="pf-gauche">'+h+'</div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -20863,6 +20889,9 @@ function accueilTic(){
   /* le contremaître change avec la pause (6 h, 14 h, 22 h) */
   var cl=document.querySelector("#racCorps .ctl-cm"), c0=cmDePause();
   if(cl&&cl.getAttribute("data-cm")!==(c0.tri||"")+"|"+c0.pz){ var tmp=document.createElement("div"); tmp.innerHTML=cmLigneHTML(); cl.parentNode.replaceChild(tmp.firstChild,cl); }
+  var ct=document.querySelector("#pfRac .ctl-cm-t");
+  if(ct&&ct.getAttribute("data-cm")!==(c0.tri||"")+"|"+c0.pz){ var tm2=document.createElement("div"); tm2.innerHTML=cmTuileHTML(); ct.parentNode.replaceChild(tm2.firstChild,ct);
+    RAC_HTML=document.getElementById("pfRac").innerHTML; }
   var id=trigCourant(), person=id?HORAIRE_DB.people.filter(function(p){ return p.id===id; })[0]:null; if(!person) return;
   var b=document.querySelector("#rythmeTete .pf-proch"), inf=null; try{ inf=_pfInfos(person); }catch(e){ return; }
   var pr=inf&&inf.prochain,
@@ -20952,8 +20981,16 @@ function monCycleHTML(db,person){
   var fin=new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1);
   var sem=c?Math.floor(c.pos/7)+1:Math.floor((a0Num()-deb.getTime())/604800000)+1;
   function a0Num(){ return auj.getTime(); }
-  return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span><span class="pf-pr-l">'
-    +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MOIS[deb.getMonth()].toLowerCase())+" – "+numJour(fin.getDate())+" "+MOIS[fin.getMonth()].toLowerCase()
+  /* AVEC QUI L'ON TOURNE (le client, le 25/10/2026 : « le cycle doit
+     afficher avec quelle équipe on tourne ») : la lecture du calendrier
+     (cycleAvec) — l'équipe pour un cadre, le contremaître et l'adjoint du
+     binôme pour un opérateur. Les mois s'abrègent pour que tout tienne. */
+  var av=""; try{ av=c?cycleAvec(person,{deb:deb, L:L}):""; }catch(er){ av=""; }
+  var cadre=false; try{ cadre=estCadre(person); }catch(er){}
+  var MC=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  return '<div class="ry-an-t pf-ms-t"><span class="mc-tt"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span>'
+    +(av?'<b class="mc-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">avec '+esc(av)+'</b>':'')+'</span><span class="pf-pr-l">'
+    +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MC[deb.getMonth()])+" – "+numJour(fin.getDate())+" "+MC[fin.getMonth()]
       +" · semaine "+sem+"/"+Math.round(L/7))+'</span></div>'
     +'<div class="ms-l mc-l">'+h.join("")+'</div>'
     +(nSem>2?'<button type="button" class="mc-tout" aria-expanded="'+(plie?'false':'true')+'">'+(plie?'Tout le cycle · '+nSem+' semaines':'Réduire à deux semaines')+'</button>':'');
@@ -21010,6 +21047,17 @@ function cmDePause(){
   var tri=null; try{ tri=rcContremaitre(dmIso(d),pz); }catch(e){}
   return {tri:tri, pz:pz, nom:({AM:"Matin",PM:"Après-midi",N:"Nuit"})[pz]};
 }
+var RAC_HTML="";
+/* l'appel du contremaître de pause, en tuile pour la rangée du héros */
+function cmTuileHTML(){
+  var c=cmDePause(), lu=(c.tri?c.tri.split("").join(" ")+", ":"")+({AM:"pause du matin",PM:"pause de l'après-midi",N:"pause de nuit"})[c.pz];
+  /* le contremaître de pause qui ouvre son propre Accueil ne s'appelle pas
+     lui-même : la tuile reste, vide, pour garder la place au changement de
+     pause (accueilTic la remplace) */
+  if(c.tri&&c.tri===trigCourant()) return '<span class="ctl-cm-t" data-cm="'+esc(c.tri+"|"+c.pz)+'" hidden></span>';
+  return '<a class="ctl-t ctl-cm-t" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+CM_TEL_VU+'">'
+    +'<i class="ctl-ti">'+ctlIco("tel")+'</i><span>Appeler '+(c.tri?'<b>'+esc(idLisible(c.tri))+'</b>':'le CM')+'</span></a>';
+}
 function cmLigneHTML(){
   var c=cmDePause(), lu=(c.tri?c.tri.split("").join(" ")+", ":"")+({AM:"pause du matin",PM:"pause de l'après-midi",N:"pause de nuit"})[c.pz];
   return '<a class="ctl-cm" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'">'
@@ -21046,7 +21094,7 @@ function ctlPause(person){
 }
 function renderCentre(db,person){
   var c=document.getElementById("ctlCard"), corps=document.getElementById("ctlCorps"); if(!c||!corps) return;
-  person=person||renderCentre.p; if(!person){ c.hidden=true; var rq=document.getElementById("racCard"); if(rq) rq.hidden=true; var pq=document.getElementById("pfAfaire"); if(pq) pq.hidden=true; return; }
+  person=person||renderCentre.p; if(!person){ c.hidden=true; var rq=document.getElementById("racCard"); if(rq) rq.hidden=true; RAC_HTML=""; var rq2=document.getElementById("pfRac"); if(rq2) rq2.hidden=true; var pq=document.getElementById("pfAfaire"); if(pq) pq.hidden=true; return; }
   renderCentre.p=person;
   var cb=!!compteBase(), val=cb&&peutSaisir();
   /* les raccourcis */
@@ -21109,8 +21157,17 @@ function renderCentre(db,person){
      intérieur redisait le titre. Des boutons, annoncés comme tels :
      role="listitem" sur un <button> effaçait son rôle au lecteur d'écran
      (audit du 23/10/2026). */
+  /* LES ACCÈS DANS LE HÉROS (le client, le 25/10/2026 : « ne faut-il pas
+     ajouter les boutons d'action dans le héros ? ») : au téléphone, la
+     carte « Accès rapides » commençait à 969 px, sous le premier écran.
+     Une rangée de tuiles sous le prochain poste, l'appel du contremaître
+     en tête ; la carte se cache tant que le héros est là. */
+  var rh=document.getElementById("pfRac");
+  RAC_HTML='<div class="pf-rac-l" role="group" aria-label="Accès rapides">'+cmTuileHTML()+rac.map(function(r){ var nom=' aria-label="'+esc(r[4]||r[1])+'" title="'+esc(r[4]||r[1])+'"'; if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+esc(r[1])+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+esc(r[1])+'</span></button>'; }).join("")+'</div>';
+  if(rh){ rh.innerHTML=RAC_HTML; rh.hidden=false; }
   var rc=document.getElementById("racCard"), rcc=document.getElementById("racCorps");
-  if(rc&&rcc){
+  if(rh&&rc) rc.hidden=true;
+  else if(rc&&rcc){
     rcc.innerHTML=cmLigneHTML()+'<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ var nom=r[4]?' aria-label="'+esc(r[4])+'" title="'+esc(r[4])+'"':''; if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+esc(r[1])+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>';
     rc.hidden=false;
   }
@@ -21196,7 +21253,7 @@ window.addEventListener("resize",function(){ clearTimeout(_pfAfT); _pfAfT=setTim
 document.addEventListener("click",function(e){
   var af=e.target.closest?e.target.closest(".pf-af"):null;
   if(af){ var cc=document.getElementById("ctlCard"); if(cc){ cc.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); var i0=cc.querySelector(".ctl-i"); if(i0) try{ i0.focus({preventScroll:true}); }catch(er){} } return; }
-  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl]"):null; if(!b) return;
+  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl],#pfRac [data-ctl]"):null; if(!b) return;
   var k=b.getAttribute("data-ctl"), auj=jourUsine();
   /* la base injoignable : on relance les trois lectures, la carte attend */
   if(k==="reessayer"){ GR.demandesErr=GR.rcErr=GR.hsErr=false; try{ renderMesDemandes(); }catch(er){} renderCentre(); var cc0=document.getElementById("ctlCorps"); if(cc0&&!document.body.contains(b)) focusConteneur(cc0); return; }
