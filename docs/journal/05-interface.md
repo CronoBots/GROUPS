@@ -5461,3 +5461,20 @@ Mesuré (Playwright) : 62 px de haut à 390 et 1280 (144 avant), 74 à 320 ;
 aucun texte coupé ; le choix « Longue durée » change bien la feuille ;
 aucune erreur. Non reproduit : le « flou » de l'en-tête sur l'iPhone
 (au navigateur, le titre est au premier plan, opacité 1, sans filtre).
+
+**ANNULÉ le même jour.** Le client : « annule cette demande ». Le commit
+du fond est défait par `git revert` (`nfdm-v1106` ; le revert ramenait
+`V` à 1104, sous la version déjà publiée — remonté à 1106, sans quoi les
+téléphones ne l'auraient pas prise).
+
+### Les flèches du Planning à égale distance du haut et du bord (25/10/2026, `nfdm-v1106`)
+
+Le client : « décale les boutons de gauche et de droite pour que l'écart
+du haut soit le même à gauche et à droite vers le bord ». Mesuré avant :
+8 px du haut, 23 à 25 px du côté au téléphone ; 12 et 39 au PC. Les
+flèches perdent leur marge latérale ; la barre prend un retrait latéral
+égal à l'écart du haut, qui suit la taille des flèches (44 px au
+téléphone, 30 de 700 à 1099 px, 36 au-delà).
+
+Mesuré sur huit largeurs (320, 390, 699, 700, 800, 1099, 1100, 1280) :
+haut = côté partout (8, 8, 8, 15, 15, 15, 12, 12), des deux côtés.
