@@ -5022,3 +5022,7 @@ vert : #6FD39A au thème sombre, #1E7A46 au clair — plus vif que le vert
 des barres d'atelier (fermentation, terrain arrière, distillation), qui ne
 colore que le bord gauche de la ligne. Vérifié le 23/10 dans les deux
 thèmes.
+
+**Puis (v1073).** Le client : « le vert est trop flash ». `--rel` est
+désaturé : #79AF8F au thème sombre, #3D7656 au clair. Vérifié le 23/10 dans
+les deux thèmes ; le nom reste lisible sur le fond teinté du cadre.
