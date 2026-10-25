@@ -5104,3 +5104,7 @@ retiré. C'est la colonne qui « respire » : sa teinte monte de `--maint` à
 2 px (`--live`, cyan) ; la part d'une case fusionnée (`.eqfus-maint`)
 respire de même. Immobile et plus teintée si le téléphone demande moins de
 mouvement. Vérifié aux deux temps de l'animation, à 320, 390 et 1280 px.
+
+**Puis (v1083).** Le client : « un peu plus discret ». Teinte au plus fort
+0,24 → 0,17 (sombre) et 0,18 → 0,14 (clair) ; liserés 0,6 → 0,35 et
+0,55 → 0,32 ; respiration ralentie de 2,4 à 3,2 s.
