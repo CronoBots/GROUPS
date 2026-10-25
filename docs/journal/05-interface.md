@@ -4971,3 +4971,12 @@ deux pauses ni les relais ne le recevaient. Ils le reçoivent, par la même
 règle — en formation ET non validé au poste montré (`compteAuPoste`) : le
 23/10, SVE 10-18 en distillation devient jaune, alors que son relais
 18-22 au gluten, où elle est validée, reste bleu.
+
+**Relecture des 23 et 26/10 (v1069).** Le client : « qu'en penses-tu ? ».
+Un défaut relevé et corrigé : la case fusionnée du CM le 26/10 (FLI 06-18,
+JBI 18-06) gardait ses séparations de pauses en pointillé, alors que la
+rangée des cadres et toutes les autres cases les ont pleines depuis v1064 —
+`.eqfus-sep` passe au trait plein `--trait`, une seule règle pour les deux.
+Noté, non corrigé : sur le téléphone du client, la dernière ligne (FORM.,
+YPE et SPS en 07-15) dépasse le cadre et se lit en faisant défiler, le
+fondu du bas le signale ; le tableau tient sur un écran de 844 px.
