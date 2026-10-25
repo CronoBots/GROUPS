@@ -3196,3 +3196,27 @@ passe de « PM · Terrain arrière » 20 h-22 h à « N · Terrain arrière »
 deux heures dans l'après-midi restent sous le seuil de 3 h du partage
 entre pauses.
 
+
+## L'heure du trou sous le « ? » (25/10/2026, v1049)
+
+Le client, devant le Planning du 23/10 : « le ? doit indiquer l'horaire
+du trou, comme dans ce cas si c'est un trou de 02-06 ». Chaudières de
+nuit : PDF et KDN la nuit entière, SPS qui prolonge son après-midi
+jusqu'à 2 h (journée partagée), MGY en formation qui ne compte pas ; il
+en faut trois, la troisième place n'est vide que de 2 h à 6 h, et le
+« ? » ne le disait pas.
+
+**Fait** au rendu du Planning : on compte, demi-heure par demi-heure, ceux
+qui tiennent le poste (heures de la journée partagée comprises, apprentis
+exclus, les relais pour une place entière) ; le j-ième « ? » est vide là
+où ce compte reste sous sa place. Un seul morceau qui n'est pas toute la
+pause s'écrit sous le « ? » (« 2-6 »), dans son nom au lecteur d'écran et
+dans le titre de sa fenêtre (« Chaudières · N · 2/3 · de 2 h à 6 h ») ;
+une place vide toute la pause garde le « ? » seul (le 22/10, même poste).
+**Mesuré** : sur 60 jours (septembre-octobre), seul le 23/10 a un trou
+partiel ; 320 px sans débordement ; vérificateur, manques, polyvalences,
+compteurs et agendas identiques (affichage seul).
+
+Limite connue : quelqu'un qui part plus tôt sans que sa journée soit
+partagée entre deux pauses (« départ à 19h30 ») compte toujours pour la
+pause entière ; son trou n'est pas encore mesuré.
