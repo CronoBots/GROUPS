@@ -3292,3 +3292,17 @@ matin, « Un remplacement échangé ») reste : elle ne dépendait pas de
 cette règle, le classeur la prouve par le départ à 13 h et par AFA
 « remplace JBI de 13h à 14h ». Vérificateur, manques, polyvalences,
 compteurs et agendas identiques à la version précédente.
+
+## L'apprenti à l'heure du matin, sans heure écrite (25/10/2026, v1053)
+
+Le client, devant le Planning du 25/10 : « si quelqu'un en formation a un
+horaire correspondant à celui de pause, comme SKS, il n'est pas
+obligatoire de l'indiquer ». SKS, `["PM","D"]`, en formation à la
+meunerie, venu de la colonne D avec son horaire habituel 6-14, s'écrivait
+« SKS 06-14 » dans la case du matin, dont c'est justement l'horaire.
+
+**Fait** dans `horaireEcritD` : une personne EN FORMATION dont l'horaire
+de jour est exactement celui du matin (6-14) n'a plus d'heure sous son
+badge. Les autres gens de jour la gardent — elle dit qu'ils sont en D —,
+comme LCI 07-15 et les cadres en 07-15 le même jour. Affichage seul :
+vérificateur, manques, polyvalences, compteurs et agendas identiques.
