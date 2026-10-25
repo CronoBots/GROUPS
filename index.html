@@ -23415,6 +23415,16 @@ var fermerCompop=function(){};
    (eqBouge, choix de date) puisse enchaîner APRÈS que #jourCorps a reçu le
    nouveau jour — sans quoi un feuilletage lancé tout de suite travaillerait
    sur l'ancien contenu, aussitôt écrasé par le rendu différé. */
+/* L'HEURE À DEUX CHIFFRES sous les badges du Planning (le client, le
+   25/10/2026 : « toujours marquer le 0 avec une heure à une unité ») :
+   « 6-14 » devient « 06-14 », « 22-2 » « 22-02 », « 19h30-22 » ne bouge
+   pas. Une seule passe sur ce que la page reçoit, pour que les sept
+   façons d'écrire une plage (badge, journée partagée, relais, place vide)
+   s'écrivent toutes de la même manière. */
+function heuresDeuxChiffres(html){
+  return String(html).replace(/(<small class="eqhd">)([^<]*)(<\/small>)/g,function(m,a,t,b){
+    return a+t.replace(/(^|-)(\d)(?=h|-|$)/g,"$10$2")+b; });
+}
 function renderEquipe(){
   fermerCompop();
   /* #eqCorps a disparu de l'Accueil (le tableau du jour ne vit plus que sur
@@ -24316,7 +24326,7 @@ function renderEquipe(){
            refait et tombait sur la page entière : il passe à l'onglet, comme
            pour les flèches ← → (audit du 23/10/2026). */
         var focJ=document.activeElement&&jourHost.contains(document.activeElement);
-        jourHost.innerHTML=tableauHTML;
+        jourHost.innerHTML=heuresDeuxChiffres(tableauHTML);
         if(focJ){ var vJ=document.getElementById("v-jour"); try{ vJ.focus({preventScroll:true}); }catch(eF){} }
         var jourLbl=document.getElementById("jourLabel");
         /* Deux libellés, la feuille choisit : à 320 px le long recouvrait la
@@ -24530,7 +24540,7 @@ function renderEquipe(){
       }
     }
 
-    if(hote) hote.innerHTML=h.join("")||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
+    if(hote) hote.innerHTML=heuresDeuxChiffres(h.join(""))||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     var es=document.getElementById("eqSub");
     if(es) es.textContent=total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total"
       +(db.projete?" · prolongé par les cycles":"");
