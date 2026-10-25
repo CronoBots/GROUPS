@@ -1080,7 +1080,7 @@ body{overflow-x:clip}
   #calCard .mc-j[data-s] .mc-t.long{padding:1px 2px} }
 @media (min-width:900px){ #calCard .mc-j{min-height:78px; padding-top:10px; gap:6px}
   #calCard .mc-n{font-size:13px} #calCard .mc-t{font-size:12.5px} #calCard .mc-j[data-s] .mc-t{padding:2px 11px}
-  #calCard .mc-j .mc-t.long{font-size:12px} #calCard .mc-leg{font-size:11.5px; gap:8px 26px} }
+  #calCard .mc-j .mc-t.long{font-size:12px} #calCard .mc-leg{font-size:11.5px; gap:8px 18px} }
 /* L'ANNÉE, LES MÊMES CASES QUE LE MOIS (le client, le 18/10/2026 : « la
    même chose que le calendrier mais pour l'année »). Une bascule Mois |
    Année sous la barre du mois ; en Année, les douze grilles se suivent,
@@ -2505,6 +2505,7 @@ html #grille .ws-site{margin-bottom:14px}
 .site-tab th{width:118px; padding:8px 10px 6px 0; text-align:left; vertical-align:top; font-size:13px; font-weight:600; line-height:18px; color:var(--ink2)}
 .site-tab tr:has(.site-p[data-pers]) th{padding-top:15px}
 .site-tab td{padding:4px 0; vertical-align:top}
+.site-tab th .site-eq{display:block; font-size:11px; font-weight:500; line-height:14px; color:var(--muted); white-space:nowrap}
 .site-ps{display:flex; flex-wrap:wrap; gap:6px}
 .site-p{display:inline-flex; align-items:center; gap:7px; min-height:26px; padding:3px 9px; border:1px solid var(--line2); border-radius:7px; background:var(--surface2); font-size:12px; line-height:1.2; color:var(--muted); max-width:100%; flex-wrap:wrap; row-gap:2px}
 /* un nom long et ses heures passent à la ligne par morceaux entiers */
@@ -5740,6 +5741,10 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    toute la largeur, la pastille se range contre le bord */
 .pf-prof .pf-hmeta{flex:1}
 .pf-prof .pf-poste .pf-statut{margin-left:auto}
+/* au PC, le bord droit du héros est à 660 px du poste (Mon cycle occupe
+   la colonne de droite) : la pastille s'y perdait, elle se range à côté
+   du poste (passe sur tout l'Accueil, 25/10/2026) */
+@media (min-width:761px){ .pf-prof .pf-poste .pf-statut{margin-left:4px} .pf-prof .pf-hmeta{flex:0 1 auto} }
 .pf-statut{flex:0 0 auto; font-size:11.5px; font-weight:600; line-height:1; padding:4px 8px; border-radius:99px;
   color:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.05)}
 .pf-statut.int{color:var(--at-jaune); border-color:color-mix(in srgb,var(--at-jaune) 45%,transparent)}
@@ -7262,7 +7267,9 @@ html body #v-horaire #calCard .mc-j .mc-t:not(.long){font-size:11px}
    placé » sortait de sa case de 3,8 px : les deux colonnes s'élargissent,
    et les cinq cases des congés passent sur deux rangées sous 361 px */
 @media (max-width:400px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:28px minmax(0,1fr) 44px 40px} }
-@media (max-width:360px){ html body #v-horaire .pf-cgs{grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px} html body #v-horaire .pf-cgc{padding-left:7px; padding-right:7px} }
+@media (max-width:360px){ html body #v-horaire .pf-cgs{grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px} html body #v-horaire .pf-cgc{padding-left:7px; padding-right:7px; grid-column:span 2}
+  /* trois puis deux : la seconde rangée s'étire, plus de case vide (25/10/2026) */
+  html body #v-horaire .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:span 3} }
 /* trois coupures trouvées en passant cinq profils à 320 et 390 px : un code
    de quatre lettres (« FORM ») débordait de sa pastille de 32 px dans le
    calendrier, qui s'élargit à son texte ; « D-CPPT » de Ma semaine perdait
@@ -19231,7 +19238,11 @@ function siteSalonsHTML(s,o){
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
       +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])+'</span>')+'</span><em>'+L.length+'</em></p>'
       +'<table class="site-tab"><tbody>'+lignes.map(function(q){
-        return '<tr><th scope="row">'+esc(q)+'</th><td><div class="site-ps">'
+        /* « Chaudières éq. 4 » se coupait en « Chaudières / éq. 4 » ou
+           « Distillation éq. / 1 » au téléphone : l'équipe passe dessous,
+           en petit, d'un seul tenant (25/10/2026) */
+        var qm=/^(.*?)\s+(éq\.\s*\S+)$/.exec(q);
+        return '<tr><th scope="row">'+(qm?esc(qm[1])+' <small class="site-eq">'+esc(qm[2])+'</small>':esc(q))+'</th><td><div class="site-ps">'
           +par[q].sort(function(a,b){ return String(a.p.id).localeCompare(String(b.p.id)); }).map(etiquette).join("")+'</div></td></tr>';
       }).join("")+'</tbody></table></div>';
   });
