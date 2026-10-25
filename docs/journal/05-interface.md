@@ -5373,3 +5373,36 @@ Mesuré (Playwright, 320/360/375/390/414/1280, un cadre et un opérateur,
 le 25/10 à 22 h 27) : aucun libellé coupé, aucune tuile hors du cadre ;
 « À faire » à 613 px à 390 (632 avant) ; dépliage et repli tenus au
 rechargement ; aucun débordement, aucune erreur.
+
+### L'Accueil en une passe (25/10/2026, `nfdm-v1101`)
+
+Le client : « optimise tout l'Accueil en une passe ». Méthode de
+`CLAUDE.md` : page entière photographiée à 320, 390 et 1280 px (cadre, le
+27/10 à 10 h), défauts listés carte par carte, puis un audit par script
+sur toute la page (texte coupé par une ellipse, texte sous 11 px, cible
+sous 32 px, libellé court passé à la ligne).
+
+Défauts trouvés et corrigés :
+- **Héros au PC** : la pastille du statut, calée au bord droit en `v1098`,
+  se retrouvait à 660 px du poste (Mon cycle occupe la colonne de
+  droite). Au PC, elle se range à côté du poste (12 px) ; au téléphone,
+  contre le bord comme demandé.
+- **Sur site** : « Chaudières éq. 4 » et « Distillation éq. 1 » se
+  coupaient au milieu au téléphone (« Distillation éq. / 1 »). L'équipe
+  passe dessous, en petit, d'un seul tenant.
+- **Mon année, 320 px** : les cinq congés en trois + deux laissaient une
+  case vide ; la seconde rangée s'étire (82 × 3, puis 125 × 2).
+- **Calendrier au PC** : la légende laissait « Commentaire » seul sur une
+  seconde ligne ; écart de 26 à 18 px, une ligne.
+
+Audit par script : aucun texte coupé, aucun sous 11 px. Les « retours à la
+ligne » qu'il signale sont, à la relecture, des titres à icône et des
+légendes à pastille (plusieurs boîtes sur une même ligne), sauf
+le libellé d'un recyclage en cours à 320 px, sur deux lignes lisibles.
+Cibles sous 32 px : flèches et onglets du calendrier, au PC seulement
+(souris), laissés.
+
+Reste, et pourquoi : « Sur site » fait 750 px au téléphone (une ligne par
+poste, voulu le 24/10) ; la bulle d'un commentaire s'ouvre au-dessus de la
+case, comme au Planning ; le mois du calendrier redit deux semaines de
+« Mon cycle », chacun ayant été demandé.
