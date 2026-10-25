@@ -5252,3 +5252,17 @@ Mesuré (Playwright, 320/390/1280) : bloc replié 235/210/214 px, déplié
 le choix tient au rechargement ; aucun débordement, aucune erreur.
 Reste : la densité des coins rouges (un commentaire presque chaque jour)
 ne se filtre pas sans une règle du client.
+
+### « Mon cycle » : seuls les commentaires qui changent le poste (25/10/2026, `nfdm-v1095`)
+
+Le client : « oui, seulement ceux qui changent le poste ». Le coin rouge
+de « Mon cycle » ne marque plus que les commentaires de remplacement,
+d'échange, de rappel ou de renfort (`/rempla|rempl.? par|[ée]change|rappel|renfort/i`).
+« Départ à 2h », « équipe au complet », « maintien prime N », « cf 18/12 »…
+restent lisibles dans la journée ouverte, sans coin ; la case s'ouvre alors
+directement sur la journée. Le Planning n'est pas touché.
+
+Mesuré : sur tout l'horaire 2026, 5 050 des 7 015 commentaires gardent
+leur coin (28 % retirés). Au navigateur, cycle de la personne de test au
+20/12/2026 : 9 coins ; filtre neutralisé sur une copie, 10 — le coin
+retiré est bien « cf 18/12 ». Aucune erreur.
