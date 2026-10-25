@@ -4803,3 +4803,20 @@ ils s'affichent dessous, dans la part de leur pause (`.eqfus-sous`).
 changent ; les deux autres fusions de la période (CM et terrain arrière)
 sont identiques ; 320 et 390 px sans débordement ; vérificateur, manques,
 polyvalences, compteurs et agendas identiques (affichage seul).
+
+## Un violet pour l'horaire de jour (25/10/2026, v1056)
+
+Le client : « il faut un code couleur pour les gens en horaire de D (pas
+en pause) ». Depuis que la colonne D a rejoint le matin (20/10), rien ne
+distinguait un « GPS 07-15 » d'un contremaître de pause, sinon l'heure —
+et un apprenti à l'horaire du matin n'en porte plus (même jour).
+
+**Fait** : un badge de jour (`deD`, ou `depuisD` pour la meunerie de
+consignation) prend la classe `jour` : bordure et fond violets, l'heure
+en violet ; le nom garde sa couleur (jaune en formation). Violet, parce
+qu'aucune pause (AM orange, PM sarcelle, N indigo, D gris) ni aucun
+atelier (jaune, verts, rouge, bleu) ne le porte : `--hj` #7B3FA0 en clair,
+#C8A2EC en sombre, contrastes de l'heure ≈ 6:1. « Vous » et la proposition
+gardent leur bordure. Légende du PC : « horaire de jour ». Le 27/10 :
+GPS, YPE, BLR, YRS, SLI, LCI, SVE, LCO. Affichage seul ; vérificateur et
+manques identiques.
