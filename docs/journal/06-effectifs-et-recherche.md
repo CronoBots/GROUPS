@@ -3173,3 +3173,26 @@ l'agenda, un bout de moins d'une heure rejoint la pause qui SUIT, celle
 pour laquelle on arrive — vérifié : plus aucune note ne commence par
 « Après-midi 21 h 30 ».
 
+## GKT le 22/10 : une arrivée à 20 h pour sa nuit (25/10/2026, v1048)
+
+Le client, devant le Planning du 22/10 : « et GKT pas placé en nuit alors
+que c'est bien précisé ? ». Sa case, `["terr. Arr.","2h +FT","Remplace
+SBZ arrivée à 20h00' pour remplacer ATR qui remplaçait GDT"]`, était lue
+**après-midi, 6 h** : la pause venait de SBZ (nuit), puis la règle « la
+pause est celle qui contient l'heure d'arrivée » (VBN le 05/03) la
+basculait en après-midi, 20 h n'étant pas dans la nuit. Le terrain
+arrière de nuit paraissait vide (0/1, « personne ne peut prendre le
+poste »), et la PAIE comptait une prime d'après-midi sur 6 h.
+
+**Corrigé** dans `lireJournee` : quand l'arrivée précède la pause d'autant
+d'heures que le +FT, elle ne déplace pas la pause, et ces heures
+s'ajoutent au poste entier (nuit 8 h + 2 h au compteur), comme VBN le
+21/01. **Mesuré** sur toute l'année contre la version d'avant : une
+seule journée change — ce 22/10 ; manques 20 → 19 places creuses (le
+terrain arrière de nuit est tenu), calendrier, compteurs, polyvalences
+et `comparer-fiches.py` (VBN, GKT) identiques ; agendas : GKT le 22/10
+passe de « PM · Terrain arrière » 20 h-22 h à « N · Terrain arrière »
+20 h-6 h, un seul événement. Sur le Planning, la case de GKT montre « 20-6 » en nuit :
+deux heures dans l'après-midi restent sous le seuil de 3 h du partage
+entre pauses.
+

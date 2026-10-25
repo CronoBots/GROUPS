@@ -13251,6 +13251,18 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var mArr=(!r.s && !r.jour && duCycle && SHIFT_PLAGE[duCycle] && duCycle!=="D"
               && !plageCommentaire(raw[2]))
       ? /\barriv\S*\s*(?:à|a)\s*(\d{1,2})\s*h/i.exec(raw[2]||"") : null;
+    /* SAUF UNE ARRIVÉE AVANT LA PAUSE QUE LE +FT COUVRE. Le client, le
+       25/10/2026, sur GKT le 22/10 : ["terr. Arr.","2h +FT","Remplace SBZ
+       arrivée à 20h00' pour remplacer ATR …"]. SBZ est de nuit ; GKT est
+       venu deux heures plus tôt, épargnées, pour SA nuit — comme VBN le
+       21/01 ci-dessus. L'arrivée ne déplace pas la pause, les heures
+       d'avant s'ajoutent au poste entier. */
+    var avantFT=false;
+    if(mArr && r.epargne>0){
+      var hA0=Number(mArr[1]); if(hA0<6) hA0+=24;
+      var plA=SHIFT_PLAGE[duCycle];
+      if(hA0<plA[0] && Math.abs((plA[0]-hA0)-r.epargne)<0.01){ avantFT=true; mArr=null; }
+    }
     if(mArr){
       var hArr=Number(mArr[1]); if(hArr<6) hArr+=24;
       var plC=SHIFT_PLAGE[duCycle];
@@ -13279,7 +13291,7 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
          PARTIE. Quand le commentaire les situe hors du poste — « de 18h à
          22h » devant une nuit qui commence à 22h — elles s'ajoutent : la
          personne a fait son poste entier, plus ces heures-là. */
-      if(r.epargne>0 && plageHorsPoste(plageCommentaire(raw[2]),duCycle))
+      if(r.epargne>0 && (avantFT || plageHorsPoste(plageCommentaire(raw[2]),duCycle)))
         base=hJour;
       /* La cellule écrit la plage : c'est elle qui dit la présence, relue
          sur le poste du cycle. ATA le 27/01, ["06h-18h","4h +FT"] : un
