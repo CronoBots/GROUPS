@@ -4958,3 +4958,8 @@ cadre plus étroit que son texte (« ? 02-06 ») prend sa largeur naturelle,
 son voisin recule. `--bord-pause` revaut le blanc (la couleur du texte au
 thème clair). Vérifié les 22/10, 23/10, 01/09 et 27/10 à 320, 390 et
 1280 px : ni débordement ni erreur.
+
+**Puis (v1067).** Le client : « et horaire en texte blanc dans le badge ».
+L'heure des badges (`.eqhd`) et des cadres (`.eqseg small`) passe du gris
+`--muted` à `--ink`, la couleur du trigramme : blanc au thème sombre, foncé
+au clair. Une seule teinte relevée sur tout le tableau du 23/10.
