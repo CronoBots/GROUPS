@@ -90,6 +90,9 @@
      verts et non un seul : les trois postes se retrouvent côte à côte sur
      la même ligne, et une couleur qui ne distingue pas ne sert à rien. */
   --at-jaune:#7F5400; --at-jaune-soft:#F6E6CB;
+  /* l'horaire de jour (D) au Planning : un violet qu'aucune pause ni
+     aucun atelier ne porte (le client, le 25/10/2026) */
+  --hj:#7B3FA0; --hj-soft:#F0E3F8;
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
   --at-bleu:#23609C;  --at-bleu-soft:#D5EAFF;
@@ -145,6 +148,7 @@
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
+  --hj:#C8A2EC; --hj-soft:#33244A;
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -6198,6 +6202,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in); background:var(--in-soft)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.form{border-color:var(--trait)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:dashed; border-color:var(--in)}
+/* L'HORAIRE DE JOUR (le client, le 25/10/2026 : « il faut un code couleur
+   pour les gens en horaire de D, pas en pause »). Bordure et fond violets,
+   l'heure en violet ; le nom garde sa couleur (jaune en formation). « Vous »
+   et la proposition gardent la leur. */
+.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app),
+#jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app){border-color:var(--hj); background:var(--hj-soft)}
+.eqhote .eqp2 tbody td .eqn.jour .eqhd,
+#jourCorps.eqhote .eqp2 td .eqn.jour .eqhd{color:var(--hj)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque{border-color:var(--at-rouge)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.manque.propose{border-color:#F2994A}
@@ -6463,6 +6475,7 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg-b.com{text-decoration:underline solid var(--muted); text-underline-offset:2px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
   .eqleg-b.relais{border-style:dashed; border-color:var(--in); color:var(--in)}
+  .eqleg-b.jour{border-color:var(--hj); background:var(--hj-soft)}
   .eqleg-b.vide{border-color:var(--at-rouge)}
 }
 html .pvt td.pvsien{font-size:10.5px}
@@ -7338,7 +7351,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
       <p class="eqleg" aria-label="Légende">
         <span><i class="eqleg-b moi">ABC</i>vous</span><span><i class="eqleg-b form">ABC</i>en formation</span>
         <span><i class="eqleg-b com">ABC</i>commentaire <span class="eqleg-tact">(touchez)</span><span class="eqleg-souris">(cliquez)</span></span><span><i class="eqleg-b app">ABC</i>changement de poste proposé</span>
-        <span><i class="eqleg-b relais">ABC</i>relais 12 h</span><span><i class="eqleg-b vide">?</i>place vide</span>
+        <span><i class="eqleg-b jour">ABC</i>horaire de jour</span><span><i class="eqleg-b relais">ABC</i>relais 12 h</span><span><i class="eqleg-b vide">?</i>place vide</span>
       </p>
     </div>
   </section>
@@ -23707,7 +23720,7 @@ function renderEquipe(){
         note=trTxt; com=trTxt+(com?"\n\nCommentaire : "+com:"");
       }
       return '<span class="eqn'+(x.p.id===moi?" moi":"")+(tr?" app":"")
-        +(formIci?" form":"")+(com?" coment":"")+'"'
+        +(formIci?" form":"")+(com?" coment":"")+((x.deD||x.depuisD)?" jour":"")+'"'
         +(com?' data-com="'+esc(com)+'" tabindex="0" role="button"':"")
         +' title="'+esc(fonctionPersonne(x.p))
         +(note?" · "+esc(note):"")+(det?" · "+esc(det):"")+'">'
