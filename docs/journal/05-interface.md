@@ -4980,3 +4980,15 @@ rangée des cadres et toutes les autres cases les ont pleines depuis v1064 —
 Noté, non corrigé : sur le téléphone du client, la dernière ligne (FORM.,
 YPE et SPS en 07-15) dépasse le cadre et se lit en faisant défiler, le
 fondu du bas le signale ; le tableau tient sur un écran de 844 px.
+
+**Puis (v1070).** Le client, sur le 27/10 : « bordure de FLI et GPS non
+alignée ; faut-il changer la couleur des 12 h ou la personnelle, car elles
+sont de même couleur ? ». **Mesuré** : GPS et YPE, centrés sous la fusion,
+commençaient 3 px à droite de FLI 06-18 à 390 px (61 px au PC). Le premier
+badge sous une fusion prend maintenant le bord gauche du cadre de sa pause :
+0 px d'écart aux trois largeurs. **Couleur** : le cyan `--in` est l'accent
+de « vous » dans toute l'application (badge, poste, fiche) ; ce sont donc
+les relèves qui changent — relais et cadres sur deux pauses prennent
+`--rel`, un violet que ni une pause, ni un atelier, ni un autre repère ne
+porte (#B9A2F2 au sombre, #6A47B8 au clair). Votre propre cadre de relève
+reste cyan. Légende du PC à jour.
