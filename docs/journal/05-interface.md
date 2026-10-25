@@ -5190,3 +5190,18 @@ de la colonne et centre son badge elle-même (`justify-content:center`) ; et
 les mesures du tableau se refont quand la police arrive
 (`document.fonts.ready`). Éprouvé en élargissant la police APRÈS le
 rendu : 33 / 33 → 32 / 32 à 393 px, 115 / 115 au PC.
+
+## Les bordures de l'onglet Équipes, comme au Planning (25/10/2026, v1089)
+
+Le client : « les bordures des gens en D doivent être les mêmes dans
+l'onglet Équipe pour les trigrammes ». Le tableau des équipes gardait ses
+anciennes bordures — un trait neutre `--line` pour tous, la formation en
+`--trait` plus clair — et ne distinguait pas l'horaire de jour. Dans ce
+tableau de composition, « en D » veut dire hors des équipes de pause : la
+rangée « Opérateurs hors équipe » (la STEP, CAN et PDE), dont les jetons
+prennent la classe `orgd`. Les bordures suivent maintenant celles du
+Planning : trait blanc fin (`--bord-pause`) pour l'équipe, gris marqué
+(`--trait-fort`) pour l'horaire de jour et pour la formation, cyan pour
+« vous ». La consignation de la meunerie (BLR, YRS, rangés en équipe 2)
+garde le trait blanc, comme au Planning. Relevé au navigateur : une seule
+couleur par cas.

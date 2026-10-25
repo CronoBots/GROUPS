@@ -1963,7 +1963,13 @@ body.sheet-on{overflow:hidden}
 .orgt td{white-space:normal}
 /* L'opérateur en formation : CONTOUR GRIS comme dans l'onglet horaire (le
    client, le 03/10/2026), l'encre jaune suffisant à le signaler. */
-.orgt td .orgn.orgf{border-color:var(--trait)}
+/* LES MÊMES BORDURES QU'AU PLANNING (le client, le 25/10/2026 : « les
+   bordures des gens en D doivent être les mêmes dans l'onglet Équipe ») :
+   trait blanc fin pour l'équipe, gris marqué pour la formation et pour
+   l'horaire de jour — ici les opérateurs hors équipe (la STEP) —, cyan pour
+   vous. */
+.orgt td .orgn{border-color:var(--bord-pause)}
+.orgt td .orgn.orgf,.orgt td .orgn.orgd{border-color:var(--trait-fort)}
 .orgt td .orgn.moi{border-color:var(--in); text-decoration:none}
 /* Un trigramme se clique pour ouvrir la fiche de la personne (le client, le
    04/10/2026) : curseur et survol le signalent, partout où il porte un data-id
@@ -25825,7 +25831,7 @@ function renderOrganisation(){
     if(stepGens.length){
       t.push('<tr class="orghors"><th colspan="'+(eqs.length+1)+'">Opérateur'+(stepGens.length>1?"s":"")+' hors équipe</th></tr>');
       t.push('<tr data-z="bleu"><th class="orgp" scope="row">STEP</th><td colspan="'+eqs.length+'">'
-        +stepGens.map(function(p){ return _orgJeton(p.id,moi); }).join("")+'</td></tr>');
+        +stepGens.map(function(p){ return _orgJeton(p.id,moi," orgd"); }).join("")+'</td></tr>');
     }
     t.push("</tbody></table></div>"
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
