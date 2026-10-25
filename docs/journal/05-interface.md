@@ -4923,3 +4923,18 @@ heures restent alignées d'une ligne à l'autre) : 14 et 57 px. Et le fond
 des cadres était translucide — le rouge de la nuit teintait la moitié de
 KDN et de SPS : il est opaque (bleu à 10 % sur `--surface3`, comme le fond
 d'un badge), le rouge reste derrière.
+
+**Puis (v1064), une seule case.** Le client : « quand c'est remis à la
+ligne, il ne faut pas séparer la cellule en 2, c'est pour cela que je ne
+voulais pas de bordure, sinon cela fait buguer même le zébra ». **Mesuré**
+le 23/10 : la rangée des cadres comptait pour `tr:nth-child(odd)` — fond
+alterné à elle seule, et toute l'alternance inversée sous la distillation
+(chaudières sombres, STEP claire) ; elle avait aussi un trait gauche en
+trop (pas d'intitulé devant elle) et des séparateurs de colonnes en
+pointillé, alors que la case du dessus les a pleins ; et la colonne de la
+pause en cours laissait un filet d'1 px à la jonction. **Corrigé** : le
+zébra se pose en classe (`zebrerLignes`, `tr.zeb`), la rangée des cadres
+prenant la parité de son poste ; plus de trait gauche ; séparateurs pleins
+à la couleur des cases ; fonds remontés d'1 px. Relu pixel par pixel : la
+case se lit d'un seul tenant, et le 27/10 (sans rangée) garde son
+alternance.
