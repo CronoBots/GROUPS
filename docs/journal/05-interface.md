@@ -5286,3 +5286,12 @@ jamais à la ligne : sous 360 px, « Prochain poste » devient « Prochain »
 Mesuré (Playwright, 320/390/1280) : en poste 135/137/137 → 106/107/91 px ;
 la veille 127/129/129 → 97/98/91 ; date en titre 105/106/106 → 97/98/91.
 Aucun débordement, aucune erreur.
+
+### La durée retirée du prochain poste (25/10/2026, `nfdm-v1097`)
+
+Le client : « retire la durée ». La pastille « 8 h 30 » disparaît du
+billet (et la fonction `dure`, qui ne servait qu'à elle). Mesuré : en
+poste à 390 px, « Cet après-midi 13 h 30 – 22 h » tient sur une ligne,
+107 → 91 px ; un titre plus long (« Demain après-midi », « Samedi 31
+octobre ») passe encore à la ligne à 390 et 320 px (98 et 97 px) ; au PC,
+91 px partout. Aucun débordement, aucune erreur.

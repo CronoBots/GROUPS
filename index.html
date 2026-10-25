@@ -5503,7 +5503,6 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .pf-proch-h{display:flex; align-items:baseline; column-gap:6px; white-space:nowrap; font-size:13px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums}
 .pf-proch-t .pf-pd{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-h .pf-ps{color:rgba(255,255,255,.4); font-weight:400}
-.pf-du{margin-left:4px; padding:1px 7px; border-radius:99px; font-size:11.5px; font-weight:600; color:rgba(255,255,255,.75); background:rgba(255,255,255,.08)}
 .pf-hd,.pf-hf{flex:0 0 auto; white-space:nowrap}
 .pf-trait{display:block; width:100%; min-width:16px; height:3px; border-radius:2px; background:rgba(255,255,255,.18); overflow:hidden; position:relative}
 .pf-trait i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
@@ -14914,7 +14913,6 @@ function _pfHead(db,p){
        désignait la nuit suivante (audit du 23/10/2026) */
     var titre=(pr.enCours&&pr.pv==="N"&&pr.kc<=0&&"Cette nuit")||(pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||dateL,
         enMots=titre!==dateL;
-    var dure=function(x){ x=Math.round(x*60); var hh0=Math.floor(x/60), mm=x%60; return hh0+"\u00a0h"+(mm?"\u00a0"+(mm<10?"0":"")+mm:""); };
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       /* PLUS COMPACT (le client, le 25/10/2026 : « optimise la partie
          prochain poste, prend beaucoup de place ») : la date, quand le
@@ -14929,7 +14927,9 @@ function _pfHead(db,p){
          du 23/10/2026) */
       +'<span class="pf-proch-h" role="img" aria-label="'+esc((enMots?dateL+", ":"")+pr.heures)+'">'
       +'<span class="pf-hd">'+esc(hD)+'</span><span class="pf-ps">–</span><span class="pf-hf">'+esc(hF)+'</span>'
-      +(pr.fin>pr.deb?'<span class="pf-du">'+dure(pr.fin-pr.deb)+'</span>':'')+'</span></span>'
+      /* plus de pastille de durée (le client, le 25/10/2026 : « retire la
+         durée ») : le titre et les heures tiennent sur une ligne */
+      +'</span></span>'
       +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
       +(function(){
         /* AVEC QUI (le client, le 22/10/2026, « optimiser encore » le centre
