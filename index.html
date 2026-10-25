@@ -23604,6 +23604,15 @@ function renderEquipe(){
       /* Sans parenthèses depuis le 28/09/2026 : dans l'étiquette, un
          chiffre à côté d'un trigramme ne peut être qu'un horaire, et les
          deux signes le faisaient passer à la ligne. */
+      /* L'APPRENTI À L'HEURE DU MATIN N'A PAS BESOIN DE L'ÉCRIRE (le
+         client, le 25/10/2026 : « si quelqu'un en formation a un horaire
+         correspondant à celui de pause, comme SKS, il n'est pas obligatoire
+         de l'indiquer »). SKS le 25/10, ["PM","D"], en formation à la
+         meunerie, 6-14 : la colonne du matin le dit déjà. Les autres gens
+         de jour gardent leur horaire, qui dit qu'ils sont en D. */
+      if(lib && Math.abs((plageMention(lib)||[0])[0]-PF_DEB.AM)<0.01
+         && Math.abs((plageMention(lib)||[0,0])[1]-PF_FIN.AM)<0.01
+         && enFormation(x.p,jourCalc)) lib="";
       return lib?'<small class="eqhd">'+esc(lib)+"</small>":"";
     }
     /* UN HORAIRE DIMINUÉ OU PROLONGÉ S'ÉCRIT DANS LE BADGE (le client, le
