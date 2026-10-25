@@ -6854,6 +6854,16 @@ html .hp-fab:hover{opacity:1}
 .ms-j.mc-c b{font-size:13px; margin-bottom:1px}
 .ms-j.mc-c .pf-pause,.ms-j.mc-c .pl-pa{transform:scale(.88)}
 .ms-j.mc-c.passe{opacity:.45}
+.ms-j.mc-c[hidden]{display:none}
+.mc-jt.we{color:var(--ink2)}
+.ms-j.mc-c.we{background:rgba(128,128,128,.12)}
+.ms-j.mc-c.we.rep{background:rgba(128,128,128,.07)}
+/* un code long (« D-CPPT ») tient sur une ligne : la rangée garde sa hauteur */
+.ms-j.mc-c .pl-pa{white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis}
+.ms-j.mc-c .pl-pa.mc-long{font-size:8.5px; letter-spacing:-.02em; padding-left:3px; padding-right:3px}
+.mc-tout{display:block; width:100%; margin:6px 0 2px; padding:8px; border:1px solid var(--line); border-radius:10px;
+  background:rgba(128,128,128,.06); color:var(--ink2); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
+.mc-tout:focus-visible{outline:2px solid var(--in); outline-offset:2px}
 .ms-j.mc-c.coment::after{content:""; position:absolute; top:-1px; right:-1px; width:0; height:0;
   border-top:9px solid var(--at-rouge); border-left:9px solid transparent; border-top-right-radius:8px; pointer-events:none}
 .ms-j.mc-c.coment-actif{border-color:#fff; box-shadow:0 0 0 1px #fff}
@@ -20890,7 +20900,15 @@ function monCycleHTML(db,person){
   var c=null; try{ c=cycleActuel(person); }catch(e){ c=null; }
   var nc=new Date(), auj=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate());
   var deb=c?c.deb:lundiDe(auj), L=c?c.L:35, h=[];
-  ["L","M","M","J","V","S","D"].forEach(function(x){ h.push('<span class="mc-jt" aria-hidden="true">'+x+'</span>'); });
+  /* deux lettres : « M M » ne disait pas mardi ou mercredi (25/10/2026) */
+  ["Lu","Ma","Me","Je","Ve","Sa","Di"].forEach(function(x,k){ h.push('<span class="mc-jt'+(k>4?' we':'')+'" aria-hidden="true">'+x+'</span>'); });
+  /* REPLIÉ PAR DÉFAUT (le client, le 25/10/2026 : « optimise ») : la
+     semaine en cours et la suivante (les deux dernières en fin de cycle) ;
+     « Tout le cycle » déplie le reste. Six rangées repoussaient « À faire »
+     sous l'écran du téléphone. Le choix se retient sur l'appareil. */
+  var nSem=Math.round(L/7), tout=lsGet("ui/cycleTout")===true;
+  var semA=c?Math.floor(c.pos/7):Math.max(0,Math.floor((auj.getTime()-deb.getTime())/604800000));
+  var sem0=Math.max(0,Math.min(semA,nSem-2)), plie=!tout&&nSem>2;
   for(var i=0;i<L;i++){
     var d=new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+i), dbx=horaireDe(d.getFullYear())||db;
     var p=dbx&&dbx.people.filter(function(x){ return x.id===person.id; })[0], md=pad2(d.getMonth()+1)+pad2(d.getDate());
@@ -20901,12 +20919,14 @@ function monCycleHTML(db,person){
        faut aussi les commentaires, affichés de la même manière que dans le
        Planning ») : le coin rouge, et la bulle au toucher */
     var com=String(e[2]||"").trim();
-    h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+(com?' coment':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
+    var semI=Math.floor(i/7), cache=plie&&(semI<sem0||semI>sem0+1);
+    var lib=v&&v!=="-"?grCourt(v):"";
+    h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+(com?' coment':'')+(d.getDay()%6===0?' we':'')+(cache?' mc-hors':'')+'"'+(cache?' hidden':'')+' data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
       +(com?' data-com="'+esc(com)+'"':'')
       +' aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" : "+(v&&v!=="-"?v:"repos")+(com?" · commentaire":""))+'">'
       +'<b>'+d.getDate()+'</b>'
       +(/^(AM|PM|N|D)$/.test(v)?'<i class="pf-pause" data-p="'+v+'">'+v+'</i>'
-        :v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">–</span>')
+        :v&&v!=="-"?'<span class="pl-pa '+cls+(lib.length>4?' mc-long':'')+'">'+esc(lib)+'</span>':'<span class="ms-repos">–</span>')
       +'</button>');
   }
   var fin=new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1);
@@ -20915,8 +20935,18 @@ function monCycleHTML(db,person){
   return '<div class="ry-an-t pf-ms-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span><span class="pf-pr-l">'
     +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MOIS[deb.getMonth()].toLowerCase())+" – "+numJour(fin.getDate())+" "+MOIS[fin.getMonth()].toLowerCase()
       +" · semaine "+sem+"/"+Math.round(L/7))+'</span></div>'
-    +'<div class="ms-l mc-l">'+h.join("")+'</div>';
+    +'<div class="ms-l mc-l">'+h.join("")+'</div>'
+    +(nSem>2?'<button type="button" class="mc-tout" aria-expanded="'+(plie?'false':'true')+'">'+(plie?'Tout le cycle · '+nSem+' semaines':'Réduire à deux semaines')+'</button>':'');
 }
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".mc-tout"):null; if(!b) return;
+  var l=b.previousElementSibling, ouvrir=b.getAttribute("aria-expanded")!=="true";
+  lsSet("ui/cycleTout",ouvrir);
+  if(l) Array.prototype.forEach.call(l.querySelectorAll(".mc-hors"),function(x){ x.hidden=!ouvrir; });
+  var n=Math.round((l?l.querySelectorAll(".mc-c").length:0)/7);
+  b.setAttribute("aria-expanded",ouvrir?"true":"false");
+  b.textContent=ouvrir?"Réduire à deux semaines":"Tout le cycle · "+n+" semaines";
+});
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
   if(b.hasAttribute("data-com")) return; /* la bulle du commentaire s'ouvre, avec « Ouvrir la journée » */

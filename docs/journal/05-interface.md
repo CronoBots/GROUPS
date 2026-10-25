@@ -5231,3 +5231,24 @@ ce bouton (`:has(.compop-j)`), celle du Planning ne change pas. Une journée
 sans commentaire s'ouvre directement, comme avant. Éprouvé le 25/10 :
 15 journées commentées sur 42 ; le 19 ouvre « Échange avec ATA » puis la
 journée du lundi 19 octobre ; le 26 s'ouvre d'un toucher.
+
+### « Mon cycle » replié à deux semaines (25/10/2026, `nfdm-v1094`)
+
+Le client, sur une capture de l'Accueil : « optimise ». Défauts relevés :
+six rangées (≈ 420 px) repoussaient « À faire » sous l'écran du
+téléphone ; un code long (« D-CPPT ») passait sur deux lignes et
+grandissait sa rangée ; les en-têtes « M M » ne disaient pas mardi ou
+mercredi ; le week-end ne se distinguait pas.
+
+- Par défaut, la semaine en cours et la suivante (les deux dernières en
+  fin de cycle) ; « Tout le cycle · N semaines » déplie le reste, et le
+  choix se retient sur l'appareil (`ui/cycleTout`).
+- Codes longs sur une ligne (`white-space:nowrap`, 8,5 px au-delà de
+  quatre signes).
+- En-têtes Lu Ma Me Je Ve Sa Di ; samedi et dimanche légèrement teintés.
+
+Mesuré (Playwright, 320/390/1280) : bloc replié 235/210/214 px, déplié
+445/420/424 ; toutes les cases à 48 px ; aujourd'hui toujours visible ;
+le choix tient au rechargement ; aucun débordement, aucune erreur.
+Reste : la densité des coins rouges (un commentaire presque chaque jour)
+ne se filtre pas sans une règle du client.
