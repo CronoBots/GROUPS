@@ -3220,3 +3220,15 @@ compteurs et agendas identiques (affichage seul).
 Limite connue : quelqu'un qui part plus tôt sans que sa journée soit
 partagée entre deux pauses (« départ à 19h30 ») compte toujours pour la
 pause entière ; son trou n'est pas encore mesuré.
+
+## Les heures à deux chiffres au Planning (25/10/2026, v1050)
+
+Le client, aussitôt : « toujours marquer le 0 avec une heure à une
+unité ». Les plages sous les badges s'écrivaient « 6-14 », « 22-6 »,
+« ? 2-6 » : elles s'écrivent « 06-14 », « 22-06 », « ? 02-06 ». Sept
+endroits fabriquent ces plages (badge à horaire, journée partagée,
+relais, place vide…) : plutôt que sept retouches, qui divergeraient,
+une passe unique (`heuresDeuxChiffres`) sur le HTML que reçoivent les
+deux tableaux du jour, limitée aux `<small class="eqhd">`. « 19h30-22 »
+ne bouge pas. Vérifié à 320 px : pas de débordement. Les phrases
+(« de 2 h à 6 h ») gardent l'écriture française, sans zéro.
