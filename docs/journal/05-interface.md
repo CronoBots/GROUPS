@@ -5221,3 +5221,13 @@ resserrées (le jour, sa pause ou son code) ; aujourd'hui entouré, les jours
 passés atténués ; « 19 octobre – 29 novembre · semaine 1/6 ». Toucher un
 jour l'ouvre. Vérifié à 320, 390 et 1280 px : 42 cases, sans débordement
 (≈ 390 px de haut).
+
+**Puis (v1093).** Le client : « il faut aussi les commentaires, et les
+afficher de la même manière que dans le Planning ». Une journée commentée
+de « Mon cycle » porte le coin rouge du Planning (9 px) ; la toucher ouvre
+la même bulle (`compop`) avec le commentaire du classeur, et dessous
+« Ouvrir la journée » — la bulle n'accepte les clics que quand elle porte
+ce bouton (`:has(.compop-j)`), celle du Planning ne change pas. Une journée
+sans commentaire s'ouvre directement, comme avant. Éprouvé le 25/10 :
+15 journées commentées sur 42 ; le 19 ouvre « Échange avec ATA » puis la
+journée du lundi 19 octobre ; le 26 s'ouvre d'un toucher.
