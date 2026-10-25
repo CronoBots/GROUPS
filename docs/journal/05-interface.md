@@ -5153,3 +5153,18 @@ s'appelle « Plus » pour tous. **Vérifié** pour la RH, la hiérarchie et un
 opérateur, à 390, 900 et 1280 px, ordre relevé à l'écran ; clics : Mes
 demandes et Horaire production ouvrent l'espace et s'allument, Planning le
 referme ; 320, 390, 1280 px sans débordement ni erreur.
+
+**Puis (v1086).** Le client, devant la feuille « Plus » de son iPhone : « pas
+visible, et on peut ajouter un onglet dans le menu du bas ». Le haut de la
+feuille (« Mon espace », Mes demandes) passait sous la barre d'état : sa
+hauteur maximale (`100vh - 160px`) ignorait l'encoche. Elle se calcule
+maintenant depuis la hauteur visible (`dvh`), moins la barre du bas et les
+marges de sécurité haute et basse : elle tient à l'écran et défile au-delà.
+**Effectifs revient dans la barre** (cinq entrées : Accueil, Planning,
+Équipes, Effectifs, Plus) — l'écran le plus ouvert après le Planning, qui
+porte la pastille rouge des sous-effectifs ; la feuille perd sa ligne. La
+pastille de « Plus », qui recopiait celle d'Effectifs, compte maintenant ce
+qui attend un geste dans la feuille (à valider, remplacements à signer), en
+orange. Vérifié à 390 × 844, 375 × 667 et 320 × 568, RH, hiérarchie et
+opérateur : feuille entière à l'écran (défilante sur les petits), barre sans
+débordement.

@@ -6673,7 +6673,9 @@ html .eqleg-souris{display:none}
 @media (max-width:760px){
   /* le Salaire rejoint la feuille « Plus » (le client, le 25/10/2026 : « ce
      n'est plus une fonctionnalité principale ») */
-  html .navwrap>.tabs #tab-rh,html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction,html .navwrap>.tabs #tab-salaire{display:none}
+  /* Effectifs revient dans la barre (le client, le 25/10/2026 : « on peut
+     ajouter un onglet dans le menu du bas ») : cinq entrées */
+  html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction,html .navwrap>.tabs #tab-salaire{display:none}
   html .navwrap>.tabs #tab-plus{display:flex; position:relative}
   html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
   /* « Plus » courant garde l'anneau du clavier : la règle ci-dessus, d'un
@@ -6681,7 +6683,11 @@ html .eqleg-souris{display:none}
   html .navwrap>.tabs #tab-plus:focus-visible{box-shadow:inset 0 0 0 2px var(--marque-vif)}
   html .plusfond:not([hidden]){display:block; position:fixed; inset:0; z-index:79; background:rgba(4,7,14,.55)}
   html .plusfeuille:not([hidden]){display:block; position:fixed; z-index:80; left:16px; right:16px;
-    bottom:calc(var(--navbas,0px) + 84px + env(safe-area-inset-bottom,0px)); max-height:calc(100vh - 160px); overflow-y:auto;
+    bottom:calc(var(--navbas,0px) + 84px + env(safe-area-inset-bottom,0px));
+    /* sous la barre d'état de l'iPhone, jamais dessous (le client, le
+       25/10/2026 : le haut de la feuille n'était « pas visible ») */
+    max-height:calc(100vh - var(--navbas,0px) - 84px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px);
+    max-height:calc(100dvh - var(--navbas,0px) - 84px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px); overflow-y:auto;
     padding:8px; border-radius:20px; background:#181b24; border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
   .plus-titre{margin:8px 12px 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   .plusfeuille button{display:flex; align-items:center; gap:14px; width:100%; min-height:48px; padding:10px 12px; border:0; border-radius:12px;
@@ -11506,7 +11512,7 @@ function setView(v,keepScroll){
   if(v==="equipe"){ renderOrganisation(); appliquerEqSub(); requestAnimationFrame(function(){ setTimeout(renderPolyvalence,0); }); }
   if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
   if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
-  var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="rh"||v==="recherche"||v==="direction"||v==="salaire");
+  var tp=document.getElementById("tab-plus"); if(tp) tp.classList.toggle("actif",v==="recherche"||v==="direction"||v==="salaire");
   try{ sideMaj(); }catch(e){}
   /* le titre de l'onglet du navigateur dit la vue : plusieurs fenêtres se
      distinguent ; le nom choisi par le client reste (audit du 23/10/2026) */
@@ -18449,7 +18455,7 @@ function fermerGrille(parRetour){
   g0.hidden=true;
   wsBarreMarque();
   if(ouvert&&parRetour!==true) navRetirer("g");
-  var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="rh"||st.view==="recherche"||st.view==="direction"||st.view==="salaire");
+  var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="recherche"||st.view==="direction"||st.view==="salaire");
   document.body.classList.remove("sheet-on");
   try{ inerteFond(false); }catch(e){}
   try{ sideMaj(); }catch(e){}
@@ -29608,7 +29614,7 @@ function nomPlus(){
   var bt=document.getElementById("tab-plus"); if(!bt) return;
   var tel=mqNav.matches, g=document.getElementById("grille"), sec=null;
   if(g&&!g.hidden){ var x=wsMenuSections().filter(function(y){ return wsActif(y,GR.section); })[0]; if(x) sec=x.s==="planning"?"Horaire production":x.t; }
-  else sec=(tel?{rh:"Effectifs",recherche:"Recherche",direction:"Direction",salaire:"Salaire"}:{direction:"Direction",salaire:"Salaire"})[st.view]||null;
+  else sec=(tel?{recherche:"Recherche",direction:"Direction",salaire:"Salaire"}:{direction:"Direction",salaire:"Salaire"})[st.view]||null;
   var lib="Plus",
       n=document.getElementById("plusNb"), d=tel&&n&&!n.hidden&&n.textContent?n.title:"";
   var nom=lib+(sec?" · en cours : "+sec:"")+(d?" · "+d:"");
@@ -29672,7 +29678,7 @@ function sideMaj(){
   var n=wsNbDemandes(), nb=document.getElementById("sideDemNb"); if(nb){ nb.hidden=!n; nb.textContent=n; }
   var nv=wsNbValider(), nbv=document.getElementById("sideValNb"); if(nbv){ nbv.hidden=!nv; nbv.textContent=nv; }
   var nr=(GR.recyclages||[]).filter(rcATraiter).length, nbr=document.getElementById("sideRecNb"); if(nbr){ nbr.hidden=!nr; nbr.textContent=nr; }
-  nommerSide(); nomPlus();
+  nommerSide(); nomPlus(); if(window.__plusPastille) try{ window.__plusPastille(); }catch(e){}
   /* Réglages, page ouverte, le dit comme les autres entrées du menu ; la
      liste des sections se lit de haut en bas au PC (audit du 23/10/2026) */
   var rg=document.querySelector('#sidePied .side-lien[data-go="reglages"]');
@@ -29748,8 +29754,8 @@ function sideMaj(){
     var ecS=document.getElementById("ctrlDot"), ecV=ecS&&!ecS.hidden;
     var moi=[wsDe("demandes")?ws(wsDe("demandes")):"", (!saisie&&wsDe("valider"))?ws(wsDe("valider")):"",
       ligne('data-go="salaire"'+(ecV?' aria-label="Salaire · écart à vérifier"':''),svgDe("tab-salaire"),"Salaire",ecV?'<span class="plus-nb app" title="écart à vérifier">!</span>':'',st.view==="salaire")].join("");
-    var usine=(tel?ligne('data-go="rh"'+(dE.length?' aria-label="'+esc("Effectifs · "+dE.join(" · "))+'"':''),svgDe("tab-rh"),"Effectifs",(nb("rhNb")?'<span class="plus-nb" title="'+esc(tA)+'">'+esc(nb("rhNb"))+'</span>':'')+(nb("rhApp")?'<span class="plus-nb app" title="'+esc(tB)+'">'+esc(nb("rhApp"))+'</span>':''),st.view==="rh")
-      +ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
+    void dE;
+    var usine=(tel?ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
       +(wsDe("planning")?ws(wsDe("planning")):"");
     var gest=l.filter(function(x){ return x.s!=="demandes"&&x.s!=="planning"&&(saisie||x.s!=="valider"); })
       .sort(function(a,b){ return (a.s==="valider"?0:1)-(b.s==="valider"?0:1); }).map(ws).join("")+dirL;
@@ -29807,13 +29813,17 @@ function sideMaj(){
       if(v&&!v.hidden&&v.hasAttribute("tabindex")&&(!a||a===document.body)) try{ v.focus({preventScroll:true}); }catch(er){}
     },0);
   });
-  /* la pastille du bouton : celle d'Effectifs (absents du jour), recopiée */
-  function pastille(){ var n=document.getElementById("plusNb"), a=nb("rhNb")||nb("rhApp"); n.hidden=!a; n.textContent=a; n.classList.toggle("app",!nb("rhNb")&&!!nb("rhApp"));
-    /* le title de chaque pastille (pas d'écriture identique : l'observateur
-       ci-dessous regarde aussi les attributs) */
-    ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id), t=titrePastille(id); if(e&&e.title!==t) e.title=t; });
-    var t=titrePastille(nb("rhNb")?"rhNb":"rhApp"); if(n.title!==t) n.title=t;
+  /* LA PASTILLE DU BOUTON (25/10/2026) : Effectifs a la sienne dans la
+     barre ; « Plus » dit ce qui attend un geste dans sa feuille — fiches à
+     valider, remplacements à signer —, en orange : une tâche, pas une
+     alarme */
+  function pastille(){ var n=document.getElementById("plusNb"), a=0;
+    try{ a=(compteBase()?wsNbValider()+wsNbDemandes():0); }catch(e){ a=0; }
+    n.hidden=!a; n.textContent=a?String(a):""; n.classList.add("app");
+    var t=a?a+" à traiter":""; if(n.title!==t) n.title=t;
+    ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id), t2=titrePastille(id); if(e&&e.title!==t2) e.title=t2; });
     nomPlus(); }
+  window.__plusPastille=pastille;
   if(window.MutationObserver){ var mo=new MutationObserver(pastille);
     ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,childList:true,characterData:true,subtree:true}); }); }
   pastille();
