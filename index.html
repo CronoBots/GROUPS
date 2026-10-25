@@ -93,6 +93,11 @@
   /* le bord des badges du Planning : trait fin pour la pause, pointillé
      pour l'horaire de jour (le client, le 25/10/2026) */
   --bord-pause:color-mix(in srgb,var(--ink) 45%,transparent);
+  /* les relèves de 12 h (relais, cadres sur deux pauses) : un violet que
+     rien d'autre ne porte — le cyan reste à « vous » (le client, le
+     25/10/2026 : « faut-il changer la couleur des 12 h ou la personnelle,
+     car elles sont de même couleur ? ») */
+  --rel:#6A47B8;
   --bord-jour:color-mix(in srgb,var(--ink) 75%,transparent);
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
@@ -150,6 +155,7 @@
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
   --bord-pause:rgba(255,255,255,.55); --bord-jour:rgba(255,255,255,.85);
+  --rel:#B9A2F2;
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -4816,10 +4822,11 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.form b,.eqhote .eqp2 tbody td .eqn.relais.form b{color:var(--at-jaune)}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,var(--surface3))}
-.eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--in); line-height:13px}
+  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--rel); background:color-mix(in srgb,var(--rel) 12%,var(--surface3))}
+.eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--rel); line-height:13px}
 .eqfus>.eqseg small{font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--ink); line-height:11px}
-.eqfus>.eqseg.moi{border-style:solid; background:var(--in-soft)}
+.eqfus>.eqseg.moi{border-style:solid; border-color:var(--in); background:var(--in-soft)}
+.eqfus>.eqseg.moi b{color:var(--in)}
 .eqfus>.eqseg.coment{cursor:pointer}
 .eqfus>.eqseg.coment b{text-decoration:underline solid var(--muted); text-underline-offset:2px}
 /* LE BORD DROIT DE LA COLONNE POSTE EST UN SÉPARATEUR GRIS, pas un liseré de
@@ -4913,8 +4920,8 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqhote .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 /* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
-.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--in)}
-.eqhote .eqp2 tbody td .eqn.relais b{color:var(--in)}
+.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--rel)}
+.eqhote .eqp2 tbody td .eqn.relais b{color:var(--rel)}
 /* Le changement de poste fait par l'application : bord orange en pointillé
    sans flèche (le client, le 13/10/2026). */
 .eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
@@ -6234,7 +6241,7 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 /* les relais en trait plein (le client, le 25/10/2026 : « ceux
    actuellement en pointillé bleu, en trait normal ») : le pointillé est
    désormais l'horaire de jour */
-#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--in)}
+#jourCorps.eqhote .eqp2 tbody td .eqn.relais{border-style:solid; border-color:var(--rel)}
 /* L'HORAIRE DE JOUR (le client, le 25/10/2026 : « il faut un code couleur
    pour les gens en horaire de D, pas en pause », puis, le même soir :
    « l'heure doit toujours être indiquée en gris comme avant, mais ceux en D
@@ -6511,7 +6518,7 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg-b.form{color:var(--at-jaune); border-style:dashed; border-color:var(--bord-jour)}
   .eqleg-b.com{text-decoration:underline solid var(--muted); text-underline-offset:2px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
-  .eqleg-b.relais{border-color:var(--in); color:var(--in)}
+  .eqleg-b.relais{border-color:var(--rel); color:var(--rel)}
   .eqleg-b.jour{border-style:dashed; border-color:var(--bord-jour)}
   .eqleg-b.vide{border-color:var(--at-rouge)}
 }
@@ -27325,6 +27332,24 @@ function alignerFusions(tbl){
     var rt=td.getBoundingClientRect(), rf=fs[0].getBoundingClientRect();
     var mg=Math.max(0,ecart-(rf.left-rt.left)), md=Math.max(0,ecart-(rt.right-rf.right));
     Array.prototype.forEach.call(fs,function(f){ f.style.marginLeft=mg+"px"; f.style.marginRight=md+"px"; });
+  });
+  /* Les badges sous une fusion s'alignent sur son cadre (le client, le
+     25/10/2026, sur le 27/10 : « bordure de FLI et GPS non alignée ») :
+     GPS et YPE, centrés dans la part du matin, commençaient 3 px à droite
+     de FLI 06-18 (61 px au PC). Le premier badge prend le bord gauche du
+     cadre qui commence dans la même pause, les autres suivent. */
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.fusion:not(.bande)"),function(td){
+    var seg=td.querySelector(".eqfus > .eqseg"); if(!seg) return;
+    Array.prototype.forEach.call(td.querySelectorAll(".eqfus-sous"),function(so){
+      var c=so.querySelector(".eqc"); if(!c) return;
+      c.style.justifyContent=""; c.style.marginLeft="";
+      var ch=c.querySelector(".eqn"); if(!ch) return;
+      var rs=so.getBoundingClientRect(), rg=seg.getBoundingClientRect();
+      if(rg.left<rs.left-1 || rg.left>rs.right) return;
+      c.style.display="flex"; c.style.flexWrap="wrap"; c.style.justifyContent="flex-start";
+      var dx=rg.left-ch.getBoundingClientRect().left;
+      c.style.marginLeft=(parseFloat(getComputedStyle(c).marginLeft)||0)+dx+"px";
+    });
   });
   /* LA RANGÉE DES CADRES, AU PIXEL (le client, le 25/10/2026 : « la
      bordure de SPS doit démarrer au même niveau que le cadre d'un
