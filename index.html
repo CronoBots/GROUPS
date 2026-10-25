@@ -13241,6 +13241,26 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
          && Math.abs((plR[1]-plR[0])-r.epargne)<0.01
          && /\bremplace\s+[A-Z]{3}\b[^.;]*?\bde\s+\d/.test(raw[2]||"")) duCycle="N";
     }
+    /* UN REMPLACEMENT ÉCHANGÉ (le client, le 25/10/2026, « il ne peut y
+       avoir qu'un CM en pause »). JBI le 07/10, ["R-CM","1h RHS","remplace
+       ATA échange avec GPS Départ à 13h Remplacé par AFA"] : ATA est
+       d'après-midi, mais GPS écrit ["AM","PM","échange avec JBI"] — c'est
+       lui qui prend cet après-midi, et JBI fait le matin que GPS quitte. Le
+       classeur le recoupe : départ à 13 h, et AFA « remplace JBI de 13h à
+       14h ». Quand la pause du remplacé est justement celle où passe le
+       collègue de l'échange, on fait la pause qu'il a quittée. */
+    if(duCycle && !r.s && !r.jour){
+      var mEch=/[ée]change\s+avec\s+([A-Za-z]{3}(?:-\d)?)\b/i.exec(raw[2]||"");
+      if(mEch){
+        var tEch=mEch[1].toUpperCase();
+        db.people.forEach(function(q){
+          if(q.id!==tEch) return;
+          var eq=q.d&&q.d[pad2(mois)+pad2(jour)]; if(!eq) return;
+          var e0=String(eq[0]||"").trim().toUpperCase(), e1=String(eq[1]||"").trim().toUpperCase();
+          if(SHIFT_PLAGE[e0] && SHIFT_PLAGE[e1] && e0!==e1 && e0!=="D" && e1!=="D" && e1===duCycle) duCycle=e0;
+        });
+      }
+    }
     /* UNE ARRIVÉE HORS DE LA PAUSE DU REMPLACÉ DIT LA PAUSE FAITE. Le client,
        le 14/10/2026, sur VBN le 05/03 : ["R-CM","1h -FT","remplace GPS
        arrivée à 15h00' …"]. GPS est du matin, mais VBN faisait l'APRÈS-MIDI
@@ -23924,10 +23944,18 @@ function renderEquipe(){
     if(vp.D){
       if(!vp.AM) vp.AM={n:0, vue:{postes:[], inconnus:[], formation:[]}};
       var vA=vp.AM.vue;
+      /* UN SEUL CONTREMAÎTRE PAR PAUSE (le client, le 25/10/2026 : « il ne
+         peut y avoir qu'un CM en pause »). GPS le 25/10, ["-","7h-15h",
+         "préparation travaux tank ammoniaque Z21 ; rappel …"], vient en
+         journée pour des travaux : il ne tient pas la pause d'ATA, et se
+         rangeait pourtant à côté de lui. Un cadre en journée rejoint la
+         ligne des adjoints, comme ATR et VGG le même jour en « 7h-15h ». */
+      var P_ADJ=POSTES_TRAVAIL.filter(function(P){ return P.k==="adj"; })[0];
       vp.D.vue.postes.forEach(function(oD){
         if(!oD.gens.length) return;
-        var oA=null; vA.postes.forEach(function(o){ if(o.P.k===oD.P.k) oA=o; });
-        if(!oA){ oA={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
+        var PD=(oD.P.k==="cm" && P_ADJ)?P_ADJ:oD.P;
+        var oA=null; vA.postes.forEach(function(o){ if(o.P.k===PD.k) oA=o; });
+        if(!oA){ oA={P:PD, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
         oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x);
           /* UNE JOURNÉE DE JOUR À CHEVAL SUR LE MATIN ET L'APRÈS-MIDI (le
              client, le 24/10/2026 : « SVE ne doit pas être affichée 10-14 en
@@ -23943,8 +23971,8 @@ function renderEquipe(){
             else if(Math.abs(r.a-a0)<0.01 && r.b<b0-0.01) a0=r.b; });
           if(!(a0<PF_DEB.PM-0.01 && b0-PF_DEB.PM>=3-0.01 && b0<=PF_FIN.PM+0.01)) return;
           x.horPart=[a0,PF_DEB.PM];
-          var oP=null; vp.PM.vue.postes.forEach(function(o){ if(o.P.k===oD.P.k) oP=o; });
-          if(!oP){ oP={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp.PM.vue.postes.push(oP); }
+          var oP=null; vp.PM.vue.postes.forEach(function(o){ if(o.P.k===PD.k) oP=o; });
+          if(!oP){ oP={P:PD, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp.PM.vue.postes.push(oP); }
           oP.gens.push({p:x.p, r:x.r, deD:true, horPart:[PF_DEB.PM,b0], partage:true});
         });
       });
@@ -23980,6 +24008,37 @@ function renderEquipe(){
           oV.gens.push({p:x.p, r:x.r, horPart:part, partage:true});
         });
       });
+    });
+    /* UN SEUL CONTREMAÎTRE PAR PAUSE, À L'AFFICHAGE (le client, le
+       25/10/2026). Quand la case CM porte plusieurs cadres à la fois, celui
+       qui tient la pause y reste, les autres passent à la ligne ADJ. de la
+       même pause. Le titulaire : celui qui « remplace » un autre de la
+       case (JBI « remplace ATA » le 02/09, ATA en réunion) ; sinon le
+       premier qui n'est pas là par une journée prolongée (VGG le 01/09,
+       quand AFA prolonge son matin jusqu'à 18 h pour une réunion). Les
+       relais successifs (« 14-18 » puis « 18-22 ») ne se touchent pas.
+       Affichage seul : les comptes de la case sont déjà faits. */
+    ["AM","PM","N"].forEach(function(gk){
+      if(!vp[gk]) return;
+      var oC=null, oJ=null;
+      vp[gk].vue.postes.forEach(function(o){ if(o.P.k==="cm") oC=o; else if(o.P.k==="adj") oJ=o; });
+      if(!oC || oC.gens.length<2) return;
+      var pleins=oC.gens.filter(function(x){ return !x.partage && !x.horPart; });
+      if(!pleins.length) return;
+      var tit=null;
+      pleins.forEach(function(x){
+        if(tit) return;
+        var c=String(((x.p.d||{})[mmdd]||[])[2]||"");
+        oC.gens.forEach(function(y){
+          if(y!==x && new RegExp("\\bremplace\\s+"+idLisible(y.p.id)+"\\b","i").test(c)) tit=x; });
+      });
+      tit=tit||pleins[0];
+      var part=oC.gens.filter(function(x){ return x!==tit && !(x.horPart && !x.partage); });
+      if(!part.length) return;
+      if(!oJ){ var PJ=POSTES_TRAVAIL.filter(function(P){ return P.k==="adj"; })[0]; if(!PJ) return;
+        oJ={P:PJ, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[gk].vue.postes.push(oJ); }
+      oC.gens=oC.gens.filter(function(x){ return part.indexOf(x)<0; });
+      part.forEach(function(x){ oJ.gens.push(x); });
     });
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus

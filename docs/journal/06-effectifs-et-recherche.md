@@ -3232,3 +3232,53 @@ une passe unique (`heuresDeuxChiffres`) sur le HTML que reçoivent les
 deux tableaux du jour, limitée aux `<small class="eqhd">`. « 19h30-22 »
 ne bouge pas. Vérifié à 320 px : pas de débordement. Les phrases
 (« de 2 h à 6 h ») gardent l'écriture française, sans zéro.
+
+## Un seul contremaître par pause (25/10/2026, v1051)
+
+Le client, devant le Planning du 25/10 : « il ne peut avoir que 1 CM en
+pause ». La case CM du matin montrait ATA et GPS « 7-15 ». GPS, ce
+jour-là, `["-","7h-15h","préparation travaux tank ammoniaque Z21 ;
+rappel …"]` : un contremaître rappelé en journée pour des travaux, qui
+ne tient pas la pause d'ATA. Depuis la suppression de la colonne D
+(20/10), chacun de ses gens rejoint la case du matin de SON poste, et le
+poste d'un contremaître est « cm » : il se rangeait à côté du
+contremaître de la pause. Les comptes n'étaient pas faux (la case gardait
+1/1), l'affichage l'était.
+
+**Corrigé** à la fusion de la colonne D : un cadre en journée rejoint la
+ligne des adjoints (ADJ.), avec son horaire, comme ATR et VGG le même
+jour en « 7h-15h ». Le 25/10 : CM ATA / JBI / AFA, ADJ. GPS, ATR, VGG
+en 07-15. **Mesuré** : vérificateur, manques, polyvalences, compteurs
+et agendas identiques (affichage seul) ; 06/10 et 07/09 (AFA en
+7h-15h) passent eux aussi de la case CM à la ligne ADJ. Un premier
+parcours au navigateur avait relevé seize jours « à deux CM » : faux,
+la lecture se faisait pendant l'animation de changement de jour (le
+tableau d'hier et celui du jour à la fois) ; relu jour par jour, un
+seul contremaître par case, hors relais successifs (« 14-18 » puis
+« 18-22 »).
+
+**Puis, le même jour, les autres cases à deux CM.** Un parcours jour par
+jour (septembre-octobre, chaque jour ouvert à sa date) en a trouvé trois :
+
+- **07/10, une lecture fausse.** JBI, `["R-CM","1h RHS","remplace ATA
+  échange avec GPS Départ à 13h …"]`, était lu après-midi (la pause d'ATA)
+  à côté de GPS, et le matin restait sans contremaître (0/1). L'échange
+  dit l'inverse : GPS prend l'après-midi, JBI le matin. Règle dans
+  `docs/conversion-horaire.md`, « Un remplacement échangé ». **Mesuré** :
+  une seule journée relue sur l'année ; manques 19 → 18 places creuses
+  (le CM du matin du 07/10), calendrier, polyvalences, compteurs et
+  fiches VBN identiques ; l'agenda de JBI passe à « AM · Contremaître »
+  5 h 30-13 h. La prime de ce jour passe d'après-midi à matin.
+- **01/09 et 02/09, l'affichage.** AFA prolonge son matin jusqu'à 18 h
+  pour une réunion pendant que VGG tient l'après-midi ; ATA est en
+  réunion et JBI le remplace, GPS fait une inspection de 8 h à 10 h 30.
+  À l'affichage, la case CM garde celui qui tient la pause (celui qui
+  « remplace » un autre de la case, sinon le premier qui n'est pas là
+  par une journée prolongée), les autres passent à la ligne ADJ. Les
+  relais successifs ne bougent pas. Comptes inchangés.
+
+Reste, et pas corrigé ici : le 06/09, ATA fait 6 h-18 h sous le code
+« PM ». Il est compté l'après-midi, et le matin, qu'il tient, s'affiche
+0/1 avec un « ? ». C'est un comptage, pas un affichage ; jour passé, hors
+de la liste des manques à venir.
+

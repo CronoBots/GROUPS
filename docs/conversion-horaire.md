@@ -2419,3 +2419,17 @@ sera modifié demain »). On reprend le classeur précédent : le 22,
 
 Les outils de `tools/` lisent le classeur tel quel, sans ces corrections.
 Une correction devenue inutile se retire de la liste.
+
+### Un remplacement échangé (25/10/2026)
+
+Une cellule sans pause qui dit « remplace X échange avec Y » : la pause
+vient d'abord du remplacé (X). Mais si Y écrit lui-même un changement de
+pause (`["AM","PM","échange avec …"]`) et passe justement dans la pause de
+X, c'est Y qui la tient, et la personne fait la pause que Y a quittée.
+JBI le 07/10, `["R-CM","1h RHS","remplace ATA échange avec GPS Départ à
+13h Remplacé par AFA"]`, ATA d'après-midi, GPS `["AM","PM","échange avec
+JBI"]` : JBI fait le **matin** (départ à 13 h ; AFA « remplace JBI de 13h
+à 14h » le recoupe), et non l'après-midi. Mesuré : sur l'année, cette
+seule journée change ; neuf autres « échange avec » ne bougent pas
+(pause écrite, ou collègue qui ne passe pas dans la pause du remplacé).
+
