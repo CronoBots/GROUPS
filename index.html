@@ -4969,6 +4969,7 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
   opacity:0; transform:translateY(4px); pointer-events:none;
   transition:opacity .14s ease, transform .14s ease}
 .compop.on{opacity:1; transform:none}
+.compop.on:has(.compop-j){pointer-events:auto}
 /* le sens du badge, en tête, avant le commentaire (audit du 23/10/2026) */
 .compop .compop-sens{display:block; margin-bottom:4px; font-weight:600; color:var(--ink)}
 /* UNE FLÈCHE QUI DÉSIGNE LE TRIGRAMME. Le client, le 03/10/2026 : « on ne voit
@@ -6853,6 +6854,11 @@ html .hp-fab:hover{opacity:1}
 .ms-j.mc-c b{font-size:13px; margin-bottom:1px}
 .ms-j.mc-c .pf-pause,.ms-j.mc-c .pl-pa{transform:scale(.88)}
 .ms-j.mc-c.passe{opacity:.45}
+.ms-j.mc-c.coment::after{content:""; position:absolute; top:-1px; right:-1px; width:0; height:0;
+  border-top:9px solid var(--at-rouge); border-left:9px solid transparent; border-top-right-radius:8px; pointer-events:none}
+.ms-j.mc-c.coment-actif{border-color:#fff; box-shadow:0 0 0 1px #fff}
+.compop .compop-j{display:block; margin:8px 0 0; padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface3);
+  color:var(--ink); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
 /* LES CASES RESSERRÉES (le client, le 22/10/2026 : « c'est tous les jours
    que je te demandais d'optimiser ») : 81 px de haut pour trois lignes,
    un « repos » aussi appuyé qu'un poste. Le jour et sa date serrés, la
@@ -20891,8 +20897,13 @@ function monCycleHTML(db,person){
     var e=(p&&p.d&&p.d[md])||[], pv=String(e[0]||"").trim(), an=String(e[1]||"").trim(), fa=grFamille(an);
     var v=an&&fa!=="atelier"&&fa!=="remplacement"&&fa!=="autre"?an:pv, fv=grFamille(v);
     var cls=fv==="poste"||!fv?grPosteCls(v):"f-"+fv, t=d.getTime(), a0=auj.getTime();
-    h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
-      +' aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" : "+(v&&v!=="-"?v:"repos"))+'"'+(e[2]?' title="'+esc(e[2])+'"':'')+'>'
+    /* Le commentaire comme au Planning (le client, le 25/10/2026 : « il
+       faut aussi les commentaires, affichés de la même manière que dans le
+       Planning ») : le coin rouge, et la bulle au toucher */
+    var com=String(e[2]||"").trim();
+    h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+(com?' coment':'')+'" data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
+      +(com?' data-com="'+esc(com)+'"':'')
+      +' aria-label="'+esc(JOURS_LONGS[(d.getDay()+6)%7]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" : "+(v&&v!=="-"?v:"repos")+(com?" · commentaire":""))+'">'
       +'<b>'+d.getDate()+'</b>'
       +(/^(AM|PM|N|D)$/.test(v)?'<i class="pf-pause" data-p="'+v+'">'+v+'</i>'
         :v&&v!=="-"?'<span class="pl-pa '+cls+'">'+esc(grCourt(v))+'</span>':'<span class="ms-repos">–</span>')
@@ -20908,6 +20919,7 @@ function monCycleHTML(db,person){
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".ms-j[data-d]"):null; if(!b) return;
+  if(b.hasAttribute("data-com")) return; /* la bulle du commentaire s'ouvre, avec « Ouvrir la journée » */
   var y=Number(b.dataset.y), m=Number(b.dataset.m), d=Number(b.dataset.d);
   if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); }
 });
@@ -27254,6 +27266,8 @@ function jourNavActive(on){
       if(sens){ var se=document.createElement("b"); se.className="compop-sens"; se.textContent=sens;
         p.insertBefore(se,p.firstChild); }
     }
+    /* une case de « Mon cycle » : sous le commentaire, la journée à ouvrir */
+    if(chip.classList.contains("mc-c")){ var bj=document.createElement("button"); bj.type="button"; bj.className="compop-j"; bj.textContent="Ouvrir la journée"; bj._case=chip; p.appendChild(bj); }
     p.classList.remove("sous");
     p.style.visibility="hidden"; p.classList.add("on"); p.style.left="0"; p.style.top="0";
     var r=chip.getBoundingClientRect(), pr=p.getBoundingClientRect();
@@ -27270,7 +27284,12 @@ function jourNavActive(on){
   }
   fermerCompop=fermer;                           /* exposé : renderEquipe ferme au changement de jour */
   document.addEventListener("click",function(e){
-    var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com]"):null;
+    var oj=e.target.closest?e.target.closest(".compop-j"):null;
+    if(oj){ var src=oj._case; fermer();
+      if(src){ var y=Number(src.dataset.y), m=Number(src.dataset.m), d=Number(src.dataset.d);
+        if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); } }
+      return; }
+    var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com],.mc-c[data-com]"):null;
     if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
   });
   /* Au clavier aussi : Tab atteint chaque badge commenté (tabindex posé au
@@ -27279,7 +27298,7 @@ function jourNavActive(on){
   document.addEventListener("keydown",function(e){
     if(e.key==="Escape"){ fermer(); return; }
     if(e.key!=="Enter"&&e.key!==" ") return;
-    var c=e.target.closest&&e.target.closest(".eqn[data-com],.eqseg[data-com]");
+    var c=e.target.closest&&e.target.closest(".eqn[data-com],.eqseg[data-com],.mc-c[data-com]");
     if(c){ e.preventDefault(); ouvrir(c); }
   });
   window.addEventListener("scroll",fermer,true);
