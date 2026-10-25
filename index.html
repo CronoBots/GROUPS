@@ -24289,7 +24289,7 @@ function renderEquipe(){
         grp.forEach(function(k,i){
           var ex=extra&&extra[k]; if(!ex||!ex.length) return;
           var g=PAUSES.filter(function(q){ return q.k===k; })[0];
-          sous+='<div class="eqfus-sous" style="margin-left:'+(100*i/n)+'%;width:'+(100/n)+'%"><div class="eqc">'
+          sous+='<div class="eqfus-sous" data-ml="'+(100*i/n)+'%" data-w="'+(100/n)+'%" style="margin-left:'+(100*i/n)+'%;width:'+(100/n)+'%"><div class="eqc">'
             +ex.map(function(x){ return chip(x,g,P,true); }).join("")+'</div></div>';
         });
         return '<td class="fusion" colspan="'+n+'" data-k="'+grp.join(" ")+'">'+fond+'<div class="eqfus">'+segs+'</div>'+sous+'</td>';
@@ -27356,7 +27356,9 @@ function ajusterDateJour(){
   l.classList.remove("court");
   if(l.scrollWidth>l.clientWidth) l.classList.add("court");
 }
-if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ ajusterDateJour(); });
+/* la police arrivée élargit les trigrammes : les mesures du tableau du
+   jour (cadres, badges sous une relève) se refont */
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ ajusterDateJour(); try{ ajusterLignesJour(); }catch(e){} });
 /* LES SEGMENTS D'UNE FUSION AUX MESURES DES BADGES (le client, le
    25/10/2026 : « les badges de partage de pause, en pointillé bleu, doivent
    avoir la même hauteur et le même écart à gauche ou à droite, selon quel
@@ -27427,6 +27429,7 @@ function alignerFusions(tbl){
     Array.prototype.forEach.call(td.querySelectorAll(".eqfus-sous"),function(so){
       var c=so.querySelector(".eqc"); if(!c) return;
       c.style.justifyContent=""; c.style.marginLeft="";
+      so.style.marginLeft=so.getAttribute("data-ml")||so.style.marginLeft; so.style.width=so.getAttribute("data-w")||so.style.width; so.style.padding="";
       var ch=c.querySelector(".eqn"); if(!ch) return;
       /* seul sur sa ligne, il reste centré (le client, le 25/10/2026 :
          « quand un trigramme est seul sur une ligne, comme GPS, il faut
@@ -27438,9 +27441,14 @@ function alignerFusions(tbl){
         var rso=so.getBoundingClientRect(), mil=(rso.left+rso.right)/2, col=null;
         Array.prototype.forEach.call(tbl.querySelectorAll("thead th[data-k]"),function(th){ var r=th.getBoundingClientRect(); if(mil>=r.left&&mil<=r.right) col=r; });
         if(!col) return;
-        c.style.display="flex"; c.style.justifyContent="flex-start";
-        var rc=ch.getBoundingClientRect();
-        c.style.marginLeft=(parseFloat(getComputedStyle(c).marginLeft)||0)+((col.left+col.right)/2-(rc.left+rc.right)/2)+"px";
+        /* la zone prend la colonne exacte et centre son badge elle-même :
+           un décalage en pixels, calculé avant l'arrivée de la police,
+           sortait le badge du centre une fois les trigrammes élargis (le
+           client, le 25/10/2026 : « il n'est pas centré du tout ») */
+        var rtd=td.getBoundingClientRect(), cs=getComputedStyle(td);
+        var g0=rtd.left+(parseFloat(cs.borderLeftWidth)||0)+(parseFloat(cs.paddingLeft)||0);
+        so.style.marginLeft=(col.left-g0)+"px"; so.style.width=col.width+"px"; so.style.padding="0";
+        c.style.display="flex"; c.style.justifyContent="center"; c.style.marginLeft="0px";
         return; }
       var rs=so.getBoundingClientRect(), rg=seg.getBoundingClientRect();
       if(rg.left<rs.left-1 || rg.left>rs.right) return;
