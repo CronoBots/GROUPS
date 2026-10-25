@@ -4657,8 +4657,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    et text-align:center → vrai centrage, la barre reste un repère dans la marge. */
 #jourCorps .eqp2 tbody th.eqposte{text-align:center; padding-left:7px; padding-right:7px}
 .eqp2 tbody tr+tr th, .eqp2 tbody tr+tr td{border-top:1px solid var(--line2)}
-.eqp2 tbody tr:nth-child(odd) td:not(.manque):not(.vide),
-.eqp2 tbody tr:nth-child(odd) th{background:var(--surface2)}
+.eqp2 tbody tr.zeb td:not(.manque):not(.vide),
+.eqp2 tbody tr.zeb th{background:var(--surface2)}
 .eqp2 tbody tr.zone1 th, .eqp2 tbody tr.zone1 td{border-top:2px solid var(--line)}
 /* « À déterminer » n'est pas un poste : son intitulé ne se met donc pas en
    majuscules comme les autres, et son liseré reste vide. Il se lit comme ce
@@ -4718,8 +4718,8 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* Le zébra d'Horaire est le MÊME que celui d'Équipe : --surface2 (le client, le
    03/10/2026 : « le zébra d'horaire doit être le même que équipe »). Cela revient
    sur le --zebre un peu plus clair du 26/09 ; les deux tableaux se lisent pareil. */
-.eqhote .eqp2 tbody tr:nth-child(odd) td:not(.manque),
-.eqhote .eqp2 tbody tr:nth-child(odd) th{background:var(--surface2)}
+.eqhote .eqp2 tbody tr.zeb td:not(.manque),
+.eqhote .eqp2 tbody tr.zeb th{background:var(--surface2)}
 /* LA LIGNE DES PAUSES EST REPRISE DANS LE ZÉBRA : elle prend le ton CLAIR du
    zébra, --surface (le client, le 04/10/2026 : « la ligne des pauses n'est pas
    reprise dans le zébra ; la ligne des contremaîtres doit être foncée »). Le
@@ -4797,7 +4797,9 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* une seule case de poste : pas de trait entre la ligne et sa rangée de
    cadres (le client, le 25/10/2026 : « il ne faut pas de barre de
    séparation horizontale dans une même cellule de poste ») */
-.eqhote .eqp2 tr.eqbande>td{border-top:0}
+.eqhote .eqp2 tr.eqbande>td{border-top:0; border-left:0}
+.eqhote .eqp2 tr.eqbande .eqfus-sep{border-left-style:solid; border-left-color:var(--trait)}
+.eqhote .eqp2 tr.eqbande .eqfus-maint,.eqhote .eqp2 tr.eqbande .eqfus-mq,.eqhote .eqp2 tr.eqbande .eqfus-sep{top:-1px}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:var(--surface3)}
 .eqfus>.eqseg.jour b{color:var(--ink)}
@@ -23479,6 +23481,21 @@ var fermerCompop=function(){};
    pas. Une seule passe sur ce que la page reçoit, pour que les sept
    façons d'écrire une plage (badge, journée partagée, relais, place vide)
    s'écrivent toutes de la même manière. */
+/* LE ZÉBRA PAR POSTE, ET NON PAR RANGÉE (le client, le 25/10/2026 : « quand
+   c'est remis à la ligne, il ne faut pas séparer la cellule en 2 ; sinon
+   cela fait buguer même le zébra »). La rangée des cadres sur deux pauses
+   (tr.eqbande) est une rangée de plus : « tr:nth-child(odd) » lui donnait
+   l'autre fond et inversait tous les postes du dessous. La parité se pose
+   en classe (zeb), la rangée des cadres prenant celle de son poste. */
+function zebrerLignes(html){
+  var i=String(html).indexOf("<tbody"); if(i<0) return html;
+  var n=0;
+  return html.slice(0,i)+html.slice(i).replace(/<tr\b([^>]*)>/g,function(m,at){
+    if(!/class="[^"]*\beqbande\b/.test(at)) n++;
+    if(n%2===0) return m;
+    return /class="/.test(at) ? m.replace(/class="/,'class="zeb ') : '<tr class="zeb"'+at+'>';
+  });
+}
 function heuresDeuxChiffres(html){
   return String(html).replace(/(<small class="eqhd">)([^<]*)(<\/small>)/g,function(m,a,t,b){
     return a+t.replace(/(^|-)(\d)(?=h|-|$)/g,"$10$2")+b; });
@@ -24527,7 +24544,7 @@ function renderEquipe(){
            refait et tombait sur la page entière : il passe à l'onglet, comme
            pour les flèches ← → (audit du 23/10/2026). */
         var focJ=document.activeElement&&jourHost.contains(document.activeElement);
-        jourHost.innerHTML=heuresDeuxChiffres(tableauHTML);
+        jourHost.innerHTML=heuresDeuxChiffres(zebrerLignes(tableauHTML));
         if(focJ){ var vJ=document.getElementById("v-jour"); try{ vJ.focus({preventScroll:true}); }catch(eF){} }
         var jourLbl=document.getElementById("jourLabel");
         /* Deux libellés, la feuille choisit : à 320 px le long recouvrait la
@@ -24741,7 +24758,7 @@ function renderEquipe(){
       }
     }
 
-    if(hote) hote.innerHTML=heuresDeuxChiffres(h.join(""))||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
+    if(hote) hote.innerHTML=heuresDeuxChiffres(zebrerLignes(h.join("")))||'<p class="lede" style="padding:16px">Rien pour cette journée.</p>';
     var es=document.getElementById("eqSub");
     if(es) es.textContent=total+" personne"+(total>1?"s":"")+" en poste · "+db.people.length+" au total"
       +(db.projete?" · prolongé par les cycles":"");
