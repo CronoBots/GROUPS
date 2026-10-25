@@ -5499,3 +5499,22 @@ haut = côté = 8 ; à 800 et 1280, haut = côté (15, 12) ; aucun
 débordement, aucune erreur. Au PC, la colonne des postes fait 150 px : une
 flèche de cette largeur ne se lirait plus comme une flèche, elle garde
 36 px.
+
+### Les flèches du Planning à 36 px (25/10/2026, `nfdm-v1108`)
+
+Le client : « flèches plus petites ou pas ? 100 % pro ». Tranché : oui.
+À 50 × 44 au téléphone, encadrées, elles pesaient autant que la date. Une
+flèche se lit à 36 px partout (30 de 700 à 1099 px avant, 36 au-delà) ;
+la cible du doigt reste de 42 à 44 px (`::after`, 4 px autour). Au
+téléphone, centrée dans la colonne des postes (14 px de chaque côté), et
+la barre prend 10 px en haut et en bas pour que l'écart du haut soit le
+même (la ligne de date fait 44 px : 10 + 4 = 14, plus la bordure).
+Arrondi toujours concentrique (7 px au téléphone, 10 au PC).
+
+Mesuré sur sept largeurs : téléphone haut = côté = 15, axe de la flèche =
+axe de la colonne ; 700 px et plus, haut = côté = 12 ; cible cartographiée
+point par point (3 px autour, sauf le côté intérieur de la flèche de
+gauche, où la date reprend la main) ; aucun débordement, aucune erreur.
+**L'erreur commise** : un premier essai du toucher, à 3 px du bord droit
+mesuré sur la boîte arrondie, tombait juste dehors et laissait croire la
+cible cassée ; la carte point par point a montré qu'elle tient.
