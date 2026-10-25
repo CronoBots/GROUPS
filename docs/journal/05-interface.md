@@ -4851,3 +4851,15 @@ pointillé bleu au trait plein bleu — le pointillé ne dit plus qu'une chose,
 l'horaire de jour. Les deux légendes du PC suivent. Le séparateur de
 colonnes d'une case fusionnée reste en pointillé : ce n'est pas un badge.
 Vérifié en sombre et en clair le 27/10.
+
+**Puis (v1059).** Le client : « finalement pointillé blanc ceux en D, et
+trait blanc fin ceux en pause ». Deux jetons, `--bord-pause` (trait plein
+1 px) et `--bord-jour` (pointillé, plus appuyé) : blanc à 55 % et 85 % au
+thème sombre ; au thème clair, la couleur du texte à 45 % et 75 %, un blanc
+y étant invisible sur fond clair. Tous les badges de pause les prennent —
+apprentis compris, leur nom reste jaune — à la place du gris `--trait`
+(le contour blanc écarté le 04/10 l'était pour les COMMENTAIRES, devenus un
+soulignement ; il ne signale plus qu'une pause). Restent à leur couleur :
+« vous » (cyan), relais et fusions (bleu plein), proposition (orange
+pointillé), place vide (rouge), et le commentaire ouvert (bord épaissi).
+Vérifié en sombre et en clair le 27/10.
