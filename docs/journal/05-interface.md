@@ -5076,3 +5076,7 @@ retiré). La consignation de la meunerie — BLR, YRS, et qui les remplace
 (`consign`, `remplCons`) — n'est plus marquée « de jour » : trait blanc
 des personnes en poste. Le 27/10 : GPS, YPE, SLI, LCI, SVE, LCO, NPI, GST
 en gris ; BLR 07-15 et YRS 08-16 en blanc.
+
+**Puis (v1079).** Le client : « marqueur de commentaire un rien plus
+visible ». Le coin rouge passe de 7 à 9 px (8 px dans la légende du PC) ;
+vérifié agrandi le 27/10 : il ne touche pas le trigramme.
