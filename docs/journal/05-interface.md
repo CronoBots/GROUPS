@@ -5067,3 +5067,12 @@ perdent leur marge verticale (4 → 1 px), les badges gardent leur taille ;
 60 px gagnés sur dix lignes. À 390 × 790 (cadre de 608 px), le 26/10 tient
 en entier ; plus bas, il défile comme avant. Un jour qui tient garde ses
 marges.
+
+**Puis (v1078).** Le client : « les gens en D, même bordure que ceux en
+formation ; le consignateur meunerie en AM peut avoir une bordure
+normale ». Horaire de jour et formation partagent le gris marqué
+`--trait-fort`, en trait plein (plus de pointillé ; jeton `--bord-jour`
+retiré). La consignation de la meunerie — BLR, YRS, et qui les remplace
+(`consign`, `remplCons`) — n'est plus marquée « de jour » : trait blanc
+des personnes en poste. Le 27/10 : GPS, YPE, SLI, LCI, SVE, LCO, NPI, GST
+en gris ; BLR 07-15 et YRS 08-16 en blanc.
