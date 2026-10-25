@@ -5338,3 +5338,38 @@ Mesuré (Playwright, 320/390/1280, un cadre et un opérateur) : tuiles
 présentes et dans l'ordre ; au PC 467/467 px sans défilement ; « À faire »
 à 632 px à 390 pour le cadre (premier écran) ; aucun débordement, aucune
 erreur.
+
+### Le héros repris en entier (25/10/2026, `nfdm-v1100`)
+
+Le client, capture d'un dimanche soir à l'appui : « il y a moyen de bien
+mieux faire, tu dois arrêter de faire au plus simple et toujours faire une
+modification en réfléchissant à la manière la plus optimale ». **L'erreur
+commise** : la rangée d'accès de `nfdm-v1099` avait été posée telle
+quelle (les tuiles de la carte, en ligne qui défile) sans regarder le
+résultat au téléphone du client : une tuile coupée au bord, des libellés
+sur deux lignes, 90 px, et un doublon. Défauts relevés sur la capture,
+tous traités :
+
+- **Tuiles** : un mot par tuile (« CM AFA », « Congé », « Recyclage »,
+  « Paie », « Horaire », « Certificat » ; le nom entier à l'écoute et au
+  survol), icône ronde, toutes dans la largeur sans défilement, la rangée
+  jusqu'aux bords du cadre au téléphone, 11 px. 90 → 66 px. Sous 370 px,
+  trois par rangée (six colonnes de 41 px coupaient « Recyclage »).
+  Mesuré par la largeur réelle du texte (un `Range`, pas `scrollWidth`,
+  qui suit la boîte) : « Recyclage » 52 px dans 54 à 375 px, 56 à 390.
+- **Doublon** : « Horaire du jour » retiré — il ouvrait le Planning, déjà
+  dans la barre du bas et le menu.
+- **Cycle** : la fenêtre de deux semaines part de la semaine de DEMAIN ; un
+  dimanche, la première rangée n'était plus que du passé (le jour même est
+  dans le billet du prochain poste).
+- **« Tout le cycle »** : un lien discret (couleur de la marque, sans
+  cadre) au lieu d'un bouton encadré pleine largeur.
+
+Laissé : la bulle d'un commentaire s'ouvre au-dessus de la case (règle
+commune avec le Planning) ; un cycle qui finit le dimanche montre ses deux
+dernières semaines, la suivante n'étant pas encore calculée.
+
+Mesuré (Playwright, 320/360/375/390/414/1280, un cadre et un opérateur,
+le 25/10 à 22 h 27) : aucun libellé coupé, aucune tuile hors du cadre ;
+« À faire » à 613 px à 390 (632 avant) ; dépliage et repli tenus au
+rechargement ; aucun débordement, aucune erreur.
