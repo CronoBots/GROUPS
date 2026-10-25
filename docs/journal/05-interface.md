@@ -5096,3 +5096,11 @@ le nom reste centré (le point est hors du flux), le lecteur d'écran entend
 « pause en cours ». Sans animation si le téléphone demande moins de
 mouvement. Seulement sur la journée qu'elle concerne. Vérifié à 320, 390 et
 1280 px.
+
+**Puis (v1082).** Le client : « non, c'est la surbrillance de la pause en
+cours qui doit faire penser au live ». Le point rouge de l'en-tête est
+retiré. C'est la colonne qui « respire » : sa teinte monte de `--maint` à
+`--maint-fort` et redescend en 2,4 s (`eqdirect`), entre deux liserés de
+2 px (`--live`, cyan) ; la part d'une case fusionnée (`.eqfus-maint`)
+respire de même. Immobile et plus teintée si le téléphone demande moins de
+mouvement. Vérifié aux deux temps de l'animation, à 320, 390 et 1280 px.
