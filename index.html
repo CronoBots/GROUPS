@@ -20919,6 +20919,12 @@ function monCycleHTML(db,person){
        faut aussi les commentaires, affichés de la même manière que dans le
        Planning ») : le coin rouge, et la bulle au toucher */
     var com=String(e[2]||"").trim();
+    /* SEULS LES COMMENTAIRES QUI CHANGENT LE POSTE (le client, le
+       25/10/2026 : « oui, seulement ceux qui changent le poste ») :
+       remplacement, échange, rappel, renfort. « Départ à 2h », « équipe
+       au complet », « maintien prime N »… restent dans la journée ouverte,
+       sans coin rouge : presque chaque case en portait un. */
+    if(!/rempla|rempl\.? par|[ée]change|rappel|renfort/i.test(com)) com="";
     var semI=Math.floor(i/7), cache=plie&&(semI<sem0||semI>sem0+1);
     var lib=v&&v!=="-"?grCourt(v):"";
     h.push('<button type="button" class="ms-j mc-c'+(t===a0?' auj':'')+(t<a0?' passe':'')+(v&&v!=="-"?'':' rep')+(com?' coment':'')+(d.getDay()%6===0?' we':'')+(cache?' mc-hors':'')+'"'+(cache?' hidden':'')+' data-y="'+d.getFullYear()+'" data-m="'+d.getMonth()+'" data-d="'+d.getDate()+'"'
