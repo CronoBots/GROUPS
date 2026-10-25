@@ -4769,3 +4769,18 @@ Le client, aussitôt : « non, tu pouvais le mettre dans la note du personnel, c
   - les quatre sorties du vérificateur sont identiques ;
   - le fonctionnement hors ligne est correct.
 - **Les révisions se tiennent** : un agenda Google qui a lu v1022 (révision de base + 1) puis v1023 (révision de base) a gardé la note, la révision étant plus petite. Celui qui n'a lu que v1023 a la révision de base et prend la v1024, plus grande.
+
+## Les cases se remplissent par deux, titulaires d'abord (25/10/2026, v1054)
+
+Le client, devant le Planning du 27/10 (« PDR / LCI SVE » en distillation
+du matin, « ADK / JBA LAX / GST LCO » aux chaudières) : « pourquoi les
+trigrammes ne sont pas mis par 2 ? Il faut 2-1 ou 2-2-1, avec en première
+ligne les gens en pause et ceux qui sont validés, puis seulement ceux en
+formation ». **Cela remplace les deux règles du 20/10** (une case vide en
+haut à droite quand le compte est impair avec un apprenti ; un apprenti
+seul placé en haut à droite) : la case se remplit maintenant ligne par
+ligne, ceux qui tiennent le poste puis les apprentis, le dernier seul
+sur sa ligne. Le 27/10 : PDR LCI / SVE ; ADK JBA / LAX GST / LCO ;
+GBT IME / NPI. Les relais gardent leur propre rangée, sous les autres
+(règle du 24/10). Affichage seul : vérificateur, manques, polyvalences,
+compteurs et agendas identiques.
