@@ -92,7 +92,7 @@
   --at-jaune:#7F5400; --at-jaune-soft:#F6E6CB;
   /* le bord des badges du Planning : trait fin pour la pause, pointillé
      pour l'horaire de jour (le client, le 25/10/2026) */
-  --bord-pause:color-mix(in srgb,var(--ink) 45%,transparent);
+  --bord-pause:var(--trait);
   --bord-jour:color-mix(in srgb,var(--ink) 75%,transparent);
   --at-vert:#176F3C;  --at-vert-soft:#D5F0DB;
   --at-rouge:#934036; --at-rouge-soft:#FFDFD9; --manque-fond:#F8D4CF; --propose-fond:#FBE1C8;
@@ -149,7 +149,7 @@
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
   --am-soft:#3D2913; --pm-soft:#0A3534; --n-soft:#282C44; --d-soft:#1D2432;
   --at-jaune:#D4AA60; --at-jaune-soft:#3A2B11;
-  --bord-pause:rgba(255,255,255,.55); --bord-jour:rgba(255,255,255,.85);
+  --bord-pause:var(--trait); --bord-jour:rgba(255,255,255,.85);
   --at-vert:#7CC590;  --at-vert-soft:#1B3423;
   --at-rouge:#EC978B; --at-rouge-soft:#422521; --manque-fond:#512E30; --propose-fond:#4A3420;
   --at-bleu:#7EB6F2;  --at-bleu-soft:#1C2F44;
@@ -4883,7 +4883,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* L'opérateur en formation : le TRIGRAMME reste jaune, mais la bordure redevient
    discrète (grise, comme un badge sans commentaire) — le client, le 02/10/2026 :
    le contour jaune était trop voyant. Le jaune de l'encre suffit à le signaler. */
-.eqhote .eqp2 tbody td .eqn.form{border-color:var(--bord-pause)}
+.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:dashed; border-color:var(--bord-jour)}
 .eqhote .eqp2 tbody td .eqn.form b{color:var(--at-jaune)}
 .eqhote .eqp2 tbody td .eqn .eqhd{margin-left:0}
 /* Le relais de 12 h : bord pointillé d'accent, l'horaire à côté */
@@ -6201,7 +6201,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
   font-size:11.5px; line-height:14px; letter-spacing:0; text-align:center}
 #jourCorps.eqhote .eqp2 td .eqn .eqhd{display:block; margin:0; font-size:8.5px; line-height:9px; font-weight:500; letter-spacing:-.02em; padding-bottom:1px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in); background:var(--in-soft)}
-#jourCorps.eqhote .eqp2 tbody td .eqn.form{border-color:var(--bord-pause)}
+/* l'apprenti non validé au poste montré : pointillé blanc, comme l'horaire
+   de jour (le client, le 25/10/2026 : « pointillé blanc aussi ceux en
+   formation et non validés au poste qu'ils sont ce jour-là ») */
+#jourCorps.eqhote .eqp2 tbody td .eqn.form:not(.moi):not(.app){border-style:dashed; border-color:var(--bord-jour)}
 /* les relais en trait plein (le client, le 25/10/2026 : « ceux
    actuellement en pointillé bleu, en trait normal ») : le pointillé est
    désormais l'horaire de jour */
@@ -6212,9 +6215,10 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    peuvent avoir le bord vert en pointillé »). Le violet du premier essai
    est retiré : seule la bordure change ; l'heure reste grise, le nom garde
    sa couleur (jaune en formation). « Vous » et la proposition gardent la
-   leur. Puis : « finalement pointillé blanc ceux en D, et trait blanc fin
-   ceux en pause » — blanc au thème sombre, la couleur du texte au clair
-   (un blanc y serait invisible) : --bord-pause et --bord-jour. */
+   leur. Puis : « finalement pointillé blanc ceux en D » — blanc au thème
+   sombre, la couleur du texte au clair (un blanc y serait invisible) :
+   --bord-jour ; « au lieu de blanc, remettre le trait gris fin pour ceux en
+   pause » : --bord-pause vaut de nouveau --trait. */
 .eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app),
 #jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app){border-style:dashed; border-color:var(--bord-jour)}
 #jourCorps.eqhote .eqp2 tbody td .eqn.app{border-style:dashed; border-color:#F2994A}
@@ -6478,7 +6482,7 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg span{display:inline-flex; align-items:center; gap:6px}
   .eqleg-b{font:700 11px/1 "IBM Plex Mono",monospace; font-style:normal; padding:3px 5px; border-radius:5px; background:var(--surface3); border:1px solid var(--bord-pause); color:var(--ink)}
   .eqleg-b.moi{border-color:var(--in); background:var(--in-soft)}
-  .eqleg-b.form{color:var(--at-jaune)}
+  .eqleg-b.form{color:var(--at-jaune); border-style:dashed; border-color:var(--bord-jour)}
   .eqleg-b.com{text-decoration:underline solid var(--muted); text-underline-offset:2px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
   .eqleg-b.relais{border-color:var(--in); color:var(--in)}

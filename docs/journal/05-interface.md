@@ -4863,3 +4863,13 @@ soulignement ; il ne signale plus qu'une pause). Restent à leur couleur :
 « vous » (cyan), relais et fusions (bleu plein), proposition (orange
 pointillé), place vide (rouge), et le commentaire ouvert (bord épaissi).
 Vérifié en sombre et en clair le 27/10.
+
+**Enfin (v1060).** Le client : « pointillé blanc aussi ceux en formation et
+non validés au poste qu'ils sont ce jour-là ; au lieu de blanc, remettre le
+trait gris fin pour ceux en pause ». `--bord-pause` revaut `--trait` (le
+gris d'avant) ; la classe `form` — posée par `chip()` quand la personne est
+en formation ET ne compte pas au poste montré (`compteAuPoste`), donc un
+apprenti validé ailleurs mais pas ici — prend le pointillé de `--bord-jour`,
+le nom restant jaune. Le 27/10 en pointillé : GPS, YPE, BLR, YRS (jour) ;
+SLI, LCI, SVE, LCO (jour et formation) ; NPI, GST (formation, en pause).
+Légende « en formation » en pointillé elle aussi.
