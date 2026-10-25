@@ -24169,7 +24169,40 @@ function renderEquipe(){
              (le client, le 29/09/2026). */
           /* son nom au lecteur d'écran : « ? » seul ne disait rien (audit du
              23/10/2026) */
-          var mqH=mq?new Array(Math.max(1,aP-o.tenu)+1).join('<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cdP.t)+'" data-cand="'+esc(JSON.stringify(cdP))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+" : "+o.tenu+" sur "+aP+(o.propose?", un changement est proposé":""))+'" title="Place vide ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b></span>'):"";
+          /* L'HEURE DU TROU (le client, le 25/10/2026 : « le ? doit
+             indiquer l'horaire du trou, comme dans ce cas si c'est un trou
+             de 02-06 »). Chaudières de nuit le 23/10 : PDF et KDN tiennent
+             la nuit entière, SPS prolonge son après-midi jusqu'à 2 h ; la
+             troisième place n'est vide que de 2 h à 6 h. On compte, demi-heure
+             par demi-heure, ceux qui sont là (heures de la journée partagée
+             comprises, apprentis exclus, relais pour une place entière) ; le
+             j-ième « ? » est vide là où ce compte reste sous sa place. Une
+             place vide toute la pause garde le « ? » seul. */
+          var nMq=Math.max(1,aP-o.tenu), trous=[];
+          if(mq){
+            var t0=PF_DEB[g.k], t1=PF_FIN[g.k], pas=[], ti;
+            for(ti=t0;ti<t1-0.01;ti+=0.5) pas.push(0);
+            var dansP=function(v){ v=((v%24)+24)%24; while(v<t0-0.01) v+=24; return v; };
+            var couvre=function(a,b){ if(b<=a+0.01) b+=24;
+              for(var i=0;i<pas.length;i++){ var u=t0+i*0.5; if(u>=a-0.01 && u+0.5<=b+0.01) pas[i]++; } };
+            o.gens.forEach(function(x){
+              if(enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc)) return;
+              if(x.horPart){ var a=dansP(x.horPart[0]); couvre(a,a+(((x.horPart[1]-x.horPart[0])%24)+24)%24||24); }
+              else couvre(t0,t1);
+            });
+            if(o.relais && o.relais.length) couvre(t0,t1);
+            var hT=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
+            for(var jq=1;jq<=nMq;jq++){
+              var niv=aP-nMq+jq, deb=null, fin=null, nb=0;
+              pas.forEach(function(c,i){ if(c<niv){ nb++; if(deb===null) deb=t0+i*0.5; fin=t0+i*0.5+0.5; } });
+              /* un seul morceau, et pas toute la pause : sinon « ? » seul */
+              trous.push(nb && nb<pas.length && (fin-deb)/0.5===nb ? [deb,fin] : null);
+            }
+            trous=trous.map(function(tr){ return tr?{a:hT(tr[0]),b:hT(tr[1])}:null; });
+          }
+          var mqH=mq?trous.map(function(tr){
+            var cd=cdP; if(tr){ cd={}; for(var kc in cdP) cd[kc]=cdP[kc]; cd.t=cdP.t+" · de "+tr.a+" h à "+tr.b+" h"; }
+            return '<span class="eqn manque'+(o.propose?' propose':'')+'" data-com="'+esc(cd.t)+'" data-cand="'+esc(JSON.stringify(cd))+'" tabindex="0" role="button" aria-label="'+esc("Place vide, "+P.t+", "+g.t+(tr?", de "+tr.a+" h à "+tr.b+" h":"")+" : "+o.tenu+" sur "+aP+(o.propose?", un changement est proposé":""))+'" title="Place vide'+(tr?' de '+tr.a+' h à '+tr.b+' h':'')+' ('+o.tenu+" / "+aP+(o.propose?' · un changement est proposé, en pointillé':'')+')"><b>?</b>'+(tr?'<small class="eqhd">'+tr.a+'-'+tr.b+'</small>':'')+'</span>'; }).join(""):"";
           /* Puis, le même jour : « celui en formation doit être mis en bas à
              droite ; s'ils sont 4, il faut qu'il y en ait un en poste
              au-dessus de lui ». La grille se remplit ligne par ligne, ceux
