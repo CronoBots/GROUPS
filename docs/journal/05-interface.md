@@ -5311,3 +5311,30 @@ calé en bas à droite, perdait son haut — l'image (1600 × 398) occupe
 minimum qui le garde entier : remis. Au téléphone, l'image entière
 (rapport 2170/540, 89 px à 390). Rien d'autre à gagner sans recadrer
 l'image elle-même.
+
+### Les accès dans le héros, l'équipe du cycle, le repos discret (25/10/2026, `nfdm-v1099`)
+
+Le client : « le bouton de repos du cycle doit être plus discret, et le
+cycle doit afficher avec quelle équipe on tourne. Ne faut-il pas ajouter
+les boutons d'action dans le héros ? »
+
+- **Repos** : la case de repos de « Mon cycle » perd cadre et fond (même
+  le week-end) ; le chiffre pâlit, le tiret à demi. Aujourd'hui garde son
+  cadre.
+- **Avec qui** : « Mon cycle · avec Équipe 1 » pour un cadre, « avec
+  AFA · YBT » (contremaître et adjoint du binôme) pour un opérateur — la
+  lecture de `cycleAvec`, déjà celle du calendrier. Les mois de la plage
+  s'abrègent (« 19 oct. – 29 nov. ») pour que la ligne tienne.
+- **Accès dans le héros** : oui. Au téléphone, la carte « Accès rapides »
+  commençait à 969 px, sous le premier écran. Une rangée de tuiles sous
+  le prochain poste (90 px), qui défile au doigt au téléphone et tient
+  entière au PC (la colonne de gauche y était vide sous le billet) ;
+  l'appel du contremaître de pause en tête, en tuile verte. La carte
+  « Accès rapides » se cache tant que le héros la porte : pas de doublon.
+  Le contremaître de pause qui ouvre son propre Accueil n'a pas de tuile
+  pour s'appeler lui-même (la ligne de la carte l'affichait).
+
+Mesuré (Playwright, 320/390/1280, un cadre et un opérateur) : tuiles
+présentes et dans l'ordre ; au PC 467/467 px sans défilement ; « À faire »
+à 632 px à 390 pour le cadre (premier écran) ; aucun débordement, aucune
+erreur.
