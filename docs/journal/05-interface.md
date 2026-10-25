@@ -5430,3 +5430,17 @@ l'octet** (10 031 octets, servie par une copie de `HEAD` à côté) ; le
 héros porte les mêmes étiquettes que le calendrier, 5 commentaires sur les
 deux semaines, bulle, journée, dépliage tenus ; aucun débordement, aucune
 erreur, à 390 et 1280 px.
+
+### « Réduire à deux semaines » ne réduisait plus (25/10/2026, `nfdm-v1103`)
+
+Le client : « la réduction du cycle ne va pas dans le héros ». Une semaine
+hors de la fenêtre ne recevait `mc-hors` que si le cycle était dessiné
+REPLIÉ ; déplié puis rouvert (le choix est retenu), aucune ne la portait,
+et « Réduire » ne trouvait rien à cacher. Le défaut datait de `v1094` (les
+cases portaient la même condition). Désormais la marque est toujours
+posée, `hidden` seulement replié. **L'erreur commise** : l'épreuve du
+dépliage (`qcy2`) dépliait, rechargeait… et s'arrêtait là, sans jamais
+réduire après un rechargement.
+
+Mesuré, même parcours (départ, déplier, recharger, réduire, recharger) :
+`v1102` 2 · 6 · 6 · **6** · 2 ; `v1103` 2 · 6 · 6 · **2** · 2.

@@ -20984,8 +20984,11 @@ function monCycleHTML(db,person){
      même reste dans le billet du prochain poste) */
   var semA=Math.max(0,Math.floor(((c?c.pos:Math.floor((auj.getTime()-deb.getTime())/86400000))+1)/7));
   var sem0=Math.max(0,Math.min(semA,nSem-2)), plie=!tout&&nSem>2;
-  function cachee(k){ return plie&&(k<sem0||k>sem0+1); }
-  function rangee(k,x){ return '<div class="mc-sem'+(cachee(k)?' mc-hors" hidden':'"')+'>'+x+'</div>'; }
+  /* une semaine hors de la fenêtre porte TOUJOURS mc-hors, et n'est
+     cachée que replié : déplié puis rouvert, « Réduire à deux semaines »
+     ne trouvait plus rien à replier (le client, le 25/10/2026) */
+  function hors(k){ return nSem>2&&(k<sem0||k>sem0+1); }
+  function rangee(k,x){ return '<div class="mc-sem'+(hors(k)?' mc-hors"'+(plie?' hidden':''):'"')+'>'+x+'</div>'; }
   /* LES CASES DU CALENDRIER (grilleCycle, comme la vue Cycle) : en
      attendant les mois enregistrés, le seul numéro du jour, à la même
      place, pour que rien ne saute */
