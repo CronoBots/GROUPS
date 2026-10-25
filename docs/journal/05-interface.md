@@ -4820,3 +4820,23 @@ atelier (jaune, verts, rouge, bleu) ne le porte : `--hj` #7B3FA0 en clair,
 gardent leur bordure. Légende du PC : « horaire de jour ». Le 27/10 :
 GPS, YPE, BLR, YRS, SLI, LCI, SVE, LCO. Affichage seul ; vérificateur et
 manques identiques.
+
+## Les segments de fusion aux mesures des badges (25/10/2026, v1057)
+
+Le client : « les badges de partage de pause (pointillé bleu) doivent
+avoir la même hauteur et le même écart à gauche ou à droite, selon quel
+bord est contre une bordure, que les trigrammes normaux (donc pas collés
+comme c'est le cas actuellement) ». **Mesuré** le 27/10 (FLI 06-18, JBI
+18-06) : les segments faisaient 33 px de haut à toute largeur et 4 px du
+bord ; les badges, 28 / 30 / 43 px de haut et 3 / 14 / 28 px du bord
+d'une case pleine, à 320 / 390 / 1280 px.
+
+Ces valeurs dépendent de la feuille de style de chaque largeur : plutôt
+que de les recopier dans trois règles qui divergeraient, `alignerFusions`
+les relit sur les badges du tableau, à chaque rendu et redimensionnement
+(dans `ajusterLignesJour`) : la hauteur, l'arrondi et les tailles de texte
+d'un badge à horaire, et le plus petit écart au bord d'une case de deux
+badges comme marge extérieure des segments. **Après** : 28 / 30 / 43 px,
+écart 14 et 28 px à 390 et 1280 px ; à 320 px, 4 px au lieu de 3 (le
+retrait de la case, en dessous duquel on ne descend pas). Pas de
+débordement ; vérificateur et manques identiques.
