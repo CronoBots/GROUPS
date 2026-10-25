@@ -1963,13 +1963,7 @@ body.sheet-on{overflow:hidden}
 .orgt td{white-space:normal}
 /* L'opérateur en formation : CONTOUR GRIS comme dans l'onglet horaire (le
    client, le 03/10/2026), l'encre jaune suffisant à le signaler. */
-/* LES MÊMES BORDURES QU'AU PLANNING (le client, le 25/10/2026 : « les
-   bordures des gens en D doivent être les mêmes dans l'onglet Équipe ») :
-   trait blanc fin pour l'équipe, gris marqué pour la formation et pour
-   l'horaire de jour — ici les opérateurs hors équipe (la STEP) —, cyan pour
-   vous. */
-.orgt td .orgn{border-color:var(--bord-pause)}
-.orgt td .orgn.orgf,.orgt td .orgn.orgd{border-color:var(--trait-fort)}
+.orgt td .orgn.orgf{border-color:var(--trait)}
 .orgt td .orgn.moi{border-color:var(--in); text-decoration:none}
 /* Un trigramme se clique pour ouvrir la fiche de la personne (le client, le
    04/10/2026) : curseur et survol le signalent, partout où il porte un data-id
@@ -6301,6 +6295,15 @@ td.fusion:not(.bande)>.eqfus>.eqseg.coment{position:relative}
    pause » : --bord-pause vaut de nouveau --trait. */
 .eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app),
 #jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.moi):not(.app){border-style:solid; border-color:var(--trait-fort)}
+/* L'horaire de jour habillé comme les trigrammes de l'onglet Équipes (le
+   client, le 25/10/2026 : « les trigrammes de D du Planning devaient être
+   comme dans Équipes ») : trait fin neutre (--line), fond --surface, encre
+   --ink2. Un apprenti en D garde le gris marqué de la formation. */
+.eqhote .eqp2 tbody td .eqn.jour:not(.form):not(.moi):not(.app),
+#jourCorps.eqhote .eqp2 tbody td .eqn.jour:not(.form):not(.moi):not(.app){border-color:var(--line); background:var(--surface)}
+.eqhote .eqp2 tbody td .eqn.jour:not(.form):not(.moi) b{color:var(--ink2)}
+.eqfus>.eqseg.jour:not(.form):not(.moi){border-color:var(--line); background:var(--surface)}
+.eqfus>.eqseg.jour:not(.form):not(.moi) b{color:var(--ink2)}
 /* (25/10/2026) « les gens en D, même bordure que ceux en formation ; le
    consignateur meunerie en AM peut avoir une bordure normale » : le gris
    marqué pour l'horaire de jour comme pour la formation ; la consignation
@@ -6570,7 +6573,7 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
   .eqleg-b.com{position:relative}
   .eqleg-b.com::after{content:""; position:absolute; top:-1px; right:-1px; border-top:8px solid var(--at-rouge); border-left:8px solid transparent; border-top-right-radius:5px}
   .eqleg-b.app{border-style:dashed; border-color:#F2994A}
-  .eqleg-b.jour{border-color:var(--trait-fort)}
+  .eqleg-b.jour{border-color:var(--line); background:var(--surface); color:var(--ink2)}
   .eqleg-b.vide{border-color:var(--at-rouge)}
 }
 html .pvt td.pvsien{font-size:10.5px}
@@ -25831,7 +25834,7 @@ function renderOrganisation(){
     if(stepGens.length){
       t.push('<tr class="orghors"><th colspan="'+(eqs.length+1)+'">Opérateur'+(stepGens.length>1?"s":"")+' hors équipe</th></tr>');
       t.push('<tr data-z="bleu"><th class="orgp" scope="row">STEP</th><td colspan="'+eqs.length+'">'
-        +stepGens.map(function(p){ return _orgJeton(p.id,moi," orgd"); }).join("")+'</td></tr>');
+        +stepGens.map(function(p){ return _orgJeton(p.id,moi); }).join("")+'</td></tr>');
     }
     t.push("</tbody></table></div>"
       +(orphelins.length?'<p class="lede" style="padding:0 16px 12px">'
