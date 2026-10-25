@@ -220,6 +220,17 @@ que la fiche de LCI porte huit heures normales et huit heures de prime.
 | une plage écrite | inchangé : l'excédent de la plage part au compteur |
 | renfort sans poste prévu (`R-CM`, `-`) | inchangé : ce qui est fait part au compteur |
 
+**Une arrivée avant la pause du remplacé, que le +FT couvre exactement,
+ne déplace pas la pause** (le client, le 25/10/2026). GKT le 22/10,
+`["terr. Arr.","2h +FT","Remplace SBZ arrivée à 20h00' pour remplacer ATR …"]` :
+SBZ est de nuit, GKT arrive à 20 h, deux heures avant la nuit, et ces deux
+heures sont celles du +FT. C'est une **nuit de 8 h**, prime de nuit, plus
+2 h au compteur — et non un après-midi de 6 h. Même lecture que VBN le
+21/01 (« remplace GPS de 20h à 22h00' », 2h +FT, nuit d'après son état
+SAP). Une arrivée qui ne colle pas au +FT (VBN le 05/03, arrivée à 15 h,
+1h -FT) garde la règle d'avant : la pause est celle qui contient l'heure
+d'arrivée.
+
 Mesuré : **240 heures prestées rendues à 52 personnes** sur l'année, compteurs
 flex time identiques — l'épargne ne bouge pas, seules les heures payées
 changent —, neuf règles à zéro. LCI concorde avec ses fiches sur 206
