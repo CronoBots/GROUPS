@@ -5058,3 +5058,12 @@ sont retirés. « Vous » reste cyan. La formation passe de `--trait` à
 `--trait-fort` (#6B7488 au sombre, #9DA2AE au clair). Relevé du 23/10 :
 blanc pour tout ce qui est en poste, gris marqué pour les apprentis, coin
 rouge sur les badges commentés.
+
+**Relecture du 26/10 (v1077).** Le client : « qu'en penses-tu ? ». Le
+défaut visible : sur son téléphone, la ligne FORM. était coupée en deux par
+le bas. **Mesuré** : ≈ 600 px de cadre, 629 demandés ce jour-là. Un jour qui
+dépasse se resserre maintenant avant de défiler (`serre`) : les cases
+perdent leur marge verticale (4 → 1 px), les badges gardent leur taille ;
+60 px gagnés sur dix lignes. À 390 × 790 (cadre de 608 px), le 26/10 tient
+en entier ; plus bas, il défile comme avant. Un jour qui tient garde ses
+marges.
