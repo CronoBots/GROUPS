@@ -63,6 +63,7 @@
   --ink:#151E2F; --ink2:#444D5F; --muted:#475060; --faint:#616977;
   --line:#DCDCE2; --line2:#EBEBEF;
   --trait:#C9CCD4; --trait-fort:#9DA2AE; --maint:rgba(0,122,160,.08);
+  --maint-fort:rgba(0,122,160,.18); --live:rgba(0,122,160,.55);
   /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
      qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
@@ -141,6 +142,7 @@
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --maint:rgba(110,210,240,.10);
+  --maint-fort:rgba(110,210,240,.24); --live:rgba(110,210,240,.6);
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -4453,12 +4455,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    devenait la bordure apparente, JBI semblait à 9 px et toute la colonne
    N décentrée. Le fondu du bas dit déjà qu'un jour chargé défile. */
 #jourCorps .eqgrille{scrollbar-width:none}
-.eqp2 thead th.live b{position:relative; display:inline-block}
-.eqp2 thead th.live .eqeq{display:block}
-.eqp2 thead th .eqlive{position:absolute; right:100%; top:50%; width:8px; height:8px; margin:-4px 7px 0 0; border-radius:50%; background:#E5484D;
-  animation:eqlive 1.6s ease-out infinite}
-@keyframes eqlive{0%{box-shadow:0 0 0 0 rgba(229,72,77,.6)} 70%{box-shadow:0 0 0 7px rgba(229,72,77,0)} 100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
-@media (prefers-reduced-motion:reduce){ .eqp2 thead th .eqlive{animation:none} }
+
 #jourCorps .eqp2.serre tbody td,#jourCorps .eqp2.serre tbody th{padding-top:1px; padding-bottom:1px}
 #jourCorps .eqgrille::-webkit-scrollbar{display:none; width:0; height:0}
 #jourCorps{position:relative}
@@ -4792,6 +4789,26 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"],
 .eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"],
 .eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]{box-shadow:inset 0 0 0 999px var(--maint)}
+/* LA PAUSE EN COURS, « EN DIRECT » (le client, le 25/10/2026 : « c'est la
+   surbrillance de la pause en cours qui doit faire penser au live ») : sa
+   colonne respire — la teinte monte et redescend en 2,4 s — entre deux
+   liserés lumineux. Un point dans l'en-tête, essayé d'abord, n'était pas ça.
+   Immobile, plus teintée, si le téléphone demande moins de mouvement. */
+@keyframes eqdirect{
+  0%,100%{box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint)}
+  50%{box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint-fort)}}
+@keyframes eqdirectf{0%,100%{background:var(--maint)} 50%{background:var(--maint-fort)}}
+.eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"]:not(.fusion),
+.eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"]:not(.fusion),
+.eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]:not(.fusion){animation:eqdirect 2.4s ease-in-out infinite}
+.eqfus-maint{border-left:2px solid var(--live); border-right:2px solid var(--live); box-sizing:border-box; animation:eqdirectf 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .eqhote .eqp2[data-mck] tr>[data-k]:not(.fusion),.eqfus-maint{animation:none}
+  .eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"]:not(.fusion),
+  .eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"]:not(.fusion),
+  .eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]:not(.fusion){box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint-fort)}
+  .eqfus-maint{background:var(--maint-fort)}
+}
 /* LA CASE FUSIONNÉE : deux 12 h qui tiennent un poste sur des pauses
    voisines (le client, le 18/10/2026 : « si 2 personnes font 12 h sur 3
    pauses pour combler un poste, est-ce possible de fusionner les
@@ -24178,12 +24195,10 @@ function renderEquipe(){
         /* scope="col" : la pause (AM/D/PM/N) est l'axe HORIZONTAL du tableau.
            Sans lui, un lecteur d'écran annonçait le poste (th de ligne, scope="row")
            mais restait muet sur la colonne — la moitié de l'information. */
-        /* LA PAUSE EN COURS, « EN DIRECT » (le client, le 25/10/2026 : « faut
-           ressortir la pause en cours comme une pause en live ») : un point
-           rouge qui pulse devant son nom, comme le voyant d'une diffusion en
-           direct. Seulement sur la journée qu'elle concerne (mck). */
+        /* la pause en cours se dit au lecteur d'écran ; à l'œil, c'est sa
+           colonne qui « respire » (voir eqdirect) */
         var live=(g.k===mck);
-        tp.push('<th scope="col" data-s="'+esc(g.k)+'" data-k="'+esc(g.k)+'"'+(live?' class="live"':'')+'><b>'+(live?'<i class="eqlive" aria-hidden="true"></i>':'')+esc(g.t)+"</b>"
+        tp.push('<th scope="col" data-s="'+esc(g.k)+'" data-k="'+esc(g.k)+'"'+(live?' class="live"':'')+'><b>'+esc(g.t)+"</b>"
           +(live?'<span class="sr-only">, pause en cours</span>':'')
           +(eqP?'<em class="eqeq">Équipe '+esc(eqP)+"</em>":"")+"</th>");
       });
