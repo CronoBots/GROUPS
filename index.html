@@ -62,7 +62,7 @@
      descend d'autant pour que la hiérarchie reste lisible. */
   --ink:#151E2F; --ink2:#444D5F; --muted:#475060; --faint:#616977;
   --line:#DCDCE2; --line2:#EBEBEF;
-  --trait:#C9CCD4; --trait-fort:#9DA2AE; --maint:rgba(0,122,160,.08);
+  --trait:#C9CCD4; --trait-fort:#9DA2AE; --maint:rgba(0,122,160,.12);
   /* La couleur de la tuile du logo, relevée dans logo.png, et le cyan clair
      qui s'y lit dans les deux thèmes. Ce sont des couleurs de MARQUE : elles
      ne changent pas avec le thème, et c'est pour cela qu'elles sont écrites
@@ -140,7 +140,7 @@
   --fond:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%);  --filigrane:0;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
-  --trait:#465063; --trait-fort:#6B7488; --maint:rgba(110,210,240,.10);
+  --trait:#465063; --trait-fort:#6B7488; --maint:rgba(110,210,240,.15);
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
@@ -4396,6 +4396,44 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 #v-jour .jourline{display:flex; width:100%; align-items:center}
 #v-jour .jourline .eqjour{flex:1 1 auto; min-width:0; text-align:center;
   font-size:17.5px; font-weight:650; white-space:nowrap}
+/* la date et, dessous, la légende et les absents du jour : la hauteur des
+   flèches, la barre ne grandit pas */
+#v-jour .jourline .jourcentre{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; align-items:center; gap:1px}
+#v-jour .jourline .jourcentre>.eqjour{flex:0 0 auto; max-width:100%}
+/* la date seule tenait 44 px de haut pour le toucher : avec la ligne du
+   dessous, 28 px suffisent, et la barre garde sa hauteur */
+#v-jour .jourline .jourcentre>.jourdatewrap{min-height:28px}
+#v-jour .jourmeta{display:flex; gap:12px; justify-content:center; font-size:11.5px; line-height:15px}
+#v-jour .eqnav .jourmeta button{all:unset; box-sizing:border-box; position:relative; display:inline-flex; align-items:center; gap:4px;
+  color:var(--muted); font-size:11.5px; line-height:15px; font-weight:600; white-space:nowrap; cursor:pointer}
+#v-jour .eqnav .jourmeta button:focus-visible{outline:2px solid var(--in); outline-offset:2px; border-radius:4px}
+#v-jour .eqnav .jourmeta button[hidden]{display:none}
+#v-jour .eqnav .jourmeta button::after{content:""; position:absolute; inset:-8px -6px}
+#v-jour .jourmeta #jourAbs b{color:var(--at-rouge); font-weight:700}
+/* La pause en cours, plus visible (proposition 4, le 25/10/2026) : la
+   colonne un peu plus teintée, et un trait d'accent sous son en-tête */
+.eqhote .eqp2[data-mck="AM"] thead th[data-k="AM"],
+.eqhote .eqp2[data-mck="PM"] thead th[data-k="PM"],
+.eqhote .eqp2[data-mck="N"] thead th[data-k="N"]{box-shadow:inset 0 -3px 0 var(--in), inset 0 0 0 999px var(--maint)}
+.eqhote .eqp2[data-mck="AM"] thead th[data-k="AM"] b,
+.eqhote .eqp2[data-mck="PM"] thead th[data-k="PM"] b,
+.eqhote .eqp2[data-mck="N"] thead th[data-k="N"] b{color:var(--in)}
+/* LE SURNOMBRE (proposition 5) : « 3/2 » discret en bas à droite d'une case
+   qui a plus de monde qu'il n'en faut — qui peut être déplacé */
+.eqhote .eqp2 tbody td.sur{position:relative}
+.eqhote .eqp2 tbody td .eqsur{position:absolute; left:3px; top:3px; font:600 9.5px/1 "IBM Plex Mono",monospace; color:var(--muted); pointer-events:none}
+@media (max-width:340px){ .eqhote .eqp2 tbody td .eqsur{display:none} }
+/* la légende, dans la feuille */
+.eqhote .eqp2.legjour{width:100%; border-collapse:collapse; margin:0 0 8px}
+.eqhote .eqp2.legjour td{padding:7px 12px; border-top:1px solid var(--line2); border-left:0; vertical-align:middle; background:none; box-shadow:none}
+.eqhote .eqp2.legjour tr:first-child td{border-top:0}
+.eqhote .eqp2.legjour td.legx{width:96px; text-align:center}
+.eqhote .eqp2.legjour td.legx .eqn{display:inline-flex; flex-direction:column; align-items:center; position:relative; margin:0}
+.eqhote .eqp2.legjour td.legt{font-size:14px; line-height:1.35; color:var(--ink); text-align:left}
+.eqhote .eqp2.legjour .eqfus{display:inline-flex}
+.legjour .legcase{display:inline-block; width:72px; height:34px; border-radius:6px; background:var(--manque-fond)}
+.legjour .legcol{display:inline-block; width:72px; height:34px; border-radius:6px; background:var(--maint); box-shadow:inset 0 -3px 0 var(--in)}
+.legjour .legsur{font:600 11px/1 "IBM Plex Mono",monospace; color:var(--muted)}
 /* Les flèches rentrent d'un écart fixe depuis le bord (le client, le 03/10/2026 :
    « plus écartées du bord »), sans bouger selon la date. */
 #v-jour .jourline>button{margin:0 26px}
@@ -7413,7 +7451,12 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
       <div class="toolbar eqnav">
         <div class="jourline">
           <button type="button" id="jourPrev" aria-label="Jour précédent"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-          <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
+          <div class="jourcentre">
+            <div class="eqjour jourdatewrap"><span id="jourLabel">—</span><input type="date" id="jourPick" class="jourdateinput" aria-label="Choisir une date"></div>
+            <!-- la légende et les absents du jour, sous la date (le client,
+                 le 25/10/2026, propositions 1 et 6) -->
+            <div class="jourmeta"><button type="button" id="jourLeg" aria-label="Légende des repères du planning"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-5M12 8h.01"/></svg>Légende</button><button type="button" id="jourAbs" hidden></button></div>
+          </div>
           <button type="button" id="jourNext" aria-label="Jour suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
@@ -24514,7 +24557,10 @@ function renderEquipe(){
              apprentis, le dernier seul sur sa ligne : PDR LCI / SVE. Plus de
              case vide en haut à droite. */
           var formA=formH.slice();
+          var surN=(aP>0 && g.k!=="D" && o.tenu>aP);
+          if(surN) cl.push("sur");
           tp.push('<td'+(cl.length?' class="'+cl.join(" ")+'"':"")+">"
+            +(surN?'<span class="eqsur" title="'+esc(o.tenu+" pour "+aP+" place"+(aP>1?"s":"")+" : "+(o.tenu-aP)+" en plus")+'">+'+(o.tenu-aP)+"</span>":"")
             +(!plein ? '<span class="eqvide">\u2014</span>'
               : '<div class="eqc'+(formH.length?' aform':'')+'">'+gaucheA.join("")+formA.join("")
                 +(relH?'<span class="eqrel" role="group" aria-label="Pause partagée">'+relH+'</span>':'')+'</div>')
@@ -24773,6 +24819,14 @@ function renderEquipe(){
          sous-titre disait « par date de retour » (audit du 23/10/2026). */
       var SUB={abs:"en maladie, par dernier jour d'absence", cong:"par date de reprise du travail"};
       var pre=autreJour?"aujourd'hui · ":"";
+      /* la pastille du Planning : les absents d'AUJOURD'HUI, comme la carte
+         (règle du 28/09/2026), quel que soit le jour affiché */
+      (function(){ var b=document.getElementById("jourAbs"); if(!b) return;
+        var n=parK.abs.n, c=parK.cong.n;
+        b.hidden=!(n||c);
+        b.innerHTML=(n?'<b>'+n+"</b> absent"+(n>1?"s":""):"")+(n&&c?" · ":"")+(c?c+" en congé":"");
+        b.setAttribute("aria-label","Aujourd’hui : "+n+" absent"+(n>1?"s":"")+", "+c+" en congé ou en repos");
+      })();
       reste.innerHTML=(parK.abs.n||parK.cong.n)?'<div class="card eqcard" id="eqAbsCard">'
         +'<div class="toolbar rhtitle"><h2>Absents, congés et repos</h2><p class="sub" id="eqAbsSub">'+esc(pre+SUB[ong])+"</p></div>"
         +'<div class="caseg eqabsseg" role="tablist" aria-label="Absents ou congés">'
@@ -29237,6 +29291,62 @@ function ouvrirPersonne(id,opt){
     var fb=f.querySelector(".sheet-fermer"); if(fb&&fb.focus) try{ fb.focus(); }catch(e){}
   });
 }
+/* UNE FEUILLE D'INFORMATION, dans la feuille de la fiche personne : la
+   légende du Planning et les absents du jour (le client, le 25/10/2026). */
+function ouvrirInfo(titre,sous,html){
+  var f=document.getElementById("persSheet"), body=document.getElementById("persBody"); if(!f||!body) return;
+  f.classList.remove("dir-fiche");
+  body.innerHTML=html;
+  var t=document.getElementById("persTitre"); if(t) t.textContent=titre;
+  var so=document.getElementById("persSous"); if(so) so.textContent=sous||"";
+  f.hidden=false; document.body.classList.add("sheet-on");
+  if(!persOuvert) navPousser("s");
+  persRetour=document.activeElement; persOuvert=true;
+  try{ inerteFond(true); }catch(e){}
+  var fb=f.querySelector(".sheet-fermer"); if(fb&&fb.focus) try{ fb.focus(); }catch(e){}
+}
+function legendeJourHTML(){
+  function b(cls,t,h){ return '<span class="eqn'+(cls?" "+cls:"")+'"><b>'+t+'</b>'+(h?'<small class="eqhd">'+h+'</small>':'')+'</span>'; }
+  var L=[
+    [b("","ABC"),"En poste à sa pause"],
+    [b("moi","ABC"),"Vous"],
+    [b("jour","ABC","07-15"),"Horaire de jour (D), avec ses heures"],
+    [b("form","ABC"),"En formation à ce poste, pas encore validé"],
+    [b("app","ABC"),"Changement de poste proposé par l’application"],
+    [b("coment","ABC"),"Commentaire du classeur : touchez le badge pour le lire"],
+    ['<span class="eqfus"><span class="eqseg" style="width:80px;height:34px"><b>ABC</b><small>06-18</small></span></span>',"Journée sur deux pauses (relève de 12 h), à ses heures"],
+    [b("manque","?","02-06"),"Place vide, avec l’heure du trou s’il est partiel"],
+    ['<span class="legcase"></span>',"Poste en sous-effectif"],
+    ['<span class="legsur">+1</span>',"Surnombre : une personne de plus qu’il n’en faut (en haut à gauche de la case)"],
+    ['<span class="legcol"></span>',"La pause en cours"]
+  ];
+  return '<div class="eqhote"><table class="eqp2 legjour"><tbody>'
+    +L.map(function(l){ return '<tr><td class="legx">'+l[0]+'</td><td class="legt">'+l[1]+'</td></tr>'; }).join("")+'</tbody></table></div>';
+}
+(function(){
+  var lg=document.getElementById("jourLeg");
+  if(lg) lg.addEventListener("click",function(){ ouvrirInfo("Repères du planning","",legendeJourHTML()); });
+  var ab=document.getElementById("jourAbs");
+  if(ab) ab.addEventListener("click",function(){
+    var c=document.getElementById("eqAbsCard"); if(!c) return;
+    var h=document.createElement("div"); h.innerHTML=c.innerHTML;
+    var tb=h.querySelector(".rhtitle"); if(tb) tb.parentNode.removeChild(tb);
+    var sub=(c.querySelector("#eqAbsSub")||{}).textContent||"";
+    ouvrirInfo("Absents et congés",sub.charAt(0).toUpperCase()+sub.slice(1),'<div class="eqabsfeuille">'+h.innerHTML+'</div>');
+  });
+  var body=document.getElementById("persBody");
+  if(body) body.addEventListener("click",function(e){
+    if(!body.querySelector(".eqabsfeuille")) return;
+    if(mqBascule(e)) return;
+    var t=e.target.closest&&e.target.closest("[data-eqo]"); if(!t) return;
+    var k=t.getAttribute("data-eqo");
+    Array.prototype.forEach.call(body.querySelectorAll("[data-eqo]"),function(x){
+      if(x.getAttribute("role")==="tab"){ var on=x.getAttribute("data-eqo")===k; x.setAttribute("aria-selected",on?"true":"false"); x.tabIndex=on?0:-1; }
+      else if(x.classList.contains("eqrows")) x.hidden=(x.getAttribute("data-eqo")!==k);
+    });
+    var so=document.getElementById("persSous"), sb=t.getAttribute("data-sub")||""; if(so) so.textContent=sb.charAt(0).toUpperCase()+sb.slice(1);
+  });
+})();
 function fermerPersonne(parRetour){
   if(!persOuvert) return;
   persOuvert=false;
