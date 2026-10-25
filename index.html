@@ -4454,6 +4454,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    devenait la bordure apparente, JBI semblait à 9 px et toute la colonne
    N décentrée. Le fondu du bas dit déjà qu'un jour chargé défile. */
 #jourCorps .eqgrille{scrollbar-width:none}
+#jourCorps .eqp2.serre tbody td,#jourCorps .eqp2.serre tbody th{padding-top:1px; padding-bottom:1px}
 #jourCorps .eqgrille::-webkit-scrollbar{display:none; width:0; height:0}
 #jourCorps{position:relative}
 #jourCorps.deborde::after{content:""; position:absolute; left:0; right:0; bottom:0; height:28px; pointer-events:none;
@@ -27438,7 +27439,14 @@ function ajusterLignesJour(){
   var rows=Array.prototype.slice.call(tbl.querySelectorAll("tbody tr"));
   if(!rows.length) return;
   rows.forEach(function(r){ r.style.height=""; });
+  /* UN JOUR CHARGÉ SE RESSERRE AVANT DE DÉFILER (le 25/10/2026 : sur le
+     téléphone du client, ≈ 600 px pour le tableau, 629 demandés le 26/10 —
+     la ligne FORM. coupée en deux par le bas). Les cases perdent leur
+     marge verticale (4 px → 1 px), pas les badges leur taille : 60 px de
+     gagnés sur dix lignes. Défilement s'il manque encore de la place. */
+  tbl.classList.remove("serre");
   alignerFusions(tbl);
+  if(tbl.getBoundingClientRect().height>g.clientHeight+1){ tbl.classList.add("serre"); alignerFusions(tbl); }
   var thead=tbl.querySelector("thead");
   var theadH=thead?thead.getBoundingClientRect().height:0;
   var nat=rows.map(function(r){ return r.getBoundingClientRect().height; });
