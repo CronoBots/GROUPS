@@ -4795,20 +4795,13 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    liserés lumineux (puis « un peu plus discret » : teinte et liserés
    adoucis, rythme ralenti). Un point dans l'en-tête, essayé d'abord, n'était pas ça.
    Immobile, plus teintée, si le téléphone demande moins de mouvement. */
-@keyframes eqdirect{
-  0%,100%{box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint)}
-  50%{box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint-fort)}}
-@keyframes eqdirectf{0%,100%{background:var(--maint)} 50%{background:var(--maint-fort)}}
+/* Plus d'animation (le client, le 25/10/2026 : « il ne faut plus d'effet de
+   clignotement de la pause en cours ») : la teinte la plus marquée, fixe,
+   entre les deux liserés. */
 .eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"]:not(.fusion),
 .eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"]:not(.fusion),
-.eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]:not(.fusion){animation:eqdirect 3.2s ease-in-out infinite}
-.eqfus-maint{border-left:2px solid var(--live); border-right:2px solid var(--live); box-sizing:border-box; animation:eqdirectf 3.2s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){
-  .eqhote .eqp2[data-mck] tr>[data-k]:not(.fusion),.eqfus-maint{animation:none}
-  .eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"]:not(.fusion),
-  .eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"]:not(.fusion),
-  .eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]:not(.fusion){box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint-fort)}
-  .eqfus-maint{background:var(--maint-fort)}
+.eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]:not(.fusion){box-shadow:inset 2px 0 0 var(--live),inset -2px 0 0 var(--live),inset 0 0 0 999px var(--maint-fort)}
+.eqfus-maint{border-left:2px solid var(--live); border-right:2px solid var(--live); box-sizing:border-box; background:var(--maint-fort)}
 }
 /* LA CASE FUSIONNÉE : deux 12 h qui tiennent un poste sur des pauses
    voisines (le client, le 18/10/2026 : « si 2 personnes font 12 h sur 3
@@ -24219,7 +24212,7 @@ function renderEquipe(){
            Sans lui, un lecteur d'écran annonçait le poste (th de ligne, scope="row")
            mais restait muet sur la colonne — la moitié de l'information. */
         /* la pause en cours se dit au lecteur d'écran ; à l'œil, c'est sa
-           colonne qui « respire » (voir eqdirect) */
+           colonne teintée entre deux liserés */
         var live=(g.k===mck);
         tp.push('<th scope="col" data-s="'+esc(g.k)+'" data-k="'+esc(g.k)+'"'+(live?' class="live"':'')+'><b>'+esc(g.t)+"</b>"
           +(live?'<span class="sr-only">, pause en cours</span>':'')
@@ -27435,6 +27428,20 @@ function alignerFusions(tbl){
       var c=so.querySelector(".eqc"); if(!c) return;
       c.style.justifyContent=""; c.style.marginLeft="";
       var ch=c.querySelector(".eqn"); if(!ch) return;
+      /* seul sur sa ligne, il reste centré (le client, le 25/10/2026 :
+         « quand un trigramme est seul sur une ligne, comme GPS, il faut
+         qu'il soit centré ») ; l'alignement sur le cadre ne vaut que pour
+         une ligne de plusieurs badges */
+      if(c.querySelectorAll(".eqn").length<2){
+        /* centré sur la COLONNE (la zone sous la fusion est prise sur la
+           largeur intérieure de la case, un peu plus étroite) */
+        var rso=so.getBoundingClientRect(), mil=(rso.left+rso.right)/2, col=null;
+        Array.prototype.forEach.call(tbl.querySelectorAll("thead th[data-k]"),function(th){ var r=th.getBoundingClientRect(); if(mil>=r.left&&mil<=r.right) col=r; });
+        if(!col) return;
+        c.style.display="flex"; c.style.justifyContent="flex-start";
+        var rc=ch.getBoundingClientRect();
+        c.style.marginLeft=(parseFloat(getComputedStyle(c).marginLeft)||0)+((col.left+col.right)/2-(rc.left+rc.right)/2)+"px";
+        return; }
       var rs=so.getBoundingClientRect(), rg=seg.getBoundingClientRect();
       if(rg.left<rs.left-1 || rg.left>rs.right) return;
       c.style.display="flex"; c.style.flexWrap="wrap"; c.style.justifyContent="flex-start";

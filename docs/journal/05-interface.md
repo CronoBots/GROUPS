@@ -5168,3 +5168,13 @@ qui attend un geste dans la feuille (à valider, remplacements à signer), en
 orange. Vérifié à 390 × 844, 375 × 667 et 320 × 568, RH, hiérarchie et
 opérateur : feuille entière à l'écran (défilante sur les petits), barre sans
 débordement.
+
+**Puis (v1087).** Le client : « quand un trigramme est seul sur une ligne,
+comme GPS ici, il faut qu'il soit centré ; il ne faut plus d'effet de
+clignotement de la pause en cours ». Sous une fusion, l'alignement sur le
+bord du cadre (v1070) ne vaut plus que pour une ligne de plusieurs badges
+(GPS et YPE le 27/10) ; un badge seul se centre sur sa COLONNE — la zone
+sous la fusion, prise sur la largeur intérieure de la case, le décalait
+de 5 px : 32 / 32 px le 26/10. La colonne de la pause en cours ne respire
+plus : teinte fixe (`--maint-fort`) entre ses deux liserés ; aucune
+animation relevée sur la page.
