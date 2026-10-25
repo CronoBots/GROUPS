@@ -4799,11 +4799,11 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    séparation horizontale dans une même cellule de poste ») */
 .eqhote .eqp2 tr.eqbande>td{border-top:0}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
-.eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:none}
+.eqfus>.eqseg.jour{border-style:dashed; border-color:var(--bord-jour); background:var(--surface3)}
 .eqfus>.eqseg.jour b{color:var(--ink)}
 .eqfus{display:flex; gap:3px; align-items:stretch}
 .eqfus>.eqseg{flex-basis:0; min-width:max-content; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,transparent)}
+  gap:1px; padding:3px 4px; border-radius:6px; border:1px solid var(--in); background:color-mix(in srgb,var(--in) 10%,var(--surface3))}
 .eqfus>.eqseg b{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; color:var(--in); line-height:13px}
 .eqfus>.eqseg small{font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--muted); line-height:11px}
 .eqfus>.eqseg.moi{border-style:solid; background:var(--in-soft)}
@@ -27262,7 +27262,7 @@ function alignerFusions(tbl){
   var segs=tbl.querySelectorAll("td.fusion .eqseg");
   Array.prototype.forEach.call(segs,function(e){ e.style.height=""; e.style.paddingTop=""; e.style.paddingBottom="";
     var b=e.querySelector("b"), sm=e.querySelector("small"); if(b){ b.style.fontSize=""; b.style.lineHeight=""; } if(sm){ sm.style.fontSize=""; sm.style.lineHeight=""; } });
-  Array.prototype.forEach.call(tds,function(td){ var f=td.querySelector(".eqfus"); if(f){ f.style.marginLeft=""; f.style.marginRight=""; } });
+  Array.prototype.forEach.call(tbl.querySelectorAll("td.fusion .eqfus"),function(f){ f.style.marginLeft=""; f.style.marginRight=""; });
   var ref=tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn .eqhd");
   ref=ref?ref.parentNode:tbl.querySelector("tbody td:not(.fusion) .eqc > .eqn");
   if(!ref) return;
@@ -27282,11 +27282,15 @@ function alignerFusions(tbl){
     if(b&&bCs){ b.style.fontSize=bCs.fontSize; b.style.lineHeight=bCs.lineHeight; }
     if(sm&&sCs){ sm.style.fontSize=sCs.fontSize; sm.style.lineHeight=sCs.lineHeight; }
   });
+  /* toutes les lignes de cadres d'une case, et pas la première seule :
+     le « ? 02-06 » de la seconde ligne touchait le bord (le client, le
+     25/10/2026) ; même marge pour toutes, pour que les heures restent
+     alignées d'une ligne à l'autre */
   if(ecart<1e9) Array.prototype.forEach.call(tds,function(td){
-    var f=td.querySelector(".eqfus"); if(!f) return;
-    var rt=td.getBoundingClientRect(), rf=f.getBoundingClientRect();
-    f.style.marginLeft=Math.max(0,ecart-(rf.left-rt.left))+"px";
-    f.style.marginRight=Math.max(0,ecart-(rt.right-rf.right))+"px";
+    var fs=td.querySelectorAll(":scope > .eqfus"); if(!fs.length) return;
+    var rt=td.getBoundingClientRect(), rf=fs[0].getBoundingClientRect();
+    var mg=Math.max(0,ecart-(rf.left-rt.left)), md=Math.max(0,ecart-(rt.right-rf.right));
+    Array.prototype.forEach.call(fs,function(f){ f.style.marginLeft=mg+"px"; f.style.marginRight=md+"px"; });
   });
 }
 function ajusterLignesJour(){
