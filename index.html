@@ -22275,8 +22275,8 @@ function nbPostesTenables(person,jour){
   }
   return n;
 }
-function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour){
-  function att(X){ return attenduAuPoste(X,gk,ren); }
+function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour,credit){
+  function att(X){ return Math.max(0,attenduAuPoste(X,gk,ren)-((credit&&credit[X.k])||0)); }
   /* LE POSTE D'AVANT TOUT DÉPLACEMENT (le client, le 20/10/2026 : « vérifie
      le reste, ce sont des fautes graves »). Le Planning remet chacun là où
      sa cellule le plaçait (renderEquipe) : il lui faut ce poste-là, et non
@@ -23175,7 +23175,20 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
      client, le 02/10/2026 : « il ne faut jamais créer un trou pour en combler
      un autre » — pour que le manque reste sur le poste de la personne au lieu
      d'être reporté ailleurs par le rééquilibrage. */
-  if(gk!=="D" && !sansReequil) reequilibrer(parPoste,mmdd,inconnus,gk,ren,jourCalc);
+  /* LES RELAIS COMPTENT AVANT QU'ON DÉPLACE QUELQU'UN (le client, le
+     25/10/2026, sur le 22/10 : « pourquoi PLZ est proposé aux chaudières
+     alors que l'effectif est complet ? »). SPS (AM, 6h-18h) puis GJR (N,
+     18h-6h) tiennent 14 h-22 h aux chaudières de l'après-midi : la
+     troisième place était tenue, et le rééquilibrage, qui passait avant
+     les relais, y envoyait PLZ. Un poste incomplet que des relais
+     couvrent en entier a désormais une place de moins à combler. */
+  var credit={};
+  if(gk!=="D") POSTES_TRAVAIL.forEach(function(P){
+    var at=attenduAuPoste(P,gk,ren), g=parPoste[P.k]||[];
+    if(!at || effectif(g,P,jourCalc)>=at) return;
+    try{ if(relaisDouze(db,gk,mmdd,P.k,parId,jourCalc).length) credit[P.k]=1; }catch(e){}
+  });
+  if(gk!=="D" && !sansReequil) reequilibrer(parPoste,mmdd,inconnus,gk,ren,jourCalc,credit);
   POSTES_TRAVAIL.forEach(function(P){
     var gens=parPoste[P.k]||[];
     /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il

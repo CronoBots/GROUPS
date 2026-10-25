@@ -3148,3 +3148,28 @@ désormais son voisin. 487 événements de l'année reçoivent leur partage
 change ; les notifications, qui comparent pause, poste et heures, ne
 s'en émeuvent pas. Vérificateur identique à l'octet.
 
+## Les relais comptent avant qu'on déplace quelqu'un (25/10/2026, v1047)
+
+Le client, sur le Planning du 22/10 : « pourquoi PLZ est proposé aux
+chaudières alors que l'effectif est complet ? » Ce jour-là, trois
+opérateurs aux chaudières l'après-midi (« 3 opérateurs en pauses PM et
+N pour démarrage Stein ») : KDN, PDF, et SPS (AM, 6h-18h) puis GJR (N,
+18h-6h) qui se relaient de 14 h à 22 h. Le rééquilibrage, qui passait
+AVANT les relais, voyait 2 sur 3 et y envoyait PLZ (polyvalent, en
+surplus au gluten) ; la case étant alors pleine, les relais n'étaient
+plus cherchés, et le Planning affichait PLZ proposé et un « ? ».
+
+**Corrigé** : avant le rééquilibrage, un poste incomplet que des relais
+couvrent en entier (`relaisDouze`) a une place de moins à combler
+(`credit`, passé à `reequilibrer`). Le 22/10 : KDN, PDF, MGY, puis SPS
+14-18 et GJR 18-22 en relais ; PLZ reste au gluten (14-19h30, il part à
+19 h 30). **Mesuré** à la même date contre la version d'avant :
+sous-effectifs, compteurs, calendrier et agendas identiques ;
+polyvalences : FPS meunerie 7 → 8 (un jour où il n'est plus déplacé).
+
+La demi-heure de remise du contremaître (21 h 30 – 22 h) n'appartient
+pas à la pause d'avant (le client, le même soir) : dans la note de
+l'agenda, un bout de moins d'une heure rejoint la pause qui SUIT, celle
+pour laquelle on arrive — vérifié : plus aucune note ne commence par
+« Après-midi 21 h 30 ».
+
