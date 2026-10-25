@@ -5406,3 +5406,27 @@ Reste, et pourquoi : « Sur site » fait 750 px au téléphone (une ligne par
 poste, voulu le 24/10) ; la bulle d'un commentaire s'ouvre au-dessus de la
 case, comme au Planning ; le mois du calendrier redit deux semaines de
 « Mon cycle », chacun ayant été demandé.
+
+### « Mon cycle » dessiné par le calendrier (25/10/2026, `nfdm-v1102`)
+
+Le client : « pourquoi le style du cycle du héros n'est pas le même que le
+style du cycle du calendrier ? ». Parce qu'ils étaient deux : « Mon
+cycle » (`v1092`) avait été bâti sur les cases de l'ancienne « Ma
+semaine » (pastilles rondes, case neutre, code lu dans l'horaire), la vue
+Cycle sur celles du calendrier (`caseJour` : case teintée de la pause,
+étiquette, congé, férié, prime conservée, coin du commentaire). La règle
+de `CLAUDE.md` le disait : deux copies d'une même chose divergent.
+
+Une seule désormais : `grilleCycle(d0, L, o, fin)`, tirée MOT POUR MOT de
+`renderCycle`, qui l'appelle ; « Mon cycle » l'appelle aussi, avec
+`o.com` (le commentaire posé sur la case, pour la bulle et « Ouvrir la
+journée »). Les règles `#calCard .mc-…` valent pour `.mc-hero` (88
+sélecteurs étendus en `:is(#calCard,.mc-hero)`) ; l'ancien style des
+cases du héros est retiré. En attendant les mois enregistrés, le seul
+numéro du jour, à la même place.
+
+Mesuré : la vue Cycle du calendrier, avant et après, **identique à
+l'octet** (10 031 octets, servie par une copie de `HEAD` à côté) ; le
+héros porte les mêmes étiquettes que le calendrier, 5 commentaires sur les
+deux semaines, bulle, journée, dépliage tenus ; aucun débordement, aucune
+erreur, à 390 et 1280 px.
