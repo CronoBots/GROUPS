@@ -5026,3 +5026,14 @@ thèmes.
 **Puis (v1073).** Le client : « le vert est trop flash ». `--rel` est
 désaturé : #79AF8F au thème sombre, #3D7656 au clair. Vérifié le 23/10 dans
 les deux thèmes ; le nom reste lisible sur le fond teinté du cadre.
+
+**Puis (v1074).** Le client, sur le 26/10 : « bordure à gauche de FLI plus
+grande qu'à droite de JBI ? ». **Mesuré sur sa capture**, au pixel : FLI à
+15 px du bord gauche de la case, JBI à 15 px de son bord droit réel — mais
+le tableau défilant (la ligne FORM. dépasse sur son écran), l'iPhone
+dessinait sa barre de défilement (≈ 6 px) PAR-DESSUS le bord droit : son
+trait faisait office de bordure, JBI paraissait à 9 px, et les badges de la
+colonne N décentrés d'autant. Au navigateur de test, la barre ne se voit
+pas, d'où les 14 / 14 px relevés. **Corrigé** : plus de barre sur la grille
+du Planning (`scrollbar-width:none`, `::-webkit-scrollbar`) ; le défilement
+reste, et le fondu du bas le signale (vérifié à 390 × 720).
