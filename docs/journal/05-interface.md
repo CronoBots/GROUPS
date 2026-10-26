@@ -5796,3 +5796,21 @@ ne s'affiche plus. Le tableau prend la place : 599 px au téléphone (390,
 566 avant), 682 au PC ; il descend jusqu'au bas de la carte. Mesuré,
 zones de l'iPhone simulées : cadre toujours identique au Planning ;
 aucun débordement, aucune erreur.
+
+### Pas de glissé au-delà du classeur, le nom du poste fixe (26/10/2026, `nfdm-v1130`)
+
+Le client, deux captures de l'iPhone : « il ne faut pas pouvoir swiper
+plus loin que le bout gauche/droite du classeur ; et le centrage du nom de
+poste, il faut qu'il soit fixe ».
+- **L'élastique d'iOS** tirait le tableau au-delà de ses bords, sur un
+  fond blanc (bande blanche à gauche ou à droite). La zone prend
+  `overscroll-behavior:none` (Safari 16 et plus) et le fond de la carte
+  (`--surface`), pour qu'un reste d'élastique ne montre plus de blanc.
+  Non éprouvable au navigateur de test (Chromium n'a pas l'élastique
+  horizontal d'iOS) : mesuré seulement que la règle et le fond s'appliquent.
+- **Le nom du poste** : `grCentrePostes` (`v1128`) le recentrait sur la
+  partie visible à chaque défilement ; il bougeait. Retiré : le nom est
+  centré sur son groupe, immobile. Mesuré : écart au centre du groupe
+  −1 px, au repos comme défilé.
+Cadre toujours identique au Planning (zones de l'iPhone simulées) ; aucune
+erreur.
