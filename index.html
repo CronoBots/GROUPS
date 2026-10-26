@@ -7328,6 +7328,14 @@ html body .grille .ws-planning .pl-barre .pl-nav button,html body .grille .ws-pl
   width:36px; height:36px; flex:0 0 auto; display:grid; place-items:center; padding:0; border:1px solid var(--trait); border-radius:13px;
   background:var(--surface); color:var(--ink); box-shadow:none; font-size:18px}
 html body .grille .ws-planning .pl-barre #grAuj span{display:none}
+/* LES QUATRE BOUTONS À LA MÊME TAILLE (le client, le 26/10/2026 : « le bouton
+   aujourd'hui, la même hauteur que les flèches ») : une règle tactile
+   (44 px) le grandissait seul ; les flèches prenaient 44 de large. Tous
+   36 × 36 (34 sous 360 px), la cible du doigt gardée à 44 par ::after. */
+html body .grille .ws-planning .pl-barre .pl-nav button,html body .grille .ws-planning .pl-barre #grAuj,html body .grille .ws-planning .pl-barre .pl-loupe{
+  min-width:0; min-height:0; position:relative}
+html body .grille .ws-planning .pl-barre .pl-nav button::after,html body .grille .ws-planning .pl-barre #grAuj::after,html body .grille .ws-planning .pl-barre .pl-loupe::after{
+  content:""; position:absolute; inset:-4px}
 html body .grille .ws-planning .pl-barre #grAuj svg{display:block}
 html body .grille .ws-planning .pl-barre .pl-loupe{order:-1}
 html body .grille .ws-planning .pl-barre #grAuj{order:1}
@@ -18472,6 +18480,16 @@ var GR_MODES=[["Shift1","Équipe 1"],["Shift2","Équipe 2"],["Shift3","Équipe 3
   ["p:par","Polyvalent Arrière",/poly|renf|terr/i,"pt-fer"],["p:dis","Distillation",/disti/i,"pt-fer"],["p:cha","Chaudière",/chaud/i,"pt-cha"],
   ["Step","Station d'Épuration",null,"pt-step"],["Opérateurs","Formation",null,"pt-cm"]];
 /* la teinte d'un poste, celle de l'outil « Horaires » du client */
+/* LE POLYVALENT AVANT EN JAUNE (le client, le 26/10/2026 : « le polyvalent
+   avant doit être en jaune comme gluten, meunerie ») : « Polyvalent » seul
+   est ambigu ; le classeur le tranche par sa colonne (O ou P : l'arrière,
+   au-delà : l'avant — la règle de roleDeFeuille). L'avant prend la teinte
+   de la meunerie et du gluten, l'arrière garde le vert. */
+function grTeinteCol(c){
+  var ps=c&&c.p&&c.p.postes&&c.p.postes[c.f], col=ps?String(ps.c||""):"";
+  if(/^polyvalent$/i.test(String(c&&c.po||"").trim())&&col&&col!=="O"&&col!=="P") return "pt-meu";
+  return grTeinte(c&&c.po);
+}
 function grTeinte(po){ po=String(po||"").toLowerCase();
   return /meun|gluten/.test(po)?"pt-meu":/chaud/.test(po)?"pt-cha":/step|épur|epur/.test(po)?"pt-step":/ferm|disti|poly|renf|terr/.test(po)?"pt-fer":"pt-cm"; }
 var GR={feuille:lsGet("ui/grFeuille")||"Shift1", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:""};
@@ -18641,12 +18659,12 @@ function renderGrille(){
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
-      h.push('<th class="hp-gp '+grTeinte(po0)+'" colspan="'+(3*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
+      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(3*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
   } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(3*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinte(c.po)+'" colspan="3" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+'" colspan="3" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
