@@ -5544,3 +5544,12 @@ formation et de tous les badges ; seul le trait reste en voile (16 %),
 pour rester lisible dans la pause en cours. Mesuré : fond rgb(45,52,69)
 pour les badges de jour, de formation et ordinaires ; aucun débordement,
 aucune erreur.
+
+### La pause en cours moins vive (26/10/2026, `nfdm-v1113`)
+
+Le client, capture à 11 h 10 : « la colonne surlignée doit être moins
+flash ». `--maint-fort` (le fond) de 17 à 8 %, `--live` (les deux
+liserés) de 35 à 22 % ; au thème clair, 14 → 7 % et 32 → 22 %. Les deux
+variables ne servent qu'à cette colonne (`.eqp2[data-mck]`,
+`.eqfus-maint`) : rien d'autre ne bouge. La colonne reste repérable (fond
+et liserés), sans animation. Aucun débordement, aucune erreur.
