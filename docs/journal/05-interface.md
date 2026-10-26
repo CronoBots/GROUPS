@@ -5518,3 +5518,20 @@ gauche, où la date reprend la main) ; aucun débordement, aucune erreur.
 **L'erreur commise** : un premier essai du toucher, à 3 px du bord droit
 mesuré sur la boîte arrondie, tombait juste dehors et laissait croire la
 cible cassée ; la carte point par point a montré qu'elle tient.
+
+### Le badge de jour dans la pause en cours (26/10/2026, `nfdm-v1111`)
+
+Le client, capture du Planning à 10 h 24 : « quand la colonne est
+sélectionnée, il y a des badges qui ne sont pas comme les autres ». Les
+gens de jour (GPS, GKT, 07-15) portaient un fond `--surface` et un trait
+`--line` OPAQUES, calés sur le fond ordinaire des cellules : sur la teinte
+bleue de la pause en cours, le badge faisait un trou sombre au bord
+invisible, quand les autres prenaient la teinte. Mesuré : fond
+rgb(33,39,55) et trait rgb(59,66,82) dans une cellule teintée.
+
+Les mêmes valeurs en blanc translucide (`--jour-fond` 5 %, `--jour-trait`
+16 %) : sur une rangée zébrée (`--surface2`), elles retombent sur
+`--surface` et `--line` à l'unité près (34,38,52 pour 33,39,55) ; dans la
+colonne en cours, le badge prend sa teinte et garde un bord lisible. Le
+style décidé le 25/10 (comme l'onglet Équipes : trait doux, encre pâle)
+ne change pas ailleurs. Aucun débordement, aucune erreur.
