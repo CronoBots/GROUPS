@@ -364,7 +364,12 @@ deviner à sa place sur ces points : ils touchent à des montants.
    après une mise à jour, 1 navigation (2 avant) ; application ouverte
    puis mise à jour au retour au premier plan, 1 rechargement ; page
    chargée hors ligne puis réseau revenu, 1 rechargement.
-3. Tester dans un navigateur, pas seulement en unitaire. Playwright et
+3. Tester dans un navigateur, pas seulement en unitaire. **Une mise en
+   page de téléphone se mesure AUSSI avec les zones protégées de l'iPhone
+   simulées** (dans les `<style>` de la page, `env(safe-area-inset-top)` →
+   59 px, `-bottom` → 34 px) : Chromium n'en a pas, et le 26/10/2026 un
+   cadre juste au navigateur était faux de 59 px sur l'iPhone
+   (`docs/journal/05-interface.md`). Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible
    depuis `page.evaluate` : il faut passer par l'interface.

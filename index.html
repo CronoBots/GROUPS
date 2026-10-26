@@ -7350,14 +7350,21 @@ html body .grille .ws-planning .xl-legende b{color:var(--ink)}
    réservait l'encoche dans cet espace : 8 px sous le bord de l'iPhone) ;
    sur les côtés, 16 px ; en bas, la barre d'onglets mesurée (--jnav) +
    16 px. */
-@media (max-width:699px){ html body .grille .ws-s.ws-planning{margin:calc(env(safe-area-inset-top,0px) + 28px) 16px 0} }
+/* CORRIGÉ LE MÊME JOUR (capture de l'iPhone : « pas du tout ça sur mon
+   phone ») : .grille réserve DÉJÀ les zones protégées (padding env()) ;
+   les ajouter ici les comptait deux fois — 59 px de trop en haut, 34 en
+   bas, invisibles au navigateur de test, sans zone protégée. Le haut :
+   28 px sous la zone de l'espace (= encoche + 28, comme le Planning) ; le
+   bas : la barre (--jnav, zone du bas comprise) + 16, MOINS la zone du bas
+   que .grille a déjà retirée. */
+@media (max-width:699px){ html body .grille .ws-s.ws-planning{margin:28px 16px 0} }
 /* LA CARTE JUSQU'À LA BARRE DU BAS (le client, le 26/10/2026, sur son
    téléphone : « espace vide dans le bas »). Le retrait de l'espace
    (84 px + --navbas + zone protégée) comptait DEUX FOIS la zone protégée
    de l'iPhone (--navbas l'inclut déjà) et 23 px de plus que la barre :
    ≈ 100 px vides sur l'iPhone. Pour l'Horaire, le retrait est celui de la
    barre elle-même : sa hauteur (61 px) et sa marge (--navbas). */
-@media (max-width:760px){ html .grille.ws .ws-main.ws-plein:has(.ws-planning:not([hidden])){padding-top:0; padding-bottom:calc(var(--jnav,64px) + 16px)} }
+@media (max-width:760px){ html .grille.ws .ws-main.ws-plein:has(.ws-planning:not([hidden])){padding-top:0; padding-bottom:calc(var(--jnav,64px) + 16px - env(safe-area-inset-bottom,0px))} }
 /* au PC, le champ de recherche est toujours ouvert : la loupe, qui ne fait
    que l'ouvrir au téléphone, se retire ; l'année à gauche, la recherche au
    milieu, « aujourd'hui » à droite */
