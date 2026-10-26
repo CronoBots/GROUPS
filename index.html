@@ -7259,6 +7259,35 @@ html #v-horaire .card>header h2 .site-live{margin-right:0; flex:none}
    centré de 16 px, description de 11 px dessous, filet bas. Chaque section
    de gestion devient ce cadre (sa tête, la barre) ; ses cartes intérieures
    reçoivent la même barre, en 14 px. L'Horaire production garde son style. */
+/* L'HORAIRE PRODUCTION AU TÉLÉPHONE (le client, le 26/10/2026 : « horaire
+   pas du tout adapté au téléphone ») — le style de son outil est gardé
+   (décidé le 22/10), seule la mise en page change :
+   - la rangée des noms colle sous la hauteur mesurée des postes (grCaleTete) ;
+   - le nom du poste colle à gauche de la zone visible : centré sur un
+     groupe de 2 000 px, il était hors de l'écran (bande grise vide) ;
+   - la colonne du mois, en lettres verticales, passe de 44 à 24 px ;
+   - les boutons ronds (haut, aujourd'hui, bas) couvraient la dernière
+     colonne : au téléphone, « aujourd'hui » est déjà dans la barre (le
+     calendrier), et le doigt fait défiler l'année ; ils se retirent ;
+   - le haut se resserre (titre, pilules) pour donner la hauteur au tableau. */
+html .hp-t thead tr.hp-ops th{top:var(--hp-g,29px)}
+@media (max-width:699px){
+  /* overflow visible : un th « overflow:hidden » devient le conteneur du
+     collant, et le nom ne collait plus à rien (mesuré) */
+  html .hp-t thead th.hp-gp{text-align:left; overflow:visible; text-overflow:clip}
+  html .hp-t thead th.hp-gp .hp-gpl{position:sticky; left:calc(var(--hp-coin,88px) + 8px); display:inline-block; padding-right:8px}
+  html .hp-t col.hp-cm{width:24px}
+  html .hp-t tbody td.hp-mois div{font-size:11px; letter-spacing:0; line-height:1.05}
+  html .hp-t tbody td.hp-jour{left:24px}
+  html .hp-t thead th.hp-coin{width:68px; padding:3px}
+  html .hp-t thead th.hp-coin .hp-adj{font-size:10.5px; padding:4px 3px; min-width:0; width:100%}
+  html .hp-fabs{display:none}
+  html .ws-planning .pl-tete{padding:6px 12px 0}
+  html .xl-pilules{padding:6px 8px; margin-bottom:8px; gap:8px}
+  html .ws-planning .pl-barre{padding-top:4px; padding-bottom:6px}
+  html .ws-planning .xl-legende{margin-bottom:4px}
+  html .grille .ws-planning{padding-bottom:12px}
+}
 html #grille .ws-s:not(.ws-planning){flex:none; margin:20px 24px 32px; padding:0 0 16px;
   background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:var(--ombre-cadre)}
@@ -18497,8 +18526,8 @@ function renderGrille(){
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
-      h.push('<th class="hp-gp '+grTeinte(po0)+'" colspan="'+(3*(gj-gi))+'">'+esc(po0)+'</th>'); gi=gj; }
-  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(3*cols.length)+'">'+esc(mode[1])+'</th>');
+      h.push('<th class="hp-gp '+grTeinte(po0)+'" colspan="'+(3*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
+  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(3*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
@@ -18545,6 +18574,7 @@ function renderGrille(){
   }
   h.push('</table>');
   zone.innerHTML=h.join("");
+  grCaleTete();
   GR.colCache={}; GR.sig=grSignature(db);
   /* au clavier, une seule case dans l'ordre de Tab : celle du jour, sinon
      la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
@@ -18597,8 +18627,22 @@ function grNomsEnPlace(){
   GR.sig=s;
   return true;
 }
+/* L'EN-TÊTE COLLÉ À SA HAUTEUR RÉELLE (le client, le 26/10/2026 : « horaire
+   pas du tout adapté au téléphone », capture à l'appui) : la rangée des
+   noms collait à 29 px (24 au PC) sous celle des postes ; quand le coin
+   « Adjoints ON » la grandit (police de l'iPhone), une fente laissait voir
+   les lignes du dessous, et au PC les deux se chevauchaient de 5 px. La
+   hauteur mesurée de la rangée des postes devient le décalage (--hp-g). */
+function grCaleTete(){
+  var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
+  if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) t.style.setProperty("--hp-g",Math.round(hg)+"px");
+  /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
+  var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
+}
+window.addEventListener("resize",function(){ grCaleTete(); });
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
 function grCentrer(){
+  grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
   var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
 }
