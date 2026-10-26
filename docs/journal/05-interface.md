@@ -5786,3 +5786,13 @@ bouton d'onglet de la version mobile, à la place de sous-effectif ».
 
 Mesuré, zones de l'iPhone simulées : cadre de l'Horaire identique au
 Planning (16, 87, 358 × 658) ; au PC, inchangé ; aucune erreur.
+
+### L'Horaire sans légende ni « Vue journée » (26/10/2026, `nfdm-v1129`)
+
+Le client : « retirer la légende et la vue journée de l'onglet horaire ».
+La pilule « Vue journée » (qui ouvrait le Planning, déjà dans la barre)
+part de la rangée des équipes ; la légende des codes n'est plus remplie et
+ne s'affiche plus. Le tableau prend la place : 599 px au téléphone (390,
+566 avant), 682 au PC ; il descend jusqu'au bas de la carte. Mesuré,
+zones de l'iPhone simulées : cadre toujours identique au Planning ;
+aucun débordement, aucune erreur.

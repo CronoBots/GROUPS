@@ -7356,6 +7356,7 @@ html body .grille .ws-planning .xl-pilules button[aria-pressed="true"]{backgroun
 html body .grille .ws-planning .gr-zone{margin:0; border:0; border-radius:0}
 html body .grille .ws-planning .xl-legende{margin:0; border:0; border-top:1px solid var(--cadre); border-radius:0; background:var(--surface2); color:var(--ink2)}
 html body .grille .ws-planning .xl-legende b{color:var(--ink)}
+html body .grille .ws-planning .xl-legende{display:none} /* retirée le 26/10/2026 */
 /* LE MÊME CADRE QUE LE PLANNING (le client, le 26/10/2026 : « sur mobile,
    l'écart avec le haut doit être comme pour le Planning, et la taille du
    cadre exactement la même que celle du Planning par rapport à l'écran ») :
@@ -18602,8 +18603,11 @@ function renderGrille(){
   document.getElementById("grPeriode").textContent=grLibelle();
   GR.adj=true;
   if(!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
-  document.getElementById("grEquipes").innerHTML='<button type="button" class="hp-pill hp-jour" data-vue="jour">Vue journée</button>'
-    +GR_MODES.map(function(x){ var poste=!!x[3];
+  /* PLUS DE « VUE JOURNÉE » NI DE LÉGENDE (le client, le 26/10/2026 :
+     « retirer la légende et la vue journée de l'onglet horaire ») : la vue
+     journée redisait le Planning, qui a son onglet ; la légende des codes
+     prenait une ligne au tableau. */
+  document.getElementById("grEquipes").innerHTML=GR_MODES.map(function(x){ var poste=!!x[3];
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'; }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
      scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
@@ -18683,8 +18687,7 @@ function renderGrille(){
      la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
   var c0=zone.querySelector("tbody tr.hp-auj td.hp-s")||zone.querySelector("tbody td.hp-s"); if(c0) c0.tabIndex=0;
   if(garde){ zone.scrollTop=garde.t; zone.scrollLeft=garde.l; }
-  var lg=document.getElementById("grLegende"), L=db.legende||{};
-  if(lg) lg.innerHTML=Object.keys(L).filter(function(c){ return c!=="xxx"; }).map(function(c){ return '<span><b>'+esc(c)+'</b> : '+esc(L[c])+'</span>'; }).join("");
+  var lg=document.getElementById("grLegende"); if(lg){ lg.innerHTML=""; lg.hidden=true; }
   var sous=document.getElementById("grSous");
   var vb=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?"Cliquez":"Touchez";
   sous.textContent=(peutSaisir()?vb+" une case pour la modifier, un nom pour ses compteurs":vb+" un nom pour ses compteurs")
