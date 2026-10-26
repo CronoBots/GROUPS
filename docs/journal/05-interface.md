@@ -5535,3 +5535,12 @@ Les mêmes valeurs en blanc translucide (`--jour-fond` 5 %, `--jour-trait`
 colonne en cours, le badge prend sa teinte et garde un bord lisible. Le
 style décidé le 25/10 (comme l'onglet Équipes : trait doux, encre pâle)
 ne change pas ailleurs. Aucun débordement, aucune erreur.
+
+**Repris le même jour (`nfdm-v1112`).** Le client, nouvelle capture :
+« ceux en formation et GPS doivent avoir le même background de
+trigramme ». Le voile du fond (5 %) rendait le badge de jour plus pâle que
+celui de la formation. Le fond redevient plein, `--surface3`, celui de la
+formation et de tous les badges ; seul le trait reste en voile (16 %),
+pour rester lisible dans la pause en cours. Mesuré : fond rgb(45,52,69)
+pour les badges de jour, de formation et ordinaires ; aucun débordement,
+aucune erreur.
