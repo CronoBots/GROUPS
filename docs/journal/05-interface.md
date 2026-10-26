@@ -5644,3 +5644,33 @@ du prochain poste). Sous 400 px, l'en-tête dit « Prochaine » seul
 (« Mes pauses · » n'y tenait plus) et les colonnes chiffrées prennent
 40/38/40 px (« FAITES » faisait 39 px dans 36). Mesuré à 320, 390 et
 1280 px : aucun texte coupé, aucun débordement, aucune erreur.
+
+### L'Horaire production au téléphone (26/10/2026, `nfdm-v1122`)
+
+Le client, capture à l'appui : « horaire pas du tout adapté au
+téléphone ». Le style de son outil reste (décision du 22/10) ; la mise en
+page est reprise. Défauts relevés à 320, 390 et 1280 px, et corrigés :
+
+- **L'en-tête se chevauchait** : la rangée des noms collait à 29 px
+  (24 au PC) sous celle des postes ; quand le coin « Adjoints ON » la
+  grandit (police de l'iPhone), une fente laissait voir les lignes du
+  dessous (« 25 », « AM D-CM » sur la capture) ; au PC, les deux rangées
+  se recouvraient de 5 px. `grCaleTete()` mesure la rangée des postes et
+  le coin, après chaque rendu, au centrage et au redimensionnement
+  (`--hp-g`, `--hp-coin`). Mesuré : fente 0 aux trois largeurs.
+- **Le nom du poste était hors de l'écran** : centré sur un groupe de
+  plusieurs centaines de pixels, il laissait une bande grise vide. Au
+  téléphone, il colle à gauche de la zone visible, juste après le coin.
+  **L'erreur commise** : le premier essai ne collait pas — un `th` en
+  `overflow:hidden` devient le conteneur du collant ; mesuré, puis
+  `overflow:visible` sur ce seul `th`.
+- **Les boutons ronds** (haut, aujourd'hui, bas) couvraient la dernière
+  colonne : retirés au téléphone, où « aujourd'hui » est déjà dans la barre
+  (le calendrier) et où le doigt fait défiler l'année. Au PC, inchangés.
+- **La colonne du mois** en lettres verticales passe de 44 à 28 px au
+  téléphone (lettres de 11 px).
+- **La hauteur** : marges du haut et du bas resserrées ; la zone du
+  tableau passe de 484 à 524 px à 390.
+
+Mesuré : aucun débordement, aucune erreur ; au PC, les cinq groupes de
+postes visibles, les boutons ronds présents.
