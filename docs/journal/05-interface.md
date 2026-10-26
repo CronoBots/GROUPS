@@ -5553,3 +5553,18 @@ liserés) de 35 à 22 % ; au thème clair, 14 → 7 % et 32 → 22 %. Les deux
 variables ne servent qu'à cette colonne (`.eqp2[data-mck]`,
 `.eqfus-maint`) : rien d'autre ne bouge. La colonne reste repérable (fond
 et liserés), sans animation. Aucun débordement, aucune erreur.
+
+### Formation et jour en pointillé blanc (26/10/2026, `nfdm-v1114`)
+
+Le client : « ceux en formation et en D (hors personne en poste) doivent
+avoir une bordure blanche pointillée ». Le blanc des badges ordinaires
+(55 %), en pointillé, pour `.form` et `.jour` ; le D qui tient le poste
+(le consignateur, YRS 08-16) n'a pas `.jour` et garde son trait plein ;
+« vous » (cyan) et la proposition (pointillé orange) gardent les leurs.
+Le jaune du nom distingue la formation, l'encre pâle le jour.
+**L'erreur commise** : la première règle ne mordait qu'à moitié — les
+règles du gris, plus précises d'un ou deux `:not()`, gardaient la couleur
+(trait pointillé mais gris, mesuré). Classe répétée (`.eqn.eqn.eqn`) pour
+passer devant ; mesuré ensuite : les 10 badges de formation et de jour en
+pointillé blanc, les 28 ordinaires en trait plein. Aucun débordement,
+aucune erreur.
