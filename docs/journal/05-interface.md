@@ -5697,3 +5697,21 @@ Mesuré : la zone du tableau passe de 524 à 569 px au téléphone (390 ; 484
 au départ de la journée), 628 au PC ; en-tête sans fente, noms de poste
 visibles ; recherche (une personne trouvée) et choix d'équipe éprouvés au
 téléphone et au PC ; aucun débordement, aucune erreur.
+
+**Repris le même jour (`nfdm-v1124`).** Le client, capture de son
+téléphone : « espace vide dans le bas, et alignement de la première
+colonne ».
+- **Le vide du bas** : le retrait de l'espace au téléphone
+  (`84px + --navbas + env(safe-area-inset-bottom)`) comptait DEUX fois la
+  zone protégée de l'iPhone (`--navbas` l'inclut déjà) et 23 px de plus
+  que la barre : ≈ 100 px vides sur l'iPhone, 33 au navigateur de test
+  (sans zone protégée — l'erreur ne se voyait qu'au téléphone). Pour
+  l'Horaire, le retrait est celui de la barre elle-même :
+  `63px + --navbas`. Mesuré : carte à 10 px de la barre, zone du tableau
+  592 px à 390.
+- **La première colonne** : la colonne des jours collait à 24 px, la
+  colonne du mois en mesurant 28 : une fente de 4 px où passaient les cases
+  défilées, et le coin dépassait d'autant. `grCaleTete()` mesure aussi la
+  colonne du mois (`--hp-mois`), au téléphone comme au PC. Mesuré : fin du
+  mois = début des jours (45), fin des jours = fin du coin (97) ; au PC
+  309 / 353, alignés.
