@@ -7403,10 +7403,22 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
    le jour complet ») : « Dimanche 1er novembre », sur deux lignes au
    besoin, plutôt que « Dim. 1 nov. » */
 .pf-pr-d b,.pf-pr-d b span{white-space:normal; overflow:visible; text-overflow:clip}
-/* la ligne du total : un trait plus marqué au-dessus, le libellé en tête */
-.pf-pr-tot{border-top:1px solid rgba(255,255,255,.22)!important; cursor:default}
-@media (hover:hover){ .pf-pr-tot.pf-pr-tot:hover{background:none} }
-.pf-pr-tot .pf-pr-d b{font-size:13px; font-weight:700; letter-spacing:.02em; color:var(--ink2)}
+/* LE TOTAL PAR PAUSE ET LE DÉLAI EN ÉVIDENCE (le client, le 26/10/2026 :
+   « le total doit être par pause, et le nombre de jours avant la pause mis
+   en évidence ») : une colonne « Total » (faites + reste) au lieu d'une
+   ligne de total en bas ; « dans 6 j » en pastille, comme le compte à
+   rebours du prochain poste. */
+html body .pf-pr-tab,html body .pf-pr-h{grid-template-columns:34px minmax(0,1fr) 44px 44px 48px}
+@media (max-width:400px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:28px minmax(0,1fr) 40px 38px 40px} }
+@media (max-width:360px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:26px minmax(0,1fr) 32px 32px 36px} }
+.pf-pr-t{text-align:right; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; color:#fff}
+@media (max-width:360px){ .pf-pr-t{font-size:14px} }
+/* avec la colonne de plus, « Mes pauses · » ne tient plus dans l'en-tête
+   sous 400 px : « Prochaine » suffit (le titre de la carte le dit) */
+@media (max-width:400px){ .pf-pr-h .pf-pr-hm{display:none} }
+.pf-pr-d .pf-pr-q{align-self:flex-start; margin-top:3px; padding:1px 8px; border-radius:999px; font-style:normal; font-size:12px; font-weight:700;
+  line-height:18px; white-space:nowrap; color:var(--ink); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16)}
+.pf-pr-1 .pf-pr-d .pf-pr-q{color:var(--marque-vif); background:rgba(105,178,203,.14); border-color:rgba(105,178,203,.45)}
 @media (max-width:760px){
   /* une seule polyvalence : sur la ligne du titre, plus de cadre de 80 px */
   .pf-pv:has(.pf-pv-l>span:only-child){grid-template-columns:auto minmax(0,1fr) auto; padding:8px 12px}
@@ -20875,24 +20887,17 @@ function ryProchainesHTML(p,y){
      pauses ») : le tableau suit la barre de l'année, qu'il détaille pause
      par pause ; « Mes pauses » devient l'en-tête de sa première colonne. */
   return '<div class="pf-pr">'
-    +(o?'<div class="pf-pr-h" aria-hidden="true"><span></span><span><i class="pf-pr-hm">Mes pauses · </i>prochaine</span><span>Faites</span><span>Reste</span></div>':'')
+    +(o?'<div class="pf-pr-h" aria-hidden="true"><span></span><span><i class="pf-pr-hm">Mes pauses · </i>prochaine</span><span>Faites</span><span>Reste</span><span>Total</span></div>':'')
     +ks.map(function(k){
       var v=vu[k], quand=!v?"":(v.i===0?"aujourd’hui":(v.i===1?"demain":"dans "+v.i+" j"));
       return '<button type="button" class="pf-pr-c'+(o?' pf-pr-tab':'')+(v&&k===ks[0]?' pf-pr-1':'')+'"'+(v?' data-y="'+v.d.getFullYear()+'" data-m="'+v.d.getMonth()+'" data-d="'+v.d.getDate()+'"':' disabled')
         +' aria-label="'+k+(v?', prochaine '+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase()+", "+quand):', rien de prévu')
-        +(o?', '+o.F[k]+' faites, '+o.A[k]+' restantes en '+y:'')+'">'
+        +(o?', '+o.F[k]+' faites, '+o.A[k]+' restantes, '+(Number(o.F[k]||0)+Number(o.A[k]||0))+' en '+y:'')+'">'
         +'<i class="pf-pause" data-p="'+k+'">'+k+'</i>'
         /* la date en entier, comme le prochain poste (le client, le 22/10/2026) */
-        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><span>'+esc(quand)+'</span>':'<span>rien de prévu</span>')+'</span>'
-        +(o?'<b class="pf-pr-f">'+o.F[k]+'</b><b class="pf-pr-r">'+o.A[k]+'</b>':'')+'</button>';
+        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><em class="pf-pr-q">'+esc(quand)+'</em>':'<span>rien de prévu</span>')+'</span>'
+        +(o?'<b class="pf-pr-f">'+o.F[k]+'</b><b class="pf-pr-r">'+o.A[k]+'</b><b class="pf-pr-t">'+(Number(o.F[k]||0)+Number(o.A[k]||0))+'</b>':'')+'</button>';
     }).join("")
-    /* LE TOTAL DE L'ANNÉE EN DERNIÈRE LIGNE (le client, le 26/10/2026 : « un
-       total 2026 sous forme de tableau ») : les quatre pauses, même celle
-       que la liste n'affiche pas (le D lointain), pour retomber sur les
-       chiffres de la barre « Avancement » au-dessus */
-    +(o?(function(){ var tf=0, ta=0; ["AM","PM","N","D"].forEach(function(k){ tf+=Number(o.F[k]||0); ta+=Number(o.A[k]||0); });
-      return '<div class="pf-pr-c pf-pr-tab pf-pr-tot" aria-label="Total '+y+' : '+tf+' faites, '+ta+' restantes"><i aria-hidden="true"></i><span class="pf-pr-d"><b>Total '+y+'</b></span>'
-        +'<b class="pf-pr-f">'+tf+'</b><b class="pf-pr-r">'+ta+'</b></div>'; })():'')
     +'</div>';
 }
 document.addEventListener("click",function(e){
