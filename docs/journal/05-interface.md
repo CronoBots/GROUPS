@@ -5619,3 +5619,18 @@ Mesuré : toutes les bulles commentées de six jours de Planning ouvertes
 une à une, six sortes de mentions, toutes en phrase ; dix cas choisis
 (relève à journée différente, remplacement partiel, absence…) éprouvés à
 part. Aucune erreur.
+
+### « Mes pauses » : la date entière et le total de l'année (26/10/2026, `nfdm-v1119`)
+
+Le client, capture de « Mon année » au téléphone : « écrire le jour
+complet et un total 2026 sous forme de tableau ». Sous 400 px, la date
+passait en abrégé (« Dim. 1 nov. ») ; elle s'écrit en entier partout
+(« Dimanche 1er novembre »), sur deux lignes au besoin — la règle
+`.pf-pr-d span` (une ligne, ellipse) la coupait encore à 320 px, levée
+pour la date. Une dernière ligne « Total 2026 » somme Faites et Reste des
+QUATRE pauses (le D lointain compris, même quand la liste ne le montre
+pas), sous un trait plus marqué.
+
+Mesuré à 320, 390 et 1280 px : quatre dates entières, aucune coupée ;
+total 131 faites, 39 restantes — les chiffres de la barre « Avancement »
+(131 prestées · 39 à venir) ; aucun débordement, aucune erreur.

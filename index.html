@@ -7399,7 +7399,14 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
 /* L'ACCUEIL OPTIMISÉ AU TÉLÉPHONE (le client, le 24/10/2026 : « optimise
    au maximum l'accueil de la version mobile ») */
 .pf-pr-d .pf-ct{display:none}
-@media (max-width:400px){ .pf-pr-d .pf-lg{display:none} .pf-pr-d .pf-ct{display:inline} }
+/* la date ENTIÈRE au téléphone aussi (le client, le 26/10/2026 : « écrire
+   le jour complet ») : « Dimanche 1er novembre », sur deux lignes au
+   besoin, plutôt que « Dim. 1 nov. » */
+.pf-pr-d b,.pf-pr-d b span{white-space:normal; overflow:visible; text-overflow:clip}
+/* la ligne du total : un trait plus marqué au-dessus, le libellé en tête */
+.pf-pr-tot{border-top:1px solid rgba(255,255,255,.22)!important; cursor:default}
+@media (hover:hover){ .pf-pr-tot.pf-pr-tot:hover{background:none} }
+.pf-pr-tot .pf-pr-d b{font-size:13px; font-weight:700; letter-spacing:.02em; color:var(--ink2)}
 @media (max-width:760px){
   /* une seule polyvalence : sur la ligne du titre, plus de cadre de 80 px */
   .pf-pv:has(.pf-pv-l>span:only-child){grid-template-columns:auto minmax(0,1fr) auto; padding:8px 12px}
@@ -20878,7 +20885,15 @@ function ryProchainesHTML(p,y){
         /* la date en entier, comme le prochain poste (le client, le 22/10/2026) */
         +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><span>'+esc(quand)+'</span>':'<span>rien de prévu</span>')+'</span>'
         +(o?'<b class="pf-pr-f">'+o.F[k]+'</b><b class="pf-pr-r">'+o.A[k]+'</b>':'')+'</button>';
-    }).join("")+'</div>';
+    }).join("")
+    /* LE TOTAL DE L'ANNÉE EN DERNIÈRE LIGNE (le client, le 26/10/2026 : « un
+       total 2026 sous forme de tableau ») : les quatre pauses, même celle
+       que la liste n'affiche pas (le D lointain), pour retomber sur les
+       chiffres de la barre « Avancement » au-dessus */
+    +(o?(function(){ var tf=0, ta=0; ["AM","PM","N","D"].forEach(function(k){ tf+=Number(o.F[k]||0); ta+=Number(o.A[k]||0); });
+      return '<div class="pf-pr-c pf-pr-tab pf-pr-tot" aria-label="Total '+y+' : '+tf+' faites, '+ta+' restantes"><i aria-hidden="true"></i><span class="pf-pr-d"><b>Total '+y+'</b></span>'
+        +'<b class="pf-pr-f">'+tf+'</b><b class="pf-pr-r">'+ta+'</b></div>'; })():'')
+    +'</div>';
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".pf-pr-c[data-d]"):null; if(!b) return;
