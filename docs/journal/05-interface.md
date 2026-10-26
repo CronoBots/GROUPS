@@ -5756,3 +5756,33 @@ feuilles de style de la page, `env(safe-area-inset-top)` par 59 px et
 [16, 87, 358 × 658, bas 745], Horaire [16, 146, 358 × 565, bas 711] — la
 capture du client, au pixel près. Après : Horaire [16, 87, 358 × 658, bas
 745], identique au Planning ; et toujours identique sans zone protégée.
+
+### Les adjoints toujours, le mois bordé, le poste centré, l'Horaire en 4e onglet (26/10/2026, `nfdm-v1128`)
+
+Le client : « il faut toujours afficher les adjoints et supprimer le
+bouton qui les cachait ; il faut ajouter la bordure à droite du mois ; le
+nom du poste doit être centré horizontalement ; l'horaire doit être le 4e
+bouton d'onglet de la version mobile, à la place de sous-effectif ».
+
+- **Adjoints** : plus de filtre ni de bouton « Adjoints ON/OFF » (ni sa
+  préférence `ui/grAdj`) ; le coin dit le nombre de personnes (« 15
+  pers. »), comme pour les autres feuilles.
+- **Le mois** : bordure de 2 px à droite, le trait du tableau ; la colonne
+  des jours suit sa largeur mesurée (`--hp-mois`).
+- **Le nom du poste** : centré sur la PARTIE VISIBLE de son groupe
+  (`grCentrePostes`, au rendu, au défilement, au redimensionnement) —
+  centré sur tout le groupe, il sortait de l'écran ; collé à gauche
+  (`v1122`), il n'était plus centré. Mesuré : écart au centre 0 px, au
+  repos et défilé.
+- **La barre du téléphone** : Accueil · Planning · Équipes · **Horaire** ·
+  Plus. Le bouton « Horaire production » que la barre porte déjà
+  (`sideMaj`) se montre en 4e, s'allume quand l'Horaire est ouvert (et non
+  plus « Plus ») ; Effectifs passe dans « Plus », L'usine, avec ses
+  pastilles (« Effectifs 8 »). Sans compte (pas de bouton Horaire),
+  Effectifs reste dans la barre. L'icône de l'Horaire devient la grille de
+  la tuile de l'Accueil : son calendrier se confondait avec celui du
+  Planning, côte à côte. La règle qui éteint l'onglet choisi pendant une
+  feuille ouverte épargne désormais ce bouton.
+
+Mesuré, zones de l'iPhone simulées : cadre de l'Horaire identique au
+Planning (16, 87, 358 × 658) ; au PC, inchangé ; aucune erreur.
