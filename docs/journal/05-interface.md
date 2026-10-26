@@ -5814,3 +5814,19 @@ poste, il faut qu'il soit fixe ».
   −1 px, au repos comme défilé.
 Cadre toujours identique au Planning (zones de l'iPhone simulées) ; aucune
 erreur.
+
+### Le polyvalent avant en jaune, les quatre boutons à la même taille (26/10/2026, `nfdm-v1131`)
+
+Le client : « le polyvalent avant doit être en jaune comme gluten,
+meunerie, et le bouton « aujourd'hui » de la même hauteur que les
+flèches ».
+- **Polyvalent avant** : « Polyvalent » seul était teint en vert (la règle
+  `/poly/` de `grTeinte`). Le classeur tranche par la colonne (O ou P :
+  l'arrière ; au-delà : l'avant — `roleDeFeuille`). `grTeinteCol` donne à
+  l'avant la teinte de la meunerie et du gluten, en-tête de groupe et nom.
+  Mesuré sur 2026 : dans chaque équipe, un polyvalent arrière (O) en vert
+  et deux avant (AC, AE) en jaune ; l'équipe 5 n'a que les deux avant.
+- **Les boutons** : « aujourd'hui » faisait 44 px de haut (une règle
+  tactile), les flèches 44 de large. Les quatre : 36 × 36 (34 sous 360 px),
+  cible du doigt gardée par `::after` (4 px autour). Mesuré à 320, 390 et
+  1280 px.
