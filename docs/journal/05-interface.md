@@ -5579,3 +5579,8 @@ Le jour et « vous » passent à `--ink` dans le Planning et l'onglet
 formation son jaune. Mesuré après : tous les noms à 229,232,241 sauf les
 six badges de formation ; le cadre de « vous » toujours cyan. Aucun
 débordement, aucune erreur.
+
+**Repris le même jour (`nfdm-v1116`).** Le client : « garde vous en
+cyan ». Le nom de « vous » reprend `--in` (105,178,203) ; le jour reste au
+blanc, la formation au jaune. Mesuré : « vous » cyan, tous les autres
+noms blancs sauf la formation.
