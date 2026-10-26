@@ -5725,3 +5725,17 @@ commençait à 8 px sous le bord de l'iPhone) ; 16 px sur les côtés ; en
 bas, la barre d'onglets mesurée (`--jnav`) + 16 px. Mesuré à 320 et
 390 px : Planning [16, 28, 358 × 723, bas 751], Horaire [16, 28, 358 ×
 723, bas 751] — identiques ; aucun débordement, aucune erreur.
+
+**Vérification du rendu (`nfdm-v1126`).** Le client : « vérifie bien le
+rendu ». Planning et Horaire photographiés côte à côte (390), puis
+l'Horaire défilé, recherche ouverte, vue journée, et à 320 px. Deux
+défauts trouvés et corrigés :
+- **la recherche ouverte au téléphone** : les flèches et « aujourd'hui »
+  restaient affichés (mes règles de bouton passaient devant celle qui les
+  cachait) et le champ tombait à quelques caractères. Recherche ouverte :
+  la loupe et le champ seuls, sur toute la largeur (230 px à 320, 296 à
+  390) ; une personne trouvée.
+- **« Année … » coupé à 320 px** : boutons de 34 px, écarts de 6, titre
+  en 15 px sous 360 px ; « Année 2026 » entier à 320, 360 et 390.
+Remesuré : cadres Planning et Horaire identiques (16, 28, 358 × 723) ;
+en-tête sans fente ; au PC, inchangé ; aucune erreur.
