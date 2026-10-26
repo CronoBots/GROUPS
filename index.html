@@ -7285,8 +7285,11 @@ html .hp-t thead tr.hp-ops th{top:var(--hp-g,29px)}
    être centré horizontalement ») : centré sur la PARTIE VISIBLE de son
    groupe (grCentrePostes, au défilement) — centré sur tout le groupe, il
    sortait de l'écran ; collé à gauche, il n'était plus centré. */
-html .hp-t thead th.hp-gp{text-align:left}
-html .hp-t thead th.hp-gp .hp-gpl{position:relative; display:inline-block; white-space:nowrap}
+/* REPRIS LE MÊME JOUR (le client : « le centrage du nom de poste, il faut
+   qu'il soit fixe ») : centré sur son groupe, immobile ; il ne suit plus le
+   défilement (grCentrePostes ne déplace plus rien) */
+html .hp-t thead th.hp-gp{text-align:center}
+html .hp-t thead th.hp-gp .hp-gpl{display:inline}
 @media (max-width:699px){
   /* overflow visible : un th « overflow:hidden » devient le conteneur du
      collant, et le nom ne collait plus à rien (mesuré) */
@@ -7354,6 +7357,11 @@ html body .grille .ws-planning .xl-pilules .hp-jour{background:var(--surface); c
 html body .grille .ws-planning .xl-pilules button[aria-pressed="true"]{background:color-mix(in srgb,var(--in) 20%,var(--surface))!important; color:var(--ink)!important;
   border-color:var(--in)!important; box-shadow:none!important}
 html body .grille .ws-planning .gr-zone{margin:0; border:0; border-radius:0}
+/* PAS DE GLISSÉ AU-DELÀ DU CLASSEUR (le client, le 26/10/2026, captures de
+   l'iPhone) : l'élastique d'iOS tirait le tableau au-delà de ses bords
+   gauche et droit, sur un fond blanc. Plus d'élastique dans la zone, et
+   son fond prend la couleur de la carte au cas où. */
+html body .grille .ws-planning .gr-zone{overscroll-behavior:none; background:var(--surface)}
 html body .grille .ws-planning .xl-legende{margin:0; border:0; border-top:1px solid var(--cadre); border-radius:0; background:var(--surface2); color:var(--ink2)}
 html body .grille .ws-planning .xl-legende b{color:var(--ink)}
 html body .grille .ws-planning .xl-legende{display:none} /* retirée le 26/10/2026 */
@@ -18681,7 +18689,7 @@ function renderGrille(){
   }
   h.push('</table>');
   zone.innerHTML=h.join("");
-  grCaleTete(); grCentrePostes();
+  grCaleTete();
   GR.colCache={}; GR.sig=grSignature(db);
   /* au clavier, une seule case dans l'ordre de Tab : celle du jour, sinon
      la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
@@ -18749,24 +18757,10 @@ function grCaleTete(){
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
 }
-window.addEventListener("resize",function(){ grCaleTete(); grCentrePostes(); });
-function grCentrePostes(){
-  var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"); if(!t) return;
-  var zr=z.getBoundingClientRect(), c=t.querySelector("thead th.hp-coin"), g=c?c.getBoundingClientRect().right:zr.left;
-  [].forEach.call(t.querySelectorAll("thead th.hp-gp"),function(th){
-    var sp=th.querySelector(".hp-gpl"); if(!sp) return;
-    var r=th.getBoundingClientRect(), a=Math.max(r.left,g), b=Math.min(r.right,zr.right);
-    var w=sp.offsetWidth, pl=parseFloat(getComputedStyle(th).paddingLeft)||0, pr=parseFloat(getComputedStyle(th).paddingRight)||0;
-    var x=(b>a?(a+b)/2:(r.left+r.right)/2)-r.left-pl-w/2;
-    x=Math.max(0,Math.min(x,r.width-pl-pr-w));
-    sp.style.left=Math.round(x)+"px";
-  });
-}
-(function(){ var z=document.getElementById("grZone"), ra=0; if(!z) return;
-  z.addEventListener("scroll",function(){ if(ra) return; ra=requestAnimationFrame(function(){ ra=0; grCentrePostes(); }); },{passive:true}); })();
+window.addEventListener("resize",function(){ grCaleTete(); });
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
 function grCentrer(){
-  grCaleTete(); grCentrePostes();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
+  grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
   var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
 }
