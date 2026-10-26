@@ -5568,3 +5568,14 @@ règles du gris, plus précises d'un ou deux `:not()`, gardaient la couleur
 passer devant ; mesuré ensuite : les 10 badges de formation et de jour en
 pointillé blanc, les 28 ordinaires en trait plein. Aucun débordement,
 aucune erreur.
+
+### Tous les trigrammes en blanc, sauf la formation (26/10/2026, `nfdm-v1115`)
+
+Le client : « tous les trigrammes doivent être en blanc, sauf les gens en
+formation ». Mesuré avant : jour en `--ink2` (192,197,209), « vous » en
+cyan (`--in`), formation en jaune, les autres en `--ink` (229,232,241).
+Le jour et « vous » passent à `--ink` dans le Planning et l'onglet
+Équipes (`.eqhote`, `.eqfus`) ; « vous » garde son cadre cyan, la
+formation son jaune. Mesuré après : tous les noms à 229,232,241 sauf les
+six badges de formation ; le cadre de « vous » toujours cyan. Aucun
+débordement, aucune erreur.
