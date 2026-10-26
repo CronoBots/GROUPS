@@ -3306,3 +3306,19 @@ de jour est exactement celui du matin (6-14) n'a plus d'heure sous son
 badge. Les autres gens de jour la gardent — elle dit qu'ils sont en D —,
 comme LCI 07-15 et les cadres en 07-15 le même jour. Affichage seul :
 vérificateur, manques, polyvalences, compteurs et agendas identiques.
+
+### « Sur site en ce moment » en liste de présence (26/10/2026, `nfdm-v1121`)
+
+Le client : « pas besoin de préciser les postes des gens présents en ce
+moment. Ça doit être vraiment une liste de gens « en ligne », mais dans le
+sens présent. » Le tableau poste par poste (une ligne par poste, les
+présents à droite) part : sous l'en-tête de chaque pause (pastille, équipe,
+heures, nombre), les présents en étiquettes, un point vert chacune, par
+ordre alphabétique ; l'heure d'arrivée ou de départ reste quand elle
+s'écarte de la pause (« FLI jusqu'à 18 h »). Le poste reste à l'écoute
+(`aria-label`) et dans le Planning. Le même rendu sert à l'Accueil et à
+l'espace RH (`siteSalonsHTML`), où l'étiquette mène toujours à la fiche.
+
+Mesuré, le 27/10 à 10 h : 16 présents au matin, 8 de jour, aucun
+tableau ; la carte passe de 750 à 387 px au téléphone (390), 360 au PC ;
+aucun débordement, aucune erreur.

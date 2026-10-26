@@ -2510,6 +2510,10 @@ html #grille .ws-site{margin-bottom:14px}
 .site-tab td{padding:4px 0; vertical-align:top}
 .site-tab th .site-eq{display:block; font-size:11px; font-weight:500; line-height:14px; color:var(--muted); white-space:nowrap}
 .site-ps{display:flex; flex-wrap:wrap; gap:6px}
+.site-ligne{gap:8px; padding-top:10px}
+.site-ligne .site-p{position:relative; padding-left:20px}
+.site-ligne .site-p::before{content:""; position:absolute; left:8px; top:50%; width:7px; height:7px; margin-top:-3.5px; border-radius:50%;
+  background:var(--good); box-shadow:0 0 0 2px color-mix(in srgb,var(--good) 25%,transparent)}
 .site-p{display:inline-flex; align-items:center; gap:7px; min-height:26px; padding:3px 9px; border:1px solid var(--line2); border-radius:7px; background:var(--surface2); font-size:12px; line-height:1.2; color:var(--muted); max-width:100%; flex-wrap:wrap; row-gap:2px}
 /* un nom long et ses heures passent à la ligne par morceaux entiers */
 .site-p>*{white-space:nowrap}
@@ -19355,18 +19359,14 @@ function sitePlage(a,b){ return siteH(a)+"\u00a0– "+siteH(b); }
    écarte (« jusqu'à 2 h », « dès 5 h 30 »). */
 function siteSalonsHTML(s,o){
   o=o||{};
-  var groupes={}, ordre={}, ordreT={};
-  POSTES_TRAVAIL.forEach(function(P,i){ ordre[P.k]=i; ordreT[P.t]=i; });
+  var groupes={};
   function k(x){ return x.x.ka||x.x.k; }
   /* le poste du jour ; sans poste lu ce jour-là (un contremaître en remise
      de pause), son poste habituel */
   function poste(x){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(x)) q=P.t; }); return q||wsPosteEq(x.p)[0]||"Autre"; }
-  function rang(q){ return (q in ordreT)?ordreT[q]:999; }
   s.sur.forEach(function(x){ var g=siteSalon(x); (groupes[g]=groupes[g]||[]).push(x); });
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
-    var L=groupes[z[0]], par={}, lignes=[];
-    L.forEach(function(x){ var q=poste(x); if(!par[q]){ par[q]=[]; lignes.push(q); } par[q].push(x); });
-    lignes.sort(function(a,b){ return rang(a)-rang(b)||a.localeCompare(b); });
+    var L=groupes[z[0]];
     function etiquette(x){
       var nc=GR.noms&&GR.noms[x.p.id]?grNomCourt(x.p):"", moi=!!o.moi&&x.p.id===o.moi,
           d0=x.deb===PF_DEB[z[0]], f0=x.fin===PF_FIN[z[0]],
@@ -19377,14 +19377,15 @@ function siteSalonsHTML(s,o){
     }
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
       +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])+'</span>')+'</span><em>'+L.length+'</em></p>'
-      +'<table class="site-tab"><tbody>'+lignes.map(function(q){
-        /* « Chaudières éq. 4 » se coupait en « Chaudières / éq. 4 » ou
-           « Distillation éq. / 1 » au téléphone : l'équipe passe dessous,
-           en petit, d'un seul tenant (25/10/2026) */
-        var qm=/^(.*?)\s+(éq\.\s*\S+)$/.exec(q);
-        return '<tr><th scope="row">'+(qm?esc(qm[1])+' <small class="site-eq">'+esc(qm[2])+'</small>':esc(q))+'</th><td><div class="site-ps">'
-          +par[q].sort(function(a,b){ return String(a.p.id).localeCompare(String(b.p.id)); }).map(etiquette).join("")+'</div></td></tr>';
-      }).join("")+'</tbody></table></div>';
+      /* UNE LISTE DE PRÉSENCE SANS LES POSTES (le client, le 26/10/2026 :
+         « pas besoin de préciser les postes des gens présents en ce
+         moment ; ça doit être vraiment une liste de gens « en ligne », mais
+         dans le sens présent »). Plus de tableau poste par poste : sous
+         l'en-tête de la pause, les présents en étiquettes, un point vert
+         chacun, par ordre alphabétique ; l'heure d'arrivée ou de départ
+         reste quand elle s'écarte de la pause. Le poste reste à l'écoute
+         (aria-label) et dans le Planning. */
+      +'<div class="site-ps site-ligne">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
   });
   return blocs.length?'<div class="site-salons">'+blocs.join("")+'</div>':"";
 }
