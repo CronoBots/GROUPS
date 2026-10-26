@@ -6908,7 +6908,7 @@ html .hp-t tbody td{background:var(--rb)}
 html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
 html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:0; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
-html .hp-t tbody td.hp-jour{position:sticky; left:44px; z-index:2; font-weight:900; font-size:13px; border-right:2px solid #64748b}
+html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:900; font-size:13px; border-right:2px solid #64748b}
 html .hp-t thead th.hp-coin{width:88px}
 html .hp-t tbody td.hp-s{line-height:18px; color:#111827}
 /* l'annotation reste rouge, en plus sombre : #dc2626 tombait à 2,99:1 sur le gris (audit du 23/10/2026) */
@@ -7278,7 +7278,7 @@ html .hp-t thead tr.hp-ops th{top:var(--hp-g,29px)}
   html .hp-t thead th.hp-gp .hp-gpl{position:sticky; left:calc(var(--hp-coin,88px) + 8px); display:inline-block; padding-right:8px}
   html .hp-t col.hp-cm{width:24px}
   html .hp-t tbody td.hp-mois div{font-size:11px; letter-spacing:0; line-height:1.05}
-  html .hp-t tbody td.hp-jour{left:24px}
+  html .hp-t tbody td.hp-jour{left:var(--hp-mois,24px)}
   html .hp-t thead th.hp-coin{width:68px; padding:3px}
   html .hp-t thead th.hp-coin .hp-adj{font-size:10.5px; padding:4px 3px; min-width:0; width:100%}
   html .hp-fabs{display:none}
@@ -7327,7 +7327,14 @@ html body .grille .ws-planning .xl-pilules button[aria-pressed="true"]{backgroun
 html body .grille .ws-planning .gr-zone{margin:0; border:0; border-radius:0}
 html body .grille .ws-planning .xl-legende{margin:0; border:0; border-top:1px solid var(--cadre); border-radius:0; background:var(--surface2); color:var(--ink2)}
 html body .grille .ws-planning .xl-legende b{color:var(--ink)}
-@media (max-width:699px){ html body .grille .ws-s.ws-planning{margin:8px 16px 10px} }
+@media (max-width:699px){ html body .grille .ws-s.ws-planning{margin:8px 16px 8px} }
+/* LA CARTE JUSQU'À LA BARRE DU BAS (le client, le 26/10/2026, sur son
+   téléphone : « espace vide dans le bas »). Le retrait de l'espace
+   (84 px + --navbas + zone protégée) comptait DEUX FOIS la zone protégée
+   de l'iPhone (--navbas l'inclut déjà) et 23 px de plus que la barre :
+   ≈ 100 px vides sur l'iPhone. Pour l'Horaire, le retrait est celui de la
+   barre elle-même : sa hauteur (61 px) et sa marge (--navbas). */
+@media (max-width:760px){ html .grille.ws .ws-main.ws-plein:has(.ws-planning:not([hidden])){padding-bottom:calc(63px + var(--navbas,16px))} }
 /* au PC, le champ de recherche est toujours ouvert : la loupe, qui ne fait
    que l'ouvrir au téléphone, se retire ; l'année à gauche, la recherche au
    milieu, « aujourd'hui » à droite */
@@ -18686,6 +18693,10 @@ function grNomsEnPlace(){
 function grCaleTete(){
   var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
   if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) t.style.setProperty("--hp-g",Math.round(hg)+"px");
+  /* la colonne des jours colle juste après celle du mois, à sa largeur
+     MESURÉE : collée à 24 px quand le mois en faisait 28, elle laissait une
+     fente où passaient les cases défilées (le client, le 26/10/2026) */
+  var mo=t.querySelector("tbody td.hp-mois"), mw=mo?mo.getBoundingClientRect().width:0; if(mw>0) t.style.setProperty("--hp-mois",Math.round(mw)+"px");
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
 }
