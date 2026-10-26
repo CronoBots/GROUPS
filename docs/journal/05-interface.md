@@ -5674,3 +5674,26 @@ page est reprise. Défauts relevés à 320, 390 et 1280 px, et corrigés :
 
 Mesuré : aucun débordement, aucune erreur ; au PC, les cinq groupes de
 postes visibles, les boutons ronds présents.
+
+### L'Horaire production dans un cadre comme le Planning (26/10/2026, `nfdm-v1123`)
+
+Le client, nouvelle capture : « l'espace n'est pas correctement utilisé et
+le menu peut être mieux fait ; il faut que le tableau soit dans un cadre
+comme celui du Planning ». La section devient LA carte du Planning :
+bordure `--cadre`, arrondi `--rj`, même ombre, sur le fond sombre de
+l'application. Dedans :
+
+- la barre de l'année au style de celle du Planning — « ‹ Année 2026 › »
+  au centre, flèches et boutons de 36 px au trait du tableau (`--trait`,
+  arrondi 13) ; au téléphone, la recherche à gauche et « aujourd'hui » à
+  droite ; au PC, le champ de recherche toujours ouvert entre les deux, la
+  loupe retirée ; le titre de la page part (le menu le dit) ;
+- les équipes en pastilles sombres, la choisie en cyan ; une rangée qui
+  défile au téléphone, à la ligne au PC ;
+- le tableau, au style de l'outil du client (gardé, décision du 22/10) ;
+- la légende en pied de carte.
+
+Mesuré : la zone du tableau passe de 524 à 569 px au téléphone (390 ; 484
+au départ de la journée), 628 au PC ; en-tête sans fente, noms de poste
+visibles ; recherche (une personne trouvée) et choix d'équipe éprouvés au
+téléphone et au PC ; aucun débordement, aucune erreur.
