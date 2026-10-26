@@ -7370,6 +7370,19 @@ html body .grille .ws-planning .gr-zone{margin:0; border:0; border-radius:0}
    gauche et droit, sur un fond blanc. Plus d'élastique dans la zone, et
    son fond prend la couleur de la carte au cas où. */
 html body .grille .ws-planning .gr-zone{overscroll-behavior:none; background:#d6e0ec}
+/* PAS DE ZONE MORTE AU DÉFILEMENT RAPIDE (le client, le 26/10/2026 :
+   « comment éviter ces zones mortes pour toujours avoir du contenu ? »).
+   iOS peint le tableau par tuiles, sur le fil principal ; un défilement
+   lancé va plus vite que la peinture, et la tuile pas encore peinte montre
+   le fond de la zone. Ce fond devient des RANGÉES : la couleur des jours
+   (#C7DEF5), un trait tous les 24 px (la hauteur mesurée d'une rangée),
+   immobile (background-attachment par défaut : il ne défile pas, il est
+   peint avec la zone, toujours prêt). Une tuile en retard montre donc des
+   rangées vides au lieu d'un trou, le temps d'arriver. */
+html body .grille .ws-planning .gr-zone{background:repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
+/* le tableau lui-même sans fond (ses cases ont le leur) : son blanc
+   recouvrait les rangées de la zone */
+html body .grille .ws-planning .hp-t{background:transparent}
 /* LES CASES QUI DISPARAISSENT AU DÉFILEMENT RAPIDE (le client, le
    26/10/2026, capture de l'iPhone) : iOS dessine le tableau par tuiles ;
    lancé vite, il montre le fond de la zone avant d'avoir peint les cases
