@@ -6790,6 +6790,18 @@ html .eqleg-souris{display:none}
   /* Effectifs revient dans la barre (le client, le 25/10/2026 : « on peut
      ajouter un onglet dans le menu du bas ») : cinq entrées */
   html .navwrap>.tabs #tab-recherche,html .navwrap>.tabs #tab-direction,html .navwrap>.tabs #tab-salaire{display:none}
+  /* L'HORAIRE À LA PLACE DES EFFECTIFS (le client, le 26/10/2026 :
+     « l'horaire doit être le 4e bouton d'onglet de la version mobile, à la
+     place de sous-effectif ») : le bouton « Horaire production » que la
+     barre porte déjà (sideMaj) se montre en 4e ; Effectifs, et ses
+     pastilles, passe dans « Plus » */
+  html .navwrap>.tabs:has(.side-ws-inj[data-side-ws="planning"]) #tab-rh{display:none}
+  html .navwrap>.tabs #tab-horaire{order:1} html .navwrap>.tabs #tab-jour{order:2} html .navwrap>.tabs #tab-equipe{order:3}
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"]{display:flex; order:4; align-items:center; justify-content:center}
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"] span{display:none}
+  html .navwrap>.tabs #tab-plus{order:5}
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{color:var(--marque-vif); background:rgba(105,178,203,.28); border-radius:20px;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--marque-vif) 38%,transparent)}
   html .navwrap>.tabs #tab-plus{display:flex; position:relative}
   html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
   /* « Plus » courant garde l'anneau du clavier : la règle ci-dessus, d'un
@@ -6895,8 +6907,6 @@ html .hp-t .pt-meu{background:#f6e3a1} html .hp-t .pt-fer{background:#cfe7bf} ht
 html .hp-t thead th.hp-coin{left:0; z-index:9; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:5px}
 /* 23/10/2026 : « Adjoints ON », « pers. » et « Éq. » à 9 et 10 px passent
    au plancher de 11 px ; le bouton des adjoints, cible de 44 px */
-html .hp-adj{width:100%; height:100%; min-height:44px; border-radius:10px; border:1px solid rgba(17,24,39,.35); background:#fff; color:#111827; font:900 11px/1.1 Roboto,system-ui,Arial,sans-serif; cursor:pointer; text-transform:uppercase}
-html .hp-adj.on{background:#111827; color:#fff; border-color:#111827}
 html .hp-nb{display:block; font-weight:800; font-size:14px} html .hp-nb small{display:block; font-size:11px; font-weight:700}
 html .hp-t tbody tr{--rb:#fef9c3}
 html .hp-t tbody tr.hp-bleu{--rb:#C7DEF5}
@@ -6906,7 +6916,7 @@ html .hp-t tbody tr.hp-auj.hp-sem{--rb:#fde68a} html .hp-t tbody tr.hp-auj.hp-we
 html .hp-t tbody tr.hp-hr{--rb:#fef6aa} html .hp-t tbody tr.hp-hr.hp-bleu{--rb:#B7D0EF} html .hp-t tbody tr.hp-hr.hp-we{--rb:#b6bcc6} html .hp-t tbody tr.hp-hr.hp-fe{--rb:#ffd79a}
 html .hp-t tbody td{background:var(--rb)}
 html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
-html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:0; border-bottom:2px solid #64748b; vertical-align:middle}
+html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
 html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:900; font-size:13px; border-right:2px solid #64748b}
 html .hp-t thead th.hp-coin{width:88px}
@@ -7112,7 +7122,7 @@ html .hp-fab:hover{opacity:1}
   html body.sheet-on .navwrap{z-index:97}
   html body.sheet-on.pn-ouvert .navwrap{display:none}
   html .grille.ws .ws-main{padding-bottom:calc(84px + var(--navbas,0px) + env(safe-area-inset-bottom,0px))}
-  html body.sheet-on .navwrap>.tabs button[aria-selected="true"]:not(#tab-plus){background:none; box-shadow:none; color:inherit}
+  html body.sheet-on .navwrap>.tabs button[aria-selected="true"]:not(#tab-plus):not(.side-ws-inj){background:none; box-shadow:none; color:inherit}
   html .plusfond:not([hidden]){z-index:98} html .plusfeuille:not([hidden]){z-index:99}
 }
 /* « Mes demandes » resserré, et « Supprimer » discret mais rouge */
@@ -7271,16 +7281,19 @@ html #v-horaire .card>header h2 .site-live{margin-right:0; flex:none}
      calendrier), et le doigt fait défiler l'année ; ils se retirent ;
    - le haut se resserre (titre, pilules) pour donner la hauteur au tableau. */
 html .hp-t thead tr.hp-ops th{top:var(--hp-g,29px)}
+/* LE NOM DU POSTE CENTRÉ (le client, le 26/10/2026 : « le nom du poste doit
+   être centré horizontalement ») : centré sur la PARTIE VISIBLE de son
+   groupe (grCentrePostes, au défilement) — centré sur tout le groupe, il
+   sortait de l'écran ; collé à gauche, il n'était plus centré. */
+html .hp-t thead th.hp-gp{text-align:left}
+html .hp-t thead th.hp-gp .hp-gpl{position:relative; display:inline-block; white-space:nowrap}
 @media (max-width:699px){
   /* overflow visible : un th « overflow:hidden » devient le conteneur du
      collant, et le nom ne collait plus à rien (mesuré) */
-  html .hp-t thead th.hp-gp{text-align:left; overflow:visible; text-overflow:clip}
-  html .hp-t thead th.hp-gp .hp-gpl{position:sticky; left:calc(var(--hp-coin,88px) + 8px); display:inline-block; padding-right:8px}
   html .hp-t col.hp-cm{width:24px}
   html .hp-t tbody td.hp-mois div{font-size:11px; letter-spacing:0; line-height:1.05}
   html .hp-t tbody td.hp-jour{left:var(--hp-mois,24px)}
   html .hp-t thead th.hp-coin{width:68px; padding:3px}
-  html .hp-t thead th.hp-coin .hp-adj{font-size:10.5px; padding:4px 3px; min-width:0; width:100%}
   html .hp-fabs{display:none}
   html .ws-planning .pl-tete{padding:6px 12px 0}
   html .xl-pilules{padding:6px 8px; margin-bottom:8px; gap:8px}
@@ -18569,7 +18582,10 @@ function grColonnes(db){
   function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||""}; }); }
   if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(m[2].test(c.po)&&!/adjoint/i.test(c.po)) cols.push(c); }); });
   else cols=de(m[0]);
-  if(/^Shift/.test(m[0])&&!GR.adj) cols=cols.filter(function(c){ return !/adjoint/i.test(c.po); });
+  /* LES ADJOINTS TOUJOURS AFFICHÉS (le client, le 26/10/2026 : « il faut
+     toujours afficher les adjoints et supprimer le bouton qui les
+     cachait ») : plus de filtre, plus de bouton « Adjoints ON/OFF » ; le
+     coin dit le nombre de personnes, comme pour les autres feuilles. */
   /* une recherche parcourt toutes les feuilles, et non la seule pilule
      active (audit du 23/10/2026) : « Personne ne correspond » faisait croire
      qu'une personne d'une autre équipe n'existait pas ; à partir de deux
@@ -18584,7 +18600,7 @@ function renderGrille(){
   var g=document.getElementById("grille"); if(!g||g.hidden) return;
   var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
   document.getElementById("grPeriode").textContent=grLibelle();
-  if(GR.adj===undefined) GR.adj=lsGet("ui/grAdj")!==false;
+  GR.adj=true;
   if(!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
   document.getElementById("grEquipes").innerHTML='<button type="button" class="hp-pill hp-jour" data-vue="jour">Vue journée</button>'
     +GR_MODES.map(function(x){ var poste=!!x[3];
@@ -18609,7 +18625,7 @@ function renderGrille(){
   var h=['<table class="hp-t"><colgroup><col class="hp-cm"><col class="hp-cd">'];
   cols.forEach(function(){ h.push('<col class="hp-cs"><col class="hp-cl"><col class="hp-cc">'); });
   h.push('</colgroup><thead><tr class="hp-g"><th class="hp-coin" colspan="2" rowspan="2">'
-    +(equipe?'<button type="button" class="hp-adj'+(GR.adj?' on':'')+'" id="grAdj" aria-pressed="'+GR.adj+'"><span>Adjoints<br>'+(GR.adj?'ON':'OFF')+'</span></button>':'<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
+    +('<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
@@ -18661,7 +18677,7 @@ function renderGrille(){
   }
   h.push('</table>');
   zone.innerHTML=h.join("");
-  grCaleTete();
+  grCaleTete(); grCentrePostes();
   GR.colCache={}; GR.sig=grSignature(db);
   /* au clavier, une seule case dans l'ordre de Tab : celle du jour, sinon
      la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
@@ -18730,10 +18746,24 @@ function grCaleTete(){
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
 }
-window.addEventListener("resize",function(){ grCaleTete(); });
+window.addEventListener("resize",function(){ grCaleTete(); grCentrePostes(); });
+function grCentrePostes(){
+  var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"); if(!t) return;
+  var zr=z.getBoundingClientRect(), c=t.querySelector("thead th.hp-coin"), g=c?c.getBoundingClientRect().right:zr.left;
+  [].forEach.call(t.querySelectorAll("thead th.hp-gp"),function(th){
+    var sp=th.querySelector(".hp-gpl"); if(!sp) return;
+    var r=th.getBoundingClientRect(), a=Math.max(r.left,g), b=Math.min(r.right,zr.right);
+    var w=sp.offsetWidth, pl=parseFloat(getComputedStyle(th).paddingLeft)||0, pr=parseFloat(getComputedStyle(th).paddingRight)||0;
+    var x=(b>a?(a+b)/2:(r.left+r.right)/2)-r.left-pl-w/2;
+    x=Math.max(0,Math.min(x,r.width-pl-pr-w));
+    sp.style.left=Math.round(x)+"px";
+  });
+}
+(function(){ var z=document.getElementById("grZone"), ra=0; if(!z) return;
+  z.addEventListener("scroll",function(){ if(ra) return; ra=requestAnimationFrame(function(){ ra=0; grCentrePostes(); }); },{passive:true}); })();
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
 function grCentrer(){
-  grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
+  grCaleTete(); grCentrePostes();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
   var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
 }
@@ -19216,7 +19246,10 @@ function grEditer(td){
    que le planning ; la RH et la hiérarchie, tout. */
 var WS_SECTIONS=[
   {s:"tdb",t:"Tableau de bord",rh:1,i:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'},
-  {s:"planning",t:"Horaire production",i:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'},
+  /* l'icône du tableau (la tuile « Horaire » de l'Accueil) : le calendrier
+     se confondait avec celui du Planning, côte à côte dans la barre du
+     téléphone (26/10/2026) */
+  {s:"planning",t:"Horaire production",i:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 4v17M13 4v17"/>'},
   /* CONGÉS ET RECYCLAGES DANS UN SEUL ONGLET (le client, le 22/10/2026 :
      « demandes de congés et recyclage doivent être dans le même onglet et
      on peut choisir l'un ou l'autre ») : « Demandes » au menu ; en tête de
@@ -19390,8 +19423,14 @@ function wsAller(s,garder){
    chaque onglet reprend l'état de la vue. */
 function wsBarreMarque(){
   var g=document.getElementById("grille"), ouvert=!!g&&!g.hidden;
+  /* L'HORAIRE, 4e ONGLET DU TÉLÉPHONE (le client, le 26/10/2026) : ouvert,
+     c'est lui qui s'allume, pas « Plus » */
+  var hp=document.querySelector('.tabs .side-ws-inj[data-side-ws="planning"]'),
+      hpVu=!!hp&&hp.offsetParent!==null, surHp=ouvert&&GR.section==="planning"&&hpVu;
   [].forEach.call(document.querySelectorAll(".tabs button"),function(b){
-    b.setAttribute("aria-selected",String(b.id==="tab-plus"?ouvert:(!ouvert&&b.getAttribute("data-v")===st.view))); });
+    var on=b.id==="tab-plus"?(ouvert&&!surHp):b===hp?surHp:(!ouvert&&b.getAttribute("data-v")===st.view);
+    b.setAttribute("aria-selected",String(on)); });
+  var tpx=document.getElementById("tab-plus"); if(tpx&&surHp) tpx.classList.remove("actif");
 }
 /* LA FEUILLE « PLUS », ESPACE OUVERT (23/10/2026) : elle marquait la vue
    de derrière (Direction) et jamais la section ouverte de l'espace. Elle se
@@ -20703,7 +20742,6 @@ function renderHisto(){
     if(n){ t.tabIndex=-1; n.tabIndex=0; n.focus(); }
   });
   document.getElementById("grZone").addEventListener("click",function(e){
-    if(e.target.closest&&e.target.closest("#grAdj")){ GR.adj=!GR.adj; lsSet("ui/grAdj",GR.adj); renderGrille(); return; }
     var td=e.target.closest&&e.target.closest("td[data-p]"); if(td){ grEditer(td); return; }
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
@@ -30279,8 +30317,11 @@ function sideMaj(){
     var moi=[wsDe("demandes")?ws(wsDe("demandes")):"", (!saisie&&wsDe("valider"))?ws(wsDe("valider")):"",
       ligne('data-go="salaire"'+(ecV?' aria-label="Salaire · écart à vérifier"':''),svgDe("tab-salaire"),"Salaire",ecV?'<span class="plus-nb app" title="écart à vérifier">!</span>':'',st.view==="salaire")].join("");
     void dE;
-    var usine=(tel?ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
-      +(wsDe("planning")?ws(wsDe("planning")):"");
+    var rhN=nb("rhNb"), rhA=nb("rhApp");
+    var usine=(tel?ligne('data-go="rh"'+(dE.length?' aria-label="'+esc("Effectifs · "+dE.join(", "))+'"':''),svgDe("tab-rh"),"Effectifs",
+          (rhN?'<span class="plus-nb"'+(tA?' title="'+esc(tA)+'"':'')+'>'+esc(rhN)+'</span>':'')+(rhA?'<span class="plus-nb app"'+(tB?' title="'+esc(tB)+'"':'')+'>'+esc(rhA)+'</span>':''),st.view==="rh"):"")
+      +(tel?ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
+      +(!tel&&wsDe("planning")?ws(wsDe("planning")):"");
     var gest=l.filter(function(x){ return x.s!=="demandes"&&x.s!=="planning"&&(saisie||x.s!=="valider"); })
       .sort(function(a,b){ return (a.s==="valider"?0:1)-(b.s==="valider"?0:1); }).map(ws).join("")+dirL;
     var h=(moi?'<p class="plus-titre">Mon espace</p>'+moi:"")+(usine?'<p class="plus-titre">L’usine</p>'+usine:"")+(gest?'<p class="plus-titre">Gestion</p>'+gest:"");
