@@ -5739,3 +5739,20 @@ défauts trouvés et corrigés :
   en 15 px sous 360 px ; « Année 2026 » entier à 320, 360 et 390.
 Remesuré : cadres Planning et Horaire identiques (16, 28, 358 × 723) ;
 en-tête sans fente ; au PC, inchangé ; aucune erreur.
+
+**L'ERREUR, et sa correction (`nfdm-v1127`).** Le client, capture de son
+iPhone : « pas du tout ça sur mon phone » — le cadre commençait 59 px trop
+bas et finissait 34 px trop haut. `.grille` (la feuille de l'espace)
+réserve DÉJÀ les zones protégées (`padding: env(safe-area-inset-*)`) ;
+les formules recopiées du Planning (dont le `.wrap` ne les réserve pas)
+les comptaient une seconde fois. Le navigateur de test n'a pas de zone
+protégée : les deux cadres y étaient identiques, et l'erreur n'existait
+qu'au téléphone. Désormais : 28 px en haut sous la zone de l'espace ; en
+bas, `--jnav + 16 − zone du bas`.
+
+**La mesure qui manquait** : simuler l'iPhone en remplaçant, dans les
+feuilles de style de la page, `env(safe-area-inset-top)` par 59 px et
+`env(safe-area-inset-bottom)` par 34 px. Version d'avant : Planning
+[16, 87, 358 × 658, bas 745], Horaire [16, 146, 358 × 565, bas 711] — la
+capture du client, au pixel près. Après : Horaire [16, 87, 358 × 658, bas
+745], identique au Planning ; et toujours identique sans zone protégée.
