@@ -5849,3 +5849,20 @@ Reste, si ce n'est pas assez : ne bâtir que les mois proches de l'écran
 (rendu par fenêtre) — un chantier plus lourd (recherche, saisie, clavier et
 « aujourd'hui » supposent toutes les cases présentes), à ne lancer que si
 le client le juge nécessaire après essai.
+
+### Pas de zone morte au défilement rapide : un fond en rangées (26/10/2026, `nfdm-v1133`)
+
+Le client : « comment éviter ces zones mortes pour toujours avoir du
+contenu lors du scroll rapide ? ». La cause, à nouveau : iOS peint le
+tableau par tuiles, sur le fil principal, et un défilement lancé va plus
+vite que la peinture ; la tuile en retard montre ce qu'il y a dessous.
+Ce dessous devient des rangées : le fond de la zone est un dégradé
+répété — la couleur des jours (#C7DEF5) et un trait tous les 24 px, la
+hauteur mesurée d'une rangée — immobile (il est peint avec la zone, pas
+avec le tableau, donc toujours prêt). Le tableau lui-même perd son fond
+blanc (ses cases ont le leur), qui recouvrait ces rangées. Éprouvé en
+cachant les jours du tableau (une tuile « pas encore peinte ») : des
+rangées vides apparaissent au lieu d'un trou ; l'affichage normal ne
+change pas ; cadre, recherche et équipes inchangés ; aucune erreur. Le
+chantier lourd (ne bâtir que les mois proches) reste en réserve, si
+l'essai au téléphone ne suffit pas.
