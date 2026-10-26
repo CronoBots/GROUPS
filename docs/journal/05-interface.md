@@ -5830,3 +5830,22 @@ flèches ».
   tactile), les flèches 44 de large. Les quatre : 36 × 36 (34 sous 360 px),
   cible du doigt gardée par `::after` (4 px autour). Mesuré à 320, 390 et
   1280 px.
+
+### Les cases qui disparaissent au défilement rapide (26/10/2026, `nfdm-v1132`)
+
+Le client, capture de l'iPhone : « lors des scroll rapides, les cellules
+disparaissent quelques centièmes de seconde ». iOS dessine le tableau par
+tuiles ; lancé vite, il montre le fond de la zone avant d'avoir peint les
+cases. Mesuré : 17 439 cases (365 jours × 47 colonnes), toutes en
+`overflow:hidden`, 380 collantes. **Non reproductible au navigateur de
+test** (Chromium peint autrement) : deux mesures prudentes, à juger au
+téléphone.
+- Le fond de la zone, sombre depuis `v1130` (le trou paraissait noir),
+  prend un gris-bleu (#d6e0ec) entre les couleurs des rangées : un instant
+  non peint ne se voit presque plus.
+- Les cases de commentaire (5 475, un tiers) ne découpent plus leur
+  contenu, l'icône y tient : 11 964 découpes au lieu de 17 439.
+Reste, si ce n'est pas assez : ne bâtir que les mois proches de l'écran
+(rendu par fenêtre) — un chantier plus lourd (recherche, saisie, clavier et
+« aujourd'hui » supposent toutes les cases présentes), à ne lancer que si
+le client le juge nécessaire après essai.
