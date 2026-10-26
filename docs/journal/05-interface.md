@@ -5584,3 +5584,14 @@ débordement, aucune erreur.
 cyan ». Le nom de « vous » reprend `--in` (105,178,203) ; le jour reste au
 blanc, la formation au jaune. Mesuré : « vous » cyan, tous les autres
 noms blancs sauf la formation.
+
+### La pause en cours : le fond seul (26/10/2026, `nfdm-v1117`)
+
+Le client, capture à 11 h 42 : « concernant la colonne en surveillance,
+il ne faut modifier que le fond, sans rajouter de bordures ». Les deux
+liserés de 2 px (`--live`, en `box-shadow` sur les cellules et en
+`border` sur la bande d'une relève de 12 h) sont retirés ; reste le fond
+`--maint-fort` (8 %). La bande des 12 h prenait encore `--maint` (10 %),
+une seconde valeur oubliée : elle prend la même, `--maint-fort`. Mesuré :
+les dix cellules de la colonne et la bande au même fond, aucun bord ;
+aucun débordement, aucune erreur.
