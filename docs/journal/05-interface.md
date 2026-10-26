@@ -5715,3 +5715,13 @@ colonne ».
   colonne du mois (`--hp-mois`), au téléphone comme au PC. Mesuré : fin du
   mois = début des jours (45), fin des jours = fin du coin (97) ; au PC
   309 / 353, alignés.
+
+**Repris le même jour (`nfdm-v1125`).** Le client : « sur mobile, pour
+l'horaire, l'écart avec le haut doit être comme pour le Planning, et la
+taille du cadre exactement la même que celle du Planning par rapport à
+l'écran ». L'Horaire prend les formules mêmes du Planning : en haut,
+l'encoche + 28 px (rien ne réservait l'encoche dans cet espace : la carte
+commençait à 8 px sous le bord de l'iPhone) ; 16 px sur les côtés ; en
+bas, la barre d'onglets mesurée (`--jnav`) + 16 px. Mesuré à 320 et
+390 px : Planning [16, 28, 358 × 723, bas 751], Horaire [16, 28, 358 ×
+723, bas 751] — identiques ; aucun débordement, aucune erreur.
