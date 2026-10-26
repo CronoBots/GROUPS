@@ -8578,6 +8578,33 @@ function comAffiche(raw){
   var a=String(raw[1]||"").trim();
   return (a && NOTES_ANNOTATION.indexOf(a.toLowerCase().replace(/[\s.]/g,""))>=0)?a:"";
 }
+/* CE QUE L'APPLICATION AJOUTE EN TÊTE DE BULLE, EN PHRASES (le client, le
+   26/10/2026 : « les commentaires que tu ajoutes par toi-même doivent être
+   plus clairs et mieux présentés, majuscule, etc. »). Les mentions des
+   infobulles (« tient le poste de 06 à 18 (sa journée : 06-18) », « en
+   formation, en plus »…) arrivaient telles quelles, en minuscules, collées
+   par « · ». Une phrase par mention, une ligne chacune : majuscule, heures
+   en « 06 h », la journée seulement si elle diffère du poste tenu. Le
+   commentaire du classeur, dessous, n'est pas touché. */
+function sensClair(x){
+  x=String(x||"").trim(); if(!x) return "";
+  function h(t){ return String(t).replace(/^(\d{1,2})$/,"$1\u00a0h"); }
+  var m=/^(relais 12 h, )?tient le poste de (\d{1,2}) à (\d{1,2})(?: \(sa journée : (\d{1,2})-(\d{1,2})\))?$/.exec(x);
+  if(m){ var t=(m[1]?"Relève de 12 h : t":"T")+"ient le poste de "+h(m[2])+" à "+h(m[3]);
+    if(m[4]&&(m[4]!==m[2]||m[5]!==m[3])) t+=" (journée de "+h(m[4])+" à "+h(m[5])+")";
+    return t+"."; }
+  m=/^remplace (\S+) de (\d{1,2}) à (\d{1,2})$/.exec(x); if(m) return "Remplace "+m[1]+" de "+h(m[2])+" à "+h(m[3])+".";
+  m=/^de (\d{1,2}) à (\d{1,2})$/.exec(x); if(m) return "Présent de "+h(m[1])+" à "+h(m[2])+".";
+  var dit={"en formation, en plus":"En formation, en plus de l'effectif.","fait fonction":"Fait fonction à ce poste.",
+    "comble le poste":"Comble le poste.","déduit de sa polyvalence":"Poste déduit de sa polyvalence."}[x];
+  if(dit) return dit;
+  /* les journées de jour, en clair (docs/conversion-horaire.md, 6 bis) :
+     l'étiquette de la case (« F », « CPPT ») ne disait rien dans une bulle */
+  var jr={F:"Jour de formation",DF:"Jour de formation",SD26:"Arrêt technique (shutdown 2026)",DS:"Journée syndicale",
+    CPPT:"Délégation CPPT",DSCE:"Délégation syndicale, conseil d'entreprise",TP:"Préparation de l'arrêt technique"}[x.replace(/[-\s]/g,"").toUpperCase()];
+  if(jr) return jr+", prime de pause conservée.";
+  return x.charAt(0).toUpperCase()+x.slice(1)+(/[.!?)]$/.test(x)?"":".");
+}
 function nettoyerAffichage(txt){
   var s=String(txt==null?"":txt);
   for(var a in ALIAS_TRI_AFFICHAGE){ s=s.replace(new RegExp("\\b"+a+"\\b","g"), ALIAS_TRI_AFFICHAGE[a]); }
@@ -27517,8 +27544,9 @@ function jourNavActive(on){
          doigt et au clavier. Seulement au Planning, et ce que le
          commentaire ne dit pas déjà (audit du 23/10/2026). */
       var ti=chip.closest&&chip.closest("#jourCorps")?String(chip.getAttribute("title")||""):"";
-      var sens=ti.split(" · ").slice(1).filter(function(x){ return x&&com.indexOf(x)<0; }).join(" · ");
-      if(sens){ var se=document.createElement("b"); se.className="compop-sens"; se.textContent=sens;
+      var sens=ti.split(" · ").slice(1).filter(function(x){ return x&&com.indexOf(x)<0; }).map(sensClair).filter(Boolean);
+      if(sens.length){ var se=document.createElement("b"); se.className="compop-sens";
+        sens.forEach(function(l,i){ if(i) se.appendChild(document.createElement("br")); se.appendChild(document.createTextNode(l)); });
         p.insertBefore(se,p.firstChild); }
     }
     /* une case de « Mon cycle » : sous le commentaire, la journée à ouvrir */
