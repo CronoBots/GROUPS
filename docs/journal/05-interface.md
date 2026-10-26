@@ -5595,3 +5595,27 @@ liserés de 2 px (`--live`, en `box-shadow` sur les cellules et en
 une seconde valeur oubliée : elle prend la même, `--maint-fort`. Mesuré :
 les dix cellules de la colonne et la bande au même fond, aucun bord ;
 aucun débordement, aucune erreur.
+
+### Les mentions de l'application en tête de bulle, en phrases (26/10/2026, `nfdm-v1118`)
+
+Le client, deux captures de bulles : « les commentaires que tu ajoutes
+par toi-même doivent être plus clairs et mieux présentés (majuscule,
+etc.) ». La tête de bulle recopiait l'infobulle des badges : « tient le
+poste de 06 à 18 (sa journée : 06-18) », « en formation, en plus », en
+minuscules, collées par « · », la journée redite quand elle égalait le
+poste, et un « F » nu pour un jour de formation.
+
+`sensClair()` les réécrit, à l'affichage seulement (l'infobulle et le
+commentaire du classeur ne changent pas) : une phrase par mention, une
+ligne chacune, majuscule et point, heures en « 06 h », la journée
+seulement si elle diffère (« Relève de 12 h : tient le poste de 18 h à
+06 h (journée de 14 h à 02 h). »), « En formation, en plus de
+l'effectif. », « Fait fonction à ce poste. », « Présent de 14 h à 01 h. »,
+et les journées de jour en clair d'après `docs/conversion-horaire.md`
+(6 bis) : « Jour de formation, prime de pause conservée. », « Délégation
+CPPT… », « Arrêt technique (shutdown 2026)… ».
+
+Mesuré : toutes les bulles commentées de six jours de Planning ouvertes
+une à une, six sortes de mentions, toutes en phrase ; dix cas choisis
+(relève à journée différente, remplacement partiel, absence…) éprouvés à
+part. Aucune erreur.
