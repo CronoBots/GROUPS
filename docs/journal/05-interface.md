@@ -5634,3 +5634,13 @@ pas), sous un trait plus marqué.
 Mesuré à 320, 390 et 1280 px : quatre dates entières, aucune coupée ;
 total 131 faites, 39 restantes — les chiffres de la barre « Avancement »
 (131 prestées · 39 à venir) ; aucun débordement, aucune erreur.
+
+**Repris le même jour (`nfdm-v1120`).** Le client : « le total doit être
+par pause, et le nombre de jours avant la pause mis en évidence ». La
+ligne « Total 2026 » du bas devient une colonne « Total » (faites + reste)
+sur chaque pause (94, 38, 23, 15 pour la personne de test) ; « dans 6 j »
+devient une pastille (cyan pour la plus proche, comme le compte à rebours
+du prochain poste). Sous 400 px, l'en-tête dit « Prochaine » seul
+(« Mes pauses · » n'y tenait plus) et les colonnes chiffrées prennent
+40/38/40 px (« FAITES » faisait 39 px dans 36). Mesuré à 320, 390 et
+1280 px : aucun texte coupé, aucun débordement, aucune erreur.
