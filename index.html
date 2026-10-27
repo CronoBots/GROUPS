@@ -6918,9 +6918,11 @@ html .hp-t tbody tr.hp-auj.hp-sem{--rb:#fde68a} html .hp-t tbody tr.hp-auj.hp-we
 html .hp-t tbody tr.hp-hr{--rb:#fef6aa} html .hp-t tbody tr.hp-hr.hp-bleu{--rb:#B7D0EF} html .hp-t tbody tr.hp-hr.hp-we{--rb:#b6bcc6} html .hp-t tbody tr.hp-hr.hp-fe{--rb:#ffd79a}
 html .hp-t tbody td{background:var(--rb)}
 html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
-/* la ligne sélectionnée : teinte bleue et liseré, le jour en plein bleu */
-html .hp-t tbody tr.hp-lsel td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 62%,#60a5fa); box-shadow:inset 0 2px 0 #1d4ed8,inset 0 -2px 0 #1d4ed8}
-html .hp-t tbody tr.hp-lsel td.hp-jour{background:#1d4ed8; color:#fff}
+/* la ligne sélectionnée, discrète (le client, le 27/10/2026 : « plus
+   discrète et professionnelle ») : un voile bleu léger, un filet de 1 px
+   dessus et dessous, le numéro du jour en bleu — plus d'aplat plein */
+html .hp-t tbody tr.hp-lsel td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 84%,#3b82f6); box-shadow:inset 0 1px 0 rgba(37,99,235,.55),inset 0 -1px 0 rgba(37,99,235,.55)}
+html .hp-t tbody tr.hp-lsel td.hp-jour{color:#1d4ed8}
 html .hp-t tbody td.hp-jour{cursor:pointer}
 html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
@@ -18754,11 +18756,10 @@ function renderGrille(){
       var p=c.p, e=(p.d&&p.d[md])||[], sai=db._saisies&&db._saisies[p.id+"|"+md];
       var pv=String(e[0]||"").trim(), an2=String(e[1]||"").trim(), com=e[2]?nettoyerAffichage(e[2]):"";
       var att=' data-p="'+esc(p.id)+'" data-j="'+k+'" data-ci="'+ci+'"';
-      /* le commentaire s'ouvre au doigt dans la bulle du Planning (data-com,
-         voir « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), sur l'une ou l'autre
-         case de la journée */
-      if(com) att+=' data-com="'+esc(e[2])+'"';
-      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+'>'+esc(grCasse(an2))+'</td>');
+      /* le commentaire s'ouvre dans la bulle du Planning (data-com, voir
+         « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), et SEULEMENT depuis la
+         case au coin rouge (le client, le 27/10/2026) */
+      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
     h.push('</tr>');
   });

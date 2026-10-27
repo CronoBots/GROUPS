@@ -5954,3 +5954,14 @@ sur le classeur du 23/09/2026). Les deux sont joints par un saut de ligne,
 le plus complet seul quand l'un contient l'autre. L'application montre
 le coin rouge sur la case de droite quel que soit le côté, et la bulle
 s'ouvre depuis l'une ou l'autre case : le JSON ne garde pas le côté.
+
+### Ligne discrète, bulle au seul coin rouge (27/10/2026, `nfdm-v1138`)
+
+Le client : « la ligne sélectionnée doit être plus discrète et
+professionnelle ; le commentaire ne doit s'afficher que si l'on clique sur
+la cellule au coin rouge ». La ligne perd l'aplat bleu du jour et le liseré
+de 2 px : voile bleu léger (16 %), filet de 1 px à 55 % dessus et dessous,
+numéro du jour en bleu. `data-com` ne se pose plus que sur la case
+d'annotation commentée : mesuré, 0 case sans coin rouge porte un
+commentaire ; toucher la case de gauche marque la ligne sans ouvrir de
+bulle, toucher le coin rouge l'ouvre.
