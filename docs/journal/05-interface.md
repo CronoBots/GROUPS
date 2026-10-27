@@ -6097,3 +6097,22 @@ chevauchent pas (capture). Après correction : 0 texte sous 11 px, 0
 débordement ; les quatre « coupés » restants sont des textes réservés au
 lecteur d'écran (en-tête de profil, dates des demandes, « Calendrier »),
 invisibles à l'écran par construction.
+
+### Horaire : la première image est déjà sur aujourd'hui (28/10/2026, `nfdm-v1165`)
+
+Le client : « dans l'Horaire, il charge, se voit, puis défile directement à
+la date du jour ; il faut optimiser ce chargement pour ne pas avoir cette
+impression de bug ». Le centrage (`grCentrer`) attendait 30 ms
+(`setTimeout`) après le rendu : le navigateur peignait janvier, puis
+sautait. La section étant déjà affichée quand `wsAller` rend la grille, le
+centrage se fait dans la même tâche — aucune image ne passe entre les deux.
+Les quatre autres centrages différés (changement d'année, d'équipe,
+recherche effacée) aussi. Le second rendu (les noms arrivés, `garder`) ne
+recentre plus : il ramenait à aujourd'hui qui avait déjà défilé.
+
+Mesuré image par image (`requestAnimationFrame`, 390 px) : avant, les
+images peintes avec la grille montraient 0 puis 6 647 px ; après, 6 647 dès
+la première. Non-régression : 320/390/1280, recherche et annulation,
+sélection et bulle, espace gardé. (Le test de la bulle échoue à heure
+fixée, `clock.setFixedTime`, sur l'ancienne version comme sur la nouvelle :
+c'est le banc, pas l'application.)

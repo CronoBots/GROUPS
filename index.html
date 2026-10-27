@@ -18938,7 +18938,7 @@ function grCentrer(){
 function grDecaler(sens){
   var y=GR.debut.getFullYear()+sens; if(!HORAIRES[y]) { flash("Pas d'horaire pour "+y+"."); return; }
   GR.debut=new Date(y,0,1); grFermerPanneau(); document.getElementById("grZone").innerHTML=""; renderGrille();
-  if(y===jourUsine().getFullYear()) setTimeout(grCentrer,30); else document.getElementById("grZone").scrollTop=0;
+  if(y===jourUsine().getFullYear()) grCentrer(); else document.getElementById("grZone").scrollTop=0;
 }
 /* LES NOMS DE LA BASE, un seul appel par session, partagé par l'espace RH
    et la Direction (le client, le 23/10/2026 : « un statut complet […] sur
@@ -19575,7 +19575,14 @@ function wsAller(s,garder){
      lu par le style seul, qui ne force pas la mise en page. */
   var act=document.querySelector('#wsMenu button[aria-current="page"]'), anv=act&&act.closest(".ws-nav");
   if(act&&act.scrollIntoView&&anv&&getComputedStyle(anv).display!=="none") try{ act.scrollIntoView({block:"nearest",inline:"center"}); }catch(e){}
-  if(s==="planning"){ if(!grAJour()&&!grNomsEnPlace()) renderGrille(); setTimeout(grCentrer,30); }
+  /* CENTRÉE AVANT LA PREMIÈRE IMAGE (le client, le 28/10/2026 : « il charge,
+     se voit, puis défile directement à la date du jour ; il faut optimiser
+     pour ne pas avoir cette impression de bug ») : le centrage attendait
+     30 ms, assez pour que le navigateur peigne janvier puis saute à
+     aujourd'hui. La section étant déjà affichée, il se fait dans la même
+     tâche que le rendu : la première image est la bonne. Le second rendu
+     (les noms arrivés, garder) ne recentre plus : il gardait la place. */
+  if(s==="planning"){ if(!grAJour()&&!grNomsEnPlace()) renderGrille(); if(!garder) grCentrer(); }
   else if(s==="tdb") renderTdb();
   else if(s==="personnel") renderPersonnel();
   else if(s==="absences") renderAbsences();
@@ -21016,7 +21023,7 @@ function renderHisto(){
     /* au téléphone, un seul bouton, qui bascule */
     if(v===GR.vue&&window.innerWidth<700) v=v==="semaine"?"mois":"semaine";
     var garde=GR.debut; GR.vue=v; lsSet("ui/grVue",GR.vue);
-    var auj=jourUsine(); grCaler(auj.getMonth()===garde.getMonth()&&auj.getFullYear()===garde.getFullYear()?auj:garde); grFermerPanneau(); renderGrille(); setTimeout(grCentrer,30);
+    var auj=jourUsine(); grCaler(auj.getMonth()===garde.getMonth()&&auj.getFullYear()===garde.getFullYear()?auj:garde); grFermerPanneau(); renderGrille(); grCentrer();
   });
   document.getElementById("grEquipes").addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("button[data-f]"); if(!b) return;
@@ -21036,12 +21043,12 @@ function renderHisto(){
   document.getElementById("grAnnuler").onclick=function(){
     var c=document.getElementById("grCherche"), bar=c.parentNode, l=document.getElementById("grLoupe");
     clearTimeout(grT); c.value=""; bar.classList.remove("cherche","rempli"); if(l) l.setAttribute("aria-expanded","false");
-    if(GR.cherche){ GR.cherche=""; renderGrille(); setTimeout(grCentrer,30); }
+    if(GR.cherche){ GR.cherche=""; renderGrille(); grCentrer(); }
     try{ (l&&l.offsetParent?l:c).focus(); }catch(x){}
   };
   document.getElementById("grZone").addEventListener("click",function(e){
     if(!e.target.closest||!e.target.closest("[data-gr-effacer]")) return;
-    var c=document.getElementById("grCherche"); clearTimeout(grT); c.value=""; c.parentNode.classList.remove("rempli"); GR.cherche=""; renderGrille(); setTimeout(grCentrer,30); try{ c.focus(); }catch(x){}
+    var c=document.getElementById("grCherche"); clearTimeout(grT); c.value=""; c.parentNode.classList.remove("rempli"); GR.cherche=""; renderGrille(); grCentrer(); try{ c.focus(); }catch(x){}
   });
   /* LA LIGNE ET LA COLONNE SURVOLÉES, comme l'outil du client */
   (function(){ var z=document.getElementById("grZone"), lt=null, lc=[];
