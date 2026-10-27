@@ -6046,3 +6046,8 @@ page.
 - Vérifié : l'Accueil reste cliquable au-dessus de l'espace gardé, Tab
   n'y entre pas, une largeur changée refait la grille à la réouverture,
   bulle et sélection fonctionnent.
+
+Le même jour (`nfdm-v1144`), le client : « ligne/colonne sélectionnée un
+rien plus visible ». Voile de la ligne et des colonnes de 16 à 24 % de
+bleu, croisée de 30 à 38 % ; toujours sans aucune bordure (mesuré :
+bordures, ombres et contour inchangés avant et après le toucher).
