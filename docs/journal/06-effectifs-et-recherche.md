@@ -3322,3 +3322,23 @@ l'espace RH (`siteSalonsHTML`), où l'étiquette mène toujours à la fiche.
 Mesuré, le 27/10 à 10 h : 16 présents au matin, 8 de jour, aucun
 tableau ; la carte passe de 750 à 387 px au téléphone (390), 360 au PC ;
 aucun débordement, aucune erreur.
+
+### Sur site : l'équipe qui relève, nommée (27/10/2026, `nfdm-v1149`)
+
+Le client : « montrer les trigrammes de l'équipe qui relève dans les
+travailleurs en direct ». La ligne « Relève de l'après-midi à 14 h : 8
+arrivées prévues » devient un bloc au format des pauses présentes : la
+pastille de la pause, « Relève », l'équipe et l'heure, le nombre à droite,
+puis les trigrammes en étiquettes (cercle vide au lieu du point vert : ils
+ne sont pas encore là ; « vous » sur l'Accueil ; la fiche s'ouvre dans
+l'espace RH ; « dès 5 h 30 » pour qui vient à la remise de pause).
+
+- La fenêtre passe de trois à douze heures, LENDEMAIN compris
+  (`surSite` lit aussi le jour suivant, pour la relève seule) : avant, à
+  23 h, la relève de 6 h n'était pas annoncée du tout. L'heure se compte
+  depuis aujourd'hui (le matin de demain + 24), pour ne pas confondre deux
+  matins.
+- La relève d'une équipe passe devant une arrivée isolée (10 h – 18 h).
+- Mesuré, heure fixée : 23 h 10 → « Relève du matin à 6 h · Équipe 1 »,
+  14 trigrammes ; 4 h → la même ; 8 h et 13 h 10 → « l'après-midi à 14 h ·
+  Équipe 4 », 8 trigrammes. Dans l'espace RH, les 8 ouvrent leur fiche.
