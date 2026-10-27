@@ -3363,3 +3363,18 @@ adjoints n'y entrent pas.
 - Mesuré, heure fixée : 13 h 10 et 17 h → le 6 h – 18 h ; 19 h et 23 h 10
   → le 18 h – 6 h ; 5 h 45 → les deux (remise de pause) ; 9 h le 28 → celui
   du matin. Avant / arrière : 3 / 3 à 4 / 4 selon la pause.
+
+Rectifié le même jour (`nfdm-v1151`). Le client : « l'avant, c'est gluten,
+meunerie, polyvalent avant, renfort avant ; l'arrière, tout le reste, avec
+STEP ». Plus de compte « Chaudières » ni « STEP » à part : tout ce qui
+n'est pas l'avant est l'arrière (`siteCote`). Le poste du jour décide
+quand l'horaire le lit (meunerie, gluten → avant ; tout autre → arrière) ;
+sinon la fonction du classeur : la feuille d'équipe (« Renfort avant »,
+« Polyvalent » hors O et P → avant), à défaut Opérateurs ou Step
+(« chaudières éq. 3 », « Station d'épuration » → arrière). Contremaître et
+adjoints, nulle part. La première version ne rangeait que les postes lus
+du jour : à 13 h 10, 7 présents du matin sur 14 n'étaient comptés nulle
+part (le renfort avant et le polyvalent avant parmi eux). Mesuré :
+13 h 10, matin 14 = contremaître 1 + avant 3 + arrière 8 + 2 adjoints ;
+23 h 10, nuit 9 = avant 4 + arrière 5, contremaître rangé aux horaires
+particuliers.
