@@ -5880,9 +5880,34 @@ de personne passe à la case d'annotation. Mesuré : 1 586 cases commentées en
 identique au Planning avec les zones protégées de l'iPhone simulées.
 
 `nettoyerAffichage()` lit désormais en phrase une ligne écrite toute en
-capitales (au moins 4 lettres) : « REMPL XYZ » devient « Rempl XYZ ».
+capitales (au moins 4 lettres) : « REMPL XYZ » devient « Rempl XYZ ». (Rectifié le même jour, `nfdm-v1135` : voir plus bas — le trigramme se perdait au navigateur.)
 Les trigrammes de l'horaire, les codes (VA, RTT, R-CM, CPPT…) et les mots à
 chiffre gardent leurs capitales ; aucun mot n'est changé. Sur 13 commentaires
 candidats (2026 et 2027), 5 changent. Un premier essai donnait
 « AM - rcm » : RCM manquait à la liste des codes, ajouté. Le champ de saisie
 du panneau garde le texte du classeur tel quel : seul l'affichage se corrige.
+
+### Horaire en lecture seule, bulle du Planning, casse des cases (27/10/2026, `nfdm-v1135`)
+
+Le client : « les postes, etc. dans les cellules n'ont toujours pas de
+majuscule ; sur mobile, les commentaires doivent s'afficher comme ceux du
+Planning ; l'horaire de l'onglet Horaire ne doit pas être modifiable (il le
+sera uniquement au PC, par la RH, plus tard) ».
+
+- **Lecture seule** : un clic sur une case n'ouvre plus le panneau de saisie,
+  pour aucun rôle (mesuré avec hiérarchie et RH : panneau fermé).
+  `grEditer()` reste dans le fichier pour la saisie RH au PC.
+- **La bulle du Planning** : la case commentée porte `data-com`, et le même
+  écouteur que les badges du Planning ouvre la même bulle (`#compop`),
+  au doigt, à la souris et au clavier (Entrée). L'infobulle `title`
+  disparaît : elle doublait la bulle.
+- **La casse des cases** (`grCasse()`, affichage seul) : première lettre en
+  capitale (« meunerie » → « Meunerie », « poly-arr » → « Poly-arr ») et
+  rhs, rtt, ft en capitales (« 2h rhs » → « 2h RHS »). Le JSON ne change pas.
+- **Erreur de la version 1134** : `affTrigramme()` ne gardait en capitales
+  que les trigrammes de l'horaire chargé ; au navigateur, « REMPL XYZ »
+  devenait « Rempl xyz » pour un remplaçant absent de l'horaire de
+  l'année. Le test en Node passait parce que le trigramme essayé figurait,
+  à tort, dans la liste des codes. Désormais, tout mot de trois capitales
+  reste en capitales, sauf une courte liste de mots français (LES, DES,
+  PAR…). Remesuré au navigateur : « Rempl » suivi du trigramme en capitales.

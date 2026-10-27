@@ -6929,7 +6929,7 @@ html .hp-t tbody td.hp-l{border-right:2px solid #64748b; position:relative}
 html .hp-t tbody td.hp-com::after{content:""; position:absolute; top:0; right:0; width:0; height:0; border-style:solid; border-width:0 8px 8px 0;
   border-color:transparent #dc2626 transparent transparent; pointer-events:none}
 html .hp-t tbody td.hp-sai{box-shadow:inset 3px 0 0 #16a34a}
-html .grille.edit .hp-t tbody td[data-p]{cursor:pointer}
+html .hp-t tbody td[data-com]{cursor:pointer}
 html .hp-t tbody td[data-p]:hover{outline:1px solid rgba(0,0,0,.15); outline-offset:-1px}
 html .hp-t tbody td.pl-sel{outline:2px solid #111827; outline-offset:-2px}
 html .hp-t tbody tr.hp-ssem td{border-bottom:2px solid #64748b}
@@ -8830,11 +8830,12 @@ function nettoyerAffichage(txt){
   return s;
 }
 var AFF_CODES=/^(AM|PM|N|D|VA|CP|CSS|RTT|RHS|DTT|RJF|FT|CM|R-CM|RCM|CPPT|D-CPPT|SD|TP|DS|CE|DS-CE|HS|RH|STEP|F|D-F|DF)$/;
-function affTrigramme(w){
-  if(!/^[A-Z]{3}$/.test(w)) return false;
-  var db=typeof HORAIRE_DB!=="undefined"?HORAIRE_DB:null;
-  return !db||db.people.some(function(p){ return p.id===w; });
-}
+/* Un mot de trois capitales est un trigramme (un collègue, un intérimaire, un
+   ancien : tous ne sont pas dans l'horaire de l'année), sauf les mots
+   français courants de trois lettres. Le premier essai ne gardait que les
+   trigrammes de l'horaire chargé, et « REMPL XYZ » devenait « Rempl xyz ». */
+var AFF_MOTS3=/^(LES|DES|UNE|PAR|SUR|AUX|QUI|QUE|EST|PAS|CET|SES|MES|TES|NOS|VOS|LUI|ELLE|DON|FIN|MAL|BON|NON|OUI|VIA|AVEC|DEUX|SON|TOUT|JOUR)$/;
+function affTrigramme(w){ return /^[A-Z]{3}$/.test(w)&&!AFF_MOTS3.test(w); }
 var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
 function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
 function easter(y){
@@ -18590,6 +18591,14 @@ function grPosteCls(v){
   return "p-autre";
 }
 function grAffiche(v){ v=String(v||"").trim(); return v==="-"?"–":v; }
+/* LA CASSE D'UNE CASE, À L'AFFICHAGE SEUL (le client, le 27/10/2026 : « les
+   postes, etc. dans les cellules n'ont toujours pas de majuscule ») : le
+   classeur écrit « meunerie », « terr. Arr. », « 2h rhs ». La case montre
+   « Meunerie », « Terr. Arr. », « 2h RHS » ; le JSON ne change pas. */
+function grCasse(v){
+  v=String(v||"");
+  return v.replace(/^([a-zà-ÿ])/,function(c){ return c.toUpperCase(); }).replace(/\b(rhs|rtt|ft)\b/gi,function(w){ return w.toUpperCase(); });
+}
 /* L'écriture courte d'une case du mois : les ateliers en trois lettres, le
    flottant en HF, les plages sans leurs « h » (« 6-18 »). Le texte entier
    reste au survol et dans le panneau. */
@@ -18728,8 +18737,11 @@ function renderGrille(){
       var p=c.p, e=(p.d&&p.d[md])||[], sai=db._saisies&&db._saisies[p.id+"|"+md];
       var pv=String(e[0]||"").trim(), an2=String(e[1]||"").trim(), com=e[2]?nettoyerAffichage(e[2]):"";
       var att=' data-p="'+esc(p.id)+'" data-j="'+k+'" data-ci="'+ci+'"';
-      var ti=[an2,com?nettoyerAffichage(com).replace(/\n/g," · "):""].filter(Boolean).join(" — ");
-      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(pv)+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+(ti?' title="'+esc(ti)+'"':'')+'>'+esc(an2)+'</td>');
+      /* le commentaire s'ouvre au doigt dans la bulle du Planning (data-com,
+         voir « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), sur l'une ou l'autre
+         case de la journée */
+      if(com) att+=' data-com="'+esc(e[2])+'"';
+      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+'>'+esc(grCasse(an2))+'</td>');
     });
     h.push('</tr>');
   });
@@ -19203,6 +19215,8 @@ function grDegager(td,pn){
   if(d) z.scrollTop+=d;
 }
 /* LE PANNEAU D'UNE JOURNÉE */
+/* Plus appelée depuis le 27/10/2026 (l'Horaire est en lecture seule) : gardée
+   pour la saisie que la RH fera au PC. */
 function grEditer(td){
   var id=td.getAttribute("data-p"), jk=td.getAttribute("data-j"), an=Number(jk.slice(0,4)), md=jk.slice(4);
   var db=HORAIRES[an], p=db&&db.people.filter(function(x){ return x.id===id; })[0]; if(!p) return;
@@ -20804,7 +20818,11 @@ function renderHisto(){
     if(n){ t.tabIndex=-1; n.tabIndex=0; n.focus(); }
   });
   document.getElementById("grZone").addEventListener("click",function(e){
-    var td=e.target.closest&&e.target.closest("td[data-p]"); if(td){ grEditer(td); return; }
+    /* L'HORAIRE NE SE MODIFIE PLUS DEPUIS L'ONGLET (le client, le 27/10/2026 :
+       « l'horaire de l'onglet Horaire ne doit pas être modifiable ; il le
+       sera uniquement sur la version PC, par la RH, plus tard ») : une case
+       commentée ouvre sa bulle, les autres ne font rien. */
+    if(e.target.closest&&e.target.closest("td[data-p]")) return;
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
   document.addEventListener("keydown",function(e){
@@ -27828,7 +27846,7 @@ function jourNavActive(on){
       if(src){ var y=Number(src.dataset.y), m=Number(src.dataset.m), d=Number(src.dataset.d);
         if(m===st.m&&y===st.y) ouvrirJour(d); else { jourAttendu={d:d, m:m, avant:st.month}; loadMonth(y,m); } }
       return; }
-    var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com],.mc-c[data-com]"):null;
+    var chip=e.target.closest?e.target.closest(".eqn[data-com],.eqseg[data-com],.mc-c[data-com],#grZone td[data-com]"):null;
     if(chip){ e.stopPropagation(); ouvrir(chip); } else fermer();
   });
   /* Au clavier aussi : Tab atteint chaque badge commenté (tabindex posé au
