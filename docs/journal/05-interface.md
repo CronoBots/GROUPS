@@ -5978,3 +5978,16 @@ au fil des rendus. Mesuré : case → 1 ligne, 730 cases (365 jours × 2), 1
 en-tête ; jour → la ligne seule ; jour retouché → rien. Ce n'est pas la
 croix grise retirée en v1136 : celle-là suivait un survol simulé et ne
 partait plus, celle-ci suit un choix et se libère.
+
+### La sélection ne touche plus aux bordures (27/10/2026, `nfdm-v1140`)
+
+Le client : « la sélection ne doit pas ajouter ou agrandir les bordures des
+cellules, pareil pour la bordure sous le trigramme ». Retirés : les filets
+de 1 px de la ligne et le soulignement de 2 px du nom ; il ne reste que le
+fond (et le bleu du jour et du nom). La mesure a trouvé une troisième
+bordure que la capture ne montrait pas : le cadre de survol
+(`td[data-p]:hover`, 1 px) restait sur la case touchée, le téléphone
+gardant le survol simulé. Il ne vit plus qu'à la souris
+(`hover:hover and pointer:fine`). Épreuve : bordures, ombres et contour de
+cinq cases et de l'en-tête relevés avant et après un toucher — différents
+avant la correction du survol, identiques après.
