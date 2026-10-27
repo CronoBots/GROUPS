@@ -3482,3 +3482,16 @@ particuliers » : le bloc se tirait de ses heures (`siteSalon`), et la liste
 - Conséquence voulue : les gens de jour que le Planning compte au matin
   (la distillation en 7 h – 15 h) passent du bloc « Jour » au bloc
   « Matin », comme au Planning (13 h 10 : Matin 17, Jour 5).
+
+### Sur site : les heures du contremaître, sur deux badges (27/10/2026, `nfdm-v1156`)
+
+Le client : « les horaires contremaître doivent toujours être affichés et
+prendre la largeur de deux badges trigramme, comme c'est plus ou moins le
+cas pour ATR ». Les étiquettes passent d'une ligne souple (chacune à sa
+largeur) à une grille de badges égaux (`minmax(66px,1fr)`) ; un badge qui
+porte des heures ou un nom en prend deux. Le contremaître (au poste de
+contremaître selon le Planning, `sitePlans` donne désormais le poste)
+porte toujours ses heures : sa part de relais bornée à sa présence, sinon
+toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h »). Mesuré : 167 px pour
+79 px à 320, 172 pour 82 à 1280 (deux badges et l'espace), aucun
+débordement ; espace RH sans erreur.

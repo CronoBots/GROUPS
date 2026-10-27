@@ -2530,6 +2530,10 @@ html #grille .ws-site{margin-bottom:14px}
 .site-tab td{padding:4px 0; vertical-align:top}
 .site-tab th .site-eq{display:block; font-size:11px; font-weight:500; line-height:14px; color:var(--muted); white-space:nowrap}
 .site-ps{display:flex; flex-wrap:wrap; gap:6px}
+/* une grille de badges égaux : un badge qui porte des heures ou un nom (le
+   contremaître toujours) en prend deux (le client, le 27/10/2026) */
+.site-ps.site-ligne{display:grid; grid-template-columns:repeat(auto-fill,minmax(66px,1fr)); gap:8px}
+.site-ps.site-ligne .site-p.site-large{grid-column:span 2}
 .site-ligne{gap:8px; padding-top:10px}
 .site-ligne .site-p{position:relative; padding-left:20px}
 .site-ligne .site-p::before{content:""; position:absolute; left:8px; top:50%; width:7px; height:7px; margin-top:-3.5px; border-radius:50%;
@@ -19695,7 +19699,7 @@ function siteSalonsHTML(s,o){
      dessinent — le 18 h – 6 h qui tient la nuit était rangé aux horaires
      particuliers ; et s'y range au rang du Planning. */
   var plans=sitePlans(), hNow=new Date().getHours()+new Date().getMinutes()/60;
-  s.sur.forEach(function(x){ var pl=sitePlace(plans,x.p.id,hNow), g=pl?pl.pz:siteSalon(x); x.rang=pl?pl.rang:1e6; (groupes[g]=groupes[g]||[]).push(x); });
+  s.sur.forEach(function(x){ var pl=sitePlace(plans,x.p.id,hNow), g=pl?pl.pz:siteSalon(x); x.rang=pl?pl.rang:1e6; x.pl=pl; (groupes[g]=groupes[g]||[]).push(x); });
   /* le contremaître de la pause en cours, s'il est sur site (siteCmIci) */
   var cmIci=siteCmIci(s), cmPz=cmDePause().pz;
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
@@ -19704,9 +19708,14 @@ function siteSalonsHTML(s,o){
       var nc=GR.noms&&GR.noms[x.p.id]?grNomCourt(x.p):"", moi=!!o.moi&&x.p.id===o.moi,
           d0=x.deb===PF_DEB[z[0]], f0=x.fin===PF_FIN[z[0]],
           plage=z[0]==="X"?sitePlage(x.deb,x.fin):d0&&f0?"":d0?"jusqu'à "+siteH(x.fin):f0?"dès "+siteH(x.deb):sitePlage(x.deb,x.fin),
+          cm=siteEstCm(x),
           dit=(grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", "+poste(x)+", sur site jusqu'à "+siteH(x.fin);
+      /* LE CONTREMAÎTRE PORTE TOUJOURS SES HEURES (le client, le 27/10/2026 :
+         « les horaires contremaître doivent toujours être affichés, sur la
+         largeur de deux badges ») : sa part de relais, sinon sa présence */
+      if(cm) plage=siteCmPlage(x);
       if(trop[x.p.id]) dit+=", en trop au poste";
-      return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
+      return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage||nc?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
         +'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
     }
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
@@ -19794,8 +19803,8 @@ function sitePlans(){
       var vue=postesDePause(e.db,l,c[1],pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),c[1]==="AM"?e.par.D:null);
       var a0=(c[1]==="D"?PF_DEB.D:PF_DEB[c[1]]-0.5)+off, b0=PF_FIN[c[1]]+off;
       vue.postes.forEach(function(q,qi){
-        q.gens.forEach(function(g,gi){ out.push({id:g.p.id, pz:c[1], a:a0, b:b0, rang:qi*100+gi}); });
-        (q.relais||[]).forEach(function(r,ri){ out.push({id:r.p.id, pz:c[1], a:r.de+off, b:r.b+off, rang:qi*100+50+ri, relais:true}); });
+        q.gens.forEach(function(g,gi){ out.push({id:g.p.id, pz:c[1], a:a0, b:b0, rang:qi*100+gi, pk:q.P.k}); });
+        (q.relais||[]).forEach(function(r,ri){ out.push({id:r.p.id, pz:c[1], a:r.de+off, b:r.b+off, rang:qi*100+50+ri, relais:true, pk:q.P.k}); });
       });
       (vue.formation||[]).forEach(function(g,gi){ out.push({id:g.p.id, pz:c[1], a:a0, b:b0, rang:9000+gi}); });
     }catch(er){}
@@ -19808,6 +19817,10 @@ function sitePlace(plans,id,h){
   var c=plans.filter(function(o){ return o.id===id&&o.a<=h+1e-6&&h<o.b; });
   return c.filter(function(o){ return o.relais; })[0]||c[0]||null;
 }
+function siteEstCm(x){ return !!(x.pl&&x.pl.pk==="cm"); }
+/* les heures du contremaître : sa part de relais, bornée à sa présence ;
+   sinon toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h ») */
+function siteCmPlage(x){ var o=24*(x.dj||0), r=x.pl&&x.pl.relais?[Math.max(x.pl.a,x.deb+o),Math.min(x.pl.b,x.fin+o)]:[x.deb,x.fin]; return sitePlage(r[0],r[1]); }
 function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }
 function siteJour(dj){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()+(dj||0)); }
 function siteEffHTML(L,k,cmIci){
@@ -19827,7 +19840,7 @@ function siteReleveHTML(s,o){
     /* la relève d'une ÉQUIPE passe devant une arrivée isolée (10 h – 18 h) */
     if(!best||(best.g==="X"&&g!=="X")||((best.g==="X")===(g==="X")&&tg<best.t)) best={g:g, t:tg, L:L}; });
   var L=best.L, eq=L.filter(function(x){ return x.eq; })[0], dR=siteJour(L[0].dj), trop=siteTrop(dR,best.g), cmR=null, plansR=sitePlans();
-  L.forEach(function(x){ var pl=sitePlace(plansR,x.p.id,best.t); x.rang=pl?pl.rang:1e6; });
+  L.forEach(function(x){ var pl=sitePlace(plansR,x.p.id,best.t); x.rang=pl?pl.rang:1e6; x.pl=pl; });
   /* LE CONTREMAÎTRE DE LA PAUSE D'APRÈS (le client, le 27/10/2026) : celui
      que l'horaire place au poste (rcContremaitre), arrivé ou non avec la
      relève — un 18 h – 6 h n'arrive pas à 22 h */
@@ -19852,9 +19865,10 @@ function siteReleveHTML(s,o){
   /* les arrivants en étiquettes, comme les présents, un cercle vide au
      lieu du point vert : ils ne sont pas encore là */
   function etiquette(x){
-    var moi=!!o.moi&&x.p.id===o.moi, d0=best.g!=="X"&&x.deb===PF_DEB[best.g];
-    return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb)+(trop[x.p.id]?", en trop au poste":""))+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
-      +'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(d0||best.g==="X"?'':'<small>dès '+esc(siteH(x.deb))+'</small>')+'</span>';
+    var moi=!!o.moi&&x.p.id===o.moi, d0=best.g!=="X"&&x.deb===PF_DEB[best.g], cm=siteEstCm(x),
+        plage=cm?siteCmPlage(x):(d0||best.g==="X"?"":"dès "+siteH(x.deb));
+    return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb)+(trop[x.p.id]?", en trop au poste":""))+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
+      +'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
   }
   /* l'en-tête au format de ceux des pauses présentes : pastille, nom,
      équipe et heure, nombre à droite */
