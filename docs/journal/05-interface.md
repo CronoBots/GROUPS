@@ -6060,3 +6060,30 @@ renfort arrière garde le vert de l'arrière. Mesuré sur les cinq équipes :
 les deux « Renfort avant » (équipes 2 et 4) en jaune, les cinq « Renfort
 arrière » en vert, le reste inchangé. La même fonction teinte les pilules
 de poste : elles suivent.
+
+### L'Accueil sans boîtes dans les boîtes (28/10/2026, `nfdm-v1163`)
+
+Le client avait demandé : « un seul bloc, tout à la suite sans cadres, ou
+le contenu actuel optimisé pour être 100 % pro ? ». Recommandé : garder une
+carte par sujet (sur fond sombre, les sections sans cadre se fondent ; un
+seul bloc perd les repères) et optimiser leur contenu. Réponse : « optimise
+tout cela ». Photographié à 320, 390 et 1280 px, carte par carte :
+
+- **À faire** : chaque action et chaque suivi « En cours » était un cadre
+  à bordure (orangé pour l'urgent) dans la carte — trois niveaux de
+  bordures. Devenus des lignes séparées d'un filet ; le point orange dit
+  l'urgence, le survol (souris) éclaire la ligne.
+- **Demandes de congé** : chaque demande était une boîte dans la carte.
+  Lignes séparées d'un filet ; la barre d'état colorée à gauche reste
+  (3 px, arrondie).
+- **Mon année** : le tableau des prochaines pauses était encadré dans la
+  carte ; il garde ses lignes, sous un filet.
+- **Sur site** : seul en-tête sans icône (un point vert à sa place). Il
+  prend l'icône des personnes, comme les autres ; le point vivant passe
+  derrière le titre.
+- Mesuré : aucun débordement à 320, 390 et 1280 px ; hors ligne, la page
+  et le cycle tiennent ; aucune erreur.
+- **Laissé, et pourquoi** : les cinq tuiles « Mes congés » (des chiffres
+  clés, lus d'un coup d'œil comme des tuiles) ; le calendrier, qui porte
+  sa propre barre de navigation en guise d'en-tête ; l'ordre des cartes,
+  fixé le 23/10 (deux colonnes au PC, `docs/journal/05-interface.md`).
