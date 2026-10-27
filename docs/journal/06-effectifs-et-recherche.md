@@ -3533,3 +3533,10 @@ une pause de jour, « mer. 28 à 6 h » pour la relève (« demain » retiré :
 après minuit, il désignait le surlendemain de la nuit affichée). Mesuré à
 0 h 16, 23 h 33 et 13 h 10, 320 px, sans débordement ; espace RH sans
 erreur.
+
+Rectifié aussitôt (`nfdm-v1160`), le client : « et la nuit actuelle est
+celle de mardi ». La nuit se nomme par le jour où elle commence, comme au
+Planning et dans l'horaire : « mar. 27 · 22 h – 6 h », et non « mar. 27
+22 h – mer. 28 6 h ». La relève garde son jour (« mer. 28 à 6 h »), le
+sous-titre l'heure réelle. Mesuré à 0 h 16 et 23 h 33 : même en-tête de
+nuit, 320 px sans débordement.

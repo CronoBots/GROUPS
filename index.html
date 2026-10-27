@@ -19831,10 +19831,11 @@ function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).local
    a commencé la veille, la relève est le jour même ; « mar. 27 22 h – mer.
    28 6 h », « mer. 28 à 6 h » */
 function siteJ(d){ return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase()+". "+d.getDate(); }
+/* la nuit est celle du jour où elle commence (le client, le 28/10/2026 :
+   « et la nuit actuelle est celle de mardi »), comme au Planning et dans
+   l'horaire : « mar. 27 · 22 h – 6 h », et non « mar. 27 22 h – mer. 28 6 h » */
 function sitePauseQuand(pz,dj){
-  var d=siteJour(dj||0), a=PF_DEB[pz], b=PF_FIN[pz];
-  if(b<=24) return siteJ(d)+" · "+sitePlage(a,b);
-  return siteJ(d)+" "+siteH(a)+"\u00a0– "+siteJ(siteJour((dj||0)+1))+" "+siteH(b);
+  return siteJ(siteJour(dj||0))+" · "+sitePlage(PF_DEB[pz],PF_FIN[pz]);
 }
 /* « Mardi 27 octobre · 13 h 10 » */
 function siteQuand(t){ return JOURS_LONGS[(t.getDay()+6)%7]+" "+t.getDate()+" "+MOIS[t.getMonth()].toLowerCase()+" · "+siteH(t.getHours()+t.getMinutes()/60); }
