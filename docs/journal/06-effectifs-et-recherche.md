@@ -3342,3 +3342,24 @@ l'espace RH ; « dès 5 h 30 » pour qui vient à la remise de pause).
 - Mesuré, heure fixée : 23 h 10 → « Relève du matin à 6 h · Équipe 1 »,
   14 trigrammes ; 4 h → la même ; 8 h et 13 h 10 → « l'après-midi à 14 h ·
   Équipe 4 », 8 trigrammes. Dans l'espace RH, les 8 ouvrent leur fiche.
+
+### Sur site : le contremaître et l'effectif avant / arrière (27/10/2026, `nfdm-v1150`)
+
+Le client : « pour ceux présents, affiche le contremaître et l'effectif
+avant/arrière ». Sous l'en-tête de chaque pause présente : « Contremaître
+XXX », puis Avant (zone jaune de POSTES_TRAVAIL : meunerie, gluten) et
+Arrière (zone verte : fermentation, terrain arrière, distillation), chacun
+avec sa pastille de couleur ; Chaudières et STEP, ni avant ni arrière,
+comptés à part quand ils sont là, pour que la ligne fasse le compte. Les
+adjoints n'y entrent pas.
+
+- **Premier essai faux** : le contremaître cherché par le code du jour
+  (« cm ») — aucune pause ne le montrait. Deuxième : `rcContremaitre` par
+  bloc — l'après-midi restait sans contremaître, le 6 h – 18 h qui la tient
+  jusqu'à 18 h étant rangé au Matin, le 18 h – 6 h aux horaires
+  particuliers. Retenu (`siteCmIci`) : les gens au poste de contremaître
+  d'une pause d'hier soir ou d'aujourd'hui (postesDePause) ET sur site,
+  affichés sur la pause EN COURS (cmDePause).
+- Mesuré, heure fixée : 13 h 10 et 17 h → le 6 h – 18 h ; 19 h et 23 h 10
+  → le 18 h – 6 h ; 5 h 45 → les deux (remise de pause) ; 9 h le 28 → celui
+  du matin. Avant / arrière : 3 / 3 à 4 / 4 selon la pause.
