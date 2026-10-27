@@ -2791,3 +2791,25 @@ de l'application qui changent.
 Il reste 302 journées que l'application compte et que le classeur RH
 n'a pas. Ce peut être un remplacement réel que la RH n'a pas enregistré,
 ou une lecture trop large. Elles ne se tranchent qu'avec la RH.
+
+### Les compteurs FT de chacun, revérifiés (27/10/2026)
+
+Le client : « les compteurs FT de chacun sont-ils corrects ? ». Trois
+mesures, chacune indépendante de l'autre :
+
+- `verifier-calendrier.js --compteurs` (la lecture de l'application) :
+  79 personnes concordent avec les colonnes +FT et −FT du classeur 2026,
+  0 divergent.
+- Le motif du pied de l'Horaire (`^(\d)h\s*([+-])FT$`), recompté en Python
+  sans rien emprunter à l'application : 79 sur 79 en 2026, 76 sur 76 en
+  2027 ; AUCUNE annotation contenant « FT » n'échappe au motif.
+- Le solde affiché (le « Total » de la ligne 430) ne se vérifie pas : il
+  porte le report de fin 2025, écrit en constante dans la formule, et la
+  copie du classeur ne garde que des valeurs. Le report déduit
+  (Total − (+FT) − (−FT)) va de −8 à 90 h ; deux personnes ont un Total
+  de 0 pile pour une année à +7 et +1. Les deux erreurs de formule
+  relevées par l'inventaire (`docs/plateforme.md`, section 5 : un Total
+  qui lit une ligne vide, un bloc décalé de quatre lignes qui perd les
+  29-31/12) ne se retrouvent qu'avec les FORMULES : question au client
+  (`docs/questions-client.md`). En 2027, 10 personnes n'ont pas de Total
+  (compteurs non fiables, `COMPTEURS_FIABLES`).
