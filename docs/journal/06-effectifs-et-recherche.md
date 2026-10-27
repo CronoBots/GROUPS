@@ -3408,3 +3408,53 @@ personnes en trop en jaune ».
   17 h → relève de 22 h, le 18 h – 6 h ; 23 h 10 → relève de 6 h, le
   contremaître du matin, un en trop ; 9 h le 28 → relève de 14 h, le
   6 h – 18 h. Dans l'espace RH, sans erreur, 8 fiches ouvrables.
+
+### La nuit du 31/10 : les contremaîtres que les commentaires nomment (27/10/2026, `nfdm-v1154`)
+
+Le client, capture du Planning à l'appui (contremaître de nuit « ? ») :
+« les commentaires indiquent les contremaîtres qui feront la nuit ; tu
+n'as pas regardé comme il faut ». C'était vrai, et c'était écrit chez les
+trois intéressés :
+
+- le contremaître prévu : cellule N, annotation 7h-15h, « remplacé par
+  [l'adjoint] » ;
+- un contremaître de l'après-midi : « remplace [le prévu] de 22h à 1h » ;
+- l'adjoint : cellule N, « arrivée à 01h00' … remplace [le prévu] ».
+
+Deux trous dans `relaisDouze` (les relais qui tiennent un poste vide) :
+
+1. **Le remplacé n'était tenu pour absent** que s'il était « Abs », « Mal »
+   ou s'il nommait CE remplaçant. Il nommait l'adjoint, pas celui de
+   22 h – 1 h : la part écrite avec ses heures était écartée. Désormais un
+   « remplacé par » quelconque suffit (`remplaceAbsent`) : le remplaçant
+   qui écrit ses heures dit lui-même sa part.
+2. **« Arrivée à H … remplace X »**, sans heures sur le « remplace », ne
+   donnait aucune part : l'adjoint restait aux adjoints. Il donne
+   maintenant la part H – fin de pause (« départ à H », début – H), au
+   poste de X. **Seulement au poste de contremaître** : le premier essai,
+   sans cette borne, prenait aussi en relais trois opérateurs qui
+   « arrivent à 10 h, remplacent SPS », déjà mis au poste du remplacé par
+   atelierDuRemplace — ils comptaient deux fois (une fermentation de nuit
+   à 2/1). Mesuré, et retiré.
+3. L'adjoint qui tient le poste de contremaître en relais n'est plus
+   compté en plus aux adjoints de la pause (`enRelais`).
+
+Mesuré avant / après (`verifier-calendrier.js`) : neuf règles, `--manques
+0926`, `--polyvalence`, `--compteurs`, `comparer-fiches.py VBN` identiques
+à l'octet ; agendas inchangés. `--placement --tout` ne change que deux
+nuits : le 31/10 (contremaître 0/1 → 1/1, relais 22-01 + 01-06, l'adjoint
+retiré des adjoints) et le 19/09 (l'adjoint déjà en relais n'est plus
+compté une seconde fois). `--manques` : une place creuse de moins (20 →
+19), celle du 31/10. Au Planning : la cellule N du contremaître montre les
+deux relais ; celui de l'après-midi aux chaudières passe de 14-01 à 14-22.
+
+Sur site suit : `siteCmIds` lit les relais avec leur part (sans quoi, le
+31/10 à 20 h, le contremaître de 22 h – 1 h passait pour celui de
+l'après-midi, où il est aux chaudières) ; le contremaître de la nuit d'hier
+ne vaut que jusqu'à 6 h ; la relève écrit chaque relais avec sa part
+(« ATR 22 h – 1 h, FPA 1 h – 6 h » ; le 27/10 à 13 h, « 14 h – 18 h,
+18 h – 22 h »).
+
+**Leçon** : avant de laisser un « ? », relire les commentaires de TOUS
+ceux de la journée qui nomment le poste ou son titulaire (règle de
+CLAUDE.md, « les commentaires d'abord ») — les trois phrases étaient là.

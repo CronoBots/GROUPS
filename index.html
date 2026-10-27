@@ -2515,7 +2515,8 @@ html #grille .ws-site{margin-bottom:14px}
 .site-leg{display:flex; align-items:center; gap:7px; margin:10px 0 0; font-size:12px; color:var(--muted)}
 .site-leg i{width:12px; height:12px; border-radius:3px; border:1px solid var(--at-jaune); background:var(--at-jaune-soft)}
 .site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
-.site-eff>span{display:inline-flex; align-items:center; gap:5px; white-space:nowrap}
+.site-eff>span{display:inline}
+.site-eff small{font-size:11.5px; color:var(--muted)}
 .site-eff b{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
 .site-st em{margin-left:auto; font-style:normal; font-weight:700; font-size:13.5px; font-variant-numeric:tabular-nums; color:var(--ink)}
 /* une ligne par poste : le poste à gauche, ses présents en étiquettes */
@@ -19725,17 +19726,29 @@ function siteSalonsHTML(s,o){
    au Matin, le 18 h – 6 h aux horaires particuliers. Son code du jour n'est
    presque jamais « cm » : mesuré, aucune pause ne le montrait par le code. */
 function siteCmIci(s){
-  var ids=siteCmIds(), sur={};
+  var t=new Date(), h=t.getHours()+t.getMinutes()/60, L=siteCmIds(), sur={};
   s.sur.forEach(function(x){ sur[x.p.id]=1; });
-  return ids.filter(function(i){ return sur[i]; });
+  var r=[]; L.forEach(function(o){ if(sur[o.id]&&o.a<=h&&h<o.b&&r.indexOf(o.id)<0) r.push(o.id); });
+  return r;
 }
+/* rend {id, a, b} : au poste toute sa présence, ou seulement pendant sa
+   part de relais (heures comptées depuis aujourd'hui) — sans quoi, le
+   31/10 à 20 h, celui qui fait l'après-midi aux chaudières et la nuit en
+   relais de 22 h à 1 h passait pour contremaître dès 20 h */
 function siteCmIds(){
   var t=new Date(), ids=[];
   [[-1,"N"],[0,"AM"],[0,"PM"],[0,"N"]].forEach(function(c){
     var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+c[0]);
     try{ var e=rcEquipe(dmIso(d)), l=e&&e.par[c[1]]; if(!l||!l.length) return;
       postesDePause(e.db,l,c[1],pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),c[1]==="AM"?e.par.D:null).postes.forEach(function(q){
-        if(q.P.cm) q.gens.forEach(function(g){ if(ids.indexOf(g.p.id)<0) ids.push(g.p.id); }); });
+        /* ceux qui tiennent le poste en relais aussi (la nuit du 31/10 :
+           ATR 22-01, FPA 01-06) */
+        if(!q.P.cm) return;
+        /* au poste toute sa présence ; celui de la nuit d'hier, seulement
+           jusqu'à 6 h (le 31/10, le contremaître de la nuit du 30 arrive à
+           1 h ce soir : il n'est pas celui de 22 h) */
+        q.gens.forEach(function(g){ ids.push({id:g.p.id, a:-1e9, b:c[0]<0?PF_FIN.N-24:1e9}); });
+        (q.relais||[]).forEach(function(r){ ids.push({id:r.p.id, a:r.de+24*c[0], b:r.b+24*c[0]}); }); });
     }catch(er){}
   });
   return ids;
@@ -19781,15 +19794,23 @@ function siteReleveHTML(s,o){
   /* LE CONTREMAÎTRE DE LA PAUSE D'APRÈS (le client, le 27/10/2026) : celui
      que l'horaire place au poste (rcContremaitre), arrivé ou non avec la
      relève — un 18 h – 6 h n'arrive pas à 22 h */
-  if(/^(AM|PM|N)$/.test(best.g)) try{ cmR=rcContremaitre(dmIso(dR),best.g); }catch(er){}
+  if(/^(AM|PM|N)$/.test(best.g)) try{ cmR=rcContremaitre(dmIso(dR),best.g); if(cmR) cmR='<b>'+esc(idLisible(cmR))+'</b>'; }catch(er){}
   /* personne au poste de cette pause (le titulaire absent, la pause tenue en
      12 h par ses voisines) : le contremaître d'une pause voisine qui sera
      sur site à l'heure de la relève — le 27/10 à 13 h, le 6 h – 18 h tient
      l'après-midi jusqu'à 18 h. Heures comptées depuis aujourd'hui. */
   if(!cmR&&/^(AM|PM|N)$/.test(best.g)){
     var tous=s.sur.concat(s.arrivent);
-    cmR=siteCmIds().filter(function(i){ return tous.some(function(x){ var b=24*(x.dj||0);
-      return x.p.id===i&&x.deb+b<=best.t&&x.fin+b>best.t; }); }).join(", ")||null;
+    /* et les relais qui se suivent sur la pause, chacun avec sa part : le
+       31/10, « ATR 22 h – 1 h, FPA 1 h – 6 h » */
+    var fin=best.t+(best.g==="X"?0:PF_FIN[best.g]-PF_DEB[best.g]), LR=siteCmIds();
+    /* qui a sa part de relais sur la pause se lit par elle, pas en entier */
+    var aPart={}; LR.forEach(function(o){ if(o.a>-1e8&&o.a<fin&&o.b>best.t) aPart[o.id]=1; });
+    cmR=LR.filter(function(o){ return o.a>-1e8||!aPart[o.id]; }).filter(function(o){
+      if(o.a>-1e8) return o.a<fin&&o.b>best.t;
+      return o.a<=best.t&&best.t<o.b&&tous.some(function(x){ var b=24*(x.dj||0); return x.p.id===o.id&&x.deb+b<=best.t&&x.fin+b>best.t; });
+    }).sort(function(x,y){ return x.a-y.a; }).map(function(o){ return '<b>'+esc(idLisible(o.id))+'</b>'+(o.a>-1e8?' <small>'+sitePlage(o.a,o.b)+'</small>':''); })
+      .filter(function(v,i,l){ return l.indexOf(v)===i; }).join(", ")||null;
   }
   /* les arrivants en étiquettes, comme les présents, un cercle vide au
      lieu du point vert : ils ne sont pas encore là */
@@ -19804,7 +19825,7 @@ function siteReleveHTML(s,o){
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
     +(eq?'Équipe '+esc(eq.eq)+' · ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
-    +(cmR?'<p class="site-eff"><span>Contremaître <b>'+esc(cmR.split(", ").map(idLisible).join(", "))+'</b></span></p>':'')
+    +(cmR?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
 }
 /* le jaune se lit sans deviner : une légende, seulement s'il sert */
@@ -24161,8 +24182,12 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
     try{ if(relaisDouze(db,gk,mmdd,P.k,parId,jourCalc).length) credit[P.k]=1; }catch(e){}
   });
   if(gk!=="D" && !sansReequil) reequilibrer(parPoste,mmdd,inconnus,gk,ren,jourCalc,credit);
+  /* l'adjoint qui tient le poste de contremaître en relais (FPA, 01-06, la
+     nuit du 31/10) n'est pas en plus un adjoint de la pause */
+  var enRelais={};
   POSTES_TRAVAIL.forEach(function(P){
     var gens=parPoste[P.k]||[];
+    if(P.k==="adj") gens=gens.filter(function(x){ return !enRelais[x.p.id]; });
     /* Un poste vide ne s'affiche que s'il attend quelqu'un. En jour il
        n'attend personne — le client : « il ne faut pas afficher les postes
        qui n'ont pas de personnel » — et sept intitulés à zéro noyaient les
@@ -24234,7 +24259,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        morceaux couvrent TOUTE la pause. */
     if(attendu && tenu<attendu && gk!=="D"){
       relais=relaisDouze(db,gk,mmdd,P.k,parId,jourCalc);
-      if(relais.length){ tenu++; creux=Math.max(0,creux-1); }
+      if(relais.length){ tenu++; creux=Math.max(0,creux-1); relais.forEach(function(r){ if(!r.dec) enRelais[r.p.id]=1; }); }
     }
     sortie.push({P:P, gens:gens, tenu:tenu, attendu:attendu, detail:detail, relais:relais,
                  manque:!!(attendu && tenu<attendu), creux:creux});
@@ -24286,20 +24311,53 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
       cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim(), dec:dec});
     });
   });
+  /* QUAND LE REMPLACÉ EST-IL ABSENT DE LA PAUSE ? « Abs », « Mal », ou son commentaire
+     qui dit qu'il est remplacé. Le client, le 27/10/2026, sur la nuit du
+     31/10 (« les commentaires indiquent les contremaîtres qui feront la
+     nuit ; tu n'as pas regardé comme il faut ») : FLI « remplacé par FPA »,
+     ATR « remplace FLI de 22h à 1h », FPA « arrivée à 01h00' … remplace
+     FLI ». Le remplacé ne nommait que FPA : ATR, qui donne ses heures, était
+     écarté parce que son nom n'y figurait pas. Un « remplacé par » suffit :
+     le remplaçant qui écrit ses heures dit lui-même sa part. */
+  function remplaceAbsent(q,p,md,k){
+    var rq=q.d[md]; if(!rq||String(rq[0]||"").trim()!==gk) return false;
+    var cq=String(rq[2]||"");
+    var absent=/abs|mal/i.test(String(rq[1]||""))||new RegExp("remplac[ée]e?\\s+par\\b[^.]*\\b"+idLisible(p.id)+"\\b","i").test(cq)
+      ||/remplac[ée]e?\s+par\s+[A-Z]{3}\b/i.test(cq);
+    if(!absent) return false;
+    var kq=null; try{ kq=posteAttitreLe(q,jourCalc)||posteParDefaut(q); }catch(e){}
+    return kq===k;
+  }
+  function tri3(x){ var t=x.toUpperCase(); return (typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t; }
   function remplaceNomme(p,raw,md){
     var c=String(raw[2]||""), rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, m, vu=false;
     while((m=rx.exec(c))){
-      var t=m[1].toUpperCase(); t=(typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t;
+      var t=tri3(m[1]);
       var q=db.people.filter(function(z){ return idLisible(z.id)===t; })[0]; if(!q||q===p) continue;
-      var rq=q.d[md]; if(!rq||String(rq[0]||"").trim()!==gk) continue;
-      var absent=/abs|mal/i.test(String(rq[1]||""))||new RegExp("remplac[ée]e?\\s+par\\b[^.]*\\b"+idLisible(p.id)+"\\b","i").test(String(rq[2]||""));
-      if(!absent) continue;
-      var kq=null; try{ kq=posteAttitreLe(q,jourCalc)||posteParDefaut(q); }catch(e){}
-      if(kq!==k) continue;
+      if(!remplaceAbsent(q,p,md,k)) continue;
       var a=Number(m[2])+Number(m[3]||0)/60, b=Number(m[4])+Number(m[5]||0)/60;
       if(b<=a) b+=24; if(a<W0-12){ a+=24; b+=24; }
       var x0=Math.max(a,W0), x1=Math.min(b,W1); if(x1-x0<0.5) continue;
       cand.push({p:p, a:x0, b:x1, plage:[a,b], A:a, B:b, com:c.trim(), remp:t, dec:0}); vu=true;
+    }
+    /* « ARRIVÉE À 01H00' … REMPLACE FLI », dans la pause même : la part
+       d'après l'arrivée (« départ à », celle d'avant), au poste du remplacé.
+       Seulement quand le « remplace » ne porte pas ses propres heures, et
+       seulement au poste de contremaître : un opérateur qui « arrive à 10 h,
+       remplace SPS » est déjà mis au poste du remplacé (atelierDuRemplace) ;
+       l'y prendre aussi en relais le faisait compter deux fois (mesuré :
+       trois journées, dont une nuit de fermentation, déplacées à tort).
+       L'adjoint, lui, restait aux adjoints. */
+    if(!vu && k==="cm" && String(raw[0]||"").trim()===gk){
+      var ar=/arriv\S*\s+(?:a|\u00e0)\s+(\d{1,2})\s*h\s*(\d{2})?/i.exec(c), dp=/d[ée]part\S*\s+(?:a|\u00e0)\s+(\d{1,2})\s*h\s*(\d{2})?/i.exec(c),
+          rx2=/remplac?e\s+([A-Z]{3})\b(?!\s+de\s+\d)/gi;
+      if(ar||dp) while((m=rx2.exec(c))){
+        var t2=tri3(m[1]), q2=db.people.filter(function(z){ return idLisible(z.id)===t2; })[0]; if(!q2||q2===p) continue;
+        if(!remplaceAbsent(q2,p,md,k)) continue;
+        var h=function(x){ var v=Number(x[1])+Number(x[2]||0)/60; if(v<W0-12) v+=24; return v; };
+        var a2=ar?h(ar):W0, b2=dp?h(dp):W1, y0=Math.max(a2,W0), y1=Math.min(b2,W1); if(y1-y0<0.5) continue;
+        cand.push({p:p, a:y0, b:y1, plage:[a2,b2], A:a2, B:b2, com:c.trim(), remp:t2, dec:0}); vu=true;
+      }
     }
     return vu;
   }
