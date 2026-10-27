@@ -2509,6 +2509,11 @@ html #grille .ws-site{margin-bottom:14px}
 .site-sn{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
 .site-sn>*{white-space:nowrap}
 .site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
+.site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
+.site-eff>span{display:inline-flex; align-items:center; gap:5px; white-space:nowrap}
+.site-eff b{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
+.site-z{width:8px; height:8px; border-radius:2px; flex:0 0 auto}
+.site-z.pt-meu{background:#e9c46a} .site-z.pt-fer{background:#8fc27a} .site-z.pt-cha{background:#e8846b} .site-z.pt-step{background:#93c5fd}
 .site-st em{margin-left:auto; font-style:normal; font-weight:700; font-size:13.5px; font-variant-numeric:tabular-nums; color:var(--ink)}
 /* une ligne par poste : le poste à gauche, ses présents en étiquettes */
 .site-tab{width:100%; border-collapse:collapse}
@@ -19679,6 +19684,8 @@ function siteSalonsHTML(s,o){
      de pause), son poste habituel */
   function poste(x){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(x)) q=P.t; }); return q||wsPosteEq(x.p)[0]||"Autre"; }
   s.sur.forEach(function(x){ var g=siteSalon(x); (groupes[g]=groupes[g]||[]).push(x); });
+  /* le contremaître de la pause en cours, s'il est sur site (siteCmIci) */
+  var cmIci=siteCmIci(s), cmPz=cmDePause().pz;
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
     var L=groupes[z[0]];
     function etiquette(x){
@@ -19699,9 +19706,48 @@ function siteSalonsHTML(s,o){
          chacun, par ordre alphabétique ; l'heure d'arrivée ou de départ
          reste quand elle s'écarte de la pause. Le poste reste à l'écoute
          (aria-label) et dans le Planning. */
+      +(z[0]==="X"?"":siteEffHTML(L,k,z[0]===cmPz?cmIci:[]))
       +'<div class="site-ps site-ligne">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
   });
   return blocs.length?'<div class="site-salons">'+blocs.join("")+'</div>':"";
+}
+/* LE CONTREMAÎTRE ET L'EFFECTIF AVANT / ARRIÈRE D'UNE PAUSE PRÉSENTE (le
+   client, le 27/10/2026 : « pour ceux présents, affiche le contremaître et
+   l'effectif avant/arrière ») : les zones de POSTES_TRAVAIL — jaune
+   (meunerie, gluten) l'avant, vert (fermentation, terrain arrière,
+   distillation) l'arrière ; chaudières et STEP, ni l'un ni l'autre, comptés
+   à part quand ils sont là, pour que la ligne fasse le compte. Les adjoints
+   n'y entrent pas : une fonction, pas un poste. */
+/* LE CONTREMAÎTRE SUR SITE : ceux que l'horaire place au poste de
+   contremaître (postesDePause, comme rcContremaitre) d'une pause d'hier
+   soir ou d'aujourd'hui, ET qui sont sur site en ce moment. Il s'affiche
+   sur la pause EN COURS (cmDePause), quel que soit le bloc où ses heures
+   le rangent : le 6 h – 18 h qui tient l'après-midi jusqu'à 18 h est rangé
+   au Matin, le 18 h – 6 h aux horaires particuliers. Son code du jour n'est
+   presque jamais « cm » : mesuré, aucune pause ne le montrait par le code. */
+function siteCmIci(s){
+  var t=new Date(), ids=[], sur={};
+  [[-1,"N"],[0,"AM"],[0,"PM"],[0,"N"]].forEach(function(c){
+    var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+c[0]);
+    try{ var e=rcEquipe(dmIso(d)), l=e&&e.par[c[1]]; if(!l||!l.length) return;
+      postesDePause(e.db,l,c[1],pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),c[1]==="AM"?e.par.D:null).postes.forEach(function(q){
+        if(q.P.cm) q.gens.forEach(function(g){ if(ids.indexOf(g.p.id)<0) ids.push(g.p.id); }); });
+    }catch(er){}
+  });
+  s.sur.forEach(function(x){ sur[x.p.id]=1; });
+  return ids.filter(function(i){ return sur[i]; });
+}
+function siteEffHTML(L,k,cmIci){
+  var cm=(cmIci||[]).map(idLisible).sort(), n={jaune:0, vert:0, rouge:0, bleu:0};
+  L.forEach(function(x){ var q=k(x), P=POSTES_TRAVAIL.filter(function(P){ return P.k===q; })[0];
+    if(q==="cm"||(cmIci||[]).indexOf(x.p.id)>=0) return;
+    if(P&&n[P.z]!=null) n[P.z]++; });
+  var h=[];
+  if(cm.length) h.push('<span>Contremaître <b>'+esc(cm.sort().join(", "))+'</b></span>');
+  if(n.jaune||n.vert){ h.push('<span><i class="site-z pt-meu"></i>Avant <b>'+n.jaune+'</b></span>'); h.push('<span><i class="site-z pt-fer"></i>Arrière <b>'+n.vert+'</b></span>'); }
+  if(n.rouge) h.push('<span><i class="site-z pt-cha"></i>Chaudières <b>'+n.rouge+'</b></span>');
+  if(n.bleu) h.push('<span><i class="site-z pt-step"></i>STEP <b>'+n.bleu+'</b></span>');
+  return h.length?'<p class="site-eff">'+h.join("")+'</p>':"";
 }
 /* la prochaine relève, par salon : celle du matin compte aussi ceux qui
    arrivent à 5 h 30 pour la remise de pause */
