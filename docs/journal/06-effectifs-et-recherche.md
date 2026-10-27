@@ -3523,3 +3523,13 @@ Le sous-titre portait l'heure seule. Il dit désormais « Mardi 27 octobre ·
 · 13 h 10 · en direct, d'après l'horaire » (espace RH), par `siteQuand` ;
 la relève du lendemain dit « demain à 6 h ». Mesuré à 13 h 10 et 23 h 33,
 320 px, sans débordement.
+
+Le 28/10/2026 à 0 h 16 (`nfdm-v1159`), le client : « ce n'est pas clair,
+car le AM n'est plus la même date ». Le sous-titre disait mercredi 28, la
+nuit en cours (commencée mardi) et la relève (mercredi) ne disaient pas
+leur jour. Chaque bloc porte désormais le sien (`sitePauseQuand`, `siteJ`) :
+« mar. 27 22 h – mer. 28 6 h » pour la nuit, « mar. 27 · 6 h – 14 h » pour
+une pause de jour, « mer. 28 à 6 h » pour la relève (« demain » retiré :
+après minuit, il désignait le surlendemain de la nuit affichée). Mesuré à
+0 h 16, 23 h 33 et 13 h 10, 320 px, sans débordement ; espace RH sans
+erreur.
