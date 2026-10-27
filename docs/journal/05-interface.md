@@ -6051,3 +6051,12 @@ Le même jour (`nfdm-v1147`, après les classeurs installés par le robot), le c
 rien plus visible ». Voile de la ligne et des colonnes de 16 à 24 % de
 bleu, croisée de 30 à 38 % ; toujours sans aucune bordure (mesuré :
 bordures, ombres et contour inchangés avant et après le toucher).
+
+### Le renfort avant en jaune (27/10/2026, `nfdm-v1148`)
+
+Le client : « renfort avant doit être jaune comme meunerie ». `grTeinte()`
+range « Renfort avant » avec la meunerie et le gluten (`pt-meu`) ; le
+renfort arrière garde le vert de l'arrière. Mesuré sur les cinq équipes :
+les deux « Renfort avant » (équipes 2 et 4) en jaune, les cinq « Renfort
+arrière » en vert, le reste inchangé. La même fonction teinte les pilules
+de poste : elles suivent.
