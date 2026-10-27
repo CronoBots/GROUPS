@@ -5866,3 +5866,23 @@ rangées vides apparaissent au lieu d'un trou ; l'affichage normal ne
 change pas ; cadre, recherche et équipes inchangés ; aucune erreur. Le
 chantier lourd (ne bâtir que les mois proches) reste en réserve, si
 l'essai au téléphone ne suffit pas.
+
+### Horaire : coin rouge au lieu des bulles noires, commentaires en phrase (27/10/2026, `nfdm-v1134`)
+
+Le client : « je n'aime pas les bulles de commentaire noires, et les textes
+dans les bulles doivent être avec majuscule, etc. ». La troisième colonne
+étroite de chaque personne, qui ne portait que la bulle, disparaît : le
+commentaire se signale par le coin rouge d'Excel (et du Planning), en haut à
+droite de la case d'annotation. Chaque personne gagne ainsi sa largeur ; les
+fusions passent de 3 à 2 colonnes, en-tête et pied compris, et le séparateur
+de personne passe à la case d'annotation. Mesuré : 1 586 cases commentées en
+2026, toutes marquées, aucun débordement à 320, 390 et 1280 px, cadre
+identique au Planning avec les zones protégées de l'iPhone simulées.
+
+`nettoyerAffichage()` lit désormais en phrase une ligne écrite toute en
+capitales (au moins 4 lettres) : « REMPL XYZ » devient « Rempl XYZ ».
+Les trigrammes de l'horaire, les codes (VA, RTT, R-CM, CPPT…) et les mots à
+chiffre gardent leurs capitales ; aucun mot n'est changé. Sur 13 commentaires
+candidats (2026 et 2027), 5 changent. Un premier essai donnait
+« AM - rcm » : RCM manquait à la liste des codes, ajouté. Le champ de saisie
+du panneau garde le texte du classeur tel quel : seul l'affichage se corrige.

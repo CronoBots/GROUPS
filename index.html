@@ -6896,7 +6896,7 @@ html .xl-pilules .hp-poste.pt-step{background:#bfdbfe} html .xl-pilules .hp-post
 html .xl-pilules button[aria-pressed="true"]{background:#f9fafb!important; color:#111827; border-color:#111827; box-shadow:inset 0 0 0 1px rgba(17,24,39,.25)}
 html .ws-planning .gr-zone{margin:0 16px; background:#fff; border:1px solid #64748b; border-radius:12px 12px 0 0; border-top:1px solid #64748b}
 html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width:max-content; min-width:100%; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; background:#fff; color:#111827}
-html .hp-t col.hp-cm,html .hp-t col.hp-cd,html .hp-t col.hp-cs,html .hp-t col.hp-cl{width:44px} html .hp-t col.hp-cc{width:20px}
+html .hp-t col.hp-cm,html .hp-t col.hp-cd,html .hp-t col.hp-cs,html .hp-t col.hp-cl{width:44px}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
@@ -6923,9 +6923,11 @@ html .hp-t thead th.hp-coin{width:88px}
 html .hp-t tbody td.hp-s{line-height:18px; color:#111827}
 /* l'annotation reste rouge, en plus sombre : #dc2626 tombait à 2,99:1 sur le gris (audit du 23/10/2026) */
 html .hp-t tbody td.hp-l{font-weight:700; color:#991b1b}
-html .hp-t tbody td.hp-c{padding:0; border-right:2px solid #64748b; position:relative}
-html .hp-t tbody td.hp-com::after{content:""; position:absolute; left:50%; top:50%; width:10px; height:8px; margin:-5px 0 0 -5px; border-radius:3px; background:#111827}
-html .hp-t tbody td.hp-com::before{content:""; position:absolute; left:50%; top:50%; margin:2px 0 0 -3px; border-top:4px solid #111827; border-right:4px solid transparent}
+/* la case d'annotation ferme la personne (trait épais, celui de l'ancienne
+   colonne de bulle) et porte le coin rouge du commentaire, comme Excel */
+html .hp-t tbody td.hp-l{border-right:2px solid #64748b; position:relative}
+html .hp-t tbody td.hp-com::after{content:""; position:absolute; top:0; right:0; width:0; height:0; border-style:solid; border-width:0 8px 8px 0;
+  border-color:transparent #dc2626 transparent transparent; pointer-events:none}
 html .hp-t tbody td.hp-sai{box-shadow:inset 3px 0 0 #16a34a}
 html .grille.edit .hp-t tbody td[data-p]{cursor:pointer}
 html .hp-t tbody td[data-p]:hover{outline:1px solid rgba(0,0,0,.15); outline-offset:-1px}
@@ -6939,7 +6941,7 @@ html .hp-t tfoot tr.hp-pd td{border-top:2px solid #64748b}
 html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2ff; white-space:normal; font-weight:400; font-size:11px; line-height:1.25; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:4px 6px}
 html .hp-t tfoot td.hp-pt{background:#c7ccd4; font-weight:900}
 html .hp-t tfoot td.hp-pv{background:#f8fafc; font-weight:400}
-html .hp-t tfoot td.hp-pc{border-right:2px solid #64748b}
+html .hp-t tfoot td.hp-pv{border-right:2px solid #64748b}
 html .hp-t tfoot tr.hp-reste td.hp-pv{color:#1d4ed8; font-weight:900}
 html .hp-t tfoot td.hp-neg{color:#dc2626!important; font-weight:900}
 html .hp-t tfoot td.hp-hc{box-shadow:inset 0 0 0 9999px rgba(253,230,138,.55)}
@@ -7390,7 +7392,7 @@ html body .grille .ws-planning .hp-t{background:transparent}
    noir : il prend un gris-bleu entre celui des rangées (bleu, jaune, gris),
    et le temps de dessin baisse — les cases de commentaire (un tiers) ne
    découpent plus leur contenu, l'icône y tient. */
-html .hp-t tbody td.hp-c{overflow:visible; text-overflow:clip}
+
 html body .grille .ws-planning .xl-legende{margin:0; border:0; border-top:1px solid var(--cadre); border-radius:0; background:var(--surface2); color:var(--ink2)}
 html body .grille .ws-planning .xl-legende b{color:var(--ink)}
 html body .grille .ws-planning .xl-legende{display:none} /* retirée le 26/10/2026 */
@@ -8811,8 +8813,27 @@ function nettoyerAffichage(txt){
   s=s.replace(/[ \t]+(?=remplac[eé]|[ée]change avec|rappel|maintien|conserve)/gi,"\n");
   s=s.replace(/\b(qui|en|ne|et|de|est)\n/gi,"$1 ");
   s=s.split("\n").map(function(l){ return l.replace(/[ \t]+/g," ").replace(/^ +| +$/g,""); }).join("\n").replace(/^\n+|\n+$/g,"");
+  /* UNE LIGNE TOUT EN CAPITALES SE LIT EN PHRASE (le client, le 27/10/2026 :
+     « les textes dans les bulles doivent être avec majuscule, etc. ») :
+     « REMPL XYZ RAPPEL LE 17/07 » devient « Rempl XYZ rappel le 17/07 ». Les
+     trigrammes de l'horaire, les codes (VA, RTT, R-CM, CPPT…) et les mots à
+     chiffre gardent leurs capitales ; aucun mot n'est changé. 6 commentaires
+     sur 7 097 (2026 et 2027) sont dans ce cas. */
+  s=s.split("\n").map(function(l){
+    var lettres=l.replace(/[^A-Za-zÀ-ÿ]/g,"");
+    if(lettres.length<4||lettres!==lettres.toUpperCase()) return l;
+    return l.replace(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9-]*/g,function(w){
+      if(/\d/.test(w)||AFF_CODES.test(w)||affTrigramme(w)) return w;
+      return w.toLowerCase(); });
+  }).join("\n");
   s=s.split("\n").map(function(l){ return l.replace(/^(\s*)(\S)/, function(_m,sp,c){ return sp+c.toUpperCase(); }).replace(/^(\s*)Echange\b/,"$1Échange"); }).join("\n");
   return s;
+}
+var AFF_CODES=/^(AM|PM|N|D|VA|CP|CSS|RTT|RHS|DTT|RJF|FT|CM|R-CM|RCM|CPPT|D-CPPT|SD|TP|DS|CE|DS-CE|HS|RH|STEP|F|D-F|DF)$/;
+function affTrigramme(w){
+  if(!/^[A-Z]{3}$/.test(w)) return false;
+  var db=typeof HORAIRE_DB!=="undefined"?HORAIRE_DB:null;
+  return !db||db.people.some(function(p){ return p.id===w; });
 }
 var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
 function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
@@ -18674,18 +18695,23 @@ function renderGrille(){
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
   var equipe=/^Shift/.test(mode[0]);
   var h=['<table class="hp-t"><colgroup><col class="hp-cm"><col class="hp-cd">'];
-  cols.forEach(function(){ h.push('<col class="hp-cs"><col class="hp-cl"><col class="hp-cc">'); });
+  /* PLUS DE COLONNE DE BULLE (le client, le 27/10/2026 : « je n'aime pas les
+     bulles de commentaire noires ») : le commentaire se marque comme dans
+     Excel, et comme au Planning et au calendrier, d'un coin rouge en haut à
+     droite de la case d'annotation ; la colonne de 20 px qui ne portait que
+     la bulle disparaît (deux cases par personne au lieu de trois). */
+  cols.forEach(function(){ h.push('<col class="hp-cs"><col class="hp-cl">'); });
   h.push('</colgroup><thead><tr class="hp-g"><th class="hp-coin" colspan="2" rowspan="2">'
     +('<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
-      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(3*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
-  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(3*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
+      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
+  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinteCol(c)+'" colspan="3" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+'" colspan="2" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -18702,8 +18728,8 @@ function renderGrille(){
       var p=c.p, e=(p.d&&p.d[md])||[], sai=db._saisies&&db._saisies[p.id+"|"+md];
       var pv=String(e[0]||"").trim(), an2=String(e[1]||"").trim(), com=e[2]?nettoyerAffichage(e[2]):"";
       var att=' data-p="'+esc(p.id)+'" data-j="'+k+'" data-ci="'+ci+'"';
-      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(pv)+'</td><td class="hp-l"'+att+(an2?' title="'+esc(an2)+'"':'')+'>'+esc(an2)+'</td>'
-        +'<td class="hp-c'+(com?' hp-com':'')+'"'+att+(com?' title="'+esc(com)+'"':'')+'></td>');
+      var ti=[an2,com?nettoyerAffichage(com).replace(/\n/g," · "):""].filter(Boolean).join(" — ");
+      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(pv)+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+(ti?' title="'+esc(ti)+'"':'')+'>'+esc(an2)+'</td>');
     });
     h.push('</tr>');
   });
@@ -18718,9 +18744,9 @@ function renderGrille(){
     var sol=function(p,t){ var v=p.c&&p.c.solde&&p.c.solde[t]; return typeof v==="number"?v:null; };
     var bloc=function(titre,types,val,cls){ types.forEach(function(t,i){
       h.push('<tr class="hp-pied'+(i===0?' hp-pd':'')+(cls?' '+cls:'')+'">'+(i===0?'<td class="hp-plab" colspan="2" rowspan="'+types.length+'">'+titre+'</td>':''));
-      cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td><td class="hp-pc" data-ci="'+ci+'"></td>'); });
-      h.push('</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+3*cols.length)+'"></td></tr>'); };
-    h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+3*cols.length)+'"></td></tr>');
+      cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td>'); });
+      h.push('</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>'); };
+    h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/"+an+")",T,sol);
     bloc("Prévisions en HEURES",T.concat(["FT+","FT-"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):prev(p,t); });
     bloc("Soldes en HEURES compte tenu des prévisions",T,function(p,t){ var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
