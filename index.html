@@ -6923,6 +6923,9 @@ html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
    dessus et dessous, le numéro du jour en bleu — plus d'aplat plein */
 html .hp-t tbody tr.hp-lsel td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 84%,#3b82f6); box-shadow:inset 0 1px 0 rgba(37,99,235,.55),inset 0 -1px 0 rgba(37,99,235,.55)}
 html .hp-t tbody tr.hp-lsel td.hp-jour{color:#1d4ed8}
+html .hp-t tbody td.hp-csel{background:color-mix(in srgb,var(--rb) 84%,#3b82f6)}
+html .hp-t tbody tr.hp-lsel td.hp-csel{background:color-mix(in srgb,var(--rb) 70%,#3b82f6)}
+html .hp-t thead th.hp-csel{box-shadow:inset 0 -2px 0 #2563eb; color:#1d4ed8}
 html .hp-t tbody td.hp-jour{cursor:pointer}
 html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
@@ -18739,7 +18742,7 @@ function renderGrille(){
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinteCol(c)+'" colspan="2" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+(GR.colP===c.p.id?' hp-csel':'')+'" colspan="2" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -18759,7 +18762,8 @@ function renderGrille(){
       /* le commentaire s'ouvre dans la bulle du Planning (data-com, voir
          « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), et SEULEMENT depuis la
          case au coin rouge (le client, le 27/10/2026) */
-      h.push('<td class="hp-s'+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+(com?' hp-com':'')+'"'+att+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
+      var cs=GR.colP===p.id?' hp-csel':'';
+      h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
     h.push('</tr>');
   });
@@ -20863,7 +20867,15 @@ function renderHisto(){
     if(trl&&trl.getAttribute("data-md")){
       var cle=(GR.debut?GR.debut.getFullYear():"")+trl.getAttribute("data-md"), deja=trl.classList.contains("hp-lsel");
       [].forEach.call(this.querySelectorAll("tr.hp-lsel"),function(x){ x.classList.remove("hp-lsel"); });
-      if(deja&&tdl.classList.contains("hp-jour")) GR.ligne=null; else { GR.ligne=cle; trl.classList.add("hp-lsel"); }
+      [].forEach.call(this.querySelectorAll(".hp-csel"),function(x){ x.classList.remove("hp-csel"); });
+      /* ET LES DEUX COLONNES DE L'OPÉRATEUR (le client, le 27/10/2026 : « la
+         sélection horizontale doit sélectionner les deux colonnes de
+         l'opérateur en plus ») : une case touchée marque sa ligne et sa
+         personne ; le jour seul ne marque que la ligne */
+      var pid=tdl.getAttribute("data-p");
+      if(deja&&tdl.classList.contains("hp-jour")){ GR.ligne=null; GR.colP=null; }
+      else { GR.ligne=cle; trl.classList.add("hp-lsel"); GR.colP=pid||null;
+        if(pid) [].forEach.call(this.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); }); }
     }
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
