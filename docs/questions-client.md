@@ -52,6 +52,14 @@ des questions au client ».
    réel (`base/16-effacer.sql`, la partie en attente) se fera quand
    vous accepterez la fenêtre de confirmation.
 
+- **Le report FT de fin 2025 (27/10/2026).** Le solde FT montré est le
+  « Total » de la ligne 430, report de 2025 compris ; ce report est une
+  constante dans la formule, et la copie reçue n'a que des valeurs. Pour
+  vérifier chaque solde, et retrouver la personne dont le Total ne compte
+  pas son +FT (inventaire, `docs/plateforme.md` section 5), il faut le
+  classeur avec ses formules (le `.xlsm` d'origine), ou la liste des
+  reports de fin 2025.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
