@@ -3378,3 +3378,9 @@ part (le renfort avant et le polyvalent avant parmi eux). Mesuré :
 13 h 10, matin 14 = contremaître 1 + avant 3 + arrière 8 + 2 adjoints ;
 23 h 10, nuit 9 = avant 4 + arrière 5, contremaître rangé aux horaires
 particuliers.
+
+Retiré le même jour (`nfdm-v1152`). Le client : « annule ma demande
+avant/arrière ». Les comptes Avant et Arrière disparaissent, avec
+`siteCote` et leurs pastilles ; le contremaître de la pause en cours reste
+(`siteCmIci`), la demande ne visant que l'effectif. Mesuré : 13 h 10 →
+« Contremaître » seul sous le matin ; 23 h 10 → sous la nuit.
