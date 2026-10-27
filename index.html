@@ -2291,6 +2291,17 @@ body.sheet-on{overflow:hidden}
 .grille{position:fixed; inset:0; z-index:95; display:flex; flex-direction:column; background:var(--paper); color:var(--ink);
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .grille[hidden]{display:none}
+/* L'HORAIRE GARDÉ EN PAGE (le client, le 27/10/2026 : « le chargement du
+   tableau Horaire est lent lors de l'appui de l'onglet ») : 12 000 cases à
+   remettre en page à chaque retour, 4,1 s au processeur ralenti six fois.
+   Quitté depuis l'Horaire, l'espace n'est plus défait (display:none) mais
+   mis de côté par content-visibility:hidden : sa mise en page reste prête,
+   ni cliquable, ni atteignable au clavier, ni lu. Mesuré, ralenti six fois :
+   montrer 875 ms après display:none, 13 ms après content-visibility.
+   Le !important est obligatoire : la règle globale [hidden]{display:none
+   !important} l'emportait, et la première mesure de l'application entière
+   ne gagnait rien (la règle ne s'appliquait pas). */
+html body .grille[hidden].garde{display:flex!important; content-visibility:hidden; z-index:-1; pointer-events:none; background:none}
 .pl-tete{display:flex; align-items:center; gap:12px; padding:12px 16px 8px}
 .pl-titre{flex:1; min-width:0; display:flex; flex-direction:column}
 .pl-titre b{font-size:17px; letter-spacing:-.01em}
@@ -18870,7 +18881,10 @@ function grCaleTete(){
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
 }
-window.addEventListener("resize",function(){ grCaleTete(); });
+/* l'espace fermé (gardé en page, content-visibility) ne se mesure pas :
+   la mesure remettait en page les 12 000 cases mises de côté ; la largeur
+   faisant partie de grSignature, l'ouverture suivante refait la grille */
+window.addEventListener("resize",function(){ var g=document.getElementById("grille"); if(g&&g.hidden) return; grCaleTete(); });
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer(); }
 function grCentrer(){
   grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
@@ -18955,7 +18969,9 @@ function ouvrirGrille(section,formulaire){
 function fermerGrille(parRetour){
   var g0=document.getElementById("grille"), ouvert=!g0.hidden, a=document.activeElement, dedans=ouvert&&(!a||a===document.body||g0.contains(a));
   grFermerPanneau(parRetour===true); GR.feuilleAccueil=false;
+  g0.classList.toggle("garde",GR.section==="planning"&&!!document.querySelector("#grZone .hp-t"));
   g0.hidden=true;
+  setTimeout(function(){ try{ pfAfaireVoir(); }catch(e){} },0);
   wsBarreMarque();
   if(ouvert&&parRetour!==true) navRetirer("g");
   var tpx=document.getElementById("tab-plus"); if(tpx) tpx.classList.toggle("actif",st.view==="recherche"||st.view==="direction"||st.view==="salaire");
@@ -21715,6 +21731,10 @@ function renderCentre(db,person){
    taille ; la ligne cachée pendant la mesure, pour ne pas se compter. */
 function pfAfaireVoir(){
   var pa=document.getElementById("pfAfaire"), c=document.getElementById("ctlCard"); if(!pa) return;
+  /* l'espace ouvert couvre l'Accueil : mesurer forçait alors la mise en
+     page de toute la page, Horaire compris (3,4 s au processeur ralenti six
+     fois, 27/10/2026) ; on remesure à la fermeture */
+  var gg=document.getElementById("grille"); if(gg&&!gg.hidden) return;
   if(!pa.firstChild||!c||c.hidden||!c.offsetParent){ if(!pa.firstChild) pa.hidden=true; return; }
   /* la barre du bas du téléphone (nav.tabs, dans #navwrap, fixe) couvre
      le bas de l'écran ; au PC, la même barre est le menu de gauche */
