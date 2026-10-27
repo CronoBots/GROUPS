@@ -19722,7 +19722,7 @@ function siteSalonsHTML(s,o){
         +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
     }
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
-      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])+'</span>')+'</span><em>'+L.length+'</em></p>'
+      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePauseQuand(z[0],L[0].dj)+'</span>')+'</span><em>'+L.length+'</em></p>'
       /* UNE LISTE DE PRÉSENCE SANS LES POSTES (le client, le 26/10/2026 :
          « pas besoin de préciser les postes des gens présents en ce
          moment ; ça doit être vraiment une liste de gens « en ligne », mais
@@ -19826,6 +19826,16 @@ function siteEstCm(x){ return !!(x.pl&&x.pl.pk==="cm"&&/^(AM|PM|N)$/.test(x.pl.p
    sinon toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h ») */
 function siteCmPlage(x){ var o=24*(x.dj||0), r=x.pl&&x.pl.relais?[Math.max(x.pl.a,x.deb+o),Math.min(x.pl.b,x.fin+o)]:[x.deb,x.fin]; return sitePlage(r[0],r[1]); }
 function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }
+/* CHAQUE BLOC PORTE SON JOUR (le client, le 28/10/2026 à 0 h 16 : « ce
+   n'est pas clair, car le AM n'est plus la même date ») : la nuit en cours
+   a commencé la veille, la relève est le jour même ; « mar. 27 22 h – mer.
+   28 6 h », « mer. 28 à 6 h » */
+function siteJ(d){ return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase()+". "+d.getDate(); }
+function sitePauseQuand(pz,dj){
+  var d=siteJour(dj||0), a=PF_DEB[pz], b=PF_FIN[pz];
+  if(b<=24) return siteJ(d)+" · "+sitePlage(a,b);
+  return siteJ(d)+" "+siteH(a)+"\u00a0– "+siteJ(siteJour((dj||0)+1))+" "+siteH(b);
+}
 /* « Mardi 27 octobre · 13 h 10 » */
 function siteQuand(t){ return JOURS_LONGS[(t.getDay()+6)%7]+" "+t.getDate()+" "+MOIS[t.getMonth()].toLowerCase()+" · "+siteH(t.getHours()+t.getMinutes()/60); }
 function siteJour(dj){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()+(dj||0)); }
@@ -19885,7 +19895,7 @@ function siteReleveHTML(s,o){
   var z=SITE_PAUSES.filter(function(q){ return q[0]===best.g; })[0];
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
-    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+(best.t>=24?'demain ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
+    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+siteJ(siteJour(Math.floor(best.t/24)))+' à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
