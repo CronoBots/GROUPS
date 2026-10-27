@@ -102,6 +102,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
 | `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; test Playwright, hors ligne compris |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
+| placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
 | congés scolaires (`FWB_ARRETES`, `fwbAn`) | `node tools/verifier-conges-scolaires.js` → 0 ; une année parue, le robot l'ajoute seul (`conges-auto.js`) |
