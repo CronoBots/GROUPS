@@ -19826,6 +19826,8 @@ function siteEstCm(x){ return !!(x.pl&&x.pl.pk==="cm"&&/^(AM|PM|N)$/.test(x.pl.p
    sinon toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h ») */
 function siteCmPlage(x){ var o=24*(x.dj||0), r=x.pl&&x.pl.relais?[Math.max(x.pl.a,x.deb+o),Math.min(x.pl.b,x.fin+o)]:[x.deb,x.fin]; return sitePlage(r[0],r[1]); }
 function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }
+/* « Mardi 27 octobre · 13 h 10 » */
+function siteQuand(t){ return JOURS_LONGS[(t.getDay()+6)%7]+" "+t.getDate()+" "+MOIS[t.getMonth()].toLowerCase()+" · "+siteH(t.getHours()+t.getMinutes()/60); }
 function siteJour(dj){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()+(dj||0)); }
 function siteEffHTML(L,k,cmIci){
   /* le contremaître déjà en badge (le sien porte « CM » et ses heures) ne
@@ -19883,7 +19885,7 @@ function siteReleveHTML(s,o){
   var z=SITE_PAUSES.filter(function(q){ return q[0]===best.g; })[0];
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
-    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
+    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+(best.t>=24?'demain ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
@@ -19894,7 +19896,7 @@ function wsSiteHTML(){
   var t=new Date(), s=surSite(t);
   return '<section class="ws-carte ws-site" id="wsSite">'
     +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
-    +'<p class="site-maj">En direct, d\'après l\'horaire · '+siteH(t.getHours()+t.getMinutes()/60)+'</p>'
+    +'<p class="site-maj">'+siteQuand(t)+' · en direct, d\'après l\'horaire</p>'
     +siteLegende((siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s,{lien:true}))+'</section>';
 }
 /* SUR SITE, SUR L'ACCUEIL (le client, le 23/10/2026 : « ça peut être sympa
@@ -19909,7 +19911,8 @@ function renderSiteAccueil(){
   var t=new Date(), s=surSite(t);
   /* « d'après l'horaire », comme dans l'espace RH : ce n'est pas un
      pointage (audit du 23/10/2026) */
-  document.getElementById("siteSub").textContent=s.sur.length+" présent"+(s.sur.length>1?"s":"")+" d’après l’horaire · "+siteH(t.getHours()+t.getMinutes()/60);
+  /* LA DATE (le client, le 27/10/2026 : « la date ne figure même pas ») */
+  document.getElementById("siteSub").textContent=siteQuand(t)+" · "+s.sur.length+" présent"+(s.sur.length>1?"s":"")+" d’après l’horaire";
   corps.innerHTML=siteLegende((siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s,{moi:trigCourant()}));
   c.hidden=false;
   if(!SITE_TIC) SITE_TIC=setInterval(function(){ if(st.view==="horaire"&&!document.hidden) try{ renderSiteAccueil(); }catch(e){} },60000);

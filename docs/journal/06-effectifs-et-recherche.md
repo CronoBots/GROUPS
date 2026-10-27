@@ -3516,3 +3516,10 @@ et 23 h 33, puis corrigé :
 - **Laissé** : les trous de la grille après un badge double (l'ordre du
   Planning, demandé, passe avant le remplissage ; `grid-auto-flow:dense`
   le défairait).
+
+Le même jour (`nfdm-v1158`), le client : « la date ne figure même pas ».
+Le sous-titre portait l'heure seule. Il dit désormais « Mardi 27 octobre ·
+13 h 10 · 22 présents d'après l'horaire » (Accueil) et « Mardi 27 octobre
+· 13 h 10 · en direct, d'après l'horaire » (espace RH), par `siteQuand` ;
+la relève du lendemain dit « demain à 6 h ». Mesuré à 13 h 10 et 23 h 33,
+320 px, sans débordement.
