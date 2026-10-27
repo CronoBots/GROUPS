@@ -3384,3 +3384,27 @@ avant/arrière ». Les comptes Avant et Arrière disparaissent, avec
 `siteCote` et leurs pastilles ; le contremaître de la pause en cours reste
 (`siteCmIci`), la demande ne visant que l'effectif. Mesuré : 13 h 10 →
 « Contremaître » seul sous le matin ; 23 h 10 → sous la nuit.
+
+### Sur site : le contremaître de la relève, les personnes en trop en jaune (27/10/2026, `nfdm-v1153`)
+
+Le client : « indiquer le contremaître de la pause d'après, et les
+personnes en trop en jaune ».
+
+- **Le contremaître de la relève**, sous son en-tête : celui que
+  l'horaire place au poste (`rcContremaitre`) ; à défaut — le titulaire
+  absent, la pause tenue en 12 h par ses voisines — le contremaître d'une
+  pause voisine (`siteCmIds`) qui sera sur site à l'heure de la relève.
+  Premier essai : `rcContremaitre` seul laissait vide la relève de 14 h du
+  27/10 ; deuxième : les gens du poste de contremaître de cette pause, vide
+  aussi (les deux 12 h sont rangés au matin et à la nuit).
+- **En trop** (`siteTrop`) : à un poste en surnombre selon postesDePause
+  (tenu au-delà de l'attendu), ceux d'après les places à tenir, renforts
+  après titulaires ; jamais le contremaître, les adjoints, les apprentis,
+  ni un poste sans effectif attendu. Étiquette au jaune du thème
+  (`--at-jaune`), « en trop au poste » à l'écoute, et une légende sous la
+  carte seulement quand il y en a.
+- Mesuré, heure fixée : 13 h 10 → relève de 14 h, contremaître le 6 h –
+  18 h ; un chaudiériste en trop au matin (trois pour deux places) ;
+  17 h → relève de 22 h, le 18 h – 6 h ; 23 h 10 → relève de 6 h, le
+  contremaître du matin, un en trop ; 9 h le 28 → relève de 14 h, le
+  6 h – 18 h. Dans l'espace RH, sans erreur, 8 fiches ouvrables.
