@@ -2813,3 +2813,32 @@ mesures, chacune indépendante de l'autre :
   29-31/12) ne se retrouvent qu'avec les FORMULES : question au client
   (`docs/questions-client.md`). En 2027, 10 personnes n'ont pas de Total
   (compteurs non fiables, `COMPTEURS_FIABLES`).
+
+### Les manques que les commentaires expliquent (27/10/2026)
+
+Le client, après la nuit du 31/10 restée sans contremaître alors que trois
+commentaires disaient qui la faisait : « je pensais que c'était déjà le
+cas, car les commentaires sont toujours la source principale des réponses
+en cas de manque ». Ce ne l'était pas : `--manques` comptait les places
+vides sans rien confronter aux commentaires, et la ligne « 31/10 N
+Contremaître 0/1 » a été lue comme un vrai trou.
+
+`node tools/verifier-calendrier.js --manques-commentes [MMDD]` : pour chaque
+place vide, le titulaire du poste prévu à cette pause et absent, puis tout
+commentaire du même jour qui le nomme (chez n'importe qui), et le sien s'il
+dit un remplacement. Code de retour 1 s'il en reste ; ceux qu'un humain a
+lus et jugés vrais s'écrivent dans `tools/manques-admis.txt`
+(« MMDD PAUSE Poste # raison »). Par défaut d'aujourd'hui au 31/12.
+
+- Épreuve : sur la version d'avant la correction du 31/10, depuis le
+  27/10 → 1 manque commenté (le 31/10, avec les trois commentaires), code
+  1 ; sur la version corrigée → 0 sur 8 places vides, code 0.
+- **Toute l'année (`0101`) : 100 places vides sur 204** ont un commentaire
+  du jour qui nomme le titulaire absent, toutes avant le 27/10. Classées :
+  46 où quelqu'un écrit « remplace [titulaire] » (le cas du 31/10 :
+  presque sûrement des fautes de lecture — le 29/01 et le 02/02, deux
+  contremaîtres de l'après-midi nommés en toutes lettres) ; 27 « échange
+  avec » ; 26 où seul le titulaire écrit « remplacé par » ; 1 autre. Par
+  poste : contremaître 35, gluten 17, chaudières 15, fermentation 13,
+  terrain arrière 9, distillation 4, meunerie 4, STEP 3. À reprendre une
+  par une, les commentaires d'abord.

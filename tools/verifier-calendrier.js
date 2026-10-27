@@ -329,7 +329,7 @@ function affichageRecord(rec,hJour){
 /* --- lecture du classeur ------------------------------------------------- */
 /* --journee et --manques prennent des arguments qui ne sont pas un fichier */
 const ARGS=process.argv.slice(2);
-const coupe=["--journee","--manques","--polyvalence","--doublons","--placement","--agendas"].map(o=>ARGS.indexOf(o))
+const coupe=["--journee","--manques","--manques-commentes","--polyvalence","--doublons","--placement","--agendas"].map(o=>ARGS.indexOf(o))
   .filter(i=>i>=0).sort((a,b)=>a-b)[0];
 const fichier=(coupe===undefined?ARGS:ARGS.slice(0,coupe))
   .filter(a=>a.charAt(0)!=="-")[0]||path.join(RACINE,"data","horaire-2026.json");
@@ -582,6 +582,65 @@ if(process.argv.indexOf("--manques")>=0){
     });
   }
   process.exit(0);
+}
+
+/* --- les manques que les commentaires expliquent peut-être --------------
+   node tools/verifier-calendrier.js --manques-commentes [MMDD]
+   Le client, le 27/10/2026 : « les commentaires sont toujours la source
+   principale des réponses en cas de manque ». La nuit du 31/10 laissait le
+   contremaître à « ? » alors que trois commentaires du jour nommaient le
+   titulaire absent et disaient qui le remplaçait. Pour chaque place vide :
+   le titulaire du poste prévu à cette pause et qui n'y est pas, puis chaque
+   commentaire du même jour qui le NOMME (chez n'importe qui), et le sien
+   s'il dit un remplacement. Un manque ainsi commenté est à relire avant
+   d'être cru : c'est une faute de lecture tant qu'on n'a pas montré le
+   contraire. Ceux qu'un humain a lus et jugés vrais vont dans
+   tools/manques-admis.txt (« MMDD PAUSE Poste # raison ») ; le code de
+   retour ne porte que les autres. */
+if(process.argv.indexOf("--manques-commentes")>=0){
+  const i0=process.argv.indexOf("--manques-commentes");
+  /* par défaut, d'aujourd'hui au 31/12 : ce que l'application montre et
+     montrera ; « 0101 » relit toute l'année (100 places le 27/10/2026,
+     toutes passées — voir docs/journal/08-verifications.md) */
+  const auj=new Date(), aujMD=auj.getFullYear()===ANNEE?pad2(auj.getMonth()+1)+pad2(auj.getDate()):(auj.getFullYear()<ANNEE?"0101":"1231");
+  const depart=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:aujMD;
+  const admis=new Set();
+  try{ fs.readFileSync(path.join(RACINE,"tools","manques-admis.txt"),"utf8").split("\n").forEach(l=>{
+    l=l.replace(/#.*/,"").trim(); if(l) admis.add(l.replace(/\s+/g," ")); }); }catch(e){}
+  let total=0, commentes=0, admisVus=0; const sorties=[];
+  for(let m=1;m<=12;m++) for(let d=1;d<=daysInMonth(ANNEE,m-1);d++){
+    const mmdd=pad2(m)+pad2(d); if(mmdd<depart) continue;
+    const jr=ANNEE*10000+m*100+d, par=equipeDuJour(db,ANNEE,m,d);
+    EQ_GROUPES.forEach(g=>{
+      if(["off","abs","cong","D"].indexOf(g.k)>=0) return;
+      const l=par[g.k]; if(!l||!l.length) return;
+      const vue=postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null);
+      vue.postes.forEach(o=>{
+        if(!o.manque) return; total++;
+        const ici=new Set(o.gens.map(y=>y.p.id).concat((o.relais||[]).map(r=>r.p.id)));
+        const titus=db.people.filter(p=>{ const r=p.d&&p.d[mmdd]; if(!r||String(r[0]||"").trim()!==g.k||ici.has(p.id)) return false;
+          let k=null; try{ k=posteAttitreLe(p,jr)||posteParDefaut(p); }catch(e){} return k===o.P.k; });
+        const notes=[];
+        titus.forEach(t=>{
+          const tri=idLisible(t.id), rx=new RegExp("\\b"+tri+"\\b");
+          const ct=String((t.d[mmdd]||[])[2]||"");
+          if(/remplac|[ée]change|inversion/i.test(ct)) notes.push(tri+" (le titulaire) : "+JSON.stringify(t.d[mmdd]));
+          db.people.forEach(q=>{ if(q===t) return; const c=String(((q.d&&q.d[mmdd])||[])[2]||"");
+            if(rx.test(c)) notes.push(idLisible(q.id)+" : "+JSON.stringify(q.d[mmdd])); });
+        });
+        if(!notes.length) return;
+        const cle=mmdd+" "+g.k+" "+o.P.t;
+        if(admis.has(cle)){ admisVus++; return; }
+        commentes++;
+        sorties.push("  "+mmdd.slice(2)+"/"+mmdd.slice(0,2)+"  "+g.k+"  "+o.P.t+" "+o.tenu+"/"+o.attendu
+          +"   titulaire absent : "+titus.map(t=>idLisible(t.id)).join(", ")+"\n"+notes.map(n=>"      "+n).join("\n"));
+      });
+    });
+  }
+  console.log("manques commentés — "+total+" places vides depuis le "+depart.slice(2)+"/"+depart.slice(0,2)
+    +", "+commentes+" dont un commentaire du jour nomme le titulaire absent"+(admisVus?" ("+admisVus+" admis)":""));
+  sorties.forEach(x=>console.log(x));
+  process.exit(commentes?1:0);
 }
 
 /* --- les compteurs, recalculés puis confrontés au pied de classeur -------
