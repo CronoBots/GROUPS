@@ -2509,11 +2509,6 @@ html #grille .ws-site{margin-bottom:14px}
 .site-sn{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
 .site-sn>*{white-space:nowrap}
 .site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
-/* en trop au poste : le jaune du thème (clair comme sombre) */
-.site-p.site-trop{border-color:var(--at-jaune); background:var(--at-jaune-soft)}
-.site-p.site-trop b{color:var(--at-jaune)}
-.site-leg{display:flex; align-items:center; gap:7px; margin:10px 0 0; font-size:12px; color:var(--muted)}
-.site-leg i{width:12px; height:12px; border-radius:3px; border:1px solid var(--at-jaune); background:var(--at-jaune-soft)}
 .site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
 .site-eff>span{display:inline}
 .site-eff small{font-size:11.5px; color:var(--muted)}
@@ -2559,9 +2554,10 @@ html #grille .ws-site{margin-bottom:14px}
 .site-ligne.site-arr .site-p::before{background:none; box-shadow:inset 0 0 0 1.5px var(--muted)}
 /* ceux qui arrivent se lisent en retrait de ceux qui sont là (le client,
    le 28/10/2026 : « pro ? ») : fond transparent, filet pointillé, trigramme
-   adouci — le jaune « en trop » et le « CM » gardent leur couleur */
-.site-ligne.site-arr .site-p:not(.site-trop){background:transparent; border-style:dashed}
-.site-ligne.site-arr .site-p:not(.site-trop) b{color:var(--ink2)}
+   adouci ; le « CM » garde sa couleur. (Le jaune des personnes en trop,
+   ajouté le 27/10, a été retiré le 28/10 à la demande du client.) */
+.site-ligne.site-arr .site-p{background:transparent; border-style:dashed}
+.site-ligne.site-arr .site-p b{color:var(--ink2)}
 @media (max-width:360px){ .site-tab th{width:104px; font-size:12.5px} }
 .ws-qui{display:flex; align-items:center; gap:10px; min-width:0}
 .ws-qui .pl-tri{width:34px; height:34px}
@@ -19711,7 +19707,7 @@ function siteSalonsHTML(s,o){
   /* le contremaître de la pause en cours, s'il est sur site (siteCmIci) */
   var cmIci=siteCmIci(s), cmPz=cmDePause().pz;
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
-    var L=groupes[z[0]], trop=siteTrop(siteJour(L[0].dj),z[0]);
+    var L=groupes[z[0]];
     function etiquette(x){
       var nc=GR.noms&&GR.noms[x.p.id]?grNomCourt(x.p):"", moi=!!o.moi&&x.p.id===o.moi,
           d0=x.deb===PF_DEB[z[0]], f0=x.fin===PF_FIN[z[0]],
@@ -19722,8 +19718,7 @@ function siteSalonsHTML(s,o){
          « les horaires contremaître doivent toujours être affichés, sur la
          largeur de deux badges ») : sa part de relais, sinon sa présence */
       if(cm) plage=siteCmPlage(x);
-      if(trop[x.p.id]) dit+=", en trop au poste";
-      return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage||nc?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
+      return '<span class="site-p'+(moi?' site-moi':'')+(cm?' site-cm':'')+(plage||nc?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+'>'
         +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
     }
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
@@ -19780,24 +19775,6 @@ function siteCmIds(){
 }
 /* l'effectif avant / arrière, ajouté puis retiré à la demande du client
    le même jour (27/10/2026) : ne reste que le contremaître */
-/* LES PERSONNES EN TROP (le client, le 27/10/2026 : « les personnes en
-   trop en jaune ») : à un poste en surnombre (postesDePause : tenu au-delà
-   de l'effectif attendu), ceux qui viennent après les places à tenir —
-   l'ordre de postesDePause met les titulaires d'abord, les renforts
-   ensuite. Les postes sans effectif attendu (adjoints, STEP l'après-midi),
-   le contremaître et les apprentis n'en donnent jamais. */
-function siteTrop(d,pz){
-  var r={};
-  if(!/^(AM|PM|N)$/.test(pz)) return r;
-  try{ var e=rcEquipe(dmIso(d)), l=e&&e.par[pz]; if(!l||!l.length) return r;
-    postesDePause(e.db,l,pz,pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),pz==="AM"?e.par.D:null).postes.forEach(function(q){
-      if(q.P.cm||!q.attendu) return;
-      var tient=q.gens.filter(function(g){ return !enFormation(g.p,e.d); });
-      if(tient.length>q.attendu) tient.slice(q.attendu).forEach(function(g){ r[g.p.id]=1; });
-    });
-  }catch(er){}
-  return r;
-}
 /* où le Planning place chacun, pause par pause, d'hier soir à demain :
    {id, pz, a, b, rang} — a et b les heures où il y est (comptées depuis
    aujourd'hui) : la pause entière, remise de pause comprise, ou sa part de
@@ -19865,7 +19842,7 @@ function siteReleveHTML(s,o){
   Object.keys(gA).forEach(function(c){ var g=c.split("|")[0], L=gA[c], tg=g==="X"?Number(c.split("|")[1]):Number(c.split("|")[1]);
     /* la relève d'une ÉQUIPE passe devant une arrivée isolée (10 h – 18 h) */
     if(!best||(best.g==="X"&&g!=="X")||((best.g==="X")===(g==="X")&&tg<best.t)) best={g:g, t:tg, L:L}; });
-  var L=best.L, eq=L.filter(function(x){ return x.eq; })[0], dR=siteJour(L[0].dj), trop=siteTrop(dR,best.g), cmR=null, plansR=sitePlans();
+  var L=best.L, eq=L.filter(function(x){ return x.eq; })[0], dR=siteJour(L[0].dj), cmR=null, plansR=sitePlans();
   L.forEach(function(x){ var pl=sitePlace(plansR,x.p.id,best.t); x.rang=pl?pl.rang:1e6; x.pl=pl; });
   /* LE CONTREMAÎTRE DE LA PAUSE D'APRÈS (le client, le 27/10/2026) : celui
      que l'horaire place au poste (rcContremaitre), arrivé ou non avec la
@@ -19893,7 +19870,7 @@ function siteReleveHTML(s,o){
   function etiquette(x){
     var moi=!!o.moi&&x.p.id===o.moi, d0=best.g!=="X"&&x.deb===PF_DEB[best.g], cm=siteEstCm(x),
         plage=cm?siteCmPlage(x):(d0||best.g==="X"?"":"dès "+siteH(x.deb));
-    return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb)+(trop[x.p.id]?", en trop au poste":""))+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
+    return '<span class="site-p'+(moi?' site-moi':'')+(cm?' site-cm':'')+(plage?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb))+'"':'')+'>'
       +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
   }
   /* l'en-tête au format de ceux des pauses présentes : pastille, nom,
@@ -19905,15 +19882,13 @@ function siteReleveHTML(s,o){
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
-/* le jaune se lit sans deviner : une légende, seulement s'il sert */
-function siteLegende(h){ return h+(h.indexOf("site-trop")>=0?'<p class="site-leg"><i aria-hidden="true"></i>En jaune : en trop au poste</p>':''); }
 var SITE_VIDE='<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>';
 function wsSiteHTML(){
   var t=new Date(), s=surSite(t);
   return '<section class="ws-carte ws-site" id="wsSite">'
     +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
     +'<p class="site-maj">'+siteQuand(t)+' · en direct, d\'après l\'horaire</p>'
-    +siteLegende((siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s,{lien:true}))+'</section>';
+    +(siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s,{lien:true})+'</section>';
 }
 /* SUR SITE, SUR L'ACCUEIL (le client, le 23/10/2026 : « ça peut être sympa
    pour les travailleurs de voir cela ») : la même carte, pour tout le
@@ -19929,7 +19904,7 @@ function renderSiteAccueil(){
      pointage (audit du 23/10/2026) */
   /* LA DATE (le client, le 27/10/2026 : « la date ne figure même pas ») */
   document.getElementById("siteSub").textContent=siteQuand(t)+" · "+s.sur.length+" présent"+(s.sur.length>1?"s":"")+" d’après l’horaire";
-  corps.innerHTML=siteLegende((siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s,{moi:trigCourant()}));
+  corps.innerHTML=(siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s,{moi:trigCourant()});
   c.hidden=false;
   if(!SITE_TIC) SITE_TIC=setInterval(function(){ if(st.view==="horaire"&&!document.hidden) try{ renderSiteAccueil(); }catch(e){} },60000);
 }

@@ -3547,3 +3547,11 @@ par un point creux de 7 px. Ils passent en retrait — fond transparent,
 filet pointillé, trigramme adouci ; « en trop » (jaune) et « CM » gardent
 leur couleur. Le reste a été jugé en ordre : bloc et jour de chaque pause,
 ordre du Planning, contremaître sur deux badges, légende seulement utile.
+
+Retiré le 28/10/2026 (`nfdm-v1162`), le client : « supprime ma demande pour
+les gens en trop ». `siteTrop`, la classe `site-trop`, son jaune et la
+légende disparaissent ; le contremaître de la relève, ajouté par la même
+demande du 27/10, reste. Premier essai de la suppression : deux `++` laissés
+dans la concaténation des étiquettes, que `node --check` a refusés avant
+tout test. Mesuré à 0 h 19 et 13 h 10 : aucune étiquette jaune, aucune
+légende, espace RH sans erreur.
