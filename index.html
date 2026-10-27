@@ -18788,11 +18788,16 @@ function renderGrille(){
       h.push('</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/"+an+")",T,sol);
-    /* LE TOTAL FT (le client, le 27/10/2026 : « il manque la ligne du total
-       FT, somme FT- et FT+ ») : les heures de l'année, sous les deux lignes
-       qu'il additionne */
-    bloc("Prévisions en HEURES",T.concat(["FT+","FT-","FT"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):t==="FT"?ft(p,"+")-ft(p,"-"):prev(p,t); });
-    bloc("Soldes en HEURES compte tenu des prévisions",T,function(p,t){ var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
+    bloc("Prévisions en HEURES",T.concat(["FT+","FT-"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):prev(p,t); });
+    /* LE SOLDE FT, DANS LE DERNIER TABLEAU (le client, le 27/10/2026 : « la
+       ligne avec le solde FT doit être dans le dernier tableau ») : le
+       « Total » de la ligne 430 du classeur, report de 2025 compris
+       (soldeFTClasseur, le chiffre que le client lit) ; une première
+       version, le même jour, montrait aux prévisions la seule somme
+       FT+ + FT− de l'année */
+    bloc("Soldes en HEURES compte tenu des prévisions",T.concat(["FT"]),function(p,t){
+      if(t==="FT") return p.c&&p.c.flex?soldeFTClasseur(p.c.flex):null;
+      var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
     h.push('</tfoot>');
   }
   h.push('</table>');

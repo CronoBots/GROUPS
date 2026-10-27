@@ -6002,3 +6002,13 @@ s'ouvre. Mesuré : FT = FT+ + FT− pour les 15 personnes de l'équipe 1, les
 trois traits du bas à 2 px. À savoir : ce n'est pas le « Total » de la ligne
 430 du classeur, qui porte en plus le solde de fin 2025 (journal 04, le
 16/10/2026) ; le client a demandé la somme des deux lignes.
+
+Rectifié le même jour (`nfdm-v1142`). Le client : « la ligne avec le solde
+FT doit être dans le dernier tableau ». La ligne « FT » quitte les
+prévisions et ferme le tableau « compte tenu des prévisions » ; elle y
+montre le SOLDE, c'est-à-dire le « Total » de la ligne 430 du classeur
+(`soldeFTClasseur()`, report de 2025 compris), le chiffre que le client
+lit depuis le 16/10. Ce n'est plus la somme FT+ + FT− de l'année : les
+deux diffèrent du report (mesuré : 0 contre 1 pour une personne, 10 contre
+9 pour une autre). La première lecture de la demande, « somme FT− et
+FT+ », prise au mot, était la mauvaise ligne au mauvais endroit.
