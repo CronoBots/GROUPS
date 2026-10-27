@@ -3540,3 +3540,10 @@ Planning et dans l'horaire : « mar. 27 · 22 h – 6 h », et non « mar. 27
 22 h – mer. 28 6 h ». La relève garde son jour (« mer. 28 à 6 h »), le
 sous-titre l'heure réelle. Mesuré à 0 h 16 et 23 h 33 : même en-tête de
 nuit, 320 px sans débordement.
+
+Le 28/10/2026 à 0 h 19 (`nfdm-v1161`), le client : « pro ? ». Relu sur
+capture : les arrivants de la relève ne se distinguaient des présents que
+par un point creux de 7 px. Ils passent en retrait — fond transparent,
+filet pointillé, trigramme adouci ; « en trop » (jaune) et « CM » gardent
+leur couleur. Le reste a été jugé en ordre : bloc et jour de chaque pause,
+ordre du Planning, contremaître sur deux badges, légende seulement utile.
