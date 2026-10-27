@@ -5911,3 +5911,26 @@ sera uniquement au PC, par la RH, plus tard) ».
   à tort, dans la liste des codes. Désormais, tout mot de trois capitales
   reste en capitales, sauf une courte liste de mots français (LES, DES,
   PAR…). Remesuré au navigateur : « Rempl » suivi du trigramme en capitales.
+
+### Barre du bas, croix grise au toucher, annuler la recherche (27/10/2026, `nfdm-v1136`)
+
+Le client : « le menu du bas sur mobile doit être Accueil, Planning,
+Horaire, Équipe ; dans l'onglet Horaire, quand on clique sur une cellule
+pour voir un commentaire, il ne faut pas griser les deux colonnes sur toute
+leur hauteur ; lors d'une recherche, il faut un bouton à droite de la barre
+pour annuler la recherche et réafficher la vue complète ».
+
+- **Ordre** : Horaire en 3e, Équipes en 4e, Plus reste au bout. Mesuré :
+  Accueil · Planning · Horaire · Équipes · Plus.
+- **La croix grise** était le survol ligne-colonne de l'outil du client :
+  après un toucher, le téléphone simule un `mouseover`, et la croix restait
+  posée. Le survol ne suit plus que la souris (`pointerdown` tactile le
+  coupe). Épreuve : la séquence d'iOS (`pointerdown` tactile puis
+  `mouseover`) grisait 759 cases avec la version 1135, et 0 avec la 1136 ;
+  à la souris, 759 dans les deux, le survol reste au PC. Un simple
+  `touchscreen.tap` de Playwright ne reproduisait PAS la faute (0 avec
+  l'ancienne version aussi) : il n'émet pas le survol simulé d'iOS.
+- **Annuler** : une croix au format des autres boutons, à droite du champ,
+  dès que la recherche est ouverte ou remplie ; elle vide le champ, referme
+  la recherche et rend les 15 personnes de l'équipe. La croix native du
+  champ `search` la doublait (vu sur la capture) : masquée.
