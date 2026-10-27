@@ -2539,6 +2539,8 @@ html #grille .ws-site{margin-bottom:14px}
 .site-p[data-pers]:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 #siteCorps{padding-top:12px; padding-bottom:12px}
 .site-rel{margin:12px 0 0; padding-top:8px; border-top:1px solid var(--line2); font-size:12.5px; color:var(--ink2)}
+.site-rel{padding-top:12px}
+.site-ligne.site-arr .site-p::before{background:none; box-shadow:inset 0 0 0 1.5px var(--muted)}
 @media (max-width:360px){ .site-tab th{width:104px; font-size:12.5px} }
 .ws-qui{display:flex; align-items:center; gap:10px; min-width:0}
 .ws-qui .pl-tri{width:34px; height:34px}
@@ -19622,7 +19624,8 @@ function wsDateCourte(dt){ return JOURS_C[dt.getDay()]+" "+dt.getDate()+" "+MOIS
 var SITE_PAUSES=[["N","Nuit","p-n"],["AM","Matin","p-am"],["D","Jour","p-d"],["PM","Après-midi","p-pm"],["X","Horaires particuliers","f-autre"]];
 function surSite(t){
   var h=t.getHours()+t.getMinutes()/60, sur=[], arrivent=[], vus={};
-  [-1,0].forEach(function(dj){
+  /* le lendemain ne sert qu'à la relève : à 23 h, celle de 6 h */
+  [-1,0,1].forEach(function(dj){
     var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+dj), y=d.getFullYear(), m=d.getMonth()+1, j=d.getDate(), db=horaireDe(y);
     if(!db) return;
     var r=h-dj*24, eq={}; try{ eq=equipeALaPause(db,y,m,j)||{}; }catch(e){}
@@ -19630,14 +19633,18 @@ function surSite(t){
       if(vus[p.id]) return;
       var x=null; try{ x=lectureAgenda(db,p,y,m,j); }catch(e){}
       if(!x || !(x.presente||(x.ab&&/\+FT/.test(x.ab))) || PF_DEB[x.pv]==null) return;
-      var o={p:p, x:x, deb:pfDebut(x), fin:pfFin(x), eq:eq[x.pv]||""};
-      if(r>=o.deb && r<o.fin){ vus[p.id]=1; sur.push(o); }
+      var o={p:p, x:x, deb:pfDebut(x), fin:pfFin(x), eq:eq[x.pv]||"", dj:dj};
+      if(dj<1 && r>=o.deb && r<o.fin){ vus[p.id]=1; sur.push(o); }
       /* les trois heures se comptent jusqu'à la relève ANNONCÉE (l'heure de
          la pause), et non jusqu'à l'arrivée de la remise de pause : à 2 h 31,
          « Relève du matin à 6 h : 1 arrivée » précédait d'une demi-heure
          les 13 de 3 h (audit du 23/10/2026 ; v1018 : la remise « comptée
          avec, et non annoncée seule ») */
-      else if(dj===0 && o.deb>r){ var g0=siteSalon(o), tg=g0==="X"?o.deb:PF_DEB[g0]; if(tg-r<=3) arrivent.push(o); }
+      /* LA PROCHAINE RELÈVE À TOUTE HEURE (le client, le
+         27/10/2026 : « montrer les trigrammes de l'équipe qui relève ») :
+         la fenêtre de trois heures passe à douze, lendemain compris, pour
+         que la relève soit toujours nommée */
+      else if(dj>=0 && o.deb>r){ var g0=siteSalon(o), tg=g0==="X"?o.deb:PF_DEB[g0]; if(tg-r<=12) arrivent.push(o); }
     });
   });
   return {sur:sur, arrivent:arrivent};
@@ -19698,14 +19705,31 @@ function siteSalonsHTML(s,o){
 }
 /* la prochaine relève, par salon : celle du matin compte aussi ceux qui
    arrivent à 5 h 30 pour la remise de pause */
-function siteReleveHTML(s){
+function siteReleveHTML(s,o){
+  o=o||{};
   if(!s.arrivent.length) return "";
   var gA={}, best=null;
-  s.arrivent.forEach(function(o){ var g=siteSalon(o); (gA[g]=gA[g]||[]).push(o); });
-  Object.keys(gA).forEach(function(g){ var tg=g==="X"?Math.min.apply(null,gA[g].map(function(o){ return o.deb; })):PF_DEB[g];
-    if(!best||tg<best.t) best={g:g, t:tg, n:gA[g].length}; });
-  return '<p class="site-rel">'+(best.g==="X"?'Arrivée':'Relève '+{AM:"du matin",PM:"de l'après-midi",N:"de nuit",D:"de jour"}[best.g])
-    +' à '+siteH(best.t)+' : '+best.n+' arrivée'+(best.n>1?'s':'')+' prévue'+(best.n>1?'s':'')+'.</p>';
+  /* l'heure de relève comptée depuis aujourd'hui (le lendemain + 24) : le
+     matin de demain ne se confond pas avec celui d'aujourd'hui */
+  s.arrivent.forEach(function(x){ var g=siteSalon(x), tg=(g==="X"?x.deb:PF_DEB[g])+24*(x.dj||0); (gA[g+"|"+tg]=gA[g+"|"+tg]||[]).push(x); });
+  Object.keys(gA).forEach(function(c){ var g=c.split("|")[0], L=gA[c], tg=g==="X"?Number(c.split("|")[1]):Number(c.split("|")[1]);
+    /* la relève d'une ÉQUIPE passe devant une arrivée isolée (10 h – 18 h) */
+    if(!best||(best.g==="X"&&g!=="X")||((best.g==="X")===(g==="X")&&tg<best.t)) best={g:g, t:tg, L:L}; });
+  var L=best.L, eq=L.filter(function(x){ return x.eq; })[0];
+  /* les arrivants en étiquettes, comme les présents, un cercle vide au
+     lieu du point vert : ils ne sont pas encore là */
+  function etiquette(x){
+    var moi=!!o.moi&&x.p.id===o.moi, d0=best.g!=="X"&&x.deb===PF_DEB[best.g];
+    return '<span class="site-p'+(moi?' site-moi':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb))+'"':'')+'>'
+      +'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(d0||best.g==="X"?'':'<small>dès '+esc(siteH(x.deb))+'</small>')+'</span>';
+  }
+  /* l'en-tête au format de ceux des pauses présentes : pastille, nom,
+     équipe et heure, nombre à droite */
+  var z=SITE_PAUSES.filter(function(q){ return q[0]===best.g; })[0];
+  return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
+    +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
+    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
+    +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
 }
 var SITE_VIDE='<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>';
 function wsSiteHTML(){
@@ -19713,7 +19737,7 @@ function wsSiteHTML(){
   return '<section class="ws-carte ws-site" id="wsSite">'
     +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
     +'<p class="site-maj">En direct, d\'après l\'horaire · '+siteH(t.getHours()+t.getMinutes()/60)+'</p>'
-    +(siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s)+'</section>';
+    +(siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s,{lien:true})+'</section>';
 }
 /* SUR SITE, SUR L'ACCUEIL (le client, le 23/10/2026 : « ça peut être sympa
    pour les travailleurs de voir cela ») : la même carte, pour tout le
@@ -19728,7 +19752,7 @@ function renderSiteAccueil(){
   /* « d'après l'horaire », comme dans l'espace RH : ce n'est pas un
      pointage (audit du 23/10/2026) */
   document.getElementById("siteSub").textContent=s.sur.length+" présent"+(s.sur.length>1?"s":"")+" d’après l’horaire · "+siteH(t.getHours()+t.getMinutes()/60);
-  corps.innerHTML=(siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s);
+  corps.innerHTML=(siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s,{moi:trigCourant()});
   c.hidden=false;
   if(!SITE_TIC) SITE_TIC=setInterval(function(){ if(st.view==="horaire"&&!document.hidden) try{ renderSiteAccueil(); }catch(e){} },60000);
 }
