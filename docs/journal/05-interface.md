@@ -6012,3 +6012,37 @@ lit depuis le 16/10. Ce n'est plus la somme FT+ + FT− de l'année : les
 deux diffèrent du report (mesuré : 0 contre 1 pour une personne, 10 contre
 9 pour une autre). La première lecture de la demande, « somme FT− et
 FT+ », prise au mot, était la mauvaise ligne au mauvais endroit.
+
+### L'Horaire gardé en page : la réouverture six fois plus rapide (27/10/2026, `nfdm-v1143`)
+
+Le client : « le chargement du tableau Horaire est lent lors de l'appui de
+l'onglet ». Mesuré au processeur ralenti six fois (Chromium, 390 px) :
+3,9 à 6,7 s du toucher à l'image, 12 255 nœuds. Le profil a montré que la
+grille, déjà construite, n'était PAS refaite (grSignature) : le temps était
+la remise en page des 12 000 cases, forcée par la première mesure venue
+(`getBoundingClientRect` de pfAfaireVoir, `innerWidth` de grSignature),
+parce que l'espace fermé passait en `display:none` et perdait sa mise en
+page.
+
+- Fermé depuis l'Horaire, l'espace reste en page, mis de côté par
+  `content-visibility:hidden` (classe `garde`) : ni peint, ni cliquable,
+  ni atteignable au clavier, ni lu. Mesuré : montrer 875 ms après
+  `display:none`, 13 ms après `content-visibility`.
+- **Deux erreurs avant d'y arriver.** `visibility:hidden` d'abord : la
+  mesure semblait PIRE (3 009 ms), et l'application entière ne gagnait
+  rien. La règle ne s'appliquait simplement pas : la règle globale
+  `[hidden]{display:none!important}` l'emportait (calculé : `display:
+  none`). Il faut `display:flex!important`. Une mesure sans vérifier que
+  le mécanisme mord avait failli faire conclure « visibility est pire ».
+- pfAfaireVoir ne mesure plus l'Accueil sous l'espace ouvert (3,4 s de
+  remise en page forcée), il remesure à la fermeture ; le redimensionnement
+  ne mesure plus la grille fermée (la largeur est dans grSignature,
+  l'ouverture suivante refait la grille).
+- Résultat, ralenti six fois : réouvertures 3 143 et 4 777 ms → 633 et
+  673 ms. La PREMIÈRE ouverture d'une session reste à ≈ 3,8 s ralenti
+  (construction et première mise en page) : préconstruire au repos ne
+  gagnerait que la construction (≈ 20 %), la mise en page n'ayant pas lieu
+  tant que l'espace est caché.
+- Vérifié : l'Accueil reste cliquable au-dessus de l'espace gardé, Tab
+  n'y entre pas, une largeur changée refait la grille à la réouverture,
+  bulle et sélection fonctionnent.
