@@ -19687,7 +19687,15 @@ function siteSalonsHTML(s,o){
   /* le poste du jour ; sans poste lu ce jour-là (un contremaître en remise
      de pause), son poste habituel */
   function poste(x){ var q=""; POSTES_TRAVAIL.forEach(function(P){ if(P.k===k(x)) q=P.t; }); return q||wsPosteEq(x.p)[0]||"Autre"; }
-  s.sur.forEach(function(x){ var g=siteSalon(x); (groupes[g]=groupes[g]||[]).push(x); });
+  /* LE BLOC ET L'ORDRE DU PLANNING (le client, le 27/10/2026 : « JBI doit
+     être affiché dans l'effectif de nuit, et les trigrammes dans le même
+     ordre que dans le Planning : contremaître, adjoint, meunerie,
+     gluten… ») : une personne va au bloc de la pause où le Planning la
+     place à cette heure-ci (sitePlace), pas à celui que ses heures
+     dessinent — le 18 h – 6 h qui tient la nuit était rangé aux horaires
+     particuliers ; et s'y range au rang du Planning. */
+  var plans=sitePlans(), hNow=new Date().getHours()+new Date().getMinutes()/60;
+  s.sur.forEach(function(x){ var pl=sitePlace(plans,x.p.id,hNow), g=pl?pl.pz:siteSalon(x); x.rang=pl?pl.rang:1e6; (groupes[g]=groupes[g]||[]).push(x); });
   /* le contremaître de la pause en cours, s'il est sur site (siteCmIci) */
   var cmIci=siteCmIci(s), cmPz=cmDePause().pz;
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
@@ -19712,7 +19720,7 @@ function siteSalonsHTML(s,o){
          reste quand elle s'écarte de la pause. Le poste reste à l'écoute
          (aria-label) et dans le Planning. */
       +(z[0]==="X"?"":siteEffHTML(L,k,z[0]===cmPz?cmIci:[]))
-      +'<div class="site-ps site-ligne">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
+      +'<div class="site-ps site-ligne">'+L.slice().sort(siteOrdre).map(etiquette).join("")+'</div></div>';
   });
   return blocs.length?'<div class="site-salons">'+blocs.join("")+'</div>':"";
 }
@@ -19773,6 +19781,34 @@ function siteTrop(d,pz){
   }catch(er){}
   return r;
 }
+/* où le Planning place chacun, pause par pause, d'hier soir à demain :
+   {id, pz, a, b, rang} — a et b les heures où il y est (comptées depuis
+   aujourd'hui) : la pause entière, remise de pause comprise, ou sa part de
+   relais ; rang, celui du Planning (poste dans l'ordre de POSTES_TRAVAIL,
+   puis place dans la case) */
+function sitePlans(){
+  var out=[];
+  [[-1,"N"],[0,"AM"],[0,"D"],[0,"PM"],[0,"N"],[1,"AM"],[1,"D"],[1,"PM"]].forEach(function(c){
+    var d=siteJour(c[0]), off=24*c[0];
+    try{ var e=rcEquipe(dmIso(d)), l=e&&e.par[c[1]]; if(!l||!l.length) return;
+      var vue=postesDePause(e.db,l,c[1],pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),c[1]==="AM"?e.par.D:null);
+      var a0=(c[1]==="D"?PF_DEB.D:PF_DEB[c[1]]-0.5)+off, b0=PF_FIN[c[1]]+off;
+      vue.postes.forEach(function(q,qi){
+        q.gens.forEach(function(g,gi){ out.push({id:g.p.id, pz:c[1], a:a0, b:b0, rang:qi*100+gi}); });
+        (q.relais||[]).forEach(function(r,ri){ out.push({id:r.p.id, pz:c[1], a:r.de+off, b:r.b+off, rang:qi*100+50+ri, relais:true}); });
+      });
+      (vue.formation||[]).forEach(function(g,gi){ out.push({id:g.p.id, pz:c[1], a:a0, b:b0, rang:9000+gi}); });
+    }catch(er){}
+  });
+  return out;
+}
+/* la place d'une personne à l'heure h : sa part de relais d'abord, sinon la
+   pause qui la compte ; rien, et l'appelant revient aux heures */
+function sitePlace(plans,id,h){
+  var c=plans.filter(function(o){ return o.id===id&&o.a<=h+1e-6&&h<o.b; });
+  return c.filter(function(o){ return o.relais; })[0]||c[0]||null;
+}
+function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }
 function siteJour(dj){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()+(dj||0)); }
 function siteEffHTML(L,k,cmIci){
   var cm=(cmIci||[]).map(idLisible).sort();
@@ -19790,7 +19826,8 @@ function siteReleveHTML(s,o){
   Object.keys(gA).forEach(function(c){ var g=c.split("|")[0], L=gA[c], tg=g==="X"?Number(c.split("|")[1]):Number(c.split("|")[1]);
     /* la relève d'une ÉQUIPE passe devant une arrivée isolée (10 h – 18 h) */
     if(!best||(best.g==="X"&&g!=="X")||((best.g==="X")===(g==="X")&&tg<best.t)) best={g:g, t:tg, L:L}; });
-  var L=best.L, eq=L.filter(function(x){ return x.eq; })[0], dR=siteJour(L[0].dj), trop=siteTrop(dR,best.g), cmR=null;
+  var L=best.L, eq=L.filter(function(x){ return x.eq; })[0], dR=siteJour(L[0].dj), trop=siteTrop(dR,best.g), cmR=null, plansR=sitePlans();
+  L.forEach(function(x){ var pl=sitePlace(plansR,x.p.id,best.t); x.rang=pl?pl.rang:1e6; });
   /* LE CONTREMAÎTRE DE LA PAUSE D'APRÈS (le client, le 27/10/2026) : celui
      que l'horaire place au poste (rcContremaitre), arrivé ou non avec la
      relève — un 18 h – 6 h n'arrive pas à 22 h */
@@ -19826,7 +19863,7 @@ function siteReleveHTML(s,o){
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
     +(eq?'Équipe '+esc(eq.eq)+' · ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
     +(cmR?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
-    +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }).map(etiquette).join("")+'</div></div>';
+    +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
 /* le jaune se lit sans deviner : une légende, seulement s'il sert */
 function siteLegende(h){ return h+(h.indexOf("site-trop")>=0?'<p class="site-leg"><i aria-hidden="true"></i>En jaune : en trop au poste</p>':''); }

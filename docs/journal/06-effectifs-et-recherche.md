@@ -3458,3 +3458,27 @@ ne vaut que jusqu'à 6 h ; la relève écrit chaque relais avec sa part
 **Leçon** : avant de laisser un « ? », relire les commentaires de TOUS
 ceux de la journée qui nomment le poste ou son titulaire (règle de
 CLAUDE.md, « les commentaires d'abord ») — les trois phrases étaient là.
+
+### Sur site : le bloc et l'ordre du Planning (27/10/2026, `nfdm-v1155`)
+
+Le client, capture à 23 h 12 : « JBI doit être affiché dans l'effectif de
+nuit, et les trigrammes dans le même ordre que ce qui serait affiché dans
+le Planning (contremaître, puis adjoint, puis meunerie, puis gluten…) ».
+Le contremaître de nuit en 18 h – 6 h était rangé aux « horaires
+particuliers » : le bloc se tirait de ses heures (`siteSalon`), et la liste
+était alphabétique.
+
+- `sitePlans()` lit où le Planning (postesDePause) place chacun, d'hier
+  soir à demain : la pause entière (remise de pause comprise) ou sa part de
+  relais, et son rang (poste dans l'ordre de POSTES_TRAVAIL, puis place
+  dans la case ; les apprentis à la fin). `sitePlace()` choisit, à l'heure
+  dite, la part de relais d'abord, sinon la pause qui le compte ; à défaut
+  seulement, les heures décident comme avant.
+- Mesuré, heure fixée : 23 h 12 le 27/10 → Nuit 10, le contremaître en
+  tête, plus de bloc « horaires particuliers » ; 17 h → le 6 h – 18 h en
+  tête de l'après-midi ; 19 h → le 18 h – 6 h en tête de l'après-midi (sa
+  part de relais 18-22) ; le 1/11 à 3 h → l'adjoint en relais en tête de la
+  nuit. La relève suit le même ordre.
+- Conséquence voulue : les gens de jour que le Planning compte au matin
+  (la distillation en 7 h – 15 h) passent du bloc « Jour » au bloc
+  « Matin », comme au Planning (13 h 10 : Matin 17, Jour 5).
