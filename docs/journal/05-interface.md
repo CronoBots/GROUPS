@@ -5934,3 +5934,23 @@ pour annuler la recherche et réafficher la vue complète ».
   dès que la recherche est ouverte ou remplie ; elle vide le champ, referme
   la recherche et rend les 15 personnes de l'équipe. La croix native du
   champ `search` la doublait (vu sur la capture) : masquée.
+
+### Horaire : sélectionner une ligne (27/10/2026, `nfdm-v1137`)
+
+Le client : « dans Horaire, il faut pouvoir sélectionner une ligne ». Un
+toucher sur le jour ou sur une case marque la journée comme une ligne
+d'Excel : teinte bleue, liseré bleu dessus et dessous, le numéro du jour en
+plein bleu. Une seule ligne à la fois ; un second toucher sur le jour la
+libère ; elle survit aux rendus (`GR.ligne`, année + jour). Le toucher d'une
+case commentée ouvre la bulle ET marque la ligne. Mesuré au toucher simulé :
+jour → ligne marquée ; autre case → la sélection suit ; jour retouché →
+aucune. Premier essai du test : rien de marqué, parce que les lignes
+touchées étaient hors de l'écran — le test les ramène désormais au centre.
+
+Il a aussi demandé si les commentaires posés dans la colonne de gauche, de
+droite ou dans les deux sont pris en compte : oui, depuis la correction
+`_les_deux()` du convertisseur (684 journées en portaient deux différents
+sur le classeur du 23/09/2026). Les deux sont joints par un saut de ligne,
+le plus complet seul quand l'un contient l'autre. L'application montre
+le coin rouge sur la case de droite quel que soit le côté, et la bulle
+s'ouvre depuis l'une ou l'autre case : le JSON ne garde pas le côté.

@@ -6918,6 +6918,10 @@ html .hp-t tbody tr.hp-auj.hp-sem{--rb:#fde68a} html .hp-t tbody tr.hp-auj.hp-we
 html .hp-t tbody tr.hp-hr{--rb:#fef6aa} html .hp-t tbody tr.hp-hr.hp-bleu{--rb:#B7D0EF} html .hp-t tbody tr.hp-hr.hp-we{--rb:#b6bcc6} html .hp-t tbody tr.hp-hr.hp-fe{--rb:#ffd79a}
 html .hp-t tbody td{background:var(--rb)}
 html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
+/* la ligne sélectionnée : teinte bleue et liseré, le jour en plein bleu */
+html .hp-t tbody tr.hp-lsel td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 62%,#60a5fa); box-shadow:inset 0 2px 0 #1d4ed8,inset 0 -2px 0 #1d4ed8}
+html .hp-t tbody tr.hp-lsel td.hp-jour{background:#1d4ed8; color:#fff}
+html .hp-t tbody td.hp-jour{cursor:pointer}
 html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
 html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:900; font-size:13px; border-right:2px solid #64748b}
@@ -18740,7 +18744,7 @@ function renderGrille(){
     var md=pad2(dt.getMonth()+1)+pad2(dt.getDate()), k=an+md, dw=dt.getDay();
     var we=dw===0||dw===6, fe=!!fer[an+"-"+md.slice(0,2)+"-"+md.slice(2)];
     var cl=[fe?"hp-fe":(we?"hp-we":"hp-sem")]; if(!we&&!fe&&dt.getMonth()%2===1) cl.push("hp-bleu");
-    if(k===ajk) cl.push("hp-auj pl-auj"); if(dw===0&&ix) cl.push("hp-ssem");
+    if(k===ajk) cl.push("hp-auj pl-auj"); if(dw===0&&ix) cl.push("hp-ssem"); if(GR.ligne===k) cl.push("hp-lsel");
     var fin=ix===jours.length-1||jours[ix+1].getMonth()!==dt.getMonth(); if(fin) cl.push("hp-smois");
     h.push('<tr class="'+cl.join(" ")+'" data-md="'+md+'">');
     if(dt.getDate()===1||ix===0){ var nm=new Date(an,dt.getMonth()+1,0).getDate()-dt.getDate()+1;
@@ -20850,6 +20854,16 @@ function renderHisto(){
        « l'horaire de l'onglet Horaire ne doit pas être modifiable ; il le
        sera uniquement sur la version PC, par la RH, plus tard ») : une case
        commentée ouvre sa bulle, les autres ne font rien. */
+    /* LA LIGNE SÉLECTIONNÉE (le client, le 27/10/2026 : « il faut pouvoir
+       sélectionner une ligne ») : un toucher sur le jour ou sur une case
+       marque la journée, comme une ligne d'Excel ; un second toucher sur
+       le jour la libère. Une seule à la fois, gardée au fil des rendus. */
+    var tdl=e.target.closest&&e.target.closest("tbody td"), trl=tdl&&!tdl.classList.contains("hp-mois")&&tdl.parentNode;
+    if(trl&&trl.getAttribute("data-md")){
+      var cle=(GR.debut?GR.debut.getFullYear():"")+trl.getAttribute("data-md"), deja=trl.classList.contains("hp-lsel");
+      [].forEach.call(this.querySelectorAll("tr.hp-lsel"),function(x){ x.classList.remove("hp-lsel"); });
+      if(deja&&tdl.classList.contains("hp-jour")) GR.ligne=null; else { GR.ligne=cle; trl.classList.add("hp-lsel"); }
+    }
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
