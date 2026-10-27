@@ -3495,3 +3495,24 @@ porte toujours ses heures : sa part de relais bornée à sa présence, sinon
 toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h »). Mesuré : 167 px pour
 79 px à 320, 172 pour 82 à 1280 (deux badges et l'espace), aucun
 débordement ; espace RH sans erreur.
+
+### Sur site : le cadre allégé (27/10/2026, `nfdm-v1157`)
+
+Le client : « comment optimiser ce cadre ? ». Relevé sur captures à 13 h 10
+et 23 h 33, puis corrigé :
+
+- **Le contremaître dit deux fois** : « Contremaître FLI » en ligne, puis
+  le badge FLI avec ses heures juste dessous. La ligne disparaît quand le
+  contremaître est en badge dans le bloc ; son badge porte « CM » en tête
+  et un filet de la marque. Elle reste quand il tient la pause depuis un
+  autre bloc (la relève de 14 h du 27/10 : « FLI 14 h – 18 h, JBI 18 h –
+  22 h », ni l'un ni l'autre parmi les arrivants).
+- **Les cadres de jour pris pour contremaîtres** : en D, le poste de
+  contremaître du Planning porte les cadres de jour ; leurs heures
+  (7 h – 15 h, celles du bloc) s'affichaient en double largeur. Le
+  contremaître ne se marque plus qu'en AM, PM et N.
+- Mesuré : à 320 et 1280 px, aucun débordement, le badge CM à deux places
+  (167 px pour 79) ; espace RH sans erreur.
+- **Laissé** : les trous de la grille après un badge double (l'ordre du
+  Planning, demandé, passe avant le remplissage ; `grid-auto-flow:dense`
+  le défairait).

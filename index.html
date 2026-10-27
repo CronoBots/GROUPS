@@ -2534,6 +2534,9 @@ html #grille .ws-site{margin-bottom:14px}
    contremaître toujours) en prend deux (le client, le 27/10/2026) */
 .site-ps.site-ligne{display:grid; grid-template-columns:repeat(auto-fill,minmax(66px,1fr)); gap:8px}
 .site-ps.site-ligne .site-p.site-large{grid-column:span 2}
+/* le contremaître : « CM » en tête, filet de la marque */
+.site-p.site-cm{border-color:color-mix(in srgb,var(--in) 55%,var(--line2))}
+.site-p .site-r{font-style:normal; font-size:10.5px; font-weight:800; letter-spacing:.04em; color:var(--in); margin-right:-2px}
 .site-ligne{gap:8px; padding-top:10px}
 .site-ligne .site-p{position:relative; padding-left:20px}
 .site-ligne .site-p::before{content:""; position:absolute; left:8px; top:50%; width:7px; height:7px; margin-top:-3.5px; border-radius:50%;
@@ -19716,7 +19719,7 @@ function siteSalonsHTML(s,o){
       if(cm) plage=siteCmPlage(x);
       if(trop[x.p.id]) dit+=", en trop au poste";
       return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage||nc?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
-        +'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
+        +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
     }
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site")+'">'
       +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])+'</span>')+'</span><em>'+L.length+'</em></p>'
@@ -19817,14 +19820,19 @@ function sitePlace(plans,id,h){
   var c=plans.filter(function(o){ return o.id===id&&o.a<=h+1e-6&&h<o.b; });
   return c.filter(function(o){ return o.relais; })[0]||c[0]||null;
 }
-function siteEstCm(x){ return !!(x.pl&&x.pl.pk==="cm"); }
+/* contremaître de pause seulement : en D, ce sont les cadres de jour */
+function siteEstCm(x){ return !!(x.pl&&x.pl.pk==="cm"&&/^(AM|PM|N)$/.test(x.pl.pz)); }
 /* les heures du contremaître : sa part de relais, bornée à sa présence ;
    sinon toute sa présence (« 18 h – 6 h », « 5 h 30 – 14 h ») */
 function siteCmPlage(x){ var o=24*(x.dj||0), r=x.pl&&x.pl.relais?[Math.max(x.pl.a,x.deb+o),Math.min(x.pl.b,x.fin+o)]:[x.deb,x.fin]; return sitePlage(r[0],r[1]); }
 function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).localeCompare(String(idLisible(b.p.id))); }
 function siteJour(dj){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()+(dj||0)); }
 function siteEffHTML(L,k,cmIci){
-  var cm=(cmIci||[]).map(idLisible).sort();
+  /* le contremaître déjà en badge (le sien porte « CM » et ses heures) ne
+     se répète pas en ligne : la ligne ne reste que pour celui qui tient la
+     pause depuis un autre bloc (le 31/10 à 20 h, celui des chaudières) */
+  var enBadge={}; L.forEach(function(x){ if(siteEstCm(x)) enBadge[x.p.id]=1; });
+  var cm=(cmIci||[]).filter(function(i){ return !enBadge[i]; }).map(idLisible).sort();
   return cm.length?'<p class="site-eff"><span>Contremaître <b>'+esc(cm.join(", "))+'</b></span></p>':"";
 }
 /* la prochaine relève, par salon : celle du matin compte aussi ceux qui
@@ -19868,7 +19876,7 @@ function siteReleveHTML(s,o){
     var moi=!!o.moi&&x.p.id===o.moi, d0=best.g!=="X"&&x.deb===PF_DEB[best.g], cm=siteEstCm(x),
         plage=cm?siteCmPlage(x):(d0||best.g==="X"?"":"dès "+siteH(x.deb));
     return '<span class="site-p'+(moi?' site-moi':'')+(trop[x.p.id]?' site-trop':'')+(cm?' site-cm':'')+(plage?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc((grNom(x.p)||idLisible(x.p.id))+(moi?" (vous)":"")+", arrive à "+siteH(x.deb)+(trop[x.p.id]?", en trop au poste":""))+'"':'')+(trop[x.p.id]&&!o.lien?' title="En trop au poste"':'')+'>'
-      +'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
+      +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
   }
   /* l'en-tête au format de ceux des pauses présentes : pastille, nom,
      équipe et heure, nombre à droite */
@@ -19876,7 +19884,7 @@ function siteReleveHTML(s,o){
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
     +(eq?'Équipe '+esc(eq.eq)+' · ':'')+'à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
-    +(cmR?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
+    +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
 /* le jaune se lit sans deviner : une légende, seulement s'il sert */
