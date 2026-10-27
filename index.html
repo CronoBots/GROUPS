@@ -2750,7 +2750,7 @@ html .mqinc{font-size:12px}
   #grVue button::after{content:attr(data-court); font-size:12px}
   .pl-loupe{display:grid}
   .pl-barre input[type=search]{display:none}
-  .pl-barre.cherche > *:not(input):not(.pl-loupe){display:none}
+  .pl-barre.cherche > *:not(input):not(.pl-loupe):not(.pl-annul){display:none}
   .pl-barre.cherche input[type=search]{display:block; flex:1}
   .pl-equipes{padding:0 12px 8px}
   .pl-equipes button{padding:6px 11px; font-size:12px}
@@ -6796,8 +6796,10 @@ html .eqleg-souris{display:none}
      barre porte déjà (sideMaj) se montre en 4e ; Effectifs, et ses
      pastilles, passe dans « Plus » */
   html .navwrap>.tabs:has(.side-ws-inj[data-side-ws="planning"]) #tab-rh{display:none}
-  html .navwrap>.tabs #tab-horaire{order:1} html .navwrap>.tabs #tab-jour{order:2} html .navwrap>.tabs #tab-equipe{order:3}
-  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"]{display:flex; order:4; align-items:center; justify-content:center}
+  /* l'ordre, le client, le 27/10/2026 : « Accueil, Planning, Horaire,
+     Équipe » — l'Horaire passe en 3e, Équipes en 4e, Plus reste au bout */
+  html .navwrap>.tabs #tab-horaire{order:1} html .navwrap>.tabs #tab-jour{order:2} html .navwrap>.tabs #tab-equipe{order:4}
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"]{display:flex; order:3; align-items:center; justify-content:center}
   html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"] span{display:none}
   html .navwrap>.tabs #tab-plus{order:5}
   html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{color:var(--marque-vif); background:rgba(105,178,203,.28); border-radius:20px;
@@ -7341,12 +7343,22 @@ html body .grille .ws-planning .pl-barre .pl-nav button::after,html body .grille
 html body .grille .ws-planning .pl-barre #grAuj svg{display:block}
 html body .grille .ws-planning .pl-barre .pl-loupe{order:-1}
 html body .grille .ws-planning .pl-barre #grAuj{order:1}
+/* ANNULER LA RECHERCHE (le client, le 27/10/2026 : « un bouton à droite de
+   la barre pour annuler la recherche et réafficher la vue complète ») : une
+   croix au format des autres boutons, montrée dès que la recherche est
+   ouverte ou remplie */
+html .pl-barre .pl-annul{display:none}
+html body .grille .ws-planning .pl-barre:is(.cherche,.rempli) .pl-annul{display:grid; order:2; width:36px; height:36px; flex:0 0 auto; place-items:center; padding:0; position:relative;
+  border:1px solid var(--trait); border-radius:13px; background:var(--surface); color:var(--ink); box-shadow:none; cursor:pointer}
+html body .grille .ws-planning .pl-barre .pl-annul::after{content:""; position:absolute; inset:-4px}
+/* la croix du navigateur, dans le champ, doublait la nôtre (mesuré le 27/10/2026) */
+html #grCherche::-webkit-search-cancel-button{-webkit-appearance:none; appearance:none; display:none}
 html body .grille .ws-planning .pl-barre input[type=search]{background:var(--surface); color:var(--ink); border:1px solid var(--trait); border-radius:13px; height:36px; box-shadow:none}
 /* la recherche ouverte au téléphone : la loupe et le champ seuls, sur toute
    la largeur — les flèches et « aujourd'hui », passés devant la règle qui
    les cachait, écrasaient le champ (mesuré le 26/10/2026) */
 @media (max-width:699px){
-  html body .grille .ws-planning .pl-barre.cherche > :not(input):not(.pl-loupe){display:none}
+  html body .grille .ws-planning .pl-barre.cherche > :not(input):not(.pl-loupe):not(.pl-annul){display:none}
   html body .grille .ws-planning .pl-barre.cherche > #grAuj{display:none}
   html body .grille .ws-planning .pl-barre.cherche input[type=search]{display:block; flex:1 1 auto; min-width:0; padding:0 12px; font:inherit; font-size:15px}
 }
@@ -8450,6 +8462,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
         <div class="pl-seg" id="grVue" role="group" aria-label="Affichage"><button type="button" data-v="semaine" data-court="Sem.">Semaine</button><button type="button" data-v="mois" data-court="Mois">Mois</button></div>
         <button type="button" class="pl-loupe" id="grLoupe" aria-label="Rechercher une personne" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
         <input type="search" id="grCherche" placeholder="Rechercher une personne" aria-label="Rechercher une personne">
+        <button type="button" class="pl-annul" id="grAnnuler" aria-label="Annuler la recherche"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <!-- LES ÉQUIPES EN PILULES, AU-DESSUS DE LA GRILLE (le client, le
            22/10/2026, son outil « Horaires » en modèle) : Équipe 1 à 5,
@@ -20770,7 +20783,7 @@ function renderHisto(){
     GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau();
     /* une pilule touchée pendant une recherche (qui parcourt tout) l'efface :
        sinon la pilule ne changerait rien (audit du 23/10/2026) */
-    if(GR.cherche){ GR.cherche=""; document.getElementById("grCherche").value=""; }
+    if(GR.cherche){ GR.cherche=""; var gc=document.getElementById("grCherche"); gc.value=""; gc.parentNode.classList.remove("rempli"); }
     renderGrille();
   });
   /* la grille se refait à la fin de la frappe, et non à chaque lettre
@@ -20778,15 +20791,30 @@ function renderHisto(){
      pilule ou la loupe a pu vider entre-temps */
   var grT=null;
   document.getElementById("grCherche").oninput=function(){ var c=this; clearTimeout(grT);
+    c.parentNode.classList.toggle("rempli",!!c.value);
     grT=setTimeout(function(){ var v=c.value.trim(); if(v!==GR.cherche){ GR.cherche=v; renderGrille(); } },180); };
+  document.getElementById("grAnnuler").onclick=function(){
+    var c=document.getElementById("grCherche"), bar=c.parentNode, l=document.getElementById("grLoupe");
+    clearTimeout(grT); c.value=""; bar.classList.remove("cherche","rempli"); if(l) l.setAttribute("aria-expanded","false");
+    if(GR.cherche){ GR.cherche=""; renderGrille(); setTimeout(grCentrer,30); }
+    try{ (l&&l.offsetParent?l:c).focus(); }catch(x){}
+  };
   document.getElementById("grZone").addEventListener("click",function(e){
     if(!e.target.closest||!e.target.closest("[data-gr-effacer]")) return;
-    var c=document.getElementById("grCherche"); clearTimeout(grT); c.value=""; GR.cherche=""; renderGrille(); setTimeout(grCentrer,30); try{ c.focus(); }catch(x){}
+    var c=document.getElementById("grCherche"); clearTimeout(grT); c.value=""; c.parentNode.classList.remove("rempli"); GR.cherche=""; renderGrille(); setTimeout(grCentrer,30); try{ c.focus(); }catch(x){}
   });
   /* LA LIGNE ET LA COLONNE SURVOLÉES, comme l'outil du client */
   (function(){ var z=document.getElementById("grZone"), lt=null, lc=[];
     function nettoyer(){ if(lt) lt.classList.remove("hp-hr"); lc.forEach(function(x){ x.classList.remove("hp-hc"); }); lt=null; lc=[]; }
-    z.addEventListener("mouseover",function(e){ var c=e.target.closest&&e.target.closest("[data-ci]"); if(!c){ nettoyer(); return; }
+    /* AU DOIGT, PAS DE CROIX (le client, le 27/10/2026 : « quand on clique
+       sur une cellule pour voir un commentaire, il ne faut pas griser les
+       deux colonnes sur toute leur hauteur ») : le téléphone simule un
+       survol après chaque toucher, qui restait posé. Le survol ne suit plus
+       que la souris. */
+    var tactile=false;
+    z.addEventListener("pointerdown",function(e){ tactile=e.pointerType!=="mouse"; if(tactile) nettoyer(); });
+    z.addEventListener("pointermove",function(e){ if(e.pointerType==="mouse") tactile=false; });
+    z.addEventListener("mouseover",function(e){ if(tactile) return; var c=e.target.closest&&e.target.closest("[data-ci]"); if(!c){ nettoyer(); return; }
       var tr=c.parentNode, ci=c.getAttribute("data-ci"); if(tr===lt&&lc.length&&lc[0].getAttribute("data-ci")===ci) return; nettoyer();
       if(tr.parentNode.tagName==="TBODY"){ lt=tr; tr.classList.add("hp-hr"); }
       if(!GR.colCache[ci]) GR.colCache[ci]=[].slice.call(z.querySelectorAll('[data-ci="'+ci+'"]'));
@@ -20798,7 +20826,7 @@ function renderHisto(){
   /* au téléphone, la recherche est une loupe : la place va au planning */
   document.getElementById("grLoupe").onclick=function(){
     var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));
-    var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; GR.cherche=""; renderGrille(); }
+    var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; bar.classList.remove("rempli"); GR.cherche=""; renderGrille(); }
   };
   /* LA GRILLE AU CLAVIER (audit du 23/10/2026) : les flèches vont de case
      en case (le premier jour remonte au nom), Entrée ouvre la feuille de la
