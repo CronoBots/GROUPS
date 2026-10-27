@@ -2512,8 +2512,6 @@ html #grille .ws-site{margin-bottom:14px}
 .site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
 .site-eff>span{display:inline-flex; align-items:center; gap:5px; white-space:nowrap}
 .site-eff b{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
-.site-z{width:8px; height:8px; border-radius:2px; flex:0 0 auto}
-.site-z.pt-meu{background:#e9c46a} .site-z.pt-fer{background:#8fc27a}
 .site-st em{margin-left:auto; font-style:normal; font-weight:700; font-size:13.5px; font-variant-numeric:tabular-nums; color:var(--ink)}
 /* une ligne par poste : le poste à gauche, ses présents en étiquettes */
 .site-tab{width:100%; border-collapse:collapse}
@@ -19711,9 +19709,8 @@ function siteSalonsHTML(s,o){
   });
   return blocs.length?'<div class="site-salons">'+blocs.join("")+'</div>':"";
 }
-/* LE CONTREMAÎTRE ET L'EFFECTIF AVANT / ARRIÈRE D'UNE PAUSE PRÉSENTE (le
-   client, le 27/10/2026 : « pour ceux présents, affiche le contremaître et
-   l'effectif avant/arrière ») — voir siteCote pour le partage. */
+/* LE CONTREMAÎTRE D'UNE PAUSE PRÉSENTE (le client, le 27/10/2026 : « pour
+   ceux présents, affiche le contremaître ») */
 /* LE CONTREMAÎTRE SUR SITE : ceux que l'horaire place au poste de
    contremaître (postesDePause, comme rcContremaitre) d'une pause d'hier
    soir ou d'aujourd'hui, ET qui sont sur site en ce moment. Il s'affiche
@@ -19733,37 +19730,11 @@ function siteCmIci(s){
   s.sur.forEach(function(x){ sur[x.p.id]=1; });
   return ids.filter(function(i){ return sur[i]; });
 }
-/* AVANT OU ARRIÈRE (le client, le 27/10/2026 : « l'avant, c'est gluten,
-   meunerie, polyvalent avant et renfort avant ; l'arrière, tout le reste,
-   STEP compris ») : le poste du jour quand l'horaire le dit (meunerie,
-   gluten → avant ; tout autre poste → arrière), sinon la fonction écrite
-   au classeur, ligne 9 de la feuille d'équipe (« Renfort avant », un
-   « Polyvalent » hors des colonnes O et P, comme grTeinteCol). Contremaître
-   et adjoints ne comptent ni d'un côté ni de l'autre. La première version
-   ne rangeait que les postes lus du jour : à 13 h 10, 7 présents sur 14
-   n'étaient comptés nulle part. */
-function siteCote(x,q){
-  if(q==="cm"||q==="adj") return null;
-  var P=POSTES_TRAVAIL.filter(function(P){ return P.k===q; })[0];
-  if(P) return P.z==="jaune"?"av":"ar";
-  var r=null, po=x.p.postes||{};
-  /* la feuille d'équipe d'abord ; sinon Opérateurs, Step… (« chaudières
-     éq. 3 », « Station d'épuration ») ; le Contremaître seul ne compte pas */
-  Object.keys(po).forEach(function(f){ if(/^Shift/.test(f)&&!r) r=po[f]; });
-  Object.keys(po).forEach(function(f){ if(f!=="Contremaître"&&!r) r=po[f]; });
-  if(!r) return po["Contremaître"]?null:"ar";
-  var lab=String(r.p||"").trim(), col=String(r.c||"");
-  if(/adjoint|contrema/i.test(lab)) return null;
-  if(/meun|glut|renf\S*\s+avant/i.test(lab)||(/^polyvalent$/i.test(lab)&&col!=="O"&&col!=="P")) return "av";
-  return "ar";
-}
+/* l'effectif avant / arrière, ajouté puis retiré à la demande du client
+   le même jour (27/10/2026) : ne reste que le contremaître */
 function siteEffHTML(L,k,cmIci){
-  var cm=(cmIci||[]).map(idLisible).sort(), n={av:0, ar:0};
-  L.forEach(function(x){ if((cmIci||[]).indexOf(x.p.id)>=0) return; var c=siteCote(x,k(x)); if(c) n[c]++; });
-  var h=[];
-  if(cm.length) h.push('<span>Contremaître <b>'+esc(cm.join(", "))+'</b></span>');
-  if(n.av||n.ar){ h.push('<span><i class="site-z pt-meu"></i>Avant <b>'+n.av+'</b></span>'); h.push('<span><i class="site-z pt-fer"></i>Arrière <b>'+n.ar+'</b></span>'); }
-  return h.length?'<p class="site-eff">'+h.join("")+'</p>':"";
+  var cm=(cmIci||[]).map(idLisible).sort();
+  return cm.length?'<p class="site-eff"><span>Contremaître <b>'+esc(cm.join(", "))+'</b></span></p>':"";
 }
 /* la prochaine relève, par salon : celle du matin compte aussi ceux qui
    arrivent à 5 h 30 pour la remise de pause */
