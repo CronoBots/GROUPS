@@ -5965,3 +5965,16 @@ numéro du jour en bleu. `data-com` ne se pose plus que sur la case
 d'annotation commentée : mesuré, 0 case sans coin rouge porte un
 commentaire ; toucher la case de gauche marque la ligne sans ouvrir de
 bulle, toucher le coin rouge l'ouvre.
+
+### La sélection marque aussi les deux colonnes de l'opérateur (27/10/2026, `nfdm-v1139`)
+
+Le client : « la sélection horizontale doit sélectionner les deux colonnes
+de l'opérateur en plus ». Une case touchée marque sa ligne ET les deux
+colonnes de sa personne (même voile bleu léger, plus soutenu à la croisée ;
+le nom en bleu, souligné de 2 px). Le jour seul ne marque que la ligne ; le
+jour retouché libère tout. La personne est gardée par son identifiant
+(`GR.colP`), pas par son rang : elle reste marquée d'une équipe à l'autre et
+au fil des rendus. Mesuré : case → 1 ligne, 730 cases (365 jours × 2), 1
+en-tête ; jour → la ligne seule ; jour retouché → rien. Ce n'est pas la
+croix grise retirée en v1136 : celle-là suivait un survol simulé et ne
+partait plus, celle-ci suit un choix et se libère.
