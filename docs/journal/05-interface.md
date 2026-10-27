@@ -6087,3 +6087,13 @@ tout cela ». Photographié à 320, 390 et 1280 px, carte par carte :
   clés, lus d'un coup d'œil comme des tuiles) ; le calendrier, qui porte
   sa propre barre de navigation en guise d'en-tête ; l'ordre des cartes,
   fixé le 23/10 (deux colonnes au PC, `docs/journal/05-interface.md`).
+
+Le même jour (`nfdm-v1164`), le client : « 100 % ? ». Non, et la mesure
+l'a montré (textes coupés, sous 11 px ou débordants, relevés par script à
+320 et 390 px) : les repères de « Mon rythme » restaient à 8,5 et 9 px au
+téléphone (11 px seulement au-delà de 760 px), et le « CM » ajouté la
+veille était à 10,5 px. Tous à 11 px ; à 320 px, les repères de jour ne se
+chevauchent pas (capture). Après correction : 0 texte sous 11 px, 0
+débordement ; les quatre « coupés » restants sont des textes réservés au
+lecteur d'écran (en-tête de profil, dates des demandes, « Calendrier »),
+invisibles à l'écran par construction.
