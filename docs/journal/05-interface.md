@@ -5991,3 +5991,14 @@ gardant le survol simulé. Il ne vit plus qu'à la souris
 (`hover:hover and pointer:fine`). Épreuve : bordures, ombres et contour de
 cinq cases et de l'en-tête relevés avant et après un toucher — différents
 avant la correction du survol, identiques après.
+
+### Pied : la ligne FT et le trait épais sous chaque bloc (27/10/2026, `nfdm-v1141`)
+
+Le client : « il manque la ligne du total FT (somme FT- et FT+), ainsi que
+la bordure plus grosse sous les compteurs des trois derniers tableaux ».
+Le bloc des prévisions gagne une ligne « FT » = FT+ + FT− (les heures de
+l'année) ; chaque bloc se ferme d'un trait de 2 px (`hp-pf`), comme il
+s'ouvre. Mesuré : FT = FT+ + FT− pour les 15 personnes de l'équipe 1, les
+trois traits du bas à 2 px. À savoir : ce n'est pas le « Total » de la ligne
+430 du classeur, qui porte en plus le solde de fin 2025 (journal 04, le
+16/10/2026) ; le client a demandé la somme des deux lignes.

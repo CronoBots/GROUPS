@@ -6953,6 +6953,8 @@ html .hp-t tbody tr.hp-smois td{border-bottom:2px solid #64748b}
 html .hp-t tfoot td{background:#fff; font-weight:700; font-size:11px}
 html .hp-t tfoot tr.hp-sep td{height:6px; padding:0; border:0; background:#fff}
 html .hp-t tfoot tr.hp-pd td{border-top:2px solid #64748b}
+/* le bas de chaque bloc, au même trait que le haut (le 27/10/2026) */
+html .hp-t tfoot tr.hp-pf td{border-bottom:2px solid #64748b}
 html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2ff; white-space:normal; font-weight:400; font-size:11px; line-height:1.25; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:4px 6px}
 html .hp-t tfoot td.hp-pt{background:#c7ccd4; font-weight:900}
 html .hp-t tfoot td.hp-pv{background:#f8fafc; font-weight:400}
@@ -18781,12 +18783,15 @@ function renderGrille(){
     var prev=function(p,t){ var r=GR_PIED.filter(function(x){ return x.t===t; })[0]; return r?grCompte(p,r.c):0; };
     var sol=function(p,t){ var v=p.c&&p.c.solde&&p.c.solde[t]; return typeof v==="number"?v:null; };
     var bloc=function(titre,types,val,cls){ types.forEach(function(t,i){
-      h.push('<tr class="hp-pied'+(i===0?' hp-pd':'')+(cls?' '+cls:'')+'">'+(i===0?'<td class="hp-plab" colspan="2" rowspan="'+types.length+'">'+titre+'</td>':''));
+      h.push('<tr class="hp-pied'+(i===0?' hp-pd':'')+(i===types.length-1?' hp-pf':'')+(cls?' '+cls:'')+'">'+(i===0?'<td class="hp-plab" colspan="2" rowspan="'+types.length+'">'+titre+'</td>':''));
       cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td>'); });
       h.push('</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/"+an+")",T,sol);
-    bloc("Prévisions en HEURES",T.concat(["FT+","FT-"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):prev(p,t); });
+    /* LE TOTAL FT (le client, le 27/10/2026 : « il manque la ligne du total
+       FT, somme FT- et FT+ ») : les heures de l'année, sous les deux lignes
+       qu'il additionne */
+    bloc("Prévisions en HEURES",T.concat(["FT+","FT-","FT"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):t==="FT"?ft(p,"+")-ft(p,"-"):prev(p,t); });
     bloc("Soldes en HEURES compte tenu des prévisions",T,function(p,t){ var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
     h.push('</tfoot>');
   }
