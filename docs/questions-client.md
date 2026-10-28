@@ -154,27 +154,3 @@ Une demande peut désormais porter deux types de congé le même jour
 en annotation ; le second va dans le commentaire. **Comment le classeur
 écrit-il un jour à deux codes ?** Une seule annotation, deux, une
 écriture combinée ? On aligne la base dès que c'est connu.
-
-## Trois opérateurs chaudières les 22 et 23/10 (22/10/2026)
-
-Le client : « il fallait 3 opérateurs chaudières en PM et N ce 22 et 23 ».
-Le classeur l'écrit par des renforts de 12 h, avec le commentaire
-« Renfort pour démarrage Stein/arrêt Vyncke ». Le 22 : SPS de 06h à 18h,
-GJR de 18h à 06h. Le 23 : JBS de 06h à 18h, SPS de 14h à 02h, KDN de 18h
-à 06h.
-
-L'application attend 2 opérateurs chaudières par pause, chaque jour. Elle
-range un renfort de 12 h dans une seule pause. Elle affiche :
-
-- le 22 : AM 2 (dont SPS), PM 3, N 2 (dont GJR) ;
-- le 23 : AM 2 (dont JBS), PM 2 (dont SPS), N 3 (dont KDN).
-
-Elle ne signale donc pas de manque. Deux questions :
-
-1. **D'où vient le besoin de 3 ?** Est-ce une règle liée au démarrage ou à
-   l'arrêt d'une installation (« démarrage Stein / arrêt Vyncke » : 3 en
-   PM et N tant que dure l'opération) ? Ou un besoin propre à ces deux
-   jours ? Le classeur ne l'écrit nulle part comme effectif attendu.
-2. **Un renfort de 12 h compte-t-il dans les deux pauses qu'il couvre ?**
-   06h-18h touche l'AM et le début du PM ; 18h-06h la fin du PM et la N ;
-   14h-02h le PM et le début de la N.
