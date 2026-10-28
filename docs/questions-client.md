@@ -46,11 +46,6 @@ des questions au client ».
    recyclage en doublure. En attendant, n'importe quel compte hiérarchie
    ou RH peut contresigner (la base n'a aujourd'hui que des comptes RH).
    Dites qui, et la base le réservera à ces personnes.
-7. **Effacer pour de bon les demandes supprimées** (posée le 22/10/2026) :
-   le connecteur de la base demande votre confirmation pour toute
-   instruction qui efface. Elles sont déjà invisibles ; l'effacement
-   réel (`base/16-effacer.sql`, la partie en attente) se fera quand
-   vous accepterez la fenêtre de confirmation.
 
 - **Le report FT de fin 2025 (27/10/2026).** Le solde FT montré est le
   « Total » de la ligne 430, report de 2025 compris ; ce report est une

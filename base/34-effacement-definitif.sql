@@ -14,6 +14,8 @@
 --
 -- Contient des delete : le serveur de Supabase demande une confirmation que
 -- le mode « Auto » ne donne pas. À coller dans l'éditeur SQL du projet.
+-- APPLIQUÉE le 28/10/2026 au soir par le client, dans l'éditeur SQL ;
+-- vérifiée en base (voir docs/journal/02-mises-a-jour.md).
 
 -- 1. Supprimer sa demande l'efface (même garde qu'avant : personne d'autre
 --    n'a signé).

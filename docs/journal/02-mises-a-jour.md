@@ -1674,6 +1674,30 @@ rien sans nécessité.
 Laissés (bas) : une seule clé robot pour tous les usages ; 12 clés
 étrangères sans index (volume négligeable).
 
+### L'effacement définitif des demandes supprimées (28/10/2026)
+
+Le client : « oui effacement définitif ok ». La partie de
+`base/16-effacer.sql` restée en attente le 22/10 a été relue sur la base
+réelle avant d'être donnée, et elle était FAUSSE sur un point : depuis
+`13-modifier.sql`, toute demande modifiée porte « Remplacée par la
+demande n° … », signée ou non, et la purge de 16 gardait toutes
+celles-là. `base/34-effacement-definitif.sql` ne garde que celles qu'un
+remplaçant avait signées (`accords`), efface aussi les notifications
+déjà envoyées d'une demande effacée (aucune clé étrangère n'y pointe,
+seul le robot lit celles qui ne sont pas parties), et finit par un
+décompte. Donnée d'emblée pour l'éditeur SQL (des `delete` : la règle
+de CLAUDE.md), passée par le client le soir même.
+
+Mesuré avant : 8 demandes annulées (aucune signée), leurs 8
+notifications envoyées, 4 fiches de recyclage annulées, 1 demande en
+attente. Après, en base : 0 demande et 0 fiche annulées (le décompte du
+client le montrait aussi), la demande en attente intacte, 0 notification
+orpheline, et les trois fonctions (`annuler_demande`, `modifier_demande`,
+`annuler_recyclage`) effacent désormais au lieu d'annuler. La table
+`historique` a reçu les 8 effacements de demandes (déclencheur
+« tracer ») ; les fiches de recyclage n'ont pas de déclencheur et ne
+laissent pas de trace.
+
 ### La page neuve arrive au téléphone (`sw.js`, de `nfdm-v119` à `nfdm-v604`)
 
 Le 28/10/2026, ce récit a quitté `CLAUDE.md`, mot pour mot (le fichier
