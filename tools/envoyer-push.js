@@ -72,7 +72,12 @@ function main() {
     var ok = 0, morts = 0, ko = 0, tus = 0;
     return Promise.all((liste || []).map(function (a) {
       var sub = { endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } };
-      var x = messageDe(m, a.tri);
+      /* LES DEMANDES SEULEMENT AUX ABONNEMENTS SÛRS (revue de sécurité du
+         28/10/2026) : le trigramme d'un abonnement fait sans session est
+         celui qu'a donné le téléphone, et n'importe qui pouvait prendre
+         celui d'un autre. La base (base/33) dit tri_sur ; une base pas
+         encore à jour ne le dit pas (undefined) : on garde l'ancien envoi. */
+      var x = (m.tag === "demande" && a.tri_sur === false) ? null : messageDe(m, a.tri);
       if (!x) { tus++; return null; }
       var charge = JSON.stringify({ title: x.title, body: x.body, tag: m.tag || "classeur", url: m.url || "./" });
       return webpush.sendNotification(sub, charge, { TTL: 86400 }).then(function () { ok++; })

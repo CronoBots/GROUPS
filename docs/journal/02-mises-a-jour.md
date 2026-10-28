@@ -1584,3 +1584,47 @@ autant de temps ? ». Ce qui s'est enchaîné :
   l'installation, avec une limite de temps, et alléger la requête ;
 - garder l'e-mail refusé dans la boîte avec un libellé, au lieu de la
   corbeille, pour qu'une relance après correction le retrouve.
+
+### La revue de sécurité de la base (28/10/2026)
+
+Le client : « go complet » (security-review et supabase-postgres-best-
+practices en renfort). Relue en lecture seule sur l'état RÉEL de la base
+(`pg_get_functiondef`, droits par `has_function_privilege`), puis chaque
+constat revérifié avant correction. Sain : le rôle ne vient jamais du
+client (`role_courant()`, lu par `auth.uid()`), gardes NULL de
+`24-role-vide.sql` en place, schéma `biowanze` fermé (RLS sans politique,
+accès par fonctions seulement), `search_path=''` partout sauf
+`biowanze_lancer_horaire` (non exécutable par anon ni authenticated),
+aucun secret dans le dépôt ni dans son historique.
+
+Quatre trous, corrigés par `base/33-securite-28-10.sql` :
+
+1. **Les notifications d'un autre** : `biowanze_abonner`, ouverte à anon,
+   prenait le trigramme donné par le téléphone ; on recevait celles d'un
+   contremaître ou de la RH en s'abonnant sous son trigramme. Désormais
+   `tri_sur` (le trigramme confirmé par la session) ; le robot n'envoie
+   les messages des demandes qu'aux abonnements sûrs
+   (`tools/envoyer-push.js`) ; l'application s'abonne avec son jeton
+   (`pushRpc`, repli sans jeton s'il est refusé).
+2. **Le visa des heures sup sans contremaître** : l'ancienne
+   `biowanze_demander_hs` à huit arguments, toujours exécutable, ne
+   vérifiait pas que le responsable est un contremaître ; un opérateur en
+   nommait un autre, qui visait. Droit retiré ; `viser_hs` exige, hors RH
+   et hiérarchie, un responsable de catégorie contremaître. Vérifié en
+   base : un compte de contremaître a le rôle « opérateur » — exiger le
+   RÔLE l'aurait bloqué, d'où la CATÉGORIE.
+3. **La fiche de recyclage confirmée par un faux contremaître** : même
+   garde dans `confirmer_recyclage`.
+4. **Le trigramme changé pendant que la RH valide** : `valider_compte`
+   reçoit le trigramme affiché (`p_trigramme`) et refuse s'il a changé ;
+   l'application l'envoie, et refait la demande sans lui si la base ne le
+   connaît pas encore.
+
+**Application à la base : EN ATTENTE.** Le connecteur Supabase a demandé
+une confirmation au client, restée sans réponse dans le délai : rien n'a
+été appliqué. Le client et le robot sont prêts pour les deux états (avant
+et après). Restent au client, dans le tableau de bord Supabase (Auth) :
+activer la protection des mots de passe divulgués, garder « Confirm
+email », fermer l'inscription par mot de passe si seul le code sert.
+Laissés (bas) : une seule clé robot pour tous les usages ; 12 clés
+étrangères sans index (volume négligeable).
