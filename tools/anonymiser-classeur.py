@@ -385,7 +385,7 @@ def _index_mots(bas):
 
 
 def _debuts(index, prefixe):
-    """Les débuts de mot qui s'ouvrent sur `prefixe` (des lettres), triés :
+    r"""Les débuts de mot qui s'ouvrent sur `prefixe` (des lettres), triés :
     exactement ce que rendrait finditer(r"(?<!\w)" + prefixe)."""
     mots, pos = index
     i = bisect.bisect_left(mots, prefixe)
