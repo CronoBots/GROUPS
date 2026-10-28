@@ -548,3 +548,31 @@ En chemin : `anonymiser-classeur.py` affichait un `SyntaxWarning` à chaque
 lancement (un `\w` dans la docstring de `_debuts`) ; la docstring est
 passée en chaîne brute, sortie identique à l'octet.
 
+**Garder le jumeau sans qu'il bloque rien (28/10/2026).** Le client : « je
+ne veux pas que décider de le garder bloque les mises à jour des
+prochains classeurs ». Mesuré d'abord : la chaîne de mise à jour (le
+robot, `horaire-auto.py`, `mettre-a-jour.py`) n'appelle que
+`anonymiser-classeur.py` ; ni le jumeau ni sa confrontation n'y entrent.
+Le seul frein était la règle écrite le même jour dans `CLAUDE.md`
+(confrontation → 0 après tout changement d'un anonymiseur) : une
+correction urgente de la version Python aurait dû attendre son portage.
+
+La règle est retournée. La version Python se corrige et se pousse seule ;
+c'est le jumeau qui se retire. Quand les deux sorties concordent,
+`jumeau-powershell.py` écrit l'empreinte SHA-1 de la version Python dans
+`tools/jumeau-verifie.txt`, fins de ligne ramenées à « \n » pour qu'une
+copie Windows ait la même. Le jumeau la recalcule au lancement et refuse
+de tourner si elle diffère (code 4, rien d'écrit, et il dit quoi faire).
+`-Confronter` lui fait sauter ce contrôle, et seule la confrontation s'en
+sert : sans cela, une version Python changée ne pourrait plus jamais être
+confrontée. Éprouvé sur des copies : version inchangée, il tourne ; une
+ligne ajoutée à la version Python, il refuse ; l'empreinte absente, il
+refuse ; la version Python en fins de ligne Windows, il tourne. Empreinte
+écrite après confrontation sur les cinq classeurs.
+
+Limite connue : l'empreinte ne couvre que `anonymiser-classeur.py`. Le
+jumeau lit les DONNÉES du convertisseur à chaque lancement (corrections,
+feuilles, motif des signatures) ; une modification de sa LOGIQUE
+(`_initiales`, `_annuaire`, la lecture des grilles) ne le mettrait pas
+hors service. Elle se verrait à la confrontation suivante.
+

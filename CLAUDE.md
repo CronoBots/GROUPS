@@ -109,7 +109,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
-| un anonymiseur (`.py`, `.ps1`) | `python3 tools/jumeau-powershell.py CLASSEUR` → 0 : même sortie des deux |
+| `anonymiser-classeur.ps1` | `python3 tools/jumeau-powershell.py CLASSEUR` → 0, qui écrit l'empreinte. La version `.py` se corrige et se pousse SANS attendre le jumeau : il se met seul hors service |
 | congés scolaires (`FWB_ARRETES`, `fwbAn`) | `node tools/verifier-conges-scolaires.js` → 0 ; une année parue, le robot l'ajoute seul (`conges-auto.js`) |
 | lecture de l'horaire dans `index.html`, `data/` | `node tools/verifier-calendrier.js --agendas cal` : ne doit changer que ce qui est voulu |
 
@@ -268,7 +268,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
-| `tools/jumeau-powershell.py` | confronte les deux anonymiseurs sur un classeur ; à relancer après tout changement de l'un d'eux (`pwsh` requis) |
+| `tools/jumeau-powershell.py` | confronte les deux anonymiseurs sur un classeur (`pwsh` requis) ; s'ils concordent, écrit `jumeau-verifie.txt`, sans quoi le `.ps1` refuse de tourner |
 | `tools/verifier-anonymat.py` | cherche les noms de la source dans la sortie, sans rien emprunter à l'anonymiseur |
 | `tools/verifier-depot.py` | cherche des formes de nom dans le dépôt lui-même, arbre et historique |
 | `tools/formes-admises.txt` | les formes de nom qu'un humain a regardées et jugées innocentes |
