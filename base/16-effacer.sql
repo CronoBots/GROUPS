@@ -84,6 +84,9 @@ language sql stable security definer set search_path = '' as $$
   order by (f.statut in ('en_attente','confirmee')) desc, f.jour desc, f.id desc
 $$;
 
+-- REMPLACÉ PAR 34-effacement-definitif.sql (28/10/2026), relu sur l'état
+-- réel de la base : la purge ci-dessous aurait gardé TOUTE demande
+-- modifiée. Ce bloc reste pour l'histoire ; ne pas l'appliquer.
 -- EN ATTENTE DE LA CONFIRMATION DU CLIENT : l'effacement réel. Le
 -- connecteur Supabase demande une confirmation pour toute instruction qui
 -- efface (« delete ») ; l'envoi du 22/10/2026 est resté suspendu, rien n'a
