@@ -8,7 +8,13 @@
 #  2. playwright-cli, version épinglée : le skill .claude/skills/playwright-cli
 #     a été relu pour CETTE version ; en changer, c'est le relire ;
 #  3. sa configuration, vers le Chromium du conteneur : jamais
-#     « playwright install », le navigateur est déjà là.
+#     « playwright install », le navigateur est déjà là ;
+#  4. PowerShell (le client, le 28/10/2026 : « ajoute l'installation de
+#     PowerShell au script de démarrage du dépôt »), pour confronter
+#     l'anonymiseur et son jumeau (tools/jumeau-powershell.py). Depuis le
+#     dépôt de paquets de Microsoft, EN ARRIÈRE-PLAN : son téléchargement
+#     ne retarde pas le début de la session. Ce qu'il a dit est dans
+#     /tmp/pwsh-installation.log.
 # Hors du cloud, rien : le poste de chacun a sa propre installation.
 # Un échec n'empêche pas la session de démarrer ; il est dit.
 set -uo pipefail
@@ -31,5 +37,17 @@ if [ -x /opt/pw-browsers/chromium ]; then
   cat > .playwright/cli.config.json <<'JSON'
 {"browser":{"browserName":"chromium","launchOptions":{"executablePath":"/opt/pw-browsers/chromium","headless":true}}}
 JSON
+fi
+
+if ! command -v pwsh >/dev/null 2>&1 && [ -r /etc/os-release ]; then
+  . /etc/os-release
+  if [ "${ID:-}" = "ubuntu" ]; then
+    setsid bash -c "cd /tmp \
+      && curl -fsSLO https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb \
+      && dpkg -i packages-microsoft-prod.deb && rm -f packages-microsoft-prod.deb \
+      && apt-get update -qq && apt-get install -y -qq powershell \
+      && echo \"pwsh installé : \$(pwsh -NoProfile -Command '\$PSVersionTable.PSVersion.ToString()')\"" \
+      >/tmp/pwsh-installation.log 2>&1 </dev/null &
+  fi
 fi
 exit 0
