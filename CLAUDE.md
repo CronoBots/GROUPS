@@ -100,7 +100,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | Touché | À relancer, et le résultat exigé |
 |---|---|
 | tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
-| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; test Playwright, hors ligne compris |
+| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC — puis hors ligne ; 4 min, `--vite` pour le seul portrait) |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
@@ -286,6 +286,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/verifier-conges-scolaires.js` | confronte le calcul des congés scolaires (décret du 31/03/2022) aux arrêtés publiés |
 | `tools/conges-auto.js` | relit enseignement.be le 1er de chaque mois (`conges-scolaires.yml`) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
+| `tools/parcours.js` | le parcours de l'application au navigateur, rôles et écrans, hors ligne compris ; code 1 à la moindre faute |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration |
 | `.claude/skills/` | skills tiers relus avant d'entrer (journal 01), hors du garde-fou (`TIERS`) |
