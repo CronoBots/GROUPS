@@ -95,7 +95,8 @@ milieu.
 
 **Le jumeau PowerShell n'est PAS corrigé** : il porte le même trou. Ne pas
 s'en servir pour une copie destinée au dépôt tant qu'il ne fait pas cette
-passe.
+passe. *(Vrai jusqu'au 28/10/2026 : il est corrigé depuis, voir « Le jumeau
+PowerShell rattrapé » plus bas.)*
 
 **La garantie a une seconde faille, de naissance, et il faut la connaître** : elle ne
 cherche que les noms que l'outil a SU APPRENDRE. Six personnes absentes de
@@ -486,3 +487,64 @@ Le client : « installe impeccable pour le projet ». Refusé le 21/10, en entie
   - `new-work`, `craft`, `live`, `live-setup`, `generate`, `visualize`, `component-review`, `region-map`, `hooks` et `doctor`, qui dépendent tous du binaire ;
   - les références iOS et Android, sans objet ici.
 - `.gitignore` écarte `.impeccable/` : ses critiques et ses captures pourraient montrer des montants saisis. Le dossier du skill rejoint `TIERS` : 348 « formes », toutes dans ce dossier (titres anglais, polices, personas inventés).
+
+## Le jumeau PowerShell rattrapé (28/10/2026)
+
+Le client : « comment ajouter un PowerShell dans le conteneur pour que tu
+puisses le faire ? ». PowerShell 7.6 s'installe depuis le dépôt de paquets
+de Microsoft, joignable du conteneur (`packages-microsoft-prod.deb` pour
+Ubuntu 24.04, puis `apt-get install powershell`) ; l'outil se lance alors
+avec `pwsh`.
+
+**Mesuré d'abord, sur le classeur du 24/10** : la version Python connaît
+265 noms, fait 12 449 remplacements dans 12 parties et retire 197
+identifiants de connexion. Le jumeau, lui, s'arrêtait : sa garantie
+trouvait un nom à particule qu'il n'avait pas su apprendre, et détruisait
+sa sortie. Il avait un mois de retard, et pas seulement sur les
+signatures. Il lui manquait la ligne des noms, les corrections du client
+(ses trigrammes n'étaient donc pas ceux du convertisseur), les mots qui ne
+désignent qu'une personne (le nom à particule), les auteurs de
+commentaires, les signatures, les identifiants, les intérimaires, le
+nettoyage du paquet (étiquette de l'employeur, chemin réseau) et le blanc
+gardé devant une signature. Son ordre de lecture n'était pas fixé non
+plus : il rangeait les feuilles et les lignes dans des tables de hachage,
+alors que, entre deux lectures possibles d'un mot, c'est la première
+apprise qui l'emporte.
+
+**Porté passe pour passe**, dans le même ordre, avec les commentaires de la
+version Python. Ce qui est une DÉCISION du convertisseur n'est plus recopié :
+les corrections du client, les feuilles de personnes, la ligne des noms et
+le motif des signatures sont lus dans `convertir-horaire.py`, à côté de
+l'outil, qui refuse de tourner sans lui. Deux pièges de PowerShell ont été
+rencontrés en route. Ses noms de variables ignorent la casse : `$FEUILLES`
+(la liste du convertisseur) et `$feuilles` (les onglets) étaient la même
+variable. Et un tri qui ne rend qu'un tableau le déplie, d'où les coupes
+devenues des objets.
+
+**Le contrôle, dans le dépôt** : `tools/jumeau-powershell.py CLASSEUR…`
+fait tourner les deux outils sur le même classeur, vers des fichiers
+temporaires hors du dépôt. Il compare les parties, les octets, le XML lu
+(chaque outil réécrit les commentaires avec sa propre bibliothèque) et le
+résumé. Sur les cinq classeurs reçus (19, 21, 22 et 24/10, et 2027) :
+identiques, 74 parties à l'octet et 9 au même XML, mêmes résumés (2027 :
+262 noms, 541 remplacements, 2 identifiants). `verifier-anonymat.py` donne
+sur la sortie PowerShell un rapport identique à celui de la sortie Python,
+code 0. Il faut 28 s avec `pwsh` 7, contre 9 s pour Python.
+
+**Éprouvé sur trois copies sabotées du jumeau.** Sans la passe des
+identifiants, le contrôle refuse (résumé et trois parties de commentaires).
+Sans les corrections du client, il refuse aussi (`sharedStrings` et trois
+parties). Sans la particule « de », rien ne change sur ces classeurs : une
+particule de deux lettres est déjà reconnue par sa longueur. Les sorties
+restaient identiques, et le contrôle, qui compare des sorties, n'avait rien
+à dire.
+
+**Reste non vérifié** : Windows PowerShell 5.1, celui des postes de travail,
+n'existe pas sous Linux. Le code n'emploie rien de plus récent que 5.1
+(pas d'opérateur ternaire, pas de `??`, des tris départagés explicitement
+plutôt que la stabilité de `Sort-Object`), mais il n'y a pas tourné.
+
+En chemin : `anonymiser-classeur.py` affichait un `SyntaxWarning` à chaque
+lancement (un `\w` dans la docstring de `_debuts`) ; la docstring est
+passée en chaîne brute, sortie identique à l'octet.
+
