@@ -1054,6 +1054,20 @@ ni après 3 s, puis le retire du document. **Le nom n'est pas écrit sous
 le logo** : le dessin porte déjà « biowanze », et la première version le
 disait deux fois. Sous `prefers-reduced-motion`, il reste un écran fixe.
 
+**L'icône de l'application, et non plus `logo.svg` (28/10/2026,
+`nfdm-v1178`).** Le client : « le logo de chargement de l'application doit
+être le même que le logo d'app ». `logo.svg` est l'ANCIEN dessin (un autre
+dégradé, sans « Application mobile ») ; l'icône du téléphone vient du logo
+déposé le 23/10 (`logo.png`, d'où `icon-512.png`). L'intro montre donc
+`icon-512.png` lui-même (déjà dans `CORE`, donc hors ligne), en tuile de
+132 px aux coins de l'écran d'accueil du téléphone (30 px, 22 %), un filet
+clair et une ombre pour la détacher du fond (le fond de l'icône, `#141c2e`,
+est à peine plus clair que `--marque`). Mesuré à 320, 390 et 1280 px :
+image chargée (512 px), 132 px, centrée, aucune erreur ; parcours complet
+92 essais, 0 faute. À savoir : l'écran de connexion (`z-index` 350) couvre
+l'intro (300) pour qui n'est pas connecté ; lui, l'en-tête des cadres de
+connexion, la marque du menu et l'espace RH gardent `logo.svg`.
+
 **Et son fond sous toute l'application, en sombre.** Le client, le
 29/09/2026 : « j'aime beaucoup le background de l'écran de chargement, je
 voudrais le même à mon application ». Le même dégradé radial (#1b2640 au
