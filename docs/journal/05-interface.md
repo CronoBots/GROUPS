@@ -6142,3 +6142,25 @@ tablette : marque, date et six onglets en haut, 100 px sur 390.
   passait SOUS le rail (son plein écran fixe, `inset:0`), corrigé. Portrait
   (320, 390), iPhone simulé et PC 1280 inchangés ; hors ligne tenu.
 - **Laissé** : la légende du Planning, qui prend environ 70 px en paysage.
+
+Le même jour (`nfdm-v1167`), le client : « optimise la taille de la barre de
+menu et des cadres de chaque onglet pour utiliser le maximum d'espace
+disponible, tout en respectant les mêmes écarts et le même style que dans
+la vue portrait ». Mesuré en portrait (390 × 844) : barre à 16 px des
+bords, cadres à 16 px des côtés et à 16 px au-dessus d'elle. Couché, avant :
+rail centré (48 → 342 sur 390), Planning en 12 → 358, Horaire en 8 → 298.
+
+- Le rail va de 16 px du haut à 16 px du bas ; ses onglets se partagent
+  sa hauteur (`flex:1`, 64 px au plus) comme ils se partagent la largeur
+  en portrait. `--rail` est son bord droit ; `--jnav` vaut 0.
+- Chaque cadre — Accueil, Planning, Horaire — va de 16 px du haut à 16 px
+  du bas, à 16 px du rail et du bord droit. Mesuré : 844 × 390, 932 × 430,
+  667 × 375 → rail et cadres pleins de 16 à H − 16, contenu dès x = 96.
+- **iPhone couché simulé** (encoche 47 px à gauche et à droite, 21 px en
+  bas) : l'encoche était comptée deux fois — par le rail, puis par les
+  marges de la page et de l'espace Horaire (Horaire de 174 à 750 au lieu de
+  127 à 797). Corrigé : rail de 47 à 111, cadres de 127 à 797, bas à 369.
+- Portrait inchangé à l'octet près des mesures (390 × 844 : mêmes
+  positions), PC 1280 et hors ligne tenus.
+- **Erreur de compte** : le message au client de la version précédente
+  annonçait `nfdm-v1167` ; c'était `nfdm-v1166`. Celle-ci est la 1167.
