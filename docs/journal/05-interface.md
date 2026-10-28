@@ -1068,6 +1068,23 @@ image chargée (512 px), 132 px, centrée, aucune erreur ; parcours complet
 l'intro (300) pour qui n'est pas connecté ; lui, l'en-tête des cadres de
 connexion, la marque du menu et l'espace RH gardent `logo.svg`.
 
+**Le dessin de l'icône, sans la tuile (29/10/2026, `nfdm-v1180`).** Le
+client : « non pas l'icône, mais le logo de l'icône avec un fond normal ».
+La tuile du paragraphe précédent est retirée : l'intro montre le DESSIN de
+l'icône (le « ce », « biowanze », « Application mobile ») sur son propre
+fond. Il n'existait qu'avec son carré marine : `logo-app.png` est tiré de
+`logo.png` (1254 px, fond `#141c2f` à un grain de ±4 près). Le fond est
+retiré couleur par couleur, en gardant seulement ce qui est PLUS CLAIR
+que lui (le dessin l'est partout). Une première passe comptait aussi les
+écarts plus sombres et faisait du grain du fond un voile allant jusqu'à 0,1 d'opacité
+sur toute l'image : erreur mesurée, corrigée. Après coup, l'opacité du fond
+reste sous 0,02 et une zone morte de 0,035 l'efface ; le dessin est
+recadré au plus près (12 px de marge) et ramené à 480 px (119 Ko), puis
+affiché à 176 px. Ajouté à `CORE` de `sw.js` : il tient hors ligne.
+Mesuré à 320, 390 et 1280 px : chargé, 176 px, centré, aucun carré
+visible, bords nets au grossissement, aucune erreur ; parcours complet
+92 essais, 0 faute.
+
 **Et son fond sous toute l'application, en sombre.** Le client, le
 29/09/2026 : « j'aime beaucoup le background de l'écran de chargement, je
 voudrais le même à mon application ». Le même dégradé radial (#1b2640 au
