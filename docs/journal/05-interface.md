@@ -6081,6 +6081,16 @@ rien plus visible ». Voile de la ligne et des colonnes de 16 à 24 % de
 bleu, croisée de 30 à 38 % ; toujours sans aucune bordure (mesuré :
 bordures, ombres et contour inchangés avant et après le toucher).
 
+### Horaire : plus de trait épais en fin de semaine (29/10/2026, `nfdm-v1179`)
+
+Le client, capture de l'Horaire à l'appui : « dans le classeur, il ne faut
+pas de séparation plus grosse à la fin d'une semaine, mais à garder pour la
+fin du mois ». Le trait de 2 px sous chaque dimanche (`tr.hp-ssem`) est
+retiré, règle et classe ; celui qui ferme le mois (`tr.hp-smois`) reste.
+Mesuré au navigateur, Horaire ouvert à 390 px : les dimanches 25/10 et 1/11
+ont 1 px comme le samedi et le lundi, les fins de mois 31/10 et 30/11 ont
+2 px ; 12 traits de fin de mois, aucun de semaine, aucune erreur.
+
 ### Le renfort avant en jaune (27/10/2026, `nfdm-v1148`)
 
 Le client : « renfort avant doit être jaune comme meunerie ». `grTeinte()`
