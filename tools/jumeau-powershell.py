@@ -27,13 +27,30 @@ réussite, et cela se dit.
 
 Aucun nom n'est imprimé : on dit OÙ les sorties divergent, pas ce qu'elles
 contiennent au-delà de quelques caractères d'un texte déjà anonymisé.
+
+CE CONTRÔLE NE BLOQUE RIEN (le client, le 28/10/2026 : « je ne veux pas que
+décider de le garder bloque les mises à jour des prochains classeurs »). La
+mise à jour n'emploie que la version Python ; on la corrige et on la pousse
+sans attendre le jumeau. Quand tout est identique, ce contrôle écrit
+l'empreinte de la version Python dans tools/jumeau-verifie.txt ; le jumeau
+compare cette empreinte à la version Python présente et REFUSE de tourner
+si elle a changé depuis. En retard, il le dit au lieu de servir.
 """
-import os, re, shutil, subprocess, sys, tempfile, zipfile
+import datetime, hashlib, os, re, shutil, subprocess, sys, tempfile, zipfile
 import xml.etree.ElementTree as ET
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 PY = os.path.join(ICI, "anonymiser-classeur.py")
 PS = os.path.join(ICI, "anonymiser-classeur.ps1")
+VERIFIE = os.path.join(ICI, "jumeau-verifie.txt")
+
+
+def empreinte_python():
+    """L'empreinte de la version Python, fins de ligne ramenées à « \\n » :
+    une copie Windows (CRLF) a la même. Le jumeau la calcule pareil."""
+    with open(PY, "rb") as f:
+        texte = f.read().replace(b"\r\n", b"\n")
+    return hashlib.sha1(texte).hexdigest()
 RESUME = re.compile(r"(\d+) nom\(s\) connu\(s\) · (\d+) remplacement\(s\) dans (\d+) partie\(s\)"
                     r"|(\d+) identifiant\(s\) de connexion")
 
@@ -82,7 +99,7 @@ def comparer(source):
         fp, fs = os.path.join(tmp, "py.xlsx"), os.path.join(tmp, "ps.xlsx")
         rp = subprocess.run([sys.executable, "-W", "ignore", PY, source, fp],
                             capture_output=True, text=True)
-        rs = subprocess.run([pwsh, "-NoProfile", "-File", PS, source, fs],
+        rs = subprocess.run([pwsh, "-NoProfile", "-File", PS, source, fs, "-Confronter"],
                             capture_output=True, text=True, cwd=tmp)
         fautes = []
         if rp.returncode or not os.path.exists(fp):
@@ -135,4 +152,14 @@ if __name__ == "__main__":
     for s in sys.argv[1:]:
         print("— " + os.path.basename(s))
         code = max(code, comparer(s))
+    if code == 0:
+        with open(VERIFIE, "w", encoding="utf-8") as f:
+            f.write("# Écrit par tools/jumeau-powershell.py quand les deux anonymiseurs rendent\n"
+                    "# la même sortie. anonymiser-classeur.ps1 refuse de tourner si\n"
+                    "# anonymiser-classeur.py a changé depuis : il serait peut-être en retard.\n"
+                    "confronté le %s sur %d classeur(s)\n"
+                    "anonymiser-classeur.py %s\n"
+                    % (datetime.date.today().strftime("%d/%m/%Y"), len(sys.argv) - 1,
+                       empreinte_python()))
+        print("empreinte de la version Python enregistrée : le jumeau est à jour")
     sys.exit(code)

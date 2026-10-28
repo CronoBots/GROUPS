@@ -52,7 +52,9 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)] [string] $Source,
     [Parameter(Mandatory = $true, Position = 1)] [string] $Sortie,
-    [string] $Tolerer = ''
+    [string] $Tolerer = '',
+    # réservé à tools/jumeau-powershell.py, qui confronte les deux versions
+    [switch] $Confronter
 )
 
 $ErrorActionPreference = 'Stop'
@@ -93,6 +95,42 @@ if (-not (Test-Path -LiteralPath $convChemin)) {
           "lancer l'outil depuis une copie complète du dépôt."
 }
 $convTxt = [IO.File]::ReadAllText($convChemin, $UTF8)
+
+# --- ce jumeau est-il à jour ? ---------------------------------------------
+# La mise à jour des classeurs n'emploie que la version Python, et on la
+# corrige sans attendre ce jumeau (le client, le 28/10/2026 : garder le
+# jumeau ne doit pas bloquer les mises à jour). En échange, il ne sert que
+# s'il a été confronté à la version Python telle qu'elle est : tools/jumeau-
+# powershell.py en écrit l'empreinte quand les deux sorties sont
+# identiques. Une version Python changée depuis, et il refuse — il pourrait
+# laisser passer ce qu'elle a appris à retirer.
+if (-not $Confronter) {
+    $pyChemin = Join-Path $PSScriptRoot 'anonymiser-classeur.py'
+    $verifie  = Join-Path $PSScriptRoot 'jumeau-verifie.txt'
+    $attendue = ''
+    if (Test-Path -LiteralPath $verifie) {
+        $mv = [regex]::Match([IO.File]::ReadAllText($verifie, $UTF8), '(?m)^anonymiser-classeur\.py ([0-9a-f]{40})')
+        if ($mv.Success) { $attendue = $mv.Groups[1].Value }
+    }
+    $presente = ''
+    if (Test-Path -LiteralPath $pyChemin) {
+        $octetsPy = $UTF8.GetBytes([IO.File]::ReadAllText($pyChemin, $UTF8).Replace("`r`n", "`n"))
+        $hPy = [System.Security.Cryptography.SHA1]::Create().ComputeHash($octetsPy)
+        $presente = -join ($hPy | ForEach-Object { $_.ToString('x2') })
+    }
+    if (-not $attendue -or $attendue -ne $presente) {
+        Write-Host ''
+        Write-Host "Ce jumeau n'a pas été confronté à la version Python présente de l'anonymiseur :" -ForegroundColor Red
+        Write-Host "elle a changé depuis, et il pourrait être en retard sur elle. Rien n'a été écrit."
+        Write-Host ''
+        Write-Host "  - pour anonymiser maintenant : python3 tools/anonymiser-classeur.py (ou la mise à jour"
+        Write-Host "    automatique, qui l'emploie) ;"
+        Write-Host "  - pour remettre ce jumeau en service : le mettre au niveau, puis"
+        Write-Host "    python3 tools/jumeau-powershell.py CLASSEUR (écrit tools/jumeau-verifie.txt)."
+        if ($journal) { try { Stop-Transcript | Out-Null } catch { } }
+        exit 4
+    }
+}
 
 function BlocPython([string] $nom) {
     $m = [regex]::Match($convTxt, '(?ms)^' + $nom + ' = \{(.*?)^\}')
