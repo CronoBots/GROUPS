@@ -6014,16 +6014,32 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    (390 px), reste au contenu. Le contenu et l'espace Horaire se décalent de
    la largeur du rail (--rail). */
 @media (orientation:landscape) and (max-height:500px) and (max-width:1099px){
-  :root{--rail:calc(84px + env(safe-area-inset-left,0px))}
+  /* LES MÊMES ÉCARTS QU'EN PORTRAIT (le client, le 28/10/2026 : « utiliser
+     le maximum d'espace disponible tout en respectant les mêmes écarts et
+     le même style que dans la vue portrait ») : en portrait, la barre est à
+     16 px des bords et les cadres à 16 px d'elle et des côtés. Couché, le
+     rail va de 16 px du haut à 16 px du bas, ses onglets se partagent toute
+     sa hauteur comme ils se partagent la largeur en portrait, et chaque
+     cadre va de 16 px du haut à 16 px du bas. --rail : le bord droit du
+     rail ; --jnav à 0, rien en bas. */
+  :root{--rail:calc(64px + max(16px, env(safe-area-inset-left,0px)))}
   html body{padding-left:var(--rail)}
-  html .navwrap{right:auto; bottom:0; width:var(--rail); align-items:center}
-  html .navwrap>.tabs{flex:0 0 auto; flex-direction:column; justify-content:center; width:64px; max-height:calc(100% - 16px);
-    margin:0 0 0 max(10px,env(safe-area-inset-left,0px)) !important; padding:8px 6px; gap:4px; border-radius:32px}
-  html .navwrap>.tabs button,html .navwrap>.tabs button[aria-selected="true"]{flex:0 0 auto; width:52px; height:52px; padding:0}
+  html .navwrap{right:auto; top:0; bottom:0; width:var(--rail); align-items:stretch}
+  html .navwrap>.tabs{flex:0 0 auto; flex-direction:column; justify-content:space-between; width:64px; height:auto; max-height:none;
+    margin:max(16px,env(safe-area-inset-top,0px)) 0 max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px)) !important;
+    padding:6px; gap:2px; border-radius:32px}
+  html .navwrap>.tabs button,html .navwrap>.tabs button[aria-selected="true"]{flex:1 1 0; width:52px; min-height:0; height:auto; max-height:64px; padding:0}
+  html .wrap{padding-top:max(16px,env(safe-area-inset-top,0px)); padding-left:16px; padding-right:max(16px,env(safe-area-inset-right,0px))}
+  /* l'encoche de gauche est déjà dans le rail : ni la page ni l'espace ne
+     la recomptent (mesuré à l'iPhone couché simulé : 47 px de trop à
+     gauche, à droite et en bas de l'Horaire) */
+  html .grille,html .grille.ws{padding:0 !important}
   html .grille,html .grille.ws{left:var(--rail)}
   /* le Planning a son plein écran fixe (inset:0) : il commence après le rail,
      et le haut d'écran, court couché, ne garde que 12 px */
-  html body[data-view="jour"] .wrap{left:var(--rail); padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+  html body[data-view="jour"] .wrap{left:var(--rail); padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) 16px}
+  html body .grille.ws .ws-main.ws-plein{padding-bottom:0 !important}
+  html body .grille.ws .ws-main .ws-s.ws-planning{margin:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) 16px !important}
   html .enhaut{bottom:16px}
   /* l'Horaire couché : les pilules sur une ligne qui défile (deux lignes
      prenaient 90 px de 390), sans les boutons flottants, comme en portrait */
@@ -28317,8 +28333,8 @@ function ajusterHauteurJour(){
      le tableau passer derrière elle (« l'horaire doit avoir un écart avec la
      barre de menu, comme avant »). */
   var h=nav?Math.round(window.innerHeight-nav.getBoundingClientRect().top):64;
-  /* le rail de gauche (paysage) ne prend rien en bas : 16 px de marge */
-  if(window.matchMedia&&matchMedia("(orientation:landscape) and (max-height:500px) and (max-width:1099px)").matches) h=16;
+  /* le rail de gauche (paysage) ne prend rien en bas */
+  if(window.matchMedia&&matchMedia("(orientation:landscape) and (max-height:500px) and (max-width:1099px)").matches) h=0;
   if(h>0) document.documentElement.style.setProperty("--jnav", h+"px");
   /* Au bureau, la carte va du bas de la barre du haut au bas de la fenêtre :
      on mesure où commence la carte (barre + marge du haut de page). */
