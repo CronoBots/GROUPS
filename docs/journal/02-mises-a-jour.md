@@ -973,8 +973,8 @@ apparaître huit cases (`CODE_MAX`) et part entier, si le réglage n'avait
 pas été enregistré ou revenait à 8. Le réglage lui-même ne se lit pas
 d'ici (aucun outil n'atteint la configuration d'Auth) : la première
 connexion du client le confirmera. La validité (« Email OTP Expiration »)
-est restée telle quelle à notre connaissance : le texte dit toujours une
-heure. Éprouvé sur les cinq écrans (cases de 35 × 48 px à 320 px, 46 × 55
+reste de 3 600 s, confirmé par le client : le texte « valable une heure »
+est juste. Éprouvé sur les cinq écrans (cases de 35 × 48 px à 320 px, 46 × 55
 à 390) : six chiffres partent seuls, huit collés donnent huit cases puis
 le bloc revient à six, refus, bonne connexion, aucune erreur.
 
