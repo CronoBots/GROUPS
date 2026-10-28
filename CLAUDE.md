@@ -55,6 +55,11 @@ modifications » — aucune écriture Notion tant que le client ne dit pas
 que les fenêtres ont disparu), puis DIRE ce qui a été choisi et pourquoi — le
 client corrige après coup s'il le veut. Les fenêtres d'autorisation de
 la session ne s'effacent que par le mode « Auto » choisi par le client.
+**Une migration de la base qui contient un `drop`** (même une fonction
+aussitôt recréée) : le serveur de Supabase lui-même demande une confirmation que le
+mode « Auto » ne donne pas, et `apply_migration` abandonne après une
+minute. On la donne d'emblée au client pour l'éditeur SQL (lien du
+projet, lien brut du fichier `base/` sur GitHub), puis on vérifie en base.
 **Une question n'est pas un ordre.** Le 23/10/2026, « c'est bien pour
 l'agenda scolaire, on est d'accord ? » a été lu comme une demande de
 retrait, et le client voulait garder. On répond, on dit ce qui dépasse
@@ -332,43 +337,14 @@ deviner à sa place sur ces points : ils touchent à des montants.
    AU-DESSUS du sien (deux fois le 28/10/2026, la même valeur des deux
    côtés : la page neuve ne serait pas arrivée).
 
-   Depuis `nfdm-v119`, la PAGE se prend **au réseau d'abord** : une version
-   poussée arrive au premier rechargement, et non au deuxième comme avant.
-   L'horaire JSON aussi, depuis `nfdm-v837` (`jsonFrais()`, revalidé, le
-   cache au-delà de 4 s ou hors ligne) : au cache d'abord, la première
-   ouverture après une mise à jour montrait l'ancien. Icônes et polices,
-   au cache. Hors ligne, tout retombe sur le cache — vérifié à
-   chaque fois avec Playwright en mode `setOffline(true)`.
-
-   **Et l'application installée se met à jour sans être fermée**, depuis
-   `nfdm-v356`. Le client, le 30/09/2026 : « l'app PWA ne se met pas à
-   jour ? ». Le site en ligne était bien à jour ; deux choses bloquaient
-   le téléphone. GitHub Pages sert tout en `max-age=600`, et le « réseau
-   d'abord » rendait donc jusqu'à dix minutes la page du cache HTTP : la
-   page et le rafraîchissement de l'horaire se demandent désormais en
-   `cache:"no-cache"` (revalidation, 304 si rien n'a changé). Surtout, une
-   PWA sur l'écran d'accueil n'est presque jamais RECHARGÉE : le téléphone
-   la ressort de sa mémoire, le navigateur ne cherche pas de nouveau
-   `sw.js`, et la page affichée reste l'ancienne. La page redemande donc
-   `sw.js` (`reg.update()`, `updateViaCache:"none"`) à chaque retour au
-   premier plan et toutes les trente minutes, et se recharge UNE fois
-   quand le nouveau service worker prend la main (`controllerchange`) —
-   jamais au tout premier lancement. Éprouvé : application ouverte, `V`
-   changé sur le serveur, retour au premier plan simulé → la page se
-   recharge seule sur le nouveau cache, puis tient hors ligne.
-   **Mais pas à l'ouverture**, depuis `nfdm-v604`. Le client, le
-   09/10/2026 : « il y a toujours un double chargement lors de
-   l'ouverture de l'app ». La page étant prise au réseau d'abord, elle
-   arrive DÉJÀ neuve à l'ouverture qui suit une mise à jour ; puis
-   l'enregistrement trouvait le nouveau `sw.js`, et `controllerchange`
-   la rechargeait pour rien — à chaque `V` poussé, donc presque à chaque
-   ouverture. Reproduit au navigateur : deux navigations. On ne recharge
-   plus que si la page peut être ancienne : chargée hors ligne (servie
-   par le cache), ou ouverte depuis plus de 15 s quand `verifier()` (retour
-   au premier plan, demi-heure) trouve la mise à jour. Éprouvé : ouverture
-   après une mise à jour, 1 navigation (2 avant) ; application ouverte
-   puis mise à jour au retour au premier plan, 1 rechargement ; page
-   chargée hors ligne puis réseau revenu, 1 rechargement.
+   Le service worker prend la page et l'horaire **au réseau d'abord**
+   (revalidés, `cache:"no-cache"`), icônes et polices au cache ; hors
+   ligne, tout retombe sur le cache — vérifié avec Playwright
+   (`setOffline(true)`). L'application installée redemande `sw.js` au
+   retour au premier plan et toutes les 30 min, et ne se recharge que si
+   la page peut être ancienne (chargée hors ligne, ou ouverte depuis plus
+   de 15 s). Le pourquoi, mesuré (v119, v356, v604) :
+   `docs/journal/02-mises-a-jour.md`, « La page neuve arrive au téléphone ».
 3. Tester dans un navigateur, pas seulement en unitaire. **Une mise en
    page de téléphone se mesure AUSSI avec les zones protégées de l'iPhone
    simulées** (dans les `<style>` de la page, `env(safe-area-inset-top)` →

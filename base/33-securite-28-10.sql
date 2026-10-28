@@ -1,6 +1,8 @@
 -- REVUE DE SÉCURITÉ DU 28/10/2026 (le client : « go complet », les skills
 -- en renfort). Lue sur l'état RÉEL de la base (pg_get_functiondef), chaque
 -- constat revérifié avant correction. Quatre trous, quatre corrections.
+-- APPLIQUÉE le 28/10/2026 au soir par le client, dans l'éditeur SQL de
+-- Supabase (le connecteur échouait : voir docs/journal/02-mises-a-jour.md).
 
 -- 1. LES NOTIFICATIONS D'UN AUTRE. biowanze_abonner, ouverte à anon, prenait
 --    le trigramme que le client lui donnait : n'importe qui, sans compte,

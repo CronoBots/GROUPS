@@ -1620,11 +1620,80 @@ Quatre trous, corrigés par `base/33-securite-28-10.sql` :
    l'application l'envoie, et refait la demande sans lui si la base ne le
    connaît pas encore.
 
-**Application à la base : EN ATTENTE.** Le connecteur Supabase a demandé
-une confirmation au client, restée sans réponse dans le délai : rien n'a
-été appliqué. Le client et le robot sont prêts pour les deux états (avant
-et après). Restent au client, dans le tableau de bord Supabase (Auth) :
+**Application à la base : faite le 28/10/2026 au soir, par le client,
+dans l'éditeur SQL de Supabase.** Le connecteur a échoué trois fois
+(`apply_migration`, une minute puis abandon) : c'est le serveur de Supabase
+lui-même qui demande une confirmation dès qu'une commande supprime (ici les deux
+`drop function`, rien que des fonctions recréées aussitôt), et le mode
+« Auto » de la session n'y répond pas — il ne règle que les autorisations
+de Claude. Une acceptation du client, arrivée après la minute, n'a rien
+appliqué. **Leçon : une migration qui contient un `drop`, la donner
+d'emblée au client pour l'éditeur SQL** (lien du projet et du fichier
+brut sur GitHub), au lieu de relancer le connecteur. Ne pas réécrire la
+migration pour échapper à la question (deux fonctions orphelines
+seraient restées).
+
+Vérifié après coup, en base : colonne `tri_sur`, `biowanze_abonnes` qui la
+rend, `demander_hs` à huit arguments fermée à anon et authenticated (la
+version à neuf, propriétaire `postgres`, l'appelle toujours), gardes
+« cadre » de `viser_hs` et `confirmer_recyclage`, `valider_compte` à
+quatre arguments, fermée à anon. **Et le mécanisme mord**, éprouvé dans
+une transaction annulée à la fin (`raise exception`), sans rien laisser
+(recompté : 0 ligne d'essai) — un compte RH rendu, le temps de l'essai,
+opérateur non cadre : visa d'heures sup et confirmation de recyclage
+REFUSÉS ; le même compte rattaché à un contremaître : approuvé,
+confirmé ; abonnement sous un autre trigramme : non sûr, sous le sien :
+sûr, sans session : non sûr ; validation RH avec un trigramme qui ne
+correspond plus : refusée, avec le bon : faite. Le seul abonnement
+existant est non sûr jusqu'à ce que son téléphone rouvre l'application
+connecté (réabonnement silencieux, une fois par jour au plus) : d'ici là
+il reçoit le message du classeur, pas ceux des demandes.
+
+Restent au client, dans le tableau de bord Supabase (Auth) :
 activer la protection des mots de passe divulgués, garder « Confirm
 email », fermer l'inscription par mot de passe si seul le code sert.
 Laissés (bas) : une seule clé robot pour tous les usages ; 12 clés
 étrangères sans index (volume négligeable).
+
+### La page neuve arrive au téléphone (`sw.js`, de `nfdm-v119` à `nfdm-v604`)
+
+Le 28/10/2026, ce récit a quitté `CLAUDE.md`, mot pour mot (le fichier
+dépassait ses 25 Ko) ; n'y reste que la règle.
+
+Depuis `nfdm-v119`, la PAGE se prend **au réseau d'abord** : une version
+poussée arrive au premier rechargement, et non au deuxième comme avant.
+L'horaire JSON aussi, depuis `nfdm-v837` (`jsonFrais()`, revalidé, le
+cache au-delà de 4 s ou hors ligne) : au cache d'abord, la première
+ouverture après une mise à jour montrait l'ancien. Icônes et polices,
+au cache. Hors ligne, tout retombe sur le cache — vérifié à
+chaque fois avec Playwright en mode `setOffline(true)`.
+
+**Et l'application installée se met à jour sans être fermée**, depuis
+`nfdm-v356`. Le client, le 30/09/2026 : « l'app PWA ne se met pas à
+jour ? ». Le site en ligne était bien à jour ; deux choses bloquaient
+le téléphone. GitHub Pages sert tout en `max-age=600`, et le « réseau
+d'abord » rendait donc jusqu'à dix minutes la page du cache HTTP : la
+page et le rafraîchissement de l'horaire se demandent désormais en
+`cache:"no-cache"` (revalidation, 304 si rien n'a changé). Surtout, une
+PWA sur l'écran d'accueil n'est presque jamais RECHARGÉE : le téléphone
+la ressort de sa mémoire, le navigateur ne cherche pas de nouveau
+`sw.js`, et la page affichée reste l'ancienne. La page redemande donc
+`sw.js` (`reg.update()`, `updateViaCache:"none"`) à chaque retour au
+premier plan et toutes les trente minutes, et se recharge UNE fois
+quand le nouveau service worker prend la main (`controllerchange`) —
+jamais au tout premier lancement. Éprouvé : application ouverte, `V`
+changé sur le serveur, retour au premier plan simulé → la page se
+recharge seule sur le nouveau cache, puis tient hors ligne.
+**Mais pas à l'ouverture**, depuis `nfdm-v604`. Le client, le
+09/10/2026 : « il y a toujours un double chargement lors de
+l'ouverture de l'app ». La page étant prise au réseau d'abord, elle
+arrive DÉJÀ neuve à l'ouverture qui suit une mise à jour ; puis
+l'enregistrement trouvait le nouveau `sw.js`, et `controllerchange`
+la rechargeait pour rien — à chaque `V` poussé, donc presque à chaque
+ouverture. Reproduit au navigateur : deux navigations. On ne recharge
+plus que si la page peut être ancienne : chargée hors ligne (servie
+par le cache), ou ouverte depuis plus de 15 s quand `verifier()` (retour
+au premier plan, demi-heure) trouve la mise à jour. Éprouvé : ouverture
+après une mise à jour, 1 navigation (2 avant) ; application ouverte
+puis mise à jour au retour au premier plan, 1 rechargement ; page
+chargée hors ligne puis réseau revenu, 1 rechargement.
