@@ -1637,6 +1637,21 @@ rattrapera depuis le journal si le client le réactive. Cette décision
 l'emporte sur la consigne du 21/10 (« pousser sur Notion et GitHub »)
 et sur l'étape « reporter dans Notion » de CLAUDE.md.
 
+**Repris le 28/10/2026.** Le client, en mode « Auto » : « pousse tout cela
+vers Notion et mets-le à jour ». Le dossier s'arrêtait en fait à
+`nfdm-v955` (et non `v914` comme écrit plus haut : trois lignes du 22/10
+au matin y étaient déjà). Rattrapé d'un coup depuis l'historique git et
+ce journal, de `v956` à `v1173` : 41 lignes au journal des versions
+(quatre zones ajoutées : l'horaire, les demandes, l'interface et la
+sécurité), 15 décisions
+du client, 7 sujets au suivi (5 questions, dont une tranchée, et
+2 chantiers, dont la sécurité de la base tranchée), le classeur 2027
+passé à « Tranché », la page principale (état au 28/10, contrôles,
+base de données, liste de démarrage) et la page « Architecture et
+outils » (parcours, congés scolaires, `base/`, la base qui remplace
+l'« API authentifiée à prévoir »). Aucune fenêtre d'autorisation ; ni
+nom, ni montant. Le report reprend à chaque changement.
+
 ### Le contrôle « UI UX Pro Max » (21/10/2026, `nfdm-v911`)
 
 Le client : « check avec le nouveau skill ». La liste de contrôle avant
