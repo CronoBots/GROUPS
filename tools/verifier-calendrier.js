@@ -602,7 +602,7 @@ if(process.argv.indexOf("--manques-commentes")>=0){
   /* par défaut, d'aujourd'hui au 31/12 : ce que l'application montre et
      montrera ; « 0101 » relit toute l'année (100 places le 27/10/2026,
      toutes passées — voir docs/journal/08-verifications.md) */
-  const auj=new Date(), aujMD=auj.getFullYear()===ANNEE?pad2(auj.getMonth()+1)+pad2(auj.getDate()):(auj.getFullYear()<ANNEE?"0101":"1231");
+  const auj=new Date(), aujMD=auj.getFullYear()===ANNEE?pad2(auj.getMonth()+1)+pad2(auj.getDate()):(auj.getFullYear()<ANNEE?"0101":"1232");   /* année finie : rien à lire (1232 > tout jour) */
   const depart=/^\d{4}$/.test(process.argv[i0+1]||"")?process.argv[i0+1]:aujMD;
   const admis=new Set();
   try{ fs.readFileSync(path.join(RACINE,"tools","manques-admis.txt"),"utf8").split("\n").forEach(l=>{

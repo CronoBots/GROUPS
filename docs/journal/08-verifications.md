@@ -2913,3 +2913,35 @@ exige.
   le titre. Les titres centrés des pages de l'espace RH et des Effectifs
   restent : ce sont des titres de page, pas des en-têtes de carte.
 - Parcours complet après correction : 91 essais, 0 faute.
+
+### La revue de code des deux derniers jours (28/10/2026, `nfdm-v1172`)
+
+`code-review` (niveau « high ») sur 41 commits. Dix constats, chacun
+revérifié ; corrigés :
+
+- `remplaceAbsent` : le drapeau `i` faisait de « remplacé par une
+  collègue » un remplacé (`[A-Z]{3}` prenait « une »). Trigramme en
+  capitales. Épreuve : l'ancienne expression accepte la phrase, la
+  nouvelle non ; placement de l'année identique à l'octet.
+- Horaire : Entrée sur une journée commentée ouvre de nouveau sa bulle
+  (la case d'annotation n'était pas atteignable au clavier) ; l'annotation
+  tronquée retrouve son infobulle (`title`) au PC.
+- Sur site : les contremaîtres d'une pause n'y comptent que pendant elle,
+  remise comprise (sans borne, celui de la nuit, en 18 h – 6 h, passait
+  pour celui de l'après-midi dès 19 h) ; demain matin est lu pour la
+  relève de 6 h ; part de relais et présence au poste distinguées
+  (`part`) — un premier essai mêlait la nuit à la relève de 14 h. Mesuré
+  à huit heures du 27 au 1/11.
+- Sur site : un calcul de placement par minute (`siteMemo`), au lieu
+  d'une vingtaine par rendu.
+- Le trou entre téléphone couché (≤ 500 px de haut) et tablette
+  (≥ 501 px) : 500,4 px de haut ne prenait aucune des deux mises en
+  page ; le seuil haut passe à 500,01 px (37 requêtes).
+- « Mon rythme » au PC retombait à 10 px : 11.
+- `--manques-commentes` sur une année finie lisait encore le 31/12 :
+  plus rien (`1232`).
+- Nettoyage : ternaire aux deux branches identiques, paramètre mort,
+  règle `.site-rel` en double. `grEditer` reste (la saisie RH au PC).
+- Laissé : la condition du téléphone couché recopiée dans chaque requête
+  (une classe sur `<html>` la remplacerait ; à faire avec une passe
+  `simplify` dédiée).
