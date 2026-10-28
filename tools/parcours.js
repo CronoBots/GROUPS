@@ -2,6 +2,9 @@
 /* LE PARCOURS DE L'APPLICATION, d'un bout à l'autre, au navigateur.
    node tools/parcours.js            → tout ; code 1 à la moindre faute
    node tools/parcours.js --vite     → téléphone portrait seulement
+   node tools/parcours.js --statique [fichier]
+                                     → les requêtes du téléphone couché
+                                       seules, sans navigateur
 
    Le client, le 28/10/2026 (« go complet ») : les essais au navigateur
    vivaient dans des scripts jetables, perdus à chaque session. Celui-ci
@@ -15,7 +18,8 @@
    zones protégées simulées, téléphone couché, PC. Puis il coupe le réseau
    et recharge : la page doit tenir hors ligne.
 
-   Faute (code 1) : une erreur JavaScript, un débordement horizontal de la
+   Faute (code 1) : une requête du téléphone couché qui diverge des
+   autres (contrôle sans navigateur, fait d'abord), une erreur JavaScript, un débordement horizontal de la
    page, un cadre posé sous la barre d'onglets (portrait) ou sous le rail
    (couché), une page blanche hors ligne. Le reste se lit dans la sortie.
    Aucun nom : les comptes simulés n'ont qu'un trigramme. */
@@ -48,6 +52,33 @@ const ECRANS=[
   {nom:"PC 1280",w:1280,h:800,mobile:false}
 ];
 const ROLES=[null,"operateur","hierarchie","rh"];
+
+/* LE TÉLÉPHONE COUCHÉ, UNE SEULE DÉFINITION (28/10/2026). CSS n'a pas de
+   requête média nommée que les navigateurs comprennent : la condition est
+   recopiée dans une soixantaine de blocs et dans trois matchMedia. Une
+   copie qui diverge (501px, 1100px…) casserait une seule mise en page,
+   sans erreur. Toute requête qui parle de 760/761 px ou de 500 px de haut
+   doit donc être, au caractère près, l'une de celles-ci : « téléphone »
+   (portrait étroit ou couché bas) et son complément exact. */
+const TEL="(orientation:landscape) and (max-height:500px) and (max-width:1099px)";
+const REQUETES_ADMISES=[
+  "(max-width:760px), "+TEL,
+  TEL,
+  "(max-width:760px) and (max-height:640px), "+TEL,
+  "(min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px)",
+  "(min-width:761px) and (max-width:1099px) and (min-height:500.01px), (min-width:761px) and (max-width:1099px) and (orientation:portrait)",
+  "(min-width:761px) and (max-width:1279px) and (min-height:500.01px), (min-width:761px) and (max-width:1279px) and (orientation:portrait), (min-width:1100px) and (max-width:1279px)"
+];
+function requetesDivergentes(fichier){
+  const src=fs.readFileSync(fichier,"utf8"), f=[];
+  const re=/@media\s*([^{]*)\{|matchMedia\(\s*"([^"]*)"/g; let m;
+  while((m=re.exec(src))){
+    const q=(m[1]||m[2]||"").trim();
+    if(!/76[01]px|max-height:500px|500\.01px/.test(q)) continue;
+    if(REQUETES_ADMISES.indexOf(q)<0) f.push("ligne "+src.slice(0,m.index).split("\n").length+" : "+q.slice(0,140));
+  }
+  return f;
+}
 const VUES=[["Accueil","tab-horaire"],["Planning","tab-jour"],["Équipes","tab-equipe"],["Horaire","ws:planning"]];
 
 async function ouvrir(nav,url,ecran,role){
@@ -89,11 +120,17 @@ function constater(){
 }
 
 (async()=>{
+  /* d'abord le contrôle sans navigateur, en une fraction de seconde ;
+     « --statique [fichier] » ne fait que lui (l'épreuve sur une copie) */
+  const iS=process.argv.indexOf("--statique");
+  const div=requetesDivergentes(iS>=0&&process.argv[iS+1]?process.argv[iS+1]:path.join(RACINE,"index.html"));
+  div.forEach(l=>console.log("✗ requête du téléphone couché qui diverge, "+l));
+  if(iS>=0){ console.log(div.length?div.length+" requête(s) divergente(s)":"requêtes du téléphone couché : toutes identiques"); process.exit(div.length?1:0); }
   const vite=process.argv.indexOf("--vite")>=0;
   const srv=await servir(), url="http://127.0.0.1:"+srv.address().port+"/";
   const nav=await chromium.launch();
   const ecrans=vite?ECRANS.filter(e=>e.nom==="téléphone 390"):ECRANS;
-  let fautes=0, essais=0;
+  let fautes=div.length, essais=1;
   for(const ecran of ecrans) for(const role of (vite?["hierarchie"]:ROLES)){
     const page=await ouvrir(nav,url,ecran,role); const lignes=[];
     for(const [nom,cible] of VUES){

@@ -2945,3 +2945,47 @@ revérifié ; corrigés :
 - Laissé : la condition du téléphone couché recopiée dans chaque requête
   (une classe sur `<html>` la remplacerait ; à faire avec une passe
   `simplify` dédiée).
+
+### Le téléphone couché : une seule définition, contrôlée (28/10/2026)
+
+La revue de code du 28/10 avait laissé une proposition : remplacer la
+condition du téléphone couché, recopiée partout, par une classe posée sur
+`<html>`. Relue avant de la faire, elle coûtait plus qu'elle ne rendait.
+CSS n'a pas de requête média nommée que les navigateurs comprennent
+(`@custom-media` n'est pas pris en charge). Une classe obligerait donc à
+préfixer chaque règle des 58 blocs concernés (20 « téléphone », 31 « au
+moins tablette », 7 variantes), et à écrire en JavaScript ce que le
+navigateur fait seul au changement d'orientation. Le risque réel était
+ailleurs : qu'une copie diverge des autres, et casse une seule mise en
+page sans aucune erreur.
+
+`tools/parcours.js` commence donc par un contrôle sans navigateur. Toute
+requête `@media` ou `matchMedia` qui parle de 760/761 px ou de 500 px de
+haut doit être, au caractère près, l'une des six formes admises : le
+« téléphone » (portrait étroit, ou couché de 500 px de haut au plus) et
+son complément exact. Une fraction de seconde ; `--statique [fichier]`
+le lance seul. Éprouvé sur trois copies sabotées, toutes refusées (code 1) :
+une hauteur passée de 500,01 px à 501 px dans un bloc, le `matchMedia` de
+la navigation passé de 1 099 px à 1 100 px, et un bloc
+`@media (max-width:760px)` ajouté sans la condition du couché. Sur le
+fichier réel : toutes identiques, puis le parcours rapide : 6 essais,
+0 faute.
+
+### Le démarrage, mesuré (28/10/2026)
+
+Le chantier « découper `index.html` pour accélérer le démarrage » (ouvert
+le 09/10, « environ une seconde de lecture du script sur un téléphone
+lent ») a été mesuré avant d'être entrepris. Mesure : Playwright, téléphone
+390 px, processeur ralenti 4 fois (un téléphone moyen), compte connecté,
+service worker installé, quatre rechargements. Le fichier fait 2,1 Mo et
+31 165 lignes. Le chargement se termine en 0,55 à 0,98 s, et l'Accueil
+est rempli entre 0,89 et 1,47 s ; le premier affichage a lieu entre 0,14
+et 0,26 s.
+
+Le profil montre que le gros du calcul ne retarde pas l'ouverture. Ce
+calcul, c'est la pastille des Effectifs, qui parcourt toutes les journées
+à venir : environ 1,5 s de processeur. Il passe déjà en tranches de 40 ms,
+au repos, depuis l'audit du 23/10. Couper le fichier irait contre le
+principe d'un seul `index.html` sans construction, et ne gagnerait que
+la compilation du script, quelques dixièmes de seconde. Chantier fermé
+sur ces mesures ; il se rouvrira si un téléphone réel s'en plaint.
