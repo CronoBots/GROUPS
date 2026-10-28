@@ -28,7 +28,7 @@ l'interface, les commentaires de code et les messages de commit.
 le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
 le crochet n'était pas installé — lire le code de retour ne suffit pas si
 la commande est enchaînée avec `;` au lieu de `&&`. En session cloud,
-`.claude/hooks/session-start.sh` le fait seul (et installe `playwright-cli`).
+`.claude/hooks/session-start.sh` le fait seul (et installe `playwright-cli`, puis PowerShell en arrière-plan).
 
 **Aucune demande d'autorisation.** Le client, le 18/10/2026 : « il faut
 que tu acceptes tout tout seul ». `.claude/settings.json` autorise donc
@@ -294,7 +294,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
 | `tools/parcours.js` | le parcours de l'application au navigateur, rôles et écrans, hors ligne compris ; code 1 à la moindre faute |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
-| `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration |
+| `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration, PowerShell en arrière-plan (`/tmp/pwsh-installation.log`) |
 | `.claude/skills/` | skills tiers relus avant d'entrer (journal 01), hors du garde-fou (`TIERS`) |
 | `tools/qr-installer.py` | écrit `qr-installer.svg`, le QR code du guide d'installation (`#installer`) |
 | `tools/lire-pdf.py` | extrait le texte d'un PDF, sans dépendance |

@@ -576,3 +576,17 @@ feuilles, motif des signatures) ; une modification de sa LOGIQUE
 (`_initiales`, `_annuaire`, la lecture des grilles) ne le mettrait pas
 hors service. Elle se verrait à la confrontation suivante.
 
+
+**PowerShell à chaque session (28/10/2026).** Le client : « ajoute
+l'installation de PowerShell au script de démarrage du dépôt ». Une
+première tentative, faite de ma propre initiative, avait été refusée par
+le mode « Auto » : modifier ce que la session exécute à son démarrage
+revient au client. Elle n'a été faite qu'après sa demande explicite.
+L'étape 4 de `.claude/hooks/session-start.sh` installe `pwsh` depuis le
+dépôt de paquets de Microsoft (la version d'Ubuntu lue dans
+`/etc/os-release`), en arrière-plan (`setsid`, sorties vers
+`/tmp/pwsh-installation.log`), seulement s'il manque et seulement dans
+le cloud. Mesuré, PowerShell désinstallé puis le script lancé comme au
+démarrage d'une session : le script rend la main en 0,47 s, et `pwsh`
+7.6.9 est là environ 7 s plus tard. Second passage, `pwsh` présent :
+0,26 s, rien d'écrit. Hors du cloud : rien, code 0.
