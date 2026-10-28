@@ -6116,3 +6116,29 @@ la première. Non-régression : 320/390/1280, recherche et annulation,
 sélection et bulle, espace gardé. (Le test de la bulle échoue à heure
 fixée, `clock.setFixedTime`, sur l'ancienne version comme sur la nouvelle :
 c'est le banc, pas l'application.)
+
+### Le téléphone en paysage : la barre d'onglets dressée à gauche (28/10/2026, `nfdm-v1166`)
+
+Le client : « sur mobile, le menu doit rester comme en vue portrait pour le
+mode paysage, ou alors mettre la barre de menu à la verticale sur le côté
+gauche avec les onglets comme en portrait ». Couché (844 × 390), le
+téléphone passait au-delà de 760 px et prenait la mise en page de la
+tablette : marque, date et six onglets en haut, 100 px sur 390.
+
+- **Le paysage du téléphone est un téléphone** : les 22 requêtes du seuil
+  (`max-width:760px`, et `mqNav` en JS) reçoivent l'alternative
+  `(orientation:landscape) and (max-height:500px) and (max-width:1099px)` ;
+  les 36 requêtes `min-width:761px` (et `mqSide`) ne valent plus que
+  au-delà de 500 px de haut, en portrait, ou à partir de 1 100 px. Les
+  onglets sont ceux du portrait : Accueil, Planning, Horaire, Équipes, Plus.
+- **Choisi : le rail vertical**, la seconde option du client, plutôt que la
+  barre du bas : couché, la hauteur est rare (une barre du bas prenait
+  77 px sur 390). Le rail fait 64 px de large ; le contenu (`--rail`),
+  l'espace Horaire et le plein écran du Planning commencent après lui ;
+  `--jnav` vaut 16 px (rien en bas). Dans l'Horaire, les pilules restent
+  sur une ligne qui défile, sans les boutons flottants, comme en portrait.
+- Mesuré à 844 × 390, 932 × 430 et 667 × 375 : Accueil, Planning, Équipes,
+  Horaire, à côté du rail, sans débordement ; premier essai, le Planning
+  passait SOUS le rail (son plein écran fixe, `inset:0`), corrigé. Portrait
+  (320, 390), iPhone simulé et PC 1280 inchangés ; hors ligne tenu.
+- **Laissé** : la légende du Planning, qui prend environ 70 px en paysage.
