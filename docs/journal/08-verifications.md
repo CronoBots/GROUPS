@@ -2858,3 +2858,58 @@ identiques. Le 02/02 ne se résout PAS : « 4h +FT » n'allonge pas la
 présence lue (`lectureAgenda` ne lit pas les heures de flex time comme
 une plage). Les 97 restantes demandent des règles que le classeur ne
 donne pas : quatre questions au client (`docs/questions-client.md`).
+
+### Le parcours de l'application, dans le dépôt (28/10/2026)
+
+Le client : « go complet » (les skills en renfort). Les essais au
+navigateur vivaient dans des scripts jetables, perdus à chaque session.
+`tools/parcours.js` reste : il sert le dossier lui-même (module `http`,
+aucune dépendance que Playwright), simule la base (comptes et rôles,
+listes vides), et ouvre Accueil, Planning, Équipes et Horaire pour quatre
+rôles (sans compte, opérateur, hiérarchie, RH) sur six écrans (320, 390,
+iPhone aux zones protégées simulées, couché 844, iPhone couché à
+encoche, PC 1280), puis recharge hors ligne. Faute : erreur JavaScript,
+débordement horizontal, cadre sous la barre ou sous le rail, page vide
+hors ligne. 91 essais, 4 min ; `--vite` (portrait seul) 30 s.
+
+- Premier passage : 91 essais, 0 faute.
+- Épreuve : une copie sabotée (un bloc de 2 000 px et une erreur
+  JavaScript) → 5 essais, 5 fautes, code 1. Le contrôle mord.
+- Règle ajoutée au tableau d'avant commit de `CLAUDE.md`.
+
+### L'audit mesuré, après l'Accueil (28/10/2026, `nfdm-v1170`)
+
+Script (contraste WCAG calculé sur le fond réel, textes sous 11 px, cibles
+sous 24 px, éléments interactifs sans nom) sur 390 × 844, 844 × 390 et
+1280 × 800, rôle RH, chaque onglet :
+
+- **Contraste** : 0 texte sous 4,5:1 (3:1 pour le grand texte).
+- **Sans nom** : l'onglet Horaire de la barre du téléphone (libellé caché,
+  aucun `aria-label`) — nommé (`nfdm-v1169`).
+- **Sous 11 px** : la pastille des onglets (10,5), au Planning les heures
+  sous les trigrammes (9 au téléphone), les équipes et les noms de ligne
+  (10,5), aux Équipes les rôles, les polyvalences, l'en-tête de
+  l'organigramme et le tableau des polyvalences (9 à 10,5). Tous à 11 px.
+  À 320 px : rien de coupé, aucun débordement ; le bord droit de
+  l'organigramme identique au pixel près à la version d'avant (un premier
+  regard sur une capture recadrée avait cru le contraire).
+- **Cibles** : les trigrammes de l'organigramme (36 × 21) et les boutons
+  du tableau des polyvalences (20 × 24) passent à 24 × 24 au moins.
+
+### Les couleurs des pauses au validateur (skill dataviz, 28/10/2026)
+
+`validate_palette.js` sur AM, PM, N, D en thème sombre (surface
+`#212737`) : séparation pour les daltonismes et pour la vision normale
+**réussies** (ΔE 11,7 et 16,0 au plus juste) ; le bleu-vert de
+l'après-midi est sous le plancher de chroma (0,085 : il tire vers le
+gris) et N et D sont sous 3:1 contre la surface. Gardé tel quel : ces
+couleurs portent du texte blanc dans les badges (un bleu-vert plus vif
+fait passer le blanc de 5,0 à 4,5:1), elles sont celles de l'horaire, et
+la légende et le calendrier (texte) donnent le relief que le validateur
+exige.
+- Relu à l'œil (Effectifs, tableau de bord RH, demandes, personnel) :
+  l'en-tête « Sur site » de l'espace RH gardait le point vert en tête ;
+  il prend l'icône de l'Accueil (`SITE_ICO`), le point vivant derrière
+  le titre. Les titres centrés des pages de l'espace RH et des Effectifs
+  restent : ce sont des titres de page, pas des en-têtes de carte.
+- Parcours complet après correction : 91 essais, 0 faute.

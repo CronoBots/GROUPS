@@ -5443,6 +5443,15 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    bout de liste, on ne fait plus bouger le fond. */
 .sheet-boite{overscroll-behavior:contain}
 
+/* LE PLANCHER DE 11 PX, PARTOUT (audit mesuré du 28/10/2026, « go
+   complet ») : il restait au Planning (heures sous les trigrammes à 9 px,
+   équipes et noms de ligne à 10,5), aux Équipes (rôles, polyvalences,
+   tableau des polyvalences à 9-10,5) et sur la pastille des onglets. */
+html .tabnb,html em.eqeq,html .orgl2,html .eqn small.eqhd,html .eqseg small,html th.orgp,html tr.orghors th,html tr.pvsep td,
+html th.pvqui,html td.pvsien,html td.pvn u,html td.pvform,html tr.pvhead th,html .eqrole,html .eqpoly,html table.orgt th{font-size:11px !important}
+/* les trigrammes de l'organigramme des Équipes, cibles du doigt : 21 px de
+   haut, sous le minimum de 24 (WCAG 2.5.8) */
+html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-content:center; min-height:24px; min-width:24px}
 /* ---------- retour en haut ---------- */
 /* Le client, le 30/09/2026 : « un bouton pour remonter en haut de page, en
    bas à droite, avec une opacité quand il n'est pas pointé ». Il n'apparaît
@@ -7561,6 +7570,9 @@ html #grille .ws-carte{padding:0 0 12px; border-color:var(--cadre); border-radiu
 html #grille .ws-carte>header{display:flex; align-items:center; justify-content:space-between; gap:8px;
   margin:0 0 10px; padding:8px 12px; min-height:40px; box-sizing:border-box; background:var(--surface2); border-bottom:1px solid var(--cadre)}
 html #grille .ws-carte>header h3{font-size:14px; font-weight:700; min-width:0}
+html #grille .ws-site>header h3{display:flex; align-items:center; gap:8px}
+html #grille .ws-site>header h3 .cc-ico{flex:none; color:var(--in)}
+html #grille .ws-site>header h3 .site-live{width:7px; height:7px; margin:0 0 0 2px; flex:none}
 html #grille .ws-carte>header>:not(h3){flex:none; white-space:nowrap}
 html #grille .ws-carte>:not(header){margin-left:14px; margin-right:14px}
 html #grille .ws-kpi{border-color:var(--cadre)}
@@ -19954,11 +19966,14 @@ function siteReleveHTML(s,o){
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
+/* l'icône de l'en-tête « Sur site », la même à l'Accueil et dans l'espace
+   RH (audit du 28/10/2026 : l'espace gardait le point vert en tête) */
+var SITE_ICO='<svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>';
 var SITE_VIDE='<p class="ws-vide">Personne n\'est sur site en ce moment, d\'après l\'horaire.</p>';
 function wsSiteHTML(){
   var t=new Date(), s=surSite(t);
   return '<section class="ws-carte ws-site" id="wsSite">'
-    +'<header><h3><span class="site-live" aria-hidden="true"></span>Sur site en ce moment</h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
+    +'<header><h3>'+SITE_ICO+'Sur site en ce moment<span class="site-live" aria-hidden="true"></span></h3><span class="ws-badge ws-ok">'+s.sur.length+'</span></header>'
     +'<p class="site-maj">'+siteQuand(t)+' · en direct, d\'après l\'horaire</p>'
     +(siteSalonsHTML(s,{lien:true})||SITE_VIDE)+siteReleveHTML(s,{lien:true})+'</section>';
 }
