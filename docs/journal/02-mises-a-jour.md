@@ -910,6 +910,40 @@ valide au bouton ou par Entrée, quelle que soit la longueur. Éprouvé au
 navigateur avec un code de huit chiffres ; parcours entier rejoué, aucune
 erreur.
 
+**Le code en six cases (28/10/2026, `nfdm-v1174`).** Le client, capture
+de l'écran du code sur iPhone : « un bloc à 6 entrées au lieu d'un seul
+champ de texte, ce doit faire 100 % pro ». Six cases dessinées, groupées
+par trois autour d'un tiret, et dessus UN SEUL vrai champ, invisible
+(texte transparent, 16 px pour qu'iOS ne zoome pas). C'est lui qui reçoit
+la frappe, le collage et la suggestion « Depuis Mail » de l'iPhone
+(`autocomplete="one-time-code"`), et que le lecteur d'écran annonce
+(« Code reçu par e-mail, 6 chiffres »). Six champs séparés auraient perdu
+la suggestion et le collage. Le curseur reste au bout ; la case active est
+cerclée et son curseur clignote ; un refus fait secouer les cases en rouge
+(sauf mouvement réduit), puis les vide.
+
+**Ce que le paragraphe précédent impose** : ce projet envoyait des codes à
+HUIT chiffres le 21/10, et l'envoi au sixième les faisait refuser. Six cases
+exigent donc le réglage « Email OTP Length » à 6 chez Supabase
+(Authentication, Sign In / Providers, Email), que seul le client peut
+changer. L'envoi part tout seul à la sixième case. Un code de huit chiffres
+COLLÉ ou PROPOSÉ par le téléphone fait apparaître huit cases (groupées par
+quatre) et part entier : la connexion ne casse pas si le réglage reste ou
+revient à 8. Tapé chiffre par chiffre, il serait refusé à la sixième case.
+
+Éprouvé au navigateur (envoi et vérification simulés), à 320, 390, iPhone
+aux zones simulées, téléphone couché et PC. Résultats :
+- six cases de 34 × 50 px à 320 px, 44 × 57 à 390 px, 54 × 58 au plus ;
+- le champ couvre exactement les cases, et il a le focus à l'ouverture ;
+- « 123 » remplit trois cases, la quatrième est active ; l'effacement
+  retire le dernier chiffre ; les lettres sont ignorées ;
+- le sixième chiffre envoie « 129456 » ; le refus affiche l'erreur et
+  secoue les cases, qui sont vides 600 ms plus tard ;
+- huit chiffres collés donnent huit cases et partent entiers, puis le
+  bloc revient à six ;
+- un bon code connecte et ouvre « Votre trigramme » ;
+- aucun débordement, aucune erreur JavaScript.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone

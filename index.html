@@ -5501,8 +5501,29 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-f select,.gate-f input{padding:10px 11px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink); font-size:16px; min-width:0}
 .gate-f select:focus,.gate-f input:focus{background:var(--surface); border-color:var(--in)}
 .gate-f .gate-hint{font-size:11px; color:var(--faint)}
-.gate-f input.gate-confirm{font-family:"IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.22em; text-align:center; font-weight:600; font-size:18px}
-.gate-f input.gate-confirm:focus::placeholder{color:transparent}
+/* Le code en cases : six cases dessinées, et dessus un seul champ
+   invisible qui reçoit la frappe, le collage et la suggestion de l'iPhone.
+   Son texte est transparent, sa taille reste 16 px (sinon iOS zoome). */
+.otp{position:relative; margin-top:3px}
+.otp-cases{display:flex; justify-content:center; align-items:center; gap:clamp(5px,1.9vw,9px)}
+.otp-case{flex:1 1 0; min-width:0; max-width:54px; height:clamp(50px,14.5vw,58px); display:flex; align-items:center; justify-content:center;
+  font-family:"IBM Plex Mono",monospace; font-size:clamp(21px,6.4vw,26px); font-weight:600; color:var(--ink);
+  background:var(--surface2); border:1px solid var(--line); border-radius:12px;
+  transition:border-color .15s, background .15s, box-shadow .15s}
+.otp-case.est-plein{border-color:rgba(105,178,203,.45); background:var(--surface)}
+.otp-tiret{flex:0 0 clamp(6px,2.2vw,10px); height:2px; border-radius:1px; background:var(--line)}
+.otp.est-focus .otp-case.est-actif{border-color:var(--in); background:var(--surface); box-shadow:0 0 0 3px rgba(105,178,203,.22)}
+.otp.est-focus .otp-case.est-actif:not(.est-plein)::after{content:""; width:2px; height:44%; border-radius:1px; background:var(--in); animation:otp-clin 1.05s steps(1) infinite}
+@keyframes otp-clin{50%{opacity:0}}
+.otp.est-erreur .otp-case{border-color:var(--out); box-shadow:none}
+.otp.est-erreur .otp-cases{animation:otp-secoue .36s ease}
+@keyframes otp-secoue{20%{transform:translateX(-6px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(2px)}}
+.otp.est-occupe .otp-case{opacity:.55}
+.gate-f input.otp-saisie,.gate-f input.otp-saisie:focus{position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; margin:0; padding:0; border:0; border-radius:12px;
+  background:transparent; color:transparent; -webkit-text-fill-color:transparent; caret-color:transparent; font-size:16px; letter-spacing:0; outline:none; box-shadow:none; cursor:text; z-index:1}
+.gate-f input.otp-saisie::selection{background:transparent}
+.gate-f input.otp-saisie:-webkit-autofill{transition:background-color 99999s}
+@media (prefers-reduced-motion:reduce){ .otp.est-erreur .otp-cases{animation:none} .otp.est-focus .otp-case.est-actif:not(.est-plein)::after{animation:none} }
 /* l'exemple d'adresse lisible : le gris du navigateur tombait à 3,2:1 sur
    le champ (audit du 23/10/2026) */
 .gate-f input::placeholder{color:var(--muted); opacity:1}
@@ -30499,50 +30520,98 @@ function gateVueEmail(){
   document.getElementById("gateBack").onclick=gateVueAccueil;
   setTimeout(function(){ try{ em.focus(); }catch(e){} },30);
 }
+/* LE CODE EN CASES (le client, le 28/10/2026 : « un bloc à 6 entrées au
+   lieu d'un seul champ de texte, ce doit faire 100 % pro »). Six cases
+   dessinées, mais UN SEUL vrai champ, invisible, posé dessus : c'est lui
+   qui reçoit la frappe, le collage et la suggestion « Depuis Mail » de
+   l'iPhone (autocomplete="one-time-code"), et que le lecteur d'écran
+   annonce. Six champs séparés perdraient la suggestion et le collage.
+   Le code complet part seul.
+
+   LA LONGUEUR SE RÈGLE CHEZ SUPABASE (Authentication, Email, « Email OTP
+   Length »). Le 21/10/2026, ce projet envoyait des codes à HUIT chiffres,
+   et l'envoi au sixième faisait refuser le code au milieu de la frappe.
+   Le client demande six : réglé à 6 chez Supabase, le code est entier à
+   la sixième case. Un code de huit chiffres collé ou proposé par le
+   téléphone fait apparaître huit cases au lieu d'être tronqué : la
+   connexion ne casse pas si le réglage revient à 8. */
+var CODE_CHIFFRES=6;
 function gateVueCode(email){
   gateSetTitre("Code reçu",email);
   gateSetBody(''
     +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir. Le code est valable une heure ; regardez aussi les courriers indésirables.</p>'
     +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
-    +'<input id="gateCode" class="gate-confirm" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="code" aria-describedby="gateErr"></div>'
+    +'<div class="otp" id="gateOtp">'
+    +'<div class="otp-cases" aria-hidden="true"></div>'
+    +'<input id="gateCode" class="otp-saisie" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="8" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="gateErr">'
+    +'</div></div>'
     +'<div class="gate-err" id="gateErr" role="alert"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateValider">Se connecter</button>'
     +'<button type="button" class="gate-link" id="gateRenvoi">Renvoyer un code</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
     +'</div>');
-  var c=document.getElementById("gateCode"), err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false;
+  var c=document.getElementById("gateCode"), otp=document.getElementById("gateOtp"), cases=otp.querySelector(".otp-cases"),
+      err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false, n=CODE_CHIFFRES;
+  function dessiner(){
+    var v=c.value, h="", actif=Math.min(v.length,n-1);
+    for(var i=0;i<n;i++){
+      if(i===n/2) h+='<span class="otp-tiret"></span>';
+      h+='<span class="otp-case'+(v.charAt(i)?' est-plein':'')+(i===actif?' est-actif':'')+'">'+esc(v.charAt(i))+'</span>';
+    }
+    cases.innerHTML=h;
+    c.setAttribute("aria-label","Code reçu par e-mail, "+n+" chiffres");
+  }
+  /* le curseur reste au bout : on tape, on efface, jamais au milieu */
+  function auBout(){ try{ c.setSelectionRange(c.value.length,c.value.length); }catch(e){} }
+  function erreur(msg,vider){
+    err.textContent=msg; c.setAttribute("aria-invalid","true");
+    otp.classList.remove("est-erreur"); void otp.offsetWidth; otp.classList.add("est-erreur");
+    if(vider) setTimeout(function(){ if(!document.body.contains(c)) return; c.value=""; n=CODE_CHIFFRES; dessiner(); try{ c.focus(); }catch(e){} },600);
+  }
   function valider(){
     var v=String(c.value||"").replace(/\D/g,"");
-    if(v.length<6){ err.textContent="Tapez le code entier reçu par e-mail."; c.setAttribute("aria-invalid","true"); return; }
+    if(v.length<CODE_CHIFFRES){ erreur("Tapez les "+n+" chiffres du code reçu par e-mail.",false); try{ c.focus(); }catch(e){} return; }
     if(enCours) return; enCours=true;
     err.textContent=""; btn.disabled=true; btn.textContent="Vérification…";
+    c.readOnly=true; otp.classList.add("est-occupe");
     baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
       var s=baseGarder(j); s.email=email; lsSet("base/session",s); gateBaseEtat();
-    }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter"; err.textContent="Code refusé : "+baseMsg(e)+"."; c.setAttribute("aria-invalid","true"); });
+    }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter";
+      c.readOnly=false; otp.classList.remove("est-occupe");
+      erreur("Code refusé : "+baseMsg(e)+".",true); });
   }
   btn.onclick=valider;
-  /* Pas d'envoi tout seul : le projet envoie des codes à HUIT chiffres, et
-     l'envoi à six partait au milieu de la frappe (le client, le 21/10/2026,
-     sur iPhone : le code refusé, puis tout sélectionné). On valide au
-     bouton ou par Entrée, quelle que soit la longueur réglée chez Supabase. */
-  c.oninput=function(){ err.textContent=""; c.removeAttribute("aria-invalid"); };
+  c.oninput=function(){
+    var v=String(c.value||"").replace(/\D/g,"").slice(0,8);
+    if(v!==c.value) c.value=v;
+    /* un code plus long, collé ou proposé : les cases s'ajoutent */
+    if(v.length>CODE_CHIFFRES) n=8; else if(!v.length) n=CODE_CHIFFRES;
+    err.textContent=""; c.removeAttribute("aria-invalid"); otp.classList.remove("est-erreur");
+    dessiner(); auBout();
+    if(v.length===n) valider();
+  };
   c.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); valider(); } };
+  c.onfocus=function(){ otp.classList.add("est-focus"); auBout(); };
+  c.onblur=function(){ otp.classList.remove("est-focus"); };
+  c.onclick=c.onkeyup=auBout;
+  dessiner();
   /* Supabase refuse un second code avant 60 s : le bouton attend avec lui
      au lieu de laisser croire à une panne. */
   var renvoi=document.getElementById("gateRenvoi");
-  function attendre(n){
-    renvoi.disabled=true; renvoi.textContent="Renvoyer un code ("+n+" s)";
+  function attendre(k){
+    renvoi.disabled=true; renvoi.textContent="Renvoyer un code ("+k+" s)";
     var t=setInterval(function(){
       if(!document.body.contains(renvoi)){ clearInterval(t); return; }
-      n--; if(n>0){ renvoi.textContent="Renvoyer un code ("+n+" s)"; return; }
+      k--; if(k>0){ renvoi.textContent="Renvoyer un code ("+k+" s)"; return; }
       clearInterval(t); renvoi.disabled=false; renvoi.textContent="Renvoyer un code";
     },1000);
   }
   attendre(60);
   renvoi.onclick=function(){
     err.textContent="Envoi…";
-    baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:email, create_user:true}).then(function(){ err.textContent="Nouveau code envoyé."; attendre(60); })
+    baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:email, create_user:true}).then(function(){
+      err.textContent="Nouveau code envoyé."; c.value=""; n=CODE_CHIFFRES; dessiner(); try{ c.focus(); }catch(e){} attendre(60); })
       .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; attendre(30); });
   };
   document.getElementById("gateBack").onclick=gateVueEmail;
