@@ -961,6 +961,23 @@ retiré. Les cases sont retaillées pour huit : 25 × 48 px à 320 px, 33 × 55 
 - un bon code connecte ;
 - aucun débordement, aucune erreur.
 
+**Six chiffres, réglés chez Supabase (28/10/2026, `nfdm-v1176`).** Le client :
+« est-ce que c'est possible de passer à 6 chiffres ? ». Oui : « Email OTP
+Length » à 6 (Authentication, Sign In / Providers, Email), qu'il a réglé
+lui-même (« fait »). L'ORDRE COMPTAIT : l'écran à six cases avant le
+réglage aurait fait refuser au sixième chiffre un code de huit tapé à la
+main ; dans l'autre sens, rien ne casse (huit cases, un code de six part au
+bouton). L'écran revient donc à six cases (`CODE_CHIFFRES`), et garde le
+filet du premier essai : un code de huit chiffres collé ou proposé fait
+apparaître huit cases (`CODE_MAX`) et part entier, si le réglage n'avait
+pas été enregistré ou revenait à 8. Le réglage lui-même ne se lit pas
+d'ici (aucun outil n'atteint la configuration d'Auth) : la première
+connexion du client le confirmera. La validité (« Email OTP Expiration »)
+est restée telle quelle à notre connaissance : le texte dit toujours une
+heure. Éprouvé sur les cinq écrans (cases de 35 × 48 px à 320 px, 46 × 55
+à 390) : six chiffres partent seuls, huit collés donnent huit cases puis
+le bloc revient à six, refus, bonne connexion, aucune erreur.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone

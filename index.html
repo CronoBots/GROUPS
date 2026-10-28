@@ -5501,7 +5501,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-f select,.gate-f input{padding:10px 11px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--ink); font-size:16px; min-width:0}
 .gate-f select:focus,.gate-f input:focus{background:var(--surface); border-color:var(--in)}
 .gate-f .gate-hint{font-size:11px; color:var(--faint)}
-/* Le code en cases : huit cases dessinées, et dessus un seul champ
+/* Le code en cases : six cases dessinées, et dessus un seul champ
    invisible qui reçoit la frappe, le collage et la suggestion de l'iPhone.
    Son texte est transparent, sa taille reste 16 px (sinon iOS zoome). */
 .otp{position:relative; margin-top:3px}
@@ -30521,20 +30521,19 @@ function gateVueEmail(){
   setTimeout(function(){ try{ em.focus(); }catch(e){} },30);
 }
 /* LE CODE EN CASES (le client, le 28/10/2026 : « un bloc à 6 entrées au
-   lieu d'un seul champ de texte, ce doit faire 100 % pro », puis, appris
-   que ce projet envoie des codes à HUIT chiffres : « si c'est 8, laisser
-   8 »). Huit cases dessinées, groupées par quatre, mais UN SEUL vrai champ,
-   invisible, posé dessus : c'est lui qui reçoit la frappe, le collage et
-   la suggestion « Depuis Mail » de l'iPhone (autocomplete="one-time-code"),
-   et que le lecteur d'écran annonce. Huit champs séparés perdraient la
-   suggestion et le collage.
+   lieu d'un seul champ de texte, ce doit faire 100 % pro »). Six cases
+   dessinées, groupées par trois, mais UN SEUL vrai champ, invisible, posé
+   dessus : c'est lui qui reçoit la frappe, le collage et la suggestion
+   « Depuis Mail » de l'iPhone (autocomplete="one-time-code"), et que le
+   lecteur d'écran annonce. Six champs séparés perdraient la suggestion et
+   le collage. Le code entier part seul.
 
-   LA LONGUEUR SE RÈGLE CHEZ SUPABASE (« Email OTP Length », de 6 à 10) ;
-   elle était de 8 le 21/10/2026, et l'envoi au sixième chiffre faisait
-   alors refuser le code au milieu de la frappe. Le code entier part donc
-   seul à la huitième case ; s'il compte six chiffres un jour (réglage
-   changé), il part au bouton ou par Entrée, sans rien casser. */
-var CODE_CHIFFRES=8, CODE_MIN=6;
+   LA LONGUEUR SE RÈGLE CHEZ SUPABASE (« Email OTP Length », de 6 à 10).
+   Elle était de 8 le 21/10/2026 ; le client l'a passée à 6 le 28/10/2026.
+   Si elle revenait à 8, un code collé ou proposé par le téléphone ferait
+   apparaître huit cases et partirait entier, au lieu d'être coupé : la
+   connexion ne casserait pas. */
+var CODE_CHIFFRES=6, CODE_MIN=6, CODE_MAX=8;
 function gateVueCode(email){
   gateSetTitre("Code reçu",email);
   gateSetBody(''
@@ -30542,7 +30541,7 @@ function gateVueCode(email){
     +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
     +'<div class="otp" id="gateOtp">'
     +'<div class="otp-cases" aria-hidden="true"></div>'
-    +'<input id="gateCode" class="otp-saisie" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="'+CODE_CHIFFRES+'" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="gateErr">'
+    +'<input id="gateCode" class="otp-saisie" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="'+CODE_MAX+'" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="gateErr">'
     +'</div></div>'
     +'<div class="gate-err" id="gateErr" role="alert"></div>'
     +'<div class="gate-actions">'
@@ -30566,7 +30565,7 @@ function gateVueCode(email){
   function erreur(msg,vider){
     err.textContent=msg; c.setAttribute("aria-invalid","true");
     otp.classList.remove("est-erreur"); void otp.offsetWidth; otp.classList.add("est-erreur");
-    if(vider) setTimeout(function(){ if(!document.body.contains(c)) return; c.value=""; dessiner(); try{ c.focus(); }catch(e){} },600);
+    if(vider) setTimeout(function(){ if(!document.body.contains(c)) return; c.value=""; n=CODE_CHIFFRES; dessiner(); try{ c.focus(); }catch(e){} },600);
   }
   function valider(){
     var v=String(c.value||"").replace(/\D/g,"");
@@ -30582,8 +30581,10 @@ function gateVueCode(email){
   }
   btn.onclick=valider;
   c.oninput=function(){
-    var v=String(c.value||"").replace(/\D/g,"").slice(0,n);
+    var v=String(c.value||"").replace(/\D/g,"").slice(0,CODE_MAX);
     if(v!==c.value) c.value=v;
+    /* un code plus long, collé ou proposé : les cases s'ajoutent */
+    if(v.length>CODE_CHIFFRES) n=CODE_MAX; else if(!v.length) n=CODE_CHIFFRES;
     err.textContent=""; c.removeAttribute("aria-invalid"); otp.classList.remove("est-erreur");
     dessiner(); auBout();
     if(v.length===n) valider();
@@ -30608,7 +30609,7 @@ function gateVueCode(email){
   renvoi.onclick=function(){
     err.textContent="Envoi…";
     baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:email, create_user:true}).then(function(){
-      err.textContent="Nouveau code envoyé."; c.value=""; dessiner(); try{ c.focus(); }catch(e){} attendre(60); })
+      err.textContent="Nouveau code envoyé."; c.value=""; n=CODE_CHIFFRES; dessiner(); try{ c.focus(); }catch(e){} attendre(60); })
       .catch(function(e){ err.textContent="Envoi impossible : "+baseMsg(e)+"."; attendre(30); });
   };
   document.getElementById("gateBack").onclick=gateVueEmail;
