@@ -5552,6 +5552,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-err{font-size:12.5px; color:var(--out); font-weight:600; min-height:1em}
 .gate-revu{font-size:12.5px; line-height:1.45; color:var(--muted)}
 .gate-revu:empty{display:none}
+.gate-aide{text-align:center; padding:0 6px}
 /* Carte d'identité : le trigramme en point focal (mono), l'équipe/fonction en
    accent dessous, puis les champs centrés et empilés (libellé fin au-dessus). */
 .gp{border:1px solid var(--line); border-radius:14px; background:var(--surface2); padding:18px 16px 16px; text-align:center}
@@ -30534,10 +30535,15 @@ function gateVueEmail(){
    apparaître huit cases et partirait entier, au lieu d'être coupé : la
    connexion ne casserait pas. */
 var CODE_CHIFFRES=6, CODE_MIN=6, CODE_MAX=8;
+/* L'EXPÉDITEUR DES CODES, nommé à l'écran. Le 28/10/2026, le filtre de la
+   messagerie de l'entreprise a retenu cinq codes de suite, sans rejet ni
+   avis : envoyés par le robot, jamais arrivés. Le client a dû autoriser
+   l'expéditeur lui-même ; l'écran dit à chacun lequel, et où chercher. */
+var EXPEDITEUR_CODE="biowanzeapp@gmail.com";
 function gateVueCode(email){
   gateSetTitre("Code reçu",email);
   gateSetBody(''
-    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir. Le code est valable une heure ; regardez aussi les courriers indésirables.</p>'
+    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir de <b>'+EXPEDITEUR_CODE+'</b>. Le code est valable une heure.</p>'
     +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
     +'<div class="otp" id="gateOtp">'
     +'<div class="otp-cases" aria-hidden="true"></div>'
@@ -30548,7 +30554,8 @@ function gateVueCode(email){
     +'<button type="button" class="gate-btn primary" id="gateValider">Se connecter</button>'
     +'<button type="button" class="gate-link" id="gateRenvoi">Renvoyer un code</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
-    +'</div>');
+    +'</div>'
+    +'<p class="gate-revu gate-aide">Rien reçu après une minute ? Regardez le courrier indésirable et la quarantaine de votre messagerie : le filtre de l\'entreprise peut retenir ce message. Autorisez l\'expéditeur, puis renvoyez un code.</p>');
   var c=document.getElementById("gateCode"), otp=document.getElementById("gateOtp"), cases=otp.querySelector(".otp-cases"),
       err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false, n=CODE_CHIFFRES;
   function dessiner(){

@@ -1000,6 +1000,22 @@ expéditeur au nom de l'entreprise. Le code ne s'écrit jamais ici : en
 attendant, le client peut le lire dans les « Envoyés » du robot, qu'il
 possède.
 
+**Confirmé : la messagerie de l'entreprise les retenait (28/10/2026,
+`nfdm-v1177`).** Le client : « c'était bloqué par mon entreprise. J'ai
+libéré l'expéditeur, comment faire pour que cela ne se produise pas pour
+les autres ». Deux réponses, qui se complètent :
+- **dans l'application, tout de suite** : l'écran du code nomme
+  l'expéditeur (`EXPEDITEUR_CODE`, l'adresse du robot, déjà publique dans
+  ce journal). Une ligne d'aide, sous les boutons, dit où chercher
+  (courrier indésirable, quarantaine) et quoi faire (autoriser
+  l'expéditeur, renvoyer un code). Éprouvé sur les cinq écrans : aucun
+  débordement, connexion inchangée ;
+- **chez l'entreprise, une fois pour tous** : une autorisation de
+  l'expéditeur pour toute la messagerie (Microsoft Defender, « Tenant
+  Allow/Block Lists »), que seul le service informatique peut poser. Plus
+  solide encore : un expéditeur sur un domaine que l'entreprise connaît,
+  authentifié (SPF, DKIM, DMARC), à la place d'une adresse Gmail.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
