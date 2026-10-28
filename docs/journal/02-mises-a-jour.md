@@ -944,6 +944,23 @@ aux zones simulées, téléphone couché et PC. Résultats :
 - un bon code connecte et ouvre « Votre trigramme » ;
 - aucun débordement, aucune erreur JavaScript.
 
+**Huit cases, et non six (28/10/2026, `nfdm-v1175`).** Le client, lisant
+que le réglage devait passer à 6 : « désolé j'ai parlé de 6 entrées mais si
+c'est 8 laisser 8 ». Le paragraphe précédent est donc DÉPASSÉ sur un point :
+rien n'est à changer chez Supabase, le bloc a huit cases (`CODE_CHIFFRES`),
+groupées par quatre, et part seul à la huitième. Le réglage pourrait un jour
+passer à 6 (le minimum de Supabase, `CODE_MIN`) : un code de six chiffres
+part alors au bouton ou par Entrée, et ne part jamais seul au milieu de la
+frappe. L'agrandissement à huit cases sur un code collé n'a plus d'objet :
+retiré. Les cases sont retaillées pour huit : 25 × 48 px à 320 px, 33 × 55 à
+390, 43 × 56 au plus, chiffres de 20 à 25 px. Éprouvé sur les mêmes cinq
+écrans :
+- huit chiffres tapés partent seuls ; un neuvième est ignoré ;
+- six chiffres suivis d'Entrée partent ; cinq sont refusés sur place ;
+- un code collé part entier ; le refus secoue puis vide les cases ;
+- un bon code connecte ;
+- aucun débordement, aucune erreur.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
