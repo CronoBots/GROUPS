@@ -3173,6 +3173,27 @@ l'agenda, un bout de moins d'une heure rejoint la pause qui SUIT, celle
 pour laquelle on arrive — vérifié : plus aucune note ne commence par
 « Après-midi 21 h 30 ».
 
+**Question close le 28/10/2026.** Le client : « l'app prend-elle en
+compte le commentaire qui dit qu'il faut 3 opérateurs aux chaudières ces
+jours-là ? » Oui, depuis le 22/10 (523a9a7) : `RENFORT_MOTIF` lit « 3
+opérateurs en pauses PM et N » et `attenduAuPoste` attend 3 aux
+chaudières l'après-midi et la nuit des 22 et 23/10. Or
+`docs/questions-client.md` disait encore « l'application attend 2 … ne
+signale pas de manque » et demandait « d'où vient le besoin de 3 ? » —
+**erreur commise** : la question, écrite le matin du 22/10, n'avait pas
+été reprise quand le commentaire a été lu le soir même. La réponse était
+dans le commentaire (les commentaires d'abord) ; la seconde question (un
+12 h compte-t-il dans les deux pauses) l'était par la règle des relais
+du 13/10. Retirée. **Mesuré** (`--placement 1022 1023`) :
+
+- après-midi, 3/3 les deux jours, chacun avec un relais de 12 h
+  (le 22 : SPS 14-18 puis GJR 18-22 ; le 23 : JBS 14-18 puis KDN 18-22) ;
+- nuit du 22, 2/3 : GJR et GBT-1 (pour QDE, absent) ; le troisième de
+  l'équipe, ADS, est en RJF et personne ne le remplace ;
+- nuit du 23, 2/3 : KDN et PDF ; MGY est là mais en formation, il ne
+  compte pas (le client, le 20/10) ; SPS (14h-02h) ne tient que 22 h-02 h,
+  et un relais doit couvrir toute la pause.
+
 ## GKT le 22/10 : une arrivée à 20 h pour sa nuit (25/10/2026, v1048)
 
 Le client, devant le Planning du 22/10 : « et GKT pas placé en nuit alors
