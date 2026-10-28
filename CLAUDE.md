@@ -327,7 +327,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
 1. Vérifier la syntaxe : extraire le contenu des balises `<script>` et lancer
    `node --check`.
 2. **Incrémenter `V` dans `sw.js`** (`nfdm-vNN`). Sans ça, les installations
-   existantes gardent l'ancienne page indéfiniment.
+   existantes gardent l'ancienne page indéfiniment. **Le robot monte `V` aussi**
+   à chaque classeur installé : après un `pull --rebase`, `V` doit rester
+   AU-DESSUS du sien (deux fois le 28/10/2026, la même valeur des deux
+   côtés : la page neuve ne serait pas arrivée).
 
    Depuis `nfdm-v119`, la PAGE se prend **au réseau d'abord** : une version
    poussée arrive au premier rechargement, et non au deuxième comme avant.
