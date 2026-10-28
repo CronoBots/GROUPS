@@ -7055,7 +7055,10 @@ html .hp-t tbody td[data-com]{cursor:pointer}
    laissait sur la case touchée (mesuré le 27/10/2026) */
 @media (hover:hover) and (pointer:fine){ html .hp-t tbody td[data-p]:hover{outline:1px solid rgba(0,0,0,.15); outline-offset:-1px} }
 html .hp-t tbody td.pl-sel{outline:2px solid #111827; outline-offset:-2px}
-html .hp-t tbody tr.hp-ssem td{border-bottom:2px solid #64748b}
+/* Le trait épais ferme le MOIS, et lui seul : celui qui fermait chaque
+   semaine (le dimanche) est retiré, le classeur n'en a pas (le client, le
+   29/10/2026 : « il ne faut pas de séparation plus grosse à la fin d'une
+   semaine, mais à garder pour la fin du mois »). */
 html .hp-t tbody tr.hp-smois td{border-bottom:2px solid #64748b}
 /* le pied */
 html .hp-t tfoot td{background:#fff; font-weight:700; font-size:11px}
@@ -18895,7 +18898,7 @@ function renderGrille(){
     var md=pad2(dt.getMonth()+1)+pad2(dt.getDate()), k=an+md, dw=dt.getDay();
     var we=dw===0||dw===6, fe=!!fer[an+"-"+md.slice(0,2)+"-"+md.slice(2)];
     var cl=[fe?"hp-fe":(we?"hp-we":"hp-sem")]; if(!we&&!fe&&dt.getMonth()%2===1) cl.push("hp-bleu");
-    if(k===ajk) cl.push("hp-auj pl-auj"); if(dw===0&&ix) cl.push("hp-ssem"); if(GR.ligne===k) cl.push("hp-lsel");
+    if(k===ajk) cl.push("hp-auj pl-auj"); if(GR.ligne===k) cl.push("hp-lsel");
     var fin=ix===jours.length-1||jours[ix+1].getMonth()!==dt.getMonth(); if(fin) cl.push("hp-smois");
     h.push('<tr class="'+cl.join(" ")+'" data-md="'+md+'">');
     if(dt.getDate()===1||ix===0){ var nm=new Date(an,dt.getMonth()+1,0).getDate()-dt.getDate()+1;
