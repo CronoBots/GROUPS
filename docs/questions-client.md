@@ -60,6 +60,25 @@ des questions au client ».
   classeur avec ses formules (le `.xlsm` d'origine), ou la liste des
   reports de fin 2025.
 
+- **Les places vides que les commentaires expliquent (28/10/2026).** Le
+  contrôle `--manques-commentes 0101` trouve, avant aujourd'hui, 97 places
+  vides du Planning dont le titulaire absent est nommé par un commentaire
+  du jour. Trois cas se corrigeaient sans rien supposer (29/01, 16/02,
+  14/09) ; les autres demandent une règle que le classeur ne donne pas :
+  1. **« échange avec X » (27 places)** : le 06/02 PM, le fermentier passe
+     en nuit « échange avec » un chaudiériste, qui vient en PM. La
+     fermentation reste vide : le chaudiériste la tient-il, ou reste-t-il
+     aux chaudières (et la place est vraiment vide) ?
+  2. **« N h +FT » d'une autre pause (dans les 43 « remplace »)** : le
+     02/02, le contremaître du matin écrit « 4h +FT · remplace » celui de
+     l'après-midi. Ses 4 h de flex time sont-elles de 14 h à 18 h, au poste
+     du remplacé ?
+  3. **« R-CM · 1h +FT · remplace X »** (le 07/03) : l'adjoint tient-il
+     tout le poste de contremaître de la pause, ou une heure seulement
+     (c'est ce que la prime lit aujourd'hui) ?
+  4. **« remplacé par X » écrit par le seul titulaire (26 places)** : X
+     est à un autre poste ce jour-là ; le Planning doit-il le déplacer ?
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».

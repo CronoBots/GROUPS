@@ -2842,3 +2842,19 @@ lus et jugés vrais s'écrivent dans `tools/manques-admis.txt`
   poste : contremaître 35, gluten 17, chaudières 15, fermentation 13,
   terrain arrière 9, distillation 4, meunerie 4, STEP 3. À reprendre une
   par une, les commentaires d'abord.
+
+Le 28/10/2026 (`nfdm-v1168`), première reprise des 100. Une règle sûre :
+« remplace X », SANS heures, écrit par quelqu'un qui preste une AUTRE pause,
+donne au poste vide de X le recouvrement de sa présence (`lectureAgenda`)
+avec la pause, en relais. Premier essai, sans la condition « autre pause
+PRESTÉE » (la cellule peut écrire PM et l'annotation AM) : 43 lignes du
+placement changeaient, dont des gens comptés deux fois (une gluten à 2/2
+avec le même en titulaire et en relais) et trois déplacés à tort. Avec
+elle : 3 journées, les 29/01 PM (contremaître : 6 h – 18 h puis
+18 h – 6 h), 16/02 AM (chaudières : un 6 h – 18 h) et 14/09 PM
+(chaudières : deux pièces) ; places creuses de l'année 210 → 207 ; neuf
+règles, polyvalence, compteurs, fiches, `--manques 0926` et agendas
+identiques. Le 02/02 ne se résout PAS : « 4h +FT » n'allonge pas la
+présence lue (`lectureAgenda` ne lit pas les heures de flex time comme
+une plage). Les 97 restantes demandent des règles que le classeur ne
+donne pas : quatre questions au client (`docs/questions-client.md`).

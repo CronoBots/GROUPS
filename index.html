@@ -24484,6 +24484,28 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         cand.push({p:p, a:y0, b:y1, plage:[a2,b2], A:a2, B:b2, com:c.trim(), remp:t2, dec:0}); vu=true;
       }
     }
+    /* « REMPLACE YPE » SANS HEURES ET ÉCRIT PAR QUELQU'UN D'UNE AUTRE PAUSE
+       (le client, le 27/10/2026 : « les commentaires sont toujours la source
+       principale des réponses en cas de manque ») : le 02/02, l'après-midi
+       sans contremaître alors que celui du matin, en « 4h +FT », écrivait
+       « remplace YPE », et celui de nuit « Remplace YPE de 18h à 22h ». Sa
+       part est le recouvrement de sa présence (lectureAgenda : la plage, les
+       heures de flex time, l'arrivée et le départ écrits) avec la pause.
+       Seulement depuis une AUTRE pause : dans la même, atelierDuRemplace le
+       met déjà au poste du remplacé (le relais l'y compterait deux fois). */
+    if(!vu && String(raw[0]||"").trim()!==gk && typeof lectureAgenda==="function"){
+      var rx3=/remplac?e\s+([A-Z]{3})\b(?!\s+de\s+\d)/gi, x=null, m3;
+      while((m3=rx3.exec(c))){
+        var t3=tri3(m3[1]), q3=db.people.filter(function(z){ return idLisible(z.id)===t3; })[0]; if(!q3||q3===p) continue;
+        if(!remplaceAbsent(q3,p,md,k)) continue;
+        if(x===null){ try{ x=lectureAgenda(db,p,d0.getFullYear(),d0.getMonth()+1,d0.getDate())||false; }catch(e){ x=false; } }
+        /* la pause PRESTÉE est une autre (la cellule peut écrire PM et
+           l'annotation AM : il est alors du matin, déjà compté) */
+        if(!x||!x.presente||PF_DEB[x.pv]==null||x.pv===gk) break;
+        var a3=pfDebut(x), b3=pfFin(x), z0=Math.max(a3,W0), z1=Math.min(b3,W1); if(z1-z0<0.5) continue;
+        cand.push({p:p, a:z0, b:z1, plage:[a3,b3], A:a3, B:b3, com:c.trim(), remp:t3, dec:0}); vu=true;
+      }
+    }
     return vu;
   }
   cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
