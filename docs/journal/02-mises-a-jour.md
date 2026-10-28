@@ -1649,9 +1649,24 @@ existant est non sûr jusqu'à ce que son téléphone rouvre l'application
 connecté (réabonnement silencieux, une fois par jour au plus) : d'ici là
 il reçoit le message du classeur, pas ceux des demandes.
 
-Restent au client, dans le tableau de bord Supabase (Auth) :
-activer la protection des mots de passe divulgués, garder « Confirm
-email », fermer l'inscription par mot de passe si seul le code sert.
+Restait au client, dans le tableau de bord Supabase (Auth), une seule
+vérification : « Confirm email » activé (Authentication → Sign In /
+Providers → Email ; activé d'office sur un projet hébergé). Sans lui, une
+inscription PAR MOT DE PASSE (`/auth/v1/signup`, que l'application
+n'emploie pas mais qui reste ouverte) créerait un compte à l'adresse
+d'entreprise d'un collègue sans avoir à ouvrir sa boîte.
+
+**Deux conseils donnés le même jour étaient FAUX**, corrigés le soir
+même après lecture de la documentation et du plan : (1) « activer la
+protection des mots de passe divulgués » — réservée au plan Pro, le
+projet est au plan gratuit, et l'application n'utilise aucun mot de
+passe (connexion par code, `/auth/v1/otp`) ; (2) « fermer l'inscription
+par mot de passe » — Supabase n'a pas de réglage qui la ferme seule :
+couper le fournisseur « Email » couperait aussi les codes, et couper
+« Allow new users to sign up » empêcherait un nouveau collègue de
+recevoir son premier code (`create_user:true`). Le projet étant
+partagé avec PINO, tout réglage d'Auth le touche aussi : on n'y change
+rien sans nécessité.
 Laissés (bas) : une seule clé robot pour tous les usages ; 12 clés
 étrangères sans index (volume négligeable).
 
