@@ -978,6 +978,28 @@ est juste. Éprouvé sur les cinq écrans (cases de 35 × 48 px à 320 px, 46 ×
 à 390) : six chiffres partent seuls, huit collés donnent huit cases puis
 le bloc revient à six, refus, bonne connexion, aucune erreur.
 
+**Les codes partent et n'arrivent pas (28/10/2026, vers minuit).** Le
+client : « je ne reçois pas de mail sur ma boîte avec le code ». Mesuré de
+bout en bout :
+- Supabase a demandé cinq envois (`/otp`, code 200, de 22 h 51 à 23 h 23
+  UTC), un vers l'adresse @biowanze.be et quatre vers l'adresse
+  @cropenergies.com ;
+- la configuration d'Auth a été rechargée à 23 h 14 (le réglage à six
+  chiffres) ;
+- les cinq messages sont dans les « Envoyés » du Gmail du robot, « Votre
+  code BIOWANZE ». Le dernier, envoyé après le rechargement, porte un code
+  de SIX chiffres : le réglage du client est donc confirmé ;
+- aucun avis de non-remise n'est revenu.
+
+Ils se perdent donc chez la messagerie de l'entreprise, sans rejet. Le plus
+probable est une quarantaine : un filtre qui voit, en une demi-heure,
+plusieurs « codes » venus d'une adresse Gmail externe. Les codes du 21/10
+étaient arrivés. Ce qui ne dépend que du client et de l'informatique :
+la quarantaine et l'expéditeur autorisé. Plus solide à terme : un
+expéditeur au nom de l'entreprise. Le code ne s'écrit jamais ici : en
+attendant, le client peut le lire dans les « Envoyés » du robot, qu'il
+possède.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
