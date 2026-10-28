@@ -1656,7 +1656,8 @@ inscription PAR MOT DE PASSE (`/auth/v1/signup`, que l'application
 n'emploie pas mais qui reste ouverte) créerait un compte à l'adresse
 d'entreprise d'un collègue sans avoir à ouvrir sa boîte.
 Vérifié par le client le 28/10/2026 au soir (capture) : « Confirm
-email » activé, connexions anonymes coupées, seul le fournisseur Email
+email » et « Allow new users to sign up » activés, connexions anonymes
+coupées, seul le fournisseur Email
 actif (téléphone et SAML coupés). Rien à changer.
 
 **Deux conseils donnés le même jour étaient FAUX**, corrigés le soir
