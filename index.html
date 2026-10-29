@@ -2413,6 +2413,9 @@ html body .grille[hidden].garde{display:flex!important; content-visibility:hidde
 .pl-nav button{width:32px; height:32px; border:0; border-radius:8px; background:none; color:var(--ink); font-size:20px; line-height:1; cursor:pointer}
 .pl-nav button:hover{background:var(--surface2)}
 .pl-nav b{min-width:150px; text-align:center; font-size:13.5px; font-weight:650; padding:0 6px; white-space:nowrap}
+.pl-nav b .gr-maj{display:block; margin-top:1px; font-size:11px; font-weight:500; letter-spacing:0; color:var(--muted); font-variant-numeric:tabular-nums}
+/* au plus petit téléphone, la date et l'heure seules : « Classeur du » coupait l'heure */
+@media (max-width:359px){ .pl-nav b .gr-maj-l{display:none} }
 .pl-seg{display:flex; border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:2px}
 .pl-seg button{padding:6px 12px; border:0; border-radius:8px; background:none; color:var(--muted); font-size:12.5px; font-weight:600; cursor:pointer}
 /* LE BOUTON RETENU SE VOIT À SON LISERÉ. En sombre, sa pastille ne se
@@ -5642,6 +5645,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-ou{font-size:12.5px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou b{color:var(--tx-blanc); font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
 .pf-rg{color:var(--tx-blanc-78)}
+.pf-maj{display:inline-flex; align-items:center; gap:5px; margin-top:1px; font-size:11.5px; color:var(--tx-blanc-66); font-variant-numeric:tabular-nums; white-space:nowrap}
+.pf-maj svg{flex:none}
 .pf-rg b{font-family:inherit; font-weight:650; letter-spacing:.01em}
 /* Le prochain poste et le week-end libre : un seul cadre, deux lignes
    séparées d'un filet (18/10/2026). */
@@ -12509,6 +12514,14 @@ function dateHeureFr(iso){
   var m=/T(\d{2}):(\d{2})/.exec(String(iso||""));
   return dateFr(iso)+(m?" à "+Number(m[1])+" h "+m[2]:"");
 }
+/* LA DATE ET L'HEURE DU CLASSEUR, EN COURT (le client, le 29/10/2026 :
+   « afficher l'heure et la date de mise à jour du classeur ») :
+   « 28/10 à 15 h 12 » — l'année si ce n'est pas celle du jour, ou sur
+   demande (an). Une seule fonction pour tous les endroits qui la disent. */
+function majCourte(iso,an){
+  var m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(String(iso||"")); if(!m) return "";
+  return m[3]+"/"+m[2]+((an||Number(m[1])!==jourUsine().getFullYear())?"/"+m[1]:"")+(m[4]?" à "+Number(m[4])+" h "+m[5]:"");
+}
 function majClasseurs(){
   var hote=document.getElementById("classeursInfo"), sub=document.getElementById("classeursSub");
   if(!hote) return;
@@ -15595,6 +15608,8 @@ function _pfHead(db,p){
     +(st?'<span class="pf-statut'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')+'</span>'
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
+    /* la version du classeur d'où vient l'horaire affiché (le client, le 29/10/2026) */
+    +(db&&db.maj?'<span class="pf-maj" title="Date et heure du classeur d’où vient l’horaire"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Classeur du '+esc(majCourte(db.maj))+'</span>':'')
     +'</div></div>'
     +'<div class="pf-corps"><div class="pf-gauche">'+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
 }
@@ -15856,7 +15871,7 @@ function renderNotif(db,p){
   card.innerHTML='<div class="nt-poignee" aria-hidden="true"></div><div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>'
     +'<div class="nt-t"><b>Horaire modifié</b><span>'+n+" journée"+(n>1?"s":"")
-    +(/^\d{4}-(\d{2})-(\d{2})/.test(maj)?" · classeur du "+maj.slice(8,10)+"/"+maj.slice(5,7):"")+'</span></div>'
+    +(maj?" · classeur du "+majCourte(maj):"")+'</span></div>'
     +'<button type="button" class="nt-x" id="notifX" aria-label="Fermer">&times;</button></div>'
     +'<ul class="nt-l">'+xs.map(function(x){ return parJourNotif(x.att,x.ks).map(function(a){
       var dm=dateEnMots(x.an,Number(a.de.slice(0,2)),Number(a.de.slice(2)),t0),
@@ -17925,7 +17940,7 @@ function ouvrirDirection(){
       +'<div class="dir-page" data-page="effectif" hidden></div>'
       +'<div class="dir-page" data-page="synthese" hidden>'+dirNav("Synthèse\u00a0RH")+'<div class="dir-hote" id="dcSynth"></div></div>'
       +'<div class="dir-page" data-page="analyses" hidden>'+dirHubHTML(inter)
-      +'<p class="dir-note">Horaire '+(db0.maj?"du classeur du "+esc(dateFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p></div>'
+      +'<p class="dir-note">Horaire '+(db0.maj?"du classeur du "+esc(dateHeureFr(db0.maj)):"d'équipe")+'. Les chiffres sont relus dans l\'horaire d\'équipe, comme le Planning et les Effectifs.</p></div>'
       +'<div id="dirAnnee"></div>';
     c.onclick=dirClic; c.oninput=dirSaisie; c.onchange=dirSaisie; c.onkeydown=dirClavier;
     if(!c._dcDate){ c._dcDate=true;
@@ -18844,7 +18859,10 @@ function grColonnes(db){
 function renderGrille(){
   var g=document.getElementById("grille"); if(!g||g.hidden) return;
   var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
-  document.getElementById("grPeriode").textContent=grLibelle();
+  /* sous l'année, la version du classeur qu'elle montre (le client, le
+     29/10/2026 : « afficher l'heure et la date de mise à jour du classeur ») */
+  document.getElementById("grPeriode").innerHTML=esc(grLibelle())
+    +(db&&db.maj?'<small class="gr-maj"><span class="gr-maj-l">Classeur du </span>'+esc(majCourte(db.maj))+'</small>':'');
   /* le bandeau de « Mon horaire » ne reste pas sur un message (pas
      d'horaire, personne trouvée) : il ne revient qu'avec son tableau */
   var mt0=document.getElementById("grMoiTete"); if(mt0) mt0.hidden=true;
@@ -18988,7 +19006,7 @@ function renderGrille(){
   var sous=document.getElementById("grSous");
   var vb=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?"Cliquez":"Touchez";
   sous.textContent=(peutSaisir()?vb+" une case pour la modifier, un nom pour ses compteurs":vb+" un nom pour ses compteurs")
-    +" · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?");
+    +" · classeur du "+(db.maj?majCourte(db.maj,true):"?");
 }
 /* CE DONT LA GRILLE DÉPEND : revenir au Planning ne la refait que si l'un
    a changé (18 000 nœuds, 2,3 s au téléphone ; audit du 23/10/2026). Le
@@ -20135,7 +20153,7 @@ function renderTdb(){
   var ceJour=nuit?jl(auj).toLowerCase():"aujourd'hui";
   var quand=nuit?"Nuit du "+jl(auj).toLowerCase()+(auj.getMonth()!==civ.getMonth()?" "+MOIS[auj.getMonth()].toLowerCase():"")+(auj.getFullYear()!==civ.getFullYear()?" "+auj.getFullYear():"")+" au "+jl(civ).toLowerCase()+" "+MOIS[civ.getMonth()].toLowerCase()+" "+civ.getFullYear()
     :jl(auj)+" "+MOIS[auj.getMonth()].toLowerCase()+" "+auj.getFullYear();
-  h.push(wsTete("Tableau de bord",quand+" · "+db.people.length+" personnes · classeur du "+(db.maj?String(db.maj).slice(0,10).split("-").reverse().join("/"):"?"),
+  h.push(wsTete("Tableau de bord",quand+" · "+db.people.length+" personnes · classeur du "+(db.maj?majCourte(db.maj,true):"?"),
     '<button type="button" class="btn ss-ok ws-pc" data-ws="planning">Ouvrir le planning</button>'));
   h.push('<p class="ws-sec">'+(nuit?jl(auj)+' · jusqu\'à 6 h':'Aujourd\'hui')+'</p><div class="ws-kpis">'
     +[["AM","Matin","p-am"],["PM","Après-midi","p-pm"],["N","Nuit","p-n"],["D","Jour","p-d"]].map(function(z){
@@ -30070,7 +30088,7 @@ function appliquerPrefill(db){
   majClasseurs();
   var hint=document.getElementById("prefillHint");
   if(hint) hint.textContent="Horaire d'équipe "+db.year+" · "+db.people.length
-    +" personnes, identifiants anonymisés"+(db.maj?", classeur du "+dateFr(db.maj):"")+".";
+    +" personnes, identifiants anonymisés"+(db.maj?", classeur du "+dateHeureFr(db.maj):"")+".";
 }
 function ensurePrefillUI(){
   if(HORAIRE_DB){ appliquerPrefill(HORAIRE_DB); restaurerVue(); return; }
