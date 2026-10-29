@@ -320,10 +320,10 @@ sur l'Accueil.
 
 - **Une fonction** pour tous les endroits, `majCourte()` : « 28/10 à
   15 h 12 » (l'année si ce n'est pas celle du jour, ou sur demande).
-- **L'Accueil** : sous le poste et le binôme, « 🕒 Classeur du 28/10 à
-  15 h 12 », discret (11,5 px, l'encre secondaire du héros). Le haut
-  gauche de la bannière est au badge des changements d'horaire, le haut
-  droit au logo : la ligne vit dans le texte, pas sur la photo.
+- ~~**L'Accueil** : sous le poste et le binôme, « 🕒 Classeur du 28/10 à
+  15 h 12 »~~ — **retirée le soir même** (`nfdm-v1198`), le client : « ne
+  pas le mettre dans l'accueil mais seulement horaire ». L'Accueil est
+  revenu identique au pixel à la v1196 (390 et 1280 px).
 - **L'Horaire** : sous « Année 2026 », la version du classeur de L'ANNÉE
   AFFICHÉE — en 2027, « Classeur du 26/10 à 14 h 37 », le sien. À 320 px
   « Classeur du » coupait l'heure : sous 360 px, la date et l'heure seules.
@@ -331,8 +331,8 @@ sur l'Accueil.
   (« classeur du 28/10/2026 à 15 h 12 »), la feuille « Horaire modifié »,
   la note de la Direction, « Qui je suis » dans les Réglages.
 
-**Mesuré** : la ligne de l'Accueil et celle de l'Horaire, à 320, 390 et
-1280 px, dans les deux thèmes : visibles, entières, aucune erreur.
+**Mesuré** : la ligne de l'Horaire à 320, 390 et 1280 px, dans les deux
+thèmes : visible, entière, aucune erreur.
 
 ### La passe « 100 % professionnelle et commerciale » (29/10/2026, `nfdm-v1195`–`v1196`)
 
