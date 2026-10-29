@@ -7001,8 +7001,26 @@ html .xl-pilules .hp-poste.pt-meu{background:#f6e3a1} html .xl-pilules .hp-poste
 html .xl-pilules .hp-poste.pt-step{background:#bfdbfe} html .xl-pilules .hp-poste.pt-cm{background:#c7ccd4}
 html .xl-pilules button[aria-pressed="true"]{background:#f9fafb!important; color:#111827; border-color:#111827; box-shadow:inset 0 0 0 1px rgba(17,24,39,.25)}
 html .ws-planning .gr-zone{margin:0 16px; background:#fff; border:1px solid #64748b; border-radius:12px 12px 0 0; border-top:1px solid #64748b}
-html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width:max-content; min-width:100%; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; background:#fff; color:#111827}
-html .hp-t col.hp-cm,html .hp-t col.hp-cd,html .hp-t col.hp-cs,html .hp-t col.hp-cl{width:44px}
+html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width:1px; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; background:#fff; color:#111827}
+/* LA MÊME LARGEUR POUR CHAQUE PERSONNE (le client, le 29/10/2026 : « les
+   doubles colonnes d'opérateurs de même largeur pour tous, avec une colonne
+   plus étroite pour la pause et une colonne plus grande à droite »). Le
+   tableau était en « width:max-content » : une largeur automatique, et le
+   navigateur abandonne alors la mise en page fixe pour celle du contenu —
+   VGG prenait 160 px, CJD 93, chacun selon sa case la plus longue. Une
+   largeur donnée (1 px, que la somme des colonnes dépasse toujours) rend
+   aux colonnes leur largeur écrite. Et plus de « min-width:100% » : avec
+   deux personnes (station d'épuration), le tableau s'étirait sur l'écran,
+   373 px chacune et 126 px pour le jour ; il garde désormais ses 130 px
+   par personne, et la zone quadrillée continue à droite, comme Excel.
+
+   Mesuré sur les 27 708 cases de 2026 : à 54 px, la pause montre 99,9 %
+   des siennes en entier, plages « 06h-14h » et « H. flott. » comprises ;
+   à 76 px, l'annotation garde « Distillation », « Chaudières », « Ferm.
+   Liqu. », « Falling film » ; une douzaine de plus longues (« E. min SD26 »,
+   « Fermentation ») finissent en « … », entières au survol. */
+html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:44px}
+html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:76px}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
@@ -18910,7 +18928,7 @@ function renderGrille(){
          « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), et SEULEMENT depuis la
          case au coin rouge (le client, le 27/10/2026) */
       var cs=GR.colP===p.id?' hp-csel':'';
-      h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
+      h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
     h.push('</tr>');
   });

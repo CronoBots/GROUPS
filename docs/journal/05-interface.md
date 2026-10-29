@@ -6108,6 +6108,38 @@ Mesuré au navigateur, Horaire ouvert à 390 px : les dimanches 25/10 et 1/11
 ont 1 px comme le samedi et le lundi, les fins de mois 31/10 et 30/11 ont
 2 px ; 12 traits de fin de mois, aucun de semaine, aucune erreur.
 
+### Horaire : la même largeur pour chaque personne (29/10/2026, `nfdm-v1182`)
+
+Le client : « dans l'onglet horaire, il faudrait que les doubles colonnes
+d'opérateurs soient de même largeur pour tous les opérateurs, avec une
+colonne plus étroite pour la pause et une colonne plus grande à droite ».
+
+**Mesuré avant** : de 93 à 160 px par personne dans l'équipe 1 (VGG 160,
+JBI 134, YBT 117…), 23 largeurs de case différentes sur une ligne. Les
+colonnes étaient pourtant écrites à 44 px chacune, en mise en page fixe :
+mais le tableau était en `width:max-content`, une largeur automatique, et
+le navigateur abandonne alors la mise en page fixe pour celle du contenu.
+Les 44 px n'avaient jamais servi.
+
+**Corrigé** : tableau à `width:1px` (la somme des colonnes la dépasse
+toujours), pause à **54 px**, annotation à **76 px**. Les largeurs viennent
+de la mesure des 27 708 cases de 2026 au canevas, dans la police du
+tableau : 99,9 % des pauses tiennent en entier, toutes les plages
+(« 06h-14h » 47,4 px) et « H. flott. » comprises ; l'annotation garde
+« Distillation » (62 px), « Chaudières » (67 px), « Ferm. Liqu. »,
+« Falling film ». Une douzaine plus longues (« E. min SD26 »,
+« Fermentation ») finissent en « … » ; elles ont leur texte au survol, et
+la case de pause aussi désormais, au-delà de sept caractères.
+
+**Et plus de `min-width:100%`.** Avec deux personnes (station
+d'épuration), le tableau s'étirait sur l'écran : 373 px chacune et 126 px
+pour la colonne du jour (142 px avant ce changement, déjà). Il garde ses
+130 px par personne ; la zone quadrillée continue à droite, comme une
+feuille Excel.
+
+**Mesuré après**, les 14 vues (cinq équipes, neuf postes) : 130 px par
+personne partout, aucun en-tête coupé ; 390 et 1280 px regardés.
+
 ### Le renfort avant en jaune (27/10/2026, `nfdm-v1148`)
 
 Le client : « renfort avant doit être jaune comme meunerie ». `grTeinte()`
