@@ -379,6 +379,36 @@ justes à chaque fois, aucune bande au lancement en clair.
   séparés d'une virgule y avaient la forme d'un « Nom, Prénom ». Reformulé,
   pas admis.
 
+### Le clair, plus contrasté (29/10/2026, `nfdm-v1192`)
+
+Le client, devant la v1191 : « c'est déjà mieux, mais c'est un peu trop
+clair pour moi ; tu peux franchement ajouter quelques contrastes avec les
+titres, etc. (plus gris par exemple, ou autre) ». Seul le clair bouge :
+
+- **la page** passe de `#ECEFF4` à `#DDE3EB`, un gris franc sur lequel
+  les cartes blanches se détachent ; leur ombre est un peu plus marquée ;
+- **le menu du PC** prend son gris à lui, `#D3DAE3`, plus soutenu que la
+  page : le menu se lit comme une colonne, le contenu comme une feuille ;
+- **chaque titre de carte** est posé sur un bandeau gris `#E9EDF2`, fermé
+  d'un filet, en gras (700 au lieu de 600) ; les étiquettes des graphiques
+  (« Mon cycle », « Mes congés », « Avancement ») passent en gras, encre
+  secondaire ;
+- **les filets** sont plus nets (`#C5CDD8`, `#D9DFE7`) et les encres
+  secondaires d'un cran plus foncées (`--ink2` `#363F50`, `--muted`
+  `#3D4656`, `--faint` `#515969`).
+- **le cyan du texte** (`--marque-vif`) passe de `#0E6B87` à `#0C6480`,
+  même teinte : sur le nouveau gris du menu, l'onglet ouvert tombait à
+  4,29:1 (l'audit l'a arrêté à 768 px, où le menu est en haut) ; il tient
+  4,73:1, et 6,67:1 sur blanc.
+
+Deux essais : le premier (page `#E3E8EF`, bandeau `#F2F5F8`) restait
+timide une fois photographié à côté de l'ancien, et « franchement » était
+le mot du client ; le second est celui-ci. **Mesuré** : 0 texte sous le
+seuil en clair à 320, 390, 768 et 1280 px, rôles RH, hiérarchie et
+opérateur, guide compris ; le sombre identique au pixel sur 23 écrans
+(seules différences : le point « en direct » du Tableau de bord, qui
+clignote, et un pixel d'anticrénelage).
+
 ### Zéro texte sous le seuil, et il y en avait 456
 
 Un audit qui parcourt les six onglets, calcule le fond RÉEL de chaque texte
@@ -629,6 +659,40 @@ verticale, capsule de 6 px), l'onglet ouvert en pilule de 20 px de rayon ;
 le bas de page, la bulle et le bouton de retour en haut remontent de
 10 px. Mesuré à 320 (hors ligne) et 390 px : 16 px des trois bords, et le
 cadre du Planning toujours à 16 px de la capsule.
+
+### Le flou du bas, pareil à celui du haut (29/10/2026, `nfdm-v1192`)
+
+Le client : « sur mobile, j'aimerais bien que le flou qui est dans le
+haut de l'écran soit identique dans le bas de l'écran ». Le flou du haut
+n'est pas de l'application : c'est l'iPhone qui brouille ce qui passe sous
+l'heure et la batterie (une bande opaque posée le 18/10 pour l'atténuer a
+été retirée le 20/10, voir plus haut). Le bas en fait désormais autant
+derrière la capsule : `.navwrap::before`, un `backdrop-filter:blur(12px)`
+avec un voile de la couleur de la page (`--fd-flou`, #111727 à 55 % en
+sombre, le gris de la page à 60 % en clair), plein du bord jusqu'au
+milieu de la capsule, effacé par un masque jusqu'à 16 px au-dessus d'elle.
+
+**Où, et pourquoi là.** Sur le pseudo-élément du conteneur fixe, sous la
+capsule (`z-index:-1` dans son empilement), jamais sur la capsule : la
+leçon de BETSFIX ci-dessus (un `backdrop-filter` sur la barre fixe casse
+son `position:fixed` sous iOS) tient toujours. Le conteneur passe déjà
+au-dessus de l'espace Horaire et disparaît sous une feuille plein écran :
+le flou le suit. 16 px au-dessus de la capsule, c'est là que s'arrêtent
+les cadres des vues fixes : le bas du tableau « Du jour » reste net.
+Portrait seulement : couché, la barre est un rail à gauche. **Première
+écriture arrêtée par le parcours** : « `(max-width:760px) and
+(orientation:portrait)` » n'est pas l'une des requêtes admises du
+téléphone (une seule définition, au caractère près, depuis le 28/10). Le
+flou s'écrit donc sous la requête du téléphone, et la requête « couché »
+admise le retire (`display:none`) ; mesuré : présent à 390 × 844 et
+320 × 568, absent à 844 × 390 et 667 × 375.
+
+**Mesuré** (iPhone simulé, 390 px, deux thèmes) : 99 px de flou (22 +
+61 + 16), le contenu sous la capsule brouillé et voilé, le cadre « Du
+jour » net. En sombre, la comparaison au pixel ne change que la bande du
+bas des écrans de téléphone (y ≥ 747 sur 844) ; au PC, rien. **Reste à
+voir sur un vrai iPhone** : Chromium n'a ni le flou du haut, ni le
+comportement de `position:fixed` d'iOS.
 
 ### « Votre horaire a changé » : dans l'application, et sur le téléphone
 
@@ -6368,6 +6432,19 @@ mois, jour et coin restent collés en « Mon horaire » et en « Équipe 1 ».
 Reste une limite : ces mesures sont encore celles de Chromium ; le
 montage est celui qui tient déjà sur l'iPhone (colonne des jours), pas une
 preuve faite sur l'iPhone.
+
+### « Mon horaire » : « aujourd'hui » revient aussi au bord gauche (29/10/2026, `nfdm-v1192`)
+
+Le client : « si on appuie sur le bouton pour revenir à la date du jour,
+cela doit se remettre d'office à gauche du tableau, pas à droite dans les
+commentaires ». `grAujourdhui()` ne recentrait que la hauteur ; dans
+« Mon horaire » (`table.hp-tmoi`), il remet aussi le glissement
+horizontal à 0. Les deux boutons (barre et bouton flottant du PC) passent
+par elle. Les vues d'équipe gardent leur glissement : on y a souvent
+glissé jusqu'à sa colonne. **Mesuré au téléphone (390 px)** : glissé de
+570 px vers la droite, le bouton ramène à 0 et recentre sur le jour ; la
+page d'avant, même geste, restait à 570 ; une équipe glissée de 200 px y
+reste.
 
 ### « Mon horaire » : le poste et le trigramme restent au glissement (29/10/2026, `nfdm-v1187`)
 
