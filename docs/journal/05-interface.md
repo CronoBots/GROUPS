@@ -6170,6 +6170,34 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### Horaire : « Mon horaire » à l'ouverture, et son commentaire en phrases (29/10/2026, `nfdm-v1184`)
+
+Le client, capture de « Mon horaire » au téléphone : « mets Mon horaire
+par défaut à l'ouverture. Et vu qu'il y a de la place, ajoute une colonne
+avec le commentaire affiché de manière pro (majuscule, etc.) ».
+
+**À l'ouverture** : `GR.feuille` part sur « moi » au lancement de
+l'application, au lieu de la dernière pilule mémorisée ; la pilule choisie
+ensuite reste celle de la séance. Sans personne choisie sur l'appareil, la
+dernière feuille vue (`ui/grFeuille`), sinon l'équipe 1.
+
+**La colonne « Commentaire »**, en « Mon horaire » seulement (une seule
+personne à l'écran) : le tableau y prend toute la largeur (`hp-tmoi`), et
+la colonne, sans largeur écrite, reçoit le reste — 158 px au téléphone de
+390, 780 au PC. Le texte vient de `comPro`, posé sur `nettoyerAffichage`
+(une action par ligne, majuscule en tête, capitales ramenées, « Échange »
+accentué) : une coupure de plus avant « départ », « arrivée », « demandé »,
+« justificatif », recollée après un mot de liaison (« à la demande de »),
+et un point en fin de ligne. « remplace GPS départ à 18h00' remplacé par
+JBI » devient « Remplace GPS. / Départ à 18h00. / Remplacé par JBI. ».
+Aucun mot changé. **Mesuré** sur les 7 096 commentaires de 2026 : 1,28
+ligne en moyenne, 6 au plus, aucun rendu vide. **Erreur commise** : la
+première coupure s'arrêtait sur `\b`, qui en JavaScript ne connaît pas
+« é » — « Demandé le 20/10 » restait collé ; un test de lettre accentuée
+le remplace. La ligne grandit avec son texte ; le centrage sur aujourd'hui
+lit la position réelle de la ligne et n'en souffre pas. Les 15 vues
+(« Mon horaire » et les 14 autres) gardent 130 px par personne.
+
 ### Le renfort avant en jaune (27/10/2026, `nfdm-v1148`)
 
 Le client : « renfort avant doit être jaune comme meunerie ». `grTeinte()`
