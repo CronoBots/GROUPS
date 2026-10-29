@@ -346,6 +346,43 @@ du simulateur de septembre, dit ce qu'est l'application aujourd'hui ;
 « Biowanze » devient « BioWanze » dans le manifeste, comme partout dans
 l'interface ; une balise `mobile-web-app-capable` en double est retirée.
 
+**La relecture, à trois relecteurs en parallèle** (1 052 textes uniques
+après regroupement des dates et des trigrammes ; 110 constats rendus),
+chaque constat vérifié dans le source avant d'être cru. **59 corrections
+appliquées** (`nfdm-v1196`), entre autres : « Creusez un écart » (qui veut
+dire l'agrandir) → « Examinez un écart » ; le mois en majuscule au milieu
+d'une phrase (« jusqu'au 31 Octobre ») ; « acquise le » sans nom auquel
+s'accorder → « polyvalence acquise le » ; « Journées tenues dans
+l'application » → « saisies » ; « Où le classeur dit autre chose » →
+« Journées où le classeur diffère » ; une phrase de Réglages à la logique
+renversée (« ce réglage n'est le dernier recours que s'il n'y est pas »)
+; « mis à jour seul » → « automatiquement » ; « à date » (calque de
+l'anglais) → « à ce jour », sept fois dans la Direction ; « Après-Midi »
+dans les infobulles du calendrier ; les définitions de la légende des
+codes réécrites en phrases (SMG, GREV, RHS, CT, TP) et les heures écrites
+« 6 h – 14 h » comme ailleurs ; et pour les lecteurs d'écran, les pauses
+en toutes lettres (« Nuit : prochaine le dimanche 1er novembre, dans 3
+jours ») au lieu de « N, prochaine Dimanche …, dans 3 j ».
+
+**Laissés à dessein**, et pourquoi :
+- les libellés de la **fiche simulée** (« Heure(s) supplémentaires
+  prestées », « Avantage vélo société », « Calage barème »…) : ils
+  reproduisent la vraie fiche de paie mot pour mot, et ce sont les clés
+  des explications (`WHY`) ;
+- **le vocabulaire du client et du classeur** : « Rappel - Repos » (le
+  client, mot pour mot), « BWZ RH », « jour de l'usine » (la journée de
+  6 h à 6 h, qui n'est pas la date du calendrier), « IN/OUT » (le relevé
+  de pointage), « STEP », « app / RH » (les deux dates de recyclage),
+  « Récup. temps de travail » (le compteur du classeur) ;
+- « Changements de poste à prévenir » et « Sortie d'Excel », installés
+  depuis des semaines ; les codes (« MAL », « VA ») lus tels quels par
+  les lecteurs d'écran du calendrier, vocabulaire de chacun à l'usine.
+
+**Vérifié** : chacune des 59 corrections trouvée une seule fois dans le
+source avant d'être écrite ; les textes relevés de nouveau à l'écran
+(les nouvelles formes présentes, les anciennes disparues) ; les sorties
+des contrôles et les 80 agendas identiques à l'octet.
+
 ### Le clair, optimisé écran par écran (29/10/2026, `nfdm-v1193`)
 
 Le client : « optimisation pro du thème clair et contrasté ». Méthode de
