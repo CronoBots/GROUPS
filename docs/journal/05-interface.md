@@ -264,6 +264,11 @@ par un contrôle qui cherche, pour chaque sélecteur sombre, sa jumelle).
 L'îlot relit son encre (`color:var(--ink)`), la couleur héritée du corps
 étant déjà résolue en clair.
 
+**Défait le jour même par le client (`nfdm-v1191`)** : il voulait le clair
+JUSQU'AU BORD, menu, héros et barre d'état compris. Les îlots n'existent
+plus ; voir « Le clair jusqu'au bord » juste dessous. Ce paragraphe et celui
+de la barre d'état ne valent plus que comme histoire.
+
 **La base claire existait** (septembre, rampe à la teinte du bleu nuit,
 contrastes mesurés) mais n'avait plus servi depuis un mois. Mesuré en la
 posant telle quelle : **156 textes sous le seuil au PC**. Après les îlots :
@@ -302,6 +307,77 @@ impeccable (colorize, craft-floor : thèmes composés et non inversés,
 surfaces de navigateur thémées), ui-ux-pro-max (règles clair/sombre :
 jetons sémantiques, 4,5:1, séparateurs visibles dans les deux thèmes,
 chaque thème testé pour lui-même), playwright pour toutes les mesures.
+
+### Le clair jusqu'au bord : menu, héros, barre d'état, et trois gris (29/10/2026, `nfdm-v1191`)
+
+Le client, devant la v1190 : « oui, tout doit être adapté, héros, barre de
+menu et la zone morte au-dessus de l'écran. Il ne faut pas non plus trop
+blanc, donc ajouter des zones avec gris léger ; ça doit faire vraiment
+professionnel ». Les îlots bleu nuit de la v1190 étaient MON choix de
+direction (le logo « Negativ » est fait pour le bleu nuit), pas le sien.
+
+**Plus d'îlot.** Les blancs écrits en dur des surfaces de marque (menu du
+PC, dock et feuille « Plus », héros, connexion, chargement, guide
+d'installation) deviennent des jetons : 55 nouveaux (`--tx-blanc-NN`
+pour une encre, `--bd-blanc-NN` un filet, `--fd-blanc-NN` un fond,
+`--om-noir-NN` une ombre), 118 emplois. En sombre chacun vaut EXACTEMENT
+l'écriture d'avant (même `rgba`) ; en clair il vaut l'encre ou le filet
+correspondant de la page. Les fonds du héros et de l'écran de chargement
+passent entiers par `--fd-heros` et `--fd-intro`. Les jumelles d'îlot sont
+retirées, et avec elles les surcharges écrites à la main pour les cases
+de congés et « Mes pauses » (`.pf-cgc`, `.pf-pr-*`) : les jetons les
+couvrent — remesuré, 0 faute sans elles.
+
+**Trois plans, pas tout blanc.** La page en gris très léger `#ECEFF4`, les
+cartes blanches au-dessus, les zones secondaires (panneaux, en-têtes,
+champs, menu) en `#F5F7FA`, le gris d'appui `#E7EBF1`, filets `#D7DCE4` et
+`#E5E9EF` — tous à la teinte du bleu nuit du logo. Les encres gardent leurs
+contrastes : le gris des textes 7,05:1 sur la page, le plus pâle 4,62:1 sur
+la zone grise.
+
+**Le logo en positif.** `logo-clair.svg` est `logo.svg` au mot écrit en
+bleu nuit `#111727` au lieu du blanc (le symbole et son dégradé
+inchangés) ; `appliquerTheme()` échange les deux selon le thème, et le
+service worker le met en cache avec les autres.
+
+**L'écran de chargement, trouvé tard.** Les audits du clair le
+photographiaient déjà disparu (il s'efface dès que l'horaire est là) et
+rendaient 0. La page servie sans son grand script, pour voir ce que
+montre la première image : le mot « biowanze » et « Application mobile » de
+`logo-app.png` sont BLANCS, invisibles sur le gris clair — seul le symbole
+restait. `logo-app-clair.png` en est la copie, chaque pixel gris ou blanc
+repeint en bleu nuit à opacité égale (27 817 pixels ; le symbole et les
+deux feuilles, en couleur, intacts). Posé par la feuille de style
+(`content:url(…)` sur l'image, en clair seulement), il vaut dès la
+première image, avant le script ; `appliquerTheme()` change ensuite la
+source pour les navigateurs qui ignorent `content` sur une image. Mesuré
+sans script : `logo-app-clair.png` en clair, l'original en sombre.
+
+**La zone morte au-dessus de l'écran.** iOS ne lit le style de la barre
+d'état qu'AU LANCEMENT de l'application installée. Le script de tête le
+choisit donc avant le premier rendu, avec le thème : `default` (heure et
+batterie en noir, sur fond clair) si l'on démarre en clair,
+`black-translucent` si l'on démarre en sombre, et il note ce choix dans
+`data-barre`. Passer au clair EN COURS de session laisse la barre en blanc
+jusqu'au prochain lancement : seul ce cas garde la bande bleu nuit à
+liseré (`[data-theme="light"][data-barre="sombre"]::after`), et le réglage
+le dit : « la barre du haut suivra au prochain lancement ». `theme-color`
+vaut `#ECEFF4` en clair. Mesuré pour les six cas (sombre, clair ou auto,
+sur un téléphone clair ou sombre) : attribut, style de barre, couleur et logo
+justes à chaque fois, aucune bande au lancement en clair.
+
+**Mesures.**
+- **Le sombre n'a pas bougé** : 23 écrans (onglets, espace de gestion,
+  Réglages, à 390 et 1280 px) photographiés à la même minute sur une copie
+  d'avant la mise en jetons et sur la nouvelle page — identiques au pixel,
+  à un pixel d'anticrénelage près (un seul, sur « À valider » à 390).
+- **Le clair : 0 texte sous le seuil** sur chaque onglet, les quatre vues
+  du calendrier, chaque section de l'espace de gestion, la feuille
+  « Plus », l'Horaire, les Réglages ouverts, à 320, 390, 768 et 1280 px,
+  rôles RH, hiérarchie et opérateur ; guide d'installation 0 ; 0 erreur JS.
+- Le garde-fou du dépôt a arrêté un commentaire : deux mots à majuscule
+  séparés d'une virgule y avaient la forme d'un « Nom, Prénom ». Reformulé,
+  pas admis.
 
 ### Zéro texte sous le seuil, et il y en avait 456
 

@@ -6,20 +6,29 @@
 <!-- La barre d'état du téléphone prend la couleur de la barre du haut, qui
      est celle du logo : sans cela un liseré d'une autre teinte la surmonte. -->
 <meta name="theme-color" content="#111727">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- LE THÈME CHOISI EST POSÉ AVANT LE PREMIER RENDU (le client, le 29/10/2026 :
      « réalise-moi une version claire de mon application qui fonctionne avec
      le thème sombre actuel ») : le sombre reste celui par défaut (décision
      du 30/09/2026) ; « ui/theme » vaut dark, light ou auto (comme le
      téléphone). Posé ici, avant les feuilles de style, l'écran ne clignote
-     pas du sombre au clair. appliquerTheme() reprend la main ensuite. -->
-<script>(function(){try{var v=JSON.parse(localStorage.getItem("ui/theme")||'"dark"');
-if(v==="light"||(v==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)){
-document.documentElement.setAttribute("data-theme","light");
-var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#F6F6F6");}}catch(e){}})();</script>
+     pas du sombre au clair. appliquerTheme() reprend la main ensuite.
+     LA BARRE D'ÉTAT DE L'IPHONE se règle ici aussi, et seulement ici : iOS
+     lit son style avant le premier rendu (le client, le 29/10/2026 : « la
+     zone morte au-dessus de l'écran » doit être claire). En sombre,
+     « black-translucent » comme toujours (heure blanche posée sur la page) ;
+     en clair, « default » (barre claire, heure foncée, la page dessous).
+     data-barre garde ce qui a été choisi au lancement : un changement de
+     thème en cours de route ne la refait qu'au lancement suivant. -->
+<script>(function(){var c=false;try{var v=JSON.parse(localStorage.getItem("ui/theme")||'"dark"');
+c=v==="light"||(v==="auto"&&!!window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches);}catch(e){}
+var d=document.documentElement;d.setAttribute("data-barre",c?"claire":"sombre");if(!c)return;
+d.setAttribute("data-theme","light");
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#ECEFF4");
+var b=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(b)b.setAttribute("content","default");})();</script>
 <meta name="description" content="Simulateur de fiche de paie belge : l'horaire du mois entre, le net à recevoir sort.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BioWanze">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
@@ -140,15 +149,7 @@ var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("co
    soit le réglage du téléphone ; le bloc qui suivait prefers-color-scheme
    était la copie exacte de celui-ci (55 jetons sur 55) et il est parti. Le
    :root du dessus reste la base que ce bloc surcharge. */
-/* LES ÎLOTS DE MARQUE (le client, le 29/10/2026, la version claire « dans
-   le style du logo original ») : le menu du PC, le dock et la feuille
-   « Plus » du téléphone, et le héros de l'Accueil gardent en thème clair le
-   bleu nuit du logo d'origine (logo.svg, « Negativ », mot blanc), avec
-   TOUS les jetons du sombre : une variable se redéclare sur l'îlot et ses
-   descendants la lisent. Le contenu, lui, passe au clair. Trois écrans de
-   marque aussi, dessinés sur le bleu nuit : le chargement (#intro),
-   l'écran de connexion (#gate) et le guide d'installation (#instGuide). */
-:root[data-theme="dark"],:root[data-theme="light"] .ilot{
+:root[data-theme="dark"]{
   /* MÊME RAMPE, MÊME TEINTE, autres pas. Ce n'est pas un reflet du clair : la
      page reste le plus sombre, la carte vient au-dessus, et la barre du haut —
      #111727, fixée par le logo — se place juste au-dessus d'elle. Cet ordre-là
@@ -166,8 +167,43 @@ var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("co
   --maint-fort:rgba(110,210,240,.08); --live:rgba(110,210,240,.22);
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
-  /* le cyan du logo, tel quel : dans le sombre et dans les îlots du clair */
+  /* le cyan du logo, tel quel, dans le sombre */
   --marque-vif:#69B2CB;
+  --fd-heros:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
+  /* et ceux du guide d'installation */
+  --bd-blanc-18:rgba(255,255,255,.18); --bd-blanc-20:rgba(255,255,255,.2); --fd-inst:#111727; --fd-inst-c:#1b2640; --tx-blanc-70:rgba(255,255,255,.7); --tx-blanc-75:rgba(255,255,255,.75); --tx-sur-vif:#0b1220;
+  --fd-intro:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, var(--marque) 62%);
+  /* LES ENCRES ET LES VOILES DE LA NAVIGATION ET DU HÉROS (29/10/2026) :
+     les blancs écrits en dur pour le bleu nuit, devenus jetons. Ici leur
+     valeur d'origine, à l'identique ; le bloc clair leur donne la leur. */
+  --bd-av:#16203a; --bd-blanc:#fff; --bd-blanc-02:rgba(255,255,255,.02);
+  --bd-blanc-04:rgba(255,255,255,.045); --bd-blanc-05:rgba(255,255,255,.05);
+  --bd-blanc-06:rgba(255,255,255,.06); --bd-blanc-07:rgba(255,255,255,.07);
+  --bd-blanc-08:rgba(255,255,255,.08); --bd-blanc-09:rgba(255,255,255,.09);
+  --bd-blanc-10:rgba(255,255,255,.10); --bd-blanc-12:rgba(255,255,255,.12);
+  --bd-blanc-14:rgba(255,255,255,.14); --bd-blanc-16:rgba(255,255,255,.16);
+  --bd-blanc-22:rgba(255,255,255,.22); --bd-blanc-25:rgba(255,255,255,.25);
+  --bd-blanc-45:rgba(255,255,255,.45); --fd-blanc-04:rgba(255,255,255,.04);
+  --fd-blanc-05:rgba(255,255,255,.05); --fd-blanc-06:rgba(255,255,255,.06);
+  --fd-blanc-07:rgba(255,255,255,.07); --fd-blanc-08:rgba(255,255,255,.08);
+  --fd-blanc-10:rgba(255,255,255,.10); --fd-blanc-12:rgba(255,255,255,.12);
+  --fd-blanc-16:rgba(255,255,255,.16); --fd-blanc-18:rgba(255,255,255,.18);
+  --fd-blanc-25:rgba(255,255,255,.25); --fd-blanc-50:rgba(255,255,255,.5);
+  --fd-blanc-75:rgba(255,255,255,.75); --fd-blanc-92:rgba(255,255,255,.92); --fd-couv:#1a2747;
+  --fd-dock:rgba(24,27,36,.9); --fd-feuille:#181b24; --fd-marque:var(--marque);
+  --fd-marque-0:rgba(17,23,39,0); --om-noir-25:rgba(0,0,0,.25); --om-noir-40:rgba(0,0,0,.4);
+  --om-noir-50:rgba(0,0,0,.5); --om-noir-60:rgba(0,0,0,.6); --om-noir-80:rgba(0,0,0,.8);
+  --om-noir-85:rgba(0,0,0,.85); --om-noir-90:rgba(0,0,0,.9); --tx-blanc:#fff;
+  --tx-blanc-40:rgba(255,255,255,.4); --tx-blanc-42:rgba(255,255,255,.42);
+  --tx-blanc-45:rgba(255,255,255,.45); --tx-blanc-55:rgba(255,255,255,.55);
+  --tx-blanc-58:rgba(255,255,255,.58); --tx-blanc-60:rgba(255,255,255,.6);
+  --tx-blanc-62:rgba(255,255,255,.62); --tx-blanc-65:rgba(255,255,255,.65);
+  --tx-blanc-66:rgba(255,255,255,.66); --tx-blanc-72:rgba(255,255,255,.72);
+  --tx-blanc-74:rgba(255,255,255,.74); --tx-blanc-78:rgba(255,255,255,.78);
+  --tx-blanc-80:rgba(255,255,255,.8); --tx-blanc-82:rgba(255,255,255,.82);
+  --tx-blanc-88:rgba(255,255,255,.88); --tx-cyan-pale:#9fc9da; --tx-dock:#9a9aa6;
+  --tx-menthe:#9fe0b8; --tx-orange:#F2994A; --tx-rouge-vif:#ff9b8f; --tx-rouge-vif2:#ff8a7a;
+  --tx-sur-clair:var(--marque);
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
   --good:#7FC397; --good-soft:#1D3A28;
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
@@ -197,31 +233,72 @@ var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("co
      un sélecteur oublié retombait sur --shadow (audit du 23/10/2026) */
   --ombre-cadre:0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24);
 }
-/* L'îlot relit son encre : la couleur héritée du corps est déjà résolue en
-   clair, une variable redéclarée n'y change rien sans cela. Les champs d'un
-   îlot restent ceux du sombre. */
-:root[data-theme="light"] .ilot{color:var(--ink); color-scheme:dark}
-/* l'écran de connexion tient son bleu nuit d'un calque voisin (.gate-bg) ;
-   en clair, il le porte aussi lui-même, pour ne rien laisser voir de la
-   page claire derrière lui */
-:root[data-theme="light"] #gate{background:var(--marque)}
 /* LE THÈME CLAIR DANS LE STYLE DU LOGO D'ORIGINE (29/10/2026). La base
    claire (:root, plus haut) a ses contrastes mesurés depuis septembre et
    sa rampe à la teinte du bleu nuit du logo ; s'y ajoutent ici :
    - le cyan du logo, PROFOND pour le texte : #69B2CB tombait à 2,4:1 sur
      blanc ; #0E6B87, même teinte, tient 6,05:1 sur blanc et 4,96:1 sur le
-     fond cyan pâle (--in-soft). Les îlots gardent l'original (bloc sombre).
+     fond cyan pâle (--in-soft). Le sombre garde l'original.
    - le dégradé du logo (menthe #78E6AF → cyan #2AD0F0 → bleu #2F90F0), pour
      les seuls repères de marque, jamais sous un texte : le liseré de 2 px
      où la bande de la barre d'état de l'iPhone rencontre la page. */
 :root[data-theme="light"]{--marque-vif:#0E6B87;
+  /* le héros : une carte blanche que le haut teinte à peine du cyan du
+     logo ; le chargement : la page claire, un halo blanc au centre */
+  --fd-heros:radial-gradient(120% 140% at 0% 0%,#F2F8FB 0%,#FFFFFF 46%,#F7F9FB 100%);
+  --fd-intro:radial-gradient(120% 80% at 50% 42%, #FFFFFF 0%, #ECEFF4 62%);
+  --bd-blanc-18:rgba(21,30,47,.25); --bd-blanc-20:rgba(21,30,47,.28); --fd-inst:var(--paper); --fd-inst-c:#FFFFFF; --tx-blanc-70:var(--ink2); --tx-blanc-75:var(--ink2); --tx-sur-vif:#fff;
+  /* PAS TOUT BLANC (le client, le 29/10/2026 : « il ne faut pas trop
+     blanc, ajouter des zones avec gris léger ; ça doit faire vraiment
+     professionnel ») : trois plans, à la teinte du bleu nuit du logo — la
+     page gris très léger (#ECEFF4), les cartes blanches au-dessus, et les
+     zones secondaires (panneaux, en-têtes, champs, menu) d'un gris plus
+     léger encore. Les encres gardent leurs contrastes mesurés : le gris
+     des textes tient 7,05:1 sur la page, le plus pâle 4,62:1 sur le gris des
+     zones. */
+  --paper:#ECEFF4; --surface2:#F5F7FA; --surface3:#E7EBF1; --line:#D7DCE4; --line2:#E5E9EF;
+  --fond:radial-gradient(130% 70% at 50% 0%, #F5F7FA 0%, #ECEFF4 58%);
+  /* les mêmes jetons, en clair : le blanc pur devient l'encre, le blanc
+     translucide l'encre secondaire ou le gris des textes selon sa force,
+     les voiles et les filets blancs des voiles et des filets bleu nuit,
+     le bleu nuit des fonds le gris très clair des panneaux */
+  --bd-av:var(--surface); --bd-blanc:var(--ink); --bd-blanc-02:rgba(21,30,47,.03);
+  --bd-blanc-04:rgba(21,30,47,.06); --bd-blanc-05:rgba(21,30,47,.07);
+  --bd-blanc-06:rgba(21,30,47,.08); --bd-blanc-07:rgba(21,30,47,.10);
+  --bd-blanc-08:rgba(21,30,47,.11); --bd-blanc-09:rgba(21,30,47,.13);
+  --bd-blanc-10:rgba(21,30,47,.14); --bd-blanc-12:rgba(21,30,47,.17);
+  --bd-blanc-14:rgba(21,30,47,.20); --bd-blanc-16:rgba(21,30,47,.22);
+  --bd-blanc-22:rgba(21,30,47,.31); --bd-blanc-25:rgba(21,30,47,.35);
+  --bd-blanc-45:rgba(21,30,47,.63); --fd-blanc-04:rgba(21,30,47,.04);
+  --fd-blanc-05:rgba(21,30,47,.05); --fd-blanc-06:rgba(21,30,47,.06);
+  --fd-blanc-07:rgba(21,30,47,.07); --fd-blanc-08:rgba(21,30,47,.08);
+  --fd-blanc-10:rgba(21,30,47,.10); --fd-blanc-12:rgba(21,30,47,.12);
+  --fd-blanc-16:rgba(21,30,47,.16); --fd-blanc-18:rgba(21,30,47,.18);
+  --fd-blanc-25:rgba(21,30,47,.25); --fd-blanc-50:rgba(21,30,47,.5);
+  --fd-blanc-75:rgba(21,30,47,.75); --fd-blanc-92:rgba(21,30,47,.92); --fd-couv:var(--surface3);
+  --fd-dock:rgba(255,255,255,.94); --fd-feuille:var(--surface); --fd-marque:var(--surface2);
+  --fd-marque-0:rgba(245,247,250,0); --om-noir-25:rgba(21,30,47,.07);
+  --om-noir-40:rgba(21,30,47,.12); --om-noir-50:rgba(21,30,47,.15);
+  --om-noir-60:rgba(21,30,47,.18); --om-noir-80:rgba(21,30,47,.24);
+  --om-noir-85:rgba(21,30,47,.26); --om-noir-90:rgba(21,30,47,.27); --tx-blanc:var(--ink);
+  --tx-blanc-40:var(--muted); --tx-blanc-42:var(--muted); --tx-blanc-45:var(--muted);
+  --tx-blanc-55:var(--muted); --tx-blanc-58:var(--muted); --tx-blanc-60:var(--muted);
+  --tx-blanc-62:var(--muted); --tx-blanc-65:var(--muted); --tx-blanc-66:var(--ink2);
+  --tx-blanc-72:var(--ink2); --tx-blanc-74:var(--ink2); --tx-blanc-78:var(--ink2);
+  --tx-blanc-80:var(--ink); --tx-blanc-82:var(--ink); --tx-blanc-88:var(--ink);
+  --tx-cyan-pale:var(--in); --tx-dock:var(--muted); --tx-menthe:var(--good);
+  --tx-orange:var(--out); --tx-rouge-vif:var(--at-rouge); --tx-rouge-vif2:var(--at-rouge);
+  --tx-sur-clair:#fff;
+ 
   --grad-marque:linear-gradient(90deg,#78E6AF 0%,#2AD0F0 52%,#2F90F0 100%)}
-/* LA BARRE D'ÉTAT DE L'IPHONE EN THÈME CLAIR. L'application installée la
-   veut « black-translucent » (heure et batterie en BLANC, posées sur la
-   page) : sur une page claire elles disparaissaient. Une bande du bleu nuit
-   du logo, de la hauteur de la zone protégée, les porte ; ailleurs (PC,
-   Android, navigateur) cette zone vaut 0 et la bande n'existe pas. */
-:root[data-theme="light"]::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px);
+/* LA BARRE D'ÉTAT DE L'IPHONE, LE TEMPS D'UN LANCEMENT. Lancée en clair,
+   l'application demande à iOS une barre claire (script de la tête). Lancée
+   en sombre puis passée au clair, elle garde jusqu'au lancement suivant
+   la barre « black-translucent » : heure et batterie en BLANC, posées sur
+   la page, invisibles sur du clair. Une bande du bleu nuit du logo, de la
+   hauteur de la zone protégée, les porte d'ici là ; ailleurs (sur PC ou Android,
+   navigateur, ou barre claire) cette zone vaut 0 et la bande n'existe pas. */
+:root[data-theme="light"][data-barre="sombre"]::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px);
   background:linear-gradient(var(--marque),var(--marque)) 0 0/100% calc(100% - 2px) no-repeat,var(--grad-marque);
   z-index:2147483001; pointer-events:none}
 *{box-sizing:border-box}
@@ -3790,7 +3867,7 @@ html #v-direction .dir-cards>.dc-card-syn{grid-column:1 / -1; border-color:color
    navigateur. Au bureau, un QR code à scanner avec le téléphone. */
 html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst{position:fixed; inset:0; z-index:2500; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
-  background:#111727; background-image:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, #111727 62%); color:#fff; opacity:0; transition:opacity .26s ease}
+  background:var(--fd-inst); background-image:radial-gradient(120% 80% at 50% 42%, var(--fd-inst-c) 0%, var(--fd-inst) 62%); color:var(--tx-blanc); opacity:0; transition:opacity .26s ease}
 .inst[hidden]{display:none}
 .inst.inst-visible{opacity:1}
 .inst:focus{outline:none}
@@ -3802,24 +3879,24 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst-tete{display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; margin:0 0 20px; padding:0 20px}
 .inst-tete img{height:44px; width:auto; margin-bottom:6px}
 .inst-tete b{display:block; font-size:17px; font-weight:700; letter-spacing:.02em}
-.inst-tete small{display:block; font-size:12.5px; color:rgba(255,255,255,.62); white-space:nowrap}
+.inst-tete small{display:block; font-size:12.5px; color:var(--tx-blanc-62); white-space:nowrap}
 .inst-fermer{position:fixed; z-index:5; top:calc(12px + env(safe-area-inset-top)); right:14px; width:40px; height:40px; border-radius:50%;
-  border:0; background:rgba(255,255,255,.1); color:#fff; font-size:24px; line-height:1; cursor:pointer}
+  border:0; background:var(--fd-blanc-10); color:var(--tx-blanc); font-size:24px; line-height:1; cursor:pointer}
 .inst.inst-fleche-haut .inst-fermer{right:auto; left:14px}
 .inst-action{margin-top:18px; width:100%; max-width:400px; padding:0 20px}
 .inst-action:empty{display:none}
-.inst-info{margin:0 0 14px; font-size:14px; line-height:1.5; color:rgba(255,255,255,.78); text-align:center}
+.inst-info{margin:0 0 14px; font-size:14px; line-height:1.5; color:var(--tx-blanc-78); text-align:center}
 .inst-bouton{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; border:0; border-radius:14px;
-  background:var(--marque-vif); color:#0b1220; font-size:15px; font-weight:700; text-decoration:none; cursor:pointer;
+  background:var(--marque-vif); color:var(--tx-sur-vif); font-size:15px; font-weight:700; text-decoration:none; cursor:pointer;
   box-shadow:0 14px 30px -14px rgba(105,178,203,.8)}
 .inst-bouton svg{width:20px; height:20px}
-.inst-bouton.sec{margin-top:10px; background:rgba(255,255,255,.08); color:#fff; box-shadow:none; border:1px solid rgba(255,255,255,.18)}
+.inst-bouton.sec{margin-top:10px; background:var(--fd-blanc-08); color:var(--tx-blanc); box-shadow:none; border:1px solid var(--bd-blanc-18)}
 .inst-qr{display:block; margin:0 auto; width:220px; height:220px; border-radius:16px}
 .inst-reussi{display:flex; align-items:center; gap:14px; margin:0; padding:14px 16px; border-radius:14px;
   background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.45)}
 .inst-reussi svg{width:26px; height:26px; color:var(--marque-vif); flex-shrink:0}
-.inst-reussi span{display:flex; flex-direction:column; font-size:13.5px; color:rgba(255,255,255,.78)}
-.inst-reussi b{font-size:17px; font-weight:700; color:#fff}
+.inst-reussi span{display:flex; flex-direction:column; font-size:13.5px; color:var(--tx-blanc-78)}
+.inst-reussi b{font-size:17px; font-weight:700; color:var(--tx-blanc)}
 /* Le téléphone, dessiné à 212 × 400 puis mis à l'échelle de l'écran */
 .inst-demo{position:relative; flex-shrink:0}
 .inst-demo[hidden]{display:none}
@@ -3907,27 +3984,27 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst-barres button{flex:1; height:44px; padding:20px 0; margin:-13px 0; border:0; background:none; cursor:pointer}
 .inst-barres button:focus-visible{outline:none}
 .inst-barres button:focus-visible i{outline:2px solid var(--in2); outline-offset:3px}
-.inst-barres i{display:block; height:4px; border-radius:2px; background:rgba(255,255,255,.16); overflow:hidden; position:relative}
+.inst-barres i{display:block; height:4px; border-radius:2px; background:var(--fd-blanc-16); overflow:hidden; position:relative}
 .inst-barres i::after{content:""; position:absolute; inset:0; background:var(--marque-vif); transform:scaleX(0); transform-origin:0 50%}
 .inst-barres .fait i::after{transform:none}
 .inst-barres .actif i::after{animation:instBarre var(--d,2800ms) linear forwards}
 @keyframes instBarre{to{transform:none}}
 .inst-num{margin:14px 0 4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--marque-vif)}
-.inst-legende{margin:0; min-height:2.7em; font-size:17px; line-height:1.35; color:#fff}
+.inst-legende{margin:0; min-height:2.7em; font-size:17px; line-height:1.35; color:var(--tx-blanc)}
 .inst-legende b{color:var(--marque-vif); font-weight:650}
 .inst-legende.entre{animation:instLeg .45s ease}
 @keyframes instLeg{from{opacity:0; transform:translateY(6px)}}
 .inst-plus{text-align:center; margin-top:8px; padding:0 16px; width:100%; max-width:400px}
 .inst-plus:empty{display:none}
-.inst-navs summary{list-style:none; display:inline-block; font-size:13px; color:rgba(255,255,255,.7); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:6px}
+.inst-navs summary{list-style:none; display:inline-block; font-size:13px; color:var(--tx-blanc-70); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:6px}
 .inst-navs summary::-webkit-details-marker{display:none}
 .inst-navs div{display:flex; gap:6px; margin-top:12px}
-.inst-navs button{flex:1; min-width:0; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:10px; background:none;
-  color:rgba(255,255,255,.75); font-size:13px; cursor:pointer}
-.inst-navs button[aria-pressed="true"]{background:var(--marque-vif); border-color:var(--marque-vif); color:#0b1220; font-weight:650}
-.inst-note{margin:10px 0 0; font-size:12.5px; line-height:1.45; color:rgba(255,255,255,.62)}
-.inst-lien{background:none; border:0; color:rgba(255,255,255,.75); font-size:13.5px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:6px; word-break:break-all}
-.inst-continuer{display:block; margin:14px auto 0; background:none; border:0; color:rgba(255,255,255,.62); cursor:pointer; padding:10px;
+.inst-navs button{flex:1; min-width:0; padding:9px 4px; border:1px solid var(--bd-blanc-20); border-radius:10px; background:none;
+  color:var(--tx-blanc-75); font-size:13px; cursor:pointer}
+.inst-navs button[aria-pressed="true"]{background:var(--marque-vif); border-color:var(--marque-vif); color:var(--tx-sur-vif); font-weight:650}
+.inst-note{margin:10px 0 0; font-size:12.5px; line-height:1.45; color:var(--tx-blanc-62)}
+.inst-lien{background:none; border:0; color:var(--tx-blanc-75); font-size:13.5px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:6px; word-break:break-all}
+.inst-continuer{display:block; margin:14px auto 0; background:none; border:0; color:var(--tx-blanc-62); cursor:pointer; padding:10px;
   font-size:12px; font-weight:650; text-transform:uppercase; letter-spacing:.12em}
 /* La flèche montre le vrai bouton du navigateur, hors de la page */
 .inst-fleche{position:fixed; left:0; right:0; bottom:0; z-index:4; display:flex; flex-direction:column; align-items:center; gap:2px;
@@ -3949,7 +4026,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 @keyframes instHaut{50%{transform:translateY(-6px)}}
 @media (prefers-reduced-motion:reduce){.inst-f,.inst-fleche svg,.inst-barres .actif i::after,.inst-legende.entre,.d-doigt,.d-doigt::after,.d-app img,.d-menu,.d-feuille,.d-valider,.d-voile{animation:none}.inst,.inst-page{transition:none}}
 .gate-inst{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:2px; padding:11px 14px;
-  border-radius:12px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); color:#fff; font-size:13.5px; font-weight:600; cursor:pointer}
+  border-radius:12px; border:1px solid var(--bd-blanc-22); background:var(--fd-blanc-06); color:var(--tx-blanc); font-size:13.5px; font-weight:600; cursor:pointer}
 .in-x{flex:0 0 auto; width:34px; height:34px; border:0; background:none; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
 /* HORS LIGNE. Une pastille discrète en haut de l'écran, comme les
    applications natives, tant que le réseau manque. */
@@ -4094,7 +4171,7 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
    de lumière parcourt la barre. Sous « prefers-reduced-motion », la règle
    générale éteint tout : il reste un écran fixe, qui s'efface d'un coup. */
 .intro{position:fixed; inset:0; z-index:300; display:grid; place-items:center;
-  background:radial-gradient(120% 80% at 50% 42%, #1b2640 0%, var(--marque) 62%);
+  background:var(--fd-intro);
   transition:opacity .45s ease, visibility .45s}
 .intro.fini{opacity:0; visibility:hidden; pointer-events:none}
 .intro-in{display:flex; flex-direction:column; align-items:center; gap:26px}
@@ -4104,7 +4181,12 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
    de l'icône avec un fond normal »). logo-app.png : logo.png, d'où viennent
    les icônes, son fond retiré (journal 05). */
 .intro img{width:176px; height:auto; display:block; animation:introLogo .8s cubic-bezier(.2,.8,.2,1) both}
-.intro-barre{width:110px; height:2px; border-radius:2px; background:rgba(255,255,255,.12);
+/* en clair, son mot et « Application mobile » sont blancs, invisibles : la
+   version positive (logo-app-clair.png, mêmes pixels, blanc → bleu nuit),
+   posée par la feuille de style pour valoir dès la première image, avant
+   que le script ne change la source */
+:root[data-theme="light"] .intro img{content:url(logo-app-clair.png)}
+.intro-barre{width:110px; height:2px; border-radius:2px; background:var(--fd-blanc-12);
   overflow:hidden; animation:introNom .6s .3s both}
 .intro-barre i{display:block; width:40%; height:100%; border-radius:2px;
   background:var(--marque-vif); animation:introBarre 1.1s .35s ease-in-out infinite}
@@ -5535,7 +5617,10 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 /* ---------- Porte de connexion (compte : trigramme ↔ appareil) + BWZ RH ---------- */
 .gate{position:fixed; inset:0; z-index:350; display:flex; color:var(--ink); overflow-x:hidden}
 .gate[hidden]{display:none}
-.gate-bg{position:absolute; inset:0; background:var(--marque); z-index:0}
+.gate-bg{position:absolute; inset:0; background:var(--fd-marque); z-index:0}
+/* en clair, l'écran de connexion prend le fond de la page, et non le gris
+   presque blanc des panneaux */
+:root[data-theme="light"] .gate-bg{background:var(--fond)}
 /* Accueil : plein écran sur le fond, logo centré, actions en bas (sans cadre). */
 .gate-home{position:absolute; inset:0; z-index:1; display:none; flex-direction:column; align-items:center;
   padding:40px 20px calc(30px + env(safe-area-inset-bottom,0px)); overflow-y:auto; overflow-x:hidden}
@@ -5545,8 +5630,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-home-mark img{width:clamp(118px,33vw,156px); height:auto; display:block}
 .gate-home-actions{flex:0 0 auto; width:100%; max-width:400px; display:flex; flex-direction:column; gap:12px}
 .gate-home-actions .gate-btn{padding:14px 16px; font-size:15px; border-radius:12px}
-.gate-link-light{color:rgba(255,255,255,.72)}
-.gate-link-light:hover{color:#fff}
+.gate-link-light{color:var(--tx-blanc-72)}
+.gate-link-light:hover{color:var(--tx-blanc)}
 .gate-scroll{position:relative; z-index:1; width:100%; overflow:auto; display:flex; padding:28px 16px}
 .gate-box{width:100%; max-width:460px; margin:auto; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
 .gate-head{display:flex; align-items:center; gap:13px; padding:17px 20px; border-bottom:1px solid var(--line2)}
@@ -5641,17 +5726,17 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    couleur de la marque : qui l'on est, puis trois chiffres de soi. */
 #rythmeTete.pf-carte{padding:0; gap:0}
 .pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
-  background:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
-  box-shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px -14px rgba(0,0,0,.6)}
+  background:var(--fd-heros);
+  box-shadow:0 1px 2px var(--om-noir-25),0 10px 30px -14px var(--om-noir-60)}
 /* Le héros et le mois ont été soudés en un cadre le 16/10/2026, puis
    séparés le 17/10/2026 (le client : « séparer le cadre calendrier du héros
    juste après la progression de cycle ») : deux cadres, l'écart de la pile. */
 .pf-head{position:relative; display:flex; align-items:center; gap:14px; padding:16px 64px 2px 16px}
 .pf-logo{flex:0 0 auto; height:44px; width:auto; display:block}
-.pf-sep{align-self:stretch; width:1px; margin:4px 0; background:rgba(255,255,255,.16)}
+.pf-sep{align-self:stretch; width:1px; margin:4px 0; background:var(--fd-blanc-16)}
 .pf-hmeta{min-width:0; display:flex; flex-direction:column; gap:4px}
-.pf-tri{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:26px; line-height:1; font-weight:600; letter-spacing:.04em; color:#fff}
-.pf-role{font-size:12.5px; color:rgba(255,255,255,.72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-tri{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:26px; line-height:1; font-weight:600; letter-spacing:.04em; color:var(--tx-blanc)}
+.pf-role{font-size:12.5px; color:var(--tx-blanc-72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-roue{position:absolute; z-index:1; top:12px; right:12px; width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
   background:none; border:0; color:rgba(255,255,255,.82); cursor:pointer}
 /* Sans halo ni cercle blanc autour (le client, le 16/10/2026) : l'icône seule. */
@@ -5659,9 +5744,9 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-proch{position:relative; display:flex; flex-direction:column; gap:8px; width:calc(100% - 24px); margin:10px 12px 0; padding:11px 12px 12px;
   border-radius:12px; background:rgba(105,178,203,.12); border:1px solid rgba(105,178,203,.32); text-align:left; font:inherit; color:inherit; cursor:pointer}
 .pf-proch-tete{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
-.pf-proch-tete small{font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.62)}
-.pf-proch-tete em{font-style:normal; font-size:12px; font-weight:650; color:#fff; white-space:nowrap; padding:2px 8px; border-radius:999px;
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14)}
+.pf-proch-tete small{font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; color:var(--tx-blanc-62)}
+.pf-proch-tete em{font-style:normal; font-size:12px; font-weight:650; color:var(--tx-blanc); white-space:nowrap; padding:2px 8px; border-radius:999px;
+  background:var(--fd-blanc-08); border:1px solid var(--bd-blanc-14)}
 .pf-proch-tete em.vif{color:var(--marque-vif); border-color:rgba(105,178,203,.45); background:rgba(105,178,203,.12)}
 .pf-proch-corps{display:flex; align-items:center; gap:10px; min-width:0}
 .pf-proch{gap:6px; padding-top:9px; padding-bottom:10px}
@@ -5673,21 +5758,21 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 @media (max-width:360px){ .pf-proch-tete small{letter-spacing:.03em} .pf-proch-tete{gap:6px} .pf-proch-tete em{padding:2px 6px} .pf-proch-tete .pf-mot{display:none} }
 /* à 320 px, « Prochain poste · sam. 7 nov. » se coupait : « Prochain · sam. 7 nov. » */
 .pf-pause{flex:0 0 auto; width:46px; height:46px; box-sizing:border-box; border-radius:12px; display:grid; place-items:center;
-  background:var(--marque-vif); color:var(--marque); font-weight:750; font-size:16px; letter-spacing:.02em; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  background:var(--marque-vif); color:var(--tx-sur-clair); font-weight:750; font-size:16px; letter-spacing:.02em; box-shadow:inset 0 0 0 1px var(--bd-blanc-25)}
 .pf-proch-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px}
-.pf-proch-t b{font-size:17px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-proch-h{display:flex; align-items:baseline; column-gap:6px; white-space:nowrap; font-size:13px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums}
-.pf-proch-t .pf-pd{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-proch-h .pf-ps{color:rgba(255,255,255,.4); font-weight:400}
+.pf-proch-t b{font-size:17px; font-weight:700; color:var(--tx-blanc); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-proch-h{display:flex; align-items:baseline; column-gap:6px; white-space:nowrap; font-size:13px; font-weight:600; color:var(--tx-blanc); font-variant-numeric:tabular-nums}
+.pf-proch-t .pf-pd{font-size:12.5px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-proch-h .pf-ps{color:var(--tx-blanc-40); font-weight:400}
 .pf-hd,.pf-hf{flex:0 0 auto; white-space:nowrap}
-.pf-trait{display:block; width:100%; min-width:16px; height:3px; border-radius:2px; background:rgba(255,255,255,.18); overflow:hidden; position:relative}
+.pf-trait{display:block; width:100%; min-width:16px; height:3px; border-radius:2px; background:var(--fd-blanc-18); overflow:hidden; position:relative}
 .pf-trait i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
 .pf-trait.en{height:4px}
-.pf-proch-at{font-size:12px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-proch-at.app{color:#F2994A}
+.pf-proch-at{font-size:12px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-proch-at.app{color:var(--tx-orange)}
 .pf-proch-at[hidden]{display:none}
 .pf-proch .unite{text-transform:none}
-.pf-fl{flex:0 0 auto; font-size:22px; line-height:1; color:rgba(255,255,255,.45)}
+.pf-fl{flex:0 0 auto; font-size:22px; line-height:1; color:var(--tx-blanc-45)}
 @media (hover:hover){ .pf-proch:hover{background:rgba(105,178,203,.18)} }
 .pf-proch:active{transform:scale(.99)}
 .pf-pause[data-p="AM"]{background:var(--cal-am); color:var(--cal-am-ink)}
@@ -5696,42 +5781,42 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-pause[data-p="D"]{background:var(--cal-d); color:var(--cal-d-ink)}
 /* Le changement de poste proposé par l'application, sous le prochain poste */
 .pf-app{display:flex; flex-direction:column; gap:3px; margin:8px 12px 0; padding:7px 12px; border-radius:10px;
-  background:rgba(242,153,74,.12); border:1px dashed rgba(242,153,74,.55); font-size:12px; color:#fff; line-height:1.35}
-.pf-app small{color:rgba(255,255,255,.65); font-size:11px}
+  background:rgba(242,153,74,.12); border:1px dashed rgba(242,153,74,.55); font-size:12px; color:var(--tx-blanc); line-height:1.35}
+.pf-app small{color:var(--tx-blanc-65); font-size:11px}
 .pf-app[hidden]{display:none}
 .pf-afaire[hidden]{display:none}
 .pf-af{display:flex; align-items:center; gap:10px; width:calc(100% - 24px); min-height:48px; margin:8px 12px 0; padding:8px 12px; border-radius:12px;
-  background:rgba(221,152,119,.13); border:1px solid rgba(221,152,119,.5); color:#fff; font:inherit; text-align:left; cursor:pointer}
+  background:rgba(221,152,119,.13); border:1px solid rgba(221,152,119,.5); color:var(--tx-blanc); font:inherit; text-align:left; cursor:pointer}
 .pf-af>span{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
 .pf-af b{font-size:14px; font-weight:700}
-.pf-af small{font-size:12px; line-height:1.3; color:rgba(255,255,255,.72)}
-.pf-af em{font-style:normal; font-size:18px; color:rgba(255,255,255,.6)}
+.pf-af small{font-size:12px; line-height:1.3; color:var(--tx-blanc-72)}
+.pf-af em{font-style:normal; font-size:18px; color:var(--tx-blanc-60)}
 .pf-af .ctl-pt{flex:none; width:8px; height:8px; border-radius:50%; background:#DD9877}
 @media (hover:hover){ .pf-af:hover{border-color:#DD9877} }
-.pf-af:focus-visible{outline:2px solid #fff; outline-offset:2px}
+.pf-af:focus-visible{outline:2px solid var(--tx-blanc); outline-offset:2px}
 #ctlCard{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 12px)}
 .pf-kpis{margin-top:12px}
 .pf-bas{height:12px}
-.pf-role2{font-size:12px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-role2{font-size:12px; color:var(--tx-blanc-55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-role2.fo{color:var(--at-jaune)}
 .pf-ligne1{display:flex; align-items:center; gap:10px; min-width:0}
 .pf-stat{flex:0 0 auto; padding:3px 8px; border-radius:999px; font-size:10.5px; font-weight:650; letter-spacing:.04em; text-transform:uppercase;
-  color:rgba(255,255,255,.8); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14)}
+  color:var(--tx-blanc-80); background:var(--fd-blanc-07); border:1px solid var(--bd-blanc-14)}
 .pf-stat.int{color:var(--at-jaune); border-color:rgba(232,190,80,.4); background:rgba(232,190,80,.1)}
-.pf-fonc{font-size:15px; font-weight:650; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-ou{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-ou b{color:#fff; font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
-.pf-rg{color:rgba(255,255,255,.78)}
+.pf-fonc{font-size:15px; font-weight:650; color:var(--tx-blanc); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-ou{font-size:12.5px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-ou b{color:var(--tx-blanc); font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
+.pf-rg{color:var(--tx-blanc-78)}
 .pf-rg b{font-family:inherit; font-weight:650; letter-spacing:.01em}
 /* Le prochain poste et le week-end libre : un seul cadre, deux lignes
    séparées d'un filet (18/10/2026). */
 .pf-pv{display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px 10px; box-sizing:border-box;
   width:calc(100% - 24px); margin:12px 12px 0; padding:10px 12px 11px; border-radius:12px; text-align:left; cursor:pointer;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); color:inherit; font:inherit}
-@media (hover:hover){ .pf-pv:hover{background:rgba(255,255,255,.07)} }
-.pf-pv-t{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.6)}
-.pf-pv-t em{font-style:normal; font-weight:600; letter-spacing:.02em; text-transform:none; margin-left:7px; color:rgba(255,255,255,.45)}
-.pf-pv .pf-fl{color:rgba(255,255,255,.45); font-size:18px; line-height:1}
+  background:var(--fd-blanc-04); border:1px solid var(--bd-blanc-10); color:inherit; font:inherit}
+@media (hover:hover){ .pf-pv:hover{background:var(--fd-blanc-07)} }
+.pf-pv-t{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--tx-blanc-60)}
+.pf-pv-t em{font-style:normal; font-weight:600; letter-spacing:.02em; text-transform:none; margin-left:7px; color:var(--tx-blanc-45)}
+.pf-pv .pf-fl{color:var(--tx-blanc-45); font-size:18px; line-height:1}
 .pf-pv-l{grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px}
 /* DEUX PAR DEUX, SUR TOUTE LA LARGEUR (le client, le 19/10/2026 : « les
    badges doivent occuper la largeur du cadre, 2 par 2 sur mobile ») ; trois
@@ -5741,7 +5826,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    20/10/2026) */
 @media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ .pf-pv-l{grid-template-columns:repeat(auto-fill,minmax(168px,1fr))} }
 .pf-pv-l span{display:flex; align-items:center; gap:6px; min-width:0; padding:5px 9px; border-radius:8px; white-space:nowrap;
-  font-size:12.5px; font-weight:600; color:rgba(255,255,255,.88); background:rgba(255,255,255,.06)}
+  font-size:12.5px; font-weight:600; color:var(--tx-blanc-88); background:var(--fd-blanc-06)}
 .pf-pv-l em{font-style:normal; min-width:0; overflow:hidden; text-overflow:ellipsis}
 .pf-pv-l .pf-pv-n{margin-left:auto; padding-left:4px}
 /* à 320 px, un badge fait 115 px : « Fermentation 10/10 » n'y tient pas.
@@ -5753,16 +5838,16 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-pv-l [data-z="rouge"] i{background:var(--bordr)} .pf-pv-l [data-z="bleu"] i{background:var(--bordb)}
 /* le compteur d'un atelier : au vert quand le quota est atteint, et aucune
    autre couleur (la règle de l'onglet Recyclage, le client, le 07/10/2026) */
-.pf-pv-n{font-weight:700; font-size:11.5px; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; flex:0 0 auto}
+.pf-pv-n{font-weight:700; font-size:11.5px; color:var(--tx-blanc-55); font-variant-numeric:tabular-nums; flex:0 0 auto}
 .pf-pv-n.ok{color:var(--at-vert)}
-.pf-pv-n.ex{font-weight:600; font-size:11px; color:rgba(255,255,255,.42)}
+.pf-pv-n.ex{font-weight:600; font-size:11px; color:var(--tx-blanc-42)}
 .pf-rc{grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 10px; align-items:baseline;
-  margin-top:4px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08)}
+  margin-top:4px; padding-top:10px; border-top:1px solid var(--bd-blanc-08)}
 .pf-rc[hidden]{display:none}
-.pf-rc-t,.pf-rc-r{font-size:12.5px; color:rgba(255,255,255,.66); white-space:nowrap}
-.pf-rc-t b,.pf-rc-r b{color:#fff; font-weight:700; font-variant-numeric:tabular-nums}
+.pf-rc-t,.pf-rc-r{font-size:12.5px; color:var(--tx-blanc-66); white-space:nowrap}
+.pf-rc-t b,.pf-rc-r b{color:var(--tx-blanc); font-weight:700; font-variant-numeric:tabular-nums}
 .pf-rc-r{text-align:right}
-.pf-rc-bar{grid-column:1 / -1; height:6px; border-radius:3px; background:rgba(255,255,255,.10); overflow:hidden}
+.pf-rc-bar{grid-column:1 / -1; height:6px; border-radius:3px; background:var(--fd-blanc-10); overflow:hidden}
 .pf-rc-bar i{display:block; height:100%; border-radius:3px; background:var(--marque-vif)}
 .pf-bloc{margin:12px 12px 0; border-radius:12px; background:rgba(105,178,203,.10); border:1px solid rgba(105,178,203,.28); overflow:hidden}
 .pf-bloc .pf-proch{width:100%; margin:0; border:0; border-radius:0; background:none; padding:10px 12px 11px}
@@ -5771,22 +5856,22 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-fo{color:var(--at-jaune)}
 /* Les progressions : un filet entre l'année et chaque cycle, et la semaine
    du cycle lisible à côté de son titre. */
-.pf-an .ry-an-t~.ry-an-t,.pf-an .cy-bloc>.ry-an-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
+.pf-an .ry-an-t~.ry-an-t,.pf-an .cy-bloc>.ry-an-t{border-top:1px solid var(--bd-blanc-07); margin-top:2px}
 .pf-an .ry-hint{font-size:11px; color:var(--muted)}
 .pf-an .ry-an-leg{margin-bottom:12px}
 /* mes pauses : une ligne par pause, la prochaine date à gauche, l'année
    (faites · à venir) à droite */
 .pf-pr-l{font-size:10.5px; color:var(--muted); white-space:nowrap}
 .pf-pr{display:flex; flex-direction:column; margin:4px 0 12px; border-radius:12px; overflow:hidden;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
+  background:var(--fd-blanc-04); border:1px solid var(--bd-blanc-08)}
 .pf-pr-c{display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; column-gap:10px; width:100%;
   padding:8px 12px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
-.pf-pr-c+.pf-pr-c,.pf-pr-h+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
+.pf-pr-c+.pf-pr-c,.pf-pr-h+.pf-pr-c{border-top:1px solid var(--bd-blanc-07)}
 .pf-pr-c:disabled{cursor:default}
 @media (hover:hover){ .pf-pr-c:not(:disabled):hover{background:rgba(105,178,203,.08)} }
 .pf-pr-c .pf-pause{font-style:normal; font-size:10.5px; font-weight:700; padding:2px 0; border-radius:99px; width:34px; height:auto; min-width:0; text-align:center}
 .pf-pr-d{display:flex; flex-direction:column; gap:1px; min-width:0}
-.pf-pr-d b{font-size:14px; font-weight:650; line-height:1.25; color:#fff}
+.pf-pr-d b{font-size:14px; font-weight:650; line-height:1.25; color:var(--tx-blanc)}
 .pf-pr-d span{font-size:12px; line-height:1.25; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-pr-1 .pf-pr-d span{color:var(--marque-vif); font-weight:600}
 /* le tableau : deux colonnes de nombres titrées, alignées à droite */
@@ -5795,8 +5880,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-pr-h span:nth-child(n+3){text-align:right}
 .pf-pr-hm{font-style:normal}
 .pf-pr-f,.pf-pr-r{text-align:right; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums}
-.pf-pr-f{color:#fff}
-.pf-pr-r{color:rgba(255,255,255,.62)}
+.pf-pr-f{color:var(--tx-blanc)}
+.pf-pr-r{color:var(--tx-blanc-62)}
 /* la répartition de l'année : un segment par pause, long de son total,
    la part faite en plein, le restant hachuré de la même couleur */
 .pf-pr-rep{display:flex; gap:3px; height:12px; margin:6px 0 6px}
@@ -5804,44 +5889,29 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .ry-an-bar.pf-pr-rep i{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,transparent) 0 3px,color-mix(in srgb,var(--c) 22%,transparent) 3px 6px); border-radius:4px}
 .ry-an-bar.pf-pr-rep i i{background:var(--c); border-radius:0}
 /* mes congés : une case par compteur, le reste à placer en grand */
-.pf-cg-t{border-top:1px solid rgba(255,255,255,.07); margin-top:2px}
-.pf-cg-t .pf-pr-l b{color:#fff; font-weight:700}
+.pf-cg-t{border-top:1px solid var(--bd-blanc-07); margin-top:2px}
+.pf-cg-t .pf-pr-l b{color:var(--tx-blanc); font-weight:700}
 .pf-cgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; margin:4px 0 14px}
 .pf-cgc{display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
-  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:#fff; font:inherit; text-align:left}
-.pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:#9fe0b8}
+  border:1px solid var(--bd-blanc-08); background:var(--fd-blanc-04); color:var(--tx-blanc); font:inherit; text-align:left}
+.pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--tx-menthe)}
 .pf-cgc>b{font-size:18px; font-weight:700; line-height:1.1; white-space:nowrap; font-variant-numeric:tabular-nums}
-.pf-cgc>b small{font-size:12px; font-weight:600; color:rgba(255,255,255,.62)}
-.pf-cgc-b{display:block; width:100%; height:4px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden}
+.pf-cgc>b small{font-size:12px; font-weight:600; color:var(--tx-blanc-62)}
+.pf-cgc-b{display:block; width:100%; height:4px; border-radius:99px; background:var(--fd-blanc-08); overflow:hidden}
 .pf-cgc-b>i{display:block; height:100%; border-radius:inherit; background:#5fbf86}
-.pf-cgc>em{font-style:normal; font-size:11px; color:rgba(255,255,255,.55); white-space:nowrap}
+.pf-cgc>em{font-style:normal; font-size:11px; color:var(--tx-blanc-55); white-space:nowrap}
 /* pâle, mais lisible : 3,5:1 à .4, 6,3:1 au blanc des « h » de la case
    (audit du 23/10/2026) */
-.pf-cgc.vide>b,.pf-cgc.vide>span{color:rgba(255,255,255,.62)}
-.pf-cgc.vide .pf-cgc-b>i{background:rgba(255,255,255,.25)}
-.pf-cgc.ft>span{color:#9fc9da}
+.pf-cgc.vide>b,.pf-cgc.vide>span{color:var(--tx-blanc-62)}
+.pf-cgc.vide .pf-cgc-b>i{background:var(--fd-blanc-25)}
+.pf-cgc.ft>span{color:var(--tx-cyan-pale)}
 .pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
-.pf-cgc.neg>b{color:#ff8a7a}
-/* EN CLAIR, CES COMPOSANTS VIVENT DANS DES CARTES BLANCHES (Mon année, Mes
-   pauses) : nés dans le héros bleu nuit, ils écrivaient en blanc pur, 1:1
-   sur la carte. Leurs encres et leurs filets passent aux jetons. Aucun
-   n'existe dans un îlot (mesuré au rendu, les quatre vues du calendrier). */
-:root[data-theme="light"] .pf-cgc{border-color:var(--line); background:var(--surface2); color:var(--ink)}
-:root[data-theme="light"] .pf-cgc>span{color:var(--good)}
-:root[data-theme="light"] .pf-cgc.ft>span{color:var(--in)}
-:root[data-theme="light"] .pf-cgc>b small,:root[data-theme="light"] .pf-cgc>em,
-:root[data-theme="light"] .pf-cgc.vide>b,:root[data-theme="light"] .pf-cgc.vide>span{color:var(--muted)}
-:root[data-theme="light"] .pf-cgc-b{background:var(--line2)}
+.pf-cgc.neg>b{color:var(--tx-rouge-vif2)}
+/* en clair, les barres des congés prennent un vert et un cyan plus
+   soutenus, lisibles sur la carte blanche (les encres et les filets de ces
+   cases passent par les jetons --tx-blanc-*, --bd-blanc-*…) */
 :root[data-theme="light"] .pf-cgc-b>i{background:#2FA36B}
 :root[data-theme="light"] .pf-cgc.ft .pf-cgc-b>i{background:var(--in2)}
-:root[data-theme="light"] .pf-cgc.vide .pf-cgc-b>i{background:var(--trait)}
-:root[data-theme="light"] .pf-cgc.neg>b{color:var(--at-rouge)}
-:root[data-theme="light"] .pf-pr-c+.pf-pr-c,:root[data-theme="light"] .pf-pr-h+.pf-pr-c,:root[data-theme="light"] .pf-cg-t{border-top-color:var(--line2)}
-:root[data-theme="light"] .pf-pr-d b,:root[data-theme="light"] .pf-cg-t .pf-pr-l b,
-:root[data-theme="light"] .pf-pr-f,:root[data-theme="light"] .pf-pr-t{color:var(--ink)}
-:root[data-theme="light"] .pf-pr-r{color:var(--muted)}
-:root[data-theme="light"] .pf-pr-lg-f{background:var(--ink2)}
-:root[data-theme="light"] .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(21,30,47,.45) 0 3px,rgba(21,30,47,.14) 3px 6px)}
 @media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
 /* à 320 px, « tout placé » sortait de 3 px de sa case (audit du 23/10/2026) */
 @media (max-width:360px){ .pf-cgs{gap:2px} .pf-cgc{padding-left:3px; padding-right:3px} .pf-cgc>em{letter-spacing:-.01em} }
@@ -5851,8 +5921,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-pr-rep>i>i{display:block; height:100%; background:var(--c)}
 .pf-pr-rep>[data-p="AM"]{--c:var(--cal-am)} .pf-pr-rep>[data-p="PM"]{--c:var(--cal-pm)}
 .pf-pr-rep>[data-p="N"]{--c:var(--cal-n)} .pf-pr-rep>[data-p="D"]{--c:var(--cal-d)}
-.pf-pr-lg-f{background:rgba(255,255,255,.75)}
-.pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(255,255,255,.5) 0 3px,rgba(255,255,255,.18) 3px 6px)}
+.pf-pr-lg-f{background:var(--fd-blanc-75)}
+.pf-pr-lg-r{background:repeating-linear-gradient(135deg,var(--fd-blanc-50) 0 3px,var(--fd-blanc-18) 3px 6px)}
 /* jusqu'à 400 px, des colonnes de nombres plus étroites et des écarts
    resserrés : « Dimanche 1er novembre » tient sur une ligne, à 14 px, de 361
    à 400 px, et « FAITES » et « RESTE » tiennent dans leur colonne (audit du
@@ -5893,19 +5963,19 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 }
 /* au téléphone, un filet entre le cycle et « Mes pauses », comme entre
    l'année et le cycle */
-@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .pf-prz .ry-an-t:first-child{border-top:1px solid rgba(255,255,255,.07); margin-top:2px} }
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .pf-prz .ry-an-t:first-child{border-top:1px solid var(--bd-blanc-07); margin-top:2px} }
 #ryPr:empty,#ryAn:empty,#ryCg:empty{display:none}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 .pf-head{padding-bottom:4px}
 .pf-kpi b.pf-txt{font-family:inherit; font-size:15px; white-space:normal; line-height:1.15}
 .pf-kpi.bon b{color:var(--good)}
-.pf-kpis{position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid rgba(255,255,255,.1)}
+.pf-kpis{position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); border-top:1px solid var(--bd-blanc-10)}
 .pf-kpi{display:flex; flex-direction:column; gap:3px; padding:11px 14px 13px; min-width:0}
-.pf-kpi+.pf-kpi{border-left:1px solid rgba(255,255,255,.1)}
-.pf-kpi b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:19px; font-weight:700; color:#fff; white-space:nowrap}
-.pf-kpi b i{font-style:normal; font-size:12px; font-weight:600; color:rgba(255,255,255,.6); margin-left:2px}
-.pf-kpi span{font-size:10px; line-height:1.25; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.58)}
-.pf-kpi.ko b{color:#ff9b8f} .pf-kpi.att b{color:var(--at-jaune)}
+.pf-kpi+.pf-kpi{border-left:1px solid var(--bd-blanc-10)}
+.pf-kpi b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:19px; font-weight:700; color:var(--tx-blanc); white-space:nowrap}
+.pf-kpi b i{font-style:normal; font-size:12px; font-weight:600; color:var(--tx-blanc-60); margin-left:2px}
+.pf-kpi span{font-size:10px; line-height:1.25; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--tx-blanc-58)}
+.pf-kpi.ko b{color:var(--tx-rouge-vif)} .pf-kpi.att b{color:var(--at-jaune)}
 @media (max-width:380px){ .pf-head{padding:14px 60px 2px 14px; gap:11px} .pf-logo{height:38px} .pf-tri{font-size:22px} .pf-kpi{padding:10px 10px 11px} .pf-kpi b{font-size:16px} .pf-kpi span{font-size:9px} }
 /* Le profil façon réseau social (16/10/2026) : couverture, avatar à cheval,
    identité, rangée de chiffres. Écrit après les anciennes règles .pf-* qu'il
@@ -5914,21 +5984,21 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    Sur téléphone elle garde ses proportions ; au bureau elle se rogne en
    hauteur (240 px ; un max-height rétrécirait aussi la largeur, par le ratio), calée en bas à droite pour que la marque et
    son nom restent entiers. */
-.pf-couv{position:relative; aspect-ratio:2170/540; overflow:hidden; background:#1a2747 url(banniere.jpg) 100% 50%/cover no-repeat;
-  border-bottom:1px solid rgba(255,255,255,.08)}
+.pf-couv{position:relative; aspect-ratio:2170/540; overflow:hidden; background:var(--fd-couv) url(banniere.jpg) 100% 50%/cover no-repeat;
+  border-bottom:1px solid var(--bd-blanc-08)}
 .pf-roue{background:rgba(17,23,39,.55); border-radius:50%}
 /* En haut à droite de la bannière (le client, le 18/10/2026) ; le badge des
    changements d'horaire prend sa place en haut à gauche, sur l'usine. */
 .pf-roue{top:10px; right:10px; left:auto}
 .pf-prof{position:relative; display:flex; align-items:flex-start; gap:12px; padding:0 16px; margin-top:-34px}
 .pf-av{flex:0 0 auto; width:76px; height:76px; border-radius:50%; display:grid; place-items:center; box-sizing:border-box;
-  background:linear-gradient(145deg,#2b4a7a,#162340); border:3px solid #16203a; box-shadow:0 0 0 2px var(--marque-vif),0 6px 16px rgba(0,0,0,.4);
+  background:linear-gradient(145deg,#2b4a7a,#162340); border:3px solid var(--bd-av); box-shadow:0 0 0 2px var(--marque-vif),0 6px 16px var(--om-noir-40);
   font:700 23px/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.03em; color:#fff}
 .pf-prof .pf-hmeta{padding-top:42px; gap:2px}
 .pf-prof .pf-tri{font-size:21px}
-.pf-prof .pf-fonc{font-size:13.5px; font-weight:600; color:rgba(255,255,255,.82)}
-.pf-prof .pf-poste{font-size:19px; line-height:1.15; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.pf-prof .pf-st2{font-size:13px; color:rgba(255,255,255,.66)}
+.pf-prof .pf-fonc{font-size:13.5px; font-weight:600; color:var(--tx-blanc-82)}
+.pf-prof .pf-poste{font-size:19px; line-height:1.15; font-weight:700; color:var(--tx-blanc); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pf-prof .pf-st2{font-size:13px; color:var(--tx-blanc-66)}
 .pf-prof .pf-poste{display:flex; align-items:center; gap:8px; min-width:0}
 .pf-poste-n{min-width:0; overflow:hidden; text-overflow:ellipsis}
 /* LE STATUT CALÉ À DROITE de la ligne du poste (le client, le 25/10/2026 :
@@ -5941,7 +6011,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    du poste (passe sur tout l'Accueil, 25/10/2026) */
 @media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ .pf-prof .pf-poste .pf-statut{margin-left:4px} .pf-prof .pf-hmeta{flex:0 1 auto} }
 .pf-statut{flex:0 0 auto; font-size:11.5px; font-weight:600; line-height:1; padding:4px 8px; border-radius:99px;
-  color:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.05)}
+  color:var(--tx-blanc-78); border:1px solid var(--bd-blanc-22); background:var(--fd-blanc-05)}
 .pf-statut.int{color:var(--at-jaune); border-color:color-mix(in srgb,var(--at-jaune) 45%,transparent)}
 .pf-prof .pf-st2.int{color:var(--at-jaune)}
 @media (max-width:380px){ .pf-prof{padding:0 12px; gap:10px; margin-top:-30px}
@@ -6013,8 +6083,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .ry-an-t>b.cy-avec{font-family:inherit; font-weight:600; font-size:12px; line-height:1.2; color:var(--marque-vif); flex:0 1 auto; text-align:right}
 .cy-fr{display:flex; gap:5px; margin-top:6px}
 .cy-s{flex:1 1 0; min-width:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; border-radius:3px}
-.cy-s.cour{box-shadow:0 0 0 2px rgba(255,255,255,.22)}
-.cy-c{height:8px; border-radius:2px; background:rgba(255,255,255,.07)}
+.cy-s.cour{box-shadow:0 0 0 2px var(--bd-blanc-22)}
+.cy-c{height:8px; border-radius:2px; background:var(--fd-blanc-07)}
 .cy-bloc{cursor:pointer; border-radius:10px}
 .cy-prog{display:flex; align-items:center; gap:10px; margin:2px 0 8px}
 /* le titre et ce qui l'accompagne à droite sur la même ligne de base */
@@ -6028,9 +6098,9 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 @media (hover:hover){ .cy-bloc:hover .ry-an-leg span:last-child{color:var(--marque-vif)} }
 .cy-fr.long{gap:3px}
 .cy-c.s-am{background:var(--cal-am)} .cy-c.s-pm{background:var(--cal-pm)} .cy-c.s-n{background:var(--cal-n)} .cy-c.s-d{background:var(--cal-d)}
-.cy-c.s-cg{background:transparent; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
+.cy-c.s-cg{background:transparent; box-shadow:inset 0 0 0 1.5px var(--bd-blanc-45)}
 .cy-c.s-mal{background:repeating-linear-gradient(135deg,rgba(214,58,48,.55) 0 2px,transparent 2px 4px); box-shadow:inset 0 0 0 1.5px #E5574D}
-.cy-c.auj{box-shadow:inset 0 0 0 2px #fff}
+.cy-c.auj{box-shadow:inset 0 0 0 2px var(--bd-blanc)}
 .ry-an-sous{font-size:11.5px; color:var(--muted); margin-top:2px}
 .ry-an-bar{height:8px; border-radius:99px; background:var(--surface3); overflow:hidden; margin-top:4px}
 .ry-an-bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--in))}
@@ -6173,7 +6243,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .tabs{
     position:static; width:100%; max-width:none; margin:0;
     padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
-    background:var(--marque); border-top:1px solid rgba(255,255,255,.10); gap:0;
+    background:var(--fd-marque); border-top:1px solid var(--bd-blanc-10); gap:0;
   }
   /* MENU PRO ET COMPACT (le client, le 06/10/2026 : « le menu doit faire
      professionnel et ne pas prendre trop de place… retravaille le style, la forme,
@@ -6184,13 +6254,13 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
      Les libellés inactifs sont masqués par font-size:0 (l'icône, elle, garde sa
      taille explicite). */
   .tabs button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-    min-height:46px; padding:4px 2px; border-radius:11px; font-size:0; color:rgba(255,255,255,.6);
+    min-height:46px; padding:4px 2px; border-radius:11px; font-size:0; color:var(--tx-blanc-60);
     letter-spacing:.012em; line-height:1}
   .tabs button svg{display:block; width:22px; height:22px}
   /* Ces trois règles ont la MÊME spécificité que celles du haut de la
      feuille, qui peignent la barre du bureau ; elles gagnent parce qu'elles
      sont écrites APRÈS. Ne pas les déplacer plus haut. */
-  .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
+  .tabs button:hover{color:var(--tx-blanc); background:var(--fd-blanc-08)}
   /* Focus clavier visible et à la marque (il ne l'était pas) : un anneau cyan posé
      À L'INTÉRIEUR du bouton, qui ne déborde donc jamais de la barre. */
   .tabs button:focus-visible{outline:none; box-shadow:inset 0 0 0 2px var(--marque-vif)}
@@ -6276,21 +6346,21 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    SPÉCIFICITÉ celles qui peignaient l'en-tête, et non par leur position.
    C'est ce qui les rend sûres — le piège de la requête média, qui n'ajoute
    aucune spécificité, s'est déjà refermé trois fois sur ce fichier. */
-.top{background:var(--marque); border-bottom-color:rgba(255,255,255,.10)}
-.top .brand .bnom{color:#fff}
+.top{background:var(--fd-marque); border-bottom-color:var(--bd-blanc-10)}
+.top .brand .bnom{color:var(--tx-blanc)}
 /* La plaque du trigramme s'inverse : blanche sur le bleu, elle reste ce
    qu'elle était — la chose qu'on lit en premier à gauche. */
-.top .btri{color:var(--marque); background:rgba(255,255,255,.92)}
-.top .brand:hover .btri{background:var(--marque-vif); color:var(--marque)}
-.top .ident{color:rgba(255,255,255,.55)}
-.top .ident .idate{color:#fff}
-.top .ident em{color:rgba(255,255,255,.74)}
+.top .btri{color:var(--tx-sur-clair); background:var(--fd-blanc-92)}
+.top .brand:hover .btri{background:var(--marque-vif); color:var(--tx-sur-clair)}
+.top .ident{color:var(--tx-blanc-55)}
+.top .ident .idate{color:var(--tx-blanc)}
+.top .ident em{color:var(--tx-blanc-74)}
 /* Au-delà de 760 px la barre d'onglets remonte DANS cet en-tête : elle y
    prend les mêmes encres que dans son cadre du bas, sans quoi elle
    disparaîtrait sur le bleu. Sous 760 px elle n'est pas ici, et ces règles
    ne l'atteignent pas. */
-.top .tabs button{color:rgba(255,255,255,.66)}
-.top .tabs button:hover{color:#fff; background:rgba(255,255,255,.08)}
+.top .tabs button{color:var(--tx-blanc-66)}
+.top .tabs button:hover{color:var(--tx-blanc); background:var(--fd-blanc-08)}
 .top .tabs button[aria-selected="true"]{color:var(--marque-vif)}
 .top .tabs button[aria-selected="true"]::after{background:var(--marque-vif)}
 
@@ -6313,7 +6383,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    teinte : un cheveu clair coiffe son bord, une ombre douce la pose
    au-dessus des cartes qui défilent dessous. Le #111727 reste le
    fond — c'est la profondeur, pas la couleur, qui s'ajoute. */
-.top{box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 10px 30px -24px rgba(0,0,0,.9)}
+.top{box-shadow:inset 0 1px 0 var(--bd-blanc-04), 0 10px 30px -24px var(--om-noir-90)}
 
 /* LES ICÔNES D'ONGLETS REVIENNENT AU BUREAU. Le client, le
    30/09/2026 : « des icônes aussi sur desktop ». Au-delà de 760 px
@@ -6343,25 +6413,25 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 /* Les cartes prennent la même lumière haute que les barres : un
    cheveu clair sur le bord supérieur, rien de plus. La teinte, la
    bordure et l'ombre mesurées ne bougent pas. */
-:root[data-theme="dark"] .card,:root[data-theme="light"] .ilot .card{box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05)}
+:root[data-theme="dark"] .card{box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05)}
 
 /* Sur téléphone, la barre basse se pose elle aussi au-dessus du
    tableau qui passe dessous, d'une ombre montante — à plat, elle
    s'y confondait par le bas. */
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
-  .navwrap>.tabs{box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 -10px 28px -20px rgba(0,0,0,.85)}
+  .navwrap>.tabs{box-shadow:inset 0 1px 0 var(--bd-blanc-05), 0 -10px 28px -20px var(--om-noir-85)}
 }
 
 /* La molette, la sélection et le curseur portent la marque, et non
    le gris par défaut du navigateur : le signe le moins cher qu'une
    page a été dessinée, et celui qu'on oublie le plus souvent. */
 :root[data-theme="dark"]{scrollbar-color:var(--trait) transparent; scrollbar-width:thin}
-:root[data-theme="dark"] ::selection,:root[data-theme="light"] .ilot ::selection{background:rgba(105,178,203,.30); color:#fff}
-:root[data-theme="dark"] ::-webkit-scrollbar,:root[data-theme="light"] .ilot ::-webkit-scrollbar{width:11px; height:11px}
-:root[data-theme="dark"] ::-webkit-scrollbar-track,:root[data-theme="light"] .ilot ::-webkit-scrollbar-track{background:transparent}
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb,:root[data-theme="light"] .ilot ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
+:root[data-theme="dark"] ::selection{background:rgba(105,178,203,.30); color:#fff}
+:root[data-theme="dark"] ::-webkit-scrollbar{width:11px; height:11px}
+:root[data-theme="dark"] ::-webkit-scrollbar-track{background:transparent}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
   border:3px solid transparent; background-clip:content-box}
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,:root[data-theme="light"] .ilot ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
 /* #horNav (bouton « Retour à l'année ») et #rotasub (en-tête « Horaire presté »)
    ont disparu : la bascule Mois/Année est un sélecteur segmenté dans la barre
    héros, et le mois est nommé par le libellé de #mnav (« Octobre 2026 »). */
@@ -6399,11 +6469,11 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .navwrap>.tabs{width:auto; flex:1; margin:0 16px var(--navbas);
     margin-left:max(16px,env(safe-area-inset-left,0px)); margin-right:max(16px,env(safe-area-inset-right,0px));
     padding:6px 10px; gap:2px; border-radius:999px; border-top:0;
-    background:rgba(24,27,36,.9); border:1px solid rgba(255,255,255,.09);
-    box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06)}
+    background:var(--fd-dock); border:1px solid var(--bd-blanc-09);
+    box-shadow:0 12px 30px var(--om-noir-50), inset 0 1px 0 var(--bd-blanc-06)}
   .navwrap>.tabs button, .navwrap>.tabs button[aria-selected="true"]{
     min-width:0; min-height:0; flex:1; padding:11px 0; gap:0; border-radius:999px;
-    font-size:0; color:#9a9aa6; background:transparent; box-shadow:none}
+    font-size:0; color:var(--tx-dock); background:transparent; box-shadow:none}
   .navwrap>.tabs button svg{width:25px; height:25px; stroke-width:1.9;
     padding:0; border-radius:0; background:none; color:inherit; box-shadow:none}
   .navwrap>.tabs button[aria-selected="true"]{
@@ -6411,7 +6481,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
     box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--marque-vif) 38%,transparent)}
   .navwrap>.tabs button[aria-selected="true"] svg{
     transform:scale(1.1); box-shadow:none}
-  .navwrap>.tabs button:hover:not([aria-selected="true"]){color:#fff; background:rgba(255,255,255,.06)}
+  .navwrap>.tabs button:hover:not([aria-selected="true"]){color:var(--tx-blanc); background:var(--fd-blanc-06)}
   .navwrap>.tabs button:active{transform:scale(.93)}
   /* l'anneau du clavier, que le box-shadow:none ci-dessus effaçait (audit du 23/10/2026) */
   .navwrap>.tabs button:focus-visible{box-shadow:inset 0 0 0 2px var(--marque-vif)}
@@ -6426,7 +6496,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .enhaut{bottom:calc(78px + var(--navbas) + var(--vvbas,0px))}
 }
 @supports not (color:color-mix(in srgb,red,blue)){
-  @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .navwrap>.tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)} }
+  @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .navwrap>.tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 1px var(--bd-blanc-14)} }
 }
 /* ═══ LE BUREAU (le client, le 12/10/2026 : « le site est pas optimisé
    pc »). Sa capture, fenêtre de 1920 px : la barre du haut sur deux lignes,
@@ -6447,7 +6517,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .top>.tabs button{padding-top:18px; padding-bottom:19px}
   /* Le jour passe à droite de la marque, séparé d'un filet : sur une seule
      ligne, il n'a plus à se coller au trigramme. */
-  .top .ident{padding-left:16px; margin-left:4px; border-left:1px solid rgba(255,255,255,.12)}
+  .top .ident{padding-left:16px; margin-left:4px; border-left:1px solid var(--bd-blanc-12)}
 
   /* LE PLANNING REMPLIT L'ÉCRAN. La carte va du bas de la barre au bas de
      la fenêtre (--jtop, mesuré par ajusterHauteurJour) ; ajusterLignesJour
@@ -6734,8 +6804,8 @@ html .pvt tbody tr.pvhead th{font-size:10.5px}
    CLAIR : le texte blanc n'y tenait pas (2,1 à 2,7:1) ; il passe à l'encre
    foncée. Les pastilles de nombre orange de même (2,4 à 3:1). */
 :root[data-theme="dark"] .p-am,:root[data-theme="dark"] .p-pm,:root[data-theme="dark"] .p-n,:root[data-theme="dark"] .p-d,
-:root[data-theme="dark"] .pl-cv .c-am,:root[data-theme="dark"] .pl-cv .c-pm,:root[data-theme="dark"] .pl-cv .c-n,:root[data-theme="light"] .ilot .p-am,:root[data-theme="light"] .ilot .p-pm,:root[data-theme="light"] .ilot .p-n,:root[data-theme="light"] .ilot .p-d,:root[data-theme="light"] .ilot .pl-cv .c-am,:root[data-theme="light"] .ilot .pl-cv .c-pm,:root[data-theme="light"] .ilot .pl-cv .c-n{color:#151E2F}
-:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb,:root[data-theme="dark"] .plus-nb.app,:root[data-theme="light"] .ilot .tabs .tabnb.app,:root[data-theme="light"] .ilot .ws-pastille,:root[data-theme="light"] .ilot .side-nb,:root[data-theme="light"] .ilot .plus-nb.app{color:#1A1006}
+:root[data-theme="dark"] .pl-cv .c-am,:root[data-theme="dark"] .pl-cv .c-pm,:root[data-theme="dark"] .pl-cv .c-n{color:#151E2F}
+:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb,:root[data-theme="dark"] .plus-nb.app{color:#1A1006}
 /* les marques « rien ici » restent discrètes mais lisibles */
 html .eqhote .eqp2 td.vide{color:var(--faint)}
 html .pvt td.pvzero{color:var(--faint)}
@@ -6771,7 +6841,7 @@ html .pvt td.pvzero{color:var(--faint)}
   html .pl-nav button{min-width:44px}
   html tr.why-able td,html tr.why-able th{padding-top:12px; padding-bottom:12px}
 }
-html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] .ilot .pl-cv .c-0{color:var(--muted)}
+html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
 /* LE MENU DE CONTRÔLE À GAUCHE (le client, le 21/10/2026 : « sur PC cela
    peut être une plateforme avec menu de contrôle complet sur la gauche »).
    L'en-tête devient une colonne fixe de 248 px : la marque et le jour, les
@@ -6783,16 +6853,16 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] 
   :root{--side:248px}
   body{padding-left:var(--side)}
   html .top{position:fixed; left:0; top:0; bottom:0; width:var(--side); z-index:60; display:flex; flex-direction:column; align-items:stretch;
-    padding:18px 12px 14px; border-bottom:0; border-right:1px solid rgba(255,255,255,.08); overflow-y:auto; transform:none;
-    box-shadow:inset -1px 0 0 rgba(255,255,255,.02)}
-  html .top>.top-in{flex:0 0 auto; max-width:none; margin:0; padding:0 4px 14px; border-bottom:1px solid rgba(255,255,255,.08)}
+    padding:18px 12px 14px; border-bottom:0; border-right:1px solid var(--bd-blanc-08); overflow-y:auto; transform:none;
+    box-shadow:inset -1px 0 0 var(--bd-blanc-02)}
+  html .top>.top-in{flex:0 0 auto; max-width:none; margin:0; padding:0 4px 14px; border-bottom:1px solid var(--bd-blanc-08)}
   html .top .brand{flex-wrap:wrap; row-gap:8px; width:100%}
   html .top .ident{flex-basis:100%; padding-left:0; margin-left:0; border-left:0; text-align:left; align-items:flex-start}
   html .top>.tabs{flex:0 0 auto; flex-direction:column; align-items:stretch; max-width:none; margin:12px 0 0; padding:0; gap:2px}
   html .top>.tabs button{display:flex; align-items:center; justify-content:flex-start; gap:12px; padding:10px 12px; border-radius:10px;
     font-size:14px; font-weight:550; text-align:left; color:var(--muted)}
   html .top>.tabs button svg{display:block; flex:0 0 auto; width:20px; height:20px}
-  html .top>.tabs button:hover{background:rgba(255,255,255,.05); color:var(--ink)}
+  html .top>.tabs button:hover{background:var(--fd-blanc-05); color:var(--ink)}
   html .top>.tabs button[aria-selected="true"]{background:var(--in-soft); color:var(--ink); font-weight:650}
   html .top>.tabs button[aria-selected="true"] svg{color:var(--in)}
   html .top>.tabs button[aria-selected="true"]::after{display:none}
@@ -6806,12 +6876,12 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] 
   /* l'espace RH ouvert : c'est lui qui est sélectionné, pas l'onglet d'en dessous */
   body.ws-ouvert .top>.tabs button[aria-selected="true"]{background:none; color:var(--muted); font-weight:550}
   body.ws-ouvert .top>.tabs button[aria-selected="true"] svg{color:inherit}
-  .side-gestion{display:flex; flex-direction:column; gap:2px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08)}
+  .side-gestion{display:flex; flex-direction:column; gap:2px; margin-top:14px; padding-top:12px; border-top:1px solid var(--bd-blanc-08)}
   .side-gestion[hidden]{display:none}
   .side-titre{margin:0 12px 6px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   .side-gestion button,.side-lien{display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border:0; border-radius:10px;
     background:none; color:var(--muted); font:inherit; font-size:14px; font-weight:550; text-align:left; cursor:pointer}
-  .side-gestion button:hover,.side-lien:hover{background:rgba(255,255,255,.05); color:var(--ink)}
+  .side-gestion button:hover,.side-lien:hover{background:var(--fd-blanc-05); color:var(--ink)}
   .side-gestion button[aria-current="page"]{background:var(--in-soft); color:var(--ink); font-weight:650}
   .side-gestion button[aria-current="page"] svg{color:var(--in)}
   .side-gestion svg,.side-lien svg{flex:0 0 auto}
@@ -6820,8 +6890,8 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] 
   /* Réglages reste en vue au bas du menu même quand celui-ci défile : il
      sortait de l'écran jusqu'à 1366×768, et à 1280×900 pour la RH. Le -14px
      reprend le padding du bas de .top (audit du 23/10/2026). */
-  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid rgba(255,255,255,.08);
-    position:sticky; bottom:-14px; padding-bottom:14px; background:var(--marque); z-index:1}
+  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid var(--bd-blanc-08);
+    position:sticky; bottom:-14px; padding-bottom:14px; background:var(--fd-marque); z-index:1}
   /* l'entrée qui prend le focus au clavier s'arrête au-dessus de ce pied :
      « Absences et congés » et « Historique » passaient dessous à 1280×900,
      l'anneau semblant entourer Réglages (audit du 23/10/2026) */
@@ -6853,7 +6923,7 @@ html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] 
 }
 @media (min-width:1100px){
   html .top.menu-suite .side-pied::before{content:""; position:absolute; left:-12px; right:-12px; bottom:100%; height:34px;
-    background:linear-gradient(rgba(17,23,39,0),var(--marque)); pointer-events:none}
+    background:linear-gradient(var(--fd-marque-0),var(--fd-marque)); pointer-events:none}
 }
 .eqleg{display:none}
 @media (min-width:700px){
@@ -6986,7 +7056,7 @@ html .eqleg-souris{display:none}
   html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{color:var(--marque-vif); background:rgba(105,178,203,.28); border-radius:20px;
     box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--marque-vif) 38%,transparent)}
   html .navwrap>.tabs #tab-plus{display:flex; position:relative}
-  html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:#fff; box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
+  html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"]{background:var(--in-soft); color:var(--tx-blanc); box-shadow:inset 0 0 0 1px rgba(105,178,203,.35)}
   /* « Plus » courant garde l'anneau du clavier : la règle ci-dessus, d'un
      identifiant, l'effaçait (audit du 23/10/2026) */
   html .navwrap>.tabs #tab-plus:focus-visible{box-shadow:inset 0 0 0 2px var(--marque-vif)}
@@ -6997,7 +7067,7 @@ html .eqleg-souris{display:none}
        25/10/2026 : le haut de la feuille n'était « pas visible ») */
     max-height:calc(100vh - var(--navbas,0px) - 84px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px);
     max-height:calc(100dvh - var(--navbas,0px) - 84px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px); overflow-y:auto;
-    padding:8px; border-radius:20px; background:#181b24; border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
+    padding:8px; border-radius:20px; background:var(--fd-feuille); border:1px solid var(--bd-blanc-10); box-shadow:0 18px 40px -12px var(--om-noir-80)}
   .plus-titre{margin:8px 12px 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   .plusfeuille button{display:flex; align-items:center; gap:14px; width:100%; min-height:48px; padding:10px 12px; border:0; border-radius:12px;
     background:none; color:var(--ink); font:inherit; font-size:15px; font-weight:550; text-align:left; cursor:pointer}
@@ -7007,12 +7077,12 @@ html .eqleg-souris{display:none}
   .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#D63A30; color:#fff; font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
   .plus-nb.app{background:#E07B24; color:#fff}
   .plus-nb+.plus-nb{margin-left:6px}
-  .plus-sep{height:1px; margin:6px 12px; background:rgba(255,255,255,.08)}
+  .plus-sep{height:1px; margin:6px 12px; background:var(--fd-blanc-08)}
   /* un fondu collé au bas visible de la feuille quand il reste des lignes
      dessous (fondu()) ; l'ombre de la feuille reste, un masque l'aurait
      coupée (audit du 23/10/2026) */
   html .plusfeuille.deborde::after{content:""; display:block; position:sticky; bottom:-8px; height:36px; margin:-36px -8px -8px;
-    background:linear-gradient(rgba(24,27,36,0),#181b24 80%); pointer-events:none}
+    background:linear-gradient(rgba(24,27,36,0),var(--fd-feuille) 80%); pointer-events:none}
 }
 /* un téléphone bas (320 × 568) : des lignes de 44 px, la cible tactile
    pleine, pour qu'une de plus tienne avant le fondu (audit du 23/10/2026) */
@@ -7033,14 +7103,14 @@ html .eqleg-souris{display:none}
   html .top .tabs #tab-plus .plus-m{display:none}
   html .top .tabs #tab-plus .plus-t{display:inline}
   html .top .tabs #tab-plus .tabnb{display:none} /* les absents sont déjà sur Effectifs, à côté */
-  html .top .tabs #tab-plus[aria-expanded="true"]{color:#fff}
+  html .top .tabs #tab-plus[aria-expanded="true"]{color:var(--tx-blanc)}
   html .plusfond:not([hidden]){display:block; position:fixed; inset:0; z-index:79; background:transparent}
   html .plusfeuille:not([hidden]){display:block; position:fixed; z-index:80; width:320px; max-height:calc(100vh - 120px); overflow-y:auto;
-    padding:8px; border-radius:16px; background:#181b24; border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
+    padding:8px; border-radius:16px; background:var(--fd-feuille); border:1px solid var(--bd-blanc-10); box-shadow:0 18px 40px -12px var(--om-noir-80)}
   .plus-titre{margin:8px 12px 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   .plusfeuille button{display:flex; align-items:center; gap:14px; width:100%; min-height:44px; padding:10px 12px; border:0; border-radius:12px;
     background:none; color:var(--ink); font:inherit; font-size:15px; font-weight:550; text-align:left; cursor:pointer}
-  .plusfeuille button:hover{background:rgba(255,255,255,.05)}
+  .plusfeuille button:hover{background:var(--fd-blanc-05)}
   .plusfeuille button svg{flex:0 0 auto; width:22px; height:22px; color:var(--muted)}
   .plusfeuille button[aria-current="page"]{background:var(--in-soft)}
   .plusfeuille button[aria-current="page"] svg{color:var(--in)}
@@ -7298,7 +7368,7 @@ html .hp-fab:hover{opacity:1}
 @media (min-width:1600px){
   html #ryPr .pf-pr{display:flex; flex-direction:column}
   html #ryPr .pf-pr-c:nth-child(n){border-left:0}
-  html #ryPr .pf-pr-c+.pf-pr-c{border-top:1px solid rgba(255,255,255,.07)}
+  html #ryPr .pf-pr-c+.pf-pr-c{border-top:1px solid var(--bd-blanc-07)}
   html #ryPr .ry-an-t:first-child{padding-top:14px}
 }
 /* « VRAIMENT ADAPTÉ AU PC », LES TROIS AUDITS DU 22/10/2026 (51 captures à
@@ -7876,16 +7946,14 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
 html body .pf-pr-tab,html body .pf-pr-h{grid-template-columns:34px minmax(0,1fr) 44px 44px 48px}
 @media (max-width:400px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:28px minmax(0,1fr) 40px 38px 40px} }
 @media (max-width:360px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:26px minmax(0,1fr) 32px 32px 36px} }
-.pf-pr-t{text-align:right; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; color:#fff}
+.pf-pr-t{text-align:right; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--tx-blanc)}
 @media (max-width:360px){ .pf-pr-t{font-size:14px} }
 /* avec la colonne de plus, « Mes pauses · » ne tient plus dans l'en-tête
    sous 400 px : « Prochaine » suffit (le titre de la carte le dit) */
 @media (max-width:400px){ .pf-pr-h .pf-pr-hm{display:none} }
 .pf-pr-d .pf-pr-q{align-self:flex-start; margin-top:3px; padding:1px 8px; border-radius:999px; font-style:normal; font-size:12px; font-weight:700;
-  line-height:18px; white-space:nowrap; color:var(--ink); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16)}
+  line-height:18px; white-space:nowrap; color:var(--ink); background:var(--fd-blanc-08); border:1px solid var(--bd-blanc-16)}
 .pf-pr-1 .pf-pr-d .pf-pr-q{color:var(--marque-vif); background:rgba(105,178,203,.14); border-color:rgba(105,178,203,.45)}
-:root[data-theme="light"] .pf-pr-d .pf-pr-q{background:var(--surface3); border-color:var(--line)}
-:root[data-theme="light"] .pf-pr-1 .pf-pr-d .pf-pr-q{background:var(--in-soft); border-color:color-mix(in srgb,var(--in) 35%,transparent)}
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
   /* une seule polyvalence : sur la ligne du titre, plus de cadre de 80 px */
   .pf-pv:has(.pf-pv-l>span:only-child){grid-template-columns:auto minmax(0,1fr) auto; padding:8px 12px}
@@ -7966,7 +8034,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
      il se peint dès la première image, sur la couleur des deux barres, et
      s'efface quand l'horaire est lu — jamais avant 0,9 s pour qu'on le voie,
      jamais après 3 s pour ne pas retenir quelqu'un sans réseau. -->
-<div class="intro ilot" id="intro" aria-hidden="true">
+<div class="intro" id="intro" aria-hidden="true">
   <div class="intro-in">
     <img src="logo-app.png" alt="" width="176" height="176" decoding="async">
     <div class="intro-barre"><i></i></div>
@@ -7974,7 +8042,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 </div>
 
 
-<header class="top ilot">
+<header class="top">
   <div class="top-in">
     <!-- Le nom du bouton contient ce qu'il montre (trigramme, date, poste),
          précédé de ce qu'il fait ; le titre de la page n'est plus DANS un
@@ -8059,9 +8127,9 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
     <button type="button" class="side-lien" data-go="reglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Réglages</span></button>
   </div>
 </header>
-<div class="navwrap ilot" id="navwrap" hidden></div>
+<div class="navwrap" id="navwrap" hidden></div>
 <div class="plusfond" id="plusFond" hidden></div>
-<div class="plusfeuille ilot" id="plusFeuille" role="dialog" aria-modal="true" aria-label="Plus de sections" hidden></div>
+<div class="plusfeuille" id="plusFeuille" role="dialog" aria-modal="true" aria-label="Plus de sections" hidden></div>
 
 <main class="wrap" id="contenu" tabindex="-1">
 <!-- le titre de la page, pour le lecteur d'écran : au téléphone, aucun h1
@@ -8705,7 +8773,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 
 </main>
 
-<div class="gate ilot" id="gate" hidden>
+<div class="gate" id="gate" hidden>
   <div class="gate-bg" aria-hidden="true"></div>
   <!-- Accueil : logo sur le fond + boutons en bas de page (sans cadre) -->
   <div class="gate-home" id="gateHome">
@@ -8789,7 +8857,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
      boucle les gestes du navigateur ouvert, un doigt sur le bouton à
      toucher ; dessous, la progression et la consigne ; toucher un segment
      rejoue son étape. Rempli par guideInstall(). -->
-<div id="instGuide" class="inst ilot" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BioWanze" hidden>
+<div id="instGuide" class="inst" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BioWanze" hidden>
   <div class="inst-page">
     <button type="button" class="inst-fermer" id="instFermer" aria-label="Fermer">&times;</button>
     <div class="inst-tete"><img src="logo.svg" alt=""><b>Installer l'application</b><small>Horaire et salaire, même hors ligne</small></div>
@@ -9269,11 +9337,20 @@ function themeChoisi(){ var v=lsGet("ui/theme"); return v==="light"||v==="auto"?
 function appliquerTheme(){
   var v=themeChoisi(), clair=v==="light"||(v==="auto"&&!!THEME_MQ&&THEME_MQ.matches);
   document.documentElement.setAttribute("data-theme",clair?"light":"dark");
-  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",clair?"#F6F6F6":"#111727");
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",clair?"#ECEFF4":"#111727");
+  /* les logos d'origine ont leur mot en blanc ; en clair, leur version
+     positive (même dessin, mot en bleu nuit) : logo-clair.svg, et
+     logo-app-clair.png pour l'écran de chargement */
+  Array.prototype.forEach.call(document.querySelectorAll('img[src="logo.svg"],img[src="logo-clair.svg"],img[src="logo-app.png"],img[src="logo-app-clair.png"]'),function(i){
+    var o=i.getAttribute("src").replace("-clair.","."), s=clair?o.replace(".","-clair."):o;
+    if(i.getAttribute("src")!==s) i.setAttribute("src",s); });
+  /* l'iPhone installé ne change de barre d'état qu'au lancement suivant */
+  var lance=document.documentElement.getAttribute("data-barre"), ios=window.navigator.standalone===true;
   var c=document.getElementById("themeChoix");
   if(c) Array.prototype.forEach.call(c.querySelectorAll("button[data-th]"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-th")===v)); });
   var e=document.getElementById("themeEtat");
-  if(e) e.textContent=v==="auto"?"Comme le téléphone, "+(clair?"clair":"sombre")+" en ce moment":(clair?"Thème clair":"Thème sombre");
+  if(e) e.textContent=(v==="auto"?"Comme le téléphone, "+(clair?"clair":"sombre")+" en ce moment":(clair?"Thème clair":"Thème sombre"))
+    +(ios&&lance!==(clair?"claire":"sombre")?" · la barre du haut suivra au prochain lancement":"");
 }
 if(THEME_MQ){ if(THEME_MQ.addEventListener) THEME_MQ.addEventListener("change",function(){ if(themeChoisi()==="auto") appliquerTheme(); });
   else if(THEME_MQ.addListener) THEME_MQ.addListener(function(){ if(themeChoisi()==="auto") appliquerTheme(); }); }
@@ -15746,7 +15823,7 @@ function _pfHead(db,p){
   var bio=esc(role);
   /* un titre pour le lecteur d'écran : le trigramme de l'avatar lui est
      caché, et le héros n'avait pas de titre (audit du 23/10/2026) */
-  return '<div class="pf-hero ilot">'
+  return '<div class="pf-hero">'
     +'<h2 class="sr-only">Mon profil · '+esc(tri)+', '+esc(role)+'</h2>'
     +'<div class="pf-couv" aria-hidden="true"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'

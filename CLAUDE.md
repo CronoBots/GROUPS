@@ -320,9 +320,11 @@ deviner à sa place sur ces points : ils touchent à des montants.
   donne PRD — illustrent la FORME sans nommer personne. Garde-fou :
   `tools/verifier-depot.py` (journal 01, « Le dépôt se contrôle lui-même »).
 - **Deux thèmes** (29/10/2026) : le sombre par défaut, le clair au choix
-  (Réglages). Toute couleur passe par les jetons ; une surface de marque
-  bleu nuit est un îlot (`.ilot`, jetons sombres) ; une couleur écrite en
-  dur se mesure dans les deux thèmes (`parcours.js` : contraste compris).
+  (Réglages), clair jusqu'au bord — menu, héros, barre d'état. Toute
+  couleur passe par les jetons, un blanc de marque aussi (`--tx-blanc-NN`,
+  `--bd-blanc-NN`… : en sombre l'écriture d'avant, en clair l'encre) ; le
+  sombre se prouve identique au pixel ; le clair se mesure (`parcours.js` :
+  contraste compris).
 
 ## Après avoir modifié `index.html`
 
