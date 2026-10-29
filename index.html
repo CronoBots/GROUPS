@@ -6994,6 +6994,7 @@ html .xl-pilules{display:flex; flex-wrap:nowrap; overflow-x:auto; gap:10px; marg
 @media (max-width:1200px){ html .xl-pilules{flex-wrap:wrap; justify-content:center} }
 html .xl-pilules .hp-pill,html .xl-pilules .hp-poste{flex:0 0 auto; height:32px; min-width:88px; padding:0 14px; border-radius:999px; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; box-shadow:none; cursor:pointer}
 html .xl-pilules .hp-pill{border:1px solid #374151; background:#1f2937; color:#f9fafb}
+html .xl-pilules .hp-moi{gap:6px; font-weight:600}
 html .xl-pilules .hp-pill:hover{background:#4b5563}
 html .xl-pilules .hp-jour{background:#c7ccd4; color:#111827; border-color:rgba(17,24,39,.45); min-width:110px}
 html .xl-pilules .hp-poste{min-width:110px; border:1px solid rgba(17,24,39,.45); color:#111827}
@@ -18845,7 +18846,19 @@ function grNomCourt(p){ var n=GR.noms&&GR.noms[p.id]; if(!n||!n.nom) return idLi
 function grColonnes(db){
   var m=GR_MODES.filter(function(x){ return x[0]===GR.feuille; })[0]||GR_MODES[0], cols=[];
   function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||""}; }); }
-  if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(m[2].test(c.po)&&!/adjoint/i.test(c.po)) cols.push(c); }); });
+  /* MON HORAIRE (le client, le 29/10/2026 : « un bouton qui permette
+     d'afficher son horaire personnel ; moi, VBN, en appuyant dessus, je ne
+     verrai que mon horaire ») : la seule colonne de la personne de
+     l'appareil (trigCourant), trouvée dans la feuille qui la porte ; son
+     poste en tête, à sa teinte, comme dans la vue de son équipe. */
+  if(GR.feuille==="moi"){ var moi=trigCourant(), titre="Mon horaire";
+    GR_MODES.forEach(function(x){ if(x[2]||/^p:/.test(x[0])||cols.length) return;
+      de(x[0]).forEach(function(c){ if(c.p.id!==moi||cols.length) return; cols.push(c);
+        /* les contremaîtres ont leur équipe (« 5 ») à la place du poste :
+           alors le nom de la feuille */
+        titre=c.po&&!/^\d+$/.test(c.po)?c.po:x[1]; }); });
+    m=["moi",titre,null,cols.length?grTeinteCol(cols[0]):"pt-cm"]; }
+  else if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(m[2].test(c.po)&&!/adjoint/i.test(c.po)) cols.push(c); }); });
   else cols=de(m[0]);
   /* LES ADJOINTS TOUJOURS AFFICHÉS (le client, le 26/10/2026 : « il faut
      toujours afficher les adjoints et supprimer le bouton qui les
@@ -18866,12 +18879,17 @@ function renderGrille(){
   var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
   document.getElementById("grPeriode").textContent=grLibelle();
   GR.adj=true;
-  if(!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
+  var moiId=trigCourant();
+  if(!(GR.feuille==="moi"&&moiId)&&!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
   /* PLUS DE « VUE JOURNÉE » NI DE LÉGENDE (le client, le 26/10/2026 :
      « retirer la légende et la vue journée de l'onglet horaire ») : la vue
      journée redisait le Planning, qui a son onglet ; la légende des codes
      prenait une ligne au tableau. */
-  document.getElementById("grEquipes").innerHTML=GR_MODES.map(function(x){ var poste=!!x[3];
+  /* « Mon horaire » ouvre la rangée, avant les équipes ; sans personne
+     choisie sur l'appareil, il n'a rien à montrer et n'apparaît pas */
+  document.getElementById("grEquipes").innerHTML=(moiId?'<button type="button" class="hp-pill hp-moi" data-f="moi" aria-pressed="'+(GR.feuille==="moi"&&!(GR.cherche.length>=2))+'" title="Seulement l\'horaire de '+esc(idLisible(moiId))+'">'
+      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Mon horaire</button>':'')
+    +GR_MODES.map(function(x){ var poste=!!x[3];
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'; }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
      scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
@@ -18886,6 +18904,7 @@ function renderGrille(){
   /* UNE RECHERCHE SANS RÉSULTAT (23/10/2026) : 365 lignes vides sous
      « PERSONNE NE CORRESPOND. » en capitales, et rien pour effacer. Un
      message et l'action qui en sort ; la grille revient à l'effacement. */
+  if(!q&&mode[0]==="moi"&&!cols.length){ zone.innerHTML='<p class="pl-msg">'+esc(idLisible(moiId))+' n\'apparaît pas dans l\'horaire '+an+'.</p>'; GR.sig=null; return; }
   if(q&&!cols.length){ zone.innerHTML='<div class="pl-msg gr-vide" role="status"><p>Personne ne correspond à « '+esc(GR.cherche)+' ».</p><button type="button" data-gr-effacer>Effacer la recherche</button></div>'; GR.sig=null; return; }
   var garde=zone.querySelector("table")?{t:zone.scrollTop,l:zone.scrollLeft}:null;
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
@@ -18979,7 +18998,7 @@ function renderGrille(){
    saisies, qui le modifient en place, appellent renderGrille() elles-mêmes. */
 function grSignature(db){
   return [GR.feuille, GR.debut?GR.debut.getFullYear():0, GR.cherche, GR.adj, jourUsine().toDateString(),
-          db, db&&db.maj, GR.noms, peutSaisir(), soldesSaisis(db), window.innerWidth];
+          db, db&&db.maj, GR.noms, peutSaisir(), soldesSaisis(db), window.innerWidth, trigCourant()];
 }
 function grAJour(){
   var g=GR.sig, z=document.getElementById("grZone"); if(!g||!z||!z.querySelector("table")) return false;
@@ -18990,9 +19009,17 @@ function grAJour(){
 /* L'EN-TÊTE D'UNE COLONNE, une seule copie pour le rendu et pour les noms
    posés en place. Pas d'« Éq. 1 » pour un adjoint : son Shift1 est l'en-tête
    de sa colonne au classeur, pas son équipe (audit du 23/10/2026). */
+/* LE TRIGRAMME EN TÊTE DE COLONNE (le client, le 29/10/2026 :
+   « je ne sais pas s'il faut laisser le nom des opérateurs complet, ou
+   parler en trigramme comme le reste de l'application »), comme partout
+   ailleurs. Le nom court
+   (« Nom P. ») ne tenait plus dans les 130 px de chaque personne et
+   finissait en « … » ; le trigramme tient toujours, et le Planning, les
+   Équipes, les Effectifs parlent déjà en trigrammes. Le nom entier reste
+   au survol, et la recherche le trouve toujours. */
 function grTeteCol(c,equipe){
   var n=grNom(c.p), eq=equipe||/adjoint/i.test(c.po)?"":(/^Shift(\d)/.exec(c.f)||[])[1];
-  return {titre:(n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po, html:esc(grNomCourt(c.p))+(eq?'<small>Éq. '+eq+'</small>':'')};
+  return {titre:(n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po, html:esc(idLisible(c.p.id))+(eq?'<small>Éq. '+eq+'</small>':'')};
 }
 /* LES NOMS ARRIVÉS APRÈS LE PREMIER RENDU (23/10/2026, « utilise les
    nouveaux skills pour tout optimiser ») : la base les rend après
