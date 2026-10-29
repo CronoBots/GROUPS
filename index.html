@@ -5987,9 +5987,14 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   html body .grille.ws .ws-main .ws-s.ws-planning{margin:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) 16px !important}
   html .enhaut{bottom:16px}
   /* l'Horaire couché : les pilules sur une ligne qui défile (deux lignes
-     prenaient 90 px de 390), sans les boutons flottants, comme en portrait */
+     prenaient 90 px de 390), et les boutons haut et bas comme en portrait
+     (« body » : la règle du PC, plus bas, l'emportait) */
   html body .grille .ws-planning .xl-pilules{flex-wrap:nowrap !important; overflow-x:auto !important; justify-content:flex-start !important; padding:6px 8px; margin-bottom:8px}
-  html .hp-fabs{display:none !important}
+  html body .hp-fabs{right:10px; bottom:12px}
+  html #grAujF{display:none}
+  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{visibility:hidden}
+  html .ws-planning .gr-zone>.hp-t{margin-right:62px}
+  html body .grille .ws-planning #grZone{background:linear-gradient(#d6e0ec,#d6e0ec) right top/62px 100% no-repeat local,repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
 }
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
   /* LA BARRE DE NAVIGATION PORTE LA COULEUR DU LOGO. Le client, le
@@ -7074,7 +7079,7 @@ html .ws-planning .gr-vide button{min-height:44px; padding:0 14px; border-radius
 html .hp-fabs{position:absolute; right:40px; bottom:56px; display:flex; flex-direction:column; gap:8px; z-index:20}
 html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(17,24,39,.35); background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; opacity:.65; cursor:pointer}
 html .hp-fab:hover{opacity:1}
-@media (max-width:699px){ html .xl-pilules,html .ws-planning .gr-zone,html .ws-planning .xl-legende{margin-left:8px; margin-right:8px} html .hp-fabs{right:18px} }
+@media (max-width:699px){ html .xl-pilules,html .ws-planning .gr-zone,html .ws-planning .xl-legende{margin-left:8px; margin-right:8px} }
 /* au téléphone, une seule rangée de pilules qui défile (audit du 23/10/2026) :
    passées à la ligne (voulu pour le PC, v922), elles prenaient 390 à 498 px
    et ne laissaient que 77 à 185 px à la grille */
@@ -7393,11 +7398,28 @@ html .hp-t thead th.hp-gp .hp-gpl{display:inline}
 @media (max-width:699px){
   /* overflow visible : un th « overflow:hidden » devient le conteneur du
      collant, et le nom ne collait plus à rien (mesuré) */
-  html .hp-t col.hp-cm{width:24px}
-  html .hp-t tbody td.hp-mois div{font-size:11px; letter-spacing:0; line-height:1.05}
-  html .hp-t tbody td.hp-jour{left:var(--hp-mois,24px)}
+  /* LE MOIS ET LA DATE À LA MÊME LARGEUR (le client, le 29/10/2026 :
+     « diminution de la largeur de la colonne des dates et augmentation de
+     la colonne du mois ; ces 2 colonnes doivent avoir la même largeur ») :
+     24 et 44 px deviennent 34 et 34, le coin garde ses 68 px */
+  html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:34px}
+  html .hp-t tbody td.hp-mois div{font-size:13px; letter-spacing:0; line-height:1.05}
+  html .hp-t tbody td.hp-jour{left:var(--hp-mois,34px)}
   html .hp-t thead th.hp-coin{width:68px; padding:3px}
-  html .hp-fabs{display:none}
+  /* LES BOUTONS HAUT ET BAS REVIENNENT AU TÉLÉPHONE (le client, le
+     29/10/2026 : « bouton de scroll vers le haut ou le bas dans l'horaire
+     affiché dans le cadre ») : retirés le 26/10 parce qu'ils couvraient la
+     dernière colonne, ils se posent au coin du cadre, sans « aujourd'hui »
+     (il est dans la barre), chacun s'efface au bord où il mène, et le
+     tableau garde à sa droite 62 px de marge : glissé jusqu'au bout, plus
+     aucune case n'est sous les boutons. La marge est peinte de la couleur
+     du cadre (un aplat qui défile avec le tableau, « local ») : les rangées
+     immobiles du fond de la zone, à côté des vraies, se décalaient */
+  html .hp-fabs{right:10px; bottom:12px}
+  html #grAujF{display:none}
+  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{visibility:hidden}
+  html .ws-planning .gr-zone>.hp-t{margin-right:62px}
+  html body .grille .ws-planning #grZone{background:linear-gradient(#d6e0ec,#d6e0ec) right top/62px 100% no-repeat local,repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
   html .ws-planning .pl-tete{padding:6px 12px 0}
   html .xl-pilules{padding:6px 8px; margin-bottom:8px; gap:8px}
   html .ws-planning .pl-barre{padding-top:4px; padding-bottom:6px}
@@ -19061,6 +19083,7 @@ function grNomsEnPlace(){
    les lignes du dessous, et au PC les deux se chevauchaient de 5 px. La
    hauteur mesurée de la rangée des postes devient le décalage (--hp-g). */
 function grCaleTete(){
+  grFabs();
   var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
   if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
   /* les variables vont sur la zone : le tableau en hérite, et le bandeau
@@ -19087,6 +19110,12 @@ function grCaleTete(){
    la mesure remettait en page les 12 000 cases mises de côté ; la largeur
    faisant partie de grSignature, l'ouverture suivante refait la grille */
 window.addEventListener("resize",function(){ var g=document.getElementById("grille"); if(g&&g.hidden) return; grCaleTete(); });
+/* le bouton du haut s'efface en haut de la grille, celui du bas en bas
+   (le téléphone seul les cache, voir .hp-fabs.au-haut) */
+function grFabs(){
+  var z=document.getElementById("grZone"), f=z&&z.parentNode.querySelector(".hp-fabs"); if(!f) return;
+  f.classList.toggle("au-haut",z.scrollTop<=1); f.classList.toggle("au-bas",z.scrollTop+z.clientHeight>=z.scrollHeight-1);
+}
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer();
   /* « Mon horaire » revient aussi au bord gauche : le jour s'y lit par sa
      date et son poste, pas dans le commentaire où l'on avait glissé (le
@@ -21272,6 +21301,7 @@ function renderHisto(){
   })();
   [["grHaut",function(z){ z.scrollTop=0; }],["grAujF",function(){ grAujourdhui(); }],["grBas",function(z){ z.scrollTop=z.scrollHeight; }]].forEach(function(x){
     var b=document.getElementById(x[0]); if(b) b.onclick=function(){ x[1](document.getElementById("grZone")); }; });
+  document.getElementById("grZone").addEventListener("scroll",grFabs,{passive:true});
   /* au téléphone, la recherche est une loupe : la place va au planning */
   document.getElementById("grLoupe").onclick=function(){
     var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));

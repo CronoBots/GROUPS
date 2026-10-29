@@ -6111,8 +6111,11 @@ page est reprise. Défauts relevés à 320, 390 et 1280 px, et corrigés :
 - **Les boutons ronds** (haut, aujourd'hui, bas) couvraient la dernière
   colonne : retirés au téléphone, où « aujourd'hui » est déjà dans la barre
   (le calendrier) et où le doigt fait défiler l'année. Au PC, inchangés.
+  *Le haut et le bas sont revenus le 29/10/2026, à la demande du client,
+  sans couvrir de case (`nfdm-v1199`, plus bas).*
 - **La colonne du mois** en lettres verticales passe de 44 à 28 px au
-  téléphone (lettres de 11 px).
+  téléphone (lettres de 11 px). *Le 29/10/2026, mois et date à 34 px
+  chacun (`nfdm-v1199`).*
 - **La hauteur** : marges du haut et du bas resserrées ; la zone du
   tableau passe de 484 à 524 px à 390.
 
@@ -6620,6 +6623,44 @@ mois, jour et coin restent collés en « Mon horaire » et en « Équipe 1 ».
 Reste une limite : ces mesures sont encore celles de Chromium ; le
 montage est celui qui tient déjà sur l'iPhone (colonne des jours), pas une
 preuve faite sur l'iPhone.
+
+### Horaire au téléphone : boutons haut et bas, mois et date à la même largeur (29/10/2026, `nfdm-v1199`)
+
+Le client : « bouton de scroll vers le haut ou le bas dans l'horaire
+affiché dans le cadre ? Diminution de la largeur de la colonne des dates
+et augmentation de la colonne du mois (ces 2 colonnes doivent avoir la
+même largeur) ».
+
+- **Les deux colonnes** : au téléphone (moins de 700 px), le mois faisait
+  24 px et la date 44 px ; elles font 34 px chacune, et le coin garde ses
+  68 px. Les lettres du mois passent de 11 à 13 px, la taille de la date.
+  Au PC et couché, les deux faisaient déjà 44 px : rien n'y change.
+- **Les boutons haut et bas** existaient, mais seulement au PC : je les
+  avais retirés du téléphone le 26/10 (`nfdm-v1122`) parce qu'ils
+  couvraient la dernière colonne. Ils reviennent au coin bas-droit du
+  cadre, à 10 px du bord et 12 px du bas, en portrait comme couché, sans
+  « aujourd'hui » (déjà dans la barre). Pour ne plus rien couvrir :
+  chacun s'efface au bord où il mène (en haut, il ne reste que « bas » ;
+  en bas, que « haut » ; `grFabs()`, au défilement et après chaque
+  rendu), et le tableau garde **62 px de marge à droite** : glissé
+  jusqu'au bout, la dernière colonne finit 10 px avant les boutons.
+- **L'erreur commise, deux fois, corrigée avant de publier** : (1) la
+  marge laissait voir le fond rayé de la zone (les rangées immobiles
+  posées contre les « zones mortes » d'iOS), décalé des vraies rangées ;
+  elle est peinte d'un aplat à la couleur du cadre, qui défile avec le
+  tableau (`background-attachment: local`). (2) Couché, la position du PC
+  (40 px du bord, 56 du bas), écrite plus loin dans la feuille,
+  l'emportait : mesurée, puis la règle couchée rendue plus précise.
+
+Mesuré : à 390 et 320 px, mois et date à 34 et 34 px, aucun débordement,
+aucune erreur ; « bas » mène à la dernière ligne (8 212 px), où il
+s'efface, et « haut » à la première, où il s'efface aussi ; glissé
+jusqu'au bout d'une équipe, 10 px libres entre le tableau et les
+boutons ; couché (844 × 390), 10 px et 12 px, colonnes à 44 et 44 ;
+les rangées gardent leurs 23 px. **Le PC est identique au pixel**, dans
+les deux thèmes, en « Mon horaire » comme en équipe ; les sorties du
+vérificateur du calendrier, identiques à l'octet. Reste à voir sur un
+vrai iPhone l'aplat « local » de la marge (Chromium le peint juste).
 
 ### « Mon horaire » : « aujourd'hui » revient aussi au bord gauche (29/10/2026, `nfdm-v1192`)
 
