@@ -23343,6 +23343,40 @@ var RENFORT_CLOS={ "0929":true };
    Vyncke ») : le mot « pause(s) » entre « en » et les pauses faisait
    échouer le motif, et les chaudières n'attendaient que 2 les 22 et 23/10. */
 var RENFORT_MOTIF=/(\d)\s*(?:op[eé]rateurs?|personnes?)[^.]{0,40}?\ben\s+(?:pauses?\s+)?((?:AM|PM|N)(?:\s*(?:,|et)\s*(?:AM|PM|N))*)/i;
+/* LA MÊME EXIGENCE SANS PAUSE ÉCRITE : ce sont alors les pauses de ceux
+   qui la portent. Le client, le 29/10/2026, sur le rapport de mise à jour
+   (« Présence de 3 opérateurs obligatoire pour préparation et redémarrage
+   Vyncke », les 02 et 03/11) : « ici ». Le motif du dessus, qui lit les
+   pauses dans le texte, n'en faisait rien, et les chaudières n'attendaient
+   que 2.
+
+   Les colonnes se répondent : la phrase est écrite chez les trois
+   chaudières du matin (dont MHI « ==> renfort en 7h-15h ») et chez les
+   trois de l'après-midi (dont LDY, « chaudières » au lieu de la meunerie
+   où il remplace d'habitude), et chez personne de nuit. Le 16/09 se lit de
+   même (« 3 opérateurs nécessaires en pause », matin et après-midi), et sa
+   ligne de RENFORT_TRANCHE dit la même chose.
+
+   Le 13/07 non : la phrase y est aussi chez deux personnes de l'après-midi,
+   mais le client a dit « en AM surtout ». Un jour de RENFORT_TRANCHE garde
+   donc SA réponse, et cette lecture-ci ne s'y fait pas. Mesuré sur les deux
+   classeurs : elle ne trouve que ces quatre journées. */
+var RENFORT_SANS_PAUSE=/(\d)\s*(?:op[eé]rateurs?|personnes?)\s+(?:obligatoires?|n[ée]cessaires?|requis|en\s+poste)/i;
+/* La pause de celui qui porte la phrase : l'annotation d'abord (ce qui a
+   été fait), puis la cellule ; à défaut une plage (« 7h-15h »), rangée dans
+   la pause qu'elle couvre le plus. Le jour n'attend personne : null. */
+function pauseDuPorteur(raw){
+  var i, t, pl, best=null, bm=0;
+  for(i=1;i>=0;i--){ t=String(raw[i]||"").trim().toUpperCase();
+    if(t==="AM"||t==="PM"||t==="N") return t; }
+  for(i=1;i>=0;i--){ pl=plageMention(String(raw[i]||"")); if(pl) break; }
+  if(!pl) return null;
+  var a=pl[0], b=pl[1]<=pl[0]?pl[1]+24:pl[1];
+  ["AM","PM","N"].forEach(function(g){
+    var m=Math.min(b,PF_FIN[g])-Math.max(a,PF_DEB[g]);
+    if(m>bm+0.01){ bm=m; best=g; } });
+  return best;
+}
 var RENFORT_POSTE="chau";
 /* Entre les deux arrêts, on n'exige aucun effectif. Le classeur surligne
    en jaune, dans la colonne des jours de chaque feuille, deux fenêtres
@@ -23393,10 +23427,12 @@ function renfortDuJour(db,mmdd){
       if(!(out[k][g2]>=tr[k][g2])) out[k][g2]=tr[k][g2]; } }
   for(i=0;i<db.people.length;i++){
     var raw=db.people[i].d[mmdd]; if(!raw) continue;
-    var m=RENFORT_MOTIF.exec(String(raw[1]||"")+" "+String(raw[2]||""));
+    var texte=String(raw[1]||"")+" "+String(raw[2]||"");
+    var m=RENFORT_MOTIF.exec(texte), pauses;
+    if(m) pauses=m[2].toUpperCase().split(/[^A-Z]+/);
+    else if(!tr && (m=RENFORT_SANS_PAUSE.exec(texte))) pauses=[pauseDuPorteur(raw)];
     if(!m) continue;
     var n=Number(m[1]); if(!(n>=1&&n<=9)) continue;
-    var pauses=m[2].toUpperCase().split(/[^A-Z]+/);
     for(j=0;j<pauses.length;j++){
       var g=pauses[j];
       if(g!=="AM"&&g!=="PM"&&g!=="N") continue;
@@ -24261,6 +24297,37 @@ function meunDepuisD(db,listeD,mmdd){
   });
   return out;
 }
+/* LE RENFORT VENU EN JOURNÉE POUR UNE EXIGENCE ÉCRITE COMPTE AU MATIN.
+   Le 02/11, MHI porte ["7h-15h","","Présence de 3 opérateurs obligatoire
+   pour préparation et redémarrage Vyncke ==> renfort en 7h-15h"] : c'est
+   le troisième des chaudières du matin, et sa journée de 7 h à 15 h le
+   rangeait en D. Le matin paraissait à 2 sur 3, et le rééquilibrage y
+   envoyait quelqu'un d'un autre poste que le classeur n'y met pas. Le
+   16/09 le dit en toutes lettres (ATR « en D comme 3ème homme »), le
+   13/07 aussi (QDE « en renfort jusque 15h »).
+
+   Qui : une personne en D, aux chaudières (RENFORT_POSTE) et y comptant,
+   qui porte elle-même la phrase de l'exigence — sans pause écrite, ou
+   avec le matin parmi celles écrites. Seulement les jours où le matin
+   attend plus que d'habitude. Comme la consignation de la meunerie, elle
+   passe dans la case du matin avec ses heures, et le rééquilibrage ne la
+   déplace pas. */
+function renfortDepuisD(db,listeD,mmdd){
+  if(!listeD||!listeD.length) return [];
+  var jour=Number(db.year)*10000+Number(mmdd), out=[];
+  var vueD=postesDePause(db,listeD.map(function(x){ return {p:x.p,r:x.r}; }),"D",mmdd);
+  vueD.postes.forEach(function(o){
+    if(o.P.k!==RENFORT_POSTE) return;
+    o.gens.forEach(function(x){
+      var raw=(x.p.d||{})[mmdd]||[], t=String(raw[1]||"")+" "+String(raw[2]||"");
+      var m=RENFORT_MOTIF.exec(t);
+      if(m ? !/\bAM\b/i.test(m[2]) : !RENFORT_SANS_PAUSE.test(t)) return;
+      if(!compteAuPoste(x,o.P,jour)) return;
+      out.push({p:x.p, r:x.r, depuisD:true, renfortD:true});
+    });
+  });
+  return out;
+}
 /* Les « remplacé par X » des ABSENTS d'une pause : la case de la personne
    prévue à cette pause (sa cellule dit gk) et qui n'y est pas, dont le
    commentaire nomme son remplaçant. Le premier trigramme après « par »
@@ -24365,6 +24432,13 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
   if(gk==="AM" && listeD && ren && ren.meun && ren.meun.AM>=2)
     meunDepuisD(db,listeD,mmdd).forEach(function(x){
       x.fixe=true; (parPoste.meun=parPoste.meun||[]).push(x); });
+  /* et les chaudières du matin, leur renfort de journée (renfortDepuisD) */
+  if(gk==="AM" && listeD && ren && ren[RENFORT_POSTE] && ren[RENFORT_POSTE].AM>0)
+    POSTES_TRAVAIL.forEach(function(P){
+      if(P.k!==RENFORT_POSTE || attenduAuPoste(P,"AM",ren)<=attenduAuPoste(P,"AM",null)) return;
+      renfortDepuisD(db,listeD,mmdd).forEach(function(x){
+        x.fixe=true; (parPoste[P.k]=parPoste[P.k]||[]).push(x); });
+    });
   /* Combler un manque qui n'en est pas un déplacerait des gens sans raison. */
   /* « sansReequil » : on laisse chacun à son poste naturel sans combler les
      manques en déplaçant les présents. Le module Congé en a besoin — le
@@ -24959,7 +25033,7 @@ function renderEquipe(){
            06h-14h » : au matin) garde son horaire dans le badge. Le client,
            le 20/10/2026 : « pourquoi ne voit-on pas l'horaire presté par
            FLI, étant donné qu'il est en D ? ». */
-        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.deD||celluleD(x))&&(!sansHoraire||x.deD)?horaireEcritD(x)
+        +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.renfortD||x.deD||celluleD(x))&&(!sansHoraire||x.deD)?horaireEcritD(x)
           :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
@@ -25038,7 +25112,7 @@ function renderEquipe(){
       vp.AM.vue.postes.forEach(function(o){
         o.gens=o.gens.filter(function(x){
           if(!x.depuisD) return true;
-          if(!(x.consign||x.remplCons||x.apprMeun)) return false;
+          if(!(x.consign||x.remplCons||x.apprMeun||x.renfortD)) return false;
           dejaAM[x.p.id]=true; return true;
         });
       });
@@ -29015,8 +29089,9 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
   var eqc=equipeALaPause(db,annee,m,j), autres=caAutres(db,par,mmdd,id);
   var res={pause:pause, eq:eqc[pause]||"", poste:null, moves:[], trous:[], avant:0};
   ["AM","PM","N"].forEach(function(g){
-    /* Une personne en D ne pèse que sur la meunerie du matin, par la
-       consignation (meunDepuisD) : c'est la seule pause à rejouer. */
+    /* Une personne en D ne pèse que sur le matin : la meunerie par la
+       consignation (meunDepuisD), les chaudières par le renfort d'une
+       exigence écrite (renfortDepuisD). C'est la seule pause à rejouer. */
     if(g!==pause && !(pause==="D" && g==="AM")) return;
     var dA=g==="AM"?caCopie(par.D,null):null, dB=g==="AM"?caCopie(par.D,id):null;
     if(mode==="conge"){

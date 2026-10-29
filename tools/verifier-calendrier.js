@@ -167,6 +167,8 @@ const MORCEAUX=[
   ["var RENFORT_TRANCHE=","\n"],
   ["var RENFORT_CLOS=","\n"],
   ["var RENFORT_MOTIF=","\n"],
+  ["var RENFORT_SANS_PAUSE=","\n"],
+  ["function pauseDuPorteur(","\n}"],
   ["var RENFORT_POSTE=","\n"],
   ["var SANS_EFFECTIF=","\n"],
   ["var renfortCache=","\n"],
@@ -200,6 +202,7 @@ const MORCEAUX=[
   ["function feries(","\n}"],
   ["var RX_REMPL_CONSIGN=","\n"],
   ["function meunDepuisD(","\n}"],
+  ["function renfortDepuisD(","\n}"],
   ["function postesDePause(","\n}"],
   /* les abonnements agenda (--agendas) : la lecture du héros et l'écriture
      du fichier, celles de l'application, et la prolongation par les cycles */
