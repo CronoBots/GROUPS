@@ -6,6 +6,16 @@
 <!-- La barre d'état du téléphone prend la couleur de la barre du haut, qui
      est celle du logo : sans cela un liseré d'une autre teinte la surmonte. -->
 <meta name="theme-color" content="#111727">
+<!-- LE THÈME CHOISI EST POSÉ AVANT LE PREMIER RENDU (le client, le 29/10/2026 :
+     « réalise-moi une version claire de mon application qui fonctionne avec
+     le thème sombre actuel ») : le sombre reste celui par défaut (décision
+     du 30/09/2026) ; « ui/theme » vaut dark, light ou auto (comme le
+     téléphone). Posé ici, avant les feuilles de style, l'écran ne clignote
+     pas du sombre au clair. appliquerTheme() reprend la main ensuite. -->
+<script>(function(){try{var v=JSON.parse(localStorage.getItem("ui/theme")||'"dark"');
+if(v==="light"||(v==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)){
+document.documentElement.setAttribute("data-theme","light");
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#F6F6F6");}}catch(e){}})();</script>
 <meta name="description" content="Simulateur de fiche de paie belge : l'horaire du mois entre, le net à recevoir sort.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +26,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>:root{color-scheme:dark}html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>:root{color-scheme:dark}:root[data-theme="light"]{color-scheme:light}html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>BioWanze</title>
 <!-- Polices auto-hébergées : plus aucun appel à Google. Le premier rendu ne
      dépend plus d'un aller-retour vers un tiers, et « rien ne quitte l'appareil »
@@ -130,7 +140,15 @@
    soit le réglage du téléphone ; le bloc qui suivait prefers-color-scheme
    était la copie exacte de celui-ci (55 jetons sur 55) et il est parti. Le
    :root du dessus reste la base que ce bloc surcharge. */
-:root[data-theme="dark"]{
+/* LES ÎLOTS DE MARQUE (le client, le 29/10/2026, la version claire « dans
+   le style du logo original ») : le menu du PC, le dock et la feuille
+   « Plus » du téléphone, et le héros de l'Accueil gardent en thème clair le
+   bleu nuit du logo d'origine (logo.svg, « Negativ », mot blanc), avec
+   TOUS les jetons du sombre : une variable se redéclare sur l'îlot et ses
+   descendants la lisent. Le contenu, lui, passe au clair. Trois écrans de
+   marque aussi, dessinés sur le bleu nuit : le chargement (#intro),
+   l'écran de connexion (#gate) et le guide d'installation (#instGuide). */
+:root[data-theme="dark"],:root[data-theme="light"] .ilot{
   /* MÊME RAMPE, MÊME TEINTE, autres pas. Ce n'est pas un reflet du clair : la
      page reste le plus sombre, la carte vient au-dessus, et la barre du haut —
      #111727, fixée par le logo — se place juste au-dessus d'elle. Cet ordre-là
@@ -148,6 +166,8 @@
   --maint-fort:rgba(110,210,240,.08); --live:rgba(110,210,240,.22);
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
+  /* le cyan du logo, tel quel : dans le sombre et dans les îlots du clair */
+  --marque-vif:#69B2CB;
   --out:#DD9877; --out2:#C47A56; --out-soft:#482A1C;
   --good:#7FC397; --good-soft:#1D3A28;
   --am:#DDA465; --pm:#50C6C4; --n:#A0ABF4; --d:#969FAE;
@@ -177,6 +197,33 @@
      un sélecteur oublié retombait sur --shadow (audit du 23/10/2026) */
   --ombre-cadre:0 16px 36px rgba(0,0,0,.38), 0 6px 14px rgba(0,0,0,.24);
 }
+/* L'îlot relit son encre : la couleur héritée du corps est déjà résolue en
+   clair, une variable redéclarée n'y change rien sans cela. Les champs d'un
+   îlot restent ceux du sombre. */
+:root[data-theme="light"] .ilot{color:var(--ink); color-scheme:dark}
+/* l'écran de connexion tient son bleu nuit d'un calque voisin (.gate-bg) ;
+   en clair, il le porte aussi lui-même, pour ne rien laisser voir de la
+   page claire derrière lui */
+:root[data-theme="light"] #gate{background:var(--marque)}
+/* LE THÈME CLAIR DANS LE STYLE DU LOGO D'ORIGINE (29/10/2026). La base
+   claire (:root, plus haut) a ses contrastes mesurés depuis septembre et
+   sa rampe à la teinte du bleu nuit du logo ; s'y ajoutent ici :
+   - le cyan du logo, PROFOND pour le texte : #69B2CB tombait à 2,4:1 sur
+     blanc ; #0E6B87, même teinte, tient 6,05:1 sur blanc et 4,96:1 sur le
+     fond cyan pâle (--in-soft). Les îlots gardent l'original (bloc sombre).
+   - le dégradé du logo (menthe #78E6AF → cyan #2AD0F0 → bleu #2F90F0), pour
+     les seuls repères de marque, jamais sous un texte : le liseré de 2 px
+     où la bande de la barre d'état de l'iPhone rencontre la page. */
+:root[data-theme="light"]{--marque-vif:#0E6B87;
+  --grad-marque:linear-gradient(90deg,#78E6AF 0%,#2AD0F0 52%,#2F90F0 100%)}
+/* LA BARRE D'ÉTAT DE L'IPHONE EN THÈME CLAIR. L'application installée la
+   veut « black-translucent » (heure et batterie en BLANC, posées sur la
+   page) : sur une page claire elles disparaissaient. Une bande du bleu nuit
+   du logo, de la hauteur de la zone protégée, les porte ; ailleurs (PC,
+   Android, navigateur) cette zone vaut 0 et la bande n'existe pas. */
+:root[data-theme="light"]::after{content:""; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px);
+  background:linear-gradient(var(--marque),var(--marque)) 0 0/100% calc(100% - 2px) no-repeat,var(--grad-marque);
+  z-index:2147483001; pointer-events:none}
 *{box-sizing:border-box}
 body{
   margin:0; background:var(--paper); color:var(--ink);
@@ -980,6 +1027,9 @@ body{overflow-x:clip}
    contour rouge en tirets, code en rouge. */
 .mc-j.abs.mal{border-color:#E5574D; background:rgba(214,58,48,.08)}
 .mc-j.abs.mal .mc-t{color:#F07A70}
+/* en clair, le rouge du sombre tombait à 2,4:1 sur son fond rosé : celui
+   des ateliers, 6,2:1 */
+:root[data-theme="light"] .mc-j.abs.mal .mc-t{color:var(--at-rouge)}
 .mc-leg .lg-mal{background:rgba(214,58,48,.08); border:1px dashed #E5574D; box-shadow:none}
 /* barré : ce qui était au programme et n'a pas eu lieu */
 .mc-j.prevu .mc-t,.cal button.prevu .tag,.mois .jours button.prevu i,
@@ -3381,6 +3431,10 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dc-pause{display:flex; flex-direction:column; gap:8px; padding:10px; border:1px solid var(--line2); border-radius:14px; background:var(--surface2); min-width:0}
 .dc-pt{display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:4px 8px}
 .dc-pt>span{font-size:12px; color:var(--muted); min-width:0; overflow-wrap:anywhere}
+/* la pastille de pause garde son encre blanche (en sombre, une règle plus
+   précise lui donne l'encre foncée) : le gris des libellés l'écrasait en
+   clair, 1,2:1 */
+.dc-pt>span.pl-pa{color:#fff}
 .dc-pt .dc-pn,.dc-pt .dc-zero{grid-column:1 / -1}
 .dc-pn{display:flex; align-items:baseline; gap:6px; min-height:44px; padding:6px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface); font-size:24px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; text-align:left}
 .dc-pn small{font-size:12px; font-weight:600; color:var(--muted)}
@@ -4013,6 +4067,8 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .notifreg>div{display:flex; flex-direction:column; gap:2px; min-width:0}
 .notifreg b{font-size:13px} .notifreg span{font-size:11.5px; color:var(--muted)}
 .notifreg .btn{flex:0 0 auto}
+/* une ligne de trois, et non la colonne des textes de la ligne (.notifreg>div) */
+.notifreg>div.theme-choix{flex:0 0 auto; flex-direction:row; gap:2px; width:min(228px,60%)}
 .tabs #notifDot{background:var(--marque-vif)}
 /* L'en-tête des Réglages, qui ne sont plus un onglet : un retour vers l'Accueil. */
 .regtete{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin:-4px 0 2px}
@@ -5766,6 +5822,26 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-cgc.ft>span{color:#9fc9da}
 .pf-cgc.ft .pf-cgc-b>i{background:#69b2cb}
 .pf-cgc.neg>b{color:#ff8a7a}
+/* EN CLAIR, CES COMPOSANTS VIVENT DANS DES CARTES BLANCHES (Mon année, Mes
+   pauses) : nés dans le héros bleu nuit, ils écrivaient en blanc pur, 1:1
+   sur la carte. Leurs encres et leurs filets passent aux jetons. Aucun
+   n'existe dans un îlot (mesuré au rendu, les quatre vues du calendrier). */
+:root[data-theme="light"] .pf-cgc{border-color:var(--line); background:var(--surface2); color:var(--ink)}
+:root[data-theme="light"] .pf-cgc>span{color:var(--good)}
+:root[data-theme="light"] .pf-cgc.ft>span{color:var(--in)}
+:root[data-theme="light"] .pf-cgc>b small,:root[data-theme="light"] .pf-cgc>em,
+:root[data-theme="light"] .pf-cgc.vide>b,:root[data-theme="light"] .pf-cgc.vide>span{color:var(--muted)}
+:root[data-theme="light"] .pf-cgc-b{background:var(--line2)}
+:root[data-theme="light"] .pf-cgc-b>i{background:#2FA36B}
+:root[data-theme="light"] .pf-cgc.ft .pf-cgc-b>i{background:var(--in2)}
+:root[data-theme="light"] .pf-cgc.vide .pf-cgc-b>i{background:var(--trait)}
+:root[data-theme="light"] .pf-cgc.neg>b{color:var(--at-rouge)}
+:root[data-theme="light"] .pf-pr-c+.pf-pr-c,:root[data-theme="light"] .pf-pr-h+.pf-pr-c,:root[data-theme="light"] .pf-cg-t{border-top-color:var(--line2)}
+:root[data-theme="light"] .pf-pr-d b,:root[data-theme="light"] .pf-cg-t .pf-pr-l b,
+:root[data-theme="light"] .pf-pr-f,:root[data-theme="light"] .pf-pr-t{color:var(--ink)}
+:root[data-theme="light"] .pf-pr-r{color:var(--muted)}
+:root[data-theme="light"] .pf-pr-lg-f{background:var(--ink2)}
+:root[data-theme="light"] .pf-pr-lg-r{background:repeating-linear-gradient(135deg,rgba(21,30,47,.45) 0 3px,rgba(21,30,47,.14) 3px 6px)}
 @media (max-width:420px){ .pf-cgs{gap:4px} .pf-cgc{padding:7px 6px 8px} .pf-cgc>b{font-size:14.5px} .pf-cgc>b small{font-size:11px} .pf-cgc>em{font-size:10.5px} }
 /* à 320 px, « tout placé » sortait de 3 px de sa case (audit du 23/10/2026) */
 @media (max-width:360px){ .pf-cgs{gap:2px} .pf-cgc{padding-left:3px; padding-right:3px} .pf-cgc>em{letter-spacing:-.01em} }
@@ -6267,7 +6343,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 /* Les cartes prennent la même lumière haute que les barres : un
    cheveu clair sur le bord supérieur, rien de plus. La teinte, la
    bordure et l'ombre mesurées ne bougent pas. */
-:root[data-theme="dark"] .card{box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05)}
+:root[data-theme="dark"] .card,:root[data-theme="light"] .ilot .card{box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.05)}
 
 /* Sur téléphone, la barre basse se pose elle aussi au-dessus du
    tableau qui passe dessous, d'une ombre montante — à plat, elle
@@ -6280,12 +6356,12 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    le gris par défaut du navigateur : le signe le moins cher qu'une
    page a été dessinée, et celui qu'on oublie le plus souvent. */
 :root[data-theme="dark"]{scrollbar-color:var(--trait) transparent; scrollbar-width:thin}
-:root[data-theme="dark"] ::selection{background:rgba(105,178,203,.30); color:#fff}
-:root[data-theme="dark"] ::-webkit-scrollbar{width:11px; height:11px}
-:root[data-theme="dark"] ::-webkit-scrollbar-track{background:transparent}
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
+:root[data-theme="dark"] ::selection,:root[data-theme="light"] .ilot ::selection{background:rgba(105,178,203,.30); color:#fff}
+:root[data-theme="dark"] ::-webkit-scrollbar,:root[data-theme="light"] .ilot ::-webkit-scrollbar{width:11px; height:11px}
+:root[data-theme="dark"] ::-webkit-scrollbar-track,:root[data-theme="light"] .ilot ::-webkit-scrollbar-track{background:transparent}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb,:root[data-theme="light"] .ilot ::-webkit-scrollbar-thumb{background:var(--trait); border-radius:8px;
   border:3px solid transparent; background-clip:content-box}
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,:root[data-theme="light"] .ilot ::-webkit-scrollbar-thumb:hover{background:var(--trait-fort)}
 /* #horNav (bouton « Retour à l'année ») et #rotasub (en-tête « Horaire presté »)
    ont disparu : la bascule Mois/Année est un sélecteur segmenté dans la barre
    héros, et le mois est nommé par le libellé de #mnav (« Octobre 2026 »). */
@@ -6658,8 +6734,8 @@ html .pvt tbody tr.pvhead th{font-size:10.5px}
    CLAIR : le texte blanc n'y tenait pas (2,1 à 2,7:1) ; il passe à l'encre
    foncée. Les pastilles de nombre orange de même (2,4 à 3:1). */
 :root[data-theme="dark"] .p-am,:root[data-theme="dark"] .p-pm,:root[data-theme="dark"] .p-n,:root[data-theme="dark"] .p-d,
-:root[data-theme="dark"] .pl-cv .c-am,:root[data-theme="dark"] .pl-cv .c-pm,:root[data-theme="dark"] .pl-cv .c-n{color:#151E2F}
-:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb,:root[data-theme="dark"] .plus-nb.app{color:#1A1006}
+:root[data-theme="dark"] .pl-cv .c-am,:root[data-theme="dark"] .pl-cv .c-pm,:root[data-theme="dark"] .pl-cv .c-n,:root[data-theme="light"] .ilot .p-am,:root[data-theme="light"] .ilot .p-pm,:root[data-theme="light"] .ilot .p-n,:root[data-theme="light"] .ilot .p-d,:root[data-theme="light"] .ilot .pl-cv .c-am,:root[data-theme="light"] .ilot .pl-cv .c-pm,:root[data-theme="light"] .ilot .pl-cv .c-n{color:#151E2F}
+:root[data-theme="dark"] .tabs .tabnb.app,:root[data-theme="dark"] .ws-pastille,:root[data-theme="dark"] .side-nb,:root[data-theme="dark"] .plus-nb.app,:root[data-theme="light"] .ilot .tabs .tabnb.app,:root[data-theme="light"] .ilot .ws-pastille,:root[data-theme="light"] .ilot .side-nb,:root[data-theme="light"] .ilot .plus-nb.app{color:#1A1006}
 /* les marques « rien ici » restent discrètes mais lisibles */
 html .eqhote .eqp2 td.vide{color:var(--faint)}
 html .pvt td.pvzero{color:var(--faint)}
@@ -6695,7 +6771,7 @@ html .pvt td.pvzero{color:var(--faint)}
   html .pl-nav button{min-width:44px}
   html tr.why-able td,html tr.why-able th{padding-top:12px; padding-bottom:12px}
 }
-html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0{color:var(--muted)}
+html .pl-cv .c-0,:root[data-theme="dark"] .pl-cv .c-0,:root[data-theme="light"] .ilot .pl-cv .c-0{color:var(--muted)}
 /* LE MENU DE CONTRÔLE À GAUCHE (le client, le 21/10/2026 : « sur PC cela
    peut être une plateforme avec menu de contrôle complet sur la gauche »).
    L'en-tête devient une colonne fixe de 248 px : la marque et le jour, les
@@ -6850,6 +6926,7 @@ html .eqleg-souris{display:none}
      ne s'affiche pas sur tous les onglets ») : à 70, l'espace RH (95), les
      fenêtres et les fonds la recouvraient ; c'est le bord de la fenêtre */
   html::before{content:""; position:fixed; top:0; left:0; right:0; height:1px; background:#232937; z-index:2147483000; pointer-events:none}
+  html[data-theme="light"]::before{background:var(--trait)}
 }
 /* LE MENU RANGÉ (le client, le 22/10/2026 : « comment organiserais-tu mieux
    les onglets et catégories du menu ? », puis « optimise au maximum »).
@@ -7807,6 +7884,8 @@ html body .pf-pr-tab,html body .pf-pr-h{grid-template-columns:34px minmax(0,1fr)
 .pf-pr-d .pf-pr-q{align-self:flex-start; margin-top:3px; padding:1px 8px; border-radius:999px; font-style:normal; font-size:12px; font-weight:700;
   line-height:18px; white-space:nowrap; color:var(--ink); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16)}
 .pf-pr-1 .pf-pr-d .pf-pr-q{color:var(--marque-vif); background:rgba(105,178,203,.14); border-color:rgba(105,178,203,.45)}
+:root[data-theme="light"] .pf-pr-d .pf-pr-q{background:var(--surface3); border-color:var(--line)}
+:root[data-theme="light"] .pf-pr-1 .pf-pr-d .pf-pr-q{background:var(--in-soft); border-color:color-mix(in srgb,var(--in) 35%,transparent)}
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
   /* une seule polyvalence : sur la ligne du titre, plus de cadre de 80 px */
   .pf-pv:has(.pf-pv-l>span:only-child){grid-template-columns:auto minmax(0,1fr) auto; padding:8px 12px}
@@ -7887,7 +7966,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
      il se peint dès la première image, sur la couleur des deux barres, et
      s'efface quand l'horaire est lu — jamais avant 0,9 s pour qu'on le voie,
      jamais après 3 s pour ne pas retenir quelqu'un sans réseau. -->
-<div class="intro" id="intro" aria-hidden="true">
+<div class="intro ilot" id="intro" aria-hidden="true">
   <div class="intro-in">
     <img src="logo-app.png" alt="" width="176" height="176" decoding="async">
     <div class="intro-barre"><i></i></div>
@@ -7895,7 +7974,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 </div>
 
 
-<header class="top">
+<header class="top ilot">
   <div class="top-in">
     <!-- Le nom du bouton contient ce qu'il montre (trigramme, date, poste),
          précédé de ce qu'il fait ; le titre de la page n'est plus DANS un
@@ -7980,9 +8059,9 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
     <button type="button" class="side-lien" data-go="reglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Réglages</span></button>
   </div>
 </header>
-<div class="navwrap" id="navwrap" hidden></div>
+<div class="navwrap ilot" id="navwrap" hidden></div>
 <div class="plusfond" id="plusFond" hidden></div>
-<div class="plusfeuille" id="plusFeuille" role="dialog" aria-modal="true" aria-label="Plus de sections" hidden></div>
+<div class="plusfeuille ilot" id="plusFeuille" role="dialog" aria-modal="true" aria-label="Plus de sections" hidden></div>
 
 <main class="wrap" id="contenu" tabindex="-1">
 <!-- le titre de la page, pour le lecteur d'écran : au téléphone, aucun h1
@@ -8429,6 +8508,16 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
         <summary>Mon compte <span class="sub">trigramme lié à cet appareil</span></summary>
         <div class="pad stack">
           <div class="compte-info" id="compteInfos"></div>
+          <!-- l'apparence de cet appareil : sombre (par défaut), clair, ou
+               comme le téléphone (appliquerTheme) -->
+          <div class="notifreg theme-reg">
+            <div><b>Apparence</b><span id="themeEtat">Thème sombre</span></div>
+            <div class="calvue theme-choix" id="themeChoix" role="group" aria-label="Thème de l'application">
+              <button type="button" data-th="dark" aria-pressed="true">Sombre</button>
+              <button type="button" data-th="light" aria-pressed="false">Clair</button>
+              <button type="button" data-th="auto" aria-pressed="false">Auto</button>
+            </div>
+          </div>
           <div class="notifreg">
             <div><b>Notifications de cet appareil</b><span id="notifEtat"></span></div>
             <button type="button" class="btn sm" id="notifBtn">Activer</button>
@@ -8616,7 +8705,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 
 </main>
 
-<div class="gate" id="gate" hidden>
+<div class="gate ilot" id="gate" hidden>
   <div class="gate-bg" aria-hidden="true"></div>
   <!-- Accueil : logo sur le fond + boutons en bas de page (sans cadre) -->
   <div class="gate-home" id="gateHome">
@@ -8700,7 +8789,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
      boucle les gestes du navigateur ouvert, un doigt sur le bouton à
      toucher ; dessous, la progression et la consigne ; toucher un segment
      rejoue son étape. Rempli par guideInstall(). -->
-<div id="instGuide" class="inst" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BioWanze" hidden>
+<div id="instGuide" class="inst ilot" tabindex="-1" role="dialog" aria-modal="true" aria-label="Installer l'application BioWanze" hidden>
   <div class="inst-page">
     <button type="button" class="inst-fermer" id="instFermer" aria-label="Fermer">&times;</button>
     <div class="inst-tete"><img src="logo.svg" alt=""><b>Installer l'application</b><small>Horaire et salaire, même hors ligne</small></div>
@@ -9170,6 +9259,24 @@ var st={db:null, params:null, bareme:null, month:null, mkey:null, y:0, m:0, read
 var pending={};
 
 function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
+/* LE THÈME DE L'APPAREIL : « dark » (par défaut, le client le 30/09/2026),
+   « light », ou « auto », qui suit le réglage du téléphone et en change
+   avec lui. Le script de la tête l'a déjà posé avant le premier rendu ;
+   aucune couleur n'est lue en JavaScript, tout passe par les jetons CSS :
+   changer l'attribut suffit, sans rien refaire. */
+var THEME_MQ=window.matchMedia?window.matchMedia("(prefers-color-scheme: light)"):null;
+function themeChoisi(){ var v=lsGet("ui/theme"); return v==="light"||v==="auto"?v:"dark"; }
+function appliquerTheme(){
+  var v=themeChoisi(), clair=v==="light"||(v==="auto"&&!!THEME_MQ&&THEME_MQ.matches);
+  document.documentElement.setAttribute("data-theme",clair?"light":"dark");
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",clair?"#F6F6F6":"#111727");
+  var c=document.getElementById("themeChoix");
+  if(c) Array.prototype.forEach.call(c.querySelectorAll("button[data-th]"),function(b){ b.setAttribute("aria-pressed",String(b.getAttribute("data-th")===v)); });
+  var e=document.getElementById("themeEtat");
+  if(e) e.textContent=v==="auto"?"Comme le téléphone, "+(clair?"clair":"sombre")+" en ce moment":(clair?"Thème clair":"Thème sombre");
+}
+if(THEME_MQ){ if(THEME_MQ.addEventListener) THEME_MQ.addEventListener("change",function(){ if(themeChoisi()==="auto") appliquerTheme(); });
+  else if(THEME_MQ.addListener) THEME_MQ.addListener(function(){ if(themeChoisi()==="auto") appliquerTheme(); }); }
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
 /* Ce qui vient d'être écrit, avant même que le délai de 700 ms ne le pose
@@ -15639,7 +15746,7 @@ function _pfHead(db,p){
   var bio=esc(role);
   /* un titre pour le lecteur d'écran : le trigramme de l'avatar lui est
      caché, et le héros n'avait pas de titre (audit du 23/10/2026) */
-  return '<div class="pf-hero">'
+  return '<div class="pf-hero ilot">'
     +'<h2 class="sr-only">Mon profil · '+esc(tri)+', '+esc(role)+'</h2>'
     +'<div class="pf-couv" aria-hidden="true"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
@@ -21532,6 +21639,12 @@ function majNotifReglage(){
      « Désactiver, enfoncé » (audit du 23/10/2026) */
   b.textContent=on?"Désactiver":"Activer";
 }
+/* l'apparence, choisie dans les Réglages et gardée sur l'appareil */
+document.getElementById("themeChoix").addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("button[data-th]"); if(!b) return;
+  lsSet("ui/theme",b.getAttribute("data-th")); appliquerTheme();
+});
+appliquerTheme();
 document.getElementById("notifBtn").addEventListener("click",function(){
   if(notifActive()){ lsSet("ui/notifTel",false); desabonnerPush(); majNotifReglage(); return; }
   Promise.resolve(Notification.permission==="granted"?"granted":Notification.requestPermission()).then(function(r){

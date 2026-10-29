@@ -231,6 +231,18 @@ du client** — la procédure est dans `docs/purge-historique.md`.
 
 ## Le dépôt se contrôle lui-même
 
+*Déplacé mot pour mot de `CLAUDE.md` le 29/10/2026 :* Neuf noms réels ont
+vécu des jours dans ce dépôt public, cités pour illustrer les motifs de
+l'anonymiseur — dans `CLAUDE.md` et dans quatre outils — pendant que ces
+mêmes outils étaient écrits pour les retirer du classeur. Rien n'était
+fonctionnel, aucune liste codée : que des commentaires, et c'était tout
+aussi public. Les exemples s'écrivent désormais avec des marqueurs —
+« Nom, Prénom », « NOM, PRÉNOM », « Renard P » donne PRD — qui illustrent
+la FORME sans nommer personne. Le classeur et le JSON passent par
+l'anonymiseur et son second contrôle ; **le reste du dépôt n'avait, lui,
+aucun garde-fou** — une règle écrite ici, et rien pour la faire respecter.
+Il en a un : `tools/verifier-depot.py`.
+
 ```bash
 python3 tools/verifier-depot.py                # l'arbre de travail
 python3 tools/verifier-depot.py --historique   # + tous les commits

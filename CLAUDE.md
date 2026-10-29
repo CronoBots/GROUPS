@@ -104,7 +104,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | Touché | À relancer, et le résultat exigé |
 |---|---|
 | tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
-| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC — puis hors ligne ; 4 min, `--vite` pour le seul portrait) |
+| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC —, le clair sur quatre d'entre eux, le contraste de chaque texte, puis hors ligne ; 6 min, `--vite` pour le seul portrait) |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
@@ -316,17 +316,13 @@ deviner à sa place sur ces points : ils touchent à des montants.
 - Les données de l'utilisateur ne quittent jamais l'appareil.
 - **Aucun nom complet** dans le dépôt : l'horaire n'identifie les gens que par
   initiales ou matricule. **Y compris dans un commentaire, y compris comme
-  EXEMPLE.** Neuf noms réels ont vécu des jours dans ce dépôt public, cités
-  pour illustrer les motifs de l'anonymiseur — dans `CLAUDE.md` et dans
-  quatre outils — pendant que ces mêmes outils étaient écrits pour les
-  retirer du classeur. Rien n'était fonctionnel, aucune liste codée : que
-  des commentaires, et c'était tout aussi public. Les exemples s'écrivent
-  désormais avec des marqueurs — « Nom, Prénom », « NOM, PRÉNOM »,
-  « Renard P » donne PRD — qui illustrent la FORME sans nommer personne.
-  Le classeur et le JSON passent par l'anonymiseur et son second contrôle ;
-  **le reste du dépôt n'avait, lui, aucun garde-fou** — une règle écrite
-  ici, et rien pour la faire respecter. Il en a un : `tools/verifier-depot.py`, voir
-  `docs/journal/01-anonymat.md`, « Le dépôt se contrôle lui-même ».
+  EXEMPLE** : des marqueurs — « Nom, Prénom », « NOM, PRÉNOM », « Renard P »
+  donne PRD — illustrent la FORME sans nommer personne. Garde-fou :
+  `tools/verifier-depot.py` (journal 01, « Le dépôt se contrôle lui-même »).
+- **Deux thèmes** (29/10/2026) : le sombre par défaut, le clair au choix
+  (Réglages). Toute couleur passe par les jetons ; une surface de marque
+  bleu nuit est un îlot (`.ilot`, jetons sombres) ; une couleur écrite en
+  dur se mesure dans les deux thèmes (`parcours.js` : contraste compris).
 
 ## Après avoir modifié `index.html`
 
