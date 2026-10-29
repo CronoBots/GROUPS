@@ -7033,7 +7033,15 @@ html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:76px}
    largeur qui le déborde. */
 html .hp-t.hp-tmoi{min-width:100%}
 html .hp-t tbody td.hp-c{text-align:left; text-overflow:clip; padding:2px 10px; color:#111827}
-html body .hp-t.hp-tmoi thead th .hp-lib{display:block; max-width:calc(100vw - 140px)}
+/* LE POSTE ET LE TRIGRAMME RESTENT AU GLISSEMENT (le client, le 29/10/2026 :
+   « pour Mon horaire, les deux premières lignes avec le poste et le
+   trigramme doivent rester fixes, même au scroll horizontal ») : leur
+   libellé colle à gauche, juste après le coin (--hp-coin), sur la largeur
+   que l'écran montre (--hp-vis, grCaleTete) ; la case qui le porte
+   laisse déborder (un « overflow:hidden » ferait d'elle le conteneur du
+   collant, et rien ne collerait) */
+html body .hp-t.hp-tmoi thead th[colspan]{overflow:visible}
+html body .hp-t.hp-tmoi thead th .hp-lib{display:block; position:sticky; left:var(--hp-coin,88px); width:var(--hp-vis,calc(100vw - 140px)); max-width:100%}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
@@ -19114,6 +19122,10 @@ function grCaleTete(){
   var mo=t.querySelector("tbody td.hp-mois"), mw=mo?mo.getBoundingClientRect().width:0; if(mw>0) t.style.setProperty("--hp-mois",Math.round(mw)+"px");
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
+  /* et ce que l'écran montre à droite du coin : la largeur des libellés
+     collés de « Mon horaire », moins les 8 px de bord et de marge de leur
+     case (sans quoi, au bout du glissement, le libellé reculait de 6 px) */
+  var zw=z.clientWidth; if(zw>0&&cw>0) t.style.setProperty("--hp-vis",Math.max(0,zw-Math.round(cw)-8)+"px");
 }
 /* l'espace fermé (gardé en page, content-visibility) ne se mesure pas :
    la mesure remettait en page les 12 000 cases mises de côté ; la largeur
