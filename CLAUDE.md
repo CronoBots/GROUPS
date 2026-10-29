@@ -351,7 +351,9 @@ deviner à sa place sur ces points : ils touchent à des montants.
    simulées** (dans les `<style>` de la page, `env(safe-area-inset-top)` →
    59 px, `-bottom` → 34 px) : Chromium n'en a pas, et le 26/10/2026 un
    cadre juste au navigateur était faux de 59 px sur l'iPhone
-   (`docs/journal/05-interface.md`). Playwright et
+   (`docs/journal/05-interface.md`). Un `sticky` dans un `sticky` ou
+   dans une case de tableau, juste au Chromium, glisse sur l'iPhone
+   (29/10/2026) : coller un enfant direct de la zone qui défile. Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible
    depuis `page.evaluate` : il faut passer par l'interface.

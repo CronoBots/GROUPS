@@ -6170,6 +6170,34 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### « Mon horaire » : un bandeau à part pour le poste et le trigramme (29/10/2026, `nfdm-v1188`)
+
+Le client, sur v1187 installée : « les deux lignes ont quand même un
+scroll ». **Erreur commise** : le libellé collait à gauche DANS la case
+d'en-tête, elle-même collée en haut — un collant dans un collant, et dans
+une case de tableau. Le Chromium du conteneur le tient ; l'iPhone non.
+Mesurer dans un seul moteur ne prouvait rien pour l'autre, et la mesure a
+été rapportée comme une preuve.
+
+**Refait** sans collant imbriqué : les deux lignes sont un bandeau à part
+(`.hp-moit`), posé AVANT le tableau dans une enveloppe de sa largeur
+(`.hp-moiw`), et collé en haut et à gauche de la zone qui défile — le
+montage de la colonne des jours, qui tient au téléphone du client.
+L'enveloppe est nécessaire : un collant ne sort pas de son conteneur, et
+la zone seule n'a que la largeur de l'écran. Le bandeau recouvre les deux
+lignes de l'en-tête, qui restent dessous pour le clavier ; un toucher sur
+le trigramme ouvre ses compteurs, comme avant. Les mesures de
+`grCaleTete` (`--hp-g`, `--hp-o`, `--hp-mois`, `--hp-coin`, `--hp-vis`)
+vont sur la zone, d'où le tableau et le bandeau héritent.
+
+**Mesuré** à 390, 700 et 1280 px, au départ, au bout du glissement et
+1 500 px plus bas : le bandeau garde sa place au pixel (85→373 au
+téléphone), recouvre exactement les deux lignes (143/167 et 167/189) ;
+mois, jour et coin restent collés en « Mon horaire » et en « Équipe 1 ».
+Reste une limite : ces mesures sont encore celles de Chromium ; le
+montage est celui qui tient déjà sur l'iPhone (colonne des jours), pas une
+preuve faite sur l'iPhone.
+
 ### « Mon horaire » : le poste et le trigramme restent au glissement (29/10/2026, `nfdm-v1187`)
 
 Le client : « pour Mon horaire, les deux premières lignes avec le poste et
@@ -6184,7 +6212,9 @@ case qui le porte passe en `overflow:visible`, sans quoi elle devenait
 le conteneur du collant et rien ne collait (la règle était déjà écrite le
 26/10 pour le nom du poste). **Mesuré** à 390, 700 et 1280 px, au départ
 et au bout du glissement (570 px au téléphone) : les deux libellés
-restent entiers à l'écran, à 2 px près. Deux réglages en route : à la
+restent entiers à l'écran, à 2 px près — **au Chromium du conteneur
+seulement ; c'était faux sur l'iPhone** du client (« les deux lignes ont
+quand même un scroll »), voir v1188 juste au-dessus. Deux réglages en route : à la
 largeur pleine, la boîte reculait de 6 px au bout du glissement (la case
 s'arrête au bord) ; 8 px de moins l'en empêchent. Et un
 `overflow:hidden` sur le libellé, avec la hauteur de ligne serrée du
