@@ -7022,12 +7022,18 @@ html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width
    « Fermentation ») finissent en « … », entières au survol. */
 html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:44px}
 html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:76px}
-/* « Mon horaire » : le tableau prend la largeur, et la colonne du
-   commentaire (sans largeur écrite) reçoit tout le reste ; le texte passe
-   à la ligne entre les actions, à gauche, et la ligne grandit avec lui */
-html .hp-t.hp-tmoi{width:100%}
-html .hp-t thead th.hp-gc{text-align:left; padding-left:10px; border-bottom:2px solid #64748b}
-html .hp-t tbody td.hp-c{text-align:left; white-space:pre-line; overflow:visible; text-overflow:clip; height:auto; line-height:1.35; padding:3px 10px; color:#111827}
+/* « Mon horaire » : la colonne du commentaire (sans largeur écrite)
+   reçoit tout le reste de l'écran, et au-delà la largeur du plus long
+   commentaire de l'année (largeur posée sur le tableau, renderGrille) ;
+   le commentaire tient sur UNE ligne, et on glisse vers la droite pour le
+   lire (le client, le 29/10/2026 : « les lignes ne doivent pas
+   s'agrandir en hauteur selon le commentaire »). Le poste et le
+   trigramme couvrent toute la largeur, sans titre « Commentaire » ; leur
+   libellé se centre sur ce que l'écran montre d'abord, et non sur une
+   largeur qui le déborde. */
+html .hp-t.hp-tmoi{min-width:100%}
+html .hp-t tbody td.hp-c{text-align:left; text-overflow:clip; padding:2px 10px; color:#111827}
+html body .hp-t.hp-tmoi thead th .hp-lib{display:block; max-width:calc(100vw - 140px)}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
@@ -18941,8 +18947,18 @@ function renderGrille(){
   var equipe=/^Shift/.test(mode[0]);
   /* « Mon horaire » a la place d'une colonne de plus : le commentaire du
      jour, en phrases (comPro), sur toute la largeur restante */
-  var avecCom=mode[0]==="moi"&&cols.length===1;
-  var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"><colgroup><col class="hp-cm"><col class="hp-cd">'];
+  var avecCom=mode[0]==="moi"&&cols.length===1, larg="";
+  if(avecCom){
+    /* la largeur du plus long commentaire de l'année, dans la police du
+       tableau (12 px), plus les marges ; les quatre premières colonnes
+       font 218 px au plus */
+    var cx=GR.cx||(GR.cx=document.createElement("canvas").getContext("2d")), wMax=0;
+    cx.font='400 12px Roboto,system-ui,"Segoe UI",Arial,sans-serif';
+    jours.forEach(function(dt){ var e2=(cols[0].p.d||{})[pad2(dt.getMonth()+1)+pad2(dt.getDate())];
+      if(e2&&e2[2]) wMax=Math.max(wMax,cx.measureText(grComLigne(e2[2])).width); });
+    larg=' style="width:'+Math.ceil(218+wMax*1.02+24)+'px"';
+  }
+  var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"'+larg+'><colgroup><col class="hp-cm"><col class="hp-cd">'];
   /* PLUS DE COLONNE DE BULLE (le client, le 27/10/2026 : « je n'aime pas les
      bulles de commentaire noires ») : le commentaire se marque comme dans
      Excel, et comme au Planning et au calendrier, d'un coin rouge en haut à
@@ -18956,12 +18972,11 @@ function renderGrille(){
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
       h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
-  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
-  if(avecCom) h.push('<th class="hp-gc pt-cm" rowspan="2">Commentaire</th>');
+  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length+(avecCom?1:0))+'"><span class="hp-gpl'+(avecCom?' hp-lib':'')+'">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinteCol(c)+(GR.colP===c.p.id?' hp-csel':'')+'" colspan="2" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+(GR.colP===c.p.id?' hp-csel':'')+'" colspan="'+(avecCom?3:2)+'" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+(avecCom?'<span class="hp-lib">'+tc.html+'</span>':tc.html)+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -18984,7 +18999,7 @@ function renderGrille(){
       var cs=GR.colP===p.id?' hp-csel':'';
       h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
-    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c">'+(e1[2]?esc(comPro(e1[2])):'')+'</td>'); }
+    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c">'+(e1[2]?esc(grComLigne(e1[2])):'')+'</td>'); }
     h.push('</tr>');
   });
   h.push('</tbody>');
@@ -19053,6 +19068,8 @@ function grAJour(){
    finissait en « … » ; le trigramme tient toujours, et le Planning, les
    Équipes, les Effectifs parlent déjà en trigrammes. Le nom entier reste
    au survol, et la recherche le trouve toujours. */
+/* le commentaire de « Mon horaire » : les phrases de comPro, bout à bout */
+function grComLigne(c){ return comPro(c).split("\n").join(" "); }
 function grTeteCol(c,equipe){
   var n=grNom(c.p), eq=equipe||/adjoint/i.test(c.po)?"":(/^Shift(\d)/.exec(c.f)||[])[1];
   return {titre:(n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po, html:esc(idLisible(c.p.id))+(eq?'<small>Éq. '+eq+'</small>':'')};
@@ -19072,7 +19089,7 @@ function grNomsEnPlace(){
   var C=grColonnes(db), cols=C.cols, equipe=/^Shift/.test(C.mode[0]), ths=t.querySelectorAll("thead tr.hp-ops th[data-ci]");
   if(ths.length!==cols.length) return false;
   for(var j=0;j<ths.length;j++){ var c=cols[Number(ths[j].getAttribute("data-ci"))]; if(!c||ths[j].getAttribute("data-pers")!==c.p.id) return false; }
-  Array.prototype.forEach.call(ths,function(th){ var tc=grTeteCol(cols[Number(th.getAttribute("data-ci"))],equipe); th.title=tc.titre; th.innerHTML=tc.html; });
+  Array.prototype.forEach.call(ths,function(th){ var tc=grTeteCol(cols[Number(th.getAttribute("data-ci"))],equipe); th.title=tc.titre; th.innerHTML=th.querySelector(".hp-lib")?'<span class="hp-lib">'+tc.html+'</span>':tc.html; });
   GR.sig=s;
   return true;
 }
