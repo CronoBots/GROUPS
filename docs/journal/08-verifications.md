@@ -2989,3 +2989,103 @@ au repos, depuis l'audit du 23/10. Couper le fichier irait contre le
 principe d'un seul `index.html` sans construction, et ne gagnerait que
 la compilation du script, quelques dixièmes de seconde. Chantier fermé
 sur ces mesures ; il se rouvrira si un téléphone réel s'en plaint.
+
+## Le check complet et le nettoyage du 29/10/2026 (`nfdm-v1194`)
+
+Le client : « fais un check complet de l'app et nettoie ».
+
+### Les contrôles, tous relancés
+
+| Contrôle | Résultat |
+|---|---|
+| `verifier-depot.py` | 0 |
+| `verifier-calendrier.js` | 0 — aucune faute dans les neuf règles dures (51 questions faibles, comme avant) |
+| `--manques 0926`, `--polyvalence`, `--compteurs` | 0 |
+| `--manques-commentes` | 0 — 9 places vides depuis le 29/10, aucune qu'un commentaire du jour explique |
+| `--agendas` | 0 — les 80 agendas réécrits sont identiques à l'octet à ceux du dépôt (aucun agenda en retard ni orphelin) |
+| `verifier-conges-scolaires.js` | 0 — 4 arrêtés, 3 années annoncées, 0 écart |
+| `comparer-fiches.py VBN` | 0 — la découpe de `index.html` mise à l'épreuve (12 mois lus) |
+| `verifier-integralite.py` (2026, 2027) | **1, et ce n'est pas une faute de l'application** : le classeur brut de CE conteneur date du 23/10 (19/10 pour 2027), l'horaire installé par le robot du 28/10 (26/10) ; les 290 écarts sont les changements des classeurs reçus depuis. Le robot passe ce contrôle sur le classeur frais à chaque installation (huit portes) |
+| `verifier-anonymat.py` | **non lancé** : il lui faut le classeur source, avec les noms, qui n'est pas dans le conteneur |
+| robots GitHub | les 30 dernières exécutions vertes (horaire automatique toutes les 15 min, vérifications, notifications, déploiement) |
+| base Supabase | rien de nouveau depuis la revue du 28/10 : fonctions `security definer` voulues (le schéma fermé ne s'ouvre que par elles, les fonctions du robot exigent sa clé), protection des mots de passe sans objet (connexion par code), clés étrangères non indexées sur des tables de quelques dizaines de lignes |
+| `parcours.js` | 0 (voir plus bas) |
+
+**Une branche de trop** : `feature/calendar-weekly-desktop` (19/10, un
+prototype `prototypes/calendar-desktop.html`, jamais fusionné) existe sur
+GitHub, contre la règle « une seule branche, la main ». Elle ne se
+supprime qu'à la main sur GitHub ; laissée, et signalée au client.
+
+### Le nettoyage, prouvé sans effet
+
+- **Cinq fichiers que rien ne cite** quittent l'arbre (l'historique les
+  garde) : trois captures de développement (`eqt-390.png`, `gbt0.png`,
+  `gbt1.png`), la capture d'un autre site (`shot-resume.png`) et une
+  ancienne bannière déposée le 16/10 (`1771608076113.jfif`), remplacée
+  par `banniere-biowanze-usine.png` → `banniere.jpg`.
+- **Onze fonctions que rien n'appelle**, ni la page ni les outils :
+  `ryBarsPauses`, `_pfDateCourte`, `dirPresents`, `dirShowPage`,
+  `grCaseXl`, `grCase`, `grPause`, `dmModeVal`, `maSemaineHTML` (la bande
+  « Ma semaine », remplacée par « Mon cycle » le 25/10), `rcQuand`,
+  `rcQuandLong` ; et la constante `JOURS_COURTS`. Gardées à dessein :
+  `grEditer` (son commentaire la réserve à la saisie que la RH fera au
+  PC), `icsAgenda` et `icsCongesScolaires` (que `verifier-calendrier.js`
+  lit dans la page pour écrire les agendas — une recherche limitée à
+  `index.html` les aurait crues mortes).
+- **130 classes CSS que rien ne pose** (+ `.ms-j`, dont le seul
+  créateur était `maSemaineHTML`, et deux identifiants de l'ancienne
+  carte des compteurs) : 332 règles, 10 sélecteurs dans des listes, 13
+  blocs `@media` devenus vides et 15 commentaires qui ne décrivaient
+  plus qu'elles. Une classe n'est déclarée morte que si son nom
+  n'apparaît nulle part hors du CSS ET qu'aucun morceau de texte
+  concaténé (`"pl-"+…`, `…+"-ok"`) ne peut la fabriquer : 42 classes
+  douteuses sont restées (`f-flex`, `s-am`… servent bel et bien). Un
+  sélecteur ne tombe que si la classe morte y est obligatoire, jamais
+  dans un `:not()` ni un `:is()`.
+- Bilan : `index.html` passe de 2 187 945 à 2 151 218 octets (−35 Ko,
+  −440 lignes).
+
+**La preuve qu'il n'a rien changé** : les dix sorties des contrôles
+(calendrier, manques, polyvalence, compteurs, manques commentés,
+intégralité 2026 et 2027, congés scolaires, fiches) et les 80 agendas,
+**identiques à l'octet** avant et après ; et 76 écrans photographiés à la
+même minute avant et après, en sombre et en clair, à 390 et 1280 px
+(Accueil et ses quatre vues, chaque onglet, chaque section de l'espace
+RH, l'Horaire, les Réglages ouverts) : **aucun écart visible**, hors le
+point « en direct » qui clignote et une barre de défilement.
+
+### Deux défauts trouvés en chemin
+
+1. **Une accolade orpheline jetait une règle depuis le 26/10.** Une « } »
+   restée du bloc d'animation retiré ce jour-là (commit `9a49e69`) ouvrait
+   le sélecteur suivant, et le navigateur jetait sans un mot
+   `.eqhote .eqp2 td.fusion{padding:4px 4px; position:relative}`, la case
+   fusionnée des relèves de 12 h. Mesuré par le navigateur : **4 394
+   sélecteurs écrits, 4 393 retenus** ; après, 4 062 et 4 062. L'effet de
+   la règle rendue est d'un pixel (le jour du Planning qui porte une case
+   fusionnée, photographié avant et après). Deux contrôles neufs dans
+   `parcours.js` : les accolades de chaque `<style>` (sans navigateur ;
+   épreuves : l'ancienne page → code 1, « ligne 5053 : } sans ouvrante » ;
+   une « { » de trop sur une copie → code 1), et le compte des sélecteurs
+   écrits contre ceux que le navigateur retient (il voit aussi deux fautes
+   qui s'annulent).
+2. **Un numéro du calendrier sous le seuil, en sombre** : le jour d'une
+   maladie dans la vue Année écrivait son numéro en `--faint` sur la case
+   teintée de rouge, 4,46:1. En `--muted` : 0 faute (l'audit le comptait
+   déjà avant le nettoyage ; le parcours ne passe pas par la vue Année).
+
+### Observé, non reproduit, laissé tel quel
+
+Sous la charge de huit navigateurs lancés ensemble, l'audit a vu quatre
+fois la page partir (« Execution context was destroyed », capture
+blanche) — sur l'ancienne version comme sur la nouvelle, toujours juste
+après la fermeture de l'espace RH. Cherché : aucun des dix
+`location.reload()` ne se déclenche (copie qui les annonce dans la
+console) ; la pile `NAV` reste d'accord avec l'historique du navigateur
+sur six passes simultanées de la même séquence. Une seule désynchro
+reproduite : fermer l'espace RH et ouvrir les Réglages dans le même
+instant laisse le navigateur sur l'étape « g » quand la pile dit « r » —
+le `history.go(-1)` différé (`setTimeout 0`) passe APRÈS le `pushState`
+suivant. Le COMPTE des étapes reste juste, donc « retour » se comporte
+bien ; aucun effet visible à vitesse humaine. Non corrigé : le mécanisme
+est délicat, et rien ne montre qu'un utilisateur le rencontre.
