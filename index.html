@@ -168,7 +168,7 @@ var b=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]
   --in:#69B2CB; --in2:#4795AE; --in-soft:#002935;
   --sur-in:#070B15;
   /* le cyan du logo, tel quel, dans le sombre */
-  --marque-vif:#69B2CB; --fd-flou:rgba(17,23,39,.55);
+  --marque-vif:#69B2CB; --fd-flou:rgba(17,23,39,.55); --fd-titre:var(--surface2);
   --fd-heros:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
   /* et ceux du guide d'installation */
   --bd-blanc-18:rgba(255,255,255,.18); --bd-blanc-20:rgba(255,255,255,.2); --fd-inst:#111727; --fd-inst-c:#1b2640; --tx-blanc-70:rgba(255,255,255,.7); --tx-blanc-75:rgba(255,255,255,.75); --tx-sur-vif:#0b1220;
@@ -303,7 +303,43 @@ var b=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]
    en gras ; les étiquettes des graphiques (« Mon cycle », « Mes congés »…)
    en encre secondaire, en gras (le client, le 29/10/2026 : « des
    contrastes avec les titres ») */
-:root[data-theme="light"] .card>header{background:var(--fd-titre); border-bottom-color:var(--line)}
+:root[data-theme="light"] .card>header{background:var(--fd-titre); border-bottom-color:var(--cadre)}
+/* un volet ouvert devient le titre de ce qu'il déroule : même bandeau,
+   même filet que les titres de carte ; fermé, il reste une ligne */
+:root[data-theme="light"] .fold>summary{color:var(--ink)}
+:root[data-theme="light"] .fold[open]>summary{background:var(--fd-titre); border-bottom:1px solid var(--cadre); font-weight:700}
+/* LES TEINTES VENUES DU SOMBRE, rendues au clair (relevé du 29/10/2026 :
+   26 règles en blanc translucide ou en gris-bleu à 4–30 %, faites pour
+   le bleu nuit, disparaissaient sur le blanc). Le calendrier : le congé
+   garde sa case teintée et son filet, le repos de semaine et le week-end
+   leur filet (le client, le 18/10/2026 : « il faut des bordures aux
+   cellules sans rien aussi ») ; le relevé, ses week-ends ; la semaine,
+   son survol ; la formation et le jour, leur pointillé (le client, le
+   26/10/2026) — à l'encre du clair, aux mêmes forces que le sombre. */
+:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.abs:not(.mal):not(.prevu){background:rgba(21,30,47,.045); border-color:rgba(21,30,47,.22)}
+:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.abs:not(.mal):not(.prevu) .mc-t,
+:root[data-theme="light"] #calCard .mc-leg .lg-abs{background:#E1E6ED; box-shadow:inset 0 0 0 1px rgba(21,30,47,.20)}
+:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.repos,:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.prevu{border-color:rgba(21,30,47,.13)}
+:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.we.repos,:root[data-theme="light"] :is(#calCard,.mc-hero) .mc-j.we.prevu{background:rgba(21,30,47,.035)}
+:root[data-theme="light"] .rel-tab tr.rel-we td{background:rgba(21,30,47,.035)}
+@media (hover:hover){ :root[data-theme="light"] .sem-l:not(.hors):hover{background:rgba(21,30,47,.045)} }
+:root[data-theme="light"] .eqhote .eqp2 tbody td .eqn.eqn.eqn:is(.form,.jour):not(.moi):not(.app),
+:root[data-theme="light"] #jourCorps.eqhote .eqp2 tbody td .eqn.eqn.eqn:is(.form,.jour):not(.moi):not(.app),
+:root[data-theme="light"] .eqfus>.eqseg.eqseg.eqseg:is(.form,.jour):not(.moi){border-color:rgba(21,30,47,.45)}
+/* les boutons flottants (retour en haut, et ceux de l'Horaire au PC) :
+   des pastilles bleu nuit, nées pour le sombre ; en clair, la surface
+   des cartes, son filet et son ombre, l'icône à l'encre */
+:root[data-theme="light"] .enhaut,:root[data-theme="light"] .hp-fab{background:var(--surface); color:var(--ink); border:1px solid var(--line); box-shadow:0 6px 18px rgba(21,30,47,.16), 0 1px 2px rgba(21,30,47,.08)}
+:root[data-theme="light"] .enhaut.on,:root[data-theme="light"] .hp-fab{opacity:.9}
+:root[data-theme="light"] .enhaut.on:is(:hover,:focus-visible,:active),:root[data-theme="light"] .hp-fab:hover{opacity:1}
+/* la molette et la sélection, comme en sombre : aux couleurs de la page,
+   et non aux gris par défaut du navigateur */
+:root[data-theme="light"]{scrollbar-color:#A9B2BF transparent; scrollbar-width:thin}
+:root[data-theme="light"] ::selection{background:rgba(12,100,128,.20); color:var(--ink)}
+:root[data-theme="light"] ::-webkit-scrollbar{width:11px; height:11px}
+:root[data-theme="light"] ::-webkit-scrollbar-track{background:transparent}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb{background:#A9B2BF; border-radius:8px; border:3px solid transparent; background-clip:content-box}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#7D8798}
 :root[data-theme="light"] .card>header h2,:root[data-theme="light"] #agendaCard>header h3{font-weight:700}
 :root[data-theme="light"] .ry-chart-t{color:var(--ink2); font-weight:700}
 /* LA BARRE D'ÉTAT DE L'IPHONE, LE TEMPS D'UN LANCEMENT. Lancée en clair,
@@ -904,7 +940,7 @@ body{overflow-x:clip}
 .steps b{font-weight:600; color:var(--ink)}
 
 /* ---------- horaire ---------- */
-.toolbar{display:flex; gap:7px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line2); background:var(--surface2)}
+.toolbar{display:flex; gap:7px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line2); background:var(--fd-titre)}
 .rota-head,.day{display:grid; grid-template-columns:68px 296px 148px 64px 34px 42px; justify-content:space-between; align-items:center; gap:8px; padding:0 16px}
 .rota-head{position:sticky; top:0; z-index:5; padding-top:8px; padding-bottom:8px; background:var(--surface); border-bottom:1px solid var(--line); font-size:10.5px; color:var(--faint); letter-spacing:.04em}
 .rota-head span:nth-child(4),.rota-head span:nth-child(5),.rota-head span:nth-child(6){text-align:center}
@@ -973,7 +1009,7 @@ body{overflow-x:clip}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),
     var(--ombre-cadre)}
 .calnav{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:0;
-  padding:0; background:var(--surface2); border-bottom:1px solid var(--cadre)}
+  padding:0; background:var(--fd-titre); border-bottom:1px solid var(--cadre)}
 /* LE SÉLECTEUR DE MOIS = la ligne de date de l'onglet Horaire (.jourline, le
    client le 07/10/2026) : flèches carrées ancrées aux bords, « Octobre 2026 »
    centré et cliquable (ouvre le sélecteur de mois natif). */
@@ -2726,7 +2762,7 @@ html #grille .ws-carte.ws-panne>*{margin:0}
 .ws-filtres input{flex:1 1 240px}
 .ws-table{border:1px solid var(--line2); border-radius:14px; overflow:auto; background:var(--surface)}
 .ws-table table{width:100%; border-collapse:collapse; font-size:13px}
-.ws-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:10px 12px; border-bottom:1px solid var(--line); background:var(--surface2); position:sticky; top:0; white-space:nowrap}
+.ws-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:10px 12px; border-bottom:1px solid var(--line); background:var(--fd-titre); position:sticky; top:0; white-space:nowrap}
 .ws-table td{padding:8px 12px; border-bottom:1px solid var(--line2); white-space:nowrap}
 .ws-table tr[data-pers]{cursor:pointer}
 .ws-table tbody tr:hover td{background:var(--surface2)}
@@ -3277,7 +3313,7 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
    plus qu'aux trigrammes, comme ailleurs. */
 .dir-in{max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:16px}
 .dir-tete{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; column-gap:10px;
-  padding:9px 14px; min-height:56px; background:var(--surface2); border:1px solid var(--cadre); border-radius:var(--rj);
+  padding:9px 14px; min-height:56px; background:var(--fd-titre); border:1px solid var(--cadre); border-radius:var(--rj);
   box-shadow:var(--ombre-cadre)}
 .dir-logo{grid-column:1; justify-self:start; height:30px; width:auto}
 .dir-t{grid-column:2; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center}
@@ -3301,7 +3337,7 @@ html .dm-prec [data-ok]{background:var(--in); border-color:var(--in); color:var(
 .dir-cadre{background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:var(--ombre-cadre); min-width:0}
 .dir-cadre-t{display:flex; flex-direction:column; align-items:center; gap:2px; padding:9px 14px;
-  background:var(--surface2); border-bottom:1px solid var(--cadre); text-align:center}
+  background:var(--fd-titre); border-bottom:1px solid var(--cadre); text-align:center}
 .dir-cadre-t h3{margin:0; font-size:15px; font-weight:700; letter-spacing:-.012em; color:var(--ink)}
 .dir-cadre-t p{margin:0; font-size:11px; color:var(--faint)}
 .dir-cadre-c{padding:12px 14px 14px; min-width:0}
@@ -4156,6 +4192,10 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .nt-sv{font-size:18px; line-height:1; color:var(--faint)}
 @media (hover:hover){ .nt-j:hover{background:var(--surface2)} .nt-vu:hover{color:var(--ink); border-color:var(--trait-fort)} }
 .notifreg{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 2px; border-top:1px solid var(--trait)}
+/* une ligne de réglage qui est À ELLE SEULE le corps d'un volet (« Vue
+   direction ») : .notifreg, venue après .pad, lui retirait ses marges, et
+   le texte touchait le bord gauche de la carte, « Ouvrir » le droit */
+.pad.notifreg{padding:16px; border-top:0}
 .notifreg>div{display:flex; flex-direction:column; gap:2px; min-width:0}
 .notifreg b{font-size:13px} .notifreg span{font-size:11.5px; color:var(--muted)}
 .notifreg .btn{flex:0 0 auto}
@@ -7709,7 +7749,7 @@ html .hp-t thead th.hp-gp .hp-gpl{display:inline}
 html body .grille .ws-s.ws-planning{margin:8px 16px 12px; padding:0; border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   background:var(--surface); color:var(--ink); box-shadow:inset 0 1px 0 rgba(255,255,255,.07),var(--ombre-cadre)}
 html body .grille .ws-planning .pl-tete{display:none}
-html body .grille .ws-planning .pl-barre{flex-wrap:nowrap; gap:8px; padding:8px; background:var(--surface2); border-bottom:1px solid var(--cadre)}
+html body .grille .ws-planning .pl-barre{flex-wrap:nowrap; gap:8px; padding:8px; background:var(--fd-titre); border-bottom:1px solid var(--cadre)}
 html body .grille .ws-planning .pl-barre .pl-nav{order:0; flex:1; min-width:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
   background:none; border:0; box-shadow:none; padding:0}
 html body .grille .ws-planning .pl-barre .pl-nav b{flex:1; text-align:center; font-size:17px; font-weight:700; color:var(--ink)}
@@ -7829,7 +7869,7 @@ html #grille .ws-s:not(.ws-planning){flex:none; margin:20px 24px 32px; padding:0
   background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:var(--ombre-cadre)}
 html #grille .ws-s:not(.ws-planning)>.ws-tete{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; column-gap:12px;
-  margin:0 0 14px; padding:9px 14px; min-height:52px; box-sizing:border-box; background:var(--surface2); border-bottom:1px solid var(--cadre); text-align:center}
+  margin:0 0 14px; padding:9px 14px; min-height:52px; box-sizing:border-box; background:var(--fd-titre); border-bottom:1px solid var(--cadre); text-align:center}
 html #grille .ws-s:not(.ws-planning)>.ws-tete>div{grid-column:2; display:flex; flex-direction:column; align-items:center; gap:2px; max-width:72ch}
 html #grille .ws-s:not(.ws-planning)>.ws-tete h2{font-size:16px; font-weight:700; letter-spacing:-.012em}
 html #grille .ws-s:not(.ws-planning)>.ws-tete p{margin:0; font-size:11px; line-height:1.4; color:var(--faint); max-width:none}
@@ -7840,7 +7880,7 @@ html #grille .ws-carte{padding:0 0 12px; border-color:var(--cadre); border-radiu
    (titre à gauche, nombre ou bouton à droite) — centré, un titre long et
    une pastille se chevauchaient (« Sous-effectif (14 j) ») */
 html #grille .ws-carte>header{display:flex; align-items:center; justify-content:space-between; gap:8px;
-  margin:0 0 10px; padding:8px 12px; min-height:40px; box-sizing:border-box; background:var(--surface2); border-bottom:1px solid var(--cadre)}
+  margin:0 0 10px; padding:8px 12px; min-height:40px; box-sizing:border-box; background:var(--fd-titre); border-bottom:1px solid var(--cadre)}
 html #grille .ws-carte>header h3{font-size:14px; font-weight:700; min-width:0}
 html #grille .ws-site>header h3{display:flex; align-items:center; gap:8px}
 html #grille .ws-site>header h3 .cc-ico{flex:none; color:var(--in)}
