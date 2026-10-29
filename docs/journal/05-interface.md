@@ -6170,6 +6170,25 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### « Mon horaire » : ni bulle, ni coin rouge, ni colonne marquée (29/10/2026, `nfdm-v1186`)
+
+Le client, capture à l'appui (la bulle « Échange avec GPS » ouverte sur
+le 21/10, la colonne entière en bleu) : « pour l'horaire personnel
+affiché seul, cela ne sert à rien d'afficher le commentaire au clic vu
+qu'il est affiché à droite, et il ne faut pas non plus la sélection
+verticale des colonnes. Ni le petit triangle rouge dans le coin. »
+
+En « Mon horaire » (`avecCom`) : la case d'annotation ne porte plus
+`hp-com` ni `data-com` (plus de coin, plus de bulle, au clavier non plus) ;
+le toucher marque la ligne mais plus la personne (`GR.colP` reste vide,
+aucune `hp-csel`) ; le survol de la souris éclaire la ligne seule, et la
+case du commentaire aussi (elle reçoit `data-ci`). Les autres vues gardent
+tout. **Mesuré** au navigateur, 390 (toucher) et 1280 (souris) : en « Mon
+horaire », 0 coin, 0 bulle, 0 case de colonne marquée après un toucher
+sur l'annotation puis sur le commentaire, 1 ligne marquée ; en « Équipe
+1 », 1 615 coins, 731 cases marquées après un toucher, 761 au survol,
+comme avant.
+
 ### « Mon horaire » : le commentaire sur une ligne, l'en-tête sur toute la largeur (29/10/2026, `nfdm-v1185`)
 
 Le client, capture de v1184 à l'appui : « Contremaître sur toute la

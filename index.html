@@ -18976,7 +18976,7 @@ function renderGrille(){
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinteCol(c)+(GR.colP===c.p.id?' hp-csel':'')+'" colspan="'+(avecCom?3:2)+'" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+(avecCom?'<span class="hp-lib">'+tc.html+'</span>':tc.html)+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+(!avecCom&&GR.colP===c.p.id?' hp-csel':'')+'" colspan="'+(avecCom?3:2)+'" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+(avecCom?'<span class="hp-lib">'+tc.html+'</span>':tc.html)+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -18996,10 +18996,16 @@ function renderGrille(){
       /* le commentaire s'ouvre dans la bulle du Planning (data-com, voir
          « LE COMMENTAIRE AU CLIC D'UN TRIGRAMME »), et SEULEMENT depuis la
          case au coin rouge (le client, le 27/10/2026) */
-      var cs=GR.colP===p.id?' hp-csel':'';
-      h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
+      /* « MON HORAIRE » : NI BULLE NI COIN ROUGE NI COLONNE MARQUÉE (le
+         client, le 29/10/2026 : « cela ne sert à rien d'afficher le
+         commentaire au clic vu qu'il est affiché à droite, et il ne faut
+         pas non plus la sélection verticale des colonnes, ni le petit
+         triangle rouge dans le coin ») : la colonne du commentaire dit
+         tout ; la ligne, elle, se marque toujours au toucher */
+      var cs=!avecCom&&GR.colP===p.id?' hp-csel':'', bulle=com&&!avecCom;
+      h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(bulle?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(bulle?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
-    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c">'+(e1[2]?esc(grComLigne(e1[2])):'')+'</td>'); }
+    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c" data-ci="0">'+(e1[2]?esc(grComLigne(e1[2])):'')+'</td>'); }
     h.push('</tr>');
   });
   h.push('</tbody>');
@@ -21265,6 +21271,7 @@ function renderHisto(){
     z.addEventListener("mouseover",function(e){ if(tactile) return; var c=e.target.closest&&e.target.closest("[data-ci]"); if(!c){ nettoyer(); return; }
       var tr=c.parentNode, ci=c.getAttribute("data-ci"); if(tr===lt&&lc.length&&lc[0].getAttribute("data-ci")===ci) return; nettoyer();
       if(tr.parentNode.tagName==="TBODY"){ lt=tr; tr.classList.add("hp-hr"); }
+      if(z.querySelector(".hp-tmoi")) return;
       if(!GR.colCache[ci]) GR.colCache[ci]=[].slice.call(z.querySelectorAll('[data-ci="'+ci+'"]'));
       lc=GR.colCache[ci]; lc.forEach(function(x){ x.classList.add("hp-hc"); }); });
     z.addEventListener("mouseleave",nettoyer);
@@ -21316,7 +21323,8 @@ function renderHisto(){
          personne ; le jour seul ne marque que la ligne */
       var pid=tdl.getAttribute("data-p");
       if(deja&&tdl.classList.contains("hp-jour")){ GR.ligne=null; GR.colP=null; }
-      else { GR.ligne=cle; trl.classList.add("hp-lsel"); GR.colP=pid||null;
+      else { if(this.querySelector(".hp-tmoi")) pid=null;
+        GR.ligne=cle; trl.classList.add("hp-lsel"); GR.colP=pid||null;
         if(pid) [].forEach.call(this.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); }); }
     }
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
