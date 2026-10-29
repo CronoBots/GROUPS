@@ -308,6 +308,44 @@ surfaces de navigateur thémées), ui-ux-pro-max (règles clair/sombre :
 jetons sémantiques, 4,5:1, séparateurs visibles dans les deux thèmes,
 chaque thème testé pour lui-même), playwright pour toutes les mesures.
 
+### La passe « 100 % professionnelle et commerciale » (29/10/2026, `nfdm-v1195`–`v1196`)
+
+Le client : « passe 100 % professionnelle et commerciale ». Lu comme : ce
+qu'un utilisateur lit, partout, au niveau d'un produit fini. Inventaire
+d'abord : chaque texte visible (texte, `aria-label`, infobulle, champ
+vide) relevé par écran, rôle et taille — 2 756 chaînes, 2 116 hors codes
+et nombres.
+
+**Ce que le tri automatique a dit** : aucun mot technique visible (null,
+undefined, NaN…), aucun guillemet droit, aucun « ... », aucune double
+espace ; mais l'espace AVANT « : ; ! ? » était ordinaire (le signe
+pouvait passer seul en début de ligne), l'apostrophe tantôt droite
+tantôt typographique, et une note interne visible (« le client,
+06-07/10/2026 », infobulle d'une polyvalence acquise au quotidien).
+
+**La typographie, à l'affichage** (`typo()`). Les textes vivent dans
+des chaînes JavaScript souvent délimitées par l'apostrophe droite :
+les réécrire en masse dans le source casserait le code. `insecables()`
+posait déjà les espaces insécables, mais pour la seule fiche ; `typo()`
+les reprend, y ajoute l'apostrophe typographique et l'heure qui ne se
+coupe pas (« 13 h 30 »), et s'applique au TEXTE affiché par un
+observateur — jamais aux données, ni aux champs, listes de choix, code,
+ni à la grille de l'Horaire. Les deux endroits qui relisent un texte
+affiché pour décider (`whyFor` de la fiche, le message `ppErr` des
+demandes, qui sans cela se réannonçait à chaque frappe) le comparent à
+`typo()`. Mesuré : plus une apostrophe droite dans le texte affiché ; la
+ligne « pourquoi » de la fiche s'ouvre toujours ; le coût, d'abord de 40
+à 60 ms au chargement et à l'ouverture d'Équipes, est ramené dans le
+bruit (376 contre 374 ms, 455 contre 458) en sautant d'emblée tout bloc
+dont le texte entier ne contient rien à changer.
+
+**L'aperçu d'un lien partagé** : `apercu-lien.jpg` (1200 × 630 : le logo,
+« Horaire, planning et salaire des équipes en pauses », l'usine) et les
+balises `og:` et `twitter:` ; la description de la page, restée celle
+du simulateur de septembre, dit ce qu'est l'application aujourd'hui ;
+« Biowanze » devient « BioWanze » dans le manifeste, comme partout dans
+l'interface ; une balise `mobile-web-app-capable` en double est retirée.
+
 ### Le clair, optimisé écran par écran (29/10/2026, `nfdm-v1193`)
 
 Le client : « optimisation pro du thème clair et contrasté ». Méthode de
@@ -2338,6 +2376,37 @@ dans le formulaire, où les lignes servent. Le titre de l'en-tête
 paraissait flou et pâle sur l'iPhone : aucune règle ne l'explique et
 Chromium ne le reproduit pas ; il est désormais blanc franc, en 650, sur
 un fond opaque — à revoir sur le téléphone du client (`nfdm-v925`).
+
+### La pile et l'historique ne se perdent plus (29/10/2026, `nfdm-v1195`)
+
+Trouvé pendant la passe « 100 % professionnelle » : au téléphone, rôle RH,
+l'outil qui relève les textes de chaque écran perdait la page (« Execution
+context was destroyed ») — même seul, sans charge. Tracé en annonçant
+chaque `pushState`, chaque retrait et chaque `popstate` dans la console :
+
+    RETIRE g   pile=g   → GO -1        (l'espace RH se ferme)
+    POUSSE plus#7 pile=plus            (« Plus » s'ouvre aussitôt)
+    POP vers null ignore=1 pile=plus   (le retour arrive APRÈS)
+
+`history.go(-1)` n'aboutit qu'un peu plus tard : le `pushState` fait
+entre-temps est défait par lui. La pile garde « plus », l'historique ne
+l'a plus ; la fermeture suivante recule d'un cran de trop — au-delà de la
+première page de l'application. **Dans un onglet de navigateur, on
+QUITTAIT l'application** ; installée, rien ne se voyait, mais « retour »
+était décalé d'une étape.
+
+**Le remède** : pendant un retrait, une étape nouvelle entre dans la pile
+et ATTEND (`NAV.attente`, le nombre d'étapes du haut de la pile pas encore
+posées) ; elle se pose au `popstate` du retrait, ou au bout de 1,5 s s'il
+ne vient pas. Retirer une étape encore en attente l'oublie, sans reculer.
+
+**L'épreuve** (`course.js`, à côté des essais : fermer l'espace RH et
+rouvrir « Plus » dans le même instant, refermer « Plus ») : **avant, 5
+sorties de l'application sur 6 essais ; après, 0 sur 6.** Le relevé des
+textes au téléphone : avant, une passe sur deux perdait la page ; après,
+21 étapes sur 21, deux fois. Et le geste « retour » des cas ordinaires
+(« Plus », « Plus » puis une section, Réglages, espace refermé puis
+« Plus ») se comporte exactement comme avant, un cran à la fois.
 
 ### La vue Semaine cassée par « Ma semaine » (22/10/2026, `nfdm-v927`)
 
