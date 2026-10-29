@@ -322,9 +322,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
 - **Deux thèmes** (29/10/2026) : le sombre par défaut, le clair au choix
   (Réglages), clair jusqu'au bord — menu, héros, barre d'état. Toute
   couleur passe par les jetons, un blanc de marque aussi (`--tx-blanc-NN`,
-  `--bd-blanc-NN`… : en sombre l'écriture d'avant, en clair l'encre) ; le
-  sombre se prouve identique au pixel ; le clair se mesure (`parcours.js` :
-  contraste compris).
+  `--bd-blanc-NN`… : en sombre l'écriture d'avant, en clair l'encre) ; une
+  teinte en blanc translucide disparaît en clair : elle a son double à
+  l'encre ; le sombre se prouve identique au pixel ; le clair se mesure
+  (`parcours.js` : contraste compris).
 
 ## Après avoir modifié `index.html`
 

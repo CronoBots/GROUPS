@@ -308,6 +308,62 @@ surfaces de navigateur thémées), ui-ux-pro-max (règles clair/sombre :
 jetons sémantiques, 4,5:1, séparateurs visibles dans les deux thèmes,
 chaque thème testé pour lui-même), playwright pour toutes les mesures.
 
+### Le clair, optimisé écran par écran (29/10/2026, `nfdm-v1193`)
+
+Le client : « optimisation pro du thème clair et contrasté ». Méthode de
+« optimise tout » : chaque écran photographié en page entière en clair
+(320, 390 et 1280 px : les onglets, l'espace RH, l'Horaire et les
+Réglages ouverts),
+puis deux relevés au navigateur : les barres de titre de chaque carte
+(fond, filet), et TOUS les fonds et filets réellement peints, en
+histogramme. Ce qu'ils ont trouvé :
+
+- **Trois gris pour un même rôle.** Les titres de carte de l'Accueil
+  étaient sur `#E9EDF2` (v1192), les autres barres de titre — celles
+  des Équipes, des Effectifs, de la Recherche, du calendrier, de l'espace
+  RH, de la Direction et de l'Horaire, et les en-têtes des tableaux de
+  l'espace RH — sur `--surface2` (`#F1F4F7`,
+  presque blanc), et le titre de la carte Agenda (Réglages) avait un
+  filet clair quand les autres ont celui du cadre. Un jeton `--fd-titre`
+  les porte toutes : en sombre il vaut `--surface2` (rien ne bouge), en
+  clair `#E9EDF2` ; le filet du titre est partout celui du cadre.
+- **Les volets ouverts** (des Réglages et du Salaire) deviennent le titre de ce
+  qu'ils déroulent : même bandeau, même filet, en gras ; fermés, ils
+  restent une ligne, à l'encre pleine.
+- **26 règles en blanc translucide** (ou gris-bleu à 4–30 %), faites
+  pour le bleu nuit, disparaissaient sur le blanc. Celles qui portent du
+  sens ont leur double à l'encre du clair : les **bordures des jours
+  vides du calendrier**, que le client avait demandées le 18/10 (« il faut
+  des bordures aux cellules sans rien aussi ») et qui n'existaient plus en
+  clair ; la case du congé et sa pastille ; la teinte du week-end ; les
+  week-ends du relevé ; le survol des semaines ; le **pointillé des
+  trigrammes en formation et de jour** (le client, le 26/10), invisible
+  sur le blanc. Laissées telles quelles, et pourquoi : le reflet du haut
+  des cadres (invisible, sans rôle en clair), l'illustration du
+  téléphone du guide (`.d-*`, une image du sombre), la roue du héros
+  (posée sur la photo), et `.ms-j` — du code mort : `maSemaineHTML()`
+  n'est plus appelée nulle part.
+- **Deux boutons bleu nuit** sur la page claire, « retour en haut » et
+  les trois boutons flottants de l'Horaire au PC : la surface des cartes,
+  son filet, son ombre, l'icône à l'encre.
+- **La molette et la sélection** gardaient en clair les gris et le bleu
+  par défaut du navigateur (le sombre a les siens depuis l'audit
+  Impeccable) : thème des deux.
+- **Hors thème, un défaut des deux** : dans Réglages, le volet « Vue
+  direction » collait son texte au bord gauche de la carte et « Ouvrir »
+  au bord droit (`.notifreg`, venue après `.pad`, lui retirait ses
+  marges). Mesuré : 1 px du bord avant, 17 px après, comme ses voisins.
+
+**Vérifié, et écarté** : à 320 px, la capture des Réglages ouverts
+faisait 980 px de large — un artefact de la capture pleine page ;
+remesuré, la page tient à 320 px dans les deux thèmes, aucun élément ne
+dépasse.
+
+**Mesuré** : le sombre identique au pixel sur 23 écrans à 390 et
+1280 px (un pixel d'anticrénelage sous la barre du bas, dans le flou) ;
+le clair à 0 texte sous le seuil à 320, 390, 768 et 1280 px, trois
+rôles, guide compris.
+
 ### Le clair jusqu'au bord : menu, héros, barre d'état, et trois gris (29/10/2026, `nfdm-v1191`)
 
 Le client, devant la v1190 : « oui, tout doit être adapté, héros, barre de
