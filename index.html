@@ -7035,20 +7035,30 @@ html .hp-t.hp-tmoi{min-width:100%}
 html .hp-t tbody td.hp-c{text-align:left; text-overflow:clip; padding:2px 10px; color:#111827}
 /* LE POSTE ET LE TRIGRAMME RESTENT AU GLISSEMENT (le client, le 29/10/2026 :
    « pour Mon horaire, les deux premières lignes avec le poste et le
-   trigramme doivent rester fixes, même au scroll horizontal ») : leur
-   libellé colle à gauche, juste après le coin (--hp-coin), sur la largeur
-   que l'écran montre (--hp-vis, grCaleTete) ; la case qui le porte
-   laisse déborder (un « overflow:hidden » ferait d'elle le conteneur du
-   collant, et rien ne collerait) */
-html body .hp-t.hp-tmoi thead th[colspan]{overflow:visible}
-html body .hp-t.hp-tmoi thead th .hp-lib{display:block; position:sticky; left:var(--hp-coin,88px); width:var(--hp-vis,calc(100vw - 140px)); max-width:100%}
+   trigramme doivent rester fixes, même au scroll horizontal », puis, la
+   première version installée : « les deux lignes ont quand même un
+   scroll »). La première version collait le libellé DANS la case
+   d'en-tête, elle-même collée en haut : un collant dans un collant, juste
+   au navigateur de bureau, que l'iPhone ne tient pas. Les deux lignes
+   sont désormais un bandeau à part (.hp-moit), posé avant le tableau dans
+   une enveloppe de sa largeur (.hp-moiw), et collé en haut ET à gauche de
+   la zone qui défile — comme la colonne des jours, qui tient au
+   téléphone. Hauteurs et largeurs mesurées par grCaleTete. */
+html .hp-moiw{min-width:100%}
+html .hp-moiw .hp-t.hp-tmoi{width:100%}
+html .hp-moit{position:sticky; top:0; left:var(--hp-coin,88px); width:var(--hp-vis,calc(100vw - 140px)); height:0; z-index:8}
+html .hp-moit>div{position:absolute; left:0; right:0; box-sizing:border-box; display:flex; align-items:center; justify-content:center; padding:0 6px;
+  color:#111827; font:600 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; white-space:nowrap; border-bottom:1px solid #64748b}
+html .hp-moit .hp-mt1{top:0; height:var(--hp-g,29px); text-transform:uppercase; letter-spacing:.02em}
+html .hp-moit .hp-mt2{top:var(--hp-g,29px); height:var(--hp-o,24px); font-size:13px; border-bottom:2px solid #64748b; cursor:pointer}
+html .hp-moit .hp-mt2 small{display:none}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
 html .hp-t thead tr.hp-ops th{top:29px; text-transform:none; font-size:13px; font-weight:600; border-bottom:2px solid #64748b; border-right:2px solid #64748b; cursor:pointer; height:22px}
 html .hp-t thead tr.hp-ops th small{display:block; font-size:11px; font-weight:500; color:#374151; margin-top:1px}
 html .hp-t thead th.hp-gp{border-right:2px solid #64748b; font-size:12px; letter-spacing:.02em}
-html .hp-t .pt-meu{background:#f6e3a1} html .hp-t .pt-fer{background:#cfe7bf} html .hp-t .pt-cha{background:#f2a08a} html .hp-t .pt-step{background:#bfdbfe} html .hp-t .pt-cm{background:#c7ccd4}
+html .hp-t .pt-meu,html .hp-moit .pt-meu{background:#f6e3a1} html .hp-t .pt-fer,html .hp-moit .pt-fer{background:#cfe7bf} html .hp-t .pt-cha,html .hp-moit .pt-cha{background:#f2a08a} html .hp-t .pt-step,html .hp-moit .pt-step{background:#bfdbfe} html .hp-t .pt-cm,html .hp-moit .pt-cm{background:#c7ccd4}
 html .hp-t thead th.hp-coin{left:0; z-index:9; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:5px}
 /* 23/10/2026 : « Adjoints ON », « pers. » et « Éq. » à 9 et 10 px passent
    au plancher de 11 px ; le bouton des adjoints, cible de 44 px */
@@ -18964,9 +18974,11 @@ function renderGrille(){
     cx.font='400 12px Roboto,system-ui,"Segoe UI",Arial,sans-serif';
     jours.forEach(function(dt){ var e2=(cols[0].p.d||{})[pad2(dt.getMonth()+1)+pad2(dt.getDate())];
       if(e2&&e2[2]) wMax=Math.max(wMax,cx.measureText(grComLigne(e2[2])).width); });
-    larg=' style="width:'+Math.ceil(218+wMax*1.02+24)+'px"';
+    larg=Math.ceil(218+wMax*1.02+24);
   }
-  var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"'+larg+'><colgroup><col class="hp-cm"><col class="hp-cd">'];
+  var h=[(avecCom?'<div class="hp-moiw" style="width:'+larg+'px"><div class="hp-moit" aria-hidden="true"><div class="hp-mt1 '+(mode[3]||grTeinte(mode[1]))+'">'+esc(mode[1])+'</div>'
+      +'<div class="hp-mt2 '+grTeinteCol(cols[0])+'" data-pers="'+esc(cols[0].p.id)+'">'+grTeteCol(cols[0],equipe).html+'</div></div>':'')
+    +'<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"><colgroup><col class="hp-cm"><col class="hp-cd">'];
   /* PLUS DE COLONNE DE BULLE (le client, le 27/10/2026 : « je n'aime pas les
      bulles de commentaire noires ») : le commentaire se marque comme dans
      Excel, et comme au Planning et au calendrier, d'un coin rouge en haut à
@@ -18980,11 +18992,11 @@ function renderGrille(){
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
       h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
-  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length+(avecCom?1:0))+'"><span class="hp-gpl'+(avecCom?' hp-lib':'')+'">'+esc(mode[1])+'</span></th>');
+  } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length+(avecCom?1:0))+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
-    h.push('<th class="'+grTeinteCol(c)+(!avecCom&&GR.colP===c.p.id?' hp-csel':'')+'" colspan="'+(avecCom?3:2)+'" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+(avecCom?'<span class="hp-lib">'+tc.html+'</span>':tc.html)+'</th>');
+    h.push('<th class="'+grTeinteCol(c)+(!avecCom&&GR.colP===c.p.id?' hp-csel':'')+'" colspan="'+(avecCom?3:2)+'" data-pers="'+esc(c.p.id)+'" data-ci="'+ci+'" tabindex="-1" title="'+esc(tc.titre)+'">'+tc.html+'</th>');
   });
   h.push('</tr></thead><tbody>');
   jours.forEach(function(dt,ix){
@@ -19043,7 +19055,7 @@ function renderGrille(){
       var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
     h.push('</tfoot>');
   }
-  h.push('</table>');
+  h.push('</table>'+(avecCom?'</div>':''));
   zone.innerHTML=h.join("");
   grCaleTete();
   GR.colCache={}; GR.sig=grSignature(db);
@@ -19103,7 +19115,7 @@ function grNomsEnPlace(){
   var C=grColonnes(db), cols=C.cols, equipe=/^Shift/.test(C.mode[0]), ths=t.querySelectorAll("thead tr.hp-ops th[data-ci]");
   if(ths.length!==cols.length) return false;
   for(var j=0;j<ths.length;j++){ var c=cols[Number(ths[j].getAttribute("data-ci"))]; if(!c||ths[j].getAttribute("data-pers")!==c.p.id) return false; }
-  Array.prototype.forEach.call(ths,function(th){ var tc=grTeteCol(cols[Number(th.getAttribute("data-ci"))],equipe); th.title=tc.titre; th.innerHTML=th.querySelector(".hp-lib")?'<span class="hp-lib">'+tc.html+'</span>':tc.html; });
+  Array.prototype.forEach.call(ths,function(th){ var tc=grTeteCol(cols[Number(th.getAttribute("data-ci"))],equipe); th.title=tc.titre; th.innerHTML=tc.html; });
   GR.sig=s;
   return true;
 }
@@ -19115,17 +19127,19 @@ function grNomsEnPlace(){
    hauteur mesurée de la rangée des postes devient le décalage (--hp-g). */
 function grCaleTete(){
   var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
-  if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) t.style.setProperty("--hp-g",Math.round(hg)+"px");
+  if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
+  /* les variables vont sur la zone : le tableau en hérite, et le bandeau
+     de « Mon horaire », qui n'est pas dedans, aussi */
+  var ro=t.querySelector("thead tr.hp-ops"), ho=ro?ro.getBoundingClientRect().height:0; if(ho>0) z.style.setProperty("--hp-o",Math.round(ho)+"px");
   /* la colonne des jours colle juste après celle du mois, à sa largeur
      MESURÉE : collée à 24 px quand le mois en faisait 28, elle laissait une
      fente où passaient les cases défilées (le client, le 26/10/2026) */
-  var mo=t.querySelector("tbody td.hp-mois"), mw=mo?mo.getBoundingClientRect().width:0; if(mw>0) t.style.setProperty("--hp-mois",Math.round(mw)+"px");
+  var mo=t.querySelector("tbody td.hp-mois"), mw=mo?mo.getBoundingClientRect().width:0; if(mw>0) z.style.setProperty("--hp-mois",Math.round(mw)+"px");
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
-  var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) t.style.setProperty("--hp-coin",Math.round(cw)+"px");
-  /* et ce que l'écran montre à droite du coin : la largeur des libellés
-     collés de « Mon horaire », moins les 8 px de bord et de marge de leur
-     case (sans quoi, au bout du glissement, le libellé reculait de 6 px) */
-  var zw=z.clientWidth; if(zw>0&&cw>0) t.style.setProperty("--hp-vis",Math.max(0,zw-Math.round(cw)-8)+"px");
+  var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) z.style.setProperty("--hp-coin",Math.round(cw)+"px");
+  /* et ce que l'écran montre à droite du coin : la largeur du bandeau de
+     « Mon horaire » */
+  var zw=z.clientWidth; if(zw>0&&cw>0) z.style.setProperty("--hp-vis",Math.max(0,zw-Math.round(cw))+"px");
 }
 /* l'espace fermé (gardé en page, content-visibility) ne se mesure pas :
    la mesure remettait en page les 12 000 cases mises de côté ; la largeur
@@ -21340,7 +21354,7 @@ function renderHisto(){
         if(pid) [].forEach.call(this.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); }); }
     }
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
-    var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
+    var th=e.target.closest&&e.target.closest("th[data-pers],.hp-moit [data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
   document.addEventListener("keydown",function(e){
     /* une touche déjà prise (Échap d'une confirmation) ne ferme rien de plus */
