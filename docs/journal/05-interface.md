@@ -6170,6 +6170,27 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### « Mon horaire » : le poste et le trigramme restent au glissement (29/10/2026, `nfdm-v1187`)
+
+Le client : « pour Mon horaire, les deux premières lignes avec le poste et
+le trigramme doivent rester fixes, même au scroll horizontal ». Les deux
+cases couvrent toute la largeur du tableau (v1185) : au glissement, leur
+libellé centré partait avec elles.
+
+**Corrigé** : le libellé (`.hp-lib`) colle à gauche, juste après le coin
+(`left:var(--hp-coin)`), sur la largeur que l'écran montre
+(`--hp-vis`, mesurée par `grCaleTete`, aussi au redimensionnement) ; la
+case qui le porte passe en `overflow:visible`, sans quoi elle devenait
+le conteneur du collant et rien ne collait (la règle était déjà écrite le
+26/10 pour le nom du poste). **Mesuré** à 390, 700 et 1280 px, au départ
+et au bout du glissement (570 px au téléphone) : les deux libellés
+restent entiers à l'écran, à 2 px près. Deux réglages en route : à la
+largeur pleine, la boîte reculait de 6 px au bout du glissement (la case
+s'arrête au bord) ; 8 px de moins l'en empêchent. Et un
+`overflow:hidden` sur le libellé, avec la hauteur de ligne serrée du
+tableau, rognait le circonflexe de « CONTREMAÎTRE » : retiré, le texte
+est court. Les autres vues gardent leurs en-têtes en `overflow:hidden`.
+
 ### « Mon horaire » : ni bulle, ni coin rouge, ni colonne marquée (29/10/2026, `nfdm-v1186`)
 
 Le client, capture à l'appui (la bulle « Échange avec GPS » ouverte sur
