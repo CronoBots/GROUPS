@@ -2407,6 +2407,44 @@ trois. Le 22/10 en PM, KDN et PDF font 2/3, et un changement est proposé.
 Le 23/10 en PM, les relais de 12 h comblent : SPS de 14 à 02 h, JBS de 14
 à 18 h, KDN de 18 à 22 h.
 
+### « Présence de 3 opérateurs obligatoire », sans pause : celles de ceux qui la portent (29/10/2026)
+
+Le classeur du 28/10 écrit, les 02 et 03/11, « Présence de 3 opérateurs
+obligatoire pour préparation et redémarrage Vyncke », sans dire la pause.
+Le client, devant le rapport de mise à jour : « ici ». `RENFORT_MOTIF`, qui
+lit les pauses dans le texte, n'en faisait rien.
+
+**Règle** (`RENFORT_SANS_PAUSE`, `pauseDuPorteur`) : une exigence de N
+opérateurs sans pause écrite vaut pour la pause de chacun de ceux qui la
+portent, lue dans l'annotation puis dans la cellule, ou, à défaut, déduite
+d'une plage horaire (« 7h-15h » : le matin, qu'elle couvre le plus). Les
+colonnes se répondent : les 02 et 03/11, la phrase est chez les trois
+chaudières du matin et chez les trois de l'après-midi, et chez personne de
+nuit. Le 16/09 se lit de même, et sa décision du client dit la même chose.
+
+**Un jour que le client a tranché garde sa réponse** (`RENFORT_TRANCHE`) :
+le 13/07, la phrase est aussi chez deux personnes de l'après-midi, mais le
+client a dit « en AM surtout ». La règle ne s'y applique pas.
+
+**Le renfort venu en journée compte au matin** (`renfortDepuisD`). MHI,
+`["7h-15h","","Présence de 3 opérateurs obligatoire … ==> renfort en
+7h-15h"]`, est le troisième du matin ; sa journée le rangeait en D, le
+matin paraissait à 2 sur 3, et le rééquilibrage y envoyait quelqu'un que
+le classeur n'y met pas. Une personne en D aux chaudières, qui y compte et
+porte elle-même la phrase (sans pause, ou avec le matin parmi les pauses
+écrites), compte au matin les jours où celui-ci attend plus que
+d'habitude. Elle passe dans la case du matin avec ses heures, comme la
+consignation de la meunerie (`meunDepuisD`), et le rééquilibrage ne la
+déplace pas. Le 13/07 (QDE « en renfort jusque 15h ») et le 16/09 (ATR
+« en D comme 3ème homme ») se lisent de même.
+
+Mesuré sur toute l'année, `--placement --tout` : seuls changent le matin
+des 13/07, 16/09, 02/11 et 03/11 (2/3 ou 2/2 → 3/3, avec le renfort de
+journée, et plus personne déplacé d'un autre poste) et l'après-midi des 02
+et 03/11 (3/2 → 3/3). Les neuf règles, `--manques 0926`, `--polyvalence`,
+`--compteurs`, les agendas et `comparer-fiches.py VBN` sont identiques à
+l'octet.
+
 ## Corrections du client en attente d'un classeur (22/10/2026)
 
 `CORRECTIONS_CLIENT`, dans `index.html`, porte ce que le client a corrigé

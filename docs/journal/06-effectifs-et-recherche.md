@@ -3576,3 +3576,36 @@ demande du 27/10, reste. Premier essai de la suppression : deux `++` laissés
 dans la concaténation des étiquettes, que `node --check` a refusés avant
 tout test. Mesuré à 0 h 19 et 13 h 10 : aucune étiquette jaune, aucune
 légende, espace RH sans erreur.
+
+### « Présence de 3 opérateurs obligatoire » les 02 et 03/11 (29/10/2026, `nfdm-v1181`)
+
+Le client, sur le rapport de la mise à jour du 28/10 : « ici ». Le
+classeur écrit, les 02 et 03/11, « Présence de 3 opérateurs obligatoire
+pour préparation et redémarrage Vyncke », **sans dire la pause** :
+`RENFORT_MOTIF` n'en faisait rien, et les chaudières n'attendaient que 2.
+
+**Les pauses de ceux qui portent la phrase** (`RENFORT_SANS_PAUSE`,
+`pauseDuPorteur`). Elle est chez les trois chaudières du matin (ADS, GJR,
+MHI « ==> renfort en 7h-15h ») et chez les trois de l'après-midi (LDY,
+« chaudières » au lieu de la meunerie, RCO, SPS), chez personne de nuit.
+Mesuré sur les deux classeurs : la phrase sans pause n'existe que quatre
+jours, les 13/07, 16/09, 02/11 et 03/11. Le 16/09 donne matin et
+après-midi, ce que le client avait dit. Le 13/07 donnerait aussi
+l'après-midi, et le client avait dit « en AM surtout » : un jour de
+`RENFORT_TRANCHE` garde sa réponse. **Épreuve** : sans cette garde, le
+13/07 après-midi passe à 3/3 en y tirant GPO du terrain arrière.
+
+**Le renfort de journée compte au matin** (`renfortDepuisD`). MHI,
+« 7h-15h », était rangé en D ; le matin paraissait à 2 sur 3 et le
+rééquilibrage y envoyait SBZ, que le classeur met au terrain arrière.
+Comme la consignation de la meunerie, la personne en D aux chaudières qui
+porte la phrase compte au matin, passe dans sa case avec ses heures
+(« 07-15 », vérifié au Planning à 390 et 1280 px) et n'est pas déplacée.
+**Épreuve** : sans elle, SBZ repart aux chaudières le 02/11.
+
+**Mesuré**, `--placement --tout` avant et après : changent seulement le
+matin des 13/07 (QDE), 16/09 (ATR « en D comme 3ème homme »), 02 et 03/11
+(MHI), désormais 3/3 sans personne déplacé, et l'après-midi des 02 et
+03/11 (3/2 → 3/3). Neuf règles, `--manques 0926`, `--polyvalence`,
+`--compteurs`, agendas et `comparer-fiches.py VBN` : identiques à l'octet.
+La nuit des 02 et 03/11 reste à 2 : personne de nuit ne porte la phrase.
