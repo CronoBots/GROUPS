@@ -7022,6 +7022,12 @@ html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width
    « Fermentation ») finissent en « … », entières au survol. */
 html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:44px}
 html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:76px}
+/* « Mon horaire » : le tableau prend la largeur, et la colonne du
+   commentaire (sans largeur écrite) reçoit tout le reste ; le texte passe
+   à la ligne entre les actions, à gauche, et la ligne grandit avec lui */
+html .hp-t.hp-tmoi{width:100%}
+html .hp-t thead th.hp-gc{text-align:left; padding-left:10px; border-bottom:2px solid #64748b}
+html .hp-t tbody td.hp-c{text-align:left; white-space:pre-line; overflow:visible; text-overflow:clip; height:auto; line-height:1.35; padding:3px 10px; color:#111827}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
 html .hp-t thead tr.hp-g th{height:24px}
@@ -9013,6 +9019,25 @@ var AFF_CODES=/^(AM|PM|N|D|VA|CP|CSS|RTT|RHS|DTT|RJF|FT|CM|R-CM|RCM|CPPT|D-CPPT|
    trigrammes de l'horaire chargé, et « REMPL XYZ » devenait « Rempl xyz ». */
 var AFF_MOTS3=/^(LES|DES|UNE|PAR|SUR|AUX|QUI|QUE|EST|PAS|CET|SES|MES|TES|NOS|VOS|LUI|ELLE|DON|FIN|MAL|BON|NON|OUI|VIA|AVEC|DEUX|SON|TOUT|JOUR)$/;
 function affTrigramme(w){ return /^[A-Z]{3}$/.test(w)&&!AFF_MOTS3.test(w); }
+/* LE COMMENTAIRE EN PHRASES DANS LA COLONNE DE « MON HORAIRE » (le client,
+   le 29/10/2026 : « ajoute une colonne avec le commentaire affiché de
+   manière pro, majuscule, etc. »). Sur nettoyerAffichage (une action par
+   ligne, majuscule en tête, capitales ramenées, « Échange » accentué), une
+   coupure de plus avant « départ », « arrivée », « demandé » et
+   « justificatif », recollée après un mot de liaison (« à la demande de »),
+   et un point en fin de ligne. Aucun mot changé. Mesuré sur les 7 096
+   commentaires de 2026 : 1,28 ligne en moyenne, 6 au plus, aucun vide. */
+function comPro(t){
+  var s=nettoyerAffichage(t)
+    .replace(/[ \t]+(?=(?:d[ée]part|arriv[ée]e?|demand[ée]e?|justificatif)(?![A-Za-zÀ-ÿ]))/gi,"\n")
+    .replace(/\b(qui|en|ne|et|de|est|sa|son|une?|la|le|sans)\n/gi,"$1 ");
+  return s.split("\n").map(function(l){
+    l=l.replace(/^\s+|[\s,;:–-]+$/g,"");
+    if(!l) return "";
+    l=l.charAt(0).toUpperCase()+l.slice(1);
+    return /[.!?…]$/.test(l)?l:l+".";
+  }).filter(Boolean).join("\n");
+}
 var ESC_MAP={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
 function esc(v){ if(v===null||v===undefined) return ""; return String(v).replace(/[&<>"']/g,function(c){return ESC_MAP[c];}); }
 function easter(y){
@@ -18723,7 +18748,11 @@ function grTeinteCol(c){
    vert de l'arrière */
 function grTeinte(po){ po=String(po||"").toLowerCase();
   return /meun|gluten|renf\S*\s+avant/.test(po)?"pt-meu":/chaud/.test(po)?"pt-cha":/step|épur|epur/.test(po)?"pt-step":/ferm|disti|poly|renf|terr/.test(po)?"pt-fer":"pt-cm"; }
-var GR={feuille:lsGet("ui/grFeuille")||"Shift1", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:""};
+/* À L'OUVERTURE, « MON HORAIRE » (le client, le 29/10/2026 : « mets Mon
+   horaire par défaut à l'ouverture ») : la grille s'ouvre sur la colonne
+   de la personne de l'appareil ; la pilule choisie ensuite reste celle de
+   la séance. Sans personne choisie, la dernière feuille vue. */
+var GR={feuille:"moi", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:""};
 var GR_PIED=[
   {t:"VA",c:{"VA":8,"1/2VA":4},s:"VA"},
   {t:"RTT",c:{"RTT":8,"1h RTT":1,"2h RTT":2,"3h RTT":3,"4h RTT":4,"5h RTT":5,"6h RTT":6,"7h RTT":7},s:"RTT"},
@@ -18880,7 +18909,8 @@ function renderGrille(){
   document.getElementById("grPeriode").textContent=grLibelle();
   GR.adj=true;
   var moiId=trigCourant();
-  if(!(GR.feuille==="moi"&&moiId)&&!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
+  if(GR.feuille==="moi"&&!moiId){ var fv=lsGet("ui/grFeuille"); GR.feuille=fv&&fv!=="moi"?fv:"Shift1"; }
+  if(GR.feuille!=="moi"&&!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
   /* PLUS DE « VUE JOURNÉE » NI DE LÉGENDE (le client, le 26/10/2026 :
      « retirer la légende et la vue journée de l'onglet horaire ») : la vue
      journée redisait le Planning, qui a son onglet ; la légende des codes
@@ -18909,13 +18939,17 @@ function renderGrille(){
   var garde=zone.querySelector("table")?{t:zone.scrollTop,l:zone.scrollLeft}:null;
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
   var equipe=/^Shift/.test(mode[0]);
-  var h=['<table class="hp-t"><colgroup><col class="hp-cm"><col class="hp-cd">'];
+  /* « Mon horaire » a la place d'une colonne de plus : le commentaire du
+     jour, en phrases (comPro), sur toute la largeur restante */
+  var avecCom=mode[0]==="moi"&&cols.length===1;
+  var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"><colgroup><col class="hp-cm"><col class="hp-cd">'];
   /* PLUS DE COLONNE DE BULLE (le client, le 27/10/2026 : « je n'aime pas les
      bulles de commentaire noires ») : le commentaire se marque comme dans
      Excel, et comme au Planning et au calendrier, d'un coin rouge en haut à
      droite de la case d'annotation ; la colonne de 20 px qui ne portait que
      la bulle disparaît (deux cases par personne au lieu de trois). */
   cols.forEach(function(){ h.push('<col class="hp-cs"><col class="hp-cl">'); });
+  if(avecCom) h.push('<col class="hp-cc">');
   h.push('</colgroup><thead><tr class="hp-g"><th class="hp-coin" colspan="2" rowspan="2">'
     +('<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
@@ -18923,6 +18957,7 @@ function renderGrille(){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
       h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
   } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length)+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
+  if(avecCom) h.push('<th class="hp-gc pt-cm" rowspan="2">Commentaire</th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
     var tc=grTeteCol(c,equipe);
@@ -18949,6 +18984,7 @@ function renderGrille(){
       var cs=GR.colP===p.id?' hp-csel':'';
       h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(com?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(com?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
+    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c">'+(e1[2]?esc(comPro(e1[2])):'')+'</td>'); }
     h.push('</tr>');
   });
   h.push('</tbody>');
@@ -18963,8 +18999,8 @@ function renderGrille(){
     var bloc=function(titre,types,val,cls){ types.forEach(function(t,i){
       h.push('<tr class="hp-pied'+(i===0?' hp-pd':'')+(i===types.length-1?' hp-pf':'')+(cls?' '+cls:'')+'">'+(i===0?'<td class="hp-plab" colspan="2" rowspan="'+types.length+'">'+titre+'</td>':''));
       cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td>'); });
-      h.push('</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>'); };
-    h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length)+'"></td></tr>');
+      h.push((avecCom?'<td class="hp-cv"></td>':'')+'</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>'); };
+    h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/"+an+")",T,sol);
     bloc("Prévisions en HEURES",T.concat(["FT+","FT-"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):prev(p,t); });
     /* LE SOLDE FT, DANS LE DERNIER TABLEAU (le client, le 27/10/2026 : « la
