@@ -6140,6 +6140,36 @@ feuille Excel.
 **Mesuré après**, les 14 vues (cinq équipes, neuf postes) : 130 px par
 personne partout, aucun en-tête coupé ; 390 et 1280 px regardés.
 
+### Horaire : le trigramme en tête, et « Mon horaire » (29/10/2026, `nfdm-v1183`)
+
+Le client, juste après les largeurs : « ou alors aussi, les deux colonnes
+de même largeur. Par contre, je ne sais pas s'il faut laisser le nom des
+opérateurs complet comme il est là actuellement, ou parler en trigramme
+comme le reste de l'application. Dans l'onglet horaire, il faudrait
+également un bouton qui permette d'afficher son horaire personnel. Par
+exemple, moi, VBN, en appuyant dessus, je ne verrai que mon horaire. »
+
+**Les deux colonnes restent inégales, 54 et 76 px** : sa première demande
+(« plus étroite pour la pause, plus grande à droite ») et la mesure vont
+dans le même sens. À 65 px chacune, l'annotation n'aurait plus que 59 px
+de texte : « Distillation » (62 px, 92 cases) et « Chaudières » (67 px,
+86 cases) finiraient en « … », pour une pause qui n'utilise pas ses 11 px
+de plus (99 % de ses textes tiennent en 41 px).
+
+**Le trigramme en tête de colonne** (`grTeteCol`). Connecté à la base,
+l'en-tête montrait « Nom P. » : dans 130 px fixes, un nom long finit en
+« … », et le reste de l'application parle en trigrammes. Le nom entier
+reste au survol de l'en-tête, et la recherche le trouve toujours.
+
+**« Mon horaire »**, première pilule de la rangée : la seule colonne de la
+personne de l'appareil (`trigCourant`), avec son poste en tête et sa
+teinte ; pour les contremaîtres, dont le classeur écrit l'équipe (« 5 »)
+à la place du poste, le nom de la feuille. La pilule est mémorisée comme
+les autres (`ui/grFeuille`), suit l'année (2026 et 2027), et dit « ZZZ
+n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
+personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
+colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
+
 ### Le renfort avant en jaune (27/10/2026, `nfdm-v1148`)
 
 Le client : « renfort avant doit être jaune comme meunerie ». `grTeinte()`
