@@ -233,6 +233,76 @@ retiré. Le `:root` clair reste comme base que le bloc sombre surcharge.
 comme histoire. Vérifié avec un téléphone réglé en clair, à 320 (hors
 ligne), 390 et 1280 px : tout est sombre, filigrane compris.
 
+**Revenu sur le 29/10/2026** par le client lui-même : « réalise-moi une
+version claire de mon application, qui fonctionne avec le thème sombre
+actuel et le style du logo original ». Le sombre reste celui par défaut ;
+voir « Deux thèmes : le clair revient, à côté du sombre » juste dessous.
+
+### Deux thèmes : le clair revient, à côté du sombre (29/10/2026, `nfdm-v1190`)
+
+**Le réglage.** Réglages → Mon compte → *Apparence* : Sombre (par défaut,
+la décision du 30/09 tient pour qui ne choisit rien), Clair, ou Auto (le
+réglage du téléphone, suivi en direct). `ui/theme` sur l'appareil ; un
+script de six lignes dans la tête pose le thème avant les feuilles de
+style (pas d'éclair sombre au chargement), puis `appliquerTheme()` tient
+l'attribut, la couleur `theme-color` (#111727 / #F6F6F6) et l'état du
+réglage. Aucune couleur n'est lue en JavaScript : changer l'attribut
+suffit, sans rien refaire — mesuré, le clic bascule l'écran en direct.
+
+**La direction, dans le style du logo d'origine.** `logo.svg` est la
+version « Negativ » : symbole en dégradé menthe → bleu, mot blanc, faite
+pour le bleu nuit. Le bleu nuit du logo garde donc LA MARQUE ET LA
+NAVIGATION — le menu du PC, le dock et la feuille « Plus » du téléphone,
+le héros de l'Accueil, et les écrans de marque (chargement, connexion,
+guide d'installation) — et tout le CONTENU passe au clair. Ces surfaces
+sont des **îlots** (`.ilot`) : le bloc des jetons sombres s'écrit
+`:root[data-theme="dark"],:root[data-theme="light"] .ilot{…}`, une
+variable redéclarée sur l'îlot vaut pour tous ses descendants, et les
+20 règles réservées au sombre ont reçu leur jumelle d'îlot (deux oubliées
+par le premier passage scripté, que précédait un commentaire : retrouvées
+par un contrôle qui cherche, pour chaque sélecteur sombre, sa jumelle).
+L'îlot relit son encre (`color:var(--ink)`), la couleur héritée du corps
+étant déjà résolue en clair.
+
+**La base claire existait** (septembre, rampe à la teinte du bleu nuit,
+contrastes mesurés) mais n'avait plus servi depuis un mois. Mesuré en la
+posant telle quelle : **156 textes sous le seuil au PC**. Après les îlots :
+9. Les derniers venaient de composants nés dans le héros et passés dans
+les cartes blanches (`.pf-cgc`, `.pf-pr-*`, en blanc pur, 1:1), du cyan du
+logo écrit en texte (`--marque-vif` #69B2CB, 2,4:1 sur blanc : en clair
+#0E6B87, même teinte, 6,05:1, les îlots gardant l'original), des pastilles
+de Direction (le gris des libellés écrasait leur blanc, 1,2:1) et du
+« MAL » de la vue Année (2,4:1 → rouge des ateliers). **0 ensuite**, sur
+chaque onglet, chaque section de la feuille « Plus », les quatre vues du
+calendrier, l'Horaire (Mon horaire, Équipe 1, Chaudière), les Réglages
+tout ouverts, l'écran de connexion, à 320, 390, 768 et 1280 px, rôles RH,
+hiérarchie et opérateur.
+
+**La barre d'état de l'iPhone.** L'application installée la veut
+« black-translucent » : heure et batterie en BLANC, posées sur la page —
+invisibles sur du clair. Une bande du bleu nuit de la hauteur de la zone
+protégée les porte (`:root[data-theme="light"]::after`), terminée par le
+seul emploi du dégradé du logo : un liseré de 2 px là où elle rencontre la
+page. Ailleurs, la zone vaut 0 et la bande n'existe pas.
+
+**Le sombre n'a pas bougé** : chaque écran photographié avant, puis après,
+à 390 et 1280 px, comparé au pixel — identique, sauf l'heure affichée
+(12 h 56 / 13 h 09, Direction et Tableau de bord) et la nouvelle ligne
+« Apparence » des Réglages. L'écran de connexion en clair est identique au
+pixel à celui du sombre (c'est un îlot).
+
+**Le parcours (`tools/parcours.js`) passe aux deux thèmes** : le sombre
+partout comme avant, le clair sur le portrait, l'iPhone simulé, le
+couché et le PC ; et le CONTRASTE de chaque texte visible y devient une
+faute (fond réellement peint, transparences composées). **152 essais, 0
+faute.** **Épreuve** : le « 71 » de Mes pauses remis en blanc pur sur une
+copie, `--vite` crie « contraste 1:1 « 71 » (b.pf-pr-f) » et rend 1 ; la
+copie restaurée à l'octet. Skills employés :
+impeccable (colorize, craft-floor : thèmes composés et non inversés,
+surfaces de navigateur thémées), ui-ux-pro-max (règles clair/sombre :
+jetons sémantiques, 4,5:1, séparateurs visibles dans les deux thèmes,
+chaque thème testé pour lui-même), playwright pour toutes les mesures.
+
 ### Zéro texte sous le seuil, et il y en avait 456
 
 Un audit qui parcourt les six onglets, calcule le fond RÉEL de chaque texte

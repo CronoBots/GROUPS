@@ -18,10 +18,16 @@
    zones protégées simulées, téléphone couché, PC. Puis il coupe le réseau
    et recharge : la page doit tenir hors ligne.
 
+   LES DEUX THÈMES (le client, le 29/10/2026, la version claire) : tout le
+   parcours en sombre, le thème par défaut, puis le clair sur le téléphone
+   portrait, l'iPhone simulé, le téléphone couché et le PC.
+
    Faute (code 1) : une requête du téléphone couché qui diverge des
    autres (contrôle sans navigateur, fait d'abord), une erreur JavaScript, un débordement horizontal de la
    page, un cadre posé sous la barre d'onglets (portrait) ou sous le rail
-   (couché), une page blanche hors ligne. Le reste se lit dans la sortie.
+   (couché), une page blanche hors ligne, un TEXTE SOUS LE SEUIL de
+   contraste WCAG de sa taille (4,5:1, 3:1 à 24 px ou 18,66 px gras), sur le
+   fond réellement peint derrière lui. Le reste se lit dans la sortie.
    Aucun nom : les comptes simulés n'ont qu'un trigramme. */
 "use strict";
 const http=require("http"), fs=require("fs"), path=require("path");
@@ -81,12 +87,14 @@ function requetesDivergentes(fichier){
 }
 const VUES=[["Accueil","tab-horaire"],["Planning","tab-jour"],["Équipes","tab-equipe"],["Horaire","ws:planning"]];
 
-async function ouvrir(nav,url,ecran,role){
-  const ctx=await nav.newContext({viewport:{width:ecran.w,height:ecran.h},isMobile:ecran.mobile,hasTouch:ecran.mobile,colorScheme:"dark"});
-  await ctx.addInitScript(([role])=>{ if(localStorage.getItem("__p")) return; localStorage.setItem("__p","1");
+async function ouvrir(nav,url,ecran,role,theme){
+  theme=theme||"dark";
+  const ctx=await nav.newContext({viewport:{width:ecran.w,height:ecran.h},isMobile:ecran.mobile,hasTouch:ecran.mobile,colorScheme:theme});
+  await ctx.addInitScript(([role,theme])=>{ try{ if(localStorage.getItem("__p")) return; localStorage.setItem("__p","1");
+    localStorage.setItem("ui/theme",JSON.stringify(theme));
     localStorage.setItem("ui/prefillId",JSON.stringify("VBN"));
     if(role){ localStorage.setItem("account/current",JSON.stringify({role:"employe",tri:"VBN",cat:"",email:"x@exemple.be",base:role,at:"x"}));
-      localStorage.setItem("base/session",JSON.stringify({access:"a",refresh:"r",exp:Date.now()+9e12,email:"x@exemple.be"})); } },[role]);
+      localStorage.setItem("base/session",JSON.stringify({access:"a",refresh:"r",exp:Date.now()+9e12,email:"x@exemple.be"})); } }catch(e){} },[role,theme]);
   const page=await ctx.newPage(); page.fautes=[];
   page.on("pageerror",e=>page.fautes.push("erreur JS : "+e.message.slice(0,140)));
   await page.route(/supabase\.co\//,r=>{ const u=r.request().url();
@@ -116,6 +124,33 @@ function constater(){
   const cr=cadre&&cadre.getBoundingClientRect();
   if(nr&&cr&&nr.width<nr.height){ if(cr.left<nr.right-1) f.push("cadre sous le rail ("+Math.round(cr.left)+" < "+Math.round(nr.right)+")"); }
   else if(nr&&cr&&g&&!g.hidden&&cr.bottom>nr.top+1&&nr.top<H) f.push("cadre sous la barre ("+Math.round(cr.bottom)+" > "+Math.round(nr.top)+")");
+  /* LE CONTRASTE DE CHAQUE TEXTE VISIBLE, sur le fond réellement peint
+     derrière lui : on remonte les parents jusqu'à une couleur opaque, en
+     composant les transparences. Un dégradé ou une image derrière le texte
+     le laisse de côté (le fond n'est pas une couleur). Trois au plus par
+     vue, un par sélecteur. */
+  function rgb(c){ const m=c.match(/rgba?\(([^)]+)\)/); if(!m) return null; const p=m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }
+  function lum(c){ const k=v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); }; return 0.2126*k(c.r)+0.7152*k(c.g)+0.0722*k(c.b); }
+  function sur(h,b){ return {r:h.r*h.a+b.r*(1-h.a), g:h.g*h.a+b.g*(1-h.a), b:h.b*h.a+b.b*(1-h.a), a:1}; }
+  const vus={}; let n=0;
+  document.querySelectorAll("body *").forEach(e=>{
+    if(n>=3||(!e.offsetParent&&getComputedStyle(e).position!=="fixed")) return;
+    let txt=""; e.childNodes.forEach(c=>{ if(c.nodeType===3) txt+=c.textContent; }); txt=txt.trim(); if(!txt) return;
+    const r=e.getBoundingClientRect(); if(r.width<1||r.height<1) return;
+    const cs=getComputedStyle(e), px=parseFloat(cs.fontSize); if(px<1||cs.visibility==="hidden"||+cs.opacity===0) return;
+    const pile=[]; let x=e, image=false;
+    while(x&&x.nodeType===1){ const s=getComputedStyle(x); if(s.backgroundImage!=="none"&&!/url\(/.test(s.backgroundImage)) image=true; const c=rgb(s.backgroundColor); if(c&&c.a>0){ pile.push(c); if(c.a>=0.99) break; } x=x.parentElement; }
+    if(image) return;
+    let fond=rgb(getComputedStyle(document.body).backgroundColor)||{r:255,g:255,b:255,a:1}; if(fond.a<1) fond={r:255,g:255,b:255,a:1};
+    for(let i=pile.length-1;i>=0;i--) fond=sur(pile[i],fond);
+    const c=rgb(cs.color); if(!c) return; const enc=sur(c,fond);
+    const L1=lum(enc), L2=lum(fond), ct=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
+    const seuil=(px>=24||(px>=18.66&&+cs.fontWeight>=700))?3:4.5;
+    if(ct>=seuil-0.01) return;
+    const k=e.tagName.toLowerCase()+"."+[...e.classList].slice(0,2).join(".");
+    if(vus[k]) return; vus[k]=1; n++;
+    f.push("contraste "+(Math.round(ct*100)/100)+":1 « "+txt.slice(0,24)+" » ("+k+", "+px+" px)");
+  });
   return f;
 }
 
@@ -130,9 +165,14 @@ function constater(){
   const srv=await servir(), url="http://127.0.0.1:"+srv.address().port+"/";
   const nav=await chromium.launch();
   const ecrans=vite?ECRANS.filter(e=>e.nom==="téléphone 390"):ECRANS;
+  /* le sombre partout ; le clair sur quatre écrans (--vite : le portrait) */
+  const CLAIR=["téléphone 390","iPhone 390 (zones protégées)","couché 844","PC 1280"];
+  const passes=[];
+  ecrans.forEach(e=>passes.push([e,"dark"]));
+  ecrans.filter(e=>CLAIR.indexOf(e.nom)>=0).forEach(e=>passes.push([e,"light"]));
   let fautes=div.length, essais=1;
-  for(const ecran of ecrans) for(const role of (vite?["hierarchie"]:ROLES)){
-    const page=await ouvrir(nav,url,ecran,role); const lignes=[];
+  for(const [ecran,theme] of passes) for(const role of (vite?["hierarchie"]:ROLES)){
+    const page=await ouvrir(nav,url,ecran,role,theme); const lignes=[];
     for(const [nom,cible] of VUES){
       if(cible.indexOf("ws:")===0&&!role) continue;
       await aller(page,cible); essais++;
@@ -141,8 +181,9 @@ function constater(){
       if(cible.indexOf("ws:")===0) await aller(page,"tab-horaire");
     }
     lignes.push(...page.fautes);
-    if(lignes.length){ fautes+=lignes.length; console.log("✗ "+ecran.nom+" · "+(role||"sans compte")); lignes.forEach(l=>console.log("    "+l)); }
-    else console.log("✓ "+ecran.nom+" · "+(role||"sans compte"));
+    const tag=ecran.nom+(theme==="light"?" · clair":"")+" · "+(role||"sans compte");
+    if(lignes.length){ fautes+=lignes.length; console.log("✗ "+tag); lignes.forEach(l=>console.log("    "+l)); }
+    else console.log("✓ "+tag);
     await page.ctx.close();
   }
   /* hors ligne : le service worker installé, le réseau coupé, on recharge */
