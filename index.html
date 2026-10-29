@@ -26,11 +26,24 @@ var d=document.documentElement;d.setAttribute("data-barre",c?"claire":"sombre");
 d.setAttribute("data-theme","light");
 var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#ECEFF4");
 var b=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(b)b.setAttribute("content","default");})();</script>
-<meta name="description" content="Simulateur de fiche de paie belge : l'horaire du mois entre, le net à recevoir sort.">
+<meta name="description" content="Horaire, planning, fiche de paie et effectifs du jour des équipes en pauses de BioWanze, sur le téléphone comme au PC.">
+<!-- L'APERÇU D'UN LIEN PARTAGÉ (WhatsApp, Teams, courriel ; 29/10/2026) :
+     une carte aux couleurs de la marque plutôt qu'une adresse nue.
+     apercu-lien.jpg (1200 × 630) : le logo, l'accroche et l'usine. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BioWanze">
+<meta property="og:locale" content="fr_BE">
+<meta property="og:url" content="https://cronobots.github.io/groups/">
+<meta property="og:title" content="BioWanze — horaire, planning et salaire des équipes en pauses">
+<meta property="og:description" content="Mon horaire, mon planning, ma fiche de paie et les effectifs du jour, sur le téléphone comme au PC.">
+<meta property="og:image" content="https://cronobots.github.io/groups/apercu-lien.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Le logo BioWanze devant l'usine : horaire, planning et salaire des équipes en pauses">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="BioWanze">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
@@ -8845,6 +8858,38 @@ function moins(s){ return String(s).replace(/^-/,"\u2212"); }
 function insecables(s){
   return String(s).replace(/ (?=[%€:;!?»])/g,"\u00a0").replace(/« /g,"«\u00a0");
 }
+/* LA TYPOGRAPHIE FRANÇAISE SUR TOUT L'AFFICHAGE (le client, le 29/10/2026 :
+   « passe 100 % professionnelle et commerciale »). insecables() ne servait
+   qu'à la fiche ; typo() en reprend les espaces insécables (avant % € : ;
+   ! ? », après «) et y ajoute l'apostrophe typographique (l’horaire) et
+   l'heure qui ne se coupe pas en fin de ligne (13 h 30). Elle touche le
+   TEXTE AFFICHÉ, jamais les données : un observateur repasse chaque nœud
+   ajouté à la page, hors champs de saisie, listes de choix (la valeur
+   d'une option sans value est son texte), code, et la grille de l'Horaire
+   (12 000 cases sans ponctuation). Le code qui relit un texte affiché le
+   compare à typo() (whyFor, ppErr). */
+var LETTRE="A-Za-zÀ-ÖØ-öø-ÿ";
+var TYPO_APO=new RegExp("(["+LETTRE+"])'(?=["+LETTRE+"])","g");
+function typo(s){
+  return insecables(s).replace(TYPO_APO,"$1\u2019").replace(/(\d) h\b/g,"$1\u00a0h").replace(/(\d\u00a0h) (?=\d)/g,"$1\u00a0");
+}
+var TYPO_HORS="#grZone,textarea,select,option,code,pre,input,[contenteditable],script,style";
+/* ce que typo() change : on n'entre dans un bloc que si son texte entier
+   (textContent, natif et rapide) en contient (−40 ms sur l'Accueil) */
+var TYPO_CIBLE=new RegExp(" [%€:;!?»]|« |["+LETTRE+"]'["+LETTRE+"]|\\d h\\b");
+function typoTexte(n){ var v=n.nodeValue; if(!v||!TYPO_CIBLE.test(v)) return; var w=typo(v); if(w!==v) n.nodeValue=w; }
+function typoPasser(r){
+  if(r.nodeType===3){ var p=r.parentElement; if(p&&!p.closest(TYPO_HORS)) typoTexte(r); return; }
+  if(r.nodeType!==1||!TYPO_CIBLE.test(r.textContent)||r.closest(TYPO_HORS)) return;
+  var w=document.createTreeWalker(r,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+    return n.nodeType===3?NodeFilter.FILTER_ACCEPT:(n.matches(TYPO_HORS)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP); }}), n;
+  while((n=w.nextNode())) typoTexte(n);
+}
+try{
+  typoPasser(document.body);
+  new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var a=ms[i].addedNodes; for(var j=0;j<a.length;j++) typoPasser(a[j]); } })
+    .observe(document.body,{childList:true,subtree:true});
+}catch(e){}
 function num(x){return nf0.format(x);}
 function pad2(n){return (n<10?"0":"")+n;}
 function key(y,m){return y+"-"+pad2(m+1);}
@@ -12273,7 +12318,7 @@ function toggleWhy(tr){
   }
   /* le libellé affiché porte des espaces insécables (insecables()) : on
      relit l'original, aux espaces ordinaires, que whyFor() reconnaît */
-  var w=whyFor(tr.children[1].textContent.replace(/\u00a0/g," ").replace(/\s*\?$/,"")); if(!w) return;
+  var w=whyFor(tr.children[1].textContent.replace(/\u00a0/g," ").replace(/\u2019/g,"'").replace(/\s*\?$/,"")); if(!w) return;
   var row=document.createElement("tr");
   row.className="whytext";
   row.innerHTML='<td colspan="3"><p>'+insecables(w)+"</p></td>";
@@ -19143,21 +19188,42 @@ function fermerGrille(parRetour){
    le retour suivant ne tombe pas dans le vide. Le guide d'installation y
    pose la sienne (« inst ») : il en tenait une à part, qui se fermait mal
    (audit du 23/10/2026). */
-var NAV={pile:[], ignore:0, aRetirer:0};
+var NAV={pile:[], ignore:0, aRetirer:0, attente:0, minuterie:0};
 /* posé par le guide, plus haut dans le fichier : déclaré sans valeur, pour
    ne pas l'effacer */
 var guideFermer;
-function navPousser(k){ if(!history.pushState) return; try{ history.pushState({bwz:k},""); NAV.pile.push(k); }catch(e){} }
+/* UNE ÉTAPE NE SE POSE PAS PENDANT QU'UNE AUTRE SE RETIRE (29/10/2026).
+   history.go(-n) n'aboutit qu'un peu plus tard ; un pushState fait entre-
+   temps était défait par lui, et la pile gardait une étape que
+   l'historique n'avait plus : la fermeture suivante reculait d'un cran
+   de trop, et dans un onglet de navigateur on QUITTAIT l'application
+   (reproduit au téléphone : fermer l'espace RH, rouvrir « Plus »).
+   Pendant un retrait, l'étape entre dans la pile et attend (« attente »,
+   le nombre d'étapes du haut de la pile pas encore posées) ; elle se pose
+   au popstate du retrait, ou au bout d'une seconde et demie s'il ne vient
+   pas. */
+function navVider(){
+  clearTimeout(NAV.minuterie); NAV.minuterie=0;
+  var n=NAV.attente; NAV.attente=0;
+  for(var i=NAV.pile.length-n;i<NAV.pile.length;i++){ try{ history.pushState({bwz:NAV.pile[i]},""); }catch(e){} }
+}
+function navPousser(k){ if(!history.pushState) return;
+  if(NAV.aRetirer||NAV.ignore){ NAV.pile.push(k); NAV.attente++;
+    if(!NAV.minuterie) NAV.minuterie=setTimeout(function(){ NAV.minuterie=0; if(NAV.attente) navVider(); },1500); return; }
+  try{ history.pushState({bwz:k},""); NAV.pile.push(k); }catch(e){} }
 /* Une feuille qui s'efface devant l'espace lui CÈDE son étape : la retirer
    puis en poser une autre laissait une étape vide, le history.go(-1) étant
    annulé par le pushState qui le suit (audit du 23/10/2026). */
 function navCeder(de,a){ var i=NAV.pile.lastIndexOf(de); if(i>=0) NAV.pile[i]=a; }
 function navRetirer(k){
-  var i=NAV.pile.lastIndexOf(k); if(i<0) return; NAV.pile.splice(i,1);
+  var i=NAV.pile.lastIndexOf(k); if(i<0) return;
+  /* une étape encore en attente n'est pas dans l'historique : on l'oublie, sans reculer */
+  if(i>=NAV.pile.length-NAV.attente){ NAV.pile.splice(i,1); NAV.attente--; return; }
+  NAV.pile.splice(i,1);
   if(++NAV.aRetirer===1) setTimeout(function(){ var n=NAV.aRetirer; NAV.aRetirer=0; NAV.ignore++; try{ history.go(-n); }catch(e){ NAV.ignore--; } },0);
 }
 window.addEventListener("popstate",function(){
-  if(NAV.ignore){ NAV.ignore--; return; }
+  if(NAV.ignore){ NAV.ignore--; if(!NAV.ignore&&!NAV.aRetirer&&NAV.attente) navVider(); return; }
   var k=NAV.pile.pop();
   /* le sélecteur de jour et « préciser » ont leur étape : le retour les
      referme, eux seuls ; une feuille où l'on a écrit demande avant de se
@@ -20995,7 +21061,7 @@ function dmFormulaire(pre){
       var L=toutes().map(function(z){ return z.l; });
       if(L.length) dmRegles(f,moi,L.map(function(l){ return {j:l.j,code:f==="sans_solde"?"CSS":l.code,pause:l.pause}; }),null,0).forEach(function(r){ if(!/^solde/.test(r)) e.push(r); });
       /* role="alert" : réécrite à l'identique, elle se réannoncerait à chaque champ */
-      var pe=document.getElementById("ppErr"); if(pe.textContent!==e.join("")) pe.innerHTML=e.map(esc).join("<br>");
+      var pe=document.getElementById("ppErr"); if(pe.textContent!==typo(e.join(""))) pe.innerHTML=e.map(esc).join("<br>");
       /* hors de la feuille : ce que la demande coûte au compteur */
       var cpts={}, h=0, inf=document.getElementById("ppInfo"), z=[];
       L.forEach(function(l){ var c=f==="sans_solde"?"CSS":l.code; if(!c) return; var x=dmHeures(c); h+=x; var k=dmCompteur(c); if(k) cpts[k]=(cpts[k]||0)+x; });
@@ -26532,7 +26598,7 @@ function renderPolyvalence(){
            MÊME gros point ● que « son poste » (le client, le 07/10/2026), et pas
            de recyclage cette année. */
         if(o.exempt){ h.push('<td class="pvsien" title="Acquis au quotidien — '
-          +'pas de recyclage cette année (le client, 06-07/10/2026)">●</td>'); return; }
+          +'pas de recyclage cette année">●</td>'); return; }
         total++; if(o.ok) atteints++; if(!o.n) vierges++;
         h.push(cellAppRh(o.app||0, inClasseur?o.n:0, o.q, P.z, P.t, dt,
           inClasseur?((t.extra&&t.extra[p.id]&&t.extra[p.id][P.k])||0):0));

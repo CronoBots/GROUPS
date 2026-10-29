@@ -3074,7 +3074,13 @@ point « en direct » qui clignote et une barre de défilement.
    teintée de rouge, 4,46:1. En `--muted` : 0 faute (l'audit le comptait
    déjà avant le nettoyage ; le parcours ne passe pas par la vue Année).
 
-### Observé, non reproduit, laissé tel quel
+### Observé, non reproduit, laissé tel quel — FAUX, corrigé le soir même
+
+**Ce qui suit était faux** : la sortie de page se reproduit, sans charge,
+au téléphone en rôle RH, et c'était un défaut de l'application, pas de
+l'audit. Trouvé et corrigé en `nfdm-v1195` (journal 05, « La pile et
+l'historique ne se perdent plus »). Le récit d'origine, gardé :
+
 
 Sous la charge de huit navigateurs lancés ensemble, l'audit a vu quatre
 fois la page partir (« Execution context was destroyed », capture
