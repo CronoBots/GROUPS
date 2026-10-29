@@ -6170,6 +6170,34 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### « Mon horaire » : le commentaire sur une ligne, l'en-tête sur toute la largeur (29/10/2026, `nfdm-v1185`)
+
+Le client, capture de v1184 à l'appui : « Contremaître sur toute la
+largeur, et le trigramme aussi, mais ne pas avoir de titre
+"Commentaire". Et les lignes ne doivent pas s'agrandir en hauteur selon
+le commentaire : celui-ci doit être sur une ligne, et nous pouvons faire
+glisser vers la droite si nous voulons lire. » La version d'avant (lignes
+qui grandissent, colonne titrée) est donc **revenue sur**, le même jour.
+
+- **Une ligne** : les phrases de `comPro` bout à bout (`grComLigne`),
+  sans retour ; chaque ligne garde sa hauteur (23 px, 24 sous un trait de
+  fin de mois, mesuré sur les 365).
+- **La largeur du plus long** : le canevas mesure, dans la police du
+  tableau, le plus long commentaire de l'année de la personne ; le
+  tableau prend 218 px + cette largeur × 1,02 + 24 px, et au moins tout
+  l'écran (`min-width:100%`). VBN : 670 px pour 110 caractères, colonne de
+  727 px au téléphone (on glisse), 779 au PC (tout tient) ; aucun
+  commentaire débordant sur 365. Première marge à 6 % : 64 px de blanc au
+  bout du glissement ; 2 % suffisent.
+- **Poste et trigramme sur toute la largeur**, plus de titre : leurs
+  cases couvrent les trois colonnes. Centrés sur toute la largeur, ils
+  sortaient de l'écran du téléphone (le centre de 885 px tombait à 527 px) :
+  le libellé se centre sur la largeur que l'écran montre d'abord
+  (`max-width:calc(100vw - 140px)`). Deux erreurs commises en route : la
+  règle `display:block` perdait contre `.hp-gpl{display:inline}`, plus bas,
+  à poids égal ; et `grNomsEnPlace`, qui réécrit les en-têtes à l'arrivée
+  des noms, retirait l'enveloppe du trigramme. Les deux sont corrigées.
+
 ### Horaire : « Mon horaire » à l'ouverture, et son commentaire en phrases (29/10/2026, `nfdm-v1184`)
 
 Le client, capture de « Mon horaire » au téléphone : « mets Mon horaire
