@@ -7043,14 +7043,23 @@ html .hp-t tbody td.hp-c{text-align:left; text-overflow:clip; padding:2px 10px; 
    sont désormais un bandeau à part (.hp-moit), posé avant le tableau dans
    une enveloppe de sa largeur (.hp-moiw), et collé en haut ET à gauche de
    la zone qui défile — comme la colonne des jours, qui tient au
-   téléphone. Hauteurs et largeurs mesurées par grCaleTete. */
-html .hp-moiw{min-width:100%}
-html .hp-moiw .hp-t.hp-tmoi{width:100%}
-html .hp-moit{position:sticky; top:0; left:var(--hp-coin,88px); width:var(--hp-vis,calc(100vw - 140px)); height:0; z-index:8}
-html .hp-moit>div{position:absolute; left:0; right:0; box-sizing:border-box; display:flex; align-items:center; justify-content:center; padding:0 6px;
+   téléphone. Hauteurs et largeurs mesurées par grCaleTete.
+
+   REPRIS ENCORE (le client, sur v1188 : « il y a toujours un petit
+   décalage gauche/droite des deux premières lignes ») : collé, le bandeau
+   restait DANS la zone qui défile, et l'iPhone emporte un instant tout ce
+   qu'elle contient quand on glisse au-delà du bord (l'élastique). Il est
+   maintenant HORS de la zone (#grMoiTete, juste avant elle, sans hauteur),
+   posé par-dessus son haut : rien de ce qui défile ne le porte, il ne peut
+   plus bouger. Le coin « 1 pers. » y passe aussi. */
+html .hp-moib{position:relative; height:0; flex:0 0 0; z-index:12}
+html .hp-moit{position:absolute; top:0; left:0}
+html .hp-moit>div{position:absolute; box-sizing:border-box; display:flex; align-items:center; justify-content:center; padding:0 6px;
   color:#111827; font:600 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; white-space:nowrap; border-bottom:1px solid #64748b}
-html .hp-moit .hp-mt1{top:0; height:var(--hp-g,29px); text-transform:uppercase; letter-spacing:.02em}
-html .hp-moit .hp-mt2{top:var(--hp-g,29px); height:var(--hp-o,24px); font-size:13px; border-bottom:2px solid #64748b; cursor:pointer}
+html .hp-moit .hp-mtc{left:0; top:0; flex-direction:column; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; text-transform:uppercase}
+html .hp-moit .hp-mt1,html .hp-moit .hp-mt2{right:0}
+html .hp-moit .hp-mt1{top:0; text-transform:uppercase; letter-spacing:.02em}
+html .hp-moit .hp-mt2{font-size:13px; border-bottom:2px solid #64748b; cursor:pointer}
 html .hp-moit .hp-mt2 small{display:none}
 html .hp-t th,html .hp-t td{height:18px; padding:2px 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; border:0; border-right:1px solid #64748b; border-bottom:1px solid #64748b}
 html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#111827; font-weight:600; text-transform:uppercase}
@@ -8662,6 +8671,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
            22/10/2026, son outil « Horaires » en modèle) : Équipe 1 à 5,
            Contremaître · Formation · STEP — les feuilles du classeur. -->
       <div class="pl-equipes xl-pilules" id="grEquipes" role="group" aria-label="Équipes"></div>
+      <div class="hp-moib" id="grMoiTete" hidden></div>
       <div class="gr-zone" id="grZone"></div>
       <div class="hp-fabs" aria-label="Défilement">
         <button type="button" class="hp-fab" id="grHaut" aria-label="Revenir en haut"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
@@ -18931,6 +18941,9 @@ function renderGrille(){
   var g=document.getElementById("grille"); if(!g||g.hidden) return;
   var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
   document.getElementById("grPeriode").textContent=grLibelle();
+  /* le bandeau de « Mon horaire » ne reste pas sur un message (pas
+     d'horaire, personne trouvée) : il ne revient qu'avec son tableau */
+  var mt0=document.getElementById("grMoiTete"); if(mt0) mt0.hidden=true;
   GR.adj=true;
   var moiId=trigCourant();
   if(GR.feuille==="moi"&&!moiId){ var fv=lsGet("ui/grFeuille"); GR.feuille=fv&&fv!=="moi"?fv:"Shift1"; }
@@ -18974,11 +18987,15 @@ function renderGrille(){
     cx.font='400 12px Roboto,system-ui,"Segoe UI",Arial,sans-serif';
     jours.forEach(function(dt){ var e2=(cols[0].p.d||{})[pad2(dt.getMonth()+1)+pad2(dt.getDate())];
       if(e2&&e2[2]) wMax=Math.max(wMax,cx.measureText(grComLigne(e2[2])).width); });
-    larg=Math.ceil(218+wMax*1.02+24);
+    larg=' style="width:'+Math.ceil(218+wMax*1.02+24)+'px"';
   }
-  var h=[(avecCom?'<div class="hp-moiw" style="width:'+larg+'px"><div class="hp-moit" aria-hidden="true"><div class="hp-mt1 '+(mode[3]||grTeinte(mode[1]))+'">'+esc(mode[1])+'</div>'
-      +'<div class="hp-mt2 '+grTeinteCol(cols[0])+'" data-pers="'+esc(cols[0].p.id)+'">'+grTeteCol(cols[0],equipe).html+'</div></div>':'')
-    +'<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"><colgroup><col class="hp-cm"><col class="hp-cd">'];
+  /* le bandeau du poste et du trigramme, hors de la zone (voir .hp-moib) */
+  var mt=document.getElementById("grMoiTete");
+  if(mt){ mt.hidden=!avecCom;
+    mt.innerHTML=avecCom?'<div class="hp-moit"><div class="hp-mtc" aria-hidden="true"><span class="hp-nb">1<small>pers.</small></span></div>'
+      +'<div class="hp-mt1 '+(mode[3]||grTeinte(mode[1]))+'" aria-hidden="true">'+esc(mode[1])+'</div>'
+      +'<div class="hp-mt2 '+grTeinteCol(cols[0])+'" data-pers="'+esc(cols[0].p.id)+'" role="button" tabindex="-1" title="'+esc(grTeteCol(cols[0],equipe).titre)+'">'+grTeteCol(cols[0],equipe).html+'</div></div>':""; }
+  var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"'+larg+'><colgroup><col class="hp-cm"><col class="hp-cd">'];
   /* PLUS DE COLONNE DE BULLE (le client, le 27/10/2026 : « je n'aime pas les
      bulles de commentaire noires ») : le commentaire se marque comme dans
      Excel, et comme au Planning et au calendrier, d'un coin rouge en haut à
@@ -19055,7 +19072,7 @@ function renderGrille(){
       var s0=sol(p,t); return s0===null?null:s0-prev(p,t); },"hp-reste");
     h.push('</tfoot>');
   }
-  h.push('</table>'+(avecCom?'</div>':''));
+  h.push('</table>');
   zone.innerHTML=h.join("");
   grCaleTete();
   GR.colCache={}; GR.sig=grSignature(db);
@@ -19137,9 +19154,16 @@ function grCaleTete(){
   var mo=t.querySelector("tbody td.hp-mois"), mw=mo?mo.getBoundingClientRect().width:0; if(mw>0) z.style.setProperty("--hp-mois",Math.round(mw)+"px");
   /* et la largeur du coin, sous laquelle le nom du poste collé ne doit pas passer */
   var c=t.querySelector("thead th.hp-coin"), cw=c?c.getBoundingClientRect().width:0; if(cw>0) z.style.setProperty("--hp-coin",Math.round(cw)+"px");
-  /* et ce que l'écran montre à droite du coin : la largeur du bandeau de
-     « Mon horaire » */
-  var zw=z.clientWidth; if(zw>0&&cw>0) z.style.setProperty("--hp-vis",Math.max(0,zw-Math.round(cw))+"px");
+  /* et le bandeau de « Mon horaire », posé sur le haut de la zone, au
+     pixel de l'en-tête qu'il recouvre : coin, puis poste et trigramme */
+  var mt=document.getElementById("grMoiTete"), mi=mt&&!mt.hidden&&mt.firstChild;
+  if(mi&&hg>0&&ho>0&&cw>0){
+    var zr=z.getBoundingClientRect(), br=mt.getBoundingClientRect(), zw=z.clientWidth, ccw=Math.round(cw), g0=Math.round(hg), o0=Math.round(ho);
+    mi.style.left=Math.round(zr.left+z.clientLeft-br.left)+"px"; mi.style.top=Math.round(zr.top+z.clientTop-br.top)+"px";
+    mi.style.width=zw+"px"; mi.style.height=(g0+o0)+"px";
+    var mc=mi.children; mc[0].style.width=ccw+"px"; mc[0].style.height=(g0+o0)+"px";
+    mc[1].style.left=mc[2].style.left=ccw+"px"; mc[1].style.height=g0+"px"; mc[2].style.top=g0+"px"; mc[2].style.height=o0+"px";
+  }
 }
 /* l'espace fermé (gardé en page, content-visibility) ne se mesure pas :
    la mesure remettait en page les 12 000 cases mises de côté ; la largeur
@@ -21279,6 +21303,8 @@ function renderHisto(){
     if(GR.cherche){ GR.cherche=""; renderGrille(); grCentrer(); }
     try{ (l&&l.offsetParent?l:c).focus(); }catch(x){}
   };
+  document.getElementById("grMoiTete").addEventListener("click",function(e){
+    var d=e.target.closest&&e.target.closest("[data-pers]"); if(d) grPersonne(d.getAttribute("data-pers")); });
   document.getElementById("grZone").addEventListener("click",function(e){
     if(!e.target.closest||!e.target.closest("[data-gr-effacer]")) return;
     var c=document.getElementById("grCherche"); clearTimeout(grT); c.value=""; c.parentNode.classList.remove("rempli"); GR.cherche=""; renderGrille(); grCentrer(); try{ c.focus(); }catch(x){}
@@ -21354,7 +21380,7 @@ function renderHisto(){
         if(pid) [].forEach.call(this.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); }); }
     }
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
-    var th=e.target.closest&&e.target.closest("th[data-pers],.hp-moit [data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
+    var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });
   document.addEventListener("keydown",function(e){
     /* une touche déjà prise (Échap d'une confirmation) ne ferme rien de plus */

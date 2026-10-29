@@ -6170,6 +6170,31 @@ n'apparaît pas dans l'horaire 2027 » quand la personne n'y est pas ; sans
 personne choisie, elle n'apparaît pas. **Mesuré** à 390 et 1280 px : une
 colonne de 130 px, aucune erreur ; les 14 autres vues inchangées.
 
+### « Mon horaire » : le bandeau sort de la zone qui défile (29/10/2026, `nfdm-v1189`)
+
+Le client, sur v1188 : « il y a toujours un petit décalage gauche/droite
+des deux premières lignes de Mon horaire ». Collé, le bandeau restait
+DANS la zone qui défile ; or l'iPhone emporte un instant tout ce qu'elle
+contient quand le doigt dépasse le bord (l'élastique du défilement),
+éléments collés compris — un décalage qu'aucun collage ne rattrape.
+
+**Refait** : le bandeau sort de la zone. Un support sans hauteur
+(`#grMoiTete`, `.hp-moib`) se tient juste avant elle dans la colonne de la
+section ; `grCaleTete` y pose le bandeau sur le haut de la zone, au pixel
+de l'en-tête qu'il recouvre (coin « 1 pers. » compris, recopié). Rien de
+ce qui défile ne le porte. Le toucher sur le trigramme ouvre ses
+compteurs (écouteur propre) ; le bandeau est masqué dès le début de
+chaque rendu et ne revient qu'avec le tableau de « Mon horaire ».
+
+**Mesuré** à 390, 700 et 1280 px : bandeau et coin recopié exactement sur
+l'en-tête et le coin d'origine (85→373 et 17→85, 143-189 au téléphone),
+au départ, au bout du glissement et 1 500 px plus bas. **Épreuve de
+l'élastique** : le tableau décalé de 30 px (ce que fait le rebond),
+l'en-tête et le coin d'origine passent à 115→973 et 47→115, le bandeau
+reste à 85→373. Masqué en « Équipe 1 », sur une recherche sans résultat et
+pour un trigramme absent de l'horaire. Comme pour v1188, Chromium
+seulement : la preuve sur l'iPhone reste au client.
+
 ### « Mon horaire » : un bandeau à part pour le poste et le trigramme (29/10/2026, `nfdm-v1188`)
 
 Le client, sur v1187 installée : « les deux lignes ont quand même un
