@@ -23,7 +23,9 @@
    portrait, l'iPhone simulé, le téléphone couché et le PC.
 
    Faute (code 1) : une requête du téléphone couché qui diverge des
-   autres (contrôle sans navigateur, fait d'abord), une erreur JavaScript, un débordement horizontal de la
+   autres, une accolade CSS orpheline (deux contrôles sans navigateur,
+   faits d'abord), une règle CSS écrite que le navigateur jette, une
+   erreur JavaScript, un débordement horizontal de la
    page, un cadre posé sous la barre d'onglets (portrait) ou sous le rail
    (couché), une page blanche hors ligne, un TEXTE SOUS LE SEUIL de
    contraste WCAG de sa taille (4,5:1, 3:1 à 24 px ou 18,66 px gras), sur le
@@ -84,6 +86,43 @@ function requetesDivergentes(fichier){
     if(REQUETES_ADMISES.indexOf(q)<0) f.push("ligne "+src.slice(0,m.index).split("\n").length+" : "+q.slice(0,140));
   }
   return f;
+}
+/* UNE ACCOLADE ORPHELINE NE FAIT AUCUN BRUIT (29/10/2026). Une « } » de
+   trop au premier niveau d'un <style> devient le début du sélecteur
+   suivant, et le navigateur jette cette règle-là sans rien dire : celle
+   de la case fusionnée du Planning est restée trois jours sans effet.
+   Chaque bloc <style> doit refermer exactement ce qu'il ouvre (hors
+   commentaires et chaînes). */
+function accoladesOrphelines(fichier){
+  const src=fs.readFileSync(fichier,"utf8"), f=[], re=/<style[^>]*>([\s\S]*?)<\/style>/g; let m;
+  while((m=re.exec(src))){
+    const s=m[1], base=m.index+m[0].indexOf(">")+1; let d=0;
+    for(let i=0;i<s.length;i++){
+      if(s.startsWith("/*",i)){ const j=s.indexOf("*/",i+2); i=j<0?s.length:j+1; continue; }
+      const c=s[i];
+      if(c==='"'||c==="'"){ i++; while(i<s.length&&s[i]!==c){ if(s[i]==="\\") i++; i++; } continue; }
+      if(c==="{") d++;
+      else if(c==="}"){ d--; if(d<0){ f.push("ligne "+src.slice(0,base+i).split("\n").length+" : « } » sans ouvrante"); d=0; } }
+    }
+    if(d>0) f.push("ligne "+src.slice(0,base).split("\n").length+" : bloc <style> laissé ouvert ("+d+")");
+  }
+  return f;
+}
+/* …et le navigateur le confirme : chaque sélecteur écrit dans un <style>
+   doit se retrouver parmi les règles qu'il a retenues. Deux fautes qui
+   s'annulent (une « { » de trop, une « } » plus loin) échappent au compte
+   des accolades ; une règle jetée, non. */
+function selecteursEcrits(fichier){
+  const src=fs.readFileSync(fichier,"utf8"), re=/<style[^>]*>([\s\S]*?)<\/style>/g; let m, n=0;
+  while((m=re.exec(src))){
+    const s=m[1].replace(/\/\*[\s\S]*?\*\//g,""); let tete=0, prof=0;
+    for(let k=0;k<s.length;k++){ const c=s[k];
+      if(c==='"'||c==="'"){ k++; while(k<s.length&&s[k]!==c){ if(s[k]==="\\") k++; k++; } continue; }
+      if(c==="{"){ const t=s.slice(tete,k).trim(); if(t.charAt(0)!=="@"&&!/^(from|to|\d+%)/.test(t)) n++; prof++; tete=k+1; }
+      else if(c==="}"){ prof--; tete=k+1; }
+      else if(c===";"&&prof===0) tete=k+1; }
+  }
+  return n;
 }
 const VUES=[["Accueil","tab-horaire"],["Planning","tab-jour"],["Équipes","tab-equipe"],["Horaire","ws:planning"]];
 
@@ -158,9 +197,12 @@ function constater(){
   /* d'abord le contrôle sans navigateur, en une fraction de seconde ;
      « --statique [fichier] » ne fait que lui (l'épreuve sur une copie) */
   const iS=process.argv.indexOf("--statique");
-  const div=requetesDivergentes(iS>=0&&process.argv[iS+1]?process.argv[iS+1]:path.join(RACINE,"index.html"));
+  const cible=iS>=0&&process.argv[iS+1]?process.argv[iS+1]:path.join(RACINE,"index.html");
+  const div=requetesDivergentes(cible), acc=accoladesOrphelines(cible);
   div.forEach(l=>console.log("✗ requête du téléphone couché qui diverge, "+l));
-  if(iS>=0){ console.log(div.length?div.length+" requête(s) divergente(s)":"requêtes du téléphone couché : toutes identiques"); process.exit(div.length?1:0); }
+  acc.forEach(l=>console.log("✗ accolade CSS, "+l));
+  if(iS>=0){ console.log(div.length?div.length+" requête(s) divergente(s)":"requêtes du téléphone couché : toutes identiques");
+    console.log(acc.length?acc.length+" accolade(s) orpheline(s)":"accolades CSS : toutes appariées"); process.exit(div.length||acc.length?1:0); }
   const vite=process.argv.indexOf("--vite")>=0;
   const srv=await servir(), url="http://127.0.0.1:"+srv.address().port+"/";
   const nav=await chromium.launch();
@@ -170,9 +212,16 @@ function constater(){
   const passes=[];
   ecrans.forEach(e=>passes.push([e,"dark"]));
   ecrans.filter(e=>CLAIR.indexOf(e.nom)>=0).forEach(e=>passes.push([e,"light"]));
-  let fautes=div.length, essais=1;
+  let fautes=div.length+acc.length, essais=1;
+  let reglesVues=false;
   for(const [ecran,theme] of passes) for(const role of (vite?["hierarchie"]:ROLES)){
     const page=await ouvrir(nav,url,ecran,role,theme); const lignes=[];
+    if(!reglesVues){ reglesVues=true; essais++;
+      const ecrits=selecteursEcrits(path.join(RACINE,"index.html"));
+      const retenus=await page.evaluate(()=>{ let n=0; const p=l=>{ for(const x of l){ if(x.selectorText!==undefined) n++; if(x.cssRules) p(x.cssRules); } };
+        [...document.styleSheets].forEach(s=>{ if(s.ownerNode&&s.ownerNode.tagName==="STYLE") p(s.cssRules); }); return n; });
+      if(ecrits!==retenus){ fautes++; console.log("✗ règles CSS : "+ecrits+" écrites, "+retenus+" retenues par le navigateur"); }
+      else console.log("✓ règles CSS : les "+ecrits+" écrites, toutes retenues"); }
     for(const [nom,cible] of VUES){
       if(cible.indexOf("ws:")===0&&!role) continue;
       await aller(page,cible); essais++;
