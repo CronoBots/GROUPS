@@ -6716,7 +6716,17 @@ le serveur a demandé une confirmation, et `apply_migration` a abandonné
 après une minute (la règle de CLAUDE.md, corrigée : toute migration).
 Elle est donnée au client pour l'éditeur SQL. D'ici là, la page montre
 les versements, les fériés, le guide et les données ; la RH lit « la
-migration base/35 est à appliquer ».
+migration base/35 est à appliquer ». **Appliquée par le client le même jour**
+(« Succès »), puis vérifiée en base : la table a sa sécurité par ligne,
+ni `anon` ni `authenticated` ne la lisent directement, les trois
+fonctions ne s'exécutent que connecté. Éprouvé dans une transaction
+annulée par une exception finale (rien ne reste : zéro contenu, zéro
+notification, les rôles intacts) : la RH écrit, lit, modifie, efface ;
+une annonce échue ne se lit plus ; un titre vide est refusé ; sans
+compte, « compte non validé ». Comme tous les comptes validés sont des
+comptes RH, le contrôle du rôle a été éprouvé en passant l'un d'eux en
+opérateur dans la même transaction : il lit, mais l'écriture et
+l'effacement sont refusés (« réservé à la RH »).
 
 Mesuré au navigateur (base simulée, contenus fictifs) : à 390 px en
 sombre (RH) et en clair (opérateur) et à 1280 px, aucun débordement ni
