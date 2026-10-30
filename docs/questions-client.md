@@ -18,10 +18,12 @@ des questions au client ».
    l'ancienne histoire et la session ne peut pas les remplacer.
 2. **Relire les infos pratiques** (30/10/2026) : vingt-deux, tirées du
    règlement de travail (version 5, 2025) et publiées dans « Infos et
-   aide » ; la RH les corrige ou les complète dans l'application. Deux
-   points du scan restent illisibles : une ligne de l'article 44 (une
-   seconde période de demande de congé, « réponse au plus tard le
-   1er octobre ») et l'affiche de sécurité de l'annexe VI.
+   aide » ; la RH les corrige ou les complète dans l'application. Les deux
+   points du scan qu'on croyait illisibles se lisent sur l'image (relecture
+   du 30/10/2026) : l'article 44 (fin d'année, demande au plus tard le
+   31 août, réponse au plus tard le 1er octobre) et l'affiche de sécurité
+   de l'annexe VI. Depuis cette relecture, il y en a trente-neuf, dont
+   deux tirés des notes de service : à relire de même.
 3. **« Vos données »** (30/10/2026) : qui est le responsable du
    traitement, sur quelle base légale, et combien de temps garder les
    comptes, l'horaire, les demandes et l'historique ? Et faut-il que les
@@ -40,7 +42,11 @@ des questions au client ».
    commentaire, inconnues de 2026 et de la légende. Est-ce le congé-
    éducation payé (des cours, la personne n'est pas au poste) ? Si oui,
    la journée est une absence payée, sans prime de pause. En attendant,
-   l'application la lit comme un poste presté, 8 h et la prime.
+   l'application la lit comme un poste presté, 8 h et la prime. Deux notes
+   de service y penchent (30/10/2026) : la note du congé par heure (2022)
+   compte les « congés (tous types confondus y compris les CEP) » et parle
+   des « congés CEP relatifs à l'année scolaire », et la note du relevé
+   mensuel donne « 53 = congé éducation payé ».
 
 6. **Un « R-CM » de quelques heures, dans quelle ligne du Planning ?**
    (posée le 20/10/2026) Le Planning range un remplacement de
@@ -96,6 +102,10 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 6. **La maladie** : le « premier mois » payé par l'employeur vaut-il
    30 jours calendrier (`MALADIE_EMPLOYEUR_J`) ? Comment le fixe d'un
    employé est-il réduit au-delà — au taux horaire, en jours, au prorata ?
+   Et une rechute : le règlement (art. 48, annexe XII) présume la même
+   maladie dans les 14 jours calendrier qui suivent la fin de la
+   précédente ; le mois de salaire garanti continue-t-il alors, au lieu de
+   recommencer comme le fait l'application ?
 7. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
@@ -109,14 +119,33 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    38 h 24) ? L'application prend 38 h 40 pour tous (réglage « Heures /
    semaine », affiché seulement ; le diviseur horaire ne sert qu'au fixe
    d'un employé).
+   Le règlement précise aussi que le temps plein est de 37 h par contrat :
+   38,40 et 38,67 h sont des durées moyennes effectives. Au 4/5 (art. 8-4.3) :
+   30,7 h et 6,5 jours de RTT sur cinq semaines, 30,9 h et 8 jours sur six.
+   Un indice : la fiche d'un ouvrier opérateur porte « temps partiel /
+   34:24 », soit 38:24 moins 4 h. La CCT d'entreprise du 26/09/2013 « ayant
+   pour objet le temps de travail » (annexe IX) trancherait : peut-on en
+   avoir le texte ?
 7 ter. **La demi-journée de conseil d'entreprise** : l'annexe XI paie les
    jours de dispense « primes de pause » comprises ; la fiche d'un ouvrier
    (25/08) paie la demi-journée « PM · DS-CE » sans prime d'équipe, et
    l'application fait comme la fiche. La demi-journée est-elle un « jour de
    dispense » au sens de l'annexe ?
+7 quater. **La sortie syndicale d'un ouvrier** (30/10/2026) : l'annexe X
+   paie la formation syndicale de l'ouvrier « salaire normal (primes de
+   pause et de week-end) pour les jours de dispense » ; l'application lit
+   tout `DS` comme une absence sans prime, d'après la fiche d'un employé
+   (12/02). 40 journées `DS` en 2026, dont 34 d'opérateurs. Un `DS`
+   d'ouvrier garde-t-il sa prime ?
 8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
-   garanti.
+   garanti. Deux pièces (30/10/2026) : la note de la fiche paie « Hrs. Jours
+   fériés » au salaire horaire moyen sous le code 50, et la note du relevé
+   mensuel dit « 50 = récupération de jour férié » ; mais l'état SAP d'un
+   employé code ses RJF 48. Et le salaire horaire moyen lui-même est
+   « calculé chaque mois sur base du mois précédent » (note de la fiche) :
+   l'application n'en garde qu'un, saisi dans Réglages. Faut-il le
+   recalculer chaque mois ?
 9. **Le recyclage de neuf personnes** : le « restant » du classeur RH ne
    correspond pas aux objectifs par atelier pour DWS (17 au classeur pour
    27), SBZ (11/26), FLN (7/22), FPS (15/30), PLZ (8/28), PAM (18/10),
@@ -154,10 +183,14 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 1. Le solde RTT `64-(n*4)` et le `-4` : que retranche-t-on ? (Le 64 et le
    80 des contremaîtres et adjoints sont expliqués depuis le 30/10/2026 :
    les 8 et 10 jours de RTT des art. 8-2.3 et 8-2.4 du règlement de
-   travail, × 8 h. Reste le `-(n*4)`.)
+   travail, × 8 h. Reste le `-(n*4)` ; une piste : un 4/5 a 6,5 jours de
+   RTT sur cinq semaines (art. 8-4.3), soit 52 h = 64 − 3 × 4.)
 2. Le DTT `report + 24 + 16` : d'où viennent ces crédits ?
 3. « RTT- » (41 fois, du 02 au 10/01) : des RTT de 2025 pris en janvier ?
-4. Pourquoi les RHS n'ont-elles aucun compteur ?
+4. ~~Pourquoi les RHS n'ont-elles aucun compteur ?~~ Réponse dans la note
+   du relevé mensuel (30/10/2026) : le compteur vit dans SAP et à la
+   pointeuse (« 54 = solde des heures supplémentaires à récupérer »), comme
+   le client l'avait dit (« un compteur hors fichier »). À retirer.
 5. Les couleurs peintes à la main : jaune, orange (SD26 ?), lavande ?
 6. Des erreurs de formule ont été mesurées (un flex time jamais compté,
    un DTT fictif de 224 h…) : la liste est dans `docs/plateforme.md`.

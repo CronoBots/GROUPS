@@ -58,9 +58,14 @@ et la fiche affiche les trois reliquats à reporter au mois suivant. En
 janvier, ils valent zéro. Le pré-remplissage renseigne de lui-même les heures
 de récup. HS reprises dans le mois.
 
-Seuls RTT et flex time ouvrent ce droit. Les vacances annuelles, la maladie,
-le congé parental, le repos compensatoire, le CT et la récupération de jour
-férié n'y donnent pas droit, pas plus que les jours de repos — conformément
+**Ouvrent ce droit : RTT, flex time, RHS et DTT** (`crRecup`). La phrase
+qui se lisait ici, « seuls RTT et flex time ouvrent ce droit », était fausse
+(relevé le 30/10/2026) : la note explicative de la fiche (v4) dit de la
+« Compens. Collective Payée » — récupération d'heures supplémentaires et
+d'heures d'ancienneté, codes 54 et 56 — « ces récupérations donnent droit à
+des chèques-repas », et le code les comptait déjà. Les vacances annuelles, la
+maladie, le congé parental, le CT et la récupération de jour férié n'y
+donnent pas droit, pas plus que les jours de repos — conformément
 à la note sur les repos : « les chèques-repas sont attribués lors des jours
 de prestations ».
 
@@ -305,7 +310,12 @@ le 31/05, « Remplacée par VBN, MPE : Remplacée par LDY » ; AFA le 02/07,
 
 Le client tranche : « uniquement les sorties DS, pas les CPPT ». Une sortie
 syndicale est une **absence**, et elle ne conserve pas la prime de la pause
-prévue. Les délégations CPPT et les conseils d'entreprise gardent leur
+prévue. **Le règlement de travail le nuance pour l'ouvrier** (annexe X, relu
+le 30/10/2026) : la formation syndicale d'un ouvrier est payée « salaire
+normal (primes de pause et de week-end) pour les jours de dispense ». La
+règle ci-dessus vient de la fiche d'un employé (12/02) ; 40 journées `DS`
+de 2026, dont 34 d'opérateurs. Question à la RH (`questions-client.md`,
+7 quater) ; rien n'est changé en attendant. Les délégations CPPT et les conseils d'entreprise gardent leur
 traitement : journée prestée en horaire de jour, prime conservée.
 
 La fiche de février le montrait doublement. Le 12/02, `N ǀ DS ǀ à
@@ -548,7 +558,10 @@ qu'il est — personne n'a nommé de dispositif, donc rien n'est suspendu.
 Les exemples du droit se comptent sur 38 h — 4/5 = 30 h 24, 9/10 = 34 h 12.
 **Ce ne sont pas les heures d'ici.** La fiche porte « Nombre heures / semaine
 temps plein / 38:40 », ce qui donne **30 h 56** pour un 4/5 et **34 h 48**
-pour un 9/10. Ne pas recopier les nombres d'un exemple générique : c'est la
+pour un 9/10. (Juste pour la grille de six semaines, relevé le 30/10/2026 :
+le règlement de travail, art. 8-4.3, donne au 4/5 en feu continu un contrat
+de 29,6 h, 30,9 h effectives sur six semaines et 8 jours de RTT, mais
+30,7 h sur la grille de cinq semaines et 6,5 jours — question 7 bis.) Ne pas recopier les nombres d'un exemple générique : c'est la
 fiche qui donne la semaine.
 
 ## La commission paritaire, relevée et non supposée
@@ -955,7 +968,9 @@ ses 200 %.
 
 Le client, le 26/09/2026 : « si c'est un déplacement qui est demandé par la
 ligne hiérarchique pour remplacer quelqu'un, la prime de pause la plus
-élevée doit toujours être conservée ».
+élevée doit toujours être conservée ». Le règlement de travail le dit aussi
+(art. 6) : le travailleur ne peut refuser un autre travail temporaire, et
+« conserve le droit à sa rémunération normale ».
 
 Établi sur le relevé de pointage d'août de VBN, confronté jour par jour :
 
@@ -1172,7 +1187,10 @@ d'avoir réussi les check-lists du poste ; et, **pour un remplacement qui
 engendre une prime de rappel, le personnel permanent est consulté
 d'abord**, avant les intérimaires. Le calcul de la paie ne change donc pas
 pour un intérimaire ; l'ordre des propositions de rappel, lui, pourrait le
-suivre (piste proposée au client, rien n'est codé).
+suivre (piste proposée au client ; « rien n'est codé » n'est plus vrai :
+`permanentsDabord` range les permanents d'abord, comme le demande la note
+de 2017 sur la filière des intérimaires — « le personnel permanent est
+d'abord consulté » —, relevé le 30/10/2026).
 
 **Ce à quoi elle servira** — le client, le 22/09/2026 : « quand je te
 donnerai une fiche de paye d'un ouvrier, il ne faudra pas calculer les
@@ -1581,7 +1599,11 @@ pas les deviner :
      mutuelle payant à côté, hors fiche — ou une ligne d'un autre genre ?
   3. **une reprise remet-elle le compteur à zéro ?** Une rechute rapprochée
      compte souvent dans la même période, et sept séries de l'horaire sont
-     entrecoupées ;
+     entrecoupées. Le règlement de travail (art. 48 et annexe XII, relus le
+     30/10/2026) : une nouvelle incapacité dans les 14 jours calendrier qui
+     suivent la fin de la précédente est présumée la même maladie, sauf si
+     le certificat dit le contraire — et le classeur ne porte pas cette
+     mention. `rangMaladie()` recommence à la première journée prestée ;
   4. **cela vaut-il pour les employés seulement** (CP 220) ou aussi pour les
      ouvriers et les intérimaires, dont les règles sont déjà inconnues ?
 
@@ -1991,7 +2013,10 @@ demi-heure de midi non payée**.
 **L'horaire du D se choisit** (le client, le 14/10/2026) : « le D est un
 jour où le travailleur peut choisir son horaire (6-14 / 7-15 / 7:30-16) ;
 logiquement le choix par défaut est celui indiqué dans l'horaire dans son
-cycle perso ». Le 7h30-16h de la note de 2009 n'est donc qu'un des trois.
+cycle perso ». Le règlement de travail (art. 8-2.3) en donne cinq, avec la
+validation de la ligne hiérarchique : le J2 (7h30-16h) « peut être remplacé
+par un horaire J3 (8h-16h30), J5 (9h-17h30), J9 (7h-15h) ou M1 (6h-14h,
+prime du matin) ». Aucun 8h-16h30 ni 9h-17h30 dans les classeurs 2026-2027. Le 7h30-16h de la note de 2009 n'est donc qu'un des trois.
 Les jours que son cycle met en D, la cellule franche de chacun écrit cet
 horaire (« 7h-15h », « 6h-14h », « H. flott. », ou « D » seul) :
 `horaireHabituelD()` retient le plus écrit (deux fois au moins, 60 % au
@@ -2000,7 +2025,10 @@ moins), et un D sans heure écrite le prend — au Planning, dans l'agenda,
 (« seulement D », le 28/09/2026). Aucune heure payée ne change : un D
 vaut toujours 8 h, sans prime d'équipe.
 
-**Le repos lié au week-end.** Les heures normales prestées un samedi ou un
+**Le repos lié au week-end.** (Le règlement de travail, art. 8-2.3 et
+8-2.4, écrit sous chaque grille « 6 jr de compensation » : six, comme les
+jours de week-end prestés des semaines 1 à 3 — lecture du 30/10/2026, à ne
+pas confondre avec les 8 ou 10 jours de RTT.) Les heures normales prestées un samedi ou un
 dimanche sont payées à 150 % ou 200 %, puis leurs 100 % sont DÉDUITS
 (« Déduction prest norm ») et payés plus tard, un jour de repos désigné de
 la grille (« Jour de repos payé ») :
@@ -2090,7 +2118,11 @@ corrigée, le 09/10/2026, pour l'OUVRIER :
   week-end : seul le libellé change ;
 - **le férié non presté (« Hrs. Jours fériés », code 50) se paie au salaire
   horaire MOYEN**, et non au garanti sous « Congé légal ». La récupération
-  de férié (RJF), que la note ne nomme pas, garde son traitement.
+  de férié (RJF) garde son traitement. « Que la note ne nomme pas » se lisait
+  ici, et c'était faux (relevé le 30/10/2026) : la note du relevé mensuel
+  (novembre 2025) dit « 50 = récupération de jour férié », le code même de
+  « Hrs. Jours fériés ». Chez l’employé, l’état SAP code ses RJF 48,
+  « jour férié choix libre ». La question 8 à la RH reçoit ces deux pièces.
 
 **Ce que les notes ne disent pas** : les vacances de l'ouvrier (les fiches
 les portent sans montant, sous « Congé légal »), la maladie du week-end, et
@@ -2224,7 +2256,10 @@ choses de plus :
   question du D (7h30-16 de la note de 2009 ou 7-15 du client) n'est donc
   pas tranchée par ce document : les deux sont des horaires réels ;
 - le flex time des horaires de jour flottants perd ce qui dépasse 12 h à
-  la fin du trimestre — une règle d'horaire flottant, pas des pauses.
+  la fin du trimestre — une règle d'horaire flottant, pas des pauses. Le
+  règlement (art. 8, horaire glissant G1 à G4) la complète : 9 h par jour
+  et 45 h par semaine au plus, période de référence au trimestre civil,
+  report de +12 h et −6 h au plus.
 
 **La procédure des primes de rappel (OP_BWZ_CoD_00020)** est celle que
 l'application applique depuis septembre (« Primes de rappel » ci-dessus) :
@@ -2370,6 +2405,12 @@ refusait sur 14 journées de l'année, parce qu'elle comparait la prestation
 à la pause écrite au lieu du repos.
 
 ## La prime de rappel prend la pause des heures ajoutées
+
+**La procédure va dans le même sens** (relu le 30/10/2026) : OP_BWZ_CoD_00020
+écrit en tête « les taux (pauses et jours prestés) les plus favorables sont
+appliqués », mais précise aussitôt que « la prime de pause appliquée au
+rappel est celle relative à la pause prestée » — c'est la règle ci-dessous.
+Un relecteur y avait vu un écart ; ce n'en est pas un.
 
 Établi le 14/10/2026 sur trois journées et deux personnes, au centième :
 VBN les 19/02 et 14/04 (fiches et état SAP), LCI le 20/03 (fiche). Quand la
