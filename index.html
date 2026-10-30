@@ -342,9 +342,9 @@ var b=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]
 /* les boutons flottants (retour en haut, et ceux de l'Horaire au PC) :
    des pastilles bleu nuit, nées pour le sombre ; en clair, la surface
    des cartes, son filet et son ombre, l'icône à l'encre */
-:root[data-theme="light"] .enhaut,:root[data-theme="light"] .hp-fab{background:var(--surface); color:var(--ink); border:1px solid var(--line); box-shadow:0 6px 18px rgba(21,30,47,.16), 0 1px 2px rgba(21,30,47,.08)}
-:root[data-theme="light"] .enhaut.on,:root[data-theme="light"] .hp-fab{opacity:.9}
-:root[data-theme="light"] .enhaut.on:is(:hover,:focus-visible,:active),:root[data-theme="light"] .hp-fab:hover{opacity:1}
+:root[data-theme="light"] .enhaut{background:var(--surface); color:var(--ink); border:1px solid var(--line); box-shadow:0 6px 18px rgba(21,30,47,.16), 0 1px 2px rgba(21,30,47,.08)}
+:root[data-theme="light"] .enhaut.on{opacity:.9}
+:root[data-theme="light"] .enhaut.on:is(:hover,:focus-visible,:active){opacity:1}
 /* la molette et la sélection, comme en sombre : aux couleurs de la page,
    et non aux gris par défaut du navigateur */
 :root[data-theme="light"]{scrollbar-color:#A9B2BF transparent; scrollbar-width:thin}
@@ -5992,9 +5992,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   html body .grille .ws-planning .xl-pilules{flex-wrap:nowrap !important; overflow-x:auto !important; justify-content:flex-start !important; padding:6px 8px; margin-bottom:8px}
   html body .hp-fabs{right:10px; bottom:12px}
   html #grAujF{display:none}
-  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{visibility:hidden}
-  html .ws-planning .gr-zone>.hp-t{margin-right:62px}
-  html body .grille .ws-planning #grZone{background:linear-gradient(#d6e0ec,#d6e0ec) right top/62px 100% no-repeat local,repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
+  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{opacity:0; visibility:hidden}
 }
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
   /* LA BARRE DE NAVIGATION PORTE LA COULEUR DU LOGO. Le client, le
@@ -7077,8 +7075,16 @@ html .ws-planning .gr-vide button{min-height:44px; padding:0 14px; border-radius
 @media (min-width:700px){ html .ws-planning .xl-legende{flex-wrap:wrap; white-space:normal; gap:4px 16px} html .ws-planning .xl-legende span{white-space:nowrap} }
 /* les trois boutons ronds de défilement */
 html .hp-fabs{position:absolute; right:40px; bottom:56px; display:flex; flex-direction:column; gap:8px; z-index:20}
-html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(17,24,39,.35); background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; opacity:.65; cursor:pointer}
-html .hp-fab:hover{opacity:1}
+/* UN STYLE ET UNE OPACITÉ PROFESSIONNELS (le client, le 29/10/2026) : la
+   pastille bleu nuit à 65 % délavait aussi son icône, et faisait une tache
+   sombre sur le tableau clair. Un verre dépoli à la place, le même dans les
+   deux thèmes (le tableau garde les couleurs du classeur dans les deux) :
+   fond blanc à 72 %, ce qui passe dessous flouté, filet fin, ombre douce,
+   l'icône à l'encre, entière ; au toucher, il se presse */
+html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(15,23,42,.14); background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(12px) saturate(1.6); backdrop-filter:blur(12px) saturate(1.6); color:#1e293b; box-shadow:0 1px 2px rgba(15,23,42,.12),0 6px 16px rgba(15,23,42,.16); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity .2s ease, visibility .2s ease, transform .15s ease, background-color .15s ease}
+html .hp-fab:hover{background:rgba(255,255,255,.92)}
+html .hp-fab:active{transform:scale(.92); background:rgba(255,255,255,.95)}
+html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
 @media (max-width:699px){ html .xl-pilules,html .ws-planning .gr-zone,html .ws-planning .xl-legende{margin-left:8px; margin-right:8px} }
 /* au téléphone, une seule rangée de pilules qui défile (audit du 23/10/2026) :
    passées à la ligne (voulu pour le PC, v922), elles prenaient 390 à 498 px
@@ -7410,16 +7416,13 @@ html .hp-t thead th.hp-gp .hp-gpl{display:inline}
      29/10/2026 : « bouton de scroll vers le haut ou le bas dans l'horaire
      affiché dans le cadre ») : retirés le 26/10 parce qu'ils couvraient la
      dernière colonne, ils se posent au coin du cadre, sans « aujourd'hui »
-     (il est dans la barre), chacun s'efface au bord où il mène, et le
-     tableau garde à sa droite 62 px de marge : glissé jusqu'au bout, plus
-     aucune case n'est sous les boutons. La marge est peinte de la couleur
-     du cadre (un aplat qui défile avec le tableau, « local ») : les rangées
-     immobiles du fond de la zone, à côté des vraies, se décalaient */
+     (il est dans la barre), et chacun s'efface au bord où il mène. Posés
+     SUR le tableau, sans marge (le client, le même soir : « il faut les
+     laisser dans le tableau, pas de marge ») : un verre dépoli laisse lire
+     ce qui passe dessous (voir .hp-fab) */
   html .hp-fabs{right:10px; bottom:12px}
   html #grAujF{display:none}
-  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{visibility:hidden}
-  html .ws-planning .gr-zone>.hp-t{margin-right:62px}
-  html body .grille .ws-planning #grZone{background:linear-gradient(#d6e0ec,#d6e0ec) right top/62px 100% no-repeat local,repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
+  html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{opacity:0; visibility:hidden}
   html .ws-planning .pl-tete{padding:6px 12px 0}
   html .xl-pilules{padding:6px 8px; margin-bottom:8px; gap:8px}
   html .ws-planning .pl-barre{padding-top:4px; padding-bottom:6px}

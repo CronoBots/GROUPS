@@ -6642,13 +6642,16 @@ même largeur) ».
   « aujourd'hui » (déjà dans la barre). Pour ne plus rien couvrir :
   chacun s'efface au bord où il mène (en haut, il ne reste que « bas » ;
   en bas, que « haut » ; `grFabs()`, au défilement et après chaque
-  rendu), et le tableau garde **62 px de marge à droite** : glissé
-  jusqu'au bout, la dernière colonne finit 10 px avant les boutons.
-- **L'erreur commise, deux fois, corrigée avant de publier** : (1) la
+  rendu), ~~et le tableau garde **62 px de marge à droite** : glissé
+  jusqu'au bout, la dernière colonne finit 10 px avant les boutons~~ —
+  **marge retirée le soir même** (`nfdm-v1200`, ci-dessous), le client :
+  « il faut les laisser dans le tableau (pas de marge) ».
+- **L'erreur commise, deux fois, corrigée avant de publier** : (1) ~~la
   marge laissait voir le fond rayé de la zone (les rangées immobiles
   posées contre les « zones mortes » d'iOS), décalé des vraies rangées ;
   elle est peinte d'un aplat à la couleur du cadre, qui défile avec le
-  tableau (`background-attachment: local`). (2) Couché, la position du PC
+  tableau (`background-attachment: local`)~~ (retirée avec la marge).
+  (2) Couché, la position du PC
   (40 px du bord, 56 du bas), écrite plus loin dans la feuille,
   l'emportait : mesurée, puis la règle couchée rendue plus précise.
 
@@ -6661,6 +6664,23 @@ les rangées gardent leurs 23 px. **Le PC est identique au pixel**, dans
 les deux thèmes, en « Mon horaire » comme en équipe ; les sorties du
 vérificateur du calendrier, identiques à l'octet. Reste à voir sur un
 vrai iPhone l'aplat « local » de la marge (Chromium le peint juste).
+
+### Les boutons de l'Horaire : sur le tableau, en verre dépoli (29/10/2026, `nfdm-v1200`)
+
+Le client : « non, il faut les laisser dans le tableau (pas de marge),
+mais par contre leur donner un style et une opacité professionnels ».
+La marge de 62 px et son aplat sont retirés (largeur de défilement
+revenue à 926 px en « Mon horaire », comme avant `nfdm-v1199`). Le
+bouton n'est plus une pastille bleu nuit à 65 % — l'opacité délavait
+aussi l'icône, et la pastille faisait une tache sombre sur le tableau
+clair — mais un **verre dépoli** : fond blanc à 72 %, ce qui passe
+dessous flouté (`backdrop-filter`, avec son préfixe pour Safari), filet
+fin, ombre douce, icône à l'encre entière ; il se presse au toucher
+(`scale(.92)`), et s'efface en fondu au bord où il mène. Un seul style
+dans les deux thèmes (le tableau garde les couleurs du classeur dans les
+deux) : le double clair des boutons ronds est retiré, celui du « retour
+en haut » de la page reste. Au PC aussi, les trois boutons prennent ce
+style. Parcours : 153 essais, 0 faute.
 
 ### « Mon horaire » : « aujourd'hui » revient aussi au bord gauche (29/10/2026, `nfdm-v1192`)
 
