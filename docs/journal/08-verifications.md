@@ -3095,3 +3095,26 @@ le `history.go(-1)` différé (`setTimeout 0`) passe APRÈS le `pushState`
 suivant. Le COMPTE des étapes reste juste, donc « retour » se comporte
 bien ; aucun effet visible à vitesse humaine. Non corrigé : le mécanisme
 est délicat, et rien ne montre qu'un utilisateur le rencontre.
+
+### La vitesse au démarrage, mesurée (30/10/2026)
+
+Le client avait reçu la veille, dans la conversation, « l'écran apparaît en
+0,85 s et la page est prête en 2,7 s » au premier lancement d'un téléphone
+moyen. **C'était faux** : le serveur de la mesure servait la page sans
+compression (2,1 Mo), alors que GitHub Pages la compresse (672 Ko). Refait
+avec un serveur qui compresse, Chromium, processeur ralenti ×4, 4G à
+9 Mbit/s et 150 ms, deux passages :
+
+| | premier lancement | lancements suivants (cache du service worker) |
+|---|---|---|
+| premier affichage | 0,43 à 0,45 s | 0,18 s |
+| page chargée | 1,6 s | 0,57 s |
+| Accueil rempli (« À faire ») | 2,0 à 2,2 s | 1,0 s |
+| tâches longues cumulées | 1,2 à 1,4 s | — |
+
+Au PC : 0,26 s, 0,35 s et 0,5 s. Le profil du démarrage n'a pas de goulot
+unique : le plus gros poste (l'équipe du jour, `equipeDuJour` et
+`postesDePause`) est déjà découpé en tranches ; le reste est fait de
+fonctions de 10 à 40 ms. Un gain net demanderait de découper
+l'application en plusieurs fichiers chargés à la demande, contraire à
+« tout dans `index.html`, pas de build » : rien n'est changé.
