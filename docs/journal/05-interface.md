@@ -7289,3 +7289,41 @@ espace sécable après le tiret). Un contrôle au navigateur — 4 largeurs ×
 nombre, débordement, pastille non centrée, heures coupées — passe sur les
 20 cas ; sur une copie sans le correctif, il crie (heures coupées à 320 et
 360 px).
+
+### La passe professionnelle sur chaque cadre de l'Accueil (30/10/2026, `nfdm-v1229`)
+
+Le client : « retravaille chaque cadre de l'accueil avec ce genre de passe
+professionnelle ». Pages entières photographiées à 320, 390 et 1 280 px,
+puis relevé cadre par cadre :
+
+- **Héros, billet** : la date abrégée (« REPRISE · SAM. 31 OCT. ») → en
+  toutes lettres (« samedi 31 octobre ») ; l'abrégé seulement sous
+  380 px, où elle ne tient pas à côté du délai.
+- **Héros, accès (PC)** : cinq petites tuiles laissaient un grand vide
+  sous le billet, à côté du cycle de six semaines → une liste, l'icône et
+  le nom entier (`data-long` : « Appeler le contremaître ATR », « Demande
+  de congé », « Fiche de paie d'octobre », « Horaire de production 2026 »,
+  « Envoyer le certificat médical à la RH »). Le téléphone garde ses
+  tuiles d'un mot.
+- **Mon année, « Mes pauses »** : la date se coupait au hasard
+  (« Dimanche 1er / novembre ») → le jour et la date en deux blocs
+  insécables ; l'en-tête « Mes pauses · prochaine » se coupait au PC
+  (colonne étroite) → « Prochaine » seul ; à 320 et 360 px, « FAITES
+  RESTE » se touchaient (défaut antérieur) → colonnes à la largeur de leur
+  titre.
+- **Mon rythme** : « année 2026 » → « 2026 », comme « Mon année ».
+
+**Mesuré** (`acc-mesure`, 4 largeurs) : titres de l'en-tête qui se
+touchent, dates coupées dans un bloc, billet qui déborde ou dont le délai
+passe dessous, accès qui débordent, défilement horizontal — 0 partout.
+La première version du contrôle disait « ok » sur l'ancienne page aussi :
+un texte aligné à droite qui déborde vers la gauche n'apparaît pas dans
+`scrollWidth`. Mesuré par l'étendue réelle du texte (Range), il crie sur
+l'ancienne (320 et 360 px) et passe sur la nouvelle. Au PC aussi, une
+règle de même poids, plus loin dans la feuille, écrasait l'effacement du
+nom court : vue sur la capture, corrigée.
+
+**Reste, volontairement** : la période du cycle (« 19 oct. – 29 nov. ·
+semaine 2/6 ») reste abrégée — en toutes lettres, elle passe à la ligne
+sous « Mon cycle » à 390 px ; et « vs sept. » sous les chiffres du
+calendrier, court par nature.
