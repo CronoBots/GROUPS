@@ -1637,7 +1637,19 @@ présent n'est pas un contremaître de plus.
 Le poste « Adjoint » n'annonce **aucun effectif attendu** : ce n'est pas un
 poste à tenir, c'est une fonction. Un adjoint ne rejoint « Contremaître » que
 le jour où `remplacementCM()` le reconnaît — « R-CM » dans la cellule ou son
-annotation, et pas un remplacement partiel.
+annotation, et pas un remplacement partiel — **ou, depuis le 30/10/2026, le
+jour où il remplace un contremaître prévu à sa pause et absent**
+(`adjointFaitCM()`) : « remplace FLI » chez lui, ou « remplacé par FPA » chez
+le contremaître. Le client, sur la nuit du 31/10 : « je fais 22-01 et FPA
+01-06, logiquement tu dois trouver cela tout seul ». FPA (« arrivée à
+01h00' remplacé par VBN remplace FLI ») restait adjoint, son heure
+d'arrivée passant pour un remplacement partiel, et la place de
+contremaître de nuit paraissait vide. Ce n'est que le placement : la prime
+R-CM reste à « R-CM » écrit. Mesuré : quatre journées de 2026 changent
+(31/10, deux nuits où un adjoint « R-CM » remplace YPE ou AFA, et le 21/08
+où un adjoint « R-CM, remplace YPE » était compté au gluten : sa place de
+gluten se creuse, c'est la vérité) ; 2027 aucune ; sept agendas disent
+« Contremaître, remplace X » au lieu d'« Adjoint ».
 
 Conséquence voulue : une pause sans contremaître et avec deux adjoints
 affiche maintenant « Contremaître 0 / 1 » et « Adjoint 2 ». C'est la vérité,

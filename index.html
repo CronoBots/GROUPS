@@ -16775,6 +16775,15 @@ function partageJournee(db,p,x,jour){
     var q=db.people.filter(function(z){ return idLisible(z.id)===t; })[0]; if(!q) continue;
     var u=Number(m[2])+Number(m[3]||0)/60, v=Number(m[4])+Number(m[5]||0)/60; if(v<=u) v+=24; if(u<a-12){ u+=24; v+=24; }
     var kq=null; try{ kq=posteAttitreLe(q,jour)||posteParDefaut(q); }catch(e){}
+    /* l'adjoint qui, ce jour-là, remplace un contremaître (adjointFaitCM) :
+       c'est la place de contremaître qu'on tient pour lui — VBN le 31/10,
+       « remplace FPA de 22h à 01h00' », FPA remplaçant FLI */
+    if(kq==="adj"){
+      var u0=((u%24)+24)%24, gkq=(u0>=22||u0<6)?"N":(u0>=14?"PM":"AM");
+      /* la nuit appartient au jour où elle commence */
+      var jd=new Date(Math.floor(jour/10000),Math.floor(jour/100)%100-1,jour%100+Math.floor(u/24)-(u0<6?1:0));
+      try{ if(adjointFaitCM(db,q,gkq,pad2(jd.getMonth()+1)+pad2(jd.getDate()),null)) kq="cm"; }catch(e){}
+    }
     cl.push({a:u, b:v, t:t, poste:POS[kq]||""});
   }
   var bornes=[a,b]; B.forEach(function(h){ if(h>a+0.01 && h<b-0.01) bornes.push(h); });
@@ -24867,6 +24876,38 @@ function renfortDepuisD(db,listeD,mmdd){
    reste à son poste) ; pas un remplacement de quelques heures
    (remplPartiel : « de 14h à 18h », « jusque 20h ») ; pas un nom suivi de
    « ou » ou de « ? ». Rend {X: {y, k}}. */
+/* L'ADJOINT QUI REMPLACE UN CONTREMAÎTRE ABSENT TIENT SA PLACE, CE JOUR-LÀ.
+   Le client, le 21/09/2026 : un adjoint est « Adjoint » « s'il ne remplace
+   pas comme contremaître » ; et le 30/10/2026, sur la nuit du 31/10 : « je
+   fais 22-01 et FPA 01-06, logiquement tu dois trouver cela tout seul ».
+   FLI, contremaître prévu de nuit, écrit « remplacé par FPA » ; FPA,
+   adjoint, « arrivée à 01h00' remplacé par VBN remplace FLI ». Seul
+   « R-CM » en faisait un contremaître, et son heure d'arrivée passait pour
+   un remplacement partiel : la place restait vide, et le relais de VBN
+   (« remplace FPA de 22h à 01h00' ») allait à la place d'adjoint. Le
+   remplacement se lit des deux côtés — « remplace FLI » chez l'adjoint
+   (sans heures propres à ce remplacement), ou « remplacé par FPA » chez le
+   contremaître —, et le contremaître doit être prévu à cette pause sans y
+   être présent. La prime R-CM, elle, reste à « R-CM » écrit
+   (remplacementCM). Rend le trigramme du contremaître remplacé, ou null. */
+function adjointFaitCM(db,q,gk,mmdd,presents){
+  if(!q || !estCadre(q) || estContremaitre(q)) return null;
+  var e=q.d&&q.d[mmdd]; if(!e) return null;
+  var c=String(e[2]||""), m=/\b[Rr]emplace\s+([A-Z]{3})\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.exec(c), t, i, r, x;
+  function prevuAbsent(id){
+    if(presents && presents[id]) return false;
+    for(i=0;i<db.people.length;i++){ x=db.people[i]; if(x.id!==id) continue;
+      r=x.d&&x.d[mmdd]; return !!r && String(r[0]||"").trim()===gk; }
+    return false;
+  }
+  if(m){ t=m[1]; if(CONTREMAITRES.indexOf(t)>=0 && prevuAbsent(t)) return t; }
+  for(i=0;i<db.people.length;i++){ x=db.people[i];
+    if(CONTREMAITRES.indexOf(x.id)<0 || (presents && presents[x.id])) continue;
+    r=x.d&&x.d[mmdd]; if(!r || String(r[0]||"").trim()!==gk) continue;
+    if(new RegExp("[Rr]emplac[ée]e?\\s+[Pp]ar\\s+"+q.id+"\\b").test(String(r[2]||""))) return x.id;
+  }
+  return null;
+}
 function nommesParAbsents(db,presents,gk,mmdd,jour){
   var r={};
   db.people.forEach(function(q){
@@ -24942,6 +24983,8 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        là »). CKS le 23/05 AM, ["AM","…","Remplacé par ALZ"], ALZ ["AM"] :
        ALZ restait au terrain arrière et la fermentation vide. Mêmes
        conditions que la lecture active ci-dessus. */
+    if(!k && !posteEcrit(x.p.d[mmdd]) && adjointFaitCM(db,x.p,gk,mmdd,presents))
+      { k="cm"; x.parRempl=true; }
     if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
        && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
@@ -25136,6 +25179,9 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
       ||/[Rr]emplac[ée]e?\s+[Pp]ar\s+[A-Z]{3}\b/.test(cq);
     if(!absent) return false;
     var kq=null; try{ kq=posteAttitreLe(q,jourCalc)||posteParDefaut(q); }catch(e){}
+    /* l'adjoint qui remplace ce jour-là un contremaître : son relais tient
+       la place de contremaître (adjointFaitCM) */
+    if(kq==="adj" && adjointFaitCM(db,q,gk,md,null)) kq="cm";
     return kq===k;
   }
   function tri3(x){ var t=x.toUpperCase(); return (typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t; }
