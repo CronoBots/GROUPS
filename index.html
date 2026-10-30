@@ -1217,7 +1217,7 @@ body{overflow-x:clip}
 .calvue-l{display:flex; align-self:stretch; gap:8px; margin:0 12px 12px}
 .calvue{flex:1 1 auto; min-width:0; display:flex; gap:2px; padding:2px; border-radius:9px;
   background:var(--surface); border:1px solid var(--line)}
-.calvue button{flex:1 1 0; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
+.calvue button{flex:1 1 auto; min-width:0; padding:5px 4px; white-space:nowrap; border:0; border-radius:7px; background:none;
   color:var(--muted); font:inherit; font-size:12px; font-weight:650; cursor:pointer}
 /* le liseré d'accent, comme .pl-seg et .caseg (audit du 23/10/2026) */
 .calvue button[aria-pressed="true"]{background:var(--surface3); color:var(--ink); box-shadow:inset 0 0 0 1px var(--in)}
@@ -2587,9 +2587,15 @@ html #grille .ws-site{margin-bottom:14px}
 .site-sn{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
 .site-sn>*{white-space:nowrap}
 .site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
-.site-st .site-qd{color:var(--ink2); font-size:13px; flex-basis:100%; white-space:normal}
+.site-st .site-qd{color:var(--ink2); font-size:13px; flex-basis:100%; display:flex; flex-wrap:wrap; column-gap:8px; white-space:nowrap}
 .site-st .site-qd b{font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 .site-st .site-eq{color:var(--muted); font-size:12px}
+.cstat-cap{margin:6px 12px 0; font-size:11.5px; color:var(--muted); text-align:right}
+.ry-an-t.pf-ms-t{flex-wrap:wrap; row-gap:2px}
+.ry-an-t.pf-ms-t .pf-pr-l{flex-basis:100%; text-align:left}
+/* « Mon année » commençait 30 px sous son en-tête, les autres cartes 16 à
+   18 (audit du 30/10/2026) */
+#anCard .an-corps>.ry-an:first-child>.ry-an-t:first-child{padding-top:0}
 .site-st .pl-pa{flex:none; min-width:38px; text-align:center}
 .site-st .site-etat{align-self:center; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:650; line-height:16px;
   color:var(--in); background:color-mix(in srgb,var(--in) 14%,transparent)}
@@ -5876,7 +5882,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 }
 /* au téléphone, un filet entre le cycle et « Mes pauses », comme entre
    l'année et le cycle */
-@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .pf-prz .ry-an-t:first-child{border-top:1px solid var(--bd-blanc-07); margin-top:2px} }
+/* (un second filet au-dessus d'« Avancement » doublait celui du bloc :
+   retiré le 30/10/2026) */
 #ryPr:empty,#ryAn:empty,#ryCg:empty{display:none}
 .pf-ou.fo{color:var(--at-jaune); white-space:normal; line-height:1.3}
 /* La bannière du client (banniere.jpg) : l'usine à gauche, la marque à droite.
@@ -7798,10 +7805,15 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
    novembre ») : le jour et la date sont deux blocs insécables, qui ne se
    séparent qu'entre eux (« Dimanche » / « 1er novembre »). */
 .pf-pr-d .pf-lg>span{white-space:nowrap}
+/* le jour sur sa ligne, en petit, la date dessous : des rangées d'une même
+   hauteur, quelle que soit la longueur de la date (audit du 30/10/2026) */
+.pf-pr-d .pf-lg>span:first-child{display:block; font-size:12px; font-weight:500; color:var(--muted)}
+.pf-pr-d .pf-lg>span:last-child{display:block}
 /* le billet du prochain poste : la date en toutes lettres (« samedi 31
    octobre »), l'abrégé seulement là où elle ne tient pas à côté du délai */
 .pf-proch-tete .pf-dc{display:none}
 @media (max-width:379px){ .pf-proch-tete .pf-dc{display:inline} .pf-proch-tete .pf-dl{display:none} }
+
 /* LE TOTAL PAR PAUSE ET LE DÉLAI EN ÉVIDENCE (le client, le 26/10/2026 :
    « le total doit être par pause, et le nombre de jours avant la pause mis
    en évidence ») : une colonne « Total » (faites + reste) au lieu d'une
@@ -7851,7 +7863,10 @@ html body .pf-rac-l{display:grid; grid-auto-flow:column; grid-auto-columns:minma
 /* à 320 px, six colonnes de 41 px coupaient « Recyclage » : trois par
    rangée, sur deux rangées, dès qu'il y en a plus de quatre */
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ html body .pf-rac .pf-rac-l .ctl-t{font-size:11px} }
-@media (max-width:370px){ html body .pf-rac-l:has(>.ctl-t:nth-child(5)){grid-auto-flow:row; grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:8px} }
+/* cinq accès à 320 px : 3 + 2, la rangée du bas centrée (audit du
+   30/10/2026 : une case vide restait à droite) */
+@media (max-width:370px){ html body .pf-rac-l:has(>.ctl-t:nth-child(5)){display:flex; flex-wrap:wrap; justify-content:center; row-gap:8px}
+  html body .pf-rac-l:has(>.ctl-t:nth-child(5))>.ctl-t{flex:0 0 calc((100% - 4px) / 3)} }
 
 html body .pf-rac .ctl-t{flex-direction:column; justify-content:flex-start; gap:5px; min-height:0; padding:4px 0 2px; border:0; border-radius:12px; background:none; font-size:11.5px; font-weight:600; line-height:1.2; color:var(--ink); text-decoration:none; scroll-snap-align:start}
 html body .pf-rac .ctl-t{min-width:0}
@@ -8119,7 +8134,10 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
       <div class="pad" id="demCorps"></div>
     </div>
     <div class="card calframe" id="calCard">
-      <h2 class="sr-only">Calendrier</h2><!-- la seule carte sans titre : le lecteur d'écran la trouve (audit du 23/10/2026) -->
+      <!-- UN EN-TÊTE COMME LES AUTRES CARTES (passe professionnelle du
+           30/10/2026) : le titre n'était que pour le lecteur d'écran, et la
+           carte, seule sans en-tête, ne s'alignait pas sur sa voisine -->
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15.5" rx="2.2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendrier</h2></header>
       <div class="toolbar eqnav calnav">
         <!-- La barre de mois (#mnav, exemplaire unique) vient se ranger dans ce
              .mnavhote via placerMnav("horaire"), comme la ligne de date du jour. -->
@@ -8146,6 +8164,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
         <div class="cstat"><span class="cstat-v"><b id="tWe">0</b><i>h</i></span><span class="cstat-k">Week-end</span><span class="cstat-d" id="dWe"></span></div>
         <div class="cstat"><span class="cstat-v"><b id="tHs">0</b><i>h</i></span><span class="cstat-k">Heures sup</span><span class="cstat-d" id="dHs"></span></div>
       </div>
+      <p class="cstat-cap" id="dCap" hidden></p>
       <div class="calsec" id="calSec">
         <span class="csec" id="cRap"><span class="csec-k">Rappels</span><b id="tRap">0</b><span class="cstat-m" id="tRapM"></span></span>
         <span class="csec" id="cFt"><span class="csec-k">Flex du mois</span><b><span id="tFt">0</span><i>h</i></b></span>
@@ -11729,6 +11748,9 @@ function renderTotals(C){
      netMoisPrecedent(), le même compute() que le mois affiché ; rien quand
      le mois d'avant est vide ou que les deux chiffres sont égaux. */
   (function(){
+    /* « vs sept. » sous chacun des quatre chiffres : une seule ligne le dit
+       sous la grille (passe professionnelle du 30/10/2026) */
+    var unEcart=false;
     var PREC=precDe(C), pa=PREC&&PREC.acc, ab=PREC?({janvier:"janv.",février:"févr.",mars:"mars",avril:"avr.",mai:"mai",juin:"juin",juillet:"juil.",août:"août",septembre:"sept.",octobre:"oct.",novembre:"nov.",décembre:"déc."}[PREC.mois]||PREC.mois):"";
     [["dHeures",C.acc.hTot,pa&&pa.hTot," h"],["dJours",C.acc.jours,pa&&pa.jours," j"],
      ["dWe",C.acc.sam+C.acc.dim,pa&&(pa.sam+pa.dim)," h"],["dHs",C.acc.hsHrs,pa&&pa.hsHrs," h"]].forEach(function(t){
@@ -11738,9 +11760,11 @@ function renderTotals(C){
       /* « ▲ 17,75 h » et « vs sept. » restent chacun d'un tenant : à 390 px,
          une case de 89 px ne tient pas les deux sur une ligne (audit du
          23/10/2026), et la ligne se plie entre eux */
-      el.textContent=(pa&&Math.abs(d)>=0.01)?(d>0?"\u25B2\u00a0":"\u25BC\u00a0")+num(Math.abs(d))+t[3].replace(" ","\u00a0")+" vs\u00a0"+ab:"";
+      el.textContent=(pa&&Math.abs(d)>=0.01)?(d>0?"\u25B2\u00a0":"\u25BC\u00a0")+num(Math.abs(d))+t[3].replace(" ","\u00a0"):"";
+      if(el.textContent) unEcart=true;
       el.title=pa?"Par rapport à "+PREC.mois:"";
     });
+    var cap=document.getElementById("dCap"); if(cap){ cap.textContent=unEcart?"▲ ▼ par rapport à "+PREC.mois.toLowerCase():""; cap.hidden=!unEcart; }
   })();
   var ftS=C.acc.ftPlus-C.acc.ftMoins;
   /* L'unité « h » est portée par le balisage de la tuile (cstat-v > i), pas par
@@ -15476,7 +15500,7 @@ function ryHeatmap(s){
      bureau ; sur téléphone 1, 5, 10… 30 et un point entre — les 31 y
      étaient trop serrés (le client, le même jour) */
   var num="";
-  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+((d===1||d%5===0)?d:'<b>·</b><em>'+d+'</em>')+'</span>';
+  for(d=1;d<=31;d++) num+='<span class="ry-hm-n'+((ju.getFullYear()===y&&ju.getDate()===d)?' auj':'')+'">'+((d===1||d%5===0)?d:'<b>'+((d===2||d%5===1||d%5===4)?'':'·')+'</b><em>'+d+'</em>')+'</span>';
   rows+='<div class="ry-hm-l ry-hm-tete"><i></i><div class="ry-hm">'+num+'</div></div>';
   for(m=0;m<12;m++){
     var nd=new Date(y,m+1,0).getDate(), cells="";
@@ -20575,7 +20599,7 @@ function siteSalonsHTML(s,o){
     var A=(fus&&fus.g===z[0])?fus.L:[], tousZ=L.concat(A);
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site"+(A.length?", "+A.length+" à "+siteH(fus.t):""))+'">'
       +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':(L[0].eq?'<span class="site-eq">Équipe '+esc(L[0].eq)+'</span>':'')+siteEtat(PF_DEB[z[0]]+24*(L[0].dj||0),PF_FIN[z[0]]+24*(L[0].dj||0))+siteTitreQuand(siteJour(L[0].dj||0),sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])))+'</span>'
-      +(A.length?siteCompte(L.length,'sur '+tousZ.length):siteCompte(L.length,'présent'+(L.length>1?'s':'')))+'</p>'
+      +(A.length?siteCompte(L.length,'présent'+(L.length>1?'s':'')+' sur '+tousZ.length):siteCompte(L.length,'présent'+(L.length>1?'s':'')))+'</p>'
       /* UNE LISTE DE PRÉSENCE SANS LES POSTES (le client, le 26/10/2026 :
          « pas besoin de préciser les postes des gens présents en ce
          moment ; ça doit être vraiment une liste de gens « en ligne », mais
@@ -20713,7 +20737,8 @@ function siteEtat(deb,fin){
 }
 function siteCompte(n,mot){ return '<em><b>'+n+'</b><small>'+mot+'</small></em>'; }
 function siteTitreQuand(d,heures){
-  return '<span class="site-qd">'+esc(siteDateLongue(d))+' · <b>'+esc(heures)+'</b></span>';
+  var dl=siteDateLongue(d);
+  return '<span class="site-qd"><span>'+esc(dl.charAt(0).toUpperCase()+dl.slice(1))+'</span><b>'+esc(heures)+'</b></span>';
 }
 /* « Mardi 27 octobre · 13 h 10 » */
 function siteQuand(t){ return JOURS_LONGS[(t.getDay()+6)%7]+" "+t.getDate()+" "+MOIS[t.getMonth()].toLowerCase()+" · "+siteH(t.getHours()+t.getMinutes()/60); }
@@ -22603,8 +22628,8 @@ function monCycleHTML(db,person){
   var MC=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
   return '<div class="ry-an-t pf-ms-t"><span class="mc-tt"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span>'
     +(av?'<b class="mc-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">avec '+esc(av)+'</b>':'')+'</span><span class="pf-pr-l">'
-    +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MC[deb.getMonth()])+" – "+numJour(fin.getDate())+" "+MC[fin.getMonth()]
-      +" · semaine "+sem+"/"+Math.round(L/7))+'</span></div>'
+    +esc("du "+numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MOIS[deb.getMonth()].toLowerCase())+" au "+numJour(fin.getDate())+" "+MOIS[fin.getMonth()].toLowerCase()
+      +" · semaine "+sem+" sur "+Math.round(L/7))+'</span></div>'
     +'<div class="mc-grille mc-hero" id="mcHero"><div class="mc-tete">'
     +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){ return "<span>"+x+"</span>"; }).join("")+'</div>'+h.join("")+'</div>';
 }
