@@ -7105,3 +7105,28 @@ coupé : l'ancienne efface la session, la nouvelle la garde ; refus de la
 base : les deux l'effacent, la nouvelle le dit ; renouvellement réussi :
 trois demandes avant, une après. Calendrier, compteurs, agendas
 identiques à l'octet.
+
+### Le cycle du héros toujours en entier, et la connexion qui tient (30/10/2026, `nfdm-v1219`)
+
+Le client, le même soir : « et les boutons de raccourci aussi ? » — oui :
+« Congé », « Recyclage » et « Horaire » des accès rapides ne paraissent
+qu'avec une session (`cb`), comme « Horaire » et « Mes demandes » de la
+barre ; sans elle, il ne reste que l'appel du contremaître, la paie et le certificat, ce que montrait sa
+capture. Puis deux demandes :
+
+- **« Pour le calendrier cycle du héros il ne faut plus l'option qui
+  replie »** : replié depuis le 25/10 sur deux semaines (« Tout le
+  cycle » pour déplier, choix retenu dans `ui/cycleTout`). L'option est
+  retirée — bouton, gestionnaire, style, réglage : les cinq ou six
+  semaines s'affichent toujours. Mesuré : 6 semaines, 0 cachée, pas de
+  bouton.
+- **« Connexion expirée ne doit pas arriver »** : après la v1218, il
+  restait un cas — la base renouvelle, la réponse se perd en 5G ; le
+  téléphone garde l'ancien jeton, que la base ne reprend que 10 s (puis
+  « jeton déjà utilisé », session finie). Sur une coupure, `baseJeton` relance
+  à 1, 2 et 3 s. Éprouvé : réponse perdue une fois, relancée à 1 s ;
+  deux fois, à 3 s ; coupure longue, quatre essais (0, 1, 3, 6 s) puis la
+  session GARDÉE, sans écran. Les cinq cas de la v1218 inchangés. L'écran
+  « Connexion expirée » ne paraît plus que si la base refuse le jeton,
+  ou au démarrage d'un appareil dont la session a déjà été effacée — une
+  fois chez le client, la v1217 l'ayant effacée avant la correction.
