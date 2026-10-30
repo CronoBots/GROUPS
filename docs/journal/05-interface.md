@@ -7160,3 +7160,26 @@ se lisait comme une erreur. La règle est retirée : chaque pause donne sa
 vraie prochaine date. Éprouvé au 30/10 à 21 h 29 : avant, PM le 11/12
 (dans 42 j) en dernier ; après, PM « samedi 31 octobre, demain » en tête,
 puis la nuit du 1er novembre ; faites, restantes et total inchangés.
+
+### « Sur site » dans l'ordre des heures (30/10/2026, `nfdm-v1222`)
+
+Le client, capture de 21 h 36 : « la section avec le CM de nuit doit être
+placée après ceux présents en PM ». Les blocs suivaient un ordre fixe
+(`SITE_PAUSES` : nuit, matin, jour, après-midi) : FPA, arrivé à 21 h 30
+pour la remise de la nuit, ouvrait la carte, avant l'après-midi encore en
+cours. Ils se rangent désormais à l'heure où leur pause commence, comptée
+depuis aujourd'hui (la nuit d'hier en tête à 3 h) ; les horaires
+particuliers ferment la liste.
+
+La même capture portait une seconde faute : « Contremaître FPA » sous
+l'après-midi, dont le contremaître était ATR (en badge). `siteCmIci`
+comptait la demi-heure de remise : celui qui arrive pour la pause
+suivante passait pour le contremaître de la pause en cours. Mesuré aussi
+au matin : à 5 h 40, « Contremaître AFA » sous la nuit de FPA. La remise
+(`rem`) ne compte plus pour la pause qui s'achève.
+
+Éprouvé au navigateur, avant contre après : à 21 h 36, « Nuit · Après-midi
+· Relève » avec « Contremaître FPA » sous l'après-midi → « Après-midi ·
+Nuit · Relève », sans la ligne ; à 5 h 40, « Contremaître AFA » sous la
+nuit → retiré, ordre « Nuit · Matin · Relève » ; à 3 h et à 15 h,
+inchangé.
