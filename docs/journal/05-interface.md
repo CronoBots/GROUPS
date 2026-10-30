@@ -7183,3 +7183,22 @@ au matin : à 5 h 40, « Contremaître AFA » sous la nuit de FPA. La remise
 Nuit · Relève », sans la ligne ; à 5 h 40, « Contremaître AFA » sous la
 nuit → retiré, ordre « Nuit · Matin · Relève » ; à 3 h et à 15 h,
 inchangé.
+
+### La recherche de l'Horaire : le trigramme seul, comme « Mon horaire » (30/10/2026, `nfdm-v1223`)
+
+Le client, capture de 21 h 46 sur « Atr » : la grille montrait ATR et
+PDR, sous un en-tête « Recherche » — « en cas de recherche ça ne doit
+afficher que le trigramme recherché et le présenter de la même manière que
+si c'était le bouton « mon horaire » ». La recherche lit le trigramme, le
+nom et le poste : « atr » se trouvait dans un nom.
+
+**Fait** (`grColonnes`) : un trigramme tapé en entier, ou une seule
+personne trouvée, donne le mode de « Mon horaire » — sa colonne seule,
+son commentaire en phrases sur la largeur restante, le bandeau poste ·
+trigramme. Deux lettres listent encore ceux qui correspondent ; une
+recherche vide rend la vue d'avant.
+
+Éprouvé au navigateur : « Atr » et « atr » → ATR seul, bandeau « Adjoints
+contremaître · ATR », colonne du commentaire ; « PDR » → PDR seul,
+« Distillation » ; « at » → seize colonnes (trigrammes, noms et postes) ;
+« zzz » → « Personne ne correspond » ; effacée → « Mon horaire » de VBN.
