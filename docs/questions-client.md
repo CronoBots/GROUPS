@@ -17,14 +17,24 @@ des questions au client ».
    l'autoriser (mode « Auto » ou règle de permission), puis supprimer à la
    main sur GitHub les deux étiquettes `checkpoint-…` et la branche
    `feature/calendar-weekly-desktop`.
-2. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
+2. **Appliquer `base/35-annonces-infos.sql`** (30/10/2026) dans
+   l'éditeur SQL de Supabase : le connecteur a demandé une confirmation
+   restée sans réponse. Puis la RH rédige, dans « Infos et aide », les
+   infos pratiques (en cas de maladie, numéros utiles, délais des congés,
+   paie, sécurité, règlement de travail).
+3. **« Vos données »** (30/10/2026) : qui est le responsable du
+   traitement, sur quelle base légale, et combien de temps garder les
+   comptes, l'horaire, les demandes et l'historique ? Et faut-il que les
+   noms et prénoms restent lisibles de tout compte validé (l'Horaire
+   production s'en sert), ou seulement de la RH et de la hiérarchie ?
+4. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
    25/09/2026, `docs/journal/08-verifications.md`) : les heures réellement
    faites, ou le solde du mois contractuel une fois les absences
    retirées ? Aucun montant n'en dépend (la ligne est une quantité, le
    salaire de VBN tombe au centime sans elle) ; elle sert à confronter les
    heures de l'application à celles de la fiche.
 
-3. **« CEP » chez ADK en 2027** (posée le 20/10/2026) : seize journées,
+5. **« CEP » chez ADK en 2027** (posée le 20/10/2026) : seize journées,
    une par semaine de janvier à juin (le jeudi le plus souvent), écrites
    avec un poste et l'annotation « CEP » (`["PM","CEP"]`), sans
    commentaire, inconnues de 2026 et de la légende. Est-ce le congé-
@@ -32,7 +42,7 @@ des questions au client ».
    la journée est une absence payée, sans prime de pause. En attendant,
    l'application la lit comme un poste presté, 8 h et la prime.
 
-4. **Un « R-CM » de quelques heures, dans quelle ligne du Planning ?**
+6. **Un « R-CM » de quelques heures, dans quelle ligne du Planning ?**
    (posée le 20/10/2026) Le Planning range un remplacement de
    contremaître PARTIEL dans la ligne Adjoint — la règle de la prime
    (`remplacementCM`, journée entière seulement) sert aussi au rangement.
@@ -42,7 +52,7 @@ des questions au client ».
    la ligne Contremaître, à côté du titulaire, avec leurs heures ? La prime
    ne change pas.
 
-5. **Qui est le « responsable de zone » de la fiche de recyclage ?**
+7. **Qui est le « responsable de zone » de la fiche de recyclage ?**
    (posée le 22/10/2026) La fiche papier exige sa signature pour un
    recyclage en doublure. En attendant, n'importe quel compte hiérarchie
    ou RH peut contresigner (la base n'a aujourd'hui que des comptes RH).

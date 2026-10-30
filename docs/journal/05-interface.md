@@ -1001,7 +1001,7 @@ Puis, le même jour : « j'aime bcp l'évolution ; par contre le nombre de
 rappels et le montant ne se mettent pas bien ; les heures du bas aussi en
 jours (8 h) ; les badges de poste optimisés ». Trois retouches :
 
-- la case Rappels écrivait le montant collé au nombre (« 1 (montant retiré) € » se
+- la case Rappels écrivait le montant collé au nombre (« 1 (montant retiré) » se
   lisait comme un seul nombre). Le montant passe sous l'étiquette, en petit
   (`.cstat-m`) ;
 - « Congés et maladie de l'année » donne les jours de 8 h en gras et les
@@ -1243,8 +1243,8 @@ Les 22 écarts restants, rangés :
   de l'après-midi : 6 h 17 sur les fiches, 6,29 et 6,28 h chez SAP. La
   prime de nuit aurait donné 6,64 h. LCI le 20/03, même forme, le
   confirme : 6 h 25 sur sa fiche avec l'après-midi au taux de début
-  d'année, alors que la nuit donnait les (montant retiré) € de l'application au
-  lieu de (montant retiré) €. `parseHoraireEntry()` pose `rpp`, la pause de
+  d'année, alors que la nuit donnait le montant de l'application au
+  lieu de celui de la fiche (montants retirés). `parseHoraireEntry()` pose `rpp`, la pause de
   l'excédent, dès que la plage déborde de la journée, que les heures en
   plus soient payées, épargnées ou reportées ; `hsp` en reprend la valeur
   quand elles sont payées. `compute()` paie la prime de rappel à
@@ -1367,7 +1367,7 @@ tout ». Mesuré d'abord à 390 px sur VBN : Accueil 3 903 px, **Salaire
   statut du contrôle dans son intitulé ; l'impression déplie tout et
   remet comme avant. **5 025 → 1 996 px.** Le contrôle ne déborde plus à
   320 px (marges, champ et pastille resserrés sous 380 px).
-- **Le mois d'avant** : sous le net, « −(montant retiré) € par rapport à
+- **Le mois d'avant** : sous le net, « −(montant retiré) par rapport à
   septembre », et la ligne de fiche qui a le plus bougé
   (`netMoisPrecedent()`, qui relit le mois enregistré par `compute()`
   lui-même, comme `hsDuMoisStocke()`). **Premier essai muet** : le mois
@@ -6664,6 +6664,66 @@ les rangées gardent leurs 23 px. **Le PC est identique au pixel**, dans
 les deux thèmes, en « Mon horaire » comme en équipe ; les sorties du
 vérificateur du calendrier, identiques à l'octet. Reste à voir sur un
 vrai iPhone l'aplat « local » de la marge (Chromium le peint juste).
+
+### « Infos et aide » : annonces, infos pratiques, guide, vos données (30/10/2026, `nfdm-v1201`)
+
+Le client : « tu peux faire toutes les améliorations que tu as
+proposées ». Quatre de celles-ci se réunissent dans une sous-page, comme
+les Réglages (« ‹ Accueil » ; au PC, un lien au-dessus des Réglages ; au
+téléphone et à la tablette, une ligne de la feuille « Plus », avec le
+nombre d'annonces non lues) :
+
+- **Les annonces** de la RH et de la direction (arrêt technique, audit,
+  consigne) : écrites dans l'application par la RH (« Nouvelle annonce » :
+  titre, texte, visible jusqu'au, épinglée, prévenir tout le monde), lues
+  par tout compte validé ; une annonce non lue entre dans « À faire » de
+  l'Accueil, « Nouveau » la marque jusqu'à l'ouverture de la page. Les
+  adresses web et les numéros de téléphone deviennent des liens. La
+  notification part par la file des demandes (« * » pour trigramme,
+  `tools/notifier-demandes.js`, envoi à part, tag « annonce », elle ouvre
+  la page). Base : `base/35-annonces-infos.sql` (table `contenus`, lecture
+  pour tout compte validé, écriture et effacement pour la RH seule).
+- **Les infos pratiques** : ce que l'application sait déjà se calcule —
+  les deux prochains versements (avance, solde : `versementsDuMois`, la
+  règle confirmée le 22/09) et les prochains jours fériés (`feries`) ;
+  le reste, la RH le rédige par rubrique (en cas de maladie, numéros
+  utiles, congés et absences, paie, sécurité, règlement de travail) ; la
+  RH voit ce qui reste à rédiger.
+- **« Comprendre mon horaire et ma paie »** : lire une case, **échanger
+  une pause ou se faire remplacer** (le formulaire de courte durée le
+  fait déjà, peu de gens le savaient), les codes,
+  les primes, les compteurs, du brut au net, ce que l'application ne fait
+  pas. Rédigé par un agent depuis `docs/regles-paie.md` et
+  `docs/conversion-horaire.md` (chaque section sourcée), relu ; ce qui
+  attend la RH est dit comme tel.
+- **« Vos données »** : ce qui est enregistré et où (l'appareil, la base
+  — hébergée en Irlande, `eu-west-1`, lu au projet —, l'horaire publié
+  sous trigramme), pourquoi, qui le voit (d'après les fonctions de
+  `base/`), combien de temps, les droits et la sécurité. Rédigé par un
+  agent depuis `base/*.sql` et le code, chaque affirmation prouvée par un
+  fichier. **Gardé à l'écart, pour le client** : le responsable du
+  traitement et la base légale, les durées de conservation (aucune n'est
+  écrite), et le fait que tout compte validé lit les noms et prénoms des
+  personnes actives (l'Horaire production s'en sert, opérateurs compris :
+  le restreindre change l'usage, c'est sa décision).
+
+**La migration n'est pas passée par le connecteur** : sans aucun `drop`,
+le serveur a demandé une confirmation, et `apply_migration` a abandonné
+après une minute (la règle de CLAUDE.md, corrigée : toute migration).
+Elle est donnée au client pour l'éditeur SQL. D'ici là, la page montre
+les versements, les fériés, le guide et les données ; la RH lit « la
+migration base/35 est à appliquer ».
+
+Mesuré au navigateur (base simulée, contenus fictifs) : à 390 px en
+sombre (RH) et en clair (opérateur) et à 1280 px, aucun débordement ni
+erreur ; « À faire » annonce « 2 nouvelles annonces » ; la feuille
+« Plus » porte « Infos et aide 2 » ; la page ouverte, les annonces sont
+lues (`ui/annoncesVues`) ; le formulaire refuse un titre vide, puis
+envoie les neuf champs attendus ; « retour » ramène à l'Accueil ;
+l'opérateur n'a aucun bouton de rédaction. L'envoi des notifications,
+éprouvé avec la file simulée : l'annonce part à tous, la demande à son
+seul destinataire, en deux envois. Le parcours mesure désormais la page
+(« go:aide », toutes ses parties dépliées).
 
 ### Les boutons de l'Horaire : sur le tableau, en verre dépoli (29/10/2026, `nfdm-v1200`)
 

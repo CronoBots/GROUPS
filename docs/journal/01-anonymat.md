@@ -275,6 +275,20 @@ PowerShell se met hors service** jusqu'au prochain
 `python3 tools/jumeau-powershell.py CLASSEUR` (la règle : la version
 `.py` se corrige sans attendre le jumeau).
 
+**Des montants personnels aussi, trouvés le même jour.** En vérifiant le
+guide, un salaire horaire à quatre décimales est apparu dans
+`docs/regles-paie.md` : la purge du 22/09 en avait retiré, d'autres sont
+revenus depuis. Une recherche des taux à quatre décimales et des montants
+en euros en a trouvé une vingtaine qui révèlent la rémunération d'une
+personne (les rappels d'une fiche, son taux horaire, les déductions d'un
+mois, dans `regles-paie.md`, les journaux 03, 05 et 06, et trois
+commentaires d'`index.html`) : remplacés par « (montant retiré) ». Les
+barèmes communs (primes d'équipe, R-CM, chèque-repas) et les écarts de
+quelques centimes entre l'application et une fiche restent. **À la purge,
+la liste des montants à remplacer dans l'historique se relit dans le diff
+du commit qui les a retirés**, comme celle des noms se reconstruit par la
+méthode ci-dessus — jamais écrite dans un fichier.
+
 **Pas encore poussée** : la poussée forcée de `main` a été refusée par le
 contrôle automatique des permissions de la session (classée destructive).
 Elle demande que le client l'autorise. À ce moment, la réécriture se

@@ -583,7 +583,7 @@ leur en-tête un peu plus marqué ; le jour courant porte son numéro en
 pastille d'accent ; la colonne des heures de la semaine est séparée d'un
 filet. Le bilan a quatre chiffres fixes sur une rangée (prestées, jours,
 week-end, heures sup, avec l'écart au mois d'avant) ; les rappels (et leur
-montant, « 1 · (montant retiré) € »), le flex du mois et le vélo passent sur une
+montant, « 1 · (montant retiré) »), le flex du mois et le vélo passent sur une
 ligne dessous et **ne s'écrivent que s'ils ne valent pas zéro** — « 0
 vélo » et « 0 rappel » n'apprenaient rien. Aucun calcul touché.
 Vérifié sur VBN en octobre et en août à 320 px (hors ligne), 390 et
