@@ -670,3 +670,26 @@ d'un flex time insuffisant ni d'un congé de moins de 8 h sans remplaçant
 juillet, hors net) ; le salaire horaire moyen recalculé chaque mois (en
 attente de la question 8) ; un e-mail tout prêt pour l'absence sans
 certificat (il faut l'adresse de la RH).
+
+### La sortie syndicale de l'ouvrier, et l'e-mail d'absence (30/10/2026, v1209)
+
+Deux réponses du client à la relecture des documents :
+
+- « Pour l'ouvrier en formation syndicale, la vraie version est celle du
+  règlement, sinon c'est une erreur de paiement si l'app ne confirme pas. »
+  L'annexe X paie ces jours « salaire normal (primes de pause et de
+  week-end) ». Or l'application ne payait RIEN pour un `DS` d'ouvrier : une
+  quantité d'heures, sans montant ni prime. Désormais, sur un poste prévu,
+  les heures se paient au taux garanti et gardent la prime d'équipe de ce
+  poste (et la majoration du week-end, qu'aucun `DS` de 2026-2027 ne porte :
+  mesuré, aucun ne tombe un samedi ou un dimanche). Mesuré au navigateur sur
+  la fiche d'octobre d'un ouvrier (DS le 05/10 sur un 6h-14h) : la ligne
+  « Heure(s) formation syndicale » sans montant devient « … à [taux] »,
+  et la prime du matin passe de 36 à 44 h ; rien d'autre ne bouge.
+  L'employé garde la règle de sa fiche du 12/02 (son fixe paie la journée).
+- « pointagebwz@biowanze.be, je pense, comme pour les autres » : l'e-mail
+  tout prêt du jour d'absence sans certificat. Il vit dans Infos et aide,
+  bloc « Prévenir la RH », à côté de celui du certificat — et non dans les
+  tuiles de l'Accueil, que le client a voulues d'une ligne le 25/10.
+  L'objet porte le trigramme et la date de l'usine ; la nature de
+  l'absence reste à écrire.

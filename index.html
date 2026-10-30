@@ -4059,6 +4059,7 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .aide-form .aide-ligne{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:flex-end}
 .aide-err{margin:0; color:var(--out); font-size:12.5px}
 .aide-boutons{display:flex; gap:8px; justify-content:flex-end}
+.aide-boutons.aide-rh{justify-content:flex-start; flex-wrap:wrap; margin:2px 0 8px}
 .aide-txt{display:flex; flex-direction:column; gap:8px}
 /* au PC, une ligne de lecture, pas toute la largeur */
 .aide-txt,.aide-corps,.aide-note{max-width:72ch}
@@ -8635,7 +8636,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 <tr><th>R, R-F, R-VM, VM</th><td>réserve ; remplacement de collègues partis en formation ou en visite ; visite médicale. Vous prestez votre poste</td></tr>
 <tr><th>F</th><td>formation dans vos heures : journée ordinaire, prime comprise</td></tr>
 <tr><th>D-F, D-CPPT, DS-CE, SD26</th><td>formation, CPPT, conseil d’entreprise, arrêt technique : horaire de jour, prime de la pause prévue conservée (ou celle que le commentaire nomme)</td></tr>
-<tr><th>DS</th><td>sortie syndicale : une absence, sans prime</td></tr>
+<tr><th>DS</th><td>sortie syndicale : pour l’employé, une absence payée par le fixe, sans prime ; pour l’ouvrier, payée au salaire normal, prime de la pause prévue comprise (règlement, annexe X)</td></tr>
 </tbody></table>
 </div></details>
 <details class="aide-sec"><summary>Les primes</summary><div class="aide-sec-c">
@@ -9740,7 +9741,7 @@ function compute(){
   var txh=R((ouvrier && tgO>0)?tgO:(remFixe/p.divH),4);
   var acc={smgSam:0,smgDim:0,smgMut:0,hTot:0,jours:0,joursCr:0,velo:0,joursInd:0,sam:0,dim:0,ferie:0,ftPlus:0,ftMoins:0,
            rapG:0,rapP:0,rapM:0,rapMt:{J:0,J2:0,MP:0},rapHrs:{J:0,J2:0,MP:0},rapJour:{},rapExclu:0,abs:{},
-           hsHrs:0,hsAComp:{},hsAutoPoste:{}};
+           hsHrs:0,hsAComp:{},hsAutoPoste:{},formOuv:{Semaine:0,Samedi:0,Dimanche:0}};
   var primes={AM:p.primeAM,PM:p.primePM,N:p.primeN,D:p.primeD};
   var noms=SHIFT_NOMS;
   var COEF_J={Semaine:p.rapJourSem,Samedi:p.rapJourSam,Dimanche:p.rapJourDim,"Férié":p.rapJourFer};
@@ -9873,6 +9874,23 @@ function compute(){
          est écrite. Même mois, même fiche ; c'est le jour qui change. */
       var pleineJournee=(A.h>=p.hJour-0.01);
       acc.abs[A.k]=(acc.abs[A.k]||0)+((rec.s||!pleineJournee)?A.h:0);
+      /* LA SORTIE SYNDICALE DE L'OUVRIER SE PAIE, et sa prime avec. Le
+         règlement de travail, annexe X : la formation syndicale d'un ouvrier
+         se paie « salaire normal (primes de pause et de week-end) pour les
+         jours de dispense ». Le client, le 30/10/2026 : « la vraie version
+         est celle du règlement, sinon c'est une erreur de paiement ».
+         L'application ne payait rien : une quantité d'heures, sans montant.
+         Les heures du poste prévu (rec.s : N le 03/02, AM le 05/10…) se
+         paient au taux garanti, comme une prestation normale, et gardent la
+         prime d'équipe de ce poste ; le samedi et le dimanche, leur
+         majoration. Un DS posé sur un repos n'a pas de poste : rien n'y est
+         dû, la dispense est ailleurs (annexe X). L'employé garde la règle
+         de sa fiche du 12/02 : son fixe paie la journée, sans prime. */
+      if(ouvrier && A.k==="FORM" && rec.s && byShift[rec.s]){
+        var bkF=isFer?"Dimanche":t;
+        acc.formOuv[bkF]+=A.h;
+        byShift[rec.s][bkF]+=A.h;
+      }
       /* LA MALADIE DE L'OUVRIER : majorée le week-end, et payée par
          l'employeur le premier mois seulement. Le client, le 14/10/2026 :
          « oui » au samedi à 150 % et au dimanche à 200 % (fiches de LCI,
@@ -9980,7 +9998,8 @@ function compute(){
   if(ab("CT")) lines.push({q:ab("CT"),l:"Heure(s) crédit-temps",qh:true});
   if(ab("FER") && !ouvrier) lines.push({q:ab("FER"),l:"Heure(s) jour férié",qh:true});
   if(ab("SMG")-acc.smgMut>0 && !ouvrier) lines.push({q:ab("SMG")-acc.smgMut,l:"Heure(s) SMG maladie",qh:true});
-  if(ab("FORM")) lines.push({q:ab("FORM"),l:"Heure(s) formation syndicale",qh:true});
+  var formOuvH=acc.formOuv.Semaine+acc.formOuv.Samedi+acc.formOuv.Dimanche;
+  if(ab("FORM")-formOuvH>0) lines.push({q:ab("FORM")-formOuvH,l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
   if(ab("CE") && !ouvrier) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
   if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
@@ -10107,6 +10126,10 @@ function compute(){
        sans prime d'équipe, mais PAYÉE. La fiche de LCI du 25/08 porte ces
        4 h en « Compensation payée » au taux garanti ; l'application les
        montrait en heures sans montant (vérifié le 14/10/2026, −106,25 €). */
+    /* la sortie syndicale (annexe X), voir plus haut : payée au garanti */
+    if(acc.formOuv.Semaine)  bl(acc.formOuv.Semaine,"Heure(s) formation syndicale à "+nf4.format(tgO),R(acc.formOuv.Semaine*tgO),true);
+    if(acc.formOuv.Samedi)   bl(acc.formOuv.Samedi,"Heure(s) formation syndicale à "+nf4.format(tgO)+" à 150 %",R(acc.formOuv.Samedi*tgO*1.5),true);
+    if(acc.formOuv.Dimanche) bl(acc.formOuv.Dimanche,"Heure(s) formation syndicale à "+nf4.format(tgO)+" à 200 %",R(acc.formOuv.Dimanche*tgO*2),true);
     var oRepos=ab("DTT")+ab("RHS")+ab("CE")+((rWE&&rWE.rhs)||0);
     if(oRepos)    bl(oRepos,"Compens. Collective Payée à "+nf4.format(tgO),R(oRepos*tgO),true);
     var tFer=(tmO>0)?tmO:tgO;
@@ -22328,6 +22351,19 @@ function certifLien(){
   var c="Bonjour,\n\nVeuillez trouver ci-joint mon certificat médical.\n\nCordialement,\n"+tri;
   return "mailto:"+RH_CERTIF+"?subject="+encodeURIComponent(o)+"&body="+encodeURIComponent(c);
 }
+/* LE JOUR D'ABSENCE SANS CERTIFICAT (note « Procédure en cas d'absence
+   imprévue » du 16/04/2025) : prévenir la ligne hiérarchique et la RH, puis
+   confirmer par e-mail à la RH — sans e-mail, l'absence est considérée
+   comme injustifiée. Même adresse que le certificat (le client, le
+   30/10/2026 : « pointagebwz@biowanze.be, je pense, comme pour les
+   autres »). Le jour est celui de l'usine ; la nature de l'absence reste à
+   écrire par la personne. */
+function absenceLien(){
+  var tri=trigCourant()||"", a=jourUsine(), j=pad2(a.getDate())+"/"+pad2(a.getMonth()+1)+"/"+a.getFullYear();
+  var o="Absence sans certificat"+(tri?" – "+tri:"")+" – "+j;
+  var c="Bonjour,\n\nJe vous confirme mon absence du "+j+", sans certificat médical. J'ai prévenu ma ligne hiérarchique.\n\nNature de l'absence : \n\nCordialement,\n"+tri;
+  return "mailto:"+RH_CERTIF+"?subject="+encodeURIComponent(o)+"&body="+encodeURIComponent(c);
+}
 function ctlIco(k){ return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+CTL_ICO[k]+'</svg>'; }
 /* la prochaine pause : qui est contremaître, qui tient le même poste */
 function ctlPause(person){
@@ -31500,6 +31536,12 @@ function aideInfHTML(){
   var vs=aideVersements();
   h+='<section class="aide-bloc"><h3>Prochains versements</h3><ul class="aide-l">'+vs.map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+'</b></li>'; }).join("")+'</ul>'
     +'<p class="aide-note">Dates calculées pour le statut choisi dans Réglages ('+esc(st.params.statut==="Ouvrier"?"ouvrier":"employé")+'). Règlement de travail, art. 18 : l’avance 4 jours avant la fin du mois pour les employés, 10 pour les ouvriers ; le solde au plus tard le 7e jour après, dans les faits le 4e. Jours comptés du lundi au vendredi, fériés exclus. Employés : pécules avec la paie de mai, treizième mois avec celle de juin. Ouvriers : le pécule vient de la caisse de vacances. Pour tous, la prime CCT 90 en septembre et en mars.</p></section>';
+  /* prévenir la RH : les deux e-mails tout prêts (certificat, absence sans
+     certificat), par la messagerie de l'appareil */
+  h+='<section class="aide-bloc"><h3>Prévenir la RH</h3><div class="aide-boutons aide-rh">'
+    +'<a class="btn" href="'+esc(certifLien())+'">Envoyer un certificat médical</a>'
+    +'<a class="btn" href="'+esc(absenceLien())+'">Signaler une absence sans certificat</a></div>'
+    +'<p class="aide-note">Prévenez d’abord votre ligne hiérarchique. Le justificatif ou l’e-mail part à '+esc(RH_CERTIF)+' dans les 2 jours ouvrables ; un jour d’absence sans certificat non confirmé par e-mail est considéré comme injustifié.</p></section>';
   var y=a.getFullYear(), fy=aideFeries(y).filter(function(x){ return x.d>=auj; });
   if(fy.length<3) fy=fy.concat(aideFeries(y+1)).slice(0,6);
   h+='<section class="aide-bloc"><h3>Prochains jours fériés</h3><ul class="aide-l">'+fy.slice(0,6).map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+(x.d.getFullYear()!==y?" "+x.d.getFullYear():"")+'</b></li>'; }).join("")+'</ul></section>';

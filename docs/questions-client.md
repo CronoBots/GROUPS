@@ -140,12 +140,6 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    (25/08) paie la demi-journée « PM · DS-CE » sans prime d'équipe, et
    l'application fait comme la fiche. La demi-journée est-elle un « jour de
    dispense » au sens de l'annexe ?
-7 quater. **La sortie syndicale d'un ouvrier** (30/10/2026) : l'annexe X
-   paie la formation syndicale de l'ouvrier « salaire normal (primes de
-   pause et de week-end) pour les jours de dispense » ; l'application lit
-   tout `DS` comme une absence sans prime, d'après la fiche d'un employé
-   (12/02). 40 journées `DS` en 2026, dont 34 d'opérateurs. Un `DS`
-   d'ouvrier garde-t-il sa prime ?
 8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti. Deux pièces (30/10/2026) : la note de la fiche paie « Hrs. Jours
