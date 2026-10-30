@@ -7327,3 +7327,50 @@ nom court : vue sur la capture, corrigée.
 semaine 2/6 ») reste abrégée — en toutes lettres, elle passe à la ligne
 sous « Mon cycle » à 390 px ; et « vs sept. » sous les chiffres du
 calendrier, court par nature.
+
+### L'Accueil relu par un regard indépendant (30/10/2026, `nfdm-v1230`)
+
+Le client : « rien d'autre pour pro 100 % ? ». Un agent, sans mes
+conclusions, a photographié l'Accueil à 320, 390 et 1 280 px, en sombre et
+en clair, et rendu 22 constats. Chacun relu dans le code ou sur capture ;
+retenus et corrigés :
+
+- la période du cycle en toutes lettres, sur sa ligne (« du 19 octobre au
+  29 novembre · semaine 2 sur 6 ») ;
+- « vs sept. » répété sous les quatre chiffres du calendrier → les
+  écarts seuls (« ▼ 56 h »), et une ligne commune « par rapport à
+  septembre » ;
+- le calendrier, seule carte sans en-tête (titre réservé au lecteur
+  d'écran) → l'en-tête des autres cartes, icône et « Calendrier » ;
+- « Mes pauses » : des rangées de 61 / 78 / 61 px selon la longueur de la
+  date, et la date qui débordait sa colonne de 8 px à 320 → le jour sur
+  sa ligne, en petit, la date dessous : toutes les rangées égales ;
+- l'axe de « Mon rythme » : « 10· », « 15· »… (le point du jour voisin
+  collé au nombre) → plus de point à côté d'un repère ;
+- un double filet au-dessus d'« Avancement » → un seul ;
+- « Sur site » : « vendredi 30 octobre · » en fin de ligne à 320 → la date,
+  avec sa majuscule, et les heures en gras, séparées par l'espace seul ;
+  « 1 sur 9 » → « 1 présent sur 9 » ;
+- l'onglet « Semaine » collé à ses bords à 320 (quatre onglets de même
+  largeur) → chacun à la largeur de son mot ;
+- les cinq accès à 320 : 3 + 2 avec une case vide → la rangée du bas
+  centrée ;
+- « Mon année » commençait 30 px sous son en-tête, les autres 16 à 18 →
+  18.
+
+Ma première version de ces correctifs a retiré l'abrégé du billet sous
+380 px : à 320, « Reprise · samedi 31 o… » se coupait. L'abrégé est remis
+là (il existait pour cela). Et les accès sont passés en 2 + 2 + 1 : trois
+tiers plus l'écart entre tuiles dépassent la ligne. Les deux vus sur
+capture ; la mesure (`acc-mesure`) cherche désormais tout texte coupé par
+des points de suspension sur l'Accueil et compte les accès par rangée —
+elle crie sur une copie qui remet ces deux fautes, et passe sur la page.
+
+Écartés, avec leur raison : « CPPT » sous 11 px et « 1 nov » serré à
+320 (exceptions voulues, écrites le 23/10 et le 30/10) ; la légende du
+calendrier (les couleurs y servent à la vue Année, où les cases n'ont pas
+de texte) ; les initiales des mois de « Mon rythme » (l'usage des
+graphiques) ; « 13 h 30 – 1 h » (l'heure de fin, comme partout) ;
+« CM ATR » (le mot du client) ; les filets du thème clair, réglés avec lui
+le 29/10 ; octobre deux fois au PC (le cycle toujours entier, sa demande
+du jour).
