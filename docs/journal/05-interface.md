@@ -6669,6 +6669,38 @@ les deux thèmes, en « Mon horaire » comme en équipe ; les sorties du
 vérificateur du calendrier, identiques à l'octet. Reste à voir sur un
 vrai iPhone l'aplat « local » de la marge (Chromium le peint juste).
 
+### Les infos pratiques tirées du règlement de travail (30/10/2026, `nfdm-v1204`)
+
+Le client a envoyé le règlement de travail (version 5 signée, scan de 58
+pages sans texte). Lu par Tesseract (français, installé ce jour-là), puis
+un agent en a tiré **vingt-deux infos** en sept rubriques (en cas de
+maladie, numéros utiles, congés et absences, paie, sécurité, règlement,
+autre), chacune avec son article, sans aucun nom : les signataires, les
+membres des organes, la personne de confiance, le médecin du travail et
+les conseillers nommés au règlement sont laissés de côté, seuls les
+organismes et les numéros de service restent. **Chaque numéro et adresse
+vérifié sur l'image du scan**, ligne par ligne (repérée par la position
+des mots, sans regarder les noms) : Attentia, inspection médicale,
+auditorat, adresse du pointage pour les certificats, urgence du site,
+police d'assurance et affiliations. Publiées dans la base
+(`biowanze.contenus`, auteur « RH ») ; la RH les corrige dans
+l'application. Le document lui-même est dans le dépôt privé.
+
+À l'écran : **par rubrique, repliables** (vingt-deux blocs à la suite
+faisaient des écrans), le nombre d'infos à côté du titre ; une rubrique
+se déplie quand on y modifie une info. Les adresses e-mail deviennent
+des liens (le certificat s'envoie au pointage), comme les numéros. La
+note des versements dit la règle des ouvriers (art. 18 : l'avance
+10 jours ouvrables avant la fin du mois, le solde au plus tard le
+7e jour ouvrable).
+
+**Un défaut ancien, révélé par le classeur du jour** : la pastille orange
+d'Effectifs (les changements de poste à prévenir) gardait un chiffre
+blanc en clair, 2,99:1 ; elle n'avait jamais paru pendant un parcours en
+clair. Le classeur du 30/10 l'a fait paraître (« 2 ») et le parcours a
+crié 27 fois. Le chiffre passe à l'encre foncée dans les deux thèmes (le
+sombre l'avait déjà : rien n'y change). Parcours : 183 essais, 0 faute.
+
 ### « Infos et aide » : annonces, infos pratiques, guide, vos données (30/10/2026, `nfdm-v1201`)
 
 Le client : « tu peux faire toutes les améliorations que tu as

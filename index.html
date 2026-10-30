@@ -646,7 +646,9 @@ body{overflow-x:clip}
 @media (max-width:380px){ #apCorps .mqls{padding:9px 10px 11px} }
 /* La bulle orange : les changements de poste proposés par l'application
    d'ici sept jours, à prévenir. */
-.tabs .tabnb.app{background:#E07B24}
+/* le chiffre à l'encre foncée dans les deux thèmes : blanc sur cet orange,
+   2,99:1 en clair (vu le 30/10/2026, quand le classeur l'a fait paraître) */
+.tabs .tabnb.app{background:#E07B24; color:#1A1006}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
@@ -4066,6 +4068,8 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .aide-sec>summary::-webkit-details-marker{display:none}
 .aide-sec>summary::after{content:""; width:7px; height:7px; border-right:1.6px solid currentColor; border-bottom:1.6px solid currentColor; transform:rotate(45deg); transition:transform .18s; flex:0 0 auto; margin-right:2px}
 .aide-sec[open]>summary::after{transform:rotate(-135deg)}
+.aide-rub>summary small{margin-left:8px; font-size:12px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums}
+.aide-rub+.aide-rub{margin-top:8px}
 .aide-sec-c{padding:0 14px 12px; font-size:13.5px; line-height:1.55; color:var(--ink2)}
 .aide-sec-c p{margin:6px 0}
 .aide-sec-c ul,.aide-sec-c ol{margin:6px 0; padding-left:20px}
@@ -31373,10 +31377,12 @@ function aideLu(){
   var m=l.reduce(function(a,c){ return Math.max(a,Number(c.id)||0); },0);
   if(m>Number(lsGet("ui/annoncesVues")||0)){ lsSet("ui/annoncesVues",m); var nb=document.getElementById("sideAideNb"); if(nb) nb.hidden=true; try{ renderCentre(); }catch(e){} }
 }
-/* un texte de la RH : échappé, puis les adresses web et les numéros de
-   téléphone deviennent des liens */
+/* un texte de la RH : échappé, puis les adresses web, les adresses e-mail
+   (le certificat s'envoie au pointage) et les numéros de téléphone
+   deviennent des liens */
 function aideTexte(t){
   return esc(t).replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)»]/g,function(u){ return '<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>'; })
+    .replace(/(^|[\s(])([\w.+-]+@[\w-]+(?:\.[\w-]+)+)(?=$|[\s.,;)])/g,function(m,a,e){ return a+'<a href="mailto:'+e+'">'+e+'</a>'; })
     .replace(/(^|[\s(])((?:\+32|0)\d(?:[ .\/]?\d){7,9})(?=$|[\s.,;)])/g,function(m,a,n){ return a+'<a href="tel:'+n.replace(/[^\d+]/g,"")+'">'+n+'</a>'; });
 }
 function aideArticle(c,rh,neuf){
@@ -31424,16 +31430,25 @@ function aideInfHTML(){
   var a=jourUsine(), auj=new Date(a.getFullYear(),a.getMonth(),a.getDate()), h="";
   var vs=aideVersements();
   h+='<section class="aide-bloc"><h3>Prochains versements</h3><ul class="aide-l">'+vs.map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+'</b></li>'; }).join("")+'</ul>'
-    +'<p class="aide-note">Employés : l’avance 4 jours ouvrés avant la fin du mois, le solde 4 jours ouvrés après. Pécules avec la paie de mai, treizième mois avec celle de juin, prime CCT 90 en septembre et en mars. Les dates des ouvriers sont à confirmer par la RH.</p></section>';
+    +'<p class="aide-note">Employés : l’avance 4 jours ouvrés avant la fin du mois, le solde 4 jours ouvrés après. Pécules avec la paie de mai, treizième mois avec celle de juin, prime CCT 90 en septembre et en mars. Ouvriers (règlement de travail, art. 18) : l’avance 10 jours ouvrables avant la fin du mois, le solde au plus tard le 7e jour ouvrable après.</p></section>';
   var y=a.getFullYear(), fy=aideFeries(y).filter(function(x){ return x.d>=auj; });
   if(fy.length<3) fy=fy.concat(aideFeries(y+1)).slice(0,6);
   h+='<section class="aide-bloc"><h3>Prochains jours fériés</h3><ul class="aide-l">'+fy.slice(0,6).map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+(x.d.getFullYear()!==y?" "+x.d.getFullYear():"")+'</b></li>'; }).join("")+'</ul></section>';
   var infos=aideListe().filter(function(c){ return c.genre==="info"; }), rh=aideRH();
   infos.sort(function(p,q){ var i=AIDE_RUBRIQUES.indexOf(p.rubrique), j=AIDE_RUBRIQUES.indexOf(q.rubrique); return (i<0?99:i)-(j<0?99:j)||(p.ordre-q.ordre); });
-  infos.forEach(function(c){
-    if(AIDE.edit&&AIDE.edit.id===c.id){ h+=aideFormHTML(AIDE.edit); return; }
-    h+='<section class="aide-bloc"><h3>'+esc(c.titre)+'</h3><p class="aide-corps">'+aideTexte(c.corps)+'</p>'
-      +(rh?'<div class="aide-ed"><button type="button" class="btn sm" data-aide="modifier" data-id="'+c.id+'">Modifier</button><button type="button" class="btn sm" data-aide="effacer" data-id="'+c.id+'">Effacer</button></div>':'')+'</section>';
+  /* Les infos se rangent par rubrique, repliables (30/10/2026) : le règlement de travail en a
+     donné vingt-deux d'un coup ; à la suite, la page faisait des écrans.
+     Une rubrique se déplie quand on y modifie une info. */
+  var groupes=[]; infos.forEach(function(c){ var r=c.rubrique||"Autre", g=groupes[groupes.length-1]; if(!g||g.r!==r){ g={r:r,l:[]}; groupes.push(g); } g.l.push(c); });
+  groupes.forEach(function(g){
+    var ouvert=AIDE.edit&&g.l.some(function(c){ return c.id===AIDE.edit.id; });
+    h+='<details class="aide-sec aide-rub"'+(ouvert?' open':'')+'><summary><span>'+esc(g.r)+(g.l.length>1?'<small>'+g.l.length+'</small>':'')+'</span></summary><div class="aide-sec-c">';
+    g.l.forEach(function(c){
+      if(AIDE.edit&&AIDE.edit.id===c.id){ h+=aideFormHTML(AIDE.edit); return; }
+      h+='<section class="aide-bloc"><h3>'+esc(c.titre)+'</h3><p class="aide-corps">'+aideTexte(c.corps)+'</p>'
+        +(rh?'<div class="aide-ed"><button type="button" class="btn sm" data-aide="modifier" data-id="'+c.id+'">Modifier</button><button type="button" class="btn sm" data-aide="effacer" data-id="'+c.id+'">Effacer</button></div>':'')+'</section>';
+    });
+    h+='</div></details>';
   });
   if(rh){
     if(AIDE.edit&&AIDE.edit.genre==="info"&&!AIDE.edit.id) h+=aideFormHTML(AIDE.edit);
