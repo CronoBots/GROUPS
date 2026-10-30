@@ -3118,3 +3118,17 @@ unique : le plus gros poste (l'équipe du jour, `equipeDuJour` et
 fonctions de 10 à 40 ms. Un gain net demanderait de découper
 l'application en plusieurs fichiers chargés à la demande, contraire à
 « tout dans `index.html`, pas de build » : rien n'est changé.
+
+### Le classeur du 30/10/2026 : deux places relues et admises
+
+Installé le 30/10/2026 (classeur 2026 de 9 h 31 : 118 journées chez 29
+personnes, 16 compteurs ; huit portes ouvertes). `--manques-commentes`
+a crié sur deux places, 02 et 03/11 après-midi, Gluten 1/2 : le
+chaudiériste-gluten SLT écrit « meunerie · Remplace CDE GBT et PLZ
+présents ». Lu : il part en meunerie remplacer CDE, absente ; PLZ, dit
+« présent », est « Abs » sur sa propre case ces jours-là (le commentaire
+de SLT explique pourquoi il pouvait quitter le gluten, il ne désigne
+personne pour la place de PLZ). La place est vide d'après le classeur :
+admise dans `tools/manques-admis.txt`, raison écrite ; le contrôle
+revient à 0 (2 admis). Une date d'un autre jour reste à relire (VGG le
+15/03, « presté 7h le 20.03 »), comme le rapport le signale.
