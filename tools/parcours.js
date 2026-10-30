@@ -124,7 +124,9 @@ function selecteursEcrits(fichier){
   }
   return n;
 }
-const VUES=[["Accueil","tab-horaire"],["Planning","tab-jour"],["Équipes","tab-equipe"],["Horaire","ws:planning"]];
+/* « go: » ouvre une sous-page par son lien (data-go), toutes ses parties
+   dépliées : « Infos et aide » (30/10/2026) se mesure en entier */
+const VUES=[["Accueil","tab-horaire"],["Planning","tab-jour"],["Équipes","tab-equipe"],["Horaire","ws:planning"],["Infos et aide","go:aide"]];
 
 async function ouvrir(nav,url,ecran,role,theme){
   theme=theme||"dark";
@@ -149,6 +151,8 @@ async function ouvrir(nav,url,ecran,role,theme){
 async function aller(page,cible){
   await page.evaluate(c=>{
     if(c.indexOf("ws:")===0){ const s=c.slice(3); const b=[...document.querySelectorAll('[data-side-ws="'+s+'"]')].find(x=>x.offsetParent); if(b) b.click(); return; }
+    if(c.indexOf("go:")===0){ const b=document.createElement("button"); b.setAttribute("data-go",c.slice(3)); document.body.appendChild(b); b.click(); b.remove();
+      const v=document.getElementById("v-"+c.slice(3)); if(v) v.querySelectorAll("details").forEach(d=>{ d.open=true; }); return; }
     const t=document.getElementById(c); if(t) t.click(); },cible);
   await page.waitForTimeout(1400);
 }
@@ -223,11 +227,11 @@ function constater(){
       if(ecrits!==retenus){ fautes++; console.log("✗ règles CSS : "+ecrits+" écrites, "+retenus+" retenues par le navigateur"); }
       else console.log("✓ règles CSS : les "+ecrits+" écrites, toutes retenues"); }
     for(const [nom,cible] of VUES){
-      if(cible.indexOf("ws:")===0&&!role) continue;
+      if((cible.indexOf("ws:")===0||cible.indexOf("go:")===0)&&!role) continue;
       await aller(page,cible); essais++;
       const f=await page.evaluate(constater);
       if(f.length) lignes.push(nom+" : "+f.join(" ; "));
-      if(cible.indexOf("ws:")===0) await aller(page,"tab-horaire");
+      if(cible.indexOf("ws:")===0||cible.indexOf("go:")===0) await aller(page,"tab-horaire");
     }
     lignes.push(...page.fautes);
     const tag=ecran.nom+(theme==="light"?" · clair":"")+" · "+(role||"sans compte");

@@ -113,10 +113,10 @@ Pour VBN, les quatre rappels de 2026, tous en pause de nuit et en semaine :
 
 | Jour | Demande | Heures | Taux horaire | Montant |
 |---|---|---|---|---|
-| 19/02 | 18/02, J-1 | 4 h | (montant retiré) | (montant retiré) € |
-| 14/04 | 13/04, J-1 | 4 h | (montant retiré) | (montant retiré) € |
-| 11/06 | 10/06, J-1 | 4 h | (montant retiré) | (montant retiré) € |
-| 25/06 | 25/06, J | 4 h | (montant retiré) | (montant retiré) € |
+| 19/02 | 18/02, J-1 | 4 h | (retiré) | (retiré) |
+| 14/04 | 13/04, J-1 | 4 h | (retiré) | (retiré) |
+| 11/06 | 10/06, J-1 | 4 h | (retiré) | (retiré) |
+| 25/06 | 25/06, J | 4 h | (retiré) | (retiré) |
 
 Ces primes sont payées : « vu qu'il s'agit dans les deux cas de primes payées,
 il n'y a pas de récupération d'heures ». Les heures de présence effective sont
@@ -912,8 +912,8 @@ comme un dimanche. La prime d'équipe de ces heures est majorée à 200 %.
 L'ouvrier reçoit en plus un « jour de repos payé » de compensation ; chez
 l'employé il est dans la rémunération fixe.
 
-Mesuré sur LCI : mai (16 h fériées, −(montant retiré) € + −39,20 € de prime), 21/07
-(−(montant retiré) € + −14,40 €) et 15/08, un samedi (−(montant retiré) € + −7,20 €) — après
+Mesuré sur LCI : mai (16 h fériées, (montant retiré) + −39,20 € de prime), 21/07
+((montant retiré) + −14,40 €) et 15/08, un samedi ((montant retiré) + −7,20 €) — après
 la règle, les trois mois concordent au centime sur le brut.
 
 **Chez l'employé, c'est fixe + 100 %** (le client, le 14/10/2026 : « ok »,
@@ -2020,7 +2020,7 @@ le dire** (remesuré le 14/10/2026) : c'est la demi-journée de conseil
 d'entreprise du 25/08 (`PM · DS-CE`, code `1/2 CE`), que la fiche paie en
 « Compensation payée ». L'application la montrait en heures, sans montant ;
 pour l'ouvrier, elle entre désormais dans la « Compens. Collective Payée »
-au taux garanti. Août passe de −(montant retiré) € à −(montant retiré) €, le repos du 31/08. **Quand le jour A1 tombe sur un temps partiel, la fiche paie
+au taux garanti. Août passe d'un montant à un autre (retirés), le repos du 31/08. **Quand le jour A1 tombe sur un temps partiel, la fiche paie
 le repos un autre jour** (02/02, 22/06, 31/08 : chaque fois le premier D de
 la semaine, écrit « - » dans le classeur) ; ce n'est pas écrit dans la
 note, et l'application ne le déplace pas. Remesuré le 14/10/2026 : quatre
@@ -2045,7 +2045,7 @@ commentaire ?! » — la réponse était dans la grille et le commentaire.
 `lireJournee()` traite le jour du repos A1 (`reposA1()`) comme un repos du
 cycle, et une plage de 12 h y devient 12 h sup à la pause de la cellule,
 prime de rappel comprise. Mesuré sur LCI sans calage : août au centime,
-avril à −3,80 € (au lieu de +(montant retiré) €).
+avril à −3,80 € (au lieu d'un montant retiré).
 
 **La fiche, ligne par ligne** — ce qui confirme l'application : les
 suppléments d'équipe (semaine simple, samedi 150 %, dimanche et férié

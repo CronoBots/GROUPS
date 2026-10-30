@@ -997,8 +997,8 @@ liste — AFA, rappelé sur un repos le 31/01 —, puis celle qu'on choisit ;
 sur un repos, `remplirMois()` n'effaçait que `s`, `h`, `a` et `r`, et
 laissait `ax`, `hsp`, `rs`, `rh`, `j`, `sp`, `q`. LCI héritait des heures
 sup d'AFA, sursalaire et prime compris. Tous les champs écrits par le
-pré-remplissage sont désormais effacés. Janvier de LCI passe de +(montant retiré) € à
-**−(montant retiré) €** de brut — exactement la demi-heure sup « +0,5 hs » que son
+pré-remplissage sont désormais effacés. Janvier de LCI passe d'un écart positif à
+**un écart négatif** de brut (montants retirés) — exactement la demi-heure sup « +0,5 hs » que son
 commentaire du 14/01 porte et que l'application ne lit pas.
 
 **Le rapprochement au centime trouve ce qu'aucun vérificateur ne voit** :
@@ -1020,7 +1020,7 @@ alors **au centime** sur le brut ; le net des huit mois passe de −910 € (au
 premier tableau) à −41 €.
 
 **Comment on est arrivé au centime** : chaque paramètre de la fiche repris
-dans l'application — le TAUX HORAIRE ((montant retiré) puis (montant retiré), via une
+dans l'application — le TAUX HORAIRE (deux valeurs, retirées, via une
 rémunération de référence taux × 148,368 et l'écart de base en « autre
 rémunération brute »), la réduction de précompte sur heures sup, le
 volontariat fiscal sorti du précompte, la fraction 0,90 —, puis l'écart
@@ -1480,7 +1480,7 @@ le fichier tel qu'il était, recopié en entier pour l'historique.
 >   13/04, ce lundi où il est rappelé, se lit en rappel sur un repos
 >   (`reposA1()` : 12 h sup de nuit, comme la fiche — **je l'avais laissé en
 >   « question » alors que le cycle et le commentaire le disaient**, le
->   client l'a relevé) ; avril −3,80 € au lieu de +(montant retiré) € ; vérificateur
+>   client l'a relevé) ; avril −3,80 € au lieu d'un montant retiré ; vérificateur
 >   et VBN identiques. Historique
 >   (14/10/2026) :
 >   quand le jour désigné (A1, un jeudi) est un `TP`, la fiche paie le repos

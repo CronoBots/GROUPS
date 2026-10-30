@@ -199,7 +199,11 @@ qui suivent s'y ajoutent comme des sections.
 
 1. Saisie des journées par la hiérarchie et la RH, liste fermée des codes. **Fait le 21/10/2026** (`base/09-saisie.sql`, feuille du jour) ; restent les droits par périmètre (équipe, fonction) et une saisie de plusieurs jours d'un coup.
 2. Remplacements, échanges et rappels en événements à deux personnes
-   (≈ 75 % des commentaires ; alimentent la paie).
+   (≈ 75 % des commentaires ; alimentent la paie). **En partie le 30/10/2026** : le
+   formulaire de courte durée porte déjà l'échange (modification de
+   pause, remplaçant qui signe, contremaître puis RH), expliqué dans
+   « Infos et aide » ; reste à écrire seul le jour du remplaçant, ce qui
+   attend la question 3 de « La plateforme » (la prime de rappel).
 3. Demandes de congé, opérateur → contremaître → RH, avec soldes. **Fait le 21/10/2026** (`base/10-demandes.sql`, section « Demandes » de l'espace).
 4. Compteurs calculés ; soldes d'ouverture saisis une fois par an.
 5. Cycle généré et changement d'année automatique.

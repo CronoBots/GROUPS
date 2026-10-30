@@ -54,10 +54,10 @@ la demande du client : « pousse tout cela vers Notion et mets-le à
 jour »), puis DIRE ce qui a été choisi et pourquoi — le
 client corrige après coup s'il le veut. Les fenêtres d'autorisation de
 la session ne s'effacent que par le mode « Auto » choisi par le client.
-**Une migration de la base qui contient un `drop`** (même une fonction
-aussitôt recréée) : le serveur de Supabase lui-même demande une confirmation que le
-mode « Auto » ne donne pas, et `apply_migration` abandonne après une
-minute. On la donne d'emblée au client pour l'éditeur SQL (lien du
+**Une migration de la base** — avec un `drop` (même une fonction
+aussitôt recréée), et le 30/10/2026 même sans (une table neuve) : le
+serveur de Supabase demande une confirmation que le mode « Auto » ne
+donne pas, et `apply_migration` abandonne après une minute. On la donne d'emblée au client pour l'éditeur SQL (lien du
 projet, lien brut du fichier `base/` sur GitHub), puis on vérifie en base.
 **Une question n'est pas un ordre.** Le 23/10/2026, « c'est bien pour
 l'agenda scolaire, on est d'accord ? » a été lu comme une demande de
