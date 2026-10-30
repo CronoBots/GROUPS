@@ -3640,3 +3640,45 @@ identiques ; sept agendas changent leur seule mention « Adjoint » en
 « Contremaître ». L'erreur : avoir admis un manque que le classeur
 expliquait — un « admis » se pose quand le classeur se tait, pas quand la
 lecture se trompe.
+
+### La remise de pause à une relève en cours de pause (30/10/2026, v1215)
+
+Le client, sur le 31/10 : « FPA en commençant à 01h commence en réalité à
+00h30 pour la remise de pause (payée au nombre de fois faite pour un
+adjoint) ». Deux trous dans la lecture, et une erreur de ma part dans la
+réponse d'avant : j'avais présenté FPA comme contremaître ; il est
+ADJOINT (`CONTREMAITRES` ne le porte pas), et c'est lui qui remplace FLI.
+
+1. **Un adjoint qui remplace un contremaître sans « R-CM » écrit** ne
+   devait pas la remise : FPA, le 31/10, n'avait ni la demi-heure ni le
+   poste (« N », sans « Contremaître »). `lectureAgenda` reprend
+   `adjointFaitCM()` (v1213) : pour sa journée, la remise est due et le
+   poste est contremaître, si son commentaire nomme le contremaître sans
+   heures ou n'a pas d'heures. VGG le 01/07 (« arrivée à 18h00' remplace
+   YPE de 21h à 22h ») n'est contremaître qu'à 21 h : sa journée ne
+   change pas — la première version l'écrivait « Contremaître » dès 18 h.
+2. **L'arrivée en cours de pause** effaçait la remise : `hd` (« arrivée
+   à 01h00' ») remplaçait le début, remise comprise. Quand quelqu'un a
+   tenu la place jusque-là — « remplacé par X » chez lui, ou « remplace
+   FPA de 22h à 01h00' » chez X — il arrive une demi-heure avant
+   (`remiseRel`, lu par `pfDebut` : l'agenda et l'Accueil ; la place
+   tenue reste 01-06 au Planning). X doit être contremaître ou adjoint :
+   la première version donnait 23 h 30 à VBN le 15/06, qui remplaçait un
+   opérateur, attendu par SKS — rien à remettre.
+
+**Mesuré** : agendas, 27 événements changent, chacun relu contre sa
+cellule et les commentaires des autres — 20 débuts avancés d'une
+demi-heure après une relève (ATA 15/02 arrivé à 9 h après JBI, FPA 26/09
+et 31/10 à 0 h 30 après VGG et VBN, YPE 14/01 et 28/02…), 7 remises de
+début de pause d'un adjoint qui remplace un contremaître sans « R-CM »
+(ATR 19/01, JBI 15/03, 23/10, 05/11, 24-26/11), et deux postes qui
+deviennent « Contremaître » (FPA 31/10 ; ATR 19/01 — GPS « remplacé par
+ATR », comme au Planning depuis la v1213). Calendrier, manques, polyvalence, compteurs identiques à l'octet :
+aucun calcul ne lit cette demi-heure.
+
+**La paie n'est pas touchée** : la prime de remplacement d'un adjoint
+reste « R-CM écrit et poste entier », la règle qui redonne au centime les
+huit fiches de janvier à août ; or la fiche de janvier n'a pas payé le
+30/01 de VBN (14 h – 18 h, remise faite). Le 31/10 de FPA, sans
+« R-CM », n'a donc aucune prime : question au client
+(`docs/questions-client.md`).

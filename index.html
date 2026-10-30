@@ -15441,8 +15441,9 @@ function _pfBinome(p){
    mois et le flex time au jour de l'usine. Tout se lit dans les journées
    de la personne, par lireJournee(), comme le calendrier. */
 var PF_HEURES={AM:"6 h-14 h", PM:"14 h-22 h", N:"22 h-6 h", D:"7 h-15 h"};
-/* Le début d'un poste, remise de pause comprise (x.remise : 30 min plus tôt). */
-function pfDebut(x){ return x.hd!=null?x.hd:PF_DEB[x.pv]-(x.remise?0.5:0); }
+/* Le début d'un poste, remise de pause comprise (x.remise : 30 min plus tôt ;
+   x.remiseRel : 30 min avant une relève en cours de pause). */
+function pfDebut(x){ return x.hd!=null?x.hd-(x.remiseRel?0.5:0):PF_DEB[x.pv]-(x.remise?0.5:0); }
 function pfFin(x){ return x.hf!=null?x.hf:PF_FIN[x.pv]; }
 var PF_HEURES_REMISE={AM:"5 h 30-14 h", PM:"13 h 30-22 h", N:"21 h 30-6 h"};
 function pfHeures(x){
@@ -15561,7 +15562,21 @@ function lectureAgenda(db,p,an,m,j){
      et l'Accueil la montrent, aucun calcul ne la lit. */
   var c0=String(raw[0]||"").trim(), rcm=/R\s*-?\s*CM/i.test(c0+" "+(raw[1]||""));
   var a0=String(raw[1]||"").trim();
-  var remise=/^(AM|PM|N)$/.test(pv||"") && (rcm || (estContremaitre(p)
+  /* L'ADJOINT QUI REMPLACE UN CONTREMAÎTRE ABSENT SANS « R-CM » ÉCRIT (le
+     client, le 30/10/2026, sur FPA le 31/10 : « arrivée à 01h00' remplacé
+     par VBN remplace FLI », FLI prévu de nuit et « remplacé par FPA ») : il
+     tient la place de contremaître (adjointFaitCM, v1213), et doit donc la
+     remise de pause comme celui qui écrit « R-CM ». Pour toute sa journée
+     seulement : son commentaire nomme le contremaître sans heures, ou n'a
+     pas d'heures du tout. VGG le 01/07 (« arrivée à 18h00' remplace YPE de
+     21h à 22h », YPE « Départ à 21h Remplacé par VGG ») n'est
+     contremaître qu'à partir de 21 h : la journée reste la sienne. */
+  var adjCM=false;
+  if(/^(AM|PM|N)$/.test(pv||"") && h>0 && !rcm && estCadre(p) && !estContremaitre(p)){
+    try{ var tA=adjointFaitCM(db,p,pv,pad2(m)+pad2(j),null);
+      adjCM=!!tA && (!remplPartiel(raw) || new RegExp("[Rr]emplace\\s+"+tA+"\\b(?!\\s*(?:de\\s*)?\\d{1,2}\\s*h)").test(String(raw[2]||""))); }catch(eA){}
+  }
+  var remise=/^(AM|PM|N)$/.test(pv||"") && (rcm || adjCM || (estContremaitre(p)
     && (c0===pv || (/^(AM|PM|N)$/.test(c0) && a0===pv) || posteDeCycle(c.fit,an,m,j)===pv
         || /\bremplace(r|ment)?\b|\brempl\b|[ée]change|inversion|rappe[lk]/i.test(String(raw[2]||"")))));
   /* « ROUE LIBRE » (le client, le 14/10/2026) : un adjoint en pause qui ne
@@ -15577,7 +15592,7 @@ function lectureAgenda(db,p,an,m,j){
      dit pas le poste de la journée : il reste sans poste. */
   var ka=kat;
   if(!ka && /^(AM|PM|N)$/.test(pv||"") && h>0){
-    if(rcm && estCadre(p) && !estContremaitre(p)) ka="cm";
+    if((rcm || adjCM) && estCadre(p) && !estContremaitre(p)) ka="cm";
     else if(!remplPartiel(raw)){
       var parId={}; db.people.forEach(function(q){ parId[q.id]=q; });
       try{ ka=atelierDuRemplace(raw,parId,p,{mmdd:pad2(m)+pad2(j),jour:an*10000+m*100+j,presents:{}})||null; }catch(e){ ka=null; }
@@ -15670,7 +15685,33 @@ function lectureAgenda(db,p,an,m,j){
     if(dp!=null) hf=dp;
     if(hd!=null && hf!=null && hf<=hd){ hd=null; hf=null; }
   }
-  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, roue:roue, hd:hd, hf:hf,
+  /* LA REMISE À UNE RELÈVE EN COURS DE PAUSE (le client, le 30/10/2026 :
+     « FPA en commençant à 01h commence en réalité à 00h30 pour la remise
+     de pause »). Celui qui doit la remise et n'arrive qu'après le début de
+     la pause, parce qu'un autre a tenu sa place jusque-là — « remplacé par
+     VBN » chez lui, ou « remplace FPA de 22h à 01h00' » chez l'autre —,
+     arrive une demi-heure avant de la reprendre. Comme celle du début de
+     pause, cette demi-heure n'est lue que par l'agenda et l'Accueil
+     (pfDebut) : la place tenue reste 01-06 au Planning. Celui qui a tenu
+     la place est un contremaître ou un adjoint : VBN le 15/06, qui
+     remplaçait un opérateur, attendu par SKS, n'avait rien à remettre. */
+  var remiseRel=false;
+  if(remise && hd!=null && hd>PF_DEB[pv]+0.01){
+    var cR=String(raw[2]||""), mP=/rempla[c\u00e7](?:\u00e9|e)e?s?\s+par\s+([A-Z]{3})\b/i.exec(cR);
+    if(mP) remiseRel=db.people.some(function(q){ return q.id===mP[1] && estCadre(q); });
+    else {
+      var hR=Math.floor(hd+1e-6), mR=Math.round((hd-hR)*60), mdR=pad2(m)+pad2(j), rxR=new RegExp("[Rr]emplace\\s+"+p.id+"\\b");
+      hR=hR%24;
+      remiseRel=db.people.some(function(q){
+        if(q.id===p.id || !estCadre(q)) return false;
+        var c2=String(((q.d&&q.d[mdR])||[])[2]||""); if(!rxR.test(c2)) return false;
+        var rxH=/(?:\u00e0|a|-)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, mm;
+        while((mm=rxH.exec(c2))) if(Number(mm[1])%24===hR && Number(mm[2]||0)===mR) return true;
+        return false;
+      });
+    }
+  }
+  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, remiseRel:remiseRel, roue:roue, hd:hd, hf:hf,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
