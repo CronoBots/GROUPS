@@ -7792,6 +7792,16 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
    le jour complet ») : « Dimanche 1er novembre », sur deux lignes au
    besoin, plutôt que « Dim. 1 nov. » */
 .pf-pr-d b,.pf-pr-d b span{white-space:normal; overflow:visible; text-overflow:clip}
+/* PASSE PROFESSIONNELLE DE L'ACCUEIL (le client, le 30/10/2026 :
+   « retravaille chaque cadre de l'accueil avec ce genre de passe
+   professionnelle »). La date se coupait au hasard (« Dimanche 1er /
+   novembre ») : le jour et la date sont deux blocs insécables, qui ne se
+   séparent qu'entre eux (« Dimanche » / « 1er novembre »). */
+.pf-pr-d .pf-lg>span{white-space:nowrap}
+/* le billet du prochain poste : la date en toutes lettres (« samedi 31
+   octobre »), l'abrégé seulement là où elle ne tient pas à côté du délai */
+.pf-proch-tete .pf-dc{display:none}
+@media (max-width:379px){ .pf-proch-tete .pf-dc{display:inline} .pf-proch-tete .pf-dl{display:none} }
 /* LE TOTAL PAR PAUSE ET LE DÉLAI EN ÉVIDENCE (le client, le 26/10/2026 :
    « le total doit être par pause, et le nombre de jours avant la pause mis
    en évidence ») : une colonne « Total » (faites + reste) au lieu d'une
@@ -7799,7 +7809,9 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
    rebours du prochain poste. */
 html body .pf-pr-tab,html body .pf-pr-h{grid-template-columns:34px minmax(0,1fr) 44px 44px 48px}
 @media (max-width:400px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:28px minmax(0,1fr) 40px 38px 40px} }
-@media (max-width:360px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:26px minmax(0,1fr) 32px 32px 36px} }
+/* « FAITES RESTE TOTAL » se touchaient à 320 px (« FAITESRESTE ») : des
+   colonnes à la largeur de leur titre (passe du 30/10/2026) */
+@media (max-width:360px){ html body #v-horaire .pf-pr-tab,html body #v-horaire .pf-pr-h{grid-template-columns:26px minmax(0,1fr) 40px 38px 38px} }
 .pf-pr-t{text-align:right; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--tx-blanc)}
 @media (max-width:360px){ .pf-pr-t{font-size:14px} }
 /* avec la colonne de plus, « Mes pauses · » ne tient plus dans l'en-tête
@@ -7843,6 +7855,21 @@ html body .pf-rac-l{display:grid; grid-auto-flow:column; grid-auto-columns:minma
 
 html body .pf-rac .ctl-t{flex-direction:column; justify-content:flex-start; gap:5px; min-height:0; padding:4px 0 2px; border:0; border-radius:12px; background:none; font-size:11.5px; font-weight:600; line-height:1.2; color:var(--ink); text-decoration:none; scroll-snap-align:start}
 html body .pf-rac .ctl-t{min-width:0}
+/* AU PC, LES ACCÈS EN LISTE (passe professionnelle du 30/10/2026) : la
+   colonne du billet laissait un grand vide sous cinq petites tuiles, à
+   côté du cycle de six semaines. Une liste — l'icône et le nom entier
+   (data-long) — la remplit, et chaque accès dit ce qu'il fait. */
+@media (min-width:1100px){
+  html body .pf-rac-l{grid-auto-flow:row; grid-template-columns:minmax(0,1fr); gap:6px}
+  html body .pf-rac .ctl-t{flex-direction:row; align-items:center; gap:12px; padding:6px 12px 6px 6px; border-radius:12px;
+    background:var(--surface2); border:1px solid var(--line)}
+  html body .pf-rac .pf-rac-l .ctl-t>span{display:none}
+  html body .pf-rac .pf-rac-l .ctl-t[data-long]::after{content:attr(data-long); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:13.5px; font-weight:600; color:var(--ink); text-align:left}
+  html body .pf-rac .ctl-ti{width:36px; height:36px; flex:none}
+  html body .pf-rac .ctl-ti svg{width:18px; height:18px}
+  html body #anCard .pf-pr-hm{display:none}
+}
 html body .pf-rac .ctl-t>span{display:block; width:100%; max-width:100%; letter-spacing:-.01em; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 html body .pf-rac .ctl-t>span b{font-weight:700}
 html body .pf-rac .ctl-ti{display:grid; place-items:center; width:42px; height:42px; border-radius:50%; background:color-mix(in srgb,var(--in) 13%,var(--surface2)); border:1px solid color-mix(in srgb,var(--in) 22%,transparent); font-style:normal}
@@ -16029,7 +16056,7 @@ function _pfHead(db,p){
          sam. 31 oct. ») au lieu d'une ligne à elle ; le titre et les
          heures se suivent sur une ligne quand la largeur le permet ;
          pastille de pause plus petite. 137 px en poste avant. */
-      +'<span class="pf-proch-tete"><small>'+(enMots?lab.replace(" poste",'<span class="pf-mot"> poste</span>'):lab)+(enMots?' · '+esc(["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][pr.d.getDay()]+" "+pr.d.getDate()+" "+["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][pr.d.getMonth()]):'')+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
+      +'<span class="pf-proch-tete"><small>'+(enMots?lab.replace(" poste",'<span class="pf-mot"> poste</span>'):lab)+(enMots?' · <span class="pf-dl">'+esc(dateL.toLowerCase())+'</span><span class="pf-dc">'+esc(["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][pr.d.getDay()]+" "+pr.d.getDate()+" "+["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][pr.d.getMonth()])+'</span>':'')+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
       +'<span class="pf-proch-corps"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><span class="pf-proch-l"><b>'+esc(titre)+'</b>'
       /* un rôle, sans quoi l'aria-label d'un span n'est pas exposé (audit
@@ -22355,7 +22382,7 @@ function ryProchainesHTML(p,y){
         +(o?' ; '+o.F[k]+' faites, '+o.A[k]+' restantes, '+(Number(o.F[k]||0)+Number(o.A[k]||0))+' en '+y:'')+'">'
         +'<i class="pf-pause" data-p="'+k+'">'+k+'</i>'
         /* la date en entier, comme le prochain poste (le client, le 22/10/2026) */
-        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7]+" "+numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><em class="pf-pr-q">'+esc(quand)+'</em>':'<span>rien de prévu</span>')+'</span>'
+        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg"><span>'+esc(JOURS_LONGS[(v.d.getDay()+6)%7])+'</span> <span>'+esc(numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span></span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><em class="pf-pr-q">'+esc(quand)+'</em>':'<span>rien de prévu</span>')+'</span>'
         +(o?'<b class="pf-pr-f">'+o.F[k]+'</b><b class="pf-pr-r">'+o.A[k]+'</b><b class="pf-pr-t">'+(Number(o.F[k]||0)+Number(o.A[k]||0))+'</b>':'')+'</button>';
     }).join("")
     +'</div>';
@@ -22443,7 +22470,7 @@ function renderRythme(){
   var y=Number(db.year)||st.y;
   _ryStats=statsRythme(db,person,y);
   var s=_ryStats; s.ju=jourPerso(person);
-  var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent="année "+y;
+  var rs=document.getElementById("rythmeSub"); if(rs) rs.textContent=String(y);
   /* Refonte du 16/10/2026 : le donut et ses pourcentages redisaient les
      cases AM · PM · N · D de « Mon année », au pied du héros. Restent ce
      qu'elles ne disent pas : la saison mois par mois, puis l'année jour par
@@ -22632,7 +22659,7 @@ function cmTuileHTML(){
      lui-même : la tuile reste, vide, pour garder la place au changement de
      pause (accueilTic la remplace) */
   if(c.tri&&c.tri===trigCourant()) return '<span class="ctl-cm-t" data-cm="'+esc(c.tri+"|"+c.pz)+'" hidden></span>';
-  return '<a class="ctl-t ctl-cm-t" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+CM_TEL_VU+'">'
+  return '<a class="ctl-t ctl-cm-t" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+CM_TEL_VU+'" data-long="'+esc(c.tri?"Appeler le contremaître "+idLisible(c.tri):"Appeler le contremaître")+'">'
     +'<i class="ctl-ti">'+ctlIco("tel")+'</i><span>'+(c.tri?'CM <b>'+esc(idLisible(c.tri))+'</b>':'Appeler')+'</span></a>';
 }
 function cmLigneHTML(){
@@ -22709,7 +22736,7 @@ function renderCentre(db,person){
   if(cb) rac.push(["conge","Demande de congé","dmNv","","Demande de congé"]);
   if(cb&&rcFonctionsDe(person).length) rac.push(["rec","Validation recyclage","rcNv","","Validation recyclage : remplir une fiche de recyclage"]);
   rac.push(["paie","Fiche de paie","paie","","Fiche de paie d’"+MOIS[auj0.getMonth()].toLowerCase()]);
-  if(cb) rac.push(["plan","Horaire "+auj0.getFullYear(),"plan","","Horaire "+auj0.getFullYear()+" : l'horaire de production"]);
+  if(cb) rac.push(["plan","Horaire "+auj0.getFullYear(),"plan","","Horaire de production "+auj0.getFullYear()]);
   rac.push(["jour","Horaire du jour","eq","","Horaire du jour : l'équipe au planning"]);
   rac.push(["certif","Certificat médical","certif","","Envoyer le certificat médical à la RH"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
@@ -22765,7 +22792,7 @@ function renderCentre(db,person){
      le Planning, déjà dans la barre du bas et le menu. */
   var COURT={dmNv:"Congé", rcNv:"Recyclage", paie:"Paie", plan:"Horaire", certif:"Certificat"};
   var rh0=rac.filter(function(r){ return r[2]!=="eq"; });
-  RAC_HTML='<div class="pf-rac-l" role="group" aria-label="Accès rapides">'+cmTuileHTML()+rh0.map(function(r){ var nom=' aria-label="'+esc(r[4]||r[1])+'" title="'+esc(r[4]||r[1])+'"', lib=esc(COURT[r[2]]||r[1]); if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+lib+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+lib+'</span></button>'; }).join("")+'</div>';
+  RAC_HTML='<div class="pf-rac-l" role="group" aria-label="Accès rapides">'+cmTuileHTML()+rh0.map(function(r){ var nom=' aria-label="'+esc(r[4]||r[1])+'" title="'+esc(r[4]||r[1])+'" data-long="'+esc(r[4]||r[1])+'"', lib=esc(COURT[r[2]]||r[1]); if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+lib+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+lib+'</span></button>'; }).join("")+'</div>';
   if(rh){ rh.innerHTML=RAC_HTML; rh.hidden=false; }
   var rc=document.getElementById("racCard"), rcc=document.getElementById("racCorps");
   if(rh&&rc) rc.hidden=true;
