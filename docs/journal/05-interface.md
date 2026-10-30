@@ -7374,3 +7374,20 @@ graphiques) ; « 13 h 30 – 1 h » (l'heure de fin, comme partout) ;
 « CM ATR » (le mot du client) ; les filets du thème clair, réglés avec lui
 le 29/10 ; octobre deux fois au PC (le cycle toujours entier, sa demande
 du jour).
+
+### « Optimise » : le reste de l'audit (30/10/2026, `nfdm-v1231`)
+
+Le client, après la v1230 : « optimise ». Repris parmi les constats
+écartés, ce qui s'améliore sans revenir sur ses décisions :
+
+- la légende du calendrier tenait sur trois lignes en vue Mois, quand
+  chaque case dit déjà AM, N, CP… : les couleurs ne restent qu'en vue
+  Année (cases muettes) ; ailleurs, les repères seuls, sur deux lignes ;
+- la rangée « RAPPELS 1 · 95,04 € · FLEX DU MOIS +3 h », d'une autre
+  facture que les quatre chiffres du dessus : même forme (le nombre, son
+  libellé, le montant dessous) ;
+- « 131 prestées » → « 131 journées prestées ».
+
+Vérifié et laissé : la roue des réglages, 40 px à l'œil, a déjà une zone
+de doigt de 46 px (`::after`, −3 px). Mesure de l'Accueil (4 largeurs) :
+0 défaut.
