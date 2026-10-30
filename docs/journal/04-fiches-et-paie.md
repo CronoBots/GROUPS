@@ -728,3 +728,31 @@ technique ; les fériés, l'avance, les DS d'ouvrier étaient déjà conformes.
 Les points que le règlement ne tranche pas (RJF de l'ouvrier, salaire
 horaire moyen, grille 38 h 24 ou 38 h 40, repos A1 en 5bis) restent des
 questions : la règle vaut quand le règlement parle.
+
+### La prime d'adjoint sans « R-CM » écrit (30/10/2026, v1217)
+
+Le client, sur le Planning du 23/10 (JBI « AM · PM · MPE : Remplace AFA »,
+« fait fonction » de contremaître depuis la v1213) : « effectivement il
+n'est pas marqué RCM mais remplace le trigramme contremaître dans les
+commentaires ». Il répondait à la question posée le même jour (FPA le
+31/10, sans « R-CM », n'avait aucune prime) : le commentaire suffit.
+
+**Fait** : `remplacementCMCommente()`, ajoutée à `remplacementCM()` partout
+où la prime se compte (pré-remplissage du mois, nombre de remplacements,
+signature de non-régression). Un ADJOINT présent dans une pause, que son
+agenda range au poste de contremaître, et dont le remplacement est dit des
+deux côtés ou d'un contremaître prévu à cette pause et absent
+(`adjointFaitCM`) ; mêmes conditions de poste entier que « R-CM » ; une
+arrivée ou un départ écrits rendent la journée partielle, sauf les heures
+reprises en « -FT » (le 01/07, payé, contre le 30/01, pas payé).
+
+**Mesuré** sur toute l'année, toutes personnes : la première version
+ajoutait 12 journées, dont deux fausses d'ATR — le 04/02 (« 7h-15h ·
+remplace ATA et AFA pendant leurs entrevues annuelles », quelques heures
+en journée de jour) et le 28/04 (« … enlèvement ptochain remplace AFA »,
+quand AFA écrit « remplacé par VBN »). Resserrée (remplacement dit des
+deux côtés ou contremaître absent de la pause, pas de journée de jour) :
+10 journées, toutes justes — JBI 15/03, 21 et 22/03, 23/10, 05/11,
+24-26/11 ; FPA 31/10 ; ATR 19/01. Aucune de VBN : contremaître, prime
+fixe ; les huit fiches recoupées au centime ne bougent pas. Calendrier,
+manques, polyvalence, compteurs, agendas identiques à l'octet.

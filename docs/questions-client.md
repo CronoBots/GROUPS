@@ -101,20 +101,16 @@ des questions au client ».
   changé en nuit, comme ADK le 10/07 et LAA le 21/08 le vendredi.
 
 - **La prime d'un adjoint qui reprend le poste de contremaître en cours
-  de pause (30/10/2026).** Le client : la remise de pause est « payée au
-  nombre de fois faite pour un adjoint ». L'application paie la prime de
-  remplacement de contremaître (au forfait, par journée) quand la cellule
-  écrit « R-CM » ET que le poste est tenu en entier — la règle qui redonne
-  au centime les huit fiches de janvier à août. FPA le 31/10 n'écrit pas
-  « R-CM » (« N · 3h -FT · arrivée à 01h00' remplacé par VBN remplace
-  FLI ») : il remplace FLI de 1 h à 6 h, arrivé à 0 h 30 pour la remise ;
-  l'application ne lui compte AUCUNE prime ce jour-là. À l'inverse, la
-  fiche de janvier n'a pas payé le 30/01 de VBN, alors adjoint
-  (« remplace GPS départ à 18h00' remplacé par JBI », 14 h – 18 h, remise
-  faite à 13 h 30). Deux questions : (1) le 31/10 de FPA vaut-il une
-  prime ? (2) un adjoint qui reprend le poste en cours de pause (à 1 h, à
-  18 h) et fait donc la remise touche-t-il la prime, même si la journée ne
-  couvre pas toute la pause ?
+  de pause (30/10/2026).** Tranché le même jour pour la journée SANS
+  « R-CM » écrit : le commentaire qui nomme le contremaître suffit
+  (`docs/regles-paie.md`, « Sans « R-CM » écrit ») — FPA le 31/10 compte,
+  ses 3 h reprises en « -FT » ne rendant pas la journée partielle. Reste
+  une question : un adjoint qui reprend le poste en cours de pause SANS
+  heures reprises en flex time (arrivé ou parti à une heure écrite, avec
+  du RTT ou rien) touche-t-il la prime ? La fiche de janvier n'a pas payé
+  le 30/01 de VBN, alors adjoint (« remplace GPS départ à 18h00'
+  remplacé par JBI », 14 h – 18 h, remise faite) ; l'application ne la
+  compte donc pas.
 
 ## À la RH
 

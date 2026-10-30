@@ -13894,6 +13894,41 @@ function gainFT(txt){
   var m=(txt||"").match(/(\d+(?:[.,]\d+)?)\s*h?\s*\+\s*FT/i);
   return m?Number(m[1].replace(",",".")):null;
 }
+/* LE REMPLACEMENT DE CONTREMAÎTRE QUE LES COMMENTAIRES DISENT, sans « R-CM »
+   écrit (le client, le 30/10/2026, sur JBI le 23/10, « AM · PM · MPE :
+   Remplace AFA », que le Planning disait déjà « fait fonction » : « il
+   n'est pas marqué RCM mais remplace le trigramme contremaître dans les
+   commentaires »). L'adjoint présent ce jour-là dans une pause, que la
+   lecture de son agenda range au poste de contremaître (lectureAgenda,
+   ka : « remplace FLI » chez lui, ou « remplacé par FPA » chez le
+   contremaître, v1213-v1216), compte une journée de remplacement — aux
+   mêmes conditions de poste entier que « R-CM » (remplacementCM), et une
+   arrivée ou un départ écrits la rendent partielle, sauf les heures
+   reprises en flex time (« -FT », payées comme présentes : le 01/07 de
+   VBN, « R-CM · 4h -FT · arrivée à 02h00' », payé ; son 30/01, « 4h RTT ·
+   départ à 18h00' », ne l'a pas été). Les contremaîtres, eux, ont la prime
+   fixe. */
+function remplacementCMCommente(db,p,an,m,j,hJour){
+  if(!db || !p || !estCadre(p) || estContremaitre(p)) return false;
+  var raw=p.d&&p.d[pad2(m)+pad2(j)]; if(!raw) return false;
+  var cel=String(raw[0]||""), ann=String(raw[1]||""), com=String(raw[2]||"");
+  if(/R\s*-?\s*CM/i.test(cel+" "+ann)) return false;
+  var L=null; try{ L=lectureAgenda(db,p,an,m,j); }catch(e){ return false; }
+  if(!L || !L.presente || !/^(AM|PM|N)$/.test(L.pv||"") || L.ka!=="cm") return false;
+  /* le contremaître remplacé est dit des deux côtés, ou prévu à cette pause
+     et absent (adjointFaitCM) — un trigramme de contremaître au détour d'un
+     commentaire ne suffit pas (ATR le 28/04, « … enlèvement ptochain
+     remplace AFA », quand AFA écrit « remplacé par VBN ») ; et pas une
+     journée de jour (ATR le 04/02, « 7h-15h · remplace ATA et AFA pendant
+     leurs entrevues annuelles ») */
+  try{ if(!adjointFaitCM(db,p,L.pv,pad2(m)+pad2(j),null)) return false; }catch(eA){ return false; }
+  var plJ=plageMention(cel)||plageMention(ann); if(plJ && posteDepuisPlage(plJ)==="D") return false;
+  if(plageInterne(plageCommentaire(com),L.pv)) return false;
+  var g=gainFT(cel+" "+ann);
+  if(celluleSansPoste(cel) && g!==null && g<hJour-0.01) return false;
+  if(/arriv\S*\s+(?:a|\u00e0)\s+\d|d\S{0,2}part\s+(?:a|\u00e0)\s+\d/i.test(com) && !/-\s*FT/i.test(cel+" "+ann)) return false;
+  return true;
+}
 function remplacementCM(e,poste,hJour){
   var cel=e[0]||"", an=e[1]||"", com=e[2]||"";
   /* « RCM » sans tiret : une seule journée de l'année l'écrit ainsi — JBI le
@@ -15006,7 +15041,7 @@ function remplirMois(db,person,y,m,M){
     var mmdd=pad2(m+1)+pad2(day);
     var raw=person.d[mmdd]; if(raw===undefined){ if(dejaEncode) bilan.kept++; continue; }
     var parsed=lireJournee(db,raw,y,m+1,day,fitCycle,epargnes[day],st.params.hJour,renvois[day]);
-    if(remplacementCM(raw,parsed.s,st.params.hJour)) bilan.rcm++;
+    if(remplacementCM(raw,parsed.s,st.params.hJour) || remplacementCMCommente(db,person,y,m+1,day,st.params.hJour)) bilan.rcm++;
     /* LE CLASSEUR L'EMPORTE TOUJOURS (le client, le 18/10/2026 : « il ne faut
        plus les journées touchées à la main »). Une journée qu'il couvre est
        relue à chaque ouverture, même corrigée sur l'appareil : le 30/09 de
@@ -24651,7 +24686,7 @@ window.__horaireSig=function(){
         for(var d2=1;d2<=nd2;d2++){ var mmdd2=pad2(m2+1)+pad2(d2); var raw=person.d[mmdd2]; if(raw===undefined) continue;
           var cell;
           try{ var pr=lireJournee(db,raw,y,m2+1,d2,fit,ep[d2],hJour,rv[d2]);
-               var rcm=remplacementCM(raw,pr.s,hJour);
+               var rcm=remplacementCM(raw,pr.s,hJour)||remplacementCMCommente(db,person,y,m2+1,d2,hJour);
                var rap=rappelDuJour(raw,pr.rs?"-":(posteDeCycle(fit,y,m2+1,d2)||pr.s),y,mmdd2);
                cell=sig({lj:pr,rcm:rcm,rap:rap}); }
           catch(e){ cell="ERR:"+e.message; }
@@ -26915,7 +26950,7 @@ function compteRemplacementsCM(db,person){
   for(m=1;m<=12;m++) for(j=1;j<=daysInMonth(annee,m-1);j++){
     mmdd=pad2(m)+pad2(j); if(mmdd<t.debut||mmdd>t.fin) continue;
     var raw=person.d[mmdd]; if(!raw) continue;
-    if(remplacementCM(raw,null,st.params.hJour)) dates.push(mmdd);
+    if(remplacementCM(raw,null,st.params.hJour) || remplacementCMCommente(db,person,annee,m,j,st.params.hJour)) dates.push(mmdd);
   }
   _cmDates[id]=dates;
   return (_cmApp[id]=dates.length);
