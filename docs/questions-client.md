@@ -17,11 +17,10 @@ des questions au client ».
    l'autoriser (mode « Auto » ou règle de permission), puis supprimer à la
    main sur GitHub les deux étiquettes `checkpoint-…` et la branche
    `feature/calendar-weekly-desktop`.
-2. **Appliquer `base/35-annonces-infos.sql`** (30/10/2026) dans
-   l'éditeur SQL de Supabase : le connecteur a demandé une confirmation
-   restée sans réponse. Puis la RH rédige, dans « Infos et aide », les
-   infos pratiques (en cas de maladie, numéros utiles, délais des congés,
-   paie, sécurité, règlement de travail).
+2. **Les infos pratiques à rédiger par la RH** (30/10/2026), dans
+   « Infos et aide » : en cas de maladie, numéros utiles, délais des
+   congés, paie, sécurité, règlement de travail. La base est prête
+   (`base/35`, appliquée et vérifiée le 30/10/2026).
 3. **« Vos données »** (30/10/2026) : qui est le responsable du
    traitement, sur quelle base légale, et combien de temps garder les
    comptes, l'horaire, les demandes et l'historique ? Et faut-il que les
