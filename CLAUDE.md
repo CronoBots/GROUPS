@@ -88,13 +88,15 @@ python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx          
 python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx --installer
 ```
 
-Durées mesurées le 09/10/2026 : horaire **22 s à blanc, 0 s pour
-`--installer`** (il reprend le passage à blanc réussi), recyclages **moins
-d'une seconde**. Si c'est nettement plus long, quelque chose a régressé :
-voir « Huit portes, et vite » dans
-`docs/journal/02-mises-a-jour.md`.
+Durées (09/10/2026) : horaire **22 s à blanc, 0 s `--installer`**,
+recyclages **moins d'une seconde** ; nettement plus long, c'est une
+régression (journal 02, « Huit portes, et vite »).
 
-Les deux sources restent HORS du dépôt. On LIT le rapport de comparaison, on dit au
+Les deux sources restent HORS du dépôt public. **Les fichiers
+confidentiels** (classeurs sources, exports bruts, règlement de travail,
+notes internes, états SAP) vivent dans le dépôt PRIVÉ
+`CronoBots/groups-fiches` (le client, le 30/10/2026), qu'une session
+attache par `add_repo` ; les fiches de paie, dans aucun git. On LIT le rapport de comparaison, on dit au
 client ce qui a bougé, on teste au navigateur, on committe. Si une porte se
 ferme, on comprend pourquoi avant de toucher à quoi que ce soit : la
 contourner, c'est rouvrir le trou qu'elle ferme.
@@ -205,9 +207,8 @@ de salaire, ni identifiant de connexion.
 
 Le client, le 18/10/2026 : « il faut absolument trouver une solution pour
 le contexte et les tokens, cela va beaucoup trop vite et compresse toutes
-les 15 min ». Ce fichier pesait **598 Ko, environ 150 000 jetons**, rechargé
-en entier à chaque session et après chaque compression : il remplissait à
-lui seul la moitié du contexte. Tout l'historique a été déplacé MOT POUR MOT
+les 15 min ». Ce fichier pesait **598 Ko (150 000 jetons)**, rechargé à chaque
+session et compression : la moitié du contexte. Tout l'historique a été déplacé MOT POUR MOT
 (vérifié ligne par ligne, aucune perdue) dans `docs/journal/` ; ne restent
 ici que les règles, les commandes et la structure. **Ne jamais le laisser
 regrossir** : au-delà de 25 Ko, déplacer dans le journal.
@@ -229,15 +230,12 @@ regrossir** : au-delà de 25 Ko, déplacer dans le journal.
 
 - chercher dans le journal avec `grep -n` puis lire la seule section utile
   (`sed -n a,bp`), jamais un fichier entier — certains font 160 Ko ;
-- `index.html` fait plusieurs Mo : `grep -n` puis lire 30 à 80 lignes ;
+- `index.html` (plusieurs Mo) : `grep -n`, puis 30 à 80 lignes ;
 - les sorties longues (vérificateur, `mettre-a-jour.py`, Playwright) se
-  filtrent (`| tail`, `| grep`) ou se comparent par `diff` / `cmp`, sans
-  être imprimées ;
-- une capture d'écran coûte cher : en regarder deux ou trois (320 px et le
-  cas modifié), et faire mesurer le reste par le script (débordements,
-  erreurs) plutôt que de tout afficher ;
-- une recherche large passe par un sous-agent, qui ne rend que sa
-  conclusion.
+  filtrent (`tail`, `grep`) ou se comparent (`diff`, `cmp`) ;
+- une capture d'écran coûte cher : en regarder deux ou trois, faire
+  mesurer le reste par le script (débordements, erreurs) ;
+- une recherche large : un sous-agent, qui ne rend que sa conclusion.
 
 ## Avant de toucher à l'horaire d'équipe
 
@@ -265,7 +263,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-AAAA.json` | horaire d'équipe anonymisé d'une année (2026, 2027), pour le pré-remplissage |
-| `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt |
+| `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt (copie dans le dépôt privé) |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
 | `tools/jumeau-powershell.py` | confronte les deux anonymiseurs sur un classeur (`pwsh` requis) ; s'ils concordent, écrit `jumeau-verifie.txt`, sans quoi le `.ps1` refuse de tourner |
