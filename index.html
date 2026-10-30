@@ -7162,12 +7162,6 @@ html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2
 /* Mon cycle : la même case, resserrée, cinq ou six rangées */
 .mc-tt{display:inline-flex; align-items:baseline; gap:8px; min-width:0}
 .mc-avec{font-size:12px; font-weight:600; color:var(--marque-vif); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.mc-tout{display:block; width:100%; min-height:36px; margin:2px 0 0; padding:6px; border:0; border-radius:8px;
-  background:none; color:var(--marque-vif); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
-.mc-tout::after{content:" \203A"}
-.mc-tout[aria-expanded="true"]::after{content:" \2039"}
-@media (hover:hover){ .mc-tout:hover{background:rgba(128,128,128,.08)} }
-.mc-tout:focus-visible{outline:2px solid var(--in); outline-offset:2px}
 /* « Mon cycle » : les cases du calendrier (le client, le 25/10/2026),
    moins hautes dans le héros ; une semaine repliée disparaît entière */
 .mc-hero .mc-sem[hidden]{display:none}
@@ -19103,12 +19097,23 @@ try{ _lienConnexion=baseDepuisLien(); }catch(e){}
    ne s'efface que si la base refuse le jeton (400, 401, 403 ; pas un 429 de
    trop de demandes) — et seulement
    si c'est bien celui de la session encore enregistrée. */
+/* « CONNEXION EXPIRÉE NE DOIT PAS ARRIVER » (le client, le 30/10/2026). Le
+   cas qui restait : la base renouvelle, la réponse se perd en 5G ; le
+   téléphone garde l'ancien jeton, que la base n'accepte de nouveau que
+   10 s (puis « jeton déjà utilisé », et la session est finie). Sur une coupure
+   (aucune réponse), on relance donc aussitôt, à 1, 2 et 3 s : dans ces
+   10 s, la base rend la session déjà renouvelée. */
 var _renouv=null;
 function baseJeton(){
   var s=baseSession(); if(!s) return Promise.resolve(null);
   if(Date.now()<s.exp) return Promise.resolve(s.access);
   if(_renouv) return _renouv;
-  _renouv=baseFetch("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh})
+  function essai(n){
+    return baseFetch("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh}).catch(function(e){
+      if(!(e&&e.status) && n<3) return new Promise(function(ok){ setTimeout(ok,1000*(n+1)); }).then(function(){ return essai(n+1); });
+      throw e; });
+  }
+  _renouv=essai(0)
     .then(function(j){ return baseGarder(j).access; })
     .catch(function(e){
       var s2=baseSession();
@@ -22428,21 +22433,13 @@ function monCycleHTML(db,person){
   var c=null; try{ c=cycleActuel(person); }catch(e){ c=null; }
   var nc=new Date(), auj=new Date(nc.getFullYear(),nc.getMonth(),nc.getDate());
   var deb=c?c.deb:lundiDe(auj), L=c?c.L:35, h=[];
-  /* REPLIÉ PAR DÉFAUT (le client, le 25/10/2026 : « optimise ») : la
-     semaine en cours et la suivante (les deux dernières en fin de cycle) ;
-     « Tout le cycle » déplie le reste. Six rangées repoussaient « À faire »
-     sous l'écran du téléphone. Le choix se retient sur l'appareil. */
-  var nSem=Math.round(L/7), tout=lsGet("ui/cycleTout")===true;
-  /* la fenêtre part de la semaine de DEMAIN (le client, le 25/10/2026 : un
-     dimanche soir, la première rangée n'était plus que du passé ; le jour
-     même reste dans le billet du prochain poste) */
-  var semA=Math.max(0,Math.floor(((c?c.pos:Math.floor((auj.getTime()-deb.getTime())/86400000))+1)/7));
-  var sem0=Math.max(0,Math.min(semA,nSem-2)), plie=!tout&&nSem>2;
-  /* une semaine hors de la fenêtre porte TOUJOURS mc-hors, et n'est
-     cachée que replié : déplié puis rouvert, « Réduire à deux semaines »
-     ne trouvait plus rien à replier (le client, le 25/10/2026) */
-  function hors(k){ return nSem>2&&(k<sem0||k>sem0+1); }
-  function rangee(k,x){ return '<div class="mc-sem'+(hors(k)?' mc-hors"'+(plie?' hidden':''):'"')+'>'+x+'</div>'; }
+  /* TOUJOURS EN ENTIER (le client, le 30/10/2026 : « pour le calendrier
+     cycle du héros il ne faut plus l'option qui replie, ça doit donc
+     toujours être affiché »). Replié par défaut depuis le 25/10 sur deux
+     semaines, avec « Tout le cycle » pour déplier : l'option est retirée,
+     et le choix qu'un appareil retenait (ui/cycleTout) ne sert plus. */
+  var nSem=Math.round(L/7);
+  function rangee(k,x){ return '<div class="mc-sem">'+x+'</div>'; }
   /* LES CASES DU CALENDRIER (grilleCycle, comme la vue Cycle) : en
      attendant les mois enregistrés, le seul numéro du jour, à la même
      place, pour que rien ne saute */
@@ -22471,18 +22468,8 @@ function monCycleHTML(db,person){
     +esc(numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MC[deb.getMonth()])+" – "+numJour(fin.getDate())+" "+MC[fin.getMonth()]
       +" · semaine "+sem+"/"+Math.round(L/7))+'</span></div>'
     +'<div class="mc-grille mc-hero" id="mcHero"><div class="mc-tete">'
-    +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){ return "<span>"+x+"</span>"; }).join("")+'</div>'+h.join("")+'</div>'
-    +(nSem>2?'<button type="button" class="mc-tout" aria-expanded="'+(plie?'false':'true')+'">'+(plie?'Tout le cycle · '+nSem+' semaines':'Réduire à deux semaines')+'</button>':'');
+    +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){ return "<span>"+x+"</span>"; }).join("")+'</div>'+h.join("")+'</div>';
 }
-document.addEventListener("click",function(e){
-  var b=e.target.closest?e.target.closest(".mc-tout"):null; if(!b) return;
-  var l=b.previousElementSibling, ouvrir=b.getAttribute("aria-expanded")!=="true";
-  lsSet("ui/cycleTout",ouvrir);
-  if(l) Array.prototype.forEach.call(l.querySelectorAll(".mc-hors"),function(x){ x.hidden=!ouvrir; });
-  var n=l?l.querySelectorAll(".mc-sem").length:0;
-  b.setAttribute("aria-expanded",ouvrir?"true":"false");
-  b.textContent=ouvrir?"Réduire à deux semaines":"Tout le cycle · "+n+" semaines";
-});
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest(".mc-hero .mc-j[data-d]"):null; if(!b) return;
   if(b.hasAttribute("data-com")) return; /* la bulle du commentaire s'ouvre, avec « Ouvrir la journée » */
