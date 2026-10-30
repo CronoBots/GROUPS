@@ -111,9 +111,9 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 10. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
    caisse de vacances.) Le règlement de travail (art. 18) ne donne que
-   l'avance des ouvriers, 10 jours ouvrables avant la fin du mois, et le
-   solde au plus tard le 7e jour ouvrable ; ni pécule ni treizième mois.
-   Voir `docs/regles-paie.md`, « Reste ouvert ».
+   l'avance et le solde — l'application les calcule pour l'ouvrier depuis
+   le 30/10/2026 (`docs/regles-paie.md`, « Chez l'ouvrier ») — ; ni pécule
+   ni treizième mois. Voir `docs/regles-paie.md`, « Reste ouvert ».
 
 ## La plateforme (inventaire du 21/10/2026, `docs/plateforme.md`)
 
