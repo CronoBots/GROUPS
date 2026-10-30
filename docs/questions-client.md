@@ -16,10 +16,12 @@ des questions au client ».
    `checkpoint-…` : la purge de `main` est poussée (30/10/2026, journal
    01, « La seconde purge »), mais ces trois références gardent
    l'ancienne histoire et la session ne peut pas les remplacer.
-2. **Les infos pratiques à rédiger par la RH** (30/10/2026), dans
-   « Infos et aide » : en cas de maladie, numéros utiles, délais des
-   congés, paie, sécurité, règlement de travail. La base est prête
-   (`base/35`, appliquée et vérifiée le 30/10/2026).
+2. **Relire les infos pratiques** (30/10/2026) : vingt-deux, tirées du
+   règlement de travail (version 5, 2025) et publiées dans « Infos et
+   aide » ; la RH les corrige ou les complète dans l'application. Deux
+   points du scan restent illisibles : une ligne de l'article 44 (une
+   seconde période de demande de congé, « réponse au plus tard le
+   1er octobre ») et l'affiche de sécurité de l'annexe VI.
 3. **« Vos données »** (30/10/2026) : qui est le responsable du
    traitement, sur quelle base légale, et combien de temps garder les
    comptes, l'horaire, les demandes et l'historique ? Et faut-il que les
@@ -108,7 +110,10 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    quels ateliers ? Le héros montre en attendant les chiffres du classeur.
 10. **Le pécule et le treizième mois des ouvriers** : à quelles dates ?
    (Chez l'employé : mai et juin ; chez l'ouvrier, le pécule vient de la
-   caisse de vacances.) Voir `docs/regles-paie.md`, « Reste ouvert ».
+   caisse de vacances.) Le règlement de travail (art. 18) ne donne que
+   l'avance des ouvriers, 10 jours ouvrables avant la fin du mois, et le
+   solde au plus tard le 7e jour ouvrable ; ni pécule ni treizième mois.
+   Voir `docs/regles-paie.md`, « Reste ouvert ».
 
 ## La plateforme (inventaire du 21/10/2026, `docs/plateforme.md`)
 
