@@ -1232,7 +1232,8 @@ body{overflow-x:clip}
 #calCard.vue-an .calbilan,#calCard.vue-sem .calbilan,#calCard.vue-cy .calbilan{display:none}
 /* LE CYCLE : la grille du mois, du lundi où il commence à son dernier jour ;
    le 1er de chaque mois porte le nom du mois (le titre dit déjà le premier) */
-.mc-n small{font-size:.8em; font-weight:600; color:var(--faint)}
+.mc-n small{font-size:.8em; font-weight:600; color:var(--faint); margin-left:.25em}
+@media (max-width:359px){ .mc-n small{margin-left:.06em; letter-spacing:-.03em} }
 /* l'équipe ou le binôme à droite du titre, les journées dessous */
 .sem-t.cy-t{flex-wrap:wrap; row-gap:2px}
 .sem-t.cy-t .cy-avec{font-size:12.5px; font-weight:650; color:var(--marque-vif); text-align:right}
@@ -10789,7 +10790,12 @@ function grilleCycle(d0,L,o,fin){
       parK[k]=M; });
     jours.forEach(function(d){
       var y=d.getFullYear(), m=d.getMonth(), j=d.getDate(), M=parK[key(y,m)], dans=(y>=AN_MIN);
-      var mo=(j===1)?'<small> '+esc(MOIS_BREF[m])+'</small>':"";
+      /* « 1 nov. » tenait de justesse (40 px dans une case de 44 à 390 px)
+         et débordait sur l'iPhone, la case du prochain poste cerclée (capture
+         du client, le 30/10/2026) : pas de point final — « 1 nov », « 1 janv »
+         —, l'espace en marge CSS, serrée sous 360 px, sans descendre sous
+         11 px */
+      var mo=(j===1)?'<small>'+esc(MOIS_BREF[m].replace(/\.$/,""))+'</small>':"";
       var cas=dans?avecJour(y,m,M,function(){ dr=fusionDrapeaux(dr,legendeDrapeaux(j,j)); return caseJour(j); })
                    .replace(' data-d="',' data-y="'+y+'" data-m="'+m+'" data-d="')
                    .replace('<span class="mc-n">'+j+'</span>','<span class="mc-n">'+j+mo+'</span>')
