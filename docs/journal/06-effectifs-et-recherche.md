@@ -3682,3 +3682,51 @@ huit fiches de janvier à août ; or la fiche de janvier n'a pas payé le
 30/01 de VBN (14 h – 18 h, remise faite). Le 31/10 de FPA, sans
 « R-CM », n'a donc aucune prime : question au client
 (`docs/questions-client.md`).
+
+### JBI et VBN en 2 × 12 h, et les contremaîtres au-dessus (30/10/2026, v1216)
+
+Le client, sur le Planning des 21 et 22/03 : « ici c'est JBI et VBN qui
+tiennent le poste de contremaître en 2x 12h ; ceux qui sont contremaître
+doivent toujours être affichés au-dessus des autres ». Le week-end se fait
+en 12 h : AFA, GPS et ATA (contremaîtres) sont remplacés, YBT (adjoint qui
+devait remplacer AFA) absent, « Remplacé par VBN et JBI ». JBI, adjoint,
+« PM · 6h-18 · Remplacement ATA remplace aussi YBT » ; ATA « Remplacé par
+JBI » ; VBN « R-CM · 18h-6h ». Le Planning montrait JBI 06-18 dans la
+ligne des adjoints, un « ? » au contremaître du matin, et sur la ligne CM
+les cadres sous AFA, FLI et GPS en 07-15. Trois causes :
+
+1. `adjointFaitCM` ne lisait que « remplace X », pas « Remplacement X »,
+   et voulait le contremaître absent et prévu à cette pause — ATA,
+   rappelé de 6 h à 18 h, était là, et prévu l'après-midi. Désormais,
+   quand l'adjoint nomme le contremaître et que le contremaître le nomme
+   (« Remplacé par JBI »), sans heures de part et d'autre, c'est dit.
+2. `relaisDouze` écartait une plage de 12 h qui contient toute la pause
+   (« la pause n'est pas la sienne ») en supposant la personne comptée
+   dans cette pause-là. JBI, compté l'après-midi par sa cellule (« PM »),
+   ne l'était pas le matin : sa matinée était seulement MONTRÉE (la
+   journée partagée de l'affichage), et la place restait vide. Elle compte
+   maintenant en relais quand `lectureAgenda` range la journée dans une
+   autre pause. À heures égales, celui que son commentaire dit « remplacé
+   par » passe après.
+3. Sur la ligne du contremaître, la rangée des cadres passe AU-DESSUS des
+   badges de la case (`eqdessus`), écrite après la ligne pour que les « ? »
+   collés à un cadre soient décidés ; parmi les cadres, le « remplacé
+   par » passe après (ATA 06-18 sous JBI 06-18 · VBN 18-06). Les autres
+   lignes gardent leurs cadres dessous.
+
+**Mesuré.** Places creuses de l'année 209 → 202, chacune relue :
+contremaître du matin les 21 et 22/03 (JBI) et le 06/09 (ATA « 6h-18h,
+échange avec GPS pour remplacer AFA », le même week-end en 12 h),
+contremaître de l'après-midi les 22/04 et 26/08 (GPS « 10h-22h · CPPT »,
+ATA passé au matin), gluten l'après-midi du 22/01 (QBY « 14h-00h, échange
+avec IME »), chaudières l'après-midi du 28/01 (SPS, « présence de 3
+opérateurs obligatoire »), gluten du matin les 10 et 11/08 (RDT « 6h-18h,
+échange avec HKB »). Le 22/01 et le 28/01, FLN et SBZ ne sont plus
+déplacés par l'application : ils restent à leur poste. Un agenda change :
+AFA le 07/10, « 13 h – 14 h · Contremaître, remplace JBI » (et non plus
+« Adjoint ») — JBI « R-CM, remplace ATA », ATA « remplacé par JBI ».
+Calendrier, manques depuis le 26/09, polyvalence, compteurs identiques à
+l'octet ; manques commentés 0. Au navigateur, toute l'année : 30 lignes
+de contremaître ont leurs cadres au-dessus ; chevauchements 0 à 320 et
+390 px ; les 6 cadres hors de leur case à 320 px les 22 et 23/03 sont
+ceux d'avant (v1214), au bord du tableau.

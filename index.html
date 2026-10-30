@@ -4950,7 +4950,15 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqhote .eqp2 td.bande>.eqfus{display:block; position:relative}
 .eqhote .eqp2 td.bande>.eqfus>.eqseg{position:absolute; top:0; min-width:0}
 .eqhote .eqp2 td.bande>.eqfus>.eqvide-sp{display:none}
-.eqhote .eqp2 tbody tr:has(+tr.eqbande)>td{vertical-align:bottom; padding-bottom:0}
+.eqhote .eqp2 tbody tr:has(+tr.eqbande:not(.eqdessus))>td{vertical-align:bottom; padding-bottom:0}
+/* la rangée des cadres AU-DESSUS de la ligne du contremaître (eqdessus) :
+   elle ouvre le poste — son trait du haut, ses cadres collés à la ligne du
+   dessous —, et la ligne qui suit n'a ni trait ni bord gauche */
+.eqhote .eqp2 tr.eqbande.eqdessus>td{vertical-align:bottom; padding-bottom:0}
+.eqhote .eqp2 tbody tr+tr.eqbande.eqdessus>td{border-top:1px solid var(--trait)}
+.eqhote .eqp2 tbody tr+tr.zone1.eqbande.eqdessus>td{border-top:2px solid var(--trait-fort)}
+.eqhote .eqp2 tbody tr.eqdessus+tr>td{border-top:0; vertical-align:top}
+.eqhote .eqp2 tbody tr.eqdessus+tr>td:first-child{border-left:0}
 .eqhote .eqp2 tr.eqbande .eqfus-maint,.eqhote .eqp2 tr.eqbande .eqfus-mq,.eqhote .eqp2 tr.eqbande .eqfus-sep{top:-1px}
 td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqfus>.eqseg.jour{border-style:solid; border-color:var(--trait-fort); background:var(--surface3)}
@@ -24930,18 +24938,30 @@ function renfortDepuisD(db,listeD,mmdd){
    (sans heures propres à ce remplacement), ou « remplacé par FPA » chez le
    contremaître —, et le contremaître doit être prévu à cette pause sans y
    être présent. La prime R-CM, elle, reste à « R-CM » écrit
-   (remplacementCM). Rend le trigramme du contremaître remplacé, ou null. */
+   (remplacementCM). Rend le trigramme du contremaître remplacé, ou null.
+   LES DEUX COLONNES QUI SE RÉPONDENT SUFFISENT (le client, le 30/10/2026,
+   sur les 21 et 22/03 : « c'est JBI et VBN qui tiennent le poste de
+   contremaître en 2x 12h »). JBI, adjoint, « Remplacement ATA remplace
+   aussi YBT » de 6 h à 18 h ; ATA, contremaître, « Remplacé par JBI » —
+   rappelé ce jour-là pour autre chose, donc présent, et prévu l'après-midi
+   quand le week-end se fait en 12 h. Quand l'adjoint nomme le
+   contremaître et que le contremaître le nomme, sans heures de part et
+   d'autre, ni la pause ni l'absence ne sont à vérifier. */
 function adjointFaitCM(db,q,gk,mmdd,presents){
   if(!q || !estCadre(q) || estContremaitre(q)) return null;
   var e=q.d&&q.d[mmdd]; if(!e) return null;
-  var c=String(e[2]||""), m=/\b[Rr]emplace\s+([A-Z]{3})\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.exec(c), t, i, r, x;
+  var c=String(e[2]||""), m=/\b[Rr]empla(?:ce|cement(?:\s+de)?)\s+([A-Z]{3})\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.exec(c), t, i, r, x;
   function prevuAbsent(id){
     if(presents && presents[id]) return false;
     for(i=0;i<db.people.length;i++){ x=db.people[i]; if(x.id!==id) continue;
       r=x.d&&x.d[mmdd]; return !!r && String(r[0]||"").trim()===gk; }
     return false;
   }
-  if(m){ t=m[1]; if(CONTREMAITRES.indexOf(t)>=0 && prevuAbsent(t)) return t; }
+  if(m){ t=m[1]; if(CONTREMAITRES.indexOf(t)>=0){
+    if(prevuAbsent(t)) return t;
+    for(i=0;i<db.people.length;i++){ x=db.people[i]; if(x.id!==t) continue;
+      if(new RegExp("[Rr]emplac[ée]e?\\s+[Pp]ar\\s+"+q.id+"\\b(?!\\s*(?:de\\s*)?\\d{1,2}\\s*h)").test(String(((x.d&&x.d[mmdd])||[])[2]||""))) return t; }
+  } }
   for(i=0;i<db.people.length;i++){ x=db.people[i];
     if(CONTREMAITRES.indexOf(x.id)<0 || (presents && presents[x.id])) continue;
     r=x.d&&x.d[mmdd]; if(!r || String(r[0]||"").trim()!==gk) continue;
@@ -25190,8 +25210,17 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
       var a=pl[0]+24*dec, b=pl[1]+24*dec;
       var x0=Math.max(a,W0), x1=Math.min(b,W1);
       if(x1-x0<0.5) return;
-      /* la pause n'est pas la sienne : sa plage la déborde, sans la contenir */
-      if(a<=W0+0.01 && b>=W1-0.01) return;
+      /* la pause n'est pas la sienne : sa plage la déborde, sans la contenir —
+         sauf quand sa journée est comptée dans une AUTRE pause (le client,
+         le 30/10/2026, sur les 21 et 22/03 : « c'est JBI et VBN qui tiennent
+         le poste de contremaître en 2x 12h »). JBI « PM · 6h-18 », compté
+         l'après-midi par sa cellule, couvre tout le matin : sa matinée n'était
+         que montrée, et la place de contremaître du matin restait vide. */
+      if(a<=W0+0.01 && b>=W1-0.01){
+        if(dec!==0) return;
+        var Lp=null; try{ Lp=lectureAgenda(db,p,d.getFullYear(),d.getMonth()+1,d.getDate()); }catch(eL){}
+        if(!Lp || !Lp.presente || Lp.pv===gk) return;
+      }
       /* le poste qu'il tient : l'atelier écrit, dans la cellule ou en tête
          du commentaire (« poly. Etoh. Remplace ALZ »), celui du remplacé, et
          seulement à défaut son poste habituel */
@@ -25199,6 +25228,8 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
         ||posteDepuisNom(c.split(/[\s.,;]+(?:remp|rappel)/i)[0].trim())
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
+      /* l'adjoint qui remplace ce jour-là un contremaître (adjointFaitCM) */
+      if(kp==="adj" && adjointFaitCM(db,p,gk,md,null)) kp="cm";
       if(kp!==k) return;
       cand.push({p:p, a:x0, b:x1, plage:pl, A:a, B:b, com:String(raw[2]||"").trim(), dec:dec});
     });
@@ -25280,7 +25311,11 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
     }
     return vu;
   }
-  cand.sort(function(x,y){ return x.a-y.a || x.b-y.b; });
+  /* à heures égales, celui que son commentaire dit « remplacé par » un
+     autre passe après (ATA le 21/03, « Remplacé par JBI », rappelé de 6 h
+     à 18 h comme JBI, qui tient sa place) */
+  function remplacePar(c){ return /[Rr]emplac[ée]e?\s+[Pp]ar\s+[A-Z]{3}\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.test(c.com)?1:0; }
+  cand.sort(function(x,y){ return x.a-y.a || remplacePar(x)-remplacePar(y) || x.b-y.b; });
   var fin=W0, pris=[];
   cand.forEach(function(c){
     if(c.a<=fin+0.01 && c.b>fin+0.01){ c.de=fin; fin=c.b; pris.push(c); }
@@ -25366,9 +25401,13 @@ var fermerCompop=function(){};
    en classe (zeb), la rangée des cadres prenant celle de son poste. */
 function zebrerLignes(html){
   var i=String(html).indexOf("<tbody"); if(i<0) return html;
-  var n=0;
+  var n=0, apres=false;
+  /* la rangée des cadres posée AU-DESSUS (eqdessus) ouvre son poste : elle
+     compte, et la ligne qui la suit prend sa parité */
   return html.slice(0,i)+html.slice(i).replace(/<tr\b([^>]*)>/g,function(m,at){
-    if(!/class="[^"]*\beqbande\b/.test(at)) n++;
+    var bd=/class="[^"]*\beqbande\b/.test(at);
+    if(bd && /class="[^"]*\beqdessus\b/.test(at)){ n++; apres=true; }
+    else if(!bd){ if(apres) apres=false; else n++; }
     if(n%2===0) return m;
     return /class="/.test(at) ? m.replace(/class="/,'class="zeb ') : '<tr class="zeb"'+at+'>';
   });
@@ -26147,7 +26186,8 @@ function renderEquipe(){
              badge (le client, le 25/10/2026 : « attention que SVE est en
              formation distillation et n'apparaît pas en jaune ») */
           var fo=false; try{ fo=enFormation(pp,jourCalc) && !compteAuPoste(x0||{p:pp},P,jourCalc); }catch(eF){}
-          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD, form:fo});
+          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD, form:fo,
+            remp:/[Rr]emplac[ée]e?\s+[Pp]ar\s+[A-Z]{3}\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.test(String(((pp.d||{})[mmdd]||[])[2]||""))});
         });
         return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
       }
@@ -26235,13 +26275,26 @@ function renderEquipe(){
         var debut=(P.z!==zPrec); zPrec=P.z;
         var fus=fusionsLigne(P), bandes=bandesLigne(P,fus), enTete=bandesEnTete(P,bandes);
         if(enTete) bandes=[];
-        tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
-          /* Les deux intitulés, et la feuille choisit : le court sur un
-             téléphone, l'entier au-delà de 760 px — comme l'onglet Équipe.
-             Le client, le 26/09/2026, a choisi cette option pour rendre
-             aux trois pauses la largeur que prenait l'intitulé. */
-          +'<th class="eqposte" scope="row"'+(bandes.length?' rowspan="2"':'')+'><b><span class="orgl1">'+esc(P.t)
-          +'</span><span class="orgl2">'+esc(EQ_COURT[P.k]||P.t)+"</span></b></th>");
+        /* CEUX QUI TIENNENT LE POSTE DE CONTREMAÎTRE AU-DESSUS DES AUTRES (le
+           client, le 30/10/2026, sur les 21 et 22/03 : « JBI et VBN tiennent
+           le poste de contremaître en 2x 12h ; ceux qui sont contremaître
+           doivent toujours être affichés au-dessus des autres »). Sur la
+           ligne du contremaître, la rangée des cadres passe AU-DESSUS des
+           badges de la case (AFA, FLI, GPS en 07-15) ; et parmi les cadres,
+           celui que son commentaire dit « remplacé par » un autre (ATA,
+           rappelé de 6 h à 18 h, « Remplacé par JBI ») passe après : JBI
+           06-18 et VBN 18-06 sur la première voie. Les autres lignes gardent
+           leurs cadres dessous. */
+        var dessus=(P.k==="cm" && bandes.length>0), iLigne=tp.length;
+        if(dessus) bandes.sort(function(u,v){ return (u.remp?1:0)-(v.remp?1:0) || u.a-v.a || u.b-v.b; });
+        /* Les deux intitulés, et la feuille choisit : le court sur un
+           téléphone, l'entier au-delà de 760 px — comme l'onglet Équipe.
+           Le client, le 26/09/2026, a choisi cette option pour rendre
+           aux trois pauses la largeur que prenait l'intitulé. */
+        var thL='<th class="eqposte" scope="row"'+(bandes.length?' rowspan="2"':'')+'><b><span class="orgl1">'+esc(P.t)
+          +'</span><span class="orgl2">'+esc(EQ_COURT[P.k]||P.t)+"</span></b></th>";
+        tp.push(dessus ? '<tr data-z="'+esc(P.z||"")+'">'
+          : '<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"+thL);
         PAUSES.forEach(avecK(function(g){
           if(!vp[g.k]) return;
           if(fus.saute[g.k]) return;
@@ -26400,7 +26453,10 @@ function renderEquipe(){
             +"</td>");
         }));
         tp.push("</tr>");
-        if(bandes.length) tp.push('<tr class="eqbande" data-z="'+esc(P.z||"")+'">'+caseBandes(bandes,P)+"</tr>");
+        /* la rangée du dessus s'écrit après la ligne : les « ? » collés à un
+           cadre (bd.trou) se décident en écrivant les cases */
+        if(dessus) tp.splice(iLigne,0,'<tr class="eqbande eqdessus'+(debut?' zone1':'')+'" data-z="'+esc(P.z||"")+'">'+thL+caseBandes(bandes,P)+"</tr>");
+        else if(bandes.length) tp.push('<tr class="eqbande" data-z="'+esc(P.z||"")+'">'+caseBandes(bandes,P)+"</tr>");
       });
       /* L'opérateur dont le poste reste indéterminé se lisait dans la
          carte « Hors poste », loin du tableau — donc loin de la question
@@ -29320,6 +29376,9 @@ function alignerFusions(tbl){
       cols=(td.getAttribute("data-k")||"").split(" ").map(function(k){ var th=tbl.querySelector('thead th[data-k="'+k+'"]'); return th&&th.getBoundingClientRect(); });
       if(cols.some(function(c){ return !c; })) return;
     } else {
+      /* posée au-dessus de sa ligne (eqdessus), elle prend ses colonnes à la
+         ligne d'en dessous */
+      if(tr.classList.contains("eqdessus")) haut=tr.nextElementSibling;
       if(!haut) return;
       cols=Array.prototype.filter.call(haut.children,function(c){ return c.tagName==="TD"; }).map(function(c){ return c.getBoundingClientRect(); });
     }
@@ -29356,7 +29415,8 @@ function alignerFusions(tbl){
      un espace plus grand entre la première ligne des opérateurs et les
      autres ? ») */
   var eqcR=tbl.querySelector("tbody td:not(.fusion) .eqc"), gapR=eqcR?parseFloat(getComputedStyle(eqcR).rowGap)||4:4;
-  Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqbande>td"),function(td){ td.style.paddingTop=gapR+"px"; });
+  Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqbande:not(.eqdessus)>td"),function(td){ td.style.paddingTop=gapR+"px"; });
+  Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqdessus+tr>td"),function(td){ td.style.paddingTop=gapR+"px"; });
 }
 function ajusterLignesJour(){
   var view=document.getElementById("v-jour"); if(!view||view.hidden) return;
@@ -29399,7 +29459,8 @@ function ajusterLignesJour(){
     rows.forEach(function(r,i){
       /* un poste suivi de sa rangée de cadres partage son supplément avec
          elle : moitié au-dessus des badges, moitié sous les cadres */
-      var avecB=r.nextElementSibling&&r.nextElementSibling.classList.contains("eqbande");
+      var avecB=(r.nextElementSibling&&r.nextElementSibling.classList.contains("eqbande"))
+        ||(r.previousElementSibling&&r.previousElementSibling.classList.contains("eqdessus"));
       var suiv=acc+nat[i]+(r.classList.contains("eqbande")||avecB?sup/2:sup);
       r.style.height=(Math.round(suiv)-Math.round(acc))+"px";
       acc=suiv;
