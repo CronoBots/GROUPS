@@ -111,10 +111,8 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 6. **La maladie** : le « premier mois » payé par l'employeur vaut-il
    30 jours calendrier (`MALADIE_EMPLOYEUR_J`) ? Comment le fixe d'un
    employé est-il réduit au-delà — au taux horaire, en jours, au prorata ?
-   Et une rechute : le règlement (art. 48, annexe XII) présume la même
-   maladie dans les 14 jours calendrier qui suivent la fin de la
-   précédente ; le mois de salaire garanti continue-t-il alors, au lieu de
-   recommencer comme le fait l'application ?
+   (La rechute dans les 14 jours continue le mois depuis le 30/10/2026 :
+   le règlement, art. 48, présume la même maladie.)
 7. **La nuit de 12 h « 18h-06h » d'un ouvrier** (LCI le 20/03) : la fiche
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
@@ -135,11 +133,6 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    34:24 », soit 38:24 moins 4 h. La CCT d'entreprise du 26/09/2013 « ayant
    pour objet le temps de travail » (annexe IX) trancherait : peut-on en
    avoir le texte ?
-7 ter. **La demi-journée de conseil d'entreprise** : l'annexe XI paie les
-   jours de dispense « primes de pause » comprises ; la fiche d'un ouvrier
-   (25/08) paie la demi-journée « PM · DS-CE » sans prime d'équipe, et
-   l'application fait comme la fiche. La demi-journée est-elle un « jour de
-   dispense » au sens de l'annexe ?
 8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti. Deux pièces (30/10/2026) : la note de la fiche paie « Hrs. Jours

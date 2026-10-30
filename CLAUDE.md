@@ -123,17 +123,17 @@ se terminent). Un contrôle qui ne peut pas échouer ne contrôle rien, et un
 contrôle qui échoue toujours ne se lit plus : **le code de retour ne porte
 que ce qui est une faute**.
 
-**Le classeur est la SEULE source de l'application.** Le client, le
-27/09/2026 : « les indications dans le classeur ne seront jamais faites
-autrement, ce n'est pas moi qui les gère », puis « il faut se débrouiller
-avec le classeur ; les fiches de paye et relevés sont juste là pour
-vérifier que le programme est bien fait ». Une règle se tire donc du
-classeur tel qu'il est écrit, fautes de frappe comprises — jamais d'une
-écriture qu'on voudrait lui voir adopter, ni d'une table recopiée des
-relevés. Ce que le classeur ne dit pas, et que seule une fiche montre,
-est un **écart connu**, écrit ici, et non corrigé. Une première réponse du
-27/09 l'a oublié : un code lu sur « Abs s/c », que personne n'écrira, a
-vécu un commit avant d'être retiré.
+**Le classeur dit ce qui a été presté ; le règlement de travail dit la
+règle.** Le client, le 27/09/2026 : « il faut se débrouiller avec le
+classeur ; les fiches de paye et relevés sont juste là pour vérifier que le
+programme est bien fait ». Une lecture se tire du classeur tel qu'il est
+écrit, fautes de frappe comprises — jamais d'une écriture qu'on voudrait
+lui voir adopter, ni d'une table recopiée des relevés. Et le 30/10/2026 :
+« le règlement est la source officielle, si l'app ne fait pas pareil c'est
+qu'il y a une erreur dans l'app » : une fiche qui
+le contredit est une erreur de paiement, à signaler, pas à imiter. Ce que
+ni le classeur ni le règlement ne disent, et que seule une fiche montre,
+est un **écart connu**, écrit ici, et non corrigé.
 
 **Ne jamais deviner à la place du classeur ni du client.** Quand deux
 lectures sont possibles, c'est le classeur qui tranche — les colonnes se

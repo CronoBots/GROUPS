@@ -1628,3 +1628,14 @@ efface. L'export du brut (local) remplace désormais la colonne A de
 « Polyvalence » par « (retiré) », puisque le client l'a accepté.
 Leçon : une affirmation sur ce qui est public se vérifie par `git ls-files`
 et `git log --all`, pas par la présence d'un fichier dans le dossier.
+
+### Déplacé de CLAUDE.md (30/10/2026)
+
+Pour faire place à la règle du règlement de travail (« le règlement est la
+source officielle »), ce récit quitte CLAUDE.md, mot pour mot :
+
+> Le classeur est la SEULE source de l'application. Le client, le
+> 27/09/2026 : « les indications dans le classeur ne seront jamais faites
+> autrement, ce n'est pas moi qui les gère » […] Une première réponse du
+> 27/09 l'a oublié : un code lu sur « Abs s/c », que personne n'écrira, a
+> vécu un commit avant d'être retiré.

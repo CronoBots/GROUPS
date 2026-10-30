@@ -693,3 +693,38 @@ Deux réponses du client à la relecture des documents :
   tuiles de l'Accueil, que le client a voulues d'une ligne le 25/10.
   L'objet porte le trigramme et la date de l'usine ; la nature de
   l'absence reste à écrire.
+
+### « Le règlement est la source officielle » (30/10/2026, v1210)
+
+Le client : « le règlement est la source officielle, si l'app ne fait pas
+pareil c'est qu'il y a une erreur dans l'app ». Écrit comme règle dans
+CLAUDE.md (le classeur dit ce qui a été presté, le règlement la règle ;
+une fiche qui le contredit est une erreur de paiement), puis appliqué aux
+deux écarts que la relecture avait laissés en question :
+
+- **La rechute de maladie** (art. 48, annexe XII) : une incapacité qui
+  reprend dans les 14 jours calendrier est présumée la même maladie, et le
+  classeur ne porte jamais la mention contraire (aucun commentaire de
+  2026-2027 ne parle d'une « nouvelle maladie », cherché). `rangMaladie()`
+  continue donc le mois de salaire garanti d'une série à la suivante.
+  Mesuré : 58 rechutes de ce genre en 2026, 13 qui passent ainsi le mois,
+  166 journées qui vont à la mutuelle ; aucune en 2027. Les plus longues
+  séries n'étaient pas des rechutes mais une même maladie coupée par un
+  jour de congé parental ou de temps partiel (« N · CP », « D · TP ») : à
+  chacun, l'application recommençait un mois payé par l'employeur — faux
+  avant même le règlement. Au navigateur, la fiche de mars d'une de ces
+  personnes passe ses 152 h de « Heures SHG maladie » en « Maladie
+  au-delà du premier mois (payée par la mutuelle) ».
+- **La demi-journée de conseil d'entreprise** (annexe XI, ouvriers et
+  employés : jours de dispense payés « salaire normal (primes de pause) ») :
+  ses 4 h gardent la prime de la pause prévue. La fiche d'un ouvrier du
+  25/08, qui ne la payait pas — et dont le client avait tiré la règle le
+  26/09 —, est une erreur de paiement. Au navigateur, sa fiche d'août passe
+  de 36 à 40 h de prime d'après-midi ; rien d'autre ne bouge.
+
+Relu pour le reste : l'art. 44 (heures sup d'un remplacement de dernière
+minute) ne contredit pas « E. min », qui explique une présence d'arrêt
+technique ; les fériés, l'avance, les DS d'ouvrier étaient déjà conformes.
+Les points que le règlement ne tranche pas (RJF de l'ouvrier, salaire
+horaire moyen, grille 38 h 24 ou 38 h 40, repos A1 en 5bis) restent des
+questions : la règle vaut quand le règlement parle.
