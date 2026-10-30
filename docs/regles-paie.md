@@ -264,6 +264,25 @@ Deux formes de remplacement partiel, qui ne donnent pas la prime :
 Un échange de poste (« échange avec ATR ») n'exclut rien par lui-même : la
 journée compte si le poste est presté en entier.
 
+**Sans « R-CM » écrit, le commentaire suffit** (le client, le 30/10/2026,
+sur JBI le 23/10, « AM · PM · MPE : Remplace AFA » : « il n'est pas marqué
+RCM mais remplace le trigramme contremaître dans les commentaires »).
+`remplacementCMCommente()` compte la journée d'un ADJOINT présent dans une
+pause quand le classeur dit qu'il remplace un contremaître — des deux côtés
+(« Remplace AFA » chez lui, « Remplacé par JBI » chez le contremaître), ou
+le contremaître prévu à cette pause et absent (`adjointFaitCM`) —, aux
+mêmes conditions de poste entier ; une arrivée ou un départ écrits rendent
+la journée partielle, sauf les heures reprises en flex time (« -FT »,
+payées comme présentes : le 01/07 « R-CM · 4h -FT · arrivée à 02h00' » a
+été payé, le 30/01 « 4h RTT · départ à 18h00' » ne l'a pas été). Pas une
+journée de jour (« 7h-15h · remplace ATA et AFA pendant leurs entrevues
+annuelles »), pas un trigramme au détour d'une phrase quand le
+contremaître nomme quelqu'un d'autre. Dix journées de 2026, toutes
+d'adjoints : JBI les 15/03, 21 et 22/03, 23/10, 05/11 et 24-26/11 (« Remplace
+YBT qui remplaçait AFA », AFA « Remplacé par JBI »), FPA le 31/10, ATR le
+19/01 (GPS « remplacé par ATR »). Les contremaîtres, qui ont la prime
+fixe, ne sont pas concernés : les huit fiches de VBN ne bougent pas.
+
 ### Vérification
 
 `remplacementCM()` applique la règle ; le pré-remplissage compte les journées
