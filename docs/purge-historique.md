@@ -1,4 +1,9 @@
-# Purge de l'historique — faite le 22/09/2026, vérifiée complète le 10/10/2026
+# Purge de l'historique — faite le 22/09/2026, vérifiée complète le 10/10/2026 ; seconde purge le 30/10/2026
+
+> **Seconde purge, poussée le 30/10/2026** : identifiants, numéros de
+> contrat, prénoms et noms (fichiers et messages de commit), montants
+> personnels, ancien classeur et JSON brut. Méthode, mesures et ce qui
+> reste : `docs/journal/01-anonymat.md`, « La seconde purge ».
 
 ## Ce qui a été purgé
 

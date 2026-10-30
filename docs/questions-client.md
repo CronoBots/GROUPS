@@ -11,12 +11,11 @@ des questions au client ».
 
 ## Au client
 
-1. **Autoriser la poussée forcée de la purge** (décidée par le client le
-   30/10/2026) : la réécriture est prête et vérifiée (journal 01, « La
-   seconde purge »), mais la session a refusé la poussée forcée. Il faut
-   l'autoriser (mode « Auto » ou règle de permission), puis supprimer à la
-   main sur GitHub les deux étiquettes `checkpoint-…` et la branche
-   `feature/calendar-weekly-desktop`.
+1. **Supprimer à la main sur GitHub** la branche
+   `feature/calendar-weekly-desktop` et les deux étiquettes
+   `checkpoint-…` : la purge de `main` est poussée (30/10/2026, journal
+   01, « La seconde purge »), mais ces trois références gardent
+   l'ancienne histoire et la session ne peut pas les remplacer.
 2. **Les infos pratiques à rédiger par la RH** (30/10/2026), dans
    « Infos et aide » : en cas de maladie, numéros utiles, délais des
    congés, paie, sécurité, règlement de travail. La base est prête

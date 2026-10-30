@@ -229,7 +229,7 @@ publiés, et le contrôle croisé ne regarde que l'arbre de travail.
 formes anciennes. **Réécrire l'histoire d'un dépôt public est une décision
 du client** — la procédure est dans `docs/purge-historique.md`.
 
-### La seconde purge, décidée le 30/10/2026 — prête, pas encore poussée
+### La seconde purge, décidée le 30/10/2026 — poussée le même jour
 
 Le client, le 30/10/2026 : « tu peux faire toutes les améliorations que tu
 as proposées […] tu peux tout faire » — la purge était la première. Ce qui
@@ -289,7 +289,32 @@ la liste des montants à remplacer dans l'historique se relit dans le diff
 du commit qui les a retirés**, comme celle des noms se reconstruit par la
 méthode ci-dessus — jamais écrite dans un fichier.
 
-**Pas encore poussée** : la poussée forcée de `main` a été refusée par le
+**Poussée le 30/10/2026**, sur l'ordre du client (« pousse la purge »),
+refaite d'abord sur l'état du serveur. **L'erreur commise, rattrapée avant
+la poussée** : le premier relevé des montants ne cherchait que des
+nombres suivis de « € » ou à quatre décimales, et seulement dans les
+fichiers. Le contrôle des messages a montré deux taux horaires à quatre
+décimales ; un relevé élargi (tout nombre à décimales de 100 et plus,
+fichiers ET messages, moins ce que l'arbre courant garde, sans les
+triplets de couleur `rgba(150,162,182)`) en a trouvé 23 de plus : le
+fixe d'un mois, les pécules, le treizième mois, l'avance mensuelle, la
+prime CCT 90 et sa cotisation, écrits sans « € » dans des messages de
+commit d'octobre. Seconde passe, une seule expression pour tous :
+167 s. Mesuré avant de pousser : l'arbre de `main` identique à l'octet
+(même empreinte d'arbre) ; 1 447 commits ; zéro identifiant, numéro,
+prénom, nom de la base ou montant dans les fichiers et les messages ;
+`verifier-depot.py --historique` à **0** sur un clone. Poussée avec
+`--force-with-lease` (le serveur était bien au commit attendu) ; le site
+répond, toujours en `nfdm-v1202`. **Restent** : la branche
+`feature/calendar-weekly-desktop` et les deux étiquettes `checkpoint-…`,
+que la session n'a pas pu remplacer (refus « destructif ») et qui
+gardent l'ancienne histoire : à supprimer à la main sur GitHub ; puis le
+ramasse-miettes de GitHub pour les anciens commits servis par leur
+empreinte (18 jours la première fois). Les empreintes de commit citées
+dans le journal avant le 30/10/2026 sont celles d'avant la purge.
+
+*Ce qui suit, écrit avant la poussée, est gardé pour mémoire :* la
+poussée forcée de `main` a d'abord été refusée par le
 contrôle automatique des permissions de la session (classée destructive).
 Elle demande que le client l'autorise. À ce moment, la réécriture se
 refait sur l'état du serveur (deux minutes et demie), avec la même liste,
