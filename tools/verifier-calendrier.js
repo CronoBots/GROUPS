@@ -92,6 +92,7 @@ const MORCEAUX=[
   ["function primeGardee(","\n}"],
   ["function motPrime(","\n}"],
   ["var GREVE_JOURS=","\n"],
+  ["function pauseProlongee(","\n}"],
   ["function lireJournee(","\n}"],
   ["function plageHorsPoste(","\n}"],
   ["var RX_PRESTE_H=","\n"],
