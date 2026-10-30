@@ -7026,3 +7026,41 @@ La même capture montrait encore « 3+FT » le 31 et une reprise dimanche :
 la page d'avant la v1211, encore ouverte. La v1211, en ligne à ce
 moment-là, dit « Reprise · sam. 31 oct. — Demain après-midi, 13 h 30 – 1 h »
 (vérifié au navigateur à 17 h 17 le 30/10).
+
+### Les cadres sur la ligne du poste (30/10/2026, `nfdm-v1214`)
+
+Le client, sur le Planning du 31/10 : « pourquoi ne suis-je pas mis sur
+la 1re ligne comme les autres ? ». Sa journée 14-01 traverse deux pauses :
+elle allait, comme tout cadre sur deux pauses (v1061), dans la rangée
+SOUS la ligne des contremaîtres — la case PM vide au-dessus de lui, FPA
+01-06 seul dans la case de nuit. Rien ne l'obligeait : à côté de lui, il n'y
+avait que FPA, avec ses heures, et qui ne le chevauchait pas.
+
+**Fait** : `bandesEnTete`. Quand, dans les pauses que les cadres
+traversent, il ne reste que des badges à horaire (ni personne de toute
+la pause, ni relais, ni place vide, ni changement fait par
+l'application, ni gens de jour dont le badge écrit l'horaire par
+`horaireEcritD`), ces cases se fondent en une seule, sur la ligne du
+poste : cadres et badges à horaire s'y posent à leurs heures, en voies
+sans chevauchement ; la rangée du dessous disparaît. Les heures d'un
+badge diminué ou prolongé se lisaient dans `horaireModifie`, en texte :
+elles en sortent dans `plageModifiee`, dont les deux se servent — FPA
+n'a pas de `horPart`, son 01-06 est sa nuit moins le relais de VBN.
+Sur la ligne du poste, les colonnes se lisent dans l'en-tête du tableau
+(la rangée du dessous les prenait à la ligne d'au-dessus).
+
+**Une faute ancienne trouvée en mesurant** : un cadre élargi à son
+texte vers la droite recouvrait son voisin — le second ne cédait que
+dans un sens. Sur l'année, à 390 px, 14 chevauchements dans les rangées
+de cadres, tous un « ? 14-18 » (ou 06-07, 06-10) sur le cadre suivant ;
+et BBZ 14-18 sur PDR 18-06 le 31/10 une fois sur la ligne. Une seconde
+passe, de gauche à droite, fait céder le suivant : 0.
+
+**Mesuré** sur toute l'année 2026 au navigateur (chaque jour du
+Planning) : 216 rangées de cadres avant ; après, 17 montent sur la
+ligne du poste et 199 restent dessous. Chevauchements 14 → 0 à 390 px,
+0 à 320 et 1 280 px. Cadres hors de leur case : 0 à 390 et 1 280 px ; 6
+à 320 px les 22 et 23/03, IDENTIQUES avant (des cadres qui touchent le
+bord du tableau un dimanche chargé) — non touchés ici. Calendrier,
+manques, polyvalence, compteurs et agendas identiques à l'octet :
+affichage seul.
