@@ -7011,3 +7011,18 @@ rail centré (48 → 342 sur 390), Planning en 12 → 358, Horaire en 8 → 298.
   positions), PC 1280 et hors ligne tenus.
 - **Erreur de compte** : le message au client de la version précédente
   annonçait `nfdm-v1167` ; c'était `nfdm-v1166`. Celle-ci est la 1167.
+
+### « 1 nov. » débordait de sa case (30/10/2026, v1212)
+
+Une capture du client (iPhone, 17 h 17) montrait la case du 1er novembre,
+cerclée comme prochain poste, avec « 1 nov. » coupé au bord gauche. Mesuré
+à 390 px : 40 px de texte dans une case de 44 — de justesse au navigateur,
+au-delà sur l'iPhone avec le cadre de la case. « 1 janv. » débordait
+partout. Le libellé perd son point final et l'espace devient une marge
+(serrée sous 360 px), sans descendre sous 11 px : « 1 nov » 29 px dans 44,
+« 1 janv » 33 px dans 34 à 320 px, 36 dans 44 à 390.
+
+La même capture montrait encore « 3+FT » le 31 et une reprise dimanche :
+la page d'avant la v1211, encore ouverte. La v1211, en ligne à ce
+moment-là, dit « Reprise · sam. 31 oct. — Demain après-midi, 13 h 30 – 1 h »
+(vérifié au navigateur à 17 h 17 le 30/10).
