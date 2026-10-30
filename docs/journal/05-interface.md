@@ -7202,3 +7202,21 @@ recherche vide rend la vue d'avant.
 contremaître · ATR », colonne du commentaire ; « PDR » → PDR seul,
 « Distillation » ; « at » → seize colonnes (trigrammes, noms et postes) ;
 « zzz » → « Personne ne correspond » ; effacée → « Mon horaire » de VBN.
+
+### « Sur site » : la relève dans le bloc de sa pause (30/10/2026, `nfdm-v1224`)
+
+Le client, capture de 21 h 54 (la v1222 en place) : « les mêmes pauses
+doivent être groupées, mais les trigrammes, que ceux présents allumés ».
+La nuit paraissait deux fois : un bloc « Nuit » pour FPA, arrivé à
+21 h 30 pour la remise, puis un bloc « Relève » pour les huit qui arrivent
+à 22 h. Désormais (`siteReleveChoix`, `siteReleveFusion`), quand
+quelqu'un de la pause de la relève est déjà sur site, la relève entre dans
+son bloc : ceux qui sont là au point vert, ceux qui arrivent en
+pointillé (`site-avenir`, le style des arrivants), dans l'ordre du
+Planning, et le nombre dit « présents/total ». Sans personne déjà là, la
+relève garde son bloc.
+
+Éprouvé au navigateur : 21 h 54, « Nuit 1/9 » — FPA allumé, DKS … ADK en
+pointillé, plus de bloc « Relève » ; 5 h 40, « Matin 1/10 » autour d'AFA ;
+13 h 40 le 31, « Après-midi 1/11 » autour de VBN ; 21 h 00, personne de
+la nuit encore là : le bloc « Relève » reste.
