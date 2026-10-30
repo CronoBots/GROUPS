@@ -728,6 +728,18 @@ Elle rejoint donc `ALIAS_HORAIRE`, à côté de `ABS → MAL`.
   38,4 h (qui vaudrait 38 h 24) mais bien **38 h 40**, la valeur de
   l'application. La grille écrivait une durée en heures et minutes avec une
   virgule.
+  **Rouvert le 30/10/2026 : la dernière phrase était probablement fausse.**
+  Le règlement de travail écrit les deux régimes en décimales : 38,40 h
+  pour la grille de cinq semaines (24 pauses × 8 h ÷ 5 = 38,4, soit
+  38 h 24, 8 jours de RTT, art. 8-2.3) et 38,67 h — c'est-à-dire 38 h 40
+  — pour celle de six semaines (29 × 8 ÷ 6, 10 jours de RTT, art. 8-2.4).
+  La fiche qui porte 38:40 est celle d'un adjoint, et le classeur donne
+  80 h de RTT (10 jours) aux contremaîtres et adjoints, 64 h (8 jours) aux
+  opérateurs. Le 38 h 40 vaut donc pour l'adjoint ; pour un opérateur, la
+  grille disait sans doute vrai. Question à la RH (`questions-client.md`,
+  7 bis). Rien n'est changé dans l'application : « Heures / semaine »
+  n'y est qu'affiché, et le diviseur horaire ne sert qu'au fixe d'un
+  employé — celui de l'adjoint, mesuré juste sur ses fiches.
 *(La question des primes des journées de plus de 8 h est tranchée — voir la
 section 6 octies.)*
 

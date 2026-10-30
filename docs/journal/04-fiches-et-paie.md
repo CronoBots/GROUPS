@@ -525,3 +525,45 @@ majuscule comprise, suivi du sigle de la convention : `verifier-depot.py` y
 a lu une forme de nom (un mot à majuscule suivi d'un trigramme). Reformulée
 plutôt qu'admise — et ce paragraphe-ci, qui la citait telle quelle, a fait
 refuser le premier commit par le crochet.
+
+### Ce que le règlement dit de chaque statut (30/10/2026)
+
+Le client : « y a-t-il des nouvelles infos utiles concernant chaque
+statut ? » Le règlement est commun aux ouvriers et aux employés ; ce qui
+les sépare tient en peu de lignes, relevées sur tout le texte (`ouvrier`,
+`employé`, `statut`, `cadre`, chaque article) :
+
+- **en-tête** : commission paritaire 118 pour les ouvriers, 220 pour les
+  employés ; caisse de vacances « seulement pour ouvriers » ;
+- **art. 15** : l'ouvrier payé à l'heure, l'employé au mois ;
+- **art. 18** : l'avance, 10 jours ou 4 (v1205, plus haut) ;
+- **art. 49** : la suspension pour raisons économiques, intempéries ou
+  force majeure est écrite pour les ouvriers ;
+- **art. 55** : les indemnités de maladie (« salaires hebdomadaires,
+  2e semaine de maladie, salaire mensuel garanti ») payées au premier jour
+  de paie qui suit leur exigibilité — sans durée ni pourcentage : les
+  questions 6 à 8 à la RH restent ouvertes ;
+- **annexe X** : la formation syndicale des délégués ouvriers ; **annexe
+  XI** : les réunions CPPT, CE et DS des deux statuts.
+
+Ce qui n'était pas attendu vient d'ailleurs : **l'art. 8-2 explique les
+soldes RTT du classeur.** 8 jours de RTT par an pour la grille de cinq
+semaines (38,40 h), 10 pour celle de six semaines (38,67 h) : × 8 h, ce sont
+les 64 h des opérateurs et les 80 h des contremaîtres et adjoints que le
+classeur écrit à la main (`docs/plateforme.md`). Et cela rouvre une
+conclusion du 21/09 : la fiche à 38:40 était celle d'un adjoint, et
+38,67 h vaut 38 h 40 ; la grille de cinq semaines, elle, fait bien 38,4 h
+décimales (24 pauses × 8 h ÷ 5). Corrigé sur place dans
+`docs/conversion-horaire.md` et posé à la RH (7 bis). Rien n'a bougé dans
+le calcul : « Heures / semaine » n'est qu'affiché, et le diviseur horaire
+ne sert qu'au fixe d'un employé.
+
+Un écart possible, posé aussi (7 ter) : l'annexe XI paie les jours de
+dispense « primes de pause » comprises, la fiche d'un ouvrier paie la
+demi-journée de conseil d'entreprise sans prime d'équipe.
+
+Publié : trois infos pratiques de plus dans la base (25 en tout) —
+« Ouvriers et employés : ce qui diffère » (Paie), « Durée du travail et
+jours de RTT » (Congés et absences), « Mandat syndical : formation et
+réunions » (Autre) — chacune avec ses articles. Et l'aide du réglage
+« Avance mensuelle » nomme l'ouvrier (v1206).
