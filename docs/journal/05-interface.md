@@ -7233,3 +7233,19 @@ droite (« 21 h 54 ven. 30 oct. ») ; la ligne du dessous ne garde que
 l'heure le dit, et le titre entier ne tenait pas avec elle à 320 px.
 Mesuré : sur une ligne, sans débordement, à 390 et 320 px. (La carte de
 l'espace RH garde son en-tête, avec le nombre en pastille.)
+
+### « Sur site » : la date et l'heure dans la ligne de chaque pause (30/10/2026, `nfdm-v1226`)
+
+Le client, après la v1225 : « je parlais de la ligne des titres de pause
+en cours et relève ». Je m'étais trompé de ligne : j'avais remanié le
+titre de la carte (« Sur site · 21 h 54 ven. 30 oct. »), qui reste — il
+ne l'a pas demandé défait. La ligne de chaque pause disait « Après-midi
+Équipe 1 · ven. 30 · 14 h – 22 h », la date et les heures après l'équipe,
+en petit gris, sans le mois. Désormais (`siteTitreQuand`) : le nom, puis
+« ven. 30 oct. · **14 h – 22 h** » (la date en clair, les heures en
+gras), et l'équipe toujours sur la ligne du dessous, pour que chaque bloc
+ait la même forme ; la relève séparée dit « ven. 30 oct. · **22 h** ». La
+nuit reste celle du jour où elle commence (« ven. 30 oct. · 22 h – 6 h »
+à 5 h 40 le 31). `sitePauseQuand`, plus appelée, est retirée. Mesuré à 390
+et 320 px : la date et les heures sur la ligne du nom à 390 ; à 320, le
+nom seul sur la première ligne, la date et les heures dessous.
