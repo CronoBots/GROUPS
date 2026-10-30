@@ -367,7 +367,11 @@ dont le texte entier ne contient rien à changer.
 
 **L'aperçu d'un lien partagé** : `apercu-lien.jpg` (1200 × 630 : le logo,
 « Horaire, planning et salaire des équipes en pauses », l'usine) et les
-balises `og:` et `twitter:` ; la description de la page, restée celle
+balises `og:` et `twitter:` (**leur adresse était fausse** : écrite
+`/groups/` en minuscules, elle répondait 404 — le site est servi sous
+`/GROUPS/` ; l'aperçu ne pouvait pas s'afficher. Vu le 30/10/2026 en
+vérifiant le site publié, corrigé dans `nfdm-v1202`, les deux adresses
+mesurées 200) ; la description de la page, restée celle
 du simulateur de septembre, dit ce qu'est l'application aujourd'hui ;
 « Biowanze » devient « BioWanze » dans le manifeste, comme partout dans
 l'interface ; une balise `mobile-web-app-capable` en double est retirée.
