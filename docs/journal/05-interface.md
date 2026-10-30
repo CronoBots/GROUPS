@@ -7249,3 +7249,15 @@ nuit reste celle du jour où elle commence (« ven. 30 oct. · 22 h – 6 h »
 à 5 h 40 le 31). `sitePauseQuand`, plus appelée, est retirée. Mesuré à 390
 et 320 px : la date et les heures sur la ligne du nom à 390 ; à 320, le
 nom seul sur la première ligne, la date et les heures dessous.
+
+### « Sur site » : le jour et le mois en toutes lettres (30/10/2026, `nfdm-v1227`)
+
+Le client : « mettre les mots de jour et mois en complet ». Les en-têtes
+des pauses et le titre de la carte disent désormais « vendredi 30
+octobre » (`siteDateLongue`, « 1er » le premier du mois). La date entière
+ne tenait plus sur la ligne du nom : chaque en-tête de pause prend deux
+lignes de même forme — le nom et l'équipe, puis « vendredi 30 octobre ·
+**14 h – 22 h** ». Le titre de la carte garde « Sur site » entier : à
+320 px, l'heure et la date passent ensemble à la ligne, à droite (« Sur »
+et « site » se coupaient sur deux lignes à la première mesure). Mesuré à
+320, 360 et 390 px : une ligne dès 360.
