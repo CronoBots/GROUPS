@@ -2587,9 +2587,16 @@ html #grille .ws-site{margin-bottom:14px}
 .site-sn{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
 .site-sn>*{white-space:nowrap}
 .site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
-.site-st .site-qd{color:var(--ink2); font-size:13px; flex-basis:100%}
-.site-st .site-qd b{font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.site-st .site-qd{color:var(--ink2); font-size:13px; flex-basis:100%; white-space:normal}
+.site-st .site-qd b{font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 .site-st .site-eq{color:var(--muted); font-size:12px}
+.site-st .pl-pa{flex:none; min-width:38px; text-align:center}
+.site-st .site-etat{align-self:center; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:650; line-height:16px;
+  color:var(--in); background:color-mix(in srgb,var(--in) 14%,transparent)}
+.site-st .site-etat.site-encours{color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
+.site-st em{display:flex; flex-direction:column; align-items:flex-end; line-height:1.1}
+.site-st em b{font-size:16px; font-weight:700}
+.site-st em small{font-size:11px; font-weight:500; color:var(--muted)}
 .site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
 .site-eff>span{display:inline}
 .site-eff small{font-size:11.5px; color:var(--muted)}
@@ -20540,7 +20547,8 @@ function siteSalonsHTML(s,o){
     /* la relève de cette pause, dans son bloc (siteReleveFusion) */
     var A=(fus&&fus.g===z[0])?fus.L:[], tousZ=L.concat(A);
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site"+(A.length?", "+A.length+" à "+siteH(fus.t):""))+'">'
-      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':(L[0].eq?'<span class="site-eq">Équipe '+esc(L[0].eq)+'</span>':'')+siteTitreQuand(siteJour(L[0].dj||0),sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])))+'</span><em>'+(A.length?L.length+'<small>/'+tousZ.length+'</small>':L.length)+'</em></p>'
+      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':(L[0].eq?'<span class="site-eq">Équipe '+esc(L[0].eq)+'</span>':'')+siteEtat(PF_DEB[z[0]]+24*(L[0].dj||0),PF_FIN[z[0]]+24*(L[0].dj||0))+siteTitreQuand(siteJour(L[0].dj||0),sitePlage(PF_DEB[z[0]],PF_FIN[z[0]])))+'</span>'
+      +(A.length?siteCompte(L.length,'sur '+tousZ.length):siteCompte(L.length,'présent'+(L.length>1?'s':'')))+'</p>'
       /* UNE LISTE DE PRÉSENCE SANS LES POSTES (le client, le 26/10/2026 :
          « pas besoin de préciser les postes des gens présents en ce
          moment ; ça doit être vraiment une liste de gens « en ligne », mais
@@ -20661,6 +20669,22 @@ function siteJ(d){ return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase()
    « mettre les mots de jour et mois en complet ») : « vendredi 30
    octobre · 14 h – 22 h », sur sa propre ligne, sous le nom et l'équipe. */
 function siteDateLongue(d){ return JOURS_LONGS[(d.getDay()+6)%7].toLowerCase()+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase(); }
+/* L'état de la pause et le nombre, nommés (le client, le 30/10/2026 :
+   « encore moyen de faire plus professionnel »). Relevé : la date redite
+   trois fois (titre de la carte, chaque pause), la pastille « N » collée
+   à gauche, « 1/9 » sans mot, et rien ne disait qu'une pause est en cours
+   ou commence dans six minutes. Désormais une étiquette après l'équipe —
+   « en cours » (vert) ou « dans 6 min » — et, à droite, le nombre avec
+   son mot : « présents », « sur 9 », « attendus ». Heures comptées depuis
+   aujourd'hui (la nuit d'hier : 22 − 24). */
+function siteDans(h){ var m=Math.max(1,Math.round(h*60)); if(m<60) return m+"\u00a0min"; var hh=Math.floor(m/60), mm=m%60; return hh+"\u00a0h"+(mm?"\u00a0"+pad2(mm):""); }
+function siteEtat(deb,fin){
+  var t=new Date(), h=t.getHours()+t.getMinutes()/60;
+  if(h>=deb&&h<fin) return '<span class="site-etat site-encours">en cours</span>';
+  if(h<deb) return '<span class="site-etat">dans '+siteDans(deb-h)+'</span>';
+  return "";
+}
+function siteCompte(n,mot){ return '<em><b>'+n+'</b><small>'+mot+'</small></em>'; }
 function siteTitreQuand(d,heures){
   return '<span class="site-qd">'+esc(siteDateLongue(d))+' · <b>'+esc(heures)+'</b></span>';
 }
@@ -20745,7 +20769,8 @@ function siteReleveHTML(s,o){
   var z=SITE_PAUSES.filter(function(q){ return q[0]===best.g; })[0];
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
     +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b>'
-    +(eq?'<span class="site-eq">Équipe '+esc(eq.eq)+'</span>':'')+siteTitreQuand(siteJour(Math.floor(best.t/24)),siteH(best.t))+'</span><em>'+L.length+'</em></p>'
+    +(eq?'<span class="site-eq">Équipe '+esc(eq.eq)+'</span>':'')+siteEtat(best.t,best.t+8)+siteTitreQuand(siteJour(Math.floor(best.t/24)),siteH(best.t))+'</span>'
+    +siteCompte(L.length,'attendu'+(L.length>1?'s':''))+'</p>'
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
@@ -20779,7 +20804,9 @@ function renderSiteAccueil(){
      et la date à droite ; le nombre de présents dessous. « En ce moment »
      quitte le titre : l'heure le dit. */
   var sq=document.getElementById("siteQuand");
-  if(sq) sq.innerHTML='<b>'+esc(siteH(t.getHours()+t.getMinutes()/60))+'</b><span>'+esc(siteDateLongue(t))+'</span>';
+  /* l'heure seule : la date est dans chaque pause (« plus professionnel »,
+     30/10/2026 : elle se lisait trois fois) */
+  if(sq) sq.innerHTML='<b>'+esc(siteH(t.getHours()+t.getMinutes()/60))+'</b>';
   document.getElementById("siteSub").textContent=s.sur.length+" présent"+(s.sur.length>1?"s":"")+" d’après l’horaire";
   corps.innerHTML=(siteSalonsHTML(s,{moi:trigCourant()})||SITE_VIDE)+siteReleveHTML(s,{moi:trigCourant()});
   c.hidden=false;
