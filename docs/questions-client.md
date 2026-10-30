@@ -91,6 +91,15 @@ des questions au client ».
   4. **« remplacé par X » écrit par le seul titulaire (26 places)** : X
      est à un autre poste ce jour-là ; le Planning doit-il le déplacer ?
 
+- **Le repos payé A1 en semaine 5bis (30/10/2026).** La note de 2009 met
+  le repos payé A1 le jeudi de la semaine 5 (D du lundi au mercredi). En
+  semaine 5bis (règlement, art. 8-2.3 : D du mercredi au vendredi), ce
+  jeudi est un D ; l'application ne le recule au lundi que si le jeudi est
+  un TP — la règle confirmée le 14/10 sur les fiches de LCI. Vaut-elle pour
+  tous en 5bis ? Si oui, JBA le 13/08 et LAA le 29/10, `["D","N",…,
+  "Rappel…"]`, ne sont plus des rappels sur un repos (8 h sup) mais un D
+  changé en nuit, comme ADK le 10/07 et LAA le 21/08 le vendredi.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».

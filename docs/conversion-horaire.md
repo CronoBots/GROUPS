@@ -284,6 +284,46 @@ Les écarts qui subsistent au sein d'un mois sont précisément les journées
 intéressantes — remplacements, absences, renforts — c'est-à-dire ce que le
 cycle ne peut pas prévoir.
 
+### La semaine 5bis : un cycle de 70 jours, en concurrence
+
+Le règlement de travail (art. 8-2.3) : la semaine 5 du cycle des équipes
+« prévoit 3 jours de prestations » en D du lundi au mercredi ; la « semaine
+5bis » les met du mercredi au vendredi ; « une alternance est effectuée d'un
+cycle à l'autre ». Le client l'avait dit le 19/10/2026 (« lundi mardi
+mercredi ou mercredi jeudi vendredi »). Dans les classeurs, sur les paires
+de semaines de D espacées de 35 jours, 435 sur 446 alternent en 2026, 539
+sur 550 en 2027 (classeur du 26/10/2026) ; dans une même équipe, la moitié
+est en 5, l'autre en 5bis.
+
+`CYCLE70` est ce cycle complet — cinq semaines, puis les mêmes avec la
+semaine 5bis —, troisième candidat de `cycleDuMois()` et de `calageLong()`
+après les cycles de 6 et de 5 semaines. **Il ne l'emporte qu'à accord
+strictement meilleur** : qui garde sa semaine 5 (11 paires sur 446) reste au
+cycle de cinq semaines, où il perdrait jusqu'à quatre points avec le seul
+`CYCLE70`. Mesuré le 30/10/2026 sur les cellules franches : calage mensuel
+89,0 → 92,0 % en 2026 et 93,1 → 96,3 % en 2027 (équipes 1, 3, 4 et 5 :
+92,5-94,9 → 96,5-98,0 % en 2026, 100 % en 2027), prolongation sur 92 jours
+94,8 → 98,3 % et 96,2 → 99,8 % ; personne ne perd, contremaîtres, STEP et
+consignateurs inchangés. Le cycle en cours du héros reste de cinq
+semaines : celui de 70 jours en est deux.
+
+Le repos payé A1 (`reposA1()`, le jeudi de la semaine 5) ne connaît pas la
+semaine 5bis, où ce jeudi est un D : il ne recule au lundi que si le jeudi
+est un TP (la règle confirmée sur les fiches de LCI). Question ouverte
+(`docs/questions-client.md`).
+
+Ce que la semaine 5bis change, mesuré le 30/10/2026 jour par jour sur les
+deux classeurs (`--journee` de chaque personne, le repos A1 compris) : dix
+journées de 2026 et une de 2027, toutes dans une semaine de D sauf FPS le
+01/04 (`["N","E. min SD26"]`, une nuit : son avril, calé jusque-là sur le
+cycle de 6 semaines faute de mieux, se recale sur le sien) ; et trois
+primes de rappel de 2026 que `compute()` lit autrement, chacune comme la
+même cellule un autre jour. GDT le 20/03 et SKS le 26/06 (vendredis de
+5bis) tombent sous le point D de l'OP_BWZ_CoD_00020, comme GST le 17/06
+et PAM le 26/01 ; LAA le 21/08, D changé en après-midi pendant un VA
+annulé, n'a plus de prime de rappel, comme CWN le 10/06 et JBA le 12/08,
+des mercredis.
+
 ## 6 quater. Un « - » en annotation : le poste n'a pas été presté
 
 Quand la cellule porte un poste et que l'annotation vaut `-`, **le poste n'a
@@ -395,6 +435,17 @@ horaire prévu ou si l'horaire de ces D n'est pas précisé ». C'est la
 prime D du barème (« Prime équipe D — jour »), que l'application posait
 déjà dans ces deux cas : un repos au cycle sans journée de jour à ±35
 jours, ou un D dont les deux cellules ne disent pas le même horaire.
+
+**La même place du cycle est à ±70 jours pour qui alterne** (30/10/2026,
+semaine 5bis). À ±35 jours, un lundi, un mardi, un jeudi ou un vendredi de
+la semaine de D tombe dans la semaine de l'autre sorte, où il est un repos
+(franc, ou travaillé en renfort : DKS le 14/08, `["AM","8h +FT"]`). Ces
+quatre jours-là, dans une semaine de trois D du cycle calé, quand aucune
+cellule à ±35 jours n'est une journée de jour, on lit à ±70 jours avec la
+même exigence. Le mercredi (D dans les deux sortes), les autres semaines et
+qui garde sa semaine 5 restent à ±35 : LHR le 24/11, `["-","D-CPPT"]`, un
+repos de semaine 2, garde sa prime de jour — ±70 jours tombaient avant son
+changement de place dans le cycle.
 
 **L'horaire affiché d'une journée à code** (19/10/2026). Le client :
 « les formations (F), les horaires sont affichés en commentaire, sinon
