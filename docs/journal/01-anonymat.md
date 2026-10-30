@@ -698,3 +698,27 @@ le cloud. Mesuré, PowerShell désinstallé puis le script lancé comme au
 démarrage d'une session : le script rend la main en 0,47 s, et `pwsh`
 7.6.9 est là environ 7 s plus tard. Second passage, `pwsh` présent :
 0,26 s, rien d'écrit. Hors du cloud : rien, code 0.
+
+## Le dépôt privé reçoit les fichiers confidentiels (30/10/2026)
+
+Le client : « le règlement de travail doit être dans le git privé, et les
+autres fichiers confidentiels ». Le dépôt PRIVÉ `CronoBots/groups-fiches`
+(créé par le client le 09/10/2026 pour les fiches extraites, les notes
+internes et les états SAP) reçoit désormais :
+
+- le **règlement de travail** V5 signé (scan de 58 pages, sans couche de
+  texte) et son texte lu par reconnaissance optique (Tesseract, français,
+  installé dans le conteneur ce jour-là) ;
+- le **classeur source** du 30/10/2026 (`classeurs/2026/`), et les copies
+  anonymisées et exports entiers de 2026 et 2027 : une session neuve peut
+  les recopier dans `data/` pour que `verifier-integralite.py` mesure
+  quelque chose.
+
+Avant l'envoi, les **propriétés** ont été vidées, comme pour les notes du
+09/10 : celles du PDF portaient l'identifiant de connexion de l'auteur et
+le nom de la machine qui a scanné ; celles du classeur, le créateur et le
+« modifié par ». L'étiquette de confidentialité de l'entreprise reste.
+Éprouvé : `mettre-a-jour.py` à blanc sur la copie nettoyée répond « Rien
+n'a changé » face à l'horaire installé. Les fiches de paie ne vont
+toujours dans AUCUN git (registre national, IBAN). La règle est dans
+`CLAUDE.md`, sous « Un nouveau classeur arrive ».
