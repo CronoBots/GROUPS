@@ -567,3 +567,84 @@ Publié : trois infos pratiques de plus dans la base (25 en tout) —
 jours de RTT » (Congés et absences), « Mandat syndical : formation et
 réunions » (Autre) — chacune avec ses articles. Et l'aide du réglage
 « Avance mensuelle » nomme l'ouvrier (v1206).
+
+### Tous les documents relus, ligne par ligne (30/10/2026)
+
+Le client : « vérifie l'entièreté des documents pour ne passer à côté
+d'infos importantes ». Quinze documents du dépôt privé : le règlement de
+travail (58 pages) et les quatorze notes de service. Six relecteurs en
+parallèle (le règlement en cinq tranches de pages, les notes ensemble),
+chacun confrontant chaque page aux infos publiées, aux règles et aux
+questions ; les chiffres relus sur l'image, l'OCR faisant foi de rien. Puis
+un sceptique sur le lot de textes, et des remesures ici.
+
+**Ce qui a été trouvé, et ce qui n'a pas tenu :**
+
+- *tenu, important* : la semaine 5 alterne (lundi-mercredi, puis
+  mercredi-vendredi au cycle suivant, art. 8-2.3) — remesuré : 435 paires
+  de semaines de D sur 446 alternent en 2026, 484 sur 495 en 2027 ; le cycle
+  de l'application ne le sait pas (chantier à part, mesuré avant d'entrer) ;
+- *tenu* : la ligne de l'art. 44 et l'affiche de l'annexe VI, crues
+  illisibles, se lisent sur l'image (31 août / 1er octobre ; sirènes, EPI,
+  hygiène, numéros) ; l'annexe VIII (le tableau des sanctions, les six
+  comportements inadmissibles, la pause et la relève) ;
+  l'annexe V (contrôle alcool et drogues : renvoyé à la maison même si le
+  test est négatif) ; le 4/5 en feu continu (6,5 jours de RTT sur cinq
+  semaines) ; quatre notes jamais reprises dans les infos (flex time,
+  congé de moins de 8 h, temps partiel, absence imprévue) ;
+- *tenu, et une phrase de nos règles était fausse* : « seuls RTT et flex
+  time ouvrent le chèque-repas » (la note de la fiche dit aussi les
+  récupérations d'heures sup et d'ancienneté, et le code les comptait
+  déjà) ; « la RJF, que la note ne nomme pas » (la note du relevé la nomme,
+  code 50) ; « rien n'est codé » pour les permanents d'abord (c'est codé) ;
+  « 30 h 56 pour un 4/5 » (vrai sur six semaines seulement). Corrigées sur
+  place, en disant qu'elles étaient fausses ;
+- *n'a pas tenu* : « le service externe a changé » (Cohezio au lieu
+  d'Attentia) — le classeur nomme Attentia onze fois jusqu'au 28/10/2026,
+  Cohezio quatre ; « la prime de rappel devrait prendre le taux le plus
+  favorable » — la même procédure dit que la prime de pause est celle de
+  la pause prestée, ce que fait l'application ; « compléter le formulaire
+  papier de congé » — c'est la copie d'un formulaire réel, on ne la
+  retouche pas ;
+- *mesuré en passant* : la fiche d'un ouvrier opérateur porte « temps
+  partiel / 34:24 », soit 38:24 moins 4 h — un indice de plus que la
+  grille de cinq semaines fait 38 h 24, pas 38 h 40 (question 7 bis).
+
+**L'erreur commise, et rattrapée.** Le sceptique, relisant mes trente-deux
+textes sur l'image, y a trouvé treize fautes sérieuses et une vingtaine
+d'imprécisions, dont plusieurs recopiées des notes des relecteurs : toute
+l'annexe VIII présentée comme propre au feu continu (une seule ligne
+l'est) ; « le personnel de jour pointe au repas » (seulement s'il sort
+manger) ; la combinaison Tyvek rangée au T.W.P. (c'est l'intérieur des
+silos) ; « introduire de l'alcool » parmi les six comportements (seule la
+consommation y est) ; la pause « flexible, rémunérée » étendue à la nuit ;
+« accordé » là où la note dit « peut être introduite » ; « sans e-mail,
+injustifiée » étendu à toute absence imprévue ; la protection d'une
+plainte sans ses conditions ; « 38,40 h » rapproché de « 38 h 40 », qui
+sont deux régimes. Toutes corrigées avant publication : un résumé de
+relecteur n'est pas la source, et ce qui part chez les travailleurs se
+relit sur l'image.
+
+**Ce qui a été fait.** Les infos pratiques passent de 25 à 39 (quatorze
+neuves, quatorze complétées, chacune avec ses articles), après relecture
+sceptique sur le scan. Les règles corrigées ou complétées : chèques-repas,
+DS d'un ouvrier (annexe X, question 7 quater), art. 6 pour le déplacement
+demandé, horaires J3/J5 du D, glissant, repos du week-end, RJF, 4/5,
+rechute de maladie, procédure de rappel. Les questions : 2 (les points
+illisibles levés), 5 (CEP : deux notes y penchent), 6 (rechute), 7 bis
+(37 h de contrat, 4/5, 34:24, CCT du 26/09/2013), 7 quater, 8 (deux pièces,
+et le salaire horaire moyen mensuel), RH 1 (piste du 4/5), RH 4 (réponse :
+le compteur des RHS vit dans SAP). Dans l'application (v1207) : l'avance
+de l'ouvrier et le DTT des chèques-repas dans le guide, le repos lié au
+week-end de l'ouvrier, et le réglage « Heures / semaine » qui disait
+« contrat » et « sert au décompte des chèques-repas » — deux fois faux.
+Dans le dépôt privé : la transcription des notes, sans montants jusqu'ici,
+et une ligne mal lue (« 7, 7, 7, 3 » sont des pauses, pas des heures).
+
+**Laissé en chantier, et pourquoi** : la feuille de demande n'avertit ni
+d'un flex time insuffisant ni d'un congé de moins de 8 h sans remplaçant
+(un contrôle à concevoir avec la RH) ; le relevé simulé n'écrit ni V
+(heures sup payées) ni Z03 (repos payé) ; les écochèques (fiches de
+juillet, hors net) ; le salaire horaire moyen recalculé chaque mois (en
+attente de la question 8) ; un e-mail tout prêt pour l'absence sans
+certificat (il faut l'adresse de la RH).
