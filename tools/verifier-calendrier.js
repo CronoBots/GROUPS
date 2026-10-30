@@ -148,6 +148,7 @@ const MORCEAUX=[
   ["function atelierDuRemplace(","\n}"],
   ["function rempSeulementHoraire(","\n}"],
   ["function remplPartiel(","\n}"],
+  ["function adjointFaitCM(","\n}"],
   ["function nommesParAbsents(","\n}"],
   ["function peutPrendreRemplace(","\n}"],
   ["function remplacesActifs(","\n}"],

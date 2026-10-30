@@ -3609,3 +3609,34 @@ matin des 13/07 (QDE), 16/09 (ATR « en D comme 3ème homme »), 02 et 03/11
 03/11 (3/2 → 3/3). Neuf règles, `--manques 0926`, `--polyvalence`,
 `--compteurs`, agendas et `comparer-fiches.py VBN` : identiques à l'octet.
 La nuit des 02 et 03/11 reste à 2 : personne de nuit ne porte la phrase.
+
+### « Je fais 22-01 et FPA 01-06, tu dois le trouver tout seul » (30/10/2026, v1213)
+
+Après la lecture de sa journée du 31/10 (PM puis 22h-01h, v1211), la nuit
+restait fausse : la place de contremaître paraissait vide — je l'avais
+même ADMISE dans `tools/manques-admis.txt`, au lieu de comprendre. Le
+client : « logiquement tu dois trouver cela tout seul aussi
+automatiquement ». Il avait raison, tout était écrit : FLI, contremaître
+prévu de nuit, « remplacé par FPA » ; FPA, adjoint, « arrivée à 01h00'
+remplacé par VBN remplace FLI » ; VBN, « remplace FPA de 22h à 01h00' ».
+Deux règles de l'application se mettaient en travers : un adjoint ne
+comptait contremaître qu'avec « R-CM » écrit, et l'heure d'arrivée de FPA
+faisait passer son remplacement pour partiel. Le relais de VBN allait donc
+à la place d'adjoint (son agenda disait « Adjoint, remplace FPA »).
+
+`adjointFaitCM()` : l'adjoint qui remplace un contremaître prévu à sa pause
+et absent — « remplace FLI » chez lui (sans heures propres à ce
+remplacement), ou « remplacé par FPA » chez le contremaître — tient ce
+jour-là la place de contremaître ; le relais qui le remplace aussi. La
+prime R-CM ne bouge pas. Le Planning du 31/10 montre désormais CM : VBN
+14-01, FPA 01-06 ; adjoint : ATR 14-18. L'exception admise est retirée :
+les manques commentés sont à 0 sans elle.
+
+Mesuré sur l'année : quatre journées changent au placement (31/10 ; deux
+nuits où un adjoint « R-CM » remplace YPE ou AFA ; le 21/08, un adjoint
+« R-CM, remplace YPE » compté au gluten, dont la place se creuse) ; places
+creuses de l'année 210 → 209 ; journées, compteurs, polyvalence
+identiques ; sept agendas changent leur seule mention « Adjoint » en
+« Contremaître ». L'erreur : avoir admis un manque que le classeur
+expliquait — un « admis » se pose quand le classeur se tait, pas quand la
+lecture se trompe.
