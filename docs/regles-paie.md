@@ -314,8 +314,14 @@ prévue. **Le règlement de travail le nuance pour l'ouvrier** (annexe X, relu
 le 30/10/2026) : la formation syndicale d'un ouvrier est payée « salaire
 normal (primes de pause et de week-end) pour les jours de dispense ». La
 règle ci-dessus vient de la fiche d'un employé (12/02) ; 40 journées `DS`
-de 2026, dont 34 d'opérateurs. Question à la RH (`questions-client.md`,
-7 quater) ; rien n'est changé en attendant. Les délégations CPPT et les conseils d'entreprise gardent leur
+de 2026, dont 34 d'opérateurs. **Tranché par le client le 30/10/2026** :
+« pour l'ouvrier en formation syndicale, la vraie version est celle du
+règlement, sinon c'est une erreur de paiement ». Depuis la v1209, un `DS`
+d'ouvrier posé sur un poste prévu (`N`, `6h-14h`…) se paie au taux garanti
+(« Heure(s) formation syndicale à … »), garde la prime d'équipe de ce poste
+et, un samedi ou un dimanche, sa majoration. Il ne payait rien jusque-là :
+une quantité d'heures, sans montant. Un `DS` sur un repos n'a pas de poste,
+donc rien (la dispense est ailleurs). L'employé garde la règle de sa fiche. Les délégations CPPT et les conseils d'entreprise gardent leur
 traitement : journée prestée en horaire de jour, prime conservée.
 
 La fiche de février le montrait doublement. Le 12/02, `N ǀ DS ǀ à
