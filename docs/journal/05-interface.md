@@ -7146,3 +7146,17 @@ changé » dans le héros et la carte ; après, la cloche « Horaire modifié :
 
 La même capture montrait encore « Réduire à deux semaines » : le
 téléphone avait la v1218, pas encore la v1219 (cycle toujours entier).
+
+### « Mes pauses » donne la vraie prochaine (30/10/2026, `nfdm-v1221`)
+
+Le client, capture de 21 h 29 sur « Mon année » : « PM · vendredi 11
+décembre, dans 42 j » — « je fais PM demain ». La lecture était juste :
+`ryProchainesHTML` SAUTAIT le prochain poste, par la règle du 20/10 (« le
+prochain poste, déjà dans le héros, n'est pas redit : la nuit de ce soir
+là-haut, ici la nuit suivante »). Elle valait quand le tableau était DANS
+le héros, sous le prochain poste ; depuis le 22/10, il est dans la carte
+« Mon année », sous « À faire » — le héros n'est plus à côté, et la ligne
+se lisait comme une erreur. La règle est retirée : chaque pause donne sa
+vraie prochaine date. Éprouvé au 30/10 à 21 h 29 : avant, PM le 11/12
+(dans 42 j) en dernier ; après, PM « samedi 31 octobre, demain » en tête,
+puis la nuit du 1er novembre ; faites, restantes et total inchangés.

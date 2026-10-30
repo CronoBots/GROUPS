@@ -22200,15 +22200,17 @@ function cycleAvec(p,c){
 function ryProchainesHTML(p,y){
   var ja=jourPerso(p), now=new Date(), vu={}, reste=4, i, d, x;
   var o=null; try{ o=ryCompte(p,new Date(y,0,1),new Date(y,11,31)); }catch(e){ o=null; }
-  /* Le prochain poste, déjà dans le héros, n'est pas redit (le client, le
-     20/10/2026) : la nuit de ce soir là-haut, ici la nuit suivante. */
-  var pp=null; try{ var inf=_pfInfos(p); pp=inf&&inf.prochain&&inf.prochain.d; }catch(e){ pp=null; }
+  /* LA VRAIE PROCHAINE DATE, que le héros la dise déjà ou non (le client, le
+     30/10/2026, sur « PM · vendredi 11 décembre, dans 42 j » : « je fais
+     PM demain »). Le 20/10, le tableau était DANS le héros, sous le
+     prochain poste : on ne le redisait pas, la ligne donnait la suivante.
+     Depuis le 22/10, il est dans « Mon année », sous « À faire » : le
+     héros n'est plus à côté, et sauter demain se lisait comme une erreur. */
   for(i=0;i<=180 && reste;i++){
     d=new Date(ja.getFullYear(),ja.getMonth(),ja.getDate()+i);
     try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
     if(!x || !x.presente || vu[x.pv] || ["AM","PM","N","D"].indexOf(x.pv)<0) continue;
     if(i===0 && now.getTime()>=pfInstant(d,pfFin(x))) continue;
-    if(pp && d.getTime()===new Date(pp.getFullYear(),pp.getMonth(),pp.getDate()).getTime()) continue;
     vu[x.pv]={d:d, i:i}; reste--;
   }
   var JC=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
