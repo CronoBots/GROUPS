@@ -7130,3 +7130,19 @@ capture. Puis deux demandes :
   « Connexion expirée » ne paraît plus que si la base refuse le jeton,
   ou au démarrage d'un appareil dont la session a déjà été effacée — une
   fois chez le client, la v1217 l'ayant effacée avant la correction.
+
+### Le changement d'horaire n'est pas une action (30/10/2026, `nfdm-v1220`)
+
+Le client, capture de 21 h 12 : « le changement d'horaire n'a rien à faire
+en action à faire ». « Votre horaire a changé » s'ajoutait à « À faire »
+dès que le point de l'Accueil s'allumait, et le héros disait « 1 action à
+faire » — alors que la cloche du héros (`badgeNotifHTML`, depuis le
+17/10) compte déjà les journées modifiées et ouvre ce qui a bougé. La
+ligne est retirée de la liste, et son geste (`notif`) avec elle ; la
+cloche et le point de l'Accueil restent. Éprouvé au navigateur, une
+journée modifiée en attente : avant, « 1 action à faire · Votre horaire a
+changé » dans le héros et la carte ; après, la cloche « Horaire modifié :
+1 journée », pas de ligne au héros, « Aucune action ne vous attend. ».
+
+La même capture montrait encore « Réduire à deux semaines » : le
+téléphone avait la v1218, pas encore la v1219 (cycle toujours entier).

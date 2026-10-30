@@ -22603,8 +22603,10 @@ function renderCentre(db,person){
   rac.push(["certif","Certificat médical","certif","","Envoyer le certificat médical à la RH"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
-  var dot=document.getElementById("notifDot");
-  if(dot&&!dot.hidden) faire.push(["notif","Votre horaire a changé","voir ce qui a bougé",""]);
+  /* LE CHANGEMENT D'HORAIRE N'EST PAS UNE ACTION (le client, le 30/10/2026 :
+     « le changement d'horaire n'a rien à faire en action à faire »). Il a
+     sa cloche dans le héros (badgeNotifHTML), qui compte les journées et
+     ouvre ce qui a bougé ; « À faire » ne garde que ce qui attend un geste. */
   var anL=aideNonLues();
   if(anL.length) faire.push(["annonce",anL.length===1?anL[0].titre:anL.length+" nouvelles annonces",anL.length===1?"annonce du "+aideDate(anL[0].cree_le):"de la RH et de la direction",""]);
   if(cb){
@@ -22763,7 +22765,6 @@ document.addEventListener("click",function(e){
   else if(k==="eq"){ eqDate=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()); eqAuto=true; accVers("jour"); }
   else if(k==="plan") ouvrirGrille("planning");
   else if(k==="ag") abonnerAgenda();
-  else if(k==="notif") ouvrirNotif();
   else if(k==="annonce") accVers("aide");
   else if(k==="signer"){ GR.onglet="remplace"; ouvrirGrille("demandes"); }
   else if(k==="viser"){ GR.ongletV="traiter"; ouvrirGrille("valider"); }
