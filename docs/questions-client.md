@@ -11,11 +11,12 @@ des questions au client ».
 
 ## Au client
 
-1. **Purger l'historique git public** (posée le 26/09/2026) : d'anciennes
-   versions de `data/` portent encore des identifiants de connexion et
-   quatre prénoms, celles de ce fichier deux numéros de contrat, et `verifier-depot.py --historique` signale des formes
-   anciennes. Réécrire l'histoire d'un dépôt public est la décision du
-   client ; la procédure est prête dans `docs/purge-historique.md`.
+1. **Autoriser la poussée forcée de la purge** (décidée par le client le
+   30/10/2026) : la réécriture est prête et vérifiée (journal 01, « La
+   seconde purge »), mais la session a refusé la poussée forcée. Il faut
+   l'autoriser (mode « Auto » ou règle de permission), puis supprimer à la
+   main sur GitHub les deux étiquettes `checkpoint-…` et la branche
+   `feature/calendar-weekly-desktop`.
 2. **Que compte la ligne « Heure(s) prestée(s) » de la fiche** (posée le
    25/09/2026, `docs/journal/08-verifications.md`) : les heures réellement
    faites, ou le solde du mois contractuel une fois les absences

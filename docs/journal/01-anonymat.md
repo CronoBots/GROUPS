@@ -229,6 +229,63 @@ publiés, et le contrôle croisé ne regarde que l'arbre de travail.
 formes anciennes. **Réécrire l'histoire d'un dépôt public est une décision
 du client** — la procédure est dans `docs/purge-historique.md`.
 
+### La seconde purge, décidée le 30/10/2026 — prête, pas encore poussée
+
+Le client, le 30/10/2026 : « tu peux faire toutes les améliorations que tu
+as proposées […] tu peux tout faire » — la purge était la première. Ce qui
+a été cherché, et comment (rien n'en est recopié ici) :
+
+- **Les formes de nom** : `verifier-depot.py --historique`, 22 formes ; les
+  identifiants de connexion (quatre, dont trois dans l'ancien classeur
+  Excel du dépôt) et une forme d'exemple ; le reste, des marqueurs.
+- **Les vrais noms de la base** : les 140 noms et prénoms de
+  `biowanze.personnes` cherchés, sensibles à la casse, dans les 6 499
+  versions de fichier de l'historique (hors skills tiers) et dans tous les
+  messages de commit, sans être écrits nulle part (passés en variable
+  d'environnement). Trouvés : les quatre prénoms du JSON de septembre
+  (`0e76a76`), et **quatre noms de famille encore dans l'arbre courant**,
+  cités seuls comme exemples d'homographes dans le journal et les deux
+  anonymiseurs ; dans les messages, une vingtaine de noms et prénoms
+  (exemples cités en écrivant les outils, en septembre), que la purge du
+  22/09 n'avait pas touchés : elle ne réécrivait que les fichiers.
+- **Les numéros** : deux numéros de contrat (questions au client), et
+  **l'ancien `data/classeur-2026-brut.json`**, présent du 25/09 au 01/10,
+  qui portait les matricules.
+- **Les images** : trois captures d'octobre montraient le montant d'un
+  rappel d'une personne.
+
+Ce que fait la réécriture (`git filter-repo`, sur un miroir du serveur,
+jamais sur le dépôt de travail) : retire de toute l'histoire l'ancien
+classeur Excel (le texte d'un fichier compressé ne se remplace pas), le
+JSON brut et les trois captures ; remplace dans les fichiers et dans les
+messages les identifiants, numéros, prénoms et noms par des marqueurs
+(« RT0xxxx », « (numéro retiré) », « (prénom retiré) », « Renard »,
+« Paul »). Mesuré sur le miroir : 1 443 commits relus en 141 s, 1 442
+gardés (un ne contenait que des fichiers retirés) ; zéro occurrence de
+chaque chaîne dans les fichiers et les messages ; l'arbre courant ne
+diffère que par les quatre phrases d'exemple ; `--historique` rend **0**
+(17 formes inoffensives admises, chacune relue : marqueurs « Nom A. »,
+titres CSS en capitales, noms de produit, le nom fictif d'une maquette).
+
+**Les quatre noms de famille de l'arbre courant** sont remplacés tout de
+suite, par un commit ordinaire : « Blanc », « Noël », « Marchand »,
+« Renard ». Le changement touche des commentaires de
+`anonymiser-classeur.py` : son empreinte change, et **le jumeau
+PowerShell se met hors service** jusqu'au prochain
+`python3 tools/jumeau-powershell.py CLASSEUR` (la règle : la version
+`.py` se corrige sans attendre le jumeau).
+
+**Pas encore poussée** : la poussée forcée de `main` a été refusée par le
+contrôle automatique des permissions de la session (classée destructive).
+Elle demande que le client l'autorise. À ce moment, la réécriture se
+refait sur l'état du serveur (deux minutes et demie), avec la même liste,
+et se pousse `--force-with-lease` (refusée si le robot a publié entre-temps).
+Restent après elle : les deux étiquettes `checkpoint-…` et la branche
+`feature/calendar-weekly-desktop`, qui gardent l'ancienne histoire et ne
+se suppriment qu'à la main sur GitHub ; et les anciens commits servis par
+leur empreinte jusqu'au ramasse-miettes de GitHub (18 jours la première
+fois, voir `docs/purge-historique.md`).
+
 ## Le dépôt se contrôle lui-même
 
 *Déplacé mot pour mot de `CLAUDE.md` le 29/10/2026 :* Neuf noms réels ont
