@@ -9304,7 +9304,21 @@ var HS_PCT={Semaine:"150 %",Samedi:"200 %",Dimanche:"300 %"};
 var CYCLE6=["AM","AM","PM","PM","N","N","N","","","AM","AM","PM","PM","PM","N","N","","",
             "AM","AM","AM","PM","PM","N","N","","","","D","D","D","-","-","","",
             "D","D","D","D","D","",""];
-var CYCLE5=CYCLE6.slice(0,35);
+/* LA SEMAINE 5BIS. Le règlement de travail (art. 8-2.3) : la semaine 5 du
+   cycle des équipes « prévoit 3 jours de prestations » en D du lundi au
+   mercredi, la « semaine 5bis » du mercredi au vendredi, et « une
+   alternance est effectuée d'un cycle à l'autre » ; le client, le
+   19/10/2026 : « une rotation des jours de D de leur cycle (lundi mardi
+   mercredi ou mercredi jeudi vendredi) ». CYCLE70 est ce cycle complet :
+   cinq semaines, puis les mêmes avec la semaine 5bis. Mesuré dans les
+   classeurs : 435 des 446 paires de semaines de D à 35 jours d'écart
+   alternent en 2026, 539 sur 550 en 2027. Il est EN CONCURRENCE avec
+   CYCLE5 et CYCLE6 (cycleDuMois, calageLong) et ne l'emporte que s'il
+   cale mieux : les rares qui gardent la même semaine 5 restent au cycle
+   de cinq semaines. Une seule ligne : verifier-calendrier.js et
+   comparer-fiches.py découpent la déclaration de CYCLE5 jusqu'au saut de
+   ligne, et CYCLE70 vient avec elle. */
+var CYCLE5=CYCLE6.slice(0,35), CYCLE70=CYCLE5.concat(CYCLE5.slice(0,28),["-","-","D","D","D","",""]);
 var BINOMES=["Binôme 1","Binôme 2","Binôme 3","Binôme 4","Binôme 5","Binôme 6"];
 function setParam(k,v){
   st.params[k]=v;
@@ -9313,7 +9327,7 @@ function setParam(k,v){
 var ANCRAGE=[3,38,31,24,17,10];            /* position au 1er janvier 2025 */
 var ANCRAGE_BASE=Date.UTC(2025,0,1);
 function cyclePoste(idx,cycle,decal,ts){
-  var cy=(cycle==="5 semaines")?CYCLE5:CYCLE6;
+  var cy=(cycle==="5 semaines")?CYCLE5:(cycle==="5 semaines (5bis)")?CYCLE70:CYCLE6;
   var bi=Math.max(0,Math.min(ANCRAGE.length-1,(Number(idx)||1)-1));
   var n=Math.round((ts-ANCRAGE_BASE)/86400000)+Number(decal||0);
   var L=cy.length;
@@ -13996,8 +14010,14 @@ function secondRappel(e,annee,mmdd){
    Le cycle s'ajuste sur les cellules de la personne elle-même — elles disent
    le poste prévu, « - » le repos. L'ajustement est MENSUEL : VBN change de
    position dans le cycle en septembre 2026, si bien qu'un ajustement annuel
-   plafonne à 58 % là où le mensuel tient entre 80 et 100 %. */
-var CYCLES=["6 semaines","5 semaines"];
+   plafonne à 58 % là où le mensuel tient entre 80 et 100 %.
+
+   LA SEMAINE 5BIS EN DERNIER (CYCLE70) : sur un mois, ses positions sont
+   celles du cycle de cinq semaines, la semaine 5 en lundi-mercredi ou en
+   mercredi-vendredi. Comme le premier meilleur reste, elle ne prend un
+   mois que si elle cale STRICTEMENT mieux — un mois dont la semaine de D
+   est en mercredi-vendredi ; partout ailleurs, rien ne change. */
+var CYCLES=["6 semaines","5 semaines","5 semaines (5bis)"];
 function cycleDuMois(person,annee,mois){
   var j=[], d, e, c, v;
   for(d=1; d<=31; d++){
@@ -14009,15 +14029,16 @@ function cycleDuMois(person,annee,mois){
   if(j.length<10) return null;
   /* Le binôme et le décalage ne comptent que par leur SOMME dans
      cyclePoste() : la position est ANCRAGE[bi]-1+jour+dec, modulo la
-     longueur du cycle. Les 504 essais (2 cycles × 6 binômes × 42 décalages)
-     ne font donc que 77 positions distinctes : on compte chacune une fois,
-     puis on parcourt les essais DANS LE MÊME ORDRE, si bien que le premier
+     longueur du cycle. Les 756 essais (3 cycles × 6 binômes × 42 décalages)
+     ne font donc que 147 positions distinctes (les 42 décalages couvrent
+     aussi les 70 du cycle 5bis) : on compte chacune une fois, puis on
+     parcourt les essais DANS LE MÊME ORDRE, si bien que le premier
      meilleur reste le même. Mesuré le 09/10/2026 : 80 % du temps du
      vérificateur, et autant à l'ouverture de l'application. */
   var best=null, bs=-1, ci, bi, dec, ok, i, x, k, cy, L, cnt, nj=[];
   for(i=0;i<j.length;i++) nj.push(Math.round((j[i][0]-ANCRAGE_BASE)/86400000));
   for(ci=0; ci<CYCLES.length; ci++){
-    cy=(CYCLES[ci]==="5 semaines")?CYCLE5:CYCLE6; L=cy.length; cnt=[];
+    cy=(CYCLES[ci]==="5 semaines")?CYCLE5:(CYCLES[ci]==="6 semaines")?CYCLE6:CYCLE70; L=cy.length; cnt=[];
     for(k=0;k<L;k++){
       ok=0;
       for(i=0;i<j.length;i++){ x=cy[((((k+nj[i])%L)+L)%L)]||""; if((x==="-"?"":x)===j[i][1]) ok++; }
@@ -14043,20 +14064,50 @@ function cycleDuMois(person,annee,mois){
    même, à la même place du cycle de cinq semaines : LCI le 15/04,
    ["DS-CE","1/2VA"], a ses 11/03 et 20/05 en « 6h-14h », comme les 16 et
    17/04 ; sa fiche d'avril paie la prime du matin. Toutes les cellules
-   prises à ±35 jours doivent être une journée de jour, sinon rien. */
-function pauseDeRotationD(p,annee,mois,jour){
+   prises à ±35 jours doivent être une journée de jour, sinon rien.
+
+   LA MÊME SEMAINE DE D, ET NON L'AUTRE. Qui alterne (règlement, art.
+   8-2.3 : semaine 5 du lundi au mercredi, 5bis du mercredi au vendredi,
+   d'un cycle à l'autre) a, à ±35 jours, la semaine de l'autre sorte : ce
+   lundi, ce mardi, ce jeudi ou ce vendredi y est un repos — franc, ou
+   travaillé en renfort (DKS le 14/08, « AM · 8h +FT »). Quand le jour est
+   l'un de ces quatre, dans une semaine de trois D du cycle calé (fit), et
+   qu'AUCUNE cellule à ±35 jours n'est une journée de jour, on lit à ±70
+   jours, la même semaine que la sienne, avec la même exigence. Le
+   mercredi (D dans les deux), les autres semaines (LHR le 24/11, un repos
+   de semaine 2 : ±70 jours tombaient avant son changement de place) et
+   qui garde sa semaine 5 restent à ±35. */
+function pauseDeRotationD(p,annee,mois,jour,fit){
   if(!p || !p.d) return null;
-  var t=Date.UTC(annee,mois-1,jour), vu=null, k, dt, e, c0, pl, s;
-  for(k=-35;k<=35;k+=70){
-    dt=new Date(t+k*86400000);
-    if(dt.getUTCFullYear()!==annee) continue;
-    e=p.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())];
-    if(!e || typeof e==="string") return null;
-    c0=String(e[0]||"").trim();
-    pl=plageMention(c0);
-    if(c0==="D") s="D";
-    else if(pl && pl[0]>=5.9 && pl[0]<=8.1 && pl[1]>=13.9 && pl[1]<=16.6) s=parseHoraireEntry([c0],8).s;
-    else return null;
+  var t=Date.UTC(annee,mois-1,jour), dj=new Date(t).getUTCDay();
+  /* les cellules de la personne à ±pas jours, dans l'année du classeur */
+  function autour(pas){
+    var out=[], k, dt, e;
+    for(k=-pas;k<=pas;k+=2*pas){
+      dt=new Date(t+k*86400000);
+      if(dt.getUTCFullYear()!==annee) continue;
+      e=p.d[pad2(dt.getUTCMonth()+1)+pad2(dt.getUTCDate())];
+      out.push((e && typeof e!=="string")?e:null);
+    }
+    return out;
+  }
+  /* la pause d'une journée de jour (« D », ou une plage qui commence entre
+     6 et 8 h et finit entre 14 et 16 h 30), sinon null */
+  function deJour(e){
+    if(!e) return null;
+    var c0=String(e[0]||"").trim(), pl=plageMention(c0);
+    if(c0==="D") return "D";
+    if(pl && pl[0]>=5.9 && pl[0]<=8.1 && pl[1]>=13.9 && pl[1]<=16.6) return parseHoraireEntry([c0],8).s||null;
+    return null;
+  }
+  var cs=autour(35), vu=null, i, s, lun, nD=0;
+  if(fit && (dj===1||dj===2||dj===4||dj===5) && cs.length && !cs.some(deJour)){
+    lun=t-(dj-1)*86400000;
+    for(i=0;i<5;i++) if(cyclePoste(fit.bi,fit.cycle,fit.dec,lun+i*86400000)==="D") nD++;
+    if(nD===3) cs=autour(70);
+  }
+  for(i=0;i<cs.length;i++){
+    s=deJour(cs[i]);
     if(!s || (vu && vu!==s)) return null;
     vu=s;
   }
@@ -14085,6 +14136,12 @@ function posteDeCycle(fit,annee,mois,jour){
    deviné — les deux consignateurs, qui mêlent des D au cycle de leur
    équipe — et une colonne qui ne va pas jusqu'au 31/12 non plus.
 
+   LA SEMAINE 5BIS (CYCLE70, règlement art. 8-2.3) concourt en dernier :
+   sur 92 jours, elle met deux semaines de D de sortes différentes, quand
+   le cycle de cinq semaines les met de la même. Elle ne l'emporte qu'à
+   accord STRICTEMENT meilleur — qui garde sa semaine 5 reste prolongé
+   comme avant, et y perdrait jusqu'à quatre points s'il n'y avait qu'elle.
+
    Les fériés suivent le cycle, comme dans le classeur. Une journée
    projetée est une cellule franche seule (["N"], ["-"]) : ni congé, ni
    remplacement, ni compteur — le classeur de l'année les dira. */
@@ -14098,7 +14155,7 @@ function calageLong(p,annee,finTs){
     if(v!==null) j.push([Math.round((t-ANCRAGE_BASE)/86400000),v]);
   }
   if(j.length<40) return null;
-  var best=null, cy=[["5 semaines",CYCLE5],["6 semaines",CYCLE6]], ci;
+  var best=null, cy=[["5 semaines",CYCLE5],["6 semaines",CYCLE6],["5 semaines (5bis)",CYCLE70]], ci;
   for(ci=0; ci<cy.length; ci++){
     L=cy[ci][1].length;
     for(k=0;k<L;k++){
@@ -14331,7 +14388,7 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
        personne, lu dans ses propres cellules (pauseDeRotationD) */
     var sansD=null;
     if((!duCycle || duCycle==="D") && r.jour && fit){
-      var pD=pauseDeRotationD(fit.p,annee,mois,jour);
+      var pD=pauseDeRotationD(fit.p,annee,mois,jour,fit);
       if(pD && pD!=="D"){ sansD=duCycle||r.s||"D"; duCycle=pD; } }
     if(!duCycle && r.jour) duCycle=r.s||"D";
     /* la PRIME seule : le poste presté, qui place la personne dans
@@ -21837,11 +21894,14 @@ function cycleActuel(p){
       cal=calageLong(pers,y,Math.min(f,fy)); return !!cal; }); }
   else if(ju.getFullYear()>y && pers.d["1231"]) cal=calageLong(pers,y);
   if(!cal) return null;
-  var L=cal.motif.length, n=Math.round((tj-ANCRAGE_BASE)/86400000);
+  /* le cycle 5bis (CYCLE70) est deux cycles de cinq semaines : on montre
+     celui en cours, sa semaine de D telle qu'elle tombe */
+  var bis=(cal.motif===CYCLE70);
+  var L=bis?35:cal.motif.length, n=Math.round((tj-ANCRAGE_BASE)/86400000);
   /* la quinzaine de la STEP n'a pas d'ancrage : on la fait partir du lundi */
   var pos=cal.nom==="2 semaines"?(((n+2)%L)+L)%L:(((n+cal.k)%L)+L)%L;
   var deb=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()-pos);
-  return {nom:cal.nom, L:L, pos:pos, deb:deb, fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1)};
+  return {nom:bis?"5 semaines":cal.nom, L:L, pos:pos, deb:deb, fin:new Date(deb.getFullYear(),deb.getMonth(),deb.getDate()+L-1)};
 }
 /* LE CYCLE EN FRISE (le client, le 17/10/2026 : « la barre de progression
    du cycle, peut-on encore l'optimiser ? »). Une barre ne disait que la

@@ -582,7 +582,9 @@ un sceptique sur le lot de textes, et des remesures ici.
 
 - *tenu, important* : la semaine 5 alterne (lundi-mercredi, puis
   mercredi-vendredi au cycle suivant, art. 8-2.3) — remesuré : 435 paires
-  de semaines de D sur 446 alternent en 2026, 484 sur 495 en 2027 ; le cycle
+  de semaines de D sur 446 alternent en 2026, 539 sur 550 en 2027 (« 484 sur
+  495 » s'est d'abord écrit ici, et c'était faux : un `tail -6` avait coupé
+  la ligne des opérateurs en formation) ; le cycle
   de l'application ne le sait pas (chantier à part, mesuré avant d'entrer) ;
 - *tenu* : la ligne de l'art. 44 et l'affiche de l'annexe VI, crues
   illisibles, se lisent sur l'image (31 août / 1er octobre ; sirènes, EPI,
@@ -640,6 +642,26 @@ week-end de l'ouvrier, et le réglage « Heures / semaine » qui disait
 « contrat » et « sert au décompte des chèques-repas » — deux fois faux.
 Dans le dépôt privé : la transcription des notes, sans montants jusqu'ici,
 et une ligne mal lue (« 7, 7, 7, 3 » sont des pauses, pas des heures).
+
+**La semaine 5bis entre dans l'application (v1208).** Un agent l'a codée
+dans une copie isolée du dépôt : `CYCLE70` (cinq semaines, puis les mêmes
+avec la semaine 5bis), troisième candidat du calage, qui ne l'emporte qu'à
+accord strictement meilleur ; `pauseDeRotationD` lit à ±70 jours les
+lundis, mardis, jeudis et vendredis d'une semaine de trois D quand ±35 ne
+donne aucune journée de jour. Mesuré par lui, puis remesuré ici :
+- calage mensuel 89,0 → 92,0 % (2026) et 93,1 → 96,3 % (2027), prolongation
+  sur 92 jours 94,8 → 98,3 % et 96,2 → 99,8 % ; 64 personnes gagnent en
+  2026, 60 en 2027, personne ne perd ;
+- les quatre sorties du vérificateur identiques à l'octet, manques
+  commentés à 0, les 81 agendas régénérés identiques au dépôt sauf trois
+  journées voulues (une semaine 5bis lue enfin comme un D) ;
+- onze journées lues autrement sur 55 462, et trois primes de rappel de
+  2026, chacune comme la même cellule un autre jour (détail dans
+  `docs/conversion-horaire.md`) ; deux décidées sur une seule cellule à
+  ±70 jours, comme ±35 le fait déjà en bord d'année ;
+- une première version, trop large, lisait faux un repos de semaine 2 :
+  l'agent l'a vue et restreinte avant de mesurer.
+Reste une question au client : le repos payé A1 en semaine 5bis.
 
 **Laissé en chantier, et pourquoi** : la feuille de demande n'avertit ni
 d'un flex time insuffisant ni d'un congé de moins de 8 h sans remplaçant
