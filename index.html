@@ -2587,6 +2587,9 @@ html #grille .ws-site{margin-bottom:14px}
 .site-sn{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
 .site-sn>*{white-space:nowrap}
 .site-st b{color:var(--ink); font-size:13.5px; font-weight:650}
+.site-st .site-qd{color:var(--ink2); font-size:13px}
+.site-st .site-qd b{font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.site-st .site-eq{color:var(--muted); font-size:12px; flex-basis:100%}
 .site-eff{display:flex; flex-wrap:wrap; gap:4px 14px; margin:8px 0 0; font-size:12px; color:var(--muted)}
 .site-eff>span{display:inline}
 .site-eff small{font-size:11.5px; color:var(--muted)}
@@ -20537,7 +20540,7 @@ function siteSalonsHTML(s,o){
     /* la relève de cette pause, dans son bloc (siteReleveFusion) */
     var A=(fus&&fus.g===z[0])?fus.L:[], tousZ=L.concat(A);
     return '<div class="site-salon" role="group" aria-label="'+esc(z[1]+" : "+L.length+" sur site"+(A.length?", "+A.length+" à "+siteH(fus.t):""))+'">'
-      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' <span>'+(L[0].eq?'Équipe '+esc(L[0].eq)+' · ':'')+sitePauseQuand(z[0],L[0].dj)+'</span>')+'</span><em>'+(A.length?L.length+'<small>/'+tousZ.length+'</small>':L.length)+'</em></p>'
+      +'<p class="site-st">'+(z[0]==="X"?'':'<span class="pl-pa '+z[2]+'">'+z[0]+'</span>')+'<span class="site-sn"><b>'+z[1]+'</b>'+(z[0]==="X"?'':' '+siteTitreQuand(siteJour(L[0].dj||0),sitePlage(PF_DEB[z[0]],PF_FIN[z[0]]))+(L[0].eq?'<span class="site-eq">Équipe '+esc(L[0].eq)+'</span>':''))+'</span><em>'+(A.length?L.length+'<small>/'+tousZ.length+'</small>':L.length)+'</em></p>'
       /* UNE LISTE DE PRÉSENCE SANS LES POSTES (le client, le 26/10/2026 :
          « pas besoin de préciser les postes des gens présents en ce
          moment ; ça doit être vraiment une liste de gens « en ligne », mais
@@ -20647,9 +20650,15 @@ function siteOrdre(a,b){ return (a.rang-b.rang)||String(idLisible(a.p.id)).local
 function siteJ(d){ return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase()+". "+d.getDate(); }
 /* la nuit est celle du jour où elle commence (le client, le 28/10/2026 :
    « et la nuit actuelle est celle de mardi »), comme au Planning et dans
-   l'horaire : « mar. 27 · 22 h – 6 h », et non « mar. 27 22 h – mer. 28 6 h » */
-function sitePauseQuand(pz,dj){
-  return siteJ(siteJour(dj||0))+" · "+sitePlage(PF_DEB[pz],PF_FIN[pz]);
+   l'horaire : « mar. 27 · 22 h – 6 h », et non « mar. 27 22 h – mer. 28 6 h ».
+   LA DATE ET L'HEURE DANS LA LIGNE DE CHAQUE PAUSE (le client, le
+   30/10/2026 : « mieux indiquer l'heure et la date dans la ligne des
+   titres de pause en cours et relève »). Elles venaient après l'équipe, en
+   petit gris, sans le mois (« Équipe 1 · ven. 30 · 14 h – 22 h ») :
+   désormais juste après le nom, la date entière et les heures en gras
+   (« ven. 30 oct. · 14 h – 22 h ») ; l'équipe ferme la ligne. */
+function siteTitreQuand(d,heures){
+  return '<span class="site-qd">'+esc(siteJ(d)+" "+MOIS_BREF[d.getMonth()])+' · <b>'+esc(heures)+'</b></span>';
 }
 /* « Mardi 27 octobre · 13 h 10 » */
 function siteQuand(t){ return JOURS_LONGS[(t.getDay()+6)%7]+" "+t.getDate()+" "+MOIS[t.getMonth()].toLowerCase()+" · "+siteH(t.getHours()+t.getMinutes()/60); }
@@ -20731,8 +20740,8 @@ function siteReleveHTML(s,o){
      équipe et heure, nombre à droite */
   var z=SITE_PAUSES.filter(function(q){ return q[0]===best.g; })[0];
   return '<div class="site-rel" role="group" aria-label="'+esc((best.g==="X"?"Arrivée":"Relève "+z[1].toLowerCase())+" à "+siteH(best.t)+" : "+L.length+" arrivée"+(L.length>1?"s":""))+'">'
-    +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> <span>'
-    +(eq?'Équipe '+esc(eq.eq)+' · ':'')+siteJ(siteJour(Math.floor(best.t/24)))+' à '+siteH(best.t)+'</span></span><em>'+L.length+'</em></p>'
+    +'<p class="site-st">'+(best.g==="X"?'':'<span class="pl-pa '+z[2]+'">'+best.g+'</span>')+'<span class="site-sn"><b>'+(best.g==="X"?'Arrivée':'Relève')+'</b> '
+    +siteTitreQuand(siteJour(Math.floor(best.t/24)),siteH(best.t))+(eq?'<span class="site-eq">Équipe '+esc(eq.eq)+'</span>':'')+'</span><em>'+L.length+'</em></p>'
     +(cmR&&!L.some(siteEstCm)?'<p class="site-eff"><span>Contremaître '+cmR+'</span></p>':'')
     +'<div class="site-ps site-ligne site-arr">'+L.slice().sort(function(a,b){ return siteOrdre(a,b); }).map(etiquette).join("")+'</div></div>';
 }
