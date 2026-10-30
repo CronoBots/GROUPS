@@ -7064,3 +7064,44 @@ ligne du poste et 199 restent dessous. Chevauchements 14 → 0 à 390 px,
 bord du tableau un dimanche chargé) — non touchés ici. Calendrier,
 manques, polyvalence, compteurs et agendas identiques à l'octet :
 affichage seul.
+
+### « Home a perdu sa place ? » — déconnecté sans le savoir (30/10/2026, `nfdm-v1218`)
+
+Le client, capture de 19 h 04 : la barre du bas disait **Effectifs ·
+Accueil · Planning · Équipes · Plus** au lieu d'**Accueil · Planning ·
+Horaire · Équipes · Plus**. Le menu n'avait pas été modifié : le
+téléphone n'avait plus de session sur la base. Sans session (`compteBase()`
+nul), `sideMaj` n'ajoute ni « Horaire production » ni « Mes demandes » ;
+la règle qui cache Effectifs quand « Horaire » est là ne s'applique plus,
+et Effectifs, sans `order` au téléphone, passait AVANT l'Accueil (ordre 0).
+
+**Pourquoi la session était partie** — mesuré dans les journaux de la
+base (auth, 30/10) : à chaque échéance du jeton (09:54, 11:36, 12:37,
+13:58, 15:34 UTC), DEUX OU TROIS renouvellements à la même seconde, avec
+des jetons « révoqués » dans la foulée ; puis plus aucune demande après
+15:34 UTC, alors que l'application servait à 17:47 et 18:04 UTC. Le code
+(`baseJeton`) : chaque appel qui trouvait le jeton périmé le renouvelait
+lui-même (le chargement des saisies lance 2026 et 2027 ensemble), et
+N'IMPORTE QUEL échec — une coupure de réseau comprise — effaçait la
+session. C'est le téléphone qui l'avait effacée, sans rien dire.
+
+**Fait** :
+
+1. un seul renouvellement à la fois, partagé (`_renouv`) ;
+2. la session ne s'efface que si la base refuse le jeton (400, 401, 403),
+   et seulement si c'est encore celui de la session enregistrée ; une
+   coupure la garde ;
+3. au démarrage en ligne, ou dès que la base refuse le jeton, l'écran
+   « Connexion expirée » le dit, avec « Recevoir un code » (l'adresse
+   pré-remplie) et « Plus tard » (jusqu'au lendemain) ;
+4. au téléphone, Effectifs prend la 3e place quand « Horaire » manque :
+   l'Accueil reste toujours le premier.
+
+**Éprouvé au navigateur**, ancienne version contre nouvelle, cinq cas :
+sans session, l'ancienne redonne exactement la barre de la capture,
+la nouvelle « Accueil · Planning · Effectifs · Équipes · Plus » et l'écran
+« Connexion expirée » (« Plus tard » le ferme) ; jeton périmé et réseau
+coupé : l'ancienne efface la session, la nouvelle la garde ; refus de la
+base : les deux l'effacent, la nouvelle le dit ; renouvellement réussi :
+trois demandes avant, une après. Calendrier, compteurs, agendas
+identiques à l'octet.

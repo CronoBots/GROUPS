@@ -6899,6 +6899,10 @@ html .eqleg-souris{display:none}
   /* l'ordre, le client, le 27/10/2026 : « Accueil, Planning, Horaire,
      Équipe » — l'Horaire passe en 3e, Équipes en 4e, Plus reste au bout */
   html .navwrap>.tabs #tab-horaire{order:1} html .navwrap>.tabs #tab-jour{order:2} html .navwrap>.tabs #tab-equipe{order:4}
+  /* sans « Horaire » (pas de session sur la base), Effectifs prend sa
+     place, en 3e : sans ordre, il passait AVANT l'Accueil (le client, le
+     30/10/2026 : « Home a perdu sa place ? ») */
+  html .navwrap>.tabs #tab-rh{order:3}
   html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"]{display:flex; order:3; align-items:center; justify-content:center}
   html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"] span{display:none}
   html .navwrap>.tabs #tab-plus{order:5}
@@ -19051,7 +19055,7 @@ function baseFetch(chemin,corps,jeton){
   if(jeton) h.Authorization="Bearer "+jeton;
   return fetch(BASE_URL+chemin,{method:"POST",headers:h,body:JSON.stringify(corps||{})}).then(function(r){
     return r.text().then(function(t){ var j=null; try{ j=t?JSON.parse(t):null; }catch(e){}
-      if(!r.ok){ var m=(j&&(j.message||j.msg||j.error_description||j.error))||("erreur "+r.status); throw new Error(m); }
+      if(!r.ok){ var m=(j&&(j.message||j.msg||j.error_description||j.error))||("erreur "+r.status), er=new Error(m); er.status=r.status; throw er; }
       return j; });
   });
 }
@@ -19083,13 +19087,43 @@ function baseDepuisLien(){
 }
 var _lienConnexion=false;
 try{ _lienConnexion=baseDepuisLien(); }catch(e){}
-/* un jeton valide, renouvelé s'il le faut */
+/* un jeton valide, renouvelé s'il le faut.
+   DÉCONNECTÉ SANS LE SAVOIR (le client, le 30/10/2026, capture de 19 h 04 :
+   « Home a perdu sa place ? Le menu a été modifié » — sans session, la
+   barre perd « Horaire » et « Mes demandes », et Effectifs s'y remet).
+   Deux fautes : (1) les appels qui trouvaient le jeton périmé le
+   renouvelaient CHACUN — deux ou trois renouvellements à la même
+   seconde dans les journaux de la base (09:54, 11:36, 12:37, 13:58,
+   15:34 UTC), avec le même jeton de renouvellement, que la base fait
+   tourner et révoque ; (2) n'importe quel échec — une coupure de réseau
+   en 5G comprise — effaçait la session. Plus aucune demande n'arrive à
+   la base après 15:34 UTC, alors que l'application servait à 17:47 et
+   18:04 : c'est le téléphone qui l'avait effacée. Désormais un seul
+   renouvellement à la fois, partagé par tous les appels, et la session
+   ne s'efface que si la base refuse le jeton (400, 401, 403 ; pas un 429 de
+   trop de demandes) — et seulement
+   si c'est bien celui de la session encore enregistrée. */
+var _renouv=null;
 function baseJeton(){
   var s=baseSession(); if(!s) return Promise.resolve(null);
   if(Date.now()<s.exp) return Promise.resolve(s.access);
-  return baseFetch("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh})
+  if(_renouv) return _renouv;
+  _renouv=baseFetch("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh})
     .then(function(j){ return baseGarder(j).access; })
-    .catch(function(){ try{ localStorage.removeItem("base/session"); }catch(e){} return null; });
+    .catch(function(e){
+      var s2=baseSession();
+      if(e && (e.status===400||e.status===401||e.status===403) && s2 && s2.refresh===s.refresh){
+        try{ localStorage.removeItem("base/session"); }catch(x){}
+        /* la barre le montre tout de suite, et l'écran de connexion le dit */
+        setTimeout(function(){
+          try{ sideMaj(); }catch(x){}
+          var gt=document.getElementById("gate"), ac=lsGet("account/current")||{};
+          if(gt && gt.hidden && ac.email && lsGet("base/plusTard")!==new Date().toDateString()) try{ gateReconnecter(); }catch(x){}
+        },0);
+      }
+      return null; })
+    .then(function(t){ _renouv=null; return t; });
+  return _renouv;
 }
 function baseRpc(nom,corps){
   return baseJeton().then(function(t){ if(!t) throw new Error("non connecté"); return baseFetch("/rest/v1/rpc/"+nom,corps,t); });
@@ -31300,6 +31334,30 @@ function fermerGate(){
   document.getElementById("gate").hidden=true;
   if(typeof inerteFond==="function") try{ inerteFond(false); }catch(e){}
 }
+/* LA CONNEXION PERDUE SE DIT (le client, le 30/10/2026 : « Home a perdu sa
+   place ? Le menu a été modifié »). Un compte lié à une adresse, sans
+   session sur la base, s'ouvrait sans rien dire : « Horaire » et « Mes
+   demandes » disparaissaient de la barre, Effectifs y revenait. Au
+   démarrage, en ligne, on le dit et on propose le code tout de suite ;
+   « Plus tard » laisse l'application telle quelle jusqu'au lendemain. */
+function gateReconnecter(){
+  var acc=lsGet("account/current")||{}, g=document.getElementById("gate"); if(!g) return;
+  _gateOnOk=function(){ location.reload(); };
+  g.hidden=false; g.classList.remove("is-home");
+  if(typeof inerteFond==="function") try{ inerteFond(true); }catch(e){}
+  gateSetTitre("Connexion expirée",acc.email||"");
+  gateSetBody('<p class="gate-lede">Votre connexion a expiré sur cet appareil : l\u2019Horaire production et vos demandes ne s\u2019affichent plus. Reconnectez-vous avec un code reçu par e-mail.</p>'
+    +'<div class="gate-actions"><button type="button" class="gate-btn primary" id="gateReco">Recevoir un code</button>'
+    +'<button type="button" class="gate-link" id="gatePlusTard">Plus tard</button></div>');
+  document.getElementById("gateReco").onclick=function(){
+    gateVueEmail();
+    var em=document.getElementById("gateEmail"); if(em) em.value=acc.email||lsGet("base/email")||"";
+    var bk=document.getElementById("gateBack"); if(bk) bk.onclick=gateReconnecter;
+  };
+  document.getElementById("gatePlusTard").onclick=function(){ _gateOnOk=null; lsSet("base/plusTard",new Date().toDateString()); fermerGate(); };
+  setTimeout(function(){ try{ document.getElementById("gateReco").focus(); }catch(e){} },30);
+  fetchHoraireDB().then(function(db){ _gateDB=db; },function(){ _gateDB=null; });
+}
 function gateVueAccueil(){
   /* Accueil « plein écran » : logo sur le fond, boutons en bas (boutons statiques). */
   document.getElementById("gate").classList.add("is-home");
@@ -32201,6 +32259,8 @@ function boot(){
       appliquerCompte(_acc);
       if(!st.state.onboarded){ st.state.onboarded=true; save("config/state",st.state); }
       startApp();
+      if(_acc.email && !baseSession() && navigator.onLine!==false && lsGet("base/plusTard")!==new Date().toDateString())
+        setTimeout(gateReconnecter,1200);
     } else {
       finIntro();
       ouvrirGate(function(){
