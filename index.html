@@ -25515,17 +25515,24 @@ function renderEquipe(){
     function horaireModifie(x,k){
       if(x.horPart){ var hq=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
         return '<small class="eqhd">'+hq(x.horPart[0])+"-"+hq(x.horPart[1])+"</small>"; }
-      if(x.relais || !PF_DEB[k] || k==="D") return "";
-      var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return ""; }
-      if(!L || L.pv!==k || (L.hd==null && L.hf==null)) return "";
+      var pm=plageModifiee(x,k); if(!pm) return "";
+      function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
+        return mn?e+"h"+pad2(mn):String(e); }
+      return '<small class="eqhd">'+hh(pm[0])+"-"+hh(pm[1])+"</small>";
+    }
+    /* les heures de cet horaire diminué ou prolongé, [début, fin], ou null
+       quand la personne fait sa pause telle quelle (aussi pour
+       bandesEnTete) */
+    function plageModifiee(x,k){
+      if(x.relais || !PF_DEB[k] || k==="D") return null;
+      var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return null; }
+      if(!L || L.pv!==k || (L.hd==null && L.hf==null)) return null;
       var d=(L.hd!=null?L.hd:PF_DEB[k]), f=(L.hf!=null?L.hf:PF_FIN[k]), coupe=false;
       (relaisCoupe[x.p.id]||[]).forEach(function(r){
         if(Math.abs(r.b-f)<0.01 && r.a>d+0.01){ f=r.a; coupe=true; }
         else if(Math.abs(r.a-d)<0.01 && r.b<f-0.01){ d=r.b; coupe=true; } });
-      if(!coupe && Math.abs(d-PF_DEB[k])<0.01 && Math.abs(f-PF_FIN[k])<0.01) return "";
-      function hh(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60);
-        return mn?e+"h"+pad2(mn):String(e); }
-      return '<small class="eqhd">'+hh(d)+"-"+hh(f)+"</small>";
+      if(!coupe && Math.abs(d-PF_DEB[k])<0.01 && Math.abs(f-PF_FIN[k])<0.01) return null;
+      return [d,f];
     }
     function chip(x,g,posteCourant,nu,sansHoraire){
       /* « MAL » tout seul ne disait pas si l'absence s'arrête là ou si on
@@ -26103,8 +26110,43 @@ function renderEquipe(){
         });
         return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
       }
-      function caseBandes(bandes,P){
-        var vis=ORDRE3.filter(function(k){ return vp[k]; }), n=vis.length;
+      /* LES CADRES SUR LA LIGNE DU POSTE (le client, le 30/10/2026, sur le
+         31/10 : « pourquoi ne suis-je pas mis sur la 1re ligne comme les
+         autres ? »). VBN 14-01 descendait sous la ligne des contremaîtres,
+         la case PM vide au-dessus de lui, FPA 01-06 seul dans la case N.
+         Quand, dans les pauses que les cadres traversent, il ne reste que
+         des badges à horaire (ni personne de toute la pause, ni relais, ni
+         place vide, ni changement fait par l'application), ces cases se
+         fondent en une : cadres et badges à horaire s'y posent à leurs
+         heures, sur la ligne du poste. Rend {ks, l} ou null. */
+      function bandesEnTete(P,bandes){
+        if(!bandes.length) return null;
+        var vis=ORDRE3.filter(function(k){ return vp[k]; }), S=PF_DEB[vis[0]];
+        function ax(v){ while(v<S-0.01) v+=24; while(v>=S+24-0.01) v-=24; return v; }
+        var ks=vis.filter(function(k){ var a=ax(PF_DEB[k]), b=a+PF_FIN[k]-PF_DEB[k];
+          return bandes.some(function(bd){ return bd.a<b-0.01 && bd.b>a+0.01; }); });
+        if(ks.length<2 || vis.indexOf(ks[ks.length-1])-vis.indexOf(ks[0])!==ks.length-1) return null;
+        var plus=[];
+        for(var i=0;i<ks.length;i++){
+          var o=poste(ks[i],P.k); if(!o) continue;
+          if(o.manque || (o.relais||[]).some(function(r){ return !r.enBande; })) return null;
+          var reste=o.gens.filter(function(x){ return !x.enBande; });
+          for(var j=0;j<reste.length;j++){ var x=reste[j];
+            /* les gens de jour gardent l'horaire que leur badge écrit
+               (horaireEcritD) : la ligne d'avant */
+            if(!x.horPart && (x.deD||x.consign||x.remplCons||x.apprMeun||x.renfortD||celluleD(x))) return null;
+            var hp=x.horPart||plageModifiee(x,ks[i]);
+            if(!hp || x.propose || x.echange) return null;
+            try{ if(transfertApp(x,P.k,jourCalc)) return null; }catch(eT){ return null; }
+            var a=ax(hp[0]), fo=false;
+            try{ fo=enFormation(x.p,jourCalc) && !compteAuPoste(x,P,jourCalc); }catch(eF){}
+            plus.push({p:x.p, a:a, b:a+((((hp[1]-hp[0])%24)+24)%24||24),
+              com:comAffiche(x.p.d[mmdd]), deD:!!(x.deD||x.depuisD), form:fo}); }
+        }
+        return {ks:ks, l:bandes.concat(plus).sort(function(u,v){ return u.a-v.a || u.b-v.b; })};
+      }
+      function caseBandes(bandes,P,ks){
+        var vis=ks||ORDRE3.filter(function(k){ return vp[k]; }), n=vis.length;
         var S=PF_DEB[vis[0]], E=PF_FIN[vis[n-1]], L=E-S, voies=[];
         bandes.forEach(function(bd){
           var a0=(bd.trou&&!bd.trou.apres)?bd.trou.tr.na:bd.a, b0=(bd.trou&&bd.trou.apres)?bd.trou.tr.nb:bd.b;
@@ -26139,7 +26181,7 @@ function renderEquipe(){
           if(E-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((E-pos)*10)/10)+'"></i>';
           return '<div class="eqfus">'+seg+'</div>';
         }).join("");
-        return '<td class="fusion bande" colspan="'+n+'" data-k="'+vis.join(" ")+'" data-s="'+S+'" data-e="'+E+'">'+fond+h+'</td>';
+        return '<td data-k="'+vis.join(" ")+'" class="fusion bande" colspan="'+n+'" data-s="'+S+'" data-e="'+E+'">'+fond+h+'</td>';
       }
       POSTES_TRAVAIL.forEach(function(P){
         var att=0, sert=false;
@@ -26150,7 +26192,8 @@ function renderEquipe(){
         });
         if(!att && !sert) return;
         var debut=(P.z!==zPrec); zPrec=P.z;
-        var fus=fusionsLigne(P), bandes=bandesLigne(P,fus);
+        var fus=fusionsLigne(P), bandes=bandesLigne(P,fus), enTete=bandesEnTete(P,bandes);
+        if(enTete) bandes=[];
         tp.push('<tr data-z="'+esc(P.z||"")+'"'+(debut?' class="zone1"':"")+">"
           /* Les deux intitulés, et la feuille choisit : le court sur un
              téléphone, l'entier au-delà de 760 px — comme l'onglet Équipe.
@@ -26162,6 +26205,7 @@ function renderEquipe(){
           if(!vp[g.k]) return;
           if(fus.saute[g.k]) return;
           if(fus.debut[g.k]){ tp.push(caseFusion(fus.debut[g.k],fus.rel[g.k],fus.extra,P)); return; }
+          if(enTete && enTete.ks.indexOf(g.k)>=0){ if(g.k===enTete.ks[0]) tp.push(caseBandes(enTete.l,P,enTete.ks)); return; }
           var o=poste(g.k,P.k), v=vp[g.k].vue, cl=[];
           /* Le client : « on peut également mettre "-" pour la STEP PM et
              N ». Une case grise et muette laissait croire à un oubli ; le
@@ -29228,8 +29272,16 @@ function alignerFusions(tbl){
      s'écarte comme un badge (ecart) ; entre deux cadres qui se touchent,
      l'espace de deux badges voisins. */
   Array.prototype.forEach.call(tbl.querySelectorAll("td.bande"),function(td){
-    var tr=td.parentNode, haut=tr.previousElementSibling; if(!haut) return;
-    var cols=Array.prototype.filter.call(haut.children,function(c){ return c.tagName==="TD"; }).map(function(c){ return c.getBoundingClientRect(); });
+    var tr=td.parentNode, haut=tr.previousElementSibling, cols;
+    /* sur la ligne du poste (bandesEnTete), les colonnes de ses pauses se
+       lisent dans l'en-tête */
+    if(!tr.classList.contains("eqbande")){
+      cols=(td.getAttribute("data-k")||"").split(" ").map(function(k){ var th=tbl.querySelector('thead th[data-k="'+k+'"]'); return th&&th.getBoundingClientRect(); });
+      if(cols.some(function(c){ return !c; })) return;
+    } else {
+      if(!haut) return;
+      cols=Array.prototype.filter.call(haut.children,function(c){ return c.tagName==="TD"; }).map(function(c){ return c.getBoundingClientRect(); });
+    }
     var S=Number(td.getAttribute("data-s")), E=Number(td.getAttribute("data-e")), n=cols.length;
     if(!n || Math.abs((E-S)/8-n)>0.01) return;
     var marge=ecart<1e9?ecart:6, jeu=gapH/2;
@@ -29251,6 +29303,10 @@ function alignerFusions(tbl){
       for(var k=pl.length-1;k>=0;k--){ var q=pl[k];
         if(q.d-q.g<q.nat){ if(q.bb) q.g=q.d-q.nat; else q.d=q.g+q.nat; }
         if(k>0 && pl[k-1].d>q.g-2*jeu) pl[k-1].d=q.g-2*jeu; }
+      /* … et le suivant cède à son tour quand c'est le premier qui
+         s'élargit vers la droite (le 30/10/2026 : BBZ 14-18, à sa largeur
+         de texte, couvrait le début de PDR 18-06) */
+      for(var k2=1;k2<pl.length;k2++) if(pl[k2].g<pl[k2-1].d+2*jeu-0.5) pl[k2].g=pl[k2-1].d+2*jeu;
       pl.forEach(function(q){ q.e.style.left=(q.g-rf.left)+"px"; q.e.style.width=Math.max(10,q.d-q.g)+"px"; });
     });
   });
