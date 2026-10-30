@@ -1639,3 +1639,34 @@ source officielle »), ce récit quitte CLAUDE.md, mot pour mot :
 > autrement, ce n'est pas moi qui les gère » […] Une première réponse du
 > 27/09 l'a oublié : un code lu sur « Abs s/c », que personne n'écrira, a
 > vécu un commit avant d'être retiré.
+
+### « Le RH a encodé ça n'importe comment » (30/10/2026, v1211)
+
+Le client, la veille : « demain je fais PM puis 22-01 mais le RH a encodé
+ça n'importe comment dans le classeur ». Sa cellule du 31/10,
+`["22h-01h","3h +FT","remplace FPA de 22h à 01h00'"]`, ne portait que les
+heures en plus : l'application lisait 3 h épargnées et rien d'autre, son
+agenda annonçait une nuit entière (21 h 30 - 6 h), et le contrôle des
+manques croyait l'après-midi sans contremaître (ATR part à 18 h).
+
+Les commentaires d'abord : FPA, de nuit, écrit « arrivée à 01h00'
+remplacé par VBN » ; la cellule correcte de la même situation existe
+(AFA le 31/07, `["PM","2h +FT","remplace VBN de 22h à 24h00'"]`). Cherché
+dans les deux classeurs : quinze cellules dont la plage égale le +FT ; deux
+seulement sur une pause du cycle qu'elles prolongent (VBN le 31/10, PLZ le
+19/03), les autres sont des rappels sur un repos, lus justes.
+
+Règle écrite dans `docs/conversion-horaire.md` (section 5) et codée
+(`pauseProlongee()`). **La mesure a mordu** : une première version
+acceptait aussi une plage AVANT la pause, et rendait une nuit à GPS le
+21/08, dont le commentaire dit « RHS sur la pause N » — restreinte à la
+plage qui suit la pause, sans récupération ni repos dans le commentaire.
+Puis le contrôle des manques commentés a crié : la place de contremaître de
+nuit du 31/10, que la mauvaise lecture remplissait, est tenue par VBN de
+22 h à 1 h puis par un adjoint sans « R-CM ». Admise, avec sa raison.
+
+Résultat : journées prestées 14 139 → 14 141, compteurs, polyvalence
+identiques ; deux agendas changent (VBN : après-midi 13 h 30 - 22 h puis
+nuit 22 h - 1 h ; PLZ le 19/03) ; la fiche d'octobre de VBN retrouve son
+samedi (8 h, supplément de 150 %, prime d'après-midi, chèque-repas,
+déplacement).

@@ -14355,8 +14355,39 @@ function motPrime(mot,raw){
   if(t==="PAUSE"||t==="EQUIPE"||t==="\u00c9QUIPE") return posteDepuisMention((raw&&raw[0])||"")||null;
   return null;
 }
+/* LA PLAGE DU SUPPLÉMENT ÉCRITE À LA PLACE DU POSTE. Le client, le
+   30/10/2026, sur VBN le 31/10, ["22h-01h","3h +FT","remplace FPA de 22h à
+   01h00'"] : « demain je fais PM puis 22-01, mais le RH a encodé ça
+   n'importe comment ». La même journée s'écrit d'ordinaire ["PM","2h +FT",
+   "remplace VBN de 22h à 24h00'"] (AFA le 31/07) : la pause du cycle, plus
+   les heures épargnées. Ici la plage du supplément a pris la place du
+   poste, et la lecture ne gardait que les 3 h épargnées — la pause entière
+   disparaissait. Quand la cellule franche n'est qu'une plage, que
+   l'annotation en épargne TOUTES les heures au flex time, que le cycle met
+   ce jour-là une pause (AM, PM ou N) et que la plage la PROLONGE (elle
+   commence à sa fin), sans que le commentaire parle de récupération, de
+   repos ou de congé, la journée est cette pause, plus ces heures
+   épargnées. Mesuré : deux journées de 2026 — celle-ci, et PLZ le 19/03,
+   ["22h-02h","4h +FT"], sur une après-midi du cycle ; aucune en 2027. Un
+   rappel sur un repos (le cycle ne donne rien) reste lu comme avant, et
+   une plage AVANT la pause aussi : GPS le 21/08, ["18h-22h","4h +FT",
+   "… RHS sur la pause N"], n'a pas fait sa nuit — une première version qui
+   acceptait les deux sens la lui rendait (mesuré, puis restreint). */
+function pauseProlongee(raw,fit,annee,mois,jour){
+  var pl=plageMention(String(raw[0]||"")), m=/^\s*(\d+(?:[.,]\d+)?)\s*h\s*\+\s*FT\s*$/i.exec(String(raw[1]||""));
+  if(!pl || !m || !fit) return null;
+  if(Math.abs((pl[1]-pl[0])-Number(m[1].replace(",",".")))>0.01) return null;
+  var P=posteDeCycle(fit,annee,mois,jour), std=P&&SHIFT_PLAGE[P];
+  if(!std || P==="D") return null;
+  if(/RHS|RTT|\bVA\b|repos|cong/i.test(String(raw[2]||""))) return null;
+  for(var k=-24;k<=24;k+=24) if(Math.abs(pl[0]+k-std[1])<0.01) return P;
+  return null;
+}
 function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
+  var pP=pauseProlongee(raw,fit,annee,mois,jour);
+  if(pP) raw=[pP,raw[1]].concat(raw.slice(2));
   var r=parseHoraireEntry(raw,hJour,epargne,renvois);
+  if(pP) r.modifie=true;
   /* UNE CELLULE VIDE DONT LE COMMENTAIRE DOUTE N'EST PAS UNE JOURNÉE
      PRESTÉE. VGG le 09/08, ["","","Remplace YBT qui remplaçait BLR ?"] :
      sans le « ? », le remplacement nommé en faisait un AM. Le classeur

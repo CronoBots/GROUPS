@@ -236,6 +236,27 @@ flex time identiques — l'épargne ne bouge pas, seules les heures payées
 changent —, neuf règles à zéro. LCI concorde avec ses fiches sur 206
 journées sur 214.
 
+**La plage du supplément écrite à la place du poste** (le client, le
+30/10/2026, sur VBN le 31/10 : « demain je fais PM puis 22-01, mais le RH a
+encodé ça n'importe comment »). La cellule `["22h-01h","3h +FT","remplace
+FPA de 22h à 01h00'"]` ne porte que les trois heures en plus : la même
+journée s'écrit d'ordinaire `["PM","2h +FT","remplace VBN de 22h à
+24h00'"]` (AFA le 31/07). L'application ne gardait que les 3 h épargnées,
+la pause entière disparaissait — et son agenda annonçait une nuit de 21 h 30
+à 6 h. Désormais (`pauseProlongee()`), quand la cellule franche n'est qu'une
+plage, que l'annotation en épargne toutes les heures, que le cycle met une
+pause ce jour-là et que la plage commence à la fin de cette pause, sans que
+le commentaire parle de récupération, de repos ou de congé, la journée est
+cette pause, plus les heures épargnées. Mesuré : deux journées de 2026,
+celle-ci et PLZ le 19/03 (`["22h-02h","4h +FT"]`, après-midi du cycle) ;
+aucune en 2027 ; journées prestées 14 139 → 14 141, compteurs identiques.
+Une plage AVANT la pause ne s'y prête pas : GPS le 21/08, `["18h-22h","4h
++FT","… RHS sur la pause N"]`, n'a pas fait sa nuit (une première version
+qui acceptait les deux sens la lui rendait). La place de contremaître de
+nuit du 31/10, que la mauvaise écriture remplissait, est tenue de 22 h à
+1 h par VBN puis par un adjoint sans `R-CM` : admise dans
+`tools/manques-admis.txt`.
+
 ## 6. Le compteur `-FT` : une récupération
 
 **La personne ne preste pas le poste prévu, ou le preste amputé d'autant.**
