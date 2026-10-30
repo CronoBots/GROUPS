@@ -8629,7 +8629,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 <tr><th>CP</th><td>congé parental : non payé par l’employeur, l’allocation de l’ONEM est versée à part</td></tr>
 <tr><th>CT, TP</th><td>crédit-temps, jour non travaillé d’un temps partiel : déjà retirés de votre rémunération fixe</td></tr>
 <tr><th>CSS</th><td>congé sans solde, non payé</td></tr>
-<tr><th>Abs</th><td>maladie (sur la fiche : « Heure(s) SMG maladie »)</td></tr>
+<tr><th>Abs</th><td>maladie (sur la fiche : « Heure(s) SMG maladie ») ; le premier mois est payé par l’employeur, puis la mutuelle prend le relais — une rechute dans les 14 jours continue ce mois (règlement, art. 48)</td></tr>
 <tr><th>RHS</th><td>récupération d’heures supplémentaires (« 2h RHS » = 2 h ; seul = la journée)</td></tr>
 <tr><th>+FT, -FT</th><td>heures épargnées, reprises au flex time</td></tr>
 <tr><th>R-CM</th><td>remplacement de contremaître</td></tr>
@@ -9682,23 +9682,46 @@ function reposLiesAuWeekend(M,y,m,hJour){
    elle s'arrête à une journée prestée ou à un autre code. Sans personne
    liée dans l'horaire, null : rien n'est retiré. */
 var MALADIE_EMPLOYEUR_J=30;
-function rangMaladie(y,m,d,hJour){
+function rangMaladie(y,m,d,hJour,prof){
   var db=horaireDe(y), id=trigCourant(), per=null, i;
   if(db && id) for(i=0;i<db.people.length;i++) if(db.people[i].id===id){ per=db.people[i]; break; }
   if(!per) return null;
-  var x=new Date(Date.UTC(y,m,d)), debut=new Date(x.getTime());
+  /* la lecture d'un jour : son absence (ABSMAP), sa journée, ou null hors du classeur */
+  function lire(x){
+    var yy=x.getUTCFullYear(), mm=x.getUTCMonth()+1, jj=x.getUTCDate();
+    if(yy!==Number(y)) return null;
+    var raw=per.d[pad2(mm)+pad2(jj)]; if(raw===undefined) return null;
+    var c; try{ c=moisDe(per,yy,mm,hJour); }catch(e){ return null; }
+    var r=lireJournee(db,raw,yy,mm,jj,c.fit,c.ep[jj],hJour,c.rv[jj]);
+    return {r:r, A:r.a&&ABSMAP[r.a]};
+  }
+  var x=new Date(Date.UTC(y,m,d)), debut=new Date(x.getTime()), arret=false, L;
   for(i=0;i<400;i++){
     x.setUTCDate(x.getUTCDate()-1);
-    var yy=x.getUTCFullYear(), mm=x.getUTCMonth()+1, jj=x.getUTCDate();
-    if(yy!==Number(y)) break;
-    var raw=per.d[pad2(mm)+pad2(jj)]; if(raw===undefined) break;
-    var c; try{ c=moisDe(per,yy,mm,hJour); }catch(e){ break; }
-    var r=lireJournee(db,raw,yy,mm,jj,c.fit,c.ep[jj],hJour,c.rv[jj]);
-    var A=r.a&&ABSMAP[r.a];
-    if(A){ if(A.k!=="SMG") break; debut=new Date(x.getTime()); }
-    else if(r.s && !(r.h===0)) break;
+    L=lire(x); if(!L) break;
+    if(L.A){ if(L.A.k!=="SMG"){ arret=true; break; } debut=new Date(x.getTime()); }
+    else if(L.r.s && !(L.r.h===0)){ arret=true; break; }
   }
-  return Math.round((Date.UTC(y,m,d)-debut.getTime())/864e5)+1;
+  var rang=Math.round((Date.UTC(y,m,d)-debut.getTime())/864e5)+1;
+  /* LA RECHUTE CONTINUE LE MOIS (règlement de travail, art. 48 et annexe
+     XII) : « lorsqu'une nouvelle incapacité de travail survient dans les
+     14 jours calendrier qui suivent la fin de la période d'incapacité
+     précédente », et que le certificat ne dit pas qu'elle est due à une
+     autre maladie, « il sera présumé que les deux incapacités proviennent
+     de la même maladie ». Le classeur ne porte jamais cette mention : la
+     présomption vaut, et le mois de salaire garanti continue là où la
+     série précédente l'avait laissé, au lieu de recommencer. Le client, le
+     30/10/2026 : « le règlement est la source officielle ». Mesuré en
+     2026 : 58 rechutes à 14 jours ou moins, dont 13 dépassent ainsi le
+     mois (166 journées passent à la mutuelle) ; 2027, aucune. */
+  if(arret && (prof||0)<24){
+    for(var k=1;k<=14;k++){
+      var z=new Date(debut.getTime()-k*864e5), Z=lire(z);
+      if(!Z) break;
+      if(Z.A && Z.A.k==="SMG") return rangMaladie(z.getUTCFullYear(),z.getUTCMonth(),z.getUTCDate(),hJour,(prof||0)+1)+rang;
+    }
+  }
+  return rang;
 }
 function cycleDitD(y,m,d){
   var db=horaireDe(y), id=trigCourant(), per=null, fit=null, i;
@@ -9891,6 +9914,16 @@ function compute(){
         acc.formOuv[bkF]+=A.h;
         byShift[rec.s][bkF]+=A.h;
       }
+      /* LA DEMI-JOURNÉE DE CONSEIL D'ENTREPRISE GARDE LA PRIME DE LA PAUSE
+         PRÉVUE (règlement de travail, annexe XI, pour les ouvriers et les
+         employés : « payement du salaire normal (primes de pause) pour les
+         jours de dispense »). La fiche d'un ouvrier du 25/08 la payait sans
+         prime : le client, le 30/10/2026, « le règlement est la source
+         officielle, si l'app ne fait pas pareil c'est qu'il y a une erreur
+         dans l'app » — c'est la fiche qui se trompait. Les heures restent
+         payées comme avant (fixe de l'employé, « Compens. Collective
+         Payée » de l'ouvrier) ; la prime de la pause s'y ajoute. */
+      if(A.k==="CE" && rec.s && byShift[rec.s]) byShift[rec.s][isFer?"Dimanche":t]+=A.h;
       /* LA MALADIE DE L'OUVRIER : majorée le week-end, et payée par
          l'employeur le premier mois seulement. Le client, le 14/10/2026 :
          « oui » au samedi à 150 % et au dimanche à 200 % (fiches de LCI,
@@ -10001,7 +10034,7 @@ function compute(){
   var formOuvH=acc.formOuv.Semaine+acc.formOuv.Samedi+acc.formOuv.Dimanche;
   if(ab("FORM")-formOuvH>0) lines.push({q:ab("FORM")-formOuvH,l:"Heure(s) formation syndicale",qh:true});
   if(ab("ABS")) lines.push({q:ab("ABS"),l:"Heure(s) abs. volontaire / injustifiée",qh:true});
-  if(ab("CE") && !ouvrier) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise, sans prime d'équipe",qh:true});
+  if(ab("CE") && !ouvrier) lines.push({q:ab("CE"),l:"Heure(s) conseil d'entreprise",qh:true});
   if(ab("GREVE")) lines.push({q:ab("GREVE"),l:"Heure(s) grève reconnue",qh:true});
   if(acc.ftPlus) lines.push({q:acc.ftPlus,l:"Heure(s) flex time prestées (+FT, compteur)",qh:true,info:true});
   if(acc.ftMoins) lines.push({q:acc.ftMoins,l:"Heure(s) flex time récupérées (−FT, compteur)",qh:true,info:true});
@@ -10123,9 +10156,11 @@ function compute(){
        La récupération de férié (RJF), que la note ne nomme pas, garde son
        traitement d'avant. */
     /* La demi-journée de conseil d'entreprise (`1/2 CE`, « PM · DS-CE ») :
-       sans prime d'équipe, mais PAYÉE. La fiche de LCI du 25/08 porte ces
-       4 h en « Compensation payée » au taux garanti ; l'application les
-       montrait en heures sans montant (vérifié le 14/10/2026, −106,25 €). */
+       PAYÉE. La fiche de LCI du 25/08 porte ces 4 h en « Compensation
+       payée » au taux garanti ; l'application les montrait en heures sans
+       montant (vérifié le 14/10/2026, −106,25 €). Depuis le 30/10/2026, la
+       prime de la pause prévue s'y ajoute (annexe XI, voir plus haut) : la
+       fiche, qui ne la payait pas, se trompait. */
     /* la sortie syndicale (annexe X), voir plus haut : payée au garanti */
     if(acc.formOuv.Semaine)  bl(acc.formOuv.Semaine,"Heure(s) formation syndicale à "+nf4.format(tgO),R(acc.formOuv.Semaine*tgO),true);
     if(acc.formOuv.Samedi)   bl(acc.formOuv.Samedi,"Heure(s) formation syndicale à "+nf4.format(tgO)+" à 150 %",R(acc.formOuv.Samedi*tgO*1.5),true);
@@ -14555,8 +14590,10 @@ function lireJournee(db,raw,annee,mois,jour,fit,epargne,hJour,renvois){
     var nDep=plD[1]-hDep;
     if(nDep>0 && nDep<hJour){ r.h=hJour-nDep; r.rhsJ=nDep; r.depart=true; }
   }
-  /* « PM · DS-CE » : une demi-journée de conseil d'entreprise, payée sans
-     prime. Le client, le 26/09/2026, devant la fiche d'un ouvrier : LCI le
+  /* « PM · DS-CE » : une demi-journée de conseil d'entreprise (sa prime de
+     pause : voir compute(), annexe XI du règlement — depuis le 30/10/2026,
+     le règlement prime sur la fiche, qui ne la payait pas). Le client, le
+     26/09/2026, devant la fiche d'un ouvrier : LCI le
      25/08, ["PM","DS-CE"], porte 4 h de prime d'après-midi et 4 h de
      « Compensation payée ». Et « si AM et DS-CE alors oui c'est 8 h prime
      du matin » — LCI le 18/02, ["AM","DS-CE"], a sa journée entière avec

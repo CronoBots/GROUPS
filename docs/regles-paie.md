@@ -1018,9 +1018,15 @@ Proposé au client comme « règle A partout », cela aurait cassé le 18/02 ;
 d'où la question, et sa réponse : « si AM et DS-CE alors oui c'est 8 h
 prime du matin ». La règle ne vaut donc que pour la cellule franche **PM** :
 4 h prestées avec la prime, et 4 h du code `1/2 CE` — ligne « Heure(s)
-conseil d'entreprise, sans prime d'équipe ». Sans prime, mais payées : chez
-l'ouvrier, ces 4 h vont à la « Compens. Collective Payée » au taux garanti,
-comme sur la fiche du 25/08 (depuis le 14/10/2026 ; avant, aucun montant). **La nuit est tranchée le
+conseil d'entreprise ». Payées : chez l'ouvrier, ces 4 h vont à la
+« Compens. Collective Payée » au taux garanti, comme sur la fiche du 25/08
+(depuis le 14/10/2026 ; avant, aucun montant). **Et, depuis le 30/10/2026,
+avec la prime de la pause prévue** : le règlement de travail (annexe XI,
+ouvriers et employés) paie les jours de dispense pour réunion « salaire
+normal (primes de pause) », et le client, le même jour : « le règlement est
+la source officielle, si l'app ne fait pas pareil c'est qu'il y a une
+erreur dans l'app ». La fiche du 25/08, qui ne payait pas ces 4 h de prime,
+est donc une erreur de paiement (« sans prime » se lisait ici jusque-là). **La nuit est tranchée le
 30/09/2026**, en deux temps : « les heures prestées gardent la prime de
 nuit », puis « pas obligatoirement la prime de nuit, mais la prime qui est
 bien indiquée dans le commentaire ». Une journée « DS-CE » ou « D-CPPT »
@@ -1609,7 +1615,11 @@ pas les deviner :
      30/10/2026) : une nouvelle incapacité dans les 14 jours calendrier qui
      suivent la fin de la précédente est présumée la même maladie, sauf si
      le certificat dit le contraire — et le classeur ne porte pas cette
-     mention. `rangMaladie()` recommence à la première journée prestée ;
+     mention. **Appliqué le 30/10/2026** (« le règlement est la source
+     officielle ») : `rangMaladie()` continue le mois d'une série à la
+     suivante quand elle reprend dans les 14 jours ; mesuré en 2026, 58
+     rechutes de ce genre, dont 13 dépassent ainsi le mois (166 journées
+     passent à la mutuelle) ; 2027, aucune ;
   4. **cela vaut-il pour les employés seulement** (CP 220) ou aussi pour les
      ouvriers et les intérimaires, dont les règles sont déjà inconnues ?
 
@@ -1828,7 +1838,7 @@ mai, juillet et août. Les douze écarts, et ce qu'ils disent :
 | 10/02, 12/05, 16/06 | `Abs` | **grève reconnue** | ces jours-là, 15, 14 et 11 « Abs » dans l'usine contre 4 les lendemains. **Tranché le 26/09/2026** : « c'est bien grève, l'employeur ne paye rien » — `GREVE_JOURS` |
 | 14/08 | `PM · 4h +FT` | 8 h payées | sur un poste PRÉVU sans heure écrite, le +FT s'AJOUTE aux 8 h ; l'application les en retranche |
 | 17/06 | `DS-CE · 1h rhs` | 7 h + 1 h de compensation | **tranché le 26/09/2026** : une reprise partielle sort de la prime d'équipe — voir « RHS » |
-| 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | **tranché le 26/09/2026** : une demi-journée de conseil d'entreprise, payée sans prime (`1/2 CE`) ; `AM · DS-CE` reste 8 h avec prime du matin, comme le 18/02 — voir « Le conseil d'entreprise d'un après-midi » |
+| 25/08 | `PM · DS-CE` | 4 h PM + 4 h de compensation | **tranché le 26/09/2026** : une demi-journée de conseil d'entreprise (`1/2 CE`), payée — sans prime d'après la fiche, avec la prime de la pause depuis le 30/10/2026 (règlement, annexe XI) ; `AM · DS-CE` reste 8 h avec prime du matin, comme le 18/02 — voir « Le conseil d'entreprise d'un après-midi » |
 | 20/02 | `PM` | 7 h 30 + 30 min | le client : rien n'est écrit dans la cellule, c'est une pause normale — l'écart vient d'ailleurs |
 | 11/04, 13/04 | rappel, `N` | heures sup à compenser + trajet, sur un repos | **tranché le 26/09/2026, pour tout le monde** : un rappel sur un repos sans « +FT » se paie en heures sup à compenser, prime de pause majorée, aucune heure normale (`r.rs`) ; 122 journées. Le 11/04 concorde, taux de 187,5 % compris ; le 13/04 (cellule `N`, pas `-`) reste un écart |
 | 05/04 | « D2PART 0 18H » | 4 h | le texte du classeur est abîmé — « départ à 18h » — et ne se lit pas |
