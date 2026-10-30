@@ -811,6 +811,31 @@ L'application en tire les deux montants du mois — l'avance, et le solde qui
 est le net total moins l'avance — dans un bloc sous le Résumé, à partir du
 réglage **« Avance mensuelle (€) »**.
 
+### Chez l'ouvrier : l'avance six jours plus tôt
+
+**Le règlement de travail, art. 18** (reçu le 30/10/2026) : « Une avance est
+versée dix jours ouvrables avant la fin du mois pour les ouvriers et quatre
+jours ouvrables avant la fin du mois pour les employés », puis « le paiement
+des rémunérations a lieu par banque au plus tard le 7ème jour ouvrable qui
+suit la période ». Les états de salaires se clôturent le quatrième jour
+ouvrable du mois, pour tous.
+
+- **L'avance de l'ouvrier** : dix jours, comptés comme ceux de l'employé —
+  même phrase, même mot, et le « jamais payé le wk » du client vaut pour
+  elle : du lundi au vendredi, fériés exclus. En 2026 : le 19/10, le 16/11
+  et le 16/12, contre le 27/10, le 24/11 et le 24/12 chez l'employé.
+- **Le solde** : le même jour que l'employé. Le règlement ne donne qu'un
+  plafond, le 7e jour ; la clôture est commune, et les huit fiches d'un
+  ouvrier de janvier à août 2026 ont été émises le même jour que celles
+  d'un employé, mois pour mois (dépôt privé, mesuré le 30/10/2026).
+- **La prime CCT 90** : mêmes mois que l'employé — l'« Avantage non
+  récurrent » est sur les fiches 02/2026 et 08/2026 de l'ouvrier.
+
+L'application suit le **Statut** des Réglages : « Prochains versements »
+(Infos et aide) et le bloc des versements sous le Résumé. Si une fiche ou un
+ouvrier montre une autre date d'avance, c'est la lecture du mot
+« ouvrables » qui est à revoir, et seulement chez l'ouvrier.
+
 ### Où la saisir
 
 Elle se saisit dans le champ **« Avance déjà reçue (€) »** de l'onglet

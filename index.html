@@ -9483,9 +9483,17 @@ function ouvresDepuis(dep,n,pas){
   }
   return d;
 }
-function versementsDuMois(y,m){
+/* L'OUVRIER (règlement de travail, art. 18, reçu le 30/10/2026) : « une
+   avance est versée dix jours ouvrables avant la fin du mois pour les
+   ouvriers et quatre jours ouvrables avant la fin du mois pour les
+   employés » — même phrase, même mot, donc même comptage du lundi au
+   vendredi. Le solde ne change pas : les états de salaires se clôturent le
+   même jour pour tous (« le quatrième jour ouvrable »), et les huit fiches
+   d'un ouvrier, de janvier à août 2026, portent la date d'émission de
+   celles d'un employé, mois pour mois. */
+function versementsDuMois(y,m,ouvrier){
   var fin=new Date(Date.UTC(y,m,daysInMonth(y,m)));
-  return {avance:ouvresDepuis(fin,4,-1), solde:ouvresDepuis(fin,4,1)};
+  return {avance:ouvresDepuis(fin,ouvrier?10:4,-1), solde:ouvresDepuis(fin,4,1)};
 }
 /* « dimanche 1er novembre » : numJour(), plus bas (audit du 23/10/2026) */
 function dateLongue(d){
@@ -11378,7 +11386,7 @@ function majVersements(C){
   var el=document.getElementById("versements"); if(!el) return;
   var av=R(st.params.avanceMens||0);
   if(!(av>0)){ el.hidden=true; return; }
-  var total=R(C.net+C.avance), solde=R(total-av), d=versementsDuMois(st.y,st.m);
+  var total=R(C.net+C.avance), solde=R(total-av), d=versementsDuMois(st.y,st.m,st.params.statut==="Ouvrier");
   function bloc(cl,titre,montant,quand){
     return '<div class="vs '+cl+'"><b>'+titre+"</b>"
       +'<span class="vsm">'+eur(montant)+"</span>"
@@ -31409,13 +31417,14 @@ function aideFormHTML(e){
 function aideJour(d){ return JOURS_LONGS[(d.getDay()+6)%7].toLowerCase()+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase(); }
 /* « d’octobre », « de novembre » */
 function aideDe(m){ var n=MOIS[m].toLowerCase(); return (/^[aeiouâéèêîôû]/.test(n)?"d’":"de ")+n; }
-/* les deux prochains versements (employés) : l'avance du mois, le solde du
-   mois d'avant ou de celui-ci (regles-paie.md, « Les deux dates ») */
+/* les deux prochains versements, selon le statut des Réglages : l'avance
+   du mois, le solde du mois d'avant ou de celui-ci (regles-paie.md, « Les
+   deux dates ») */
 function aideVersements(){
   var a=jourUsine(), auj=new Date(a.getFullYear(),a.getMonth(),a.getDate()), l=[];
   for(var k=-1;k<=1;k++){
     var y=a.getFullYear(), m=a.getMonth()+k; if(m<0){ m+=12; y--; } if(m>11){ m-=12; y++; }
-    var v=versementsDuMois(y,m);
+    var v=versementsDuMois(y,m,st.params.statut==="Ouvrier");
     l.push({d:v.avance,t:"Avance "+aideDe(m)}); l.push({d:v.solde,t:"Solde "+aideDe(m)});
   }
   return l.filter(function(x){ return x.d>=auj; }).sort(function(x,y){ return x.d-y.d; }).slice(0,2);
@@ -31430,7 +31439,7 @@ function aideInfHTML(){
   var a=jourUsine(), auj=new Date(a.getFullYear(),a.getMonth(),a.getDate()), h="";
   var vs=aideVersements();
   h+='<section class="aide-bloc"><h3>Prochains versements</h3><ul class="aide-l">'+vs.map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+'</b></li>'; }).join("")+'</ul>'
-    +'<p class="aide-note">Employés : l’avance 4 jours ouvrés avant la fin du mois, le solde 4 jours ouvrés après. Pécules avec la paie de mai, treizième mois avec celle de juin, prime CCT 90 en septembre et en mars. Ouvriers (règlement de travail, art. 18) : l’avance 10 jours ouvrables avant la fin du mois, le solde au plus tard le 7e jour ouvrable après.</p></section>';
+    +'<p class="aide-note">Dates calculées pour le statut choisi dans Réglages ('+esc(st.params.statut==="Ouvrier"?"ouvrier":"employé")+'). Règlement de travail, art. 18 : l’avance 4 jours avant la fin du mois pour les employés, 10 pour les ouvriers ; le solde au plus tard le 7e jour après, dans les faits le 4e. Jours comptés du lundi au vendredi, fériés exclus. Employés : pécules avec la paie de mai, treizième mois avec celle de juin. Ouvriers : le pécule vient de la caisse de vacances. Pour tous, la prime CCT 90 en septembre et en mars.</p></section>';
   var y=a.getFullYear(), fy=aideFeries(y).filter(function(x){ return x.d>=auj; });
   if(fy.length<3) fy=fy.concat(aideFeries(y+1)).slice(0,6);
   h+='<section class="aide-bloc"><h3>Prochains jours fériés</h3><ul class="aide-l">'+fy.slice(0,6).map(function(x){ return '<li><span>'+esc(x.t)+'</span><b>'+esc(aideJour(x.d))+(x.d.getFullYear()!==y?" "+x.d.getFullYear():"")+'</b></li>'; }).join("")+'</ul></section>';

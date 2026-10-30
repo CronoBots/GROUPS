@@ -492,3 +492,36 @@ ATA 05, 06 et 17/08 écrits D ou 7h-15h et pointés 6 h-14 h, VGG 30/04),
 RJF renvoyé par « cf 21/08 » (JBI 13/08), « Abs » sur un repos (YPE 17
 et 18/08), un jour férié écrit « 8h -FT » (YPE 14/05, Ascension).
 
+
+### L'avance de l'ouvrier, tirée du règlement de travail (30/10/2026)
+
+Le client : « les versements employé et ouvrier sont renseignés dans le
+règlement ? » Oui, à l'article 18 : l'avance dix jours ouvrables avant la
+fin du mois pour l'ouvrier, quatre pour l'employé ; le solde au plus tard le
+7e jour ouvrable qui suit ; la clôture des états de salaires le 4e jour
+ouvrable, pour tous. Rien sur les dates du pécule ni du treizième mois de
+l'ouvrier (question 10 au client, toujours ouverte).
+
+Jusque-là, l'application donnait à tous les dates de l'employé ; v1205 suit
+le Statut des Réglages (`versementsDuMois(y,m,ouvrier)`). Mesuré :
+
+- **les fiches** (dépôt privé) : les huit fiches mensuelles de l'ouvrier,
+  janvier à août 2026, portent la date d'émission de celles de l'employé,
+  mois pour mois — d'où le même solde ; l'« Avantage non récurrent » (CCT
+  90) est sur ses fiches 02 et 08, comme chez l'employé ;
+- **les dates** : 24 mois (2026-2027), aucune avance d'ouvrier un week-end
+  ni un férié ; au navigateur, « Avance de novembre » passe du mardi 24 au
+  lundi 16 novembre quand le Statut devient « Ouvrier », sans erreur ;
+- **rien d'autre n'a bougé** : les quatre sorties du vérificateur du
+  calendrier (base, `--manques 0926`, `--polyvalence`, `--compteurs`)
+  identiques à l'octet.
+
+Le mot « ouvrables » se lit, pour l'ouvrier, comme le client l'a tranché
+pour l'employé (« jamais payé le wk ») : c'est une déduction, écrite comme
+telle dans `docs/regles-paie.md`, à revoir si une fiche la dément.
+
+Une première rédaction de la note ouvrait une phrase sur le mot « prime »,
+majuscule comprise, suivi du sigle de la convention : `verifier-depot.py` y
+a lu une forme de nom (un mot à majuscule suivi d'un trigramme). Reformulée
+plutôt qu'admise — et ce paragraphe-ci, qui la citait telle quelle, a fait
+refuser le premier commit par le crochet.
