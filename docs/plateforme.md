@@ -142,7 +142,7 @@ entièrement libre (186 annotations différentes hors compteurs).
 | Ligne | Calcul |
 |---|---|
 | 377-394 prévisions | `NB.SI(A11:A375 ; code) × k` : VA 8, 1/2VA 4, « N h RTT » N (1 à 7), RTT 8, DTT 8, 1/2DTT 4, RJF 8, 1/2RJF 4 ; égalité de cellule entière. Un VA vaut 8 h même sur une pause de 12 h ; pas de ½RTT ni de « N h VA » |
-| 399-402 soldes au 01/01 | saisis à la main, l'arithmétique dans la cellule : VA 160 à temps plein (144 à 90 %, 128 à 80 %) + report ; RTT 64 opérateurs, 80 contremaîtres et adjoints, `64-(n*4)` ; DTT report + crédits (`24+16`…) ; RJF `80-(n*8)`, 10 fériés × 8 h moins les fériés perdus, listés en commentaire |
+| 399-402 soldes au 01/01 | saisis à la main, l'arithmétique dans la cellule : VA 160 à temps plein (144 à 90 %, 128 à 80 %) + report ; RTT 64 opérateurs, 80 contremaîtres et adjoints (8 et 10 jours de RTT × 8 h : règlement de travail, art. 8-2.3 et 8-2.4), `64-(n*4)` ; DTT report + crédits (`24+16`…) ; RJF `80-(n*8)`, 10 fériés × 8 h moins les fériés perdus, listés en commentaire |
 | 405-408 restants | solde − prévisions (− report vers l'année suivante, écrit `-24+N("report 24h sur 2027")`) ; rouge si négatif |
 | 412-430 flex time | Σ « N h +FT » × N + Σ « N h −FT » × (−N), N de 1 à 8 ; Total = report 2025 écrit en constante dans la formule + les deux sommes ; rouge hors de [−8 ; 80] (70 personnes) ou [−8 ; 24] (11) |
 | 432-435 CP, TP, CT | jours posés (`NB.SI`) ; reste = droit écrit à la main d'après le commentaire de contrat (26, 52, 20, 40, 6, 9, 21, 31) − posés |

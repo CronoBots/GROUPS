@@ -100,6 +100,20 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
    paie 18 h-22 h à la prime de nuit, l'application à celle de
    l'après-midi (la règle de l'employé, états SAP de VBN). Laquelle pour
    l'ouvrier ?
+7 bis. **Quelle grille pour qui ?** (30/10/2026) Le règlement de travail
+   connaît deux régimes en feu continu : 38,40 h en moyenne et 8 jours de
+   RTT (art. 8-2.3, cinq semaines), 38,67 h — soit 38 h 40 — et 10 jours
+   (art. 8-2.4, six semaines). Le classeur donne 64 h de RTT aux opérateurs
+   et 80 h aux contremaîtres et adjoints ; la fiche d'un adjoint porte
+   38:40. Les opérateurs sont-ils à 38,40 h (192 h sur cinq semaines, soit
+   38 h 24) ? L'application prend 38 h 40 pour tous (réglage « Heures /
+   semaine », affiché seulement ; le diviseur horaire ne sert qu'au fixe
+   d'un employé).
+7 ter. **La demi-journée de conseil d'entreprise** : l'annexe XI paie les
+   jours de dispense « primes de pause » comprises ; la fiche d'un ouvrier
+   (25/08) paie la demi-journée « PM · DS-CE » sans prime d'équipe, et
+   l'application fait comme la fiche. La demi-journée est-elle un « jour de
+   dispense » au sens de l'annexe ?
 8. **La RJF d'un ouvrier** (« récupération jour férié ») : payée comme un
    férié (salaire moyen) ou au salaire garanti ? L'application garde le
    garanti.
@@ -137,7 +151,10 @@ Le client, le 14/10/2026 : « garde la question pour RH ».
 
 ## À la RH (d'après les 14 classeurs de fonction)
 
-1. Le solde RTT `64-(n*4)` et le `-4` : que retranche-t-on ?
+1. Le solde RTT `64-(n*4)` et le `-4` : que retranche-t-on ? (Le 64 et le
+   80 des contremaîtres et adjoints sont expliqués depuis le 30/10/2026 :
+   les 8 et 10 jours de RTT des art. 8-2.3 et 8-2.4 du règlement de
+   travail, × 8 h. Reste le `-(n*4)`.)
 2. Le DTT `report + 24 + 16` : d'où viennent ces crédits ?
 3. « RTT- » (41 fois, du 02 au 10/01) : des RTT de 2025 pris en janvier ?
 4. Pourquoi les RHS n'ont-elles aucun compteur ?
