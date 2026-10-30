@@ -20484,7 +20484,15 @@ function siteSalonsHTML(s,o){
   s.sur.forEach(function(x){ var pl=sitePlace(plans,x.p.id,hNow), g=pl?pl.pz:siteSalon(x); x.rang=pl?pl.rang:1e6; x.pl=pl; (groupes[g]=groupes[g]||[]).push(x); });
   /* le contremaître de la pause en cours, s'il est sur site (siteCmIci) */
   var cmIci=siteCmIci(s), cmPz=cmDePause().pz;
-  var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).map(function(z){
+  /* DANS L'ORDRE DES HEURES (le client, le 30/10/2026, capture de 21 h 36 :
+     « la section avec le CM de nuit doit être placée après ceux présents
+     en PM »). L'ordre fixe (nuit, matin, jour, après-midi) mettait FPA,
+     arrivé à 21 h 30 pour la remise de la nuit, AVANT l'après-midi encore
+     en cours. Chaque bloc se range à l'heure où sa pause commence
+     (comptée depuis aujourd'hui : la nuit d'hier, -2 h, reste en tête à
+     3 h du matin) ; les horaires particuliers ferment la liste. */
+  function debBloc(z){ if(z[0]==="X") return 1e6; var L=groupes[z[0]]; return PF_DEB[z[0]]+24*((L[0]&&L[0].dj)||0); }
+  var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).sort(function(a,b){ return debBloc(a)-debBloc(b); }).map(function(z){
     var L=groupes[z[0]];
     function etiquette(x){
       var nc=GR.noms&&GR.noms[x.p.id]?grNomCourt(x.p):"", moi=!!o.moi&&x.p.id===o.moi,
@@ -20526,7 +20534,10 @@ function siteSalonsHTML(s,o){
 function siteCmIci(s){
   var t=new Date(), h=t.getHours()+t.getMinutes()/60, L=siteCmIds(), sur={};
   s.sur.forEach(function(x){ sur[x.p.id]=1; });
-  var r=[]; L.forEach(function(o){ if(sur[o.id]&&o.a<=h&&h<o.b&&r.indexOf(o.id)<0) r.push(o.id); });
+  /* la demi-heure de remise n'en fait pas le contremaître de la pause qui
+     s'achève (le client, le 30/10/2026, à 21 h 36 : « Contremaître FPA »
+     sous l'après-midi d'ATR, FPA arrivé à 21 h 30 pour la nuit) */
+  var r=[]; L.forEach(function(o){ if(sur[o.id]&&o.a+(o.rem?0.5:0)<=h&&h<o.b&&r.indexOf(o.id)<0) r.push(o.id); });
   return r;
 }
 /* rend {id, a, b} : au poste toute sa présence, ou seulement pendant sa
@@ -20558,7 +20569,7 @@ function siteCmIdsCalc(){
            contremaître de la nuit, en 18 h – 6 h, passait pour celui de
            l'après-midi dès 19 h (revue de code du 28/10/2026). Le 12 h qui
            tient la pause voisine y est par sa part de relais. */
-        q.gens.forEach(function(g){ ids.push({id:g.p.id, a:PF_DEB[c[1]]-0.5+24*c[0], b:PF_FIN[c[1]]+24*c[0]}); });
+        q.gens.forEach(function(g){ ids.push({id:g.p.id, a:PF_DEB[c[1]]-0.5+24*c[0], b:PF_FIN[c[1]]+24*c[0], rem:true}); });
         (q.relais||[]).forEach(function(r){ ids.push({id:r.p.id, a:r.de+24*c[0], b:r.b+24*c[0], part:true}); }); });
     }catch(er){}
   });
