@@ -7261,3 +7261,31 @@ lignes de même forme — le nom et l'équipe, puis « vendredi 30 octobre ·
 320 px, l'heure et la date passent ensemble à la ligne, à droite (« Sur »
 et « site » se coupaient sur deux lignes à la première mesure). Mesuré à
 320, 360 et 390 px : une ligne dès 360.
+
+### « Sur site » plus professionnel : l'état de chaque pause, le nombre nommé (30/10/2026, `nfdm-v1228`)
+
+Le client : « encore moyen de faire plus professionnel ». Relevé, bloc
+par bloc, à 320, 390 et 1 280 px :
+
+1. la date se lisait trois fois (titre de la carte, chaque pause) ;
+2. la pastille « N » collée à gauche (`.pl-pa` sans `text-align`), « PM »
+   centrée ;
+3. « 10 », « 1/9 » à droite, sans mot ;
+4. rien ne disait qu'une pause est en cours, ou qu'elle commence dans six
+   minutes — seul le point vivant du titre.
+
+**Fait** : le titre de la carte garde l'heure seule (la date est dans
+chaque pause) ; les pastilles centrées, d'une même largeur ; une
+étiquette après l'équipe, « en cours » (vert) ou « dans 6 min » /
+« dans 1 h » (`siteEtat`) ; le nombre et son mot (`siteCompte`) —
+« 10 présents », « 1 sur 9 », « 9 attendus ». À 320 px, la date passe à la
+ligne entre les mots, jamais au milieu des heures.
+
+**Erreurs de la première version, mesurées** : à 320 px, « présents » et
+« sur 9 » recouvraient la date (une ligne en `nowrap` plus large que sa
+colonne), puis les heures de nuit se coupaient (« 22 h – » / « 6 h », une
+espace sécable après le tiret). Un contrôle au navigateur — 4 largeurs ×
+5 heures (21 h 54, 21 h, 3 h, 5 h 40, 13 h 40) : chevauchement du
+nombre, débordement, pastille non centrée, heures coupées — passe sur les
+20 cas ; sur une copie sans le correctif, il crie (heures coupées à 320 et
+360 px).
