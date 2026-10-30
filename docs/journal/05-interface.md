@@ -7220,3 +7220,16 @@ relève garde son bloc.
 pointillé, plus de bloc « Relève » ; 5 h 40, « Matin 1/10 » autour d'AFA ;
 13 h 40 le 31, « Après-midi 1/11 » autour de VBN ; 21 h 00, personne de
 la nuit encore là : le bloc « Relève » reste.
+
+### « Sur site » : l'heure et la date dans la ligne du titre (30/10/2026, `nfdm-v1225`)
+
+Le client : « mieux indiquer l'heure et la date dans la première ligne de
+titre ». La date et l'heure étaient en tête de la ligne grise du dessous,
+avec le nombre de présents (« Vendredi 30 octobre · 21 h 54 · 11 présents
+d'après l'horaire »). Désormais la première ligne porte « Sur site » et
+son point vivant à gauche, l'heure en gras (16 px) et la date abrégée à
+droite (« 21 h 54 ven. 30 oct. ») ; la ligne du dessous ne garde que
+« 11 présents d'après l'horaire ». « En ce moment » quitte le titre :
+l'heure le dit, et le titre entier ne tenait pas avec elle à 320 px.
+Mesuré : sur une ligne, sans débordement, à 390 et 320 px. (La carte de
+l'espace RH garde son en-tête, avec le nombre en pastille.)
