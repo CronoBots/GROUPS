@@ -1180,6 +1180,17 @@ body{overflow-x:clip}
 .csec b{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:650; color:var(--ink);
   font-variant-numeric:tabular-nums; white-space:nowrap}
 .csec .cstat-m::before{content:"· "; color:var(--faint)}
+/* OPTIMISÉ (le client, le 30/10/2026 : « optimise ») : la rangée du bas
+   (rappels, flex, vélo) prend la forme des chiffres du haut — le nombre,
+   puis son libellé, le montant dessous — au lieu d'une ligne « RAPPELS
+   1 · 95,04 € » d'une autre facture */
+#calCard .csec{flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; padding:10px 4px 9px}
+#calCard .csec>b{order:-1; font-size:17px}
+#calCard .csec .cstat-m::before{content:none}
+/* la légende des couleurs ne sert qu'à la vue Année, où les cases n'ont
+   pas de texte : ailleurs, chaque case dit déjà AM, N, CP… ; restent les
+   repères (prime conservée, heures modifiées, rappel, commentaire) */
+#calCard:not(.vue-an) .mc-leg>span:has(>i[data-s]),#calCard:not(.vue-an) .mc-leg>span:has(>i.lg-abs),#calCard:not(.vue-an) .mc-leg>span:has(>i.lg-mal){display:none}
 #calStats .cstat-k{white-space:nowrap}
 @media (max-width:380px){ #calCard .moiscal{padding:10px 8px 12px} #calStats .cstat-v{font-size:15.5px}
   #calStats .cstat-k{font-size:8.5px; letter-spacing:.02em} }
@@ -22262,7 +22273,7 @@ function ryBarre(titre,sous,o,lib){
       +ks.map(function(k){ var t=o.F[k]+o.A[k]; return '<i data-p="'+k+'" style="flex-grow:'+t+'"><i style="width:'+(o.F[k]*100/t).toFixed(1)+'%"></i></i>'; }).join("")+'</div>'
     :'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div>';
   return '<div class="ry-an-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">'+titre+'</span>'
-    +'<span class="ry-an-cpt">'+(ks.length?'<i class="pf-pr-lg-f"></i>':'')+'<b>'+o.fait+'</b> prestée'+(o.fait>1?'s':'')+' · '+(ks.length?'<i class="pf-pr-lg-r"></i>':'')+'<b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
+    +'<span class="ry-an-cpt">'+(ks.length?'<i class="pf-pr-lg-f"></i>':'')+'<b>'+o.fait+'</b> journée'+(o.fait>1?'s':'')+' prestée'+(o.fait>1?'s':'')+' · '+(ks.length?'<i class="pf-pr-lg-r"></i>':'')+'<b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
     +'<div class="cy-prog ry-an-prog">'+barre+'<b>'+pct+'\u00a0%<small> fait</small></b></div>';
 }
 /* LE CYCLE EN COURS (le client, le 17/10/2026 : « sous mon année avec sa
