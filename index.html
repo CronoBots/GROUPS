@@ -19411,7 +19411,22 @@ function grColonnes(db){
      frappe (audit du 23/10/2026) */
   if(GR.cherche.length>=2){ var vu={}; cols=[]; m=["?","Recherche",null,"pt-cm"];
     GR_MODES.forEach(function(x){ if(x[2]||/^p:/.test(x[0])) return;
-      de(x[0]).forEach(function(c){ if(!vu[c.p.id]){ vu[c.p.id]=1; cols.push(c); } }); }); }
+      de(x[0]).forEach(function(c){ if(!vu[c.p.id]){ vu[c.p.id]=1; cols.push(c); } }); });
+    /* Le trigramme cherché, seul, comme « Mon horaire » (le client, le
+       30/10/2026, sur « Atr » qui montrait ATR et PDR : « en cas de
+       recherche ça ne doit afficher que le trigramme recherché et le
+       présenter de la même manière que si c'était le bouton « mon
+       horaire » »). La recherche lit aussi les noms et les postes : « atr »
+       se trouvait dans un nom. Un trigramme tapé en entier, ou une seule
+       personne trouvée, donne sa colonne seule, son commentaire en
+       phrases et le bandeau poste-trigramme ; deux lettres listent encore
+       ceux qui correspondent. */
+    var q2=GR.cherche.toLowerCase(),
+        exact=cols.filter(function(c){ return idLisible(c.p.id).toLowerCase()===q2; }),
+        tous=cols.filter(function(c){ return (idLisible(c.p.id)+" "+grNom(c.p)+" "+c.po).toLowerCase().indexOf(q2)>=0; }),
+        seul=exact.length===1?exact[0]:(tous.length===1?tous[0]:null);
+    if(seul){ var fx=GR_MODES.filter(function(x){ return x[0]===seul.f; })[0];
+      cols=[seul]; m=["moi",seul.po&&!/^\d+$/.test(seul.po)?seul.po:(fx?fx[1]:"Recherche"),null,grTeinteCol(seul)]; } }
   return {mode:m, cols:cols};
 }
 function renderGrille(){
