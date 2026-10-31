@@ -5787,7 +5787,8 @@ les boutons d'action dans le héros ? »
   l'appel du contremaître de pause en tête, en tuile verte. La carte
   « Accès rapides » se cache tant que le héros la porte : pas de doublon.
   Le contremaître de pause qui ouvre son propre Accueil n'a pas de tuile
-  pour s'appeler lui-même (la ligne de la carte l'affichait).
+  pour s'appeler lui-même (la ligne de la carte l'affichait). **Choix défait le
+  01/11/2026 (v1249)** : le client veut y voir son trigramme.
 
 Mesuré (Playwright, 320/390/1280, un cadre et un opérateur) : tuiles
 présentes et dans l'ordre ; au PC 467/467 px sans défilement ; « À faire »
@@ -7637,7 +7638,7 @@ pour la remise.
 - **La tuile prend celui que « Sur site » place au poste à cette minute**,
   le prévu s'il en fait partie, et le prévu seul s'il n'y a personne.
   Pour VBN lui-même, la tuile se cache, comme pour tout contremaître qui
-  ouvre son propre Accueil.
+  ouvre son propre Accueil. (Jusqu'à la v1249, qui la montre.)
 
 Vérifié, l'heure fixée, au téléphone :
 
@@ -7766,3 +7767,21 @@ Mesure de l'Accueil : 0 défaut ; parcours complet : 183 essais, 0 faute.
 Sur la v1247, le contrôle crie 8 fois.
 Le matin passé 14 h n'est pas éprouvé au navigateur : il faudrait un matin
 prolongé dans l'horaire, et le test n'en a pas pris.
+
+### La tuile du contremaître montre aussi le sien (01/11/2026, `nfdm-v1249`)
+
+Le client : « il faut quand même indiquer mon trigramme si c'est moi le
+contremaître ; ce n'est pas grave, ce n'est pas obligatoire de camoufler
+le bouton ». Depuis le 25/10 (v1099), le contremaître de pause qui ouvrait
+son propre Accueil n'avait pas la tuile « CM … » : je l'avais cachée pour
+qu'il ne s'appelle pas lui-même. C'était mon choix ; il est défait. La
+tuile est la même pour tous : « CM VBN », le même numéro, et `accueilTic`
+la remplace au changement de contremaître, comme avant.
+
+Vérifié au téléphone, l'heure fixée (`cm-tuile.js`) :
+- VBN à 20 h, 22 h 25 et 0 h 45 voit « CM VBN », visible ;
+- à 1 h 30, quand FPA reprend, il voit « CM FPA » ;
+- les sept cas des autres personnes sont inchangés ;
+- à 320, 390 et 1280 px, VBN a cinq tuiles et la rangée ne déborde pas.
+
+Parcours complet : 183 essais, 0 faute. Sur la v1248, le contrôle crie 10 fois.
