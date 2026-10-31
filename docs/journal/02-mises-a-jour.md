@@ -1187,6 +1187,31 @@ refusé (400). Ce code n'est écrit nulle part ici. On lui a dit qu'un code
 qui ressemble à une date se devine plus vite qu'un code tiré au hasard ;
 le choix lui revient.
 
+**Les PC fixes de l'usine, une session Windows par ouvrier (31/10/2026).**
+Le client : sur les PC de travail, chacun ouvre SA session Windows avec
+son identifiant de l'entreprise, plusieurs ouvriers sur le même PC.
+- **Ce qui se passe.** L'application garde sa connexion dans le
+  navigateur. Or chaque session Windows a son propre navigateur : deux
+  ouvriers sur le même PC ont chacun leur connexion et ne voient rien
+  l'un de l'autre. Sur un autre PC, il faut se reconnecter une fois.
+- **Mesuré sur le PC du client, au réseau de l'entreprise.** Il a ouvert
+  une connexion à 15 h 11 UTC, fermé sa session Windows (« Se
+  déconnecter », pas « Verrouiller »), puis l'a rouverte. L'application
+  était toujours connectée. Côté serveur (`auth.sessions` et journal
+  d'authentification), la MÊME session a été renouvelée à 16 h 56 UTC,
+  sans aucune connexion nouvelle (ni `/otp`, ni `/verify`, ni mot de
+  passe). Une autre session du même PC, ouverte le 22/10, était encore
+  renouvelée le 31/10 : neuf jours sans code.
+- **Ce qui reste à mesurer.** Un PC PARTAGÉ peut être réglé autrement
+  (session Windows effacée à la fermeture) : le même essai, fait par un
+  collègue sur un tel PC, le dira. Un compte Windows commun ferait
+  arriver le suivant dans l'application de celui d'avant (« Se
+  déconnecter », dans Réglages, en partant).
+- **La solution des PC fixes**, si l'informatique l'accepte : « Se
+  connecter avec Microsoft » (compte de l'entreprise, aucun code, aucune
+  quarantaine). Supabase le permet, mais l'entreprise doit autoriser
+  l'application dans son annuaire Microsoft.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
