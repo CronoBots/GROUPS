@@ -1114,6 +1114,27 @@ mail qui ne déclenche pas l'indésirable ? ».
   question sans objet pour lui ; pour les autres, c'est l'autorisation
   par l'informatique.
 
+**L'essai, aussitôt après : toujours en quarantaine (31/10/2026).**
+Le client a ajouté l'adresse vers 14 h 50 UTC, puis demandé deux codes,
+partis à 14 h 55 et 14 h 58 UTC sans aucun retour d'erreur. Tous deux sont
+en quarantaine, motif « courrier indésirable ». Or c'est précisément le
+cas où Microsoft dit honorer une ADRESSE approuvée : la documentation
+(« Create allowlists ») n'en excepte que les virus, l'hameçonnage à haut
+niveau de confiance et un blocage posé par l'informatique.
+
+La liste est rangée sur le compte, dans l'annuaire de Microsoft (Entra
+ID), puis recopiée vers le filtre, et Microsoft ne publie aucun délai pour
+cette recopie. L'essai, cinq minutes après l'ajout, ne tranche donc pas.
+Le client refait l'essai plus tard :
+- si le code arrive dans la boîte de réception, l'étape 2 de l'écran du
+  code est prouvée ;
+- s'il retourne en quarantaine le lendemain, l'entreprise ne l'applique
+  pas, et l'étape 2 doit renvoyer à l'informatique.
+
+**Erreur de ma part** : l'étape 2 a été publiée en disant « une fois pour
+toutes » sur la seule foi de la documentation, sans l'avoir éprouvée dans
+la messagerie de l'entreprise.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
