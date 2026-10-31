@@ -1086,6 +1086,34 @@ réécrit, ou le mot lié au précédent par une espace insécable.
 - **« Se connecter avec Microsoft »** : il faudrait l'accord de
   l'administrateur de l'entreprise, comme l'autorisation de l'expéditeur.
 
+**Une version du message qui passerait le filtre ? Mesuré : non
+(31/10/2026).** Le client, après avoir ajouté l'adresse à ses expéditeurs
+approuvés : « pas plus facile d'importer le fichier ? ou une version du
+mail qui ne déclenche pas l'indésirable ? ».
+- **Importer un fichier** : « Importer depuis un fichier » d'Outlook lit
+  une adresse par ligne. Pour une seule adresse, il faut d'abord obtenir
+  le fichier : c'est plus long que « Ajouter », puis coller. La version
+  qui a un sens est celle de l'entreprise : le service informatique peut
+  pousser une liste d'expéditeurs approuvés sur tous les postes (stratégie
+  de groupe d'Outlook), mais une règle de flux lui est plus simple.
+- **Une autre version du message** : les messages envoyés, lus dans la
+  boîte du robot, donnent la mesure. Le modèle actuel (1,6 Ko), même
+  expéditeur « BIOWANZE » et même objet, est arrivé le 21/10 à 20 h 13 UTC :
+  il n'est pas dans la quarantaine du client. Le même modèle a été retenu
+  les 28, 29 et 30/10. Le contenu ne décide donc pas : c'est la réputation
+  de l'expéditeur, une adresse Gmail qui envoie des codes en rafale, qui
+  a baissé entre-temps. **L'hypothèse du 21/10, « on ne sait pas lequel
+  des trois [éléments du modèle] déclenche le filtre », était donc
+  incomplète** : revenir au modèle simple a suffi ce jour-là, pas une
+  semaine plus tard.
+- Ce que le filtre voit et qu'un réglage changerait : le nom
+  d'expéditeur « BIOWANZE » (celui de l'entreprise du destinataire) sur
+  une adresse Gmail, et un message HTML seul, sans partie texte. Rien ne
+  prouve que l'un ou l'autre décide, et seul l'essai le dirait, au prix
+  de codes retenus. La liste « Expéditeurs approuvés » du client rend la
+  question sans objet pour lui ; pour les autres, c'est l'autorisation
+  par l'informatique.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
