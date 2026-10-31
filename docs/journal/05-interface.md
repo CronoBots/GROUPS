@@ -7571,3 +7571,36 @@ Vérifié au navigateur :
 - parcours complet : 0 faute.
 
 Sur la v1242, les mêmes contrôles crient 20, 2 et 6 fois.
+
+### Le temps restant en quarts d'heure, sous la barre (31/10/2026, `nfdm-v1244`)
+
+Le client, capture de l'iPhone à 22 h 22 : « pour la pause en cours, des
+opérateurs aiment bien parler en quarts d'heure restants, ça peut être
+marrant d'ajouter ce petit clin d'œil au temps restant. Et sur mobile, le
+temps restant coupe la ligne de titre » (« EN POSTE · SAMEDI 31 OCT… »).
+
+Fait :
+- **En poste, le décompte passe sous la barre de progression**, en
+  pastille. Les quarts d'heure le suivent (`_pfQuarts`), au demi-quart
+  près : 2 h 38 restent « ≈ 10 ½ quarts d'heure », 89 min « ≈ 6 quarts
+  d'heure ». Sous 15 min, c'est « le dernier quart d'heure ». Ils passent
+  à la ligne plutôt que de se couper, et se mettent à jour avec le
+  décompte, à la minute (`accueilTic`).
+- **L'en-tête garde la date en entier**, « poste » compris : « En poste ·
+  samedi 31 octobre ».
+- **Avant le poste**, le délai (« dans 10 h ») reste à côté de la date.
+  Le contrôle a trouvé le même défaut là, non signalé : « Prochain poste ·
+  dimanche 1er novembre » se coupait à 390 px. La date s'y abrège
+  désormais dès 479 px (« dim. 1 nov. »), et non plus dès 379 px.
+- **Nettoyage** : la règle `.pf-proch-tete em.vif` ne servait plus.
+
+Vérifié à 320, 360, 390 (sombre et clair), 414, 430, 480 et 1280 px :
+- en poste, l'en-tête n'est pas coupé et porte la date entière ;
+- le décompte n'est plus dans l'en-tête, « Encore 2 h 38 min » et
+  « ≈ 10 ½ quarts d'heure » restent dans la carte ;
+- l'heure avancée à 23 h 31 puis à 0 h 50 donne « ≈ 6 quarts d'heure »,
+  puis « le dernier quart d'heure » ;
+- avant le poste, l'en-tête n'est jamais coupé ;
+- mesure de l'Accueil : 0 défaut ; parcours complet : 0 faute.
+
+Le contrôle crie 47 fois sur la v1243.

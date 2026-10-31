@@ -5715,7 +5715,12 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-proch-tete small{font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; color:var(--tx-blanc-62)}
 .pf-proch-tete em{font-style:normal; font-size:12px; font-weight:650; color:var(--tx-blanc); white-space:nowrap; padding:2px 8px; border-radius:999px;
   background:var(--fd-blanc-08); border:1px solid var(--bd-blanc-14)}
-.pf-proch-tete em.vif{color:var(--marque-vif); border-color:rgba(105,178,203,.45); background:rgba(105,178,203,.12)}
+/* sous la barre : le décompte en pastille, ses quarts d'heure à côté, qui
+   passent dessous plutôt que de se couper (31/10/2026) */
+.pf-reste{display:flex; flex-wrap:wrap; align-items:center; column-gap:8px; row-gap:4px; min-width:0}
+.pf-reste em{font-style:normal; font-size:12px; font-weight:650; white-space:nowrap; padding:2px 8px; border-radius:999px;
+  color:var(--marque-vif); border:1px solid rgba(105,178,203,.45); background:rgba(105,178,203,.12)}
+.pf-quarts{font-size:12px; color:var(--tx-blanc-66); white-space:nowrap}
 .pf-proch-corps{display:flex; align-items:center; gap:10px; min-width:0}
 .pf-proch{gap:6px; padding-top:9px; padding-bottom:10px}
 .pf-proch-corps .pf-pause{width:40px; height:40px; border-radius:11px; font-size:15px}
@@ -7896,6 +7901,12 @@ html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{width:auto; min-wid
    octobre »), l'abrégé seulement là où elle ne tient pas à côté du délai */
 .pf-proch-tete .pf-dc{display:none}
 @media (max-width:379px){ .pf-proch-tete .pf-dc{display:inline} .pf-proch-tete .pf-dl{display:none} }
+/* avant le poste, le délai reste à côté de la date : celle-ci s'abrège dès
+   479 px (« Prochain poste · dimanche 1er novembre » et « dans 10 h » se
+   coupaient à 390, mesuré le 31/10/2026) */
+@media (max-width:479px){ .pf-proch-tete:not(.sans-rel) .pf-dc{display:inline} .pf-proch-tete:not(.sans-rel) .pf-dl{display:none} }
+/* en poste, plus de décompte à côté : la date en entier, « poste » compris */
+.pf-proch-tete.sans-rel .pf-dl{display:inline} .pf-proch-tete.sans-rel .pf-dc{display:none} .pf-proch-tete.sans-rel .pf-mot{display:inline}
 
 /* LE TOTAL PAR PAUSE ET LE DÉLAI EN ÉVIDENCE (le client, le 26/10/2026 :
    « le total doit être par pause, et le nombre de jours avant la pause mis
@@ -16028,6 +16039,17 @@ function _pfRel(pr){
     :dm<24*60?"dans "+Math.floor(dm/60)+' <span class="unite">h</span>'+(Math.floor(dm%60)?" "+pad2(Math.floor(dm%60)):"")
     :(pr.kc===1?"Demain":"dans "+pr.kc+' <span class="unite">j</span>');
 }
+/* LES QUARTS D'HEURE (le client, le 31/10/2026 : « des opérateurs aiment
+   bien parler en quarts d'heure restants, ça peut être marrant d'ajouter
+   ce petit clin d'œil au temps restant »). Au demi-quart près : 2 h 38
+   restent « ≈ 10 ½ quarts d'heure » ; le dernier quart d'heure se dit
+   comme tel. */
+function _pfQuarts(pr){
+  var mn=Math.max(1,Math.ceil((pr.tFin-Date.now())/6e4));
+  if(mn<15) return "le dernier quart d’heure";
+  var dq=Math.round(mn/7.5), q=Math.floor(dq/2), demi=dq%2===1;
+  return "≈ "+q+(demi?" ½":"")+" quart"+(q>=2?"s":"")+" d’heure";
+}
 function _pfHead(db,p){
   var tri=idLisible(p.id);
   var cadre=(typeof estCadre==="function")&&estCadre(p);
@@ -16097,7 +16119,7 @@ function _pfHead(db,p){
          sam. 31 oct. ») au lieu d'une ligne à elle ; le titre et les
          heures se suivent sur une ligne quand la largeur le permet ;
          pastille de pause plus petite. 137 px en poste avant. */
-      +'<span class="pf-proch-tete"><small>'+(enMots?lab.replace(" poste",'<span class="pf-mot"> poste</span>'):lab)+(enMots?' · <span class="pf-dl">'+esc(dateL.toLowerCase())+'</span><span class="pf-dc">'+esc(["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][pr.d.getDay()]+" "+pr.d.getDate()+" "+["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][pr.d.getMonth()])+'</span>':'')+'</small><em'+(pr.enCours?' class="vif"':'')+'>'+rel+'</em></span>'
+      +'<span class="pf-proch-tete'+(pr.enCours?' sans-rel':'')+'"><small>'+(enMots?lab.replace(" poste",'<span class="pf-mot"> poste</span>'):lab)+(enMots?' · <span class="pf-dl">'+esc(dateL.toLowerCase())+'</span><span class="pf-dc">'+esc(["dim.","lun.","mar.","mer.","jeu.","ven.","sam."][pr.d.getDay()]+" "+pr.d.getDate()+" "+["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][pr.d.getMonth()])+'</span>':'')+'</small>'+(pr.enCours?'':'<em class="pf-rel">'+rel+'</em>')+'</span>'
       +'<span class="pf-proch-corps"><span class="pf-pause" data-p="'+esc(pr.pv)+'">'+esc(pr.pv)+'</span>'
       +'<span class="pf-proch-t"><span class="pf-proch-l"><b>'+esc(titre)+'</b>'
       /* un rôle, sans quoi l'aria-label d'un span n'est pas exposé (audit
@@ -16107,7 +16129,12 @@ function _pfHead(db,p){
       /* plus de pastille de durée (le client, le 25/10/2026 : « retire la
          durée ») : le titre et les heures tiennent sur une ligne */
       +'</span></span>'
-      +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>':'')
+      +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>'
+        /* LE TEMPS RESTANT SOUS LA BARRE (le client, le 31/10/2026 : « sur
+           mobile, le temps restant coupe la ligne de titre ») : l'en-tête
+           garde sa date en entier, le décompte et ses quarts d'heure
+           suivent la barre qu'ils commentent */
+        +'<span class="pf-reste"><em class="pf-rel vif">'+rel+'</em><span class="pf-quarts">'+_pfQuarts(pr)+'</span></span>':'')
       +(function(){
         /* AVEC QUI (le client, le 22/10/2026, « optimiser encore » le centre
            de contrôle) : le contremaître de la pause et les collègues du
@@ -22677,7 +22704,8 @@ function accueilTic(){
       sig0=b?[b.getAttribute("data-an"),b.getAttribute("data-m"),b.getAttribute("data-j"),!!b.querySelector(".pf-trait")].join("|"):"";
   if(sig!==sig0){ accRefaire(); return; }
   if(!pr) return;
-  var em=b.querySelector(".pf-proch-tete em"), rel=_pfRel(pr); if(em&&em.innerHTML!==rel) em.innerHTML=rel;
+  var em=b.querySelector(".pf-rel"), rel=_pfRel(pr); if(em&&em.innerHTML!==rel) em.innerHTML=rel;
+  var qt=b.querySelector(".pf-quarts"); if(qt&&pr.enCours){ var q=_pfQuarts(pr); if(qt.textContent!==q) qt.textContent=q; }
   var tr=b.querySelector(".pf-trait"), i=tr&&tr.querySelector("i");
   if(tr){ tr.setAttribute("aria-valuenow",pr.pct); if(i) i.style.width=pr.pct+"%"; }
 }
