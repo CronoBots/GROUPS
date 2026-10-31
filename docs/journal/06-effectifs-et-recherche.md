@@ -3754,3 +3754,36 @@ Vérifié à 390 et 1280 px sur l'onglet des effectifs : 49 badges, aucun
 horaire hors du D, chaque prolongation avec pause et poste, aucune
 erreur. Le contrôle mord : 60 fautes sur la version d'avant, 8 sur une
 copie qui remet « cm ».
+
+### Les deux créneaux de 12 h en tableau (31/10/2026, `nfdm-v1239`)
+
+Le client, capture de la nuit du 3 novembre aux Chaudières : « moyen de
+faire plus professionnel pour les deux créneaux de 12 h ». La prolongation
+alignait des badges qui répétaient « AM Chaud. », puis « pour faire
+06-18 » qui flottait au bout de la rangée. Le second créneau passait à
+la ligne n'importe où.
+
+Chaque créneau a désormais sa ligne :
+- **en tête, une seule fois**, la pause et le poste quand tous les
+  candidats les partagent (« AM · Chaud. ») ;
+- **dessous, les trigrammes seuls**. Un poste qui diffère d'un candidat à
+  l'autre reste sur son badge, et la tête ne dit alors que la pause ;
+- **à droite, aligné d'une ligne à l'autre**, « pour faire » et
+  l'horaire en gras. C'est toujours après les trigrammes, comme le
+  client l'avait demandé le 02/10 ;
+- **un filet pointillé** sépare les deux créneaux.
+
+`caBase`, ajoutée la veille pour ces badges, ne servait plus : retirée.
+Un premier essai mettait la pause sous les trigrammes ; quand les postes
+différaient, un « AM » restait seul sur sa ligne, comme un reste. La
+pause est donc passée en tête.
+
+Vérifié à 320, 390 (sombre et clair) et 1280 px sur l'onglet des
+effectifs, 4 prolongations :
+- deux créneaux chacune, horaire au format « 06-18 » ;
+- « pour faire » présent, la tête « pause · poste » bien formée ;
+- aucun horaire dans les badges ;
+- les trigrammes ne touchent pas l'horaire, et rien ne sort du cadre ;
+- aucune erreur.
+
+Le contrôle crie seize fois sur la version d'avant.

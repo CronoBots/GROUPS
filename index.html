@@ -2283,6 +2283,17 @@ body.sheet-on{overflow:hidden}
 .mqinc-ecart{display:block; border-top:1px solid var(--trait); margin-top:5px; padding-top:7px}
 /* « … pour faire 06-18 » après les trigrammes du doublage 12 h. */
 .cafaire{font-size:11px; color:var(--muted); font-style:italic}
+/* La prolongation 12 h en tableau (31/10/2026) : une ligne par créneau,
+   les trigrammes et leur pause · poste à gauche, « pour faire 06-18 »
+   aligné à droite ; un filet pointillé entre les deux créneaux. */
+.capaire.prol .prol-l{display:flex; align-items:center; gap:12px; padding:6px 0}
+.capaire.prol .prol-l+.prol-l{border-top:1px dashed var(--line)}
+.capaire.prol .prol-q{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:5px}
+.capaire.prol .prol-g{display:flex; flex-wrap:wrap; align-items:baseline; gap:5px}
+.capaire.prol .prol-c{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--muted)}
+.capaire.prol .prol-h{flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; text-align:right; line-height:1.2}
+.capaire.prol .prol-h small{font-size:11px; font-style:italic; color:var(--muted)}
+.capaire.prol .prol-h b{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
 .cafaire .cahr{min-width:auto; font-style:normal; margin:0}
 .mqrien{margin:6px 0 4px; font-size:12.5px; color:var(--muted)}
 /* État vide POSITIF (le client, le 02/10/2026 : « ✓ tous les postes
@@ -30220,14 +30231,6 @@ function caPrevu(g,P,p){
   return {html:'<b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"+(hor?" "+esc(hor):"")
     +(P?' <span class="mqchp">'+esc(P.k==="adj"?"Adj.":P.k==="cm"?"CM":caPoste(P))+"</span>":"")};
 }
-/* L'horaire de base d'une prolongation (« 06-14 ») dit sa pause : même
-   capsule, avec le poste qu'il tient ce jour-là (le client, le 31/10/2026 :
-   « la pause et le poste »), comme au changement de pause. */
-function caBase(b,p,jour){
-  var k=null; try{ k=p?posteAttitreLe(p,jour):null; }catch(e){ k=null; }
-  for(var g in HOR_PAUSE) if(HOR_PAUSE[g]===b) return caPrevu(g,k?{k:k,t:k}:null,p);
-  return b||"";
-}
 /* La pause de la fiche ET l'horaire qu'on demande d'y tenir. */
 function caCreneau(g,eq){
   return '<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"
@@ -30318,11 +30321,24 @@ function caGroupes(t,large,sansUrgence){
   function prolongation(){
     /* L'HORAIRE DEMANDÉ APRÈS LES TRIGRAMMES. Le client, le 02/10/2026 :
        « indiquer 06-18 et 18-06 après les trigrammes avec "pour faire" ». */
+    /* LES DEUX CRÉNEAUX EN TABLEAU (le client, le 31/10/2026 : « moyen de
+       faire plus professionnel pour les deux créneaux de 12 h »). Chaque
+       créneau a sa ligne : en tête, UNE fois, la pause et le poste quand
+       tous les partagent, puis les trigrammes (« AM · Chaud. » répété sur chaque
+       badge chargeait la ligne) ; à droite, aligné d'une ligne à l'autre,
+       « pour faire 06-18 » — toujours après les trigrammes (le 02/10). Un
+       poste qui diffère d'un candidat à l'autre reste sur son badge. */
     function rang(h,l){
-      return '<span class="mqr">'
-        +l.slice(0,6).map(function(o){ return caChip(o.p.id,caBase(o.base,o.p,t.jour)); }).join("")
-        +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")
-        +'<span class="cafaire">pour faire <span class="cahr">'+h+"</span></span></span>";
+      var vus=l.slice(0,6), g="", ks={};
+      for(var q in HOR_PAUSE) if(vus.length && HOR_PAUSE[q]===vus[0].base) g=q;
+      function lib(k){ return k==="adj"?"Adj.":k==="cm"?"CM":(PV_COURT[k]||k||""); }
+      vus.forEach(function(o){ var k=null; try{ k=posteAttitreLe(o.p,t.jour); }catch(e){ k=null; } o._k=k||""; ks[o._k]=1; });
+      var un=Object.keys(ks).length===1, commun=un?Object.keys(ks)[0]:"";
+      return '<span class="prol-l"><span class="prol-q">'
+        +(g?'<span class="prol-c"><b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+'</b>'+(commun?" · "+esc(lib(commun)):"")+'</span>':'')
+        +'<span class="prol-g">'+vus.map(function(o){ return caChip(o.p.id, un?"":lib(o._k)); }).join("")
+        +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")+'</span>'
+        +'</span><span class="prol-h"><small>pour faire</small><b>'+esc(h)+'</b></span></span>';
     }
     var paire=(t.reste.length && t.arrive.length)
       ? (t.arriveDabord?rang(t.ha,t.arrive)+rang(t.hr,t.reste):rang(t.hr,t.reste)+rang(t.ha,t.arrive)) : "";
