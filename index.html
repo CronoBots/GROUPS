@@ -7137,25 +7137,35 @@ html .hp-t tbody tr.hp-bleu{--rb:#C7DEF5}
 html .hp-t tbody tr.hp-we{--rb:#c7ccd4}
 html .hp-t tbody tr.hp-fe{--rb:#ffe2b3}
 html .hp-t tbody tr.hp-auj.hp-sem{--rb:#fde68a} html .hp-t tbody tr.hp-auj.hp-we{--rb:#d1d5db} html .hp-t tbody tr.hp-auj.hp-fe{--rb:#ffd79a}
-html .hp-t tbody tr.hp-hr{--rb:#fef6aa} html .hp-t tbody tr.hp-hr.hp-bleu{--rb:#B7D0EF} html .hp-t tbody tr.hp-hr.hp-we{--rb:#b6bcc6} html .hp-t tbody tr.hp-hr.hp-fe{--rb:#ffd79a}
 html .hp-t tbody td{background:var(--rb)}
-html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 88%,#000)}
 /* la ligne sélectionnée, discrète (le client, le 27/10/2026 : « plus
    discrète et professionnelle ») : un voile bleu léger, un filet de 1 px
    dessus et dessous, le numéro du jour en bleu — plus d'aplat plein */
 /* le 27/10/2026 : « la sélection ne doit pas ajouter ou agrandir les
    bordures des cellules, pareil sous le trigramme » — le fond seul */
-html .hp-t tbody tr.hp-lsel td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 76%,#3b82f6)}
-html .hp-t tbody tr.hp-lsel td.hp-jour{color:#1d4ed8}
+/* LE SURVOL ET LE TOUCHER, UN SEUL DESSIN (le client, le 31/10/2026 : « les
+   colonnes et lignes doivent être mises en évidence de la même manière au
+   clic sur mobile ou au suivi souris sur PC, mais il faut un juste milieu
+   entre la ligne peu visible et la colonne trop visible »). Le survol
+   changeait la ligne d'un jaune à peine plus vif et assombrissait la
+   colonne de 12 % de noir ; le toucher posait un voile bleu de 24 %. Les
+   deux posent désormais le même voile bleu de 20 %, ligne et colonne, et
+   34 % à leur croisée. */
+html .hp-t tbody tr.hp-lsel td:not(.hp-mois),html .hp-t tbody tr.hp-hr td:not(.hp-mois){background:color-mix(in srgb,var(--rb) 80%,#3b82f6)}
+html .hp-t tbody tr.hp-lsel td.hp-jour,html .hp-t tbody tr.hp-hr td.hp-jour{color:#1d4ed8}
 /* un rien plus visible (le client, le 27/10/2026) : voile de 16 à 24 %,
    croisée de 30 à 38 % */
-html .hp-t tbody td.hp-csel{background:color-mix(in srgb,var(--rb) 76%,#3b82f6)}
-html .hp-t tbody tr.hp-lsel td.hp-csel{background:color-mix(in srgb,var(--rb) 62%,#3b82f6)}
-html .hp-t thead th.hp-csel{color:#1d4ed8}
+html .hp-t tbody td.hp-csel,html .hp-t tbody td.hp-hc{background:color-mix(in srgb,var(--rb) 80%,#3b82f6)}
+html .hp-t tbody tr.hp-lsel td.hp-csel,html .hp-t tbody tr.hp-hr td.hp-hc,html .hp-t tbody tr.hp-lsel td.hp-hc,html .hp-t tbody tr.hp-hr td.hp-csel{background:color-mix(in srgb,var(--rb) 66%,#3b82f6)}
+html .hp-t thead th.hp-csel,html .hp-t thead th.hp-hc{color:#1d4ed8}
 html .hp-t tbody td.hp-jour{cursor:pointer}
-html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:900; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
+/* la main : à la souris, la grille se saisit et glisse (31/10/2026) */
+@media (hover:hover) and (pointer:fine){ html #grZone{cursor:grab} html #grZone.hp-main,html #grZone.hp-main *{cursor:grabbing; user-select:none; -webkit-user-select:none} }
+/* PAS DE GRAS AU MOIS NI AU JOUR (le client, le 31/10/2026 : « dans
+   horaire, ne pas mettre en gras les colonnes de mois et de jour ») */
+html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:400; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
 html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
-html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:900; font-size:13px; border-right:2px solid #64748b}
+html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:400; font-size:13px; border-right:2px solid #64748b}
 html .hp-t thead th.hp-coin{width:88px}
 html .hp-t tbody td.hp-s{line-height:18px; color:#111827}
 /* l'annotation reste rouge, en plus sombre : #dc2626 tombait à 2,99:1 sur le gris (audit du 23/10/2026) */
@@ -19468,6 +19478,44 @@ function grColonnes(db){
       cols=[seul]; m=["moi",seul.po&&!/^\d+$/.test(seul.po)?seul.po:(fx?fx[1]:"Recherche"),null,grTeinteCol(seul)]; } }
   return {mode:m, cols:cols};
 }
+/* LA CASE CHOISIE ET LES FLÈCHES D'EXCEL (le client, le 31/10/2026 : « avec les
+   flèches comme sur Excel quand une cellule est sélectionnée »). Un clic ou
+   un toucher sur une case marque sa ligne et les deux colonnes de sa
+   personne (le 27/10) et lui donne la main du clavier ; les flèches, Page
+   précédente et Page suivante déplacent ensuite la même sélection. Un
+   second clic sur le jour libère la ligne. */
+function grSelectionner(z,tdl,clic){
+  var trl=!tdl.classList.contains("hp-mois")&&tdl.parentNode;
+  if(!trl||!trl.getAttribute("data-md")) return;
+  var cle=(GR.debut?GR.debut.getFullYear():"")+trl.getAttribute("data-md"), deja=trl.classList.contains("hp-lsel");
+  [].forEach.call(z.querySelectorAll("tr.hp-lsel"),function(x){ x.classList.remove("hp-lsel"); });
+  [].forEach.call(z.querySelectorAll(".hp-csel"),function(x){ x.classList.remove("hp-csel"); });
+  if(clic&&deja&&tdl.classList.contains("hp-jour")){ GR.ligne=null; GR.colP=null; return; }
+  /* ET LES DEUX COLONNES DE L'OPÉRATEUR (le client, le 27/10/2026 : « la
+     sélection horizontale doit sélectionner les deux colonnes de
+     l'opérateur en plus ») ; le jour seul ne marque que la ligne, et
+     « Mon horaire » jamais la colonne (le 29/10) */
+  var pid=z.querySelector(".hp-tmoi")?null:tdl.getAttribute("data-p");
+  GR.ligne=cle; trl.classList.add("hp-lsel"); GR.colP=pid||null;
+  if(pid) [].forEach.call(z.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); });
+  var cible=tdl.classList.contains("hp-s")?tdl:tdl.classList.contains("hp-l")?tdl.previousElementSibling
+           :tdl.classList.contains("hp-c")?trl.querySelector("td.hp-s"):null;
+  if(cible&&cible.classList.contains("hp-s")){
+    [].forEach.call(z.querySelectorAll('td.hp-s[tabindex="0"]'),function(x){ if(x!==cible) x.tabIndex=-1; });
+    cible.tabIndex=0; if(clic) try{ cible.focus({preventScroll:true}); }catch(e){}
+  }
+}
+/* la case reste visible, hors des en-têtes figés (les noms en haut, le mois
+   et le jour à gauche), avec sa case d'annotation */
+function grMontrer(z,c){
+  var zr=z.getBoundingClientRect(), r=c.getBoundingClientRect(), voisin=c.nextElementSibling,
+      d=(voisin&&voisin.classList.contains("hp-l"))?voisin.getBoundingClientRect().right:r.right,
+      th=z.querySelector("thead"), haut=th&&c.tagName==="TD"?th.getBoundingClientRect().bottom:zr.top,
+      jr=c.parentNode&&c.parentNode.querySelector("td.hp-jour"), gauche=jr?jr.getBoundingClientRect().right:zr.left,
+      bas=zr.top+z.clientHeight, droite=zr.left+z.clientWidth;
+  if(r.top<haut) z.scrollTop-=haut-r.top+2; else if(r.bottom>bas) z.scrollTop+=r.bottom-bas+2;
+  if(r.left<gauche) z.scrollLeft-=gauche-r.left+2; else if(d>droite) z.scrollLeft+=d-droite+2;
+}
 function renderGrille(){
   var g=document.getElementById("grille"); if(!g||g.hidden) return;
   var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
@@ -19526,7 +19574,7 @@ function renderGrille(){
   /* le bandeau du poste et du trigramme, hors de la zone (voir .hp-moib) */
   var mt=document.getElementById("grMoiTete");
   if(mt){ mt.hidden=!avecCom;
-    mt.innerHTML=avecCom?'<div class="hp-moit"><div class="hp-mtc" aria-hidden="true"><span class="hp-nb">1<small>pers.</small></span></div>'
+    mt.innerHTML=avecCom?'<div class="hp-moit"><div class="hp-mtc" aria-hidden="true"></div>'
       +'<div class="hp-mt1 '+(mode[3]||grTeinte(mode[1]))+'" aria-hidden="true">'+esc(mode[1])+'</div>'
       +'<div class="hp-mt2 '+grTeinteCol(cols[0])+'" data-pers="'+esc(cols[0].p.id)+'" role="button" tabindex="-1" title="'+esc(grTeteCol(cols[0],equipe).titre)+'">'+grTeteCol(cols[0],equipe).html+'</div></div>':""; }
   var h=['<table class="hp-t'+(avecCom?' hp-tmoi':'')+'"'+larg+'><colgroup><col class="hp-cm"><col class="hp-cd">'];
@@ -19537,8 +19585,12 @@ function renderGrille(){
      la bulle disparaît (deux cases par personne au lieu de trois). */
   cols.forEach(function(){ h.push('<col class="hp-cs"><col class="hp-cl">'); });
   if(avecCom) h.push('<col class="hp-cc">');
+  /* LE NOMBRE DE PERSONNES : POUR UNE FEUILLE SEULE (le client, le
+     31/10/2026 : « pour "Mon horaire" ou une recherche, la cellule avec le
+     nombre de personnes est inutile ») : une personne, ou celles qu'on
+     vient de taper, se comptent d'un coup d'œil */
   h.push('</colgroup><thead><tr class="hp-g"><th class="hp-coin" colspan="2" rowspan="2">'
-    +('<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
+    +(mode[0]==="moi"||q?'':'<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
     for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
@@ -21967,6 +22019,32 @@ function renderHisto(){
       lc=GR.colCache[ci]; lc.forEach(function(x){ x.classList.add("hp-hc"); }); });
     z.addEventListener("mouseleave",nettoyer);
   })();
+  /* LA MAIN D'UN PDF (le client, le 31/10/2026 : « sur PC, il doit
+     être possible de se déplacer dans le tableau en maintenant le clic »).
+     À la souris seulement : le doigt fait déjà défiler. Au-delà de 6 px, le
+     bouton tenu fait glisser la grille ; le clic qui termine un glissé ne
+     sélectionne rien et n'ouvre rien. */
+  (function(){ var z=document.getElementById("grZone"), d=null, finGlisse=0;
+    z.addEventListener("mousedown",function(e){
+      if(e.button!==0||(e.target.closest&&e.target.closest("button,input,a,select,textarea"))) return;
+      /* pas de texte surligné pendant le glissé ; le focus, lui, est posé par
+         le clic (grSelectionner) */
+      if(e.target.closest&&e.target.closest("table")) e.preventDefault();
+    });
+    z.addEventListener("pointerdown",function(e){
+      if(e.pointerType!=="mouse"||e.button!==0||(e.target.closest&&e.target.closest("button,input,a,select,textarea"))) return;
+      d={x:e.clientX, y:e.clientY, l:z.scrollLeft, t:z.scrollTop, id:e.pointerId, bouge:false};
+    });
+    z.addEventListener("pointermove",function(e){
+      if(!d||e.pointerId!==d.id) return;
+      var dx=e.clientX-d.x, dy=e.clientY-d.y;
+      if(!d.bouge){ if(Math.abs(dx)+Math.abs(dy)<6) return; d.bouge=true; z.classList.add("hp-main"); try{ z.setPointerCapture(d.id); }catch(x){} }
+      z.scrollLeft=d.l-dx; z.scrollTop=d.t-dy;
+    });
+    function lacher(){ if(!d) return; if(d.bouge) finGlisse=Date.now(); d=null; z.classList.remove("hp-main"); }
+    z.addEventListener("pointerup",lacher); z.addEventListener("pointercancel",lacher);
+    z.addEventListener("click",function(e){ if(finGlisse&&Date.now()-finGlisse<400){ finGlisse=0; e.preventDefault(); e.stopImmediatePropagation(); } },true);
+  })();
   [["grHaut",function(z){ z.scrollTop=0; }],["grAujF",function(){ grAujourdhui(); }],["grBas",function(z){ z.scrollTop=z.scrollHeight; }]].forEach(function(x){
     var b=document.getElementById(x[0]); if(b) b.onclick=function(){ x[1](document.getElementById("grZone")); }; });
   document.getElementById("grZone").addEventListener("scroll",grFabs,{passive:true});
@@ -21991,9 +22069,15 @@ function renderHisto(){
       n=enTete?z.querySelector('thead th[data-pers][data-ci="'+c2+'"]'):t.parentNode.querySelector('td.hp-s[data-ci="'+c2+'"]'); }
     else if(k==="ArrowDown") n=enTete?caseDe(z.querySelector("tbody tr")):caseDe(t.parentNode.nextElementSibling);
     else if(k==="ArrowUp"&&!enTete) n=caseDe(t.parentNode.previousElementSibling)||z.querySelector('thead th[data-pers][data-ci="'+ci+'"]');
+    /* une page d'un coup, comme Excel : autant de jours que l'écran en montre */
+    else if((k==="PageDown"||k==="PageUp")&&!enTete){
+      var r=t.parentNode, pas=Math.max(1,Math.floor((z.clientHeight-90)/(r.offsetHeight||20)));
+      for(var ip=0;ip<pas;ip++){ var r2=k==="PageDown"?r.nextElementSibling:r.previousElementSibling; if(!r2||!caseDe(r2)) break; r=r2; }
+      n=caseDe(r); if(n===t) n=null; }
     else return;
     e.preventDefault(); e.stopPropagation();
-    if(n){ t.tabIndex=-1; n.tabIndex=0; n.focus(); }
+    if(n){ t.tabIndex=-1; n.tabIndex=0; try{ n.focus({preventScroll:true}); }catch(x){ n.focus(); }
+      if(n.tagName==="TD") grSelectionner(z,n,false); grMontrer(z,n); }
   });
   document.getElementById("grZone").addEventListener("click",function(e){
     /* L'HORAIRE NE SE MODIFIE PLUS DEPUIS L'ONGLET (le client, le 27/10/2026 :
@@ -22004,21 +22088,8 @@ function renderHisto(){
        sélectionner une ligne ») : un toucher sur le jour ou sur une case
        marque la journée, comme une ligne d'Excel ; un second toucher sur
        le jour la libère. Une seule à la fois, gardée au fil des rendus. */
-    var tdl=e.target.closest&&e.target.closest("tbody td"), trl=tdl&&!tdl.classList.contains("hp-mois")&&tdl.parentNode;
-    if(trl&&trl.getAttribute("data-md")){
-      var cle=(GR.debut?GR.debut.getFullYear():"")+trl.getAttribute("data-md"), deja=trl.classList.contains("hp-lsel");
-      [].forEach.call(this.querySelectorAll("tr.hp-lsel"),function(x){ x.classList.remove("hp-lsel"); });
-      [].forEach.call(this.querySelectorAll(".hp-csel"),function(x){ x.classList.remove("hp-csel"); });
-      /* ET LES DEUX COLONNES DE L'OPÉRATEUR (le client, le 27/10/2026 : « la
-         sélection horizontale doit sélectionner les deux colonnes de
-         l'opérateur en plus ») : une case touchée marque sa ligne et sa
-         personne ; le jour seul ne marque que la ligne */
-      var pid=tdl.getAttribute("data-p");
-      if(deja&&tdl.classList.contains("hp-jour")){ GR.ligne=null; GR.colP=null; }
-      else { if(this.querySelector(".hp-tmoi")) pid=null;
-        GR.ligne=cle; trl.classList.add("hp-lsel"); GR.colP=pid||null;
-        if(pid) [].forEach.call(this.querySelectorAll('td[data-p="'+pid+'"],th[data-pers="'+pid+'"]'),function(x){ x.classList.add("hp-csel"); }); }
-    }
+    var tdl=e.target.closest&&e.target.closest("tbody td");
+    if(tdl) grSelectionner(this,tdl,true);
     if(e.target.closest&&e.target.closest("td[data-p]")) return;
     var th=e.target.closest&&e.target.closest("th[data-pers]"); if(th) grPersonne(th.getAttribute("data-pers"));
   });

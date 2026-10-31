@@ -7432,3 +7432,58 @@ Vérifié à 320, 390 et 1280 px :
 - la mesure de l'Accueil (4 largeurs) : 0 défaut.
 
 Le contrôle crie six fois sur la version d'avant.
+
+### L'Horaire au PC : la main, les flèches, un seul surlignage (31/10/2026, `nfdm-v1241`)
+
+Quatre messages du client, le même soir :
+1. « Dans horaire, ne pas mettre en gras les colonnes de mois et de jour. »
+2. « Pour "Mon horaire" ou recherche, la cellule avec le nombre de
+   personnes est inutile. »
+3. « Les colonnes et lignes doivent être mises en évidence de la même
+   manière au clic sur mobile ou au suivi souris sur PC, mais il faut un
+   juste milieu entre la ligne peu visible et la colonne trop visible. »
+4. « Comment rendre plus fluide le déplacement dans l'horaire sur PC ? »,
+   puis : « il doit être possible de se déplacer dans le tableau en
+   maintenant le clic (comme pour la main sur un PDF), ou avec les
+   flèches comme sur Excel quand une cellule est sélectionnée ».
+
+**Mesuré d'abord** (1280 px, une équipe de 18 personnes) : le défilement
+à la molette tient 16 ms par image, sans aucune image lente, et un survol
+coûte moins d'une milliseconde. Le manque n'était donc pas la vitesse,
+mais les moyens de se déplacer.
+
+Fait :
+- **mois et jour** en graisse normale (900 → 400) ;
+- **la case « N pers. »** ne s'affiche que pour une feuille (équipe,
+  poste). Elle est vide dans « Mon horaire » et pendant une recherche,
+  bandeau de « Mon horaire » compris ;
+- **un seul surlignage** pour le survol et le toucher. Le survol passait
+  la ligne à un jaune à peine plus vif, et assombrissait la colonne de
+  12 % de noir. Il pose maintenant le même voile bleu de 20 % que la
+  sélection, sur la ligne comme sur la colonne, et 34 % à leur croisée.
+  La sélection passe de 24 % à 20 %, le même voile ;
+- **la main** : à la souris, au-delà de 6 px, le bouton tenu fait
+  glisser la grille, avec le curseur « main ». Le clic qui termine un
+  glissé ne sélectionne rien. Le doigt défile comme avant ;
+- **les flèches comme Excel** : un clic sur une case la sélectionne
+  (ligne, et les deux colonnes de la personne) et lui donne le clavier.
+  Les flèches, Page précédente et Page suivante déplacent la même
+  sélection, et la grille suit pour garder la case hors des en-têtes
+  figés. Avant, une case cliquée n'avait pas le clavier : les flèches
+  n'agissaient que sur la case du jour atteinte par Tab ;
+- **la sélection du clic** devient une fonction (`grSelectionner`),
+  partagée avec les flèches. `grMontrer` garde la case visible.
+
+Vérifié au navigateur (1280 px souris, 390 px doigt) :
+- graisse 400 ;
+- « 18 pers. » sur une équipe, rien dans « Mon horaire » ni en recherche ;
+- même couleur au survol et au clic, ligne distincte du fond ;
+- clic, puis 2 × bas et droite : la sélection suit le clavier ;
+- 45 × bas, Page suivante, 12 × droite puis gauche : la case reste
+  visible ;
+- glissé de 150 px : la grille défile de 150 px dans les deux sens, curseur
+  main pendant, sélection inchangée ;
+- toucher : sélection posée, aucun survol resté ;
+- parcours complet : 0 faute.
+
+Le contrôle crie 11 fois sur la version d'avant.
