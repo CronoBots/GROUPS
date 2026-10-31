@@ -1135,6 +1135,50 @@ Le client refait l'essai plus tard :
 toutes » sur la seule foi de la documentation, sans l'avoir éprouvée dans
 la messagerie de l'entreprise.
 
+**Un code personnel, pour un seul compte (31/10/2026, `nfdm-v1235`).**
+Le client : « peux-tu me donner un code de 6 chiffres qui fonctionnera à
+chaque fois et qui sera juste valable pour moi ? VBN ».
+
+C'est le mot de passe du compte chez Supabase :
+- **le code** : six chiffres tirés au hasard (`secrets`), sans suite ni
+  chiffre répété, et sans commencer par « 19 » ou « 20 » ;
+- **chiffré ici** (bcrypt, coût 10) et posé par la base dans
+  `auth.users` pour ce seul compte : le code en clair n'a jamais quitté le
+  conteneur, et il n'est écrit ni dans le dépôt, ni dans Notion, ni dans
+  un commit ;
+- **éprouvé au vrai serveur** : le bon code ouvre une session (fermée
+  aussitôt, `logout?scope=local`, les autres sessions du client restent),
+  un faux est refusé (400 `invalid_credentials`).
+
+Dans l'application, aucun écran de plus :
+- **le code personnel dans les mêmes cases** : un code que Supabase
+  refuse comme code reçu par e-mail est essayé comme code personnel. S'il
+  est refusé aussi, le message reste celui du code reçu (« code expiré
+  ou incorrect »). Un compte sans code personnel n'y gagne ni n'y perd
+  rien ;
+- **« J'ai déjà un code »**, sous « Recevoir un code », mène aux cases
+  sans envoyer d'e-mail : chaque envoi de trop finissait en quarantaine.
+  Sur cet écran, « Recevoir un code » remplace « Renvoyer un code », sans
+  compte à rebours.
+
+Éprouvé à 320, 390 et 1280 px, Supabase simulé :
+- le code personnel connecte et mène à l'étape suivante ;
+- un faux code donne le message du code reçu ;
+- un vrai code reçu connecte sans essai inutile du code personnel ;
+- l'envoi depuis « J'ai déjà un code » repart avec son compte à rebours ;
+- le chemin ordinaire est inchangé ;
+- aucun débordement, et le lien fait 44 px au doigt.
+
+Le contrôle mord : sans le repli sur le code personnel, douze fautes de
+plus.
+
+**Le prix, dit au client.** Un code fixe de six chiffres est plus faible
+qu'un code à usage unique, et ce compte a le rôle RH. Supabase limite les
+connexions par adresse IP (30 par 5 minutes par défaut, réglable dans
+les limites de fréquence de l'authentification). Un code plus long, huit chiffres ou plus,
+entre dans les mêmes cases. Pour le changer ou le retirer, la même
+requête suffit (un autre chiffré, ou une valeur vide).
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone

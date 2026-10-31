@@ -31589,13 +31589,25 @@ function gateVueEmail(){
     +'<div class="gate-err" id="gateErr" role="alert"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateEnvoyer">Recevoir un code</button>'
+    +'<button type="button" class="gate-link" id="gateDejaCode">J\'ai déjà un code</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
   var em=document.getElementById("gateEmail"), err=document.getElementById("gateErr"), btn=document.getElementById("gateEnvoyer");
   var der=lsGet("base/email"); if(der) em.value=der;
-  function envoyer(){
+  function adresse(){
     var v=String(em.value||"").trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; em.setAttribute("aria-invalid","true"); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; em.setAttribute("aria-invalid","true"); return ""; }
+    return v;
+  }
+  /* « J'ai déjà un code » (31/10/2026) : les cases, sans envoyer d'e-mail.
+     Pour un code reçu plus tôt et toujours valable, ou un code personnel
+     (voir gateVueCode) : chaque envoi de trop finissait en quarantaine. */
+  document.getElementById("gateDejaCode").onclick=function(){
+    var v=adresse(); if(!v) return;
+    lsSet("base/email",v); gateVueCode(v,true);
+  };
+  function envoyer(){
+    var v=adresse(); if(!v) return;
     err.textContent=""; em.removeAttribute("aria-invalid"); btn.disabled=true; btn.textContent="Envoi…";
     baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:v, create_user:true}).then(function(){ lsSet("base/email",v); gateVueCode(v); })
       .catch(function(e){ btn.disabled=false; btn.textContent="Recevoir un code";
@@ -31671,10 +31683,11 @@ function gateCopieAdresse(){
     else aLaMain();
   };
 }
-function gateVueCode(email){
-  gateSetTitre("Code reçu",email);
+function gateVueCode(email,sansEnvoi){
+  gateSetTitre(sansEnvoi?"Votre code":"Code reçu",email);
   gateSetBody(''
-    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir de <b>'+EXPEDITEUR_CODE+'</b>. Le code est valable une\u00a0heure.</p>'
+    +(sansEnvoi?'<p class="gate-lede">Tapez le code que vous avez reçu par e-mail. Pas encore de code\u00a0? «\u00a0Recevoir un code\u00a0» l\'envoie.</p>'
+      :'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir de <b>'+EXPEDITEUR_CODE+'</b>. Le code est valable une\u00a0heure.</p>')
     +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
     +'<div class="otp" id="gateOtp">'
     +'<div class="otp-cases" aria-hidden="true"></div>'
@@ -31683,7 +31696,7 @@ function gateVueCode(email){
     +'<div class="gate-err" id="gateErr" role="alert"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateValider">Se connecter</button>'
-    +'<button type="button" class="gate-link" id="gateRenvoi">Renvoyer un code</button>'
+    +'<button type="button" class="gate-link" id="gateRenvoi">'+(sansEnvoi?'Recevoir un code':'Renvoyer un code')+'</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
     +'</div>'
     +gateAideCode(email));
@@ -31712,7 +31725,16 @@ function gateVueCode(email){
     if(enCours) return; enCours=true;
     err.textContent=""; btn.disabled=true; btn.textContent="Vérification…";
     c.readOnly=true; otp.classList.add("est-occupe");
-    baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).then(function(j){
+    /* LE CODE PERSONNEL (le client, le 31/10/2026 : « un code de 6 chiffres
+       qui fonctionnera à chaque fois et qui sera juste valable pour moi »).
+       C'est le mot de passe du compte chez Supabase, posé par la base pour
+       ce seul compte (sous forme chiffrée, jamais écrit ailleurs). Un code
+       que Supabase refuse comme code reçu par e-mail est essayé comme
+       code personnel ; s'il est refusé aussi, l'erreur reste celle du code
+       reçu. Un compte sans code personnel n'y gagne ni n'y perd rien. */
+    baseFetch("/auth/v1/verify",{type:"email", email:email, token:v}).catch(function(e){
+      return baseFetch("/auth/v1/token?grant_type=password",{email:email, password:v}).catch(function(){ throw e; });
+    }).then(function(j){
       var s=baseGarder(j); s.email=email; lsSet("base/session",s); gateBaseEtat();
     }).catch(function(e){ enCours=false; btn.disabled=false; btn.textContent="Se connecter";
       c.readOnly=false; otp.classList.remove("est-occupe");
@@ -31744,7 +31766,7 @@ function gateVueCode(email){
       clearInterval(t); renvoi.disabled=false; renvoi.textContent="Renvoyer un code";
     },1000);
   }
-  attendre(60);
+  if(!sansEnvoi) attendre(60);
   renvoi.onclick=function(){
     err.textContent="Envoi…";
     baseFetch("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE_APP),{email:email, create_user:true}).then(function(){
