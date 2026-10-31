@@ -1240,15 +1240,12 @@ body{overflow-x:clip}
 .base-cpt span{font-size:13px; color:var(--ink2); overflow:hidden; text-overflow:ellipsis}
 .base-cpt small{display:block; font-size:11.5px; color:var(--muted)}
 .base-cpt div{display:flex; gap:6px; align-items:center}
-#calCard.vue-an .calbilan,#calCard.vue-sem .calbilan,#calCard.vue-cy .calbilan{display:none}
+#calCard.vue-an .calbilan,#calCard.vue-sem .calbilan{display:none}
 /* LE CYCLE : la grille du mois, du lundi où il commence à son dernier jour ;
    le 1er de chaque mois porte le nom du mois (le titre dit déjà le premier) */
 .mc-n small{font-size:.8em; font-weight:600; color:var(--faint); margin-left:.25em}
 @media (max-width:359px){ .mc-n small{margin-left:.06em; letter-spacing:-.03em} }
 /* l'équipe ou le binôme à droite du titre, les journées dessous */
-.sem-t.cy-t{flex-wrap:wrap; row-gap:2px}
-.sem-t.cy-t .cy-avec{font-size:12.5px; font-weight:650; color:var(--marque-vif); text-align:right}
-.sem-t.cy-t .cy-stat{flex:1 0 100%}
 /* LA SEMAINE : une ligne par jour, la case du mois à gauche, le détail à
    droite (le client, le 19/10/2026) */
 .sem-t{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 10px;
@@ -2604,6 +2601,9 @@ html #grille .ws-site{margin-bottom:14px}
 .cstat-cap{margin:6px 12px 0; font-size:11.5px; color:var(--muted); text-align:right}
 .ry-an-t.pf-ms-t{flex-wrap:wrap; row-gap:2px}
 .ry-an-t.pf-ms-t .pf-pr-l{flex-basis:100%; text-align:left}
+/* les journées et les heures du cycle, à droite du titre « Mon cycle » */
+.ry-an-t.pf-ms-t .pf-pr-l.mc-stat{flex-basis:auto; margin-left:auto; text-align:right}
+.ry-an-t.pf-ms-t .mc-stat:empty{display:none}
 /* « Mon année » commençait 30 px sous son en-tête, les autres cartes 16 à
    18 (audit du 30/10/2026) */
 #anCard .an-corps>.ry-an:first-child>.ry-an-t:first-child{padding-top:0}
@@ -5986,7 +5986,6 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   #v-horaire>*{grid-column:1/-1}
 }
 .pf-an .ry-an-t{padding-top:12px} .pf-an .ry-an-t .ry-h2{padding:0}
-.ry-an-t>b.cy-avec{font-family:inherit; font-weight:600; font-size:12px; line-height:1.2; color:var(--marque-vif); flex:0 1 auto; text-align:right}
 .cy-prog{display:flex; align-items:center; gap:10px; margin:2px 0 8px}
 /* le titre et ce qui l'accompagne à droite sur la même ligne de base */
 .pf-an .ry-an-t{align-items:baseline}
@@ -8173,7 +8172,6 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
         <div class="calmois"><div class="mnavhote"></div></div>
         <div class="calvue-l">
           <div class="calvue" id="calVue" role="group" aria-label="Affichage du calendrier">
-            <button type="button" data-cv="cycle" aria-pressed="false">Cycle</button>
             <button type="button" data-cv="semaine" aria-pressed="false">Semaine</button>
             <button type="button" data-cv="mois" aria-pressed="true">Mois</button>
             <button type="button" data-cv="annee" aria-pressed="false">Année</button>
@@ -10694,10 +10692,9 @@ function grilleMois(){
 function renderRota(){
   var hote=document.getElementById("moisCal"); if(!hote) return;
   var cc=document.getElementById("calCard");
-  if(cc){ cc.classList.toggle("vue-an",calVue==="annee"); cc.classList.toggle("vue-sem",calVue==="semaine"); cc.classList.toggle("vue-cy",calVue==="cycle"); }
+  if(cc){ cc.classList.toggle("vue-an",calVue==="annee"); cc.classList.toggle("vue-sem",calVue==="semaine"); }
   if(calVue==="annee") renderAnnee(hote);
   else if(calVue==="semaine") renderSemaine(hote);
-  else if(calVue==="cycle") renderCycle(hote);
   else hote.innerHTML=grilleMois()+legendeHTML(legendeDrapeaux());
   if(jourOuvert) majFeuille();
   /* le jour touché dans l'année, une fois son mois chargé */
@@ -10713,10 +10710,9 @@ function renderRota(){
    (caseJour), mois après mois, et la légende de ce que l'année contient.
    Chaque mois se lit dans son enregistrement, comme loadMonth ; le mois
    affiché garde st.month, qui peut porter une saisie pas encore écrite. */
-var calVue=({annee:1,semaine:1,cycle:1}[lsGet("ui/calVue")])?lsGet("ui/calVue"):"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
+var calVue=({annee:1,semaine:1}[lsGet("ui/calVue")])?lsGet("ui/calVue"):"mois", jourAttendu=null, _anJeton=0, _anMontrer=null;
 function vueAnnee(){ return calVue==="annee" && st.view==="horaire"; }
 function vueSemaine(){ return calVue==="semaine" && st.view==="horaire"; }
-function vueCycle(){ return calVue==="cycle" && st.view==="horaire"; }
 function avecMois(m,M,f){
   var sv=[st.m,st.month]; st.m=m; st.month=M;
   try{ return f(); } finally{ st.m=sv[0]; st.month=sv[1]; }
@@ -10815,60 +10811,18 @@ function renderSemaine(hote){
       +'<div class="sem-liste">'+h+'</div>'+(dr?legendeHTML(dr):"");
   });
 }
-/* ===================== le cycle, présenté comme le mois ===================== */
-/* Le client, le 20/10/2026 : « ajouter une vue cycle qui serait présentée
-   comme une vue mois ». Les cases du mois (caseJour), semaine par semaine,
-   du lundi où le cycle commence à son dernier jour. Le cycle est celui du
-   héros (cycleActuel : 5 ou 6 semaines, calé sur la personne) ; les
-   suivants et les précédents se posent bout à bout, de la même longueur.
-   Sans calage (personne sans cycle lisible), cinq semaines depuis le lundi. */
-var cyDeb=null, _cyJeton=0, _cyRef=null, _cyCle=null;
-function cycleRef(){
-  var ja=jourPerso(st.personObj), cle=(st.personObj&&st.personObj.id)+"|"+ja.toDateString();
-  if(_cyRef && _cyRef.cle===cle) return _cyRef;
-  var c=null; try{ c=st.personObj?cycleActuel(st.personObj):null; }catch(e){ c=null; }
-  _cyRef=c?{cle:cle, deb:new Date(c.deb.getFullYear(),c.deb.getMonth(),c.deb.getDate()), L:c.L, nom:c.nom}
-          :{cle:cle, deb:lundiDe(ja), L:35, nom:""};
-  return _cyRef;
-}
-function joursEntre(a,b){ return Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000); }
-/* le premier jour du cycle qui contient d */
-function cycleDe(d){
-  var r=cycleRef(), k=Math.floor(joursEntre(r.deb,d)/r.L);
-  return new Date(r.deb.getFullYear(),r.deb.getMonth(),r.deb.getDate()+k*r.L);
-}
-function cycDepuisMois(){
-  var ja=jourPerso(st.personObj);
-  return cycleDe((ja.getFullYear()===st.y && ja.getMonth()===st.m) ? ja : new Date(st.y,st.m,1));
-}
-/* le cycle ne commence pas tout entier avant 2026 */
-function cycMin(){ return cycleDe(new Date(AN_MIN,0,1)); }
-function libCycle(d0){
-  var dn=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+cycleRef().L-1);
-  /* à cheval sur deux années, l'année nouvelle à la fin : « 30 novembre –
-     10 janvier 2027 » */
-  /* « 1er novembre » avec le mois en entier, « 1 nov. » avec le mois
-     abrégé (audit du 23/10/2026) */
-  function lib(nom,nj){ return nj(d0.getDate())+(d0.getMonth()!==dn.getMonth()||d0.getFullYear()!==dn.getFullYear()?" "+nom(d0.getMonth()):"")
-    +" – "+nj(dn.getDate())+" "+nom(dn.getMonth())+(d0.getFullYear()!==dn.getFullYear()?" "+dn.getFullYear():""); }
-  /* au téléphone étroit, les mois abrégés si le titre ne tient pas */
-  var l=lib(function(m){ return MOIS[m].toLowerCase(); },numJour);
-  return (l.length>22 && window.innerWidth<380)?lib(function(m){ return MOIS_BREF[m]; },String):l;
-}
-/* le cycle bouge : le mois de son jour du milieu devient celui de
-   l'application, comme pour la semaine */
-function allerCycle(d0){
-  if(d0<cycMin()) return;
-  cyDeb=d0; _cyCle=cycleRef().cle;
-  var j=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+Math.floor(cycleRef().L/2));
-  if(j.getFullYear()!==st.y || j.getMonth()!==st.m) loadMonth(j.getFullYear(),j.getMonth());
-  else { majMoisLabel(st.m,st.y); renderRota(); }
-}
+/* ===================== les cases d'un cycle ===================== */
+/* La vue Cycle du calendrier (le client, le 20/10/2026 : « une vue cycle qui
+   serait présentée comme une vue mois ») a été RETIRÉE le 31/10/2026 : elle
+   répétait case pour case « Mon cycle » du héros (le client : « que faire
+   avec le cycle du héros que j'aime bien et la répétition de l'horaire un
+   peu plus bas »). Son seul apport, « 21 journées · 168 h », est passé sur
+   la ligne de titre du héros ; les vues « Semaine », « Mois » et « Année » restent. */
 /* LES CASES D'UN CYCLE ÉCRITES UNE SEULE FOIS (le client, le 25/10/2026 :
    « pourquoi le style du cycle du héros n'est pas le même que celui du
    calendrier ? »). « Mon cycle » avait été bâti sur les cases de l'ancienne
-   « Ma semaine », la vue Cycle sur celles du calendrier : deux dessins de la
-   même chose, qui avaient divergé (pastilles rondes contre étiquettes, pas de
+   « Ma semaine », la vue Cycle (retirée depuis) sur celles du calendrier :
+   deux dessins de la même chose, qui avaient divergé (pastilles rondes contre étiquettes, pas de
    couleur de pause sur la case, congé lu autrement). Les deux appellent
    désormais grilleCycle : caseJour, sur les mois enregistrés de l'appareil.
    o.com pose le commentaire du classeur sur la case (data-com, classe mc-c),
@@ -10915,30 +10869,6 @@ function grilleCycle(d0,L,o,fin){
     fin({sems:sems, dr:dr, tot:tot, nbj:nbj});
   });
 }
-function renderCycle(hote){
-  /* Le cycle se recale quand la personne (ou le jour) change : ouvert en
-     Cycle avant que la personne soit connue, il partait du lundi de la
-     semaine, une semaine à côté du héros pour un cycle de cinq semaines
-     (GBT, le 20/10/2026 : « 19 octobre » au lieu du 12). */
-  if(!cyDeb || _cyCle!==cycleRef().cle){ cyDeb=cycDepuisMois(); _cyCle=cycleRef().cle; majMoisLabel(st.m,st.y); }
-  var r=cycleRef(), d0=cyDeb, jeton=++_cyJeton;
-  grilleCycle(d0,r.L,null,function(R){
-    if(jeton!==_cyJeton || calVue!=="cycle") return;
-    var g=R.sems.map(function(x){ return '<div class="mc-sem">'+x+'</div>'; }).join(""), tot=R.tot, nbj=R.nbj, dr=R.dr;
-    /* AVEC QUI L'ON TOURNE CE CYCLE (le client, le 20/10/2026 : « les
-       contremaîtres et adjoints doivent voir avec quelle équipe ils sont le
-       cycle, et pour les 5 équipes avec quel binôme, les trigrammes ») : la
-       lecture du héros (cycleAvec), sur le cycle affiché. */
-    var av=""; try{ av=st.personObj?cycleAvec(st.personObj,{deb:d0, L:r.L}):""; }catch(e){ av=""; }
-    var cadre=!!(st.personObj && estCadre(st.personObj));
-    hote.innerHTML='<div class="sem-t cy-t"><b>Cycle'+(r.nom?' de '+esc(r.nom):'')+'</b>'
-      +(av?'<b class="cy-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">'+esc(av)+'</b>':'')
-      +'<span class="cy-stat">'+(nbj?nbj+' journée'+(nbj>1?'s':'')+' · '+num(Math.round(tot*100)/100)+' h':'aucune journée prestée')+'</span></div>'
-      +'<div class="mc-grille"><div class="mc-tete">'
-      +["lun","mar","mer","jeu","ven","sam","dim"].map(function(x){return "<span>"+x+"</span>";}).join("")
-      +'</div>'+g+'</div>'+(dr?legendeHTML(dr):"");
-  });
-}
 function renderAnnee(hote){
   var y=st.y, jeton=++_anJeton, mois=[], i;
   for(i=0;i<12;i++) mois.push(i);
@@ -10975,7 +10905,6 @@ function renderAnnee(hote){
 function allerAujourdhui(){
   var ja=jourPerso(st.personObj), y=ja.getFullYear(), m=ja.getMonth();
   if(calVue==="semaine"){ allerSemaine(lundiDe(ja)); return; }
-  if(calVue==="cycle"){ allerCycle(cycleDe(ja)); return; }
   if(calVue==="annee"){
     /* le mois en cours à l'écran, une fois l'année dessinée (renderAnnee) */
     _anMontrer=m;
@@ -11023,9 +10952,8 @@ function allerAujourdhui(){
   });
 })();
 function choisirVue(v){
-  calVue=({annee:1,semaine:1,cycle:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
+  calVue=({annee:1,semaine:1}[v])?v:"mois"; lsSet("ui/calVue",calVue);
   if(calVue==="semaine") semDeb=semDepuisMois();
-  if(calVue==="cycle"){ cyDeb=cycDepuisMois(); _cyCle=cycleRef().cle; }
   [].forEach.call(document.querySelectorAll("#calVue button"),function(b){
     b.setAttribute("aria-pressed",String(b.dataset.cv===calVue));
   });
@@ -12334,7 +12262,7 @@ function majBrandsub(){
    égare celui qui le relit. */
 function majMoisLabel(m,y){
   var el=document.getElementById("mlabel");
-  if(el) el.textContent=vueAnnee()?String(y):(vueSemaine()?libSemaine(semDeb||semDepuisMois()):(vueCycle()?libCycle(cyDeb||cycDepuisMois()):MOIS[m]+" "+y));
+  if(el) el.textContent=vueAnnee()?String(y):(vueSemaine()?libSemaine(semDeb||semDepuisMois()):MOIS[m]+" "+y);
   /* Le sélecteur de mois reflète le mois courant (format « AAAA-MM »). */
   var pick=document.getElementById("moisPick");
   if(pick){ pick.value=y+"-"+pad2(m+1); pick.min=AN_MIN+"-01"; }
@@ -12342,20 +12270,19 @@ function majMoisLabel(m,y){
      date ne sont pas adaptés ; en Année il propose aussi le mois ») : un
      mois en Mois ; un jour en Semaine, dont on montre la semaine (iOS n'a
      pas de champ « semaine ») ; une année en Année, depuis AN_MIN. */
-  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick"), vc=vueCycle(), vs=vueSemaine()||vc, va=vueAnnee();
+  var sp=document.getElementById("semPick"), ap=document.getElementById("anPick"), vs=vueSemaine(), va=vueAnnee();
   if(pick) pick.hidden=vs||va;
   if(sp){ sp.hidden=!vs; sp.min=AN_MIN+"-01-01";
-    var s0=vc?(cyDeb||cycDepuisMois()):(semDeb||semDepuisMois()); if(vs) sp.value=s0.getFullYear()+"-"+pad2(s0.getMonth()+1)+"-"+pad2(s0.getDate()); }
+    var s0=semDeb||semDepuisMois(); if(vs) sp.value=s0.getFullYear()+"-"+pad2(s0.getMonth()+1)+"-"+pad2(s0.getDate()); }
   if(ap){ ap.hidden=!va;
     if(va){ var yMax=Math.max(y,new Date().getFullYear())+1, o="";
       for(var a=AN_MIN;a<=yMax;a++) o+='<option value="'+a+'"'+(a===y?' selected':'')+'>'+a+'</option>';
       ap.innerHTML=o; ap.value=String(y); } }
   var pv=document.getElementById("prev");
-  var sd=vueSemaine()?(semDeb||semDepuisMois()):null, cd=vc?(cyDeb||cycDepuisMois()):null;
-  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(cd?(cd.getTime()<=cycMin().getTime()):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0))));
+  var sd=vueSemaine()?(semDeb||semDepuisMois()):null;
+  if(pv) pv.disabled=vueAnnee()?(y<=AN_MIN):(sd?(sd.getTime()<=semMin().getTime()):(y<AN_MIN||(y===AN_MIN&&m===0)));
   var ba=document.getElementById("calAuj"), ja=jourPerso(st.personObj);
-  if(ba) ba.disabled=(calVue==="cycle")?(!!cd && cd.getTime()===cycleDe(ja).getTime())
-                    :(calVue==="semaine")?(!!sd && sd.getTime()===lundiDe(ja).getTime())
+  if(ba) ba.disabled=(calVue==="semaine")?(!!sd && sd.getTime()===lundiDe(ja).getTime())
                     :(calVue!=="annee" && y===ja.getFullYear() && m===ja.getMonth());
 }
 function dateFr(iso){
@@ -12867,7 +12794,6 @@ var AN_MIN=2026;
 function go(step){
   if(vueAnnee()){ if(st.y+step>=AN_MIN) loadMonth(st.y+step,st.m); return; }
   if(vueSemaine()){ var b0=semDeb||semDepuisMois(); allerSemaine(new Date(b0.getFullYear(),b0.getMonth(),b0.getDate()+7*step)); return; }
-  if(vueCycle()){ var c0=cyDeb||cycDepuisMois(); allerCycle(new Date(c0.getFullYear(),c0.getMonth(),c0.getDate()+cycleRef().L*step)); return; }
   allerMois(step);
 }
 function allerMois(step){
@@ -22642,6 +22568,10 @@ function monCycleHTML(db,person){
   if(st.personObj && st.personObj.id===person.id)
     grilleCycle(deb,L,{com:true},function(R){
       var g=document.getElementById("mcHero"); if(!g || jeton!==_mcJeton) return;
+      /* CE QUE DONNAIT LA VUE CYCLE (retirée le 31/10/2026) : les journées
+         et les heures du cycle, sur la ligne du titre */
+      var ms=document.getElementById("mcStat");
+      if(ms) ms.textContent=R.nbj?R.nbj+" journée"+(R.nbj>1?"s":"")+" · "+num(Math.round(R.tot*100)/100)+" h":"";
       [].slice.call(g.querySelectorAll(".mc-sem")).forEach(function(x){ x.parentNode.removeChild(x); });
       g.insertAdjacentHTML("beforeend",R.sems.map(function(x,k){ return rangee(k,x); }).join(""));
     });
@@ -22656,7 +22586,7 @@ function monCycleHTML(db,person){
   var cadre=false; try{ cadre=estCadre(person); }catch(er){}
   var MC=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
   return '<div class="ry-an-t pf-ms-t"><span class="mc-tt"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mon cycle</span>'
-    +(av?'<b class="mc-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">avec '+esc(av)+'</b>':'')+'</span><span class="pf-pr-l">'
+    +(av?'<b class="mc-avec" title="'+(cadre?"L'équipe avec laquelle vous tournez":"Le contremaître et l'adjoint avec qui vous tournez")+'">avec '+esc(av)+'</b>':'')+'</span><span class="pf-pr-l mc-stat" id="mcStat"></span><span class="pf-pr-l">'
     +esc("du "+numJour(deb.getDate())+(deb.getMonth()===fin.getMonth()?"":" "+MOIS[deb.getMonth()].toLowerCase())+" au "+numJour(fin.getDate())+" "+MOIS[fin.getMonth()].toLowerCase()
       +" · semaine "+sem+" sur "+Math.round(L/7))+'</span></div>'
     +'<div class="mc-grille mc-hero" id="mcHero"><div class="mc-tete">'
@@ -30951,7 +30881,6 @@ function vueHoraire(){
   if(sp) sp.addEventListener("change",function(){
     var q=String(sp.value||"").split("-"); if(q.length<3) return;
     var d=new Date(Number(q[0]),Number(q[1])-1,Number(q[2])); if(isNaN(d)) return;
-    if(vueCycle()){ var c=cycleDe(d); allerCycle(c<cycMin()?cycMin():c); return; }
     var l=lundiDe(d); allerSemaine(l<semMin()?semMin():l);
   });
   if(ap) ap.addEventListener("change",function(){
@@ -30977,7 +30906,6 @@ function vueHoraire(){
     if(isNaN(y)||isNaN(m)) return;
     if(y<AN_MIN){ majMoisLabel(st.m,st.y); return; }
     if(vueSemaine()){ allerSemaine(lundiDe(new Date(y,m,1))<semMin()?semMin():lundiDe(new Date(y,m,1))); return; }
-    if(vueCycle()){ allerCycle(cycleDe(new Date(y,m,1))<cycMin()?cycMin():cycleDe(new Date(y,m,1))); return; }
     if(y!==st.y || m!==st.m) loadMonth(y,m);
   });
 })();

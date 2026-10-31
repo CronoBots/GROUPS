@@ -7391,3 +7391,44 @@ Le client, après la v1230 : « optimise ». Repris parmi les constats
 Vérifié et laissé : la roue des réglages, 40 px à l'œil, a déjà une zone
 de doigt de 46 px (`::after`, −3 px). Mesure de l'Accueil (4 largeurs) :
 0 défaut.
+
+### La vue Cycle du calendrier retirée, ses chiffres passés au héros (31/10/2026, `nfdm-v1236`)
+
+Le client : « que faire avec le cycle du héros, que j'aime bien, et la
+répétition de l'horaire un peu plus bas, qui peut être en semaine, cycle,
+mois, année ? ». Les cinq vues, comparées à 390 px :
+- **« Mon cycle » du héros et la vue Cycle du calendrier** sont le même
+  tableau : les mêmes six semaines (du 19 octobre au 29 novembre), les
+  mêmes cases. La vue Cycle n'y ajoutait que les flèches vers les autres
+  cycles et « 21 journées · 168 h ».
+- **Semaine** donne seule le détail de chaque journée : heures,
+  « Remplacé par … », commentaire.
+- **Mois** porte les chiffres de la paie, et **Année** l'année d'un coup
+  d'œil.
+
+La recommandation a été dite au client, et la vue n'a été retirée
+qu'après son accord : elle avait été ajoutée à sa demande, le 20/10 (« ok
+faire cela »).
+
+Fait :
+- le calendrier garde **« Semaine », « Mois » et « Année »**. Le code de la vue est
+  retiré en entier : `renderCycle`, `cycleRef`, `cycleDe`, `allerCycle`,
+  `libCycle`, `cycMin`, les branches des flèches, d'« Aujourd'hui » et des
+  sélecteurs, la classe `vue-cy` et ses règles. `grilleCycle` reste, pour
+  le héros ;
+- une préférence enregistrée sur « cycle » (`ui/calVue`) rouvre sur Mois ;
+- le héros porte ce que seule la vue donnait : « 21 journées · 168 h » à
+  droite du titre « Mon cycle » (`#mcStat`, les totaux de `grilleCycle`),
+  muet tant que le cycle n'a pas de journée.
+
+Perdu, et dit au client : feuilleter les cycles suivants en bloc. Les
+mêmes jours restent dans la vue Mois, sans les limites du cycle. Des
+flèches sur le héros le rendraient, s'il le demande.
+
+Vérifié à 320, 390 et 1280 px :
+- les trois vues, ‹ ›, « Aujourd'hui » dans chacune, sans erreur ;
+- la préférence « cycle » rouvre sur « Octobre 2026 » ;
+- les chiffres du héros sont sur la ligne du titre, sans chevauchement ;
+- la mesure de l'Accueil (4 largeurs) : 0 défaut.
+
+Le contrôle crie six fois sur la version d'avant.
