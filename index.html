@@ -16115,6 +16115,26 @@ function pfAxeAjuste(racine){
    améliorer ce cadre ? ») : le commentaire du classeur, en une phrase
    (comPro), sous le cadre — ce soir-là, « Remplace FPA de 22h à 01h00. »
    dit pourquoi le poste finit à 1 h. Le texte entier en infobulle. */
+/* LE TITRE EN MOTS du poste (« Ce matin », « Demain soir »…), ou "" quand
+   c'est la date qui le dit. Une nuit déjà commencée se dit « Cette nuit » :
+   à 3 h, « Ce soir » désignait la nuit suivante (audit du 23/10/2026).
+   Un poste EN COURS qui déborde son heure ordinaire suit l'horloge (le
+   client, le 31/10/2026, capture à 23 h 39 : « Cet après-midi » pour un
+   après-midi prolongé jusqu'à 1 h) : l'après-midi passé 22 h se dit
+   « Ce soir », passé minuit « Cette nuit » ; le matin passé 14 h,
+   « Aujourd'hui ». Jusque-là, le nom du poste reste celui de l'usine. */
+function _pfTitreMots(pr){
+  var MOTS0={AM:"Ce matin",PM:"Cet après-midi",N:"Ce soir",D:"Aujourd\u2019hui"},
+      MOTS1={AM:"Demain matin",PM:"Demain après-midi",N:"Demain soir",D:"Demain"};
+  if(pr.enCours&&pr.kc<=0){
+    var h=new Date().getHours();
+    if(pr.pv==="N") return "Cette nuit";
+    if(pr.pv==="PM"&&pr.kc<0) return "Cette nuit";
+    if(pr.pv==="PM"&&h>=22) return "Ce soir";
+    if(pr.pv==="AM"&&h>=14) return "Aujourd\u2019hui";
+  }
+  return (pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||"";
+}
 function _pfCom(p,d){
   var db=horaireDe(d.getFullYear()); if(!db) return "";
   var q=null; db.people.forEach(function(x){ if(x.id===p.id) q=x; }); if(!q||!q.d) return "";
@@ -16178,11 +16198,7 @@ function _pfHead(db,p){
          durée ; la barre de progression seulement pendant le poste ;
        - l'atelier seulement s'il n'est pas celui écrit sous le
          trigramme, puis le contremaître et les collègues. */
-    var MOTS0={AM:"Ce matin",PM:"Cet après-midi",N:"Ce soir",D:"Aujourd\u2019hui"},
-        MOTS1={AM:"Demain matin",PM:"Demain après-midi",N:"Demain soir",D:"Demain"};
-    /* une nuit déjà commencée se dit « Cette nuit » : à 3 h, « Ce soir »
-       désignait la nuit suivante (audit du 23/10/2026) */
-    var titre=(pr.enCours&&pr.pv==="N"&&pr.kc<=0&&"Cette nuit")||(pr.kc<=0&&MOTS0[pr.pv])||(pr.kc===1&&MOTS1[pr.pv])||dateL,
+    var titre=_pfTitreMots(pr)||dateL,
         enMots=titre!==dateL;
     h+='<button type="button" class="pf-proch" data-an="'+pr.d.getFullYear()+'" data-m="'+(pr.d.getMonth()+1)+'" data-j="'+pr.d.getDate()+'">'
       /* PLUS COMPACT (le client, le 25/10/2026 : « optimise la partie
@@ -22793,6 +22809,8 @@ function accueilTic(){
   if(sig!==sig0){ accRefaire(); return; }
   if(!pr) return;
   var em=b.querySelector(".pf-rel"), rel=_pfRel(pr); if(em&&em.innerHTML!==rel) em.innerHTML=rel;
+  /* le titre suit l'horloge pendant le poste (« Ce soir » à 22 h, « Cette nuit » à minuit) */
+  var tb=b.querySelector(".pf-proch-l > b"), tt=_pfTitreMots(pr); if(tb&&tt&&tb.textContent!==tt) tb.textContent=tt;
   var qt=b.querySelector(".pf-quarts"); if(qt&&pr.enCours){ var q=_pfQuarts(pr); if(qt.textContent!==q) qt.textContent=q; }
   var ax=b.querySelector(".pf-axe"); if(ax&&pr.enCours){ var tmp=document.createElement("div"); tmp.innerHTML=_pfAxe(pr); if(tmp.firstChild&&tmp.firstChild.innerHTML!==ax.innerHTML){ ax.innerHTML=tmp.firstChild.innerHTML; pfAxeAjuste(b); } }
   var tr=b.querySelector(".pf-trait"), i=tr&&tr.querySelector("i");

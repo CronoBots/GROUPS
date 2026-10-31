@@ -7713,7 +7713,8 @@ Fait, sur la carte :
   infobulle. Exemple : « Remplace FPA de 22h à 01h00. » dit pourquoi le
   poste finit à 1 h. Rien quand la journée n'en a pas.
 - Laissé tel quel : le titre « Cet après-midi » reste le nom du poste,
-  même à 23 h.
+  même à 23 h. **Choix défait en v1248** : le client a envoyé la capture
+  de son téléphone à 23 h 39, « Cet après-midi » en titre.
 
 Fait, sur la bannière de l'Accueil : 190 px fixes au-delà de 1100 px
 d'écran rognaient le haut de l'image d'autant plus que la carte
@@ -7736,3 +7737,32 @@ Vérifié :
 Sur la v1246, le contrôle de la carte crie 7 fois (commentaire absent,
 heures manquantes au PC). Celui de la bannière crie 3 fois : 135 px
 rognés à 1440, 188 à 1920 et à 2560.
+
+### Le titre du poste suit l'horloge quand le poste déborde (01/11/2026, `nfdm-v1248`)
+
+Le client a envoyé, sans un mot, la capture de son téléphone prise à
+23 h 39 : un après-midi prolongé de 13 h 30 à 1 h, titré « Cet
+après-midi ». Je l'avais laissé ainsi en v1247, comme nom du poste ;
+c'était une faute de français, et pire passé minuit (« Cet après-midi »
+le dimanche à 0 h 30 pour le poste du samedi). La capture datait d'avant
+la v1247 : le commentaire du jour n'y est pas encore. Il est en ligne
+depuis minuit deux (`sw.js` servi : `nfdm-v1247`).
+
+Fait (`_pfTitreMots`, une seule fonction pour le rendu et la minute) :
+- l'après-midi en cours garde son nom jusqu'à 22 h, l'heure ordinaire de
+  sa fin ; passé 22 h, il se dit « Ce soir », et passé minuit « Cette
+  nuit » ;
+- le matin en cours, passé 14 h, se dit « Aujourd'hui » ;
+- la nuit commencée reste « Cette nuit » (23/10), et rien ne change pour
+  un poste qui n'a pas commencé ;
+- la minute (`accueilTic`) met le titre à jour : à 22 h, il passe à « Ce
+  soir » sans recharger la page.
+
+Vérifié (la règle de la v1247, augmentée du titre) : à 21 h 30, « Cet
+après-midi » ; à 22 h 01, « Ce soir » sans recharger ; à 22 h 22 et
+23 h 31, « Ce soir » ; à 0 h 50, « Cette nuit ». Un après-midi de 8 h à
+18 h 10, « Cet après-midi » ; une nuit à 3 h 05, « Cette nuit ».
+Mesure de l'Accueil : 0 défaut ; parcours complet : 183 essais, 0 faute.
+Sur la v1247, le contrôle crie 8 fois.
+Le matin passé 14 h n'est pas éprouvé au navigateur : il faudrait un matin
+prolongé dans l'horaire, et le test n'en a pas pris.
