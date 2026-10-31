@@ -3730,3 +3730,27 @@ l'octet ; manques commentés 0. Au navigateur, toute l'année : 30 lignes
 de contremaître ont leurs cadres au-dessus ; chevauchements 0 à 320 et
 390 px ; les 6 cadres hors de leur case à 320 px les 22 et 23/03 sont
 ceux d'avant (v1214), au bord du tableau.
+
+### Les badges des remplaçants : la pause et le poste, sans l'horaire (31/10/2026, `nfdm-v1238`)
+
+Le client, capture d'une recherche de remplaçants (le PM du
+1er novembre aux Chaudières) : « il faut juste indiquer la pause et le poste sans
+l'horaire dans le badge, car cela surcharge ».
+- **`caPrevu`** n'écrit plus l'horaire d'AM, PM ou N : « AM 06-14
+  Meun. » devient « AM Meun. ». L'horaire à tenir reste écrit une fois en
+  tête de la fiche (`caCreneau`), et « pour faire 06-18 » reste après les
+  trigrammes de la prolongation.
+- **Le D garde son horaire** (« D 7-15 », « D 8-16 ») : il change d'une
+  personne à l'autre (`horaireHabituelD`, décision du 13/10), ce n'est pas
+  une redite.
+- **La prolongation 12 h dit maintenant le poste** de chacun ce jour-là
+  (`caBase` par `posteAttitreLe`), comme le changement de pause : « AM
+  Chaud. », « N T. arr. ». Elle ne disait que « AM 06-14 ».
+- **Un défaut vu en chemin** : un contremaître s'écrivait « cm », en
+  minuscules (la clé du poste, absente de `PV_COURT`). Il s'écrit « CM »,
+  comme « Adj. ».
+
+Vérifié à 390 et 1280 px sur l'onglet des effectifs : 49 badges, aucun
+horaire hors du D, chaque prolongation avec pause et poste, aucune
+erreur. Le contrôle mord : 60 fautes sur la version d'avant, 8 sur une
+copie qui remet « cm ».

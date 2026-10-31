@@ -1256,6 +1256,18 @@ l'essai** :
   compte nouveau à rattacher) ?
 - l'entreprise accepte-t-elle le consentement d'un utilisateur ?
 
+**L'essai s'arrête chez l'entreprise (31/10/2026).** Le client ouvre le
+portail Azure avec son compte de l'entreprise : « You don't have access »,
+erreur 401, « Insufficient privileges to complete the operation ».
+L'entreprise ferme la console de l'annuaire aux non-administrateurs.
+C'est le signal qu'elle garde la main sur les applications : on ne
+cherche pas d'autre chemin.
+
+L'inscription se fera par l'informatique, dans la même demande que
+l'autorisation de l'expéditeur des codes (BW-51). Le bouton reste en
+place et invisible : il paraîtra seul le jour où le fournisseur sera
+allumé dans Supabase.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone

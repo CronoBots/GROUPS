@@ -30207,15 +30207,25 @@ function caPoste(P){ return P?(PV_COURT[P.k]||P.t):"?"; }
    L'horaire à tenir, le même pour tous, est écrit UNE fois en tête de la
    fiche, à côté de la pause (caCreneau). Le D prend l'horaire par défaut
    de son cycle (horaireHabituelD), sinon 7-15 (« seulement D : 7-15 »). */
+/* LA PAUSE ET LE POSTE ; PLUS D'HORAIRE (le client, le 31/10/2026, capture
+   d'une recherche de remplaçants : « il faut juste indiquer la pause et le
+   poste sans l'horaire dans le badge car cela surcharge »). AM, PM et N
+   disent déjà leur horaire, et celui qu'on demande de tenir est écrit une
+   fois en tête de la fiche (caCreneau) ; « AM 06-14 Meun. » devient
+   « AM Meun. ». Le D garde le sien : il change d'une personne à l'autre
+   (7-15, 8-16…, horaireHabituelD), ce n'est pas une redite. */
 function caPrevu(g,P,p){
   var hab=g==="D"&&horaireHabituelD(p);
-  var hor=g==="D"?((hab&&hab.lib)||"7-15"):(HOR_PAUSE[g]||"");
+  var hor=g==="D"?((hab&&hab.lib)||"7-15"):"";
   return {html:'<b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"+(hor?" "+esc(hor):"")
-    +(P?' <span class="mqchp">'+esc(P.k==="adj"?"Adj.":caPoste(P))+"</span>":"")};
+    +(P?' <span class="mqchp">'+esc(P.k==="adj"?"Adj.":P.k==="cm"?"CM":caPoste(P))+"</span>":"")};
 }
-/* L'horaire de base d'une prolongation (« 06-14 ») dit sa pause : même capsule. */
-function caBase(b){
-  for(var g in HOR_PAUSE) if(HOR_PAUSE[g]===b) return caPrevu(g);
+/* L'horaire de base d'une prolongation (« 06-14 ») dit sa pause : même
+   capsule, avec le poste qu'il tient ce jour-là (le client, le 31/10/2026 :
+   « la pause et le poste »), comme au changement de pause. */
+function caBase(b,p,jour){
+  var k=null; try{ k=p?posteAttitreLe(p,jour):null; }catch(e){ k=null; }
+  for(var g in HOR_PAUSE) if(HOR_PAUSE[g]===b) return caPrevu(g,k?{k:k,t:k}:null,p);
   return b||"";
 }
 /* La pause de la fiche ET l'horaire qu'on demande d'y tenir. */
@@ -30310,7 +30320,7 @@ function caGroupes(t,large,sansUrgence){
        « indiquer 06-18 et 18-06 après les trigrammes avec "pour faire" ». */
     function rang(h,l){
       return '<span class="mqr">'
-        +l.slice(0,6).map(function(o){ return caChip(o.p.id,caBase(o.base)); }).join("")
+        +l.slice(0,6).map(function(o){ return caChip(o.p.id,caBase(o.base,o.p,t.jour)); }).join("")
         +(l.length>6?'<span class="mqinc">+'+(l.length-6)+"</span>":"")
         +'<span class="cafaire">pour faire <span class="cahr">'+h+"</span></span></span>";
     }
