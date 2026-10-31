@@ -2645,7 +2645,6 @@ html #grille .ws-site{margin-bottom:14px}
 /* un nom long et ses heures passent à la ligne par morceaux entiers */
 .site-p>*{white-space:nowrap}
 .site-p b{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:700; letter-spacing:.02em; color:var(--ink)}
-.site-p span{color:var(--ink2)}
 .site-p small{font-size:12px; color:var(--muted)}
 .site-p i{font-style:normal; font-weight:700; color:var(--good)}
 .site-moi{border-color:color-mix(in srgb,var(--good) 55%,var(--line)); background:color-mix(in srgb,var(--good) 12%,var(--surface2))}
@@ -19429,8 +19428,6 @@ function grJours(){
 }
 function grCaler(dt){ GR.debut=new Date(dt.getFullYear(),0,1); }
 function grLibelle(){ return "Année "+grJours()[0].getFullYear(); }
-function grNomCourt(p){ var n=GR.noms&&GR.noms[p.id]; if(!n||!n.nom) return idLisible(p.id);
-  return (n.nom+(n.prenom?" "+n.prenom.charAt(0).toUpperCase()+".":"")).trim(); }
 /* les colonnes du mode choisi : [{p, f (la feuille), po (le poste)}] */
 function grColonnes(db){
   var m=GR_MODES.filter(function(x){ return x[0]===GR.feuille; })[0]||GR_MODES[0], cols=[];
@@ -20602,7 +20599,14 @@ function siteSalonsHTML(s,o){
   var blocs=SITE_PAUSES.filter(function(z){ return groupes[z[0]]; }).sort(function(a,b){ return debBloc(a)-debBloc(b); }).map(function(z){
     var L=groupes[z[0]];
     function etiquette(x){
-      var nc=GR.noms&&GR.noms[x.p.id]?grNomCourt(x.p):"", moi=!!o.moi&&x.p.id===o.moi,
+      /* LE TRIGRAMME SEUL (le client, le 31/10/2026 : « dans les badges des
+         trigrammes sur site, de temps en temps le nom complet des opérateurs
+         apparaît, et cela ne doit pas arriver »). Le nom court (« Nom P. »)
+         s'ajoutait au badge dès que les noms étaient chargés sur l'appareil,
+         RH et hiérarchie seulement, après un passage à l'Horaire ou au
+         Personnel : d'où le « de temps en temps ». Le nom ne reste que dans
+         l'étiquette du lecteur d'écran (aria-label), qui ne s'affiche pas. */
+      var moi=!!o.moi&&x.p.id===o.moi,
           d0=x.deb===PF_DEB[z[0]], f0=x.fin===PF_FIN[z[0]],
           plage=z[0]==="X"?sitePlage(x.deb,x.fin):d0&&f0?"":d0?"jusqu'à "+siteH(x.fin):f0?"dès "+siteH(x.deb):sitePlage(x.deb,x.fin),
           cm=siteEstCm(x),
@@ -20611,8 +20615,8 @@ function siteSalonsHTML(s,o){
          « les horaires contremaître doivent toujours être affichés, sur la
          largeur de deux badges ») : sa part de relais, sinon sa présence */
       if(cm) plage=siteCmPlage(x);
-      return '<span class="site-p'+(moi?' site-moi':'')+(cm?' site-cm':'')+(plage||nc?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+'>'
-        +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(nc?'<span>'+esc(nc)+'</span>':'')+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
+      return '<span class="site-p'+(moi?' site-moi':'')+(cm?' site-cm':'')+(plage?' site-large':'')+'"'+(o.lien?' data-pers="'+esc(x.p.id)+'" tabindex="0" role="button" aria-label="'+esc(dit)+'"':'')+'>'
+        +(cm?'<em class="site-r" aria-hidden="true">CM</em>':'')+'<b>'+esc(idLisible(x.p.id))+'</b>'+(moi?'<i>vous</i>':'')+(plage?'<small>'+esc(plage)+'</small>':'')+'</span>';
     }
     /* la relève de cette pause, dans son bloc (siteReleveFusion) */
     var A=(fus&&fus.g===z[0])?fus.L:[], tousZ=L.concat(A);

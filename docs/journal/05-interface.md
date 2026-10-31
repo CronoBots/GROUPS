@@ -7487,3 +7487,33 @@ Vérifié au navigateur (1280 px souris, 390 px doigt) :
 - parcours complet : 0 faute.
 
 Le contrôle crie 11 fois sur la version d'avant.
+
+### « Sur site » : le trigramme seul dans les badges (31/10/2026, `nfdm-v1242`)
+
+Le client : « dans les badges des trigrammes sur site, de temps en temps
+le nom complet des opérateurs apparaît, et cela ne doit pas arriver ».
+
+**La cause.** Lors de la refonte du cadre (23/10, `954cbb8`), j'avais
+ajouté au badge le nom court (« Nom P. », `grNomCourt`) dès que les
+noms étaient chargés sur l'appareil. Le client ne l'avait pas demandé.
+Or les noms ne se chargent que pour la RH et la hiérarchie, après un
+passage à l'Horaire ou au Personnel (`grChargerNoms`) : d'où le « de
+temps en temps ».
+
+**La correction.**
+- Le badge ne montre plus que le trigramme, et ses heures s'il en a.
+- Le nom ne reste que dans l'étiquette du lecteur d'écran
+  (`aria-label`), qui ne s'affiche pas.
+- `grNomCourt` et la règle `.site-p span` ne servaient qu'à ce nom :
+  retirées.
+
+Vérifié à 390 et 1280 px, des noms fictifs servis par la base simulée et
+chargés par l'Horaire, puis l'Accueil :
+- 36 badges, aucun nom visible ;
+- aucun badge élargi sans heure ;
+- le nom présent pour le lecteur d'écran dans 18 badges, ce qui prouve que
+  les noms étaient bien chargés.
+
+Sur la version d'avant, le même contrôle voit le défaut du client :
+un trigramme suivi du nom fictif, 3 noms visibles et 7 badges élargis
+pour rien.
