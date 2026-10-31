@@ -5760,6 +5760,13 @@ minimum qui le garde entier : remis. Au téléphone, l'image entière
 (rapport 2170/540, 89 px à 390). Rien d'autre à gagner sans recadrer
 l'image elle-même.
 
+**Faux au-delà de 998 px de large** (le client, le 31/10/2026 : « sur PC
+la bannière est coupée ? ») : ces 190 px n'avaient été mesurés qu'à
+1280 px d'écran. La carte s'élargit avec l'écran (1158 px à 1440, 1446 à
+1920), et 190 px fixes en rognaient le haut d'autant : à 1920, le symbole
+perdait son haut, comme à 150 px ici. Voir la v1247 : la hauteur suit
+désormais la largeur.
+
 ### Les accès dans le héros, l'équipe du cycle, le repos discret (25/10/2026, `nfdm-v1099`)
 
 Le client : « le bouton de repos du cycle doit être plus discret, et le
@@ -7652,7 +7659,7 @@ Les autres contrôles :
 - vérificateur du calendrier : sortie identique à l'octet ;
 - parcours complet : 0 faute.
 
-### Des quarts d'heure entiers, et une règle d'heures sous la barre (31/10/2026, `nfdm-v1246`)
+### Des quarts d'heure entiers, et une règle d'heures sous la barre (31/10/2026, `nfdm-v1246`, étiquettes adaptées à la place en v1247)
 
 Le client, devant la v1244 : « il faut des quarts d'heure complets, et ne
 pas parler de ½ quart d'heure. Il faut rendre plus professionnelle la
@@ -7685,3 +7692,47 @@ Vérifié à 320, 360, 390 (clair) et 1280 px, sur trois postes :
 - mesure de l'Accueil : 0 défaut ; parcours complet : 0 faute.
 
 Le contrôle crie 50 fois sur la v1245.
+
+### La règle à toutes les heures au PC, le commentaire du jour, la bannière entière (31/10/2026, `nfdm-v1247`)
+
+Le client, devant la carte « En poste » au PC : « comment encore améliorer
+ce cadre ? ». Puis, pendant le travail : « sur PC la bannière est
+coupée ? ».
+
+Fait, sur la carte :
+- **Des étiquettes selon la place** (`pfAxeAjuste`). Le pas de la v1246
+  était fixé d'avance par la durée du poste (deux heures sur un 12 h,
+  une étiquette sur deux sous 380 px) : au PC, la barre fait 600 px et
+  n'en montrait que cinq. Toutes les heures sont désormais écrites, et le
+  pas se choisit à l'écran : le plus petit de 1, 2, 3, 4 ou 6 h qui laisse
+  8 px entre deux étiquettes. Il se recalcule au redimensionnement et à
+  chaque minute. Au PC, chaque heure de 15 h à 0 h ; au téléphone, toutes
+  les deux heures. Les traits des heures étiquetées restent les plus longs.
+- **Le commentaire du jour** sous le décompte (`_pfCom`), en italique
+  discret, sur une ligne, coupé de points s'il déborde, entier en
+  infobulle. Exemple : « Remplace FPA de 22h à 01h00. » dit pourquoi le
+  poste finit à 1 h. Rien quand la journée n'en a pas.
+- Laissé tel quel : le titre « Cet après-midi » reste le nom du poste,
+  même à 23 h.
+
+Fait, sur la bannière de l'Accueil : 190 px fixes au-delà de 1100 px
+d'écran rognaient le haut de l'image d'autant plus que la carte
+s'élargit. Le symbole commence à 145 px sur les 398 de l'image : il en
+faut 275 visibles, calés en bas. La hauteur vaut donc 17,2 % de la
+largeur (un `padding-top` en %, qui se lit sur la largeur), avec un
+minimum de 190 px. À 1280 px d'écran, rien ne change (190 px) ; à 1440,
+200 px ; à 1920 et au-delà, 250 px. Le téléphone et la tablette sont
+inchangés.
+
+Vérifié :
+- la carte, à 320, 360, 390 (clair), 1000 et 1440 px, sur trois postes :
+  quarts attendus, aucune étiquette qui en touche une autre ni ne sort
+  de la carte, chaque heure au PC, le commentaire entier dans la carte ;
+- la bannière, de 761 à 2560 px : au plus 122 px de l'image rognés en
+  haut (le symbole entier, avec de l'air), l'usine au plus rognée de
+  394 px à gauche à 761, et la bannière sous 30 % de l'écran ;
+- mesure de l'Accueil : 0 défaut ; parcours complet : 183 essais, 0 faute.
+
+Sur la v1246, le contrôle de la carte crie 7 fois (commentaire absent,
+heures manquantes au PC). Celui de la bannière crie 3 fois : 135 px
+rognés à 1440, 188 à 1920 et à 2560.

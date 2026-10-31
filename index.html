@@ -5753,7 +5753,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-ax-l{position:absolute; top:7px; transform:translateX(-50%); font-size:11px; line-height:14px; font-weight:600; color:var(--tx-blanc-66); white-space:nowrap; font-variant-numeric:tabular-nums}
 .pf-ax-t.pf-ax-passe{opacity:.5}
 .pf-ax-l.pf-ax-passe{color:var(--tx-blanc-45)}
-@media (max-width:380px){ .pf-ax-l.pf-ax-imp{display:none} }
+.pf-ax-l.pf-ax-cache{display:none}
+.pf-proch-com{font-size:12px; font-style:italic; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-at{font-size:12px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-at.app{color:var(--tx-orange)}
 .pf-proch-at[hidden]{display:none}
@@ -6721,10 +6722,18 @@ html .pvt tbody tr.pvhead th{font-size:10.5px}
   #orgCorps > *{min-width:0; margin:0}
   #orgCorps > :first-child,#orgCorps > :only-child{grid-column:1 / -1}
   /* la bannière de l'Accueil n'occupe plus le tiers de l'écran */
-  html .pf-couv{height:190px}
   /* 190 px est le minimum (mesuré le 25/10/2026, le client : « la taille
      de la bannière est-elle optimale ? ») : à 150, le symbole du logo
-     perdait son haut ; le téléphone garde l'image entière (89 px à 390) */
+     perdait son haut ; le téléphone garde l'image entière (89 px à 390).
+     Mais 190 px FIXES ne valaient que pour 998 px de large : la carte
+     s'élargit avec l'écran (1158 px à 1440, 1446 à 1920), « cover » rogne
+     d'autant le haut, et le symbole était coupé (le client, le 31/10/2026 :
+     « sur PC la bannière est coupée ? »). Le symbole commence à 145 px
+     sur les 398 de l'image : il en faut 275 visibles, calés en bas, soit
+     une hauteur de 17,2 % de la largeur (le % d'un padding se lit sur la
+     largeur ; un aspect-ratio borné rétrécirait la largeur). */
+  html .pf-couv{height:auto; min-height:190px}
+  html .pf-couv::before{content:""; display:block; padding-top:17.2%}
 }
 /* CONTRÔLE « UI UX PRO MAX » (21/10/2026) : contraste de 4,5:1 pour tout
    texte, cibles du doigt de 44 px. Mesuré au navigateur sur chaque écran à
@@ -16067,21 +16076,51 @@ function _pfQuarts(pr){
 /* LES REPÈRES D'HEURES SOUS LA BARRE (le client, le 31/10/2026 : « rendre
    plus professionnelle la barre d'avancement, et peut-être avoir des
    repères des heures, 14:00, 15:00, 16:00 ») : une règle. Un trait court à
-   chaque heure ronde ; une étiquette toutes les heures sur un poste de
-   8 h, toutes les deux heures sur un 12 h, toutes les trois au-delà, sans
-   les extrémités (les heures de début et de fin sont au titre) ; au
-   téléphone étroit, une étiquette sur deux. Les heures passées
-   s'estompent. */
+   chaque heure ronde, une étiquette à chaque heure sauf aux extrémités (les
+   heures de début et de fin sont au titre). Lesquelles restent visibles se
+   décide d'après la largeur réelle du cadre (pfAxeAjuste) : toutes au PC,
+   une sur deux, sur trois… au téléphone, jamais l'une sur l'autre. Les
+   heures passées s'estompent. */
 function _pfAxe(pr){
-  var d0=pr.tDeb, d1=pr.tFin, dur=(d1-d0)/36e5; if(!(dur>0)) return "";
-  var pas=dur<=8.5?1:dur<=12.5?2:3, h=new Date(d0), n=Date.now(), t=[], l=[], k=0;
+  var d0=pr.tDeb, d1=pr.tFin; if(!(d1>d0)) return "";
+  var h=new Date(d0), n=Date.now(), t=[], l=[];
   h.setMinutes(0,0,0); h=new Date(h.getTime()+36e5);
   for(;h.getTime()<d1-1;h=new Date(h.getTime()+36e5)){
     var x=(h.getTime()-d0)/(d1-d0)*100, hr=h.getHours(), passe=h.getTime()<=n?' pf-ax-passe':'';
-    t.push('<i class="pf-ax-t'+(hr%pas===0?' pf-ax-maj':'')+passe+'" style="left:'+x.toFixed(2)+'%"></i>');
-    if(hr%pas===0&&x>6&&x<94) l.push('<span class="pf-ax-l'+((k++)%2?' pf-ax-imp':'')+passe+'" style="left:'+x.toFixed(2)+'%">'+hr+'\u00a0h</span>');
+    t.push('<i class="pf-ax-t'+passe+'" data-h="'+hr+'" style="left:'+x.toFixed(2)+'%"></i>');
+    if(x>6&&x<94) l.push('<span class="pf-ax-l'+passe+'" data-h="'+hr+'" style="left:'+x.toFixed(2)+'%">'+hr+'\u00a0h</span>');
   }
   return '<span class="pf-axe" aria-hidden="true">'+t.join("")+l.join("")+'</span>';
+}
+/* le pas des étiquettes : le plus fin (1, 2, 3, 4 ou 6 h) dont aucune
+   étiquette ne touche sa voisine (8 px d'écart au moins) ; les traits des
+   heures étiquetées s'allongent */
+function pfAxeAjuste(racine){
+  [].forEach.call((racine||document).querySelectorAll(".pf-axe"),function(ax){
+    var w=ax.clientWidth; if(!w) return;
+    var ls=[].slice.call(ax.querySelectorAll(".pf-ax-l")), ts=[].slice.call(ax.querySelectorAll(".pf-ax-t"));
+    ls.forEach(function(e){ e.classList.remove("pf-ax-cache"); });
+    var m=ls.map(function(e){ return {e:e, h:Number(e.getAttribute("data-h")), c:parseFloat(e.style.left)/100*w, d:e.offsetWidth/2}; }), pas=1;
+    [1,2,3,4,6].some(function(p){
+      var vus=m.filter(function(o){ return o.h%p===0; }), ok=true;
+      for(var i=1;i<vus.length;i++) if(vus[i].c-vus[i].d<vus[i-1].c+vus[i-1].d+8){ ok=false; break; }
+      pas=p; return ok;
+    });
+    m.forEach(function(o){ o.e.classList.toggle("pf-ax-cache",o.h%pas!==0); });
+    ts.forEach(function(e){ e.classList.toggle("pf-ax-maj",Number(e.getAttribute("data-h"))%pas===0); });
+  });
+}
+(function(){ var tm=null; window.addEventListener("resize",function(){ clearTimeout(tm); tm=setTimeout(function(){ try{ pfAxeAjuste(document.getElementById("rythmeTete")); }catch(e){} },120); }); })();
+/* LE POURQUOI DU JOUR (le client, le 31/10/2026 : « comment encore
+   améliorer ce cadre ? ») : le commentaire du classeur, en une phrase
+   (comPro), sous le cadre — ce soir-là, « Remplace FPA de 22h à 01h00. »
+   dit pourquoi le poste finit à 1 h. Le texte entier en infobulle. */
+function _pfCom(p,d){
+  var db=horaireDe(d.getFullYear()); if(!db) return "";
+  var q=null; db.people.forEach(function(x){ if(x.id===p.id) q=x; }); if(!q||!q.d) return "";
+  var c=comAffiche(q.d[pad2(d.getMonth()+1)+pad2(d.getDate())]); if(!c) return "";
+  var t=comPro(c).split("\n").join(" ");
+  return t?'<span class="pf-proch-com" title="'+esc(t)+'">'+esc(t)+'</span>':"";
 }
 function _pfHead(db,p){
   var tri=idLisible(p.id);
@@ -16180,6 +16219,7 @@ function _pfHead(db,p){
         if(e&&e.avec.length) av.push('avec <b>'+e.avec.map(function(t){ return esc(idLisible(t)); }).join(" · ")+'</b>');
         return '<span class="pf-proch-at"'+(at||av.length?'':' hidden')+'>'+esc(at)+(av.length?'<span class="pf-avec">'+(at?' · ':'')+av.join(" · ")+'</span>':'')+'</span>';
       })()
+      +_pfCom(p,pr.d)
       +'</span><span class="pf-fl" aria-hidden="true">›</span></span></button>';
   }
   /* PLUS DE BANDE DES SEPT JOURS (le client, le 16/10/2026 : « pas de
@@ -22662,7 +22702,7 @@ function renderRythme(){
   var ag=document.getElementById("agendaCard");
   if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
-  if(tete) tete.innerHTML=_pfHead(db,person);
+  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
      l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
   if(typeof finIntro==="function") finIntro();
@@ -22754,7 +22794,7 @@ function accueilTic(){
   if(!pr) return;
   var em=b.querySelector(".pf-rel"), rel=_pfRel(pr); if(em&&em.innerHTML!==rel) em.innerHTML=rel;
   var qt=b.querySelector(".pf-quarts"); if(qt&&pr.enCours){ var q=_pfQuarts(pr); if(qt.textContent!==q) qt.textContent=q; }
-  var ax=b.querySelector(".pf-axe"); if(ax&&pr.enCours){ var tmp=document.createElement("div"); tmp.innerHTML=_pfAxe(pr); if(tmp.firstChild&&tmp.firstChild.innerHTML!==ax.innerHTML) ax.innerHTML=tmp.firstChild.innerHTML; }
+  var ax=b.querySelector(".pf-axe"); if(ax&&pr.enCours){ var tmp=document.createElement("div"); tmp.innerHTML=_pfAxe(pr); if(tmp.firstChild&&tmp.firstChild.innerHTML!==ax.innerHTML){ ax.innerHTML=tmp.firstChild.innerHTML; pfAxeAjuste(b); } }
   var tr=b.querySelector(".pf-trait"), i=tr&&tr.querySelector("i");
   if(tr){ tr.setAttribute("aria-valuenow",pr.pct); if(pr.enCours) tr.setAttribute("aria-valuetext",pr.pct+" % du poste, "+_pfQuarts(pr)); if(i) i.style.width=pr.pct+"%"; }
 }
