@@ -7785,3 +7785,31 @@ Vérifié au téléphone, l'heure fixée (`cm-tuile.js`) :
 - à 320, 390 et 1280 px, VBN a cinq tuiles et la rangée ne déborde pas.
 
 Parcours complet : 183 essais, 0 faute. Sur la v1248, le contrôle crie 10 fois.
+
+### Le champ de recherche à la hauteur des boutons (01/11/2026, `nfdm-v1250`)
+
+Le client, capture de l'Horaire au téléphone, recherche ouverte : « la
+barre de recherche doit avoir la même hauteur que les autres boutons, et
+j'aimerais que les bout… ». Le message s'est coupé là ; la seconde
+demande reste à recevoir.
+
+Mesuré à 390 px :
+- au téléphone, une règle donne 44 px de haut aux boutons de la rangée
+  des équipes (`#grEquipes button`, la cible du doigt) ;
+- la loupe et la croix, larges de 32 px, faisaient donc 32 × 44 : des
+  ovales ;
+- le champ, qui n'est pas un bouton, restait à 32 px ;
+- au PC, tout fait 32 px : rien n'y change.
+
+Fait, au téléphone (jusqu'à 699 px) : le champ passe à 44 px, avec un
+texte de 15 px. La loupe et la croix deviennent des ronds de 44 px. La
+loupe garde la hauteur des pilules d'équipe quand la recherche est
+fermée.
+
+Vérifié (`cherche-h.js`) :
+- à 320 et 390 px, en employé et en RH : loupe, champ et croix font
+  44 px, alignés en haut, la loupe et la croix sont rondes ;
+- au PC, tout reste à 32 px ;
+- la recherche marche toujours (`recherche.js`, 0 faute).
+
+Parcours complet : 183 essais, 0 faute. Sur la v1249, le contrôle crie 12 fois.
