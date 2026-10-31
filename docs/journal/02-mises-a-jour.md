@@ -1212,6 +1212,50 @@ son identifiant de l'entreprise, plusieurs ouvriers sur le même PC.
   quarantaine). Supabase le permet, mais l'entreprise doit autoriser
   l'application dans son annuaire Microsoft.
 
+**« Se connecter avec Microsoft », prêt pour l'essai (31/10/2026,
+`nfdm-v1237`).** Le client : « comment fonctionnerait la connexion par le
+compte Microsoft en dehors du PC, depuis le mobile par exemple ? », puis
+« on peut essayer sur mon téléphone pour voir ».
+
+Dans l'application :
+- **le bouton** « Se connecter avec Microsoft », sous « Recevoir un
+  code », mène à `/auth/v1/authorize?provider=azure&scopes=email`, avec le
+  retour sur la page même ;
+- **la session revient dans l'ancre**, que `baseDepuisLien` lisait déjà
+  pour le lien des e-mails ;
+- **un refus revient aussi par l'ancre** (`#error=…`). Il restait muet ;
+  il est maintenant dit sur l'écran de l'adresse : la règle des domaines
+  si la base a refusé l'adresse, sinon le motif de Microsoft ;
+- **le bouton ne paraît que si Supabase dit le fournisseur « azure »
+  allumé** (`/auth/v1/settings`). Tant que le client ne l'a pas réglé,
+  personne ne voit un bouton qui échouerait.
+
+Éprouvé à 320, 390 et 1280 px, Supabase simulé :
+- le bouton, sans débordement ;
+- l'adresse de départ (fournisseur, `email`, retour) ;
+- fournisseur éteint ou réglages injoignables : pas de bouton ;
+- un refus de domaine, puis un refus de Microsoft, chacun avec son
+  message, et l'ancre effacée ;
+- un retour avec session, qui mène à l'étape du compte ;
+- le parcours complet : 0 faute.
+
+Le contrôle mord : neuf fautes sur une copie sans ces deux changements.
+
+**À faire par le client, hors du dépôt** :
+- l'inscription de l'application dans l'annuaire Entra de Microsoft (URI de retour
+  `https://<projet>.supabase.co/auth/v1/callback`, revendications
+  facultatives `email` et `xms_edov`, que Supabase recommande pour savoir
+  si l'adresse est vérifiée) ;
+- le fournisseur Azure dans Supabase (identifiant, secret, adresse de
+  l'annuaire).
+
+Le secret ne passe ni par la conversation ni par le dépôt. **À observer à
+l'essai** :
+- l'iPhone ramène-t-il dans l'application installée ou dans Safari ?
+- l'adresse que Microsoft donne est-elle celle du compte (sinon, un
+  compte nouveau à rattacher) ?
+- l'entreprise accepte-t-elle le consentement d'un utilisateur ?
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone

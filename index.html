@@ -5629,6 +5629,9 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-btn:hover{border-color:var(--in); color:var(--in)}
 .gate-btn:active{transform:scale(.98)}
 .gate-btn.primary{background:var(--in); border-color:var(--in); color:var(--sur-in)}
+/* « Se connecter avec Microsoft » : le logo à quatre carrés, puis le texte */
+.gate-btn.gate-ms{display:flex; align-items:center; justify-content:center; gap:10px}
+.gate-btn.gate-ms[hidden]{display:none}
 .gate-btn.primary:hover{background:var(--in2); border-color:var(--in2); color:var(--sur-in)}
 .gate-btn:disabled{opacity:.45; pointer-events:none}
 .gate-link{background:none; border:0; color:var(--muted); font-size:12.5px; cursor:pointer; padding:7px; text-decoration:underline; text-underline-offset:2px}
@@ -19099,14 +19102,16 @@ function baseDepuisLien(){
   var h=String(location.hash||"").replace(/^#/,""); if(!/(^|&)(access_token|error)=/.test(h)) return false;
   var q={}; h.split("&").forEach(function(x){ var i=x.indexOf("="); if(i>0) q[decodeURIComponent(x.slice(0,i))]=decodeURIComponent(x.slice(i+1).replace(/\+/g," ")); });
   try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
-  if(!q.access_token) return false;
+  /* un refus revient aussi par l'ancre (#error=…&error_description=…) :
+     l'écran de l'adresse le dit, au lieu de rouvrir muet */
+  if(!q.access_token){ _lienErreur=q.error_description||q.error||""; return false; }
   var email="";
   try{ var p=q.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"); while(p.length%4) p+="="; email=JSON.parse(decodeURIComponent(escape(atob(p)))).email||""; }catch(e){}
   baseGarder({access_token:q.access_token, refresh_token:q.refresh_token, expires_in:Number(q.expires_in)||3600, user:{email:email}});
   if(email) lsSet("base/email",email);
   return true;
 }
-var _lienConnexion=false;
+var _lienConnexion=false, _lienErreur="";
 try{ _lienConnexion=baseDepuisLien(); }catch(e){}
 /* un jeton valide, renouvelé s'il le faut.
    DÉCONNECTÉ SANS LE SAVOIR (le client, le 30/10/2026, capture de 19 h 04 :
@@ -31435,7 +31440,7 @@ function ouvrirGate(onOk){
   var g=document.getElementById("gate");
   g.hidden=false;
   if(typeof inerteFond==="function") try{ inerteFond(true); }catch(e){}
-  if(_lienConnexion){ _lienConnexion=false; gateVueCreer(); } else gateVueAccueil();
+  if(_lienConnexion||_lienErreur){ _lienConnexion=false; gateVueCreer(); } else gateVueAccueil();
   fetchHoraireDB().then(function(db){ _gateDB=db; },function(){ _gateDB=null; });
 }
 function fermerGate(){
@@ -31507,6 +31512,27 @@ function gateVueCreer(){
    champ par aria-describedby, et le champ fautif dit aria-invalid : le
    lecteur d'écran n'annonçait ni « Adresse e-mail incomplète » ni « Code
    refusé » (audit du 23/10/2026). */
+/* SE CONNECTER AVEC MICROSOFT (le client, le 31/10/2026 : « on peut
+   essayer sur mon téléphone pour voir »). Le compte de l'entreprise, sans
+   code ni e-mail : la page de Microsoft, puis Supabase, qui revient ici
+   avec la session dans l'ancre (baseDepuisLien, comme le lien d'un
+   e-mail). Le bouton ne paraît que si Supabase dit le fournisseur
+   « azure » allumé (/auth/v1/settings) : tant que le client ne l'a pas
+   réglé, personne ne voit un bouton qui échouerait. La règle des
+   domaines reste celle de la base (base/06-domaines.sql). */
+var GATE_ICO_MS='<svg width="17" height="17" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>',
+    _msDispo=null;
+function gateMicrosoft(){
+  var b=document.getElementById("gateMicrosoft"); if(!b) return;
+  b.onclick=function(){
+    b.disabled=true;
+    location.href=BASE_URL+"/auth/v1/authorize?provider=azure&scopes=email&redirect_to="+encodeURIComponent(ADRESSE_APP);
+  };
+  if(_msDispo!==null){ b.hidden=!_msDispo; return; }
+  fetch(BASE_URL+"/auth/v1/settings",{headers:{apikey:BASE_CLE}}).then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ _msDispo=!!(j&&j.external&&j.external.azure);
+      var b2=document.getElementById("gateMicrosoft"); if(b2) b2.hidden=!_msDispo; },function(){});
+}
 function gateVueEmail(){
   _gateAttente=false;
   gateSetTitre("Connexion","Un code vous est envoyé par e-mail");
@@ -31517,11 +31543,15 @@ function gateVueEmail(){
     +'<div class="gate-err" id="gateErr" role="alert"></div>'
     +'<div class="gate-actions">'
     +'<button type="button" class="gate-btn primary" id="gateEnvoyer">Recevoir un code</button>'
+    +'<button type="button" class="gate-btn gate-ms" id="gateMicrosoft" hidden>'+GATE_ICO_MS+'Se connecter avec Microsoft</button>'
     +'<button type="button" class="gate-link" id="gateDejaCode">J\'ai déjà un code</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Retour</button>'
     +'</div>');
   var em=document.getElementById("gateEmail"), err=document.getElementById("gateErr"), btn=document.getElementById("gateEnvoyer");
   var der=lsGet("base/email"); if(der) em.value=der;
+  if(_lienErreur){ var le=_lienErreur; _lienErreur="";
+    err.textContent=/database error|non autoris|P0001/i.test(le)?"Seules les adresses @biowanze.be et @cropenergies.com donnent accès à l'application.":"Connexion refusée par Microsoft : "+le+"."; }
+  gateMicrosoft();
   function adresse(){
     var v=String(em.value||"").trim().toLowerCase();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="Adresse e-mail incomplète."; em.setAttribute("aria-invalid","true"); return ""; }
