@@ -3755,7 +3755,7 @@ horaire hors du D, chaque prolongation avec pause et poste, aucune
 erreur. Le contrôle mord : 60 fautes sur la version d'avant, 8 sur une
 copie qui remet « cm ».
 
-### Les deux créneaux de 12 h en tableau (31/10/2026, `nfdm-v1239`)
+### Les deux créneaux de 12 h en tableau (31/10/2026, `nfdm-v1239`, remplacé par la v1240 le soir même)
 
 Le client, capture de la nuit du 3 novembre aux Chaudières : « moyen de
 faire plus professionnel pour les deux créneaux de 12 h ». La prolongation
@@ -3787,3 +3787,25 @@ effectifs, 4 prolongations :
 - aucune erreur.
 
 Le contrôle crie seize fois sur la version d'avant.
+
+### Un sous-titre par créneau, les badges dessous (31/10/2026, `nfdm-v1240`)
+
+Le client, devant la v1239 : « je pense que le mieux est d'avoir un
+sous-titre avec le "pour faire 6-18" et en dessous les badges avec
+trigramme, pause / poste ». La mise en tableau de la v1239 (horaire à
+droite, pause · poste une seule fois en tête) est donc retirée. Chaque
+créneau s'écrit désormais ainsi :
+- **le sous-titre** « Pour faire 06-18 » (12 px, l'horaire en mono gras) ;
+- **dessous, les badges** : trigramme, puis la pause et le poste que la
+  personne tient ce jour-là (`caPrevu` et `posteAttitreLe`), sans horaire,
+  comme partout depuis la v1238.
+
+Vérifié à 320, 390 (sombre et clair) et 1280 px sur l'onglet des
+effectifs, 4 prolongations :
+- deux créneaux chacune, le sous-titre au-dessus des badges ;
+- chaque badge porte trigramme, pause et poste, sans horaire ;
+- rien ne sort du cadre, et aucune erreur.
+
+Le contrôle a d'abord crié 88 fois, à tort : il lisait le trigramme et sa
+mention collés (le trigramme suivi de « AM » sans espace), alors qu'à l'écran ce sont deux parties
+séparées. Le test a été corrigé, pas l'application.
