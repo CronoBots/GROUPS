@@ -7572,7 +7572,7 @@ Vérifié au navigateur :
 
 Sur la v1242, les mêmes contrôles crient 20, 2 et 6 fois.
 
-### Le temps restant en quarts d'heure, sous la barre (31/10/2026, `nfdm-v1244`)
+### Le temps restant en quarts d'heure, sous la barre (31/10/2026, `nfdm-v1244`, quarts entiers et règle d'heures en v1246)
 
 Le client, capture de l'iPhone à 22 h 22 : « pour la pause en cours, des
 opérateurs aiment bien parler en quarts d'heure restants, ça peut être
@@ -7651,3 +7651,37 @@ Les autres contrôles :
 - le contrôle crie 4 fois sur la v1244 ;
 - vérificateur du calendrier : sortie identique à l'octet ;
 - parcours complet : 0 faute.
+
+### Des quarts d'heure entiers, et une règle d'heures sous la barre (31/10/2026, `nfdm-v1246`)
+
+Le client, devant la v1244 : « il faut des quarts d'heure complets, et ne
+pas parler de ½ quart d'heure. Il faut rendre plus professionnelle la
+barre d'avancement, et peut-être avoir des repères des heures (14:00,
+15:00, 16:00, etc.) ». La v1244 comptait au demi-quart près (« ≈ 10 ½
+quarts d'heure ») : c'était mon choix, retiré.
+
+Fait :
+- **Des quarts entiers** (`_pfQuarts`) : le nombre de quarts d'heure
+  complets restants, sans « ≈ ». 2 h 38 font « 10 quarts d'heure » ; sous
+  15 min, c'est « le dernier quart d'heure ».
+- **La barre** passe à 6 px, avec un curseur rond au moment présent,
+  cerclé d'un halo, et un remplissage en dégradé.
+- **La règle** (`_pfAxe`) : un trait court à chaque heure ronde, plus long
+  aux heures étiquetées. Une étiquette (« 16 h ») toutes les heures sur un
+  poste de 8 h, toutes les deux heures sur un 12 h, toutes les trois
+  au-delà. Les extrémités n'en ont pas : elles sont au titre. Sous 380 px,
+  une étiquette sur deux. Les heures passées s'estompent, et la règle se
+  met à jour à la minute avec le décompte.
+- **Le lecteur d'écran** entend « 77 % du poste, 10 quarts d'heure ».
+
+Vérifié à 320, 360, 390 (clair) et 1280 px, sur trois postes :
+- les quarts attendus : 13 h 30 – 1 h à 22 h 22 (10 quarts), un
+  après-midi de 8 h à 18 h 10 (15 quarts), une nuit de 0 h 30 à 6 h à
+  3 h 05 (11 quarts) ;
+- des étiquettes à chaque fois, aucune qui en touche une autre ni ne sort
+  de la carte, aucune sous 11 px, une barre de 6 px ;
+- l'heure avancée à 23 h 31 donne 5 quarts, à 0 h 50 « le dernier quart
+  d'heure », avec « 0 h » estompé ;
+- mesure de l'Accueil : 0 défaut ; parcours complet : 0 faute.
+
+Le contrôle crie 50 fois sur la v1245.

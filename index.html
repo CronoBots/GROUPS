@@ -5740,6 +5740,20 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-trait{display:block; width:100%; min-width:16px; height:3px; border-radius:2px; background:var(--fd-blanc-18); overflow:hidden; position:relative}
 .pf-trait i{display:block; height:100%; background:var(--marque-vif); border-radius:2px}
 .pf-trait.en{height:4px}
+/* LA BARRE DU POSTE EN COURS, EN RÈGLE (31/10/2026) : 6 px, un curseur
+   rond au moment présent ; dessous, un trait par heure (plus long aux
+   heures étiquetées) et les étiquettes, le passé estompé */
+.pf-proch .pf-trait.en{height:6px; border-radius:3px; overflow:visible; margin-top:2px}
+.pf-proch .pf-trait.en i{position:relative; border-radius:3px; background:linear-gradient(90deg,color-mix(in srgb,var(--marque-vif) 65%,transparent),var(--marque-vif))}
+.pf-proch .pf-trait.en i::after{content:""; position:absolute; right:-6px; top:50%; width:12px; height:12px; border-radius:50%; transform:translateY(-50%);
+  background:var(--marque-vif); box-shadow:0 0 0 3px color-mix(in srgb,var(--marque-vif) 28%,transparent)}
+.pf-axe{position:relative; display:block; height:22px; margin-top:-2px}
+.pf-ax-t{position:absolute; top:0; width:1px; height:4px; margin-left:-.5px; background:var(--tx-blanc-45)}
+.pf-ax-t.pf-ax-maj{height:6px; background:var(--tx-blanc-62)}
+.pf-ax-l{position:absolute; top:7px; transform:translateX(-50%); font-size:11px; line-height:14px; font-weight:600; color:var(--tx-blanc-66); white-space:nowrap; font-variant-numeric:tabular-nums}
+.pf-ax-t.pf-ax-passe{opacity:.5}
+.pf-ax-l.pf-ax-passe{color:var(--tx-blanc-45)}
+@media (max-width:380px){ .pf-ax-l.pf-ax-imp{display:none} }
 .pf-proch-at{font-size:12px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-at.app{color:var(--tx-orange)}
 .pf-proch-at[hidden]{display:none}
@@ -16041,14 +16055,33 @@ function _pfRel(pr){
 }
 /* LES QUARTS D'HEURE (le client, le 31/10/2026 : « des opérateurs aiment
    bien parler en quarts d'heure restants, ça peut être marrant d'ajouter
-   ce petit clin d'œil au temps restant »). Au demi-quart près : 2 h 38
-   restent « ≈ 10 ½ quarts d'heure » ; le dernier quart d'heure se dit
-   comme tel. */
+   ce petit clin d'œil au temps restant »). DES QUARTS ENTIERS (le même
+   soir : « il faut des quarts d'heure complets, et ne pas parler de ½
+   quart d'heure ») : 2 h 38 restent « 10 quarts d'heure » ; sous 15 min,
+   « le dernier quart d'heure ». */
 function _pfQuarts(pr){
-  var mn=Math.max(1,Math.ceil((pr.tFin-Date.now())/6e4));
-  if(mn<15) return "le dernier quart d’heure";
-  var dq=Math.round(mn/7.5), q=Math.floor(dq/2), demi=dq%2===1;
-  return "≈ "+q+(demi?" ½":"")+" quart"+(q>=2?"s":"")+" d’heure";
+  var mn=Math.max(1,Math.ceil((pr.tFin-Date.now())/6e4)), q=Math.floor(mn/15);
+  if(q<1) return "le dernier quart d\u2019heure";
+  return q+"\u00a0quart"+(q>=2?"s":"")+" d\u2019heure";
+}
+/* LES REPÈRES D'HEURES SOUS LA BARRE (le client, le 31/10/2026 : « rendre
+   plus professionnelle la barre d'avancement, et peut-être avoir des
+   repères des heures, 14:00, 15:00, 16:00 ») : une règle. Un trait court à
+   chaque heure ronde ; une étiquette toutes les heures sur un poste de
+   8 h, toutes les deux heures sur un 12 h, toutes les trois au-delà, sans
+   les extrémités (les heures de début et de fin sont au titre) ; au
+   téléphone étroit, une étiquette sur deux. Les heures passées
+   s'estompent. */
+function _pfAxe(pr){
+  var d0=pr.tDeb, d1=pr.tFin, dur=(d1-d0)/36e5; if(!(dur>0)) return "";
+  var pas=dur<=8.5?1:dur<=12.5?2:3, h=new Date(d0), n=Date.now(), t=[], l=[], k=0;
+  h.setMinutes(0,0,0); h=new Date(h.getTime()+36e5);
+  for(;h.getTime()<d1-1;h=new Date(h.getTime()+36e5)){
+    var x=(h.getTime()-d0)/(d1-d0)*100, hr=h.getHours(), passe=h.getTime()<=n?' pf-ax-passe':'';
+    t.push('<i class="pf-ax-t'+(hr%pas===0?' pf-ax-maj':'')+passe+'" style="left:'+x.toFixed(2)+'%"></i>');
+    if(hr%pas===0&&x>6&&x<94) l.push('<span class="pf-ax-l'+((k++)%2?' pf-ax-imp':'')+passe+'" style="left:'+x.toFixed(2)+'%">'+hr+'\u00a0h</span>');
+  }
+  return '<span class="pf-axe" aria-hidden="true">'+t.join("")+l.join("")+'</span>';
 }
 function _pfHead(db,p){
   var tri=idLisible(p.id);
@@ -16129,7 +16162,7 @@ function _pfHead(db,p){
       /* plus de pastille de durée (le client, le 25/10/2026 : « retire la
          durée ») : le titre et les heures tiennent sur une ligne */
       +'</span></span>'
-      +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pr.pct+'%"></i></span>'
+      +(pr.enCours?'<span class="pf-trait en" role="progressbar" aria-valuenow="'+pr.pct+'" aria-valuemin="0" aria-valuemax="100" aria-valuetext="'+esc(pr.pct+" % du poste, "+_pfQuarts(pr))+'"><i style="width:'+pr.pct+'%"></i></span>'+_pfAxe(pr)
         /* LE TEMPS RESTANT SOUS LA BARRE (le client, le 31/10/2026 : « sur
            mobile, le temps restant coupe la ligne de titre ») : l'en-tête
            garde sa date en entier, le décompte et ses quarts d'heure
@@ -22721,8 +22754,9 @@ function accueilTic(){
   if(!pr) return;
   var em=b.querySelector(".pf-rel"), rel=_pfRel(pr); if(em&&em.innerHTML!==rel) em.innerHTML=rel;
   var qt=b.querySelector(".pf-quarts"); if(qt&&pr.enCours){ var q=_pfQuarts(pr); if(qt.textContent!==q) qt.textContent=q; }
+  var ax=b.querySelector(".pf-axe"); if(ax&&pr.enCours){ var tmp=document.createElement("div"); tmp.innerHTML=_pfAxe(pr); if(tmp.firstChild&&tmp.firstChild.innerHTML!==ax.innerHTML) ax.innerHTML=tmp.firstChild.innerHTML; }
   var tr=b.querySelector(".pf-trait"), i=tr&&tr.querySelector("i");
-  if(tr){ tr.setAttribute("aria-valuenow",pr.pct); if(i) i.style.width=pr.pct+"%"; }
+  if(tr){ tr.setAttribute("aria-valuenow",pr.pct); if(pr.enCours) tr.setAttribute("aria-valuetext",pr.pct+" % du poste, "+_pfQuarts(pr)); if(i) i.style.width=pr.pct+"%"; }
 }
 document.addEventListener("visibilitychange",function(){
   if(document.hidden||st.view!=="horaire") return;
