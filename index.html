@@ -5644,6 +5644,24 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .gate-revu{font-size:12.5px; line-height:1.45; color:var(--muted)}
 .gate-revu:empty{display:none}
 .gate-aide{text-align:center; padding:0 6px}
+/* L'aide des codes en quarantaine (31/10/2026) : un encart, deux gestes
+   numérotés, la quarantaine en bouton, l'adresse du robot à copier. */
+.gate-q{padding:13px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); font-size:12.5px; line-height:1.45; color:var(--muted)}
+.gate-q-t{color:var(--ink); font-weight:600; font-size:13px; margin-bottom:2px}
+.gate-q ol{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; counter-reset:gq}
+.gate-q li{position:relative; padding-left:26px; counter-increment:gq}
+.gate-q li::before{content:counter(gq); position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--in-soft); color:var(--in); font-size:11px; font-weight:700; line-height:18px; text-align:center}
+.gate-btn.gate-q-btn{display:flex; align-items:center; justify-content:center; margin-top:8px; padding:9px 12px; font-size:13px; text-decoration:none}
+.gate-copie{appearance:none; display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; margin-top:8px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); cursor:pointer; text-align:left}
+.gate-copie span{font-size:13px; font-weight:600; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.gate-copie b{flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--in)}
+.gate-copie b i{font-style:normal}
+.gate-copie svg{display:block}
+/* à moins de 380 px, l'adresse (155 px) n'entrait pas sous le retrait du
+   numéro : les deux boutons prennent toute la largeur de l'encart */
+@media (max-width:379px){ .gate-copie b i{display:none} .gate-q li .gate-q-btn,.gate-q li .gate-copie{margin-left:-26px; width:calc(100% + 26px)} }
+.gate-copie:hover{border-color:var(--in)}
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .gate-btn.gate-q-btn,.gate-copie{min-height:44px} }
 /* Carte d'identité : le trigramme en point focal (mono), l'équipe/fonction en
    accent dessous, puis les champs centrés et empilés (libellé fin au-dessus). */
 .gp{border:1px solid var(--line); border-radius:14px; background:var(--surface2); padding:18px 16px 16px; text-align:center}
@@ -31612,10 +31630,51 @@ var CODE_CHIFFRES=6, CODE_MIN=6, CODE_MAX=8;
    avis : envoyés par le robot, jamais arrivés. Le client a dû autoriser
    l'expéditeur lui-même ; l'écran dit à chacun lequel, et où chercher. */
 var EXPEDITEUR_CODE="biowanzeapp@gmail.com";
+/* LES CODES EN QUARANTAINE (le client, le 31/10/2026 : « comment éviter
+   cela à tout prix »). La messagerie de l'entreprise (Microsoft 365) range
+   les codes du robot en quarantaine, comme courrier indésirable : ceux des
+   28, 29 et 30/10 y sont restés jusqu'à ce que le client les libère. Deux
+   gestes, dits à l'écran pour chacun : libérer CE code dans la quarantaine
+   (la page de Microsoft s'ouvre d'ici), et, une fois pour toutes, mettre
+   l'adresse ENTIÈRE du robot dans les « Expéditeurs approuvés » d'Outlook.
+   Cette liste l'emporte sur le verdict « courrier indésirable » (pas sur
+   l'hameçonnage ni les virus), et un DOMAINE approuvé n'y suffit pas.
+   Une adresse hors de l'entreprise, admise par la base seule
+   (base/11-adresses.sql), garde l'aide d'avant. */
+var QUARANTAINE_URL="https://security.microsoft.com/quarantine";
+function gateAideCode(email){
+  if(!emailAutorise(email))
+    return '<p class="gate-revu gate-aide">Rien reçu après une minute ? Regardez le courrier indésirable de votre messagerie, autorisez l\'expéditeur, puis renvoyez un code.</p>';
+  return '<div class="gate-q">'
+    +'<p class="gate-q-t">Rien reçu après une minute ?</p>'
+    +'<p>Ce code est souvent retenu en\u00a0quarantaine par la messagerie de l\'entreprise.</p>'
+    +'<ol>'
+    +'<li>Libérez «\u00a0Votre code BIOWANZE\u00a0» dans la quarantaine de Microsoft.'
+    +'<a class="gate-btn gate-q-btn" href="'+QUARANTAINE_URL+'" target="_blank" rel="noopener">Ouvrir la quarantaine</a></li>'
+    +'<li>Une fois pour toutes, ajoutez cette adresse aux «\u00a0Expéditeurs approuvés\u00a0» d\'Outlook (Courrier indésirable, puis Options).'
+    +'<button type="button" class="gate-copie" id="gateCopie" aria-label="Copier l\'adresse '+EXPEDITEUR_CODE+'"><span>'+EXPEDITEUR_CODE+'</span>'
+    +'<b><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+GATE_ICO_COPIE+'</svg><i>Copier</i></b></button></li>'
+    +'</ol></div>';
+}
+/* l'adresse ne se coupe jamais : à 320 px, « Copier » laisse l'icône seule */
+var GATE_ICO_COPIE='<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    GATE_ICO_FAIT='<path d="M20 6 9 17l-5-5"/>';
+function gateCopieAdresse(){
+  var b=document.getElementById("gateCopie"); if(!b) return;
+  b.onclick=function(){
+    var g=b.querySelector("svg"), t=b.querySelector("i");
+    function etat(fait){ g.innerHTML=fait?GATE_ICO_FAIT:GATE_ICO_COPIE; t.textContent=fait?"Copiée":"Copier";
+      b.setAttribute("aria-label",fait?"Adresse copiée":"Copier l'adresse "+EXPEDITEUR_CODE); }
+    function fini(){ etat(true); setTimeout(function(){ if(document.body.contains(b)) etat(false); },2000); }
+    function aLaMain(){ window.prompt("Adresse à copier :",EXPEDITEUR_CODE); }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(EXPEDITEUR_CODE).then(fini,aLaMain);
+    else aLaMain();
+  };
+}
 function gateVueCode(email){
   gateSetTitre("Code reçu",email);
   gateSetBody(''
-    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir de <b>'+EXPEDITEUR_CODE+'</b>. Le code est valable une heure.</p>'
+    +'<p class="gate-lede">Un e-mail « Votre code BIOWANZE » vient de partir de <b>'+EXPEDITEUR_CODE+'</b>. Le code est valable une\u00a0heure.</p>'
     +'<div class="gate-f"><label for="gateCode">Code reçu par e-mail</label>'
     +'<div class="otp" id="gateOtp">'
     +'<div class="otp-cases" aria-hidden="true"></div>'
@@ -31627,7 +31686,8 @@ function gateVueCode(email){
     +'<button type="button" class="gate-link" id="gateRenvoi">Renvoyer un code</button>'
     +'<button type="button" class="gate-link" id="gateBack">← Autre adresse</button>'
     +'</div>'
-    +'<p class="gate-revu gate-aide">Rien reçu après une minute ? Regardez le courrier indésirable et la quarantaine de votre messagerie : le filtre de l\'entreprise peut retenir ce message. Autorisez l\'expéditeur, puis renvoyez un code.</p>');
+    +gateAideCode(email));
+  gateCopieAdresse();
   var c=document.getElementById("gateCode"), otp=document.getElementById("gateOtp"), cases=otp.querySelector(".otp-cases"),
       err=document.getElementById("gateErr"), btn=document.getElementById("gateValider"), enCours=false, n=CODE_CHIFFRES;
   function dessiner(){

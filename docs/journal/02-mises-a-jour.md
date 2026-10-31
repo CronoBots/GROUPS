@@ -1015,6 +1015,76 @@ les autres ». Deux réponses, qui se complètent :
   Allow/Block Lists »), que seul le service informatique peut poser. Plus
   solide encore : un expéditeur sur un domaine que l'entreprise connaît,
   authentifié (SPF, DKIM, DMARC), à la place d'une adresse Gmail.
+  (Corrigé le 31/10/2026, voir l'entrée suivante : « libérer » un message ne
+  change rien aux suivants, et seule une autorisation côté destinataire
+  garantit l'arrivée. Un domaine neuf, voisin de celui de l'usine,
+  risquerait au contraire d'être pris pour une imitation.)
+
+**Les codes en quarantaine : l'arrêter chez chacun (31/10/2026,
+`nfdm-v1234`).** Le client, avec la capture de sa quarantaine Microsoft
+Defender : « comment éviter cela à tout prix ». Les codes des 28, 29 et
+30/10 y sont tous, motif « courrier indésirable », stratégie
+anti-courrier indésirable. L'avis de quarantaine propose « Libérer » et
+« Bloquer l'expéditeur », jamais « Autoriser ». Mesuré d'abord :
+- **Libérer un message ne protège pas le suivant.** Le client avait
+  libéré le 28/10, et le code du 30/10 y est retourné.
+- **Pourquoi un code le 30/10 à 19 h 53 UTC.** Dans le journal
+  d'authentification, aucune demande de renouvellement n'a eu lieu entre
+  15 h 34 et 19 h 53 : l'appareil n'avait plus de session à renouveler.
+  Elle s'était perdue sans appel au serveur, sous l'ancien code, ou il
+  s'agissait d'une autre fenêtre (Safari et non l'application installée).
+  La v1219 n'a fait que proposer le code.
+- **La session tient depuis.** Après la reconnexion de 20 h 12, on compte
+  sept renouvellements jusqu'au 31/10 à 14 h 04, dont un après une nuit
+  de dix heures, et aucun perdu. Le PC tient aussi. Un code ne se demande
+  donc plus qu'à la première connexion d'un appareil.
+
+Ce qui l'empêche vraiment, d'après la documentation de Microsoft (« Order
+and precedence of email protection ») :
+- **La liste « Expéditeurs approuvés » de la boîte.** Elle l'emporte sur
+  les verdicts « courrier indésirable » et « courrier indésirable à haut
+  niveau de confiance » : le message arrive dans la boîte de réception,
+  avec l'en-tête `SFV:SFE`. Elle ne l'emporte ni sur les virus ni sur
+  l'hameçonnage à haut niveau de confiance.
+- **L'adresse entière, pas le domaine.** Un DOMAINE approuvé n'est pas
+  honoré pour la quarantaine.
+- **Pour toute l'entreprise**, une autorisation posée par le service
+  informatique : une entrée dans la « liste d'autorisation du locataire »
+  de Defender, ou une règle de
+  flux de courrier qui met le SCL à -1, à condition que le message soit
+  signé DKIM par gmail.com.
+
+**Dans l'application.** Pour une adresse de l'entreprise, l'écran du code
+remplace sa ligne d'aide par un encart à deux gestes numérotés :
+1. libérer ce code : le bouton « Ouvrir la quarantaine » ouvre la page de
+   Microsoft dans un nouvel onglet ;
+2. une fois pour toutes, mettre l'adresse dans les expéditeurs approuvés :
+   un bouton la copie.
+
+Une adresse admise hors domaine (`base/11-adresses.sql`) garde
+l'ancienne ligne.
+
+**Vérification.** Mesuré à 320, 360, 390 et 1280 px, en sombre et en
+clair, iPhone simulé :
+- aucun débordement ;
+- cibles de 44 px au doigt ;
+- la copie arrive dans le presse-papiers et le bouton dit « Copiée » ;
+- le lien s'ouvre dans un nouvel onglet, en `noopener` ;
+- l'adresse hors entreprise n'a pas l'encart.
+
+Le contrôle mord. À 320 px, l'adresse se coupait d'abord en plein mot
+(« …@gma / il.com »). Mise sur une ligne, elle était ensuite tronquée de
+17 px sous le retrait du numéro, et le script l'a relevé. Sous 380 px,
+les deux boutons prennent désormais toute la largeur de l'encart, et
+« Copier » laisse l'icône seule. Trois mots restaient seuls en fin de
+paragraphe (« ici. », « quarantaine. », « heure. ») : le texte a été
+réécrit, ou le mot lié au précédent par une espace insécable.
+
+**Ce qui n'a pas été fait, et pourquoi.**
+- **Envoyer depuis un domaine à soi** : rien ne garantit qu'un domaine
+  neuf passerait le filtre.
+- **« Se connecter avec Microsoft »** : il faudrait l'accord de
+  l'administrateur de l'entreprise, comme l'autorisation de l'expéditeur.
 
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
