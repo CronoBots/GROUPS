@@ -1179,6 +1179,14 @@ les limites de fréquence de l'authentification). Un code plus long, huit chiffr
 entre dans les mêmes cases. Pour le changer ou le retirer, la même
 requête suffit (un autre chiffré, ou une valeur vide).
 
+**Le code choisi par le client (31/10/2026).** Le client : « puis-je le
+choisir moi-même ? », avec ses six chiffres. Le chiffré a été remplacé
+sur son compte, calculé ici comme le premier. Éprouvé au vrai serveur :
+son code ouvre une session (fermée aussitôt), le code tiré au hasard est
+refusé (400). Ce code n'est écrit nulle part ici. On lui a dit qu'un code
+qui ressemble à une date se devine plus vite qu'un code tiré au hasard ;
+le choix lui revient.
+
 **Première notification reçue (21/10/2026).** Le client a posé le secret
 `VAPID_PRIVATE_KEY` ; le passage du robot de 00 h 45 UTC le lit (ligne
 d'environnement remplie). Un essai envoyé à la main, avant que son iPhone
