@@ -20734,11 +20734,24 @@ function siteSalonsHTML(s,o){
    presque jamais « cm » : mesuré, aucune pause ne le montrait par le code. */
 function siteCmIci(s){
   var t=new Date(), h=t.getHours()+t.getMinutes()/60, L=siteCmIds(), sur={};
-  s.sur.forEach(function(x){ sur[x.p.id]=1; });
+  s.sur.forEach(function(x){ sur[x.p.id]=x; });
   /* la demi-heure de remise n'en fait pas le contremaître de la pause qui
      s'achève (le client, le 30/10/2026, à 21 h 36 : « Contremaître FPA »
-     sous l'après-midi d'ATR, FPA arrivé à 21 h 30 pour la nuit) */
-  var r=[]; L.forEach(function(o){ if(sur[o.id]&&o.a+(o.rem?0.5:0)<=h&&h<o.b&&r.indexOf(o.id)<0) r.push(o.id); });
+     sous l'après-midi d'ATR, FPA arrivé à 21 h 30 pour la nuit). Ni celle
+     de qui arrive EN COURS de pause pour une remise : FPA, à 0 h 30 pour
+     1 h le 31/10, ne devient contremaître qu'à 1 h. */
+  var r=[], tard=[];
+  L.forEach(function(o){ var x=sur[o.id]; if(!x||r.indexOf(o.id)>=0) return;
+    var a0=o.a+(o.rem?0.5:0), deb=x.deb+24*(x.dj||0), a=Math.max(a0,deb);
+    if(a<=h&&h<o.b){ r.push(o.id); if(deb>a0&&h<deb+0.5) tard.push(o.id); } });
+  /* CELUI QUI PROLONGE (le client, le 31/10/2026, à 22 h 25 : « cela
+     indique contremaître à appeler FPA, mais c'est moi, VBN, actuellement ») :
+     le contremaître d'une pause finie, toujours sur site, tient la pause
+     en cours tant que le sien n'est pas là, ou pendant sa demi-heure de
+     remise s'il arrive en retard — VBN, l'après-midi prolongé jusqu'à 1 h
+     à la place de FPA. */
+  var prol=[]; L.forEach(function(o){ if(sur[o.id]&&o.b<=h&&prol.indexOf(o.id)<0&&r.indexOf(o.id)<0) prol.push(o.id); });
+  if(prol.length&&r.every(function(id){ return tard.indexOf(id)>=0; })) return prol;
   return r;
 }
 /* rend {id, a, b} : au poste toute sa présence, ou seulement pendant sa
@@ -20759,7 +20772,9 @@ function siteMemo(cle,calc){
 function siteCmIds(){ return siteMemo("cm",siteCmIdsCalc); }
 function siteCmIdsCalc(){
   var t=new Date(), ids=[];
-  [[-1,"N"],[0,"AM"],[0,"PM"],[0,"N"],[1,"AM"]].forEach(function(c){
+  /* l'après-midi d'hier aussi : qui le prolonge passe minuit (VBN, jusqu'à
+     1 h le 31/10) */
+  [[-1,"PM"],[-1,"N"],[0,"AM"],[0,"PM"],[0,"N"],[1,"AM"]].forEach(function(c){
     var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+c[0]);
     try{ var e=rcEquipe(dmIso(d)), l=e&&e.par[c[1]]; if(!l||!l.length) return;
       postesDePause(e.db,l,c[1],pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),c[1]==="AM"?e.par.D:null).postes.forEach(function(q){
@@ -22809,6 +22824,15 @@ function cmDePause(){
   var t=new Date(), h=t.getHours()+t.getMinutes()/60, d=new Date(t.getFullYear(),t.getMonth(),t.getDate()), pz;
   if(h<6){ d.setDate(d.getDate()-1); pz="N"; } else if(h<14) pz="AM"; else if(h<22) pz="PM"; else pz="N";
   var tri=null; try{ tri=rcContremaitre(dmIso(d),pz); }catch(e){}
+  /* QUI TIENT LE POSTE À CETTE MINUTE (le client, le 31/10/2026, à
+     22 h 25 : « cela indique contremaître à appeler FPA, mais c'est moi,
+     VBN, actuellement »). Le contremaître prévu pour la pause ignorait les
+     relais : VBN remplace FPA de 22 h à 1 h, FPA n'arrive qu'à 0 h 30 pour
+     la remise. Celui que « Sur site » place au poste de contremaître en ce
+     moment (siteCmIci : relais, remise et présence comptés) passe d'abord ;
+     le prévu s'il en fait partie, sinon le premier ; personne, le prévu. */
+  try{ var ici=siteMemo("cmici",function(){ return siteCmIci(surSite(new Date())); });
+    if(ici&&ici.length&&ici.indexOf(tri)<0) tri=ici[0]; }catch(e){}
   return {tri:tri, pz:pz, nom:({AM:"Matin",PM:"Après-midi",N:"Nuit"})[pz]};
 }
 var RAC_HTML="";

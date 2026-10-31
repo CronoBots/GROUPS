@@ -7604,3 +7604,50 @@ Vérifié à 320, 360, 390 (sombre et clair), 414, 430, 480 et 1280 px :
 - mesure de l'Accueil : 0 défaut ; parcours complet : 0 faute.
 
 Le contrôle crie 47 fois sur la v1243.
+
+### Le contremaître à appeler : celui qui tient le poste à la minute (31/10/2026, `nfdm-v1245`)
+
+Le client, capture de 22 h 25 : « cela indique contremaître à appeler
+FPA, mais c'est moi, VBN, actuellement ». Le classeur le dit : sa case du
+31/10 porte « 22h-01h », avec « remplace FPA de 22h à 01h00' ». La case
+de FPA porte « arrivée à 01h00' remplacé par VBN » ; il arrive à 0 h 30
+pour la remise.
+
+**Les causes, mesurées dans une copie qui expose les calculs.**
+- **La tuile** (`cmDePause`) prenait le contremaître PRÉVU pour la pause,
+  sur des bornes fixes (14 h, 22 h, 6 h) : FPA.
+- **« Sur site »** (`siteCmIci`) ne comptait personne à 22 h 25. La
+  fenêtre de VBN, contremaître de l'après-midi, se fermait à 22 h, et FPA
+  n'était pas encore sur site. À 0 h 45, il comptait FPA, arrivé pour la
+  remise, alors que VBN tient le poste jusqu'à 1 h.
+
+**Fait** :
+- **Celui qui prolonge.** Le contremaître d'une pause finie, toujours sur
+  site, tient la pause en cours tant que le sien n'est pas là, ou pendant
+  sa demi-heure de remise s'il arrive en retard sur sa pause.
+- **L'après-midi d'hier** entre dans `siteCmIds`, pour qui le prolonge
+  au-delà de minuit.
+- **La tuile prend celui que « Sur site » place au poste à cette minute**,
+  le prévu s'il en fait partie, et le prévu seul s'il n'y a personne.
+  Pour VBN lui-même, la tuile se cache, comme pour tout contremaître qui
+  ouvre son propre Accueil.
+
+Vérifié, l'heure fixée, au téléphone :
+
+| Moment | Ce qu'on voit |
+|---|---|
+| 31/10, 22 h 25 | VBN : tuile cachée ; un collègue : « CM VBN » |
+| 31/10, 20 h | « CM VBN » |
+| 1er/11, 0 h 45 | « CM VBN » (FPA en remise) |
+| 1er/11, 1 h 30 | « CM FPA » |
+| 30/10, 21 h 45 | « CM ATR » (pas FPA, arrivé pour la remise) |
+| 30/10, 22 h 15 | « CM FPA » |
+| 31/10, 10 h | « CM AFA » |
+
+« Sur site » dit désormais « Contremaître VBN » sur la nuit à 22 h 25 et à
+0 h 45 ; il n'en disait aucun.
+
+Les autres contrôles :
+- le contrôle crie 4 fois sur la v1244 ;
+- vérificateur du calendrier : sortie identique à l'octet ;
+- parcours complet : 0 faute.
