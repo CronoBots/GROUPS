@@ -6112,7 +6112,6 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
      (« body » : la règle du PC, plus bas, l'emportait) */
   html body .grille .ws-planning .xl-pilules{flex-wrap:nowrap !important; overflow-x:auto !important; justify-content:flex-start !important; padding:6px 8px; margin-bottom:8px}
   html body .hp-fabs{right:10px; bottom:12px}
-  html #grAujF{display:none}
   html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{opacity:0; visibility:hidden}
 }
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
@@ -7163,12 +7162,21 @@ html .hp-t tbody td.hp-jour{cursor:pointer}
 /* PAS DE GRAS AU MOIS NI AU JOUR (le client, le 31/10/2026 : « dans
    horaire, ne pas mettre en gras les colonnes de mois et de jour ») */
 html .hp-t tbody td.hp-mois{position:sticky; left:0; z-index:3; background:#c7ccd4; padding:0; font-weight:400; border-right:2px solid #64748b; border-bottom:2px solid #64748b; vertical-align:middle}
-html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.1; font-size:18px; letter-spacing:1px; text-transform:uppercase}
+/* les lettres du mois, l'une sous l'autre, un peu plus espacées (le client,
+   le 31/10/2026 : « sur les deux supports, espacer un peu plus les lettres
+   qui sont à la verticale ») : 1,1 → 1,35 au PC, 1,05 → 1,3 au téléphone */
+html .hp-t tbody td.hp-mois div{white-space:pre; line-height:1.35; font-size:18px; letter-spacing:1px; text-transform:uppercase}
 html .hp-t tbody td.hp-jour{position:sticky; left:var(--hp-mois,44px); z-index:2; font-weight:400; font-size:13px; border-right:2px solid #64748b}
 html .hp-t thead th.hp-coin{width:88px}
 html .hp-t tbody td.hp-s{line-height:18px; color:#111827}
 /* l'annotation reste rouge, en plus sombre : #dc2626 tombait à 2,99:1 sur le gris (audit du 23/10/2026) */
 html .hp-t tbody td.hp-l{font-weight:700; color:#991b1b}
+/* AU PC (souris), LES ANNOTATIONS ROUGES SANS GRAS ET LE MOIS EN GRAS (le
+   client, le 31/10/2026 : « sur PC, il ne faut pas mettre en gras les
+   indications en rouge, mais laisser comme ça sur mobile », puis « sur PC,
+   on peut mettre en gras juste la colonne du mois ») ; au téléphone, les
+   annotations restent grasses, le mois et le jour en graisse normale */
+@media (hover:hover) and (pointer:fine){ html .hp-t tbody td.hp-l{font-weight:400} html .hp-t tbody td.hp-mois{font-weight:700} }
 /* la case d'annotation ferme la personne (trait épais, celui de l'ancienne
    colonne de bulle) et porte le coin rouge du commentaire, comme Excel */
 html .hp-t tbody td.hp-l{border-right:2px solid #64748b; position:relative}
@@ -7217,6 +7225,11 @@ html .hp-fabs{position:absolute; right:40px; bottom:56px; display:flex; flex-dir
    fond blanc à 72 %, ce qui passe dessous flouté, filet fin, ombre douce,
    l'icône à l'encre, entière ; au toucher, il se presse */
 html .hp-fab{width:42px; height:42px; border-radius:999px; border:1px solid rgba(15,23,42,.14); background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(12px) saturate(1.6); backdrop-filter:blur(12px) saturate(1.6); color:#1e293b; box-shadow:0 1px 2px rgba(15,23,42,.12),0 6px 16px rgba(15,23,42,.16); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity .2s ease, visibility .2s ease, transform .15s ease, background-color .15s ease}
+/* TRANSLUCIDES (le client, le 31/10/2026 : « les boutons de scroll doivent
+   avoir de l'opacité ») : à 55 % comme le bouton « en haut » du reste de
+   l'application (.enhaut), pleins sous la souris, au doigt et au clavier */
+html .hp-fab{opacity:.55; transition:opacity .15s ease, transform .12s ease}
+html .hp-fab:hover,html .hp-fab:focus-visible,html .hp-fab:active{opacity:1}
 html .hp-fab:hover{background:rgba(255,255,255,.92)}
 html .hp-fab:active{transform:scale(.92); background:rgba(255,255,255,.95)}
 html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
@@ -7544,19 +7557,21 @@ html .hp-t thead th.hp-gp .hp-gpl{display:inline}
      la colonne du mois ; ces 2 colonnes doivent avoir la même largeur ») :
      24 et 44 px deviennent 34 et 34, le coin garde ses 68 px */
   html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:34px}
-  html .hp-t tbody td.hp-mois div{font-size:13px; letter-spacing:0; line-height:1.05}
+  html .hp-t tbody td.hp-mois div{font-size:13px; letter-spacing:0; line-height:1.3}
   html .hp-t tbody td.hp-jour{left:var(--hp-mois,34px)}
   html .hp-t thead th.hp-coin{width:68px; padding:3px}
   /* LES BOUTONS HAUT ET BAS REVIENNENT AU TÉLÉPHONE (le client, le
      29/10/2026 : « bouton de scroll vers le haut ou le bas dans l'horaire
      affiché dans le cadre ») : retirés le 26/10 parce qu'ils couvraient la
-     dernière colonne, ils se posent au coin du cadre, sans « aujourd'hui »
-     (il est dans la barre), et chacun s'efface au bord où il mène. Posés
+     dernière colonne, ils se posent au coin du cadre, et chacun s'efface au
+     bord où il mène. « Aujourd'hui » en était absent (il est dans la
+     barre) : il revient entre les deux le 31/10/2026, à la demande du
+     client (« il faut le bouton qui ramène aujourd'hui, même sur mobile,
+     entre les deux scroll »). Posés
      SUR le tableau, sans marge (le client, le même soir : « il faut les
      laisser dans le tableau, pas de marge ») : un verre dépoli laisse lire
      ce qui passe dessous (voir .hp-fab) */
   html .hp-fabs{right:10px; bottom:12px}
-  html #grAujF{display:none}
   html .hp-fabs.au-haut #grHaut,html .hp-fabs.au-bas #grBas{opacity:0; visibility:hidden}
   html .ws-planning .pl-tete{padding:6px 12px 0}
   html .xl-pilules{padding:6px 8px; margin-bottom:8px; gap:8px}
@@ -7607,6 +7622,27 @@ html .pl-barre .pl-annul{display:none}
 html body .grille .ws-planning .pl-barre:is(.cherche,.rempli) .pl-annul{display:grid; order:2; width:36px; height:36px; flex:0 0 auto; place-items:center; padding:0; position:relative;
   border:1px solid var(--trait); border-radius:13px; background:var(--surface); color:var(--ink); box-shadow:none; cursor:pointer}
 html body .grille .ws-planning .pl-barre .pl-annul::after{content:""; position:absolute; inset:-4px}
+/* LA RECHERCHE EN TÊTE DES PILULES (31/10/2026) : la loupe au format d'une
+   pilule ronde ; le champ s'ouvre à côté (220 px au PC, toute la rangée au
+   téléphone, où les pilules s'effacent le temps de chercher), la croix
+   le referme. */
+html body .grille .ws-planning .xl-pilules .gr-pilules{display:contents}
+html body .grille .ws-planning .xl-pilules .gr-cherche{display:flex; align-items:center; gap:6px; flex:0 0 auto}
+html body .grille .ws-planning .xl-pilules .gr-cherche .pl-loupe{display:grid; place-items:center; width:32px; height:32px; min-height:32px; padding:0; position:relative;
+  border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink2); cursor:pointer; flex:0 0 auto}
+html body .grille .ws-planning .xl-pilules .gr-cherche .pl-loupe::after{content:""; position:absolute; inset:-6px}
+html body .grille .ws-planning .xl-pilules .gr-cherche .pl-loupe[aria-expanded="true"]{border-color:var(--in); color:var(--ink)}
+html body .grille .ws-planning .xl-pilules .gr-cherche input[type=search]{display:none; width:220px; height:32px; min-height:32px; padding:0 12px; box-sizing:border-box;
+  border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); font:400 13px/1 inherit}
+html body .grille .ws-planning .xl-pilules .gr-cherche:is(.cherche,.rempli) input[type=search]{display:block}
+html body .grille .ws-planning .xl-pilules .gr-cherche .pl-annul{display:none}
+html body .grille .ws-planning .xl-pilules .gr-cherche:is(.cherche,.rempli) .pl-annul{display:grid; place-items:center; width:32px; height:32px; min-height:32px; padding:0; position:relative;
+  border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); cursor:pointer; flex:0 0 auto}
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
+  html body .grille .ws-planning .xl-pilules:has(.gr-cherche.cherche) .gr-pilules{display:none}
+  html body .grille .ws-planning .xl-pilules .gr-cherche.cherche{flex:1 1 auto; min-width:0}
+  html body .grille .ws-planning .xl-pilules .gr-cherche.cherche input[type=search]{flex:1 1 auto; width:auto; min-width:0}
+}
 /* la croix du navigateur, dans le champ, doublait la nôtre (mesuré le 27/10/2026) */
 html #grCherche::-webkit-search-cancel-button{-webkit-appearance:none; appearance:none; display:none}
 html body .grille .ws-planning .pl-barre input[type=search]{background:var(--surface); color:var(--ink); border:1px solid var(--trait); border-radius:13px; height:36px; box-shadow:none}
@@ -8952,14 +8988,21 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
         <div class="pl-nav"><button type="button" id="grPrec" aria-label="Période précédente">&lsaquo;</button><b id="grPeriode"></b><button type="button" id="grSuiv" aria-label="Période suivante">&rsaquo;</button></div>
         <button type="button" class="btnlike" id="grAuj" aria-label="Aujourd'hui"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg><span>Aujourd'hui</span></button>
         <div class="pl-seg" id="grVue" role="group" aria-label="Affichage"><button type="button" data-v="semaine" data-court="Sem.">Semaine</button><button type="button" data-v="mois" data-court="Mois">Mois</button></div>
-        <button type="button" class="pl-loupe" id="grLoupe" aria-label="Rechercher une personne" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
-        <input type="search" id="grCherche" placeholder="Rechercher une personne" aria-label="Rechercher une personne">
-        <button type="button" class="pl-annul" id="grAnnuler" aria-label="Annuler la recherche"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <!-- LES ÉQUIPES EN PILULES, AU-DESSUS DE LA GRILLE (le client, le
            22/10/2026, son outil « Horaires » en modèle) : Équipe 1 à 5,
            Contremaître · Formation · STEP — les feuilles du classeur. -->
-      <div class="pl-equipes xl-pilules" id="grEquipes" role="group" aria-label="Équipes"></div>
+      <!-- LA RECHERCHE À GAUCHE DE « MON HORAIRE » (le client, le 31/10/2026) :
+           la loupe ouvre le champ dans la rangée des équipes ; les pilules se
+           redessinent à côté (#grPilules), sans toucher au champ en frappe -->
+      <div class="pl-equipes xl-pilules" id="grEquipes" role="group" aria-label="Équipes">
+        <div class="gr-cherche" id="grChercheBar">
+          <button type="button" class="pl-loupe" id="grLoupe" aria-label="Rechercher une personne" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+          <input type="search" id="grCherche" placeholder="Rechercher une personne" aria-label="Rechercher une personne">
+          <button type="button" class="pl-annul" id="grAnnuler" aria-label="Annuler la recherche"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <div class="gr-pilules" id="grPilules"></div>
+      </div>
       <div class="hp-moib" id="grMoiTete" hidden></div>
       <div class="gr-zone" id="grZone"></div>
       <div class="hp-fabs" aria-label="Boutons de défilement">
@@ -19533,8 +19576,12 @@ function renderGrille(){
      prenait une ligne au tableau. */
   /* « Mon horaire » ouvre la rangée, avant les équipes ; sans personne
      choisie sur l'appareil, il n'a rien à montrer et n'apparaît pas */
-  document.getElementById("grEquipes").innerHTML=(moiId?'<button type="button" class="hp-pill hp-moi" data-f="moi" aria-pressed="'+(GR.feuille==="moi"&&!(GR.cherche.length>=2))+'" title="Seulement l\'horaire de '+esc(idLisible(moiId))+'">'
-      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Mon horaire</button>':'')
+  /* « MON HORAIRE » PORTE LE TRIGRAMME (le client, le 31/10/2026 : « le
+     bouton "mon horaire" doit avoir le nom du trigramme de la personne
+     connectée ») : l'icône et « VBN » ; le lecteur d'écran entend « Mon
+     horaire, VBN » */
+  document.getElementById("grPilules").innerHTML=(moiId?'<button type="button" class="hp-pill hp-moi" data-f="moi" aria-pressed="'+(GR.feuille==="moi"&&!(GR.cherche.length>=2))+'" aria-label="Mon horaire, '+esc(idLisible(moiId))+'" title="Seulement l\'horaire de '+esc(idLisible(moiId))+'">'
+      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'+esc(idLisible(moiId))+'</button>':'')
     +GR_MODES.map(function(x){ var poste=!!x[3];
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'; }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
@@ -19758,7 +19805,19 @@ window.addEventListener("resize",function(){ var g=document.getElementById("gril
 function grFabs(){
   var z=document.getElementById("grZone"), f=z&&z.parentNode.querySelector(".hp-fabs"); if(!f) return;
   f.classList.toggle("au-haut",z.scrollTop<=1); f.classList.toggle("au-bas",z.scrollTop+z.clientHeight>=z.scrollHeight-1);
+  /* AU COIN BAS DROIT DU TABLEAU (le client, le 31/10/2026 : « sur PC, les
+     boutons ne sont pas bien mis dans le bas du tableau »). Posés à 56 px
+     du bas de la section, ils flottaient au-dessus du tableau depuis le
+     retrait de la légende (26/10). Ils se calent désormais à 12 px du coin
+     de la zone visible, ascenseurs déduits, au PC comme au téléphone. */
+  var o=f.offsetParent; if(!o||!z.clientHeight) return;
+  var orr=o.getBoundingClientRect(), zr=z.getBoundingClientRect(),
+      bas=Math.round(orr.bottom-zr.bottom+(z.offsetHeight-z.clientHeight)+12),
+      dr=Math.round(orr.right-zr.right+(z.offsetWidth-z.clientWidth)+12);
+  if(f._bas!==bas){ f.style.bottom=bas+"px"; f._bas=bas; }
+  if(f._dr!==dr){ f.style.right=dr+"px"; f._dr=dr; }
 }
+window.addEventListener("resize",function(){ var g=document.getElementById("grille"); if(g&&!g.hidden) grFabs(); });
 function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFullYear()){ grCaler(a); renderGrille(); } grCentrer();
   /* « Mon horaire » revient aussi au bord gauche : le jour s'y lit par sa
      date et son poste, pas dans le commentaire où l'on avait glissé (le
@@ -19766,6 +19825,7 @@ function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFul
   var z=document.getElementById("grZone"); if(z.querySelector("table.hp-tmoi")) z.scrollLeft=0; }
 function grCentrer(){
   grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
+  grFabs();
   var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
 }
@@ -21982,7 +22042,7 @@ function renderHisto(){
     GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau();
     /* une pilule touchée pendant une recherche (qui parcourt tout) l'efface :
        sinon la pilule ne changerait rien (audit du 23/10/2026) */
-    if(GR.cherche){ GR.cherche=""; var gc=document.getElementById("grCherche"); gc.value=""; gc.parentNode.classList.remove("rempli"); }
+    if(GR.cherche){ GR.cherche=""; var gc=document.getElementById("grCherche"), gl=document.getElementById("grLoupe"); gc.value=""; gc.parentNode.classList.remove("rempli","cherche"); if(gl) gl.setAttribute("aria-expanded","false"); }
     renderGrille();
   });
   /* la grille se refait à la fin de la frappe, et non à chaque lettre
@@ -22052,7 +22112,8 @@ function renderHisto(){
   [["grHaut",function(z){ z.scrollTop=0; }],["grAujF",function(){ grAujourdhui(); }],["grBas",function(z){ z.scrollTop=z.scrollHeight; }]].forEach(function(x){
     var b=document.getElementById(x[0]); if(b) b.onclick=function(){ x[1](document.getElementById("grZone")); }; });
   document.getElementById("grZone").addEventListener("scroll",grFabs,{passive:true});
-  /* au téléphone, la recherche est une loupe : la place va au planning */
+  /* la recherche est une loupe, au PC comme au téléphone, en tête de la
+     rangée des équipes : elle ouvre le champ (31/10/2026) */
   document.getElementById("grLoupe").onclick=function(){
     var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));
     var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; bar.classList.remove("rempli"); GR.cherche=""; renderGrille(); }

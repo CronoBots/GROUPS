@@ -7517,3 +7517,57 @@ chargés par l'Horaire, puis l'Accueil :
 Sur la version d'avant, le même contrôle voit le défaut du client :
 un trigramme suivi du nom fictif, 3 noms visibles et 7 badges élargis
 pour rien.
+
+### L'Horaire : boutons, gras, mois, recherche (31/10/2026, `nfdm-v1243`)
+
+Quatre messages du client, à la suite :
+1. « Les boutons de scroll doivent avoir de l'opacité, et il faut le
+   bouton qui ramène aujourd'hui, même sur mobile, entre les deux scroll.
+   Sur PC, les boutons ne sont pas bien mis dans le bas du tableau. »
+2. « Sur PC, il ne faut pas mettre en gras les indications en rouge (mais
+   laisser comme ça sur mobile). »
+3. « Sur PC, on peut mettre en gras juste la colonne du mois. Et sur les
+   deux supports, espacer un peu plus les lettres qui sont à la
+   verticale. »
+4. « Le bouton de recherche doit être à gauche de "Mon horaire", et le
+   bouton "Mon horaire" doit avoir le trigramme de la personne
+   connectée. »
+
+Fait :
+- **Les boutons de défilement.** Ils sont à 55 % d'opacité, comme le
+  bouton « en haut » de l'application, et pleins au survol, au doigt et au
+  clavier. « Aujourd'hui » revient au téléphone, entre les deux.
+  **Placement** : posés à 56 px du bas de la section, ils flottaient
+  au-dessus du tableau depuis le retrait de la légende (26/10). `grFabs`
+  les cale maintenant à 12 px du coin bas droit de la zone visible,
+  ascenseurs déduits. C'est recalculé au défilement, au redimensionnement
+  et au centrage.
+- **Le gras selon le support.** « Au PC », ce sont les appareils à souris
+  (`hover:hover` et `pointer:fine`), comme le curseur main. Les
+  annotations rouges y passent en graisse normale, et le mois en gras.
+  Au téléphone, les annotations restent grasses ; le mois et le jour
+  restent en graisse normale (v1241).
+- **Les lettres du mois**, l'une sous l'autre, sont plus espacées :
+  interligne de 1,1 à 1,35 au PC, de 1,05 à 1,3 au téléphone. Elles
+  tiennent toujours dans leur mois (février compris).
+- **La recherche en tête de la rangée des équipes.** C'est une loupe au
+  format des pilules, au PC comme au téléphone. Elle ouvre le champ :
+  220 px au PC ; au téléphone, toute la rangée, les pilules s'effaçant le
+  temps de chercher. La croix le referme. Les pilules se dessinent dans
+  `#grPilules` (`display:contents`), à côté du champ, que le rendu ne
+  touche plus : la frappe et le focus tiennent.
+- **« Mon horaire » porte le trigramme** de la personne connectée
+  (« VBN »), avec son icône. Le lecteur d'écran entend « Mon horaire,
+  VBN ».
+
+Vérifié au navigateur :
+- boutons : 1280, 1920, 390 et 844 × 390 px, écart de 12 à 13 px au coin
+  avant et après défilement, opacité 0,55 et 1 au survol, « aujourd'hui »
+  entre les deux ;
+- gras : 400 ou 700 selon le support, lettres tenues dans chaque mois ;
+- recherche : 1280, 390 et 320 px, loupe première et à gauche de « VBN »,
+  le champ fermé d'abord, ouvert et focalisé à la loupe, « AT » filtre
+  sans perdre la frappe, la croix referme ;
+- parcours complet : 0 faute.
+
+Sur la v1242, les mêmes contrôles crient 20, 2 et 6 fois.
