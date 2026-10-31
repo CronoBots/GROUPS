@@ -7791,7 +7791,7 @@ Parcours complet : 183 essais, 0 faute. Sur la v1248, le contrôle crie 10 fois.
 Le client, capture de l'Horaire au téléphone, recherche ouverte : « la
 barre de recherche doit avoir la même hauteur que les autres boutons, et
 j'aimerais que les bout… ». Le message s'est coupé là ; la seconde
-demande reste à recevoir.
+demande reste à recevoir. (Reçue entière ensuite : voir la v1251.)
 
 Mesuré à 390 px :
 - au téléphone, une règle donne 44 px de haut aux boutons de la rangée
@@ -7813,3 +7813,30 @@ Vérifié (`cherche-h.js`) :
 - la recherche marche toujours (`recherche.js`, 0 faute).
 
 Parcours complet : 183 essais, 0 faute. Sur la v1249, le contrôle crie 12 fois.
+
+### « Mon horaire » réduit au bonhomme, « aujourd'hui » retiré de la barre (01/11/2026, `nfdm-v1251`)
+
+Le client, son message entier : « la barre de recherche doit avoir la
+même hauteur que les autres boutons, et j'aimerais que les boutons de
+recherche et d'annulation soient aussi larges que hauts. Pareil pour la
+loupe et le bouton "Mon horaire", qui doit juste avoir le bonhomme, sans
+le trigramme. Et le bouton aujourd'hui n'a plus d'intérêt à droite de la
+date, vu que maintenant il figure dans le tableau ».
+
+Les deux premières demandes étaient faites en v1250. Fait ici :
+- **« Mon horaire »** : le bonhomme seul, dans un rond à la taille de la
+  loupe (32 px au PC, 44 au téléphone). Il portait le trigramme depuis
+  la v1243, à la demande du 31/10. Le lecteur d'écran entend toujours
+  « Mon horaire, VBN ».
+- **« Aujourd'hui »** (`#grAuj`) quitte la barre de l'année. Le bouton du
+  tableau (`#grAujF`, entre les boutons de défilement) le remplace. La
+  barre garde ‹ « Année 2026 » ›, le titre jamais coupé.
+
+Vérifié (`cherche-h.js`, `recherche.js`) :
+- à 320, 390 et 1280 px, en employé et en RH, « Mon horaire » est carré,
+  sans texte, de la hauteur de la loupe ;
+- « aujourd'hui » est absent de la barre et présent dans le tableau ;
+- la recherche marche ;
+- parcours complet : 183 essais, 0 faute.
+
+Sur la v1250, le contrôle crie 11 fois.
