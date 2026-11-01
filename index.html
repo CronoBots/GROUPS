@@ -2593,9 +2593,14 @@ label.pn-t{display:block}
 /* SUR SITE EN CE MOMENT (23/10/2026) : un tableau d'effectif, une pause
    en cours par bloc, une ligne par poste, les présents en étiquettes */
 html #grille .ws-site{margin-bottom:14px}
-.site-live{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--good); margin-right:8px; vertical-align:1px; animation:sitePouls 2s ease-out infinite}
-@keyframes sitePouls{0%{box-shadow:0 0 0 0 var(--good)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
-@media (prefers-reduced-motion:reduce){ .site-live{animation:none} }
+/* le point « en direct » : un anneau qui s'étend et s'efface. Il anime
+   transform et opacity, que la carte graphique fait seule ; l'ancienne
+   ombre (box-shadow) se repeignait à chaque image, même hors de la vue
+   (revue du 01/11/2026) */
+.site-live{position:relative; display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--good); margin-right:8px; vertical-align:1px}
+.site-live::after{content:""; position:absolute; inset:0; border-radius:50%; background:var(--good); animation:sitePouls 2s ease-out infinite}
+@keyframes sitePouls{0%{transform:scale(1); opacity:.6} 70%,100%{transform:scale(2.6); opacity:0}}
+@media (prefers-reduced-motion:reduce){ .site-live::after{animation:none; opacity:0} }
 /* L'USINE EN DIRECT (le client, le 01/11/2026) : le plan du site, ses
    couleurs en jetons — le sombre, une nuit d'usine ; le clair, un plan
    d'architecte. Les familles des postes sont celles du classeur (jaune la
@@ -2771,6 +2776,9 @@ html #grille .ws-site{margin-bottom:14px}
 /* une place libre : le liseré ambre de la tuile, avec son badge « libre » */
 .us-zone.us-zone-manque .us-cible{stroke:color-mix(in srgb,var(--at-jaune) 75%,transparent); stroke-width:1.5}
 .us-zone.us-sel .us-cible{stroke:var(--marque-vif); stroke-width:2.5}
+/* sous le doigt ou le clic, la tuile répond aussitôt (revue ui-ux-pro-max :
+   un retour en moins de 150 ms) */
+.us-zone:active .us-cible{fill:color-mix(in srgb,var(--marque-vif) 12%,transparent); transition:fill 0s}
 .us-zone.us-sel .us-cible{fill:color-mix(in srgb,var(--marque-vif) 7%,transparent)}
 /* le focus du clavier, distinct de la sélection : un pointillé à l'encre
    (relecture du 01/11/2026 : le même trait ne se voyait pas sur l'îlot
@@ -2809,7 +2817,16 @@ html #grille .ws-site{margin-bottom:14px}
 .us-etat-i{fill:currentColor}
 .us-e-ok .us-etat-i{color:var(--good)} .us-e-manque .us-etat-i{color:var(--at-jaune)}
 .us-sub-ok{color:var(--good); font-weight:600} .us-sub-manque{color:var(--at-jaune); font-weight:700}
-.us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4}
+.us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4; flex:1; min-width:0}
+.us-invite-l{display:flex; align-items:center; gap:12px}
+.us-anim{flex:none; display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:0 12px; border-radius:99px; border:1px solid var(--line); background:var(--surface2); color:var(--ink2); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
+.us-anim:hover{color:var(--ink); border-color:var(--ink2)}
+.us-anim svg{flex:none}
+@media (pointer:coarse){ .us-anim{min-height:44px; padding:0 14px} }
+/* rien ne bouge : le bouton n'a rien à arrêter */
+@media (prefers-reduced-motion:reduce){ .us-anim{display:none} }
+/* figé à la demande : comme hors de la vue */
+.us-fige *{animation-play-state:paused!important}
 .us-pas-vous{fill:var(--marque-vif)} .us-pas-vt{font-size:11px; font-weight:700; fill:var(--sur-in); text-anchor:middle}
 /* vous : un halo qui respire, une fois toutes les trois secondes */
 .us-pas-halo{fill:none; stroke:var(--marque-vif); stroke-width:1.5; opacity:0; animation:usRespire 3s ease-in-out infinite}
@@ -7787,6 +7804,7 @@ html #v-horaire .card>header h2 .site-live{width:7px; height:7px; margin-left:2p
 /* « Sur site » : le titre prend la ligne, l'heure et la date à droite
    (30/10/2026) ; le nombre de présents passe dessous */
 html #siteCard>header h2{flex:1 1 100%; min-width:0; flex-wrap:wrap; row-gap:2px; white-space:nowrap}
+.site-quand{font-variant-numeric:tabular-nums}
 html #siteCard>header .site-quand{margin-left:auto; display:inline-flex; align-items:baseline; gap:6px; white-space:nowrap;
   font-size:13px; font-weight:500; color:var(--muted); letter-spacing:0}
 html #siteCard>header .site-quand b{font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
@@ -21854,7 +21872,11 @@ function usineDecor(g){
 /* ce qui change à la minute : les pions, l'état de chaque poste */
 function usineDyn(g,E){
   var s="", TL=usineTels();
-  USINE_ZONES.forEach(function(z){
+  /* L'ORDRE DU CLAVIER EST CELUI DE L'ŒIL (revue ui-ux-pro-max du
+     01/11/2026) : les salles s'écrivent rangée par rangée, de gauche à
+     droite, comme elles se voient — la touche Tab et le lecteur d'écran
+     ne sautent plus de la meunerie au gluten par-dessus les chaudières */
+  USINE_ORDRE[g.large?"large":"etroit"].map(function(k){ var r=null; USINE_ZONES.forEach(function(z){ if(z.k===k) r=z; }); return r; }).forEach(function(z){
     var p=g.pos[z.k], Zk=E.Z[z.k], n=Zk.n, att=Zk.attendu;
     /* l'en-tête : le poste, son compte à droite (« 0/1 » en ambre quand le
        Planning attend quelqu'un que personne ne tient) */
@@ -21966,8 +21988,8 @@ function renderUsine(){
     corps.innerHTML='<div class="us-plan"><svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
       +'<defs>'+["blanc","metal","beton","cab"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")
       +'<linearGradient id="usG-reflet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="us-r1"/><stop offset="1" class="us-r2"/></linearGradient></defs>'
-      +'<g class="us-decor">'+usineDecor(g)+'</g><g id="usDyn"></g></svg></div>'
-      +'<div class="us-panneau"><p class="us-invite">'+(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez')+' une salle : qui l’occupe, jusqu’à quand, la relève, son téléphone et sa radio.</p><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
+      +'<g class="us-decor" aria-hidden="true">'+usineDecor(g)+'</g><g id="usDyn"></g></svg></div>'
+      +'<div class="us-panneau"><div class="us-invite-l"><p class="us-invite">'+(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez')+' une salle : qui l’occupe, jusqu’à quand, la relève, son téléphone et sa radio.</p><button type="button" class="us-anim" id="usAnim"></button></div><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
     usineBrancher(corps);
   }
   /* LE FOCUS SURVIT À LA MINUTE (relecture du 01/11/2026 : l'îlot choisi
@@ -21975,7 +21997,7 @@ function renderUsine(){
   var ae=document.activeElement, fk=null;
   if(ae&&corps.contains(ae)&&ae.closest){ var zz=ae.closest("#usDyn [data-k]"); if(zz) fk=zz.getAttribute("data-k"); }
   document.getElementById("usSvg").setAttribute("class","us-svg"+(E.nuit?" us-nuit":"")+(US_VU?"":" us-pause"));
-  usineVue();
+  usineVue(); usineAnimBouton();
   document.getElementById("usDyn").innerHTML=usineDyn(g,E);
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
   if(fk){ var re=document.querySelector('#usDyn .us-zone[data-k="'+fk+'"]'); if(re) try{ re.focus({preventScroll:true}); }catch(e){} }
@@ -21985,7 +22007,17 @@ var usineDernier=null;
 /* LE MOUVEMENT S'ARRÊTE HORS DE LA VUE (v1258) : le plan sorti de l'écran
    (on a défilé plus bas, un autre onglet), ses animations se figent ; la
    batterie du téléphone ne paie que ce qu'on regarde */
-var US_VU=true, _usVue=null;
+var US_VU=true, _usVue=null, US_FIGE=lsGet("ui/usineFige")===true;
+/* LE MOUVEMENT SE MET EN PAUSE (revue ui-ux-pro-max du 01/11/2026, WCAG
+   2.2.2 : ce qui bouge sans fin doit pouvoir s'arrêter) ; le choix est
+   gardé sur l'appareil */
+function usineAnimBouton(){ var b=document.getElementById("usAnim"), sv=document.getElementById("usSvg"); if(!b||!sv) return;
+  sv.setAttribute("class",(sv.getAttribute("class")||"").replace(/\s*\bus-fige\b/g,"")+(US_FIGE?" us-fige":""));
+  b.innerHTML=(US_FIGE?'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>Animer':'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>Pause');
+  /* le nom change avec l'action (pas d'aria-pressed en plus : deux états
+     pour un seul bouton se contrediraient) */
+  b.setAttribute("aria-label",US_FIGE?"Animer le plan":"Mettre le plan en pause");
+  b.onclick=function(){ US_FIGE=!US_FIGE; lsSet("ui/usineFige",US_FIGE); usineAnimBouton(); }; }
 function usineVue(){
   if(_usVue||!window.IntersectionObserver) return;
   var c=document.getElementById("usineCard"); if(!c) return;

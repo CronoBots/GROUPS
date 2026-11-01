@@ -8369,3 +8369,73 @@ route de ceinture ne mord pas sur la v1258, dont la marge de 10 à 14 px
 le satisfait ; il garde seulement qu'elle ne disparaisse pas.
 L'épreuve de la v1258 (flux, adjoint, appels, pause, mouvement réduit)
 et celle des numéros rendent 0 faute.
+
+### L'usine en direct, revue par Impeccable et ui-ux-pro-max (01/11/2026, `nfdm-v1260`)
+
+Le client : « Impeccable et ui ux pro max ? Pour ce cadre ». La passe
+Impeccable (`polish`, `craft-floor`) avait servi à la v1257. Cette fois,
+la liste de contrôle d'ui-ux-pro-max (`references/pro-rules.md`) a été
+suivie point par point et mesurée au navigateur. Ses recherches par mots
+(`search.py --domain ux`) ne rendaient que des règles générales (vibreur,
+CSS bloquant) : aucune n'a servi.
+
+Constats mesurés, tous corrigés :
+1. **L'ordre du clavier n'était pas celui de l'œil.** Tab et le lecteur
+   d'écran allaient de la meunerie au gluten par-dessus les chaudières.
+   Les salles étaient écrites dans l'ordre de `USINE_ZONES` ; elles le
+   sont maintenant rangée par rangée, de gauche à droite
+   (`USINE_ORDRE`).
+2. **Le décor était lu par le lecteur d'écran** : « La Meuse »,
+   « Sucrerie » et la légende, soit 2 à 6 textes. Le groupe du décor est
+   maintenant `aria-hidden` ; chaque salle garde son étiquette complète.
+3. **L'heure tressautait à chaque minute** : ses chiffres n'avaient pas
+   tous la même largeur. `.site-quand` passe en chiffres tabulaires,
+   pour toutes les cartes.
+4. **Rien ne permettait d'arrêter le mouvement** (WCAG 2.2.2 : ce qui
+   bouge sans fin doit pouvoir se mettre en pause). Un bouton « Pause »
+   / « Animer » se place à droite de la ligne d'aide : 32 px de haut à la
+   souris, 44 px au toucher. Le choix est gardé sur l'appareil
+   (`ui/usineFige`). Le bouton est masqué quand le téléphone demande moins
+   de mouvement, puisque rien ne bouge alors. Son nom suit l'action ; il
+   n'a pas d'`aria-pressed` en plus, car deux états pour un seul bouton se
+   contrediraient.
+5. **Aucun retour sous le doigt** (la règle : moins de 150 ms). La tuile
+   s'éclaire dès qu'on appuie (`:active`).
+6. **Le point « en direct » coûtait sans relâche.** Son ombre
+   (`box-shadow`) se repeignait à chaque image, même hors de la vue :
+   le plan caché, la page prenait encore **13,7 %** d'un cœur. Ce
+   n'était que ce point (`getAnimations()` ne listait que lui, deux
+   fois). Il devient un anneau qui s'étend et s'efface (`transform`,
+   `opacity`, que la carte graphique fait seule). Le plan caché, la page
+   ne prend plus que **0,1 %**.
+
+Mesuré aussi, sans correction : le plan visible et animé prend 17 à
+20 % d'un cœur dans Chromium sans carte graphique (un vrai téléphone
+dessine avec la sienne, ce chiffre le surestime). Couper une seule
+animation n'y change presque rien (3 % au plus), les ombres non plus :
+dès qu'une chose bouge, le plan se redessine. Le figer avec le bouton
+ramène ce coût à 0,2 %. D'où trois garde-fous : la pause hors de la
+vue (v1258), le bouton, et le réglage du téléphone.
+
+Les points de la liste déjà en règle :
+- cibles d'au moins 44 px au toucher ;
+- contrastes de 4,5:1 au moins, dans les deux thèmes (épreuve du plan) ;
+- la couleur n'est jamais seule à porter un sens (« libre » écrit,
+  contour plutôt que couleur, « 1/2 ») ;
+- mouvement réduit respecté ;
+- téléphone couché et iPhone simulé (parcours) ;
+- focus visible et distinct de la sélection.
+
+Nouvelle épreuve `usine-1260.js`, à la souris et au toucher. Elle
+contrôle :
+- l'ordre du clavier, qui doit être celui de l'œil ;
+- le décor muet ;
+- les chiffres de l'heure ;
+- le point « en direct » animé par `transform` ;
+- le bouton : il fige, la pause tient au rechargement, il repart ;
+- sa hauteur de 44 px au toucher ;
+- son absence quand le téléphone demande moins de mouvement.
+
+Rendu : 0 faute. Sur la v1259 : 11 fautes, chaque contrôle mord. Les
+épreuves du plan, de la v1258 et des numéros rendent 0 faute, et le
+focus survit à la minute.
