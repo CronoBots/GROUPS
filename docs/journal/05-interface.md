@@ -8708,3 +8708,47 @@ Rendu : 0 faute ; sur la v1264, 6 fautes (aucun lot, ellipses à 0,42,
 train sous 44 éléments). Toutes les épreuves précédentes, du plan
 (contraste, débordements, badges dans leur tuile) aux numéros, rendent
 0 faute.
+
+### L'usine en direct : la galerie au-dessus du train, plus de lueur, le métier dans les zones (01/11/2026, `nfdm-v1266`)
+
+Le client : « Le train passe toujours au-dessus de la ligne qui passe
+logiquement au-dessus du chemin de fer. Il y a moyen de rendre encore plus
+professionnels les schémas de zone et la perspective logique. L'animation
+entre fermentation et distillation ne doit pas avoir le trait plus gros qui
+passe de temps en temps. »
+
+- **La galerie du quai passe au-dessus du train.** C'est la galerie qui
+  porte le blé des silos de rive à la meunerie : elle franchit la voie en
+  hauteur. Ma lecture de la v1265 (« le train passe au-dessus des
+  lignes ») était fausse : elle l'avait laissée sous le train. La galerie
+  est maintenant dessinée après les îlots, donc au-dessus du train et de
+  la tuile.
+- **La galerie arrive où commence celle de la meunerie**, au point du
+  monde (−8, 40, 51) de sa scène. Avant, l'une arrivait en haut à gauche
+  de la tuile et l'autre partait de la droite ; la perspective n'était
+  pas cohérente. La galerie de la scène arrive désormais par la gauche,
+  côté quai, et les silos à blé passent derrière. Les silos de rive se
+  placent juste au-dessus du départ : la galerie descend presque droit, à
+  gauche du nom « Meunerie », sans le croiser.
+- **La lueur du produit est retirée** : c'était le trait plus gros qui
+  passait de temps en temps, entre la fermentation et la distillation au
+  téléphone. Les grains des flux restent. Son jeton et ses règles partent
+  avec elle.
+- **Le métier dans les zones** (skill Anatomy) :
+  - un biseau clair au bord avant de chaque toit et de chaque cuve, qui
+    accroche la lumière (55 par plan) ;
+  - les joints de la dalle de chaque lot, tous les 25 (48 traits) ;
+  - des portes au pied des bâtiments (tour et bâtiment de la meunerie,
+    gluten, chaudière, hall de la station, tours de refroidissement, aile
+    des bureaux).
+
+Nouvelle épreuve `usine-1266.js`, au téléphone et au PC. Elle vérifie que
+la galerie (ses deux traits et son flux) vient après le train, qu'elle
+finit dans la tuile de la meunerie et ne croise pas son nom. Elle
+contrôle aussi l'absence de toute lueur, les biseaux (au moins 40), les
+48 joints et les portes (au moins 6). Rendu : 0 faute ; sur la v1265,
+12 fautes.
+
+Toutes les épreuves précédentes rendent 0 faute. L'épreuve de la v1265
+exempte désormais la galerie et son flux de la règle « le train par-dessus
+tout ce qui court au sol », puisqu'ils doivent passer au-dessus de lui.
