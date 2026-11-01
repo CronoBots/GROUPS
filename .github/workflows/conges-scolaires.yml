@@ -9,9 +9,15 @@
 # Actions, « Congés scolaires », Run workflow.
 name: Congés scolaires
 
+# LE 1er, LE 2 ET LE 3 DU MOIS (01/11/2026) : GitHub saute des passages
+# planifiés quand il est chargé — le 01/11, celui de 5 h 23 UTC n'a jamais
+# eu lieu, et l'horaire automatique, prévu chaque heure, n'était passé qu'à
+# 15 h 46, 20 h 02, 23 h 27 et 6 h 20. Un passage mensuel sauté faisait
+# perdre le mois. Le script ne fait rien s'il n'y a rien de neuf (« Rien de
+# neuf sur enseignement.be ») : trois essais coûtent une minute de machine.
 on:
   schedule:
-    - cron: "23 5 1 * *"
+    - cron: "23 5 1-3 * *"
   workflow_dispatch:
 
 permissions:

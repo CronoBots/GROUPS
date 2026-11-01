@@ -2098,3 +2098,25 @@ au premier plan, demi-heure) trouve la mise à jour. Éprouvé : ouverture
 après une mise à jour, 1 navigation (2 avant) ; application ouverte
 puis mise à jour au retour au premier plan, 1 rechargement ; page
 chargée hors ligne puis réseau revenu, 1 rechargement.
+
+### Le robot des congés scolaires : son premier passage n'a pas eu lieu (01/11/2026)
+
+Le 01/11/2026, la vérification du premier passage mensuel
+(`conges-scolaires.yml`, planifié à 5 h 23 UTC) ne trouve **aucun
+passage**, ni à 5 h 46 ni à 6 h 33. Le flux est actif, avec le bon horaire.
+La cause est chez GitHub, qui saute des passages planifiés quand il est
+chargé : l'horaire automatique, prévu chaque heure, n'était passé la
+veille qu'à 15 h 46, 20 h 02, 23 h 27 puis 6 h 20. Un passage mensuel sauté
+fait perdre le mois.
+
+- **Éprouvé à la place du robot.** Le lancement à la main par l'API est
+  refusé à la session (403, l'intégration n'a pas le droit d'écrire les
+  Actions). Le script lancé ici sans pousser (`node
+  tools/conges-auto.js`) rend « Rien de neuf sur enseignement.be
+  (3 années lues) » : 2026-2027, 2027-2028 et 2028-2029 déjà à jour,
+  code 0, aucun fichier changé.
+- **Corrigé** : le flux passe le 1er, le 2 et le 3 du mois
+  (`23 5 1-3 * *`). Le script ne fait rien quand rien n'a changé : trois
+  essais coûtent une minute de machine. Le client avait jugé inutile de
+  vérifier « trop souvent » (23/10) : trois jours par mois restent loin
+  d'une vérification quotidienne.
