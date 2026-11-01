@@ -9065,3 +9065,73 @@ retournées (9 « mal tournée »), conduites d'arrivée non allumées
 (« oubliés »). Sur la v1272 : 0 faute. Toutes les épreuves du plan
 rendent 0 faute.
 
+### L'usine en direct : la filière du schéma officiel autour du plan (01/11/2026, `nfdm-v1273`)
+
+Le client, le schéma officiel de BioWanze à l'appui (l'économie
+circulaire du site : matières premières en haut, l'usine au milieu, les
+produits en bas, six couleurs de catégorie) : « Et réaliser la maquette
+par rapport au schéma de cette photo ? » L'image n'entre pas dans le
+dépôt : on en tire les faits, recoupés avec les pages du site officiel
+relevées lors d'une session précédente (hors du dépôt) :
+- l'éthanol se fait « sur base de résidus de betteraves (provenant de
+  la sucrerie voisine) et de blé fourrager » (historique) : les résidus
+  vont à la fermentation ;
+- « le CO2 vert purifié obtenu pendant la fermentation » est liquéfié ;
+  le schéma l'envoie à SOL ;
+- les engrais verts sont les « résidus de la combustion du son dans la
+  centrale à biomasse » : ils viennent des chaudières ;
+- « le son, le bois et le biogaz » font l'énergie verte : la station
+  d'épuration produit le biogaz, que brûle la centrale. Le schéma
+  envoie l'énergie au réseau public, à la sucrerie et à SOL ;
+- le gluten (les protéines) est commercialisé par BENEO ; le
+  ProtiWanze et le son GMP+ vont à l'alimentation animale.
+
+Fait :
+- **« Ce qui entre », au-dessus du plan** : le blé fourrager (par
+  bateau, vers la meunerie), les résidus de betterave (de la sucrerie
+  voisine) et les résidus de chicorée (de BENEO), tous deux vers la
+  fermentation. Pastilles rondes « matières premières » (bleu nuit).
+- **« Ce qui sort », sous le plan** : les protéines, l'alimentation
+  animale, l'éthanol renouvelable, le CO2 liquide, l'énergie verte et
+  l'engrais naturel. Chaque produit a sa couleur du schéma (alimentation
+  humaine, animale, éthanol, énergie verte, engrais) et sa provenance ou
+  sa destination sur deux lignes voulues. Elles sont 3 par rangée au
+  téléphone et 6 au PC.
+- **Neuf pictogrammes dessinés au trait** (24 × 24, trait de 1,7, blanc
+  sur la pastille) : un épi, une betterave, une racine de chicorée, un
+  pain, une tête de vache, une fiole, une bouteille, une ampoule à
+  feuille, un tracteur. Aucun n'est tiré d'une image.
+- **Toucher une salle allume aussi sa filière** : ce qui y entre et ce
+  qu'elle produit restent vifs, le reste passe à 30 %.
+- **La fiche dit tout le circuit de la salle.** Ce qu'elle reçoit du
+  dehors, puis ses conduites, puis ce qu'elle produit, avec la pastille
+  de sa couleur. Par exemple, pour la fermentation : « Reçoit les
+  résidus de betterave de la sucrerie voisine · Reçoit les résidus de
+  chicorée de BENEO · Reçoit le lait d'amidon du gluten · Envoie le moût
+  à la distillation · Produit le CO₂ liquide, pour SOL ». Le blé du quai,
+  qui était une fausse conduite (v1272), passe dans la filière.
+
+Erreurs corrigées avant publication :
+- les sous-titres, d'abord sur une ligne (« par bateau · à la
+  meunerie »), se coupaient au milieu d'une expression à 320 px : ils
+  sont devenus deux lignes voulues, raccourcies (« réseau public, /
+  sucrerie, SOL ») ;
+- la fiche de la distillation disait « Envoie l'éthanol au terrain
+  arrière » puis « Produit l'éthanol renouvelable » : la redite part.
+
+L'épreuve `usine-1270.js` vérifie aussi la filière :
+- 3 entrées au-dessus du plan, 6 sorties en dessous, 9 pictogrammes ;
+- pour chacune des huit salles, la filière allumée mot pour mot, et le
+  reste éteint ;
+- les huit fiches, ligne pour ligne.
+
+Elle crie sur la v1272 (pas de filière, fiches sans entrées ni
+produits) et sur une copie sabotée (le CO2 rattaché à la distillation :
+« filière de ferm », « filière de dist »). Sur la v1273 : 0 faute.
+Toutes les épreuves du plan rendent 0 faute.
+
+Reste incertain, et dit au client : la description de la station
+d'épuration parle encore d'« engrais naturel », alors que le site
+officiel tire l'engrais vert des cendres de la centrale. La filière
+suit le site officiel.
+
