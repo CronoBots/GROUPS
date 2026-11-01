@@ -143,6 +143,9 @@ const MORCEAUX=[
   ["var EST_FORMATION=","\n"],
   ["var PROJETS_SUR_POSTE=","\n"],
   ["function surSonPosteMalgreF(","\n}"],
+  /* le côté d'un « Polyvalent » : la décision du client, sinon sa polyvalence, jamais la lettre de colonne (v1276) */
+  ["var GR_GROUPE_CLIENT=","\n"],
+  ["function cotePolyvalent(","\n}"],
   ["function roleDeFeuille(","\n}"],
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],

@@ -9265,9 +9265,9 @@ La règle prise à la lettre, confirmée personne par personne :
   aplats pâles (jaune pour l'avant, vert pour l'arrière, rouge pour les
   chaudières, gris pour les adjoints). Le polyvalent avant prend
   désormais le jaune par sa catégorie, et non par sa colonne. Chaque
-  groupe porte, sous son nom, le trait de couleur du Planning, dans ses
-  valeurs du thème clair, puisque la grille est claire dans les deux
-  thèmes ;
+  groupe portait aussi, sous son nom, le trait de couleur du Planning.
+  *(Retiré en v1276 à la demande du client : « il ne faut pas la ligne
+  de couleur sous le poste ».)* ;
 - **les adjoints** : en tête, dans l'ordre alphabétique, et un bouton
   « Adjoints » (un œil) après « Équipe 5 », gardé sur l'appareil
   (`ui/grAdj`). Hors de la vue d'une équipe, le bouton est grisé. Le
@@ -9297,10 +9297,39 @@ décision de BLR, « Meunerie : YRS (attendu BLR YRS) ». Le vérificateur
 du calendrier sort identique à l'octet (sans option, `--manques 0926`,
 `--polyvalence`, `--compteurs`).
 
-À noter, sans y toucher : la règle de l'application qui place un
-« Polyvalent » à l'avant ou à l'arrière au Planning (`roleDeFeuille`)
-lit, elle, la lettre de colonne. Le client dit que ces lettres changent
-d'une équipe à l'autre. Les cinq équipes de 2026 ne la mettent pas en
-défaut (elle concorde avec les polyvalences, et avec les décisions
-ci-dessus), mais c'est une fragilité.
+À noter : la règle qui place un « Polyvalent » à l'avant ou à
+l'arrière au Planning (`roleDeFeuille`) lisait encore la lettre de
+colonne. *(Réglé en v1276, à la demande du client : la même règle que
+l'onglet Horaire.)*
+
+### Le Planning sans lettre de colonne, la grille sans trait (01/11/2026, `nfdm-v1276`)
+
+Le client, sur la fragilité signalée en v1275 : « Oui tu peux, et en
+plus il ne faut pas la ligne de couleur sous le poste. »
+
+- **Le Planning place un « Polyvalent » sans la lettre de sa colonne.**
+  `roleDeFeuille` le mettait à l'arrière en colonne O ou P, à l'avant
+  au-delà. Il lit désormais `cotePolyvalent`, la règle de l'onglet
+  Horaire, écrite une seule fois et lue par les deux :
+  - d'abord la décision du client (`GR_GROUPE_CLIENT`) ;
+  - sinon ce que la personne possède : l'avant seul → l'avant ;
+    l'arrière seul → l'arrière ; les deux → l'avant si elle a la
+    meunerie ET le gluten ;
+  - rien de connu → `null` : on ne devine pas, et la chaîne de
+    `posteTenu` passe aux sources suivantes.
+- **Rien n'a bougé dans le placement.** Le vérificateur du calendrier
+  sort identique à l'octet : sans option, `--manques 0926`,
+  `--polyvalence`, `--compteurs`, `--manques-commentes` (les trois
+  mêmes places, déjà connues), et les 81 agendas `--agendas`, une fois
+  écartée l'heure de fabrication. La comparaison sait voir un
+  changement : dans une copie où SBZ passe à l'avant, ses compteurs de
+  polyvalence changent aussitôt.
+- **Une erreur en route** : le vérificateur découpe ses fonctions dans
+  `index.html`, liste par liste. Sans `cotePolyvalent` ni
+  `GR_GROUPE_CLIENT` dans sa liste, il s'est d'abord arrêté sur
+  « cotePolyvalent is not defined ». Les deux y sont ajoutés.
+- **La grille perd son trait de couleur** sous le nom des groupes. Les
+  aplats, déjà aux familles du Planning, restent. L'épreuve
+  `horaire-1275.js` vérifie qu'il n'y a plus de trait : 0 faute, et elle
+  en relève 76 sur la v1275.
 

@@ -7519,13 +7519,10 @@ html .hp-t thead tr.hp-g th{height:24px}
 html .hp-t thead tr.hp-ops th{top:29px; text-transform:none; font-size:13px; font-weight:600; border-bottom:2px solid #64748b; border-right:2px solid #64748b; cursor:pointer; height:22px}
 html .hp-t thead tr.hp-ops th small{display:block; font-size:11px; font-weight:500; color:#374151; margin-top:1px}
 html .hp-t thead th.hp-gp{border-right:2px solid #64748b; font-size:12px; letter-spacing:.02em}
-/* LES COULEURS DU PLANNING (le client, le 01/11/2026 : « les couleurs
-   doivent être les mêmes que celles de l'onglet Planning ») : la grille
-   gardait les familles du Planning en aplats pâles ; chaque groupe porte
-   en plus, sous son nom, le trait de couleur du Planning (ses valeurs du
-   thème clair, la grille étant claire dans les deux thèmes) */
-html .hp-t thead th.hp-gp.pt-meu{box-shadow:inset 0 -3px 0 #8C5B00} html .hp-t thead th.hp-gp.pt-fer{box-shadow:inset 0 -3px 0 #0D7A3B}
-html .hp-t thead th.hp-gp.pt-cha{box-shadow:inset 0 -3px 0 #A5392C} html .hp-t thead th.hp-gp.pt-step{box-shadow:inset 0 -3px 0 #1C66AC} html .hp-t thead th.hp-gp.pt-cm{box-shadow:inset 0 -3px 0 #515C70}
+/* (le trait de couleur posé sous le nom des groupes le 01/11/2026 est
+   retiré le même jour, à la demande du client : « il ne faut pas la ligne
+   de couleur sous le poste ». Les aplats suffisent : ce sont déjà les
+   familles du Planning.) */
 html .hp-t .pt-meu,html .hp-moit .pt-meu{background:#f6e3a1} html .hp-t .pt-fer,html .hp-moit .pt-fer{background:#cfe7bf} html .hp-t .pt-cha,html .hp-moit .pt-cha{background:#f2a08a} html .hp-t .pt-step,html .hp-moit .pt-step{background:#bfdbfe} html .hp-t .pt-cm,html .hp-moit .pt-cm{background:#c7ccd4}
 html .hp-t thead th.hp-coin{left:0; z-index:9; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:5px}
 /* 23/10/2026 : « Adjoints ON », « pers. » et « Éq. » à 9 et 10 px passent
@@ -19943,6 +19940,20 @@ var GR_CATS=[["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","M
    la distillation) */
 var GR_GROUPE_CLIENT={BLR:"meu", JKS:"pav", PLZ:"pav", GPO:"glu", SBZ:"par", FLN:"par", FPS:"par", AAI:"dis"};
 function grCatInfo(k){ for(var i=0;i<GR_CATS.length;i++) if(GR_CATS[i][0]===k) return GR_CATS[i].slice(0,3).concat([i,GR_CATS[i][3]]); var d=GR_CATS[GR_CATS.length-1]; return d.slice(0,3).concat([GR_CATS.length-1,d[3]]); }
+/* LE CÔTÉ D'UN « POLYVALENT » (le client, le 01/11/2026 : « ne pas se
+   fier aux lettres de colonne, cela dépend d'une équipe à l'autre » ; puis,
+   pour le Planning : « oui tu peux ») : sa décision s'il l'a donnée
+   (GR_GROUPE_CLIENT), sinon ce qu'il possède — seulement l'avant
+   (meunerie, gluten) : l'avant ; seulement l'arrière (fermentation,
+   distillation) : l'arrière ; les deux : l'avant s'il a la meunerie ET le
+   gluten. Rien de connu : null, on ne devine pas. L'onglet Horaire (grCat)
+   et le Planning (roleDeFeuille) lisent la même. */
+function cotePolyvalent(p){
+  var d=GR_GROUPE_CLIENT[p.id];
+  if(d) return /^(meu|pav|glu)$/.test(d)?"av":/^(par|fer|dis)$/.test(d)?"ar":null;
+  var a=function(rx){ return aLAtelier(p,rx); }, M=a(/^meun/i), G=a(/^glut/i), F=a(/^(ferm|liq)/i), D=a(/^disti/i), av=M||G, ar=F||D;
+  return av&&!ar?"av":ar&&!av?"ar":av&&ar?(M&&G?"av":"ar"):null;
+}
 function grCat(p,f){
   var po=String((p.postes&&p.postes[f]&&p.postes[f].p)||"").trim();
   if(/adjoint/i.test(po)) return "adj";
@@ -19954,7 +19965,7 @@ function grCat(p,f){
   /* « Polyvalent », ou « Renfort » sans côté : ce qu'il possède le place ;
      qualifié des deux côtés sans décision du client, la meunerie et le
      gluten ensemble le mettent à l'avant */
-  if(!cote){ var av=M||G, ar=F||D; cote=av&&!ar?"av":ar&&!av?"ar":av&&ar?(M&&G?"av":"ar"):(a(/^chaudi/i)?"cha":null); }
+  if(!cote) cote=cotePolyvalent(p)||(a(/^chaudi/i)?"cha":null);
   if(cote==="cha") return "cha";
   if(cote==="av") return M&&G?"pav":M?"meu":G?"glu":(/meun/i.test(po)?"meu":"glu");
   if(cote==="ar") return F&&D?"par":F?"fer":D?"dis":(/ferm/i.test(po)?"fer":/disti/i.test(po)?"dis":"par");
@@ -25534,14 +25545,19 @@ function posteDepuisNom(t){
    poste sur lequel la personne est formée. À défaut, on ne sait pas — et on
    le dit, plutôt que de compléter l'effectif avec une supposition. */
 /* Le rôle que le classeur donne en ligne 9, au-dessus du nom. « Polyvalent »
-   seul est ambigu : en colonne O c'est le polyvalent ARRIÈRE, après V un
-   polyvalent avant — et les deux ne tiennent pas les mêmes postes. */
+   seul est ambigu : un polyvalent ARRIÈRE et un polyvalent avant ne
+   tiennent pas les mêmes postes. La colonne le tranchait (O ou P :
+   l'arrière, au-delà : l'avant) jusqu'au 01/11/2026 ; le client : « ne pas
+   se fier aux lettres de colonne, cela dépend d'une équipe à l'autre ».
+   Le côté vient désormais de cotePolyvalent, comme dans l'onglet Horaire.
+   Pour les cinq équipes de 2026 et de 2027, le placement est le même au
+   jour près (sorties du vérificateur identiques à l'octet). */
 function roleDeFeuille(person){
-  var ps=person.postes||{}, f, lib, col;
+  var ps=person.postes||{}, f, lib;
   for(f in ps){
     if(!Object.prototype.hasOwnProperty.call(ps,f)) continue;
-    lib=String(ps[f].p||"").trim(); col=String(ps[f].c||"");
-    if(/^polyvalent$/i.test(lib)) return (col==="O"||col==="P")?"pa":"pv";
+    lib=String(ps[f].p||"").trim();
+    if(/^polyvalent$/i.test(lib)){ var cp=cotePolyvalent(person); if(cp) return cp==="ar"?"pa":"pv"; continue; }
     if(/^renfort\s+arri/i.test(lib)) return "ra";
     if(/^renfort\s+avant/i.test(lib)) return "rv";
   }
