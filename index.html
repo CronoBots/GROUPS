@@ -2663,7 +2663,7 @@ html #grille .ws-site{margin-bottom:14px}
 .us-corps.us-cote{display:grid; grid-template-columns:minmax(0,1fr) 348px; gap:0; align-items:start}
 .us-plan{min-width:0}
 .us-svg{display:block; max-width:100%; height:auto; font-family:inherit; user-select:none; -webkit-user-select:none}
-.us-panneau{display:flex; flex-direction:column; gap:12px; margin-top:12px; padding:0 12px; min-width:0}
+.us-panneau{display:flex; flex-direction:column; gap:12px; margin-top:12px; padding:0 16px; min-width:0}
 .us-cote .us-panneau{margin-top:0; padding:12px 12px 0 16px}
 /* la fiche sous le plan, au PC : qui est là à gauche, comment le joindre
    à droite (la liste des postes qui l'accompagnait redisait le plan) */
@@ -2697,6 +2697,15 @@ html #grille .ws-site{margin-bottom:14px}
 .us-cerne{stroke:var(--us-cerne); stroke-width:4.4}
 .us-large .us-tube{stroke-width:2.8} .us-large .us-cerne{stroke-width:5}
 .us-flux.us-grain{stroke:var(--us-grain); stroke-width:1.5}
+/* le sens du flux : la flèche peinte, de la couleur de sa conduite,
+   cernée comme elle (v1272) */
+.us-decor .us-fleche{stroke:var(--us-cerne); stroke-width:1; stroke-linejoin:round}
+.us-fleche.us-tu-v{fill:var(--us-tu-v)} .us-fleche.us-tu-s{fill:var(--us-tu-s)} .us-fleche.us-tu-o{fill:var(--us-tu-o)} .us-fleche.us-tu-b{fill:var(--us-tu-b)}
+/* une salle touchée : ses circuits vifs, les autres effacés */
+.us-decor [data-de]{transition:opacity .2s ease}
+.us-choix .us-decor [data-de]{opacity:.16}
+.us-choix .us-decor [data-de].us-lien{opacity:1}
+@media (prefers-reduced-motion:reduce){ .us-decor [data-de]{transition:none} }
 /* la matière qui circule : des grains de 2 px tous les 11 px, qui
    avancent de 11 px par seconde vers l'aval */
 .us-flux{fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:.01 11; animation:usFlux 1s linear infinite}
@@ -2728,7 +2737,6 @@ html #grille .ws-site{margin-bottom:14px}
 .us-gaine{fill:none; stroke:var(--us-gaine); stroke-width:7; stroke-linecap:round}
 .us-pied{fill:var(--us-pied)} .us-ventil{fill:var(--us-ventil)} .us-boue{fill:var(--us-boue)}
 
-.us-leg text{font-size:11px; fill:var(--muted)}
 
 
 /* les îlots : un terrain teinté de la famille du poste */
@@ -2864,6 +2872,19 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .us-vide-t{font-size:11.5px; fill:var(--muted); text-anchor:middle; font-style:italic}
 .us-sub-ok{color:var(--good); font-weight:600} .us-sub-manque{color:var(--at-jaune); font-weight:700}
 .us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4; flex:1; min-width:0}
+/* le mode d'emploi et la légende, au-dessus du plan (v1272) */
+.us-guide{display:flex; flex-direction:column; gap:8px; padding:12px 16px}
+.us-leg{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted)}
+.us-leg li{display:inline-flex; align-items:center; gap:6px}
+.us-leg-fl{flex:none} .us-leg-fl path{fill:var(--muted); stroke:var(--muted); stroke-width:1.4; stroke-linecap:round}
+/* le trait d'une conduite, dans la légende et dans la fiche */
+.us-c-trait{flex:none; display:inline-block; width:16px; height:5px; border-radius:3px; border:1px solid var(--us-cerne); background:var(--us-tu-v)}
+.us-c-s{background:var(--us-tu-s)} .us-c-o{background:var(--us-tu-o)} .us-c-b{background:var(--us-tu-b)} .us-c-ble{background:var(--us-f-jaune)}
+/* ce que la salle reçoit et envoie, dans sa fiche */
+.us-circuits{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:13px; line-height:1.35; color:var(--ink2)}
+.us-circuits li{display:flex; align-items:baseline; gap:10px}
+.us-circuits .us-c-trait{position:relative; top:-1px}
+.us-circuits b{color:var(--ink); font-weight:600}
 .us-invite-l{display:flex; align-items:center; gap:12px}
 .us-anim{flex:none; display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:0 12px; border-radius:99px; border:1px solid var(--line); background:var(--surface2); color:var(--ink2); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer}
 .us-anim:hover{color:var(--ink); border-color:var(--ink2)}
@@ -21499,8 +21520,49 @@ function usineNom(k){ var n=""; USINE_ZONES.forEach(function(z){ if(z.k===k) n=z
    nord (meunerie, chaudières, distillation, STEP au bord de l'eau) et celle
    du sud (gluten, fermentation, parc de cuves, bureaux) ; au téléphone,
    deux colonnes, d'ouest en est et du nord au sud */
+/* LES CIRCUITS DU SITE (le client, le 01/11/2026 : « comment rendre plus
+   intuitif et compréhensible ») : ce que chaque salle reçoit et envoie,
+   d'après les descriptions ci-dessus. Les conduites du plan et les lignes
+   de la fiche lisent la même liste. c : la couleur du flux (v le produit,
+   s le son, o la vapeur, b les eaux) */
+var USINE_LIENS=[
+  {de:"meun", a:"glut", c:"v", p:"la farine"},
+  {de:"glut", a:"ferm", c:"v", p:"le lait d’amidon"},
+  {de:"ferm", a:"dist", c:"v", p:"le moût"},
+  {de:"dist", a:"terr", c:"v", p:"l’éthanol"},
+  {de:"meun", a:"chau", c:"s", p:"le son"},
+  {de:"chau", a:"dist", c:"o", p:"la vapeur"},
+  {de:"chau", a:"glut", c:"o", p:"la vapeur"},
+  {de:"terr", a:"step", c:"b", p:"les eaux usées"},
+  {de:"cm",   a:"step", c:"b", p:"les eaux usées"}
+];
+var USINE_DE={quai:"du quai de la Meuse", meun:"de la meunerie", glut:"du gluten", ferm:"de la fermentation", dist:"de la distillation", terr:"du terrain arrière", chau:"des chaudières", step:"de la station d’épuration", cm:"du bureau"};
+var USINE_A={meun:"à la meunerie", glut:"au gluten", ferm:"à la fermentation", dist:"à la distillation", terr:"au terrain arrière", chau:"aux chaudières", step:"à la station d’épuration", cm:"au bureau"};
+function usineLien(de,a){ var r=null; USINE_LIENS.forEach(function(l){ if(l.de===de&&l.a===a) r=l; }); return r; }
+/* « Reçoit la farine de la meunerie », « Envoie la vapeur à la
+   distillation et au gluten » : un même produit vers deux salles tient
+   sur une ligne ; le blé arrive du quai par la bande transporteuse */
+function usineCircuits(k){
+  var tous=[{de:"quai", a:"meun", c:"ble", p:"le blé"}].concat(USINE_LIENS), rec=[], env=[];
+  tous.forEach(function(l){ if(l.a===k) rec.push(l); if(l.de===k) env.push(l); });
+  function lignes(liste,cote,verbe,noms){ var g=[];
+    liste.forEach(function(l){ var x=null; g.forEach(function(y){ if(y.p===l.p&&y.c===l.c) x=y; }); if(x) x.z.push(l[cote]); else g.push({p:l.p, c:l.c, z:[l[cote]]}); });
+    return g.map(function(y){ var n=y.z.map(function(z){ return noms[z]; }), qui=n.length>1?n.slice(0,-1).join(", ")+" et "+n[n.length-1]:n[0];
+      return '<li><span class="us-c-trait us-c-'+y.c+'" aria-hidden="true"></span><span>'+verbe+' <b>'+esc(y.p)+'</b> '+esc(qui)+'</span></li>'; }); }
+  var li=lignes(rec,"de","Reçoit",USINE_DE).concat(lignes(env,"a","Envoie",USINE_A));
+  return li.length?'<ul class="us-circuits" aria-label="Ce que la salle reçoit et envoie">'+li.join("")+'</ul>':'';
+}
 var USINE_ORDRE={large:["meun","chau","dist","step","glut","ferm","terr","cm"], etroit:["meun","chau","glut","dist","ferm","terr","step","cm"]};
 var US_SEL=null, US_CLE="";
+/* LA SALLE TOUCHÉE ALLUME SES CIRCUITS (v1272) : ses conduites restent
+   vives, les autres s'effacent. Pas pour la salle choisie d'office (la
+   sienne, ou le bureau) : le plan s'ouvre sur tout le réseau. Toucher à
+   nouveau la salle, ou le sol, rend tout le réseau. */
+var US_FLUX=false;
+function usineLiens(){ var sv=document.getElementById("usSvg"); if(!sv) return; var on=!!(US_FLUX&&US_SEL);
+  [].forEach.call(sv.querySelectorAll(".us-decor [data-de]"),function(e){ var x=on&&(e.getAttribute("data-de")===US_SEL||e.getAttribute("data-a")===US_SEL);
+    e.setAttribute("class",((e.getAttribute("class")||"").replace(/\s*\bus-lien\b/g,"")+(x?" us-lien":"")).replace(/^\s+/,"")); });
+  sv.setAttribute("class",(sv.getAttribute("class")||"").replace(/\s*\bus-choix\b/g,"")+(on?" us-choix":"")); }
 
 /* ── l'état à la minute ── */
 function usineEtat(){
@@ -21927,8 +21989,8 @@ function usineGeo(W,rk){
     var h=hd+art+nr*(US_PAS_H+US_PAS_E)+10;
     for(c=0;c<cols;c++) pos[ord[r*cols+c]]={x:mg+c*(pw+gap), y:y, h:h, hd:hd, deux:coupe(ord[r*cols+c]), c:c, r:r, rangs:nr};
     sig.push(nr+(hd>head?"c":"")); y+=h+gap; }
-  /* la légende des flux, au pied du plan, au PC comme au téléphone */
-  var H=y-gap+(large?28:30);
+  /* (la légende des flux est passée au-dessus du plan, en HTML : v1272) */
+  var H=y;
   return {W:W, H:H, large:large, cols:cols, mg:mg, hw:hw, xE:mg+cols*pw+(cols-1)*gap, gap:gap, top:top, pw:pw, sc:sc, head:head, art:art, pos:pos, riv:riv, berge:berge, rail:rail, sig:sig.join("")};
 }
 /* la dalle d'une zone, à l'écran : l'origine de sa scène, son centre, sa
@@ -21995,9 +22057,9 @@ function usineDecor(g){
   var bx0=sx+12, by0=sy-10, bep=3.5*Math.max(g.sc,0.8), bn=Math.max(4,Math.round(Math.abs(gy-by0)/9)), bd='';
   for(var bi=0;bi<bn;bi++){ var t0=bi/bn, t1=(bi+1)/bn, xa=bx0+(gx-bx0)*t0, ya=by0+(gy-by0)*t0, xb=bx0+(gx-bx0)*t1, yb=by0+(gy-by0)*t1;
     bd+=bi%2?'M'+usN(xa)+','+usN(ya+bep)+'L'+usN(xb)+','+usN(yb):'M'+usN(xa)+','+usN(ya)+'L'+usN(xb)+','+usN(yb+bep); }
-  var bande='<path class="us-bande-t" d="M'+usN(bx0)+','+usN(by0+bep)+'L'+usN(gx)+','+usN(gy+bep)+'"/><path class="us-bande-d" d="'+bd+'"/>'
+  var bande='<g data-de="quai" data-a="meun"><path class="us-bande-t" d="M'+usN(bx0)+','+usN(by0+bep)+'L'+usN(gx)+','+usN(gy+bep)+'"/><path class="us-bande-d" d="'+bd+'"/>'
     +'<path class="us-bande-t" d="M'+usN(bx0)+','+usN(by0)+'L'+usN(gx)+','+usN(gy)+'"/>'
-    +'<path class="us-flux us-flux-ble" d="M'+usN(bx0)+','+usN(by0)+'L'+usN(gx)+','+usN(gy)+'"/>';
+    +'<path class="us-flux us-flux-ble" d="M'+usN(bx0)+','+usN(by0)+'L'+usN(gx)+','+usN(gy)+'"/></g>';
   /* la sucrerie voisine, ses deux grands silos */
   var su=L?g.pos.dist.x+g.pw*0.15:g.pos.chau.x+g.pw*0.25, suy=g.riv+g.berge-2;
   /* la haute cheminée de brique de la sucrerie (vues aériennes) */
@@ -22049,22 +22111,24 @@ function usineDecor(g){
   /* sur le bord du haut (−1) ou du bas (+1), f de l'ouest à l'est */
   function V(k,f,sens){ return Q(k,f,sens*(1-Math.abs(f))); }
   var T=[];
+  /* une conduite : sa couleur, ses points, sa salle de départ et d'arrivée */
+  var K=function(de,ar,pts){ return ["us-tu-"+usineLien(de,ar).c,pts,de,ar]; };
   if(L){
     var parH=function(a,y,b){ return [a,[a[0],y],[b[0],y],b]; };
-    T.push(["us-tu-s",[C("meun",1,0),C("chau",-1,0)]],["us-tu-o",[C("chau",1,0),C("dist",-1,0)]],["us-tu-v",[C("glut",1,0),C("ferm",-1,0)]]);
-    T.push(["us-tu-v",[V("meun",.76,1),V("glut",.76,-1)]],["us-tu-v",parH(V("ferm",.76,-1),yS,V("dist",-.76,1))],["us-tu-v",[V("dist",.76,1),V("terr",.76,-1)]]);
-    T.push(["us-tu-o",parH(V("chau",-.76,1),yS,V("glut",.88,-1))]);
-    T.push(["us-tu-b",parH(V("terr",.88,-1),yS,V("step",-.76,1))],["us-tu-b",[V("cm",.76,-1),V("step",.76,1)]]);
+    T.push(K("meun","chau",[C("meun",1,0),C("chau",-1,0)]),K("chau","dist",[C("chau",1,0),C("dist",-1,0)]),K("glut","ferm",[C("glut",1,0),C("ferm",-1,0)]));
+    T.push(K("meun","glut",[V("meun",.76,1),V("glut",.76,-1)]),K("ferm","dist",parH(V("ferm",.76,-1),yS,V("dist",-.76,1))),K("dist","terr",[V("dist",.76,1),V("terr",.76,-1)]));
+    T.push(K("chau","glut",parH(V("chau",-.76,1),yS,V("glut",.88,-1))));
+    T.push(K("terr","step",parH(V("terr",.88,-1),yS,V("step",-.76,1))),K("cm","step",[V("cm",.76,-1),V("step",.76,1)]));
   } else {
     /* au téléphone, trois voies sur le rack : à gauche le produit qui
        descend la colonne de la meunerie, à droite ce qui descend celle des
        chaudières, au milieu ce qui change de colonne */
     var e=3.4, xG=xR-e, xD=xR+e;
     var par=function(a,x,b){ return [a,[x,a[1]],[x,b[1]],b]; };
-    T.push(["us-tu-s",[C("meun",1,0),C("chau",-1,0)]]);
-    T.push(["us-tu-v",par(C("meun",1,.5),xG,C("glut",1,-.5))],["us-tu-v",par(C("glut",1,.5),xG,C("ferm",1,-.5))],["us-tu-v",par(C("ferm",1,0),xR,C("dist",-1,.15))],["us-tu-v",par(C("dist",-1,.5),xD,C("terr",-1,-.5))]);
-    T.push(["us-tu-o",par(C("chau",-1,.5),xD,C("dist",-1,-.5))],["us-tu-o",par(C("chau",-1,.5),xR,C("glut",1,-.15))]);
-    T.push(["us-tu-b",par(C("terr",-1,.3),xR,C("step",1,-.3))],["us-tu-b",[C("cm",-1,.25),C("step",1,.25)]]);
+    T.push(K("meun","chau",[C("meun",1,0),C("chau",-1,0)]));
+    T.push(K("meun","glut",par(C("meun",1,.5),xG,C("glut",1,-.5))),K("glut","ferm",par(C("glut",1,.5),xG,C("ferm",1,-.5))),K("ferm","dist",par(C("ferm",1,0),xR,C("dist",-1,.15))),K("dist","terr",par(C("dist",-1,.5),xD,C("terr",-1,-.5))));
+    T.push(K("chau","dist",par(C("chau",-1,.5),xD,C("dist",-1,-.5))),K("chau","glut",par(C("chau",-1,.5),xR,C("glut",1,-.15))));
+    T.push(K("terr","step",par(C("terr",-1,.3),xR,C("step",1,-.3))),K("cm","step",[C("cm",-1,.25),C("step",1,.25)]));
   }
   /* LE RACK DU SITE : la passerelle de tuyauteries, vue de dessus — son
      tablier, et tous les 24 px un portique (la traverse et ses deux
@@ -22097,9 +22161,20 @@ function usineDecor(g){
   /* trois passes : la gaine (le liseré qui détache la conduite du sol et
      fond les voisines en un faisceau), la conduite, puis la matière qui
      avance dessus, de l'amont vers l'aval (v1258) */
-  T.forEach(function(t){ s+='<polyline class="us-tube us-cerne" points="'+usP(t[1])+'"/>'; });
-  T.forEach(function(t){ s+='<polyline class="us-tube '+t[0]+'" points="'+usP(t[1])+'"/>'; });
-  T.forEach(function(t){ s+='<polyline class="us-flux us-grain" points="'+usP(t[1])+'"/>'; });
+  var dl=function(t){ return ' data-de="'+t[2]+'" data-a="'+t[3]+'"'; };
+  T.forEach(function(t){ s+='<polyline class="us-tube us-cerne"'+dl(t)+' points="'+usP(t[1])+'"/>'; });
+  T.forEach(function(t){ s+='<polyline class="us-tube '+t[0]+'"'+dl(t)+' points="'+usP(t[1])+'"/>'; });
+  T.forEach(function(t){ s+='<polyline class="us-flux us-grain"'+dl(t)+' points="'+usP(t[1])+'"/>'; });
+  /* LE SENS DU FLUX (v1272) : sur chaque conduite, près de son arrivée, la
+     flèche peinte des tuyauteries d'usine (le marquage des conduites).
+     Elle dit le sens même figée, mouvement réduit compris. Elle se pose à
+     mi-longueur du dernier tronçon, entre 12 et 26 px de la dalle
+     d'arrivée : plus près, le flanc de la dalle ou ses bâtiments la
+     cachaient (la flèche du produit qui entre au gluten, mesurée le
+     01/11/2026, était à moitié sous le hall). */
+  T.forEach(function(t){ var q=t[1], b=q[q.length-1], a=q[q.length-2], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.sqrt(dx*dx+dy*dy)||1, ux=dx/l, uy=dy/l,
+      d=Math.max(12,Math.min(26,l*0.5)), lg=L?7:6, lw=L?3.6:3.2, tx=b[0]-ux*d, ty=b[1]-uy*d, bx=tx-ux*lg, by=ty-uy*lg;
+    s+='<path class="us-fleche '+t[0]+'"'+dl(t)+' d="M'+usN(tx)+','+usN(ty)+'L'+usN(bx-uy*lw)+','+usN(by+ux*lw)+'L'+usN(bx+uy*lw)+','+usN(by-ux*lw)+'Z"/>'; });
   /* LES LAMPADAIRES, le long de la route de ceinture : éteints le jour,
      allumés la nuit (les feux du rack s'allument avec eux) */
   for(r=0;r<rows;r++) s+='<circle class="us-lampe" cx="'+usN((g.xE+W)/2)+'" cy="'+usN(r?yT[r]-g.gap/2:g.top)+'" r="'+(L?2.4:2)+'"/>';
@@ -22126,13 +22201,6 @@ function usineDecor(g){
       +'<g clip-path="url(#usC-'+z.k+')"><g class="us-scene" transform="translate('+usN(ox)+','+usN(oy)+') scale('+g.sc.toFixed(3)+')">'+usLot(z.f)+USINE_SCENES[z.k]()+'</g></g>'; });
   /* la bande transporteuse du quai, en hauteur : par-dessus le train et la tuile */
   s+=bande;
-  /* LA LÉGENDE DES FLUX, au PC comme au téléphone : sans elle, les
-     couleurs des conduites ne se lisent pas */
-  /* chaque entrée prend la place de son mot (6,2 px la lettre à 11 px),
-     plus un blanc égal entre elles : « Son » ne laisse plus de trou */
-  var lgx=g.mg+4, lgy=H-(L?12:14), lgb=L?24:16;
-  s+='<g class="us-leg">'+[["us-tu-v","Produit"],["us-tu-s","Son"],["us-tu-o","Vapeur"],["us-tu-b","Eaux"]].map(function(l){ var x=usN(lgx), x2=usN(lgx+14), t='<line class="us-tube us-cerne" x1="'+x+'" y1="'+lgy+'" x2="'+x2+'" y2="'+lgy+'"/><line class="us-tube '+l[0]+'" x1="'+x+'" y1="'+lgy+'" x2="'+x2+'" y2="'+lgy+'"/><text x="'+usN(lgx+19)+'" y="'+lgy+'" dy=".35em">'+l[1]+'</text>';
-    lgx+=19+l[1].length*6.2+lgb; return t; }).join("")+'</g>';
   return s;
 }
 /* ce qui change à la minute : les pions, l'état de chaque poste */
@@ -22214,7 +22282,7 @@ function usineFiche(E,k){
   return '<div class="us-fiche us-f-'+z.f+'" data-k="'+k+'">'
     +'<div class="us-fiche-t"><b>'+esc(z.t)+'</b>'
     +'<span class="us-badge us-e-'+(att&&n<att?'manque':Zk.gens.length?'ok':'nul')+'">'+(att&&n<att?n+' sur '+att:Zk.gens.length?Zk.gens.length+' présent'+(Zk.gens.length>1?'s':''):'aucun')+'</span></div>'
-    +'<p class="us-fiche-s">'+esc(z.d)+'</p>'
+    +'<p class="us-fiche-s">'+esc(z.d)+'</p>'+usineCircuits(k)
     +'<div class="us-fiche-c"><div class="us-fiche-qui"><ul class="us-gens">'+li.join("")+'</ul>'+rel+'</div>'
     +'<div class="us-fiche-joindre">'+(tel?appel(k,k==="cm"?"Appeler le contremaître de pause":"Appeler la salle de contrôle")
          :via.length?'<div class="us-via"><p>Pas de téléphone au terrain : joignable par la salle de contrôle</p>'+via.map(function(v){ return appel(v,"Appeler la salle de contrôle",usineNom(v)); }).join("")+'</div>'
@@ -22249,10 +22317,17 @@ function renderUsine(){
     /* la fiche sous le plan passe en deux colonnes dès 600 px (la
        tablette comprise) */
     corps.className="us-corps"+(cote?" us-cote":cw>=624?" us-dessous":"");
-    corps.innerHTML='<div class="us-plan"><svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
+    /* LE MODE D'EMPLOI ET LA LÉGENDE AVANT LE PLAN (v1272, le client :
+       « comment rendre plus intuitif et compréhensible ») : au téléphone,
+       le plan fait 1 000 px ; en dessous, ils n'étaient lus qu'après lui */
+    var tch=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez';
+    corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'+tch+' une salle : qui l’occupe, la relève, comment la joindre, et ce qu’elle reçoit et envoie.</p><button type="button" class="us-anim" id="usAnim"></button></div>'
+      +'<ul class="us-leg" aria-label="Légende des conduites">'+[["v","Produit"],["s","Son"],["o","Vapeur"],["b","Eaux"]].map(function(l){ return '<li><span class="us-c-trait us-c-'+l[0]+'" aria-hidden="true"></span>'+l[1]+'</li>'; }).join("")
+      +'<li><svg class="us-leg-fl" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5h6"/><path d="M6 1.5l5 3.5-5 3.5z"/></svg>Sens du flux</li></ul></div>'
+      +'<svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
       +'<defs>'+["blanc","metal","beton","cab","cuve","fonce"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")+'</defs>'
       +'<g class="us-decor'+(g.large?' us-large':'')+'" aria-hidden="true">'+usineDecor(g)+'</g><g id="usDyn"></g></svg></div>'
-      +'<div class="us-panneau"><div class="us-invite-l"><p class="us-invite">'+(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez')+' une salle : qui l’occupe, jusqu’à quand, la relève, son téléphone et sa radio.</p><button type="button" class="us-anim" id="usAnim"></button></div><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
+      +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
     usineBrancher(corps);
   }
   /* LE FOCUS SURVIT À LA MINUTE (relecture du 01/11/2026 : l'îlot choisi
@@ -22261,7 +22336,7 @@ function renderUsine(){
   if(ae&&corps.contains(ae)&&ae.closest){ var zz=ae.closest("#usDyn [data-k]"); if(zz) fk=zz.getAttribute("data-k"); }
   document.getElementById("usSvg").setAttribute("class","us-svg"+(E.nuit?" us-nuit":"")+(US_VU?"":" us-pause"));
   usineVue(); usineAnimBouton();
-  document.getElementById("usDyn").innerHTML=usineDyn(g,E);
+  document.getElementById("usDyn").innerHTML=usineDyn(g,E); usineLiens();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
   if(fk){ var re=document.querySelector('#usDyn .us-zone[data-k="'+fk+'"]'); if(re) try{ re.focus({preventScroll:true}); }catch(e){} }
   usineDernier=E;
@@ -22289,14 +22364,16 @@ function usineVue(){
   _usVue.observe(c);
 }
 function usineChoisir(k){
-  if(!k||!usineDernier) return; US_SEL=k;
+  if(!k||!usineDernier) return; US_FLUX=!(US_FLUX&&US_SEL===k); US_SEL=k; usineLiens();
   [].forEach.call(document.querySelectorAll("#usDyn .us-zone"),function(z){ var on=z.getAttribute("data-k")===k; z.setAttribute("class",(z.getAttribute("class")||"").replace(/\s*\bus-sel\b/g,"")+(on?" us-sel":"")); z.setAttribute("aria-pressed",String(on)); });
   var f=document.getElementById("usFiche"); f.innerHTML=usineFiche(usineDernier,k);
   /* au téléphone, la fiche est sous le plan : elle vient sous les yeux */
   var r=f.getBoundingClientRect(); if(r.bottom>innerHeight-80||r.top<0) try{ f.scrollIntoView({block:"nearest", behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"}); }catch(e){}
 }
 function usineBrancher(corps){
-  corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null; if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k")); };
+  corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null; if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k"));
+    /* le sol touché, hors des salles : tout le réseau revient */
+    else if(!z&&US_FLUX&&t.closest&&t.closest("#usSvg")){ US_FLUX=false; usineLiens(); } };
   corps.onkeydown=function(ev){ if(ev.key!=="Enter"&&ev.key!==" ") return; var z=ev.target.closest&&ev.target.closest(".us-zone"); if(z){ ev.preventDefault(); usineChoisir(z.getAttribute("data-k")); } };
 }
 /* la largeur change (téléphone tourné, fenêtre du PC) : le plan se refait */

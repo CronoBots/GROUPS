@@ -8924,7 +8924,9 @@ Corrigé :
   dégradé lui-même. Il n'y a ni teinte, ni bord, ni cadre : d'une zone à
   l'autre, le sol se rejoint (`--us-pave`, `--us-pave-a`).
 - **La légende des flux au téléphone aussi**, au pied du plan (30 px).
-  Chaque entrée prend la place de son mot.
+  Chaque entrée prend la place de son mot. *(Passée au-dessus du plan,
+  en HTML, en v1272 : au pied d'un plan de 1 000 px, on ne la lisait
+  qu'après lui.)*
 - **« Pas de poste à cette pause »** (153 px) débordait de sa tuile à
   320 px, où la tuile ne fait que 125 px. Sous 160 px, la phrase passe
   sur deux lignes.
@@ -9009,4 +9011,57 @@ L'épreuve `usine-1270.js` gagne deux contrôles :
 Sur la v1270 publiée, ils crient : chevauchement de 0,85 px, et rack à
 vide sur 91, 189 et 218 px. Sur la v1271 : 0 faute. Toutes les épreuves
 du plan rendent 0 faute.
+
+### L'usine en direct : ce qui circule, et dans quel sens (01/11/2026, `nfdm-v1272`)
+
+Le client : « Qu'en penses-tu ? Comment l'améliorer ou le rendre plus
+intuitif et compréhensible ? » Mon avis : le plan était beau et relié,
+mais il restait plus décoratif que parlant. Trois manques :
+- **la légende venait trop tard** : au pied d'un plan de 1 000 px au
+  téléphone, on ne la lisait qu'après tout le dessin, et le mode
+  d'emploi (« Touchez une salle… ») aussi ;
+- **le sens ne se lisait pas** dès que l'animation était figée (bouton
+  Pause, mouvement réduit) ;
+- **toucher une salle ne montrait pas ses circuits** : la fiche disait
+  qui est là, pas ce que la salle reçoit ni ce qu'elle envoie.
+
+Recommandé et appliqué (règle du 20/10 : on fait ce qu'on recommande,
+puis on le dit) :
+- **Le mode d'emploi et la légende au-dessus du plan**, en HTML, alignés
+  sur l'en-tête de la carte (16 px) : « Touchez une salle : qui
+  l'occupe, la relève, comment la joindre, et ce qu'elle reçoit et
+  envoie », puis les quatre conduites (le produit, le son, la vapeur,
+  les eaux) et « Sens du flux ». La
+  légende dessinée au pied du plan part avec sa bande.
+- **Une flèche de sens sur chaque conduite**, comme le marquage peint
+  des tuyauteries d'usine, de la couleur de la conduite et cernée comme
+  elle. Elle est posée à mi-longueur du dernier tronçon, entre 12 et
+  26 px de la dalle d'arrivée. Un premier essai à 15 px laissait la
+  flèche du produit qui entre au gluten à moitié sous le hall.
+- **Toucher une salle allume ses circuits** : ses conduites restent
+  vives, les autres passent à 16 %. Toucher à nouveau la salle, ou
+  toucher le sol, rend tout le réseau. La salle choisie d'office (la
+  sienne, ou le bureau) n'efface rien : le plan s'ouvre sur tout le
+  réseau.
+- **La fiche dit ce que la salle reçoit et envoie**, avec le trait de
+  la conduite. Par exemple : « Reçoit la farine de la meunerie · Reçoit
+  la vapeur des chaudières · Envoie le lait d'amidon à la
+  fermentation ». Un même produit vers deux salles tient sur une ligne :
+  « Envoie la vapeur à la distillation et au gluten ». La meunerie reçoit
+  le blé du quai de la Meuse. Les conduites et la fiche lisent la même
+  liste (`USINE_LIENS`), tirée des descriptions des salles.
+
+L'épreuve `usine-1270.js` gagne :
+- la légende (5 entrées) au-dessus du plan ;
+- 9 flèches, chacune tournée vers son arrivée, à 12 px au moins de la
+  dalle et hors des textes ;
+- pour chaque salle touchée : ses circuits seuls allumés, les autres
+  effacés (opacité ≤ 0,3), et les lignes de la fiche, mot pour mot ;
+- toucher deux fois, ou toucher le sol, rend tout le réseau.
+
+Sur la v1271, elle crie : pas de légende, pas de flèche, rien ne
+s'allume, fiches vides. Sur une copie sabotée aussi : flèches
+retournées (9 « mal tournée »), conduites d'arrivée non allumées
+(« oubliés »). Sur la v1272 : 0 faute. Toutes les épreuves du plan
+rendent 0 faute.
 
