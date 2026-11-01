@@ -135,8 +135,11 @@ le contredit est une erreur de paiement, à signaler, pas à imiter. Ce que
 ni le classeur ni le règlement ne disent, et que seule une fiche montre,
 est un **écart connu**, écrit ici, et non corrigé.
 
-**Ne jamais deviner à la place du classeur ni du client.** Quand deux
-lectures sont possibles, c'est le classeur qui tranche — les colonnes se
+**Ne jamais deviner à la place du classeur ni du client.** Le client, le
+01/11/2026 : « si tu as des doutes, interroge-moi toujours » — un doute
+sur un fait (qui tient quel poste, ce que veut dire une écriture) se pose
+en question AVANT de coder ; seule la question de goût se tranche seul.
+Quand deux lectures sont possibles, c'est le classeur qui tranche — les colonnes se
 répondent (CHD « Remplace GST » le jour où le commentaire d'un autre le
 nomme) — et, s'il se tait, c'est une question au client, écrite dans ce
 fichier. **Une correction faite à la main peut être fausse** : l'une des
