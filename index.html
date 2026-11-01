@@ -7445,6 +7445,14 @@ html .xl-pilules .hp-poste{min-width:110px; border:1px solid rgba(17,24,39,.45);
 html .xl-pilules .hp-poste.pt-meu{background:#f6e3a1} html .xl-pilules .hp-poste.pt-fer{background:#cfe7bf} html .xl-pilules .hp-poste.pt-cha{background:#f2a08a}
 html .xl-pilules .hp-poste.pt-step{background:#bfdbfe} html .xl-pilules .hp-poste.pt-cm{background:#c7ccd4}
 html .xl-pilules button[aria-pressed="true"]{background:#f9fafb!important; color:#111827; border-color:#111827; box-shadow:inset 0 0 0 1px rgba(17,24,39,.25)}
+/* LE BOUTON DES ADJOINTS (v1275) : un interrupteur, pas une feuille — il
+   ne s'allume pas comme la pilule de l'équipe choisie ; l'œil dit l'état
+   (ouvert : affichés ; barré : masqués), le pointillé aussi */
+html .xl-pilules .hp-adj{flex:0 0 auto; height:32px; padding:0 14px; gap:6px; border-radius:999px; display:inline-flex; align-items:center; font:600 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; border:1px solid #374151; background:#1f2937!important; color:#f9fafb; box-shadow:none; cursor:pointer}
+html .xl-pilules .hp-adj[aria-pressed="false"]{border-style:dashed; color:#cbd5e1}
+html .xl-pilules .hp-adj:hover{background:#4b5563!important}
+html .xl-pilules .hp-adj[disabled]{opacity:.45; cursor:default}
+@media (pointer:coarse){ html .xl-pilules .hp-adj{height:44px} }
 html .ws-planning .gr-zone{margin:0 16px; background:#fff; border:1px solid #64748b; border-radius:12px 12px 0 0; border-top:1px solid #64748b}
 html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width:1px; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; background:#fff; color:#111827}
 /* LA MÊME LARGEUR POUR CHAQUE PERSONNE (le client, le 29/10/2026 : « les
@@ -7511,6 +7519,13 @@ html .hp-t thead tr.hp-g th{height:24px}
 html .hp-t thead tr.hp-ops th{top:29px; text-transform:none; font-size:13px; font-weight:600; border-bottom:2px solid #64748b; border-right:2px solid #64748b; cursor:pointer; height:22px}
 html .hp-t thead tr.hp-ops th small{display:block; font-size:11px; font-weight:500; color:#374151; margin-top:1px}
 html .hp-t thead th.hp-gp{border-right:2px solid #64748b; font-size:12px; letter-spacing:.02em}
+/* LES COULEURS DU PLANNING (le client, le 01/11/2026 : « les couleurs
+   doivent être les mêmes que celles de l'onglet Planning ») : la grille
+   gardait les familles du Planning en aplats pâles ; chaque groupe porte
+   en plus, sous son nom, le trait de couleur du Planning (ses valeurs du
+   thème clair, la grille étant claire dans les deux thèmes) */
+html .hp-t thead th.hp-gp.pt-meu{box-shadow:inset 0 -3px 0 #8C5B00} html .hp-t thead th.hp-gp.pt-fer{box-shadow:inset 0 -3px 0 #0D7A3B}
+html .hp-t thead th.hp-gp.pt-cha{box-shadow:inset 0 -3px 0 #A5392C} html .hp-t thead th.hp-gp.pt-step{box-shadow:inset 0 -3px 0 #1C66AC} html .hp-t thead th.hp-gp.pt-cm{box-shadow:inset 0 -3px 0 #515C70}
 html .hp-t .pt-meu,html .hp-moit .pt-meu{background:#f6e3a1} html .hp-t .pt-fer,html .hp-moit .pt-fer{background:#cfe7bf} html .hp-t .pt-cha,html .hp-moit .pt-cha{background:#f2a08a} html .hp-t .pt-step,html .hp-moit .pt-step{background:#bfdbfe} html .hp-t .pt-cm,html .hp-moit .pt-cm{background:#c7ccd4}
 html .hp-t thead th.hp-coin{left:0; z-index:9; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:5px}
 /* 23/10/2026 : « Adjoints ON », « pers. » et « Éq. » à 9 et 10 px passent
@@ -19866,8 +19881,11 @@ var GR_FEUILLES=[["Shift1","Équipe 1"],["Shift2","Équipe 2"],["Shift3","Équip
    équipes et le contremaître en pilules sombres, puis les postes, chacun
    dans sa couleur ; un poste montre ses gens des cinq équipes. */
 var GR_MODES=[["Shift1","Équipe 1"],["Shift2","Équipe 2"],["Shift3","Équipe 3"],["Shift4","Équipe 4"],["Shift5","Équipe 5"],["Contremaître","Contremaître"],
-  ["p:meu","Meunerie",/meun/i,"pt-meu"],["p:glu","Gluten",/gluten/i,"pt-meu"],["p:fer","Fermentation",/ferm/i,"pt-fer"],
-  ["p:par","Polyvalent Arrière",/poly|renf|terr/i,"pt-fer"],["p:dis","Distillation",/disti/i,"pt-fer"],["p:cha","Chaudière",/chaud/i,"pt-cha"],
+  /* les pilules de poste suivent les groupes des équipes (v1275) : la
+     « Polyvalent Arrière » montrait aussi dix personnes de l'avant (tout
+     libellé « Polyvalent » ou « Renfort ») */
+  ["p:meu","Meunerie","meu","pt-meu"],["p:pav","Polyvalent Avant","pav","pt-meu"],["p:glu","Gluten","glu","pt-meu"],["p:fer","Fermentation","fer","pt-fer"],
+  ["p:par","Polyvalent Arrière","par","pt-fer"],["p:dis","Distillation","dis","pt-fer"],["p:cha","Chaudière","cha","pt-cha"],
   ["Step","Station d'Épuration",null,"pt-step"],["Opérateurs","Formation",null,"pt-cm"]];
 /* la teinte d'un poste, celle de l'outil « Horaires » du client */
 /* LE POLYVALENT AVANT EN JAUNE (le client, le 26/10/2026 : « le polyvalent
@@ -19876,6 +19894,7 @@ var GR_MODES=[["Shift1","Équipe 1"],["Shift2","Équipe 2"],["Shift3","Équipe 3
    au-delà : l'avant — la règle de roleDeFeuille). L'avant prend la teinte
    de la meunerie et du gluten, l'arrière garde le vert. */
 function grTeinteCol(c){
+  if(c&&c.k) return grCatInfo(c.k)[2];
   var ps=c&&c.p&&c.p.postes&&c.p.postes[c.f], col=ps?String(ps.c||""):"";
   if(/^polyvalent$/i.test(String(c&&c.po||"").trim())&&col&&col!=="O"&&col!=="P") return "pt-meu";
   return grTeinte(c&&c.po);
@@ -19889,7 +19908,7 @@ function grTeinte(po){ po=String(po||"").toLowerCase();
    horaire par défaut à l'ouverture ») : la grille s'ouvre sur la colonne
    de la personne de l'appareil ; la pilule choisie ensuite reste celle de
    la séance. Sans personne choisie, la dernière feuille vue. */
-var GR={feuille:"moi", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:""};
+var GR={feuille:"moi", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:"", adj:lsGet("ui/grAdj")!==false};
 var GR_PIED=[
   {t:"VA",c:{"VA":8,"1/2VA":4},s:"VA"},
   {t:"RTT",c:{"RTT":8,"1h RTT":1,"2h RTT":2,"3h RTT":3,"4h RTT":4,"5h RTT":5,"6h RTT":6,"7h RTT":7},s:"RTT"},
@@ -19901,9 +19920,53 @@ var JOURS_C=["Di","Lu","Ma","Me","Je","Ve","Sa"];
 /* les abréviations françaises des mois, celles de l'usage */
 var MOIS_C=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 function grCol(c){ return (c.length<2?" ":"")+c; }
+/* LES GROUPES D'UNE ÉQUIPE (le client, le 01/11/2026 : « les adjoints au
+   début de chaque équipe, puis meunerie, polyvalent avant — ceux qui ont
+   gluten et meunerie —, gluten — ceux qui ne possèdent que le gluten —,
+   fermentation — que la fermentation —, polyvalent arrière — la
+   fermentation et la distillation —, distillation — que la distillation
+   —, puis chaudière » ; « les couleurs les mêmes que dans le Planning »).
+   Le côté de l'usine vient du poste écrit au classeur ; pour un
+   « Polyvalent », de ce qu'il possède. JAMAIS de la lettre de sa colonne :
+   « ne pas se fier aux lettres de colonne, cela dépend d'une équipe à
+   l'autre ». Dans son côté, ce qu'il possède (sa polyvalence au
+   classeur, à aujourd'hui) le range. */
+/* [clé, nom, teinte, nom court — pour un groupe d'une seule personne,
+   dont la colonne ne tient pas « POLYVALENT ARRIÈRE »] */
+var GR_CATS=[["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","Meunerie"],["pav","Polyvalent avant","pt-meu","Poly. avant"],["glu","Gluten","pt-meu","Gluten"],
+  ["fer","Fermentation","pt-fer","Ferment."],["par","Polyvalent arrière","pt-fer","Poly. arrière"],["dis","Distillation","pt-fer","Distillation"],["cha","Chaudières","pt-cha","Chaudières"],
+  ["ste","Station d’épuration","pt-step","Station"],["aut","Autres","pt-cm","Autres"]];
+/* ce que la règle ne tranche pas, tranché par le client, une question à la
+   fois (01/11/2026) : les « Polyvalent » qualifiés à l'avant ET à
+   l'arrière, BLR (« en meunerie, mais il est polyvalent avant sur
+   papier ») et AAI (renfort arrière, fermentation et distillation, tenu à
+   la distillation) */
+var GR_GROUPE_CLIENT={BLR:"meu", JKS:"pav", PLZ:"pav", GPO:"glu", SBZ:"par", FLN:"par", FPS:"par", AAI:"dis"};
+function grCatInfo(k){ for(var i=0;i<GR_CATS.length;i++) if(GR_CATS[i][0]===k) return GR_CATS[i].slice(0,3).concat([i,GR_CATS[i][3]]); var d=GR_CATS[GR_CATS.length-1]; return d.slice(0,3).concat([GR_CATS.length-1,d[3]]); }
+function grCat(p,f){
+  var po=String((p.postes&&p.postes[f]&&p.postes[f].p)||"").trim();
+  if(/adjoint/i.test(po)) return "adj";
+  if(GR_GROUPE_CLIENT[p.id]) return GR_GROUPE_CLIENT[p.id];
+  if(/chaud/i.test(po)) return "cha";
+  if(/step|épur|epur/i.test(po)) return "ste";
+  var a=function(rx){ return aLAtelier(p,rx); }, M=a(/^meun/i), G=a(/^glut/i), F=a(/^(ferm|liq)/i), D=a(/^disti/i);
+  var cote=/meun|gluten|renf\S*\s+avant/i.test(po)?"av":/ferm|disti|terr|renf\S*\s+arr/i.test(po)?"ar":null;
+  /* « Polyvalent », ou « Renfort » sans côté : ce qu'il possède le place ;
+     qualifié des deux côtés sans décision du client, la meunerie et le
+     gluten ensemble le mettent à l'avant */
+  if(!cote){ var av=M||G, ar=F||D; cote=av&&!ar?"av":ar&&!av?"ar":av&&ar?(M&&G?"av":"ar"):(a(/^chaudi/i)?"cha":null); }
+  if(cote==="cha") return "cha";
+  if(cote==="av") return M&&G?"pav":M?"meu":G?"glu":(/meun/i.test(po)?"meu":"glu");
+  if(cote==="ar") return F&&D?"par":F?"fer":D?"dis":(/ferm/i.test(po)?"fer":/disti/i.test(po)?"dis":"par");
+  return "aut";
+}
 function grGens(db,f){
-  return db.people.filter(function(p){ return p.postes&&p.postes[f]; })
-    .sort(function(a,b){ var x=grCol(a.postes[f].c), y=grCol(b.postes[f].c); return x<y?-1:x>y?1:0; });
+  var l=db.people.filter(function(p){ return p.postes&&p.postes[f]; });
+  /* une équipe : par groupe, puis par trigramme (le client : « alphabétique ») */
+  if(/^Shift/.test(f)){ var K={};
+    l.forEach(function(p){ K[p.id]=grCatInfo(grCat(p,f))[3]; });
+    return l.sort(function(a,b){ var d=K[a.id]-K[b.id]; if(d) return d; var x=idLisible(a.id), y=idLisible(b.id); return x<y?-1:x>y?1:0; }); }
+  return l.sort(function(a,b){ var x=grCol(a.postes[f].c), y=grCol(b.postes[f].c); return x<y?-1:x>y?1:0; });
 }
 function grCompte(p,codes,an){
   var n=0; Object.keys(p.d||{}).forEach(function(md){
@@ -19978,7 +20041,7 @@ function grLibelle(){ return "Année "+grJours()[0].getFullYear(); }
 /* les colonnes du mode choisi : [{p, f (la feuille), po (le poste)}] */
 function grColonnes(db){
   var m=GR_MODES.filter(function(x){ return x[0]===GR.feuille; })[0]||GR_MODES[0], cols=[];
-  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||""}; }); }
+  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||"",k:/^Shift/.test(f)?grCat(p,f):""}; }); }
   /* MON HORAIRE (le client, le 29/10/2026 : « un bouton qui permette
      d'afficher son horaire personnel ; moi, VBN, en appuyant dessus, je ne
      verrai que mon horaire ») : la seule colonne de la personne de
@@ -19991,12 +20054,16 @@ function grColonnes(db){
            alors le nom de la feuille */
         titre=c.po&&!/^\d+$/.test(c.po)?c.po:x[1]; }); });
     m=["moi",titre,null,cols.length?grTeinteCol(cols[0]):"pt-cm"]; }
-  else if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(m[2].test(c.po)&&!/adjoint/i.test(c.po)) cols.push(c); }); });
+  else if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(c.k===m[2]) cols.push(c); }); });
   else cols=de(m[0]);
-  /* LES ADJOINTS TOUJOURS AFFICHÉS (le client, le 26/10/2026 : « il faut
-     toujours afficher les adjoints et supprimer le bouton qui les
-     cachait ») : plus de filtre, plus de bouton « Adjoints ON/OFF » ; le
-     coin dit le nombre de personnes, comme pour les autres feuilles. */
+  /* LES ADJOINTS EN TÊTE, ET UN BOUTON POUR LES MASQUER (le client, le
+     01/11/2026 : « les adjoints doivent apparaître au début de chaque
+     équipe, mais il doit y avoir un bouton qui permette de les masquer »).
+     Le 26/10/2026, il avait fait retirer le bouton « Adjoints ON/OFF » du
+     coin du tableau (« toujours afficher les adjoints ») : il revient, à
+     sa demande, dans la rangée des pilules, affichés par défaut ; le choix
+     est gardé sur l'appareil (ui/grAdj). */
+  if(/^Shift/.test(m[0])&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
   /* une recherche parcourt toutes les feuilles, et non la seule pilule
      active (audit du 23/10/2026) : « Personne ne correspond » faisait croire
      qu'une personne d'une autre équipe n'existait pas ; à partir de deux
@@ -20070,7 +20137,6 @@ function renderGrille(){
   /* le bandeau de « Mon horaire » ne reste pas sur un message (pas
      d'horaire, personne trouvée) : il ne revient qu'avec son tableau */
   var mt0=document.getElementById("grMoiTete"); if(mt0) mt0.hidden=true;
-  GR.adj=true;
   var moiId=trigCourant();
   if(GR.feuille==="moi"&&!moiId){ var fv=lsGet("ui/grFeuille"); GR.feuille=fv&&fv!=="moi"?fv:"Shift1"; }
   if(GR.feuille!=="moi"&&!GR_MODES.some(function(x){ return x[0]===GR.feuille; })) GR.feuille="Shift1";
@@ -20087,7 +20153,13 @@ function renderGrille(){
   document.getElementById("grPilules").innerHTML=(moiId?'<button type="button" class="hp-pill hp-moi" data-f="moi" aria-pressed="'+(GR.feuille==="moi"&&!(GR.cherche.length>=2))+'" aria-label="Mon horaire, '+esc(idLisible(moiId))+'" title="Seulement l\'horaire de '+esc(idLisible(moiId))+'">'
       +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>':'')
     +GR_MODES.map(function(x){ var poste=!!x[3];
-      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'; }).join("");
+      return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'
+        /* le bouton des adjoints, après la dernière équipe : il n'agit que
+           sur la vue d'une équipe, ailleurs il est grisé */
+        +(x[0]==="Shift5"?'<button type="button" class="hp-adj" data-gr-adj aria-pressed="'+(GR.adj!==false)+'"'+(/^Shift/.test(GR.feuille)&&!(GR.cherche.length>=2)?'':' disabled')
+          +' title="Afficher ou masquer les adjoints en tête de l\'équipe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+          +(GR.adj!==false?'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>':'<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>')
+          +'</svg>Adjoints</button>':''); }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
      scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
      recherche (audit du 23/10/2026) */
@@ -20141,8 +20213,10 @@ function renderGrille(){
     +(mode[0]==="moi"||q?'':'<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(equipe){
-    for(var gi=0;gi<cols.length;){ var po0=cols[gi].po, gj=gi; while(gj<cols.length&&cols[gj].po===po0) gj++;
-      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"><span class="hp-gpl">'+esc(po0)+'</span></th>'); gi=gj; }
+    /* un groupe par catégorie (v1275), et non plus par libellé du classeur */
+    for(var gi=0;gi<cols.length;){ var k0=cols[gi].k, po0=cols[gi].po, gj=gi; while(gj<cols.length&&(k0?cols[gj].k===k0:cols[gj].po===po0)) gj++;
+      var gn=k0?grCatInfo(k0):null, gl=gn?(gj-gi===1?gn[4]:gn[1]):po0;
+      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"'+(gn&&gl!==gn[1]?' title="'+esc(gn[1])+'"':'')+'><span class="hp-gpl">'+esc(gl)+'</span></th>'); gi=gj; }
   } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length+(avecCom?1:0))+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
@@ -23571,6 +23645,8 @@ function renderHisto(){
     var auj=jourUsine(); grCaler(auj.getMonth()===garde.getMonth()&&auj.getFullYear()===garde.getFullYear()?auj:garde); grFermerPanneau(); renderGrille(); grCentrer();
   });
   document.getElementById("grEquipes").addEventListener("click",function(e){
+    var ba=e.target.closest&&e.target.closest("button[data-gr-adj]");
+    if(ba){ if(ba.disabled) return; GR.adj=GR.adj===false; lsSet("ui/grAdj",GR.adj); renderGrille(); return; }
     var b=e.target.closest&&e.target.closest("button[data-f]"); if(!b) return;
     GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau();
     /* une pilule touchée pendant une recherche (qui parcourt tout) l'efface :

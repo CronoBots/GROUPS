@@ -6223,7 +6223,8 @@ bouton qui les cachait ; il faut ajouter la bordure à droite du mois ; le
 nom du poste doit être centré horizontalement ; l'horaire doit être le 4e
 bouton d'onglet de la version mobile, à la place de sous-effectif ».
 
-- **Adjoints** : plus de filtre ni de bouton « Adjoints ON/OFF » (ni sa
+- **Adjoints** *(le bouton revient le 01/11/2026, v1275, à la demande du
+  client, dans la rangée des pilules)* : plus de filtre ni de bouton « Adjoints ON/OFF » (ni sa
   préférence `ui/grAdj`) ; le coin dit le nombre de personnes (« 15
   pers. »), comme pour les autres feuilles.
 - **Le mois** : bordure de 2 px à droite, le trait du tableau ; la colonne
@@ -9202,4 +9203,104 @@ Son clic « sur le sol » vise désormais la Meuse : avec le nouvel ordre,
 l'ancien point tombait sur une tuile. `usine-1258.js` admet les voies du
 rack de l'ouest (à 1,7 px de son axe). Toutes les épreuves du plan
 rendent 0 faute.
+
+### L'onglet Horaire : chaque équipe rangée par poste, les adjoints masquables (01/11/2026, `nfdm-v1275`)
+
+Le client : « Pour l'onglet Horaire, il faut mettre les travailleurs dans
+ce sens pour les 5 équipes : meunerie ; polyvalent avant (ceux qui ont
+gluten et meunerie, d'office au gluten, sauf BLR je pense) ; gluten (ceux
+qui ne possèdent que le gluten) ; fermentation (que la fermentation) ;
+polyvalent arrière (fermentation et distillation) ; distillation (que la
+distillation) ; puis chaudière. Les couleurs doivent être les mêmes que
+dans l'onglet Planning. Les adjoints doivent apparaître au début de chaque
+équipe, avec un bouton qui permette de les masquer. » Puis : « ne pas se
+fier aux lettres de colonne, cela dépend d'une équipe à l'autre » ; « si
+tu as des doutes, interroge-moi toujours » ; « une question à la fois, en
+QCM ».
+
+**Le relevé** (un agent, sans rien modifier) :
+- ce qu'une personne « possède », c'est sa polyvalence au classeur
+  (`p.poly.ateliers`, lue par `aLAtelier`, qui retire une polyvalence
+  terminée). Le classeur RH des recyclages ne le dit pas : il ne compte
+  que des recyclages faits ;
+- la grille triait par lettre de colonne (`grGens`) et groupait l'en-tête
+  par libellé consécutif ;
+- BLR : meunerie + gluten. Les 24 cases où un collègue le remplace sont
+  toutes à la meunerie, jamais au gluten. Son seul jour de gluten est un
+  recyclage. Le « sauf BLR » du client se vérifie.
+
+**La règle** :
+- le côté de l'usine vient du poste écrit au classeur (meunerie, gluten,
+  renfort avant → l'avant ; fermentation, distillation, renfort arrière
+  → l'arrière ; chaudières). Pour un « Polyvalent », il vient de ce qu'il
+  possède, jamais de la lettre de sa colonne ;
+- dans son côté, ce qu'il possède le range : meunerie + gluten →
+  polyvalent avant ; fermentation + distillation → polyvalent arrière ;
+  sinon son seul poste ;
+- dans chaque groupe, l'ordre alphabétique des trigrammes (choix du
+  client).
+
+Compter les journées prestées ne départageait pas les polyvalents
+qualifiés des deux côtés. Une case n'est annotée que quand on quitte son
+poste : FPS comptait 17 journées à l'avant parce qu'il y va en dépannage.
+
+**Les décisions du client, une question à la fois** (`GR_GROUPE_CLIENT`) :
+- polyvalents des deux côtés : SBZ, FLN, FPS → polyvalent arrière ; PLZ,
+  JKS → polyvalent avant ; GPO → gluten ;
+- BLR → meunerie (« il est polyvalent avant sur papier ») ;
+- AAI → distillation, bien qu'il ait fermentation + distillation.
+
+La règle prise à la lettre, confirmée personne par personne :
+- polyvalent arrière : GDT, PAM, SMA, GKT, ALZ ;
+- polyvalent avant : SLT ;
+- gluten : CJD, ASS, SPT, MMS, GBT ;
+- restent à leur poste du classeur : QBY en distillation, CDE en
+  meunerie, LAX, SPS et LDY aux chaudières.
+
+**Fait** :
+- l'en-tête groupe par catégorie, au nom du groupe. Un groupe d'une
+  seule personne prend un nom court (« Poly. avant », « Poly. arrière »)
+  : « POLYVALENT AVANT » ne tenait pas dans une colonne ;
+- **les couleurs** : la grille avait déjà les familles du Planning en
+  aplats pâles (jaune pour l'avant, vert pour l'arrière, rouge pour les
+  chaudières, gris pour les adjoints). Le polyvalent avant prend
+  désormais le jaune par sa catégorie, et non par sa colonne. Chaque
+  groupe porte, sous son nom, le trait de couleur du Planning, dans ses
+  valeurs du thème clair, puisque la grille est claire dans les deux
+  thèmes ;
+- **les adjoints** : en tête, dans l'ordre alphabétique, et un bouton
+  « Adjoints » (un œil) après « Équipe 5 », gardé sur l'appareil
+  (`ui/grAdj`). Hors de la vue d'une équipe, le bouton est grisé. Le
+  26/10/2026 (`nfdm-v1128`), le client avait fait retirer le bouton
+  « Adjoints ON/OFF » du coin du tableau ; il le redemande, et c'est sa
+  décision qui prime ;
+- **les pilules de poste suivent les mêmes groupes**, et la pilule
+  « Polyvalent Avant » s'ajoute. Bogue corrigé au passage : « Polyvalent
+  Arrière » montrait 23 personnes, dont 10 de l'avant (son filtre
+  `/poly|renf|terr/` prenait tout « Polyvalent » et tout « Renfort »).
+  Elle en montre 9 ;
+- les feuilles du contremaître, de la station et de la formation
+  gardent l'ordre du classeur : la demande ne portait que sur les cinq équipes ;
+- 2027 suit la même règle sans cas nouveau : SKS rejoint les adjoints,
+  DCI et JBS les chaudières.
+
+Nouvelle épreuve `horaire-1275.js`, à 1440 et 390 px. Elle vérifie :
+- chaque équipe groupe par groupe, gens compris ;
+- la teinte et le trait de chaque groupe ;
+- le compte des personnes ;
+- le bouton : masquer, s'en souvenir après rechargement, grisé hors
+  d'une équipe, puis réafficher ;
+- les deux pilules polyvalent.
+
+Résultat : 0 faute. Sur la v1274, 100 fautes ; sur une copie sans la
+décision de BLR, « Meunerie : YRS (attendu BLR YRS) ». Le vérificateur
+du calendrier sort identique à l'octet (sans option, `--manques 0926`,
+`--polyvalence`, `--compteurs`).
+
+À noter, sans y toucher : la règle de l'application qui place un
+« Polyvalent » à l'avant ou à l'arrière au Planning (`roleDeFeuille`)
+lit, elle, la lettre de colonne. Le client dit que ces lettres changent
+d'une équipe à l'autre. Les cinq équipes de 2026 ne la mettent pas en
+défaut (elle concorde avec les polyvalences, et avec les décisions
+ci-dessus), mais c'est une fragilité.
 
