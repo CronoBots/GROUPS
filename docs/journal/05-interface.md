@@ -8115,7 +8115,10 @@ d'animation ». Le skill `impeccable` a servi en version restreinte
   l'illustration.
 - **Le décor s'efface** : plus de voitures, d'arbres, de lampadaires ni
   de lignes de route. Les tuyauteries restent fines et discrètes. Les
-  cabines dessinées sous les pions sont parties avec eux.
+  cabines dessinées sous les pions sont parties avec eux. *(Ce retrait
+  était un mauvais choix : le client, le 01/11/2026, capture de la v1253
+  à l'appui : « les décors étaient mieux faits ». Le décor extérieur est
+  remis en v1259 ; les cabines et les pions ne reviennent pas.)*
 - **Un seul mouvement mis en scène** (`animate`), « le produit circule » :
   une lueur courte parcourt la tuyauterie du produit, du blé vers
   l'éthanol, toutes les sept secondes. Restent, discrets, les fumées et le
@@ -8222,6 +8225,8 @@ main. Défauts relevés :
    haubans du pont) ne portait aucune information et se lisait comme un
    défaut d'affichage. Elle est retirée, et les marges sont égales des
    deux côtés, à l'écart des tuiles (14 px au PC, 10 au téléphone).
+   *(Jugement démenti par le client le jour même : il préférait le décor
+   de la v1253, autoroute comprise. Elle revient en v1259.)*
 5. **Les badges de la fiche s'écrivaient en maigre et en 14 px.** La
    déclaration `font:800 12px/1 inherit` n'est pas valide : le navigateur
    l'ignorait en entier. Ils reprennent le badge du plan (gras, 12 px,
@@ -8318,3 +8323,49 @@ Nouvelle épreuve `usine-1258.js`, à la souris (1280) et au toucher
 Rendu : 0 faute. Sur la v1257, la même épreuve rend 22 fautes : chaque
 contrôle mord. L'épreuve du plan et celle des numéros rendent 0 faute,
 et le focus au clavier survit à la minute.
+
+### L'usine en direct : le décor de la v1253 revient, et le plan va jusqu'au bord du cadre (01/11/2026, `nfdm-v1259`)
+
+Le client, capture de la v1253 à l'appui : « Les décors étaient mieux
+faits dans cette image (extérieur de zone) et il faut aller jusqu'au bord
+du cadre ». Le retrait du décor (v1254) et celui de l'autoroute (v1257)
+étaient de mauvais choix ; les deux entrées le disent maintenant.
+
+**Le décor extérieur de la v1253**, posé sur les tuiles d'aujourd'hui
+(les badges, les comptes, la fiche ne changent pas) :
+- **l'autoroute** le long du bord ouest, sa voie en tirets, le pont à
+  haubans sur la Meuse ;
+- **la bande d'herbe et sa rangée d'arbres** ;
+- **les routes asphaltées entre les salles**, avec leur ligne
+  pointillée. D'est en ouest, elles vont de l'autoroute au bord du
+  cadre ; du nord au sud, du rail au bord (au PC, jusqu'à la bande de
+  la légende). Une route de ceinture longe l'est ;
+- **les lampadaires aux carrefours** : un plot le jour, allumés la nuit
+  avec leur halo.
+
+**Nouveau, dans le langage de la v1258** (ça circule) : deux voitures
+par sens roulent lentement sur l'autoroute et passent le pont. Hors de la
+vue, elles s'arrêtent comme le reste. Quand le téléphone demande moins de
+mouvement, elles restent garées sur la voie.
+
+**Jusqu'au bord du cadre** : le plan n'a plus de marge ni de coins
+arrondis, il touche les deux bords de la carte. Seul le texte sous le
+plan garde sa marge de 12 px. La fiche ne se range à droite que si la
+carte offre 1 200 px. Au PC courant (1 280 à 1 440 px), le plan prend
+donc toute la largeur.
+
+L'épreuve du plan contrôle maintenant :
+- que le plan touche les bords de la carte (1 px, la bordure) ;
+- que l'autoroute, sa voie, ses voitures, les haubans, les arbres, les
+  routes, leurs lignes et les lampadaires sont là ;
+- qu'une route de ceinture longe l'est.
+
+Le contrôle « marges égales » de la v1257 est retiré : l'autoroute rend
+les marges inégales à dessein.
+
+Rendu : 0 faute sur les 8 cas. Sur la v1258, 72 fautes : les huit
+éléments du décor et les bords, sur chacun des 8 cas. Le contrôle de la
+route de ceinture ne mord pas sur la v1258, dont la marge de 10 à 14 px
+le satisfait ; il garde seulement qu'elle ne disparaisse pas.
+L'épreuve de la v1258 (flux, adjoint, appels, pause, mouvement réduit)
+et celle des numéros rendent 0 faute.

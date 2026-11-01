@@ -2603,7 +2603,8 @@ html #grille .ws-site{margin-bottom:14px}
    STEP, gris le contremaître), en pastel sous une encre foncée : le
    trigramme se lit pareil dans les deux thèmes. */
 :root,:root[data-theme="dark"]{
-  --us-sol:#131A27;
+  --us-sol:#131A27; --us-herbe:#1B3326; --us-autor:#232B3B; --us-voie:#56627A; --us-route:#222B3C; --us-ligne:#3C475D;
+  --us-arb-o:#1F4A33; --us-arb-c:#2F6B48; --us-lampe:#FFD27A;
   --us-omb:rgba(0,0,0,.34);
   --us-bl-t:#DCE3EC; --us-bl-1:#E4EAF2; --us-bl-2:#B8C2D0; --us-bl-3:#7F8B9E; --us-bl-s:#8C98AB; --us-bl-f:#B8C2D0;
   --us-me-t:#A9B3C2; --us-me-1:#C2CBD7; --us-me-2:#8A95A7; --us-me-3:#5A6577; --us-me-s:#667184; --us-me-f:#8A95A7;
@@ -2623,7 +2624,8 @@ html #grille .ws-site{margin-bottom:14px}
   --us-trame:rgba(148,163,184,.07); --us-reflet:rgba(255,255,255,.055);
 }
 :root[data-theme="light"]{
-  --us-sol:#E2E7EE;
+  --us-sol:#E2E7EE; --us-herbe:#CFE3D3; --us-autor:#C3CBD6; --us-voie:#F4F6F9; --us-route:#D3DAE3; --us-ligne:#F4F6F9;
+  --us-arb-o:#4E8F63; --us-arb-c:#6DB083; --us-lampe:#F2B544;
   --us-omb:rgba(21,30,47,.16);
   --us-bl-t:#FFFFFF; --us-bl-1:#FFFFFF; --us-bl-2:#E1E6EE; --us-bl-3:#AEB8C6; --us-bl-s:#BCC5D2; --us-bl-f:#E1E6EE;
   --us-me-t:#C8D0DB; --us-me-1:#DCE2EA; --us-me-2:#A9B3C1; --us-me-3:#7B8698; --us-me-s:#8B96A7; --us-me-f:#A9B3C1;
@@ -2647,18 +2649,28 @@ html #grille .ws-site{margin-bottom:14px}
   html #usineCard{grid-column:1 / -1; grid-row:1}
   html .acc-grille.avec-usine .acc-main,html .acc-grille.avec-usine .acc-cote{grid-row:2}
 }
-.us-corps{padding:4px 12px 14px}
-.us-corps.us-cote{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start}
+/* le plan touche les bords de la carte ; le texte, lui, garde sa marge */
+.us-corps{padding:0 0 14px}
+.us-corps.us-cote{display:grid; grid-template-columns:minmax(0,1fr) 348px; gap:0; align-items:start}
 .us-plan{min-width:0}
 .us-svg{display:block; max-width:100%; height:auto; font-family:inherit; user-select:none; -webkit-user-select:none}
-.us-panneau{display:flex; flex-direction:column; gap:12px; margin-top:12px; min-width:0}
-.us-cote .us-panneau{margin-top:0}
+.us-panneau{display:flex; flex-direction:column; gap:12px; margin-top:12px; padding:0 12px; min-width:0}
+.us-cote .us-panneau{margin-top:0; padding:12px 12px 0 16px}
 /* la fiche sous le plan, au PC : qui est là à gauche, comment le joindre
    à droite (la liste des postes qui l'accompagnait redisait le plan) */
 .us-fiche-c,.us-fiche-qui,.us-fiche-joindre{display:flex; flex-direction:column; gap:8px; min-width:0}
 .us-dessous .us-fiche-c{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px 24px; align-items:start}
 /* le décor */
-.us-sol{fill:var(--us-sol)}
+.us-sol{fill:var(--us-sol)} .us-herbe{fill:var(--us-herbe)} .us-autor{fill:var(--us-autor)}
+.us-voie{stroke:var(--us-voie); stroke-width:1.2; stroke-dasharray:7 9}
+.us-route{fill:var(--us-route)} .us-ligne{stroke:var(--us-ligne); stroke-width:1; stroke-dasharray:6 8}
+.us-arb-o{fill:var(--us-arb-o)} .us-arb-c{fill:var(--us-arb-c)}
+.us-hauban line{stroke:var(--us-acier); stroke-width:1}
+/* les lampadaires : un plot le jour, une lumière la nuit */
+.us-lampe{fill:var(--us-voie)} .us-nuit .us-lampe{fill:var(--us-lampe); filter:drop-shadow(0 0 3px var(--us-lampe))}
+/* la circulation sur l'autoroute */
+.us-roule{animation:usRoule linear infinite}
+@keyframes usRoule{from{transform:translateY(var(--us-de))} to{transform:translateY(var(--us-a))}}
 /* (refonte du 01/11/2026 : plus de voies, de lignes de route ni d'arbres) */
 .us-omb{fill:var(--us-omb)} .us-sol-t{fill:var(--us-omb); opacity:.55}
 
@@ -2802,7 +2814,7 @@ html #grille .ws-site{margin-bottom:14px}
 /* vous : un halo qui respire, une fois toutes les trois secondes */
 .us-pas-halo{fill:none; stroke:var(--marque-vif); stroke-width:1.5; opacity:0; animation:usRespire 3s ease-in-out infinite}
 @keyframes usRespire{0%,100%{opacity:0} 50%{opacity:.55}}
-@media (prefers-reduced-motion:reduce){ .us-pulse{animation:none; opacity:0} .us-pont,.us-fumee,.us-feu,.us-pas-halo,.us-flux,.us-vagues,.us-peniche{animation:none} .us-fumee{opacity:.35} .us-pas-halo{opacity:.5} }
+@media (prefers-reduced-motion:reduce){ .us-pulse{animation:none; opacity:0} .us-pont,.us-fumee,.us-feu,.us-pas-halo,.us-flux,.us-vagues,.us-peniche,.us-roule{animation:none} .us-fumee{opacity:.35} .us-pas-halo{opacity:.5} }
 /* la fiche du poste choisi */
 .us-fiche{border:1px solid var(--line); border-radius:14px; background:var(--surface2); padding:12px 14px; display:flex; flex-direction:column; gap:8px}
 .us-fiche-t{display:flex; align-items:center; gap:8px; font-size:16px}
@@ -21552,6 +21564,7 @@ function usCyl(cx,y,r,h,m,toit){
   else s+='<ellipse class="us-ft" cx="'+usN(cx)+'" cy="'+usN(y-h)+'" rx="'+usN(r)+'" ry="'+usN(ry)+'"/>';
   return s+'</g>';
 }
+function usArbre(x,y,r){ return '<g class="us-arb">'+usOmbre(x,y,r*0.9)+'<circle class="us-arb-o" cx="'+usN(x)+'" cy="'+usN(y-r*0.9)+'" r="'+usN(r)+'"/><circle class="us-arb-c" cx="'+usN(x-r*0.25)+'" cy="'+usN(y-r*1.1)+'" r="'+usN(r*0.62)+'"/></g>'; }
 function usOmbre(cx,y,rx){ return '<ellipse class="us-omb" cx="'+usN(cx)+'" cy="'+usN(y+1)+'" rx="'+usN(rx)+'" ry="'+usN(rx*0.38)+'"/>'; }
 function usTuyau(pts,cl){ return '<polyline class="us-tu '+(cl||"")+'" points="'+usP(pts)+'"/>'; }
 function usCamion(x,y,cl){ return '<g class="us-camion">'+usBoite(x,y,20,9,9,cl||"blanc")+usBoite(x+20,y,7,9,7,"cab")+'<circle class="us-roue" cx="'+usN(x+5)+'" cy="'+usN(y+1)+'" r="1.8"/><circle class="us-roue" cx="'+usN(x+23)+'" cy="'+usN(y+1)+'" r="1.8"/></g>'; }
@@ -21686,13 +21699,15 @@ function usPersonnes(Zk,att,n){ var L=Zk.gens.concat(Zk.arrivent); for(var i=n;i
    taille (11 px au moins) quelle que soit la largeur ── */
 function usineGeo(W,rk){
   /* quatre colonnes dès 800 px : le nom le plus long (« Terrain
-     arrière », 92 px) et le compte « 1/2 » tiennent alors sur une ligne ;
-     des marges égales à l'écart des tuiles (la bande de l'autoroute, à
-     gauche, ne disait rien et se lisait comme un défaut) */
-  var large=W>=800, cols=large?4:2, mg=large?14:10, gap=large?14:10;
+     arrière », 92 px) et le compte « 1/2 » tiennent alors sur une ligne.
+     À l'ouest, l'autoroute (hw) et sa bande d'herbe plantée d'arbres ; à
+     l'est, une route de ceinture de la largeur des autres (le client, le
+     01/11/2026 : « les décors étaient mieux faits » avec eux — la v1257
+     les avait retirés, à tort) */
+  var large=W>=800, cols=large?4:2, gap=large?14:10, hw=large?30:12, mg=hw+14, mx=gap;
   /* la bande du nord : la Meuse, la berge et son quai, le rail */
   var riv=large?30:22, berge=large?24:18, rail=riv+berge+4, top=rail+(large?14:12);
-  var pw=Math.floor((W-2*mg-gap*(cols-1))/cols), sc=Math.min(1.1,(pw-16)/210);
+  var pw=Math.floor((W-mg-mx-gap*(cols-1))/cols), sc=Math.min(1.1,(pw-16)/210);
   /* la tuile : l'en-tête (le poste et son compte), l'illustration, la
      rangée des badges */
   var head=large?48:34, art=Math.round(104*sc);
@@ -21704,33 +21719,49 @@ function usineGeo(W,rk){
     var h=head+art+nr*(US_PAS_H+US_PAS_E)+10;
     for(c=0;c<cols;c++) pos[ord[r*cols+c]]={x:mg+c*(pw+gap), y:y, h:h, c:c, r:r, rangs:nr};
     sig.push(nr); y+=h+gap; }
-  var H=y-gap+(large?28:mg);
+  var H=y-gap+(large?28:gap);
   /* le compte dans l'en-tête, s'il tient pour toutes les tuiles à la
      fois — jamais une tuile sur deux */
   var compte=12+US_NOM_MAX+10+US_COMPTE_MAX+10<=pw;
-  return {W:W, H:H, large:large, cols:cols, mg:mg, gap:gap, top:top, pw:pw, sc:sc, head:head, art:art, pos:pos, riv:riv, berge:berge, rail:rail, sig:sig.join(""), compte:compte};
+  return {W:W, H:H, large:large, cols:cols, mg:mg, hw:hw, xE:mg+cols*pw+(cols-1)*gap, gap:gap, top:top, pw:pw, sc:sc, head:head, art:art, pos:pos, riv:riv, berge:berge, rail:rail, sig:sig.join(""), compte:compte};
 }
 /* le décor : la Meuse et son quai, la sucrerie voisine, le rail, les
    routes, les tuyauteries ; dessiné une fois par largeur (les animations
    ne repartent pas à chaque minute) */
 function usineDecor(g){
-  var W=g.W, H=g.H, s="", L=g.large;
-  s+='<rect class="us-sol" x="0" y="0" width="'+W+'" height="'+H+'" rx="12"/>';
+  var W=g.W, H=g.H, s="", L=g.large, hw=g.hw;
+  /* LE PLAN VA JUSQU'AU BORD DU CADRE (le client, le 01/11/2026) : ni
+     marge autour, ni coins arrondis — il s'arrête où la carte s'arrête */
+  s+='<rect class="us-sol" x="0" y="0" width="'+W+'" height="'+H+'"/>';
   /* LA TRAME D'UN PLAN DE SITE (v1258) : un quadrillage de 24 px, à peine
      visible, sous les tuiles — le plan se lit comme un relevé */
   s+='<pattern id="usTrame" width="24" height="24" patternUnits="userSpaceOnUse"><path class="us-trame-l" d="M24,0H0V24"/></pattern>'
-    +'<clipPath id="usC-sol"><rect x="0" y="0" width="'+W+'" height="'+H+'" rx="12"/></clipPath>'
+    +'<clipPath id="usC-sol"><rect x="0" y="0" width="'+W+'" height="'+H+'"/></clipPath>'
     +'<rect class="us-trame" x="0" y="0" width="'+W+'" height="'+H+'" fill="url(#usTrame)" clip-path="url(#usC-sol)"/>';
   /* la Meuse, ses rides qui coulent vers l'aval (une période de 160 px,
      dix pixels à la seconde), et la berge */
-  var riv='M12,0H'+(W-12)+'A12,12 0 0 1 '+W+',12V'+g.riv+'H0V12A12,12 0 0 1 12,0Z';
+  var riv='M0,0H'+W+'V'+g.riv+'H0Z';
   s+='<path class="us-riviere" d="'+riv+'"/><clipPath id="usC-riv"><path d="'+riv+'"/></clipPath><g clip-path="url(#usC-riv)"><g class="us-vagues">';
   for(var vi=0,vx=-160;vx<W+160;vx+=80,vi++) s+='<path class="us-vague" d="M'+vx+','+usN(g.riv*0.45+(vi%2?1.5:-0.5))+'q6,-3 12,0t12,0"/>';
   s+='</g></g>';
   s+='<text class="us-riv-t" x="'+(W-14)+'" y="'+(g.riv/2)+'" dy=".35em">La Meuse</text>';
   s+='<rect class="us-berge" x="0" y="'+g.riv+'" width="'+W+'" height="'+g.berge+'"/>';
-  /* (les voitures, la colonne d'arbres, les lampadaires et les lignes de
-     route sont partis à la refonte : du bruit, sans information) */
+  /* L'AUTOROUTE, le long du bord ouest, qui passe la Meuse sur le pont à
+     haubans des photos ; sa bande d'herbe et sa rangée d'arbres. Le
+     décor de la v1253, remis à la demande du client (« les décors étaient
+     mieux faits »), sur les tuiles d'aujourd'hui. */
+  s+='<rect class="us-herbe" x="'+hw+'" y="'+g.riv+'" width="'+(g.mg-hw-4)+'" height="'+(H-g.riv)+'"/>';
+  s+='<rect class="us-autor" x="0" y="0" width="'+hw+'" height="'+H+'"/><line class="us-voie" x1="'+(hw/2)+'" y1="0" x2="'+(hw/2)+'" y2="'+H+'"/>';
+  var py=g.riv+g.berge*0.4;
+  s+='<g class="us-hauban"><line x1="'+(hw+3)+'" y1="'+(py+4)+'" x2="'+(hw+3)+'" y2="'+(py-24)+'"/>'+[0,1,2].map(function(i){ return '<line x1="'+(hw+3)+'" y1="'+(py-22+i*5)+'" x2="'+(hw/2)+'" y2="'+(py-26+i*13)+'"/>'; }).join("")+'</g>';
+  /* LA CIRCULATION : deux voitures par sens, lentes, qui passent le pont
+     (sans mouvement, elles restent garées sur la voie) */
+  var aw=L?7:3.6, al=L?12:6.5, vit=L?24:16;
+  [[hw*0.28,1,"us-a1",0],[hw*0.28,1,"us-a3",0.5],[hw*0.72,-1,"us-a2",0.2],[hw*0.72,-1,"us-a3",0.72]].forEach(function(a){
+    var y0=a[1]>0?-al:H, y1=a[1]>0?H:-al, yv=g.top+(H-g.top)*(0.2+a[3]*0.6), du=(H+al)/vit;
+    s+='<rect class="us-auto us-roule '+a[2]+'" x="'+usN(a[0]-aw/2)+'" y="'+usN(yv)+'" width="'+aw+'" height="'+al+'" rx="'+(L?2:1.2)+'"'
+      +' style="--us-de:'+usN(y0-yv)+'px; --us-a:'+usN(y1-yv)+'px; animation-duration:'+usN(du)+'s; animation-delay:-'+usN(du*a[3])+'s"/>'; });
+  for(var ty=g.top+8;ty<H-10;ty+=L?46:58) s+=usArbre((hw+g.mg-4)/2,ty,L?5:4);
   /* le quai : la péniche amarrée (le blé arrive, l'éthanol repart), les
      silos de rive, et la galerie qui monte à la meunerie par-dessus le rail */
   var qx=g.mg+4, pl=L?118:74;
@@ -21751,11 +21782,24 @@ function usineDecor(g){
     +'<text class="us-voisin" x="'+usN(su+(L?50:38))+'" y="'+usN(suy-7)+'" dy=".35em">Sucrerie</text>';
   /* le rail, entre la berge et l'usine, et ses wagons-citernes */
   var ry=g.rail+3;
-  s+='<g class="us-rail"><line x1="0" y1="'+(ry-2)+'" x2="'+W+'" y2="'+(ry-2)+'"/><line x1="0" y1="'+(ry+2)+'" x2="'+W+'" y2="'+(ry+2)+'"/><line class="us-trav" x1="0" y1="'+ry+'" x2="'+W+'" y2="'+ry+'"/></g>';
+  s+='<g class="us-rail"><line x1="'+hw+'" y1="'+(ry-2)+'" x2="'+W+'" y2="'+(ry-2)+'"/><line x1="'+hw+'" y1="'+(ry+2)+'" x2="'+W+'" y2="'+(ry+2)+'"/><line class="us-trav" x1="'+hw+'" y1="'+ry+'" x2="'+W+'" y2="'+ry+'"/></g>';
   for(var wi=0;wi<(L?5:3);wi++){ var wx=W-40-wi*30; s+='<rect class="us-wagon" x="'+wx+'" y="'+(ry-4)+'" width="26" height="8" rx="4"/>'; }
   /* les routes entre les îlots, et leurs lignes */
   var c, r, rows=8/g.cols;
-  /* les routes : le sol entre les tuiles suffit */
+  /* LES ROUTES entre les îlots, asphaltées, et leur ligne pointillée :
+     d'est en ouest, de l'autoroute au bord du cadre ; du nord au sud,
+     du rail au bord du cadre ; et la route de ceinture, à l'est */
+  var ord=USINE_ORDRE[L?"large":"etroit"], yT=[];
+  for(r=0;r<rows;r++) yT.push(g.pos[ord[r*g.cols]].y);
+  /* au PC, les routes du nord au sud s'arrêtent à la bande de la légende */
+  var yB=L?yT[rows-1]+g.pos[ord[(rows-1)*g.cols]].h+6:H;
+  var xs=[]; for(c=1;c<g.cols;c++) xs.push(g.mg+c*(g.pw+g.gap)-g.gap);
+  xs.forEach(function(x){ s+='<rect class="us-route" x="'+x+'" y="'+(g.top-6)+'" width="'+g.gap+'" height="'+(yB-g.top+6)+'"/>'; });
+  s+='<rect class="us-route" x="'+g.xE+'" y="'+(g.top-6)+'" width="'+(W-g.xE)+'" height="'+(yB-g.top+6)+'"/>';
+  for(r=1;r<rows;r++) s+='<rect class="us-route" x="'+(g.mg-4)+'" y="'+(yT[r]-g.gap)+'" width="'+(W-g.mg+4)+'" height="'+g.gap+'"/>';
+  xs.forEach(function(x){ s+='<line class="us-ligne" x1="'+(x+g.gap/2)+'" y1="'+g.top+'" x2="'+(x+g.gap/2)+'" y2="'+yB+'"/>'; });
+  s+='<line class="us-ligne" x1="'+usN((g.xE+W)/2)+'" y1="'+g.top+'" x2="'+usN((g.xE+W)/2)+'" y2="'+yB+'"/>';
+  for(r=1;r<rows;r++) s+='<line class="us-ligne" x1="'+g.mg+'" y1="'+(yT[r]-g.gap/2)+'" x2="'+W+'" y2="'+(yT[r]-g.gap/2)+'"/>';
   /* LES FLUX DU PROCÉDÉ (le schéma officiel) le long des routes : le
      produit (vert, la tuyauterie des photos) — farine, lait d'amidon,
      moût, éthanol ; le son vers les cogénérations ; la vapeur ; les eaux
@@ -21789,6 +21833,9 @@ function usineDecor(g){
      sept secondes (rien si le téléphone demande moins de mouvement) */
   var pu=(L?T[1]:T[2])[1];
   s+='<path class="us-pulse" pathLength="1000" d="M'+pu.map(function(q){ return usN(q[0])+','+usN(q[1]); }).join("L")+'"/>';
+  /* LES LAMPADAIRES aux carrefours : éteints le jour, allumés la nuit */
+  for(r=0;r<rows;r++) for(c=0;c<=g.cols;c++){ var lx=c<g.cols?g.mg+c*(g.pw+g.gap)-g.gap/2:(g.xE+W)/2, ly=yT[r]-g.gap/2;
+    s+='<circle class="us-lampe" cx="'+usN(lx)+'" cy="'+usN(ly)+'" r="'+(L?2.4:2)+'"/>'; }
   /* les îlots et leur décor */
   USINE_ZONES.forEach(function(z){ var q=g.pos[z.k], ox=q.x+(g.pw-210*g.sc)/2, oy=q.y+g.head-4;
     s+='<rect class="us-pad us-f-'+z.f+'" x="'+q.x+'" y="'+q.y+'" width="'+g.pw+'" height="'+q.h+'" rx="12"/>'
@@ -21909,13 +21956,13 @@ function renderUsine(){
   var cs=getComputedStyle(corps), cw=corps.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
   /* la fiche à droite du plan s'il garde ses quatre colonnes (800 px) ;
      sinon dessous, sur toute la largeur */
-  var cote=cw>=1136, W=Math.max(260,Math.floor(cw-(cote?336:0)));
+  var cote=cw>=1200, W=Math.max(260,Math.floor(cw-(cote?348:0)));
   var g=usineGeo(W,usineRangs(E,W)), cle=W+"|"+g.large+"|"+cote+"|"+g.sig;
   if(cle!==US_CLE||!document.getElementById("usDyn")){
     US_CLE=cle;
     /* la fiche sous le plan passe en deux colonnes dès 600 px (la
        tablette comprise) */
-    corps.className="us-corps"+(cote?" us-cote":cw>=600?" us-dessous":"");
+    corps.className="us-corps"+(cote?" us-cote":cw>=624?" us-dessous":"");
     corps.innerHTML='<div class="us-plan"><svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
       +'<defs>'+["blanc","metal","beton","cab"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")
       +'<linearGradient id="usG-reflet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="us-r1"/><stop offset="1" class="us-r2"/></linearGradient></defs>'
