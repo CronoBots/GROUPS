@@ -21630,7 +21630,14 @@ function usineCircuits(k){
   var li=fil.filter(function(x){ return x[1]==="Reçoit"; }).map(fl).concat(lignes(rec,"de","Reçoit",USINE_DE)).concat(lignes(env,"a","Envoie",USINE_A)).concat(fil.filter(function(x){ return x[1]!=="Reçoit"; }).map(fl));
   return li.length?'<ul class="us-circuits" aria-label="Ce que la salle reçoit et envoie">'+li.join("")+'</ul>':'';
 }
-var USINE_ORDRE={large:["meun","chau","dist","step","glut","ferm","terr","cm"], etroit:["meun","chau","glut","dist","ferm","terr","step","cm"]};
+/* L'ORDRE DU SITE (le client, le 01/11/2026, poste par poste) : vu depuis
+   l'entrée, la Meuse au fond — la rangée du haut est le côté du fleuve,
+   la colonne de gauche le côté est. Chaque poste est placé au centre de
+   ses zones (la correspondance reste dans le dépôt privé). Au PC, l'ordre
+   d'avant était déjà le bon ; au téléphone, il ne l'était pas. Un écart
+   voulu : les chaudières sont un peu plus au sud que la meunerie, mais la
+   meunerie garde le coin du quai, où arrive sa bande transporteuse. */
+var USINE_ORDRE={large:["meun","chau","dist","step","glut","ferm","terr","cm"], etroit:["meun","step","chau","dist","glut","terr","ferm","cm"]};
 var US_SEL=null, US_CLE="";
 /* LA SALLE TOUCHÉE ALLUME SES CIRCUITS (v1272) : ses conduites restent
    vives, les autres s'effacent. Pas pour la salle choisie d'office (la
@@ -22052,7 +22059,10 @@ function usineGeo(W,rk){
      l'est, une route de ceinture de la largeur des autres (le client, le
      01/11/2026 : « les décors étaient mieux faits » avec eux — la v1257
      les avait retirés, à tort) */
-  var large=W>=800, cols=large?4:2, gap=14, hw=large?30:12, mg=hw+14, mx=gap;
+  /* au téléphone, entre l'herbe (9 px) et les tuiles, le couloir du rack
+     de l'ouest (v1274) : 11 px, pas plus — à 390 px d'écran, « Station
+     d'épuration » (123 px) tient encore sur une ligne dans sa tuile */
+  var large=W>=800, cols=large?4:2, gap=14, hw=large?30:12, mg=hw+(large?14:20), mx=gap;
   /* la bande du nord : la Meuse, la berge et son quai, le rail */
   var riv=large?30:22, berge=large?24:18, rail=riv+berge+4, top=rail+(large?14:12);
   var pw=Math.floor((W-mg-mx-gap*(cols-1))/cols), sc=Math.min(1.1,(pw-16)/210);
@@ -22099,7 +22109,8 @@ function usineDecor(g){
      haubans des photos ; sa bande d'herbe et sa rangée d'arbres. Le
      décor de la v1253, remis à la demande du client (« les décors étaient
      mieux faits »), sur les tuiles d'aujourd'hui. */
-  s+='<rect class="us-herbe" x="'+hw+'" y="'+g.riv+'" width="'+(g.mg-hw-4)+'" height="'+(H-g.riv)+'"/>';
+  var hb=L?g.mg-hw-4:9;
+  s+='<rect class="us-herbe" x="'+hw+'" y="'+g.riv+'" width="'+hb+'" height="'+(H-g.riv)+'"/>';
   s+='<rect class="us-autor" x="0" y="0" width="'+hw+'" height="'+H+'"/><line class="us-voie" x1="'+(hw/2)+'" y1="0" x2="'+(hw/2)+'" y2="'+H+'"/>';
   var py=g.riv+g.berge*0.4;
   s+='<g class="us-hauban"><line x1="'+(hw+3)+'" y1="'+(py+4)+'" x2="'+(hw+3)+'" y2="'+(py-24)+'"/>'+[0,1,2].map(function(i){ return '<line x1="'+(hw+3)+'" y1="'+(py-22+i*5)+'" x2="'+(hw/2)+'" y2="'+(py-26+i*13)+'"/>'; }).join("")+'</g>';
@@ -22110,7 +22121,7 @@ function usineDecor(g){
     var y0=a[1]>0?-al:H, y1=a[1]>0?H:-al, yv=g.top+(H-g.top)*(0.2+a[3]*0.6), du=(H+al)/vit;
     s+='<rect class="us-auto us-roule '+a[2]+'" x="'+usN(a[0]-aw/2)+'" y="'+usN(yv)+'" width="'+aw+'" height="'+al+'" rx="'+(L?2:1.2)+'"'
       +' style="--us-de:'+usN(y0-yv)+'px; --us-a:'+usN(y1-yv)+'px; animation-duration:'+usN(du)+'s; animation-delay:-'+usN(du*a[3])+'s"/>'; });
-  for(var ty=g.top+8;ty<H-10;ty+=L?46:58) s+=usArbre((hw+g.mg-4)/2,ty,L?5:4);
+  for(var ty=g.top+8;ty<H-10;ty+=L?46:58) s+=usArbre(hw+hb/2,ty,L?5:4);
   /* le quai : la péniche amarrée (le blé arrive, l'éthanol repart), les
      silos de rive, et la bande transporteuse qui monte à la meunerie
      par-dessus le rail */
@@ -22143,7 +22154,7 @@ function usineDecor(g){
     +'<path class="us-bande-t" d="M'+usN(bx0)+','+usN(by0)+'L'+usN(gx)+','+usN(gy)+'"/>'
     +'<path class="us-flux us-flux-ble" d="M'+usN(bx0)+','+usN(by0)+'L'+usN(gx)+','+usN(gy)+'"/></g>';
   /* la sucrerie voisine, ses deux grands silos */
-  var su=L?g.pos.dist.x+g.pw*0.15:g.pos.chau.x+g.pw*0.25, suy=g.riv+g.berge-2;
+  var su=L?g.pos.dist.x+g.pw*0.15:g.mg+g.pw+g.gap+g.pw*0.25, suy=g.riv+g.berge-2;
   /* la haute cheminée de brique de la sucrerie (vues aériennes) */
   s+='<rect class="us-brique" x="'+usN(su-(L?24:18))+'" y="'+usN(suy-(L?30:22))+'" width="'+(L?5:4)+'" height="'+(L?30:22)+'"/>';
   s+='<g class="us-sucrerie">'+usCyl(su,suy,L?13:10,L?17:13,"sucre1","cone")+usCyl(su+(L?30:23),suy,L?13:10,L?16:12,"sucre2","dome")+'</g>'
@@ -22161,8 +22172,11 @@ function usineDecor(g){
   var c, r, rows=8/g.cols, ord=USINE_ORDRE[L?"large":"etroit"], yT=[];
   for(r=0;r<rows;r++) yT.push(g.pos[ord[r*g.cols]].y);
   var yB=yT[rows-1]+g.pos[ord[(rows-1)*g.cols]].h+6;
+  /* au téléphone, les eaux longent le bord ouest de la route : sa ligne et
+     ses lampadaires passent dans sa moitié est (v1274) */
+  var xLg=L?(g.xE+W)/2:g.xE+(W-g.xE)*0.72;
   s+='<rect class="us-route" x="'+g.xE+'" y="'+(g.top-6)+'" width="'+(W-g.xE)+'" height="'+(yB-g.top+6)+'"/>'
-    +'<line class="us-ligne" x1="'+usN((g.xE+W)/2)+'" y1="'+g.top+'" x2="'+usN((g.xE+W)/2)+'" y2="'+yB+'"/>';
+    +'<line class="us-ligne" x1="'+usN(xLg)+'" y1="'+g.top+'" x2="'+usN(xLg)+'" y2="'+yB+'"/>';
   /* LE SOL DE CHAQUE ZONE : les joints de sa dalle, tous les 25, se
      prolongent sur le sol et s'effacent en s'éloignant (un dégradé
      elliptique, aplati comme le sol vu à 30°). La dalle est posée dans
@@ -22202,15 +22216,22 @@ function usineDecor(g){
     T.push(K("chau","glut",parH(V("chau",-.76,1),yS,V("glut",.88,-1))));
     T.push(K("terr","step",parH(V("terr",.88,-1),yS,V("step",-.76,1))),K("cm","step",[V("cm",.76,-1),V("step",.76,1)]));
   } else {
-    /* au téléphone, trois voies sur le rack : à gauche le produit qui
-       descend la colonne de la meunerie, à droite ce qui descend celle des
-       chaudières, au milieu ce qui change de colonne */
-    var e=3.4, xG=xR-e, xD=xR+e;
+    /* au téléphone, dans l'ordre du site (v1274) : la meunerie, les
+       chaudières, le gluten et la fermentation tiennent la colonne de
+       gauche ; leurs conduites courent le long de leur bord ouest, sur un
+       second rack, entre l'herbe et les tuiles (deux voies). Le rack du
+       milieu porte ce qui change de colonne (le moût, l'éthanol). Les eaux
+       longent la route de ceinture jusqu'à la station d'épuration ; celles
+       du terrain arrière rejoignent celles du bureau (un collecteur). La
+       vapeur passe en droite ligne des chaudières à la distillation, leurs
+       voisines de rangée. Aucune conduite n'en croise une autre. */
+    var e=3.4, xG=xR-e, wA=g.mg-7.4, wB=g.mg-4, xEa=g.xE+3.4;
     var par=function(a,x,b){ return [a,[x,a[1]],[x,b[1]],b]; };
-    T.push(K("meun","chau",[C("meun",1,0),C("chau",-1,0)]));
-    T.push(K("meun","glut",par(C("meun",1,.5),xG,C("glut",1,-.5))),K("glut","ferm",par(C("glut",1,.5),xG,C("ferm",1,-.5))),K("ferm","dist",par(C("ferm",1,0),xR,C("dist",-1,.15))),K("dist","terr",par(C("dist",-1,.5),xD,C("terr",-1,-.5))));
-    T.push(K("chau","dist",par(C("chau",-1,.5),xD,C("dist",-1,-.5))),K("chau","glut",par(C("chau",-1,.5),xR,C("glut",1,-.15))));
-    T.push(K("terr","step",par(C("terr",-1,.3),xR,C("step",1,-.3))),K("cm","step",[C("cm",-1,.25),C("step",1,.25)]));
+    T.push(K("meun","glut",par(C("meun",-1,.15),wA,C("glut",-1,-.15))));
+    T.push(K("meun","chau",par(C("meun",-1,.5),wB,C("chau",-1,-.5))),K("chau","glut",par(C("chau",-1,.5),wB,C("glut",-1,-.5))),K("glut","ferm",par(C("glut",-1,.5),wB,C("ferm",-1,-.5))));
+    T.push(K("chau","dist",[C("chau",1,0),C("dist",-1,0)]));
+    T.push(K("ferm","dist",par(C("ferm",1,0),xG,C("dist",-1,.3))),K("dist","terr",par(C("dist",-1,.55),xR,C("terr",-1,-.5))));
+    T.push(K("cm","step",par(C("cm",1,0),xEa,C("step",1,.3))),K("terr","step",par(C("terr",1,.3),xEa,C("step",1,.3))));
   }
   /* LE RACK DU SITE : la passerelle de tuyauteries, vue de dessus — son
      tablier, et tous les 24 px un portique (la traverse et ses deux
@@ -22221,24 +22242,21 @@ function usineDecor(g){
      sous la dernière, il se lisait comme une règle graduée. Son étendue
      va du premier au dernier point où une conduite le touche ou le
      traverse, à 5 px près. */
-  var rkE=null, rkA=[];
-  T.forEach(function(t){ var q=t[1];
-    for(var i=0;i<q.length;i++){ var a=q[i], b=q[i+1];
-      /* un point posé sur le rack */
-      if(L?Math.abs(a[1]-yS)<=lr:Math.abs(a[0]-xR)<=lr) rkA.push(L?a[0]:a[1]);
-      /* un segment qui le traverse */
-      if(b){ if(L&&(a[1]-yS)*(b[1]-yS)<0&&Math.abs(a[0]-b[0])<0.01) rkA.push(a[0]);
-        if(!L&&(a[0]-xR)*(b[0]-xR)<0&&Math.abs(a[1]-b[1])<0.01) rkA.push(a[1]); } } });
-  if(rkA.length) rkE=[Math.round(Math.min.apply(null,rkA)-5),Math.round(Math.max.apply(null,rkA)+5)];
-  var tv='', pq='', t, pas=24;
-  if(L){ var xa=g.mg+2, xb=g.xE-2;
-    if(rkE) xa=rkE[0], xb=rkE[1];
-    s+='<rect class="us-rack" x="'+xa+'" y="'+usN(yS-lr)+'" width="'+(xb-xa)+'" height="'+(2*lr)+'"/>';
-    for(t=xa+pas/2;t<xb;t+=pas){ tv+='M'+t+','+usN(yS-lr)+'V'+usN(yS+lr); pq+='M'+usN(t-1.2)+','+usN(yS-lr-1.2)+'h2.4v2.4h-2.4zM'+usN(t-1.2)+','+usN(yS+lr-1.2)+'h2.4v2.4h-2.4z'; } }
-  else { var ya=g.top+2, yb=yB-4;
-    if(rkE) ya=rkE[0], yb=rkE[1];
-    s+='<rect class="us-rack" x="'+usN(xR-lr)+'" y="'+ya+'" width="'+(2*lr)+'" height="'+(yb-ya)+'"/>';
-    for(t=ya+pas/2;t<yb;t+=pas){ tv+='M'+usN(xR-lr)+','+t+'H'+usN(xR+lr); pq+='M'+usN(xR-lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2zM'+usN(xR+lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2z'; } }
+  var RK=L?[{h:true, c:yS, lr:lr}]:[{h:false, c:xR, lr:lr},{h:false, c:g.mg-5.7, lr:4.4}], tv='', pq='', pas=24;
+  var sq=function(x,y,p){ return 'M'+usN(x-p)+','+usN(y-p)+'h'+(2*p)+'v'+(2*p)+'h-'+(2*p)+'z'; };
+  RK.forEach(function(k){ var A=[], t, c=k.c, w=k.lr, p=k.h?1.2:1.1;
+    T.forEach(function(tt){ var q=tt[1];
+      for(var i=0;i<q.length;i++){ var a=q[i], b=q[i+1], v=k.h?a[1]:a[0], u=k.h?a[0]:a[1];
+        /* un point posé sur le rack */
+        if(Math.abs(v-c)<=w) A.push(u);
+        /* un tronçon qui le traverse */
+        if(b){ var vb=k.h?b[1]:b[0], ub=k.h?b[0]:b[1]; if((v-c)*(vb-c)<0&&Math.abs(u-ub)<0.01) A.push(u); } } });
+    if(!A.length) return;
+    var e0=Math.round(Math.min.apply(null,A)-5), e1=Math.round(Math.max.apply(null,A)+5);
+    if(k.h){ s+='<rect class="us-rack" x="'+e0+'" y="'+usN(c-w)+'" width="'+(e1-e0)+'" height="'+usN(2*w)+'"/>';
+      for(t=e0+pas/2;t<e1;t+=pas){ tv+='M'+t+','+usN(c-w)+'V'+usN(c+w); pq+=sq(t,c-w,p)+sq(t,c+w,p); } }
+    else { s+='<rect class="us-rack" x="'+usN(c-w)+'" y="'+e0+'" width="'+usN(2*w)+'" height="'+(e1-e0)+'"/>';
+      for(t=e0+pas/2;t<e1;t+=pas){ tv+='M'+usN(c-w)+','+t+'H'+usN(c+w); pq+=sq(c-w,t,p)+sq(c+w,t,p); } } });
   s+='<path class="us-rack-t" d="'+tv+'"/><path class="us-rack-p" d="'+pq+'"/>';
   /* trois passes : la gaine (le liseré qui détache la conduite du sol et
      fond les voisines en un faisceau), la conduite, puis la matière qui
@@ -22259,7 +22277,7 @@ function usineDecor(g){
     s+='<path class="us-fleche '+t[0]+'"'+dl(t)+' d="M'+usN(tx)+','+usN(ty)+'L'+usN(bx-uy*lw)+','+usN(by+ux*lw)+'L'+usN(bx+uy*lw)+','+usN(by-ux*lw)+'Z"/>'; });
   /* LES LAMPADAIRES, le long de la route de ceinture : éteints le jour,
      allumés la nuit (les feux du rack s'allument avec eux) */
-  for(r=0;r<rows;r++) s+='<circle class="us-lampe" cx="'+usN((g.xE+W)/2)+'" cy="'+usN(r?yT[r]-g.gap/2:g.top)+'" r="'+(L?2.4:2)+'"/>';
+  for(r=0;r<rows;r++) s+='<circle class="us-lampe" cx="'+usN(xLg)+'" cy="'+usN(r?yT[r]-g.gap/2:g.top)+'" r="'+(L?2.4:2)+'"/>';
   /* LE TRAIN PASSE (le client, le 01/11/2026 : « on peut animer le
      train ») : la locomotive et ses wagons-citernes entrent par l'est,
      traversent à 30 px/s et sortent sous l'autoroute ; puis le rail reste
@@ -22410,7 +22428,7 @@ function renderUsine(){
       +'<svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
       +'<defs>'+["blanc","metal","beton","cab","cuve","fonce"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")+'</defs>'
       +'<g class="us-decor'+(g.large?' us-large':'')+'" aria-hidden="true">'+usineDecor(g)+'</g><g id="usDyn"></g></svg>'+usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")+'</div>'
-      +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
+      +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Plan indicatif, vu depuis l’entrée, la Meuse au fond : chaque poste à sa place sur le site, les bâtiments d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
     usineBrancher(corps);
   }
   /* LE FOCUS SURVIT À LA MINUTE (relecture du 01/11/2026 : l'îlot choisi

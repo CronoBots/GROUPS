@@ -9135,3 +9135,71 @@ d'épuration parle encore d'« engrais naturel », alors que le site
 officiel tire l'engrais vert des cendres de la centrale. La filière
 suit le site officiel.
 
+### L'usine en direct : chaque poste à sa place sur le site (01/11/2026, `nfdm-v1274`)
+
+Le client voulait le plan « par rapport au plan réel ». Il a d'abord
+montré un plan interne de l'entreprise. Ce plan est rangé dans le dépôt
+privé, jamais ici : son cartouche en interdit toute reproduction, même
+modifiée. Le client a ensuite envoyé la vue aérienne publique (Google
+Maps), puis a situé lui-même chaque poste sur le site. La correspondance
+reste dans le dépôt privé. L'application n'en garde que l'ordre des huit
+tuiles.
+
+La méthode :
+- chaque poste est placé au centre de ses zones ;
+- le plan de l'application est vu comme les photos aériennes du site
+  officiel : depuis l'entrée, la Meuse au fond. La rangée du haut est
+  donc le côté du fleuve, la colonne de gauche le côté est ;
+- les tuiles sont rangées par rangée (du fleuve vers l'entrée), puis
+  d'est en ouest.
+
+Le constat :
+- **au PC, l'ordre d'avant était déjà le bon.** En haut : meunerie,
+  chaudières, distillation, station d'épuration. En bas : gluten,
+  fermentation, terrain arrière, bureau. Il ne change pas ;
+- **au téléphone, il était faux.** La fermentation était en 3e
+  rangée, la station d'épuration en dernière, les chaudières en
+  première à droite. Il devient : meunerie et station d'épuration,
+  chaudières et distillation, gluten et terrain arrière, fermentation et
+  bureau.
+
+Un écart voulu : les chaudières sont un peu plus au sud que la
+meunerie, mais la meunerie garde le coin du quai, où arrive sa bande
+transporteuse. Sinon la bande traverserait les chaudières.
+
+Les conduites du téléphone sont retracées pour ce nouvel ordre, sans
+qu'aucune n'en croise une autre :
+- **un second rack, à l'ouest**, entre l'herbe (9 px) et les tuiles, à
+  deux voies. Il porte les conduites de la colonne de gauche (meunerie →
+  gluten, meunerie → chaudières, chaudières → gluten, gluten →
+  fermentation). Ses piquages sont sur le bord ouest des dalles ;
+- **le rack du milieu** porte ce qui change de colonne : le moût
+  (fermentation → distillation) et l'éthanol (distillation → terrain
+  arrière). La vapeur passe en droite ligne des chaudières à la
+  distillation, leurs voisines de rangée ;
+- **les eaux longent la route de ceinture** jusqu'à la station
+  d'épuration. Celles du terrain arrière rejoignent celles du bureau,
+  en un collecteur. La ligne et les lampadaires de la route passent dans
+  sa moitié est ;
+- les racks sont tracés d'une même fonction, un par axe.
+
+Le couloir de l'ouest a d'abord pris 10 px aux tuiles. À 390 px d'écran,
+« Station d'épuration » (123 px) passait alors sur deux lignes, et
+l'épreuve de la v1262 l'a vu. Le couloir a été ramené à 11 px pour 2×2
+voies, et l'herbe à 9 px : la tuile fait 148 px, le nom tient sur une
+ligne.
+
+La sucrerie du décor ne suit plus la tuile des chaudières : elle reste
+au-dessus de la colonne de droite. La note sous le plan dit le sens de
+lecture : « vu depuis l'entrée, la Meuse au fond ».
+
+L'épreuve `usine-1270.js` vérifie aussi l'ordre des postes, au
+téléphone et au PC. Elle crie sur la v1273 au téléphone (« ordre des
+postes »). Elle accepte la fusion de deux conduites d'un même flux vers
+une même arrivée (le collecteur des eaux), comme elle acceptait déjà le
+té de la vapeur. Elle mesure chaque rack contre ses propres conduites.
+Son clic « sur le sol » vise désormais la Meuse : avec le nouvel ordre,
+l'ancien point tombait sur une tuile. `usine-1258.js` admet les voies du
+rack de l'ouest (à 1,7 px de son axe). Toutes les épreuves du plan
+rendent 0 faute.
+
