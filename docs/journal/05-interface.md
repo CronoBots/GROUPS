@@ -9333,3 +9333,53 @@ plus il ne faut pas la ligne de couleur sous le poste. »
   `horaire-1275.js` vérifie qu'il n'y a plus de trait : 0 faute, et elle
   en relève 76 sur la v1275.
 
+### L'onglet Horaire : les gens en formation dans leur équipe (01/11/2026, `nfdm-v1277`)
+
+Le client : « il faut ajouter les gens en formation dans leurs équipes
+respectives, mais ajouter une colonne qui précise bien le poste et
+formation ; en plus, fermentation doit être écrit en entier dans la ligne
+des postes, et le nombre de personnes ne doit pas être en gras. »
+
+**Ce que dit le classeur.** Les gens en formation sont dans la feuille
+« Opérateurs », avec un libellé :
+- souvent avec l'équipe : MGY « chaudières éq. 1 », GST « chaudières
+  éq. 3 », LCO « chaudières éq. 4 », LHR « chaudières éq. 5 », LCI
+  « Distillation éq. 5 », SVE « Distillation éq. 1 » (« Meunerie éq. 3 »
+  en 2027) ;
+- sans équipe pour quatre : CDT (« Distillation »), NPI (« Gluten »),
+  SKS et SLI (« Meunerie »).
+
+On a comparé, jour par jour, les postes AM/PM/N de chacun au poste le plus
+fréquent de chaque équipe. Deux libellés contredisaient les horaires :
+GST (« éq. 3 », mais 158 jours sur 195 avec l'équipe 4) et LHR (« éq. 5 »,
+mais 133 jours avec l'équipe 3).
+
+**Les décisions du client, une question à la fois :**
+- la colonne de formation vient juste après le groupe du poste appris ;
+- GST : « il vient de changer d'équipe pour sa formation ». L'équipe
+  écrite fait donc foi : GST en équipe 3, LHR en équipe 5 ;
+- sans équipe écrite : CDT avec l'équipe 2 (78 jours sur 93), NPI avec
+  l'équipe 5 (51 sur 51), SKS avec l'équipe 5 en 2026 (209 sur 216 ; en
+  2027, il est adjoint) ;
+- SLI : aucune équipe en 2026, « toujours en D ». Il ne reste que dans la
+  feuille « Formation ».
+
+**Fait :**
+- chaque équipe reçoit ses gens en formation (`GR_FORMATION_EQUIPE` pour
+  les trois sans équipe écrite). Chacun est rangé dans un groupe
+  « Formation <poste> », à la teinte du poste, juste après le groupe de
+  ce poste. Ils restent aussi dans la feuille « Formation » ;
+- le nom « FORMATION DISTILLATION » ne tient pas dans une colonne : il
+  passe sur deux lignes. La rangée des groupes grandit à 32,6 px, et
+  celle des noms, collée dessous, la suit (`grCaleTete` la mesure) ;
+- masquer les adjoints laisse les formations ;
+- « Fermentation » s'écrit en entier : le nom court « Ferment. » d'un
+  groupe d'une seule personne disparaît ;
+- le nombre de personnes (« 17 pers. ») n'est plus en gras (400 au lieu
+  de 800 et 700).
+
+L'épreuve `horaire-1275.js` prend les formations dans l'ordre attendu de
+chaque équipe : 0 faute à 1440 et 390 px. Sur la v1276, elle relève
+l'ordre (sans les formations), « Ferment. » au lieu de « Fermentation »
+et le compte en gras (800).
+

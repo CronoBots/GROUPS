@@ -7527,7 +7527,9 @@ html .hp-t .pt-meu,html .hp-moit .pt-meu{background:#f6e3a1} html .hp-t .pt-fer,
 html .hp-t thead th.hp-coin{left:0; z-index:9; background:#c7ccd4; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:5px}
 /* 23/10/2026 : « Adjoints ON », « pers. » et « Éq. » à 9 et 10 px passent
    au plancher de 11 px ; le bouton des adjoints, cible de 44 px */
-html .hp-nb{display:block; font-weight:800; font-size:14px} html .hp-nb small{display:block; font-size:11px; font-weight:700}
+/* le nombre de personnes, sans gras (le client, le 01/11/2026 : « le
+   nombre de personnes ne doit pas être en gras ») */
+html .hp-nb{display:block; font-weight:400; font-size:14px} html .hp-nb small{display:block; font-size:11px; font-weight:400}
 html .hp-t tbody tr{--rb:#fef9c3}
 html .hp-t tbody tr.hp-bleu{--rb:#C7DEF5}
 html .hp-t tbody tr.hp-we{--rb:#c7ccd4}
@@ -7948,6 +7950,9 @@ html .hp-t thead tr.hp-ops th{top:var(--hp-g,29px)}
    défilement (grCentrePostes ne déplace plus rien) */
 html .hp-t thead th.hp-gp{text-align:center}
 html .hp-t thead th.hp-gp .hp-gpl{display:inline}
+/* « FORMATION DISTILLATION » ne tient pas dans la colonne d'une personne :
+   il passe sur deux lignes (la rangée grandit, grCaleTete la mesure) */
+html .hp-t thead th.hp-gp.hp-gform{white-space:normal; line-height:1.15; overflow:visible; text-overflow:clip}
 @media (max-width:699px){
   /* overflow visible : un th « overflow:hidden » devient le conteneur du
      collant, et le nom ne collait plus à rien (mesuré) */
@@ -19931,7 +19936,7 @@ function grCol(c){ return (c.length<2?" ":"")+c; }
 /* [clé, nom, teinte, nom court — pour un groupe d'une seule personne,
    dont la colonne ne tient pas « POLYVALENT ARRIÈRE »] */
 var GR_CATS=[["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","Meunerie"],["pav","Polyvalent avant","pt-meu","Poly. avant"],["glu","Gluten","pt-meu","Gluten"],
-  ["fer","Fermentation","pt-fer","Ferment."],["par","Polyvalent arrière","pt-fer","Poly. arrière"],["dis","Distillation","pt-fer","Distillation"],["cha","Chaudières","pt-cha","Chaudières"],
+  ["fer","Fermentation","pt-fer","Fermentation"],["par","Polyvalent arrière","pt-fer","Poly. arrière"],["dis","Distillation","pt-fer","Distillation"],["cha","Chaudières","pt-cha","Chaudières"],
   ["ste","Station d’épuration","pt-step","Station"],["aut","Autres","pt-cm","Autres"]];
 /* ce que la règle ne tranche pas, tranché par le client, une question à la
    fois (01/11/2026) : les « Polyvalent » qualifiés à l'avant ET à
@@ -19939,7 +19944,24 @@ var GR_CATS=[["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","M
    papier ») et AAI (renfort arrière, fermentation et distillation, tenu à
    la distillation) */
 var GR_GROUPE_CLIENT={BLR:"meu", JKS:"pav", PLZ:"pav", GPO:"glu", SBZ:"par", FLN:"par", FPS:"par", AAI:"dis"};
-function grCatInfo(k){ for(var i=0;i<GR_CATS.length;i++) if(GR_CATS[i][0]===k) return GR_CATS[i].slice(0,3).concat([i,GR_CATS[i][3]]); var d=GR_CATS[GR_CATS.length-1]; return d.slice(0,3).concat([GR_CATS.length-1,d[3]]); }
+/* une formation se classe « f-<poste> » : le nom « Formation chaudières »,
+   la teinte de son poste, et sa place juste après le groupe de ce poste */
+function grCatInfo(k){ var f=/^f-/.test(k||""), b=f?k.slice(2):k, r=GR_CATS.length-1, i;
+  for(i=0;i<GR_CATS.length;i++) if(GR_CATS[i][0]===b){ r=i; break; }
+  var c=GR_CATS[r], n=f?"Formation "+c[1].toLowerCase():c[1];
+  return [f?k:c[0], n, c[2], r, f?n:c[3]]; }
+/* LES GENS EN FORMATION DANS LEUR ÉQUIPE (le client, le 01/11/2026 : « il
+   faut ajouter les gens en formation dans leurs équipes respectives, mais
+   ajouter une colonne qui précise bien le poste et formation »). Leur
+   feuille « Opérateurs » écrit souvent l'équipe (« chaudières éq. 3 ») :
+   elle fait foi — GST et LHR ont changé d'équipe pour leur formation, et
+   leurs horaires passés suivaient l'ancienne. Sans équipe écrite, la
+   décision du client (une question à la fois, le même jour) : CDT avec
+   l'équipe 2, NPI et SKS avec l'équipe 5 — les équipes dont ils suivent
+   les horaires ; SLI, toujours en journée, n'en a pas. */
+var GR_FORMATION_EQUIPE={CDT:"2", NPI:"5", SKS:"5"};
+function grPosteFormation(po){ po=String(po||"");
+  return /meun/i.test(po)?"meu":/glut/i.test(po)?"glu":/ferm/i.test(po)?"fer":/disti/i.test(po)?"dis":/chaud/i.test(po)?"cha":/step|épur|epur/i.test(po)?"ste":/terr|poly/i.test(po)?"par":""; }
 /* LE CÔTÉ D'UN « POLYVALENT » (le client, le 01/11/2026 : « ne pas se
    fier aux lettres de colonne, cela dépend d'une équipe à l'autre » ; puis,
    pour le Planning : « oui tu peux ») : sa décision s'il l'a donnée
@@ -20075,6 +20097,14 @@ function grColonnes(db){
      sa demande, dans la rangée des pilules, affichés par défaut ; le choix
      est gardé sur l'appareil (ui/grAdj). */
   if(/^Shift/.test(m[0])&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
+  if(/^Shift/.test(m[0])){ var nEq=m[0].slice(5), avecF=false;
+    if(db.people.some(function(p){ return p.postes&&p.postes["Opérateurs"]; })) grGens(db,"Opérateurs").forEach(function(p){
+      var po=p.postes["Opérateurs"].p||"", eqF=(/éq\.?\s*(\d)/i.exec(po)||[])[1]||GR_FORMATION_EQUIPE[p.id]||"", kb=grPosteFormation(po);
+      if(eqF!==nEq||!kb||cols.some(function(c){ return c.p.id===p.id; })) return;
+      cols.push({p:p,f:"Opérateurs",po:po,k:"f-"+kb}); avecF=true; });
+    /* chacun à sa place : le groupe du poste, puis sa formation */
+    if(avecF){ var rg=function(c){ return grCatInfo(c.k)[3]*2+(/^f-/.test(c.k)?1:0); };
+      cols.sort(function(a,b){ var d=rg(a)-rg(b); if(d) return d; var x=idLisible(a.p.id), y=idLisible(b.p.id); return x<y?-1:x>y?1:0; }); } }
   /* une recherche parcourt toutes les feuilles, et non la seule pilule
      active (audit du 23/10/2026) : « Personne ne correspond » faisait croire
      qu'une personne d'une autre équipe n'existait pas ; à partir de deux
@@ -20227,7 +20257,7 @@ function renderGrille(){
     /* un groupe par catégorie (v1275), et non plus par libellé du classeur */
     for(var gi=0;gi<cols.length;){ var k0=cols[gi].k, po0=cols[gi].po, gj=gi; while(gj<cols.length&&(k0?cols[gj].k===k0:cols[gj].po===po0)) gj++;
       var gn=k0?grCatInfo(k0):null, gl=gn?(gj-gi===1?gn[4]:gn[1]):po0;
-      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+'" colspan="'+(2*(gj-gi))+'"'+(gn&&gl!==gn[1]?' title="'+esc(gn[1])+'"':'')+'><span class="hp-gpl">'+esc(gl)+'</span></th>'); gi=gj; }
+      h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+(k0&&/^f-/.test(k0)?' hp-gform':'')+'" colspan="'+(2*(gj-gi))+'"'+(gn&&gl!==gn[1]?' title="'+esc(gn[1])+'"':'')+'><span class="hp-gpl">'+esc(gl)+'</span></th>'); gi=gj; }
   } else h.push('<th class="hp-gp '+(mode[3]||grTeinte(mode[1]))+'" colspan="'+(2*cols.length+(avecCom?1:0))+'"><span class="hp-gpl">'+esc(mode[1])+'</span></th>');
   h.push('</tr><tr class="hp-ops">');
   cols.forEach(function(c,ci){
