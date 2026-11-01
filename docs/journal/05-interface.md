@@ -8540,7 +8540,7 @@ cuves de fermentation, pas 8 ; et les cheminées des chaudières n'ont
 **pas de bande rouge**. Ce qu'on voit sur les photos, et ce qui est
 dessiné maintenant (aucune ombre, à la demande du client) :
 - **Meunerie** :
-  - la galerie en caisson gris clair, sur deux pylônes en treillis,
+  - la galerie (en fait une bande transporteuse, corrigé en v1267) en caisson gris clair, sur deux pylônes en treillis,
     monte en haut d'une tour de béton étroite, deux fois plus haute que
     ses voisins, à tête blanche ;
   - un bloc bas à bardage nervuré, presque aveugle, porte une charpente
@@ -8711,6 +8711,8 @@ train sous 44 éléments). Toutes les épreuves précédentes, du plan
 
 ### L'usine en direct : la galerie au-dessus du train, plus de lueur, le métier dans les zones (01/11/2026, `nfdm-v1266`)
 
+*(Le mot « galerie » était faux : le client, le même jour, « ce n'est pas une galerie, c'est une bande transporteuse qui passe au-dessus du chemin de fer ». Corrigé en v1267, dessin compris.)*
+
 Le client : « Le train passe toujours au-dessus de la ligne qui passe
 logiquement au-dessus du chemin de fer. Il y a moyen de rendre encore plus
 professionnels les schémas de zone et la perspective logique. L'animation
@@ -8752,3 +8754,34 @@ contrôle aussi l'absence de toute lueur, les biseaux (au moins 40), les
 Toutes les épreuves précédentes rendent 0 faute. L'épreuve de la v1265
 exempte désormais la galerie et son flux de la règle « le train par-dessus
 tout ce qui court au sol », puisqu'ils doivent passer au-dessus de lui.
+
+### L'usine en direct : une bande transporteuse, pas une galerie (01/11/2026, `nfdm-v1267`)
+
+Le client : « Ce n'est pas une galerie, c'est une bande transporteuse qui
+passe au-dessus du chemin de fer. » Le mot était faux depuis la v1263, et
+le dessin aussi : un caisson gris clair fermé. Les deux entrées du journal
+qui l'employaient le disent maintenant.
+
+Elle est redessinée en bande transporteuse, en deux endroits :
+- **Au-dessus du chemin de fer**, du quai à la meunerie. C'est une poutre
+  en treillis : deux membrures et leurs diagonales en zigzag, une tous
+  les 9 px environ. Elle porte la bande, et le blé avance dessus (le flux
+  jaune). Elle est toujours dessinée après le train et les îlots, et
+  arrive au point où part celle de la scène.
+- **Dans la scène de la meunerie**, la même poutre en treillis, cette
+  fois en coordonnées du monde, sur ses deux pylônes. Le blé y continue
+  jusqu'en haut de la tour du moulin.
+
+La passerelle couverte du gluten vers la meunerie, vue sur les vues
+aériennes, garde son nom de passerelle : classes `us-passerelle` et jeton
+`--us-passerelle`. La règle `.us-conv` devenue sans objet part.
+
+Les épreuves suivent le dessin :
+- `usine-1258` compte deux flux de blé, la bande du quai et celle de la
+  meunerie ;
+- `usine-1263` attend les deux membrures de la bande dans la meunerie, au
+  lieu du caisson (0 sur la v1266, donc il crie) ;
+- `usine-1266` suit la bande du quai (membrures, diagonales, flux), hors
+  de la scène.
+
+Toutes les épreuves rendent 0 faute.
