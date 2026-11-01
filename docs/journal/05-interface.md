@@ -8648,3 +8648,63 @@ clair : chaque face porte son arête, d'au moins 0,5 px et sans
 changement d'échelle, et les trois traits qui finissaient dans le vide
 sont corrigés. Rendu : 0 faute ; sur la v1263 : 8 fautes. Toutes les
 épreuves précédentes rendent 0 faute.
+
+### L'usine en direct : tout le plan en isométrique, le train par-dessus les routes (01/11/2026, `nfdm-v1265`)
+
+Le client, capture de son iPhone à l'appui : « Utilise le skill anatomy
+pour redessiner tout le plan en isométrique. Le train passe sous les
+routes, il passe au-dessus des lignes ainsi que les rails. »
+
+**Le choix de la vue.** Un site posé à plat en isométrique pure
+(azimut 45°, élévation 30°) s'étale en largeur. Au téléphone, 2 × 4 zones
+donnaient environ 60 px par zone : c'était illisible. Le plan garde donc
+ses îlots et ses routes, mais les lit en isométrique :
+- les routes de l'écran, horizontales et verticales, sont des routes en
+  diagonale du site, que l'isométrique montre exactement ainsi ;
+- la Meuse, le rail et l'autoroute suivent la même logique ;
+- chaque îlot porte un **lot carré de 100 × 100**, vu en losange (largeur
+  √3 fois la hauteur), avec une dalle de 6 d'épaisseur teintée de sa
+  famille ;
+- ses bâtiments sont décrits en coordonnées du monde (x vers la droite et
+  l'avant, y vers la gauche et l'avant, z vers le haut) et projetés à
+  30°.
+
+Les noms et les badges restent en clair, au-dessus et au-dessous du lot.
+
+**Les primitives** (`usIsoP`, la projection) :
+- la boîte, avec dessus, face avant gauche et face avant droite ;
+- le cylindre : le cercle du sol devient une ellipse de rapport
+  tan 30° = 0,577, appliqué aussi aux cylindres du décor (silos du quai,
+  sucrerie) ;
+- le hall à deux pentes ;
+- les bandes de vitrage, les nervures, les montants et les cadres ;
+- le pylône en treillis, la conduite en U ;
+- la colonne à pied bleu et la cuve foncée cannelée.
+
+Chaque face est teintée selon son orientation (le dessus le plus clair),
+cernée de son arête de 0,6 px et peinte de l'arrière vers l'avant, comme
+le veut le skill Anatomy. Les huit scènes de la v1263 sont recalculées en
+3D avec le même contenu, tiré des photos : la tour et la galerie de la
+meunerie, les douze silos inox, les sept cuves et les deux petites, les
+cols de cygne, les cheminées à couronne, les bassins, les bureaux
+anthracite. L'illustration est plus haute (200 unités au lieu de 104) :
+au téléphone, chaque rangée gagne environ 65 px. Les primitives
+cavalières devenues inutiles (`usHall`, `usTreillis`, `usNervures`,
+`usCamion`) partent.
+
+**Le train** était dessiné avant les routes, leurs lignes, les
+lampadaires et les tuyauteries : il passait dessous. Il est maintenant
+dessiné après eux, juste avant les îlots, et roule par-dessus.
+
+Nouvelle épreuve `usine-1265.js` :
+- huit lots ;
+- chaque dessus de lot est un losange isométrique (rapport 1,732, à
+  0,03 près) ;
+- les ellipses des cylindres sont au rapport 0,56 à 0,60 ;
+- le train vient après toute route, ligne, lampadaire et tuyauterie (la
+  légende, au pied du plan, mise à part).
+
+Rendu : 0 faute ; sur la v1264, 6 fautes (aucun lot, ellipses à 0,42,
+train sous 44 éléments). Toutes les épreuves précédentes, du plan
+(contraste, débordements, badges dans leur tuile) aux numéros, rendent
+0 faute.
