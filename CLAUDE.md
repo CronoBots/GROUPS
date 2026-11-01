@@ -139,6 +139,9 @@ est un **écart connu**, écrit ici, et non corrigé.
 01/11/2026 : « si tu as des doutes, interroge-moi toujours » — un doute
 sur un fait (qui tient quel poste, ce que veut dire une écriture) se pose
 en question AVANT de coder ; seule la question de goût se tranche seul.
+Et le même jour : « une question à la fois, et je réponds en QCM » — une
+seule question par message, posée avec des choix (outil de question à
+choix), la recommandation en premier.
 Quand deux lectures sont possibles, c'est le classeur qui tranche — les colonnes se
 répondent (CHD « Remplace GST » le jour où le commentaire d'un autre le
 nomme) — et, s'il se tait, c'est une question au client, écrite dans ce
