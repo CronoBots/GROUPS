@@ -8818,3 +8818,44 @@ polygone du socle, à 8 % près). Elle compte aussi 3 plateaux à la
 chaudière et 4 à la distillation. Rendu : 0 faute ; sur la v1267, elle
 crie (pas de socle à la chaudière, 0 plateau, 8 montants en l'air à la
 distillation). Toutes les épreuves précédentes rendent 0 faute.
+
+### L'usine en direct : plus de cadres foncés, un sol en losanges (01/11/2026, `nfdm-v1269`)
+
+Le client, captures de son iPhone à l'appui : « Améliorer les
+backgrounds, contour foncé autour des cadres, etc. »
+
+Trois défauts relevés sur les captures :
+- **Chaque îlot était une carte** : un rectangle teinté de sa famille,
+  cerné d'un filet. Posé sur des routes de même valeur, il se lisait
+  comme un cadre sombre autour de chaque zone.
+- **La dalle des lots** avait des côtés presque noirs, cernés du trait
+  foncé des volumes : un second contour foncé, autour du losange.
+- **La trame du sol** était un quadrillage carré, d'une autre
+  perspective que l'isométrique des bâtiments.
+
+Corrigé :
+- **Les îlots sans cadre.** Pas de bordure, pas de teinte de famille,
+  et pas d'éclaircissement non plus. Le client, le même jour : « on peut
+  supprimer les cadres plus clairs dans les carrés foncés ». Un premier
+  essai d'îlot translucide plus clair (`--us-ilot`) se lisait encore
+  comme un cadre ; il est retiré avant publication. L'îlot est le sol
+  même, entre ses routes. La famille reste sur la dalle du lot, et la
+  trame court partout. Le liseré de sélection et le liseré ambre d'une
+  place libre, qui sont des états, restent.
+- **Le sol en losanges isométriques.** La maille fait √3 × 1, avec deux
+  diagonales à 30°, comme les arêtes des lots.
+- **Des bordures de trottoir** fines et claires le long des routes.
+- **La dalle adoucie.** Côtés plus proches du dessus, arête claire au
+  lieu du trait foncé (`--us-lot-a`). Le jeton `--us-tuile-bord`, que
+  plus rien ne lisait, part.
+
+Nouvelle épreuve `usine-1269.js`, au téléphone et au PC :
+- aucun îlot ne porte de bordure, et tous ont le même fond (aucun) ;
+- la trame est une maille √3 × 1 à deux diagonales ;
+- chaque route a sa bordure ;
+- aucune face de dalle n'est cernée du trait foncé.
+
+Rendu : 0 faute. Sur la v1268, chaque contrôle crie : 8 cadres,
+5 teintes, une trame carrée, 5 routes sans bordure, 24 faces cernées.
+Toutes les épreuves précédentes rendent 0 faute, dont le contraste des
+textes sur le nouveau fond.
