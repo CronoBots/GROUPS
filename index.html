@@ -2609,8 +2609,7 @@ html #grille .ws-site{margin-bottom:14px}
    trigramme se lit pareil dans les deux thèmes. */
 :root,:root[data-theme="dark"]{
   --us-sol:#131A27; --us-herbe:#1B3326; --us-autor:#232B3B; --us-voie:#56627A; --us-route:#222B3C; --us-ligne:#3C475D;
-  --us-arb-o:#1F4A33; --us-arb-c:#2F6B48; --us-lampe:#FFD27A;
-  --us-omb:rgba(0,0,0,.34);
+  --us-arb-o:#1F4A33; --us-arb-c:#2F6B48; --us-lampe:#FFD27A; --us-loco:#C9A227;
   --us-bl-t:#DCE3EC; --us-bl-1:#E4EAF2; --us-bl-2:#B8C2D0; --us-bl-3:#7F8B9E; --us-bl-s:#8C98AB; --us-bl-f:#B8C2D0;
   --us-me-t:#A9B3C2; --us-me-1:#C2CBD7; --us-me-2:#8A95A7; --us-me-3:#5A6577; --us-me-s:#667184; --us-me-f:#8A95A7;
   --us-be-t:#4A5468; --us-be-1:#C9C3B6; --us-be-2:#A39D90; --us-be-3:#726E64; --us-be-s:#7D786D; --us-be-f:#A39D90;
@@ -2625,13 +2624,12 @@ html #grille .ws-site{margin-bottom:14px}
   --us-pe1:#3A4A63; --us-pe2:#D9E1EC; --us-pe3:#7B889C; --us-su1:#B98585; --us-su2:#BBAE7E; --us-su1-t:#D3A3A3; --us-su2-t:#D6C998;
   --us-copeaux:#7E6140; --us-copeaux2:#9C7A52; --us-bleu:#4A7BC2; --us-garde:#E2C044; --us-gaine:#B8C2D0; --us-pied:#3F6FB5;
   --us-ventil:#2A3446; --us-boue:#5E5038; --us-tu-s:#C9A46A;
-  --us-tuile:#1E2636; --us-tuile-bord:#2F394C; --us-ombre-t:rgba(0,0,0,.45); --us-pulse:#B9F5CF;
+  --us-tuile:#1E2636; --us-tuile-bord:#2F394C; --us-pulse:#B9F5CF;
   --us-trame:rgba(148,163,184,.07);
 }
 :root[data-theme="light"]{
   --us-sol:#E2E7EE; --us-herbe:#CFE3D3; --us-autor:#C3CBD6; --us-voie:#F4F6F9; --us-route:#D3DAE3; --us-ligne:#F4F6F9;
-  --us-arb-o:#4E8F63; --us-arb-c:#6DB083; --us-lampe:#F2B544;
-  --us-omb:rgba(21,30,47,.16);
+  --us-arb-o:#4E8F63; --us-arb-c:#6DB083; --us-lampe:#F2B544; --us-loco:#D9A520;
   --us-bl-t:#FFFFFF; --us-bl-1:#FFFFFF; --us-bl-2:#E1E6EE; --us-bl-3:#AEB8C6; --us-bl-s:#BCC5D2; --us-bl-f:#E1E6EE;
   --us-me-t:#C8D0DB; --us-me-1:#DCE2EA; --us-me-2:#A9B3C1; --us-me-3:#7B8698; --us-me-s:#8B96A7; --us-me-f:#A9B3C1;
   --us-be-t:#7A8496; --us-be-1:#E6E1D6; --us-be-2:#C7C1B4; --us-be-3:#9A9487; --us-be-s:#A8A295; --us-be-f:#C7C1B4;
@@ -2645,7 +2643,7 @@ html #grille .ws-site{margin-bottom:14px}
   --us-pe1:#5D6B82; --us-pe2:#FFFFFF; --us-pe3:#AEB8C6; --us-su1:#E2B0B0; --us-su2:#E4D6A0; --us-su1-t:#EECACA; --us-su2-t:#F0E6BF;
   --us-copeaux:#A57E4F; --us-copeaux2:#C49A68; --us-bleu:#2F63B0; --us-garde:#D9B22E; --us-gaine:#C3CCD8; --us-pied:#2F63B0;
   --us-ventil:#59667D; --us-boue:#9C8460; --us-tu-s:#9C7A3E;
-  --us-tuile:#FFFFFF; --us-tuile-bord:#D3DAE3; --us-ombre-t:rgba(21,30,47,.12); --us-pulse:#2E8C57;
+  --us-tuile:#FFFFFF; --us-tuile-bord:#D3DAE3; --us-pulse:#2E8C57;
   --us-trame:rgba(21,30,47,.06);
 }
 /* au PC, la carte prend toute la largeur au-dessus des deux colonnes ; au
@@ -2676,10 +2674,12 @@ html #grille .ws-site{margin-bottom:14px}
 /* la circulation sur l'autoroute */
 .us-roule{animation:usRoule linear infinite}
 @keyframes usRoule{from{transform:translateY(var(--us-de))} to{transform:translateY(var(--us-a))}}
+/* le train : il traverse en deux tiers du temps, puis le rail reste vide */
+.us-train{animation:usTrain linear infinite}
+@keyframes usTrain{0%{transform:translateX(var(--us-de))} 66%,100%{transform:translateX(var(--us-a))}}
+.us-loco{fill:var(--us-loco)} .us-loco-c{fill:var(--us-fen)}
 /* (refonte du 01/11/2026 : plus de voies, de lignes de route ni d'arbres) */
-.us-omb{fill:var(--us-omb)} /* le pied des bâtiments : une ombre de contact légère, pas une tache
-   sombre sous toute l'illustration */
-.us-sol-t{fill:var(--us-omb); opacity:.3}
+
 
 .us-rail line{stroke:var(--us-rail); stroke-width:1.2} .us-rail .us-trav{stroke-width:5; stroke-dasharray:1.5 4; opacity:.7}
 .us-wagon{fill:var(--us-wagon)}
@@ -2784,18 +2784,13 @@ html #grille .ws-site{margin-bottom:14px}
    (relecture du 01/11/2026 : le même trait ne se voyait pas sur l'îlot
    choisi, et ressemblait ailleurs à une seconde sélection) */
 .us-zone:focus-visible .us-cible{stroke:var(--ink); stroke-width:2; stroke-dasharray:6 4}
-.us-nom{font-size:13.5px; font-weight:700; fill:var(--ink); letter-spacing:.005em}
-.us-sous{font-size:11.5px; fill:var(--muted)}
-.us-etat rect{stroke-width:1}
-.us-etat text{font-size:11.5px; font-weight:700; text-anchor:middle}
-.us-e-ok rect{fill:color-mix(in srgb,var(--good) 12%,var(--surface)); stroke:color-mix(in srgb,var(--good) 45%,transparent)} .us-e-ok text{fill:var(--good)}
-.us-e-manque rect{fill:color-mix(in srgb,var(--at-jaune) 12%,var(--surface)); stroke:color-mix(in srgb,var(--at-jaune) 55%,transparent)} .us-e-manque text{fill:var(--at-jaune)}
-.us-e-nul rect{fill:var(--surface); stroke:var(--line)} .us-e-nul text{fill:var(--muted)}
+.us-nom{font-size:13.5px; font-weight:700; fill:var(--ink); letter-spacing:.005em; text-anchor:middle}
+.us-sous{font-size:11.5px; fill:var(--muted); text-anchor:middle}
 /* LES BADGES NOMINATIFS : le pastel de la famille, l'encre foncée (le
    trigramme se lit pareil dans les deux thèmes) ; vous, le liseré de la
    marque et « vous » ; la relève, en pointillé ; une place libre, en
    ambre */
-.us-pas-f{stroke:color-mix(in srgb,var(--us-encre) 14%,transparent); stroke-width:1; filter:drop-shadow(0 1px 1.5px var(--us-ombre-t))}
+.us-pas-f{stroke:color-mix(in srgb,var(--us-encre) 14%,transparent); stroke-width:1}
 .us-pas-t{font-size:11.5px; font-weight:800; fill:var(--us-encre); letter-spacing:.04em; font-variant-numeric:tabular-nums}
 .us-pas-t.us-c{text-anchor:middle}
 .us-pas.us-f-jaune .us-pas-f{fill:var(--us-f-jaune)} .us-pas.us-f-vert .us-pas-f{fill:var(--us-f-vert)} .us-pas.us-f-rouge .us-pas-f{fill:var(--us-f-rouge)}
@@ -2814,8 +2809,6 @@ html #grille .ws-site{margin-bottom:14px}
 .us-pas-plus-du-poste.us-f-bleu .us-pas-f{stroke:var(--us-f-bleu)} .us-pas-plus-du-poste.us-f-gris .us-pas-f{stroke:var(--us-f-gris)}
 .us-pas-plus-du-poste .us-pas-t{fill:var(--ink)}
 .us-vide-t{font-size:11.5px; fill:var(--muted); text-anchor:middle; font-style:italic}
-.us-etat-i{fill:currentColor}
-.us-e-ok .us-etat-i{color:var(--good)} .us-e-manque .us-etat-i{color:var(--at-jaune)}
 .us-sub-ok{color:var(--good); font-weight:600} .us-sub-manque{color:var(--at-jaune); font-weight:700}
 .us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4; flex:1; min-width:0}
 .us-invite-l{display:flex; align-items:center; gap:12px}
@@ -2831,7 +2824,7 @@ html #grille .ws-site{margin-bottom:14px}
 /* vous : un halo qui respire, une fois toutes les trois secondes */
 .us-pas-halo{fill:none; stroke:var(--marque-vif); stroke-width:1.5; opacity:0; animation:usRespire 3s ease-in-out infinite}
 @keyframes usRespire{0%,100%{opacity:0} 50%{opacity:.55}}
-@media (prefers-reduced-motion:reduce){ .us-pulse{animation:none; opacity:0} .us-pont,.us-fumee,.us-feu,.us-pas-halo,.us-flux,.us-vagues,.us-peniche,.us-roule{animation:none} .us-fumee{opacity:.35} .us-pas-halo{opacity:.5} }
+@media (prefers-reduced-motion:reduce){ .us-pulse{animation:none; opacity:0} .us-pont,.us-fumee,.us-feu,.us-pas-halo,.us-flux,.us-vagues,.us-peniche,.us-roule,.us-train{animation:none} .us-fumee{opacity:.35} .us-pas-halo{opacity:.5} }
 /* la fiche du poste choisi */
 .us-fiche{border:1px solid var(--line); border-radius:14px; background:var(--surface2); padding:12px 14px; display:flex; flex-direction:column; gap:8px}
 .us-fiche-t{display:flex; align-items:center; gap:8px; font-size:16px}
@@ -21417,16 +21410,16 @@ function renderSiteAccueil(){
 /* s : le sous-titre du plan (court, il tient sous le nom) ; d : la fiche,
    d'après le schéma officiel du procédé et les pages produits du site */
 var USINE_ZONES=[
-  {k:"meun", t:"Meunerie",        s:"Blé, farine et son",   d:"Le blé fourrager arrive par la Meuse et monte à la meunerie. Le moulin donne la farine ; le son part aux cogénérations biomasse et à l’alimentation animale (son GMP+).", f:"jaune"},
-  {k:"glut", t:"Gluten",          s:"Extraction, séchage",  d:"La farine donne le gluten, extrait puis séché (poudre de gluten, vendue par BENEO), et le lait d’amidon, qui part à la fermentation.", f:"jaune"},
-  {k:"ferm", t:"Fermentation",    s:"Lait d’amidon, moût",  d:"Le lait d’amidon fermente dans les cuves en dômes et devient le moût. Le CO2 de la fermentation part à la compression (CO2 liquide).", f:"vert"},
-  {k:"dist", t:"Distillation",    s:"Éthanol à 99,8 %",     d:"Le moût fermenté donne l’éthanol renouvelable à 99,8 % et le ProtiWanze, l’aliment liquide pour le bétail.", f:"vert"},
+  {k:"meun", w:61, t:"Meunerie",        s:"Blé, farine et son",   d:"Le blé fourrager arrive par la Meuse et monte à la meunerie. Le moulin donne la farine ; le son part aux cogénérations biomasse et à l’alimentation animale (son GMP+).", f:"jaune"},
+  {k:"glut", w:44, t:"Gluten",          s:"Extraction, séchage",  d:"La farine donne le gluten, extrait puis séché (poudre de gluten, vendue par BENEO), et le lait d’amidon, qui part à la fermentation.", f:"jaune"},
+  {k:"ferm", w:87, t:"Fermentation",    s:"Lait d’amidon, moût",  d:"Le lait d’amidon fermente dans les cuves en dômes et devient le moût. Le CO2 de la fermentation part à la compression (CO2 liquide).", f:"vert"},
+  {k:"dist", w:70, t:"Distillation",    s:"Éthanol à 99,8 %",     d:"Le moût fermenté donne l’éthanol renouvelable à 99,8 % et le ProtiWanze, l’aliment liquide pour le bétail.", f:"vert"},
   /* « l'éthanol, c'est la fermentation et la distillation, exactement ce
      que ce poste couvre » (le client, le 21/09/2026, POSTES_TRAVAIL) */
-  {k:"terr", t:"Terrain arrière", s:"Polyvalent éthanol",   d:"Polyvalent éthanol, sur le terrain : la fermentation et la distillation, et le parc de cuves.", f:"vert"},
-  {k:"chau", t:"Chaudières",      s:"Cogénérations",        d:"Deux cogénérations biomasse (le son de blé, les copeaux de bois), la chaudière gaz et le turbogénérateur : l’électricité et la vapeur du site ; les cendres deviennent un engrais naturel.", f:"rouge"},
-  {k:"step", t:"STEP",            s:"Épuration, biogaz",    d:"La station d’épuration des eaux, au bord de la Meuse : le biogaz et l’engrais naturel.", f:"bleu"},
-  {k:"cm",   t:"Contremaître",    s:"Bureau de la pause",   d:"Le bureau : contremaître de pause et adjoint.", f:"gris"}
+  {k:"terr", w:92, t:"Terrain arrière", s:"Polyvalent éthanol",   d:"Polyvalent éthanol, sur le terrain : la fermentation et la distillation, et le parc de cuves.", f:"vert"},
+  {k:"chau", w:75, t:"Chaudières",      s:"Cogénérations",        d:"Deux cogénérations biomasse (le son de blé, les copeaux de bois), la chaudière gaz et le turbogénérateur : l’électricité et la vapeur du site ; les cendres deviennent un engrais naturel.", f:"rouge"},
+  {k:"step", t:"Station d’épuration", s:"Eaux usées, biogaz", w:123, l:["Station","d’épuration"],    d:"La station d’épuration des eaux, au bord de la Meuse : le biogaz et l’engrais naturel.", f:"bleu"},
+  {k:"cm", w:86,   t:"Contremaître",    s:"Bureau de la pause",   d:"Le bureau : contremaître de pause et adjoint.", f:"gris"}
 ];
 /* les numéros lus dans l'info de la base : {meun:{tel:"+32…", vu:"0…"},
    …, cm:…} */
@@ -21583,7 +21576,10 @@ function usCyl(cx,y,r,h,m,toit){
   return s+'</g>';
 }
 function usArbre(x,y,r){ return '<g class="us-arb">'+usOmbre(x,y,r*0.9)+'<circle class="us-arb-o" cx="'+usN(x)+'" cy="'+usN(y-r*0.9)+'" r="'+usN(r)+'"/><circle class="us-arb-c" cx="'+usN(x-r*0.25)+'" cy="'+usN(y-r*1.1)+'" r="'+usN(r*0.62)+'"/></g>'; }
-function usOmbre(cx,y,rx){ return '<ellipse class="us-omb" cx="'+usN(cx)+'" cy="'+usN(y+1)+'" rx="'+usN(rx)+'" ry="'+usN(rx*0.38)+'"/>'; }
+/* PLUS D'OMBRE SUR LE SCHÉMA (le client, le 01/11/2026 : « il faut
+   supprimer l'ombre des postes ») : ni sous les bâtiments, ni sous les
+   cuves, ni sous les arbres ; les appels restent, ils ne dessinent rien */
+function usOmbre(){ return ""; }
 function usTuyau(pts,cl){ return '<polyline class="us-tu '+(cl||"")+'" points="'+usP(pts)+'"/>'; }
 function usCamion(x,y,cl){ return '<g class="us-camion">'+usBoite(x,y,20,9,9,cl||"blanc")+usBoite(x+20,y,7,9,7,"cab")+'<circle class="us-roue" cx="'+usN(x+5)+'" cy="'+usN(y+1)+'" r="1.8"/><circle class="us-roue" cx="'+usN(x+23)+'" cy="'+usN(y+1)+'" r="1.8"/></g>'; }
 function usFumees(x,y){ return '<g class="us-fum">'+[0,1.5,3].map(function(dl){ return '<circle class="us-fumee" cx="'+usN(x)+'" cy="'+usN(y)+'" r="4" style="animation-delay:'+dl+'s"/>'; }).join("")+'</g>'; }
@@ -21683,9 +21679,8 @@ var USINE_SCENES={
    marque et « vous » ; la relève, en pointillé ; une place que le
    Planning attend et que personne ne tient, « libre » en ambre. ── */
 var US_PAS_H=22, US_PAS_E=6;
-/* mesurés au navigateur (Archivo grasse, 13,5 px) : le nom le plus long,
-   « Terrain arrière », et le plus large des comptes, « 1/2 » */
-var US_NOM_MAX=92, US_COMPTE_MAX=50;
+/* (le compte de chaque tuile est parti le 01/11/2026 : les noms se
+   centrent, et les badges sont le compte) */
 /* la largeur d'un badge, lettre à lettre (un I est trois fois plus étroit
    qu'un M) : trois badges tiennent sur une ligne au téléphone */
 function usPasLarg(o){ if(o.vide) return 50; if(o.plus) return 34;
@@ -21729,19 +21724,20 @@ function usineGeo(W,rk){
   /* la tuile : l'en-tête (le poste et son compte), l'illustration, la
      rangée des badges */
   var head=large?48:34, art=Math.round(104*sc);
+  /* LES NOMS CENTRÉS (le client, le 01/11/2026) : un nom plus large que
+     sa tuile (« Station d’épuration », 123 px, à 320 px d'écran) passe
+     sur deux lignes ; sa rangée prend un en-tête plus haut de 16 px */
+  function coupe(k){ var z=null; USINE_ZONES.forEach(function(x){ if(x.k===k) z=x; }); return !!(z&&z.l&&z.w>pw-24); }
   /* chaque rangée de tuiles a la hauteur de ses badges (une ou deux
      lignes) : une rangée d'un seul badge n'a plus de vide sous lui */
   var ord=USINE_ORDRE[large?"large":"etroit"], pos={}, y=top, rows=8/cols, sig=[];
-  for(var r=0;r<rows;r++){ var nr=1, c;
-    for(c=0;c<cols;c++) nr=Math.max(nr,(rk&&rk[ord[r*cols+c]])||1);
-    var h=head+art+nr*(US_PAS_H+US_PAS_E)+10;
-    for(c=0;c<cols;c++) pos[ord[r*cols+c]]={x:mg+c*(pw+gap), y:y, h:h, c:c, r:r, rangs:nr};
-    sig.push(nr); y+=h+gap; }
+  for(var r=0;r<rows;r++){ var nr=1, hd=head, c;
+    for(c=0;c<cols;c++){ nr=Math.max(nr,(rk&&rk[ord[r*cols+c]])||1); if(coupe(ord[r*cols+c])) hd=head+16; }
+    var h=hd+art+nr*(US_PAS_H+US_PAS_E)+10;
+    for(c=0;c<cols;c++) pos[ord[r*cols+c]]={x:mg+c*(pw+gap), y:y, h:h, hd:hd, deux:coupe(ord[r*cols+c]), c:c, r:r, rangs:nr};
+    sig.push(nr+(hd>head?"c":"")); y+=h+gap; }
   var H=y-gap+(large?28:gap);
-  /* le compte dans l'en-tête, s'il tient pour toutes les tuiles à la
-     fois — jamais une tuile sur deux */
-  var compte=12+US_NOM_MAX+10+US_COMPTE_MAX+10<=pw;
-  return {W:W, H:H, large:large, cols:cols, mg:mg, hw:hw, xE:mg+cols*pw+(cols-1)*gap, gap:gap, top:top, pw:pw, sc:sc, head:head, art:art, pos:pos, riv:riv, berge:berge, rail:rail, sig:sig.join(""), compte:compte};
+  return {W:W, H:H, large:large, cols:cols, mg:mg, hw:hw, xE:mg+cols*pw+(cols-1)*gap, gap:gap, top:top, pw:pw, sc:sc, head:head, art:art, pos:pos, riv:riv, berge:berge, rail:rail, sig:sig.join("")};
 }
 /* le décor : la Meuse et son quai, la sucrerie voisine, le rail, les
    routes, les tuyauteries ; dessiné une fois par largeur (les animations
@@ -21801,7 +21797,17 @@ function usineDecor(g){
   /* le rail, entre la berge et l'usine, et ses wagons-citernes */
   var ry=g.rail+3;
   s+='<g class="us-rail"><line x1="'+hw+'" y1="'+(ry-2)+'" x2="'+W+'" y2="'+(ry-2)+'"/><line x1="'+hw+'" y1="'+(ry+2)+'" x2="'+W+'" y2="'+(ry+2)+'"/><line class="us-trav" x1="'+hw+'" y1="'+ry+'" x2="'+W+'" y2="'+ry+'"/></g>';
-  for(var wi=0;wi<(L?5:3);wi++){ var wx=W-40-wi*30; s+='<rect class="us-wagon" x="'+wx+'" y="'+(ry-4)+'" width="26" height="8" rx="4"/>'; }
+  /* LE TRAIN PASSE (le client, le 01/11/2026 : « on peut animer le
+     train ») : la locomotive et ses wagons-citernes entrent par l'est,
+     traversent à 30 px/s et sortent sous l'autoroute ; puis le rail reste
+     vide un tiers du temps. Immobile (moins de mouvement), il est garé à
+     l'est, comme avant. */
+  var nw=L?5:3, tl=34+nw*30, tx=W-12-tl, tvit=30, tdu=(W+tl)/tvit/0.66;
+  s+='<clipPath id="usC-rail"><rect x="'+hw+'" y="'+(ry-8)+'" width="'+(W-hw)+'" height="16"/></clipPath><g clip-path="url(#usC-rail)">'
+    +'<g class="us-train" style="--us-de:'+usN(W-tx)+'px; --us-a:'+usN(hw-tx-tl)+'px; animation-duration:'+usN(tdu)+'s">'
+    +'<rect class="us-loco" x="'+usN(tx)+'" y="'+(ry-5)+'" width="30" height="10" rx="3"/><rect class="us-loco-c" x="'+usN(tx+3)+'" y="'+(ry-3)+'" width="6" height="6" rx="1"/>';
+  for(var wi=0;wi<nw;wi++){ s+='<rect class="us-wagon" x="'+usN(tx+34+wi*30)+'" y="'+(ry-4)+'" width="26" height="8" rx="4"/>'; }
+  s+='</g></g>';
   /* les routes entre les îlots, et leurs lignes */
   var c, r, rows=8/g.cols;
   /* LES ROUTES entre les îlots, asphaltées, et leur ligne pointillée :
@@ -21861,12 +21867,12 @@ function usineDecor(g){
   for(r=0;r<rows;r++) for(c=0;c<=g.cols;c++){ var lx=c<g.cols?g.mg+c*(g.pw+g.gap)-g.gap/2:(g.xE+W)/2, ly=yT[r]-g.gap/2;
     s+='<circle class="us-lampe" cx="'+usN(lx)+'" cy="'+usN(ly)+'" r="'+(L?2.4:2)+'"/>'; }
   /* les îlots et leur décor */
-  USINE_ZONES.forEach(function(z){ var q=g.pos[z.k], ox=q.x+(g.pw-210*g.sc)/2, oy=q.y+g.head-4;
+  USINE_ZONES.forEach(function(z){ var q=g.pos[z.k], ox=q.x+(g.pw-210*g.sc)/2, oy=q.y+q.hd-4;
     s+='<rect class="us-pad us-f-'+z.f+'" x="'+q.x+'" y="'+q.y+'" width="'+g.pw+'" height="'+q.h+'" rx="12"/>'
-      +'<ellipse class="us-sol-t" cx="'+usN(q.x+g.pw/2)+'" cy="'+usN(oy+100*g.sc)+'" rx="'+usN(g.pw*0.38)+'" ry="'+usN(7*g.sc)+'"/>'
+
       /* l'illustration dans sa fenêtre : les fumées s'arrêtent sous
          l'en-tête au lieu de passer sur le nom du poste */
-      +'<clipPath id="usC-'+z.k+'"><rect x="'+q.x+'" y="'+(q.y+g.head-6)+'" width="'+g.pw+'" height="'+(q.h-g.head+6)+'" rx="12"/></clipPath>'
+      +'<clipPath id="usC-'+z.k+'"><rect x="'+q.x+'" y="'+(q.y+q.hd-6)+'" width="'+g.pw+'" height="'+(q.h-q.hd+6)+'" rx="12"/></clipPath>'
       +'<g clip-path="url(#usC-'+z.k+')"><g class="us-scene" transform="translate('+usN(ox)+','+usN(oy)+') scale('+g.sc.toFixed(3)+')">'+USINE_SCENES[z.k]()+'</g></g>'; });
   /* la légende des flux */
   if(L){ var lx=g.mg+4, ly=H-6;
@@ -21882,28 +21888,20 @@ function usineDyn(g,E){
      ne sautent plus de la meunerie au gluten par-dessus les chaudières */
   USINE_ORDRE[g.large?"large":"etroit"].map(function(k){ var r=null; USINE_ZONES.forEach(function(z){ if(z.k===k) r=z; }); return r; }).forEach(function(z){
     var p=g.pos[z.k], Zk=E.Z[z.k], n=Zk.n, att=Zk.attendu;
-    /* l'en-tête : le poste, son compte à droite (« 0/1 » en ambre quand le
-       Planning attend quelqu'un que personne ne tient) */
-    var etat, ecl, tous=Zk.gens.length;
-    if(att&&n<att){ etat=n+"/"+att; ecl="manque"; }
-    else if(tous){ etat=String(tous); ecl="ok"; }
-    else { etat="—"; ecl="nul"; }
-    var nomY=p.y+17, ew=etat.length*7.5+26, eX=p.x+g.pw-10-ew, eY=nomY;
-    /* LE COMPTE, AU MÊME ENDROIT SUR TOUTES LES TUILES (passe du
-       01/11/2026, « 100 % pro ») : dans l'en-tête quand il tient pour
-       toutes ; sinon (le téléphone) il s'efface — les badges sont le
-       compte, et la place libre se dit par son badge ambre et le liseré
-       ambre de la tuile. Un poste sans personne ni attente n'a pas de
-       compte : la tuile le dit en toutes lettres. */
-    var tete='<text class="us-nom" x="'+(p.x+12)+'" y="'+nomY+'" dy=".35em">'+esc(z.t)+'</text>';
-    if(g.compte&&ecl!=="nul") tete+='<g class="us-etat us-e-'+ecl+'"><rect x="'+usN(eX)+'" y="'+(eY-9)+'" width="'+usN(ew)+'" height="18" rx="9"/>'
-      /* un bonhomme devant le nombre : ce sont des personnes */
-      +'<g class="us-etat-i" transform="translate('+usN(eX+7)+','+usN(eY-5)+')"><circle cx="4" cy="2.4" r="2.2"/><path d="M0.2,9.6C0.6,6.6 2.1,5.4 4,5.4S7.4,6.6 7.8,9.6Z"/></g>'
-      +'<text x="'+usN(eX+ew/2+6)+'" y="'+eY+'" dy=".35em">'+esc(etat)+'</text></g>';
-    if(g.large) tete+='<text class="us-sous" x="'+(p.x+12)+'" y="'+(nomY+17)+'" dy=".35em">'+esc(z.s)+'</text>';
+    /* l'état du poste : une place libre (le Planning attend quelqu'un que
+       personne ne tient) donne le liseré ambre */
+    var tous=Zk.gens.length, ecl=att&&n<att?"manque":tous?"ok":"nul";
+    /* LE NOM CENTRÉ (le client, le 01/11/2026), sur deux lignes s'il ne
+       tient pas ; plus de compte en haut à droite : centré, le nom le
+       croiserait, et les badges sont le compte (une place libre se dit
+       par son badge ambre et le liseré ambre de la tuile) */
+    var cx=p.x+g.pw/2, nomY=p.y+17, tete;
+    if(p.deux) tete='<text class="us-nom" x="'+usN(cx)+'" y="'+(p.y+16)+'" dy=".35em">'+esc(z.l[0])+'</text><text class="us-nom" x="'+usN(cx)+'" y="'+(p.y+32)+'" dy=".35em">'+esc(z.l[1])+'</text>';
+    else tete='<text class="us-nom" x="'+usN(cx)+'" y="'+nomY+'" dy=".35em">'+esc(z.t)+'</text>';
+    if(g.large) tete+='<text class="us-sous" x="'+usN(cx)+'" y="'+(nomY+17)+'" dy=".35em">'+esc(z.s)+'</text>';
     /* les badges, en rangées centrées au pied de l'illustration ; une
        rangée seule dans une tuile qui en prévoit deux se centre */
-    var Lp=usPersonnes(Zk,att,n), R=usRangs(Lp,g.pw-16,p.rangs), y0=p.y+g.head+g.art+2+(p.rangs-Math.max(1,R.length))*(US_PAS_H+US_PAS_E)/2, bad="";
+    var Lp=usPersonnes(Zk,att,n), R=usRangs(Lp,g.pw-16,p.rangs), y0=p.y+p.hd+g.art+2+(p.rangs-Math.max(1,R.length))*(US_PAS_H+US_PAS_E)/2, bad="";
     if(!Lp.length) bad='<text class="us-vide-t" x="'+usN(p.x+g.pw/2)+'" y="'+usN(y0+US_PAS_H/2)+'" dy=".35em">'+(Zk.releve?'Personne avant '+esc(siteH(Zk.releve.h)):'Pas de poste à cette pause')+'</text>';
     R.forEach(function(row,ri){ var lw=row.reduce(function(a,o,i){ return a+usPasLarg(o)+(i?US_PAS_E:0); },0), x=p.x+(g.pw-lw)/2, y=y0+ri*(US_PAS_H+US_PAS_E);
       row.forEach(function(o){ bad+=usPastille(x,y,o,z.f); x+=usPasLarg(o)+US_PAS_E; }); });
@@ -21929,7 +21927,7 @@ function usineFiche(E,k){
   var Zk=E.Z[k], n=Zk.n, att=Zk.attendu, li=[];
   function role(o){
     if(o.arrive) return ["Relève, en remise de pause", o.pl.relais?"relais dès "+siteH(o.pl.a):"dès "+siteH(o.deb)];
-    var r=k==="cm"?(o.cmp?"Contremaître de pause":o.adj?"Adjoint":o.jour?"Cadre de jour":"Contremaître"):o.jour?"En journée":o.app?"En formation au poste":(o.pl.relais?"En relais":"En poste");
+    var r=k==="cm"?(o.cmp?"Contremaître de pause":o.adj?"Adjoint":o.jour?"Contremaître de jour":"Contremaître"):o.jour?"En journée":o.app?"En formation au poste":(o.pl.relais?"En relais":"En poste");
     return [r, o.pl.relais?sitePlage(Math.max(o.pl.a,o.deb),Math.min(o.pl.b,o.fin)):"jusqu’à "+siteH(o.fin)];
   }
   Zk.gens.concat(Zk.arrivent).forEach(function(o){ var r=role(o);

@@ -8474,3 +8474,48 @@ L'épreuve `usine-1258.js` gagne deux contrôles :
   (écarts de −3 et +3 px au téléphone).
 
 Rendu : 0 faute.
+
+### L'usine en direct : noms centrés, « Station d'épuration », plus d'ombre, le train passe (01/11/2026, `nfdm-v1262`)
+
+Le client, capture de son iPhone à l'appui : « Il est encore marqué cadre
+de jour au lieu de contremaître du jour, il faut supprimer l'ombre des
+postes du schéma. Step doit être “Station d'épuration”. Le nom de zone
+peut être centré. On peut animer le train. » Et : « refais un tour du site
+web officiel et des photos pour représenter au mieux chaque zone de
+production ». Ce dernier point fait l'objet d'une version à part.
+
+- **« Contremaître de jour »** remplace « Cadre de jour » dans la fiche du
+  bureau (le rôle d'une personne en poste de jour au poste de
+  contremaître).
+- **Plus aucune ombre sur le schéma** : ni l'ellipse sous chaque
+  illustration, ni celle sous chaque cuve et chaque arbre (`usOmbre` ne
+  dessine plus rien), ni celle sous les badges. Deux jetons
+  (`--us-omb`, `--us-ombre-t`) et leurs règles partent avec elles. Les
+  lueurs de nuit (fenêtres, lampadaires) restent : ce sont des lumières.
+- **« Station d'épuration »** au lieu de « STEP ». Le sous-titre devient
+  « Eaux usées, biogaz ». Le nom fait 123 px (mesuré au navigateur) : à
+  320 px d'écran, il passe sur deux lignes, « Station » et
+  « d'épuration », et sa rangée prend un en-tête plus haut de 16 px. Dès
+  390 px, il tient sur une ligne.
+- **Les noms centrés** sur leur tuile, sous-titres compris au PC. Le
+  compte en haut à droite des tuiles (PC) est retiré : centré, un nom
+  long l'aurait croisé, et les badges sont le compte. Une place libre se
+  dit toujours par son badge ambre et le liseré ambre de la tuile ; le
+  sous-titre de la carte donne le total.
+- **Le train passe** : une locomotive jaune et ses wagons-citernes entrent
+  par l'est et traversent le rail à 30 px/s. Ils disparaissent sous
+  l'autoroute (découpés au bord de la bande), puis le rail reste vide un
+  tiers du temps. Hors de la vue ou figé par le bouton, le train
+  s'arrête. Quand le téléphone demande moins de mouvement, il reste à
+  quai à l'est, comme les wagons d'avant.
+
+Nouvelle épreuve `usine-1262.js`, à 320, 390 et 1280 px. Elle
+contrôle :
+- les noms centrés (à 1 px) et sans débordement ;
+- la STEP nommée, coupée seulement à 320 px ;
+- l'absence de toute ombre et de tout compte ;
+- « Contremaître de jour », et plus jamais « Cadre de jour » ;
+- le train qui avance, et qui reste à quai en mouvement réduit.
+
+Rendu : 0 faute ; sur la v1261, chaque contrôle crie. Les épreuves
+précédentes (plan, v1258, v1260, numéros) rendent 0 faute.
