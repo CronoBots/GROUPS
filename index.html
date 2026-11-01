@@ -2610,7 +2610,7 @@ html #grille .ws-site{margin-bottom:14px}
 :root,:root[data-theme="dark"]{
   --us-sol:#131A27; --us-herbe:#1B3326; --us-autor:#232B3B; --us-voie:#56627A; --us-route:#222B3C; --us-ligne:#3C475D;
   --us-arb-o:#1F4A33; --us-arb-c:#2F6B48; --us-lampe:#FFD27A; --us-loco:#C9A227;
-  --us-gr-t:#5B6168; --us-gr-f:#AEB4BB; --us-gr-s:#858C94; --us-an-t:#596070; --us-an-f:#3E4450; --us-an-s:#31363F; --us-an-a:#6E7787;
+  --us-trait:rgba(6,10,18,.5); --us-gr-t:#5B6168; --us-gr-f:#AEB4BB; --us-gr-s:#858C94; --us-an-t:#596070; --us-an-f:#3E4450; --us-an-s:#31363F; --us-an-a:#6E7787;
   --us-cu-t:#BDB9AC; --us-cu-1:#CFCBBE; --us-cu-2:#A6A396; --us-cu-3:#6F716A; --us-fo-t:#6E7378; --us-fo-1:#8A9096; --us-fo-2:#5E6368; --us-fo-3:#3E4246;
   --us-galerie:#B8B2AE; --us-nervure:rgba(21,30,47,.28); --us-ocre:#9C7E5C; --us-eau-s:#1E3A4E; --us-olive:#565B46; --us-trou:#141922; --us-brique:#8A4E3C;
   --us-bl-t:#DCE3EC; --us-bl-1:#E4EAF2; --us-bl-2:#B8C2D0; --us-bl-3:#7F8B9E; --us-bl-s:#8C98AB; --us-bl-f:#B8C2D0;
@@ -2633,7 +2633,7 @@ html #grille .ws-site{margin-bottom:14px}
 :root[data-theme="light"]{
   --us-sol:#E2E7EE; --us-herbe:#CFE3D3; --us-autor:#C3CBD6; --us-voie:#F4F6F9; --us-route:#D3DAE3; --us-ligne:#F4F6F9;
   --us-arb-o:#4E8F63; --us-arb-c:#6DB083; --us-lampe:#F2B544; --us-loco:#D9A520;
-  --us-gr-t:#6E747B; --us-gr-f:#D9DDE1; --us-gr-s:#B3B9BF; --us-an-t:#4A4F59; --us-an-f:#3A3E47; --us-an-s:#2C2F36; --us-an-a:#5A606B;
+  --us-trait:rgba(21,30,47,.32); --us-gr-t:#6E747B; --us-gr-f:#D9DDE1; --us-gr-s:#B3B9BF; --us-an-t:#4A4F59; --us-an-f:#3A3E47; --us-an-s:#2C2F36; --us-an-a:#5A606B;
   --us-cu-t:#E4E0D4; --us-cu-1:#F2EFE7; --us-cu-2:#D6D2C6; --us-cu-3:#ABA89C; --us-fo-t:#7E8388; --us-fo-1:#9AA0A6; --us-fo-2:#6E7378; --us-fo-3:#4E5358;
   --us-galerie:#D6D0CC; --us-nervure:rgba(21,30,47,.18); --us-ocre:#C9A47A; --us-eau-s:#5F8FAF; --us-olive:#7A7F5E; --us-trou:#3B4350; --us-brique:#A25B45;
   --us-bl-t:#FFFFFF; --us-bl-1:#FFFFFF; --us-bl-2:#E1E6EE; --us-bl-3:#AEB8C6; --us-bl-s:#BCC5D2; --us-bl-f:#E1E6EE;
@@ -2738,6 +2738,12 @@ html #grille .ws-site{margin-bottom:14px}
 .us-pad.us-f-bleu{fill:color-mix(in srgb,var(--us-f-bleu) 7%,var(--us-tuile)); stroke:color-mix(in srgb,var(--us-f-bleu) 26%,var(--us-tuile-bord))}
 .us-pad.us-f-gris{fill:color-mix(in srgb,var(--us-f-gris) 7%,var(--us-tuile)); stroke:color-mix(in srgb,var(--us-f-gris) 26%,var(--us-tuile-bord))}
 /* les matériaux : le toit le plus clair, la façade, le côté le plus sombre */
+/* LES ARÊTES (skill Anatomy, « craft », 01/11/2026 : des traits de
+   0,6 px, une arête à chaque jonction de faces) : chaque face d'un
+   volume est cernée d'un trait fin, de la même épaisseur à toutes les
+   échelles. C'est ce qui détache un volume blanc d'une tuile blanche en
+   clair, et chaque face de sa voisine en sombre. */
+[class^="us-m-"]>polygon,[class^="us-m-"]>rect,[class^="us-m-"]>path,[class^="us-m-"]>ellipse{stroke:var(--us-trait); stroke-width:.6; stroke-linejoin:round; vector-effect:non-scaling-stroke}
 .us-m-blanc .us-ft{fill:var(--us-bl-t)} .us-m-blanc .us-ff{fill:var(--us-bl-f)} .us-m-blanc .us-fs{fill:var(--us-bl-s)} .us-m-blanc .us-fc{fill:url(#usG-blanc)}
 .us-m-metal .us-ft{fill:var(--us-me-t)} .us-m-metal .us-ff{fill:var(--us-me-f)} .us-m-metal .us-fs{fill:var(--us-me-s)} .us-m-metal .us-fc{fill:url(#usG-metal)}
 .us-m-beton .us-ft,.us-m-beton .us-toit{fill:var(--us-be-t)} .us-m-beton .us-ff{fill:var(--us-be-f)} .us-m-beton .us-fs{fill:var(--us-be-s)} .us-m-beton .us-fc{fill:url(#usG-beton)}
@@ -21703,8 +21709,9 @@ var USINE_SCENES={
     s+=colonne([46,92,6,86]);
     s+=colonne([72,90,8,50,"plat"])+usCyl(72,40,5.5,32,"blanc","dome");
     s+=colonne([98,92,6.5,48])+colonne([120,94,6,70]);
-    /* les cols de cygne : les grosses conduites en U au sommet */
-    s+='<path class="us-col" d="M46,4C46,-1 58,-1 58,5L58,16"/><path class="us-col" d="M120,22C120,15 132,15 132,22L132,34"/>';
+    /* les cols de cygne : les grosses conduites en U au sommet ; chacune
+       finit sur quelque chose (la poutre haute, la colonne voisine) */
+    s+='<path class="us-col" d="M46,4C46,-1 58,-1 58,5L58,22"/><path class="us-col" d="M120,24C120,13 98,13 98,24L98,40"/>';
     s+=usFumees(88,10);
     /* le bloc des tours de refroidissement : trois cheminées de
        ventilateur, cylindres courts et ouverts (Usine 5, vues aériennes) */
@@ -21718,7 +21725,7 @@ var USINE_SCENES={
        gris foncé cannelées, de petites cuves blanches ; le rack en
        hauteur ; la rampe de chargement des camions-citernes (le site) */
     s+='<polygon class="us-cuvette us-muret" points="'+usP([[6,100],[130,100],[152,86],[28,86]])+'"/>';
-    s+='<g class="us-acier"><line x1="18" y1="40" x2="150" y2="40"/><line x1="18" y1="40" x2="18" y2="88"/><line x1="150" y1="40" x2="150" y2="86"/><line x1="84" y1="40" x2="84" y2="58"/></g>';
+    s+='<g class="us-acier"><line x1="18" y1="40" x2="150" y2="40"/><line x1="18" y1="40" x2="18" y2="88"/><line x1="150" y1="40" x2="150" y2="86"/><line x1="84" y1="40" x2="84" y2="88"/></g>';
     s+=usCyl(54,88,15,34,"cuve","conebas")+usCyl(118,90,10,32,"fonce","plat")+usCannelures(118,90,10,32);
     s+=usCyl(30,96,15,32,"cuve","conebas")+usCyl(96,96,10,30,"fonce","plat")+usCannelures(96,96,10,30);
     s+=usCyl(68,99,5,13,"blanc","dome")+usCyl(80,99,5,13,"blanc","dome");

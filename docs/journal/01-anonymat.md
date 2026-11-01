@@ -767,3 +767,46 @@ le nom de la machine qui a scanné ; celles du classeur, le créateur et le
 n'a changé » face à l'horaire installé. Les fiches de paie ne vont
 toujours dans AUCUN git (registre national, IBAN). La règle est dans
 `CLAUDE.md`, sous « Un nouveau classeur arrive ».
+
+### Anatomy, en version restreinte (01/11/2026)
+
+Le client : « N'aurais-tu pas un skill adapté pour mieux représenter cela ?
+Possible de le trouver avec le skill “find skill” » (le plan de l'usine
+de l'Accueil). `npx skills find` (un paquet téléchargé puis exécuté) a
+été refusé par la sécurité de la session. La recherche s'est faite en
+lecture seule, sur skills.sh et sur le web. Quatre candidats :
+- **iso-scene** (vm0-ai) : écarté. Il rédige une consigne pour un
+  générateur d'images, donc rien n'est dessiné en code, et il faudrait
+  un service tiers.
+- **creating-svg-illustrations** : général, 11 installations.
+- **svg-figures** (farming-labs) : pertinent, mais 7 installations,
+  24 étoiles et un avertissement Snyk sans détail.
+- **Anatomy** (wheresryan22/anatomy, licence MIT, 23 600 étoiles) :
+  retenu. Il fait des figures isométriques d'objets réels en SVG, avec
+  des pièces pleines ombrées par face, des traits de 0,6 px et l'ordre du
+  peintre.
+
+Le dépôt d'origine contient un kit et des scripts Node (rendu, audit,
+captures, PDF, publication dans une galerie). Seuls `SKILL.md` et
+`references/craft.md` (commit `1482e8469b0a`) ont été téléchargés hors
+du dépôt, puis relus en entier par un second agent, ligne par ligne.
+Constats :
+- aucune adresse réseau, aucune clé, aucune injection ni aucun caractère
+  invisible ;
+- la publication dans la galerie n'existe que « si on le demande » ;
+- les scripts sont nombreux, mais absents de la copie ;
+- trois consignes font attendre ou questionner l'utilisateur (une taille
+  « Epic », une durée à annoncer, « offrir les trois » formats de PDF).
+
+**Ce qui entre** (`.claude/skills/anatomy/`) :
+- `SKILL.md`, dont l'en-tête YAML est réécrit : description restreinte
+  aux figures demandées, sans galerie ni PDF, sans `compatibility` ni
+  `metadata`. Un bandeau en français suit ; il déclare le kit et les
+  scripts absents, interdit tout réseau, écarte les trois consignes et
+  rappelle « pas d'ombre sur le plan » ;
+- `references/craft.md`, tel quel ;
+- `LICENSE` (MIT : la mention de l'auteur doit suivre la copie) ;
+- `NOTICE.md`.
+
+Le dossier rejoint `TIERS` dans `tools/verifier-depot.py` : sa licence
+porte le prénom de son auteur, comme il se doit.

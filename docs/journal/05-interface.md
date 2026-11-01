@@ -8614,3 +8614,37 @@ bureaux anthracite, les haies, la tour et la galerie de la meunerie,
 12 silos inox, 2 cuves foncées, la pelle, la cheminée de brique, aucun
 mât. Rendu : 0 faute. Sur la v1262 : 36 fautes. Les épreuves
 précédentes rendent 0 faute, contraste compris.
+
+### L'usine en direct : les règles du skill Anatomy, des arêtes fines (01/11/2026, `nfdm-v1264`)
+
+Le client a demandé un skill « pour mieux représenter » le plan.
+Anatomy a été retenu (journal 01, « Anatomy, en version restreinte »).
+Ses règles de dessin ont été appliquées :
+- **Des arêtes fines.** Chaque face de chaque volume (boîtes, cylindres,
+  toits, hall) est cernée d'un trait de 0,6 px (`--us-trait`), de la même
+  épaisseur à toutes les échelles (`vector-effect: non-scaling-stroke`).
+  C'est le plus gros gain en clair : les volumes blancs se fondaient dans
+  la tuile blanche. En sombre, l'arête détache chaque face de sa voisine.
+- **Aucun trait ne finit dans le vide.** Trois cas trouvés et corrigés :
+  - le montant du milieu du rack du terrain arrière s'arrêtait en l'air ;
+    il descend dans la cuvette ;
+  - le col de cygne de la première colonne de distillation finit
+    maintenant sur la poutre haute ;
+  - celui de la quatrième colonne finit sur la troisième colonne, au
+    lieu de s'arrêter à côté de la charpente.
+- **Des volumes pleins, peints de l'arrière vers l'avant**, et pas de
+  ligne cachée en pointillé : c'était déjà le cas.
+
+Deux règles d'Anatomy n'ont pas été suivies, à dessein :
+- **La caméra isométrique** (azimut 45°, élévation 30°). Le plan garde sa
+  vue cavalière, faces avant à plat : les huit tuiles, leurs badges et
+  leurs noms centrés en dépendent, et la changer reviendrait à redessiner
+  chaque scène.
+- **Le halo sous les pièces.** Le client a demandé de supprimer toutes
+  les ombres.
+
+Nouvelle épreuve `usine-1264.js`, à 390 px en sombre et 1280 px en
+clair : chaque face porte son arête, d'au moins 0,5 px et sans
+changement d'échelle, et les trois traits qui finissaient dans le vide
+sont corrigés. Rendu : 0 faute ; sur la v1263 : 8 fautes. Toutes les
+épreuves précédentes rendent 0 faute.

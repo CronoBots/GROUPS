@@ -140,9 +140,12 @@ IGNORES = ("tools/formes-admises.txt",)
 # Le même jour, impeccable, en version restreinte (30 fichiers Markdown de
 # design) : 348 « formes », titres anglais, polices et personas
 # inventés de ses exemples, même raison.
+# Le 01/11/2026, anatomy, en version restreinte (texte seul, MIT) : sa
+# licence porte le prénom de son auteur, comme il se doit.
 TIERS = (".claude/skills/ui-ux-pro-max/", ".claude/skills/find-skills/",
          ".claude/skills/supabase-postgres-best-practices/",
-         ".claude/skills/playwright-cli/", ".claude/skills/impeccable/")
+         ".claude/skills/playwright-cli/", ".claude/skills/impeccable/",
+         ".claude/skills/anatomy/")
 
 
 def _tiers(chemin):
