@@ -8840,7 +8840,9 @@ Corrigé :
   essai d'îlot translucide plus clair (`--us-ilot`) se lisait encore
   comme un cadre ; il est retiré avant publication. L'îlot est le sol
   même, entre ses routes. La famille reste sur la dalle du lot, et la
-  trame court partout. Le liseré de sélection et le liseré ambre d'une
+  trame court partout. *(Remplacé le même jour par la v1270 : les rues
+  entre les zones et la trame globale partent, au profit d'un sol
+  continu, du pavage de chaque dalle et du rack.)* Le liseré de sélection et le liseré ambre d'une
   place libre, qui sont des états, restent.
 - **Le sol en losanges isométriques.** La maille fait √3 × 1, avec deux
   diagonales à 30°, comme les arêtes des lots.
@@ -8859,3 +8861,111 @@ Rendu : 0 faute. Sur la v1268, chaque contrôle crie : 8 cadres,
 5 teintes, une trame carrée, 5 routes sans bordure, 24 faces cernées.
 Toutes les épreuves précédentes rendent 0 faute, dont le contraste des
 textes sur le nouveau fond.
+
+### L'usine en direct : un seul site, relié par ses tuyauteries (01/11/2026, `nfdm-v1270`)
+
+Le client, capture de son iPhone (v1269, 18 h 27) : « Pas satisfait
+des backgrounds de zone, il y a moyen de faire bien plus intuitif et
+connecté entre les zones et beau visuellement ; je veux du 100 % avec
+tous les skills installés. » Skills chargés : Anatomy (règles de
+dessin), Impeccable (`polish`, `craft-floor`), ui-ux-pro-max (base
+interrogée : aucune entrée pour un plan isométrique d'usine, aucun style
+n'en a été tiré). Photos prises à 320, 390 (jour, nuit, clair) et
+1280 px avant de toucher à quoi que ce soit.
+
+Ce que montraient les captures :
+- **Huit cases.** Les rues faisaient un quadrillage autour de chaque
+  zone. Avec leurs bordures et leurs tirets, elles se lisaient comme les
+  traits d'un tableau, chaque zone enfermée dans sa case.
+- **Des tuyauteries qui ne relient rien.** Elles partaient du bord des
+  tuiles, pas des dalles, et s'arrêtaient dans le vide. Au téléphone,
+  entre deux rangées, ce n'étaient que des bouts de 10 px, à 40 %
+  d'opacité.
+- **Pas de légende au téléphone** : les quatre couleurs ne se lisaient
+  qu'au PC.
+- **Une trame posée sur tout le plan.** Ses losanges ne tombaient pas
+  sur les joints des dalles.
+
+Corrigé :
+- **Le sol continu.** Les rues entre les zones partent ; reste la
+  route de ceinture, à l'est, avec ses lampadaires. Les lampadaires des
+  carrefours partent avec les carrefours.
+- **Le rack du site**, au milieu : au téléphone entre les deux
+  colonnes, au PC entre les deux rangées. C'est une passerelle vue de
+  dessus : un tablier, et tous les 24 px un portique (une traverse et
+  deux poteaux). La nuit, les poteaux s'allument avec les lampadaires.
+  Un premier essai à longerons clairs et traverses serrées tous les
+  9 px ressemblait au rail : écarté avant publication.
+- **Neuf conduites, de dalle à dalle.** Chacune part d'un piquage sur
+  le bord d'une dalle et finit sur le bord d'une autre (Anatomy :
+  « every line ends on something »). Elle est dessinée sous les dalles,
+  qui la cachent : elle entre dans le lot. Les neuf flux du procédé :
+  - le produit : meunerie → gluten → fermentation → distillation →
+    terrain arrière ;
+  - le son : meunerie → chaudières ;
+  - la vapeur : chaudières → distillation et gluten ;
+  - les eaux : terrain arrière et bureau → STEP.
+
+  Deux voisines d'une même rangée se relient en droite ligne. Les
+  autres passent par le rack, chacune sur sa voie : trois voies au
+  téléphone, à 3,4 px l'une de l'autre, et une au PC. Aucune ne croise
+  une autre, et aucune ne passe sous un nom, un sous-titre ou un badge.
+  Au PC, les piquages sont à 76 % et 88 % de la demi-largeur de la
+  dalle, au-delà des badges.
+- **Des conduites pleines, cernées d'un liseré.** Le liseré (`--us-cerne`)
+  est acier en sombre et blanc en clair : il détache la conduite du sol
+  et fond les voisines en un faisceau. La matière avance dessus en
+  grains clairs (`--us-grain`), de l'amont vers l'aval.
+- **Le pavage de chaque dalle.** Les joints du lot, tous les 25, se
+  prolongent sur le sol et s'effacent en s'éloignant. Le dégradé est
+  elliptique (rapport 0,62), comme le sol vu à 30°, et le trait est le
+  dégradé lui-même. Il n'y a ni teinte, ni bord, ni cadre : d'une zone à
+  l'autre, le sol se rejoint (`--us-pave`, `--us-pave-a`).
+- **La légende des flux au téléphone aussi**, au pied du plan (30 px).
+  Chaque entrée prend la place de son mot.
+- **« Pas de poste à cette pause »** (153 px) débordait de sa tuile à
+  320 px, où la tuile ne fait que 125 px. Sous 160 px, la phrase passe
+  sur deux lignes.
+
+Une erreur en cours de route : le liseré s'est d'abord appelé
+`us-gaine`, le nom de la gaine des chaudières, déclarée plus bas dans
+la feuille (7 px, claire). Il a pris son style. Renommé `us-cerne`
+avant publication.
+
+Nouvelle épreuve `usine-1270.js`. Elle tourne à 320 et 390 px (jour et
+nuit), à 1280 et 1440 px. Elle vérifie :
+- 8 dalles et 9 conduites, chacune avec son liseré et sa matière ;
+- une seule route ;
+- plus de trame globale, et 8 pavages avec leurs 8 dégradés ;
+- chaque bout de conduite sur le bord d'une dalle (|dx|/w + |dy|/h = 1,
+  à 2 % près) ;
+- aucune paire de conduites à moins de 2,4 px, hors le té de la vapeur ;
+- aucune conduite dans la boîte d'un texte ou d'un badge ;
+- les conduites avant les scènes ;
+- le texte vide dans sa tuile ;
+- 4 entrées de légende, sans chevauchement ;
+- les feux du rack allumés la nuit seulement.
+
+Rendu : 0 faute. Elle crie sur la v1269 (31 fautes). Sur une copie
+sabotée, elle crie aussi :
+- une conduite passée sur la voie d'une autre : « se touchent 0,00 » ;
+- un piquage décalé de 4 px : « ne finit pas sur une dalle » ;
+- un piquage du PC ramené à 20 % : « sous Contremaître », « sous Bureau
+  de la pause ».
+
+Trois épreuves anciennes vérifiaient ce que le client vient de faire
+retirer ; elles sont réécrites selon la règle nouvelle :
+- `usine-test.js` comptait au moins 3 routes et 6 lampadaires ;
+- `usine-1258.js` voulait des tuyauteries sur l'axe des routes : elles
+  sont maintenant sur une voie du rack ;
+- `usine-1269.js` voulait la trame globale : c'est maintenant la pente
+  de 30° de chaque pavage.
+
+Toutes les épreuves du plan rendent 0 faute.
+
+Au passage, le contrôle ES5 des scripts (acorn, `ecmaVersion:5`) a
+relevé une erreur ancienne : la clé `crNb` était écrite deux fois dans
+l'objet que rend le calcul de la fiche. C'est la même valeur, mais une
+clé en double est interdite en mode strict ES5, et elle aurait arrêté le
+script sur un navigateur ancien. La seconde est retirée.
+
