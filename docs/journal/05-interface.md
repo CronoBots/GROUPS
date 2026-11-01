@@ -8298,7 +8298,8 @@ numéro : « Fermentation · 0NN/… », « Distillation · 0NN/… ».
   160 px, 16 s), et la péniche se berce d'un pixel.
 - *La trame d'un plan de site* : un quadrillage de 24 px à peine visible,
   sous les tuiles (7 % en sombre, 6 % en clair).
-- *Le relief des tuiles* : un reflet qui s'efface vers le bas.
+- *Le relief des tuiles* : un reflet qui s'efface vers le bas. *(Mauvais choix : avec l'ombre portée, il « n'allait pas du tout »
+  pour le client. Retiré en v1261.)*
 - *Hors de la vue, tout se fige* (`IntersectionObserver`, classe
   `us-pause`). Le téléphone ne paie que l'animation qu'on regarde.
 - *Moins de mouvement* (réglage du téléphone) : flux, Meuse et péniche
@@ -8439,3 +8440,37 @@ contrôle :
 Rendu : 0 faute. Sur la v1259 : 11 fautes, chaque contrôle mord. Les
 épreuves du plan, de la v1258 et des numéros rendent 0 faute, et le
 focus survit à la minute.
+
+### L'usine en direct : des tuiles à plat, les tuyauteries sur l'axe des routes (01/11/2026, `nfdm-v1261`)
+
+Deux remarques du client, sur des captures de son iPhone.
+
+**« L'ombre des zones, ça ne va pas du tout. »** Deux effets se
+cumulaient sur chaque tuile :
+- une ombre portée de 8 px (`drop-shadow`, 45 % de noir en sombre), qui
+  salissait le tour de la tuile sur le sol foncé ;
+- le reflet de la v1258, qui éclaircissait la moitié haute et coupait la
+  tuile en deux tons.
+
+Les deux sont retirés : la tuile est à plat, et son filet la détache.
+L'ombre au pied des bâtiments devient une ombre de contact légère
+(opacité 0,55 → 0,30, ellipse plus petite) au lieu d'une tache sous
+toute l'illustration. Le reflet de la v1258 était donc un mauvais choix.
+
+**« Les lignes animées doivent être centrées sur la route. »** Au
+téléphone, le produit (vert) courait 3 px à gauche de l'axe de la route
+centrale, la vapeur (rouge) 3 px à droite. Ce décalage évitait des
+chevauchements qui n'existent pas : la vapeur descend de la rangée 1 à
+la 2 et le produit remonte de la 3 à la 2, sans jamais se croiser. Les
+trois tuyauteries suivent maintenant l'axe. Au PC, quatre flux
+partagent la route entre les rangées : ils forment un faisceau espacé de
+3,5 px et centré sur l'axe (il était décalé de 0,25 px).
+
+L'épreuve `usine-1258.js` gagne deux contrôles :
+- **tuiles à plat** : aucun reflet, aucune ombre portée. Il crie sur la
+  v1260 (8 reflets, 8 ombres) ;
+- **sur l'axe** : chaque tuyauterie qui longe une route est à moins de
+  0,6 px de son axe, et un faisceau est centré. Il crie sur la v1260
+  (écarts de −3 et +3 px au téléphone).
+
+Rendu : 0 faute.

@@ -2626,7 +2626,7 @@ html #grille .ws-site{margin-bottom:14px}
   --us-copeaux:#7E6140; --us-copeaux2:#9C7A52; --us-bleu:#4A7BC2; --us-garde:#E2C044; --us-gaine:#B8C2D0; --us-pied:#3F6FB5;
   --us-ventil:#2A3446; --us-boue:#5E5038; --us-tu-s:#C9A46A;
   --us-tuile:#1E2636; --us-tuile-bord:#2F394C; --us-ombre-t:rgba(0,0,0,.45); --us-pulse:#B9F5CF;
-  --us-trame:rgba(148,163,184,.07); --us-reflet:rgba(255,255,255,.055);
+  --us-trame:rgba(148,163,184,.07);
 }
 :root[data-theme="light"]{
   --us-sol:#E2E7EE; --us-herbe:#CFE3D3; --us-autor:#C3CBD6; --us-voie:#F4F6F9; --us-route:#D3DAE3; --us-ligne:#F4F6F9;
@@ -2646,7 +2646,7 @@ html #grille .ws-site{margin-bottom:14px}
   --us-copeaux:#A57E4F; --us-copeaux2:#C49A68; --us-bleu:#2F63B0; --us-garde:#D9B22E; --us-gaine:#C3CCD8; --us-pied:#2F63B0;
   --us-ventil:#59667D; --us-boue:#9C8460; --us-tu-s:#9C7A3E;
   --us-tuile:#FFFFFF; --us-tuile-bord:#D3DAE3; --us-ombre-t:rgba(21,30,47,.12); --us-pulse:#2E8C57;
-  --us-trame:rgba(21,30,47,.06); --us-reflet:rgba(255,255,255,.7);
+  --us-trame:rgba(21,30,47,.06);
 }
 /* au PC, la carte prend toute la largeur au-dessus des deux colonnes ; au
    téléphone, elle suit « Sur site » (l'ordre de la page) */
@@ -2677,7 +2677,9 @@ html #grille .ws-site{margin-bottom:14px}
 .us-roule{animation:usRoule linear infinite}
 @keyframes usRoule{from{transform:translateY(var(--us-de))} to{transform:translateY(var(--us-a))}}
 /* (refonte du 01/11/2026 : plus de voies, de lignes de route ni d'arbres) */
-.us-omb{fill:var(--us-omb)} .us-sol-t{fill:var(--us-omb); opacity:.55}
+.us-omb{fill:var(--us-omb)} /* le pied des bâtiments : une ombre de contact légère, pas une tache
+   sombre sous toute l'illustration */
+.us-sol-t{fill:var(--us-omb); opacity:.3}
 
 .us-rail line{stroke:var(--us-rail); stroke-width:1.2} .us-rail .us-trav{stroke-width:5; stroke-dasharray:1.5 4; opacity:.7}
 .us-wagon{fill:var(--us-wagon)}
@@ -2689,9 +2691,6 @@ html #grille .ws-site{margin-bottom:14px}
 @keyframes usFlux{to{stroke-dashoffset:-11}}
 /* la trame du plan */
 .us-trame-l{fill:none; stroke:var(--us-trame); stroke-width:1}
-/* le reflet des tuiles */
-#usG-reflet .us-r1{stop-color:var(--us-reflet)} #usG-reflet .us-r2{stop-color:var(--us-reflet); stop-opacity:0}
-.us-reflet{pointer-events:none}
 /* la Meuse coule, la péniche se berce */
 .us-vagues{animation:usVagues 16s linear infinite}
 @keyframes usVagues{to{transform:translateX(160px)}}
@@ -2722,10 +2721,11 @@ html #grille .ws-site{margin-bottom:14px}
 
 
 /* les îlots : un terrain teinté de la famille du poste */
-/* LES TUILES (refonte) : une surface en relief, une ombre douce portée
-   vers le bas, la famille du poste à peine dans la teinte et dans le
-   filet */
-.us-pad{stroke-width:1; filter:drop-shadow(0 3px 8px var(--us-ombre-t))}
+/* LES TUILES : à plat, la famille du poste à peine dans la teinte et dans
+   le filet. Ni ombre portée ni reflet (le client, le 01/11/2026 :
+   « l'ombre des zones, ça ne va pas du tout » — l'ombre de 8 px salissait
+   le tour des tuiles, le reflet coupait chacune en deux tons) */
+.us-pad{stroke-width:1}
 .us-pad.us-f-jaune{fill:color-mix(in srgb,var(--us-f-jaune) 7%,var(--us-tuile)); stroke:color-mix(in srgb,var(--us-f-jaune) 26%,var(--us-tuile-bord))}
 .us-pad.us-f-vert{fill:color-mix(in srgb,var(--us-f-vert) 7%,var(--us-tuile)); stroke:color-mix(in srgb,var(--us-f-vert) 26%,var(--us-tuile-bord))}
 .us-pad.us-f-rouge{fill:color-mix(in srgb,var(--us-f-rouge) 7%,var(--us-tuile)); stroke:color-mix(in srgb,var(--us-f-rouge) 26%,var(--us-tuile-bord))}
@@ -21827,16 +21827,22 @@ function usineDecor(g){
   function Y(k,fy){ return g.pos[k].y+fy*g.pos[k].h; }
   var T=[];
   if(L){
-    var yR=g.top+g.pos.meun.h+g.gap/2, yp=yR-5, ys=yR-1.5, yv=yR+2, ye=yR+5.5;
+    /* au PC, quatre flux partagent la route entre les deux rangées : ils
+       s'espacent de 3,5 px, en faisceau centré sur son axe */
+    var yR=g.top+g.pos.meun.h+g.gap/2, yp=yR-5.25, ys=yR-1.75, yv=yR+1.75, ye=yR+5.25;
     T.push(["us-tu-v",[P("meun",.55,1),P("glut",.55,0)]],["us-tu-v",[[X("meun",.55),yp],[X("dist",.45),yp]]],["us-tu-v",[[X("ferm",.5),yp],P("ferm",.5,0)]],["us-tu-v",[P("dist",.45,1),P("terr",.45,0)]]);
     T.push(["us-tu-s",[P("meun",.8,1),[X("meun",.8),ys],[X("chau",.25),ys],P("chau",.25,1)]]);
     T.push(["us-tu-o",[P("chau",.6,1),[X("chau",.6),yv]]],["us-tu-o",[P("glut",.85,0),[X("glut",.85),yv],[X("dist",.7),yv],P("dist",.7,1)]]);
     T.push(["us-tu-b",[P("ferm",.82,0),[X("ferm",.82),ye],[X("step",.4),ye],P("step",.4,1)]],["us-tu-b",[P("terr",.82,0),[X("terr",.82),ye]]],["us-tu-b",[P("cm",.4,0),[X("cm",.4),ye]]]);
   } else {
+    /* au téléphone, chaque tuyauterie qui longe la route centrale suit son
+       axe (le produit, la vapeur, les eaux ne s'y croisent jamais : la
+       vapeur descend de la rangée 1 à la 2, le produit remonte de la 3 à
+       la 2, les eaux descendent de la 3 à la 4) */
     var xR=g.mg+g.pw+g.gap/2;
-    T.push(["us-tu-v",[P("meun",.5,1),P("glut",.5,0)]],["us-tu-v",[P("glut",.5,1),P("ferm",.5,0)]],["us-tu-v",[P("ferm",1,.3),[xR-3,Y("ferm",.3)],[xR-3,Y("dist",.7)],P("dist",0,.7)]],["us-tu-v",[P("dist",.5,1),P("terr",.5,0)]]);
+    T.push(["us-tu-v",[P("meun",.5,1),P("glut",.5,0)]],["us-tu-v",[P("glut",.5,1),P("ferm",.5,0)]],["us-tu-v",[P("ferm",1,.3),[xR,Y("ferm",.3)],[xR,Y("dist",.7)],P("dist",0,.7)]],["us-tu-v",[P("dist",.5,1),P("terr",.5,0)]]);
     T.push(["us-tu-s",[P("meun",1,.78),P("chau",0,.78)]]);
-    T.push(["us-tu-o",[P("chau",.4,1),P("dist",.4,0)]],["us-tu-o",[P("chau",0,.45),[xR+3,Y("chau",.45)],[xR+3,Y("glut",.4)],P("glut",1,.4)]]);
+    T.push(["us-tu-o",[P("chau",.4,1),P("dist",.4,0)]],["us-tu-o",[P("chau",0,.45),[xR,Y("chau",.45)],[xR,Y("glut",.4)],P("glut",1,.4)]]);
     T.push(["us-tu-b",[P("terr",0,.82),[xR,Y("terr",.82)],[xR,Y("step",.5)],P("step",1,.5)]],["us-tu-b",[P("cm",0,.62),P("step",1,.62)]]);
   }
   T.forEach(function(t){ s+='<polyline class="us-rack '+t[0]+'" points="'+usP(t[1])+'"/>'; });
@@ -21857,9 +21863,7 @@ function usineDecor(g){
   /* les îlots et leur décor */
   USINE_ZONES.forEach(function(z){ var q=g.pos[z.k], ox=q.x+(g.pw-210*g.sc)/2, oy=q.y+g.head-4;
     s+='<rect class="us-pad us-f-'+z.f+'" x="'+q.x+'" y="'+q.y+'" width="'+g.pw+'" height="'+q.h+'" rx="12"/>'
-      /* le relief : un reflet qui s'efface vers le bas */
-      +'<rect class="us-reflet" x="'+q.x+'" y="'+q.y+'" width="'+g.pw+'" height="'+usN(q.h*0.55)+'" rx="12" fill="url(#usG-reflet)"/>'
-      +'<ellipse class="us-sol-t" cx="'+usN(q.x+g.pw/2)+'" cy="'+usN(oy+100*g.sc)+'" rx="'+usN(g.pw*0.42)+'" ry="'+usN(10*g.sc)+'"/>'
+      +'<ellipse class="us-sol-t" cx="'+usN(q.x+g.pw/2)+'" cy="'+usN(oy+100*g.sc)+'" rx="'+usN(g.pw*0.38)+'" ry="'+usN(7*g.sc)+'"/>'
       /* l'illustration dans sa fenêtre : les fumées s'arrêtent sous
          l'en-tête au lieu de passer sur le nom du poste */
       +'<clipPath id="usC-'+z.k+'"><rect x="'+q.x+'" y="'+(q.y+g.head-6)+'" width="'+g.pw+'" height="'+(q.h-g.head+6)+'" rx="12"/></clipPath>'
@@ -21986,8 +21990,7 @@ function renderUsine(){
        tablette comprise) */
     corps.className="us-corps"+(cote?" us-cote":cw>=624?" us-dessous":"");
     corps.innerHTML='<div class="us-plan"><svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
-      +'<defs>'+["blanc","metal","beton","cab"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")
-      +'<linearGradient id="usG-reflet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="us-r1"/><stop offset="1" class="us-r2"/></linearGradient></defs>'
+      +'<defs>'+["blanc","metal","beton","cab"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")+'</defs>'
       +'<g class="us-decor" aria-hidden="true">'+usineDecor(g)+'</g><g id="usDyn"></g></svg></div>'
       +'<div class="us-panneau"><div class="us-invite-l"><p class="us-invite">'+(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez')+' une salle : qui l’occupe, jusqu’à quand, la relève, son téléphone et sa radio.</p><button type="button" class="us-anim" id="usAnim"></button></div><div id="usFiche"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
     usineBrancher(corps);
