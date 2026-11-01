@@ -1,4 +1,8 @@
-# Purge de l'historique — faite le 22/09/2026, vérifiée complète le 10/10/2026 ; seconde purge le 30/10/2026
+# Purge de l'historique — faite le 22/09/2026, vérifiée complète le 10/10/2026 ; seconde purge le 30/10/2026 ; troisième le 01/11/2026
+
+> **Troisième purge, poussée le 01/11/2026** : le numéro du
+> contremaître de pause (fichiers et messages). Méthode et mesures :
+> `docs/journal/01-anonymat.md`, « La troisième purge ».
 
 > **Seconde purge, poussée le 30/10/2026** : identifiants, numéros de
 > contrat, prénoms et noms (fichiers et messages de commit), montants

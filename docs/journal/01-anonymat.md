@@ -325,6 +325,51 @@ se suppriment qu'à la main sur GitHub ; et les anciens commits servis par
 leur empreinte jusqu'au ramasse-miettes de GitHub (18 jours la première
 fois, voir `docs/purge-historique.md`).
 
+### La troisième purge : le numéro du contremaître de pause (01/11/2026)
+
+Le client, le 01/11/2026 : « oui, et purge ». Le gsm du poste de
+contremaître de pause était dans le code public depuis le 24/10 (v1033,
+`CM_TEL` et son affichage), et cité deux fois dans le journal 05. La v1255
+le passe dans la base (l'info des salles, lisible des seuls comptes
+validés) et l'ôte de l'arbre. Puis la même méthode que le 30/10 :
+- **le relevé** : toutes les écritures du numéro (avec ou sans indicatif,
+  espaces, espaces insécables écrits `\u00a0` dans le JavaScript, points,
+  barres), dans les fichiers et dans les messages. Trois commits de `main`
+  le touchent ; aucun message ; ni la branche
+  `feature/calendar-weekly-desktop` ni les deux étiquettes `checkpoint-…`
+  (toutes antérieures au 24/10). L'expression n'est écrite que dans le
+  dossier de travail de la session, jamais dans le dépôt.
+- **la sauvegarde** : un paquet complet du miroir (`git bundle --all`,
+  404 Mo).
+- **la réécriture** : `git filter-repo --replace-text --replace-message`,
+  sur un miroir du serveur et jamais sur le dépôt de travail, en
+  2 min 46 s. Chaque écriture devient « (numéro retiré) » : 20
+  remplacements.
+- **les mesures, avant de pousser** :
+  - l'arbre de `main` est identique à l'octet (`64066ff…`) ;
+  - 1 503 commits avant comme après ;
+  - zéro occurrence dans les fichiers de tout l'historique et dans les
+    messages.
+- **la poussée** : `--force-with-lease`, le serveur vérifié au commit
+  attendu (`85b7149`) juste avant. `main` est devenu `37829d8`, et le site
+  sert la v1255. Le dépôt de travail est réaligné, sans changer un octet
+  de son arbre.
+
+**Reste**, comme aux purges précédentes : GitHub sert encore les anciens
+commits à qui connaît leur empreinte, jusqu'à son ramasse-miettes (18 jours
+la première fois). Vérifié le jour même : l'ancien `85b7149` répond
+HTTP 200. Le numéro a par ailleurs été public neuf jours : d'éventuelles
+copies tierces ne se rappellent pas.
+
+**Le contrôle de tout l'historique** (`verifier-depot.py --historique`,
+qui lit `--all`) rend pourtant 1 : cinq formes, un nom et quatre
+identifiants de connexion. Elles ne sont PAS dans `main` (0 pour
+chacune, vérifié commit par commit). Elles sont dans les trois
+références que la purge du 30/10 n'a pas pu remplacer, la branche
+`feature/calendar-weekly-desktop` et les deux étiquettes `checkpoint-…`,
+que le serveur sert toujours. Leur suppression à la main sur GitHub est
+redemandée au client (`docs/questions-client.md`, point 1).
+
 ## Le dépôt se contrôle lui-même
 
 *Déplacé mot pour mot de `CLAUDE.md` le 29/10/2026 :* Neuf noms réels ont

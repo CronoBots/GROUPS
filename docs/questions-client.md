@@ -13,9 +13,12 @@ des questions au client ».
 
 1. **Supprimer à la main sur GitHub** la branche
    `feature/calendar-weekly-desktop` et les deux étiquettes
-   `checkpoint-…` : la purge de `main` est poussée (30/10/2026, journal
-   01, « La seconde purge »), mais ces trois références gardent
-   l'ancienne histoire et la session ne peut pas les remplacer.
+   `checkpoint-…` : les purges de `main` sont poussées (30/10 et
+   01/11/2026, journal 01), mais ces trois références gardent l'ancienne
+   histoire et la session ne peut pas les supprimer. **Rappel du
+   01/11/2026** : `verifier-depot.py --historique` y trouve encore un nom
+   et quatre identifiants de connexion, servis publiquement ; `main` en
+   est vierge.
 2. **Relire les infos pratiques** (30/10/2026) : vingt-deux, tirées du
    règlement de travail (version 5, 2025) et publiées dans « Infos et
    aide » ; la RH les corrige ou les complète dans l'application. Les deux
@@ -118,9 +121,9 @@ des questions au client ».
   distillation, terrain arrière, bureau du contremaître. Le site officiel
   ne publie pas de plan : la disposition est indicative et le plan le dit.
   Faut-il déplacer un îlot pour coller au site ? (Les numéros et les
-  canaux radio sont arrivés le 01/11/2026 et sont dans la base, v1253.
-  Le terrain arrière est mis sur le canal 2 : le message citait deux fois
-  la distillation. La STEP et le contremaître ont-ils un canal ?)
+  canaux radio sont dans la base depuis le 01/11/2026, v1253 ; le
+  terrain arrière est sur le canal 2, confirmé ; la STEP et le
+  contremaître n'ont pas de radio.)
 
 ## À la RH
 
