@@ -8162,3 +8162,31 @@ Le client, aux trois points laissés ouverts :
 
 Une recherche de toutes les écritures du numéro dans l'arbre ne trouve
 plus rien.
+
+### L'usine en direct : six défauts de lecture corrigés (01/11/2026, `nfdm-v1256`)
+
+Le client : « comment améliorer le nouveau cadre ». Le cadre a été
+photographié à 320, 390 et 1280 px, en sombre et en clair. Défauts
+relevés, tous corrigés :
+1. **Le compte des tuiles était ambigu** (« 2 » : des personnes ? des
+   postes ?). Un bonhomme précède désormais le nombre, vert si le poste est
+   tenu, ambre s'il manque quelqu'un.
+2. **Le sous-titre ne disait pas l'essentiel.** Il dit maintenant « Nuit ·
+   10 à leur poste · tous les postes tenus » en vert, ou « 1 place libre »
+   en ambre (la somme des places que le Planning attend et que personne ne
+   tient).
+3. **Au bureau, le contremaître de pause et le cadre de jour avaient le
+   même badge.** Qui est là en plus du poste (cadre ou poste de jour,
+   apprenti, ceux que `compteAuPoste` ne compte pas) porte maintenant un
+   badge en contour, sans aplat. Le titulaire garde l'aplat pastel.
+4. **Une tuile vide** (la STEP la nuit) affichait « — » et une rangée
+   vide. Elle dit maintenant « Personne avant 6 h » (la prochaine arrivée),
+   ou « Pas de poste à cette pause ».
+5. **Rien ne disait qu'une tuile se touche.** Une ligne sous le plan
+   l'annonce : « Touchez une salle : qui l'occupe, jusqu'à quand, la
+   relève, son téléphone et sa radio » (« Cliquez » au PC).
+6. **La note du bas tenait sur quatre lignes** au téléphone : deux
+   phrases courtes la remplacent.
+
+Vérifié : l'épreuve du plan (`usine-test.js`, 8 cas, contraste et
+11 px compris) rend 0 faute ; le parcours complet, 183 essais, 0 faute.

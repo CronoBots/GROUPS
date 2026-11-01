@@ -2762,6 +2762,17 @@ html #grille .ws-site{margin-bottom:14px}
 .us-pas-vide .us-pas-t{fill:var(--at-jaune); font-weight:700; letter-spacing:.02em}
 .us-pas-plus .us-pas-f{fill:var(--surface3)!important} .us-pas-plus .us-pas-t{fill:var(--ink)}
 .us-pas-moi .us-pas-f{stroke:var(--marque-vif); stroke-width:2}
+/* en plus du poste (cadre ou poste de jour, apprenti) : le contour de la
+   famille, sans aplat — ils ne comptent pas pour le poste */
+.us-pas-plus-du-poste .us-pas-f{fill:var(--us-tuile)!important; stroke-width:1.6; filter:none}
+.us-pas-plus-du-poste.us-f-jaune .us-pas-f{stroke:var(--us-f-jaune)} .us-pas-plus-du-poste.us-f-vert .us-pas-f{stroke:var(--us-f-vert)} .us-pas-plus-du-poste.us-f-rouge .us-pas-f{stroke:var(--us-f-rouge)}
+.us-pas-plus-du-poste.us-f-bleu .us-pas-f{stroke:var(--us-f-bleu)} .us-pas-plus-du-poste.us-f-gris .us-pas-f{stroke:var(--us-f-gris)}
+.us-pas-plus-du-poste .us-pas-t{fill:var(--ink)}
+.us-vide-t{font-size:11.5px; fill:var(--muted); text-anchor:middle; font-style:italic}
+.us-etat-i{fill:currentColor}
+.us-e-ok .us-etat-i{color:var(--good)} .us-e-manque .us-etat-i{color:var(--at-jaune)}
+.us-sub-ok{color:var(--good); font-weight:600} .us-sub-manque{color:var(--at-jaune); font-weight:700}
+.us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4}
 .us-pas-vous{fill:var(--marque-vif)} .us-pas-vt{font-size:11px; font-weight:700; fill:var(--sur-in); text-anchor:middle}
 /* vous : un halo qui respire, une fois toutes les trois secondes */
 .us-pas-halo{fill:none; stroke:var(--marque-vif); stroke-width:1.5; opacity:0; animation:usRespire 3s ease-in-out infinite}
@@ -21634,7 +21645,7 @@ function usPasLarg(o){ if(o.vide) return 50; if(o.plus) return 34;
   return Math.round(w+(o.moi?40:0)); }
 function usPastille(x,y,o,f){
   var w=usPasLarg(o), h=US_PAS_H, r=h/2;
-  var s='<g class="us-pas us-f-'+f+(o.moi?' us-pas-moi':'')+(o.arrive?' us-pas-arr':'')+(o.vide?' us-pas-vide':'')+(o.plus?' us-pas-plus':'')+'">';
+  var s='<g class="us-pas us-f-'+f+(o.moi?' us-pas-moi':'')+(o.arrive?' us-pas-arr':'')+(o.vide?' us-pas-vide':'')+(o.plus?' us-pas-plus':'')+((o.jour||o.app)&&!o.arrive?' us-pas-plus-du-poste':'')+'">';
   if(o.moi) s+='<rect class="us-pas-halo" x="'+usN(x-3)+'" y="'+usN(y-3)+'" width="'+usN(w+6)+'" height="'+(h+6)+'" rx="'+(r+3)+'"/>';
   s+='<rect class="us-pas-f" x="'+usN(x)+'" y="'+usN(y)+'" width="'+usN(w)+'" height="'+h+'" rx="'+r+'"/>';
   var tx=o.vide?"libre":o.plus?"+"+o.plus:o.tri;
@@ -21762,15 +21773,19 @@ function usineDyn(g,E){
     if(att&&n<att){ etat=n+"/"+att; ecl="manque"; }
     else if(tous){ etat=String(tous); ecl="ok"; }
     else { etat="—"; ecl="nul"; }
-    var nomY=p.y+17, ew=etat.length*7.5+14, eX=p.x+g.pw-10-ew, eY=nomY;
+    var ico=ecl!=="nul", nomY=p.y+17, ew=etat.length*7.5+14+(ico?12:0), eX=p.x+g.pw-10-ew, eY=nomY;
     /* la tuile étroite (320 px) : un nom long et le compte ne tiennent pas
        sur une ligne ; le compte descend dans le coin de l'illustration */
     if(z.t.length*7.8+ew+30>g.pw) eY=p.y+g.head+6;
     var tete='<text class="us-nom" x="'+(p.x+12)+'" y="'+nomY+'" dy=".35em">'+esc(z.t)+'</text>'
-      +'<g class="us-etat us-e-'+ecl+'"><rect x="'+usN(eX)+'" y="'+(eY-9)+'" width="'+usN(ew)+'" height="18" rx="9"/><text x="'+usN(eX+ew/2)+'" y="'+eY+'" dy=".35em">'+esc(etat)+'</text></g>';
+      +'<g class="us-etat us-e-'+ecl+'"><rect x="'+usN(eX)+'" y="'+(eY-9)+'" width="'+usN(ew)+'" height="18" rx="9"/>'
+      /* un bonhomme devant le nombre : ce sont des personnes */
+      +(ico?'<g class="us-etat-i" transform="translate('+usN(eX+7)+','+usN(eY-5)+')"><circle cx="4" cy="2.4" r="2.2"/><path d="M0.2,9.6C0.6,6.6 2.1,5.4 4,5.4S7.4,6.6 7.8,9.6Z"/></g>':'')
+      +'<text x="'+usN(eX+ew/2+(ico?6:0))+'" y="'+eY+'" dy=".35em">'+esc(etat)+'</text></g>';
     if(g.large) tete+='<text class="us-sous" x="'+(p.x+12)+'" y="'+(nomY+17)+'" dy=".35em">'+esc(z.s)+'</text>';
     /* les badges, en rangées centrées au pied de l'illustration */
-    var R=usRangs(usPersonnes(Zk,att,n),g.pw-16,g.rangs), y0=p.y+g.head+g.art+2, bad="";
+    var Lp=usPersonnes(Zk,att,n), R=usRangs(Lp,g.pw-16,g.rangs), y0=p.y+g.head+g.art+2, bad="";
+    if(!Lp.length) bad='<text class="us-vide-t" x="'+usN(p.x+g.pw/2)+'" y="'+usN(y0+US_PAS_H/2)+'" dy=".35em">'+(Zk.releve?'Personne avant '+esc(siteH(Zk.releve.h)):'Pas de poste à cette pause')+'</text>';
     R.forEach(function(row,ri){ var lw=row.reduce(function(a,o,i){ return a+usPasLarg(o)+(i?US_PAS_E:0); },0), x=p.x+(g.pw-lw)/2, y=y0+ri*(US_PAS_H+US_PAS_E);
       row.forEach(function(o){ bad+=usPastille(x,y,o,z.f); x+=usPasLarg(o)+US_PAS_E; }); });
     var qui=Zk.gens.map(function(o){ return o.tri+(o.moi?" (vous)":""); });
@@ -21839,7 +21854,11 @@ function renderUsine(){
   c.hidden=false; if(gr) gr.classList.add("avec-usine");
   if(!US_SEL||!E.Z[US_SEL]){ var moi=null; USINE_ZONES.forEach(function(z){ E.Z[z.k].gens.forEach(function(o){ if(o.moi) moi=z.k; }); }); US_SEL=moi||"cm"; }
   var uq=document.getElementById("usineQuand"); if(uq) uq.innerHTML='<b>'+esc(siteH(E.h))+'</b>';
-  var sub=document.getElementById("usineSub"); if(sub) sub.textContent=E.nom+" · "+E.places+" à leur poste d’après l’horaire";
+  /* L'ÉTAT DE L'USINE D'UN COUP D'ŒIL (le client, le 01/11/2026 : « comment
+     améliorer le nouveau cadre ») : tous les postes tenus, ou combien de
+     places libres, en ambre */
+  var libres=0; USINE_ZONES.forEach(function(z){ var Zk=E.Z[z.k]; libres+=Math.max(0,Zk.attendu-Zk.n); });
+  var sub=document.getElementById("usineSub"); if(sub) sub.innerHTML=esc(E.nom+" · "+E.places+" à leur poste · ")+(libres?'<b class="us-sub-manque">'+libres+' place'+(libres>1?'s':'')+' libre'+(libres>1?'s':'')+'</b>':'<b class="us-sub-ok">tous les postes tenus</b>');
   /* la largeur réelle du plan : au PC, la fiche se range à droite */
   /* l'Accueil caché (un autre onglet, l'espace ouvert) : rien à mesurer ;
      le plan se refera à son retour */
@@ -21855,7 +21874,7 @@ function renderUsine(){
     corps.innerHTML='<div class="us-plan"><svg class="us-svg" id="usSvg" viewBox="0 0 '+g.W+' '+g.H+'" width="'+g.W+'" height="'+g.H+'" role="group" aria-label="Plan schématique de l’usine : chaque poste du Planning et ses présents">'
       +'<defs>'+["blanc","metal","beton","cab"].map(function(m){ return '<linearGradient id="usG-'+m+'" x1="0" x2="1"><stop offset="0" class="us-g1"/><stop offset=".45" class="us-g2"/><stop offset="1" class="us-g3"/></linearGradient>'; }).join("")+'</defs>'
       +'<g class="us-decor">'+usineDecor(g)+'</g><g id="usDyn"></g></svg></div>'
-      +'<div class="us-panneau"><div id="usFiche"></div><div id="usListe"></div><p class="us-note">Plan schématique, d’après les vues aériennes et le schéma du procédé du site officiel : la place des salles est indicative. Les présents sont ceux de l’horaire, relais et remises de pause compris.</p></div>';
+      +'<div class="us-panneau"><p class="us-invite">'+(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez')+' une salle : qui l’occupe, jusqu’à quand, la relève, son téléphone et sa radio.</p><div id="usFiche"></div><div id="usListe"></div><p class="us-note">Plan indicatif, d’après les vues aériennes du site officiel. Présents d’après l’horaire, relais et remises de pause compris.</p></div>';
     usineBrancher(corps);
   }
   /* LE FOCUS SURVIT À LA MINUTE (relecture du 01/11/2026 : l'îlot choisi
