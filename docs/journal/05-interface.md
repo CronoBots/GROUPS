@@ -8190,3 +8190,71 @@ relevés, tous corrigés :
 
 Vérifié : l'épreuve du plan (`usine-test.js`, 8 cas, contraste et
 11 px compris) rend 0 faute ; le parcours complet, 183 essais, 0 faute.
+
+### L'usine en direct, « 100 % pro » : la passe complète (01/11/2026, `nfdm-v1257`)
+
+Le client : « 100 % pro ce nouveau cadre ». Méthode de `CLAUDE.md`
+(« optimise tout ») : photographies à 320, 390 et 1280 px, sombre et
+clair, liste des défauts bloc par bloc, tout corrigé avant de rendre la
+main. Défauts relevés :
+1. **Au PC, sous le plan, la mise en page était cassée.** La fiche du
+   poste choisi occupait la colonne de droite et la liste des postes ne
+   commençait qu'en dessous, à gauche : 250 px de vide à côté de la fiche.
+   Cette liste redisait le plan nom pour nom (une redite). Elle est
+   retirée. La fiche prend toute la largeur, en deux colonnes : qui est là
+   (et la relève) à gauche, comment le joindre (téléphone, radio) à
+   droite.
+2. **Le compte n'était pas au même endroit d'une tuile à l'autre.** Au
+   téléphone, il restait dans l'en-tête pour « Meunerie » et descendait
+   dans l'illustration pour « Distillation » (le nom ne laissait pas la
+   place). Le compte se place maintenant pour toutes les tuiles à la fois.
+   Il reste dans l'en-tête quand le nom le plus long (« Terrain arrière »,
+   92 px mesurés) et le plus large des comptes (« 1/2 ») y tiennent ;
+   sinon il s'efface sur toutes les tuiles. Les badges sont alors le
+   compte, et une place libre se voit à son badge ambre et au liseré
+   ambre de la tuile, nouveau partout. Un poste sans personne ni attente
+   n'a plus son rond « — » : la tuile le dit en toutes lettres.
+3. **Des tuiles trop hautes.** Toutes prenaient la hauteur de la plus
+   remplie : une rangée à un seul badge gardait 33 px de vide sous lui.
+   Chaque rangée de tuiles a maintenant la hauteur de ses badges, et une
+   rangée seule se centre quand la voisine en a deux.
+4. **Une bande sombre à gauche du plan** (l'autoroute, son herbe, les
+   haubans du pont) ne portait aucune information et se lisait comme un
+   défaut d'affichage. Elle est retirée, et les marges sont égales des
+   deux côtés, à l'écart des tuiles (14 px au PC, 10 au téléphone).
+5. **Les badges de la fiche s'écrivaient en maigre et en 14 px.** La
+   déclaration `font:800 12px/1 inherit` n'est pas valide : le navigateur
+   l'ignorait en entier. Ils reprennent le badge du plan (gras, 12 px,
+   chiffres tabulaires).
+6. **Un carré gris devant le titre de la fiche** se lisait comme une case
+   à cocher. Il est retiré.
+7. **Les quatre colonnes commençaient à 720 px**, où « Terrain arrière »
+   et son compte se chevauchaient. Elles commencent maintenant à 800 px,
+   et la fiche ne se range à droite du plan que si celui-ci garde ses
+   quatre colonnes.
+8. Le liseré de sélection n'avait pas l'arrondi de la tuile (14 contre
+   10) : tous à 12. La galerie de la meunerie s'arrête au bord de la
+   tuile au lieu de passer sous son nom. Huit jetons du décor que plus
+   rien ne lisait (route, herbe, arbres, lampes) sont retirés.
+9. **Deux défauts vus au PC large et à la tablette**, après la première
+   série de corrections :
+   - « Radio : » et « canal 2 » s'écrivaient sur deux lignes : la règle
+     en colonne touchait aussi le texte. Elle ne vise plus que le bloc.
+   - Les colonnes de la distillation mordaient le « % » de son
+     sous-titre : l'illustration commence 4 px plus bas.
+
+   La fiche passe aussi en deux colonnes dès 600 px, tablette comprise.
+
+L'épreuve du plan (`usine-test.js`, 8 cas) gagne cinq contrôles :
+- le compte est sur toutes les tuiles ou sur aucune ;
+- les marges sont égales ;
+- aucune rangée de tuiles ne garde plus de 20 px de vide sous ses
+  badges ;
+- la liste des postes est absente ;
+- les badges de la fiche sont en 700 et 12 px.
+
+Sur une copie sabotée (marges décalées, compte tuile par tuile, hauteur
+unique, l'ancienne déclaration), chaque contrôle crie : 8, 3, 8 et 8
+fautes. Sur le fichier : 0 faute. L'épreuve des numéros et de la radio
+(`tel.js`) rend 0 faute ; le focus au clavier survit à la minute, au PC
+et au téléphone.
