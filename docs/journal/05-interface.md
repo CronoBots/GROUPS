@@ -8077,3 +8077,55 @@ L'épreuve du plan : 0 faute.
 le code public depuis le 24/10 (CM_TEL). Le passer dans la base
 supprimerait la copie servie par le site, mais pas celle de l'historique
 git : il faudrait une purge (journal 01).
+
+### L'usine en direct, refaite : des tuiles, des badges, un seul mouvement (01/11/2026, `nfdm-v1254`)
+
+Le client, capture du téléphone à 2 h 03 : « moyen de faire bien plus
+professionnel et beau, en utilisant les skills de design et
+d'animation ». Le skill `impeccable` a servi en version restreinte
+(journal 01) : sans lanceur, d'après le code et la capture. Le mode est
+« Operate » : les personnes sont l'information, le décor la sert.
+
+**La critique** :
+1. **Les pions écrasaient l'image.** Plantés au milieu des bâtiments, ils
+   cachaient les silos et les colonnes. Les trigrammes débordaient du rond,
+   et au gluten les trois pions se chevauchaient.
+2. **Trop de bruit.** La colonne de points verts (les arbres), les
+   lampadaires, les pointillés animés sur chaque tuyauterie, les tirets
+   de route, les voitures : tout bougeait un peu partout.
+3. **Aucune hiérarchie.** Les personnes pesaient autant que le décor.
+4. **Des îlots plats.** Les teintes se distinguaient à peine, sans relief.
+
+**La refonte** :
+- **Chaque îlot est une tuile en relief**, une ombre douce portée vers le
+  bas. Il se lit en trois étages :
+  - l'en-tête : le poste, son compte à droite, et au PC le sous-titre ;
+  - l'illustration, dans sa fenêtre : les fumées s'arrêtent sous l'en-tête ;
+  - la rangée des badges.
+- **Les badges nominatifs** remplacent les pions, posés au sol, centrés,
+  sur deux rangées au plus (« +n » au-delà) :
+  - un collègue : pastel du poste, encre foncée, trigramme en 11,5 px ;
+  - vous : un liseré de la marque, « vous », et un halo qui respire ;
+  - la relève : en pointillé ;
+  - une place libre : « libre » en ambre.
+- **La largeur des badges se mesure lettre à lettre** : trois tiennent sur
+  une ligne au téléphone.
+- **À 320 px**, le compte d'un nom long descend dans le coin de
+  l'illustration.
+- **Le décor s'efface** : plus de voitures, d'arbres, de lampadaires ni
+  de lignes de route. Les tuyauteries restent fines et discrètes. Les
+  cabines dessinées sous les pions sont parties avec eux.
+- **Un seul mouvement mis en scène** (`animate`), « le produit circule » :
+  une lueur courte parcourt la tuyauterie du produit, du blé vers
+  l'éthanol, toutes les sept secondes. Restent, discrets, les fumées et le
+  pont racleur. Si le téléphone demande moins de mouvement, tout s'arrête,
+  et le halo de « vous » reste visible, fixe.
+
+**Vérifié** (`usine-test.js`, adapté aux badges) : sur les huit cas
+(320 à 1920 px, clair et sombre, jour et nuit), chaque texte du SVG fait
+au moins 11 px et 4,5:1 sur son vrai fond — badge, « vous », tuile. Aucun
+badge ne sort de sa tuile ni n'en touche un autre, aucun nom ne touche
+son compte : 0 faute, après une première faute à 320 px (le compte).
+Restent justes :
+- les numéros et la radio (`tel.js`) ;
+- le focus clavier, qui tient à la minute.
