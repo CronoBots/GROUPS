@@ -8017,3 +8017,63 @@ Remesuré avec ses sondes : plus aucune personne perdue ni en double, plus
 de poste de jour invisible ni en relève, plus de relève déjà en poste, le
 focus tenu 62 s plus tard. Reste un signal de la sonde qui compare à
 l'heure prévue au lieu de l'heure réelle (« relDecale ») : c'est voulu.
+
+### Les numéros et les canaux radio des salles : dans la base, pas dans le code public (01/11/2026, `nfdm-v1253`)
+
+Le client a envoyé les numéros fixes de six salles (meunerie, gluten,
+fermentation, distillation, chaudières, STEP), avec la question « ces
+numéros doivent rester privés ou non ? ».
+
+**La réponse.** Ce ne sont pas des données personnelles : ils ne
+désignent personne. Mais ce sont les lignes directes des salles de
+contrôle d'un site industriel, que le site officiel ne publie pas (il ne
+donne que le standard). Le dépôt et le site de l'application sont
+publics. Les y écrire, c'est les donner à n'importe qui : démarchage,
+appels malveillants, ingénierie sociale. Ils restent donc privés.
+
+**Fait** :
+- **une info pratique dans la base**, « Salles de contrôle : numéros
+  fixes », rubrique « Numéros utiles », auteur RH (`biowanze.contenus`,
+  n° 43, posée avec `execute_sql` comme les infos du règlement) :
+  - seul un compte validé la lit (`biowanze_contenus`) ;
+  - la RH la corrige dans « Infos et aide » ;
+  - l'appareil la garde pour le hors-ligne (`ui/contenus`) ;
+  - ses numéros y deviennent des liens d'appel.
+- **le plan la lit** (`usineTels`), ligne à ligne : « Salle : numéro ».
+  La fiche de chaque salle reçoit son bouton « Appeler la salle », et
+  l'îlot nomme le numéro au lecteur d'écran. Le plan se met à jour dès
+  que les infos arrivent (`aideMaj`).
+- **aucun numéro de salle dans le dépôt** : ni le code, ni le journal, ni
+  le commit, ni Notion. Le gabarit du commentaire est « 0NN/NNN.NNN ».
+- **le terrain arrière et la radio**. Le client, ensuite : « le terrain
+  arrière est joignable via la fermentation ou la distillation. Par
+  contre, nous possédons aussi une communication par radio
+  (talkie-walkie), et les postes sont sur différents canaux : meunerie,
+  gluten canal 4 ; distillation, fermentation, distillation canal 2 ;
+  chaudière canal 3 ». L'info devient « Salles de contrôle : téléphones et
+  radio » : chaque ligne porte le numéro et « radio canal N ».
+  - **Le terrain arrière** est « par la fermentation ou la distillation » :
+    sa fiche offre « Joignable par » et les deux appels.
+  - **Une hypothèse, dite au client.** Son message cite deux fois la
+    distillation pour le canal 2 ; la seconde est prise pour le terrain
+    arrière, qui couvre la fermentation et la distillation.
+  - **Chaque fiche dit son canal** et qui l'écoute aussi (le canal 2, avec la distillation
+    et le terrain arrière), et l'îlot le dit au lecteur
+    d'écran.
+  - **Pas de canal donné** pour la STEP ni pour le contremaître.
+- **sans compte**, la fiche dit que les numéros s'affichent une fois
+  connecté.
+
+**Vérifié avec une base simulée** (`tel.js`, numéros fictifs) :
+- les six salles appellent le bon numéro, et le contremaître garde CM_TEL ;
+- le terrain arrière offre la fermentation et la distillation ;
+- les canaux sont justes, avec qui les écoute aussi ;
+- l'étiquette de l'îlot dit le numéro et le canal.
+
+Une recherche dans tout l'arbre ne trouve aucun des six numéros.
+L'épreuve du plan : 0 faute.
+
+**Reste au client.** Le numéro mobile du contremaître de pause est dans
+le code public depuis le 24/10 (CM_TEL). Le passer dans la base
+supprimerait la copie servie par le site, mais pas celle de l'historique
+git : il faudrait une purge (journal 01).

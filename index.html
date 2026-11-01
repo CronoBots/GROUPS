@@ -2784,6 +2784,9 @@ html #grille .ws-site{margin-bottom:14px}
 .us-tel{display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 12px; border-radius:12px; text-decoration:none; color:var(--ink);
   background:color-mix(in srgb,var(--good) 12%,var(--surface)); border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
 .us-tel svg{color:var(--good); flex:none} .us-tel-t{display:flex; flex-direction:column; gap:1px; min-width:0} .us-tel-t b{font-weight:600; font-size:14px} .us-tel-t small{font-size:12.5px; color:var(--ink2); white-space:nowrap}
+.us-via{display:flex; flex-direction:column; gap:6px} .us-via>p{margin:0; font-size:12.5px; color:var(--muted)}
+.us-radio{display:flex; align-items:center; gap:10px; margin:0; padding:8px 12px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink)}
+.us-radio svg{color:var(--in); flex:none} .us-radio span{display:flex; flex-direction:column; gap:1px; font-size:14px} .us-radio b{font-weight:700} .us-radio small{font-size:12.5px; color:var(--muted)}
 .us-tel-non{margin:0; font-size:12.5px; color:var(--muted); padding:8px 12px; border:1px dashed var(--line); border-radius:12px}
 .us-note{margin:0; font-size:11.5px; color:var(--muted); line-height:1.4}
 /* la liste des postes, au PC */
@@ -21338,9 +21341,14 @@ function renderSiteAccueil(){
    chacun, relais et remise de pause compris), surSite (qui est là à cette
    minute), postesDePause (combien le poste en attend). Rien n'est deviné.
 
-   Les numéros fixes de chaque salle viendront du client (« j'ajouterai les
-   numéros de téléphone fixe de chaque poste par après ») : USINE_TEL. Seul
-   celui du contremaître de pause est connu (CM_TEL). */
+   LES NUMÉROS FIXES DES SALLES (le client, le 01/11/2026, avec la question
+   « ces numéros doivent rester privés ou non ? ») ne sont PAS dans ce
+   fichier, public : ils sont une info pratique de la base (« Salles de
+   contrôle : numéros fixes », rubrique « Numéros utiles »), que seul un
+   compte validé lit, que la RH corrige dans l'application, et que
+   l'appareil garde pour le hors-ligne (ui/contenus). usineTels() la lit,
+   ligne à ligne : « Meunerie : 0NN/NNN.NNN ». Celui du contremaître de
+   pause reste CM_TEL. */
 /* s : le sous-titre du plan (court, il tient sous le nom) ; d : la fiche,
    d'après le schéma officiel du procédé et les pages produits du site */
 var USINE_ZONES=[
@@ -21355,11 +21363,28 @@ var USINE_ZONES=[
   {k:"step", t:"STEP",            s:"Épuration, biogaz",    d:"La station d’épuration des eaux, au bord de la Meuse : le biogaz et l’engrais naturel.", f:"bleu"},
   {k:"cm",   t:"Contremaître",    s:"Bureau de la pause",   d:"Le bureau : contremaître de pause et adjoint.", f:"gris"}
 ];
-/* les numéros des salles, à compléter : {meun:"+32…", …} (format E.164) ;
-   celui du contremaître est CM_TEL, lu à l'appel (il est défini plus bas) */
-var USINE_TEL={};
-function usineTel(k){ return k==="cm"?CM_TEL:USINE_TEL[k]; }
-function usineTelVu(k){ if(k==="cm") return CM_TEL_VU; var n=USINE_TEL[k]; return n?String(n).replace(/^\+32(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/,"+32 $1 $2 $3 $4 $5").replace(/^\+32(\d{3})(\d{2})(\d{2})(\d{2})$/,"+32 $1 $2 $3 $4"):""; }
+/* les numéros lus dans l'info de la base : {meun:{tel:"+32…", vu:"0…"},
+   …} ; celui du contremaître est CM_TEL, lu à l'appel (il est défini plus
+   bas) */
+var USINE_NOMS=[["meun",/meun/i],["glut",/glut/i],["ferm",/ferm/i],["dist",/distil/i],["terr",/terr/i],["chau",/chaudi/i],["step",/step|épura/i],["cm",/contrema/i]];
+function usineTels(){
+  var r={}, l=(typeof aideListe==="function")?aideListe():[];
+  l.forEach(function(c){ if(c.genre!=="info"||!/salles? de contr/i.test(c.titre||"")) return;
+    String(c.corps||"").split(/\n/).forEach(function(ln){
+      var m=/^[\s–\-•]*([^:]+?)\s*:\s*(.*)$/.exec(ln); if(!m) return;
+      var k=null; USINE_NOMS.forEach(function(x){ if(!k&&x[1].test(m[1])) k=x[0]; }); if(!k||r[k]) return;
+      var o={}, rest=m[2], t=/((?:\+32|0)\d(?:[ .\/]?\d){7,9})/.exec(rest), ca=/canal\s*(\d+)/i.exec(rest), pm=/\bpar\b([^·]*)/i.exec(rest);
+      if(t){ var d=t[1].replace(/[^\d+]/g,""); o.tel=d.charAt(0)==="+"?d:"+32"+d.slice(1); o.vu=t[1].replace(/ /g," "); }
+      if(ca) o.canal=ca[1];
+      /* sans ligne à lui, le terrain arrière se joint « par la fermentation
+         ou la distillation » (le client, le 01/11/2026) */
+      if(!t&&pm){ o.via=[]; USINE_NOMS.forEach(function(x){ if(x[0]!==k&&x[1].test(pm[1])) o.via.push(x[0]); }); }
+      r[k]=o; }); });
+  return r;
+}
+function usineTel(k){ var t=usineTels()[k]; return t&&t.tel?t.tel:(k==="cm"?CM_TEL:null); }
+function usineTelVu(k){ var t=usineTels()[k]; return t&&t.tel?t.vu:(k==="cm"?CM_TEL_VU:""); }
+function usineNom(k){ var n=""; USINE_ZONES.forEach(function(z){ if(z.k===k) n=z.t; }); return n; }
 /* la place des îlots, d'après les vues aériennes : au PC, la ligne du
    nord (meunerie, chaudières, distillation, STEP au bord de l'eau) et celle
    du sud (gluten, fermentation, parc de cuves, bureaux) ; au téléphone,
@@ -21694,7 +21719,7 @@ function usineDecor(g){
 }
 /* ce qui change à la minute : les pions, l'état de chaque poste */
 function usineDyn(g,E){
-  var s="";
+  var s="", TL=usineTels();
   USINE_ZONES.forEach(function(z){
     var p=g.pos[z.k], Zk=E.Z[z.k], n=Zk.n, att=Zk.attendu, vides=Math.max(0,att-n), rr=g.large?14:13, sp=g.large?36:31;
     var L=Zk.gens.concat(Zk.arrivent);
@@ -21720,7 +21745,7 @@ function usineDyn(g,E){
     var qui=Zk.gens.map(function(o){ return o.tri+(o.moi?" (vous)":""); });
     var dit=z.t+" : "+(tous?qui.join(", ")+(tous>1?" présents":" présent"):"personne en ce moment")+(att&&n<att?", "+n+" sur "+att+" attendu"+(att>1?"s":""):"")
       +(Zk.arrivent.length?", relève en remise de pause : "+Zk.arrivent.map(function(o){ return o.tri; }).join(", "):"")
-      +(usineTel(z.k)?", téléphone "+usineTelVu(z.k):"");
+      +(usineTel(z.k)?", téléphone "+usineTelVu(z.k):"")+(TL[z.k]&&TL[z.k].canal?", radio canal "+TL[z.k].canal:"");
     s+='<g class="us-zone'+(US_SEL===z.k?' us-sel':'')+'" data-k="'+z.k+'" tabindex="0" role="button" aria-label="'+esc(dit)+'" aria-pressed="'+(US_SEL===z.k)+'">'
       +'<rect class="us-cible" x="'+p.x+'" y="'+p.y+'" width="'+g.pw+'" height="'+g.ph+'" rx="10"/>'
       +plaque+pions+'</g>';
@@ -21740,15 +21765,25 @@ function usineFiche(E,k){
     li.push('<li class="'+(o.arrive?'us-l-arr':'')+(o.moi?' us-l-moi':'')+'"><span class="us-tri-b us-f-'+z.f+'">'+esc(o.tri)+'</span><span class="us-l-t"><b>'+esc(r[0])+(o.moi?' <i>vous</i>':'')+'</b><small>'+esc(r[1])+'</small></span></li>'); });
   for(var i=n;i<att;i++) li.push('<li class="us-l-vide"><span class="us-tri-b">?</span><span class="us-l-t"><b>Place libre</b><small>'+att+' attendu'+(att>1?'s':'')+' à ce poste d’après le Planning</small></span></li>');
   if(!li.length) li.push('<li class="us-l-nul"><span class="us-l-t"><b>Personne en ce moment</b><small>'+(att?'':'Ce poste n’est pas tenu à cette pause')+'</small></span></li>');
-  var tel=usineTel(k);
+  var tel=usineTel(k), TL=usineTels(), me=TL[k]||{}, ico='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
+  function appel(kk,lib){ return '<a class="us-tel" href="tel:'+esc(usineTel(kk))+'">'+ico+'<span class="us-tel-t"><b>'+esc(lib)+'</b><small>'+esc(usineTelVu(kk))+'</small></span></a>'; }
+  var via=(me.via||[]).filter(function(v){ return usineTel(v); });
+  /* LA RADIO (le client, le 01/11/2026 : « nous possédons aussi une
+     communication par radio, les postes sur différents canaux ») : le
+     canal du poste, et qui l'écoute aussi */
+  var radio="";
+  if(me.canal){ var avec=USINE_ZONES.filter(function(z){ return z.k!==k&&TL[z.k]&&TL[z.k].canal===me.canal; }).map(function(z){ return z.t; });
+    radio='<p class="us-radio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="15" rx="2"/><path d="M10 7V2"/><path d="M10 12h4M10 16h4"/></svg><span>Radio : <b>canal '+esc(me.canal)+'</b>'+(avec.length?'<small>avec '+esc(avec.join(", "))+'</small>':'')+'</span></p>'; }
   var rel=Zk.releve?'<p class="us-rel">'+Zk.releve.mot+' à <b>'+esc(siteH(Zk.releve.h))+'</b> : '+Zk.releve.ids.map(function(id){ return '<b>'+esc(idLisible(id))+'</b>'; }).join(", ")+'</p>':'';
   return '<div class="us-fiche us-f-'+z.f+'" data-k="'+k+'">'
     +'<div class="us-fiche-t"><span class="us-pastille us-f-'+z.f+'" aria-hidden="true"></span><b>'+esc(z.t)+'</b>'
     +'<span class="us-badge us-e-'+(att&&n<att?'manque':Zk.gens.length?'ok':'nul')+'">'+(att&&n<att?n+' sur '+att:Zk.gens.length?Zk.gens.length+' présent'+(Zk.gens.length>1?'s':''):'aucun')+'</span></div>'
     +'<p class="us-fiche-s">'+esc(z.d)+'</p>'
     +'<ul class="us-gens">'+li.join("")+'</ul>'+rel
-    +(tel?'<a class="us-tel" href="tel:'+esc(tel)+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span class="us-tel-t"><b>Appeler '+(k==="cm"?"le contremaître de pause":"la salle")+'</b><small>'+esc(usineTelVu(k))+'</small></span></a>'
-         :'<p class="us-tel-non">Numéro fixe de la salle : à ajouter</p>')
+    +(tel?appel(k,k==="cm"?"Appeler le contremaître de pause":"Appeler la salle")
+         :via.length?'<div class="us-via"><p>Joignable par</p>'+via.map(function(v){ return appel(v,"Appeler la "+usineNom(v).toLowerCase()); }).join("")+'</div>'
+         :'<p class="us-tel-non">'+(compteBase()?'Numéro fixe de la salle : à ajouter dans « Infos et aide », rubrique « Numéros utiles »':'Les numéros des salles s’affichent une fois connecté')+'</p>')
+    +radio
     +'</div>';
 }
 /* la liste des postes, à côté du plan au PC */
@@ -33081,6 +33116,8 @@ function aideMaj(){
   if(nb){ nb.hidden=!n; nb.textContent=n||""; }
   try{ renderCentre(); }catch(e){}
   if(st.view==="aide") aideRendre();
+  /* les numéros des salles du plan de l'usine viennent des infos */
+  try{ if(usineDernier) renderUsine(); }catch(e){}
 }
 function aideOuvrir(){
   aideRendre();
