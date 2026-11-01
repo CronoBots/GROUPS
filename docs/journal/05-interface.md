@@ -7889,6 +7889,9 @@ téléchargements. Elles donnent :
 - au nord du centre, les chaudières et leurs deux cheminées ; au centre,
   la distillation et les tours de refroidissement ;
 - au sud, les huit cuves en dômes ; à l'est, le parc de cuves ;
+  *(faux, relevé le 01/11/2026 sur les photos : sept grandes cuves, plus
+  deux petites, à toit conique plat nervuré, pas en dômes ; les silos du
+  gluten sont douze, en deux groupes. Corrigé en v1263.)*
 - au sud-est, les bureaux et le parking ; la station d'épuration au bord
   de l'eau.
 
@@ -8519,3 +8522,95 @@ contrôle :
 
 Rendu : 0 faute ; sur la v1261, chaque contrôle crie. Les épreuves
 précédentes (plan, v1258, v1260, numéros) rendent 0 faute.
+
+### L'usine en direct : chaque zone redessinée d'après les photos du site (01/11/2026, `nfdm-v1263`)
+
+Le client : « refais un tour du site web officiel et des photos pour
+représenter au mieux chaque zone de production ». Un agent a refait le
+tour complet de biowanze.be. Les 22 pages en français ont toutes
+répondu. Il n'y a pas de page « processus », « galerie » ni
+« histoire » : la galerie est la rubrique « Sites de production » des
+Téléchargements, l'histoire est un PDF. L'agent a regardé chaque photo
+en copie réduite : vues aériennes 01 à 03, « Usine 1 à 9 », chaudière
+biomasse 01 et 02, station d'épuration, chargement et déchargement des
+bateaux. Les images restent hors du dépôt.
+
+Le dessin de la v1252 portait deux erreurs : il y a **7** grandes
+cuves de fermentation, pas 8 ; et les cheminées des chaudières n'ont
+**pas de bande rouge**. Ce qu'on voit sur les photos, et ce qui est
+dessiné maintenant (aucune ombre, à la demande du client) :
+- **Meunerie** :
+  - la galerie en caisson gris clair, sur deux pylônes en treillis,
+    monte en haut d'une tour de béton étroite, deux fois plus haute que
+    ses voisins, à tête blanche ;
+  - un bloc bas à bardage nervuré, presque aveugle, porte une charpente
+    galvanisée et les convoyeurs jaunes ;
+  - six silos à blé élancés et serrés ;
+  - le camion jaune part : le blé arrive par bateau.
+- **Gluten** :
+  - un haut bâtiment bardé gris clair, avec ses édicules en toiture et
+    la passerelle couverte vers la meunerie ;
+  - deux groupes de six silos inox (deux rangées de trois) sur un
+    socle, à têtes coniques basses et passerelle commune ;
+  - le groupe de droite est cerclé de deux bandes.
+- **Fermentation** :
+  - sept grandes cuves gris beige, quatre derrière et trois devant, à
+    toit conique très plat, nervures rayonnantes et moyeu ;
+  - la quatrième place de devant porte deux petites cuves sous une
+    charpente ;
+  - un rack d'acier court entre les rangées à hauteur des toits, avec
+    une tuyauterie verte plus épaisse et une tour d'escalier.
+- **Distillation** :
+  - des colonnes blanc alu à pied bleu (15 % de la hauteur), de
+    hauteurs variées, dont une à deux diamètres ;
+  - deux cols de cygne au sommet et de la vapeur dans la charpente ;
+  - sur le bloc des tours de refroidissement, trois cheminées de
+    ventilateur, en cylindres courts et ouverts.
+- **Terrain arrière** :
+  - une cuvette de béton à muret ;
+  - deux grandes cuves crème à cône nervuré, deux cuves gris foncé
+    cannelées, deux petites cuves blanches ;
+  - le rack en hauteur ;
+  - la rampe des camions-citernes, que le site décrit mais qu'aucune
+    photo ne montre.
+- **Chaudières** :
+  - deux cheminées blanches, plus hautes, avec leur couronne et une
+    tour en treillis entre elles ;
+  - un bâtiment de chaudière gris clair, aveugle, le plus haut ;
+  - devant, la charpente bleu profond, avec garde-corps jaunes,
+    contreventements et escalier en zigzag, et une grosse gaine
+    argentée ;
+  - les copeaux restent discrets : le site en parle, mais aucune photo
+    ne les montre.
+- **Station d'épuration** :
+  - le bloc de béton surélevé des bassins d'aération, à eau ocre et murs
+    de refend ;
+  - le second bassin rond à l'eau sombre ;
+  - une cuve ronde à cône bas blanc (le biogaz) ;
+  - le clarificateur dans son muret, à centre olive, avec son pont qui
+    tourne ;
+  - le long hall gris à deux pentes.
+- **Bureau** :
+  - deux volumes décalés en bardage anthracite, une arête claire les
+    détachant du sol en thème sombre ;
+  - des bandeaux vitrés, allumés la nuit, et une entrée vitrée ;
+  - au rez, une baie montre le mur d'écrans de la salle de contrôle ;
+  - le parking bordé de haies et d'arbres ;
+  - le mât à feu rouge, qu'aucune photo ne montre, est retiré.
+- **Décor** : la pelle de manutention jaune du quai, qui vide les péniches
+  de blé, et la haute cheminée de brique de la sucrerie.
+
+Quatre matériaux ont été ajoutés, chacun avec ses jetons dans les deux
+thèmes : bardage gris, anthracite, cuve gris beige, cuve gris foncé.
+Trois primitives aussi : le hall à pignon, le pylône en treillis, les
+nervures et cannelures. `usCyl` prend deux nouveaux toits (cône bas
+nervuré, cylindre ouvert) et une classe de toit. La bande rouge, le mât
+et son feu clignotant partent avec leurs jetons.
+
+L'épreuve `usine-1263.js` compte ce que les photos imposent : 9 cuves à
+la fermentation (7 + 2) et leurs nervures, 0 bande rouge, 4 couronnes,
+2 cols de cygne, 3 ventilateurs ouverts, le hall, les bassins, les
+bureaux anthracite, les haies, la tour et la galerie de la meunerie,
+12 silos inox, 2 cuves foncées, la pelle, la cheminée de brique, aucun
+mât. Rendu : 0 faute. Sur la v1262 : 36 fautes. Les épreuves
+précédentes rendent 0 faute, contraste compris.
