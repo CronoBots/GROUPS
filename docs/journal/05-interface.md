@@ -8894,6 +8894,8 @@ Corrigé :
   colonnes, au PC entre les deux rangées. C'est une passerelle vue de
   dessus : un tablier, et tous les 24 px un portique (une traverse et
   deux poteaux). La nuit, les poteaux s'allument avec les lampadaires.
+  *(Il courait d'un bout à l'autre, à vide au-dessus de la première
+  rangée et sous la dernière : c'était une erreur, corrigée en v1271.)*
   Un premier essai à longerons clairs et traverses serrées tous les
   9 px ressemblait au rail : écarté avant publication.
 - **Neuf conduites, de dalle à dalle.** Chacune part d'un piquage sur
@@ -8968,4 +8970,43 @@ relevé une erreur ancienne : la clé `crNb` était écrite deux fois dans
 l'objet que rend le calcul de la fiche. C'est la même valeur, mais une
 clé en double est interdite en mode strict ES5, et elle aurait arrêté le
 script sur un navigateur ancien. La seconde est retirée.
+
+### L'usine en direct : le rack à la mesure de ses conduites, le liseré dégagé (01/11/2026, `nfdm-v1271`)
+
+Le client, deux captures de la v1270 sur son iPhone : « 100 % ? ». Non.
+Relu de près, quatre défauts restaient :
+- **Le liseré de la salle choisie touchait la conduite** qui longe le
+  rack (la meunerie choisie, sur la 2e capture). Il était centré sur le
+  bord de la tuile (2,5 px de trait) et la voie de gauche n'était qu'à
+  6 px de ce bord. Mesuré : 0,85 px de chevauchement, sur les six
+  tuiles qui bordent le rack, à 320 et à 390 px.
+- **Le rack courait à vide** au-dessus de la première rangée et sous la
+  dernière, et, au PC, aux deux bouts : une bande sombre à tirets, lue
+  comme une règle graduée. Mesuré : 91 px à vide à 320 px, 189 à
+  1280 px, 218 à 1440 px.
+- **Le pavage des dalles** était presque invisible sur l'iPhone.
+- **Les trois conduites vertes serrées** du milieu, avec leurs grains
+  très blancs, faisaient une fermeture éclair.
+
+Corrigé :
+- le liseré (sélection, place libre, survol) est tracé 1,5 px en
+  retrait du bord : il reste dans sa tuile. Le couloir du téléphone
+  passe de 12 à 14 px, comme au PC ;
+- le rack s'arrête où ses conduites s'arrêtent : il va du premier au
+  dernier point où une conduite le touche ou le traverse, à 5 px près.
+  Au téléphone, il va du pont du son (meunerie → chaudières) à celui des
+  eaux du bureau ; au PC, de la descente du gluten à celle du bureau ;
+- le pavage passe à 0,36 en sombre (0,26 avant) et à 0,18 en clair
+  (0,14) ;
+- les grains : 1,5 px (1,7 avant) et 70 % de blanc (88 %).
+
+L'épreuve `usine-1270.js` gagne deux contrôles :
+- le rack ne court pas à vide sur plus de 6 px ;
+- pour chacune des huit tuiles choisie tour à tour, le bord extérieur du
+  liseré reste à 1 px au moins de la gaine de toute conduite qui longe
+  la tuile.
+
+Sur la v1270 publiée, ils crient : chevauchement de 0,85 px, et rack à
+vide sur 91, 189 et 218 px. Sur la v1271 : 0 faute. Toutes les épreuves
+du plan rendent 0 faute.
 

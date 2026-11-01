@@ -2628,7 +2628,7 @@ html #grille .ws-site{margin-bottom:14px}
   --us-copeaux:#7E6140; --us-copeaux2:#9C7A52; --us-bleu:#4A7BC2; --us-garde:#E2C044; --us-gaine:#B8C2D0; --us-pied:#3F6FB5;
   --us-ventil:#2A3446; --us-boue:#5E5038; --us-tu-s:#C9A46A;
   --us-tuile:#1E2636;
-  --us-pave:#8797B0; --us-pave-a:.26; --us-rack:#1B2333; --us-cerne:#3A465C; --us-grain:rgba(255,255,255,.88);
+  --us-pave:#8797B0; --us-pave-a:.36; --us-rack:#1B2333; --us-cerne:#3A465C; --us-grain:rgba(255,255,255,.7);
 }
 :root[data-theme="light"]{
   --us-sol:#E2E7EE; --us-herbe:#CFE3D3; --us-autor:#C3CBD6; --us-voie:#F4F6F9; --us-route:#D3DAE3; --us-ligne:#F4F6F9;
@@ -2650,7 +2650,7 @@ html #grille .ws-site{margin-bottom:14px}
   --us-copeaux:#A57E4F; --us-copeaux2:#C49A68; --us-bleu:#2F63B0; --us-garde:#D9B22E; --us-gaine:#C3CCD8; --us-pied:#2F63B0;
   --us-ventil:#59667D; --us-boue:#9C8460; --us-tu-s:#9C7A3E;
   --us-tuile:#FFFFFF;
-  --us-pave:#22324B; --us-pave-a:.14; --us-rack:#D3DAE3; --us-cerne:#FFFFFF; --us-grain:#FFFFFF;
+  --us-pave:#22324B; --us-pave-a:.18; --us-rack:#D3DAE3; --us-cerne:#FFFFFF; --us-grain:#FFFFFF;
 }
 /* au PC, la carte prend toute la largeur au-dessus des deux colonnes ; au
    téléphone, elle suit « Sur site » (l'ordre de la page) */
@@ -2696,7 +2696,7 @@ html #grille .ws-site{margin-bottom:14px}
 .us-tube{fill:none; stroke-width:2.4; stroke-linejoin:round; stroke-linecap:butt}
 .us-cerne{stroke:var(--us-cerne); stroke-width:4.4}
 .us-large .us-tube{stroke-width:2.8} .us-large .us-cerne{stroke-width:5}
-.us-flux.us-grain{stroke:var(--us-grain); stroke-width:1.7}
+.us-flux.us-grain{stroke:var(--us-grain); stroke-width:1.5}
 /* la matière qui circule : des grains de 2 px tous les 11 px, qui
    avancent de 11 px par seconde vers l'aval */
 .us-flux{fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:.01 11; animation:usFlux 1s linear infinite}
@@ -21908,7 +21908,7 @@ function usineGeo(W,rk){
      l'est, une route de ceinture de la largeur des autres (le client, le
      01/11/2026 : « les décors étaient mieux faits » avec eux — la v1257
      les avait retirés, à tort) */
-  var large=W>=800, cols=large?4:2, gap=large?14:12, hw=large?30:12, mg=hw+14, mx=gap;
+  var large=W>=800, cols=large?4:2, gap=14, hw=large?30:12, mg=hw+14, mx=gap;
   /* la bande du nord : la Meuse, la berge et son quai, le rail */
   var riv=large?30:22, berge=large?24:18, rail=riv+berge+4, top=rail+(large?14:12);
   var pw=Math.floor((W-mg-mx-gap*(cols-1))/cols), sc=Math.min(1.1,(pw-16)/210);
@@ -22031,20 +22031,7 @@ function usineDecor(g){
     s+='<radialGradient id="usH-'+z.k+'" gradientUnits="userSpaceOnUse" cx="'+usN(o.x)+'" cy="'+usN(o.y)+'" r="'+usN(rx)+'" gradientTransform="translate(0,'+usN(o.y*(1-ky))+') scale(1,'+ky+')">'
       +'<stop class="us-h1" offset=".38"/><stop class="us-h0" offset="1"/></radialGradient>'
       +'<path class="us-pave" stroke="url(#usH-'+z.k+')" d="'+d+'"/>'; });
-  /* LE RACK DU SITE : la passerelle de tuyauteries, vue de dessus — son
-     tablier, et tous les 24 px un portique (la traverse et ses deux
-     poteaux) ; au téléphone entre les deux colonnes, au PC entre les deux
-     rangées. Il court d'un bout à l'autre, même là où aucune conduite ne
-     le charge : c'est l'épine du site. Ni longerons clairs ni traverses
-     serrées : cela, c'est le rail. */
-  var xR=g.mg+g.pw+g.gap/2, yS=g.top+g.pos[ord[0]].h+g.gap/2, lr=L?6:5, tv='', pq='', t, pas=24;
-  if(L){ var xa=g.mg+2, xb=g.xE-2;
-    s+='<rect class="us-rack" x="'+xa+'" y="'+usN(yS-lr)+'" width="'+(xb-xa)+'" height="'+(2*lr)+'"/>';
-    for(t=xa+pas/2;t<xb;t+=pas){ tv+='M'+t+','+usN(yS-lr)+'V'+usN(yS+lr); pq+='M'+usN(t-1.2)+','+usN(yS-lr-1.2)+'h2.4v2.4h-2.4zM'+usN(t-1.2)+','+usN(yS+lr-1.2)+'h2.4v2.4h-2.4z'; } }
-  else { var ya=g.top+2, yb=yB-4;
-    s+='<rect class="us-rack" x="'+usN(xR-lr)+'" y="'+ya+'" width="'+(2*lr)+'" height="'+(yb-ya)+'"/>';
-    for(t=ya+pas/2;t<yb;t+=pas){ tv+='M'+usN(xR-lr)+','+t+'H'+usN(xR+lr); pq+='M'+usN(xR-lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2zM'+usN(xR+lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2z'; } }
-  s+='<path class="us-rack-t" d="'+tv+'"/><path class="us-rack-p" d="'+pq+'"/>';
+  var xR=g.mg+g.pw+g.gap/2, yS=g.top+g.pos[ord[0]].h+g.gap/2, lr=L?6:5;
   /* LES FLUX DU PROCÉDÉ (le schéma officiel), de dalle à dalle : le
      produit (vert, la tuyauterie des photos) — farine, lait d'amidon,
      moût, éthanol ; le son vers les cogénérations ; la vapeur ; les eaux
@@ -22079,6 +22066,34 @@ function usineDecor(g){
     T.push(["us-tu-o",par(C("chau",-1,.5),xD,C("dist",-1,-.5))],["us-tu-o",par(C("chau",-1,.5),xR,C("glut",1,-.15))]);
     T.push(["us-tu-b",par(C("terr",-1,.3),xR,C("step",1,-.3))],["us-tu-b",[C("cm",-1,.25),C("step",1,.25)]]);
   }
+  /* LE RACK DU SITE : la passerelle de tuyauteries, vue de dessus — son
+     tablier, et tous les 24 px un portique (la traverse et ses deux
+     poteaux) ; au téléphone entre les deux colonnes, au PC entre les deux
+     rangées. Ni longerons clairs ni traverses serrées : cela, c'est le
+     rail. IL NE COURT QUE LÀ OÙ DES CONDUITES LE CHARGENT (le client, le
+     01/11/2026, « 100 % ? ») : vide, au-dessus de la première rangée et
+     sous la dernière, il se lisait comme une règle graduée. Son étendue
+     va du premier au dernier point où une conduite le touche ou le
+     traverse, à 5 px près. */
+  var rkE=null, rkA=[];
+  T.forEach(function(t){ var q=t[1];
+    for(var i=0;i<q.length;i++){ var a=q[i], b=q[i+1];
+      /* un point posé sur le rack */
+      if(L?Math.abs(a[1]-yS)<=lr:Math.abs(a[0]-xR)<=lr) rkA.push(L?a[0]:a[1]);
+      /* un segment qui le traverse */
+      if(b){ if(L&&(a[1]-yS)*(b[1]-yS)<0&&Math.abs(a[0]-b[0])<0.01) rkA.push(a[0]);
+        if(!L&&(a[0]-xR)*(b[0]-xR)<0&&Math.abs(a[1]-b[1])<0.01) rkA.push(a[1]); } } });
+  if(rkA.length) rkE=[Math.round(Math.min.apply(null,rkA)-5),Math.round(Math.max.apply(null,rkA)+5)];
+  var tv='', pq='', t, pas=24;
+  if(L){ var xa=g.mg+2, xb=g.xE-2;
+    if(rkE) xa=rkE[0], xb=rkE[1];
+    s+='<rect class="us-rack" x="'+xa+'" y="'+usN(yS-lr)+'" width="'+(xb-xa)+'" height="'+(2*lr)+'"/>';
+    for(t=xa+pas/2;t<xb;t+=pas){ tv+='M'+t+','+usN(yS-lr)+'V'+usN(yS+lr); pq+='M'+usN(t-1.2)+','+usN(yS-lr-1.2)+'h2.4v2.4h-2.4zM'+usN(t-1.2)+','+usN(yS+lr-1.2)+'h2.4v2.4h-2.4z'; } }
+  else { var ya=g.top+2, yb=yB-4;
+    if(rkE) ya=rkE[0], yb=rkE[1];
+    s+='<rect class="us-rack" x="'+usN(xR-lr)+'" y="'+ya+'" width="'+(2*lr)+'" height="'+(yb-ya)+'"/>';
+    for(t=ya+pas/2;t<yb;t+=pas){ tv+='M'+usN(xR-lr)+','+t+'H'+usN(xR+lr); pq+='M'+usN(xR-lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2zM'+usN(xR+lr-1.1)+','+usN(t-1.1)+'h2.2v2.2h-2.2z'; } }
+  s+='<path class="us-rack-t" d="'+tv+'"/><path class="us-rack-p" d="'+pq+'"/>';
   /* trois passes : la gaine (le liseré qui détache la conduite du sol et
      fond les voisines en un faisceau), la conduite, puis la matière qui
      avance dessus, de l'amont vers l'aval (v1258) */
@@ -22154,7 +22169,10 @@ function usineDyn(g,E){
       +(Zk.arrivent.length?", relève en remise de pause : "+Zk.arrivent.map(function(o){ return o.tri; }).join(", "):"")
       +(usineTel(z.k)?", téléphone "+usineTelVu(z.k):"")+(TL[z.k]&&TL[z.k].canal?", radio canal "+TL[z.k].canal:"");
     s+='<g class="us-zone'+(ecl==="manque"?' us-zone-manque':'')+(US_SEL===z.k?' us-sel':'')+'" data-k="'+z.k+'" tabindex="0" role="button" aria-label="'+esc(dit)+'" aria-pressed="'+(US_SEL===z.k)+'">'
-      +'<rect class="us-cible" x="'+p.x+'" y="'+p.y+'" width="'+g.pw+'" height="'+p.h+'" rx="12"/>'
+      /* le liseré (2,5 px au plus) en retrait de 1,5 px : il reste dans sa
+         tuile et ne touche plus la conduite qui longe le rack (le client,
+         le 01/11/2026, « 100 % ? », capture de la meunerie choisie) */
+      +'<rect class="us-cible" x="'+usN(p.x+1.5)+'" y="'+usN(p.y+1.5)+'" width="'+usN(g.pw-3)+'" height="'+usN(p.h-3)+'" rx="11"/>'
       +tete+bad+'</g>';
   });
   return s;
