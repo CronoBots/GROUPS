@@ -8054,9 +8054,10 @@ appels malveillants, ingénierie sociale. Ils restent donc privés.
   radio » : chaque ligne porte le numéro et « radio canal N ».
   - **Le terrain arrière** est « par la fermentation ou la distillation » :
     sa fiche offre « Joignable par » et les deux appels.
-  - **Une hypothèse, dite au client.** Son message cite deux fois la
-    distillation pour le canal 2 ; la seconde est prise pour le terrain
-    arrière, qui couvre la fermentation et la distillation.
+  - **Une hypothèse, dite au client et confirmée** (« oui », le même
+    jour). Son message cite deux fois la distillation pour le canal 2 ; la
+    seconde est le terrain arrière, qui couvre la fermentation et la
+    distillation. La STEP et le contremaître n'ont pas de radio.
   - **Chaque fiche dit son canal** et qui l'écoute aussi (le canal 2, avec la distillation
     et le terrain arrière), et l'îlot le dit au lecteur
     d'écran.
@@ -8129,3 +8130,35 @@ son compte : 0 faute, après une première faute à 320 px (le compte).
 Restent justes :
 - les numéros et la radio (`tel.js`) ;
 - le focus clavier, qui tient à la minute.
+
+### Le numéro du contremaître de pause quitte le code public, et l'historique (01/11/2026, `nfdm-v1255`)
+
+Le client, aux trois points laissés ouverts :
+- le terrain arrière sur le canal 2 : « oui » ;
+- un canal pour la STEP et le contremaître : « pas de radio » ;
+- le numéro du contremaître de pause, dans le code public depuis le
+  24/10 (`CM_TEL`) : « oui, et purge ».
+
+**Fait** :
+- **le numéro rejoint l'info des salles dans la base**, en ligne
+  « Contremaître de pause », comme gsm du poste. `CM_TEL` et
+  `CM_TEL_VU` disparaissent du fichier. `cmTel()` lit la base.
+- **la tuile « CM … » et la ligne de « Accès rapides »** appellent ce
+  numéro. Tant qu'il n'est pas arrivé (premier lancement, ou hors compte),
+  elles restent affichées sans lien et le disent (« numéro après
+  connexion »). Leur signature (`cmSig`) porte la présence du numéro :
+  `accueilTic`, appelé aussi à l'arrivée des infos (`aideMaj`), les
+  refait.
+- **le journal** : les trois écritures du numéro (l'entrée du 24/10, v1033)
+  deviennent « (numéro retiré) ».
+- **l'historique est purgé** (voir le journal 01, « La troisième purge »).
+
+**Vérifié** (`tel.js`, numéros fictifs) :
+- la tuile du contremaître devient un lien d'appel vers le numéro de la
+  base ;
+- le plan et la fiche appellent ce même numéro ;
+- sans infos chargées, la tuile s'affiche toujours « CM VBN »
+  (`cm-tuile.js` : 0 faute).
+
+Une recherche de toutes les écritures du numéro dans l'arbre ne trouve
+plus rien.

@@ -21357,8 +21357,8 @@ function renderSiteAccueil(){
    contrôle : numéros fixes », rubrique « Numéros utiles »), que seul un
    compte validé lit, que la RH corrige dans l'application, et que
    l'appareil garde pour le hors-ligne (ui/contenus). usineTels() la lit,
-   ligne à ligne : « Meunerie : 0NN/NNN.NNN ». Celui du contremaître de
-   pause reste CM_TEL. */
+   ligne à ligne : « Meunerie : 0NN/NNN.NNN », le contremaître de pause
+   compris (cmTel). */
 /* s : le sous-titre du plan (court, il tient sous le nom) ; d : la fiche,
    d'après le schéma officiel du procédé et les pages produits du site */
 var USINE_ZONES=[
@@ -21374,8 +21374,7 @@ var USINE_ZONES=[
   {k:"cm",   t:"Contremaître",    s:"Bureau de la pause",   d:"Le bureau : contremaître de pause et adjoint.", f:"gris"}
 ];
 /* les numéros lus dans l'info de la base : {meun:{tel:"+32…", vu:"0…"},
-   …} ; celui du contremaître est CM_TEL, lu à l'appel (il est défini plus
-   bas) */
+   …, cm:…} */
 var USINE_NOMS=[["meun",/meun/i],["glut",/glut/i],["ferm",/ferm/i],["dist",/distil/i],["terr",/terr/i],["chau",/chaudi/i],["step",/step|épura/i],["cm",/contrema/i]];
 function usineTels(){
   var r={}, l=(typeof aideListe==="function")?aideListe():[];
@@ -21392,8 +21391,8 @@ function usineTels(){
       r[k]=o; }); });
   return r;
 }
-function usineTel(k){ var t=usineTels()[k]; return t&&t.tel?t.tel:(k==="cm"?CM_TEL:null); }
-function usineTelVu(k){ var t=usineTels()[k]; return t&&t.tel?t.vu:(k==="cm"?CM_TEL_VU:""); }
+function usineTel(k){ var t=usineTels()[k]; return t&&t.tel?t.tel:null; }
+function usineTelVu(k){ var t=usineTels()[k]; return t&&t.tel?t.vu:""; }
 function usineNom(k){ var n=""; USINE_ZONES.forEach(function(z){ if(z.k===k) n=z.t; }); return n; }
 /* la place des îlots, d'après les vues aériennes : au PC, la ligne du
    nord (meunerie, chaudières, distillation, STEP au bord de l'eau) et celle
@@ -23605,9 +23604,9 @@ function accueilTic(){
   if(_accCle!==null&&accCle()!==_accCle){ accRefaire(); return; }
   /* le contremaître change avec la pause (6 h, 14 h, 22 h) */
   var cl=document.querySelector("#racCorps .ctl-cm"), c0=cmDePause();
-  if(cl&&cl.getAttribute("data-cm")!==(c0.tri||"")+"|"+c0.pz){ var tmp=document.createElement("div"); tmp.innerHTML=cmLigneHTML(); cl.parentNode.replaceChild(tmp.firstChild,cl); }
+  if(cl&&cl.getAttribute("data-cm")!==cmSig(c0)){ var tmp=document.createElement("div"); tmp.innerHTML=cmLigneHTML(); cl.parentNode.replaceChild(tmp.firstChild,cl); }
   var ct=document.querySelector("#pfRac .ctl-cm-t");
-  if(ct&&ct.getAttribute("data-cm")!==(c0.tri||"")+"|"+c0.pz){ var tm2=document.createElement("div"); tm2.innerHTML=cmTuileHTML(); ct.parentNode.replaceChild(tm2.firstChild,ct);
+  if(ct&&ct.getAttribute("data-cm")!==cmSig(c0)){ var tm2=document.createElement("div"); tm2.innerHTML=cmTuileHTML(); ct.parentNode.replaceChild(tm2.firstChild,ct);
     RAC_HTML=document.getElementById("pfRac").innerHTML; }
   var id=trigCourant(), person=id?HORAIRE_DB.people.filter(function(p){ return p.id===id; })[0]:null; if(!person) return;
   var b=document.querySelector("#rythmeTete .pf-proch"), inf=null; try{ inf=_pfInfos(person); }catch(e){ return; }
@@ -23719,7 +23718,15 @@ var CTL_ICO={
    pause ; le trigramme est celui que l'horaire place au poste de
    contremaître à la pause en cours (rcContremaitre, comme la fiche de
    recyclage). La nuit appartient au jour où elle commence. */
-var CM_TEL="(numéro retiré)", CM_TEL_VU="(numéro retiré)";
+/* LE NUMÉRO DU CONTREMAÎTRE DE PAUSE n'est plus dans ce fichier, public
+   (le client, le 01/11/2026 : « oui, et purge »). Il est la ligne
+   « Contremaître de pause » de l'info pratique des salles, dans la base
+   (usineTels) : seul un compte validé la lit, la RH la corrige, et
+   l'appareil la garde pour le hors-ligne. L'historique du dépôt en a été
+   purgé le même jour (journal 01). Tant qu'elle n'est pas arrivée,
+   l'appel attend : la tuile le dit, et se refait à son arrivée (cmSig). */
+function cmTel(){ var t=usineTels().cm; return t&&t.tel?t:null; }
+function cmSig(c){ return (c.tri||"")+"|"+c.pz+"|"+(cmTel()?1:0); }
 function cmDePause(){
   var t=new Date(), h=t.getHours()+t.getMinutes()/60, d=new Date(t.getFullYear(),t.getMonth(),t.getDate()), pz;
   if(h<6){ d.setDate(d.getDate()-1); pz="N"; } else if(h<14) pz="AM"; else if(h<22) pz="PM"; else pz="N";
@@ -23744,13 +23751,15 @@ function cmTuileHTML(){
      même indiquer mon trigramme si c'est moi le contremaître ; ce n'est
      pas obligatoire de camoufler le bouton ») : elle se cachait depuis le
      25/10, mon choix, défait */
-  return '<a class="ctl-t ctl-cm-t" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+CM_TEL_VU+'" data-long="'+esc(c.tri?"Appeler le contremaître "+idLisible(c.tri):"Appeler le contremaître")+'">'
-    +'<i class="ctl-ti">'+ctlIco("tel")+'</i><span>'+(c.tri?'CM <b>'+esc(idLisible(c.tri))+'</b>':'Appeler')+'</span></a>';
+  var t=cmTel(), dedans='<i class="ctl-ti">'+ctlIco("tel")+'</i><span>'+(c.tri?'CM <b>'+esc(idLisible(c.tri))+'</b>':'Appeler')+'</span>';
+  if(!t) return '<span class="ctl-t ctl-cm-t" data-cm="'+esc(cmSig(c))+'" role="img" aria-label="Contremaître de pause : '+esc(lu)+'. Le numéro s’affiche une fois connecté." title="Contremaître de pause · numéro après connexion">'+dedans+'</span>';
+  return '<a class="ctl-t ctl-cm-t" href="tel:'+esc(t.tel)+'" data-cm="'+esc(cmSig(c))+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+esc(t.vu)+'" data-long="'+esc(c.tri?"Appeler le contremaître "+idLisible(c.tri):"Appeler le contremaître")+'">'+dedans+'</a>';
 }
 function cmLigneHTML(){
   var c=cmDePause(), lu=(c.tri?c.tri.split("").join(" ")+", ":"")+({AM:"pause du matin",PM:"pause de l'après-midi",N:"pause de nuit"})[c.pz];
-  return '<a class="ctl-cm" href="tel:'+CM_TEL+'" data-cm="'+esc((c.tri||"")+"|"+c.pz)+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'">'
-    +'<i class="ctl-cm-ico">'+ctlIco("tel")+'</i><span><b>Contremaître de pause</b><small>'+(c.tri?'<b>'+esc(idLisible(c.tri))+'</b> · ':'')+esc(c.nom)+' · '+CM_TEL_VU+'</small></span><em aria-hidden="true">'+ctlIco("tel")+'</em></a>';
+  var t=cmTel(), dedans='<i class="ctl-cm-ico">'+ctlIco("tel")+'</i><span><b>Contremaître de pause</b><small>'+(c.tri?'<b>'+esc(idLisible(c.tri))+'</b> · ':'')+esc(c.nom)+' · '+(t?esc(t.vu):'numéro après connexion')+'</small></span>';
+  if(!t) return '<span class="ctl-cm" data-cm="'+esc(cmSig(c))+'" role="img" aria-label="Contremaître de pause : '+esc(lu)+'. Le numéro s’affiche une fois connecté.">'+dedans+'</span>';
+  return '<a class="ctl-cm" href="tel:'+esc(t.tel)+'" data-cm="'+esc(cmSig(c))+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'">'+dedans+'<em aria-hidden="true">'+ctlIco("tel")+'</em></a>';
 }
 /* son certificat à la RH, par l'application de messagerie de l'appareil
    (le client, le 24/10/2026) : le destinataire et l'objet sont remplis ;
@@ -33155,8 +33164,10 @@ function aideMaj(){
   if(nb){ nb.hidden=!n; nb.textContent=n||""; }
   try{ renderCentre(); }catch(e){}
   if(st.view==="aide") aideRendre();
-  /* les numéros des salles du plan de l'usine viennent des infos */
+  /* les numéros des salles du plan de l'usine, et celui du contremaître
+     de pause, viennent des infos */
   try{ if(usineDernier) renderUsine(); }catch(e){}
+  try{ accueilTic(); }catch(e){}
 }
 function aideOuvrir(){
   aideRendre();
