@@ -8258,3 +8258,63 @@ unique, l'ancienne déclaration), chaque contrôle crie : 8, 3, 8 et 8
 fautes. Sur le fichier : 0 faute. L'épreuve des numéros et de la radio
 (`tel.js`) rend 0 faute ; le focus au clavier survit à la minute, au PC
 et au téléphone.
+
+### L'usine en direct : la matière circule, l'adjoint en contour, « Appeler la salle de contrôle » (01/11/2026, `nfdm-v1258`)
+
+Le client, capture de son iPhone à l'appui (encore en v1256) : « Améliorer
+les décors et animation du nouveau cadre. Et pareil pour les adjoints s'ils
+ne sont pas contremaître. Pour le téléphone, indiquer “appeler la salle de
+contrôle” ».
+
+**L'adjoint.** Le badge en contour (v1256) disait « là en plus du poste »
+pour le cadre de jour, le poste de jour et l'apprenti. L'adjoint qui ne
+tient pas le poste de contremaître de pause (`o.adj && !o.cmp`) le porte
+aussi. Un adjoint qui remplace le contremaître de pause garde le badge
+plein. La fiche suit maintenant le plan : ses badges « en plus » sont en
+contour eux aussi (à 15 h 10 le 31/10 : VBN plein, ATR en contour, sur le
+plan comme dans la fiche).
+
+**Le téléphone.** Le bouton dit « Appeler la salle de contrôle » (le
+contremaître de pause reste « Appeler le contremaître de pause »). Pour le
+terrain arrière, sans téléphone, la fiche dit « Pas de téléphone au
+terrain : joignable par la salle de contrôle », puis deux boutons
+« Appeler la salle de contrôle ». Le nom de la salle est écrit devant le
+numéro : « Fermentation · 0NN/… », « Distillation · 0NN/… ».
+
+**Le décor et le mouvement**, un seul langage : la matière circule.
+- *Les flux du procédé.* Sur chaque tuyauterie, des grains de la couleur
+  du flux avancent de 11 px par seconde vers l'aval : le blé vers
+  l'éthanol (vert), le son vers les chaudières, la vapeur vers les
+  ateliers, les eaux vers la STEP. Chaque tracé était déjà écrit de
+  l'amont vers l'aval ; c'est vérifié tracé par tracé. Le blé monte aussi
+  par la galerie, des silos de rive à la meunerie. La lueur qui parcourt
+  la ligne du produit (v1254) reste le seul accent.
+- *La Meuse coule* vers l'aval, de gauche à droite (une période de
+  160 px, 16 s), et la péniche se berce d'un pixel.
+- *La trame d'un plan de site* : un quadrillage de 24 px à peine visible,
+  sous les tuiles (7 % en sombre, 6 % en clair).
+- *Le relief des tuiles* : un reflet qui s'efface vers le bas.
+- *Hors de la vue, tout se fige* (`IntersectionObserver`, classe
+  `us-pause`). Le téléphone ne paie que l'animation qu'on regarde.
+- *Moins de mouvement* (réglage du téléphone) : flux, Meuse et péniche
+  restent immobiles, comme le reste.
+
+**Un défaut vu sur la capture** : la Distillation, touchée avant la
+Fermentation, gardait un liseré, comme une seconde sélection. Au toucher,
+l'iPhone garde l'état « survolé » de la dernière tuile touchée. Le survol
+ne vaut plus qu'à la souris (`(hover:hover) and (pointer:fine)`).
+
+Nouvelle épreuve `usine-1258.js`, à la souris (1280) et au toucher
+(390). Elle contrôle :
+- l'adjoint en contour, sur le plan et dans la fiche ;
+- les trois libellés d'appel ;
+- un flux par tuyauterie (plus la galerie), animé, qui avance
+  vraiment ;
+- la Meuse, la trame et les huit reflets ;
+- la pause hors de la vue et la reprise ;
+- l'absence de liseré fantôme au toucher ;
+- l'immobilité quand le téléphone demande moins de mouvement.
+
+Rendu : 0 faute. Sur la v1257, la même épreuve rend 22 fautes : chaque
+contrôle mord. L'épreuve du plan et celle des numéros rendent 0 faute,
+et le focus au clavier survit à la minute.
