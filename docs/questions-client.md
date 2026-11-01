@@ -112,6 +112,16 @@ des questions au client ».
   remplacé par JBI », 14 h – 18 h, remise faite) ; l'application ne la
   compte donc pas.
 
+- **« L'usine en direct » : la place des salles et leurs numéros
+  (01/11/2026).** Le plan de l'Accueil range les huit postes du Planning
+  d'après la photo aérienne de la bannière : en haut, meunerie (les silos),
+  gluten, chaudières, STEP ; en bas, fermentation (les cuves en dômes),
+  distillation, terrain arrière, bureau du contremaître. Le site officiel
+  ne publie pas de plan : la disposition est indicative et le plan le dit.
+  (1) Faut-il déplacer un îlot pour coller au site ? (2) Les numéros fixes
+  de chaque salle, à écrire dans `USINE_TEL` ; seul celui du contremaître
+  de pause est connu.
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».

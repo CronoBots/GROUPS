@@ -7840,3 +7840,180 @@ Vérifié (`cherche-h.js`, `recherche.js`) :
 - parcours complet : 183 essais, 0 faute.
 
 Sur la v1250, le contrôle crie 11 fois.
+
+### L'usine en direct : le plan du site, chacun à sa salle (01/11/2026, `nfdm-v1252`)
+
+Le client : « dans l'onglet Accueil, est-ce possible de représenter
+l'usine actuelle avec les opérateurs présents dans chaque salle de
+contrôle, c'est-à-dire chaque poste du planning, mais en représentant
+réellement un schéma de l'usine ou du poste en question. Cela serait
+comme un jeu de rôle où on verrait qui est à quelle place directement. Et
+j'ajouterai également les numéros de téléphone fixe de chaque poste par
+après […]. Je veux que ce cadre soit professionnel et que tu t'y mettes à
+fond pour que je sois étonné du résultat. » Il a donné le site officiel,
+biowanze.be.
+
+**Ce que dit le site officiel.** Erreur d'abord : je n'en avais lu que
+trois pages (l'accueil, « À propos », « Matières premières »), et j'avais
+écrit qu'il « ne publie ni plan ni procédé détaillé » : c'était faux. Le
+client : « tu as fait toutes les pages du site ? Exemple
+…/innovation-from-biomass », avec deux schémas du site. Toutes les pages
+lues ensuite, une à une : innovation, durabilité, les cinq produits,
+environnement, qualité, sécurité, entreprise, carrière, presse et
+téléchargements. Elles donnent :
+- **le procédé** (« Schéma du processus de production ») :
+  - le blé fourrager passe à la meunerie, qui donne la farine et le son ;
+  - le son part à la 1re cogénération biomasse et à l'alimentation animale
+    (son GMP+) ;
+  - l'extraction du gluten (puis son séchage, la poudre vendue par BENEO)
+    donne le lait d'amidon ;
+  - la fermentation donne le moût, et son CO2 part à la compression
+    (CO2 liquide) ;
+  - la distillation donne l'éthanol à 99,8 % et le ProtiWanze ;
+  - les cogénérations (la 2e brûle des copeaux de bois depuis 2021), la
+    chaudière gaz et le turbogénérateur produisent l'électricité et la
+    vapeur du site ;
+  - les cendres deviennent un engrais naturel ;
+  - la station d'épuration donne du biogaz et un engrais naturel.
+- **le site** : trois vues aériennes de 21 Mo, des photos de l'usine (la
+  meunerie, les cuves, les colonnes blanches à pied bleu, la tour de
+  refroidissement, la chaudière en charpente bleue, la station
+  d'épuration, la péniche-citerne au quai).
+
+**La disposition vient de ces vues aériennes** :
+- au nord, la Meuse et le quai (le blé arrive en péniche et monte par une
+  galerie ; l'éthanol repart en péniche-citerne), la sucrerie voisine et
+  le rail ;
+- à l'ouest, le long de l'autoroute et de son pont à haubans, la meunerie
+  et le gluten (huit silos élancés) ;
+- au nord du centre, les chaudières et leurs deux cheminées ; au centre,
+  la distillation et les tours de refroidissement ;
+- au sud, les huit cuves en dômes ; à l'est, le parc de cuves ;
+- au sud-est, les bureaux et le parking ; la station d'épuration au bord
+  de l'eau.
+
+Le site ne publie pas de plan au mètre : la place de chaque salle reste
+indicative, et le plan le dit. La question est au client
+(`docs/questions-client.md`). Les images téléchargées ne vont pas dans le
+dépôt (droits d'auteur du photographe) : le plan est dessiné, pas copié.
+
+**Fait : une carte « L'usine en direct »** (`renderUsine`, appelée avec
+« Sur site » chaque minute).
+- **Le plan**, en vue cavalière, a un îlot par poste du Planning, dessiné
+  en SVG d'après son vrai matériel :
+  - six silos et le moulin, avec un camion de blé ;
+  - le bâtiment du gluten ;
+  - les cuves en dômes ;
+  - la charpente et les colonnes de distillation ;
+  - le parc de cuves et la rampe du terrain arrière ;
+  - le bâtiment des chaudières, ses deux cheminées et leurs fumées ;
+  - les bassins de la STEP, avec leurs ponts racleurs qui tournent, et le
+    digesteur ;
+  - le bureau du contremaître, son mât, son parking.
+
+  Autour : la Meuse, le quai et sa péniche, les silos de rive et la
+  galerie vers la meunerie, la sucrerie voisine, le rail et ses
+  wagons-citernes, l'autoroute et son pont à haubans, les routes. Les
+  quatre flux du schéma officiel coulent le long des routes : le produit,
+  le son (vers les cogénérations), la vapeur, les eaux (vers la STEP).
+- **Chacun est un pion** à son trigramme devant sa salle, dans la couleur
+  du poste (celle du classeur). On y voit aussi :
+  - « vous » et un halo pour la personne de l'appareil ;
+  - en pointillé, la relève venue pour sa remise de pause ;
+  - un « ? » pour une place que le Planning attend et que personne ne
+    tient ;
+  - sur chaque îlot, le nombre de présents, ou « 0/1 » en ambre quand il
+    manque quelqu'un.
+- **La nuit** (20 h – 6 h 30), les fenêtres et les lampadaires
+  s'allument.
+- **Toucher un îlot** (ou Tab puis Entrée) ouvre sa fiche :
+  - qui, en poste ou en relais, jusqu'à quelle heure ;
+  - la relève et son heure ;
+  - le bouton « Appeler » si le numéro est connu, sinon « Numéro fixe de
+    la salle : à ajouter » (`USINE_TEL`, à remplir ; celui du
+    contremaître est CM_TEL).
+- **La mise en page** :
+  - au PC, la carte passe sur toute la largeur au-dessus des deux
+    colonnes, avec la fiche à droite du plan (dès 1056 px de contenu), ou
+    la fiche et la liste des postes sous le plan ;
+  - au téléphone, deux colonnes d'îlots, après « Sur site ».
+- **Les textes gardent leur taille** : le plan se dessine à la largeur
+  réelle, en pixels, et se refait au redimensionnement. Les animations
+  s'arrêtent si le téléphone demande moins de mouvement.
+- **Les données sont celles du Planning, rien n'est deviné** :
+  - `sitePlans` et `sitePlace` disent où chacun est placé, relais et remise
+    compris ;
+  - `surSite` dit qui est là à la minute ;
+  - `postesDePause` dit combien le poste en attend ;
+  - `siteCmIci` donne le contremaître de pause.
+
+**Erreurs trouvées en chemin, par l'épreuve (`usine-test.js`)** :
+- **VBN absent à 0 h 45.** Son prolongement de 22 h à 1 h n'est placé par
+  aucune pause du Planning. `siteCmIci` le donne : il prime désormais, et
+  FPA, arrivé à 0 h 30, est montré en relève.
+- **« Relève à 22 h : FPA »** à 21 h 45 et à 0 h 45, alors que VBN tient
+  le poste jusqu'à 1 h. L'heure de la relève est désormais celle du départ
+  du contremaître de pause.
+- **Au téléphone, la carte passait avant « À faire »** (937 px au lieu de
+  2 900). Le script qui échange les deux colonnes de l'Accueil la
+  laissait derrière lui. `ordre()` la place maintenant : en tête au PC,
+  après « Sur site » au téléphone.
+- **Au grand écran, le plan était réduit à 0,99** et ses textes tombaient
+  à 10,9 px : la largeur était mesurée avant le changement de marge.
+- **En clair, les pastilles d'état n'avaient que 4,1:1 de contraste.**
+  Elles prennent maintenant la surface de la carte.
+- **« Séparation de l'amidon et du gluten » était coupé** : les
+  sous-titres du plan sont courts, la description entière est dans la
+  fiche.
+
+**Vérifié** :
+- `usine-test.js`, sur huit cas (320, 390, 768, 1280, 1440 et 1920 px ;
+  clair et sombre ; 0 h 45, 10 h 20, 15 h 10, 21 h 45) :
+  - échelle 1 ;
+  - tout texte du SVG à 11 px au moins et à 4,5:1 sur son vrai fond ;
+  - aucun nom sur son état, aucun pion hors de son îlot, pas de
+    défilement ;
+  - la place de la carte ;
+  - le jour et la nuit ;
+  - le contremaître et la relève ;
+  - la place libre de la fermentation à 10 h 20 ;
+  - le clic, le clavier ;
+  - la minute qui ne refait pas le décor et garde le choix.
+
+  0 faute.
+- Le coût, au processeur ralenti six fois : 90 ms au premier dessin,
+  35 ms par minute.
+
+**La relecture indépendante** (un second agent, sans rien modifier, a
+sondé le code sur les 365 jours de 2026, 15 heures par jour : 5 475
+instants). Aucune erreur d'exécution, ES5 respecté, rien à échapper. Des
+défauts réels, tous corrigés :
+- **un contremaître à la minute effacé du plan** : JBI le 06/09 à
+  18 h 30, placé par le Planning au terrain arrière ;
+- **une relève annoncée trop tard** : « 1 h » quand l'arrivant est à
+  l'heure (28 cas au poste de contremaître, 249 ailleurs). L'heure est
+  désormais celle de la prise de poste réelle, comme `siteCmIci` : le
+  début de la pause, ou, pour qui arrive après, la fin de sa remise ;
+- **les postes de jour (D)** :
+  - ceux aux heures particulières disparaissaient (119 cas après 15 h) ou
+    passaient pour une relève (71 cas à 6 h 30) ;
+  - ils étaient annoncés en relève à 7 h (2 024 cas). Un poste de jour
+    qui complète le matin est maintenant une « Arrivée », sans
+    demi-heure de remise ;
+- **le compte de l'îlot ne suivait pas le Planning** : quatre cadres de
+  jour faisaient « 4 » en vert sans contremaître du matin (91 cas), un
+  apprenti comblait une place (145 cas). On compte désormais comme le
+  Planning (`compteAuPoste`, ni D, ni adjoint), et tous les pions restent
+  affichés ;
+- **une relève qui nommait quelqu'un déjà en poste** (260 cas) ;
+- **le focus clavier perdu à chaque minute** : il est restitué. Un
+  redimensionnement sans changement de largeur (la barre de Safari) ne
+  refait plus le plan. Le focus a son propre style, un pointillé à
+  l'encre, distinct de la sélection ;
+- **sans `:has()`** (vieux navigateurs), la carte recouvrait les colonnes
+  au PC : une classe posée par `renderUsine` la remplace.
+
+Remesuré avec ses sondes : plus aucune personne perdue ni en double, plus
+de poste de jour invisible ni en relève, plus de relève déjà en poste, le
+focus tenu 62 s plus tard. Reste un signal de la sonde qui compare à
+l'heure prévue au lieu de l'heure réelle (« relDecale ») : c'est voulu.
