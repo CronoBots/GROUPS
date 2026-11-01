@@ -8785,3 +8785,36 @@ Les épreuves suivent le dessin :
   de la scène.
 
 Toutes les épreuves rendent 0 faute.
+
+### L'usine en direct : les charpentes posées sur leur socle, leurs plateaux gris (01/11/2026, `nfdm-v1268`)
+
+Le client : « Le bâtiment bleu des chaudières a l'air de flotter dans
+l'air et n'est pas au même niveau que le sol de l'autre bâtiment. Il faut
+voir les étages des plateaux de la distillation et de la chaudière
+(plate-forme grise). »
+
+La cause : les deux charpentes n'étaient que des traits (montants et
+cadres). Rien de plein ne disait où était le sol, et un cube en fil de fer
+se lit à deux profondeurs à la fois : l'œil le voyait en l'air, ou à un
+autre niveau que le bâtiment voisin. Anatomy le dit en tête de ses règles :
+« des volumes pleins, pas du fil de fer ».
+
+- **La charpente bleue des chaudières** est posée sur un socle de béton
+  (1,6 de haut), au niveau du sol du bâtiment de la chaudière, qu'elle
+  touche. Ses trois étages sont des plateaux de caillebotis gris pleins,
+  à 11, 22 et 33. Les garde-corps jaunes courent 2 au-dessus de chaque
+  plateau, et l'escalier en zigzag part du socle.
+- **La charpente de la distillation** a son socle de béton, ses plateaux
+  gris à 15, 30, 45 et le toit à 60, et ses garde-corps galvanisés sur les
+  deux faces avant.
+- **L'ordre du peintre** : les montants de derrière, puis les plateaux de
+  bas en haut, puis les montants de devant, qui passent devant eux.
+  Matériau nouveau `plateau` (dessus, deux faces), avec ses jetons dans
+  les deux thèmes.
+
+Nouvelle épreuve `usine-1268.js`. Chaque montant de ces deux charpentes
+doit reposer sur le dessus de son socle (le pied du trait dans le
+polygone du socle, à 8 % près). Elle compte aussi 3 plateaux à la
+chaudière et 4 à la distillation. Rendu : 0 faute ; sur la v1267, elle
+crie (pas de socle à la chaudière, 0 plateau, 8 montants en l'air à la
+distillation). Toutes les épreuves précédentes rendent 0 faute.
