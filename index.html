@@ -23204,31 +23204,63 @@ function uspPlacer(){
     poses.push({x0:cx-o.w/2, x1:cx+o.w/2, y0:cy-o.h/2, y1:cy+o.h/2});
     o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)"; });
 }
-/* LES DEUX BANDES DU TÉLÉPHONE : les postes du haut de la photo au-dessus,
-   les autres au-dessous ; dans chaque bande, de gauche à droite comme
-   leurs points (les traits ne se croisent pas), chacun dans sa part de la
-   largeur, le bas des groupes du haut et le haut des groupes du bas
-   alignés ; un trait fin, cerné de sombre pour se lire sur la photo comme
-   sur le fond, va du groupe au point du poste */
+/* LES DEUX BANDES DU TÉLÉPHONE (v1294, reprises en v1295 : le client,
+   capture à 14 h 53, « moyen d'être plus propre que ça ? » — un trait
+   traversait toute la photo, du coin haut droit à la distillation ; des
+   groupes s'empilaient sur trois rangs à côté de place libre ; les groupes
+   tenaient des colonnes fixes, loin de leur poste) :
+   - chaque groupe se place au plus près de la verticale de son point
+     (tassement sur une ligne : les groupes qui se gênent se poussent
+     ensemble, autour de la moyenne de leurs souhaits, sans sortir de la
+     largeur) ; son trait part du bord du groupe à l'aplomb du point quand
+     le point est sous lui : le trait est alors droit ;
+   - le haut ou le bas de chaque groupe, et le nombre de rangs de chaque
+     bande (le même pour tous ses groupes), sont choisis parmi toutes les
+     répartitions : les traits les plus courts, les bandes les plus basses,
+     et jamais deux traits qui se croisent */
 function uspBandes(L,W,H,usp,tr){
-  var G=10, P=L.slice().sort(function(a,b){ return a.y-b.y; }), nh=Math.ceil(P.length/2), hH=0, hB=0;
-  /* la largeur de chacun selon ses trigrammes (jusqu'à trois de front),
-     jamais moins qu'une pastille : à 320 px, les colonnes égales les
-     empilaient un par un */
-  [[P.slice(0,nh),true],[P.slice(nh),false]].forEach(function(pr){ var bd=pr[0].sort(function(a,b){ return a.x-b.x; }), MIN=40;
-    var wt=bd.map(function(o){ return Math.max(1,Math.min(3,o.b.querySelectorAll(".us-tri-b,.usp-plus").length)); }), sw=0;
-    wt.forEach(function(v){ sw+=v; });
-    var lg=wt.map(function(v){ return Math.max(MIN,W*v/sw); }), tot=0, lib=0; lg.forEach(function(v){ tot+=v; if(v>MIN) lib+=v-MIN; });
-    if(tot>W&&lib>0) lg=lg.map(function(v){ return v>MIN?v-(tot-W)*(v-MIN)/lib:v; });
-    var x=0; bd.forEach(function(o,i){ o.haut=pr[1]; o.cx=x+lg[i]/2; x+=lg[i]; o.b.style.maxWidth=Math.floor(lg[i]-2)+"px"; }); });
-  L.forEach(function(o){ o.w=o.b.offsetWidth; o.h=o.b.offsetHeight; if(o.haut) hH=Math.max(hH,o.h); else hB=Math.max(hB,o.h); });
-  var off=hH+G, traits="", points="";
-  L.forEach(function(o){ var cy=o.haut?-G-o.h/2:H+G+o.h/2, ay=o.haut?-G+1:H+G-1, f=(o.b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=o.b.classList.contains("usp-sel");
-    o.b.style.transform="translate("+Math.round(o.cx)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)";
-    var d="M"+Math.round(o.cx)+" "+Math.round(ay+off)+"L"+Math.round(o.x)+" "+Math.round(o.y+off);
+  var G=10, GAP=6, GC=2, PAD=1, n=L.length, M=4;
+  L.forEach(function(o){ o.b.style.maxWidth=""; o.b.style.width=""; var c=o.b.children; o.cw=[]; for(var i=0;i<c.length;i++) o.cw.push(c[i].offsetWidth); o.ch=c.length?c[0].offsetHeight:18; });
+  /* la forme d'un groupe à « par » pastilles par rang */
+  function forme(o,par){ var w=0, r=0; for(var i=0;i<o.cw.length;i+=par){ var x=0; for(var j=i;j<Math.min(i+par,o.cw.length);j++) x+=o.cw[j]+(j>i?GC:0); w=Math.max(w,x); r++; }
+    return {w:w+2*PAD, h:r*o.ch+(r-1)*GC+2*PAD, r:r}; }
+  /* une bande : le moins de rangs qui tienne dans la largeur, puis le tassement */
+  function bande(gr,haut){ if(!gr.length) return {h:0, it:[], ok:true};
+    gr=gr.slice().sort(function(a,b){ return a.x-b.x; });
+    /* deux pastilles restent de front quand la largeur le permet : un
+       groupe de deux empilé à côté de place libre n'est pas propre */
+    for(var R=1;R<=4;R++) for(var v=0;v<2;v++){ var it=gr.map(function(o){ var k=o.cw.length, par=Math.ceil(k/R); if(!v) par=Math.max(par,Math.min(k,2));
+        var f=forme(o,Math.max(1,Math.min(4,par))); return {o:o, w:f.w, h:f.h, x:o.x, y:o.y}; }), tot=0, hb=0;
+      it.forEach(function(t){ tot+=t.w; hb=Math.max(hb,t.h); }); tot+=GAP*(it.length-1);
+      if(tot<=W-2*M||(R===4&&v===1)){ tasser(it); it.forEach(function(t){ t.haut=haut; var bord=Math.max(0,t.w/2-8); t.ax=Math.max(t.c-bord,Math.min(t.c+bord,t.x)); t.ay=haut?-G:H+G; }); return {h:hb, it:it, ok:tot<=W-2*M}; } } }
+  /* le tassement : chaque bloc de groupes collés se pose à la moyenne de
+     leurs souhaits, borné à la largeur ; deux blocs qui se gênent fusionnent */
+  function tasser(it){ var B=[];
+    function pose(b){ return Math.max(M,Math.min(W-M-b.w,b.s/b.n)); }
+    it.forEach(function(t){ B.push({m:[t], w:t.w, s:t.x-t.w/2, n:1});
+      while(B.length>1){ var p=B[B.length-2], q=B[B.length-1]; if(pose(p)+p.w+GAP<=pose(q)+.01) break;
+        p.s+=q.s-q.n*(p.w+GAP); p.n+=q.n; p.w+=GAP+q.w; p.m=p.m.concat(q.m); B.pop(); } });
+    B.forEach(function(b){ var l=pose(b); b.m.forEach(function(t){ t.c=l+t.w/2; l+=t.w+GAP; }); }); }
+  function coupe(a,b){ function o(p,q,r){ var v=(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]); return v>0?1:v<0?-1:0; }
+    var A=[a.ax,a.ay],Bq=[a.x,a.y],C=[b.ax,b.ay],D=[b.x,b.y]; return o(A,Bq,C)*o(A,Bq,D)<0&&o(C,D,A)*o(C,D,Bq)<0; }
+  /* toutes les répartitions haut/bas (256 pour huit postes) */
+  var mieux=null;
+  for(var m=0;m<(1<<n);m++){ var hautG=[], basG=[]; L.forEach(function(o,i){ (m&(1<<i)?basG:hautG).push(o); });
+    var bh=bande(hautG,true), bb=bande(basG,false), tous=bh.it.concat(bb.it), cout=0;
+    if(!bh.ok||!bb.ok) cout+=1e5;
+    tous.forEach(function(t){ cout+=Math.sqrt(Math.pow(t.ax-t.x,2)+Math.pow(t.ay-t.y,2)); });
+    cout+=3*(bh.h+bb.h);
+    for(var a=0;a<tous.length;a++) for(var b=a+1;b<tous.length;b++) if(coupe(tous[a],tous[b])) cout+=1e3;
+    if(!mieux||cout<mieux.cout) mieux={cout:cout, it:tous, hh:bh.h, hb:bb.h}; }
+  var hH=0, hB=0, traits="", points="";
+  mieux.it.forEach(function(t){ var b=t.o.b; b.style.width=Math.ceil(t.w+.5)+"px"; t.hr=b.offsetHeight; if(t.haut) hH=Math.max(hH,t.hr); else hB=Math.max(hB,t.hr); });
+  var off=hH+G;
+  mieux.it.forEach(function(t){ var b=t.o.b, cy=t.haut?-G-t.hr/2:H+G+t.hr/2, f=(b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=b.classList.contains("usp-sel");
+    b.style.transform="translate("+Math.round(t.c)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)";
+    var d="M"+Math.round(t.ax)+" "+Math.round(t.ay+off)+"L"+Math.round(t.x)+" "+Math.round(t.y+off);
     traits+='<path class="usp-tr-h'+(sel?' usp-sel':'')+'" d="'+d+'"/><path class="usp-tr'+(sel?' usp-sel':'')+'" d="'+d+'"/>';
-    points+='<circle class="usp-pt usp-f-'+f+(sel?' usp-sel':'')+'" cx="'+Math.round(o.x)+'" cy="'+Math.round(o.y+off)+'" r="'+(sel?4.5:3.5)+'"/>'; });
-  if(usp){ usp.style.setProperty("--usp-haut",(hH+G+8)+"px"); usp.style.setProperty("--usp-bas",(hB+G+8)+"px"); }
+    points+='<circle class="usp-pt usp-f-'+f+(sel?' usp-sel':'')+'" cx="'+Math.round(t.x)+'" cy="'+Math.round(t.y+off)+'" r="'+(sel?4.5:3.5)+'"/>'; });
+  if(usp){ usp.style.setProperty("--usp-haut",(hH?hH+G+8:8)+"px"); usp.style.setProperty("--usp-bas",(hB?hB+G+8:8)+"px"); }
   if(tr){ tr.setAttribute("style","top:"+(-off)+"px; height:"+(H+off+hB+G)+"px"); tr.setAttribute("viewBox","0 0 "+W+" "+(H+off+hB+G)); tr.innerHTML=traits+points; }
 }
 function usinePhotoRendre(corps,E,cote,cw){

@@ -10264,3 +10264,57 @@ crédit photo, qui le suivaient. Les groupes sont alors devenus de simples
 boutons en ligne (`position: static`), affichés n'importe où. On l'a
 constaté sur la capture, puis prouvé : aucune règle ne s'appliquait plus
 à ces boutons. Le bloc a été repris tel quel du commit v1293.
+
+### L'usine sur sa photo : au téléphone, les groupes à l'aplomb de leur poste (02/11/2026, `nfdm-v1295`)
+
+Le client, capture de son iPhone à 14 h 53, avec 24 personnes à leur
+poste : « moyen d'être plus propre que ça ? ». On y voyait trois défauts :
+
+- un trait traversait toute la photo, du coin haut droit jusqu'à la
+  distillation, au centre ;
+- les chaudières s'empilaient sur trois rangs, avec de la place libre à
+  côté ;
+- les groupes tenaient des colonnes de largeur fixe, souvent loin de leur
+  poste. Cinq traits sur huit étaient en biais.
+
+**La cause :** la v1294 répartissait les postes en deux moitiés selon la
+hauteur de leur point, puis les rangeait en colonnes. Or six des huit
+points sont dans la moitié gauche de la photo : les colonnes de droite
+recevaient des postes de gauche.
+
+**La v1295 :**
+- **Le tassement.** Chaque groupe se place au plus près de la verticale
+  de son point. Les groupes qui se gênent se poussent ensemble, autour de
+  la moyenne de leurs souhaits, sans sortir de la largeur. Le trait part
+  du bord du groupe juste au-dessus ou au-dessous du point, quand le point
+  est sous lui : il est alors droit.
+- **Le choix haut ou bas.** On essaie toutes les répartitions, soit 256
+  pour huit postes, et on garde la moins coûteuse. Le coût additionne
+  trois choses : la longueur des traits, la hauteur des bandes, et une
+  lourde pénalité pour chaque croisement. Le calcul, refait à chaque
+  minute, prend 2,4 ms par placement sur la machine de la session (mesuré
+  sur 50 placements avec les huit groupes de 14 h 53). Même dix fois plus
+  lent sur un téléphone, cela reste imperceptible.
+- **Les rangs.** Dans une bande, tous les groupes ont au plus le même
+  nombre de rangs, le plus petit qui tienne dans la largeur. Deux
+  trigrammes restent côte à côte quand la place le permet : le gluten
+  s'empilait encore à côté de place libre.
+- **Le croisement** se calcule sans `Math.sign`, qui n'est pas de l'ES5.
+
+**Mesuré :** l'épreuve compte un trait en biais quand il s'écarte de plus
+de 20 px et de plus de 35 % de sa hauteur.
+
+| Heure | Largeur | v1294 | v1295 |
+|---|---|---|---|
+| 14 h 53 | 390 px | 5 | 1 |
+| 14 h 53 | 320 px | 4 | 1 |
+| 22 h 30 | 390 px | 6 | 1 |
+| 22 h 30 | 320 px | 5 | 2 |
+
+Dans les deux versions, aucun croisement, aucun recouvrement, et aucun
+groupe ne déborde.
+
+L'épreuve `usine-photo-1295.js` reprend celle de la v1294 et y ajoute ces
+quatre cas. Elle exige au plus deux traits en biais, aucun croisement,
+aucun recouvrement et un trait par groupe. Elle passe sans faute ; sur la
+v1294, elle relève les quatre fautes de biais.
