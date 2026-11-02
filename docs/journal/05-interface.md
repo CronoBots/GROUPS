@@ -9655,7 +9655,8 @@ d'heures, en sachant qu'une journée, c'est 8 h ».
   la police libre aux mesures d'Arial ; sous Windows, le repli est
   `Segoe UI`.
 
-Question posée (QCM), réponse du client : **les jours au dixième**.
+Question posée (QCM), réponse du client : **les jours au dixième**. *(Revu le même jour en v1284, à la demande du
+client : par demi-journée.)*
 
 **Fait :**
 - chaque case de valeur porte les heures à gauche, exactes comme avant,
@@ -9681,4 +9682,54 @@ v1282. Pour chaque case remplie, elle vérifie aussi :
 Elle tourne au PC (sombre et clair) et au téléphone, debout et couché.
 Elle passe sans faute. Sur la v1282, elle relève 12 fautes ; sur la
 première version aux jours exacts, 8.
+
+### L'onglet Horaire : les jours par demi-journée, « h » après les heures (02/11/2026, `nfdm-v1284`)
+
+Le client, sur la v1283 : « je pense que les jours doivent être par
+multiple de 0,5 et toujours arrondis au 0,5 le plus proche. Indique "h"
+pour les heures comme cela est fait pour les jours. »
+
+**La question de l'égalité.** Arrondir au demi le plus proche laisse un
+cas à égale distance : 74 h font 9,25 j, entre 9 et 9,5. Toutes les
+heures qui tombent à 2 ou 6 h d'un multiple de 8 sont dans ce cas. Posée
+en QCM, la réponse du client est **vers le bas, c'est-à-dire vers zéro** :
+- 9,25 j s'écrit 9 j ;
+- 0,75 j s'écrit 0,5 j ;
+- −1,75 j s'écrit −1,5 j.
+
+Hors égalité, c'est le demi le plus proche : 77 h = 9,625 j → 9,5 j.
+
+**Fait :**
+- les jours, par demi-journée, avec cette règle (`demi`) ;
+- les heures suivies de « h », comme les jours de « j ». Une espace fine
+  insécable sépare chacun de son unité : 0,8 px de moins que l'espace
+  insécable, et l'unité ne passe jamais à la ligne ;
+- la place dans la case : ces quatre caractères de plus ne tenaient plus.
+  Le plus serré dans les données de 2026 est « 564 h » et « 70,5 j »,
+  66,7 px dans la police des tests. La marge intérieure (1 px) disparaît,
+  le texte garde les 2 px de bord des cases des jours, et l'écart entre
+  les deux nombres passe de 3 à 2 px. Il y a 68 px de place ;
+- **un repli** pour une valeur hors de ce qui existe aujourd'hui :
+  « −118 h » et « −14,5 j » en gras feraient 71 px. Après chaque rendu et
+  au changement de taille, `grSerrePied` mesure chaque case. Si elle
+  déborde, il resserre ses lettres (−0,4 px) et l'écart (1 px).
+- **Mesuré** : l'épreuve ne voyait pas un débordement du bloc intérieur
+  quand il restait dans la marge de la case. Elle le mesure maintenant
+  sur le bloc lui-même. Elle a d'abord trouvé « 564 h » et « 70,5 j » à
+  2 px de trop dans leur bloc, d'où la marge reprise.
+
+**Mesuré après** : l'épreuve `horaire-1284.js` porte maintenant sur toutes
+les feuilles (cinq équipes, Contremaître, station, Formation). Elle
+vérifie :
+- les heures en « N h » ;
+- les jours en demis exacts, jamais à plus de 0,25 j du calcul, vers
+  zéro dans les égalités ;
+- qu'aucun bloc ne déborde.
+
+Elle passe sans faute ; sur la v1283, elle relève 32 fautes (heures sans
+« h », jours au dixième). Le repli a été éprouvé sur une copie dont un restant vaut −116 h (« −14,5
+j » en gras, équipe 1, colonnes de 76 px) :
+- avec le repli, la case se resserre et tient ;
+- sans le repli (seconde copie), elle déborde de 3 px, et l'épreuve crie
+  à 1440 et 390 px.
 

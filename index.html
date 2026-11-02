@@ -7627,7 +7627,11 @@ html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2
    tableau sont pris dedans (border-box) */
 html .hp-t tfoot tr.hp-pied td{height:23px}
 /* les heures à gauche, les jours à droite, dans la même case (v1283) */
-html .hp-t tfoot td.hp-pv .hp-pvi{display:flex; justify-content:space-between; align-items:baseline; gap:3px; padding:0 1px}
+html .hp-t tfoot td.hp-pv .hp-pvi{display:flex; justify-content:space-between; align-items:baseline; gap:2px}
+/* au plus serré (« 564 h » et « 70,5 j », 66,7 px dans 68), et au-delà
+   un repli : la case qui déborderait encore (« −118 h » et « −14,5 j » en
+   gras, 71 px) resserre ses lettres, mesurée par grSerrePied */
+html .hp-t tfoot td.hp-pv .hp-pvi.hp-serre{letter-spacing:-.4px; gap:1px}
 html .hp-t tfoot td.hp-pt{background:#c7ccd4; font-weight:400}
 html .hp-t tfoot td.hp-pv{background:#f8fafc; font-weight:400}
 html .hp-t tfoot td.hp-pv{border-right:2px solid #64748b}
@@ -20380,14 +20384,18 @@ function renderGrille(){
       /* LES HEURES À GAUCHE, LES JOURS À DROITE (le client, le 02/11/2026 :
          « dans les cellules avec les compteurs, afficher à gauche le nombre
          d'heures et à droite l'équivalent en jours, en sachant qu'une
-         journée, c'est 8 h »). Les jours au dixième (choix du client, en
-         QCM : 103 h font 12,875 j, écrits 12,9 j), arrondis loin de zéro
-         des deux côtés (−14,25 → −14,3) : exacts, ils ne tenaient pas à
-         côté des heures dans les 76 px. Les heures restent exactes, et le
-         survol donne les jours exacts. */
-      cols.forEach(function(c,ci){ var v=val(c.p,t), nb=function(x,d){ var k=Math.pow(10,d), r=(x<0?-1:1)*Math.round(Math.abs(x)*k)/k; return String(r===0?0:r).replace(".",","); };
+         journée, c'est 8 h »). Les jours PAR DEMI-JOURNÉE (le client, le
+         même jour : « les jours doivent être par multiple de 0,5 et
+         toujours arrondis au 0,5 le plus proche » ; v1283 les donnait au
+         dixième) : 77 h font 9,625 j, écrits 9,5 j. À égale distance de
+         deux demis (74 h = 9,25 j), vers zéro, choix du client en QCM :
+         9 j, et −1,75 j donne −1,5 j. Les heures restent exactes, suivies
+         de « h » comme les jours de « j » (même demande), après une
+         espace fine insécable ; le survol donne les jours exacts. */
+      cols.forEach(function(c,ci){ var v=val(c.p,t), nb=function(x,d){ var k=Math.pow(10,d), r=(x<0?-1:1)*Math.round(Math.abs(x)*k)/k; return String(r===0?0:r).replace(".",","); },
+        demi=function(x){ var a=Math.abs(x)*2, f=Math.floor(a), r=(a-f>0.5?f+1:f)/2; return r===0?0:(x<0?-r:r); };
         h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'"'+(typeof v==="number"?' title="'+nb(v,3)+' h = '+nb(v/8,3)+' j (8 h par jour)"':'')+'>'
-          +(typeof v==="number"?'<div class="hp-pvi"><span class="hp-ph">'+nb(v,3)+'</span><span class="hp-pj">'+nb(v/8,1)+'\u00a0j</span></div>':'')+'</td>'); });
+          +(typeof v==="number"?'<div class="hp-pvi"><span class="hp-ph">'+nb(v,3)+'\u202fh</span><span class="hp-pj">'+nb(demi(v/8),1)+'\u202fj</span></div>':'')+'</td>'); });
       h.push((avecCom?'<td class="hp-cv"></td>':'')+'</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/<wbr>"+an+")",T,sol);
@@ -20489,11 +20497,18 @@ function grEtireColonnes(z,t){
   if(n&&!t.classList.contains("hp-tmoi")&&vide>=1) na=(76+Math.floor(vide/n*64)/64)+"px";
   if(na!==a){ if(na) z.style.setProperty("--hp-cl",na); else z.style.removeProperty("--hp-cl"); }
 }
+/* le pied : une case de compteur trop étroite pour ses heures et ses
+   jours resserre ses lettres (voir .hp-serre) ; après l'étirement des
+   colonnes, qui peut lui rendre la place */
+function grSerrePied(t){
+  Array.prototype.forEach.call(t.querySelectorAll("tfoot .hp-pvi"),function(d){ d.classList.remove("hp-serre"); if(d.scrollWidth>d.clientWidth) d.classList.add("hp-serre"); });
+}
 function grCaleTete(){
   grFabs();
   var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
   if(!t||!r) return;
-  grEtireColonnes(z,t); var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
+  grEtireColonnes(z,t);
+  grSerrePied(t); var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
   /* les variables vont sur la zone : le tableau en hérite, et le bandeau
      de « Mon horaire », qui n'est pas dedans, aussi */
   var ro=t.querySelector("thead tr.hp-ops"), ho=ro?ro.getBoundingClientRect().height:0; if(ho>0) z.style.setProperty("--hp-o",Math.round(ho)+"px");
