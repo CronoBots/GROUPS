@@ -4192,3 +4192,128 @@ vérifie :
 Sur la v1303, elle relève « pas de sélecteur ». `inc-test2.js` (v1303)
 compte désormais les seules incohérences à venir, et passe sans faute. Le
 vérificateur du calendrier reste identique à l'octet dans ses cinq modes.
+
+### Les incohérences de poste ; les absents quittent les Effectifs (02/11/2026, `nfdm-v1307`)
+
+Le client : « donc ceci sont des incohérences horaire ; maintenant
+j'aimerais aussi un autre tableau avec incohérence poste, exemple des gens
+indiqués polyvalent avant dans l'Excel original et n'ayant qu'un poste à
+l'avant. Je pense que absent et congé-repos ne doivent pas être dans
+l'onglet reprenant tous les soucis. »
+
+**Où l'Excel dit « polyvalent avant ».** Dans chaque feuille d'équipe, la
+ligne 9 écrit « Polyvalent » trois fois :
+- en `O` (avec `P`), dans le bloc arrière, à côté de la fermentation et de
+  la distillation ;
+- en `AC` et en `AE`, dans le bloc avant, après la meunerie et le gluten.
+
+`docs/conversion-horaire.md` le disait déjà. `O`+`P` est la seule colonne
+que le client attache à un rôle : le polyvalent arrière, qui « peut
+remplacer en fermentation et en distillation ». Le polyvalent avant « tient
+les postes pour lesquels il a la polyvalence ». La polyvalence se lit dans
+la feuille « Polyvalence » (`p.poly.ateliers`), à la date du jour : une
+polyvalence finie ne compte plus.
+
+**Ce que le cadre « Incohérences de poste » relève** (`incPostes`) :
+- **polyvalent avant** sans la meunerie et le gluten ensemble ;
+- **polyvalent arrière** sans la fermentation et la distillation ensemble ;
+- **titulaire** d'un poste (meunerie, gluten, fermentation, distillation,
+  chaudières) sans sa polyvalence ;
+- **écrit à un poste**, un jour à venir, sans sa polyvalence
+  (`posteEcrit`) ; le poste de la formation de chacun est excepté.
+
+Les renforts ne sont pas jugés, puisqu'ils « tiennent les postes pour
+lesquels ils ont la polyvalence ». Une question au client est ouverte
+là-dessus. Le cadre lit le classeur de l'année et celui de l'année
+suivante s'il est installé. Chaque carte dit dans quel classeur on trouve
+l'incohérence ; la toucher ouvre l'onglet Équipes, ou le Planning du jour
+pour un poste écrit.
+
+**Mesuré : 6 incohérences, toutes des polyvalents avant qui n'ont que le
+gluten.**
+- **CJD** (équipe 1) ; **ASS** (équipe 2, dans le classeur 2026 seulement :
+  il n'est plus dans celui de 2027) ; **MMS** et **SPT** (équipe 3) ;
+  **GBT** (équipe 5) : leur polyvalence n'a que le gluten.
+- **GPO** (équipe 4) a le gluten, la fermentation, la distillation et les
+  chaudières, mais pas la meunerie. Le client l'avait rangé au gluten le
+  01/11 (`GR_GROUPE_CLIENT`) ; l'Excel le dit polyvalent avant.
+
+Aucun polyvalent arrière ni titulaire n'est en défaut. Aucun poste écrit à
+venir n'est tenu sans la polyvalence. Avant aujourd'hui, il y en a 19 :
+PAM au gluten ou en meunerie, ALZ et AAI à la station d'épuration. Ceux de
+PAM tombent avant le 30/09/2026, date où la polyvalence de PAM au gluten
+et en meunerie a pris fin : la liste des ateliers ne garde plus une
+polyvalence finie, si bien que les jours d'avant sa fin paraissent tenus
+sans elle. Ce sont des jours passés : le cadre ne les montre pas.
+
+**Le sélecteur passe à cinq voies** : « À prévenir », « Incohérences
+horaire », « Incohérences poste », « Sous-effectif », « Rappels évitables ».
+Au téléphone, il y a deux colonnes, et le cinquième bouton prend toute la
+largeur.
+
+**« Absents, congés et repos » part en tête de l'onglet Équipes.** Le
+Planning ne convient pas : au téléphone, sa vue tient sur un écran au pixel
+près, sans défilement. L'onglet des équipes montre qui les compose,
+et les absents sont ceux qui la dégarnissent. Ce qu'il a fallu reprendre :
+- `renderEquipe`, qui l'écrit, tourne aussi à l'ouverture des Équipes ;
+- ses styles de titre étaient attachés à `#v-rh`. La première capture le
+  montrait titré à gauche, en grand, sans sa barre ; il les reprend par
+  `#eqReste`.
+
+Le sélecteur devient le premier élément des Effectifs.
+
+**Erreur commise :** un commentaire HTML qui écrivait le titre du cadre en
+capitales, suivi d'une virgule, a fait crier `verifier-depot.py` : c'est la
+forme d'un nom suivi d'un prénom.
+Il a été reformulé, et rien n'a été ajouté à la liste des formes admises. **Seconde erreur :** le sélecteur passait en deux colonnes sous
+`(max-width:760px)` seul. Le parcours l'a refusé (« requête du téléphone
+couché qui diverge ») : tout seuil à 760 px doit reprendre au caractère
+près la définition unique du téléphone, couché compris (règle du
+28/10/2026). Il la reprend.
+
+**L'épreuve** `ip-test.js` passe sans faute à 320, 390 et 1280 px. Elle
+vérifie :
+- le sélecteur en tête des Effectifs, sans les absents ;
+- les nombres des boutons (« Incohérences poste 6 ») ;
+- le choix, qui ne montre que son cadre ;
+- les six cartes et leurs phrases, ASS au seul classeur 2026, la
+  polyvalence de GPO ;
+- le toucher, qui ouvre l'onglet Équipes, où « Absents, congés et repos »
+  est en tête.
+
+Sur une copie, trois incohérences sont injectées : DWS sans la
+distillation, ADK titulaire de la meunerie, GBT-1 écrit en meunerie le
+20/11. Elles sont toutes lues. Sur la v1304, l'épreuve échoue (pas de
+bouton « Incohérences poste »). `rh-test.js` et `inc-test2.js` ont été
+mises à jour : sans faute. Le vérificateur du calendrier reste identique à
+l'octet dans ses cinq modes.
+
+**Un classeur est arrivé pendant le travail.** Au moment du push, le robot
+avait installé les classeurs du 02/11 (2026 à 13 h 49, 2027 à 15 h 17) et
+monté `V` à `nfdm-v1306`. Le serveur a refusé le push. Le commit du robot
+a été intégré (`pull --rebase`), et `V` passe à `nfdm-v1307`, au-dessus du
+sien (règle du 28/10/2026). Tout a été remesuré sur les nouveaux
+classeurs :
+- **Incohérences horaire : 14 à venir sur 10 journées** (11 avant). Deux
+  sont nées du classeur. Le 28/11, PLZ passe en RJF, « remplacé par » sans
+  nom, alors que GBT (équipe 5) écrit toujours « SLT et PLZ présents ». Le
+  10/12, la formation de BLR et le « remplace BLR » de FPA ont disparu,
+  mais JKS, en RTT, écrit toujours « remplace BLR ».
+- **« Remplacé par » sans nom**, que le cadre ne lisait pas, est relevé en
+  « remplaçant à préciser ». C'est la seule fois sur les deux années.
+- **La pause d'une présence contredite** est celle de la personne absente
+  (`pz`). Le 28/11, prendre celle de chaque GBT aurait mêlé le matin de
+  GBT-1 à l'après-midi de GBT.
+- **Sous-effectif : 10 pauses** (9 avant). Les incohérences de poste
+  restent 6.
+
+Les épreuves, recalées sur ces nombres, passent sans faute. Celle de
+`inc-test2.js` sur la chaîne du 10/12 (BLR, JKS, FPA) est retirée : le
+classeur ne l'écrit plus. La règle des chaînes reste éprouvée par celle du
+02/11 (CDE, SLT, RDT) et par les copies sabotées. Le vérificateur du
+calendrier est identique à l'octet au commit du robot, dans ses cinq
+modes. Le classeur 2027 apportait un mot nouveau, « Calibration » (FPS le
+01/02/2027, « Calibration skids EtOH »), que `verifier-depot.py` a
+signalé. C'est l'étalonnage des skids d'éthanol, pas une personne : lu
+dans son contexte, il est admis dans `tools/formes-admises.txt` avec sa
+raison.

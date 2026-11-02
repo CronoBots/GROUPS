@@ -649,6 +649,20 @@ body{overflow-x:clip}
 .inc-trou{color:var(--at-rouge)}
 .inc-trou b{font-weight:700}
 .inc-ok{color:var(--muted)}
+/* Incohérences de poste (v1305) : une carte par personne, rangées par sorte */
+#ipCorps{padding-top:0; padding-bottom:12px}
+#ipCorps .ip-s{margin:14px 2px 0; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+#ipCorps .ip-l{display:grid; gap:10px; margin-top:8px}
+@media (min-width:900px){ #ipCorps .ip-l{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))} }
+#ipCorps .ip-c{display:block; width:100%; text-align:left; font:inherit; color:inherit; background:none; cursor:pointer;
+  border:1px solid var(--cadre); border-radius:12px; padding:10px 12px 12px}
+@media (hover:hover){ #ipCorps .ip-c:hover{border-color:var(--trait-fort)} }
+#ipCorps .ip-h{display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px}
+#ipCorps .ip-h .mqc{flex:none}
+#ipCorps .ip-r{font-size:12.5px; color:var(--ink2)}
+#ipCorps .ip-y{margin-left:auto; font-size:11px; color:var(--muted)}
+#ipCorps .ip-p{display:block; margin-top:6px; font-size:13.5px; line-height:1.4; color:var(--ink)}
+#ipCorps .ip-a{display:block; margin-top:4px; font-size:12.5px; line-height:1.4; color:var(--ink2)}
 /* les passées, repliées en bas : elles ne comptent plus */
 .inc-pnote{margin:10px 2px 0; font-size:12px; color:var(--muted)}
 .inc-pm{margin:16px 2px 0; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
@@ -4662,7 +4676,7 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
    --line/--r plus pâle de .card. */
 /* #apCard, posé juste au-dessus de #mqCard, gardait les coins et l'ombre
    de .card (audit du 23/10/2026) */
-#v-rh #mqCard, #v-rh #rnCard, #v-rh #apCard, #v-rh #incCard, #v-rh #eqReste .eqcard{
+#v-rh #mqCard, #v-rh #rnCard, #v-rh #apCard, #v-rh #incCard, #v-rh #ipCard, #eqReste .eqcard{
   border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:var(--ombre-cadre)}
 /* LE TITRE EST UNE BARRE INTERNE collée au contenu — même grammaire que
@@ -4672,12 +4686,12 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
    avait perdu sa barre en partant dans le sien le 10/10 — titre de 21 px à
    gauche, sous-titre de 14 px sur deux lignes à 320 px (audit du
    23/10/2026 ; les cadres uniformisés, le client, le 22/10/2026). */
-#v-rh .card>.toolbar.rhtitle,#caCard>.toolbar.rhtitle{flex-direction:column; align-items:center; gap:2px;
+#v-rh .card>.toolbar.rhtitle,#eqReste .card>.toolbar.rhtitle,#caCard>.toolbar.rhtitle{flex-direction:column; align-items:center; gap:2px;
   padding:9px 14px; border:0; border-bottom:1px solid var(--cadre); border-radius:0;
   background:var(--surface2)}
-#v-rh .rhtitle h2,#caCard .rhtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em; text-align:center}
-#v-rh .rhtitle .sub,#caCard .rhtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
-#v-rh .rhtitle .sub:empty{display:none}
+#v-rh .rhtitle h2,#eqReste .rhtitle h2,#caCard .rhtitle h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.012em; text-align:center}
+#v-rh .rhtitle .sub,#eqReste .rhtitle .sub,#caCard .rhtitle .sub{margin:0; font-size:11px; color:var(--faint); text-align:center}
+#v-rh .rhtitle .sub:empty,#eqReste .rhtitle .sub:empty{display:none}
 /* Les onglets de la Recherche (Congé/Absence/Recherche, trois voies), que
    reprend le cadre « Absents, congés et repos » des Effectifs (.eqabsseg,
    deux voies). La bascule d'Équipe qui partageait ces règles (.eqseg) est
@@ -5184,7 +5198,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
      cadres sur mobile ») : encoche + 28 px partout, « Du jour » compris
      (sa vue fixe a sa propre marge, juste dessous). */
   .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 28px)}
-  #v-rh>.eqcorps:first-child{padding-top:0}
+  #v-equipe>.eqcorps:first-child{padding-top:0}
   /* La vue « Du jour » a son plein écran fixe, avec sa propre marge d'encoche. */
   body[data-view="jour"]{overflow:hidden}
   body[data-view="jour"] .wrap{
@@ -5787,10 +5801,11 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .eqabsseg{grid-template-columns:1fr 1fr; margin:12px 16px 10px}
 /* le choix du souci (Effectifs) : quatre voies sur une ligne, deux sur
    deux au téléphone */
-.rhchoix{grid-template-columns:repeat(4,minmax(0,1fr)); margin:0}
+.rhchoix{grid-template-columns:repeat(5,minmax(0,1fr)); margin:0}
 .rhchoix button{line-height:1.25}
 .rhchoix .eqon:empty{display:none}
-@media (max-width:620px){ .rhchoix{grid-template-columns:1fr 1fr} }
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){ .rhchoix{grid-template-columns:1fr 1fr}
+  .rhchoix button:last-child:nth-child(odd){grid-column:1/-1} }
 .eqabsseg .eqon{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; opacity:.75; margin-left:3px}
 #eqAbsCard .eqrows{padding:0 16px; border-top:1px solid var(--trait)}
 #eqAbsCard .mqmois:last-child>.mqtog{border-bottom:0}
@@ -8951,6 +8966,11 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
     <!-- Le titre « Les équipes » est désormais une BARRE dans la carte du tableau
          (injectée par renderOrganisation), collée au tableau comme la barre de
          date d'horaire — plus de titre flottant au-dessus (le client, 05/10/2026). -->
+    <!-- « Absents, congés et repos » vient des Effectifs (le client, le
+         02/11/2026 : ils ne sont pas un souci). Ici, avec les équipes qu'ils
+         dégarnissent ; pas au Planning, qui tient sur un écran au téléphone.
+         Rendu par renderEquipe, sur aujourd'hui. -->
+    <div class="eqcorps" id="eqReste"></div>
     <div class="stack" id="eqsub-equipes">
     <div class="orgcorps" id="orgCorps"></div>
     </div><!-- /#eqsub-equipes -->
@@ -9123,19 +9143,22 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
          AUJOURD'HUI » dans renderEquipe). La barre de jour ne pilotait donc rien
          d'utile dans RH : retirée. -->
 
-    <!-- Absents et congés en tête : il dit AUJOURD'HUI, les deux cadres
-         suivants les jours à venir (le client, le 10/10/2026). -->
-    <div class="eqcorps" id="eqReste"></div>
+    <!-- « Absents, congés et repos » n'est plus ici (le client, le
+         02/11/2026 : « absent et congé-repos ne doivent pas être dans
+         l'onglet reprenant tous les soucis ») : il est en tête de l'onglet
+         Équipes. -->
 
     <!-- LE TYPE DE SOUCI (le client, le 02/11/2026 : « j'aimerais bien que
          sur cette page, dans le haut, on puisse choisir le type de soucis :
          prévenir, incohérence, sous-effectif ») : un cadre à la fois, dans
-         son ordre, et les rappels évitables avec eux. Sous « Absents, congés
-         et repos », qui reste en tête (le client, le 10/10/2026). Le nombre
+         son ordre, et les rappels évitables avec eux ; les incohérences de
+         poste après celles de l'horaire (le 02/11/2026, au soir). En tête de
+         la page depuis que les absents sont partis dans Équipes. Le nombre
          de chaque sorte est sur son bouton. -->
     <div class="caseg rhchoix" id="rhChoix" role="tablist" aria-label="Type de souci">
       <button type="button" role="tab" id="rhc-ap" data-rh="ap" aria-controls="apCard" aria-selected="true" tabindex="0">À prévenir <span class="eqon" id="rhn-ap"></span></button>
-      <button type="button" role="tab" id="rhc-inc" data-rh="inc" aria-controls="incCard" aria-selected="false" tabindex="-1">Incohérences <span class="eqon" id="rhn-inc"></span></button>
+      <button type="button" role="tab" id="rhc-inc" data-rh="inc" aria-controls="incCard" aria-selected="false" tabindex="-1">Incohérences horaire <span class="eqon" id="rhn-inc"></span></button>
+      <button type="button" role="tab" id="rhc-ip" data-rh="ip" aria-controls="ipCard" aria-selected="false" tabindex="-1">Incohérences poste <span class="eqon" id="rhn-ip"></span></button>
       <button type="button" role="tab" id="rhc-mq" data-rh="mq" aria-controls="mqCard" aria-selected="false" tabindex="-1">Sous-effectif <span class="eqon" id="rhn-mq"></span></button>
       <button type="button" role="tab" id="rhc-rn" data-rh="rn" aria-controls="rnCard" aria-selected="false" tabindex="-1">Rappels évitables <span class="eqon" id="rhn-rn"></span></button>
     </div>
@@ -9152,6 +9175,15 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
     <div class="card" id="incCard" role="tabpanel" aria-labelledby="rhc-inc" hidden>
       <div class="toolbar rhtitle"><h2>Incohérences de l'horaire</h2><p class="sub" id="incSub"></p></div>
       <div class="mqcorps" id="incCorps"></div>
+    </div>
+
+    <!-- Les incohérences de poste : le rôle écrit dans la feuille d'équipe
+         face à la polyvalence (le client, le 02/11/2026 : « des gens
+         indiqués polyvalent avant dans l'Excel original, n'ayant qu'un poste
+         à l'avant »). -->
+    <div class="card" id="ipCard" role="tabpanel" aria-labelledby="rhc-ip" hidden>
+      <div class="toolbar rhtitle"><h2>Incohérences de poste</h2><p class="sub" id="ipSub"></p></div>
+      <div class="mqcorps" id="ipCorps"></div>
     </div>
 
     <div class="card" id="mqCard" role="tabpanel" aria-labelledby="rhc-mq" hidden>
@@ -13280,7 +13312,9 @@ function setView(v,keepScroll){
      son ouverture rend l'équipe du jour (qui alimente #jourCorps caché PUIS
      renderManques/renderRappelsInutiles). L'Accueil, lui, ne montre que
      « Mon rythme ». */
-  if(v==="jour"||v==="rh") renderEquipe();
+  /* l'onglet Équipes porte « Absents, congés et repos » (v1305), que
+     renderEquipe écrit */
+  if(v==="jour"||v==="rh"||v==="equipe") renderEquipe();
   if(v==="horaire") renderRythme();
   /* Les équipes se peignent d'abord ; la polyvalence (premier calcul ≈1,4 s
      au téléphone) suit à l'image d'après (audit du 23/10/2026). */
@@ -29789,6 +29823,7 @@ function renderEquipe(){
     renderRappelsInutiles();
     renderTransferts();
     try{ renderIncoherences(); }catch(e){}
+    try{ renderIncPostes(); }catch(e){}
   });
 }
 /* ── La polyvalence : combien de journées COMPLÈTES à chaque autre poste ──
@@ -31428,6 +31463,10 @@ function incoherencesDuJour(db,an,m,j){
       noms.forEach(function(n){ var y=tri(n); if(!par[y]){ inconnu(moi,n); return; } if(y===x) return;
         (rep[x]=rep[x]||[]).push({y:y, src:moi, h:hp}); });
     }
+    /* « remplacé par » sans nom (PLZ en RJF le 28/11, classeur du 02/11 à
+       13 h 49) : le remplaçant n'est pas écrit */
+    rx=new RegExp("\\b"+INC_RAC+"?[\\u00e9e]e?s?\\s+(?:par|pa|p\\.)\\s*(?=$|[\\n.;])","gi");
+    if(rx.test(c)) ajoute({t:"preciser", x:moi, vide:true, pz:[moi], qui:[moi]});
     /* « remplacé RDT » : le « par » oublié (CDE, absent, le 02/11) — en
        capitales seulement, « remplacé aux chaudières par » n'en est pas un */
     rx=new RegExp("\\b"+INC_RAC+"?\\u00e9e?s?\\s+([A-Z]{3})\\b(?!\\s*\\?)","gi");
@@ -31465,12 +31504,12 @@ function incoherencesDuJour(db,an,m,j){
        commentaire affirme que d'autres sont là ; leur journée le dit-elle ? */
     rx=/\b([A-Z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Z]{3})*)\s*:?\s+pr[ée]sente?s?\b|[éÉe]quipe\s+(?:au\s+)?compl[eè]te?\s*\(\s*([A-Z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Z]{3})*)\s*\)/g;
     while((mm=rx.exec(c))){ var cite=mm[0]; liste(mm[1]||mm[2]).forEach(function(n){ var y4=tri(n); if(!par[y4]||y4===moi) return;
-      if(!present(y4)) ajoute({t:"presence", x:moi, y:y4, cite:cite.replace(/\s+/g," "), motif:motif(y4), qui:[moi,y4]}); }); }
+      if(!present(y4)) ajoute({t:"presence", x:moi, y:y4, cite:cite.replace(/\s+/g," "), motif:motif(y4), pz:[y4], qui:[moi,y4]}); }); }
     /* et l'inverse : « BLR absent » (CGI le 16/10), alors que sa journée
        le met au travail */
     rx=/\b([A-Z]{3})\s+absente?\b/g;
     while((mm=rx.exec(c))){ var y5=tri(mm[1]); if(!par[y5]||y5===moi) continue; var pv5=present(y5);
-      if(pv5) ajoute({t:"presence", x:moi, y:y5, cite:mm[0], dit:"absent", pv:pv5, qui:[moi,y5]}); }
+      if(pv5) ajoute({t:"presence", x:moi, y:y5, cite:mm[0], dit:"absent", pv:pv5, pz:[y5], qui:[moi,y5]}); }
   });
   Object.keys(ou).forEach(function(x){ var dit=(rep[x]||[]).filter(function(r){ return r.src===r.y && ou[x].indexOf(r.y)>=0; });
     if(dit.length!==1) ajoute({t:"preciser", x:x, y:ou[x].join(" ou "), ou:ou[x], pz:[x], qui:[x].concat(ou[x].filter(function(z){ return par[z]; }))}); });
@@ -31513,6 +31552,7 @@ function incPhrase(o){
   if(o.t==="inconnu") return o.x+" nomme « "+o.y+" », qui n'est pas dans l'horaire : faute de frappe pour "+liste(o.sug).replace(/ et /," ou ")+" ?";
   if(o.ou) return o.x+" est « remplacé par "+o.y+" » : le remplaçant n'est pas tranché.";
   if(o.doute) return "Le remplacement de "+o.x+" par "+o.y+" est noté avec un « ? » : à confirmer.";
+  if(o.vide) return o.x+" est « remplacé par », sans nom : le remplaçant n'est pas écrit.";
   return o.x+" est « remplacé par ? » : le remplaçant n'est pas écrit.";
 }
 /* Les incohérences d'un jour à un autre, bornes comprises ; avec pas(), une
@@ -31636,10 +31676,95 @@ function renderIncoherences(force){
     setView("jour");
   };
 }
+/* LES INCOHÉRENCES DE POSTE (le client, le 02/11/2026 : « ceci sont des
+   incohérences horaire ; maintenant j'aimerais aussi un autre tableau avec
+   incohérence poste, exemple des gens indiqués polyvalent avant dans
+   l'Excel original et n'ayant qu'un poste à l'avant »). Le rôle que la
+   ligne 9 d'une feuille d'équipe donne, face à la feuille « Polyvalence » :
+   - POLYVALENT AVANT (« Polyvalent » en AC, AE) sans la meunerie ET le
+     gluten ;
+   - POLYVALENT ARRIÈRE (« Polyvalent » en O+P, la seule colonne que le
+     client attache à un rôle) sans la fermentation ET la distillation,
+     qu'il doit pouvoir remplacer (conversion-horaire.md) ;
+   - TITULAIRE d'un poste (meunerie, gluten, fermentation, distillation,
+     chaudières) sans sa polyvalence ;
+   - ÉCRIT À UN POSTE, un jour à venir, sans sa polyvalence (« on ne tient
+     que ce qu'on possède »), le poste de sa formation excepté.
+   La polyvalence se lit à la date : une polyvalence finie ne compte plus.
+   Les renforts ne sont pas jugés : « il tient les postes pour lesquels il a
+   la polyvalence ». Le classeur de l'année et celui d'après, s'il est là. */
+var IP_NOMS={pav:"Polyvalent avant", par:"Polyvalent arrière", titre:"Titulaire sans la polyvalence", jour:"Écrit à un poste sans la polyvalence"};
+var IP_ART={meun:"la Meunerie", glut:"le Gluten", ferm:"la Fermentation", dist:"la Distillation", chau:"les Chaudières", step:"la station d'épuration", terr:"le terrain arrière"};
+function incPostes(){
+  var au=jourUsine(), j0=au.getFullYear()*10000+(au.getMonth()+1)*100+au.getDate(), out={}, ordre=[];
+  function a(p,k,jour){ for(var i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k===k) return !!aLaPolyvalence(p,POSTES_TRAVAIL[i],jour); return false; }
+  function note(o,an){ var c=o.t+"|"+idLisible(o.p.id)+"|"+(o.eq||"")+"|"+(o.k||"")+"|"+(o.an||"")+(o.md||"");
+    if(!out[c]){ o.ans=[]; out[c]=o; ordre.push(c); } if(out[c].ans.indexOf(an)<0) out[c].ans.push(an); }
+  HORAIRE_ANNEES.forEach(function(an){ var db=horaireSuivant(an); if(!db||an<au.getFullYear()) return;
+    var jour=an===au.getFullYear()?j0:an*10000+101;
+    db.people.forEach(function(p){ if(estCadre(p)) return;
+      var ps=p.postes||{};
+      Object.keys(ps).forEach(function(f){ if(!/^Shift\s*\d/i.test(f)) return;
+        var lib=String(ps[f].p||"").trim(), col=String(ps[f].c||"").toUpperCase(), eq=f.replace(/\D+/g,"");
+        if(/adjoint|renfort/i.test(lib)) return;
+        if(/^polyvalent$/i.test(lib)){
+          var arr=col==="O"||col==="P", k1=arr?"ferm":"meun", k2=arr?"dist":"glut", h1=a(p,k1,jour), h2=a(p,k2,jour);
+          if(!(h1&&h2)) note({t:arr?"par":"pav", p:p, eq:eq, col:col, lib:lib, a:h1?[k1]:h2?[k2]:[], m:(h1?[]:[k1]).concat(h2?[]:[k2])},an);
+          return; }
+        var k=null; try{ k=posteDepuisNom(lib); }catch(e){}
+        if(k && /^(meun|glut|ferm|dist|chau)$/.test(k) && !a(p,k,jour)) note({t:"titre", p:p, eq:eq, col:col, lib:lib, k:k},an);
+      });
+      /* les jours à venir : le poste que la case écrit */
+      var fo=null; try{ fo=posteDeFormation(p); }catch(e){}
+      Object.keys(p.d||{}).forEach(function(md){ var jj=an*10000+Number(md); if(jj<j0) return;
+        var raw=p.d[md], k2=null; try{ k2=posteEcrit(raw); }catch(e){}
+        if(!k2||!IP_ART[k2]||k2===fo||a(p,k2,jj)) return;
+        note({t:"jour", p:p, k:k2, an:an, md:md, raw:raw},an); });
+    });
+  });
+  return ordre.map(function(c){ return out[c]; });
+}
+function ipCarte(o){
+  var id=idLisible(o.p.id), at=(o.p.poly&&o.p.poly.ateliers)||[], role, phr, data;
+  function maj(t){ return t.charAt(0).toUpperCase()+t.slice(1); }
+  if(o.t==="pav"||o.t==="par"){ var cote=o.t==="pav"?"avant":"arrière";
+    role="Équipe "+o.eq+" · « Polyvalent » à l'"+cote;
+    phr="Indiqué polyvalent "+cote+" dans l'Excel, mais "+(o.a.length
+      ?"n'a que "+IP_ART[o.a[0]]+" à l'"+cote+" : "+IP_ART[o.m[0]]+" lui manque."
+      :"n'a ni "+IP_ART[o.m[0]]+" ni "+IP_ART[o.m[1]]+".");
+    data=' data-eq="1"'; }
+  else if(o.t==="titre"){ role="Équipe "+o.eq+" · « "+o.lib+" »";
+    phr="Titulaire de "+IP_ART[o.k]+" dans l'Excel, sans en avoir la polyvalence."; data=' data-eq="1"'; }
+  else { var m=Number(o.md.slice(0,2)), j=Number(o.md.slice(2));
+    role="Le "+pad2(j)+"/"+pad2(m)+(o.an!==jourUsine().getFullYear()?"/"+o.an:"")+" · "+[o.raw[0],o.raw[1]].filter(function(x){ return String(x||"").trim(); }).join(" · ");
+    phr=maj("l'horaire le met à "+IP_ART[o.k]+", sans la polyvalence de ce poste.");
+    data=' data-a="'+o.an+'" data-m="'+m+'" data-j="'+j+'"'; }
+  return '<button type="button" class="ip-c"'+data+'><span class="ip-h"><span class="mqc"><b>'+esc(id)+'</b></span><span class="ip-r">'+esc(role)+'</span>'
+    +'<span class="ip-y">'+esc((o.ans.length>1?"classeurs ":"classeur ")+o.ans.join(" et "))+'</span></span>'
+    +'<span class="ip-p">'+esc(phr)+'</span><span class="ip-a">Polyvalence : '+esc(at.length?at.join(", "):"aucune")+'</span></button>';
+}
+var ipFait="";
+function renderIncPostes(force){
+  var hote=document.getElementById("ipCorps"); if(!hote) return;
+  var au=jourUsine(), cle=au.toDateString()+"/"+HORAIRE_ANNEES.map(function(a){ var d=horaireSuivant(a); return d?d.maj:""; }).join("/");
+  if(!force && cle===ipFait) return;
+  ipFait=cle;
+  var l=incPostes(), h=[];
+  ["pav","par","titre","jour"].forEach(function(t){ var L=l.filter(function(o){ return o.t===t; }); if(!L.length) return;
+    h.push('<p class="ip-s">'+esc(IP_NOMS[t])+" · "+L.length+'</p><div class="ip-l">'+L.map(ipCarte).join("")+"</div>"); });
+  hote.innerHTML=h.join("")||'<p class="mqok-vide"><b>'+MQ_OK_V+" Rien à signaler</b><span>Chacun a la polyvalence du poste que l'Excel lui donne.</span></p>";
+  document.getElementById("ipSub").textContent=l.length?l.length+" incohérence"+(l.length>1?"s":"")+" · feuilles d'équipe face à la polyvalence":"";
+  rhCompte("ip",l.length);
+  /* toucher une carte ouvre l'onglet Équipes (sa feuille et la grille des
+     polyvalences), ou le Planning du jour écrit */
+  hote.onclick=function(e){ var b=e.target.closest?e.target.closest(".ip-c"):null; if(!b) return;
+    if(b.dataset.eq){ setView("equipe"); return; }
+    eqDate=new Date(Number(b.dataset.a),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false; setView("jour"); };
+}
 /* LE CHOIX DU SOUCI, en haut des Effectifs (le client, le 02/11/2026) : un
    cadre à la fois, le dernier choisi retenu sur l'appareil ; chaque cadre
    écrit son nombre sur son bouton. */
-var RH_CHOIX={ap:"apCard", inc:"incCard", mq:"mqCard", rn:"rnCard"};
+var RH_CHOIX={ap:"apCard", inc:"incCard", ip:"ipCard", mq:"mqCard", rn:"rnCard"};
 function rhChoisir(k){
   if(!RH_CHOIX[k]) k="ap";
   Object.keys(RH_CHOIX).forEach(function(c){ var el=document.getElementById(RH_CHOIX[c]), b=document.getElementById("rhc-"+c);

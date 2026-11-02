@@ -125,6 +125,16 @@ des questions au client ».
   terrain arrière est sur le canal 2, confirmé ; la STEP et le
   contremaître n'ont pas de radio.)
 
+- **Les renforts dans les « Incohérences de poste » (02/11/2026, v1305).**
+  Un polyvalent avant qui n'a pas la meunerie et le gluten, et un
+  polyvalent arrière qui n'a pas la fermentation et la distillation, sont
+  relevés. Les renforts ne le sont pas : ils « tiennent les postes pour
+  lesquels ils ont la polyvalence ». Pourtant, un renfort arrière relaie
+  le polyvalent arrière au terrain arrière, qui demande les deux postes,
+  et BBZ (distillation) ou QBY (gluten, distillation) n'ont pas la
+  fermentation. De même, un renfort avant « va au gluten » : YRS et SMK
+  n'ont que la meunerie. Faut-il les relever aussi ?
+
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
