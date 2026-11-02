@@ -888,6 +888,14 @@ peut tenir en plus obéit à des règles distinctes :
 - **Renfort avant** — même règle : le plus souvent au gluten, et seulement les
   postes où il a la polyvalence.
 
+**Ce qui est une incohérence de poste** (le client, le 02/11/2026, en QCM
+pour les renforts : « oui, les deux ») : un polyvalent avant sans la
+meunerie ET le gluten ; un polyvalent arrière sans la fermentation ET la
+distillation ; un renfort arrière sans la fermentation ET la distillation,
+puisqu'il relaie au terrain arrière, qui demande les deux ; un renfort
+avant sans le gluten, où il va par défaut. Le cadre « Incohérences de
+poste » des Effectifs les relève (v1309).
+
 **Ce que l'application en fait, depuis le 21/09/2026.** Le client : « Terrain
 arrière doit comprendre les opérateurs Polyvalent arrière ; s'ils ne sont pas
 là, les Renforts arrière ». L'onglet Équipe lit donc la ligne 9 pour ce poste :

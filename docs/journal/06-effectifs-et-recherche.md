@@ -4350,3 +4350,29 @@ l'équipe 1, passe de `O` en `R` et perd la distillation :
 
 `docs/conversion-horaire.md` est corrigé sur place. Il disait « à la seule
 exception du couple `O`+`P` » ; le client l'a repris.
+
+### Les renforts sans leurs postes (02/11/2026, `nfdm-v1309`)
+
+La question restée ouverte à la v1307, posée en QCM : « faut-il relever
+aussi les renforts ? ». Le client a répondu « oui, les deux ». Deux
+sortes s'ajoutent au cadre « Incohérences de poste » ; le libellé de la
+ligne 9 (« Renfort arrière », « Renfort avant ») les nomme, sans lettre de
+colonne :
+- **renfort arrière** sans la fermentation ET la distillation : il relaie
+  le polyvalent arrière au terrain arrière, qui demande les deux ;
+- **renfort avant** sans le gluten, où il va par défaut.
+
+**Mesuré sur les classeurs du 02/11/2026 : 5 de plus, 11 en tout.**
+- Renfort avant : **YRS** (équipe 2) et **SMK** (équipe 4) n'ont que la
+  meunerie.
+- Renfort arrière : **BBZ** (équipe 1) n'a que la distillation. **QBY**
+  (équipe 4) a le gluten et la distillation, pas la fermentation. **LHS**
+  (équipe 5) n'a que la fermentation ; c'est dans le classeur 2026
+  seulement.
+- En règle et non relevés : ALZ, GKT et AAI (renforts arrière, les deux
+  postes) ; DBE (renfort avant, le gluten).
+
+`ip-test.js` les attend un par un, et vérifie qu'aucun renfort en règle
+n'est relevé. Sans faute à 320, 390 et 1280 px ; 3 fautes sur la v1308. La
+question est retirée de `docs/questions-client.md`, et la règle est écrite
+dans `docs/conversion-horaire.md` (« Ce que chacun peut tenir »).

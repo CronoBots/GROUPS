@@ -31688,10 +31688,13 @@ function renderIncoherences(force){
      chaudières) sans sa polyvalence ;
    - ÉCRIT À UN POSTE, un jour à venir, sans sa polyvalence (« on ne tient
      que ce qu'on possède »), le poste de sa formation excepté.
+   - RENFORT ARRIÈRE sans la fermentation ET la distillation : il relaie le
+     polyvalent arrière au terrain arrière, qui demande les deux ; RENFORT
+     AVANT sans le gluten, où il va par défaut (le client, le 02/11/2026,
+     en QCM : « oui, les deux »).
    La polyvalence se lit à la date : une polyvalence finie ne compte plus.
-   Les renforts ne sont pas jugés : « il tient les postes pour lesquels il a
-   la polyvalence ». Le classeur de l'année et celui d'après, s'il est là. */
-var IP_NOMS={pav:"Polyvalent avant", par:"Polyvalent arrière", titre:"Titulaire sans la polyvalence", jour:"Écrit à un poste sans la polyvalence"};
+   Le classeur de l'année et celui d'après, s'il est là. */
+var IP_NOMS={pav:"Polyvalent avant", par:"Polyvalent arrière", rav:"Renfort avant", rar:"Renfort arrière", titre:"Titulaire sans la polyvalence", jour:"Écrit à un poste sans la polyvalence"};
 var IP_ART={meun:"la Meunerie", glut:"le Gluten", ferm:"la Fermentation", dist:"la Distillation", chau:"les Chaudières", step:"la station d'épuration", terr:"le terrain arrière"};
 /* LE CÔTÉ D'UN « POLYVALENT » SE LIT À SES VOISINS DE LA LIGNE 9, jamais
    à la lettre de sa colonne (le client, le 02/11/2026 : « il ne faut pas se
@@ -31724,7 +31727,12 @@ function incPostes(){
       var ps=p.postes||{};
       Object.keys(ps).forEach(function(f){ if(!/^Shift\s*\d/i.test(f)) return;
         var lib=String(ps[f].p||"").trim(), col=String(ps[f].c||"").toUpperCase(), eq=f.replace(/\D+/g,"");
-        if(/adjoint|renfort/i.test(lib)) return;
+        if(/adjoint/i.test(lib)) return;
+        if(/^renfort\s+arr/i.test(lib)){ var f1=a(p,"ferm",jour), d1=a(p,"dist",jour);
+          if(!(f1&&d1)) note({t:"rar", p:p, eq:eq, col:col, lib:lib, a:f1?["ferm"]:d1?["dist"]:[], m:(f1?[]:["ferm"]).concat(d1?[]:["dist"])},an);
+          return; }
+        if(/^renfort\s+av/i.test(lib)){ if(!a(p,"glut",jour)) note({t:"rav", p:p, eq:eq, col:col, lib:lib},an); return; }
+        if(/renfort/i.test(lib)) return;
         if(/^polyvalent$/i.test(lib)){
           var cote=ipCote(L9[f]||[],col); if(!cote) return;
           var arr=cote==="ar", k1=arr?"ferm":"meun", k2=arr?"dist":"glut", h1=a(p,k1,jour), h2=a(p,k2,jour);
@@ -31752,6 +31760,14 @@ function ipCarte(o){
       ?"n'a que "+IP_ART[o.a[0]]+" à l'"+cote+" : "+IP_ART[o.m[0]]+" lui manque."
       :"n'a ni "+IP_ART[o.m[0]]+" ni "+IP_ART[o.m[1]]+".");
     data=' data-eq="1"'; }
+  else if(o.t==="rar"){ role="Équipe "+o.eq+" · « "+o.lib+" »";
+    phr="Indiqué renfort arrière dans l'Excel, mais "+(o.a.length
+      ?"n'a que "+IP_ART[o.a[0]]+" à l'arrière : "+IP_ART[o.m[0]]+" lui manque pour relayer au terrain arrière."
+      :"n'a ni la Fermentation ni la Distillation.");
+    data=' data-eq="1"'; }
+  else if(o.t==="rav"){ role="Équipe "+o.eq+" · « "+o.lib+" »";
+    phr="Indiqué renfort avant dans l'Excel, mais n'a pas le Gluten, où il va par défaut.";
+    data=' data-eq="1"'; }
   else if(o.t==="titre"){ role="Équipe "+o.eq+" · « "+o.lib+" »";
     phr="Titulaire de "+IP_ART[o.k]+" dans l'Excel, sans en avoir la polyvalence."; data=' data-eq="1"'; }
   else { var m=Number(o.md.slice(0,2)), j=Number(o.md.slice(2));
@@ -31769,7 +31785,7 @@ function renderIncPostes(force){
   if(!force && cle===ipFait) return;
   ipFait=cle;
   var l=incPostes(), h=[];
-  ["pav","par","titre","jour"].forEach(function(t){ var L=l.filter(function(o){ return o.t===t; }); if(!L.length) return;
+  ["pav","par","rav","rar","titre","jour"].forEach(function(t){ var L=l.filter(function(o){ return o.t===t; }); if(!L.length) return;
     h.push('<p class="ip-s">'+esc(IP_NOMS[t])+" · "+L.length+'</p><div class="ip-l">'+L.map(ipCarte).join("")+"</div>"); });
   hote.innerHTML=h.join("")||'<p class="mqok-vide"><b>'+MQ_OK_V+" Rien à signaler</b><span>Chacun a la polyvalence du poste que l'Excel lui donne.</span></p>";
   document.getElementById("ipSub").textContent=l.length?l.length+" incohérence"+(l.length>1?"s":"")+" · feuilles d'équipe face à la polyvalence":"";
