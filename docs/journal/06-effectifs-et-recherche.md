@@ -4376,3 +4376,17 @@ colonne :
 n'est relevé. Sans faute à 320, 390 et 1280 px ; 3 fautes sur la v1308. La
 question est retirée de `docs/questions-client.md`, et la règle est écrite
 dans `docs/conversion-horaire.md` (« Ce que chacun peut tenir »).
+
+### Le 28/11 : « remplacé par » sans nom, et JBI qui écrit « remplace PLZ » (02/11/2026, `nfdm-v1311`)
+
+Le client : « si tu avais vérifié pour le 28/11, c'est JBI qui remplace
+PLZ, mais il y a bien une incohérence, car il n'est pas précisé qui
+remplace dans le commentaire de PLZ ». PLZ a `["PM","RJF","remplacé
+par"]`, et JBI `["PM","gluten","remplace PLZ"]`.
+
+Le cadre relevait bien l'incohérence, mais sans croiser les autres
+commentaires (la règle « les commentaires d'abord »). Il disait « le
+remplaçant n'est pas écrit » sans nommer JBI. Désormais : « PLZ est
+« remplacé par », sans nom ; c'est JBI qui écrit « remplace PLZ ». Le nom
+manque dans la case de PLZ. » La case de JBI s'affiche avec celles de
+PLZ. `inc-test2.js` l'attend, et relève la faute sur la v1310.

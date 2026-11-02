@@ -2350,29 +2350,28 @@ postes sans que personne l'ait dit.
 disparaissent.** Le douzième est réel : le 9 octobre au matin, VGG et ALZ
 sont à une autre formation, et le poste de contremaître est vraiment vide.
 
-### « F » avec une plage de pause : la formation à ses heures, le poste le reste
+### « F » avec une plage de pause : toute la journée en formation
 
 Le client, le 02/11/2026, devant le Planning du 06/11 : « pourquoi JBS
 n'est pas dans la ligne formation ? ». JBS y a `["6h-14h","F","Formation
 bull 8h30-12h30"]`. La plage `6h-14h` nomme le matin, et une plage qui
 nomme une pause garde la personne à son poste (GPS au CPPT, le
 25/09/2026). JBS restait donc aux chaudières, et à des heures qui étaient
-celles de sa formation. Question posée en QCM, réponse : **« formation, puis
-poste le reste »** (`formationDePlage`) :
-- les heures de formation sont la première plage d'heures du commentaire
-  qui ne suit pas un « remplace X de » ;
-- **sans heures écrites, ou avec autant d'heures que la plage**, la
-  formation prend toute la journée. La personne sort de son poste et va
-  dans la ligne Formation, à ses heures écrites. Exemples : AAI le 16/12,
-  `6h-14h`, « ATEX 08h30-16h30 » ; CJD le 11/09, « Formation ARI - CEPS
-  Seraing ».
-- **Sinon,** elle est en Formation à ces heures et à son poste le reste de
-  sa plage, en deux morceaux au plus. Exemples : JBS en Formation de 08h30
-  à 12h30, aux chaudières de 06h à 08h30 puis de 12h30 à 14h ; GDT et KDN
-  le 18/11, « anglais 8h-11h ». Si le poste reste alors sous son effectif,
-  la case le dit à ces heures. Ce n'est pas le cas quand le classeur nomme
-  un remplaçant (JBS le 21/05, « Remplacé par QDE de 14h à 16h15 »).
+celles de sa formation.
 
+Question posée en QCM. Une première réponse, « formation, puis poste le
+reste », n'était pas la sienne : il ne l'avait pas vue, et l'a fait
+reposer. **Sa réponse : « toute la journée en formation »**
+(`formationDePlage`, v1311) :
+- dès que l'annotation est F, la personne va dans la ligne Formation et
+  ne compte plus à son poste, même avec une plage de pause ;
+- elle n'est pas non plus un relais de 12 h (`relaisDouze`) ;
+- la ligne Formation montre ses heures écrites, soit la première plage
+  d'heures du commentaire qui ne suit pas un « remplace X de » (JBS
+  08h30-12h30, AAI le 16/12 08h30-16h30). À défaut, ce sont celles de sa
+  case.
+
+Les projets restent à leur poste (`PROJETS_SUR_POSTE`, « falling film »).
 La paie ne change pas : la journée « F » se lit toujours « prestée en
 jour ».
 

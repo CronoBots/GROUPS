@@ -10502,7 +10502,10 @@ badge y affichait 08h30-12h30, qui sont les heures de sa formation
 (`plageModifiee` lit les heures du commentaire). C'était faux dans tous les
 cas.
 
-**Question au client, en QCM :** « formation, puis poste le reste ». La
+**Question au client, en QCM :** « formation, puis poste le reste ».
+**Corrigé le même soir (v1311, ci-dessous) :** cette réponse n'était pas
+la sienne. Il n'avait pas vu la question (« renvoie la demande, je ne l'ai
+pas vue »), et, reposée, il a choisi « toute la journée en formation ». La
 règle est écrite dans `docs/conversion-horaire.md`. Le code :
 - `formationDePlage` lit la plage de la case et les heures de formation du
   commentaire ;
@@ -10553,3 +10556,44 @@ toujours la journée « F » prestée en jour.
 **L'épreuve** `form-test.js` passe sans faute à 320, 390 et 1280 px. Elle
 vérifie les 06/11, 18/11, 16/12, 11/09 et 21/05 ; sur la v1309, elle relève
 11 fautes.
+
+### La question reposée : toute la journée en formation (02/11/2026, `nfdm-v1311`)
+
+Le client : « renvoie la demande, je ne l'ai pas vue ». Les deux QCM de la
+soirée avaient reçu une réponse sans qu'il les voie, à chaque fois le
+choix recommandé. Les deux ont été reposés, une question à la fois :
+- **la formation à plage de pause : « toute la journée en formation »**,
+  et non « formation, puis poste le reste » (v1310). Cela change donc ;
+- les renforts dans les incohérences de poste : « oui, les deux »,
+  confirmé (v1309 inchangée).
+
+**Ce qui change.** `surSonPosteMalgreF` sort de son poste toute journée F
+à plage de pause (`formationDePlage`), sauf un projet. La passe
+d'affichage en deux morceaux de la v1310 (`horParts`, le trou d'heures, le
+badge qui grandit) est retirée. Il reste celle qui montre, dans la ligne
+Formation, les heures écrites de la formation.
+
+**Une erreur trouvée en mesurant.** Le 21/05, JBS (« 12h-22h », D-F) était
+bien en formation, mais `relaisDouze` lisait encore sa plage de 12 h et le
+comptait comme relais aux chaudières de l'après-midi. Une journée F sortie
+du poste n'est plus un relais.
+
+**Mesuré par rapport à la v1310, sur 730 jours :**
+- JBS (06/11), GDT et KDN (18/11, puis quatre fois de mars à juin 2027),
+  et les Safety Days du 27/05, ne sont plus à leur poste. Ils étaient
+  partout en plus de l'effectif : aucun trou ne naît d'ici la fin de
+  l'horaire.
+- Le 21/05 (passé), JBS en formation toute la journée laisse les
+  chaudières de l'après-midi à une place sur deux : un sous-effectif
+  apparaît au Planning. Le rééquilibrage y propose FPS. Sa case écrit
+  « Meunerie », mais il sait tenir plusieurs postes, et la règle du
+  22/10/2026 le permet alors. Son décompte de polyvalence en meunerie
+  passe donc de 8 à 7 journées. C'est le seul changement des sorties du
+  vérificateur (`--polyvalence`). Les quatre autres modes et les agendas
+  sont identiques.
+
+**Une erreur dans l'épreuve.** Réécrite par un script dont le shell
+interprétait les antislashs, `form-test.js` avait perdu les `\b` de quatre
+motifs. Ces vérifications ne pouvaient plus échouer. Elles sont réparées :
+l'épreuve passe sans faute à 320, 390 et 1280 px, et relève 5 fautes sur
+la v1310.
