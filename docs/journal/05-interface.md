@@ -9733,3 +9733,30 @@ j » en gras, équipe 1, colonnes de 76 px) :
 - sans le repli (seconde copie), elle déborde de 3 px, et l'épreuve crie
   à 1440 et 390 px.
 
+### L'onglet Horaire : les titres des compteurs sans « en HEURES », FT− sans signe (02/11/2026, `nfdm-v1285`)
+
+Le client, capture de son iPhone : « l'intitulé "en HEURES" n'est plus
+nécessaire dans les titres des tableaux compteurs. Il ne faut pas mettre
+en négatif les compteurs FT−, mais le calcul derrière doit rester le
+même. »
+
+**Fait :**
+- les trois titres deviennent « Soldes au (01/01/2026) », « Prévisions »
+  et « Soldes compte tenu des prévisions » : chaque case dit « h » et
+  « j » depuis la v1284 ;
+- la ligne FT− des prévisions montre les heures prestées en moins sans
+  signe (« 48 h | 6 j » au lieu de « −48 h | −6 j »), donc ni rouge ni
+  gras. La case ne servait qu'à l'affichage ; le solde FT du dernier
+  tableau vient de `soldeFTClasseur` et ne change pas.
+
+**Mesuré après** : l'épreuve `horaire-1285.js` lit le pied de toutes les
+feuilles, à 1440 et 390 px, dans la v1285 et dans la v1284, case par
+case. Elle vérifie :
+- les trois titres ;
+- chaque case FT− : la même valeur absolue, sans signe et sans rouge ;
+- toutes les autres cases identiques, texte, couleur et graisse, solde FT
+  compris.
+
+Elle passe sans faute. Sur la v1284 comparée à elle-même, elle relève
+372 fautes : les titres et les FT− encore négatifs.
+
