@@ -28916,6 +28916,52 @@ function renderEquipe(){
         });
       });
     });
+    /* LE REMPLACEMENT D'UNE HEURE, À SES HEURES (le client, le 02/11/2026,
+       sur le 03/11 : « et pas de trou de 13 à 14 h si GKT remplace NPE ? »,
+       puis en QCM : « montrer l'heure et proposer »). GKT, renfort arrière,
+       écrit « Remplace NPE de 13h à 14h » ; NPE est là (« Infos CFL 13h
+       Remplacé par GKT »). Quand le remplacé est PRÉSENT à la même pause,
+       à un AUTRE poste, et que les heures prennent le début ou la fin de la
+       pause : le remplaçant tient son poste hors de ces heures, le remplacé
+       aussi, et le remplaçant s'affiche au poste du remplacé à ces heures.
+       Si son propre poste reste alors sous son effectif, la case le dit à
+       ses heures (« ? 13-14 ») avec qui peut le boucher (candidatsPlace).
+       Le remplacé absent relève des relais (relaisDouze), une heure au
+       milieu de la pause reste comme avant. Affichage du Planning seul :
+       le moteur (sous-effectifs, vérificateur) ne change pas. */
+    ORD.forEach(function(gk){
+      if(!vp[gk]) return;
+      var v=vp[gk].vue, t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t1<=t0) t1+=24;
+      function dans(h){ while(h<t0-0.01) h+=24; return h; }
+      v.postes.forEach(function(o){
+        if(o.P.cm || o.P.k==="adj") return;
+        o.gens.slice().forEach(function(x){
+          if(x.partage || x.horPart || x.deD || x.depuisD) return;
+          var c=String(((x.p.d||{})[mmdd]||[])[2]||""), m,
+              rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h?\s*(\d{2})?/gi;
+          /* deux remplacements à heures (GKT le 22/01 : CKS de 14 h à 18 h,
+             puis FLN de 18 h à 22 h) : toute sa pause ailleurs, on n'y touche pas */
+          if((c.match(rx)||[]).length!==1) return; rx.lastIndex=0;
+          while((m=rx.exec(c))){
+            var tri=m[1].toUpperCase(), oB=null, y=null;
+            v.postes.forEach(function(q){ if(q===o || q.P.cm || q.P.k==="adj") return;
+              q.gens.forEach(function(z){ if(!z.partage && idLisible(z.p.id)===tri){ oB=q; y=z; } }); });
+            if(!oB) continue;
+            var a=dans(Number(m[2])+Number(m[3]||0)/60), bb=dans(Number(m[4])+Number(m[5]||0)/60); if(bb<=a) bb+=24;
+            if(bb-a<0.5 || a<t0-0.01 || bb>t1+0.01) continue;
+            var fin=Math.abs(bb-t1)<0.01, deb=Math.abs(a-t0)<0.01; if(fin===deb) continue;
+            var reste=fin?[t0,a]:[bb,t1];
+            x.horPart=reste; x.relaisCourt={vers:oB.P.k, a:a, b:bb, remp:tri};
+            if(!y.horPart) y.horPart=reste.slice();
+            oB.gens.push({p:x.p, r:x.r, horPart:[a,bb], partage:true, relaisCourt:true});
+            /* son poste, ces heures-là, sans lui */
+            var sansLui=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x && !z.partage; })},jourCalc);
+            if(o.attendu && sansLui<o.attendu){ o.manque=true; o.trouCourt=true; }
+            break;
+          }
+        });
+      });
+    });
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes
@@ -29247,6 +29293,15 @@ function renderEquipe(){
           /* comblable par un changement proposé : orange, pas rouge */
           if(mq) cl.push(o.propose?"propose":"manque");
           var cdP=mq?candidatsPlace(v,P,g.k,jourCalc,o,aP,par):null;
+          /* le trou d'une heure : celui qui part remplacer n'est pas candidat
+             pour le boucher (GKT, à la distillation de 13 h à 14 h) */
+          if(cdP && o.trouCourt && cdP.l){ var partis=o.gens.filter(function(z){ return z.relaisCourt && !z.partage; }).map(function(z){ return idLisible(z.p.id); });
+            cdP.l=cdP.l.filter(function(c){ return partis.indexOf(c.id)<0; });
+            /* la bulle dit le trou tel qu'il est : ni « 1/1 », ni le titulaire
+               absent toute la pause (déjà remplacé), mais qui part, et où */
+            cdP.t=String(cdP.t||"").replace(/\s·\s\d+\s*\/\s*\d+/,"");
+            cdP.r=o.gens.filter(function(z){ return z.relaisCourt && !z.partage; }).map(function(z){ var rc=z.relaisCourt, hh=function(n){ n=((n%24)+24)%24; return String(Math.floor(n+1e-6)); };
+              return {id:idLisible(z.p.id), m:"Remplace "+rc.remp+" ("+nomPosteApp(rc.vers).toLowerCase()+") de "+hh(rc.a)+" h à "+hh(rc.b)+" h", n:""}; }); }
           /* LES BADGES DANS UNE GRILLE (.eqc, le client, le 20/10/2026 : « il
              y a moyen de mieux disposer les badges trigramme non ? ») : deux
              colonnes au téléphone, alignées d'une ligne à l'autre, deux

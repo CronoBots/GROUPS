@@ -3854,3 +3854,68 @@ effectifs, 4 prolongations :
 Le contrôle a d'abord crié 88 fois, à tort : il lisait le trigramme et sa
 mention collés (le trigramme suivi de « AM » sans espace), alors qu'à l'écran ce sont deux parties
 séparées. Le test a été corrigé, pas l'application.
+
+### Le remplacement d'une heure, à ses heures, et le trou qu'il laisse (02/11/2026, `nfdm-v1301`)
+
+Le client, sur le 03/11 au matin : « et pas de trou de 13 à 14 h si GKT
+remplace NPE ? ».
+
+Le classeur dit :
+- GKT : `["AM","R","Remplace NPE de 13h à 14h"]` ;
+- NPE : `["AM","","Infos CFL 13h Remplacé par GKT"]`.
+
+Personne n'est nommé au terrain arrière pour cette heure, la dernière du
+matin. Le Planning comptait par pause entière : GKT au terrain arrière et
+NPE à la distillation, tout le matin. Il ne découpait la pause que pour
+deux 12 h qui se relaient (`relaisDouze`, où le remplacé est absent).
+
+En QCM, le client a choisi « montrer l'heure et proposer ».
+
+**Fait : une passe du Planning (`renderEquipe`).** Elle s'applique quand
+une personne écrit UN « remplace Y de H à K », dans les conditions
+suivantes :
+- Y est présent à la même pause, à un autre poste ;
+- les heures prennent le début ou la fin de la pause.
+
+Alors :
+- **le remplaçant** tient son poste hors de ces heures (« GKT 06-13 ») et
+  s'affiche au poste de Y à ces heures-là (« GKT 13-14 ») ;
+- **Y** s'affiche hors de ces heures (« NPE 06-13 ») ;
+- **si le poste du remplaçant reste alors sous son effectif**, la case
+  porte le « ? » à ses heures (« ? 13-14 »), avec les candidats de
+  `candidatsPlace`, sauf celui qui part. Ici, c'est GPO, en surnombre au
+  gluten.
+
+La bulle du « ? » dit le trou tel qu'il est : « Terrain arrière · AM · de
+13 h à 14 h », puis « À remplacer : GKT, remplace NPE (distillation) de
+13 h à 14 h ». Elle ne dit ni « 1/1 », ni le titulaire absent toute la
+pause.
+
+**Ce qui reste comme avant :**
+- deux remplacements à heures (GKT le 22/01 : CKS de 14 h à 18 h, puis
+  FLN de 18 h à 22 h), puisque toute sa pause se passe ailleurs ;
+- une heure au milieu de la pause ;
+- le remplacé absent, qui relève des relais.
+
+C'est de l'affichage du Planning seul : le vérificateur du calendrier est
+identique à l'octet (sans option et avec les quatre options), et les
+agendas sont inchangés.
+
+**Recensé :** 9 « remplace Y de H à K » de 2026 pourraient entrer, avant
+qu'on écarte les personnes absentes et les remplacements multiples.
+Contrôlés au navigateur :
+- **le 03/11 :** le cas du client ;
+- **le 11/02 au matin :** CHD est à la fermentation de 06 h à 12 h, puis
+  aux chaudières de 12 h à 14 h à la place de GST, qui part à midi. APN
+  tient la fermentation, il n'y a pas de trou ;
+- **le 27/05 après-midi :** AAI est au terrain arrière de 14 h à 16 h à
+  la place de SMA. La distillation, son poste, montre « ? 14-16 », car
+  personne n'y est nommé ;
+- **le 22/01 :** inchangé.
+
+L'épreuve `trou-heure.sh` fixe ces cas. Elle passe sans faute ; sur la
+v1300, elle relève 5 fautes, le 22/01 restant identique dans les deux
+versions.
+
+**Pas encore fait :** le cadre « Changements de poste à prévenir » ne
+propose pas GPO pour cette heure. Il lit le moteur, qui compte par pause.
