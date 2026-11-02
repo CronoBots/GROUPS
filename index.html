@@ -7626,6 +7626,8 @@ html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2
    1 de trait), au lieu de 18 ; les traits de 2 px du haut et du bas d'un
    tableau sont pris dedans (border-box) */
 html .hp-t tfoot tr.hp-pied td{height:23px}
+/* les heures à gauche, les jours à droite, dans la même case (v1283) */
+html .hp-t tfoot td.hp-pv .hp-pvi{display:flex; justify-content:space-between; align-items:baseline; gap:3px; padding:0 1px}
 html .hp-t tfoot td.hp-pt{background:#c7ccd4; font-weight:400}
 html .hp-t tfoot td.hp-pv{background:#f8fafc; font-weight:400}
 html .hp-t tfoot td.hp-pv{border-right:2px solid #64748b}
@@ -20375,7 +20377,17 @@ function renderGrille(){
     var sol=function(p,t){ var v=p.c&&p.c.solde&&p.c.solde[t]; return typeof v==="number"?v:null; };
     var bloc=function(titre,types,val,cls){ types.forEach(function(t,i){
       h.push('<tr class="hp-pied'+(i===0?' hp-pd':'')+(i===types.length-1?' hp-pf':'')+(cls?' '+cls:'')+'">'+(i===0?'<td class="hp-plab" colspan="2" rowspan="'+types.length+'">'+titre+'</td>':''));
-      cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td>'); });
+      /* LES HEURES À GAUCHE, LES JOURS À DROITE (le client, le 02/11/2026 :
+         « dans les cellules avec les compteurs, afficher à gauche le nombre
+         d'heures et à droite l'équivalent en jours, en sachant qu'une
+         journée, c'est 8 h »). Les jours au dixième (choix du client, en
+         QCM : 103 h font 12,875 j, écrits 12,9 j), arrondis loin de zéro
+         des deux côtés (−14,25 → −14,3) : exacts, ils ne tenaient pas à
+         côté des heures dans les 76 px. Les heures restent exactes, et le
+         survol donne les jours exacts. */
+      cols.forEach(function(c,ci){ var v=val(c.p,t), nb=function(x,d){ var k=Math.pow(10,d), r=(x<0?-1:1)*Math.round(Math.abs(x)*k)/k; return String(r===0?0:r).replace(".",","); };
+        h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'"'+(typeof v==="number"?' title="'+nb(v,3)+' h = '+nb(v/8,3)+' j (8 h par jour)"':'')+'>'
+          +(typeof v==="number"?'<div class="hp-pvi"><span class="hp-ph">'+nb(v,3)+'</span><span class="hp-pj">'+nb(v/8,1)+'\u00a0j</span></div>':'')+'</td>'); });
       h.push((avecCom?'<td class="hp-cv"></td>':'')+'</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>');
     bloc("Soldes en HEURES au (01/01/<wbr>"+an+")",T,sol);

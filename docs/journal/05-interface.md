@@ -9637,3 +9637,48 @@ et au téléphone, debout et couché, sur l'équipe 1, la feuille Contremaître
 et la station d'épuration. Elle passe sans faute ; sur la v1281, elle
 relève 15 fautes, dont les trois « (01/01/… » coupés au téléphone.
 
+### L'onglet Horaire : les compteurs en heures et en jours (02/11/2026, `nfdm-v1283`)
+
+Le client : « dans les cellules avec les compteurs, il faut afficher à
+gauche le nombre d'heures et à droite l'équivalent en jours de ce nombre
+d'heures, en sachant qu'une journée, c'est 8 h ».
+
+**Mesuré avant :**
+- les soldes de 2026 sont entiers, de 0 à 772 h. 64 sur 312 ne sont pas
+  des multiples de 8 : 73 h font 9,125 j ;
+- dans la case d'une valeur (76 px, dont 70 px de contenu), « −103 » et
+  « −12,875 j » demandent 80 px en graisse 900 : ils ne tiennent pas côte
+  à côte. La première version, aux jours exacts, a été prise en faute
+  par l'épreuve : dix cases coupées au PC et au téléphone couché ;
+- au dixième, le pire cas, « −114 » et « −14,3 j », fait 62,4 px dans la
+  police des tests (Inter, le repli de Roboto ici). Il fait 57,4 px dans
+  la police libre aux mesures d'Arial ; sous Windows, le repli est
+  `Segoe UI`.
+
+Question posée (QCM), réponse du client : **les jours au dixième**.
+
+**Fait :**
+- chaque case de valeur porte les heures à gauche, exactes comme avant,
+  et les jours à droite, au dixième, suivis de « j » (« 9,1 j ») ;
+- l'arrondi se fait loin de zéro des deux côtés : −14,25 j s'écrit
+  −14,3 j, comme 14,25 j s'écrit 14,3 j. Un zéro ne s'écrit jamais
+  « −0 » ;
+- les deux nombres gardent le style de la case : bleu et gras pour un
+  restant, rouge et gras pour un négatif ;
+- le survol (au PC) donne les valeurs exactes : « 103 h = 12,875 j (8 h
+  par jour) » ;
+- les marges intérieures sont resserrées : 1 px de chaque côté et 3 px
+  entre les deux nombres, ce qui laisse 65 px.
+
+**Mesuré après** : l'épreuve `horaire-1283.js` reprend celles des v1281 et
+v1282. Pour chaque case remplie, elle vérifie aussi :
+- les jours égaux aux heures divisées par 8, au dixième, jamais avec
+  deux décimales ;
+- les heures collées au bord gauche et les jours au bord droit ;
+- le même style pour les deux nombres ;
+- aucun texte coupé.
+
+Elle tourne au PC (sombre et clair) et au téléphone, debout et couché.
+Elle passe sans faute. Sur la v1282, elle relève 12 fautes ; sur la
+première version aux jours exacts, 8.
+
