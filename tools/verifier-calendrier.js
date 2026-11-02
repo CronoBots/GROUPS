@@ -143,6 +143,8 @@ const MORCEAUX=[
   ["var EST_FORMATION=","\n"],
   ["var PROJETS_SUR_POSTE=","\n"],
   ["function surSonPosteMalgreF(","\n}"],
+  /* la formation d'une journée F à plage de pause (v1310) */
+  ["function formationDePlage(","\n}"],
   /* le côté d'un « Polyvalent » : la décision du client, sinon sa polyvalence, jamais la lettre de colonne (v1276) */
   ["var GR_GROUPE_CLIENT=","\n"],
   ["function cotePolyvalent(","\n}"],

@@ -10488,3 +10488,68 @@ quelle.
 - le vérificateur du calendrier est identique à l'octet, sans option et
   avec les quatre options ;
 - les agendas sont inchangés.
+
+### JBS dans la ligne Formation : la formation à ses heures, le poste le reste (02/11/2026, `nfdm-v1310`)
+
+Le client, capture du Planning du 06/11 à l'appui : « pourquoi JBS n'est
+pas dans la ligne formation ? ». JBS y a `["6h-14h","F","Formation bull
+8h30-12h30"]` ; MGY, le même commentaire sur une case `AM`, y était.
+
+**Ce qui se passait.** La plage `6h-14h` nomme le matin. Une plage qui
+nomme une pause garde la personne à son poste (`surSonPosteMalgreF`, règle
+du 25/09/2026 pour GPS au CPPT). JBS restait donc aux chaudières, et le
+badge y affichait 08h30-12h30, qui sont les heures de sa formation
+(`plageModifiee` lit les heures du commentaire). C'était faux dans tous les
+cas.
+
+**Question au client, en QCM :** « formation, puis poste le reste ». La
+règle est écrite dans `docs/conversion-horaire.md`. Le code :
+- `formationDePlage` lit la plage de la case et les heures de formation du
+  commentaire ;
+- `surSonPosteMalgreF` sort de son poste une formation d'une journée
+  entière, et le vérificateur la recopie désormais ;
+- une passe d'affichage du Planning met une formation partielle dans la
+  ligne Formation à ses heures, et la laisse à son poste le reste de sa
+  plage (`horParts`, deux morceaux l'un sous l'autre dans le badge).
+
+**Un défaut plus ancien, trouvé en le faisant.** Le Planning retire la
+colonne « jour » quand elle ne porte personne, et ce test oubliait la
+formation. Le 11/09, CJD, seul en formation dans cette colonne une fois BLR
+passé au matin, disparaissait du Planning. Le 08/09, six personnes en
+formation (ATA, CDE, FLI, FPA, GPO et PLZ) étaient invisibles.
+
+**Mesuré, jour par jour sur 2026 et 2027.** Une copie instrumentée a
+relevé, à chacun des 730 jours, la ligne Formation, les badges en deux
+morceaux et les trous d'heures. 32 journées changent, toutes voulues :
+- **formations partielles :** JBS le 06/11 ; GDT et KDN le 18/11, puis
+  quatre fois de mars à juin 2027 (l'anglais) ; les Safety Days du 27/05
+  (APN, GDT, HKB, NRD) ; LHR le 14/01 ;
+- **formations d'une journée entière,** qui ne restent plus à leur poste :
+  CHD (26-28/01), NPE (30/03-01/04), SKS (18-19/05), DKS (18/09), MMS
+  (21/10), AAI (16/12, aux heures de l'ATEX, 08h30-16h30), et APN, GDT,
+  KDN et PDF le 27/01/2027 (« Formation Atex », sans heures) ;
+- **les formations invisibles,** revenues avec la colonne « jour » : le
+  08/09 (formation STEP), le 09/02, le 04/05, les 04-05/06, les 09 et
+  11/06, le 25/06, le 09/10, le 08/01/2027.
+
+Aucun trou nouveau. Le premier essai en ajoutait un faux le 21/05 : JBS,
+en formation de 12h30 à 16h15, est « remplacé par QDE de 14h à 16h15 »,
+mais QDE s'affiche au matin prolongé. Quand le classeur nomme un
+remplaçant, aucun trou n'est relevé.
+
+**Le reste ne bouge pas.** Le vérificateur du calendrier est identique à
+l'octet dans ses cinq modes, et les 80 agendas aussi. Les personnes sorties
+de leur poste étaient chaque fois en plus de l'effectif. La paie lit
+toujours la journée « F » prestée en jour.
+
+**Deux erreurs en chemin.**
+- Ma passe d'affichage écartait les badges « de jour » (`deD`), alors que
+  JBS, GDT et KDN en sont : le Planning les range au matin depuis la colonne
+  « jour ».
+- Les deux morceaux séparés par un `<br>` échappaient à la mise sur deux
+  chiffres des heures (« 6-8 » au lieu de « 06-08 »). Chacun a désormais sa
+  propre balise, et le badge grandit pour les empiler.
+
+**L'épreuve** `form-test.js` passe sans faute à 320, 390 et 1280 px. Elle
+vérifie les 06/11, 18/11, 16/12, 11/09 et 21/05 ; sur la v1309, elle relève
+11 fautes.

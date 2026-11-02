@@ -7023,6 +7023,9 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   font-size:11.5px; line-height:14px; letter-spacing:0; text-align:center}
 #jourCorps.eqhote .eqp2 td .eqn .eqhd{display:block; margin:0; font-size:8.5px; line-height:9px; font-weight:500; letter-spacing:-.02em; padding-bottom:1px}
 #jourCorps.eqhote .eqp2 tbody td .eqn.moi{border-color:var(--in); background:var(--in-soft)}
+/* le reste d'une pause autour d'une formation, en deux morceaux l'un sous
+   l'autre (JBS le 06/11 : 06-08h30, 12h30-14) : ce badge-là grandit */
+#jourCorps.eqhote .eqp2 tbody td .eqn:has(.eqhd+.eqhd){height:auto; min-height:28px; padding-top:2px; padding-bottom:2px}
 /* l'apprenti non validé au poste montré : pointillé blanc, comme l'horaire
    de jour (le client, le 25/10/2026 : « pointillé blanc aussi ceux en
    formation et non validés au poste qu'ils sont ce jour-là ») */
@@ -26560,9 +26563,32 @@ function surSonPosteMalgreF(raw){
 
      95 journées changent de place, dont 80 en « 6h-14h » : quelqu'un qui
      travaille de 6 h à 14 h est au MATIN, quoi que dise l'annotation. */
+  /* ... SAUF UNE FORMATION QUI PREND TOUTE LA JOURNÉE (le client, le
+     02/11/2026, en QCM : « formation, puis poste le reste ») : AAI le 16/12,
+     ["6h-14h","F","ATEX sur site BioWanze de 08h30' à 16h30'"], CJD le
+     11/09 (« Formation ARI - CEPS Seraing », sans heures). Une formation de
+     quelques heures (JBS le 06/11, 8h30-12h30 dans 6h-14h) le laisse à son
+     poste ; le Planning le montre aussi dans la ligne Formation. */
   var pl=plageMention(String((raw&&raw[0])||"").trim());
-  if(pl){ var k=posteDepuisPlage(pl); if(k && k!=="D") return true; }
+  if(pl){ var k=posteDepuisPlage(pl); if(k && k!=="D"){ var fd=formationDePlage(raw); return !(fd && fd.entiere); } }
   return false;
+}
+/* LA FORMATION D'UNE JOURNÉE « F » QUI ÉCRIT UNE PLAGE DE PAUSE.
+   {pl, fh, entiere} : la plage de la cellule ; les heures de formation du
+   commentaire, soit la première plage d'heures qui ne suit pas un
+   « remplace X de » ; et si la formation prend toute la journée (pas
+   d'heures écrites, ou autant d'heures que la plage). null hors de ce cas. */
+function formationDePlage(raw){
+  if(!raw || !EST_FORMATION.test(String(raw[1]||"").trim())) return null;
+  var pl=plageMention(String(raw[0]||"").trim()); if(!pl) return null;
+  var k=posteDepuisPlage(pl); if(!k || k==="D") return null;
+  var c=String(raw[2]||""), rx=/(\d{1,2})\s*h\s*(\d{2})?['\u2019]?\s*(?:-|\u00e0|a)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, m, fh=null;
+  while((m=rx.exec(c))){
+    if(/rempl\S*\s+(?:[A-Za-z]{3}\s+)?(?:de\s+)?$/i.test(c.slice(Math.max(0,m.index-30),m.index))) continue;
+    var a=Number(m[1])+Number(m[2]||0)/60, b=Number(m[3])+Number(m[4]||0)/60; if(b<=a) b+=24;
+    fh=[a,b]; break; }
+  var entiere=!fh || (fh[1]-fh[0])>=(pl[1]-pl[0])-0.01 || (fh[0]<=pl[0]+0.01 && fh[1]>=pl[1]-0.01);
+  return {pl:pl, fh:fh, entiere:entiere};
 }
 function posteDepuisNom(t){
   t=String(t||"").trim();
@@ -28511,6 +28537,9 @@ function renderEquipe(){
       return !!r && /^d$/i.test(String(r[0]||"").trim()) && /\d\s*h?\s*\d*\s*-\s*\d/.test(String(r[1]||""));
     }
     function horaireEcritD(x){
+      /* le reste de sa plage autour d'une formation, en deux morceaux
+         (JBS le 06/11 : 6-8h30, 12h30-14) */
+      if(x.horParts) return horaireModifie(x);
       /* une journée de jour partagée entre le matin et l'après-midi : la
          part de la colonne (SVE le 23/10 : 10-14, puis 14-18) */
       if(x.horPart){ var hp=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
@@ -28606,6 +28635,9 @@ function renderEquipe(){
        arrivée, départ, plage collée à la pause) ; rien quand la personne
        fait sa pause telle quelle. */
     function horaireModifie(x,k){
+      /* deux morceaux, l'un sur l'autre (JBS le 06/11 : 6-8h30, 12h30-14) */
+      if(x.horParts){ var hm=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
+        return x.horParts.map(function(z){ return '<small class="eqhd">'+hm(z[0])+"-"+hm(z[1])+"</small>"; }).join(""); }
       if(x.horPart){ var hq=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
         return '<small class="eqhd">'+hq(x.horPart[0])+"-"+hq(x.horPart[1])+"</small>"; }
       var pm=plageModifiee(x,k); if(!pm) return "";
@@ -28928,8 +28960,11 @@ function renderEquipe(){
        en-tête et cases la sautent alors ensemble. Un JOUR OUVRÉ, l'équipe en D
        de la semaine réapparaît dans la légende au-dessus du tableau (voir plus
        bas) ; le week-end, personne n'est en D et rien ne s'affiche. */
+    /* ... NI PERSONNE EN FORMATION : CJD le 11/09, seul en formation dans la
+       colonne D une fois BLR passé au matin (meunDepuisD), disparaissait du
+       Planning avec elle (le 02/11/2026, en cherchant JBS). */
     if(vp.D){
-      var dPlein=vp.D.ds.length || vp.D.vue.inconnus.length
+      var dPlein=vp.D.ds.length || vp.D.vue.inconnus.length || (vp.D.vue.formation||[]).length
         || vp.D.vue.postes.some(function(o){ return o.gens.length; });
       if(!dPlein) vp.D=null;
     }
@@ -29045,6 +29080,67 @@ function renderEquipe(){
             break;
           }
         });
+      });
+    });
+    /* LA FORMATION DE QUELQUES HEURES DANS UNE PAUSE (le client, le
+       02/11/2026 : « pourquoi JBS n'est pas dans la ligne formation ? »,
+       puis en QCM : « formation, puis poste le reste »). JBS le 06/11,
+       ["6h-14h","F","Formation bull 8h30-12h30"] : sa plage le garde aux
+       chaudières (surSonPosteMalgreF), mais de 8 h 30 à 12 h 30 il est en
+       formation. Il s'affiche dans la ligne Formation à ces heures, et à son
+       poste le reste de sa plage, en deux morceaux au plus — et non plus aux
+       heures de sa formation, que plageModifiee lui prêtait. Si son poste
+       reste alors sous son effectif, la case le dit à ces heures, comme un
+       remplacement d'une heure (v1301). Affichage du Planning seul. */
+    ORD.forEach(function(gk){
+      if(!vp[gk]) return;
+      var v=vp[gk].vue, t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t1<=t0) t1+=24;
+      function dans(h){ while(h<t0-12) h+=24; while(h>t0+24-0.01) h-=24; return h; }
+      v.postes.forEach(function(o){
+        if(o.P.cm || o.P.k==="adj") return;
+        o.gens.slice().forEach(function(x){
+          /* JBS, GDT, KDN : leur journée F se lit « de jour » et le matin les
+             montre (deD) — ce sont eux qu'on cherche */
+          if(x.partage || x.horPart || x.horParts || x.depuisD) return;
+          if(!(x.r && EST_FORMATION.test(String(x.r.jourCode||"")))) return;
+          var fd=formationDePlage((x.p.d||{})[mmdd]); if(!fd || fd.entiere || !fd.fh) return;
+          var pa=Math.max(dans(fd.pl[0]),t0), pb=Math.min(dans(fd.pl[0])+(fd.pl[1]-fd.pl[0]),t1),
+              a=dans(fd.fh[0]), b=a+(fd.fh[1]-fd.fh[0]);
+          var segs=[[pa,Math.min(a,pb)],[Math.max(b,pa),pb]].filter(function(z){ return z[1]-z[0]>=0.25; });
+          if(segs.length===1 && Math.abs(segs[0][0]-t0)<0.01 && Math.abs(segs[0][1]-t1)<0.01) segs=[];
+          if(segs.length===1) x.horPart=segs[0]; else if(segs.length) x.horParts=segs;
+          v.formation.push({p:x.p, r:x.r, deD:true, horPart:[fd.fh[0],fd.fh[1]], formPart:true});
+          if(!segs.length || !o.attendu) return;
+          /* le classeur nomme qui le remplace : pas de trou à signaler, même
+             si le remplaçant s'affiche à une autre pause (QDE le 21/05,
+             « Remplace JBS de 14h à 16h15 », au matin prolongé) */
+          var triX=idLisible(x.p.id), rxR=new RegExp("\\bremp\\S*\\s+"+triX+"\\b","i");
+          if(/rempla\S*\s+par\s+[A-Za-z]{3}\b/i.test(String(((x.p.d||{})[mmdd]||[])[2]||""))
+             || db.people.some(function(q){ return q!==x.p && rxR.test(String(((q.d||{})[mmdd]||[])[2]||"")); })) return;
+          /* un trou seulement si, à une demi-heure de sa formation dans la
+             pause, les autres n'atteignent pas l'effectif : ceux de toute la
+             pause, ceux qui y sont à ces heures-là, un relais (JBS le 21/05,
+             « remplacé par QDE de 14h à 16h15 ») */
+          var autres=o.gens.filter(function(z){ return z!==x; }),
+              pleins=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:autres.filter(function(z){ return !z.partage && !z.horPart && !z.horParts; })},jourCalc),
+              fa=Math.max(a,t0), fb=Math.min(b,t1), creux=false;
+          for(var u=fa; u<fb-0.01; u+=0.5){
+            var n=pleins+autres.filter(function(z){ var hs=z.horParts||(z.horPart?[z.horPart]:null); if(!hs) return false;
+              return hs.some(function(sg){ var s0=dans(sg[0]), s1=s0+(((sg[1]-sg[0])%24)+24)%24; return u>=s0-0.01 && u+0.5<=s1+0.01; }); }).length;
+            if(n<o.attendu){ creux=true; break; }
+          }
+          if(creux){ o.manque=true; o.trouCourt=true; }
+        });
+      });
+    });
+    /* toute la journée en formation, à ses heures écrites et non à celles
+       de sa case (AAI le 16/12 : ATEX 08h30-16h30, et non 6h-14h) */
+    ORD.forEach(function(gk){
+      if(!vp[gk]) return;
+      (vp[gk].vue.formation||[]).forEach(function(x){
+        if(x.horPart || x.formPart) return;
+        var fd=formationDePlage((x.p.d||{})[mmdd]);
+        if(fd && fd.entiere && fd.fh) x.horPart=[fd.fh[0],fd.fh[1]];
       });
     });
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
@@ -29275,6 +29371,7 @@ function renderEquipe(){
             /* les gens de jour gardent l'horaire que leur badge écrit
                (horaireEcritD) : la ligne d'avant */
             if(!x.horPart && (x.deD||x.consign||x.remplCons||x.apprMeun||x.renfortD||celluleD(x))) return null;
+            if(x.horParts) return null;
             var hp=x.horPart||plageModifiee(x,ks[i]);
             if(!hp || x.propose || x.echange) return null;
             try{ if(transfertApp(x,P.k,jourCalc)) return null; }catch(eT){ return null; }
@@ -29445,7 +29542,8 @@ function renderEquipe(){
               for(var i=0;i<pas.length;i++){ var u=t0+i*0.5; if(u>=a-0.01 && u+0.5<=b+0.01) pas[i]++; } };
             o.gens.forEach(function(x){
               if(enFormation(x.p,jourCalc) && !compteAuPoste(x,o.P,jourCalc)) return;
-              if(x.horPart){ var a=dansP(x.horPart[0]); couvre(a,a+(((x.horPart[1]-x.horPart[0])%24)+24)%24||24); }
+              if(x.horParts) x.horParts.forEach(function(z){ var a=dansP(z[0]); couvre(a,a+(((z[1]-z[0])%24)+24)%24||24); });
+              else if(x.horPart){ var a=dansP(x.horPart[0]); couvre(a,a+(((x.horPart[1]-x.horPart[0])%24)+24)%24||24); }
               else couvre(t0,t1);
             });
             if(o.relais && o.relais.length) couvre(t0,t1);
