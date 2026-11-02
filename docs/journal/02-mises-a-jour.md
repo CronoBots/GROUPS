@@ -1633,6 +1633,57 @@ remplaçant la voit et donne son accord ; contremaître (rappelable, à la
 demande) puis RH : les trois jours posés, la cellule changée pour la
 pause, le classeur gardé dans `cl_*`, rien chez le remplaçant.
 
+**Le solde bloque l'envoi (02/11/2026, `nfdm-v1296`).** Le client : « les
+demandes de congés doivent prendre en compte les congés restants du
+demandeur ». En QCM : « bloquer l'envoi », et non « avertir seulement »
+ni « bloquer, la RH peut forcer ». Cela revient sur la règle du
+21/10 ci-dessus : le solde n'est plus seulement MONTRÉ au valideur.
+
+Ce que la mesure a montré, avant le changement :
+- le formulaire disait « VA restant 0 h → −8 h » en rouge, mais la
+  demande partait ;
+- le restant ne déduisait pas les autres demandes encore en attente du
+  même demandeur. Deux demandes de RTT de 8 h passaient chacune sur un
+  restant de 12 h ; le valideur voyait « 12 h → 4 h » sur chacune ;
+- un jour de 2027 se comparait au solde de 2026.
+
+`dmBilan` calcule le solde par compteur (VA, RTT, DTT, RJF) et par année
+des jours demandés :
+- au départ, le restant de l'horaire : le solde au 01/01 moins ce qui est
+  posé, saisies et demandes acceptées comprises ;
+- on en déduit les autres demandes du demandeur encore en attente, sauf
+  celle qu'on modifie ;
+- ce que la demande prend se compte avec les mêmes poids que le restant
+  (`GR_PIED`) ;
+- un congé déjà posé qu'elle annule, ou dont elle change le type, rend ses
+  heures ;
+- une année dont les compteurs ne sont pas sûrs (`COMPTEURS_FIABLES`,
+  aujourd'hui 2027) s'affiche « solde pas encore connu », et rien n'y est
+  bloqué.
+
+Dans le formulaire, un solde qui ne suffit pas devient une erreur
+bloquante : « VA : il vous reste 0 h, cette demande en prend 8 h ». S'il y
+a des demandes en attente, le message le précise (« demandes en attente
+déduites »), et le cadre sous la feuille en donne le total (« RTT déjà
+demandé · 8 h en attente »). La carte du valideur fait le même calcul :
+« RTT restant 4 h → −4 h (+8 h en attente) », avec l'alerte.
+
+La base, elle, ne refuse pas : les soldes viennent de l'horaire public,
+lu par l'application. Une demande déjà en attente avant ce changement
+peut donc dépasser le solde ; le valideur la voit en alerte.
+
+L'épreuve `demande-solde-1296.js` (au navigateur, Supabase simulé, VBN :
+VA restant 0 h, RTT 12 h) vérifie trois cas :
+- **un jour de VA le 25/11** : le message s'affiche et la demande ne part
+  pas ;
+- **un jour de 2027** : « VA 2027 · solde pas encore connu », et la
+  demande part ;
+- **le valideur RH** avec deux demandes de RTT de 8 h en attente : chaque
+  carte dit « RTT restant 4 h → −4 h (+8 h en attente) », avec l'alerte.
+
+Elle passe sans faute. Sur la v1295, elle relève 5 fautes, dont la
+comparaison de 2027 au solde de 2026.
+
 Dans l'application : le choix du formulaire, sa règle en clair, « Du / Au »
 + type puis « Ajouter » (seuls les jours de travail prévus entrent), une
 ligne par jour avec sa pause prévue, le type ou « Passer en AM/PM/N/D »

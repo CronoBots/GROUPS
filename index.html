@@ -23587,7 +23587,8 @@ function renderAbsences(){
    du formulaire (rappelable, à la demande de la ligne hiérarchique,
    restriction). Acceptée, la demande se pose sur le planning
    (base/12-formulaires.sql). Les règles que le valideur tranche (délai,
-   périodes, solde) sont MONTRÉES, jamais imposées. */
+   périodes) sont MONTRÉES, jamais imposées ; le solde, lui, bloque l'envoi
+   depuis le 02/11/2026 (le client, en QCM : dmBilan). */
 GR.demandes=null; GR.onglet=null; GR.dmForm=null;
 var DM_FORMS={
   courte:{t:"Courte durée",l:"Congé, remplacement ou modification de pause",max:10},
@@ -23795,6 +23796,39 @@ function dmCharge(p,lignes){
   });
   return max;
 }
+/* LE SOLDE D'UNE DEMANDE (le client, le 02/11/2026 : « les demandes de
+   congés doivent prendre en compte les congés restants du demandeur », puis,
+   en QCM : « bloquer l'envoi ») : pour chaque compteur (VA, RTT, DTT, RJF)
+   et chaque année des jours demandés, le restant de l'horaire (solde au
+   01/01 moins ce qui est posé, saisies et demandes acceptées comprises),
+   moins les AUTRES demandes du demandeur encore en attente (sinon deux
+   demandes de 24 h passaient chacune sur un restant de 32 h). Ce que la
+   demande prend se compte comme le restant (GR_PIED : VA 8 h, 1/2VA 4 h,
+   « 4h RTT » 4 h…) ; un congé posé qu'elle annule, ou qu'elle change de
+   type, rend ses heures. Une année dont les compteurs ne sont pas sûrs
+   (COMPTEURS_FIABLES) n'a pas de restant : rien n'y est bloqué. */
+function dmH(v){ return String(Math.round(Number(v)*100)/100).replace(".",",")+" h"; }
+function dmCoutCode(code){ var k=String(code||"").trim().toLowerCase(), r=null; if(!k) return null;
+  GR_PIED.forEach(function(x){ Object.keys(x.c).forEach(function(c){ if(c.toLowerCase()===k) r={t:x.t, h:x.c[c]}; }); }); return r; }
+function dmPoseLe(tri,iso){ var d=dmJour(iso), db=HORAIRES&&HORAIRES[d.getFullYear()], p=db&&db.people.filter(function(x){ return x.id===tri; })[0];
+  return String(((p&&p.d&&p.d[pad2(d.getMonth()+1)+pad2(d.getDate())])||[])[1]||"").trim(); }
+/* ce que des lignes prennent, par année et par compteur */
+function dmCouts(tri,lignes,o){ o=o||{};
+  function ajoute(j,code,sg){ var c=dmCoutCode(code); if(!c) return; var an=dmJour(j).getFullYear(), a=o[an]||(o[an]={}); a[c.t]=(a[c.t]||0)+sg*c.h; }
+  (lignes||[]).forEach(function(l){ if(!l||!l.j) return; var pose=dmPoseLe(tri,l.j);
+    if(l.annule){ ajoute(l.j,pose,-1); return; }
+    if(l.pause||!l.code) return;
+    if(pose&&dmCoutCode(pose)&&pose.toLowerCase()!==String(l.code).trim().toLowerCase()) ajoute(l.j,pose,-1);
+    ajoute(l.j,l.code,1); if(l.code2) ajoute(l.j,l.code2,1); });
+  return o; }
+/* le bilan : [{an, t, r (restant, autres demandes déduites), att (ces autres demandes), cout, apres}] */
+function dmBilan(tri,lignes,sauf){
+  var moi=dmCouts(tri,lignes), att={}, out=[];
+  (GR.demandes||[]).forEach(function(x){ if(x.trigramme!==tri||x.statut!=="en_attente"||(sauf!=null&&String(x.id)===String(sauf))) return; dmCouts(tri,dmLignes(x),att); });
+  Object.keys(moi).sort().forEach(function(an){ var db=HORAIRES&&HORAIRES[an], p=db&&db.people.filter(function(q){ return q.id===tri; })[0], sur=!!(p&&soldesSaisis(db));
+    Object.keys(moi[an]).forEach(function(t){ var cout=moi[an][t]; if(!cout) return; var r0=sur?dmRestant(p,t):null, at=(att[an]&&att[an][t])||0;
+      out.push({an:Number(an), t:t, r:r0===null?null:r0-at, att:at, cout:cout, apres:r0===null?null:r0-at-cout}); }); });
+  return out; }
 /* le solde de congé et de récupération, planifié compris (formulaire sans solde) */
 function dmSolde(p){ var t=0, su=false; if(p) wsRestants(p).forEach(function(r){ if(typeof r.v==="number"){ su=true; if(r.v>0) t+=r.v; } }); return su?t:null; }
 /* les lignes d'une demande : celles du formulaire, ou la période d'une ancienne demande */
@@ -23976,7 +24010,9 @@ function dmCarte(x,valideur){
   var info=[l.length+' jour'+(l.length>1?'s':'')+(h?' · '+h+' h':'')];
   var cpts={}; conge.forEach(function(z){ [z.code,z.code2].forEach(function(k){ var c=k&&dmCompteur(k); if(c) cpts[c]=(cpts[c]||0)+dmHeures(k); }); });
   var neg=false;
-  if(valideur) Object.keys(cpts).forEach(function(c){ var r=dmRestant(p,c); if(r===null) return; var ap=r-cpts[c]; if(x.statut==="en_attente"&&ap<0) neg=true; info.push(c+' restant '+r+' h'+(x.statut==="en_attente"?' → '+ap+' h':'')); });
+  /* le restant du demandeur, ses autres demandes en attente déduites (v1296) */
+  if(valideur){ var anA=jourUsine().getFullYear(); dmBilan(x.trigramme,l,x.id).forEach(function(b){ if(b.r===null) return; var nom=b.t+(b.an!==anA?" "+b.an:"");
+    if(x.statut==="en_attente"&&b.apres<0) neg=true; info.push(nom+' restant '+dmH(b.r)+(x.statut==="en_attente"?' → '+dmH(b.apres):'')+(b.att?' (+'+dmH(b.att)+' en attente)':'')); }); }
   if(valideur&&x.statut==="en_attente"){ var ch=dmCharge(p,l); info.push(ch?'jusqu\'à '+ch+' collègue'+(ch>1?'s':'')+' déjà absent'+(ch>1?'s':''):'aucun collègue absent'); }
   var alertes=valideur&&x.statut==="en_attente"?dmRegles(f,x.trigramme,l,x.cree_le,x.sans_solde_annee):[];
   var visa=[]; if(x.rappelable) visa.push("Rappelable"); if(x.a_la_demande) visa.push("À la demande de la ligne hiérarchique"); if(x.restriction) visa.push("Restriction : "+x.restriction); if(x.motivation) visa.push("Motivation : "+x.motivation);
@@ -24347,6 +24383,9 @@ function dmFormulaire(pre){
         if(f!=="sans_solde"&&!l.code&&!l.pause&&!l.annule) e.push(d+" : type de congé à choisir"); });
       var L=toutes().map(function(z){ return z.l; });
       if(L.length) dmRegles(f,moi,L.map(function(l){ return {j:l.j,code:f==="sans_solde"?"CSS":l.code,pause:l.pause}; }),null,0).forEach(function(r){ if(!/^solde/.test(r)) e.push(r); });
+      /* le solde ne suffit pas : la demande ne part pas (le client, le 02/11/2026) */
+      var bil=f==="sans_solde"?[]:dmBilan(moi,L,mod?mod.id:null), anA=jourUsine().getFullYear();
+      bil.forEach(function(b){ if(b.apres!==null&&b.apres<0&&b.cout>0) e.push(b.t+(b.an!==anA?" "+b.an:"")+" : il vous reste "+dmH(b.r)+(b.att?" (demandes en attente déduites)":"")+", cette demande en prend "+dmH(b.cout)); });
       /* role="alert" : réécrite à l'identique, elle se réannoncerait à chaque champ */
       var pe=document.getElementById("ppErr"); if(pe.textContent!==typo(e.join(""))) pe.innerHTML=e.map(esc).join("<br>");
       /* hors de la feuille : ce que la demande coûte au compteur */
@@ -24354,7 +24393,10 @@ function dmFormulaire(pre){
       L.forEach(function(l){ var c=f==="sans_solde"?"CSS":l.code; if(!c) return; var x=dmHeures(c); h+=x; var k=dmCompteur(c); if(k) cpts[k]=(cpts[k]||0)+x; });
       if(L.length) z.push(['Jours inscrits',String(L.length),false]);
       if(h) z.push(['Heures',h+' h',false]);
-      Object.keys(cpts).forEach(function(k){ var r=dmRestant(p,k); if(r!==null) z.push([k+' restant',r+' h → '+(r-cpts[k])+' h',r-cpts[k]<0]); });
+      bil.forEach(function(b){ var nom=b.t+(b.an!==anA?" "+b.an:"");
+        if(b.r===null){ z.push([nom,'solde pas encore connu',false]); return; }
+        z.push([nom+' restant',dmH(b.r)+' → '+dmH(b.apres),b.apres<0]);
+        if(b.att) z.push([nom+' déjà demandé',dmH(b.att)+' en attente',false]); });
       inf.hidden=!z.length; inf.innerHTML=z.map(function(y){ return '<div><span>'+esc(y[0])+'</span><b'+(y[2]?' class="dm-neg"':'')+'>'+esc(y[1])+'</b></div>'; }).join("");
       return e;
     }
@@ -24417,7 +24459,7 @@ function dmFormulaire(pre){
     document.getElementById("ppSigner").onclick=function(){
       var b=this, err=document.getElementById("ppErr"), L=toutes();
       if(!L.length){ pnErreur(err,"Inscrivez au moins une date dans le tableau.",document.querySelector("#ppFeuille [data-jpick]")); return; }
-      var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre|retirez la date|un autre type/.test(m); });
+      var bloquant=verifier().filter(function(m){ return /deux fois|repos|à choisir|à mettre|retirez la date|un autre type|il vous reste/.test(m); });
       if(bloquant.length){ pnErreur(err,null,null); return; }
       var lignes=L.map(function(z){ var l=z.l, o={j:l.j}; if(l.annule) o.annule=true; else if(l.pause) o.pause=l.pause; else o.code=etat.f==="sans_solde"?"CSS":l.code; if(l.rp) o.rp=l.rp;
         if(etat.f==="courte"&&!l.pause&&!l.annule){ if(l.code2) o.code2=l.code2; if(l.part&&l.heure){ o.part=l.part; o.heure=l.heure; } }
