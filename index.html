@@ -644,6 +644,15 @@ body{overflow-x:clip}
 .inc-p{display:block; margin-top:3px; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .inc-c{display:flex; align-items:baseline; gap:8px; margin-top:6px; font-size:12.5px; line-height:1.4; color:var(--ink2)}
 .inc-c .mqc{flex:none}
+/* le trou qu'elle laisse, au calcul des sous-effectifs (v1304) */
+.inc-trou,.inc-ok{display:block; margin-top:6px; font-size:12.5px; line-height:1.4}
+.inc-trou{color:var(--at-rouge)}
+.inc-trou b{font-weight:700}
+.inc-ok{color:var(--muted)}
+/* les passées, repliées en bas : elles ne comptent plus */
+.inc-pnote{margin:10px 2px 0; font-size:12px; color:var(--muted)}
+.inc-pm{margin:16px 2px 0; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+#incCorps .mqmois+.mqmois.inc-passees{margin-top:12px}
 @media (max-width:380px){ #incCorps .mqls{padding:9px 10px 11px} }
 /* Changements de poste à prévenir (onglet Effectifs) */
 #apCorps .mqc.app{border-style:dashed; border-color:#F2994A}
@@ -4653,7 +4662,7 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
    --line/--r plus pâle de .card. */
 /* #apCard, posé juste au-dessus de #mqCard, gardait les coins et l'ombre
    de .card (audit du 23/10/2026) */
-#v-rh #mqCard, #v-rh #rnCard, #v-rh #apCard, #v-rh #eqReste .eqcard{
+#v-rh #mqCard, #v-rh #rnCard, #v-rh #apCard, #v-rh #incCard, #v-rh #eqReste .eqcard{
   border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden;
   box-shadow:var(--ombre-cadre)}
 /* LE TITRE EST UNE BARRE INTERNE collée au contenu — même grammaire que
@@ -5776,6 +5785,12 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    onglets de la Recherche, compte à côté du libellé, mois repliables des
    sous-effectifs, rangées serrées. */
 .eqabsseg{grid-template-columns:1fr 1fr; margin:12px 16px 10px}
+/* le choix du souci (Effectifs) : quatre voies sur une ligne, deux sur
+   deux au téléphone */
+.rhchoix{grid-template-columns:repeat(4,minmax(0,1fr)); margin:0}
+.rhchoix button{line-height:1.25}
+.rhchoix .eqon:empty{display:none}
+@media (max-width:620px){ .rhchoix{grid-template-columns:1fr 1fr} }
 .eqabsseg .eqon{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:700; opacity:.75; margin-left:3px}
 #eqAbsCard .eqrows{padding:0 16px; border-top:1px solid var(--trait)}
 #eqAbsCard .mqmois:last-child>.mqtog{border-bottom:0}
@@ -9112,26 +9127,39 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
          suivants les jours à venir (le client, le 10/10/2026). -->
     <div class="eqcorps" id="eqReste"></div>
 
+    <!-- LE TYPE DE SOUCI (le client, le 02/11/2026 : « j'aimerais bien que
+         sur cette page, dans le haut, on puisse choisir le type de soucis :
+         prévenir, incohérence, sous-effectif ») : un cadre à la fois, dans
+         son ordre, et les rappels évitables avec eux. Sous « Absents, congés
+         et repos », qui reste en tête (le client, le 10/10/2026). Le nombre
+         de chaque sorte est sur son bouton. -->
+    <div class="caseg rhchoix" id="rhChoix" role="tablist" aria-label="Type de souci">
+      <button type="button" role="tab" id="rhc-ap" data-rh="ap" aria-controls="apCard" aria-selected="true" tabindex="0">À prévenir <span class="eqon" id="rhn-ap"></span></button>
+      <button type="button" role="tab" id="rhc-inc" data-rh="inc" aria-controls="incCard" aria-selected="false" tabindex="-1">Incohérences <span class="eqon" id="rhn-inc"></span></button>
+      <button type="button" role="tab" id="rhc-mq" data-rh="mq" aria-controls="mqCard" aria-selected="false" tabindex="-1">Sous-effectif <span class="eqon" id="rhn-mq"></span></button>
+      <button type="button" role="tab" id="rhc-rn" data-rh="rn" aria-controls="rnCard" aria-selected="false" tabindex="-1">Rappels évitables <span class="eqon" id="rhn-rn"></span></button>
+    </div>
+
     <!-- Les changements de poste que l'APPLICATION propose, pour prévenir
          les intéressés (le client, le 13/10/2026). -->
-    <div class="card" id="apCard">
+    <div class="card" id="apCard" role="tabpanel" aria-labelledby="rhc-ap">
       <div class="toolbar rhtitle"><h2>Changements de poste à prévenir</h2><p class="sub" id="apSub"></p></div>
       <div class="mqcorps" id="apCorps"></div>
     </div>
 
-    <div class="card" id="mqCard">
-      <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
-      <div class="mqcorps" id="mqCorps"></div>
-    </div>
-
     <!-- Les incohérences de l'horaire, entre changements et commentaires
          (le client, le 02/11/2026). -->
-    <div class="card" id="incCard">
+    <div class="card" id="incCard" role="tabpanel" aria-labelledby="rhc-inc" hidden>
       <div class="toolbar rhtitle"><h2>Incohérences de l'horaire</h2><p class="sub" id="incSub"></p></div>
       <div class="mqcorps" id="incCorps"></div>
     </div>
 
-    <div class="card" id="rnCard">
+    <div class="card" id="mqCard" role="tabpanel" aria-labelledby="rhc-mq" hidden>
+      <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
+      <div class="mqcorps" id="mqCorps"></div>
+    </div>
+
+    <div class="card" id="rnCard" role="tabpanel" aria-labelledby="rhc-rn" hidden>
       <div class="toolbar rhtitle"><h2>Rappels évitables</h2><p class="sub" id="rnSub"></p></div>
       <div class="mqcorps" id="rnCorps"></div>
     </div>
@@ -31261,6 +31289,7 @@ function renderTransferts(force){
       +"<span>Aucun changement de poste proposé par l'application d'ici sept jours.</span></p>";
     var n=l.length;
     var np={}; l.forEach(function(t){ np[t.p.id]=1; }); np=Object.keys(np).length;
+    rhCompte("ap",n);
     document.getElementById("apSub").textContent=n
       ? n+" changement"+(n>1?"s":"")+" · "+np+" personne"+(np>1?"s":"")+" à prévenir sur sept jours"
       : "";
@@ -31356,7 +31385,18 @@ function incoherencesDuJour(db,an,m,j){
   function motif(id,q){ var ry=((q||par[id]).d||{})[md]||[], code=String(ry[1]||"").trim(), cel=String(ry[0]||"").trim();
     return code&&code!=="-"?"« "+code+" »":(cel==="-"||!cel||code==="-")?"en repos":"absent"; }
   function norm(hh,pv){ if(!hh) return null; return hh.map(function(v){ return (pv==="N"&&v>=0&&v<12)?v+24:v; }); }
-  function ajoute(o){ var k=o.t+"|"+o.x+"|"+(o.y||""); if(vus[k]) return; vus[k]=1; o.an=an; o.m=m; o.j=j; out.push(o); }
+  /* sa pause ce jour-là : celle de sa lecture, ou celle de sa case */
+  function pauseDe(t){ var r=[]; (hom[t]||[]).forEach(function(q){ var x=lec(q), c=String((x&&x.pv)||((q.d||{})[md]||[])[0]||"").trim().toUpperCase();
+    if(/^(AM|PM|N)$/.test(c) && r.indexOf(c)<0) r.push(c); }); return r; }
+  /* LES PAUSES EN CAUSE — où chercher le trou qu'elle laisse, et quand elle
+     est passée : celle de la place à tenir (le remplacé, ou la pause des
+     remplaçants en trop), à défaut celles de toutes les personnes nommées.
+     Le 02/11, LAA (AM) « remplacé par SBZ », absent de nuit : l'incohérence
+     est celle du matin. */
+  function ajoute(o){ var k=o.t+"|"+o.x+"|"+(o.y||""); if(vus[k]) return; vus[k]=1; o.an=an; o.m=m; o.j=j;
+    function de(l){ var ps=[]; (l||[]).forEach(function(t){ pauseDe(t).forEach(function(g){ if(ps.indexOf(g)<0) ps.push(g); }); }); return ps; }
+    var ps=o.g?[o.g]:de(o.pz); if(!ps.length) ps=de(o.qui);
+    o.pauses=["AM","PM","N"].filter(function(g){ return ps.indexOf(g)>=0; }); out.push(o); }
   function inconnu(qui,n){ var t=String(n); if(t===t.toUpperCase() && /^[A-Z]{3}$/.test(t) && proche[t]) ajoute({t:"inconnu", x:qui, y:t, sug:proche[t], qui:[qui]}); }
   function liste(t){ return String(t||"").split(/\s*(?:,|\/|\bet\b|\+|&)\s*/).map(function(z){ return z.trim(); }).filter(function(z){ return /^[A-Za-z]{3}$/.test(z); }); }
   db.people.forEach(function(p){
@@ -31378,11 +31418,11 @@ function incoherencesDuJour(db,an,m,j){
       if(entre && (!/[éÉ]/.test(mm[1]) || mm[3].toLowerCase()!=="par")){ rx.lastIndex=mm.index+mm[1].length; continue; }
       var x=moi, sj=/(?:^|[.;!\n]|\b[Ff]inalement)\s*([A-Z]{3})\s+(?:sera\s+|est\s+|a\s+[ée]t[ée]\s+)?$/.exec(c.slice(0,mm.index));
       if(sj && par[tri(sj[1])]) x=tri(sj[1]);
-      if(mm[4]==="?"){ ajoute({t:"preciser", x:x, qui:[x,moi]}); continue; }
+      if(mm[4]==="?"){ ajoute({t:"preciser", x:x, pz:[x], qui:[x,moi]}); continue; }
       /* « remplacé par JKS ou HKB » : un remplaçant à trancher, pas deux */
       if(/\bou\b/i.test(mm[5]||"")){ ou[x]=[mm[4]].concat(String(mm[5]).split(/\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*/)).map(tri).filter(function(z){ return /^[A-Z]{3}$/.test(z); }); continue; }
       /* « remplacé par JBI? » : à confirmer, pas un remplaçant */
-      if(!mm[5] && /^\s*\?/.test(c.slice(rx.lastIndex))){ var yd=tri(mm[4]); if(par[yd]) ajoute({t:"preciser", x:x, y:yd, doute:true, qui:[x,yd,moi]}); continue; }
+      if(!mm[5] && /^\s*\?/.test(c.slice(rx.lastIndex))){ var yd=tri(mm[4]); if(par[yd]) ajoute({t:"preciser", x:x, y:yd, doute:true, pz:[x], qui:[x,yd,moi]}); continue; }
       var noms=[mm[4]].concat(liste(mm[5]));
       var hp=noms.length===1?(heures(entre)||heures(c.slice(rx.lastIndex))):null;
       noms.forEach(function(n){ var y=tri(n); if(!par[y]){ inconnu(moi,n); return; } if(y===x) return;
@@ -31394,7 +31434,7 @@ function incoherencesDuJour(db,an,m,j){
     while((mm=rx.exec(c))){ var yp=tri(mm[1]); if(mm[1]===mm[1].toUpperCase() && yp!=="PAR" && par[yp] && yp!==moi) (rep[moi]=rep[moi]||[]).push({y:yp, src:moi, h:null}); }
     /* « remplace QBY? » : à confirmer */
     rx=new RegExp("(?:\\b"+INC_RAC+"(?:e|ait|ant|er|ement)|\\brempl\\.?)\\s+([A-Za-z]{3})\\s*\\?","gi");
-    while((mm=rx.exec(c))){ var xd=tri(mm[1]); if(par[xd] && xd!==moi) ajoute({t:"preciser", x:xd, y:moi, doute:true, qui:[xd,moi]}); }
+    while((mm=rx.exec(c))){ var xd=tri(mm[1]); if(par[xd] && xd!==moi) ajoute({t:"preciser", x:xd, y:moi, doute:true, pz:[xd], qui:[xd,moi]}); }
     /* « remplace YBT qui remplaçait AFA » : celui qui écrit tient la place
        d'AFA (l'actif, plus bas, le lit), et YBT ne la tient plus */
     rx=new RegExp("\\b([A-Za-z]{3})\\s+qui\\s+"+INC_RAC+"(?:ait|e)\\s+([A-Za-z]{3})\\b","gi");
@@ -31433,7 +31473,7 @@ function incoherencesDuJour(db,an,m,j){
       if(pv5) ajoute({t:"presence", x:moi, y:y5, cite:mm[0], dit:"absent", pv:pv5, qui:[moi,y5]}); }
   });
   Object.keys(ou).forEach(function(x){ var dit=(rep[x]||[]).filter(function(r){ return r.src===r.y && ou[x].indexOf(r.y)>=0; });
-    if(dit.length!==1) ajoute({t:"preciser", x:x, y:ou[x].join(" ou "), ou:ou[x], qui:[x].concat(ou[x].filter(function(z){ return par[z]; }))}); });
+    if(dit.length!==1) ajoute({t:"preciser", x:x, y:ou[x].join(" ou "), ou:ou[x], pz:[x], qui:[x].concat(ou[x].filter(function(z){ return par[z]; }))}); });
   Object.keys(rep).forEach(function(x){
     /* celui qui écrit « remplace X » est cette personne-là, homonyme ou non */
     var u={}; rep[x].forEach(function(r){ if(excl[x]&&excl[x][r.y]) return; var v=u[r.y]; if(!v) u[r.y]={y:r.y, src:[r.src], h:r.h, q:r.q}; else { if(v.src.indexOf(r.src)<0) v.src.push(r.src); if(!v.h) v.h=r.h; if(!v.q) v.q=r.q; } });
@@ -31451,12 +31491,12 @@ function incoherencesDuJour(db,an,m,j){
     L2.forEach(function(r){ var pv=r.q?presentQ(r.q):present(r.y); if(pv){ r.pv=pv; r.h=norm(r.h,pv); pres.push(r); } else abs.push(r); });
     /* un remplaçant absent ne dit rien de travers si un autre, présent, remplace */
     if(!pres.length) abs.forEach(function(r){
-      ajoute({t:"absent", x:x, y:r.y, qui:[x,r.y].concat(r.src), ecrit:r.src.indexOf(r.y)>=0, motif:motif(r.y,r.q)}); });
+      ajoute({t:"absent", x:x, y:r.y, pz:[x], qui:[x,r.y].concat(r.src), ecrit:r.src.indexOf(r.y)>=0, motif:motif(r.y,r.q)}); });
     var parPause={}; pres.forEach(function(r){ (parPause[r.pv]=parPause[r.pv]||[]).push(r); });
     Object.keys(parPause).forEach(function(g){ var G=parPause[g]; if(G.length<2) return;
       var sans=G.filter(function(r){ return !r.h; }).length, chev=false;
       for(var i=0;i<G.length;i++) for(var k=i+1;k<G.length;k++){ var a=G[i].h, b=G[k].h; if(a&&b&&a[0]<b[1]-0.01&&b[0]<a[1]-0.01) chev=true; }
-      if(sans>=2||chev) ajoute({t:"plusieurs", x:x, y:G.map(function(r){ return r.y; }).join(","), ys:G.map(function(r){ return r.y; }),
+      if(sans>=2||chev) ajoute({t:"plusieurs", x:x, g:/^(AM|PM|N)$/.test(g)?g:"", y:G.map(function(r){ return r.y; }).join(","), ys:G.map(function(r){ return r.y; }),
         qui:[x].concat(G.map(function(r){ return r.y; })).concat([].concat.apply([],G.map(function(r){ return r.src; }))), chev:chev&&sans<2}); });
   });
   Object.keys(ech).forEach(function(a){ ech[a].forEach(function(b){ var lb=ech[b]; if(!lb||lb.indexOf(a)>=0) return;
@@ -31475,49 +31515,119 @@ function incPhrase(o){
   if(o.doute) return "Le remplacement de "+o.x+" par "+o.y+" est noté avec un « ? » : à confirmer.";
   return o.x+" est « remplacé par ? » : le remplaçant n'est pas écrit.";
 }
-function incoherencesAVenir(){
-  var au=jourUsine(), out=[], fin=null;
-  HORAIRE_ANNEES.forEach(function(a){ if(horaireSuivant(a)) fin=a; });
-  if(!fin) return out;
-  for(var d=new Date(au.getFullYear(),au.getMonth(),au.getDate()); d.getFullYear()<=fin; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
-    var db=horaireSuivant(d.getFullYear()); if(!db) continue;
-    try{ out=out.concat(incoherencesDuJour(db,d.getFullYear(),d.getMonth()+1,d.getDate())); }catch(e){}
-  }
-  return out;
+/* Les incohérences d'un jour à un autre, bornes comprises ; avec pas(), une
+   tranche de 25 ms à la fois, puis fini(liste). */
+function incoherencesEntre(d0,d1,pas){
+  var out=[], d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate());
+  function jour(){ var db=horaireSuivant(d.getFullYear());
+    if(db){ try{ out=out.concat(incoherencesDuJour(db,d.getFullYear(),d.getMonth()+1,d.getDate())); }catch(e){} }
+    d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1); }
+  if(!pas){ while(d<=d1) jour(); return out; }
+  (function tranche(){ var t=Date.now(); while(d<=d1 && Date.now()-t<25) jour();
+    if(d<=d1) setTimeout(tranche,0); else pas(out); })();
 }
-var incFait="";
+function incAnnees(){ var deb=null, fin=null;
+  HORAIRE_ANNEES.forEach(function(a){ if(horaireSuivant(a)){ if(deb===null) deb=a; fin=a; } });
+  return {deb:deb, fin:fin}; }
+/* LE TROU QU'ELLE LAISSE (le client, le 02/11/2026 : « il faut aussi
+   préciser si cela crée un trou dans l'horaire »). Le calcul même des
+   sous-effectifs (mqParcours : equipeDuJour, puis postesDePause et ses
+   « manque »), sur les pauses en cause de la journée, une pause déjà finie
+   aujourd'hui exceptée. Rend null quand aucune pause n'est connue. */
+function incTrous(o,cache,finies){
+  var db=horaireSuivant(o.an); if(!db||!o.pauses||!o.pauses.length) return null;
+  var mmdd=pad2(o.m)+pad2(o.j), k=o.an+mmdd, c=cache[k], out=[];
+  if(!c) c=cache[k]={par:equipeDuJour(db,o.an,o.m,o.j), v:{}};
+  var ps=o.pauses.filter(function(g){ return !(finies&&finies[g]); });
+  if(!ps.length) return null;
+  ps.forEach(function(g){
+    if(!(g in c.v)){ var l=c.par[g], v=[];
+      if(l&&l.length){ try{ postesDePause(db,l,g,mmdd,g==="AM"?c.par.D:null).postes.forEach(function(x){
+        if(x.manque) v.push({t:x.P.t, n:Math.max(1,(x.attendu||0)-(x.tenu||0))}); }); }catch(e){} }
+      c.v[g]=v; }
+    c.v[g].forEach(function(x){ out.push({g:g, t:x.t, n:x.n}); });
+  });
+  return {trous:out, pauses:ps};
+}
+function incTrouHTML(T){
+  if(!T) return "";
+  function et(l){ return l.length>1?l.slice(0,-1).join(", ")+" et "+l[l.length-1]:l[0]; }
+  if(T.trous.length) return '<span class="inc-trou"><b>Crée un trou</b> : '+esc(et(T.trous.map(function(x){
+    return x.t+" en "+x.g+(x.n>1?" ("+x.n+" places vides)":""); })))+'</span>';
+  return '<span class="inc-ok">Pas de trou : '+(T.pauses.length>1?"les pauses "+et(T.pauses)+" sont complètes":"la pause "+T.pauses[0]+" est complète")+'</span>';
+}
+var incFait="", incPasse={cle:"", l:null};
 function renderIncoherences(force){
   var hote=document.getElementById("incCorps"); if(!hote) return;
-  var au=jourUsine(), cle=au.toDateString()+"/"+HORAIRE_ANNEES.map(function(a){ var d=horaireSuivant(a); return d?d.maj:""; }).join("/");
+  var au=jourUsine(), finies=pausesFinies(), maj=HORAIRE_ANNEES.map(function(a){ var d=horaireSuivant(a); return d?d.maj:""; }).join("/"),
+      cle=au.toDateString()+"/"+Object.keys(finies).join("")+"/"+maj;
   if(!force && cle===incFait) return;
   incFait=cle;
-  var l=incoherencesAVenir(), t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate()), h=[], mois=null, parJ={}, jours=[];
-  l.forEach(function(o){ var k=o.an+"-"+pad2(o.m)+"-"+pad2(o.j); if(!parJ[k]){ parJ[k]=[]; jours.push(k); } parJ[k].push(o); });
-  var parMois={}; jours.forEach(function(k){ var mk=k.slice(0,7); (parMois[mk]=parMois[mk]||[]).push(k); });
-  Object.keys(parMois).sort().forEach(function(mk,im){
-    var n=0; parMois[mk].forEach(function(k){ n+=parJ[k].length; });
-    var y=Number(mk.slice(0,4)), mo=Number(mk.slice(5,7));
-    h.push(mqMoisTete("inc",mk,MOIS[mo-1]+(y!==au.getFullYear()?" "+y:""),n+" incohérence"+(n>1?"s":""),im===0));
-    parMois[mk].forEach(function(k){ var L0=parJ[k], o0=L0[0], q=dateEnMots(o0.an,o0.m,o0.j,t0);
-      h.push('<div class="mqj" data-a="'+o0.an+'" data-m="'+o0.m+'" data-j="'+o0.j+'" title="'+esc(q.titre)+'">'
-        +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn incn">'+L0.length+" incohérence"+(L0.length>1?"s":"")+'</span></span><span class="mqls">');
-      L0.forEach(function(o){
-        var db=horaireSuivant(o.an), md=pad2(o.m)+pad2(o.j), lignes=[];
-        /* chaque personne une fois, les deux GBT chacun la sienne */
-        o.qui.forEach(function(t){ db.people.forEach(function(z){ if(idLisible(z.id)!==t) return; var raw=(z.d||{})[md];
-          var c=raw?String(raw[2]||"").trim():"", an=raw?String(raw[1]||"").trim():"";
-          if(!c&&!an) return; if(lignes.some(function(x){ return x.id===z.id; })) return;
-          lignes.push({id:z.id, t:t, x:(an?an+(c?" · ":""):"")+nettoyerAffichage(c).replace(/\n+/g," ")}); }); });
-        h.push('<span class="mql"><span class="inc-t">'+esc(INC_NOMS[o.t])+'</span><span class="inc-p">'+esc(incPhrase(o))+'</span>'
-          +lignes.map(function(x){ return '<span class="inc-c"><span class="mqc"><b>'+esc(x.t)+'</b></span><span>'+esc(x.x)+'</span></span>'; }).join("")+'</span>');
-      });
-      h.push('</span></div>');
+  var A0=incAnnees(); if(!A0.fin){ hote.innerHTML=""; return; }
+  var auD=new Date(au.getFullYear(),au.getMonth(),au.getDate()), auT=auD.getTime(), avenir=[], passAuj=[];
+  /* PASSÉE (le client, le 02/11/2026 : « les incohérences passées ne
+     doivent plus être prises en compte, mais peuvent quand même être
+     regroupées quelque part ») : un jour d'avant, ou aujourd'hui quand
+     toutes ses pauses sont finies — le 02/11 au soir, celle du matin. */
+  incoherencesEntre(auD,new Date(A0.fin,11,31)).forEach(function(o){
+    var p=new Date(o.an,o.m-1,o.j).getTime()===auT && o.pauses.length && o.pauses.every(function(g){ return finies[g]; });
+    (p?passAuj:avenir).push(o); });
+  var t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate()), h=[], cache={}, nTrou=0;
+  function parJours(l){ var parJ={}, jours=[];
+    l.forEach(function(o){ var k=o.an+"-"+pad2(o.m)+"-"+pad2(o.j); if(!parJ[k]){ parJ[k]=[]; jours.push(k); } parJ[k].push(o); });
+    var parMois={}; jours.forEach(function(k){ var mk=k.slice(0,7); (parMois[mk]=parMois[mk]||[]).push(k); });
+    return {parJ:parJ, jours:jours, parMois:parMois}; }
+  function moisNom(mk){ var y=Number(mk.slice(0,4)), mo=Number(mk.slice(5,7)); return MOIS[mo-1]+(y!==au.getFullYear()?" "+y:""); }
+  function carte(L0,trous){ var o0=L0[0], q=dateEnMots(o0.an,o0.m,o0.j,t0), r=[];
+    r.push('<div class="mqj" data-a="'+o0.an+'" data-m="'+o0.m+'" data-j="'+o0.j+'" title="'+esc(q.titre)+'">'
+      +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn incn">'+L0.length+" incohérence"+(L0.length>1?"s":"")+'</span></span><span class="mqls">');
+    L0.forEach(function(o){
+      var db=horaireSuivant(o.an), md=pad2(o.m)+pad2(o.j), lignes=[],
+          T=trous?incTrous(o,cache,new Date(o.an,o.m-1,o.j).getTime()===auT?finies:null):null;
+      if(T&&T.trous.length) nTrou++;
+      /* chaque personne une fois, les deux GBT chacun la sienne */
+      o.qui.forEach(function(t){ db.people.forEach(function(z){ if(idLisible(z.id)!==t) return; var raw=(z.d||{})[md];
+        var c=raw?String(raw[2]||"").trim():"", an=raw?String(raw[1]||"").trim():"";
+        if(!c&&!an) return; if(lignes.some(function(x){ return x.id===z.id; })) return;
+        lignes.push({id:z.id, t:t, x:(an?an+(c?" · ":""):"")+nettoyerAffichage(c).replace(/\n+/g," ")}); }); });
+      r.push('<span class="mql"><span class="inc-t">'+esc(INC_NOMS[o.t])+'</span><span class="inc-p">'+esc(incPhrase(o))+'</span>'
+        +incTrouHTML(T)
+        +lignes.map(function(x){ return '<span class="inc-c"><span class="mqc"><b>'+esc(x.t)+'</b></span><span>'+esc(x.x)+'</span></span>'; }).join("")+'</span>');
     });
+    r.push('</span></div>');
+    return r.join(""); }
+  var A=parJours(avenir);
+  Object.keys(A.parMois).sort().forEach(function(mk,im){
+    var n=0; A.parMois[mk].forEach(function(k){ n+=A.parJ[k].length; });
+    h.push(mqMoisTete("inc",mk,moisNom(mk),n+" incohérence"+(n>1?"s":""),im===0));
+    A.parMois[mk].forEach(function(k){ h.push(carte(A.parJ[k],true)); });
     h.push('</div></section>');
   });
-  hote.innerHTML=h.join("")||'<p class="mqok-vide"><b>'+MQ_OK_V+" Rien à signaler</b><span>Aucune incohérence entre les commentaires d'ici la fin de l'horaire.</span></p>";
-  var nj=jours.length;
-  document.getElementById("incSub").textContent=l.length?l.length+" incohérence"+(l.length>1?"s":"")+" sur "+nj+" journée"+(nj>1?"s":"")+" · d'aujourd'hui à la fin de l'horaire":"";
+  if(!h.length) h.push('<p class="mqok-vide"><b>'+MQ_OK_V+" Rien à signaler</b><span>Aucune incohérence entre les commentaires d'ici la fin de l'horaire.</span></p>");
+  h.push('<div class="inc-passees-hote"></div>');
+  hote.innerHTML=h.join("");
+  /* « 11 incohérences d'ici fin 2027 · 2 créent un trou » : une ligne au
+     téléphone, comme « 9 pauses d'ici fin 2027 » des sous-effectifs */
+  document.getElementById("incSub").textContent=avenir.length?avenir.length+" incohérence"+(avenir.length>1?"s":"")+" d'ici fin "+rhAnFin()
+    +(nTrou?" · "+nTrou+" crée"+(nTrou>1?"nt":"")+" un trou":" · aucune ne crée de trou"):"";
+  rhCompte("inc",avenir.length);
+  /* les passées, du plus récent au plus ancien, repliées en bas ; calculées
+     en tranches après le rendu (toute l'année : 200 ms au PC d'un trait) */
+  function passees(l){ if(incFait!==cle) return;
+    var P=parJours(l.concat(passAuj)), n=l.length+passAuj.length, ph=document.querySelector("#incCorps .inc-passees-hote"); if(!ph||!n) return;
+    var r=[mqMoisTete("inc","passees","Passées",n+" incohérence"+(n>1?"s":""),false).replace('class="mqmois','class="mqmois inc-passees')
+      +'<p class="inc-pnote">Elles ne comptent plus : gardées pour mémoire, de la plus récente à la plus ancienne.</p>'];
+    Object.keys(P.parMois).sort().reverse().forEach(function(mk){
+      var nm=0; P.parMois[mk].forEach(function(k){ nm+=P.parJ[k].length; });
+      r.push('<p class="inc-pm">'+esc(moisNom(mk))+" · "+nm+'</p>');
+      P.parMois[mk].slice().reverse().forEach(function(k){ r.push(carte(P.parJ[k],false)); });
+    });
+    r.push('</div></section>');
+    ph.innerHTML=r.join(""); }
+  var cleP=au.toDateString()+"/"+maj;
+  if(incPasse.cle===cleP && incPasse.l) passees(incPasse.l);
+  else if(auD>new Date(A0.deb,0,1)) incoherencesEntre(new Date(A0.deb,0,1),new Date(au.getFullYear(),au.getMonth(),au.getDate()-1),function(l){ incPasse={cle:cleP, l:l}; passees(l); });
+  else passees([]);
   hote.onkeydown=mqClavier;
   hote.onclick=function(e){
     if(mqBascule(e)) return;
@@ -31526,6 +31636,23 @@ function renderIncoherences(force){
     setView("jour");
   };
 }
+/* LE CHOIX DU SOUCI, en haut des Effectifs (le client, le 02/11/2026) : un
+   cadre à la fois, le dernier choisi retenu sur l'appareil ; chaque cadre
+   écrit son nombre sur son bouton. */
+var RH_CHOIX={ap:"apCard", inc:"incCard", mq:"mqCard", rn:"rnCard"};
+function rhChoisir(k){
+  if(!RH_CHOIX[k]) k="ap";
+  Object.keys(RH_CHOIX).forEach(function(c){ var el=document.getElementById(RH_CHOIX[c]), b=document.getElementById("rhc-"+c);
+    if(el) el.hidden=c!==k; if(b){ b.setAttribute("aria-selected",c===k?"true":"false"); b.tabIndex=c===k?0:-1; } });
+}
+function rhCompte(k,n){ var e=document.getElementById("rhn-"+k); if(e) e.textContent=String(n); }
+(function(){
+  var r=document.getElementById("rhChoix"); if(!r) return;
+  rhChoisir(lsGet("ui/rhChoix"));
+  r.addEventListener("click",function(e){ var b=e.target.closest?e.target.closest("button[data-rh]"):null; if(!b) return;
+    var k=b.getAttribute("data-rh"); lsSet("ui/rhChoix",k); rhChoisir(k); });
+  r.addEventListener("keydown",function(e){ var c=ongletVise(e,[].slice.call(r.querySelectorAll("button[data-rh]"))); if(c){ c.click(); c.focus(); } });
+})();
 function renderRappelsInutiles(force){
   var hote=document.getElementById("rnCorps"); if(!hote) return;
   var au=new Date(), cle=jourUsine().toDateString();
@@ -31572,6 +31699,7 @@ function renderRappelsInutiles(force){
       +"<span>Aucun rappel évitable d'ici la fin de "+rhAnFin()+".</span></p>";
     /* Plus de description sous le titre (le client, le 10/10/2026). */
     document.getElementById("rnSub").textContent="";
+    rhCompte("rn",n);
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un rappel non nécessaire doit aller sur la
        vue horaire de ce jour-là »). setView("jour") bascule la vue et rend
@@ -32154,6 +32282,7 @@ function renderManques(force,pre){
     if(nb){ nb.textContent=n>99?"99+":String(n); nb.hidden=!n; rhNomOnglet(); }
     document.getElementById("mqSub").textContent=
       n ? n+" pause"+(n>1?"s":"")+" d'ici fin "+rhAnFin() : "rien à signaler";
+    rhCompte("mq",n);
     /* Le clic sur une journée ouvre l'ONGLET HORAIRE sur ce jour-là (le client,
        le 04/10/2026 : « cliquer sur un effectif minimum doit aller sur la vue
        horaire de ce jour-là »). setView("jour") bascule la vue et rend

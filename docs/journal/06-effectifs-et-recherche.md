@@ -4122,3 +4122,73 @@ retrait du renvoi « cf ». Le vérificateur du calendrier est identique à
 l'octet dans ses cinq modes. Les motifs du cadre sont écrits par `new
 RegExp` : le début littéral « rx=/\bremp », par lequel le vérificateur
 découpe `atelierDuRemplace`, reste unique dans `index.html`.
+
+### Le choix du souci, le trou de chaque incohérence, les passées à part (02/11/2026, `nfdm-v1304`)
+
+Le client : « il faut aussi préciser si cela crée un trou dans l'horaire.
+J'aimerais bien que sur cette page, dans le haut, on puisse choisir le type
+de soucis : prévenir, incohérence, sous-effectif. Les incohérences passées
+ne doivent plus être prises en compte, mais peuvent quand même être
+regroupées quelque part. »
+
+**Le choix du souci.** Un sélecteur à quatre voies, dans le style des
+onglets « Absents / Congés et repos » (`.caseg`) : « À prévenir »,
+« Incohérences », « Sous-effectif », dans l'ordre du client, et « Rappels
+évitables ». Le quatrième n'était pas demandé, mais le laisser toujours
+visible sous le cadre choisi aurait fait croire qu'il en faisait partie.
+Un seul cadre est montré à la fois :
+- chaque bouton porte le nombre de sa sorte, que chaque cadre écrit en se
+  rendant (`rhCompte`) ;
+- le dernier choix est retenu sur l'appareil (`ui/rhChoix`) ; au premier
+  passage, « À prévenir » ;
+- les flèches passent d'un bouton à l'autre (`ongletVise`).
+
+Il est posé **sous « Absents, congés et repos »**, qui reste en tête (le
+client, le 10/10/2026 : « Absents et congés en tête »). Au téléphone, il
+tombe à 470 px du haut, dans le premier écran. Les boutons sont sur une
+ligne au PC, sur deux lignes de deux sous 620 px. Le cadre des
+incohérences reçoit au passage le bord et l'ombre des trois autres
+(`#v-rh #incCard`), oubliés à la v1302.
+
+**Le trou.** Chaque incohérence à venir dit maintenant si elle laisse une
+place vide (`incTrous`). Le calcul est celui des sous-effectifs
+(`equipeDuJour`, puis `postesDePause` et ses « manque »), fait sur les
+pauses en cause :
+- la pause de la place à tenir : celle du remplacé, ou celle des
+  remplaçants en trop ;
+- à défaut, la pause de chaque personne nommée ;
+- une pause déjà finie aujourd'hui n'est pas regardée.
+
+Les deux cadres ne peuvent donc pas se contredire. Sur les 11 à venir,
+**2 créent un trou** : les 14 et 15/11, Chaudières en PM, la place vide
+confirmée par le client. Les 9 autres disent « Pas de trou : la pause N
+est complète ».
+
+**Les passées.** Une incohérence est passée quand son jour est passé, ou
+quand c'est aujourd'hui et que toutes ses pauses sont finies. Le 02/11 au
+soir, celle du matin (LAA, « remplacé par SBZ ») ne compte plus : 11 à
+venir au lieu de 12. Les passées ne comptent ni sur le bouton ni dans le
+sous-titre. Elles sont rangées en bas du cadre, dans une section
+« Passées » repliée (177, du 1er janvier à ce matin), par mois, de la plus
+récente à la plus ancienne, sans la ligne du trou.
+
+**Mesuré : toute l'année d'un trait coûte trop.** Au PC, les incohérences
+à venir prennent 46 ms, et toute l'année plus de 200 ms ; un téléphone est
+trois ou quatre fois plus lent. Les incohérences à venir s'affichent donc
+d'abord. Les passées se calculent ensuite par tranches de 25 ms, gardées
+pour la journée (`incPasse`), puis la section s'ajoute à la fin du cadre.
+
+**L'épreuve** `rh-test.js` passe sans faute à 320, 390 et 1280 px. Elle
+vérifie :
+- un seul cadre au départ, « Absents » en tête, aucun débordement ;
+- les nombres des quatre boutons ;
+- le choix qui montre son seul cadre ;
+- 11 incohérences à venir sur 9 journées, sans celle du matin ;
+- « 2 créent un trou », Chaudières en PM les 14 et 15/11, et une ligne de
+  trou sous chaque incohérence à venir ;
+- 177 passées, repliées, la plus récente le 02/11 ;
+- le choix retenu au rechargement, et la flèche droite.
+
+Sur la v1303, elle relève « pas de sélecteur ». `inc-test2.js` (v1303)
+compte désormais les seules incohérences à venir, et passe sans faute. Le
+vérificateur du calendrier reste identique à l'octet dans ses cinq modes.
