@@ -2881,13 +2881,19 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .usp{position:relative; margin:0 16px; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#1b2430}
 .usp-defil{overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:thin}
 .usp-cadre{position:relative; width:100%; aspect-ratio:1600/840}
-.usp-cadre img{position:absolute; inset:0; width:100%; height:100%; display:block; filter:saturate(.92) brightness(.95); transition:filter .4s}
-.usp.usp-nuit .usp-cadre img{filter:saturate(.7) brightness(.55)}
+/* la photo telle quelle, de jour comme de nuit (le client, sur la v1289 :
+   « la photo a l'air sombre par rapport à ton exemple » : la nuit
+   l'assombrissait à 55 %) */
+.usp-cadre img{position:absolute; inset:0; width:100%; height:100%; display:block}
 .usp-zones{position:absolute; inset:0; width:100%; height:100%}
-.usp-zones rect{fill:rgba(255,255,255,.07); stroke:rgba(255,255,255,.6); stroke-width:1.5; vector-effect:non-scaling-stroke; stroke-dasharray:5 4}
-.usp-zones rect.usp-sel{fill:color-mix(in srgb,var(--in) 24%,transparent); stroke:var(--in); stroke-width:2.5; stroke-dasharray:none}
+.usp-zones polygon{--zc:var(--us-f-gris); fill:color-mix(in srgb,var(--zc) 20%,transparent); stroke:var(--zc); stroke-width:2; stroke-linejoin:round; vector-effect:non-scaling-stroke}
+.usp-zones polygon.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-zones polygon.usp-f-vert{--zc:var(--us-f-vert)} .usp-zones polygon.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-zones polygon.usp-f-bleu{--zc:var(--us-f-bleu)}
+.usp-zones polygon.usp-sel{fill:color-mix(in srgb,var(--zc) 38%,transparent); stroke:#fff; stroke-width:3}
 .usp-pins{position:absolute; inset:0; pointer-events:none}
-.usp-pin{position:absolute; left:-6px; top:-6px; width:12px; height:12px; border-radius:50%; background:var(--in); border:2px solid #fff; box-sizing:border-box; box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.usp-pin{--zc:var(--us-f-gris); position:absolute; left:-6px; top:-6px; width:12px; height:12px; padding:0; border-radius:50%; background:var(--zc); border:2px solid #fff; box-sizing:border-box; box-shadow:0 0 0 2px rgba(0,0,0,.35); color:#151E2F; font:700 12px/1 inherit}
+.usp-pin span{display:none}
+.usp-pin.usp-f-jaune,.usp-num.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-pin.usp-f-vert,.usp-num.usp-f-vert{--zc:var(--us-f-vert)} .usp-pin.usp-f-rouge,.usp-num.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-pin.usp-f-bleu,.usp-num.usp-f-bleu{--zc:var(--us-f-bleu)}
+.usp-liste{display:none}
 .usp-ets{position:absolute; inset:0; pointer-events:none}
 .usp-et{position:absolute; left:0; top:0; pointer-events:auto; display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:6px 8px; max-width:210px;
   border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 12.5px/1.15 inherit; text-align:left;
@@ -2906,7 +2912,24 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .usp-et.usp-manque{border-color:var(--at-jaune); box-shadow:0 0 0 1px var(--at-jaune),0 3px 10px rgba(0,0,0,.32)}
 .usp-et.usp-sel{border-color:var(--in); box-shadow:0 0 0 2px color-mix(in srgb,var(--in) 50%,transparent),0 3px 10px rgba(0,0,0,.32)}
 .usp-credit{margin:4px 16px 0; font-size:11px; color:var(--muted); text-align:right}
-@media (max-width:699px){ .usp{margin:0 8px} .usp-cadre{width:900px} .usp-credit{margin:4px 8px 0} }
+@media (max-width:699px){
+  .usp{margin:0 8px} .usp-credit{margin:4px 8px 0} .usp-ets{display:none}
+  .usp-pin{pointer-events:auto; width:26px; height:26px; left:-13px; top:-13px; display:grid; place-items:center; cursor:pointer}
+  .usp-pin span{display:inline}
+  .usp-pin.usp-manque{box-shadow:0 0 0 3px var(--at-jaune)} .usp-pin.usp-sel{border-color:var(--in); box-shadow:0 0 0 3px #fff,0 0 0 5px var(--in)}
+  .usp-liste{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin:8px 8px 0}
+  .usp-li{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:5px 7px; min-width:0; padding:7px 8px; border:1px solid var(--line); border-radius:10px;
+    background:var(--surface); color:var(--ink); text-align:left; font:600 13px/1.2 inherit; cursor:pointer}
+  .usp-li b{min-width:0; overflow-wrap:anywhere}
+  .usp-li .usp-n{font-weight:500; font-size:12px; color:var(--ink2)}
+  .usp-li .usp-g{grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:3px}
+  .usp-li .us-tri-b{min-width:34px; height:20px; padding:0 5px; font-size:11px}
+  .usp-li .us-tri-b.usp-hors{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--ink2); border:0}
+  .usp-li .us-tri-b.usp-moi{outline:2px solid var(--in); outline-offset:1px}
+  .usp-li .usp-libre{font-size:11px; font-weight:700; color:var(--ink)} .usp-li .usp-vide{font-weight:500; color:var(--ink2)}
+  .usp-li.usp-manque{border-color:var(--at-jaune)} .usp-li.usp-sel{border-color:var(--in); box-shadow:0 0 0 2px color-mix(in srgb,var(--in) 40%,transparent)}
+  .usp-num{--zc:var(--us-f-gris); width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:var(--zc); color:#151E2F; font-size:12px; font-weight:700}
+}
 /* L'USINE EN 3D (v1288) : la scène, ses étiquettes de poste, ses boutons */
 .us3{position:relative; height:clamp(340px,64vh,560px); margin:0 16px; border:1px solid var(--line); border-radius:14px; overflow:hidden;
   background:linear-gradient(180deg,#22303f 0%,#33455a 62%,#3b4b5c 100%); --us3-brume:#3b4b5c}
@@ -23047,16 +23070,21 @@ function usine3DRendre(corps,E,cote,cw){
    d'après les 21 repères identifiés par le client), un point sur sa salle
    et une carte : le poste, les trigrammes présents, les présents sur
    l'attendu, l'ambre s'il manque quelqu'un. */
+/* LES ZONES AU CONTOUR DES BÂTIMENTS (le client, sur la v1289 : « les
+   zones ne sont pas bien dessinées ») : des polygones relevés sur la photo
+   quadrillée tous les 50 px, et non plus des rectangles posés de travers
+   sur une vue de biais ; chacune à la couleur de son poste */
 var USP_ZONES={
-  meun:[[40,80,230,185],[80,185,238,440],[240,215,368,312],[265,315,410,392]],
-  glut:[[110,400,415,640]],
-  chau:[[410,170,720,328],[600,332,700,395]],
-  dist:[[445,330,598,530],[640,398,860,530]],
-  terr:[[880,385,950,530],[945,335,1135,425]],
-  ferm:[[425,535,865,725]],
-  cm:[[1045,628,1160,792]],
-  step:[[1470,72,1600,140]]};
-var USP_POINTS={meun:[222,215], glut:[305,465], chau:[560,232], dist:[530,380], ferm:[670,590], terr:[912,420], cm:[1100,690], step:[1556,104]};
+  meun:[[[55,95],[75,88],[215,205],[200,218]], [[82,262],[120,240],[205,200],[242,186],[268,200],[268,398],[180,390],[150,405],[85,400]],
+        [[240,222],[318,212],[318,188],[405,188],[405,250],[365,252],[365,300],[240,300]], [[265,318],[405,312],[410,385],[300,392],[265,385]]],
+  glut:[[[125,395],[180,385],[410,400],[410,560],[378,565],[378,638],[305,638],[300,590],[212,588],[205,540],[125,520]]],
+  chau:[[[455,178],[535,175],[540,228],[612,230],[625,182],[680,182],[690,300],[540,300],[455,292]], [[578,335],[690,335],[690,392],[578,392]]],
+  dist:[[[452,340],[500,332],[578,338],[580,528],[452,528]], [[585,398],[700,398],[790,405],[792,525],[585,525]]],
+  terr:[[[868,392],[948,388],[952,500],[948,520],[870,520]], [[952,345],[1118,345],[1122,422],[955,425]]],
+  ferm:[[[425,555],[490,552],[500,548],[860,548],[860,705],[640,712],[585,725],[425,728]]],
+  cm:[[[1050,600],[1145,600],[1148,700],[1150,792],[1095,792],[1093,702],[1052,700]]],
+  step:[[[1470,82],[1600,82],[1600,150],[1500,150]]]};
+var USP_POINTS={meun:[222,215], glut:[300,470], chau:[500,232], dist:[515,430], ferm:[650,612], terr:[910,452], cm:[1100,650], step:[1540,112]};
 var US_VUE=lsGet("ui/usineVue")||"photo", USP_CLE="";
 if(US_VUE!=="photo"&&US_VUE!=="3d"&&US_VUE!=="plan") US_VUE="photo";
 US3_MODE=US_VUE==="3d";
@@ -23071,6 +23099,17 @@ function usinePhotoCartes(E){
     return '<button type="button" class="usp-et'+(manque?' usp-manque':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+" présent"+(n>1?"s":"")+(att?" sur "+att:"")+(g.length?" : "+g.map(function(o){ return o.tri; }).join(", "):""))+'">'
       +'<span class="usp-t"><b>'+esc(z.t)+'</b><span>'+n+(att?'/'+att:'')+'</span></span>'+(tri?'<span class="usp-g">'+tri+'</span>':'')+'</button>'; }).join("");
 }
+/* AU TÉLÉPHONE, LA PHOTO ENTIÈRE (le client, sur la v1289 : « sur mobile,
+   la photo doit absolument être entièrement visible ; on adaptera le
+   contenu de la version mobile ») : les cartes n'y tiennent pas ; un point
+   numéroté par poste, à sa couleur, sur la photo, et sous elle la liste :
+   le numéro, le poste, ses présents et ses trigrammes */
+function usinePhotoListe(E){
+  return USINE_ZONES.map(function(z,i){ var Zk=E.Z[z.k], g=Zk?Zk.gens:[], n=Zk?Zk.n:0, att=Zk?Zk.attendu:0, manque=att>n;
+    g=g.filter(function(o){ return o.compte; }).concat(g.filter(function(o){ return !o.compte; }));
+    return '<button type="button" class="usp-li'+(manque?' usp-manque':'')+'" data-k="'+z.k+'"><span class="usp-num usp-f-'+(z.f||"gris")+'" aria-hidden="true">'+(i+1)+'</span><b>'+esc(z.t)+'</b>'
+      +'<span class="usp-n">'+n+(att?'/'+att:'')+'</span><span class="usp-g">'+(g.length?g.map(function(o){ return '<span class="us-tri-b us-f-'+(z.f||"gris")+(o.moi?' usp-moi':'')+(o.compte?'':' usp-hors')+'">'+esc(o.tri)+'</span>'; }).join(""):(att?'<span class="usp-libre">place libre</span>':'<span class="usp-libre usp-vide">personne</span>'))+'</span></button>'; }).join("");
+}
 /* les cartes au-dessus de leur point ; une qui en recouvre une autre
    remonte (sa tige s'allonge), celles des bords restent sur la photo */
 function uspPlacer(){
@@ -23078,7 +23117,10 @@ function uspPlacer(){
   var W=cadre.clientWidth, H=cadre.clientHeight; if(!W||!H) return; var L=[];
   Array.prototype.forEach.call(hote.children,function(b){ var k=b.getAttribute("data-k"), q=USP_POINTS[k]; if(!q) return;
     b.classList.toggle("usp-sel",k===US_SEL); L.push({b:b, x:q[0]/1600*W, y:q[1]/840*H, w:b.offsetWidth, h:b.offsetHeight}); });
-  var pins=document.getElementById("uspPins"); if(pins) pins.innerHTML=L.map(function(o){ return '<span class="usp-pin" style="transform:translate('+Math.round(o.x)+'px,'+Math.round(o.y)+'px)"></span>'; }).join("");
+  var pins=document.getElementById("uspPins"); if(pins) pins.innerHTML=L.map(function(o){ var k=o.b.getAttribute("data-k"), i=-1, f="gris";
+    USINE_ZONES.forEach(function(z,j){ if(z.k===k){ i=j; f=z.f||"gris"; } });
+    return '<button type="button" tabindex="-1" class="usp-pin usp-f-'+f+(o.b.classList.contains("usp-manque")?' usp-manque':'')+(k===US_SEL?' usp-sel':'')+'" data-k="'+k+'" style="transform:translate('+Math.round(o.x)+'px,'+Math.round(o.y)+'px)"><span>'+(i+1)+'</span></button>'; }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("#uspListe .usp-li"),function(b){ b.classList.toggle("usp-sel",b.getAttribute("data-k")===US_SEL); });
   L.sort(function(a,b){ return b.y-a.y; }); var poses=[];
   L.forEach(function(o){ var bas=o.y-o.h-14<4, y=bas?o.y+o.h+14:o.y-14, cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), x0=cx-o.w/2, x1=cx+o.w/2, bouge=true, n=0;
     while(bouge&&n++<12){ bouge=false; poses.forEach(function(p){ if(x0<p.x1+4&&x1>p.x0-4&&y>p.y0-4&&y-o.h<p.y1+4){ y=bas?p.y1+o.h+4:p.y0-4; bouge=true; } }); }
@@ -23086,7 +23128,7 @@ function uspPlacer(){
     o.b.classList.toggle("usp-bas",bas);
     o.b.style.setProperty("--tige",Math.max(4,Math.round(bas?y-o.h-o.y:o.y-y))+"px"); o.b.style.setProperty("--tige-x",Math.round(o.x-cx)+"px");
     o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(y)+"px) translate(-50%,-100%)"; });
-  Array.prototype.forEach.call(document.querySelectorAll("#uspZones rect"),function(r){ var on=r.getAttribute("data-k")===US_SEL; r.setAttribute("class",on?"usp-sel":""); });
+  Array.prototype.forEach.call(document.querySelectorAll("#uspZones polygon"),function(r){ r.classList.toggle("usp-sel",r.getAttribute("data-k")===US_SEL); });
 }
 function usinePhotoRendre(corps,E,cote,cw){
   var cle="photo|"+cote+"|"+(cw>=624);
@@ -23099,19 +23141,17 @@ function usinePhotoRendre(corps,E,cote,cw){
       +'<div class="usp'+(E.nuit?' usp-nuit':'')+'" id="usp"><div class="usp-defil" id="uspDefil"><div class="usp-cadre" id="uspCadre">'
       +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
       +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true">'
-      +Object.keys(USP_ZONES).map(function(k){ return USP_ZONES[k].map(function(r){ return '<rect data-k="'+k+'" x="'+r[0]+'" y="'+r[1]+'" width="'+(r[2]-r[0])+'" height="'+(r[3]-r[1])+'" rx="6"/>'; }).join(""); }).join("")
+      +Object.keys(USP_ZONES).map(function(k){ var f="gris"; USINE_ZONES.forEach(function(z){ if(z.k===k) f=z.f||"gris"; });
+        return USP_ZONES[k].map(function(pg){ return '<polygon data-k="'+k+'" class="usp-f-'+f+'" points="'+pg.map(function(q){ return q[0]+","+q[1]; }).join(" ")+'"/>'; }).join(""); }).join("")
       +'</svg><div class="usp-pins" id="uspPins" aria-hidden="true"></div><div class="usp-ets" id="uspEt"></div></div></div></div>'
-      +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be</p>'
+      +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be</p><div class="usp-liste" id="uspListe"></div>'
       +usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")+usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")+'</div>'
       +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Les zones soulignées sont celles de chaque poste, nommées par le client sur la vue aérienne ; la station d’épuration est hors de la photo, plus à l’est, au bord de la Meuse.</p></div>';
     usineBrancher(corps);
     var img=corps.querySelector(".usp-cadre img"); if(img&&!img.complete) img.onload=function(){ uspPlacer(); };
-    /* au téléphone, la photo défile de côté : elle s'ouvre sur le cœur de
-       l'usine */
-    var df=document.getElementById("uspDefil"); if(df&&df.scrollWidth>df.clientWidth) df.scrollLeft=Math.round(df.scrollWidth*0.42-df.clientWidth/2);
   }
   var u=document.getElementById("usp"); if(u) u.classList.toggle("usp-nuit",!!E.nuit);
-  document.getElementById("uspEt").innerHTML=usinePhotoCartes(E); uspPlacer();
+  document.getElementById("uspEt").innerHTML=usinePhotoCartes(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
 }
 function renderUsine(){

@@ -9988,3 +9988,41 @@ la vue aérienne officielle (vue 02, prise du sud), dans l'application.
 
 Elle passe sans faute ; sur la v1288, elle relève 4 fautes.
 
+### L'usine sur sa photo : zones au contour des bâtiments, photo claire, entière au téléphone (02/11/2026, `nfdm-v1290`)
+
+Le client, sur la v1289, avec une capture de son PC prise à 5 h 05 :
+« les zones ne sont pas bien dessinées, et la photo a l'air sombre par
+rapport à ton exemple ». Puis : « sur mobile, la photo doit absolument
+être entièrement visible ; on adaptera le contenu de la version mobile ».
+
+**Constaté** :
+- la photo n'était sombre que la nuit : la v1289 l'assombrissait à 55 %
+  (`usp-nuit`). Mon exemple était pris à 10 h ;
+- les zones étaient des rectangles, posés de travers sur une vue de biais.
+
+**Fait :**
+- **La photo telle quelle**, de jour comme de nuit : l'en-tête dit déjà
+  « Nuit ».
+- **Les zones en polygones** au contour des bâtiments, relevés sur la photo
+  quadrillée tous les 50 px. Chacune a la couleur de son poste (celle de
+  ses trigrammes) ; la zone choisie est cerclée de blanc.
+- **Au téléphone, la photo entière** (plus de défilement de côté). Les
+  cartes n'y tiennent pas : chaque poste a un point numéroté à sa couleur
+  sur la photo, et une liste en deux colonnes sous elle (numéro, poste,
+  présents, trigrammes). Toucher le point ou la ligne ouvre la fiche.
+
+**L'épreuve** `usine-photo-1290.js` reprend celle de la v1289 et vérifie
+aussi :
+- des polygones, et plus aucun rectangle ;
+- aucun filtre sur la photo, y compris à 5 h 05 ;
+- au téléphone, la photo entière, les 8 points numérotés sur la photo, la
+  liste de 8 postes avec ses trigrammes, et le point 3 et la ligne de la
+  distillation qui ouvrent leur fiche.
+
+Elle passe sans faute ; sur la v1289, elle relève 9 fautes. Un premier
+échec venait de l'épreuve : elle centrait la carte entière, plus haute que
+l'écran, et le point visé était hors de l'écran (y = −108).
+
+Le client demande ensuite à dessiner lui-même les zones de chaque poste :
+la photo nue lui est envoyée, et ses zones remplaceront ces polygones.
+
