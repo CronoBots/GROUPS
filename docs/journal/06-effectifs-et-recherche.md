@@ -3919,3 +3919,93 @@ versions.
 
 **Pas encore fait :** le cadre « Changements de poste à prévenir » ne
 propose pas GPO pour cette heure. Il lit le moteur, qui compte par pause.
+
+### Le cadre « Incohérences de l'horaire » (02/11/2026, `nfdm-v1302`)
+
+Le client : « j'aimerais que tu ajoutes un cadre qui reprend toutes les
+incohérences dans l'horaire, avec les changements et commentaires (par
+exemple des commentaires qui se contredisent, ou une personne remplacée
+par plusieurs personnes) ».
+
+Le cadre est dans l'onglet Effectifs, après les sous-effectifs. Il couvre
+d'aujourd'hui au 31 décembre du dernier classeur, par mois, le premier
+ouvert, avec une carte par journée. Chaque incohérence donne :
+- sa sorte ;
+- une phrase qui dit le problème ;
+- la case de chaque personne en cause, annotation et commentaire tels
+  qu'écrits.
+
+Toucher une journée ouvre son Planning. Le calcul prend 32 ms la première
+fois, puis 12 ms.
+
+**Ce qu'il lit.** `incoherencesDuJour` lit le texte du jour, sans les
+renvois vers d'autres jours (`comPlanning`) :
+- **remplacé par plusieurs** : au moins deux remplaçants à la même pause
+  (« remplacé par Y », ou Y qui écrit « remplace X »), sans heures pour
+  les départager, ou à des heures qui se chevauchent. Les heures se lisent
+  « de 6h à 10h », « jusque 10h » ou « à partir de 10h ». Des heures qui
+  se suivent font un relais, et un seul remplaçant sans heures prend le
+  reste ;
+- **remplaçant absent** : le remplaçant nommé n'est pas là (absent, en
+  congé, en repos). On ne le dit pas quand un autre remplaçant, présent,
+  couvre la place ;
+- **échanges qui se contredisent** : A « échange avec B », B « échange avec
+  C ». Un échange à trois (« échange avec IME/DBE ») se tient ;
+- **trigramme inconnu** : un nom rare (4 fois au plus dans l'année), hors
+  de l'horaire, à une lettre ou une inversion d'un trigramme connu (JGR
+  pour GJR, CDH pour CHD), avec la suggestion ;
+- **remplaçant à préciser** : « remplacé par ? », ou « remplacé par JKS ou
+  HKB » quand aucun des deux ne confirme.
+
+**Mesuré et resserré avant de le montrer.** Une copie instrumentée a passé
+tous les jours de 2026 et 2027.
+
+Le premier jet relevait 471 incohérences : 220 « absents », 198
+« inconnus », 36 « plusieurs ». Il était faux pour cinq raisons :
+- PBL (132 fois), LDT (42) et GGE sont de vraies personnes hors de
+  l'horaire, pas des fautes de frappe ;
+- « 8h +FT » ou « 4h +FT » sont des heures en plus, et la personne est
+  donc là ;
+- un repos noté « disti » ou « meunerie » veut dire que la personne vient
+  tenir ce poste ;
+- « échange avec IME/DBE » est un échange à trois qui se tient ;
+- « remplacé par JKS ou HKB » n'est pas deux remplaçants.
+
+Après correction, il reste 149 incohérences sur les deux années :
+
+| Sorte | Nombre |
+|---|---|
+| remplaçant absent | 89 |
+| remplacé par plusieurs | 36 |
+| trigramme inconnu | 9 |
+| remplaçant à préciser | 9 |
+| échanges contradictoires | 6 |
+
+**D'aujourd'hui à la fin de l'horaire, 7 incohérences**, toutes relues
+dans le classeur brut et vraies :
+- le 02/11 au matin, LAA est en RHS, « remplacé par SBZ », mais SBZ est
+  « Abs » alors qu'il écrit « remplace LAA ». C'est le « ? » de la
+  fermentation de ce matin-là ;
+- le 05/11, SKS est « remplacé par YBT », mais YBT est « Abs » ;
+- le 14/11, FLN est remplacé par FPA et par ALZ, sans heures ;
+- les 14 et 15/11, SBZ écrit « remplace QDE », mais il est absent : c'est
+  la place vide confirmée par le client ;
+- le 17/11, MMS écrit « échange avec JKS », mais JKS écrit « échange avec
+  SPT » ;
+- le 10/12, SKS est « remplacé par JBI », mais JBI est en RJF.
+
+**Erreur commise :** le vérificateur du calendrier découpe dans
+`index.html` le motif de `atelierDuRemplace` par son début littéral
+(« rx=/\bremp »). Une nouvelle expression écrite pareil l'a fait échouer
+(« deux fois dans index.html »). Elle est écrite par `new RegExp`, et le
+commentaire qui l'explique ne recopie plus ce début. Le vérificateur est
+de nouveau identique à l'octet dans les cinq modes.
+
+**L'épreuve** `inc-test.js` vérifie :
+- 7 incohérences sur 6 journées, chacune attendue ;
+- aucun des faux positifs écartés ;
+- le toucher du 17/11, qui ouvre son Planning.
+
+Elle passe sans faute ; sur la v1300, le cadre n'existe pas. Le thème
+clair a été regardé au téléphone : l'onglet Effectifs n'est pas dans le
+parcours automatique.

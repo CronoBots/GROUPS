@@ -630,6 +630,21 @@ body{overflow-x:clip}
   font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:0; vertical-align:1px; box-sizing:border-box;
   box-shadow:0 0 0 2px var(--marque,#111727)}
 .tabs .tabnb[hidden]{display:none}
+/* Incohérences de l'horaire (onglet Effectifs, v1302) : les cartes du jour
+   des changements à prévenir, par mois comme les sous-effectifs */
+#incCorps{padding-top:0; padding-bottom:12px}
+#incCorps .mqj, #incCorps .mqj:first-child{display:block; text-align:left; color:inherit; font:inherit;
+  background:none; border:1px solid var(--cadre); border-radius:12px;
+  margin:10px 0 0; width:100%; max-width:660px; padding:0; overflow:hidden}
+@media (hover:hover){ #incCorps .mqj:hover{border-color:var(--trait-fort)} }
+#incCorps .mqls{display:flex; flex-direction:column; padding:10px 12px 12px; gap:12px}
+#incCorps .mql+.mql{border-top:1px solid var(--trait-fort); padding-top:12px}
+#incCorps .incn{color:var(--at-jaune)}
+.inc-t{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--at-jaune)}
+.inc-p{display:block; margin-top:3px; font-size:13.5px; line-height:1.4; color:var(--ink)}
+.inc-c{display:flex; align-items:baseline; gap:8px; margin-top:6px; font-size:12.5px; line-height:1.4; color:var(--ink2)}
+.inc-c .mqc{flex:none}
+@media (max-width:380px){ #incCorps .mqls{padding:9px 10px 11px} }
 /* Changements de poste à prévenir (onglet Effectifs) */
 #apCorps .mqc.app{border-style:dashed; border-color:#F2994A}
 #apCorps .mqc.app b{color:#F7B57A}
@@ -7174,12 +7189,13 @@ html .pvt tbody tr.pvhead th{font-size:10.5px}
      grille du 21/10, posée sur le cadre, le rétrécissait). Les 10 px du
      haut : la première rangée de fiches collait à la barre du titre ou du
      mois, bord contre bord. */
-  #apCorps:has(> .mqj),#mqCorps :has(> .mqj),#rnCorps :has(> .mqj){display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:10px; align-items:start; padding-top:10px}
+  #apCorps:has(> .mqj),#mqCorps :has(> .mqj),#rnCorps :has(> .mqj),#incCorps :has(> .mqj){display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:10px; align-items:start; padding-top:10px}
   /* la première carte (« :first-child », « .eqsem+.mqj », plus lourds)
      gardait ses 10 px du haut et descendait sous ses voisines (le client,
      le 22/10/2026 : « décalage des cadres sous-effectifs ? ») */
   html #apCorps .mqj,html #mqCorps .mqj,html #apCorps .mqj:first-child,html #mqCorps .mqj:first-child,html #mqCorps .eqsem+.mqj,html #apCorps .eqsem+.mqj,
-  html #rnCorps .mqj,html #rnCorps .mqj:first-child,html #rnCorps .eqsem+.mqj{max-width:none; margin-top:0}
+  html #rnCorps .mqj,html #rnCorps .mqj:first-child,html #rnCorps .eqsem+.mqj,
+  html #incCorps .mqj,html #incCorps .mqj:first-child{max-width:none; margin-top:0}
   html .mql{max-width:none}
   /* Équipes : binômes et opérateurs en formation côte à côte, sous la composition */
   /* Les deux cartes côte à côte prennent la même hauteur, comme Ma semaine et
@@ -9106,6 +9122,13 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
     <div class="card" id="mqCard">
       <div class="toolbar rhtitle"><h2>Postes en sous-effectif</h2><p class="sub" id="mqSub"></p></div>
       <div class="mqcorps" id="mqCorps"></div>
+    </div>
+
+    <!-- Les incohérences de l'horaire, entre changements et commentaires
+         (le client, le 02/11/2026). -->
+    <div class="card" id="incCard">
+      <div class="toolbar rhtitle"><h2>Incohérences de l'horaire</h2><p class="sub" id="incSub"></p></div>
+      <div class="mqcorps" id="incCorps"></div>
     </div>
 
     <div class="card" id="rnCard">
@@ -29737,6 +29760,7 @@ function renderEquipe(){
     renderManques();
     renderRappelsInutiles();
     renderTransferts();
+    try{ renderIncoherences(); }catch(e){}
   });
 }
 /* ── La polyvalence : combien de journées COMPLÈTES à chaque autre poste ──
@@ -31250,6 +31274,170 @@ function renderTransferts(force){
       setView("jour");
     };
   });
+}
+/* LES INCOHÉRENCES DE L'HORAIRE (le client, le 02/11/2026 : « j'aimerais que
+   tu ajoutes un cadre qui reprend toutes les incohérences dans l'horaire,
+   avec les changements et commentaires, par exemple des commentaires qui se
+   contredisent, ou une personne remplacée par plusieurs personnes »). Ce que
+   les commentaires d'un même jour disent l'un de l'autre, lu dans le texte du
+   jour (comPlanning : sans les renvois vers d'autres jours) :
+   - REMPLACÉ PAR PLUSIEURS : au moins deux remplaçants à la même pause
+     (« remplacé par Y », ou Y qui écrit « remplace X »), sans heures pour
+     les départager, ou à des heures qui se chevauchent. Des heures qui se
+     suivent (6-10 puis 10-14) font un relais, pas une incohérence ; un seul
+     sans heures prend le reste ;
+   - REMPLAÇANT ABSENT : le remplaçant nommé n'est pas là ce jour-là (absent,
+     en congé, en repos) ;
+   - ÉCHANGES QUI SE CONTREDISENT : A « échange avec B », B « échange avec C » ;
+   - TRIGRAMME INCONNU : un nom, en capitales, qui n'est pas dans l'horaire ;
+   - REMPLAÇANT À PRÉCISER : « remplacé par ? ».
+   D'aujourd'hui au 31 décembre du dernier classeur ; une journée prolongée
+   par les cycles n'a pas de commentaire. Toucher une journée ouvre son
+   Planning. */
+var INC_NOMS={plusieurs:"Remplacé par plusieurs", absent:"Remplaçant absent", echange:"Échanges qui se contredisent", inconnu:"Trigramme inconnu", preciser:"Remplaçant à préciser"};
+/* les noms rares hors de l'horaire, proches d'un trigramme connu : une
+   faute de frappe probable (JGR pour GJR, CDH pour CHD). Un nom fréquent
+   hors de l'horaire (PBL, 132 fois en 2026) est une vraie personne d'ailleurs. */
+function incProche(db){
+  if(db.__incP) return db.__incP;
+  var conn={}, cpt={}, rx=/(?:remplac(?:e|ait|ant)|remplac[\u00e9e]e?s?\s+(?:par|pa|p\.)|[\u00e9e]change\s+(?:de\s+pause\s+)?avec)\s+([A-Z]{3})\b/g, m;
+  db.people.forEach(function(p){ conn[idLisible(p.id)]=1; });
+  db.people.forEach(function(p){ Object.keys(p.d||{}).forEach(function(md){ var c=String((p.d[md]||[])[2]||""); rx.lastIndex=0;
+    while((m=rx.exec(c))){ var t=(ALIAS_TRI_AFFICHAGE&&ALIAS_TRI_AFFICHAGE[m[1]])||m[1]; if(!conn[t]) cpt[t]=(cpt[t]||0)+1; } }); });
+  var out={};
+  Object.keys(cpt).forEach(function(t){ if(cpt[t]>4) return;
+    var s=Object.keys(conn).filter(function(k){ var d=0; for(var i=0;i<3;i++) if(k[i]!==t[i]) d++;
+      return d===1 || (d>1 && k.split("").sort().join("")===t.split("").sort().join("")); });
+    if(s.length) out[t]=s; });
+  return (db.__incP=out);
+}
+function incoherencesDuJour(db,an,m,j){
+  var md=pad2(m)+pad2(j), par={}, out=[], L={}, rep={}, ech={}, ou={}, vus={}, proche=incProche(db);
+  db.people.forEach(function(p){ par[idLisible(p.id)]=p; });
+  function tri(t){ t=String(t||"").toUpperCase(); return (ALIAS_TRI_AFFICHAGE&&ALIAS_TRI_AFFICHAGE[t])||t; }
+  function lec(id){ if(!(id in L)){ var x=null; try{ x=lectureAgenda(db,par[id],an,m,j)||null; }catch(e){} L[id]=x; } return L[id]; }
+  /* LÀ CE JOUR-LÀ : la lecture de la journée, ou ce que l'annotation dit
+     d'un travail (des heures en plus, un poste, une plage, une pause) : SKS
+     en repos « disti », CGI « 8h +FT » sont au travail */
+  function present(id){ var x=lec(id); if(x&&x.presente) return x.pv||"?";
+    var r=(par[id].d||{})[md]||[], a=String(r[1]||"").trim();
+    if(/\+\s*FT/i.test(a)||/^(AM|PM|N|D|R|R-CM)$/i.test(a)||/\d{1,2}\s*h?\s*-\s*\d{1,2}/.test(a)) return (x&&x.pv)||String(r[0]||"?");
+    try{ if(posteDepuisMention(a)||posteDepuisNom(a)) return (x&&x.pv)||"?"; }catch(e){}
+    return null; }
+  /* ses heures, si le commentaire les dit juste après le nom : « de 6h à
+     10h », « jusque 10h » (depuis le début), « à partir de 10h », « dès 10h » */
+  function heures(s){ s=s||""; var h=/^\s*(?:de|du)?\s*(\d{1,2})\s*h\s*(\d{2})?\s*(?:\u00e0|a|-)\s*(\d{1,2})\s*h?\s*(\d{2})?/i.exec(s);
+    if(h) return [Number(h[1])+Number(h[2]||0)/60, Number(h[3])+Number(h[4]||0)/60];
+    h=/^\s*jusqu\S*\s*(?:\u00e0\s*|a\s*)?(\d{1,2})\s*h/i.exec(s); if(h) return [-1, Number(h[1])];
+    h=/^\s*(?:\u00e0\s+partir\s+de|d\u00e8s|depuis)\s*(\d{1,2})\s*h/i.exec(s); if(h) return [Number(h[1]), 99];
+    return null; }
+  function norm(hh,pv){ if(!hh) return null; return hh.map(function(v){ return (pv==="N"&&v>=0&&v<12)?v+24:v; }); }
+  function ajoute(o){ var k=o.t+"|"+o.x+"|"+(o.y||""); if(vus[k]) return; vus[k]=1; o.an=an; o.m=m; o.j=j; out.push(o); }
+  function inconnu(qui,n){ var t=String(n); if(t===t.toUpperCase() && /^[A-Z]{3}$/.test(t) && proche[t]) ajoute({t:"inconnu", x:qui, y:t, sug:proche[t], qui:[qui]}); }
+  function liste(t){ return String(t||"").split(/\s*(?:,|\/|\bet\b|\+|&)\s*/).map(function(z){ return z.trim(); }).filter(function(z){ return /^[A-Za-z]{3}$/.test(z); }); }
+  db.people.forEach(function(p){
+    var raw=(p.d||{})[md]; if(!raw) return;
+    var c=comPlanning(raw); if(!c||!String(raw[2]||"").trim()) return;
+    var moi=idLisible(p.id), mm, rx;
+    rx=/remplac[\u00e9e]e?s?\s+(?:par|pa|p\.)\s*([A-Za-z]{3}\b|\?)((?:\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*[A-Za-z]{3}\b)*)/gi;
+    while((mm=rx.exec(c))){
+      if(mm[1]==="?"){ ajoute({t:"preciser", x:moi, qui:[moi]}); continue; }
+      /* « remplacé par JKS ou HKB » : un remplaçant à trancher, pas deux */
+      if(/\bou\b/i.test(mm[2]||"")){ ou[moi]=[mm[1]].concat(String(mm[2]).split(/\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*/)).map(tri).filter(function(z){ return /^[A-Z]{3}$/.test(z); }); continue; }
+      var noms=[mm[1]].concat(liste(mm[2]));
+      var hp=noms.length===1?heures(c.slice(rx.lastIndex)):null;
+      noms.forEach(function(n){ var y=tri(n); if(!par[y]){ inconnu(moi,n); return; } if(y===moi) return;
+        (rep[moi]=rep[moi]||[]).push({y:y, src:moi, h:hp}); });
+    }
+    /* écrit par new RegExp : le vérificateur du calendrier découpe le motif
+       de atelierDuRemplace par son début littéral, qui doit rester unique */
+    rx=new RegExp("\\bremplac(?:e|ait|ant)\\s+([A-Za-z]{3})\\b","gi");
+    while((mm=rx.exec(c))){ var n2=mm[1]; if(/^par$/i.test(n2)) continue; var x2=tri(n2);
+      if(!par[x2]){ inconnu(moi,n2); continue; } if(x2===moi) continue;
+      (rep[x2]=rep[x2]||[]).push({y:moi, src:moi, h:heures(c.slice(rx.lastIndex))}); }
+    /* « échange avec IME/DBE » : un échange à trois se tient */
+    rx=/[\u00e9e]change\s+(?:de\s+pause\s+)?avec\s+([A-Za-z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Za-z]{3})*)\b/gi;
+    while((mm=rx.exec(c))){ liste(mm[1]).forEach(function(n){ var y3=tri(n); if(!par[y3]){ inconnu(moi,n); return; } if(y3!==moi) (ech[moi]=ech[moi]||[]).push(y3); }); }
+  });
+  Object.keys(ou).forEach(function(x){ var dit=(rep[x]||[]).filter(function(r){ return r.src===r.y && ou[x].indexOf(r.y)>=0; });
+    if(dit.length!==1) ajoute({t:"preciser", x:x, y:ou[x].join(" ou "), ou:ou[x], qui:[x].concat(ou[x].filter(function(z){ return par[z]; }))}); });
+  Object.keys(rep).forEach(function(x){
+    var u={}; rep[x].forEach(function(r){ var v=u[r.y]; if(!v) u[r.y]={y:r.y, src:[r.src], h:r.h}; else { if(v.src.indexOf(r.src)<0) v.src.push(r.src); if(!v.h) v.h=r.h; } });
+    var L2=Object.keys(u).map(function(k){ return u[k]; }), pres=[], abs=[];
+    L2.forEach(function(r){ var pv=present(r.y); if(pv){ r.pv=pv; r.h=norm(r.h,pv); pres.push(r); } else abs.push(r); });
+    /* un remplaçant absent ne dit rien de travers si un autre, présent, remplace */
+    if(!pres.length) abs.forEach(function(r){ var ry=(par[r.y].d||{})[md]||[], code=String(ry[1]||"").trim(), cel=String(ry[0]||"").trim();
+      ajoute({t:"absent", x:x, y:r.y, qui:[x,r.y], ecrit:r.src.indexOf(r.y)>=0,
+        motif:code&&code!=="-"?"« "+code+" »":(cel==="-"||!cel||code==="-")?"en repos":"absent"}); });
+    var parPause={}; pres.forEach(function(r){ (parPause[r.pv]=parPause[r.pv]||[]).push(r); });
+    Object.keys(parPause).forEach(function(g){ var G=parPause[g]; if(G.length<2) return;
+      var sans=G.filter(function(r){ return !r.h; }).length, chev=false;
+      for(var i=0;i<G.length;i++) for(var k=i+1;k<G.length;k++){ var a=G[i].h, b=G[k].h; if(a&&b&&a[0]<b[1]-0.01&&b[0]<a[1]-0.01) chev=true; }
+      if(sans>=2||chev) ajoute({t:"plusieurs", x:x, y:G.map(function(r){ return r.y; }).join(","), ys:G.map(function(r){ return r.y; }), qui:[x].concat(G.map(function(r){ return r.y; })), chev:chev&&sans<2}); });
+  });
+  Object.keys(ech).forEach(function(a){ ech[a].forEach(function(b){ var lb=ech[b]; if(!lb||lb.indexOf(a)>=0) return;
+    var cle=[a,b].sort().join("|"); if(vus["e|"+cle]) return; vus["e|"+cle]=1;
+    ajoute({t:"echange", x:a, y:b, z:lb.join("/"), qui:[a,b].concat(lb)}); }); });
+  return out;
+}
+function incPhrase(o){
+  function liste(l){ return l.length>1?l.slice(0,-1).join(", ")+" et "+l[l.length-1]:l[0]; }
+  if(o.t==="plusieurs") return o.x+" est remplacé par "+liste(o.ys)+(o.chev?", à des heures qui se chevauchent.":", sans heures pour les départager.");
+  if(o.t==="absent") return (o.ecrit?o.y+" écrit qu'il remplace "+o.x:o.x+" est « remplacé par "+o.y+" »")+", mais "+o.y+" est "+o.motif+" ce jour-là.";
+  if(o.t==="echange") return o.x+" écrit « échange avec "+o.y+" », mais "+o.y+" écrit « échange avec "+o.z+" ».";
+  if(o.t==="inconnu") return o.x+" nomme « "+o.y+" », qui n'est pas dans l'horaire : faute de frappe pour "+liste(o.sug).replace(/ et /," ou ")+" ?";
+  if(o.ou) return o.x+" est « remplacé par "+o.y+" » : le remplaçant n'est pas tranché.";
+  return o.x+" est « remplacé par ? » : le remplaçant n'est pas écrit.";
+}
+function incoherencesAVenir(){
+  var au=jourUsine(), out=[], fin=null;
+  HORAIRE_ANNEES.forEach(function(a){ if(horaireSuivant(a)) fin=a; });
+  if(!fin) return out;
+  for(var d=new Date(au.getFullYear(),au.getMonth(),au.getDate()); d.getFullYear()<=fin; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    var db=horaireSuivant(d.getFullYear()); if(!db) continue;
+    try{ out=out.concat(incoherencesDuJour(db,d.getFullYear(),d.getMonth()+1,d.getDate())); }catch(e){}
+  }
+  return out;
+}
+var incFait="";
+function renderIncoherences(force){
+  var hote=document.getElementById("incCorps"); if(!hote) return;
+  var au=jourUsine(), cle=au.toDateString()+"/"+HORAIRE_ANNEES.map(function(a){ var d=horaireSuivant(a); return d?d.maj:""; }).join("/");
+  if(!force && cle===incFait) return;
+  incFait=cle;
+  var l=incoherencesAVenir(), t0=Date.UTC(au.getFullYear(),au.getMonth(),au.getDate()), h=[], mois=null, parJ={}, jours=[];
+  l.forEach(function(o){ var k=o.an+"-"+pad2(o.m)+"-"+pad2(o.j); if(!parJ[k]){ parJ[k]=[]; jours.push(k); } parJ[k].push(o); });
+  var parMois={}; jours.forEach(function(k){ var mk=k.slice(0,7); (parMois[mk]=parMois[mk]||[]).push(k); });
+  Object.keys(parMois).sort().forEach(function(mk,im){
+    var n=0; parMois[mk].forEach(function(k){ n+=parJ[k].length; });
+    var y=Number(mk.slice(0,4)), mo=Number(mk.slice(5,7));
+    h.push(mqMoisTete("inc",mk,MOIS[mo-1]+(y!==au.getFullYear()?" "+y:""),n+" incohérence"+(n>1?"s":""),im===0));
+    parMois[mk].forEach(function(k){ var L0=parJ[k], o0=L0[0], q=dateEnMots(o0.an,o0.m,o0.j,t0);
+      h.push('<div class="mqj" data-a="'+o0.an+'" data-m="'+o0.m+'" data-j="'+o0.j+'" title="'+esc(q.titre)+'">'
+        +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn incn">'+L0.length+" incohérence"+(L0.length>1?"s":"")+'</span></span><span class="mqls">');
+      L0.forEach(function(o){
+        var db=horaireSuivant(o.an), md=pad2(o.m)+pad2(o.j), lignes=[];
+        o.qui.forEach(function(t){ var p=null; db.people.forEach(function(z){ if(idLisible(z.id)===t) p=z; }); var raw=p&&(p.d||{})[md];
+          var c=raw?String(raw[2]||"").trim():"", an=raw?String(raw[1]||"").trim():"";
+          if(!c&&!an) return; if(lignes.some(function(x){ return x.t===t; })) return;
+          lignes.push({t:t, x:(an?an+(c?" · ":""):"")+nettoyerAffichage(c).replace(/\n+/g," ")}); });
+        h.push('<span class="mql"><span class="inc-t">'+esc(INC_NOMS[o.t])+'</span><span class="inc-p">'+esc(incPhrase(o))+'</span>'
+          +lignes.map(function(x){ return '<span class="inc-c"><span class="mqc"><b>'+esc(x.t)+'</b></span><span>'+esc(x.x)+'</span></span>'; }).join("")+'</span>');
+      });
+      h.push('</span></div>');
+    });
+    h.push('</div></section>');
+  });
+  hote.innerHTML=h.join("")||'<p class="mqok-vide"><b>'+MQ_OK_V+" Rien à signaler</b><span>Aucune incohérence entre les commentaires d'ici la fin de l'horaire.</span></p>";
+  var nj=jours.length;
+  document.getElementById("incSub").textContent=l.length?l.length+" incohérence"+(l.length>1?"s":"")+" sur "+nj+" journée"+(nj>1?"s":"")+" · d'aujourd'hui à la fin de l'horaire":"";
+  hote.onkeydown=mqClavier;
+  hote.onclick=function(e){
+    if(mqBascule(e)) return;
+    var b=mqCible(e); if(!b) return;
+    eqDate=new Date(Number(b.dataset.a),Number(b.dataset.m)-1,Number(b.dataset.j)); eqAuto=false;
+    setView("jour");
+  };
 }
 function renderRappelsInutiles(force){
   var hote=document.getElementById("rnCorps"); if(!hote) return;
