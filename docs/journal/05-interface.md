@@ -9609,3 +9609,31 @@ feuille Contremaître et la station d'épuration :
 Elle tourne au PC (thèmes sombre et clair) et au téléphone, debout et
 couché. Elle passe sans faute ; sur la v1280, elle relève 24 fautes.
 
+### L'onglet Horaire : les compteurs du pied à la taille du tableau (02/11/2026, `nfdm-v1282`)
+
+Le client : « la taille de police de ce tableau des compteurs, la même que
+dans le tableau ».
+
+**Mesuré avant** (v1281) :
+- les cases des jours (pause et annotation) sont en 12 px ;
+- les trois tableaux du pied étaient en 11 px : noms, valeurs et
+  intitulés (« Soldes en HEURES au… »).
+
+**Fait :**
+- tout le pied passe à 12 px, intitulés compris ;
+- **au téléphone**, la colonne des intitulés n'a que 68 px. À 12 px,
+  « Prévisions » et « (01/01/2026) » y étaient coupés. « (01/01/2026) »
+  l'était déjà à 11 px depuis la v1281 au moins, ce que l'épreuve a
+  montré. On a donc fait deux changements :
+  - au téléphone, la marge de l'intitulé passe de 6 à 2 px de chaque
+    côté ;
+  - la date peut passer à la ligne après « 01/01/ » (`<wbr>`). Au PC,
+    elle tient sur une ligne.
+
+**Mesuré après** : l'épreuve `horaire-1282.js` reprend celle de la v1281.
+Elle vérifie aussi la taille du pied, égale à celle des cases des jours,
+et qu'aucun texte du pied n'est coupé. Elle tourne au PC (sombre et clair)
+et au téléphone, debout et couché, sur l'équipe 1, la feuille Contremaître
+et la station d'épuration. Elle passe sans faute ; sur la v1281, elle
+relève 15 fautes, dont les trois « (01/01/… » coupés au téléphone.
+

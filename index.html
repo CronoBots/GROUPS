@@ -7608,12 +7608,15 @@ html .hp-t tbody td.pl-sel{outline:2px solid #111827; outline-offset:-2px}
    semaine, mais à garder pour la fin du mois »). */
 html .hp-t tbody tr.hp-smois td{border-bottom:2px solid #64748b}
 /* le pied */
-html .hp-t tfoot td{background:#fff; font-weight:700; font-size:11px}
+/* le pied à la taille du tableau (le client, le 02/11/2026 : « la taille
+   de police de ce tableau des compteurs la même que dans le tableau ») :
+   12 px, comme les cases des jours, au lieu de 11 */
+html .hp-t tfoot td{background:#fff; font-weight:700; font-size:12px}
 html .hp-t tfoot tr.hp-sep td{height:6px; padding:0; border:0; background:#fff}
 html .hp-t tfoot tr.hp-pd td{border-top:2px solid #64748b}
 /* le bas de chaque bloc, au même trait que le haut (le 27/10/2026) */
 html .hp-t tfoot tr.hp-pf td{border-bottom:2px solid #64748b}
-html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2ff; white-space:normal; font-weight:400; font-size:11px; line-height:1.25; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:4px 6px}
+html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2ff; white-space:normal; font-weight:400; font-size:12px; line-height:1.25; border-right:2px solid #64748b; border-bottom:2px solid #64748b; padding:4px 6px}
 /* LES COMPTEURS DU PIED (le client, le 02/11/2026 : « ne pas mettre les
    noms de congé en gras ; les négatifs ainsi que les restants peuvent
    rester en gras. Par contre, j'aimerais que la hauteur des lignes des 3
@@ -7987,6 +7990,10 @@ html .hp-t thead th.hp-gp.hp-gform{white-space:normal; line-height:1.15; overflo
   html .hp-t tbody td.hp-mois div{font-size:13px; letter-spacing:0; line-height:1.3}
   html .hp-t tbody td.hp-jour{left:var(--hp-mois,34px)}
   html .hp-t thead th.hp-coin{width:68px; padding:3px}
+  /* l'intitulé des compteurs à 12 px (v1282) dans ces 68 px : 2 px de
+     marge au lieu de 6, « Prévisions » y tient ; la date passe à la ligne
+     après « 01/01/ » (voir le <wbr> du pied) */
+  html .hp-t tfoot td.hp-plab{padding:4px 2px}
   /* LES BOUTONS HAUT ET BAS REVIENNENT AU TÉLÉPHONE (le client, le
      29/10/2026 : « bouton de scroll vers le haut ou le bas dans l'horaire
      affiché dans le cadre ») : retirés le 26/10 parce qu'ils couvraient la
@@ -20371,7 +20378,7 @@ function renderGrille(){
       cols.forEach(function(c,ci){ var v=val(c.p,t); h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'">'+(v===null?'':v)+'</td>'); });
       h.push((avecCom?'<td class="hp-cv"></td>':'')+'</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>');
-    bloc("Soldes en HEURES au (01/01/"+an+")",T,sol);
+    bloc("Soldes en HEURES au (01/01/<wbr>"+an+")",T,sol);
     bloc("Prévisions en HEURES",T.concat(["FT+","FT-"]),function(p,t){ return t==="FT+"?ft(p,"+"):t==="FT-"?-ft(p,"-"):prev(p,t); });
     /* LE SOLDE FT, DANS LE DERNIER TABLEAU (le client, le 27/10/2026 : « la
        ligne avec le solde FT doit être dans le dernier tableau ») : le
