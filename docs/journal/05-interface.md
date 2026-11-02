@@ -10109,3 +10109,95 @@ L'épreuve `usine-photo-1292.js` ajoute un contrôle : choisir le terrain
 arrière allume la fermentation et la distillation, et rien d'autre. Elle
 passe sans faute. Sur la v1291, elle relève la faute attendue : le terrain
 arrière n'y allumait que lui-même.
+
+### L'usine sur sa photo : les trigrammes seuls, à leur place (02/11/2026, `nfdm-v1293`)
+
+Le client a d'abord demandé : « comment rendre ce cadre beaucoup plus
+professionnel, à 100 % ? ». On a photographié le cadre à 1280, 390 et
+320 px, en sombre et en clair, puis relevé les défauts un par un :
+
+- la note du bas était fausse et parlait du travail en cours. Elle disait
+  « nommées par le client » et « la station d'épuration est hors de la
+  photo », alors qu'elle y est depuis la v1292 ;
+- la carte du contremaître disait « 1/1 », sa fiche « 6 présents » ;
+- un compte connecté sans numéro voyait une note de travail en pointillés,
+  « à ajouter dans Infos et aide » ;
+- au PC, les présents s'alignaient sur une seule colonne étroite, à côté
+  d'un vide ;
+- la filière (« Ce qui entre », « Ce qui sort ») passait entre la photo et
+  la fiche : la fiche, réponse au clic, venait 400 px plus bas ;
+- deux morceaux d'un même poste laissaient un trait entre eux, et leur
+  chevauchement un aplat plus foncé.
+
+En cours de route, le client a demandé : « est-ce réellement utile de
+délimiter les zones, d'avoir un cadre avec le nom de la zone ? On
+pourrait simplement mettre les trigrammes aux bons endroits respectifs de
+chaque zone. Cela allégerait et simplifierait les choses. »
+
+**Choisi :** sa simplification, avec une nuance, qui garde utiles ses
+dessins.
+
+Ce qui est sur la photo :
+- seulement les trigrammes, groupés sur le point de leur poste, à la
+  couleur du poste ;
+- celui qui tient le poste a sa pastille pleine. Celui qui est là en plus
+  (journée, formation, adjoint) a une pastille sombre cernée ;
+- une place libre est un « ? » ambre.
+
+Ce qui vient à la demande :
+- le nom du poste et sa zone, au survol, au clavier ou au choix ;
+- choisir le terrain arrière allume la fermentation et la distillation.
+
+Les pastilles posées sur la photo ont un fond sombre fixe, pareil dans les
+deux thèmes, puisque la photo ne change pas. Un groupe qui en recouvrirait
+un autre descend juste sous lui.
+
+Au téléphone, les trigrammes ne tiennent pas sur une photo de 360 px : on y
+garde les points numérotés et la liste dessous. Seule la zone du poste
+choisi s'y dessine.
+
+**Le reste de la passe :**
+- **chaque poste est un seul tracé.** Son contour est le trait du tracé,
+  épaissi puis masqué par l'intérieur du poste (`mask`), et seule la
+  moitié extérieure reste visible. Il n'y a donc plus de trait entre deux
+  morceaux, ni d'aplat doublé, et le contour garde la même épaisseur à
+  toutes les tailles ;
+- **la fiche suit la photo.** La filière vient après elle, sous un filet,
+  en lignes compactes : trois colonnes au PC, deux au téléphone ;
+- **le compte de la fiche est celui de la carte** : « 1/1 au poste » et
+  « +5 en plus ». Au téléphone, on affiche « 1/1 » et « +5 » ;
+- **les présents passent en colonnes** quand rien n'est à côté d'eux
+  (quatre au PC) ;
+- **sans numéro**, la RH voit où l'ajouter et un compte non connecté
+  pourquoi il ne le voit pas. Les autres ne voient rien ;
+- **la note du bas** dit : « Zones indicatives, tracées sur la vue
+  aérienne officielle du site. Présents d'après l'horaire, relèves et
+  remises de pause comprises. »
+
+**L'épreuve** `usine-photo-1293.js` reprend celle de la v1292 et vérifie
+en plus :
+- un tracé par poste, son contour masqué, aucun polygone séparé ;
+- aucun texte de travail, et la note présente ;
+- la fiche avant la filière ;
+- le compte de la fiche égal à celui de la carte, et le « +N » ;
+- au moins trois colonnes de présents au PC ;
+- aucun cadre à nom sur la photo, et au plus un groupe à plus de 40 px de
+  son poste ;
+- seule la zone du poste choisi visible ;
+- le survol qui allume la zone et donne le nom ;
+- le contour, mesuré au pixel. On compare la photo avec et sans le trait
+  des zones, celle des chaudières étant choisie :
+  - sur le joint de deux de ses morceaux, l'écart est de 0 ;
+  - juste hors de son bord, il est de 578 au PC et 214 au téléphone.
+
+Elle passe sans faute. Sur la v1292, elle relève toutes ces fautes, puis
+s'arrête au survol, sur une zone qui n'existe pas encore.
+
+**Erreur commise :** l'épreuve de la RH a d'abord dit que la RH ne voyait
+plus où ajouter le numéro. C'était le montage de l'épreuve : la base
+simulée répondait « hiérarchie » et non « rh ». Une fois corrigé, la note
+est là.
+Le garde-fou a de nouveau signalé un commentaire écrit en capitales avec
+une virgule, de la forme d'un « NOM, PRÉNOM ». Le commentaire a été
+reformulé, comme à la v1292. La leçon : un titre de commentaire en
+capitales ne porte pas de virgule.
