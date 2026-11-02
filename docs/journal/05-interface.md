@@ -9787,3 +9787,34 @@ vérifie :
 Elle passe sans faute. Sur la v1285 comparée à elle-même, elle relève
 1 076 fautes : chaque restant en gras.
 
+### L'onglet Horaire : l'année centrée, sur toute la largeur (02/11/2026, `nfdm-v1287`)
+
+Le client : « pour le choix de l'année, il faut que la sélection et
+l'année soient centrées et réparties sur la largeur ».
+
+**Mesuré avant** (v1286) : au téléphone debout, la barre était juste, une
+flèche à chaque bord et l'année au centre. Ailleurs, elle était bornée à
+340 px (`flex:0 1 340px`, au-delà de 700 px de large) :
+
+| Écran | Année par rapport au centre | Flèche droite |
+|---|---|---|
+| 1440 px | 401 px trop à gauche | à 810 px du bord droit |
+| 1100 px | 231 px trop à gauche | à 470 px du bord droit |
+| téléphone couché | 187 px trop à gauche | à 382 px du bord droit |
+
+Cette borne datait du temps où la barre partageait sa place avec la
+recherche et « aujourd'hui ». La recherche est montée dans la rangée des
+équipes, et « aujourd'hui » dans le tableau : la barre ne porte plus que
+l'année et ses deux flèches.
+
+**Fait** : la borne est retirée. La barre fait comme au téléphone : une
+flèche à chaque bord, l'année et la date du classeur au milieu.
+
+**Mesuré après** : l'épreuve `horaire-1287.js`, à 1440, 1100, 390 px et
+au téléphone couché, vérifie :
+- l'année au centre de la barre, à 1 px près ;
+- les deux flèches à la même distance de leur bord, à moins de 12 px.
+
+Elle trouve 8 px des deux côtés et l'année au centre exact, à chaque
+écran. Elle passe sans faute ; sur la v1286, elle relève 9 fautes.
+
