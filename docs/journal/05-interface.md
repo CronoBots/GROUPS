@@ -9573,3 +9573,39 @@ Elle passe sans faute. Sur la v1279, elle relève 19 fautes. Les épreuves
 des v1275 et v1279 passent toujours, et le vérificateur du calendrier
 donne une sortie identique à l'octet sur ses quatre modes.
 
+### L'onglet Horaire : les compteurs du pied à la hauteur des jours, leurs noms sans gras (02/11/2026, `nfdm-v1281`)
+
+Le client, capture de son PC : « dans le tableau du bas avec les
+compteurs, ne pas mettre les noms de congé en gras ; les négatifs ainsi
+que les restants peuvent rester en gras. Par contre, j'aimerais que la
+hauteur des lignes des 3 tableaux soit la même que la hauteur des lignes
+du tableau horaire. »
+
+**Mesuré avant** (v1280) :
+- une ligne de jour fait 23 px : 18 px de ligne, 2 + 2 px de marge et
+  1 px de trait. La dernière ligne d'un mois fait 24 px, son trait en
+  faisant 2 ;
+- une ligne des trois tableaux du pied (soldes au 01/01, prévisions,
+  soldes compte tenu des prévisions) faisait 18 px. Elle avait la même
+  hauteur écrite, mais sa ligne de texte à 11 px restait à la hauteur
+  normale, environ 13 px ;
+- les noms (VA, RTT, DTT, RJF, FT+, FT−, FT) étaient en graisse 900.
+
+**Fait :**
+- chaque ligne du pied est posée à 23 px (`height:23px`, bord compris).
+  Les traits de 2 px du haut et du bas d'un tableau sont pris dedans :
+  toutes les lignes du pied font 23 px ;
+- les noms des compteurs passent en graisse normale (400). Les restants
+  (bleus) et les négatifs (rouges) gardent leur 900. Les soldes et les
+  prévisions positives étaient déjà en graisse normale.
+
+**Mesuré après** : l'épreuve `horaire-1281.js` vérifie, sur l'équipe 1, la
+feuille Contremaître et la station d'épuration :
+- les lignes du pied à la hauteur d'un jour ;
+- les noms en 400 ;
+- les restants et les négatifs en 900 ;
+- les soldes et les prévisions en 400.
+
+Elle tourne au PC (thèmes sombre et clair) et au téléphone, debout et
+couché. Elle passe sans faute ; sur la v1280, elle relève 24 fautes.
+
