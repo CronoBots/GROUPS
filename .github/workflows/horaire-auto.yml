@@ -39,3 +39,30 @@ jobs:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           PUSH_CLE: ${{ secrets.PUSH_CLE }}
         run: python3 tools/horaire-auto.py
+      # LES CONGÉS SCOLAIRES PASSENT AUSSI PAR ICI (02/11/2026) : leur propre
+      # planification (conges-scolaires.yml, du 1er au 3 du mois à 5 h 23 UTC)
+      # n'a jamais été lancée par GitHub, qui saute des passages planifiés ;
+      # ce flux-ci, lancé toutes les 15 minutes par la base, passe à coup sûr
+      # (6 h 00, 6 h 15, 6 h 30… le 02/11). Une seule relecture par jour, du
+      # 1er au 3 : celle du passage de 5 h 00 UTC. Le script ne fait rien
+      # s'il n'y a rien de neuf ; un écart avec le décret fait échouer le
+      # flux, et GitHub prévient.
+      - name: Congés scolaires, faut-il les relire ?
+        id: quand
+        run: |
+          J=$(date -u +%-d); H=$(date -u +%-H); M=$(date -u +%-M)
+          if [ "$J" -le 3 ] && [ "$H" -eq 5 ] && [ "$M" -lt 15 ]; then
+            echo "relire=oui" >> "$GITHUB_OUTPUT"; echo "Du 1er au 3, passage de 5 h UTC : on relit enseignement.be."
+          else
+            echo "relire=non" >> "$GITHUB_OUTPUT"; echo "Pas le moment ($J, $H h $M UTC)."
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.quand.outputs.relire == 'oui'
+        with:
+          node-version: "22.x"
+      - name: Congés scolaires, relire enseignement.be, recouper, installer
+        if: steps.quand.outputs.relire == 'oui'
+        env:
+          GIT_AUTHOR_NAME: BIOWANZE congés scolaires
+          GIT_COMMITTER_NAME: BIOWANZE congés scolaires
+        run: node tools/conges-auto.js --pousser

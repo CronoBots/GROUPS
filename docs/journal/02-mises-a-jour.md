@@ -2120,3 +2120,25 @@ fait perdre le mois.
   essais coûtent une minute de machine. Le client avait jugé inutile de
   vérifier « trop souvent » (23/10) : trois jours par mois restent loin
   d'une vérification quotidienne.
+- **Ce correctif ne suffisait pas (02/11/2026).** Le 02/11 à 7 h 26 UTC,
+  le flux n'a toujours **aucun passage**, ni le 1er ni le 2 : zéro depuis
+  sa création, le 23/10. Les trois essais par mois ne changent rien
+  quand GitHub ne lance jamais la planification. Le même jour,
+  l'horaire automatique ne compte que 84 passages planifiés (prévus
+  chaque heure), mais 1 620 lancements par la base, toutes les
+  15 minutes, sans en manquer un (6 h 00, 6 h 15, 6 h 30, 6 h 45, 7 h 00,
+  7 h 15).
+- **Corrigé pour de bon** : l'horaire automatique relit aussi les
+  congés scolaires. Une étape vérifie si on est du 1er au 3 du mois et
+  au passage de 5 h 00 UTC (minute < 15), ce qui fait une relecture par
+  jour, trois par mois. Seulement alors, elle installe Node 22 et lance
+  `conges-auto.js --pousser`, sous le nom « BIOWANZE congés
+  scolaires ». La condition a été éprouvée sur six dates : oui le 1er à
+  5 h 00 et le 3 à 5 h 14 ; non le 3 à 5 h 15, le 4 à 5 h 00, le 2 à
+  6 h 00 et le 2 à 4 h 59. `conges-scolaires.yml` reste en place, pour
+  le lancement à la main et en secours ; un double passage ne fait
+  rien, puisqu'il n'y a rien de neuf.
+- **Novembre est tout de même vérifié** : lancé ici à blanc, le script
+  rend de nouveau « Rien de neuf sur enseignement.be (3 années lues) »,
+  code 0. Le premier passage par l'horaire automatique sera le 03/11 à
+  5 h 00 UTC.
