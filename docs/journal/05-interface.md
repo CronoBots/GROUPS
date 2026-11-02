@@ -9818,3 +9818,123 @@ au téléphone couché, vérifie :
 Elle trouve 8 px des deux côtés et l'année au centre exact, à chaque
 écran. Elle passe sans faute ; sur la v1286, elle relève 9 fautes.
 
+### L'usine en direct : la reconstruction 3D de l'usine (02/11/2026, `nfdm-v1288`)
+
+Le client : « pour le schéma de l'usine, reprends les photos du site
+officiel et découpe-moi les zones que tu vois ; je te dirai quelle zone
+c'est, et nous ferons une reconstruction 3D de l'usine ». Puis : « utilise
+le plan que je t'ai donné pour reconstruire aussi, ainsi que cette photo »
+(une vue aérienne rapprochée, prise du sud-ouest, envoyée dans la
+conversation).
+
+**1. Les zones identifiées.**
+- La vue aérienne 02 du site officiel (téléchargements, « Sites de
+  production ») a été découpée en 19 repères, et la vue de la station
+  d'épuration en 2.
+- Le client les a nommés un à un, en QCM. Les découpes, les réponses et
+  leur synthèse sont dans le dépôt privé (`plans/photos-site/`) : les
+  images du site ne vont pas ici.
+- Ce que ses réponses ont corrigé de nos hypothèses :
+  - les six silos blancs du quai appartiennent à une autre société ;
+  - du « stockage au quai », seul le grand réservoir vert est à
+    BioWanze (l'éthanol) ;
+  - le parc de cuves rondes au nord est à la sucrerie, comme le grand
+    bassin ;
+  - en haut, les silos à blé ; en bas, le hangar à son ;
+  - le bâtiment cubique aux deux cheminées est la chaudière biomasse, et
+    la chaudière gaz est au coin de la liquéfaction et de l'évaporation ;
+  - le long hangar de la station traite l'eau pompée dans la Meuse pour
+    l'usine.
+
+**2. Le plan.** Le plan de l'usine que le client a confié (dépôt privé) a
+servi à caler la place des bâtiments les uns par rapport aux autres ; sa
+lecture et ses correspondances restent dans le dépôt privé
+(`plans/photos-site/zones-identifiees.md`). Les hauteurs viennent des
+photos. La 3D n'en garde que ce que montrent les vues aériennes publiques :
+ni code de zone, ni numéro de bâtiment, ni voie d'accès, ni point de
+sécurité.
+
+**La publication.** Le premier envoi a été arrêté par le garde-fou de la
+session : la 3D reprend, à l'échelle, l'emprise des bâtiments relevée sur
+le plan privé, et le dépôt est public (jusque-là, seul l'ordre des tuiles
+en était tiré). Question au client (QCM) : base privée, publier tel quel,
+version approximative ou ne pas publier. Sa réponse : **publier tel
+quel**. On n'y voit que des volumes déjà visibles sur les vues aériennes
+publiques.
+
+**3. La forme.** Question au client (QCM) ; il a demandé mon conseil. J'ai
+recommandé, et fait, une vraie 3D qu'on fait tourner, écrite à la main en
+WebGL, sans bibliothèque : l'application reste un seul fichier, hors ligne,
+en ES5. Three.js aurait ajouté environ 600 Ko et défait la règle « aucune
+dépendance ».
+
+**Fait :**
+- **La scène** : environ 140 volumes en mètres. Ce sont des boîtes, des
+  cylindres à toit plat, conique, en dôme ou ouvert, et des poutres pour
+  les bandes et les racks, posés sur les sols. On y voit :
+  - la Meuse et le quai : les silos de l'autre société, le réservoir
+    d'éthanol, la tour de déchargement, et la bande qui monte le blé à la
+    tour de la meunerie ;
+  - le faisceau ferré et la sucrerie, en gris de contexte ;
+  - la meunerie, le gluten et ses douze silos ;
+  - la chaudière biomasse, ses deux cheminées et sa bande, et la chaudière
+    gaz ;
+  - la distillation et ses colonnes à pied bleu, la liquéfaction et
+    l'évaporation ;
+  - les trois ventilateurs de refroidissement ;
+  - les sept cuves de fermentation et leur rack à la conduite verte ;
+  - le stockage d'alcool, le traitement des eaux, le magasin et l'atelier,
+    le stockage chimique, les bureaux et la salle de contrôle ;
+  - à l'est, la station d'épuration.
+- **Le rendu** : une seule passe, avec une lumière du jour, un éclairage
+  de ciel et un brouillard léger au loin. La scène n'est redessinée qu'au
+  geste : rien ne tourne en continu, la batterie est épargnée.
+- **Les gestes** :
+  - au doigt, glisser de côté fait tourner (vers le haut, la page défile
+    toujours), et deux doigts zooment et inclinent ;
+  - à la souris, glisser fait tourner, Maj + glisser déplace, la molette
+    zoome ;
+  - des boutons +, − et « retour à la vue de départ » complètent.
+- **Les postes** :
+  - les huit postes du Planning ont leur étiquette au-dessus de leur
+    salle, avec les présents sur l'attendu, et l'ambre s'il manque
+    quelqu'un ;
+  - toucher l'étiquette ou le bâtiment (rayon de la caméra contre les
+    boîtes des volumes) ouvre la même fiche qu'avant, et la salle choisie
+    se teinte ;
+  - une étiquette qui en recouvrirait une autre remonte, sa tige
+    s'allonge, et celles des bords restent dans le cadre.
+- **« 3D · Plan »** : le plan d'avant reste un clic plus loin, avec ses
+  circuits. Le choix est gardé sur l'appareil. Sans WebGL, c'est le plan,
+  sans le choix.
+
+**Mesuré en chemin** (au navigateur, 1440 et 390 px, thèmes sombre et
+clair) :
+- au téléphone, le brouillard délavait la scène en thème clair : il
+  commence maintenant à 600 m au lieu de 320, et plafonne à 50 % ;
+- la caméra, réglée pour le PC, coupait l'usine sur un écran étroit : elle
+  recule selon la largeur de l'écran (870 m au lieu de 520 au téléphone
+  debout) ;
+- les étiquettes se recouvraient au téléphone : elles tiennent sur une
+  ligne, et remontent en cas de recouvrement.
+
+**L'épreuve** `usine3d-1288.js` vérifie, à 1440 et 390 px :
+- la 3D par défaut, et les étiquettes visibles, sans recouvrement et dans
+  le cadre ;
+- l'étiquette du gluten qui ouvre sa fiche et se marque ;
+- un toucher sur les cuves qui ouvre la fermentation ;
+- les trois boutons ;
+- « Plan », puis le rechargement qui garde ce choix, puis « 3D » ;
+- sans WebGL (navigateur lancé avec `--disable-webgl`), le plan, sans le
+  choix.
+
+Elle passe sans faute. Sur la v1287, elle relève 2 fautes : pas de 3D. Un
+premier échec à 390 px venait de l'épreuve elle-même : la fiche choisie
+fait défiler la page, et les touchers suivants visaient l'ancienne place.
+
+**Reste à faire avec le client** :
+- les détails de chaque bâtiment (fenêtres, conduites, arbres) ;
+- l'éclairage de nuit ;
+- le circuit de la matière en 3D, qui est sur le plan ;
+- ses corrections bâtiment par bâtiment, photo à l'appui.
+

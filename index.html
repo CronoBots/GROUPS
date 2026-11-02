@@ -2876,6 +2876,28 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4; flex:1; min-width:0}
 /* le mode d'emploi et la légende, au-dessus du plan (v1272) */
 .us-guide{display:flex; flex-direction:column; gap:8px; padding:12px 16px}
+/* L'USINE EN 3D (v1288) : la scène, ses étiquettes de poste, ses boutons */
+.us3{position:relative; height:clamp(340px,64vh,560px); margin:0 16px; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  background:linear-gradient(180deg,#22303f 0%,#33455a 62%,#3b4b5c 100%); --us3-brume:#3b4b5c}
+:root[data-theme="light"] .us3{background:linear-gradient(180deg,#c9d9e8 0%,#dce6ef 62%,#e3eaf1 100%); --us3-brume:#e3eaf1}
+.us3-c{display:block; width:100%; height:100%; touch-action:pan-y; cursor:grab}
+.us3-c:active{cursor:grabbing}
+.us3-ets{position:absolute; inset:0; pointer-events:none}
+.us3-et{position:absolute; left:0; top:0; pointer-events:auto; display:flex; flex-direction:column; align-items:center; padding:4px 9px 5px;
+  border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 12px/1.2 inherit; white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.22); cursor:pointer}
+.us3-et span{font-weight:500; font-size:11px; color:var(--ink2)}
+.us3-et::after{content:""; position:absolute; left:calc(50% + var(--tige-x,0px)); top:100%; width:2px; height:var(--tige,8px); margin-left:-1px; background:var(--line)}
+.us3-et.us3-manque{border-color:var(--at-jaune)} .us3-et.us3-manque span{color:var(--ink)}
+.us3-et.us3-sel{border-color:var(--in); box-shadow:0 0 0 2px color-mix(in srgb,var(--in) 45%,transparent),0 2px 6px rgba(0,0,0,.22)}
+.us3-btns{position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:6px}
+.us3-btns button{width:36px; height:36px; padding:0; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  font:600 18px/1 inherit; display:grid; place-items:center; cursor:pointer}
+.us-mode{display:inline-flex; flex:none; border:1px solid var(--line); border-radius:99px; overflow:hidden; background:var(--surface2)}
+.us-mode button{min-height:32px; padding:0 12px; border:0; background:none; color:var(--ink2); font:600 12.5px/1 inherit; cursor:pointer}
+.us-mode button[aria-pressed="true"]{background:color-mix(in srgb,var(--in) 22%,var(--surface)); color:var(--ink)}
+@media (pointer:coarse){ .us3-btns button{width:44px; height:44px} .us-mode button{min-height:44px; padding:0 14px} }
+@media (max-width:699px){ .us3{margin:0 8px} .us3-et{flex-direction:row; align-items:baseline; gap:5px; padding:3px 8px} }
 .us-leg{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted)}
 .us-leg li{display:inline-flex; align-items:center; gap:6px}
 .us-leg-fl{flex:none} .us-leg-fl path{fill:var(--muted); stroke:var(--muted); stroke-width:1.4; stroke-linecap:round}
@@ -22676,6 +22698,312 @@ function usineFiche(E,k){
     +radio
     +'</div></div></div>';
 }
+/* L'USINE EN 3D (le client, le 02/11/2026 : « pour le schéma de l'usine,
+   reprends les photos du site officiel et découpe-moi les zones que tu
+   vois ; je te dirai quelle zone c'est, et nous ferons une reconstruction
+   3D de l'usine », puis « utilise le plan que je t'ai donné pour
+   reconstruire aussi, ainsi que cette photo » ; la forme, sur ma
+   recommandation : une vraie 3D qu'on fait tourner, faite main, sans
+   bibliothèque). Chaque bâtiment à sa place et à son volume, en mètres :
+   x vers l'est, z vers le sud, y vers le haut. Les emprises viennent du
+   plan, les hauteurs des photos, les noms des 21 zones identifiées par le
+   client une à une (les « repères », numéros de la vue aérienne découpée). Rien du plan au-delà de ce que montrent les vues
+   aériennes publiques : ni code de zone, ni numéro de bâtiment, ni voie
+   d'accès, ni point de sécurité.
+   Une entrée par volume : ["b", poste, x0,z0,x1,z1, hauteur, couleur, y0]
+   une boîte ; ["c", poste, x,z, rayon, hauteur, couleur, toit, y0] un
+   cylindre (toit : p plat, c cône, d dôme, o ouvert) ; ["p", poste,
+   x0,y0,z0, x1,y1,z1, largeur, couleur] une poutre (bande, rack) ;
+   ["s", "", x0,z0,x1,z1, couleur, y] un sol. Le poste relie le volume à
+   la salle du Planning : le toucher ouvre sa fiche. */
+var U3_COUL={herbe:[.42,.52,.36], eau:[.30,.42,.50], beton:[.74,.75,.74], sol:[.63,.64,.64], sol2:[.57,.56,.54], ballast:[.45,.43,.41],
+  rail:[.28,.27,.26], clair:[.86,.87,.88], blanc:[.95,.95,.94], gris:[.68,.70,.72], fonce:[.33,.35,.38], acier:[.44,.48,.53], alu:[.87,.89,.90],
+  bleu:[.25,.43,.64], inox:[.76,.79,.82], cuve:[.83,.81,.74], vert:[.40,.58,.42], brique:[.58,.33,.27], brique2:[.50,.30,.25], rose:[.86,.71,.67],
+  beige:[.86,.81,.68], brun:[.50,.38,.30], tole:[.62,.64,.66], ocre:[.62,.50,.32]};
+var U3_MODELE=(function(){
+  var M=[
+    /* le sol : l'herbe, la Meuse au nord, le quai, le faisceau ferré, la
+       sucrerie, l'usine et la station d'épuration */
+    ["s","",-160,-300,880,400,"herbe",0], ["s","",-160,-300,880,-158,"eau",0.05], ["s","",-112,-172,72,-148,"beton",0.1],
+    ["s","",-40,-150,470,-50,"sol2",0.08], ["s","",-160,-48,880,-4,"ballast",0.09], ["s","",18,60,412,352,"sol",0.1],
+    ["s","",395,118,432,150,"eau",0.14], ["s","",438,90,540,230,"eau",0.07], ["s","",630,-152,812,-52,"sol",0.1],
+    /* la sucrerie voisine (repères 11 et 19), en gris de contexte */
+    ["b","",50,-140,190,-100,18,"brique"], ["b","",60,-98,170,-62,12,"brique2"], ["b","",190,-140,300,-105,14,"gris"],
+    ["b","",200,-100,280,-62,10,"fonce"], ["b","",300,-135,360,-95,22,"clair"], ["c","",130,-120,2.6,62,"brique","p"],
+    ["b","",392,-152,440,-136,48,"beige"], ["c","",420,-110,24,44,"rose","c"], ["c","",470,-78,21,34,"beige","c"],
+    ["c","",252,52,13,13,"brun","c"], ["c","",296,62,13,13,"gris","c"], ["c","",286,28,8,11,"brun","c"], ["c","",318,28,8,11,"gris","c"],
+    ["c","",318,52,8,11,"brun","c"], ["c","",341,84,12,12,"gris","c"], ["c","",305,88,12,12,"gris","c"],
+    /* le quai : les six silos blancs d'une autre société (repère 01), le
+       réservoir d'éthanol (repère 02), la tour de déchargement et la bande
+       qui monte le blé à la meunerie */
+    ["c","",-92,-140,3.6,30,"blanc","c"], ["c","",-84,-140,3.6,30,"blanc","c"], ["c","",-76,-140,3.6,30,"blanc","c"],
+    ["c","",-92,-131,3.6,30,"blanc","c"], ["c","",-84,-131,3.6,30,"blanc","c"], ["c","",-76,-131,3.6,30,"blanc","c"],
+    ["c","terr",-38,-128,12,17,"vert","c"], ["b","meun",-70,-162,-56,-148,26,"clair"],
+    ["p","meun",-63,24,-155,72,40,96,3.2,"clair"],
+    ["b","meun",-29.5,-91,-27.5,-89,26.5,"acier"], ["b","meun",4,-29,6,-27,31,"acier"], ["b","meun",37.5,33,39.5,35,35.5,"acier"],
+    /* la meunerie (repères 03 et 04) : les silos à blé, la tour où arrive la
+       bande, le moulin, le hangar à son */
+    ["b","meun",55,82,103,102,34,"clair"], ["b","meun",66,100,78,112,58,"blanc"], ["b","meun",25,128,78,186,30,"gris"],
+    ["b","meun",34,140,46,152,6,"clair",30], ["b","meun",54,160,66,172,6,"clair",30], ["b","meun",78,140,98,150,22,"gris"],
+    ["b","meun",98,118,146,160,14,"tole"],
+    /* le gluten (repère 05) : le grand bâtiment, les deux groupes de six
+       silos, blancs et inox, et le petit cube */
+    ["b","glut",54,189,126,226,28,"clair"], ["b","glut",86,228,126,246,14,"gris"], ["b","glut",102,247,150,267,4,"beton"],
+    ["c","glut",108,252,2.9,26,"blanc","c",4], ["c","glut",114,252,2.9,26,"blanc","c",4], ["c","glut",120,252,2.9,26,"blanc","c",4],
+    ["c","glut",108,262,2.9,26,"blanc","c",4], ["c","glut",114,262,2.9,26,"blanc","c",4], ["c","glut",120,262,2.9,26,"blanc","c",4],
+    ["c","glut",132,252,2.9,26,"inox","c",4], ["c","glut",138,252,2.9,26,"inox","c",4], ["c","glut",144,252,2.9,26,"inox","c",4],
+    ["c","glut",132,262,2.9,26,"inox","c",4], ["c","glut",138,262,2.9,26,"inox","c",4], ["c","glut",144,262,2.9,26,"inox","c",4],
+    ["b","glut",96,270,110,284,11,"clair"],
+    /* les chaudières (repères 06 et 08) : la chaudière biomasse, ses deux
+       cheminées et sa bande d'alimentation ; la chaudière gaz au coin */
+    ["b","chau",150,104,182,138,32,"blanc"], ["b","chau",182,112,212,146,24,"acier"], ["c","chau",196,107,1.8,72,"blanc","p"],
+    ["c","chau",205,107,1.8,72,"blanc","p"], ["p","chau",104,8,142,150,26,126,2.4,"clair"], ["b","chau",150,140,180,165,18,"gris"],
+    ["b","chau",205,150,232,168,16,"clair"],
+    /* la distillation (repère 07) : la charpente d'acier et ses colonnes
+       blanc alu à pied bleu ; la liquéfaction et l'évaporation (repère 08) */
+    ["b","dist",165,185,212,246,24,"acier"],
+    ["c","dist",170,240,1.75,5,"bleu","p"], ["c","dist",176,240,1.75,5,"bleu","p"], ["c","dist",182,240,1.75,5,"bleu","p"], ["c","dist",188,240,1.75,5,"bleu","p"],
+    ["c","dist",194,240,1.75,5,"bleu","p"], ["c","dist",200,240,1.75,5,"bleu","p"], ["c","dist",206,240,1.75,5,"bleu","p"],
+    ["c","dist",170,240,1.7,32,"alu","p",5], ["c","dist",176,240,1.7,32,"alu","p",5], ["c","dist",182,240,1.7,32,"alu","p",5], ["c","dist",188,240,1.7,32,"alu","p",5],
+    ["c","dist",194,240,1.7,32,"alu","p",5], ["c","dist",200,240,1.7,32,"alu","p",5], ["c","dist",206,240,1.7,32,"alu","p",5],
+    ["c","dist",178,196,2.6,5,"bleu","p"], ["c","dist",178,196,2.5,42,"alu","d",5], ["c","dist",190,196,2.6,5,"bleu","p"], ["c","dist",190,196,2.5,38,"alu","d",5],
+    ["b","dist",220,186,262,240,16,"clair"], ["c","dist",226,198,1.5,30,"alu","p",16], ["c","dist",232,198,1.5,30,"alu","p",16],
+    ["c","dist",238,198,1.5,30,"alu","p",16], ["c","dist",250,226,5.5,14,"blanc","d",16],
+    /* les tours de refroidissement (repère 09) : trois ventilateurs */
+    ["b","terr",283,182,302,246,12,"clair"], ["c","terr",292.5,193,7,4,"fonce","o",12], ["c","terr",292.5,213,7,4,"fonce","o",12],
+    ["c","terr",292.5,233,7,4,"fonce","o",12],
+    /* les utilités et le traitement des eaux (repères 12 et 17) */
+    ["b","",226,108,268,160,8,"fonce"], ["c","",276,116,3.6,11,"blanc","c"], ["c","",276,129,3.6,11,"blanc","c"], ["c","",276,142,3.6,11,"blanc","c"],
+    ["c","",386,122,4.2,15,"blanc","d"], ["c","",386,138,4.2,15,"blanc","d"], ["c","",386,154,4.2,15,"blanc","d"],
+    /* la fermentation (repère 10) : sept grandes cuves, quatre derrière et
+       trois devant, deux petites, le rack et sa conduite verte */
+    ["c","ferm",183,277,9.6,20,"cuve","c"], ["c","ferm",205,277,9.6,20,"cuve","c"], ["c","ferm",227,277,9.6,20,"cuve","c"], ["c","ferm",249,277,9.6,20,"cuve","c"],
+    ["c","ferm",227,315,9.6,20,"cuve","c"], ["c","ferm",249,315,9.6,20,"cuve","c"], ["c","ferm",271,315,9.6,20,"cuve","c"],
+    ["c","ferm",200,312,3.2,9,"cuve","c"], ["c","ferm",210,318,3.2,9,"cuve","c"], ["b","ferm",164,262,178,292,12,"clair"],
+    ["b","ferm",168,305,192,332,8,"gris"], ["p","ferm",165,19,296,300,19,296,2.2,"acier"], ["p","ferm",165,21.6,296,300,21.6,296,1.4,"vert"],
+    /* le stockage d'alcool (repère 13) */
+    ["c","terr",330,150,9,15,"clair","c"], ["c","terr",356,150,9,15,"clair","c"], ["c","terr",334,172,4.5,10,"fonce","c"], ["c","terr",352,172,4.5,10,"clair","c"],
+    /* le magasin et l'atelier, les bureaux de la maintenance (repère 14), le
+       stockage chimique (repère 15), les bureaux et la salle de contrôle
+       (repère 16) */
+    ["b","",292,220,346,262,12,"blanc"], ["b","",306,262,346,284,8,"fonce"], ["b","",268,258,285,300,7,"clair"],
+    ["b","cm",300,290,342,346,10,"fonce"], ["b","cm",310,348,330,360,6,"fonce"],
+    /* les racks de conduites entre les ateliers */
+    ["p","",160,9,178,300,9,178,2.5,"acier"], ["p","",160,9,252,300,9,252,2.5,"acier"], ["p","",216,9,170,216,9,300,2,"acier"],
+    /* la station d'épuration (repères S1 et S2), à l'est, au bord de la
+       Meuse : le bâtiment, les bassins, la cuve du biogaz, les deux
+       décanteurs, le hangar du traitement de l'eau de la Meuse */
+    ["b","step",640,-120,660,-80,9,"blanc"], ["b","step",662,-122,702,-90,1.4,"beton"], ["s","",664,-120,700,-92,"ocre",1.45],
+    ["c","step",652,-64,8,9,"blanc","d"], ["c","step",722,-108,15,3,"beton","o"], ["c","step",736,-78,15,3,"beton","o"],
+    ["b","step",752,-112,800,-90,9,"clair"]
+  ];
+  for(var i=-42;i<=-12;i+=6) M.push(["s","",-160,i,880,i+1.6,"rail",0.12]);
+  return M;
+})();
+/* les étiquettes des postes, au-dessus de leur salle */
+var U3_ETIQ={meun:[72,64,106], glut:[100,32,215], chau:[180,40,122], dist:[195,50,215], ferm:[227,26,296], terr:[292,20,212], step:[720,16,-95], cm:[321,14,318]};
+var U3_POSTES=["","meun","glut","ferm","dist","terr","chau","step","cm"];
+var US3_MODE=lsGet("ui/usine3d")!==false, US3_CLE="", US3=null, _u3Ok=null;
+function usine3DPossible(){
+  if(_u3Ok===null){ try{ var c=document.createElement("canvas"); _u3Ok=!!(window.WebGLRenderingContext&&(c.getContext("webgl")||c.getContext("experimental-webgl"))); }catch(e){ _u3Ok=false; } }
+  return _u3Ok;
+}
+/* la géométrie, une fois : positions, normales, couleurs et poste de
+   chaque sommet, et les boîtes englobantes pour le toucher */
+function u3Geometrie(){
+  var P=[], N=[], C=[], K=[], B=[];
+  function v(x,y,z,n,c,k){ P.push(x,y,z); N.push(n[0],n[1],n[2]); C.push(c[0],c[1],c[2]); K.push(k); }
+  function quad(a,b,c2,d,n,c,k){ v(a[0],a[1],a[2],n,c,k); v(b[0],b[1],b[2],n,c,k); v(c2[0],c2[1],c2[2],n,c,k); v(a[0],a[1],a[2],n,c,k); v(c2[0],c2[1],c2[2],n,c,k); v(d[0],d[1],d[2],n,c,k); }
+  function boite(x0,z0,x1,z1,y0,y1,c,k){
+    quad([x0,y1,z0],[x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[0,1,0],c,k);
+    quad([x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],[0,0,1],c,k); quad([x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],[0,0,-1],c,k);
+    quad([x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[1,0,0],c,k); quad([x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],[-1,0,0],c,k);
+  }
+  function cylindre(x,z,r,y0,h,c,toit,k){
+    var n=r>6?28:14, y1=y0+h, i, a0, a1, c0, s0, c1, s1, fond=[c[0]*0.45,c[1]*0.45,c[2]*0.45];
+    for(i=0;i<n;i++){ a0=i/n*Math.PI*2; a1=(i+1)/n*Math.PI*2; c0=Math.cos(a0); s0=Math.sin(a0); c1=Math.cos(a1); s1=Math.sin(a1);
+      v(x+c0*r,y0,z+s0*r,[c0,0,s0],c,k); v(x+c1*r,y0,z+s1*r,[c1,0,s1],c,k); v(x+c1*r,y1,z+s1*r,[c1,0,s1],c,k);
+      v(x+c0*r,y0,z+s0*r,[c0,0,s0],c,k); v(x+c1*r,y1,z+s1*r,[c1,0,s1],c,k); v(x+c0*r,y1,z+s0*r,[c0,0,s0],c,k);
+      if(toit==="c"||toit==="d"){ var hc=toit==="c"?r*0.2:r*0.45, nm=Math.sqrt(hc*hc+r*r);
+        var na=[c0*hc/nm,r/nm,s0*hc/nm], nb=[c1*hc/nm,r/nm,s1*hc/nm];
+        if(toit==="d"){ var rm=r*0.72, ym=y1+hc*0.7;
+          v(x+c0*r,y1,z+s0*r,na,c,k); v(x+c1*r,y1,z+s1*r,nb,c,k); v(x+c1*rm,ym,z+s1*rm,[c1*.5,.85,s1*.5],c,k);
+          v(x+c0*r,y1,z+s0*r,na,c,k); v(x+c1*rm,ym,z+s1*rm,[c1*.5,.85,s1*.5],c,k); v(x+c0*rm,ym,z+s0*rm,[c0*.5,.85,s0*.5],c,k);
+          v(x+c0*rm,ym,z+s0*rm,[c0*.3,.95,s0*.3],c,k); v(x+c1*rm,ym,z+s1*rm,[c1*.3,.95,s1*.3],c,k); v(x,y1+hc,z,[0,1,0],c,k); }
+        else { v(x+c0*r,y1,z+s0*r,na,c,k); v(x+c1*r,y1,z+s1*r,nb,c,k); v(x,y1+hc,z,[0,1,0],c,k); } }
+      else if(toit==="o"){ var ri=r*0.88;
+        v(x+c0*ri,y1-0.6,z+s0*ri,[0,1,0],fond,k); v(x+c1*ri,y1-0.6,z+s1*ri,[0,1,0],fond,k); v(x,y1-0.6,z,[0,1,0],fond,k);
+        v(x+c0*r,y1,z+s0*r,[0,1,0],c,k); v(x+c1*r,y1,z+s1*r,[0,1,0],c,k); v(x+c1*ri,y1,z+s1*ri,[0,1,0],c,k);
+        v(x+c0*r,y1,z+s0*r,[0,1,0],c,k); v(x+c1*ri,y1,z+s1*ri,[0,1,0],c,k); v(x+c0*ri,y1,z+s0*ri,[0,1,0],c,k); }
+      else { v(x+c0*r,y1,z+s0*r,[0,1,0],c,k); v(x+c1*r,y1,z+s1*r,[0,1,0],c,k); v(x,y1,z,[0,1,0],c,k); }
+    }
+  }
+  function poutre(a,b,w,c,k){
+    var d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]], l=Math.sqrt(d[0]*d[0]+d[1]*d[1]+d[2]*d[2]); d=[d[0]/l,d[1]/l,d[2]/l];
+    var s=[-d[2],0,d[0]], ls=Math.sqrt(s[0]*s[0]+s[2]*s[2])||1; s=[s[0]/ls*w/2,0,s[2]/ls*w/2];
+    var u=[d[1]*s[2]-d[2]*s[1], d[2]*s[0]-d[0]*s[2], d[0]*s[1]-d[1]*s[0]], lu=Math.sqrt(u[0]*u[0]+u[1]*u[1]+u[2]*u[2])||1; u=[u[0]/lu*w/2,u[1]/lu*w/2,u[2]/lu*w/2];
+    if(u[1]<0) u=[-u[0],-u[1],-u[2]];
+    function p(o,i,j){ return [o[0]+s[0]*i+u[0]*j, o[1]+s[1]*i+u[1]*j, o[2]+s[2]*i+u[2]*j]; }
+    function nrm(x){ var q=Math.sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2])||1; return [x[0]/q,x[1]/q,x[2]/q]; }
+    quad(p(a,-1,1),p(b,-1,1),p(b,1,1),p(a,1,1),nrm(u),c,k); quad(p(a,1,-1),p(b,1,-1),p(b,-1,-1),p(a,-1,-1),nrm([-u[0],-u[1],-u[2]]),c,k);
+    quad(p(a,1,1),p(b,1,1),p(b,1,-1),p(a,1,-1),nrm(s),c,k); quad(p(a,-1,-1),p(b,-1,-1),p(b,-1,1),p(a,-1,1),nrm([-s[0],0,-s[2]]),c,k);
+  }
+  U3_MODELE.forEach(function(e){
+    var k=U3_POSTES.indexOf(e[1]); if(k<0) k=0;
+    if(e[0]==="s"){ var c=U3_COUL[e[6]]; quad([e[2],e[7],e[3]],[e[2],e[7],e[5]],[e[4],e[7],e[5]],[e[4],e[7],e[3]],[0,1,0],c,0); }
+    else if(e[0]==="b"){ var y0=e[8]||0; boite(e[2],e[3],e[4],e[5],y0,y0+e[6],U3_COUL[e[7]],k);
+      if(k) B.push([e[2],y0,e[3],e[4],y0+e[6],e[5],k]); }
+    else if(e[0]==="c"){ var yc=e[8]||0; cylindre(e[2],e[3],e[4],yc,e[5],U3_COUL[e[6]],e[7],k);
+      if(k) B.push([e[2]-e[4],yc,e[3]-e[4],e[2]+e[4],yc+e[5]+e[4]*0.3,e[3]+e[4],k]); }
+    else if(e[0]==="p"){ poutre([e[2],e[3],e[4]],[e[5],e[6],e[7]],e[8],U3_COUL[e[9]],k); }
+  });
+  return {p:new Float32Array(P), n:new Float32Array(N), c:new Float32Array(C), k:new Float32Array(K), nb:P.length/3, boites:B};
+}
+var _u3Geo=null;
+/* les matrices, en colonnes comme WebGL les veut */
+function u3Persp(f,a,n,l){ var t=1/Math.tan(f/2); return [t/a,0,0,0, 0,t,0,0, 0,0,(l+n)/(n-l),-1, 0,0,2*l*n/(n-l),0]; }
+function u3Vue(e,c){ var z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]], lz=Math.sqrt(z[0]*z[0]+z[1]*z[1]+z[2]*z[2]); z=[z[0]/lz,z[1]/lz,z[2]/lz];
+  var x=[z[2],0,-z[0]], lx=Math.sqrt(x[0]*x[0]+x[2]*x[2])||1; x=[x[0]/lx,0,x[2]/lx];
+  var y=[z[1]*x[2]-z[2]*x[1], z[2]*x[0]-z[0]*x[2], z[0]*x[1]-z[1]*x[0]];
+  return {m:[x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0, -(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]), -(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]), -(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]), 1], x:x, y:y, z:z}; }
+function u3Mul(a,b){ var r=[], i, j, k, s; for(j=0;j<4;j++) for(i=0;i<4;i++){ s=0; for(k=0;k<4;k++) s+=a[i+4*k]*b[k+4*j]; r[i+4*j]=s; } return r; }
+/* la caméra tourne autour d'un point du sol : cap, inclinaison, distance */
+function u3CamDefaut(){ return {cap:-0.42, incl:0.62, dist:520, cx:212, cz:150}; }
+function u3Oeil(c){ return [c.cx+c.dist*Math.cos(c.incl)*Math.sin(c.cap), c.dist*Math.sin(c.incl), c.cz+c.dist*Math.cos(c.incl)*Math.cos(c.cap)]; }
+var U3_VS="attribute vec3 aP;attribute vec3 aN;attribute vec3 aC;attribute float aK;uniform mat4 uM;uniform float uS;uniform vec3 uE;uniform float uNuit;varying vec3 vC;varying float vF;"
+  +"void main(){gl_Position=uM*vec4(aP,1.0);vec3 L=normalize(vec3(-0.5,0.85,0.45));float d=max(dot(aN,L),0.0);float h=0.5+0.5*aN.y;"
+  +"vec3 c=aC*(0.42+0.30*h+0.42*d);if(uS>0.5&&abs(aK-uS)<0.5)c=mix(c,vec3(1.0,0.74,0.30),0.34);c*=mix(1.0,0.55,uNuit);"
+  +"vC=c;vF=clamp((length(aP-uE)-600.0)/1600.0,0.0,0.5);}";
+var U3_FS="precision mediump float;varying vec3 vC;varying float vF;uniform vec3 uB;void main(){gl_FragColor=vec4(mix(vC,uB,vF),1.0);}";
+function usine3DInit(){
+  var cv=document.getElementById("us3c"); if(!cv) return;
+  var cam=US3&&US3.cam?US3.cam:u3CamDefaut();
+  var gl=null; try{ gl=cv.getContext("webgl",{antialias:true,alpha:true})||cv.getContext("experimental-webgl"); }catch(e){}
+  if(!gl){ _u3Ok=false; US3_MODE=false; US_CLE=""; return; }
+  function sh(t,s){ var o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); return o; }
+  var pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,U3_VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,U3_FS)); gl.linkProgram(pr);
+  if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){ _u3Ok=false; US3_MODE=false; US_CLE=""; return; }
+  if(!_u3Geo) _u3Geo=u3Geometrie();
+  var G=_u3Geo, tamp={};
+  [["aP",G.p,3],["aN",G.n,3],["aC",G.c,3],["aK",G.k,1]].forEach(function(a){ var b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,a[1],gl.STATIC_DRAW); tamp[a[0]]=[b,a[2],gl.getAttribLocation(pr,a[0])]; });
+  US3={cv:cv, gl:gl, pr:pr, tamp:tamp, cam:cam, rf:0, nuit:0,
+    u:{m:gl.getUniformLocation(pr,"uM"), s:gl.getUniformLocation(pr,"uS"), e:gl.getUniformLocation(pr,"uE"), b:gl.getUniformLocation(pr,"uB"), n:gl.getUniformLocation(pr,"uNuit")}};
+  cv.addEventListener("webglcontextlost",function(ev){ ev.preventDefault(); if(US3) US3.gl=null; });
+  cv.addEventListener("webglcontextrestored",function(){ US3_CLE=""; try{ renderUsine(); }catch(e){} });
+  u3Gestes(cv);
+}
+function u3Demande(){ if(!US3||!US3.gl||US3.rf) return; US3.rf=requestAnimationFrame(function(){ US3.rf=0; u3Dessiner(); }); }
+function u3Dessiner(){
+  var S=US3; if(!S||!S.gl) return; var gl=S.gl, cv=S.cv, dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  gl.viewport(0,0,cv.width,cv.height); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT); gl.enable(gl.DEPTH_TEST);
+  var e=u3Oeil(S.cam), V=u3Vue(e,[S.cam.cx,0,S.cam.cz]), Pm=u3Persp(0.78,W/H,4,4000), M=u3Mul(Pm,V.m);
+  S.M=M; S.V=V; S.e=e; S.W=W; S.H=H;
+  gl.useProgram(S.pr);
+  Object.keys(S.tamp).forEach(function(n){ var t=S.tamp[n]; gl.bindBuffer(gl.ARRAY_BUFFER,t[0]); gl.enableVertexAttribArray(t[2]); gl.vertexAttribPointer(t[2],t[1],gl.FLOAT,false,0,0); });
+  var b=(getComputedStyle(cv.parentNode).getPropertyValue("--us3-brume")||"#3a4a5a").trim(), m=/^#?([0-9a-f]{6})$/i.exec(b), bc=m?[parseInt(m[1].slice(0,2),16)/255,parseInt(m[1].slice(2,4),16)/255,parseInt(m[1].slice(4,6),16)/255]:[.23,.29,.35];
+  gl.uniformMatrix4fv(S.u.m,false,new Float32Array(M)); gl.uniform1f(S.u.s,Math.max(0,U3_POSTES.indexOf(US_SEL)));
+  gl.uniform3f(S.u.e,e[0],e[1],e[2]); gl.uniform3f(S.u.b,bc[0],bc[1],bc[2]); gl.uniform1f(S.u.n,S.nuit);
+  gl.drawArrays(gl.TRIANGLES,0,_u3Geo.nb);
+  u3Placer();
+}
+/* un point de la scène, à l'écran (null s'il est derrière la caméra) */
+function u3Ecran(p){ var M=US3.M, x=M[0]*p[0]+M[4]*p[1]+M[8]*p[2]+M[12], y=M[1]*p[0]+M[5]*p[1]+M[9]*p[2]+M[13], w=M[3]*p[0]+M[7]*p[1]+M[11]*p[2]+M[15];
+  if(w<=0.1) return null; return [(x/w*0.5+0.5)*US3.W,(1-(y/w*0.5+0.5))*US3.H]; }
+/* les étiquettes au-dessus de leur salle ; une qui en recouvre une autre
+   (au téléphone, la distillation sous les chaudières) remonte, sa tige
+   s'allonge jusqu'à la salle */
+function u3Placer(){
+  var hote=document.getElementById("us3Et"); if(!hote||!US3||!US3.M) return; var L=[];
+  Array.prototype.forEach.call(hote.children,function(b){ var k=b.getAttribute("data-k"), q=U3_ETIQ[k], s=q&&u3Ecran(q);
+    var vu=!!(s&&s[0]>-40&&s[0]<US3.W+40&&s[1]>0&&s[1]<US3.H+20);
+    b.hidden=!vu; b.classList.toggle("us3-sel",k===US_SEL); if(vu) L.push({b:b, x:s[0], y:s[1], w:b.offsetWidth, h:b.offsetHeight}); });
+  L.sort(function(a,b){ return b.y-a.y; });
+  var poses=[];
+  L.forEach(function(o){ var y=o.y-8, cx=Math.max(o.w/2+4,Math.min(US3.W-o.w/2-4,o.x)), x0=cx-o.w/2, x1=cx+o.w/2, bouge=true, n=0;
+    while(bouge&&n++<12){ bouge=false; poses.forEach(function(p){ if(x0<p.x1+3&&x1>p.x0-3&&y>p.y0-3&&y-o.h<p.y1+3){ y=p.y0-3; bouge=true; } }); }
+    poses.push({x0:x0, x1:x1, y0:y-o.h, y1:y});
+    o.b.style.setProperty("--tige",Math.round(o.y-y)+"px");
+    o.b.style.setProperty("--tige-x",Math.round(o.x-cx)+"px");
+    o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(y)+"px) translate(-50%,-100%)"; });
+}
+/* le toucher : le rayon de la caméra contre les boîtes des postes */
+function u3Viser(px,py){
+  var S=US3; if(!S||!S.V) return null; var t=Math.tan(0.39), nx=(px/S.W*2-1)*t*S.W/S.H, ny=(1-py/S.H*2)*t, V=S.V;
+  var d=[V.x[0]*nx+V.y[0]*ny-V.z[0], V.x[1]*nx+V.y[1]*ny-V.z[1], V.x[2]*nx+V.y[2]*ny-V.z[2]], o=S.e, best=1e9, k=null;
+  _u3Geo.boites.forEach(function(b){ var t0=-1e9, t1=1e9, i, lo, hi, a, c;
+    for(i=0;i<3;i++){ lo=b[i]; hi=b[i+3]; if(Math.abs(d[i])<1e-9){ if(o[i]<lo||o[i]>hi) return; continue; }
+      a=(lo-o[i])/d[i]; c=(hi-o[i])/d[i]; if(a>c){ var w=a; a=c; c=w; } if(a>t0) t0=a; if(c<t1) t1=c; if(t0>t1) return; }
+    if(t0>0&&t0<best){ best=t0; k=U3_POSTES[b[6]]; } });
+  return k;
+}
+function u3Borner(c){ c.incl=Math.max(0.18,Math.min(1.45,c.incl)); c.dist=Math.max(110,Math.min(1500,c.dist)); c.cx=Math.max(-120,Math.min(840,c.cx)); c.cz=Math.max(-260,Math.min(380,c.cz)); }
+/* LES GESTES : un doigt de côté fait tourner (vers le haut ou le bas, la
+   page défile toujours), deux doigts zooment et inclinent ; à la souris,
+   glisser fait tourner, Maj ou le bouton droit déplacent, la molette
+   zoome. Un toucher bref choisit une salle. */
+function u3Gestes(cv){
+  var pts={}, dep=null;
+  function liste(){ return Object.keys(pts).map(function(i){ return pts[i]; }); }
+  cv.addEventListener("pointerdown",function(ev){ pts[ev.pointerId]={x:ev.clientX,y:ev.clientY}; try{ cv.setPointerCapture(ev.pointerId); }catch(e){}
+    var L=liste(); dep={t:Date.now(), x:ev.clientX, y:ev.clientY, bouge:0, deux:L.length>1, pan:ev.button===2||ev.shiftKey}; });
+  cv.addEventListener("pointermove",function(ev){ var q=pts[ev.pointerId]; if(!q||!US3) return; var L=liste(), c=US3.cam;
+    if(L.length>=2){ var a=L[0], b=L[1], d0=Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)), my0=(a.y+b.y)/2; q.x=ev.clientX; q.y=ev.clientY;
+      var d1=Math.sqrt((L[0].x-L[1].x)*(L[0].x-L[1].x)+(L[0].y-L[1].y)*(L[0].y-L[1].y)), my1=(L[0].y+L[1].y)/2; if(d0>0&&d1>0) c.dist*=d0/d1; c.incl+=(my1-my0)*0.004; dep.bouge+=99; }
+    else { var dx=ev.clientX-q.x, dy=ev.clientY-q.y; q.x=ev.clientX; q.y=ev.clientY; dep.bouge+=Math.abs(dx)+Math.abs(dy);
+      if(dep.pan){ var f=c.dist/700; c.cx-=(Math.cos(c.cap)*dx+Math.sin(c.cap)*dy*1.4)*f; c.cz-=(-Math.sin(c.cap)*dx+Math.cos(c.cap)*dy*1.4)*f; }
+      else { c.cap-=dx*0.006; if(ev.pointerType==="mouse") c.incl+=dy*0.005; } }
+    u3Borner(c); u3Demande(); });
+  function fin(ev){ var q=pts[ev.pointerId]; delete pts[ev.pointerId];
+    if(q&&dep&&!dep.deux&&dep.bouge<8&&Date.now()-dep.t<500&&ev.type==="pointerup"){ var r=cv.getBoundingClientRect(), k=u3Viser(ev.clientX-r.left,ev.clientY-r.top);
+      if(k) usineChoisir(k); } }
+  cv.addEventListener("pointerup",fin); cv.addEventListener("pointercancel",fin);
+  cv.addEventListener("contextmenu",function(ev){ ev.preventDefault(); });
+  cv.addEventListener("wheel",function(ev){ if(!US3) return; ev.preventDefault(); US3.cam.dist*=Math.exp(ev.deltaY*0.0012); u3Borner(US3.cam); u3Demande(); },{passive:false});
+}
+function u3Zoom(f){ if(!US3) return; US3.cam.dist*=f; u3Borner(US3.cam); u3Demande(); }
+/* un écran étroit voit moins large : la caméra recule d'autant (le
+   téléphone debout, 0,63 de large pour 1 de haut, à 870 m au lieu de 520) */
+function u3Recul(c,cv){ var a=cv&&cv.clientHeight?cv.clientWidth/cv.clientHeight:1.6; c.dist=520*Math.max(1,1.05/a); return c; }
+function u3Recentrer(){ if(!US3) return; US3.cam=u3Recul(u3CamDefaut(),US3.cv); u3Demande(); }
+/* les étiquettes : le poste, ses présents sur l'attendu, l'ambre s'il
+   manque quelqu'un ; un bouton, que le clavier atteint aussi */
+function usine3DEtiquettes(E){
+  var hote=document.getElementById("us3Et"); if(!hote) return;
+  hote.innerHTML=USINE_ZONES.map(function(z){ var Zk=E.Z[z.k], n=Zk?Zk.n:0, att=Zk?Zk.attendu:0, manque=att>n;
+    return '<button type="button" class="us3-et'+(manque?' us3-manque':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+" présent"+(n>1?"s":"")+(att?" sur "+att:""))+'"><b>'+esc(z.t)+'</b><span>'+n+(att?'/'+att:'')+'</span></button>'; }).join("");
+  if(US3){ US3.nuit=E.nuit?1:0; u3Placer(); }
+}
+function usineModeHTML(){
+  if(!usine3DPossible()) return "";
+  return '<div class="us-mode" role="group" aria-label="Vue de l’usine">'+[["3d","3D"],["plan","Plan"]].map(function(m){ var on=(m[0]==="3d")===!!US3_MODE;
+    return '<button type="button" data-us-mode="'+m[0]+'" aria-pressed="'+on+'">'+m[1]+'</button>'; }).join("")+'</div>';
+}
+function usine3DRendre(corps,E,cote,cw){
+  var cle="3d|"+cote+"|"+(cw>=624);
+  if(cle!==US3_CLE||!document.getElementById("us3c")){
+    US3_CLE=cle; US_CLE="";
+    corps.className="us-corps"+(cote?" us-cote":cw>=624?" us-dessous":"");
+    var fin=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches;
+    corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'
+      +(fin?'Glissez pour tourner l’usine, Maj + glisser pour la déplacer, la molette pour zoomer ; cliquez une salle : qui l’occupe, la relève, comment la joindre.'
+        :'Glissez de côté pour tourner l’usine, pincez pour zoomer et l’incliner ; touchez une salle : qui l’occupe, la relève, comment la joindre.')
+      +'</p>'+usineModeHTML()+'</div></div>'
+      +usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")
+      +'<div class="us3" id="us3"><canvas id="us3c" class="us3-c" aria-hidden="true"></canvas><div class="us3-ets" id="us3Et"></div>'
+      +'<div class="us3-btns"><button type="button" data-u3="+" aria-label="Rapprocher">+</button><button type="button" data-u3="-" aria-label="Éloigner">−</button>'
+      +'<button type="button" data-u3="0" aria-label="Revenir à la vue de départ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div></div>'
+      +usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")+'</div>'
+      +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Reconstruction indicative, à l’échelle : chaque bâtiment à sa place et à son volume, d’après les vues aériennes et les photos du site ; les postes du Planning à leur salle. En gris, les voisins : la sucrerie, les silos d’une autre société.</p></div>';
+    usineBrancher(corps); usine3DInit();
+    if(!US3_MODE){ renderUsine(); return; }
+    if(US3&&!US3.vu){ US3.vu=1; u3Recul(US3.cam,US3.cv); }
+  }
+  usine3DEtiquettes(E);
+  document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
+  u3Demande();
+}
 function renderUsine(){
   var c=document.getElementById("usineCard"), corps=document.getElementById("usineCorps"); if(!c||!corps) return;
   var gr=document.getElementById("accGrille");
@@ -22697,6 +23025,10 @@ function renderUsine(){
   /* la fiche à droite du plan s'il garde ses quatre colonnes (800 px) ;
      sinon dessous, sur toute la largeur */
   var cote=cw>=1200, W=Math.max(260,Math.floor(cw-(cote?348:0)));
+  /* la 3D, si elle est choisie et que l'appareil la dessine ; sinon le
+     plan, comme avant */
+  if(US3_MODE&&usine3DPossible()){ usine3DRendre(corps,E,cote,cw); if(US3_MODE){ usineDernier=E; return; } }
+  US3_CLE="";
   var g=usineGeo(W,usineRangs(E,W)), cle=W+"|"+g.large+"|"+cote+"|"+g.sig;
   if(cle!==US_CLE||!document.getElementById("usDyn")){
     US_CLE=cle;
@@ -22707,7 +23039,7 @@ function renderUsine(){
        « comment rendre plus intuitif et compréhensible ») : au téléphone,
        le plan fait 1 000 px ; en dessous, ils n'étaient lus qu'après lui */
     var tch=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches?'Cliquez':'Touchez';
-    corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'+tch+' une salle : qui l’occupe, la relève, comment la joindre, et ce qu’elle reçoit et envoie.</p><button type="button" class="us-anim" id="usAnim"></button></div>'
+    corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'+tch+' une salle : qui l’occupe, la relève, comment la joindre, et ce qu’elle reçoit et envoie.</p><button type="button" class="us-anim" id="usAnim"></button>'+usineModeHTML()+'</div>'
       +'<ul class="us-leg" aria-label="Légende des conduites">'+[["v","Produit"],["s","Son"],["o","Vapeur"],["b","Eaux"]].map(function(l){ return '<li><span class="us-c-trait us-c-'+l[0]+'" aria-hidden="true"></span>'+l[1]+'</li>'; }).join("")
       +'<li><svg class="us-leg-fl" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5h6"/><path d="M6 1.5l5 3.5-5 3.5z"/></svg>Sens du flux</li></ul></div>'
       +usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")
@@ -22754,11 +23086,15 @@ function usineChoisir(k){
   if(!k||!usineDernier) return; US_FLUX=!(US_FLUX&&US_SEL===k); US_SEL=k; usineLiens();
   [].forEach.call(document.querySelectorAll("#usDyn .us-zone"),function(z){ var on=z.getAttribute("data-k")===k; z.setAttribute("class",(z.getAttribute("class")||"").replace(/\s*\bus-sel\b/g,"")+(on?" us-sel":"")); z.setAttribute("aria-pressed",String(on)); });
   var f=document.getElementById("usFiche"); f.innerHTML=usineFiche(usineDernier,k);
+  if(US3_MODE&&US3) u3Demande();
   /* au téléphone, la fiche est sous le plan : elle vient sous les yeux */
   var r=f.getBoundingClientRect(); if(r.bottom>innerHeight-80||r.top<0) try{ f.scrollIntoView({block:"nearest", behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"}); }catch(e){}
 }
 function usineBrancher(corps){
-  corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null; if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k"));
+  corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null;
+    /* 3D ou plan, gardé sur l'appareil ; et les boutons de la 3D */
+    var md=t.closest?t.closest("[data-us-mode]"):null; if(md){ var m3=md.getAttribute("data-us-mode")==="3d"; if(m3!==US3_MODE){ US3_MODE=m3; lsSet("ui/usine3d",m3); US_CLE=""; US3_CLE=""; renderUsine(); } return; }
+    var b3=t.closest?t.closest("[data-u3]"):null; if(b3){ var a3=b3.getAttribute("data-u3"); if(a3==="+") u3Zoom(0.8); else if(a3==="-") u3Zoom(1.25); else u3Recentrer(); return; } if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k"));
     /* le sol touché, hors des salles : tout le réseau revient */
     else if(!z&&US_FLUX&&t.closest&&t.closest("#usSvg")){ US_FLUX=false; usineLiens(); } };
   corps.onkeydown=function(ev){ if(ev.key!=="Enter"&&ev.key!==" ") return; var z=ev.target.closest&&ev.target.closest(".us-zone"); if(z){ ev.preventDefault(); usineChoisir(z.getAttribute("data-k")); } };
