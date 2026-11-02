@@ -2719,6 +2719,51 @@ drapeaux ne changent aucun placement : les cinq sorties du vérificateur
 (dont `--placement --tout`) sont identiques à l'octet. Vérifié à 320 px
 (hors ligne), 390 et 1280 px.
 
+**Le renfort arrière tient le terrain arrière, au cadre comme au
+Planning (02/11/2026, `nfdm-v1300`).** Le client, deux captures à l'appui :
+« explique-moi ceci ». Le cadre annonçait pour le 03/11 au matin « GPO
+Glut. → T. arr., remplace SBZ (absent) », alors que le Planning du même
+jour laissait GPO au gluten (« comble le poste ») et GKT seul au terrain
+arrière.
+
+Le 03/11 au matin, à l'équipe 2 :
+- SBZ, polyvalent, est « Abs » ;
+- GKT, renfort arrière, est là, avec « Remplace NPE de 13h à 14h » ;
+- GPO, venu du jour (D → AM), passe en surnombre au gluten.
+
+**La cause.** Le moteur de placement porte GPO au terrain arrière. Les
+deux vues décident ensuite si ce déplacement est utile, mais pas de la
+même façon :
+- le Planning (`maj`, puis `tenuDuPoste`) compte le poste sans lui avec la
+  règle du renfort arrière : sans titulaire, le renfort tient le poste.
+  GKT le tient, rien n'est à proposer, et GPO reste au gluten ;
+- le cadre (`transfertsDuJour`) faisait « effectif du poste moins les
+  déplacés ». Comme le moteur avait déjà compté GPO à la place de GKT,
+  cela donnait 1 − 1 = 0 : un poste vide, donc un changement à prévenir.
+
+Le commentaire du 22/10, « la même règle que le Planning », n'était donc
+vrai que sur le principe.
+
+**Fait :** le cadre compte le poste sans les déplacés par `tenuDuPoste`,
+comme le Planning.
+
+**Mesuré** sur une copie instrumentée de chaque version, avec tous les
+jours de 2026 et 2027 passés par `transfertsDuJour` :
+- avant, 242 changements annoncés ; après, 180 ;
+- les 62 retirés vont tous vers le terrain arrière : 33 depuis la
+  distillation, 15 depuis la STEP, 11 depuis le gluten, 3 depuis la
+  meunerie ;
+- aucun changement n'est ajouté.
+
+Deux contrôles au Planning :
+- le 12/11 au matin, GKT tient le terrain arrière, et SKS n'y est pas
+  proposé ;
+- le 06/12 au matin, SMA le tient, et ni PLZ ni AAI n'y sont proposés.
+  Le cadre annonçait ces deux-là, soit deux personnes vers un seul poste.
+
+Le vérificateur du calendrier est identique à l'octet, sans option et
+avec les quatre options.
+
 ### Le congé en heures
 
 Le client, le 09/10/2026, à la proposition tirée de la note de service du

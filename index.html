@@ -31585,7 +31585,16 @@ function transfertsDuJour(db,annee,m,j){
          Etoh », remplace DWS) puis ATR (« Poly.Ethol », de 20 h à 22 h)
          tiennent le poste. Le Planning ne le proposait plus ; cette liste,
          calculée à part, l'annonçait encore. */
-      var sans=o.tenu-tr.filter(function(z){ return compteAuPoste(z[0],o.P,jc); }).length;
+      /* SANS EUX, COMPTÉ COMME LE PLANNING (le client, le 02/11/2026, devant
+         « GPO Glut. → T. arr., remplace SBZ » pour le 03/11 alors que le
+         Planning laissait GPO au gluten : « explique-moi ceci ») : le poste
+         sans les déplacés se compte par tenuDuPoste, comme maj() du Planning.
+         Au terrain arrière, sans titulaire, le renfort arrière tient le poste
+         (GKT, « Renfort arrière ») ; « o.tenu moins les déplacés » l'oubliait,
+         voyait le poste vide et annonçait un changement que le Planning ne
+         propose pas. */
+      var ex=tr.map(function(z){ return z[0]; }),
+          sans=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(x){ return ex.indexOf(x)<0; })},jc);
       if(o.attendu && sans>=o.attendu) return;
       tr.forEach(function(z){
         /* l'échange des places habituelles : c'est l'autre qu'on prévient */
