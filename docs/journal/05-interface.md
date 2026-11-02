@@ -10383,3 +10383,49 @@ par case, était juste.
 l'onglet Horaire, n'est plus appelée nulle part. Une case ne fait plus
 que marquer sa ligne depuis que la vue journée a été retirée (26/10). Elle
 est laissée en place, avec sa garde.
+
+### « Pris le JJ.MM » dit en clair dans la bulle (02/11/2026, `nfdm-v1298`)
+
+Le client, sur le Planning : « ce commentaire peut porter à confusion sur
+VGG aujourd'hui, que faire ? ». Le 02/11, la case de VGG est
+`["AM","4h RTT","pris le 03.11"]`, et sa bulle montrait le seul « pris le
+03.11 ». On ne savait ni quoi, ni si VGG s'en allait.
+
+La lecture, elle, était juste depuis la règle du 21/09
+(`docs/conversion-horaire.md`, 6 septies, où VGG est l'un des exemples
+tranchés par le client) : l'annotation appartient au jour nommé, et le
+jour où elle est écrite n'en garde rien. VGG est donc là toute sa pause du
+02/11 (« jusqu'à 14 h » dans « L'usine en direct »). Le 03/11, il est
+absent toute la journée : 1/2VA + 4h RTT, ce qui explique pourquoi la
+capture du 3 ne le montre pas.
+
+**Fait :** `comRenvoi` met la règle en tête de la bulle, puis le
+commentaire du classeur :
+
+> Le « 4h RTT » noté ici est pris le 03/11 : ce jour-ci, la pause est
+> prestée en entier.
+>
+> Commentaire du classeur : pris le 03.11
+
+Sur un jour de repos, la fin de phrase devient « il ne compte pas ce
+jour-ci ». Les dates multiples (« pris les 3 et 4.07 ») donnent « pris les
+3 et 4/07 ». C'est de l'affichage seul (`comAffiche`) : la lecture de la
+journée (`renvoisDuMois`) lit la case brute.
+
+**Mesuré :**
+- les 30 « pris le » des horaires 2026 et 2027 ont tous une annotation et
+  une date reconnues ;
+- le vérificateur du calendrier, sans option et avec `--manques 0926`,
+  `--polyvalence`, `--compteurs` et `--manques-commentes`, donne des
+  sorties identiques à l'octet ;
+- les agendas : 6 fichiers changent sur 81 (CKS, CWN, GJR, HKB, PAM,
+  VGG), soit les six journées « pris le » qui tombent sur une pause de
+  travail. Seules leurs 19 lignes de note changent ; les repos n'ont pas
+  d'événement ;
+- au téléphone, la bulle de VGG s'ouvre avec la phrase en tête.
+
+**Vu en passant, sans rapport avec ce changement :**
+`--manques-commentes` sort à 1 avant comme après. Les 14 et 15/11 PM aux
+chaudières, QDE est absent, « remplacé par SBZ » ; SBZ est absent aussi,
+« remplace QDE, remplacé par GKT » ; GKT est noté « terr. Arr. » et
+« remplace SBZ ». La place de QDE reste vide : question posée au client.

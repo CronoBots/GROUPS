@@ -572,6 +572,11 @@ une autre journée. »
 > L'annotation appartient au jour que le commentaire nomme, **en plus** du
 > compteur que ce jour porte déjà. Le jour où elle est écrite n'en garde rien.
 
+À l'affichage (le client, le 02/11/2026, sur VGG : « ce commentaire peut
+porter à confusion »), la bulle du jour où elle est écrite dit la règle
+avant le commentaire : « Le « 4h RTT » noté ici est pris le 03/11 : ce
+jour-ci, la pause est prestée en entier. » (`comRenvoi`).
+
 `renvoisDuMois()` est la jumelle de `epargnesDuMois()`, dans l'autre sens :
 celle-ci part du jour qui écrit « pris le 12.06 » et rend ce que reçoit le
 12 juin. Elle balaie l'année entière — VBN renvoie du 23/07 au 01/08, d'un

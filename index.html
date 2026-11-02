@@ -9955,9 +9955,26 @@ var ALIAS_TRI_AFFICHAGE={PYL:"PLZ"};
    un code, une plage ni un atelier. La lecture de la journée n'en dépend
    pas. */
 var NOTES_ANNOTATION=["fallingfilm","consign","polyvalence"];
+/* « PRIS LE JJ.MM », DIT EN CLAIR (le client, le 02/11/2026, sur VGG ce
+   jour-là, ["AM","4h RTT","pris le 03.11"] : « ce commentaire peut porter
+   à confusion ») : la bulle montrait « pris le 03.11 » seul, sans dire
+   quoi ni ce que l'application en tire. La règle est celle du 21/09
+   (docs/conversion-horaire.md, 6 septies) : l'annotation appartient au
+   jour nommé, et le jour où elle est écrite n'en garde rien. La bulle le
+   dit d'abord, puis le commentaire du classeur. Affichage seul : la
+   lecture de la journée (renvoisDuMois) ne lit que raw, brut. */
+function comRenvoi(raw){
+  var a=String(raw[1]||"").trim(), c=String(raw[2]||""), m=/pris\s+les?\s+(\d{1,2}(?:[.\/]\d{1,2})?(?:\s*(?:,|et)\s*\d{1,2}(?:[.\/]\d{1,2})?)*)/i.exec(c);
+  if(!a||!m) return "";
+  var j=m[1].replace(/\./g,"/").replace(/\s+/g," "), plus=/,|\bet\b/.test(m[1]);
+  /* une case de travail : la pause est prestée en entier (VGG le 02/11 ;
+     sur un repos, il n'y a rien d'autre à dire) */
+  var tr=String(raw[0]||"").trim(), trav=!!tr&&tr!=="-";
+  return "Le « "+a+" » noté ici est pris "+(plus?"les ":"le ")+j+" : "+(trav?"ce jour-ci, la pause est prestée en entier.":"il ne compte pas ce jour-ci.");
+}
 function comAffiche(raw){
   if(!raw || typeof raw==="string") return "";
-  var c=String(raw[2]||"").trim(); if(c) return c;
+  var c=String(raw[2]||"").trim(); if(c){ var rv=comRenvoi(raw); return rv?rv+"\n\nCommentaire du classeur : "+c:c; }
   var a=String(raw[1]||"").trim();
   return (a && NOTES_ANNOTATION.indexOf(a.toLowerCase().replace(/[\s.]/g,""))>=0)?a:"";
 }
