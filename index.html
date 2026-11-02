@@ -31288,22 +31288,32 @@ function renderTransferts(force){
      sans heures prend le reste ;
    - REMPLAÇANT ABSENT : le remplaçant nommé n'est pas là ce jour-là (absent,
      en congé, en repos) ;
+   - PRÉSENCE CONTREDITE : « RDT et GPO présents », ou « équipe complète
+     (DBE & MMS) », alors que RDT est en congé ; « BLR absent », alors que
+     sa journée le met au travail ;
    - ÉCHANGES QUI SE CONTREDISENT : A « échange avec B », B « échange avec C » ;
    - TRIGRAMME INCONNU : un nom, en capitales, qui n'est pas dans l'horaire ;
    - REMPLAÇANT À PRÉCISER : « remplacé par ? ».
    D'aujourd'hui au 31 décembre du dernier classeur ; une journée prolongée
    par les cycles n'a pas de commentaire. Toucher une journée ouvre son
    Planning. */
-var INC_NOMS={plusieurs:"Remplacé par plusieurs", absent:"Remplaçant absent", echange:"Échanges qui se contredisent", inconnu:"Trigramme inconnu", preciser:"Remplaçant à préciser"};
+var INC_NOMS={plusieurs:"Remplacé par plusieurs", absent:"Remplaçant absent", presence:"Présence contredite", echange:"Échanges qui se contredisent", inconnu:"Trigramme inconnu", preciser:"Remplaçant à préciser"};
+/* la racine de « remplacer » et ses fautes : remplac-, remplaç-, rempalc-,
+   remlac-, rempac- (le moteur du Planning lit « remp… » entier) */
+var INC_RAC="rem(?:pla|pal|la|pa)[c\\u00e7]";
 /* les noms rares hors de l'horaire, proches d'un trigramme connu : une
-   faute de frappe probable (JGR pour GJR, CDH pour CHD). Un nom fréquent
-   hors de l'horaire (PBL, 132 fois en 2026) est une vraie personne d'ailleurs. */
+   faute de frappe probable (JGR pour GJR, CDH pour CHD, GPT dans
+   « remplacé par GPT et ATR »). La rareté se compte dans TOUS les
+   commentaires, en capitales : un nom fréquent hors de l'horaire est une
+   vraie personne d'ailleurs (PBL, 154 fois en 2026) ou un code (« CIE : »,
+   36 fois ; « MPE », 88) — compté après les seuls verbes, « CIE » passait
+   pour rare. */
 function incProche(db){
   if(db.__incP) return db.__incP;
-  var conn={}, cpt={}, rx=/(?:remplac(?:e|ait|ant)|remplac[\u00e9e]e?s?\s+(?:par|pa|p\.)|[\u00e9e]change\s+(?:de\s+pause\s+)?avec)\s+([A-Z]{3})\b/g, m;
+  var conn={}, cpt={}, rx=/\b[A-Z]{3}\b/g, m;
   db.people.forEach(function(p){ conn[idLisible(p.id)]=1; });
   db.people.forEach(function(p){ Object.keys(p.d||{}).forEach(function(md){ var c=String((p.d[md]||[])[2]||""); rx.lastIndex=0;
-    while((m=rx.exec(c))){ var t=(ALIAS_TRI_AFFICHAGE&&ALIAS_TRI_AFFICHAGE[m[1]])||m[1]; if(!conn[t]) cpt[t]=(cpt[t]||0)+1; } }); });
+    while((m=rx.exec(c))){ var t=(ALIAS_TRI_AFFICHAGE&&ALIAS_TRI_AFFICHAGE[m[0]])||m[0]; if(!conn[t]) cpt[t]=(cpt[t]||0)+1; } }); });
   var out={};
   Object.keys(cpt).forEach(function(t){ if(cpt[t]>4) return;
     var s=Object.keys(conn).filter(function(k){ var d=0; for(var i=0;i<3;i++) if(k[i]!==t[i]) d++;
@@ -31312,25 +31322,39 @@ function incProche(db){
   return (db.__incP=out);
 }
 function incoherencesDuJour(db,an,m,j){
-  var md=pad2(m)+pad2(j), par={}, out=[], L={}, rep={}, ech={}, ou={}, vus={}, proche=incProche(db);
-  db.people.forEach(function(p){ par[idLisible(p.id)]=p; });
+  var md=pad2(m)+pad2(j), par={}, out=[], L={}, rep={}, ech={}, ou={}, excl={}, vus={}, proche=incProche(db);
+  /* DEUX PERSONNES AU MÊME TRIGRAMME (GBT-1 et GBT) : le commentaire ne
+     les départage pas ; l'une des deux là suffit (MHI le 14/12, « GBT et
+     JBS présents » : GBT-1 de son équipe, l'autre GBT en congé) */
+  var hom={};
+  db.people.forEach(function(p){ var t=idLisible(p.id); par[t]=par[t]||p; (hom[t]=hom[t]||[]).push(p); });
   function tri(t){ t=String(t||"").toUpperCase(); return (ALIAS_TRI_AFFICHAGE&&ALIAS_TRI_AFFICHAGE[t])||t; }
-  function lec(id){ if(!(id in L)){ var x=null; try{ x=lectureAgenda(db,par[id],an,m,j)||null; }catch(e){} L[id]=x; } return L[id]; }
+  function lec(q){ if(!(q.id in L)){ var x=null; try{ x=lectureAgenda(db,q,an,m,j)||null; }catch(e){} L[q.id]=x; } return L[q.id]; }
   /* LÀ CE JOUR-LÀ : la lecture de la journée, ou ce que l'annotation dit
      d'un travail (des heures en plus, un poste, une plage, une pause) : SKS
      en repos « disti », CGI « 8h +FT » sont au travail */
-  function present(id){ var x=lec(id); if(x&&x.presente) return x.pv||"?";
-    var r=(par[id].d||{})[md]||[], a=String(r[1]||"").trim();
+  function presentQ(q){ var x=lec(q); if(x&&x.presente) return x.pv||"?";
+    var r=(q.d||{})[md]||[], a=String(r[1]||"").trim();
     if(/\+\s*FT/i.test(a)||/^(AM|PM|N|D|R|R-CM)$/i.test(a)||/\d{1,2}\s*h?\s*-\s*\d{1,2}/.test(a)) return (x&&x.pv)||String(r[0]||"?");
+    /* une absence d'une partie de la journée (« 4h RTT », « 1/2VA », « 4h
+       -FT ») le laisse là l'autre partie : CWN le 05/07, « 4h -FT », part
+       à 10 h, et « JKS et CWN présents » le dit à raison */
+    if(/^\s*(?:1\/2|[1-7](?:[.,]\d+)?\s*h\b)/i.test(a) && String(r[0]||"").trim() && String(r[0]).trim()!=="-") return (x&&x.pv)||String(r[0]);
     try{ if(posteDepuisMention(a)||posteDepuisNom(a)) return (x&&x.pv)||"?"; }catch(e){}
     return null; }
+  function present(id){ var l=hom[id]||[]; for(var i=0;i<l.length;i++){ var pv=presentQ(l[i]); if(pv) return pv; } return null; }
   /* ses heures, si le commentaire les dit juste après le nom : « de 6h à
      10h », « jusque 10h » (depuis le début), « à partir de 10h », « dès 10h » */
   function heures(s){ s=s||""; var h=/^\s*(?:de|du)?\s*(\d{1,2})\s*h\s*(\d{2})?\s*(?:\u00e0|a|-)\s*(\d{1,2})\s*h?\s*(\d{2})?/i.exec(s);
     if(h) return [Number(h[1])+Number(h[2]||0)/60, Number(h[3])+Number(h[4]||0)/60];
+    h=/^\s*(?:de|du)\s*(\d{1,2})\s*(?:\u00e0|a|-)\s*(\d{1,2})\s*h\s*(\d{2})?/i.exec(s);
+    if(h) return [Number(h[1]), Number(h[2])+Number(h[3]||0)/60];
     h=/^\s*jusqu\S*\s*(?:\u00e0\s*|a\s*)?(\d{1,2})\s*h/i.exec(s); if(h) return [-1, Number(h[1])];
-    h=/^\s*(?:\u00e0\s+partir\s+de|d\u00e8s|depuis)\s*(\d{1,2})\s*h/i.exec(s); if(h) return [Number(h[1]), 99];
+    h=/^\s*(?:\u00e0\s+partir\s+de|\u00e0pd|d\u00e8s|depuis)\s*(\d{1,2})\s*h/i.exec(s); if(h) return [Number(h[1]), 99];
     return null; }
+  /* ce que sa case dit de son absence : le code (« VA », « Abs »), ou le repos */
+  function motif(id,q){ var ry=((q||par[id]).d||{})[md]||[], code=String(ry[1]||"").trim(), cel=String(ry[0]||"").trim();
+    return code&&code!=="-"?"« "+code+" »":(cel==="-"||!cel||code==="-")?"en repos":"absent"; }
   function norm(hh,pv){ if(!hh) return null; return hh.map(function(v){ return (pv==="N"&&v>=0&&v<12)?v+24:v; }); }
   function ajoute(o){ var k=o.t+"|"+o.x+"|"+(o.y||""); if(vus[k]) return; vus[k]=1; o.an=an; o.m=m; o.j=j; out.push(o); }
   function inconnu(qui,n){ var t=String(n); if(t===t.toUpperCase() && /^[A-Z]{3}$/.test(t) && proche[t]) ajoute({t:"inconnu", x:qui, y:t, sug:proche[t], qui:[qui]}); }
@@ -31338,42 +31362,102 @@ function incoherencesDuJour(db,an,m,j){
   db.people.forEach(function(p){
     var raw=(p.d||{})[md]; if(!raw) return;
     var c=comPlanning(raw); if(!c||!String(raw[2]||"").trim()) return;
+    /* « cf remplacement PDR du 14/11 » parle d'un autre jour */
+    c=c.replace(/\bcfr?\.?\s[^\n;]*?\bd[u']\s*\d{1,2}[.\/]\d{1,2}\S*/gi," ");
     var moi=idLisible(p.id), mm, rx;
-    rx=/remplac[\u00e9e]e?s?\s+(?:par|pa|p\.)\s*([A-Za-z]{3}\b|\?)((?:\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*[A-Za-z]{3}\b)*)/gi;
+    /* LE PASSIF : « remplacé par Y », et ce que le classeur glisse entre
+       les deux — « remplacé en N par », « au CPPT par », « de 14h à 18h
+       par » (quatre mots au plus, un participe accentué) —, ses fautes
+       (« Rempalcé », « remlacé », « remplaé », « remplacépar », « Remplacé
+       apr ») et l'abréviation « rempl par ». « JBI remplacé par PBL »,
+       « Finalement ATA sera remplacé par PBL » : le remplacé est ce
+       trigramme-là, pas celui qui écrit. */
+    rx=new RegExp("(\\b"+INC_RAC+"?[\\u00e9e]e?s?|\\brempl\\.?)((?:\\s+(?!par\\b|rem)[^\\s.;,]{1,14}){0,4}?)\\s*(par|pa|p\\.|apr)\\s*([A-Za-z]{3}\\b|\\?)((?:\\s*(?:,|\\/|\\bet\\b|\\bou\\b|\\+|&)\\s*[A-Za-z]{3}\\b)*)","gi");
     while((mm=rx.exec(c))){
-      if(mm[1]==="?"){ ajoute({t:"preciser", x:moi, qui:[moi]}); continue; }
+      var entre=mm[2]||"";
+      if(entre && (!/[éÉ]/.test(mm[1]) || mm[3].toLowerCase()!=="par")){ rx.lastIndex=mm.index+mm[1].length; continue; }
+      var x=moi, sj=/(?:^|[.;!\n]|\b[Ff]inalement)\s*([A-Z]{3})\s+(?:sera\s+|est\s+|a\s+[ée]t[ée]\s+)?$/.exec(c.slice(0,mm.index));
+      if(sj && par[tri(sj[1])]) x=tri(sj[1]);
+      if(mm[4]==="?"){ ajoute({t:"preciser", x:x, qui:[x,moi]}); continue; }
       /* « remplacé par JKS ou HKB » : un remplaçant à trancher, pas deux */
-      if(/\bou\b/i.test(mm[2]||"")){ ou[moi]=[mm[1]].concat(String(mm[2]).split(/\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*/)).map(tri).filter(function(z){ return /^[A-Z]{3}$/.test(z); }); continue; }
-      var noms=[mm[1]].concat(liste(mm[2]));
-      var hp=noms.length===1?heures(c.slice(rx.lastIndex)):null;
-      noms.forEach(function(n){ var y=tri(n); if(!par[y]){ inconnu(moi,n); return; } if(y===moi) return;
-        (rep[moi]=rep[moi]||[]).push({y:y, src:moi, h:hp}); });
+      if(/\bou\b/i.test(mm[5]||"")){ ou[x]=[mm[4]].concat(String(mm[5]).split(/\s*(?:,|\/|\bet\b|\bou\b|\+|&)\s*/)).map(tri).filter(function(z){ return /^[A-Z]{3}$/.test(z); }); continue; }
+      /* « remplacé par JBI? » : à confirmer, pas un remplaçant */
+      if(!mm[5] && /^\s*\?/.test(c.slice(rx.lastIndex))){ var yd=tri(mm[4]); if(par[yd]) ajoute({t:"preciser", x:x, y:yd, doute:true, qui:[x,yd,moi]}); continue; }
+      var noms=[mm[4]].concat(liste(mm[5]));
+      var hp=noms.length===1?(heures(entre)||heures(c.slice(rx.lastIndex))):null;
+      noms.forEach(function(n){ var y=tri(n); if(!par[y]){ inconnu(moi,n); return; } if(y===x) return;
+        (rep[x]=rep[x]||[]).push({y:y, src:moi, h:hp}); });
     }
-    /* écrit par new RegExp : le vérificateur du calendrier découpe le motif
-       de atelierDuRemplace par son début littéral, qui doit rester unique */
-    rx=new RegExp("\\bremplac(?:e|ait|ant)\\s+([A-Za-z]{3})\\b","gi");
-    while((mm=rx.exec(c))){ var n2=mm[1]; if(/^par$/i.test(n2)) continue; var x2=tri(n2);
-      if(!par[x2]){ inconnu(moi,n2); continue; } if(x2===moi) continue;
-      (rep[x2]=rep[x2]||[]).push({y:moi, src:moi, h:heures(c.slice(rx.lastIndex))}); }
-    /* « échange avec IME/DBE » : un échange à trois se tient */
-    rx=/[\u00e9e]change\s+(?:de\s+pause\s+)?avec\s+([A-Za-z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Za-z]{3})*)\b/gi;
+    /* « remplacé RDT » : le « par » oublié (CDE, absent, le 02/11) — en
+       capitales seulement, « remplacé aux chaudières par » n'en est pas un */
+    rx=new RegExp("\\b"+INC_RAC+"?\\u00e9e?s?\\s+([A-Z]{3})\\b(?!\\s*\\?)","gi");
+    while((mm=rx.exec(c))){ var yp=tri(mm[1]); if(mm[1]===mm[1].toUpperCase() && yp!=="PAR" && par[yp] && yp!==moi) (rep[moi]=rep[moi]||[]).push({y:yp, src:moi, h:null}); }
+    /* « remplace QBY? » : à confirmer */
+    rx=new RegExp("(?:\\b"+INC_RAC+"(?:e|ait|ant|er|ement)|\\brempl\\.?)\\s+([A-Za-z]{3})\\s*\\?","gi");
+    while((mm=rx.exec(c))){ var xd=tri(mm[1]); if(par[xd] && xd!==moi) ajoute({t:"preciser", x:xd, y:moi, doute:true, qui:[xd,moi]}); }
+    /* « remplace YBT qui remplaçait AFA » : celui qui écrit tient la place
+       d'AFA (l'actif, plus bas, le lit), et YBT ne la tient plus */
+    rx=new RegExp("\\b([A-Za-z]{3})\\s+qui\\s+"+INC_RAC+"(?:ait|e)\\s+([A-Za-z]{3})\\b","gi");
+    while((mm=rx.exec(c))){ var yq=tri(mm[1]), zq=tri(mm[2]); if(par[yq]&&par[zq]) (excl[zq]=excl[zq]||{})[yq]=1; }
+    /* L'ACTIF, aussi large que le moteur du Planning (atelierDuRemplace) :
+       « remplace », « remplaçait », « pour remplacer », « remplacement
+       (de) », « remplace aussi », « rempl en fermentation », les fautes
+       (« rempalce », « rempace ») et l'abréviation (« rempl SBZ », « REMPL
+       NRD »). « remplace GST et FPS » en remplace deux ; « Remplace X, Y
+       et Z présents » n'en remplace qu'un. Un nom suivi de « ? » n'est pas
+       sûr. Écrit par new RegExp : le vérificateur du calendrier découpe le
+       motif de atelierDuRemplace par son début littéral, qui doit rester
+       unique. */
+    rx=new RegExp("(?:\\b"+INC_RAC+"(?:e|ait|ant|er|ement)|\\brempl\\.?)\\s+(?:aussi\\s+|de\\s+|d'|(?:en|au|aux|\\u00e0|a)\\s+(?:la\\s+|le\\s+|l')?[\\w\\u00e0-\\u00ff.-]+\\s+)?([A-Za-z]{3})\\b(?!\\s*\\?)((?:\\s*(?:,|\\/|\\bet\\b|\\+|&)\\s*[A-Za-z]{3}\\b(?!\\s*\\?))*)","gi");
+    while((mm=rx.exec(c))){
+      var n1=[mm[1]];
+      if(mm[2] && !/^\s*pr[ée]sent/i.test(c.slice(rx.lastIndex))) n1=n1.concat(liste(mm[2]));
+      var hA=n1.length===1?heures(c.slice(mm.index+mm[0].length-(mm[2]||"").length)):null;
+      n1.forEach(function(n2){ if(/^par$/i.test(n2)) return; var x2=tri(n2);
+        if(!par[x2]){ inconnu(moi,n2); return; } if(x2===moi) return;
+        (rep[x2]=rep[x2]||[]).push({y:moi, src:moi, h:hA, q:p}); });
+    }
+    /* « échange avec IME/DBE » : un échange à trois se tient ; « inversion
+       avec PYL » en est un */
+    rx=/(?:[ée]chang(?:e|ée?)|inversion)\s+(?:de\s+pause\s+)?avec\s+([A-Za-z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Za-z]{3})*)\b/gi;
     while((mm=rx.exec(c))){ liste(mm[1]).forEach(function(n){ var y3=tri(n); if(!par[y3]){ inconnu(moi,n); return; } if(y3!==moi) (ech[moi]=ech[moi]||[]).push(y3); }); }
+    /* « RDT et GPO présents », « équipe complète (DBE & MMS) » : le
+       commentaire affirme que d'autres sont là ; leur journée le dit-elle ? */
+    rx=/\b([A-Z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Z]{3})*)\s*:?\s+pr[ée]sente?s?\b|[éÉe]quipe\s+(?:au\s+)?compl[eè]te?\s*\(\s*([A-Z]{3}(?:\s*(?:,|\/|\bet\b|\+|&)\s*[A-Z]{3})*)\s*\)/g;
+    while((mm=rx.exec(c))){ var cite=mm[0]; liste(mm[1]||mm[2]).forEach(function(n){ var y4=tri(n); if(!par[y4]||y4===moi) return;
+      if(!present(y4)) ajoute({t:"presence", x:moi, y:y4, cite:cite.replace(/\s+/g," "), motif:motif(y4), qui:[moi,y4]}); }); }
+    /* et l'inverse : « BLR absent » (CGI le 16/10), alors que sa journée
+       le met au travail */
+    rx=/\b([A-Z]{3})\s+absente?\b/g;
+    while((mm=rx.exec(c))){ var y5=tri(mm[1]); if(!par[y5]||y5===moi) continue; var pv5=present(y5);
+      if(pv5) ajoute({t:"presence", x:moi, y:y5, cite:mm[0], dit:"absent", pv:pv5, qui:[moi,y5]}); }
   });
   Object.keys(ou).forEach(function(x){ var dit=(rep[x]||[]).filter(function(r){ return r.src===r.y && ou[x].indexOf(r.y)>=0; });
     if(dit.length!==1) ajoute({t:"preciser", x:x, y:ou[x].join(" ou "), ou:ou[x], qui:[x].concat(ou[x].filter(function(z){ return par[z]; }))}); });
   Object.keys(rep).forEach(function(x){
-    var u={}; rep[x].forEach(function(r){ var v=u[r.y]; if(!v) u[r.y]={y:r.y, src:[r.src], h:r.h}; else { if(v.src.indexOf(r.src)<0) v.src.push(r.src); if(!v.h) v.h=r.h; } });
+    /* celui qui écrit « remplace X » est cette personne-là, homonyme ou non */
+    var u={}; rep[x].forEach(function(r){ if(excl[x]&&excl[x][r.y]) return; var v=u[r.y]; if(!v) u[r.y]={y:r.y, src:[r.src], h:r.h, q:r.q}; else { if(v.src.indexOf(r.src)<0) v.src.push(r.src); if(!v.h) v.h=r.h; if(!v.q) v.q=r.q; } });
+    /* UNE CHAÎNE N'EST PAS DEUX REMPLAÇANTS. Y remplace Z, et tous deux sont
+       nommés pour X : si Z est là, c'est lui qui tient la place de X, Y
+       tient celle de Z (CDE, absent, « remplacé RDT » ; SLT « remplace CDE » ;
+       RDT « remplace SLT », le 02/11) ; si Z est absent, c'est Y (SMA,
+       absent, « remplace LCI » ; PLZ « remplace SMA (qui remplaçait LCI) »,
+       le 20/01) */
+    var ks=Object.keys(u), ote={};
+    ks.forEach(function(k){ ks.forEach(function(k2){ if(k2===k || !(rep[k2]||[]).some(function(r2){ return r2.y===k; })) return;
+      var z=u[k2]; ote[(z.q?presentQ(z.q):present(k2))?k:k2]=1; }); });
+    Object.keys(ote).forEach(function(k){ delete u[k]; });
     var L2=Object.keys(u).map(function(k){ return u[k]; }), pres=[], abs=[];
-    L2.forEach(function(r){ var pv=present(r.y); if(pv){ r.pv=pv; r.h=norm(r.h,pv); pres.push(r); } else abs.push(r); });
+    L2.forEach(function(r){ var pv=r.q?presentQ(r.q):present(r.y); if(pv){ r.pv=pv; r.h=norm(r.h,pv); pres.push(r); } else abs.push(r); });
     /* un remplaçant absent ne dit rien de travers si un autre, présent, remplace */
-    if(!pres.length) abs.forEach(function(r){ var ry=(par[r.y].d||{})[md]||[], code=String(ry[1]||"").trim(), cel=String(ry[0]||"").trim();
-      ajoute({t:"absent", x:x, y:r.y, qui:[x,r.y], ecrit:r.src.indexOf(r.y)>=0,
-        motif:code&&code!=="-"?"« "+code+" »":(cel==="-"||!cel||code==="-")?"en repos":"absent"}); });
+    if(!pres.length) abs.forEach(function(r){
+      ajoute({t:"absent", x:x, y:r.y, qui:[x,r.y].concat(r.src), ecrit:r.src.indexOf(r.y)>=0, motif:motif(r.y,r.q)}); });
     var parPause={}; pres.forEach(function(r){ (parPause[r.pv]=parPause[r.pv]||[]).push(r); });
     Object.keys(parPause).forEach(function(g){ var G=parPause[g]; if(G.length<2) return;
       var sans=G.filter(function(r){ return !r.h; }).length, chev=false;
       for(var i=0;i<G.length;i++) for(var k=i+1;k<G.length;k++){ var a=G[i].h, b=G[k].h; if(a&&b&&a[0]<b[1]-0.01&&b[0]<a[1]-0.01) chev=true; }
-      if(sans>=2||chev) ajoute({t:"plusieurs", x:x, y:G.map(function(r){ return r.y; }).join(","), ys:G.map(function(r){ return r.y; }), qui:[x].concat(G.map(function(r){ return r.y; })), chev:chev&&sans<2}); });
+      if(sans>=2||chev) ajoute({t:"plusieurs", x:x, y:G.map(function(r){ return r.y; }).join(","), ys:G.map(function(r){ return r.y; }),
+        qui:[x].concat(G.map(function(r){ return r.y; })).concat([].concat.apply([],G.map(function(r){ return r.src; }))), chev:chev&&sans<2}); });
   });
   Object.keys(ech).forEach(function(a){ ech[a].forEach(function(b){ var lb=ech[b]; if(!lb||lb.indexOf(a)>=0) return;
     var cle=[a,b].sort().join("|"); if(vus["e|"+cle]) return; vus["e|"+cle]=1;
@@ -31384,9 +31468,11 @@ function incPhrase(o){
   function liste(l){ return l.length>1?l.slice(0,-1).join(", ")+" et "+l[l.length-1]:l[0]; }
   if(o.t==="plusieurs") return o.x+" est remplacé par "+liste(o.ys)+(o.chev?", à des heures qui se chevauchent.":", sans heures pour les départager.");
   if(o.t==="absent") return (o.ecrit?o.y+" écrit qu'il remplace "+o.x:o.x+" est « remplacé par "+o.y+" »")+", mais "+o.y+" est "+o.motif+" ce jour-là.";
+  if(o.t==="presence") return o.x+" écrit « "+o.cite+" », mais "+(o.dit?o.y+" est au travail ce jour-là ("+o.pv+").":o.y+" est "+o.motif+" ce jour-là.");
   if(o.t==="echange") return o.x+" écrit « échange avec "+o.y+" », mais "+o.y+" écrit « échange avec "+o.z+" ».";
   if(o.t==="inconnu") return o.x+" nomme « "+o.y+" », qui n'est pas dans l'horaire : faute de frappe pour "+liste(o.sug).replace(/ et /," ou ")+" ?";
   if(o.ou) return o.x+" est « remplacé par "+o.y+" » : le remplaçant n'est pas tranché.";
+  if(o.doute) return "Le remplacement de "+o.x+" par "+o.y+" est noté avec un « ? » : à confirmer.";
   return o.x+" est « remplacé par ? » : le remplaçant n'est pas écrit.";
 }
 function incoherencesAVenir(){
@@ -31417,10 +31503,11 @@ function renderIncoherences(force){
         +'<span class="mqjt" role="button" tabindex="0">'+q.html+'<span class="mqjn incn">'+L0.length+" incohérence"+(L0.length>1?"s":"")+'</span></span><span class="mqls">');
       L0.forEach(function(o){
         var db=horaireSuivant(o.an), md=pad2(o.m)+pad2(o.j), lignes=[];
-        o.qui.forEach(function(t){ var p=null; db.people.forEach(function(z){ if(idLisible(z.id)===t) p=z; }); var raw=p&&(p.d||{})[md];
+        /* chaque personne une fois, les deux GBT chacun la sienne */
+        o.qui.forEach(function(t){ db.people.forEach(function(z){ if(idLisible(z.id)!==t) return; var raw=(z.d||{})[md];
           var c=raw?String(raw[2]||"").trim():"", an=raw?String(raw[1]||"").trim():"";
-          if(!c&&!an) return; if(lignes.some(function(x){ return x.t===t; })) return;
-          lignes.push({t:t, x:(an?an+(c?" · ":""):"")+nettoyerAffichage(c).replace(/\n+/g," ")}); });
+          if(!c&&!an) return; if(lignes.some(function(x){ return x.id===z.id; })) return;
+          lignes.push({id:z.id, t:t, x:(an?an+(c?" · ":""):"")+nettoyerAffichage(c).replace(/\n+/g," ")}); }); });
         h.push('<span class="mql"><span class="inc-t">'+esc(INC_NOMS[o.t])+'</span><span class="inc-p">'+esc(incPhrase(o))+'</span>'
           +lignes.map(function(x){ return '<span class="inc-c"><span class="mqc"><b>'+esc(x.t)+'</b></span><span>'+esc(x.x)+'</span></span>'; }).join("")+'</span>');
       });

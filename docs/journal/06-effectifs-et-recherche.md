@@ -4009,3 +4009,116 @@ de nouveau identique à l'octet dans les cinq modes.
 Elle passe sans faute ; sur la v1300, le cadre n'existe pas. Le thème
 clair a été regardé au téléphone : l'onglet Effectifs n'est pas dans le
 parcours automatique.
+
+**Corrigé le même soir (v1303, ci-dessous) :** « 149 incohérences » était
+faux de 32. Quatre « absents » confondaient les deux GBT (GBT-1 écrit, et
+l'autre GBT est en repos). Six « inconnus » étaient BME et JBY, de vraies
+personnes, cités 12 et 8 fois : la rareté ne se comptait qu'après les
+verbes. Vingt-deux autres étaient des chaînes (« remplace YBT qui
+remplaçait AFA »), des absences d'une demi-journée (« 4h RTT ») ou des
+formes que le cadre ne lisait pas. Les sept incohérences à venir, elles,
+restent vraies.
+
+### « Tous les commentaires sont bien analysés ? » (02/11/2026, `nfdm-v1303`)
+
+Le client, le soir de la v1302 : « tous les commentaires sont bien
+analysés ? ». **Non, pas tous** : mesuré, puis corrigé.
+
+**La mesure.** Une copie instrumentée a recopié chaque commentaire, tel
+que le Planning le lit (`comPlanning`), puis on a cherché chaque
+trigramme d'un collègue qu'aucun motif du cadre ne prend. D'aujourd'hui à
+la fin de l'horaire : 858 commentaires, 677 qui nomment un collègue, et
+**71 où un nom échappait au cadre**. Sur les deux années : 543 sur 7 221.
+Les formes perdues :
+- la racine sans ses fautes ni son abréviation : « rempl par ALZ »,
+  « REMPL NRD », « rempalce », « rempace », « Rempalcé par », « remlacé »,
+  « remplaé », « remplacépar », « Remplacé apr » ;
+- « qui remplaçait » : le motif s'arrêtait au « ç ». Le moteur du Planning
+  (`atelierDuRemplace`) le lisait depuis le 22/10. **Le cadre était la
+  seconde copie de la règle, et elle était restée en arrière** ;
+- des mots entre le participe et « par » : « remplacé en N par »,
+  « remplacé au CPPT par », « remplacé de 14h à 18h par » ;
+- « Remplacement ATA », « remplacement de QDE », « pour remplacer YBT »,
+  « remplace aussi YBT », « remplace GST et FPS » ;
+- « inversion avec PYL », un échange ;
+- **« RDT et GPO présents », « équipe complète (DBE & MMS) »** : 270
+  noms, sur les deux années, dans des phrases qui affirment la présence
+  d'autres, et que personne ne confrontait à leur journée.
+
+**Ce qui a été ajouté** à `incoherencesDuJour` :
+- la racine `INC_RAC` (`remplac-`, `remplaç-`, `rempalc-`, `remlac-`,
+  `rempac-`) et « rempl » ; l'actif aussi large que le moteur, le passif
+  avec jusqu'à quatre mots avant « par » (participe accentué seulement :
+  « remplace LAX par » n'en est pas un), et « remplacé RDT » quand le
+  « par » est oublié, en capitales seulement ;
+- le sujet d'un passif : « JBI remplacé par PBL », « Finalement ATA sera
+  remplacé par PBL » ;
+- **les chaînes.** « remplace YBT qui remplaçait AFA » : celui qui écrit
+  tient la place d'AFA, et YBT ne la tient plus. Et quand Y remplace Z et
+  que tous deux sont nommés pour X : si Z est là, Y n'est que le relais
+  (CDE, absent, « remplacé RDT », SLT « remplace CDE », RDT « remplace
+  SLT », le 02/11) ; si Z est absent, c'est Y qui tient la place (JKS,
+  en RTT, « remplace BLR » et « remplacé par FPA » ; FPA « remplace
+  BLR », le 10/12) ;
+- une sorte nouvelle, **présence contredite** : « RDT et GPO présents »
+  quand RDT est en congé, et l'inverse, « BLR absent » quand sa journée le
+  met au travail ;
+- **un nom suivi de « ? »** n'est pas un remplaçant : c'est un remplacement
+  à confirmer (« remplace QBY? », « remplacé par JBI? », le 18/11) ;
+- les heures « de 21 à 22h » et « àpd 10h » ;
+- le renvoi « cf remplacement PDR du 14/11 », qui ne parle pas du 13/11.
+
+**Les faux positifs trouvés en le faisant**, écartés :
+- **les deux GBT** (GBT-1 et GBT) : MHI écrit « GBT et JBS présents » du
+  14 au 17/12. C'est GBT-1, de son équipe ; l'autre GBT est en congé ou en repos.
+  Une personne des deux là suffit ; celui qui écrit « remplace X » est
+  lui-même, homonyme ou non ;
+- **une absence d'une partie de la journée** (« 4h RTT », « 1/2VA », « 4h
+  -FT ») laisse la personne là le reste du temps : le 05/07, CWN part à
+  10 h en « 4h -FT », et « JKS et CWN présents » le dit à raison ;
+- **la rareté d'un nom inconnu** se compte dans tous les commentaires.
+  « CIE : » (36 fois), BME (12) et JBY (8) ne sont pas des fautes de
+  frappe. GPT, KTN, JJI et CAI, cités une à trois fois, le sont
+  probablement.
+
+**Après.** Il ne reste qu'un nom non lu d'ici la fin de l'horaire :
+« suivant horaire GPS », qui n'est pas un remplacement. Sur les deux
+années, il en reste 76, qui ne sont pas des remplacements à confronter :
+- une raison : « (absence LHS) », « suite à l'absence de YBT » ;
+- une condition : « (ou LHS si présent) », « (si prolongé : FPA) » ;
+- un renfort : « QDE en renfort jusque 15h » ;
+- une demande : « à la demande de JBY ».
+
+Les incohérences sur 2026 et 2027 passent de 149 à 188 : 32 fausses
+retirées, 71 vraies ajoutées.
+
+| Sorte | v1302 | v1303 |
+|---|---|---|
+| remplaçant absent | 89 | 71 |
+| présence contredite | — | 51 |
+| remplacé par plusieurs | 36 | 34 |
+| remplaçant à préciser | 9 | 17 |
+| trigramme inconnu | 9 | 9 |
+| échanges contradictoires | 6 | 6 |
+
+**D'aujourd'hui à la fin de l'horaire : 12 incohérences sur 10 journées**
+(7 avant), chacune relue dans le classeur. Les cinq nouvelles :
+- les 07 et 08/11, SBZ (absent, « remplacé par VGG ») : FPA écrit
+  « Remplace SBZ », et GKT « remplace VGG qui remplaçait SBZ ». Deux
+  personnes de nuit, au terrain arrière, sans heures ;
+- le 08/11, CWN écrit « NRD et SVE présents », mais SVE est en « 8h -FT » ;
+- le 18/11, « remplace QBY? » et « remplacé par JBI? » : à confirmer ;
+- le 07/12, CWN écrit « JKS et DBE présents », mais JKS est en VA
+  (remplacé par RDT).
+
+**L'épreuve** `inc-test2.js` a deux volets. Sur le classeur tel qu'il est,
+elle attend 12 incohérences sur 10 journées, chacune nommée, et aucun des
+faux positifs. Sur une copie où six commentaires du 20/11 sont réécrits
+(« CAN absent », « rempl par SLI », « Rempalcé en N par CJD », une chaîne,
+« remplace ADS? »), chaque forme doit être lue. Elle passe sans faute ; sur
+la v1302, elle relève 11 fautes. Trois copies sabotées font aussi crier
+l'épreuve : sans l'exclusion des chaînes, sans la règle du relais, sans le
+retrait du renvoi « cf ». Le vérificateur du calendrier est identique à
+l'octet dans ses cinq modes. Les motifs du cadre sont écrits par `new
+RegExp` : le début littéral « rx=/\bremp », par lequel le vérificateur
+découpe `atelierDuRemplace`, reste unique dans `index.html`.
