@@ -9523,3 +9523,53 @@ aussi la piste au pixel, barres visibles, dans les deux thèmes : le fond
 du cadre au lieu du bleu (rgb 199, 222, 245). Elle reprend tout ce que
 vérifiait `horaire-1278.js`.
 
+### L'onglet Horaire : la feuille Formation par poste, l'équipe à côté du trigramme, chaque bouton ramène à gauche (02/11/2026, `nfdm-v1280`)
+
+Le client :
+- « changer de bouton doit toujours remettre la vue horaire à gauche du
+  tableau » ;
+- « dans Formation, il faut que la ligne formation soit divisée avec les
+  noms de poste des formations » ;
+- « avec le trigramme, il faut indiquer le numéro d'équipe : LHR - Éq. 5 ».
+
+**Mesuré avant** (v1279) :
+- un bouton gardait le glissement horizontal du tableau d'avant, au
+  pixel près, jusqu'à la largeur du nouveau. Après l'équipe 1 glissée au
+  bout, l'équipe 2 s'ouvrait à 1140 px du bord à 1440, et à 1922 px au
+  téléphone ;
+- la feuille Formation n'avait qu'un groupe, « Formation », sur ses dix
+  colonnes, dans l'ordre des colonnes du classeur ;
+- l'équipe d'une personne en formation n'était écrite nulle part dans
+  cette feuille.
+
+**Fait :**
+- **chaque bouton ramène au bord gauche** : les feuilles, les postes,
+  « Mon horaire » et le bouton « Adjoints ». Seul le glissement
+  horizontal revient à zéro : la date regardée reste ;
+- **la feuille Formation par poste appris** : un groupe par poste, dans
+  l'ordre des postes, à leur teinte. En 2026 : « Formation meunerie »
+  (SKS, SLI), « Formation gluten » (NPI), « Formation distillation »
+  (SVE, CDT, LCI) et « Formation chaudières » (MGY, GST, LCO, LHR). Dans
+  chaque groupe, les personnes sont rangées par équipe, sans équipe en
+  dernier ;
+- **l'équipe à côté du trigramme** : « LHR – Éq. 5 », sur une ligne,
+  l'équipe en graisse moyenne. Le tiret est le tiret moyen de la
+  typographie française. Les vues de poste écrivent l'équipe sous le
+  trigramme, en petit, et n'ont pas changé. L'équipe est celle du libellé
+  (« chaudières éq. 5 »), qui fait foi, sinon celle que le client a
+  donnée en v1277 (CDT 2, NPI 5, SKS 5). SLI, « toujours en D », n'en a
+  pas. Dans la vue de son équipe, la personne en formation garde son
+  trigramme seul : l'équipe y va de soi ;
+- une seule règle pour cette équipe, `grEquipeFormation`, que la vue des
+  équipes reprend au lieu de sa copie.
+
+**Mesuré après** : l'épreuve `horaire-1280.js`, à 1440 et 390 px, vérifie :
+- les quatre groupes, leurs gens, leur teinte et le libellé de chacun ;
+- le trigramme seul dans la vue de l'équipe 5 ;
+- le retour à gauche sur cinq passages d'un bouton à l'autre, la date
+  restant à sa place.
+
+Elle passe sans faute. Sur la v1279, elle relève 19 fautes. Les épreuves
+des v1275 et v1279 passent toujours, et le vérificateur du calendrier
+donne une sortie identique à l'octet sur ses quatre modes.
+

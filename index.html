@@ -7531,6 +7531,7 @@ html .hp-t thead th{position:sticky; top:0; z-index:5; background:#fff; color:#1
 html .hp-t thead tr.hp-g th{height:24px}
 html .hp-t thead tr.hp-ops th{top:29px; text-transform:none; font-size:13px; font-weight:600; border-bottom:2px solid #64748b; border-right:2px solid #64748b; cursor:pointer; height:22px}
 html .hp-t thead tr.hp-ops th small{display:block; font-size:11px; font-weight:500; color:#374151; margin-top:1px}
+html .hp-t thead tr.hp-ops th .hp-eqf{font-weight:500}
 html .hp-t thead th.hp-gp{border-right:2px solid #64748b; font-size:12px; letter-spacing:.02em}
 /* (le trait de couleur posé sous le nom des groupes le 01/11/2026 est
    retiré le même jour, à la demande du client : « il ne faut pas la ligne
@@ -19985,6 +19986,10 @@ function grCatInfo(k){ var f=/^f-/.test(k||""), b=f?k.slice(2):k, r=GR_CATS.leng
    l'équipe 2, NPI et SKS avec l'équipe 5 — les équipes dont ils suivent
    les horaires ; SLI, toujours en journée, n'en a pas. */
 var GR_FORMATION_EQUIPE={CDT:"2", NPI:"5", SKS:"5"};
+/* l'équipe d'une personne en formation : celle de son libellé
+   (« chaudières éq. 3 », qui fait foi), sinon celle que le client a
+   donnée ; aucune pour qui n'en a pas (SLI, « toujours en D ») */
+function grEquipeFormation(p,po){ return (/éq\.?\s*(\d)/i.exec(String(po||""))||[])[1]||GR_FORMATION_EQUIPE[p.id]||""; }
 function grPosteFormation(po){ po=String(po||"");
   return /meun/i.test(po)?"meu":/glut/i.test(po)?"glu":/ferm/i.test(po)?"fer":/disti/i.test(po)?"dis":/chaud/i.test(po)?"cha":/step|épur|epur/i.test(po)?"ste":/terr|poly/i.test(po)?"par":""; }
 /* LE CÔTÉ D'UN « POLYVALENT » (le client, le 01/11/2026 : « ne pas se
@@ -20030,6 +20035,13 @@ function grGens(db,f){
      « séparer en deux les contremaîtres et les adjoints dans la ligne de
      poste ») : les contremaîtres, puis les adjoints ; dans chacun, le
      numéro d'équipe du classeur (1 à 6), comme avant — choix du client */
+  /* LA FEUILLE FORMATION PAR POSTE APPRIS (le client, le 02/11/2026 :
+     « la ligne formation doit être divisée avec les noms de poste des
+     formations ») : un groupe par poste, dans l'ordre des postes (GR_CATS),
+     puis l'équipe (sans équipe à la fin), puis le trigramme */
+  if(f==="Opérateurs"){ var rgF=function(p){ return grCatInfo("f-"+(grPosteFormation(p.postes[f].p)||"aut"))[3]; };
+    return l.sort(function(a,b){ var d=rgF(a)-rgF(b); if(d) return d; var x=grEquipeFormation(a,a.postes[f].p)||"9", y=grEquipeFormation(b,b.postes[f].p)||"9";
+      if(x!==y) return x<y?-1:1; var u=idLisible(a.id), v=idLisible(b.id); return u<v?-1:u>v?1:0; }); }
   if(f==="Contremaître") return l.sort(function(a,b){ var d=(grEstAdjoint(a)?1:0)-(grEstAdjoint(b)?1:0); if(d) return d;
     var x=parseInt(a.postes[f].p,10)||99, y=parseInt(b.postes[f].p,10)||99; if(x!==y) return x-y; var u=idLisible(a.id), v=idLisible(b.id); return u<v?-1:u>v?1:0; });
   /* une équipe : par groupe, puis par trigramme (le client : « alphabétique ») */
@@ -20111,7 +20123,7 @@ function grLibelle(){ return "Année "+grJours()[0].getFullYear(); }
 /* les colonnes du mode choisi : [{p, f (la feuille), po (le poste)}] */
 function grColonnes(db){
   var m=GR_MODES.filter(function(x){ return x[0]===GR.feuille; })[0]||GR_MODES[0], cols=[];
-  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||"",k:/^Shift/.test(f)?grCat(p,f):f==="Contremaître"?(grEstAdjoint(p)?"adj":"cmx"):""}; }); }
+  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||"",k:/^Shift/.test(f)?grCat(p,f):f==="Contremaître"?(grEstAdjoint(p)?"adj":"cmx"):f==="Opérateurs"?"f-"+(grPosteFormation(p.postes[f].p)||"aut"):""}; }); }
   /* MON HORAIRE (le client, le 29/10/2026 : « un bouton qui permette
      d'afficher son horaire personnel ; moi, VBN, en appuyant dessus, je ne
      verrai que mon horaire ») : la seule colonne de la personne de
@@ -20139,7 +20151,7 @@ function grColonnes(db){
   if(/^Shift/.test(m[0])&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
   if(/^Shift/.test(m[0])){ var nEq=m[0].slice(5), avecF=false;
     if(db.people.some(function(p){ return p.postes&&p.postes["Opérateurs"]; })) grGens(db,"Opérateurs").forEach(function(p){
-      var po=p.postes["Opérateurs"].p||"", eqF=(/éq\.?\s*(\d)/i.exec(po)||[])[1]||GR_FORMATION_EQUIPE[p.id]||"", kb=grPosteFormation(po);
+      var po=p.postes["Opérateurs"].p||"", eqF=grEquipeFormation(p,po), kb=grPosteFormation(po);
       if(eqF!==nEq||!kb||cols.some(function(c){ return c.p.id===p.id; })) return;
       cols.push({p:p,f:"Opérateurs",po:po,k:"f-"+kb}); avecF=true; });
     /* chacun à sa place : le groupe du poste, puis sa formation */
@@ -20259,7 +20271,7 @@ function renderGrille(){
   if(q&&!cols.length){ zone.innerHTML='<div class="pl-msg gr-vide" role="status"><p>Personne ne correspond à « '+esc(GR.cherche)+' ».</p><button type="button" data-gr-effacer>Effacer la recherche</button></div>'; GR.sig=null; return; }
   var garde=zone.querySelector("table")?{t:zone.scrollTop,l:zone.scrollLeft}:null;
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
-  var equipe=/^Shift/.test(mode[0]), parGroupe=equipe||mode[0]==="Contremaître";
+  var equipe=/^Shift/.test(mode[0]), parGroupe=equipe||mode[0]==="Contremaître"||mode[0]==="Opérateurs";
   /* « Mon horaire » a la place d'une colonne de plus : le commentaire du
      jour, en phrases (comPro), sur toute la largeur restante */
   var avecCom=mode[0]==="moi"&&cols.length===1, larg="";
@@ -20296,7 +20308,7 @@ function renderGrille(){
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
   else if(parGroupe){
     /* un groupe par catégorie (v1275), et non plus par libellé du classeur ;
-       la feuille Contremaître aussi (v1278) */
+       la feuille Contremaître (v1278) et la feuille Formation (v1280) aussi */
     for(var gi=0;gi<cols.length;){ var k0=cols[gi].k, po0=cols[gi].po, gj=gi; while(gj<cols.length&&(k0?cols[gj].k===k0:cols[gj].po===po0)) gj++;
       var gn=k0?grCatInfo(k0):null, gl=gn?(gj-gi===1?gn[4]:gn[1]):po0;
       h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+(k0&&/^f-/.test(k0)?' hp-gform':'')+'" colspan="'+(2*(gj-gi))+'"'+(gn&&gl!==gn[1]?' title="'+esc(gn[1])+'"':'')+'><span class="hp-gpl">'+esc(gl)+'</span></th>'); gi=gj; }
@@ -20407,9 +20419,13 @@ function grAJour(){
    au survol, et la recherche le trouve toujours. */
 /* le commentaire de « Mon horaire » : les phrases de comPro, bout à bout */
 function grComLigne(c){ return comPro(c).split("\n").join(" "); }
+/* la personne en formation porte son équipe à côté du trigramme (le
+   client, le 02/11/2026 : « avec le trigramme, il faut indiquer le numéro
+   d'équipe : LHR - Éq. 5 ») ; pas dans la vue de son équipe, où elle va
+   de soi */
 function grTeteCol(c,equipe){
-  var n=grNom(c.p), eq=equipe||/adjoint/i.test(c.po)?"":(/^Shift(\d)/.exec(c.f)||[])[1];
-  return {titre:(n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po, html:esc(idLisible(c.p.id))+(eq?'<small>Éq. '+eq+'</small>':'')};
+  var n=grNom(c.p), eq=equipe||/adjoint/i.test(c.po)?"":(/^Shift(\d)/.exec(c.f)||[])[1], ef=!equipe&&c.f==="Opérateurs"?grEquipeFormation(c.p,c.po):"";
+  return {titre:(n?n+" · ":"")+idLisible(c.p.id)+" · "+c.po+(ef&&!/éq/i.test(c.po)?" · Éq. "+ef:""), html:esc(idLisible(c.p.id))+(ef?'<span class="hp-eqf"> – Éq. '+ef+'</span>':'')+(eq?'<small>Éq. '+eq+'</small>':'')};
 }
 /* LES NOMS ARRIVÉS APRÈS LE PREMIER RENDU (23/10/2026, « utilise les
    nouveaux skills pour tout optimiser ») : la base les rend après
@@ -23780,13 +23796,18 @@ function renderHisto(){
   });
   document.getElementById("grEquipes").addEventListener("click",function(e){
     var ba=e.target.closest&&e.target.closest("button[data-gr-adj]");
-    if(ba){ if(ba.disabled) return; GR.adj=GR.adj===false; lsSet("ui/grAdj",GR.adj); renderGrille(); return; }
+    /* CHANGER DE BOUTON RAMÈNE AU BORD GAUCHE DU TABLEAU (le client, le
+       02/11/2026 : « changer de bouton doit toujours remettre la vue
+       horaire à gauche du tableau ») : la date reste, la colonne repart
+       de la première personne */
+    var z0=document.getElementById("grZone");
+    if(ba){ if(ba.disabled) return; GR.adj=GR.adj===false; lsSet("ui/grAdj",GR.adj); renderGrille(); z0.scrollLeft=0; return; }
     var b=e.target.closest&&e.target.closest("button[data-f]"); if(!b) return;
     GR.feuille=b.getAttribute("data-f"); lsSet("ui/grFeuille",GR.feuille); grFermerPanneau();
     /* une pilule touchée pendant une recherche (qui parcourt tout) l'efface :
        sinon la pilule ne changerait rien (audit du 23/10/2026) */
     if(GR.cherche){ GR.cherche=""; var gc=document.getElementById("grCherche"), gl=document.getElementById("grLoupe"); gc.value=""; gc.parentNode.classList.remove("rempli","cherche"); if(gl) gl.setAttribute("aria-expanded","false"); }
-    renderGrille();
+    renderGrille(); z0.scrollLeft=0;
   });
   /* la grille se refait à la fin de la frappe, et non à chaque lettre
      (audit du 23/10/2026) ; le champ est relu au moment du rendu, qu'une
