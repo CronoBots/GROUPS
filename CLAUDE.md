@@ -354,7 +354,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
    simulées** (dans les `<style>` de la page, `env(safe-area-inset-top)` →
    59 px, `-bottom` → 34 px) : Chromium n'en a pas, et le 26/10/2026 un
    cadre juste au navigateur était faux de 59 px sur l'iPhone
-   (`docs/journal/05-interface.md`). Ce qui ne doit JAMAIS bouger au
+   (`docs/journal/05-interface.md`). **Au PC, les barres de défilement
+   aussi** : Playwright les cache (ôter `--hide-scrollbars` par
+   `ignoreDefaultArgs`) ; le 02/11/2026, celle du client semblait une
+   colonne. Ce qui ne doit JAMAIS bouger au
    défilement se pose HORS de la zone qui défile : l'élastique de l'iPhone
    emporte même un `sticky` (29/10/2026, journal 05). Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis

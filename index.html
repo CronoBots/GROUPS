@@ -8121,6 +8121,15 @@ html body .grille .ws-planning .gr-zone{overscroll-behavior:none; background:#d6
    peint avec la zone, toujours prêt). Une tuile en retard montre donc des
    rangées vides au lieu d'un trou, le temps d'arriver. */
 html body .grille .ws-planning .gr-zone{background:repeating-linear-gradient(to bottom,#c7def5 0,#c7def5 23px,#64748b 23px,#64748b 24px)}
+/* LA BARRE DE DÉFILEMENT SUR LE FOND DU CADRE (le client, le 02/11/2026,
+   capture de son PC : la barre « dans le prolongement du tableau, c'est
+   pas bien » ; choix en QCM : « sur fond sombre ») : sa piste était
+   transparente, le bleu de la grille passait dessous, et sous Windows la
+   barre et ses flèches semblaient une colonne de plus. Elle garde sa
+   place, au bord droit et en bas de la zone ; sa piste et le coin prennent
+   le fond de la rangée des boutons, son curseur le trait fort du thème. */
+html body .grille .ws-planning .gr-zone{scrollbar-color:var(--trait-fort) var(--surface2)}
+html body .grille .ws-planning .gr-zone::-webkit-scrollbar-track,html body .grille .ws-planning .gr-zone::-webkit-scrollbar-corner{background:var(--surface2)}
 /* le tableau lui-même sans fond (ses cases ont le leur) : son blanc
    recouvrait les rangées de la zone */
 html body .grille .ws-planning .hp-t{background:transparent}
@@ -20124,7 +20133,10 @@ function grColonnes(db){
      coin du tableau (« toujours afficher les adjoints ») : il revient, à
      sa demande, dans la rangée des pilules, affichés par défaut ; le choix
      est gardé sur l'appareil (ui/grAdj). */
-  if((/^Shift/.test(m[0])||m[0]==="Contremaître")&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
+  /* la feuille Contremaître montre toujours ses adjoints (le client, le
+     02/11/2026 : « dans le bouton contremaître, les adjoints doivent
+     toujours être visibles ») : le bouton n'agit que sur les équipes */
+  if(/^Shift/.test(m[0])&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
   if(/^Shift/.test(m[0])){ var nEq=m[0].slice(5), avecF=false;
     if(db.people.some(function(p){ return p.postes&&p.postes["Opérateurs"]; })) grGens(db,"Opérateurs").forEach(function(p){
       var po=p.postes["Opérateurs"].p||"", eqF=(/éq\.?\s*(\d)/i.exec(po)||[])[1]||GR_FORMATION_EQUIPE[p.id]||"", kb=grPosteFormation(po);
@@ -20225,7 +20237,7 @@ function renderGrille(){
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'
         /* le bouton des adjoints, après la dernière équipe : il n'agit que
            sur la vue d'une équipe, ailleurs il est grisé */
-        +(x[0]==="Shift5"?'<button type="button" class="hp-adj" data-gr-adj aria-pressed="'+(GR.adj!==false)+'"'+((/^Shift/.test(GR.feuille)||GR.feuille==="Contremaître")&&!(GR.cherche.length>=2)?'':' disabled')
+        +(x[0]==="Shift5"?'<button type="button" class="hp-adj" data-gr-adj aria-pressed="'+(GR.adj!==false)+'"'+(/^Shift/.test(GR.feuille)&&!(GR.cherche.length>=2)?'':' disabled')
           +' title="Afficher ou masquer les adjoints en tête de l\'équipe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
           +(GR.adj!==false?'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>':'<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>')
           +'</svg>Adjoints</button>':''); }).join("");

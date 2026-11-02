@@ -9276,7 +9276,8 @@ La règle prise à la lettre, confirmée personne par personne :
 - **les adjoints** : en tête, dans l'ordre alphabétique, et un bouton
   « Adjoints » (un œil) après « Équipe 5 », gardé sur l'appareil
   (`ui/grAdj`). Hors de la vue d'une équipe, le bouton est grisé
-  *(depuis la v1278, il agit aussi sur la feuille Contremaître)*. Le
+  *(la v1278 l'a fait agir aussi sur la feuille Contremaître ; la v1279
+  l'a retiré, à la demande du client)*. Le
   26/10/2026 (`nfdm-v1128`), le client avait fait retirer le bouton
   « Adjoints ON/OFF » du coin du tableau ; il le redemande, et c'est sa
   décision qui prime ;
@@ -9424,7 +9425,9 @@ de la règle. Mesuré sur 2026 :
   « Adjoints », chacun trié par son numéro d'équipe (`grEstAdjoint`,
   `grGens`) ;
 - le bouton « Adjoints » agit aussi sur cette feuille : masqués, il ne
-  reste que les six contremaîtres ;
+  reste que les six contremaîtres. *(Choix fait seul, et faux : le client
+  le défait dès le lendemain, en v1279 ; les adjoints de la feuille
+  Contremaître restent toujours visibles.)* ;
 - **les boutons sur toute la largeur** (`grRangePilules`), là où la
   rangée passe à la ligne, c'est-à-dire au PC. Le téléphone, debout ou
   couché, garde sa rangée qui défile :
@@ -9481,4 +9484,42 @@ L'épreuve `horaire-1278.js` vérifie :
   et, couché, tous les boutons sont sur une même ligne.
 
 Elle passe sans faute. Sur la v1277, elle relève 66 fautes.
+
+### L'onglet Horaire : les adjoints toujours dans la feuille Contremaître, la barre de défilement sur le fond du cadre (02/11/2026, `nfdm-v1279`)
+
+Le client, capture de son PC (Windows) à l'appui : « dans le bouton
+contremaître, les adjoints doivent toujours être visibles. La barre de
+scroll doit être comme avant et non dans le prolongement du tableau comme
+maintenant, car ce n'est pas bien. »
+
+**Les adjoints.** La v1278 avait fait agir le bouton « Adjoints » sur la
+feuille Contremaître : une décision de goût prise seul, et défaite. Le
+bouton n'agit plus que sur les cinq équipes. Sur la feuille Contremaître,
+il est grisé et ses onze personnes restent, même quand les adjoints sont
+masqués dans les équipes.
+
+**La barre : mesuré avant de toucher.**
+- Les captures des épreuves ne montrent aucune barre : Playwright lance
+  Chromium avec `--hide-scrollbars`. Relancées sans cette option, les
+  captures de la v1277 et de la v1278 sont identiques pour l'équipe 1 : le
+  tableau déborde, et la barre verticale est déjà collée à sa dernière
+  colonne.
+- Seule la feuille Contremaître changeait. En v1277, de la grille vide
+  séparait le tableau de la barre ; en v1278, le tableau va jusqu'à elle.
+- La piste de la barre était transparente (`scrollbar-color: … transparent`
+  hérité de `:root`). Le bleu de la grille passait dessous, et la barre à
+  flèches de Windows se lisait comme une colonne de plus.
+
+Ce que « comme avant » voulait dire n'était pas sûr : on a posé la
+question (QCM). Réponse du client : « sur fond sombre ». La barre garde sa
+place, au bord droit et en bas de la zone. Sa piste et le coin prennent le
+fond de la rangée des boutons (`--surface2`), son curseur le trait fort du
+thème (`--trait-fort`), dans les deux thèmes, et pour Safari aussi
+(`::-webkit-scrollbar-track`, `-corner`).
+
+**Mesuré après.** L'épreuve `horaire-1279.js` vérifie la feuille
+Contremaître, toujours à onze personnes, et le bouton grisé. Elle mesure
+aussi la piste au pixel, barres visibles, dans les deux thèmes : le fond
+du cadre au lieu du bleu (rgb 199, 222, 245). Elle reprend tout ce que
+vérifiait `horaire-1278.js`.
 
