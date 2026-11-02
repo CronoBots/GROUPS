@@ -9596,7 +9596,9 @@ du tableau horaire. »
   Les traits de 2 px du haut et du bas d'un tableau sont pris dedans :
   toutes les lignes du pied font 23 px ;
 - les noms des compteurs passent en graisse normale (400). Les restants
-  (bleus) et les négatifs (rouges) gardent leur 900. Les soldes et les
+  (bleus) et les négatifs (rouges) gardent leur 900. *(En v1286, à la
+  demande du client, seul le négatif reste gras ; le restant bleu passe
+  en graisse normale.)* Les soldes et les
   prévisions positives étaient déjà en graisse normale.
 
 **Mesuré après** : l'épreuve `horaire-1281.js` vérifie, sur l'équipe 1, la
@@ -9759,4 +9761,29 @@ case. Elle vérifie :
 
 Elle passe sans faute. Sur la v1284 comparée à elle-même, elle relève
 372 fautes : les titres et les FT− encore négatifs.
+
+### L'onglet Horaire : le gras pour le seul négatif (02/11/2026, `nfdm-v1286`)
+
+Le client : « pas besoin de gras pour le bleu, ne le garder que pour le
+négatif ».
+
+**Fait :**
+- le restant positif du dernier tableau reste bleu, en graisse normale
+  (400 au lieu de 900) ;
+- un négatif, dans n'importe quel tableau, reste rouge et gras.
+
+La règle du restant étant plus forte que celle du négatif, un sélecteur
+plus fort (`tr.hp-pied td.hp-pv.hp-neg`) garde le gras au restant
+négatif.
+
+**Mesuré après** : l'épreuve `horaire-1286.js` compare la v1286 à la
+v1285, case par case, sur toutes les feuilles, à 1440 et 390 px. Elle
+vérifie :
+- chaque case négative rouge et en 900 ;
+- toute autre case en 400 ;
+- les restants au même texte et à la même couleur ;
+- toutes les autres cases identiques.
+
+Elle passe sans faute. Sur la v1285 comparée à elle-même, elle relève
+1 076 fautes : chaque restant en gras.
 
