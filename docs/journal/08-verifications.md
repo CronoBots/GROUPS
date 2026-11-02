@@ -2859,6 +2859,22 @@ présence lue (`lectureAgenda` ne lit pas les heures de flex time comme
 une plage). Les 97 restantes demandent des règles que le classeur ne
 donne pas : quatre questions au client (`docs/questions-client.md`).
 
+**14 et 15/11 PM, chaudières : un vrai manque, confirmé par le client
+(02/11/2026).** Le contrôle sortait à 1 depuis le classeur du jour, sans
+lien avec le changement en cours (v1298, la bulle des « pris le »). Les
+commentaires du jour forment une chaîne :
+- QDE (chaudières) : « Abs », « remplacé par SBZ » ;
+- SBZ (polyvalent, chaudières comprises) : « Abs », « remplace QDE,
+  remplacé par GKT » ;
+- GKT (renfort arrière, polyvalent fermentation et distillation
+  seulement) : « terr. Arr. », « remplace SBZ ».
+
+GKT reprend donc la place de SBZ au terrain arrière, et personne ne tient
+celle de QDE. En QCM, le client a répondu « oui, la place est vide ». Les
+deux journées entrent dans `tools/manques-admis.txt` avec leur raison.
+Le contrôle repasse à 0 (2 admis). Sans la ligne du 15/11, il retombe à
+1 : il mord toujours.
+
 ### Le parcours de l'application, dans le dépôt (28/10/2026)
 
 Le client : « go complet » (les skills en renfort). Les essais au
