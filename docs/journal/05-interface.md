@@ -6550,6 +6550,11 @@ d'épuration), le tableau s'étirait sur l'écran : 373 px chacune et 126 px
 pour la colonne du jour (142 px avant ce changement, déjà). Il garde ses
 130 px par personne ; la zone quadrillée continue à droite, comme une
 feuille Excel.
+*(Revu en v1278, le 02/11/2026, à la demande du client : « pas de
+tableau vide sur la droite de l'écran ». Quand les 130 px par personne
+n'atteignent pas le bord, seules les colonnes d'annotation se partagent
+le reste ; la pause et le jour gardent leur largeur, ce que le
+`min-width:100%` d'avant ne faisait pas.)*
 
 **Mesuré après**, les 14 vues (cinq équipes, neuf postes) : 130 px par
 personne partout, aucun en-tête coupé ; 390 et 1280 px regardés.
@@ -9270,7 +9275,8 @@ La règle prise à la lettre, confirmée personne par personne :
   de couleur sous le poste ».)* ;
 - **les adjoints** : en tête, dans l'ordre alphabétique, et un bouton
   « Adjoints » (un œil) après « Équipe 5 », gardé sur l'appareil
-  (`ui/grAdj`). Hors de la vue d'une équipe, le bouton est grisé. Le
+  (`ui/grAdj`). Hors de la vue d'une équipe, le bouton est grisé
+  *(depuis la v1278, il agit aussi sur la feuille Contremaître)*. Le
   26/10/2026 (`nfdm-v1128`), le client avait fait retirer le bouton
   « Adjoints ON/OFF » du coin du tableau ; il le redemande, et c'est sa
   décision qui prime ;
@@ -9382,4 +9388,97 @@ L'épreuve `horaire-1275.js` prend les formations dans l'ordre attendu de
 chaque équipe : 0 faute à 1440 et 390 px. Sur la v1276, elle relève
 l'ordre (sans les formations), « Ferment. » au lieu de « Fermentation »
 et le compte en gras (800).
+
+### L'onglet Horaire : contremaîtres et adjoints séparés, tout sur la largeur du PC (02/11/2026, `nfdm-v1278`)
+
+Le client, capture du PC à l'appui : « dans le tableau contremaître, il
+faut séparer en deux les contremaîtres et les adjoints dans la ligne de
+poste ». Et, toujours dans l'Horaire : « sur PC, s'il y a la place, il
+faut répartir la taille des boutons pour qu'ils occupent toute la largeur
+de l'écran, ainsi que la largeur des colonnes avec le commentaire rouge,
+afin de ne pas avoir de tableau vide sur la droite de l'écran si le
+nombre d'opérateurs ne remplit pas la page ». Ordre choisi par le client
+(QCM) : les contremaîtres, puis les adjoints, chacun par son numéro
+d'équipe.
+
+**Mesuré avant**, à 1440 px :
+- la feuille Contremaître n'avait qu'un groupe, « CONTREMAÎTRE », sur
+  ses onze colonnes ;
+- la rangée des boutons tenait sur deux lignes. La première s'arrêtait
+  à 67 px du bord ; la seconde, cinq boutons seulement, laissait 606 px
+  vides ;
+- la station d'épuration (deux personnes) : un tableau de 348 px dans
+  une zone de 1158, soit 810 px de grille vide à droite.
+
+**Qui est adjoint.** C'est le titre « Adjoints Contremaître » dans une
+feuille d'équipe, et non la colonne. La première version lisait aussi le
+statut de la polyvalence (« Adj CM ») : VBN, contremaître de l'équipe 5,
+le porte encore, et il passait chez les adjoints. Ce statut est retiré
+de la règle. Mesuré sur 2026 :
+- contremaîtres YPE, GPS, ATA, AFA, VBN, FLI (1 à 6) ;
+- adjoints VGG, JBI, YBT, ATR, FPA (1, 3, 4, 5, 6) ;
+- en 2027, SKS s'ajoute aux adjoints (n° 2).
+
+**Fait :**
+- la feuille Contremaître a deux groupes, « Contremaîtres » puis
+  « Adjoints », chacun trié par son numéro d'équipe (`grEstAdjoint`,
+  `grGens`) ;
+- le bouton « Adjoints » agit aussi sur cette feuille : masqués, il ne
+  reste que les six contremaîtres ;
+- **les boutons sur toute la largeur** (`grRangePilules`), là où la
+  rangée passe à la ligne, c'est-à-dire au PC. Le téléphone, debout ou
+  couché, garde sa rangée qui défile :
+  - on garde le moins de lignes possible, celui du navigateur ;
+  - on coupe les lignes pour que la plus longue soit la plus courte
+    possible ;
+  - chaque bouton reçoit la même part du reste de sa ligne ;
+  - la loupe et « Mon horaire », ronds, gardent leur taille ;
+  - la part est posée en `flex-basis`. Chaque ligne fait alors juste la
+    largeur, et le navigateur passe à la ligne là où le calcul l'a mis ;
+  - le calcul se refait au rendu, au changement de taille, à l'ouverture
+    de la loupe et quand la croix de la recherche apparaît ;
+- **le bouton « Adjoints » à la hauteur des autres.** La v1275 lui
+  donnait 44 px au toucher (`pointer:coarse`). Au téléphone debout,
+  c'était déjà la hauteur des autres boutons. Couché, les autres en ont
+  32 : il dépassait de 12 px, et la loupe, centrée sur lui, descendait de
+  6 px (mesuré à 844 × 390). Cette règle est retirée : il prend la
+  hauteur des autres, 44 debout et 32 couché ;
+- **les colonnes d'annotation sur la largeur** (`grEtireColonnes`, au
+  début de `grCaleTete`, avant de mesurer les en-têtes, dont la hauteur
+  dépend de la largeur) :
+  - quand le tableau n'atteint pas le bord, ses colonnes d'annotation
+    (`--hp-cl`) se partagent le reste ;
+  - la pause garde 54 px, le mois et le jour 44 ;
+  - la part est au 1/64 de pixel, l'unité de mise en page du navigateur.
+    La première version donnait le reste entier à la dernière colonne :
+    10 px de plus à la onzième colonne de la feuille Contremaître, à
+    1920 px ;
+  - « Mon horaire » n'est pas touché : sa colonne de commentaire prend
+    déjà le reste ;
+  - avant chaque rendu, les colonnes reviennent à 76 px : un grand
+    tableau ne se met pas en page une fois à la largeur étirée du petit
+    d'avant.
+
+**Mesuré après :**
+- à 1440 px, deux lignes de boutons, chacune finissant au bord de la
+  barre (1415 px), aucun libellé coupé ;
+- à 1100 px, trois lignes ; à 1920 px, une seule ;
+- la station d'épuration : deux annotations de 481 px, tableau = zone ;
+- la feuille Contremaître à 1920 px : 120 px partagés en onze, soit
+  86,9 px par annotation ;
+- l'équipe 1, qui déborde déjà, garde ses 76 px.
+
+L'épreuve `horaire-1278.js` vérifie :
+- les deux groupes et leur ordre, à 1440 et 390 px, le bouton des
+  adjoints sur cette feuille ;
+- les lignes de boutons bord à bord, leur nombre minimal et leur
+  équilibre (aucune ligne aux boutons deux fois plus larges qu'une
+  autre), sur quatre largeurs de PC, la loupe ouverte, remplie et
+  refermée ;
+- le tableau plein, la pause à 54 px et le jour à 44 ;
+- le redimensionnement de la fenêtre ;
+- le téléphone debout et couché : la rangée défile sans rien d'étiré,
+  et, couché, tous les boutons sont sur une même ligne.
+
+Elle passe sans faute. Sur la v1277, elle relève 66 fautes.
 

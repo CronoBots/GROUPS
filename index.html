@@ -7452,7 +7452,9 @@ html .xl-pilules .hp-adj{flex:0 0 auto; height:32px; padding:0 14px; gap:6px; bo
 html .xl-pilules .hp-adj[aria-pressed="false"]{border-style:dashed; color:#cbd5e1}
 html .xl-pilules .hp-adj:hover{background:#4b5563!important}
 html .xl-pilules .hp-adj[disabled]{opacity:.45; cursor:default}
-@media (pointer:coarse){ html .xl-pilules .hp-adj{height:44px} }
+/* (v1278) plus de hauteur propre au toucher : au téléphone debout, le
+   bouton prend les 44 px des autres pilules ; couché, il en gardait 44
+   quand elles en ont 32, et la loupe, centrée sur lui, descendait de 6 px */
 html .ws-planning .gr-zone{margin:0 16px; background:#fff; border:1px solid #64748b; border-radius:12px 12px 0 0; border-top:1px solid #64748b}
 html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width:1px; font:400 12px/1 Roboto,system-ui,"Segoe UI",Arial,sans-serif; background:#fff; color:#111827}
 /* LA MÊME LARGEUR POUR CHAQUE PERSONNE (le client, le 29/10/2026 : « les
@@ -7473,7 +7475,18 @@ html .hp-t{border-collapse:separate; border-spacing:0; table-layout:fixed; width
    Liqu. », « Falling film » ; une douzaine de plus longues (« E. min SD26 »,
    « Fermentation ») finissent en « … », entières au survol. */
 html .hp-t col.hp-cm,html .hp-t col.hp-cd{width:44px}
-html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:76px}
+html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:var(--hp-cl,76px)}
+/* PAS DE TABLEAU VIDE À DROITE (le client, le 02/11/2026 : « répartir la
+   largeur des colonnes avec le commentaire rouge afin de ne pas avoir de
+   tableau vide sur la droite de l'écran si le nombre d'opérateurs ne
+   remplit pas la page ») : quand les 130 px par personne n'atteignent pas
+   le bord de la zone, les colonnes d'annotation (celles du coin rouge) se
+   partagent le reste ; la pause garde ses 54 px, le mois et le jour leurs
+   44 — ce qui avait fait renoncer au « min-width:100% » le 29/10. La
+   part est au 1/64 de pixel, l'unité de mise en page du navigateur : un
+   reste rond irait tout entier à une colonne (10 px de plus à la
+   dernière des onze de la feuille Contremaître, à 1920 px). Calcul :
+   grEtireColonnes. */
 /* « Mon horaire » : la colonne du commentaire (sans largeur écrite)
    reçoit tout le reste de l'écran, et au-delà la largeur du plus long
    commentaire de l'année (largeur posée sur le tableau, renderGrille) ;
@@ -8084,6 +8097,9 @@ html body .grille .ws-planning .pl-barre input[type=search]{background:var(--sur
 html body .grille .ws-planning .xl-pilules{margin:0; border:0; border-bottom:1px solid var(--cadre); border-radius:0; box-shadow:none; background:var(--surface2);
   padding:8px; gap:6px; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; scrollbar-width:none}
 html body .grille .ws-planning .xl-pilules::-webkit-scrollbar{display:none}
+/* les pilules étirées au bord (grRangePilules) : la largeur posée par le
+   script est celle du bord extérieur, et le libellé reste centré */
+html body .grille .ws-planning .xl-pilules.gr-plein .gr-pilules>button:not(.hp-moi){box-sizing:border-box; min-width:0; justify-content:center}
 html body .grille .ws-planning .xl-pilules .hp-pill,html body .grille .ws-planning .xl-pilules .hp-poste{height:32px; min-height:32px; min-width:0; padding:0 12px;
   border:1px solid var(--line); background:var(--surface); color:var(--ink2); font:600 12.5px/1 inherit}
 html body .grille .ws-planning .xl-pilules .hp-jour{background:var(--surface); color:var(--ink2)}
@@ -19935,7 +19951,7 @@ function grCol(c){ return (c.length<2?" ":"")+c; }
    classeur, à aujourd'hui) le range. */
 /* [clé, nom, teinte, nom court — pour un groupe d'une seule personne,
    dont la colonne ne tient pas « POLYVALENT ARRIÈRE »] */
-var GR_CATS=[["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","Meunerie"],["pav","Polyvalent avant","pt-meu","Poly. avant"],["glu","Gluten","pt-meu","Gluten"],
+var GR_CATS=[["cmx","Contremaîtres","pt-cm","Contremaîtres"],["adj","Adjoints","pt-cm","Adjoints"],["meu","Meunerie","pt-meu","Meunerie"],["pav","Polyvalent avant","pt-meu","Poly. avant"],["glu","Gluten","pt-meu","Gluten"],
   ["fer","Fermentation","pt-fer","Fermentation"],["par","Polyvalent arrière","pt-fer","Poly. arrière"],["dis","Distillation","pt-fer","Distillation"],["cha","Chaudières","pt-cha","Chaudières"],
   ["ste","Station d’épuration","pt-step","Station"],["aut","Autres","pt-cm","Autres"]];
 /* ce que la règle ne tranche pas, tranché par le client, une question à la
@@ -19993,8 +20009,20 @@ function grCat(p,f){
   if(cote==="ar") return F&&D?"par":F?"fer":D?"dis":(/ferm/i.test(po)?"fer":/disti/i.test(po)?"dis":"par");
   return "aut";
 }
+/* un adjoint : son titre « Adjoints Contremaître » dans une feuille
+   d'équipe — jamais sa colonne, ni le statut de la polyvalence, qui le
+   garde à un contremaître passé adjoint avant (mesuré le 02/11/2026) */
+function grEstAdjoint(p){ var ps=p.postes||{}, f;
+  for(f in ps) if(Object.prototype.hasOwnProperty.call(ps,f)&&/^Shift/.test(f)&&/adjoint/i.test(String(ps[f].p||""))) return true;
+  return false; }
 function grGens(db,f){
   var l=db.people.filter(function(p){ return p.postes&&p.postes[f]; });
+  /* LA FEUILLE CONTREMAÎTRE EN DEUX GROUPES (le client, le 02/11/2026 :
+     « séparer en deux les contremaîtres et les adjoints dans la ligne de
+     poste ») : les contremaîtres, puis les adjoints ; dans chacun, le
+     numéro d'équipe du classeur (1 à 6), comme avant — choix du client */
+  if(f==="Contremaître") return l.sort(function(a,b){ var d=(grEstAdjoint(a)?1:0)-(grEstAdjoint(b)?1:0); if(d) return d;
+    var x=parseInt(a.postes[f].p,10)||99, y=parseInt(b.postes[f].p,10)||99; if(x!==y) return x-y; var u=idLisible(a.id), v=idLisible(b.id); return u<v?-1:u>v?1:0; });
   /* une équipe : par groupe, puis par trigramme (le client : « alphabétique ») */
   if(/^Shift/.test(f)){ var K={};
     l.forEach(function(p){ K[p.id]=grCatInfo(grCat(p,f))[3]; });
@@ -20074,7 +20102,7 @@ function grLibelle(){ return "Année "+grJours()[0].getFullYear(); }
 /* les colonnes du mode choisi : [{p, f (la feuille), po (le poste)}] */
 function grColonnes(db){
   var m=GR_MODES.filter(function(x){ return x[0]===GR.feuille; })[0]||GR_MODES[0], cols=[];
-  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||"",k:/^Shift/.test(f)?grCat(p,f):""}; }); }
+  function de(f){ return grGens(db,f).map(function(p){ return {p:p,f:f,po:p.postes[f].p||"",k:/^Shift/.test(f)?grCat(p,f):f==="Contremaître"?(grEstAdjoint(p)?"adj":"cmx"):""}; }); }
   /* MON HORAIRE (le client, le 29/10/2026 : « un bouton qui permette
      d'afficher son horaire personnel ; moi, VBN, en appuyant dessus, je ne
      verrai que mon horaire ») : la seule colonne de la personne de
@@ -20096,7 +20124,7 @@ function grColonnes(db){
      coin du tableau (« toujours afficher les adjoints ») : il revient, à
      sa demande, dans la rangée des pilules, affichés par défaut ; le choix
      est gardé sur l'appareil (ui/grAdj). */
-  if(/^Shift/.test(m[0])&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
+  if((/^Shift/.test(m[0])||m[0]==="Contremaître")&&GR.adj===false) cols=cols.filter(function(c){ return c.k!=="adj"; });
   if(/^Shift/.test(m[0])){ var nEq=m[0].slice(5), avecF=false;
     if(db.people.some(function(p){ return p.postes&&p.postes["Opérateurs"]; })) grGens(db,"Opérateurs").forEach(function(p){
       var po=p.postes["Opérateurs"].p||"", eqF=(/éq\.?\s*(\d)/i.exec(po)||[])[1]||GR_FORMATION_EQUIPE[p.id]||"", kb=grPosteFormation(po);
@@ -20197,13 +20225,14 @@ function renderGrille(){
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'
         /* le bouton des adjoints, après la dernière équipe : il n'agit que
            sur la vue d'une équipe, ailleurs il est grisé */
-        +(x[0]==="Shift5"?'<button type="button" class="hp-adj" data-gr-adj aria-pressed="'+(GR.adj!==false)+'"'+(/^Shift/.test(GR.feuille)&&!(GR.cherche.length>=2)?'':' disabled')
+        +(x[0]==="Shift5"?'<button type="button" class="hp-adj" data-gr-adj aria-pressed="'+(GR.adj!==false)+'"'+((/^Shift/.test(GR.feuille)||GR.feuille==="Contremaître")&&!(GR.cherche.length>=2)?'':' disabled')
           +' title="Afficher ou masquer les adjoints en tête de l\'équipe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
           +(GR.adj!==false?'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>':'<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>')
           +'</svg>Adjoints</button>':''); }).join("");
   /* au téléphone la rangée défile : la pilule active vient à l'écran, sans
      scrollIntoView qui ferait aussi défiler la page à chaque frappe de la
      recherche (audit du 23/10/2026) */
+  grRangePilules();
   var ge=document.getElementById("grEquipes"), pa=ge.querySelector('[aria-pressed="true"]');
   if(pa&&ge.scrollWidth>ge.clientWidth) ge.scrollLeft+=pa.getBoundingClientRect().left-ge.getBoundingClientRect().left-(ge.clientWidth-pa.offsetWidth)/2;
   var zone=document.getElementById("grZone"), tete=g.querySelector(".pl-tete");
@@ -20218,7 +20247,7 @@ function renderGrille(){
   if(q&&!cols.length){ zone.innerHTML='<div class="pl-msg gr-vide" role="status"><p>Personne ne correspond à « '+esc(GR.cherche)+' ».</p><button type="button" data-gr-effacer>Effacer la recherche</button></div>'; GR.sig=null; return; }
   var garde=zone.querySelector("table")?{t:zone.scrollTop,l:zone.scrollLeft}:null;
   var fer=feries(an), auj=jourUsine(), ajk=auj.getFullYear()+pad2(auj.getMonth()+1)+pad2(auj.getDate());
-  var equipe=/^Shift/.test(mode[0]);
+  var equipe=/^Shift/.test(mode[0]), parGroupe=equipe||mode[0]==="Contremaître";
   /* « Mon horaire » a la place d'une colonne de plus : le commentaire du
      jour, en phrases (comPro), sur toute la largeur restante */
   var avecCom=mode[0]==="moi"&&cols.length===1, larg="";
@@ -20253,8 +20282,9 @@ function renderGrille(){
   h.push('</colgroup><thead><tr class="hp-g"><th class="hp-coin" colspan="2" rowspan="2">'
     +(mode[0]==="moi"||q?'':'<span class="hp-nb">'+cols.length+'<small>pers.</small></span>')+'</th>');
   if(!cols.length) h.push('<th>Personne ne correspond.</th>');
-  else if(equipe){
-    /* un groupe par catégorie (v1275), et non plus par libellé du classeur */
+  else if(parGroupe){
+    /* un groupe par catégorie (v1275), et non plus par libellé du classeur ;
+       la feuille Contremaître aussi (v1278) */
     for(var gi=0;gi<cols.length;){ var k0=cols[gi].k, po0=cols[gi].po, gj=gi; while(gj<cols.length&&(k0?cols[gj].k===k0:cols[gj].po===po0)) gj++;
       var gn=k0?grCatInfo(k0):null, gl=gn?(gj-gi===1?gn[4]:gn[1]):po0;
       h.push('<th class="hp-gp '+grTeinteCol(cols[gi])+(k0&&/^f-/.test(k0)?' hp-gform':'')+'" colspan="'+(2*(gj-gi))+'"'+(gn&&gl!==gn[1]?' title="'+esc(gn[1])+'"':'')+'><span class="hp-gpl">'+esc(gl)+'</span></th>'); gi=gj; }
@@ -20322,6 +20352,9 @@ function renderGrille(){
     h.push('</tfoot>');
   }
   h.push('</table>');
+  /* les colonnes reprennent leurs 76 px avant d'entrer : un grand tableau
+     ne se met pas en page une fois à la largeur étirée d'un petit */
+  zone.style.removeProperty("--hp-cl");
   zone.innerHTML=h.join("");
   grCaleTete();
   GR.colCache={}; GR.sig=grSignature(db);
@@ -20391,10 +20424,20 @@ function grNomsEnPlace(){
    « Adjoints ON » la grandit (police de l'iPhone), une fente laissait voir
    les lignes du dessous, et au PC les deux se chevauchaient de 5 px. La
    hauteur mesurée de la rangée des postes devient le décalage (--hp-g). */
+/* les colonnes d'annotation se partagent la largeur que le tableau laisse
+   vide à droite (voir col.hp-cl) ; « Mon horaire » a déjà sa colonne de
+   commentaire qui prend le reste */
+function grEtireColonnes(z,t){
+  var n=t.querySelectorAll("colgroup col.hp-cl").length, a=z.style.getPropertyValue("--hp-cl"), cur=parseFloat(a)||76;
+  var vide=z.clientWidth-(t.getBoundingClientRect().width-n*(cur-76)), na="";
+  if(n&&!t.classList.contains("hp-tmoi")&&vide>=1) na=(76+Math.floor(vide/n*64)/64)+"px";
+  if(na!==a){ if(na) z.style.setProperty("--hp-cl",na); else z.style.removeProperty("--hp-cl"); }
+}
 function grCaleTete(){
   grFabs();
   var z=document.getElementById("grZone"), t=z&&z.querySelector(".hp-t"), r=t&&t.querySelector("thead tr.hp-g");
-  if(!t||!r) return; var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
+  if(!t||!r) return;
+  grEtireColonnes(z,t); var hg=r.getBoundingClientRect().height; if(hg>0) z.style.setProperty("--hp-g",Math.round(hg)+"px");
   /* les variables vont sur la zone : le tableau en hérite, et le bandeau
      de « Mon horaire », qui n'est pas dedans, aussi */
   var ro=t.querySelector("thead tr.hp-ops"), ho=ro?ro.getBoundingClientRect().height:0; if(ho>0) z.style.setProperty("--hp-o",Math.round(ho)+"px");
@@ -20418,7 +20461,45 @@ function grCaleTete(){
 /* l'espace fermé (gardé en page, content-visibility) ne se mesure pas :
    la mesure remettait en page les 12 000 cases mises de côté ; la largeur
    faisant partie de grSignature, l'ouverture suivante refait la grille */
-window.addEventListener("resize",function(){ var g=document.getElementById("grille"); if(g&&g.hidden) return; grCaleTete(); });
+window.addEventListener("resize",function(){ var g=document.getElementById("grille"); if(g&&g.hidden) return; grRangePilules(); grCaleTete(); });
+/* LES BOUTONS SUR TOUTE LA LARGEUR (le client, le 02/11/2026 : « sur PC,
+   s'il y a la place, répartir la taille des boutons pour qu'ils occupent
+   toute la largeur de l'écran »). Là où la rangée passe à la ligne (le PC ;
+   au téléphone elle défile, rien ne change) : le moins de lignes possible,
+   les boutons répartis pour que ces lignes aient des longueurs voisines,
+   puis chacune étirée jusqu'au bord, chaque bouton recevant la même part
+   du reste de sa ligne. La loupe et « Mon horaire », ronds, gardent leur
+   taille, en tête de la première ligne. La part est posée en base
+   (flex-basis) : chaque ligne fait alors juste la largeur, et le passage
+   à la ligne du navigateur tombe là où le calcul l'a mis. */
+function grRangePilules(){
+  /* cachée, la rangée n'a pas de largeur : elle garde sa répartition */
+  var bar=document.getElementById("grEquipes"), box=document.getElementById("grPilules"); if(!bar||!box||!bar.offsetWidth) return;
+  var ps=[], fixes=0, nf=0, i, j, k;
+  Array.prototype.forEach.call(box.children,function(b){ b.style.flex=""; });
+  bar.classList.remove("gr-plein");
+  if(getComputedStyle(bar).flexWrap!=="wrap") return;
+  var cs=getComputedStyle(bar), gap=parseFloat(cs.columnGap)||0, W=bar.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0)-0.5;
+  Array.prototype.forEach.call(bar.children,function(e){
+    if(e===box) Array.prototype.forEach.call(box.children,function(b){ if(b.classList.contains("hp-moi")){ fixes+=b.getBoundingClientRect().width; nf++; } else ps.push([b,b.getBoundingClientRect().width]); });
+    else if(e.offsetWidth){ fixes+=e.getBoundingClientRect().width; nf++; } });
+  var n=ps.length; if(!n) return;
+  var F=fixes+nf*gap, som=[0]; for(i=0;i<n;i++) som.push(som[i]+ps[i][1]);
+  function long(a,b){ return som[b]-som[a]+(b-a-1)*gap+(a?0:F); }
+  /* le moins de lignes : la répartition du navigateur, bouton par bouton */
+  var L=1; for(i=0,j=0;j<n;j++) if(j>i&&long(i,j+1)>W){ L++; i=j; }
+  /* puis, en L lignes, la ligne la plus longue la plus courte possible */
+  var M=[], C=[]; for(k=0;k<=L;k++){ M.push([]); C.push([]); }
+  for(j=1;j<=n;j++){ M[1][j]=long(0,j); C[1][j]=0; }
+  for(k=2;k<=L;k++) for(j=k;j<=n;j++){ M[k][j]=Infinity;
+    for(i=k-1;i<j;i++){ var m=Math.max(M[k-1][i],long(i,j)); if(m<M[k][j]){ M[k][j]=m; C[k][j]=i; } } }
+  if(!(M[L][n]<=W)) return;
+  var bornes=[n]; for(k=L,j=n;k>1;k--){ j=C[k][j]; bornes.unshift(j); } bornes.unshift(0);
+  for(k=0;k<L;k++){ var a=bornes[k], b=bornes[k+1], part=(W-long(a,b))/(b-a);
+    for(i=a;i<b;i++) ps[i][0].style.flex="1 1 "+(Math.floor((ps[i][1]+part)*100)/100)+"px"; }
+  bar.classList.add("gr-plein");
+}
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ var g=document.getElementById("grille"); if(g&&!g.hidden) grRangePilules(); });
 /* le bouton du haut s'efface en haut de la grille, celui du bas en bas
    (le téléphone seul les cache, voir .hp-fabs.au-haut) */
 function grFabs(){
@@ -20443,7 +20524,7 @@ function grAujourdhui(){ var a=jourUsine(); if(GR.debut.getFullYear()!==a.getFul
      client, le 29/10/2026) */
   var z=document.getElementById("grZone"); if(z.querySelector("table.hp-tmoi")) z.scrollLeft=0; }
 function grCentrer(){
-  grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur */
+  grRangePilules(); grCaleTete();   /* bâtie cachée, la grille n'avait pas encore de hauteur, ni la rangée de largeur */
   grFabs();
   var z=document.getElementById("grZone"), r=z.querySelector("tbody tr.pl-auj"), t=z.querySelector("thead");
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
@@ -21115,7 +21196,7 @@ function wsAller(s,garder){
      aujourd'hui. La section étant déjà affichée, il se fait dans la même
      tâche que le rendu : la première image est la bonne. Le second rendu
      (les noms arrivés, garder) ne recentre plus : il gardait la place. */
-  if(s==="planning"){ if(!grAJour()&&!grNomsEnPlace()) renderGrille(); if(!garder) grCentrer(); }
+  if(s==="planning"){ if(!grAJour()&&!grNomsEnPlace()) renderGrille(); if(!garder) grCentrer(); else grRangePilules(); }
   else if(s==="tdb") renderTdb();
   else if(s==="personnel") renderPersonnel();
   else if(s==="absences") renderAbsences();
@@ -23699,13 +23780,13 @@ function renderHisto(){
      (audit du 23/10/2026) ; le champ est relu au moment du rendu, qu'une
      pilule ou la loupe a pu vider entre-temps */
   var grT=null;
-  document.getElementById("grCherche").oninput=function(){ var c=this; clearTimeout(grT);
-    c.parentNode.classList.toggle("rempli",!!c.value);
+  document.getElementById("grCherche").oninput=function(){ var c=this, r0=c.parentNode.classList.contains("rempli"); clearTimeout(grT);
+    c.parentNode.classList.toggle("rempli",!!c.value); if(r0!==!!c.value) grRangePilules();
     grT=setTimeout(function(){ var v=c.value.trim(); if(v!==GR.cherche){ GR.cherche=v; renderGrille(); } },180); };
   document.getElementById("grAnnuler").onclick=function(){
     var c=document.getElementById("grCherche"), bar=c.parentNode, l=document.getElementById("grLoupe");
     clearTimeout(grT); c.value=""; bar.classList.remove("cherche","rempli"); if(l) l.setAttribute("aria-expanded","false");
-    if(GR.cherche){ GR.cherche=""; renderGrille(); grCentrer(); }
+    if(GR.cherche){ GR.cherche=""; renderGrille(); grCentrer(); } else grRangePilules();
     try{ (l&&l.offsetParent?l:c).focus(); }catch(x){}
   };
   document.getElementById("grMoiTete").addEventListener("click",function(e){
@@ -23767,6 +23848,7 @@ function renderHisto(){
   document.getElementById("grLoupe").onclick=function(){
     var bar=this.parentNode, on=!bar.classList.contains("cherche"); bar.classList.toggle("cherche",on); this.setAttribute("aria-expanded",String(on));
     var c=document.getElementById("grCherche"); if(on){ try{ c.focus(); }catch(e){} } else if(c.value){ c.value=""; bar.classList.remove("rempli"); GR.cherche=""; renderGrille(); }
+    grRangePilules();
   };
   /* LA GRILLE AU CLAVIER (audit du 23/10/2026) : les flèches vont de case
      en case (le premier jour remonte au nom), Entrée ouvre la feuille de la
