@@ -9972,6 +9972,35 @@ function comRenvoi(raw){
   var tr=String(raw[0]||"").trim(), trav=!!tr&&tr!=="-";
   return "Le « "+a+" » noté ici est pris "+(plus?"les ":"le ")+j+" : "+(trav?"ce jour-ci, la pause est prestée en entier.":"il ne compte pas ce jour-ci.");
 }
+/* LE COMMENTAIRE AU PLANNING : PAS LES HEURES D'UN AUTRE JOUR (le client,
+   le 02/11/2026 : « penses-tu que des commentaires qui parlent d'heures
+   pour d'autres jours ont leur place dans le planning ? Quand on parle de
+   rappel, c'est normal ») : le Planning dit qui est où ce jour-là, et la
+   lecture a déjà rangé ces heures à leur jour. On y retire donc les
+   renvois : « pris le JJ.MM » et ce qui le suit sur sa ligne (le départ,
+   l'arrivée, le remplaçant de ce jour-là), « presté le JJ.MM », « cf JJ/MM »,
+   « voir (le) JJ.MM », « D déplacé au JJ.MM », « du JJ/MM » en tête de
+   ligne. Le reste demeure : rappels, remplacements, échanges, changements
+   de pause, formations. Un commentaire qui n'était que cela, ou dont il
+   ne reste que des heures (« +4h +FT »), n'a plus de bulle. Les vues
+   personnelles (mois, agenda, « prochains postes ») gardent comAffiche,
+   avec la règle dite en clair. Affichage seul. */
+function comPlanning(raw){
+  if(!raw||typeof raw==="string") return "";
+  var c=String(raw[2]||"").trim(); if(!c) return comAffiche(raw);
+  var D="\\d{1,2}(?:[.\\/]\\d{1,2}(?:[.\\/]\\d{2,4})?)?(?:\\s*(?:,|et)\\s*\\d{1,2}(?:[.\\/]\\d{1,2}(?:[.\\/]\\d{2,4})?)?)*";
+  /* des heures collées devant le renvoi sont celles de l'autre jour (« +4h +FT cf 08/03 ») */
+  var H="(?:[+\\-]?\\d+(?:[.,]\\d+)?\\s*h\\s*[+\\-]?\\s*(?:FT|RTT|RHS)\\s+)?";
+  var R=[[new RegExp("\\bpris\\s+les?\\s+"+D+".*$","i")],[new RegExp(H+"\\bprest[ée]e?s?\\s+les?\\s+"+D,"ig")],[new RegExp(H+"\\bcfr?\\.?\\s*:?\\s*"+D,"ig")],
+    [new RegExp(H+"\\bvoir\\s+(?:le\\s+)?"+D,"ig")],[new RegExp("(?:\\bD\\s+)?\\bd[ée]plac[ée]e?\\s+au\\s+"+D,"ig")],[new RegExp("^\\s*du\\s+"+D,"i")]];
+  /* une ligne sans renvoi reste telle quelle : « +4h RTT » seul est
+     l'heure du jour même (celui qui reçoit le renvoi), pas d'un autre */
+  return c.split("\n").map(function(l){
+    var l0=l; R.forEach(function(r){ l=l.replace(r[0],""); }); if(l===l0) return l0;
+    l=l.replace(/\s{2,}/g," ").replace(/\s+([;,.])/g,"$1").replace(/^[\s;:,.\-]+|[\s;:,\-]+$/g,"");
+    if(/^([+\-]?\s*\d+(?:[.,]\d+)?\s*h\s*[+\-]?\s*(?:FT|RTT|RHS)?\s*)*$/i.test(l)||/^CIE\s*:?$/i.test(l)) l="";
+    return l; }).filter(Boolean).join("\n");
+}
 function comAffiche(raw){
   if(!raw || typeof raw==="string") return "";
   var c=String(raw[2]||"").trim(); if(c){ var rv=comRenvoi(raw); return rv?rv+"\n\nCommentaire du classeur : "+c:c; }
@@ -28561,7 +28590,7 @@ function renderEquipe(){
          client, le 02/10/2026 : « un badge avec commentaire a un contour blanc,
          et le clic affiche le commentaire ». On le pose en data-com (lu au clic)
          et on marque le badge « coment » pour le contour. */
-      var com=comAffiche(x.p.d[mmdd]);
+      var com=comPlanning(x.p.d[mmdd]);
       /* Un changement de poste fait par l'application se distingue : bord
          orange en pointillé (sans flèche, le client, le 13/10/2026), et
          l'explication au clic, avant le commentaire du classeur s'il y en a un. */
@@ -29121,7 +29150,7 @@ function renderEquipe(){
             var a=ax(hp[0]), fo=false;
             try{ fo=enFormation(x.p,jourCalc) && !compteAuPoste(x,P,jourCalc); }catch(eF){}
             plus.push({p:x.p, a:a, b:a+((((hp[1]-hp[0])%24)+24)%24||24),
-              com:comAffiche(x.p.d[mmdd]), deD:!!(x.deD||x.depuisD), form:fo}); }
+              com:comPlanning(x.p.d[mmdd]), deD:!!(x.deD||x.depuisD), form:fo}); }
         }
         return {ks:ks, l:bandes.concat(plus).sort(function(u,v){ return u.a-v.a || u.b-v.b; })};
       }

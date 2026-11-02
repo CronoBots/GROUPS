@@ -573,9 +573,13 @@ une autre journée. »
 > compteur que ce jour porte déjà. Le jour où elle est écrite n'en garde rien.
 
 À l'affichage (le client, le 02/11/2026, sur VGG : « ce commentaire peut
-porter à confusion »), la bulle du jour où elle est écrite dit la règle
-avant le commentaire : « Le « 4h RTT » noté ici est pris le 03/11 : ce
-jour-ci, la pause est prestée en entier. » (`comRenvoi`).
+porter à confusion », puis « des commentaires qui parlent d'heures pour
+d'autres jours ont-ils leur place dans le planning ? Quand on parle de
+rappel, c'est normal ») : le Planning ne montre plus ces renvois
+(`comPlanning` : « pris le », « presté le », « cf », « voir », « déplacé
+au », « du JJ/MM ») ; les vues personnelles disent la règle avant le
+commentaire : « Le « 4h RTT » noté ici est pris le 03/11 : ce jour-ci, la
+pause est prestée en entier. » (`comRenvoi`).
 
 `renvoisDuMois()` est la jumelle de `epargnesDuMois()`, dans l'autre sens :
 celle-ci part du jour qui écrit « pris le 12.06 » et rend ce que reçoit le

@@ -10429,3 +10429,62 @@ journée (`renvoisDuMois`) lit la case brute.
 chaudières, QDE est absent, « remplacé par SBZ » ; SBZ est absent aussi,
 « remplace QDE, remplacé par GKT » ; GKT est noté « terr. Arr. » et
 « remplace SBZ ». La place de QDE reste vide : question posée au client.
+
+### Le Planning sans les heures des autres jours (02/11/2026, `nfdm-v1299`)
+
+Le client, juste après la v1298 : « penses-tu que des commentaires qui
+parlent d'heures pour d'autres jours ont leur place dans le planning ?
+Quand on parle de rappel, c'est normal ». Ma réponse : non. Le Planning
+dit qui est où ce jour-là, et la lecture a déjà rangé ces heures à leur
+jour. Un renvoi n'y apporte que du doute, comme « pris le 03.11 » sur VGG.
+Un rappel, lui, dit pourquoi quelqu'un est là.
+
+**Recensé avant :** parmi les commentaires qui citent une autre date
+(horaires 2026 et 2027), on trouve :
+
+| Sorte | Nombre |
+|---|---|
+| « rappel le » et « rappel » | environ 520 |
+| « cf JJ/MM » | 74 |
+| « presté le » | 51 |
+| « voir JJ.MM » | 49 |
+| « déplacé au » | 32 |
+| « pris le » | 30 |
+| « du JJ/MM » | 10 |
+
+Seuls ceux d'une case où la personne travaille se voient au Planning,
+soit 149 en 2026.
+
+**Fait :** le Planning (`comPlanning`, aux deux endroits qui posent la
+bulle) retire les renvois.
+- Ce qui est retiré :
+  - « pris le JJ.MM », avec ce qui le suit sur sa ligne (le départ,
+    l'arrivée ou le remplaçant de ce jour-là) ;
+  - « presté le JJ.MM », « cf JJ/MM », « voir (le) JJ.MM », « D déplacé au
+    JJ.MM », et « du JJ/MM » en tête de ligne ;
+  - avec chacun, les heures collées devant (« +4h +FT cf 08/03 »).
+- Ce qui reste : les rappels, les remplacements, les échanges, les
+  changements de pause et les formations.
+- Une bulle qui ne contenait que des renvois disparaît, avec son coin
+  rouge.
+- Les vues personnelles (le mois, l'agenda, « prochains postes ») gardent
+  le commentaire entier, avec la phrase de la v1298.
+
+**Erreur commise, puis corrigée avant publication :** la première version
+nettoyait la ponctuation et effaçait les lignes réduites à des heures sur
+TOUTES les lignes. 34 commentaires changeaient sans contenir aucun
+renvoi : « +4h RTT » et « +1h RHS » perdaient leur bulle, alors qu'ils
+disent les heures du jour même. C'est par exemple JBI le 24/06, qui
+reçoit justement un renvoi. Désormais, une ligne sans renvoi reste telle
+quelle.
+
+**Mesuré :**
+- sur les 7 221 commentaires des deux horaires, 153 n'ont plus de bulle au
+  Planning et 113 sont raccourcis ;
+- aucun n'est changé sans contenir de renvoi ;
+- le 02/11, la pastille de VGG n'a plus de bulle au Planning ; le 03/11 garde
+  « Remplace NPE de 13h à 14h » (GKT) et « Infos CFL 13h Remplacé par
+  GKT » (NPE) ;
+- le vérificateur du calendrier est identique à l'octet, sans option et
+  avec les quatre options ;
+- les agendas sont inchangés.
