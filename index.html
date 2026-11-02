@@ -20258,6 +20258,16 @@ function grCourt(v){
    « l'horaire doit être exactement présenté comme le fichier que je t'ai
    fourni et toujours en vue année ») : du 1er janvier au 31 décembre,
    ouvert sur aujourd'hui ; les flèches changent d'année. */
+/* L'HORAIRE JUSQU'EN 2030 (le client, le 02/11/2026 : « prolonge le
+   calendrier dans Horaire jusqu'en 2030 ») : au-delà du dernier classeur,
+   l'onglet montre l'horaire PROLONGÉ PAR LES CYCLES (horaireDe : 5 équipes
+   sur 5 semaines, 6 binômes sur 6, la STEP sur 2, calés sur les trois
+   derniers mois du dernier classeur), comme le pré-remplissage le fait
+   depuis le 09/10. Une année prolongée le dit sous son titre ; rien ne s'y
+   saisit (la base ne charge les saisies que des années à classeur) ; elle
+   n'a pas de compteurs. Son classeur arrivé, il la remplace d'office. */
+var GR_AN_MAX=2030;
+function grDb(an){ an=Number(an); return (HORAIRES&&HORAIRES[an])||(an<=GR_AN_MAX?horaireDe(an):null)||null; }
 function grJours(){
   var y=GR.debut?GR.debut.getFullYear():jourUsine().getFullYear(), out=[];
   for(var x=new Date(y,0,1); x.getFullYear()===y; x=new Date(y,x.getMonth(),x.getDate()+1)) out.push(x);
@@ -20367,11 +20377,12 @@ function grMontrer(z,c){
 }
 function renderGrille(){
   var g=document.getElementById("grille"); if(!g||g.hidden) return;
-  var jours=grJours(), an=jours[0].getFullYear(), db=HORAIRES&&HORAIRES[an];
+  var jours=grJours(), an=jours[0].getFullYear(), db=grDb(an);
   /* sous l'année, la version du classeur qu'elle montre (le client, le
      29/10/2026 : « afficher l'heure et la date de mise à jour du classeur ») */
   document.getElementById("grPeriode").innerHTML=esc(grLibelle())
-    +(db&&db.maj?'<small class="gr-maj"><span class="gr-maj-l">Classeur du </span>'+esc(majCourte(db.maj))+'</small>':'');
+    +(db&&db.projete?'<small class="gr-maj gr-proj">Prolongé par les cycles</small>'
+      :db&&db.maj?'<small class="gr-maj"><span class="gr-maj-l">Classeur du </span>'+esc(majCourte(db.maj))+'</small>':'');
   /* le bandeau de « Mon horaire » ne reste pas sur un message (pas
      d'horaire, personne trouvée) : il ne revient qu'avec son tableau */
   var mt0=document.getElementById("grMoiTete"); if(mt0) mt0.hidden=true;
@@ -20569,7 +20580,7 @@ function grSignature(db){
 }
 function grAJour(){
   var g=GR.sig, z=document.getElementById("grZone"); if(!g||!z||!z.querySelector("table")) return false;
-  var an=grJours()[0].getFullYear(), s=grSignature(HORAIRES&&HORAIRES[an]);
+  var an=grJours()[0].getFullYear(), s=grSignature(grDb(an));
   for(var i=0;i<s.length;i++) if(s[i]!==g[i]) return false;
   return true;
 }
@@ -20603,7 +20614,7 @@ function grTeteCol(c,equipe){
    réécrit ces en-têtes en place. Sinon, le rendu entier, comme avant. */
 function grNomsEnPlace(){
   var g=GR.sig, z=document.getElementById("grZone"), t=z&&z.querySelector("table"); if(!g||!t||GR.cherche) return false;
-  var an=grJours()[0].getFullYear(), db=HORAIRES&&HORAIRES[an], s=grSignature(db), k=s.indexOf(GR.noms);
+  var an=grJours()[0].getFullYear(), db=grDb(an), s=grSignature(db), k=s.indexOf(GR.noms);
   if(!db||!GR.noms||k<0||g[k]===GR.noms) return false;
   for(var i=0;i<s.length;i++) if(i!==k&&s[i]!==g[i]) return false;
   var C=grColonnes(db), cols=C.cols, equipe=/^Shift/.test(C.mode[0]), ths=t.querySelectorAll("thead tr.hp-ops th[data-ci]");
@@ -20732,7 +20743,7 @@ function grCentrer(){
   if(r&&t) z.scrollTop=Math.max(0,r.offsetTop-Math.round((z.clientHeight+t.offsetHeight)/2));
 }
 function grDecaler(sens){
-  var y=GR.debut.getFullYear()+sens; if(!HORAIRES[y]) { flash("Pas d'horaire pour "+y+"."); return; }
+  var y=GR.debut.getFullYear()+sens; if(!grDb(y)) { flash(y>GR_AN_MAX?"L'horaire s'arrête en "+GR_AN_MAX+".":"Pas d'horaire pour "+y+"."); return; }
   GR.debut=new Date(y,0,1); grFermerPanneau(); document.getElementById("grZone").innerHTML=""; renderGrille();
   if(y===jourUsine().getFullYear()) grCentrer(); else document.getElementById("grZone").scrollTop=0;
 }
@@ -21097,7 +21108,7 @@ function pnErreur(err,msg,champ){
 }
 /* LA FICHE D'UNE PERSONNE : ses compteurs de l'année, le contrat, ses postes */
 function grPersonne(id){
-  var db=GR.section==="planning"?HORAIRES[grJours()[0].getFullYear()]:wsDb(), an=db&&Number(db.year), p=db&&db.people.filter(function(x){ return x.id===id; })[0]; if(!p) return;
+  var db=GR.section==="planning"?grDb(grJours()[0].getFullYear()):wsDb(), an=db&&Number(db.year), p=db&&db.people.filter(function(x){ return x.id===id; })[0]; if(!p) return;
   var n=grNom(p), lignes=GR_PIED.map(function(r){
     var pr=grCompte(p,r.c), so=p.c&&p.c.solde&&p.c.solde[r.s], re=(typeof so==="number")?so-pr:null;
     return '<tr><th>'+r.t+'</th><td>'+(typeof so==="number"?so+' h':'—')+'</td><td>'+pr+' h</td><td class="'+(re!==null&&re<0?'pn-neg':'')+'">'+(re===null?'—':re+' h')+'</td></tr>';
@@ -21105,7 +21116,7 @@ function grPersonne(id){
   var poly=p.poly&&p.poly.ateliers?p.poly.ateliers.join(", "):"";
   grFermerPanneau();
   /* les compteurs d'un collègue ne se lisent que par la RH et la hiérarchie */
-  var voit=peutSaisir()||idLisible((compteBase()||{}).tri)===idLisible(p.id);
+  var voit=!db.projete&&(peutSaisir()||idLisible((compteBase()||{}).tri)===idLisible(p.id));
   grOuvrirPanneau('<div class="pn-tete"><div><b>'+esc(n||idLisible(p.id))+'</b><span>'+(n?esc(idLisible(p.id))+' · ':'')+esc(wsPoste(p))+(statutAffiche(p)?' · '+esc(statutAffiche(p)):'')+'</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>'
     +'<div class="pn-corps">'+(voit?'<p class="pn-t">Compteurs '+an+'</p>'
     +'<table class="pn-cpt"><thead><tr><th></th><th>Au 01/01</th><th>Prévu</th><th>Restant</th></tr></thead><tbody>'+lignes
@@ -21132,12 +21143,12 @@ function grDegager(td,pn){
    pour la saisie que la RH fera au PC. */
 function grEditer(td){
   var id=td.getAttribute("data-p"), jk=td.getAttribute("data-j"), an=Number(jk.slice(0,4)), md=jk.slice(4);
-  var db=HORAIRES[an], p=db&&db.people.filter(function(x){ return x.id===id; })[0]; if(!p) return;
+  var db=grDb(an), p=db&&db.people.filter(function(x){ return x.id===id; })[0]; if(!p) return;
   var e=((p.d&&p.d[md])||[]).slice(); while(e.length<3) e.push("");
-  var sai=db._saisies&&db._saisies[id+"|"+md], dt=new Date(an,Number(md.slice(0,2))-1,Number(md.slice(2))), edit=peutSaisir();
+  var sai=db._saisies&&db._saisies[id+"|"+md], dt=new Date(an,Number(md.slice(0,2))-1,Number(md.slice(2))), edit=peutSaisir()&&!db.projete;
   grFermerPanneau(); td.classList.add("pl-sel");
   var titre='<div class="pn-tete"><div><b>'+esc(grNom(p)||idLisible(id))+'</b><span>'+JOURS_LONGS[(dt.getDay()+6)%7]+' '+numJour(dt.getDate())+' '+MOIS[dt.getMonth()].toLowerCase()+' '+an+'</span></div><button type="button" class="pn-x" aria-label="Fermer">×</button></div>';
-  var src=sai?'<p class="pn-src"><b>Saisi dans l\'application</b>'+(sai.auteur?' par '+esc(sai.auteur):'')+' · le classeur dit '+esc([sai.cl_cellule,sai.cl_annotation].filter(Boolean).map(grAffiche).join(" · ")||"rien")+'</p>':'';
+  var src=db.projete?'<p class="pn-src"><b>Prolongé par les cycles</b> · le classeur '+an+' n\'est pas encore arrivé</p>':sai?'<p class="pn-src"><b>Saisi dans l\'application</b>'+(sai.auteur?' par '+esc(sai.auteur):'')+' · le classeur dit '+esc([sai.cl_cellule,sai.cl_annotation].filter(Boolean).map(grAffiche).join(" · ")||"rien")+'</p>':'';
   if(!edit){
     var pn0=grOuvrirPanneau(titre+'<div class="pn-corps">'+src
       +'<p class="pn-t">Prévu</p><p class="pn-txt">'+esc(grAffiche(e[0])||"—")+'</p>'

@@ -10318,3 +10318,68 @@ L'épreuve `usine-photo-1295.js` reprend celle de la v1294 et y ajoute ces
 quatre cas. Elle exige au plus deux traits en biais, aucun croisement,
 aucun recouvrement et un trait par groupe. Elle passe sans faute ; sur la
 v1294, elle relève les quatre fautes de biais.
+
+### L'onglet Horaire jusqu'en 2030, prolongé par les cycles (02/11/2026, `nfdm-v1297`)
+
+Le client : « prolonge le calendrier dans Horaire jusqu'en 2030 ».
+
+**Mesuré avant** (v1296) : la flèche de droite s'arrêtait à 2027 (« Pas
+d'horaire pour 2028 »). Le tableau ne lisait que les années à classeur,
+`HORAIRES[an]`. Pourtant l'application savait déjà prolonger les cycles
+au-delà du dernier classeur (`horaireDe`, depuis le 09/10, journal 02,
+« Après le classeur : les cycles prolongés ») : le pré-remplissage et le
+tableau du jour s'en servaient, pas l'onglet Horaire.
+
+**Fait :** `grDb(an)` rend le classeur de l'année s'il existe. Sinon,
+jusqu'à `GR_AN_MAX = 2030`, il rend l'horaire prolongé par les cycles :
+- 5 équipes sur 5 semaines, 6 binômes sur 6, la STEP sur 2 ;
+- calés sur les trois derniers mois du dernier classeur, aujourd'hui
+  2027.
+
+Le tableau, sa signature, la flèche et la fiche d'une personne lisent
+`grDb`. Une année prolongée :
+- dit « Prolongé par les cycles » sous son titre, à la place de la date du
+  classeur ;
+- n'a pas de compteurs : le pied se tait déjà, l'année n'étant pas dans
+  `COMPTEURS_FIABLES`, et la fiche d'une personne ne les montre plus ;
+- ne se saisit pas : une case du tableau ne s'ouvre pas, et la fonction
+  de saisie `grEditer` refuse d'office ;
+- est remplacée d'office par son classeur quand il arrive.
+
+Au-delà de 2030, la flèche dit « L'horaire s'arrête en 2030 ».
+
+**Mesuré après** : l'épreuve `horaire-2030.js` passe à 1440 et 390 px.
+- **De 2026 à 2030 :** 2026 et 2027 restent à leur classeur. 2028, 2029 et
+  2030 disent « Prolongé par les cycles », avec 365 ou 366 lignes et sans
+  pied de compteurs. La flèche s'arrête à 2030.
+- **La rotation, sur cinq jours de 2029** (janvier, mars, juin, septembre,
+  décembre) : chaque pause (matin, après-midi, nuit) est tenue par une
+  seule équipe. Le 15/06/2029, par exemple :
+
+  | Équipe | Pause | Personnes |
+  |---|---|---|
+  | 1 | repos | 13 sur 17 |
+  | 2 | après-midi | 12 sur 18 |
+  | 3 | matin | 13 sur 19 |
+  | 4 | nuit | 13 sur 18 |
+  | 5 | jour | 9 sur 18 |
+
+- **La fiche d'une personne en 2029** : sans compteurs.
+
+Elle passe sans faute. Sur la v1296, elle relève les fautes attendues : la
+flèche reste en 2027, et 2029 n'a aucune case.
+
+Le vérificateur du calendrier, sans option et avec `--manques 0926`,
+`--polyvalence` et `--compteurs`, donne des sorties identiques à l'octet
+avant et après.
+
+**Erreur commise, dans l'épreuve :** sa première version ne comptait que
+le matin, l'après-midi et la nuit. Elle prenait donc la pause d'une
+équipe au repos pour celle de quelques remplaçants, et criait à tort
+« deux équipes à la même pause ». La répartition complète, comptée case
+par case, était juste.
+
+**Remarqué en passant :** `grEditer`, la saisie d'une case depuis
+l'onglet Horaire, n'est plus appelée nulle part. Une case ne fait plus
+que marquer sa ligne depuis que la vue journée a été retirée (26/10). Elle
+est laissée en place, avec sa garde.
