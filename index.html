@@ -28712,7 +28712,7 @@ function renderEquipe(){
       if(posteCourant && g.k!=="D"){
         if(x.comble && x.avant===posteCourant.k) tr=null;
         else tr=transfertApp(x,posteCourant.k,jourCalc);
-        if(!tr && x.propose && x.propose!==posteCourant.k) tr={de:posteCourant.k, vers:x.propose};
+        if(!tr && x.propose && x.propose!==posteCourant.k) tr={de:posteCourant.k, vers:x.propose, h:x.proposeH};
         if(x.echange) tr={de:x.echange.de, vers:x.echange.vers};
       }
       if(tr){
@@ -29042,39 +29042,7 @@ function renderEquipe(){
        Le remplacé absent relève des relais (relaisDouze), une heure au
        milieu de la pause reste comme avant. Affichage du Planning seul :
        le moteur (sous-effectifs, vérificateur) ne change pas. */
-    ORD.forEach(function(gk){
-      if(!vp[gk]) return;
-      var v=vp[gk].vue, t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t1<=t0) t1+=24;
-      function dans(h){ while(h<t0-0.01) h+=24; return h; }
-      v.postes.forEach(function(o){
-        if(o.P.cm || o.P.k==="adj") return;
-        o.gens.slice().forEach(function(x){
-          if(x.partage || x.horPart || x.deD || x.depuisD) return;
-          var c=String(((x.p.d||{})[mmdd]||[])[2]||""), m,
-              rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h?\s*(\d{2})?/gi;
-          /* deux remplacements à heures (GKT le 22/01 : CKS de 14 h à 18 h,
-             puis FLN de 18 h à 22 h) : toute sa pause ailleurs, on n'y touche pas */
-          if((c.match(rx)||[]).length!==1) return; rx.lastIndex=0;
-          while((m=rx.exec(c))){
-            var tri=m[1].toUpperCase(), oB=null, y=null;
-            v.postes.forEach(function(q){ if(q===o || q.P.cm || q.P.k==="adj") return;
-              q.gens.forEach(function(z){ if(!z.partage && idLisible(z.p.id)===tri){ oB=q; y=z; } }); });
-            if(!oB) continue;
-            var a=dans(Number(m[2])+Number(m[3]||0)/60), bb=dans(Number(m[4])+Number(m[5]||0)/60); if(bb<=a) bb+=24;
-            if(bb-a<0.5 || a<t0-0.01 || bb>t1+0.01) continue;
-            var fin=Math.abs(bb-t1)<0.01, deb=Math.abs(a-t0)<0.01; if(fin===deb) continue;
-            var reste=fin?[t0,a]:[bb,t1];
-            x.horPart=reste; x.relaisCourt={vers:oB.P.k, a:a, b:bb, remp:tri};
-            if(!y.horPart) y.horPart=reste.slice();
-            oB.gens.push({p:x.p, r:x.r, horPart:[a,bb], partage:true, relaisCourt:true});
-            /* son poste, ces heures-là, sans lui */
-            var sansLui=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x && !z.partage; })},jourCalc);
-            if(o.attendu && sansLui<o.attendu){ o.manque=true; o.trouCourt=true; }
-            break;
-          }
-        });
-      });
-    });
+    ORD.forEach(function(gk){ if(vp[gk]) relaisCourtsPause(vp[gk].vue,gk,mmdd,jourCalc); });
     /* EN FORMATION À SES HEURES ÉCRITES, et non à celles de sa case (le
        client, le 02/11/2026 : « pourquoi JBS n'est pas dans la ligne
        formation ? ») : JBS le 06/11, 08h30-12h30, et non 6h-14h ; AAI le
@@ -31346,7 +31314,8 @@ function renderTransferts(force){
         var Pz=null; POSTES_TRAVAIL.forEach(function(P){ if(P.k===t.vers) Pz=P; });
         var nomV=nomPosteApp(t.vers), r=t.r||{qui:[],note:""};
         var prev='<span class="mqcw"><span class="mqc app'+(t.p.id===moi?" moi":"")+'"><b>'+esc(idLisible(t.p.id))+"</b></span>"
-          +'<small class="mqch">'+esc(t.de?(PV_COURT[t.de]||nomPosteApp(t.de)):"à dét.")+" \u2192 "+esc(PV_COURT[t.vers]||nomV)+"</small></span>";
+          +'<small class="mqch">'+esc(t.de?(PV_COURT[t.de]||nomPosteApp(t.de)):"à dét.")+" \u2192 "+esc(PV_COURT[t.vers]||nomV)
+          +(t.h?" "+esc(String(Math.floor(t.h[0]))+"-"+String(Math.floor(t.h[1]))):"")+"</small></span>";
         var rem=r.qui.length
           ? caCadre("Remplace",r.qui.map(function(y){ return caChip(y.p.id,y.motif); }).join(""),"plein arem")
           : caCadre("Pourquoi",'<span class="apnote">'+esc(r.note)+"</span>","plein");
@@ -32155,7 +32124,9 @@ function texteTransfert(x,t,raison){
     +" ; "+idLisible(x.surplus.p.id)+" (remplace "+x.surplus.z+") tient le poste "+nomPosteApp(t.de)+".";
   if(x.echange) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
     +", sa place habituelle ; "+idLisible(x.echange.x.p.id)+" garde la sienne en "+nomPosteApp(t.de)+" (le client, le 27/09/2026).";
+  var hh=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
   return "Proposé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
+    +(t.h?" de "+hh(t.h[0])+" à "+hh(t.h[1]):"")
     +(raison?", "+raison:"")+". À confirmer avec "+idLisible(x.p.id)+".";
 }
 /* QUI PEUT COMBLER UNE PLACE VIDE (le client, le 20/10/2026, « 1 et 3 » :
@@ -32232,6 +32203,59 @@ function bulleCandidatsHTML(d){
       +(x.pr?'<em class="cdp-pr">proposé</em>':x.s?'<em class="cdp-su">en surnombre</em>':'')+'</li>';
   }).join("")+'</ul>';
 }
+/* LE REMPLACEMENT D'UNE HEURE (v1301), commun au Planning et aux
+   changements à prévenir (v1312). */
+function relaisCourtsPause(v,gk,mmdd,jourCalc){
+  var t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t1<=t0) t1+=24;
+  function dans(h){ while(h<t0-0.01) h+=24; return h; }
+  v.postes.forEach(function(o){
+    if(o.P.cm || o.P.k==="adj") return;
+    o.gens.slice().forEach(function(x){
+      if(x.partage || x.horPart || x.deD || x.depuisD) return;
+      var c=String(((x.p.d||{})[mmdd]||[])[2]||""), m,
+          rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h?\s*(\d{2})?/gi;
+      /* deux remplacements à heures (GKT le 22/01 : CKS de 14 h à 18 h,
+         puis FLN de 18 h à 22 h) : toute sa pause ailleurs, on n'y touche pas */
+      if((c.match(rx)||[]).length!==1) return; rx.lastIndex=0;
+      while((m=rx.exec(c))){
+        var tri=m[1].toUpperCase(), oB=null, y=null;
+        v.postes.forEach(function(q){ if(q===o || q.P.cm || q.P.k==="adj") return;
+          q.gens.forEach(function(z){ if(!z.partage && idLisible(z.p.id)===tri){ oB=q; y=z; } }); });
+        if(!oB) continue;
+        var a=dans(Number(m[2])+Number(m[3]||0)/60), bb=dans(Number(m[4])+Number(m[5]||0)/60); if(bb<=a) bb+=24;
+        if(bb-a<0.5 || a<t0-0.01 || bb>t1+0.01) continue;
+        var fin=Math.abs(bb-t1)<0.01, deb=Math.abs(a-t0)<0.01; if(fin===deb) continue;
+        var reste=fin?[t0,a]:[bb,t1];
+        x.horPart=reste; x.relaisCourt={vers:oB.P.k, a:a, b:bb, remp:tri};
+        if(!y.horPart) y.horPart=reste.slice();
+        oB.gens.push({p:x.p, r:x.r, horPart:[a,bb], partage:true, relaisCourt:true});
+        /* son poste, ces heures-là, sans lui */
+        var sansLui=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x && !z.partage; })},jourCalc);
+        if(o.attendu && sansLui<o.attendu){ o.manque=true; o.trouCourt=true;
+          /* COMBLABLE, IL EST PROPOSÉ (le client, le 02/11/2026, sur le
+             03/11 : « ce genre de manque doit être en proposition ou trou
+             réel, vu que l'on possède de l'effectif à proposer ? ») :
+             comme une place vide d'une pause entière, quelqu'un d'un
+             poste en surnombre qui sait tenir celui-ci est proposé à ces
+             heures (GPO, au gluten, au terrain arrière de 13 h à 14 h) ;
+             la case passe à l'orange, et le changement s'annonce. */
+          var cands=[];
+          v.postes.forEach(function(q){ if(q===o || q.P.cm || q.P.k==="adj") return;
+            var eff=effectif(q.gens,q.P,jourCalc);
+            q.gens.forEach(function(z){
+              if(z.partage || z.relaisCourt || z.deD || z.depuisD || z.horPart || (z.propose && z.propose!==o.P.k)) return;
+              if(!peutTenir(z.p,o.P,jourCalc) || !compteAuPoste(z,o.P,jourCalc)) return;
+              if(q.attendu && eff-(compteAuPoste(z,q.P,jourCalc)?1:0)<q.attendu) return;
+              cands.push({z:z, q:q}); }); });
+          cands.sort(function(u,w){ return u.z.p.id<w.z.p.id?-1:1; });
+          if(cands.length){ var cz=cands[0].z; cz.propose=o.P.k; cz.proposeH=[a,bb]; cz.proposeDe=cands[0].q.P.k;
+            cz.proposePour={p:x.p, remp:tri, vers:oB.P.k, a:a, b:bb}; o.propose=true; }
+        }
+        break;
+      }
+    });
+  });
+}
 /* Les transferts d'une journée, pause par pause (AM, PM, N). */
 function transfertsDuJour(db,annee,m,j){
   var mmdd=pad2(m)+pad2(j), jc=annee*10000+Number(mmdd), out=[];
@@ -32239,9 +32263,27 @@ function transfertsDuJour(db,annee,m,j){
   ["AM","PM","N"].forEach(function(g){
     var l=par[g]; if(!l||!l.length) return;
     var vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
+    /* LA PROPOSITION D'UNE HEURE (v1312) : GPO, gluten → terrain arrière de
+       13 h à 14 h le 03/11, pendant que GKT remplace NPE à la distillation.
+       Cherchée sur la vue du Planning : qui le rééquilibrage a porté à un
+       poste qui se tient sans lui y retourne à son poste d'avant (GPO,
+       porté au terrain arrière que GKT tient), comme au tableau. */
+    var vueH={postes:vue.postes.map(function(o){ return {P:o.P, attendu:o.attendu, relais:o.relais, tenu:o.tenu, gens:o.gens.slice()}; }), inconnus:vue.inconnus||[], formation:vue.formation||[]};
+    vueH.postes.forEach(function(o){ o.gens.slice().forEach(function(x){
+      if(!x.comble || !x.avant || x.avant===o.P.k) return;
+      var sans=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x; })},jc);
+      if(o.attendu && sans<o.attendu) return;
+      var o2=vueH.postes.filter(function(q){ return q.P.k===x.avant; })[0]; if(!o2) return;
+      o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x); }); });
+    try{ relaisCourtsPause(vueH,g,mmdd,jc); }catch(eR){}
+    vueH.postes.forEach(function(q){ q.gens.forEach(function(z){ if(!z.proposeH || z.partage) return;
+      var rp=z.proposePour, hh=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
+      out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, h:z.proposeH,
+        r:{qui:[{p:rp.p, motif:"remplace "+rp.remp+" ("+nomPosteApp(rp.vers).toLowerCase()+") de "+hh(rp.a)+" à "+hh(rp.b)}], note:""}}); }); });
     vue.postes.forEach(function(o){
       var tr=[];
       o.gens.forEach(function(x){
+        if(x.partage) return;
         var t=transfertApp(x,o.P.k,jc); if(t) tr.push([x,t]);
       });
       /* LA MÊME RÈGLE QUE LE PLANNING (renderEquipe, le 20/10/2026) : un

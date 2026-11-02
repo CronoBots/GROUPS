@@ -4390,3 +4390,53 @@ remplaçant n'est pas écrit » sans nommer JBI. Désormais : « PLZ est
 « remplacé par », sans nom ; c'est JBI qui écrit « remplace PLZ ». Le nom
 manque dans la case de PLZ. » La case de JBI s'affiche avec celles de
 PLZ. `inc-test2.js` l'attend, et relève la faute sur la v1310.
+
+### Le trou d'une heure comblable : une proposition, annoncée (02/11/2026, `nfdm-v1312`)
+
+Le client, capture du 03/11 à l'appui (le « ? 13-14 » rouge du terrain
+arrière, et sa bulle qui propose GPO, du gluten, en surnombre) : « ce genre de manque
+doit être en proposition ou trou réel, vu que l'on possède de l'effectif à
+proposer ? ».
+
+**En proposition.** C'est déjà ce que l'application fait pour une place
+vide de toute une pause : quand une personne en surnombre sait tenir le
+poste, la case passe à l'orange, la personne est proposée (pointillé
+orange), et le changement s'annonce dans « Changements de poste à
+prévenir ». Le trou d'une heure (v1301) restait rouge et n'était pas
+annoncé : il suit maintenant la même règle.
+
+**Ce qui change :**
+- la passe de la v1301 devient une fonction commune, `relaisCourtsPause`,
+  pour le Planning et pour `transfertsDuJour` ;
+- quand le trou est relevé, elle cherche, parmi la pause, quelqu'un d'un
+  poste en surnombre qui sait tenir celui-ci (`peutTenir`,
+  `compteAuPoste`), comme la bulle des candidats. Il est proposé à ces
+  heures (`propose`, `proposeH`), et la case passe à l'orange ;
+- son badge le dit : « Proposé par l'application : Gluten → Terrain
+  arrière de 13 h à 14 h » ;
+- le cadre « Changements de poste à prévenir » l'annonce : « GPO Glut. →
+  T. arr. 13-14 ». Le cadre « Remplace » donne la raison : GKT « remplace
+  NPE (distillation) de 13 h à 14 h ».
+
+**Deux pièges, trouvés à la mesure :**
+- GPO portait encore la marque du rééquilibrage (`comble = terr`). Le
+  Planning l'a pourtant gardé au gluten, puisque GKT tient le terrain
+  arrière (v1300). Le premier filtre l'écartait pour cette raison, et la
+  case restait rouge ;
+- les changements à prévenir travaillaient sur la vue d'avant ce retour,
+  avec GPO au terrain arrière, et ne voyaient pas de trou à 13 h. Ils font
+  désormais le même retour que le Planning (qui est porté vers un poste
+  qui se tient sans lui revient à son poste d'avant), puis cherchent les
+  trous d'une heure.
+
+**Mesuré sur 730 jours :** 5 trous d'une heure.
+- 3 deviennent des propositions : le 22/02 (PLZ en fermentation, 6-10),
+  le 25/05 (PLZ en distillation, 10-14) et le 03/11 (GPO au terrain
+  arrière, 13-14) ;
+- 2 restent de vrais trous, faute de quelqu'un en surnombre qui sache
+  tenir le poste : le 28/02 et le 27/05, l'après-midi.
+
+Le vérificateur du calendrier est identique à l'octet dans ses cinq
+modes : ce n'est pas le moteur des sous-effectifs. `prop-test.js` passe
+sans faute à 320, 390 et 1280 px ; sur la v1311, elle relève 4 fautes.
+`rh-test.js` attend désormais « À prévenir 1 ».
