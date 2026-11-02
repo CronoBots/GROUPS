@@ -10201,3 +10201,66 @@ Le garde-fou a de nouveau signalé un commentaire écrit en capitales avec
 une virgule, de la forme d'un « NOM, PRÉNOM ». Le commentaire a été
 reformulé, comme à la v1292. La leçon : un titre de commentaire en
 capitales ne porte pas de virgule.
+
+### L'usine sur sa photo : au téléphone, les trigrammes en deux bandes reliées (02/11/2026, `nfdm-v1294`)
+
+Le client : « sur mobile, au lieu de mettre les numéros, j'aimerais que tu
+mettes les trigrammes aussi, de façon 100 % pro et optimale ».
+
+**Essai d'abord, mesuré.** Au téléphone, la photo fait 340 px de large et
+178 de haut. On y a d'abord posé les trigrammes comme au PC, en pastilles
+de 11 px. Il y a 21 trigrammes, et six postes ont leur point dans le même
+quart gauche de la photo. Les groupes se repoussaient, si bien que le
+gluten s'est retrouvé au bas de la photo, les chaudières sous la meunerie
+et GPO collé à la distillation : illisible et faux. La règle du client
+« la photo entièrement visible » interdit de l'agrandir.
+
+**Choisi : la mise en page des plans annotés.** La photo reste entière et
+dégagée. Les trigrammes sont rangés en deux bandes, l'une au-dessus et
+l'autre au-dessous :
+- les quatre postes dont le point est le plus haut vont dans la bande du
+  haut, les autres dans celle du bas ;
+- dans chaque bande, les groupes vont de gauche à droite comme leurs
+  points, ce qui empêche les traits de se croiser ;
+- chaque groupe est relié par un trait fin au point de son poste. Le trait
+  est blanc sur un trait sombre, pour se lire sur la photo comme sur le
+  fond. Le point a la couleur du poste ;
+- les groupes du haut sont alignés par le bas, ceux du bas par le haut ;
+- chaque groupe a une largeur selon son nombre de trigrammes, jusqu'à
+  trois de front, et jamais moins de 40 px. Avec des colonnes égales, à
+  320 px, les trigrammes s'empilaient un par un et la bande du bas
+  montait à six rangs. Avec les largeurs pesées, il y en a deux.
+
+Toucher un groupe choisit le poste : le groupe est cerné, son trait
+épaissi, sa zone dessinée et sa fiche ouverte.
+
+La liste numérotée sous la photo devient une **légende** : la couleur, le
+nom du poste et son compte (ambre s'il manque quelqu'un). Elle ne répète
+plus les trigrammes, et la toucher choisit le poste. Les numéros et leur
+code ont disparu (`usp-pin`, `usp-num`).
+
+La phrase d'aide dit, au PC comme au téléphone : « des trigrammes : le
+poste, sa relève, comment le joindre ». Sous 480 px, elle prend toute la
+largeur, avec les vues Photo, 3D et Plan dessous. À 320 px, elle faisait
+cinq lignes à côté d'elles.
+
+**L'épreuve** `usine-photo-1294.js` ajoute 320 px aux deux largeurs
+d'avant. Au téléphone, elle vérifie :
+- la photo entière et aucun numéro ;
+- 8 groupes, aucun sur la photo ni hors de la largeur, et aucun qui en
+  recouvre un autre ;
+- des trigrammes d'au moins 11 px ;
+- 8 traits et 8 points, chaque trait finissant sur la photo, et aucun
+  croisement ;
+- une légende de 8 postes sans trigrammes ;
+- toucher GPO qui ouvre la fermentation, et la ligne Distillation qui
+  ouvre sa fiche et marque son groupe.
+
+Elle passe sans faute. Sur la v1293, elle relève 24 fautes.
+
+**Erreur commise :** en remplaçant le bloc de style des points numérotés,
+on a emporté avec lui celui des groupes de trigrammes et la ligne du
+crédit photo, qui le suivaient. Les groupes sont alors devenus de simples
+boutons en ligne (`position: static`), affichés n'importe où. On l'a
+constaté sur la capture, puis prouvé : aucune règle ne s'appliquait plus
+à ces boutons. Le bloc a été repris tel quel du commit v1293.
