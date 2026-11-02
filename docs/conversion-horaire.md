@@ -862,8 +862,14 @@ des couples : `O`+`P` désignent une seule personne.
 **C'est le libellé qui fait foi, pas la colonne.** La position des renforts
 change d'une feuille à l'autre — en Shift2, `U` porte un renfort *avant* et le
 renfort *arrière* est relégué en `AM`. Lire la ligne 9 ; ne jamais déduire le
-poste du numéro de colonne, à la seule exception du couple `O`+`P`, que le
-client donne comme toujours réservé au polyvalent arrière.
+poste du numéro de colonne. On écrivait ici « à la seule exception du couple
+`O`+`P`, toujours réservé au polyvalent arrière » : le client l'a repris le
+02/11/2026, « il ne faut pas se fier aux lettres des colonnes, n'oublie
+pas ». Le côté d'un « Polyvalent » se lit donc à ses voisins de la ligne 9 :
+le poste nommé le plus proche qui est d'un côté — meunerie, gluten, renfort
+avant ; fermentation, distillation, terrain arrière, renfort arrière
+(`ipCote`, v1308). Sur les classeurs du 02/11/2026, cette lecture place
+chacun des 14 « Polyvalent » du même côté que la lettre le faisait.
 
 `O` est **vide en Shift1 et Shift5** : ces équipes n'ont pas de polyvalent
 arrière. Un poste sans personne n'est pas une anomalie.
@@ -873,10 +879,10 @@ arrière. Un poste sans personne n'est pas une anomalie.
 Le poste de la ligne 9 dit où la personne se trouve *par défaut*. Ce qu'elle
 peut tenir en plus obéit à des règles distinctes :
 
-- **Polyvalent arrière** (`O`+`P`) — tient le poste « Polyvalent arrière », et
+- **Polyvalent arrière** (aujourd'hui en `O`+`P`) — tient le poste « Polyvalent arrière », et
   peut remplacer **en fermentation et en distillation** si nécessaire.
 - **Renfort arrière** — tient les postes pour lesquels il a la polyvalence.
-- **Polyvalent avant** (`AC`, `AE`) — tient les postes pour lesquels il a la
+- **Polyvalent avant** (aujourd'hui en `AC`, `AE`) — tient les postes pour lesquels il a la
   polyvalence, mais se trouve **le plus souvent au gluten**. S'il n'y a pas de
   meunier et qu'il a la polyvalence, il y remplace — *si l'horaire le dit*.
 - **Renfort avant** — même règle : le plus souvent au gluten, et seulement les

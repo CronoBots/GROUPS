@@ -31681,11 +31681,9 @@ function renderIncoherences(force){
    incohérence poste, exemple des gens indiqués polyvalent avant dans
    l'Excel original et n'ayant qu'un poste à l'avant »). Le rôle que la
    ligne 9 d'une feuille d'équipe donne, face à la feuille « Polyvalence » :
-   - POLYVALENT AVANT (« Polyvalent » en AC, AE) sans la meunerie ET le
-     gluten ;
-   - POLYVALENT ARRIÈRE (« Polyvalent » en O+P, la seule colonne que le
-     client attache à un rôle) sans la fermentation ET la distillation,
-     qu'il doit pouvoir remplacer (conversion-horaire.md) ;
+   - POLYVALENT AVANT sans la meunerie ET le gluten ;
+   - POLYVALENT ARRIÈRE sans la fermentation ET la distillation, qu'il doit
+     pouvoir remplacer (conversion-horaire.md) ;
    - TITULAIRE d'un poste (meunerie, gluten, fermentation, distillation,
      chaudières) sans sa polyvalence ;
    - ÉCRIT À UN POSTE, un jour à venir, sans sa polyvalence (« on ne tient
@@ -31695,20 +31693,41 @@ function renderIncoherences(force){
    la polyvalence ». Le classeur de l'année et celui d'après, s'il est là. */
 var IP_NOMS={pav:"Polyvalent avant", par:"Polyvalent arrière", titre:"Titulaire sans la polyvalence", jour:"Écrit à un poste sans la polyvalence"};
 var IP_ART={meun:"la Meunerie", glut:"le Gluten", ferm:"la Fermentation", dist:"la Distillation", chau:"les Chaudières", step:"la station d'épuration", terr:"le terrain arrière"};
+/* LE CÔTÉ D'UN « POLYVALENT » SE LIT À SES VOISINS DE LA LIGNE 9, jamais
+   à la lettre de sa colonne (le client, le 02/11/2026 : « il ne faut pas se
+   fier aux lettres des colonnes, n'oublie pas ») : le poste nommé le plus
+   proche dans la feuille, à gauche ou à droite, qui est d'un côté — la
+   meunerie, le gluten et le renfort avant ; la fermentation, la
+   distillation, le terrain arrière et le renfort arrière. Les adjoints, les
+   chaudières et les autres polyvalents ne disent pas de côté. À égalité de
+   distance entre deux côtés, on ne tranche pas. */
+function ipColonne(c){ var n=0; String(c||"").toUpperCase().replace(/[^A-Z]/g,"").split("").forEach(function(ch){ n=n*26+ch.charCodeAt(0)-64; }); return n; }
+function ipCoteLib(l){ return /^(meun|glut)|renfort\s+av/i.test(l)?"av":/^(ferm|disti|terr)|renfort\s+arr/i.test(l)?"ar":null; }
+function ipCote(ligne9,col){
+  var i=ipColonne(col), best=null, d=1e9;
+  ligne9.forEach(function(x){ var c=ipCoteLib(x.lib); if(!c) return; var e=Math.abs(x.i-i);
+    if(e<d){ d=e; best=c; } else if(e===d && best!==c) best="?"; });
+  return best==="?"?null:best;
+}
 function incPostes(){
   var au=jourUsine(), j0=au.getFullYear()*10000+(au.getMonth()+1)*100+au.getDate(), out={}, ordre=[];
   function a(p,k,jour){ for(var i=0;i<POSTES_TRAVAIL.length;i++) if(POSTES_TRAVAIL[i].k===k) return !!aLaPolyvalence(p,POSTES_TRAVAIL[i],jour); return false; }
   function note(o,an){ var c=o.t+"|"+idLisible(o.p.id)+"|"+(o.eq||"")+"|"+(o.k||"")+"|"+(o.an||"")+(o.md||"");
     if(!out[c]){ o.ans=[]; out[c]=o; ordre.push(c); } if(out[c].ans.indexOf(an)<0) out[c].ans.push(an); }
   HORAIRE_ANNEES.forEach(function(an){ var db=horaireSuivant(an); if(!db||an<au.getFullYear()) return;
-    var jour=an===au.getFullYear()?j0:an*10000+101;
+    var jour=an===au.getFullYear()?j0:an*10000+101, L9={};
+    /* la ligne 9 de chaque feuille, telle que les gens la portent */
+    db.people.forEach(function(p){ var ps=p.postes||{};
+      Object.keys(ps).forEach(function(f){ if(!/^Shift\s*\d/i.test(f)) return;
+        (L9[f]=L9[f]||[]).push({i:ipColonne(ps[f].c), lib:String(ps[f].p||"").trim()}); }); });
     db.people.forEach(function(p){ if(estCadre(p)) return;
       var ps=p.postes||{};
       Object.keys(ps).forEach(function(f){ if(!/^Shift\s*\d/i.test(f)) return;
         var lib=String(ps[f].p||"").trim(), col=String(ps[f].c||"").toUpperCase(), eq=f.replace(/\D+/g,"");
         if(/adjoint|renfort/i.test(lib)) return;
         if(/^polyvalent$/i.test(lib)){
-          var arr=col==="O"||col==="P", k1=arr?"ferm":"meun", k2=arr?"dist":"glut", h1=a(p,k1,jour), h2=a(p,k2,jour);
+          var cote=ipCote(L9[f]||[],col); if(!cote) return;
+          var arr=cote==="ar", k1=arr?"ferm":"meun", k2=arr?"dist":"glut", h1=a(p,k1,jour), h2=a(p,k2,jour);
           if(!(h1&&h2)) note({t:arr?"par":"pav", p:p, eq:eq, col:col, lib:lib, a:h1?[k1]:h2?[k2]:[], m:(h1?[]:[k1]).concat(h2?[]:[k2])},an);
           return; }
         var k=null; try{ k=posteDepuisNom(lib); }catch(e){}

@@ -4207,9 +4207,11 @@ ligne 9 écrit « Polyvalent » trois fois :
   la distillation ;
 - en `AC` et en `AE`, dans le bloc avant, après la meunerie et le gluten.
 
-`docs/conversion-horaire.md` le disait déjà. `O`+`P` est la seule colonne
-que le client attache à un rôle : le polyvalent arrière, qui « peut
-remplacer en fermentation et en distillation ». Le polyvalent avant « tient
+`docs/conversion-horaire.md` le disait déjà. Il ajoutait que `O`+`P` est la
+seule colonne que le client attache à un rôle, et la v1307 décidait le côté
+par cette lettre. **C'était faux** : le client l'a repris le soir même
+(v1308, ci-dessous). Le polyvalent arrière « peut remplacer en fermentation
+et en distillation ». Le polyvalent avant « tient
 les postes pour lesquels il a la polyvalence ». La polyvalence se lit dans
 la feuille « Polyvalence » (`p.poly.ateliers`), à la date du jour : une
 polyvalence finie ne compte plus.
@@ -4317,3 +4319,34 @@ modes. Le classeur 2027 apportait un mot nouveau, « Calibration » (FPS le
 signalé. C'est l'étalonnage des skids d'éthanol, pas une personne : lu
 dans son contexte, il est admis dans `tools/formes-admises.txt` avec sa
 raison.
+
+### Le côté d'un « Polyvalent » se lit à ses voisins, pas à sa lettre (02/11/2026, `nfdm-v1308`)
+
+Le client, en reprenant sa demande : « il ne faut pas se fier aux lettres
+des colonnes, n'oublie pas ». La v1307 disait « arrière » d'un
+« Polyvalent » en `O` ou `P`, et « avant » de tous les autres : c'était la
+seule lettre de colonne lue dans le code (`col==="O"`). Une recherche dans
+`index.html` et `tools/` n'en trouve aucune autre.
+
+**Désormais (`ipCote`),** le côté se lit dans la ligne 9 de la feuille,
+telle que les gens la portent. C'est celui du poste nommé le plus proche,
+à gauche ou à droite :
+- meunerie, gluten, renfort avant : l'avant ;
+- fermentation, distillation, terrain arrière, renfort arrière : l'arrière.
+
+Les adjoints, les chaudières et les autres polyvalents ne disent pas de
+côté. À égalité de distance entre deux côtés, la personne n'est pas
+jugée.
+
+**Mesuré sur les classeurs du 02/11/2026 :** les 14 « Polyvalent » (7 par
+classeur) tombent du même côté qu'avec la lettre. Leurs voisins sont le
+Gluten (`AA`) pour ceux de l'avant, la Fermentation (`Q`) ou la
+Distillation (`S`) pour ceux de l'arrière. Les 6 incohérences restent les
+mêmes. La différence ne se verra que le jour où une colonne bougera :
+**l'épreuve le montre.** Dans une copie, DWS, polyvalent arrière de
+l'équipe 1, passe de `O` en `R` et perd la distillation :
+- la v1308 le lit à l'arrière, « la Distillation lui manque » ;
+- la v1307 le lisait à l'avant, et `ip-test.js` y relève 2 fautes.
+
+`docs/conversion-horaire.md` est corrigé sur place. Il disait « à la seule
+exception du couple `O`+`P` » ; le client l'a repris.
