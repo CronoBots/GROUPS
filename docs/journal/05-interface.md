@@ -10061,3 +10061,51 @@ et la station d'épuration.
 L'épreuve `usine-photo-1290.js` passe sans faute, et le parcours complet
 aussi (183 essais, 0 faute).
 
+
+### L'usine sur sa photo : les huit postes dessinés, en formes à angles droits (02/11/2026, `nfdm-v1292`)
+
+Le client a dessiné les trois postes restants :
+- les **chaudières** : la chaudière à son (le hangar à son), la biomasse et
+  ses cheminées, la chaudière gaz, les utilités et les trois tours de
+  refroidissement ; elles s'arrêtent au bord de la distillation ;
+- la **station d'épuration** : le traitement des eaux avec sa rétention, et
+  le coin de la station au bord de la Meuse ;
+- le **contremaître** : le haut du bâtiment des bureaux.
+
+Pour le **terrain arrière**, il précise : « cela reprend les zones de la
+fermentation et de la distillation ». Il n'a donc plus de zone à lui.
+Quand on le choisit, ce sont les zones de la fermentation et de la
+distillation qui s'allument. Il garde son point et sa carte.
+
+Il ajoute ensuite deux consignes :
+- « ne prends pas en compte les couleurs que j'ai utilisées pour
+  t'expliquer » : les zones gardent la couleur de leur poste au Planning,
+  jamais celle du feutre ;
+- « tu peux faire des formes géométriques plus rectangulaires » : toutes
+  les zones sont refaites en rectangles ou en formes à angles droits,
+  calées sur les bâtiments.
+
+**La reprise des zones.** On part du relevé de ses tracés, puis :
+- chaque morceau devient un rectangle, ou un L ou un U quand le tracé
+  contourne un bâtiment ;
+- seule la bande du quai garde son biais, c'est un convoyeur en diagonale
+  sur la photo ;
+- le nombre de sommets tombe de 160 à 122 ;
+- là où deux postes se touchaient, le bord est commun :
+  - la meunerie s'arrête au toit du gluten (à 372 et 394 px) ;
+  - les utilités s'arrêtent au bord de la distillation (à 336 px).
+
+La superposition à la photo a été envoyée au client.
+
+**Erreur commise.** Le premier jet gardait au-dessus des zones l'ancien
+commentaire « au contour des bâtiments ». Il a été retiré. Le titre du
+nouveau mettait deux mots en capitales de part et d'autre d'une virgule.
+`verifier-depot.py` l'a signalé, car c'est la forme d'un « NOM, PRÉNOM ».
+Le titre a été reformulé plutôt qu'ajouté aux formes admises. La première
+version de cette entrée recopiait la forme signalée, et le crochet a
+refusé le commit pour la même raison.
+
+L'épreuve `usine-photo-1292.js` ajoute un contrôle : choisir le terrain
+arrière allume la fermentation et la distillation, et rien d'autre. Elle
+passe sans faute. Sur la v1291, elle relève la faute attendue : le terrain
+arrière n'y allumait que lui-même.
