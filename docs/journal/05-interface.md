@@ -10026,3 +10026,38 @@ l'écran, et le point visé était hors de l'écran (y = −108).
 Le client demande ensuite à dessiner lui-même les zones de chaque poste :
 la photo nue lui est envoyée, et ses zones remplaceront ces polygones.
 
+### L'usine sur sa photo : les zones dessinées par le client (02/11/2026, `nfdm-v1291`)
+
+Le client a dessiné lui-même, sur la photo nue (1600 × 840, celle de
+l'application), la zone de quatre postes : la meunerie, le gluten, la
+fermentation et la distillation. Il a ajouté : « tu peux rendre les zones
+plus géométriques ».
+
+**Comment on les relève.**
+- La meunerie est arrivée en fichier. Son jaune a été isolé pixel par
+  pixel, puis redressé en un polygone à bords droits : 99,5 % du jaune est
+  dedans. Ce qu'il ajoute (20 % de sa surface) vient des bords redressés et
+  des petits trous comblés.
+- Les trois autres images ne sont pas arrivées en fichier dans la session.
+  Elles ont été relevées à l'œil sur l'image reçue, puis superposées à la
+  photo pour contrôle.
+
+**Ce que ses tracés changent :**
+- **meunerie** : le quai, la bande, la tour, les silos à blé et le moulin,
+  mais pas le hangar à son ;
+- **gluten** : le bâtiment et ses deux groupes de silos, sans le petit cube
+  en dessous ;
+- **fermentation** : le grand bloc des cuves jusqu'au stockage chimique,
+  plus une colonne de la liquéfaction et une cuve du parc du nord (le
+  repère 11 avait été dit « sucrerie » : cette cuve-là est à la
+  fermentation) ;
+- **distillation** : la charpente, la partie droite de la liquéfaction et
+  de l'évaporation, et le stockage d'alcool (repère 13), que le terrain
+  arrière n'a plus.
+
+Restent à dessiner : les chaudières, le terrain arrière, le contremaître
+et la station d'épuration.
+
+L'épreuve `usine-photo-1290.js` passe sans faute, et le parcours complet
+aussi (183 essais, 0 faute).
+
