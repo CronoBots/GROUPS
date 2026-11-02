@@ -2876,6 +2876,37 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .us-invite{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4; flex:1; min-width:0}
 /* le mode d'emploi et la légende, au-dessus du plan (v1272) */
 .us-guide{display:flex; flex-direction:column; gap:8px; padding:12px 16px}
+/* L'USINE SUR SA PHOTO (v1289) : la vue aérienne, les zones des postes,
+   leurs points et leurs cartes ; au téléphone, la photo défile de côté */
+.usp{position:relative; margin:0 16px; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#1b2430}
+.usp-defil{overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:thin}
+.usp-cadre{position:relative; width:100%; aspect-ratio:1600/840}
+.usp-cadre img{position:absolute; inset:0; width:100%; height:100%; display:block; filter:saturate(.92) brightness(.95); transition:filter .4s}
+.usp.usp-nuit .usp-cadre img{filter:saturate(.7) brightness(.55)}
+.usp-zones{position:absolute; inset:0; width:100%; height:100%}
+.usp-zones rect{fill:rgba(255,255,255,.07); stroke:rgba(255,255,255,.6); stroke-width:1.5; vector-effect:non-scaling-stroke; stroke-dasharray:5 4}
+.usp-zones rect.usp-sel{fill:color-mix(in srgb,var(--in) 24%,transparent); stroke:var(--in); stroke-width:2.5; stroke-dasharray:none}
+.usp-pins{position:absolute; inset:0; pointer-events:none}
+.usp-pin{position:absolute; left:-6px; top:-6px; width:12px; height:12px; border-radius:50%; background:var(--in); border:2px solid #fff; box-sizing:border-box; box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.usp-ets{position:absolute; inset:0; pointer-events:none}
+.usp-et{position:absolute; left:0; top:0; pointer-events:auto; display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:6px 8px; max-width:210px;
+  border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 12.5px/1.15 inherit; text-align:left;
+  box-shadow:0 3px 10px rgba(0,0,0,.32); cursor:pointer}
+.usp-et .usp-t{display:flex; align-items:baseline; gap:6px; white-space:nowrap}
+.usp-et .usp-t span{font-weight:500; font-size:11px; color:var(--ink2)}
+.usp-et .usp-g{display:flex; flex-wrap:wrap; gap:3px}
+.usp-et .us-tri-b{min-width:34px; height:20px; padding:0 5px; font-size:11px}
+.usp-et .us-tri-b.usp-moi{outline:2px solid var(--in); outline-offset:1px}
+.usp-et .us-tri-b.usp-hors{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--ink2); border:0}
+.usp-et .us-tri-b.usp-hors.usp-moi{outline:2px solid var(--in)}
+.usp-et .usp-plus{font-size:11px; font-weight:700; color:var(--ink2); align-self:center}
+.usp-et .usp-libre{font-size:11px; font-weight:700; color:var(--ink)}
+.usp-et::after{content:""; position:absolute; left:calc(50% + var(--tige-x,0px)); top:100%; width:2px; height:var(--tige,12px); margin-left:-1px; background:rgba(255,255,255,.85); box-shadow:0 0 2px rgba(0,0,0,.5)}
+.usp-et.usp-bas::after{top:auto; bottom:100%}
+.usp-et.usp-manque{border-color:var(--at-jaune); box-shadow:0 0 0 1px var(--at-jaune),0 3px 10px rgba(0,0,0,.32)}
+.usp-et.usp-sel{border-color:var(--in); box-shadow:0 0 0 2px color-mix(in srgb,var(--in) 50%,transparent),0 3px 10px rgba(0,0,0,.32)}
+.usp-credit{margin:4px 16px 0; font-size:11px; color:var(--muted); text-align:right}
+@media (max-width:699px){ .usp{margin:0 8px} .usp-cadre{width:900px} .usp-credit{margin:4px 8px 0} }
 /* L'USINE EN 3D (v1288) : la scène, ses étiquettes de poste, ses boutons */
 .us3{position:relative; height:clamp(340px,64vh,560px); margin:0 16px; border:1px solid var(--line); border-radius:14px; overflow:hidden;
   background:linear-gradient(180deg,#22303f 0%,#33455a 62%,#3b4b5c 100%); --us3-brume:#3b4b5c}
@@ -22803,7 +22834,7 @@ var U3_MODELE=(function(){
 /* les étiquettes des postes, au-dessus de leur salle */
 var U3_ETIQ={meun:[72,64,106], glut:[100,32,215], chau:[180,40,122], dist:[195,50,215], ferm:[227,26,296], terr:[292,20,212], step:[720,16,-95], cm:[321,14,318]};
 var U3_POSTES=["","meun","glut","ferm","dist","terr","chau","step","cm"];
-var US3_MODE=lsGet("ui/usine3d")!==false, US3_CLE="", US3=null, _u3Ok=null;
+var US3_MODE=false, US3_CLE="", US3=null, _u3Ok=null;
 function usine3DPossible(){
   if(_u3Ok===null){ try{ var c=document.createElement("canvas"); _u3Ok=!!(window.WebGLRenderingContext&&(c.getContext("webgl")||c.getContext("experimental-webgl"))); }catch(e){ _u3Ok=false; } }
   return _u3Ok;
@@ -22879,10 +22910,10 @@ function usine3DInit(){
   var cv=document.getElementById("us3c"); if(!cv) return;
   var cam=US3&&US3.cam?US3.cam:u3CamDefaut();
   var gl=null; try{ gl=cv.getContext("webgl",{antialias:true,alpha:true})||cv.getContext("experimental-webgl"); }catch(e){}
-  if(!gl){ _u3Ok=false; US3_MODE=false; US_CLE=""; return; }
+  if(!gl){ _u3Ok=false; US3_MODE=false; US_VUE="photo"; US_CLE=""; return; }
   function sh(t,s){ var o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); return o; }
   var pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,U3_VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,U3_FS)); gl.linkProgram(pr);
-  if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){ _u3Ok=false; US3_MODE=false; US_CLE=""; return; }
+  if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){ _u3Ok=false; US3_MODE=false; US_VUE="photo"; US_CLE=""; return; }
   if(!_u3Geo) _u3Geo=u3Geometrie();
   var G=_u3Geo, tamp={};
   [["aP",G.p,3],["aN",G.n,3],["aC",G.c,3],["aK",G.k,1]].forEach(function(a){ var b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,a[1],gl.STATIC_DRAW); tamp[a[0]]=[b,a[2],gl.getAttribLocation(pr,a[0])]; });
@@ -22975,10 +23006,12 @@ function usine3DEtiquettes(E){
     return '<button type="button" class="us3-et'+(manque?' us3-manque':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+" présent"+(n>1?"s":"")+(att?" sur "+att:""))+'"><b>'+esc(z.t)+'</b><span>'+n+(att?'/'+att:'')+'</span></button>'; }).join("");
   if(US3){ US3.nuit=E.nuit?1:0; u3Placer(); }
 }
+/* la photo, la 3D (si l'appareil la dessine) ou le plan ; gardé sur
+   l'appareil (ui/usineVue) */
 function usineModeHTML(){
-  if(!usine3DPossible()) return "";
-  return '<div class="us-mode" role="group" aria-label="Vue de l’usine">'+[["3d","3D"],["plan","Plan"]].map(function(m){ var on=(m[0]==="3d")===!!US3_MODE;
-    return '<button type="button" data-us-mode="'+m[0]+'" aria-pressed="'+on+'">'+m[1]+'</button>'; }).join("")+'</div>';
+  var M=[["photo","Photo"]].concat(usine3DPossible()?[["3d","3D"]]:[]).concat([["plan","Plan"]]);
+  return '<div class="us-mode" role="group" aria-label="Vue de l’usine">'+M.map(function(m){
+    return '<button type="button" data-us-mode="'+m[0]+'" aria-pressed="'+(m[0]===US_VUE)+'">'+m[1]+'</button>'; }).join("")+'</div>';
 }
 function usine3DRendre(corps,E,cote,cw){
   var cle="3d|"+cote+"|"+(cw>=624);
@@ -23004,6 +23037,83 @@ function usine3DRendre(corps,E,cote,cw){
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
   u3Demande();
 }
+/* L'USINE SUR SA PHOTO (le client, le 02/11/2026, après la 3D : « je pense
+   que le mieux est d'avoir une photo du site et de mettre les indications
+   et trigrammes dessus, de façon intuitive et professionnelle » ; la
+   photo, choisie en QCM : la vue aérienne officielle, prise du sud, dans
+   l'application, créditée). La photo est recadrée et réduite à 1600 × 840
+   (usine-photo.jpg) ; tout ce qui est posé dessus est en pixels de cette
+   image. Chaque poste du Planning a ses zones (soulignées sur la photo,
+   d'après les 21 repères identifiés par le client), un point sur sa salle
+   et une carte : le poste, les trigrammes présents, les présents sur
+   l'attendu, l'ambre s'il manque quelqu'un. */
+var USP_ZONES={
+  meun:[[40,80,230,185],[80,185,238,440],[240,215,368,312],[265,315,410,392]],
+  glut:[[110,400,415,640]],
+  chau:[[410,170,720,328],[600,332,700,395]],
+  dist:[[445,330,598,530],[640,398,860,530]],
+  terr:[[880,385,950,530],[945,335,1135,425]],
+  ferm:[[425,535,865,725]],
+  cm:[[1045,628,1160,792]],
+  step:[[1470,72,1600,140]]};
+var USP_POINTS={meun:[222,215], glut:[305,465], chau:[560,232], dist:[530,380], ferm:[670,590], terr:[912,420], cm:[1100,690], step:[1556,104]};
+var US_VUE=lsGet("ui/usineVue")||"photo", USP_CLE="";
+if(US_VUE!=="photo"&&US_VUE!=="3d"&&US_VUE!=="plan") US_VUE="photo";
+US3_MODE=US_VUE==="3d";
+function usinePhotoCartes(E){
+  return USINE_ZONES.map(function(z){ var Zk=E.Z[z.k], g=Zk?Zk.gens:[], n=Zk?Zk.n:0, att=Zk?Zk.attendu:0, manque=att>n, max=4;
+    /* qui tient le poste, plein ; qui est là en plus (formation, horaire
+       de jour, adjoint), en pointillé : « 2/2 » et trois trigrammes se
+       lisent d'un coup d'œil */
+    g=g.filter(function(o){ return o.compte; }).concat(g.filter(function(o){ return !o.compte; }));
+    var tri=g.slice(0,max).map(function(o){ return '<span class="us-tri-b us-f-'+(z.f||"gris")+(o.moi?' usp-moi':'')+(o.compte?'':' usp-hors')+'"'+(o.compte?'':' title="En plus du poste"')+'>'+esc(o.tri)+'</span>'; }).join("")
+      +(g.length>max?'<span class="usp-plus">+'+(g.length-max)+'</span>':'')+(!g.length&&att?'<span class="usp-libre">place libre</span>':'');
+    return '<button type="button" class="usp-et'+(manque?' usp-manque':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+" présent"+(n>1?"s":"")+(att?" sur "+att:"")+(g.length?" : "+g.map(function(o){ return o.tri; }).join(", "):""))+'">'
+      +'<span class="usp-t"><b>'+esc(z.t)+'</b><span>'+n+(att?'/'+att:'')+'</span></span>'+(tri?'<span class="usp-g">'+tri+'</span>':'')+'</button>'; }).join("");
+}
+/* les cartes au-dessus de leur point ; une qui en recouvre une autre
+   remonte (sa tige s'allonge), celles des bords restent sur la photo */
+function uspPlacer(){
+  var cadre=document.getElementById("uspCadre"), hote=document.getElementById("uspEt"); if(!cadre||!hote) return;
+  var W=cadre.clientWidth, H=cadre.clientHeight; if(!W||!H) return; var L=[];
+  Array.prototype.forEach.call(hote.children,function(b){ var k=b.getAttribute("data-k"), q=USP_POINTS[k]; if(!q) return;
+    b.classList.toggle("usp-sel",k===US_SEL); L.push({b:b, x:q[0]/1600*W, y:q[1]/840*H, w:b.offsetWidth, h:b.offsetHeight}); });
+  var pins=document.getElementById("uspPins"); if(pins) pins.innerHTML=L.map(function(o){ return '<span class="usp-pin" style="transform:translate('+Math.round(o.x)+'px,'+Math.round(o.y)+'px)"></span>'; }).join("");
+  L.sort(function(a,b){ return b.y-a.y; }); var poses=[];
+  L.forEach(function(o){ var bas=o.y-o.h-14<4, y=bas?o.y+o.h+14:o.y-14, cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), x0=cx-o.w/2, x1=cx+o.w/2, bouge=true, n=0;
+    while(bouge&&n++<12){ bouge=false; poses.forEach(function(p){ if(x0<p.x1+4&&x1>p.x0-4&&y>p.y0-4&&y-o.h<p.y1+4){ y=bas?p.y1+o.h+4:p.y0-4; bouge=true; } }); }
+    poses.push({x0:x0, x1:x1, y0:y-o.h, y1:y});
+    o.b.classList.toggle("usp-bas",bas);
+    o.b.style.setProperty("--tige",Math.max(4,Math.round(bas?y-o.h-o.y:o.y-y))+"px"); o.b.style.setProperty("--tige-x",Math.round(o.x-cx)+"px");
+    o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(y)+"px) translate(-50%,-100%)"; });
+  Array.prototype.forEach.call(document.querySelectorAll("#uspZones rect"),function(r){ var on=r.getAttribute("data-k")===US_SEL; r.setAttribute("class",on?"usp-sel":""); });
+}
+function usinePhotoRendre(corps,E,cote,cw){
+  var cle="photo|"+cote+"|"+(cw>=624);
+  if(cle!==USP_CLE||!document.getElementById("uspCadre")){
+    USP_CLE=cle; US_CLE=""; US3_CLE="";
+    corps.className="us-corps"+(cote?" us-cote":cw>=624?" us-dessous":"");
+    var fin=window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches;
+    corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'
+      +(fin?'Cliquez':'Touchez')+' un poste sur la photo : qui l’occupe, la relève, comment la joindre, et ce qu’il reçoit et envoie.</p>'+usineModeHTML()+'</div></div>'
+      +'<div class="usp'+(E.nuit?' usp-nuit':'')+'" id="usp"><div class="usp-defil" id="uspDefil"><div class="usp-cadre" id="uspCadre">'
+      +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
+      +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true">'
+      +Object.keys(USP_ZONES).map(function(k){ return USP_ZONES[k].map(function(r){ return '<rect data-k="'+k+'" x="'+r[0]+'" y="'+r[1]+'" width="'+(r[2]-r[0])+'" height="'+(r[3]-r[1])+'" rx="6"/>'; }).join(""); }).join("")
+      +'</svg><div class="usp-pins" id="uspPins" aria-hidden="true"></div><div class="usp-ets" id="uspEt"></div></div></div></div>'
+      +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be</p>'
+      +usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")+usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")+'</div>'
+      +'<div class="us-panneau"><div id="usFiche"></div><p class="us-note">Les zones soulignées sont celles de chaque poste, nommées par le client sur la vue aérienne ; la station d’épuration est hors de la photo, plus à l’est, au bord de la Meuse.</p></div>';
+    usineBrancher(corps);
+    var img=corps.querySelector(".usp-cadre img"); if(img&&!img.complete) img.onload=function(){ uspPlacer(); };
+    /* au téléphone, la photo défile de côté : elle s'ouvre sur le cœur de
+       l'usine */
+    var df=document.getElementById("uspDefil"); if(df&&df.scrollWidth>df.clientWidth) df.scrollLeft=Math.round(df.scrollWidth*0.42-df.clientWidth/2);
+  }
+  var u=document.getElementById("usp"); if(u) u.classList.toggle("usp-nuit",!!E.nuit);
+  document.getElementById("uspEt").innerHTML=usinePhotoCartes(E); uspPlacer();
+  document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
+}
 function renderUsine(){
   var c=document.getElementById("usineCard"), corps=document.getElementById("usineCorps"); if(!c||!corps) return;
   var gr=document.getElementById("accGrille");
@@ -23027,8 +23137,10 @@ function renderUsine(){
   var cote=cw>=1200, W=Math.max(260,Math.floor(cw-(cote?348:0)));
   /* la 3D, si elle est choisie et que l'appareil la dessine ; sinon le
      plan, comme avant */
-  if(US3_MODE&&usine3DPossible()){ usine3DRendre(corps,E,cote,cw); if(US3_MODE){ usineDernier=E; return; } }
-  US3_CLE="";
+  if(US_VUE==="3d"&&!usine3DPossible()) US_VUE="photo";
+  if(US_VUE==="3d"){ usine3DRendre(corps,E,cote,cw); if(US3_MODE){ usineDernier=E; return; } US_VUE="photo"; }
+  if(US_VUE==="photo"){ usinePhotoRendre(corps,E,cote,cw); usineDernier=E; return; }
+  US3_CLE=""; USP_CLE="";
   var g=usineGeo(W,usineRangs(E,W)), cle=W+"|"+g.large+"|"+cote+"|"+g.sig;
   if(cle!==US_CLE||!document.getElementById("usDyn")){
     US_CLE=cle;
@@ -23087,13 +23199,14 @@ function usineChoisir(k){
   [].forEach.call(document.querySelectorAll("#usDyn .us-zone"),function(z){ var on=z.getAttribute("data-k")===k; z.setAttribute("class",(z.getAttribute("class")||"").replace(/\s*\bus-sel\b/g,"")+(on?" us-sel":"")); z.setAttribute("aria-pressed",String(on)); });
   var f=document.getElementById("usFiche"); f.innerHTML=usineFiche(usineDernier,k);
   if(US3_MODE&&US3) u3Demande();
+  if(US_VUE==="photo") uspPlacer();
   /* au téléphone, la fiche est sous le plan : elle vient sous les yeux */
   var r=f.getBoundingClientRect(); if(r.bottom>innerHeight-80||r.top<0) try{ f.scrollIntoView({block:"nearest", behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"}); }catch(e){}
 }
 function usineBrancher(corps){
   corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null;
     /* 3D ou plan, gardé sur l'appareil ; et les boutons de la 3D */
-    var md=t.closest?t.closest("[data-us-mode]"):null; if(md){ var m3=md.getAttribute("data-us-mode")==="3d"; if(m3!==US3_MODE){ US3_MODE=m3; lsSet("ui/usine3d",m3); US_CLE=""; US3_CLE=""; renderUsine(); } return; }
+    var md=t.closest?t.closest("[data-us-mode]"):null; if(md){ var mv=md.getAttribute("data-us-mode"); if(mv!==US_VUE){ US_VUE=mv; US3_MODE=mv==="3d"; lsSet("ui/usineVue",mv); US_CLE=""; US3_CLE=""; USP_CLE=""; renderUsine(); } return; }
     var b3=t.closest?t.closest("[data-u3]"):null; if(b3){ var a3=b3.getAttribute("data-u3"); if(a3==="+") u3Zoom(0.8); else if(a3==="-") u3Zoom(1.25); else u3Recentrer(); return; } if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k"));
     /* le sol touché, hors des salles : tout le réseau revient */
     else if(!z&&US_FLUX&&t.closest&&t.closest("#usSvg")){ US_FLUX=false; usineLiens(); } };

@@ -1,6 +1,6 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v1288";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./logo-clair.svg", "./logo-app.png", "./logo-app-clair.png", "./banniere.jpg",
+var V = "nfdm-v1289";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./logo-clair.svg", "./logo-app.png", "./logo-app-clair.png", "./banniere.jpg", "./usine-photo.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
             "./apple-touch-icon.png", "./favicon.png",

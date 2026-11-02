@@ -9938,3 +9938,53 @@ fait défiler la page, et les touchers suivants visaient l'ancienne place.
 - le circuit de la matière en 3D, qui est sur le plan ;
 - ses corrections bâtiment par bâtiment, photo à l'appui.
 
+### L'usine en direct : l'usine sur sa photo, la vue par défaut (02/11/2026, `nfdm-v1289`)
+
+Le client, après la 3D : « je pense que le mieux est d'avoir une photo du
+site et de mettre les indications et trigrammes dessus, de façon intuitive
+et professionnelle ».
+
+**La photo.** Depuis la v1252, les images du site officiel restaient hors
+du dépôt, pour les droits d'auteur du photographe. C'était une précaution
+de ma part, pas une décision du client. Question posée (QCM) : il choisit
+la vue aérienne officielle (vue 02, prise du sud), dans l'application.
+- Elle est recadrée (de la Meuse au parking) et réduite à 1600 × 840 px
+  en JPEG progressif : `usine-photo.jpg`, 268 Ko. Le service worker la met
+  en cache avec la bannière : elle marche hors ligne.
+- Le recadrage laisse hors champ la signature incrustée en bas de
+  l'original : la photo est donc créditée sous l'image (« Photo aérienne :
+  globalview.be, pour biowanze.be »).
+
+**Fait :**
+- **La vue « Photo », par défaut** : « Photo · 3D · Plan », gardé sur
+  l'appareil (`ui/usineVue`). Sans WebGL, « Photo · Plan ».
+- **Sur la photo** :
+  - les zones de chaque poste, en pointillé blanc léger, d'après les 21
+    repères nommés par le client ;
+  - un point sur la salle ;
+  - une carte : le poste, les présents sur l'attendu, et les trigrammes
+    aux couleurs du Planning. Pleins, ceux qui tiennent le poste ; en
+    contour, ceux qui sont là en plus (formation, horaire de jour,
+    adjoint). Le trigramme de l'utilisateur est cerclé, et l'ambre marque
+    une place libre ;
+  - la station d'épuration, hors du cadre, a sa carte au coin, là où elle
+    commence.
+- **Les cartes ne se recouvrent pas** : une carte qui en recouvrirait une
+  autre se décale, sa tige s'allonge, et celles du haut passent sous leur
+  point.
+- **Toucher une carte** ouvre la fiche habituelle ; la carte et la zone se
+  marquent.
+- **La nuit**, la photo s'assombrit.
+- **Au téléphone**, la photo fait 900 px de large et défile de côté, pour
+  que les trigrammes restent lisibles. Elle s'ouvre sur le cœur de
+  l'usine.
+
+**L'épreuve** `usine-photo-1289.js` vérifie, à 1440 et 390 px :
+- la photo par défaut, chargée, avec ses 8 cartes sans recouvrement et sur
+  l'image, des trigrammes et le crédit ;
+- la carte du gluten qui ouvre sa fiche et marque carte et zone ;
+- les trois vues, et le choix « Plan » gardé au rechargement ;
+- sans WebGL, la photo, avec « Photo · Plan » seulement.
+
+Elle passe sans faute ; sur la v1288, elle relève 4 fautes.
+
