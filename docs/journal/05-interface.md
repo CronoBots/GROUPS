@@ -10864,3 +10864,31 @@ n'est jamais mise en cache par lui.
 Mesures : horloge essayée sur une minute (05:52:29 puis 05:53:29),
 captures à 1280, 800, 390 et 360 px, avec et sans badge, avec et sans
 météo ; parcours 112 essais, 0 faute.
+
+### L'en-tête de l'Accueil réorganisé : la bannière seule, l'heure et la météo dans l'identité (03/11/2026, `nfdm-v1331`)
+
+Le client, capture de son iPhone (la météo réelle s'affichait : 6°,
+brouillard) : « comment organiserais-tu l'en-tête ? plus
+professionnellement que ça, je veux du 100 % ». Défauts constatés sur la
+v1330 : la pilule couvrait la moitié de la photo, se serrait contre
+l'avatar (5 pt d'écart sur l'iPhone) et contre la cloche, et posait un
+cadre sombre sur l'image de la marque ; trois couches s'empilaient dans
+89 px (photo, pilule, avatar).
+
+Choix, sans rien défaire des décisions passées (bannière entière, roue
+en haut à droite, statut à droite du poste) :
+
+- la bannière redevient l'image de la marque : photo, logo, roue, et la
+  cloche des changements revenue en haut à gauche ;
+- l'heure et la météo sont du texte net sur le fond du héros, sans
+  pilule, dans la ligne d'identité : au PC (dès 1100 px), à droite, sous
+  la bannière, alignées sur le haut du poste (48 px), un filet entre
+  l'heure et le temps ; au téléphone et jusqu'à 1099 px, un bandeau
+  sous l'identité, séparé par un filet, l'heure et la date à gauche, le
+  temps et la température à droite — l'ordre de l'écran officiel ;
+- la date prend sa majuscule (« Mardi 3 novembre 2026 »).
+
+Mesures : le bandeau tient à 320 px (262 px de large), l'avatar ne
+touche plus rien ; au PC, la ligne d'identité passe de 92 à 99 px, le
+reste ne bouge pas ; hors ligne, l'heure et la date seules ; cloche
+essayée à sa place. Parcours 112 essais, 0 faute.
