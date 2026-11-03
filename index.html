@@ -81,6 +81,9 @@
      qui s'y lit. Ce sont des couleurs de MARQUE, et c'est pour cela qu'elles sont écrites
      ici une seule fois. */
   --marque:#141C2F; --marque-vif:#69B2CB;
+  /* les pastilles (le rouge et l'orange de la barre), en un seul endroit :
+     le rouge de l'iPhone, #FF3B30, ne tient qu'à 3,6:1 sous un chiffre blanc */
+  --pastille:#D63A30; --pastille-encre:#fff; --pastille-app:#E07B24; --pastille-app-encre:#1A1006;
   --fond:none; --filigrane:0;
   /* L'ACCENT EST LE CYAN DU LOGO, pris plus profond pour tenir sur du blanc :
      même teinte (222), pas la même clarté. Il ne vient plus d'ailleurs. */
@@ -153,8 +156,8 @@
   /* LE FOND DU LOGO (le client, le 03/11/2026 : « il faut utiliser le
      background du logo comme fond ») : #141C2F, relevé sur logo.png et
      l'icône, à plat ; la page, la marque et le chargement le prennent */
-  --paper:#141C2F; --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
-  --fond:#141C2F;  --filigrane:0;
+  --paper:var(--marque); --surface:#212737; --surface2:#161B29; --surface3:#2D3445;
+  --fond:none;  --filigrane:0;
   --ink:#E5E8F1; --ink2:#C0C5D1; --muted:#A8AEBC; --faint:#8A919F;
   --line:#3B4252; --line2:#2C3241;
   --trait:#465063; --trait-fort:#6B7488; --maint:rgba(110,210,240,.10);
@@ -166,9 +169,8 @@
   --sur-in:#070B15;
   /* le cyan du logo, tel quel, dans le sombre */
   --marque-vif:#69B2CB; --fd-flou:rgba(20,28,47,.55); --fd-titre:var(--surface2);
-  --fd-heros:radial-gradient(120% 140% at 0% 0%,#22345a 0%,#16203a 48%,var(--marque) 100%);
   /* et ceux du guide d'installation */
-  --bd-blanc-18:rgba(255,255,255,.18); --bd-blanc-20:rgba(255,255,255,.2); --fd-inst:#141C2F; --fd-inst-c:#1b2640; --tx-blanc-70:rgba(255,255,255,.7); --tx-blanc-75:rgba(255,255,255,.75); --tx-sur-vif:#0b1220;
+  --bd-blanc-18:rgba(255,255,255,.18); --bd-blanc-20:rgba(255,255,255,.2); --fd-inst:var(--marque); --fd-inst-c:#1b2640; --tx-blanc-70:rgba(255,255,255,.7); --tx-blanc-75:rgba(255,255,255,.75); --tx-sur-vif:#0b1220;
   --fd-intro:var(--marque);
   /* LES ENCRES ET LES VOILES DE LA NAVIGATION ET DU HÉROS (29/10/2026) :
      les blancs écrits en dur pour le bleu nuit, devenus jetons. Ici leur
@@ -187,7 +189,10 @@
   --fd-blanc-16:rgba(255,255,255,.16); --fd-blanc-18:rgba(255,255,255,.18);
   --fd-blanc-25:rgba(255,255,255,.25); --fd-blanc-50:rgba(255,255,255,.5);
   --fd-blanc-75:rgba(255,255,255,.75); --fd-blanc-92:rgba(255,255,255,.92); --fd-couv:#1a2747;
-  --fd-dock:rgba(46,56,80,.62); --fd-feuille:rgba(30,38,56,.86); --fd-marque:var(--marque);
+  /* le dock, sans flou à lui (iOS) : assez couvrant pour se lire sur ce
+     qui défile ; la feuille « Plus » opaque, le dossier du téléphone
+     translucide sur son fond flouté */
+  --fd-dock:rgba(40,49,70,.92); --fd-feuille:#1E2638; --fd-dossier:rgba(30,38,56,.86); --fd-marque:var(--marque);
   --fd-marque-0:rgba(20,28,47,0); --om-noir-25:rgba(0,0,0,.25); --om-noir-40:rgba(0,0,0,.4);
   --om-noir-50:rgba(0,0,0,.5); --om-noir-60:rgba(0,0,0,.6); --om-noir-80:rgba(0,0,0,.8);
   --om-noir-85:rgba(0,0,0,.85); --om-noir-90:rgba(0,0,0,.9); --tx-blanc:#fff;
@@ -495,9 +500,9 @@ body{overflow-x:clip}
    pastille rouge à chiffre, collée au coin de l'icône sur téléphone, à côté
    du libellé au bureau. */
 .tabs .tabnb{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
-  padding:0 5px; margin-left:6px; border-radius:999px; background:#D63A30; color:#fff;
+  padding:0 5px; margin-left:6px; border-radius:999px; background:var(--pastille); color:var(--pastille-encre);
   font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:0; vertical-align:1px; box-sizing:border-box;
-  box-shadow:0 0 0 2px var(--marque,#141C2F)}
+  box-shadow:0 0 0 2px var(--marque)}
 .tabs .tabnb[hidden]{display:none}
 /* Incohérences de l'horaire (onglet Effectifs, v1302) : les cartes du jour
    des changements à prévenir, par mois comme les sous-effectifs */
@@ -556,7 +561,7 @@ body{overflow-x:clip}
    d'ici sept jours, à prévenir. */
 /* le chiffre à l'encre foncée : blanc sur cet orange ne se lisait qu'à
    2,99:1 (vu le 30/10/2026, quand le classeur l'a fait paraître) */
-.tabs .tabnb.app{background:#E07B24; color:#1A1006}
+.tabs .tabnb.app{background:var(--pastille-app); color:var(--pastille-app-encre)}
 
 /* ---------- pages ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 72px}
@@ -4004,10 +4009,10 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst-demo[hidden]{display:none}
 .inst-tel{position:absolute; left:0; top:0; transform-origin:0 0; width:212px; padding:8px; border-radius:38px; background:#05070d;
   box-shadow:0 0 0 1.5px #2b3550,0 30px 60px -24px #000,0 0 80px -20px rgba(105,178,203,.4)}
-.inst-ecran{position:relative; height:384px; border-radius:30px; overflow:hidden; background:#141C2F; font-family:-apple-system,system-ui,sans-serif}
+.inst-ecran{position:relative; height:384px; border-radius:30px; overflow:hidden; background:var(--fd-inst); font-family:-apple-system,system-ui,sans-serif}
 .inst-ecran::before{content:""; position:absolute; z-index:6; left:50%; top:7px; width:62px; height:18px; margin-left:-31px; border-radius:12px; background:#000}
 .inst-ecran img{display:block}
-.d-page{position:absolute; inset:0; background:#141C2F; display:flex; flex-direction:column; gap:8px}
+.d-page{position:absolute; inset:0; background:var(--fd-inst); display:flex; flex-direction:column; gap:8px}
 .d-page .d-ban{width:100%; aspect-ratio:2170/540; object-fit:cover}
 .d-av{position:absolute; left:12px; top:36px; width:34px; height:34px; border-radius:50%; background:#1b2640; border:2px solid #69B2CB;
   color:#fff; font:700 9px/30px -apple-system,system-ui,sans-serif; text-align:center}
@@ -4059,7 +4064,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .d-v-boutons{display:flex; justify-content:flex-end; gap:12px; align-self:stretch; margin-top:12px; font-size:10.5px; color:#d0bcff}
 .d-v-boutons span{padding:5px 8px}
 .d-valider.and .d-v-ok{background:#d0bcff; color:#381e72; border-radius:999px; padding:5px 12px}
-.d-accueil{position:absolute; inset:0; padding:36px 16px 0; background:linear-gradient(160deg,#24365c,#141C2F 55%,#1b2640)}
+.d-accueil{position:absolute; inset:0; padding:36px 16px 0; background:linear-gradient(160deg,#24365c,var(--fd-inst) 55%,#1b2640)}
 .d-heure{text-align:center; font-size:30px; font-weight:300; color:#fff; margin-bottom:22px; letter-spacing:.02em}
 .d-grille{display:grid; grid-template-columns:repeat(4,1fr); gap:16px 13px}
 .d-grille i{aspect-ratio:1; border-radius:24%; background:rgba(255,255,255,.12)}
@@ -4110,7 +4115,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
   font-size:12px; font-weight:650; text-transform:uppercase; letter-spacing:.12em}
 /* La flèche montre le vrai bouton du navigateur, hors de la page */
 .inst-fleche{position:fixed; left:0; right:0; bottom:0; z-index:4; display:flex; flex-direction:column; align-items:center; gap:2px;
-  padding:28px 14px calc(6px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(20,28,47,0),#141C2F 55%);
+  padding:28px 14px calc(6px + env(safe-area-inset-bottom)); background:linear-gradient(var(--fd-marque-0),var(--fd-inst) 55%);
   color:var(--marque-vif); pointer-events:none; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em}
 .inst-fleche[hidden]{display:none}
 .inst-f{display:flex; flex-direction:column; align-items:center; gap:2px; animation:instBas 1.2s ease-in-out infinite}
@@ -4121,7 +4126,7 @@ html.inst-ouvert,html.inst-ouvert body{overflow:hidden}
 .inst-fleche.bas-droite{align-items:flex-end}
 .inst-fleche.bas-droite .inst-f{margin-right:4px}
 .inst-fleche.haut-droite{top:0; bottom:auto; align-items:flex-end;
-  padding:calc(6px + env(safe-area-inset-top)) 14px 28px; background:linear-gradient(rgba(20,28,47,.9) 40%,rgba(20,28,47,0))}
+  padding:calc(6px + env(safe-area-inset-top)) 14px 28px; background:linear-gradient(rgba(20,28,47,.9) 40%,var(--fd-marque-0))}
 .inst-fleche.haut-droite .inst-f{flex-direction:column-reverse; animation-name:instHaut}
 .inst-fleche.haut-droite svg{transform:rotate(180deg)}
 @keyframes instBas{50%{transform:translateY(6px)}}
@@ -5885,9 +5890,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    la personne connectée dans le héros de la page d'accueil »). Une carte à la
    couleur de la marque : qui l'on est, puis trois chiffres de soi. */
 #rythmeTete.pf-carte{padding:0; gap:0}
-.pf-hero{position:relative; overflow:hidden; border:1px solid var(--cadre); border-radius:var(--rj);
-  background:var(--fd-heros);
-  box-shadow:0 1px 2px var(--om-noir-25),0 10px 30px -14px var(--om-noir-60)}
+.pf-hero{position:relative} /* ses morceaux sont des widgets (03/11/2026) : plus de cadre, de dégradé ni d'ombre à lui */
 /* Le héros et le mois ont été soudés en un cadre le 16/10/2026, puis
    séparés le 17/10/2026 (le client : « séparer le cadre calendrier du héros
    juste après la progression de cycle ») : deux cadres, l'écart de la pile. */
@@ -5970,7 +5973,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 @media (hover:hover){ .pf-af:hover{border-color:#DD9877} }
 .pf-af:focus-visible{outline:2px solid var(--tx-blanc); outline-offset:2px}
 #ctlCard{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 12px)}
-.pf-bas{height:12px}
+
 .pf-ou{font-size:12.5px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-ou b{color:var(--tx-blanc); font-weight:600; font-family:"IBM Plex Mono",ui-monospace,monospace}
 .pf-rg{color:var(--tx-blanc-78)}
@@ -6133,7 +6136,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    son nom restent entiers. */
 .pf-couv{position:relative; aspect-ratio:2170/540; overflow:hidden; background:var(--fd-couv) url(banniere.jpg) 100% 50%/cover no-repeat;
   border-bottom:1px solid var(--bd-blanc-08)}
-.pf-roue{background:rgba(20,28,47,.55); border-radius:50%}
+.pf-roue{background:var(--fd-flou); border-radius:50%}
 /* L'HEURE ET LA MÉTÉO (03/11/2026, d'après l'écran officiel de l'usine ;
    réorganisées deux fois le même jour, le client : « comment
    organiserais-tu l'en-tête ? je veux du 100 % », puis « optimise toute
@@ -7261,8 +7264,8 @@ html .eqleg-souris{display:none}
   .plusfeuille button svg{flex:0 0 auto; width:22px; height:22px; color:var(--muted)}
   .plusfeuille button[aria-current="page"]{background:var(--in-soft)}
   .plusfeuille button[aria-current="page"] svg{color:var(--in)}
-  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#D63A30; color:#fff; font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
-  .plus-nb.app{background:#E07B24; color:#fff}
+  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:var(--pastille); color:var(--pastille-encre); font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
+  .plus-nb.app{background:var(--pastille-app); color:var(--pastille-app-encre)}
   .plus-nb+.plus-nb{margin-left:6px}
   .plus-sep{height:1px; margin:6px 12px; background:var(--fd-blanc-08)}
   /* un fondu collé au bas visible de la feuille quand il reste des lignes
@@ -7271,11 +7274,8 @@ html .eqleg-souris{display:none}
   html .plusfeuille.deborde::after{content:""; display:block; position:sticky; bottom:-8px; height:36px; margin:-36px -8px -8px;
     background:linear-gradient(rgba(24,27,36,0),var(--fd-feuille) 80%); pointer-events:none}
 }
-/* un téléphone bas (320 × 568) : des lignes de 44 px, la cible tactile
-   pleine, pour qu'une de plus tienne avant le fondu (audit du 23/10/2026) */
-@media (max-width:760px) and (max-height:640px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
-  html .plusfeuille button{min-height:44px; padding-top:8px; padding-bottom:8px}
-}
+/* (un téléphone bas avait ici des lignes de 44 px, le 23/10/2026 ; le
+   dossier d'icônes du 03/11/2026 n'a plus de lignes) */
 /* LA GESTION DE LA TABLETTE (audit du 23/10/2026). Entre 761 et 1099 px,
    ni « Plus » (téléphone) ni la colonne de Gestion (PC) : six sections de
    l'espace n'avaient aucune entrée, et les sept onglets de la RH
@@ -7301,8 +7301,8 @@ html .eqleg-souris{display:none}
   .plusfeuille button svg{flex:0 0 auto; width:22px; height:22px; color:var(--muted)}
   .plusfeuille button[aria-current="page"]{background:var(--in-soft)}
   .plusfeuille button[aria-current="page"] svg{color:var(--in)}
-  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#D63A30; color:#fff; font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
-  .plus-nb.app{background:#E07B24; color:#fff}
+  .plus-nb{margin-left:auto; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:var(--pastille); color:var(--pastille-encre); font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center}
+  .plus-nb.app{background:var(--pastille-app); color:var(--pastille-app-encre)}
   .plus-nb+.plus-nb{margin-left:6px}
 }
 /* L'HORAIRE PRODUCTION présenté exactement comme L'OUTIL « HORAIRES » DU
@@ -8319,9 +8319,10 @@ html body #racCard .ctl-rac{grid-template-columns:repeat(3,minmax(0,1fr)); gap:6
 html body #racCard .ctl-rac>:last-child:nth-child(3n+1){grid-column:auto; flex-direction:column; min-height:0}
 html body #racCard .ctl-t{flex-direction:column; justify-content:flex-start; gap:7px; min-height:0; padding:8px 2px 6px; border:0; border-radius:12px; background:none; font-size:12px; font-weight:600; line-height:1.2; color:var(--ink)}
 html body #racCard .ctl-t>span{display:flex; align-items:flex-start; justify-content:center; min-height:2.4em; max-width:100%; overflow-wrap:anywhere}
-html body #racCard .ctl-ti{display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:color-mix(in srgb,var(--in) 13%,var(--surface2)); border:1px solid color-mix(in srgb,var(--in) 22%,transparent); font-style:normal}
-html body #racCard .ctl-ti svg{width:22px; height:22px; color:var(--in)}
-@media (hover:hover){ html body #racCard .ctl-t:hover .ctl-ti{background:color-mix(in srgb,var(--in) 22%,var(--surface2))} }
+/* (des icônes d'app depuis le 03/11/2026 : la matière commune, --ip-taille) */
+html body #racCard .ctl-ti{display:grid; place-items:center; width:var(--ip-taille); height:var(--ip-taille); border-radius:calc(var(--ip-taille) * .233); border:0; font-style:normal}
+html body #racCard .ctl-ti svg{width:calc(var(--ip-taille) / 2); height:calc(var(--ip-taille) / 2); stroke-width:1.9}
+@media (hover:hover){ html body #racCard .ctl-t:hover .ctl-ti{filter:brightness(1.08)} }
 html body #racCard .ctl-t:active .ctl-ti{transform:scale(.96)}
 html body #racCard .ctl-t:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
 html body #racCard .ctl-cm .ctl-cm-ico{display:none}
@@ -8330,7 +8331,7 @@ html body #racCard .ctl-cm>span>b{font-size:14px}
 html body #racCard .ctl-cm small{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 html body #racCard .ctl-cm em{display:grid; place-items:center; width:44px; height:44px; padding:0; border-radius:50%}
 html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
-@media (max-width:360px){ html body #racCard .ctl-ti{width:42px; height:42px; border-radius:12px} html body #racCard .ctl-t{font-size:11.5px}
+@media (max-width:360px){ #racCard{--ip-taille:48px} html body #racCard .ctl-t{font-size:11.5px}
   html body #racCard .ctl-cm small{white-space:normal} }
 /* la rangée des relais : pleine largeur, les morceaux côte à côte */
 #jourCorps .eqp2 td .eqc>.eqrel{grid-column:1 / -1; flex-basis:100%; display:flex; justify-content:center; flex-wrap:nowrap; gap:4px}
@@ -8344,20 +8345,18 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
    que mon application ressemble à un menu iPhone. Il faut utiliser le
    background du logo comme fond, mais je veux que tout le contenu soit
    comme des widgets ou des icônes du menu de l'iPhone »).
-   Le fond : le bleu nuit du logo, #141C2F, relevé sur logo.png et sur
-   l'icône de l'application (20, 28, 47), à plat, partout. Les cadres : des
-   widgets — coins de 22 px, un liseré de lumière au lieu du trait gris,
-   une ombre douce. Les accès et les sections : des icônes d'app — un carré
-   arrondi coloré, le pictogramme blanc, le nom dessous, la pastille rouge
+   Le fond : le bleu nuit du logo, #141C2F (--marque, posé en tête de
+   feuille). Les cadres : des widgets — coins --rj, liseré --cadre, ombre
+   --ombre-cadre. Les accès et les sections : des icônes d'app — un carré
+   arrondi coloré (--ic), le pictogramme blanc, le nom dessous, la pastille
    en coin. La barre du bas : le dock. « Plus » : un dossier, qui s'ouvre en
-   grille. Au PC, le menu de gauche porte les mêmes icônes, en petit. */
+   grille. Au PC, le menu de gauche porte les mêmes icônes, en petit.
+   Revu le 03/11/2026 (code-review, simplify) : une seule matière d'icône,
+   la taille par --ip-taille, des jetons pour chaque couleur. */
 :root{
-  /* le fond, le liseré, l'ombre, le dock et la feuille sont posés à leur
-     définition, en tête de feuille : une seconde copie ici battait celle de
-     l'impression (revue du 03/11/2026) */
   --ip-fond:var(--marque);
   /* les couleurs des apps : un dégradé du haut vers le bas, comme celles
-     de l'iPhone */
+     de l'iPhone ; --ic est celle de l'app, le gris par défaut */
   --ip-accueil:linear-gradient(160deg,#5EF0B5 0%,#2CCFEF 52%,#2F80FF 100%);
   --ip-planning:linear-gradient(180deg,#FF7A70,#DE2E24);
   --ip-equipes:linear-gradient(180deg,#45DCCB,#0E9C93);
@@ -8378,17 +8377,14 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
   --ip-recyclage:linear-gradient(180deg,#64DDF0,#1799BC);
   --ip-certif:linear-gradient(180deg,#FF7393,#DA2049);
   --ip-gris:linear-gradient(180deg,#8E95A5,#596071);
-  --ip-relief:inset 0 1px 0 rgba(255,255,255,.32), inset 0 -1px 0 rgba(0,0,0,.14), 0 6px 14px -6px rgba(0,0,0,.6);
-  /* UNE matière pour tous les widgets, ceux du héros comme les cadres :
-     le liseré et l'ombre des cadres, le filet de lumière en haut */
-  --ip-widget:var(--surface); --ip-lisere:var(--cadre);
-  --ip-ombre:inset 0 1px 0 rgba(255,255,255,.07), var(--ombre-cadre);
+  --ic:var(--ip-gris);
+  /* le relief d'une icône : un filet de lumière en haut, une ombre dessous ;
+     en petit (menus, en-têtes), une ombre plus courte */
+  --ip-relief:inset 0 1px 0 var(--bd-blanc-25), inset 0 -1px 0 rgba(0,0,0,.14), 0 6px 14px -6px var(--om-noir-60);
+  --ip-relief-petit:inset 0 1px 0 var(--bd-blanc-25), 0 2px 5px -2px var(--om-noir-50);
   /* l'écart de l'écran d'accueil : entre deux widgets, et celui de la pile
      des cadres (16 px), le même */
   --ip-ecart:16px;
-  /* les pastilles : le rouge et l'orange de la barre, lisibles à 4,5:1 (le
-     rouge de l'iPhone, #FF3B30, n'y tient qu'à 3,6:1 sous un chiffre blanc) */
-  --ip-pastille:#D63A30; --ip-pastille-encre:#fff; --ip-pastille-app:#E07B24; --ip-pastille-app-encre:#1A1006;
 }
 /* chaque accès et chaque section garde sa couleur, où qu'il soit */
 #tab-horaire{--ic:var(--ip-accueil)}
@@ -8398,7 +8394,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 #tab-rh,[data-go="rh"]{--ic:var(--ip-effectifs)}
 #tab-recherche,[data-go="recherche"]{--ic:var(--ip-recherche)}
 #tab-direction,[data-go="direction"]{--ic:var(--ip-direction)}
-[data-side-ws="planning"],[data-ctl="plan"]{--ic:var(--ip-horaire)}
+[data-side-ws="planning"]{--ic:var(--ip-horaire)}
 [data-side-ws="demandes"],[data-ctl="dmNv"]{--ic:var(--ip-demandes)}
 [data-side-ws="valider"]{--ic:var(--ip-valider)}
 [data-side-ws="tdb"]{--ic:var(--ip-tdb)}
@@ -8409,47 +8405,52 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 [data-go="reglages"]{--ic:var(--ip-reglages)}
 .ctl-cm-t{--ic:var(--ip-cm)}
 [data-ctl="rcNv"]{--ic:var(--ip-recyclage)}
-a.ctl-t[href^="mailto:"]{--ic:var(--ip-certif)}
-html{background:var(--paper)}
+[data-ip="certif"]{--ic:var(--ip-certif)}
+/* les widgets de l'Accueil : en tête, la petite icône de l'app dont ils
+   parlent, comme sur l'iPhone */
+#ctlCard>header{--ic:var(--ip-valider)} #anCard>header{--ic:var(--ip-demandes)} #siteCard>header{--ic:var(--ip-equipes)}
+#usineCard>header{--ic:var(--ip-accueil)} #calCard>header{--ic:var(--ip-planning)} #rythmeCard>header{--ic:var(--ip-horaire)}
 
-/* — LES ICÔNES DE L'ÉCRAN D'ACCUEIL — quatre par rangée au téléphone */
-html body #pfRac{margin:0}
+/* — LA MATIÈRE D'UNE ICÔNE D'APP, partout la même ; la taille et l'arrondi
+   se règlent par contexte, plus bas — */
+html body #pfRac .ctl-ti,html body #racCard .ctl-ti,
+html .navwrap>.tabs button svg,html .navwrap>.tabs button[aria-selected="true"] svg,
+html .plusfeuille button svg,html .plusfeuille button[aria-current="page"] svg,
+html .top .tabs button svg,html .top .tabs button[aria-selected="true"] svg,html #sideGestion button svg,html #sidePied .side-lien svg,
+html body #v-horaire .card>header h2>.cc-ico{
+  background:var(--ic); color:var(--tx-blanc); box-shadow:var(--ip-relief)}
+
+/* — LES ICÔNES DE L'ÉCRAN D'ACCUEIL — quatre par rangée au téléphone ;
+   --ip-taille règle l'icône, son pictogramme (la moitié) et la pastille */
+#pfRac{--ip-taille:60px}
+#racCard{--ip-taille:56px}
 html body #pfRac .pf-rac-l{display:grid; grid-auto-flow:row; grid-template-columns:repeat(4,minmax(0,1fr)); column-gap:6px; row-gap:16px; padding:2px 0}
 html body #pfRac .ip-secs{display:contents}
 html body #pfRac .ctl-t{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px; min-width:0; min-height:0;
   padding:0; border:0; border-radius:16px; background:none; color:var(--tx-blanc); font-size:12px; font-weight:500; line-height:1.2; text-decoration:none; cursor:pointer}
-html body #pfRac .ctl-t[data-long]::after{content:none}
 html body #pfRac .ctl-t>span:not(.plus-nb){display:block; width:100%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  letter-spacing:-.005em; text-shadow:0 1px 2px rgba(0,0,0,.45)}
+  letter-spacing:-.005em; text-shadow:0 1px 2px var(--om-noir-40)}
 html body #pfRac .ctl-t>span b{font-weight:600}
-html body #pfRac .ctl-t .ctl-ti,html body #pfRac .ctl-cm-t .ctl-ti{display:grid; place-items:center; flex:none; width:60px; height:60px; border:0; border-radius:14px;
-  background:var(--ic,var(--ip-gris)); box-shadow:var(--ip-relief); transition:transform .12s ease, filter .12s ease}
-html body #pfRac .ctl-t .ctl-ti svg,html body #pfRac .ctl-cm-t .ctl-ti svg{width:30px; height:30px; color:#fff; stroke-width:1.9; filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
-@media (hover:hover){ html body #pfRac .ctl-t:hover .ctl-ti{background:var(--ic,var(--ip-gris)); filter:brightness(1.08)} }
+html body #pfRac .ctl-ti{display:grid; place-items:center; flex:none; width:var(--ip-taille); height:var(--ip-taille); border:0; border-radius:calc(var(--ip-taille) * .233);
+  transition:transform .12s ease, filter .12s ease}
+html body #pfRac .ctl-ti svg{width:calc(var(--ip-taille) / 2); height:calc(var(--ip-taille) / 2); color:var(--tx-blanc); stroke-width:1.9}
+@media (hover:hover){ html body #pfRac .ctl-t:hover .ctl-ti{filter:brightness(1.08)} }
 html body #pfRac .ctl-t:active .ctl-ti{transform:scale(.92); filter:brightness(.9)}
 html body #pfRac .ctl-t:focus-visible{outline:none}
 html body #pfRac .ctl-t:focus-visible .ctl-ti{outline:2px solid var(--marque-vif); outline-offset:3px}
-/* la pastille rouge de l'iPhone, en haut à droite de l'icône ; la seconde
-   (orange : une tâche) en haut à gauche */
-html body #pfRac .ctl-t>.plus-nb{position:absolute; top:-6px; left:calc(50% + 19px); width:auto; max-width:none; margin:0; min-width:22px; height:22px; padding:0 6px; border-radius:11px;
-  display:inline-flex; align-items:center; justify-content:center; background:var(--ip-pastille); color:var(--ip-pastille-encre); font-size:12.5px; font-weight:700; line-height:1;
-  box-shadow:0 0 0 2px var(--ip-fond)}
-html body #pfRac .ctl-t>.plus-nb.app{background:var(--ip-pastille-app); color:var(--ip-pastille-app-encre)}
-html body #pfRac .ctl-t>.plus-nb+.plus-nb{left:auto; right:calc(50% + 19px)}
-@media (max-width:360px){
-  html body #pfRac .ctl-t .ctl-ti,html body #pfRac .ctl-cm-t .ctl-ti{width:54px; height:54px; border-radius:13px}
-  html body #pfRac .ctl-t .ctl-ti svg,html body #pfRac .ctl-cm-t .ctl-ti svg{width:27px; height:27px}
-  html body #pfRac .ctl-t{font-size:11px}
-  html body #pfRac .ctl-t>.plus-nb{left:calc(50% + 16px)} html body #pfRac .ctl-t>.plus-nb+.plus-nb{left:auto; right:calc(50% + 16px)}
-}
+/* la pastille de l'iPhone, en haut à droite de l'icône ; la seconde
+   (orange : une tâche) en haut à gauche — ses couleurs restent celles de
+   la barre (.plus-nb) */
+html body #pfRac .ctl-t>.plus-nb{position:absolute; top:-6px; left:calc(50% + var(--ip-taille) / 2 - 11px); width:auto; max-width:none; margin:0; min-width:22px; height:22px; padding:0 6px; border-radius:11px;
+  display:inline-flex; align-items:center; justify-content:center; background:var(--pastille); color:var(--pastille-encre); font-size:12.5px; font-weight:700; line-height:1; box-shadow:0 0 0 2px var(--ip-fond)}
+html body #pfRac .ctl-t>.plus-nb.app{background:var(--pastille-app); color:var(--pastille-app-encre)}
+html body #pfRac .ctl-t>.plus-nb+.plus-nb{left:auto; right:calc(50% + var(--ip-taille) / 2 - 11px)}
+@media (max-width:360px){ #pfRac{--ip-taille:54px} html body #pfRac .ctl-t{font-size:11px} }
 
 /* — LE HÉROS N'EST PLUS UN CADRE : ses morceaux sont des widgets — */
-html body #rythmeTete{background:none; border:0; box-shadow:none; overflow:visible}
-html body #rythmeTete .pf-hero{display:flex; flex-direction:column; gap:var(--ip-ecart); overflow:visible; border:0; border-radius:0; background:none; box-shadow:none}
-html body #rythmeTete .pf-hero>.pf-bas{display:none}
-html body .pf-hero .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-pointe,
-html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-corps>#ryPr,html body .pf-hero .pf-corps>#ryCg,html body .pf-hero .pf-pv{
-  background:var(--ip-widget); border:1px solid var(--ip-lisere); border-radius:22px; box-shadow:var(--ip-ombre)}
+html body #rythmeTete .pf-hero{display:flex; flex-direction:column; gap:var(--ip-ecart)}
+html body .pf-hero .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-pointe,html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-pv{
+  background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); box-shadow:inset 0 1px 0 var(--bd-blanc-07), var(--ombre-cadre)}
 /* le profil : la couverture en tête du widget, le cercle à cheval */
 html body .pf-hero .pf-wprof{position:relative; overflow:hidden; padding-bottom:14px}
 html body .pf-hero .pf-wprof .pf-prof{flex-wrap:nowrap}
@@ -8468,7 +8469,6 @@ html body .pf-hero .pf-bloc .pf-proch{padding:14px 16px 15px}
 html body .pf-hero .pf-corps>#ryAn{padding:14px 14px 12px; margin:0}
 html body .pf-hero .pf-corps>#ryAn .ry-an-t:first-child{padding-top:0}
 html body .pf-hero .pf-corps>.pf-pv{margin:0; width:auto}
-html body .pf-hero .pf-pointe{margin:0}
 /* le trait entre les heures et la flèche, posés jadis sur le dégradé du
    héros : sur le widget, un cran plus clairs pour garder 4,5:1 */
 html body .pf-hero .pf-ps,html body .pf-hero .pf-fl{color:var(--tx-blanc-62)}
@@ -8492,78 +8492,61 @@ html body .pf-hero .pf-ps,html body .pf-hero .pf-fl{color:var(--tx-blanc-62)}
   html body #rythmeTete .pf-hero>.pf-corps>.pf-pv{grid-column:1; grid-row:2; align-self:start}
   html body .pf-hero .pf-wprof .pf-couv{height:200px}
   html body #pfRac .pf-rac-l{grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); row-gap:18px; padding:6px 0}
-  html body #pfRac .ctl-t{padding:0; background:none; border:0; flex-direction:column}
-  html body #pfRac .ctl-t>span:not(.plus-nb){display:block}
-  html body #pfRac .ctl-t .ctl-ti,html body #pfRac .ctl-cm-t .ctl-ti{width:60px; height:60px}
-  html body #pfRac .ctl-t .ctl-ti svg,html body #pfRac .ctl-cm-t .ctl-ti svg{width:30px; height:30px}
 }
 
-/* les accès de la carte « Accès rapides » (l'Accueil sans héros) : les
-   mêmes icônes d'app */
-html body #racCard .ctl-t .ctl-ti{width:56px; height:56px; border:0; border-radius:13px; background:var(--ic,var(--ip-gris)); box-shadow:var(--ip-relief)}
-html body #racCard .ctl-t .ctl-ti svg{width:28px; height:28px; color:#fff; stroke-width:1.9}
-@media (hover:hover){ html body #racCard .ctl-t:hover .ctl-ti{background:var(--ic,var(--ip-gris)); filter:brightness(1.08)} }
-/* — L'ACCUEIL : les cadres sans filet sous leur titre, comme un widget ;
-   en tête, la petite icône de l'app dont il parle, comme sur l'iPhone — */
+/* — L'ACCUEIL : les cadres sans filet sous leur titre, comme un widget,
+   la petite icône de leur app en tête — */
 html body #v-horaire .card>header{border-bottom-color:transparent}
-#ctlCard{--ic:var(--ip-valider)} #anCard{--ic:var(--ip-demandes)} #siteCard{--ic:var(--ip-equipes)}
-#usineCard{--ic:var(--ip-accueil)} #calCard{--ic:var(--ip-planning)} #rythmeCard{--ic:var(--ip-horaire)}
-html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; height:24px; padding:4px; border-radius:6px;
-  background:var(--ic,var(--ip-gris)); color:#fff; stroke-width:2.1; box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; height:24px; padding:4px; border-radius:6px; stroke-width:2.1; box-shadow:var(--ip-relief-petit)}
 
-/* — LE DOCK DU TÉLÉPHONE — */
+/* — LE DOCK DU TÉLÉPHONE — sans backdrop-filter : sous iOS il casse le
+   position:fixed de la barre (règle de la capsule, plus haut) ; le flou
+   reste celui de .navwrap::before, posé dessous */
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
   .navwrap::before{height:calc(var(--navbas) + 74px + 16px)}
-  html .navwrap>.tabs{padding:8px 10px 6px; gap:4px; border-radius:30px; background:var(--fd-dock); border:1px solid rgba(255,255,255,.12);
-    -webkit-backdrop-filter:blur(26px) saturate(1.7); backdrop-filter:blur(26px) saturate(1.7);
-    box-shadow:0 14px 34px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1)}
+  html .navwrap>.tabs{padding:8px 10px 6px; gap:4px; border-radius:30px; background:var(--fd-dock); border:1px solid var(--bd-blanc-12);
+    box-shadow:0 14px 34px var(--om-noir-50), inset 0 1px 0 var(--bd-blanc-10)}
   html .navwrap>.tabs button,html .navwrap>.tabs button[aria-selected="true"],html .navwrap>.tabs #tab-plus,html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"],
-  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{position:relative; padding:0 0 9px; border-radius:16px; background:transparent; box-shadow:none; color:#fff}
-  html .navwrap>.tabs button svg,html .navwrap>.tabs button[aria-selected="true"] svg{box-sizing:border-box; width:52px; height:52px; padding:12px; border-radius:12.5px;
-    background:var(--ic,var(--ip-gris)); color:#fff; stroke-width:1.9; box-shadow:var(--ip-relief); transform:none}
-  html .navwrap>.tabs #tab-plus svg{padding:7px; background:rgba(255,255,255,.16); box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 6px 14px -6px rgba(0,0,0,.5)}
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{position:relative; padding:0 0 9px; border-radius:16px; background:transparent; box-shadow:none; color:var(--tx-blanc)}
+  html .navwrap>.tabs button svg,html .navwrap>.tabs button[aria-selected="true"] svg{box-sizing:border-box; width:52px; height:52px; padding:12px; border-radius:12.5px; stroke-width:1.9; transform:none}
+  html .navwrap>.tabs #tab-plus svg{padding:7px; background:var(--fd-blanc-16); box-shadow:inset 0 1px 0 var(--bd-blanc-18), 0 6px 14px -6px var(--om-noir-50)}
   /* l'app ouverte : un point sous son icône, comme le Mac ; l'iPhone n'en a
      pas, mais ici le dock reste à l'écran dans chaque app */
   html .navwrap>.tabs button[aria-selected="true"]::after,html .navwrap>.tabs #tab-plus.actif::after,html .navwrap>.tabs #tab-plus[aria-expanded="true"]::after{
-    content:""; display:block; position:absolute; left:50%; bottom:1px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:rgba(255,255,255,.85)}
+    content:""; display:block; position:absolute; left:50%; bottom:1px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:var(--fd-blanc-75)}
   html .navwrap>.tabs button:hover:not([aria-selected="true"]){background:transparent}
   html .navwrap>.tabs button:active svg{transform:scale(.92); filter:brightness(.9)}
-  html .navwrap>.tabs button:focus-visible{box-shadow:none; outline:none}
+  html .navwrap>.tabs button:focus-visible,html .navwrap>.tabs #tab-plus:focus-visible{box-shadow:none; outline:none}
   html .navwrap>.tabs button:focus-visible svg{outline:2px solid var(--marque-vif); outline-offset:2px}
-  html .navwrap>.tabs .tabnb{top:-5px; right:calc(50% - 34px); min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:11.5px; box-shadow:0 0 0 2px var(--ip-fond)}
+  html .navwrap>.tabs .tabnb{top:-5px; right:calc(50% - 34px); min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:11.5px}
   html .navwrap>.tabs .tabnb.app{right:auto; left:calc(50% - 34px)}
   html .navwrap>.tabs .dotwarn{top:-3px; right:calc(50% - 30px)}
   html .wrap{padding-bottom:calc(104px + var(--navbas))}
   html .toast{bottom:calc(94px + var(--navbas) + var(--vvbas,0px))}
   html .enhaut{bottom:calc(92px + var(--navbas) + var(--vvbas,0px))}
-  /* « Plus » : un dossier qui s'ouvre en grille, sur l'écran flouté */
+  /* « Plus » : un dossier qui s'ouvre en grille sur l'écran flouté — le
+     flou est celui du fond ; la feuille, déjà sur un fond flou, n'en ajoute
+     pas. Des rangées à la hauteur de leur contenu : un dossier plus haut
+     que l'écran (320 × 568, téléphone couché) écrasait ses rangées à 45 px
+     et effaçait les noms ; il défile */
   html .plusfond:not([hidden]){background:rgba(8,12,22,.42); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px)}
-  /* des rangées à la hauteur de leur contenu : un dossier plus haut que
-     l'écran (320 × 568, téléphone couché) écrasait ses rangées à 45 px et
-     effaçait les noms ; il défile */
   html .plusfeuille:not([hidden]){display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:max-content; align-content:start; column-gap:6px; row-gap:14px;
     bottom:calc(var(--navbas,0px) + 96px + env(safe-area-inset-bottom,0px)); padding:18px 14px 20px; border-radius:34px;
     max-height:calc(100vh - var(--navbas,0px) - 96px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px);
     max-height:calc(100dvh - var(--navbas,0px) - 96px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px) - 24px);
-    background:var(--fd-feuille); border:1px solid rgba(255,255,255,.12); -webkit-backdrop-filter:blur(30px) saturate(1.6); backdrop-filter:blur(30px) saturate(1.6);
-    box-shadow:0 24px 50px -16px rgba(0,0,0,.8)}
+    background:var(--fd-dossier); border:1px solid var(--bd-blanc-12); box-shadow:0 24px 50px -16px var(--om-noir-80)}
   html .plusfeuille .plus-titre{grid-column:1 / -1; margin:2px 4px -4px; font-size:12px; letter-spacing:.06em; color:var(--tx-blanc-66)}
   html .plusfeuille .plus-titre:first-child{margin-top:0}
-  html .plusfeuille .plus-sep{grid-column:1 / -1; height:1px; margin:-4px 4px; background:rgba(255,255,255,.1)}
+  html .plusfeuille .plus-sep{grid-column:1 / -1; height:1px; margin:-4px 4px; background:var(--bd-blanc-10)}
   html .plusfeuille button,html .plusfeuille button[aria-current="page"]{position:relative; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px; min-width:0; min-height:0;
     padding:0; border-radius:16px; background:none; color:var(--tx-blanc); font-size:12px; font-weight:500; line-height:1.2; text-align:center}
   html .plusfeuille button>span:not(.plus-nb){display:block; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  html .plusfeuille button svg,html .plusfeuille button[aria-current="page"] svg{box-sizing:border-box; width:58px; height:58px; padding:14px; border-radius:13.5px;
-    background:var(--ic,var(--ip-gris)); color:#fff; stroke-width:1.9; box-shadow:var(--ip-relief)}
-  html .plusfeuille button[aria-current="page"] svg{outline:2px solid rgba(255,255,255,.85); outline-offset:2px}
+  html .plusfeuille button svg,html .plusfeuille button[aria-current="page"] svg{box-sizing:border-box; width:58px; height:58px; padding:14px; border-radius:13.5px; stroke-width:1.9}
+  html .plusfeuille button[aria-current="page"] svg{outline:2px solid var(--fd-blanc-75); outline-offset:2px}
   html .plusfeuille button:active svg{transform:scale(.92)}
-  html .plusfeuille .plus-nb{position:absolute; top:-6px; left:calc(50% + 17px); margin:0; min-width:22px; height:22px; padding:0 6px; border-radius:11px; background:var(--ip-pastille); color:var(--ip-pastille-encre); font-size:12px; box-shadow:0 0 0 2px var(--fd-feuille)}
-  html .plusfeuille .plus-nb.app{background:var(--ip-pastille-app); color:var(--ip-pastille-app-encre)}
+  html .plusfeuille .plus-nb{position:absolute; top:-6px; left:calc(50% + 17px); margin:0; min-width:22px; height:22px; padding:0 6px; border-radius:11px; font-size:12px; box-shadow:0 0 0 2px var(--fd-dossier)}
   html .plusfeuille .plus-nb+.plus-nb{left:auto; right:calc(50% + 17px); margin:0}
   html .plusfeuille.deborde::after{grid-column:1 / -1; background:linear-gradient(transparent,var(--fd-feuille) 80%)}
-}
-@media (max-width:760px) and (max-height:640px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
-  html .plusfeuille button{min-height:0; padding:0}
 }
 /* couché, le dock est un rail à gauche : le dossier s'ouvre à côté, sur
    toute la hauteur, au lieu de le couvrir sur 155 px de haut ; les icônes
@@ -8575,23 +8558,13 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
   html .plusfeuille:not([hidden]){left:calc(max(16px,env(safe-area-inset-left,0px)) + 80px); top:calc(12px + env(safe-area-inset-top,0px)); bottom:calc(12px + env(safe-area-inset-bottom,0px));
     max-height:none; grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
 }
-/* la tablette : la liste déroulante de « Plus » porte les mêmes icônes que
-   les onglets, en petit */
-@media (min-width:761px) and (max-width:1099px) and (min-height:500.01px), (min-width:761px) and (max-width:1099px) and (orientation:portrait){
-  /* translucide sans flou, la liste laissait lire l'heure du héros derrière
-     ses lignes */
-  html .plusfeuille:not([hidden]){background:rgba(30,38,56,.96); -webkit-backdrop-filter:blur(24px) saturate(1.5); backdrop-filter:blur(24px) saturate(1.5)}
-  html .plusfeuille button svg{box-sizing:border-box; flex:none; width:28px; height:28px; padding:5px; border-radius:7px; background:var(--ic,var(--ip-gris)); color:#fff; stroke-width:2;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 2px 5px -2px rgba(0,0,0,.5)}
-}
 
-/* — LE MENU DU PC ET LES ONGLETS DE LA TABLETTE : la même icône, en petit,
-   comme la colonne des Réglages d'un iPad — */
+/* — LE MENU DU PC, LES ONGLETS ET LA LISTE « PLUS » DE LA TABLETTE : la
+   même icône, en petit, comme la colonne des Réglages d'un iPad — */
 @media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){
-  html .top .tabs button svg,html .top .tabs button[aria-selected="true"] svg,html #sideGestion button svg,html #sidePied .side-lien svg{
-    box-sizing:border-box; flex:none; width:28px; height:28px; padding:5px; border-radius:7px; background:var(--ic,var(--ip-gris)); color:#fff; stroke-width:2;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 2px 5px -2px rgba(0,0,0,.5); transform:none}
-  html .top .tabs #tab-plus svg{padding:3px; background:rgba(255,255,255,.14)}
+  html .top .tabs button svg,html .top .tabs button[aria-selected="true"] svg,html #sideGestion button svg,html #sidePied .side-lien svg,html .plusfeuille button svg{
+    box-sizing:border-box; flex:none; width:28px; height:28px; padding:5px; border-radius:7px; stroke-width:2; box-shadow:var(--ip-relief-petit); transform:none}
+  html .top .tabs #tab-plus svg{padding:3px; background:var(--bd-blanc-14)}
 }
 </style>
 </head>
@@ -8682,7 +8655,7 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
          feuille. Caché au-delà de 760 px. -->
     <button type="button" id="tab-plus" aria-haspopup="dialog" aria-expanded="false" aria-controls="plusFeuille">
       <!-- un dossier d'iPhone : neuf petites apps (03/11/2026) -->
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="ip-dossier"><rect x="3.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#FF9F45" stroke="none"/><rect x="9.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#3DD9C5" stroke="none"/><rect x="15.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#5AB4FF" stroke="none"/><rect x="3.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#8B87FF" stroke="none"/><rect x="9.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#5DDC7C" stroke="none"/><rect x="15.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#FF7AA8" stroke="none"/><rect x="3.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#FFD54A" stroke="none"/><rect x="9.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#D08CFF" stroke="none"/><rect x="15.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#A4A9B4" stroke="none"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#FF9F45" stroke="none"/><rect x="9.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#3DD9C5" stroke="none"/><rect x="15.7" y="3.7" width="4.6" height="4.6" rx="1.3" fill="#5AB4FF" stroke="none"/><rect x="3.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#8B87FF" stroke="none"/><rect x="9.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#5DDC7C" stroke="none"/><rect x="15.7" y="9.7" width="4.6" height="4.6" rx="1.3" fill="#FF7AA8" stroke="none"/><rect x="3.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#FFD54A" stroke="none"/><rect x="9.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#D08CFF" stroke="none"/><rect x="15.7" y="15.7" width="4.6" height="4.6" rx="1.3" fill="#A4A9B4" stroke="none"/></svg>
       <span class="plus-m">Plus</span><span class="plus-t" id="plusLib">Gestion</span><span class="tabnb" id="plusNb" hidden></span></button>
   </nav>
   <!-- LE MENU DE CONTRÔLE DU PC (le client, le 21/10/2026 : « sur PC cela peut
@@ -13226,8 +13199,6 @@ function setView(v,keepScroll){
   majMoisLabel(st.m,st.y);
   document.body.setAttribute("data-view",v);
   lsSet("ui/view",v);
-  /* les icônes de l'Accueil, laissées en l'état tant qu'il était caché (ipAppsMaj) */
-  if(v==="horaire") setTimeout(ipAppsMaj,0);
   if(!keepScroll) window.scrollTo(0,0);
   deplierBarre();
   if(v==="horaire"||v==="reglages") ensurePrefillUI();
@@ -17124,7 +17095,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div></div>'+meteoHTML()
-    +'<div class="pf-corps"><div class="pf-gauche">'+pointeHTML()+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+pointeHTML()+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -24558,7 +24529,7 @@ function cmTuileHTML(){
      25/10, mon choix, défait */
   var t=cmTel(), dedans='<i class="ctl-ti">'+ctlIco("tel")+'</i><span>'+(c.tri?'CM <b>'+esc(idLisible(c.tri))+'</b>':'Appeler')+'</span>';
   if(!t) return '<span class="ctl-t ctl-cm-t" data-cm="'+esc(cmSig(c))+'" role="img" aria-label="Contremaître de pause : '+esc(lu)+'. Le numéro s’affiche une fois connecté." title="Contremaître de pause · numéro après connexion">'+dedans+'</span>';
-  return '<a class="ctl-t ctl-cm-t" href="tel:'+esc(t.tel)+'" data-cm="'+esc(cmSig(c))+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+esc(t.vu)+'" data-long="'+esc(c.tri?"Appeler le contremaître "+idLisible(c.tri):"Appeler le contremaître")+'">'+dedans+'</a>';
+  return '<a class="ctl-t ctl-cm-t" href="tel:'+esc(t.tel)+'" data-cm="'+esc(cmSig(c))+'" aria-label="Appeler le contremaître de pause : '+esc(lu)+'" title="Contremaître de pause · '+esc(t.vu)+'">'+dedans+'</a>';
 }
 function cmLigneHTML(){
   var c=cmDePause(), lu=(c.tri?c.tri.split("").join(" ")+", ":"")+({AM:"pause du matin",PM:"pause de l'après-midi",N:"pause de nuit"})[c.pz];
@@ -24634,9 +24605,8 @@ function renderCentre(db,person){
      reste dans Réglages */
   if(cb) rac.push(["conge","Demande de congé","dmNv","","Demande de congé"]);
   if(cb&&rcFonctionsDe(person).length) rac.push(["rec","Validation recyclage","rcNv","","Validation recyclage : remplir une fiche de recyclage"]);
-  /* « d’octobre », mais « de novembre » : l'élision devant une voyelle seule (03/11/2026) */
-  var moisP=MOIS[auj0.getMonth()].toLowerCase();
-  rac.push(["paie","Fiche de paie","paie","","Fiche de paie "+(/^[aeiouyàâéèêô]/.test(moisP)?"d’":"de ")+moisP]);
+  /* « d'octobre », mais « de novembre » (03/11/2026) */
+  rac.push(["paie","Fiche de paie","paie","","Fiche de paie "+deMois(MOIS[auj0.getMonth()].toLowerCase())]);
   if(cb) rac.push(["plan","Horaire "+auj0.getFullYear(),"plan","","Horaire de production "+auj0.getFullYear()]);
   rac.push(["jour","Horaire du jour","eq","","Horaire du jour : l'équipe au planning"]);
   rac.push(["certif","Certificat médical","certif","","Envoyer le certificat médical à la RH"]);
@@ -24699,12 +24669,16 @@ function renderCentre(db,person){
   var rh0=rac.filter(function(r){ return r[2]!=="eq"&&r[2]!=="plan"; });
   var ipH=ipAppsHTML();
   RAC_HTML='<div class="pf-rac-l" role="group" aria-label="Applications">'+cmTuileHTML()+rh0.map(function(r){
-    return r[2]==="certif"?ipTuileHTML("",ctlIco("certif"),COURT.certif,r[4]||r[1],"",certifLien()):ipTuileHTML('data-ctl="'+r[2]+'"',ctlIco(r[0]),COURT[r[2]]||r[1],r[4]||r[1]); }).join("")+'<div class="ip-secs">'+ipH+'</div></div>';
-  if(rh){ rh.innerHTML=RAC_HTML; rh.hidden=false; var ipS=rh.querySelector(".ip-secs"); if(ipS) ipS.__h=ipH; }
+    var c=r[2]==="certif"; return ipTuileHTML(c?'data-ip="certif"':'data-ctl="'+r[2]+'"',ctlIco(r[0]),COURT[r[2]]||r[1],r[4]||r[1],"",c?certifLien():""); }).join("")+'<div class="ip-secs">'+ipH+'</div></div>';
+  /* renderCentre passe plusieurs fois au démarrage (badges, annonces) : la
+     grille ne se récrit que si elle a changé (revue du 03/11/2026) */
+  if(rh&&rh.__rac!==RAC_HTML){ rh.innerHTML=RAC_HTML; rh.__rac=RAC_HTML; var ipS=rh.querySelector(".ip-secs"); if(ipS) ipS.__h=ipH; }
+  if(rh) rh.hidden=false;
   var rc=document.getElementById("racCard"), rcc=document.getElementById("racCorps");
   if(rh&&rc) rc.hidden=true;
   else if(rc&&rcc){
-    rcc.innerHTML=cmLigneHTML()+'<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ var nom=r[4]?' aria-label="'+esc(r[4])+'" title="'+esc(r[4])+'"':''; if(r[2]==="certif") return '<a class="ctl-t" href="'+esc(certifLien())+'"'+nom+'><i class="ctl-ti">'+ctlIco("certif")+'</i><span>'+esc(r[1])+'</span></a>'; return '<button type="button" class="ctl-t" data-ctl="'+r[2]+'"'+nom+'><i class="ctl-ti">'+ctlIco(r[0])+'</i><span>'+esc(r[1])+'</span>'+(r[3]?'<small>'+esc(r[3])+'</small>':'')+'</button>'; }).join("")+'</div>';
+    rcc.innerHTML=cmLigneHTML()+'<div class="ctl-rac" role="group" aria-label="Accès rapides">'+rac.map(function(r){ var c=r[2]==="certif";
+      return ipTuileHTML(c?'data-ip="certif"':'data-ctl="'+r[2]+'"',ctlIco(r[0]),r[1],r[4]||r[1],r[3]?'<small>'+esc(r[3])+'</small>':'',c?certifLien():""); }).join("")+'</div>';
     rc.hidden=false;
   }
   var n=faire.reduce(function(s,f){ return s+(f[3]||1); },0), fa="";
@@ -30114,7 +30088,10 @@ function rappelsInutiles(db,fin,borne){
      sans quoi ses derniers jours, montrés en premier, tombaient */
   var lim=(borne&&borne.a)?Math.max(800,Math.ceil((borne.a-d)/864e5)+2):800;
   if(!fin){ avance(1e9); return sortie; }
-  (function tranche(){ var f; try{ f=avance(30); }catch(e){ f=true; } if(!f){ setTimeout(tranche,0); return; } fin(sortie); })();
+  /* des tranches de 40 ms, et non de 30 jours : une tranche de 30 jours
+     prenait ~370 ms sur un téléphone, et retenait les touchers (revue du
+     03/11/2026) */
+  (function tranche(){ var t=Date.now(), f=false; try{ do{ f=avance(1); }while(!f && Date.now()-t<40); }catch(e){ f=true; } if(!f){ setTimeout(tranche,0); return; } fin(sortie); })();
   /* n journées de plus ; vrai au bout de l'horaire */
   function avance(n){
   for(var pas=0; pas<n && garde<lim; pas++, garde++, d.setDate(d.getDate()+1)){
@@ -30152,7 +30129,7 @@ function rappelsInutiles(db,fin,borne){
     if(l.length) sortie.push({an:annee, db:db, mois:m, jour:j, l:l});
   }
 }
-var rnFait="", RN_PASSES={k:"", l:null};
+var rnFait="";
 /* UN MOIS OUVERT, LES AUTRES REPLIÉS. Le client, le 09/10/2026, « optimise
    tout » : l'onglet Effectifs faisait 11 800 px à 390 px — vingt-cinq
    journées de sous-effectif dépliées avec toutes leurs solutions, quatorze
@@ -30813,10 +30790,6 @@ function renderRappelsInutiles(force){
       /* le résultat va à la place que CE rendu a posée : un rendu plus
          récent l'a remplacée, il ne s'écrit pas (revue du 03/11/2026) */
       var ph=hote.querySelector(".rn-passes-hote"); if(!ph) return;
-      /* gardés pour la journée et les classeurs du moment, comme les
-         incohérences passées : ~300 journées ne se refont pas à chaque
-         rendu des Effectifs (revue du 03/11/2026) */
-      var kp=ju.toDateString()+"/"+HORAIRE_ANNEES.map(function(y){ var h=horaireSuivant(y); return h?h.maj||"":""; }).join("|");
       function montrer(passes){
         if(!document.body.contains(ph) || !passes.length) return;
         var np=0, parMois={}; passes.forEach(function(x){ np+=x.l.length; var mk=x.an*100+x.mois; parMois[mk]=(parMois[mk]||0)+x.l.length; });
@@ -30824,14 +30797,21 @@ function renderRappelsInutiles(force){
           +'<p class="inc-pnote">Ils sont passés : gardés pour mémoire, du plus récent au plus ancien.</p>'], mPrec=-1;
         passes.slice().reverse().forEach(function(x){
           var mk=x.an*100+x.mois, q=dateEnMots(x.an,x.mois,x.jour,t0);
-          if(mk!==mPrec){ r.push('<p class="inc-pm">'+esc(MOIS[x.mois-1]+(x.an!==au.getFullYear()?" "+x.an:""))+" · "+parMois[mk]+'</p>'); mPrec=mk; }
+          if(mk!==mPrec){ r.push('<p class="inc-pm">'+esc(q.moisNom+(x.an!==au.getFullYear()?" "+x.an:""))+" · "+parMois[mk]+'</p>'); mPrec=mk; }
           r.push(carteRn(x,q));
         });
         r.push('</div></section>');
         ph.innerHTML=r.join("");
       }
-      if(RN_PASSES.k===kp){ montrer(RN_PASSES.l); return; }
-      rappelsInutiles(db0,function(passes){ RN_PASSES={k:kp, l:passes}; montrer(passes); },{de:new Date(y0,0,1), a:new Date(ju.getFullYear(),ju.getMonth(),ju.getDate())});
+      /* ~300 journées (0,9 s au PC, 4 s sur un téléphone) pour une section
+         repliée : elles ne se calculent qu'à l'approche de leur place, quand
+         on fait défiler les rappels jusqu'en bas (revue du 03/11/2026 ; le
+         cache d'avant, clé du jour, ne servait jamais : ce rendu ne passe
+         qu'une fois par jour) */
+      function lancer(){ rappelsInutiles(db0,montrer,{de:new Date(y0,0,1), a:new Date(ju.getFullYear(),ju.getMonth(),ju.getDate())}); }
+      if(!window.IntersectionObserver){ lancer(); return; }
+      var io=new IntersectionObserver(function(es){ if(es.some(function(e){ return e.isIntersecting; })){ io.disconnect(); lancer(); } },{rootMargin:"600px 0px"});
+      io.observe(ph);
     })();
     /* Plus de description sous le titre (le client, le 10/10/2026). */
     document.getElementById("rnSub").textContent="";
@@ -35102,7 +35082,7 @@ function sideMaj(){
   if(g) g.addEventListener("click",function(e){
     if(e.target.closest("[data-go]")){ if(!document.getElementById("grille").hidden) fermerGrille(); return; }
     var b=e.target.closest("[data-side-ws]"); if(!b) return;
-    var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); });
+    var s=b.getAttribute("data-side-ws"); wsOuvrir(s); });
   /* au PC, un onglet de l'application referme l'espace qui est à droite du menu */
   /* « .tabs » et non « header.top .tabs » : au téléphone la barre est déjà
      rangée en bas (navwrap), et l'écouteur manquait — un onglet ne
@@ -35111,7 +35091,7 @@ function sideMaj(){
   if(t) t.addEventListener("click",function(e){ if(e.target.closest&&e.target.closest("#tab-plus,[data-side-ws]")) return; if(!document.getElementById("grille").hidden) fermerGrille(); },true);
   if(t) t.addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("[data-side-ws]"); if(!b) return;
-    var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); });
+    var s=b.getAttribute("data-side-ws"); wsOuvrir(s); });
   var p=document.getElementById("sidePied");
   if(p) p.addEventListener("click",function(e){ if(e.target.closest("[data-go]")&&!document.getElementById("grille").hidden) fermerGrille(); },true);
   setTimeout(function(){ try{ sideMaj(); }catch(e){} },0);
@@ -35317,6 +35297,8 @@ function aideRendre(){
 /* LES SECTIONS EN ICÔNES SUR L'ÉCRAN D'ACCUEIL (03/11/2026) : écrites par
    la feuille « Plus » (window.__ipApps), avec les mêmes pastilles ; elles
    se récrivent quand une pastille change. */
+/* ouvrir une section de l'espace de gestion, qu'il soit fermé ou déjà ouvert */
+function wsOuvrir(s){ if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s); }
 function ipAppsHTML(){ try{ return window.__ipApps?window.__ipApps():""; }catch(e){ if(window.console) console.warn("Icônes de l'accueil :",e); return ""; } }
 /* UNE ICÔNE D'APP de l'écran d'accueil, pour les accès comme pour les
    sections : le pictogramme dans son carré, le nom court dessous, le nom
@@ -35325,20 +35307,21 @@ function ipTuileHTML(attr,ico,court,nom,extra,href){
   var diff=nom&&nom!==court, al=diff&&attr.indexOf("aria-label")<0?' aria-label="'+esc(nom)+'"':'', ti=diff?' title="'+esc(nom)+'"':'';
   return (href?'<a class="ctl-t" href="'+esc(href)+'"':'<button type="button" class="ctl-t"')+(attr?' '+attr:'')+al+ti+'><i class="ctl-ti">'+ico+'</i><span>'+esc(court)+'</span>'+(extra||"")+(href?'</a>':'</button>');
 }
-/* récrites quand une pastille change ou que l'écran passe d'une taille à
-   l'autre ; seulement si l'Accueil est à l'écran (setView les rattrape) ;
-   le focus clavier reste sur l'icône qu'il tenait */
+/* récrites quand une pastille change (pastille(), que sideMaj appelle aussi
+   au passage PC ↔ tablette) ou que le téléphone devient tablette ;
+   seulement si l'Accueil est à l'écran — setView passe par sideMaj en y
+   revenant —, et le focus clavier reste sur l'icône qu'il tenait */
 function ipAppsMaj(){
   var c=document.querySelector("#pfRac .ip-secs"), v=document.getElementById("v-horaire"); if(!c||(v&&v.hidden)) return;
   var h=ipAppsHTML(); if(c.__h===h) return;
-  var a=document.activeElement, k=a&&c.contains(a)?(a.getAttribute("data-go")?'[data-go="'+a.getAttribute("data-go")+'"]':a.getAttribute("data-side-ws")?'[data-side-ws="'+a.getAttribute("data-side-ws")+'"]':""):"";
+  var a=document.activeElement, k=a&&c.contains(a)?reperer(a):null;
   c.__h=h; c.innerHTML=h;
-  if(k){ var b=c.querySelector(k); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
+  if(k){ var b=retrouver(null,k); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
 }
-[mqNav,mqSide].forEach(function(m){ if(m&&m.addListener) m.addListener(function(){ ipAppsMaj(); }); });
+if(mqNav.addEventListener) mqNav.addEventListener("change",ipAppsMaj); else if(mqNav.addListener) mqNav.addListener(ipAppsMaj);
 document.addEventListener("click",function(e){
   var b=e.target.closest?e.target.closest("#pfRac [data-side-ws]"):null; if(!b) return;
-  var s=b.getAttribute("data-side-ws"); if(document.getElementById("grille").hidden) ouvrirGrille(s); else wsAller(s);
+  wsOuvrir(b.getAttribute("data-side-ws"));
 });
 /* LA FEUILLE « PLUS » DU TÉLÉPHONE : Effectifs (et ses deux pastilles),
    Recherche · Direction pour la RH, puis la Gestion. Reconstruite à chaque
@@ -35352,16 +35335,17 @@ document.addEventListener("click",function(e){
      de l'iPhone ») : ACC les écrit en icône, un nom court dessous, le nom
      entier à l'écoute et au survol. Le Salaire n'y revient pas : l'icône
      « Paie » y mène déjà. */
-  var ACC=false, IP_COURT={"Infos et aide":"Infos","Absences et congés":"Absences","Tableau de bord":"Tableau","Horaire production":"Horaire","Mes demandes":"Demandes"};
-  function ligne(attr,ic,txt,extra,cur){
-    if(ACC) return ipTuileHTML(attr,ic,IP_COURT[txt]||txt,txt,extra);
-    /* au téléphone, la feuille est un dossier d'icônes : le nom court
-       dessous, le nom entier à l'écoute (03/11/2026) */
-    var cc=mqNav.matches?(IP_COURT[txt]||txt):txt, al=cc!==txt&&attr.indexOf("aria-label")<0?' aria-label="'+esc(txt)+'" title="'+esc(txt)+'"':'';
+  var IP_COURT={"Infos et aide":"Infos","Absences et congés":"Absences","Tableau de bord":"Tableau","Horaire production":"Horaire","Mes demandes":"Demandes"};
+  /* une ligne de la feuille ; au téléphone, la feuille est un dossier
+     d'icônes : le nom court dessous, le nom entier à l'écoute (03/11/2026) */
+  function ligne(attr,ic,txt,extra,cur,tel){
+    var cc=tel?(IP_COURT[txt]||txt):txt, al=cc!==txt&&attr.indexOf("aria-label")<0?' aria-label="'+esc(txt)+'" title="'+esc(txt)+'"':'';
     return '<button type="button" '+attr+al+(cur?' aria-current="page"':'')+'>'+ic+'<span>'+esc(cc)+'</span>'+(extra||"")+'</button>'; }
-  function svgDe(id){ var t=document.getElementById(id); return t?t.querySelector("svg").outerHTML:""; }
+  /* les pictogrammes des onglets, lus une fois : ils ne changent pas */
+  var SVG={};
+  function svgDe(id){ if(!(id in SVG)){ var t=document.getElementById(id); SVG[id]=t?t.querySelector("svg").outerHTML:""; } return SVG[id]; }
   function ouvrir(){
-    var tel=mqNav.matches, h=entrees(tel);
+    var tel=mqNav.matches, h=entrees(tel,false);
     if(f.hidden) navPousser("plus"); /* « retour » la referme (audit du 23/10/2026) */
     f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
     f.scrollTop=0; fondu();
@@ -35373,12 +35357,15 @@ document.addEventListener("click",function(e){
   /* au téléphone, ce que le dock ne porte pas ; à la tablette, ce que les
      onglets ne portent pas ; au PC, rien : le menu de gauche montre déjà
      chaque section (revue du 03/11/2026 : tout y revenait en double) */
-  window.__ipApps=function(){ if(mqSide.matches) return ""; ACC=true; try{ return entrees(mqNav.matches); } finally{ ACC=false; } };
-  function entrees(tel){
+  window.__ipApps=function(){ return mqSide.matches?"":entrees(mqNav.matches,true); };
+  /* tuile : les entrées en icônes d'app pour l'écran d'accueil (sans le
+     Salaire, où l'icône « Paie » mène déjà), sinon en lignes de la feuille */
+  function entrees(tel,tuile){
+    function L(a,i,t,x,c){ return tuile?ipTuileHTML(a,i,IP_COURT[t]||t,t,x):ligne(a,i,t,x,c,tel); }
     /* à la tablette, Effectifs et Recherche sont déjà dans la barre : seule
        Direction les rejoint ici (audit du 23/10/2026) */
     var dirOk=document.documentElement.getAttribute("data-rh")==="1";
-    var dirL=dirOk?ligne('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"";
+    var dirL=dirOk?L('data-go="direction"',svgDe("tab-direction"),"Direction","",st.view==="direction"):"";
     /* à la tablette, Direction ouvre la liste sous le titre « Gestion »,
        comme au PC : plus de titre « Sections » d'une seule ligne au-dessus
        (audit du 23/10/2026) ; le téléphone ne change pas */
@@ -35392,34 +35379,34 @@ document.addEventListener("click",function(e){
     var l=compteBase()?wsMenuSections():[], saisie=peutSaisir();
     function ws(x){
       var dn=x.s==="demandes"?wsNbDemandes():x.s==="valider"?wsNbValider():0, dd=dn?descCompte(x.s,dn):"";
-      return ligne('data-side-ws="'+x.s+'"'+(dd?' aria-label="'+esc(x.t+" · "+dd)+'"':''),wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb app" title="'+esc(dd)+'">'+dn+'</span>':''); /* orange : une tâche, pas une alarme, comme au PC (audit du 23/10/2026) */
+      return L('data-side-ws="'+x.s+'"'+(dd?' aria-label="'+esc(x.t+" · "+dd)+'"':''),wsIcone(x.i).replace('width="18" height="18"','width="22" height="22"'),x.s==="planning"?"Horaire production":x.t,dn?'<span class="plus-nb app" title="'+esc(dd)+'">'+dn+'</span>':''); /* orange : une tâche, pas une alarme, comme au PC (audit du 23/10/2026) */
     }
     function wsDe(k){ return l.filter(function(x){ return x.s===k; })[0]; }
     var ecS=document.getElementById("ctrlDot"), ecV=ecS&&!ecS.hidden;
     var moi=[wsDe("demandes")?ws(wsDe("demandes")):"", (!saisie&&wsDe("valider"))?ws(wsDe("valider")):"",
-      ACC?"":ligne('data-go="salaire"'+(ecV?' aria-label="Salaire · écart à vérifier"':''),svgDe("tab-salaire"),"Salaire",ecV?'<span class="plus-nb app" title="écart à vérifier">!</span>':'',st.view==="salaire")].join("");
+      tuile?"":L('data-go="salaire"'+(ecV?' aria-label="Salaire · écart à vérifier"':''),svgDe("tab-salaire"),"Salaire",ecV?'<span class="plus-nb app" title="écart à vérifier">!</span>':'',st.view==="salaire")].join("");
     void dE;
     var rhN=nb("rhNb"), rhA=nb("rhApp");
-    var usine=(tel?ligne('data-go="rh"'+(dE.length?' aria-label="'+esc("Effectifs · "+dE.join(", "))+'"':''),svgDe("tab-rh"),"Effectifs",
+    var usine=(tel?L('data-go="rh"'+(dE.length?' aria-label="'+esc("Effectifs · "+dE.join(", "))+'"':''),svgDe("tab-rh"),"Effectifs",
           (rhN?'<span class="plus-nb"'+(tA?' title="'+esc(tA)+'"':'')+'>'+esc(rhN)+'</span>':'')+(rhA?'<span class="plus-nb app"'+(tB?' title="'+esc(tB)+'"':'')+'>'+esc(rhA)+'</span>':''),st.view==="rh"):"")
-      +(tel?ligne('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
+      +(tel?L('data-go="recherche"',svgDe("tab-recherche"),"Recherche","",st.view==="recherche"):"")
       +(!tel&&wsDe("planning")?ws(wsDe("planning")):"");
     var gest=l.filter(function(x){ return x.s!=="demandes"&&x.s!=="planning"&&(saisie||x.s!=="valider"); })
       .sort(function(a,b){ return (a.s==="valider"?0:1)-(b.s==="valider"?0:1); }).map(ws).join("")+dirL;
-    if(ACC) return moi+usine+gest+aideReg(tel);
+    if(tuile) return moi+usine+gest+aideReg(tel,L);
     var h=(moi?'<p class="plus-titre">Mon espace</p>'+moi:"")+(usine?'<p class="plus-titre">L’usine</p>'+usine:"")+(gest?'<p class="plus-titre">Gestion</p>'+gest:"");
-    return h+'<p class="plus-sep" aria-hidden="true"></p>'+aideReg(tel);
+    return h+'<p class="plus-sep" aria-hidden="true"></p>'+aideReg(tel,L);
   }
-  function aideReg(tel){
+  function aideReg(tel,L){
     /* les Réglages, en dernier : au téléphone, seule la roue du héros de
        l'Accueil y menait (audit du 23/10/2026) ; la tablette a la marque */
     /* « Infos et aide » (annonces, infos pratiques, guide, données), avec
        le nombre d'annonces non lues */
     var nA=aideNonLues().length, dA=nA?nA+" annonce"+(nA>1?"s":"")+" non lue"+(nA>1?"s":""):"";
-    var aideL=ligne('data-go="aide"'+(nA?' aria-label="'+esc("Infos et aide · "+dA)+'"':''),AIDE_ICO,"Infos et aide",nA?'<span class="plus-nb app" title="'+esc(dA)+'">'+nA+'</span>':'',st.view==="aide");
+    var aideL=L('data-go="aide"'+(nA?' aria-label="'+esc("Infos et aide · "+dA)+'"':''),AIDE_ICO,"Infos et aide",nA?'<span class="plus-nb app" title="'+esc(dA)+'">'+nA+'</span>':'',st.view==="aide");
     /* la roue, et non le « i » de l'aide, premier lien du pied (03/11/2026) */
-    var roue=document.querySelector('#sidePied .side-lien[data-go="reglages"] svg');
-    return aideL+(tel?ligne('data-go="reglages"',roue?roue.outerHTML:"","Réglages","",st.view==="reglages"):"");
+    if(!("reglages" in SVG)){ var roue=document.querySelector('#sidePied .side-lien[data-go="reglages"] svg'); SVG.reglages=roue?roue.outerHTML:""; }
+    return aideL+(tel?L('data-go="reglages"',SVG.reglages,"Réglages","",st.view==="reglages"):"");
   }
   function fermer(){ if(f.hidden) return; navRetirer("plus"); f.hidden=true; fond.hidden=true; bt.setAttribute("aria-expanded","false"); }
   /* une feuille plus haute que l'écran (la Gestion à 320 × 568) se fond
@@ -35444,7 +35431,7 @@ document.addEventListener("click",function(e){
     var ws=b.getAttribute("data-side-ws");
     if(ws&&document.getElementById("grille").hidden) navCeder("plus","g");
     fermer();
-    if(ws){ if(document.getElementById("grille").hidden) ouvrirGrille(ws); else wsAller(ws); }
+    if(ws){ wsOuvrir(ws); }
     /* data-go : setView par l'écouteur commun du document, qui passe après
        celui-ci ; l'espace se referme d'abord, sinon la vue changeait sous
        lui (audit du 23/10/2026) */
@@ -35474,7 +35461,9 @@ document.addEventListener("click",function(e){
     nomPlus(); ipAppsMaj(); }
   window.__plusPastille=pastille;
   if(window.MutationObserver){ var mo=new MutationObserver(pastille);
-    ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,childList:true,characterData:true,subtree:true}); }); }
+    /* hidden seul : le title que pastille() pose relançait l'observateur, et
+       la grille de l'Accueil avec lui (revue du 03/11/2026) */
+    ["rhNb","rhApp"].forEach(function(id){ var e=document.getElementById(id); if(e) mo.observe(e,{attributes:true,attributeFilter:["hidden"],childList:true,characterData:true,subtree:true}); }); }
   pastille();
 })();
 function majCompteUI(){

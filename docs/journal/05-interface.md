@@ -11106,3 +11106,73 @@ zones protégées de l'iPhone simulées.
 de focus fait 2 px ; aucune cible sous 44 px. La roue fait 40 px, mais sa
 zone de toucher est étendue à 46 px. `parcours.js` : 112 essais, 0 faute ;
 `verifier-depot.py` : 0.
+
+### Passe simplify sur l'écran d'iPhone (03/11/2026, `nfdm-v1344`)
+
+Quatre relecteurs en parallèle (skill simplify), chacun sous un angle :
+réutilisation, simplification, efficacité, profondeur des corrections.
+Leurs constats, regroupés, appliqués :
+
+- **Le dock portait un `backdrop-filter`**, ce que la règle de la capsule
+  (journal du 09/10/2026) interdit : sous iOS, il casse le
+  `position:fixed` de la barre. Il ne porte plus de flou à lui ; le flou
+  reste celui de `.navwrap::before`, posé dessous. Le dock passe à 92 %
+  d'opacité (`--fd-dock`). Ma faute de la v1339 : la règle était écrite
+  quarante lignes plus haut.
+- **Les rappels passés** coûtaient 0,9 s au PC et environ 4 s sur un
+  téléphone (mesure au ralenti 4×), au premier passage du jour sur
+  Planning, Équipes ou Effectifs, pour une section repliée. Leur calcul ne
+  part plus qu'à l'approche de leur place (`IntersectionObserver`, 600 px
+  d'avance). Les tranches durent 40 ms au lieu de 30 jours (environ
+  370 ms chacune sur un téléphone). Le cache de la v1343 ne servait jamais
+  (ce rendu ne passe qu'une fois par jour) : il est retiré.
+- **Une seule matière d'icône d'app**, au lieu de neuf copies. La taille se
+  règle par `--ip-taille` (60, 54 ou 56 px). Le pictogramme fait la moitié
+  de l'icône et la pastille se place d'après elle. À 360 px, « Accès
+  rapides » (l'Accueil sans héros) retrouve ses 48 px, que la règle de la
+  v1339 écrasait.
+- **Les jetons à leur source** :
+  - `--paper`, `--fd-inst` et le guide d'installation viennent de
+    `--marque` ; `--fond` repasse à `none` (`.grille.ws` recevait une
+    couleur en guise d'image) ;
+  - les pastilles ont leurs jetons (`--pastille*`), employés aussi par la
+    barre et la feuille ;
+  - les `rgba` écrits en dur deviennent les jetons existants
+    (`--bd-blanc-*`, `--om-noir-*`) ;
+  - la feuille « Plus » redevient opaque (`--fd-feuille`). Le dossier
+    translucide du téléphone a son propre jeton (`--fd-dossier`), sans
+    flou à lui : son fond est déjà flouté.
+- **Le héros** n'a plus de cadre à défaire : sa règle d'origine ne garde
+  que `position:relative`. `--fd-heros` et `.pf-bas` sont retirés, ainsi
+  que les sélecteurs sans cible (`#ryPr`, `#ryCg`) et les règles sans
+  effet (le téléphone bas, `data-long`, les doublons `.ctl-cm-t`).
+- **Le code** :
+  - le drapeau `ACC` de la feuille « Plus » devient un paramètre
+    (`entrees(tel, tuile)`) ;
+  - les pictogrammes sont lus une fois ;
+  - `wsOuvrir(s)` remplace quatre copies ;
+  - le focus passe par `reperer`/`retrouver`, l'élision par `deMois` ;
+  - `renderCentre`, appelé sept fois au démarrage, ne récrit la grille que
+    si elle change ;
+  - l'observateur des pastilles ne réagit plus aux `title` qu'il pose
+    lui-même ;
+  - les rafraîchissements en double (`setView`, `mqSide`) sont retirés.
+- **Une erreur commise en route, puis corrigée** : en retirant `data-long`
+  de la tuile du contremaître, un guillemet de trop est resté
+  (`title="…""`). Il a été vu à la relecture de la ligne.
+
+**Laissé, et pourquoi.**
+- Les couches anciennes du héros (`.pf-corps` sur trois niveaux, les
+  points de l'horloge réglés au pixel), du dock et de la feuille d'avant
+  restent sous les nouvelles règles. Ce sont des réglages acceptés par le
+  client, un par un ; les réécrire touche des écrans que cette passe ne
+  vise pas.
+- Le parcours de 800 jours des sous-effectifs (`mqParcours`), et une
+  structure « Passé(e)s » commune aux incohérences et aux rappels, restent
+  à faire.
+
+**Mesures.** Rappels passés : 61 sur 37 journées et 9 mois, comme avant.
+Le badge et le cadre « Horaire modifié » s'affichent. À l'impression, la
+page est blanche et les traits sont `#bbb`. Chaque icône ouvre sa section ;
+au PC, la grille ne porte plus que les accès. `parcours.js` : 112 essais,
+0 faute.
