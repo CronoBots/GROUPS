@@ -10808,3 +10808,20 @@ contrôle » (« Contremaître de pause » pour le bureau ; « Salle de
 contrôle · Fermentation » quand le poste se joint par une autre) ; le
 numéro reste dans le lien, son infobulle et ce que lit le lecteur
 d'écran. L'icône de la radio passe de 16 à 21 px.
+
+### L'usine en direct : les badges du Planning sur la photo (03/11/2026, `nfdm-v1329`)
+
+Le client : « il faut que les badges de trigramme utilisent les couleurs
+utilisées dans le Planning, et je n'aime pas la forme des actuels ». Les
+pastilles rondes (v1325) laissent la place au badge même du Planning :
+rectangle à coins de 6 px, fond `--surface3`, filet `--bord-pause`,
+trigramme en IBM Plex Mono gras 11,5 px (26 px de haut au PC, 22 au
+téléphone). La couleur du poste ne remplit plus le badge : elle en fait
+le liseré gauche, comme la rangée du poste au Planning, et ce sont les
+couleurs du Planning (`--bordj`, `--bordv`, `--bordr`, `--bordb`,
+`--bordg`) qui passent aussi aux points, à la bande d'état et à la fiche,
+au lieu des teintes sourdes de la v1325. Les variantes sont celles du
+Planning : vous en cyan (`--in` sur `--in-soft`), une personne en
+formation au poste en encre jaune, une journée en filet pointillé, une
+place libre « ? » en rouge sur le fond des manques. Mesures : parcours
+112 essais, 0 faute (contraste compris) en 1 min 47.
