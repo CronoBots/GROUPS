@@ -10682,3 +10682,16 @@ chemin qui n'existe plus et n'ajoute RIEN ; le commit poussé
 service worker en ligne les listait encore dans son cache. Le reste est
 parti deux minutes après (`ce359f9`). Leçon : après un `git rm`, ne plus
 nommer ces chemins ; relire `git show --stat` AVANT de pousser.
+
+### Les couleurs du dépliant officiel : relevées, non reprises (03/11/2026)
+
+Le client, le dépliant BioWanze de 2020 à l'appui : « adapter le site
+avec ces couleurs ? ce sont les couleurs officielles ». Relevées sur le
+rendu des deux pages : bleu marine `#13334A` (30 à 44 % de la page),
+bleu ciel `#6F9ED4` (le panneau des produits), vert menthe `#8AC6AE`
+(titres et mots mis en avant), blanc. L'application : bleu nuit
+`#111727` (la tuile du logo) et accent cyan `#69B2CB`. Avis donné : la
+marque seulement, pas l'accent général (le menthe touche le vert de
+l'éthanol et des postes tenus, le bleu ciel celui de la STEP). Le client,
+en deux QCM : « garder notre bleu nuit », puis « non, rien ne change »
+pour le menthe. Aucune couleur modifiée.
