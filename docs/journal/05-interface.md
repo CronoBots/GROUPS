@@ -11255,3 +11255,63 @@ aucune cible tactile sous 44 px (la roue garde sa zone de 46 px), l'anneau
 de focus partout.
 
 **Ce qui reste.** Rien de connu sur l'écran d'iPhone.
+
+### Le style iPhone dans tous les onglets (03/11/2026, `nfdm-v1347`)
+
+Le client, le 03/11/2026 : « Applique le même style iPhone aux autres
+onglets ». L'Accueil l'avait depuis la v1339. Les autres onglets gardaient
+trois choses qui n'en étaient pas, relevées sur les photos de six onglets à
+390 px et de trois à 1280 px :
+
+- **Des sélecteurs hétérogènes.** Selon l'endroit, un liseré bleu (Recherche,
+  Équipes, Effectifs, Direction, vue de l'agenda) ou un aplat bleu (Mes
+  demandes, précision). → Les segments de l'iPhone, partout les mêmes : une
+  piste creusée (`--seg-piste`) et un pouce gris clair qui se soulève
+  (`--seg-pouce`, `--seg-ombre`), le texte choisi en blanc. Sept familles
+  sont concernées : `.caseg` (dont `.eqabsseg` et `.rhchoix`), `.caduree`,
+  `.dc-seg`, `.dm-bascule`, `.dm-prec-seg`, `.pl-seg`, `.calvue`.
+  - Le liseré venait de l'audit du 23/10/2026 : l'ancienne pastille ne se
+    détachait du rail qu'à 1,15:1. Le nouveau pouce se détache de la piste à
+    3,3:1, le blanc s'y lit à 5,2:1 et le gris des autres boutons à 7,6:1
+    sur la piste (rapports calculés ; le parcours a mesuré le contraste de
+    chaque texte : 0 faute).
+- **Des en-têtes de cadre sans icône**, posés sur une bande (`--surface2`)
+  avec un filet dessous, tantôt centrés, tantôt à gauche. → L'en-tête d'un
+  widget, comme à l'Accueil : la petite icône de l'onglet (24 px, sa couleur
+  `--ic`, un pictogramme propre au cadre), le titre à gauche, sa ligne
+  dessous, ni bande ni filet. Concernés :
+  - les cadres d'Équipes, y compris ceux que le script récrit ;
+  - les cinq cadres d'Effectifs, la Recherche, « Du brut au net » et
+    l'agenda des Réglages ;
+  - les cadres du tableau de bord de la gestion, chacun à la couleur de
+    l'espace dont il parle ; « Sur site » garde son pictogramme, posé sur la
+    même tuile.
+  - La bande du 05/10/2026 (« une cellule collée au tableau ») devient
+    l'en-tête du widget, et le tableau suit toujours le titre.
+- **Des rangées nues.** Les rangées qui se déplient dans le Salaire, les
+  Réglages et l'Aide sont devenues des rangées des Réglages de l'iPhone :
+  - une icône de couleur de 30 px (arrondi 7, pictogramme 18) ;
+  - le titre et sa ligne dessous, le chevron à droite ;
+  - le filet entre deux rangées part du texte (58 px), pas du bord.
+
+**Un attribut, aucun balisage.** Le pictogramme se pose avec un seul
+attribut, `data-g="nom"`, sur l'en-tête ou la rangée. Une règle
+`[data-g="nom"]` lui donne `--glyphe` : un SVG en `data:`, traits blancs, sur
+une grille de 24. Une rangée y reçoit aussi sa couleur `--ic` ; un en-tête
+prend celle de l'onglet (`#v-equipe{--ic:…}`). Un seul pseudo-élément peint
+le pictogramme sur la couleur (`background: var(--glyphe) …, var(--ic)`).
+Les cadres que le script récrit gardent ainsi leur icône sans une ligne de
+JS. **Un cadre ou une rangée neuve reçoit son `data-g`.**
+
+**Mesuré.**
+- **Styles calculés.** Les 17 936 éléments des huit onglets, au téléphone et
+  au PC, ont été relevés avant et après. Le relevé est stable : deux relevés
+  avant donnent 0 écart. Il ne bouge que ce qui est voulu : pistes, pouces,
+  en-têtes, rangées et filets, plus les positions qui en découlent. Le
+  Planning n'a pas changé.
+- **Tableau de bord.** Au PC, « Sous-effectif (14 j) » se coupait en deux à
+  côté de sa pastille ; la pastille passe dessous, à droite, quand la place
+  manque. Les titres tiennent sur une ligne à 320, 390 et 1280 px.
+- **Contrôles.** Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0,
+  après avoir reformulé trois commentaires qui ressemblaient à « Nom,
+  Prénom ».

@@ -318,11 +318,11 @@ deviner à sa place sur ces points : ils touchent à des montants.
   EXEMPLE** : des marqueurs — « Nom, Prénom », « NOM, PRÉNOM », « Renard P »
   donne PRD — illustrent la FORME sans nommer personne. Garde-fou :
   `tools/verifier-depot.py` (journal 01, « Le dépôt se contrôle lui-même »).
-- **Un écran d'iPhone** (le client, le 03/11/2026). Fond : le bleu nuit
-  du logo, `--ip-fond` (#141C2F). Un cadre nouveau est un widget (22 px,
-  `--cadre`, `--ombre-cadre`) ; un accès ou une section, une icône d'app
-  dont la couleur `--ic` (jeton `--ip-*`) suit son `data-go` ou
-  `data-side-ws` (journal 05).
+- **Un écran d'iPhone** (03/11/2026). Fond : `--ip-fond`, le bleu nuit
+  du logo. Un cadre neuf est un widget (22 px, `--cadre`, `--ombre-cadre`)
+  dont l'en-tête, comme une rangée, porte un `data-g` ; un accès, une icône
+  d'app dont `--ic` (`--ip-*`) suit son `data-go` ou `data-side-ws` ; un
+  sélecteur, les segments `--seg-*` (journal 05).
 - **Un seul thème, le sombre.** Le clair (29/10/2026) est retiré le
   03/11/2026, code compris (le client : « supprimer le thème clair, nous
   allons adapter celui-ci plus tard » ; journal 05). Toute couleur passe
