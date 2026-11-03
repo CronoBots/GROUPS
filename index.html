@@ -32403,14 +32403,17 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
       if(monO){
         var P=monO.P; res.poste=P;
         var restants=monO.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
-        var tenuSans=effectif(restants,P,jour);
+        var TH=tenuAuxHeures(db,monO,restants,g,annee,m,j,PF_DEB[g],PF_FIN[g]), tenuSans=TH.n;
         if(tenuSans>=monO.attendu){
           res.couverture={P:P, pause:g, tenu:tenuSans, attendu:monO.attendu,
-            gens:restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; })};
+            gens:restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; })
+              .concat(TH.relais.map(function(r){ return {id:r.p.id, form:false, h:r.h}; }))};
         } else {
           var t=caCandidats(par,vReal,g,P,jour,pausesDe,id,true,autres);
           t.pause=g; t.P=P; t.tenu=tenuSans; t.attendu=monO.attendu;
-          t.enPoste=restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; });
+          t.enPoste=TH.gens.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; })
+            .concat(TH.relais.map(function(r){ return {id:r.p.id, form:false, h:r.h}; }));
+          t.heures=TH.note;
           res.trous.push(t);
         }
       }
@@ -32461,6 +32464,51 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
    heures : en fin de pause, celle qui suit (la nuit : le matin du
    lendemain) arrive plus tôt ; en début, celle qui précède (le matin : la
    nuit de la veille) reste plus tard. */
+/* QUI RESTE, À SES HEURES (le client, le 03/11/2026, deux captures : ATR,
+   une heure de départ tôt le dimanche 08/11 ; la recherche répondait
+   « possible, en poste 1/1 : GDT », alors que GDT part à 13 h — « 1h RTT »,
+   « remplace APN départ à 13h00' remplacé par ATR » — et que c'est ATR qui
+   tient la fermentation de 13 h à 14 h). Le poste se compte demi-heure par
+   demi-heure sur les heures en jeu, chacun à ses heures du jour : l'arrivée
+   et le départ écrits (lectureAgenda), ou la part tenue d'une autre pause
+   (horPart) ; un relais d'une autre pause compte à ses heures, comme dans
+   tenuDuPoste. Le poste n'est tenu qu'à son plus bas ; on montre qui est
+   là à ce moment-là, et la note dit qui n'y est pas tout le temps
+   (« GDT part à 13 h »). Les recherches « Jour » et « Heures » le lisent
+   toutes deux : une seule règle. */
+function tenuAuxHeures(db,o,restants,g,an,m,j,a,b){
+  var jour=an*10000+m*100+j, t0=PF_DEB[g], t1=PF_FIN[g], H={};
+  function n24(x){ x=((x%24)+24)%24; while(x<t0-0.01) x+=24; return x; }
+  restants.forEach(function(x){
+    var s=t0, e=t1;
+    if(x.horPart){ s=n24(x.horPart[0]); e=n24(x.horPart[1]); if(e<=s+0.01) e+=24; }
+    else { try{ var L=lectureAgenda(db,x.p,an,m,j); if(L && L.pv===g){ if(L.hd!=null) s=L.hd; if(L.hf!=null) e=L.hf; } }catch(er){} }
+    H[x.p.id]=[Math.max(s,t0),Math.min(e,t1)];
+  });
+  var rel=(o.relais||[]).filter(function(r){ return r.a!=null && r.b!=null; });
+  var bas=null, qui=restants, quiRel=[], u, trous=[];
+  for(u=a; u<b-0.01; u+=0.5){
+    var la=restants.filter(function(x){ var r=H[x.p.id]; return r[0]<=u+0.01 && r[1]>=u+0.49; });
+    var n=effectif(la,o.P,jour), rU=null;
+    if(o.attendu && n<o.attendu){ rU=rel.filter(function(r){ return r.a<=u+0.01 && r.b>=u+0.49; })[0]||null; if(rU) n++; }
+    if(bas===null || n<bas){ bas=n; qui=la; quiRel=rU?[rU]:[]; }
+    /* les heures du trou, demi-heure après demi-heure, en plages */
+    if(o.attendu && n<o.attendu){ var z=trous[trous.length-1]; if(z && Math.abs(z[1]-u)<0.01) z[1]=u+0.5; else trous.push([u,u+0.5]); }
+  }
+  function hh(v){ v=((v%24)+24)%24; var e=Math.floor(v+1e-6), mn=Math.round((v-e)*60); return e+(mn?" h "+pad2(mn):" h"); }
+  var notes=restants.filter(function(x){ return qui.indexOf(x)<0; }).map(function(x){
+    var r=H[x.p.id], part=r[1]<t1-0.01, arr=r[0]>t0+0.01;
+    return idLisible(x.p.id)+(part?" part à "+hh(r[1]):"")+(arr?(part?" et":"")+" arrive à "+hh(r[0]):""); });
+  /* le trou n'est dit que s'il ne couvre pas déjà toutes les heures en jeu */
+  var partiel=trous.length && !(trous.length===1 && trous[0][0]<=a+0.01 && trous[0][1]>=b-0.01);
+  var note=notes.length?(partiel
+    ? "Il manque quelqu'un "+trous.map(function(z){ return "de "+hh(z[0])+" à "+hh(z[1]); }).join(" et ")+" : "+notes.join(", ")+"."
+    : "À ces heures-là, "+notes.join(", ")+"."):"";
+  /* le relais compté, avec ses heures (« 14-22 »), comme les pastilles du congé à l'heure */
+  function lab(v){ v=((v%24)+24)%24; var e=Math.floor(v+1e-6), mn=Math.round((v-e)*60); return e+(mn?"h"+pad2(mn):""); }
+  return {n:bas===null?effectif(restants,o.P,jour):bas, gens:qui, note:note, trous:trous,
+    relais:quiRel.map(function(r){ return {p:r.p, h:lab(r.a)+"-"+lab(r.b)}; })};
+}
 function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
   var mmdd=pad2(m)+pad2(j), jour=an*10000+Number(mmdd);
   var par=pausesDe(0)._par||equipeDuJour(db,an,m,j), g=null, moi=null;
@@ -32476,7 +32524,7 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
   var P=o?o.P:null;
   if(!P) return {v:"non", t:"Poste introuvable", html:""};
   var restants=o.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
-  var tenuSans=effectif(restants,P,jour), complet=tenuSans>=o.attendu;
+  var TH=tenuAuxHeures(db,o,restants,g,an,m,j,a,b), tenuSans=TH.n, complet=tenuSans>=o.attendu;
   /* MÊME FONCTION : pour un poste d'opérateur, pas un cadre (adjoint ou
      contremaître) ; pour le poste de contremaître, un cadre, comme
      ailleurs dans ce module (caSait). */
@@ -32519,8 +32567,10 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
     +'<span class="mqsub"> · <b class="mqpz-txt" data-s="'+esc(g)+'">'+esc(g)+"</b>"
     +(eqc[g]?" · Équipe "+esc(eqc[g]):"")+" · "+(moment==="fin"?"départ à "+hh(a)+" h":"arrivée à "+hh(b)+" h")
     +" ("+n+" h)</span></span>"
-    +cadreEnPoste(restants.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
+    +cadreEnPoste(TH.gens.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
+      +TH.relais.map(function(r){ return caChip(r.p.id,r.h,false); }).join("")
       +new Array(Math.max(0,o.attendu-tenuSans)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenuSans,o.attendu)
+    +(TH.note?'<span class="caregle">'+esc(TH.note)+"</span>":"")
     /* la personne choisie, et non « vous » : le contremaître qui cherche
        pour un autre lisait « sans vous » (audit du 23/10/2026) */
     +'<span class="caregle">'+(loin
@@ -32947,7 +32997,7 @@ function caCalculer(){
         var cv=r.couverture;
         if(cv && cv.gens.length) h.push('<span class="mql" data-z="'+esc(cv.P.z||"")+'"><span class="mqh">'
           +'<span class="mqpo">'+esc(cv.P.t)+"</span>"+caMeta+"</span>"
-          +cadreEnPoste(cv.gens.map(function(p){ return caChip(p.id,"",p.form); }).join(""),cv.tenu,cv.attendu)+"</span>");
+          +cadreEnPoste(cv.gens.map(function(p){ return caChip(p.id,p.h||"",p.form); }).join(""),cv.tenu,cv.attendu)+"</span>");
         h.push('<span class="mql"><span class="caok">'
           +"Aucun changement nécessaire — l'équipe reste au complet sans vous.</span></span>");
       }
@@ -32975,11 +33025,11 @@ function caCalculer(){
            l'absence, comme pour la recherche ». */
         var enP=t.enPoste||[], vides=Math.max(0,t.attendu-t.tenu);
         var cadreEnP=(enP.length||vides)?cadreEnPoste(
-          enP.map(function(p){ return caChip(p.id,"",p.form); }).join("")
+          enP.map(function(p){ return caChip(p.id,p.h||"",p.form); }).join("")
           +new Array(vides+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),t.tenu,t.attendu):"";
         h.push('<span class="mql" data-z="'+esc(t.P.z||"")+'"><span class="mqh">'
           +'<span class="mqpo">'+esc(t.P.t)+"</span>"+(t.g&&t.g!==r.pause?caCreneau(t.g,""):caMeta)+"</span>"
-          +cadreEnP+g.join("")+"</span>");
+          +cadreEnP+(t.heures?'<span class="caregle">'+esc(t.heures)+"</span>":"")+g.join("")+"</span>");
       });
       if(r.avant) h.push('<span class="mqinc">'+r.avant+" poste"+(r.avant>1?"s":"")
         +" déjà en sous-effectif ce jour-là</span>");

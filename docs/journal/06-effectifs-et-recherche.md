@@ -4478,3 +4478,49 @@ pouvait le voir. Le parcours clique désormais les trois onglets
 (rôle hiérarchie) et crie si l'un ne bascule pas — épreuve : sur la
 version d'avant, 2 fautes, code 1 ; corrigée, 0. Aucun autre
 `querySelector` d'une classe portée deux fois dans la page.
+
+### La recherche compte chacun à ses heures (03/11/2026, `nfdm-v1333`)
+
+Le client, deux captures sans un mot : l'horaire du dimanche 08/11 —
+GDT, « Ferm. Liq. · 1h RTT », commentaire « remplace APN départ à 13h00'
+remplacé par ATR » ; ATR, « Ferm. · 1/2VA », « arrivée à 10h00' remplace
+en fermentation de 13h à 14h00' » — et la recherche « Congé · ATR ·
+Heures · 1 h · départ tôt » qui répondait **« Possible, en poste 1/1 :
+GDT »**. Faux : GDT part à 13 h, et c'est ATR qui tient la fermentation
+de 13 h à 14 h ; si ATR part aussi à 13 h, le poste est vide une heure.
+
+Cause : les deux recherches de congé (« Heures », `caCongeHeures`, et
+« Jour », `caSimuler`) comptaient tous ceux du poste sur la pause entière
+(`effectif(restants)`), sans leurs heures. Deux copies de la même règle,
+toutes deux fausses.
+
+Corrigé par une seule règle, `tenuAuxHeures` : le poste se compte
+demi-heure par demi-heure sur les heures en jeu (celles du congé, ou la
+pause entière pour un jour), chacun à ses heures du jour — l'arrivée et
+le départ écrits, lus par `lectureAgenda` (la lecture de l'agenda), ou la
+part tenue d'une autre pause (`horPart`) — et un relais d'une autre pause
+à ses heures, comme `tenuDuPoste`. Le poste n'est tenu qu'à son plus bas ;
+le cadre « En poste » montre qui est là à ce moment, le relais avec ses
+heures (« QBY 14-22 »), et une note le dit : « À ces heures-là, GDT part à
+13 h », ou, pour un jour, « Il manque quelqu'un de 13 h à 14 h : GDT part
+à 13 h ».
+
+Le 08/11 après : « Heures » → **Possible avec remplaçant**, 0/1, l'après-
+midi qui arrive à 13 h (GST, JKS, ALZ, CKS) ou un collègue en repos en FT
+de 13 h à 14 h ; « Jour » → **Possible avec changement**, « il manque
+quelqu'un de 13 h à 14 h ».
+
+Mesure, sur 27 218 essais (chaque personne de chaque poste, chaque jour de
+2026 et 2027, sa journée retirée) : **356 réponses changent**, 311 parce
+qu'un collègue part tôt ou arrive tard (contrôlés sur le brut : GDT le
+06/01 « départ à 12h00' », ADK le 07/01 « arrivée à 23h00' », LHS le 17/01
+« départ à 02h00' »… ; GBT-1, homonyme, « 5H RTT »), 45 parce qu'un
+relais d'une autre pause, que le Planning comptait déjà, n'était pas
+compté par la recherche (QBY au gluten de 14 h à 22 h le 22/01) : elle
+réclamait un remplaçant de trop. Le Planning, les manques et le placement
+ne changent pas : seule la recherche lit cette règle.
+
+**Ce qui reste** : pour un JOUR de congé dont le trou n'est que de
+quelques heures, les solutions proposées restent celles d'une pause
+entière (changement de pause, D, poste pour poste) ; la recherche
+« Heures » propose, elle, l'arrivée plus tôt de la pause suivante.
