@@ -4707,3 +4707,72 @@ classeurs du moment, comme les incohérences passées, et ne se refont plus
 à chaque rendu ; l'intertitre de mois prend sa classe en paramètre au lieu
 d'un remplacement dans son texte. Mesure : la même section, 61 rappels sur
 37 journées et 9 mois, avant et après.
+
+### Trois corrections des remplacements (03/11/2026, `nfdm-v1346`)
+
+Le client, captures à l'appui : l'agenda d'ATR le 08/11, une bulle du
+Planning qui répète la proposition, puis « je cherche un remplaçant pour
+Fred et cela me met " Pas prévu ce jour-là " ».
+
+**L'agenda : « remplace X de A à B » au poste où le Planning montre X.**
+ATR, le 08/11, écrit « remplace GDT de 13h à 14h00' ; remplace en
+fermentation de 13h à 14h00' ». La note de l'agenda disait « Distillation,
+remplace GDT » : elle prenait le poste habituel de GDT (`posteAttitreLe`),
+alors que GDT tenait la fermentation ce jour-là. Elle prend maintenant le
+poste où le Planning montre X à la pause de ces heures (`posteTenuALaPause`,
+qui lit `planningDuJour`). Le moteur seul (`postesDePause`) déplaçait 9
+remplacés sur 288, que le Planning remet à leur poste (SMA le 13/10 au
+terrain arrière) : sur les 288 « remplace X de A à B » de 2026 et 2027,
+l'agenda et le Planning sont d'accord, aux trois nuits près où mon test ne
+reportait pas les heures après minuit. La lecture de ces phrases est
+maintenant une seule, partagée avec le Planning (`rxRelaisEcrit`) : l'agenda
+lit aussi « remplace en <poste> de A à B ». En les comparant, un défaut
+de la lecture du Planning lui-même est apparu : dans « Remplace PBL
+remplace FLI de 22h à 23h », les heures allaient à PBL. Aucun autre
+« remplace » n'est plus admis entre le nom et ses heures. Les agendas
+changent de 25 notes, relues une à une : le poste du remplacé, ou un
+remplacement jusqu'ici ignoré (VGG le 05/02, « remplace HKB en meunerie
+de 22h à 24h »). Le vérificateur du calendrier extrait pour cela
+`planningDuJour` et ses 34 dépendances.
+
+**Une proposition n'ouvre plus de trou là où elle prend.** La même
+journée, le Planning proposait « Fermentation → Chaudières » pour ATR
+pendant toute sa présence (10 h – 14 h). Or GDT part à 13 h, et ATR le
+remplace de 13 h à 14 h. Compté à la pause entière, ATR semblait en trop
+en fermentation. Le poste quitté est maintenant recompté demi-heure par
+demi-heure, avec et sans la personne (`propositionsAuxHeures`, après les
+relais) : elle n'est proposée qu'aux heures où il reste tenu (ATR : de
+10 h à 13 h). S'il ne reste aucune heure, il n'y a pas de proposition.
+Mesuré sur 2026 et 2027 : 6 propositions sur 155 ouvraient un trou. Cinq
+reçoivent leurs heures et celle de CDE le 08/05 disparaît (elle laissait
+la meunerie vide toute la pause) ; aucune autre ne bouge. Premier essai :
+compté avant les relais, PLZ le 23/01 semblait laisser le gluten vide de
+6 h à 10 h, qu'un relais tient. Le compte se fait donc après eux.
+
+**La bulle ne répète plus la proposition.** Elle met en tête ce que dit
+l'infobulle du badge et que le commentaire ne contient pas. Elle le
+cherchait dans le commentaire déjà nettoyé, où « Remplace » a reçu une
+majuscule et un retour à la ligne : elle ne le retrouvait jamais, et
+chaque proposition s'affichait deux fois. La comparaison se fait sur le
+texte brut, sans la casse ni les blancs.
+
+**Chercher un remplaçant pour quelqu'un de déjà absent.** FLN, du 13 au
+15/11, est écrit « AM », « Abs » : prévu le matin, déjà absent. En mode
+« Absence », la recherche ne le trouvait à aucune pause et concluait
+« Pas prévu ce jour-là ». Elle lit maintenant la pause prévue telle
+qu'elle est : elle dit qu'il est déjà absent, qui le remplace par écrit
+(« remplacé par ALZ » dans sa case, « remplace FLN » chez un autre), puis
+ce qui manque à cette pause, avec les candidats. Résultat au 03/11 :
+- le 13/11, ALZ le remplace ; aux chaudières, il manque quelqu'un de 10 h
+  à 14 h (SKS part à 10 h) ;
+- le 14/11, la meunerie est vide ;
+- le 15/11, aucun remplaçant n'est écrit, mais l'équipe du matin est au
+  complet sans lui.
+
+Sur une période, ces journées ne sont plus résumées en une ligne : elles
+gardent leur phrase. Le congé, lui, reste « Déjà en congé ».
+
+**Mesures.** `verifier-recherche.js` : 0 faute (le désaccord L, 8 lectures,
+est d'avant). `coherence-planning.js` : 0. `verifier-calendrier.js` et
+`--manques 0926` : identiques à l'octet. `parcours.js` : 112 essais,
+0 faute.

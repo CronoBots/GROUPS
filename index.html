@@ -17774,6 +17774,22 @@ function icsSequence(stamp){
   if(!m) return 0;
   return Math.max(0,Math.round((Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-Date.UTC(2026,0,1))/60000));
 }
+/* LE POSTE OÙ LE PLANNING MONTRE q, À LA PAUSE QUI COUVRE L'HEURE u du jour
+   (AAAAMMJJ) — la nuit appartient au jour où elle commence ; null s'il n'y
+   est placé nulle part (03/11/2026, pour la note de l'agenda). Le Planning
+   lui-même (planningDuJour) : le rééquilibrage seul (postesDePause) déplaçait
+   neuf remplacés sur 288, que le Planning remet à leur poste — SMA le 13/10
+   au terrain arrière, sa place, et non en distillation. */
+function posteTenuALaPause(db,q,jour,u){
+  var u0=((u%24)+24)%24, gk=(u0>=22||u0<6)?"N":(u0>=14?"PM":"AM");
+  var d=new Date(Math.floor(jour/10000),Math.floor(jour/100)%100-1,jour%100+Math.floor(u/24)-(u0<6?1:0));
+  var an=d.getFullYear(), dbj=(an===Number(db.year))?db:(typeof horaireDe==="function"?horaireDe(an):null); if(!dbj) return null;
+  var mo=d.getMonth()+1, jo=d.getDate(), mmdd=pad2(mo)+pad2(jo);
+  var par=equipeDuJour(dbj,an,mo,jo), l=par[gk]; if(!l||!l.some(function(x){ return x.p.id===q.id; })) return null;
+  var PJ=planningDuJour(dbj,an,mo,jo,par), vue=PJ.vp[gk]&&PJ.vp[gk].vue, k=null; if(!vue) return null;
+  vue.postes.forEach(function(o){ if(!k && o.gens.some(function(x){ return x.p.id===q.id && !x.depuisD && !x.partage; })) k=o.P.k; });
+  return k;
+}
 /* LE PARTAGE D'UNE JOURNÉE ÉCRIT DANS LA NOTE DE SON ÉVÉNEMENT (le client, le
    24/10/2026 : « pour les agendas, il ne faut pas diviser en 2 événements
    mais l'indiquer en commentaire d'un seul événement avec l'horaire
@@ -17789,13 +17805,20 @@ function partageJournee(db,p,x,jour){
   var B=[6,14,22,30,38], NOM={6:"matin",14:"après-midi",22:"nuit",30:"matin"};
   var POS={}; POSTES_TRAVAIL.forEach(function(P){ POS[P.k]=P.t; });
   var propre=POS[x.ka||x.k]||"";
-  /* les clauses « remplace X de A à B » : le poste de X pour ces heures */
-  var cl=[], c=String((x.raw&&x.raw[2])||""), rx=/remplac?e\s+([A-Z]{3})\s+de\s+(\d{1,2})\s*h\s*(\d{2})?'?\s*(?:a|\u00e0)\s*(\d{1,2})\s*h\s*(\d{2})?/gi, m;
+  /* les clauses « remplace X de A à B » : le poste que X tient CE JOUR-LÀ,
+     à la pause de ces heures, celui du Planning (posteTenuALaPause) ; son
+     poste habituel seulement s'il n'y est pas placé. Le poste habituel
+     seul mettait ATR, le 08/11, en « Distillation, remplace GDT » de 13 h à
+     14 h, quand GDT tenait la fermentation (le client, le 03/11/2026) ;
+     « remplace en <poste> de A à B » donne le poste nommé */
+  var cl=[], c=String((x.raw&&x.raw[2])||""), rx=rxRelaisEcrit(), m;
   while((m=rx.exec(c))){
+    var u=Number(m[3])+Number(m[4]||0)/60, v=Number(m[5])+Number(m[6]||0)/60; if(v<=u) v+=24; if(u<a-12){ u+=24; v+=24; }
+    if(m[2]){ var kn=/^arri/i.test(m[2])?"terr":posteDepuisNom(m[2]); if(kn&&POS[kn]) cl.push({a:u, b:v, t:"", poste:POS[kn]}); continue; }
     var t=m[1].toUpperCase(); t=(typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t;
     var q=db.people.filter(function(z){ return idLisible(z.id)===t; })[0]; if(!q) continue;
-    var u=Number(m[2])+Number(m[3]||0)/60, v=Number(m[4])+Number(m[5]||0)/60; if(v<=u) v+=24; if(u<a-12){ u+=24; v+=24; }
-    var kq=null; try{ kq=posteAttitreLe(q,jour)||posteParDefaut(q); }catch(e){}
+    var kq=null; try{ kq=posteTenuALaPause(db,q,jour,u); }catch(e){}
+    if(!kq) try{ kq=posteAttitreLe(q,jour)||posteParDefaut(q); }catch(e){}
     /* l'adjoint qui, ce jour-là, remplace un contremaître (adjointFaitCM) :
        c'est la place de contremaître qu'on tient pour lui — VBN le 31/10,
        « remplace FPA de 22h à 01h00' », FPA remplaçant FLI */
@@ -31325,6 +31348,8 @@ function planningDuJour(db,annee,mois,jour,par){
   ORD.forEach(function(gk){ if(vp[gk]) relaisCourtsPause(vp[gk].vue,gk,mmdd,jourCalc); });
   /* le trou d'une pause entière, à ses heures (le 03/11/2026) */
   ORD.forEach(function(gk){ if(vp[gk]) relaisPartielsPause(vp[gk].vue,gk,mmdd,jourCalc); });
+  /* une proposition n'ouvre pas de trou là où elle prend, relais comptés */
+  ORD.forEach(function(gk){ if(vp[gk]) propositionsAuxHeures(vp[gk].vue,gk,mmdd,jourCalc,db); });
   /* EN FORMATION À SES HEURES ÉCRITES, et non à celles de sa case (le
      client, le 02/11/2026 : « pourquoi JBS n'est pas dans la ligne
      formation ? ») : JBS le 06/11, 08h30-12h30, et non 6h-14h ; AAI le
@@ -31338,6 +31363,47 @@ function planningDuJour(db,annee,mois,jour,par){
     });
   });
   return {vp:vp, par:par, aQui:aQui, total:total, renJ:renJ, dsAff:dsAff, incD:incD, relaisCoupe:relaisCoupe};
+}
+/* UNE PROPOSITION N'OUVRE PAS DE TROU LÀ OÙ ELLE PREND (le client, le
+     03/11/2026, capture d'ATR le 08/11 : « Fermentation → Chaudières » pour
+     toute sa présence, 10 h – 14 h, alors qu'il écrit « remplace GDT de 13h
+     à 14h », GDT partant à 13 h). Le poste quitté se compte ici à la pause
+     entière (tenuSans) : GDT et ATR pour une place, ATR y semblait en trop.
+     Il est recompté demi-heure par demi-heure (tenuAuxHeures), avec et sans
+     la personne proposée : elle n'est proposée qu'aux heures où il reste
+     tenu sans elle, d'un seul tenant et d'une heure au moins (ATR : de 10 h
+     à 13 h) ; s'il n'en reste pas, plus de proposition. Mesuré sur 2026 et
+     2027 : 6 propositions sur 155 « pour toute la pause » ouvraient un trou
+     (CDE le 08/05 laissait même la meunerie vide 6 h – 14 h). Le compte se
+     fait après les relais d'une ou trois heures (relaisCourtsPause, relaisPartielsPause) :
+     avant eux, PLZ le 23/01 semblait laisser le gluten vide de 6 h à 10 h,
+     qu'un relais tient. */
+function propositionsAuxHeures(v,gk,mmdd,jourCalc,db){
+  var an0=Math.floor(jourCalc/10000), mo0=Number(String(mmdd).slice(0,2)), jo0=Number(String(mmdd).slice(2));
+  v.postes.forEach(function(o){ o.gens.forEach(function(x){
+    if(!x.propose || x.proposeH || x.partage) return;
+    var avec, sans, h;
+    try{
+      avec=tenuAuxHeures(db,o,o.gens.filter(function(z){ return !z.propose || z===x; }),gk,an0,mo0,jo0,PF_DEB[gk],PF_FIN[gk],[]).trous;
+      sans=tenuAuxHeures(db,o,o.gens.filter(function(z){ return z!==x && !z.propose; }),gk,an0,mo0,jo0,PF_DEB[gk],PF_FIN[gk],[]).trous;
+      h=heuresAuPoste(db,x,gk,an0,mo0,jo0);
+    }catch(e){ return; }
+    function dans(l,u){ return l.some(function(t){ return t[0]<=u+0.01 && t[1]>=u+0.49; }); }
+    var run=null, best=null, ouvre=false;
+    for(var u=Math.max(h[0],PF_DEB[gk]); u<Math.min(h[1],PF_FIN[gk])-0.01; u+=0.5){
+      var trou=dans(sans,u) && !dans(avec,u);
+      if(trou){ ouvre=true; run=null; continue; }
+      if(run && Math.abs(run[1]-u)<0.01) run[1]=u+0.5; else run=[u,u+0.5];
+      if(!best || run[1]-run[0]>best[1]-best[0]) best=[run[0],run[1]];
+    }
+    if(!ouvre) return;
+    if(best && best[1]-best[0]>=1-0.01) x.proposeH=best;
+    else delete x.propose;
+  }); });
+  v.postes.forEach(function(o){
+    if(!o.propose) return;
+    o.propose=v.postes.some(function(q){ return q.gens.some(function(x){ return x.propose===o.P.k; }); });
+  });
 }
 /* LES PROPOSITIONS D'UNE PAUSE, UNE SEULE FOIS ÉCRITES : le Planning
    (renderEquipe) et les changements à prévenir (transfertsDuJour) les
@@ -31995,6 +32061,7 @@ function jourNavActive(on){
   }
   function ouvrir(chip){
     var com=chip.getAttribute("data-com"); if(!com) return;
+    var brut=com;
     /* Nettoyage d'affichage (casse en tête de ligne, espaces, minutes) — voir
        nettoyerAffichage(). Ne touche QUE ce qui est montré ; data-com reste brut. */
     com=nettoyerAffichage(com);
@@ -32009,7 +32076,14 @@ function jourNavActive(on){
          doigt et au clavier. Seulement au Planning, et ce que le
          commentaire ne dit pas déjà (audit du 23/10/2026). */
       var ti=chip.closest&&chip.closest("#jourCorps")?String(chip.getAttribute("title")||""):"";
-      var sens=ti.split(" · ").slice(1).filter(function(x){ return x&&com.indexOf(x)<0; }).map(sensClair).filter(Boolean);
+      /* « ce que le commentaire ne dit pas déjà » se cherche dans le texte
+         BRUT, sans la casse ni les retours à la ligne : le nettoyage met une
+         majuscule à « Remplace » et coupe la ligne après la virgule, et la
+         proposition de l'application, qui ouvre le commentaire, n'y était
+         plus retrouvée — elle s'affichait deux fois (le client, le
+         03/11/2026 : « les propositions sont toujours affichées 2x ») */
+      var nz=function(t){ return String(t).toLowerCase().replace(/\s+/g," ").trim(); }, dejaDit=nz(brut)+" | "+nz(com);
+      var sens=ti.split(" · ").slice(1).filter(function(x){ return x&&dejaDit.indexOf(nz(x))<0; }).map(sensClair).filter(Boolean);
       if(sens.length){ var se=document.createElement("b"); se.className="compop-sens";
         sens.forEach(function(l,i){ if(i) se.appendChild(document.createElement("br")); se.appendChild(document.createTextNode(l)); });
         p.insertBefore(se,p.firstChild); }
@@ -32738,9 +32812,47 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
   ["AM","PM","N","D"].forEach(function(g){
     (par[g]||[]).forEach(function(x){ if(x.p.id===id) pause=g; }); });
   function dans(l){ return (l||[]).some(function(x){ return x.p.id===id; }); }
+  /* DÉJÀ ABSENT DANS L'HORAIRE (le client, le 03/11/2026, capture à l'appui :
+     « je cherche un remplaçant pour Fred et cela me met " Pas prévu ce
+     jour-là " »). FLN du 13 au 15/11 : « AM », « Abs » — prévu le matin,
+     déjà absent. L'absence ne se simule plus (elle est écrite) : on lit
+     la pause prévue telle qu'elle est, sans lui, ce qui y manque et qui peut
+     le combler ; son remplaçant écrit (« remplacé par ALZ », « remplace
+     FLN » chez un autre) est dit. Le congé, lui, reste « Déjà en congé ». */
+  var deja=null;
+  if(!pause && mode==="absence"){
+    (par.abs||[]).concat(par.cong||[]).forEach(function(x){
+      var s0=x.p.id===id&&x.r?String(x.r.s||""):"";
+      if(/^(AM|PM|N)$/.test(s0)) deja={g:s0, motif:dans(par.abs)?"absent":"en congé"}; });
+    if(deja){
+      var rp=[], moi=db.people.filter(function(q){ return q.id===id; })[0], cm=String(((moi&&moi.d[mmdd])||[])[2]||""), mm, rxp=/remplac[ée]e?s?\s+par\s+([A-Z]{3})\b/gi;
+      while((mm=rxp.exec(cm))) if(rp.indexOf(mm[1].toUpperCase())<0) rp.push(mm[1].toUpperCase());
+      var rxm=new RegExp("remplac?e\\s+"+idLisible(id)+"\\b","i");
+      db.people.forEach(function(q){ if(q.id!==id && rxm.test(String((q.d[mmdd]||[])[2]||"")) && rp.indexOf(idLisible(q.id))<0) rp.push(idLisible(q.id)); });
+      deja.par=rp; pause=deja.g;
+    }
+  }
   if(!pause) return {hors:dans(par.abs)?"malade":dans(par.cong)?"en congé":"en repos"};
   var eqc=equipeALaPause(db,annee,m,j), autres=caAutres(db,par,mmdd,id);
-  var res={pause:pause, eq:eqc[pause]||"", poste:null, moves:[], trous:[], avant:0};
+  var res={pause:pause, eq:eqc[pause]||"", poste:null, moves:[], trous:[], avant:0, deja:deja};
+  if(deja){
+    /* la pause telle qu'elle est : chaque poste sous son effectif, sur la
+       pause ou à une heure (tenuAuxHeures), et ses candidats */
+    var gD=deja.g, dD=gD==="AM"?caCopie(par.D,null):null, vD=postesDePause(db,caCopie(par[gD],null),gD,mmdd,dD);
+    vD.postes.forEach(function(o){
+      if(!o.attendu || o.P.cm || o.P.k==="adj") return;
+      var TH=tenuAuxHeures(db,o,o.gens,gD,annee,m,j,PF_DEB[gD],PF_FIN[gD],[]);
+      if(!o.manque && !TH.cpt.some(function(v){ return v<o.attendu; })) return;
+      var t=caCandidats(par,vD,gD,o.P,jour,pausesDe,id,true,autres);
+      t.pause=gD; t.P=o.P; t.tenu=o.manque?o.tenu:TH.n; t.attendu=o.attendu;
+      t.enPoste=TH.gens.filter(function(x){ return !x.depuisD; }).map(function(x){
+        return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; })
+        .concat(TH.relais.map(function(r){ return {id:r.p.id, form:false, h:r.h}; }));
+      if(TH.note) t.heures=TH.note;
+      res.trous.push(t);
+    });
+    return res;
+  }
   ["AM","PM","N"].forEach(function(g){
     /* Une personne en D ne pèse que sur le matin : la meunerie par la
        consignation (meunDepuisD), les chaudières par le renfort d'une
@@ -32943,11 +33055,22 @@ function heuresAuPoste(db,x,g,an,m,j){
    - écrit chez le remplacé : il part tôt ou arrive tard (heuresAuPoste) et
      écrit « remplacé par Y » : Y tient le reste de la pause.
    Rend [{p, a, b}] en heures de la pause. */
+/* « REMPLACE X DE A À B » et « REMPLACE EN <POSTE> DE A À B » : une seule
+   lecture, pour le Planning (relaisEcritsDuJour) et pour la note de
+   l'agenda (partageJournee). L'agenda en avait sa propre copie, plus
+   étroite : elle ne lisait pas « remplace en fermentation de 13h à 14h »
+   (ATR le 08/11, le client, le 03/11/2026). Groupes : 1 trigramme, 2 poste
+   nommé, 3-4 début, 5-6 fin. Une copie neuve à chaque emploi (drapeau g).
+   Entre le nom et ses heures, pas d'autre « remplace » : dans « Remplace
+   PBL remplace FLI de 22h à 23h », les heures sont celles de FLI, et non
+   de PBL (relevé en comparant les agendas, le 03/11/2026). */
+var RX_RELAIS_ECRIT_SRC="remplac?e\\s+(?:([A-Z]{3})\\b|(?:en|au|aux|à|a)\\s+(?:l['’]\\s*|la\\s+|le\\s+)?([a-zéè.\\-]+))(?:(?!remplac)[^.;\\n])*?\\bde\\s+(\\d{1,2})\\s*h\\s*(\\d{2})?\\s*['’]?\\s*(?:a|à)\\s*(\\d{1,2})\\s*h?\\s*(\\d{2})?";
+function rxRelaisEcrit(){ return new RegExp(RX_RELAIS_ECRIT_SRC,"gi"); }
 function relaisEcritsDuJour(db,g,an,m,j){
   var cle=an+"-"+m+"-"+j+"-"+g, memo=db.__relEcrits||(db.__relEcrits={});
   if(memo[cle]) return memo[cle];
   var t0=PF_DEB[g], l=[];
-  var rx=/remplac?e\s+(?:([A-Z]{3})\b|(?:en|au|aux|à|a)\s+(?:l['’]\s*|la\s+|le\s+)?([a-zéè.\-]+))[^.;\n]*?\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*['’]?\s*(?:a|à)\s*(\d{1,2})\s*h?\s*(\d{2})?/gi;
+  var rx=rxRelaisEcrit();
   [-1,0,1].forEach(function(dec){
     var d=new Date(an,m-1,j+dec), dbd=(d.getFullYear()===an)?db:(typeof horaireDe==="function"?horaireDe(d.getFullYear()):null); if(!dbd) return;
     var md=pad2(d.getMonth()+1)+pad2(d.getDate());
@@ -33210,6 +33333,7 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
 }
 function caVerdict(r,mode){
   if(r.hors) return {v:"hors", t:mode==="conge"?"Déjà "+r.hors:"Pas prévu : "+r.hors};
+  if(r.deja && !r.trous.length) return {v:"ok", t:r.deja.par.length?"Déjà remplacé":"Rien à remplacer"};
   if(!r.trous.length){
     if(mode==="absence") return r.moves.length?{v:"chg",t:"Changement dans la pause"}:{v:"ok",t:"Rien à remplacer"};
     return r.moves.length?{v:"chg",t:"Possible avec changement"}:{v:"ok",t:"Possible"};
@@ -33604,7 +33728,9 @@ function caCalculer(){
     /* SUR UNE PÉRIODE, LES JOURNÉES SANS ACTION TIENNENT EN UNE LIGNE (audit du
        10/10/2026) : « déjà en repos » ou « possible sans rien changer » noyaient
        les quelques journées qui demandent quelque chose. */
-    if(jours.length>1 && (v.v==="hors" || v.v==="ok")){
+    /* (déjà absent dans l'horaire, la journée garde sa phrase : qui le
+       remplace, ou que la pause est au complet sans lui) */
+    if(jours.length>1 && (v.v==="hors" || (v.v==="ok" && !r.deja))){
       (compact[v.v]=compact[v.v]||[]).push({m:m,j:j,t:v.t}); return; }
     var q=dateEnMots(an,m,j,t0);
     if(q.mois!==semPrec){ h.push('<div class="eqsem">'+esc(q.moisNom+anTete)+"</div>"); semPrec=q.mois; }
@@ -33640,6 +33766,10 @@ function caCalculer(){
          explique pourquoi le trou tombe ailleurs que sur le poste de la
          personne. Avant, le masquer sous un verdict négatif rendait le trou
          incompréhensible. */
+      if(r.deja) h.push('<span class="mql"><span class="caregle">'+esc(idLisible(id))
+        +" est déjà "+esc(r.deja.motif)+" dans l'horaire, prévu "+esc(({AM:"le matin",PM:"l'après-midi",N:"la nuit"})[r.deja.g]||"")
+        +(r.deja.par.length?" ; remplacé par "+esc(r.deja.par.join(" et ")):" ; aucun remplaçant n'est écrit")
+        +(r.trous.length?". Ce qui manque à cette pause :":". La pause est au complet.")+"</span></span>");
       if(r.moves.length) h.push('<span class="mql">'+caCadre(
         v.v==="non" ? "Le manque se reporte" : (r.moves.length>1?"Changements de poste":"Changement de poste"),
         r.moves.map(function(o){ return caChip(o.id,caPoste(o.de)+" → "+caPoste(o.a)); }).join(""))+"</span>");
