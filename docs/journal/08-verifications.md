@@ -3305,3 +3305,19 @@ les neuf règles, les manques, la polyvalence, les compteurs et les
 agendas : identiques à l'octet. `coherence-planning.js` : 0 faute ; il
 accepte désormais une proposition à heures vers une case rouge couverte
 en partie, et la compte à part (informatif).
+
+### `comparer-fiches.py` arrêté depuis le 30/10 (03/11/2026)
+
+En reprenant les contrôles de la table de `CLAUDE.md` après le check :
+`comparer-fiches.py VBN` sortait en 1, « découpe de index.html faussée :
+prime conservée » — sur `nfdm-v1316`, mais AUSSI sur `nfdm-v1312`, avant
+le check. `lireJournee()` appelle `pauseProlongee()` depuis `nfdm-v1211`
+(le 30/10) ; `verifier-calendrier.js` l'avait reçue dans sa découpe,
+`comparer-fiches.py` non. Son épreuve a fait son travail (elle a crié au
+lieu de comparer faux) ; personne ne l'avait relancé depuis. Ajoutée : à
+vide, « 12 mois lus pour VBN en 2026 », code 0. Les PDF des fiches ne
+sont dans aucun git ; à leur place, la même lecture (la découpe de
+l'outil) rejouée pour chaque personne sur `nfdm-v1312` et sur la version
+du jour : 79 personnes en 2026, 76 en 2027, **aucune différence** —
+heures, jours, absences et primes par pause, ce que la fiche calcule.
+Le placement change, la paie non : attendu, et maintenant mesuré.

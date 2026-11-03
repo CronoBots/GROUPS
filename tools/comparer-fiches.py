@@ -170,7 +170,10 @@ eval([g("function R(x,d){","\n"),g("var SHIFT_CODES=[","];"),g("var ABS=[","\n];
  g("function posteDeCycle(","\n}"),g("function posteDuRemplace(","\n}"),
  g("function plageCommentaire(","\n}"),g("function debordePoste(","\n}"),
  g("var RX_PRIME_GARDEE=","\n"),g("function primeGardee(","\n}"),g("function motPrime(","\n}"),
- g("var GREVE_JOURS=","\n"),g("var CONSIGNATEURS=","\n"),g("var EST_RENFORT=","\n"),g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
+ g("var GREVE_JOURS=","\n"),g("var CONSIGNATEURS=","\n"),g("var EST_RENFORT=","\n"),
+ /* la pause prolongée (v1211, le 30/10/2026) : lireJournee() l'appelle ;
+    sans elle, l'épreuve « prime conservée » arrêtait l'outil depuis */
+ g("function pauseProlongee(","\n}"),g("function lireJournee(","\n}"),g("function plageHorsPoste(","\n}"),
  g("var RX_PRESTE_H=","\n"),
  g("var RX_FT_SUR=","\n"),
  g("var RX_RENVOI=","\n"),
