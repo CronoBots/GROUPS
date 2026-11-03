@@ -10619,3 +10619,32 @@ chiffres clés sont plus récents), les logos (l'application a les siens),
 les photos du conseil d'administration (des personnes), les conditions
 d'achat du blé et le code de conduite des fournisseurs (sans rapport avec
 le travail en pause).
+
+### L'usine en direct : la photo vivante, sur toute la largeur (03/11/2026, `nfdm-v1318`)
+
+Le client, capture du PC à 3 h 41 à l'appui : « sur PC l'image doit
+prendre toute la largeur du cadre, et il faut que les trigrammes soient
+affichés de manière à ce que ça fasse penser à un live de l'emplacement
+des opérateurs ; les zones peuvent être affichées au survol mais il ne
+faut pas qu'elles restent affichées au clic ; comment rendre vivante cette
+photo / ce cadre ». La fiche du poste occupait 348 px à droite de la
+photo (`cote`, au-delà de 1 200 px de cadre).
+- **Toute la largeur** : en vue Photo, la fiche passe toujours dessous
+  (deux colonnes) ; la photo fait 966 px dans un cadre de 1 000 au PC de
+  1 280, 1 286 dans 1 320 à 1 600 (contre 555 sur la capture).
+- **Comme un suivi en direct** : chaque poste a son point, à sa couleur,
+  cerclé de blanc, qui pulse (un anneau qui s'élargit et s'efface, 2,4 s,
+  décalé d'un poste à l'autre pour ne pas battre ensemble ; ambre et plus
+  vite quand il y manque quelqu'un ; plus gros pour « vous ») ; ses
+  trigrammes en étiquette juste au-dessus, reliés par un trait fin. Une
+  étiquette qui en recouvre une autre monte au-dessus d'elle ; son trait
+  la suit.
+- **La zone au survol seulement** (au PC : souris) : le poste choisi ne
+  garde ni sa zone ni son nom dessinés, seul l'anneau de son étiquette
+  le marque, et sa fiche est dessous. Au toucher, sans survol, la zone
+  du poste choisi reste le seul repère : inchangé.
+- **Le badge « En direct »**, en haut à gauche : point rouge qui pulse,
+  l'heure de l'usine (elle avance avec le cadre, chaque minute), la
+  pause. Au téléphone, compact (le point et l'heure), en haut à droite :
+  à gauche, il couvrait les traits des bandes.
+- Mouvement réduit demandé par l'appareil : plus aucune pulsation.

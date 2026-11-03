@@ -2964,12 +2964,39 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .usp-et:focus-visible{outline:2px solid var(--in); outline-offset:3px}
 @media (prefers-reduced-motion:reduce){ .usp-et::before{transition:none} }
 .usp-credit{margin:4px 16px 0; font-size:11px; color:var(--muted); text-align:right}
+/* EN DIRECT (le client, le 03/11/2026) : au PC, chaque poste a son point
+   qui pulse, ses trigrammes en étiquette au-dessus, un trait fin entre
+   les deux ; le badge « En direct » et l'heure, en haut à gauche */
+.usp-traits.usp-pc{display:block}
+.usp-pins{position:absolute; inset:0; pointer-events:none}
+.usp-pin{--zc:var(--us-f-gris); position:absolute; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%; background:var(--zc); box-shadow:0 0 0 2px #fff,0 1px 5px rgba(0,0,0,.6)}
+.usp-pin.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-pin.usp-f-vert{--zc:var(--us-f-vert)} .usp-pin.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-pin.usp-f-bleu{--zc:var(--us-f-bleu)}
+.usp-pin::after{content:""; position:absolute; inset:-2px; border-radius:50%; border:2px solid var(--zc); opacity:0; animation:uspPouls 2.4s ease-out infinite; animation-delay:var(--d,0s)}
+.usp-pin.usp-pin-mq{background:#F5C451} .usp-pin.usp-pin-mq::after{border-color:#F5C451; animation-duration:1.6s}
+.usp-pin.usp-pin-moi{width:13px; height:13px; margin:-6.5px 0 0 -6.5px; box-shadow:0 0 0 2.5px #fff,0 0 0 4.5px rgba(0,0,0,.35),0 1px 6px rgba(0,0,0,.6)}
+.usp-pin.usp-sel{box-shadow:0 0 0 2.5px #fff,0 0 12px 2px rgba(255,255,255,.55)}
+@keyframes uspPouls{0%{transform:scale(1); opacity:.85} 70%{transform:scale(3.2); opacity:0} 100%{transform:scale(3.2); opacity:0}}
+.usp-live{position:absolute; left:10px; top:10px; display:flex; align-items:center; gap:7px; padding:5px 10px 5px 9px; border-radius:99px; background:rgba(12,17,26,.72);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#fff; font-size:11.5px; line-height:1; letter-spacing:.02em; box-shadow:0 1px 6px rgba(0,0,0,.35); pointer-events:none}
+.usp-live:empty{display:none}
+.usp-live i{position:relative; width:8px; height:8px; border-radius:50%; background:#FF4D4F}
+.usp-live i::after{content:""; position:absolute; inset:0; border-radius:50%; background:#FF4D4F; animation:uspPouls 1.8s ease-out infinite}
+.usp-live span{font-weight:700; text-transform:uppercase; font-size:10.5px; letter-spacing:.08em}
+.usp-live b{font-family:"IBM Plex Mono",monospace; font-weight:600; font-variant-numeric:tabular-nums}
+.usp-live em{font-style:normal; color:rgba(255,255,255,.78); padding-left:7px; border-left:1px solid rgba(255,255,255,.3)}
+/* la zone au survol seulement, au PC : choisie, elle ne reste pas
+   dessinée (le client, le 03/11/2026) ; au toucher, sans survol, elle
+   reste le seul repère du poste choisi */
+@media (hover:hover) and (pointer:fine){ .usp-z.usp-sel:not(.usp-vu){opacity:0} .usp-et.usp-sel:not(:hover):not(:focus-visible)::before{opacity:0} }
+@media (prefers-reduced-motion:reduce){ .usp-pin::after,.usp-live i::after{animation:none} }
 @media (max-width:699px){
   /* la photo entière entre ses deux bandes de trigrammes */
   .usp{margin:0 8px; padding:var(--usp-haut,0px) 0 var(--usp-bas,0px); background:var(--surface2)} .usp-credit{margin:4px 8px 0}
   .usp-defil{overflow:visible} .usp-traits{display:block}
   .usp-et{gap:2px; padding:1px; border-radius:10px; align-content:center}
   .usp-et::before{display:none}
+  /* le badge du direct, compact et à droite : à gauche, il couvrait les traits des bandes */
+  .usp-live{left:auto; right:6px; top:6px; gap:5px; padding:3px 7px 3px 6px; font-size:10.5px} .usp-live span,.usp-live em{display:none} .usp-live i{width:7px; height:7px}
   .usp-et .us-tri-b{min-width:28px; height:18px; padding:0 3px; font-size:11px; letter-spacing:.01em}
   .usp-et .usp-plus{height:18px; padding:0 4px}
   .usp-et.usp-sel{background:color-mix(in srgb,var(--ink) 10%,transparent); box-shadow:0 0 0 2px var(--in)}
@@ -23341,18 +23368,31 @@ function uspPlacer(){
   Array.prototype.forEach.call(document.querySelectorAll("#uspZones .usp-z"),function(r){ var k=r.getAttribute("data-k");
     r.classList.toggle("usp-sel",k===US_SEL||(US_SEL==="terr"&&(k==="ferm"||k==="dist"))); });
   var tr=document.getElementById("uspTraits");
-  if(mob){ uspBandes(L,W,H,usp,tr); return; }
+  var pins=document.getElementById("uspPins");
+  if(mob){ if(pins) pins.innerHTML=""; if(tr) tr.classList.remove("usp-pc"); uspBandes(L,W,H,usp,tr); return; }
   if(usp){ usp.style.removeProperty("--usp-haut"); usp.style.removeProperty("--usp-bas"); } if(tr) tr.innerHTML="";
   L.forEach(function(o){ o.w=o.b.offsetWidth; o.h=o.b.offsetHeight; });
-  /* chaque groupe centré sur le point de son poste ; un groupe qui en
-     recouvre un autre descend juste sous lui (ou monte, au bas de la
-     photo), sans quitter la photo */
-  L.sort(function(a,b){ return a.y-b.y; }); var poses=[];
-  L.forEach(function(o){ var cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), cy=Math.max(o.h/2+4,Math.min(H-o.h/2-4,o.y)), bouge=true, n=0;
+  /* COMME UN SUIVI EN DIRECT (le client, le 03/11/2026 : « que les
+     trigrammes soient affichés de manière à ce que ça fasse penser à un
+     live de l'emplacement des opérateurs ») : chaque poste a son point,
+     qui pulse, à sa couleur (ambre s'il y manque quelqu'un) ; ses
+     trigrammes en étiquette juste au-dessus, reliés par un trait fin. Une
+     étiquette qui en recouvre une autre monte au-dessus d'elle (ou
+     descend, en haut de la photo), sans quitter la photo ; son trait la
+     suit. */
+  var G=12; L.sort(function(a,b){ return b.y-a.y; }); var poses=[];
+  L.forEach(function(o){ var cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), cy=Math.max(o.h/2+4,Math.min(H-o.h/2-4,o.y-G-o.h/2)), bouge=true, n=0;
     while(bouge&&n++<12){ bouge=false; poses.forEach(function(p){ if(cx-o.w/2<p.x1+4&&cx+o.w/2>p.x0-4&&cy-o.h/2<p.y1+4&&cy+o.h/2>p.y0-4){
-      cy=p.y1+o.h/2+4; if(cy+o.h/2>H-4) cy=p.y0-o.h/2-4; bouge=true; } }); }
-    poses.push({x0:cx-o.w/2, x1:cx+o.w/2, y0:cy-o.h/2, y1:cy+o.h/2});
+      cy=p.y0-o.h/2-4; if(cy-o.h/2<4) cy=p.y1+o.h/2+4; bouge=true; } }); }
+    poses.push({x0:cx-o.w/2, x1:cx+o.w/2, y0:cy-o.h/2, y1:cy+o.h/2}); o.cx=cx; o.cy=cy;
     o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)"; });
+  var traits="", pts="";
+  L.forEach(function(o,i){ var f=(o.b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=o.b.classList.contains("usp-sel"), mq=o.b.classList.contains("usp-manque"),
+      bout=o.cy<o.y?o.cy+o.h/2:o.cy-o.h/2, moi=!!o.b.querySelector(".usp-moi");
+    if(Math.abs(o.y-bout)>2) traits+='<path class="usp-tr-h" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(o.y)+'"/><path class="usp-tr'+(sel?' usp-sel':'')+'" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(o.y)+'"/>';
+    pts+='<span class="usp-pin usp-f-'+f+(mq?' usp-pin-mq':'')+(sel?' usp-sel':'')+(moi?' usp-pin-moi':'')+'" style="left:'+Math.round(o.x)+'px;top:'+Math.round(o.y)+'px;--d:'+((i*0.37)%2.4).toFixed(2)+'s"></span>'; });
+  if(tr){ tr.classList.add("usp-pc"); tr.setAttribute("style","top:0; height:"+H+"px"); tr.setAttribute("viewBox","0 0 "+W+" "+H); tr.innerHTML=traits; }
+  if(pins) pins.innerHTML=pts;
 }
 /* LES DEUX BANDES DU TÉLÉPHONE (v1294, reprises en v1295 : le client,
    capture à 14 h 53, « moyen d'être plus propre que ça ? » — un trait
@@ -23440,7 +23480,8 @@ function usinePhotoRendre(corps,E,cote,cw){
       +'<div class="usp'+(E.nuit?' usp-nuit':'')+'" id="usp"><div class="usp-defil" id="uspDefil"><div class="usp-cadre" id="uspCadre">'
       +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
       +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true"><defs>'+defs+'</defs>'+zs
-      +'</svg><svg class="usp-traits" id="uspTraits" aria-hidden="true"></svg><div class="usp-ets" id="uspEt"></div></div></div></div>'
+      +'</svg><svg class="usp-traits" id="uspTraits" aria-hidden="true"></svg><div class="usp-pins" id="uspPins" aria-hidden="true"></div><div class="usp-ets" id="uspEt"></div>'
+      +'<div class="usp-live" id="uspLive" aria-hidden="true"></div></div></div></div>'
       +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be</p><div class="usp-liste" id="uspListe"></div></div>'
       +'<div class="us-panneau"><div id="usFiche"></div></div>'
       +'<div class="us-filiere">'+usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")+usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")
@@ -23453,6 +23494,10 @@ function usinePhotoRendre(corps,E,cote,cw){
     var img=corps.querySelector(".usp-cadre img"); if(img&&!img.complete) img.onload=function(){ uspPlacer(); };
   }
   var u=document.getElementById("usp"); if(u) u.classList.toggle("usp-nuit",!!E.nuit);
+  /* EN DIRECT (le client, le 03/11/2026 : « comment rendre vivante cette
+     photo ») : l'heure de l'usine, qui avance à chaque minute avec le
+     cadre, et la pause en cours */
+  var lv=document.getElementById("uspLive"); if(lv) lv.innerHTML='<i></i><span>En direct</span><b>'+esc(siteH(E.h))+'</b>'+(E.nom?'<em>'+esc(E.nom)+'</em>':'');
   document.getElementById("uspEt").innerHTML=usinePhotoCartes(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
 }
@@ -23481,7 +23526,10 @@ function renderUsine(){
      plan, comme avant */
   if(US_VUE==="3d"&&!usine3DPossible()) US_VUE="photo";
   if(US_VUE==="3d"){ usine3DRendre(corps,E,cote,cw); if(US3_MODE){ usineDernier=E; return; } US_VUE="photo"; }
-  if(US_VUE==="photo"){ usinePhotoRendre(corps,E,cote,cw); usineDernier=E; return; }
+  /* LA PHOTO SUR TOUTE LA LARGEUR (le client, le 03/11/2026 : « sur PC
+     l'image doit prendre toute la largeur du cadre ») : sa fiche passe
+     dessous, en deux colonnes, comme sous un plan étroit */
+  if(US_VUE==="photo"){ usinePhotoRendre(corps,E,false,cw); usineDernier=E; return; }
   US3_CLE=""; USP_CLE="";
   var g=usineGeo(W,usineRangs(E,W)), cle=W+"|"+g.large+"|"+cote+"|"+g.sig;
   if(cle!==US_CLE||!document.getElementById("usDyn")){
