@@ -4776,3 +4776,91 @@ gardent leur phrase. Le congé, lui, reste « Déjà en congé ».
 est d'avant). `coherence-planning.js` : 0. `verifier-calendrier.js` et
 `--manques 0926` : identiques à l'octet. `parcours.js` : 112 essais,
 0 faute.
+
+### Une proposition ne dépasse plus les heures du proposé, et un contrôle le garde (03/11/2026, `nfdm-v1348`)
+
+Le client, le 03/11/2026 à 23 h 42, sur deux captures du Planning du 13/11
+au matin : « Encore des heures dans les plannings et propositions ». Puis :
+« Ce n'est pas la première fois que tu ne prends pas en compte les
+commentaires comme cela, il y a de plus en plus souvent des erreurs comme
+cela dans les horaires, agenda, planning, proposition, recherche. Je dois
+avoir quelque chose de sérieux pour présenter au RH. »
+
+**Le cas.** SKS, le 13/11, porte `["6h-14h","1/2RJF","départ à 10h00'"]`.
+Il est en formation à la meunerie, et l'application le proposait aux
+chaudières (« Meunerie → Chaudières, à confirmer ») pour toute la pause,
+alors qu'il part à 10 h. `propositionsAuxHeures` ne bornait une proposition
+que lorsque le départ du proposé ouvrait un trou au poste quitté ; ses
+propres heures, elles, n'entraient pas en compte.
+
+**Mesuré sur 2026 et 2027** (730 journées, chaque proposition relevée dans
+la page) : 162 propositions, dont **14 pour toute la pause alors que le
+proposé n'est là qu'une partie**. Deux exemples : JBI, adjoint, 18-22, le
+17/01 ; PLZ, « départ à 02h00' », le 03/07.
+
+**Corrigé.** Une proposition ne vaut qu'aux heures du proposé
+(`heuresAuPoste`), même quand son départ n'ouvre aucun trou. Le reste de la
+pause reste à combler, et se voit : le 13/11, « SKS 06-10 » et les
+chaudières à compléter de 10 h à 14 h. Avant/après sur toute l'année :
+- seules 14 propositions changent, et seulement en gagnant leurs heures ;
+- personne d'autre ne bouge ;
+- le vérificateur du calendrier, ses manques, ses polyvalences et ses
+  compteurs sont identiques à l'octet, et les agendas ne changent pas ;
+- recherche : 0 faute.
+
+**Essayé et retiré : choisir quelqu'un qui est là toute la pause.** Le
+13/11, FPA, en surnombre en distillation et présent de 6 h à 14 h,
+conviendrait mieux que SKS. Deux essais ont été faits.
+- Une préférence pour « là toute la pause » dans toutes les règles du
+  rééquilibrage changeait 20 pauses. Elle allait contre la règle du client
+  (fermentation, terrain arrière et distillation se comblent d'abord entre
+  eux) et contre un commentaire : PLZ, le 03/07, « remplace SMA départ à
+  02h00' », n'allait plus au terrain arrière.
+- Un échange ciblé (le choisi part tôt, un autre en surnombre est là toute
+  la pause) changeait encore 3 pauses de trop, chaque fois contre un
+  commentaire du jour :
+  - ATR, le 29/06, « présent pour redémarrage CH à la demande de JBY »,
+    était envoyé en distillation ;
+  - FLN remplaçait JKS, le 17/05, alors que JKS « remplace DKS » et que DKS
+    est « remplacé par JKS » ;
+  - LDY remplaçait PLZ, le 19/03, alors que PLZ « remplace à l'arrière de
+    18h à 22h ».
+
+  Choisir le remplaçant est donc une question au client, pas un réglage.
+  Le rééquilibrage est rendu à l'identique.
+
+**Le contrôle permanent, R5 de `coherence-planning.js`.** Une proposition
+pour toute la pause dont le proposé n'est là qu'une partie, ou à des heures
+où il n'est pas là, est une FAUTE (code 1), y compris sur la ligne des
+adjoints. Les heures de la pause viennent de la page (`PF_DEB`, `PF_FIN`) et
+non d'une seconde copie. **Éprouvé** : sur la page d'avant, R5 trouve les 14
+propositions et rend 1 ; sur la page corrigée, 0.
+
+**Restent ouverts, mesurés et à trancher avec le client, une question à la
+fois :**
+- **Les chaînes de remplacement.** `verifier-calendrier.js
+  --manques-commentes` rend déjà 1 sur la version d'avant, sur trois places
+  vides à venir où un commentaire du jour nomme le titulaire absent :
+  - le 06/11 au matin, en fermentation : APN « remplacé par GDT », et GDT
+    « départ à 12h00' » ;
+  - le 14/11 au matin, en meunerie : DKS « remplacé par FLN », et FLN
+    « Abs », « remplacé par ALZ » ;
+  - le 27/11 de nuit, aux chaudières : PDF « remplacé par DWS », et DWS
+    « remplacé par GDT ».
+
+  Le 13/11 est du même genre : ADK « remplacé par FLN » ; FLN, absent,
+  « remplace ADK remplacé par ALZ » ; ALZ porte « Poly. Etoh. » et
+  « remplace FLN ». Ces chaînes sont arrivées avec le classeur du 03/11 :
+  personne ne les avait relues depuis.
+- **Les remplacements écrits.** 35 propositions de l'année visent quelqu'un
+  qu'un commentaire du jour nomme dans un remplacement :
+  - certains cas sont des décisions du client (SPS le 09/01, « oui, le
+    proposer ») ;
+  - d'autres ressemblent à des lectures manquées : JKS, le 17/05, « remplace
+    DKS », est montré « à confirmer » au lieu d'être placé ;
+  - la liste est relevée par `prop-com.js` (brouillon de session, à verser
+    dans un contrôle quand les règles seront tranchées).
+
+**Au passage.** À 23 h 10, le parcours a trouvé « 23 h », heure passée de la
+frise de l'Accueil, à 4,42:1. Plus tôt dans la soirée, elle n'était pas
+encore passée. Le gris passe de 45 à 55 % : le parcours repasse à 0 faute.

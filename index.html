@@ -5943,7 +5943,9 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-ax-t.pf-ax-maj{height:6px; background:var(--tx-blanc-62)}
 .pf-ax-l{position:absolute; top:7px; transform:translateX(-50%); font-size:11px; line-height:14px; font-weight:600; color:var(--tx-blanc-66); white-space:nowrap; font-variant-numeric:tabular-nums}
 .pf-ax-t.pf-ax-passe{opacity:.5}
-.pf-ax-l.pf-ax-passe{color:var(--tx-blanc-45)}
+/* une heure passée, plus pâle sans passer sous 4,5:1 : à 45 %, « 23 h »
+   tombait à 4,42:1 (parcours du 03/11/2026, 23 h 10) */
+.pf-ax-l.pf-ax-passe{color:var(--tx-blanc-55)}
 .pf-ax-l.pf-ax-cache{display:none}
 .pf-proch-com{font-size:12px; font-style:italic; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pf-proch-at{font-size:12px; color:var(--tx-blanc-66); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -31510,7 +31512,19 @@ function propositionsAuxHeures(v,gk,mmdd,jourCalc,db){
       if(run && Math.abs(run[1]-u)<0.01) run[1]=u+0.5; else run=[u,u+0.5];
       if(!best || run[1]-run[0]>best[1]-best[0]) best=[run[0],run[1]];
     }
-    if(!ouvre) return;
+    /* LÀ UNE PARTIE DE LA PAUSE SEULEMENT (le client, le 03/11/2026,
+       capture du 13/11 : « encore des heures dans les plannings et
+       propositions ») : SKS, « 6h-14h », « 1/2RJF », « départ à 10h00' »,
+       était proposé aux chaudières pour toute la pause. La proposition ne
+       vaut qu'à ses heures, même quand son départ n'ouvre aucun trou au
+       poste qu'il quitte ; le reste de la pause reste à combler, et se
+       voit. Sur l'année, 14 propositions étaient dans ce cas. Choisir un
+       autre que lui (FPA, en surnombre) a été essayé et retiré : sur
+       d'autres jours, ce choix allait contre un commentaire (ATR, le
+       29/06, « présent pour redémarrage CH » ; JKS, le 17/05, « remplace
+       DKS ») — journal 06. */
+    var tout=h[0]<=PF_DEB[gk]+0.01 && h[1]>=PF_FIN[gk]-0.01;
+    if(!ouvre && tout) return;
     if(best && best[1]-best[0]>=1-0.01) x.proposeH=best;
     else delete x.propose;
   }); });

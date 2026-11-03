@@ -22,6 +22,11 @@
  *       (le trou d'une heure excepté) ;
  *   R4  une case orange sans personne proposée vers elle, ou une
  *       proposition vers une case qui n'est pas orange ;
+ *   R5  une proposition qui dépasse les heures du proposé : pour toute
+ *       la pause alors qu'il part tôt ou arrive tard, ou à des heures où
+ *       il n'est pas là (le client, le 03/11/2026, capture du 13/11 :
+ *       SKS, « départ à 10h00' », proposé aux chaudières de 6 h à 14 h ;
+ *       14 propositions de l'année dans ce cas avant nfdm-v1348) ;
  *   R9  « À prévenir » et le Planning qui ne disent pas les mêmes
  *       changements (pause, personne, poste de départ, poste visé) : 34
  *       écarts le 03/11/2026, avant que les deux ne partagent
@@ -48,11 +53,12 @@ const MOTEUR=`    try{ window.__ckE={}; Object.keys(vp).forEach(function(k){ if(
 `;
 const TABLEAU=`    try{ var __ck={d:annee*10000+Number(mmdd), e:window.__ckE, p:{}};
       Object.keys(vp).forEach(function(k){ if(!vp[k]) return; var v=vp[k].vue;
-        __ck.p[k]={postes:v.postes.map(function(o){
+        __ck.p[k]={pd:[PF_DEB[k],PF_FIN[k]], postes:v.postes.map(function(o){
           var c=null;
           if(o.manque && !o.P.cm && o.P.k!=="adj"){ try{ c=candidatsPlace(v,o.P,k,jourCalc,o,o.attendu,par).l; }catch(e){ c="ERR "+e; } }
           return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque, th:!!o.trouHeures, pr:!!o.propose, pp:!!o.proposePartiel, tc:!!o.trouCourt, cand:c,
-            g:o.gens.map(function(x){ return {id:x.p.id, pa:!!x.partage, dD:!!x.deD, pro:x.propose||null, ph:!!x.proposeH, cpt:!!compteAuPoste(x,o.P,jourCalc)}; }),
+            g:o.gens.map(function(x){ var hp=null; if(x.propose){ try{ hp=heuresAuPoste(db,x,k,annee,mois,jour); }catch(e){ hp="ERR "+e; } }
+              return {id:x.p.id, pa:!!x.partage, dD:!!x.deD, pro:x.propose||null, ph:!!x.proposeH, phv:x.proposeH||null, hp:hp, cpt:!!compteAuPoste(x,o.P,jourCalc)}; }),
             rel:(o.relais||[]).map(function(r){ return r.p.id; }) }; }),
           inc:(v.inconnus||[]).map(function(x){ return x.p.id; }), form:(v.formation||[]).map(function(x){ return x.p.id; }) }; });
       ["abs","cong","D","AM","PM","N"].forEach(function(k){ __ck["l"+k]=(par[k]||[]).map(function(x){ return x.p.id; }); });
@@ -123,6 +129,14 @@ const NJ=Math.round((FIN-DEBUT)/864e5)+1;
     const plan={}, ann={};
     P3.forEach(k=>{ const v=j.p[k]; if(!v) return;
       v.postes.forEach(o=>{
+        /* R5 : ses heures (heuresAuPoste) bornent la proposition */
+        o.g.forEach(x=>{ if(!x.pro) return;
+          if(typeof x.hp==="string" || !x.hp){ faute("R0 erreur",d,"heures de "+x.id+" : "+x.hp); return; }
+          const pd=v.pd, hh=t=>Math.round(t*100)/100, ses=hh(x.hp[0])+"-"+hh(x.hp[1]);
+          const tout=x.hp[0]<=pd[0]+0.01 && x.hp[1]>=pd[1]-0.01;
+          if(!x.phv && !tout) faute("R5 proposé pour toute la pause, là une partie seulement",d,k+" "+x.id+" "+o.k+"→"+x.pro+" (ses heures "+ses+")");
+          if(x.phv && (x.phv[0]<x.hp[0]-0.01 || x.phv[1]>x.hp[1]+0.01))
+            faute("R5 proposé hors de ses heures",d,k+" "+x.id+" "+o.k+"→"+x.pro+" "+hh(x.phv[0])+"-"+hh(x.phv[1])+" (ses heures "+ses+")"); });
         if(o.cm||o.k==="adj") return;
         const mq=!!(o.att && o.tenu<o.att);
         /* le trou à une heure (trouAuxHeures, le 03/11/2026) : rouge, le compte de la pause plein */
@@ -153,7 +167,7 @@ const NJ=Math.round((FIN-DEBUT)/864e5)+1;
   const n=o=>Object.keys(o).reduce((s,k)=>s+o[k].length,0);
   console.log("\nCohérence du Planning — "+jours.length+" journées ("+ANNEES.join(", ")+")\n");
   const montre=(o,k)=>(DETAIL?o[k]:o[k].slice(0,8)).forEach(l=>console.log("      "+l));
-  if(!n(F)) console.log("  ✓  aucune faute (R1 à R9)");
+  if(!n(F)) console.log("  ✓  aucune faute (R1 à R9, R5 compris)");
   Object.keys(F).sort().forEach(k=>{ console.log("  ✗  "+String(F[k].length).padStart(4)+"  "+k); montre(F,k); });
   console.log("\ninformatif :");
   Object.keys(I).sort().forEach(k=>{ console.log("  ·  "+String(I[k].length).padStart(4)+"  "+k); if(DETAIL) montre(I,k); });
