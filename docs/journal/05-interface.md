@@ -10674,3 +10674,11 @@ les Réglages changent : le choix « Apparence » n'y est plus.
 Reste, voulu : les jetons (`--tx-blanc-NN`, `--bd-blanc-NN`…), le
 `:root` de base que le bloc sombre surcharge et `<html data-theme="dark">`
 — un thème clair à refaire n'aura qu'à redéfinir les jetons.
+
+**Erreur d'envoi, le même jour.** Les deux logos retirés par `git rm`,
+puis `git add -A … logo-clair.svg logo-app-clair.png` : git refuse un
+chemin qui n'existe plus et n'ajoute RIEN ; le commit poussé
+(`0a4be66`) ne portait que la suppression des logos, alors que le
+service worker en ligne les listait encore dans son cache. Le reste est
+parti deux minutes après (`ce359f9`). Leçon : après un `git rm`, ne plus
+nommer ces chemins ; relire `git show --stat` AVANT de pousser.
