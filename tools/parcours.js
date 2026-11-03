@@ -217,28 +217,36 @@ function constater(){
   ecrans.forEach(e=>passes.push([e,"dark"]));
   ecrans.filter(e=>CLAIR.indexOf(e.nom)>=0).forEach(e=>passes.push([e,"light"]));
   let fautes=div.length+acc.length, essais=1;
-  let reglesVues=false;
-  for(const [ecran,theme] of passes) for(const role of (vite?["hierarchie"]:ROLES)){
-    const page=await ouvrir(nav,url,ecran,role,theme); const lignes=[];
-    if(!reglesVues){ reglesVues=true; essais++;
+  /* EN PARALLÈLE (le client, le 03/11/2026 : « pourquoi ce parcours
+     complet ? », après six minutes d'attente à chaque envoi) : les mêmes
+     passes — chaque écran, thème et rôle dans son propre contexte —, trois
+     à la fois sur le même navigateur ; les résultats s'écrivent dans
+     l'ordre d'avant. Rien n'est retiré : seul le temps change. */
+  const travaux=[]; for(const [ecran,theme] of passes) for(const role of (vite?["hierarchie"]:ROLES)) travaux.push({ecran,theme,role});
+  const res=new Array(travaux.length);
+  async function faire(i){ const {ecran,theme,role}=travaux[i];
+    const page=await ouvrir(nav,url,ecran,role,theme); const lignes=[], avant=[]; let n=0;
+    if(i===0){ n++;
       const ecrits=selecteursEcrits(path.join(RACINE,"index.html"));
       const retenus=await page.evaluate(()=>{ let n=0; const p=l=>{ for(const x of l){ if(x.selectorText!==undefined) n++; if(x.cssRules) p(x.cssRules); } };
         [...document.styleSheets].forEach(s=>{ if(s.ownerNode&&s.ownerNode.tagName==="STYLE") p(s.cssRules); }); return n; });
-      if(ecrits!==retenus){ fautes++; console.log("✗ règles CSS : "+ecrits+" écrites, "+retenus+" retenues par le navigateur"); }
-      else console.log("✓ règles CSS : les "+ecrits+" écrites, toutes retenues"); }
+      if(ecrits!==retenus) avant.push({faute:true, txt:"✗ règles CSS : "+ecrits+" écrites, "+retenus+" retenues par le navigateur"});
+      else avant.push({faute:false, txt:"✓ règles CSS : les "+ecrits+" écrites, toutes retenues"}); }
     for(const [nom,cible] of VUES){
       if((cible.indexOf("ws:")===0||cible.indexOf("go:")===0)&&!role) continue;
-      await aller(page,cible); essais++;
+      await aller(page,cible); n++;
       const f=await page.evaluate(constater);
       if(f.length) lignes.push(nom+" : "+f.join(" ; "));
       if(cible.indexOf("ws:")===0||cible.indexOf("go:")===0) await aller(page,"tab-horaire");
     }
     lignes.push(...page.fautes);
-    const tag=ecran.nom+(theme==="light"?" · clair":"")+" · "+(role||"sans compte");
-    if(lignes.length){ fautes+=lignes.length; console.log("✗ "+tag); lignes.forEach(l=>console.log("    "+l)); }
-    else console.log("✓ "+tag);
     await page.ctx.close();
-  }
+    res[i]={avant:avant, tag:ecran.nom+(theme==="light"?" · clair":"")+" · "+(role||"sans compte"), lignes:lignes, n:n}; }
+  const PAR=vite?1:Math.max(1,Math.min(3,require("os").cpus().length-1)); let suivant=0;
+  await Promise.all(Array.from({length:PAR},async()=>{ while(suivant<travaux.length){ const i=suivant++; await faire(i); } }));
+  res.forEach(r=>{ essais+=r.n; r.avant.forEach(a=>{ if(a.faute) fautes++; console.log(a.txt); });
+    if(r.lignes.length){ fautes+=r.lignes.length; console.log("✗ "+r.tag); r.lignes.forEach(l=>console.log("    "+l)); }
+    else console.log("✓ "+r.tag); });
   /* hors ligne : le service worker installé, le réseau coupé, on recharge */
   { const page=await ouvrir(nav,url,ECRANS[1],"hierarchie"); await page.waitForTimeout(1500);
     await page.ctx.setOffline(true); await page.reload().catch(()=>{}); await page.waitForTimeout(2500);

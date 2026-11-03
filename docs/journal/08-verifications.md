@@ -3321,3 +3321,14 @@ l'outil) rejouée pour chaque personne sur `nfdm-v1312` et sur la version
 du jour : 79 personnes en 2026, 76 en 2027, **aucune différence** —
 heures, jours, absences et primes par pause, ce que la fiche calcule.
 Le placement change, la paie non : attendu, et maintenant mesuré.
+
+### Le parcours en trois minutes (03/11/2026)
+
+Le client, après six minutes d'attente à chaque envoi : « pourquoi ce
+parcours complet ? », puis « une simple question prend cinq minutes ».
+`parcours.js` enchaînait ses 29 passes (écran, thème, rôle) une à une sur
+une machine à quatre cœurs. Elles tournent désormais trois à la fois,
+chacune dans son contexte, sur le même navigateur ; les résultats
+s'écrivent dans l'ordre d'avant. Mesuré : **176 s au lieu de ~360**, les
+mêmes 183 essais, 0 faute ; sur une copie sabotée (le cadre de l'usine
+forcé à 1 900 px), 30 fautes et le code 1 — le contrôle mord toujours.
