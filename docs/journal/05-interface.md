@@ -10715,3 +10715,16 @@ défauts relevés et corrigés d'un coup :
   grandissent avec elle (11 px à 900 px de large, jusqu'à 13,5 px).
 Au téléphone, rien ne change : la légende et la fiche sous la photo y
 tiennent ce rôle.
+
+### L'usine en direct : des zones rectangulaires (03/11/2026, `nfdm-v1322`)
+
+Le client : « j'aimerais que les zones tracées soient rectangulaires ».
+Les tracés de `USP_ZONES` (morceaux en L, en escalier, un en biais)
+restent la donnée ; `uspRectangles()` en fait, au dessin, un rectangle par
+morceau, puis fond en un seul ceux d'un même poste qui se touchent.
+Mesuré : meunerie 2 rectangles, gluten 1, chaudières 3, distillation 3,
+fermentation 3, contremaître 1, station d'épuration 2. Un choix : le
+morceau en biais de la meunerie (la galerie qui monte du quai) ne fait
+pas de rectangle — avec lui, toute la meunerie devenait un seul rectangle
+de 364 × 332 qui couvrait les chaudières. Vu au survol des quatre postes
+(planche à 1 280 px).
