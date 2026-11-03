@@ -10597,3 +10597,25 @@ interprétait les antislashs, `form-test.js` avait perdu les `\b` de quatre
 motifs. Ces vérifications ne pouvaient plus échouer. Elles sont réparées :
 l'épreuve passe sans faute à 320, 390 et 1280 px, et relève 5 fautes sur
 la v1310.
+
+### L'usine en direct : les quantités des « Chiffres clés 2024 » (03/11/2026, `nfdm-v1317`)
+
+Le client : « avais-tu vu tous les téléchargements disponibles ici ? »
+(biowanze.be, Téléchargements). Relevé fichier par fichier : 31 en
+quatre rubriques. Une session d'avant avait lu la page et s'en était
+servie — les 18 photos des sites de production (découpes du plan, dépôt
+privé), le schéma du processus de production, le schéma de principe
+(« in-out », envoyé aussi par le client pour v1273), l'historique (cité
+pour les résidus de betterave). N'avaient pas été repris : les **Chiffres
+clés 2024** et l'infographie « produits issus de la production durable
+d'éthanol » (une tonne de blé : 29 % d'éthanol, 59 % de protéines, 2 % de
+fibres, 2 % d'engrais, 8 % de CO₂). Les quantités annuelles entrent aux
+fiches des salles (`USINE_FIL_FICHE`) : 300 millions de litres
+d'éthanol et 400 000 t de ProtiWanze à la distillation, 60 000 t de
+gluten, 15 000 t de son, 65 000 t de CO₂ liquide, 180 000 MWh
+d'électricité et 20 000 t d'engrais aux chaudières. Laissés de côté : le
+dépliant de 2020 (son texte ne se lit pas, polices encodées, et les
+chiffres clés sont plus récents), les logos (l'application a les siens),
+les photos du conseil d'administration (des personnes), les conditions
+d'achat du blé et le code de conduite des fournisseurs (sans rapport avec
+le travail en pause).
