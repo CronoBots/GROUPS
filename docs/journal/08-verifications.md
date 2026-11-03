@@ -3277,3 +3277,31 @@ difficile à pourvoir), les trous sans candidat en dernier. 2026 :
 `--manques 0101` 198 → **199** places creuses, treize pauses de
 `--placement --tout` déplacées ; 2027 : rien. L'ordre fixe comble au
 moins autant : il est gardé, sans changement de code.
+
+### La quatrième réponse : le trou d'une pause entière, comblé à heures (`nfdm-v1316`)
+
+Le client, le 03/11/2026, en QCM : « oui, à leurs heures ». Les heures
+de plus d'un poste voisin (la journée prolongée d'une autre pause, la
+nuit qui commence à 18 h) naissent des passes d'affichage du Planning,
+que « À prévenir » ne refaisait pas : ces passes sont d'abord devenues
+`planningDuJour()`, que `renderEquipe()` dessine et que
+`transfertsDuJour()` lit — **le déplacement seul mesuré nul** : Planning,
+bulles et « À prévenir » identiques à l'octet sur les 730 jours. Une
+faute en chemin : `relaisCoupe`, déclarée dans le bloc déplacé, servait
+encore à deux fonctions de `renderEquipe()` ; le relevé l'a criée à la
+première passe (581 erreurs de page), rendue par `planningDuJour()`.
+
+Puis `relaisPartielsPause()`, demi-heure par demi-heure. Mesuré : huit
+propositions à heures sur 730 jours, toutes passées, toutes annoncées —
+le 11/07 PM (SMA 14-18, CDE 18-22 : terrain arrière orange), le 04/08 PM
+(ALZ 18-22, SKS tenant déjà 14-18 : orange), le 06/07 AM (SBZ, rappelé à
+6 h, aux chaudières), et quatre couvertes en partie qui restent rouges
+avec les heures vides au « ? » (20/04, 22/06, 06/07 PM, 04/09). Deux
+erreurs de ma première version, vues sur les captures et corrigées avant
+de conclure : les heures déjà tenues dans la case n'étaient pas comptées
+(le 04/08 restait rouge alors que la pause était couverte), et « → 14-18 »
+se coupait sous le cadre de PDE (mis sur sa ligne d'heures). Le moteur,
+les neuf règles, les manques, la polyvalence, les compteurs et les
+agendas : identiques à l'octet. `coherence-planning.js` : 0 faute ; il
+accepte désormais une proposition à heures vers une case rouge couverte
+en partie, et la compte à part (informatif).

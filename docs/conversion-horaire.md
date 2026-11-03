@@ -1443,6 +1443,19 @@ poste où il manque quelqu'un, car il a toutes les polyvalences. »
    savent tenir ne comble pas plus de trous (2026 : 199 places creuses au
    lieu de 198, treize pauses déplacées ; 2027 : rien ne change) ; l'ordre
    fixe est gardé.
+   **Un trou d'une pause entière se comble aussi à heures** (le client,
+   le 03/11/2026, en QCM : « oui, à leurs heures ») : quand un poste
+   voisin a quelqu'un DE PLUS une partie de la pause — la journée
+   prolongée d'une autre pause, la nuit qui commence à 18 h —, son
+   titulaire qui sait tenir le trou y est proposé à ces heures (le 11/07
+   l'après-midi, SMA de 14 h à 18 h et CDE de 18 h à 22 h au terrain
+   arrière), ou la copie elle-même si son poste n'attend personne (PDE à
+   la STEP le 04/09). Les heures déjà tenues dans la case comptent (SKS à
+   la distillation de 14 h à 18 h le 04/08). Couverte en entier, la case
+   passe à l'orange ; en partie, elle reste rouge et le « ? » dit les
+   heures qui restent vides. Le pointillé porte « → 18-22 » ; « À
+   prévenir » annonce chacun à ses heures (`relaisPartielsPause()`,
+   `nfdm-v1316`). Le moteur et les sous-effectifs ne changent pas.
 2. **La polyvalence commande.** Le terrain arrière demande fermentation ET
    distillation, les autres postes demandent leur atelier.
 3. **L'adjoint vient en dernier.** Tant qu'un poste en surnombre peut fournir

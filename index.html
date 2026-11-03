@@ -5488,6 +5488,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 .eqfus-mq.propose{background:var(--propose-fond)}
 .eqfus>.eqseg.manque{border:1px solid var(--at-rouge); background:var(--manque-fond)}
 .eqfus>.eqseg.manque.propose{border-color:#F2994A; background:var(--propose-fond)}
+.eqfus>.eqseg.eqseg.app{border-style:dashed; border-color:#F2994A}
 .eqfus>.eqseg.manque b{color:var(--at-rouge)}
 /* une seule case de poste : pas de trait entre la ligne et sa rangée de
    cadres (le client, le 25/10/2026 : « il ne faut pas de barre de
@@ -28767,6 +28768,12 @@ function renderEquipe(){
            FLI, étant donné qu'il est en D ? ». */
         +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.renfortD||x.deD||celluleD(x))&&(!sansHoraire||x.deD)?horaireEcritD(x)
           :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
+        /* LES HEURES DE LA PROPOSITION, sous le pointillé (le client, le
+           03/11/2026 : « oui, à leurs heures ») : « → 18-22 », CDE au
+           terrain arrière le 11/07 ; GPO « → 13-14 » le 03/11. La flèche
+           les distingue de ses heures à lui. */
+        +(nu&&x.propose&&x.proposeH?'<small class="eqhd">\u2192\u00a0'+(function(u){ function f(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return pad2(e)+(mn?"h"+pad2(mn):""); }
+            return f(u[0])+"-"+f(u[1]); })(x.proposeH)+"</small>":"")
         +(nu?"":(note?'<i>'+esc(note)+"</i>":"")
             +((x.detVu!==undefined?x.detVu:det)?'<em>'+esc(x.detVu!==undefined?x.detVu:det)+"</em>":""))
         +"</span>";
@@ -28804,203 +28811,13 @@ function renderEquipe(){
        rangé à son poste, comme aux trois pauses. Aucun effectif n'y est
        attendu (attenduAuPoste rend zéro) : une case vide y est un tiret,
        jamais un manque. */
-    var PAUSES=["AM","PM","N","D"].map(function(k){
-      return EQ_GROUPES.filter(function(g){ return g.k===k; })[0]; });
-    var vp={}, aQui=false;
-    /* Le même relèvement d'effectif que postesDePause() lit : sans lui, la
-       case afficherait « 2/2 » là où la journée en demandait trois. */
-    var renJ=renfortDuJour(db,mmdd);
-    PAUSES.forEach(function(g){
-      var l=(par[g.k]||[]).slice();
-      /* La colonne D est TOUJOURS affichée, même vide et même le week-end (le
-         client, le 02/10/2026) : les autres pauses disparaissent si personne
-         n'y est, mais le D reste (cases « – »). */
-      if(!l.length && g.k!=="D") return;
-      if(l.length){ aQui=true; total+=l.length; }
-      l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
-                          : (a.p.cat<b.p.cat?-1:1); });
-      vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null)};
-    });
-    /* CHACUN SES HEURES DANS CHAQUE PAUSE (le client, le 24/10/2026 :
-       « JBS 6-14 en AM et 14-18 en PM, c'est pas mieux d'écrire comme ça que
-       JBS 6-18 en AM et 14-18 en PM ? ») : la part tenue en relais dans
-       une autre pause, le même jour, sort du badge de sa propre pause. */
-    var relaisCoupe={};
-    Object.keys(vp).forEach(function(k){ ((vp[k].vue||{}).postes||[]).forEach(function(o){
-      (o.relais||[]).forEach(function(r){ if(!r.dec) (relaisCoupe[r.p.id]=relaisCoupe[r.p.id]||[]).push(r); }); }); });
-    /* BLR ET YRS EN D VONT DANS LA COLONNE AM, À LA MEUNERIE. Le client,
-       le 28/09/2026 : « si BLR ou YRS est en D il faut les mettre dans la
-       colonne AM mais avec leurs horaires 7h30-16 en dessous ; ils sont en
-       consignation meunerie », puis « le poste consignation en meunerie
-       doit compter dans l'effectif meunerie du matin ». postesDePause() les
-       a déjà comptés à AM · Meunerie (meunDepuisD) — en semaine. Ici on
-       règle l'AFFICHAGE : dans la case AM, seuls BLR et YRS parmi ceux qui
-       viennent du D — et, depuis le 20/10/2026, qui les remplace et les
-       apprentis meuniers (meunDepuisD) ; les autres personnes en D à la
-       meunerie restent dans la colonne D, mais comptent. BLR et YRS quittent la colonne D, qui
-       disparaît si elle ne portait qu'eux. Le week-end, rien ne change. */
-    if(vp.AM){
-      var dejaAM={};
-      vp.AM.vue.postes.forEach(function(o){
-        o.gens=o.gens.filter(function(x){
-          if(!x.depuisD) return true;
-          if(!(x.consign||x.remplCons||x.apprMeun||x.renfortD)) return false;
-          dejaAM[x.p.id]=true; return true;
-        });
-      });
-      if(vp.D){
-        vp.D.vue.postes.forEach(function(o){
-          o.gens=o.gens.filter(function(x){
-            if(!dejaAM[x.p.id]) return true;
-            vp.D.n--; vp.AM.n++; return false;
-          });
-        });
-        /* BLR/YRS peuvent vider la colonne D en passant en AM. Le retrait de la
-           colonne vide se décide plus bas, une fois les DS extraits (le client,
-           le 03/10/2026, revenant sur le « toujours affichée » du 02/10). */
-      }
-    }
-    /* LES CHANGEMENTS PROPOSÉS NE DÉPLACENT PLUS PERSONNE (le client, le
-       20/10/2026) : « il ne faut pas déplacer automatiquement les
-       remplacements proposés par l'application. Il faut les laisser dans
-       leur poste normal, mais indiquer le background en orange dans le
-       poste en sous-effectif et laisser les pointillés sur l'opérateur qui
-       peut aller sur le poste en sous-effectif ». Le rééquilibrage reste le
-       calcul (les manques de l'onglet Effectifs le lisent) ; ici, au
-       tableau, chaque personne qu'il a déplacée (transfertApp) retourne à
-       son poste d'origine, marquée x.propose (le poste où elle pourrait
-       aller) ; le poste qu'elle aurait comblé retrouve son vrai compte et,
-       s'il manque, se marque o.propose — fond orange au lieu du rouge. */
-    ["AM","PM","N"].forEach(function(gk){
-      var v=vp[gk]&&vp[gk].vue; if(v) propositionsPause(v,gk,mmdd,jourCalc,db);
-    });
-    /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
-       ligne sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce
-       jour-là ». Ceux que leur journée de réunion (DS, DS-CE, CPPT,
-       D-CPPT) met en D quittent la case de leur poste dans la colonne D
-       pour cette ligne ; qui tient son poste malgré le code (une plage de
-       pause écrite, GPS 10h-22h D-CPPT) reste à son poste. La colonne D
-       n'attend personne : l'effectif n'en bouge pas. */
-    if(vp.D){
-      var dsD=[];
-      function estDS(x){ return !!(x.r && x.r.jourCode && /DS|CPPT/i.test(String(x.r.jourCode))); }
-      vp.D.vue.postes.forEach(function(o){
-        o.gens=o.gens.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
-      });
-      vp.D.vue.inconnus=vp.D.vue.inconnus.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
-      dsD.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
-      vp.D.ds=dsD;
-    }
-    /* ON RETIRE LA COLONNE D QUAND ELLE NE PORTE PERSONNE. Le client, le
-       03/10/2026 : « retirer la colonne D quand elle est vide ». Cela revient
-       sur le choix du 02/10/2026 (« D toujours affichée, même vide ») : une
-       colonne de tirets ne disait rien et mangeait un quart de la largeur. On
-       nulle vp.D quand aucun poste n'a de monde, aucun inconnu, aucun DS — mc,
-       en-tête et cases la sautent alors ensemble. Un JOUR OUVRÉ, l'équipe en D
-       de la semaine réapparaît dans la légende au-dessus du tableau (voir plus
-       bas) ; le week-end, personne n'est en D et rien ne s'affiche. */
-    /* ... NI PERSONNE EN FORMATION : CJD le 11/09, seul en formation dans la
-       colonne D une fois BLR passé au matin (meunDepuisD), disparaissait du
-       Planning avec elle (le 02/11/2026, en cherchant JBS). */
-    if(vp.D){
-      var dPlein=vp.D.ds.length || vp.D.vue.inconnus.length || (vp.D.vue.formation||[]).length
-        || vp.D.vue.postes.some(function(o){ return o.gens.length; });
-      if(!dPlein) vp.D=null;
-    }
-    /* PLUS DE COLONNE D : SES GENS VONT DANS LA COLONNE AM (le client, le
-       20/10/2026 : « retirer la colonne D, mais au lieu de ça les mettre
-       dans la colonne AM avec l'horaire choisi »). Chacun rejoint la case AM
-       de son poste — la formation, le DS et « à déterminer » leurs lignes —
-       avec son horaire dans le badge (x.deD, horaireEcritD). Rien ne change
-       aux comptes : la case AM garde son effectif et son manque calculés
-       sans eux, comme la colonne D n'attendait personne. */
-    var dsAff=[], incD=[];
-    if(vp.D){
-      if(!vp.AM) vp.AM={n:0, vue:{postes:[], inconnus:[], formation:[]}};
-      var vA=vp.AM.vue;
-      vp.D.vue.postes.forEach(function(oD){
-        if(!oD.gens.length) return;
-        var oA=null; vA.postes.forEach(function(o){ if(o.P.k===oD.P.k) oA=o; });
-        if(!oA){ oA={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
-        oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x);
-          /* UNE JOURNÉE DE JOUR À CHEVAL SUR LE MATIN ET L'APRÈS-MIDI (le
-             client, le 24/10/2026 : « SVE ne doit pas être affichée 10-14 en
-             AM et 14-18 en PM ? »), comme les relais : chaque colonne sa part,
-             au même poste. Seulement quand l'après-midi en porte au moins
-             3 h : un « 7-15 » reste au matin. Affichage seul : les comptes
-             de la case AM ne changent pas, ni ceux de l'après-midi. */
-          var raw=x.p.d&&x.p.d[mmdd]||[], pl=plageMention(String(raw[1]||""))||plageMention(String(raw[0]||""));
-          if(!pl || !vp.PM) return;
-          var a0=pl[0], b0=pl[1]<=pl[0]?pl[1]+24:pl[1];
-          (relaisCoupe[x.p.id]||[]).forEach(function(r){
-            if(Math.abs(r.b-b0)<0.01 && r.a>a0+0.01) b0=r.a;
-            else if(Math.abs(r.a-a0)<0.01 && r.b<b0-0.01) a0=r.b; });
-          if(!(a0<PF_DEB.PM-0.01 && b0-PF_DEB.PM>=3-0.01 && b0<=PF_FIN.PM+0.01)) return;
-          x.horPart=[a0,PF_DEB.PM];
-          var oP=null; vp.PM.vue.postes.forEach(function(o){ if(o.P.k===oD.P.k) oP=o; });
-          if(!oP){ oP={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp.PM.vue.postes.push(oP); }
-          oP.gens.push({p:x.p, r:x.r, deD:true, horPart:[PF_DEB.PM,b0], partage:true});
-        });
-      });
-      vA.formation=(vA.formation||[]).concat((vp.D.vue.formation||[]).map(function(x){ x.deD=true; return x; }));
-      incD=(vp.D.vue.inconnus||[]).map(function(x){ x.deD=true; return x; });
-      dsAff=(vp.D.ds||[]).map(function(x){ x.deD=true; return x; });
-      vp.D=null;
-    }
-    /* UNE PAUSE PROLONGÉE SUR LA SUIVANTE (le client, le 24/10/2026 :
-       « pareil pour SPS, 14-22 en PM et 22-02 en N ? ») : SPS le 23/10,
-       PM prolongé jusqu'à 2 h, s'affiche 14-22 en PM et 22-2 en N, au même
-       poste ; FLI le 26/10, AM « 6h-18h » : 6-14 et 14-18. Au moins 3 h
-       dans la pause voisine, la part tenue en relais déjà retirée.
-       Affichage seul : les comptes des cases ne changent pas. */
-    var ORD=["AM","PM","N"];
-    ORD.forEach(function(gk,ig){
-      if(!vp[gk]) return;
-      vp[gk].vue.postes.forEach(function(o){
-        o.gens.slice().forEach(function(x){
-          if(x.partage || x.deD || x.horPart || x.depuisD) return;
-          var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return; }
-          if(!L || L.pv!==gk || (L.hd==null && L.hf==null)) return;
-          var d=(L.hd!=null?L.hd:PF_DEB[gk]), f=(L.hf!=null?L.hf:PF_FIN[gk]);
-          (relaisCoupe[x.p.id]||[]).forEach(function(r){
-            if(Math.abs(r.b-f)<0.01 && r.a>d+0.01) f=r.a;
-            else if(Math.abs(r.a-d)<0.01 && r.b<f-0.01) d=r.b; });
-          var vers=null, part=null;
-          if(f-PF_FIN[gk]>=3-0.01 && ig<2 && d>=PF_DEB[gk]-0.01){ vers=ORD[ig+1]; part=[PF_FIN[gk],f]; x.horPart=[d,PF_FIN[gk]]; }
-          else if(PF_DEB[gk]-d>=3-0.01 && ig>0 && f<=PF_FIN[gk]+0.01){ vers=ORD[ig-1]; part=[d,PF_DEB[gk]]; x.horPart=[PF_DEB[gk],f]; }
-          if(!vers || !vp[vers]) { delete x.horPart; return; }
-          var oV=null; vp[vers].vue.postes.forEach(function(q){ if(q.P.k===o.P.k) oV=q; });
-          if(!oV){ oV={P:o.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[vers].vue.postes.push(oV); }
-          oV.gens.push({p:x.p, r:x.r, horPart:part, partage:true});
-        });
-      });
-    });
-    /* LE REMPLACEMENT D'UNE HEURE, À SES HEURES (le client, le 02/11/2026,
-       sur le 03/11 : « et pas de trou de 13 à 14 h si GKT remplace NPE ? »,
-       puis en QCM : « montrer l'heure et proposer »). GKT, renfort arrière,
-       écrit « Remplace NPE de 13h à 14h » ; NPE est là (« Infos CFL 13h
-       Remplacé par GKT »). Quand le remplacé est PRÉSENT à la même pause,
-       à un AUTRE poste, et que les heures prennent le début ou la fin de la
-       pause : le remplaçant tient son poste hors de ces heures, le remplacé
-       aussi, et le remplaçant s'affiche au poste du remplacé à ces heures.
-       Si son propre poste reste alors sous son effectif, la case le dit à
-       ses heures (« ? 13-14 ») avec qui peut le boucher (candidatsPlace).
-       Le remplacé absent relève des relais (relaisDouze), une heure au
-       milieu de la pause reste comme avant. Affichage du Planning seul :
-       le moteur (sous-effectifs, vérificateur) ne change pas. */
-    ORD.forEach(function(gk){ if(vp[gk]) relaisCourtsPause(vp[gk].vue,gk,mmdd,jourCalc); });
-    /* EN FORMATION À SES HEURES ÉCRITES, et non à celles de sa case (le
-       client, le 02/11/2026 : « pourquoi JBS n'est pas dans la ligne
-       formation ? ») : JBS le 06/11, 08h30-12h30, et non 6h-14h ; AAI le
-       16/12, ATEX 08h30-16h30. */
-    ORD.forEach(function(gk){
-      if(!vp[gk]) return;
-      (vp[gk].vue.formation||[]).forEach(function(x){
-        if(x.horPart) return;
-        var fd=formationDePlage((x.p.d||{})[mmdd]);
-        if(fd && fd.fh) x.horPart=[fd.fh[0],fd.fh[1]];
-      });
-    });
+    var PAUSES=pausesDuPlanning();
+    /* LE PLANNING DU JOUR SE CALCULE À UN SEUL ENDROIT (check du 03/11/2026) :
+       planningDuJour() rend les cases de chaque pause, propositions et
+       heures comprises ; « À prévenir » (transfertsDuJour) lit la même. */
+    var PJ=planningDuJour(db,annee,mois,jour,par), vp=PJ.vp, aQui=PJ.aQui, renJ=PJ.renJ, dsAff=PJ.dsAff, incD=PJ.incD,
+        relaisCoupe=PJ.relaisCoupe;
+    total+=PJ.total;
     /* L'adjoint a SA ligne. Le client, le 22/09/2026 : « rajouter la ligne
        adjoint ». Une ligne de plus ne coûte rien — c'est une colonne de plus
        qui aurait coûté de la largeur, et la vue qui en faisait des colonnes
@@ -29199,7 +29016,10 @@ function renderEquipe(){
              badge (le client, le 25/10/2026 : « attention que SVE est en
              formation distillation et n'apparaît pas en jaune ») */
           var fo=false; try{ fo=enFormation(pp,jourCalc) && !compteAuPoste(x0||{p:pp},P,jourCalc); }catch(eF){}
-          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD, form:fo,
+          /* une part proposée ailleurs à ses heures (PDE le 04/09, à la
+             STEP l'après-midi, proposé à la fermentation de 14 h à 18 h) */
+          var prB=null; m.forEach(function(q){ if(q.x && q.x.propose && q.x.proposeH) prB={x:q.x, gk:q.gk}; });
+          out.push({p:pp, a:m[0].a, b:m[m.length-1].b, com:com, deD:deD, form:fo, pr:prB,
             remp:/[Rr]emplac[ée]e?\s+[Pp]ar\s+[A-Z]{3}\b(?!\s*(?:de\s*)?\d{1,2}\s*h)/.test(String(((pp.d||{})[mmdd]||[])[2]||""))});
         });
         return out.sort(function(u,v){ return u.a-v.a || u.b-v.b; });
@@ -29265,10 +29085,16 @@ function renderEquipe(){
               if(qa-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((qa-pos)*10)/10)+'"></i>';
               seg+=bd.trou.html; pos=a; }
             if(a-pos>0.01) seg+='<i class="eqvide-sp" style="flex-grow:'+(Math.round((a-pos)*10)/10)+'"></i>';
-            seg+='<span data-h="'+a+' '+b+'" class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.form?" form":"")+(bd.com?' coment" data-com="'+esc(bd.com)+'" tabindex="0" role="button"':'"')
+            var bCom=bd.com;
+            if(bd.pr){ var Pb=null; POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===bd.pr.x.propose) Pb=Q; });
+              var tb={de:P.k, vers:bd.pr.x.propose, h:bd.pr.x.proposeH};
+              var tTx=texteTransfert(bd.pr.x,tb,raisonTexte(raisonsTransfert(par,bd.pr.gk,Pb,jourCalc,bd.pr.x,vp[bd.pr.gk]&&vp[bd.pr.gk].vue,P.k)));
+              bCom=tTx+(bCom?"\n\nCommentaire : "+bCom:""); }
+            seg+='<span data-h="'+a+' '+b+'" class="eqseg'+(bd.p.id===moi?" moi":"")+(bd.deD?" jour":"")+(bd.form?" form":"")+(bd.pr?" app":"")+(bCom?' coment" data-com="'+esc(bCom)+'" tabindex="0" role="button"':'"')
               +' style="flex-grow:'+Math.max(1,Math.round((b-a)*10)/10)+'"'
               +' title="'+esc(fonctionPersonne(bd.p))+" · de "+esc(hhF(a)+" à "+hhF(b))+'">'
-              +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))+'</small></span>';
+              +'<b>'+esc(idLisible(bd.p.id))+'</b><small>'+esc(hhF(a)+"-"+hhF(b))
+              +(bd.pr?" \u2192\u00a0"+esc(hhF(bd.pr.x.proposeH[0])+"-"+hhF(bd.pr.x.proposeH[1])):"")+'</small></span>';
             pos=b;
             if(bd.trou && bd.trou.apres){ seg+=bd.trou.html; pos=Math.min(bd.trou.tr.nb,E); }
           });
@@ -29403,6 +29229,10 @@ function renderEquipe(){
               else couvre(t0,t1);
             });
             if(o.relais && o.relais.length) couvre(t0,t1);
+            /* COUVERT EN PARTIE À HEURES (le 03/11/2026) : le « ? » dit ce
+               qui reste vide (PDE proposé de 14 h à 18 h le 04/09 : « ? 18-22 ») */
+            if(o.proposePartiel) v.postes.forEach(function(q){ q.gens.forEach(function(x){
+              if(x.propose===o.P.k && x.proposeH){ var a=dansP(x.proposeH[0]); couvre(a,a+(((x.proposeH[1]-x.proposeH[0])%24)+24)%24||24); } }); });
             var hT=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
             for(var jq=1;jq<=nMq;jq++){
               var niv=aP-nMq+jq, deb=null, fin=null, nb=0;
@@ -32167,6 +31997,221 @@ function bulleCandidatsHTML(d){
       +(x.pr?'<em class="cdp-pr">proposé</em>':x.s?'<em class="cdp-su">en surnombre</em>':'')+'</li>';
   }).join("")+'</ul>';
 }
+/* LES PAUSES DU PLANNING, dans leur ordre : AM, PM, N, puis la journée D. */
+function pausesDuPlanning(){
+  return ["AM","PM","N","D"].map(function(k){
+    return EQ_GROUPES.filter(function(g){ return g.k===k; })[0]; });
+}
+/* LE PLANNING D'UNE JOURNÉE, sans rien dessiner (check du 03/11/2026) :
+   le moteur (postesDePause) pause par pause, puis les passes du tableau —
+   la consignation au matin, les propositions (propositionsPause), la
+   ligne DS, la colonne D rangée au matin, les pauses prolongées, le
+   remplacement d'une heure (relaisCourtsPause), la formation à ses
+   heures. renderEquipe() le dessine ; transfertsDuJour() en tire « À
+   prévenir » : une seule source, plus deux calculs qui divergent. */
+function planningDuJour(db,annee,mois,jour,par){
+  var mmdd=pad2(mois)+pad2(jour), jourCalc=annee*10000+Number(mmdd), total=0;
+  if(!par) par=equipeDuJour(db,annee,mois,jour);
+  var PAUSES=pausesDuPlanning();
+  var vp={}, aQui=false;
+  /* Le même relèvement d'effectif que postesDePause() lit : sans lui, la
+     case afficherait « 2/2 » là où la journée en demandait trois. */
+  var renJ=renfortDuJour(db,mmdd);
+  PAUSES.forEach(function(g){
+    var l=(par[g.k]||[]).slice();
+    /* La colonne D est TOUJOURS affichée, même vide et même le week-end (le
+       client, le 02/10/2026) : les autres pauses disparaissent si personne
+       n'y est, mais le D reste (cases « – »). */
+    if(!l.length && g.k!=="D") return;
+    if(l.length){ aQui=true; total+=l.length; }
+    l.sort(function(a,b){ return a.p.cat===b.p.cat ? (a.p.id<b.p.id?-1:1)
+                        : (a.p.cat<b.p.cat?-1:1); });
+    vp[g.k]={n:l.length, vue:postesDePause(db,l,g.k,mmdd,g.k==="AM"?par.D:null)};
+  });
+  /* CHACUN SES HEURES DANS CHAQUE PAUSE (le client, le 24/10/2026 :
+     « JBS 6-14 en AM et 14-18 en PM, c'est pas mieux d'écrire comme ça que
+     JBS 6-18 en AM et 14-18 en PM ? ») : la part tenue en relais dans
+     une autre pause, le même jour, sort du badge de sa propre pause. */
+  var relaisCoupe={};
+  Object.keys(vp).forEach(function(k){ ((vp[k].vue||{}).postes||[]).forEach(function(o){
+    (o.relais||[]).forEach(function(r){ if(!r.dec) (relaisCoupe[r.p.id]=relaisCoupe[r.p.id]||[]).push(r); }); }); });
+  /* BLR ET YRS EN D VONT DANS LA COLONNE AM, À LA MEUNERIE. Le client,
+     le 28/09/2026 : « si BLR ou YRS est en D il faut les mettre dans la
+     colonne AM mais avec leurs horaires 7h30-16 en dessous ; ils sont en
+     consignation meunerie », puis « le poste consignation en meunerie
+     doit compter dans l'effectif meunerie du matin ». postesDePause() les
+     a déjà comptés à AM · Meunerie (meunDepuisD) — en semaine. Ici on
+     règle l'AFFICHAGE : dans la case AM, seuls BLR et YRS parmi ceux qui
+     viennent du D — et, depuis le 20/10/2026, qui les remplace et les
+     apprentis meuniers (meunDepuisD) ; les autres personnes en D à la
+     meunerie restent dans la colonne D, mais comptent. BLR et YRS quittent la colonne D, qui
+     disparaît si elle ne portait qu'eux. Le week-end, rien ne change. */
+  if(vp.AM){
+    var dejaAM={};
+    vp.AM.vue.postes.forEach(function(o){
+      o.gens=o.gens.filter(function(x){
+        if(!x.depuisD) return true;
+        if(!(x.consign||x.remplCons||x.apprMeun||x.renfortD)) return false;
+        dejaAM[x.p.id]=true; return true;
+      });
+    });
+    if(vp.D){
+      vp.D.vue.postes.forEach(function(o){
+        o.gens=o.gens.filter(function(x){
+          if(!dejaAM[x.p.id]) return true;
+          vp.D.n--; vp.AM.n++; return false;
+        });
+      });
+      /* BLR/YRS peuvent vider la colonne D en passant en AM. Le retrait de la
+         colonne vide se décide plus bas, une fois les DS extraits (le client,
+         le 03/10/2026, revenant sur le « toujours affichée » du 02/10). */
+    }
+  }
+  /* LES CHANGEMENTS PROPOSÉS NE DÉPLACENT PLUS PERSONNE (le client, le
+     20/10/2026) : « il ne faut pas déplacer automatiquement les
+     remplacements proposés par l'application. Il faut les laisser dans
+     leur poste normal, mais indiquer le background en orange dans le
+     poste en sous-effectif et laisser les pointillés sur l'opérateur qui
+     peut aller sur le poste en sous-effectif ». Le rééquilibrage reste le
+     calcul (les manques de l'onglet Effectifs le lisent) ; ici, au
+     tableau, chaque personne qu'il a déplacée (transfertApp) retourne à
+     son poste d'origine, marquée x.propose (le poste où elle pourrait
+     aller) ; le poste qu'elle aurait comblé retrouve son vrai compte et,
+     s'il manque, se marque o.propose — fond orange au lieu du rouge. */
+  ["AM","PM","N"].forEach(function(gk){
+    var v=vp[gk]&&vp[gk].vue; if(v) propositionsPause(v,gk,mmdd,jourCalc,db);
+  });
+  /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
+     ligne sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce
+     jour-là ». Ceux que leur journée de réunion (DS, DS-CE, CPPT,
+     D-CPPT) met en D quittent la case de leur poste dans la colonne D
+     pour cette ligne ; qui tient son poste malgré le code (une plage de
+     pause écrite, GPS 10h-22h D-CPPT) reste à son poste. La colonne D
+     n'attend personne : l'effectif n'en bouge pas. */
+  if(vp.D){
+    var dsD=[];
+    function estDS(x){ return !!(x.r && x.r.jourCode && /DS|CPPT/i.test(String(x.r.jourCode))); }
+    vp.D.vue.postes.forEach(function(o){
+      o.gens=o.gens.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
+    });
+    vp.D.vue.inconnus=vp.D.vue.inconnus.filter(function(x){ if(estDS(x)){ dsD.push(x); return false; } return true; });
+    dsD.sort(function(a,b){ return a.p.id<b.p.id?-1:1; });
+    vp.D.ds=dsD;
+  }
+  /* ON RETIRE LA COLONNE D QUAND ELLE NE PORTE PERSONNE. Le client, le
+     03/10/2026 : « retirer la colonne D quand elle est vide ». Cela revient
+     sur le choix du 02/10/2026 (« D toujours affichée, même vide ») : une
+     colonne de tirets ne disait rien et mangeait un quart de la largeur. On
+     nulle vp.D quand aucun poste n'a de monde, aucun inconnu, aucun DS — mc,
+     en-tête et cases la sautent alors ensemble. Un JOUR OUVRÉ, l'équipe en D
+     de la semaine réapparaît dans la légende au-dessus du tableau (voir plus
+     bas) ; le week-end, personne n'est en D et rien ne s'affiche. */
+  /* ... NI PERSONNE EN FORMATION : CJD le 11/09, seul en formation dans la
+     colonne D une fois BLR passé au matin (meunDepuisD), disparaissait du
+     Planning avec elle (le 02/11/2026, en cherchant JBS). */
+  if(vp.D){
+    var dPlein=vp.D.ds.length || vp.D.vue.inconnus.length || (vp.D.vue.formation||[]).length
+      || vp.D.vue.postes.some(function(o){ return o.gens.length; });
+    if(!dPlein) vp.D=null;
+  }
+  /* PLUS DE COLONNE D : SES GENS VONT DANS LA COLONNE AM (le client, le
+     20/10/2026 : « retirer la colonne D, mais au lieu de ça les mettre
+     dans la colonne AM avec l'horaire choisi »). Chacun rejoint la case AM
+     de son poste — la formation, le DS et « à déterminer » leurs lignes —
+     avec son horaire dans le badge (x.deD, horaireEcritD). Rien ne change
+     aux comptes : la case AM garde son effectif et son manque calculés
+     sans eux, comme la colonne D n'attendait personne. */
+  var dsAff=[], incD=[];
+  if(vp.D){
+    if(!vp.AM) vp.AM={n:0, vue:{postes:[], inconnus:[], formation:[]}};
+    var vA=vp.AM.vue;
+    vp.D.vue.postes.forEach(function(oD){
+      if(!oD.gens.length) return;
+      var oA=null; vA.postes.forEach(function(o){ if(o.P.k===oD.P.k) oA=o; });
+      if(!oA){ oA={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vA.postes.push(oA); }
+      oD.gens.forEach(function(x){ x.deD=true; oA.gens.push(x);
+        /* UNE JOURNÉE DE JOUR À CHEVAL SUR LE MATIN ET L'APRÈS-MIDI (le
+           client, le 24/10/2026 : « SVE ne doit pas être affichée 10-14 en
+           AM et 14-18 en PM ? »), comme les relais : chaque colonne sa part,
+           au même poste. Seulement quand l'après-midi en porte au moins
+           3 h : un « 7-15 » reste au matin. Affichage seul : les comptes
+           de la case AM ne changent pas, ni ceux de l'après-midi. */
+        var raw=x.p.d&&x.p.d[mmdd]||[], pl=plageMention(String(raw[1]||""))||plageMention(String(raw[0]||""));
+        if(!pl || !vp.PM) return;
+        var a0=pl[0], b0=pl[1]<=pl[0]?pl[1]+24:pl[1];
+        (relaisCoupe[x.p.id]||[]).forEach(function(r){
+          if(Math.abs(r.b-b0)<0.01 && r.a>a0+0.01) b0=r.a;
+          else if(Math.abs(r.a-a0)<0.01 && r.b<b0-0.01) a0=r.b; });
+        if(!(a0<PF_DEB.PM-0.01 && b0-PF_DEB.PM>=3-0.01 && b0<=PF_FIN.PM+0.01)) return;
+        x.horPart=[a0,PF_DEB.PM];
+        var oP=null; vp.PM.vue.postes.forEach(function(o){ if(o.P.k===oD.P.k) oP=o; });
+        if(!oP){ oP={P:oD.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp.PM.vue.postes.push(oP); }
+        oP.gens.push({p:x.p, r:x.r, deD:true, horPart:[PF_DEB.PM,b0], partage:true});
+      });
+    });
+    vA.formation=(vA.formation||[]).concat((vp.D.vue.formation||[]).map(function(x){ x.deD=true; return x; }));
+    incD=(vp.D.vue.inconnus||[]).map(function(x){ x.deD=true; return x; });
+    dsAff=(vp.D.ds||[]).map(function(x){ x.deD=true; return x; });
+    vp.D=null;
+  }
+  /* UNE PAUSE PROLONGÉE SUR LA SUIVANTE (le client, le 24/10/2026 :
+     « pareil pour SPS, 14-22 en PM et 22-02 en N ? ») : SPS le 23/10,
+     PM prolongé jusqu'à 2 h, s'affiche 14-22 en PM et 22-2 en N, au même
+     poste ; FLI le 26/10, AM « 6h-18h » : 6-14 et 14-18. Au moins 3 h
+     dans la pause voisine, la part tenue en relais déjà retirée.
+     Affichage seul : les comptes des cases ne changent pas. */
+  var ORD=["AM","PM","N"];
+  ORD.forEach(function(gk,ig){
+    if(!vp[gk]) return;
+    vp[gk].vue.postes.forEach(function(o){
+      o.gens.slice().forEach(function(x){
+        if(x.partage || x.deD || x.horPart || x.depuisD) return;
+        var L; try{ L=lectureAgenda(db,x.p,annee,mois,jour); }catch(e){ return; }
+        if(!L || L.pv!==gk || (L.hd==null && L.hf==null)) return;
+        var d=(L.hd!=null?L.hd:PF_DEB[gk]), f=(L.hf!=null?L.hf:PF_FIN[gk]);
+        (relaisCoupe[x.p.id]||[]).forEach(function(r){
+          if(Math.abs(r.b-f)<0.01 && r.a>d+0.01) f=r.a;
+          else if(Math.abs(r.a-d)<0.01 && r.b<f-0.01) d=r.b; });
+        var vers=null, part=null;
+        if(f-PF_FIN[gk]>=3-0.01 && ig<2 && d>=PF_DEB[gk]-0.01){ vers=ORD[ig+1]; part=[PF_FIN[gk],f]; x.horPart=[d,PF_FIN[gk]]; }
+        else if(PF_DEB[gk]-d>=3-0.01 && ig>0 && f<=PF_FIN[gk]+0.01){ vers=ORD[ig-1]; part=[d,PF_DEB[gk]]; x.horPart=[PF_DEB[gk],f]; }
+        if(!vers || !vp[vers]) { delete x.horPart; return; }
+        var oV=null; vp[vers].vue.postes.forEach(function(q){ if(q.P.k===o.P.k) oV=q; });
+        if(!oV){ oV={P:o.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[vers].vue.postes.push(oV); }
+        oV.gens.push({p:x.p, r:x.r, horPart:part, partage:true});
+      });
+    });
+  });
+  /* LE REMPLACEMENT D'UNE HEURE, À SES HEURES (le client, le 02/11/2026,
+     sur le 03/11 : « et pas de trou de 13 à 14 h si GKT remplace NPE ? »,
+     puis en QCM : « montrer l'heure et proposer »). GKT, renfort arrière,
+     écrit « Remplace NPE de 13h à 14h » ; NPE est là (« Infos CFL 13h
+     Remplacé par GKT »). Quand le remplacé est PRÉSENT à la même pause,
+     à un AUTRE poste, et que les heures prennent le début ou la fin de la
+     pause : le remplaçant tient son poste hors de ces heures, le remplacé
+     aussi, et le remplaçant s'affiche au poste du remplacé à ces heures.
+     Si son propre poste reste alors sous son effectif, la case le dit à
+     ses heures (« ? 13-14 ») avec qui peut le boucher (candidatsPlace).
+     Le remplacé absent relève des relais (relaisDouze), une heure au
+     milieu de la pause reste comme avant. Affichage du Planning seul :
+     le moteur (sous-effectifs, vérificateur) ne change pas. */
+  ORD.forEach(function(gk){ if(vp[gk]) relaisCourtsPause(vp[gk].vue,gk,mmdd,jourCalc); });
+  /* le trou d'une pause entière, à ses heures (le 03/11/2026) */
+  ORD.forEach(function(gk){ if(vp[gk]) relaisPartielsPause(vp[gk].vue,gk,mmdd,jourCalc); });
+  /* EN FORMATION À SES HEURES ÉCRITES, et non à celles de sa case (le
+     client, le 02/11/2026 : « pourquoi JBS n'est pas dans la ligne
+     formation ? ») : JBS le 06/11, 08h30-12h30, et non 6h-14h ; AAI le
+     16/12, ATEX 08h30-16h30. */
+  ORD.forEach(function(gk){
+    if(!vp[gk]) return;
+    (vp[gk].vue.formation||[]).forEach(function(x){
+      if(x.horPart) return;
+      var fd=formationDePlage((x.p.d||{})[mmdd]);
+      if(fd && fd.fh) x.horPart=[fd.fh[0],fd.fh[1]];
+    });
+  });
+  return {vp:vp, par:par, aQui:aQui, total:total, renJ:renJ, dsAff:dsAff, incD:incD, relaisCoupe:relaisCoupe};
+}
 /* LES PROPOSITIONS D'UNE PAUSE, UNE SEULE FOIS ÉCRITES : le Planning
    (renderEquipe) et les changements à prévenir (transfertsDuJour) les
    tirent de cette fonction, sur la vue du rééquilibrage. Chacun que le
@@ -32329,32 +32374,98 @@ function relaisCourtsPause(v,gk,mmdd,jourCalc){
     });
   });
 }
+/* LE TROU D'UNE PAUSE ENTIÈRE SE COMBLE À SES HEURES (le client, le
+   03/11/2026, en QCM : « oui, à leurs heures »). Une case vide toute la
+   pause, alors qu'un poste voisin a quelqu'un DE PLUS une partie de la
+   pause : la journée prolongée d'une autre pause (CHD, « 6h-18h », à la
+   fermentation de 14 h à 18 h le 11/07), la nuit qui commence à 18 h (TCE,
+   à la meunerie de 18 h à 22 h). Le titulaire de ce poste qui sait tenir
+   le trou y est proposé à ces heures (SMA 14-18, CDE 18-22), un morceau
+   par personne. Les morceaux couvrent la pause : la case passe à
+   l'orange ; sinon elle reste rouge, les morceaux proposés quand même
+   (o.proposePartiel). Chacun s'annonce dans « À prévenir », à ses heures.
+   Le moteur (sous-effectifs, vérificateur) ne change pas. */
+function relaisPartielsPause(v,gk,mmdd,jc){
+  var t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t1<=t0) t1+=24;
+  function dans(x){ x=((x%24)+24)%24; while(x<t0-0.01) x+=24; return x; }
+  function plage(hp){ var a=dans(hp[0]), b=dans(hp[1]); if(b<=a+0.01) b+=24; return [Math.max(a,t0), Math.min(b,t1)]; }
+  v.postes.forEach(function(o){
+    if(o.P.cm || o.P.k==="adj" || !o.attendu || !o.manque || o.propose || o.trouCourt) return;
+    /* demi-heure par demi-heure, ce que la case porte déjà (ses heures
+       partielles comprises : SKS à la distillation de 14 h à 18 h le
+       04/08) — comme le « ? » qui dit l'heure du trou */
+    var pas=[], i;
+    for(i=0;t0+i*0.5<t1-0.01;i++) pas.push(0);
+    function couvre(r,n){ for(var j=0;j<pas.length;j++){ var u=t0+j*0.5; if(u>=r[0]-0.01 && u+0.5<=r[1]+0.01) pas[j]+=n; } }
+    o.gens.forEach(function(x){
+      if(enFormation(x.p,jc) && !compteAuPoste(x,o.P,jc)) return;
+      couvre(x.horPart?plage(x.horPart):[t0,t1],1); });
+    if(o.relais && o.relais.length) couvre([t0,t1],1);
+    function vides(r){ var n=0; for(var j=0;j<pas.length;j++){ var u=t0+j*0.5; if(u>=r[0]-0.01 && u+0.5<=r[1]+0.01 && pas[j]<o.attendu) n++; } return n; }
+    if(!vides([t0,t1])) return;
+    var morceaux=[];
+    v.postes.forEach(function(q){
+      if(q===o || q.P.cm || q.P.k==="adj") return;
+      var siens=q.gens.filter(function(z){ return !z.partage; });
+      /* sans ses copies, le poste tient : la copie y est EN PLUS */
+      if(q.attendu && tenuDuPoste({P:q.P, attendu:q.attendu, relais:q.relais, gens:siens},jc)<q.attendu) return;
+      q.gens.forEach(function(y){
+        if(!y.partage || !y.horPart || y.relaisCourt || !compteAuPoste(y,q.P,jc)) return;
+        var r=plage(y.horPart); if(r[1]-r[0]<0.5) return;
+        var c=siens.filter(function(z){ return !z.deD && !z.depuisD && !z.horPart && !z.propose && !z.relaisCourt
+          && peutTenir(z.p,o.P,jc) && compteAuPoste(z,o.P,jc); }).sort(function(u,w){ return u.p.id<w.p.id?-1:1; });
+        /* personne au poste pour le trou : la copie elle-même, quand son
+           poste se tient sans elle (PDE le 04/09, « 6h-18h », à la STEP
+           de 14 h à 18 h, où l'après-midi n'attend personne) */
+        if(!c.length && !y.propose && peutTenir(y.p,o.P,jc) && compteAuPoste(y,o.P,jc)) c=[y];
+        if(c.length) morceaux.push({c:c, q:q, r:r});
+      });
+    });
+    morceaux.sort(function(u,w){ return u.r[0]-w.r[0] || (w.r[1]-w.r[0])-(u.r[1]-u.r[0]); });
+    var vus={}, pris=0;
+    morceaux.forEach(function(m){
+      if(!vides(m.r)) return;
+      var z=m.c.filter(function(x){ return !vus[x.p.id] && !x.propose; })[0]; if(!z) return;
+      /* ses heures : celles du trou qu'il couvre */
+      var a=null, b=null;
+      for(var j=0;j<pas.length;j++){ var u=t0+j*0.5;
+        if(u>=m.r[0]-0.01 && u+0.5<=m.r[1]+0.01 && pas[j]<o.attendu){ if(a===null) a=u; b=u+0.5; } }
+      vus[z.p.id]=1; pris++;
+      z.propose=o.P.k; z.proposeH=[a,b]; z.proposeDe=m.q.P.k;
+      couvre([a,b],1);
+    });
+    if(!pris) return;
+    if(vides([t0,t1])) o.proposePartiel=true; else o.propose=true;
+  });
+}
 /* Les transferts d'une journée, pause par pause (AM, PM, N). */
 function transfertsDuJour(db,annee,m,j){
   var mmdd=pad2(m)+pad2(j), jc=annee*10000+Number(mmdd), out=[];
   var par=equipeDuJour(db,annee,m,j);
   var hh=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
+  /* LE PLANNING LUI-MÊME (check du 03/11/2026) : les changements à
+     prévenir sont ceux que planningDuJour() propose au tableau — pointillé,
+     heures comprises —, et non un second calcul qui divergeait (le client,
+     le 20/10/2026, puis le 02/11/2026 : « explique-moi ceci »).
+     raisonsTransfert() lit où le moteur seul a mis chacun (« passé en … »). */
+  var PJ=planningDuJour(db,annee,m,j,par);
   ["AM","PM","N"].forEach(function(g){
     var l=par[g]; if(!l||!l.length) return;
-    var vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
-    /* LA MÊME RÈGLE QUE LE PLANNING, ET LE MÊME CALCUL (le client, le
-       20/10/2026, puis le 02/11/2026 : « explique-moi ceci ») : les
-       propositions sortent de propositionsPause(), comme au tableau, puis
-       de relaisCourtsPause() (la proposition d'une heure, v1312), sur une
-       copie de la vue — raisonsTransfert() lit encore où le moteur a mis
-       chacun (« passé en … »). Le poste de départ est celui où le Planning
-       laisse la personne, pointillée. */
-    var vueH={postes:vue.postes.map(function(o){ return {P:o.P, attendu:o.attendu, relais:o.relais, tenu:o.tenu, manque:o.manque, detail:o.detail, creux:o.creux, gens:o.gens.slice()}; }), inconnus:vue.inconnus||[], formation:vue.formation||[]};
-    propositionsPause(vueH,g,mmdd,jc,db);
-    try{ relaisCourtsPause(vueH,g,mmdd,jc); }catch(eR){}
-    vueH.postes.forEach(function(q){ q.gens.forEach(function(z){
-      if(z.partage || !z.propose) return;
-      if(z.proposeH){ var rp=z.proposePour;
+    var vP=PJ.vp[g]&&PJ.vp[g].vue; if(!vP) return;
+    var vue=null;
+    vP.postes.forEach(function(q){ q.gens.forEach(function(z){
+      /* une copie d'une autre pause s'annonce quand elle est proposée à
+         ses heures (PDE le 04/09) */
+      if(!z.propose || (z.partage && !z.proposeH)) return;
+      if(z.proposeH && z.proposePour && z.proposePour.remp){ var rp=z.proposePour;
         out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, h:z.proposeH,
           r:{qui:[{p:rp.p, motif:"remplace "+rp.remp+" ("+nomPosteApp(rp.vers).toLowerCase()+") de "+hh(rp.a)+" à "+hh(rp.b)}], note:""}});
         return; }
-      var Pv=null; vueH.postes.forEach(function(o){ if(o.P.k===z.propose) Pv=o.P; });
-      out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, r:raisonsTransfert(par,g,Pv,jc,z,vue,q.P.k)});
+      if(!vue) vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
+      var Pv=null; vP.postes.forEach(function(o){ if(o.P.k===z.propose) Pv=o.P; });
+      var t={p:z.p, pause:g, de:q.P.k, vers:z.propose, r:raisonsTransfert(par,g,Pv,jc,z,vue,q.P.k)};
+      if(z.proposeH) t.h=z.proposeH;
+      out.push(t);
     }); });
   });
   return out;

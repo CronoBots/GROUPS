@@ -37,11 +37,13 @@ const ARGS=process.argv.slice(2), DETAIL=ARGS.indexOf("--detail")>=0;
 const PAGE=ARGS.filter(a=>!a.startsWith("--"))[0]||path.join(RACINE,"index.html");
 
 /* --- la page, avec ses deux relevés --------------------------------------- */
-const A1="    /* CHACUN SES HEURES DANS CHAQUE PAUSE (le client, le 24/10/2026 :";
-const A2="    /* L'adjoint a SA ligne. Le client, le 22/09/2026";
+/* les repères, à toute indentation : le bloc du moteur a quitté
+   renderEquipe() pour planningDuJour() le 03/11/2026 */
+const repere=s=>{ const m=html.match(new RegExp("^ *"+s.replace(/[.*+?^${}()|[\]\\\/]/g,"\\$&"),"gm"));
+  if(!m||m.length!==1) throw new Error("repère introuvable ou double dans la page ("+(m?m.length:0)+") : "+s); return m[0]; };
 let html=fs.readFileSync(PAGE,"utf8");
-[A1,A2].forEach(a=>{ const n=html.split(a).length-1;
-  if(n!==1) throw new Error("repère introuvable ou double dans la page ("+n+") : "+a); });
+const A1=repere("/* CHACUN SES HEURES DANS CHAQUE PAUSE (le client, le 24/10/2026 :");
+const A2=repere("/* L'adjoint a SA ligne. Le client, le 22/09/2026");
 const MOTEUR=`    try{ window.__ckE={}; Object.keys(vp).forEach(function(k){ if(!vp[k]) return; window.__ckE[k]=vp[k].vue.postes.map(function(o){ return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque}; }); }); }catch(e){ console.log("CKERR moteur "+e); }
 `;
 const TABLEAU=`    try{ var __ck={d:annee*10000+Number(mmdd), e:window.__ckE, p:{}};
@@ -49,8 +51,8 @@ const TABLEAU=`    try{ var __ck={d:annee*10000+Number(mmdd), e:window.__ckE, p:
         __ck.p[k]={postes:v.postes.map(function(o){
           var c=null;
           if(o.manque && !o.P.cm && o.P.k!=="adj"){ try{ c=candidatsPlace(v,o.P,k,jourCalc,o,o.attendu,par).l; }catch(e){ c="ERR "+e; } }
-          return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque, pr:!!o.propose, tc:!!o.trouCourt, cand:c,
-            g:o.gens.map(function(x){ return {id:x.p.id, pa:!!x.partage, dD:!!x.deD, pro:x.propose||null, cpt:!!compteAuPoste(x,o.P,jourCalc)}; }),
+          return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque, pr:!!o.propose, pp:!!o.proposePartiel, tc:!!o.trouCourt, cand:c,
+            g:o.gens.map(function(x){ return {id:x.p.id, pa:!!x.partage, dD:!!x.deD, pro:x.propose||null, ph:!!x.proposeH, cpt:!!compteAuPoste(x,o.P,jourCalc)}; }),
             rel:(o.relais||[]).map(function(r){ return r.p.id; }) }; }),
           inc:(v.inconnus||[]).map(function(x){ return x.p.id; }), form:(v.formation||[]).map(function(x){ return x.p.id; }) }; });
       ["abs","cong","D","AM","PM","N"].forEach(function(k){ __ck["l"+k]=(par[k]||[]).map(function(x){ return x.p.id; }); });
@@ -124,16 +126,22 @@ const NJ=Math.round((FIN-DEBUT)/864e5)+1;
         if(o.cm||o.k==="adj") return;
         const mq=!!(o.att && o.tenu<o.att);
         if(mq!==o.mq && !(o.tc && o.mq)) faute("R3 manque et compte en désaccord",d,k+" "+o.k+" "+o.tenu+"/"+o.att);
-        const vers=[]; v.postes.forEach(q=>q.g.forEach(x=>{ if(x.pro===o.k && !x.pa) vers.push(x.id+" ("+q.k+")"); }));
+        /* une copie d'une autre pause compte quand elle est proposée à ses heures */
+        const vers=[]; v.postes.forEach(q=>q.g.forEach(x=>{ if(x.pro===o.k && (!x.pa || x.ph)) vers.push(x.id+" ("+q.k+")"); }));
         if(o.pr && !vers.length) faute("R4 orange sans personne proposée",d,k+" "+o.k);
-        if(vers.length && !o.pr) faute("R4 proposé vers une case qui n'est pas orange",d,k+" "+o.k+" ← "+vers.join(", "));
-        if(vers.length>Math.max(1,o.att-o.tenu)) info("plusieurs proposés pour la place",d,k+" "+o.k+" "+o.tenu+"/"+o.att+" ← "+vers.join(", "));
+        /* un trou d'une pause entière couvert EN PARTIE reste rouge, ses morceaux proposés (le 03/11/2026) */
+        if(vers.length && !o.pr && !o.pp) faute("R4 proposé vers une case qui n'est pas orange",d,k+" "+o.k+" ← "+vers.join(", "));
+        if(o.pp) info("trou d'une pause couvert en partie, à heures",d,k+" "+o.k+" ← "+vers.join(", "));
+        /* des morceaux à heures se partagent une même place */
+        const nPl=v.postes.reduce((s,q)=>s+q.g.filter(x=>x.pro===o.k && !x.pa && !x.ph).length,0)
+          +(v.postes.some(q=>q.g.some(x=>x.pro===o.k && x.ph))?1:0);
+        if(nPl>Math.max(1,o.att-o.tenu)) info("plusieurs proposés pour la place",d,k+" "+o.k+" "+o.tenu+"/"+o.att+" ← "+vers.join(", "));
         if(vers.length && !o.mq) info("proposé vers une case pleine (une cascade)",d,k+" "+o.k+" "+o.tenu+"/"+o.att+" ← "+vers.join(", "));
         if(o.mq && !o.pr && Array.isArray(o.cand)){ const s=o.cand.filter(c=>c.s && !c.f);
           if(s.length) info("trou rouge, quelqu'un en surnombre",d,k+" "+o.k+" "+o.tenu+"/"+o.att+" : "+s.map(c=>c.id+" ("+c.de+")").join(", ")); }
         if(typeof o.cand==="string") faute("R0 erreur",d,"candidats "+k+" "+o.k+" : "+o.cand);
       });
-      v.postes.forEach(q=>q.g.forEach(x=>{ if(x.pro && !x.pa) plan[k+" "+x.id+" "+q.k+" → "+x.pro]=1; }));
+      v.postes.forEach(q=>q.g.forEach(x=>{ if(x.pro && (!x.pa || x.ph)) plan[k+" "+x.id+" "+q.k+" → "+x.pro]=1; }));
       if(!v.postes.some(o=>o.cm && (o.g.length||o.rel.length))) info("pause sans contremaître",d,k);
     });
     j.tr.forEach(t=>{ ann[t.pause+" "+t.id+" "+t.de+" → "+t.vers]=1; });

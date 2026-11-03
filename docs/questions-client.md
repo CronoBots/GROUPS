@@ -125,17 +125,6 @@ des questions au client ».
   terrain arrière est sur le canal 2, confirmé ; la STEP et le
   contremaître n'ont pas de radio.)
 
-- **Le placement, après le check logique du 03/11/2026** (journal 08,
-  « Le check logique du 03/11/2026 »). Quatre règles que ni le classeur ni
-  les décisions écrites ne tranchent, posées une à une (trois tranchées
-  le 03/11/2026 : le placé par sa cellule en surnombre est proposé, la
-  consignation reste à la meunerie, l'ordre des trous reste celui des
-  postes — `docs/conversion-horaire.md`, « Rééquilibrer une pause ») :
-  1. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
-     quand un relais le libère (CDE libre de 18 h à 22 h et SMA de 14 h à
-     18 h, le 11/07 PM, couvriraient le terrain arrière) ? La décision du
-     02/11 ne couvre que le cas inverse (un trou d'une heure).
-
 ## À la RH
 
 Le client, le 14/10/2026 : « garde la question pour RH ».
