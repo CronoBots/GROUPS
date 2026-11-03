@@ -4626,3 +4626,8 @@ dernière question a disparu sans que je valide le choix »). La v1336 reste
 en place, la question lui est reposée en texte (`docs/questions-client.md`) ;
 selon sa réponse, on la garde, on la limite aux jours à venir, ou on la
 retire.
+**Confirmé** : reposée en texte, le client répond « A » — les marquer en
+rouge, avec les heures du trou. La v1336 reste telle quelle. Leçon : une
+fenêtre de question qui se ferme d'elle-même enregistre la recommandation ;
+une réponse que le client n'a pas tapée n'en est pas une — la reposer en
+texte quand il le signale.
