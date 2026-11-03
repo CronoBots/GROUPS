@@ -10892,3 +10892,38 @@ Mesures : le bandeau tient à 320 px (262 px de large), l'avatar ne
 touche plus rien ; au PC, la ligne d'identité passe de 92 à 99 px, le
 reste ne bouge pas ; hors ligne, l'heure et la date seules ; cloche
 essayée à sa place. Parcours 112 essais, 0 faute.
+
+### Tout ce qui précède « Prochain poste », optimisé en une passe (03/11/2026, `nfdm-v1332`)
+
+Le client, capture de son iPhone de la v1331 : « optimise toute la
+partie au-dessus de Prochain poste ; tu peux tout changer à ta guise ».
+Photographié à 320, 390, 900 et 1280 px ; défauts relevés au téléphone :
+
+1. l'avatar de 76 px écrasait le reste (plus haut que le poste et le
+   binôme réunis) ;
+2. deux grilles : l'avatar et le bandeau à 16 px du bord, les cartes à
+   12 px — 4 px de décalage d'un bloc à l'autre ;
+3. « 6° » isolé au bord droit, loin de son icône et de son nom ;
+4. l'heure (25 px) plus grosse que le poste (19 px) : la hiérarchie à
+   l'envers ;
+5. un bandeau sans cadre posé contre une carte cadrée : deux styles à la
+   suite.
+
+Corrigé :
+
+- avatar de 60 px au téléphone (52 jusqu'à 380 px), anneau de 2 px, posé
+  sur la grille des cartes (12 px) ; le poste passe à 18 px ; au PC,
+  l'avatar de 88 px ne change pas ;
+- l'heure et le temps se lisent de la même façon : le gros chiffre
+  dessus, le mot pâle dessous — l'heure et la date à gauche ; l'icône,
+  puis la température et le nom du temps (« Brouillard », avec sa
+  majuscule) à droite ;
+- au téléphone et jusqu'à 1099 px, une tuile neutre (fond blanc à 4 %,
+  filet à 10 %, coins de 12 px), exactement de la largeur de la carte
+  « Prochain poste » (29 à 361 px sur 390, mesuré) : « maintenant »
+  au-dessus de « prochain », et la carte du poste garde seule la teinte
+  cyan, donc l'attention ;
+- au PC, du texte net à droite de l'identité, comme en v1331, avec la
+  même lecture (icône, température sur nom du temps).
+
+Parcours 112 essais, 0 faute (contraste compris).
