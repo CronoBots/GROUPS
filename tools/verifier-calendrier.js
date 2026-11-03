@@ -152,6 +152,7 @@ const MORCEAUX=[
   ["function posteLigne9(","\n}"],
   ["function atelierDuRemplace(","\n}"],
   ["function rempSeulementHoraire(","\n}"],
+  ["function ecritDesDeuxCotes(","\n}"],
   ["function remplPartiel(","\n}"],
   ["function adjointFaitCM(","\n}"],
   ["function nommesParAbsents(","\n}"],

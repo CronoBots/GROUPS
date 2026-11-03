@@ -1184,6 +1184,35 @@ poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
 quatre sorties de `verifier-calendrier.js` et les agendas sont
 identiques à l'octet.
 
+### Un remplacement écrit des deux côtés, pour une partie de la pause : placé, à ses heures (03/11/2026)
+
+> **Le client, le 03/11/2026**, en QCM : « placé, à ses heures ».
+
+Le cas : PLZ, le 10/04 de nuit, `["22h-02h","4h +FT","remplace QDE …"]`,
+et QDE `["N","Abs","Remplacé par PLZ"]`.
+- **Avant.** La lecture de « remplace X » écartait les remplacements de
+  quelques heures (`remplPartiel`). PLZ restait donc à son poste, et le
+  rééquilibrage le proposait aux chaudières, en orange, « à confirmer », pour
+  une décision déjà écrite.
+- **Maintenant.** Quand le remplacement est écrit des deux côtés
+  (`ecritDesDeuxCotes`), le remplaçant prend le poste du remplacé : « remplace
+  X » chez lui, « remplacé par … lui » chez X, et X prévu à la même pause. Ses
+  heures (`heuresAuPoste`) disent la part de la pause qu'il tient ; le reste
+  est à combler, et se voit.
+
+Ce qui en reste exclu :
+- une clause « remplace X de A à B », qui reste un relais ;
+- un commentaire qui doute (« ? ») ;
+- un « R-CM » ;
+- un remplacé prévu à une autre pause. PLZ, l'après-midi du 24/04,
+  « remplace SKS », qui est de nuit ; ATR, le matin du 19/09, « remplace
+  GBT », qui est de l'après-midi.
+
+Une journée ainsi placée ne compte pour la polyvalence que si elle couvre
+la pause entière : la règle des huit heures pleines. JKS, le 17/05, « départ
+à 20h00' », n'a fait que six heures en meunerie, et ne compte pas ; CDE,
+le 13/08, « 6h-18h », a tenu les chaudières tout le matin, et compte.
+
 ### Une chaîne de remplacements : chacun prend le poste de celui qu'il libère (02 et 03/11/2026)
 
 Une chaîne s'écrit ainsi : X absent, « remplacé par Y » ; Y « remplace X

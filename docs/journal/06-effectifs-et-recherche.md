@@ -4880,3 +4880,64 @@ manques, lus un par un et inscrits avec leur raison dans
 **Erreur commise :** la même règle avait été confirmée le 02/11 pour le 14/11
 de l'après-midi (QDE → SBZ → GKT), et elle était déjà dans ce fichier. La
 question a été reposée faute de l'avoir relu.
+
+### Un remplacement écrit des deux côtés, pour une partie de la pause, est placé (03/11/2026, `nfdm-v1349`)
+
+Le client, le 03/11/2026, en QCM : « placé, à ses heures ». La question
+venait de l'audit de la v1348 : sur 35 propositions de l'année qui visent
+quelqu'un nommé dans un remplacement écrit, 5 étaient des remplacements
+écrits **des deux côtés** pour une partie de la pause. L'application les
+montrait pourtant « proposés, à confirmer » :
+- PLZ, le 10/04 ;
+- JKS, le 17/05 ;
+- PLZ, le 03/07 ;
+- PLZ, le 21/08 ;
+- JBI, le 20/10.
+
+**La lecture.** `remplPartiel` écartait « remplace X » dès qu'une heure
+était écrite. Une condition s'ajoute : le remplacement est écrit des deux
+côtés (`ecritDesDeuxCotes`), et le remplacé est prévu à la même pause. Le
+remplaçant prend alors le poste du remplacé, à ses heures. La règle est
+écrite dans `docs/conversion-horaire.md`.
+
+**Mesuré (730 pauses de 2026, et 2027) : 11 pauses changent, chacune lue dans
+ses commentaires.**
+- Les cinq cas de la question.
+- Cinq autres, de la même règle :
+  - SMA le 07/01 (« remplace PAM JUSQUE 10H » ; PAM « remplacé par SMA ») ;
+  - GKT le 09/04 ;
+  - PLZ la nuit du 24/04 (puis SMA porté à la distillation vide) ;
+  - GST le 30/04 (« 06h-11h, remplace LCI » ; LCI « remplacé par GST & APN » :
+    la fermentation est tenue toute la matinée, et PLZ n'y est plus proposé) ;
+  - AAI le 26/05.
+- Un effet de bord, l'après-midi du 24/04 : la copie de PLZ (18h-6h) suit son
+  poste de nuit (le terrain arrière) au lieu du gluten. Son commentaire dit
+  « en fermentation de 18h à 22h ». La fermentation est couverte de 18 h à
+  22 h avant comme après, mais la case où s'affiche la copie reste à revoir
+  (ouvert).
+- **Deux erreurs du premier essai**, trouvées en lisant les commentaires, ont
+  ajouté la condition « même pause » : PLZ l'après-midi du 24/04, pour SKS de
+  nuit ; ATR le 19/09, pour GBT de l'après-midi.
+
+**Polyvalence.** Le premier essai comptait trois journées partielles comme
+des journées pleines :
+- JKS le 17/05, six heures ;
+- GDT le 19/09, « arrivée à 23h » ;
+- PLZ le 03/07, « départ à 02h00' ».
+
+`calculerPolyvalence` ne compte plus une journée ainsi placée que si elle
+couvre la pause entière (`heuresAuPoste`). Il reste deux journées, toutes
+deux pleines : CDE aux chaudières le matin du 13/08, et PLZ au terrain arrière
+la nuit du 24/04.
+
+**Contrôles.**
+- Calendrier, manques, compteurs : identiques à l'octet. Polyvalence : CDE
+  passe de 7 à 8 aux chaudières, rien d'autre.
+- Places vides commentées : 0. Cohérence du Planning : 0 faute, R5 compris.
+  Recherche : 0 faute. Parcours : 112 essais, 0 faute.
+- Agendas : une note change, LHR le 17/05, « remplace JKS de 20h à 22h »,
+  désormais en meunerie, là où JKS est placé.
+- Le vérificateur du calendrier a refusé de tourner tant que la nouvelle
+  fonction déclarait, elle aussi, `rx=/\bremp` : il découpe la page par
+  déclaration, et deux déclarations identiques l'auraient trompé. La
+  variable est renommée `rxNomme`.

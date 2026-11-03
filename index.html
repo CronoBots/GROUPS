@@ -25948,6 +25948,31 @@ function rempSeulementHoraire(raw){
      l'échange donne toute la pause, les deux heures viennent en plus */
   return reste!==c && !/\bremplac\w*\s+[A-Z]{3}\b|[ée]change/i.test(reste);
 }
+/* « REMPLACE X » CHEZ LUI ET « REMPLACÉ PAR … LUI » CHEZ X, le même jour :
+   le remplacement est écrit des deux côtés (QDE « Remplacé par PLZ », SPS
+   « remplacé par GBT et PLZ », PAM « Remplacé par NPE et JBI … »), X
+   prévu à la même pause g : PLZ l'après-midi du 24/04 « remplace SKS »,
+   qui est de nuit (son après-midi est « en fermentation de 18h à 22h ») ;
+   ATR le matin du 19/09 « remplace GBT », qui est de l'après-midi. Un
+   commentaire qui doute (« ? ») ou un « R-CM » (il remplace le
+   contremaître) n'en est pas un. */
+function ecritDesDeuxCotes(raw,qui,parId,mmdd,g){
+  var c=String((raw&&raw[2])||""), i, m, n, moi=[qui.id, idLisible(qui.id)],
+      rxNomme=/\bremp[\w\u00e0-\u00ff]*\.?\s+([A-Za-z]{3})\b/gi;
+  if(c.indexOf("?")>=0) return false;
+  for(i=0;i<2;i++) if(/R\s*-\s*CM/i.test(String((raw&&raw[i])||""))) return false;
+  while((m=rxNomme.exec(c))){
+    var t=m[1].toUpperCase(), X=parId[t];
+    if(t==="PAR" || !X || X===qui) continue;
+    if(String(((X.d||{})[mmdd]||[])[0]||"").trim().toUpperCase()!==g) continue;
+    var cx=String(((X.d||{})[mmdd]||[])[2]||""), rp=/remplac[\w\u00e0-\u00ff]*\s+par\b([^.;]*)/gi;
+    while((n=rp.exec(cx))){
+      var l=String(n[1]||"").toUpperCase().match(/\b[A-Z]{3}\b/g)||[];
+      if(l.some(function(z){ return moi.indexOf(z)>=0; })) return true;
+    }
+  }
+  return false;
+}
 function remplPartiel(raw){
   var c=String((raw&&raw[2])||""), i, pl;
   /* DEUX REMPLACEMENTS DANS UN COMMENTAIRE : chacun ses heures (le client,
@@ -27282,6 +27307,22 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
        && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
       { k=nommes[x.p.id].k; x.nomme=true; x.parRempl=true; }
+    /* UN REMPLACEMENT ÉCRIT DES DEUX CÔTÉS POUR UNE PARTIE DE LA PAUSE (le
+       client, le 03/11/2026, en QCM : « placé, à ses heures »). PLZ, le
+       10/04 de nuit, « 22h-02h », « remplace QDE », et QDE « Abs »,
+       « Remplacé par PLZ » : la lecture ci-dessus l'écartait comme un remplacement de
+       quelques heures, et le rééquilibrage le proposait ensuite, « à
+       confirmer », pour une décision déjà écrite. Il prend le poste du
+       remplacé ; ses heures (heuresAuPoste) disent la part de la pause
+       qu'il tient, et le reste est à combler. Une clause « remplace X de A
+       à B » reste un relais (rempSeulementHoraire). */
+    if(!k && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
+       && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd])
+       && remplPartiel(x.p.d[mmdd]) && !rempSeulementHoraire(x.p.d[mmdd])
+       && ecritDesDeuxCotes(x.p.d[mmdd],x.p,parId,mmdd,gk)){
+      k=atelierDuRemplace(x.p.d[mmdd],parId,x.p,{mmdd:mmdd,jour:jourCalc,presents:presents});
+      if(k){ x.parRempl=true; x.ecritPartiel=true; }
+    }
     if(!k) k=posteTenu(x.p,x.p.d[mmdd],st.params.hJour,x.r&&(x.r.sp||x.r.s),
                     jourCalc);
     if(!k) k=atelierDuRemplace(x.p.d[mmdd],parId,x.p);
@@ -28862,6 +28903,12 @@ function calculerPolyvalence(db){
           noterLieu(y,P.cm?"cm":P.k,h);
           if(P.cm||P.k==="adj") return;
           if(Math.abs(h-st.params.hJour)>0.01) return;
+          /* PLACÉ POUR UNE PARTIE DE LA PAUSE (le client, le 03/11/2026 :
+             un remplacement écrit des deux côtés, « placé, à ses heures ») :
+             la journée ne compte que s'il y a tenu la pause entière. JKS le
+             17/05, « départ à 20h00' », n'a fait que six heures en meunerie ;
+             CDE le 13/08, « 6h-18h », tient les chaudières tout le matin. */
+          if(y.ecritPartiel){ var hp=heuresAuPoste(db,y,g.k,annee,m,j); if(hp[1]-hp[0]<PF_FIN[g.k]-PF_DEB[g.k]-0.01) return; }
           if(P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           /* UN RECYCLAGE SE CONFIRME DANS LE CLASSEUR (le client, le
              22/10/2026 : « attribuer des recyclages sans confirmation qu'il
