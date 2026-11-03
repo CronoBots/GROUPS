@@ -10927,3 +10927,34 @@ Corrigé :
   même lecture (icône, température sur nom du temps).
 
 Parcours 112 essais, 0 faute (contraste compris).
+
+### Le décompte de la pointeuse (03/11/2026, `nfdm-v1335`)
+
+Le client : « crée-moi un décompte pointeuse, c'est-à-dire un vrai décompte
+quelques minutes avant la fin de notre pause travaillée, afin de savoir
+quand la pointeuse passera à l'heure exacte pour la sortie de l'usine ».
+
+Le dernier quart d'heure du poste en cours — sa vraie fin, celle de la
+carte « En poste » (`pfFin` : « départ à 13h » compris) —, un bandeau
+au-dessus de la carte compte à la seconde : « Pointeuse · sortie à
+06:00:00 », les minutes et les secondes en gros (IBM Plex Mono, chiffres
+réguliers), la barre du quart d'heure. La dernière minute passe à l'ambre
+vif, qui bat ; à l'heure, « Pointez », en vert, avec le temps écoulé
+(« +00:20 »), cinq minutes — y compris après que la carte est passée au
+poste suivant (la fin est gardée, `pointeFin`, tant que la personne
+affichée ne change pas). Le « Encore 8 min » de la carte se tait pendant
+ce temps. Une vibration à l'heure exacte là où le téléphone la permet
+(Android ; pas l'iPhone). L'horloge à la seconde de l'Accueil le fait
+tourner, page visible seulement ; une application fermée ne peut pas
+sonner sans le serveur des notifications.
+
+La pointeuse peut ne pas être à l'heure du téléphone (qui, lui, l'est,
+réglé par le réseau) : Réglages › Mon compte › « Pointeuse », −5 s / +5 s,
+de −10 à +10 min, gardé sur l'appareil. Une avance de 30 s fait finir le
+décompte 30 s plus tôt à l'heure du téléphone, et le bandeau l'écrit
+(« pointeuse +30 s »).
+
+Mesures, horloge simulée : 05:52 → « 07:32 » ; 05:59:30 → « 00:26 »,
+ambre ; 06:00:15 → « Pointez +00:20 » ; 06:05:15 → disparu ; avance de
+30 s → « 07:03 ». À 320 px, l'icône s'efface pour que « sortie à
+06:00:00 » tienne (elle était tronquée au premier essai).

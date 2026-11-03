@@ -6169,6 +6169,39 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .pf-mt-w{gap:12px; padding-left:24px; border-left:1px solid var(--bd-blanc-12); align-self:stretch}
   .pf-mt-t{width:38px; height:38px}
 }
+/* LE DÉCOMPTE DE LA POINTEUSE (03/11/2026) : un bandeau au-dessus de la
+   carte « En poste », le dernier quart d'heure. Les chiffres en gros, à
+   chasse fixe (rien ne danse) ; l'ambre de l'attention, plus vif la
+   dernière minute ; le vert à l'heure. Le « Encore … » de la carte se
+   tait tant qu'il est là. */
+.pf-pointe{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:4px 12px; margin:12px 12px 0; padding:12px 14px 10px;
+  border-radius:12px; background:var(--at-jaune-soft); border:1px solid color-mix(in srgb,var(--at-jaune) 55%,transparent); color:var(--tx-blanc)}
+.pf-pointe[hidden]{display:none}
+.pp-ico{width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:color-mix(in srgb,var(--at-jaune) 22%,transparent); color:var(--at-jaune)}
+.pp-ico svg{width:20px; height:20px}
+.pp-txt{display:flex; flex-direction:column; gap:3px; min-width:0}
+.pp-t{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--at-jaune)}
+.pp-h{font-size:13px; color:var(--tx-blanc-78); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pp-h b{font:600 13px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--tx-blanc)}
+.pp-cpt{font:600 34px/1 "IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-.01em; color:var(--tx-blanc)}
+.pp-barre{grid-column:1/-1; height:4px; border-radius:99px; background:color-mix(in srgb,var(--at-jaune) 18%,transparent); overflow:hidden; margin-top:6px}
+.pp-barre i{display:block; height:100%; border-radius:inherit; background:var(--at-jaune); transition:width .9s linear}
+.pf-pointe[data-etat="fin"]{border-color:var(--at-jaune); box-shadow:0 0 0 2px color-mix(in srgb,var(--at-jaune) 35%,transparent)}
+.pf-pointe[data-etat="fin"] .pp-cpt{color:var(--at-jaune)}
+.pf-pointe[data-etat="zero"]{background:var(--at-vert-soft); border-color:var(--at-vert)}
+.pf-pointe[data-etat="zero"] .pp-ico{background:color-mix(in srgb,var(--at-vert) 22%,transparent); color:var(--at-vert)}
+.pf-pointe[data-etat="zero"] .pp-t{color:var(--at-vert)}
+.pf-pointe[data-etat="zero"] .pp-cpt{font-size:22px; color:var(--tx-blanc-78)}
+@media (prefers-reduced-motion:no-preference){ .pf-pointe[data-etat="fin"]{animation:ppPouls 1s ease-in-out infinite} }
+@keyframes ppPouls{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--at-jaune) 12%,transparent)}}
+.pf-hero.pointe-on .pf-reste{display:none}
+.pt-reg{display:flex; gap:6px; flex:0 0 auto}
+/* les petits téléphones : l'heure de sortie avant l'icône */
+@media (max-width:380px){ .pf-pointe{grid-template-columns:1fr auto; gap:4px 10px; padding:11px 12px 9px} .pp-ico{display:none} .pp-cpt{font-size:30px} }
+@media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){
+  .pf-gauche .pf-pointe{margin:12px 0 0 12px}
+  .pp-cpt{font-size:38px}
+}
 /* En haut à droite de la bannière (le client, le 18/10/2026) ; le badge des
    changements d'horaire prend sa place en haut à gauche, sur l'usine. */
 .pf-roue{top:10px; right:10px; left:auto}
@@ -8948,6 +8981,14 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
           <div class="notifreg">
             <div><b>Application sur l'écran d'accueil</b><span id="installEtat"></span></div>
             <button type="button" class="btn sm" id="installReg">Guide</button>
+          </div>
+          <!-- le décompte de la pointeuse : son avance ou son retard sur ce téléphone (03/11/2026) -->
+          <div class="notifreg">
+            <div><b>Pointeuse</b><span id="pointeEtat">À l’heure de ce téléphone.</span></div>
+            <div class="pt-reg" role="group" aria-label="Écart de la pointeuse">
+              <button type="button" class="btn sm" id="pointeMoins" aria-label="La pointeuse retarde de 5 secondes de plus">−5 s</button>
+              <button type="button" class="btn sm" id="pointePlus" aria-label="La pointeuse avance de 5 secondes de plus">+5 s</button>
+            </div>
           </div>
           <div class="foot">
             <span class="sp"></span>
@@ -16588,16 +16629,82 @@ function meteoLire(){
     meteoPeindre();
   }).catch(function(){}).then(function(){ meteoEnCours=0; });
 }
+/* LE DÉCOMPTE DE LA POINTEUSE (le client, le 03/11/2026 : « crée-moi un
+   décompte pointeuse, un vrai décompte quelques minutes avant la fin de
+   notre pause travaillée, afin de savoir quand la pointeuse passera à
+   l'heure exacte pour la sortie de l'usine »). Le dernier quart d'heure
+   du poste en cours — sa vraie fin, « départ à 13h » compris (pfFin) —,
+   un bandeau au-dessus de la carte « En poste » compte à la seconde
+   jusqu'à l'heure de sortie : minutes et secondes en gros, l'heure exacte
+   de la pointeuse, la barre du quart d'heure. La dernière minute passe à
+   l'ambre vif ; à zéro, « Pointez », en vert, cinq minutes, avec le temps
+   écoulé. L'horloge de la page le fait tourner (meteoTic), page visible
+   seulement. La pointeuse peut ne pas être à l'heure du téléphone :
+   Réglages › Mon compte, « Pointeuse », son avance ou son retard en
+   secondes, gardé sur l'appareil. */
+var POINTE_AVANT=15*60000, POINTE_APRES=5*60000, pointeFin=null, pointeId=null, pointeVibre=0;
+function pointeEcart(){ var v=Number(lsGet("pointeuse/ecart")); return isFinite(v)?Math.max(-600,Math.min(600,v)):0; }
+function pointeEcartTexte(v){
+  if(!v) return "À l’heure de ce téléphone.";
+  var a=Math.abs(v), t=a>=60?Math.floor(a/60)+" min"+(a%60?" "+(a%60)+" s":""):a+" s";
+  return "La pointeuse "+(v>0?"avance":"retarde")+" de "+t+" sur ce téléphone.";
+}
+function pointeHTML(){ return '<div class="pf-pointe" id="pfPointe" role="timer" aria-live="off" hidden></div>'; }
+function pointeTic(now){
+  var e=document.getElementById("pfPointe"); if(!e) return;
+  var hero=e.closest?e.closest(".pf-hero"):null;
+  var cible=pointeFin?pointeFin-pointeEcart()*1000:null, reste=cible==null?null:cible-now;
+  if(reste==null || reste>POINTE_AVANT || reste<-POINTE_APRES){
+    if(!e.hidden){ e.hidden=true; e.innerHTML=""; e.removeAttribute("data-etat"); if(hero) hero.classList.remove("pointe-on"); }
+    return;
+  }
+  var etat=reste<=0?"zero":reste<=60000?"fin":"avant";
+  function mmss(ms){ var s=Math.max(0,Math.ceil(ms/1000)); return pad2(Math.floor(s/60))+":"+pad2(s%60); }
+  var df=new Date(pointeFin), heure=pad2(df.getHours())+":"+pad2(df.getMinutes())+":"+pad2(df.getSeconds());
+  if(e.hidden || e.getAttribute("data-etat")!==etat){
+    e.setAttribute("data-etat",etat); e.hidden=false; if(hero) hero.classList.add("pointe-on");
+    var ico=etat==="zero"
+      ?'<path d="M20 6 9 17l-5-5"/>'
+      :'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M12 2v3"/>';
+    var ec=pointeEcart();
+    e.innerHTML='<span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ico+'</svg></span>'
+      +'<span class="pp-txt"><span class="pp-t">'+(etat==="zero"?"Pointez":"Pointeuse")+'</span>'
+      +'<span class="pp-h">sortie à <b>'+heure+'</b>'+(ec?' · pointeuse '+(ec>0?"+":"−")+Math.abs(ec)+' s':"")+'</span></span>'
+      +'<span class="pp-cpt" aria-hidden="true"></span>'
+      +(etat==="zero"?"":'<span class="pp-barre" aria-hidden="true"><i></i></span>');
+  }
+  var c=e.querySelector(".pp-cpt"), t=etat==="zero"?"+"+mmss(-reste):mmss(reste);
+  if(c && c.textContent!==t) c.textContent=t;
+  var i=e.querySelector(".pp-barre i"); if(i) i.style.width=Math.max(0,Math.min(100,(1-reste/POINTE_AVANT)*100)).toFixed(1)+"%";
+  /* ce que dit le lecteur d'écran : à la minute, pas à la seconde */
+  var lab=etat==="zero"?"Heure de sortie atteinte, "+heure:"Sortie à la pointeuse à "+heure+", dans "+Math.ceil(reste/60000)+" min";
+  if(e.getAttribute("aria-label")!==lab) e.setAttribute("aria-label",lab);
+  /* une vibration à l'heure exacte, là où le téléphone le permet */
+  if(etat==="zero" && pointeVibre!==pointeFin){ pointeVibre=pointeFin; try{ if(navigator.vibrate) navigator.vibrate([180,90,180]); }catch(eV){} }
+}
 function meteoTic(){
   meteoMinuteur=setTimeout(meteoTic,1000-Date.now()%1000+15);
   var h=document.getElementById("pfMtH"); if(!h||document.hidden||!h.offsetParent) return;
   var d=new Date(); h.innerHTML=meteoChiffres(d);
+  pointeTic(d.getTime());
   var e=document.getElementById("pfMtD"), t=meteoDate(d); if(e&&e.textContent!==t) e.textContent=t;
   if(d.getSeconds()===0) meteoPeindre(); /* une copie trop vieille s'efface */
   meteoLire();
 }
+/* le réglage de la pointeuse (Réglages › Mon compte) */
+(function(){
+  function maj(){ var s=document.getElementById("pointeEtat"); if(s) s.textContent=pointeEcartTexte(pointeEcart()); }
+  maj();
+  document.addEventListener("click",function(ev){
+    var b=ev.target&&ev.target.closest?ev.target.closest("#pointeMoins,#pointePlus"):null; if(!b) return;
+    var v=pointeEcart()+(b.id==="pointePlus"?5:-5); v=Math.max(-600,Math.min(600,v));
+    lsSet("pointeuse/ecart",v); maj();
+    var e=document.getElementById("pfPointe"); if(e) e.removeAttribute("data-etat");
+  });
+})();
 function meteoDemarrer(){
   if(!meteoMinuteur) meteoMinuteur=setTimeout(meteoTic,1000-Date.now()%1000+15);
+  pointeTic(Date.now());
   meteoLire();
 }
 function _pfHead(db,p){
@@ -16628,6 +16735,11 @@ function _pfHead(db,p){
   /* UN SEUL BLOC POUR LA SUITE : « Prochain poste » un jour travaillé ;
      « Reprise » quand on est en repos, en congé ou malade aujourd'hui —
      c'est le même jour, inutile de l'écrire deux fois. */
+  /* la fin du poste en cours, pour le décompte de la pointeuse : gardée
+     après la fin (cinq minutes de « pointez »), oubliée si la personne
+     affichée change */
+  if(inf.prochain && inf.prochain.enCours){ pointeFin=inf.prochain.tFin; pointeId=p.id; }
+  else if(pointeId!==p.id){ pointeFin=null; pointeId=p.id; }
   if(inf.prochain){
     /* Les mots suivent le CALENDRIER : à 5 h, le matin du jour est
        « Aujourd'hui », même si le jour de l'usine est encore la veille. */
@@ -16782,7 +16894,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div>'+meteoHTML()+'</div>'
-    +'<div class="pf-corps"><div class="pf-gauche">'+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+pointeHTML()+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div><div class="pf-bas"></div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
