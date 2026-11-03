@@ -10728,3 +10728,24 @@ morceau en biais de la meunerie (la galerie qui monte du quai) ne fait
 pas de rectangle — avec lui, toute la meunerie devenait un seul rectangle
 de 364 × 332 qui couvrait les chaudières. Vu au survol des quatre postes
 (planche à 1 280 px).
+
+### L'usine en direct : la passe « 100 % » (03/11/2026, `nfdm-v1323`)
+
+Le client : « c'est beaucoup mieux, ok pour les cadres ; par contre pour
+le reste, encore moyen de mieux faire pour 100 % ». Le cadre photographié
+en entier (1 280 et 390 px), les défauts relevés bloc par bloc :
+- **la fiche se répétait sous la photo** (175 px, la même que la bulle) :
+  au PC, la bulle porte la fiche entière (description et filière
+  comprises) et la fiche du dessous se retire — le cadre passe de 1 126 à
+  939 px ;
+- **la bulle à côté de l'étiquette couvrait le milieu de la photo**
+  quand la place manquait (le contremaître, à droite) : elle s'ancre au
+  bord opposé au poste choisi, sous le badge ou en haut, au-dessus de la
+  bande d'état — le poste et la bande restent visibles ;
+- **le poste choisi cerné d'un grand cadre blanc**, lourd : au PC, un
+  liseré blanc autour de chacun de ses trigrammes, et la bande d'état ;
+- **la consigne** « Cliquez des trigrammes » → « Cliquez sur un poste :
+  qui est là, sa relève, comment le joindre » ;
+- **le badge répétait l'en-tête** (« 10 h 20 | Matin » sous « 10 h 20 ·
+  Matin ») : il garde « En direct » et l'heure.
+Le téléphone, relu à 390 px : correct, inchangé.

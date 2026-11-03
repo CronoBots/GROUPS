@@ -2824,6 +2824,7 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
    dessinée (le client, le 03/11/2026) ; au toucher, sans survol, elle
    reste le seul repère du poste choisi */
 @media (hover:hover) and (pointer:fine){ .usp-z.usp-sel:not(.usp-vu){opacity:0} .usp-et.usp-sel:not(:hover):not(:focus-visible)::before{opacity:0} }
+@media (min-width:700px){ .usp-et.usp-sel{background:none; box-shadow:none} .usp-et.usp-sel .us-tri-b{box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.55)} }
 .usp-et .us-tri-b{font-size:calc(11px*var(--usp-k,1)); height:calc(21px*var(--usp-k,1)); min-width:calc(36px*var(--usp-k,1))}
 /* la bande d'état et la bulle du poste (au PC) */
 .usp-etat{position:absolute; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:22px 10px 10px;
@@ -2837,11 +2838,14 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
 .usp-st.usp-manque{border-color:#F5C451} .usp-st.usp-manque b{color:#F5C451}
 .usp-st.usp-sel{border-color:#fff; box-shadow:0 0 0 1px #fff}
 .usp-st:hover{background:rgba(26,34,48,.92)} .usp-st:focus-visible{outline:2px solid var(--in); outline-offset:2px}
-.usp-pop{position:absolute; left:0; top:0; z-index:3; width:300px; max-height:calc(100% - 16px); overflow:auto; padding:12px 12px 10px; border-radius:12px;
+.usp-pop{position:absolute; left:0; top:0; z-index:3; width:340px; overflow:auto; padding:12px 12px 10px; border-radius:12px;
   background:rgba(16,22,32,.94); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 28px rgba(0,0,0,.5); color:var(--ink)}
 .usp-pop[hidden]{display:none}
-.usp-pop .us-fiche-s,.usp-pop .us-circuits{display:none}
 .usp-pop .us-fiche-c{display:block}
+.usp-pop .us-fiche-s{margin:6px 0 8px}
+/* au PC, la bulle dit tout : la fiche ne se répète plus sous la photo (le
+   client, le 03/11/2026 : « encore moyen de mieux faire pour 100 % ») */
+@media (min-width:700px){ .us-photo .us-panneau{display:none} }
 .usp-pop .us-fiche-joindre{margin-top:10px}
 .usp-pop-x{position:absolute; right:6px; top:6px; width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
 .usp-pop-x:hover{background:rgba(255,255,255,.08); color:var(--ink)}
@@ -23231,9 +23235,12 @@ function uspPlacer(){
   if(!USP_POP||!o||!usineDernier){ pop.hidden=true; pop.innerHTML=""; return; }
   pop.innerHTML='<button type="button" class="usp-pop-x" data-usp-ferme aria-label="Fermer">\u00d7</button>'+usineFiche(usineDernier,USP_POP);
   pop.hidden=false;
-  var pw=pop.offsetWidth, ph=pop.offsetHeight, gx=o.cx+o.w/2+14, x=gx+pw<=W-8?gx:o.cx-o.w/2-14-pw;
-  if(x<8) x=Math.max(8,Math.min(W-pw-8,o.cx-pw/2));
-  var y=Math.max(8,Math.min(H-ph-8,o.y-ph/2));
+  /* ANCRÉE AU BORD OPPOSÉ AU POSTE : posée à côté de l'étiquette, la bulle
+     couvrait le milieu de la photo et la bande d'état ; contre le bord
+     d'en face, le poste choisi reste visible, la bande aussi */
+  var ue=document.getElementById("uspEtat"), bas=ue?ue.offsetHeight:0, gauche=o.x>W/2, y=gauche?46:10;
+  pop.style.maxHeight=Math.max(160,H-y-bas-6)+"px";
+  var pw=pop.offsetWidth, x=gauche?10:W-pw-10;
   pop.style.transform="translate("+Math.round(x)+"px,"+Math.round(y)+"px)";
 }
 /* LES DEUX BANDES DU TÉLÉPHONE (v1294, reprises en v1295 : le client,
@@ -23318,7 +23325,7 @@ function usinePhotoRendre(corps,E,cote,cw){
       defs+='<mask id="uspM-'+k+'" maskUnits="userSpaceOnUse" x="-20" y="-20" width="1640" height="880"><rect x="-20" y="-20" width="1640" height="880" fill="#fff"/><path d="'+d+'" fill="#000"/></mask>';
       zs+='<g class="usp-z usp-f-'+f+'" data-k="'+k+'"><path class="usp-z-a" d="'+d+'"/><path class="usp-z-b" d="'+d+'" mask="url(#uspM-'+k+')"/></g>'; });
     corps.innerHTML='<div class="us-plan"><div class="us-guide"><div class="us-invite-l"><p class="us-invite">'
-      +(fin?'Cliquez':'Touchez')+' des trigrammes : le poste, sa relève, comment le joindre.</p>'+usineModeHTML()+'</div></div>'
+      +(fin?'Cliquez sur un poste':'Touchez un poste')+' : qui est là, sa relève, comment le joindre.</p>'+usineModeHTML()+'</div></div>'
       +'<div class="usp'+(E.nuit?' usp-nuit':'')+'" id="usp"><div class="usp-defil" id="uspDefil"><div class="usp-cadre" id="uspCadre">'
       +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
       +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true"><defs>'+defs+'</defs>'+zs
@@ -23340,7 +23347,7 @@ function usinePhotoRendre(corps,E,cote,cw){
   /* EN DIRECT (le client, le 03/11/2026 : « comment rendre vivante cette
      photo ») : l'heure de l'usine, qui avance à chaque minute avec le
      cadre, et la pause en cours */
-  var lv=document.getElementById("uspLive"); if(lv) lv.innerHTML='<i></i><span>En direct</span><b>'+esc(siteH(E.h))+'</b>'+(E.nom?'<em>'+esc(E.nom)+'</em>':'');
+  var lv=document.getElementById("uspLive"); if(lv) lv.innerHTML='<i></i><span>En direct</span><b>'+esc(siteH(E.h))+'</b>';
   document.getElementById("uspEt").innerHTML=usinePhotoCartes(E);
   var ue=document.getElementById("uspEtat"); if(ue) ue.innerHTML=usinePhotoEtat(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
