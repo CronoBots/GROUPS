@@ -4618,3 +4618,11 @@ famille P (le Planning réel « complet » vide à une heure) tombe de 92 à 0
 et devient une faute ; parcours 112 essais, 0 faute.
 Épreuve : `trouAuxHeures` neutralisé sur une copie, la famille P retrouve
 ses 92 fautes.
+
+**Correction, le même jour.** « Le client, en QCM : oui, en rouge » est
+FAUX : la fenêtre de la question s'est fermée et la réponse recommandée a
+été enregistrée sans qu'il appuie (le client : « j'ai pas appuyé, la
+dernière question a disparu sans que je valide le choix »). La v1336 reste
+en place, la question lui est reposée en texte (`docs/questions-client.md`) ;
+selon sa réponse, on la garde, on la limite aux jours à venir, ou on la
+retire.
