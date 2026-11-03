@@ -127,19 +127,15 @@ des questions au client ».
 
 - **Le placement, après le check logique du 03/11/2026** (journal 08,
   « Le check logique du 03/11/2026 »). Quatre règles que ni le classeur ni
-  les décisions écrites ne tranchent, posées une à une (la première,
-  le placé par sa cellule en surnombre, tranchée le 03/11/2026 : oui,
-  le proposer — `docs/conversion-horaire.md`, « Rééquilibrer une pause ») :
-  1. La consignation de la meunerie (BLR ou YRS en D, 7 h 30-16 h) :
-     peut-elle être proposée pour combler le gluten du matin (les 22/01,
-     22/07 et 23/07) ? Le moteur le fait (la règle du 02/10), alors que la
-     consignation compte à la meunerie du matin (le 28/09) et qu'aucune
-     autre fonction ne déplace une copie venue du D.
-  2. Une seule personne en surnombre, plusieurs trous la même pause : à
+  les décisions écrites ne tranchent, posées une à une (deux tranchées
+  le 03/11/2026 : le placé par sa cellule en surnombre est proposé, la
+  consignation reste à la meunerie — `docs/conversion-horaire.md`,
+  « Rééquilibrer une pause ») :
+  1. Une seule personne en surnombre, plusieurs trous la même pause : à
      quel trou la proposer d'abord ? Aujourd'hui, l'ordre fixe des postes
      (meunerie, gluten, fermentation…), ex. SBZ en meunerie plutôt qu'en
      fermentation la nuit du 17/03.
-  3. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
+  2. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
      quand un relais le libère (CDE libre de 18 h à 22 h et SMA de 14 h à
      18 h, le 11/07 PM, couvriraient le terrain arrière) ? La décision du
      02/11 ne couvre que le cas inverse (un trou d'une heure).

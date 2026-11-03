@@ -27147,6 +27147,11 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour,credit){
      bas (effectif>att) garantit que le poste reste tenu après son départ, et
      il ne part que vers un VRAI manque qu'il sait tenir. */
   function liberable(x,liste){
+    /* LA CONSIGNATION RESTE À LA MEUNERIE (le client, le 03/11/2026, en
+       QCM : « non, elle reste ») : BLR ou YRS en D, compté à la meunerie
+       du matin (le 28/09), n'est jamais proposé ailleurs — le 22/07, BLR
+       « consign. remplace YRS » ne va plus au gluten. */
+    if(x.depuisD) return false;
     if(!x.fixe) return true;
     if(nbPostesTenables(x.p,jour)<=1) return false;
     return liste.some(function(y){
@@ -27286,7 +27291,7 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour,credit){
           liste=parPoste[Q.k]||[];
           if(effectif(liste,Q,jour)<=att(Q)) continue;
           cand=liste.filter(function(x){
-            return tientTerrainArriere(x.p,jour) && peutTenir(x.p,P,jour)
+            return !x.depuisD && tientTerrainArriere(x.p,jour) && peutTenir(x.p,P,jour)
                    && compteAuPoste(x,P,jour);
           }).sort(parId);
           if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }

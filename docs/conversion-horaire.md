@@ -1428,8 +1428,12 @@ poste où il manque quelqu'un, car il a toutes les polyvalences. »
    SPS la nuit du 09/01 (« distill. remplace SMA », distillation 2/1,
    chaudières 1/2), SLT la nuit du 18/10 (« meunerie », meunerie 2/1,
    gluten 1/2). Sa journée se compte toujours, pour la polyvalence, au
-   poste de sa cellule. La consignation venue du D n'en est pas
-   (question ouverte).
+   poste de sa cellule. **La consignation ne quitte jamais la meunerie
+   du matin** (le client, le 03/11/2026, en QCM : « non, elle reste ») :
+   BLR ou YRS en D n'est proposé nulle part, même quand un mono-polyvalent
+   tient la meunerie (`nfdm-v1315`) ; le 22/07, FLN, en surnombre au
+   terrain arrière, est proposé au gluten à sa place, et le 22/01 le
+   gluten du matin reste un vrai trou.
 2. **La polyvalence commande.** Le terrain arrière demande fermentation ET
    distillation, les autres postes demandent leur atelier.
 3. **L'adjoint vient en dernier.** Tant qu'un poste en surnombre peut fournir

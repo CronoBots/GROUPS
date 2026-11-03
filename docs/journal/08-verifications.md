@@ -3252,3 +3252,15 @@ et 09/06 (« meunerie ») n'étaient comptés à aucun poste. La journée se
 compte désormais au poste d'avant (`x.avant`) : `--polyvalence --tout`
 change pour onze opérateurs et un adjoint (19 → 21 couples au quota), dont FPS meunerie 7 → 10 ✓ et GPO
 fermentation 8 → 10 ✓ ; rien d'autre ne bouge.
+
+### La deuxième réponse : la consignation reste à la meunerie (`nfdm-v1315`)
+
+Le client, le 03/11/2026, en QCM : « non, elle reste ». `liberable()`
+refuse désormais une copie venue du D, et la règle B l'écarte aussi ; le
+correctif avait été préparé pendant le check (agent A, « variante C ») et
+s'est remesuré à l'identique sur `nfdm-v1314` : seuls trois jours
+changent, tous passés — le 22/01 au matin, le gluten devient un vrai trou
+(1/2, meunerie 3/2 avec la consignation) ; les 22 et 23/07, FLN, en
+surnombre au terrain arrière, est proposé au gluten à la place de BLR.
+`--manques 0101` 197 → 198 places ; les autres modes, 2027 et les
+agendas identiques ; `coherence-planning.js` 0 faute.
