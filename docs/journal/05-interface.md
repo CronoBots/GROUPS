@@ -11176,3 +11176,82 @@ Le badge et le cadre « Horaire modifié » s'affichent. À l'impression, la
 page est blanche et les traits sont `#bbb`. Chaque icône ouvre sa section ;
 au PC, la grille ne porte plus que les accès. `parcours.js` : 112 essais,
 0 faute.
+
+### L'écran d'iPhone à 100 % (03/11/2026, `nfdm-v1345`)
+
+Le client : « je veux du 100 % ». Tout ce que la v1344 laissait (« Laissé,
+et pourquoi ») est repris, avec la méthode « optimise tout » : captures
+de la page entière, défauts listés bloc par bloc, tout corrigé, puis un
+retour sur ce qui reste.
+
+**La preuve : l'instantané des styles calculés.** Un script relève, pour
+4 050 éléments, le style calculé de chacun et sa boîte : le héros, le
+dock, la barre du haut, les menus, le dossier ouvert et la carte des
+accès. Cinq écrans : 320, 390, téléphone couché, 768 et 1280. Deux
+relevés de la même page sont identiques (une fois le port du serveur
+neutralisé) : l'outil est stable. Chaque étape est comparée au relevé
+d'avant, et seuls les changements voulus y paraissent.
+
+- **Les couches anciennes, retirées.**
+  - Le héros : la disposition du 22/10, celle du 23/10, la tuile de
+    l'heure et ses deux paliers, le cadre du prochain poste.
+  - Le dock : la capsule d'avant devient le dock à sa place, et son repli
+    `@supports` est retiré.
+  - La feuille « Plus » : elle devient le dossier, à sa place. La règle
+    sans effet du téléphone bas part avec elle.
+
+  Relevé après retrait : identique partout, sauf les changements voulus
+  de la liste suivante. Une erreur commise en route est visible au
+  relevé : en fusionnant la capsule, sa largeur avait pris le préfixe
+  `html`, et le rail du téléphone couché passait de 64 à 74 px. Elle est
+  corrigée avant de continuer.
+- **Deux défauts de la v1339, trouvés en regardant de près.**
+  - La règle « widget » écrasait le bandeau de la pointeuse : son ambre,
+    puis son vert de l'heure, devenaient le gris des cadres. C'est un
+    signal d'attention. Il n'apparaît qu'en fin de poste, aucune capture
+    de 10 h 20 ne l'avait montré. Capturé à 05 h 59 : l'ambre et son
+    liseré de dernière minute sont revenus.
+  - Le prochain poste perdait sa teinte cyan, « la carte qui ressort »
+    (v1332). Elle est rendue.
+- **Le téléphone couché sur deux colonnes.** La disposition du héros suit
+  maintenant la largeur de l'Accueil lui-même : une requête de conteneur,
+  qui n'est pas une requête média, et que `parcours.js` laisse donc
+  passer. Les icônes suivent la largeur dès 480 px ; l'Accueil passe sur
+  deux colonnes dès 700 px.
+  - La tablette et le PC sont identiques au relevé.
+  - À 844 × 390, l'Accueil passe sur deux colonnes ; à 568 × 320, il en
+    garde une.
+  - La bannière y garde sa hauteur de téléphone (200 px prenaient la
+    moitié de l'écran).
+  - Un navigateur sans requêtes de conteneur garde une colonne.
+- **La date du prochain poste se coupait** (« Mardi 3 nove… ») à la
+  tablette et au téléphone couché. Sa forme abrégée ne suivait que la
+  largeur de l'écran ; elle suit aussi celle du billet (447 px, l'écran
+  de 479 d'avant). Elle est entière aux sept cas mesurés, avant et
+  pendant le poste.
+- **Le PC** : une fois les doublons retirés, la colonne du prochain poste
+  n'avait plus que quatre icônes, avec 310 px de vide à côté du cycle.
+  Au-delà de 1100 px, à gauche s'empilent le profil, l'heure en bandeau,
+  le prochain poste et les accès ; le cycle prend toute la hauteur à
+  droite. Il ne reste qu'environ 80 px sous le cycle.
+- **Une seule section « Passé(e)s »** (`sectionPassees`) pour les
+  incohérences et les rappels. Le contenu des cinq cadres des Effectifs
+  est identique au caractère près avant et après, sections passées
+  comprises : 11 mois d'incohérences, 61 rappels sur 9 mois.
+- **Le parcours des sous-effectifs** (`mqParcours`) : une journée en
+  erreur est sautée et dite au lieu de tout arrêter. La garde de
+  800 jours, qui aurait coupé sans un mot dès trois années installées,
+  devient un filet de onze ans, comme celle des rappels évitables. Les
+  sous-effectifs sont identiques au caractère près.
+- **L'avertissement « 0-01 »** de la console : avant que l'horaire soit
+  lu, le sélecteur de mois recevait l'année 0. Il attend une vraie année.
+
+**Mesures.** Le relevé n'a bougé que là où c'était voulu : la pointeuse,
+la teinte du billet, le fondu du dossier recalé sur ses nouvelles marges,
+2 px de météo à la tablette, et la date abrégée. Le téléphone couché et
+le PC changent par décision. `parcours.js` : 112 essais, 0 faute ;
+`coherence-planning.js` : 0 ; `verifier-depot.py` : 0. Aucun débordement,
+aucune cible tactile sous 44 px (la roue garde sa zone de 46 px), l'anneau
+de focus partout.
+
+**Ce qui reste.** Rien de connu sur l'écran d'iPhone.
