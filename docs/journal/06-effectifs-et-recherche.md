@@ -4838,7 +4838,7 @@ propositions et rend 1 ; sur la page corrigée, 0.
 
 **Restent ouverts, mesurés et à trancher avec le client, une question à la
 fois :**
-- **Les chaînes de remplacement.** `verifier-calendrier.js
+- **Les chaînes de remplacement — TRANCHÉ le même soir** (voir plus bas). `verifier-calendrier.js
   --manques-commentes` rend déjà 1 sur la version d'avant, sur trois places
   vides à venir où un commentaire du jour nomme le titulaire absent :
   - le 06/11 au matin, en fermentation : APN « remplacé par GDT », et GDT
@@ -4864,3 +4864,19 @@ fois :**
 **Au passage.** À 23 h 10, le parcours a trouvé « 23 h », heure passée de la
 frise de l'Accueil, à 4,42:1. Plus tôt dans la soirée, elle n'était pas
 encore passée. Le gris passe de 45 à 55 % : le parcours repasse à 0 faute.
+
+**Les chaînes, tranchées (03/11/2026, après la v1348).** Le client a répondu
+en QCM sur le 13/11 : « ALZ remplace FLN sur le terrain pour qu'il puisse
+remplacer aux chaudières ». Dans une chaîne, chacun prend le poste de celui
+qu'il libère. Si le libéré est absent, la place du premier reste vide. La
+règle est écrite dans `docs/conversion-horaire.md`, « Une chaîne de
+remplacements ».
+
+C'est ce que l'application faisait déjà. Les quatre places signalées par
+`--manques-commentes` (06/11, 13/11, 14/11, 27/11) sont donc de vrais
+manques, lus un par un et inscrits avec leur raison dans
+`tools/manques-admis.txt`. Le contrôle rend 0.
+
+**Erreur commise :** la même règle avait été confirmée le 02/11 pour le 14/11
+de l'après-midi (QDE → SBZ → GKT), et elle était déjà dans ce fichier. La
+question a été reposée faute de l'avoir relu.

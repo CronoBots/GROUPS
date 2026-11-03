@@ -1184,6 +1184,37 @@ poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
 quatre sorties de `verifier-calendrier.js` et les agendas sont
 identiques à l'octet.
 
+### Une chaîne de remplacements : chacun prend le poste de celui qu'il libère (02 et 03/11/2026)
+
+Une chaîne s'écrit ainsi : X absent, « remplacé par Y » ; Y « remplace X
+remplacé par Z » ; Z « remplace Y ». **Z prend le poste de Y, son poste à
+lui, pour libérer Y**, qui va au poste de X. Si Y est absent à son tour, Z
+garde quand même le poste de Y, et **la place de X reste vide** :
+l'application la propose à combler, elle ne la donne pas à Z.
+
+> **Le client, le 03/11/2026** (QCM sur le 13/11 au matin : ADK « RJF,
+> remplacé par FLN » ; FLN « Abs, remplace ADK remplacé par ALZ » ; ALZ
+> « Poly. Etoh., remplace FLN ») : « ALZ remplace FLN sur le terrain pour
+> qu'il puisse remplacer aux chaudières ».
+
+La même réponse avait été donnée le 02/11/2026, pour le 14/11 de
+l'après-midi : QDE « Abs, remplacé par SBZ » ; SBZ « Abs, remplace QDE,
+remplacé par GKT » ; GKT « terr. Arr. ». La place de QDE aux chaudières
+reste vide.
+
+La question a donc été posée deux fois, faute d'avoir relu
+`tools/manques-admis.txt` avant de la reposer. Ce fichier est la troisième
+source à lire, après les commentaires du jour et le brut.
+
+Une place vide de ce genre est **réelle**, et le contrôle
+`--manques-commentes` la signale tant qu'on ne l'a pas lue. On l'inscrit
+alors dans `tools/manques-admis.txt`, avec la chaîne en raison. Le
+03/11/2026, quatre places ont été inscrites :
+- le 13/11 et le 14/11 au matin, cette règle ;
+- le 06/11, où GDT remplace APN mais « départ à 12h00' » ;
+- le 27/11 de nuit, où DWS tient la place de PDF ; c'est KDN, « Abs » sans
+  remplaçant, qui manque.
+
 ### « Remplacé par X » dans la case de l'absent (22/10/2026)
 
 Le client : « il faut vérifier aussi, lorsqu'il y a des trous, si le
