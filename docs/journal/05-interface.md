@@ -10695,3 +10695,23 @@ marque seulement, pas l'accent général (le menthe touche le vert de
 l'éthanol et des postes tenus, le bleu ciel celui de la STEP). Le client,
 en deux QCM : « garder notre bleu nuit », puis « non, rien ne change »
 pour le menthe. Aucune couleur modifiée.
+
+### L'usine en direct : la bulle du poste sur la photo, la bande d'état (03/11/2026, `nfdm-v1321`)
+
+Le client, capture du PC à 4 h 39 : « comment améliorer ceci ? ». Trois
+défauts relevés et corrigés d'un coup :
+- **la fiche du poste choisi était sous la photo**, hors de l'écran : au
+  PC, toucher une étiquette ouvre désormais une **bulle sur la photo**, à
+  côté de son point (à droite, ou à gauche près du bord) — le poste, son
+  compte, qui est là jusqu'à quelle heure, la relève, comment le joindre
+  (la fiche sans sa description ni sa filière, qui restent dessous). Sa
+  croix, Échap ou la photo touchée ailleurs la ferment ; elle suit la
+  minute avec le cadre ; la page ne défile plus vers la fiche ;
+- **l'état des postes ne se lisait qu'étiquette par étiquette** : une
+  **bande d'état** en bas de la photo, un bouton par poste (son point,
+  son nom court, son compte, ambre s'il y manque quelqu'un), qui ouvre la
+  même bulle ;
+- **les étiquettes restaient petites** sur une grande photo : elles
+  grandissent avec elle (11 px à 900 px de large, jusqu'à 13,5 px).
+Au téléphone, rien ne change : la légende et la fiche sous la photo y
+tiennent ce rôle.

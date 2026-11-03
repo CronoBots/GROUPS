@@ -2824,6 +2824,27 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
    dessinée (le client, le 03/11/2026) ; au toucher, sans survol, elle
    reste le seul repère du poste choisi */
 @media (hover:hover) and (pointer:fine){ .usp-z.usp-sel:not(.usp-vu){opacity:0} .usp-et.usp-sel:not(:hover):not(:focus-visible)::before{opacity:0} }
+.usp-et .us-tri-b{font-size:calc(11px*var(--usp-k,1)); height:calc(21px*var(--usp-k,1)); min-width:calc(36px*var(--usp-k,1))}
+/* la bande d'état et la bulle du poste (au PC) */
+.usp-etat{position:absolute; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:22px 10px 10px;
+  background:linear-gradient(to top,rgba(10,14,22,.78),rgba(10,14,22,0)); pointer-events:none}
+.usp-st{--zc:var(--us-f-gris); pointer-events:auto; display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px 0 8px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.18); background:rgba(16,22,32,.78); color:#fff; font:inherit; font-size:11.5px; cursor:pointer}
+.usp-st.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-st.usp-f-vert{--zc:var(--us-f-vert)} .usp-st.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-st.usp-f-bleu{--zc:var(--us-f-bleu)}
+.usp-st i{width:8px; height:8px; border-radius:50%; background:var(--zc)}
+.usp-st span{color:rgba(255,255,255,.82)}
+.usp-st b{font-family:"IBM Plex Mono",monospace; font-weight:600; font-variant-numeric:tabular-nums}
+.usp-st.usp-manque{border-color:#F5C451} .usp-st.usp-manque b{color:#F5C451}
+.usp-st.usp-sel{border-color:#fff; box-shadow:0 0 0 1px #fff}
+.usp-st:hover{background:rgba(26,34,48,.92)} .usp-st:focus-visible{outline:2px solid var(--in); outline-offset:2px}
+.usp-pop{position:absolute; left:0; top:0; z-index:3; width:300px; max-height:calc(100% - 16px); overflow:auto; padding:12px 12px 10px; border-radius:12px;
+  background:rgba(16,22,32,.94); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 28px rgba(0,0,0,.5); color:var(--ink)}
+.usp-pop[hidden]{display:none}
+.usp-pop .us-fiche-s,.usp-pop .us-circuits{display:none}
+.usp-pop .us-fiche-c{display:block}
+.usp-pop .us-fiche-joindre{margin-top:10px}
+.usp-pop-x{position:absolute; right:6px; top:6px; width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:var(--muted); font-size:20px; line-height:1; cursor:pointer}
+.usp-pop-x:hover{background:rgba(255,255,255,.08); color:var(--ink)}
 @media (prefers-reduced-motion:reduce){ .usp-pin::after,.usp-live i::after{animation:none} }
 @media (max-width:699px){
   /* la photo entière entre ses deux bandes de trigrammes */
@@ -2832,6 +2853,7 @@ g .us-ft.us-toit-blanc{fill:var(--us-bl-t)}
   .usp-et{gap:2px; padding:1px; border-radius:10px; align-content:center}
   .usp-et::before{display:none}
   /* le badge du direct, compact et à droite : à gauche, il couvrait les traits des bandes */
+  .usp-etat,.usp-pop{display:none!important}
   .usp-live{left:auto; right:6px; top:6px; gap:5px; padding:3px 7px 3px 6px; font-size:10.5px} .usp-live span,.usp-live em{display:none} .usp-live i{width:7px; height:7px}
   .usp-et .us-tri-b{min-width:28px; height:18px; padding:0 3px; font-size:11px; letter-spacing:.01em}
   .usp-et .usp-plus{height:18px; padding:0 4px}
@@ -23131,6 +23153,16 @@ function usinePhotoListe(E){
     return '<button type="button" class="usp-li'+(manque?' usp-manque':'')+'" data-k="'+z.k+'"><span class="usp-carre usp-f-'+(z.f||"gris")+'" aria-hidden="true"></span><b>'+esc(z.t)+'</b>'
       +'<span class="usp-n">'+n+(att?'/'+att:'')+'</span></button>'; }).join("");
 }
+/* LA BANDE D'ÉTAT, AU PC (le client, le 03/11/2026 : « comment améliorer
+   ceci ? ») : en bas de la photo, un bouton par poste, son point, son nom
+   court et son compte ; ambre s'il y manque quelqu'un. Le toucher ouvre
+   la bulle du poste, comme son étiquette. */
+var USP_POP=null;
+function usinePhotoEtat(E){
+  return USINE_ZONES.map(function(z){ var Zk=E.Z[z.k], n=Zk?Zk.n:0, att=Zk?Zk.attendu:0, manque=att>n;
+    return '<button type="button" class="usp-st usp-f-'+(z.f||"gris")+(manque?' usp-manque':'')+(z.k===US_SEL?' usp-sel':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+(att?" sur "+att:"")+" au poste")+'">'
+      +'<i aria-hidden="true"></i><span>'+esc(z.k==="cm"?"CM":(PV_COURT[z.k]||z.t))+'</span><b>'+n+(att?'/'+att:'')+'</b></button>'; }).join("");
+}
 /* au PC, chaque groupe sur le point de son poste ; au téléphone, dans sa
    bande, relié à son point */
 function uspPlacer(){
@@ -23145,6 +23177,9 @@ function uspPlacer(){
   var pins=document.getElementById("uspPins");
   if(mob){ if(pins) pins.innerHTML=""; if(tr) tr.classList.remove("usp-pc"); uspBandes(L,W,H,usp,tr); return; }
   if(usp){ usp.style.removeProperty("--usp-haut"); usp.style.removeProperty("--usp-bas"); } if(tr) tr.innerHTML="";
+  /* les étiquettes grandissent avec la photo (11 px à 900 px de large,
+     jusqu'à 13,5 px) */
+  if(usp) usp.style.setProperty("--usp-k",String(Math.max(1,Math.min(1.25,W/900)).toFixed(3)));
   L.forEach(function(o){ o.w=o.b.offsetWidth; o.h=o.b.offsetHeight; });
   /* COMME UN SUIVI EN DIRECT (le client, le 03/11/2026 : « que les
      trigrammes soient affichés de manière à ce que ça fasse penser à un
@@ -23167,6 +23202,19 @@ function uspPlacer(){
     pts+='<span class="usp-pin usp-f-'+f+(mq?' usp-pin-mq':'')+(sel?' usp-sel':'')+(moi?' usp-pin-moi':'')+'" style="left:'+Math.round(o.x)+'px;top:'+Math.round(o.y)+'px;--d:'+((i*0.37)%2.4).toFixed(2)+'s"></span>'; });
   if(tr){ tr.classList.add("usp-pc"); tr.setAttribute("style","top:0; height:"+H+"px"); tr.setAttribute("viewBox","0 0 "+W+" "+H); tr.innerHTML=traits; }
   if(pins) pins.innerHTML=pts;
+  Array.prototype.forEach.call(document.querySelectorAll("#uspEtat .usp-st"),function(b){ b.classList.toggle("usp-sel",b.getAttribute("data-k")===US_SEL); });
+  /* LA BULLE DU POSTE (le même jour) : au toucher d'une étiquette, la fiche
+     vient sur la photo, à côté du point — qui est là, la relève, comment le
+     joindre — au lieu d'attendre sous la photo, hors de l'écran */
+  var pop=document.getElementById("uspPop"), o=null; L.forEach(function(x){ if(x.k===USP_POP) o=x; });
+  if(!pop) return;
+  if(!USP_POP||!o||!usineDernier){ pop.hidden=true; pop.innerHTML=""; return; }
+  pop.innerHTML='<button type="button" class="usp-pop-x" data-usp-ferme aria-label="Fermer">\u00d7</button>'+usineFiche(usineDernier,USP_POP);
+  pop.hidden=false;
+  var pw=pop.offsetWidth, ph=pop.offsetHeight, gx=o.cx+o.w/2+14, x=gx+pw<=W-8?gx:o.cx-o.w/2-14-pw;
+  if(x<8) x=Math.max(8,Math.min(W-pw-8,o.cx-pw/2));
+  var y=Math.max(8,Math.min(H-ph-8,o.y-ph/2));
+  pop.style.transform="translate("+Math.round(x)+"px,"+Math.round(y)+"px)";
 }
 /* LES DEUX BANDES DU TÉLÉPHONE (v1294, reprises en v1295 : le client,
    capture à 14 h 53, « moyen d'être plus propre que ça ? » — un trait
@@ -23255,7 +23303,8 @@ function usinePhotoRendre(corps,E,cote,cw){
       +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
       +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true"><defs>'+defs+'</defs>'+zs
       +'</svg><svg class="usp-traits" id="uspTraits" aria-hidden="true"></svg><div class="usp-pins" id="uspPins" aria-hidden="true"></div><div class="usp-ets" id="uspEt"></div>'
-      +'<div class="usp-live" id="uspLive" aria-hidden="true"></div></div></div></div>'
+      +'<div class="usp-live" id="uspLive" aria-hidden="true"></div><div class="usp-etat" id="uspEtat" role="group" aria-label="État des postes"></div>'
+      +'<div class="usp-pop" id="uspPop" role="dialog" aria-label="Le poste choisi" hidden></div></div></div></div>'
       +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be</p><div class="usp-liste" id="uspListe"></div></div>'
       +'<div class="us-panneau"><div id="usFiche"></div></div>'
       +'<div class="us-filiere">'+usineFilBande("Ce qui entre",USINE_ENTREES,"us-fil-entree")+usineFilBande("Ce qui sort",USINE_SORTIES,"us-fil-sortie")
@@ -23272,7 +23321,8 @@ function usinePhotoRendre(corps,E,cote,cw){
      photo ») : l'heure de l'usine, qui avance à chaque minute avec le
      cadre, et la pause en cours */
   var lv=document.getElementById("uspLive"); if(lv) lv.innerHTML='<i></i><span>En direct</span><b>'+esc(siteH(E.h))+'</b>'+(E.nom?'<em>'+esc(E.nom)+'</em>':'');
-  document.getElementById("uspEt").innerHTML=usinePhotoCartes(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
+  document.getElementById("uspEt").innerHTML=usinePhotoCartes(E);
+  var ue=document.getElementById("uspEtat"); if(ue) ue.innerHTML=usinePhotoEtat(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
 }
 function renderUsine(){
@@ -23364,11 +23414,20 @@ function usineChoisir(k){
   var f=document.getElementById("usFiche"); f.innerHTML=usineFiche(usineDernier,k);
   if(US3_MODE&&US3) u3Demande();
   if(US_VUE==="photo") uspPlacer();
-  /* au téléphone, la fiche est sous le plan : elle vient sous les yeux */
+  /* au téléphone, la fiche est sous le plan : elle vient sous les yeux ;
+     au PC, sur la photo, c'est la bulle qui la montre */
+  if(US_VUE==="photo"&&USP_POP===k) return;
   var r=f.getBoundingClientRect(); if(r.bottom>innerHeight-80||r.top<0) try{ f.scrollIntoView({block:"nearest", behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"}); }catch(e){}
 }
 function usineBrancher(corps){
   corps.onclick=function(ev){ var t=ev.target, z=t.closest?t.closest("[data-k]"):null;
+    /* la bulle du poste, au PC : ouverte par une étiquette ou la bande,
+       fermée par sa croix ou par la photo touchée ailleurs */
+    if(US_VUE==="photo"&&t.closest){
+      var pc=!(window.matchMedia&&matchMedia("(max-width:699px)").matches);
+      if(t.closest("[data-usp-ferme]")){ USP_POP=null; uspPlacer(); return; }
+      if(pc&&z&&t.closest(".usp-et,.usp-st")) USP_POP=z.getAttribute("data-k");
+      else if(!z&&t.closest("#uspCadre")&&!t.closest("#uspPop")&&USP_POP){ USP_POP=null; uspPlacer(); return; } }
     /* 3D ou plan, gardé sur l'appareil ; et les boutons de la 3D */
     var md=t.closest?t.closest("[data-us-mode]"):null; if(md){ var mv=md.getAttribute("data-us-mode"); if(mv!==US_VUE){ US_VUE=mv; US3_MODE=mv==="3d"; lsSet("ui/usineVue",mv); US_CLE=""; US3_CLE=""; USP_CLE=""; renderUsine(); } return; }
     var b3=t.closest?t.closest("[data-u3]"):null; if(b3){ var a3=b3.getAttribute("data-u3"); if(a3==="+") u3Zoom(0.8); else if(a3==="-") u3Zoom(1.25); else u3Recentrer(); return; } if(z&&corps.contains(z)&&!t.closest(".us-fiche")) usineChoisir(z.getAttribute("data-k"));
@@ -23376,6 +23435,7 @@ function usineBrancher(corps){
     else if(!z&&US_FLUX&&t.closest&&t.closest("#usSvg")){ US_FLUX=false; usineLiens(); } };
   corps.onkeydown=function(ev){ if(ev.key!=="Enter"&&ev.key!==" ") return; var z=ev.target.closest&&ev.target.closest(".us-zone"); if(z){ ev.preventDefault(); usineChoisir(z.getAttribute("data-k")); } };
 }
+document.addEventListener("keydown",function(ev){ if(ev.key==="Escape"&&USP_POP){ USP_POP=null; try{ uspPlacer(); }catch(e){} } });
 /* la largeur change (téléphone tourné, fenêtre du PC) : le plan se refait */
 var _usRs=null;
 window.addEventListener("resize",function(){ clearTimeout(_usRs); _usRs=setTimeout(function(){ var c=document.getElementById("usineCorps"); if(c&&!document.getElementById("usineCard").hidden){ try{ renderUsine(); }catch(e){} } },150); });
