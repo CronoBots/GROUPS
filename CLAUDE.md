@@ -14,10 +14,8 @@ cas de doute, c'est le journal qui fait foi.
 **Git.** Le client, le 26/09/2026 : « il faut toujours pousser sur main »,
 puis le 28/09/2026 : « il ne faut qu'une branche, la main ». On travaille
 et on committe directement sur `main`, et on pousse `main` ; aucune autre
-branche, aucune pull request sauf demande. Les deux anciennes branches
-`claude/…` sont identiques à `main` ou déjà contenues dedans ; le serveur
-refuse de les supprimer depuis une session (comme les étiquettes), elles
-se suppriment à la main sur GitHub.
+branche, aucune pull request sauf demande (les anciennes branches
+`claude/…` : journal 02, fin).
 **Pas de maquette.** Le client, le 10/10/2026 : « il ne faut pas de
 maquette ; toujours poussé sur main, et on optimisera au fur et à mesure ».
 On code dans l'application et on pousse.
@@ -49,9 +47,7 @@ ne fais pas attention que tu ne progresses pas tant que je n'ai pas
 validé ». **Ne jamais finir un tour sur une question de goût ou de
 choix** (« dites-moi lesquels appliquer ») : trancher selon la
 recommandation, l'appliquer, la vérifier, committer, pousser sur `main`,
-reporter dans Notion (suspendu du 22 au 28/10/2026, repris le 28/10 à
-la demande du client : « pousse tout cela vers Notion et mets-le à
-jour »), puis DIRE ce qui a été choisi et pourquoi — le
+reporter dans Notion (journal 07), puis DIRE ce qui a été choisi et pourquoi — le
 client corrige après coup s'il le veut. Les fenêtres d'autorisation de
 la session ne s'effacent que par le mode « Auto » choisi par le client.
 **Une migration de la base** — avec un `drop` (même une fonction
@@ -322,6 +318,11 @@ deviner à sa place sur ces points : ils touchent à des montants.
   EXEMPLE** : des marqueurs — « Nom, Prénom », « NOM, PRÉNOM », « Renard P »
   donne PRD — illustrent la FORME sans nommer personne. Garde-fou :
   `tools/verifier-depot.py` (journal 01, « Le dépôt se contrôle lui-même »).
+- **Un écran d'iPhone** (le client, le 03/11/2026). Fond : le bleu nuit
+  du logo, `--ip-fond` (#141C2F). Un cadre nouveau est un widget (22 px,
+  `--cadre`, `--ombre-cadre`) ; un accès ou une section, une icône d'app
+  dont la couleur `--ic` (jeton `--ip-*`) suit son `data-go` ou
+  `data-side-ws` (journal 05).
 - **Un seul thème, le sombre.** Le clair (29/10/2026) est retiré le
   03/11/2026, code compris (le client : « supprimer le thème clair, nous
   allons adapter celui-ci plus tard » ; journal 05). Toute couleur passe

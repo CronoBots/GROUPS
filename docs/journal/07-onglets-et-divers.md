@@ -593,3 +593,9 @@ montant — y reste) :
 > 22/09 à aujourd'hui) et « Décisions du client » (la décision, sa date,
 > son domaine et son effet dans l'application) — et une liste « Démarrer
 > une session de travail ».
+
+## Le report dans Notion, suspendu puis repris (déplacé de `CLAUDE.md` le 03/11/2026)
+
+Le report dans Notion a été suspendu du 22 au 28/10/2026, et repris le
+28/10 à la demande du client : « pousse tout cela vers Notion et mets-le à
+jour ».

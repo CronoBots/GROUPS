@@ -10958,3 +10958,83 @@ Mesures, horloge simulée : 05:52 → « 07:32 » ; 05:59:30 → « 00:26 »,
 ambre ; 06:00:15 → « Pointez +00:20 » ; 06:05:15 → disparu ; avance de
 30 s → « 07:03 ». À 320 px, l'icône s'efface pour que « sortie à
 06:00:00 » tienne (elle était tronquée au premier essai).
+
+### L'écran d'accueil d'un iPhone : le fond du logo, des widgets, des icônes, un dock (03/11/2026, `nfdm-v1339`)
+
+Le client : « je veux que mon application ressemble à un menu iPhone. Il
+faut utiliser le background du logo comme fond, mais je veux que tout le
+contenu soit comme des widgets ou des icônes du menu de l'iPhone ».
+Question de goût, tranchée seul : la recommandation est appliquée, mesurée
+et décrite ici.
+
+**Le fond.** Le bleu nuit du logo, relevé sur `logo.png` et sur l'icône de
+l'application : (20, 28, 47), soit `#141C2F`, uniforme d'un bord à l'autre
+(le léger grain de l'image mis à part). Il remplace le dégradé radial
+`#1b2640 → #111727` et la page `#070B15` : jeton `--ip-fond`, repris par
+`--fond`, `--paper`, `--marque` et l'écran de chargement ; `theme-color`
+et le manifeste passent de `#111727` à `#141C2F`.
+
+**Les widgets.** Le héros de l'Accueil n'est plus un cadre : ses morceaux
+en deviennent chacun un. Le profil (la couverture en tête, le cercle à
+cheval : `_pfHead` l'enveloppe dans `.pf-wprof`), l'heure et la météo (le
+bloc `#pfMt` sort de l'identité pour être un widget à lui seul), le
+prochain poste, le cycle, les polyvalences d'un opérateur. Ailleurs, chaque
+cadre garde sa place et prend la matière d'un widget : `--cadre` passe d'un
+gris `#5C6576` à un liseré `#394052`, `--ombre-cadre` s'adoucit, les coins
+restent à 22 px (`--rj`). Sur l'Accueil, plus de filet sous le titre d'un
+cadre.
+
+**Les icônes.** Les accès (contremaître de pause, congé, paie, certificat,
+recyclage) et toutes les sections que le dock ne porte pas (Mes demandes ·
+Effectifs · Recherche · À valider · Tableau de bord · Personnel · Absences ·
+Historique · Direction · Infos · Réglages) forment une grille de quatre
+colonnes : un carré arrondi de 60 px (14 px de coin), un dégradé de
+couleur par app (`--ic`, jetons `--ip-*`), le pictogramme blanc, un nom
+court dessous (le nom entier à l'écoute et au survol), la pastille en
+coin. Les sections sont écrites par le même code que la feuille « Plus »
+(`entrees()`, exposé en `window.__ipApps`), et se récrivent quand une
+pastille change (`ipAppsMaj`, appelé par `pastille()`) : rien en double.
+« Horaire » (production) n'y est pas, le dock et le menu du PC l'ont ;
+« Salaire » non plus, l'icône « Paie » y mène.
+
+**Le dock.** La barre du bas du téléphone devient un dock de verre (flou
+26 px, coins de 30 px) : cinq icônes de 52 px sans nom, l'app ouverte
+marquée d'un point dessous (le dock reste à l'écran dans chaque app, il
+faut savoir où l'on est). « Plus » devient un dossier : neuf petites apps
+de couleur sur un carré de verre ; sa feuille s'ouvre en grille d'icônes
+de quatre colonnes sur l'écran flouté, les groupes (Mon espace, L'usine,
+Gestion) gardant leur titre. Au PC et à la tablette, le menu porte la même
+icône en petit (28 px), comme la colonne des Réglages d'un iPad.
+
+**Défauts trouvés en mesurant, et corrigés avant de rendre la main.**
+
+- Les pastilles des icônes s'étiraient en barres de 90 px : la règle des
+  noms (`.ctl-t>span`, `width:100%`) les prenait aussi ; elle exclut
+  désormais `.plus-nb`.
+- Le cycle, au PC, collait aux bords de son widget : la règle d'avant
+  (`.pf-corps>#ryAn`, un identifiant) l'emportait sur la mienne (des
+  classes) ; la mienne nomme `#ryAn`.
+- **Défaut antérieur** : « Réglages », dans la feuille « Plus », portait le
+  « i » de l'aide et non la roue — `#sidePied .side-lien svg` prenait le
+  premier lien du pied, devenu « Infos et aide ». Il vise maintenant
+  `[data-go="reglages"]`.
+- Les noms coupés du dossier (« Mes deman… », « Tableau de… », « Absences
+  e… ») : au téléphone, le nom court, l'entier à l'écoute.
+- `parcours.js` : 18 fautes de contraste, trois éléments dans six écrans ×
+  trois rôles. Le trait entre les heures du prochain poste (3,64:1) et sa
+  flèche (4,21:1), posés jadis sur le dégradé du héros, passent à 62 % de
+  blanc. Le chiffre blanc sur le rouge de l'iPhone (`#FF3B30`) ne tient
+  qu'à 3,55:1 : les pastilles gardent le rouge (`#D63A30`, 4,67:1) et
+  l'orange à encre sombre de la barre.
+- **Défaut antérieur** : le nom de l'accès « Paie » disait « Fiche de paie
+  d’novembre ». L'élision ne se fait plus que devant une voyelle (« d’octobre »,
+  « de novembre »).
+- **Défaut antérieur disparu** : au PC, l'appel du contremaître était une
+  rangée sans nom (`data-long` absent de sa tuile) ; c'est une icône,
+  nommée, comme les autres.
+
+**Mesures.** Captures à 320, 390, 768 et 1280 px, dock, dossier ouvert,
+six onglets au téléphone, écran de connexion et de chargement. Au clic :
+Effectifs · Recherche · Réglages · Infos · Paie · Mes demandes (l'espace de
+gestion) s'ouvrent depuis leur icône, Effectifs depuis le dossier (qui se
+referme) ; aucune erreur de page. `parcours.js` : 112 essais, 0 faute.

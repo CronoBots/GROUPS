@@ -2205,3 +2205,9 @@ fait perdre le mois.
   rend de nouveau « Rien de neuf sur enseignement.be (3 années lues) »,
   code 0. Le premier passage par l'horaire automatique sera le 03/11 à
   5 h 00 UTC.
+
+## Les anciennes branches `claude/…` (déplacé de `CLAUDE.md` le 03/11/2026)
+
+Les deux anciennes branches `claude/…` sont identiques à `main` ou déjà
+contenues dedans ; le serveur refuse de les supprimer depuis une session
+(comme les étiquettes), elles se suppriment à la main sur GitHub.
