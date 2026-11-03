@@ -239,3 +239,28 @@ Une demande peut désormais porter deux types de congé le même jour
 en annotation ; le second va dans le commentaire. **Comment le classeur
 écrit-il un jour à deux codes ?** Une seule annotation, deux, une
 écriture combinée ? On aligne la base dès que c'est connu.
+
+## Les remplacements écrits que l'application lit mal (audit du 03/11/2026, v1349)
+
+29 propositions de l'année visent quelqu'un qu'un commentaire du jour nomme
+dans un remplacement. La plupart suivent la règle C, validée par le client
+(« oui, le proposer », SPS le 09/01, SLT le 18/10). Trois questions restent
+ouvertes, à poser une par une :
+
+1. **« À l'arrière », « à l'arrière-usine » : est-ce le terrain arrière ?**
+   Le 19/03 de l'après-midi, SKS est « remplacé par GPO et PLZ » ; GPO écrit
+   « de 14h à 18h à l'arrière-usine », PLZ « remplace à l'arrière de 18h à
+   22h ». L'application ne reconnaît pas « arrière » seul (le motif du
+   terrain arrière exige « terr. » ou « poly. ») : PLZ, pour elle, est libre,
+   et elle le propose en meunerie de 18 h à 22 h.
+2. **« Remplacé par X et Y » : que fait le second ?** Seul le premier nommé
+   prend la place (`nommesParAbsents`) :
+   - SMA, le 29/06 au matin, « Remplacé par PAM et PLZ », alors que PLZ
+     « arrivée à 08h00' » est proposé en distillation ;
+   - LCI, le 11/07 l'après-midi, « remplacé par CHD et CDE », alors que CDE
+     est proposé au terrain arrière de 18 h à 22 h.
+3. **La copie d'une journée à cheval sur deux pauses.** PLZ, le 24/04, est
+   « 18h-6h », « remplace SKS remplace en fermentation de 18h à 22h ».
+   L'après-midi, sa copie s'affiche au poste de sa nuit (le terrain arrière
+   depuis la v1349, le gluten avant), et non en fermentation. La fermentation
+   est bien couverte de 18 h à 22 h : seule la case d'affichage est en cause.
