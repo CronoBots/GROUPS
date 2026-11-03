@@ -10791,3 +10791,20 @@ sont le seul moyen de voir un poste.
 Mesuré : les huit autres écrans, au téléphone et au PC (16 captures),
 identiques au pixel ; l'Accueil raccourcit de 671 px au PC (le cadre :
 1 126 px ce matin, 591 maintenant).
+
+### L'usine en direct : la fiche réduite à l'essentiel (03/11/2026, `nfdm-v1328`)
+
+Le client : « il fallait supprimer aussi les explications de poste et
+de produit, n'avoir que les infos essentielles pour le poste et les
+travailleurs ; n'indiquer que “Salle de contrôle” à côté du téléphone, et
+l'émoji de la radio un rien plus grand ». La fiche (bulle au PC, sous la
+photo au téléphone) garde : le poste, son compte, qui est là et jusqu'à
+quand, la relève, comment le joindre. Retirés : la description du poste,
+ses circuits (« Reçoit la farine… », « Produit… ») et leurs données
+(`USINE_LIENS`, la filière, `usineCircuits`), puis leurs 20 règles CSS
+(15 classes mortes, dont les familles `us-c-*` et `us-cat-*` que le code
+retiré construisait). Le bouton d'appel ne dit plus que « Salle de
+contrôle » (« Contremaître de pause » pour le bureau ; « Salle de
+contrôle · Fermentation » quand le poste se joint par une autre) ; le
+numéro reste dans le lien, son infobulle et ce que lit le lecteur
+d'écran. L'icône de la radio passe de 16 à 21 px.
