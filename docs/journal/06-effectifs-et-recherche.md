@@ -4666,3 +4666,21 @@ matin est la solution sans frais.
 **Ce que la vérification ne couvre pas encore** : la justesse de chaque
 remplaçant PROPOSÉ (ses heures, ses 8 h de repos, sa polyvalence) ; elle
 couvre la réponse — complet ou trou, et à quelles heures — de chaque mode.
+
+### Les rappels évitables passés, gardés pour mémoire (03/11/2026, `nfdm-v1338`)
+
+Le client : « les rappels non utiles sont aussi en historique dans l'app ?
+comme les incohérences ? ». Non : le cadre partait du jour de l'usine et ne
+regardait pas en arrière. Il a maintenant, comme les incohérences (le
+02/11/2026), une section « Passés » repliée en bas : du 1er janvier de la
+première année installée à la veille du jour de l'usine, du plus récent au
+plus ancien, mois par mois, chaque journée ouvrant le Planning du jour.
+`rappelsInutiles` prend une borne (`{de, a}`) ; sans elle, rien ne change.
+Calculés en tranches après le rendu (0,5 s), ils ne comptent pas dans le
+chiffre de l'onglet.
+
+Mesure, au 03/11/2026 : 61 rappels passés sur 37 journées — exactement les
+61 mesurés depuis le 01/01 avec la v1334 —, aucun à venir. Premier essai :
+une coupe de code mal placée (une chaîne cherchée trouvée au milieu d'une
+ligne plus indentée) laissait un morceau de l'ancienne boucle ; la page ne
+s'ouvrait plus, `node --check` l'a dit.
