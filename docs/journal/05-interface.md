@@ -10760,3 +10760,34 @@ bande d'état et du badge. En plus (formation, journée) : gris clair ;
 place libre : « ? » ambre ; vous : souligné à la couleur du poste ;
 liseré ambre quand il y manque quelqu'un ; le poste choisi cerné de
 blanc. Téléphone : la même capsule, un peu plus basse, dans ses bandes.
+
+### L'usine en direct : des pastilles rondes, puis la photo seule (03/11/2026, `nfdm-v1325` et `nfdm-v1326`)
+
+**Les pastilles rondes (v1325).** Le client, sur les capsules de la
+v1324 : « pas encore ça » ; en QCM, « pastilles rondes ». Chaque
+opérateur est un rond à la couleur de son poste, cerclé de blanc, serrés
+au-dessus du point du poste. Le blanc des initiales ne tenait pas sur les
+pastels des postes : la même teinte, plus profonde, mesurée — jaune
+`#946A0E` 4,85:1, vert `#2E7D4F` 5,05:1, rouge `#B4472E` 5,41:1, bleu
+`#2F6EA8` 5,36:1, gris `#4B5563` 7,56:1. En plus : le rond sombre cerné
+de la couleur ; place libre : « ? » ambre ; vous : un second cercle ; le
+poste choisi : un halo blanc.
+
+**La photo seule (v1326).** Le client : « supprimer les vues 3D et plan ;
+je veux également que tu supprimes ce qui entre et sort pour que le cadre
+ne garde que la photo ». Retirés : le plan schématique (v1253 à v1278 :
+le dessin cavalier, le décor, le train, les flux, l'animation et sa
+pause), la 3D (v1288 : le modèle, WebGL, la caméra, les gestes), le
+choix Photo / 3D / Plan, la consigne au-dessus de la photo, « Ce qui
+entre / Ce qui sort » et sa note — 88 Ko de JavaScript, puis, par les
+classes que seul ce code employait (155, relevées une à une), 268 règles
+CSS, 279 sélecteurs, 9 blocs `@media` et 21 commentaires (19 Ko). Gardés,
+parce que la photo s'en sert : l'état de l'usine (`usineEtat`), la fiche
+et ses circuits (la bulle), les numéros. « Zones indicatives, présents
+d'après l'horaire » rejoint le crédit de la photo. Au téléphone, la
+légende et la fiche sous la photo restent : sans survol ni bulle, elles
+sont le seul moyen de voir un poste.
+
+Mesuré : les huit autres écrans, au téléphone et au PC (16 captures),
+identiques au pixel ; l'Accueil raccourcit de 671 px au PC (le cadre :
+1 126 px ce matin, 591 maintenant).
