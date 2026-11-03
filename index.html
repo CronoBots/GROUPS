@@ -28263,6 +28263,9 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
          du commentaire (« poly. Etoh. Remplace ALZ »), celui du remplacé, et
          seulement à défaut son poste habituel */
       var c=String(raw[2]||""), kp=posteEcrit(raw)
+        /* « remplace en meunerie de 14h à 18h » (LDY le 12/08, CDE le
+           13/08) : le poste de ses heures, écrit en toutes lettres */
+        ||posteDepuisNom((/\bremplace\s+en\s+(\S+)/i.exec(c)||[])[1])
         ||posteDepuisNom(c.split(/[\s.,;]+(?:remp|rappel)/i)[0].trim())
         ||atelierDuRemplace(raw,parId,p)
         ||posteTenu(p,raw,st.params.hJour,null,jourCalc)||posteParDefaut(p);
@@ -28842,91 +28845,7 @@ function renderEquipe(){
        aller) ; le poste qu'elle aurait comblé retrouve son vrai compte et,
        s'il manque, se marque o.propose — fond orange au lieu du rouge. */
     ["AM","PM","N"].forEach(function(gk){
-      var v=vp[gk]&&vp[gk].vue; if(!v) return;
-      function oDe(k){ return v.postes.filter(function(o){ return o.P.k===k; })[0]||null; }
-      function maj(o){ if(!o||o.P.cm||o.P.k==="adj") return; o.tenu=tenuDuPoste(o,jourCalc); o.manque=!!(o.attendu && o.tenu<o.attendu); }
-      v.postes.slice().forEach(function(o){
-        o.gens.slice().forEach(function(x){
-          /* déplacé par le rééquilibrage : son poste d'avant, quel que soit
-             son poste habituel (FPS le 06/07, « N gluten », polyvalent
-             arrière porté au terrain arrière, qui est son habitude) ;
-             déduit sans poste d'avant : la lecture de transfertApp */
-          var t=(x.comble&&x.avant)?null:transfertApp(x,o.P.k,jourCalc),
-              de=(x.comble&&x.avant)?x.avant:(t?t.de:null), o2=(de&&de!==o.P.k)?oDe(de):null;
-          /* son poste d'avant n'a plus de case ce jour-là (personne d'autre
-             n'y est, il n'attend personne : JBI adjoint le 21/08) : on la
-             recrée, sinon il restait affiché là où on l'avait déplacé */
-          if(!o2 && de && de!==o.P.k){
-            POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===de) o2={P:Q, gens:[], tenu:0, attendu:attenduAuPoste(Q,gk,renfortDuJour(db,mmdd)), detail:"", relais:[], manque:false, creux:0}; });
-            if(o2) v.postes.push(o2);
-          }
-          if(!o2) return;
-          /* COMBLÉ D'OFFICE (le client, le 22/10/2026 :
-             « ce genre de changement devrait être comblé d'office, car CHD
-             est en fermentation et AAI remplace SMA en distillation : la
-             place terrain arrière lui revient d'office, malgré le
-             commentaire “remplace LCI” qui porte à confusion »). SMA le
-             21/10 AM, ["AM","Ferm. Liq","remplace LCI remplacé par AAI"],
-             AAI ["AM","distillation","remplace SMA"]. Le terrain arrière
-             est la place habituelle de SMA (27/09/2026) : voir
-             placeDOffice(). */
-          var croise=placeDOffice(x,o.P.k,o2,v,jourCalc,mmdd);
-          if(croise){ x.dOffice=croise; return; }
-          /* L'ÉCHANGE DES PLACES HABITUELLES (le client, le 22/10/2026 :
-             « AAI et SMA, on avait déjà dit que c'était AAI qui prenait la
-             place de SMA en distillation »). Le 23/10 PM, AAI écrit
-             « poly. Etoh, remplace SKS » et SMA rien : le rééquilibrage
-             portait SMA du terrain arrière à la distillation vide. C'est
-             l'inverse de la règle du 27/09 (POSTE_HABITUEL) : AAI va en
-             distillation, SMA garde le terrain arrière. */
-          /* LE POSTE QU'IL QUITTE EST TENU PAR UN REMPLAÇANT ÉCRIT (le client,
-             le 22/10/2026 : « et pareil pour PAM le 26, qui est en
-             fermentation vu que GPO remplace QBY »). PAM ["PM","F","projet
-             falling film en distillation"], GPO ["PM","disti","Remplace
-             QBY"] : GPO tient la distillation, PAM y est en trop, la
-             fermentation vide lui revient d'office. */
-          var y=echangeHabituel(x,o,o2,jourCalc);
-          if(y){
-            o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
-            o2.gens.splice(o2.gens.indexOf(y),1); o.gens.push(y);
-            maj(o); maj(o2);
-            y.echange={x:x, de:o2.P.k, vers:o.P.k};
-            return;
-          }
-          /* … et seulement vers un poste qui, sans lui, manquerait (CDE le
-             20/01 serait parti vers un terrain arrière déjà complet) */
-          var sansX=tenuDuPoste(o,jourCalc,x);
-          var rw=tenuParRemplacant(x,o2,mmdd,jourCalc);
-          if(rw && o.attendu && sansX<o.attendu){ x.surplus=rw; return; }
-          /* D'OFFICE ENTRE LES TROIS POSTES ARRIÈRE (le
-             client, le 22/10/2026, sur le 11/11 PM : « pourquoi PAM n'est
-             pas en fermentation ? » — QBY tient la distillation, la
-             fermentation est vide ; « ces trois postes se comblent seuls
-             avec les personnes disponibles »). Quand le poste qu'il quitte
-             reste tenu sans lui et que celui où on le porte manquerait sans
-             lui, il y reste : rien n'est à confirmer. */
-          if(ARRIERE_POSTES[o.P.k] && ARRIERE_POSTES[o2.P.k] && o.attendu && sansX<o.attendu
-             && (!o2.attendu || o2.tenu>=o2.attendu)){ x.arriere={de:o2.P.k}; return; }
-          o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
-          x.propose=o.P.k; o.propose=true;
-          maj(o); maj(o2);
-        });
-      });
-      /* Une proposition n'a de sens que vers un poste qui, sans elle, reste
-         sous son effectif : PLZ le 22/10 « Gluten → Terrain arrière »
-         l'après-midi, où ATR et GDT tiennent déjà le poste une fois chacun
-         à sa place. Sinon, ni pointillé ni orange. */
-      v.postes.forEach(function(o){
-        o.gens.forEach(function(x){
-          if(!x.propose) return;
-          var oc=oDe(x.propose);
-          if(!oc || !oc.manque){ delete x.propose; if(oc) oc.propose=false; }
-        });
-      });
-      v.postes.forEach(function(o){
-        if(!o.propose) return;
-        o.propose=v.postes.some(function(q){ return q.gens.some(function(x){ return x.propose===o.P.k; }); });
-      });
+      var v=vp[gk]&&vp[gk].vue; if(v) propositionsPause(v,gk,mmdd,jourCalc,db);
     });
     /* UNE LIGNE « DS » SOUS LA FORMATION. Le client, le 29/09/2026 : « une
        ligne sous formation DS, qui reprend ceux qui sont en DS ou CPPT ce
@@ -32155,10 +32074,21 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
     var e=y.p.d&&y.p.d[md], c=String((e&&e[2])||""), m=/rempla\S*\s+par\s+[^.;\n]*/i.exec(c);
     return {id:idLisible(y.p.id), m:y.motif, n:m?m[0].trim():""}; }); }catch(e){}
   (vue.postes||[]).forEach(function(o){
-    if(o.P.k===P.k) return;
-    var eff=effectif(o.gens,o.P,jour), surn=o.attendu?eff>o.attendu:true;
+    /* LE POSTE DE CONTREMAÎTRE NE FOURNIT PERSONNE : l'adjoint qui s'y
+       trouve remplace le contremaître (le client, le 21/09/2026) */
+    if(o.P.k===P.k || o.P.cm) return;
+    /* LE COMPTE DE LA CASE, PAS SES BADGES : les copies venues du D et les
+       relais d'une autre pause n'y comptent pas (« rien ne change aux
+       comptes », le 20/10/2026), et qui est déjà proposé ailleurs en part
+       (la bulle disait « en surnombre » sur 34 trous où personne ne l'était,
+       check du 03/11/2026) */
+    var eff=(o.tenu||0)-o.gens.filter(function(y){ return !y.partage && y.propose && y.propose!==P.k && compteAuPoste(y,o.P,jour); }).length,
+        surn=o.attendu?eff>o.attendu:true;
     o.gens.forEach(function(x){
-      if(x.deD || x.depuisD) return;
+      if(x.deD || x.depuisD || x.partage) return;
+      if(x.propose && x.propose!==P.k) return;
+      /* le trou de quelques heures : les mêmes que relaisCourtsPause() */
+      if(oP && oP.trouCourt && (x.horPart || x.relaisCourt) && x.propose!==P.k) return;
       if(!peutTenir(x.p,P,jour) || !compteAuPoste(x,P,jour)) return;
       var pr=x.propose===P.k;
       if(!pr && o.attendu && eff-(compteAuPoste(x,o.P,jour)?1:0)<o.attendu) return;
@@ -32202,6 +32132,115 @@ function bulleCandidatsHTML(d){
       +(x.f?'<em class="cdp-fo">en formation</em>':'')
       +(x.pr?'<em class="cdp-pr">proposé</em>':x.s?'<em class="cdp-su">en surnombre</em>':'')+'</li>';
   }).join("")+'</ul>';
+}
+/* LES PROPOSITIONS D'UNE PAUSE, UNE SEULE FOIS ÉCRITES : le Planning
+   (renderEquipe) et les changements à prévenir (transfertsDuJour) les
+   tirent de cette fonction, sur la vue du rééquilibrage. Chacun que le
+   moteur a déplacé retourne à son poste d'avant, marqué x.propose, ou
+   y reste d'office (x.dOffice, x.surplus, x.arriere, l'échange) ; v est
+   modifiée sur place. Deux calculs côte à côte divergeaient : la liste
+   partait du poste attitré (CDE, PLZ, GPO « distill. »), ignorait le
+   poste d'avant quand il menait au poste attitré (FPS, QBY, HKB),
+   et comptait chaque déplacé sans les autres (GDT et GPO le 01/07). */
+function propositionsPause(v,gk,mmdd,jourCalc,db){
+  function oDe(k){ return v.postes.filter(function(o){ return o.P.k===k; })[0]||null; }
+  function maj(o){ if(!o||o.P.cm||o.P.k==="adj") return; o.tenu=tenuDuPoste(o,jourCalc); o.manque=!!(o.attendu && o.tenu<o.attendu); }
+  /* le poste sans x ni ceux qu'on y propose ailleurs (la cascade) */
+  function tenuSans(o,x){ return tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x && !z.propose; })},jourCalc); }
+  v.postes.slice().forEach(function(o){
+    o.gens.slice().forEach(function(x){
+      /* déplacé par le rééquilibrage : son poste d'avant, quel que soit
+         son poste habituel (FPS le 06/07, « N gluten », polyvalent
+         arrière porté au terrain arrière, qui est son habitude) ;
+         déduit sans poste d'avant : la lecture de transfertApp */
+      var t=(x.comble&&x.avant)?null:transfertApp(x,o.P.k,jourCalc),
+          de=(x.comble&&x.avant)?x.avant:(t?t.de:null), o2=(de&&de!==o.P.k)?oDe(de):null;
+      /* son poste d'avant n'a plus de case ce jour-là (personne d'autre
+         n'y est, il n'attend personne : JBI adjoint le 21/08) : on la
+         recrée, sinon il restait affiché là où on l'avait déplacé */
+      if(!o2 && de && de!==o.P.k){
+        POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===de) o2={P:Q, gens:[], tenu:0, attendu:attenduAuPoste(Q,gk,renfortDuJour(db,mmdd)), detail:"", relais:[], manque:false, creux:0}; });
+        if(o2) v.postes.push(o2);
+      }
+      if(!o2) return;
+      /* COMBLÉ D'OFFICE (le client, le 22/10/2026 :
+         « ce genre de changement devrait être comblé d'office, car CHD
+         est en fermentation et AAI remplace SMA en distillation : la
+         place terrain arrière lui revient d'office, malgré le
+         commentaire “remplace LCI” qui porte à confusion »). SMA le
+         21/10 AM, ["AM","Ferm. Liq","remplace LCI remplacé par AAI"],
+         AAI ["AM","distillation","remplace SMA"]. Le terrain arrière
+         est la place habituelle de SMA (27/09/2026) : voir
+         placeDOffice(). */
+      var croise=placeDOffice(x,o.P.k,o2,v,jourCalc,mmdd);
+      if(croise){ x.dOffice=croise; return; }
+      /* L'ÉCHANGE DES PLACES HABITUELLES (le client, le 22/10/2026 :
+         « AAI et SMA, on avait déjà dit que c'était AAI qui prenait la
+         place de SMA en distillation »). Le 23/10 PM, AAI écrit
+         « poly. Etoh, remplace SKS » et SMA rien : le rééquilibrage
+         portait SMA du terrain arrière à la distillation vide. C'est
+         l'inverse de la règle du 27/09 (POSTE_HABITUEL) : AAI va en
+         distillation, SMA garde le terrain arrière. */
+      /* LE POSTE QU'IL QUITTE EST TENU PAR UN REMPLAÇANT ÉCRIT (le client,
+         le 22/10/2026 : « et pareil pour PAM le 26, qui est en
+         fermentation vu que GPO remplace QBY »). PAM ["PM","F","projet
+         falling film en distillation"], GPO ["PM","disti","Remplace
+         QBY"] : GPO tient la distillation, PAM y est en trop, la
+         fermentation vide lui revient d'office. */
+      var y=echangeHabituel(x,o,o2,jourCalc);
+      if(y){
+        o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
+        o2.gens.splice(o2.gens.indexOf(y),1); o.gens.push(y);
+        maj(o); maj(o2);
+        y.echange={x:x, de:o2.P.k, vers:o.P.k};
+        return;
+      }
+      /* … et seulement vers un poste qui, sans lui, manquerait (CDE le
+         20/01 serait parti vers un terrain arrière déjà complet) */
+      var sansX=tenuSans(o,x);
+      var rw=tenuParRemplacant(x,o2,mmdd,jourCalc);
+      if(rw && o.attendu && sansX<o.attendu){ x.surplus=rw; return; }
+      /* D'OFFICE ENTRE LES TROIS POSTES ARRIÈRE (le
+         client, le 22/10/2026, sur le 11/11 PM : « pourquoi PAM n'est
+         pas en fermentation ? » — QBY tient la distillation, la
+         fermentation est vide ; « ces trois postes se comblent seuls
+         avec les personnes disponibles »). Quand le poste qu'il quitte
+         reste tenu sans lui et que celui où on le porte manquerait sans
+         lui, il y reste : rien n'est à confirmer. */
+      if(ARRIERE_POSTES[o.P.k] && ARRIERE_POSTES[o2.P.k] && o.attendu && sansX<o.attendu
+         && (!o2.attendu || tenuSans(o2,null)>=o2.attendu)){ x.arriere={de:o2.P.k}; return; }
+      o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x);
+      x.propose=o.P.k; o.propose=true;
+      maj(o); maj(o2);
+    });
+  });
+  /* Une proposition n'a de sens que vers un poste qui, sans elle, reste
+     sous son effectif : PLZ le 22/10 « Gluten → Terrain arrière »
+     l'après-midi, où ATR et GDT tiennent déjà le poste une fois chacun
+     à sa place. Sinon, ni pointillé ni orange. */
+  var retire=true;
+  while(retire){ retire=false;
+    v.postes.forEach(function(o){
+      o.gens.forEach(function(x){
+        if(!x.propose) return;
+        var oc=oDe(x.propose);
+        if(!oc || !(oc.attendu && tenuSans(oc,null)<oc.attendu)){ delete x.propose; retire=true; }
+      });
+    });
+  }
+  /* LE RENFORT ARRIÈRE (le 02/10/2026) vient « à côté du titulaire » :
+     quand un autre est déjà proposé pour la place, le proposer aussi en
+     ferait deux pour une (GPO et PAM, la nuit du 06/07 ; GDT et PDE le
+     28/12) */
+  v.postes.forEach(function(o){ o.gens.forEach(function(x){
+    if(!x.propose || !x.renfortTerr) return;
+    if(v.postes.some(function(q){ return q.gens.some(function(y){ return y!==x && y.propose===x.propose && !y.renfortTerr; }); }))
+      delete x.propose;
+  }); });
+  v.postes.forEach(function(o){
+    if(!o.propose) return;
+    o.propose=v.postes.some(function(q){ return q.gens.some(function(x){ return x.propose===o.P.k; }); });
+  });
 }
 /* LE REMPLACEMENT D'UNE HEURE (v1301), commun au Planning et aux
    changements à prévenir (v1312). */
@@ -32260,68 +32299,29 @@ function relaisCourtsPause(v,gk,mmdd,jourCalc){
 function transfertsDuJour(db,annee,m,j){
   var mmdd=pad2(m)+pad2(j), jc=annee*10000+Number(mmdd), out=[];
   var par=equipeDuJour(db,annee,m,j);
+  var hh=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
   ["AM","PM","N"].forEach(function(g){
     var l=par[g]; if(!l||!l.length) return;
     var vue=postesDePause(db,l,g,mmdd,g==="AM"?par.D:null);
-    /* LA PROPOSITION D'UNE HEURE (v1312) : GPO, gluten → terrain arrière de
-       13 h à 14 h le 03/11, pendant que GKT remplace NPE à la distillation.
-       Cherchée sur la vue du Planning : qui le rééquilibrage a porté à un
-       poste qui se tient sans lui y retourne à son poste d'avant (GPO,
-       porté au terrain arrière que GKT tient), comme au tableau. */
-    var vueH={postes:vue.postes.map(function(o){ return {P:o.P, attendu:o.attendu, relais:o.relais, tenu:o.tenu, gens:o.gens.slice()}; }), inconnus:vue.inconnus||[], formation:vue.formation||[]};
-    vueH.postes.forEach(function(o){ o.gens.slice().forEach(function(x){
-      if(!x.comble || !x.avant || x.avant===o.P.k) return;
-      var sans=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(z){ return z!==x; })},jc);
-      if(o.attendu && sans<o.attendu) return;
-      var o2=vueH.postes.filter(function(q){ return q.P.k===x.avant; })[0]; if(!o2) return;
-      o.gens.splice(o.gens.indexOf(x),1); o2.gens.push(x); }); });
+    /* LA MÊME RÈGLE QUE LE PLANNING, ET LE MÊME CALCUL (le client, le
+       20/10/2026, puis le 02/11/2026 : « explique-moi ceci ») : les
+       propositions sortent de propositionsPause(), comme au tableau, puis
+       de relaisCourtsPause() (la proposition d'une heure, v1312), sur une
+       copie de la vue — raisonsTransfert() lit encore où le moteur a mis
+       chacun (« passé en … »). Le poste de départ est celui où le Planning
+       laisse la personne, pointillée. */
+    var vueH={postes:vue.postes.map(function(o){ return {P:o.P, attendu:o.attendu, relais:o.relais, tenu:o.tenu, manque:o.manque, detail:o.detail, creux:o.creux, gens:o.gens.slice()}; }), inconnus:vue.inconnus||[], formation:vue.formation||[]};
+    propositionsPause(vueH,g,mmdd,jc,db);
     try{ relaisCourtsPause(vueH,g,mmdd,jc); }catch(eR){}
-    vueH.postes.forEach(function(q){ q.gens.forEach(function(z){ if(!z.proposeH || z.partage) return;
-      var rp=z.proposePour, hh=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
-      out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, h:z.proposeH,
-        r:{qui:[{p:rp.p, motif:"remplace "+rp.remp+" ("+nomPosteApp(rp.vers).toLowerCase()+") de "+hh(rp.a)+" à "+hh(rp.b)}], note:""}}); }); });
-    vue.postes.forEach(function(o){
-      var tr=[];
-      o.gens.forEach(function(x){
-        if(x.partage) return;
-        var t=transfertApp(x,o.P.k,jc); if(t) tr.push([x,t]);
-      });
-      /* LA MÊME RÈGLE QUE LE PLANNING (renderEquipe, le 20/10/2026) : un
-         changement n'a de sens que vers un poste qui, sans lui, resterait
-         sous son effectif. Le client, le 22/10/2026 : « et pourquoi PLZ ? »
-         — Gluten → Terrain arrière l'après-midi du 22/10, où GDT (« poly.
-         Etoh », remplace DWS) puis ATR (« Poly.Ethol », de 20 h à 22 h)
-         tiennent le poste. Le Planning ne le proposait plus ; cette liste,
-         calculée à part, l'annonçait encore. */
-      /* SANS EUX, COMPTÉ COMME LE PLANNING (le client, le 02/11/2026, devant
-         « GPO Glut. → T. arr., remplace SBZ » pour le 03/11 alors que le
-         Planning laissait GPO au gluten : « explique-moi ceci ») : le poste
-         sans les déplacés se compte par tenuDuPoste, comme maj() du Planning.
-         Au terrain arrière, sans titulaire, le renfort arrière tient le poste
-         (GKT, « Renfort arrière ») ; « o.tenu moins les déplacés » l'oubliait,
-         voyait le poste vide et annonçait un changement que le Planning ne
-         propose pas. */
-      var ex=tr.map(function(z){ return z[0]; }),
-          sans=tenuDuPoste({P:o.P, attendu:o.attendu, relais:o.relais, gens:o.gens.filter(function(x){ return ex.indexOf(x)<0; })},jc);
-      if(o.attendu && sans>=o.attendu) return;
-      tr.forEach(function(z){
-        /* l'échange des places habituelles : c'est l'autre qu'on prévient */
-        /* LES PLACEMENTS D'OFFICE NE S'ANNONCENT PAS (le client, le
-           22/10/2026, devant AAI le 23 et PAM le 26 encore listés :
-           « toujours le cas ? »). La place habituelle (SMA), l'échange des
-           places habituelles (AAI), le poste tenu par un remplaçant écrit
-           (PAM) : le Planning les place, ils ne sont plus « à prévenir ».
-           Mêmes fonctions que renderEquipe(). */
-        var oDe=vue.postes.filter(function(q){ return q.P.k===z[1].de; })[0];
-        if(echangeHabituel(z[0],o,oDe,jc)) return;
-        if(placeDOffice(z[0],o.P.k,oDe,vue,jc,mmdd)) return;
-        var sansX=tenuDuPoste(o,jc,z[0]);
-        if(tenuParRemplacant(z[0],oDe,mmdd,jc) && o.attendu && sansX<o.attendu) return;
-        if(oDe && ARRIERE_POSTES[o.P.k] && ARRIERE_POSTES[oDe.P.k] && o.attendu && sansX<o.attendu
-           && (!oDe.attendu || oDe.tenu>=oDe.attendu)) return;
-        out.push({p:z[0].p, pause:g, de:z[1].de, vers:z[1].vers, r:raisonsTransfert(par,g,o.P,jc,z[0],vue,z[1].de)});
-      });
-    });
+    vueH.postes.forEach(function(q){ q.gens.forEach(function(z){
+      if(z.partage || !z.propose) return;
+      if(z.proposeH){ var rp=z.proposePour;
+        out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, h:z.proposeH,
+          r:{qui:[{p:rp.p, motif:"remplace "+rp.remp+" ("+nomPosteApp(rp.vers).toLowerCase()+") de "+hh(rp.a)+" à "+hh(rp.b)}], note:""}});
+        return; }
+      var Pv=null; vueH.postes.forEach(function(o){ if(o.P.k===z.propose) Pv=o.P; });
+      out.push({p:z.p, pause:g, de:q.P.k, vers:z.propose, r:raisonsTransfert(par,g,Pv,jc,z,vue,q.P.k)});
+    }); });
   });
   return out;
 }

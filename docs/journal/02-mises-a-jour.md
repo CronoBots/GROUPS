@@ -2150,6 +2150,18 @@ après une mise à jour, 1 navigation (2 avant) ; application ouverte
 puis mise à jour au retour au premier plan, 1 rechargement ; page
 chargée hors ligne puis réseau revenu, 1 rechargement.
 
+Le 03/11/2026, le résumé de `CLAUDE.md` est venu ici à son tour, mot
+pour mot (le fichier dépassait encore ses 25 Ko) :
+
+> Le service worker prend la page et l'horaire **au réseau d'abord**
+> (revalidés, `cache:"no-cache"`), icônes et polices au cache ; hors
+> ligne, tout retombe sur le cache — vérifié avec Playwright
+> (`setOffline(true)`). L'application installée redemande `sw.js` au
+> retour au premier plan et toutes les 30 min, et ne se recharge que si
+> la page peut être ancienne (chargée hors ligne, ou ouverte depuis plus
+> de 15 s). Le pourquoi, mesuré (v119, v356, v604) :
+> `docs/journal/02-mises-a-jour.md`, « La page neuve arrive au téléphone ».
+
 ### Le robot des congés scolaires : son premier passage n'a pas eu lieu (01/11/2026)
 
 Le 01/11/2026, la vérification du premier passage mensuel

@@ -3148,3 +3148,86 @@ personne pour la place de PLZ). La place est vide d'après le classeur :
 admise dans `tools/manques-admis.txt`, raison écrite ; le contrôle
 revient à 0 (2 admis). Une date d'un autre jour reste à relire (VGG le
 15/03, « presté 7h le 20.03 »), comme le rapport le signale.
+
+## Le check logique du 03/11/2026 (`nfdm-v1313`)
+
+Le client, le 03/11/2026 : « check logique complète ». Deux étages.
+
+### Les contrôles du dépôt, tous relancés
+
+Les neuf règles du vérificateur à 0 (2026 et 2027), `--manques-commentes`
+à 0, les congés scolaires à 0, le parcours à 0 (183 essais).
+`verifier-integralite.py` rendait 1 (157 journées) : la copie locale du
+classeur est celle du 30/10, l'horaire installé celui du robot, le
+02/11 à 13 h 49. Confronté à l'horaire du 30/10 (`git show cb60067`), le
+même outil rend 0 : l'écart est la copie périmée, pas une faute.
+
+### La cohérence du Planning, jour par jour (`tools/coherence-planning.js`)
+
+Le vérificateur rejoue le moteur ; le Planning ajoute ses passes
+d'affichage, et « À prévenir » sortait d'une AUTRE fonction. Une copie de
+la page, avec deux relevés dans `renderEquipe()` (le moteur, puis le
+tableau), feuilletée au navigateur sur les 730 jours de 2026 et 2027, a
+confronté les trois. Mesuré sur `nfdm-v1312` :
+
+| règle | écarts |
+|---|---|
+| personne placée deux fois, absent placé, case et compte, orange sans proposé | 0 |
+| « À prévenir » ≠ Planning (pause, personne, départ, poste visé) | **34** |
+| trou rouge, la bulle du « ? » citant quelqu'un « en surnombre » | 36 |
+| proposition qui laisse son propre poste sous l'effectif | 5 |
+| deux proposés pour une seule place | 3 |
+
+Chaque famille a été confiée à un agent, puis REMESURÉE avant d'être crue
+(les diffs rejoués sur les 730 jours, comparés ligne à ligne) :
+
+- **« À prévenir » refaisait le calcul du Planning, autrement.** Il
+  partait du poste attitré (`transfertApp`) et non du poste d'avant :
+  GPO, « distill. Remplace PAM » les nuits des 13 au 15/11, était annoncé
+  « gluten → fermentation », alors que distillation → fermentation se
+  fait d'office (le 22/10) ; il ignorait le poste d'avant quand il menait
+  au poste attitré (FPS, QBY, HKB) et comptait chaque déplacé sans les
+  autres (GDT et GPO le 01/07). Le calcul du Planning est devenu
+  `propositionsPause()`, que les deux appellent : 34 → 0, le Planning
+  identique à l'octet sur les 730 jours.
+- **La cascade perdait son second maillon.** Le 08/05 au matin, CDE
+  (meunerie → terrain arrière) et LDY (chaudières → meunerie) : le
+  Planning traitait la meunerie d'abord, la voyait pleine avec CDE et
+  effaçait LDY. Un poste se compte désormais sans ceux qu'on propose
+  ailleurs (`tenuSans`), et le nettoyage se répète jusqu'au repos. Effet :
+  23/03 PM (PAM reste d'office au terrain arrière que SBZ quitte), 08/05
+  AM (LDY proposé), 31/08 PM (DWS d'office en fermentation) — trois jours,
+  tous passés. La meunerie du 08/05 s'affiche orange à 2/2 : CDE y est
+  encore, pointillé, et LDY y vient.
+- **Le renfort arrière proposé en double** (le 02/10 : « à côté du
+  titulaire ») : GPO et PAM la nuit du 06/07, GDT et PDE le 28/12/2026 et
+  le 06/01/2027. Quand un autre est proposé pour la place, le renfort ne
+  l'est plus.
+- **La bulle du « ? » mentait.** Elle comptait les copies venues du D
+  (« rien ne change aux comptes », le 20/10), les relais d'une autre
+  pause, la case du contremaître (l'adjoint qui y est le REMPLACE, le
+  21/09) et ceux déjà proposés ailleurs ; elle ne filtrait pas les heures
+  d'un trou court. 128 citations retirées, aucune ajoutée sauf GST « en
+  formation » (jaune) les 31/07, 01/08, 02/08 et 15/09. Reste « en
+  surnombre » sur 2 trous sur 730 : une question au client.
+- **Une faute de lecture** dans `relaisDouze()` : « remplace en meunerie
+  de 14h à 18h » (LDY le 12/08, CDE le 13/08) n'était pas lu ; ils étaient
+  comptés aux chaudières, la meunerie de l'après-midi vide. Le
+  commentaire prime : `--manques 0101` 137 → 135 journées, 201 → 199
+  places, `--placement --tout` ne change que ces deux cases ; les autres
+  modes et les 81 agendas identiques à l'octet.
+
+**Le moteur de rééquilibrage n'avait aucune faute** sur les 36 trous :
+dans chaque pause, personne n'y était en surnombre AU MOTEUR avec une
+place libre ; c'était la bulle. Quatre règles restent non écrites
+(`docs/questions-client.md`, « Le placement, après le check logique ») :
+le placé par sa cellule en surnombre, la consignation proposée au gluten,
+l'ordre des trous pour un seul surnombre, et la proposition de quelques
+heures sur un trou de pause entière.
+
+**Le contrôle reste** : `tools/coherence-planning.js`, la page même,
+730 jours, 3 min. Sur `nfdm-v1312` il rend 1 (34 fautes R9) ; sur
+`nfdm-v1313`, 0. Deux de mes règles de mesure étaient fausses au premier
+passage et ont été corrigées avant de conclure : un présent « absent du
+tableau » (FPA la nuit du 19/09) était un relais de 0 h à 6 h, et « pause
+sans contremaître » comptait 72 pauses en oubliant les relais (44).

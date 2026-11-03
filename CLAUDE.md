@@ -108,6 +108,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
 | `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC —, le clair sur quatre d'entre eux, le contraste de chaque texte, les accolades et les règles CSS retenues, puis hors ligne ; 6 min, `--vite` pour le seul portrait) |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
+| placement, Planning, « À prévenir » | `node tools/coherence-planning.js` → 0 : chaque jour des horaires, la page même au navigateur — placé deux fois, case et compte, orange et proposé, « À prévenir » = Planning ; 3 min |
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
@@ -296,6 +297,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/verifier-conges-scolaires.js` | confronte le calcul des congés scolaires (décret du 31/03/2022) aux arrêtés publiés |
 | `tools/conges-auto.js` | relit enseignement.be du 1er au 3 du mois, par l'horaire automatique (5 h UTC) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
+| `tools/coherence-planning.js` | confronte jour par jour le moteur, le Planning et « À prévenir » ; code 1 à la moindre faute |
 | `tools/parcours.js` | le parcours de l'application au navigateur, rôles et écrans, hors ligne compris ; code 1 à la moindre faute |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration, PowerShell en arrière-plan (`/tmp/pwsh-installation.log`) |
@@ -341,13 +343,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
    AU-DESSUS du sien (deux fois le 28/10/2026, la même valeur des deux
    côtés : la page neuve ne serait pas arrivée).
 
-   Le service worker prend la page et l'horaire **au réseau d'abord**
-   (revalidés, `cache:"no-cache"`), icônes et polices au cache ; hors
-   ligne, tout retombe sur le cache — vérifié avec Playwright
-   (`setOffline(true)`). L'application installée redemande `sw.js` au
-   retour au premier plan et toutes les 30 min, et ne se recharge que si
-   la page peut être ancienne (chargée hors ligne, ou ouverte depuis plus
-   de 15 s). Le pourquoi, mesuré (v119, v356, v604) :
+   Le service worker et la mise à jour de l'application installée :
    `docs/journal/02-mises-a-jour.md`, « La page neuve arrive au téléphone ».
 3. Tester dans un navigateur, pas seulement en unitaire. **Une mise en
    page de téléphone se mesure AUSSI avec les zones protégées de l'iPhone

@@ -1238,6 +1238,14 @@ lit PLZ (le client). Effet sur l'année : deux places creuses de moins depuis
 le 26/09, le gluten de l’après-midi du 23/10 et le contremaître de l’après-midi du 16/10 (GPS, ATR
 « de 14h à 18h » puis YPE « de 18h à 22h »).
 
+Le poste du relais peut aussi être écrit EN TOUTES LETTRES, sans nommer
+personne : « remplace en meunerie de 14h à 18h » (LDY le 12/08, CDE le
+13/08, chacun « 6h-18h » aux chaudières). Le commentaire prime : ces
+heures-là se tiennent à la meunerie, et non au poste du matin. Lu depuis
+`nfdm-v1313` (check logique du 03/11/2026, journal 08) : la meunerie de
+l'après-midi de ces deux jours passe de 0/1 à 1/1 (avec TCE de 18 h à
+22 h). « remplacé en … par » n'est pas cette forme.
+
 ### Fermentation, terrain arrière, distillation se comblent entre eux (22/10/2026)
 
 Le client, sur la nuit du 28/10 : « ce n'est pas GPO qui doit aller en
