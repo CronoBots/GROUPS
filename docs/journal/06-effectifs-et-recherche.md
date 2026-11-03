@@ -4440,3 +4440,24 @@ Le vérificateur du calendrier est identique à l'octet dans ses cinq
 modes : ce n'est pas le moteur des sous-effectifs. `prop-test.js` passe
 sans faute à 320, 390 et 1280 px ; sur la v1311, elle relève 4 fautes.
 `rh-test.js` attend désormais « À prévenir 1 ».
+
+### Le trou d'une incohérence : à son poste, le reste à part (03/11/2026, `nfdm-v1319`)
+
+Relevé pendant la suite du check logique, puis tranché par le client en
+QCM : « son poste, plus une mention ailleurs ». `incTrous()` annonçait
+« Crée un trou » pour toute place vide de la pause. Mesuré sur les 191
+incohérences de 2026 et 2027 : 40 annonces, dont **24 sans lien** — le
+trou n'était ni au poste habituel ni au poste du jour d'aucune personne
+en cause (présences contredites 12 sur 18, remplaçant absent 3 sur 10,
+remplacé par plusieurs 3 sur 5, à préciser 3 sur 4, échanges 3 sur 3).
+Le 10/08 l'après-midi, JKS « DBE, ASS et CWN présents », ASS en DTT :
+« Crée un trou : Contremaître et Fermentation », postes que ni l'un ni
+l'autre ne tiennent. Toutes passées : les deux annonces à venir (les 14
+et 15/11, chaudières, QDE et SBZ) étaient justes. Mon premier compte
+disait 25 : il oubliait que l'adjoint relève du contremaître.
+
+Désormais un trou est celui de l'incohérence s'il est au poste habituel
+d'une personne en cause, ou à celui qu'elle tient ce jour-là (le
+moteur), le contremaître pour un adjoint ; sinon « Pas de trou à ce
+poste — la pause a une place libre ailleurs : … ». Mesuré : 16 « Crée un
+trou », 24 « place libre ailleurs », les 14 et 15/11 inchangés.

@@ -31431,24 +31431,38 @@ function incAnnees(){ var deb=null, fin=null;
    aujourd'hui exceptée. Rend null quand aucune pause n'est connue. */
 function incTrous(o,cache,finies){
   var db=horaireSuivant(o.an); if(!db||!o.pauses||!o.pauses.length) return null;
-  var mmdd=pad2(o.m)+pad2(o.j), k=o.an+mmdd, c=cache[k], out=[];
-  if(!c) c=cache[k]={par:equipeDuJour(db,o.an,o.m,o.j), v:{}};
+  var mmdd=pad2(o.m)+pad2(o.j), k=o.an+mmdd, c=cache[k], out=[], ail=[], jc=o.an*10000+Number(mmdd);
+  if(!c) c=cache[k]={par:equipeDuJour(db,o.an,o.m,o.j), v:{}, ou:{}};
   var ps=o.pauses.filter(function(g){ return !(finies&&finies[g]); });
   if(!ps.length) return null;
   ps.forEach(function(g){
-    if(!(g in c.v)){ var l=c.par[g], v=[];
+    if(!(g in c.v)){ var l=c.par[g], v=[], ou={};
       if(l&&l.length){ try{ postesDePause(db,l,g,mmdd,g==="AM"?c.par.D:null).postes.forEach(function(x){
-        if(x.manque) v.push({t:x.P.t, n:Math.max(1,(x.attendu||0)-(x.tenu||0))}); }); }catch(e){} }
-      c.v[g]=v; }
-    c.v[g].forEach(function(x){ out.push({g:g, t:x.t, n:x.n}); });
-  });
-  return {trous:out, pauses:ps};
+        x.gens.forEach(function(y){ ou[y.p.id]=x.P.k; });
+        if(x.manque) v.push({t:x.P.t, k:x.P.k, n:Math.max(1,(x.attendu||0)-(x.tenu||0))}); }); }catch(e){} }
+      c.v[g]=v; c.ou[g]=ou; } });
+  /* LE TROU À SON POSTE (le client, le 03/11/2026, en QCM : « son poste,
+     plus une mention ailleurs ») : un trou n'est celui de l'incohérence
+     que s'il est au poste d'une personne en cause — son poste habituel,
+     ou celui qu'elle tient ce jour-là ; le contremaître pour un adjoint.
+     Le 10/08 l'après-midi, « DBE, ASS et CWN présents » annonçait le
+     contremaître et la fermentation, que ni JKS ni ASS ne tiennent :
+     24 annonces sur 40 n'avaient aucun lien. Les autres places vides de
+     la pause sont dites à part. */
+  var lies={};
+  function lie(pk){ if(!pk) return; lies[pk]=1; if(pk==="adj") lies.cm=1; }
+  (o.qui||[]).forEach(function(t){ db.people.forEach(function(z){ if(idLisible(z.id)!==t) return;
+    try{ lie(posteAttitreLe(z,jc)); }catch(eA){}
+    ps.forEach(function(g){ lie(c.ou[g][z.id]); }); }); });
+  ps.forEach(function(g){ c.v[g].forEach(function(x){ (lies[x.k]?out:ail).push({g:g, t:x.t, n:x.n}); }); });
+  return {trous:out, ailleurs:ail, pauses:ps};
 }
 function incTrouHTML(T){
   if(!T) return "";
   function et(l){ return l.length>1?l.slice(0,-1).join(", ")+" et "+l[l.length-1]:l[0]; }
-  if(T.trous.length) return '<span class="inc-trou"><b>Crée un trou</b> : '+esc(et(T.trous.map(function(x){
-    return x.t+" en "+x.g+(x.n>1?" ("+x.n+" places vides)":""); })))+'</span>';
+  function dit(l){ return et(l.map(function(x){ return x.t+" en "+x.g+(x.n>1?" ("+x.n+" places vides)":""); })); }
+  if(T.trous.length) return '<span class="inc-trou"><b>Crée un trou</b> : '+esc(dit(T.trous))+'</span>';
+  if(T.ailleurs&&T.ailleurs.length) return '<span class="inc-ok">Pas de trou à ce poste — la pause a une place libre ailleurs : '+esc(dit(T.ailleurs))+'</span>';
   return '<span class="inc-ok">Pas de trou : '+(T.pauses.length>1?"les pauses "+et(T.pauses)+" sont complètes":"la pause "+T.pauses[0]+" est complète")+'</span>';
 }
 var incFait="", incPasse={cle:"", l:null};
