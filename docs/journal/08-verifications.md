@@ -3264,3 +3264,16 @@ changent, tous passés — le 22/01 au matin, le gluten devient un vrai trou
 surnombre au terrain arrière, est proposé au gluten à la place de BLR.
 `--manques 0101` 197 → 198 places ; les autres modes, 2027 et les
 agendas identiques ; `coherence-planning.js` 0 faute.
+
+### La troisième réponse : l'ordre des trous reste celui des postes
+
+Le client, le 03/11/2026, à la question « une seule personne en
+surnombre, plusieurs trous : lequel d'abord ? » : « pas vraiment de règle
+là-dessus, ça dépend des personnes présentes et de leurs polyvalences ;
+mais il y a des postes où c'est plus facile de trouver des gens que
+d'autres ». Avant de coder, mesuré sur une copie : `reequilibrer()`
+servant d'abord le trou que le moins de présents savent tenir (le plus
+difficile à pourvoir), les trous sans candidat en dernier. 2026 :
+`--manques 0101` 198 → **199** places creuses, treize pauses de
+`--placement --tout` déplacées ; 2027 : rien. L'ordre fixe comble au
+moins autant : il est gardé, sans changement de code.

@@ -1434,6 +1434,15 @@ poste où il manque quelqu'un, car il a toutes les polyvalences. »
    tient la meunerie (`nfdm-v1315`) ; le 22/07, FLN, en surnombre au
    terrain arrière, est proposé au gluten à sa place, et le 22/01 le
    gluten du matin reste un vrai trou.
+   **L'ordre des trous reste celui des postes** (meunerie, gluten,
+   fermentation…) quand un seul surnombre pourrait en combler plusieurs.
+   Le client, le 03/11/2026 : « pas vraiment de règle là-dessus, ça
+   dépend des personnes présentes et de leurs polyvalences ; mais il y a
+   des postes où c'est plus facile de trouver des gens que d'autres ».
+   Mesuré le même jour : servir d'abord le trou que le moins de présents
+   savent tenir ne comble pas plus de trous (2026 : 199 places creuses au
+   lieu de 198, treize pauses déplacées ; 2027 : rien ne change) ; l'ordre
+   fixe est gardé.
 2. **La polyvalence commande.** Le terrain arrière demande fermentation ET
    distillation, les autres postes demandent leur atelier.
 3. **L'adjoint vient en dernier.** Tant qu'un poste en surnombre peut fournir

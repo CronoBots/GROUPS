@@ -127,15 +127,11 @@ des questions au client ».
 
 - **Le placement, après le check logique du 03/11/2026** (journal 08,
   « Le check logique du 03/11/2026 »). Quatre règles que ni le classeur ni
-  les décisions écrites ne tranchent, posées une à une (deux tranchées
+  les décisions écrites ne tranchent, posées une à une (trois tranchées
   le 03/11/2026 : le placé par sa cellule en surnombre est proposé, la
-  consignation reste à la meunerie — `docs/conversion-horaire.md`,
-  « Rééquilibrer une pause ») :
-  1. Une seule personne en surnombre, plusieurs trous la même pause : à
-     quel trou la proposer d'abord ? Aujourd'hui, l'ordre fixe des postes
-     (meunerie, gluten, fermentation…), ex. SBZ en meunerie plutôt qu'en
-     fermentation la nuit du 17/03.
-  2. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
+  consignation reste à la meunerie, l'ordre des trous reste celui des
+  postes — `docs/conversion-horaire.md`, « Rééquilibrer une pause ») :
+  1. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
      quand un relais le libère (CDE libre de 18 h à 22 h et SMA de 14 h à
      18 h, le 11/07 PM, couvriraient le terrain arrière) ? La décision du
      02/11 ne couvre que le cas inverse (un trou d'une heure).
