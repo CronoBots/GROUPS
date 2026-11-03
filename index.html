@@ -6129,6 +6129,41 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-couv{position:relative; aspect-ratio:2170/540; overflow:hidden; background:var(--fd-couv) url(banniere.jpg) 100% 50%/cover no-repeat;
   border-bottom:1px solid var(--bd-blanc-08)}
 .pf-roue{background:rgba(17,23,39,.55); border-radius:50%}
+/* L'HEURE ET LA MÉTÉO (03/11/2026, d'après l'écran officiel de l'usine) :
+   en haut à gauche de la bannière, sur l'usine, le verre sombre de la roue
+   et du badge. Au PC, comme l'écran : l'horloge en gros chiffres
+   réguliers, les deux-points en deux points pâles, la date dessous ; puis
+   l'icône du temps, son nom dessous, et la température. Au téléphone, la
+   bannière n'a que 80 à 90 px de haut et l'avatar en mord le bas : une
+   pilule d'une ligne, de la hauteur de la roue (40 px) — l'heure, l'icône
+   (le nom du temps dans le titre), la température. Le badge des
+   changements suit à droite. */
+.pf-haut{position:absolute; z-index:1; top:10px; left:10px; right:60px; display:flex; align-items:flex-start; gap:8px; pointer-events:none}
+.pf-haut>*{pointer-events:auto}
+.pf-haut .pf-notif{position:relative; top:auto; left:auto; flex:0 0 auto}
+.pf-mt{display:flex; align-items:center; gap:10px; min-width:0; height:40px; box-sizing:border-box; padding:0 14px 0 13px; border-radius:999px;
+  background:rgba(17,23,39,.7); color:#fff; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.pf-mt-h{display:flex; flex-direction:column; align-items:flex-start; min-width:0}
+.pf-mt-hh{display:flex; align-items:center; font:600 19px/1 Archivo,system-ui,sans-serif; font-variant-numeric:tabular-nums; letter-spacing:.01em}
+.pf-mt-hh i{display:inline-block; width:4px; height:12px; margin:0 2px; background:radial-gradient(circle,rgba(255,255,255,.6) 1.5px,transparent 2px) 0 0/4px 6px repeat-y}
+.pf-mt-d,.pf-mt-tl{display:none; font-size:12px; line-height:1.1; color:rgba(255,255,255,.88); white-space:nowrap}
+.pf-mt-w{display:flex; align-items:center; gap:6px}
+.pf-mt-w:empty{display:none}
+.pf-mt-t{display:flex; flex-direction:column; align-items:center}
+.pf-mt-t svg{width:20px; height:20px}
+.pf-mt-c{font:600 19px/1 Archivo,system-ui,sans-serif; font-variant-numeric:tabular-nums}
+@media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){
+  .pf-haut{top:14px; left:14px; right:70px; gap:10px}
+  .pf-mt{gap:20px; height:auto; padding:10px 18px 10px 16px; border-radius:14px}
+  .pf-mt-h{gap:5px}
+  .pf-mt-hh{font-size:36px}
+  .pf-mt-hh i{width:6px; height:20px; margin:0 5px; background:radial-gradient(circle,rgba(255,255,255,.55) 2.4px,transparent 3px) 0 0/6px 10px repeat-y}
+  .pf-mt-d{display:block; font-size:13px}
+  .pf-mt-w{gap:20px}
+  .pf-mt-t{gap:4px} .pf-mt-t svg{width:32px; height:32px}
+  .pf-mt-tl{display:block}
+  .pf-mt-c{font-size:38px}
+}
 /* En haut à droite de la bannière (le client, le 18/10/2026) ; le badge des
    changements d'horaire prend sa place en haut à gauche, sur l'usine. */
 .pf-roue{top:10px; right:10px; left:auto}
@@ -9207,6 +9242,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 <li>un historique des modifications : avant, après, auteur et heure.</li>
 </ul>
 <p><b>Publié avec l’application</b> : l’horaire d’équipe et les agendas à s’abonner, où chacun n’est désigné que par son trigramme, jamais par son nom.</p>
+<p><b>La météo de l’Accueil</b> vient d’Open-Meteo (open-meteo.com), interrogé pour Wanze seulement : ni votre nom, ni votre trigramme, ni votre position ne lui sont envoyés.</p>
 </div></details>
 <details class="aide-sec"><summary>Pourquoi</summary><div class="aide-sec-c">
 <ul>
@@ -16466,6 +16502,99 @@ function _pfCom(p,d){
   var t=comPro(c).split("\n").join(" ");
   return t?'<span class="pf-proch-com" title="'+esc(t)+'">'+esc(t)+'</span>':"";
 }
+/* L'HEURE ET LA MÉTÉO SUR LA BANNIÈRE (le client, le 03/11/2026, photo de
+   l'écran officiel de l'usine à l'appui : « est-ce possible d'afficher
+   l'heure, la météo et la température de la même manière ? »). Comme
+   l'écran : l'horloge à la seconde, la date dessous, le temps qu'il fait
+   (icône au trait, son nom dessous) et la température, à Wanze. La météo
+   vient d'Open-Meteo (gratuit, sans clé) ; la demande ne porte que sur
+   les coordonnées de l'usine, rien de la personne (« Vos données » le
+   dit). Relue tous les quarts d'heure, deux minutes après un échec ;
+   gardée sur l'appareil, elle ne s'affiche plus passé une heure : hors
+   ligne sans copie fraîche, seule l'heure reste. L'horloge ne tourne que
+   page visible et Accueil affiché. */
+var METEO_URL="https://api.open-meteo.com/v1/forecast?latitude=50.54&longitude=5.23&current=temperature_2m,weather_code,is_day&timezone=Europe%2FBrussels";
+var METEO_CLE="meteo/wanze", METEO_VIEUX=3600000, meteoProchain=0, meteoEnCours=0, meteoMinuteur=null;
+var METEO_JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var METEO_ICO={
+  soleil:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  lune:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  eclaircie:'<path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41"/><path d="M15.95 12.65a4 4 0 0 0-5.93-4.13"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z"/>',
+  eclaircieNuit:'<path d="M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6z"/><path d="M10.1 9A6 6 0 0 1 16 4a4.24 4.24 0 0 0 6 6 6 6 0 0 1-3 5.2"/>',
+  nuage:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>',
+  brouillard:'<path d="M3 7.5c1.5-1.3 3-1.3 4.5 0s3 1.3 4.5 0 3-1.3 4.5 0 3 1.3 4.5 0M3 12.5c1.5-1.3 3-1.3 4.5 0s3 1.3 4.5 0 3-1.3 4.5 0 3 1.3 4.5 0M3 17.5c1.5-1.3 3-1.3 4.5 0s3 1.3 4.5 0 3-1.3 4.5 0 3 1.3 4.5 0"/>',
+  bruine:'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M8 19v1M8 14v1M16 19v1M16 14v1M12 21v1M12 16v1"/>',
+  pluie:'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M16 14v6M8 14v6M12 16v6"/>',
+  neige:'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M8 15h.01M8 19h.01M12 17h.01M12 21h.01M16 15h.01M16 19h.01"/>',
+  orage:'<path d="M6 16.33A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.97"/><path d="M13 12l-3 5h4l-3 5"/>'
+};
+/* les codes WMO d'Open-Meteo : l'icône et le nom du temps */
+function meteoTemps(c,jour){
+  if(c===0) return [jour?"soleil":"lune","dégagé"];
+  if(c===1) return [jour?"soleil":"lune","peu nuageux"];
+  if(c===2) return [jour?"eclaircie":"eclaircieNuit","éclaircies"];
+  if(c===3) return ["nuage","couvert"];
+  if(c===45) return ["brouillard","brouillard"];
+  if(c===48) return ["brouillard","brouillard givrant"];
+  if(c>=51&&c<=55) return ["bruine","bruine"];
+  if(c===56||c===57) return ["bruine","bruine verglaçante"];
+  if(c===61) return ["pluie","pluie faible"];
+  if(c===63) return ["pluie","pluie"];
+  if(c===65) return ["pluie","forte pluie"];
+  if(c===66||c===67) return ["pluie","pluie verglaçante"];
+  if(c===71) return ["neige","neige faible"];
+  if(c===73) return ["neige","neige"];
+  if(c===75) return ["neige","forte neige"];
+  if(c===77) return ["neige","grésil"];
+  if(c===80||c===81) return ["pluie","averses"];
+  if(c===82) return ["pluie","fortes averses"];
+  if(c===85||c===86) return ["neige","averses de neige"];
+  if(c===95) return ["orage","orage"];
+  if(c===96||c===99) return ["orage","orage et grêle"];
+  return ["nuage",""];
+}
+function meteoDate(d){ return METEO_JOURS[d.getDay()]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" "+d.getFullYear(); }
+function meteoChiffres(d){ return '<b>'+pad2(d.getHours())+'</b><i></i><b>'+pad2(d.getMinutes())+'</b><i></i><b>'+pad2(d.getSeconds())+'</b>'; }
+/* la dernière météo lue, si elle a moins d'une heure */
+function meteoFraiche(){ var o=lsGet(METEO_CLE); return o&&typeof o.t==="number"&&typeof o.temp==="number"&&Date.now()-o.t<METEO_VIEUX&&Date.now()>=o.t-60000?o:null; }
+function meteoTempsHTML(o){
+  if(!o) return "";
+  var t=meteoTemps(o.code,o.jour!==false), deg=Math.round(o.temp);
+  if(deg===0) deg=0; /* pas de « -0° » */
+  return '<span class="pf-mt-t"'+(t[1]?' title="'+t[1]+'"':'')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+METEO_ICO[t[0]]+'</svg>'
+    +(t[1]?'<span class="pf-mt-tl">'+t[1]+'</span>':'')+'</span>'
+    +'<span class="pf-mt-c" aria-label="'+(deg<0?"moins ":"")+Math.abs(deg)+' degrés">'+(deg<0?"−"+Math.abs(deg):deg)+'°</span>';
+}
+function meteoHTML(){
+  var d=new Date(), o=meteoFraiche();
+  return '<div class="pf-mt" id="pfMt" role="group" aria-label="Heure et météo à Wanze" title="Météo à Wanze · Open-Meteo.com">'
+    +'<span class="pf-mt-h"><span class="pf-mt-hh" id="pfMtH" aria-hidden="true">'+meteoChiffres(d)+'</span><span class="pf-mt-d" id="pfMtD">'+meteoDate(d)+'</span></span>'
+    +'<span class="pf-mt-w" id="pfMtW">'+meteoTempsHTML(o)+'</span></div>';
+}
+function meteoPeindre(){ var w=document.getElementById("pfMtW"); if(w) w.innerHTML=meteoTempsHTML(meteoFraiche()); }
+function meteoLire(){
+  var n=Date.now();
+  if(!window.fetch||n<meteoProchain||(meteoEnCours&&n-meteoEnCours<60000)) return;
+  meteoEnCours=n; meteoProchain=n+120000; /* deux minutes après un échec */
+  fetch(METEO_URL,{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+    var c=j&&j.current; if(!c||typeof c.temperature_2m!=="number") return;
+    lsSet(METEO_CLE,{t:Date.now(), temp:c.temperature_2m, code:+c.weather_code, jour:c.is_day!==0});
+    meteoProchain=Date.now()+900000; /* un quart d'heure */
+    meteoPeindre();
+  }).catch(function(){}).then(function(){ meteoEnCours=0; });
+}
+function meteoTic(){
+  meteoMinuteur=setTimeout(meteoTic,1000-Date.now()%1000+15);
+  var h=document.getElementById("pfMtH"); if(!h||document.hidden||!h.offsetParent) return;
+  var d=new Date(); h.innerHTML=meteoChiffres(d);
+  var e=document.getElementById("pfMtD"), t=meteoDate(d); if(e&&e.textContent!==t) e.textContent=t;
+  if(d.getSeconds()===0) meteoPeindre(); /* une copie trop vieille s'efface */
+  meteoLire();
+}
+function meteoDemarrer(){
+  if(!meteoMinuteur) meteoMinuteur=setTimeout(meteoTic,1000-Date.now()%1000+15);
+  meteoLire();
+}
 function _pfHead(db,p){
   var tri=idLisible(p.id);
   var cadre=(typeof estCadre==="function")&&estCadre(p);
@@ -16635,8 +16764,8 @@ function _pfHead(db,p){
   return '<div class="pf-hero">'
     +'<h2 class="sr-only">Mon profil · '+esc(tri)+', '+esc(role)+'</h2>'
     +'<div class="pf-couv" aria-hidden="true"></div>'
+    +'<div class="pf-haut">'+meteoHTML()+badgeNotifHTML()+'</div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
-    +badgeNotifHTML()
     +'<div class="pf-prof"><span class="pf-av" aria-hidden="true">'+esc(tri)+'</span>'
     /* À côté du cercle, le poste puis le statut en clair, sans badge (le
        client, le 16/10/2026 : le trigramme est déjà dans le cercle). */
@@ -16846,8 +16975,9 @@ function majBadgeNotif(){
   var h=document.querySelector("#rythmeTete .pf-hero"); if(!h) return;
   var v=document.getElementById("pfNotif"); if(v) v.parentNode.removeChild(v);
   if(!NOTIF_NB) return;
-  var r=h.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
-  if(r&&r.nextSibling) h.insertBefore(w.firstChild,r.nextSibling); else h.appendChild(w.firstChild);
+  var ht=h.querySelector(".pf-haut");
+  var w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
+  if(ht) ht.appendChild(w.firstChild); else h.appendChild(w.firstChild);
 }
 var notifRetour=null;
 function ouvrirNotif(){
@@ -23851,7 +23981,7 @@ function renderRythme(){
   var ag=document.getElementById("agendaCard");
   if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
-  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} }
+  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
      l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
   if(typeof finIntro==="function") finIntro();

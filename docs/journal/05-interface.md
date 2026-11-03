@@ -10825,3 +10825,42 @@ Planning : vous en cyan (`--in` sur `--in-soft`), une personne en
 formation au poste en encre jaune, une journée en filet pointillé, une
 place libre « ? » en rouge sur le fond des manques. Mesures : parcours
 112 essais, 0 faute (contraste compris) en 1 min 47.
+
+### L'heure et la météo sur la bannière de l'Accueil (03/11/2026, `nfdm-v1330`)
+
+Le client, photo de l'écran officiel de l'usine à l'appui : « est-ce
+possible d'afficher l'heure, la météo et le temps de la même manière ? ».
+L'écran officiel porte, en tête : le logo, l'horloge à la seconde
+(« 05 : 52 : 22 », deux-points pâles), la date dessous, l'icône du temps
+au trait et son nom dessous (« brouillard »), la température (« 9° »).
+
+**Où.** Sur la bannière de l'Accueil, en haut à gauche, sur l'usine : le
+logo y est déjà à droite, c'est l'en-tête de l'écran officiel. Au PC
+(bannière de 190 à 240 px), l'écran est repris tel quel : chiffres de
+36 px réguliers (`tabular-nums`, rien ne danse d'une seconde à l'autre),
+date de 13 px dessous, icône de 32 px et son nom, température de 38 px,
+sur le verre sombre de la roue des réglages. Au téléphone, la bannière
+n'a que 81 à 89 px de haut et l'avatar en mord le bas (dès 80 px) : un
+premier essai sur deux lignes (48 px de haut) le touchait et couvrait la
+moitié de la photo ; c'est donc une pilule d'une ligne, 40 px comme la
+roue — l'heure, l'icône (le nom du temps en infobulle), la température —,
+167 px de large. Le badge des changements d'horaire, qui tenait ce coin,
+suit à droite dans la même rangée (mesuré : il finit à 266 px, la roue
+commence à 293 px sur un écran de 360).
+
+**La météo.** Open-Meteo (gratuit, sans clé, données sous licence
+CC BY 4.0 — crédit dans l'infobulle), interrogé pour les coordonnées de
+l'usine, à Wanze : la demande ne porte rien de la personne, et la page
+« Vos données » le dit. Relue tous les quarts d'heure, deux minutes après
+un échec ; la dernière lecture est gardée sur l'appareil et ne s'affiche
+plus passé une heure — hors ligne sans copie fraîche, seule l'heure
+reste (essayé : requête coupée, l'horloge et la date seules). Les codes
+WMO donnent dix icônes (soleil, lune, éclaircies de jour et de nuit,
+nuage, brouillard, bruine, pluie, neige, orage) et leur nom en français.
+L'horloge suit la seconde ronde et ne tourne que page visible et Accueil
+affiché. Le service worker laisse passer les autres origines : la météo
+n'est jamais mise en cache par lui.
+
+Mesures : horloge essayée sur une minute (05:52:29 puis 05:53:29),
+captures à 1280, 800, 390 et 360 px, avec et sans badge, avec et sans
+météo ; parcours 112 essais, 0 faute.
