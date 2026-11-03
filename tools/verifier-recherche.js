@@ -24,6 +24,9 @@
  *      demi-heure de la pause reste sous l'effectif, ou l'inverse ;
  *   A  absence : un trou à une heure que l'absence ouvre (il n'y était pas
  *      avec la personne) et que la recherche ne signale pas ;
+ *   M  le mode Remplaçant (caRechercher) : le poste montré (« 1/1 ») ne
+ *      suit pas le compte heure par heure (le 12/01, « 1/1, LHS » alors que
+ *      LHS part à 7 h) ;
  *   P  le Planning du jour réel : un poste « complet » à la pause qui a
  *      pourtant une demi-heure sous l'effectif sans être en manque — le
  *      client, le 03/11/2026, en QCM : « oui, en rouge » (trouAuxHeures) ;
@@ -68,7 +71,7 @@ window.__verifRech=function(an,m,j){
     return (memo[k]=out); }
   function pd(dec){ return pl(new Date(an,m-1,j+dec)); }
   var par=pd(0)._par, PZ={AM:[6,14],PM:[14,22],N:[22,30]};
-  var R={f:[], l:[], p:[], n:{h:0,j:0,a:0,r:0}};
+  var R={f:[], l:[], p:[], n:{h:0,j:0,a:0,r:0,m:0}};
   function faute(c,t){ R.f.push(c+" "+t); }
   /* --- SA lecture des heures, sans rien emprunter à l'application ---------- */
   function hDe(hh,mm,t0){ var v=Number(hh)+Number(mm||0)/60; while(v<t0-12) v+=24; while(v>=t0+12) v-=24; return v; }
@@ -121,7 +124,8 @@ window.__verifRech=function(an,m,j){
     var out=[];
     Object.keys(VUES).forEach(function(g2){ VUES[g2].postes.forEach(function(o2){
       if(!o2.attendu || (g2===g && o2===o)) return;
-      var siens=relaisAuxHeures(db,o2,g2,an,m,j).filter(function(r){ return r.p.id===id; });
+      var siens=relaisAuxHeures(db,o2,g2,an,m,j).concat((o2.relais||[]).filter(function(r){ return r && r.p && r.a!=null && r.b!=null; }))
+        .filter(function(r){ return r.p.id===id; });
       if(!siens.length) return;
       var gens=o2.gens.filter(function(y){ return y.p.id!==id; }), cW=compte(o2,gens,g2,null), cS=compte(o2,gens,g2,id), us=[];
       cS.forEach(function(v,i){ if(v<o2.attendu && cW[i]>v) us.push(PZ[g2][0]+i*0.5); });
@@ -141,6 +145,17 @@ window.__verifRech=function(an,m,j){
       if(Math.abs(A[0]-B[0])>0.01 || Math.abs(A[1]-B[1])>0.01)
         R.l.push(g+" "+idLisible(x.p.id)+" : l'application "+hh(A[0])+"-"+hh(A[1])+", l'outil "+hh(B[0])+"-"+hh(B[1])+"  "+JSON.stringify(raw));
     }); });
+    /* M : le mode Remplaçant (caRechercher) montre le poste à son plus bas,
+       chacun à ses heures, comme le Planning */
+    vue.postes.forEach(function(o){
+      if(!o.attendu) return;
+      var rr=caRechercher(db,an,m,j,g,o.P.k,pd); R.n.m++;
+      var c=compte(o,o.gens,g,null), bas=Math.min.apply(null,c);
+      /* un trou : le compte au plus bas ; sinon, le poste au complet (le
+         surnombre de la pause peut rester affiché : 3/2 quand l'un part tôt) */
+      var dit=rr?(bas<o.attendu?rr.tenu!==Math.min(bas,o.tenu):rr.tenu<o.attendu):false;
+      if(dit) faute("M",g+" "+o.P.k+" : la recherche dit "+rr.tenu+"/"+rr.attendu+", le compte "+Math.min(bas,o.tenu)+"/"+o.attendu+(bas<o.attendu?" (sous l'effectif "+trousDe(c,o,g)+")":""));
+    });
     /* P : le Planning du jour réel */
     vue.postes.forEach(function(o){
       if(!o.attendu || o.manque) return;
@@ -235,7 +250,7 @@ const ANNEES=fs.readdirSync(path.join(RACINE,"data")).map(f=>(/^horaire-(\d{4})\
   const ERR=[]; p.on("pageerror",e=>ERR.push("erreur de la page : "+e.message));
   await p.clock.setFixedTime(new Date(ANNEES[0]+"-01-01T09:00:00"));
   await p.goto("http://127.0.0.1:"+srv.address().port+"/"); await p.waitForTimeout(4000);
-  const F={}, L=[], P=[], N={h:0,j:0,a:0,r:0};
+  const F={}, L=[], P=[], N={h:0,j:0,a:0,r:0,m:0};
   let jours=0;
   for(const an of ANNEES){
     for(let t=Date.UTC(an,0,1); t<=Date.UTC(an,11,31); t+=864e5){
@@ -243,7 +258,7 @@ const ANNEES=fs.readdirSync(path.join(RACINE,"data")).map(f=>(/^horaire-(\d{4})\
       let r=null;
       try{ r=await p.evaluate(a=>window.__verifRech(a[0],a[1],a[2]),[an,m,j]); }catch(e){ ERR.push(dt+" "+String(e.message||e).slice(0,160)); continue; }
       if(!r) continue; jours++;
-      ["h","j","a","r"].forEach(k=>N[k]+=r.n[k]);
+      ["h","j","a","r","m"].forEach(k=>N[k]+=r.n[k]);
       r.f.forEach(x=>{ const c=x[0]; (F[c]=F[c]||[]).push(dt+"  "+x.slice(2)); });
       r.l.forEach(x=>L.push(dt+"  "+x)); r.p.forEach(x=>P.push(dt+"  "+x));
     }
@@ -251,10 +266,10 @@ const ANNEES=fs.readdirSync(path.join(RACINE,"data")).map(f=>(/^horaire-(\d{4})\
   await b.close(); srv.close();
   if(ERR.length) F.E=ERR;
   const NOMS={H:"congé à l'heure : la réponse contredit le compte heure par heure",J:"congé d'un jour : la réponse contredit le compte heure par heure",
-    A:"absence : un trou à une heure que la recherche ne signale pas",P:"Planning : un poste « complet » vide à une heure, pas en rouge",R:"ses relais ailleurs : le poste qu'elle tenait quelques heures reste vide sans qu'on le dise",E:"erreur"};
-  console.log(jours+" journées · "+N.h+" congés à l'heure, "+N.j+" congés d'un jour, "+N.a+" absences rejoués · "+N.r+" relais ailleurs");
+    A:"absence : un trou à une heure que la recherche ne signale pas",P:"Planning : un poste « complet » vide à une heure, pas en rouge",M:"remplaçant : le poste montré ne suit pas le compte heure par heure",R:"ses relais ailleurs : le poste qu'elle tenait quelques heures reste vide sans qu'on le dise",E:"erreur"};
+  console.log(jours+" journées · "+N.h+" congés à l'heure, "+N.j+" congés d'un jour, "+N.a+" absences, "+N.m+" recherches de remplaçant rejoués · "+N.r+" relais ailleurs");
   let fautes=0;
-  ["E","H","J","A","R","P"].forEach(c=>{ const l=F[c]||[]; fautes+=l.length;
+  ["E","H","J","A","R","M","P"].forEach(c=>{ const l=F[c]||[]; fautes+=l.length;
     console.log((l.length?"✗ ":"✓ ")+c+" "+NOMS[c]+" : "+l.length);
     l.slice(0,DETAIL?l.length:12).forEach(x=>console.log("    "+x)); if(!DETAIL && l.length>12) console.log("    … (--detail pour tout)"); });
   console.log("· L lecture des heures en désaccord avec l'outil : "+L.length+" (à relire)");

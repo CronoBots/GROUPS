@@ -4631,3 +4631,38 @@ rouge, avec les heures du trou. La v1336 reste telle quelle. Leçon : une
 fenêtre de question qui se ferme d'elle-même enregistre la recommandation ;
 une réponse que le client n'a pas tapée n'en est pas une — la reposer en
 texte quand il le signale.
+
+### « Toutes les recherches ont la bonne logique ? » — le Remplaçant aussi (03/11/2026, `nfdm-v1337`)
+
+La question du client. Réponse mesurée : non, pas toutes. Le mode
+Remplaçant (`caRechercher`) montrait le poste au compte de la pause : le
+12/01, « Fermentation, matin, 1/1, LHS », en vert, alors que LHS part à 7 h
+et que le Planning (v1336) montre la case rouge, « ? 07-14 ». Il compte
+maintenant comme les autres (`tenuAuxHeures`, toute la pause, les copies du
+D comprises) : « 0/1 · ? · il manque quelqu'un de 7 h à 14 h : LHS part à
+7 h ». Un poste en surnombre dont l'un part tôt reste montré au compte de
+la pause (3/2) : il est au complet.
+
+Deux défauts à moi, trouvés en ajoutant ce contrôle :
+- **RDT compté deux fois** (gluten du matin, le 10/08) : le relais d'une
+  pause entière (`o.relais`) revenait dans les relais à heures
+  (`relaisAuxHeures`). Il n'y revient plus ;
+- en le retirant, j'avais aussi retiré ces relais de « ses relais
+  ailleurs » (247 → 121 rejoués) : le congé de celui qui relaie une pause
+  entière ne disait plus le trou. `sesRelais` les reprend (247, 0 faute ;
+  sabotée, 1 486 fautes).
+
+`verifier-recherche.js` gagne la famille M (le Remplaçant, 15 686 essais :
+chaque jour, chaque pause, chaque poste) : 0 faute ; la version sans les
+heures en donne 96. Le premier essai du contrôle était trop strict (218
+« fautes » : des postes en surnombre, 3/2, dont l'un part tôt).
+`coherence-planning` 0 ; `verifier-calendrier` identique à la v1336.
+
+CHD proposé « poste pour poste » le 12/01 n'est pas une faute : en D de
+6 h à 14 h à la fermentation, il ne compte pas au poste du matin (la
+colonne D n'y compte que pour la consignation) ; le faire passer du D au
+matin est la solution sans frais.
+
+**Ce que la vérification ne couvre pas encore** : la justesse de chaque
+remplaçant PROPOSÉ (ses heures, ses 8 h de repos, sa polyvalence) ; elle
+couvre la réponse — complet ou trou, et à quelles heures — de chaque mode.

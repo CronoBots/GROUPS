@@ -32722,6 +32722,9 @@ function relaisAuxHeures(db,o,g,an,m,j){
      comprises) ; triIci : ceux qu'on peut « remplacer » */
   var ici={}, triIci={}, dejaLa={};
   (o.gens||[]).forEach(function(x){ dejaLa[x.p.id]=1; if(!x.partage && !x.depuisD){ ici[x.p.id]=x; triIci[idLisible(x.p.id)]=x; } });
+  /* le relais d'une pause entière (o.relais) est déjà compté : pas deux fois
+     (RDT, au gluten du matin le 10/08, comptait pour deux) */
+  (o.relais||[]).forEach(function(r){ if(r && r.p) dejaLa[r.p.id]=1; });
   function tri3(t){ t=String(t).toUpperCase(); return (typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t; }
   /* une personne une fois : ses heures qui se touchent se fondent */
   function ajoute(q,a,b){
@@ -32831,7 +32834,9 @@ function sesRelais(db,id,an,m,j){
     var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null);
     vue.postes.forEach(function(o){
       if(!o.attendu) return;
-      var siens=relaisAuxHeures(db,o,g,an,m,j).filter(function(r){ return r.p.id===id; });
+      /* à heures, et le relais d'une pause entière (o.relais) */
+      var siens=relaisAuxHeures(db,o,g,an,m,j).concat((o.relais||[]).filter(function(r){ return r && r.p && r.a!=null && r.b!=null; }))
+        .filter(function(r){ return r.p.id===id; });
       if(siens.length) out.push({g:g, o:o, P:o.P, vue:vue, siens:siens});
     });
   });
@@ -33236,23 +33241,32 @@ function caRechercher(db,an,m,j,g,k,pausesDe){
   var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null);
   var o=null; vue.postes.forEach(function(x){ if(x.P.k===k) o=x; });
   var P=o?o.P:caPosteDe(k), tenu=o?o.tenu:0, attendu=o?o.attendu:0;
+  /* À SES HEURES (le client, le 03/11/2026 : « toutes les recherches ont la
+     bonne logique ? ») : le poste compté demi-heure par demi-heure, comme le
+     Planning (trouAuxHeures) et les autres recherches (tenuAuxHeures) — le
+     12/01, la fermentation du matin disait « 1/1, LHS » alors que LHS part à
+     7 h. On montre qui est là au plus bas, et les heures du trou. */
+  var TH=(o && attendu)?tenuAuxHeures(db,o,o.gens,g,an,m,j,PF_DEB[g],PF_FIN[g],[]):null;
+  if(TH && TH.n<attendu && TH.n<tenu) tenu=TH.n; else TH=null;
   var t=caCandidats(par,vue,g,P,jour,pausesDe,null,true,caAutres(db,par,mmdd,null));
   var g2=caGroupes(t,true);
   var dispo=caTrouve(t);
   /* UN SEUL TITRE (le client, le 29/09/2026, « optimise tout ») : la pause,
      le poste, l'effectif — rouge s'il manque quelqu'un, vert sinon — et
      l'équipe. La date est déjà dans le champ au-dessus. */
-  var au=o?o.gens.filter(function(x){ return !x.depuisD; }):[];
+  var au=TH?TH.gens:(o?o.gens.filter(function(x){ return !x.depuisD; }):[]);
   var h='<span class="mql" data-z="'+esc(P.z||"")+'"><span class="mqh">'
     +'<span class="mqpz" data-s="'+esc(g)+'">'+esc(pvNom(g))+"</span>"
     +'<span class="mqpo">'+esc(P.t)+"</span>"
     +(HOR_PAUSE[g]?'<span class="mqhr">'+HOR_PAUSE[g]+"</span>":"")
     +(eqc[g]?'<span class="mqeq">Éq. '+esc(eqc[g])+"</span>":"")+"</span>"
     +((au.length||tenu<attendu)?cadreEnPoste(au.map(function(x){ return caChip(x.p.id,"",enFormation(x.p,jour)&&!compteAuPoste(x,P,jour)); }).join("")
+      +(TH?TH.relais.map(function(r){ return caChip(r.p.id,r.h,false); }).join(""):"")
       +new Array(Math.max(0,attendu-tenu)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenu,attendu):"")
+    +(TH&&TH.note?'<span class="caregle">'+esc(TH.note)+"</span>":"")
     +(g2.length?g2.join(""):'<span class="mqr"><span class="mqaucun">Personne de disponible</span></span>')
     +"</span>";
-  return {v:dispo?"ok":"non", html:h};
+  return {v:dispo?"ok":"non", html:h, tenu:tenu, attendu:attendu};
 }
 /* La date d'une journée du résultat ouvre le Planning : au doigt seulement
    jusqu'ici ; elle s'atteint au clavier, comme aux rappels (audit du
