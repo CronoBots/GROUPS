@@ -222,6 +222,7 @@ function constater(){
      l'ordre d'avant. Rien n'est retiré : seul le temps change. */
   const travaux=[]; for(const [ecran,theme] of passes) for(const role of (vite?["hierarchie"]:ROLES)) travaux.push({ecran,theme,role});
   const res=new Array(travaux.length);
+  const iRech=travaux.findIndex(x=>x.role==="hierarchie");
   async function faire(i){ const {ecran,theme,role}=travaux[i];
     const page=await ouvrir(nav,url,ecran,role,theme); const lignes=[], avant=[]; let n=0;
     if(i===0){ n++;
@@ -237,6 +238,18 @@ function constater(){
       if(f.length) lignes.push(nom+" : "+f.join(" ; "));
       if(cible.indexOf("ws:")===0||cible.indexOf("go:")===0) await aller(page,"tab-horaire");
     }
+    /* LES ONGLETS RÉPONDENT AU CLIC (le 03/11/2026 : ceux de la Recherche,
+       Absence et Remplaçant, ne répondaient plus depuis la v1304 — un
+       sélecteur des Effectifs à la même classe leur prenait leurs
+       écouteurs ; les captures, elles, restaient justes) */
+    if(i===iRech){ n++;
+      await aller(page,"go:recherche");
+      for(const k of ["absence","recherche","conge"]){
+        await page.click("#caOng-"+k).catch(()=>{});
+        await page.waitForTimeout(250);
+        const ok=await page.evaluate(k=>{ const b=document.getElementById("caOng-"+k); return !!b&&b.getAttribute("aria-selected")==="true"; },k);
+        if(!ok) lignes.push("Recherche : l'onglet « "+k+" » ne répond pas au clic");
+      } }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }

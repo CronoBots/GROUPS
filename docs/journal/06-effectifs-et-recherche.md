@@ -4461,3 +4461,20 @@ d'une personne en cause, ou à celui qu'elle tient ce jour-là (le
 moteur), le contremaître pour un adjoint ; sinon « Pas de trou à ce
 poste — la pause a une place libre ailleurs : … ». Mesuré : 16 « Crée un
 trou », 24 « place libre ailleurs », les 14 et 15/11 inchangés.
+
+### La Recherche ne répondait plus : Absence et Remplaçant (03/11/2026, `nfdm-v1327`)
+
+Le client : « je ne peux pas cliquer sur Absence et Remplaçant du module
+de recherche ». Reproduit au navigateur : le clic arrivait bien sur
+l'onglet, rien ne basculait, aucune erreur. Cherché version par version :
+déjà cassé en `nfdm-v1312`. La cause, et la faute est la mienne : en
+`nfdm-v1304` (le 02/11), le choix du souci des Effectifs (`#rhChoix`) a
+pris la classe `caseg` des onglets de la Recherche, et il les précède
+dans la page ; le code de la Recherche écoutait `querySelector(".caseg")`,
+le PREMIER de la page — c'est le choix des Effectifs qui recevait ses
+écouteurs. Corrigé : `#v-recherche .caseg`. Les captures au pixel, le
+parcours et les tests de la v1304 ne cliquaient pas ces onglets : rien ne
+pouvait le voir. Le parcours clique désormais les trois onglets
+(rôle hiérarchie) et crie si l'un ne bascule pas — épreuve : sur la
+version d'avant, 2 fautes, code 1 ; corrigée, 0. Aucun autre
+`querySelector` d'une classe portée deux fois dans la page.
