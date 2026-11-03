@@ -2211,3 +2211,36 @@ fait perdre le mois.
 Les deux anciennes branches `claude/…` sont identiques à `main` ou déjà
 contenues dedans ; le serveur refuse de les supprimer depuis une session
 (comme les étiquettes), elles se suppriment à la main sur GitHub.
+
+### Le robot relit les commentaires à chaque classeur (03/11/2026)
+
+Le client, le 03/11/2026, trois fois de suite : « Ce n'est pas la première
+fois que tu ne prends pas en compte les commentaires comme cela, il y a de
+plus en plus souvent des erreurs comme cela dans les horaires, agenda,
+planning, proposition, recherche. Je dois avoir quelque chose de sérieux
+pour présenter au RH, je ne peux pas me permettre de faire des erreurs. »
+
+**Pourquoi « de plus en plus ».** Chaque classeur apporte des commentaires
+nouveaux, et l'installation automatique (`horaire-auto.py` →
+`mettre-a-jour.py`) ne lançait que les neuf règles du calendrier. Celui du
+03/11 à 17 h 29 a apporté des chaînes de remplacement (le 13/11 et le
+14/11). `verifier-calendrier.js --manques-commentes` les signalait, mais
+personne ne le lançait : on les a découvertes sur une capture du client, à
+23 h 42.
+
+**Maintenant.** Après chaque installation, `relire_commentaires()` lance ce
+contrôle sur l'horaire installé. S'il reste une place vide qu'un commentaire
+du jour explique peut-être, et que personne n'a lue
+(`tools/manques-admis.txt`) :
+- le sujet du rapport par e-mail se termine par « — N commentaire(s) à
+  relire » ;
+- le rapport commence par la liste, en trigrammes seulement ;
+- le journal de l'Action n'en porte que le nombre.
+
+Un contrôle qui ne tourne pas est dit aussi : « contrôle des commentaires en
+échec ».
+
+**Éprouvé.** Sur l'horaire installé, 0 place à relire. Une copie de
+`manques-admis.txt` privée de la ligne du 14/11 donne 1 place, le 14/11 au
+matin en meunerie, avec ses commentaires. Le fichier a ensuite été remis à
+l'identique.

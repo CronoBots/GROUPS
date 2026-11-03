@@ -293,6 +293,32 @@ def _quand(maj):
         return str(maj)
 
 
+def relire_commentaires(horaire):
+    """LES COMMENTAIRES DU CLASSEUR NEUF RELUS À CHAQUE INSTALLATION (le
+    client, le 03/11/2026 : « ce n'est pas la première fois que tu ne prends
+    pas en compte les commentaires […] je dois avoir quelque chose de sérieux
+    pour présenter au RH »). Le classeur du 03/11 a apporté des chaînes de
+    remplacement (le 13/11, ADK → FLN absent → ALZ) que personne n'a relues :
+    l'installation ne lançait que les neuf règles du calendrier. Ici,
+    `verifier-calendrier.js --manques-commentes` : chaque place vide, d'aujourd'hui
+    au 31/12, dont un commentaire du jour nomme le titulaire absent, et que
+    personne n'a encore lue (tools/manques-admis.txt). Rend (nombre, texte) ;
+    le texte ne porte que des trigrammes, comme l'horaire publié."""
+    try:
+        r = subprocess.run(["node", os.path.join(OUTILS, "verifier-calendrier.js"), horaire,
+                            "--manques-commentes"], cwd=RACINE, capture_output=True, text=True,
+                           timeout=900)
+    except Exception as e:
+        return (-1, "Le contrôle des commentaires n'a pas pu tourner : %s" % e)
+    sortie = (r.stdout or "").strip()
+    if r.returncode == 0:
+        return (0, sortie.splitlines()[0] if sortie else "")
+    m = re.search(r", (\d+) dont un commentaire", sortie)
+    if r.returncode != 1 or not m:
+        return (-1, "Le contrôle des commentaires a échoué :\n" + (sortie + "\n" + (r.stderr or ""))[-4000:])
+    return (int(m.group(1)), sortie[-8000:])
+
+
 def traiter_horaire(source):
     """Rend (code, sujet, corps, installé?, quand, année)."""
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source],
@@ -359,9 +385,19 @@ def traiter_horaire(source):
                 " sont en place. À transmettre à Claude tel quel.\n\n" + sortie[-12000:],
                 False, quand, annee)
     etat("Horaire du %s installé." % quand)
-    return (0, "BIOWANZE · horaire du %s installé" % quand,
-            "L'application est à jour (classeur du %s).\n\n%sCe qui change :\n\n%s"
-            % (quand, annonce, rapport), True, quand, annee)
+    n, texte = relire_commentaires(installe)
+    alerte, suffixe = "", ""
+    if n:
+        etat("Horaire : %s." % ("%d place(s) commentée(s) à relire" % n if n > 0
+                                 else "contrôle des commentaires en échec"))
+        suffixe = (" — %d commentaire(s) à relire" % n) if n > 0 else " — contrôle des commentaires en échec"
+        alerte = ("À RELIRE AVANT DE SE FIER AU PLANNING : des places vides que les"
+                  " commentaires du jour expliquent peut-être. À transmettre à Claude"
+                  " tel quel ; une fois lues, elles vont dans tools/manques-admis.txt,"
+                  " ou la lecture se corrige.\n\n%s\n\n" % texte)
+    return (0, "BIOWANZE · horaire du %s installé%s" % (quand, suffixe),
+            "L'application est à jour (classeur du %s).\n\n%s%sCe qui change :\n\n%s"
+            % (quand, alerte, annonce, rapport), True, quand, annee)
 
 
 def traiter_recyclage(source):
