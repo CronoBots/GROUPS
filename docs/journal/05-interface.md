@@ -10749,3 +10749,14 @@ en entier (1 280 et 390 px), les défauts relevés bloc par bloc :
 - **le badge répétait l'en-tête** (« 10 h 20 | Matin » sous « 10 h 20 ·
   Matin ») : il garde « En direct » et l'heure.
 Le téléphone, relu à 390 px : correct, inchangé.
+
+### L'usine en direct : les étiquettes en capsule (03/11/2026, `nfdm-v1324`)
+
+Le client : « je n'aime pas les styles des bulles des trigrammes ». Les
+pastilles pastel juxtaposées (une par trigramme, encre foncée) deviennent
+une capsule par poste, sombre et dépolie, la couleur du poste en liseré à
+gauche, les trigrammes en blanc séparés d'un filet — le langage de la
+bande d'état et du badge. En plus (formation, journée) : gris clair ;
+place libre : « ? » ambre ; vous : souligné à la couleur du poste ;
+liseré ambre quand il y manque quelqu'un ; le poste choisi cerné de
+blanc. Téléphone : la même capsule, un peu plus basse, dans ses bandes.
