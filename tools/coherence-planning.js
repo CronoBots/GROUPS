@@ -51,7 +51,7 @@ const TABLEAU=`    try{ var __ck={d:annee*10000+Number(mmdd), e:window.__ckE, p:
         __ck.p[k]={postes:v.postes.map(function(o){
           var c=null;
           if(o.manque && !o.P.cm && o.P.k!=="adj"){ try{ c=candidatsPlace(v,o.P,k,jourCalc,o,o.attendu,par).l; }catch(e){ c="ERR "+e; } }
-          return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque, pr:!!o.propose, pp:!!o.proposePartiel, tc:!!o.trouCourt, cand:c,
+          return {k:o.P.k, cm:!!o.P.cm, att:o.attendu, tenu:o.tenu, mq:!!o.manque, th:!!o.trouHeures, pr:!!o.propose, pp:!!o.proposePartiel, tc:!!o.trouCourt, cand:c,
             g:o.gens.map(function(x){ return {id:x.p.id, pa:!!x.partage, dD:!!x.deD, pro:x.propose||null, ph:!!x.proposeH, cpt:!!compteAuPoste(x,o.P,jourCalc)}; }),
             rel:(o.relais||[]).map(function(r){ return r.p.id; }) }; }),
           inc:(v.inconnus||[]).map(function(x){ return x.p.id; }), form:(v.formation||[]).map(function(x){ return x.p.id; }) }; });
@@ -125,7 +125,8 @@ const NJ=Math.round((FIN-DEBUT)/864e5)+1;
       v.postes.forEach(o=>{
         if(o.cm||o.k==="adj") return;
         const mq=!!(o.att && o.tenu<o.att);
-        if(mq!==o.mq && !(o.tc && o.mq)) faute("R3 manque et compte en désaccord",d,k+" "+o.k+" "+o.tenu+"/"+o.att);
+        /* le trou à une heure (trouAuxHeures, le 03/11/2026) : rouge, le compte de la pause plein */
+        if(mq!==o.mq && !((o.tc||o.th) && o.mq)) faute("R3 manque et compte en désaccord",d,k+" "+o.k+" "+o.tenu+"/"+o.att);
         /* une copie d'une autre pause compte quand elle est proposée à ses heures */
         const vers=[]; v.postes.forEach(q=>q.g.forEach(x=>{ if(x.pro===o.k && (!x.pa || x.ph)) vers.push(x.id+" ("+q.k+")"); }));
         if(o.pr && !vers.length) faute("R4 orange sans personne proposée",d,k+" "+o.k);

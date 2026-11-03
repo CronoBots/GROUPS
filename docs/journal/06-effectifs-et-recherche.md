@@ -4584,3 +4584,37 @@ tous passés, sont « complets » à la pause et vides à une heure — quelqu'u
 est parti tôt ou arrivé tard sans remplaçant écrit (LHS le 12/01, « 7h
 RTT, départ à 07h00' », fermentation vide de 7 h à 14 h). Aucun à venir.
 Le Planning ne les marque pas ; voir `docs/questions-client.md`.
+
+### Le trou à une heure en rouge au Planning (03/11/2026, `nfdm-v1336`)
+
+La question laissée par la vérification (« Tous les cas », plus haut) :
+92 postes du Planning réel « complets » à la pause, vides pourtant une
+partie. Le client, en QCM : « oui, en rouge » — avec les heures du trou.
+
+`trouAuxHeures`, au bout de `postesDePause` : un poste au complet sur la
+pause est compté demi-heure par demi-heure, chacun à ses heures
+(`heuresAuPoste`) et les relais aux leurs (`relaisAuxHeures`) — la même
+lecture que la recherche. Une plage sous l'effectif met le poste en
+manque (`o.manque`, `o.trouHeures`) ; le compte de la pause (`tenu`) et
+les places creuses ne changent pas. Rien n'est lu si chacun tient toute
+la pause ; un garde-fou empêche une lecture d'heures de revenir dans le
+moteur. Comme tout le monde lit `postesDePause`, le Planning, les
+Effectifs, « À prévenir », l'usine en direct et la recherche voient le
+même trou.
+
+Au Planning, la case passe au rouge et son « ? » dit les heures du trou :
+le 12/01, Fermentation du matin, « LHS 06-07 · CHD 06-14 (en formation) ·
+? 07-14 », la bulle « Fermentation · AM · de 7 h à 14 h » (sans le « 1/1 »
+du compte de la pause).
+
+Mesures : `verifier-calendrier.js` identique à l'octet (neuf règles,
+polyvalence, compteurs, manques commentés) sauf `--manques 0926`, qui
+gagne 9 postes, tous passés (du 26/09 au 31/10), et aucune place creuse ;
+la liste « les vingt premières journées » est coupée, ce qui avait d'abord
+fait croire à cinq manques de contremaître disparus. `coherence-planning.js`
+0 faute (R3 admet le rouge à compte plein quand le trou est à une heure,
+comme le trou d'une heure de la v1312) ; `verifier-recherche.js` : la
+famille P (le Planning réel « complet » vide à une heure) tombe de 92 à 0
+et devient une faute ; parcours 112 essais, 0 faute.
+Épreuve : `trouAuxHeures` neutralisé sur une copie, la famille P retrouve
+ses 92 fautes.

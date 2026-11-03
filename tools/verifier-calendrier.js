@@ -164,6 +164,12 @@ const MORCEAUX=[
   ["function pfFin(","\n"],
   ["var ALIAS_TRI_AFFICHAGE=","\n"],
   ["function relaisDouze(","\n}"],
+  /* le trou à une heure (03/11/2026) : chacun à ses heures, les relais à leurs heures */
+  ["function relaisEcritsDuJour(","\n}"],
+  ["function relaisAuxHeures(","\n}"],
+  ["function heuresAuPoste(","\n}"],
+  ["var _trouHeuresEnCours=",";"],
+  ["function trouAuxHeures(","\n}"],
   ["function corrigerAutoRemplacements(","\n}"],
   ["function posteEcrit(","\n}"],
   ["var FORMATION_DEBUT=","\n"],
