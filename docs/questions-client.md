@@ -127,24 +127,19 @@ des questions au client ».
 
 - **Le placement, après le check logique du 03/11/2026** (journal 08,
   « Le check logique du 03/11/2026 »). Quatre règles que ni le classeur ni
-  les décisions écrites ne tranchent, posées une à une :
-  1. Quelqu'un que sa cellule place à un poste réellement en surnombre
-     (SPS la nuit du 09/01, « distill. remplace SMA », distillation 2/1 ;
-     SLT la nuit du 18/10, « meunerie », meunerie 2/1) peut-il être
-     proposé en orange pour le trou d'à côté (chaudières 1/2, gluten
-     1/2) ? Aujourd'hui non : la cellule prime, et un placé par sa cellule
-     n'est libéré que si un mono-polyvalent tient déjà son poste (le
-     02/10). Deux pauses sur 730.
-  2. La consignation de la meunerie (BLR ou YRS en D, 7 h 30-16 h) :
+  les décisions écrites ne tranchent, posées une à une (la première,
+  le placé par sa cellule en surnombre, tranchée le 03/11/2026 : oui,
+  le proposer — `docs/conversion-horaire.md`, « Rééquilibrer une pause ») :
+  1. La consignation de la meunerie (BLR ou YRS en D, 7 h 30-16 h) :
      peut-elle être proposée pour combler le gluten du matin (les 22/01,
      22/07 et 23/07) ? Le moteur le fait (la règle du 02/10), alors que la
      consignation compte à la meunerie du matin (le 28/09) et qu'aucune
      autre fonction ne déplace une copie venue du D.
-  3. Une seule personne en surnombre, plusieurs trous la même pause : à
+  2. Une seule personne en surnombre, plusieurs trous la même pause : à
      quel trou la proposer d'abord ? Aujourd'hui, l'ordre fixe des postes
      (meunerie, gluten, fermentation…), ex. SBZ en meunerie plutôt qu'en
      fermentation la nuit du 17/03.
-  4. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
+  3. Proposer quelqu'un pour QUELQUES HEURES d'un trou de pause entière,
      quand un relais le libère (CDE libre de 18 h à 22 h et SMA de 14 h à
      18 h, le 11/07 PM, couvriraient le terrain arrière) ? La décision du
      02/11 ne couvre que le cas inverse (un trou d'une heure).

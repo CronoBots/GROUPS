@@ -27292,6 +27292,28 @@ function reequilibrer(parPoste,mmdd,inconnus,gk,ren,jour,credit){
           if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
         }
       }
+      /* RÈGLE C — LE PLACÉ PAR SA CELLULE, EN VRAI SURNOMBRE (le client, le
+         03/11/2026, en QCM : « oui, le proposer »). Après tout le reste, qui
+         sa cellule fixe à un poste qui reste tenu sans lui vient combler P :
+         SPS la nuit du 09/01, « distill. remplace SMA », la distillation à
+         2/1 et les chaudières à 1/2 ; SLT la nuit du 18/10, la meunerie à
+         2/1 et le gluten à 1/2. Le Planning le laisse à sa place écrite,
+         en pointillé vers le trou, et le changement s'annonce : depuis le
+         20/10, une proposition ne déplace personne. La consignation venue
+         du D (depuisD) n'en est pas : question ouverte au client. */
+      if(!pris){
+        for(j=0;j<SRC.length && !pris;j++){
+          Q=SRC[j];
+          if(Q.k===P.k || Q.cm || !att(Q)) continue;
+          liste=parPoste[Q.k]||[];
+          if(effectif(liste,Q,jour)<=att(Q)) continue;
+          cand=liste.filter(function(x){
+            return x.fixe && !x.depuisD && peutTenir(x.p,P,jour) && compteAuPoste(x,P,jour)
+                   && effectif(liste.filter(function(y){ return y!==x; }),Q,jour)>=att(Q);
+          }).sort(aDeplacer);
+          if(cand.length){ pris=cand[0]; liste.splice(liste.indexOf(pris),1); }
+        }
+      }
       if(!pris) break;
       pris.comble=P.k;
       (parPoste[P.k]=parPoste[P.k]||[]).push(pris);
@@ -29815,10 +29837,17 @@ function calculerPolyvalence(db){
           if(y.depuisD) return;
           var r=y.r; if(!r||!r.s) return;
           var h=(r.h===undefined||r.h===null||r.h==="")?st.params.hJour:Number(r.h);
-          noterLieu(y,o.P.cm?"cm":o.P.k,h);
-          if(o.P.cm||o.P.k==="adj") return;
+          /* PROPOSÉ AILLEURS, IL EST RESTÉ À SA PLACE (check du 03/11/2026) :
+             depuis le 20/10, une proposition ne déplace personne ; sa
+             journée se compte au poste où sa cellule le place (x.avant), et
+             non au trou que le rééquilibrage lui fait combler. SLT la nuit
+             du 18/10, « meunerie », proposé au gluten : la meunerie. */
+          var P=o.P;
+          if(y.comble && y.avant && y.avant!==o.P.k) POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===y.avant) P=Q; });
+          noterLieu(y,P.cm?"cm":P.k,h);
+          if(P.cm||P.k==="adj") return;
           if(Math.abs(h-st.params.hJour)>0.01) return;
-          if(o.P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
+          if(P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           /* UN RECYCLAGE SE CONFIRME DANS LE CLASSEUR (le client, le
              22/10/2026 : « attribuer des recyclages sans confirmation qu'il
              tenait bien le poste est donc faux »). Une journée que
@@ -29826,13 +29855,13 @@ function calculerPolyvalence(db){
              une déduction (deduit) — n'en est pas un : rien n'écrit qu'il
              l'a tenu. Comptent le poste écrit, « remplace X », « remplacé
              par » le nommant, un jour tranché par le client. */
-          if(y.comble||y.deduit) return;
+          if((y.comble && P===o.P)||y.deduit) return;
           if(!parId[y.p.id]) parId[y.p.id]={};
-          parId[y.p.id][o.P.k]=(parId[y.p.id][o.P.k]||0)+1;
+          parId[y.p.id][P.k]=(parId[y.p.id][P.k]||0)+1;
           /* On garde AUSSI les dates (jours planifiés comptés), pour le tableau
              « dates app / dates RH » au clic d'un opérateur. */
           if(!parIdDates[y.p.id]) parIdDates[y.p.id]={};
-          (parIdDates[y.p.id][o.P.k]=parIdDates[y.p.id][o.P.k]||[]).push(mmdd);
+          (parIdDates[y.p.id][P.k]=parIdDates[y.p.id][P.k]||[]).push(mmdd);
           /* le classeur dit qu'il tient ce poste : « remplace X » dans sa
              case, ou « remplacé par » le nommant dans celle de l'absent (le client, le 22/10/2026 : « s'il est précisé qu'il
              remplace quelqu'un à un poste, il faut le compter, oui ») */
@@ -29840,9 +29869,9 @@ function calculerPolyvalence(db){
           /* … ou le poste écrit à côté de l'horaire (le client, le
              22/10/2026 : « ce n'est pas toujours “remplace X”, des fois il
              est directement précisé le poste à côté de l'horaire ») */
-          if(y.nomme||remplacesActifs(eR&&eR[2]).length||posteEcrit(eR)===o.P.k){
+          if(y.nomme||remplacesActifs(eR&&eR[2]).length||posteEcrit(eR)===P.k){
             if(!parIdRempl[y.p.id]) parIdRempl[y.p.id]={};
-            (parIdRempl[y.p.id][o.P.k]=parIdRempl[y.p.id][o.P.k]||[]).push(mmdd);
+            (parIdRempl[y.p.id][P.k]=parIdRempl[y.p.id][P.k]||[]).push(mmdd);
           }
         });
       });

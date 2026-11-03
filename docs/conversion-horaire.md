@@ -1420,6 +1420,16 @@ poste où il manque quelqu'un, car il a toutes les polyvalences. »
    DÉDUIT — ligne 9, polyvalence, commentaire. Une personne que sa propre
    cellule envoie à un poste y reste, quel qu'en soit l'effet sur les
    effectifs : le classeur dit ce qui a été fait.
+   **Depuis le 20/10/2026, une proposition ne déplace personne** (le
+   Planning la montre en pointillé, la personne reste à sa place écrite) ;
+   le client, le 03/11/2026, en QCM : celui que sa cellule place à un
+   poste qui reste tenu sans lui PEUT être proposé pour un trou de la même
+   pause, en dernier recours (règle C de `reequilibrer()`, `nfdm-v1314`) —
+   SPS la nuit du 09/01 (« distill. remplace SMA », distillation 2/1,
+   chaudières 1/2), SLT la nuit du 18/10 (« meunerie », meunerie 2/1,
+   gluten 1/2). Sa journée se compte toujours, pour la polyvalence, au
+   poste de sa cellule. La consignation venue du D n'en est pas
+   (question ouverte).
 2. **La polyvalence commande.** Le terrain arrière demande fermentation ET
    distillation, les autres postes demandent leur atelier.
 3. **L'adjoint vient en dernier.** Tant qu'un poste en surnombre peut fournir

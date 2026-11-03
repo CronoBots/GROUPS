@@ -3231,3 +3231,24 @@ heures sur un trou de pause entière.
 passage et ont été corrigées avant de conclure : un présent « absent du
 tableau » (FPA la nuit du 19/09) était un relais de 0 h à 6 h, et « pause
 sans contremaître » comptait 72 pauses en oubliant les relais (44).
+
+### La première réponse : le placé par sa cellule, proposé (`nfdm-v1314`)
+
+Le client, le 03/11/2026, en QCM : « oui, le proposer ». Règle C de
+`reequilibrer()`, après la règle B : qui sa cellule fixe à un poste qui
+reste tenu sans lui vient combler le trou, en proposition. Mesuré :
+`--manques 0101` 199 → 197 places (09/01 N chaudières, 18/10 N gluten),
+`--manques 0926` 22 → 21, `--placement --tout` ne change que ces deux
+pauses ; « trou rouge, quelqu'un en surnombre » de
+`coherence-planning.js` 2 → 0, aucune faute ; agendas identiques.
+
+**Une faute trouvée en chemin, plus ancienne.** La règle C faisait perdre
+à SLT un jour de polyvalence meunerie (6 → 5) : `calculerPolyvalence()`
+écartait toute journée « comble » — à juste titre au poste que le
+rééquilibrage lui fait combler (le 22/10), mais il ne la comptait plus
+NULLE PART, alors que depuis le 20/10 la personne reste à sa place écrite.
+GPO les 19 et 20/08 (« Ferm. Liq., remplace GST »), FPS les 11/03, 21/05
+et 09/06 (« meunerie ») n'étaient comptés à aucun poste. La journée se
+compte désormais au poste d'avant (`x.avant`) : `--polyvalence --tout`
+change pour onze opérateurs et un adjoint (19 → 21 couples au quota), dont FPS meunerie 7 → 10 ✓ et GPO
+fermentation 8 → 10 ✓ ; rien d'autre ne bouge.
