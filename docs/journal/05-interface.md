@@ -10648,3 +10648,29 @@ photo (`cote`, au-delà de 1 200 px de cadre).
   pause. Au téléphone, compact (le point et l'heure), en haut à droite :
   à gauche, il couvrait les traits des bandes.
 - Mouvement réduit demandé par l'appareil : plus aucune pulsation.
+
+### Le thème clair retiré, code compris (03/11/2026, `nfdm-v1320`)
+
+Le client : « supprimer le thème clair, nous allons adapter celui-ci plus
+tard », puis « nettoie ce thème complètement ». Retirés : le script de
+tête qui posait le thème avant le premier rendu (et la barre d'état de
+l'iPhone qui le suivait), `appliquerTheme()`, `themeChoisi()` et
+l'écoute du réglage du téléphone, le choix « Apparence » des Réglages
+(ses trois boutons) et sa règle, les logos positifs `logo-clair.svg` et
+`logo-app-clair.png` (et leur place dans le cache du service worker), et
+tout le CSS du clair : 32 règles, 38 sélecteurs, un bloc `@media` et neuf
+commentaires, relevés par un outil qui lit les feuilles règle par règle
+(le reste du fichier inchangé au caractère près), puis vingt et un
+commentaires reformulés (« dans les deux thèmes », « en clair »). Le
+parcours perd ses passes en clair.
+
+**Le sombre, identique au pixel** : neuf écrans (Accueil, Planning,
+Équipes, Effectifs, Horaire production, Infos et aide, Salaire,
+Recherche, Direction), au téléphone et au PC, pleine page, heure figée et
+animations coupées — 18 captures avant et après, identiques ; deux relevés
+de la référence l'étaient aussi entre eux (la mesure est stable). Seuls
+les Réglages changent : le choix « Apparence » n'y est plus.
+
+Reste, voulu : les jetons (`--tx-blanc-NN`, `--bd-blanc-NN`…), le
+`:root` de base que le bloc sombre surcharge et `<html data-theme="dark">`
+— un thème clair à refaire n'aura qu'à redéfinir les jetons.

@@ -106,7 +106,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | Touché | À relancer, et le résultat exigé |
 |---|---|
 | tout | `python3 tools/verifier-depot.py` → 0 ; fichier neuf : `git add -N` d'abord, sinon il est invisible |
-| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC —, le clair sur quatre d'entre eux, le contraste de chaque texte, les accolades et les règles CSS retenues, puis hors ligne ; 3 min, trois à la fois ; `--vite` pour le seul portrait) |
+| `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC —, le contraste de chaque texte, les accolades et les règles CSS retenues, puis hors ligne ; 2 min, trois à la fois ; `--vite` pour le seul portrait) |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | placement, Planning, « À prévenir » | `node tools/coherence-planning.js` → 0 : chaque jour des horaires, la page même au navigateur — placé deux fois, case et compte, orange et proposé, « À prévenir » = Planning ; 3 min |
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
@@ -325,13 +325,11 @@ deviner à sa place sur ces points : ils touchent à des montants.
   EXEMPLE** : des marqueurs — « Nom, Prénom », « NOM, PRÉNOM », « Renard P »
   donne PRD — illustrent la FORME sans nommer personne. Garde-fou :
   `tools/verifier-depot.py` (journal 01, « Le dépôt se contrôle lui-même »).
-- **Deux thèmes** (29/10/2026) : le sombre par défaut, le clair au choix
-  (Réglages), clair jusqu'au bord — menu, héros, barre d'état. Toute
-  couleur passe par les jetons, un blanc de marque aussi (`--tx-blanc-NN`,
-  `--bd-blanc-NN`… : en sombre l'écriture d'avant, en clair l'encre) ; une
-  teinte en blanc translucide disparaît en clair : elle a son double à
-  l'encre ; le sombre se prouve identique au pixel ; le clair se mesure
-  (`parcours.js` : contraste compris).
+- **Un seul thème, le sombre.** Le clair (29/10/2026) est retiré le
+  03/11/2026, code compris (le client : « supprimer le thème clair, nous
+  allons adapter celui-ci plus tard » ; journal 05). Toute couleur passe
+  encore par les jetons : un thème clair à refaire n'aura qu'à les
+  redéfinir ; le sombre se prouvera alors identique au pixel.
 
 ## Après avoir modifié `index.html`
 

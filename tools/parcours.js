@@ -18,9 +18,8 @@
    zones protégées simulées, téléphone couché, PC. Puis il coupe le réseau
    et recharge : la page doit tenir hors ligne.
 
-   LES DEUX THÈMES (le client, le 29/10/2026, la version claire) : tout le
-   parcours en sombre, le thème par défaut, puis le clair sur le téléphone
-   portrait, l'iPhone simulé, le téléphone couché et le PC.
+   UN SEUL THÈME, le sombre : le clair, ajouté le 29/10/2026, est retiré
+   le 03/11/2026 (le client : « nous allons adapter celui-ci plus tard »).
 
    Faute (code 1) : une requête du téléphone couché qui diverge des
    autres, une accolade CSS orpheline (deux contrôles sans navigateur,
@@ -132,7 +131,6 @@ async function ouvrir(nav,url,ecran,role,theme){
   theme=theme||"dark";
   const ctx=await nav.newContext({viewport:{width:ecran.w,height:ecran.h},isMobile:ecran.mobile,hasTouch:ecran.mobile,colorScheme:theme});
   await ctx.addInitScript(([role,theme])=>{ try{ if(localStorage.getItem("__p")) return; localStorage.setItem("__p","1");
-    localStorage.setItem("ui/theme",JSON.stringify(theme));
     localStorage.setItem("ui/prefillId",JSON.stringify("VBN"));
     if(role){ localStorage.setItem("account/current",JSON.stringify({role:"employe",tri:"VBN",cat:"",email:"x@exemple.be",base:role,at:"x"}));
       localStorage.setItem("base/session",JSON.stringify({access:"a",refresh:"r",exp:Date.now()+9e12,email:"x@exemple.be"})); } }catch(e){} },[role,theme]);
@@ -211,11 +209,11 @@ function constater(){
   const srv=await servir(), url="http://127.0.0.1:"+srv.address().port+"/";
   const nav=await chromium.launch();
   const ecrans=vite?ECRANS.filter(e=>e.nom==="téléphone 390"):ECRANS;
-  /* le sombre partout ; le clair sur quatre écrans (--vite : le portrait) */
-  const CLAIR=["téléphone 390","iPhone 390 (zones protégées)","couché 844","PC 1280"];
+  /* un seul thème, le sombre : le clair est retiré le 03/11/2026 (le
+     client : « supprimer le thème clair, nous allons adapter celui-ci plus
+     tard ») */
   const passes=[];
   ecrans.forEach(e=>passes.push([e,"dark"]));
-  ecrans.filter(e=>CLAIR.indexOf(e.nom)>=0).forEach(e=>passes.push([e,"light"]));
   let fautes=div.length+acc.length, essais=1;
   /* EN PARALLÈLE (le client, le 03/11/2026 : « pourquoi ce parcours
      complet ? », après six minutes d'attente à chaque envoi) : les mêmes
@@ -241,7 +239,7 @@ function constater(){
     }
     lignes.push(...page.fautes);
     await page.ctx.close();
-    res[i]={avant:avant, tag:ecran.nom+(theme==="light"?" · clair":"")+" · "+(role||"sans compte"), lignes:lignes, n:n}; }
+    res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }
   const PAR=vite?1:Math.max(1,Math.min(3,require("os").cpus().length-1)); let suivant=0;
   await Promise.all(Array.from({length:PAR},async()=>{ while(suivant<travaux.length){ const i=suivant++; await faire(i); } }));
   res.forEach(r=>{ essais+=r.n; r.avant.forEach(a=>{ if(a.faute) fautes++; console.log(a.txt); });
