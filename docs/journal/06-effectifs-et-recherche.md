@@ -4684,3 +4684,26 @@ Mesure, au 03/11/2026 : 61 rappels passés sur 37 journées — exactement les
 une coupe de code mal placée (une chaîne cherchée trouvée au milieu d'une
 ligne plus indentée) laissait un morceau de l'ancienne boucle ; la page ne
 s'ouvrait plus, `node --check` l'a dit.
+
+**Revue de code du 03/11/2026 (`nfdm-v1343`), skill code-review.** Cinq
+défauts de cette version, corrigés :
+
+- une journée qui levait une erreur arrêtait tout le calcul, et la section
+  restait vide sans un mot. Elle est maintenant sautée et dite une fois dans
+  la console ;
+- un résultat calculé pour un rendu dépassé pouvait écrire dans la place
+  d'un rendu plus récent. Il ne s'écrit plus que dans la place posée par
+  son propre rendu ;
+- la limite de 800 journées aurait coupé, avec trois années installées,
+  les derniers jours (ceux montrés en premier). Une borne a maintenant sa
+  propre limite ;
+- le passage à l'année suivante était écrit deux fois. La copie est
+  retirée ;
+- le commentaire disait encore « ne regarde pas en arrière ». Il est
+  corrigé.
+
+Deux améliorations en plus : les passés sont gardés pour la journée et les
+classeurs du moment, comme les incohérences passées, et ne se refont plus
+à chaque rendu ; l'intertitre de mois prend sa classe en paramètre au lieu
+d'un remplacement dans son texte. Mesure : la même section, 61 rappels sur
+37 journées et 9 mois, avant et après.

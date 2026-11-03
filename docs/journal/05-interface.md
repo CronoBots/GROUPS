@@ -11038,3 +11038,71 @@ six onglets au téléphone, écran de connexion et de chargement. Au clic :
 Effectifs · Recherche · Réglages · Infos · Paie · Mes demandes (l'espace de
 gestion) s'ouvrent depuis leur icône, Effectifs depuis le dossier (qui se
 referme) ; aucune erreur de page. `parcours.js` : 112 essais, 0 faute.
+
+### L'écran d'iPhone repris avec les skills : audit, finition, revue de code (03/11/2026, `nfdm-v1343`)
+
+Le client : « utilise les skills disponibles pour améliorer ce changement à
+fond ». Passés : impeccable (audit, puis finition), ui-ux-pro-max (règles
+d'une app iOS : cibles de 44 px, zones protégées, pastilles, contraste en
+sombre) et code-review (deux fois : la première a relu par erreur la
+v1338, ses constats sont au journal 06). Un script a mesuré cinq écrans
+(320 × 568, 390 × 844, téléphone couché, tablette 768, PC 1280) avec les
+zones protégées de l'iPhone simulées.
+
+**Défauts trouvés et corrigés.**
+
+- **Le badge « horaire modifié » plantait (v1339)**. `majBadgeNotif`
+  l'insérait dans le héros, avant la roue ; or la roue vit désormais dans
+  le widget du profil. L'erreur emportait aussi le cadre « Horaire modifié ».
+  Reproduit avec un changement en attente : avant, ni badge ni cadre ;
+  après, les deux s'affichent.
+- **L'impression sortait en bleu nuit.** Les jetons redéfinis en fin de
+  feuille (`--paper`, `--cadre`, `--ombre-cadre`…) battaient ceux de
+  `@media print`. Ils sont désormais posés à leur définition, en tête. La
+  fiche imprimée retrouve une page blanche, des traits `#bbb` et aucune
+  ombre (mesuré avec l'impression émulée). Les restes de l'ancien bleu
+  (`#111727`, `rgba(17,23,39,…)`) passent au `#141C2F` du logo : voile du
+  haut, guide d'installation, roue.
+- **Au PC, les sections revenaient en double** : dans le menu de gauche et
+  dans la grille de l'accueil. La grille ne porte plus que ce que la barre
+  ne montre pas. Au téléphone, c'est ce que le dock n'a pas. À la tablette,
+  c'est ce que les onglets n'ont pas. Au PC, il ne reste que les accès ; le
+  passage d'une taille à l'autre récrit la grille.
+- **Le focus clavier tombait sur la page** quand une pastille changeait :
+  la grille se récrivait à l'identique. Elle ne se récrit plus que si elle
+  change, et seulement quand l'Accueil est à l'écran ; le focus reste sur
+  son icône.
+- **Le rythme des écarts** : 13, 14 et 18 px entre les widgets contre 16
+  entre les cadres. Tout est maintenant à 16 px (`--ip-ecart`).
+- **Deux matières de widget**, un liseré blanc translucide et `--cadre`.
+  Il n'en reste qu'une (`--ip-lisere: var(--cadre)`, `--ip-ombre`).
+- **Le dossier couvrait le rail**, au téléphone couché, sur 155 px de
+  haut. Il s'ouvre à côté du rail, sur toute la hauteur.
+- **Les noms disparaissaient dans un dossier plus haut que l'écran** (320 ×
+  568, téléphone couché) : la grille écrasait ses rangées à 45 px. Les
+  rangées prennent maintenant la hauteur de leur contenu
+  (`grid-auto-rows:max-content`), et le dossier défile.
+- **La liste « Plus » de la tablette** était translucide sans flou : on
+  lisait l'heure du héros derrière ses lignes. Elle est maintenant opaque
+  et floutée, avec les mêmes petites icônes de couleur que les onglets.
+- **Sans météo** (hors ligne), l'heure se centre dans son widget au lieu
+  de flotter en haut d'un rectangle vide.
+- **Les en-têtes des widgets de l'Accueil** portent la petite icône de
+  l'app dont ils parlent, comme sur l'iPhone : À faire → À valider ·
+  Mon année → congés · Sur site → Équipes · L'usine en direct → Accueil ·
+  Calendrier → Planning · Mon rythme → Horaire.
+- **Le code** : un seul gabarit d'icône d'app (`ipTuileHTML`), au lieu de
+  deux qui avaient déjà divergé. Les règles d'avant de la grille des accès
+  (44 lignes que les nouvelles battaient toutes), `COURT.plan` et
+  `data-long` sont retirés. Les pastilles passent par des jetons
+  (`--ip-pastille*`). Les erreurs de la grille sont dites dans la console.
+- **Erreur commise en route** : pour mettre l'accueil sur deux colonnes au
+  téléphone couché, j'avais écrit une requête média nouvelle. `parcours.js`
+  la refuse : seules les formes de requête du téléphone déjà admises sont
+  permises, et c'est voulu. Au téléphone couché, l'accueil reste donc d'une
+  colonne ; seule la grille d'icônes y suit la largeur.
+
+**Mesures.** Aucun débordement ; toutes les icônes ont un nom ; l'anneau
+de focus fait 2 px ; aucune cible sous 44 px. La roue fait 40 px, mais sa
+zone de toucher est étendue à 46 px. `parcours.js` : 112 essais, 0 faute ;
+`verifier-depot.py` : 0.
